@@ -1,0 +1,169 @@
+/*
+ * I comandi dello schermo per la classe, nel pannello del docente.
+ *
+ * Una fascia in cima al contenuto, e attaccata lì mentre si scorre: dice che
+ * cosa sta guardando la classe in questo momento. È l'unica cosa della
+ * proiezione che da qui non si vede — il proiettore è alle spalle — e va
+ * trovata senza cercarla.
+ */
+
+.barra-proiezione {
+  position: sticky;
+  top: calc(var(--spazio-5) * -1);
+  z-index: 5;
+  margin: calc(var(--spazio-5) * -1) calc(var(--spazio-5) * -1) var(--spazio-4);
+  padding: var(--spazio-2) var(--spazio-5);
+  background: color-mix(in srgb, var(--accento) 12%, var(--sfondo));
+  border-bottom: 1px solid color-mix(in srgb, var(--accento) 40%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/* In pausa la fascia si spegne come lo schermo: è il segno che si sta scrivendo
+   al riparo, e va distinto a colpo d'occhio dalla proiezione accesa. */
+.barra-proiezione--sospesa {
+  background: var(--sfondo-alto-2);
+  border-bottom-color: var(--bordo);
+}
+
+.barra-proiezione__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+.barra-proiezione__marchio {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  white-space: nowrap;
+}
+
+.barra-proiezione__marchio .icona {
+  color: var(--accento);
+}
+
+.barra-proiezione--sospesa .barra-proiezione__marchio .icona {
+  color: var(--testo-quieto);
+}
+
+.barra-proiezione__blocchi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.barra-proiezione__coda {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: center;
+}
+
+.barra-proiezione__avviso {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-size: 0.92em;
+  color: var(--attenzione);
+}
+
+.barra-proiezione__avviso .icona {
+  color: var(--attenzione);
+  flex: none;
+}
+
+/* -------------------------------------------------------- gli interruttori */
+
+.blocco-proiettato {
+  font: inherit;
+  color: var(--testo-quieto);
+  background: transparent;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 999px;
+  padding: 2px var(--spazio-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.blocco-proiettato:hover {
+  border-color: var(--bordo);
+  color: var(--testo);
+}
+
+/*
+ * Tre stati e non due. «Accesa» vuol dire che la scheda esiste — è fra quelle
+ * fra cui si passa — «in vista» che è quella che la classe sta guardando
+ * adesso. È la seconda che conta: è l'unica cosa che da qui non si vede
+ * girando la testa verso il proiettore.
+ */
+.blocco-proiettato--acceso {
+  border-color: var(--accento);
+  color: var(--accento);
+  font-weight: 600;
+}
+
+.blocco-proiettato--in-vista {
+  background: var(--accento);
+  color: var(--vscode-button-foreground, #fff);
+}
+
+/*
+ * I blocchi che parlano dei singoli allievi restano riconoscibili anche da
+ * spenti: sono quelli su cui vale la pena guardare due volte prima di premere,
+ * e quelli da controllare quando si consegna lo schermo a una classe nuova.
+ */
+.blocco-proiettato--riservato {
+  border-style: dashed;
+}
+
+.blocco-proiettato--riservato.blocco-proiettato--acceso {
+  border-color: var(--attenzione);
+  border-style: solid;
+  color: var(--attenzione);
+}
+
+/* Un blocco riservato davanti alla classe: è il caso in cui il colore deve
+   gridare, perché sullo schermo ci sono i singoli allievi. */
+.blocco-proiettato--riservato.blocco-proiettato--in-vista {
+  background: var(--attenzione);
+  color: var(--vscode-editor-background);
+}
+
+/* Il pulsante che apre lo schermo, in fondo alla barra di navigazione. */
+.pulsante-proiezione {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------ le viste del calendario */
+
+/*
+ * La seconda riga, che compare solo con la scheda Calendario aperta: come si
+ * guarda il calendario proiettato. Sta sotto le schede e non fra i pulsanti di
+ * coda perché non riguarda tutta la proiezione ma una scheda sola, e quando
+ * quella scheda non è aperta non c'è.
+ */
+.barra-proiezione__viste {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.barra-proiezione__etichetta {
+  font-size: 0.92em;
+  color: var(--testo-quieto);
+  white-space: nowrap;
+}
+
+/* Da dove viene il giorno mostrato: senza, il selettore sembra promettere
+   anche quello, e si cerca una freccia che qui non c'è. */
+.barra-proiezione__nota {
+  font-size: 0.86em;
+  color: var(--testo-quieto);
+  font-style: italic;
+}

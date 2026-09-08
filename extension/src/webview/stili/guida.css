@@ -1,0 +1,91 @@
+/* ------------------------------------------------------------------ guida */
+
+/*
+ * La guida: indice a sinistra, sezioni a destra.
+ *
+ * L'indice scorre alla sezione invece di aprirla e chiuderla: la guida la si
+ * legge cercando una cosa, e un elenco che si richiude a ogni clic obbliga a
+ * ritrovare ogni volta il punto in cui si era.
+ */
+.colonne--guida { grid-template-columns: 220px minmax(0, 1fr); }
+
+.guida__indice {
+  position: sticky;
+  top: 0;
+  align-self: start;
+}
+
+.guida__indice-titolo {
+  margin: 0 0 var(--spazio-2);
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.guida__indice-voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.guida__indice-voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: 4px var(--spazio-2);
+  border: 0;
+  border-radius: var(--raggio);
+  background: none;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.9em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guida__indice-voce:hover {
+  background: color-mix(in srgb, var(--testo) 5%, transparent);
+  color: var(--testo);
+}
+
+.guida__ancora {
+  /* Lo spazio che la testata appiccicata coprirebbe scorrendo fin qui. */
+  scroll-margin-top: var(--spazio-3);
+}
+
+.guida__sezione { margin-bottom: var(--spazio-3); }
+
+.guida__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/*
+ * Il gesto e la spiegazione: due colonne, non un paragrafo unico. Scorrendo la
+ * guida si cerca il nome della cosa — «incolla elenco», «settimane A e B» — e
+ * incolonnati a sinistra i nomi si trovano senza leggere il resto.
+ */
+.guida__voce {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: var(--spazio-3);
+  align-items: baseline;
+}
+
+.guida__termine { color: var(--testo); }
+.guida__testo { color: var(--testo-quieto); }
+
+@media (max-width: 1100px) {
+  .colonne--guida { grid-template-columns: minmax(0, 1fr); }
+  .guida__indice { position: static; }
+  .guida__voce { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

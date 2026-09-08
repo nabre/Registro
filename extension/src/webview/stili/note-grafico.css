@@ -1,0 +1,128 @@
+/*
+ * Il grafico delle note, disegnato da `componenti/note.ts`.
+ *
+ * Un foglio a sé perché lo importano due applicazioni: il pannello del
+ * registro e lo schermo per la classe, che sono due bundle con due fogli di
+ * stile. Le misure vengono dalle variabili — `--spazio-*`, `--positivo`,
+ * `--negativo` — che ognuna dei due definisce per conto suo: lo stesso
+ * grafico esce piccolo sul portatile e grande sul proiettore senza che qui
+ * ci sia scritto niente di diverso.
+ *
+ * È la stessa forma del PDF: un punto per voto sopra l'asse della scala, con
+ * la riga della media. Un foglio stampato e lo schermo da cui è uscito devono
+ * dire la stessa cosa nello stesso modo.
+ */
+
+/* ------------------------------------------------- il grafico delle note */
+
+.note-grafico__conti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  margin-bottom: var(--spazio-2);
+}
+
+/* I numeri della riga dei conti. Stanno qui e non nei due fogli perché il
+   componente li scrive: `.conto` esisteva solo nella proiezione, e nel
+   registro la stessa riga usciva senza rilievo. */
+.note-grafico__conti .conto strong {
+  color: var(--testo);
+  font-weight: 700;
+}
+
+.note-grafico__conti .conto--quieto {
+  color: color-mix(in srgb, var(--testo-quieto) 80%, transparent);
+}
+
+/* Le etichette dei segni, una riga per segno: la media può cadere esattamente
+   sulla sufficienza, e su una riga sola si coprirebbero. */
+.note-grafico__riga-segno {
+  position: relative;
+  height: 1.15em;
+}
+
+.note-grafico__etichetta {
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+  font-size: 0.72em;
+  color: var(--testo-quieto);
+}
+
+/*
+ * Il campo dei punti. L'altezza la scrive il componente — dipende da quanto è
+ * alta la pila più alta — e le posizioni sono in percentuale sull'asse, così
+ * il disegno si ingrandisce senza cambiare forma.
+ */
+.note-grafico__campo {
+  position: relative;
+  border-bottom: 1px solid var(--bordo, rgba(128, 128, 128, 0.35));
+}
+
+/* La riga della media: tratteggiata, dietro ai punti. È il riferimento
+   rispetto a cui si legge tutto il resto. */
+.note-grafico__segno {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Il tratteggio è un gradiente e non un `border-left`: un bordo tratteggiato
+     di un pixel, su un fondo scuro, si perde — e una riga della media che non
+     si vede non serve a niente. */
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--testo-quieto) 0 3px,
+    transparent 3px 6px
+  );
+  opacity: 0.75;
+}
+
+.note-grafico__punto {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+}
+
+/* La sufficienza si legge dal colore: è la prima cosa che di una distribuzione
+   di voti si guarda, e contarla sulle etichette è un giro inutile. */
+.note-grafico__punto--sotto {
+  background: var(--negativo);
+}
+
+.note-grafico__punto--sopra {
+  background: var(--positivo);
+}
+
+.note-grafico__asse {
+  position: relative;
+  height: 1.5em;
+  margin-top: 2px;
+}
+
+/* Le lineette dell'asse: il numero sta sotto il mezzo punto, il trattino anche
+   sotto il quarto — più corto e muto, perché divide il tratto senza dover
+   essere letto. */
+.note-grafico__lineetta {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 5px;
+  margin-left: -0.5px;
+  background: var(--bordo, rgba(128, 128, 128, 0.35));
+}
+
+.note-grafico__lineetta--corta {
+  height: 2.5px;
+}
+
+.note-grafico__tacca {
+  position: absolute;
+  top: 6px;
+  font-size: 0.72em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}

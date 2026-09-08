@@ -1,0 +1,20 @@
+{
+  // F5: apre una seconda finestra (Extension Development Host) con questa root
+  // già aperta dentro, così le viste si attivano come in uso reale.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Esegui estensione",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/extension",
+        "${workspaceFolder}"
+      ],
+      "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
+      // build una tantum: il watch gira già per conto suo, ma un avvio a freddo
+      // deve trovare dist/ pronto.
+      "preLaunchTask": "estensione: build"
+    }
+  ]
+}

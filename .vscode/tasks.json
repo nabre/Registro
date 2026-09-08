@@ -1,0 +1,98 @@
+{
+  // Come si costruisce l'estensione da questo workspace (la root del progetto).
+  //
+  // Due cose partono da sole all'apertura della cartella, e insieme fanno il
+  // "live": "collega" mette in ~/.vscode/extensions una giunzione verso
+  // extension/ — così VS Code carica il codice DI QUI e non una copia
+  // impacchettata — e "watch" tiene dist/ allineato ai sorgenti. Per vedere una
+  // modifica basta ricaricare la finestra: niente vsce package, niente install.
+  //
+  // PARTONO IN SILENZIO: "reveal": "never". Sono lavori di servizio, e aprire
+  // il pannello in basso a ogni apertura del progetto spostava l'editor per
+  // dire "fatto". "silent" non bastava: VS Code porta in primo piano il
+  // terminale anche così quando l'output non è scansionato da un problemMatcher,
+  // ed è il caso di "collega". Chi tiene il pannello aperto lo ritrova com'era:
+  // "never" non lo chiude, si limita a non aprirlo. Quando qualcosa va storto
+  // il terminale si fa vedere lo stesso — è "revealProblems": "onProblem".
+  //
+  // "collega" e "build" finiscono in un attimo, e il loro terminale si chiude
+  // da sé ("close": true): restava in elenco a dire una cosa già fatta, e col
+  // pannello aperto era il primo che si trovava sotto il dito. Il watch invece
+  // deve girare, e il suo resta — non visto, finché il pannello sta giù (vedi
+  // "terminal.integrated.hideOnStartup" in settings.json).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "estensione: collega",
+      "type": "shell",
+      "command": "npm run collega",
+      "options": { "cwd": "${workspaceFolder}/extension" },
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "never",
+        "revealProblems": "onProblem",
+        "close": true,
+        "panel": "dedicated",
+        "group": "estensione"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "estensione: watch",
+      "type": "shell",
+      "command": "npm run watch",
+      "options": { "cwd": "${workspaceFolder}/extension" },
+      "isBackground": true,
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "never",
+        "revealProblems": "onProblem",
+        "panel": "dedicated",
+        "group": "estensione"
+      },
+      // esbuild non parla come tsc: i suoi errori si riconoscono dalla riga
+      // "✘ [ERROR] …" seguita da "file:riga:colonna:", e il ciclo di watch
+      // si apre e si chiude con "[watch] build started/finished".
+      "problemMatcher": {
+        "owner": "esbuild",
+        "source": "esbuild",
+        "fileLocation": ["relative", "${workspaceFolder}/extension"],
+        "pattern": [
+          {
+            "regexp": "^[✘▲] \\[(ERROR|WARNING)\\] (.+)$",
+            "severity": 1,
+            "message": 2
+          },
+          {
+            "regexp": "^\\s+(\\S.*?):(\\d+):(\\d+):$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[watch\\] build started",
+          "endsPattern": "^\\[watch\\] build finished"
+        }
+      }
+    },
+    {
+      "label": "estensione: build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/extension" },
+      "group": "build",
+      "presentation": { "reveal": "never", "revealProblems": "onProblem", "close": true, "panel": "dedicated", "group": "estensione" },
+      "problemMatcher": []
+    },
+    {
+      "label": "estensione: test",
+      "type": "shell",
+      "command": "npm test",
+      "options": { "cwd": "${workspaceFolder}/extension" },
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

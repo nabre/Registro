@@ -1,0 +1,166 @@
+/* I corsi, il campo con comando, il trascinamento, i menu. */
+
+/* ------------------------------------------------------------------ corsi */
+
+/*
+ * La vista dei corsi: un corso alla volta, scelto dalla tendina in alto. Il
+ * punto colore della classe sta fuori dalla scheda, sul bordo sinistro, perché
+ * è il colore con cui quel corso compare nel calendario e lo si riconosce
+ * prima di leggere il titolo.
+ */
+
+.corso-dettaglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  margin-top: var(--spazio-4);
+}
+
+.corso-dettaglio__testa {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spazio-2);
+}
+
+.corso-dettaglio__testa > .punto-colore {
+  width: 6px;
+  height: auto;
+  border-radius: 3px;
+  flex: 0 0 6px;
+}
+
+/* Il programma del corso: testo libero, e va a capo come lo si è scritto. */
+.corso-scheda__note {
+  white-space: pre-wrap;
+  color: var(--testo-quieto);
+  margin: 0;
+}
+
+/* Il corso per allievo: ore, assenze, voti in colonna. I numeri si leggono
+   incolonnati, i nomi no — la prima colonna resta a sinistra e larga. */
+.tabella--matrice td,
+.tabella--matrice th { text-align: center; font-variant-numeric: tabular-nums; }
+.tabella--matrice .tabella__nome { text-align: left; font-variant-numeric: normal; }
+
+/* La cella che chiede attenzione: assenze che ci sono, prove che mancano. */
+.tabella__cella--attenzione { color: var(--attenzione); font-weight: 600; }
+
+.corso-scheda { flex: 1; }
+
+.corso-scheda__comandi {
+  display: flex;
+  gap: var(--spazio-1);
+}
+
+.corso-scheda__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.corso-scheda__numeri {
+  display: flex;
+  gap: var(--spazio-5);
+  flex-wrap: wrap;
+}
+
+.corso-scheda__orario {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ campo con comando */
+
+/*
+ * Una tendina e il «+» che crea quel che non elenca ancora: stanno sulla stessa
+ * riga perché sono la stessa domanda, e il pulsante non deve rubare larghezza
+ * al campo.
+ */
+
+.campo__gruppo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.campo__gruppo > .campo__controllo {
+  flex: 1;
+  min-width: 0;
+}
+
+.campo__aiuto--attenzione { color: var(--attenzione); }
+
+.avviso__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.avviso__riga > span { flex: 1; }
+
+/* ------------------------------------------------------------------ menu contestuale */
+
+/*
+ * Il menu del tasto destro. Vive attaccato alla finestra, non al contenuto: si
+ * posiziona dove sta il puntatore e non scorre con quello che c'è sotto — tanto
+ * al primo scorrimento se ne va.
+ */
+
+.menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 220px;
+  padding: var(--spazio-1);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--vscode-menu-background, var(--sfondo-alto));
+  box-shadow: var(--ombra);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menu__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-1) var(--spazio-2);
+  border: none;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--vscode-menu-foreground, var(--testo));
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu__voce:hover:not(:disabled),
+.menu__voce:focus-visible {
+  background: var(--vscode-menu-selectionBackground, color-mix(in srgb, var(--accento) 22%, transparent));
+  color: var(--vscode-menu-selectionForeground, var(--testo));
+  outline: none;
+}
+
+.menu__voce:disabled { opacity: 0.45; cursor: default; }
+
+.menu__voce--pericolo { color: var(--negativo); }
+.menu__voce--pericolo:hover:not(:disabled),
+.menu__voce--pericolo:focus-visible {
+  background: color-mix(in srgb, var(--negativo) 20%, transparent);
+  color: var(--negativo);
+}
+
+/* L'incolonnamento regge anche dove l'icona manca. */
+.menu__vuoto { width: 16px; flex: 0 0 16px; }
+
+.menu__linea {
+  height: 1px;
+  margin: var(--spazio-1) 0;
+  background: var(--bordo-tenue);
+}
+

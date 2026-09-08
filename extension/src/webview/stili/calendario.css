@@ -1,0 +1,856 @@
+/* Le tre viste del calendario: settimana, mese, agenda. */
+
+/* ------------------------------------------------------------------ settimana */
+
+.settimana {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+.settimana__intestazione {
+  display: grid;
+  grid-template-columns: 56px repeat(auto-fit, minmax(0, 1fr));
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: color-mix(in srgb, var(--testo) 3%, transparent);
+}
+
+.settimana__angolo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: var(--spazio-2) 4px;
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+/* A o B nell'angolo sopra i giorni: dice dove si è, e si cambia dalle
+   Impostazioni. Qui è un'etichetta, non un comando. */
+.settimana__lettera {
+  padding: 0 5px;
+  border-radius: var(--raggio);
+  background: color-mix(in srgb, var(--accento) 18%, transparent);
+  color: var(--accento);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.settimana__giorno {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spazio-2);
+  border-left: 1px solid var(--bordo-tenue);
+  cursor: pointer;
+}
+
+.settimana__giorno-nome {
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+}
+
+.settimana__giorno-numero { font-size: 1.15em; font-weight: 600; }
+
+.settimana__giorno--oggi .settimana__giorno-numero {
+  color: var(--vscode-button-foreground);
+  background: var(--accento);
+  border-radius: 999px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.settimana__corpo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px repeat(auto-fit, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.settimana__ore { position: relative; }
+
+.settimana__ora {
+  position: absolute;
+  right: var(--spazio-2);
+  transform: translateY(-50%);
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}
+
+.settimana__colonna {
+  position: relative;
+  border-left: 1px solid var(--bordo-tenue);
+  cursor: copy;
+}
+
+.settimana__colonna--oggi { background: color-mix(in srgb, var(--accento) 5%, transparent); }
+
+.settimana__riga-ora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--bordo-tenue);
+  pointer-events: none;
+}
+
+.blocco {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 6px;
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--accento);
+  border-radius: var(--raggio);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.blocco:hover { filter: brightness(1.12); }
+
+.blocco--annullata { opacity: 0.55; text-decoration: line-through; }
+.blocco--svolta { border-style: solid; }
+.blocco--pianificata { border-style: dashed; }
+
+.blocco__pausa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--testo) 10%, transparent) 0 4px,
+    transparent 4px 8px
+  );
+  pointer-events: none;
+}
+
+.blocco__testata {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: baseline;
+  font-size: 0.82em;
+}
+
+.blocco__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+.blocco__classe { font-weight: 600; }
+.blocco__titolo { font-size: 0.85em; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.blocco__piede {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: center;
+  margin-top: auto;
+  font-size: 0.75em;
+  color: var(--testo-quieto);
+}
+
+.blocco--basso { padding: 1px 5px; }
+.blocco--basso .blocco__testata { font-size: 0.75em; }
+
+/* ------------------------------------------------------------------ mese */
+
+.mese {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+.mese__intestazione {
+  display: grid;
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: color-mix(in srgb, var(--testo) 3%, transparent);
+}
+
+.mese__giorno-nome {
+  padding: var(--spazio-2);
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+}
+
+/*
+ * La striscia continua delle settimane. Scorre da sola, e il calendario non
+ * finisce più al 31: l'ultima settimana di ottobre e la prima di novembre
+ * stanno una sotto l'altra, che è come le guarda chi programma.
+ */
+.mese__scorrevole {
+  max-height: min(68vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mese__settimana { display: grid; }
+
+/* Il nome del mese resta in alto finché scorrono le sue settimane. */
+.mese__etichetta {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--spazio-1) var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Il primo del mese si segna da sé: è il confine, in una striscia senza fine. */
+.mese__cella--apre-mese { box-shadow: inset 2px 0 0 var(--accento); }
+
+.mese__cella {
+  min-height: 108px;
+  padding: var(--spazio-1) var(--spazio-2) var(--spazio-2);
+  border-left: 1px solid var(--bordo-tenue);
+  border-top: 1px solid var(--bordo-tenue);
+  cursor: pointer;
+}
+
+.mese__cella--oggi { background: color-mix(in srgb, var(--accento) 8%, transparent); }
+.mese__cella--scelta { outline: 1px solid var(--accento); outline-offset: -1px; }
+
+.mese__numero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  margin-bottom: var(--spazio-1);
+}
+
+.mese__conteggio {
+  background: var(--sfondo-alto-2);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 0.9em;
+}
+
+.mese__lezioni { display: flex; flex-direction: column; gap: 2px; }
+
+.chip {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-1);
+  width: 100%;
+  padding: 1px 5px;
+  border: none;
+  border-left: 3px solid var(--accento);
+  border-radius: 3px;
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+  font: inherit;
+  font-size: 0.82em;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.chip:hover { background: var(--sfondo); }
+.chip--annullata { opacity: 0.5; text-decoration: line-through; }
+.chip__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+.chip__testo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mese__altre { font-size: 0.78em; color: var(--testo-quieto); margin-top: 2px; }
+
+/* ------------------------------------------------------------------ agenda */
+
+.agenda { display: flex; flex-direction: column; gap: var(--spazio-4); }
+
+.agenda__giorno {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+.agenda__giorno--oggi { border-color: color-mix(in srgb, var(--accento) 50%, transparent); }
+
+.agenda__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: color-mix(in srgb, var(--testo) 3%, transparent);
+}
+
+.agenda__data { font-weight: 600; text-transform: capitalize; }
+
+.agenda__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-4);
+  border: none;
+  border-top: 1px solid var(--bordo-tenue);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda__voce:first-of-type { border-top: none; }
+.agenda__voce:hover { background: var(--sfondo-alto-2); }
+.agenda__voce--annullata { opacity: 0.55; }
+
+.agenda__orario {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  min-width: 108px;
+}
+
+.agenda__testo { display: flex; gap: var(--spazio-2); align-items: baseline; flex: 1; min-width: 0; }
+.agenda__titolo { color: var(--testo-quieto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda__coda { display: flex; gap: var(--spazio-1); align-items: center; }
+
+/* Il pulsante che allunga l'elenco troncato: prima il troncamento non si vedeva. */
+.agenda__altre {
+  align-self: center;
+  margin-top: var(--spazio-1);
+  padding: var(--spazio-1) var(--spazio-3);
+  border: 1px dashed var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.agenda__altre:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); color: var(--testo); }
+
+/* ------------------------------------------------------------------ trascinamento */
+
+/*
+ * Prendere una lezione e portarla altrove. Mentre viaggia il blocco resta al
+ * suo posto ma sbiadito — così si vede da dove è partita — e sotto il puntatore
+ * compare la riga dell'ora in cui si poserebbe. La riga tratteggiata verde dice
+ * «copia», quella piena «sposta»: è l'unica differenza fra i due gesti, e va
+ * vista prima di mollare il pulsante.
+ */
+
+.blocco[draggable='true'],
+.chip[draggable='true'] {
+  cursor: grab;
+}
+
+.blocco--in-viaggio {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.zona-posa {
+  background: color-mix(in srgb, var(--accento) 8%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accento) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.settimana__guida {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accento);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.settimana__guida::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accento);
+}
+
+.settimana__guida--copia {
+  background: repeating-linear-gradient(
+    to right,
+    var(--positivo) 0 6px,
+    transparent 6px 10px
+  );
+}
+
+.settimana__guida--copia::after { background: var(--positivo); }
+
+/*
+ * I capi della striscia dei mesi: dove l'anno comincia e dove finisce. Servono
+ * a dire che lo scorrimento è arrivato in fondo per davvero — senza, un elenco
+ * che smette di allungarsi sembra un caricamento rimasto a metà.
+ */
+.mese__capo {
+  padding: var(--spazio-4) var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+  text-align: center;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------------ cambio di semestre */
+
+/*
+ * Il confine fra i due semestri. È la riga più importante dell'anno — di là le
+ * medie ripartono, e una verifica messa il giorno prima o il giorno dopo
+ * finisce in due pagelle diverse — quindi si vede più del cambio di mese: una
+ * banda intera nella striscia, un filo pieno sul giorno che lo apre.
+ */
+
+/* Il filo sta dalla parte del confine: a sinistra il giorno che apre un
+   semestre, a destra quello che lo chiude. È la stessa linea vista dai due
+   lati, e messa dalla parte sbagliata direbbe il contrario di quel che è. */
+.giorno--apre-semestre { box-shadow: inset 5px 0 0 var(--tinta-verifica); }
+.giorno--chiude-semestre { box-shadow: inset -5px 0 0 var(--tinta-verifica); }
+
+/* Un giorno che chiude un semestre e ne apre un altro — dati scritti a mano —
+   porta tutti e due i fili. */
+.giorno--apre-semestre.giorno--chiude-semestre {
+  box-shadow: inset 5px 0 0 var(--tinta-verifica), inset -5px 0 0 var(--tinta-verifica);
+}
+
+/* Nella settimana il confine è una barra piena, non un filo: è la riga che
+   separa due pagelle, e un filo da due pixel in mezzo a cinque colonne la
+   faceva passare per un bordo di cella come gli altri. */
+.settimana__giorno.giorno--apre-semestre { border-left: 5px solid var(--tinta-verifica); }
+.settimana__giorno.giorno--chiude-semestre { border-right: 5px solid var(--tinta-verifica); }
+.settimana__colonna.giorno--apre-semestre { border-left: 5px solid var(--tinta-verifica); }
+.settimana__colonna.giorno--chiude-semestre { border-right: 5px solid var(--tinta-verifica); }
+
+/* Il confine di semestre si legge nel giorno in cui cade, accanto al numero, e
+   in rosso: è la data che cambia la pagella in cui finisce quel che viene dopo. */
+.settimana__semestre,
+.segno-semestre {
+  font-size: 0.7em;
+  line-height: 1.2;
+  color: var(--tinta-verifica);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.settimana__semestre { display: block; }
+
+/* Nella cella del mese sta in mezzo, fra il numero e il conteggio delle ore:
+   la riga è già flex e distribuisce da sé. */
+.segno-semestre {
+  padding: 0 var(--spazio-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mese__semestre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-top: 2px solid var(--tinta-verifica);
+  background: color-mix(in srgb, var(--tinta-verifica) 12%, transparent);
+  color: var(--testo);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.mese__semestre-data { color: var(--testo-quieto); font-weight: 400; }
+
+/* ------------------------------------------------ le settimane dell'anno */
+
+/* Tutte le settimane dell'anno, sopra la settimana aperta.
+   Risponde a una domanda che il calendario non sapeva dare: «quante settimane
+   restano, e quali sono già piene?». Scorrendo una settimana alla volta la si
+   ricostruiva a memoria, e a memoria non torna mai. */
+.striscia-settimane {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--spazio-2);
+}
+
+.striscia-settimane__testata {
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.striscia-settimane__voci {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.striscia-settimane__voce {
+  flex: 1 0 2.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  color: var(--testo-quieto);
+  font-size: 0.72em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.striscia-settimane__voce:hover { border-color: var(--accento); }
+.striscia-settimane__numero { font-variant-numeric: tabular-nums; }
+.striscia-settimane__conta { font-weight: 600; }
+
+/* La lettera della quindicina: si legge scorrendo la striscia per controllare
+   che l'alternanza regga, quindi deve staccare dal numero della settimana
+   senza gridare più delle lezioni contate. */
+.striscia-settimane__lettera {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accento);
+}
+
+/* Piena o vuota: è la sola cosa che si guarda scorrendo la striscia, e si
+   distingue per riempimento, non per un dettaglio del bordo. */
+.striscia-settimane__voce--piena {
+  background: color-mix(in srgb, var(--accento) 16%, var(--sfondo));
+  border-color: color-mix(in srgb, var(--accento) 40%, var(--bordo-tenue));
+  color: var(--testo);
+}
+
+.striscia-settimane__voce--vuota { opacity: 0.75; }
+
+/* Una settimana tutta chiusa — vacanze — non è un buco da riempire: si spegne
+   invece di chiedere attenzione come le altre vuote. */
+.striscia-settimane__voce--sospesa {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.striscia-settimane__voce--corrente {
+  outline: 2px solid var(--accento);
+  outline-offset: -1px;
+  color: var(--testo);
+}
+
+/* Il confine fra i semestri: qui è una barra piena, non un filo. È la riga più
+   importante dell'anno — di là le medie ripartono, e una prova messa il giorno
+   prima o il giorno dopo finisce in due pagelle diverse — e in una striscia di
+   quaranta caselle un filo da un pixel non la si vede. */
+.striscia-settimane__voce--apre-semestre {
+  border-left: 4px solid var(--tinta-verifica);
+  margin-left: var(--spazio-2);
+  position: relative;
+}
+
+.striscia-settimane__voce--apre-semestre::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--spazio-2) / 2 - 1px);
+  top: -2px;
+  bottom: -2px;
+  border-left: 2px dashed var(--tinta-verifica);
+}
+
+/* ------------------------------------------------ il numero di settimana */
+
+/* Nel mese la settimana ha una colonna sua, a sinistra: il piano annuale si
+   conta in settimane, e senza quel numero il mese dice quando ma non «a che
+   punto dell'anno». */
+.mese__settimana-numero {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-right: 1px solid var(--bordo-tenue);
+  background: none;
+  color: var(--testo-quieto);
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* Numero sopra, lettera sotto: nella colonna delle settimane si legge di fila,
+   ed è così che si vede se l'alternanza salta da qualche parte. */
+.mese__settimana-numero { grid-auto-flow: row; gap: 1px; }
+
+.mese__settimana-lettera {
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accento);
+}
+
+.mese__settimana-numero:hover { color: var(--accento); }
+
+.mese__settimana-numero--scelta {
+  color: var(--accento);
+  font-weight: 700;
+}
+
+.mese__giorno-nome--settimana { color: var(--testo-quieto); opacity: 0.6; }
+
+.agenda__settimana {
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- l'anno su una pagina */
+
+/*
+ * Il calendario che la sede stampa e appende: i mesi affiancati, i giorni in
+ * riga. Tutti e dodici nella stessa griglia — erano due blocchi, uno per
+ * semestre, e per confrontare novembre con marzo si guardava in due punti
+ * diversi dello schermo, che è proprio quel che questa vista dovrebbe
+ * togliere.
+ */
+.anno-griglia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-3);
+  min-width: 0;
+}
+
+/* Dodici mesi non ci stanno sempre: il foglio scorre di lato invece di
+   schiacciare le colonne fino a renderle illeggibili. */
+.anno-griglia__foglio {
+  overflow-x: auto;
+  padding-bottom: var(--spazio-1);
+}
+
+/* Nessuna larghezza minima scritta a mano: le colonne hanno già la loro
+   (`minmax`), la griglia trabocca da sé quando non ci stanno, e il foglio
+   scorre. Un numero fisso qui sarebbe sbagliato appena l'anno avesse undici
+   mesi invece di dodici.
+
+   Nessuno spazio fra le celle: la griglia la disegnano i filetti dei bordi,
+   come nel mese. Con lo spazio, ogni giorno era una piastrella su un fondo
+   diverso, e le stesse velature — il fine settimana, il tratteggio delle
+   chiusure — cadevano su una base che nel mese non c'è. */
+.anno-griglia__riga {
+  display: grid;
+}
+
+/* Mesi e semestri restano visibili scorrendo in giù: senza, a metà del
+   secondo semestre non si sa più in che colonna si sta guardando. */
+.anno-griglia__riga--semestri,
+.anno-griglia__riga--mesi {
+  position: sticky;
+  z-index: 1;
+  background: var(--sfondo);
+}
+
+.anno-griglia__riga--semestri { top: 0; }
+.anno-griglia__riga--mesi { top: 1.1rem; padding-bottom: 2px; }
+
+/* Il nome del semestre, centrato sopra i mesi che lo compongono: una scritta
+   sola larga quanto il gruppo, come sul foglio stampato. */
+.anno-griglia__semestre {
+  padding: 1px 4px;
+  font-size: 0.68em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.anno-griglia__mese {
+  padding: 2px 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+.anno-griglia__giorno {
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--bordo-tenue);
+  border-top: 1px solid var(--bordo-tenue);
+  font-size: 0.68em;
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+}
+
+/* Nelle due righe d'intestazione i filetti non servono: sopra i mesi non c'è
+   niente da separare, e una riga di bordi lassù sembrerebbe una riga di
+   giorni. */
+.anno-griglia__riga--mesi .anno-griglia__giorno { border-top: 0; }
+
+/*
+ * Un giorno, in tre colonnine: la lettera della settimana, quel che succede,
+ * l'iniziale del giorno. Le tre larghezze sono le stesse in tutti i mesi, e
+ * per questo le colonnine si leggono anche in verticale — la fila delle A e
+ * delle B, la fila delle iniziali.
+ *
+ * Senza sfondo suo e con i filetti ai bordi, esattamente come `.mese__cella`:
+ * è quel che rende i due calendari la stessa cosa vista da lontano o da
+ * vicino. Le velature di stato — sabato e domenica, oggi, le chiusure —
+ * arrivano tutte da fuori e si posano sul fondo del pannello, non su una
+ * piastrella grigia che qui c'era e nel mese no.
+ */
+.anno-giorno {
+  display: grid;
+  grid-template-columns: 0.8rem 1fr 0.8rem;
+  align-items: center;
+  gap: 2px;
+  min-height: 1.15rem;
+  padding: 0 2px;
+  border: 0;
+  border-left: 1px solid var(--bordo-tenue);
+  border-top: 1px solid var(--bordo-tenue);
+  background: none;
+  color: var(--testo-quieto);
+  font-size: 0.68em;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anno-giorno:not(.anno-giorno--nulla):hover {
+  outline: 1px solid var(--accento);
+  outline-offset: -1px;
+}
+
+/* Il 31 di novembre: la cella resta, vuota, o le righe smettono di allinearsi
+   fra i mesi e il calendario non si legge più in orizzontale. */
+.anno-giorno--nulla { cursor: default; }
+
+.anno-giorno__settimana {
+  font-weight: 700;
+  color: var(--accento);
+  text-align: center;
+}
+
+/* Il nome della vacanza, oppure i punti colore e il conto dei corsi: una fila,
+   e a tagliarsi è il testo dentro, non il contenitore. Con l'ellissi messa
+   qui, su un contenitore flex, il nome lungo veniva troncato senza puntini —
+   `text-overflow` non vale per il testo nudo dentro un flex. */
+.anno-giorno__testo {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.anno-giorno__nome {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anno-giorno__iniziale {
+  font-weight: 600;
+  color: var(--testo);
+  text-align: center;
+}
+
+/* Quanti corsi, nella pastiglia del mese: è lo stesso numero che là sta
+   accanto al giorno, e si legge uguale. */
+.anno-giorno__corsi {
+  background: var(--sfondo-alto-2);
+  border-radius: 999px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* I punti colore delle classi, come nel mese e nell'agenda: piccoli, perché
+   qui la casella è alta una riga. */
+.anno-giorno__testo .punto-colore {
+  width: 5px;
+  height: 5px;
+  flex: none;
+}
+
+/* La legenda: i quadretti riusano le classi dei giorni, così i colori sono
+   detti una volta sola. Dichiarata prima dei modificatori apposta — a parità
+   di specificità vince l'ultima regola, e messa in fondo li coprirebbe tutti
+   con lo stesso grigio. */
+.anno-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  font-size: 0.75em;
+  color: var(--testo-quieto);
+}
+
+.anno-legenda__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.anno-legenda__segno {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto);
+}
+
+/* Nella legenda i quadretti del confine sono piccoli: la riga sta dentro il
+   bordo e sparirebbe, quindi la si mette come bordo vero. */
+.anno-legenda__segno.anno-giorno--apre {
+  box-shadow: none;
+  border-top: 2px solid var(--tinta-verifica);
+}
+
+.anno-legenda__segno.anno-giorno--chiude {
+  box-shadow: none;
+  border-bottom: 2px solid var(--tinta-verifica);
+}
+
+/* Sabato, domenica e i giorni di chiusura non hanno tinte tutte loro: portano
+   `giorno--festivo` e `giorno--chiuso` come nel mese e nella settimana. Un
+   verde inventato qui sarebbe stato una quarta convenzione da imparare, e il
+   giorno in cui il tratteggio delle vacanze cambia deve cambiare dappertutto.
+   Qui si aggiunge solo quel che nel mese non serviva: l'iniziale del giorno si
+   spegne nel fine settimana, come là si spegne il numero. */
+.anno-giorno.giorno--festivo .anno-giorno__iniziale { color: var(--testo-quieto); }
+.anno-giorno.giorno--chiuso .anno-giorno__iniziale { opacity: 0.5; }
+
+/* Il confine di semestre è una riga orizzontale, e da che parte sta dice
+   quale dei due: sopra il giorno in cui un semestre comincia, sotto quello in
+   cui finisce. Un bordo tutt'attorno diceva «qui succede qualcosa» e lasciava
+   indovinare che cosa. */
+.anno-giorno--apre { box-shadow: inset 0 2px 0 0 var(--tinta-verifica); }
+.anno-giorno--chiude { box-shadow: inset 0 -2px 0 0 var(--tinta-verifica); }
+
+/* Un giorno che chiude un semestre e ne apre un altro capita solo in dati
+   scritti a mano: si dicono tutte e due invece di sceglierne una. */
+.anno-giorno--apre.anno-giorno--chiude {
+  box-shadow: inset 0 2px 0 0 var(--tinta-verifica), inset 0 -2px 0 0 var(--tinta-verifica);
+}
+
+.anno-giorno--oggi { background-color: color-mix(in srgb, var(--accento) 8%, transparent); }
+
+.anno-giorno--scelto {
+  outline: 1px solid var(--accento);
+  outline-offset: -1px;
+}

@@ -1,0 +1,385 @@
+/* I colori, le misure e il telaio: quel che vale in ogni schermata. */
+
+/*
+ * Aspetto del pannello.
+ *
+ * Tutti i colori vengono dalle variabili di VS Code: il registro deve sembrare
+ * parte dell'editor e cambiare tema insieme a lui, chiaro o scuro che sia.
+ * Dove serve una tinta che il tema non prevede — il verde di un merito, il
+ * rosso di un'insufficienza — si parte comunque da una variabile del tema e la
+ * si mescola con `color-mix`, così resta leggibile ovunque.
+ *
+ * Le classi seguono lo schema blocco__elemento--variante, in italiano come il
+ * resto del codice.
+ */
+
+:root {
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 24px;
+  --spazio-6: 32px;
+
+  --raggio: 6px;
+  --raggio-grande: 10px;
+
+  --bordo: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+  --sfondo: var(--vscode-editor-background);
+  --sfondo-alto: color-mix(in srgb, var(--vscode-editor-foreground) 4%, var(--sfondo));
+  --sfondo-alto-2: color-mix(in srgb, var(--vscode-editor-foreground) 8%, var(--sfondo));
+  --testo: var(--vscode-editor-foreground);
+  --testo-quieto: var(--vscode-descriptionForeground, color-mix(in srgb, var(--testo) 60%, transparent));
+  --accento: var(--vscode-textLink-foreground, #3794ff);
+
+  --positivo: var(--vscode-testing-iconPassed, #3fb950);
+  --negativo: var(--vscode-testing-iconFailed, #f85149);
+  --attenzione: var(--vscode-editorWarning-foreground, #d29922);
+  --informativo: var(--accento);
+
+  --tinta-introduzione: #6366f1;
+  --tinta-spiegazione: #3b82f6;
+  --tinta-esercizio: #10b981;
+  --tinta-laboratorio: #06b6d4;
+  --tinta-discussione: #f59e0b;
+  --tinta-gruppo: #8b5cf6;
+  --tinta-verifica: #ef4444;
+  --tinta-ripasso: #84cc16;
+  --tinta-compito: #ec4899;
+  --tinta-docenza: #0ea5e9;
+  --tinta-altro: #94a3b8;
+
+  --ombra: 0 6px 24px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+  color: var(--testo);
+  background: var(--sfondo);
+  overflow: hidden;
+}
+
+body.con-modale {
+  overflow: hidden;
+}
+
+.app { height: 100vh; }
+
+/* Il filo di lavoro: due pixel in cima alla finestra mentre una richiesta e'
+   in volo. Sta sopra a tutto e non occupa spazio nel telaio, o accendersi
+   sposterebbe la pagina di due pixel a ogni clic. */
+.filo-lavoro {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accento) 20%, transparent);
+  z-index: 60;
+}
+
+.filo-lavoro span {
+  display: block;
+  height: 100%;
+  width: 35%;
+  background: var(--accento);
+  animation: scorre-filo 1.1s ease-in-out infinite;
+}
+
+@keyframes scorre-filo {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filo-lavoro span { animation: none; width: 100%; opacity: 0.6; }
+}
+
+.caricamento {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------------------ telaio */
+
+.guscio {
+  height: 100vh;
+  display: grid;
+  /* Un po' più larga di prima: i titoli dei corsi ci stanno dentro, e sotto di
+     loro c'è un rientro di pagine da leggere senza andare a capo. */
+  grid-template-columns: 232px 1fr;
+}
+
+.barra-laterale {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  padding: var(--spazio-4) var(--spazio-3);
+  border-right: 1px solid var(--bordo);
+  background: var(--sfondo-alto);
+  overflow-y: auto;
+}
+
+.barra-laterale__marchio {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: 0 var(--spazio-2);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Il titolo del gruppo e, sotto, il filtro che sta subendo: il semestre. */
+.barra-laterale__titolo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.barra-laterale__titolo small {
+  font-weight: 400;
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-laterale__vuoto {
+  margin: 0;
+  padding: 0 var(--spazio-2);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+.barra-laterale__gruppo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.barra-laterale__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.voce-navigazione {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-2);
+  border: none;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.voce-navigazione:hover {
+  background: var(--sfondo-alto-2);
+}
+
+.voce-navigazione--attiva {
+  background: color-mix(in srgb, var(--accento) 18%, transparent);
+  color: var(--testo);
+  font-weight: 600;
+}
+
+.voce-navigazione--attiva .icona {
+  color: var(--accento);
+}
+
+/* ------------------------------------------------------- i corsi nella barra */
+
+/* I corsi stanno a mucchi, uno per materia. Lo stacco fra un mucchio e l'altro
+   è più largo di quello fra due classi della stessa materia: è quel che si
+   legge scorrendo, prima ancora dei nomi. */
+.barra-laterale__materie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.barra-laterale__materia {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Il nome della materia: un titolo, non una riga cliccabile — sotto ci sono le
+   classi, e sono quelle che si aprono. Su una riga sola, perché la barra è
+   stretta e un titolo che va a capo scosta tutto l'elenco. */
+.barra-laterale__materia-titolo {
+  margin: 0;
+  padding: 0 var(--spazio-2);
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.corso-navigazione {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Il titolo di un corso non va a capo: due righe per voce e l'elenco dei corsi
+   non si legge più a colpo d'occhio. Il titolo per esteso resta nel `title`. */
+.voce-navigazione__testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voce-navigazione--corso {
+  gap: var(--spazio-1);
+  font-weight: 500;
+}
+
+/* Il corso di cui si sta guardando una pagina: acceso, ma meno della pagina
+   stessa — la riga accesa dentro di lui è quella che dice dove si è. */
+.voce-navigazione--corso-attivo {
+  background: color-mix(in srgb, var(--accento) 8%, transparent);
+  font-weight: 600;
+}
+
+.icona--freccia {
+  flex: none;
+  color: var(--testo-quieto);
+}
+
+/* Le pagine di un corso: rientrate sotto il suo titolo, e con un filo che le
+   lega a lui — senza, a barra piena non si vede più dove finisce un corso e
+   dove comincia il prossimo. */
+.barra-laterale__voci--annidate {
+  margin: 2px 0 var(--spazio-2);
+  padding-left: var(--spazio-3);
+  margin-left: var(--spazio-3);
+  border-left: 1px solid var(--bordo-tenue);
+}
+
+.voce-navigazione--annidata {
+  padding-block: 4px;
+  font-size: 0.92em;
+}
+
+.barra-laterale__piede {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.anno-in-uso {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anno-in-uso small {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+.contenuto {
+  overflow: auto;
+  padding: var(--spazio-5);
+}
+
+.vista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  max-width: 1500px;
+}
+
+/* ------------------------------------------------------------------ testate */
+
+.testata {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  padding-bottom: var(--spazio-3);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.testata__principale {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-4);
+  flex-wrap: wrap;
+}
+
+.testata__titolo {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.testata__sottotitolo,
+.scheda__sottotitolo {
+  margin: 2px 0 0;
+  color: var(--testo-quieto);
+}
+
+.testata__azioni,
+.scheda__azioni {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.testata__contorno {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-4);
+  flex-wrap: wrap;
+}
+
+.filtri {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+.suggerimento {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: 0.9em;
+}

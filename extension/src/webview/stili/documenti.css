@@ -1,0 +1,94 @@
+/* I documenti di un corso: i pulsanti di tutto quel che se ne può stampare. */
+
+.documenti {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  margin-top: var(--spazio-4);
+}
+
+/*
+ * Il corso scelto, con il colore della classe sul bordo: è lo stesso segno
+ * della vista Corsi, e serve a sapere di chi sono i fogli che stanno per
+ * uscire prima di leggere il titolo.
+ */
+.documenti__testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.documenti__testa > .punto-colore {
+  width: 6px;
+  align-self: stretch;
+  height: auto;
+  border-radius: 3px;
+  flex: 0 0 6px;
+}
+
+.documenti__corso {
+  margin: 0;
+  flex: 1;
+  font-size: var(--testo-grande, 1.05rem);
+}
+
+/* I pulsanti del corso vanno a capo da soli: su un pannello stretto sono
+   quattro, e una riga sola li spingerebbe fuori. */
+.documenti__pulsanti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+/*
+ * Schede allievo e verbali affiancati finché ci stanno: sono due elenchi
+ * lunghi e indipendenti, e uno sotto l'altro obbligherebbe a scorrere tutta
+ * la classe per arrivare alle ore.
+ */
+.documenti__colonne {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spazio-3);
+  align-items: start;
+}
+
+.documenti__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Un elenco di venticinque nomi non deve allungare la pagina all'infinito:
+     scorre dentro la sua scheda, e le due colonne restano affiancate. */
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.documenti__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) 0;
+  border-bottom: 1px solid var(--bordo-tenue, rgba(128, 128, 128, 0.2));
+}
+
+.documenti__riga:last-child {
+  border-bottom: none;
+}
+
+/* Il nome prende lo spazio, il pulsante resta incolonnato a destra: si scende
+   con l'occhio lungo una fila sola invece di cercarlo riga per riga. */
+.documenti__riga > .collegamento {
+  flex: 1;
+  text-align: left;
+}
+
+.documenti__automazione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.documenti__automazione p {
+  margin: 0;
+}

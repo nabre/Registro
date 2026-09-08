@@ -1,0 +1,374 @@
+/* ------------------------------------------------- la «R» nella griglia dei voti */
+
+/*
+ * Il segno che quel voto viene da un recupero: la prova è la stessa, il giorno
+ * no. A fine semestre, davanti a una colonna di numeri, non c'è più niente che
+ * lo ricordi — e un 4 rifatto a gennaio non si commenta come un 4 preso con la
+ * classe.
+ *
+ * Sta accanto alla casella e non dentro: dentro sarebbe un carattere da
+ * cancellare per scrivere il voto. La cella diventa una riga di due pezzi, con
+ * la casella che prende quel che resta — e il posto della lettera c'è in tutte
+ * le celle, anche dove la lettera non serve: se sparisse, la casella accanto si
+ * allargherebbe e le cifre della colonna non sarebbero più incolonnate.
+ */
+.tabella__cella--voto {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* La casella prende quel che resta, e non spinge fuori la lettera. */
+.tabella__cella--voto > .cella-voto { flex: 1 1 auto; min-width: 0; }
+
+.cella-voto__tag {
+  flex: 0 0 auto;
+  width: 1.15em;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--informativo) 22%, transparent);
+  color: var(--informativo);
+  font-size: 0.7em;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  cursor: default;
+}
+
+/* Il posto tenuto: occupa lo spazio, non si vede, non si legge. */
+.cella-voto__tag--vuoto { visibility: hidden; }
+
+/* Dispensato: il recupero c'è stato deciso, ma per dire che non si fa. */
+.cella-voto__tag--dispensato {
+  background: color-mix(in srgb, var(--testo) 10%, transparent);
+  color: var(--testo-quieto);
+}
+
+/*
+ * La tendina dei voti: un `datalist` agganciato alla casella. Il datalist non
+ * si disegna — lo apre il browser — ma è un figlio come gli altri, e dentro
+ * una cella in flex conterebbe come una colonna vuota.
+ */
+.tabella__cella--voto > datalist,
+.cella-voto__guscio > datalist { display: none; }
+
+/* Il guscio fuori dalla griglia: tiene insieme casella e tendina. */
+.cella-voto__guscio { display: inline-flex; align-items: center; }
+
+/* I recuperi: le prove da rifare a chi non c'era. */
+
+/*
+ * Stessa forma delle consegne — filo colorato a sinistra, testata con le
+ * pastiglie, riga quieta sotto — e non per risparmio: sono la stessa specie di
+ * cosa, un debito aperto che qualcuno deve chiudere, e nel todo stanno una
+ * sopra l'altra. Farli diversi vorrebbe dire far credere che si leggano in due
+ * modi diversi.
+ *
+ * Quel che cambia è il filo: qui il rosso non è «in ritardo» ma «la prova non
+ * è stata rifatta», e l'arancione non è «scade oggi» ma «non c'è ancora una
+ * data» — che è la cosa da fare, non una cosa da ricordare.
+ */
+
+.recuperi { display: flex; flex-direction: column; gap: var(--spazio-4); }
+.recuperi__gruppo { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.recuperi__intestazione {
+  margin: 0 0 var(--spazio-2);
+  font-size: 1em;
+}
+
+.recuperi__titolo {
+  margin: 0;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.recupero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.recupero--da-fissare { border-left-color: var(--attenzione); }
+.recupero--scaduto { border-left-color: var(--negativo); }
+.recupero--oggi { border-left-color: var(--accento); }
+.recupero--fissato { border-left-color: var(--informativo); }
+.recupero--fatto { border-left-color: var(--positivo); opacity: 0.75; }
+.recupero--dispensato { border-left-color: var(--bordo); opacity: 0.7; }
+
+.recupero__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.recupero__allievo { min-width: 120px; }
+
+/* Il titolo della prova è un tasto: da un recupero si vuole andare alla prova. */
+.recupero__prova {
+  flex: 1;
+  min-width: 120px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.9em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.recupero__prova:hover { color: var(--accento); text-decoration: underline; }
+
+.recupero__corso {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  padding: 0 var(--spazio-1);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto-2);
+}
+
+.recupero__quando { margin: 0; font-size: 0.85em; color: var(--testo-quieto); }
+.recupero__data--tardi { color: var(--negativo); font-weight: 600; }
+
+/* I sistemati in fondo, chiusi: si aprono se li si cerca. */
+.recuperi__chiusi > summary {
+  cursor: pointer;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  padding: var(--spazio-1) 0;
+}
+
+/* ------------------------------------------------- la tabella dentro la prova */
+
+/*
+ * Gli assenti di una verifica sono due o tre nomi con le stesse quattro
+ * domande: quando la rifanno, che voto ne è uscito, dov'è la scansione. Una
+ * tabella si legge in orizzontale; un elenco di schede va letto una alla volta.
+ */
+.tabella--recuperi .tabella__nome { white-space: nowrap; }
+.tabella--recuperi .recuperi__scansione { min-width: 220px; }
+.tabella--recuperi .recuperi__riconsegna { min-width: 108px; }
+
+/* Il campo e la sua spunta sulla stessa riga: sono lo stesso gesto. */
+.tabella--recuperi .recuperi__riconsegna {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Il campo data dentro una cella: la colonna è già l'etichetta. */
+.recuperi__riconsegna .campo__controllo {
+  width: 100%;
+  min-width: 92px;
+  padding: 2px 6px;
+}
+
+/* Il posto del PDF dentro una cella: senza bordi propri, che la riga li ha già. */
+.recuperi__scansione .allegato {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.recuperi__scansione .allegato__ruolo { display: none; }
+
+/* Il testo della prova di recupero, sopra la tabella: uno per tutti. */
+.recuperi > .allegato { margin-bottom: var(--spazio-2); }
+
+/* Gli stessi posti dentro una finestra: staccati dal resto del modulo. */
+.allegati--modulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-2);
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+/*
+ * La graffetta accesa quando la scansione c'è già: da spenta è un invito a
+ * caricarla, da accesa è il modo di aprirla, e la differenza si deve leggere
+ * senza passarci sopra col mouse.
+ */
+.recupero__con-file { color: var(--accento); }
+
+/*
+ * La casella del voto del recupero: stretta e con il bordo visibile, perché
+ * nella riga di un elenco un campo senza bordi non si distingue da un'etichetta
+ * — e questa è l'unica casella da cui quel voto si può scrivere.
+ */
+.cella-voto--recupero {
+  width: 4.5em;
+  min-width: 4.5em;
+  border-color: var(--bordo-tenue);
+  background: var(--sfondo);
+}
+
+/* ------------------------------------------------- la «R» nella griglia dei voti */
+
+/*
+ * Il segno che quel voto viene da un recupero: la prova è la stessa, il giorno
+ * no. A fine semestre, davanti a una colonna di numeri, non c'è più niente che
+ * lo ricordi — e un 4 rifatto a gennaio non si commenta come un 4 preso con la
+ * classe.
+ *
+ * Sta accanto alla casella e non dentro: dentro sarebbe un carattere da
+ * cancellare per scrivere il voto. La cella diventa una riga di due pezzi, con
+ * la casella che prende quel che resta.
+ */
+.tabella__cella--con-tag {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cella-voto__tag {
+  flex: 0 0 auto;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--informativo) 22%, transparent);
+  color: var(--informativo);
+  font-size: 0.7em;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: default;
+}
+
+/* Dispensato: il recupero c'è stato deciso, ma per dire che non si fa. */
+.cella-voto__tag--dispensato {
+  background: color-mix(in srgb, var(--testo) 10%, transparent);
+  color: var(--testo-quieto);
+}
+
+/*
+ * I recuperi dentro la scheda Valutazioni dell'ora: staccati da una riga,
+ * perché sono un'altra cosa da quel che in quest'ora è nato — una verifica di
+ * un altro giorno, che si viene a rifare qui.
+ */
+.recuperi--ora {
+  margin-top: var(--spazio-3);
+  padding-top: var(--spazio-3);
+  border-top: 1px dashed var(--bordo-tenue);
+}
+
+.recuperi--ora:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* ------------------------------------------ la riconsegna, nome per nome */
+
+/*
+ * La tabella dentro la scheda Riconsegna: una riga per allievo che ha un voto.
+ * La data della classe si vede in trasparenza su chi non ne ha una propria —
+ * è vera per lui, ma non è stata scritta per lui — e appena se ne scrive una
+ * la riga smette di essere in ombra.
+ */
+.tabella--riconsegne .riconsegne__data { min-width: 108px; }
+
+.riconsegne__data .campo__controllo {
+  width: 100%;
+  min-width: 92px;
+  padding: 2px 6px;
+}
+
+/* La riga d'elenco di un singolo allievo: più stretta di quella di una prova. */
+.riconsegna--allievo { border-left-color: var(--informativo); }
+
+
+/* ------------------------------------------------ le righe da sistemare */
+
+/*
+ * Ogni riga è fatta di due metà: a sinistra chi e che cosa — il nome, la
+ * prova, lo stato — a destra i gesti. Prima erano un mucchio solo, e in mezzo
+ * a tre pastiglie il campo della data sembrava un'etichetta mentre i tasti si
+ * leggevano come decorazioni. Il gruppo di destra si stacca da sé: quando la
+ * riga va a capo resta intero, invece di sbriciolarsi su due righe.
+ */
+.recupero__azioni,
+.riconsegna__azioni {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin-left: auto;
+  flex-wrap: nowrap;
+}
+
+/*
+ * Il campo data con l'etichetta accanto: due parole davanti bastano a dire che
+ * cos'è quella casella, e restano sulla stessa riga.
+ */
+.data-linea {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 var(--spazio-1);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.data-linea__etichetta {
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+
+.data-linea .campo__controllo {
+  width: 6.6em;
+  min-width: 6.6em;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-linea:focus-within { border-color: var(--accento); }
+
+/* ------------------------------- una prova con sotto quel che le manca */
+
+/*
+ * Nel registro dell'ora ogni prova è un blocco: la riga con lo stato, la
+ * griglia delle caselle vuote, la tabella di chi non l'ha ancora riavuta.
+ * Prima erano tre elenchi separati — la stessa verifica compariva in due, e il
+ * terzo parlava di nomi senza dire di quale prova.
+ */
+.riconsegne__prova {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.riconsegne__prova + .riconsegne__prova {
+  margin-top: var(--spazio-3);
+  padding-top: var(--spazio-3);
+  border-top: 1px dashed var(--bordo-tenue);
+}
+
+/* I due pezzi sotto la riga, rientrati: si legge che appartengono a lei. */
+.riconsegne__griglia,
+.riconsegne__singoli {
+  margin-left: var(--spazio-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.riconsegne__prova .riconsegne__titolo {
+  margin: 0;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}

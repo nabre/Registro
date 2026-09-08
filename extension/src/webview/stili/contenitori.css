@@ -1,0 +1,173 @@
+/* Le scatole in cui sta il contenuto: schede e righe di sintesi. */
+
+/* ------------------------------------------------------------------ schede */
+
+.scheda {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  overflow: hidden;
+}
+
+.scheda__testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: color-mix(in srgb, var(--testo) 3%, transparent);
+  flex-wrap: wrap;
+}
+
+.scheda__titolo {
+  margin: 0;
+  font-size: 1.05em;
+}
+
+.scheda__corpo {
+  padding: var(--spazio-4);
+}
+
+.colonne {
+  display: grid;
+  gap: var(--spazio-4);
+  align-items: start;
+}
+
+.colonne--lezione { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.colonne--elenco { grid-template-columns: 260px minmax(0, 1fr); }
+.colonne--valutazioni { grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); }
+
+@media (max-width: 1100px) {
+  .colonne--lezione,
+  .colonne--valutazioni {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.colonna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  min-width: 0;
+}
+
+.colonna--impostazioni { max-width: 980px; }
+
+/* ------------------------------------------------------------------ sintesi */
+
+.sintesi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-5);
+  flex-wrap: wrap;
+}
+
+.sintesi--incassata {
+  padding: var(--spazio-3) var(--spazio-4);
+  margin-bottom: var(--spazio-3);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  border: 1px solid var(--bordo-tenue);
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+}
+
+.dato__valore {
+  font-size: 1.3em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dato__etichetta {
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dato--positivo .dato__valore { color: var(--positivo); }
+.dato--attenzione .dato__valore { color: var(--attenzione); }
+.dato--negativo .dato__valore { color: var(--negativo); }
+
+.pastiglia {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.82em;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.pastiglia .icona { width: 12px; height: 12px; }
+
+.pastiglia--neutro { background: var(--sfondo-alto-2); color: var(--testo); }
+.pastiglia--quiete { background: transparent; border-color: var(--bordo-tenue); color: var(--testo-quieto); }
+.pastiglia--positivo { background: color-mix(in srgb, var(--positivo) 18%, transparent); color: var(--positivo); }
+.pastiglia--negativo { background: color-mix(in srgb, var(--negativo) 18%, transparent); color: var(--negativo); }
+.pastiglia--attenzione { background: color-mix(in srgb, var(--attenzione) 20%, transparent); color: var(--attenzione); }
+.pastiglia--informativo { background: color-mix(in srgb, var(--informativo) 18%, transparent); color: var(--informativo); }
+
+.punto-colore {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.barra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sfondo-alto-2);
+  overflow: hidden;
+}
+
+.barra__riempimento { height: 100%; border-radius: 999px; }
+.barra__riempimento--positivo { background: var(--positivo); }
+.barra__riempimento--informativo { background: var(--informativo); }
+.barra__riempimento--attenzione { background: var(--attenzione); }
+
+.separatore { height: 1px; background: var(--bordo-tenue); }
+
+.testo-quieto { color: var(--testo-quieto); margin: 0; }
+
+/* L'esito della prova della posta: c'e' solo dopo che si e' premuto. */
+.posta-esito:not(:empty) { margin-top: var(--spazio-3); }
+
+.avviso {
+  display: flex;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo);
+}
+
+.avviso--attenzione { border-color: color-mix(in srgb, var(--attenzione) 45%, transparent); }
+.avviso--negativo { border-color: color-mix(in srgb, var(--negativo) 45%, transparent); }
+.avviso--attenzione .icona { color: var(--attenzione); }
+.avviso--negativo .icona { color: var(--negativo); }
+.avviso--informativo .icona { color: var(--informativo); }
+.avviso__testo { flex: 1; }
+.avviso ul { margin: var(--spazio-1) 0 0; padding-left: var(--spazio-4); }
+
+.stato-vuoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-6) var(--spazio-4);
+  text-align: center;
+}
+
+.stato-vuoto__titolo { margin: 0; font-weight: 600; }
+.stato-vuoto__testo { margin: 0; color: var(--testo-quieto); max-width: 46ch; }
+.stato-vuoto__azione { margin-top: var(--spazio-2); }
+.stato-vuoto__pulsanti { display: flex; gap: var(--spazio-2); }

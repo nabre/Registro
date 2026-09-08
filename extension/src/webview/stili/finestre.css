@@ -1,0 +1,157 @@
+/* Quel che si apre sopra il resto: modali e notifiche. */
+
+/* ------------------------------------------------------------------ modali */
+
+.strato-modale {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--spazio-5);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(1.5px);
+}
+
+.modale {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 88vh;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--vscode-editorWidget-background, var(--sfondo));
+  box-shadow: var(--ombra);
+  overflow: hidden;
+}
+
+.modale--stretta { max-width: 520px; }
+.modale--media { max-width: 760px; }
+.modale--larga { max-width: 1040px; }
+.modale--piena { max-width: 96vw; }
+.modale--occupata { opacity: 0.7; pointer-events: none; }
+
+.modale__testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.modale__titolo { margin: 0; font-size: 1.1em; }
+.modale__sottotitolo { margin: 2px 0 0; color: var(--testo-quieto); }
+
+.modale__chiudi {
+  border: none;
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--raggio);
+}
+
+.modale__chiudi:hover { background: var(--sfondo-alto-2); color: var(--testo); }
+
+.modale__errori:not(:empty) { padding: var(--spazio-3) var(--spazio-4) 0; }
+.elenco-errori,
+.elenco-avviso { margin: 0; padding-left: var(--spazio-4); }
+
+/* Un avviso solo non è un elenco: il punto elenco davanti a una riga sola fa
+   sembrare che ne manchino altre. */
+.elenco-avviso li:only-child { list-style: none; margin-left: calc(-1 * var(--spazio-3)); }
+
+.modale__corpo { padding: var(--spazio-4); overflow-y: auto; }
+/* Le domande a elenco — «ecco che cosa sto per fare» — vanno a capo davvero. */
+.modale__domanda { margin: 0; white-space: pre-line; }
+
+.modale__piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-top: 1px solid var(--bordo-tenue);
+  background: color-mix(in srgb, var(--testo) 3%, transparent);
+}
+
+.modale__piede-sinistra,
+.modale__piede-destra { display: flex; gap: var(--spazio-2); }
+
+.testo-preformattato {
+  margin: 0;
+  padding: var(--spazio-3);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  font-family: var(--vscode-editor-font-family);
+  font-size: 0.9em;
+  white-space: pre-wrap;
+}
+
+.elenco-scelta { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+.voce-scelta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.voce-scelta:hover { background: var(--sfondo-alto-2); }
+.voce-scelta--attiva { border-color: var(--accento); }
+.voce-scelta__testo { display: flex; flex-direction: column; min-width: 0; }
+.voce-scelta__testo small { color: var(--testo-quieto); }
+.elenco-scelta__piede { margin-top: var(--spazio-3); }
+
+/* ------------------------------------------------------------------ notifiche */
+
+.pila-notifiche {
+  position: fixed;
+  right: var(--spazio-4);
+  bottom: var(--spazio-4);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  max-width: 380px;
+}
+
+.notifica {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--vscode-notifications-background, var(--sfondo-alto));
+  box-shadow: var(--ombra);
+  animation: entra 0.16s ease-out;
+}
+
+.notifica--in-uscita { opacity: 0; transform: translateY(6px); transition: all 0.16s ease-in; }
+.notifica--successo .icona { color: var(--positivo); }
+.notifica--avviso .icona { color: var(--attenzione); }
+.notifica--errore .icona { color: var(--negativo); }
+.notifica__testo { flex: 1; }
+
+.notifica__chiudi {
+  border: none;
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+  padding: 2px;
+}
+
+@keyframes entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

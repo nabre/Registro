@@ -1,0 +1,486 @@
+/* Il fascicolo: documenti, recapiti, comunicazioni, assenze. */
+
+/* ------------------------------------------------------------------ consegne */
+
+/*
+ * Quel che si è dato da fare. L'elenco è ordinato per urgenza e non per data:
+ * prima quel che è rimasto indietro, perché è la cosa che si dimentica. Il filo
+ * a sinistra dice a colpo d'occhio in che gruppo si è, anche scorrendo.
+ */
+
+.consegne { display: flex; flex-direction: column; gap: var(--spazio-4); }
+.consegne__gruppo { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.consegne__titolo {
+  margin: 0;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.consegna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.consegna--arretrata { border-left-color: var(--negativo); }
+.consegna--scade { border-left-color: var(--attenzione); }
+.consegna--data { border-left-color: var(--accento); }
+.consegna--fatta { border-left-color: var(--positivo); opacity: 0.75; }
+
+/* Il corso, quando le consegne di più corsi stanno nello stesso elenco. */
+.consegna__corso {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  padding: 0 var(--spazio-1);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto-2);
+}
+
+/*
+ * Quel che è chiuso, in fondo e ripiegato: si apre se lo si cerca.
+ *
+ * La scheda «Fatto» del Todo e il suo corpo: consegne fatte, recuperi chiusi,
+ * prove riconsegnate. Tenerli in vista vorrebbe dire una pagina che cresce e
+ * non si svuota mai — che è il contrario di un todo — ma non lasciarne traccia
+ * vorrebbe dire non poter più rispondere a «l'ho già ridata?».
+ */
+.todo-fatto {
+  opacity: 0.85;
+}
+
+.todo-fatto__corpo > summary {
+  cursor: pointer;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  padding: var(--spazio-1) 0;
+}
+
+/* Fra un mucchio e l'altro dentro la scheda: senza, i tre elenchi si
+   toccherebbero e sembrerebbero uno solo. */
+.todo-fatto__corpo > section + section {
+  margin-top: var(--spazio-3);
+}
+
+.consegna__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.consegna__tipo { color: var(--testo-quieto); display: inline-flex; }
+.consegna__testo { flex: 1; min-width: 140px; }
+.consegna__quando { margin: 0; font-size: 0.85em; color: var(--testo-quieto); }
+.consegna__scadenza--tardi { color: var(--negativo); font-weight: 600; }
+
+/*
+ * Le spunte.
+ *
+ * Le caselle in linea non funzionavano in nessuna delle due direzioni: aperte
+ * facevano una parete su ogni riga, chiuse dietro una fisarmonica si
+ * richiudevano al primo ridisegno. Nella riga resta solo il conto, che è un
+ * pulsante; il ritiro vero — l'appello dei nomi — si fa in una finestra sua,
+ * dove i nomi stanno per esteso e ci si sta larghi.
+ */
+
+.consegna__riassunto {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: 2px var(--spazio-2);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-size: 0.85em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.consegna__riassunto:hover {
+  border-color: var(--bordo-tenue);
+  background: var(--sfondo-alto);
+}
+
+.consegna__riassunto .barra { flex: 0 0 84px; }
+.consegna__conto { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+
+/* La freccia che dice che premendo si apre qualcosa. */
+.consegna__riassunto::after {
+  content: '›';
+  margin-left: auto;
+  color: var(--testo-quieto);
+}
+
+.consegna__spunte-poche { display: flex; flex-wrap: wrap; gap: var(--spazio-1); }
+
+.spunta-nome {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 999px;
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.spunta-nome:hover { border-color: var(--accento); color: var(--testo); }
+
+.spunta-nome--fatta {
+  border-color: color-mix(in srgb, var(--positivo) 55%, transparent);
+  background: color-mix(in srgb, var(--positivo) 16%, transparent);
+  color: var(--positivo);
+}
+
+.consegna__nota { margin: 0; font-size: 0.85em; color: var(--attenzione); }
+
+/* ------------------------------------------------------------------ il ritiro */
+
+/*
+ * La finestra in cui si fa l'appello delle consegne. Le pastiglie qui portano
+ * il nome per esteso e sono più grandi: si preme mentre si guarda la classe, non
+ * mentre si guarda lo schermo.
+ */
+
+.ritiro { gap: var(--spazio-3); }
+.ritiro__testa { display: flex; gap: var(--spazio-2); flex-wrap: wrap; }
+.ritiro__quando { margin: 0; font-size: 0.9em; }
+.ritiro__note { margin: 0; color: var(--testo-quieto); font-size: 0.9em; }
+
+.ritiro__conto {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+}
+
+.ritiro__conto .barra { flex: 1; }
+.ritiro__comandi { display: flex; gap: var(--spazio-2); }
+
+.ritiro__nomi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+.ritiro__nomi .spunta-nome {
+  font-size: 0.95em;
+  padding: var(--spazio-1) var(--spazio-3);
+}
+
+/* La scelta dei destinatari nel modulo: la stessa forma delle spunte. */
+.scelta-allievi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-3);
+}
+
+.scelta-allievi__voce {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  cursor: pointer;
+}
+
+/* Una zona del modulo che compare solo quando la scelta di sopra la richiede. */
+.modulo__zona[hidden] { display: none; }
+
+/* ------------------------------------------------------ docente di classe */
+
+.docente-classe { display: flex; flex-direction: column; gap: var(--spazio-3); }
+
+.elenco-documenti,
+.elenco-recapiti,
+.elenco-comunicazioni {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.documento,
+.recapito,
+.comunicazione {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.documento:hover,
+.recapito:hover,
+.comunicazione:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); }
+
+.documento__titolo,
+.comunicazione__oggetto {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+/* Il documento è una riga, la comunicazione porta anche un sottotitolo e
+   vuole due righe: sono le uniche due proprietà che differiscono. */
+.documento__titolo { align-items: center; gap: var(--spazio-1); }
+.comunicazione__oggetto { flex-direction: column; align-items: flex-start; gap: 0; }
+.comunicazione__oggetto small { color: var(--testo-quieto); }
+.documento__titolo:hover span:last-child,
+.comunicazione__oggetto:hover strong { text-decoration: underline; }
+
+.documento__categoria { font-size: 0.82em; }
+
+.testo-negativo { color: var(--negativo); }
+
+/* La matrice dei documenti: allievi in riga, richieste in colonna. */
+.tabella__richiesta { min-width: 104px; }
+.tabella__richiesta .collegamento { display: flex; flex-direction: column; align-items: flex-start; }
+.tabella__richiesta small { color: var(--testo-quieto); font-weight: 400; }
+
+.tabella__richiesta-titolo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.cella-documento__gruppo {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cella-documento {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 34px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Consegnato, atteso e scaduto si distinguono da lontano: è quel che si guarda. */
+.cella-documento--consegnato {
+  border-color: color-mix(in srgb, var(--positivo) 45%, transparent);
+  background: color-mix(in srgb, var(--positivo) 12%, transparent);
+  color: var(--positivo);
+}
+
+.cella-documento--atteso {
+  border-color: color-mix(in srgb, var(--attenzione) 45%, transparent);
+  background: color-mix(in srgb, var(--attenzione) 12%, transparent);
+  color: var(--attenzione);
+}
+
+.cella-documento--scaduto {
+  border-color: color-mix(in srgb, var(--negativo) 45%, transparent);
+  background: color-mix(in srgb, var(--negativo) 12%, transparent);
+  color: var(--negativo);
+}
+
+/* Chi la richiesta non ce l'ha: casella spenta, e un clic gliela dà. */
+.cella-documento--fuori {
+  border-style: dashed;
+  border-color: var(--bordo-tenue);
+  color: var(--testo-quieto);
+}
+
+.cella-documento--fuori:hover {
+  border-style: solid;
+  color: var(--testo);
+}
+
+/* La matita sta nel DOM sempre, in vista solo quando serve: una per cella,
+   tutte accese insieme farebbero una griglia di matite e nient'altro. */
+.cella-documento__modifica {
+  opacity: 0;
+  padding: 2px;
+}
+
+tr:hover .cella-documento__modifica,
+.cella-documento__modifica:focus-visible { opacity: 1; }
+
+/* ---------------------------------------------- assenze da far firmare */
+
+/* L'elenco dei periodi usa le righe dei documenti; quello aperto si segna,
+   perché la matrice qui sotto è la sua e non si capisce di chi sia altrimenti. */
+.periodo-assenze {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+  border-left: 2px solid transparent;
+}
+
+.periodo-assenze:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); }
+
+.periodo-assenze--aperto {
+  border-left-color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 8%, transparent);
+}
+
+/* Cinque colonne strette: le intestazioni sono sigle, e il titolo intero sta
+   nel tooltip. Larghe come i documenti, la tabella non ci starebbe. */
+.tabella--assenze .tabella__richiesta { min-width: 52px; text-align: center; }
+.tabella--assenze .tabella__richiesta-titolo { max-width: none; }
+.tabella--assenze .tabella__nome small { margin-left: var(--spazio-1); font-weight: 400; }
+
+/* La casella di chi non ha niente da spedire: non è un buco da riempire. */
+.cella-documento--vuota {
+  color: var(--testo-quieto);
+  cursor: default;
+  border-color: transparent;
+}
+
+.recapito strong { min-width: 10em; }
+
+.testo-errore { color: var(--negativo); }
+
+.blocco-testo__titolo { margin: var(--spazio-3) 0 var(--spazio-1); }
+
+.elenco-materie { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.materia {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.materia:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); }
+.materia strong { min-width: 10em; }
+
+/* Un giorno di chiusura: si spegne invece di sparire, perché la settimana
+   deve restare leggibile come griglia. */
+.giorno--chiuso {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    color-mix(in srgb, var(--testo) 7%, transparent) 5px,
+    color-mix(in srgb, var(--testo) 7%, transparent) 10px
+  );
+}
+.giorno--chiuso .settimana__giorno-numero,
+.giorno--chiuso .mese__numero { opacity: 0.5; }
+
+/*
+ * Sabato e domenica. Si mostrano — capita di fare un recupero, una gita, un
+ * esame — ma non devono pesare come i giorni di scuola: un fondo appena più
+ * spento basta a far leggere la settimana lavorativa senza contarne i giorni.
+ */
+.giorno--festivo { background-color: color-mix(in srgb, var(--testo) 4%, transparent); }
+.settimana__giorno.giorno--festivo .settimana__giorno-nome { color: var(--testo-quieto); }
+.mese__cella.giorno--festivo .mese__numero { color: var(--testo-quieto); }
+
+/*
+ * Il Todo come cruscotto: quattro schede in cima, una scheda per classe sotto.
+ *
+ * Le quattro stanno su una riga sola finché ci stanno, e si stringono a due o a
+ * una quando la finestra è stretta: sono un confronto — da dove comincio? — e
+ * un confronto messo in colonna non è più tale.
+ */
+.todo-sintesi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-4);
+}
+
+.todo-sintesi__scheda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-top: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+/* Quella con del ritardo dentro si distingue da lontano: è la sola cosa che
+   queste quattro schede devono far vedere prima di essere lette. */
+.todo-sintesi__scheda--preme { border-top-color: var(--negativo); }
+.todo-sintesi__scheda--vuota { opacity: 0.6; }
+
+.todo-sintesi__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  color: var(--testo-quieto);
+}
+
+.todo-sintesi__titolo {
+  margin: 0;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Il numero è la cosa che si legge da lontano: il resto della scheda serve a
+   sapere di che cosa parla quel numero. */
+.todo-sintesi__numero {
+  margin: 0;
+  font-size: 1.9em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.todo-sintesi__quiete { font-size: 0.85em; }
+.todo-sintesi__spiega { margin: 0; font-size: 0.8em; }
+
+/* Le classi una sotto l'altra, staccate: ognuna è un blocco di lavoro a sé. */
+.todo-classi { display: flex; flex-direction: column; gap: var(--spazio-4); }
+.todo-classe__corpo { display: flex; flex-direction: column; gap: var(--spazio-4); }
+
+/*
+ * Una famiglia dentro la scheda di una classe: il titolo, che lavoro è, e
+ * quanto ne resta. La riga di testata tiene insieme le tre cose perché si
+ * leggono in un colpo solo, e va a capo sulle finestre strette invece di
+ * schiacciare la pastiglia contro il titolo.
+ */
+.todo-famiglia__testata {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--spazio-2);
+  padding-bottom: var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.todo-famiglia__titolo { margin: 0; font-size: 0.95em; }
+.todo-famiglia__conto { flex: 1; min-width: 140px; font-size: 0.82em; }
+.todo-famiglia__corpo { display: flex; flex-direction: column; gap: var(--spazio-3); }

@@ -1,0 +1,1071 @@
+@import './note-grafico.css';
+
+/*
+ * Lo schermo per la classe.
+ *
+ * Un foglio a sé, e non un pezzo di quello del registro: là le misure sono
+ * quelle di chi guarda un portatile da mezzo metro, qui quelle di chi legge da
+ * in fondo all'aula. Tutto è più grande, più spaziato e più contrastato, e le
+ * cose su cui non si può cliccare non fanno finta di essere cliccabili.
+ *
+ * I colori restano quelli del tema di VS Code: il docente sceglie chiaro o
+ * scuro guardando il proiettore che ha — un'aula con le tende aperte vuole il
+ * chiaro, una sala buia il scuro — e la proiezione lo segue senza avere una
+ * sua impostazione da ricordarsi.
+ */
+
+:root {
+  --spazio-1: 6px;
+  --spazio-2: 12px;
+  --spazio-3: 18px;
+  --spazio-4: 26px;
+  --spazio-5: 38px;
+
+  --raggio: 10px;
+
+  --bordo: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  --sfondo: var(--vscode-editor-background);
+  --sfondo-alto: color-mix(in srgb, var(--vscode-editor-foreground) 6%, var(--sfondo));
+  --testo: var(--vscode-editor-foreground);
+  --testo-quieto: color-mix(in srgb, var(--testo) 62%, transparent);
+  --accento: var(--vscode-textLink-foreground, #3794ff);
+
+  --positivo: var(--vscode-testing-iconPassed, #3fb950);
+  --negativo: var(--vscode-testing-iconFailed, #f85149);
+  --attenzione: var(--vscode-editorWarning-foreground, #d29922);
+
+  /* La misura di riferimento: da qui scende tutto il resto della pagina. */
+  --corpo: clamp(17px, 1.35vw + 9px, 30px);
+}
+
+/*
+ * Misure strette, ed è la partenza.
+ *
+ * Il foglio non scorre — davanti a una classe nessuno può scorrere — quindi
+ * quel che non ci sta non lo legge nessuno: meglio un carattere un po' più
+ * piccolo e tutto visibile che uno grande e mezzo fuori dal bordo. Una
+ * scaletta di sei tappe o un appello di venticinque nomi, con le misure
+ * larghe, finiscono sotto il taglio.
+ *
+ * Le misure stanno tutte qui, sulla radice: il corpo del testo e la scala
+ * degli spazi si ridefiniscono insieme, e la pagina si stringe per intero
+ * invece che pezzo per pezzo. Chi ha un'aula lunga allarga dal pannello.
+ */
+.proiezione--compatta {
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 18px;
+  --spazio-5: 26px;
+
+  --corpo: clamp(14px, 1vw + 7px, 22px);
+
+  font-size: var(--corpo);
+  line-height: 1.3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vscode-font-family);
+  font-size: var(--corpo);
+  line-height: 1.4;
+  color: var(--testo);
+  background: var(--sfondo);
+}
+
+/*
+ * Il foglio è alto quanto lo schermo e non scorre: davanti a una classe non
+ * c'è nessuno che possa scorrere, e quel che finisce sotto il bordo è quel
+ * che nessuno legge. Testata e schede prendono il minimo, il contenuto tutto
+ * il resto.
+ */
+.proiezione {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.foglio {
+  padding: var(--spazio-2) var(--spazio-4) var(--spazio-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.foglio--sospesa {
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------ testata */
+
+/*
+ * Una riga sola, piccola: chi è in aula sa già che classe è e che ora è. La
+ * testata serve a chi entra a metà ora, e per quello una riga basta — lo
+ * spazio è del contenuto.
+ */
+.testata {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  flex: none;
+  border-bottom: 1px solid var(--bordo);
+  padding-bottom: var(--spazio-1);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+}
+
+.testata__chi {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  min-width: 0;
+}
+
+.testata__classe {
+  color: var(--accento);
+  font-weight: 700;
+}
+
+/* Il titolo del piano: utile, non essenziale. Se non ci sta si taglia. */
+.testata__titolo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.testata__quando {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ schede */
+
+/*
+ * La striscia in cima: dice quali schede ci sono e quale si sta guardando.
+ *
+ * Non si clicca — sullo schermo grande non ci sono comandi — ma senza, passare
+ * da una scheda all'altra sembra che la pagina cambi da sola.
+ */
+.schede {
+  display: flex;
+  flex-wrap: wrap;
+  flex: none;
+  gap: var(--spazio-3);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--testo-quieto) 70%, transparent);
+}
+
+.schede__voce { padding-bottom: 2px; }
+
+.schede__voce--corrente {
+  color: var(--accento);
+  font-weight: 700;
+  border-bottom: 3px solid var(--accento);
+}
+
+/* ------------------------------------------------------------------ blocchi */
+
+/*
+ * Una scheda alla volta, e prende tutto quel che resta del foglio: è il solo
+ * motivo per cui il proiettore è acceso. Prima i blocchi accesi si impilavano
+ * in due colonne, e con quattro accesi la classe in fondo all'aula non
+ * leggeva nessuno dei quattro riquadri.
+ *
+ * `min-height: 0` perché un figlio flex non scende sotto il suo contenuto se
+ * non glielo si dice: senza, una scaletta lunga sfondava il foglio invece di
+ * scorrere dentro il suo riquadro.
+ */
+.foglio > .blocco {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.blocco {
+  min-width: 0;
+}
+
+.blocco__titolo {
+  margin: 0 0 var(--spazio-2);
+  font-size: 0.78em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+  font-weight: 700;
+}
+
+.testo-grande {
+  margin: 0;
+  font-size: 1.25em;
+  line-height: 1.35;
+}
+
+.testo-quieto {
+  margin: var(--spazio-2) 0 0;
+  color: var(--testo-quieto);
+  font-size: 0.9em;
+}
+
+/* ----------------------------------------------------------------- scaletta */
+
+.scaletta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  counter-reset: tappa;
+}
+
+.tappa {
+  border-left: 6px solid var(--tinta, var(--accento));
+  background: var(--sfondo-alto);
+  border-radius: var(--raggio);
+  padding: var(--spazio-2) var(--spazio-3);
+}
+
+/*
+ * Le tinte per tipo di attività sono le stesse del registro: chi prepara la
+ * lezione riconosce a colpo d'occhio la barra colorata che ha visto nel piano.
+ */
+.tappa[data-tipo='introduzione'] { --tinta: #6366f1; }
+.tappa[data-tipo='spiegazione'] { --tinta: #3b82f6; }
+.tappa[data-tipo='esercizio'] { --tinta: #10b981; }
+.tappa[data-tipo='laboratorio'] { --tinta: #06b6d4; }
+.tappa[data-tipo='discussione'] { --tinta: #f59e0b; }
+.tappa[data-tipo='gruppo'] { --tinta: #8b5cf6; }
+.tappa[data-tipo='verifica'] { --tinta: #ef4444; }
+.tappa[data-tipo='ripasso'] { --tinta: #84cc16; }
+.tappa[data-tipo='compito'] { --tinta: #ec4899; }
+.tappa[data-tipo='docenza'] { --tinta: #0ea5e9; }
+
+/*
+ * Quel che è già stato fatto sbiadisce, quel che si sta facendo no. È il segno
+ * che la classe cerca sullo schermo — «a che punto siamo» — e va letto senza
+ * doverlo spiegare.
+ */
+.tappa--svolta {
+  opacity: 0.45;
+}
+
+.tappa--svolta .tappa__titolo {
+  text-decoration: line-through;
+}
+
+.tappa--saltata {
+  opacity: 0.3;
+}
+
+.tappa--parziale {
+  opacity: 0.75;
+}
+
+.tappa__riga {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+}
+
+.tappa__numero {
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 1.4em;
+}
+
+.tappa__titolo {
+  font-size: 1.15em;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.tappa__durata {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.tappa__sotto {
+  display: flex;
+  gap: var(--spazio-2);
+  color: var(--testo-quieto);
+  font-size: 0.8em;
+  margin-left: calc(1.4em + var(--spazio-2));
+}
+
+.tappa__descrizione {
+  margin: var(--spazio-2) 0 0 calc(1.4em + var(--spazio-2));
+}
+
+.tappa__risorse {
+  margin: var(--spazio-2) 0 0 calc(1.4em + var(--spazio-2));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+.segno {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px var(--spazio-1);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.segno--prova {
+  background: color-mix(in srgb, var(--negativo) 22%, transparent);
+  color: var(--negativo);
+}
+
+/* ---------------------------------------------------------------- risorse */
+
+.figura {
+  margin: 0;
+  max-width: min(100%, 620px);
+}
+
+.figura__immagine {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo);
+}
+
+.figura__nome {
+  margin-top: var(--spazio-1);
+  color: var(--testo-quieto);
+  font-size: 0.8em;
+}
+
+.risorsa {
+  display: flex;
+  flex-direction: column;
+  background: var(--sfondo-alto);
+  border-radius: var(--raggio);
+  padding: var(--spazio-1) var(--spazio-2);
+  font-size: 0.85em;
+}
+
+.risorsa__indirizzo {
+  color: var(--accento);
+  word-break: break-all;
+  font-size: 0.9em;
+}
+
+/* ------------------------------------------------------------------ elenchi */
+
+.elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.voce {
+  background: var(--sfondo-alto);
+  border-radius: var(--raggio);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-left: 6px solid transparent;
+}
+
+.voce__riga {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.voce__testo {
+  font-weight: 600;
+  min-width: 0;
+}
+
+.voce__quando {
+  color: var(--testo-quieto);
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+
+.voce__sotto {
+  color: var(--testo-quieto);
+  font-size: 0.8em;
+  margin-top: 2px;
+}
+
+.voce--scade {
+  border-left-color: var(--attenzione);
+}
+
+.voce--arretrata {
+  border-left-color: var(--negativo);
+}
+
+.voce--completa {
+  opacity: 0.55;
+}
+
+.voce--prova {
+  border-left-color: var(--negativo);
+}
+
+.voce--corrente {
+  border-left-color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 14%, var(--sfondo-alto));
+}
+
+/* -------------------------------------------------------------- valutazioni */
+
+.prova {
+  background: var(--sfondo-alto);
+  border-radius: var(--raggio);
+  padding: var(--spazio-2) var(--spazio-3);
+  margin-bottom: var(--spazio-2);
+}
+
+.prova__conti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  margin-top: var(--spazio-1);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+.conto strong {
+  color: var(--testo);
+  font-size: 1.15em;
+}
+
+.conto--quieto {
+  opacity: 0.75;
+}
+
+/*
+ * I voti in tabella, quando i nomi sono accesi.
+ *
+ * Due colonne allineate e non un elenco con il voto appeso in coda alla riga:
+ * da in fondo all'aula la colonna dei voti si scorre con gli occhi in
+ * verticale, mentre in un elenco bisogna seguire ogni riga fino alla fine per
+ * arrivare al numero.
+ */
+.tabella-voti {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spazio-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabella-voti th,
+.tabella-voti td {
+  text-align: left;
+  padding: 2px var(--spazio-2) 2px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--bordo) 50%, transparent);
+}
+
+.tabella-voti th {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.tabella-voti__voto {
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tabella-voti__riga--insufficiente .tabella-voti__voto { color: var(--negativo); }
+
+/* Chi non c'era resta in elenco, spento: la classe deve poter vedere che di
+   quella persona non manca un voto — semplicemente non era lì. */
+.tabella-voti__riga--assente { color: var(--testo-quieto); }
+
+/* ------------------------------------------------------------------ appello */
+
+.tabella-scorrevole {
+  overflow-x: auto;
+}
+
+.appello {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.appello th,
+.appello td {
+  padding: var(--spazio-1) var(--spazio-2);
+  text-align: left;
+  border-bottom: 1px solid color-mix(in srgb, var(--bordo) 60%, transparent);
+}
+
+.appello thead th {
+  color: var(--testo-quieto);
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.appello__nome {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.appello__minuti {
+  color: var(--attenzione);
+  font-size: 0.8em;
+  margin-left: var(--spazio-1);
+}
+
+.appello__ud {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.appello__cella {
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  width: 3em;
+}
+
+/*
+ * Le sigle sono quelle del registro e del verbale stampato: P presente, A
+ * assente, R ritardo, E esonerato, - non ancora detto. Stessi segni ovunque,
+ * così chi guarda lo schermo e chi rilegge il PDF vedono la stessa cosa.
+ */
+.appello__cella[data-sigla='A'] {
+  color: var(--negativo);
+}
+
+.appello__cella[data-sigla='R'] {
+  color: var(--attenzione);
+}
+
+.appello__cella[data-sigla='P'] {
+  color: var(--positivo);
+}
+
+.appello__cella[data-sigla='-'] {
+  color: var(--testo-quieto);
+  opacity: 0.6;
+}
+
+.appello__riga--assente {
+  opacity: 0.6;
+}
+
+/* ------------------------------------------------------------- calendario */
+
+/*
+ * Le quattro viste del calendario, sullo schermo grande.
+ *
+ * Le stesse del registro, e disposte uguali: il docente indica lo schermo
+ * mentre parla — «qui, giovedì» — e una griglia disposta diversamente da
+ * quella che ha sul portatile gli farebbe indicare il posto sbagliato.
+ *
+ * Quel che cambia è che qui non si scorre. Nel registro la settimana è alta
+ * un tot di pixel e la pagina scorre; qui la griglia prende l'altezza che c'è
+ * e le ore stanno in percentuale della fascia, così tutta la giornata sta
+ * nella pagina di qualsiasi proiettore. Davanti a una classe nessuno può
+ * scorrere, e quel che finisce sotto il bordo non lo legge nessuno.
+ */
+
+/* Le griglie si prendono l'altezza del foglio: tagliate a metà non dicono
+   niente. L'agenda no — è un elenco, e si comporta come gli altri elenchi. */
+.blocco--settimana,
+.blocco--mese,
+.blocco--anno {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.blocco--settimana > .blocco__corpo,
+.blocco--mese > .blocco__corpo,
+.blocco--anno > .blocco__corpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------ i segni comuni ai giorni */
+
+/*
+ * Le vacanze, il sabato e il confine di semestre si vedono uguali in tutte e
+ * tre le griglie: sono le stesse cose, e il giorno in cui qualcuno cambia il
+ * tratteggio delle chiusure lo cambia dappertutto.
+ */
+.giorno--festivo {
+  background: color-mix(in srgb, var(--testo) 5%, transparent);
+}
+
+.giorno--chiuso {
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--attenzione) 16%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.giorno--oggi {
+  box-shadow: inset 0 0 0 2px var(--accento);
+}
+
+/* Fuori dal mese guardato: le code della griglia mensile ci sono, ma non sono
+   di questo mese e non devono prendersi l'occhio. */
+.giorno--fuori {
+  opacity: 0.42;
+}
+
+.segno-chiusura {
+  display: block;
+  font-size: 0.62em;
+  color: var(--attenzione);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Il confine dove le medie ripartono: in rosso, come tutto quel che nel
+   registro vuol dire «attenzione alla data». */
+.segno-semestre {
+  display: inline-block;
+  margin-left: 0.4em;
+  font-size: 0.62em;
+  font-weight: 700;
+  color: var(--negativo);
+  white-space: nowrap;
+}
+
+/* La prova, che non ha un'ora sua: è la cosa che la classe cerca guardando il
+   calendario, e si vede prima di tutto il resto. */
+.giorno-prova {
+  border-left: 3px solid var(--negativo);
+  background: color-mix(in srgb, var(--negativo) 14%, transparent);
+  border-radius: 4px;
+  padding: 1px var(--spazio-1);
+  font-size: 0.66em;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Le prove del giorno, in fondo alla colonna della settimana: non hanno
+   un'ora loro, e appese al fondo si leggono come «quel giorno lì». */
+.giorno-prove {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* -------------------------------------------------------------- settimana */
+
+.calendario-settimana {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.calendario-settimana__testa {
+  display: grid;
+  flex: none;
+  border-bottom: 1px solid var(--bordo);
+}
+
+.calendario-settimana__angolo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62em;
+  color: var(--testo-quieto);
+}
+
+.calendario-settimana__lettera {
+  font-weight: 700;
+  color: var(--accento);
+}
+
+.calendario-settimana__giorno {
+  padding: 2px var(--spazio-1);
+  text-align: center;
+  border-left: 1px solid var(--bordo);
+  min-width: 0;
+}
+
+.calendario-settimana__nome {
+  font-size: 0.66em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--testo-quieto);
+  margin-right: 0.35em;
+}
+
+.calendario-settimana__numero {
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+.calendario-settimana__corpo {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.calendario-settimana__ore {
+  position: relative;
+}
+
+/* L'ora piena, appesa alla sua riga: a filo del segno, o con la fascia
+   stretta le etichette si accavallerebbero. */
+.calendario-settimana__ora {
+  position: absolute;
+  right: var(--spazio-1);
+  transform: translateY(-50%);
+  font-size: 0.62em;
+  color: var(--testo-quieto);
+}
+
+.calendario-settimana__colonna {
+  position: relative;
+  border-left: 1px solid var(--bordo);
+  min-width: 0;
+}
+
+.calendario-settimana__riga {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--bordo) 60%, transparent);
+}
+
+/* Il rettangolo di un'ora: in percentuale della fascia, non in pixel. */
+.ora-blocco {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  overflow: hidden;
+  border-radius: 5px;
+  border-left: 4px solid var(--accento);
+  background: color-mix(in srgb, var(--accento) 18%, var(--sfondo));
+  padding: 1px var(--spazio-1);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+}
+
+.ora-blocco__quando {
+  font-size: 0.62em;
+  font-weight: 700;
+  color: var(--accento);
+}
+
+.ora-blocco__titolo {
+  font-size: 0.72em;
+  line-height: 1.15;
+  overflow: hidden;
+}
+
+/* L'ora che si sta facendo adesso: è il punto da cui la classe legge tutto il
+   resto — quel che viene prima è passato, quel che viene dopo deve venire. */
+.ora-blocco--adesso {
+  border-left-color: var(--positivo);
+  background: color-mix(in srgb, var(--positivo) 22%, var(--sfondo));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--positivo) 55%, transparent);
+}
+
+.ora-blocco--adesso .ora-blocco__quando {
+  color: var(--positivo);
+}
+
+/* Un'ora annullata resta scritta: sparire farebbe credere che non ci fosse mai
+   stata, e la classe sa benissimo che c'era. */
+.ora-blocco--annullata {
+  border: 1px dashed var(--bordo);
+  border-left: 4px solid var(--testo-quieto);
+  background: transparent;
+  color: var(--testo-quieto);
+  text-decoration: line-through;
+}
+
+.ora-blocco--svolta {
+  opacity: 0.78;
+}
+
+/* ------------------------------------------------------------------- mese */
+
+.calendario-mese {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.calendario-mese__testa {
+  display: grid;
+  flex: none;
+  font-size: 0.66em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--testo-quieto);
+  text-align: center;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--bordo);
+}
+
+.calendario-mese__riga {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  border-bottom: 1px solid var(--bordo);
+}
+
+.calendario-mese__settimana {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.66em;
+  color: var(--testo-quieto);
+}
+
+.calendario-mese__lettera {
+  font-weight: 700;
+  color: var(--accento);
+}
+
+.calendario-mese__cella {
+  border-left: 1px solid var(--bordo);
+  padding: 1px 2px;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.calendario-mese__numero {
+  font-size: 0.72em;
+  font-weight: 700;
+  color: var(--testo-quieto);
+}
+
+/* La pastiglia di un'ora nella cella: l'ora e di che cosa si tratta, che è
+   quanto ci sta e quanto serve. */
+.ora-pastiglia {
+  display: flex;
+  gap: 0.35em;
+  align-items: baseline;
+  border-left: 3px solid var(--accento);
+  background: color-mix(in srgb, var(--accento) 14%, transparent);
+  border-radius: 4px;
+  padding: 0 3px;
+  font-size: 0.66em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ora-pastiglia__quando {
+  font-weight: 700;
+  color: var(--accento);
+  flex: none;
+}
+
+.ora-pastiglia__titolo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ora-pastiglia--adesso {
+  border-left-color: var(--positivo);
+  background: color-mix(in srgb, var(--positivo) 20%, transparent);
+}
+
+.ora-pastiglia--annullata {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* ------------------------------------------------------------------- anno */
+
+/*
+ * L'anno intero su una pagina: i mesi in colonna, i giorni in riga. È il
+ * foglio che la sede stampa e appende, ed è la vista che risponde alle domande
+ * di settembre e di gennaio — quando sono le vacanze, quante settimane
+ * mancano, dove cade il ponte.
+ *
+ * I numeri dei giorni ai due capi: dodici colonne di seguito senza un
+ * riferimento si leggono male, e a metà strada si sbaglia riga.
+ */
+.calendario-anno {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  font-size: 0.62em;
+}
+
+.calendario-anno__riga {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.calendario-anno__riga--mesi {
+  flex: none;
+  border-bottom: 1px solid var(--bordo);
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.calendario-anno__mese {
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendario-anno__numero {
+  text-align: center;
+  color: var(--testo-quieto);
+}
+
+.calendario-anno__giorno {
+  display: grid;
+  grid-template-columns: 1.1em 1fr 1.1em;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Le caselle che non esistono — il 31 di novembre — restano vuote invece di
+   sparire: le righe devono restare allineate fra i mesi, o il calendario
+   smette di leggersi in orizzontale. */
+.calendario-anno__giorno--nulla {
+  background: none;
+}
+
+.calendario-anno__lettera {
+  font-weight: 700;
+  color: var(--accento);
+  text-align: center;
+}
+
+.calendario-anno__dentro {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.calendario-anno__iniziale {
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+/* I giorni con lezione: sono quel che si cerca contando le settimane che
+   restano, e devono staccarsi dal resto della colonna. */
+.calendario-anno__giorno--lezione {
+  background: color-mix(in srgb, var(--accento) 18%, transparent);
+  font-weight: 700;
+}
+
+/* Il confine di semestre è una riga, e da che parte sta dice quale dei due:
+   sopra il giorno in cui un semestre comincia, sotto quello in cui finisce. */
+.calendario-anno__giorno--apre {
+  border-top-color: var(--negativo);
+}
+
+.calendario-anno__giorno--chiude {
+  border-bottom-color: var(--negativo);
+}
+
+.calendario-anno__legenda {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  padding-top: var(--spazio-1);
+  color: var(--testo-quieto);
+}
+
+.calendario-anno__legenda > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.calendario-anno__segno {
+  width: 0.9em;
+  height: 0.9em;
+  border: 1px solid var(--bordo);
+  border-radius: 2px;
+}
+
+.calendario-anno__segno--lezione {
+  background: color-mix(in srgb, var(--accento) 18%, transparent);
+}
+
+/* ------------------------------------------------------------------ attesa */
+
+.attesa {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-2);
+  min-height: 60vh;
+  text-align: center;
+}
+
+.attesa__titolo {
+  font-size: 2.2em;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.attesa__sotto {
+  color: var(--testo-quieto);
+  opacity: 0.7;
+  font-size: 0.9em;
+}

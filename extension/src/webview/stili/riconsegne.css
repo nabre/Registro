@@ -1,0 +1,132 @@
+/* Le riconsegne: le prove svolte che sono ancora in mano a chi insegna. */
+
+/*
+ * Stessa forma dei recuperi e delle consegne — filo colorato a sinistra,
+ * testata con le pastiglie, riga quieta sotto. Nel todo stanno una sopra
+ * l'altra e sono la stessa specie di cosa: un debito aperto che nessun
+ * automatismo chiude. Farle diverse vorrebbe dire far credere che si leggano
+ * in due modi diversi.
+ *
+ * Il filo dice che cosa manca: arancione se la pila è ancora da correggere,
+ * azzurro se è corretta e aspetta solo di tornare in classe, verde quando è
+ * tornata. Il rosso è riservato al tempo — una prova ferma da più di due
+ * settimane — perché quello è l'unico stato che si vede da lontano e per cui
+ * la classe alza la mano.
+ */
+
+.riconsegne { display: flex; flex-direction: column; gap: var(--spazio-4); }
+.riconsegne__gruppo { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.riconsegne__intestazione {
+  margin: 0 0 var(--spazio-2);
+  font-size: 1em;
+}
+
+.riconsegne__titolo {
+  margin: 0;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.riconsegna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.riconsegna--da-correggere { border-left-color: var(--attenzione); }
+.riconsegna--da-riconsegnare { border-left-color: var(--informativo); }
+.riconsegna--riconsegnata { border-left-color: var(--positivo); opacity: 0.75; }
+
+/* Il tempo passato vince sullo stato: è quel che fa alzare la mano in aula. */
+.riconsegna--tardi { border-left-color: var(--negativo); }
+
+.riconsegna__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+/* Il titolo della prova è un tasto: da una riconsegna si va alla griglia dei
+   voti, che è dove il lavoro si fa. */
+.riconsegna__prova {
+  flex: 1;
+  min-width: 140px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.riconsegna__prova:hover { color: var(--accento); text-decoration: underline; }
+
+.riconsegna__corso {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  padding: 0 var(--spazio-1);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto-2);
+}
+
+.riconsegna__quando { margin: 0; font-size: 0.85em; color: var(--testo-quieto); }
+.riconsegna__tardi { color: var(--negativo); font-weight: 600; }
+
+/* Le richieste di firma delle assenze: stessa forma delle riconsegne, e per lo
+   stesso motivo — sono un debito aperto che nessun automatismo chiude, e nel
+   todo stanno una sopra l'altra. Il filo a sinistra dice a che punto sta: da
+   spedire dipende da chi guarda, in attesa dipende dall'azienda. */
+.richiesta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.richiesta--da-spedire { border-left-color: var(--attenzione); }
+.richiesta--in-attesa { border-left-color: var(--informativo); }
+.richiesta--firmato { border-left-color: var(--positivo); opacity: 0.75; }
+
+/* Una mail che non è partita vince sullo stato: è l'unica riga che chiede di
+   essere aperta subito, e quasi sempre è un indirizzo sbagliato. */
+.richiesta--tardi { border-left-color: var(--negativo); }
+
+.richiesta__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+/* Il nome è un tasto: da qui si va alla matrice del periodo, che è dove si
+   carica il foglio firmato e si guarda tutta la classe insieme. */
+.richiesta__allievo {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.richiesta__allievo:hover { text-decoration: underline; }
+.richiesta__dove { flex: 1; min-width: 120px; font-size: 0.9em; }
+.richiesta__azioni { display: flex; align-items: center; gap: var(--spazio-1); }
+.richiesta__guasto { margin: 0; font-size: 0.9em; }

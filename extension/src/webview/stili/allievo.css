@@ -1,0 +1,234 @@
+/* La scheda di un allievo, le sospensioni, le risorse dei piani. */
+
+/* ------------------------------------------------------------------ scheda allievo
+
+   Un diario: una riga per fatto, la data a sinistra come ancora dell'occhio.
+   Serve a leggere ad alta voce con qualcuno davanti, quindi righe alte e
+   niente tabelle. */
+
+.colonne--allievo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spazio-4); }
+@media (max-width: 60rem) {
+  .colonne--allievo { grid-template-columns: 1fr; }
+}
+
+.anagrafica p { margin: 0 0 var(--spazio-1); }
+
+.diario {
+  list-style: none;
+  margin: var(--spazio-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diario__voce {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.diario__voce:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); }
+
+/* La data non si muove: e' la colonna su cui l'occhio scende. */
+.diario__quando {
+  flex: none;
+  min-width: 7em;
+  font-variant-numeric: tabular-nums;
+}
+
+.diario__cosa { flex: 1; min-width: 0; }
+.diario__nota { color: var(--testo-quieto); font-size: 0.9em; }
+
+.materia-voti { margin-top: var(--spazio-4); }
+.materia-voti:first-child { margin-top: 0; }
+
+.materia-voti__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding-bottom: var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.materia-voti__testata strong { flex: none; }
+.materia-voti__testata .testo-quieto { margin-left: auto; }
+
+/* ------------------------------------------------------------------ sospensioni
+
+   I giorni senza lezione di un anno: un elenco corto, sotto i semestri, dove si
+   guarda una volta a settembre e non si tocca piu'. */
+
+.anno__sospensioni { margin-top: var(--spazio-3); }
+
+.anno__sospensioni-testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+.anno__sospensioni-testata h5 {
+  margin: 0;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.sospensioni {
+  list-style: none;
+  margin: var(--spazio-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sospensione {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.sospensione:hover { background: color-mix(in srgb, var(--testo) 4%, transparent); }
+.sospensione strong { min-width: 12em; }
+.sospensione .testo-quieto { flex: 1; }
+
+/* ------------------------------------------------------------------ risorse dei piani
+
+   Un elenco di materiale: collegamenti, file, immagini. Le immagini portano una
+   miniatura perché un elenco di nomi di file non aiuta a ritrovarle; gli altri
+   tipi si distinguono col simbolo, che è meno rumoroso di un'etichetta. */
+
+.risorse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-2);
+}
+
+.risorse__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.risorse__azioni { display: flex; gap: var(--spazio-1); flex-wrap: wrap; }
+
+.risorsa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+}
+
+.risorsa__simbolo {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--testo-quieto);
+}
+
+.risorsa--collegamento .risorsa__simbolo { color: var(--accento); }
+
+/* ------------------------------------------------------------------ ritratto
+
+   La foto di chi si sta guardando, con i comandi accanto. Verticale e non
+   quadrata: le foto di classe si scattano così, e ritagliare un ritratto in un
+   quadrato taglia la fronte o il mento a qualcuno. */
+
+.ritratto { display: flex; align-items: flex-start; gap: var(--spazio-4); }
+
+/* La foto e i suoi due comandi restano una colonna sola: i recapiti crescono
+   accanto, e a schermo stretto passano sotto invece di stringersi in una
+   colonna da tre parole per riga. */
+.ritratto__colonna { flex: none; display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.ritratto .anagrafica { flex: 1; min-width: 12rem; }
+
+@media (max-width: 40rem) {
+  .ritratto { flex-wrap: wrap; }
+}
+
+.ritratto__foto,
+.ritratto__vuoto {
+  flex: none;
+  width: 96px;
+  height: 128px;
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+}
+
+.ritratto__foto { object-fit: cover; }
+
+.ritratto__vuoto { display: flex; align-items: center; justify-content: center; }
+
+.ritratto__simbolo { width: 32px; height: 32px; color: var(--testo-quieto); }
+
+.ritratto__comandi { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+/* La miniatura è cliccabile come il titolo: è il modo naturale di aprirla. */
+.risorsa__miniatura {
+  flex: none;
+  width: 56px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+  cursor: pointer;
+}
+
+.risorsa__corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.risorsa__note { margin: 0; color: var(--testo-quieto); font-size: 0.92em; }
+
+/* L'indirizzo o il nome del file: si taglia invece di allargare la colonna. */
+.risorsa__origine {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* In aula: nessun pulsante, righe piu' fitte, bersagli comunque grandi. */
+.risorse__elenco--aula { margin-top: var(--spazio-2); }
+.risorse__elenco--aula .risorsa { padding: var(--spazio-1) var(--spazio-2); }
+.risorse__elenco--aula .risorsa__miniatura { width: 40px; height: 30px; }
+
+.piano-lezione__risorse { margin-top: var(--spazio-3); }
+.piano-lezione__risorse h5 {
+  margin: 0;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+/* Dentro la scaletta l'elenco si stringe: lì le risorse sono una postilla
+   dell'attività, non la sezione principale. */
+.risorse--compatte { margin-top: var(--spazio-2); gap: var(--spazio-1); }
+.risorse--compatte .risorsa { padding: var(--spazio-1) var(--spazio-2); }
+.risorse--compatte .risorsa__miniatura { width: 40px; height: 30px; }
+.risorse--compatte .risorse__azioni { opacity: 0.55; }
+.scaletta__voce:hover .risorse--compatte .risorse__azioni { opacity: 1; }

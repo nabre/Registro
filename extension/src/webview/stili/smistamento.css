@@ -1,0 +1,336 @@
+/* Lo smistamento dei fogli in arrivo. */
+
+/* ------------------------------------------------------------------ smistamento */
+
+/*
+ * La quarantena dei PDF: un elenco di cose da decidere, non una tabella. Ogni
+ * riga è una domanda sola — di chi sono queste pagine — e i controlli che la
+ * chiudono stanno tutti sulla stessa linea, perché la risposta è un gesto solo.
+ */
+.elenco-smistamenti,
+.elenco-blocchi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.smistamento {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  padding: var(--spazio-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.smistamento__testata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+}
+
+.smistamento__nome {
+  margin-right: var(--spazio-1);
+}
+
+.smistamento__azioni {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+}
+
+.smistamento__errore {
+  margin: 0;
+}
+
+/* Il blocco incassato dentro il suo PDF: si vede a colpo d'occhio che le righe
+   parlano dello stesso file. */
+.blocco-smistato {
+  background: var(--sfondo-alto);
+  border-radius: var(--raggio);
+  padding: var(--spazio-1) var(--spazio-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.blocco-smistato__testata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+}
+
+.blocco-smistato__estratto {
+  margin: 0;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.blocco-smistato__azioni {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+}
+
+.blocco-smistato__chi {
+  min-width: 14rem;
+}
+
+.blocco-smistato__intervallo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.blocco-smistato__pagina {
+  width: 4.5rem;
+}
+
+/*
+ * La coda di lettura delle scansioni.
+ *
+ * Una barra che scorre e non misura: l'OCR impiega quel che impiega, e una
+ * percentuale inventata sarebbe una bugia detta bene. Quel che conta è che si
+ * veda che la macchina sta lavorando, su che cosa, e che si possa fermarla.
+ */
+.lavoro-ocr {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  padding: var(--spazio-2);
+  margin-bottom: var(--spazio-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.lavoro-ocr__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+}
+
+.lavoro-ocr__ferma {
+  margin-left: auto;
+}
+
+.lavoro-ocr__coda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.barra-lavoro {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sfondo-alto-2);
+  overflow: hidden;
+}
+
+.barra-lavoro span {
+  display: block;
+  height: 100%;
+  width: 35%;
+  border-radius: 999px;
+  background: var(--accento);
+  animation: scorre-lavoro 1.4s ease-in-out infinite;
+}
+
+@keyframes scorre-lavoro {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+/* Chi respira sta lavorando: il blocco in lettura si distingue dagli altri
+   anche guardando la scheda di sfuggita. */
+.blocco-smistato--in-lettura {
+  outline: 1px solid color-mix(in srgb, var(--accento) 50%, transparent);
+}
+
+.blocco-smistato__corpo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+}
+
+/* L'anteprima: piccola, perché è un indizio, non un lettore di PDF. */
+.blocco-smistato__anteprima {
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  cursor: pointer;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.blocco-smistato__anteprima:hover {
+  border-color: var(--accento);
+}
+
+.blocco-smistato__foto {
+  width: 132px;
+  max-height: 180px;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra-lavoro span { animation: none; width: 100%; opacity: 0.5; }
+}
+
+/* Una riga della bozza che ha già un nome: si distingue da quelle che una
+   risposta non ce l'hanno, perché su quelle il lavoro è solo controllare. */
+.blocco-smistato--proposto {
+  border-left: 3px solid var(--accento);
+}
+
+/* L'assegnazione a mano, in coda al PDF: pagine, allievo, documento. */
+.smistamento__manuale {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  padding-top: var(--spazio-1);
+  border-top: 1px dashed var(--bordo-tenue);
+}
+
+/*
+ * La zona in cui si lasciano cadere i PDF. Tratteggiata da ferma e accesa
+ * mentre il file la sorvola: senza quel cambio non si sa se il rilascio sarà
+ * preso, e si scopre solo lasciando andare il pulsante.
+ */
+.zona-trascinamento {
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio);
+  padding: var(--spazio-3);
+  margin-bottom: var(--spazio-2);
+  text-align: center;
+  color: var(--testo-quieto);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.zona-trascinamento--attiva {
+  border-color: var(--accento);
+  border-style: solid;
+  background: color-mix(in srgb, var(--accento) 10%, transparent);
+  color: var(--testo);
+}
+
+/*
+ * La matrice dei documenti respira più delle altre tabelle: le sue celle non
+ * sono numeri ma pulsanti che si centrano col dito, e venticinque righe
+ * appiccicate si sbagliano di riga senza accorgersene.
+ */
+.tabella--documenti .tabella__cella { padding: 6px 8px; }
+.tabella--documenti .tabella__nome,
+.tabella--documenti .tabella__media { padding-top: 8px; padding-bottom: 8px; }
+.tabella--documenti tbody td { border-bottom: 1px solid var(--bordo-tenue); }
+
+/*
+ * La riga delle firme sta in cima e si stacca: non è un allievo, è la prova che
+ * riguarda tutta la colonna, e una riga che sembra una persona in mezzo alle
+ * persone si legge come un nome sbagliato.
+ */
+.tabella__riga-firme td {
+  background: var(--sfondo-alto);
+  border-bottom: 2px solid var(--bordo);
+}
+
+.tabella__riga-firme .tabella__nome {
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+/* Il pulsante che spedisce una colonna intera: sta nella testata, sotto il
+   titolo, e non deve allargare la colonna più del titolo stesso. */
+.tabella__spedisci {
+  margin-top: 2px;
+  font-size: 0.85em;
+  width: 100%;
+}
+
+/* Nella matrice ogni casella ha due gesti — è successo, e il file — e il
+   secondo si vede meno del primo: è un'aggiunta, non lo stato della cosa. */
+.cella-documento--file { color: var(--accento); }
+.cella-documento--senza-file { opacity: 0.45; }
+.cella-documento--senza-file:hover { opacity: 1; }
+
+/* Le pastiglie della distribuzione stanno insieme: dicono una cosa sola — come
+   si consegna e a quanti manca — e separate si leggerebbero come tre fatti. */
+.consegna__distribuzione {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Una colonna sola: le annotazioni non hanno una controparte a destra, e
+   lasciarle larghe metà schermo con il vuoto accanto le fa sembrare un resto. */
+.colonne--singola { display: block; }
+
+/* Il voto in sola lettura: stessa forma della casella che si compila, ma
+   piatto — non invita a scrivere dove non si scrive. */
+.cella-voto--letta {
+  display: inline-block;
+  min-width: 56px;
+  text-align: center;
+  padding: 4px 0;
+  color: var(--testo-quieto);
+}
+
+/* I parametri di un'attività, nel modulo: stanno su una riga sotto la
+   descrizione, e cambiano con il tipo. Piccoli, perché sono dettagli di quella
+   tappa e non domande da riempire per forza. */
+.attivita-riga__parametri,
+.attivita-riga__valutazione {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  margin-top: 4px;
+}
+
+.attivita-riga__parametro { max-width: 12rem; }
+
+/* La tappa che è una prova si vede da lontano: la riga della valutazione si
+   stacca dal resto dei dettagli, perché è l'unica che produce dei voti. */
+.attivita-riga__valutazione--accesa {
+  padding: 4px var(--spazio-2);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  border-left: 3px solid var(--tinta-verifica);
+}
+
+.attivita-riga__titolo-prova { max-width: 16rem; }
+
+/* Il materiale di una tappa, dentro l'editor: sta in fondo alla riga, e i tre
+   pulsanti restano in disparte finché non ci si passa sopra — allegare è una
+   cosa che si fa a volte, scrivere il titolo è una cosa che si fa sempre. */
+.attivita-riga__campi .risorse--compatte { margin-top: var(--spazio-1); }
+.attivita-riga__campi .risorse--compatte .risorse__azioni { opacity: 0.55; }
+.attivita-riga:hover .risorse--compatte .risorse__azioni { opacity: 1; }
+
+.attivita-riga__sino {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  color: var(--testo-quieto);
+  white-space: nowrap;
+}
+
+/* Nella scaletta della lezione i parametri sono una riga sola di lettura. */
+.scaletta__parametri {
+  margin: 2px 0 0;
+  font-size: 0.9em;
+}
