@@ -2,7 +2,7 @@
 //
 // Tre cose da tenere ferme: che i predefiniti vengano da `package.json` e non
 // da un secondo elenco scritto a mano; che `affectsConfiguration` confronti per
-// prefisso puntato, perché è così che `estensione.ts` e `pannello.ts` sanno se
+// prefisso puntato, perché è così che `avvio.ts` e `pannelli/pannello.ts` sanno se
 // il cambiamento riguarda loro; e che `posta.autenticazione: 'vscode'` — il
 // valore scritto nel file da chi usava l'estensione — adesso si legga
 // `oauth`, perché l'account dell'editor qui non esiste.

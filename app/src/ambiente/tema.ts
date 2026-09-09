@@ -26,7 +26,7 @@ import { getConfiguration, onDidChangeConfiguration } from './impostazioni.js'
 const CHIAVE = 'registroDocenti.aspetto.tema'
 
 /**
- * I due colori di fondo, ricopiati da `src/webview/stili/tema.css` — `--sfondo`
+ * I due colori di fondo, ricopiati da `src/interfaccia/stili/tema.css` — `--sfondo`
  * nelle sue due tavolozze.
  *
  * È l'unica duplicazione del tema, ed è inevitabile: questo colore serve al

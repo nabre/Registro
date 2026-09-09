@@ -18,7 +18,7 @@ import { Uri } from './uri.js'
 /**
  * La cartella in cui stanno i bundle dell'app.
  *
- * È la stessa che `pannello.ts` nomina quando compone l'indirizzo del proprio
+ * È la stessa che `pannelli/pannello.ts` nomina quando compone l'indirizzo del proprio
  * script — `registro://app/dist/pannello.js` — ed è voluto che sia una sola: per
  * un po' i bundle sono stati in `dist-desktop/` mentre il registro continuava a
  * scrivere `dist`, e in mezzo c'era una traduzione che il protocollo e chi

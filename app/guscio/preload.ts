@@ -1,4 +1,4 @@
-// Il preload: poche righe, ed è il ponte che tiene `src/webview/ponte.ts`
+// Il preload: poche righe, ed è il ponte che tiene `src/interfaccia/ponte.ts`
 // intatto.
 //
 // Il webview del registro chiama `acquireVsCodeApi()` e poi ascolta gli eventi

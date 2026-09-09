@@ -1,7 +1,7 @@
 // Il tema: chiaro, scuro, o come lo è il sistema.
 //
 // Quel che si verifica qui è la catena, non i colori. I colori stanno in
-// `src/webview/stili/tema.css` e li giudica l'occhio; la catena invece è
+// `src/interfaccia/stili/tema.css` e li giudica l'occhio; la catena invece è
 // codice, ed è questa: l'impostazione `aspetto.tema` → `nativeTheme.themeSource`
 // → `prefers-color-scheme` in ogni pagina. Il terzo anello lo fa Electron e non
 // si prova; i primi due sì, e sono quelli che si possono rompere.

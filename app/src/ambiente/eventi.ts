@@ -69,7 +69,7 @@ export class EventEmitter<T> {
 
   fire (evento: T): void {
     // Su una copia: un ascoltatore che si disiscrive mentre l'evento gira —
-    // ne esistono, `pannello.ts` ne ha — altrimenti accorcerebbe l'insieme
+    // ne esistono, `pannelli/pannello.ts` ne ha — altrimenti accorcerebbe l'insieme
     // sotto i piedi del ciclo.
     for (const ascoltatore of [...this.#ascoltatori]) {
       try {

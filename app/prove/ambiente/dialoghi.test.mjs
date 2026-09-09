@@ -66,7 +66,7 @@ beforeEach(() => {
 
 describe('i segnaposto delle icone', () => {
   it('spariscono dalle etichette, o si leggerebbero', () => {
-    // `estensione.ts`, «piano per questa lezione»: senza questa riga chi guarda
+    // `avvio.ts`, «piano per questa lezione»: senza questa riga chi guarda
     // legge «$(copy) Piano di matematica».
     assert.equal(senzaSegnaposti('$(copy) Piano di matematica'), 'Piano di matematica')
     assert.equal(senzaSegnaposti('$(add) Piano vuoto da completare'), 'Piano vuoto da completare')
@@ -112,7 +112,7 @@ describe('i messaggi', () => {
 
   it('annullare risolve con undefined, che è quel che il chiamante confronta', async () => {
     apriIlPannello()
-    // Il bottone «Annulla», che è l'ultimo: `estensione.ts` scrive
+    // Il bottone «Annulla», che è l'ultimo: `avvio.ts` scrive
     // `if (conferma !== 'Elimina') return`.
     bancoElectron.rispostaAiMessaggi = 1
     const scelta = await window.showWarningMessage('Azzerare la posta?', { modal: true }, 'Azzera')
@@ -234,7 +234,7 @@ describe('la domanda con un elenco', () => {
     const { promessa, finestra } = await conLaFinestraDopo(() => window.showQuickPick(PIANI, { title: 'Piano' }))
     ipcMain.simulaDallaPagina(finestra.webContents.id, { dialogo: 'conferma', indice: 1 })
     const scelta = await promessa
-    // `estensione.ts` fa `scelta.pianoId`: se tornasse la sola etichetta,
+    // `avvio.ts` fa `scelta.pianoId`: se tornasse la sola etichetta,
     // ripulita per giunta, non ci sarebbe modo di risalire al piano.
     assert.equal(scelta.pianoId, 'p1')
   })

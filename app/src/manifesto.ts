@@ -31,7 +31,7 @@ export interface Comando {
 /**
  * Tutti i comandi del registro, nell'ordine in cui sono nati.
  *
- * L'ordine dei menu non è questo: sta in `GRUPPI`, dentro `desktop/menu.ts`,
+ * L'ordine dei menu non è questo: sta in `GRUPPI`, dentro `guscio/menu.ts`,
  * perché è una scelta di presentazione e non un fatto del registro. Un comando
  * aggiunto qui e non nominato là non sparisce — finisce sotto «Altro».
  */

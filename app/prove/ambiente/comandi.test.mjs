@@ -1,7 +1,7 @@
 // I comandi, e i quattro dell'editor che il registro invoca senza averli
 // registrati.
 //
-// La parte che conta è la sequenza di `pannelloProiezione.ts`: rivelare la
+// La parte che conta è la sequenza di `pannelli/proiezione.ts`: rivelare la
 // finestra, staccarla, metterla a schermo intero. Sul desktop il distacco non
 // serve più — un pannello *è* una finestra — ma deve riuscire lo stesso, perché
 // `staccaFinestra()` rinuncia allo schermo intero se il distacco fallisce. E lo
@@ -57,7 +57,7 @@ describe('la mappa dei comandi', () => {
   })
 
   it('un comando sconosciuto non fa cadere l’azione che lo stava usando', async () => {
-    // `estensione.ts` lo invoca *dopo* aver esportato il CSV: far fallire
+    // `avvio.ts` lo invoca *dopo* aver esportato il CSV: far fallire
     // l'azione per la sola rifinitura vorrebbe dire perdere il lavoro fatto.
     assert.equal(await commands.executeCommand('workbench.action.openSettings', 'registroDocenti.ocr'), undefined)
   })

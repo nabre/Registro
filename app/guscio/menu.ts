@@ -343,8 +343,8 @@ async function rispondi (aperta: BrowserWindow, richiesta: Richiesta): Promise<v
       const valore = accettabile(richiesta.chiave, richiesta.valore)
       if (valore === undefined) return
       // Da `update` e non scrivendo il file: è `update` a far scattare
-      // `onDidChangeConfiguration`, ed è così che `estensione.ts` si accorge di
-      // un cambio di `cartellaDati` e ricarica, e `pannello.ts` di un cambio in
+      // `onDidChangeConfiguration`, ed è così che `avvio.ts` si accorge di
+      // un cambio di `cartellaDati` e ricarica, e `pannelli/pannello.ts` di un cambio in
       // `ocr` e ridisegna. Scritto a mano, il file vorrebbe un riavvio per una
       // spunta.
       await getConfiguration().update(richiesta.chiave, valore)

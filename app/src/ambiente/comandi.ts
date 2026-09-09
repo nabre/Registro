@@ -53,7 +53,7 @@ function schermoDellaClasse (): Electron.Display | null {
  * Lo schermo intero, che il registro chiede con il comando di VS Code.
  *
  * Agisce sulla finestra che ha il fuoco, come fa VS Code, ed è esattamente
- * quel che serve: `pannelloProiezione.ts` chiama `reveal()` sulla proiezione
+ * quel che serve: `pannelli/proiezione.ts` chiama `reveal()` sulla proiezione
  * subito prima, proprio perché a mettersi a schermo intero non sia la finestra
  * di chi insegna.
  */

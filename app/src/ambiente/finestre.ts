@@ -3,7 +3,7 @@
 // Qui non si adatta il registro a Electron: si dà a `createWebviewPanel` la
 // stessa forma che ha in VS Code, sostenuta da una `BrowserWindow` invece che
 // da un editor. È la mossa che fa risparmiare tutto il resto del lavoro —
-// `pannello.ts` e `pannelloProiezione.ts` girano senza una modifica, e con
+// `pannelli/pannello.ts` e `pannelli/proiezione.ts` girano senza una modifica, e con
 // loro la coda delle richieste, la spinta dello stato e la chiusura a catena
 // della proiezione, che sono le tre cose difficili del registro.
 //
@@ -16,7 +16,7 @@
 //   reveal() / dispose()         show() / close()
 //
 // L'HTML si serve dal protocollo e non da un `data:` URL, e non è un dettaglio:
-// `pannello.ts` compone una Content-Security-Policy che nomina
+// `pannelli/pannello.ts` compone una Content-Security-Policy che nomina
 // `webview.cspSource`. Con un `data:` URL l'origine della pagina è opaca, la
 // policy non combacia con niente, e la finestra resta bianca senza dire perché.
 // Servita da `registro://pagina/<id>` l'origine è vera e la policy funziona.
@@ -41,7 +41,7 @@ export interface Webview {
   html: string
   readonly cspSource: string
   /**
-   * Le opzioni del pannello. Tipate e non `unknown`: `pannello.ts` le rilegge
+   * Le opzioni del pannello. Tipate e non `unknown`: `pannelli/pannello.ts` le rilegge
    * per rifarle con le radici della cartella nuova — `{...options, localResourceRoots}`
    * — e su `unknown` quella riga non compila.
    */
@@ -110,7 +110,7 @@ class VistaWeb implements Webview {
     this.onDidReceiveMessage = this.#emettitore.event
 
     // I messaggi spediti a pagina non ancora caricata si conservano, come fa
-    // VS Code: `pannelloProiezione.ts` spinge il primo contenuto nel proprio
+    // VS Code: `pannelli/proiezione.ts` spinge il primo contenuto nel proprio
     // costruttore, cioè prima che la finestra abbia finito di aprirsi, e
     // buttarlo via lascerebbe lo schermo della classe vuoto fino alla prima
     // modifica del registro.
@@ -290,7 +290,7 @@ export function createWebviewPanel (
       preload: percorsoPreload(),
       // Nel registro ci sono nomi di allievi, note personali e valutazioni: la
       // pagina non deve avere Node fra le mani. È la stessa ragione per cui
-      // `pannello.ts` scrive già `default-src 'none'`.
+      // `pannelli/pannello.ts` scrive già `default-src 'none'`.
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,

@@ -1,11 +1,11 @@
-// Le finestre dello shim, provate nella forma in cui `pannello.ts` le usa.
+// Le finestre dello shim, provate nella forma in cui `pannelli/pannello.ts` le usa.
 //
 // La prova non guarda un'API in astratto: rifà, riga per riga, quel che il
 // pannello del registro fa davvero — costruire con `localResourceRoots`,
 // assegnare `webview.html`, comporre gli indirizzi con `asWebviewUri`,
 // ascoltare i messaggi, rispingere lo stato, aggiornare le radici quando
-// cambia l'anno, chiudersi. È quel che permette di dire che `pannello.ts` e
-// `pannelloProiezione.ts` girano senza una modifica: se qui passa, lì passa.
+// cambia l'anno, chiudersi. È quel che permette di dire che `pannelli/pannello.ts` e
+// `pannelli/proiezione.ts` girano senza una modifica: se qui passa, lì passa.
 
 import assert from 'node:assert/strict'
 import { tmpdir } from 'node:os'
@@ -23,7 +23,7 @@ const { htmlDellaPagina, radiciConcesse, Uri, ViewColumn, window } = await impor
 /** La cartella dell'anno, come la darebbe `cartellaAnno()`. */
 const ANNO = Uri.file(percorso.join(tmpdir(), 'registro-dati', '2026-2027'))
 
-/** Un pannello con le opzioni con cui lo apre `pannello.ts`. */
+/** Un pannello con le opzioni con cui lo apre `pannelli/pannello.ts`. */
 function apriPannello () {
   const primo = finestreCostruite.length
   const pannello = window.createWebviewPanel('registroDocenti.pannello', 'Registro', ViewColumn.One, {
@@ -65,7 +65,7 @@ describe('la pagina viene dal protocollo, non da un data: URL', () => {
 
   it('dà alla policy un’origine che combacia', () => {
     const { pannello } = apriPannello()
-    // `pannello.ts` scrive `img-src ${cspSource} data:`: se questa stringa non
+    // `pannelli/pannello.ts` scrive `img-src ${cspSource} data:`: se questa stringa non
     // copre gli indirizzi che compone, la finestra resta bianca.
     assert.equal(pannello.webview.cspSource, 'registro:')
     assert.ok(pannello.webview.asWebviewUri(ANNO).toString().startsWith('registro:'))
@@ -116,7 +116,7 @@ describe('i messaggi', () => {
     pannello.webview.html = '<html lang="it"></html>'
 
     await pannello.webview.postMessage({ tipo: 'proiezione' })
-    // È il caso di `pannelloProiezione.ts`, che spinge il primo contenuto nel
+    // È il caso di `pannelli/proiezione.ts`, che spinge il primo contenuto nel
     // proprio costruttore: buttarlo via lascerebbe lo schermo della classe
     // vuoto fino alla prima modifica del registro.
     assert.equal(finestra.webContents.inviati.length, 0)
@@ -175,7 +175,7 @@ describe('la vita della finestra', () => {
 
   it('accetta gli argomenti che il pannello gli passa', () => {
     const { pannello, finestra } = apriPannello()
-    // `pannello.ts` assegna l'icona subito dopo l'apertura, e `pannelloProiezione.ts`
+    // `pannelli/pannello.ts` assegna l'icona subito dopo l'apertura, e `pannelli/proiezione.ts`
     // rilegge `viewColumn` per rivelarsi dov'è.
     pannello.iconPath = Uri.joinPath(Uri.file(RADICE), 'media', 'registro.svg')
     assert.equal(pannello.viewColumn, ViewColumn.One)

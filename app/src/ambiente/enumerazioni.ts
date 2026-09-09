@@ -11,7 +11,7 @@
 
 /**
  * Dove si apre un pannello. Sul desktop ogni pannello è una finestra e la
- * colonna non comanda niente, ma `pannello.ts` e `pannelloProiezione.ts` la
+ * colonna non comanda niente, ma `pannelli/pannello.ts` e `pannelli/proiezione.ts` la
  * nominano — `ViewColumn.One`, `ViewColumn.Beside` — e i numeri devono essere
  * quelli, perché è quel che le prove confrontano.
  */

@@ -264,7 +264,7 @@ export async function withProgress<T> (
 /**
  * Via i segnaposto delle icone.
  *
- * Le etichette di `showQuickPick` in `estensione.ts` contengono `$(add)` e
+ * Le etichette di `showQuickPick` in `avvio.ts` contengono `$(add)` e
  * `$(copy)`: in VS Code diventano un'iconcina, qui resterebbero scritti, e chi
  * guarda leggerebbe «$(copy) Piano di matematica».
  */
@@ -318,7 +318,7 @@ function ascolta (): void {
 /**
  * La pagina del dialogo, servita dal protocollo come ogni altro pezzo dell'app.
  *
- * `dist/` e non `desktop/`: il registro chiama così la cartella dei propri
+ * `dist/` e non `guscio/`: il registro chiama così la cartella dei propri
  * bundle, ed è l'unica cartella
  * che il protocollo concede sempre. La pagina sta lì perché esbuild ce la
  * copia.
