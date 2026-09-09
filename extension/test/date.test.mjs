@@ -29,7 +29,7 @@ import {
   sommaMinuti,
   spostaData,
   ultimoDelMese,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 describe('validazione delle date', () => {
   it('accetta solo giorni che esistono davvero', () => {

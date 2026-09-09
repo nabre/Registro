@@ -11,7 +11,7 @@
 
 .settimana__intestazione {
   display: grid;
-  grid-template-columns: 56px repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: 3.5rem repeat(auto-fit, minmax(0, 1fr));
   border-bottom: 1px solid var(--bordo-tenue);
   background: color-mix(in srgb, var(--testo) 3%, transparent);
 }
@@ -56,17 +56,20 @@
 .settimana__giorno-numero { font-size: 1.15em; font-weight: 600; }
 
 .settimana__giorno--oggi .settimana__giorno-numero {
-  color: var(--vscode-button-foreground);
+  color: var(--su-tinta);
   background: var(--accento);
   border-radius: 999px;
   min-width: 24px;
   text-align: center;
 }
 
+/* La stessa prima colonna dell'intestazione, e deve restare la stessa: è la
+   colonna delle ore, e se le due griglie non combaciano il «08:00» finisce
+   accanto alla riga sbagliata. In `rem` tutte e due, così cambiano insieme. */
 .settimana__corpo {
   position: relative;
   display: grid;
-  grid-template-columns: 56px repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: 3.5rem repeat(auto-fit, minmax(0, 1fr));
   overflow: hidden;
 }
 
@@ -310,7 +313,7 @@
 .agenda__orario {
   font-variant-numeric: tabular-nums;
   color: var(--testo-quieto);
-  min-width: 108px;
+  min-width: 6.75rem;
 }
 
 .agenda__testo { display: flex; gap: var(--spazio-2); align-items: baseline; flex: 1; min-width: 0; }

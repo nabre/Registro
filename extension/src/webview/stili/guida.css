@@ -7,7 +7,8 @@
  * legge cercando una cosa, e un elenco che si richiude a ogni clic obbliga a
  * ritrovare ogni volta il punto in cui si era.
  */
-.colonne--guida { grid-template-columns: 220px minmax(0, 1fr); }
+/* In `rem`: l'indice è un elenco di etichette, e cresce con il testo. */
+.colonne--guida { grid-template-columns: 14rem minmax(0, 1fr); }
 
 .guida__indice {
   position: sticky;
@@ -82,9 +83,24 @@
 }
 
 .guida__termine { color: var(--testo); }
-.guida__testo { color: var(--testo-quieto); }
 
-@media (max-width: 1100px) {
+/*
+ * La spiegazione ha una misura, e si ferma lì.
+ *
+ * Sono paragrafi da leggere, non celle da confrontare: oltre le settanta o
+ * ottanta battute l'occhio, tornando a capo, sbaglia riga. Prima la colonna
+ * prendeva tutto quel che c'era — su uno schermo largo erano centoquaranta
+ * battute — e la guida diventava faticosa proprio dove c'era più spazio.
+ *
+ * In `ch` e non in pixel, così la misura resta di *battute* anche quando il
+ * sistema chiede un testo più grande.
+ */
+.guida__testo {
+  color: var(--testo-quieto);
+  max-width: 76ch;
+}
+
+@media (max-width: 68.75em) {
   .colonne--guida { grid-template-columns: minmax(0, 1fr); }
   .guida__indice { position: static; }
   .guida__voce { grid-template-columns: minmax(0, 1fr); gap: 2px; }

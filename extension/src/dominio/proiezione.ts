@@ -12,7 +12,7 @@
 // strumenti di sviluppo sul webview della proiezione non trova i voti che il
 // docente non ha acceso, perché non ci sono mai arrivati.
 //
-// Ed è codice di dominio, senza VS Code dentro: la scelta di che cosa è
+// Ed è codice di dominio, senza niente dell'applicazione dentro: la scelta di che cosa è
 // mostrabile è una regola del registro, non un dettaglio dell'interfaccia, e si
 // prova come si provano le altre.
 

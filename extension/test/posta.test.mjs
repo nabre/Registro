@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { componiEml, componiPerInvio, destinatariBusta } from '../dist/dominio.mjs'
+import { componiEml, componiPerInvio, destinatariBusta } from '../dist-prove/dominio.mjs'
 
 /** Le intestazioni, dalla testa fino alla prima riga vuota. */
 function testate (eml) {

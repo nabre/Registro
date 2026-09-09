@@ -15,7 +15,7 @@ import {
   dominioDi,
   sembraIndirizzo,
   stessoIndirizzo,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 describe('la casella', () => {
   it('tiene separati il nome di accesso e l’indirizzo da cui si scrive', () => {

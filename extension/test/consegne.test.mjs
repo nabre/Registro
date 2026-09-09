@@ -28,7 +28,7 @@ import {
   riferimentiRotti,
   scadenzaConsegna,
   statoConsegna,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una classe di tre, un corso, e tre ore a distanza di una settimana. */
 function scuola () {

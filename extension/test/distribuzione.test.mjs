@@ -20,7 +20,7 @@ import {
   senzaDocumento,
   siConsegna,
   testoConsegna,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 function classeCon (...nomi) {
   const classe = creaClasse('anno-1', 'DIC4a')

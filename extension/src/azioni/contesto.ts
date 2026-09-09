@@ -59,7 +59,7 @@ export function rifiuta (...errori: string[]): EsitoAzione {
 
 /**
  * Un esito riuscito con una frase per chi guarda. Era un
- * `showInformationMessage` sparso in dieci gestori: la finestra di VS Code
+ * `showInformationMessage` sparso in dieci gestori: la finestra di sistema
  * compariva lontano dal pannello in cui si era cliccato, e chi lo apriva
  * da un comando non vedeva niente.
  */

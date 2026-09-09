@@ -59,7 +59,7 @@
    voti, che è dove il lavoro si fa. */
 .riconsegna__prova {
   flex: 1;
-  min-width: 140px;
+  min-width: 8.75rem;
   padding: 0;
   border: 0;
   background: transparent;
@@ -127,6 +127,6 @@
 }
 
 .richiesta__allievo:hover { text-decoration: underline; }
-.richiesta__dove { flex: 1; min-width: 120px; font-size: 0.9em; }
+.richiesta__dove { flex: 1; min-width: 7.5rem; font-size: 0.9em; }
 .richiesta__azioni { display: flex; align-items: center; gap: var(--spazio-1); }
 .richiesta__guasto { margin: 0; font-size: 0.9em; }

@@ -136,7 +136,7 @@
 
 .orfane__voce:first-child { border-top: 0; }
 
-@media (max-width: 760px) {
+@media (max-width: 47.5em) {
   .orfane__voce { grid-template-columns: minmax(0, 1fr) auto; }
   .orfane__voce > span { grid-column: 1 / -1; }
 }
@@ -186,7 +186,9 @@
   left: 0;
   background: var(--sfondo-alto);
   z-index: 1;
-  min-width: 180px;
+  /* In `rem`: è la colonna dei nomi, e deve tenerli su una riga anche quando il
+     sistema chiede un testo più grande. */
+  min-width: 11rem;
 }
 
 .tabella--voti thead .tabella__nome,
@@ -197,14 +199,14 @@
    recapiti vanno a capo se serve, invece di allargare la tabella oltre lo
    schermo o di finire tagliati. Un indirizzo di posta troncato non si copia, e
    copiarlo è quel che si viene a fare qui. */
-.tabella--allievi .tabella__nome { white-space: nowrap; min-width: 180px; }
+.tabella--allievi .tabella__nome { white-space: nowrap; min-width: 11rem; }
 .tabella--allievi td { vertical-align: top; padding-top: 8px; }
 .tabella--allievi .tabella__recapito { overflow-wrap: anywhere; }
 
-.tabella__momento { min-width: 92px; }
+.tabella__momento { min-width: 5.75rem; }
 .tabella__momento .collegamento { display: flex; flex-direction: column; }
 .tabella__momento small { color: var(--testo-quieto); font-weight: 400; }
-.tabella__momento-titolo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+.tabella__momento-titolo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 8rem; }
 .tabella__momento--scelto { background: color-mix(in srgb, var(--accento) 14%, transparent); }
 
 .tabella__cella { padding: 2px; }
@@ -219,7 +221,7 @@
 
 .cella-voto {
   width: 100%;
-  min-width: 56px;
+  min-width: 3.5rem;
   padding: 4px 6px;
   border: 1px solid transparent;
   border-radius: 3px;
@@ -230,7 +232,7 @@
 }
 
 .cella-voto:hover { border-color: var(--bordo-tenue); }
-.cella-voto:focus { outline: none; border-color: var(--accento); background: var(--vscode-input-background); }
+.cella-voto:focus { outline: none; border-color: var(--accento); background: var(--campo-sfondo); }
 .cella-voto--insufficiente { color: var(--negativo); font-weight: 600; }
 .cella-voto--assente { color: var(--testo-quieto); font-style: italic; }
 .cella-voto--errata { background: color-mix(in srgb, var(--negativo) 25%, transparent); }

@@ -29,7 +29,7 @@ import {
   eliminazione,
   registroVuoto,
   riferimentiRotti,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /**
  * Un anno pieno: due classi con allievi, un corso per classe, lezioni con

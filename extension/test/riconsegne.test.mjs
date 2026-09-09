@@ -30,7 +30,7 @@ import {
   riconsegneDaFare,
   riconsegneUrgenti,
   registroVuoto,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 const PROVA = '2026-10-12'
 /** Il giorno dopo la prova: la correzione è cominciata, il ritardo no. */

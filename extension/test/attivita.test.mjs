@@ -16,7 +16,7 @@ import {
   parametriDi,
   riassuntoParametri,
   valoreParametro,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 function attivita (tipo, parametri) {
   return { ...creaAttivita('Tappa', 20), tipo, parametri }

@@ -401,9 +401,9 @@ export const rapporti = {
   /**
    * Compone un rapporto e lo apre.
    *
-   * Il PDF si apre con il programma del sistema e non nell'editor: VS Code i
-   * PDF non li mostra, e aprirlo lì vorrebbe dire far comparire una pagina di
-   * caratteri illeggibili invece del documento appena fatto.
+   * Il PDF si apre con il programma del sistema, che è quello che il docente
+   * usa già per i PDF: il registro non ha un visualizzatore dentro, e non ha
+   * motivo di averne uno.
    */
   'rapporto.genera': async (contesto, azione) => {
     const registro = contesto.registro

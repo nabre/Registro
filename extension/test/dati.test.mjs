@@ -47,7 +47,7 @@ import {
   notaFineSemestre,
   validaValutazione,
   prossimaLezione,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 describe('quel che si legge da un file scritto a mano', () => {
   it('un voto che non è un numero resta vuoto, non diventa zero', () => {

@@ -74,14 +74,7 @@ function annuncia (): void {
   for (const ascoltatore of ascoltatori) ascoltatore(stato)
 }
 
-/** Se aprendo si deve staccare una finestra: è quel che serve col doppio schermo. */
-function finestraSeparata (): boolean {
-  return vscode.workspace
-    .getConfiguration('registroDocenti')
-    .get<boolean>('proiezione.finestraSeparata', true)
-}
-
-/** Se la finestra staccata va messa a schermo intero appena aperta. */
+/** Se la finestra della proiezione va messa a schermo intero appena aperta. */
 function schermoIntero (): boolean {
   return vscode.workspace
     .getConfiguration('registroDocenti')
@@ -89,39 +82,25 @@ function schermoIntero (): boolean {
 }
 
 /**
- * Stacca la proiezione in una finestra sua.
+ * Porta la proiezione sul proiettore, e — se lo si è chiesto — a schermo intero.
  *
- * **Su quale monitor finisca non lo decide il registro.** Un'estensione di VS
- * Code non sa quanti schermi ci sono, non sa dove sono, e non può mettere una
- * finestra su uno piuttosto che su un altro: non esiste un'API per farlo, e
- * girarci intorno vorrebbe dire uscire da VS Code. Quel che si può fare è
- * questo — staccarla — e poi è VS Code a ricordarsi dove la si è messa: la si
- * trascina sul proiettore una volta, e da lì in poi riapre lì.
+ * Lo schermo su cui va a finire lo sceglie il registro: `schermoDellaClasse()`
+ * in `src/ambiente/comandi.ts` prende quello che non è il principale, che in
+ * un'aula è il proiettore. È una cosa che si può fare adesso e non si poteva
+ * prima: un'estensione dell'editor non sapeva nemmeno quanti schermi ci fossero,
+ * e il meglio che riusciva a fare era staccare una finestra fluttuante e
+ * lasciarla trascinare a mano.
  *
- * Il comando agisce sull'editor attivo, e il pannello lo diventa solo quando
- * VS Code ha finito di aprirlo. Un `reveal` esplicito e un giro di eventi
- * prima: senza, capitava che a staccarsi fosse il file aperto accanto invece
- * della proiezione.
+ * Il comando agisce sulla finestra che ha il fuoco. Il `reveal` esplicito e il
+ * giro di eventi prima servono a quello: senza, a mettersi a schermo intero
+ * poteva essere la finestra di chi insegna — cioè si spegneva il registro
+ * davanti alla classe invece di riempire il proiettore.
  */
-async function staccaFinestra (pannello: vscode.WebviewPanel): Promise<void> {
+async function portaSulProiettore (pannello: vscode.WebviewPanel): Promise<void> {
+  if (!schermoIntero()) return
   pannello.reveal(pannello.viewColumn, false)
   await new Promise((risolvi) => setTimeout(risolvi, 0))
-  try {
-    await vscode.commands.executeCommand('workbench.action.moveEditorToNewWindow')
-  } catch {
-    // Una versione più vecchia, o un host che non lo implementa: il pannello
-    // resta accanto al registro e si sposta a mano. Non è un guasto.
-    return
-  }
-  // Solo se il distacco è andato: a schermo intero si mette la finestra che ha
-  // il fuoco, e se fosse ancora quella del registro si spegnerebbe la
-  // schermata di chi insegna invece di riempire il proiettore.
-  if (!schermoIntero()) return
-  try {
-    await vscode.commands.executeCommand('workbench.action.toggleFullScreen')
-  } catch {
-    // Si mette a schermo intero a mano.
-  }
+  await vscode.commands.executeCommand('workbench.action.toggleFullScreen')
 }
 
 /**
@@ -207,10 +186,9 @@ export class PannelloProiezione {
     PannelloProiezione.istanza = new PannelloProiezione(pannello, contesto, archivio)
     annuncia()
 
-    // La finestra staccata: è il gesto per cui esiste tutto questo. VS Code la
-    // apre fluttuante, la si trascina sul proiettore, e da lì in poi la
-    // riapre dove la si era lasciata.
-    if (finestraSeparata()) await staccaFinestra(pannello)
+    // La proiezione è già una finestra sua: qui resta solo da portarla sul
+    // proiettore, che è il gesto per cui esiste tutto questo.
+    await portaSulProiettore(pannello)
   }
 
   static chiudi (): void {

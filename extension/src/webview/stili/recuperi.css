@@ -110,12 +110,12 @@
   flex-wrap: wrap;
 }
 
-.recupero__allievo { min-width: 120px; }
+.recupero__allievo { min-width: 7.5rem; }
 
 /* Il titolo della prova è un tasto: da un recupero si vuole andare alla prova. */
 .recupero__prova {
   flex: 1;
-  min-width: 120px;
+  min-width: 7.5rem;
   padding: 0;
   border: 0;
   background: transparent;
@@ -155,8 +155,8 @@
  * tabella si legge in orizzontale; un elenco di schede va letto una alla volta.
  */
 .tabella--recuperi .tabella__nome { white-space: nowrap; }
-.tabella--recuperi .recuperi__scansione { min-width: 220px; }
-.tabella--recuperi .recuperi__riconsegna { min-width: 108px; }
+.tabella--recuperi .recuperi__scansione { min-width: 13.75rem; }
+.tabella--recuperi .recuperi__riconsegna { min-width: 6.75rem; }
 
 /* Il campo e la sua spunta sulla stessa riga: sono lo stesso gesto. */
 .tabella--recuperi .recuperi__riconsegna {
@@ -168,7 +168,7 @@
 /* Il campo data dentro una cella: la colonna è già l'etichetta. */
 .recuperi__riconsegna .campo__controllo {
   width: 100%;
-  min-width: 92px;
+  min-width: 5.75rem;
   padding: 2px 6px;
 }
 
@@ -274,11 +274,11 @@
  * è vera per lui, ma non è stata scritta per lui — e appena se ne scrive una
  * la riga smette di essere in ombra.
  */
-.tabella--riconsegne .riconsegne__data { min-width: 108px; }
+.tabella--riconsegne .riconsegne__data { min-width: 6.75rem; }
 
 .riconsegne__data .campo__controllo {
   width: 100%;
-  min-width: 92px;
+  min-width: 5.75rem;
   padding: 2px 6px;
 }
 

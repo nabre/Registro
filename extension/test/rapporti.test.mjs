@@ -29,7 +29,7 @@ import {
   rinominaColonne,
   scegliColonne,
   stilePredefinito,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 const BASE = `
 titolo: Rapporto

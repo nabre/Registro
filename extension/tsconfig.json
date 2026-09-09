@@ -4,8 +4,23 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "Node16",
     "moduleResolution": "Node16",
-    "outDir": "dist",
-    "rootDir": "src",
+
+    // Il modulo `vscode` è un file nostro, e qui glielo si dice anche a
+    // TypeScript.
+    //
+    // Prima i tipi venivano da `@types/vscode`, e il controllo era una bugia
+    // comoda: `tsc` verificava il registro contro l'API dell'editor, mentre
+    // esbuild lo compilava contro lo shim. Le due cose potevano divergere senza
+    // che niente lo dicesse — una funzione dichiarata nei tipi e non scritta
+    // nello shim passava il controllo e scoppiava all'uso.
+    //
+    // Con questa riga `tsc` guarda esattamente quel che gira. È il controllo che
+    // conta: se `src/ambiente/` non copre qualcosa, si scopre compilando invece
+    // che con una finestra vuota davanti.
+    "paths": {
+      "vscode": ["./src/ambiente/vscode-desktop.ts"]
+    },
+
     "strict": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,
@@ -13,8 +28,7 @@
     "noFallthroughCasesInSwitch": true,
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
-    "sourceMap": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src", "desktop"]
 }

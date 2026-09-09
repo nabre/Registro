@@ -217,8 +217,8 @@ function apriPaginaDiCorso (corso: Corso, vista: Vista): void {
 function voceCorso (corso: Corso, corsoAttivoId: string | null): HTMLElement {
   const attivo = corso.id === corsoAttivoId
   // Il corso che si sta guardando è aperto, sempre: si arriva a una lezione da
-  // fuori — un clic nell'albero della barra di VS Code, una data nel
-  // calendario — e la pagina compariva sotto un menu chiuso, senza niente
+  // fuori — una voce di menu, una data nel calendario — e la pagina
+  // compariva sotto un menu chiuso, senza niente
   // intorno che dicesse di quale corso fosse quell'ora.
   const aperto = attivo || stato.corsiAperti.includes(corso.id)
 

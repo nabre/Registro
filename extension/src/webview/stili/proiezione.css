@@ -1,3 +1,4 @@
+@import './tema.css';
 @import './note-grafico.css';
 
 /*
@@ -8,10 +9,14 @@
  * in fondo all'aula. Tutto è più grande, più spaziato e più contrastato, e le
  * cose su cui non si può cliccare non fanno finta di essere cliccabili.
  *
- * I colori restano quelli del tema di VS Code: il docente sceglie chiaro o
- * scuro guardando il proiettore che ha — un'aula con le tende aperte vuole il
- * chiaro, una sala buia il scuro — e la proiezione lo segue senza avere una
- * sua impostazione da ricordarsi.
+ * I colori sono gli stessi del registro — `tema.css`, importato qui sopra — e
+ * chiaro o scuro lo decide l'impostazione «aspetto.tema» per tutte e due le
+ * finestre insieme. È voluto: un'aula con le tende aperte vuole il chiaro e una
+ * sala buia lo scuro, ma è la stessa aula e lo stesso momento, e chi proietta
+ * non deve ricordarsi una seconda impostazione mentre la classe aspetta.
+ *
+ * Quel che invece è tutto suo sono le *misure*: le sole variabili che questo
+ * foglio ridefinisce.
  */
 
 :root {
@@ -23,16 +28,10 @@
 
   --raggio: 10px;
 
-  --bordo: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
-  --sfondo: var(--vscode-editor-background);
-  --sfondo-alto: color-mix(in srgb, var(--vscode-editor-foreground) 6%, var(--sfondo));
-  --testo: var(--vscode-editor-foreground);
-  --testo-quieto: color-mix(in srgb, var(--testo) 62%, transparent);
-  --accento: var(--vscode-textLink-foreground, #3794ff);
-
-  --positivo: var(--vscode-testing-iconPassed, #3fb950);
-  --negativo: var(--vscode-testing-iconFailed, #f85149);
-  --attenzione: var(--vscode-editorWarning-foreground, #d29922);
+  /* Il testo quieto è meno quieto che nel registro: da in fondo all'aula un
+     grigio al 60% sparisce, e quel che qui si scrive in grigio sono le ore e i
+     nomi delle tappe, che servono. */
+  --testo-quieto: color-mix(in srgb, var(--testo) 72%, transparent);
 
   /* La misura di riferimento: da qui scende tutto il resto della pagina. */
   --corpo: clamp(17px, 1.35vw + 9px, 30px);
@@ -70,7 +69,7 @@
 
 body {
   margin: 0;
-  font-family: var(--vscode-font-family);
+  font-family: var(--carattere);
   font-size: var(--corpo);
   line-height: 1.4;
   color: var(--testo);

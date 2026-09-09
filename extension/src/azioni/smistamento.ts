@@ -390,9 +390,9 @@ export const smistamento = {
   /**
    * Le impostazioni della lettura automatica, aperte dove sono.
    *
-   * Sta fra le impostazioni di VS Code e non nella vista Impostazioni del
-   * pannello perché non è una proprietà dell'anno scolastico: dice se questa
-   * macchina ha un OCR da usare, e la stessa cartella aperta su un altro
+   * Sta fra le impostazioni dell'applicazione e non nella vista Impostazioni
+   * del pannello perché non è una proprietà dell'anno scolastico: dice se
+   * questa macchina ha un OCR da usare, e la stessa cartella aperta su un altro
    * computer può rispondere diversamente. Il pannello non le può scrivere —
    * vive in una sandbox — ma può portarcisi davanti.
    */

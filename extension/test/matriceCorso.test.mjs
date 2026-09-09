@@ -15,7 +15,7 @@ import {
   creaLezione,
   creaValutazione,
   matriceCorso,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Un'ora di due UD: 08:00–09:30. */
 function ora (data = '2026-09-15') {

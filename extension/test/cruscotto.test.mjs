@@ -22,7 +22,7 @@ import {
   diagnosiLezione,
   registroVuoto,
   riepilogoCruscotto,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 const OGGI = '2027-03-01'
 

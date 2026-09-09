@@ -6,7 +6,7 @@
 // selezioni, filtri) vive solo qui e non finisce su disco.
 //
 // Quel che vale la pena ritrovare riaprendo il pannello viene però ricordato da
-// VS Code: la vista, il giorno, la classe scelta.
+// il preload: la vista, il giorno, la classe scelta.
 
 import type {
   Corso,
@@ -97,14 +97,14 @@ export interface StatoUI {
   /**
    * La cartella dei dati come la vede il webview. Dentro la sandbox un percorso
    * di disco non si carica: per mostrare l'immagine di una risorsa ci vuole
-   * l'indirizzo che VS Code concede a quella cartella, e lo manda il pannello.
+   * l'indirizzo `registro://` concesso a quella cartella, e lo manda il pannello.
    */
   radiceDati: string | null
   /** Se la lettura automatica delle scansioni è accesa nelle impostazioni. */
   ocrAttivo: boolean
   /**
    * Com'è messa la posta: dove si è, se il registro può spedire da sé, da che
-   * indirizzo. Arriva dal pannello — sono impostazioni di VS Code, e il webview
+   * indirizzo. Arriva dal pannello — sono impostazioni dell'applicazione, e il webview
    * non le legge da sé.
    */
   posta: {
@@ -113,7 +113,7 @@ export interface StatoUI {
     exchange: boolean
     server: string
     /** Come si entra: con l'account Microsoft, o con una password. */
-    modo: 'vscode' | 'oauth' | 'password'
+    modo: 'oauth' | 'password'
     invioDiretto: boolean
     mittente: string
   }
@@ -256,7 +256,7 @@ export const stato: StatoUI = {
     outlook: false,
     exchange: false,
     server: '',
-    modo: 'vscode',
+    modo: 'oauth',
     invioDiretto: false,
     mittente: '',
   },

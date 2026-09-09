@@ -1,0 +1,155 @@
+/*
+ * Il tema: tutti i colori dell'applicazione, e nient'altro.
+ *
+ * Prima i colori venivano dalle variabili di VS Code — `--vscode-editor-background`
+ * e le altre — perché il registro era un pannello dentro l'editor e doveva
+ * sembrarne parte. Fuori dall'editor quelle variabili non esistono: non sono
+ * «sbagliate», sono *assenti*, e una `var()` assente senza ripiego non produce
+ * un colore brutto, produce una proprietà invalida. Metà delle regole del
+ * registro cadevano in silenzio, e i `color-mix` che le usavano cadevano con
+ * loro, a catena.
+ *
+ * Qui i colori sono nostri. Le due tavolozze — chiara e scura — sono complete e
+ * indipendenti: nessun token è definito in una sola delle due.
+ *
+ * ------------------------------------------------------------------- chiaro/scuro
+ *
+ * Il passaggio fra le due lo comanda il sistema operativo, e non un attributo
+ * sull'elemento radice. È voluto: `src/ambiente/tema.ts` scrive
+ * `nativeTheme.themeSource` a partire dall'impostazione `aspetto.tema`, ed
+ * Electron da lì fa rispondere `prefers-color-scheme` a *tutte* le finestre —
+ * il registro, lo schermo della classe, le impostazioni, i dialoghi. Una
+ * riga sola nel main process veste l'applicazione intera, e nessuna pagina deve
+ * ricevere un messaggio, ricordarselo, o riapplicarlo dopo un ricaricamento.
+ *
+ * `color-scheme` fa la sua parte per quel che non disegniamo noi: le barre di
+ * scorrimento, il cursore di testo, il calendario dentro un `<input type=date>`.
+ *
+ * -------------------------------------------------------------------- come leggerli
+ *
+ * `--sfondo` è la pagina; `--sfondo-alto` e `--sfondo-alto-2` sono i due
+ * gradini sopra di lei — una scheda, e dentro la scheda una riga in evidenza.
+ * `--testo` e `--testo-quieto` sono il testo e quello che si legge dopo.
+ *
+ * `--su-tinta` è la regola meno ovvia e la più utile: è il colore del testo
+ * *sopra* una tinta piena — un pulsante, una pastiglia di assenza, una casella
+ * di voto. Nel tema chiaro le tinte sono cupe e sopra ci va il bianco; nello
+ * scuro sono accese e sopra ci va il quasi-nero. Un token solo invece di una
+ * decisione a ogni pastiglia, e il contrasto regge in tutti e due i temi.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------- superfici */
+
+  --sfondo: #fbfbfc;
+  --sfondo-alto: #f2f3f6;
+  --sfondo-alto-2: #e6e8ed;
+  /* Il fondo di un campo in cui si scrive: più chiaro della pagina, non più
+     scuro — nel tema chiaro un campo si riconosce perché è bianco. */
+  --campo-sfondo: #ffffff;
+
+  --bordo: #d6dae1;
+  --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+
+  /* --------------------------------------------------------------- il testo */
+
+  --testo: #191d23;
+  --testo-quieto: #5c6473;
+
+  /* --------------------------------------------------------------- le tinte */
+
+  --accento: #2563eb;
+  --accento-caldo: #1d4ed8;
+  --positivo: #15803d;
+  --negativo: #c62828;
+  --attenzione: #b45309;
+  --informativo: var(--accento);
+
+  /* Il testo sopra una tinta piena. Vedi la nota in cima. */
+  --su-tinta: #ffffff;
+
+  /* Il filo che dice dove sta il fuoco della tastiera. Non è l'accento e basta:
+     deve staccarsi anche da un pulsante che l'accento ce l'ha già addosso. */
+  --fuoco: #1d4ed8;
+
+  /* -------------------------------------------------------------- le ombre */
+
+  /* Nel tema chiaro un'ombra è un velo: due strati, uno stretto per staccare il
+     bordo e uno largo per la distanza. Nera pura sarebbe sporca. */
+  --ombra-1: 0 1px 2px rgba(23, 30, 43, 0.06), 0 1px 1px rgba(23, 30, 43, 0.04);
+  --ombra-2: 0 4px 12px rgba(23, 30, 43, 0.10), 0 1px 3px rgba(23, 30, 43, 0.06);
+  --ombra-3: 0 16px 40px rgba(23, 30, 43, 0.16), 0 2px 8px rgba(23, 30, 43, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --sfondo: #15181d;
+    --sfondo-alto: #1c2027;
+    --sfondo-alto-2: #252b34;
+    /* Al contrario del chiaro: qui il campo è un incavo, più scuro della
+       pagina. È la stessa idea — il campo si stacca — letta al buio. */
+    --campo-sfondo: #0f1216;
+
+    --bordo: #333a45;
+    --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+
+    --testo: #e5e9ef;
+    --testo-quieto: #98a1b0;
+
+    --accento: #7aa9ff;
+    --accento-caldo: #9dc0ff;
+    --positivo: #4ec27a;
+    --negativo: #f8615a;
+    --attenzione: #e0a838;
+    --informativo: var(--accento);
+
+    --su-tinta: #12161b;
+
+    --fuoco: #9dc0ff;
+
+    /* Al buio un'ombra da sola non stacca niente: quel che separa una finestra
+       dal fondo è il suo bordo chiaro. L'ombra resta, più profonda, per la
+       distanza. */
+    --ombra-1: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --ombra-2: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --ombra-3: 0 18px 48px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/*
+ * ------------------------------------------------------------------ i caratteri
+ *
+ * Prima erano `--vscode-font-family`, cioè quelli dell'editor. La pila qui sotto
+ * dà su ogni sistema il carattere dell'interfaccia di quel sistema: è la scelta
+ * giusta per un'applicazione, che deve sembrare del computer su cui gira e non
+ * di un altro.
+ *
+ * `--corpo` è l'unica misura del testo dichiarata, e tutto il resto le sta
+ * dietro in `em`: cambiarla ingrandisce il registro intero in modo coerente.
+ *
+ * È in `rem` e non in pixel, e qui sta il punto: `rem` misura la dimensione
+ * predefinita del documento, che non è un valore fisso di Chromium ma quello
+ * che gli passa il main process — `defaultFontSize`, ricavato dalla
+ * «Dimensione testo» di Windows in `src/ambiente/tema.ts`. Chi ha alzato quel
+ * cursore perché altrimenti non legge trova il registro grande come il resto
+ * del suo computer, senza dover cercare un'impostazione qui dentro.
+ *
+ * 0.8125rem è 13px quando la radice è 16, cioè al 100%: la misura di prima.
+ *
+ * Gli spazi restano in pixel di proposito. «Dimensione testo» ingrandisce il
+ * testo e non i margini — è quel che fa Windows con le proprie finestre — e i
+ * riquadri si allargano lo stesso, perché è il testo dentro a spingerli.
+ */
+:root {
+  --carattere: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI',
+    'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  --carattere-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'JetBrains Mono',
+    Menlo, Consolas, monospace;
+
+  --corpo: 0.8125rem;
+  --interlinea: 1.5;
+}

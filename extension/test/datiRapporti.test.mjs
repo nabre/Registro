@@ -22,7 +22,7 @@ import {
   datiValutazioni,
   datiPresenze,
   normalizzaRegistro,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 import { componiFile, FILE_GENERATO } from '../strumenti/modelli.mjs'
 

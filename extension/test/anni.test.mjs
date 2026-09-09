@@ -22,7 +22,7 @@ import {
   normalizzaRegistro,
   semestreDi,
   validaAnno,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Due semestri scritti a mano, per provare che cosa se ne ricava. */
 function semestri (primoInizio, primoFine, secondoInizio, secondoFine) {

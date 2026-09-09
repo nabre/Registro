@@ -1,6 +1,6 @@
 // Dove vivono i dati e come si chiamano i file.
 //
-// Il registro non usa lo storage interno di VS Code: scrive JSON dentro il
+// Il registro non usa uno storage interno dell'applicazione: scrive JSON dentro il
 // workspace. Così i dati stanno accanto al resto del materiale del docente,
 // si sincronizzano con la cartella, si mettono sotto Git e si possono aprire
 // con un editor di testo se serve rimediare a mano.
@@ -74,7 +74,7 @@ export function nomeDelFileUri (uri: { path: string }, ripiego = 'documento.pdf'
   return uri.path.split('/').pop() || ripiego
 }
 
-/** La radice del workspace, o null se VS Code è aperto su nessuna cartella. */
+/** La cartella di lavoro, o null se non ne è ancora stata scelta una. */
 export function radiceWorkspace (): vscode.Uri | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri ?? null
 }
@@ -129,11 +129,11 @@ export function percorsoIndice (): vscode.Uri | null {
 /**
  * La cartella dell'anno che si sta usando, per nome.
  *
- * È l'unico stato di questo file, ed è qui e non nelle impostazioni di VS Code
- * apposta: l'anno in uso appartiene alla cartella — sta scritto nel suo
- * `registro.json` — non alla macchina su cui la si apre. Chi sincronizza il
- * registro su due computer si ritrova sullo stesso anno, che è quel che serve;
- * un'impostazione dell'editor invece resterebbe indietro su una delle due.
+ * È l'unico stato di questo file, ed è qui e non fra le impostazioni apposta:
+ * l'anno in uso appartiene alla cartella — sta scritto nel suo `registro.json`
+ * — non alla macchina su cui la si apre. Chi sincronizza il registro su due
+ * computer si ritrova sullo stesso anno, che è quel che serve; un'impostazione
+ * dell'applicazione invece resterebbe indietro su una delle due.
  *
  * Lo imposta `Archivio` quando carica, ed è la sola cosa che serve sapere per
  * tradurre in un Uri qualunque percorso salvato nei JSON.

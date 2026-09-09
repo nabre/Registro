@@ -33,7 +33,7 @@ import {
   creaPresenza,
   creaValutazione,
   registroVuoto,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 const GIORNO = '2026-10-12'
 

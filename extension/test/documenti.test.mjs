@@ -23,7 +23,7 @@ import {
   raccoglieDocumento,
   spuntaDi,
   sembraHtml,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una consegna che si spunta portando un foglio. */
 function raccolta (corsoId, testo, allieviIds, categoria = 'certificato') {

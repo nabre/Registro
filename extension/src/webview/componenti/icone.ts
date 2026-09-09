@@ -1,7 +1,7 @@
 // Icone disegnate a mano, in SVG inline.
 //
-// I codicon di VS Code non arrivano dentro un webview senza spedirsi anche il
-// font, e un font intero per venti simboli non vale il peso. Sono tutti sullo
+// Una libreria di icone vorrebbe dire spedirsi anche il suo font, e un font
+// intero per venti simboli non vale il peso. Sono tutti sullo
 // stesso tracciato: riquadro 24, linea di 1.8, estremi arrotondati — così stanno
 // insieme e prendono il colore del testo che li circonda.
 

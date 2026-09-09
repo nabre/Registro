@@ -22,7 +22,7 @@
 // collegamento diretto quella domanda non serve più.
 //
 // Come si scrive il file sta nel dominio, in `comunicazioni.ts`: là è codice
-// puro e si prova senza VS Code intorno. Qui c'è solo il disco.
+// puro e si prova senza un'applicazione intorno. Qui c'è solo il disco.
 
 import * as vscode from 'vscode'
 
@@ -50,10 +50,10 @@ import {
 import {
   azzeraOauth,
   collegaConOauth,
-  collegaConVsCode,
   contoOauth,
   guidaRegistrazione,
   modoAccesso,
+  type ModoAccesso,
 } from './oauth.js'
 import {
   bozzeInOutlook,
@@ -618,15 +618,8 @@ Quel che parte non si può richiamare.` },
 /** I due modi di entrare, come si presentano a chi deve sceglierne uno. */
 const MODI = [
   {
-    label: 'Account Microsoft di VS Code',
-    description: 'da provare per primo',
-    detail:
-      'Lo stesso account del menu in basso a sinistra. Non c’è niente da registrare e niente ' +
-      'da ricordare: al resto — accesso, rinnovo, memoria — pensa VS Code.',
-    modo: 'vscode' as const,
-  },
-  {
     label: 'Account Microsoft, con il codice',
+    description: 'da provare per primo',
     detail:
       'La pagina di Microsoft aperta da qualunque browser, anche dal telefono. Serve un ID ' +
       'applicazione, registrato una volta sola.',
@@ -701,11 +694,7 @@ export async function collegaAccount (): Promise<StatoPosta | null> {
   await impostazioni.update('autenticazione', scelto.modo, vscode.ConfigurationTarget.Global)
 
   const esito =
-    scelto.modo === 'vscode'
-      ? await collegaConAccountVsCode(suo)
-      : scelto.modo === 'oauth'
-        ? await collegaConMicrosoft(suo)
-        : await collegaConPassword(suo)
+    scelto.modo === 'oauth' ? await collegaConMicrosoft(suo) : await collegaConPassword(suo)
 
   if (!esito.ok) {
     return {
@@ -734,30 +723,8 @@ export async function collegaAccount (): Promise<StatoPosta | null> {
 }
 
 /** Come si entra, detto a parole. */
-function comeSiEntra (modo: 'vscode' | 'oauth' | 'password'): string {
-  if (modo === 'password') return 'con la password'
-  if (modo === 'vscode') return 'con l’account Microsoft di VS Code'
-  return 'con l’account Microsoft'
-}
-
-/**
- * Il collegamento con l'account che VS Code ha già, e poi la prova sul server.
- *
- * Vale quel che vale per l'altro: Microsoft può dare il gettone e il server
- * rifiutarlo lo stesso. Fermarsi al gettone vorrebbe dire dire «collegato» a
- * chi al primo giro non manderà niente.
- */
-async function collegaConAccountVsCode (
-  suo: Casella,
-): Promise<{ ok: boolean, dove?: string, errore?: string }> {
-  const dato = await collegaConVsCode(suo)
-  if (!dato.ok) return { ok: false, errore: dato.errore }
-
-  const esito = await vscode.window.withProgress(
-    { location: vscode.ProgressLocation.Notification, title: 'Registro: provo a entrare…' },
-    async () => await provaExchange(),
-  )
-  return esito.ok ? { ok: true, dove: esito.dove } : { ok: false, errore: esito.errore }
+function comeSiEntra (modo: ModoAccesso): string {
+  return modo === 'password' ? 'con la password' : 'con l’account Microsoft'
 }
 
 /**
@@ -844,8 +811,8 @@ const VOCI_POSTA = [
  * lavoro — perché una voce dimenticata in `.vscode/settings.json` vince su
  * quella dell'utente e nessuno la vede.
  *
- * L'unica cosa che resta è l'account nel menu di VS Code: non c'è modo di
- * toglierlo da qui, e lo dice a chi legge.
+ * Quel che resta fuori portata è l'autorizzazione data al programma nel
+ * profilo Microsoft: di là si revoca, e non da qui.
  */
 export async function azzeraPosta (): Promise<StatoPosta> {
   await dimenticaPassword()
@@ -876,9 +843,8 @@ export async function azzeraPosta (): Promise<StatoPosta> {
     livello: 'info',
     testo:
       'Posta azzerata: tolti la password e il gettone dal portachiavi, i gettoni in memoria, ' +
-      'i tenant ricordati e tutte le impostazioni registroDocenti.posta.*. Se l’account ' +
-      'Microsoft sta ancora nel menu degli account di VS Code, in basso a sinistra, toglilo ' +
-      'da lì; poi rifai «Registro: collega la casella di posta».',
+      'i tenant ricordati e tutte le impostazioni registroDocenti.posta.*. Ora si riparte da ' +
+      'zero con «Collega la casella di posta».',
   }
 }
 
@@ -892,7 +858,8 @@ export async function scollegaAccount (): Promise<StatoPosta> {
     livello: 'info',
     testo:
       'Account scollegato: il registro non usa più né la password né l’autorizzazione di ' +
-      'Microsoft. L’account resta nel menu degli account di VS Code, e da lì si toglie. ' +
+      'Microsoft. L’autorizzazione data al programma resta visibile nel profilo Microsoft, ' +
+      'sotto le app collegate, e di là si revoca. ' +
       (viaBozze() === 'outlook'
         ? 'Le comunicazioni tornano a passare da Outlook.'
         : 'Le comunicazioni tornano a uscire come file .eml.'),

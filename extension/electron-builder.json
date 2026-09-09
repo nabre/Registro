@@ -1,0 +1,83 @@
+// Come si impacchetta l'applicazione. `npm run pacchetto`.
+//
+// Il file è JSON con i commenti: electron-builder legge anche i `.json` con
+// JSON5, e una configurazione di venti righe che decide dove finiscono i dati
+// dei docenti merita di dire perché.
+//
+// La versione non sta qui: electron-builder legge quella di `package.json`, che
+// è l'unico posto in cui si scrive.
+{
+  "appId": "ch.edu.ti.cptt.registro-docenti",
+  "productName": "Registro docenti",
+  "copyright": "CPTT",
+
+  "directories": {
+    "output": "pacchetti",
+    // Le icone: electron-builder cerca `icon.ico` e `icon.png` qui dentro per
+    // convenzione. Le fa `npm run icone` da `media/registro.svg`.
+    "buildResources": "build"
+  },
+
+  // Che cosa entra nel pacchetto. `main` in `package.json` punta già a
+  // `dist/principale.cjs`: non c'è niente da sovrascrivere qui.
+  //
+  // Le due pagine native non compaiono: `dialogo.html` e `impostazioni.html`
+  // sono già dentro `dist/`, dove le copia esbuild. Servite da lì e non
+  // da `desktop/`, il protocollo `registro://` resta con una cartella sola da
+  // concedere.
+  "files": [
+    "dist/**/*",
+    // Le mappe dei sorgenti sono undici megabyte che servono solo in sviluppo.
+    "!dist/**/*.map",
+    "media/**/*",
+    "package.json",
+
+    // Le dipendenze non entrano, ed è voluto: esbuild le impacchetta dentro i
+    // bundle — `pdf-lib`, `pdfjs-dist`, `chokidar` — e l'unico `require` che
+    // resta in `principale.cjs` è quello di `electron`, che Electron fornisce
+    // da sé. electron-builder invece le includerebbe tutte per abitudine, e
+    // sarebbero centoventi megabyte di copie di codice che nessuno carica,
+    // `@napi-rs/canvas` compreso.
+    //
+    // Se un giorno una dipendenza dovesse restare `external` — un modulo
+    // nativo, per esempio — va tolta da qui *e* nominata in `asarUnpack`.
+    "!node_modules/**/*"
+  ],
+
+  // pdfjs carica il proprio worker con un `import()` di un URL `file:`, che va
+  // al caricatore di moduli e non al `fs` che Electron corregge per l'asar:
+  // dentro l'archivio quel caricamento può fallire, e l'errore dice «Setting up
+  // fake worker failed» senza nominare né l'asar né il file. Tenerlo fuori
+  // costa un megabyte e toglie di mezzo la questione. Il percorso lo compone
+  // `percorsoWorkerPdf()` in `src/ambiente/contesto.ts`, che sa di dover
+  // guardare in `app.asar.unpacked`.
+  "asarUnpack": [
+    "**/pdf.worker.mjs"
+  ],
+
+  "win": {
+    // Due bersagli, e il secondo non è un di più: in una scuola l'installazione
+    // può richiedere diritti che il docente non ha, e un eseguibile su chiavetta
+    // è spesso l'unica via percorribile.
+    "target": [
+      "nsis",
+      "portable"
+    ],
+    "icon": "build/icon.ico"
+  },
+
+  "nsis": {
+    // Non a un clic: chi installa deve poter vedere dove sta mettendo le cose.
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    // Per utente e non per macchina: installare in `Programmi` chiede
+    // l'amministratore, e su una macchina scolastica quello ferma tutto.
+    "perMachine": false,
+    "shortcutName": "Registro docenti",
+    "artifactName": "${name}-${version}-installer.${ext}"
+  },
+
+  "portable": {
+    "artifactName": "${name}-${version}-portabile.${ext}"
+  }
+}

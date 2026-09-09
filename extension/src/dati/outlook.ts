@@ -230,14 +230,14 @@ try {
  *
  * `CO_E_SERVER_EXEC_FAILURE` è il più frequente di tutti e il suo messaggio di
  * sistema — «Esecuzione del server non riuscito» — non dice niente a nessuno.
- * Vuol quasi sempre dire una cosa sola: Outlook e VS Code non girano con gli
- * stessi permessi, uno dei due è partito da amministratore. Scriverlo qui vale
- * più di un'ora passata a cercare in rete quel codice.
+ * Vuol quasi sempre dire una cosa sola: Outlook e il registro non girano con
+ * gli stessi permessi, uno dei due è partito da amministratore. Scriverlo qui
+ * vale più di un'ora passata a cercare in rete quel codice.
  */
 function rimedio (detto: string): string {
   if (/80080005|CO_E_SERVER_EXEC_FAILURE/.test(detto)) {
     return (
-      'Outlook non si lascia comandare. Di solito è perché lui e VS Code girano con permessi ' +
+      'Outlook non si lascia comandare. Di solito è perché lui e il registro girano con permessi ' +
       'diversi: se uno dei due è stato aperto come amministratore, chiudilo e riaprilo normale. ' +
       'Altrimenti chiudi Outlook del tutto e riaprilo.'
     )

@@ -9,7 +9,7 @@
 //
 // Il «per chi» sta qui e non fra le azioni perché è una domanda sul registro —
 // quale corso tocca questa modifica — e la risposta si prova senza aprire
-// VS Code.
+// un'applicazione intorno.
 
 import { corsiDellaClasse } from './corsi.js'
 import type { QuandoRifarePdf, Registro } from './modelli.js'

@@ -74,7 +74,7 @@ export class PannelloRegistro {
       // Ogni modifica dell'archivio — anche quelle che arrivano da fuori, per
       // esempio da un file modificato a mano — si riversa nel webview.
       this.archivio.alCambiamento(() => this.spingiStato()),
-      // La lettura delle scansioni si accende dalle impostazioni di VS Code, e
+      // La lettura delle scansioni si accende dalle impostazioni, e
       // il pannello deve accorgersene subito: altrimenti il pulsante continua a
       // proporre di attivarla dopo che è stata attivata.
       vscode.workspace.onDidChangeConfiguration((evento) => {
@@ -159,7 +159,7 @@ export class PannelloRegistro {
   /**
    * Una notifica di errore, mostrata una volta sola: nel webview se il
    * pannello è aperto — dove il resto delle notifiche del registro compare
-   * già — altrimenti con la finestra di VS Code, che è l'unico posto in cui
+   * già — altrimenti con una finestra di sistema, che è l'unico posto in cui
    * chi non ha ancora aperto il registro può vederla.
    */
   static avvisa (testo: string): void {
@@ -188,9 +188,12 @@ export class PannelloRegistro {
     const richiesta = messaggio as Richiesta
     if (!richiesta || typeof richiesta.id !== 'number' || !richiesta.azione) return
 
-    // La prima richiesta è sempre 'stato.leggi': è il segnale che lo script del
-    // webview è partito e che si può consegnare quel che era in attesa.
-    if (!this.pronto) {
+    // `stato.leggi` è la prima cosa che lo script del webview manda: è il suo
+    // modo di dire «sono in piedi». Si guarda l'azione e non «è la prima
+    // richiesta che arriva», perché la pagina può ripartire più volte nella vita
+    // dello stesso pannello — in sviluppo a ogni salvataggio — e ogni volta ha
+    // di nuovo bisogno di quel che le si era consegnato all'inizio.
+    if (richiesta.azione.tipo === 'stato.leggi') {
       this.pronto = true
       // Com'è messa la proiezione, subito: ricostruendo il webview — un cambio
       // di tema, una finestra riaperta — i suoi comandi devono ritrovarsi come

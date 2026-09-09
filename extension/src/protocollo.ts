@@ -359,7 +359,7 @@ export type Azione =
   | { tipo: 'smistamento.elimina'; smistamentoId: string }
   /** Apre la cassetta dei PDF in arrivo nel gestore file del sistema. */
   | { tipo: 'smistamento.apriCassetta' }
-  /** Apre le impostazioni di VS Code sulla lettura automatica delle scansioni. */
+  /** Apre le impostazioni sulla lettura automatica delle scansioni. */
   | { tipo: 'smistamento.impostazioni' }
   | { tipo: 'recapito.salva'; classeId: string; recapito: Recapito }
   | { tipo: 'recapito.elimina'; classeId: string; recapitoId: string }
@@ -587,12 +587,13 @@ export interface MessaggioStato {
   /**
    * La cartella dei dati vista dal webview. Serve solo per le immagini: dentro
    * la sandbox un percorso di disco non si può caricare, ci vuole l'indirizzo
-   * che VS Code concede a quella cartella, e lo sa soltanto il pannello.
+   * `registro://` che l'applicazione concede a quella cartella, e lo sa
+   * soltanto il pannello.
    */
   radiceDati: string | null
   /**
    * Se la lettura automatica delle scansioni è accesa. Il webview non può
-   * leggere le impostazioni di VS Code — vive in una sandbox — e senza saperlo
+   * leggere le impostazioni — vive in una sandbox — e senza saperlo
    * offrirebbe un pulsante «leggi la scansione» che risponde soltanto che è
    * spento: la quarantena invece propone di accenderlo.
    */
@@ -600,7 +601,7 @@ export interface MessaggioStato {
   /**
    * Com'è messa la posta, per la scheda che lo dice.
    *
-   * Come `ocrAttivo`, e per lo stesso motivo: sono impostazioni di VS Code e
+   * Come `ocrAttivo`, e per lo stesso motivo: sono impostazioni e
    * il webview vive in una sandbox che non le legge. Qui c'è quel che si sa
    * senza chiedere niente a nessuno — se la casella è collegata, se Outlook
    * c'è, se l'invio diretto è acceso, che mittente è scritto. Che il server
@@ -620,7 +621,7 @@ export interface MessaggioStato {
     /** Il server a cui si consegna, per la scheda che lo dice. */
     server: string
     /** Come si entra: con l'account Microsoft, o con una password. */
-    modo: 'vscode' | 'oauth' | 'password'
+    modo: 'oauth' | 'password'
     invioDiretto: boolean
     mittente: string
   }

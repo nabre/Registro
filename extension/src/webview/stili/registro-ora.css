@@ -54,7 +54,7 @@
 
 .appello__cognome {
   display: inline-block;
-  max-width: 190px;
+  max-width: 12rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -72,7 +72,7 @@
 .appello__cella--stacco { border-left: 2px solid var(--bordo); }
 
 .appello__minuti { width: 62px; }
-.appello__nota { min-width: 120px; text-align: left !important; }
+.appello__nota { min-width: 7.5rem; text-align: left !important; }
 .appello__nota .campo__controllo { width: 100%; }
 
 /*
@@ -111,11 +111,11 @@
 .stato-presenza--presente {
   background: color-mix(in srgb, var(--positivo) 80%, transparent);
   border-color: transparent;
-  color: var(--vscode-button-foreground);
+  color: var(--su-tinta);
 }
-.stato-presenza--assente { background: var(--negativo); border-color: transparent; color: var(--vscode-button-foreground); }
-.stato-presenza--ritardo { background: var(--attenzione); border-color: transparent; color: var(--vscode-button-foreground); }
-.stato-presenza--esonerato { background: var(--testo-quieto); border-color: transparent; color: var(--vscode-button-foreground); }
+.stato-presenza--assente { background: var(--negativo); border-color: transparent; color: var(--su-tinta); }
+.stato-presenza--ritardo { background: var(--attenzione); border-color: transparent; color: var(--su-tinta); }
+.stato-presenza--esonerato { background: var(--testo-quieto); border-color: transparent; color: var(--su-tinta); }
 /* Mescolate: nessuno stato da mostrare, e il punto lo dice senza mentire. */
 .stato-presenza--misto { border-style: dotted; border-width: 2px; color: var(--testo-quieto); }
 
@@ -257,7 +257,7 @@
 
 /* Pannello stretto: le colonne non ci stanno, e una tabella schiacciata è
    peggio di un elenco. */
-@media (max-width: 760px) {
+@media (max-width: 47.5em) {
   .scaletta__voce { grid-template-columns: 22px minmax(0, 1fr); }
   .scaletta__voce--intestazione { display: none; }
   .scaletta__numero { grid-row: 1 / -1; }
@@ -297,7 +297,7 @@
 }
 
 .stato-attivita:hover { background: var(--sfondo-alto-2); }
-.stato-attivita--attivo { background: var(--accento); color: var(--vscode-button-foreground); border-color: transparent; }
+.stato-attivita--attivo { background: var(--accento); color: var(--su-tinta); border-color: transparent; }
 
 .striscia {
   display: flex;
@@ -402,8 +402,8 @@
 
 .slot-riga--pausa { background: color-mix(in srgb, var(--testo) 4%, transparent); border-style: dashed; }
 .slot-riga__genere { color: var(--testo-quieto); display: inline-flex; }
-.slot-riga__durata { min-width: 62px; color: var(--testo-quieto); font-size: 0.88em; }
-.slot-riga__etichetta { flex: 1; min-width: 80px; }
+.slot-riga__durata { min-width: 3.875rem; color: var(--testo-quieto); font-size: 0.88em; }
+.slot-riga__etichetta { flex: 1; min-width: 5rem; }
 
 /*
  * Riordinare le righe. La presa e' l'unico punto da cui si afferra: il resto
@@ -581,7 +581,7 @@
 
 /* Pannello stretto: le colonne non ci stanno più, e una tabella schiacciata è
    peggio di un elenco. Titolo, tipo e durata si impilano accanto al numero. */
-@media (max-width: 760px) {
+@media (max-width: 47.5em) {
   .attivita-riga { grid-template-columns: 44px minmax(0, 1fr); }
   .attivita-riga--intestazione { display: none; }
   .attivita-riga__ordine { grid-row: 1 / -1; }

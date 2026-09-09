@@ -34,7 +34,7 @@ import {
   tipiDetti,
   validaBloccoAssenze,
   vergini,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Un foglio già archiviato: quel che l'host scrive dopo aver copiato il file. */
 function foglio (tipo, firmato) {

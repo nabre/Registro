@@ -16,7 +16,7 @@ import {
   motivoOrfano,
   registroVuoto,
   valutazioniOrfane,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Un registro con un piano, una tappa valutata e il momento che ne è uscito. */
 function conUnaTappaValutata () {

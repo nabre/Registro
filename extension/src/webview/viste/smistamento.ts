@@ -696,7 +696,7 @@ export function schedaSmistamento (classe: Classe) {
             testo: 'Lettura scansioni: spenta',
             simbolo: 'impostazioni',
             variante: 'fantasma',
-            titolo: 'Apre le impostazioni di VS Code su «registroDocenti.ocr.attivo»',
+            titolo: 'Apre le impostazioni sulla lettura delle scansioni',
             al: () => esegui({ tipo: 'smistamento.impostazioni' }),
           }),
       pulsante({

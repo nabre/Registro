@@ -23,7 +23,7 @@ import {
   percorsoRelativo,
   plurale,
   righe,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 describe('confronto dei nomi', () => {
   it('toglie accenti, punteggiatura e maiuscole', () => {

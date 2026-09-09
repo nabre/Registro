@@ -34,9 +34,9 @@ import type { MessaggioProiezione } from '../protocollo.js'
 
 declare function acquireVsCodeApi (): { postMessage (messaggio: unknown): void }
 
-// Si acquisisce comunque: senza, VS Code considera il webview muto e il primo
-// messaggio in arrivo non trova nessuno. Non lo si usa per mandare — questa
-// pagina non ha niente da dire.
+// Si acquisisce comunque: è la chiamata che accende l'ascolto dei messaggi nel
+// preload, e senza il primo messaggio in arrivo non troverebbe nessuno. Non lo
+// si usa per mandare — questa pagina non ha niente da dire.
 acquireVsCodeApi()
 
 const radice = document.getElementById('radice')

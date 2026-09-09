@@ -1,5 +1,12 @@
 {
-  "registroDocenti.cartellaDati": "registro",
-  "registroDocenti.aperturaAutomatica": true,
-  "registroDocenti.ocr.attivo": true
+  // Le impostazioni del registro non stanno più qui: il registro non è più
+  // un'estensione di questo editor, e le sue impostazioni vivono nel file
+  // `impostazioni.json` della cartella utente dell'applicazione — su Windows
+  // %APPDATA%\Registro docenti\ — dove le scrive la finestra «Impostazioni…»,
+  // e che è la stessa sia lanciando da sorgenti sia dalla versione installata.
+  //
+  // Restano solo le preferenze di chi *scrive* il codice del registro.
+  "editor.formatOnSave": false,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
 }

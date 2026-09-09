@@ -39,7 +39,7 @@ import {
   statoUd,
   unitaDidattiche,
   votoValido,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una lezione di due ore con quindici minuti di pausa in mezzo. */
 function lezioneConPausa () {

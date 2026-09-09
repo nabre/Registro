@@ -1,20 +1,31 @@
 {
-  // F5: apre una seconda finestra (Extension Development Host) con questa root
-  // già aperta dentro, così le viste si attivano come in uso reale.
+  // F5: avvia l'applicazione con il debugger attaccato al main process.
+  //
+  // Prima qui c'era un `extensionHost`, che apriva una seconda finestra
+  // dell'editor con dentro il registro. Non serve più: il registro è
+  // un'applicazione, e la si avvia.
+  //
+  // Il debugger si attacca al *main process*. Per il codice delle pagine — le
+  // viste, i moduli, il calendario — si usano gli strumenti di sviluppo della
+  // finestra, che stanno nel menu Visualizza dell'applicazione.
+  //
+  // Per il lavoro di tutti i giorni conviene comunque il task
+  // «registro: sviluppo», che ricarica le pagine da sé; questo serve quando c'è
+  // da mettere un punto di interruzione nell'avvio o in un'azione.
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Esegui estensione",
-      "type": "extensionHost",
+      "name": "Registro docenti",
+      "type": "node",
       "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/extension",
-        "${workspaceFolder}"
-      ],
-      "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
-      // build una tantum: il watch gira già per conto suo, ma un avvio a freddo
-      // deve trovare dist/ pronto.
-      "preLaunchTask": "estensione: build"
+      "cwd": "${workspaceFolder}/extension",
+      "runtimeExecutable": "${workspaceFolder}/extension/node_modules/.bin/electron",
+      "args": ["."],
+      "outFiles": ["${workspaceFolder}/extension/dist/**/*.cjs"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      // Un avvio a freddo deve trovare `dist/` pronto.
+      "preLaunchTask": "registro: build"
     }
   ]
 }

@@ -170,8 +170,8 @@ export function ascolta (ascoltatore: Ascoltatore): () => void {
 }
 
 /**
- * Memoria del pannello fra una ricostruzione e l'altra: VS Code la conserva
- * anche quando il webview viene scaricato, e ci si ritrova dove si era.
+ * Memoria del pannello fra una ricostruzione e l'altra: la conserva il
+ * preload, e ci si ritrova dove si era.
  */
 export function leggiStatoPersistito<T> (): T | null {
   return (api.getState() as T) ?? null

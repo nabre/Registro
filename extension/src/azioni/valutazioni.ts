@@ -356,7 +356,7 @@ export const valutazioni = {
     return { ok: true, creato: { id: allegato.id } }
   },
 
-  // Il PDF si apre con il visualizzatore del sistema: VS Code non lo mostra.
+  // Il PDF si apre con il visualizzatore del sistema: il registro non ne ha uno.
   'allegato.apri': async (contesto, azione) => {
     const momento = contesto.registro.valutazioni.find((v) => v.id === azione.valutazioneId)
     const allegato = momento?.allegati.find((a) => a.id === azione.allegatoId)

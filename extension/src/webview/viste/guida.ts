@@ -577,8 +577,8 @@ const GUIDA: SezioneGuida[] = [
           'bozza — destinatari in copia nascosta, allegati e firma già dentro — e la apre ' +
           'nel programma di posta: a spedirla sei tu, con il tuo account. Poi confermi di ' +
           'averlo fatto, e resta scritto che è partita. Collegando la casella dalle ' +
-          'Impostazioni — con l’account Microsoft di VS Code, quello del menu in basso a ' +
-          'sinistra — e ' +
+          'Impostazioni — con l’account Microsoft, il codice da incollare nella pagina che ' +
+          'si apre — e ' +
           'accendendo «posta: invio diretto», a spedire è il registro: consegna al server ' +
           'della scuola, chiede conferma una volta per giro, e sa da sé che cosa è partito e ' +
           'che cosa no, uno per uno. Senza casella collegata fa lo stesso passando da ' +
@@ -734,11 +734,11 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Il secondo schermo',
         testo:
-          'La proiezione si apre in una finestra staccata. **Su quale monitor finisca non lo ' +
-          'decide il registro**: un’estensione di VS Code non può mettere una finestra su uno ' +
-          'schermo piuttosto che su un altro. La si trascina sul proiettore una volta, e da lì ' +
-          'in poi VS Code la riapre lì. Con `proiezione.schermoIntero` la mette anche a ' +
-          'schermo intero appena aperta.',
+          'La proiezione si apre in una finestra sua. Con «proiezione: schermo intero» acceso ' +
+          'nelle Impostazioni, il registro la mette da sé sul secondo schermo — che in un’aula ' +
+          'è il proiettore — e la allarga a schermo intero: non c’è niente da trascinare. ' +
+          'Spento, la finestra si apre accanto al registro e la si sposta a mano, il che è ' +
+          'quel che serve quando il secondo schermo è un monitor e non un proiettore.',
       },
     ],
   },

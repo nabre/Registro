@@ -1,4 +1,4 @@
-// La casella come sta scritta nelle impostazioni di VS Code.
+// La casella come sta scritta nelle impostazioni.
 //
 // È l'unico posto che le legge: chi spedisce — Exchange, Outlook, il file
 // `.eml` — e chi collega l'account passano tutti di qui, e nessuno si ricava

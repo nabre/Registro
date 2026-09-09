@@ -22,7 +22,7 @@ import {
   registroVuoto,
   riferimentiRotti,
   riparazioni,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Un registro minimo ma coerente: anno, classe, materia, corso. */
 function registroBase () {

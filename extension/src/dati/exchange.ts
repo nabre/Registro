@@ -30,7 +30,7 @@
 //
 // ## Dove sta la password
 //
-// Nel portachiavi del sistema, che VS Code espone come `SecretStorage`: il
+// Nel portachiavi del sistema, che lo shim espone come `SecretStorage`: il
 // portachiavi di Windows, quello di macOS, il portafogli di GNOME. Non nelle
 // impostazioni, che sono un file JSON in chiaro e finiscono su OneDrive; non
 // nel registro, che sta su Git. Il registro la legge quando deve spedire e non
@@ -57,13 +57,10 @@ import {
 import {
   contoOauth,
   dimenticaOauth,
-  dimenticaVsCode,
   gettoneDaSpedire,
-  gettoneDaVsCode,
   guidaRegistrazione,
   modoAccesso,
   oauthNoto,
-  vscodeNoto,
 } from './oauth.js'
 import { casella, type Casella } from './casella.js'
 
@@ -73,16 +70,16 @@ const ATTESA = 30_000
 /**
  * La chiave sotto cui sta la password nel portachiavi del sistema.
  *
- * Una sola per tutte le finestre di VS Code: il portachiavi è dell'utente, non
- * del progetto aperto, ed è giusto così — la casella della scuola è una, e
- * ricollegarla in ogni cartella di lavoro non lo vuole nessuno.
+ * Una sola per tutte le cartelle di lavoro: il portachiavi è dell'utente, non
+ * della cartella aperta, ed è giusto così — la casella della scuola è una, e
+ * ricollegarla ogni volta che si cambia cartella non lo vuole nessuno.
  */
 const CHIAVE = 'registroDocenti.posta.password'
 
 /**
  * Il portachiavi, che arriva dall'attivazione.
  *
- * `SecretStorage` non si costruisce: lo dà VS Code all'estensione e basta.
+ * `SecretStorage` non si costruisce qui: arriva dall'avvio, dentro il contesto.
  * Sta qui in un posto solo perché lo vogliono in tre — chi collega l'account,
  * chi spedisce, chi controlla il collegamento — e passarselo di funzione in
  * funzione fino in fondo non aggiunge niente.
@@ -115,7 +112,6 @@ export function registraPortachiavi (segreti: vscode.SecretStorage): void {
 /** Se, per quel che se ne sa senza aspettare, l'account è collegato. */
 export function collegatoNoto (): boolean {
   if (!contoScritto()) return false
-  if (modoAccesso() === 'vscode') return vscodeNoto()
   if (modoAccesso() === 'oauth') return Boolean(contoOauth().clientId) && oauthNoto()
   return notoCollegato
 }
@@ -182,7 +178,6 @@ export async function dimenticaPassword (): Promise<void> {
   await portachiavi?.delete(CHIAVE)
   notoCollegato = false
   await dimenticaOauth()
-  dimenticaVsCode()
 }
 
 /**
@@ -198,10 +193,6 @@ type Credenziale =
 
 async function credenziale (utente: string): Promise<Credenziale | null> {
   const modo = modoAccesso()
-  if (modo === 'vscode') {
-    const gettone = await gettoneDaVsCode()
-    return gettone ? { modo: 'oauth', valore: gettone } : null
-  }
   if (modo === 'oauth') {
     const gettone = await gettoneDaSpedire(utente)
     return gettone ? { modo: 'oauth', valore: gettone } : null
@@ -213,7 +204,6 @@ async function credenziale (utente: string): Promise<Credenziale | null> {
 /** Se il registro ha tutto quel che serve per spedire da sé, adesso. */
 export async function collegato (): Promise<boolean> {
   if (!contoScritto()) return false
-  if (modoAccesso() === 'vscode') return vscodeNoto()
   if (modoAccesso() === 'oauth') return Boolean(contoOauth().clientId) && oauthNoto()
   return Boolean(await password())
 }

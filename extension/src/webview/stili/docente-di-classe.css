@@ -77,7 +77,7 @@
 }
 
 .consegna__tipo { color: var(--testo-quieto); display: inline-flex; }
-.consegna__testo { flex: 1; min-width: 140px; }
+.consegna__testo { flex: 1; min-width: 8.75rem; }
 .consegna__quando { margin: 0; font-size: 0.85em; color: var(--testo-quieto); }
 .consegna__scadenza--tardi { color: var(--negativo); font-weight: 600; }
 
@@ -256,7 +256,7 @@
 .testo-negativo { color: var(--negativo); }
 
 /* La matrice dei documenti: allievi in riga, richieste in colonna. */
-.tabella__richiesta { min-width: 104px; }
+.tabella__richiesta { min-width: 6.5rem; }
 .tabella__richiesta .collegamento { display: flex; flex-direction: column; align-items: flex-start; }
 .tabella__richiesta small { color: var(--testo-quieto); font-weight: 400; }
 
@@ -264,7 +264,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 9rem;
 }
 
 .cella-documento__gruppo {
@@ -351,7 +351,7 @@ tr:hover .cella-documento__modifica,
 
 /* Cinque colonne strette: le intestazioni sono sigle, e il titolo intero sta
    nel tooltip. Larghe come i documenti, la tabella non ci starebbe. */
-.tabella--assenze .tabella__richiesta { min-width: 52px; text-align: center; }
+.tabella--assenze .tabella__richiesta { min-width: 3.25rem; text-align: center; }
 .tabella--assenze .tabella__richiesta-titolo { max-width: none; }
 .tabella--assenze .tabella__nome small { margin-left: var(--spazio-1); font-weight: 400; }
 
@@ -413,7 +413,7 @@ tr:hover .cella-documento__modifica,
  */
 .todo-sintesi {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--spazio-2);
   margin-bottom: var(--spazio-4);
 }
@@ -482,5 +482,5 @@ tr:hover .cella-documento__modifica,
 }
 
 .todo-famiglia__titolo { margin: 0; font-size: 0.95em; }
-.todo-famiglia__conto { flex: 1; min-width: 140px; font-size: 0.82em; }
+.todo-famiglia__conto { flex: 1; min-width: 8.75rem; font-size: 0.82em; }
 .todo-famiglia__corpo { display: flex; flex-direction: column; gap: var(--spazio-3); }

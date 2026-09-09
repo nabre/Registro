@@ -1,6 +1,6 @@
 // Avvisi passeggeri in basso a destra.
 //
-// Le notifiche di VS Code interrompono e vanno chiuse a mano: per un «voto
+// Le notifiche di sistema interrompono e vanno chiuse a mano: per un «voto
 // salvato» sono di troppo. Qui l'avviso compare accanto a dove è successa la
 // cosa e se ne va da solo. Gli errori invece restano finché non li si scaccia:
 // un salvataggio non riuscito non deve sparire mentre si guarda altrove.

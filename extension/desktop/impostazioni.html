@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Le impostazioni.
+
+  La pagina non sa che cosa sia il registro e non ha un elenco di campi dentro:
+  riceve le voci di `src/manifesto.ts` e le percorre una per una. Il vantaggio
+  non è il lavoro risparmiato adesso: è che un'impostazione aggiunta domani al
+  manifesto si trova qui senza che nessuno tocchi questo file.
+
+  Le descrizioni del manifesto sono lunghe e discorsive — è lo stile del
+  progetto, e dicono cose che l'interfaccia deve continuare a dire — quindi la
+  colonna è larga e ogni campo ha sotto il suo testo intero, non un'etichetta
+  stretta.
+
+  Non carica niente da fuori e non scrive mai HTML: descrizioni, etichette e
+  valori finiscono in `textContent`, che è testo e resta testo.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro: 'unsafe-inline'; script-src 'unsafe-inline';">
+<title>Registro docenti</title>
+<!--
+  L'aspetto viene da `guscio.css`, lo stesso foglio dei dialoghi, che porta con
+  sé i colori del registro. Qui sotto resta il telaio di questa pagina: la
+  testata che resta attaccata in alto, e la riga di un'impostazione.
+-->
+<link rel="stylesheet" href="registro://app/dist/guscio.css">
+<style>
+  /* La testata resta in vista mentre si scorre: il filtro è la prima cosa che
+     si cerca quando l'elenco è lungo, e cercarlo risalendo sarebbe assurdo. */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spazio-3);
+    padding: var(--spazio-4) var(--spazio-5) var(--spazio-3);
+    background: var(--sfondo);
+    border-bottom: 1px solid var(--bordo);
+  }
+
+  #cerca { max-width: 28.75rem }
+
+  main { padding: var(--spazio-1) var(--spazio-5) var(--spazio-6) }
+
+  h2 { margin: var(--spazio-5) 0 var(--spazio-1) }
+
+  .voce {
+    padding: var(--spazio-3) 0;
+    border-bottom: 1px solid var(--bordo-tenue);
+  }
+
+  .voce__testata {
+    display: flex;
+    gap: var(--spazio-2);
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+
+  .voce__nome { font-weight: 600 }
+
+  .voce__chiave {
+    font-family: var(--carattere-mono);
+    font-size: 0.84em;
+    color: var(--testo-quieto);
+  }
+
+  /* «Ritira il valore»: c'è solo sulle impostazioni che il docente ha scritto,
+     e non deve farsi notare più della cosa che ritira. */
+  .voce__ritira {
+    min-width: 0;
+    margin-left: auto;
+    padding: 1px 9px;
+    font-size: 0.84em;
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Una misura da leggere e non da scorrere: oltre le settanta battute l'occhio
+     perde la riga, e queste descrizioni sono lunghe apposta. */
+  .voce__aiuto {
+    margin: var(--spazio-1) 0 0;
+    max-width: 68ch;
+    color: var(--testo-quieto);
+  }
+
+  .voce__campo { margin-top: var(--spazio-2) }
+
+  .voce__errore {
+    margin: var(--spazio-1) 0 0;
+    color: var(--negativo);
+  }
+
+  /* In `rem`: un campo tiene del testo, e con il testo deve crescere —
+     altrimenti chi ha ingrandito il carattere si ritrova un campo che mostra
+     metà indirizzo. */
+  input[type='text'],
+  input[type='email'],
+  input[type='number'],
+  select { max-width: 28.75rem }
+
+  input[type='number'] { max-width: 10rem }
+
+  .spunta {
+    display: flex;
+    gap: var(--spazio-2);
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .vuoto { padding: var(--spazio-5) 0 }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="titolo">Impostazioni</h1>
+  <input id="cerca" type="text" placeholder="Filtra le impostazioni…" autocomplete="off">
+</header>
+<main id="radice"></main>
+<script>
+'use strict'
+
+const ponte = acquireVsCodeApi()
+const radice = document.getElementById('radice')
+const cerca = document.getElementById('cerca')
+
+/** Le voci ricevute, e i pezzi di pagina che le mostrano, per chiave. */
+let voci = []
+const disegnate = new Map()
+
+function elemento (nome, classe, testo) {
+  const nato = document.createElement(nome)
+  if (classe) nato.className = classe
+  if (testo) nato.textContent = testo
+  return nato
+}
+
+// ------------------------------------------------------------------ i nomi
+
+/**
+ * Il gruppo di una voce: il pezzo di chiave fra il prefisso e il nome finale.
+ * `registroDocenti.posta.mittente` sta sotto «Posta»,
+ * `registroDocenti.cartellaDati` sotto «Generale».
+ */
+function gruppoDi (chiave) {
+  const pezzi = chiave.split('.')
+  return pezzi.length > 2 ? pezzi.slice(1, -1).join(' ') : ''
+}
+
+function titoloGruppo (gruppo) {
+  if (!gruppo) return 'Generale'
+  // Le sigle si scrivono in maiuscolo: «OCR», non «Ocr».
+  if (gruppo.length <= 3) return gruppo.toUpperCase()
+  return gruppo.charAt(0).toUpperCase() + gruppo.slice(1)
+}
+
+/** Il nome del campo, ricavato dall'ultimo pezzo: `attesaMassimaSecondi`. */
+function nomeDi (chiave) {
+  const ultimo = chiave.split('.').pop()
+  const parole = ultimo.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase()
+  return parole.charAt(0).toUpperCase() + parole.slice(1)
+}
+
+// ---------------------------------------------------------------- i campi
+
+/**
+ * Il ritardo con cui un campo di testo si salva mentre si scrive.
+ *
+ * Scrivere a ogni tasto vorrebbe dire una ricarica del registro per ogni
+ * lettera di `cartellaDati`. Il salvataggio vero è su `change` — quando il
+ * campo perde il fuoco o si preme Invio — e questo è la rete per chi chiude la
+ * finestra senza uscire dal campo.
+ */
+const RITARDO = 700
+
+function scrivi (chiave, valore) {
+  ponte.postMessage({ impostazioni: 'scrivi', chiave, valore })
+}
+
+function azzera (chiave) {
+  ponte.postMessage({ impostazioni: 'azzera', chiave })
+}
+
+/** Il campo giusto per il tipo dichiarato nello schema. Vedi la tabella della fase 4. */
+function campoDi (voce, quandoCambia) {
+  if (voce.tipo === 'boolean') {
+    const campo = document.createElement('input')
+    campo.type = 'checkbox'
+    campo.checked = Boolean(voce.valore)
+    campo.addEventListener('change', () => quandoCambia(campo.checked))
+    return { elemento: campo, mostra: (valore) => { campo.checked = Boolean(valore) } }
+  }
+
+  if (voce.scelte) {
+    const campo = document.createElement('select')
+    for (const scelta of voce.scelte) {
+      const opzione = document.createElement('option')
+      opzione.value = String(scelta.valore)
+      // L'`enumDescription` è l'aiuto per quella scelta: sta nell'etichetta
+      // perché è lì che serve, cioè mentre si sceglie.
+      opzione.textContent = scelta.aiuto || String(scelta.valore)
+      campo.append(opzione)
+    }
+    campo.value = String(voce.valore)
+    campo.addEventListener('change', () => {
+      const scelta = voce.scelte.find((candidata) => String(candidata.valore) === campo.value)
+      if (scelta) quandoCambia(scelta.valore)
+    })
+    return { elemento: campo, mostra: (valore) => { campo.value = String(valore) } }
+  }
+
+  if (voce.tipo === 'number') {
+    const campo = document.createElement('input')
+    campo.type = 'number'
+    campo.value = String(voce.valore ?? '')
+    const manda = () => {
+      const numero = Number(campo.value)
+      if (campo.value.trim() === '' || !Number.isFinite(numero)) return
+      quandoCambia(numero)
+    }
+    campo.addEventListener('change', manda)
+    campo.addEventListener('input', ritardato(manda))
+    return { elemento: campo, mostra: (valore) => { campo.value = String(valore ?? '') } }
+  }
+
+  const campo = document.createElement('input')
+  // `format: 'email'` nello schema: il campo si valida da sé, e vuoto resta
+  // lecito perché vuoto è il predefinito e vuol dire «lo stesso del mittente».
+  campo.type = voce.formato === 'email' ? 'email' : 'text'
+  campo.value = String(voce.valore ?? '')
+  const manda = () => {
+    if (!campo.checkValidity()) return
+    quandoCambia(campo.value)
+  }
+  campo.addEventListener('change', manda)
+  campo.addEventListener('input', ritardato(manda))
+  return { elemento: campo, mostra: (valore) => { campo.value = String(valore ?? '') } }
+}
+
+function ritardato (cosa) {
+  let attesa = 0
+  return () => {
+    clearTimeout(attesa)
+    attesa = setTimeout(cosa, RITARDO)
+  }
+}
+
+/** Una voce intera: nome, chiave, bottone per ritirarla, campo, descrizione. */
+function disegnaVoce (voce) {
+  const blocco = elemento('div', 'voce')
+
+  const testata = elemento('div', 'voce__testata')
+  testata.append(elemento('span', 'voce__nome', nomeDi(voce.chiave)))
+  testata.append(elemento('span', 'voce__chiave', voce.chiave))
+
+  const ritira = elemento('button', 'voce__ritira', 'Torna al predefinito')
+  ritira.hidden = !voce.scritta
+  ritira.addEventListener('click', () => azzera(voce.chiave))
+  testata.append(ritira)
+  blocco.append(testata)
+
+  const errore = elemento('p', 'voce__errore')
+  const contenitore = elemento('div', 'voce__campo')
+  const campo = campoDi(voce, (valore) => {
+    errore.textContent = ''
+    scrivi(voce.chiave, valore)
+  })
+
+  if (voce.tipo === 'boolean') {
+    const riga = elemento('label', 'spunta')
+    riga.append(campo.elemento, elemento('span', null, 'Attivo'))
+    contenitore.append(riga)
+  } else {
+    const riga = document.createElement('label')
+    riga.append(campo.elemento)
+    contenitore.append(riga)
+  }
+  blocco.append(contenitore)
+
+  if (voce.descrizione) blocco.append(elemento('p', 'voce__aiuto', voce.descrizione))
+  blocco.append(errore)
+
+  disegnate.set(voce.chiave, { blocco, campo, ritira })
+  return blocco
+}
+
+// ----------------------------------------------------------------- la pagina
+
+function disegna () {
+  radice.replaceChildren()
+  disegnate.clear()
+
+  let gruppo = null
+  for (const voce of voci) {
+    const suo = gruppoDi(voce.chiave)
+    if (suo !== gruppo) {
+      gruppo = suo
+      radice.append(elemento('h2', null, titoloGruppo(suo)))
+    }
+    radice.append(disegnaVoce(voce))
+  }
+
+  filtra()
+  ponte.postMessage({ impostazioni: 'pronto' })
+}
+
+/**
+ * Il filtro, che cerca in tutto: nome, chiave e descrizione. È anche la via da
+ * cui arriva `workbench.action.openSettings`, che il registro invoca con
+ * `registroDocenti.ocr` per portare davanti le impostazioni della lettura
+ * automatica.
+ */
+function filtra () {
+  const cercato = cerca.value.trim().toLowerCase()
+  const parole = cercato ? cercato.split(/\s+/) : []
+  let visibili = 0
+
+  for (const voce of voci) {
+    const pezzo = disegnate.get(voce.chiave)
+    if (!pezzo) continue
+    const dove = `${voce.chiave} ${nomeDi(voce.chiave)} ${voce.descrizione}`.toLowerCase()
+    const passa = parole.every((parola) => dove.includes(parola))
+    pezzo.blocco.hidden = !passa
+    if (passa) visibili += 1
+  }
+
+  // L'avviso del giro precedente si toglie prima di contare: lasciato lì,
+  // conterebbe come contenuto e terrebbe visibile il titolo dell'ultimo gruppo.
+  const vecchio = radice.querySelector('.vuoto')
+  if (vecchio) vecchio.remove()
+
+  // I titoli dei gruppi rimasti senza voci: si nascondono, o resterebbero
+  // intestazioni sospese sopra il nulla.
+  for (const titolo of radice.querySelectorAll('h2')) {
+    let vuoto = true
+    let seguente = titolo.nextElementSibling
+    while (seguente && seguente.tagName !== 'H2') {
+      if (!seguente.hidden) vuoto = false
+      seguente = seguente.nextElementSibling
+    }
+    titolo.hidden = vuoto
+  }
+
+  if (visibili === 0) radice.append(elemento('p', 'vuoto', 'Nessuna impostazione corrisponde.'))
+}
+
+cerca.addEventListener('input', filtra)
+
+window.addEventListener('message', (evento) => {
+  const messaggio = evento.data
+  if (!messaggio || typeof messaggio !== 'object') return
+
+  switch (messaggio.impostazioni) {
+    case 'schema':
+      document.title = messaggio.titolo
+      document.getElementById('titolo').textContent = messaggio.titolo
+      voci = messaggio.voci
+      cerca.value = messaggio.filtro || ''
+      disegna()
+      break
+
+    case 'valore': {
+      // Il main process conferma quel che ha scritto: il campo si aggiorna solo
+      // se non lo si sta usando, o si vedrebbe il cursore saltare mentre si
+      // scrive; il bottone per ritirare invece si aggiorna sempre.
+      const voce = voci.find((candidata) => candidata.chiave === messaggio.chiave)
+      const pezzo = disegnate.get(messaggio.chiave)
+      if (!voce || !pezzo) return
+      voce.valore = messaggio.valore
+      voce.scritta = messaggio.scritta
+      pezzo.ritira.hidden = !messaggio.scritta
+      if (document.activeElement !== pezzo.campo.elemento) pezzo.campo.mostra(messaggio.valore)
+      break
+    }
+
+    case 'filtro':
+      cerca.value = messaggio.testo || ''
+      filtra()
+      break
+  }
+})
+</script>
+</body>
+</html>

@@ -7,12 +7,19 @@
  * trovata senza cercarla.
  */
 
+/*
+ * La fascia esce dai margini della pagina e li ricopre: le misure negative sono
+ * `--margine-pagina`, cioè esattamente il `padding` che `.contenuto` si è dato.
+ * Erano un numero fisso finché anche il margine lo era; adesso che il margine
+ * cresce con la finestra, ricopiarlo qui vorrebbe dire una fascia che sborda a
+ * 1024 e non arriva al bordo a 2560.
+ */
 .barra-proiezione {
   position: sticky;
-  top: calc(var(--spazio-5) * -1);
+  top: calc(var(--margine-pagina) * -1);
   z-index: 5;
-  margin: calc(var(--spazio-5) * -1) calc(var(--spazio-5) * -1) var(--spazio-4);
-  padding: var(--spazio-2) var(--spazio-5);
+  margin: calc(var(--margine-pagina) * -1) calc(var(--margine-pagina) * -1) var(--spazio-4);
+  padding: var(--spazio-2) var(--margine-pagina);
   background: color-mix(in srgb, var(--accento) 12%, var(--sfondo));
   border-bottom: 1px solid color-mix(in srgb, var(--accento) 40%, transparent);
   display: flex;
@@ -108,7 +115,7 @@
 
 .blocco-proiettato--in-vista {
   background: var(--accento);
-  color: var(--vscode-button-foreground, #fff);
+  color: var(--su-tinta);
 }
 
 /*
@@ -130,7 +137,7 @@
    gridare, perché sullo schermo ci sono i singoli allievi. */
 .blocco-proiettato--riservato.blocco-proiettato--in-vista {
   background: var(--attenzione);
-  color: var(--vscode-editor-background);
+  color: var(--su-tinta);
 }
 
 /* Il pulsante che apre lo schermo, in fondo alla barra di navigazione. */

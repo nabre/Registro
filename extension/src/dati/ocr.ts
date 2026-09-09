@@ -47,7 +47,7 @@ export async function ocrPronto (): Promise<{ pronto: boolean, motivo: string }>
       pronto: false,
       motivo:
         'La lettura automatica delle scansioni è spenta: accendere ' +
-        '«registroDocenti.ocr.attivo» nelle impostazioni di VS Code.',
+        '«Attivo» nelle impostazioni, sotto OCR.',
     }
   }
   try {

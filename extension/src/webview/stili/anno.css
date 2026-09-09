@@ -15,7 +15,7 @@
 .anno__intestazione { display: flex; align-items: center; gap: var(--spazio-2); flex-wrap: wrap; }
 .anno__periodo { color: var(--testo-quieto); }
 /* La cartella in cui l'anno vive: si dice sottovoce, ma si dice. */
-.anno__cartella { color: var(--testo-quieto); font-family: var(--vscode-editor-font-family); font-size: 0.85em; }
+.anno__cartella { color: var(--testo-quieto); font-family: var(--carattere-mono); font-size: 0.85em; }
 .anno__azioni { margin-left: auto; display: flex; gap: var(--spazio-1); }
 .anno__semestri { display: flex; gap: var(--spazio-3); margin-top: var(--spazio-2); flex-wrap: wrap; }
 
@@ -25,7 +25,7 @@
   padding: var(--spazio-2) var(--spazio-3);
   border-radius: var(--raggio);
   background: var(--sfondo-alto);
-  min-width: 200px;
+  min-width: 12.5rem;
 }
 
 .anno__semestre-nome { font-weight: 600; }
@@ -46,7 +46,7 @@
 
 .scelta-giorni__voce--attiva {
   background: var(--accento);
-  color: var(--vscode-button-foreground);
+  color: var(--su-tinta);
   border-color: transparent;
 }
 

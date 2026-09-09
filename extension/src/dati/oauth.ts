@@ -8,30 +8,22 @@
 // verifica in due passaggi che fa già tutti i giorni, e non deve generare né
 // ricordare nessuna «password per le app».
 //
-// ## Due strade, e la prima non chiede niente
+// ## Il codice sul telefono
 //
-// La prima è l'account di VS Code. VS Code un provider Microsoft ce l'ha già
-// dentro — è quello del menu degli account, in basso a sinistra, quello con
-// cui si sincronizzano le impostazioni — e lo mette a disposizione delle
-// estensioni: si chiede una sessione con i permessi che servono, e VS Code
-// pensa alla pagina di accesso, al rinnovo dei gettoni e alla memoria di chi è
-// entrato. Il registro non tiene niente e non scade niente. Non c'è nulla da
-// registrare e nulla da incollare: è la via da provare per prima, ed è quella
-// che il registro propone.
+// Si registra la propria applicazione una volta sola e si incolla il suo «ID
+// applicazione» nelle impostazioni. Da lì in poi si entra con il *device code*:
+// il registro chiede un codice, chi collega lo incolla nella pagina di
+// Microsoft da qualunque browser — anche dal telefono — e il registro intanto
+// aspetta. Non serve un browser sulla macchina del registro, non serve una
+// finestra di accesso incorporata, e la password non passa mai di qui.
 //
-// Non è detto che basti. Il numero con cui VS Code si presenta a Microsoft è
-// suo, e Microsoft lo autorizza sulle risorse che vuole: se sulla posta non lo
-// autorizza, la richiesta torna indietro con `AADSTS65002` — ed è lì che serve
-// la seconda strada.
-//
-// La seconda è registrare la propria applicazione, una volta sola, e incollare
-// il suo «ID applicazione» nelle impostazioni. Da quel momento si può ancora
-// passare da VS Code, che quel numero lo accetta al posto del proprio con due
-// voci speciali (`VSCODE_CLIENT_ID:`, `VSCODE_TENANT:`), oppure si può usare
-// il *device code* qui sotto: il registro chiede un codice, chi collega lo
-// incolla nella pagina di Microsoft da qualunque browser — anche dal telefono
-// — e il registro intanto aspetta. Serve dove il menu degli account non c'è o
-// non si vuole toccare.
+// C'era una seconda strada, e passava dal menu degli account di VS Code: quando
+// il registro era un'estensione, l'editor un provider Microsoft ce l'aveva già
+// dentro e lo prestava. Fuori dall'editor quel menu non esiste, e la strada è
+// caduta con lui. Non è una perdita grossa: era comoda finché funzionava, ma
+// dipendeva dal fatto che Microsoft autorizzasse l'ID di VS Code sulla posta —
+// cosa che su molti tenant non fa, e allora si finiva comunque a registrare la
+// propria applicazione, che è quel che si fa adesso subito.
 //
 // La procedura di registrazione sta scritta per intero in `guidaRegistrazione`:
 // il registro la stampa quando serve, invece di dire soltanto che manca un
@@ -39,7 +31,7 @@
 
 import * as vscode from 'vscode'
 
-import { dellaCasella, dominioDi, type Casella } from '../dominio/casella.js'
+import { dominioDi, type Casella } from '../dominio/casella.js'
 
 /**
  * Il permesso che si chiede: spedire, e nient'altro.
@@ -71,20 +63,13 @@ const CHIAVE_RINNOVO = 'registroDocenti.posta.rinnovo'
 let portachiavi: vscode.SecretStorage | null = null
 
 /**
- * L'attivazione consegna il portachiavi e mette in ascolto sugli account.
- *
- * L'ascolto serve a una cosa sola e importante: un account tolto dal menu degli
- * account di VS Code deve spegnere la pastiglia «casella collegata» senza che
- * si debba riavviare niente — altrimenti il registro continua a dire che
- * spedisce da una casella a cui non ha più accesso.
+ * L'avvio consegna il portachiavi e chiede subito se dentro c'è un gettone di
+ * rinnovo: da quella risposta dipende la pastiglia «casella collegata» che il
+ * pannello mostra appena si apre.
  */
-export function registraPortachiaviOauth (segreti: vscode.SecretStorage): vscode.Disposable {
+export function registraPortachiaviOauth (segreti: vscode.SecretStorage): void {
   portachiavi = segreti
   void rinnovoSalvato()
-  void sessioneVsCode(false)
-  return vscode.authentication.onDidChangeSessions((cambio) => {
-    if (cambio.provider.id === PROVIDER) void sessioneVsCode(false)
-  })
 }
 
 /**
@@ -93,7 +78,7 @@ export function registraPortachiaviOauth (segreti: vscode.SecretStorage): vscode
  * Un giro di venticinque comunicazioni sta dentro un solo collegamento, ma i
  * giri sono tanti: ridomandare un gettone a ogni invio vuol dire una chiamata
  * di rete in più ogni volta, per un gettone che è ancora buono per
- * cinquantotto minuti. Sta in memoria e basta: alla chiusura di VS Code
+ * cinquantotto minuti. Sta in memoria e basta: alla chiusura dell'applicazione
  * sparisce, e quel che resta è il gettone di rinnovo nel portachiavi.
  */
 let inTasca: { gettone: string, scade: number } | null = null
@@ -117,13 +102,20 @@ export function contoOauth (): ContoOauth {
 }
 
 /** Con che cosa il registro entra nella casella. */
-export type ModoAccesso = 'vscode' | 'oauth' | 'password'
+export type ModoAccesso = 'oauth' | 'password'
 
-/** Quale dei tre modi di entrare si è scelto. */
+/**
+ * Quale dei due modi di entrare si è scelto.
+ *
+ * Ce n'era un terzo, `vscode`, che passava dal menu degli account dell'editor.
+ * Fuori dall'editor non c'è nessun menu degli account: il valore, per chi se lo
+ * porta dietro dal file delle impostazioni di allora, lo traduce lo shim in
+ * `oauth` — vedi `corretto()` in `src/ambiente/impostazioni.ts`.
+ */
 export function modoAccesso (): ModoAccesso {
   return (
     vscode.workspace.getConfiguration('registroDocenti.posta').get<ModoAccesso>('autenticazione') ??
-    'vscode'
+    'oauth'
   )
 }
 
@@ -147,145 +139,16 @@ export async function dimenticaOauth (): Promise<void> {
   inTasca = null
 }
 
-// ------------------------------------------------- l'account di VS Code
-
-/**
- * L'accesso con l'account che VS Code ha già.
- *
- * È la via più corta di tutte, e va provata per prima: VS Code un provider
- * Microsoft ce l'ha dentro — è quello del menu degli account, in basso a
- * sinistra — e sa fare da sé la pagina di accesso, il rinnovo dei gettoni e la
- * memoria di chi è entrato. Al registro non resta da tenere niente: nessun
- * gettone nel portachiavi, nessuna scadenza da guardare.
- *
- * Con l'ID applicazione scritto nelle impostazioni si passa quello, con le due
- * voci speciali che VS Code riconosce apposta — `VSCODE_CLIENT_ID:` e
- * `VSCODE_TENANT:` — e allora si entra con la propria registrazione ma con la
- * comodità di VS Code. Senza, si prova con quella di VS Code stesso: non è
- * detto che Microsoft la autorizzi sulla posta, e quando non lo fa lo dice con
- * `AADSTS65002` — che è il momento in cui serve registrarne una propria.
- */
-const PROVIDER = 'microsoft'
-
-/** Se, per quel che si è visto, l'account di VS Code c'è. */
-let notoInVsCode = false
-
-export function vscodeNoto (): boolean {
-  return notoInVsCode
-}
-
-/**
- * I permessi da chiedere a VS Code, sempre gli stessi.
- *
- * «Sempre gli stessi» è la parte che conta: VS Code ritrova una sessione già
- * aperta confrontando l'elenco dei permessi, e un elenco che cambia da una
- * chiamata all'altra — perché nel frattempo si è scoperto il tenant — fa
- * ripartire la pagina di accesso a ogni invio. Per questo il tenant, appena
- * scoperto, si scrive nelle impostazioni.
- */
-function permessiVsCode (): string[] {
-  const permessi = [...PERMESSI.split(' ')]
-  const { clientId, tenant } = contoOauth()
-  if (clientId) permessi.push(`VSCODE_CLIENT_ID:${clientId}`)
-  if (tenant) permessi.push(`VSCODE_TENANT:${tenant}`)
-  return permessi
-}
-
-/**
- * La sessione di VS Code: quella già aperta, o una nuova se glielo si chiede.
- *
- * Senza `creando` non apre niente e non disturba nessuno: è la domanda che si
- * fa all'avvio e prima di ogni invio, e la risposta «non c'è» è una risposta
- * buona.
- */
-async function sessioneVsCode (creando: boolean): Promise<vscode.AuthenticationSession | null> {
-  try {
-    const sessione = await vscode.authentication.getSession(PROVIDER, permessiVsCode(), {
-      createIfNone: creando,
-      silent: creando ? undefined : true,
-    })
-    notoInVsCode = Boolean(sessione)
-    return sessione ?? null
-  } catch (errore) {
-    // Chi chiude la finestra di accesso non ha rotto niente: ha detto di no.
-    notoInVsCode = false
-    if (creando) throw errore
-    return null
-  }
-}
-
-/** Il gettone dall'account di VS Code, senza aprire niente. */
-export async function gettoneDaVsCode (): Promise<string | null> {
-  const sessione = await sessioneVsCode(false)
-  return sessione?.accessToken ?? null
-}
-
-/**
- * Collega la casella con l'account di VS Code.
- *
- * Il tenant si scopre prima e si scrive nelle impostazioni: serve a far aprire
- * la pagina già sulla scuola, e serve soprattutto a non far cambiare l'elenco
- * dei permessi fra oggi e domani.
- *
- * Alla fine si controlla *chi* è entrato. Non è pignoleria: chi ha due account
- * Microsoft nel browser sceglie quello sbagliato con un clic, e il registro
- * finirebbe a spedire dalla casella privata senza che nessuno se ne accorga
- * fino a quando una famiglia non risponde all'indirizzo di casa. VS Code
- * chiama l'account ora con il nome di accesso, ora con l'indirizzo: vanno
- * bene tutti e due, perché sono la stessa casella.
- */
-export async function collegaConVsCode (suo: Casella): Promise<EsitoOauth> {
-  const impostazioni = vscode.workspace.getConfiguration('registroDocenti.posta')
-  if (!contoOauth().tenant) {
-    const tenant = await tenantDi(suo.accesso)
-    if (tenant !== COMUNE) {
-      await impostazioni.update('tenant', tenant, vscode.ConfigurationTarget.Global)
-    }
-  }
-
-  try {
-    const sessione = await sessioneVsCode(true)
-    if (!sessione) return { ok: false, errore: 'Collegamento annullato.' }
-
-    const entrato = (sessione.account.label ?? '').trim()
-    if (entrato && !dellaCasella(suo, entrato)) {
-      return {
-        ok: false,
-        errore:
-          `Sei entrato come ${entrato}, non come ${suo.accesso}. Togli l’account sbagliato dal ` +
-          'menu degli account di VS Code, in basso a sinistra, e rifai il collegamento.',
-      }
-    }
-    return { ok: true }
-  } catch (errore) {
-    return { ok: false, errore: spiega(undefined, (errore as Error).message) }
-  }
-}
-
-/**
- * Dimentica l'account di VS Code, per quel che il registro può fare.
- *
- * Non può disconnetterlo: la sessione è di VS Code e si toglie dal suo menu
- * degli account. Quel che si può fare è smettere di usarla, e dirlo.
- */
-export function dimenticaVsCode (): void {
-  notoInVsCode = false
-}
-
 /**
  * Azzera tutto quel che questo modulo tiene: il gettone di rinnovo nel
- * portachiavi, quello d'accesso in memoria, la memoria dell'account di VS
- * Code e i tenant scoperti.
+ * portachiavi, quello d'accesso in memoria e i tenant scoperti.
  *
  * È la mossa da fare quando «non funziona» e non si sa più che cosa sia
  * rimasto in giro: un gettone di un tentativo precedente, un tenant sbagliato
- * ricordato da un indirizzo scritto male. Dopo, si riparte da zero — tranne
- * l'account nel menu di VS Code, che solo chi sta davanti allo schermo può
- * togliere.
+ * ricordato da un indirizzo scritto male. Dopo, si riparte da zero.
  */
 export async function azzeraOauth (): Promise<void> {
   await dimenticaOauth()
-  dimenticaVsCode()
   tenantConosciuti.clear()
 }
 
@@ -376,8 +239,8 @@ export function guidaRegistrazione (): string {
     '1. Apri https://entra.microsoft.com e accedi con la casella della scuola.',
     '2. Identità → Applicazioni → Registrazioni app → Nuova registrazione.',
     '3. Nome: «Registro docenti». Tipi di account supportati: solo questa organizzazione.',
-    '4. URI di reindirizzamento: scegli «Client pubblico / nativo (desktop e dispositivi mobili)» e metti https://vscode.dev/redirect. Registra.',
-    '5. Nella scheda Autenticazione aggiungi, sempre come client pubblico, anche http://localhost e ms-appx-web://Microsoft.AAD.BrokerPlugin/<ID applicazione> (con il tuo ID al posto di <ID applicazione>: serve al broker di Windows, che è quello che VS Code usa per entrare). In fondo metti «Consenti flussi client pubblici» su Sì e salva.',
+    '4. URI di reindirizzamento: scegli «Client pubblico / nativo (desktop e dispositivi mobili)» e lascia vuota la casella dell’indirizzo — con il codice non c’è niente da rimandare indietro, perché è il registro che sta già aspettando. Registra.',
+    '5. In fondo alla scheda Autenticazione metti «Consenti flussi client pubblici» su Sì e salva: è quello che permette di entrare con il codice, senza un segreto da tenere nel programma.',
     '6. In Autorizzazioni API → Aggiungi → API utilizzate dall’organizzazione → Office 365 Exchange Online → Autorizzazioni delegate → SMTP.Send.',
     '7. Copia «ID applicazione (client)» dalla Panoramica e incollalo in registroDocenti.posta.clientId.',
     '',

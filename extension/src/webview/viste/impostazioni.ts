@@ -720,11 +720,7 @@ function schedaPosta (): HTMLElement {
           'collegamento',
         ),
         pastiglia(
-          posta.modo === 'vscode'
-            ? 'account Microsoft di VS Code'
-            : posta.modo === 'oauth'
-              ? 'account Microsoft'
-              : 'password per le app',
+          posta.modo === 'oauth' ? 'account Microsoft' : 'password per le app',
           'neutro',
           'utente',
         ),

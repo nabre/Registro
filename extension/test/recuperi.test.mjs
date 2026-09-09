@@ -27,7 +27,7 @@ import {
   recuperiUrgenti,
   registroVuoto,
   statoDelRecupero,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una classe di tre, un corso, tre ore, e una verifica nella prima. */
 function scuola () {

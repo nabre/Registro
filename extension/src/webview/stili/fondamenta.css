@@ -1,13 +1,9 @@
-/* I colori, le misure e il telaio: quel che vale in ogni schermata. */
-
-/*
- * Aspetto del pannello.
+/* Le misure e il telaio: quel che vale in ogni schermata.
  *
- * Tutti i colori vengono dalle variabili di VS Code: il registro deve sembrare
- * parte dell'editor e cambiare tema insieme a lui, chiaro o scuro che sia.
- * Dove serve una tinta che il tema non prevede — il verde di un merito, il
- * rosso di un'insufficienza — si parte comunque da una variabile del tema e la
- * si mescola con `color-mix`, così resta leggibile ovunque.
+ * I colori e i caratteri non stanno qui: stanno in `tema.css`, che è importato
+ * prima di questo file. La separazione è quel che permette di cambiare la
+ * tavolozza — o di leggerla, per vedere che cos'è davvero il grigio di una
+ * scheda — senza scorrere quattrocento righe di telaio.
  *
  * Le classi seguono lo schema blocco__elemento--variante, in italiano come il
  * resto del codice.
@@ -24,20 +20,41 @@
   --raggio: 6px;
   --raggio-grande: 10px;
 
-  --bordo: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
-  --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
-  --sfondo: var(--vscode-editor-background);
-  --sfondo-alto: color-mix(in srgb, var(--vscode-editor-foreground) 4%, var(--sfondo));
-  --sfondo-alto-2: color-mix(in srgb, var(--vscode-editor-foreground) 8%, var(--sfondo));
-  --testo: var(--vscode-editor-foreground);
-  --testo-quieto: var(--vscode-descriptionForeground, color-mix(in srgb, var(--testo) 60%, transparent));
-  --accento: var(--vscode-textLink-foreground, #3794ff);
+  /*
+   * Quanto può allargarsi una vista.
+   *
+   * Non è una misura sola perché le viste non sono tutte la stessa cosa. Un
+   * calendario è una griglia di sette colonne: più è largo, più ci sta dentro
+   * un'ora scritta per esteso, e non c'è un punto in cui allargarlo peggiori.
+   * Una tabella di allievi è il contrario — le colonne sono corte e note, e
+   * stirarle su due metri di schermo mette dieci centimetri di vuoto fra il
+   * nome e la sua percentuale, che è proprio il paio che si legge insieme.
+   *
+   * Prima ce n'era una sola, 1500px, e per giunta senza `margin auto`: su uno
+   * schermo largo il registro restava appeso a sinistra con ottocento pixel di
+   * niente a destra, e le tabelle erano comunque troppo tirate.
+   */
+  --misura-piena: none;
+  --misura-larga: 97.5rem;
+  --misura-normale: 80rem;
+  /* Da leggere e basta: un indice, e accanto una colonna di prosa che si ferma
+     alla misura in cui l'occhio ritrova la riga dopo. */
+  --misura-lettura: 58rem;
 
-  --positivo: var(--vscode-testing-iconPassed, #3fb950);
-  --negativo: var(--vscode-testing-iconFailed, #f85149);
-  --attenzione: var(--vscode-editorWarning-foreground, #d29922);
-  --informativo: var(--accento);
+  /*
+   * Tutte e tre in `rem` — 97.5rem sono i 1560px di prima, 80rem i 1280 — e non
+   * è pedanteria. Sono limiti a quanto *testo* sta su una riga: se il sistema
+   * chiede un testo più grande, una misura in pixel terrebbe meno parole per
+   * riga proprio a chi le legge una alla volta. In `rem` il numero di battute
+   * resta lo stesso e cresce il riquadro, che è la cosa giusta da far crescere.
+   */
 
+  /* Le tinte delle attività: sono le uniche che non cambiano fra chiaro e
+     scuro, e non è una svista. Sono un codice — un colore per genere di
+     attività — e un codice che cambia tinta col tema smette di essere tale:
+     chi si è abituato al ciano del laboratorio lo cerca ciano anche di sera.
+     Restano leggibili perché non si usano mai come fondo di un testo lungo:
+     sono punti, filetti e bordi. */
   --tinta-introduzione: #6366f1;
   --tinta-spiegazione: #3b82f6;
   --tinta-esercizio: #10b981;
@@ -50,7 +67,6 @@
   --tinta-docenza: #0ea5e9;
   --tinta-altro: #94a3b8;
 
-  --ombra: 0 6px 24px rgba(0, 0, 0, 0.28);
 }
 
 * {
@@ -60,11 +76,17 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--vscode-font-family);
-  font-size: var(--vscode-font-size, 13px);
+  font-family: var(--carattere);
+  font-size: var(--corpo);
+  line-height: var(--interlinea);
   color: var(--testo);
   background: var(--sfondo);
   overflow: hidden;
+  /* Il testo dell'interfaccia si legge meglio con le legature e le cifre
+     tabulari: in un registro le colonne di voti e di ore devono incolonnarsi
+     da sole, senza che nessuno ci metta una larghezza fissa. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
 }
 
 body.con-modale {
@@ -116,9 +138,23 @@ body.con-modale {
 .guscio {
   height: 100vh;
   display: grid;
-  /* Un po' più larga di prima: i titoli dei corsi ci stanno dentro, e sotto di
-     loro c'è un rientro di pagine da leggere senza andare a capo. */
-  grid-template-columns: 232px 1fr;
+  /*
+   * La barra si adatta, entro due limiti.
+   *
+   * In `rem` e non in pixel: la barra è fatta di etichette, e se il sistema
+   * chiede un testo più grande deve allargarsi con lui — altrimenti «Laboratorio
+   * CAD/BIM» comincia ad andare a capo proprio per chi quel testo l'ha ingrandito
+   * per riuscire a leggerlo.
+   *
+   * Il `15vw` in mezzo è quel che la fa respirare sugli schermi larghi senza
+   * lasciarla diventare una colonna: 17rem è il tetto, e oltre quello lo spazio
+   * serve di più al registro che all'elenco dei corsi.
+   *
+   * `minmax(0, 1fr)` e non `1fr` sulla seconda colonna: `1fr` ha per minimo il
+   * contenuto, e basta una tabella larga perché la griglia si allarghi invece di
+   * lasciarla scorrere.
+   */
+  grid-template-columns: clamp(13rem, 15vw, 17rem) minmax(0, 1fr);
 }
 
 .barra-laterale {
@@ -315,14 +351,77 @@ body.con-modale {
 
 .contenuto {
   overflow: auto;
-  padding: var(--spazio-5);
+  /*
+   * Il margine cresce con la finestra, entro due limiti: a 1024 sono i 16px che
+   * servono a non incollare la tabella al bordo, a 2560 sono 36 e la pagina non
+   * sembra spinta contro la barra. In pixel e non in `rem`: è spazio, non testo.
+   *
+   * Sta in una variabile perché non lo usa solo il `padding`: la fascia della
+   * proiezione esce dai margini con un margine negativo di pari misura, e
+   * scritti in due posti i due numeri divergerebbero al primo ripensamento —
+   * con la fascia che sborda da una parte e non arriva dall'altra.
+   */
+  --margine-pagina: clamp(16px, 1.5vw, 36px);
+  padding: var(--margine-pagina);
+}
+
+/*
+ * La misura della vista la porta il contenuto, non la vista.
+ *
+ * Sembra un giro largo e invece è il punto: sopra la vista ci stanno delle
+ * fasce — l'avviso dei riferimenti rotti — che sono sue sorelle e non sue
+ * figlie. Con la misura sulla sola vista, un avviso a tutta larghezza sopra una
+ * vista centrata farebbe uno scalino proprio nel momento in cui si guarda un
+ * messaggio d'errore.
+ *
+ * `:has()` legge quale vista c'è dentro e mette la misura sul contenitore, da
+ * cui la ereditano tutti. Nessuna riga di TypeScript da toccare, e la classe
+ * della vista resta l'unico posto in cui sta scritto di che vista si tratta.
+ */
+.contenuto { --vista-larghezza: var(--misura-normale); }
+
+/* Sette colonne di giorni: tutto lo spazio che c'è è spazio guadagnato. Un'ora
+   larga mostra la classe *e* l'argomento, dove una stretta tronca il secondo. */
+.contenuto:has(.vista--calendario) { --vista-larghezza: var(--misura-piena); }
+
+/* Tranne l'agenda, che dello stesso calendario è la forma a elenco: torna alla
+   misura normale. Dopo la riga sopra e non prima — pesano uguale, e fra due
+   regole di pari peso vince l'ultima scritta. */
+.contenuto:has(.vista--calendario-agenda) { --vista-larghezza: var(--misura-normale); }
+
+/* Due colonne affiancate, o una matrice che cresce con gli allievi e con le
+   unità didattiche: qui la larghezza si consuma davvero. */
+.contenuto:has(.vista--lezione),
+.contenuto:has(.vista--valutazioni),
+.contenuto:has(.vista--docente-classe),
+.contenuto:has(.vista--allievo) { --vista-larghezza: var(--misura-larga); }
+
+/* La guida è l'unica pagina che si legge invece di consultarla: si ferma dove
+   si ferma la prosa, senza lasciare mezza scheda vuota accanto al testo. */
+.contenuto:has(.vista--guida) { --vista-larghezza: var(--misura-lettura); }
+
+/* Tutto il resto — elenchi e tabelle di poche colonne corte — sta alla misura
+   normale: sono le viste che allargandosi non guadagnano niente e perdono il
+   filo fra la prima colonna e l'ultima. */
+
+/*
+ * La vista e le fasce che le stanno sopra: larghe quanto serve, e in mezzo.
+ *
+ * `margin-inline: auto` è la riga che toglie il difetto più visibile di prima —
+ * il contenuto appeso a sinistra e il vuoto tutto da una parte. Quel che avanza
+ * adesso si divide in due, e l'occhio non deve attraversarlo.
+ */
+.vista,
+.contenuto > .avviso {
+  width: 100%;
+  max-width: var(--vista-larghezza, var(--misura-normale));
+  margin-inline: auto;
 }
 
 .vista {
   display: flex;
   flex-direction: column;
   gap: var(--spazio-4);
-  max-width: 1500px;
 }
 
 /* ------------------------------------------------------------------ testate */

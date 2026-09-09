@@ -17,7 +17,7 @@ import {
   creaLezione,
   normalizzaImpostazioni,
   normalizzaRegistro,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una classe con due corsi, due allievi e un'ora: il minimo per distinguere. */
 function registroCon () {

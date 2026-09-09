@@ -1646,7 +1646,12 @@ export function vistaCalendario (): Figlio {
 
   return h(
     'div',
-    { class: 'vista vista--calendario' },
+    // Il modo finisce nella classe perché decide quanto la pagina si allarga:
+    // settimana, mese e anno sono griglie e prendono tutto lo schermo che c'è;
+    // l'agenda è un elenco, e larga due metri mette mezzo schermo fra il nome
+    // del corso e la sua durata. La regola sta in `fondamenta.css`, accanto
+    // alle altre misure.
+    { class: ['vista', 'vista--calendario', `vista--calendario-${modo}`] },
     testataVista({
       titolo: 'Calendario',
       sottotitolo,

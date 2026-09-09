@@ -20,14 +20,15 @@
   max-height: 88vh;
   border: 1px solid var(--bordo);
   border-radius: var(--raggio-grande);
-  background: var(--vscode-editorWidget-background, var(--sfondo));
-  box-shadow: var(--ombra);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-3);
   overflow: hidden;
 }
 
-.modale--stretta { max-width: 520px; }
-.modale--media { max-width: 760px; }
-.modale--larga { max-width: 1040px; }
+/* In `rem`: una finestra tiene un modulo, e un modulo è testo. */
+.modale--stretta { max-width: 32.5rem; }
+.modale--media { max-width: 47.5rem; }
+.modale--larga { max-width: 65rem; }
 .modale--piena { max-width: 96vw; }
 .modale--occupata { opacity: 0.7; pointer-events: none; }
 
@@ -84,7 +85,7 @@
   padding: var(--spazio-3);
   border-radius: var(--raggio);
   background: var(--sfondo-alto);
-  font-family: var(--vscode-editor-font-family);
+  font-family: var(--carattere-mono);
   font-size: 0.9em;
   white-space: pre-wrap;
 }
@@ -122,7 +123,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spazio-2);
-  max-width: 380px;
+  max-width: 23.75rem;
 }
 
 .notifica {
@@ -132,8 +133,8 @@
   padding: var(--spazio-2) var(--spazio-3);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
-  background: var(--vscode-notifications-background, var(--sfondo-alto));
-  box-shadow: var(--ombra);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-2);
   animation: entra 0.16s ease-out;
 }
 

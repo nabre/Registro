@@ -1,11 +1,12 @@
 # Registro docenti
 
-Registro di classe per VS Code: calendario delle lezioni, classi e allievi,
-piani lezione e momenti di valutazione. I dati stanno in file JSON dentro il
-workspace, accanto al resto del materiale del docente.
+Registro di classe per docenti: calendario delle lezioni, classi e allievi,
+piani lezione e momenti di valutazione. È un'applicazione desktop — Electron —
+e i dati stanno in file JSON dentro la cartella di lavoro, accanto al resto del
+materiale del docente.
 
-L'estensione si carica da sola all'apertura della cartella e apre il pannello
-se il registro è già stato usato qui.
+All'avvio l'applicazione chiede una volta sola su quale cartella lavorare, se la
+ricorda, e apre il registro se in quella cartella è già stato usato.
 
 ## Come è fatto
 
@@ -15,13 +16,24 @@ se il registro è già stato usato qui.
 | Impaginazione dei rapporti | `templates/`, `src/dominio/rapporti.ts`, `src/dati/rapportiPdf.ts` |
 | Che cosa il registro mette dentro un rapporto | `src/dominio/datiRapporti.ts` |
 | Lettura e scrittura dei file | `src/dati/` |
-| Comandi, viste laterali, pannello | `src/estensione.ts`, `src/pannello.ts`, `src/vista/` |
+| Comandi e pannelli | `src/estensione.ts`, `src/pannello.ts`, `src/pannelloProiezione.ts` |
+| Che cosa il registro sa fare e che cosa si regola | `src/manifesto.ts` |
+| L'ambiente su cui gira: finestre, dialoghi, file, impostazioni | `src/ambiente/` |
+| Il guscio Electron: avvio, menu, protocollo, pagine native | `desktop/` |
 | Contratto fra host e pannello | `src/protocollo.ts` |
 | Applicazione delle azioni | `src/azioni.ts` |
 | Interfaccia del pannello | `src/webview/` |
 
-Il dominio non conosce né `vscode` né il DOM: lo usano l'extension host, il
-webview e i test, e per questo `npm test` gira senza avviare l'editor.
+Il dominio non conosce né l'applicazione né il DOM: lo usano il main process, il
+webview e le prove, ed è per questo che `npm test` gira senza aprire una
+finestra.
+
+Il registro importa un modulo chiamato `vscode`, e non è un residuo: quel modulo
+è `src/ambiente/vscode-desktop.ts`, risolto da un alias di esbuild e da un
+`paths` di TypeScript. È l'interfaccia fra il registro e l'ambiente che lo
+ospita — finestre, dialoghi, file, impostazioni, portachiavi — e tenerla stretta
+in un solo punto è quel che permette ai ventisei file che la usano di non sapere
+niente di Electron.
 
 **La guida sta dentro l'applicazione**, ultima voce della barra laterale: una
 sezione per pagina, con che domanda risponde e i gesti che si fanno, e da ogni
@@ -100,7 +112,7 @@ sempre, ma un anno chiuso deve restare leggibile con la scala con cui è stato
 scritto, anche se intanto la scala è cambiata.
 
 In radice resta un `registro.json` di due righe, che dice soltanto quale anno è
-aperto. Sta lì e non nelle impostazioni di VS Code perché la scelta appartiene
+aperto. Sta lì e non fra le impostazioni perché la scelta appartiene
 alla cartella: chi apre lo stesso registro sincronizzato su un altro computer si
 ritrova sullo stesso anno.
 
@@ -1230,7 +1242,7 @@ scaletta appartiene.
 
 Sono JSON indentati: si leggono a occhio, fanno diff sensati sotto Git e si
 possono correggere a mano. Chi li rilegge normalizza quel che trova, quindi un
-campo mancante o di tipo sbagliato non fa cadere l'estensione — e nemmeno una
+campo mancante o di tipo sbagliato non fa cadere l'applicazione — e nemmeno una
 versione precedente del formato: la conversione avviene in lettura e i file si
 riscrivono una volta sola, da soli. Un JSON che non si legge proprio — una
 parentesi persa correggendolo a mano — non viene coperto: si dice, quella
@@ -1263,29 +1275,47 @@ lasciare il problema in vista.
 
 ## Sviluppo
 
-All'apertura della cartella partono da soli due task (`.vscode/tasks.json`):
-
-- **collega** — mette in `~/.vscode/extensions` una giunzione verso questa
-  cartella, così VS Code carica il codice di qui e non una copia impacchettata;
-- **watch** — tiene `dist/` allineato ai sorgenti.
-
-Per vedere una modifica basta **Ricarica finestra**. Con F5 si apre invece una
-seconda finestra di sviluppo.
-
 ```bash
-npm run build           # una compilazione
-npm run watch           # compilazione continua
+npm run sviluppo        # il modo di lavoro: vedi sotto
+npm run build           # una compilazione in dist/
+npm run avvia           # compila e lancia, senza ascolto
 npm run controllo-tipi  # tsc --noEmit
-npm test                # test del dominio
-npm run pacchetto       # registro-docenti.vsix
+npm test                # le prove
+npm run pacchetto       # installer e versione portabile in pacchetti/
 ```
+
+`npm run sviluppo` è il comando con cui si lavora. Tiene insieme tre cose:
+esbuild in ascolto su tutti i bundle, l'applicazione avviata, e il
+ricaricamento — che non è uno solo, ed è la ragione per cui vale la pena
+descriverlo:
+
+- **le pagine si ricaricano**, in un decimo di secondo, quando cambia una vista,
+  un foglio di stile o una pagina nativa. La finestra resta aperta, l'archivio
+  resta caricato, e la pagina richiede lo stato da sé appena torna in piedi;
+- **l'applicazione si riavvia** quando cambia il main process o il preload —
+  codice che non si può ricaricare a caldo. Costa un secondo e mezzo, e la
+  cartella di lavoro se la ricorda, quindi si riparte da dov'era.
+
+Che cosa fa scattare cosa lo dice il campo `ricarica` sulle configurazioni in
+`esbuild.mjs`: non c'è un secondo elenco da tenere allineato.
+
+Un bundle che non compila non fa riavviare niente: resta in piedi quello di
+prima, l'errore si legge nel terminale, e al salvataggio dopo si riprende.
+
+### Le cartelle della build
+
+`dist/` sono i bundle dell'applicazione, ed è quel che finisce nel pacchetto.
+`dist-prove/` sono gli stessi sorgenti ricompilati in una forma che Node sa
+importare — ESM, con `electron` sostituito dal finto di `test/finto-electron.mjs`
+— e servono solo a `npm test`.
 
 ## Proiettare per la classe
 
 Il registro sta su uno schermo, la classe ne guarda un altro. `Registro:
 proietta per la classe` — o il pulsante **Proietta** in fondo alla barra di
-navigazione — apre una seconda finestra, staccata, da trascinare sul
-proiettore. Da lì in poi segue il registro: si apre un'ora nel pannello, e
+navigazione — apre una seconda finestra. Con «proiezione: schermo intero» accesa
+nelle Impostazioni, il registro la mette da sé sul secondo schermo e la allarga:
+non c'è niente da trascinare. Da lì in poi segue il registro: si apre un'ora nel pannello, e
 quella finisce sullo schermo grande.
 
 Non è il registro duplicato, ed è la differenza che conta. Un `WebviewPanel`
@@ -1323,7 +1353,7 @@ correggerebbe niente, ed è proprio la classe a doverlo correggere.
 
 **Pausa** spegne il contenuto lasciando la finestra dov'è: serve nel mezzo
 dell'ora, quando si passa a scrivere qualcosa che non deve essere letto. In
-pausa i dati non escono nemmeno dall'estensione — il messaggio che parte è
+pausa i dati non escono nemmeno dall'applicazione — il messaggio che parte è
 vuoto — e riprendendo si ritrova tutto com'era.
 
 Un blocco spento non è un blocco nascosto dal foglio di stile: non finisce
@@ -1368,15 +1398,9 @@ una lezione nuova.
 
 - Il Cruscotto è la schermata d'apertura: una tabella per semestre, una colonna
   per corso, e in ogni cella i segni di quel che manca a quell'ora.
-- Nella barra laterale di VS Code l'albero raccoglie prossime lezioni, classi,
-  **corsi**, piani e valutazioni: un corso si apre sulle ore che restano da
-  fare, e cliccandolo si va alla sua scheda nel pannello.
-- Nell'albero il tasto destro fa quel che si farebbe aprendo il pannello, senza
-  aprirlo: su un'ora apri, duplica ed elimina — e su un'ora senza scaletta il
-  piano, vuoto o copiato da un altro corso; su un corso un momento di
-  valutazione nuovo e la generazione delle ore dall'orario; su una classe
-  l'esportazione delle presenze. Sono le stesse azioni del pannello, perché due
-  elenchi diversi per le stesse cose sono due posti in cui dimenticarsene una.
+- La barra laterale raccoglie le pagine del registro e, sotto, i **corsi**
+  raggruppati per materia: un corso si apre sulle sue pagine — ore, piani,
+  valutazioni, allievi — e resta aperto mentre lo si guarda.
 - In fondo alla barra di stato c'è la prossima ora: quella che deve ancora
   cominciare, non quella di stamattina già finita, e premendola si apre lei.
 - Nel calendario settimanale, un clic sul vuoto crea una lezione a quell'ora;

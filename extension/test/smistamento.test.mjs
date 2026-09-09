@@ -24,7 +24,7 @@ import {
   smistamentiInQuarantena,
   smistamentoEsaurito,
   giaConsegnati,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 /** Una classe con dentro i nomi dati, tutti frequentanti. */
 function classeCon (...nomi) {

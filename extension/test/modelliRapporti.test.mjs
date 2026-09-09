@@ -40,7 +40,7 @@ import {
   datiValutazioni,
   leggiModello,
   normalizzaRegistro,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 import { leggiModelli } from '../strumenti/modelli.mjs'
 

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Chiedere una cosa e farne scegliere una: `showInputBox` e `showQuickPick`.
+  Questa pagina è tutte e due — il tipo arriva nella query, insieme ai parametri
+  già ripuliti dal main process.
+
+  Non carica niente da fuori e non scrive mai HTML: le etichette arrivano dai
+  dati del docente — nomi di classi, di piani, di file entrati dalla cassetta —
+  e finiscono in `textContent`, che è testo e resta testo.
+
+  Parla con il main process sul canale del registro, quello che il preload
+  espone come `acquireVsCodeApi()`: un canale solo per tutta l'applicazione, e
+  `finestre.ts` scarta i mittenti che non conosce.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro: 'unsafe-inline'; script-src 'unsafe-inline';">
+<title>Registro</title>
+<!--
+  L'aspetto viene da `guscio.css`, che è lo stesso foglio delle impostazioni e
+  porta con sé i colori del registro: chiaro o scuro qui si decide dov'è deciso
+  per tutto il resto — l'impostazione «aspetto.tema», che il main process gira
+  in `nativeTheme.themeSource`. Qui sotto resta solo quel che è di questa
+  finestra e di nessun'altra.
+-->
+<link rel="stylesheet" href="registro://app/dist/guscio.css">
+<style>
+  body { padding: var(--spazio-4) }
+
+  h1 { margin-bottom: var(--spazio-1) }
+
+  .invito {
+    margin: 0 0 var(--spazio-3);
+    color: var(--testo-quieto);
+  }
+
+  /* Un'altezza minima anche da vuoto: l'errore che compare mentre si scrive non
+     deve spingere in giù i pulsanti sotto il dito che sta per premerli. */
+  .errore {
+    min-height: 1.4em;
+    margin: var(--spazio-2) 0 0;
+    color: var(--negativo);
+  }
+
+  .voci {
+    max-height: 26rem;
+    margin-top: var(--spazio-3);
+  }
+
+  .tasti {
+    display: flex;
+    gap: var(--spazio-2);
+    justify-content: flex-end;
+    margin-top: var(--spazio-3);
+  }
+</style>
+</head>
+<body>
+<main id="radice"></main>
+<script>
+'use strict'
+
+const ponte = acquireVsCodeApi()
+const radice = document.getElementById('radice')
+const parametri = JSON.parse(decodeURIComponent(new URLSearchParams(location.search).get('p') || '%7B%7D'))
+
+/** Un elemento con dentro del testo: mai innerHTML, le etichette non sono nostre. */
+function elemento (nome, classe, testo) {
+  const nato = document.createElement(nome)
+  if (classe) nato.className = classe
+  if (testo) nato.textContent = testo
+  return nato
+}
+
+function annulla () {
+  ponte.postMessage({ dialogo: 'annulla' })
+}
+
+/** Quanto è alta la pagina: il main process ci adatta la finestra e la mostra. */
+function dichiaraAltezza () {
+  ponte.postMessage({ dialogo: 'altezza', valore: Math.ceil(document.body.scrollHeight) })
+}
+
+// Esc chiude, sempre e da qualunque campo: è la via d'uscita che chi usa il
+// registro prova per prima, e deve valere quanto il bottone.
+document.addEventListener('keydown', (evento) => {
+  if (evento.key === 'Escape') annulla()
+})
+
+function testata () {
+  radice.append(elemento('h1', null, parametri.titolo))
+}
+
+function tasti (conferma, etichettaConferma) {
+  const riga = elemento('div', 'tasti')
+  const chiudi = elemento('button', null, 'Annulla')
+  chiudi.addEventListener('click', annulla)
+  const ok = elemento('button', null, etichettaConferma)
+  ok.dataset.ruolo = 'conferma'
+  ok.addEventListener('click', conferma)
+  riga.append(chiudi, ok)
+  radice.append(riga)
+  return ok
+}
+
+function disegnaInput () {
+  testata()
+  if (parametri.invito) radice.append(elemento('p', 'invito', parametri.invito))
+
+  const campo = document.createElement('input')
+  campo.type = parametri.password ? 'password' : 'text'
+  campo.value = parametri.valore
+  campo.placeholder = parametri.segnaposto
+  radice.append(campo)
+
+  const errore = elemento('p', 'errore')
+  radice.append(errore)
+
+  const ok = tasti(() => conferma(), 'Va bene')
+
+  function conferma () {
+    if (ok.disabled) return
+    ponte.postMessage({ dialogo: 'conferma', testo: campo.value })
+  }
+
+  // La validazione la fa il main process, perché `validateInput` è una funzione
+  // del registro e non attraversa l'IPC. Finché non ha risposto il bottone
+  // resta spento: è il patto di `showInputBox`, e le date AAAA-MM-GG ci
+  // contano — l'errore si vede scrivendo, non dopo aver premuto Invio.
+  function chiediValidazione () {
+    ok.disabled = true
+    ponte.postMessage({ dialogo: 'valida', testo: campo.value })
+  }
+
+  window.addEventListener('message', (evento) => {
+    const messaggio = evento.data
+    if (!messaggio || messaggio.dialogo !== 'errore') return
+    errore.textContent = messaggio.messaggio || ''
+    ok.disabled = Boolean(messaggio.messaggio)
+  })
+
+  campo.addEventListener('input', chiediValidazione)
+  campo.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter') conferma()
+  })
+
+  campo.focus()
+  campo.select()
+  chiediValidazione()
+  dichiaraAltezza()
+}
+
+function disegnaElenco () {
+  testata()
+
+  const filtro = document.createElement('input')
+  filtro.type = 'text'
+  filtro.placeholder = parametri.segnaposto
+  radice.append(filtro)
+
+  const elenco = elemento('ul', 'voci')
+  radice.append(elenco)
+  const ok = tasti(() => conferma(), 'Scegli')
+
+  /** Gli indici delle voci che passano il filtro, e quale di loro è sotto il dito. */
+  let visibili = []
+  let scelto = 0
+
+  function conferma () {
+    const indice = visibili[scelto]
+    if (indice === undefined) return
+    ponte.postMessage({ dialogo: 'conferma', indice })
+  }
+
+  function combacia (voce, cercato) {
+    if (!cercato) return true
+    const dove = `${voce.etichetta} ${voce.descrizione} ${voce.dettaglio}`.toLowerCase()
+    // Tutte le parole, in qualunque ordine: si cerca «matematica 2b» senza
+    // doversi ricordare come è scritta l'etichetta.
+    return cercato.toLowerCase().split(/\s+/).every((pezzo) => dove.includes(pezzo))
+  }
+
+  function disegna () {
+    const cercato = filtro.value.trim()
+    visibili = parametri.voci.map((voce, indice) => (combacia(voce, cercato) ? indice : -1)).filter((i) => i >= 0)
+    if (scelto >= visibili.length) scelto = Math.max(0, visibili.length - 1)
+
+    elenco.replaceChildren()
+    if (visibili.length === 0) {
+      elenco.append(elemento('li', 'vuoto', 'Niente che corrisponda.'))
+      ok.disabled = true
+      return
+    }
+    ok.disabled = false
+
+    visibili.forEach((indice, posto) => {
+      const voce = parametri.voci[indice]
+      const riga = elemento('li', 'voce')
+      riga.setAttribute('aria-selected', String(posto === scelto))
+      riga.append(elemento('span', 'voce__etichetta', voce.etichetta))
+      // Su due righe: la descrizione dice di che cosa si tratta, il dettaglio
+      // perché la si sceglierebbe.
+      const sotto = [voce.descrizione, voce.dettaglio].filter(Boolean).join(' · ')
+      if (sotto) riga.append(elemento('span', 'voce__sotto', sotto))
+      riga.addEventListener('click', () => {
+        scelto = posto
+        conferma()
+      })
+      elenco.append(riga)
+    })
+    elenco.children[scelto]?.scrollIntoView({ block: 'nearest' })
+  }
+
+  filtro.addEventListener('input', () => {
+    scelto = 0
+    disegna()
+  })
+
+  document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'ArrowDown') scelto = Math.min(scelto + 1, visibili.length - 1)
+    else if (evento.key === 'ArrowUp') scelto = Math.max(scelto - 1, 0)
+    else if (evento.key === 'Enter') return conferma()
+    else return
+    evento.preventDefault()
+    disegna()
+  })
+
+  disegna()
+  filtro.focus()
+  dichiaraAltezza()
+}
+
+if (parametri.tipo === 'elenco') disegnaElenco()
+else disegnaInput()
+</script>
+</body>
+</html>

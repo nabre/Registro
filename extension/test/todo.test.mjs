@@ -25,7 +25,7 @@ import {
   registroVuoto,
   riepilogoTodo,
   todoDellaClasse,
-} from '../dist/dominio.mjs'
+} from '../dist-prove/dominio.mjs'
 
 const OGGI = '2026-09-09'
 

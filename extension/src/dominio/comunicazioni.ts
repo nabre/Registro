@@ -138,7 +138,7 @@ export function corpoDelMessaggio (
  * posta.
  *
  * Sta qui e non fra i dati perché non tocca il disco: prende un messaggio e
- * torna del testo, ed è la specie di cosa che si prova senza VS Code intorno —
+ * torna del testo, ed è la specie di cosa che si prova senza l'applicazione —
  * un allegato che arriva con il nome storpiato o un oggetto accentato che si
  * spezza sono errori che si vedono solo leggendo il file, e leggerlo a mano
  * dopo ogni modifica non lo fa nessuno.

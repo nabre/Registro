@@ -282,7 +282,7 @@
    piatto — non invita a scrivere dove non si scrive. */
 .cella-voto--letta {
   display: inline-block;
-  min-width: 56px;
+  min-width: 3.5rem;
   text-align: center;
   padding: 4px 0;
   color: var(--testo-quieto);

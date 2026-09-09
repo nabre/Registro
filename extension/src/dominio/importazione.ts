@@ -6,7 +6,7 @@
 // fondo. Qui si accettano tutti e tre invece di chiedere un formato.
 //
 // Sta nel dominio, non nell'estensione, perché è una regola di lettura dei dati
-// e perché così si può provare senza avviare VS Code.
+// e perché così si può provare senza avviare l'applicazione.
 
 export interface VoceElenco {
   cognome: string

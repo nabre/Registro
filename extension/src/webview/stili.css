@@ -5,8 +5,13 @@
  * indifferente: due regole che pesano uguale vince quella scritta dopo. I file
  * sono tagli netti dello stesso foglio di prima, nella stessa sequenza — chi ne
  * sposta uno sposta anche il risultato.
+ *
+ * `tema.css` sta per primo e da solo: non contiene una regola, contiene i
+ * colori e i caratteri da cui tutte le altre attingono. Un token letto prima di
+ * essere definito non varrebbe niente.
  */
 
+@import './stili/tema.css';
 @import './stili/fondamenta.css';
 @import './stili/controlli.css';
 @import './stili/contenitori.css';

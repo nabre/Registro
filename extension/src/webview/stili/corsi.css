@@ -113,12 +113,12 @@
 .menu {
   position: fixed;
   z-index: 60;
-  min-width: 220px;
+  min-width: 13.75rem;
   padding: var(--spazio-1);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
-  background: var(--vscode-menu-background, var(--sfondo-alto));
-  box-shadow: var(--ombra);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-2);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -133,7 +133,7 @@
   border: none;
   border-radius: var(--raggio);
   background: transparent;
-  color: var(--vscode-menu-foreground, var(--testo));
+  color: var(--testo);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -141,8 +141,8 @@
 
 .menu__voce:hover:not(:disabled),
 .menu__voce:focus-visible {
-  background: var(--vscode-menu-selectionBackground, color-mix(in srgb, var(--accento) 22%, transparent));
-  color: var(--vscode-menu-selectionForeground, var(--testo));
+  background: color-mix(in srgb, var(--accento) 22%, transparent);
+  color: var(--testo);
   outline: none;
 }
 

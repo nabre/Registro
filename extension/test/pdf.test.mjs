@@ -13,9 +13,9 @@ import { describe, it } from 'node:test'
 
 import { PDFDocument, StandardFonts } from 'pdf-lib'
 
-import { contaPagine, estraiPagine, immaginePagina, impostaWorker, testoPagine } from '../dist/pdf.mjs'
+import { contaPagine, estraiPagine, immaginePagina, impostaWorker, testoPagine } from '../dist-prove/pdf.mjs'
 
-impostaWorker(pathToFileURL(fileURLToPath(new URL('../dist/pdf.worker.mjs', import.meta.url))).href)
+impostaWorker(pathToFileURL(fileURLToPath(new URL('../dist-prove/pdf.worker.mjs', import.meta.url))).href)
 
 /** Un PDF con una pagina per nome, come quello che manda la segreteria. */
 async function pagelle (nomi) {

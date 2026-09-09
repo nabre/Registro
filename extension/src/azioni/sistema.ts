@@ -1,5 +1,5 @@
 // Quel che non appartiene a nessuna area in particolare: le impostazioni, le
-// esportazioni, le riparazioni e i comandi che parlano con VS Code.
+// esportazioni, le riparazioni e i comandi che parlano con il sistema.
 
 import * as vscode from 'vscode'
 
