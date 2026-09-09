@@ -57,6 +57,7 @@ import {
   inizioSettimana,
   minutiDaOra,
   oggi,
+  numeroSemestre,
   oraDaMinuti,
   primoDelMese,
   settimanaDi,
@@ -81,7 +82,6 @@ import type {
   PianoLezione,
   Registro,
   Risorsa,
-  Semestre,
   StatoAttivita,
   TipoAttivita,
   TipoValutazione,
@@ -854,10 +854,6 @@ function giorniMostrati (registro: Registro): number[] {
 }
 
 /** '1°', '2°': nella cella non c'è spazio per l'etichetta intera. */
-function numeroSemestre (semestre: Semestre): string {
-  return `${semestre.etichetta.trim().match(/^(\d)/)?.[1] ?? semestre.numero}°`
-}
-
 /**
  * Il confine di semestre che cade in un giorno, detto in due parole.
  *

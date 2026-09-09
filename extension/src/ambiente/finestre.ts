@@ -152,7 +152,7 @@ class VistaWeb implements Webview {
    *
    * Due autorità, e la differenza è che una cosa si sposta e l'altra no. Il
    * codice dell'app sta a un posto fisso, e gli basta il percorso relativo
-   * alla radice: `registro://app/dist/webview.js`. I dati stanno dove il
+   * alla radice: `registro://app/dist/pannello.js`. I dati stanno dove il
    * docente li tiene — e la cartella cambia quando cambia l'anno — quindi lì
    * ci va il percorso intero: `registro://dati/D:/Registro/2026-2027/foto.png`.
    *

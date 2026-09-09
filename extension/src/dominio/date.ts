@@ -141,6 +141,18 @@ export function nelPeriodo (iso: Iso, da: Iso, a: Iso): boolean {
 }
 
 /** Il semestre dell'anno in cui cade la data, o null se cade fuori. */
+/**
+ * Il numero di un semestre come si scrive: «1°», «2°».
+ *
+ * Si legge dall'etichetta invece che dal campo `numero` perché l'etichetta è
+ * quel che il docente ha scritto — «1° semestre», «2 sem» — e se lì c'è una
+ * cifra è quella che si aspetta di rileggere. Il campo resta il ripiego per
+ * un'etichetta che non comincia per numero.
+ */
+export function numeroSemestre (semestre: Semestre): string {
+  return `${semestre.etichetta.trim().match(/^(\d)/)?.[1] ?? semestre.numero}°`
+}
+
 export function semestreDi (anno: AnnoScolastico, iso: Iso): Semestre | null {
   return anno.semestri.find((s) => nelPeriodo(iso, s.inizio, s.fine)) ?? null
 }

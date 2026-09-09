@@ -9,7 +9,7 @@ import {
   impostaProiezione,
   PannelloProiezione,
   puntaProiezione,
-} from '../pannelloProiezione.js'
+} from '../pannelli/proiezione.js'
 import { invariato, type Parte } from './contesto.js'
 
 export const proiezione = {

@@ -19,7 +19,7 @@ import { Uri } from './uri.js'
  * La cartella in cui stanno i bundle dell'app.
  *
  * È la stessa che `pannello.ts` nomina quando compone l'indirizzo del proprio
- * script — `registro://app/dist/webview.js` — ed è voluto che sia una sola: per
+ * script — `registro://app/dist/pannello.js` — ed è voluto che sia una sola: per
  * un po' i bundle sono stati in `dist-desktop/` mentre il registro continuava a
  * scrivere `dist`, e in mezzo c'era una traduzione che il protocollo e chi
  * componeva l'indirizzo dovevano applicare tutti e due allo stesso modo. Una
@@ -63,7 +63,7 @@ let radice: Uri | null = null
  * La correzione qui sotto è per chi la lancia comunque sul file di avvio —
  * `electron dist/principale.cjs`, che è la prima cosa che viene in mente: lì
  * `getAppPath()` è `dist/`, e la radice è la cartella che la contiene, perché è
- * lì che stanno `media/` e tutto il resto.
+ * lì che stanno `risorse/` e tutto il resto.
  */
 export function radiceApp (): Uri {
   if (radice) return radice

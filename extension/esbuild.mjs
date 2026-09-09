@@ -4,7 +4,7 @@
 //
 //   principale.cjs   il main process — avvio, finestre, ciclo di vita
 //   preload.cjs      il ponte che dà `acquireVsCodeApi()` alle pagine
-//   webview.js/.css  l'applicazione del registro
+//   pannello.js/.css l'applicazione del registro
 //   proiezione.js/.css  lo schermo per la classe
 //   guscio.css       l'aspetto delle due finestre native
 //   dialogo.html, impostazioni.html   le due pagine native
@@ -68,7 +68,7 @@ export const applicazione = [
   // registro fuori dall'editor senza cambiargli una virgola.
   {
     ...comune,
-    entryPoints: ['desktop/principale.ts'],
+    entryPoints: ['guscio/principale.ts'],
     outfile: 'dist/principale.cjs',
     format: 'cjs',
     platform: 'node',
@@ -79,7 +79,7 @@ export const applicazione = [
   },
   {
     ...comune,
-    entryPoints: ['desktop/preload.ts'],
+    entryPoints: ['guscio/preload.ts'],
     outfile: 'dist/preload.cjs',
     format: 'cjs',
     platform: 'node',
@@ -88,12 +88,12 @@ export const applicazione = [
     ricarica: 'riavvia',
   },
   // Le due pagine del guscio: si copiano e basta, ma devono stare fra i bundle
-  // e non in `desktop/`. Il protocollo `registro://` concede una cartella sola
+  // e non in `guscio/`. Il protocollo `registro://` concede una cartella sola
   // — quella dei bundle — e servire una pagina da fuori vorrebbe dire allargare
   // il permesso per due file che non cambiano mai.
   {
     ...comune,
-    entryPoints: ['desktop/dialogo.html', 'desktop/impostazioni.html'],
+    entryPoints: ['guscio/dialogo.html', 'guscio/impostazioni.html'],
     outdir: 'dist',
     loader: { '.html': 'copy' },
     ricarica: 'aggiorna',
@@ -104,15 +104,15 @@ export const applicazione = [
   // cambiare.
   {
     ...comune,
-    entryPoints: ['desktop/guscio.css'],
+    entryPoints: ['guscio/stile.css'],
     outfile: 'dist/guscio.css',
     ricarica: 'aggiorna',
   },
   // I due webview: girano in una pagina e non sanno niente di chi li ospita.
   {
     ...comune,
-    entryPoints: ['src/webview/principale.ts'],
-    outfile: 'dist/webview.js',
+    entryPoints: ['src/interfaccia/principale.ts'],
+    outfile: 'dist/pannello.js',
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -124,7 +124,7 @@ export const applicazione = [
   // grosso del codice. La pagina che sta davanti alla classe legge e basta.
   {
     ...comune,
-    entryPoints: ['src/webview/proiezione.ts'],
+    entryPoints: ['src/interfaccia/proiezione.ts'],
     outfile: 'dist/proiezione.js',
     format: 'iife',
     platform: 'browser',
@@ -208,17 +208,17 @@ const prove = [
     platform: 'node',
     target: 'node18',
     sourcemap: false,
-    alias: { electron: './test/finto-electron.mjs' },
+    alias: { electron: './prove/aiuti/finto-electron.mjs' },
   },
   {
     ...comune,
-    entryPoints: ['desktop/menu.ts'],
+    entryPoints: ['guscio/menu.ts'],
     outfile: 'dist-prove/menu.mjs',
     format: 'esm',
     platform: 'node',
     target: 'node18',
     sourcemap: false,
-    alias: { electron: './test/finto-electron.mjs' },
+    alias: { electron: './prove/aiuti/finto-electron.mjs' },
   },
 ]
 

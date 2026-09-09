@@ -14,8 +14,8 @@
   "directories": {
     "output": "pacchetti",
     // Le icone: electron-builder cerca `icon.ico` e `icon.png` qui dentro per
-    // convenzione. Le fa `npm run icone` da `media/registro.svg`.
-    "buildResources": "build"
+    // Le fa `npm run icone` da `risorse/registro.svg`.
+    "buildResources": "icone"
   },
 
   // Che cosa entra nel pacchetto. `main` in `package.json` punta già a
@@ -23,13 +23,13 @@
   //
   // Le due pagine native non compaiono: `dialogo.html` e `impostazioni.html`
   // sono già dentro `dist/`, dove le copia esbuild. Servite da lì e non
-  // da `desktop/`, il protocollo `registro://` resta con una cartella sola da
+  // da `guscio/`, il protocollo `registro://` resta con una cartella sola da
   // concedere.
   "files": [
     "dist/**/*",
     // Le mappe dei sorgenti sono undici megabyte che servono solo in sviluppo.
     "!dist/**/*.map",
-    "media/**/*",
+    "risorse/**/*",
     "package.json",
 
     // Le dipendenze non entrano, ed è voluto: esbuild le impacchetta dentro i
@@ -63,7 +63,7 @@
       "nsis",
       "portable"
     ],
-    "icon": "build/icon.ico"
+    "icon": "icone/icon.ico"
   },
 
   "nsis": {

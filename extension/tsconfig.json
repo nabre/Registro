@@ -30,5 +30,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "desktop"]
+  "include": ["src", "guscio"]
 }

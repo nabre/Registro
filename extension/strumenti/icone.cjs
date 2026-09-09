@@ -1,4 +1,4 @@
-// Le icone dell'applicazione, ricavate da `media/registro.svg`.
+// Le icone dell'applicazione, ricavate da `risorse/registro.svg`.
 //
 // L'icona dell'estensione è un contorno monocromatico: la barra delle attività
 // di VS Code la colora da sé con `currentColor`. Un'icona di programma non ha
@@ -13,8 +13,8 @@
 //
 //   npm run icone
 //
-// Produce `build/icon.png` (512×512, da cui electron-builder ricava il `.icns`
-// di macOS se un giorno servirà) e `build/icon.ico` con le sette misure che
+// Produce `icone/icon.png` (512×512, da cui electron-builder ricava il `.icns`
+// di macOS se un giorno servirà) e `icone/icon.ico` con le sette misure che
 // Windows va a cercare, dalla riga dell'esplora risorse ai riquadri grandi.
 
 // Il file è CommonJS apposta: dentro Electron il modulo `electron` si prende
@@ -57,7 +57,7 @@ const RAGGIO = 6
  * perché a 16 pixel un tratto da 1.6 sparisce.
  */
 function disegno (misura) {
-  const sorgente = readFileSync(percorso.join(radice, 'media', 'registro.svg'), 'utf8')
+  const sorgente = readFileSync(percorso.join(radice, 'risorse', 'registro.svg'), 'utf8')
   const glifo = sorgente
     .replace(/^[\s\S]*?<svg[^>]*>/, '')
     .replace(/<\/svg>[\s\S]*$/, '')
@@ -141,10 +141,10 @@ void app.whenReady().then(async () => {
   const immagini = []
   for (const misura of MISURE) immagini.push({ misura, byte: await rendi(finestra, misura) })
 
-  writeFileSync(percorso.join(radice, 'build', 'icon.ico'), componiIco(immagini))
-  writeFileSync(percorso.join(radice, 'build', 'icon.png'), await rendi(finestra, MISURA_PNG))
+  writeFileSync(percorso.join(radice, 'icone', 'icon.ico'), componiIco(immagini))
+  writeFileSync(percorso.join(radice, 'icone', 'icon.png'), await rendi(finestra, MISURA_PNG))
 
   finestra.destroy()
-  console.log(`build/icon.ico (${MISURE.join(', ')}) e build/icon.png (${MISURA_PNG})`)
+  console.log(`icone/icon.ico (${MISURE.join(', ')}) e icone/icon.png (${MISURA_PNG})`)
   app.exit(0)
 })

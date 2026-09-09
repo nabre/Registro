@@ -20,7 +20,7 @@
     "avvia": "npm run build && electron .",
     "controllo-tipi": "tsc --noEmit",
     "pretest": "node esbuild.mjs --test",
-    "test": "node --test \"test/*.test.mjs\"",
+    "test": "node --test \"prove/**/*.test.mjs\"",
     "pacchetto": "node esbuild.mjs --produzione && electron-builder --config electron-builder.json",
     "icone": "electron strumenti/icone.cjs",
     "modelli": "node strumenti/modelli.mjs"
