@@ -123,6 +123,15 @@ export interface StatoUI {
    * chiudendo la finestra.
    */
   lavoro: StatoLavoro
+  /**
+   * Se il computer è in rete.
+   *
+   * Non è un dato del registro e non arriva dal pannello: lo sa il browser, e
+   * lo dice cambiando. Serve alla barra di stato, e serve *prima* di premere
+   * «spedisci»: senza rete la posta non esce, e scoprirlo a metà di un giro di
+   * venticinque comunicazioni è il modo peggiore di saperlo.
+   */
+  rete: boolean
   vista: Vista
   /** Quale scheda della lezione si sta guardando. */
   schedaLezione: SchedaLezione
@@ -261,6 +270,11 @@ export const stato: StatoUI = {
     mittente: '',
   },
   lavoro: { corrente: null, fatte: 0, totale: 0, coda: [] },
+  // `navigator.onLine` dice solo se c'è una scheda di rete attaccata a
+  // qualcosa, non se Internet risponde: è un «no» affidabile e un «sì»
+  // ottimista. Va bene così — quel che serve è non far partire un giro di
+  // comunicazioni con il cavo staccato.
+  rete: navigator.onLine,
   vista: persistito?.vista ?? 'calendario',
   schedaLezione: persistito?.schedaLezione ?? 'amministrazione',
   schedaDocente: persistito?.schedaDocente ?? 'todo',
@@ -710,6 +724,22 @@ function scrivendoInUnCampo (): boolean {
     attivo instanceof HTMLInputElement &&
     ['text', 'number', 'email', 'tel', 'search', 'url'].includes(attivo.type)
   )
+}
+
+/**
+ * Tiene `stato.rete` al passo del computer.
+ *
+ * Due eventi e nient'altro: il browser li manda quando la connessione va e
+ * viene, e non c'è niente da interrogare a intervalli.
+ */
+export function avviaRete (): () => void {
+  const batti = () => aggiorna({ rete: navigator.onLine })
+  window.addEventListener('online', batti)
+  window.addEventListener('offline', batti)
+  return () => {
+    window.removeEventListener('online', batti)
+    window.removeEventListener('offline', batti)
+  }
 }
 
 export function avviaOrologio (): () => void {

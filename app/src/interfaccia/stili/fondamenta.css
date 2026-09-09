@@ -155,6 +155,15 @@ body.con-modale {
    * lasciarla scorrere.
    */
   grid-template-columns: clamp(13rem, 15vw, 17rem) minmax(0, 1fr);
+  /*
+   * Due righe: sopra la barra laterale e il contenuto, sotto la barra di stato
+   * che le attraversa tutte e due.
+   *
+   * `minmax(0, 1fr)` sulla prima e non `1fr`: con `1fr` il minimo è il
+   * contenuto, e una tabella lunga spingerebbe la barra di stato fuori dallo
+   * schermo invece di far scorrere il contenuto.
+   */
+  grid-template-rows: minmax(0, 1fr) auto;
 }
 
 .barra-laterale {

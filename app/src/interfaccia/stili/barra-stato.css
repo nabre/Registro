@@ -1,0 +1,132 @@
+/* La barra in fondo: che cosa manca, e com'è messa la macchina. */
+
+/*
+ * Attraversa tutta la finestra, barra laterale compresa.
+ *
+ * È una scelta e non una comodità: la barra parla dell'*applicazione* — l'ora
+ * da compilare, la posta, l'anno — non della pagina che si sta guardando.
+ * Fermandosi al bordo del contenuto sembrerebbe una parte della vista, e
+ * cambiando pagina ci si aspetterebbe che cambi anche lei.
+ */
+.barra-stato {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-4);
+  padding: 0 var(--spazio-3);
+  /* Alta quanto il suo contenuto, e in `em`: cresce con il testo di sistema
+     invece di tagliarlo. */
+  min-height: 2.15em;
+  border-top: 1px solid var(--bordo);
+  background: var(--sfondo-alto);
+  font-size: 0.86em;
+  /* La barra non si legge lettera per lettera: si guarda. Un carattere più
+     piccolo del corpo, e le cifre incolonnate perché i conti che cambiano da
+     soli — «legge 3 di 12» — non facciano ballare la riga. */
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  /* Sopra il contenuto che le scorre sotto, sotto le finestre e i menu. */
+  z-index: 4;
+}
+
+.barra-stato__gruppo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+
+/* Il gruppo di destra si stringe per ultimo: quel che deve sparire per primo,
+   se la finestra si stringe, è l'anno in uso — non l'ora da compilare. */
+.barra-stato__gruppo--coda {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+/* -------------------------------------------------------------------- la voce */
+
+.barra-stato__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 0;
+  padding: 2px var(--spazio-2);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+
+/* Il testo si accorcia, l'icona no: un'icona a metà non vuol dire niente,
+   mentre «da compilare: DIC4a · gi…» si capisce lo stesso. */
+.barra-stato__testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-stato__voce .icona {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/*
+ * Quel che si preme si vede che si preme, ma solo passandoci sopra.
+ *
+ * A riposo le voci premibili sono identiche alle altre, ed è voluto: una barra
+ * con cinque pulsanti disegnati chiede di essere usata, e questa invece va
+ * letta. Il cursore e il fondo che si accende bastano a dire che si può.
+ */
+.barra-stato__voce--premibile {
+  cursor: pointer;
+}
+
+.barra-stato__voce--premibile:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__voce--premibile:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -1px;
+}
+
+/* ------------------------------------------------------------------- i toni */
+
+/*
+ * Il colore lo porta l'icona, non il testo.
+ *
+ * Un'intera riga colorata in fondo allo schermo tira l'occhio via da quel che
+ * si sta facendo, e la barra deve poter essere ignorata finché non serve. Il
+ * puntino colorato si vede con la coda dell'occhio e non disturba la lettura.
+ */
+.barra-stato__voce--quiete .icona { color: var(--testo-quieto); }
+.barra-stato__voce--positivo .icona { color: var(--positivo); }
+.barra-stato__voce--attenzione .icona { color: var(--attenzione); }
+.barra-stato__voce--negativo .icona { color: var(--negativo); }
+
+/* Le due che chiedono qualcosa portano anche il testo, perché sono le sole due
+   che si vogliono leggere da lontano. */
+.barra-stato__voce--attenzione .barra-stato__testo { color: var(--attenzione); }
+
+.barra-stato__voce--negativo {
+  border-color: color-mix(in srgb, var(--negativo) 40%, transparent);
+  background: color-mix(in srgb, var(--negativo) 10%, transparent);
+}
+
+.barra-stato__voce--negativo .barra-stato__testo {
+  color: var(--negativo);
+  font-weight: 600;
+}
+
+/* Sotto una certa larghezza le voci di stato spariscono una a una: l'ora da
+   compilare resta, perché è la ragione per cui la barra esiste. */
+@media (max-width: 56.25em) {
+  .barra-stato__gruppo--coda .barra-stato__voce:not(.barra-stato__voce--negativo) {
+    display: none;
+  }
+}

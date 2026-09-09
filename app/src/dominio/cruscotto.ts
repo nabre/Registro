@@ -67,6 +67,54 @@ export interface DiagnosiLezione {
   todo: number
 }
 
+/** L'ora che chiede di essere compilata, o — se non ce n'è — la prossima da fare. */
+export interface OraDaFare {
+  lezione: Lezione
+  /**
+   * Vero se il registro di quell'ora è rimasto indietro; falso se è
+   * semplicemente la prossima in programma. Chi lo mostra dice due cose
+   * diverse, e sono due cose diverse: una è un buco, l'altra un appuntamento.
+   */
+  manca: boolean
+}
+
+/**
+ * Fra tutte le ore, quella su cui vale la pena andare adesso.
+ *
+ * Prima i buchi e poi il futuro, ed è l'ordine che conta: un'ora di martedì
+ * senza appello resta un buco anche mercoledì, e chi mostrasse subito «prossima:
+ * giovedì» farebbe dimenticare quel martedì per sempre. Fra i buchi si prende il
+ * più vecchio, perché è quello che si sta dimenticando davvero.
+ *
+ * Il giudizio è di `diagnosiLezione`, la stessa che disegna il cruscotto: se il
+ * cruscotto e chi mostra questa riga contassero i buchi in due modi, uno dei due
+ * direbbe una bugia e non si saprebbe quale.
+ *
+ * `null` quando non c'è né un buco né un'ora futura — un anno finito, o appena
+ * cominciato e ancora senza lezioni.
+ */
+export function oraDaCompilare (
+  registro: Registro,
+  lezioni: Lezione[],
+  oggi: Iso,
+  ora: Ora = '23:59',
+): OraDaFare | null {
+  const inOrdine = [...lezioni].sort(confrontaLezioni)
+
+  const buco = inOrdine.find(
+    (lezione) => diagnosiLezione(registro, lezione, 0, oggi, ora).urgenza === 'manca',
+  )
+  if (buco) return { lezione: buco, manca: true }
+
+  // Nessun buco: si guarda avanti. `momentoLezione` e non un confronto di date,
+  // perché l'ora delle otto, guardata a mezzogiorno, è passata — e proporla
+  // come «prossima» sarebbe assurdo.
+  const prossima = inOrdine.find(
+    (lezione) => lezione.stato !== 'annullata' && momentoLezione(lezione, oggi, ora) !== 'passata',
+  )
+  return prossima ? { lezione: prossima, manca: false } : null
+}
+
 /**
  * Le lezioni di un corso che contano, in ordine: le annullate non sono ore.
  * Con un periodo, solo quelle che ci cadono dentro.

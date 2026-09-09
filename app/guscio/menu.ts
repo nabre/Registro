@@ -13,7 +13,7 @@
 import { BrowserWindow, ipcMain, Menu, type MenuItemConstructorOptions } from 'electron'
 
 import { executeCommand, registerCommand } from '../src/ambiente/comandi.js'
-import { percorsoPreload } from '../src/ambiente/contesto.js'
+import { icona, percorsoPreload } from '../src/ambiente/contesto.js'
 import { CANALE } from '../src/ambiente/finestre.js'
 import { getConfiguration } from '../src/ambiente/impostazioni.js'
 import { coloreSfondo, preferenzeComuni } from '../src/ambiente/tema.js'
@@ -385,6 +385,7 @@ export function apriImpostazioni (filtro = ''): void {
     title: TITOLO_IMPOSTAZIONI,
     show: false,
     backgroundColor: coloreSfondo(),
+    ...icona(),
     // Il menu dell'applicazione qui non serve a niente: le impostazioni non
     // hanno comandi del registro da invocare.
     autoHideMenuBar: true,

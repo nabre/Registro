@@ -110,6 +110,46 @@ const GUIDA: SezioneGuida[] = [
     ],
   },
   {
+    id: 'barra-stato',
+    titolo: 'La barra in fondo',
+    simbolo: 'informazione',
+    sommario: 'Che cosa manca, e com’è messa la macchina. Si guarda senza cercare niente.',
+    voci: [
+      {
+        termine: 'L’ora da compilare',
+        testo:
+          'A sinistra c’è sempre un’ora, e un clic la apre. Se qualche registro è rimasto ' +
+          'indietro — un’ora passata senza appello, o non ancora segnata svolta — la barra ' +
+          'propone **il buco più vecchio**, con il triangolo giallo. Se non ce ne sono, ' +
+          'propone la prossima lezione in programma. È lo stesso giudizio del cruscotto: se ' +
+          'lì un’ora è in ordine, qui non compare.',
+      },
+      {
+        termine: 'Cose aperte',
+        testo:
+          'Quante cose restano da chiudere in tutte le classi — assenze da far firmare, prove ' +
+          'da correggere, documenti da raccogliere — e quante sono in ritardo. Un clic apre il ' +
+          'Todo. Sparisce quando non c’è più niente.',
+      },
+      {
+        termine: 'La posta e la rete',
+        testo:
+          'A destra si legge da dove escono le comunicazioni: dalla casella collegata, da ' +
+          'Outlook, o come file .eml. Un clic porta nelle Impostazioni. Staccando la rete la ' +
+          'voce diventa **senza rete** in rosso: quel che si scrive nel registro si salva lo ' +
+          'stesso sul disco, ma le comunicazioni non partono e le scansioni non si leggono.',
+      },
+      {
+        termine: 'Quel che tace',
+        testo:
+          'Una voce che non ha niente da dire non compare — la lettura delle scansioni si vede ' +
+          'solo mentre macina, e «senza rete» solo quando manca. È voluto: una barra che dice ' +
+          'sempre le stesse otto cose diventa sfondo, e il giorno che serve non la legge più ' +
+          'nessuno.',
+      },
+    ],
+  },
+  {
     id: 'calendario',
     titolo: 'Calendario',
     simbolo: 'calendario',

@@ -30,6 +30,10 @@
     // Le mappe dei sorgenti sono undici megabyte che servono solo in sviluppo.
     "!dist/**/*.map",
     "risorse/**/*",
+    // L'icona entra anche nel pacchetto e non solo nell'eseguibile: le finestre
+    // se la mettono da sé — vedi `percorsoIcona()` — e così in sviluppo e da
+    // installata il registro si presenta con la stessa faccia.
+    "icone/icon.png",
     "package.json",
 
     // Le dipendenze non entrano, ed è voluto: esbuild le impacchetta dentro i

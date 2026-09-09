@@ -16,7 +16,7 @@
 
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 
-import { percorsoPreload } from './contesto.js'
+import { icona, percorsoPreload } from './contesto.js'
 import { coloreSfondo, preferenzeComuni } from './tema.js'
 import { type CancellationToken, CancellationTokenSource } from './eventi.js'
 import { CANALE } from './finestre.js'
@@ -358,6 +358,7 @@ function chiedi (
     fullscreenable: false,
     title: parametri.titolo,
     backgroundColor: coloreSfondo(),
+    ...icona(),
     webPreferences: {
       ...preferenzeComuni(),
       preload: percorsoPreload(),

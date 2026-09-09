@@ -44,6 +44,7 @@ import {
   type Vista,
 } from './stato.js'
 import type { Corso } from '../dominio/modelli.js'
+import { barraStato } from './barraStato.js'
 import { vistaAllievo } from './viste/allievo.js'
 import { vistaCalendario } from './viste/calendario.js'
 import { vistaClassi } from './viste/classi.js'
@@ -600,5 +601,6 @@ export function guscio (): Figlio {
     filoDiLavoro(),
     barraLaterale(),
     h('main', { class: 'contenuto' }, barraProiezione(), barraAvvisi(), vistaCorrente()),
+    barraStato(),
   )
 }

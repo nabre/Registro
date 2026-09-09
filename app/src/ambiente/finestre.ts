@@ -23,7 +23,7 @@
 
 import { BrowserWindow, ipcMain } from 'electron'
 
-import { dentro, percorsoPreload, radiceApp } from './contesto.js'
+import { dentro, icona, percorsoPreload, radiceApp } from './contesto.js'
 import { EventEmitter, type Event } from './eventi.js'
 import { coloreSfondo, preferenzeComuni } from './tema.js'
 import { Uri } from './uri.js'
@@ -285,6 +285,7 @@ export function createWebviewPanel (
     // — il ridimensionamento, e l'istante fra `show()` e la prima pittura.
     show: false,
     backgroundColor: coloreSfondo(),
+    ...icona(),
     webPreferences: {
       ...preferenzeComuni(),
       preload: percorsoPreload(),

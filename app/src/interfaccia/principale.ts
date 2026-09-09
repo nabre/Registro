@@ -17,6 +17,7 @@ import {
   aggiorna,
   allineaSemestre,
   avviaOrologio,
+  avviaRete,
   classeDelCorsoId,
   iscriviti,
   lezionePerId,
@@ -299,6 +300,10 @@ iscriviti(() => {
 // L'orologio: da qui in poi le viste sanno che ore sono, e un'ora che finisce
 // smette da sola di essere «in corso» senza che nessuno tocchi niente.
 avviaOrologio()
+
+// La rete: la barra di stato lo dice quando manca, ed è quel che si vuole
+// sapere prima di far partire un giro di comunicazioni.
+avviaRete()
 
 // La prima richiesta è anche il segnale all'host che il webview è vivo.
 void invia({ tipo: 'stato.leggi' })

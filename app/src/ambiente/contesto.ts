@@ -9,6 +9,7 @@
 // delle cose da smaltire, i due percorsi, il portachiavi.
 
 import { app } from 'electron'
+import { existsSync } from 'node:fs'
 import * as percorso from 'node:path'
 
 import { getConfiguration } from './impostazioni.js'
@@ -71,6 +72,35 @@ export function radiceApp (): Uri {
   const base = percorso.basename(cammino) === CARTELLA_BUNDLE ? percorso.dirname(cammino) : cammino
   radice = Uri.file(base)
   return radice
+}
+
+/**
+ * L'icona della finestra.
+ *
+ * Nel pacchetto Windows l'icona è già dentro l'eseguibile — la mette
+ * electron-builder — e le finestre la ereditano. In sviluppo no: lì
+ * l'eseguibile è quello di Electron, e senza questa riga il registro si presenta
+ * nella barra delle applicazioni con l'atomo di Electron. È lo stesso file che
+ * finisce nell'installer, `icone/icon.png`, generato da `npm run icone`.
+ *
+ * `null` se non c'è: chi la usa non deve costruire una finestra senza icona
+ * *e* senza dirlo, ma nemmeno cadere perché un file di contorno manca.
+ */
+export function percorsoIcona (): string | null {
+  const file = Uri.joinPath(radiceApp(), 'icone', 'icon.png').fsPath
+  return existsSync(file) ? file : null
+}
+
+/**
+ * L'icona pronta da spargere nelle opzioni di una finestra.
+ *
+ * Con lo spread e non con `icon: undefined`: Electron tratta la chiave presente
+ * e vuota diversamente da quella assente, e sul secondo caso fa quel che serve
+ * — eredita l'icona dell'eseguibile, che nel pacchetto è già quella giusta.
+ */
+export function icona (): { icon?: string } {
+  const file = percorsoIcona()
+  return file ? { icon: file } : {}
 }
 
 /** Il preload, che è un bundle come gli altri e sta dove stanno loro. */
