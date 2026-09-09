@@ -17,8 +17,12 @@ export interface OpzioniTabella {
    * La variante, senza il prefisso: `voti`, `allievi`, `matrice`, `documenti`.
    * Diventa `tabella--voti`, ed è quel che il foglio di stile guarda per le
    * colonne che restano ferme scorrendo e per i minimi delle colonne di nomi.
+   *
+   * Ne accetta più d'una perché ce n'è una che le somma: la tabella delle
+   * assenze è una `tabella--documenti` — stessa griglia, stessa prima colonna
+   * ferma — con in più le regole sue.
    */
-  variante?: string
+  variante?: string | readonly string[]
   /**
    * La tabella scorre nelle due direzioni e si ferma in altezza sotto la
    * testata. Serve alle matrici, che crescono con gli allievi *e* con le unità
@@ -39,12 +43,14 @@ export interface OpzioniTabella {
  * in cima scorrerebbe via con le righe.
  */
 export function tabella (opzioni: OpzioniTabella): HTMLElement {
+  const varianti = typeof opzioni.variante === 'string' ? [opzioni.variante] : opzioni.variante ?? []
+
   return h(
     'div',
     { class: ['tabella-contenitore', opzioni.griglia && 'tabella-contenitore--griglia'] },
     h(
       'table',
-      { class: ['tabella', opzioni.variante && `tabella--${opzioni.variante}`] },
+      { class: ['tabella', ...varianti.map((nome) => `tabella--${nome}`)] },
       h('thead', null, h('tr', null, ...opzioni.intestazione)),
       h('tbody', null, opzioni.righe),
       opzioni.piede ? h('tfoot', null, h('tr', null, ...opzioni.piede)) : null,

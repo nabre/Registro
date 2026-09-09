@@ -39,6 +39,7 @@ import { sintesiIncassata } from '../componenti/filtri.js'
 import { icona } from '../componenti/icone.js'
 import { conferma } from '../componenti/modale.js'
 import { h, type Figlio } from '../dom.js'
+import { tabella } from '../componenti/tabella.js'
 import { moduloBloccoAssenze, moduloImportaAssenze } from '../moduli.js'
 import { azione } from '../ponte.js'
 import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto } from '../stato.js'
@@ -259,60 +260,46 @@ function pastigliaFase (blocco: BloccoAssenze, allievo: Allievo) {
 }
 
 function tabellaAssenze (classe: Classe, blocco: BloccoAssenze, allievi: Allievo[]) {
-  return h(
-    'div',
-    { class: 'tabella-contenitore tabella-contenitore--griglia' },
-    h(
-      'table',
-      { class: 'tabella tabella--documenti tabella--assenze' },
-      h(
-        'thead',
-        null,
+  return tabella({
+    variante: ['documenti', 'assenze'],
+    griglia: true,
+    intestazione: [
+      h('th', { class: 'tabella__nome' }, 'Allievo'),
+      ...COLONNE.map((colonna) =>
         h(
-          'tr',
-          null,
-          h('th', { class: 'tabella__nome' }, 'Allievo'),
-          ...COLONNE.map((colonna) =>
-            h(
-              'th',
-              { class: 'tabella__richiesta', attr: { title: colonna.titolo } },
-              h('span', { class: 'tabella__richiesta-titolo' }, colonna.breve),
-            ),
-          ),
-          h('th', { class: 'tabella__media' }, 'Stato'),
+          'th',
+          { class: 'tabella__richiesta', attr: { title: colonna.titolo } },
+          h('span', { class: 'tabella__richiesta-titolo' }, colonna.breve),
         ),
       ),
+      h('th', { class: 'tabella__media' }, 'Stato'),
+    ],
+    righe: allievi.map((allievo) =>
       h(
-        'tbody',
-        null,
-        ...allievi.map((allievo) =>
-          h(
-            'tr',
-            { class: faseRiga(rigaDi(blocco, allievo.id)) === 'fuori' ? 'tabella__riga--spenta' : undefined },
-            h(
-              'td',
-              { class: 'tabella__nome' },
-              h('span', null, nomeCompleto(allievo)),
-              raggiungibile(allievo)
-                ? null
-                : h(
-                    'small',
-                    {
-                      class: 'testo-negativo',
-                      attr: { title: 'Senza l’indirizzo del datore la mail non parte' },
-                    },
-                    ' senza datore',
-                  ),
-            ),
-            ...TIPI_RAPPORTO.map((tipo) => cellaFoglio(classe, blocco, allievo, tipo, false)),
-            cellaInvio(classe, blocco, allievo),
-            ...TIPI_RAPPORTO.map((tipo) => cellaFoglio(classe, blocco, allievo, tipo, true)),
-            h('td', { class: 'tabella__media' }, pastigliaFase(blocco, allievo)),
-          ),
+        'tr',
+        { class: faseRiga(rigaDi(blocco, allievo.id)) === 'fuori' ? 'tabella__riga--spenta' : undefined },
+        h(
+          'td',
+          { class: 'tabella__nome' },
+          h('span', null, nomeCompleto(allievo)),
+          raggiungibile(allievo)
+            ? null
+            : h(
+                'small',
+                {
+                  class: 'testo-negativo',
+                  attr: { title: 'Senza l’indirizzo del datore la mail non parte' },
+                },
+                ' senza datore',
+              ),
         ),
+        ...TIPI_RAPPORTO.map((tipo) => cellaFoglio(classe, blocco, allievo, tipo, false)),
+        cellaInvio(classe, blocco, allievo),
+        ...TIPI_RAPPORTO.map((tipo) => cellaFoglio(classe, blocco, allievo, tipo, true)),
+        h('td', { class: 'tabella__media' }, pastigliaFase(blocco, allievo)),
       ),
     ),
-  )
+  })
 }
 
 /** Una riga dell'elenco dei periodi: come va, e un clic per aprirlo. */

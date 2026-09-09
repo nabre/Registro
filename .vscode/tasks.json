@@ -17,7 +17,7 @@
       "label": "registro: sviluppo",
       "type": "shell",
       "command": "npm run sviluppo",
-      "options": { "cwd": "${workspaceFolder}/extension" },
+      "options": { "cwd": "${workspaceFolder}/app" },
       "isBackground": true,
       "presentation": { "reveal": "always", "panel": "dedicated", "group": "registro" },
       "problemMatcher": []
@@ -26,14 +26,14 @@
       "label": "registro: build",
       "type": "shell",
       "command": "npm run build",
-      "options": { "cwd": "${workspaceFolder}/extension" },
+      "options": { "cwd": "${workspaceFolder}/app" },
       "presentation": { "reveal": "silent", "close": true, "panel": "dedicated", "group": "registro" },
       // esbuild non parla come tsc: i suoi errori si riconoscono dalla riga
       // "✘ [ERROR] …" seguita da "file:riga:colonna:".
       "problemMatcher": {
         "owner": "esbuild",
         "source": "esbuild",
-        "fileLocation": ["relative", "${workspaceFolder}/extension"],
+        "fileLocation": ["relative", "${workspaceFolder}/app"],
         "pattern": [
           {
             "regexp": "^[✘▲] \\[(ERROR|WARNING)\\] (.+)$",
@@ -53,7 +53,7 @@
       "label": "registro: controllo tipi",
       "type": "shell",
       "command": "npm run controllo-tipi",
-      "options": { "cwd": "${workspaceFolder}/extension" },
+      "options": { "cwd": "${workspaceFolder}/app" },
       "presentation": { "reveal": "silent", "panel": "dedicated", "group": "registro" },
       "problemMatcher": ["$tsc"]
     },
@@ -61,7 +61,7 @@
       "label": "registro: prove",
       "type": "shell",
       "command": "npm test",
-      "options": { "cwd": "${workspaceFolder}/extension" },
+      "options": { "cwd": "${workspaceFolder}/app" },
       "group": "test",
       "presentation": { "reveal": "always", "panel": "dedicated", "group": "registro" },
       "problemMatcher": []

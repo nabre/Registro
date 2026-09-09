@@ -28,6 +28,7 @@ import { postoAllegato } from '../componenti/allegati.js'
 import { controlloData, dataInLinea, pastiglia, pulsante, scheda } from '../componenti/base.js'
 import { eseguiOAvvisa } from '../componenti/filtri.js'
 import { h, type Figlio } from '../dom.js'
+import { tabella } from '../componenti/tabella.js'
 import { moduloRecupero } from '../moduli.js'
 import { azione } from '../ponte.js'
 import {
@@ -528,30 +529,19 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
       { class: 'recuperi' },
       postoAllegato(momento, 'recupero', 'Testo della prova di recupero'),
       postoAllegato(momento, 'recupero-soluzione', 'Soluzione del recupero'),
-      h(
-        'div',
-        { class: 'tabella-contenitore' },
-        h(
-          'table',
-          { class: 'tabella tabella--recuperi' },
-          h(
-            'thead',
-            null,
-            h(
-              'tr',
-              null,
-              h('th', null, 'Allievo'),
-              h('th', null, 'Si rifà il'),
-              h('th', { class: 'tabella__numero' }, 'Voto'),
-              h('th', null, 'Riconsegnata il'),
-              h('th', null, 'Stato'),
-              h('th', null, 'Scansione'),
-              h('th', { class: 'tabella__azioni' }, ''),
-            ),
-          ),
-          h('tbody', null, ...recuperi.map(rigaTabella)),
-        ),
-      ),
+      tabella({
+        variante: 'recuperi',
+        intestazione: [
+          h('th', null, 'Allievo'),
+          h('th', null, 'Si rifà il'),
+          h('th', { class: 'tabella__numero' }, 'Voto'),
+          h('th', null, 'Riconsegnata il'),
+          h('th', null, 'Stato'),
+          h('th', null, 'Scansione'),
+          h('th', { class: 'tabella__azioni' }, ''),
+        ],
+        righe: recuperi.map(rigaTabella),
+      }),
       h(
         'p',
         { class: 'testo-quieto' },

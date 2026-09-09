@@ -1,5 +1,15 @@
 # Da estensione VS Code ad app desktop Electron — indice
 
+> **Documento storico.** La migrazione è finita, e con lei sono cambiati i nomi
+> che queste pagine usano: la cartella `extension/` adesso è `app/`, `desktop/`
+> è `guscio/`, `src/webview/` è `src/interfaccia/`, `test/` è `prove/`. Le fasi
+> 1-6 sono state fatte; la 7 è stata risolta togliendo l'albero e la barra di
+> stato invece di rianimarli — la barra laterale del pannello fa la stessa
+> navigazione — e la 8 è caduta con l'account dell'editor, che fuori dall'editor
+> non esiste. Resta qui perché spiega *perché* la migrazione è fatta così, e
+> quello vale ancora.
+
+
 Le istruzioni stanno in `istruzioni-electron/`, un file per fase.
 
 **Non consegnare tutto insieme a Claude Code.** Sono 60'000 righe di codice

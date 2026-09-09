@@ -28,6 +28,7 @@ import { allieviAttivi } from '../../dominio/calcoli.js'
 import { controlloData, dataInLinea, pastiglia, pulsante, scheda } from '../componenti/base.js'
 import { eseguiOAvvisa } from '../componenti/filtri.js'
 import { h, type Figlio } from '../dom.js'
+import { tabella } from '../componenti/tabella.js'
 import {
   aggiorna,
   classeDelCorsoId,
@@ -321,60 +322,45 @@ function tabellaRiconsegneAllievi (
   if (righe.length === 0) return null
   const giorno = quando ?? stato.adessoData
 
-  return h(
-    'div',
-    { class: 'tabella-contenitore' },
-    h(
-      'table',
-      { class: 'tabella tabella--riconsegne' },
+  return tabella({
+    variante: 'riconsegne',
+    intestazione: [
+      h('th', null, 'Allievo'),
+      h('th', { class: 'tabella__numero' }, 'Voto'),
+      h('th', null, 'Riconsegnata il'),
+      h('th', { class: 'tabella__azioni' }, ''),
+    ],
+    righe: righe.map((riga) =>
       h(
-        'thead',
-        null,
+        'tr',
+        { class: riga.riconsegnataIl ? 'tabella__riga--spenta' : undefined },
+        h('td', { class: 'tabella__nome' }, nomeDiAllievo(riga)),
+        h('td', { class: 'tabella__numero' }, formattaVoto(riga.voto)),
         h(
-          'tr',
-          null,
-          h('th', null, 'Allievo'),
-          h('th', { class: 'tabella__numero' }, 'Voto'),
-          h('th', null, 'Riconsegnata il'),
-          h('th', { class: 'tabella__azioni' }, ''),
+          'td',
+          { class: 'riconsegne__data' },
+          controlloData({
+            nome: `riconsegna-${momento.id}-${riga.allievo.id}`,
+            valore: riga.riconsegnataIl ?? '',
+            segnaposto: 'gg.mm.aaaa',
+            al: (valore) => segnaAllievo(riga, String(valore) || null),
+          }),
         ),
-      ),
-      h(
-        'tbody',
-        null,
-        ...righe.map((riga) =>
-          h(
-            'tr',
-            { class: riga.riconsegnataIl ? 'tabella__riga--spenta' : undefined },
-            h('td', { class: 'tabella__nome' }, nomeDiAllievo(riga)),
-            h('td', { class: 'tabella__numero' }, formattaVoto(riga.voto)),
-            h(
-              'td',
-              { class: 'riconsegne__data' },
-              controlloData({
-                nome: `riconsegna-${momento.id}-${riga.allievo.id}`,
-                valore: riga.riconsegnataIl ?? '',
-                segnaposto: 'gg.mm.aaaa',
-                al: (valore) => segnaAllievo(riga, String(valore) || null),
+        h(
+          'td',
+          { class: 'tabella__azioni' },
+          riga.riconsegnataIl
+            ? null
+            : pulsante({
+                simbolo: 'spunta',
+                variante: 'fantasma',
+                titolo: 'Riconsegnata oggi',
+                al: () => segnaAllievo(riga, giorno),
               }),
-            ),
-            h(
-              'td',
-              { class: 'tabella__azioni' },
-              riga.riconsegnataIl
-                ? null
-                : pulsante({
-                    simbolo: 'spunta',
-                    variante: 'fantasma',
-                    titolo: 'Riconsegnata oggi',
-                    al: () => segnaAllievo(riga, giorno),
-                  }),
-            ),
-          ),
         ),
       ),
     ),
-  )
+  })
 }
 
 /**

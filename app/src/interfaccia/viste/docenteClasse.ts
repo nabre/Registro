@@ -41,6 +41,7 @@ import { sintesiIncassata } from '../componenti/filtri.js'
 import { icona } from '../componenti/icone.js'
 import { conferma } from '../componenti/modale.js'
 import { h } from '../dom.js'
+import { tabella } from '../componenti/tabella.js'
 import { moduloComunicazione, moduloConsegna, moduloRecapito } from '../moduli.js'
 import { azione } from '../ponte.js'
 import {
@@ -264,118 +265,106 @@ function cellaFirme (consegna: Consegna) {
  * per riga chi è indietro su tutto.
  */
 function tabellaDocumenti (classe: Classe, raccolte: Consegna[], allievi: Allievo[]) {
-  return h(
-    'div',
-    { class: 'tabella-contenitore tabella-contenitore--griglia' },
-    h(
-      'table',
-      { class: 'tabella tabella--documenti' },
-      h(
-        'thead',
-        null,
-        h(
+  return tabella({
+    variante: 'documenti',
+    griglia: true,
+    intestazione: [
+      h('th', { class: 'tabella__nome' }, 'Allievo'),
+      ...raccolte.map((consegna) => {
+        const avanzamento = avanzamentoConsegna(consegna, classe)
+        const termine = scadenzaConsegna(stato.registro, consegna)
+        return h(
+          'th',
+          { class: 'tabella__richiesta' },
+          h(
+            'button',
+            {
+              class: 'collegamento',
+              type: 'button',
+              attr: {
+                title:
+                  `${consegna.testo} — ${consegna.documento ?? 'documento'}` +
+                  (termine ? ` · entro ${formattaData(termine)}` : '') +
+                  '\nApri la consegna',
+              },
+              onclick: () => moduloConsegna({ consegna }),
+            },
+            h('span', { class: 'tabella__richiesta-titolo' }, consegna.testo),
+            h(
+              'small',
+              { class: scaduta(consegna) && !avanzamento.completa ? 'testo-negativo' : undefined },
+              `${avanzamento.fatte}/${avanzamento.destinatari.length}` +
+                (termine ? ` · ${formattaData(termine, 'corto')}` : ''),
+            ),
+          ),
+          // La spedizione sta in testa alla colonna perché è un gesto che
+          // riguarda tutta la colonna: parte un messaggio a testa a chi
+          // aspetta ancora, con il suo documento in allegato.
+          siConsegna(consegna) &&
+          consegna.modoConsegna === 'email' &&
+          daConsegnareA(consegna, classe).length > 0
+            ? pulsante({
+                testo: `Spedisci (${daConsegnareA(consegna, classe).length})`,
+                simbolo: 'posta',
+                variante: 'sottile',
+                classe: 'tabella__spedisci',
+                titolo: 'Prepara per ognuno la bozza con il suo documento',
+                al: async () => {
+                  const quanti = daConsegnareA(consegna, classe).length
+                  const sicuro = await conferma({
+                    titolo: `Preparare le bozze per ${quanti} allievi?`,
+                    testo:
+                      'Una bozza a testa, con il suo documento in allegato. Finiscono in una ' +
+                      'cartella che si apre da sé: le mandi una a una dal programma di posta.',
+                    testoConferma: 'Prepara',
+                  })
+                  if (!sicuro) return
+                  await azione({ tipo: 'consegna.distribuisci', consegnaId: consegna.id })
+                },
+              })
+            : null,
+        )
+      }),
+      h('th', { class: 'tabella__media' }, 'Suoi'),
+    ],
+    righe: [
+      // Le firme di consegna stanno in cima, prima dei nomi: sono la prova
+      // che riguarda tutta la colonna, non una persona. Sotto ogni documento
+      // che le chiede compare la sua casella; le altre colonne restano vuote,
+      // perché una riga con dodici trattini non dice niente.
+      raccolte.some((c) => c.verso === 'consegno' && c.firmeRichieste)
+        ? h(
+            'tr',
+            { class: 'tabella__riga-firme' },
+            h('td', { class: 'tabella__nome' }, 'Firme di consegna'),
+            ...raccolte.map((consegna) => cellaFirme(consegna)),
+            h('td', { class: 'tabella__media' }, h('span', { class: 'testo-quieto' }, '—')),
+          )
+        : null,
+      ...allievi.map((allievo) => {
+        const suoi = raccolte.filter(
+          (c) => c.a === 'classe' || c.allieviIds.includes(allievo.id),
+        )
+        const portati = suoi.filter((c) => haFatto(c, allievo.id)).length
+        return h(
           'tr',
           null,
-          h('th', { class: 'tabella__nome' }, 'Allievo'),
-          ...raccolte.map((consegna) => {
-            const avanzamento = avanzamentoConsegna(consegna, classe)
-            const termine = scadenzaConsegna(stato.registro, consegna)
-            return h(
-              'th',
-              { class: 'tabella__richiesta' },
-              h(
-                'button',
-                {
-                  class: 'collegamento',
-                  type: 'button',
-                  attr: {
-                    title:
-                      `${consegna.testo} — ${consegna.documento ?? 'documento'}` +
-                      (termine ? ` · entro ${formattaData(termine)}` : '') +
-                      '\nApri la consegna',
-                  },
-                  onclick: () => moduloConsegna({ consegna }),
-                },
-                h('span', { class: 'tabella__richiesta-titolo' }, consegna.testo),
-                h(
-                  'small',
-                  { class: scaduta(consegna) && !avanzamento.completa ? 'testo-negativo' : undefined },
-                  `${avanzamento.fatte}/${avanzamento.destinatari.length}` +
-                    (termine ? ` · ${formattaData(termine, 'corto')}` : ''),
+          h('td', { class: 'tabella__nome' }, nomeCompleto(allievo)),
+          ...raccolte.map((consegna) => cellaDocumento(consegna, allievo)),
+          h(
+            'td',
+            { class: 'tabella__media' },
+            suoi.length === 0
+              ? h('span', { class: 'testo-quieto' }, '—')
+              : pastiglia(
+                  `${portati}/${suoi.length}`,
+                  portati === suoi.length ? 'positivo' : 'attenzione',
                 ),
-              ),
-              // La spedizione sta in testa alla colonna perché è un gesto che
-              // riguarda tutta la colonna: parte un messaggio a testa a chi
-              // aspetta ancora, con il suo documento in allegato.
-              siConsegna(consegna) &&
-              consegna.modoConsegna === 'email' &&
-              daConsegnareA(consegna, classe).length > 0
-                ? pulsante({
-                    testo: `Spedisci (${daConsegnareA(consegna, classe).length})`,
-                    simbolo: 'posta',
-                    variante: 'sottile',
-                    classe: 'tabella__spedisci',
-                    titolo: 'Prepara per ognuno la bozza con il suo documento',
-                    al: async () => {
-                      const quanti = daConsegnareA(consegna, classe).length
-                      const sicuro = await conferma({
-                        titolo: `Preparare le bozze per ${quanti} allievi?`,
-                        testo:
-                          'Una bozza a testa, con il suo documento in allegato. Finiscono in una ' +
-                          'cartella che si apre da sé: le mandi una a una dal programma di posta.',
-                        testoConferma: 'Prepara',
-                      })
-                      if (!sicuro) return
-                      await azione({ tipo: 'consegna.distribuisci', consegnaId: consegna.id })
-                    },
-                  })
-                : null,
-            )
-          }),
-          h('th', { class: 'tabella__media' }, 'Suoi'),
-        ),
-      ),
-      h(
-        'tbody',
-        null,
-        // Le firme di consegna stanno in cima, prima dei nomi: sono la prova
-        // che riguarda tutta la colonna, non una persona. Sotto ogni documento
-        // che le chiede compare la sua casella; le altre colonne restano vuote,
-        // perché una riga con dodici trattini non dice niente.
-        raccolte.some((c) => c.verso === 'consegno' && c.firmeRichieste)
-          ? h(
-              'tr',
-              { class: 'tabella__riga-firme' },
-              h('td', { class: 'tabella__nome' }, 'Firme di consegna'),
-              ...raccolte.map((consegna) => cellaFirme(consegna)),
-              h('td', { class: 'tabella__media' }, h('span', { class: 'testo-quieto' }, '—')),
-            )
-          : null,
-        ...allievi.map((allievo) => {
-          const suoi = raccolte.filter(
-            (c) => c.a === 'classe' || c.allieviIds.includes(allievo.id),
-          )
-          const portati = suoi.filter((c) => haFatto(c, allievo.id)).length
-          return h(
-            'tr',
-            null,
-            h('td', { class: 'tabella__nome' }, nomeCompleto(allievo)),
-            ...raccolte.map((consegna) => cellaDocumento(consegna, allievo)),
-            h(
-              'td',
-              { class: 'tabella__media' },
-              suoi.length === 0
-                ? h('span', { class: 'testo-quieto' }, '—')
-                : pastiglia(
-                    `${portati}/${suoi.length}`,
-                    portati === suoi.length ? 'positivo' : 'attenzione',
-                  ),
-            ),
-          )
-        }),
-      ),
-    ),
-  )
+          ),
+        )
+      }),
+    ],
+  })
 }
 
 /** Una raccolta «a me»: la circolare, il modulo da tenere da parte. */

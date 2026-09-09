@@ -18,10 +18,10 @@
       "name": "Registro docenti",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceFolder}/extension",
-      "runtimeExecutable": "${workspaceFolder}/extension/node_modules/.bin/electron",
+      "cwd": "${workspaceFolder}/app",
+      "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electron",
       "args": ["."],
-      "outFiles": ["${workspaceFolder}/extension/dist/**/*.cjs"],
+      "outFiles": ["${workspaceFolder}/app/dist/**/*.cjs"],
       "sourceMaps": true,
       "console": "integratedTerminal",
       // Un avvio a freddo deve trovare `dist/` pronto.

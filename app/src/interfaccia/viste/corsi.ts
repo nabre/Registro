@@ -41,6 +41,7 @@ import {
 } from '../componenti/base.js'
 import { eseguiOAvvisa, selettoreCorsi, sintesiIncassata, statoVuotoAnno } from '../componenti/filtri.js'
 import { h, type Figlio } from '../dom.js'
+import { tabella } from '../componenti/tabella.js'
 import {
   chiediEliminazione,
   moduloAvvio,
@@ -358,112 +359,97 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
       `${matrice.lezioni} ${matrice.lezioni === 1 ? 'ora' : 'ore'} · ` +
       `${matrice.ud} UD · ${momenti.length} ${momenti.length === 1 ? 'prova' : 'prove'} · ` +
       nomeSemestreScelto(),
-    contenuto: h(
-      'div',
-      { class: 'tabella-contenitore' },
-      h(
-        'table',
-        { class: 'tabella tabella--matrice' },
+    contenuto: tabella({
+      variante: 'matrice',
+      intestazione: [
+        h('th', { class: 'tabella__nome' }, 'Allievo'),
         h(
-          'thead',
+          'th',
+          { attr: { title: `Sulle ${matrice.udPreviste} UD che l’orario prevede nel periodo` } },
+          'Assenza',
+        ),
+        // Le due percentuali complementari, una accanto all'altra: la
+        // domanda si fa nei due versi — «quanto ha perso» guardando i casi
+        // difficili, «quanto ha frequentato» dovendo certificare una
+        // frequenza — e chi legge non deve fare la sottrazione a mente.
+        h(
+          'th',
+          { attr: { title: `Sulle ${matrice.udPreviste} UD che l’orario prevede nel periodo` } },
+          'Presenza',
+        ),
+        h('th', null, 'UD di assenza'),
+        h('th', null, 'UD seguite'),
+        // Il denominatore, in chiaro accanto alle percentuali: senza, un
+        // «92%» non si sa su che cosa sia fatto.
+        h(
+          'th',
+          { attr: { title: 'Le UD che l’orario del corso prevede nel periodo' } },
+          'UD del corso',
+        ),
+        h('th', null, 'Ritardi'),
+        h('th', null, 'Prove'),
+        h('th', null, 'Media'),
+        h('th', null, 'Nota'),
+      ],
+      righe: matrice.righe.map((riga) =>
+        h(
+          'tr',
           null,
           h(
-            'tr',
+            'td',
+            { class: 'tabella__nome' },
+            h(
+              'button',
+              {
+                class: 'collegamento',
+                type: 'button',
+                // Di qui si va alla scheda dell'allievo: la riga dice che
+                // qualcosa non va, la scheda dice che cosa.
+                onclick: () =>
+                  aggiorna({
+                    vista: 'allievo',
+                    classeId: classe.id,
+                    allievoId: riga.allievo.id,
+                  }),
+              },
+              nomeCompleto(riga.allievo),
+            ),
+          ),
+          h('td', null, quota(riga)),
+          h('td', null, seguito(riga)),
+          h(
+            'td',
+            { class: riga.udAssenza > 0 ? 'tabella__cella--attenzione' : undefined },
+            riga.udAssenza > 0 ? String(riga.udAssenza) : '—',
+          ),
+          h('td', null, String(riga.udPresenza)),
+          h('td', { class: 'testo-quieto' }, String(matrice.udPreviste)),
+          h('td', null, riga.ritardi > 0 ? String(riga.ritardi) : '—'),
+          h(
+            'td',
+            { class: riga.prove === 0 && momenti.length > 0 ? 'tabella__cella--attenzione' : undefined },
+            `${riga.prove}/${momenti.length}`,
+          ),
+          h(
+            'td',
             null,
-            h('th', { class: 'tabella__nome' }, 'Allievo'),
-            h(
-              'th',
-              { attr: { title: `Sulle ${matrice.udPreviste} UD che l’orario prevede nel periodo` } },
-              'Assenza',
-            ),
-            // Le due percentuali complementari, una accanto all'altra: la
-            // domanda si fa nei due versi — «quanto ha perso» guardando i casi
-            // difficili, «quanto ha frequentato» dovendo certificare una
-            // frequenza — e chi legge non deve fare la sottrazione a mente.
-            h(
-              'th',
-              { attr: { title: `Sulle ${matrice.udPreviste} UD che l’orario prevede nel periodo` } },
-              'Presenza',
-            ),
-            h('th', null, 'UD di assenza'),
-            h('th', null, 'UD seguite'),
-            // Il denominatore, in chiaro accanto alle percentuali: senza, un
-            // «92%» non si sa su che cosa sia fatto.
-            h(
-              'th',
-              { attr: { title: 'Le UD che l’orario del corso prevede nel periodo' } },
-              'UD del corso',
-            ),
-            h('th', null, 'Ritardi'),
-            h('th', null, 'Prove'),
-            h('th', null, 'Media'),
-            h('th', null, 'Nota'),
+            riga.media === null
+              ? h('span', { class: 'testo-quieto' }, '—')
+              : h('span', { class: 'testo-quieto' }, formattaVoto(riga.media)),
           ),
-        ),
-        h(
-          'tbody',
-          null,
-          ...matrice.righe.map((riga) =>
-            h(
-              'tr',
-              null,
-              h(
-                'td',
-                { class: 'tabella__nome' },
-                h(
-                  'button',
-                  {
-                    class: 'collegamento',
-                    type: 'button',
-                    // Di qui si va alla scheda dell'allievo: la riga dice che
-                    // qualcosa non va, la scheda dice che cosa.
-                    onclick: () =>
-                      aggiorna({
-                        vista: 'allievo',
-                        classeId: classe.id,
-                        allievoId: riga.allievo.id,
-                      }),
-                  },
-                  nomeCompleto(riga.allievo),
+          h(
+            'td',
+            null,
+            riga.nota === null
+              ? h('span', { class: 'testo-quieto' }, '—')
+              : pastiglia(
+                  formattaVoto(riga.nota),
+                  riga.nota >= scala.sufficienza ? 'positivo' : 'negativo',
                 ),
-              ),
-              h('td', null, quota(riga)),
-              h('td', null, seguito(riga)),
-              h(
-                'td',
-                { class: riga.udAssenza > 0 ? 'tabella__cella--attenzione' : undefined },
-                riga.udAssenza > 0 ? String(riga.udAssenza) : '—',
-              ),
-              h('td', null, String(riga.udPresenza)),
-              h('td', { class: 'testo-quieto' }, String(matrice.udPreviste)),
-              h('td', null, riga.ritardi > 0 ? String(riga.ritardi) : '—'),
-              h(
-                'td',
-                { class: riga.prove === 0 && momenti.length > 0 ? 'tabella__cella--attenzione' : undefined },
-                `${riga.prove}/${momenti.length}`,
-              ),
-              h(
-                'td',
-                null,
-                riga.media === null
-                  ? h('span', { class: 'testo-quieto' }, '—')
-                  : h('span', { class: 'testo-quieto' }, formattaVoto(riga.media)),
-              ),
-              h(
-                'td',
-                null,
-                riga.nota === null
-                  ? h('span', { class: 'testo-quieto' }, '—')
-                  : pastiglia(
-                      formattaVoto(riga.nota),
-                      riga.nota >= scala.sufficienza ? 'positivo' : 'negativo',
-                    ),
-              ),
-            ),
           ),
         ),
-      ),
-    ),
+          ),
+    }),
   })
 }
 

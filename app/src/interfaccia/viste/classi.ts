@@ -43,6 +43,7 @@ import {
   materieDiClasse,
   stato,
 } from '../stato.js'
+import { tabella } from '../componenti/tabella.js'
 
 function elencoClassi (): HTMLElement {
   const classi = classiDellAnno()
@@ -122,76 +123,61 @@ function tabellaAllievi (classe: Classe): HTMLElement {
       ? h('td', { class: classe }, valore)
       : h('td', { class: classe }, h('span', { class: 'testo-quieto' }, '—'))
 
-  return h(
-    'div',
-    { class: 'tabella-contenitore' },
-    h(
-      'table',
-      { class: 'tabella tabella--allievi' },
+  return tabella({
+    variante: 'allievi',
+    intestazione: [
+      h('th', null, 'Allievo'),
+      h('th', null, 'Nascita'),
+      h('th', null, 'Indirizzo'),
+      h('th', null, 'E-mail'),
+      h('th', null, 'Datore di lavoro'),
+      h('th', null, 'Indirizzo del datore'),
+      h('th', null, 'E-mail del datore'),
+      h('th', { class: 'tabella__azioni' }, ''),
+    ],
+    righe: allievi.map((allievo) =>
       h(
-        'thead',
-        null,
+        'tr',
+        { class: [!allievo.attivo && 'tabella__riga--spenta'] },
         h(
-          'tr',
-          null,
-          h('th', null, 'Allievo'),
-          h('th', null, 'Nascita'),
-          h('th', null, 'Indirizzo'),
-          h('th', null, 'E-mail'),
-          h('th', null, 'Datore di lavoro'),
-          h('th', null, 'Indirizzo del datore'),
-          h('th', null, 'E-mail del datore'),
-          h('th', { class: 'tabella__azioni' }, ''),
-        ),
-      ),
-      h(
-        'tbody',
-        null,
-        ...allievi.map((allievo) =>
+          'td',
+          { class: 'tabella__nome' },
+          // Il nome apre la scheda, non il modulo: durante un colloquio si
+          // vuole leggere, e modificare l'anagrafica è il caso raro.
           h(
-            'tr',
-            { class: [!allievo.attivo && 'tabella__riga--spenta'] },
-            h(
-              'td',
-              { class: 'tabella__nome' },
-              // Il nome apre la scheda, non il modulo: durante un colloquio si
-              // vuole leggere, e modificare l'anagrafica è il caso raro.
-              h(
-                'button',
-                {
-                  class: 'collegamento',
-                  type: 'button',
-                  attr: { title: 'Apri la scheda dell’allievo' },
-                  onclick: () =>
-                    aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
-                },
-                nomeCompleto(allievo),
-              ),
-              allievo.attivo ? null : pastiglia('non frequenta', 'quiete'),
-            ),
-            // La data com'è scritta sui moduli, non in ISO: da qui si copia a
-            // mano su un contratto di tirocinio, e '2010-05-23' si ricopia male.
-            cella(allievo.dataNascita ? formattaData(allievo.dataNascita) : undefined),
-            cella(allievo.indirizzo),
-            cella(allievo.email, 'tabella__recapito'),
-            cella(allievo.azienda),
-            cella(allievo.indirizzoDatore),
-            cella(allievo.emailDatore, 'tabella__recapito'),
-            h(
-              'td',
-              { class: 'tabella__azioni' },
-              pulsante({
-                simbolo: 'matita',
-                variante: 'fantasma',
-                titolo: 'Modifica',
-                al: () => moduloAllievo(classe, allievo),
-              }),
-            ),
+            'button',
+            {
+              class: 'collegamento',
+              type: 'button',
+              attr: { title: 'Apri la scheda dell’allievo' },
+              onclick: () =>
+                aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
+            },
+            nomeCompleto(allievo),
           ),
+          allievo.attivo ? null : pastiglia('non frequenta', 'quiete'),
+        ),
+        // La data com'è scritta sui moduli, non in ISO: da qui si copia a
+        // mano su un contratto di tirocinio, e '2010-05-23' si ricopia male.
+        cella(allievo.dataNascita ? formattaData(allievo.dataNascita) : undefined),
+        cella(allievo.indirizzo),
+        cella(allievo.email, 'tabella__recapito'),
+        cella(allievo.azienda),
+        cella(allievo.indirizzoDatore),
+        cella(allievo.emailDatore, 'tabella__recapito'),
+        h(
+          'td',
+          { class: 'tabella__azioni' },
+          pulsante({
+            simbolo: 'matita',
+            variante: 'fantasma',
+            titolo: 'Modifica',
+            al: () => moduloAllievo(classe, allievo),
+          }),
         ),
       ),
     ),
-  )
+  })
 }
 
 /**
