@@ -20,6 +20,13 @@ import type {
   TipoValutazione,
 } from '../../dominio/modelli.js'
 import { GIORNI_LUNGHI } from '../../dominio/date.js'
+import {
+  CATEGORIE_DOCUMENTO,
+  STATI_LEZIONE,
+  TIPI_CONSEGNA,
+  TIPI_OSSERVAZIONE,
+  TIPI_VALUTAZIONE,
+} from '../../dominio/lessico.js'
 import { campo, pulsante, type OpzioneSelezione, type OpzioniCampo } from '../componenti/base.js'
 import { conferma, type ContestoModale } from '../componenti/modale.js'
 import { notifica } from '../componenti/notifiche.js'
@@ -200,15 +207,17 @@ export function tastoDuplica (opzioni: {
   })
 }
 
+/**
+ * Le voci di una tendina da un elenco del lessico: il valore che si salva e la
+ * parola che si legge, nell'ordine in cui il lessico le scrive.
+ */
+function vociDa<T extends string> (nomi: Readonly<Record<T, string>>): Array<{ valore: T; testo: string }> {
+  return (Object.keys(nomi) as T[]).map((valore) => ({ valore, testo: nomi[valore] }))
+}
+
 /** I tipi di valutazione: gli stessi nel piano e nel momento vero. */
-export const VOCI_TIPO_VALUTAZIONE: Array<{ valore: TipoValutazione; testo: string }> = [
-  { valore: 'scritto', testo: 'Scritto' },
-  { valore: 'orale', testo: 'Orale' },
-  { valore: 'pratico', testo: 'Pratico' },
-  { valore: 'progetto', testo: 'Progetto' },
-  { valore: 'compito', testo: 'Compito a casa' },
-  { valore: 'osservazione', testo: 'Osservazione' },
-]
+export const VOCI_TIPO_VALUTAZIONE: Array<{ valore: TipoValutazione; testo: string }> =
+  vociDa(TIPI_VALUTAZIONE)
 
 /** I giorni della settimana per le tendine dell'orario: 1 = lunedì, come vuole l'ISO 8601. */
 export const VOCI_GIORNO_SETTIMANA: OpzioneSelezione[] = GIORNI_LUNGHI.map((nome, i) => ({
@@ -220,33 +229,17 @@ export const VOCI_GIORNO_SETTIMANA: OpzioneSelezione[] = GIORNI_LUNGHI.map((nome
 export const VOCI_TIPO_ATTIVITA: Array<{ valore: Attivita['tipo']; testo: string }> =
   ORDINE_TIPI.map((valore) => ({ valore, testo: nomeTipoAttivita(valore) }))
 
-/** I tipi di osservazione sull'andamento di un allievo o della classe. */
-export const VOCI_TIPO_OSSERVAZIONE: Array<{ valore: Osservazione['tipo']; testo: string }> = [
-  { valore: 'nota', testo: 'Nota' },
-  { valore: 'merito', testo: 'Merito' },
-  { valore: 'disciplina', testo: 'Disciplina' },
-  { valore: 'compiti', testo: 'Compiti' },
-  { valore: 'materiale', testo: 'Materiale' },
-  { valore: 'colloquio', testo: 'Colloquio' },
-]
+/** I tipi di osservazione sull'andamento di una persona in formazione o della classe. */
+export const VOCI_TIPO_OSSERVAZIONE: Array<{ valore: Osservazione['tipo']; testo: string }> =
+  vociDa(TIPI_OSSERVAZIONE)
 
 /** Gli stati di un'ora di lezione. */
-export const VOCI_STATO_LEZIONE: Array<{ valore: Lezione['stato']; testo: string }> = [
-  { valore: 'pianificata', testo: 'Pianificata' },
-  { valore: 'svolta', testo: 'Svolta' },
-  { valore: 'annullata', testo: 'Annullata' },
-]
+export const VOCI_STATO_LEZIONE: Array<{ valore: Lezione['stato']; testo: string }> =
+  vociDa(STATI_LEZIONE)
 
 /** I tipi di consegna. */
-export const VOCI_TIPO_CONSEGNA: Array<{ valore: Consegna['tipo']; testo: string }> = [
-  { valore: 'compito', testo: 'Compito' },
-  { valore: 'studio', testo: 'Studio' },
-  { valore: 'materiale', testo: 'Materiale da portare' },
-  { valore: 'consegna', testo: 'Da consegnare' },
-  { valore: 'preparazione', testo: 'Preparazione (mia)' },
-  { valore: 'amministrativo', testo: 'Amministrativo' },
-  { valore: 'altro', testo: 'Altro' },
-]
+export const VOCI_TIPO_CONSEGNA: Array<{ valore: Consegna['tipo']; testo: string }> =
+  vociDa(TIPI_CONSEGNA)
 
 /**
  * Aspetta che l'host abbia rimandato indietro lo stato con dentro quel che si è
@@ -582,10 +575,5 @@ export function presaDiRiga (): HTMLButtonElement {
   })
 }
 
-export const VOCI_CATEGORIA_DOCUMENTO: Array<{ valore: CategoriaDocumento; testo: string }> = [
-  { valore: 'certificato', testo: 'Certificato' },
-  { valore: 'autorizzazione', testo: 'Autorizzazione' },
-  { valore: 'giustificazione', testo: 'Giustificazione' },
-  { valore: 'modulo', testo: 'Modulo' },
-  { valore: 'altro', testo: 'Altro' },
-]
+export const VOCI_CATEGORIA_DOCUMENTO: Array<{ valore: CategoriaDocumento; testo: string }> =
+  vociDa(CATEGORIE_DOCUMENTO)

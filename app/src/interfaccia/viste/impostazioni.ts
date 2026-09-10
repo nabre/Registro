@@ -21,6 +21,7 @@ import type {
   Iso,
   LetteraSettimana,
 } from '../../dominio/modelli.js'
+import { PIF, un } from '../../dominio/lessico.js'
 import { sospensioneDi } from '../../dominio/orario.js'
 import {
   avviso,
@@ -740,7 +741,7 @@ function schedaPosta (): HTMLElement {
         'p',
         null,
         'La firma che va in fondo a ogni mail — comunicazioni, richieste di firma alle ' +
-          'aziende, documenti mandati a un allievo — sta in ',
+          `aziende, documenti mandati a ${un(PIF)} — sta in `,
         h('code', null, 'templates/_firma.html'),
         '.',
       ),

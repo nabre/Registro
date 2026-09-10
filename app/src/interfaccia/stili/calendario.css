@@ -317,6 +317,9 @@
 }
 
 .agenda__testo { display: flex; gap: var(--spazio-2); align-items: baseline; flex: 1; min-width: 0; }
+/* La materia sta fra la classe e l'argomento, e in mezzo ci sta anche per peso:
+   la classe è grassetto, l'argomento è quieto, e questa è testo normale. */
+.agenda__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda__titolo { color: var(--testo-quieto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agenda__coda { display: flex; gap: var(--spazio-1); align-items: center; }
 

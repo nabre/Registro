@@ -90,7 +90,7 @@ function scheda (blocco: BloccoProiezione): HTMLElement {
         title: corrente
           ? `${NOMI_BLOCCO[blocco]}: è quel che la classe sta vedendo. Cliccando lo si toglie.`
           : delicato
-            ? `${NOMI_BLOCCO[blocco]}: parla dei singoli allievi. Aprendolo, lo vede tutta la classe.`
+            ? `${NOMI_BLOCCO[blocco]}: parla delle singole persone. Aprendolo, lo vede tutta la classe.`
             : `Mostra ${NOMI_BLOCCO[blocco].toLowerCase()}`,
       },
       onclick: (evento: MouseEvent) =>

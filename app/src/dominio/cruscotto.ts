@@ -67,6 +67,98 @@ export interface DiagnosiLezione {
   todo: number
 }
 
+/**
+ * A che punto è un'ora del suo giro, in una parola sola.
+ *
+ * Si chiama «fase» e non «stato» perché `stato` in questo registro è già preso
+ * due volte — `lezione.stato` è quel che il docente ha dichiarato, e
+ * `statoDellOra` in `calcoli.ts` è la presenza di un allievo. Questa è una terza
+ * cosa: dove si trova quest'ora fra «non è ancora successa» e «è a posto».
+ *
+ * `Segno` e `Urgenza` dicono cose diverse e si sovrappongono: un'ora può avere
+ * cinque segni e un'urgenza, ed è quel che serve al cruscotto, che ha una
+ * casella per ognuna. Chi deve scrivere *una riga* — una voce di menu, una
+ * notifica — ha bisogno invece di una risposta sola, e questa è quella.
+ *
+ * L'ordine in cui si guarda non è indifferente:
+ *
+ *   `annullata` prima di tutto, perché un'ora annullata non è né passata né
+ *   futura: non c'è stata. Segnarla «da chiudere» perché è priva di appello
+ *   sarebbe chiedere di compilare il registro di una lezione che non si è
+ *   tenuta.
+ *
+ *   `in-corso` prima del passato e del futuro, perché è l'unica che risponde a
+ *   «dove sono adesso», ed è la riga che si cerca per prima.
+ *
+ *   `da-chiudere` prima di `svolta`: è la distinzione che conta, ed è la stessa
+ *   che fa `urgenza === 'manca'` — un'ora passata senza appello, o non ancora
+ *   segnata svolta.
+ */
+export type FaseOra =
+  | 'annullata'
+  | 'in-corso'
+  | 'da-chiudere'
+  | 'svolta'
+  | 'da-preparare'
+  | 'futura'
+
+export function faseDellOra (
+  registro: Registro,
+  lezione: Lezione,
+  oggi: Iso,
+  ora: Ora = '23:59',
+): FaseOra {
+  if (lezione.stato === 'annullata') return 'annullata'
+
+  const momento = momentoLezione(lezione, oggi, ora)
+  if (momento === 'in-corso') return 'in-corso'
+
+  const { urgenza } = diagnosiLezione(registro, lezione, 0, oggi, ora)
+  if (momento === 'passata') return urgenza === 'manca' ? 'da-chiudere' : 'svolta'
+  return urgenza === 'da-preparare' ? 'da-preparare' : 'futura'
+}
+
+/** Le ore di un corso divise per stato, ognuna in ordine di calendario. */
+export interface OreRaggruppate {
+  inCorso: Lezione[]
+  daChiudere: Lezione[]
+  /** Le future, con e senza piano: l'ordine è quello del calendario. */
+  prossime: Lezione[]
+  svolte: Lezione[]
+  annullate: Lezione[]
+}
+
+/**
+ * Divide le ore di un corso nei mucchi che si vogliono vedere separati.
+ *
+ * Le svolte tornano dalla più recente: sono tante e si guardano all'indietro —
+ * «che cosa ho fatto l'altra volta» — mentre le prossime tornano dalla più
+ * vicina, che è l'ordine in cui si vive.
+ */
+export function raggruppaOre (
+  registro: Registro,
+  lezioni: Lezione[],
+  oggi: Iso,
+  ora: Ora = '23:59',
+): OreRaggruppate {
+  const esito: OreRaggruppate = {
+    inCorso: [], daChiudere: [], prossime: [], svolte: [], annullate: [],
+  }
+
+  for (const lezione of [...lezioni].sort(confrontaLezioni)) {
+    switch (faseDellOra(registro, lezione, oggi, ora)) {
+      case 'annullata': esito.annullate.push(lezione); break
+      case 'in-corso': esito.inCorso.push(lezione); break
+      case 'da-chiudere': esito.daChiudere.push(lezione); break
+      case 'svolta': esito.svolte.push(lezione); break
+      default: esito.prossime.push(lezione)
+    }
+  }
+
+  esito.svolte.reverse()
+  return esito
+}
+
 /** L'ora che chiede di essere compilata, o — se non ce n'è — la prossima da fare. */
 export interface OraDaFare {
   lezione: Lezione

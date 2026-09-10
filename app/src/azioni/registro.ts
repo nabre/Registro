@@ -6,6 +6,7 @@
 // classe a un anno — e per questo ogni salvataggio passa da una validazione che
 // guarda anche gli altri, non solo se stesso.
 
+import { PIF, frase } from '../dominio/lessico.js'
 import { lezioniDaOrario } from '../dominio/orario.js'
 import { annoAllineato, conLetteraSettimana } from '../dominio/anni.js'
 import { creaAllievo, creaAnno, creaCorso } from '../dominio/fabbriche.js'
@@ -19,7 +20,7 @@ import { cestina, conMessaggio, fatto, rifiuta, riponi, scegliUnFile, type Parte
 /**
  * I formati di ritratto che il registro sa mettere dentro un PDF.
  *
- * Sono i due che `pdf-lib` incorpora, e la scheda dell'allievo è il posto in
+ * Sono i due che `pdf-lib` incorpora, e la scheda personale è il posto in
  * cui una foto serve davvero: accettare un WEBP qui vorrebbe dire una foto che
  * si vede nel pannello e sparisce in stampa, cioè il modo peggiore di
  * scoprirlo.
@@ -310,7 +311,7 @@ export const registro = {
   'allievo.foto.imposta': async (contesto, azione) => {
     const classe = contesto.registro.classi.find((c) => c.id === azione.classeId)
     const allievo = classe?.allievi.find((a) => a.id === azione.allievoId)
-    if (!classe || !allievo) return rifiuta('Allievo non trovato.')
+    if (!classe || !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
 
     const scelto = await scegliUnFile({
       titolo: `Foto di ${allievo.cognome} ${allievo.nome}`,
@@ -347,7 +348,7 @@ export const registro = {
   'allievo.foto.togli': async (contesto, azione) => {
     const classe = contesto.registro.classi.find((c) => c.id === azione.classeId)
     const allievo = classe?.allievi.find((a) => a.id === azione.allievoId)
-    if (!classe || !allievo) return rifiuta('Allievo non trovato.')
+    if (!classe || !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
     if (!allievo.foto) return fatto
 
     const file = allievo.foto
@@ -394,7 +395,7 @@ export const registro = {
 
   'allievi.importa': (contesto, azione) => {
     const voci = leggiElencoAllievi(azione.testo)
-    if (voci.length === 0) return rifiuta('Nessun allievo riconosciuto nel testo incollato.')
+    if (voci.length === 0) return rifiuta(`Nessuna ${PIF.singolare} riconosciuta nel testo incollato.`)
     return contesto.suVoce('classi', azione.classeId, (classe) => {
       for (const voce of voci) {
         const gia = classe.allievi.find(

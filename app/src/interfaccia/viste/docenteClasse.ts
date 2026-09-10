@@ -20,6 +20,7 @@ import {
   siConsegna,
   spuntaDi,
 } from '../../dominio/consegne.js'
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData, giornoDi } from '../../dominio/date.js'
 import {
   FAMIGLIE_TODO,
@@ -269,7 +270,7 @@ function tabellaDocumenti (classe: Classe, raccolte: Consegna[], allievi: Alliev
     variante: 'documenti',
     griglia: true,
     intestazione: [
-      h('th', { class: 'tabella__nome' }, 'Allievo'),
+      h('th', { class: 'tabella__nome' }, Uno(PIF)),
       ...raccolte.map((consegna) => {
         const avanzamento = avanzamentoConsegna(consegna, classe)
         const termine = scadenzaConsegna(stato.registro, consegna)
@@ -312,7 +313,7 @@ function tabellaDocumenti (classe: Classe, raccolte: Consegna[], allievi: Alliev
                 al: async () => {
                   const quanti = daConsegnareA(consegna, classe).length
                   const sicuro = await conferma({
-                    titolo: `Preparare le bozze per ${quanti} allievi?`,
+                    titolo: `Preparare le bozze per ${quanti} ${PIF.plurale}?`,
                     testo:
                       'Una bozza a testa, con il suo documento in allegato. Finiscono in una ' +
                       'cartella che si apre da sé: le mandi una a una dal programma di posta.',
@@ -431,7 +432,7 @@ function schedaDocumenti (classe: Classe) {
 
   return scheda({
     titolo: 'Documenti',
-    sottotitolo: `gli allievi in riga, i documenti chiesti in colonna · ${nomeSemestreScelto()}`,
+    sottotitolo: `le ${PIF.plurale} in riga, i documenti chiesti in colonna · ${nomeSemestreScelto()}`,
     azioni:
       corsi.length === 0
         ? undefined
@@ -482,7 +483,7 @@ function schedaDocumenti (classe: Classe) {
                       ? 'Chiedere un documento è dare una consegna che si spunta portando un ' +
                         'foglio: sta nel todo con tutto il resto, e qui si vede a matrice chi ' +
                         'non l’ha ancora portato.'
-                      : 'La matrice compare quando la classe ha degli allievi attivi.',
+                      : `La matrice compare quando la classe ha delle ${PIF.plurale} attive.`,
                   azione:
                     loro.length === 0
                       ? pulsante({
@@ -597,7 +598,7 @@ function schedaRecapiti (classe: Classe) {
 
   return scheda({
     titolo: 'Recapiti',
-    sottotitolo: 'gli indirizzi fissi; quelli degli allievi stanno nelle loro schede',
+    sottotitolo: `gli indirizzi fissi; quelli delle ${PIF.plurale} stanno nelle loro schede`,
     azioni: pulsante({
       testo: 'Nuovo recapito',
       simbolo: 'piu',
@@ -609,7 +610,7 @@ function schedaRecapiti (classe: Classe) {
       null,
       sintesiIncassata(
         {
-          etichetta: 'allievi raggiungibili',
+          etichetta: `${PIF.plurale} raggiungibili`,
           valore: `${conMail}/${attivi}`,
           tono: conMail === attivi ? 'positivo' : 'attenzione',
         },
@@ -724,7 +725,7 @@ function schedaComunicazioni (classe: Classe) {
         ? h(
             'p',
             { class: 'testo-quieto' },
-            'Nessuna comunicazione. Gli indirizzi vengono presi dalle schede degli allievi ' +
+            `Nessuna comunicazione. Gli indirizzi vengono presi dalle schede delle ${PIF.plurale} ` +
               'e dai recapiti fissi, e vanno sempre in copia nascosta. Il registro prepara la ' +
               'bozza e la apre nel programma di posta: a spedirla sei tu.',
           )

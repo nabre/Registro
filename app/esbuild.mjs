@@ -210,6 +210,19 @@ const prove = [
     sourcemap: false,
     alias: { electron: './prove/aiuti/finto-electron.mjs' },
   },
+  // L'icona accanto all'orologio: qui si prova la traduzione da voci nostre a
+  // menu di Electron, che è tutto quel che questo file fa. Che cosa ci finisca
+  // dentro lo decide `src/dominio/vassoio.ts`, provato con il resto del dominio.
+  {
+    ...comune,
+    entryPoints: ['src/ambiente/vassoio.ts'],
+    outfile: 'dist-prove/vassoio.mjs',
+    format: 'esm',
+    platform: 'node',
+    target: 'node18',
+    sourcemap: false,
+    alias: { electron: './prove/aiuti/finto-electron.mjs' },
+  },
   {
     ...comune,
     entryPoints: ['guscio/menu.ts'],

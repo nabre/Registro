@@ -14,6 +14,7 @@
 // prima di arrivare all'indirizzo che si era venuti a copiare.
 
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
+import { PIF, Uno, del, quanti } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Classe } from '../../dominio/modelli.js'
 import {
@@ -85,7 +86,7 @@ function elencoClassi (): HTMLElement {
                   h(
                     'small',
                     null,
-                    `${allieviAttivi(classe).length} allievi${
+                    `${quanti(allieviAttivi(classe).length, PIF)}${
                       materieDiClasse(classe.id).length > 0
                         ? ` · ${materieDiClasse(classe.id).join(', ')}`
                         : ''
@@ -107,11 +108,11 @@ function tabellaAllievi (classe: Classe): HTMLElement {
     return statoVuoto({
       simbolo: 'utente',
       titolo: 'Classe ancora vuota',
-      testo: 'Gli allievi si aggiungono uno per uno, oppure incollando l’elenco.',
+      testo: `Le ${PIF.plurale} si aggiungono una per una, oppure incollando l’elenco.`,
       azione: h(
         'div',
         { class: 'stato-vuoto__pulsanti' },
-        pulsante({ testo: 'Aggiungi allievo', variante: 'primario', simbolo: 'piu', al: () => moduloAllievo(classe) }),
+        pulsante({ testo: `Aggiungi ${PIF.singolare}`, variante: 'primario', simbolo: 'piu', al: () => moduloAllievo(classe) }),
         pulsante({ testo: 'Incolla elenco', simbolo: 'piano', al: () => moduloImportaAllievi(classe) }),
       ),
     })
@@ -126,7 +127,7 @@ function tabellaAllievi (classe: Classe): HTMLElement {
   return tabella({
     variante: 'allievi',
     intestazione: [
-      h('th', null, 'Allievo'),
+      h('th', null, Uno(PIF)),
       h('th', null, 'Nascita'),
       h('th', null, 'Indirizzo'),
       h('th', null, 'E-mail'),
@@ -149,7 +150,7 @@ function tabellaAllievi (classe: Classe): HTMLElement {
             {
               class: 'collegamento',
               type: 'button',
-              attr: { title: 'Apri la scheda dell’allievo' },
+              attr: { title: `Apri la scheda ${del(PIF)}` },
               onclick: () =>
                 aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
             },
@@ -181,7 +182,7 @@ function tabellaAllievi (classe: Classe): HTMLElement {
 }
 
 /**
- * «Duplica nell'anno…»: la stessa classe, con lo stesso elenco di allievi, in
+ * «Duplica nell'anno…»: la stessa classe, con lo stesso elenco di iscritte, in
  * un anno a scelta — di norma quello dopo, quando la si ritrova con lo stesso
  * gruppo. L'azione c'è già nel protocollo e nell'host; qui mancava soltanto
  * chi la chiede.
@@ -259,7 +260,7 @@ export function vistaClassi (): Figlio {
     'div',
     { class: 'vista vista--classi' },
     testataVista({
-      titolo: 'Classi e allievi',
+      titolo: `Classi e ${PIF.plurale}`,
       sottotitolo: `anno ${anno.etichetta} · recapiti, indirizzi e datori di lavoro`,
       azioni: pulsante({
         testo: 'Nuova classe',
@@ -283,7 +284,7 @@ export function vistaClassi (): Figlio {
                   .filter(Boolean)
                   .join(' · ') || undefined,
               azioni: [
-                pulsante({ testo: 'Aggiungi allievo', simbolo: 'piu', variante: 'sottile', al: () => moduloAllievo(classe) }),
+                pulsante({ testo: `Aggiungi ${PIF.singolare}`, simbolo: 'piu', variante: 'sottile', al: () => moduloAllievo(classe) }),
                 pulsante({ testo: 'Incolla elenco', simbolo: 'piano', variante: 'sottile', al: () => moduloImportaAllievi(classe) }),
                 // Niente stampe qui: il fascicolo, come ogni altro PDF, si
                 // chiede da Documenti — la pagina che risponde alla domanda
@@ -293,7 +294,7 @@ export function vistaClassi (): Figlio {
                   testo: 'Duplica nell’anno…',
                   simbolo: 'duplica',
                   variante: 'sottile',
-                  titolo: 'La stessa classe, con lo stesso elenco di allievi, in un altro anno',
+                  titolo: `La stessa classe, con lo stesso elenco di ${PIF.plurale}, in un altro anno`,
                   al: () => chiediDuplicaClasse(classe),
                 }),
               ],
@@ -321,7 +322,7 @@ export function vistaClassi (): Figlio {
             statoVuoto({
               simbolo: 'classi',
               titolo: 'Nessuna classe',
-              testo: 'Una classe raccoglie gli allievi e tiene insieme lezioni e valutazioni.',
+              testo: `Una classe raccoglie le ${PIF.plurale} e tiene insieme lezioni e valutazioni.`,
               azione: pulsante({ testo: 'Crea la prima classe', variante: 'primario', al: () => moduloClasse() }),
             }),
           ),

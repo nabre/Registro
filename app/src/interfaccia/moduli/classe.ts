@@ -1,10 +1,11 @@
 // La classe e chi la frequenta.
 //
-// L'elenco degli allievi si compila a mano uno per uno o si incolla tutto
+// L'elenco delle persone in formazione si compila a mano una per una o si incolla tutto
 // insieme: la seconda è quel che si fa a settembre, e senza costerebbe venti
 // finestre aperte e chiuse.
 
 import { creaAllievo, COLORI_CLASSE } from '../../dominio/fabbriche.js'
+import { PIF, frase } from '../../dominio/lessico.js'
 import { nuovoIdClasse } from '../../dominio/identificatori.js'
 import type { Allievo, Classe } from '../../dominio/modelli.js'
 import { validaAllievo } from '../../dominio/validazione.js'
@@ -156,7 +157,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
   const base = allievo ?? creaAllievo('', '')
 
   apriModale({
-    titolo: modifica ? 'Modifica allievo' : 'Nuovo allievo',
+    titolo: modifica ? `Modifica ${PIF.singolare}` : `Nuova ${PIF.singolare}`,
     sottotitolo: classe.nome,
     larghezza: 'stretta',
     corpo: () =>
@@ -249,7 +250,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
         telefono: testo(valori.telefono),
         attivo: Boolean(valori.attivo),
       }
-      // L'host valida solo la classe: senza questo controllo un allievo senza
+      // L'host valida solo la classe: senza questo controllo una riga senza
       // cognome passava lo stesso, e ricompariva senza nome in ogni elenco.
       const esito = validaAllievo(aggiornato)
       if (!esito.valido) {
@@ -263,7 +264,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
       await salva(
         contesto,
         { tipo: 'classe.salva', classe: { ...classe, allievi } },
-        modifica ? 'Allievo aggiornato.' : 'Allievo aggiunto.',
+        modifica ? frase(PIF, 'aggiornato') : frase(PIF, 'aggiunto'),
       )
     },
     azioniSecondarie: (contesto) =>
@@ -277,7 +278,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
             // parlava di lui.
             chiedi: { genere: 'allievo', classeId: classe.id, id: base.id },
             azione: { tipo: 'allievo.elimina', classeId: classe.id, allievoId: base.id },
-            fatto: 'Allievo tolto dalla classe.',
+            fatto: frase(PIF, 'tolto', { coda: 'dalla classe' }),
           })
         : null,
   })
@@ -286,7 +287,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
 /** Incolla-elenco: il modo in cui gli allievi entrano davvero, all'inizio dell'anno. */
 export function moduloImportaAllievi (classe: Classe): void {
   apriModale({
-    titolo: 'Importa allievi',
+    titolo: `Importa ${PIF.plurale}`,
     sottotitolo: classe.nome,
     larghezza: 'media',
     testoSalva: 'Importa',
@@ -297,7 +298,7 @@ export function moduloImportaAllievi (classe: Classe): void {
         h(
           'p',
           { class: 'testo-quieto' },
-          'Una riga per allievo. Vanno bene «Rossi Mario», «Rossi, Mario» e le righe ' +
+          `Una riga per ${PIF.singolare}. Vanno bene «Rossi Mario», «Rossi, Mario» e le righe ` +
             'copiate da un foglio di calcolo, anche con l’e-mail in fondo. ' +
             'I nomi già presenti vengono saltati.',
         ),

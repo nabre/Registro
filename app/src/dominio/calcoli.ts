@@ -3,6 +3,7 @@
 // questo file si può provare con `node --test` senza avviare l'editor.
 
 import { MINUTI_UD, durataMinuti, formattaData, minutiDaOra, sommaMinuti } from './date.js'
+import { STATI_PRESENZA } from './lessico.js'
 import type { Grafico } from './rapporti.js'
 import type {
   Attivita,
@@ -220,19 +221,14 @@ export function unitaDidattiche (lezione: Lezione): UnitaDidattica[] {
 /**
  * Come si segna una casella dell'appello, e come si chiama.
  *
- * Sta nel dominio perché la griglia non è solo dell'interfaccia: il verbale
- * stampato mostra la stessa griglia con le stesse sigle, e chi rilegge un PDF
- * accanto allo schermo deve vedere la stessa cosa. Le sigle sono ASCII apposta
- * — un carattere tipografico che il PDF non sa scrivere diventa un punto
- * interrogativo, e un appello pieno di punti interrogativi non è un appello.
+ * Le parole e le sigle stanno nel lessico, insieme a tutte le altre parole del
+ * registro; qui resta il nome con cui il dominio le chiede, perché la griglia
+ * non è solo dell'interfaccia — il verbale stampato mostra la stessa griglia
+ * con le stesse sigle, e chi rilegge un PDF accanto allo schermo deve vedere la
+ * stessa cosa.
  */
-export const SIGLE_PRESENZA: Array<{ valore: StatoPresenza, sigla: string, nome: string }> = [
-  { valore: 'non-impostato', sigla: '-', nome: 'Non impostato' },
-  { valore: 'presente', sigla: 'P', nome: 'Presente' },
-  { valore: 'assente', sigla: 'X', nome: 'Assente' },
-  { valore: 'ritardo', sigla: 'R', nome: 'In ritardo' },
-  { valore: 'esonerato', sigla: 'E', nome: 'Esonerato' },
-]
+export const SIGLE_PRESENZA: ReadonlyArray<{ valore: StatoPresenza, sigla: string, nome: string }> =
+  STATI_PRESENZA
 
 export function siglaPresenza (stato: StatoPresenza): string {
   return SIGLE_PRESENZA.find((v) => v.valore === stato)?.sigla ?? '-'

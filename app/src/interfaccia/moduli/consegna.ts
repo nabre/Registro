@@ -5,6 +5,7 @@
 
 import { nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
 import { formattaData, oggi } from '../../dominio/date.js'
+import { PIF } from '../../dominio/lessico.js'
 import { creaConsegna } from '../../dominio/fabbriche.js'
 import type {
   CategoriaDocumento,
@@ -134,7 +135,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
         valore: base.a,
         opzioni: [
           { valore: 'classe', testo: 'Tutta la classe' },
-          { valore: 'allievi', testo: 'Solo alcuni allievi' },
+          { valore: 'allievi', testo: `Solo alcune ${PIF.plurale}` },
           { valore: 'docente', testo: 'A me' },
         ],
         aiuto: 'La spunta resta individuale: si vede chi ha fatto e chi manca.',
@@ -172,8 +173,8 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
           tipo: 'select',
           valore: base.verso ?? 'ricevo',
           opzioni: [
-            { valore: 'ricevo', testo: 'Me lo consegnano gli allievi' },
-            { valore: 'consegno', testo: 'Lo consegno io agli allievi' },
+            { valore: 'ricevo', testo: `Me lo consegnano le ${PIF.plurale}` },
+            { valore: 'consegno', testo: `Lo consegno io alle ${PIF.plurale}` },
           ],
           aiuto: 'Consegnando, la spunta dice che gliel’hai dato.',
         }),
@@ -195,7 +196,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
       sezioneModulo(
         'Chi',
         allievi.length === 0
-          ? h('p', { class: 'testo-quieto' }, 'La classe non ha allievi che frequentano.')
+          ? h('p', { class: 'testo-quieto' }, `La classe non ha ${PIF.plurale} che frequentano.`)
           : h(
               'div',
               { class: 'scelta-allievi' },

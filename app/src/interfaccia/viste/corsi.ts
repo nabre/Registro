@@ -4,7 +4,7 @@
 // lì — ma finora non aveva un posto suo: nasceva da una tendina dentro il
 // modulo della classe, e per vederlo bisognava aprire la classe. Questa vista è
 // quel posto: si sceglie un corso dalla tendina in alto e si vede tutto quel
-// che lo riguarda — com'è fatto, a che punto è, e come sta andando allievo per
+// che lo riguarda — com'è fatto, a che punto è, e come sta andando persona per
 // allievo. Da qui si dichiara l'orario, si generano le ore, si aggiunge una
 // lezione o una verifica.
 //
@@ -29,6 +29,7 @@ import {
 } from '../../dominio/calcoli.js'
 import { matriceCorso } from '../../dominio/matriceCorso.js'
 import { descriviRicorrenza, udPrevisteDaOrario } from '../../dominio/orario.js'
+import { PIF, Molti, Uno, corto } from '../../dominio/lessico.js'
 import { formattaData, formattaDurata, udDaMinuti } from '../../dominio/date.js'
 import type { Corso } from '../../dominio/modelli.js'
 import {
@@ -136,7 +137,7 @@ function numeriDelCorso (dati: DatiCorso): HTMLElement {
   const scala = stato.registro.impostazioni.scala
 
   return sintesiIncassata(
-    { etichetta: 'allievi', valore: String(dati.allievi.length) },
+    { etichetta: corto(PIF), valore: String(dati.allievi.length) },
     { etichetta: 'ore svolte', valore: `${dati.svolte}/${dati.tenute.length}` },
     { etichetta: 'UD previste', valore: String(matrice.udPreviste) },
     { etichetta: 'UD a calendario', valore: String(matrice.ud) },
@@ -301,11 +302,11 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
   const allievi = dati.allievi
   if (allievi.length === 0) {
     return scheda({
-      titolo: 'Allievi',
+      titolo: Molti(PIF),
       contenuto: h(
         'p',
         { class: 'testo-quieto' },
-        'La classe non ha allievi che frequentano: l’elenco si riempie dalla vista Classi.',
+        `La classe non ha ${PIF.plurale} che frequentano: l’elenco si riempie dalla vista Classi.`,
       ),
     })
   }
@@ -320,7 +321,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
    * Sulle UD che l'orario del corso prevede nel periodo, non su quelle già
    * svolte: è la cifra che finisce nel rapporto da consegnare, e vederne una
    * diversa a schermo vorrebbe dire scoprire il numero vero al momento di
-   * stampare. Un'ora dimenticata dal docente resta un'ora che l'allievo doveva
+   * stampare. Un'ora dimenticata dal docente resta un'ora che si doveva
    * fare.
    *
    * Sopra la soglia è un avviso, ed è il verso opposto della presenza: qui
@@ -340,7 +341,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
    *
    * Il complemento esatto della colonna accanto, e non la quota sulle UD con
    * l'appello fatto: quella è un'altra cifra, che dice quanto il registro è
-   * tenuto bene e non quanto l'allievo ha frequentato. Qui grande è bello, ed
+   * tenuto bene e non quanto si è frequentato. Qui grande è bello, ed
    * è il verso in cui la domanda arriva quando si deve certificare una
    * frequenza.
    */
@@ -354,7 +355,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
   }
 
   return scheda({
-    titolo: 'Allievi',
+    titolo: Molti(PIF),
     sottotitolo:
       `${matrice.lezioni} ${matrice.lezioni === 1 ? 'ora' : 'ore'} · ` +
       `${matrice.ud} UD · ${momenti.length} ${momenti.length === 1 ? 'prova' : 'prove'} · ` +
@@ -362,7 +363,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
     contenuto: tabella({
       variante: 'matrice',
       intestazione: [
-        h('th', { class: 'tabella__nome' }, 'Allievo'),
+        h('th', { class: 'tabella__nome' }, Uno(PIF)),
         h(
           'th',
           { attr: { title: `Sulle ${matrice.udPreviste} UD che l’orario prevede nel periodo` } },
@@ -403,7 +404,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
               {
                 class: 'collegamento',
                 type: 'button',
-                // Di qui si va alla scheda dell'allievo: la riga dice che
+                // Di qui si va alla scheda personale: la riga dice che
                 // qualcosa non va, la scheda dice che cosa.
                 onclick: () =>
                   aggiorna({

@@ -5,7 +5,7 @@
 // medie sono pesate e si aggiornano da sole, l'ultima colonna e l'ultima riga
 // sono i due totali che si guardano davvero.
 //
-// Una casella accetta il voto, oppure «a» per segnare l'assenza: un allievo
+// Una casella accetta il voto, oppure «a» per segnare l'assenza: chi
 // assente non prende zero, esce dalla media.
 
 import {
@@ -22,6 +22,7 @@ import {
   siglaPresenza,
 } from '../../dominio/calcoli.js'
 import { corsiDellAnno } from '../../dominio/corsi.js'
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import { MOTIVI_ORFANO, motivoOrfano, valutazioniOrfane } from '../../dominio/orfani.js'
 // L'assenza all'ora sta nel dominio perché non la guarda solo la griglia: da
@@ -120,7 +121,7 @@ function corsoScelto (): Corso | null {
  * scriveva `a`, e il trattino voleva dire assente: due alfabeti per la stessa
  * cosa, nella stessa ora, a due centimetri di distanza — e chi trascriveva una
  * pila di verifiche batteva il trattino intendendo «niente» e si trovava
- * l'allievo segnato assente alla prova.
+ * chi è segnato assente alla prova.
  */
 const SIGLA_ASSENTE = siglaPresenza('assente')
 
@@ -256,7 +257,7 @@ export function grigliaVoti (
       h(
         'tr',
         null,
-        h('th', { class: 'tabella__nome' }, 'Allievo'),
+        h('th', { class: 'tabella__nome' }, Uno(PIF)),
         ...momenti.map((momento) =>
           h(
             'th',
@@ -320,7 +321,7 @@ export function grigliaVoti (
               // La colonna è sempre fatta uguale, con o senza la «R»: senza,
               // il posto della lettera resta vuoto invece di sparire, e le
               // cifre di tutta la colonna restano incolonnate. Una casella che
-              // si sposta di sei pixel quando l'allievo accanto ha un recupero
+              // si sposta di sei pixel quando la riga accanto ha un recupero
               // rende la colonna illeggibile proprio dove la si scorre.
               { class: 'tabella__cella tabella__cella--voto' },
               h('input', {
@@ -505,7 +506,7 @@ function schedaAllegati (momento: MomentoValutazione, allievi: Allievo[]): HTMLE
         postoAllegato(momento, 'prova', nomeCompleto(allievo), { allievoId: allievo.id }),
       ),
       allievi.length === 0
-        ? h('p', { class: 'testo-quieto' }, 'La classe non ha allievi attivi.')
+        ? h('p', { class: 'testo-quieto' }, `La classe non ha ${PIF.plurale} attive.`)
         : null,
     ),
   })

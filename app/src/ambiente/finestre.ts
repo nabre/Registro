@@ -217,12 +217,18 @@ class FinestraPannello implements WebviewPanel {
     this.onDidDispose = this.#emettitore.event
     this.webview = new VistaWeb(id, finestra, opzioni)
 
+    // L'id dei `webContents` si prende ora e si tiene: dentro `closed` la
+    // finestra è già distrutta, e chiederle `webContents` alza «Object has been
+    // destroyed» — un'eccezione non catturata nel processo principale, cioè il
+    // riquadro d'errore che compare chiudendo un pannello.
+    const idContenuti = finestra.webContents.id
+
     pagine.set(id, this.webview)
-    perFinestra.set(finestra.webContents.id, this.webview)
+    perFinestra.set(idContenuti, this.webview)
 
     finestra.on('closed', () => {
       pagine.delete(id)
-      perFinestra.delete(finestra.webContents.id)
+      perFinestra.delete(idContenuti)
       this.webview.smaltisci()
       this.annuncia()
     })

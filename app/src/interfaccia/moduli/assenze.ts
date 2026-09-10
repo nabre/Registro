@@ -3,6 +3,7 @@
 
 import { avanzamentoAssenze, SEGNAPOSTO_ASSENZE } from '../../dominio/assenze.js'
 import { oggi } from '../../dominio/date.js'
+import { PERSONE, PIF, Maiuscola, del, il, quanti } from '../../dominio/lessico.js'
 import { creaBloccoAssenze } from '../../dominio/fabbriche.js'
 import type { BloccoAssenze, Classe } from '../../dominio/modelli.js'
 import { validaBloccoAssenze } from '../../dominio/validazione.js'
@@ -108,7 +109,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
           h(
             'p',
             { class: 'campo__aiuto' },
-            'Parte una mail per allievo, all’indirizzo del datore di lavoro che sta nella sua ' +
+            `Parte un’e-mail per ${PIF.singolare}, all’indirizzo ${del(PERSONE.datore)} che sta nella sua ` +
               'scheda, con dentro i suoi fogli vergini. In chiaro e non in copia nascosta: chi ' +
               'deve firmare deve vedere che è per lui.',
           ),
@@ -119,7 +120,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
             campo({
               nome: 'aAllievo',
               tipo: 'checkbox',
-              etichetta: 'L’allievo',
+              etichetta: Maiuscola(il(PIF)),
               valore: base.aAllievo,
               larghezza: 'quarto',
             }),
@@ -161,7 +162,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
           testo:
             conto.interessati === 0
               ? 'Non c’è ancora dentro nessun foglio.'
-              : `Se ne vanno anche i fogli di ${conto.interessati} allievi, ` +
+              : `Se ne vanno anche i fogli di ${quanti(conto.interessati, PIF)}, ` +
                 'vergini e firmati, nel cestino del sistema.',
           testoConferma: 'Elimina',
         },
@@ -178,7 +179,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
  *
  * Si dice soltanto che fogli sono — assenze o ritardi, vergini o firmati —
  * perché quello il nome del file non lo sa quasi mai, mentre il nome
- * dell'allievo ce l'ha sempre. Quel che non si riconosce non viene assegnato a
+ * della persona ce l'ha sempre. Quel che non si riconosce non viene assegnato a
  * caso: resta fuori e lo si dice, che è l'unica risposta accettabile quando
  * sbagliare vuol dire mandare le assenze di uno all'azienda di un altro.
  */
@@ -218,7 +219,7 @@ export function moduloImportaAssenze (classe: Classe, blocco: BloccoAssenze): vo
         h(
           'p',
           { class: 'campo__aiuto' },
-          'Si scelgono più file insieme. Ognuno va all’allievo che nomina — «Rossi Maria» o ' +
+          `Si scelgono più file insieme. Ognuno va a chi nomina — «Rossi Maria» o ` +
             '«maria_rossi» — e chi non si riconosce resta fuori e viene elencato: due fratelli ' +
             'con lo stesso cognome non si tirano a indovinare.',
         ),

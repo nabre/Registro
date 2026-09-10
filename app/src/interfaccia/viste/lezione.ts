@@ -31,6 +31,7 @@ import {
   unitaDidattiche,
 } from '../../dominio/calcoli.js'
 import { attivitaValutata, nomeTipoAttivita, riassuntoParametri } from '../../dominio/attivita.js'
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData, formattaDurata } from '../../dominio/date.js'
 import type {
   Allievo,
@@ -242,7 +243,7 @@ function pulsanteStato (opzioni: {
 }
 
 /**
- * La matrice dell'appello: gli allievi in riga, le unità didattiche in colonna.
+ * La matrice dell'appello: le persone in riga, le unità didattiche in colonna.
  *
  * Un blocco di due ore sono quattro UD, e con un solo stato per lezione chi
  * arrivava alla terza risultava «in ritardo» come chi era arrivato con cinque
@@ -252,7 +253,7 @@ function pulsanteStato (opzioni: {
  * Le caselle non si toccano una per una quando non serve: la testata di ogni
  * colonna ha lo stesso pulsante e lo applica a tutta la classe — l'ora in cui
  * la classe era in assemblea si segna in un clic — e in testa a ogni riga ce
- * n'è un altro per l'allievo che oggi non c'è proprio.
+ * n'è un altro per chi oggi non c'è proprio.
  *
  * Le pause non sono colonne: durante la pausa non si fa appello. Si vedono
  * come uno stacco fra le colonne che separano.
@@ -414,7 +415,7 @@ function pannelloAppello (lezione: Lezione): HTMLElement {
       allievi.length === 0
         ? statoVuoto({
             simbolo: 'utente',
-            titolo: 'Nessun allievo nella classe',
+            titolo: `Nessuna ${PIF.singolare} nella classe`,
             azione: pulsante({
               testo: 'Vai alla classe',
               variante: 'primario',
@@ -433,7 +434,7 @@ function pannelloAppello (lezione: Lezione): HTMLElement {
                 h(
                   'tr',
                   null,
-                  h('th', { class: 'appello__nome', attr: { scope: 'col' } }, 'Allievo'),
+                  h('th', { class: 'appello__nome', attr: { scope: 'col' } }, Uno(PIF)),
                   ...ud.map((unita) => {
                     const colonna = allievi.map((a) => statiDi(a.id)[unita.indice])
                     return h(
@@ -527,7 +528,7 @@ function pannelloOsservazioni (lezione: Lezione): HTMLElement {
                       'span',
                       { class: 'osservazione__chi' },
                       osservazione.allievoId
-                        ? nomi.get(osservazione.allievoId) ?? 'allievo non più in elenco'
+                        ? nomi.get(osservazione.allievoId) ?? `${PIF.singolare} non più in elenco`
                         : 'tutta la classe',
                     ),
                     osservazione.ora ? h('span', { class: 'osservazione__ora' }, osservazione.ora) : null,

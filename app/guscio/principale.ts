@@ -9,17 +9,21 @@ import { app, BrowserWindow, dialog } from 'electron'
 import { existsSync, statSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
+import { registerCommand } from '../src/ambiente/comandi.js'
 import {
   cartellaLavoro,
   creaContesto,
   impostaCartellaLavoro,
   percorsoWorkerPdf,
 } from '../src/ambiente/contesto.js'
+import { getConfiguration } from '../src/ambiente/impostazioni.js'
+import { avvisa, dichiaraIdentita, notificheDisponibili } from '../src/ambiente/notifiche.js'
 import { avviaRicaricamento } from '../src/ambiente/sviluppo.js'
 import { applicaTema, osservaTema } from '../src/ambiente/tema.js'
 import { Uri } from '../src/ambiente/uri.js'
+import { vassoioAcceso } from '../src/ambiente/vassoio.js'
 import { impostaWorker } from '../src/dati/pdf.js'
-import { avvia as avviaRegistro, spegni } from '../src/avvio.js'
+import { apriRegistro, avvia as avviaRegistro, spegni } from '../src/avvio.js'
 import { PannelloProiezione } from '../src/pannelli/proiezione.js'
 import { installaMenu } from './menu.js'
 import { privilegiaSchema, registraProtocollo } from './protocolloFile.js'
@@ -33,7 +37,14 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.on('second-instance', () => {
     const prima = BrowserWindow.getAllWindows()[0]
-    if (!prima) return
+    // Nessuna finestra non vuol più dire «applicazione morente»: con il vassoio
+    // acceso è lo stato normale del registro messo via. Rilanciarlo dall'icona
+    // del desktop, allora, deve riaprirlo — non spegnersi in silenzio lasciando
+    // credere che il doppio clic non abbia funzionato.
+    if (!prima) {
+      apriRegistro()
+      return
+    }
     if (prima.isMinimized()) prima.restore()
     prima.focus()
   })
@@ -53,6 +64,12 @@ const smaltibiliGuscio: Array<{ dispose (): unknown }> = []
 
 async function avvia (): Promise<void> {
   registraProtocollo()
+
+  // L'uscita, registrata come comando perché è di là che la si invoca: il menu
+  // del vassoio nasce dentro il registro, dove `app` non esiste e non deve
+  // esistere. Passa da `quit` e non da `exit`, così l'ultimo salvataggio viene
+  // aspettato come per ogni altra uscita — vedi `before-quit`, in fondo.
+  registerCommand('registroDocenti.esci', () => app.quit())
 
   // Il tema prima di ogni finestra: `applicaTema` scrive `nativeTheme.themeSource`,
   // e da lì `prefers-color-scheme` risponde giusto in tutte le pagine. Messo
@@ -149,10 +166,59 @@ export async function cambiaCartellaLavoro (): Promise<void> {
   app.quit()
 }
 
+/**
+ * Se chiudere l'ultima finestra deve mettere via il registro invece di uscire.
+ *
+ * Vuole tutte e tre le condizioni. L'icona accesa, perché un'applicazione viva
+ * senza finestre e senza niente da premere per riaverla è un'applicazione
+ * perduta. L'impostazione, perché chi preferisce la X di sempre deve poterla
+ * riavere. E che non si stia già uscendo: durante `before-quit` le finestre si
+ * chiudono una dopo l'altra, e l'ultima farebbe scattare questa regola proprio
+ * mentre si sta andando via.
+ */
+function restaNelVassoio (): boolean {
+  if (inChiusura || !vassoioAcceso()) return false
+  return getConfiguration().get<boolean>('registroDocenti.vassoio.chiusuraNelVassoio', true)
+}
+
+/**
+ * Il primo «non me ne sono andato», detto una volta sola.
+ *
+ * La prima volta che la X non chiude l'applicazione è una sorpresa, e una
+ * sorpresa taciuta si trasforma in «il registro non si chiude più». Detta una
+ * volta, con dentro dove sta l'uscita vera, è un'istruzione; ripetuta a ogni
+ * chiusura sarebbe la ragione per cui si spengono le notifiche.
+ */
+let spiegatoIlVassoio = false
+function spiegaIlVassoio (): void {
+  if (spiegatoIlVassoio || !notificheDisponibili()) return
+  spiegatoIlVassoio = true
+  dichiaraIdentita()
+  avvisa({
+    titolo: 'Il registro resta accanto all’orologio',
+    corpo:
+      'Riaprilo con un clic sull’icona. Per chiuderlo davvero: tasto destro sull’icona → ' +
+      '«Esci dal registro».',
+    al: () => apriRegistro(),
+  })
+}
+
 // Su Windows e Linux chiudere l'ultima finestra chiude l'applicazione: non c'è
-// una barra dei menu che sopravviva alle finestre, come su macOS.
+// una barra dei menu che sopravviva alle finestre, come su macOS. Con l'icona
+// nel vassoio, però, qualcosa che sopravvive c'è — ed è lì che si va a
+// riprendere il registro, e da lì che si esce.
 app.on('window-all-closed', () => {
+  if (restaNelVassoio()) {
+    spiegaIlVassoio()
+    return
+  }
   if (process.platform !== 'darwin') app.quit()
+})
+
+// Su macOS il gesto è l'icona nel Dock, e vale la stessa regola del vassoio:
+// l'applicazione è viva, la finestra no, e premendola si rivuole il registro.
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) apriRegistro()
 })
 
 /**

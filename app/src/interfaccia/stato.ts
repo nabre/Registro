@@ -545,6 +545,17 @@ export function nomeClasseDiLezione (lezione: Lezione): string {
   return classeDiLezione(lezione)?.nome ?? 'senza classe'
 }
 
+/**
+ * Che materia è quest'ora.
+ *
+ * Vuota se il corso non c'è più: chi la mostra lascia il posto invece di
+ * scrivere «senza materia», che è rumore in un elenco dove la riga accanto la
+ * materia ce l'ha.
+ */
+export function nomeMateriaDiLezione (lezione: Lezione): string {
+  return materiaDelCorso(stato.registro, corsoDiLezione(lezione))?.nome ?? ''
+}
+
 /** Come si chiama un piano: il corso e la lezione per cui è fatto. */
 export function nomeDiPiano (piano: PianoLezione): string {
   return nomePiano(piano, {

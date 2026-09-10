@@ -9,7 +9,7 @@
 //
 // Il giro è quello: si guarda la pagina, si controlla il nome, si conferma. Chi
 // si fida della bozza intera la conferma in un gesto solo; chi ha una scansione
-// che nessuno legge dice a mano le pagine, l'allievo e il documento.
+// che nessuno legge dice a mano le pagine, di chi sono e che documento sono.
 //
 // La lettura delle scansioni non è istantanea: decine di secondi a pagina. Per
 // questo non si aspetta un pulsante, si mette in coda — e la coda si vede,
@@ -18,6 +18,7 @@
 
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
 import { avanzamentoConsegna, consegneDocumento } from '../../dominio/consegne.js'
+import { PIF, Uno, il } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { BloccoDaSmistare, Classe, Consegna, Smistamento } from '../../dominio/modelli.js'
 import {
@@ -190,7 +191,7 @@ function rigaBlocco (smistamento: Smistamento, blocco: BloccoDaSmistare, classe:
         variante: 'primario',
         al: () => {
           if (!scelta.value) {
-            notifica('Scegliere l’allievo a cui vanno queste pagine.', 'avviso')
+            notifica(`Scegliere ${il(PIF)} a cui vanno queste pagine.`, 'avviso')
             return
           }
           const da = Number(daCampo.value)
@@ -287,7 +288,7 @@ function rigaBlocco (smistamento: Smistamento, blocco: BloccoDaSmistare, classe:
 }
 
 /**
- * L'assegnazione a mano, in fondo a ogni PDF: pagine, allievo, documento.
+ * L'assegnazione a mano, in fondo a ogni PDF: pagine, persona, documento.
  *
  * È la via che non passa dal riconoscimento, e serve sempre — le scansioni che
  * nessun OCR legge, i documenti in cui il nome non c'è. Il documento si sceglie
@@ -311,7 +312,7 @@ function assegnazioneManuale (smistamento: Smistamento, classe: Classe, richiest
   const chi = h(
     'select',
     { class: 'campo__controllo blocco-smistato__chi', dataset: { fuoco: `manuale-chi-${smistamento.id}` } },
-    h('option', { value: '' }, 'Allievo…'),
+    h('option', { value: '' }, `${Uno(PIF)}…`),
     ...allievi.map((allievo) => h('option', { value: allievo.id }, nomeCompleto(allievo))),
   )
   const documento = h(
@@ -342,7 +343,7 @@ function assegnazioneManuale (smistamento: Smistamento, classe: Classe, richiest
       variante: 'sottile',
       al: () => {
         if (!chi.value || !documento.value) {
-          notifica('Servono l’allievo e il documento.', 'avviso')
+          notifica(`Servono ${il(PIF)} e il documento.`, 'avviso')
           return
         }
         const da = Number(daCampo.value)
@@ -737,7 +738,7 @@ export function schedaSmistamento (classe: Classe) {
             testo:
               'Un PDF con le pagelle di tutta la classe si butta nella cartella «in-arrivo», ' +
               'dentro quella del documento che si sta raccogliendo: viene diviso, ogni pezzo ' +
-              'viene attribuito all’allievo nominato nelle sue pagine, e la bozza compare qui ' +
+              `viene attribuito a chi è nominato nelle sue pagine, e la bozza compare qui ` +
               'in attesa di una conferma.',
           })
         : h(

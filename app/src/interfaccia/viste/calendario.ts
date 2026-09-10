@@ -65,6 +65,7 @@ import {
   classiVisibili,
   lezioniInAgenda,
   nomeClasseDiLezione,
+  nomeMateriaDiLezione,
   coloreDiLezione,
   pianoPerId,
   semestrePerData,
@@ -1304,6 +1305,12 @@ function vistaAgenda (): HTMLElement {
               'span',
               { class: 'agenda__testo' },
               h('strong', null, nomeClasseDiLezione(lezione)),
+              // La materia accanto alla classe: nell'agenda le ore di una
+              // giornata sono di classi diverse *e* di materie diverse, e senza
+              // questa parola due righe della stessa classe si leggono uguali.
+              nomeMateriaDiLezione(lezione)
+                ? h('span', { class: 'agenda__materia' }, nomeMateriaDiLezione(lezione))
+                : null,
               titoloDiLezione(lezione)
                 ? h('span', { class: 'agenda__titolo' }, titoloDiLezione(lezione))
                 : null,

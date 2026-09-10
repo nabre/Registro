@@ -11,6 +11,7 @@
 
 import './stili/proiezione.css'
 
+import { PIF, Uno } from '../dominio/lessico.js'
 import { graficoNote } from './componenti/note.js'
 import { h, rimpiazza, type Figlio } from './dom.js'
 import type {
@@ -541,7 +542,7 @@ function valutazione (voce: ValutazioneProiettata): HTMLElement {
             h(
               'tr',
               null,
-              h('th', null, 'Allievo'),
+              h('th', null, Uno(PIF)),
               h('th', { class: 'tabella-voti__voto' }, 'Voto'),
             ),
           ),
@@ -617,7 +618,7 @@ function appello (dati: AppelloProiettato): Figlio {
           h(
             'tr',
             null,
-            h('th', { class: 'appello__nome' }, 'Allievo'),
+            h('th', { class: 'appello__nome' }, Uno(PIF)),
             ...dati.colonne.map((colonna) =>
               h('th', { class: 'appello__ud' }, colonna.inizio),
             ),

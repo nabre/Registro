@@ -19,6 +19,7 @@ import {
   type MessaggioPosta,
 } from '../dati/posta.js'
 import { nomeCompleto } from '../dominio/calcoli.js'
+import { PIF, frase, quanti } from '../dominio/lessico.js'
 import { CHI_INSEGNA } from '../dominio/modelli.js'
 import {
   daConsegnareA,
@@ -122,7 +123,7 @@ export const consegne = {
 
     const allievo =
       azione.chi === CHI_INSEGNA ? null : classe.allievi.find((a) => a.id === azione.chi) ?? null
-    if (azione.chi !== CHI_INSEGNA && !allievo) return rifiuta('Allievo non trovato.')
+    if (azione.chi !== CHI_INSEGNA && !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
 
     const scelto = await scegliUnFile({
       titolo: allievo
@@ -179,7 +180,7 @@ export const consegne = {
     const allievo = azione.allievoId
       ? classe.allievi.find((a) => a.id === azione.allievoId) ?? null
       : null
-    if (azione.allievoId && !allievo) return rifiuta('Allievo non trovato.')
+    if (azione.allievoId && !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
 
     const scelto = await scegliUnFile({
       titolo: allievo
@@ -409,8 +410,8 @@ export const consegne = {
     if (
       (await puoSpedire()) &&
       !(await confermaInvio(
-        `Spedire «${consegna.testo}» a ${pronte.length} allievi?`,
-        'Uno per allievo, con il suo documento in allegato.',
+        `Spedire «${consegna.testo}» a ${quanti(pronte.length, PIF)}?`,
+        `Una e-mail per ${PIF.singolare}, con il suo documento in allegato.`,
       ))
     ) {
       return conMessaggio(
@@ -424,17 +425,17 @@ export const consegne = {
     if (!scritte.ok) return rifiuta(scritte.errore ?? 'Le bozze non si sono potute preparare.')
 
     // `daScrivere` e `pronte` crescono insieme nello stesso giro: l'indice che
-    // Outlook rimanda indietro è lo stesso allievo in tutti e due.
+    // Outlook rimanda indietro è la stessa persona in tutti e due.
     const nonPartiti = new Map(scritte.falliti.map((f) => [f.indice, f.errore]))
 
     // Le bozze sono pronte e nessuna è partita: la consegna si segna con la
-    // spunta nella casella dell'allievo, quando il suo documento è andato. Il
+    // spunta nella casella di chi la deve, quando il suo documento è andato. Il
     // registro non domanda «le hai spedite tutte?» — nel momento in cui lo
     // chiedeva, nessuna lo era ancora.
     if (!scritte.spediti) {
       return conMessaggio(
         `${pronte.length} bozze pronte in ${scritte.dove}. Mandale una alla volta dal programma ` +
-          'di posta e spunta ogni allievo quando il suo documento è partito.',
+          `di posta e spunta ogni ${PIF.singolare} quando il suo documento è partito.`,
         'info',
         { invariato: true },
       )

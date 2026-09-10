@@ -22,6 +22,7 @@ import {
   siConsegna,
 } from '../../dominio/consegne.js'
 import { nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
+import { PIF, quanti } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import { CHI_INSEGNA, type Consegna, type Lezione } from '../../dominio/modelli.js'
 import { barra, conAttesa, pastiglia, pulsante, scheda } from '../componenti/base.js'
@@ -53,7 +54,7 @@ function classeDi (consegna: Consegna) {
 function nomeDi (chi: string, consegna: Consegna): string {
   if (chi === CHI_INSEGNA) return 'io'
   const allievo = classeDi(consegna)?.allievi.find((a) => a.id === chi)
-  return allievo ? nomeCompleto(allievo) : 'allievo uscito'
+  return allievo ? nomeCompleto(allievo) : `${PIF.singolare} uscita`
 }
 
 async function spunta (consegna: Consegna, chi: string, fatta: boolean): Promise<void> {
@@ -194,8 +195,8 @@ export function moduloSpunta (consegnaId: string, opzioni: { lezione?: Lezione }
             'p',
             { class: 'consegna__nota' },
             consegna.a === 'allievi'
-              ? 'Nessuno degli allievi scelti frequenta più: resta aperta finché non la si chiude.'
-              : 'La classe non ha ancora allievi: resta aperta finché non la si chiude.',
+              ? `Nessuna delle ${PIF.plurale} scelte frequenta più: resta aperta finché non la si chiude.`
+              : `La classe non ha ancora ${PIF.plurale}: resta aperta finché non la si chiude.`,
           )
         : h(
             'div',
@@ -294,15 +295,15 @@ function spunte (consegna: Consegna, lezione?: Lezione): Figlio {
   const avanzamento = avanzamentoConsegna(consegna, classe)
 
   if (avanzamento.senzaNessuno) {
-    // Resta aperta lo stesso: è settembre, la classe c'è e gli allievi non
+    // Resta aperta lo stesso: è settembre, la classe c'è e le iscrizioni non
     // ancora. Contarla come fatta la farebbe sparire il minuto dopo averla
     // scritta, ed è esattamente quel che non deve succedere a una consegna.
     return h(
       'p',
       { class: 'consegna__nota' },
       consegna.a === 'allievi'
-        ? 'Nessuno degli allievi scelti frequenta più: resta aperta finché non la si chiude.'
-        : 'La classe non ha ancora allievi: resta aperta finché non la si chiude.',
+        ? `Nessuna delle ${PIF.plurale} scelte frequenta più: resta aperta finché non la si chiude.`
+        : `La classe non ha ancora ${PIF.plurale}: resta aperta finché non la si chiude.`,
     )
   }
 
@@ -397,7 +398,7 @@ export function rigaConsegna (
       consegna.a === 'docente'
         ? pastiglia('io', 'informativo', 'utente')
         : consegna.a === 'allievi'
-          ? pastiglia(`${consegna.allieviIds.length} allievi`, 'informativo', 'utente')
+          ? pastiglia(quanti(consegna.allieviIds.length, PIF), 'informativo', 'utente')
           : pastiglia('classe', 'quiete', 'classi'),
       // Spunta chi manca, o toglie le spunte nude: il gesto rapido di una riga
       // intera, che però scrive un nome alla volta. Quelle con un documento

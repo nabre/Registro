@@ -13,6 +13,8 @@
 // i valori predefiniti nascono tutti da qui. Due elenchi da tenere allineati
 // divergono in pochi mesi, e la divergenza si scopre dal comportamento.
 
+import { PIF, il } from './dominio/lessico.js'
+
 // ------------------------------------------------------------------ i comandi
 
 export interface Comando {
@@ -98,6 +100,22 @@ export const IMPOSTAZIONI: Readonly<Record<string, VoceImpostazione>> = {
     descrizione:
       'Apre il registro all’avvio dell’applicazione quando la cartella dei dati esiste. Spento, ' +
       'l’applicazione parte senza finestre e il registro si apre dal menu.',
+  },
+  'registroDocenti.vassoio.attivo': {
+    tipo: 'boolean',
+    predefinito: true,
+    descrizione:
+      'Tiene un’icona del registro accanto all’orologio. Il suo menu elenca i corsi dell’anno e, ' +
+      'dentro ognuno, le ore divise fra svolte, da chiudere, in corso e in programma: si apre con ' +
+      'il tasto destro e porta sull’ora con un clic. Da lì passa anche l’uscita dall’applicazione.',
+  },
+  'registroDocenti.vassoio.chiusuraNelVassoio': {
+    tipo: 'boolean',
+    predefinito: true,
+    descrizione:
+      'Chiudendo l’ultima finestra il registro resta acceso accanto all’orologio invece di uscire, ' +
+      'e si riapre con un clic sull’icona. Si esce con «Esci dal registro», nel menu dell’icona. ' +
+      'Spento, la X chiude l’applicazione come prima. Senza icona nel vassoio non ha effetto.',
   },
   'registroDocenti.aspetto.tema': {
     tipo: 'string',
@@ -254,7 +272,7 @@ export const IMPOSTAZIONI: Readonly<Record<string, VoceImpostazione>> = {
     predefinito: false,
     descrizione:
       'Legge con un OCR locale le pagine dei PDF che non contengono testo (scansioni), per ' +
-      'riconoscere l’allievo. Richiede Ollama in esecuzione sulla propria macchina.',
+      `riconoscere ${il(PIF)}. Richiede Ollama in esecuzione sulla propria macchina.`,
   },
   'registroDocenti.ocr.url': {
     tipo: 'string',

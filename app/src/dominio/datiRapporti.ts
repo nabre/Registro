@@ -29,6 +29,7 @@ import {
   materiaDelCorso,
   registroDelCorso,
 } from './corsi.js'
+import { PERSONE, PIF, corto, del } from './lessico.js'
 import { matriceCorso } from './matriceCorso.js'
 import { recuperiDelMomento, rigaDelRecupero, type StatoRecupero } from './recuperi.js'
 import { riconsegneDegliAllievi } from './riconsegne.js'
@@ -206,7 +207,7 @@ export function datiLezione (
   // bisognava contare chi mancava dall'elenco. Le colonne portano l'ora in cui
   // la UD comincia, così il foglio dice anche quando è successo.
   dati.tabelle.presenze = {
-    intestazione: ['Allievo', ...ud.map((u) => u.inizio), 'Min.', 'Nota'],
+    intestazione: [corto(PIF), ...ud.map((u) => u.inizio), 'Min.', 'Nota'],
     pesi: [5, ...ud.map(() => 1), 1, 4],
     righe: (classe?.allievi ?? []).map((allievo) => {
       const presenza = lezione.presenze.find((p) => p.allievoId === allievo.id)
@@ -390,7 +391,7 @@ export function datiValutazioni (
   // in conferenza, e nessuno la ricostruisce a mente da un elenco di prove.
   dati.tabelle.voti = {
     intestazione: [
-      'Allievo',
+      corto(PIF),
       ...momenti.map((m) => `${formattaData(m.data)} ${m.titolo}`),
       'Media',
       'Nota',
@@ -451,7 +452,7 @@ export function datiValutazioni (
 
   dati.tabelle.esecuzioni = {
     intestazione: [
-      'Allievo',
+      corto(PIF),
       ...momenti.map((m) => m.titolo),
     ],
     // Colonne larghe: in ogni casella ci stanno due date per esteso, e una
@@ -506,7 +507,7 @@ export function datiValutazioni (
   // conferenza è la riga che risponde alla domanda che segue ogni casella
   // vuota: «e questo?».
   dati.tabelle.recuperi = {
-    intestazione: ['Allievo', 'Prova', 'Si rifà il', 'Voto', 'Riconsegnata', 'Stato'],
+    intestazione: [corto(PIF), 'Prova', 'Si rifà il', 'Voto', 'Riconsegnata', 'Stato'],
     pesi: [4, 5, 2, 1, 2, 3],
     righe: recuperi.map((recupero) => [
       nomeCompleto(recupero.allievo),
@@ -522,7 +523,7 @@ export function datiValutazioni (
   // in cui la si è ridistribuita, ma chi mancava no — e quel foglio resta in
   // mano a chi insegna finché qualcuno non lo nomina.
   dati.tabelle.daRidare = {
-    intestazione: ['Allievo', 'Prova', 'Voto'],
+    intestazione: [corto(PIF), 'Prova', 'Voto'],
     pesi: [4, 6, 1],
     righe: momenti.flatMap((momento) =>
       riconsegneDegliAllievi(momento, classe, true).map((riga) => [
@@ -601,7 +602,7 @@ export function datiMomento (registro: Registro, momento: MomentoValutazione): D
   // proprio quel che si viene a chiedere, e un elenco dei soli presenti la
   // farebbe sparire.
   dati.tabelle.voti = {
-    intestazione: ['Allievo', 'Voto', 'Recupero', 'Riconsegnata', 'Nota'],
+    intestazione: [corto(PIF), 'Voto', 'Recupero', 'Riconsegnata', 'Nota'],
     pesi: [5, 1, 3, 2, 6],
     righe: ordinaAllievi(allieviAttivi(classe ?? ({ allievi: [] } as unknown as Classe))).map(
       (allievo) => {
@@ -635,7 +636,7 @@ export function datiMomento (registro: Registro, momento: MomentoValutazione): D
   // Chi la deve rifare, in chiaro: sul foglio della singola prova è la
   // spiegazione delle caselle vuote qui sopra.
   dati.tabelle.recuperi = {
-    intestazione: ['Allievo', 'Si rifà il', 'Voto', 'Riconsegnata', 'Stato'],
+    intestazione: [corto(PIF), 'Si rifà il', 'Voto', 'Riconsegnata', 'Stato'],
     pesi: [5, 2, 1, 2, 3],
     righe: recuperi.map((recupero) => [
       nomeCompleto(recupero.allievo),
@@ -725,7 +726,7 @@ export function datiPresenze (
   // seconda, un semestre con metà appelli dimenticati risultava perfetto.
   dati.tabelle.presenze = {
     intestazione: [
-      'Allievo',
+      corto(PIF),
       'UD corso',
       'UD seguite',
       '% presenza',
@@ -860,10 +861,18 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
       .join(', '),
   }
 
-  // Chi è, e come lo si raggiunge: è tutto quel che il registro tiene di un
-  // allievo, ed è tutto quel che serve a chi subentra.
+  // Chi è, e come la si raggiunge: è tutto quel che il registro tiene di una
+  // persona in formazione, ed è tutto quel che serve a chi subentra.
   dati.tabelle.allievi = {
-    intestazione: ['Allievo', 'Nascita', 'Indirizzo', 'E-mail', 'Tutore', 'Azienda', 'Datore di lavoro'],
+    intestazione: [
+      corto(PIF),
+      'Nascita',
+      'Indirizzo',
+      'E-mail',
+      corto(PERSONE.rappresentante),
+      corto(PERSONE.azienda),
+      corto(PERSONE.datore),
+    ],
     pesi: [4, 2, 5, 4, 4, 3, 4],
     righe: classe.allievi.map((allievo: Allievo) => [
       nomeCompleto(allievo),
@@ -989,7 +998,7 @@ export function datiAllievo (
   ).righe[0]
 
   dati.valori = {
-    ...comuni(registro, 'Scheda dell’allievo', semestre?.etichetta ?? 'anno intero'),
+    ...comuni(registro, `Scheda ${del(PIF)}`, semestre?.etichetta ?? 'anno intero'),
     classe: classe.nome,
     materia: corso ? materiaDelCorso(registro, corso)?.nome ?? '' : '',
     // Detto per esteso invece che lasciato vuoto: il sottotitolo lo mette in

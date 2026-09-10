@@ -1,4 +1,4 @@
-// La scheda di un allievo: tutto quel che il registro sa di una persona sola.
+// La scheda personale: tutto quel che il registro sa di una persona sola.
 //
 // È la vista che mancava. I dati c'erano già tutti — presenze nelle lezioni,
 // voti nei momenti, osservazioni sparse, documenti nel fascicolo — ma stavano
@@ -20,6 +20,7 @@ import {
   statoDellOra,
 } from '../../dominio/calcoli.js'
 import { consegneDocumento, haFatto } from '../../dominio/consegne.js'
+import { PERSONE, PIF, Uno, un } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Allievo, Classe, Corso, Lezione } from '../../dominio/modelli.js'
 import {
@@ -228,7 +229,7 @@ function pannelloVoti (allievo: Allievo, classe: Classe, corsi: Corso[]): HTMLEl
   })
 }
 
-/** Le osservazioni che riguardano l'allievo, dalla più recente. */
+/** Le osservazioni che la riguardano, dalla più recente. */
 function pannelloOsservazioni (allievo: Allievo, lezioni: Lezione[]): Figlio {
   const voci = lezioni
     .flatMap((lezione) =>
@@ -332,11 +333,11 @@ function pannelloAnagrafica (classe: Classe, allievo: Allievo): HTMLElement {
     ['Data di nascita', allievo.dataNascita ? formattaData(allievo.dataNascita) : undefined],
     ['Indirizzo', allievo.indirizzo],
     ['E-mail', allievo.email],
-    ['Tutore', allievo.emailTutore],
+    [Uno(PERSONE.rappresentante), allievo.emailTutore],
     ['Telefono', allievo.telefono],
-    ['Azienda', allievo.azienda],
+    [Uno(PERSONE.azienda), allievo.azienda],
     ['Indirizzo dell’azienda', allievo.indirizzoDatore],
-    ['Datore di lavoro', allievo.emailDatore],
+    [Uno(PERSONE.datore), allievo.emailDatore],
     ['Telefono del datore', allievo.telefonoDatore],
   ]
   const scritti = recapiti.filter(([, valore]) => Boolean(valore))
@@ -389,7 +390,7 @@ function pannelloAnagrafica (classe: Classe, allievo: Allievo): HTMLElement {
 
 export function vistaAllievo (): Figlio {
   // La classe di solito la si sa già — ci si arriva dal suo elenco — ma
-  // dall'albero arriva soltanto l'allievo: in quel caso la si cerca.
+  // dall'albero arriva soltanto la persona: in quel caso la si cerca.
   const dichiarata = classePerId(stato.classeId)
   const classe =
     dichiarata?.allievi.some((a) => a.id === stato.allievoId) === true
@@ -403,8 +404,8 @@ export function vistaAllievo (): Figlio {
       { class: 'vista vista--allievo' },
       statoVuoto({
         simbolo: 'utente',
-        titolo: 'Nessun allievo scelto',
-        testo: 'La scheda si apre dal nome di un allievo, nell’elenco della sua classe.',
+        titolo: `Nessuna ${PIF.singolare} scelta`,
+        testo: `La scheda si apre dal nome di ${un(PIF)}, nell’elenco della sua classe.`,
         azione: pulsante({
           testo: 'Vai alle classi',
           variante: 'primario',

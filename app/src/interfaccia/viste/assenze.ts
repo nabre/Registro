@@ -26,6 +26,7 @@ import {
   type RichiestaFirma,
 } from '../../dominio/assenze.js'
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData, giornoDi } from '../../dominio/date.js'
 import type { Allievo, BloccoAssenze, Classe, TipoRapporto } from '../../dominio/modelli.js'
 import {
@@ -138,7 +139,7 @@ function cellaFoglio (
  * La casella della mail. Non è un file ma un fatto: o è partita, o non è
  * ancora partita, o è andata storta — e in quest'ultimo caso il motivo si legge
  * passandoci sopra, perché è quasi sempre un indirizzo sbagliato e si corregge
- * sulla scheda dell'allievo.
+ * sulla scheda personale.
  */
 function cellaInvio (classe: Classe, blocco: BloccoAssenze, allievo: Allievo) {
   const riga = rigaDi(blocco, allievo.id)
@@ -192,7 +193,7 @@ function cellaInvio (classe: Classe, blocco: BloccoAssenze, allievo: Allievo) {
       // La busta e il visto stanno affiancati, come il documento e il suo
       // cestino nelle altre caselle: sono lo stesso gesto in due tempi —
       // preparo la mail, poi dico che è partita — e su due righe la casella
-      // dell'allievo diventava alta il doppio delle altre.
+      // di chi riguarda diventava alta il doppio delle altre.
       { class: 'cella-documento__gruppo' },
       h(
         'button',
@@ -264,7 +265,7 @@ function tabellaAssenze (classe: Classe, blocco: BloccoAssenze, allievi: Allievo
     variante: ['documenti', 'assenze'],
     griglia: true,
     intestazione: [
-      h('th', { class: 'tabella__nome' }, 'Allievo'),
+      h('th', { class: 'tabella__nome' }, Uno(PIF)),
       ...COLONNE.map((colonna) =>
         h(
           'th',
@@ -368,7 +369,7 @@ export function schedaAssenze (classe: Classe) {
     const sicuro = await conferma({
       titolo: `Preparare ${pronte.length - senzaIndirizzo} richieste di firma?`,
       testo:
-        'Una bozza per allievo, all’azienda, con dentro i suoi fogli. Finiscono tutte in ' +
+        `Una bozza per ${PIF.singolare}, all’azienda, con dentro i suoi fogli. Finiscono tutte in ` +
         'una cartella che si apre da sé: le mandi una a una dal programma di posta.' +
         (senzaIndirizzo > 0
           ? `\n\n${senzaIndirizzo} restano indietro: manca l’indirizzo del datore di lavoro.`
@@ -459,7 +460,7 @@ export function schedaAssenze (classe: Classe) {
                     ? h(
                         'p',
                         { class: 'testo-quieto' },
-                        'La matrice compare quando la classe ha degli allievi che frequentano.',
+                        `La matrice compare quando la classe ha delle ${PIF.plurale} che frequentano.`,
                       )
                     : tabellaAssenze(classe, scelto, allievi),
                   righeVive(scelto).length === 0
@@ -538,7 +539,7 @@ function rigaRichiesta (richiesta: RichiestaFirma): HTMLElement {
       h(
         'div',
         { class: 'richiesta__azioni' },
-        // Da spedire: si prepara la mail di quell'allievo, con i suoi fogli in
+        // Da spedire: si prepara l'e-mail di quella persona, con i suoi fogli in
         // allegato. È lo stesso gesto della busta nella matrice.
         richiesta.fase === 'da-spedire'
           ? pulsante({

@@ -1,7 +1,7 @@
 // Tutto quel che il registro sa stampare, in una pagina sola.
 //
 // I pulsanti c'erano già, ma sparsi: le presenze e le valutazioni nella scheda
-// del corso, il verbale dentro l'ora, la scheda dell'allievo dentro la sua
+// del corso, il verbale dentro l'ora, la scheda personale dentro la sua
 // pagina. Ognuno al posto giusto per chi sta facendo quella cosa lì — e nessun
 // posto per chi invece deve *consegnare*, che è un lavoro suo: succede a fine
 // semestre, riguarda venti fogli insieme, e per farlo bisognava ricordarsi
@@ -17,6 +17,7 @@ import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcol
 import { MODI_PDF } from '../../dominio/automazione.js'
 import { classeDelCorsoId, registroDelCorso } from '../../dominio/corsi.js'
 import { formattaData } from '../../dominio/date.js'
+import { PIF, Molti, corto, quanti } from '../../dominio/lessico.js'
 import type { Corso, QuandoRifarePdf } from '../../dominio/modelli.js'
 import {
   pastiglia,
@@ -92,24 +93,24 @@ function delCorso (corso: Corso): HTMLElement {
         testo: 'Foto della classe',
         simbolo: 'immagine',
         variante: 'sottile',
-        titolo: 'Una faccia e un nome per allievo: il foglio da portare in aula le prime settimane',
+        titolo: `Una faccia e un nome per ${PIF.singolare}: il foglio da portare in aula le prime settimane`,
         al: () => azione({ tipo: 'rapporto.genera', genere: 'foto-classe', id: corso.id }),
       }),
     ),
   })
 }
 
-/** Una scheda per allievo: il suo profitto, le presenze, le annotazioni. */
+/** Una scheda a testa: il profitto, le presenze, le annotazioni. */
 function schedeAllievo (corso: Corso): HTMLElement {
   const classe = classeDelCorsoId(stato.registro, corso.id)
   const allievi = classe ? ordinaAllievi(allieviAttivi(classe)) : []
 
   return scheda({
-    titolo: 'Schede allievo',
-    sottotitolo: `${allievi.length} ${allievi.length === 1 ? 'allievo' : 'allievi'} · una ciascuno`,
+    titolo: `Schede ${corto(PIF)}`,
+    sottotitolo: `${quanti(allievi.length, PIF)} · una ciascuna`,
     contenuto:
       allievi.length === 0
-        ? h('p', { class: 'testo-quieto' }, 'La classe non ha allievi attivi.')
+        ? h('p', { class: 'testo-quieto' }, `La classe non ha ${PIF.plurale} attive.`)
         : h(
             'ul',
             { class: 'documenti__elenco' },
@@ -283,7 +284,7 @@ function dellaClasse (corso: Corso): Figlio {
         testo: 'Fascicolo',
         simbolo: 'esporta',
         variante: 'sottile',
-        titolo: 'Allievi, documenti e periodi di assenze: quel che si consegna a chi subentra',
+        titolo: `${Molti(PIF)}, documenti e periodi di assenze: quel che si consegna a chi subentra`,
         al: () => azione({ tipo: 'rapporto.genera', genere: 'fascicolo', id: classe.id }),
       }),
     ),
@@ -408,7 +409,7 @@ export function vistaDocumenti (): Figlio {
             testo: 'Esporta tutti i corsi',
             simbolo: 'esporta',
             variante: 'primario',
-            titolo: `Presenze, valutazioni e schede allievo di tutti i corsi nel ${nomeSemestreScelto()}`,
+            titolo: `Presenze, valutazioni e schede ${corto(PIF)} di tutti i corsi nel ${nomeSemestreScelto()}`,
             al: () =>
               azione({ tipo: 'rapporto.completo', corsoId: null, semestreId: stato.semestreId }),
           }),
@@ -458,7 +459,7 @@ export function vistaDocumenti (): Figlio {
                 simbolo: 'esporta',
                 variante: 'primario',
                 titolo:
-                  'I documenti del corso, una scheda per ogni allievo e una per ogni prova, in un colpo',
+                  `I documenti del corso, una scheda per ogni ${PIF.singolare} e una per ogni prova, in un colpo`,
                 al: () =>
                   azione({
                     tipo: 'rapporto.completo',

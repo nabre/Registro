@@ -22,6 +22,7 @@ import {
   datiValutazioni,
   datiPresenze,
   normalizzaRegistro,
+  lessico,
 } from '../../dist-prove/dominio.mjs'
 
 import { componiFile, FILE_GENERATO } from '../../strumenti/modelli.mjs'
@@ -124,7 +125,7 @@ describe('il conto delle presenze', () => {
     const anna = dati.tabelle.presenze.righe.find((riga) => riga[0].startsWith('Rossi'))
 
     assert.deepEqual(dati.tabelle.presenze.intestazione, [
-      'Allievo',
+      lessico.corto(lessico.PIF),
       'UD corso',
       'UD seguite',
       '% presenza',
@@ -598,7 +599,7 @@ describe('la matrice di esecuzione e riconsegna', () => {
     registro.valutazioni[0].voti[0].riconsegnataIl = '2026-10-27'
     const dati = datiValutazioni(registro, corso(registro), primoSemestre(registro))
 
-    assert.deepEqual(dati.tabelle.esecuzioni.intestazione, ['Allievo', 'Verifica'])
+    assert.deepEqual(dati.tabelle.esecuzioni.intestazione, [lessico.corto(lessico.PIF), 'Verifica'])
     assert.equal(suo(dati, 'Rossi'), '06.10.2026 > 27.10.2026')
   })
 

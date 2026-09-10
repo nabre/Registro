@@ -3,6 +3,12 @@
 // questo che `node --test` lo può eseguire così com'è.
 
 export * from './modelli.js'
+// Il lessico esce come spazio di nomi e non a nomi sciolti: le sue scorciatoie
+// si chiamano `il`, `i`, `un`, `del`, e a nomi così corti sparsi nel barile
+// prima o poi qualcuno ne aggiunge uno uguale. Chi importa dal dominio scrive
+// `lessico.corto(lessico.PIF)`; chi sta dentro l'applicazione importa il file
+// e li usa nudi, dove il contesto li spiega.
+export * as lessico from './lessico.js'
 export * from './testo.js'
 export * from './csv.js'
 export * from './identificatori.js'
@@ -21,6 +27,7 @@ export * from './riparazioni.js'
 export * from './eliminazioni.js'
 export * from './cruscotto.js'
 export * from './promemoria.js'
+export * from './vassoio.js'
 export * from './todo.js'
 export * from './attivita.js'
 export * from './consegne.js'

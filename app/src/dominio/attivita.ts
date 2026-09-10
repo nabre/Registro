@@ -16,6 +16,7 @@
 // stessa prudenza con cui il registro tratta ogni altro campo — chi ha scritto
 // qualcosa non deve perderla perché il programma ha cambiato idea.
 
+import { TIPI_ATTIVITA } from './lessico.js'
 import type { Attivita, TipoAttivita } from './modelli.js'
 
 /** Come si chiede un parametro: decide il campo che compare nel modulo. */
@@ -141,24 +142,13 @@ export const PARAMETRI_ATTIVITA: Record<TipoAttivita, ParametroAttivita[]> = {
 /**
  * Come si chiama ogni tipo quando lo si legge.
  *
- * Sta qui e non nel pannello perché lo usano in tre: la tendina che lo fa
- * scegliere, le pastiglie che lo mostrano, e i rapporti stampati. Tre elenchi
- * sarebbero stati tre occasioni di chiamare la stessa cosa in tre modi, e il
- * trattino di "docenza-di-classe" sarebbe finito su un PDF.
+ * Le parole stanno nel lessico, con tutte le altre; questo è il nome con cui
+ * le chiedono in tre: la tendina che fa scegliere il tipo, le pastiglie che lo
+ * mostrano, e i rapporti stampati. Tre elenchi sarebbero stati tre occasioni di
+ * chiamare la stessa cosa in tre modi, e il trattino di "docenza-di-classe"
+ * sarebbe finito su un PDF.
  */
-export const NOMI_TIPO_ATTIVITA: Record<TipoAttivita, string> = {
-  'docenza-di-classe': 'Docenza di classe',
-  introduzione: 'Introduzione',
-  spiegazione: 'Spiegazione',
-  esercizio: 'Esercizio',
-  laboratorio: 'Laboratorio',
-  discussione: 'Discussione',
-  gruppo: 'Lavoro di gruppo',
-  verifica: 'Verifica',
-  ripasso: 'Ripasso',
-  compito: 'Compito',
-  altro: 'Altro',
-}
+export const NOMI_TIPO_ATTIVITA: Readonly<Record<TipoAttivita, string>> = TIPI_ATTIVITA
 
 /** L'ordine in cui i tipi si offrono: prima quelli che si scelgono più spesso. */
 export const ORDINE_TIPI: TipoAttivita[] = [

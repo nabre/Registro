@@ -10,6 +10,7 @@
 // alla classe, che è l'unica cosa che il registro non sa dedurre e l'unica
 // che si spunta da qui.
 
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Lezione, MomentoValutazione } from '../../dominio/modelli.js'
 import {
@@ -213,7 +214,7 @@ function nomeDiAllievo (riga: RiconsegnaAllievo): string {
   return `${riga.allievo.cognome} ${riga.allievo.nome}`.trim()
 }
 
-/** Segna, o disdice, il giorno in cui quell'allievo ha riavuto la sua prova. */
+/** Segna, o disdice, il giorno in cui quella persona ha riavuto la sua prova. */
 function segnaAllievo (riga: RiconsegnaAllievo, il: string | null): void {
   void eseguiOAvvisa({
     tipo: 'voto.riconsegna',
@@ -325,7 +326,7 @@ function tabellaRiconsegneAllievi (
   return tabella({
     variante: 'riconsegne',
     intestazione: [
-      h('th', null, 'Allievo'),
+      h('th', null, Uno(PIF)),
       h('th', { class: 'tabella__numero' }, 'Voto'),
       h('th', null, 'Riconsegnata il'),
       h('th', { class: 'tabella__azioni' }, ''),

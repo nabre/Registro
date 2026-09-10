@@ -1361,12 +1361,47 @@ proprio nel messaggio che raggiunge l'altra finestra. Il filtro sta in
 `dominio/proiezione.ts`, in un posto solo, e le prove che lo tengono sono in
 `test/proiezione.test.mjs`.
 
+## L'icona accanto all'orologio
+
+Il registro tiene un'icona nel vassoio di sistema, e il suo menu è l'anno visto
+da fuori: in testa l'ora in corso e quella su cui andare, poi un corso per riga,
+e dentro ogni corso le sue ore divise in **In corso**, **Da chiudere**,
+**Prossime**, **Svolte**, **Annullate**. Il numero fra parentesi è quello vero
+anche quando le righe sono meno: un menu di sessanta voci non si legge, e per
+vederle tutte c'è «Apri il corso».
+
+I segni sono sei e sempre gli stessi: `▶` l'ora che sta succedendo, `⚠` un
+registro rimasto aperto, `✓` un'ora a posto, `○` una futura senza piano, `·` una
+futura preparata, `×` una annullata. Il segno davanti al corso è quello della sua
+ora più urgente. Accanto a ogni ora c'è il *perché* — «senza appello», «non
+segnata svolta», «senza piano», «2 assenti» — perché sono buchi diversi che si
+chiudono in posti diversi.
+
+**Questo cambia come si chiude il registro.** La X mette via la finestra e
+l'applicazione resta accesa nell'icona: un docente il registro lo apre venti
+volte al giorno per trenta secondi, e chiuderlo davvero a ogni giro vorrebbe
+dire rileggere i JSON venti volte. L'uscita vera è «Esci dal registro», in fondo
+al menu dell'icona, e passa dallo stesso spegnimento della X di prima —
+l'ultimo salvataggio si aspetta. La prima volta che la X non chiude, una
+notifica lo dice: taciuta, diventerebbe «il registro non si chiude più».
+
+Chi preferisce la X di sempre spegne `vassoio.chiusuraNelVassoio`; chi non vuole
+l'icona spegne `vassoio.attivo`, e allora la X torna a chiudere l'applicazione da
+sé — un'applicazione viva senza finestre *e* senza icona non si riprende più.
+
+Il codice sta in tre pezzi che non si conoscono: `src/dominio/vassoio.ts` decide
+che cosa scrivere e si prova con `node --test`, `src/vassoio.ts` guarda
+l'orologio e l'archivio, `src/ambiente/vassoio.ts` traduce in menu di Electron.
+È la stessa divisione dei promemoria, e per la stessa ragione.
+
 ## Impostazioni
 
 | Chiave | Predefinito | Che cosa fa |
 | --- | --- | --- |
 | `registroDocenti.cartellaDati` | `registro` | Cartella che contiene gli anni scolastici, relativa alla radice del workspace |
 | `registroDocenti.aperturaAutomatica` | `true` | Apre il pannello all'avvio se la cartella dei dati esiste |
+| `registroDocenti.vassoio.attivo` | `true` | Tiene l'icona del registro accanto all'orologio, con i corsi e le loro ore |
+| `registroDocenti.vassoio.chiusuraNelVassoio` | `true` | La X mette via il registro invece di uscire: si esce dal menu dell'icona |
 | `registroDocenti.proiezione.finestraSeparata` | `true` | Apre la proiezione in una finestra staccata, da portare sul secondo schermo |
 | `registroDocenti.ocr.attivo` | `false` | Legge le scansioni con un OCR locale per riconoscere l'allievo |
 | `registroDocenti.ocr.url` | `http://127.0.0.1:11434` | Dove risponde Ollama |

@@ -17,7 +17,7 @@ import { nomeCorso, valutazionePerId } from '../stato.js'
 
 import { salva, testo } from './comune.js'
 
-/** Il nome e cognome dell'allievo, come si scrive in un elenco. */
+/** Il nome e cognome di chi rifà la prova, come si scrive in un elenco. */
 function nome (recupero: Recupero): string {
   return `${recupero.allievo.cognome} ${recupero.allievo.nome}`.trim()
 }

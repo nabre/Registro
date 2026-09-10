@@ -31,10 +31,34 @@ import { creaAnnoCorrente } from './dominio/fabbriche.js'
 import { PannelloRegistro } from './pannelli/pannello.js'
 import { avviaPromemoria } from './promemoria.js'
 import { avviaProiezione, PannelloProiezione } from './pannelli/proiezione.js'
+import { avviaVassoio } from './vassoio.js'
 import type { MessaggioNavigazione } from './protocollo.js'
 
 /** L'archivio della finestra: serve a `spegni` per l'ultimo salvataggio. */
 let archivioAttivo: Archivio | null = null
+
+/**
+ * Il vassoio, tenuto da parte per lo spegnimento.
+ *
+ * L'icona va tolta *prima* di uscire e non lasciata al sistema operativo:
+ * chiuso il processo senza distruggerla, Windows tiene il posto nel cassetto
+ * finché qualcuno non ci passa sopra con il mouse — e per chi guarda è
+ * un'applicazione che si è chiusa e non se n'è andata.
+ */
+let vassoioAttivo: vscode.Disposable | null = null
+
+/**
+ * Come si apre il pannello, per chi lo deve aprire da fuori.
+ *
+ * È il guscio: una seconda copia lanciata a finestre chiuse — che con il
+ * vassoio è la normalità — deve riportare davanti il registro invece di uscire
+ * in silenzio. `null` finché `avvia` non è passato.
+ */
+let apriPannello: ((navigazione?: MessaggioNavigazione) => void) | null = null
+
+export function apriRegistro (navigazione?: MessaggioNavigazione): void {
+  apriPannello?.(navigazione)
+}
 
 export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
   // Il portachiavi del sistema, che è dove sta la password della casella: va
@@ -101,6 +125,7 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
 
   const apri = (navigazione?: MessaggioNavigazione) =>
     PannelloRegistro.mostra(contesto, archivio, navigazione)
+  apriPannello = apri
 
   // I promemoria: una notifica del sistema poco prima che una lezione cominci,
   // con quel che resta aperto per quel corso. Premendola si apre il registro di
@@ -111,6 +136,13 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
       apri({ tipo: 'naviga', vista: 'lezione', elementoId: lezioneId })
     }),
   )
+
+  // L'icona accanto all'orologio: i corsi dell'anno, e dentro ognuno le sue ore
+  // divise fra quel che è fatto, quel che è rimasto aperto e quel che viene.
+  // Ci finisce anche l'uscita dall'applicazione, che con il vassoio acceso non
+  // è più la X della finestra — vedi `guscio/principale.ts`.
+  vassoioAttivo = avviaVassoio(archivio, apri)
+  contesto.subscriptions.push(vassoioAttivo)
 
   const comando = (nome: string, esecuzione: (...argomenti: never[]) => unknown) =>
     contesto.subscriptions.push(vscode.commands.registerCommand(nome, esecuzione))
@@ -332,6 +364,14 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
 }
 
 export async function spegni (): Promise<void> {
+  // L'icona per prima: si toglie subito, prima dell'ultimo salvataggio, perché
+  // fra la richiesta di uscire e l'uscita vera passa il tempo di scrivere i
+  // file — e in quel tempo l'icona è ancora lì, con un menu che promette cose
+  // che non succederanno più.
+  apriPannello = null
+  vassoioAttivo?.dispose()
+  vassoioAttivo = null
+
   // I salvataggi sono ritardati di mezzo secondo: se l'applicazione si chiude in quel
   // mezzo secondo, l'ultima modifica se ne andrebbe. `Archivio.dispose` la
   // scrittura la lancia, ma non la aspetta — e il processo può morire prima.

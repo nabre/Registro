@@ -38,6 +38,7 @@ import {
   fileDellaConsegna,
   destinatariComunicazione,
 } from '../dominio/comunicazioni.js'
+import { PIF, del, frase } from '../dominio/lessico.js'
 import { documentoPer } from '../dominio/consegne.js'
 import { fascicoloDellaClasse } from '../dominio/corsi.js'
 import { oggi, periodoNelNome } from '../dominio/date.js'
@@ -85,7 +86,7 @@ function bloccoAssenze (
 }
 
 /**
- * Copia un foglio nell'archivio dell'allievo e ne descrive la voce.
+ * Copia un foglio nell'archivio di chi riguarda e ne descrive la voce.
  *
  * Il file che c'era si sovrascrive: rimettere lo stesso foglio è la mossa di
  * chi ha ricevuto una scansione migliore, non di chi ne vuole due copie.
@@ -168,7 +169,7 @@ function scriviFoglio (
 }
 
 /**
- * Scrive com'è andata la mail di un allievo, subito dopo il tentativo.
+ * Scrive com'è andata l'e-mail di una persona in formazione, subito dopo il tentativo.
  *
  * Si salva una riga per volta e non alla fine del giro: se la rete cade al
  * dodicesimo nome, i primi undici devono risultare spediti — altrimenti al
@@ -510,7 +511,7 @@ export const docenteClasse = {
     const dove = bloccoAssenze(contesto.registro, azione.classeId, azione.bloccoId)
     if (!dove) return rifiuta('Periodo non trovato.')
     const allievo = dove.classe.allievi.find((a) => a.id === azione.allievoId)
-    if (!allievo) return rifiuta('Allievo non trovato.')
+    if (!allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
 
     const scelto = await scegliUnFile({
       titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${nomeCompleto(allievo)}`,
@@ -549,7 +550,7 @@ export const docenteClasse = {
     const dove = bloccoAssenze(contesto.registro, azione.classeId, azione.bloccoId)
     if (!dove) return rifiuta('Periodo non trovato.')
     const allievi = allieviAttivi(dove.classe)
-    if (allievi.length === 0) return rifiuta('La classe non ha allievi che frequentano.')
+    if (allievi.length === 0) return rifiuta(`La classe non ha ${PIF.plurale} che frequentano.`)
 
     const scelti = await scegliFile({
       titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${dove.blocco.etichetta}`,
@@ -604,7 +605,7 @@ export const docenteClasse = {
     if (fuori.length > 0) {
       return conMessaggio(
         `${presi.length} fogli assegnati. Non riconosciuti: ${fuori.join(', ')}. ` +
-          'Vanno aggiunti dalla casella dell’allievo.',
+          `Vanno aggiunti dalla casella ${del(PIF)}.`,
         'avviso',
       )
     }
@@ -762,7 +763,7 @@ export const docenteClasse = {
       (await puoSpedire()) &&
       !(await confermaInvio(
         `Spedire ${pronte.length} richieste di firma?`,
-        `Una per allievo, agli indirizzi del blocco «${blocco.etichetta}».`,
+        `Una per ${PIF.singolare}, agli indirizzi del blocco «${blocco.etichetta}».`,
       ))
     ) {
       return conMessaggio(
@@ -781,13 +782,13 @@ export const docenteClasse = {
     const nonPartiti = new Map(scritte.falliti.map((f) => [f.indice, f.errore]))
 
     // Le bozze sono pronte e nessuna è partita: si segnano una a una, con la
-    // spunta nella casella dell'allievo, quando lo sono. Il registro non
+    // spunta nella casella di chi riguardano, quando lo sono. Il registro non
     // domanda «le hai spedite tutte?» — nel momento in cui lo chiedeva, nessuna
     // lo era ancora.
     if (!scritte.spediti) {
       return conMessaggio(
         `${pronte.length} bozze pronte in ${scritte.dove}. Mandale una alla volta dal programma ` +
-          'di posta e spunta ogni allievo quando la sua richiesta è partita.',
+          `di posta e spunta ogni ${PIF.singolare} quando la sua richiesta è partita.`,
         'info',
         { invariato: true },
       )

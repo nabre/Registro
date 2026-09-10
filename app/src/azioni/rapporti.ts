@@ -57,11 +57,11 @@ interface Preparato {
   /** Di chi è il foglio, quando è di qualcuno: finisce nel nome del file. */
   chi?: string | null
   /**
-   * L'allievo di cui parla, quando ne parla di uno solo: la sua roba va nella
+   * La persona di cui parla, quando ne parla di una sola: la sua roba va nella
    * cartella sua.
    *
    * Sta a sé e non si deduce da `chi`, che a volte è il titolo di una prova:
-   * una scheda d'allievo e la scheda di una verifica sono tutte e due «di
+   * una scheda personale e la scheda di una verifica sono tutte e due «di
    * qualcosa», ma solo la prima è di qualcuno.
    */
   allievo?: string | null
@@ -151,7 +151,7 @@ async function scriviRapporto (
  * I documenti che si rifanno quando un'ora viene segnata svolta.
  *
  * Sono tutti quelli del corso a cui l'ora appartiene: il verbale di
- * quell'ora, le presenze, la griglia dei voti, e la scheda di ogni allievo che
+ * quell'ora, le presenze, la griglia dei voti, e la scheda di ognuno che
  * frequenta. Non è un capriccio di completezza — sono gli stessi documenti
  * che dopo ogni lezione sarebbero da rifare a mano, uno per uno, e nessuno lo
  * fa: la cartella di un corso restava ferma alla settimana in cui qualcuno si

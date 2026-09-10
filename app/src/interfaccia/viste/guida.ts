@@ -160,6 +160,53 @@ const GUIDA: SezioneGuida[] = [
     ],
   },
   {
+    id: 'vassoio',
+    titolo: 'L’icona accanto all’orologio',
+    simbolo: 'orologio',
+    sommario: 'Il registro a portata di tasto destro, anche a finestre chiuse. Ed è da lì che si esce.',
+    voci: [
+      {
+        termine: 'Il menu',
+        testo:
+          'Tasto destro sull’icona e si apre l’anno: in testa quel che sta succedendo adesso e ' +
+          'l’ora su cui andare, poi **un corso per riga**. Un clic singolo sull’icona riporta ' +
+          'davanti il registro, senza aprire niente.',
+      },
+      {
+        termine: 'Le ore di un corso',
+        testo:
+          'Ogni corso apre un sottomenu con le sue ore divise in mucchi — **In corso**, **Da ' +
+          'chiudere**, **Prossime**, **Svolte**, **Annullate** — e il numero fra parentesi dice ' +
+          'quante sono in tutto, anche quando le righe mostrate sono meno. Un clic su un’ora ' +
+          'apre il suo registro.',
+      },
+      {
+        termine: 'I segni',
+        testo:
+          '▶ è l’ora che si sta facendo, ⚠ un registro rimasto aperto, ✓ un’ora a posto, ○ ' +
+          'un’ora futura senza piano, · una futura già preparata, × una annullata. Il segno ' +
+          'davanti al **corso** è quello della sua ora più urgente: fra dodici ore svolte e un ' +
+          'buco, dal primo livello si vede il buco.',
+      },
+      {
+        termine: 'Perché, e non solo che cosa',
+        testo:
+          'Accanto a ogni ora c’è il motivo: «senza appello», «non segnata svolta», «senza ' +
+          'piano», «2 assenti», «verifica». Sono buchi diversi, si chiudono in posti diversi, e ' +
+          'così si sceglie quale ora aprire senza aprirle tutte.',
+      },
+      {
+        termine: 'Chiudere il registro',
+        testo:
+          'La X della finestra **mette via** il registro: resta acceso accanto all’orologio e ' +
+          'si riapre con un clic, senza rileggere i file. Per chiuderlo davvero c’è **Esci dal ' +
+          'registro**, in fondo al menu dell’icona: da lì l’ultima modifica viene salvata prima ' +
+          'di uscire. Chi preferisce che la X chiuda tutto lo dice dalle Impostazioni, sotto ' +
+          '«Vassoio».',
+      },
+    ],
+  },
+  {
     id: 'calendario',
     titolo: 'Calendario',
     simbolo: 'calendario',

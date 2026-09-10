@@ -8,6 +8,7 @@
 import { destinatariComunicazione, fileDellaConsegna } from '../../dominio/comunicazioni.js'
 import { consegneDocumento } from '../../dominio/consegne.js'
 import { formattaData } from '../../dominio/date.js'
+import { PIF, Molti } from '../../dominio/lessico.js'
 import { creaComunicazione, creaRecapito } from '../../dominio/fabbriche.js'
 import type { Classe, Comunicazione, Recapito } from '../../dominio/modelli.js'
 import { validaComunicazione, validaRecapito } from '../../dominio/validazione.js'
@@ -147,7 +148,7 @@ export function moduloComunicazione (classe: Classe, comunicazione?: Comunicazio
             campo({
               nome: 'aAllievi',
               tipo: 'checkbox',
-              etichetta: 'Allievi',
+              etichetta: Molti(PIF),
               valore: base.aAllievi,
               disabilitato: inviata,
               larghezza: 'quarto',

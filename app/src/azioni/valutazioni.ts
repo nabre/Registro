@@ -11,17 +11,12 @@ import { classeDelMomento, corsoPerId } from '../dominio/corsi.js'
 import { agganciato } from '../dominio/orfani.js'
 import { nuovoIdAllegato } from '../dominio/identificatori.js'
 import type { Allegato, RuoloAllegato } from '../dominio/modelli.js'
+import { PIF, RUOLI_ALLEGATO, frase, il } from '../dominio/lessico.js'
 import { validaValutazione } from '../dominio/validazione.js'
 import { apriFile, cestina, conMessaggio, fatto, rifiuta, riponi, scegliUnFile, type Parte } from './contesto.js'
 
 /** Come si chiama il foglio che si sta cercando, nel dialogo che lo chiede. */
-const TITOLI_ALLEGATO: Record<RuoloAllegato, string> = {
-  verifica: 'Testo',
-  soluzione: 'Soluzione',
-  prova: 'Prova corretta',
-  recupero: 'Testo del recupero',
-  'recupero-soluzione': 'Soluzione del recupero',
-}
+const TITOLI_ALLEGATO: Readonly<Record<RuoloAllegato, string>> = RUOLI_ALLEGATO
 
 export const valutazioni = {
   /**
@@ -255,7 +250,7 @@ export const valutazioni = {
    *
    * Vale sopra quello della classe: la pila è tornata indietro un giorno solo,
    * ma chi mancava la riavrà un'altra volta — e sono i casi in cui la data
-   * conta, perché è la sola prova che quell'allievo ha visto il proprio voto.
+   * conta, perché è la sola prova che quella persona ha visto il proprio voto.
    * `null` la toglie, e allora torna a valere quella della classe.
    */
   'voto.riconsegna': (contesto, azione) => {
@@ -286,14 +281,14 @@ export const valutazioni = {
     const perAllievo = azione.ruolo === 'prova' || azione.ruolo === 'recupero'
     const allievoId = perAllievo ? azione.allievoId ?? null : null
     if (azione.ruolo === 'prova' && !allievoId) {
-      return rifiuta('Serve l’allievo a cui appartiene la prova.')
+      return rifiuta(`Serve ${il(PIF)} a cui appartiene la prova.`)
     }
     // Senza classe non c'è dove archiviare il PDF: si rifiuta prima di aprire
     // il dialogo, non dopo che chi insegna ha già scelto il file.
     const classe = classeDelMomento(contesto.registro, momento)
     if (!classe) return rifiuta('La classe del momento di valutazione non esiste.')
     const allievo = allievoId ? classe.allievi.find((a) => a.id === allievoId) ?? null : null
-    if (allievoId && !allievo) return rifiuta('Allievo non trovato nella classe.')
+    if (allievoId && !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true, coda: 'nella classe' }))
 
     const scelto = await scegliUnFile({
       titolo: allievo

@@ -5,7 +5,8 @@
 // l'applicazione, `shell` per il cestino e per quel che si apre fuori,
 // `safeStorage` per il portachiavi, `BrowserWindow` e `ipcMain` per le
 // finestre, `dialog` per i messaggi, `screen` per sapere dov'è il proiettore e
-// `nativeTheme` per il chiaro e lo scuro — e sono tutti sostituibili con
+// `nativeTheme` per il chiaro e lo scuro, `Tray` e `nativeImage` per l'icona
+// accanto all'orologio — e sono tutti sostituibili con
 // qualcosa di vero abbastanza. Così le prove
 // girano con `node --test`, senza avviare un'applicazione e senza un display.
 //
@@ -100,6 +101,23 @@ export const Menu = {
   },
   setApplicationMenu (menu) {
     banco.menu = menu ? menu.modello : null
+  },
+}
+
+/**
+ * Le immagini native. Quel che serve alle prove è che il percorso arrivi fin
+ * qui e che il ridimensionamento sia stato chiesto: che cosa ci sia dentro il
+ * file lo sa Windows, e non lo sapremmo verificare comunque.
+ */
+export const nativeImage = {
+  createFromPath (file) {
+    return {
+      file,
+      misura: null,
+      resize (misura) {
+        return { ...this, misura }
+      },
+    }
   },
 }
 
@@ -222,6 +240,8 @@ const banco = (globalThis.__bancoElectron ??= {
   /** Quel che è stato consegnato al sistema: cartelle mostrate, file e indirizzi aperti. */
   fuori: [],
   appunti: '',
+  /** I vassoi costruiti: uno solo, in pratica. */
+  vassoi: [],
   /** Il modello passato a `Menu.setApplicationMenu`, o `null` finché non c'è. */
   menu: null,
   /** I messaggi mostrati, e il bottone che la prova sceglie. */
@@ -347,6 +367,37 @@ export class BrowserWindow extends Emettitore {
   }
 }
 
+/**
+ * L'icona accanto all'orologio. Come per il menu dell'applicazione, quel che la
+ * prova guarda è il modello: costruire un vassoio vero vorrebbe dire un display.
+ */
+export class Tray extends Emettitore {
+  constructor (immagine) {
+    super()
+    this.immagine = immagine
+    this.suggerimento = ''
+    /** L'ultimo menu ricevuto, nella forma che gli dà il finto `Menu`. */
+    this.menu = null
+    this.distrutto = false
+    banco.vassoi.push(this)
+  }
+
+  setToolTip (testo) {
+    this.suggerimento = testo
+  }
+
+  setContextMenu (menu) {
+    this.menu = menu ? menu.modello : null
+  }
+
+  destroy () {
+    this.distrutto = true
+  }
+}
+
+/** Tutti i vassoi costruiti, distrutti compresi. */
+export const vassoiCostruiti = banco.vassoi
+
 class FintoIpc extends Emettitore {
   /**
    * Un messaggio dalla pagina, come lo consegnerebbe Electron: `sender.id` è
@@ -364,10 +415,12 @@ export default {
   clipboard,
   dialog,
   Menu,
+  nativeImage,
   nativeTheme,
   screen,
   shell,
   safeStorage,
   BrowserWindow,
   ipcMain,
+  Tray,
 }

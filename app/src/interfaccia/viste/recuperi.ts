@@ -3,7 +3,7 @@
 // Sono l'unico buco del registro che non si chiude da solo. Una consegna non
 // spuntata torna a galla a ogni ora; un'assenza a una verifica invece resta
 // una casella vuota, e le caselle vuote non chiedono niente a nessuno — finché
-// a giugno la media di quell'allievo è fatta su tre voti invece che su cinque.
+// a giugno la sua media è fatta su tre voti invece che su cinque.
 //
 // Qui compaiono senza essere stati scritti: l'appello dell'ora dice già chi non
 // c'era, e da lì nasce la riga. Quel che si aggiunge è la decisione — quando si
@@ -16,6 +16,7 @@
 // quando si rifà, che voto ne è uscito, dov'è la scansione — e una tabella si
 // legge in orizzontale mentre un elenco di schede va letto una alla volta.
 
+import { PIF, Uno } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Lezione, MomentoValutazione } from '../../dominio/modelli.js'
 import {
@@ -106,7 +107,7 @@ function fissa (
   })
 }
 
-/** Segna, o disdice, il giorno in cui la prova rifatta è tornata all'allievo. */
+/** Segna, o disdice, il giorno in cui la prova rifatta è tornata a chi l'ha fatta. */
 function riconsegna (recupero: Recupero, il: string | null): void {
   void eseguiOAvvisa({
     tipo: 'recupero.imposta',
@@ -120,12 +121,12 @@ function riconsegna (recupero: Recupero, il: string | null): void {
 }
 
 /**
- * Il giorno in cui la prova rifatta è tornata all'allievo: un campo, non una
+ * Il giorno in cui la prova rifatta è tornata indietro: un campo, non una
  * spunta.
  *
  * Una spunta scrive una data che nessuno ha scelto, e la data della riconsegna
  * non è un dettaglio contabile: da lì si contano i termini di un ricorso, ed è
- * la sola prova che quell'allievo ha visto il proprio voto. Il campo la mostra
+ * la sola prova che quella persona ha visto il proprio voto. Il campo la mostra
  * e la lascia correggere; il tasto accanto la riempie con il giorno da cui si
  * sta guardando — l'ora aperta nel registro, o oggi se si sta altrove.
  */
@@ -275,7 +276,7 @@ function campoVotoRecupero (recupero: Recupero): HTMLElement {
 }
 
 /**
- * La data in cui la prova rifatta è tornata in mano a quell'allievo.
+ * La data in cui la prova rifatta è tornata in mano a chi l'ha fatta.
  *
  * Una per allievo, e non quella della classe: la verifica è stata ridata a
  * tutti il giorno in cui la si è ridistribuita, ma il compito di chi l'ha
@@ -283,7 +284,7 @@ function campoVotoRecupero (recupero: Recupero): HTMLElement {
  * sarebbe una data falsa, e da quella si contano i termini di un ricorso.
  *
  * Si scrive prima di chiudere del tutto la faccenda, e non è un dettaglio
- * contabile: è la sola prova che quell'allievo ha visto il proprio voto.
+ * contabile: è la sola prova che quella persona ha visto il proprio voto.
  */
 function campoRiconsegnaRecupero (recupero: Recupero): HTMLElement {
   return controlloData({
@@ -409,7 +410,7 @@ export function rigaRecupero (
           : null,
       // Da dove viene l'assenza: dichiarata nella griglia, o letta
       // nell'appello. Chi guarda deve poter distinguere il fatto registrato
-      // dall'ipotesi ragionevole, prima di andare a chiedere all'allievo.
+      // dall'ipotesi ragionevole, prima di andare a chiedere di persona.
       recupero.daAppello ? h('span', { class: 'testo-quieto' }, ' · dall’appello') : null,
       recupero.riconsegnataIl
         ? h(
@@ -532,7 +533,7 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
       tabella({
         variante: 'recuperi',
         intestazione: [
-          h('th', null, 'Allievo'),
+          h('th', null, Uno(PIF)),
           h('th', null, 'Si rifà il'),
           h('th', { class: 'tabella__numero' }, 'Voto'),
           h('th', null, 'Riconsegnata il'),
@@ -562,7 +563,7 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
  * Sta dentro le valutazioni dell'ora e non in una scheda accanto, perché è
  * esattamente quello: quel che in quest'ora si valuta. La scheda Valutazioni
  * mostrava solo le prove *nate* in quest'ora, e nell'ora di un recupero
- * diceva «in quest'ora non si è valutato niente» mentre due allievi rifacevano
+ * diceva «in quest'ora non si è valutato niente» mentre in due rifacevano
  * una verifica — la sola pagina che avrebbe dovuto dirlo era quella che lo
  * negava.
  *
