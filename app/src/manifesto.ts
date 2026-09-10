@@ -92,7 +92,8 @@ export const IMPOSTAZIONI: Readonly<Record<string, VoceImpostazione>> = {
     tipo: 'string',
     predefinito: 'registro',
     descrizione:
-      'Cartella (relativa alla cartella di lavoro) in cui il registro salva i propri file JSON.',
+      'Cartella (relativa alla cartella di lavoro) in cui stanno i documenti degli anni '
+      + 'scolastici, un file «.registro» per anno.',
   },
   'registroDocenti.aperturaAutomatica': {
     tipo: 'boolean',

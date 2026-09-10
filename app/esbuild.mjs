@@ -189,6 +189,57 @@ const prove = [
     target: 'node18',
     sourcemap: false,
   },
+  // L'archivio ZIP, che è codice puro come il dominio: byte dentro, byte
+  // fuori, e `node:zlib` in mezzo. Non sa niente di vscode e non ha bisogno di
+  // alias.
+  {
+    ...comune,
+    entryPoints: ['src/dati/zip.ts'],
+    outfile: 'dist-prove/zip.mjs',
+    format: 'esm',
+    platform: 'node',
+    target: 'node18',
+    sourcemap: false,
+  },
+  // Il documento dell'anno: qui il file system c'è davvero — si aprono e si
+  // scrivono archivi in una cartella temporanea — e quindi passa dallo shim,
+  // con `electron` sostituito dal finto come per il resto dell'ambiente.
+  {
+    ...comune,
+    entryPoints: ['src/dati/pacchetto.ts'],
+    outfile: 'dist-prove/pacchetto.mjs',
+    format: 'esm',
+    platform: 'node',
+    target: 'node18',
+    sourcemap: false,
+    alias: { ...aliasShim, electron: './prove/aiuti/finto-electron.mjs' },
+  },
+  // L'archivio intero, con sotto il documento e lo ZIP: è il pezzo che tocca
+  // il disco per conto di tutto il registro, e provarlo vuol dire creare un
+  // anno vero in una cartella temporanea e rileggerlo.
+  {
+    ...comune,
+    entryPoints: ['src/dati/archivio.ts'],
+    outfile: 'dist-prove/archivio.mjs',
+    format: 'esm',
+    platform: 'node',
+    target: 'node18',
+    sourcemap: false,
+    alias: { ...aliasShim, electron: './prove/aiuti/finto-electron.mjs' },
+  },
+  // I due traslochi: dal mucchio alle cartelle, e dalle cartelle ai documenti.
+  // Sono codice che si esegue una volta sola sui dati veri di un docente, ed è
+  // esattamente il codice che va provato prima e non dopo.
+  {
+    ...comune,
+    entryPoints: ['src/dati/anni.ts'],
+    outfile: 'dist-prove/anni.mjs',
+    format: 'esm',
+    platform: 'node',
+    target: 'node18',
+    sourcemap: false,
+    alias: { ...aliasShim, electron: './prove/aiuti/finto-electron.mjs' },
+  },
   // Il manifesto da solo: è l'elenco su cui le prove del menu e delle
   // impostazioni confrontano quel che l'applicazione mostra. Provarle contro una
   // copia scritta a mano vorrebbe dire provare la copia.

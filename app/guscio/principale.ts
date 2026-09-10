@@ -7,9 +7,10 @@
 
 import { app, BrowserWindow, dialog } from 'electron'
 import { existsSync, statSync } from 'node:fs'
+import * as percorso from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { registerCommand } from '../src/ambiente/comandi.js'
+import { executeCommand, registerCommand } from '../src/ambiente/comandi.js'
 import {
   cartellaLavoro,
   creaContesto,
@@ -22,6 +23,8 @@ import { avviaRicaricamento } from '../src/ambiente/sviluppo.js'
 import { applicaTema, osservaTema } from '../src/ambiente/tema.js'
 import { Uri } from '../src/ambiente/uri.js'
 import { vassoioAcceso } from '../src/ambiente/vassoio.js'
+import { segnaAnnoDaAprire } from '../src/dati/archivio.js'
+import { ESTENSIONE, nomeDelPacchetto, èPacchetto } from '../src/dati/pacchetto.js'
 import { impostaWorker } from '../src/dati/pdf.js'
 import { apriRegistro, avvia as avviaRegistro, spegni } from '../src/avvio.js'
 import { PannelloProiezione } from '../src/pannelli/proiezione.js'
@@ -35,7 +38,15 @@ import { privilegiaSchema, registraProtocollo } from './protocolloFile.js'
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_evento, argomenti) => {
+    // Un doppio clic su un `.registro` mentre il registro è già aperto: la
+    // seconda copia se ne va, ma prima consegna alla prima quale anno si
+    // voleva. Senza, il doppio clic non farebbe niente e sembrerebbe rotto.
+    const documento = documentoNegliArgomenti(argomenti)
+    if (documento) {
+      void usaDocumento(documento)
+      return
+    }
     const prima = BrowserWindow.getAllWindows()[0]
     // Nessuna finestra non vuol più dire «applicazione morente»: con il vassoio
     // acceso è lo stato normale del registro messo via. Rilanciarlo dall'icona
@@ -47,6 +58,15 @@ if (!app.requestSingleInstanceLock()) {
     }
     if (prima.isMinimized()) prima.restore()
     prima.focus()
+  })
+
+  // Su macOS un documento non arriva mai sulla riga di comando: arriva di qui,
+  // e può arrivare prima che l'applicazione sia pronta. Chi arriva presto
+  // aspetta — `whenReady` è già stato chiesto qui sotto — e chi arriva a
+  // registro avviato passa dalla stessa strada del doppio clic su Windows.
+  app.on('open-file', (evento, cammino) => {
+    evento.preventDefault()
+    void app.whenReady().then(() => usaDocumento(Uri.file(cammino)))
   })
 
   // Prima di `whenReady`, o la dichiarazione non conta più.
@@ -82,6 +102,13 @@ async function avvia (): Promise<void> {
   // Nell'applicazione impacchettata queste righe non fanno niente.
   smaltibiliGuscio.push(avviaRicaricamento(() => PannelloProiezione.ricalcola()))
 
+  // Un documento sulla riga di comando decide tutto il resto — cartella di
+  // lavoro e anno da aprire — e va guardato prima di chiedere una cartella:
+  // chi ha fatto doppio clic su un file ha già detto dove vuole andare, e
+  // farsi chiedere una cartella dopo sarebbe chiederglielo due volte.
+  const documento = documentoNegliArgomenti(process.argv)
+  if (documento) await preparaDocumento(documento)
+
   const cartella = await assicuraCartellaLavoro()
   // Senza cartella non c'è registro: se l'utente annulla, si esce invece di
   // aprire una finestra che non saprebbe che cosa mostrare.
@@ -102,7 +129,7 @@ async function avvia (): Promise<void> {
     // Dopo `avvia`, che è dove i comandi si registrano: il menu li invoca
     // per nome, e una voce che non trovasse il proprio comando non farebbe
     // niente senza dirlo.
-    installaMenu({ cambiaCartella: cambiaCartellaLavoro })
+    installaMenu({ cambiaCartella: cambiaCartellaLavoro, apriDocumento: chiediDocumento })
   } catch (errore) {
     // Le parti che mancano si annunciano da sé, con dentro il numero della
     // fase: si mostrano invece di lasciare una finestra che non arriva.
@@ -147,6 +174,100 @@ async function chiediCartellaLavoro (): Promise<Uri | null> {
   const cartella = Uri.file(scelta)
   await impostaCartellaLavoro(cartella)
   return cartella
+}
+
+// --------------------------------------------------- aprire un documento d'anno
+
+/**
+ * Il documento passato sulla riga di comando: quel che arriva da un doppio clic
+ * su `2026-2027.registro`.
+ *
+ * Si scorrono tutti gli argomenti invece di prendere il primo: Electron ne
+ * antepone di suoi — e in sviluppo il primo è la cartella dell'applicazione —
+ * e quel che si cerca si riconosce da sé, dall'estensione e dall'essere un file
+ * che esiste.
+ */
+function documentoNegliArgomenti (argomenti: string[]): Uri | null {
+  for (const argomento of argomenti.slice(1)) {
+    if (argomento.startsWith('-')) continue
+    if (!èPacchetto(percorso.basename(argomento))) continue
+    try {
+      const intero = percorso.resolve(argomento)
+      if (statSync(intero).isFile()) return Uri.file(intero)
+    } catch {
+      // Un argomento che non è un file: non è quello che si cercava.
+    }
+  }
+  return null
+}
+
+/**
+ * Prepara l'apertura di un documento: da dove sta il file si ricava tutto il
+ * resto.
+ *
+ * La cartella che contiene il documento è la cartella dei dati — quella con gli
+ * anni dentro — e sopra c'è la cartella di lavoro. Si prendono da lì e non da
+ * quel che era configurato prima: chi apre un `.registro` con un doppio clic
+ * sta dicendo *questo*, e un registro che aprisse l'anno giusto della cartella
+ * sbagliata mostrerebbe le lezioni di uno e gli allegati di un altro.
+ *
+ * Torna vero se ha cambiato la cartella di lavoro, e allora chi chiama sa che
+ * c'è da riavviare invece che da ricaricare.
+ */
+async function preparaDocumento (file: Uri): Promise<boolean> {
+  const dati = Uri.joinPath(file, '..')
+  const lavoro = Uri.joinPath(dati, '..')
+  const dentro = percorso.basename(dati.fsPath)
+
+  const impostazioni = getConfiguration('registroDocenti')
+  const cambia =
+    cartellaLavoro()?.fsPath !== lavoro.fsPath ||
+    impostazioni.get<string>('cartellaDati', 'registro') !== dentro
+
+  // L'indice prima di tutto: dice quale anno aprire, e va scritto anche quando
+  // la cartella non cambia — è l'unico modo che ha una ricarica di sapere che
+  // adesso si vuole quell'anno e non quello di prima.
+  await segnaAnnoDaAprire(dati, nomeDelPacchetto(file))
+  await impostazioni.update('cartellaDati', dentro)
+  await impostaCartellaLavoro(lavoro)
+  return cambia
+}
+
+/**
+ * Apre un documento d'anno: la voce «Apri un anno…» del menu, e la strada che
+ * fa anche il doppio clic sul file.
+ *
+ * Cambiando cartella di lavoro si riavvia, per la stessa ragione di
+ * `cambiaCartellaLavoro`; restando nella stessa, basta una ricarica — che passa
+ * dall'archivio già aperto, e quindi salva quel che c'era prima di cambiare
+ * anno.
+ */
+async function usaDocumento (file: Uri): Promise<void> {
+  const cambiata = await preparaDocumento(file)
+  if (cambiata) {
+    app.relaunch()
+    app.quit()
+    return
+  }
+  await executeCommand('registroDocenti.ricarica')
+  apriRegistro()
+}
+
+/** Il dialogo di apertura, filtrato sui documenti del registro. */
+async function chiediDocumento (): Promise<void> {
+  const esito = await dialog.showOpenDialog({
+    title: 'Apri un anno del registro',
+    buttonLabel: 'Apri',
+    properties: ['openFile'],
+    defaultPath: cartellaLavoro()?.fsPath,
+    filters: [
+      { name: 'Registro docenti', extensions: [ESTENSIONE.slice(1)] },
+      { name: 'Tutti i file', extensions: ['*'] },
+    ],
+  })
+  const scelto = esito.canceled ? undefined : esito.filePaths[0]
+  if (!scelto) return
+  await usaDocumento(Uri.file(scelto))
 }
 
 /**

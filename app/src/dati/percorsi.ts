@@ -13,15 +13,13 @@
 //
 //   registro/
 //     registro.json          dice soltanto quale anno si sta usando
+//     2026-2027.registro     le collezioni di quell'anno, e le loro copie
 //     2026-2027/
-//       dati/                le collezioni di quell'anno, e le loro copie
-//         registro.json      l'anno, le sue materie, le sue impostazioni
-//         classi.json  corsi.json  lezioni.json  …
-//         .storico/
 //       archivio/            i documenti caricati, per classe
 //       esportazioni/        quel che il registro stampa, con la stessa
 //                            struttura: si cancella per intero e si rifà
 //       in-arrivo/  quarantena/  allegati/  risorse/  assenze/
+//     2027-2028.registro
 //     2027-2028/
 //       …
 //
@@ -31,6 +29,19 @@
 // con il rischio, ogni volta che un filtro si dimenticava, di vedere in una
 // media i voti di due anni diversi.
 //
+// I nove JSON di un anno, invece, non sono più nove file: stanno dentro
+// `2026-2027.registro`, che è il documento dell'anno — uno ZIP con la nostra
+// estensione, e dentro gli stessi JSON di prima con le loro copie in
+// `.storico/`. Il resto — allegati, archivio, esportazioni — resta cartella
+// vera, perché sono PDF che si aprono con altri programmi e chiusi in un
+// archivio perderebbero il doppio clic. Vedi `pacchetto.ts`: lì c'è il perché,
+// qui solo dove.
+//
+// I percorsi salvati dentro i JSON — `documentazione/DIC4a/…`, `allegati/…` —
+// restano relativi alla cartella dell'anno, che continua a chiamarsi come
+// prima: il documento e la cartella portano lo stesso nome, e spostare i JSON
+// dentro un archivio non ha cambiato una riga di quei percorsi.
+//
 // Le sottocartelle dell'anno restano quelle di prima, con gli stessi nomi: i
 // percorsi salvati nei JSON — `documentazione/DIC4a/…`, `allegati/…` — sono
 // relativi alla cartella dell'anno, non alla radice, e quindi non cambiano
@@ -39,9 +50,11 @@
 import * as vscode from 'vscode'
 
 import { estensioneDi, nomeSicuro } from '../dominio/testo.js'
+import { ESTENSIONE, èPacchetto } from './pacchetto.js'
 
 export { estensioneDi, nomeSicuro }
 
+/** I nomi delle collezioni: file dentro il documento dell'anno. */
 export const NOMI = {
   registro: 'registro.json',
   classi: 'classi.json',
@@ -57,17 +70,19 @@ export const NOMI = {
 export type NomeCollezione = keyof typeof NOMI
 
 /**
- * La sottocartella dei JSON dentro l'anno.
+ * La sottocartella in cui i JSON stavano prima del documento d'anno.
  *
- * Sta separata da `documentazione/` e dalle altre perché è l'unica che non si
- * apre a mano: dentro ci sono i file del programma, fuori i documenti di chi
- * insegna. Chi entra in una cartella d'anno per cercare una pagella non deve
- * inciampare in nove JSON.
+ * Non la scrive più nessuno: resta perché la migrazione la deve ritrovare —
+ * una cartella sincronizzata può portarsela dietro per mesi, da una macchina
+ * che non è ancora stata aggiornata — e perché `.storico/` di allora sta lì
+ * dentro.
  */
 export const DATI = 'dati'
 
 /** Il file in radice che dice quale anno si sta usando. */
 export const INDICE = 'registro.json'
+
+export { ESTENSIONE, èPacchetto }
 
 /** L'ultimo pezzo di un Uri: il nome del file come lo si vede nel gestore. */
 export function nomeDelFileUri (uri: { path: string }, ripiego = 'documento.pdf'): string {
@@ -167,7 +182,26 @@ export function cartellaAnno (): vscode.Uri | null {
   return annoInUso ? cartellaAnnoDi(annoInUso) : null
 }
 
-/** La sottocartella dei JSON di un anno. */
+/**
+ * Il documento di un anno: `registro/2026-2027.registro`.
+ *
+ * Porta il nome della sua cartella, e non è un vezzo: è quel che tiene insieme
+ * i due pezzi di un anno — l'archivio dei dati e la cartella dei documenti —
+ * senza doverli far puntare l'uno all'altro con un identificatore scritto
+ * dentro, che si può contraddire. Rinominarli insieme li tiene insieme.
+ */
+export function percorsoPacchettoDi (cartella: string): vscode.Uri | null {
+  const radice = cartellaDati()
+  const nome = nomeSicuro(cartella)
+  return radice && nome ? vscode.Uri.joinPath(radice, `${nome}${ESTENSIONE}`) : null
+}
+
+/** Il documento dell'anno in uso, o null se non ce n'è ancora uno. */
+export function percorsoPacchetto (): vscode.Uri | null {
+  return annoInUso ? percorsoPacchettoDi(annoInUso) : null
+}
+
+/** La sottocartella dei JSON di un anno, com'era prima del documento d'anno. */
 export function cartellaCollezioniDi (cartella: string): vscode.Uri | null {
   const anno = cartellaAnnoDi(cartella)
   return anno ? vscode.Uri.joinPath(anno, DATI) : null
@@ -269,6 +303,22 @@ export async function sottocartelleDi (cartella: vscode.Uri): Promise<string[]> 
   return (await vociDi(cartella))
     .filter(([nome, tipo]) => tipo === vscode.FileType.Directory && !nome.startsWith('.'))
     .map(([nome]) => nome)
+    .sort()
+}
+
+/**
+ * Gli anni che ci sono, letti dai documenti presenti nella cartella dei dati.
+ *
+ * L'elenco sono i file, non una lista scritta da qualche parte: un anno
+ * copiato a mano compare, uno portato via sparisce, e non c'è modo che una
+ * lista si contraddica con quel che c'è davvero sul disco.
+ */
+export async function anniPresenti (): Promise<string[]> {
+  const radice = cartellaDati()
+  if (!radice) return []
+  return (await vociDi(radice))
+    .filter(([nome, tipo]) => tipo !== vscode.FileType.Directory && èPacchetto(nome))
+    .map(([nome]) => nome.slice(0, -ESTENSIONE.length))
     .sort()
 }
 

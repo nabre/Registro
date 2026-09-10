@@ -59,6 +59,26 @@
     "**/pdf.worker.mjs"
   ],
 
+  // I documenti del registro: `2026-2027.registro`, uno per anno scolastico.
+  //
+  // Dichiararli qui è quel che fa comparire l'icona giusta nel gestore file e
+  // quel che fa aprire il registro con un doppio clic — il percorso arriva
+  // sulla riga di comando, e `guscio/principale.ts` lo raccoglie da lì.
+  //
+  // Il tipo MIME è quello dello ZIP, che è quel che il file è davvero: chi
+  // guarda il contenuto invece del nome — un servizio di posta, per esempio —
+  // deve poterlo riconoscere e non trattarlo come un binario ignoto.
+  "fileAssociations": [
+    {
+      "ext": "registro",
+      "name": "Registro docenti",
+      "description": "Anno scolastico del registro docenti",
+      "mimeType": "application/zip",
+      "icon": "icone/icon.ico",
+      "role": "Editor"
+    }
+  ],
+
   "win": {
     // Due bersagli, e il secondo non è un di più: in una scuola l'installazione
     // può richiedere diritti che il docente non ha, e un eseguibile su chiavetta

@@ -17,10 +17,10 @@ import { pathToFileURL } from 'node:url'
 import * as vscode from 'vscode'
 
 import { esegui } from './azioni.js'
-import { migraAnni } from './dati/anni.js'
+import { impacchettaAnni, migraAnni } from './dati/anni.js'
 import { Archivio } from './dati/archivio.js'
 import { migraArchivio } from './dati/archiviazione.js'
-import { cartellaAnno, cartellaDati, cartellaInArrivo } from './dati/percorsi.js'
+import { ESTENSIONE, cartellaAnno, cartellaDati, cartellaInArrivo } from './dati/percorsi.js'
 import { impostaWorker } from './dati/pdf.js'
 import { registraPortachiavi } from './dati/exchange.js'
 import { registraPortachiaviOauth } from './dati/oauth.js'
@@ -71,12 +71,40 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
   archivioAttivo = archivio
   contesto.subscriptions.push(archivio)
 
+  // Un anno aperto altrove: si chiede prima di aprirlo qui.
+  //
+  // La domanda non è burocrazia. I due registri non si accorgerebbero l'uno
+  // dell'altro finché non salvano, e a quel punto chi salva per ultimo copre
+  // il lavoro del primo — non lo fonde: lo copre. Detto prima, chi apre
+  // decide; detto dopo, non c'è più niente da decidere.
+  archivio.chiediSeOccupato(async (anno, serratura) => {
+    const chi = serratura.utente ? `${serratura.macchina} (${serratura.utente})` : serratura.macchina
+    const quando = serratura.aperto ? new Date(serratura.aperto).toLocaleString('it-CH') : null
+    const scelta = await vscode.window.showWarningMessage(
+      `L’anno «${anno}» risulta già aperto su ${chi}.`,
+      {
+        modal: true,
+        detail:
+          `${quando ? `Aperto il ${quando}. ` : ''}Se lo apri anche qui, chi salva per ultimo ` +
+          'copre il lavoro dell’altro. Può anche essere un registro chiuso male: in quel caso ' +
+          'aprirlo è la cosa giusta.',
+      },
+      { title: 'Apri lo stesso' },
+    )
+    return scelta === 'Apri lo stesso'
+  })
+
   // Prima di leggere: se questa cartella è ancora quella di prima — i nove
   // JSON tutti insieme, con gli anni mescolati dentro — si divide per anno.
   // Va fatto qui e non dopo il caricamento perché `Archivio` sa leggere solo
   // la disposizione nuova: aprirlo prima vorrebbe dire mostrare un registro
   // vuoto per il tempo della migrazione, e spaventare chi guarda.
   const migrati = await migraAnni()
+  // E subito dopo il secondo trasloco: i JSON di ogni anno dentro il suo
+  // documento, `2026-2027.registro`. Nello stesso punto e per lo stesso motivo,
+  // e in quest'ordine, perché il primo trasloco produce proprio le cartelle che
+  // il secondo impacchetta.
+  const impacchettati = await impacchettaAnni()
 
   await archivio.carica()
 
@@ -85,6 +113,14 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
       migrati.anni.length === 1
         ? `Registro: i dati sono ora nella cartella «${migrati.corrente}», una per anno scolastico.`
         : `Registro: i dati sono stati divisi in ${migrati.anni.length} cartelle, una per anno scolastico. In uso: «${migrati.corrente}».`,
+    )
+  }
+
+  if (impacchettati.length > 0) {
+    void vscode.window.showInformationMessage(
+      impacchettati.length === 1
+        ? `Registro: i dati dell’anno stanno ora nel documento «${impacchettati[0]}${ESTENSIONE}». La cartella «dati» di prima è nel cestino.`
+        : `Registro: ${impacchettati.length} anni sono ora altrettanti documenti «${ESTENSIONE}». Le cartelle «dati» di prima sono nel cestino.`,
     )
   }
 
@@ -378,5 +414,8 @@ export async function spegni (): Promise<void> {
   // Qui invece si aspetta, ed è il guscio a fermare l'uscita perché si possa.
   const archivio = archivioAttivo
   archivioAttivo = null
-  await archivio?.salva()
+  // Chiudere e non solo salvare: il documento dell’anno va lasciato libero,
+  // o la sua serratura resterebbe accanto al file e la prossima apertura
+  // annuncerebbe un registro aperto altrove che invece è solo finito male.
+  await archivio?.chiudi()
 }

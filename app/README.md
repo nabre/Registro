@@ -3,7 +3,8 @@
 Registro di classe per docenti: calendario delle lezioni, classi e persone in
 formazione (PiF),
 piani lezione e momenti di valutazione. È un'applicazione desktop — Electron —
-e i dati stanno in file JSON dentro la cartella di lavoro, accanto al resto del
+e i dati stanno in un documento per anno scolastico — `2026-2027.registro`, un
+archivio con dentro i JSON — nella cartella di lavoro, accanto al resto del
 materiale del docente.
 
 All'avvio l'applicazione chiede una volta sola su quale cartella lavorare, se la
@@ -1132,31 +1133,49 @@ niente, le scansioni restano in quarantena e si assegnano a mano.
 ## I file dei dati
 
 Nella cartella indicata da `registroDocenti.cartellaDati` (di norma `registro/`)
-c'è una sottocartella per anno scolastico, e in radice il file che dice quale è
+c'è un documento per anno scolastico — un file `.registro` — con accanto la
+cartella dei documenti di quell'anno, e in radice il file che dice quale anno è
 aperto:
 
 ```
 registro/
   registro.json         due righe: quale anno è aperto
-  2026-2027/            un anno scolastico: tutto quel che lo riguarda, e nient'altro
-    dati/
-      registro.json     l'anno, i suoi semestri e le sue pause, le materie, le impostazioni
-      classi.json       classi con le loro PiF
-      corsi.json        classe × materia: il perno a cui tutto si aggancia
-      lezioni.json      lezioni, slot, presenze, osservazioni, consuntivi
-      piani-lezione.json  piani lezione, per corso, con le loro risorse
-      valutazioni.json  momenti di valutazione con i voti
-      fascicoli.json    recapiti, documenti, comunicazioni e periodi di assenze
-      consegne.json     compiti e mansioni, con le spunte di chi le ha fatte
-      smistamenti.json  i PDF in quarantena, con le pagine ancora da assegnare
-      .storico/         le copie precedenti di ogni file, le ultime dieci
+  2026-2027.registro    i dati dell'anno: un archivio con dentro i JSON di sempre
+    registro.json       l'anno, i suoi semestri e le sue pause, le materie, le impostazioni
+    classi.json         classi con le loro PiF
+    corsi.json          classe × materia: il perno a cui tutto si aggancia
+    lezioni.json        lezioni, slot, presenze, osservazioni, consuntivi
+    piani-lezione.json  piani lezione, per corso, con le loro risorse
+    valutazioni.json    momenti di valutazione con i voti
+    fascicoli.json      recapiti, documenti, comunicazioni e periodi di assenze
+    consegne.json       compiti e mansioni, con le spunte di chi le ha fatte
+    smistamenti.json    i PDF in quarantena, con le pagine ancora da assegnare
+    manifesto.json      che cos'è questo file, e di che versione
+    .storico/           le copie precedenti di ogni collezione, le ultime dieci
+  2026-2027/            i documenti di quell'anno, che si aprono con altri programmi
     documentazione/     tutti i documenti, caricati e generati: per classe
     in-arrivo/          la cassetta: i PDF di classe da dividere, una cartella per documento
     quarantena/         i PDF con pagine non ancora assegnate
     allegati/ risorse/ assenze/    quel che resta delle disposizioni di prima
+  2027-2028.registro
   2027-2028/
     …
 ```
+
+Il documento è uno ZIP con un'estensione nostra, e questo è il punto: si apre
+con un doppio clic — l'installazione lo associa al registro — ma il giorno che
+il registro non parte lo apre anche `unzip`, e dentro ci sono i JSON di sempre.
+Un formato inventato si legge solo con il programma che lo ha scritto, cioè
+proprio quello che non funziona. `.registro` per esteso e non una sigla: un
+docente che dopo tre anni ritrova il file deve capire che cos'è senza aprirlo, e
+`.reg` — lo script del registro di configurazione di Windows — con un doppio
+clic per sbaglio scriverebbe dentro il sistema.
+
+Documento e cartella portano lo stesso nome, ed è quel che li tiene insieme
+senza un identificatore scritto da qualche parte che si possa contraddire.
+Nel documento va quel che il registro scrive e rilegge da sé; nella cartella
+quel che si apre con altri programmi — i PDF perderebbero il doppio clic, a
+stare chiusi in un archivio.
 
 Il nome della cartella viene dall'etichetta dell'anno — «2026/2027» diventa
 `2026-2027` — e da lì non si muove più: rinominare l'anno non sposta la
@@ -1164,10 +1183,15 @@ cartella, perché una cartella che si rinomina da sola smette di essere dove i
 collegamenti dicono che sia, e in una cartella sincronizzata si porta dietro i
 conflitti di chi la stava aprendo altrove.
 
-`dati/` sta separata dal resto perché è l'unica sottocartella che non si apre a
-mano: dentro ci sono i file del programma, fuori i documenti di chi insegna. Chi
-entra in una cartella d'anno per cercare una pagella non deve inciampare in nove
-JSON.
+Il documento si apre e si chiude: il registro lo prende all'avvio, lo tiene
+finché ci lavora e lo lascia quando esce. Finché è aperto, accanto c'è una
+serratura — `.2026-2027.registro.serratura` — che dice quale macchina lo sta
+usando. Non impedisce niente, e non potrebbe: su una cartella sincronizzata non
+esiste un lucchetto vero. Serve a fare la domanda giusta prima che sia tardi —
+«questo anno è aperto sul computer della sala docenti: vuoi aprirlo lo stesso?»
+— invece di lasciare due registri che si coprono a vicenda al primo
+salvataggio. Una serratura della propria macchina non ferma nessuno: è quel che
+resta di un registro chiuso male.
 
 I percorsi salvati dentro i JSON — `documentazione/DIC4a/…`, `allegati/…` — sono
 relativi alla cartella dell'anno, non alla radice. È per questo che un anno si
@@ -1175,10 +1199,13 @@ può spostare, rinominare o consegnare a qualcun altro senza che nulla dentro si
 rompa.
 
 **Chi viene dalla disposizione di prima** non deve fare niente: alla prima
-apertura il registro divide da solo i file che stavano tutti insieme, un anno
-per cartella, seguendo le classi. Quel che non si sa a quale anno assegnare
-finisce nell'anno aperto — mai perso, mai lasciato indietro — e i file vecchi
-vanno nel cestino, non cancellati. Lo fa una volta, senza chiedere: chiedere
+apertura il registro fa i due traslochi da solo — prima divide per anno i file
+che stavano tutti insieme, seguendo le classi, poi impacchetta i JSON di ogni
+anno nel suo documento e manda nel cestino la cartella `dati/` di prima. Quel
+che non si sa a quale anno assegnare finisce nell'anno aperto — mai perso, mai
+lasciato indietro — e i file vecchi vanno nel cestino, non cancellati: è il
+momento in cui si potrebbe scoprire che qualcosa non è passato, ed è l'unica
+copia di com'era. Lo fa una volta, senza chiedere: chiedere
 avrebbe voluto dire lasciare per un po' un registro che il resto del programma
 non sa più leggere.
 
@@ -1277,12 +1304,40 @@ collezione resta vuota per quella sessione, e alla prima modifica il file
 rotto viene messo da parte con un altro nome invece di essere sovrascritto.
 
 Le scritture passano da un file temporaneo e poi da una rinomina, così un
-salvataggio interrotto non lascia un JSON troncato; e prima di riscrivere, la
-copia di com'era finisce in `.storico/`, dove restano le ultime dieci per
-file. Costa una copia per salvataggio e ripaga la prima volta che si vuole
-sapere che cosa c'era ieri — o quando due macchine hanno scritto insieme sulla
-stessa cartella sincronizzata. È una cartella di lavoro, non un dato del
-registro: sotto Git non ci va.
+salvataggio interrotto lascia al suo posto l'ultimo documento buono invece di un
+archivio troncato; e prima di riscrivere, la copia di com'era finisce in
+`.storico/`, dentro lo stesso documento, dove restano le ultime dieci per
+collezione. Costa poco — dieci versioni dello stesso JSON dentro uno ZIP si
+comprimono quasi a niente — e ripaga la prima volta che si vuole sapere che cosa
+c'era ieri, o quando due macchine hanno scritto insieme sulla stessa cartella
+sincronizzata. Sta dentro il documento e non accanto: un anno resta un file
+solo anche con il suo passato dentro, e chi lo copia su una chiavetta se lo
+porta via.
+
+Il documento si riscrive per intero a ogni salvataggio — uno ZIP non si aggiorna
+in una voce sola — ma non si *ricomprime* per intero: ogni voce si porta dietro
+il proprio blocco già compresso, e alla riscrittura torna in fila così com'è.
+Solo la collezione che è cambiata passa da `deflate`. È la differenza fra
+quaranta millisecondi e tre: nove decimi di un documento sono lo storico, che
+una volta scritto non cambia più, e ricomprimerlo a ogni tasto premuto era tutto
+il costo di un salvataggio. Per la stessa ragione l'apertura non decomprime
+niente che non venga chiesto: le collezioni sì, le copie dello storico solo
+quando qualcuno le va a cercare.
+
+Le collezioni si comprimono al livello intermedio e lo storico al massimo: sulle
+prime il livello massimo guadagna novecento byte e costa tre millisecondi a ogni
+riscrittura, sul secondo si paga una volta e risparmia otto kilobyte a ogni
+sincronizzazione che verrà.
+
+Il ritardo prima di scrivere è di un terzo di secondo dall'ultima modifica —
+quanto basta a raccogliere una frase battuta a macchina in una scrittura sola —
+e comunque non più di due secondi dalla prima modifica non ancora salvata: senza
+quel tetto, chi scrive un consuntivo lungo senza mai fermarsi resterebbe con
+tutto in memoria fino alla fine. La compressione avviene fuori dal thread che
+disegna le finestre, così il registro resta reattivo mentre salva. E prima di
+toccare il disco il registro confronta quel che ha in mano con quel che ha
+scritto per ultimo: un anno consultato e non modificato non produce nessuna
+sincronizzazione.
 
 Il registro tiene d'occhio la cartella: se i file cambiano da fuori — un'altra
 finestra, la sincronizzazione della cartella — li ricarica da solo. Quel che
@@ -1425,7 +1480,7 @@ l'orologio e l'archivio, `src/ambiente/vassoio.ts` traduce in menu di Electron.
 
 | Chiave | Predefinito | Che cosa fa |
 | --- | --- | --- |
-| `registroDocenti.cartellaDati` | `registro` | Cartella che contiene gli anni scolastici, relativa alla radice del workspace |
+| `registroDocenti.cartellaDati` | `registro` | Cartella che contiene i documenti degli anni scolastici, relativa alla radice del workspace |
 | `registroDocenti.aperturaAutomatica` | `true` | Apre il pannello all'avvio se la cartella dei dati esiste |
 | `registroDocenti.vassoio.attivo` | `true` | Tiene l'icona del registro accanto all'orologio, con i corsi e le loro ore |
 | `registroDocenti.vassoio.chiusuraNelVassoio` | `true` | La X mette via il registro invece di uscire: si esce dal menu dell'icona |

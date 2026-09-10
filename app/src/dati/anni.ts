@@ -33,6 +33,7 @@ import type { Registro } from '../dominio/modelli.js'
 import { VERSIONE_DATI } from '../dominio/modelli.js'
 import { nomeSicuro } from '../dominio/testo.js'
 import { normalizzaRegistro } from '../dominio/validazione.js'
+import { Pacchetto, STORICO } from './pacchetto.js'
 import {
   DATI,
   INDICE,
@@ -44,6 +45,7 @@ import {
   esisteFile,
   percorsoIn,
   percorsoIndice,
+  percorsoPacchettoDi,
   sottocartelleDi,
   vociDi,
 } from './percorsi.js'
@@ -326,5 +328,90 @@ export async function migraAnni (): Promise<EsitoMigrazione | null> {
   return {
     anni: registro.anni.map((a) => destinazioni.get(a.id)!),
     corrente,
+  }
+}
+
+// ------------------------------------------------- dalle cartelle ai documenti
+
+/**
+ * Il secondo trasloco: da `2026-2027/dati/*.json` a `2026-2027.registro`.
+ *
+ * Anche questo si fa una volta sola e senza chiedere niente, per la stessa
+ * ragione dell'altro: finché i dati stanno in due disposizioni diverse, il
+ * registro ne legge una sola, e lasciare scegliere vorrebbe dire lasciare a
+ * metà un registro che nessuno sa più leggere.
+ *
+ * L'ordine è quello che regge un'interruzione a metà. Prima si scrive il
+ * documento — se la corrente va via qui, sul disco ci sono le cartelle di
+ * prima, intatte, e al riavvio si ricomincia — e solo dopo la vecchia
+ * `dati/` va nel cestino. Nel cestino e non cancellata: è il momento in cui si
+ * potrebbe scoprire che qualcosa non è passato, ed è l'unica copia di com'era.
+ *
+ * Un anno che ha già il suo documento si salta: la cartella `dati/` rimasta
+ * accanto è quella di una macchina non ancora aggiornata, e riprenderla
+ * vorrebbe dire riportare indietro i dati di oggi con quelli di ieri.
+ */
+export async function impacchettaAnni (): Promise<string[]> {
+  const radice = cartellaDati()
+  if (!radice || !(await esisteFile(radice))) return []
+
+  const fatti: string[] = []
+  for (const cartella of await sottocartelleDi(radice)) {
+    const dati = cartellaCollezioniDi(cartella)
+    const documento = percorsoPacchettoDi(cartella)
+    if (!dati || !documento) continue
+    if (!(await esisteFile(vscode.Uri.joinPath(dati, NOMI.registro)))) continue
+    if (await esisteFile(documento)) continue
+
+    const pacchetto = Pacchetto.nuovo(documento)
+    // Quel che si scrive qui — le copie dello storico soprattutto — non verrà
+    // più riscritto: si comprime al massimo, e il tempo speso una volta sola
+    // resta risparmiato su ogni sincronizzazione che verrà.
+    pacchetto.stringiAlMassimo()
+    let qualcosa = false
+    for (const [nome, tipo] of await vociDi(dati)) {
+      if (tipo === vscode.FileType.Directory) continue
+      // Solo i JSON delle collezioni, e non quel che si è depositato accanto:
+      // un `.tmp` di un salvataggio interrotto o una copia `.rotto-…` non
+      // devono entrare nel documento come se fossero dati buoni.
+      if (!nome.endsWith('.json') || nome.endsWith('.tmp')) continue
+      const testo = await leggiTesto(vscode.Uri.joinPath(dati, nome))
+      if (testo === null) continue
+      pacchetto.scrivi(nome, testo)
+      qualcosa = true
+    }
+    // E le copie di com'era, che seguono i JSON dentro il documento: sono la
+    // rete di chi si accorge domani che oggi ha cancellato una classe.
+    for (const [nome, tipo] of await vociDi(vscode.Uri.joinPath(dati, STORICO))) {
+      if (tipo === vscode.FileType.Directory || !nome.endsWith('.json')) continue
+      const testo = await leggiTesto(vscode.Uri.joinPath(dati, STORICO, nome))
+      if (testo !== null) pacchetto.scrivi(`${STORICO}/${nome}`, testo)
+    }
+    if (!qualcosa) continue
+
+    try {
+      await pacchetto.salva({ forza: true })
+    } catch {
+      // Non si è potuto scrivere: la cartella resta dov'è e si riprova alla
+      // prossima apertura, che è esattamente quel che serve.
+      continue
+    }
+    try {
+      await vscode.workspace.fs.delete(dati, { recursive: true, useTrash: true })
+    } catch {
+      // Il documento c'è comunque, ed è quello che il registro legge: la
+      // cartella di prima resta lì, ignorata, finché qualcuno non la toglie.
+    }
+    fatti.push(cartella)
+  }
+  return fatti
+}
+
+/** Il testo di un file, o null se non c'è o non si legge. */
+async function leggiTesto (file: vscode.Uri): Promise<string | null> {
+  try {
+    return new TextDecoder().decode(await vscode.workspace.fs.readFile(file))
+  } catch {
+    return null
   }
 }

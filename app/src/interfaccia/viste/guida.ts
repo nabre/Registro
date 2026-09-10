@@ -970,35 +970,44 @@ const GUIDA: SezioneGuida[] = [
     titolo: 'Dove stanno i dati',
     simbolo: 'cartella',
     sommario:
-      'File JSON dentro il workspace, una cartella per anno scolastico. Niente database, ' +
-      'niente rete.',
+      'Un documento per anno scolastico, dentro il workspace. Niente database, niente rete.',
     voci: [
       {
-        termine: 'Un anno, una cartella',
+        termine: 'Un anno, un documento',
         testo:
-          '`registro/2026-2027/` contiene i dati, la documentazione e la cassetta di ' +
-          'quell’anno. Si archivia, si copia su una chiavetta o si consegna spostando una ' +
-          'cartella.',
+          '`registro/2026-2027.registro` contiene i dati di quell’anno: l’anno con materie e ' +
+          'impostazioni, le classi, i corsi, le lezioni, i piani, le valutazioni, i fascicoli, ' +
+          'le consegne, gli smistamenti. Si apre con un doppio clic, si copia su una chiavetta ' +
+          'e si consegna a chi subentra spostando un file.',
       },
       {
-        termine: 'I file',
+        termine: 'Accanto, la cartella dell’anno',
         testo:
-          'In `dati/`: l’anno con materie e impostazioni, le classi, i corsi, le lezioni, i ' +
-          'piani, le valutazioni, i fascicoli, le consegne, gli smistamenti. Uno per ' +
-          'collezione, così i confronti restano leggibili.',
+          '`registro/2026-2027/` tiene quel che si apre con altri programmi: l’archivio dei ' +
+          'PDF, le esportazioni, la cassetta della posta. Documento e cartella portano lo ' +
+          'stesso nome e vanno insieme.',
+      },
+      {
+        termine: 'Aperto e chiuso',
+        testo:
+          'Il registro apre il documento all’avvio e lo lascia quando esce; finché lo tiene ' +
+          'aperto, accanto compare un file di serratura. Aprendo lo stesso anno da un altro ' +
+          'computer il registro lo dice prima, invece di lasciare che chi salva per ultimo ' +
+          'copra il lavoro dell’altro.',
       },
       {
         termine: 'Copie di sicurezza',
         testo:
-          'Prima di ogni riscrittura la versione precedente finisce in `dati/.storico/`, con ' +
-          'le ultime dieci per file. Serve la prima volta che ci si chiede com’era ieri.',
+          'Prima di ogni riscrittura la versione precedente finisce in `.storico/`, dentro lo ' +
+          'stesso documento, con le ultime dieci per collezione. Serve la prima volta che ci ' +
+          'si chiede com’era ieri, e segue il file dovunque lo si porti.',
       },
       {
         termine: 'Si aprono a mano',
         testo:
-          'Sono file di testo: si mettono sotto Git, si sincronizzano con la cartella, e se ' +
-          'serve si correggono con un editor. Quel che il registro rilegge lo rimette in riga ' +
-          'da solo.',
+          'Il documento è un archivio ZIP con dentro i JSON di sempre: rinominandolo in `.zip` ' +
+          'lo apre qualunque computer, anche uno che il registro non ce l’ha. Quel che il ' +
+          'registro rilegge lo rimette in riga da solo.',
       },
     ],
   },
@@ -1019,8 +1028,10 @@ const GUIDA: SezioneGuida[] = [
         termine: 'Un file che non si legge',
         testo:
           'Un JSON rotto non azzera il registro: si segnala, quella sola collezione resta ' +
-          'vuota, e alla prima modifica il file viene messo da parte con un altro nome invece ' +
-          'di essere coperto.',
+          'vuota, e alla prima modifica viene messa da parte dentro il documento con un altro ' +
+          'nome invece di essere coperta. Un documento che non si apre — arrivato a metà da ' +
+          'una sincronizzazione — non si apre affatto: il registro lo dice e non ci scrive ' +
+          'sopra.',
       },
       {
         termine: 'Un documento che non si apre',

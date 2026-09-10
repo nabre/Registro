@@ -6,17 +6,30 @@
 // tasto su una cartella sincronizzata è un modo sicuro di far litigare OneDrive
 // con se stesso.
 //
-// In memoria c'è un anno solo: quello in uso. Gli altri restano nelle loro
-// cartelle e se ne legge la sola intestazione — etichetta, semestri,
-// sospensioni — che serve a elencarli e a poterci passare sopra. È il motivo
-// per cui l'anno è una cartella: «l'anno scorso» si apre, non si filtra, e un
+// In memoria c'è un anno solo: quello in uso. Degli altri si legge la sola
+// intestazione — etichetta, semestri, sospensioni — che serve a elencarli e a
+// poterci passare sopra, e poi il loro documento si lascia andare. È il motivo
+// per cui l'anno è un file a sé: «l'anno scorso» si apre, non si filtra, e un
 // registro di dieci anni pesa quanto uno di uno.
 //
+// Su disco un anno è un documento solo — `2026-2027.registro`, che è uno ZIP
+// con dentro i nove JSON di sempre — e il registro lo apre come si apre un
+// documento: lo prende all'avvio, lo tiene aperto finché ci lavora, lo lascia
+// quando si spegne o quando si passa a un altro anno. Le nove collezioni sono
+// voci dentro quell'archivio, e quel che cambia rispetto a prima è che una
+// modifica non tocca più un file solo: tocca il documento intero, sempre.
+//
+// Sempre, ma non tutto: le voci che non cambiano tornano nell'archivio già
+// compresse, senza passare da `deflate`. Un salvataggio costa così tre
+// millisecondi invece di quaranta, e sono tre millisecondi spesi fuori dal
+// thread che disegna le finestre — vedi `pacchetto.ts` e `zip.ts`.
+//
 // Scrittura in due tempi (file temporaneo e poi rinomina) perché un salvataggio
-// interrotto a metà lasci l'ultimo file buono al suo posto invece di un JSON
-// troncato. E prima della rinomina una copia del file che c'era finisce in
-// `.storico/`: un registro sta in una cartella sincronizzata, e «com'era ieri»
-// è la domanda che ci si fa quando due macchine hanno scritto insieme.
+// interrotto a metà lasci l'ultimo documento buono al suo posto invece di un
+// archivio troncato. E prima della riscrittura una copia della voce che c'era
+// finisce in `.storico/`, dentro lo stesso documento: un registro sta in una
+// cartella sincronizzata, e «com'era ieri» è la domanda che ci si fa quando due
+// macchine hanno scritto insieme.
 //
 // Letture e scritture passano da una coda sola: una ricarica arrivata dal
 // watcher mentre un salvataggio è in attesa non deve buttare via la modifica
@@ -31,32 +44,54 @@ import { VERSIONE_DATI } from '../dominio/modelli.js'
 import { nomeSicuro } from '../dominio/testo.js'
 import { normalizzaRegistro } from '../dominio/validazione.js'
 import {
-  DATI,
+  ErrorePacchetto,
+  ESTENSIONE,
+  Pacchetto,
+  type Serratura,
+} from './pacchetto.js'
+import {
   INDICE,
   NOMI,
   type NomeCollezione,
+  anniPresenti,
   cartellaAnnoDi,
-  cartellaCollezioni,
-  cartellaCollezioniDi,
   cartellaDati,
   esisteFile,
   impostaAnnoInUso,
-  percorso,
-  percorsoIn,
   percorsoIndice,
+  percorsoPacchetto,
+  percorsoPacchettoDi,
   sottocartelleDi,
 } from './percorsi.js'
 
-const RITARDO_SALVATAGGIO_MS = 400
+/**
+ * Quanto si aspetta, dall'ultima modifica, prima di scrivere.
+ *
+ * Breve: il salvataggio costa un paio di millisecondi — si ricomprime la sola
+ * collezione cambiata, non il documento intero — e chi smette di battere per un
+ * terzo di secondo ha finito la frase. Più corto di così si scriverebbe in
+ * mezzo a una parola.
+ */
+const RITARDO_SALVATAGGIO_MS = 350
+
+/**
+ * E comunque non oltre questo, dalla prima modifica non ancora salvata.
+ *
+ * Senza un tetto, chi scrive un consuntivo lungo senza mai fermarsi per un
+ * terzo di secondo resterebbe con tutto in memoria fino alla fine: il ritardo
+ * si rinnova a ogni tasto, ed è proprio quando si sta scrivendo tanto che si
+ * ha più da perdere. Due secondi è il massimo che può separare quel che si vede
+ * sullo schermo da quel che c'è sul disco.
+ */
+const ATTESA_MASSIMA_MS = 2000
 
 /** Quanto si aspetta prima di ricaricare: il watcher annuncia lo stesso file più volte. */
 const RITARDO_RICARICA_MS = 300
 
 /** Quanto un file appena scritto da noi resta "nostro" agli occhi del watcher. */
-const FINESTRA_ECO_MS = 1500
+const FINESTRA_ECO_MS = 2500
 
-/** La cartella delle copie precedenti, e quante se ne tengono per file. */
-const STORICO = '.storico'
+/** Quante copie di ogni collezione si tengono dentro `.storico/`. */
 const COPIE_STORICO = 10
 
 /** Il contenuto grezzo dei file, prima che la normalizzazione ci metta mano. */
@@ -75,10 +110,28 @@ interface TestaAnno {
   impostazioni: Impostazioni
 }
 
+/**
+ * Che cosa fare quando il documento di un anno risulta aperto altrove.
+ *
+ * Lo decide chi ha una finestra da mostrare — il guscio — e non l'archivio, che
+ * di finestre non sa niente. Senza risposta si apre lo stesso: la serratura è
+ * un avviso, e un avviso che nessuno può leggere non deve fermare il registro.
+ */
+export type SeOccupato = (
+  anno: string,
+  serratura: Serratura,
+) => Promise<boolean>
+
 export class Archivio implements vscode.Disposable {
   private stato: Registro = registroVuoto()
   private caricato = false
+  /** Il documento dell'anno in uso: aperto finché ci si lavora. */
+  private pacchetto: Pacchetto | null = null
+  /** Chiesto prima di aprire un anno che risulta aperto altrove. */
+  private seOccupato: SeOccupato | null = null
   private timerSalvataggio: NodeJS.Timeout | null = null
+  /** Quando è arrivata la prima modifica non ancora scritta: zero se non ce n'è. */
+  private primaModificaNonSalvata = 0
   private timerRicarica: NodeJS.Timeout | null = null
   private scritturePendenti = new Set<NomeCollezione>()
   private ultimeScritture = new Map<string, number>()
@@ -142,18 +195,18 @@ export class Archivio implements vscode.Disposable {
 
   /**
    * Vero se in questa cartella il registro è già stato usato: c'è l'indice, o
-   * c'è almeno un anno. Distingue un registro avviato da uno mai aperto.
+   * c'è almeno un documento d'anno. Distingue un registro avviato da uno mai
+   * aperto.
    */
   async esiste (): Promise<boolean> {
     const indice = percorsoIndice()
     if (indice && (await esisteFile(indice))) return true
-    const radice = cartellaDati()
-    if (!radice) return false
-    for (const nome of await sottocartelleDi(radice)) {
-      const suo = percorsoIn(nome, 'registro')
-      if (suo && (await esisteFile(suo))) return true
-    }
-    return false
+    return (await anniPresenti()).length > 0
+  }
+
+  /** Dichiara chi risponde quando un anno risulta aperto su un'altra macchina. */
+  chiediSeOccupato (domanda: SeOccupato | null): void {
+    this.seOccupato = domanda
   }
 
   /** Mette un lavoro in coda dopo quelli già in corso, e ne torna l'esito. */
@@ -178,21 +231,23 @@ export class Archivio implements vscode.Disposable {
   }
 
   /**
-   * Gli anni che ci sono, letti dalle cartelle.
+   * Gli anni che ci sono, letti dai documenti presenti.
    *
-   * L'elenco sono le cartelle, non una lista scritta da qualche parte: una
-   * lista si sarebbe potuta contraddire con quel che c'è davvero sul disco —
-   * un anno copiato a mano non sarebbe comparso, uno cancellato sarebbe
-   * rimasto — e la cartella è già l'unico posto in cui l'anno esiste.
+   * L'elenco sono i file, non una lista scritta da qualche parte: una lista si
+   * sarebbe potuta contraddire con quel che c'è davvero sul disco — un anno
+   * copiato a mano non sarebbe comparso, uno portato via sarebbe rimasto — e il
+   * documento è già l'unico posto in cui l'anno esiste.
+   *
+   * Degli anni che non si aprono si legge la sola intestazione, e poi
+   * l'archivio si lascia andare: tenerli tutti aperti vorrebbe dire tenere in
+   * memoria dieci anni di lezioni per mostrarne l'etichetta in un menu.
    */
-  private async leggiTeste (): Promise<TestaAnno[]> {
-    const radice = cartellaDati()
-    if (!radice) return []
+  private async leggiTeste (aperto: Pacchetto | null): Promise<TestaAnno[]> {
     const teste: TestaAnno[] = []
-    for (const cartella of await sottocartelleDi(radice)) {
-      const file = percorsoIn(cartella, 'registro')
-      if (!file) continue
-      const grezzo = await this.leggiFile(file, `${cartella}/${DATI}/${INDICE}`)
+    for (const cartella of await anniPresenti()) {
+      const pacchetto = aperto?.nome === cartella ? aperto : await this.apriSolaLettura(cartella)
+      if (!pacchetto) continue
+      const grezzo = this.leggiVoce(pacchetto, NOMI.registro, `${cartella}${ESTENSIONE}`)
       if (!grezzo) continue
       const testa = testaDa(grezzo, cartella)
       if (testa) teste.push(testa)
@@ -200,34 +255,61 @@ export class Archivio implements vscode.Disposable {
     return teste.sort((a, b) => a.anno.inizio.localeCompare(b.anno.inizio))
   }
 
-  /** Quale cartella d'anno usare: quella scritta nell'indice, o la prima che c'è. */
-  private async annoDaAprire (teste: TestaAnno[]): Promise<string | null> {
+  /** Apre un documento per guardarci dentro, senza prenderne la serratura. */
+  private async apriSolaLettura (cartella: string): Promise<Pacchetto | null> {
+    const file = percorsoPacchettoDi(cartella)
+    if (!file) return null
+    try {
+      return await Pacchetto.apri(file)
+    } catch (errore) {
+      this.emettitoreErrori.fire(
+        errore instanceof ErrorePacchetto
+          ? errore.message
+          : `Non riesco a leggere ${cartella}${ESTENSIONE}: ${errore instanceof Error ? errore.message : errore}`,
+      )
+      return null
+    }
+  }
+
+  /** Quale anno aprire: quello scritto nell'indice, o l'ultimo che c'è. */
+  private async annoDaAprire (presenti: string[]): Promise<string | null> {
     const indice = percorsoIndice()
     const grezzo = indice ? await this.leggiFile(indice, INDICE) : null
     const scritto = typeof (grezzo as { annoCorrente?: unknown })?.annoCorrente === 'string'
       ? nomeSicuro((grezzo as { annoCorrente: string }).annoCorrente)
       : ''
-    if (scritto && teste.some((t) => t.cartella === scritto)) return scritto
-    // Nessun indice, o punta a una cartella che non c'è più: si apre l'ultimo
+    if (scritto && presenti.includes(scritto)) return scritto
+    // Nessun indice, o punta a un documento che non c'è più: si apre l'ultimo
     // anno cominciato, che è quello a cui si sta lavorando nove volte su dieci.
-    return teste.length > 0 ? teste[teste.length - 1].cartella : null
+    return presenti.length > 0 ? presenti[presenti.length - 1] : null
   }
 
   private async leggiTutto (): Promise<Registro> {
-    const teste = await this.leggiTeste()
-    const cartella = await this.annoDaAprire(teste)
+    const presenti = await anniPresenti()
+    const cartella = await this.annoDaAprire(presenti)
 
+    // Il documento dell'anno prima si lascia andare — serratura compresa —
+    // prima di prendere il nuovo: due documenti aperti insieme sarebbero due
+    // serrature, e alla chiusura ne resterebbe una in giro. Se l'anno è lo
+    // stesso — è una ricarica, non un cambio d'anno — la serratura resta dov'è.
+    const stesso = cartella !== null && this.pacchetto?.nome === cartella
+    await this.lasciaPacchetto({ tieniSerratura: stesso })
+    this.pacchetto = cartella
+      ? await this.prendiPacchetto(cartella, { giàNostro: stesso })
+      : null
+
+    const teste = await this.leggiTeste(this.pacchetto)
     this.teste = new Map(teste.map((t) => [t.cartella, t]))
-    impostaAnnoInUso(cartella)
-    // I file dell'anno in uso valgono solo per lui: quel che era stato letto
-    // dall'anno di prima non deve far credere che un file sia già a posto.
+    impostaAnnoInUso(this.pacchetto ? cartella : null)
+    // Le voci dell'anno in uso valgono solo per lui: quel che era stato letto
+    // dall'anno di prima non deve far credere che una collezione sia a posto.
     this.ultimiTesti.clear()
     this.illeggibili.clear()
 
-    const corrente = cartella ? this.teste.get(cartella) ?? null : null
+    const corrente = this.pacchetto ? this.teste.get(this.pacchetto.nome) ?? null : null
     const grezzo = {} as FilePersistito
     for (const collezione of COLLEZIONI) {
-      grezzo[collezione] = collezione === 'registro' ? null : await this.leggiJson(collezione)
+      grezzo[collezione] = collezione === 'registro' ? null : this.leggiCollezione(collezione)
     }
 
     this.stato = normalizzaRegistro({
@@ -323,34 +405,143 @@ export class Archivio implements vscode.Disposable {
     }
   }
 
-  private async leggiJson (nome: NomeCollezione): Promise<unknown> {
-    const file = percorso(nome)
-    if (!file) return null
-    let testo = ''
+  /** Una voce qualsiasi di un documento, interpretata come oggetto JSON. */
+  private leggiVoce (
+    pacchetto: Pacchetto,
+    nome: string,
+    dove: string,
+  ): Record<string, unknown> | null {
+    const testo = pacchetto.testo(nome)?.trim()
+    if (!testo) return null
     try {
-      testo = new TextDecoder().decode(await vscode.workspace.fs.readFile(file)).trim()
+      const letto = JSON.parse(testo)
+      return letto && typeof letto === 'object' ? (letto as Record<string, unknown>) : null
     } catch (errore) {
-      if (errore instanceof vscode.FileSystemError && errore.code === 'FileNotFound') return null
       this.emettitoreErrori.fire(
-        `Non riesco a leggere ${NOMI[nome]}: ${errore instanceof Error ? errore.message : errore}`,
+        `${nome} dentro ${dove} non è un JSON valido ` +
+          `(${errore instanceof Error ? errore.message : errore}): il documento resta com’è.`,
       )
-      this.illeggibili.add(nome)
       return null
     }
+  }
+
+  /**
+   * Una collezione dell'anno aperto.
+   *
+   * Non c'è più niente da leggere dal disco: il documento è già tutto in
+   * memoria, e qui si interpreta e basta. Quel che resta uguale a prima è che
+   * cosa succede a un JSON rotto — si segnala, si lascia vuota quella sola
+   * collezione, e la voce non si tocca finché non c'è da riscriverla.
+   */
+  private leggiCollezione (nome: NomeCollezione): unknown {
+    const testo = this.pacchetto?.testo(NOMI[nome])?.trim()
+    if (!testo) return null
     try {
-      const letto = testo ? JSON.parse(testo) : null
+      const letto = JSON.parse(testo)
       this.illeggibili.delete(nome)
       return letto
     } catch (errore) {
-      // Un JSON rotto non deve azzerare il registro in silenzio: si segnala,
-      // si lascia vuota quella sola collezione, e il file non si tocca.
       this.illeggibili.add(nome)
       this.emettitoreErrori.fire(
         `${NOMI[nome]} non è un JSON valido (${errore instanceof Error ? errore.message : errore}): ` +
-          'il file resta com’è, e alla prima modifica viene messo da parte con un altro nome.',
+          'resta com’è, e alla prima modifica viene messo da parte con un altro nome.',
       )
       return null
     }
+  }
+
+  // ------------------------------------------------------- aprire e chiudere
+
+  /**
+   * Apre il documento di un anno e ne prende la serratura.
+   *
+   * Se risulta già aperto altrove si chiede — a chi ha una finestra per
+   * chiedere — se procedere lo stesso. Una risposta negativa non è un errore:
+   * torna null, e il registro resta senza anno aperto invece di mettersi a
+   * scrivere sopra il lavoro di qualcun altro.
+   *
+   * Un documento illeggibile invece si annuncia e si lascia stare: non lo si
+   * apre vuoto, o il primo salvataggio ci scriverebbe sopra un anno intero.
+   */
+  private async prendiPacchetto (
+    cartella: string,
+    opzioni?: { giàNostro?: boolean },
+  ): Promise<Pacchetto | null> {
+    const file = percorsoPacchettoDi(cartella)
+    if (!file) return null
+
+    // Un anno che era già nostro non si richiede: la domanda vale all'apertura,
+    // e rifarla a ogni ricarica — una sincronizzazione ne provoca una — sarebbe
+    // una finestra modale ogni volta che il collega salva.
+    const chiLoTiene = opzioni?.giàNostro ? null : await Pacchetto.chiLoTiene(file)
+    if (chiLoTiene && this.seOccupato && !(await this.seOccupato(cartella, chiLoTiene))) {
+      return null
+    }
+
+    let pacchetto: Pacchetto
+    try {
+      pacchetto = await Pacchetto.apri(file)
+    } catch (errore) {
+      this.emettitoreErrori.fire(
+        errore instanceof ErrorePacchetto
+          ? errore.message
+          : `Non riesco ad aprire ${cartella}${ESTENSIONE}: ${errore instanceof Error ? errore.message : errore}`,
+      )
+      return null
+    }
+    await pacchetto.prendi({ giàPresa: opzioni?.giàNostro })
+    return pacchetto
+  }
+
+  /**
+   * Chiude il documento aperto: scrive quel che manca e restituisce la
+   * serratura.
+   *
+   * `tieniSerratura` serve alla ricarica dello stesso anno: là il documento si
+   * rilegge da capo — è cambiato sul disco — ma non lo si sta lasciando, e chi
+   * lo riapre un istante dopo è lo stesso registro.
+   */
+  private async lasciaPacchetto (opzioni?: { tieniSerratura?: boolean }): Promise<void> {
+    const pacchetto = this.pacchetto
+    if (!pacchetto) return
+    this.pacchetto = null
+    try {
+      await pacchetto.salva()
+    } catch (errore) {
+      this.emettitoreErrori.fire(
+        `Non riesco a salvare ${pacchetto.nome}${ESTENSIONE}: ${errore instanceof Error ? errore.message : errore}`,
+      )
+    }
+    if (!opzioni?.tieniSerratura) await pacchetto.lascia()
+  }
+
+  /**
+   * Chiude il registro: l'ultimo salvataggio, e poi il documento libero.
+   *
+   * È quel che si fa spegnendo, e quel che si fa prima di cambiare cartella di
+   * lavoro. Dopo, il file sul disco è completo e la sua serratura non c'è più:
+   * la stessa cartella aperta da un'altra macchina non trova nessuno.
+   */
+  async chiudi (): Promise<void> {
+    await this.salva()
+    await this.inFila(() => this.lasciaPacchetto())
+  }
+
+  /**
+   * Scrive il documento aperto, se c'è qualcosa da scrivere.
+   *
+   * Torna il documento a scriverlo per intero, e non c'è modo di fare
+   * altrimenti: uno ZIP non si aggiorna in una voce sola. È il motivo per cui
+   * il ritardo prima di salvare è più lungo di quando i file erano nove, e il
+   * motivo per cui `Pacchetto` confronta il contenuto prima di toccare il
+   * disco.
+   */
+  private async scriviPacchetto (): Promise<void> {
+    if (!this.pacchetto) return
+    const file = percorsoPacchetto()
+    if (file) this.ultimeScritture.set(file.toString(), Date.now())
+    await this.pacchetto.salva()
+    if (file) this.ultimeScritture.set(file.toString(), Date.now())
   }
 
   // ---------------------------------------------------------------- gli anni
@@ -385,8 +576,8 @@ export class Archivio implements vscode.Disposable {
     if (!radice) return null
 
     const cartella = await this.cartellaLibera(anno.etichetta || anno.inizio.slice(0, 4))
-    const dati = cartellaCollezioniDi(cartella)
-    if (!dati) return null
+    const suoi = cartellaAnnoDi(cartella)
+    if (!suoi) return null
 
     const testa: TestaAnno = {
       cartella,
@@ -395,7 +586,10 @@ export class Archivio implements vscode.Disposable {
       impostazioni: { ...this.stato.impostazioni, scala: { ...this.stato.impostazioni.scala } },
     }
     try {
-      await vscode.workspace.fs.createDirectory(dati)
+      // La cartella dei documenti nasce insieme al documento dei dati, vuota:
+      // sono le due metà di un anno, e vederne una sola nel gestore file
+      // farebbe pensare che l'altra si sia persa.
+      await vscode.workspace.fs.createDirectory(suoi)
       await this.scriviTesta(testa)
     } catch (errore) {
       this.emettitoreErrori.fire(
@@ -409,10 +603,14 @@ export class Archivio implements vscode.Disposable {
       a.inizio.localeCompare(b.inizio),
     )
     // Il primo anno di un registro nuovo è per forza quello in uso: senza, non
-    // ci sarebbe nessuna cartella in cui scrivere la prima classe.
+    // ci sarebbe nessun documento in cui scrivere la prima classe.
     if (!this.stato.annoCorrenteId) {
       this.stato.annoCorrenteId = testa.anno.id
       impostaAnnoInUso(cartella)
+      // E il documento appena creato si apre davvero, con la sua serratura:
+      // dichiarare l'anno in uso senza averlo in mano vorrebbe dire un
+      // registro che accetta modifiche e non le scrive da nessuna parte.
+      this.pacchetto = await this.prendiPacchetto(cartella)
       await this.scriviIndice(cartella)
       this.stato.materie = testa.materie
       this.stato.impostazioni = testa.impostazioni
@@ -460,13 +658,27 @@ export class Archivio implements vscode.Disposable {
     const cartella = anno?.cartella
     if (!anno || !cartella) return false
     const dove = cartellaAnnoDi(cartella)
-    if (!dove) return false
+    const documento = percorsoPacchettoDi(cartella)
+    if (!dove || !documento) return false
 
-    // Quel che era in attesa si scrive prima, o si riscriverebbe la cartella
-    // appena cestinata al primo salvataggio in ritardo.
+    // Quel che era in attesa si scrive prima, o si riscriverebbe il documento
+    // appena cestinato al primo salvataggio in ritardo. E il documento in uso
+    // si lascia andare: cestinare il file da sotto un archivio aperto vorrebbe
+    // dire farlo ricomparire al salvataggio dopo.
     await this.salva()
+    if (this.pacchetto?.nome === cartella) await this.inFila(() => this.lasciaPacchetto())
     try {
-      await vscode.workspace.fs.delete(dove, { recursive: true, useTrash: true })
+      // Le due metà dell'anno vanno insieme, e vanno nel cestino: un anno sono
+      // tre trimestri di lavoro, e l'unico rimedio a un clic sbagliato è
+      // ritrovarlo lì. La cartella dei documenti può non esserci — un anno
+      // creato e mai usato non ha ancora un allegato — e allora non c'è niente
+      // da buttare.
+      if (await esisteFile(documento)) {
+        await vscode.workspace.fs.delete(documento, { useTrash: true })
+      }
+      if (await esisteFile(dove)) {
+        await vscode.workspace.fs.delete(dove, { recursive: true, useTrash: true })
+      }
     } catch (errore) {
       this.emettitoreErrori.fire(
         `Non riesco a eliminare l’anno ${anno.etichetta}: ${errore instanceof Error ? errore.message : errore}`,
@@ -486,10 +698,18 @@ export class Archivio implements vscode.Disposable {
     return true
   }
 
-  /** Un nome di cartella libero, ricavato dall'etichetta: '2026/2027' → '2026-2027'. */
+  /**
+   * Un nome libero per un anno nuovo, ricavato dall'etichetta: '2026/2027' →
+   * '2026-2027'.
+   *
+   * Libero vuol dire due volte: non c'è il documento e non c'è la cartella. Il
+   * nome è lo stesso per tutti e due, e prenderne uno già usato da una delle
+   * due metà vorrebbe dire mescolare gli allegati di un anno con i dati di un
+   * altro.
+   */
   private async cartellaLibera (etichetta: string): Promise<string> {
     const radice = nomeSicuro(etichetta.replace(/[\\/]+/g, '-')) || 'anno'
-    const prese = new Set(await sottocartelleDi(cartellaDati()!))
+    const prese = new Set([...(await sottocartelleDi(cartellaDati()!)), ...(await anniPresenti())])
     if (!prese.has(radice)) return radice
     for (let n = 2; n < 100; n += 1) {
       const tentativo = `${radice} (${n})`
@@ -516,20 +736,39 @@ export class Archivio implements vscode.Disposable {
     }
   }
 
-  /** Scrive il `registro.json` di un anno: l'anno, le sue materie, le sue impostazioni. */
+  /**
+   * Scrive l'intestazione di un anno: l'anno, le sue materie, le sue
+   * impostazioni.
+   *
+   * Se è l'anno aperto si scrive nel documento che si ha già in mano; se è un
+   * altro — il calendario dell'anno prossimo, corretto in primavera — si apre
+   * il suo documento, si cambia quella voce e lo si richiude subito, senza mai
+   * prenderne la serratura: è una scrittura di due righe, e non è aprire
+   * l'anno.
+   */
   private async scriviTesta (testa: TestaAnno): Promise<void> {
-    const file = percorsoIn(testa.cartella, 'registro')
-    const dati = cartellaCollezioniDi(testa.cartella)
-    if (!file || !dati) return
     const { cartella: _cartella, ...anno } = testa.anno
     const testo = `${JSON.stringify(
       { versione: VERSIONE_DATI, anno, materie: testa.materie, impostazioni: testa.impostazioni },
       null,
       2,
     )}\n`
-    await vscode.workspace.fs.createDirectory(dati)
+
+    if (this.pacchetto?.nome === testa.cartella) {
+      this.pacchetto.conserva(NOMI.registro, COPIE_STORICO)
+      this.pacchetto.scrivi(NOMI.registro, testo)
+      this.ultimiTesti.set('registro', testo)
+      await this.scriviPacchetto()
+      return
+    }
+
+    const file = percorsoPacchettoDi(testa.cartella)
+    if (!file) return
+    const altro = await Pacchetto.apri(file)
+    altro.conserva(NOMI.registro, COPIE_STORICO)
+    altro.scrivi(NOMI.registro, testo)
     this.ultimeScritture.set(file.toString(), Date.now())
-    await vscode.workspace.fs.writeFile(file, new TextEncoder().encode(testo))
+    await altro.salva()
     this.ultimeScritture.set(file.toString(), Date.now())
   }
 
@@ -553,12 +792,27 @@ export class Archivio implements vscode.Disposable {
     return this.stato
   }
 
+  /**
+   * Programma la scrittura: poco dopo l'ultima modifica, e comunque entro il
+   * tetto dalla prima.
+   *
+   * Il ritardo si rinnova a ogni modifica — è quel che raccoglie una frase
+   * battuta a macchina in una scrittura sola — ma non può slittare
+   * indefinitamente: chi scrive senza pause vedrebbe il proprio lavoro restare
+   * in memoria per minuti.
+   */
   private programmaSalvataggio (): void {
+    const adesso = Date.now()
+    if (this.primaModificaNonSalvata === 0) this.primaModificaNonSalvata = adesso
+
+    const restante = ATTESA_MASSIMA_MS - (adesso - this.primaModificaNonSalvata)
+    const fra = Math.max(0, Math.min(RITARDO_SALVATAGGIO_MS, restante))
+
     if (this.timerSalvataggio) clearTimeout(this.timerSalvataggio)
     this.timerSalvataggio = setTimeout(() => {
       this.timerSalvataggio = null
       void this.salva()
-    }, RITARDO_SALVATAGGIO_MS)
+    }, fra)
   }
 
   /** Scrive subito quel che è in attesa. Da chiamare anche allo spegnimento. */
@@ -568,11 +822,11 @@ export class Archivio implements vscode.Disposable {
   }
 
   private async scriviPendenti (): Promise<void> {
+    this.primaModificaNonSalvata = 0
     if (this.scritturePendenti.size === 0) return
-    const cartella = cartellaCollezioni()
     // Senza un anno aperto non c'è dove scrivere: quel che è in attesa resta in
     // attesa, e il primo anno creato se lo porta dietro.
-    if (!cartella) return
+    if (!this.pacchetto) return
 
     const daScrivere = [...this.scritturePendenti]
     // Il contenuto si fissa adesso, prima di qualunque attesa, e la collezione
@@ -588,18 +842,23 @@ export class Archivio implements vscode.Disposable {
       this.scritturePendenti.delete(collezione)
     }
 
+    // Le voci si aggiornano tutte in memoria, e poi il documento si scrive una
+    // volta sola: uno ZIP non si aggiorna in una voce sola, e nove scritture di
+    // seguito sarebbero nove archivi interi.
     for (const collezione of daScrivere) {
-      try {
-        await vscode.workspace.fs.createDirectory(cartella)
-        await this.scriviJson(collezione, contenuti.get(collezione))
-      } catch (errore) {
-        // Una cartella di sola lettura o un EPERM di OneDrive non devono
-        // perdere niente: quel che non si è scritto torna in attesa.
-        this.scritturePendenti.add(collezione)
-        this.emettitoreErrori.fire(
-          `Salvataggio di ${NOMI[collezione]} non riuscito: ${errore instanceof Error ? errore.message : errore}`,
-        )
-      }
+      this.aggiornaVoce(collezione, contenuti.get(collezione))
+    }
+
+    try {
+      await this.scriviPacchetto()
+    } catch (errore) {
+      // Un file di sola lettura o un EPERM di OneDrive non devono perdere
+      // niente: quel che non si è scritto torna in attesa, e resta in memoria
+      // dentro il documento aperto finché non riesce.
+      for (const collezione of daScrivere) this.scritturePendenti.add(collezione)
+      this.emettitoreErrori.fire(
+        `Salvataggio dell’anno non riuscito: ${errore instanceof Error ? errore.message : errore}`,
+      )
     }
   }
 
@@ -653,84 +912,67 @@ export class Archivio implements vscode.Disposable {
     }
   }
 
-  private async scriviJson (collezione: NomeCollezione, contenuto: unknown): Promise<void> {
-    const destinazione = percorso(collezione)
-    if (!destinazione) return
-    // Indentato e con l'a capo finale: questi file finiscono sotto Git e capita
-    // di leggerli a mano.
+  /**
+   * Rimette una collezione dentro il documento aperto, con la sua copia in
+   * `.storico/`.
+   *
+   * Non tocca il disco: il documento si scrive dopo, una volta sola. Quel che
+   * resta uguale a prima è il contenuto scritto — indentato e con l'a capo
+   * finale, perché questi JSON capita di leggerli a mano dopo aver aperto
+   * l'archivio con un doppio clic.
+   */
+  private aggiornaVoce (collezione: NomeCollezione, contenuto: unknown): void {
+    const pacchetto = this.pacchetto
+    if (!pacchetto) return
+    const nome = NOMI[collezione]
     const testo = `${JSON.stringify(contenuto, null, 2)}\n`
     if (this.ultimiTesti.get(collezione) === testo) return
-    const temporaneo = destinazione.with({ path: `${destinazione.path}.tmp` })
 
-    if (this.illeggibili.has(collezione)) await this.mettiDaParte(destinazione, collezione)
-    await this.conservaCopia(destinazione, collezione)
-
-    this.ultimeScritture.set(destinazione.toString(), Date.now())
-    await vscode.workspace.fs.writeFile(temporaneo, new TextEncoder().encode(testo))
-    await vscode.workspace.fs.rename(temporaneo, destinazione, { overwrite: true })
-    this.ultimeScritture.set(destinazione.toString(), Date.now())
+    if (this.illeggibili.has(collezione)) this.mettiDaParte(collezione)
+    // La copia di com'era prima di riscriverla, con le ultime dieci tenute e le
+    // altre buttate. Costa poco — dieci versioni dello stesso JSON dentro uno
+    // ZIP si comprimono quasi a niente — e ripaga la prima volta che si vuole
+    // sapere che cosa c'era ieri.
+    pacchetto.conserva(nome, COPIE_STORICO)
+    pacchetto.scrivi(nome, testo)
     this.ultimiTesti.set(collezione, testo)
   }
 
-  /** Un file che non si è saputo leggere si sposta con un altro nome, non si copre. */
-  private async mettiDaParte (file: vscode.Uri, collezione: NomeCollezione): Promise<void> {
-    const marca = new Date().toISOString().replace(/[:.]/g, '-')
-    const altrove = file.with({ path: file.path.replace(/\.json$/, `.rotto-${marca}.json`) })
-    try {
-      await vscode.workspace.fs.rename(file, altrove, { overwrite: false })
-      this.emettitoreErrori.fire(
-        `${NOMI[collezione]} non si leggeva: la copia è in ${altrove.path.split('/').pop()}, e il registro riparte da un file nuovo.`,
-      )
-    } catch {
-      // Non c'era più: niente da mettere da parte.
-    }
-    this.illeggibili.delete(collezione)
-  }
-
   /**
-   * La copia di com'era il file prima di riscriverlo, in `.storico/`, con le
-   * ultime dieci tenute e le altre buttate. Costa una copia per salvataggio,
-   * e ripaga la prima volta che si vuole sapere che cosa c'era ieri.
+   * Una voce che non si è saputa leggere si rinomina, non si copre.
+   *
+   * Resta dentro il documento con un altro nome: chi apre l'archivio la trova
+   * accanto alle altre, e il registro nel frattempo riparte da una collezione
+   * nuova invece di rifiutarsi di salvare.
    */
-  private async conservaCopia (file: vscode.Uri, collezione: NomeCollezione): Promise<void> {
-    const cartella = cartellaCollezioni()
-    if (!cartella) return
-    const storico = vscode.Uri.joinPath(cartella, STORICO)
-    const radice = NOMI[collezione].replace(/\.json$/, '')
-    const marca = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')
-    try {
-      await vscode.workspace.fs.createDirectory(storico)
-      await vscode.workspace.fs.copy(file, vscode.Uri.joinPath(storico, `${radice}.${marca}.json`), {
-        overwrite: true,
-      })
-    } catch {
-      // Il file non c'era ancora: non c'è niente da conservare.
-      return
-    }
-    try {
-      const voci = (await vscode.workspace.fs.readDirectory(storico))
-        .map(([nome]) => nome)
-        .filter((nome) => nome.startsWith(`${radice}.`) && nome.endsWith('.json'))
-        .sort()
-      for (const vecchia of voci.slice(0, Math.max(0, voci.length - COPIE_STORICO))) {
-        await vscode.workspace.fs.delete(vscode.Uri.joinPath(storico, vecchia), { useTrash: false })
-      }
-    } catch {
-      // Lo storico non si è potuto potare: al prossimo giro.
-    }
+  private mettiDaParte (collezione: NomeCollezione): void {
+    const pacchetto = this.pacchetto
+    if (!pacchetto) return
+    const nome = NOMI[collezione]
+    const rotta = pacchetto.testo(nome)
+    this.illeggibili.delete(collezione)
+    if (rotta === null) return
+
+    const marca = new Date().toISOString().replace(/[:.]/g, '-')
+    const altrove = nome.replace(/\.json$/, `.rotto-${marca}.json`)
+    pacchetto.scrivi(altrove, rotta)
+    this.emettitoreErrori.fire(
+      `${nome} non si leggeva: la copia è dentro l’anno con il nome ${altrove}, ` +
+        'e il registro riparte da una collezione nuova.',
+    )
   }
 
   // ---------------------------------------------------------------- osservazione
 
   /**
-   * Tiene d'occhio la cartella dell'anno in uso: il registro sta in una
-   * cartella sincronizzata e lo stesso anno può essere aperto su due macchine.
-   * Le modifiche che arrivano da fuori vengono ricaricate; l'eco delle proprie
+   * Tiene d'occhio i documenti degli anni: il registro sta in una cartella
+   * sincronizzata e lo stesso anno può essere aperto su due macchine. Le
+   * modifiche che arrivano da fuori vengono ricaricate; l'eco delle proprie
    * scritture no.
    *
-   * Si guarda la cartella dell'anno e non solo i suoi `dati/`: un anno
-   * comparso da una sincronizzazione — o l'indice cambiato su un'altra macchina
-   * — deve farsi vedere senza dover chiudere e riaprire.
+   * Si guardano tutti i documenti e non solo quello aperto: un anno comparso da
+   * una sincronizzazione — o l'indice cambiato su un'altra macchina — deve
+   * farsi vedere senza dover chiudere e riaprire.
    */
   osserva (): vscode.Disposable {
     const radice = cartellaDati()
@@ -738,7 +980,7 @@ export class Archivio implements vscode.Disposable {
 
     this.osservatore?.dispose()
     this.osservatore = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(radice, `{${INDICE},*/${DATI}/*.json}`),
+      new vscode.RelativePattern(radice, `{${INDICE},*${ESTENSIONE}}`),
     )
 
     const ricarica = (uri: vscode.Uri) => {
@@ -762,11 +1004,30 @@ export class Archivio implements vscode.Disposable {
   dispose (): void {
     if (this.timerSalvataggio) clearTimeout(this.timerSalvataggio)
     if (this.timerRicarica) clearTimeout(this.timerRicarica)
-    void this.salva()
+    // L'ultimo salvataggio *e* la serratura: chi aspetta lo spegnimento passa
+    // da `chiudi`, e chi arriva qui senza aspettare — un `dispose` di
+    // emergenza — almeno lascia il documento libero per la prossima apertura.
+    void this.chiudi()
     this.osservatore?.dispose()
     this.emettitore.dispose()
     this.emettitoreErrori.dispose()
   }
+}
+
+/**
+ * Scrive l'indice di una cartella di dati: quale anno aprire la prossima volta.
+ *
+ * Sta fuori dalla classe perché serve prima che ci sia un archivio: chi apre un
+ * documento con un doppio clic deve poter dire quale anno vuole *prima* che il
+ * registro parta, e a quel punto non c'è nessuna istanza a cui chiederlo.
+ */
+export async function segnaAnnoDaAprire (radiceDati: vscode.Uri, cartella: string): Promise<void> {
+  const testo = `${JSON.stringify({ versione: VERSIONE_DATI, annoCorrente: cartella }, null, 2)}\n`
+  await vscode.workspace.fs.createDirectory(radiceDati)
+  await vscode.workspace.fs.writeFile(
+    vscode.Uri.joinPath(radiceDati, INDICE),
+    new TextEncoder().encode(testo),
+  )
 }
 
 /**

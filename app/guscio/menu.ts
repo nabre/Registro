@@ -33,6 +33,12 @@ export interface Azioni {
    * finisce con un riavvio dell'applicazione: vedi `principale.ts`.
    */
   cambiaCartella (): Promise<void>
+
+  /**
+   * Apre un documento d'anno — un file `.registro` — scelto con il dialogo del
+   * sistema. Come sopra: può finire con un riavvio, e quindi sta di là.
+   */
+  apriDocumento (): Promise<void>
 }
 
 /**
@@ -117,6 +123,11 @@ function vociDelGruppo (
 function vociNostre (azioni: Azioni): MenuItemConstructorOptions[] {
   return [
     { type: 'separator' },
+    {
+      label: 'Apri un anno…',
+      accelerator: 'CommandOrControl+O',
+      click: () => void azioni.apriDocumento(),
+    },
     {
       label: 'Cambia cartella di lavoro…',
       click: () => void azioni.cambiaCartella(),
