@@ -23,7 +23,8 @@
     "test": "node --test \"prove/**/*.test.mjs\"",
     "pacchetto": "node esbuild.mjs --produzione && electron-builder --config electron-builder.json",
     "icone": "electron strumenti/icone.cjs",
-    "modelli": "node strumenti/modelli.mjs"
+    "modelli": "node strumenti/modelli.mjs",
+    "campione": "node esbuild.mjs --test && node strumenti/campione.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",

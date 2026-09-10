@@ -1177,6 +1177,16 @@ Nel documento va quel che il registro scrive e rilegge da sé; nella cartella
 quel che si apre con altri programmi — i PDF perderebbero il doppio clic, a
 stare chiusi in un archivio.
 
+Per vedere com'è fatto senza costruirsi un anno, in `prove/campioni/` c'è un
+documento con dentro dati inventati — una classe, tre persone in formazione, tre
+ore e una verifica, storico compreso. Si rinomina in `.zip` e si guarda dentro.
+Lo riapre a ogni giro `prove/dati/campione.test.mjs`, ed è la sola prova che
+guarda indietro: le altre scrivono e rileggono con lo stesso codice, e
+resterebbero verdi anche se il formato cambiasse in blocco. Si rigenera con
+`npm run campione`, e solo quando il formato cambia apposta. I documenti veri
+stanno in `registro/`, che è in `.gitignore` per la ragione ovvia: dentro ci
+sono nomi, voti e assenze di persone.
+
 Il nome della cartella viene dall'etichetta dell'anno — «2026/2027» diventa
 `2026-2027` — e da lì non si muove più: rinominare l'anno non sposta la
 cartella, perché una cartella che si rinomina da sola smette di essere dove i
