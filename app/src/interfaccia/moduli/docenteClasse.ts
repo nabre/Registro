@@ -251,7 +251,7 @@ export function moduloComunicazione (classe: Classe, comunicazione?: Comunicazio
                 titolo: 'Eliminare la comunicazione inviata?',
                 testo:
                   'Qui sparisce la sua traccia: quando è andata, a chi, e che cosa diceva. ' +
-                  'La mail spedita resta nella casella di posta, dove è stata mandata.',
+                  'L’e-mail spedita resta nella casella di posta, dove è stata mandata.',
                 testoConferma: 'Elimina',
               },
               azione: {

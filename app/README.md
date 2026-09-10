@@ -1,6 +1,7 @@
 # Registro docenti
 
-Registro di classe per docenti: calendario delle lezioni, classi e allievi,
+Registro di classe per docenti: calendario delle lezioni, classi e persone in
+formazione (PiF),
 piani lezione e momenti di valutazione. È un'applicazione desktop — Electron —
 e i dati stanno in file JSON dentro la cartella di lavoro, accanto al resto del
 materiale del docente.
@@ -18,6 +19,7 @@ ricorda, e apre il registro se in quella cartella è già stato usato.
 | Lettura e scrittura dei file | `src/dati/` |
 | Comandi e pannelli | `src/estensione.ts`, `src/pannello.ts`, `src/pannelloProiezione.ts` |
 | Che cosa il registro sa fare e che cosa si regola | `src/manifesto.ts` |
+| Come si chiamano le cose: i termini, gli articoli, gli elenchi | `src/dominio/lessico.ts` |
 | L'ambiente su cui gira: finestre, dialoghi, file, impostazioni | `src/ambiente/` |
 | Il guscio Electron: avvio, menu, protocollo, pagine native | `desktop/` |
 | Contratto fra host e pannello | `src/protocollo.ts` |
@@ -27,6 +29,29 @@ ricorda, e apre il registro se in quella cartella è già stato usato.
 Il dominio non conosce né l'applicazione né il DOM: lo usano il main process, il
 webview e le prove, ed è per questo che `npm test` gira senza aprire una
 finestra.
+
+**Le parole stanno in un file solo.** `src/dominio/lessico.ts` è l'elenco dei
+termini del registro — la persona in formazione, la classe, il corso, l'unità
+didattica, la fascia oraria, il momento di valutazione — ognuno con singolare,
+plurale, genere e forma corta. Da lì nascono le etichette dei moduli, i messaggi
+che il registro risponde, le intestazioni delle tabelle dei PDF e dei CSV, le
+voci delle tendine e i testi della guida. Cambiare una parola vuol dire cambiare
+una riga: `singolare: 'persona in formazione'` diventa `singolare: 'allievo'`,
+`genere: 'f'` diventa `genere: 'm'`, e articoli e accordi si riallineano da sé —
+`frase(PIF, 'trovato', { nega: true })` passa da «Persona in formazione non
+trovata.» a «Allievo non trovato.» senza che nessuna frase sia stata riscritta.
+
+Tre cose il lessico non le tocca, ed è voluto. **I nomi nel codice** —
+`allievo`, `allievoId`, `classe.allievi` — sono identificatori, non parole: si
+vedono solo qui dentro. **I segnaposto** dei modelli e delle e-mail —
+`{allievo}`, `{{allievo}}`, `tabella: allievi` — sono un contratto con i file
+che stanno nella cartella del docente: rinominarli romperebbe ogni oggetto di
+posta e ogni modello già personalizzato. **I nomi delle cartelle su disco** —
+`allievi/<Cognome Nome>/` — perché rinominarli vorrebbe dire spostare file già
+sincronizzati su OneDrive. La sola parola che il lessico scrive nel nome di un
+file è quella delle schede personali, e i nomi che ha avuto prima restano
+dichiarati in `DOCUMENTO_SCHEDE_PRIMA`, così le stampe vecchie continuano a
+essere riconosciute per quel che sono.
 
 Il registro importa un modulo chiamato `vscode`, e non è un residuo: quel modulo
 è `src/ambiente/vscode-desktop.ts`, risolto da un alias di esbuild e da un
@@ -54,7 +79,7 @@ Il registro ha una catena sola, e tutto il resto pende da lì:
 
 ```
 Anno ──┬── Semestri (nascono con l'anno)
-       └── Classe ──┬── Allievi
+       └── Classe ──┬── PiF
 Materia ────────────┴── CORSO ──┬── Orario ──> Lezioni ──> appello, osservazioni, consuntivo
                                 ├── Piano lezione ──> attività ──> momenti di valutazione ──> voti
                                 └── si duplica per un altro corso
@@ -262,8 +287,8 @@ dei due semestri, con il rischio di toccarle per sbaglio. I bottoni delle pause
 tipiche — autunnali, Natale, carnevale, Pasqua — creano la riga già intitolata
 e con le date nel periodo in cui cadono di solito, che poi si spostano.
 
-**Classe e allievi.** Un gruppo di allievi, e nient'altro: la classe non dice
-che materia ci si insegna. Un ritiro non cancella l'allievo: togliendo la
+**Classe e persone in formazione.** Un gruppo di PiF, e nient'altro: la classe
+non dice che materia ci si insegna. Un ritiro non cancella la persona: togliendo la
 spunta «frequenta» esce dagli appelli ma resta nello storico, e le presenze e i
 voti già registrati restano leggibili.
 
@@ -271,10 +296,10 @@ voti già registrati restano leggibili.
 da sola è un gruppo, la materia da sola una voce di catalogo, e l'insegnamento è
 la coppia. Ha una vista sua — **Corsi** — perché è la cosa che si prepara a
 inizio anno e quella che si controlla quando qualcosa non torna. Si sceglie il
-corso dalla tendina in alto e si vede tutto quel che lo riguarda: allievi, ore
+corso dalla tendina in alto e si vede tutto quel che lo riguarda: PiF, ore
 svolte su quelle previste, UD, presenza e media di classe, valutazioni, piani,
 l'orario fisso con quante UD fa a settimana, la prossima ora, il programma, e
-sotto la tabella allievo per allievo.
+sotto la tabella persona per persona.
 
 Un corso alla volta, e prima era l'elenco di tutti. L'elenco rispondeva a
 «quali corsi sono pronti?», che è una domanda di settembre e si fa una volta;
@@ -285,14 +310,14 @@ costa un clic e restituisce lo schermo intero a quel che si sta guardando.
 I numeri sopra e le righe sotto si contano una volta sola, insieme: contarli
 due volte vorrebbe dire poterli contare in due modi, e la somma smetterebbe di
 tornare con le righe senza che nessuno se ne accorga. La media di classe pesa
-gli allievi, non i voti — chi ha fatto più prove non conta di più — e chi non
+le PiF, non i voti — chi ha fatto più prove non conta di più — e chi non
 ha ancora nessun voto resta fuori invece di valere zero; quando non sono tutti,
 l'etichetta lo dice: «media di 8 su 12».
 
 Classe e materia di un corso non si cambiano più una volta creato:
 sposterebbero lezioni, presenze e voti addosso a un altro gruppo senza che
 nessuno se ne accorga. Una classe può avere più corsi — due materie allo stesso gruppo sono
-due corsi, non due classi con gli stessi allievi dentro. Lezioni e valutazioni
+due corsi, non due classi con le stesse PiF dentro. Lezioni e valutazioni
 conoscono il corso e nient'altro: classe, materia e anno si leggono da lì, e
 non stanno scritti addosso a loro perché due copie della stessa cosa sono due
 occasioni di dire cose diverse.
@@ -403,8 +428,8 @@ ma per guardare: l'anno intero, le medie, i confronti fra momenti — con le
 caselle in sola lettura, perché due posti in cui scrivere lo stesso voto sono un
 posto di troppo.
 
-**Il corso si guarda anche per allievo.** Sotto l'elenco dei corsi, il corso
-aperto mostra una riga per allievo: presenza, UD seguite, UD di assenza,
+**Il corso si guarda anche per persona.** Sotto l'elenco dei corsi, il corso
+aperto mostra una riga per PiF: presenza, UD seguite, UD di assenza,
 ritardi, prove fatte, media e nota. È la domanda di metà semestre — «come sta
 andando questa classe in questa materia?» — e prima non aveva un posto: le
 presenze stavano dentro l'ora, i voti nella vista Valutazioni, e per rispondere
@@ -412,7 +437,8 @@ bisognava aprire venti lezioni e contare a mente. Il denominatore delle presenze
 sono le UD su cui l'appello è stato fatto, non tutte: un'ora dimenticata non è
 un'ora di assenze, e contarla come tale farebbe crollare la percentuale di tutti.
 
-**Dell'allievo il registro tiene chi è e come lo si raggiunge.** Cognome, nome,
+**Della persona in formazione il registro tiene chi è e come la si raggiunge.**
+Cognome, nome,
 l'indirizzo di casa e i recapiti — la sua e-mail, quella del tutore, il suo
 telefono, l'azienda, e l'e-mail e il telefono del datore di lavoro che
 controfirma i fogli delle assenze.
@@ -467,7 +493,7 @@ guardare.
 Le due date si dicono in due modi. «Per la prossima volta» non è una data, è
 un'ora: legandola a una lezione, spostando quell'ora si sposta anche il termine.
 Un giorno secco serve quando il termine non coincide con nessuna lezione — la
-gita, il modulo in segreteria. Una consegna senza destinatari — la classe c'è ma gli allievi non ancora, che è
+gita, il modulo in segreteria. Una consegna senza destinatari — la classe c'è ma le PiF non ancora, che è
 la situazione di settembre — resta aperta: contarla come fatta la farebbe sparire
 il minuto dopo averla scritta. Per toglierla di mezzo c'è «Chiudi comunque», che
 è un gesto di chi sa quel che sta facendo invece di una deduzione del registro.
@@ -496,7 +522,7 @@ lezione si vede quel che riguarda quell'ora — è lì che si assegna e si ritir
 il sottotitolo dice subito quante sono rimaste indietro — in ordine di
 urgenza e non di data: prima quel che è rimasto indietro, poi quel che scade
 oggi, poi quel che si è dato proprio in quest'ora, e in fondo quel che sta ancora
-in piedi. La pagina **Todo** risponde invece alla domanda della domenica sera:
+in piedi. La pagina **Pendenze** risponde invece alla domanda della domenica sera:
 che cosa ho lasciato in giro? A quella nessuna lezione può rispondere, perché
 ognuna guarda un corso solo. Lì le consegne di tutti i corsi stanno insieme,
 divise per quanto premono e filtrabili fra le proprie e quelle delle classi —
@@ -521,7 +547,7 @@ a che punto si è vale più del resto della schermata.
 **Orario.** Le ore fisse di un corso in settimana: «il martedì dalle 08:20,
 novanta minuti». Da lì le lezioni si generano da sole per il periodo che si
 sceglie, saltando i **giorni senza lezione** dichiarati sull'anno — vacanze,
-ponti, giornate d'istituto. La giornata è un seguito come gli slot di una
+ponti, giornate d'istituto. La giornata è un seguito come le fasce orarie di una
 lezione: la seconda fascia del mercoledì comincia quando finisce la prima, di
 ogni giorno si dichiara solo l'ora con cui si entra, e l'ordine dentro la
 giornata si cambia trascinando la riga — portata fra le fasce di un altro
@@ -531,7 +557,7 @@ e una lezione spostata a mano resta dove l'ha messa chi la insegna. L'orario è
 uno stampo, non un vincolo.
 
 **Spostare e copiare.** Nel calendario le lezioni si prendono con il mouse:
-trascinandone una la si sposta — giorno e ora insieme, con gli slot che
+trascinandone una la si sposta — giorno e ora insieme, con le fasce che
 scivolano tutti alla stessa distanza — e tenendo premuto Ctrl (o Alt) se ne fa
 una copia. Il puntatore si posa sui cinque minuti, perché nessuna scuola
 comincia alle 08:23, e mentre si tiene sospeso il blocco una riga mostra dove
@@ -580,18 +606,18 @@ diversi per le stesse azioni sono due posti in cui dimenticarsene una. Sul vuoto
 il menu propone invece una lezione nuova, all'ora su cui è caduto il clic.
 
 **Lezione.** L'unità del registro. Nasce dall'orario o si aggiunge a mano, e da
-lì in poi vive per conto suo. Ha uno o più **slot** orari, e una pausa è uno
-slot come gli altri con tipo `pausa` — così una lezione di due ore con quindici
+lì in poi vive per conto suo. Ha una o più **fasce orarie**, e una pausa è una
+fascia come le altre con tipo `pausa` — così una lezione di due ore con quindici
 minuti in mezzo resta una lezione sola, con un piano solo — e un appello che le
 conta tutte, unità didattica per unità didattica.
-Gli slot stanno attaccati: ciascuno comincia dove finisce quello sopra, si
+Le fasce stanno attaccate: ciascuna comincia dove finisce quella sopra, si
 dichiara solo l'ora del primo — gli altri hanno il campo spento, perché la loro
 è un conto — e li si rimette in fila trascinandoli per la presa a sinistra. Il
-buco fra due slot non esiste: se in mezzo si sta fermi lo si dice con uno slot
+buco fra due fasce non esiste: se in mezzo si sta fermi lo si dice con una fascia
 di pausa, che si vede e si conta, invece di lasciarlo implicito in due orari
 che non si toccano.
 
-**Appello.** Una matrice: gli allievi in riga, le unità didattiche in colonna.
+**Appello.** Una matrice: le PiF in riga, le unità didattiche in colonna.
 Ogni casella nasce a **–**, che vuol dire che nessuno ha ancora detto niente, e
 da lì un pulsante solo la porta avanti a ogni clic: **P** presente, **X**
 assente, **R** ritardo, **E** esonero, e poi di nuovo **–** — una casella
@@ -603,7 +629,7 @@ deve gridare, e le lettere restano il modo in cui gli stati si distinguono
 davvero. In testa a
 ogni colonna lo stesso pulsante vale per tutta la classe: l'ora in cui erano in
 assemblea si segna in un clic. In testa a ogni riga vale per tutta l'ora di
-quell'allievo: chi oggi non c'è si segna in un clic. Dove le caselle non dicono
+quella persona: chi oggi non c'è si segna in un clic. Dove le caselle non dicono
 la stessa cosa il pulsante mostra un punto, e il primo clic le rimette tutte a
 presente.
 
@@ -672,7 +698,7 @@ come miniatura, perché un elenco di nomi di file non aiuta a ritrovarle.
 
 **Momento di valutazione.** Una verifica, un orale, un progetto. Ha un peso, una
 scala (di norma 1–6 con sufficienza a 4) e i voti di tutta la classe. La scala è
-una copia: cambiare quella del registro non riscrive i voti già dati. Un allievo
+una copia: cambiare quella del registro non riscrive i voti già dati. Una PiF
 assente non prende zero: esce dalla media.
 
 **Eliminare.** Tutto quel che si crea si può togliere, e niente viene rifiutato
@@ -687,11 +713,12 @@ di lei resterebbe a puntare nel vuoto, e lascia in piedi quel che sa vivere
 staccato — un piano lezione sopravvive alla sua materia, una verifica alla
 lezione in cui si era svolta. Dove esiste una mossa che non perde niente, la
 domanda la offre: archiviare la classe invece di eliminarla, unire due materie,
-togliere la spunta «frequenta» invece di cancellare un allievo. I file che
+togliere la spunta «frequenta» invece di cancellare una persona. I file che
 seguono — PDF delle verifiche, risorse dei piani, documenti raccolti — finiscono
 nel cestino del sistema, non nel nulla.
 
-**Scheda dell'allievo.** La vista che raccoglie tutto quel che il registro sa
+**Scheda della persona in formazione.** La vista che raccoglie tutto quel che il
+registro sa
 di una persona sola: presenze con le sole giornate storte, voti per corso con la
 media pesata, osservazioni, documenti. I dati stanno altrove — nelle lezioni,
 nei momenti, nel fascicolo — e questa vista non ne possiede nessuno: li mette
@@ -707,37 +734,37 @@ ha un'altra vita — le comunicazioni si accumulano e non si cancellano mai — 
 Sta fuori anche nella schermata: ha la sua voce nel menu, una classe alla
 volta, e nella vista Classi non compare. Le stesse schede stavano anche là, in
 fondo alla pagina, e chi in quella classe insegna e basta se le trovava sotto
-l'elenco degli allievi dopo tutto quel che era venuto a cercare. Sono due
+l'elenco delle PiF dopo tutto quel che era venuto a cercare. Sono due
 lavori con due ritmi: nelle Classi si guarda chi c'è e come va, nel fascicolo
 si riscuotono documenti e si scrive alle famiglie.
 
-Per lo stesso motivo la pagina **Classi** è soltanto l'anagrafica degli allievi:
+Per lo stesso motivo la pagina **Classi** è soltanto l'anagrafica delle PiF:
 nome, indirizzo, e-mail, azienda, e-mail del datore. È l'elenco che si tiene
-aperto quando si deve scrivere una mail, spedire una lettera o chiamare un
-datore di lavoro, e in quel momento serve tutto lì, una riga per allievo.
+aperto quando si deve scrivere un'e-mail, spedire una lettera o chiamare un
+datore di lavoro, e in quel momento serve tutto lì, una riga per PiF.
 
 Ci stavano anche i tre numeri della classe, le materie che ci si insegnano con
-orario e pulsanti, e per ogni allievo presenze, ritardi e media. Erano tre altre
+orario e pulsanti, e per ogni PiF presenze, ritardi e media. Erano tre altre
 domande, e ognuna ha già il suo posto: che cosa si insegna nella vista
-**Corsi**, come va un allievo nella sua **scheda** — una riga, un clic sul nome
+**Corsi**, come va una PiF nella sua **scheda** — una riga, un clic sul nome
 — e i conti della classe nel **Cruscotto**. Mescolate all'anagrafica facevano
 una tabella che non si finiva di leggere: sei colonne di numeri prima di
 arrivare all'indirizzo che si era venuti a copiare.
 
-**Assenze da far firmare.** Tre volte l'anno la scuola stampa, per ogni allievo,
+**Assenze da far firmare.** Tre volte l'anno la scuola stampa, per ogni PiF,
 il rapporto delle assenze e quello dei ritardi; il docente di classe li manda
 all'azienda, e l'azienda li rispedisce firmati. È una pratica in tre fasi — il
-foglio vergine che parte, la mail che chiede la firma, il foglio firmato che
+foglio vergine che parte, l'e-mail che chiede la firma, il foglio firmato che
 torna — e il registro la tiene in un blocco solo, per periodo: un elenco dei
-periodi, e dentro quello aperto una matrice con gli allievi in riga e le cinque
+periodi, e dentro quello aperto una matrice con le PiF in riga e le cinque
 caselle in colonna. Verde vuol dire fatto, e la casella scura dice sempre la
 prossima mossa.
 
 I fogli si caricano uno per uno dalla casella, o tutti insieme con «Importa
-fogli»: si sceglie una cartella di PDF e ognuno va all'allievo che il nome del
+fogli»: si sceglie una cartella di PDF e ognuno va alla PiF che il nome del
 file nomina — chi non si riconosce resta fuori e viene elencato, perché fra due
 fratelli con lo stesso cognome indovinare vuol dire mandare le assenze di uno
-all'azienda dell'altro. La mail parte una per allievo, in chiaro all'indirizzo
+all'azienda dell'altro. L'e-mail parte una per PiF, in chiaro all'indirizzo
 del datore di lavoro che sta nella sua scheda, con dentro i suoi soli fogli:
 oggetto e testo si scrivono una volta per il periodo e si compilano nome per
 nome con i segnaposto (`{allievo}`, `{azienda}`, `{periodo}`, …). Chi non ha
@@ -766,8 +793,8 @@ pagelle diverse.
 Quel che esce dal registro per andare in mano a qualcuno esce in PDF: il verbale
 di un'ora, il piano lezione da portare in aula, la griglia dei voti di una
 classe, il conto delle presenze, il fascicolo di classe, la scheda di un
-allievo. Nel verbale l'appello è la stessa griglia che si compila a schermo —
-una riga per allievo, una colonna per UD, le stesse sigle — con la legenda
+PiF. Nel verbale l'appello è la stessa griglia che si compila a schermo —
+una riga per PiF, una colonna per UD, le stesse sigle — con la legenda
 sotto, perché il foglio finisce in mano a chi quella griglia non l'ha mai
 vista.
 
@@ -842,7 +869,7 @@ punti fissi che una testata in corpo grande scavalcava.
 pezzo solo quando c'è qualcosa da dire — vero vuol dire un valore non vuoto, una
 tabella con delle righe, un elenco con dei punti; `ripeti:` rifà quel che sta
 dentro per ogni voce di un gruppo, ed è così che un rapporto fa una pagina per
-allievo invece di uscirne uno per allievo; `pagina-nuova:` volta foglio, ma solo
+PiF invece di uscirne uno per PiF; `pagina-nuova:` volta foglio, ma solo
 se sulla pagina c'è già qualcosa, o due salti di fila lascerebbero una pagina
 bianca in mezzo.
 
@@ -856,7 +883,7 @@ appesa al blocco, ed è per questo che `Blocco` ha adesso un `tabella?` accanto 
 Sistemando questo è venuto fuori un difetto che c'era da sempre e non si vedeva:
 una sezione vuota si potava guardando avanti fino alla sezione dopo, e con un
 solo titolo in cima al foglio funzionava. Dentro un `ripeti:`, l'«Annotazioni»
-dell'allievo senza annotazioni si teneva per buono il titolo dell'allievo dopo e
+di chi non ha annotazioni si teneva per buono il titolo della persona dopo e
 restava stampato sopra il nulla. Adesso anche un titolo chiude quel che una
 sezione ha sotto di sé.
 
@@ -868,7 +895,7 @@ sbagliare, e un logo schiacciato su un foglio che va in segreteria si nota
 subito. In `[intestazione]` si ripete su ogni pagina, che è dove serve. Le
 immagini si incorporano una volta sola per documento: ripetere i byte del logo su
 trenta pagine farebbe un file trenta volte più pesante, e quello è il file che si
-allega a una mail.
+allega a un'e-mail.
 
 **Le colonne di una tabella si misurano su quel che contengono.** Prima erano
 proporzionali ai soli pesi dichiarati: la colonna della data prendeva lo stesso
@@ -893,7 +920,7 @@ la distinzione era vera per il programma e falsa per chi apre la cartella: il
 verbale di un'ora e la verifica di quell'ora sono la documentazione della stessa
 lezione. Adesso c'è `documentazione/`, con la regola di sempre: classe, corso,
 documento. Il nome del file ripete classe e documento, perché un rapporto esce
-dalla sua cartella di continuo — lo si allega a una mail, lo si copia sul
+dalla sua cartella di continuo — lo si allega a un'e-mail, lo si copia sul
 desktop — e fuori di lì un «Presenze.pdf» non dice più di che classe sia.
 
 **Un rapporto rifatto sovrascrive quello di prima**, e si porta via anche i
@@ -904,7 +931,7 @@ stesso verbale e bisognava guardare le date per capire quale valesse. I file
 tolti vanno nel cestino, non si cancellano sul serio.
 
 **Ogni rapporto è di un periodo, e lo dice.** Le presenze, le valutazioni e la
-scheda di un allievo sono del semestre scelto; il verbale porta il semestre in
+scheda di una PiF sono del semestre scelto; il verbale porta il semestre in
 cui cade la sua ora; il fascicolo vale per l'anno intero. Il periodo sta nella
 testata di ogni pagina, accanto all'anno scolastico, e nel nome del file:
 `DIC2_Presenze_1° semestre.pdf`. Sono due documenti diversi — la presenza del
@@ -912,14 +939,14 @@ primo semestre non è quella del secondo — e chiamandoli uguali il secondo
 avrebbe coperto il primo alla prima stampa dopo gennaio.
 
 **In testata c'è anche che documento è.** Un foglio esce dalla sua cartella di
-continuo — lo si allega a una mail, lo si stampa, finisce in una pila sulla
+continuo — lo si allega a un'e-mail, lo si stampa, finisce in una pila sulla
 scrivania — e senza il nome del documento in cima si riconosce solo leggendolo.
 Vale soprattutto per la seconda pagina, che è quella che si ritrova staccata
 dalle altre.
 
 **Segnando un'ora come svolta si rifanno i documenti di quel corso**: il
 verbale di quell'ora, le presenze, la griglia dei voti e la scheda di ogni
-allievo che frequenta. Sono gli stessi che dopo ogni lezione sarebbero da
+PiF che frequenta. Sono gli stessi che dopo ogni lezione sarebbero da
 rifare a mano, uno per uno, e nessuno lo fa: la cartella di un corso restava
 ferma alla settimana in cui qualcuno si era ricordato di stampare. Così chi la
 apre trova sempre lo stato di ieri sera.
@@ -951,7 +978,7 @@ quello.
 
 **Due percentuali, e non una.** La **% assenza** è calcolata su quel monte ore:
 è quanto si è perso di ciò che era in programma, ed è la cifra che si consegna
-— un'ora dimenticata dal docente resta un'ora che l'allievo doveva fare. La
+— un'ora dimenticata dal docente resta un'ora che si doveva fare. La
 **% presenza** è calcolata sulle sole UD in cui l'appello è stato fatto, e dice
 quanto la prima è affidabile: con quella sola, un semestre con metà appelli
 dimenticati risultava perfetto. Sono due domande diverse e chi legge ha diritto
@@ -961,8 +988,8 @@ le UD previste e quelle già a calendario.
 Nel foglio delle presenze c'è anche la riga della classe in fondo — il numero
 che si guarda per primo, e che nessuno somma a mente da dodici righe — e le ore
 annullate restano fuori dalle ore tenute. Le UD previste sono le stesse per
-tutti: il registro non sa quando un allievo si è iscritto, e fingere di saperlo
-sarebbe peggio che dire il monte ore del corso. La scheda dell'allievo porta le presenze in cifre e
+tutti: il registro non sa quando una PiF si è iscritta, e fingere di saperlo
+sarebbe peggio che dire il monte ore del corso. La scheda personale porta le presenze in cifre e
 non solo l'elenco delle assenze: a un colloquio è la prima cosa che viene
 chiesta, e prima si poteva solo contare a mano le righe della tabella in fondo.
 
@@ -1006,7 +1033,7 @@ consegna a cui corrisponde. Si lascia cadere il PDF lì dentro e succede questo:
 
 1. si legge il testo di ogni pagina — e se il PDF è una scansione, le pagine
    mute finiscono in coda all'OCR, che le legge una per una;
-2. una pagina che nomina un allievo apre il suo blocco; le pagine seguenti che
+2. una pagina che nomina una PiF apre il suo blocco; le pagine seguenti che
    non nominano nessuno appartengono a quel blocco — è così che un documento di
    tre facciate col nome solo in testa resta intero;
 3. ne esce una **bozza**, sotto «Da smistare» nel pannello del docente di
@@ -1014,7 +1041,7 @@ consegna a cui corrisponde. Si lascia cadere il PDF lì dentro e succede questo:
    sia, e l'anteprima della prima pagina da guardare;
 4. si conferma — riga per riga, o tutta in un gesto — e solo allora il pezzo
    viene ritagliato, archiviato col nome che parla e **spuntato** nella consegna
-   dell'allievo.
+   della persona.
 
 Niente viene archiviato prima di una conferma. Riconoscere un nome è
 un'ipotesi, e un documento finito nel fascicolo sbagliato è un errore che
@@ -1022,7 +1049,7 @@ nessuno scopre finché non serve quel documento.
 
 Quel che l'ipotesi non la regge — pagine senza nome, scansioni illeggibili, due
 fratelli omonimi — resta nella bozza in attesa di una mano. Per quello c'è
-l'**assegnazione a mano**, in fondo a ogni PDF: si dicono le pagine, l'allievo e
+l'**assegnazione a mano**, in fondo a ogni PDF: si dicono le pagine, la PiF e
 il documento, e si archivia. Il documento si sceglie lì e non si eredita: in un
 PDF di segreteria possono esserci due pratiche diverse.
 
@@ -1047,7 +1074,7 @@ resta più niente da fare.
 ### Chi porta il foglio a chi
 
 Un documento del docente di classe va in due direzioni, e la spunta vuol dire
-due cose diverse. **Me lo consegnano gli allievi** — il certificato, la
+due cose diverse. **Me lo consegnano le PiF** — il certificato, la
 giustificazione — e allora spuntare significa «l'ha portato». Oppure **lo
 consegno io**: pagelle, convocazioni, moduli da far firmare a casa, a tutta la
 classe o a qualcuno in particolare, e allora spuntare significa «gliel'ho dato».
@@ -1066,16 +1093,16 @@ Il documento da distribuire può essere di uno solo — la pagella, che arriva
 dallo smistamento di un PDF di classe — oppure lo stesso per tutti: la
 circolare, il modulo da compilare. Chi non ha il suo riceve quello comune.
 
-**Come si consegna** lo dice `modoConsegna`: a mano o per mail. A mano si spunta
-uno per uno mentre si passa fra i banchi. Per mail parte **un messaggio a testa**
-— non una mail sola in copia nascosta: il documento è suo, e allegarne
+**Come si consegna** lo dice `modoConsegna`: a mano o per e-mail. A mano si spunta
+uno per uno mentre si passa fra i banchi. Per e-mail parte **un messaggio a testa**
+— non un'e-mail sola in copia nascosta: il documento è suo, e allegarne
 venticinque a un unico messaggio darebbe a ogni famiglia la pagella di tutte le
 altre. In testa alla colonna compare «Spedisci (n)»: n è chi ha un documento
 pronto e non l'ha ancora ricevuto. Si segna spedito solo quel che è partito
 davvero, con gli indirizzi a cui è andato; chi non ha un indirizzo resta
 indietro e viene detto per nome.
 
-Nel todo la stessa richiesta si racconta con parole sue: «consegno per mail»,
+Fra le pendenze la stessa richiesta si racconta con parole sue: «consegno per e-mail»,
 «da consegnare a 12», «3 senza documento» — perché ciò che manca da fare non è
 lo stesso in un verso e nell'altro.
 
@@ -1114,7 +1141,7 @@ registro/
   2026-2027/            un anno scolastico: tutto quel che lo riguarda, e nient'altro
     dati/
       registro.json     l'anno, i suoi semestri e le sue pause, le materie, le impostazioni
-      classi.json       classi con i loro allievi
+      classi.json       classi con le loro PiF
       corsi.json        classe × materia: il perno a cui tutto si aggancia
       lezioni.json      lezioni, slot, presenze, osservazioni, consuntivi
       piani-lezione.json  piani lezione, per corso, con le loro risorse
@@ -1174,7 +1201,7 @@ archivio/
       allievi/                      e quelli che parlano di uno
         Rossi Mario/
           DIC4a_Verifica 1_Rossi Mario_prova.pdf
-          DIC4a_Schede allievo_Rossi Mario_1° semestre.pdf
+          DIC4a_Schede PiF_Rossi Mario_1° semestre.pdf
     DIC2/
       classe/
         DIC2_Verifica 1_testo.pdf     la stessa verifica, accanto alla sua
@@ -1206,10 +1233,10 @@ apertura, e i percorsi salvati si riscrivono con loro.
 `docente-di-classe/` solo quel che riguarda la classe come gruppo: il
 fascicolo, le pagelle, le autorizzazioni, i fogli delle assenze da far firmare.
 
-Presenze e schede allievo stavano dalla parte sbagliata. Contavano le ore di
+Presenze e schede PiF stavano dalla parte sbagliata. Contavano le ore di
 tutta la classe — due materie sommate insieme — e finivano in
 `docente-di-classe/` insieme alle pagelle. Ma le ore sono di un insegnamento:
-un allievo può mancare al laboratorio e non al calcolo professionale, e una
+una PiF può mancare al laboratorio e non al calcolo professionale, e una
 percentuale che le somma non è vera per nessuna delle due. Adesso sono del
 corso, nel contenuto e nella cartella, e si stampano dalla vista **Corsi**, che
 è dove si sceglie di quale materia si sta parlando. Il fascicolo resta della
@@ -1221,14 +1248,14 @@ tutte e due, e infilarlo sotto una delle due lo farebbe leggere come se fosse
 suo: quelli restano dov'erano, e la prossima stampa esce già al posto giusto.
 
 Il nome del file ripete quel che dicono le cartelle — classe, documento,
-allievo — apposta. Un file dall'archivio esce di continuo: lo si allega a una
-mail, lo si copia sul desktop, lo si manda in segreteria, e fuori dalle sue
+persona — apposta. Un file dall'archivio esce di continuo: lo si allega a una
+e-mail, lo si copia sul desktop, lo si manda in segreteria, e fuori dalle sue
 cartelle un «Rossi Mario.pdf» non dice più di che classe è né di che cosa
 parla.
 
 Prima erano cartelle piatte con nomi fatti di identificatori. Il registro ci si
 ritrovava benissimo; una persona no, e quella cartella la si apre da fuori — si
-cerca il documento di un allievo, si allega una pagella a una mail, si consegna
+cerca il documento di una PiF, si allega una pagella a un'e-mail, si consegna
 un fascicolo a chi subentra. I file archiviati con la disposizione di prima si
 spostano da soli alla prima apertura, e i riferimenti si riscrivono con loro.
 
@@ -1338,7 +1365,7 @@ pannello del docente quando lo schermo è acceso:
 | Documenti | Quanti fogli sono arrivati, su quanti attesi |
 | Appello | La griglia delle presenze per unità didattica |
 
-Gli ultimi tre parlano dei singoli allievi, e per questo partono **spenti** —
+Gli ultimi tre parlano delle singole PiF, e per questo partono **spenti** —
 si riconoscono dal bordo tratteggiato, e accesi la fascia diventa gialla e dice
 che cosa sta sullo schermo. La ragione è che la proiezione segue il registro:
 senza questa partenza, aprire l'ora dopo mentre lo schermo è acceso porterebbe
@@ -1348,7 +1375,7 @@ chiesto.
 Un interruttore a parte decide se accanto ai voti e ai documenti mancanti ci
 vanno i **nomi**. Spento — com'è di suo — una verifica si vede come è andata la
 classe: media, quanti sufficienti, la colonnina per fascia. Acceso, compare la
-colonna per allievo. L'appello i nomi ce li ha comunque: senza, non
+colonna per PiF. L'appello i nomi ce li ha comunque: senza, non
 correggerebbe niente, ed è proprio la classe a doverlo correggere.
 
 **Pausa** spegne il contenuto lasciando la finestra dov'è: serve nel mezzo
@@ -1403,7 +1430,7 @@ l'orologio e l'archivio, `src/ambiente/vassoio.ts` traduce in menu di Electron.
 | `registroDocenti.vassoio.attivo` | `true` | Tiene l'icona del registro accanto all'orologio, con i corsi e le loro ore |
 | `registroDocenti.vassoio.chiusuraNelVassoio` | `true` | La X mette via il registro invece di uscire: si esce dal menu dell'icona |
 | `registroDocenti.proiezione.finestraSeparata` | `true` | Apre la proiezione in una finestra staccata, da portare sul secondo schermo |
-| `registroDocenti.ocr.attivo` | `false` | Legge le scansioni con un OCR locale per riconoscere l'allievo |
+| `registroDocenti.ocr.attivo` | `false` | Legge le scansioni con un OCR locale per riconoscere la PiF |
 | `registroDocenti.ocr.url` | `http://127.0.0.1:11434` | Dove risponde Ollama |
 | `registroDocenti.ocr.modello` | `glm-ocr:latest` | Il modello con cui leggere: deve saper guardare le immagini |
 | `registroDocenti.ocr.attesaMassimaSecondi` | `180` | Quanto aspettare la lettura di una pagina prima di rinunciare |
@@ -1435,7 +1462,7 @@ una lezione nuova.
   per corso, e in ogni cella i segni di quel che manca a quell'ora.
 - La barra laterale raccoglie le pagine del registro e, sotto, i **corsi**
   raggruppati per materia: un corso si apre sulle sue pagine — ore, piani,
-  valutazioni, allievi — e resta aperto mentre lo si guarda.
+  valutazioni, PiF — e resta aperto mentre lo si guarda.
 - In fondo alla barra di stato c'è la prossima ora: quella che deve ancora
   cominciare, non quella di stamattina già finita, e premendola si apre lei.
 - Nel calendario settimanale, un clic sul vuoto crea una lezione a quell'ora;
@@ -1452,11 +1479,11 @@ una lezione nuova.
   salvano quando si lascia il campo.
 - Nell'appello ogni casella è un pulsante solo: – → P → X → R → E → –. Il
   pulsante in testa alla colonna fa la stessa cosa su tutta la classe, quello in
-  testa alla riga su tutta l'ora di un allievo; «Tutti presenti» riempie
+  testa alla riga su tutta l'ora di una PiF; «Tutti presenti» riempie
   l'intera matrice e «Azzera» la riporta tutta a non impostata — e lo chiede
   prima, perché è l'unico gesto della pagina che cancella un'ora di lavoro.
 - Quel che si scrive resta scritto anche se il pannello si ridisegna sotto le
   dita: l'orologio del registro batte ogni minuto, e prima aspetta che il campo
   in cui si sta scrivendo venga lasciato.
 - Una classe si duplica nell'anno nuovo dalla sua scheda: si scelgono anno e
-  nome, e con lei passano gli allievi e i corsi che le si insegnavano.
+  nome, e con lei passano le PiF e i corsi che le si insegnavano.

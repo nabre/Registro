@@ -55,7 +55,7 @@ esecuzione-riconsegna: Ogni casella dice il giorno in cui la prova è stata fatt
 # Sono commentate perché di serie non si cambia niente. Togliendo il cancelletto
 # a una riga, quel nome cambia dalla stampa dopo.
 #
-# Allievo: Nome e cognome
+# PiF: Nome e cognome
 # UD seguite: Ore seguite
 # UD di assenza: Ore di assenza
 # % presenza: Frequenza

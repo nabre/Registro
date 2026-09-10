@@ -159,7 +159,7 @@ export const smistamento = {
   },
 
   /**
-   * L'assegnazione a mano: si dicono le pagine, l'allievo e il documento.
+   * L'assegnazione a mano: si dicono le pagine, la persona e il documento.
    *
    * È la via che non passa dal riconoscimento, e serve sempre: le scansioni
    * che nessun OCR legge, i documenti in cui il nome non c'è, i casi in cui

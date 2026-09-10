@@ -12,6 +12,7 @@
 // un'applicazione intorno.
 
 import { corsiDellaClasse } from './corsi.js'
+import { PIF, un } from './lessico.js'
 import type { QuandoRifarePdf, Registro } from './modelli.js'
 
 /** I valori ammessi, in ordine da meno a più automatico: serve anche al modulo. */
@@ -37,8 +38,8 @@ export const MODI_PDF: Array<{ valore: QuandoRifarePdf, nome: string, spiegazion
     valore: 'sempre',
     nome: 'A ogni modifica',
     spiegazione:
-      'Come sopra, e in più a ogni cambiamento che tocca un corso — un voto, un appello, un ' +
-      'allievo — poco dopo che si è smesso di scrivere.',
+      `Come sopra, e in più a ogni cambiamento che tocca un corso — un voto, un appello, ` +
+      `${un(PIF)} — poco dopo che si è smesso di scrivere.`,
   },
 ]
 

@@ -435,7 +435,7 @@ describe('normalizzazione di quel che si trova su disco', () => {
     assert.match(problemi[0], /un altro corso/)
   })
 
-  it('segnala i voti di allievi che non sono in classe', () => {
+  it('segnala i voti di chi non è in classe', () => {
     const registro = normalizzaRegistro({
       anni: [
         {
@@ -468,7 +468,7 @@ describe('normalizzazione di quel che si trova su disco', () => {
     })
     const problemi = riferimentiRotti(registro)
     assert.equal(problemi.length, 1)
-    assert.match(problemi[0], /non iscritti/)
+    assert.match(problemi[0], /non iscritte/)
   })
 })
 

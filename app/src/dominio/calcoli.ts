@@ -2,8 +2,15 @@
 // memoria — nessuna lettura da disco, nessun `vscode`. È il motivo per cui
 // questo file si può provare con `node --test` senza avviare l'editor.
 
-import { MINUTI_UD, durataMinuti, formattaData, minutiDaOra, sommaMinuti } from './date.js'
-import { STATI_PRESENZA } from './lessico.js'
+import {
+  MINUTI_UD,
+  durataMinuti,
+  formattaData,
+  giornoDi,
+  minutiDaOra,
+  sommaMinuti,
+} from './date.js'
+import { PIF, STATI_PRESENZA } from './lessico.js'
 import type { Grafico } from './rapporti.js'
 import type {
   Attivita,
@@ -298,7 +305,7 @@ export interface RiepilogoPresenze {
   esonerati: number
   /** Di quanti non si è ancora detto niente, per nessuna UD. */
   senzaAppello: number
-  /** Le UD su cui ci si è pronunciati, e quelle in cui l'allievo mancava. */
+  /** Le UD su cui ci si è pronunciati, e quelle in cui mancava. */
   udTotali: number
   udAssenza: number
   /** Le caselle ancora vuote: quel che resta da fare, non un risultato. */
@@ -364,7 +371,7 @@ export function riepilogaPresenze (presenze: Presenza[]): RiepilogoPresenze {
 
 export interface StatisticaAllievo {
   allievoId: string
-  /** Lezioni svolte in cui l'allievo ha almeno una UD con l'appello fatto. */
+  /** Lezioni svolte in cui c'è almeno una UD con l'appello fatto. */
   lezioni: number
   /** Unità didattiche di quelle lezioni: è su queste che si fanno le quote. */
   ud: number
@@ -616,7 +623,7 @@ export function distribuzioneAPunti (momento: MomentoValutazione): Grafico {
   }
 
   return {
-    unita: `${conti.conteggio} ${conti.conteggio === 1 ? 'voto' : 'voti'} · un punto per allievo`,
+    unita: `${conti.conteggio} ${conti.conteggio === 1 ? 'voto' : 'voti'} · un punto per ${PIF.singolare}`,
     // L'asse è la scala della prova, non l'intervallo dei voti che ci sono:
     // una prova in cui nessuno è andato sotto il 4 non deve sembrare una prova
     // in cui il 4 era il minimo possibile.
@@ -676,25 +683,67 @@ export function formattaVoto (valore: number | null): string {
  * Come si chiama un piano: la lezione del corso per cui è fatto.
  *
  * Il piano non ha un titolo proprio, e non gli serve: nasce per un'ora precisa
- * di un corso preciso, e quello è il suo nome — «Matematica 3A · 15.09.2025».
+ * di un corso preciso, e quello è il suo nome — «Matematica 3A · 12ª lezione».
  * Se le lezioni che lo usano sono più d'una (lo si è riassegnato, o copiato
  * addosso a due ore gemelle) si nomina dalla prima e si dice quante altre.
  * Finché non è appeso a nessuna lezione è una bozza, e allora si presenta per
  * quel che è: il corso, e quanto dura la scaletta.
  */
-export function nomePiano (
-  piano: PianoLezione,
-  contesto: { corso?: string | null; lezioni?: Lezione[] } = {},
-): string {
-  const corso = contesto.corso?.trim() || 'Piano'
+export interface ContestoNomePiano {
+  corso?: string | null
+  lezioni?: Lezione[]
+  /**
+   * Che numero d'ordine ha un'ora nel suo corso. Lo passa chi ha il registro
+   * sotto mano — `numeroDellaLezione` in `corsi.ts` — perché il conto riparte a ogni
+   * semestre, e i semestri stanno nell'anno, che qui non c'è.
+   *
+   * Una funzione e non un numero: la lezione da numerare è la prima che usa il
+   * piano, e chi chiama non sa quale sia finché non si è guardato dentro.
+   */
+  numeroDellaLezione?: (lezione: Lezione) => number | null
+}
+
+/**
+ * Di quale lezione è un piano: «3ª lezione», o «bozza del 12.09» finché non è di
+ * nessuna.
+ *
+ * È la metà del nome che il piano si guadagna da sé, ed è quella che si mostra
+ * dove il corso è già scritto sopra — l'elenco dentro una pagina di corso.
+ *
+ * **Non è mai l'argomento.** Un piano si è chiamato per un po' con il primo
+ * obiettivo o con il titolo della prima tappa, e sono le due cose che cambiano
+ * di più mentre lo si prepara: il piano cambiava nome sotto le dita, due piani
+ * che cominciavano con «Ripasso» si chiamavano uguale, e nell'elenco delle ore
+ * non si trovava più quella che si stava cercando. L'ora invece è quel che il
+ * piano *è*, e l'argomento resta dov'è utile: nella riga sotto.
+ */
+export function lezioneDelPiano (piano: PianoLezione, contesto: ContestoNomePiano = {}): string {
   const usi = (contesto.lezioni ?? [])
     .filter((l) => l.pianoId === piano.id)
     .sort((a, b) => a.data.localeCompare(b.data))
+
   const prima = usi[0]
   if (!prima) {
-    return `${corso} · bozza · ${piano.attivita.length} attività`
+    // Una bozza non ha un'ora, e va detto: il giorno in cui è nata la
+    // distingue dalle altre bozze dello stesso corso senza promettere una
+    // lezione che non c'è. È anche l'unica data del piano che non cambia più.
+    const nato = giornoDi(piano.creatoIl)
+    return nato ? `bozza del ${formattaData(nato)}` : 'bozza'
   }
-  return `${corso} · ${formattaData(prima.data)}` + (usi.length > 1 ? ` +${usi.length - 1}` : '')
+
+  // Il numero dell'ora e non la sua data: preparando le lezioni si ragiona «la
+  // dodicesima», non «quella del 15 settembre» — e una data spostata di una
+  // settimana cambierebbe il nome del piano senza che il piano sia cambiato.
+  // La data resta il ripiego per quando il numero non si può dire: un'ora
+  // annullata, o un piano appeso a una lezione fuori dall'anno.
+  const numero = contesto.numeroDellaLezione?.(prima) ?? null
+  const quale = numero ? `${numero}ª lezione` : formattaData(prima.data)
+  return quale + (usi.length > 1 ? ` +${usi.length - 1}` : '')
+}
+
+export function nomePiano (piano: PianoLezione, contesto: ContestoNomePiano = {}): string {
+  const corso = contesto.corso?.trim() || 'Piano'
+  return `${corso} · ${lezioneDelPiano(piano, contesto)}`
 }
 
 /**

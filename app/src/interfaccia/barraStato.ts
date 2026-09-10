@@ -8,7 +8,7 @@
 // Due gruppi e una regola per stare zitti.
 //
 //   A sinistra quel che chiede qualcosa a chi insegna: l'ora da compilare, le
-//   cose aperte. Sono voci che si premono.
+//   pendenze. Sono voci che si premono.
 //
 //   A destra com'è messa la macchina: la rete, la posta, l'anno in uso. Sono
 //   voci di stato, e due su tre si premono per andare dove si cambiano.
@@ -17,6 +17,7 @@
 // dice sempre le stesse otto cose diventa sfondo in tre giorni, e allora il
 // giorno in cui dice «senza rete» non la legge più nessuno.
 
+import { CARTE, quanti } from '../dominio/lessico.js'
 import { oraDaCompilare } from '../dominio/cruscotto.js'
 import { formattaData, oggi } from '../dominio/date.js'
 import { riepilogoTodo } from '../dominio/todo.js'
@@ -127,11 +128,11 @@ function vociDelLavoro (): Figlio[] {
     voci.push(
       voce({
         simbolo: 'spunta',
-        testo: `${riepilogo.aperti} ${riepilogo.aperti === 1 ? 'cosa aperta' : 'cose aperte'}`,
+        testo: quanti(riepilogo.aperti, CARTE.pendenza),
         titolo:
           riepilogo.urgenti > 0
-            ? `${riepilogo.urgenti} in ritardo su ${riepilogo.aperti}.\nApri il todo`
-            : 'Quel che resta da chiudere.\nApri il todo',
+            ? `${riepilogo.urgenti} in ritardo su ${riepilogo.aperti}.\nApri le ${CARTE.pendenza.plurale}`
+            : `Quel che resta da chiudere.\nApri le ${CARTE.pendenza.plurale}`,
         tono: riepilogo.urgenti > 0 ? 'attenzione' : 'quiete',
         al: () => aggiorna({ vista: 'todo' }),
       }),

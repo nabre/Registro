@@ -29,6 +29,7 @@ import {
   eliminazione,
   registroVuoto,
   riferimentiRotti,
+  lessico,
 } from '../../dist-prove/dominio.mjs'
 
 /**
@@ -132,7 +133,10 @@ describe('eliminazioni', () => {
     // corso, e restano tutti e due, staccati dal corso che non c'è più.
     assert.equal(registro.piani.length, 2)
     for (const scaletta of registro.piani) assert.equal(scaletta.corsoId, null)
-    assert.ok(piano.perdite.some((p) => p.includes('4 allievi')), piano.perdite.join(' | '))
+    assert.ok(
+      piano.perdite.some((p) => p.includes(`4 ${lessico.PIF.plurale}`)),
+      piano.perdite.join(' | '),
+    )
     assert.equal(piano.file.documenti.length, 2, 'i documenti del fascicolo escono dalla cartella')
   })
 

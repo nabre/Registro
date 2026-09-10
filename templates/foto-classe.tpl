@@ -11,7 +11,7 @@ titolo: Foto della classe
 estende: _base
 
 [corpo]
-usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{allievi}} allievi · {{anno}}
+usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{allievi}} PiF · {{anno}}
 
 # La griglia: quante caselle per riga, e quanto è alta la foto in millimetri.
 # Quattro colonne su un A4 fanno un ritratto largo circa quattro centimetri —

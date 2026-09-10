@@ -85,7 +85,7 @@ export function descriviFamiglia (famiglia: FamigliaTodo): string {
   }
 }
 
-/** Quanto pesa una famiglia in una classe: quante cose aperte, e quante premono. */
+/** Quanto pesa una famiglia in una classe: quante pendenze, e quante premono. */
 export interface ContoFamiglia {
   aperti: number
   /** Quelle in ritardo, o che nessun automatismo chiuderà: danno il tono. */

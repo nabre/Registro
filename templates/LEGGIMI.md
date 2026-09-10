@@ -1,8 +1,8 @@
 # I modelli dei rapporti
 
 Ogni rapporto che il registro stampa in PDF — il verbale di un'ora, il piano
-lezione, le valutazioni, le presenze, il fascicolo di classe, la scheda di un
-allievo, la scheda di una singola prova — è composto da un file di questa
+lezione, le valutazioni, le presenze, il fascicolo di classe, la scheda di una
+persona in formazione, la scheda di una singola prova — è composto da un file di questa
 cartella. Sono file di testo: si
 aprono con qualunque editor, si modificano a mano e valgono dal salvataggio
 successivo, senza ricompilare né riavviare niente.
@@ -35,13 +35,13 @@ in tutti e sette, la griglia dell'appello con la sua legenda in due. Un rapporto
 ne richiama uno con `usa: nome`. Due copie della stessa cosa sono due occasioni
 di dire cose diverse, e la seconda si dimentica sempre.
 
-**La firma delle mail sta in `_firma.html`.** Non è un modello di rapporto: è
+**La firma delle e-mail sta in `_firma.html`.** Non è un modello di rapporto: è
 quel che il registro mette in fondo a ogni messaggio che spedisce — le
 comunicazioni alla classe, le richieste di firma alle aziende, i documenti
-mandati a un allievo. Sta qui e non fra le impostazioni perché è la stessa
+mandati a una persona in formazione. Sta qui e non fra le impostazioni perché è la stessa
 specie di cosa delle intestazioni: un pezzo di testo che si scrive una volta e
 si corregge a mano quando cambia un numero di telefono. È HTML, e con una firma
-in HTML tutta la mail parte in HTML; svuotando il file la mail parte senza
+in HTML tutta l'e-mail parte in HTML; svuotando il file l'e-mail parte senza
 firma.
 
 Sono quattro file e non uno perché si toccano per motivi diversi: in `_base` si
@@ -178,8 +178,8 @@ dica non scriverlo.
 
 ### Il totale di una tabella
 
-Una tabella può portare un'ultima riga che tira le somme — le prove di un
-allievo finiscono con «Totale · 5 prove · 4.62» — scritta in grassetto e
+Una tabella può portare un'ultima riga che tira le somme — le prove di una
+persona in formazione finiscono con «Totale · 5 prove · 4.62» — scritta in grassetto e
 staccata dalle altre da un filo più marcato. Non si dichiara nel modello: la
 mette chi produce i dati, perché è un conto, non impaginazione. Scegliendo le
 colonne il totale le segue.
@@ -202,8 +202,8 @@ riquadro, a colonne uguali.
 nell'ordine che si vuole:
 
 ```
-tabella: presenze | Allievo, % presenza
-tabella: voti | Allievo, Media, *
+tabella: presenze | PiF, % presenza
+tabella: voti | PiF, Media, *
 ```
 
 Le colonne si nominano **com'erano di serie**, non come `_testi.tpl` le
@@ -248,7 +248,7 @@ si annidano. Un `fine:` dimenticato porta il blocco fino in fondo al corpo,
 invece di far cadere il rapporto; un `fine:` spaiato si salta come ogni riga che
 non si capisce.
 
-### Ripetere un pezzo per ogni allievo
+### Ripetere un pezzo per ogni persona in formazione
 
 ```
 ripeti: allievi
@@ -273,14 +273,14 @@ immagine: logo.png | altezza 16 | centro
 Il file sta in questa cartella, PNG o JPEG. Un nome secco è un'immagine di
 `templates/`; un percorso con delle barre — `{{foto}}` diventa
 `archivio/docente-di-classe/DIC4a/foto/Rossi Mario.jpg` — è un file della cartella
-dell'anno, ed è così che il ritratto di un allievo arriva sulla sua scheda. Le
+dell'anno, ed è così che il ritratto di una persona in formazione arriva sulla sua scheda. Le
 risalite `..` non passano. Si dichiara solo l'altezza, in millimetri: la larghezza viene dalle proporzioni del
 file, e dichiararle tutte e due vorrebbe dire poterle sbagliare. Più larga del
 foglio, l'immagine rimpicciolisce invece di uscire dal margine.
 
 Con `| accanto` l'immagine non si prende la sua fascia di foglio: si tiene il
 fianco su cui sta, e quel che segue si scrive nella colonna che resta finché non
-l'ha sorpassata. È la disposizione della scheda dell'allievo — il ritratto a
+l'ha sorpassata. È la disposizione della scheda personale — il ritratto a
 destra, i recapiti alla sua altezza — e senza, tre centimetri di foto lasciano
 tre centimetri di bianco sull'altro lato. Vale per `sinistra` e `destra`: al
 centro non resterebbe una colonna in cui scrivere. Un `filo:` o una `sezione:`
@@ -306,7 +306,7 @@ commenta quella riga.
 galleria: allievi | colonne 4 | altezza 32
 ```
 
-Una casella per allievo — la foto, il nome sotto in grassetto, e sotto ancora
+Una casella per persona — la foto, il nome sotto in grassetto, e sotto ancora
 l'azienda in grigio — disposte in griglia. È l'unica cosa che una tabella non
 sa fare: le sue celle sono testo. Serve a chi ha venticinque nomi da imparare e
 a chi entra in aula a sostituire per un'ora, ed è il modello `foto-classe.tpl`.
@@ -317,7 +317,7 @@ ritratto da quattro centimetri, che si riconosce a braccio teso. L'altezza è
 quella della foto, in millimetri, e la foto ci sta dentro tenendo le sue
 proporzioni.
 
-Le foto si mettono dalla scheda di un allievo, nel pannello «Ritratto», e il
+Le foto si mettono dalla scheda di una persona in formazione, nel pannello «Ritratto», e il
 registro se ne tiene una copia in `archivio/docente-di-classe/<classe>/foto/`. Chi non ce
 l'ha tiene la sua casella con il posto segnato: una griglia che salta i senza
 foto è una griglia in cui i nomi si spostano.
@@ -367,8 +367,8 @@ Dove serve un'eccezione — una tabella in cui quella parola vuol dire un'altra
 cosa — si scrive il nome della tabella davanti, e vince su quella generale:
 
 ```
-Allievo: Nome e cognome          in tutte le tabelle
-presenze.Allievo: Chi c'era      solo nella tabella «presenze»
+PiF: Nome e cognome              in tutte le tabelle
+presenze.PiF: Chi c'era          solo nella tabella «presenze»
 ```
 
 **Che frasi ci sono, e dove.** Tutte quelle che il registro compone stanno sotto

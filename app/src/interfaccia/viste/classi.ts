@@ -14,7 +14,7 @@
 // prima di arrivare all'indirizzo che si era venuti a copiare.
 
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcoli.js'
-import { PIF, Uno, del, quanti } from '../../dominio/lessico.js'
+import { PERSONE, PIF, Uno, del, quanti } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Classe } from '../../dominio/modelli.js'
 import {
@@ -131,9 +131,9 @@ function tabellaAllievi (classe: Classe): HTMLElement {
       h('th', null, 'Nascita'),
       h('th', null, 'Indirizzo'),
       h('th', null, 'E-mail'),
-      h('th', null, 'Datore di lavoro'),
-      h('th', null, 'Indirizzo del datore'),
-      h('th', null, 'E-mail del datore'),
+      h('th', null, Uno(PERSONE.datore)),
+      h('th', null, `Indirizzo ${del(PERSONE.datore)}`),
+      h('th', null, `E-mail ${del(PERSONE.datore)}`),
       h('th', { class: 'tabella__azioni' }, ''),
     ],
     righe: allievi.map((allievo) =>

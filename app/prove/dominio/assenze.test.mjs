@@ -374,7 +374,7 @@ describe('un periodo che sta in piedi', () => {
     assert.deepEqual(validaBloccoAssenze({ ...buono, etichetta: ' ' }).errori, [
       'Il periodo deve avere un nome.',
     ])
-    assert.deepEqual(validaBloccoAssenze({ ...buono, corpo: '' }).errori, ['La mail è vuota.'])
+    assert.deepEqual(validaBloccoAssenze({ ...buono, corpo: '' }).errori, ['L’e-mail è vuota.'])
     assert.deepEqual(
       validaBloccoAssenze({ ...buono, dal: '2026-01-31', al: '2025-09-01' }).errori,
       ['Il periodo finisce prima di cominciare.'],

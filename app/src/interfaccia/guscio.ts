@@ -20,6 +20,7 @@
 // le viste, e in particolare quali corsi la barra elenca, quindi devono stare
 // dove li si possa controllare con un'occhiata.
 
+import { CARTE, Molti } from '../dominio/lessico.js'
 import { riparazioni } from '../dominio/riparazioni.js'
 import { avviso, pulsante } from './componenti/base.js'
 import { icona, type NomeIcona } from './componenti/icone.js'
@@ -70,7 +71,7 @@ interface VoceNavigazione {
  */
 const VOCI_TESTA: VoceNavigazione[] = [
   { vista: 'calendario', etichetta: 'Calendario', simbolo: 'calendario' },
-  { vista: 'todo', etichetta: 'Todo', simbolo: 'spunta' },
+  { vista: 'todo', etichetta: Molti(CARTE.pendenza), simbolo: 'spunta' },
 ]
 
 /**

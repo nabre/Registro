@@ -1,4 +1,4 @@
-# Il conto delle presenze di un corso, allievo per allievo.
+# Il conto delle presenze di un corso, persona per persona.
 #
 # Di un corso e per un semestre: le ore sono di un insegnamento, e la
 # percentuale di presenza di un semestre non è quella dell'altro. Un foglio che
@@ -13,7 +13,7 @@ usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{materia}} · {{p
 campi: Lezioni a calendario={{quanti}}; UD previste={{ud}}; UD a calendario={{udTenute}}
 campi: Assenza di classe={{assenza}}; Presenza di classe={{presenza}}
 
-sezione: Per allievo
+sezione: Per persona in formazione
 tabella: presenze
 paragrafo: {{frase.nota-presenze}}
 

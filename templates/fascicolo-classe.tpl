@@ -7,10 +7,10 @@ titolo: Fascicolo di classe
 estende: _base
 
 [corpo]
-usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{allievi}} allievi · {{periodo}}
+usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{allievi}} PiF · {{periodo}}
 campi: Corsi={{corsi}}
 
-sezione: Allievi
+sezione: Persone in formazione
 tabella: allievi
 
 sezione: Documenti raccolti

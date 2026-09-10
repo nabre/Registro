@@ -65,7 +65,11 @@ import {
   classiVisibili,
   lezioniInAgenda,
   nomeClasseDiLezione,
+  nomeDiLezione,
   nomeMateriaDiLezione,
+  scalettaDiLezione,
+  tappeDiLezione,
+  siglaMateriaDiLezione,
   coloreDiLezione,
   pianoPerId,
   semestrePerData,
@@ -452,6 +456,56 @@ function menuGiorno (evento: MouseEvent, data: Iso, oraProposta?: string): void 
 
 // ------------------------------------------------------------------ blocchi
 
+/**
+ * Il cartellino di un'ora della settimana: tutto quel che il blocco non dice.
+ *
+ * Il blocco è alto quanto dura l'ora, e un'ora da quarantacinque minuti sono
+ * tre righe: ci stanno la classe, la materia e il numero dell'ora, e già le
+ * tappe si perdono. Qui invece ci sta tutto, e questo è il posto in cui si va a
+ * guardare prima di entrare in aula — «che cosa avevo previsto di fare?».
+ *
+ * Quale ora è, e poi che cosa ci si fa: il numero identifica la lezione dentro
+ * il corso, la scaletta dice il resto. Il titolo del piano non c'è, e non
+ * manca: era un riassunto della scaletta scritto sopra la scaletta.
+ *
+ * A righe e non a puntini: un suggerimento di sistema le manda a capo, e una
+ * scaletta di sei tappe scritta di fila non si legge.
+ */
+function dettagliDellaLezione (lezione: Lezione, inizio: string, fine: string): string {
+  const materia = nomeMateriaDiLezione(lezione)
+  const righe = [
+    `${nomeClasseDiLezione(lezione)}${materia ? ` — ${materia}` : ''} · ${inizio}–${fine}${
+      lezione.aula ? ` · ${lezione.aula}` : ''
+    }`,
+  ]
+
+  // «senza piano» guarda il piano e non la scaletta: un piano assegnato e
+  // ancora vuoto è un'altra cosa da uno che non c'è, e si rimedia in due posti
+  // diversi — l'uno si apre e si riempie, l'altro si sceglie.
+  const piano = pianoPerId(lezione.pianoId)
+  const scaletta = scalettaDiLezione(lezione)
+  const manca = piano ? (scaletta.length > 0 ? null : 'scaletta ancora vuota') : 'senza piano'
+  righe.push([etichettaNumero(lezione), manca].filter(Boolean).join(' · '))
+  righe.push(
+    ...scaletta.map(
+      (tappa, indice) => `${indice + 1}. ${tappa.titolo} (${formattaDurata(tappa.minuti)})`,
+    ),
+  )
+
+  return righe.filter((riga) => riga.length > 0).join('\n')
+}
+
+/**
+ * Che numero ha quest'ora nel suo corso, o niente.
+ *
+ * Vuoto per un'ora annullata: un numero non ce l'ha — non si è tenuta — e
+ * ripiegare qui sulla data direbbe il giorno due volte, che nel calendario è
+ * già la colonna in cui il blocco sta.
+ */
+function etichettaNumero (lezione: Lezione): string {
+  return lezione.stato === 'annullata' ? '' : nomeDiLezione(lezione)
+}
+
 /** Il rettangolo di una lezione nella griglia della settimana. */
 function bloccoLezione (lezione: Lezione, minutiPrimaOra: number, scala: number): HTMLElement {
   const inizio = inizioLezione(lezione)
@@ -482,11 +536,7 @@ function bloccoLezione (lezione: Lezione, minutiPrimaOra: number, scala: number)
         // Tinta appena accennata: la colonna deve restare leggibile.
         backgroundColor: `color-mix(in srgb, ${colore} 14%, transparent)`,
       },
-      attr: {
-        title: `${nomeClasseDiLezione(lezione)} ${inizio}–${fine}${
-          titoloDiLezione(lezione) ? ` · ${titoloDiLezione(lezione)}` : ''
-        }`,
-      },
+      attr: { title: dettagliDellaLezione(lezione, inizio, fine) },
       onclick: () => apriLezione(lezione),
       oncontextmenu: (evento: MouseEvent) => menuLezione(evento, lezione),
     },
@@ -508,9 +558,28 @@ function bloccoLezione (lezione: Lezione, minutiPrimaOra: number, scala: number)
       { class: 'blocco__testata' },
       h('span', { class: 'blocco__ora' }, inizio),
       h('span', { class: 'blocco__classe' }, nomeClasseDiLezione(lezione)),
+      // La materia accanto alla classe: chi tiene due materie allo stesso
+      // gruppo vede due blocchi identici, e la settimana serve proprio a sapere
+      // che cosa si va a fare in quell'ora.
+      nomeMateriaDiLezione(lezione)
+        ? h('span', { class: 'blocco__materia' }, nomeMateriaDiLezione(lezione))
+        : null,
     ),
-    altezza >= 46 && titoloDiLezione(lezione)
-      ? h('span', { class: 'blocco__titolo' }, titoloDiLezione(lezione))
+    // Il numero dell'ora nel suo corso: «3ª lezione». È il nome della lezione — lo
+    // stesso che porta il piano appeso a lei — e dice a che punto del programma
+    // si è, che è la domanda che si fa guardando la settimana. Il titolo del
+    // piano stava qui e se n'è andato: riassumeva in tre parole la scaletta che
+    // comincia sulla riga sotto.
+    altezza >= 46 && etichettaNumero(lezione)
+      ? h('span', { class: 'blocco__numero' }, etichettaNumero(lezione))
+      : null,
+    // Le tappe della scaletta, di seguito: il ritmo dell'ora in una riga. La
+    // soglia è dodici pixel sopra quella del piede — cioè una riga in più — e
+    // sotto quella misura le tappe restano nel suggerimento, che le ha tutte e
+    // con le durate. Un'ora da quarantacinque minuti ci arriva quando la
+    // giornata è corta abbastanza da lasciare respiro alla griglia.
+    altezza >= 76 && tappeDiLezione(lezione).length > 0
+      ? h('span', { class: 'blocco__tappe' }, tappeDiLezione(lezione).join(' · '))
       : null,
     altezza >= 64
       ? h(
@@ -540,7 +609,13 @@ function chipLezione (lezione: Lezione): HTMLElement {
       class: ['chip', `chip--${lezione.stato}`],
       type: 'button',
       style: { borderLeftColor: coloreDiLezione(lezione) },
-      attr: { title: `${inizio ?? ''} ${nomeClasseDiLezione(lezione)} ${titoloDiLezione(lezione)}`.trim() },
+      // Nel suggerimento la materia per esteso: la sigla sta nella pastiglia
+      // perché lì non ci sta altro, non perché il nome non serva.
+      attr: {
+        title: `${inizio ?? ''} ${nomeClasseDiLezione(lezione)}${
+          nomeMateriaDiLezione(lezione) ? ` — ${nomeMateriaDiLezione(lezione)}` : ''
+        } ${titoloDiLezione(lezione)}`.trim(),
+      },
       onclick: (evento: MouseEvent) => {
         evento.stopPropagation()
         apriLezione(lezione)
@@ -549,6 +624,12 @@ function chipLezione (lezione: Lezione): HTMLElement {
     },
     h('span', { class: 'chip__ora' }, inizio ?? ''),
     h('span', { class: 'chip__testo' }, nomeClasseDiLezione(lezione)),
+    // La sigla e non il nome: in una cella di mese ci stanno quattro
+    // pastiglie larghe due centimetri, e «Calcolo professionale» le farebbe
+    // troncare tutte allo stesso modo — cioè non direbbe niente.
+    siglaMateriaDiLezione(lezione)
+      ? h('span', { class: 'chip__materia' }, siglaMateriaDiLezione(lezione))
+      : null,
   )
 
   rendiTrascinabile(chip, lezione)

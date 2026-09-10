@@ -289,7 +289,7 @@ function tabellaAssenze (classe: Classe, blocco: BloccoAssenze, allievi: Allievo
                 'small',
                 {
                   class: 'testo-negativo',
-                  attr: { title: 'Senza l’indirizzo del datore la mail non parte' },
+                  attr: { title: 'Senza l’indirizzo del datore l’e-mail non parte' },
                 },
                 ' senza datore',
               ),
@@ -387,7 +387,7 @@ export function schedaAssenze (classe: Classe) {
 
   return scheda({
     titolo: 'Assenze da far firmare',
-    sottotitolo: 'un periodo per volta: i fogli che partono, la mail, le firme che tornano',
+    sottotitolo: 'un periodo per volta: i fogli che partono, l’e-mail, le firme che tornano',
     azioni: [
       scelto
         ? pulsante({
@@ -420,7 +420,7 @@ export function schedaAssenze (classe: Classe) {
             titolo: 'Nessun periodo aperto',
             testo:
               'Un periodo tiene insieme le tre fasi: i fogli di assenze e ritardi che la ' +
-              'scuola stampa, la mail che li manda in azienda con la richiesta di firma, e ' +
+              'scuola stampa, l’e-mail che li manda in azienda con la richiesta di firma, e ' +
               'i fogli firmati che tornano indietro. Si comincia creandolo, poi si importano ' +
               'i PDF.',
             azione: pulsante({
@@ -543,7 +543,7 @@ function rigaRichiesta (richiesta: RichiestaFirma): HTMLElement {
         // allegato. È lo stesso gesto della busta nella matrice.
         richiesta.fase === 'da-spedire'
           ? pulsante({
-              testo: 'Prepara la mail',
+              testo: 'Prepara l’e-mail',
               simbolo: 'posta',
               variante: 'sottile',
               al: () =>
@@ -585,7 +585,7 @@ function rigaRichiesta (richiesta: RichiestaFirma): HTMLElement {
               simbolo: 'spunta',
               variante: partita ? 'sottile' : 'fantasma',
               titolo: partita
-                ? 'Riporta da mandare: la mail non è partita'
+                ? 'Riporta da mandare: l’e-mail non è partita'
                 : 'Segna spedita: l’hai mandata dal programma di posta',
               al: () =>
                 azione({

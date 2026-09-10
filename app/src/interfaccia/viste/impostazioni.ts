@@ -21,7 +21,7 @@ import type {
   Iso,
   LetteraSettimana,
 } from '../../dominio/modelli.js'
-import { PIF, un } from '../../dominio/lessico.js'
+import { LEZIONE, PIF, Uno, un } from '../../dominio/lessico.js'
 import { sospensioneDi } from '../../dominio/orario.js'
 import {
   avviso,
@@ -73,7 +73,7 @@ function scostamenti (mandate: Impostazioni, arrivate: Impostazioni): string[] {
   confronta('prima ora della giornata', mandate.oraInizioGiornata, arrivate.oraInizioGiornata)
   confronta('ultima ora della giornata', mandate.oraFineGiornata, arrivate.oraFineGiornata)
   confronta('durata della pausa', mandate.durataPausaPredefinita, arrivate.durataPausaPredefinita)
-  confronta('durata dello slot', mandate.durataSlotPredefinita, arrivate.durataSlotPredefinita)
+  confronta('durata della fascia', mandate.durataSlotPredefinita, arrivate.durataSlotPredefinita)
   confronta(
     'passo della nota di fine semestre',
     mandate.passoFineSemestre,
@@ -464,7 +464,7 @@ function schedaCalendario (): HTMLElement {
         }),
         campo({
           nome: 'durataSlotPredefinita',
-          etichetta: 'Slot di lezione',
+          etichetta: `${Uno(LEZIONE.fascia)} di lezione`,
           tipo: 'number',
           valore: udDaMinuti(impostazioni.durataSlotPredefinita),
           min: 1,
@@ -702,7 +702,7 @@ function schedaPosta (): HTMLElement {
         testo: 'Apri i modelli',
         simbolo: 'cartella',
         variante: 'sottile',
-        titolo: 'La cartella templates/, dove sta anche la firma delle mail',
+        titolo: 'La cartella templates/, dove sta anche la firma delle e-mail',
         al: () => azione({ tipo: 'rapporto.modelli' }),
       }),
     ],
@@ -740,7 +740,7 @@ function schedaPosta (): HTMLElement {
       h(
         'p',
         null,
-        'La firma che va in fondo a ogni mail — comunicazioni, richieste di firma alle ' +
+        'La firma che va in fondo a ogni e-mail — comunicazioni, richieste di firma alle ' +
           `aziende, documenti mandati a ${un(PIF)} — sta in `,
         h('code', null, 'templates/_firma.html'),
         '.',
@@ -748,8 +748,8 @@ function schedaPosta (): HTMLElement {
       h(
         'p',
         { class: 'testo-quieto' },
-        'È HTML, e con una firma in HTML tutta la mail parte in HTML. Svuotando il file la ' +
-          'mail parte senza firma.',
+        'È HTML, e con una firma in HTML tutta l’e-mail parte in HTML. Svuotando il file l’' +
+          'e-mail parte senza firma.',
       ),
       h(
         'p',

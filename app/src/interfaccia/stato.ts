@@ -8,6 +8,8 @@
 // Quel che vale la pena ritrovare riaprendo il pannello viene però ricordato da
 // il preload: la vista, il giorno, la classe scelta.
 
+import { nomeTipoAttivita } from '../dominio/attivita.js'
+import { minutiDiAttivita } from '../dominio/calcoli.js'
 import type {
   Corso,
   Fascicolo,
@@ -30,15 +32,18 @@ import {
   fascicoloDellaClasse,
   registroDelCorso,
   lezioniDellAnno,
+  lezioneDelPianoNelRegistro,
   lezioniDellaClasse,
   materiaDelCorso,
+  nomeDelPiano,
+  numeroDellaLezione,
   pianiDelCorso,
   semestreDelMomento,
+  siglaMateria,
   valutazioniDellAnno,
   valutazioniDellaClasse,
 } from '../dominio/corsi.js'
-import { nomePiano } from '../dominio/calcoli.js'
-import { adesso, oggi, semestreDi } from '../dominio/date.js'
+import { MINUTI_UD, adesso, formattaData, oggi, semestreDi } from '../dominio/date.js'
 import { registroVuoto } from '../dominio/fabbriche.js'
 import {
   PROIEZIONE_PREDEFINITA,
@@ -556,19 +561,50 @@ export function nomeMateriaDiLezione (lezione: Lezione): string {
   return materiaDelCorso(stato.registro, corsoDiLezione(lezione))?.nome ?? ''
 }
 
-/** Come si chiama un piano: il corso e la lezione per cui è fatto. */
+/** La stessa materia dove il posto è poco: la cella di un mese, una pastiglia. */
+export function siglaMateriaDiLezione (lezione: Lezione): string {
+  return siglaMateria(materiaDelCorso(stato.registro, corsoDiLezione(lezione)))
+}
+
+/**
+ * Come si chiama un piano: il corso e il numero dell'ora per cui è fatto.
+ *
+ * Passa da `nomeDelPiano`, che è la stessa funzione che usano l'albero e i
+ * comandi: il numero dell'ora riparte a ogni semestre, e ricomporlo qui
+ * vorrebbe dire due conti da tenere d'accordo per scrivere lo stesso nome.
+ */
 export function nomeDiPiano (piano: PianoLezione): string {
-  return nomePiano(piano, {
-    corso: piano.corsoId ? nomeCorso(piano.corsoId) : null,
-    lezioni: stato.registro.lezioni,
-  })
+  return nomeDelPiano(stato.registro, piano)
+}
+
+/**
+ * Di quale lezione è un piano, senza ripetere il corso: «3ª lezione», «bozza del 12.09».
+ *
+ * È il nome che va negli elenchi di una pagina di corso, dove il corso è già
+ * scritto in testata.
+ */
+export function lezioneDiPiano (piano: PianoLezione): string {
+  return lezioneDelPianoNelRegistro(stato.registro, piano)
+}
+
+/**
+ * Come si chiama una lezione: «3ª lezione».
+ *
+ * Il numero e non la data, perché è così che si nominano le lezioni parlando —
+ * e perché è il nome che porta anche il piano appeso a quell'ora, così l'elenco
+ * delle ore e l'elenco dei piani dicono la stessa parola. La data resta il
+ * ripiego per le annullate, che un numero non ce l'hanno.
+ */
+export function nomeDiLezione (lezione: Lezione): string {
+  const numero = numeroDellaLezione(stato.registro, lezione)
+  return numero ? `${numero}ª lezione` : formattaData(lezione.data, 'giorno')
 }
 
 /**
  * Di che cosa parla una lezione, in due parole.
  *
  * Non è il nome del piano — quello è la lezione stessa, e nel calendario
- * ripetere «Matematica 3A · 15.09» dentro il blocco del 15.09 di Matematica 3A
+ * ripetere «Matematica 3A · 12ª lezione» dentro il blocco di quell'ora di Matematica 3A
  * è spazio buttato. Quel che serve a colpo d'occhio è l'argomento: lo dice il
  * primo obiettivo del piano, e se obiettivi non ce ne sono la prima tappa
  * della scaletta. Senza piano non c'è niente da dire, e la riga resta pulita.
@@ -577,6 +613,43 @@ export function titoloDiLezione (lezione: Lezione): string {
   const piano = pianoPerId(lezione.pianoId)
   if (!piano) return ''
   return piano.obiettivi[0] ?? piano.attivita.find((a) => a.titolo.trim())?.titolo ?? ''
+}
+
+/**
+ * Le tappe della scaletta di un'ora, nell'ordine in cui si fanno.
+ *
+ * Una tappa senza titolo non sparisce: si presenta con il proprio tipo —
+ * «Esercizio», «Verifica» — perché nella striscia di una settimana quel che si
+ * legge è il ritmo dell'ora, e un buco in mezzo alla sequenza la racconta male.
+ *
+ * Elenco e non stringa: chi la mostra decide dove tagliarla, e in un blocco
+ * alto trenta pixel si taglia prima che in un suggerimento.
+ */
+export function tappeDiLezione (lezione: Lezione): string[] {
+  return scalettaDiLezione(lezione).map((tappa) => tappa.titolo)
+}
+
+/** Una tappa come si racconta fuori dal piano: come si chiama e quanto dura. */
+export interface TappaDellaLezione {
+  titolo: string
+  minuti: number
+}
+
+/**
+ * La scaletta di un'ora, con le durate in minuti.
+ *
+ * Le durate nel piano stanno in unità didattiche — così lo stesso piano riusato
+ * dove l'UD è da cinquanta riempie comunque l'ora — e qui si convertono con
+ * l'unità delle impostazioni, che è quella con cui si prepara.
+ */
+export function scalettaDiLezione (lezione: Lezione): TappaDellaLezione[] {
+  const piano = pianoPerId(lezione.pianoId)
+  if (!piano) return []
+  const perUd = stato.registro.impostazioni.durataSlotPredefinita || MINUTI_UD
+  return piano.attivita.map((a) => ({
+    titolo: a.titolo.trim() || nomeTipoAttivita(a.tipo),
+    minuti: minutiDiAttivita(a.durataUd, perUd),
+  }))
 }
 
 export function coloreDiLezione (lezione: Lezione): string {

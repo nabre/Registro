@@ -18,6 +18,7 @@
 // Le cose chiuse stanno in fondo, in una scheda che si apre se la si cerca:
 // servono a ricordarsi che cosa si era dato, non a occupare la schermata.
 
+import { CARTE, Molti, quanti } from '../../dominio/lessico.js'
 import type { RichiestaFirma } from '../../dominio/assenze.js'
 import type { Consegna } from '../../dominio/modelli.js'
 import type { Recupero } from '../../dominio/recuperi.js'
@@ -119,7 +120,7 @@ function schedaFatto (
 }
 
 /**
- * Una scheda di riepilogo per famiglia: quante cose aperte, e quante premono.
+ * Una scheda di riepilogo per famiglia: quante pendenze, e quante premono.
  *
  * Sono le prime quattro cose che si vedono aprendo la pagina, e servono a una
  * domanda sola: da dove comincio? Il numero grande è quel che resta da fare, la
@@ -215,11 +216,11 @@ export function vistaTodo (): Figlio {
     'div',
     { class: 'vista vista--todo' },
     testataVista({
-      titolo: 'Todo',
+      titolo: Molti(CARTE.pendenza),
       sottotitolo:
         riepilogo.aperti === 0
           ? 'niente in sospeso'
-          : `${riepilogo.aperti} cose aperte in ${conLavoro.length} ${conLavoro.length === 1 ? 'classe' : 'classi'}` +
+          : `${quanti(riepilogo.aperti, CARTE.pendenza)} in ${conLavoro.length} ${conLavoro.length === 1 ? 'classe' : 'classi'}` +
             (riepilogo.urgenti > 0 ? ` · ${riepilogo.urgenti} in ritardo` : ''),
       azioni: [
         selettore(filtro, FILTRI, (scelto) => aggiorna({ filtroTodo: scelto })),

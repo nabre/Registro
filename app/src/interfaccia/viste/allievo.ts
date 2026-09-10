@@ -20,7 +20,7 @@ import {
   statoDellOra,
 } from '../../dominio/calcoli.js'
 import { consegneDocumento, haFatto } from '../../dominio/consegne.js'
-import { PERSONE, PIF, Uno, un } from '../../dominio/lessico.js'
+import { PERSONE, PIF, Uno, del, un } from '../../dominio/lessico.js'
 import { formattaData } from '../../dominio/date.js'
 import type { Allievo, Classe, Corso, Lezione } from '../../dominio/modelli.js'
 import {
@@ -336,9 +336,9 @@ function pannelloAnagrafica (classe: Classe, allievo: Allievo): HTMLElement {
     [Uno(PERSONE.rappresentante), allievo.emailTutore],
     ['Telefono', allievo.telefono],
     [Uno(PERSONE.azienda), allievo.azienda],
-    ['Indirizzo dell’azienda', allievo.indirizzoDatore],
+    [`Indirizzo ${del(PERSONE.azienda)}`, allievo.indirizzoDatore],
     [Uno(PERSONE.datore), allievo.emailDatore],
-    ['Telefono del datore', allievo.telefonoDatore],
+    [`Telefono ${del(PERSONE.datore)}`, allievo.telefonoDatore],
   ]
   const scritti = recapiti.filter(([, valore]) => Boolean(valore))
 

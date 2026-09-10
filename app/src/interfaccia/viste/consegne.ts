@@ -378,7 +378,7 @@ export function rigaConsegna (
             'span',
             { class: 'consegna__distribuzione' },
             pastiglia(
-              consegna.modoConsegna === 'email' ? 'consegno per mail' : 'consegno a mano',
+              consegna.modoConsegna === 'email' ? 'consegno per e-mail' : 'consegno a mano',
               'informativo',
               consegna.modoConsegna === 'email' ? 'posta' : 'utente',
             ),

@@ -1,4 +1,4 @@
-# La scheda di un allievo: profitto, presenze e annotazioni del semestre.
+# La scheda di una persona in formazione: profitto, presenze e annotazioni del semestre.
 #
 # Di un corso solo: mettere due materie nella stessa tabella delle medie dà un
 # numero che non è la media di niente.
@@ -6,7 +6,7 @@
 # Le sezioni vuote spariscono da sé: chi non ha annotazioni non si porta a
 # casa un titolo seguito dal nulla.
 
-titolo: Scheda dell'allievo
+titolo: Scheda della persona in formazione
 estende: _base
 
 [corpo]
@@ -49,7 +49,7 @@ fine:
 #
 # Chi non ha un recapito non porta la sua riga: «Azienda: » non dice niente più
 # che non scriverlo.
-campi: Data di nascita={{nascita}}; Indirizzo={{indirizzo}}; E-mail={{email}}; Telefono={{telefono}}; Tutore={{tutore}}; Azienda={{azienda}}; Indirizzo dell'azienda={{indirizzoDatore}}; Datore di lavoro={{datore}}; Telefono del datore={{telefonoDatore}} | colonne 1
+campi: Data di nascita={{nascita}}; Indirizzo={{indirizzo}}; E-mail={{email}}; Telefono={{telefono}}; Rappr. legale={{tutore}}; Azienda formatrice={{azienda}}; Indirizzo dell'azienda={{indirizzoDatore}}; Datore di lavoro={{datore}}; Telefono del datore={{telefonoDatore}} | colonne 1
 
 # Il filo chiude l'anagrafica e riporta la riga intera: quel che segue non è
 # più di fianco al ritratto, e le tabelle vogliono tutta la larghezza.

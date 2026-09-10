@@ -192,7 +192,7 @@ export const ore = {
 
   /**
    * I minuti di ritardo e la nota di una riga sola, senza passare da
-   * `presenze.imposta`. Trova o crea solo la riga di quell'allievo — le
+   * `presenze.imposta`. Trova o crea solo la riga di quella persona — le
    * altre, comprese quelle di chi non frequenta più, restano intatte: era il
    * bug per cui scrivere una nota durante l'appello cancellava le caselle già
    * spuntate di tutti gli altri.

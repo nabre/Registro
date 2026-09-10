@@ -452,6 +452,27 @@ export const PIF = PERSONE.pif
 export const CLASSE = SCUOLA.classe
 export const CORSO = SCUOLA.corso
 export const UD = LEZIONE.unitaDidattica
+export const FASCIA = LEZIONE.fascia
+
+/**
+ * Come si chiama, nel nome del file, la famiglia di fogli che il registro
+ * stampa una per persona.
+ *
+ * Sta qui perché è una parola che si legge — è dentro il nome di ogni PDF che
+ * finisce in `esportazioni/` — ma non è una parola come le altre: cambiarla
+ * cambia il nome dei file da lì in avanti, e quelli già stampati restano con il
+ * nome vecchio finché non si rifanno. Il registro li rifà da sé, quindi il
+ * disordine dura un giro.
+ */
+export const DOCUMENTO_SCHEDE = `Schede ${corto(PIF)}`
+
+/**
+ * I nomi che questa famiglia di fogli ha avuto prima d'ora. Servono a
+ * riconoscere i file già sul disco: una stampa vecchia va riconosciuta come
+ * stampa anche dopo che la parola è cambiata, o finirebbe fra le cose caricate,
+ * che sono quelle che non si cancellano mai.
+ */
+export const DOCUMENTO_SCHEDE_PRIMA: readonly string[] = ['Schede allievo']
 
 // ----------------------------------------------------- le parole delle liste
 

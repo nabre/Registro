@@ -10,6 +10,7 @@ import * as vscode from 'vscode'
 
 import { nomeFileArchivio, percorsoEsportazione } from '../dati/archiviazione.js'
 import { scriviGenerato } from '../dati/esportazioni.js'
+import { DOCUMENTO_SCHEDE, PIF, frase } from '../dominio/lessico.js'
 import { documentoPiano } from '../dati/archiviazione.js'
 import { apriConIlSistema } from '../dati/apertura.js'
 import {
@@ -196,7 +197,7 @@ function documentiDelCorso (
       dati: datiAllievo(registro, classe, allievo, semestre, corso),
       classe: classe.nome,
       ambito,
-      documento: 'Schede allievo',
+      documento: DOCUMENTO_SCHEDE,
       chi: nomeCompleto(allievo),
       allievo: nomeCompleto(allievo),
       dettaglio: periodo,
@@ -537,7 +538,7 @@ export const rapporti = {
     if (azione.genere === 'allievo') {
       const classe = registro.classi.find((c) => c.allievi.some((a) => a.id === azione.id)) ?? null
       const allievo = classe?.allievi.find((a) => a.id === azione.id) ?? null
-      if (!classe || !allievo) return rifiuta('Allievo non trovato.')
+      if (!classe || !allievo) return rifiuta(frase(PIF, 'trovato', { nega: true }))
       const anno = registro.anni.find((a) => a.id === classe.annoId)
       const semestre = anno?.semestri.find((s) => s.id === azione.semestreId) ?? null
       // Il corso lo dice chi chiede la scheda. Se non lo dice, e la classe ne
@@ -552,7 +553,7 @@ export const rapporti = {
         dati: datiAllievo(registro, classe, allievo, semestre, corso),
         classe: classe.nome,
         ambito: corso ? materiaDelCorso(registro, corso)?.nome ?? corso.titolo : null,
-        documento: 'Schede allievo',
+        documento: DOCUMENTO_SCHEDE,
         chi: nomeCompleto(allievo),
         allievo: nomeCompleto(allievo),
         dettaglio: semestre?.etichetta ?? 'anno intero',

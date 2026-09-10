@@ -21,6 +21,7 @@
 import { nomeCompleto } from './calcoli.js'
 import { corsiDellaClasse, fascicoloDellaClasse, nomeDelPiano } from './corsi.js'
 import type { Collezione, Consegna, Registro } from './modelli.js'
+import { PIF, quanti } from './lessico.js'
 import { plurale } from './testo.js'
 
 export type Bersaglio =
@@ -392,12 +393,12 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     const allievi = contaAllievi(registro, classi)
     perdite.push(
       `${plurale(classi.size, 'classe', 'classi')}` +
-        (allievi > 0 ? `, con ${plurale(allievi, 'allievo', 'allievi')}` : ''),
+        (allievi > 0 ? `, con ${quanti(allievi, PIF)}` : ''),
     )
   }
   if (bersaglio.genere === 'classe') {
     const allievi = contaAllievi(registro, classi)
-    if (allievi > 0) perdite.push(plurale(allievi, 'allievo', 'allievi'))
+    if (allievi > 0) perdite.push(quanti(allievi, PIF))
   }
   if (bersaglio.genere !== 'corso' && corsi.size > 0) {
     perdite.push(plurale(corsi.size, 'corso', 'corsi'))

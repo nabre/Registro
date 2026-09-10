@@ -160,7 +160,7 @@ interface Bitmap {
 export type Porzione = 'testata' | 'intera'
 
 /**
- * Quanto della pagina è «testata». Il nome dell'allievo sta in cima nella
+ * Quanto della pagina è «testata». Il nome della persona sta in cima nella
  * quasi totalità dei documenti scolastici, e leggere mezza pagina invece di una
  * intera dimezza il tempo di un OCR che gira sulla macchina di chi insegna.
  */

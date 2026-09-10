@@ -44,8 +44,10 @@ import {
   classeDiMomento,
   classiVisibili,
   corsiDi,
+  lezioneDiPiano,
   nomeClasseDiLezione,
   nomeCorso,
+  nomeDiLezione,
   nomeDiPiano,
   pianoPerId,
   stato,
@@ -191,7 +193,16 @@ function pianiSenzaCorso (): PianoLezione[] {
   return stato.registro.piani.filter((p) => !p.corsoId || !corsi.has(p.corsoId))
 }
 
-/** Di che cosa parla il piano, in due parole: il primo obiettivo, o la prima tappa. */
+/**
+ * Di che cosa parla il piano, in due parole: il primo obiettivo, o la prima
+ * tappa.
+ *
+ * Sta nella riga piccola e non è il nome del piano — quello è l'ora, e lo dà
+ * `lezioneDiPiano`. È una distinzione che è costata: per un po' i piani si
+ * chiamavano con questa stringa, e siccome è la cosa che si riscrive di più
+ * mentre si prepara, l'elenco cambiava sotto le dita e due piani che
+ * cominciavano con «Ripasso» si presentavano uguali.
+ */
 function argomentoDiPiano (piano: PianoLezione): string {
   return (
     piano.obiettivi.find((o) => o.trim()) ??
@@ -224,6 +235,10 @@ function voceDiPiano (piano: PianoLezione, etichetta: string, sotto: string): HT
 /** La riga di un'ora: la sua scaletta, o l'invito a prepararla. */
 function voceDiLezione (lezione: Lezione): HTMLElement {
   const piano = pianoPerId(lezione.pianoId)
+  // Il nome dell'ora in grande e la data sotto: è così che si nominano le
+  // lezioni parlando — «la terza» — ed è lo stesso nome che porta il piano
+  // appeso a quell'ora, così le due colonne dicono la stessa parola.
+  const nome = nomeDiLezione(lezione)
   const quando = formattaData(lezione.data, 'giorno')
 
   if (!piano) {
@@ -239,16 +254,16 @@ function voceDiLezione (lezione: Lezione): HTMLElement {
       h(
         'span',
         { class: 'voce-laterale__testo' },
-        h('strong', null, quando),
-        h('small', null, 'senza piano — preparala'),
+        h('strong', null, nome),
+        h('small', null, `${quando} · senza piano — preparala`),
       ),
       icona('piu', 'voce-laterale__segno'),
     )
   }
   return voceDiPiano(
     piano,
-    quando,
-    `${argomentoDiPiano(piano)} · ${durataInMinuti(durataPiano(piano))}`,
+    nome,
+    `${quando} · ${argomentoDiPiano(piano)} · ${durataInMinuti(durataPiano(piano))}`,
   )
 }
 
@@ -311,14 +326,17 @@ function elencoPiani (): HTMLElement {
                   { class: 'elenco-laterale__sottogruppo' },
                   `Non ancora assegnati (${sciolti.length})`,
                 ),
+                // Una bozza non ha un'ora, e allora si chiama con il giorno in
+                // cui è nata: l'argomento resta nella riga sotto, dove cambia
+                // quanto vuole senza far ballare l'elenco.
                 ...sciolti.map((piano) =>
                   h(
                     'li',
                     null,
                     voceDiPiano(
                       piano,
-                      argomentoDiPiano(piano),
-                      `${piano.attivita.length} attività · ${durataInMinuti(durataPiano(piano))}`,
+                      lezioneDiPiano(piano),
+                      `${argomentoDiPiano(piano)} · ${piano.attivita.length} attività · ${durataInMinuti(durataPiano(piano))}`,
                     ),
                   ),
                 ),
@@ -339,8 +357,8 @@ function elencoPiani (): HTMLElement {
                     null,
                     voceDiPiano(
                       piano,
-                      argomentoDiPiano(piano),
-                      'il corso non c’è più: riaprilo e scegline uno',
+                      lezioneDiPiano(piano),
+                      `${argomentoDiPiano(piano)} · il corso non c’è più: riaprilo e scegline uno`,
                     ),
                   ),
                 ),

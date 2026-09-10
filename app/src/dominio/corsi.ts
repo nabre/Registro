@@ -10,8 +10,8 @@
 // calendario e i test. Sono l'unico posto in cui la catena
 // lezione → corso → classe → anno è scritta.
 
-import { confrontaLezioni, nomePiano } from './calcoli.js'
-import { semestreDi } from './date.js'
+import { confrontaLezioni, lezioneDelPiano, nomePiano } from './calcoli.js'
+import { nelPeriodo, semestreDi } from './date.js'
 import { creaCorso } from './fabbriche.js'
 import type {
   AnnoScolastico,
@@ -51,6 +51,30 @@ export function corsoDi (registro: Registro, classeId: string, materiaId: string
  */
 export function titoloCorso (classe: Classe | null, materia: Materia | null): string {
   return `${classe?.nome ?? 'classe'} — ${materia?.nome ?? 'Materia'}`
+}
+
+/**
+ * Come si chiama una materia dove non c'è posto per il suo nome: «MAT», «ITA».
+ *
+ * La sigla scritta nella materia se c'è, perché è quella che la scuola usa e
+ * che chi insegna riconosce. Se non c'è si ricava dal nome — le iniziali delle
+ * parole, o le prime tre lettere di una parola sola — e non si lascia vuota: la
+ * cella di un mese con due lezioni della stessa classe e due materie diverse,
+ * senza questa parola, mostra due righe identiche.
+ *
+ * Ricavata e non inventata: «Calcolo professionale» diventa «CP» e non un
+ * troncamento a caso, così due materie diverse restano due sigle diverse.
+ */
+export function siglaMateria (materia: Materia | null): string {
+  const scritta = materia?.sigla?.trim()
+  if (scritta) return scritta
+
+  const nome = materia?.nome?.trim() ?? ''
+  if (!nome) return ''
+
+  const parole = nome.split(/[\s'’-]+/).filter((pezzo) => pezzo.length > 0)
+  if (parole.length > 1) return parole.map((parola) => parola[0]?.toUpperCase() ?? '').join('')
+  return nome.slice(0, 3).toUpperCase()
 }
 
 /**
@@ -250,8 +274,50 @@ export function fascicoloDellaClasse (registro: Registro, classeId: string): Fas
  * stato e i comandi.
  */
 export function nomeDelPiano (registro: Registro, piano: PianoLezione): string {
-  return nomePiano(piano, {
+  return nomePiano(piano, contestoDelPiano(registro, piano))
+}
+
+/**
+ * Di quale lezione è un piano, senza ripetere il corso: «3ª lezione», «bozza del 12.09».
+ *
+ * È quel che va negli elenchi dentro una pagina di corso, dove il corso è
+ * scritto in testata e riscriverlo su ogni riga sarebbe la stessa parola
+ * ventidue volte.
+ */
+export function lezioneDelPianoNelRegistro (registro: Registro, piano: PianoLezione): string {
+  return lezioneDelPiano(piano, contestoDelPiano(registro, piano))
+}
+
+function contestoDelPiano (registro: Registro, piano: PianoLezione) {
+  return {
     corso: corsoPerId(registro, piano.corsoId)?.titolo ?? null,
     lezioni: registro.lezioni,
-  })
+    numeroDellaLezione: (lezione: Lezione) => numeroDellaLezione(registro, lezione),
+  }
+}
+
+/**
+ * Che numero ha un'ora nel suo corso: «la dodicesima».
+ *
+ * Il conto riparte a ogni semestre, ed è la stessa regola del cruscotto: «la
+ * dodicesima lezione» detto a maggio vuol dire la dodicesima del secondo
+ * semestre, non la trentaquattresima dell'anno. Due conti diversi per la stessa
+ * ora sarebbero due numeri che non tornano fra una pagina e l'altra.
+ *
+ * Le annullate non si contano e non hanno un numero: non sono ore. `null` anche
+ * quando la lezione non è nel registro, o il suo corso non c'è più — chi chiama
+ * scrive la data invece del numero, e non un «0ª lezione».
+ */
+export function numeroDellaLezione (registro: Registro, lezione: Lezione): number | null {
+  if (lezione.stato === 'annullata') return null
+
+  const anno = annoDellaLezione(registro, lezione)
+  const semestre = anno ? semestreDi(anno, lezione.data) : null
+  const sue = registro.lezioni
+    .filter((l) => l.corsoId === lezione.corsoId && l.stato !== 'annullata')
+    .filter((l) => !semestre || nelPeriodo(l.data, semestre.inizio, semestre.fine))
+    .sort(confrontaLezioni)
+
+  const dove = sue.findIndex((l) => l.id === lezione.id)
+  return dove >= 0 ? dove + 1 : null
 }

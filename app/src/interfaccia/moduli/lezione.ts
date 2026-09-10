@@ -3,6 +3,7 @@
 // L'editor degli slot è la parte che porta il peso: un'ora non è un intervallo
 // solo — c'è la pausa in mezzo, e le due metà si spostano insieme.
 
+import { FASCIA, Uno } from '../../dominio/lessico.js'
 import { ordinaAllievi, slotIncatenati, slotOrdinati } from '../../dominio/calcoli.js'
 import {
   durataMinuti,
@@ -139,10 +140,10 @@ function editorSlot (iniziali: Slot[], allaModifica: (slot: Slot[]) => void): HT
       value: voce.inizio,
       disabled: attaccato,
       attr: {
-        'aria-label': attaccato ? 'Inizio, dato dallo slot precedente' : 'Inizio della lezione',
+        'aria-label': attaccato ? 'Inizio, dato dalla fascia precedente' : 'Inizio della lezione',
         title: attaccato
-          ? 'Comincia dove finisce lo slot sopra: per spostarlo, cambia l’ordine o l’ora del primo slot.'
-          : 'L’ora della lezione: gli slot sotto la seguono.',
+          ? 'Comincia dove finisce la fascia sopra: per spostarla, cambia l’ordine o l’ora della prima fascia.'
+          : 'L’ora della lezione: le fasce sotto la seguono.',
       },
     }) as HTMLInputElement
     // La fine si legge, non si scrive: la dettano inizio e durata.
@@ -201,7 +202,7 @@ function editorSlot (iniziali: Slot[], allaModifica: (slot: Slot[]) => void): HT
         class: 'campo__controllo slot-riga__etichetta',
         type: 'text',
         value: voce.etichetta ?? '',
-        placeholder: voce.tipo === 'pausa' ? 'pausa' : 'nota sullo slot',
+        placeholder: voce.tipo === 'pausa' ? 'pausa' : 'nota sulla fascia',
         onchange: (evento: Event) => {
           voce.etichetta = (evento.target as HTMLInputElement).value
           notifica_()
@@ -210,7 +211,7 @@ function editorSlot (iniziali: Slot[], allaModifica: (slot: Slot[]) => void): HT
       pulsante({
         simbolo: 'cestino',
         variante: 'fantasma',
-        titolo: 'Togli lo slot',
+        titolo: 'Togli la fascia',
         disabilitato: slot.length <= 1,
         al: () => {
           slot = slot.filter((s) => s.id !== voce.id)
@@ -253,7 +254,7 @@ function editorSlot (iniziali: Slot[], allaModifica: (slot: Slot[]) => void): HT
       h(
         'div',
         { class: 'slot-editor__comandi' },
-        pulsante({ testo: 'Slot di lezione', simbolo: 'piu', variante: 'sottile', al: () => aggiungi('lezione') }),
+        pulsante({ testo: `${Uno(FASCIA)} di lezione`, simbolo: 'piu', variante: 'sottile', al: () => aggiungi('lezione') }),
         pulsante({ testo: 'Pausa', simbolo: 'pausa', variante: 'sottile', al: () => aggiungi('pausa') }),
       ),
       conti,

@@ -17,7 +17,7 @@ import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../dominio/calcol
 import { MODI_PDF } from '../../dominio/automazione.js'
 import { classeDelCorsoId, registroDelCorso } from '../../dominio/corsi.js'
 import { formattaData } from '../../dominio/date.js'
-import { PIF, Molti, corto, quanti } from '../../dominio/lessico.js'
+import { DOCUMENTO_SCHEDE, PIF, Molti, corto, quanti } from '../../dominio/lessico.js'
 import type { Corso, QuandoRifarePdf } from '../../dominio/modelli.js'
 import {
   pastiglia,
@@ -106,7 +106,7 @@ function schedeAllievo (corso: Corso): HTMLElement {
   const allievi = classe ? ordinaAllievi(allieviAttivi(classe)) : []
 
   return scheda({
-    titolo: `Schede ${corto(PIF)}`,
+    titolo: DOCUMENTO_SCHEDE,
     sottotitolo: `${quanti(allievi.length, PIF)} · una ciascuna`,
     contenuto:
       allievi.length === 0

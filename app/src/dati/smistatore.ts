@@ -23,6 +23,7 @@
 import * as vscode from 'vscode'
 
 import { nomeCompleto } from '../dominio/calcoli.js'
+import { PIF, frase } from '../dominio/lessico.js'
 import {
   avanzamentoConsegna,
   destinatariConsegna,
@@ -94,7 +95,7 @@ const LEGGIMI = [
   'Qui dentro si buttano i PDF da smistare.',
   '',
   'Ogni sottocartella è un documento che si sta raccogliendo: il PDF lasciato',
-  'lì dentro viene diviso e assegnato agli allievi nominati nelle pagine.',
+  `lì dentro viene diviso e assegnato alle ${PIF.plurale} nominate nelle pagine.`,
   'Quel che non si riesce ad assegnare finisce in quarantena, e si sistema dal',
   'pannello del registro, sotto «Da smistare».',
   '',
@@ -904,7 +905,7 @@ export async function assegnaPagine (
   if (!consegna) return { ok: false, errore: 'Documento non trovato.' }
   const classe = classeDellaConsegna(registro, consegna)
   const allievo = classe?.allievi.find((x) => x.id === allievoId) ?? null
-  if (!classe || !allievo) return { ok: false, errore: 'Allievo non trovato.' }
+  if (!classe || !allievo) return { ok: false, errore: frase(PIF, 'trovato', { nega: true }) }
 
   // Non si sovrascrive un documento già archiviato: se quello di prima era
   // sbagliato lo si toglie dalla matrice, che è un gesto visibile.

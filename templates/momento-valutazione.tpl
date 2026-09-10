@@ -5,7 +5,7 @@
 # domanda del giorno in cui la si riconsegna.
 #
 # Il grafico sta in alto, prima dei nomi: la forma della classe si guarda per
-# prima e poi si va a cercare chi. È un punto per allievo sul suo voto esatto,
+# prima e poi si va a cercare chi. È un punto per PiF sul suo voto esatto,
 # con la riga della media; la sufficienza la dice il colore dei punti.
 
 titolo: Momento di valutazione
@@ -15,7 +15,7 @@ estende: _base
 usa: apertura | titolo={{prova}}; sottotitolo={{corso}} · {{data}}
 # Niente scala né riconsegna qui sopra: la scala la dice l'asse del grafico,
 # numerato al mezzo punto, e la riconsegna sta nella colonna sua —
-# per allievo, che è dove la si viene a cercare.
+# per PiF, che è dove la si viene a cercare.
 campi: Tipo={{tipo}}; Peso={{peso}}; Voti={{voti}}; Media={{media}}
 campi: Voto più alto={{massimo}}; No. suff.={{sufficienti}}; Voto più basso={{minimo}}; No. Ins.={{insufficienti}}
 paragrafo: {{descrizione}}

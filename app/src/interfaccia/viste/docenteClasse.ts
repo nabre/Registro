@@ -20,7 +20,7 @@ import {
   siConsegna,
   spuntaDi,
 } from '../../dominio/consegne.js'
-import { PIF, Uno } from '../../dominio/lessico.js'
+import { CARTE, PIF, Molti, Uno } from '../../dominio/lessico.js'
 import { formattaData, giornoDi } from '../../dominio/date.js'
 import {
   FAMIGLIE_TODO,
@@ -117,7 +117,7 @@ function cellaDocumento (consegna: Consegna, allievo: Allievo) {
 
   const titoloGesto = fatto
     ? consegno
-      ? `Consegnato${spunta?.modo === 'email' ? ' per mail' : ' a mano'} — togli la spunta`
+      ? `Consegnato${spunta?.modo === 'email' ? ' per e-mail' : ' a mano'} — togli la spunta`
       : 'Portato — togli la spunta'
     : consegno
       ? `Segna che l’hai consegnato a ${nomeCompleto(allievo)}`
@@ -527,11 +527,11 @@ function schedaTodo (classe: Classe) {
   )
 
   return scheda({
-    titolo: 'Todo',
+    titolo: Molti(CARTE.pendenza),
     sottotitolo:
       todo.aperti === 0
         ? 'niente in sospeso in questa classe'
-        : `${riassuntoClasse(todo)} · le stesse cose che stanno nella pagina Todo`,
+        : `${riassuntoClasse(todo)} · le stesse che stanno nella pagina ${Molti(CARTE.pendenza)}`,
     azioni: [
       selettore(
         filtro,
@@ -762,7 +762,7 @@ export function pannelloDocenteClasse (classe: Classe) {
     selettore(
       stato.schedaDocente,
       [
-        { valore: 'todo' as const, testo: 'Todo', simbolo: 'todo' },
+        { valore: 'todo' as const, testo: Molti(CARTE.pendenza), simbolo: 'todo' },
         { valore: 'documenti' as const, testo: 'Documenti', simbolo: 'documento' },
         { valore: 'assenze' as const, testo: 'Assenze', simbolo: 'calendario' },
         { valore: 'messaggistica' as const, testo: 'Messaggistica', simbolo: 'posta' },

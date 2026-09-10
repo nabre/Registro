@@ -146,7 +146,29 @@
 
 .blocco__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
 .blocco__classe { font-weight: 600; }
-.blocco__titolo { font-size: 0.85em; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* La materia cede il posto per prima: in una colonna stretta si tronca lei,
+   perché l'ora e la classe sono quel che si cerca scorrendo la griglia. */
+.blocco__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Il numero dell'ora: cifre, quindi tabellari — incolonnate fra un blocco e
+   l'altro si leggono come una progressione invece che come tre scritte. */
+.blocco__numero {
+  font-size: 0.85em;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Le tappe sotto il titolo, in corpo minore: sono il come, non il che cosa.
+   Una riga sola con i puntini — il blocco è alto quanto dura l'ora, e la
+   scaletta per intero sta nel suggerimento. */
+.blocco__tappe {
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .blocco__piede {
   display: flex;
@@ -263,7 +285,20 @@
 .chip:hover { background: var(--sfondo); }
 .chip--annullata { opacity: 0.5; text-decoration: line-through; }
 .chip__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
-.chip__testo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* `min-width: 0` perché i puntini funzionino davvero: un elemento flex non
+   scende sotto la larghezza del proprio contenuto finché non glielo si dice, e
+   senza questa riga la classe spingerebbe la sigla fuori dalla pastiglia. */
+.chip__testo { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* La sigla in coda alla pastiglia, e non si tronca mai: sono tre lettere, e
+   sono la sola cosa che distingue due ore della stessa classe nello stesso
+   giorno. `auto` la spinge a destra quando la cella è larga. */
+.chip__materia {
+  flex: none;
+  margin-left: auto;
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  letter-spacing: 0.02em;
+}
 
 .mese__altre { font-size: 0.78em; color: var(--testo-quieto); margin-top: 2px; }
 

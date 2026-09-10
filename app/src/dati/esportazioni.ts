@@ -28,6 +28,7 @@ import type {
   PianoLezione,
   Risorsa,
 } from '../dominio/modelli.js'
+import { PIF, corto } from '../dominio/lessico.js'
 import { righe } from '../dominio/csv.js'
 import { riscrivi, uriArchivio } from './archiviazione.js'
 
@@ -50,7 +51,7 @@ export function csvValutazioni (
   const intestazione: Array<string | number | null> = [
     `${classe.nome} — ${corso.titolo} — ${intestazioneSemestre}`,
   ]
-  const titoli = ['Allievo', ...ordinati.map((m) => m.titolo), 'Media']
+  const titoli = [corto(PIF), ...ordinati.map((m) => m.titolo), 'Media']
   const date = ['Data', ...ordinati.map((m) => formattaData(m.data)), '']
   const pesi = ['Peso', ...ordinati.map((m) => m.peso), '']
 
@@ -89,7 +90,7 @@ export function csvPresenze (classe: Classe, lezioni: Lezione[], periodo = 'anno
   // di ciò che era in programma — e quella sulle UD con l'appello fatto, che
   // dice quanto la prima è affidabile.
   const intestazione = [
-    'Allievo', 'Lezioni', 'UD previste', 'UD con appello', 'UD di presenza', 'UD di assenza',
+    corto(PIF), 'Lezioni', 'UD previste', 'UD con appello', 'UD di presenza', 'UD di assenza',
     'Assenze intere', 'Assenze parziali', 'Ritardi', 'Minuti di ritardo',
     'Assenze % su previste', 'Assenze % su appello',
   ]

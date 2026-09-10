@@ -20,6 +20,7 @@
 // nessuno e non ha nessuno prima non si sa di chi sia, e va in quarantena.
 
 import { nomeCompleto } from './calcoli.js'
+import { PIF } from './lessico.js'
 import { contieneParola, normalizzaTesto } from './testo.js'
 import type {
   Allievo,
@@ -419,13 +420,13 @@ export function pagineDaSmistare (smistamenti: Smistamento[]): number {
 export function spiegaMotivo (motivo: MotivoQuarantena): string {
   switch (motivo) {
     case 'senza-nome':
-      return 'Nessun allievo nominato in queste pagine.'
+      return `Nessuna ${PIF.singolare} nominata in queste pagine.`
     case 'senza-testo':
       return 'Pagine senza testo: è una scansione, va letta.'
     case 'ambiguo':
-      return 'Più allievi possibili: nessuno abbastanza sicuro.'
+      return `Più ${PIF.plurale} possibili: nessuna abbastanza sicura.`
     case 'gia-consegnato':
-      return 'Quell’allievo ha già consegnato: il file di prima resta.'
+      return 'Ha già consegnato: il file di prima resta.'
     case 'fuori-elenco':
       return 'Riconosciuto, ma non è fra quelli a cui è stato chiesto.'
     case 'senza-consegna':

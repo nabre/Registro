@@ -90,7 +90,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
           }),
         ),
         sezioneModulo(
-          'La mail all’azienda',
+          'L’e-mail all’azienda',
           campo({
             nome: 'oggetto',
             etichetta: 'Oggetto',
@@ -127,7 +127,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
             campo({
               nome: 'aTutore',
               tipo: 'checkbox',
-              etichetta: 'Il tutore',
+              etichetta: Maiuscola(il(PERSONE.rappresentante)),
               valore: base.aTutore,
               larghezza: 'quarto',
             }),

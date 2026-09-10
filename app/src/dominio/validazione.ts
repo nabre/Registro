@@ -98,6 +98,7 @@ import type {
   Voto,
   QuandoRifarePdf,
 } from './modelli.js'
+import { FASCIA, PERSONE, PIF, del, quanti, un } from './lessico.js'
 import { CHI_INSEGNA, VERSIONE_DATI } from './modelli.js'
 
 export interface Esito {
@@ -237,7 +238,7 @@ export function validaAllievo (allievo: Partial<Allievo>): Esito {
     errori.push('Indirizzo e-mail non valido.')
   }
   if (allievo.emailTutore && !emailValida(allievo.emailTutore)) {
-    errori.push('Indirizzo e-mail del tutore non valido.')
+    errori.push(`Indirizzo e-mail ${del(PERSONE.rappresentante)} non valido.`)
   }
   // È l'indirizzo a cui partono le richieste di firma: un refuso qui si
   // scopre a fine trimestre, quando venticinque mail non arrivano.
@@ -249,22 +250,22 @@ export function validaAllievo (allievo: Partial<Allievo>): Esito {
 
 export function validaSlot (slot: Slot[]): Esito {
   const errori: string[] = []
-  if (slot.length === 0) errori.push('La lezione deve avere almeno uno slot orario.')
+  if (slot.length === 0) errori.push(`La lezione deve avere almeno ${un(FASCIA)}.`)
   for (const s of slot) {
     if (!oraValida(s.inizio) || !oraValida(s.fine)) {
       errori.push('Orari non validi: usare il formato HH:MM.')
     } else if (s.inizio >= s.fine) {
-      errori.push(`Lo slot ${s.inizio}–${s.fine} finisce prima di cominciare.`)
+      errori.push(`La fascia ${s.inizio}–${s.fine} finisce prima di cominciare.`)
     } else if (s.tipo === 'lezione' && durataMinuti(s.inizio, s.fine) % MINUTI_UD !== 0) {
       // Le pause durano i minuti che durano; un'ora di lezione no: è fatta di
       // unità didattiche, e una mezza UD non esiste in nessun conteggio.
       errori.push(
-        `Lo slot ${s.inizio}–${s.fine} non è un multiplo dell’unità didattica (${MINUTI_UD} min).`,
+        `La fascia ${s.inizio}–${s.fine} non è un multiplo dell’unità didattica (${MINUTI_UD} min).`,
       )
     }
   }
   for (const [a, b] of slotInConflitto(slot)) {
-    errori.push(`Gli slot ${a.inizio}–${a.fine} e ${b.inizio}–${b.fine} si sovrappongono.`)
+    errori.push(`Le fasce ${a.inizio}–${a.fine} e ${b.inizio}–${b.fine} si sovrappongono.`)
   }
   if (slot.length > 0 && slot.every((s) => s.tipo === 'pausa')) {
     errori.push('Una lezione fatta di sole pause non è una lezione.')
@@ -799,8 +800,8 @@ export function validaBloccoAssenze (blocco: Partial<BloccoAssenze>): Esito {
   if (isoValida(blocco.dal) && isoValida(blocco.al) && blocco.dal > blocco.al) {
     errori.push('Il periodo finisce prima di cominciare.')
   }
-  if (!blocco.oggetto?.trim()) errori.push('La mail deve avere un oggetto.')
-  if (!blocco.corpo?.trim()) errori.push('La mail è vuota.')
+  if (!blocco.oggetto?.trim()) errori.push('L’e-mail deve avere un oggetto.')
+  if (!blocco.corpo?.trim()) errori.push('L’e-mail è vuota.')
   return esito(errori)
 }
 
@@ -1858,7 +1859,7 @@ export function validaConsegna (consegna: Partial<Consegna>): Esito {
   if (!consegna.testo?.trim()) errori.push('La consegna deve dire che cosa fare.')
   if (!consegna.corsoId) errori.push('La consegna appartiene a un corso.')
   if (consegna.a === 'allievi' && (consegna.allieviIds ?? []).length === 0) {
-    errori.push('Scegliere almeno un allievo, o darla a tutta la classe.')
+    errori.push(`Scegliere almeno ${un(PIF)}, o darla a tutta la classe.`)
   }
   if (consegna.scadenza && !isoValida(consegna.scadenza)) errori.push('Data di scadenza non valida.')
   if (
@@ -2104,7 +2105,7 @@ export function riferimentiRotti (registro: Registro): string[] {
       const estranei = momento.voti.filter((v) => !iscritti.has(v.allievoId)).length
       if (estranei > 0) {
         problemi.push(
-          `Valutazione «${momento.titolo}»: ${plurale(estranei, 'voto', 'voti')} di allievi non iscritti a ${classe.nome}.`,
+          `Valutazione «${momento.titolo}»: ${plurale(estranei, 'voto', 'voti')} di ${PIF.plurale} non iscritte a ${classe.nome}.`,
         )
       }
     }
@@ -2155,7 +2156,7 @@ export function riferimentiRotti (registro: Registro): string[] {
     ].filter((id) => !iscritti.has(id))
     if (estranei.length > 0) {
       problemi.push(
-        `La consegna «${consegna.testo}» cita ${estranei.length} allievi non iscritti a ${classe.nome}.`,
+        `La consegna «${consegna.testo}» cita ${quanti(estranei.length, PIF)} non iscritte a ${classe.nome}.`,
       )
     }
   }

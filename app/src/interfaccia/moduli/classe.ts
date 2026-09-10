@@ -5,7 +5,7 @@
 // finestre aperte e chiuse.
 
 import { creaAllievo, COLORI_CLASSE } from '../../dominio/fabbriche.js'
-import { PIF, frase } from '../../dominio/lessico.js'
+import { PERSONE, PIF, Uno, del, frase } from '../../dominio/lessico.js'
 import { nuovoIdClasse } from '../../dominio/identificatori.js'
 import type { Allievo, Classe } from '../../dominio/modelli.js'
 import { validaAllievo } from '../../dominio/validazione.js'
@@ -186,7 +186,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
           campo({ nome: 'email', etichetta: 'E-mail', tipo: 'email', valore: base.email ?? '', larghezza: 'meta' }),
           campo({
             nome: 'emailTutore',
-            etichetta: 'E-mail del tutore',
+            etichetta: `E-mail ${del(PERSONE.rappresentante)}`,
             tipo: 'email',
             valore: base.emailTutore ?? '',
             aiuto: 'Riceve le comunicazioni al posto suo, o insieme a lui.',
@@ -197,21 +197,21 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
         riga(
           campo({
             nome: 'azienda',
-            etichetta: 'Azienda',
+            etichetta: Uno(PERSONE.azienda),
             valore: base.azienda ?? '',
             aiuto: 'Dove fa il tirocinio: serve solo a riconoscerla negli elenchi.',
             larghezza: 'meta',
           }),
           campo({
             nome: 'indirizzoDatore',
-            etichetta: 'Indirizzo del datore di lavoro',
+            etichetta: `Indirizzo ${del(PERSONE.datore)}`,
             valore: base.indirizzoDatore ?? '',
             aiuto: 'Via, NAP e località: per la visita in azienda e per quel che si spedisce.',
             larghezza: 'meta',
           }),
           campo({
             nome: 'emailDatore',
-            etichetta: 'E-mail del datore di lavoro',
+            etichetta: `E-mail ${del(PERSONE.datore)}`,
             tipo: 'email',
             valore: base.emailDatore ?? '',
             aiuto: 'Riceve i fogli delle assenze da controfirmare. Senza, la richiesta non parte.',
@@ -219,7 +219,7 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
           }),
           campo({
             nome: 'telefonoDatore',
-            etichetta: 'Telefono del datore di lavoro',
+            etichetta: `Telefono ${del(PERSONE.datore)}`,
             tipo: 'tel',
             valore: base.telefonoDatore ?? '',
             aiuto: 'Per sollecitare una firma che non torna.',

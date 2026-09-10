@@ -11,6 +11,7 @@
 // una guida faticosa da aggiornare è una guida che dopo tre mesi dice il falso
 // — che è peggio di non averla.
 
+import { CARTE, PERSONE, PIF, Molti, corto, del, il, un } from '../../dominio/lessico.js'
 import type { Vista } from '../../protocollo.js'
 import { pastiglia, pulsante, scheda, testataVista } from '../componenti/base.js'
 import { icona, type NomeIcona } from '../componenti/icone.js'
@@ -103,8 +104,8 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'In fondo: gli elenchi',
         testo:
-          'Corsi e Classi sono le pagine da cui si crea e si sistema — un corso nuovo, un ' +
-          'allievo che arriva, l’orario che cambia — non quelle da cui si lavora: stanno sotto, ' +
+          `Corsi e Classi sono le pagine da cui si crea e si sistema — un corso nuovo, ` +
+          `${un(PIF)} che arriva, l’orario che cambia — non quelle da cui si lavora: stanno sotto, ` +
           'accanto a Impostazioni e Guida.',
       },
     ],
@@ -125,11 +126,11 @@ const GUIDA: SezioneGuida[] = [
           'lì un’ora è in ordine, qui non compare.',
       },
       {
-        termine: 'Cose aperte',
+        termine: Molti(CARTE.pendenza),
         testo:
           'Quante cose restano da chiudere in tutte le classi — assenze da far firmare, prove ' +
           'da correggere, documenti da raccogliere — e quante sono in ritardo. Un clic apre il ' +
-          'Todo. Sparisce quando non c’è più niente.',
+          `pagina delle ${CARTE.pendenza.plurale}. Sparisce quando non c’è più niente.`,
       },
       {
         termine: 'La posta e la rete',
@@ -264,15 +265,15 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Appello per unità didattica',
         testo:
-          'Non «presente o assente all’ora», ma casella per casella: un allievo arrivato alla ' +
-          'terza UD è presente da lì in poi. Le caselle non toccate restano «non impostate» e ' +
+          `Non «presente o assente all’ora», ma casella per casella: chi arriva alla ` +
+          `terza UD è presente da lì in poi. Le caselle non toccate restano «non impostate» e ` +
           'non contano né come presenze né come assenze.',
       },
       {
         termine: 'Stato dell’ora',
         testo:
           '«Segna come svolta» chiude la lezione. Da lì i documenti di quel corso — verbale, ' +
-          'presenze, valutazioni, schede allievo — si rifanno da soli.',
+          `presenze, valutazioni, schede ${corto(PIF)} — si rifanno da soli.`,
       },
       {
         termine: 'Le tre schede',
@@ -291,8 +292,8 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Osservazioni',
         testo:
-          'Note su un allievo o sulla classe, con un tipo. Finiscono nel verbale e nella ' +
-          'scheda dell’allievo.',
+          `Note su ${un(PIF)} o sulla classe, con un tipo. Finiscono nel verbale e nella ` +
+          `scheda ${del(PIF)}.`,
       },
       {
         termine: 'Consegne',
@@ -336,7 +337,7 @@ const GUIDA: SezioneGuida[] = [
   },
   {
     id: 'todo',
-    titolo: 'Todo',
+    titolo: Molti(CARTE.pendenza),
     simbolo: 'todo',
     vista: 'todo',
     sommario: 'Che cosa ho lasciato in giro? Tutte le consegne insieme, di tutti i corsi.',
@@ -362,7 +363,7 @@ const GUIDA: SezioneGuida[] = [
         testo:
           'In cima alla pagina, prima delle consegne: le prove da rifare a chi non c’era. ' +
           'Compaiono da sé — l’appello dell’ora dice già chi mancava — e non passano dal ' +
-          'filtro «mie / delle classi», perché sono un debito verso un allievo e lo salda ' +
+          `filtro «mie / delle classi», perché sono un debito verso ${un(PIF)} e lo salda ` +
           'chi insegna. Il pulsante con il calendario le fissa alla prossima ora del corso; ' +
           'la graffetta allega o apre la scansione; la matita apre data, nota e documenti; ' +
           'la crocetta dichiara che non si recuperano.',
@@ -370,11 +371,11 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Le prove svolte',
         testo:
-          'Sotto i recuperi: le verifiche fatte che non sono ancora tornate agli allievi. ' +
+          `Sotto i recuperi: le verifiche fatte che non sono ancora tornate alle ${PIF.plurale}. ` +
           'Compaiono da sé il giorno stesso in cui la prova si svolge, e restano finché non ' +
           'sono chiuse: prima «da correggere» — e quel pezzo si chiude mettendo i voti, non ' +
           'con una spunta — poi «da riconsegnare», che è l’unica cosa che il registro non ' +
-          'può dedurre e va detta. La riconsegna è **per allievo**: la riga se ne va da sé ' +
+          `può dedurre e va detta. La riconsegna è **per ${PIF.singolare}**: la riga se ne va da sé ` +
           'quando l’ultimo foglio è tornato al suo. «Resa a tutti» è la scorciatoia — la pila ' +
           'ridistribuita è un gesto solo — e scrive quel giorno su ogni riga che non ha già ' +
           'la sua. Oltre le due settimane la riga si fa rossa: è il momento in cui la classe ' +
@@ -387,16 +388,16 @@ const GUIDA: SezioneGuida[] = [
           'volta — e di solito è chi ha più bisogno di vederla. Per questo la data non è ' +
           'della prova ma **di ogni riga**: una sola per tutti direbbe «riavuta» anche di chi ' +
           'quel giorno non c’era, e proprio quei due o tre fogli restavano nella cartella ' +
-          'fino a giugno. Nella scheda Riconsegna c’è una riga per allievo, e nel Todo, sotto ' +
+          `fino a giugno. Nella scheda Riconsegna c’è una riga per ${PIF.singolare}, e fra le ${CARTE.pendenza.plurale}, sotto ` +
           '«Da ridare a», restano i nomi a cui la prova non è ancora tornata.',
       },
       {
         termine: 'Anche i recuperi si riconsegnano',
         testo:
           'In fondo allo stesso elenco: le prove rifatte che sono state valutate ma non ' +
-          'ancora ridate all’allievo. È il pezzo che si perde — messo il voto, il recupero ' +
+          `ancora ridate a chi le ha fatte. È il pezzo che si perde — messo il voto, il recupero ` +
           'sparisce da tutti gli altri elenchi e il foglio corretto resta nella cartella — e ' +
-          'un voto che l’allievo non ha visto non è un voto consegnato. La spunta lo segna ' +
+          `un voto che non si è visto non è un voto consegnato. La spunta lo segna ` +
           'come ridato oggi; per un altro giorno c’è il campo nella tabella della prova.',
       },
       {
@@ -417,26 +418,26 @@ const GUIDA: SezioneGuida[] = [
     titolo: 'Classi',
     simbolo: 'classi',
     vista: 'classi',
-    sommario: 'L’anagrafica degli allievi: chi sono e come li si raggiunge.',
+    sommario: `L’anagrafica delle ${PIF.plurale}: chi sono e come le si raggiunge.`,
     voci: [
       {
         termine: 'Che cosa c’è',
         testo:
           'Nome, indirizzo, e-mail, azienda del tirocinio, e-mail del datore di lavoro. Il ' +
-          'nome apre la scheda dell’allievo; la matita apre il modulo con anche tutore e ' +
+          `nome apre la scheda personale; la matita apre il modulo con anche ${PERSONE.rappresentante.singolare} e ` +
           'telefono.',
       },
       {
         termine: 'Incolla elenco',
         testo:
-          'Un elenco copiato da un foglio o da una mail: «Cognome Nome», «Cognome, Nome», o ' +
+          'Un elenco copiato da un foglio o da un’e-mail: «Cognome Nome», «Cognome, Nome», o ' +
           'colonne separate da tabulazione con l’e-mail in fondo. Si accettano tutti e tre ' +
           'invece di chiedere un formato.',
       },
       {
         termine: 'Un ritiro non cancella',
         testo:
-          'Togliendo la spunta «Frequenta» l’allievo esce dagli appelli ma resta nello ' +
+          `Togliendo la spunta «Frequenta» ${il(PIF)} esce dagli appelli ma resta nello ` +
           'storico: presenze e voti già registrati restano leggibili.',
       },
       {
@@ -463,7 +464,7 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'I numeri',
         testo:
-          'Allievi, ore svolte su previste, UD previste dall’orario e UD già a calendario, ' +
+          `${Molti(PIF)}, ore svolte su previste, UD previste dall’orario e UD già a calendario, ` +
           'presenza e media di classe, valutazioni, piani. Tutti del semestre scelto in fondo ' +
           'alla barra.',
       },
@@ -474,7 +475,7 @@ const GUIDA: SezioneGuida[] = [
           'ricava il monte ore su cui si contano le assenze.',
       },
       {
-        termine: 'Tabella per allievo',
+        termine: `Tabella per ${PIF.singolare}`,
         testo:
           'Assenza, UD di assenza, UD seguite, ritardi, prove fatte, media e nota di fine ' +
           'semestre. È la domanda di metà semestre: come sta andando questa classe in questa ' +
@@ -497,6 +498,15 @@ const GUIDA: SezioneGuida[] = [
     vista: 'piani',
     sommario: 'La libreria delle scalette. Un piano si prepara una volta e si assegna a più ore.',
     voci: [
+      {
+        termine: 'Come si chiama un piano',
+        testo:
+          'Dalla lezione a cui è appeso: **«3ª lezione»**, e per esteso «I MEC A — Matematica · 3ª lezione». ' +
+          'Il numero riparte a ogni semestre, come nel cruscotto. Un piano non ancora assegnato ' +
+          'è una **bozza**, e si chiama con il giorno in cui è nata. Non con l’obiettivo né con ' +
+          'il titolo della prima tappa: sono le cose che si riscrivono di più mentre si prepara, ' +
+          'e l’elenco cambiava sotto le dita. L’argomento resta nella riga piccola, sotto il nome.',
+      },
       {
         termine: 'La striscia del tempo',
         testo:
@@ -535,7 +545,7 @@ const GUIDA: SezioneGuida[] = [
     titolo: 'Valutazioni',
     simbolo: 'valutazioni',
     vista: 'valutazioni',
-    sommario: 'I voti, nella forma con cui si mettono: righe gli allievi, colonne le prove.',
+    sommario: `I voti, nella forma con cui si mettono: righe le ${PIF.plurale}, colonne le prove.`,
     voci: [
       {
         termine: 'Si scrive come in un foglio',
@@ -575,7 +585,7 @@ const GUIDA: SezioneGuida[] = [
         termine: 'Chi era assente',
         testo:
           'La sigla è la stessa dell’appello — «X» — e non serve batterla: se l’appello di ' +
-          'quell’ora dice che l’allievo non c’era, la casella lo mostra già in trasparenza. ' +
+          'quell’ora dice che non c’era, la casella lo mostra già in trasparenza. ' +
           'Scriverla serve solo quando la prova era in un’altra ora, o quando l’appello non ' +
           'c’è.',
       },
@@ -585,7 +595,7 @@ const GUIDA: SezioneGuida[] = [
           'Sotto le statistiche della prova: chi non c’era, e che cosa se ne fa. Un recupero ' +
           'ha due uscite sole — si rifà, e allora vuole un giorno, oppure non si rifà, e ' +
           'allora va dichiarato. Mettere il voto lo chiude da sé: era quello che doveva ' +
-          'produrre. Quel che resta senza data compare nel Todo finché non lo si decide.',
+          `produrre. Quel che resta senza data compare fra le ${CARTE.pendenza.plurale} finché non lo si decide.`,
       },
       {
         termine: 'Il giorno del recupero',
@@ -600,7 +610,7 @@ const GUIDA: SezioneGuida[] = [
           'Sotto i recuperi: a che punto è la prova. I voti dicono che è corretta, non che ' +
           'la classe l’ha vista — fra le due cose passano regolarmente tre settimane, ed è ' +
           'per questo che «Riconsegnata» è un pulsante e non una conseguenza. Finché nessuno ' +
-          'lo preme la prova resta nel Todo, che è quel che deve fare: una pila sulla ' +
+          `lo preme la prova resta fra le ${CARTE.pendenza.plurale}, che è quel che deve fare: una pila sulla ` +
           'scrivania non chiede niente a nessuno.',
       },
       {
@@ -610,15 +620,15 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'La tabella dei recuperi',
         testo:
-          'Sotto le statistiche della prova: una riga per allievo che deve rifarla, con il ' +
+          `Sotto le statistiche della prova: una riga per ogni ${PIF.singolare} che deve rifarla, con il ` +
           'giorno, il voto che ne è uscito, il giorno in cui ha riavuto la prova corretta e ' +
-          'la scansione del suo compito. La riconsegna è di quell’allievo e non della classe: ' +
+          'la scansione del suo compito. La riconsegna è sua e non della classe: ' +
           'il suo compito rifatto torna indietro quando è corretto, non il giorno in cui la ' +
           'classe ha riavuto il proprio. Il momento di ' +
           'valutazione resta uno — la prova recuperata è la stessa verifica, con lo stesso ' +
           'peso — e il voto si scrive nella casella della tabella: finisce nella colonna di ' +
           'quella prova e fa media come gli altri. È per averlo che il recupero si fa, ed è ' +
-          'quel che chiude la riga. Lo si scrive anche dalla riga del Todo e da quella dei ' +
+          `quel che chiude la riga. Lo si scrive anche dalla riga delle ${CARTE.pendenza.plurale} e da quella dei ` +
           '«recuperi di oggi» nel registro dell’ora, appena finita la prova.'
       },
       {
@@ -627,7 +637,7 @@ const GUIDA: SezioneGuida[] = [
           'Tre posti, fra gli allegati della prova: il testo del recupero e la sua ' +
           'soluzione — uno per tutti quelli che la rifanno, ed è un altro testo, quindi con ' +
           'una soluzione sua — e la scansione del compito di ciascuno. Si caricano dalla ' +
-          'tabella, o dalla finestra del recupero mentre si fissa il giorno; nel Todo la ' +
+          `tabella, o dalla finestra del recupero mentre si fissa il giorno; fra le ${CARTE.pendenza.plurale} la ` +
           'graffetta apre la scansione quando c’è già.',
       },
     ],
@@ -643,7 +653,7 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Documenti',
         testo:
-          'Che cosa si è chiesto e chi l’ha portato: allievi in riga, documenti in colonna. ' +
+          `Che cosa si è chiesto e chi l’ha portato: ${PIF.plurale} in riga, documenti in colonna. ` +
           'Per colonna si vede a che punto è la classe, per riga a che punto è uno.',
       },
       {
@@ -663,7 +673,7 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Assenze da far firmare',
         testo:
-          'Tre volte l’anno: il foglio parte, la mail chiede la firma al datore di lavoro, il ' +
+          'Tre volte l’anno: il foglio parte, l’e-mail chiede la firma al datore di lavoro, il ' +
           'foglio torna firmato. Le tre colonne sono la stessa cosa a tre momenti, e la ' +
           'casella scura dice sempre la prossima mossa.',
       },
@@ -684,7 +694,7 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Fascicolo',
         testo:
-          'Il PDF che si consegna a chi subentra: allievi con i recapiti, documenti raccolti, ' +
+          `Il PDF che si consegna a chi subentra: ${PIF.plurale} con i recapiti, documenti raccolti, ` +
           'periodi di assenze. Si stampa da **Documenti**, nella scheda «Della classe».',
       },
     ],
@@ -801,11 +811,11 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Il grafico delle note',
         testo:
-          'La scheda Valutazioni mostra la distribuzione dei voti — un punto per allievo, al ' +
+          `La scheda Valutazioni mostra la distribuzione dei voti — un punto per ${PIF.singolare}, al ` +
           'suo voto esatto, rosso sotto la sufficienza — ed è **lo stesso grafico** che il ' +
           'registro disegna sotto la griglia e che finisce sul PDF della prova: commentando ' +
           'una verifica sul proiettore e riguardandola sul portatile o sul foglio si trova ' +
-          'la stessa forma. Con i nomi accesi, sotto, gli allievi in tabella.',
+          `la stessa forma. Con i nomi accesi, sotto, le ${PIF.plurale} in tabella.`,
       },
       {
         termine: 'I blocchi riservati',
@@ -850,7 +860,7 @@ const GUIDA: SezioneGuida[] = [
         termine: 'La pagina Documenti',
         testo:
           'Si sceglie un corso e c’è tutto quel che ne può uscire: presenze e valutazioni del ' +
-          'corso, una scheda per ogni allievo, un verbale per ogni ora, i piani lezione, il ' +
+          `corso, una scheda per ogni ${PIF.singolare}, un verbale per ogni ora, i piani lezione, il ` +
           'fascicolo della classe, i CSV. È l’unico posto da cui si stampa: i pulsanti stavano ' +
           'sparsi in cinque pagine, e **consegnare** è un lavoro suo — riguarda venti fogli ' +
           'insieme, e nessuno ricorda dove fosse ogni pulsante.',
@@ -868,13 +878,13 @@ const GUIDA: SezioneGuida[] = [
         termine: 'Quali',
         testo:
           'Verbale dell’ora, piano lezione, presenze del corso, griglia delle valutazioni, ' +
-          'scheda dell’allievo, scheda di una singola prova, fascicolo di classe.',
+          `scheda ${del(PIF)}, scheda di una singola prova, fascicolo di classe.`,
       },
       {
         termine: 'La scheda di una prova',
         testo:
           'Una prova sola, per esteso: chi ha preso che cosa, chi la deve rifare, quando è ' +
-          'stata riconsegnata — e la **distribuzione a punti**: un punto per allievo, al suo ' +
+          `stata riconsegnata — e la **distribuzione a punti**: un punto per ${PIF.singolare}, al suo ` +
           'voto esatto, con la riga della media — la sufficienza la dice il colore dei ' +
           'punti, verdi sopra e rossi sotto. ' +
           'La griglia delle valutazioni risponde a «come va il corso» e le prove le mette in ' +
@@ -884,7 +894,7 @@ const GUIDA: SezioneGuida[] = [
           'colonne a sinistra è una prova da rifare.',
       },
       {
-        termine: 'Che cosa dice la scheda dell’allievo',
+        termine: `Che cosa dice la scheda ${del(PIF)}`,
         testo:
           'Il **profitto** — medie per corso, nota di fine semestre, ogni prova con voto, ' +
           'recupero e riconsegna. Le **presenze ora per ora**: la stessa griglia dell’appello, ' +
@@ -895,7 +905,7 @@ const GUIDA: SezioneGuida[] = [
       {
         termine: 'Sono di un periodo',
         testo:
-          'Presenze, valutazioni e scheda dell’allievo sono del semestre scelto; il verbale ' +
+          `Presenze, valutazioni e scheda ${del(PIF)} sono del semestre scelto; il verbale ` +
           'porta il semestre della sua ora; il fascicolo vale per l’anno. Il periodo sta in ' +
           'testata e nel nome del file.',
       },
@@ -918,15 +928,15 @@ const GUIDA: SezioneGuida[] = [
           '— giorno, voto, riconsegna, stato — e le prove che restano da ridare a chi il ' +
           'giorno della riconsegna non c’era. La colonna «Riconsegna» nell’elenco dei momenti ' +
           'dice se il giro è finito — «resa a tutti» — o se qualche foglio è ancora in mano a ' +
-          'chi insegna. Sulla scheda dell’allievo le stesse due ' +
-          'cose, per lui: sono quelle che si contestano — «non l’ho mai rifatta», «non me ' +
+          `chi insegna. Sulla scheda personale le stesse due ` +
+          `cose: sono quelle che si contestano — «non l’ho mai rifatta», «non me ` +
           'l’hanno mai ridata» — e devono essere scritte, non dedotte.',
       },
       {
         termine: 'Si rifanno da soli',
         testo:
           'Segnando un’ora come svolta, i documenti di quel corso si riscrivono: verbale, ' +
-          'presenze, valutazioni e la scheda di ogni allievo. Nessuno si apre, e un avviso ' +
+          `presenze, valutazioni e la scheda di ogni ${PIF.singolare}. Nessuno si apre, e un avviso ` +
           'dice quanti ne sono stati rifatti.',
       },
       {

@@ -26,6 +26,7 @@ import type {
   TipoRapporto,
 } from './modelli.js'
 import { FIDUCIA_SUFFICIENTE, indiceNomi, riconosci } from './smistamento.js'
+import { PERSONE } from './lessico.js'
 import { aggiungiIndirizzo, compilaModello, emailValida } from './testo.js'
 
 import { TIPI_RAPPORTO } from './validazione.js'
@@ -290,7 +291,7 @@ export function destinatariAssenze (
     senzaIndirizzo.push(nomeCompleto(allievo))
   }
   if (blocco.aTutore && !aggiungiIndirizzo(indirizzi, allievo.emailTutore)) {
-    senzaIndirizzo.push(`tutore di ${nomeCompleto(allievo)}`)
+    senzaIndirizzo.push(`${PERSONE.rappresentante.singolare} di ${nomeCompleto(allievo)}`)
   }
   for (const id of blocco.recapitiIds) {
     const recapito = fascicolo.recapiti.find((r) => r.id === id)
@@ -301,7 +302,7 @@ export function destinatariAssenze (
   return { indirizzi: [...indirizzi], senzaIndirizzo }
 }
 
-/** Vero se all'allievo si può scrivere: c'è la casella di chi deve firmare. */
+/** Vero se le si può scrivere: c'è la casella di chi deve firmare. */
 export function raggiungibile (allievo: Allievo): boolean {
   return emailValida((allievo.emailDatore ?? '').trim())
 }

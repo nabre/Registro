@@ -10,6 +10,7 @@
 // l'ora, e si ottiene che cosa scrivere. Vuol dire che «alle 08:15 il registro
 // annuncia la lezione delle 08:20» si prova senza aspettare le 08:15.
 
+import { CARTE, quanti } from './lessico.js'
 import { consegneDellaLezione } from './consegne.js'
 import { classeDellaLezione, materiaDellaLezione } from './corsi.js'
 import { fineLezione, inizioLezione } from './calcoli.js'
@@ -68,7 +69,7 @@ function fraQuanto (inizio: Ora, ora: Ora): string {
 }
 
 /**
- * Le cose aperte di quest'ora, dette in poche parole.
+ * Le pendenze di quest'ora, dette in poche parole.
  *
  * Sono le stesse che il cruscotto segna con il pallino «todo» sulla prima ora
  * utile del corso: le consegne di quel corso che a quel giorno sono già state
@@ -96,7 +97,7 @@ function coseAperte (registro: Registro, lezione: Lezione): { quante: number, de
     .map((consegna) => consegna.testo)
     .filter((testo) => testo.trim().length > 0)
 
-  const testa = `${quante} ${quante === 1 ? 'cosa aperta' : 'cose aperte'} (${pezzi.join(', ')})`
+  const testa = `${quanti(quante, CARTE.pendenza)} (${pezzi.join(', ')})`
   return { quante, detto: titoli.length > 0 ? `${testa}: ${titoli.join(' · ')}` : testa }
 }
 

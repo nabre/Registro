@@ -41,7 +41,7 @@ testo: {{frase.appello-incompleto}}
 fine:
 
 [blocco: griglia-appello]
-# La griglia delle presenze con la sua legenda sotto: una riga per allievo, una
+# La griglia delle presenze con la sua legenda sotto: una riga per PiF, una
 # colonna per unità didattica, le stesse sigle che si compilano a schermo.
 #
 # La legenda va con la griglia e non dopo, sempre: un foglio che esce dal

@@ -1,7 +1,7 @@
 {
   "name": "registro-docenti",
   "productName": "Registro docenti",
-  "description": "Registro di classe per docenti: calendario delle lezioni, classi e allievi, piani lezione e momenti di valutazione.",
+  "description": "Registro di classe per docenti: calendario delle lezioni, classi e persone in formazione, piani lezione e momenti di valutazione.",
   "version": "1.0.0",
   "license": "MIT",
   "author": "CPTT",

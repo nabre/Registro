@@ -2,7 +2,7 @@
 //
 // Una regola sola, per tutto: `archivio/<materia>/<classe>/<chi>/<file>`.
 // La materia è quella del corso quando il documento appartiene
-// all'insegnamento — il testo di una verifica, la prova corretta di un allievo
+// all'insegnamento — il testo di una verifica, la prova corretta di una persona
 // — ed è `docente-di-classe` quando appartiene alla classe come gruppo:
 // pagelle, certificati, autorizzazioni, moduli.
 //
@@ -47,7 +47,8 @@ import * as vscode from 'vscode'
 
 import { nomeCompleto } from '../dominio/calcoli.js'
 import { classeDelCorsoId, corsiDellaClasse, materiaDelCorso } from '../dominio/corsi.js'
-import { dataNelNome } from '../dominio/date.js'
+import { DOCUMENTO_SCHEDE, DOCUMENTO_SCHEDE_PRIMA } from '../dominio/lessico.js'
+import { dataNelNome, giornoDi } from '../dominio/date.js'
 import type {
   Allievo,
   Attivita,
@@ -108,7 +109,7 @@ export const DOCENTE_DI_CLASSE = 'docente-di-classe'
  * I documenti che stavano sotto `docente-di-classe/` e adesso stanno sotto il
  * corso: si contano le ore di un insegnamento, non quelle di una classe.
  */
-const DIVENTATI_DEL_CORSO = ['Presenze', 'Schede allievo']
+const DIVENTATI_DEL_CORSO = ['Presenze', DOCUMENTO_SCHEDE, ...DOCUMENTO_SCHEDE_PRIMA]
 
 /**
  * Le due cartelle in cui si divide ogni classe dentro una materia: quel che è
@@ -429,12 +430,18 @@ function radiceDelNome (nome: string): string {
 /**
  * Come si chiama, nell'archivio, la cartella di un piano lezione.
  *
- * Un piano non ha un titolo — è la lezione di quel corso — e il nome che il
- * pannello gli compone (`nomePiano`) porta dentro il numero delle attività:
- * va benissimo in un elenco, ma come nome di cartella cambierebbe a ogni
- * tappa aggiunta, e i file finirebbero sparsi in una cartella nuova per ogni
- * modifica. Qui serve un nome che stia fermo: la data della prima lezione che
- * lo usa, e finché non ce n'è nessuna l'argomento di cui parla.
+ * Un piano non ha un titolo — è la lezione di quel corso — e qui serve un nome
+ * che stia fermo: un file archiviato porta il nome della cartella dentro il
+ * proprio, e un nome che cambia lascia in giro file che dicono il falso.
+ *
+ * Due date, e sono le uniche due cose del piano che non si riscrivono: quella
+ * della prima lezione che lo usa, e — finché lezioni non ce ne sono — quella in
+ * cui il piano è nato.
+ *
+ * Non il numero dell'ora, che pure è il nome con cui il piano si presenta
+ * altrove: quel numero si sposta da sé quando si aggiunge una lezione prima,
+ * e sposterebbe file già archiviati. E non l'argomento, che era quel che si
+ * usava per le bozze: è la cosa che cambia di più mentre si prepara.
  */
 export function documentoPiano (registro: Registro, piano: PianoLezione): string {
   const prima = registro.lezioni
@@ -442,9 +449,8 @@ export function documentoPiano (registro: Registro, piano: PianoLezione): string
     .sort((a, b) => a.data.localeCompare(b.data))[0]
   if (prima) return `Piano ${dataNelNome(prima.data)}`
 
-  const argomento =
-    piano.obiettivi.find((o) => o.trim()) ?? piano.attivita.find((a) => a.titolo.trim())?.titolo
-  return argomento ? `Piano ${argomento.trim()}` : 'Piano in preparazione'
+  const nato = giornoDi(piano.creatoIl)
+  return nato ? `Piano bozza ${dataNelNome(nato)}` : 'Piano in preparazione'
 }
 
 /**
@@ -540,7 +546,8 @@ const DOCUMENTI_GENERATI = [
   'Valutazioni',
   'Prove',
   'Fascicolo',
-  'Schede allievo',
+  DOCUMENTO_SCHEDE,
+  ...DOCUMENTO_SCHEDE_PRIMA,
   'Foto della classe',
 ]
 

@@ -227,7 +227,7 @@ export function cartellaAssenze (): vscode.Uri | null {
  * si prova a indovinarla dal nome del file e da quel che c'è scritto dentro.
  *
  * Sta dentro l'anno perché le richieste sono di un anno: la stessa «Pagella 3°
- * anno» torna ogni settembre, ed è un'altra raccolta con altri allievi.
+ * anno» torna ogni settembre, ed è un'altra raccolta con altre persone.
  */
 export function cartellaInArrivo (): vscode.Uri | null {
   const anno = cartellaAnno()
