@@ -29,6 +29,7 @@ import { smistatoreDi } from './dati/smistatore.js'
 import { oggi } from './dominio/date.js'
 import { creaAnnoCorrente } from './dominio/fabbriche.js'
 import { PannelloRegistro } from './pannelli/pannello.js'
+import { avviaPromemoria } from './promemoria.js'
 import { avviaProiezione, PannelloProiezione } from './pannelli/proiezione.js'
 import type { MessaggioNavigazione } from './protocollo.js'
 
@@ -100,6 +101,16 @@ export async function avvia (contesto: vscode.ExtensionContext): Promise<void> {
 
   const apri = (navigazione?: MessaggioNavigazione) =>
     PannelloRegistro.mostra(contesto, archivio, navigazione)
+
+  // I promemoria: una notifica del sistema poco prima che una lezione cominci,
+  // con quel che resta aperto per quel corso. Premendola si apre il registro di
+  // quell'ora — ed è il gesto che serve, perché la notifica arriva proprio nel
+  // momento in cui si prende il computer in mano.
+  contesto.subscriptions.push(
+    avviaPromemoria(archivio, (lezioneId) => {
+      apri({ tipo: 'naviga', vista: 'lezione', elementoId: lezioneId })
+    }),
+  )
 
   const comando = (nome: string, esecuzione: (...argomenti: never[]) => unknown) =>
     contesto.subscriptions.push(vscode.commands.registerCommand(nome, esecuzione))

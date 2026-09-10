@@ -115,6 +115,23 @@ export const IMPOSTAZIONI: Readonly<Record<string, VoceImpostazione>> = {
       'Chiaro o scuro. Vale per il registro, per lo schermo della classe e per questa finestra. ' +
       '«Sistema» segue l’impostazione di Windows e cambia da sé quando cambia lei.',
   },
+  'registroDocenti.promemoria.attivo': {
+    tipo: 'boolean',
+    predefinito: true,
+    descrizione:
+      'Avvisa con una notifica del sistema poco prima che una lezione cominci, dicendo quale ' +
+      'classe e che cosa resta aperto per quel corso. La notifica si preme e apre il registro ' +
+      'di quell’ora. Non arriva mentre si sta già guardando il registro, e non arriva due volte ' +
+      'per la stessa ora.',
+  },
+  'registroDocenti.promemoria.anticipoMinuti': {
+    tipo: 'number',
+    predefinito: 5,
+    descrizione:
+      'Quanti minuti prima dell’inizio arriva l’avviso. Cinque è il tempo di prendere il ' +
+      'computer e salire una rampa di scale; zero lo fa arrivare all’ora esatta. Un’ora già ' +
+      'cominciata si annuncia ancora per un quarto d’ora — serve al portatile riaperto in aula.',
+  },
   'registroDocenti.proiezione.schermoIntero': {
     tipo: 'boolean',
     predefinito: false,

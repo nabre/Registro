@@ -140,6 +140,16 @@ const GUIDA: SezioneGuida[] = [
           'stesso sul disco, ma le comunicazioni non partono e le scansioni non si leggono.',
       },
       {
+        termine: 'Il promemoria prima della lezione',
+        testo:
+          'Cinque minuti prima che un’ora cominci arriva una notifica del sistema: la classe, ' +
+          'l’orario e l’aula, e che cosa resta aperto per quel corso — con il titolo delle ' +
+          'prime cose. Premendola si apre il registro di quell’ora. Non arriva due volte per ' +
+          'la stessa ora, non arriva mentre si sta già guardando il registro, e un’ora già ' +
+          'cominciata si annuncia ancora per un quarto d’ora: serve al portatile riaperto in ' +
+          'aula. Si spegne, o si cambia l’anticipo, dalle Impostazioni sotto «Promemoria».',
+      },
+      {
         termine: 'Quel che tace',
         testo:
           'Una voce che non ha niente da dire non compare — la lettura delle scansioni si vede ' +
