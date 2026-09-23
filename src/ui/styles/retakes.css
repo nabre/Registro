@@ -11,15 +11,19 @@
  * la casella che prende quel che resta — e il posto della lettera c'è in tutte
  * le celle, anche dove la lettera non serve: se sparisse, la casella accanto si
  * allargherebbe e le cifre della colonna non sarebbero più incolonnate.
+ *
+ * La riga è un contenitore dentro la cella, non la cella stessa: una `td` in
+ * flex smette di essere una cella di tabella, e i voti di una persona finivano
+ * uno sotto l'altro nella prima colonna, con medie e note fuori posto.
  */
-.tabella__cella--voto {
+.cella-voto__riga {
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
 /* La casella prende quel che resta, e non spinge fuori la lettera. */
-.tabella__cella--voto > .cella-voto { flex: 1 1 auto; min-width: 0; }
+.cella-voto__riga > .cella-voto { flex: 1 1 auto; min-width: 0; }
 
 .cella-voto__tag {
   flex: 0 0 auto;
@@ -49,7 +53,7 @@
  * si disegna — lo apre il browser — ma è un figlio come gli altri, e dentro
  * una cella in flex conterebbe come una colonna vuota.
  */
-.tabella__cella--voto > datalist,
+.cella-voto__riga > datalist,
 .cella-voto__guscio > datalist { display: none; }
 
 /* Il guscio fuori dalla griglia: tiene insieme casella e tendina. */

@@ -25,7 +25,25 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 
 </div>
 
-<!-- SCREENSHOT -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/immagini/calendario-scuro.png">
+  <img src="docs/immagini/calendario.png" alt="La settimana nel calendario: lezioni di tre classi, la striscia delle settimane dell'anno e l'ora in corso">
+</picture>
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/immagini/classe.png" alt="L'ora di lezione: appello, consegne e prove da riconsegnare"></td>
+    <td width="33%"><img src="docs/immagini/valutazioni.png" alt="I momenti di valutazione: griglia dei voti, medie, recuperi e distribuzione"></td>
+    <td width="33%"><img src="docs/immagini/pendenze.png" alt="Le pendenze: conteggi per tipo e recuperi da riconsegnare, classe per classe"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Lezione</b> · appello, consegne, riconsegne</sub></td>
+    <td align="center"><sub><b>Valutazioni</b> · voti, medie, recuperi</sub></td>
+    <td align="center"><sub><b>Pendenze</b> · quel che aspetta, classe per classe</sub></td>
+  </tr>
+</table>
+
+<sub>Nomi e dati negli screenshot sono inventati.</sub>
 
 ---
 

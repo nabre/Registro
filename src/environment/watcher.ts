@@ -21,6 +21,8 @@
 // dettaglio di comodo — senza, l'archivio si ricaricherebbe anche per una
 // copia finita in `.storico/` — e la traduzione del pattern è provata a parte.
 
+import { realpath } from 'node:fs/promises'
+import * as percorsi from 'node:path'
 import { dentro } from './context.js'
 import { Smaltitore, EventEmitter, type Event } from './events.js'
 import { ModelloRelativo, Uri } from './uri.js'
@@ -127,12 +129,28 @@ export function createFileSystemWatcher (dove: ModelloRelativo): Osservatore {
     return parte !== null && espressioni.some((espressione) => espressione.test(parte))
   }
 
+  /**
+   * A chokidar si dà il percorso reale della base, e quel che torna va rimesso
+   * sotto la base com'era scritta.
+   *
+   * Su Windows una cartella può arrivare col nome corto 8.3 —
+   * `C:\Users\RUNNER~1\AppData\Local\Temp` sui runner di GitHub — e libuv, che
+   * negli eventi ricostruisce il nome lungo, confronta i due e abbatte il
+   * processo: `Assertion failed: !_wcsnicmp(filename, dir, dirlen)`. Si guarda
+   * allora il percorso lungo, e gli eventi si riportano alla base di chi ha
+   * chiesto: altrimenti l'`Uri` annunciato non sarebbe più quello con cui si è
+   * scritto.
+   */
+  let reale = base.fsPath
+  const allaBase = (percorso: string): string =>
+    reale === base.fsPath ? percorso : percorsi.join(base.fsPath, percorsi.relative(reale, percorso))
+
   const annuncia = (emettitore: EventEmitter<Uri>) => (percorso: string) => {
     // L'unica via lecita per tornare a un `Uri`: `Uri.file`, la stessa che usa
     // il percorso di scrittura. Comporre la stringa a mano — anche solo
     // mettendo insieme la base e il nome — darebbe un `toString()` diverso, e
     // la difesa contro l'eco smetterebbe di riconoscere le proprie scritture.
-    const file = Uri.file(percorso)
+    const file = Uri.file(allaBase(percorso))
     if (combacia(file)) emettitore.fire(file)
   }
 
@@ -149,8 +167,11 @@ export function createFileSystemWatcher (dove: ModelloRelativo): Osservatore {
    */
   const pronto = (async () => {
     const { watch } = await import('chokidar')
+    // `realpath` delle promesse è già quello di libuv, che sul disco chiede il
+    // nome finale: è lui che scioglie `RUNNER~1`, il `realpath` in JS no.
+    reale = await realpath(base.fsPath).catch(() => base.fsPath)
     if (chiuso) return
-    const vivo = watch(base.fsPath, {
+    const vivo = watch(reale, {
       // Come in VS Code: quel che c'era già non è una novità. Chi deve
       // guardare anche l'esistente se lo rilegge da sé all'apertura.
       ignoreInitial: true,
@@ -159,7 +180,7 @@ export function createFileSystemWatcher (dove: ModelloRelativo): Osservatore {
       // interessano; i file che non combaciano non meritano un watcher
       // ciascuno. Senza la stat chokidar ripassa di qui con la stat in mano: in
       // quel giro non si decide niente.
-      ignored: (percorso, stat) => (stat?.isFile() ? !combacia(Uri.file(percorso)) : false),
+      ignored: (percorso, stat) => (stat?.isFile() ? !combacia(Uri.file(allaBase(percorso))) : false),
     })
     osservatore = vivo
     vivo.on('add', annuncia(creato))
