@@ -2,10 +2,10 @@
 
 Uno schema fa tre cose con una dichiarazione sola: convalida quando il programma
 gira, dà il tipo TypeScript per inferenza, e si sa descrivere in JSON Schema —
-che è quel che finisce in `risorse/attrezzi.json` e in `registro schema`.
+che è quel che finisce in `resources/tools.json` e in `registro schema`.
 
 Il contratto esposto è quello «Standard Schema» (`~standard`), lo stesso di zod e
-valibot: il nucleo non conosce `schemi.ts`, conosce quell'interfaccia. Se un
+valibot: il nucleo non conosce `schemas.ts`, conosce quell'interfaccia. Se un
 giorno servisse di più, si sostituisce la libreria senza toccare una riga di
 nucleo o di procedura.
 
@@ -128,7 +128,7 @@ che vale la pena tenere in mente ogni volta che si tocca uno schema:
 Nessun tipo lo prende: `daGestore` riceve un oggetto costruito a mano, e un campo
 mancante diventa `undefined`, che per un campo opzionale è un valore legittimo.
 Per le procedure che prendono in carico un'azione lo prende
-`prove/api/copertura.test.mjs`, che confronta i campi dichiarati con l'unione
+`tests/api/coverage.test.mjs`, che confronta i campi dichiarati con l'unione
 `Azione` letta dal sorgente. Per le altre lo prende soltanto chi guarda.
 
 **I problemi portano il percorso del campo.** `oggetto` e `elenco` accumulano i

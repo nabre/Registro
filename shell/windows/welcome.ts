@@ -24,6 +24,7 @@ import { CANALE } from '../../src/environment/windows.js'
 import { postoDi, ricordaPosto } from '../../src/environment/placement.js'
 import { coloreSfondo, preferenzeComuni } from '../../src/environment/theme.js'
 import { chiudiLeVieDiFuga } from '../../src/environment/navigation.js'
+import { mostraComunque } from '../../src/environment/showAnyway.js'
 import { Uri } from '../../src/environment/uri.js'
 import { ESTENSIONE } from '../../src/data/package.js'
 
@@ -235,9 +236,7 @@ export function mostraBenvenuto (azioni: Azioni): Promise<Scelta | null> {
     annunciaElenco(nata)
     // Come per i dialoghi: se la pagina arriva ma non dice di essersi
     // disegnata, la si mostra lo stesso, così almeno la si può chiudere.
-    setTimeout(() => {
-      if (!nata.isDestroyed() && !nata.isVisible()) nata.show()
-    }, 1000)
+    mostraComunque(nata)
   })
 
   const attesa = new Promise<Scelta | null>((risolvi) => {

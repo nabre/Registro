@@ -225,10 +225,17 @@ export function matriceCorso (
    */
   previste?: number,
 ): MatriceCorso {
-  const unita = lezioni.map((lezione) => ({
-    lezione,
-    quante: contaUd(lezione),
-  }))
+  // Le presenze di ogni ora per allievo, fatte una volta sola: cercarle con
+  // `find` dentro il ciclo degli allievi era allievi × lezioni × presenze. Si
+  // tiene la *prima* riga di ogni id, che è quella che `find` restituiva: un
+  // doppione nel file non deve cambiare il conto.
+  const unita = lezioni.map((lezione) => {
+    const presenze = new Map<string, (typeof lezione.presenze)[number]>()
+    for (const p of lezione.presenze) {
+      if (!presenze.has(p.allievoId)) presenze.set(p.allievoId, p)
+    }
+    return { lezione, quante: contaUd(lezione), presenze }
+  })
   const ud = unita.reduce((somma, u) => somma + u.quante, 0)
 
   const udPreviste = previste && previste > 0 ? previste : ud
@@ -244,8 +251,8 @@ export function matriceCorso (
     let assenzeIntere = 0
     let assenzeParziali = 0
 
-    for (const { lezione, quante } of unita) {
-      const presenza = lezione.presenze.find((p) => p.allievoId === allievo.id)
+    for (const { quante, presenze } of unita) {
+      const presenza = presenze.get(allievo.id)
       let tardi = false
       let decise = 0
       let mancate = 0

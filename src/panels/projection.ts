@@ -91,16 +91,17 @@ function schermoIntero (): boolean {
  * e il meglio che riusciva a fare era staccare una finestra fluttuante e
  * lasciarla trascinare a mano.
  *
- * Il comando agisce sulla finestra che ha il fuoco. Il `reveal` esplicito e il
- * giro di eventi prima servono a quello: senza, a mettersi a schermo intero
- * poteva essere la finestra di chi insegna — cioè si spegneva il registro
- * davanti alla classe invece di riempire il proiettore.
+ * Il comando riceve la finestra per nome — l'id dei suoi `webContents` — e
+ * non si fida del fuoco: su Windows il fuoco cambia quando il sistema ha
+ * tempo, e se era ancora sul registro a finire a schermo intero sul
+ * proiettore erano i voti e le note, davanti alla classe. Il `reveal` resta:
+ * la finestra va comunque mostrata e portata davanti.
  */
 async function portaSulProiettore (pannello: apparato.WebviewPanel): Promise<void> {
   if (!schermoIntero()) return
   pannello.reveal(pannello.viewColumn, false)
   await new Promise((risolvi) => setTimeout(risolvi, 0))
-  await apparato.comandi.esegui('apparato.schermoIntero')
+  await apparato.comandi.esegui('apparato.schermoIntero', pannello.idContenuti)
 }
 
 export class PannelloProiezione {

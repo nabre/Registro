@@ -37,7 +37,9 @@ import { registraDeposito } from './data/store.js'
 import { migraArchivio } from './data/filing.js'
 import { ESTENSIONE, cartellaAnno, cartellaDocumento } from './data/paths.js'
 import { impostaCaratteri, impostaWorker } from './data/pdf.js'
+import { fermaDettature } from './data/dictation.js'
 import { fermaLetture } from './data/ocr.js'
+import { ripulisciTemporaneiVecchi } from './data/temporanei.js'
 import { annota, osserva } from './api/core.js'
 import { identificatore } from './domain/identifiers.js'
 import { registraPortachiaviOauth } from './data/oauth.js'
@@ -208,6 +210,11 @@ export async function avvia (
   annuncia: (fase: string) => void = () => undefined,
 ): Promise<void> {
   contestoAttivo = contesto
+
+  // Le cartelle temporanee di voce e di pagine lasciate da un giro che non è
+  // arrivato in fondo: si puliscono senza aspettarle — l'avvio non ha niente da
+  // guadagnare dall'attesa, e la funzione non solleva mai.
+  void ripulisciTemporaneiVecchi()
 
   // Il portachiavi del sistema, che è dove sta il gettone della casella: va
   // consegnato prima di ogni altra cosa, perché il primo stato spinto al
@@ -812,7 +819,9 @@ export async function chiudiDocumentoAperto (): Promise<void> {
 export async function spegni (): Promise<void> {
   // Le letture delle scansioni per prime: girano in un programma a parte, e una
   // pagina può tenerlo occupato fino a tre minuti. Chi sta uscendo non aspetta.
+  // Lo stesso per una dettatura in corso: fermata, si porta via il suo WAV.
   fermaLetture()
+  fermaDettature()
 
   // L'icona per prima: si toglie subito, prima dell'ultimo salvataggio, perché
   // fra la richiesta di uscire e l'uscita vera passa il tempo di scrivere i

@@ -18,6 +18,7 @@ import { alCambioDocumenti, documentiNoti } from '../../src/environment/document
 import { CANALE } from '../../src/environment/windows.js'
 import {
   getConfiguration,
+  impostazioneDichiarata,
   onDidChangeConfiguration,
   valoreConMotivo,
   vociImpostazioni,
@@ -25,6 +26,7 @@ import {
 import { postoDi, ricordaPosto } from '../../src/environment/placement.js'
 import { coloreSfondo, preferenzeComuni } from '../../src/environment/theme.js'
 import { chiudiLeVieDiFuga } from '../../src/environment/navigation.js'
+import { mostraComunque } from '../../src/environment/showAnyway.js'
 import { COMANDI, TITOLO_IMPOSTAZIONI, type Comando } from '../../src/manifest.js'
 
 // ------------------------------------------------------------------- il menu
@@ -246,14 +248,17 @@ export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
     if (menu.label === 'Registro' && process.platform !== 'darwin') {
       menu.voci.push({ type: 'separator' }, { role: 'quit', label: 'Esci' })
     }
-    // «Modifica» e «Visualizza» stanno fra i comandi del registro e l'aiuto,
-    // che è il posto in cui si cercano.
-    if (menu.label === 'Aiuto') {
-      if (orfani.length > 0) modello.push({ label: 'Altro', submenu: orfani })
-      modello.push(menuModifica(), menuVisualizza())
-    }
     modello.push({ label: menu.label, submenu: menu.voci })
   }
+
+  // «Altro», «Modifica» e «Visualizza» vanno in coda, sempre. Prima si
+  // agganciavano davanti a un gruppo «Aiuto» che `GRUPPI` non ha — la guida
+  // sta in «Vai a» —, e quindi non entravano mai: niente incolla nei campi su
+  // macOS, niente zoom né strumenti di sviluppo, e i comandi orfani perduti
+  // proprio come il commento di `GRUPPI` promette che non accada. Legati alla
+  // fine e non a un'etichetta, non dipendono più da come si chiamano i gruppi.
+  if (orfani.length > 0) modello.push({ label: 'Altro', submenu: orfani })
+  modello.push(menuModifica(), menuVisualizza())
 
   return modello
 }
@@ -412,6 +417,9 @@ async function rispondi (aperta: BrowserWindow, richiesta: RichiestaImpostazioni
     }
 
     case 'azzera':
+      // La pagina manda solo chiavi dell'elenco, ma il processo principale non
+      // si fida: una chiave che il manifesto non dichiara non si tocca.
+      if (!impostazioneDichiarata(richiesta.chiave)) break
       // `undefined` toglie la riga dal file: da lì in poi vale il predefinito
       // del manifesto, che è quel che il modulo torna a mostrare.
       await getConfiguration().update(richiesta.chiave, undefined)
@@ -477,9 +485,7 @@ function apriImpostazioni (filtro = ''): void {
     })
     // Come per i dialoghi: se la pagina arriva ma non dice di essersi
     // disegnata, la si mostra lo stesso, così almeno la si può chiudere.
-    setTimeout(() => {
-      if (!nata.isDestroyed() && !nata.isVisible()) nata.show()
-    }, 1000)
+    mostraComunque(nata)
   })
 
   nata.on('closed', () => {

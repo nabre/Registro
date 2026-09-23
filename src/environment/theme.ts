@@ -23,6 +23,7 @@ import { execFileSync } from 'node:child_process'
 
 import { Smaltitore } from './events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
+import { diSistema } from './system.js'
 import { limita } from '../domain/calculations.js'
 
 const CHIAVE = 'registroDocenti.aspetto.tema'
@@ -206,8 +207,9 @@ export function dimensioneTesto (): number {
 function fattoreDiSistema (): number {
   if (process.platform !== 'win32') return 100
   try {
+    // Per percorso intero: vedi `system.ts` per il `reg.exe` della cartella condivisa.
     const uscita = execFileSync(
-      'reg',
+      diSistema('reg.exe'),
       ['query', 'HKCU\\Software\\Microsoft\\Accessibility', '/v', 'TextScaleFactor'],
       { encoding: 'utf8', windowsHide: true, timeout: 2000 },
     )

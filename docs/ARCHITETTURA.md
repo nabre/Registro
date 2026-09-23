@@ -29,35 +29,35 @@ permesso: chi apre il file vede tutto. Il perimetro di sicurezza *è* il file.
 Non è una dimenticanza, è il modello — e va tenuto presente prima di
 immaginare una seconda superficie.
 
-**Il dominio è puro.** `src/dominio/` non importa `node:*`, non importa
-`electron`, non importa `vscode`, non risale con `../`. È una regola vera,
+**Il dominio è puro.** `src/domain/` non importa `node:*`, non importa
+`electron`, non importa `apparato`, non risale con `../`. È una regola vera,
 imposta da `no-restricted-imports` in [eslint.config.mjs](../eslint.config.mjs)
 (§ 4), ed è la ragione per cui 54 file di prove del dominio girano in due
 secondi senza aprire una finestra.
 
 A questi se ne aggiunge un quarto, meno evidente e più pervasivo: **il codice
-sotto `src/` è scritto come un'estensione VS Code e gira su uno shim**
-([src/ambiente/vscode-desktop.ts](../src/ambiente/vscode-desktop.ts)). Vedi § 5.
+sotto `src/` non nomina mai Electron: parla con l'apparato**, un modulo nostro
+risolto da un alias ([src/environment/platform.ts](../src/environment/platform.ts)). Vedi § 5.
 
 ### I numeri
 
 | Perimetro | File | Righe | Export |
 |---|---:|---:|---:|
-| `src/dominio/` — regole della scuola, pure | 52 | 23 175 | 780 |
-| `src/interfaccia/` — il pannello, DOM senza framework | 81 | 39 312 | 404 |
-| `src/dati/` — file, ZIP, PDF, posta, OCR, geocodifica | 22 | 11 734 | 155 |
+| `src/domain/` — regole della scuola, pure | 52 | 23 175 | 780 |
+| `src/ui/` — il pannello, DOM senza framework | 81 | 39 312 | 404 |
+| `src/data/` — file, ZIP, PDF, posta, OCR, geocodifica | 22 | 11 734 | 155 |
 | `src/api/` — il contratto davanti ai gestori | 17 | 6 916 | 72 |
-| `src/ambiente/` — lo shim `vscode` su Electron | 24 | 5 025 | 144 |
-| `src/azioni/` — i gestori dei comandi | 16 | 5 706 | 42 |
-| `src/pannelli/` — le finestre webview dell'app | 3 | 752 | 11 |
+| `src/environment/` — l'apparato su Electron | 24 | 5 025 | 144 |
+| `src/actions/` — i gestori dei comandi | 16 | 5 706 | 42 |
+| `src/panels/` — le finestre webview dell'app | 3 | 752 | 11 |
 | `src/` file diretti — protocollo, manifesto, avvio, widget | 7 | 3 320 | 39 |
-| `guscio/` — main process Electron, pagine native | 13 | 4 137 | 15 |
-| `prove/` — 86 file `*.test.mjs` più gli aiuti | 95 | 22 711 | — |
-| `strumenti/` — script di analisi e build | 10 | 1 532 | — |
+| `shell/` — main process Electron, pagine native | 13 | 4 137 | 15 |
+| `tests/` — 86 file `*.test.mjs` più gli aiuti | 95 | 22 711 | — |
+| `tools/` — script di analisi e build | 10 | 1 532 | — |
 | `templates/` — modelli di stampa di serie | 13 | 645 | — |
 
 In totale **1662 export su 230 file** `.ts`. Il conteggio degli export non è un
-vezzo: `npm run censimento` lo usa per trovare quelli che nessuno consuma.
+vezzo: `npm run census` lo usa per trovare quelli che nessuno consuma.
 
 Lo strato `src/api/` è il più recente, e va letto sapendo che cosa *non* è: non
 è una riscrittura dei gestori. Le procedure **prendono in carico una per una
@@ -138,9 +138,9 @@ lettura) no.
 ```mermaid
 flowchart TB
   subgraph main["Processo main Electron — uno solo"]
-    guscio["<b>guscio/</b><br/>principale.ts, menu.ts, lettore.ts,<br/>benvenuto.ts, protocolloFile.ts, tasselli.ts<br/>l'unico che sa di Electron, con src/ambiente/"]
-    app["<b>src/</b> — avvio.ts, azioni.ts, azioni/,<br/>dati/, dominio/, pannelli/<br/>crede di essere un'estensione VS Code"]
-    ambiente["<b>src/ambiente/</b><br/>shim vscode verso Electron"]
+    guscio["<b>shell/</b><br/>main.ts, windows/menu.ts, windows/reader.ts,<br/>windows/welcome.ts, protocol/fileProtocol.ts, protocol/tiles.ts<br/>l'unico che sa di Electron, con src/environment/"]
+    app["<b>src/</b> — startup.ts, actions.ts, actions/,<br/>data/, domain/, panels/<br/>parla solo con l'apparato"]
+    ambiente["<b>src/environment/</b><br/>l'apparato verso Electron"]
     guscio --- app
     app --- ambiente
     ambiente --- guscio
@@ -183,16 +183,16 @@ flowchart TB
 
 | Finestra | Nasce in | preload | sandbox | Canale | Perché è a sé |
 |---|---|---|---|---|---|
-| Pannello | [src/pannelli/pannello.ts](../src/pannelli/pannello.ts) via `createWebviewPanel` | sì | false | `registro:messaggio` più `registro:interfaccia` | è l'applicazione |
-| Proiezione | [src/pannelli/proiezione.ts](../src/pannelli/proiezione.ts) | sì | false | idem | bundle separato: alla classe non servono le viste del registro |
-| Benvenuto | [guscio/benvenuto.ts](../guscio/benvenuto.ts) | sì | false | `registro:messaggio` | elenco di anni noti al posto di un dialogo a tre pulsanti |
-| Impostazioni | [guscio/menu.ts](../guscio/menu.ts) | sì | false | `registro:messaggio` | serve anche quando non c'è un anno aperto, cioè senza pannello |
-| Lettore PDF | [guscio/lettore.ts](../guscio/lettore.ts) | **no** | **true** | nessuno | è muta: `plugins:true` accende il lettore di Chromium e basta |
-| Agenda | [src/ambiente/agenda.ts](../src/ambiente/agenda.ts) | sì | false | `registro:messaggio` | `frame:false`, si ancora alla shell come vera appbar |
-| Dialogo | [src/ambiente/dialoghi.ts](../src/ambiente/dialoghi.ts) | sì | false | `registro:messaggio` | riceve i parametri nella query string: ha i suoi dati al primo render |
+| Pannello | [src/panels/panel.ts](../src/panels/panel.ts) via `createWebviewPanel` | sì | false | `registro:messaggio` più `registro:interfaccia` | è l'applicazione |
+| Proiezione | [src/panels/projection.ts](../src/panels/projection.ts) | sì | false | idem | bundle separato: alla classe non servono le viste del registro |
+| Benvenuto | [shell/windows/welcome.ts](../shell/windows/welcome.ts) | sì | false | `registro:messaggio` | elenco di anni noti al posto di un dialogo a tre pulsanti |
+| Impostazioni | [shell/windows/menu.ts](../shell/windows/menu.ts) | sì | false | `registro:messaggio` | serve anche quando non c'è un anno aperto, cioè senza pannello |
+| Lettore PDF | [shell/windows/reader.ts](../shell/windows/reader.ts) | **no** | **true** | nessuno | è muta: `plugins:true` accende il lettore di Chromium e basta |
+| Agenda | [src/environment/agenda.ts](../src/environment/agenda.ts) | sì | false | `registro:messaggio` | `frame:false`, si ancora alla shell come vera appbar |
+| Dialogo | [src/environment/dialogs.ts](../src/environment/dialogs.ts) | sì | false | `registro:messaggio` | riceve i parametri nella query string: ha i suoi dati al primo render |
 
 Tutte, tranne il lettore, condividono lo stesso preload
-([guscio/preload.ts](../guscio/preload.ts), 29 righe) e la stessa
+([shell/preload.ts](../shell/preload.ts), 29 righe) e la stessa
 `chiudiLeVieDiFuga()` che blocca `will-navigate` e i popup.
 
 ### I canali, per esteso
@@ -206,9 +206,9 @@ Tutte, tranne il lettore, condividono lo stesso preload
 - **`Domanda` / `Riscontro`** — non un canale in più: la stessa
   `registro:messaggio`, con una busta diversa. Il pannello manda
   `{ id, procedura, ingresso }` con `chiedi()`
-  ([interfaccia/ponte.ts](../src/interfaccia/ponte.ts)), l'host risponde
+  ([ui/bridge.ts](../src/ui/bridge.ts)), l'host risponde
   `{ tipo: 'riscontro', id, ok, dati?, errori?, codice? }` da
-  `rispondiDomanda()` ([pannelli/pannello.ts](../src/pannelli/pannello.ts)).
+  `rispondiDomanda()` ([panels/panel.ts](../src/panels/panel.ts)).
   `gestisci()` le riconosce perché `typeof busta.procedura === 'string'`, e le
   serve **subito**, senza metterle nella coda delle scritture: una lettura è
   sincrona sul registro in memoria, e metterla in fila dietro la generazione di
@@ -221,12 +221,12 @@ Tutte, tranne il lettore, condividono lo stesso preload
   una `Domanda` per scrivere nel registro saltando la serializzazione, cioè la
   garanzia più forte che il sistema abbia. Vedi ADR-29.
 - **`registro:interfaccia`** — `sendSync`, una volta al boot di ogni pagina:
-  è l'equivalente di `vscode.getState()`/`setState()`, e serve a ritrovare
+  è il `getState()`/`setState()` di `acquireVsCodeApi()`, e serve a ritrovare
   vista, filtri e schede dopo una ricostruzione della pagina. **Non fa parte
   del protocollo applicativo**: confonderlo con lo stato del registro è
   l'errore tipico di chi arriva qui.
 - **`registro://`** — quattro autorità, uno `switch` su stringa in
-  [guscio/protocolloFile.ts](../guscio/protocolloFile.ts):
+  [shell/protocol/fileProtocol.ts](../shell/protocol/fileProtocol.ts):
 
   | Autorità | Esempio | Serve | Difese |
   |---|---|---|---|
@@ -239,7 +239,7 @@ Tutte, tranne il lettore, condividono lo stesso preload
   `%2e%2e` — `Access-Control-Allow-Origin` rimandato solo a origini
   `registro://` e mai `*`, streaming con `net.fetch` per non tenere file
   interi in memoria. È il motivo per cui le pagine native del guscio vengono
-  copiate in `dist/` e non servite da `guscio/`: il protocollo concede una
+  copiate in `dist/` e non servite da `shell/`: il protocollo concede una
   cartella sola.
 
 ---
@@ -254,19 +254,19 @@ d'errore.
 ```mermaid
 flowchart TB
   subgraph W["dentro la webview — niente Node, niente Electron"]
-    interfaccia["<b>src/interfaccia/</b> 81 file<br/>stato.ts, ponte.ts, viste/, moduli/, componenti/"]
+    interfaccia["<b>src/ui/</b> 81 file<br/>stato.ts, ponte.ts, viste/, moduli/, componenti/"]
   end
 
   subgraph H["nel processo main"]
-    pannelli["<b>src/pannelli/</b> 3 file<br/>pannello.ts, proiezione.ts, pagina.ts"]
+    pannelli["<b>src/panels/</b> 3 file<br/>pannello.ts, proiezione.ts, pagina.ts"]
     api["<b>src/api/</b><br/>una procedura per file: le azioni sotto contratto, e 8 letture"]
-    azioni["<b>src/azioni/</b> 16 file<br/>141 gestori più contesto.ts"]
-    dati["<b>src/dati/</b> 22 file<br/>archivio, pacchetto, zip, pdf, posta, ocr, geocodifica"]
-    ambiente["<b>src/ambiente/</b> 24 file<br/>vscode-desktop.ts e i suoi moduli"]
-    guscio["<b>guscio/</b> 13 file<br/>main process, menu, protocollo, finestre native"]
+    azioni["<b>src/actions/</b> 16 file<br/>141 gestori più contesto.ts"]
+    dati["<b>src/data/</b> 22 file<br/>archivio, pacchetto, zip, pdf, posta, ocr, geocodifica"]
+    ambiente["<b>src/environment/</b> 24 file<br/>platform.ts e i suoi moduli"]
+    guscio["<b>shell/</b> 13 file<br/>main process, menu, protocollo, finestre native"]
   end
 
-  dominio["<b>src/dominio/</b> 52 file — puro<br/>niente node:, niente electron, niente vscode, niente ../"]
+  dominio["<b>src/domain/</b> 52 file — puro<br/>niente node:, niente electron, niente apparato, niente ../"]
 
   interfaccia -->|"postMessage — Richiesta: una Azione tipizzata"| pannelli
   interfaccia -->|"postMessage — Domanda: il nome di una lettura"| pannelli
@@ -293,12 +293,12 @@ flowchart TB
 
 | Cartella | Vietato importare | Motivazione nel messaggio ESLint |
 |---|---|---|
-| `src/dominio/**` | `node:*`, `electron`, `vscode`, `../*` | «non importa niente da fuori di sé: è quel che permette di provarlo con `node --test` in due secondi, senza Electron e senza un disco. Quel che serve dal mondo si riceve come argomento — lo passa `src/azioni/` o `src/dati/`» |
-| `src/interfaccia/**` | `node:*`, `electron` | «gira dentro una webview: Node di là non c'è. Il bundle si costruisce lo stesso e la pagina resta bianca all'apertura. Quel che serve dal main process passa dal ponte — `src/interfaccia/ponte.ts`» |
-| `src/dati/**`, `src/azioni/**`, `src/pannelli/**` | `electron` | «Electron si nomina solo in `src/ambiente/` e `guscio/`: è il confine su cui le prove sostituiscono un finto Electron al vero» |
+| `src/domain/**` | `node:*`, `electron`, `apparato`, `../*` | «non importa niente da fuori di sé: è quel che permette di provarlo con `node --test` in due secondi, senza Electron e senza un disco. Quel che serve dal mondo si riceve come argomento — lo passa `src/actions/` o `src/data/`» |
+| `src/ui/**` | `node:*`, `electron` | «gira dentro una webview: Node di là non c'è. Il bundle si costruisce lo stesso e la pagina resta bianca all'apertura. Quel che serve dal main process passa dal ponte — `src/ui/bridge.ts`» |
+| `src/data/**`, `src/actions/**`, `src/panels/**` | `electron` | «Electron si nomina solo in `src/environment/` e `shell/`: è il confine su cui le prove sostituiscono un finto Electron al vero» |
 
 Unica eccezione motivata:
-[src/ambiente/ancoraggio.ts](../src/ambiente/ancoraggio.ts), dove le regole
+[src/environment/anchoring.ts](../src/environment/anchoring.ts), dove le regole
 `no-unsafe-*` sono spente perché koffi dichiara le funzioni Win32 a runtime
 leggendo una stringa C, e quindi è `any` per costruzione. L'`any` è
 circoscritto dentro `carica()` e ne esce una sola interfaccia scritta a mano,
@@ -306,44 +306,44 @@ circoscritto dentro `carica()` e ne esce una sola interfaccia scritta a mano,
 
 ### Strato per strato
 
-**`guscio/`** — processo main di Electron. Single-instance lock, `open-file` e
+**`shell/`** — processo main di Electron. Single-instance lock, `open-file` e
 `second-instance` per il doppio clic su un `.registro`, menu applicativo
-costruito da `COMANDI` di [src/manifesto.ts](../src/manifesto.ts), vassoio,
+costruito da `COMANDI` di [src/manifest.ts](../src/manifest.ts), vassoio,
 protocollo `registro://`, cache dei tasselli, associazione file in
 `HKCU\Software\Classes` via PowerShell `-EncodedCommand` con il percorso
 passato per variabile d'ambiente e mai interpolato. *Può* importare `electron`
-e `src/ambiente/*`; *non* importa `src/dominio/` né `src/azioni/` — quando gli
+e `src/environment/*`; *non* importa `src/domain/` né `src/actions/` — quando gli
 serve un'azione la chiede per nome, con `executeCommand`.
 
-**`src/ambiente/`** — lo shim. Implementa su Electron il contratto `vscode`
-che tutto il resto di `src/` crede di usare: `workspace.fs`,
-`window.createWebviewPanel`, `commands`, `SecretStorage`, `Uri`,
-`EventEmitter`, `FileSystemWatcher`. Espone anche una manciata di funzioni che
-in VS Code non esistono e servono solo qui — `scriviDa`, la scrittura a offset
+**`src/environment/`** — l'apparato. Implementa su Electron il modulo
+`apparato` che tutto il resto di `src/` importa: `file`, `finestre`,
+`dialoghi`, `comandi`, `impostazioni`, `Segreti`, `Uri`, `EventEmitter`,
+`osserva`. Espone anche una manciata di funzioni che servono solo al
+registro — `scriviDa`, la scrittura a offset
 che rende possibile l'accodamento ZIP, più `htmlDellaPagina`,
 `radiciConcesse`, `percorsoWorkerPdf`, `preferenzeComuni`. È l'unico posto,
-con `guscio/`, dove `electron` si nomina, ed è per questo che le prove possono
-sostituirlo con [prove/aiuti/finto-electron.mjs](../prove/aiuti/finto-electron.mjs).
+con `shell/`, dove `electron` si nomina, ed è per questo che le prove possono
+sostituirlo con [tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs).
 
-**`src/dati/`** — tutto quel che tocca il mondo: il documento ZIP
-([pacchetto.ts](../src/dati/pacchetto.ts), [zip.ts](../src/dati/zip.ts)),
+**`src/data/`** — tutto quel che tocca il mondo: il documento ZIP
+([package.ts](../src/data/package.ts), [zip.ts](../src/data/zip.ts)),
 l'orchestratore dello stato in memoria
-([archivio.ts](../src/dati/archivio.ts)), la materializzazione dei binari
-([deposito.ts](../src/dati/deposito.ts)), i PDF
-([pdf.ts](../src/dati/pdf.ts) e [rapportiPdf.ts](../src/dati/rapportiPdf.ts),
+([archivio.ts](../src/data/archive.ts)), la materializzazione dei binari
+([store.ts](../src/data/store.ts)), i PDF
+([pdf.ts](../src/data/pdf.ts) e [reportsPdf.ts](../src/data/reportsPdf.ts),
 57 KB, il file più grande del progetto), la posta
-([posta.ts](../src/dati/posta.ts), [exchange.ts](../src/dati/exchange.ts),
-[oauth.ts](../src/dati/oauth.ts)), l'OCR ([ocr.ts](../src/dati/ocr.ts)) e la
-geocodifica ([geocodifica.ts](../src/dati/geocodifica.ts)). Passa sempre da
-`vscode.*`, mai da `electron`.
+([posta.ts](../src/data/mail.ts), [exchange.ts](../src/data/exchange.ts),
+[oauth.ts](../src/data/oauth.ts)), l'OCR ([ocr.ts](../src/data/ocr.ts)) e la
+geocodifica ([geocodifica.ts](../src/data/geocoding.ts)). Passa sempre da
+`apparato.*`, mai da `electron`.
 
-**`src/dominio/`** — le regole della scuola, pure. Il modello dati e le sue
-dieci collezioni ([modelli.ts](../src/dominio/modelli.ts)), calendario e unità
-didattiche ([date.ts](../src/dominio/date.ts),
-[calcoli.ts](../src/dominio/calcoli.ts)), validazione e normalizzazione
-([validazione.ts](../src/dominio/validazione.ts), 2456 righe), eliminazioni a
-cascata ([eliminazioni.ts](../src/dominio/eliminazioni.ts)), riparazioni,
-lessico ([lessico.ts](../src/dominio/lessico.ts): genere, plurale e
+**`src/domain/`** — le regole della scuola, pure. Il modello dati e le sue
+dieci collezioni ([modelli.ts](../src/domain/models.ts)), calendario e unità
+didattiche ([dates.ts](../src/domain/dates.ts),
+[calculations.ts](../src/domain/calculations.ts)), validazione e normalizzazione
+([validation.ts](../src/domain/validation.ts), 2456 righe), eliminazioni a
+cascata ([deletions.ts](../src/domain/deletions.ts)), riparazioni,
+lessico ([lexicon.ts](../src/domain/lexicon.ts): genere, plurale e
 preposizioni italiane, perché «persona in formazione» e «allievo» devono
 potersi scambiare in una riga sola). Il pattern ricorrente è **calcolo puro
 più `applica` mutante**: `eliminazione(registro, bersaglio)` descrive che cosa
@@ -351,31 +351,31 @@ sparirebbe — è la stessa funzione che disegna la conferma — e restituisce u
 closure che muta il registro solo se qualcuno la chiama. Le funzioni impure
 sono nove in tutto, tutte deliberate.
 
-**`src/azioni/`** — 141 gestori, uno per ogni `Azione['tipo']`. Ogni file
+**`src/actions/`** — 141 gestori, uno per ogni `Azione['tipo']`. Ogni file
 esporta un oggetto `satisfies Parte`, e il compilatore garantisce che la somma
 delle parti copra l'intera union: un'azione dichiarata nel protocollo e senza
 gestore non compila. `Contesto`
-([contesto.ts](../src/azioni/contesto.ts)) è l'unica porta verso lo stato:
+([contesto.ts](../src/actions/context.ts)) è l'unica porta verso lo stato:
 `modifica(op, collezioni)`, `suVoce(collezione, id, op)` — che timbra da sé
 `aggiornatoIl`/`aggiornataIl` — `nelFascicolo`, `elimina`.
 
 **`src/api/`** — il contratto davanti al lavoro. Non sostituisce il centralino:
 lo dichiara. Una `Procedura`
-([contratto.ts](../src/api/contratto.ts)) è un'azione con, in più, le tre cose
+([contract.ts](../src/api/contract.ts)) è un'azione con, in più, le tre cose
 che a un'azione mancavano per poter essere chiamata da fuori dal pannello: una
 **forma dell'ingresso controllata quando il programma gira** e non solo quando
 compila, un **errore con un codice** oltre alla frase italiana, e una
-**versione dichiarata**. `chiama()` in [nucleo.ts](../src/api/nucleo.ts) è
+**versione dichiarata**. `chiama()` in [core.ts](../src/api/core.ts) è
 l'unico punto che convalida, esegue, cronometra e scrive nel giornale — e per
 questo è l'unico punto che tutti i trasporti condividono: pannello, widget
 dell'agenda, riga di comando, condotto JSON-RPC.
 
-Le procedure stanno in [procedure/](../src/api/procedure/), **un file per
+Le procedure stanno in [procedure/](../src/api/procedures/), **un file per
 procedura**, sotto la cartella dei segmenti del suo nome:
-`ore.appello.casella` sta in `procedure/ore/appello/casella.ts`, e il percorso
+`ore.appello.casella` sta in `procedures/ore/appello/casella.ts`, e il percorso
 è l'indirizzo. Quasi tutte dichiarano `azione: '…'`: `gestoriDelleProcedure()`
-([ponte.ts](../src/api/ponte.ts)) si sparge *dopo* gli altri in
-[src/azioni.ts](../src/azioni.ts), e quelle chiavi vincono su quelle di prima.
+([ponte.ts](../src/api/bridge.ts)) si sparge *dopo* gli altri in
+[src/actions.ts](../src/actions.ts), e quelle chiavi vincono su quelle di prima.
 È l'unica riga di quel file che è cambiata, e oggi le chiavi sono tutte: non
 c'è più un'azione che arrivi al gestore senza passare di qui. **Il lavoro non
 si è spostato di un metro**: `daGestore` passa la palla al gestore di sempre,
@@ -383,20 +383,20 @@ quindi nessuna prova esistente ha cambiato significato. Le altre 8 procedure
 sono letture, non hanno un'azione dietro, e si raggiungono solo dal canale
 delle domande (§ 3). Vedi ADR-27, ADR-28, ADR-29.
 
-Gli schemi di [schemi.ts](../src/api/schemi.ts) sono scritti in casa e non
+Gli schemi di [schemas.ts](../src/api/schemas.ts) sono scritti in casa e non
 importati: espongono il contratto *Standard Schema* (`~standard`), quello che
 zod, valibot e arktype implementano, così che il nucleo conosca l'interfaccia e
 non il file. Fra i costruttori, `entita()` è quello su cui si regge il resto —
 **un'entità intera si convalida con il validatore del dominio**, non con una
 forma riscritta accanto a quella vera.
 
-**`src/pannelli/`** — le due finestre webview dell'app. `pannello.ts` accoda
+**`src/panels/`** — le due finestre webview dell'app. `panel.ts` accoda
 le richieste in serie, `pagina.ts` compone l'HTML con la CSP,
 `proiezione.ts` spinge alla classe **solo i blocchi accesi**, mai il
 `Registro` intero.
 
-**`src/interfaccia/`** — il pannello. Nessun framework: `h()` in
-[dom.ts](../src/interfaccia/dom.ts) costruisce DOM vero e ogni cambiamento
+**`src/ui/`** — il pannello. Nessun framework: `h()` in
+[dom.ts](../src/ui/dom.ts) costruisce DOM vero e ogni cambiamento
 ricostruisce l'intero albero sotto `#radice`, salvando e ripristinando fuoco,
 cursore e scorrimenti per chiave (`data-fuoco`, `data-scorrimento`). Le
 modali e la palette vivono fuori dal ciclo di ridisegno, appese al `body`,
@@ -408,20 +408,20 @@ e il registro nuovo torna dall'host per intero.
 
 ## 5. Il fatto architetturale centrale
 
-Il codice sotto `src/` è scritto come un'estensione VS Code. Importa
-`vscode` ovunque — `ExtensionContext`, `WebviewPanel`,
-`workspace.getConfiguration`, `SecretStorage`, `commands.registerCommand` —
-ma `package.json` non dipende da `vscode`: dipende da `electron`. La
-spiegazione è in due righe di configurazione.
+Il codice sotto `src/` è nato come un'estensione VS Code, e ne conserva la
+forma: importa ovunque un modulo che `package.json` non elenca — `apparato` —
+e ci trova `finestre.crea`, `impostazioni.leggi`, `comandi.registra`,
+`Segreti`, `Uri`. Si chiamava `vscode`; il nome nuovo dice il ruolo e non un
+prodotto. La spiegazione è in due righe di configurazione.
 
 ```jsonc
 // tsconfig.json
-"paths": { "vscode": ["./src/ambiente/vscode-desktop.ts"] }
+"paths": { "apparato": ["./src/environment/platform.ts"] }
 ```
 
 ```js
-// esbuild.mjs — configurazione di guscio/principale.ts
-alias: { vscode: './src/ambiente/vscode-desktop.ts' }
+// esbuild.mjs — configurazione di shell/main.ts
+const aliasApparato = { apparato: './src/environment/platform.ts' }
 ```
 
 L'alias vale **sia per esbuild sia per `tsc`**, ed è deliberato: prima il
@@ -429,36 +429,37 @@ type-check verificava contro l'API dell'editor mentre esbuild compilava contro
 lo shim, e le due potevano divergere in silenzio.
 
 Sopra lo shim vive un secondo strato, genuinamente Electron-aware e tenuto
-separato apposta: `guscio/`. Il confine si dice in una riga:
-**`guscio/` sa di Electron, `src/` no.**
+separato apposta: `shell/`. Il confine si dice in una riga:
+**`shell/` sa di Electron, `src/` no.**
 
 ### Che cosa ci si guadagna
 
 - **Un confine di test che esiste davvero.** L'`electron` finto si inietta in
-  un punto solo, e 14 prove di `prove/ambiente/` verificano lo shim stesso.
+  un punto solo, e 14 prove di `tests/environment/` verificano lo shim stesso.
 - **Il dominio resta puro senza sforzo.** Non c'è niente a cui resistere: non
   c'è un `app.getPath` a portata di import.
 - **Un protocollo host↔pannello già disciplinato.** `postMessage` con una
   busta, correlazione per id, push dello stato: non è stato progettato, è
   stato ereditato — e la forma ereditata è buona.
-- **La strada di ritorno resta aperta.** Riportare il progetto dentro VS Code
-  costa, in teoria, togliere l'alias.
+- **Chi ospita il registro si cambia in un file.** Chi importa `apparato` non
+  sa che sotto c'è Electron: un ospite diverso è un altro `platform.ts`, non
+  una riscrittura.
 
 ### Che cosa costa
 
 - **Un livello di indirezione che non insegna niente a chi arriva.** Per
-  sapere che cosa fa `vscode.window.showQuickPick` bisogna leggere
-  `src/ambiente/dialoghi.ts`, non la documentazione di VS Code — e l'API dello
-  shim è un *sottoinsieme* che non è scritto da nessuna parte se non nel
-  codice.
+  sapere che cosa fa `apparato.dialoghi.chiediScelta` bisogna leggere
+  `src/environment/dialogs.ts` — e l'API dell'apparato non è scritta da
+  nessuna parte se non nel codice.
 - **Funzioni `async` che non hanno niente da attendere.** `require-await` è
   spento apposta: lo shim reimplementa un'API asincrona anche dove
   l'implementazione desktop è sincrona.
-- **Nomi fuorvianti che restano.** `ExtensionContext`, `globalStorageUri`,
-  `workspace.getConfiguration` in un'app che non ha né estensioni né workspace.
-- **Un'API intera da mantenere per un consumatore solo.** 25 export in
-  `vscode-desktop.ts`, e ogni pezzo nuovo di Electron che serve va prima
-  vestito da VS Code.
+- **Nomi fuorvianti che restano.** `globalStorageUri` nel contesto
+  dell'applicazione, `acquireVsCodeApi()` nelle pagine: tracce di un editor
+  in un'app che non ha né estensioni né workspace.
+- **Un'API intera da mantenere per un consumatore solo.** 31 export in
+  `platform.ts`, e ogni pezzo nuovo di Electron che serve va prima dato
+  all'apparato.
 
 Il giudizio pratico: il costo è quasi tutto in leggibilità, il guadagno quasi
 tutto in testabilità, e il guadagno è quello che ha permesso a 79 file di
@@ -477,9 +478,9 @@ un passo dopo che lo richiede.
 sequenceDiagram
   autonumber
   participant OS as Windows
-  participant P as guscio/principale.ts
+  participant P as shell/main.ts
   participant B as Benvenuto
-  participant A as src/avvio.ts avvia
+  participant A as src/startup.ts avvia
   participant AR as Archivio
   participant PN as Pannello
 
@@ -527,7 +528,7 @@ sequenceDiagram
   autonumber
   participant V as viste/lezione.ts
   participant PO as interfaccia/ponte.ts
-  participant PR as guscio/preload.ts
+  participant PR as shell/preload.ts
   participant F as ambiente/finestre.ts
   participant PA as pannelli/pannello.ts
   participant AZ as azioni.ts esegui
@@ -571,7 +572,7 @@ Due punti da capire, e da non dimenticare leggendo questo codice.
 
 **La `Risposta ok:true` parte prima che il dato sia su disco.** Vedi § 9.
 
-**I passi di `api/nucleo.ts` non sono l'eccezione di un'azione sola.** Da
+**I passi di `api/core.ts` non sono l'eccezione di un'azione sola.** Da
 quando il livello API è completo, tutte e 141 le azioni del protocollo
 attraversano quel tratto prima di arrivare al gestore: qui si vede su
 `presenze.riga`, ma è identico per `voto.imposta`, per `assenze.salva` e per le
@@ -657,7 +658,7 @@ sequenceDiagram
 
 ### Il documento `.registro`
 
-Uno ZIP vero, letto e scritto a mano in [src/dati/zip.ts](../src/dati/zip.ts)
+Uno ZIP vero, letto e scritto a mano in [src/data/zip.ts](../src/data/zip.ts)
 sopra `node:zlib` — nessun `adm-zip`, nessun `jszip`, nessun `yazl`. Il
 manifesto dichiara `formato: 'registro-docenti/anno'` e
 `VERSIONE_PACCHETTO = 1`; un documento con versione superiore viene
@@ -689,14 +690,14 @@ Le radici sono **due**, non una: `archivio/` è quel che si è caricato e
 cancellarlo lo perde; `esportazioni/` è quel che il registro ha stampato e si
 rifà premendo un pulsante. La divisione vale la sua complicazione perché dice
 senza pensarci che cosa si può escludere dalla sincronizzazione
-([collocazioni.ts](../src/dominio/collocazioni.ts)).
+([locations.ts](../src/domain/locations.ts)).
 
 Il nome delle dieci collezioni sta in `NOMI`, in
-[src/dati/percorsi.ts](../src/dati/percorsi.ts). `coordinate.json` è separato
+[src/data/paths.ts](../src/data/paths.ts). `coordinate.json` è separato
 perché ha chiave «indirizzo» e si riscrive solo su azione esplicita; ogni
 salvataggio **dichiara quali collezioni ha toccato** e riscrive solo quelle —
 un voto non fa riscrivere le classi. È anche l'invariante che
-`npm run collezioni` verifica, perché dimenticare una collezione nell'array
+`npm run collections` verifica, perché dimenticare una collezione nell'array
 produce il bug peggiore che questo progetto conosca: la UI è giusta, il
 salvataggio no.
 
@@ -705,7 +706,7 @@ salvataggio no.
 Le modifiche si accumulano in memoria e si scrivono **dopo 350 ms di
 inattività** (`RITARDO_SALVATAGGIO_MS`), con un tetto di **2000 ms** dalla
 prima modifica non salvata (`ATTESA_MASSIMA_MS`) —
-[archivio.ts](../src/dati/archivio.ts). Altre costanti dello stesso file:
+[archivio.ts](../src/data/archive.ts). Altre costanti dello stesso file:
 `RITARDO_RICARICA_MS = 300` per il file-watcher, `FINESTRA_ECO_MS = 2500` per
 non ricaricare a causa della propria scrittura, `COPIE_STORICO = 10`.
 
@@ -715,7 +716,7 @@ non ricaricare a causa della propria scrittura, `COPIE_STORICO = 10`.
 interessante del formato.
 
 - **Accodamento** (`accoda`, il caso normale): comprime solo le voci
-  cambiate, le scrive **in coda al file esistente** con `vscode.scriviDa`, poi
+  cambiate, le scrive **in coda al file esistente** con `apparato.scriviDa`, poi
   con una **seconda chiamata separata** riscrive indice e coda ZIP. Due
   chiamate e non una apposta: `scriviDa` chiude con un `sync`, quindi finché la
   coda nuova non è scritta per intero il file resta leggibile con la coda
@@ -752,7 +753,7 @@ copre».
 ### Migrazioni
 
 Due versioni **indipendenti**: `VERSIONE_DATI = 3` (lo schema JSON, in
-[modelli.ts](../src/dominio/modelli.ts)) e `VERSIONE_PACCHETTO = 1` (il
+[modelli.ts](../src/domain/models.ts)) e `VERSIONE_PACCHETTO = 1` (il
 contenitore).
 
 Lo schema **non ha una catena di funzioni di migrazione**: ha un
@@ -767,10 +768,10 @@ un'interruzione — il nuovo si scrive prima, il vecchio si cancella dopo:
 
 | Passo | Dove | Da → a |
 |---|---|---|
-| `migraAnni` | [dati/anni.ts](../src/dati/anni.ts) | JSON piatti multi-anno → una cartella per anno |
+| `migraAnni` | [data/years.ts](../src/data/years.ts) | JSON piatti multi-anno → una cartella per anno |
 | `impacchettaAnni` | dati/anni.ts | `<anno>/dati/*.json` → `<anno>.registro` |
 | `inglobaCartelle` | dati/anni.ts | cartelle documentali residue → dentro il pacchetto |
-| `migraArchivio` | [dati/archiviazione.ts](../src/dati/archiviazione.ts) | cartelle piatte e la vecchia cartella unica `documentazione/` → `archivio/` più `esportazioni/`, riscrivendo i percorsi salvati nelle collezioni |
+| `migraArchivio` | [data/filing.ts](../src/data/filing.ts) | cartelle piatte e la vecchia cartella unica `documentazione/` → `archivio/` più `esportazioni/`, riscrivendo i percorsi salvati nelle collezioni |
 
 ---
 
@@ -778,17 +779,17 @@ un'interruzione — il nuovo si scrive prima, il vecchio si cancella dopo:
 
 | Destinazione | Che cosa esce | Quando | Dove | Difese |
 |---|---|---|---|---|
-| `nominatim.openstreetmap.org/search` | la sola riga di indirizzo, scomposta in via, civico, NAP, paese — senza nomi | solo premendo «Trova gli indirizzi» | [dati/geocodifica.ts](../src/dati/geocodifica.ts) | 1 richiesta ogni 1100 ms, User-Agent dichiarato, paesi limitati a `ch,it,de,fr,at`, tetto di 60 indirizzi per invocazione, risultato messo in cache per indirizzo e non per persona |
-| `smtp.office365.com:587` | **il messaggio intero**: destinatari, oggetto, corpo, allegati PDF — cioè nomi, indirizzi e documenti di persone | inviando una comunicazione, una consegna o un rapporto di assenze | [dati/exchange.ts](../src/dati/exchange.ts) | STARTTLS obbligatorio, `AUTH XOAUTH2`, indirizzi solo nella busta `RCPT TO` e mai in un header `Bcc:` |
-| `login.microsoftonline.com` | nessun dato del registro: solo il flusso OAuth | collegando la casella | [dati/oauth.ts](../src/dati/oauth.ts) | Authorization Code più PKCE S256 su loopback, `state` verificato, scope minimo `SMTP.Send offline_access` — Graph scartato apposta perché il permesso era troppo ampio |
-| nessuna destinazione — il modello gira **dentro il processo** | il PNG di una pagina scansionata e la domanda dell'assistente con quel che le letture rispondono: nomi, medie, assenze | leggendo le scansioni o conversando, se accesi | [dati/ocr.ts](../src/dati/ocr.ts) e [api/trasporti/assistente.ts](../src/api/trasporti/assistente.ts) → [dati/llm.ts](../src/dati/llm.ts) | **non escono dalla macchina**, e non perché sia configurato così: il modello è un file `.gguf` caricato in memoria, e non c'è nessuna richiesta di rete da dirottare (ADR-25) |
-| `huggingface.co` | solo le parole battute nella casella di ricerca dei modelli — mai un dato del registro | scaricando un modello dalla pagina «Modelli linguistici» | [dati/huggingFace.ts](../src/dati/huggingFace.ts) → [dati/gguf.ts](../src/dati/gguf.ts) | traffico in entrata: porta dentro dei pesi. Nessuna chiave, nessun conto; i depositi che chiedono di accettare condizioni non si scaricano |
-| nessuna rete — `whisper-cli.exe` sulla macchina | la voce di chi detta, in un WAV temporaneo: dentro ci sono i nomi che ha appena pronunciato | dettando una domanda all'assistente, se la dettatura è accesa: **un processo per ogni pausa**, perché la dettatura è in tempo reale e la voce si taglia alle pause ([interfaccia/assistente/voce.ts](../src/interfaccia/assistente/voce.ts)) | [dati/dettatura.ts](../src/dati/dettatura.ts) → [dati/whisper.ts](../src/dati/whisper.ts) | nessun socket: è un processo figlio, con gli argomenti come vettore e `shell: false`; il percorso dev'essere un `.exe` assoluto ed esistente, mai uno script `.bat`; il WAV vive in una cartella temporanea cancellata nel `finally`, anche quando il programma fallisce, e i campioni si azzerano nello stesso `finally` — su tutti e due i lati del ponte, perché adesso di vettori ne passa uno per pausa |
-| `huggingface.co` e `github.com` | **niente**: nessun dato del registro, nemmeno una parola battuta. Indirizzi fissi, scritti per intero nel sorgente | la **prima** dettatura e la **prima** pagina scansionata di una macchina su cui quei programmi non ci sono ancora, e solo se `dettatura.scaricoAutomatico` / `ocr.scaricoAutomatico` sono accesi | [dati/corredo.ts](../src/dati/corredo.ts), con i pacchi in [corredoVoce.ts](../src/dati/corredoVoce.ts) e [corredoVista.ts](../src/dati/corredoVista.ts) | traffico in entrata, ed è quello che porta dentro **un eseguibile che verrà fatto partire**: versione di whisper.cpp fissata (`v1.9.2`, mai «l'ultima»), SHA-256 dell'intero file confrontato prima che prenda il nome definitivo, estrazione limitata a `whisper-cli.exe` e alle sue `.dll` con i nomi passati per `basename`. Quel che scende sta in una cartella dell'applicazione: niente installato, niente PATH, niente che sopravviva alla disinstallazione |
-| `tile.openstreetmap.org` | z, x, y del tassello — nessun dato del registro, ma la zona guardata è deducibile | aprendo la mappa | [guscio/tasselli.ts](../guscio/tasselli.ts) | richiesta fatta dal processo main, mai dalla pagina; cache in `userData/tasselli/`, non nella cartella del docente |
+| `nominatim.openstreetmap.org/search` | la sola riga di indirizzo, scomposta in via, civico, NAP, paese — senza nomi | solo premendo «Trova gli indirizzi» | [data/geocoding.ts](../src/data/geocoding.ts) | 1 richiesta ogni 1100 ms, User-Agent dichiarato, paesi limitati a `ch,it,de,fr,at`, tetto di 60 indirizzi per invocazione, risultato messo in cache per indirizzo e non per persona |
+| `smtp.office365.com:587` | **il messaggio intero**: destinatari, oggetto, corpo, allegati PDF — cioè nomi, indirizzi e documenti di persone | inviando una comunicazione, una consegna o un rapporto di assenze | [data/exchange.ts](../src/data/exchange.ts) | STARTTLS obbligatorio, `AUTH XOAUTH2`, indirizzi solo nella busta `RCPT TO` e mai in un header `Bcc:` |
+| `login.microsoftonline.com` | nessun dato del registro: solo il flusso OAuth | collegando la casella | [data/oauth.ts](../src/data/oauth.ts) | Authorization Code più PKCE S256 su loopback, `state` verificato, scope minimo `SMTP.Send offline_access` — Graph scartato apposta perché il permesso era troppo ampio |
+| nessuna destinazione — il modello gira **dentro il processo** | il PNG di una pagina scansionata e la domanda dell'assistente con quel che le letture rispondono: nomi, medie, assenze | leggendo le scansioni o conversando, se accesi | [data/ocr.ts](../src/data/ocr.ts) e [api/transports/assistant.ts](../src/api/transports/assistant.ts) → [data/llm.ts](../src/data/llm.ts) | **non escono dalla macchina**, e non perché sia configurato così: il modello è un file `.gguf` caricato in memoria, e non c'è nessuna richiesta di rete da dirottare (ADR-25) |
+| `huggingface.co` | solo le parole battute nella casella di ricerca dei modelli — mai un dato del registro | scaricando un modello dalla pagina «Modelli linguistici» | [data/huggingFace.ts](../src/data/huggingFace.ts) → [data/gguf.ts](../src/data/gguf.ts) | traffico in entrata: porta dentro dei pesi. Nessuna chiave, nessun conto; i depositi che chiedono di accettare condizioni non si scaricano |
+| nessuna rete — `whisper-cli.exe` sulla macchina | la voce di chi detta, in un WAV temporaneo: dentro ci sono i nomi che ha appena pronunciato | dettando una domanda all'assistente, se la dettatura è accesa: **un processo per ogni pausa**, perché la dettatura è in tempo reale e la voce si taglia alle pause ([ui/assistant/voice.ts](../src/ui/assistant/voice.ts)) | [data/dictation.ts](../src/data/dictation.ts) → [data/whisper.ts](../src/data/whisper.ts) | nessun socket: è un processo figlio, con gli argomenti come vettore e `shell: false`; il percorso dev'essere un `.exe` assoluto ed esistente, mai uno script `.bat`; il WAV vive in una cartella temporanea cancellata nel `finally`, anche quando il programma fallisce, e i campioni si azzerano nello stesso `finally` — su tutti e due i lati del ponte, perché adesso di vettori ne passa uno per pausa |
+| `huggingface.co` e `github.com` | **niente**: nessun dato del registro, nemmeno una parola battuta. Indirizzi fissi, scritti per intero nel sorgente | la **prima** dettatura e la **prima** pagina scansionata di una macchina su cui quei programmi non ci sono ancora, e solo se `dettatura.scaricoAutomatico` / `ocr.scaricoAutomatico` sono accesi | [data/kit.ts](../src/data/kit.ts), con i pacchi in [voiceKit.ts](../src/data/voiceKit.ts) e [visionKit.ts](../src/data/visionKit.ts) | traffico in entrata, ed è quello che porta dentro **un eseguibile che verrà fatto partire**: versione di whisper.cpp fissata (`v1.9.2`, mai «l'ultima»), SHA-256 dell'intero file confrontato prima che prenda il nome definitivo, estrazione limitata a `whisper-cli.exe` e alle sue `.dll` con i nomi passati per `basename`. Quel che scende sta in una cartella dell'applicazione: niente installato, niente PATH, niente che sopravviva alla disinstallazione |
+| `tile.openstreetmap.org` | z, x, y del tassello — nessun dato del registro, ma la zona guardata è deducibile | aprendo la mappa | [shell/protocol/tiles.ts](../shell/protocol/tiles.ts) | richiesta fatta dal processo main, mai dalla pagina; cache in `userData/tasselli/`, non nella cartella del docente |
 
 Oltre a queste, `openExternal` è ristretto agli schemi `http`, `https`,
-`mailto`, `tel` ([ambiente/comandi.ts](../src/ambiente/comandi.ts)), e i file
+`mailto`, `tel` ([environment/commands.ts](../src/environment/commands.ts)), e i file
 locali si aprono passando il percorso come argomento separato, mai come URL.
 
 **Correzione al README.** Il README afferma, alla riga 85, che «la mappa è
@@ -831,13 +832,13 @@ tocca sei collezioni in un colpo, è quella che ci va più vicino.
 **Il lock è cooperativo.** Vedi § 7: avvisa, non impedisce. Non esiste merge,
 esiste «chi salva per ultimo copre». L'unica difesa esplicita contro due
 finestre che si pestano i piedi è in
-[azioni/docenteClasse.ts](../src/azioni/docenteClasse.ts), in `assenze.salva`:
+[actions/classTeacher.ts](../src/actions/classTeacher.ts), in `assenze.salva`:
 se il blocco esiste già, **si tengono le righe del server e si ignorano quelle
 del client**, per non perdere fogli caricati o mail spedite nel frattempo. È un
 buon modello da copiare, non una regola generale del sistema.
 
 **Nessun timeout, nessuna idempotenza generale.** `invia()` in
-[ponte.ts](../src/interfaccia/ponte.ts) non ha watchdog: una richiesta senza
+[ponte.ts](../src/ui/bridge.ts) non ha watchdog: una richiesta senza
 risposta resta appesa per sempre. L'idempotenza è dichiarata caso per caso
 (`corso.crea`, `valutazione.daAttivita`, `orario.genera`) e per il resto è
 affidata al singolo gestore: un doppio clic non disabilitato è una questione di
@@ -851,31 +852,31 @@ disciplina del gestore, non del protocollo.
 
 Un solo file, [esbuild.mjs](../esbuild.mjs), che esporta due array:
 `applicazione` (i bundle veri) e `prove` (14 configurazioni per `node --test`,
-in `dist-prove/`). Flag: `--produzione` (minify, niente sourcemap), `--watch`,
+in `dist-tests/`). Flag: `--produzione` (minify, niente sourcemap), `--watch`,
 `--test`.
 
 | Entry point | Uscita | Formato | Note |
 |---|---|---|---|
-| `guscio/principale.ts` | `dist/principale.cjs` | cjs, node18 | alias `vscode` verso lo shim; `external: electron, koffi` |
-| `guscio/preload.ts` | `dist/preload.cjs` | cjs, node18 | `external: electron` |
-| `src/interfaccia/principale.ts` | `dist/pannello.js` più `.css` | iife, browser | l'app vera |
-| `src/interfaccia/proiezione.ts` | `dist/proiezione.js` più `.css` | iife, browser | bundle separato: alla classe non servono le viste del registro |
-| `src/interfaccia/assistenteFinestra.ts` | `dist/assistente.js` più `.css` | iife, browser | l'assistente staccato: stesso motivo, e non riceve il `Registro` — di tutto il documento sa due fatti |
-| `guscio/*.html` | `dist/*.html` | loader `copy` | devono stare in `dist/`: il protocollo concede una cartella sola |
-| `guscio/stile.css` | `dist/guscio.css` | css | `@import` verso il tema del pannello: una tavolozza per tutte le finestre |
+| `shell/main.ts` | `dist/main.cjs` | cjs, node18 | alias `apparato` verso `src/environment/platform.ts`; `external: electron, koffi` |
+| `shell/preload.ts` | `dist/preload.cjs` | cjs, node18 | `external: electron` |
+| `src/ui/main.ts` | `dist/panel.js` più `.css` | iife, browser | l'app vera |
+| `src/ui/projection.ts` | `dist/projection.js` più `.css` | iife, browser | bundle separato: alla classe non servono le viste del registro |
+| `src/ui/assistantWindow.ts` | `dist/assistant.js` più `.css` | iife, browser | l'assistente staccato: stesso motivo, e non riceve il `Registro` — di tutto il documento sa due fatti |
+| `shell/*.html` | `dist/*.html` | loader `copy` | devono stare in `dist/`: il protocollo concede una cartella sola |
+| `shell/pages/shared/base.css` | `dist/guscio.css` | css | `@import` verso il tema del pannello: una tavolozza per tutte le finestre |
 | `pdfjs-dist/.../pdf.worker.mjs` | `dist/pdf.worker.mjs` | esm | resta ESM per come pdfjs se lo aspetta |
 
 A build-time `verificaIdentita()` confronta l'`appId` di
 [electron-builder.json](../electron-builder.json) con la costante `IDENTITA`
-di [src/ambiente/notifiche.ts](../src/ambiente/notifiche.ts) e **fa fallire la
+di [src/environment/notifications.ts](../src/environment/notifications.ts) e **fa fallire la
 build** se divergono: l'AppUserModelID di Windows è scritto in due posti, e
 questo è il modo di non accorgersene troppo tardi.
 
-`strumenti/sviluppo.mjs` mette tutto in watch, **aspetta che ogni bundle abbia
+`tools/dev.mjs` mette tutto in watch, **aspetta che ogni bundle abbia
 finito il primo giro** prima di lanciare Electron — altrimenti si
 ricaricherebbe a raffica — e su rebuild o riavvia il processo (main, preload,
 worker) o lascia che le pagine si ricarichino da sole via
-[src/ambiente/sviluppo.ts](../src/ambiente/sviluppo.ts).
+[src/environment/dev.ts](../src/environment/dev.ts).
 
 ### TypeScript ed ESLint
 
@@ -883,7 +884,7 @@ worker) o lascia che le pagine si ricarichino da sole via
 `noImplicitOverride`, `noUnusedLocals`, `noUnusedParameters`,
 `noFallthroughCasesInSwitch`; `exactOptionalPropertyTypes` esplicitamente
 spento; `noEmit` — `tsc` serve solo a controllare i tipi
-(`npm run controllo-tipi`). `include` comprende anche `prove/`, perché due
+(`npm run typecheck`). `include` comprende anche `tests/`, perché due
 helper lì sono TypeScript e sarebbero altrimenti l'unico codice non
 controllato dal compilatore.
 
@@ -904,7 +905,7 @@ per chi non può installare. `fileAssociations` per `.registro`, con l'icona
 dell'eseguibile e un MIME proprio (`application/x-registro-docenti`): con
 `application/zip` su Linux il registro si proponeva per ogni archivio. **Nessuna firma del codice.**
 
-### Gli strumenti di `strumenti/`
+### Gli strumenti di `tools/`
 
 Non sono linter generici: codificano invarianti che né `tsc` né ESLint possono
 vedere, lavorando a regex sul sorgente e dicendo «da guardare a mano» quando
@@ -912,23 +913,23 @@ non sanno interpretare un caso, invece di tacere.
 
 | Comando | Che cosa trova | Perché conta |
 |---|---|---|
-| `npm run censimento` | export che nessuno consuma fuori dal proprio file | distingue «morto» da «non doveva essere export»; `noUnusedLocals` vede solo dentro-file |
-| `npm run collezioni` | `modifica(op, [...])` che non dichiara una collezione toccata | il bug peggiore del progetto: la UI è giusta, il salvataggio no. Esce con codice 1 |
-| `npm run pulsanti` | `pulsante`, `campo`, `controlloData` disegnati senza `al:` | un comando muto sembra funzionante |
-| `npm run moduli` | campi di un modulo il cui valore non viene letto in `alSalva` | un dato compilato e perso |
-| `npm run modelli` | rigenera `src/dati/modelliPredefiniti.ts` da `templates/` | i modelli di serie devono esserci prima che esista la cartella dell'utente |
-| `npm run campione` | rigenera `prove/campioni/2026-2027.registro` | l'unica prova che guarda indietro: la compatibilità di formato |
-| `npm run ripulisci` | cache e cartelle di sviluppo, per nome esatto | non tocca mai `impostazioni.json`, `segreti.json`, `documenti.json` |
+| `npm run census` | export che nessuno consuma fuori dal proprio file | distingue «morto» da «non doveva essere export»; `noUnusedLocals` vede solo dentro-file |
+| `npm run collections` | `modifica(op, [...])` che non dichiara una collezione toccata | il bug peggiore del progetto: la UI è giusta, il salvataggio no. Esce con codice 1 |
+| `npm run buttons` | `pulsante`, `campo`, `controlloData` disegnati senza `al:` | un comando muto sembra funzionante |
+| `npm run forms` | campi di un modulo il cui valore non viene letto in `alSalva` | un dato compilato e perso |
+| `npm run templates` | rigenera `src/data/defaultTemplates.ts` da `templates/` | i modelli di serie devono esserci prima che esista la cartella dell'utente |
+| `npm run sample` | rigenera `tests/samples/2026-2027.registro` | l'unica prova che guarda indietro: la compatibilità di formato |
+| `npm run clean` | cache e cartelle di sviluppo, per nome esatto | non tocca mai `impostazioni.json`, `segreti.json`, `documenti.json` |
 | `npm run icons` | rigenera `icons/icon.ico` e `icon.png` da `resources/registro.svg` | l'`.ico` è composto a mano, header binario compreso |
 
 ### Prove
 
 `node:test` nativo, nessun Jest, nessun Vitest. `npm test` è
-`node --test "prove/**/*.test.mjs"`, con `pretest` che ricostruisce
-`dist-prove/`. **79 file** di prove: 54 in `prove/dominio/`, 14 in
-`prove/ambiente/`, 10 in `prove/dati/`, 1 in `prove/interfaccia/`.
+`node --test "tests/**/*.test.mjs"`, con `pretest` che ricostruisce
+`dist-tests/`. **79 file** di prove: 54 in `tests/domain/`, 14 in
+`tests/environment/`, 10 in `tests/data/`, 1 in `tests/ui/`.
 
-L'Electron finto ([prove/aiuti/finto-electron.mjs](../prove/aiuti/finto-electron.mjs))
+L'Electron finto ([tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs))
 si inietta per alias esbuild e implementa `app`, `shell`, `dialog`,
 `BrowserWindow` con eventi veri, `ipcMain` con `simulaDallaPagina()`, `screen`
 con due schermi finti per provare la proiezione, `safeStorage`, `nativeTheme`.
@@ -936,7 +937,7 @@ Lo stato sta su `globalThis.__bancoElectron` perché lo shim, dentro il bundle,
 e la prova, che importa il file, sono due istanze del modulo.
 
 Fuori da `npm test`: due script **Playwright in Python**
-(`prove/interfaccia/navigazione.py` e `sfoglio.py`) che provano DOM vero,
+(`tests/ui/navigation.py` e `sfoglio.py`) che provano DOM vero,
 fuoco, drag&drop, dark mode e rendering pdfjs su Chromium headless,
 ricostruendo il bundle al volo e iniettando un finto `acquireVsCodeApi()`.
 Non sono dichiarati in `package.json` e vanno lanciati a mano.
@@ -953,7 +954,7 @@ invece di sparire: un debito cancellato dall'elenco è un debito che nessuno sa
 più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
 
 1. **Un canale IPC solo, multiplexato per stringa, senza schema.**
-   `registro:messaggio` ([guscio/preload.ts](../guscio/preload.ts)) porta
+   `registro:messaggio` ([shell/preload.ts](../shell/preload.ts)) porta
    cinque protocolli diversi, distinti da un discriminante nel payload. Ogni
    file reimplementa a mano il proprio type guard (`eRichiesta`, `eComando`,
    `eRisposta`) e il filtro per `sender.id`. *Conseguenza*: un refuso nel
@@ -969,13 +970,13 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
    `src/agenda.ts` ricontrollava a mano non c'è più.
 
 2. **~~Nessuna validazione di schema sulla busta delle azioni.~~ Pagato.**
-   *Era così*: [src/pannelli/pannello.ts](../src/pannelli/pannello.ts)
+   *Era così*: [src/panels/panel.ts](../src/panels/panel.ts)
    controllava solo `typeof richiesta.id === 'number' && richiesta.azione`, e
    oltre a quello la sola rete era `tipo in GESTORI`. Gli aggregati grandi
    passavano da `validaX()` di dominio, le mutazioni a campo si fidavano del
    tipo TypeScript. [src/agenda.ts](../src/agenda.ts) ricontrollava gli enum a
    mano proprio perché non si fidava del widget; i gestori di
-   [src/azioni/ore.ts](../src/azioni/ore.ts) no. La sicurezza dei payload era
+   [src/actions/hours.ts](../src/actions/hours.ts) no. La sicurezza dei payload era
    compile-time, e valeva finché i due lati erano compilati insieme — cosa che
    per il widget dell'agenda e per la riga di comando non è mai stata vera.
 
@@ -991,7 +992,7 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
    che non dichiara, quindi uno schema a cui manca un campo non romperebbe
    niente di visibile. L'azione risponderebbe «fatto» e quel campo smetterebbe
    semplicemente di arrivare. Per questo
-   [prove/api/copertura.test.mjs](../prove/api/copertura.test.mjs) legge
+   [tests/api/coverage.test.mjs](../tests/api/coverage.test.mjs) legge
    l'unione `Azione` dal sorgente e confronta **campo per campo** invece di
    contare le procedure. L'elenco degli stati dell'appello copiato in
    `src/agenda.ts` se n'è andato con il controllo che ora fa lo schema.
@@ -1001,34 +1002,34 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
    benvenuto, impostazioni, dialogo e agenda no.
 
 3. **Le 4 autorità `registro://` non hanno un tipo condiviso.** Lo `switch` in
-   [guscio/protocolloFile.ts](../guscio/protocolloFile.ts) e chi compone gli
-   URL (`asWebviewUri` in `finestre.ts`, `indirizzo()` in `dialoghi.ts`, le
+   [shell/protocol/fileProtocol.ts](../shell/protocol/fileProtocol.ts) e chi compone gli
+   URL (`asWebviewUri` in `windows.ts`, `indirizzo()` in `dialogs.ts`, le
    stringhe letterali nelle pagine HTML) non condividono niente.
    *Conseguenza*: un refuso nell'autorità o nel percorso si scopre solo a
    runtime, come un 403 o un 404 generico.
 
-4. **`GRUPPI` di [guscio/menu.ts](../guscio/menu.ts) si aggancia per etichetta
+4. **`GRUPPI` di [shell/windows/menu.ts](../shell/windows/menu.ts) si aggancia per etichetta
    stringa.** `menu.label === 'Registro'`, righe 226 e 241. *Conseguenza*:
    rinominando il gruppo nel manifesto, le voci «Apri…», «Recenti» e
    «Impostazioni…» spariscono senza un errore. `GRUPPI` duplica inoltre a mano
    l'elenco degli id-comando: un comando dimenticato finisce sotto «Altro» —
    non si perde, ma va mantenuto in parallelo a
-   [src/manifesto.ts](../src/manifesto.ts).
+   [src/manifest.ts](../src/manifest.ts).
 
 5. **Due canali di scrittura sullo stesso `Registro`.** La maggioranza dei
    gestori passa da `contesto.modifica`/`suVoce`/`nelFascicolo`, che timbrano e
    dichiarano le collezioni; alcuni chiamano `contesto.archivio.modifica`
    **direttamente** — `materia.salva` in
-   [azioni/registro.ts](../src/azioni/registro.ts), più `segnaInvio`,
+   [actions/register.ts](../src/actions/register.ts), più `segnaInvio`,
    `segnaComunicazione`, `comunicazione.spunta` e `assenze.spunta` in
-   [azioni/docenteClasse.ts](../src/azioni/docenteClasse.ts). *Conseguenza*:
+   [actions/classTeacher.ts](../src/actions/classTeacher.ts). *Conseguenza*:
    timbri e convenzioni non uniformi, e un punto in meno su cui
-   `npm run collezioni` può ragionare.
+   `npm run collections` può ragionare.
 
-6. **`useTrash:false` in [dati/archiviazione.ts](../src/dati/archiviazione.ts)
+6. **`useTrash:false` in [data/filing.ts](../src/data/filing.ts)
    riga 1115, contro `useTrash:true` altrove.** La migrazione cancella le
    cartelle sorgente **definitivamente**, mentre
-   [dati/anni.ts](../src/dati/anni.ts) e `contesto.elimina` passano dal
+   [data/years.ts](../src/data/years.ts) e `contesto.elimina` passano dal
    cestino. Attenuante reale: in entrambi i casi si cancellano solo cartelle
    verificate vuote da `togliSeVuota`. *Conseguenza*: se la verifica
    sbagliasse, non ci sarebbe un cestino da cui recuperare — asimmetria da
@@ -1045,25 +1046,25 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
 8. **`templates/LEGGIMI.md` e il README si contraddicono sulle cartelle dei
    documenti, e ha ragione LEGGIMI.** Il README (righe 1302-1303 e 1549)
    dichiara `archivio/` ed `esportazioni/` unificate in `documentazione/`; il
-   codice fa l'opposto: [collocazioni.ts](../src/dominio/collocazioni.ts)
+   codice fa l'opposto: [locations.ts](../src/domain/locations.ts)
    esporta `ARCHIVIO = 'archivio'` ed `ESPORTAZIONI = 'esportazioni'` come «le
    due radici della documentazione», e in
-   [archiviazione.ts](../src/dati/archiviazione.ts)
+   [filing.ts](../src/data/filing.ts)
    `VECCHIA_UNICA = 'documentazione'` è il **nome vecchio** che la migrazione
    ridivide nelle due radici. *Conseguenza*: chi segue il README costruisce
    percorsi che non esistono. Anche il messaggio all'utente in
-   [src/avvio.ts](../src/avvio.ts) dice ancora «rimessi in ordine sotto
+   [src/startup.ts](../src/startup.ts) dice ancora «rimessi in ordine sotto
    `documentazione/`».
 
 9. **Nessuna CI.** Non esiste `.github/workflows`, non ci sono hook
-   pre-commit. `controllo-tipi`, `controllo-stile`, `test` e i quattro
+   pre-commit. `typecheck`, `lint`, `test` e i quattro
    strumenti di analisi sono comandi da lanciare a mano. *Conseguenza*:
    l'efficacia degli strumenti dipende interamente dalla disciplina di chi
    sviluppa.
 
 10. **Il type-check è fuori da `npm test`.** `pretest` esegue solo
     `esbuild.mjs --test`, ed esbuild **scarta** i tipi senza controllarli.
-    *Conseguenza*: le prove possono passare mentre `npm run controllo-tipi`
+    *Conseguenza*: le prove possono passare mentre `npm run typecheck`
     fallisce. Lo stesso vale per ESLint, che non è legato a nessun altro
     comando.
 
@@ -1073,11 +1074,11 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
     pagina → preload → main → disco funzioni davvero.
 
 12. **Quattro timeout di sicurezza identici da 1000 ms**, copiati in
-    `benvenuto.ts`, `menu.ts`, `lettore.ts` e `dialoghi.ts`, per forzare
+    `welcome.ts`, `menu.ts`, `reader.ts` e `dialogs.ts`, per forzare
     `show()` se `ready-to-show` non arriva. Un helper solo li sostituirebbe.
 
 13. **Il client ID OAuth è quello pubblico di Microsoft «Graph Command Line
-    Tools»**, letterale in [dati/oauth.ts](../src/dati/oauth.ts). Funziona —
+    Tools»**, letterale in [data/oauth.ts](../src/data/oauth.ts). Funziona —
     client pubblico più PKCE non richiede segreto — ma lega la posta a un id di
     terze parti che Microsoft può deprecare senza avvisare il progetto.
 
@@ -1089,7 +1090,7 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
     su prosa.
 
     *Che cosa è cambiato*: sotto, adesso, un codice c'è.
-    [src/api/contratto.ts](../src/api/contratto.ts) dichiara otto `Codice` —
+    [src/api/contract.ts](../src/api/contract.ts) dichiara otto `Codice` —
     `ingresso-non-valido`, `non-trovato`, `rifiutato`, `conflitto`,
     `non-disponibile`, `procedura-sconosciuta`, `non-permesso`, `interno` —
     otto e non venti: uno in più si aggiunge quando qualcuno deve *reagire* in
@@ -1102,7 +1103,7 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
     nel giornale di ogni chiamata.
 
     *Che cosa resta*: la `Risposta` verso il pannello. `aEsitoAzione()` in
-    [src/api/nucleo.ts](../src/api/nucleo.ts) appiattisce il `Risultato` in
+    [src/api/core.ts](../src/api/core.ts) appiattisce il `Risultato` in
     `{ ok: false, errori }` e il codice si perde lì, per una ragione buona —
     non rompere la busta che il pannello legge già — e che smetterà di essere
     buona il giorno in cui una vista dovrà distinguere «non c'è più» da «non si
@@ -1118,37 +1119,37 @@ più perché c'era, e la prossima volta si rifà. Sono la voce 2 e la voce 14.
 
 | File | Responsabilità |
 |---|---|
-| [guscio/principale.ts](../guscio/principale.ts) | entry point del processo main: lock, `open-file`, orchestrazione dell'avvio, `before-quit` |
-| [guscio/preload.ts](../guscio/preload.ts) | il ponte: `acquireVsCodeApi()` e i due canali IPC. 29 righe che spiegano metà dell'architettura |
-| [guscio/protocolloFile.ts](../guscio/protocolloFile.ts) | `registro://` e le sue quattro autorità, con le difese contro il path traversal |
-| [guscio/menu.ts](../guscio/menu.ts) | menu nativo costruito da `COMANDI`, finestra Impostazioni di ripiego |
-| [src/ambiente/vscode-desktop.ts](../src/ambiente/vscode-desktop.ts) | lo shim: il contratto che tutto `src/` crede di usare |
-| [src/ambiente/finestre.ts](../src/ambiente/finestre.ts) | `createWebviewPanel` verso `BrowserWindow`, il `CANALE` e il filtro per `sender.id` |
-| [src/avvio.ts](../src/avvio.ts) | `avvia()`, `spegni()`, `creaPrimoAnno`, `chiudiDocumentoAperto` |
-| [src/manifesto.ts](../src/manifesto.ts) | 21 comandi e 26 impostazioni macchina: l'unica fonte di verità per chiavi, default e UI |
-| [src/protocollo.ts](../src/protocollo.ts) | il contratto host↔pannello: `Azione`, `Richiesta`, `Risposta`, i messaggi push, `Vista` |
-| [src/azioni.ts](../src/azioni.ts) | `GESTORI`, `azioneValida`, `esegui`, e l'aggancio alla rigenerazione dei PDF. Una riga sola sparge le 141 chiavi del ponte, e vince sulle altre |
-| [src/api/contratto.ts](../src/api/contratto.ts) | che cos'è una `Procedura`: `genere`, `idempotente`, `collezioni`, `azione`; i sette `Codice`; `Risultato`, `EsitoScrittura`, `VoceGiornale` |
-| [src/api/nucleo.ts](../src/api/nucleo.ts) | `chiama()`: convalida, esegue, cronometra, scrive nel giornale. Non lancia mai. `daGestore`, `aEsitoAzione` |
-| [src/api/schemi.ts](../src/api/schemi.ts) | gli schemi fatti in casa sul contratto `~standard`, più `entita()`: un'entità si convalida col validatore del dominio |
-| [src/api/ponte.ts](../src/api/ponte.ts) | `gestoriDelleProcedure()`: come una procedura prende il posto di un gestore senza che il pannello se ne accorga |
-| [src/azioni/contesto.ts](../src/azioni/contesto.ts) | `modifica`, `suVoce`, `nelFascicolo`, `elimina`: l'unica porta verso lo stato |
-| [src/pannelli/pannello.ts](../src/pannelli/pannello.ts) | coda seriale delle richieste, push dello stato, `avvisa` |
-| [src/pannelli/pagina.ts](../src/pannelli/pagina.ts) | l'HTML del webview e la sua CSP `default-src 'none'` |
-| [src/dati/archivio.ts](../src/dati/archivio.ts) | stato in memoria, write-behind, watcher, serratura, migrazioni |
-| [src/dati/pacchetto.ts](../src/dati/pacchetto.ts) | il documento `.registro`: accodamento, riscrittura, storico, serratura |
-| [src/dati/zip.ts](../src/dati/zip.ts) | lo ZIP scritto a mano su `node:zlib` |
-| [src/dati/deposito.ts](../src/dati/deposito.ts) | materializzazione dei binari fuori dal documento, con cache CRC32 |
-| [src/dominio/modelli.ts](../src/dominio/modelli.ts) | il modello dati e le sue convenzioni: `Iso`, `Ora`, `Istante`, annidare/riferire/copiare/derivare |
-| [src/dominio/validazione.ts](../src/dominio/validazione.ts) | `valida*` per i moduli, `normalizza*` che non lancia mai |
-| [src/dominio/calcoli.ts](../src/dominio/calcoli.ts) | unità didattiche, `contaComeAssenza`, medie, note di fine semestre |
-| [src/dominio/eliminazioni.ts](../src/dominio/eliminazioni.ts) | la cascata: calcolo puro più `applica` mutante |
-| [src/dominio/lessico.ts](../src/dominio/lessico.ts) | i termini della scuola con genere, plurale e preposizioni |
-| [src/interfaccia/stato.ts](../src/interfaccia/stato.ts) | l'unico stato del pannello e i suoi ~50 selettori |
-| [src/interfaccia/ponte.ts](../src/interfaccia/ponte.ts) | `invia`/`azione`: il solo punto in cui l'interfaccia attraversa il confine |
-| [src/interfaccia/comandi.ts](../src/interfaccia/comandi.ts) | `COMANDI_UI`: la superficie funzionale dell'app, 89 voci |
+| [shell/main.ts](../shell/main.ts) | entry point del processo main: lock, `open-file`, orchestrazione dell'avvio, `before-quit` |
+| [shell/preload.ts](../shell/preload.ts) | il ponte: `acquireVsCodeApi()` e i due canali IPC. 29 righe che spiegano metà dell'architettura |
+| [shell/protocol/fileProtocol.ts](../shell/protocol/fileProtocol.ts) | `registro://` e le sue quattro autorità, con le difese contro il path traversal |
+| [shell/windows/menu.ts](../shell/windows/menu.ts) | menu nativo costruito da `COMANDI`, finestra Impostazioni di ripiego |
+| [src/environment/platform.ts](../src/environment/platform.ts) | l'apparato: il modulo che tutto `src/` importa al posto di Electron |
+| [src/environment/windows.ts](../src/environment/windows.ts) | `createWebviewPanel` verso `BrowserWindow`, il `CANALE` e il filtro per `sender.id` |
+| [src/startup.ts](../src/startup.ts) | `avvia()`, `spegni()`, `creaPrimoAnno`, `chiudiDocumentoAperto` |
+| [src/manifest.ts](../src/manifest.ts) | 21 comandi e 26 impostazioni macchina: l'unica fonte di verità per chiavi, default e UI |
+| [src/protocol.ts](../src/protocol.ts) | il contratto host↔pannello: `Azione`, `Richiesta`, `Risposta`, i messaggi push, `Vista` |
+| [src/actions.ts](../src/actions.ts) | `GESTORI`, `azioneValida`, `esegui`, e l'aggancio alla rigenerazione dei PDF. Una riga sola sparge le 141 chiavi del ponte, e vince sulle altre |
+| [src/api/contract.ts](../src/api/contract.ts) | che cos'è una `Procedura`: `genere`, `idempotente`, `collezioni`, `azione`; i sette `Codice`; `Risultato`, `EsitoScrittura`, `VoceGiornale` |
+| [src/api/core.ts](../src/api/core.ts) | `chiama()`: convalida, esegue, cronometra, scrive nel giornale. Non lancia mai. `daGestore`, `aEsitoAzione` |
+| [src/api/schemas.ts](../src/api/schemas.ts) | gli schemi fatti in casa sul contratto `~standard`, più `entita()`: un'entità si convalida col validatore del dominio |
+| [src/api/bridge.ts](../src/api/bridge.ts) | `gestoriDelleProcedure()`: come una procedura prende il posto di un gestore senza che il pannello se ne accorga |
+| [src/actions/context.ts](../src/actions/context.ts) | `modifica`, `suVoce`, `nelFascicolo`, `elimina`: l'unica porta verso lo stato |
+| [src/panels/panel.ts](../src/panels/panel.ts) | coda seriale delle richieste, push dello stato, `avvisa` |
+| [src/panels/page.ts](../src/panels/page.ts) | l'HTML del webview e la sua CSP `default-src 'none'` |
+| [src/data/archive.ts](../src/data/archive.ts) | stato in memoria, write-behind, watcher, serratura, migrazioni |
+| [src/data/package.ts](../src/data/package.ts) | il documento `.registro`: accodamento, riscrittura, storico, serratura |
+| [src/data/zip.ts](../src/data/zip.ts) | lo ZIP scritto a mano su `node:zlib` |
+| [src/data/store.ts](../src/data/store.ts) | materializzazione dei binari fuori dal documento, con cache CRC32 |
+| [src/domain/models.ts](../src/domain/models.ts) | il modello dati e le sue convenzioni: `Iso`, `Ora`, `Istante`, annidare/riferire/copiare/derivare |
+| [src/domain/validation.ts](../src/domain/validation.ts) | `valida*` per i moduli, `normalizza*` che non lancia mai |
+| [src/domain/calculations.ts](../src/domain/calculations.ts) | unità didattiche, `contaComeAssenza`, medie, note di fine semestre |
+| [src/domain/deletions.ts](../src/domain/deletions.ts) | la cascata: calcolo puro più `applica` mutante |
+| [src/domain/lexicon.ts](../src/domain/lexicon.ts) | i termini della scuola con genere, plurale e preposizioni |
+| [src/ui/state.ts](../src/ui/state.ts) | l'unico stato del pannello e i suoi ~50 selettori |
+| [src/ui/bridge.ts](../src/ui/bridge.ts) | `invia`/`azione`: il solo punto in cui l'interfaccia attraversa il confine |
+| [src/ui/commands.ts](../src/ui/commands.ts) | `COMANDI_UI`: la superficie funzionale dell'app, 89 voci |
 | [eslint.config.mjs](../eslint.config.mjs) | gli strati, con la motivazione dentro il messaggio d'errore |
-| [esbuild.mjs](../esbuild.mjs) | i bundle, l'alias `vscode`, le verifiche a build-time |
+| [esbuild.mjs](../esbuild.mjs) | i bundle, l'alias `apparato`, le verifiche a build-time |
 
 ### Documenti accanto a questo
 

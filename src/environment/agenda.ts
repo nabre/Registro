@@ -374,6 +374,11 @@ function sistema (
     | { tipo: 'altezza', y: number }
     | { tipo: 'sposta', x: number, y: number },
 ): void {
+  // I numeri arrivano dalla pagina, per IPC: il tipo qui sopra è una promessa
+  // che nessuno ha controllato. Un `NaN` attraversava tutti i conti e finiva
+  // nelle impostazioni come colonna o come numero di celle.
+  if ('x' in comando && !Number.isFinite(comando.x)) return
+  if ('y' in comando && !Number.isFinite(comando.y)) return
   const cella = cellaIcone()
   const schermo = schermoFisico()
   const libero = posa instanceof WidgetLibero ? posa : null

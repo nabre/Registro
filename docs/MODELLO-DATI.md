@@ -6,12 +6,12 @@ Riferimento campo per campo del modello di dominio del **Registro docenti**.
 
 Sorgenti di verità:
 
-- [`../src/dominio/modelli.ts`](../src/dominio/modelli.ts) — le forme (1615 righe)
-- [`../src/dominio/validazione.ts`](../src/dominio/validazione.ts) — validazione e normalizzazione (2456 righe)
-- [`../src/dominio/fabbriche.ts`](../src/dominio/fabbriche.ts) — valori predefiniti (575 righe)
-- [`../src/dominio/indirizzi.ts`](../src/dominio/indirizzi.ts) — `Indirizzo`, riesportato da `modelli.ts`
-- [`../src/dominio/persistenza.ts`](../src/dominio/persistenza.ts) — come una collezione diventa testo
-- [`../src/dominio/lessico.ts`](../src/dominio/lessico.ts) — il vocabolario e il motore grammaticale
+- [`../src/domain/models.ts`](../src/domain/models.ts) — le forme (1615 righe)
+- [`../src/domain/validation.ts`](../src/domain/validation.ts) — validazione e normalizzazione (2456 righe)
+- [`../src/domain/factories.ts`](../src/domain/factories.ts) — valori predefiniti (575 righe)
+- [`../src/domain/addresses.ts`](../src/domain/addresses.ts) — `Indirizzo`, riesportato da `modelli.ts`
+- [`../src/domain/persistence.ts`](../src/domain/persistence.ts) — come una collezione diventa testo
+- [`../src/domain/lexicon.ts`](../src/domain/lexicon.ts) — il vocabolario e il motore grammaticale
 
 ## Indice
 
@@ -32,7 +32,7 @@ Sorgenti di verità:
 
 ### 1.1 I tre alias di tempo, e perché mai `Date`
 
-Dichiarati in testa a [`modelli.ts`](../src/dominio/modelli.ts) (righe 17–22), sono
+Dichiarati in testa a [`modelli.ts`](../src/domain/models.ts) (righe 17–22), sono
 tutti e tre `string`:
 
 | Alias | Forma | A che serve |
@@ -52,7 +52,7 @@ Conseguenze operative per un livello API:
   il round-trip attraverso un fuso diverso cambierebbe il giorno.
 - `Ora` è confrontabile con `<`/`>` **come stringa**: `'08:20' < '10:05'` è vero. È
   su questa proprietà che `unitaDidattiche`, `slotOrdinati` e `oraDaTenere` si reggono.
-- L'aritmetica di calendario sta tutta in [`date.ts`](../src/dominio/date.ts), che usa
+- L'aritmetica di calendario sta tutta in [`dates.ts`](../src/domain/dates.ts), che usa
   `Date` **solo internamente e sempre in UTC**, come contatore di giorni.
 - `oggi()`, `adesso()`, `istanteAdesso()` sono le **uniche** funzioni di dominio che
   leggono l'orologio. Tutto il resto del dominio riceve "oggi" come parametro esplicito.
@@ -72,7 +72,7 @@ Un esempio reale per ciascuno dei quattro casi:
 **Annidare — `Voto` dentro `MomentoValutazione`.**
 `MomentoValutazione.voti: Voto[]`. Un voto non ha id proprio, si identifica per
 `allievoId` dentro la prova, e non esiste se la prova non esiste. Cancellare il momento
-cancella i voti senza cascata: `eliminazioni.ts` per il bersaglio `valutazione` non
+cancella i voti senza cascata: `deletions.ts` per il bersaglio `valutazione` non
 scollega niente altrove, perché non c'è niente da scollegare.
 
 **Riferire — `Corso.classeId` → `Classe.id`.**
@@ -106,7 +106,7 @@ Due regole opposte che si compensano, ed è la coppia più importante per chi sc
   esiste. Una `nota` che a volte è `undefined` e a volte `''` sarebbe un `if` in ogni
   punto che la legge.
 - **Su disco** i campi vuoti non si scrivono: `senzaVuoti` in
-  [`persistenza.ts`](../src/dominio/persistenza.ts) toglie stringhe vuote e array vuoti.
+  [`persistence.ts`](../src/domain/persistence.ts) toglie stringhe vuote e array vuoti.
 
 Vedi [§8.4](#84-la-regola-di-persistenzats-senzavuoti) per l'invariante esatta.
 
@@ -114,8 +114,8 @@ Vedi [§8.4](#84-la-regola-di-persistenzats-senzavuoti) per l'invariante esatta.
 
 Tutti i riferimenti sono `string` (o `string | null`). TypeScript non li distingue da
 qualunque altra stringa: **non esiste una sola foreign key** in questo modello. La
-coerenza è tenuta da tre file distinti — `validazione.ts` (`riferimentiRotti`),
-`eliminazioni.ts` (cascata) e `orfani.ts`/`riparazioni.ts` (riconciliazione) — e nessuno
+coerenza è tenuta da tre file distinti — `validation.ts` (`riferimentiRotti`),
+`deletions.ts` (cascata) e `orphans.ts`/`repairs.ts` (riconciliazione) — e nessuno
 dei tre blocca: segnalano e vanno avanti. Vedi [§7](#7-integrità-referenziale).
 
 ---
@@ -304,7 +304,7 @@ leggibile con le regole con cui è stato scritto».
 
 **Chi valida/normalizza.** `normalizzaRegistro(grezzo)` — unico punto d'ingresso,
 **non lancia mai**: al peggio restituisce un registro vuoto. `registroVuoto()` in
-`fabbriche.ts` produce la forma iniziale. `riferimentiRotti(registro)` diagnostica.
+`factories.ts` produce la forma iniziale. `riferimentiRotti(registro)` diagnostica.
 
 ---
 
@@ -340,7 +340,7 @@ leggibile con le regole con cui è stato scritto».
 
 **Chi valida/normalizza.** `validaAnno(anno)`; `normalizzaAnno` (privata, chiamata da
 `normalizzaRegistro`) che passa il risultato per `annoAllineato()` di
-[`anni.ts`](../src/dominio/anni.ts) e sanifica `settimane` con `ordinaSettimane`.
+[`anni.ts`](../src/domain/years.ts) e sanifica `settimane` con `ordinaSettimane`.
 Fabbriche: `creaAnno(...)`, `creaAnnoCorrente()`.
 
 ---
@@ -360,7 +360,7 @@ Fabbriche: `creaAnno(...)`, `creaAnnoCorrente()`.
 **Invarianti.** «Nessuno lo cita per id — il semestre di una data si trova guardando
 dentro quali estremi cade»: **non esiste un `semestreId` in nessuna entità**.
 `numero` è riscritto da `normalizzaSemestri` in base all'indice (`indice === 0 ? 1 : 2`),
-quindi è ridondante rispetto all'ordine. `numeroSemestre()` di `date.ts` legge però la
+quindi è ridondante rispetto all'ordine. `numeroSemestre()` di `dates.ts` legge però la
 cifra dall'**etichetta** scritta dal docente, non dal campo `numero`, salvo che
 l'etichetta non cominci per cifra.
 
@@ -533,7 +533,7 @@ Fabbrica: `creaClasse(annoId, nome, coloriUsati)` con `coloreLibero()`.
 
 **Invarianti.**
 - `attivo: false` è un ritiro, **non** una cancellazione: «le lezioni passate lo citano
-  ancora». È l'alternativa non distruttiva proposta da `eliminazioni.ts`.
+  ancora». È l'alternativa non distruttiva proposta da `deletions.ts`.
 - `dataNascita` illeggibile diventa `''`, non resta com'è: «un `'23.05.2010'` arrivato da
   un incolla resterebbe scritto nell'anagrafica e uscirebbe come un trattino su ogni foglio».
 - Le tre e-mail sono validate solo **se presenti** (`validaAllievo`).
@@ -546,7 +546,7 @@ Fabbrica: `creaClasse(annoId, nome, coloriUsati)` con `coloreLibero()`.
 **Chi valida/normalizza.** `validaAllievo(allievo)`, `normalizzaAllievo` (privata).
 I telefoni passano per `normalizzaTelefoni(dati)`, che legge anche i due campi vecchi
 senza duplicare. Fabbrica: `creaAllievo(cognome, nome)`.
-Importazione da testo incollato: `leggiElencoAllievi()` in `importazione.ts`.
+Importazione da testo incollato: `leggiElencoAllievi()` in `importing.ts`.
 
 ---
 
@@ -574,16 +574,16 @@ Importazione da testo incollato: `leggiElencoAllievi()` in `importazione.ts`.
   nessun documento».
 
 **Chi valida/normalizza.** `normalizzaTelefoni(dati)` dentro `normalizzaAllievo`.
-[`telefoni.ts`](../src/dominio/telefoni.ts): `etichettaProposta`,
+[`phones.ts`](../src/domain/phones.ts): `etichettaProposta`,
 `etichettaInContraddizione` (segnala etichette sbagliate solo per numeri `+41`),
-`numeroComponibile`. `riparazioni.ts` riassegna le etichette contraddittorie.
+`numeroComponibile`. `repairs.ts` riassegna le etichette contraddittorie.
 Fabbrica: `creaTelefono(...)`.
 
 ---
 
 ### 3.11 `Indirizzo`
 
-Definito in [`indirizzi.ts`](../src/dominio/indirizzi.ts) e **riesportato** da
+Definito in [`addresses.ts`](../src/domain/addresses.ts) e **riesportato** da
 `modelli.ts` (riga 194).
 
 | campo | tipo | obbl. | significato |
@@ -606,8 +606,8 @@ Definito in [`indirizzi.ts`](../src/dominio/indirizzi.ts) e **riesportato** da
 - La normalizzazione accetta **anche una stringa**: un `Indirizzo` scritto come riga
   singola nei file vecchi passa per `leggiIndirizzo()` una volta sola.
 
-**Chi valida/normalizza.** `normalizzaIndirizzo(grezzo)` in `validazione.ts`;
-`leggiIndirizzo`/`scriviIndirizzo`/`chiaveIndirizzo` in `indirizzi.ts`.
+**Chi valida/normalizza.** `normalizzaIndirizzo(grezzo)` in `validation.ts`;
+`leggiIndirizzo`/`scriviIndirizzo`/`chiaveIndirizzo` in `addresses.ts`.
 
 ---
 
@@ -685,12 +685,12 @@ E-mail alla classe. `modelli.ts` righe 392–411.
   fra gli allievi **attivi**.
 - `destinatari` è una **copia congelata** post-invio: dice a chi è andata davvero.
 - `validaComunicazione` richiede oggetto, corpo, e almeno un gruppo di destinatari.
-- **Sempre in copia nascosta.** `comunicazioni.ts` mette gli indirizzi in Bcc/`ccn`,
+- **Sempre in copia nascosta.** `communications.ts` mette gli indirizzi in Bcc/`ccn`,
   mai in `To`: «una comunicazione alla classe non è una rubrica». `componiPerInvio`
   non scrive nemmeno l'header `Bcc:` — i nascosti vanno solo nella busta `RCPT TO`.
 
 **Chi valida/normalizza.** `validaComunicazione(comunicazione)`, `normalizzaComunicazione`.
-Composizione in [`comunicazioni.ts`](../src/dominio/comunicazioni.ts).
+Composizione in [`communications.ts`](../src/domain/communications.ts).
 Fabbrica: `creaComunicazione(fascicolo)`.
 
 ---
@@ -758,7 +758,7 @@ Il periodo: dal foglio stampato alla firma che torna. `modelli.ts` righe 512–5
 **Chi valida/normalizza.** `validaBloccoAssenze`, `normalizzaBloccoAssenze`.
 Fabbrica: `creaBloccoAssenze(dal, al, fascicolo?, etichetta?)`, che pre-seleziona i
 recapiti predefiniti e mette `CORPO_ASSENZE`.
-Logica in [`assenze.ts`](../src/dominio/assenze.ts).
+Logica in [`assenze.ts`](../src/domain/absences.ts).
 
 ---
 
@@ -803,7 +803,7 @@ una pratica chiusa».
 `TipoRapporto` sono due stampe distinte, non due colonne dello stesso foglio.
 
 **Chi valida/normalizza.** `normalizzaFoglioAssenze`. `TIPI_RAPPORTO` è **esportato** da
-`validazione.ts` («I due fogli di un periodo, nell'ordine in cui si guardano»).
+`validation.ts` («I due fogli di un periodo, nell'ordine in cui si guardano»).
 
 ---
 
@@ -925,13 +925,13 @@ Fabbrica: `creaSlot(inizio, durataMin, tipo = 'lezione')`.
 - `minuti: 0` è un ritardo di zero minuti che qualcuno ha battuto, ed è diverso da
   assente: `senzaVuoti` non lo toglie, e la normalizzazione lo distingue esplicitamente
   (`dati.minuti === undefined ? undefined : numero(dati.minuti, 0)`).
-- Le presenze esistono solo per chi ha una riga; `appelloDi()` in `agendaLezione.ts`
+- Le presenze esistono solo per chi ha una riga; `appelloDi()` in `agendaLesson.ts`
   costruisce le righe dagli **allievi attivi della classe**, non da `lezione.presenze`,
   «per non perdere un iscritto arrivato a metà anno».
 
 **Chi valida/normalizza.** `normalizzaPresenza(grezzo, quante)`.
 Fabbrica: `creaPresenza(...)`. Lettura: `statoUd`, `statiAllineati`, `statoDellOra` in
-[`calcoli.ts`](../src/dominio/calcoli.ts).
+[`calculations.ts`](../src/domain/calculations.ts).
 
 ---
 
@@ -982,10 +982,10 @@ Una casella della matrice del comportamento. `modelli.ts` righe 633–647.
   «Da migliorare» — stessa parola su schermo e su carta.
 - `aspetto` è il **valore** salvato di una `VoceLista`, non il testo mostrato: rinominare
   la voce non riscrive le celle.
-- La lettura aggregata (`osservate.ts`) **esclude le ore annullate**.
+- La lettura aggregata (`observations.ts`) **esclude le ore annullate**.
 
 **Chi valida/normalizza.** `normalizzaCellaOsservata` (ritorna `CellaOsservata | null`),
-`matriceLetta`. Lettura: [`osservate.ts`](../src/dominio/osservate.ts).
+`matriceLetta`. Lettura: [`observations.ts`](../src/domain/observations.ts).
 
 ---
 
@@ -1072,7 +1072,7 @@ Una tappa della scaletta. `modelli.ts` righe 770–814.
 - `parametri` si tiene **così com'è**: una chiave che il registro non prevede più non si
   butta, ma i valori che non sono `string`/`number`/`boolean` sì, «perché non saprebbero
   come mostrarsi» (`parametriPuliti`). L'elenco delle chiavi pertinenti per ogni tipo sta
-  in [`attivita.ts`](../src/dominio/attivita.ts); le chiavi non più previste restano nei
+  in [`activities.ts`](../src/domain/activities.ts); le chiavi non più previste restano nei
   dati e smettono di essere mostrate.
 - ⚠️ `raggruppamento` è dichiarato opzionale ma `normalizzaAttivita` **lo scrive sempre**
   (`unaVoce(…, 'plenaria')`): dopo un giro di lettura c'è sempre.
@@ -1173,7 +1173,7 @@ momento nasce quando la lezione si svolge.
 
 **Chi valida/normalizza.** `validaValutazione(momento)`, **`normalizzaValutazione(grezzo,
 corsoId)` — esportata**. Fabbrica: `creaValutazione(...)`.
-Diagnosi dei momenti scollegati: [`orfani.ts`](../src/dominio/orfani.ts).
+Diagnosi dei momenti scollegati: [`orphans.ts`](../src/domain/orphans.ts).
 
 ---
 
@@ -1233,8 +1233,8 @@ Tabella **supplementare**, non un secondo momento di valutazione.
 - **La dispensa è sempre esplicita**: «non si rinuncia mai da soli».
 
 **Chi valida/normalizza.** `normalizzaRecupero` (ritorna `RecuperoProva | null`),
-`recuperiDellaProva`. Logica in [`recuperi.ts`](../src/dominio/recuperi.ts).
-⚠️ Vedi [§10.3](#103-lacune-note): `eliminazioni.ts` non filtra `recuperi` quando si
+`recuperiDellaProva`. Logica in [`recuperi.ts`](../src/domain/retakes.ts).
+⚠️ Vedi [§10.3](#103-lacune-note): `deletions.ts` non filtra `recuperi` quando si
 cancella un allievo.
 
 ---
@@ -1346,7 +1346,7 @@ punto dell'intera cascata dell'allievo in cui si scollega un file invece di canc
 
 **Chi valida/normalizza.** `validaConsegna(consegna)`, **`normalizzaConsegna(grezzo)` —
 esportata**. Fabbrica: `creaConsegna(...)` con `CORPO_CONSEGNA`.
-Logica in [`consegne.ts`](../src/dominio/consegne.ts): `documentoPer()` (prima il file
+Logica in [`consegne.ts`](../src/domain/assignments.ts): `documentoPer()` (prima il file
 specifico dell'allievo, poi `fileTutti`), `daConsegnareA`, `senzaDocumento`.
 
 ---
@@ -1443,7 +1443,7 @@ Struttura di `assegnate[i]` (anonima, righe 1383–1400):
 
 **Chi valida/normalizza.** `normalizzaSmistamento` (privata), `destinazioneAssenze`.
 Fabbrica: `creaSmistamento(file, nome, pagine, consegnaId, classeId, divisione)`.
-Motore: [`smistamento.ts`](../src/dominio/smistamento.ts).
+Motore: [`smistamento.ts`](../src/domain/sorting.ts).
 
 ---
 
@@ -1506,7 +1506,7 @@ disegnerebbe un rettangolo che esce dall'immagine».
 **Invarianti.** Intervallo raddrizzato e arrotondato agli interi. `allievoId` collassa a
 `null` anche per la stringa vuota.
 ⚠️ `'a-mano'` è un `MotivoQuarantena` valido nel tipo ed è **prodotto** da
-`smistamento.ts`, ma **non compare** nell'elenco `MOTIVI_QUARANTENA` di `validazione.ts`:
+`smistamento.ts`, ma **non compare** nell'elenco `MOTIVI_QUARANTENA` di `validation.ts`:
 alla rilettura diventa `'senza-nome'`. Vedi [§10.3](#103-lacune-note).
 
 **Chi valida/normalizza.** `normalizzaBlocco` (privata).
@@ -1564,7 +1564,7 @@ Un indirizzo collocato sulla mappa. Perno **sull'indirizzo, non sulla persona**.
 
 **Chi valida/normalizza.** `normalizzaCoordinata` (ritorna `Coordinata | null`),
 `coordinateDellAnno(dati, classiGrezze)` che raccoglie anche i vecchi `allievo.geo` e
-`allievo.geoDatore`, una volta sola. `chiaveIndirizzo()` in `indirizzi.ts`.
+`allievo.geoDatore`, una volta sola. `chiaveIndirizzo()` in `addresses.ts`.
 
 ---
 
@@ -1602,8 +1602,8 @@ Un indirizzo collocato sulla mappa. Perno **sull'indirizzo, non sulla persona**.
   oraria cambiano fra un anno e l'altro».
 
 **Chi valida/normalizza.** **`normalizzaImpostazioni(grezzo)` — esportata**;
-`normalizzaListe` in [`liste.ts`](../src/dominio/liste.ts).
-Predefiniti: `IMPOSTAZIONI_PREDEFINITE` in `fabbriche.ts`.
+`normalizzaListe` in [`liste.ts`](../src/domain/lists.ts).
+Predefiniti: `IMPOSTAZIONI_PREDEFINITE` in `factories.ts`.
 
 ---
 
@@ -1629,7 +1629,7 @@ Predefiniti: `IMPOSTAZIONI_PREDEFINITE` in `fabbriche.ts`.
   del dominio con un'eccezione.
 
 **Chi valida/normalizza.** `normalizzaListe`, `vociDiLista`, `vociConValore`,
-`listaCambiata`, `testoDiVoce` in [`liste.ts`](../src/dominio/liste.ts).
+`listaCambiata`, `testoDiVoce` in [`liste.ts`](../src/domain/lists.ts).
 
 ---
 
@@ -1682,13 +1682,13 @@ lettura, da funzioni pure che ricevono `oggi`/`ora` come parametri.
 
 | Tipo | Dove | Valori | Chi lo calcola, e da che cosa |
 |---|---|---|---|
-| `StatoConsegna` | [`consegne.ts:326`](../src/dominio/consegne.ts) | `aperta`, `scade`, `arretrata`, `completa` | `statoConsegna(registro, consegna, classe, giorno)`. `completa` se `avanzamentoConsegna` dice che tutti i destinatari hanno spuntato; senza scadenza è `aperta`; scadenza = oggi → `scade`; scadenza < oggi → `arretrata` |
-| `StatoRecupero` | [`recuperi.ts:52`](../src/dominio/recuperi.ts) | `da-fissare`, `fissato`, `oggi`, `scaduto`, `fatto`, `dispensato` | `statoDelRecupero(registro, momento, allievoId, giorno)`. Dal voto (se c'è → `fatto`), dalla riga `RecuperoProva`, e da `assenteAllOra` che guarda `statoDellOra` sulla lezione collegata |
-| `StatoRiconsegna` | [`riconsegne.ts:34`](../src/dominio/riconsegne.ts) | `da-correggere`, `da-riconsegnare`, `riconsegnata` | Dai `Voto`: se mancano voti → `da-correggere`; se ci sono tutti ma non tutti i `riconsegnataIl` → `da-riconsegnare`; `riconsegnata` solo quando l'ultimo foglio individuale è tornato |
-| `FaseAssenze` | [`assenze.ts:90`](../src/dominio/assenze.ts) | `fuori`, `da-spedire`, `in-attesa`, `firmato` | `faseRiga(riga)`. Da `FoglioAssenze` (vergini vs firmati) e da `InvioAssenze`. Ordine di fase rigido: senza foglio vergine non c'è niente da mandare |
-| `FaseOra` | [`cruscotto.ts:140`](../src/dominio/cruscotto.ts) | `annullata`, `in-corso`, `da-chiudere`, `svolta`, `da-preparare`, `futura` | `faseDellOra(registro, lezione, oggi, ora)`. Distinta **sia** da `lezione.stato` dichiarato **sia** da `statoDellOra` per-allievo |
-| `MotivoOrfano` | [`orfani.ts:25`](../src/dominio/orfani.ts) ⚠️ non esportato | `senza-piano`, `senza-tappa`, `piano-sparito`, `tappa-sparita`, `tappa-non-valuta` | `motivoOrfano(registro, momento)`. Verifica in ordine e ritorna il **primo** motivo che spiega la rottura — «un piano sparito spiega già tutto» |
-| `StatoAgenda` | [`agenda.ts:79`](../src/dominio/agenda.ts) ⚠️ non esportato | `ok`, `senza-registro`, `prima-dell-anno`, `dopo-l-anno` | Dalla settimana richiesta confrontata con `intervalloAnno`. Distingue **perché** una settimana è vuota |
+| `StatoConsegna` | [`consegne.ts:326`](../src/domain/assignments.ts) | `aperta`, `scade`, `arretrata`, `completa` | `statoConsegna(registro, consegna, classe, giorno)`. `completa` se `avanzamentoConsegna` dice che tutti i destinatari hanno spuntato; senza scadenza è `aperta`; scadenza = oggi → `scade`; scadenza < oggi → `arretrata` |
+| `StatoRecupero` | [`recuperi.ts:52`](../src/domain/retakes.ts) | `da-fissare`, `fissato`, `oggi`, `scaduto`, `fatto`, `dispensato` | `statoDelRecupero(registro, momento, allievoId, giorno)`. Dal voto (se c'è → `fatto`), dalla riga `RecuperoProva`, e da `assenteAllOra` che guarda `statoDellOra` sulla lezione collegata |
+| `StatoRiconsegna` | [`riconsegne.ts:34`](../src/domain/returns.ts) | `da-correggere`, `da-riconsegnare`, `riconsegnata` | Dai `Voto`: se mancano voti → `da-correggere`; se ci sono tutti ma non tutti i `riconsegnataIl` → `da-riconsegnare`; `riconsegnata` solo quando l'ultimo foglio individuale è tornato |
+| `FaseAssenze` | [`assenze.ts:90`](../src/domain/absences.ts) | `fuori`, `da-spedire`, `in-attesa`, `firmato` | `faseRiga(riga)`. Da `FoglioAssenze` (vergini vs firmati) e da `InvioAssenze`. Ordine di fase rigido: senza foglio vergine non c'è niente da mandare |
+| `FaseOra` | [`cruscotto.ts:140`](../src/domain/dashboard.ts) | `annullata`, `in-corso`, `da-chiudere`, `svolta`, `da-preparare`, `futura` | `faseDellOra(registro, lezione, oggi, ora)`. Distinta **sia** da `lezione.stato` dichiarato **sia** da `statoDellOra` per-allievo |
+| `MotivoOrfano` | [`orfani.ts:25`](../src/domain/orphans.ts) ⚠️ non esportato | `senza-piano`, `senza-tappa`, `piano-sparito`, `tappa-sparita`, `tappa-non-valuta` | `motivoOrfano(registro, momento)`. Verifica in ordine e ritorna il **primo** motivo che spiega la rottura — «un piano sparito spiega già tutto» |
+| `StatoAgenda` | [`agenda.ts:79`](../src/domain/agenda.ts) ⚠️ non esportato | `ok`, `senza-registro`, `prima-dell-anno`, `dopo-l-anno` | Dalla settimana richiesta confrontata con `intervalloAnno`. Distingue **perché** una settimana è vuota |
 
 ### 5.1 Perché non stanno nel file
 
@@ -1722,12 +1722,12 @@ scrivere N `SpuntaConsegna`.
 
 ## 6. Le regole di calcolo che l'API deve rispettare
 
-Tutto in [`calcoli.ts`](../src/dominio/calcoli.ts) e
-[`matriceCorso.ts`](../src/dominio/matriceCorso.ts) — puro, nessun I/O.
+Tutto in [`calculations.ts`](../src/domain/calculations.ts) e
+[`courseMatrix.ts`](../src/domain/courseMatrix.ts) — puro, nessun I/O.
 
 ### 6.1 Unità didattiche e `MINUTI_UD`
 
-`MINUTI_UD = 45` ([`date.ts:199`](../src/dominio/date.ts)).
+`MINUTI_UD = 45` ([`date.ts:199`](../src/domain/dates.ts)).
 
 `unitaDidattiche(lezione)` spezza **solo gli slot di tipo `lezione`** (mai le pause) in
 fette da 45 minuti, con l'ultima più corta se il totale non è multiplo esatto: «meglio
@@ -1818,7 +1818,7 @@ Entrambe clampano dentro `[scala.min, scala.max]`.
 `passoFineSemestre <= 0` **restituisce la media non arrotondata**: «c'è chi la nota la
 scrive a mano guardando il numero esatto».
 
-### 6.6 I tre denominatori di `matriceCorso.ts`
+### 6.6 I tre denominatori di `courseMatrix.ts`
 
 Il punto più delicato dell'intero modello. Tre grandezze che l'API **non deve mai
 confondere né fondere in un numero solo**:
@@ -1844,7 +1844,7 @@ Perché la differenza conta:
   quando si fanno più ore del previsto» (recuperi, supplenze).
 
 Il conteggio è **uno solo**: la matrice a schermo, il rapporto stampato, il CSV
-(`csvPresenze`) e le segnalazioni leggono tutti la stessa riga. Il commento in `calcoli.ts`
+(`csvPresenze`) e le segnalazioni leggono tutti la stessa riga. Il commento in `calculations.ts`
 racconta perché: c'era una `statisticheAllievo` che rifaceva i conti «con un denominatore
 diverso, e il foglio di calcolo delle presenze diceva una percentuale che il PDF della
 stessa classe non confermava».
@@ -1855,7 +1855,7 @@ stessa classe non confermava».
 
 ### 6.7 Soglia di segnalazione e `confermata`
 
-[`segnalazioni.ts`](../src/dominio/segnalazioni.ts):
+[`alerts.ts`](../src/domain/alerts.ts):
 
 ```ts
 export function oltreSoglia (soglia: number, quota: number | null): boolean {
@@ -1881,7 +1881,7 @@ Nessuna foreign key nel type system. Tre meccanismi distinti, nessuno bloccante.
 
 ### 7.1 Tabella riferimento → bersaglio → chi lo controlla
 
-| Riferimento | Bersaglio | `riferimentiRotti` | `eliminazioni.ts` | `riparazioni.ts` |
+| Riferimento | Bersaglio | `riferimentiRotti` | `deletions.ts` | `repairs.ts` |
 |---|---|---|---|---|
 | `Classe.annoId` | `AnnoScolastico.id` | ✅ «punta a un anno inesistente» | cascata da `anno` | — |
 | `Corso.classeId` | `Classe.id` | ✅ | cascata da `classe` | — |
@@ -1893,7 +1893,7 @@ Nessuna foreign key nel type system. Tre meccanismi distinti, nessuno bloccante.
 | `MomentoValutazione.corsoId` | `Corso.id` | ✅ + data in un semestre + voti di iscritti | cascata da `corso` | ✅ scollega se il corso della lezione discorda |
 | `MomentoValutazione.lezioneId` | `Lezione.id` | ✅ + stesso corso + triangolo con `pianoId` | → `null` (il momento resta) | ✅ scollega, **i voti non si toccano mai** |
 | `MomentoValutazione.pianoId` | `PianoLezione.id` | ✅ | → `null` | ✅ scollega |
-| `MomentoValutazione.attivitaId` | `Attivita.id` | — (diagnosticato da `orfani.ts`) | — | — |
+| `MomentoValutazione.attivitaId` | `Attivita.id` | — (diagnosticato da `orphans.ts`) | — | — |
 | `Voto.allievoId` | `Allievo.id` | ✅ «voti di persone non iscritte» | **cancellato** | — |
 | `RecuperoProva.allievoId` | `Allievo.id` | — | ⚠️ **non toccato** (vedi §10.3) | — |
 | `Allegato.allievoId` | `Allievo.id` | — | **scollegato** (`null`), il file resta | — |
@@ -1916,14 +1916,14 @@ Nessuna foreign key nel type system. Tre meccanismi distinti, nessuno bloccante.
   l'interfaccia. «Non è un errore bloccante — l'interfaccia lo segnala e va avanti.»
   Copre anche due regole che nessun tipo sa esprimere: **un corso per coppia** e
   **il triangolo momento–lezione–piano**.
-- **`eliminazioni.ts`** — `eliminazione(registro, bersaglio)` è **pura**: calcola e
+- **`deletions.ts`** — `eliminazione(registro, bersaglio)` è **pura**: calcola e
   descrive l'effetto (`perdite`, `staccati`, `file`, `collezioni`, `invece`) e
   restituisce una closure `applica(registro): void` che muta in place **solo se
   invocata**. Separa «cosa succederebbe» (UI di conferma) da «farlo succedere», con un
   solo calcolo condiviso.
-- **`orfani.ts`** — diagnosi, mai correzione automatica, dei momenti scollegati dalla
+- **`orphans.ts`** — diagnosi, mai correzione automatica, dei momenti scollegati dalla
   tappa che li ha prodotti. «La decisione se scollegare o buttare resta a un umano.»
-- **`riparazioni.ts`** — `riparazioni(registro): Riparazione[]`, **sette** proposte, una
+- **`repairs.ts`** — `riparazioni(registro): Riparazione[]`, **sette** proposte, una
   per una, applicabili dopo conferma, mai in silenzio. Ogni `applica` è **idempotente**:
   ricontrolla la condizione al momento, non si fida dello snapshot. Principio guida: si
   propone solo ciò che **non perde dati**.
@@ -2082,7 +2082,7 @@ intera si porterebbe via anche quelli».
 ### 8.1 Le dieci collezioni
 
 `Collezione` (`modelli.ts:1605`) enumera i dieci file JSON; la mappa nome → file sta in
-`NOMI` di [`../src/dati/percorsi.ts`](../src/dati/percorsi.ts).
+`NOMI` di [`../src/data/paths.ts`](../src/data/paths.ts).
 
 | Collezione | File | Che cosa contiene |
 |---|---|---|
@@ -2120,7 +2120,7 @@ Tutto questo vive dentro un unico file ZIP `<anno>.registro`, accanto a `manifes
 Prima: la materia era scritta sulla classe; anno e classe su ogni lezione; il semestre su
 ogni valutazione; il piano portava anno e classe. Dopo: un'entità sola per
 l'insegnamento — il `Corso`, classe + materia — e il resto si ricava.
-La classe `Migrazione` in `validazione.ts` (riga 1586, **non esportata**) fa da hub
+La classe `Migrazione` in `validation.ts` (riga 1586, **non esportata**) fa da hub
 perché «i passaggi si parlano fra loro: le materie ricavate dalle classi servono ai
 corsi, i corsi servono alle lezioni, e le lezioni alle valutazioni». Crea materie al volo
 dal testo libero scritto sulla classe, ricava un corso per coppia, e fa nascere una
@@ -2133,7 +2133,7 @@ Il `semestre` salvato si **butta**: «lo dice già la data».
 I nove JSON, che stavano tutti insieme nella radice con dentro gli anni mescolati, si
 spostano in `<anno>/dati/`; documentazione, cassetta e allegati seguono la loro classe
 nell'anno a cui appartengono. In radice resta un `registro.json` che dice soltanto quale
-anno si sta usando. Lo spostamento lo fa `migraAnni()` in `../src/dati/anni.ts`, una
+anno si sta usando. Lo spostamento lo fa `migraAnni()` in `../src/data/years.ts`, una
 volta sola, alla prima apertura.
 
 **Non esiste una catena `migraV1 → migraV2 → migraV3`.** C'è un **normalizzatore unico e
@@ -2155,7 +2155,7 @@ i testi di serie della lettera assenze → `{tipi}`/`{rapporti}`.
 ### 8.3 `VERSIONE_PACCHETTO = 1`
 
 Versione del **formato contenitore ZIP**, privata in
-[`../src/dati/pacchetto.ts`](../src/dati/pacchetto.ts) (riga 97). È **indipendente** da
+[`../src/data/package.ts`](../src/data/package.ts) (riga 97). È **indipendente** da
 `VERSIONE_DATI`. Costanti correlate: `ESTENSIONE = '.registro'`,
 `FORMATO = 'registro-docenti/anno'`, `MANIFESTO = 'manifesto.json'`.
 
@@ -2166,9 +2166,9 @@ Le due versioni rispondono a due domande diverse: *«so leggere questa scatola?�
 (pacchetto, e se no si ferma) e *«so leggere questo contenuto?»* (dati, e se è vecchio lo
 si normalizza, se è nuovo lo si degrada senza morire).
 
-### 8.4 La regola di `persistenza.ts` (`senzaVuoti`)
+### 8.4 La regola di `persistence.ts` (`senzaVuoti`)
 
-[`persistenza.ts`](../src/dominio/persistenza.ts), 61 righe, una funzione sola:
+[`persistence.ts`](../src/domain/persistence.ts), 61 righe, una funzione sola:
 
 ```ts
 function senzaVuoti (this: unknown, _chiave: string, valore: unknown): unknown {
@@ -2200,7 +2200,7 @@ buchi.» Il controllo `Array.isArray(this)` guarda **chi contiene**, non solo il
 > «Quel che si toglie deve essere esattamente quel che la normalizzazione rimette.
 > Un campo tolto che torna diverso non è un file più piccolo, è un dato perso.»
 
-Verificata da `prove/dominio/persistenza.test.mjs` **sul registro intero**, non su un
+Verificata da `tests/domain/persistence.test.mjs` **sul registro intero**, non su un
 esempio scelto bene.
 
 Le due regole sono deliberatamente opposte e si compensano:
@@ -2235,8 +2235,8 @@ L'indentazione costa il trenta per cento e vale quel che costa.»
 
 ## 9. Il lessico
 
-[`lessico.ts`](../src/dominio/lessico.ts), 633 righe. È l'unico modulo che
-[`indice.ts`](../src/dominio/indice.ts) riesporta **come namespace**
+[`lexicon.ts`](../src/domain/lexicon.ts), 633 righe. È l'unico modulo che
+[`indice.ts`](../src/domain/index.ts) riesporta **come namespace**
 (`export * as lessico from './lessico.js'`) e non con `export *`: le sue funzioni hanno
 nomi cortissimi — `il`, `i`, `un`, `del`, `con`, `al`, `ai` — che collidono nel barrel
 globale.
@@ -2346,9 +2346,9 @@ carattere che il PDF non sa scrivere diventa un punto interrogativo»), `TIPI_AT
 `ETICHETTE_TELEFONO`, `DOCUMENTO_SCHEDE` e `DOCUMENTO_SCHEDE_PRIMA`.
 
 Tredici file di dominio importano da `lessico.js`. Il pattern osservato: chi **genera
-testo verso l'utente** (`validazione.ts`, `eliminazioni.ts`, `assenze.ts`,
-`datiRapporti.ts`) importa le funzioni linguistiche più i `Termine` che cita; chi
-**gestisce enum** (`liste.ts`, `attivita.ts`, `calcoli.ts`, `telefoni.ts`) importa i
+testo verso l'utente** (`validation.ts`, `deletions.ts`, `assenze.ts`,
+`reportData.ts`) importa le funzioni linguistiche più i `Termine` che cita; chi
+**gestisce enum** (`liste.ts`, `activities.ts`, `calculations.ts`, `phones.ts`) importa i
 dizionari `Record<Enum, string>` come tabelle di traduzione.
 
 Esempi reali dal codice:
@@ -2379,8 +2379,8 @@ solo in **uscita**, attraverso i dizionari `Record<Enum, string>` — mai in ing
 **2. I segnaposto dei modelli di stampa e di posta.**
 `{allievo}`, `{classe}`, `{documento}`, `{periodo}`, `{rapporti}`, `{tipi}`,
 `{{titolo}}`, `{{anno}}` sono **chiavi letterali** di `compilaModello()`
-([`testo.ts`](../src/dominio/testo.ts)), scritte a mano in
-[`assenze.ts`](../src/dominio/assenze.ts) e [`consegne.ts`](../src/dominio/consegne.ts),
+([`text.ts`](../src/domain/text.ts)), scritte a mano in
+[`assenze.ts`](../src/domain/absences.ts) e [`consegne.ts`](../src/domain/assignments.ts),
 e ribattute dal docente dentro i suoi modelli in `templates/`. Se il lessico le
 traducesse, ogni modello già scritto — e ogni testo di `BloccoAssenze.corpo` già salvato
 dentro un registro — smetterebbe di essere compilato: `compilaModello` lascia **visibili**
@@ -2391,7 +2391,7 @@ parola dell'interfaccia.
 **3. I nomi delle cartelle su disco.**
 `ARCHIVIO = 'archivio'`, `ESPORTAZIONI = 'esportazioni'`, `DI_CLASSE = 'classe'`,
 `DEGLI_ALLIEVI = 'allievi'` sono costanti letterali in
-[`collocazioni.ts`](../src/dominio/collocazioni.ts) — che pure **importa** dal lessico
+[`locations.ts`](../src/domain/locations.ts) — che pure **importa** dal lessico
 (`DOCUMENTO_SCHEDE`, `DOCUMENTO_SCHEDE_PRIMA`), quindi la scelta è consapevole e non una
 dimenticanza. Un nome di cartella non è un'etichetta: è un percorso scritto dentro ogni
 `file`/`foto`/`anteprima` già salvato nelle collezioni. Cambiarlo dal lessico
@@ -2479,9 +2479,9 @@ osservazioni, non correzioni: nessun file del progetto è stato modificato.
    diventa `'senza-nome'`.
 
 3. **La cascata dell'allievo non filtra `MomentoValutazione.recuperi`.** In
-   `eliminazioni.ts` il ramo `allievo` cancella `momento.voti`, scollega
+   `deletions.ts` il ramo `allievo` cancella `momento.voti`, scollega
    `momento.allegati`, e non nomina mai `momento.recuperi`: le righe con l'`allievoId`
-   cancellato restano. La stringa `recuperi` non compare in tutto `eliminazioni.ts`.
+   cancellato restano. La stringa `recuperi` non compare in tutto `deletions.ts`.
 
 4. **`senzaVuoti` non toglie gli oggetti vuoti**: `"liste": {}` viene scritto su disco.
    Innocuo, ma vale la pena saperlo prima di misurare la dimensione dei file.
@@ -2508,10 +2508,10 @@ Tutte oggi affidate alla sola interfaccia, o segnalate senza bloccare:
 9. **`stati.length === contaUd(lezione)`** su ogni scrittura di appello.
 10. **Scritture concentrate**: gli unici punti di mutazione del dominio sono
     `scriviFoglioAssenze`/`togliFoglioAssenze` in `assenze.ts` e le closure `applica` di
-    `eliminazioni.ts`/`riparazioni.ts`. Tutto il resto — validazione, calcolo, proiezione,
+    `deletions.ts`/`repairs.ts`. Tutto il resto — validazione, calcolo, proiezione,
     rapporti — è puro e idempotente, e va esposto come query.
 11. **Percorsi derivati, mai arbitrari**: un `file` accettato da un endpoint deve rientrare
-    nello schema di `collocazioni.ts` (`archivio/<ambito>/<classe>/(classe|allievi/<nome>)/…`
+    nello schema di `locations.ts` (`archivio/<ambito>/<classe>/(classe|allievi/<nome>)/…`
     o l'equivalente in `esportazioni/`), mai un percorso libero.
 12. **Nessuna autorizzazione nel dominio**: oggi qualunque funzione con `applica(registro)`
     presuppone pieno accesso in scrittura a tutto il registro. Un livello multiutente va

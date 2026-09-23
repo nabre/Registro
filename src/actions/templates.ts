@@ -53,7 +53,7 @@ import {
 import { componiPdf } from '../data/reportsPdf.js'
 import type { NomiModello } from '../protocol.js'
 import { immagineDelRapporto } from './reports.js'
-import { conMessaggio, rifiuta, rifiutaCon, scegliUnFile, type Parte } from './context.js'
+import { conMessaggio, motivoSicuro, rifiuta, rifiutaCon, scegliUnFile, type Parte } from './context.js'
 
 /**
  * Com'è andata a una delle due letture qui sotto.
@@ -134,7 +134,7 @@ export async function provaModello (
     const byte = await componiPdf(impaginazione, dati, immagineDelRapporto)
     return { ok: true, dati: { pdf: Buffer.from(byte).toString('base64'), di: prova.di } }
   } catch (errore) {
-    return { ok: false, errore: `L’anteprima non si è composta: ${(errore as Error).message}` }
+    return { ok: false, errore: `L’anteprima non si è composta: ${motivoSicuro(errore)}` }
   }
 }
 

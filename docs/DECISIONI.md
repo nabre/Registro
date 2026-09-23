@@ -83,13 +83,13 @@ form, messaggi di validazione, intestazioni PDF, guida. Cambiare una parola
 voleva dire cercarla in tutta l'app e sperare di non perderne una.
 
 **Decisione.** Tutti i termini di dominio (singolare, plurale, genere, forma
-breve) vivono in `src/dominio/lessico.ts`: una tabella dati (`Termine {
+breve) vivono in `src/domain/lexicon.ts`: una tabella dati (`Termine {
 singolare, plurale, genere, breve? }`) più un piccolo motore di regole
 italiane (articoli, preposizioni articolate, accordo del participio) che
 compone le frasi invece di scriverle a mano.
 
 **Conseguenze.** Cambiare una parola è una riga; frasi, etichette,
-intestazioni PDF/CSV si riallineano da sole. `lessico.ts` non fa prosa
+intestazioni PDF/CSV si riallineano da sole. `lexicon.ts` non fa prosa
 libera: le frasi lunghe della guida restano scritte a mano altrove.
 Esplicitamente **fuori** dal lessico, e quindi non toccati da un cambio di
 terminologia: identificatori di codice, segnaposto dei modelli, nomi di
@@ -98,12 +98,12 @@ cartelle su disco.
 **Vincoli che ne derivano.** Un nuovo termine ricorrente va aggiunto qui, non
 scritto a mano altrove. Il plurale è sempre scritto a mano nella tabella,
 mai calcolato ("unità"→"unità", "persona"→"persone": l'italiano non ha una
-regola unica). `lessico.ts` è l'unico modulo riesportato come namespace da
-`src/dominio/indice.ts` (`export * as lessico`) perché le sue funzioni hanno
+regola unica). `lexicon.ts` è l'unico modulo riesportato come namespace da
+`src/domain/index.ts` (`export * as lessico`) perché le sue funzioni hanno
 nomi cortissimi (`il`, `i`, `un`, `del`, `con`) che altrimenti colliderebbero
 nel barrel globale — un refactor del barrel deve preservare questa eccezione.
 
-**Dove vive.** `src/dominio/lessico.ts`.
+**Dove vive.** `src/domain/lexicon.ts`.
 
 ---
 
@@ -114,7 +114,7 @@ ospite (Electron: finestre, dialoghi, filesystem, impostazioni,
 portachiavi), per poter testare il dominio senza aprire una finestra.
 
 **Decisione.** Il dominio e l'interfaccia importano un modulo `vscode`
-fittizio (`src/ambiente/vscode-desktop.ts`), risolto tramite alias esbuild e
+fittizio (allora `vscode-desktop.ts`, oggi `src/environment/platform.ts`), risolto tramite alias esbuild e
 `paths` di TypeScript al posto del vero pacchetto `vscode`. Espone gli stessi
 namespace (`workspace`, `window`, `commands`, `env`) più funzioni proprie non
 presenti nel vero VS Code (`scriviDa`, `radiciConcesse`, `applicaTema`, ecc.).
@@ -124,15 +124,16 @@ compila e gira in `npm test` senza aprire finestre. Il prezzo è mantenere un
 "finto VS Code" sincronizzato con quel che l'app realmente usa — un'API mai
 richiamata può restare morta a lungo senza che nessuno se ne accorga.
 
-**Vincoli che ne derivano.** `src/ambiente/` e `guscio/` sono gli **unici**
+**Vincoli che ne derivano.** `src/environment/` e `shell/` sono gli **unici**
 due posti dove Electron si può nominare — imposto non a parole ma da regole
-ESLint `no-restricted-imports` (vedi §4, confini fra strati). `src/dati/`,
-`src/azioni/`, `src/pannelli/` non possono importare `electron` direttamente:
+ESLint `no-restricted-imports` (vedi §4, confini fra strati). `src/data/`,
+`src/actions/`, `src/panels/` non possono importare `electron` direttamente:
 devono passare dal guscio `vscode`. Rimuovere lo shim vorrebbe dire perdere
 la testabilità del dominio con `node --test`.
 
-**Dove vive.** `src/ambiente/vscode-desktop.ts` (25 export); consumato da
-`src/dominio/`, `src/interfaccia/`, `src/dati/`, `src/azioni/`.
+**Dove vive.** `src/environment/platform.ts` (31 export): il modulo oggi si
+chiama `apparato` e non più `vscode` (CANTIERE D14), la decisione è la stessa. Consumato da
+`src/domain/`, `src/ui/`, `src/data/`, `src/actions/`.
 
 ---
 
@@ -154,14 +155,14 @@ colleghi di tirocinio nella stessa azienda).
 
 **Vincoli che ne derivano.** L'indicizzazione per indirizzo presuppone un
 invariante di round-trip su come l'indirizzo è scritto in stringa
-(`scriviIndirizzo(leggiIndirizzo(riga)) === riga`, vedi `src/dominio/indirizzi.ts`):
+(`scriviIndirizzo(leggiIndirizzo(riga)) === riga`, vedi `src/domain/addresses.ts`):
 se questo si rompe, la chiave di cache smette di far combaciare indirizzi
 identici scritti in modo lievemente diverso. `coordinate.json` è
 volutamente una collezione separata dalle altre 9 perché si riscrive solo su
 azione esplicita ("Trova gli indirizzi"), mai in automatico.
 
-**Dove vive.** `src/dominio/mappa.ts`, `src/dominio/indirizzi.ts`,
-`src/dati/geocodifica.ts`, `coordinate.json` dentro il `.registro`.
+**Dove vive.** `src/domain/map.ts`, `src/domain/addresses.ts`,
+`src/data/geocoding.ts`, `coordinate.json` dentro il `.registro`.
 
 ---
 
@@ -176,7 +177,7 @@ indirizzi"), verso Nominatim (OpenStreetMap), 1 richiesta al secondo,
 User-Agent dichiarato. Il pannello webview ha CSP `default-src 'none'` — dal
 codice: "Il pannello, invece, continua a non parlare con nessuno —
 `default-src 'none'`." Le tile della mappa sono servite dall'host tramite il
-protocollo `registro://mappa/<z>/<x>/<y>.png` (`guscio/tasselli.ts`), con
+protocollo `registro://mappa/<z>/<x>/<y>.png` (`shell/protocol/tiles.ts`), con
 cache in `userData` (mai nella cartella del docente, per non finire
 sincronizzata su OneDrive).
 
@@ -189,9 +190,9 @@ non si allenta per comodità di sviluppo: qualunque nuova integrazione che
 tocchi quel pannello (es. una nuova sorgente di tile) deve passare
 dall'host/guscio, mai da una chiamata diretta nella webview.
 
-**Dove vive.** `src/dominio/mappa.ts`, `src/interfaccia/viste/mappa.ts`,
-`src/interfaccia/componenti/mappa.ts`, `src/dati/geocodifica.ts`,
-`guscio/tasselli.ts`.
+**Dove vive.** `src/domain/map.ts`, `src/ui/views/map.ts`,
+`src/ui/components/map.ts`, `src/data/geocoding.ts`,
+`shell/protocol/tiles.ts`.
 
 ---
 
@@ -201,7 +202,7 @@ dall'host/guscio, mai da una chiamata diretta nella webview.
 nessuno la aggiorna quando aggiunge una funzione, perché aggiornarla
 richiede trovare il paragrafo giusto in un testo lungo.
 
-**Decisione.** `src/interfaccia/viste/guida.ts` è una struttura dati
+**Decisione.** `src/ui/views/help.ts` è una struttura dati
 tipizzata (non prosa libera), una sezione per pagina dell'app.
 
 **Conseguenze.** Chi aggiunge una funzione aggiunge una riga in un elenco
@@ -211,9 +212,9 @@ tipizzato, non un paragrafo a mano. Il README resta il documento del
 **Vincoli che ne derivano.** Una nuova pagina dell'interfaccia che introduce
 comandi propri dovrebbe aggiungere la sua voce qui, non lasciare la guida
 disallineata — non c'è però un test automatico che lo verifichi (a
-differenza di `sezioniImpostazioni.test.mjs` per ADR-21).
+differenza di `settingsSections.test.mjs` per ADR-21).
 
-**Dove vive.** `src/interfaccia/viste/guida.ts`.
+**Dove vive.** `src/ui/views/help.ts`.
 
 ---
 
@@ -222,7 +223,7 @@ differenza di `sezioniImpostazioni.test.mjs` per ADR-21).
 **Contesto.** Semplicità voluta: nessuna dipendenza da un framework UI
 (React/Vue/altro).
 
-**Decisione.** `src/interfaccia/dom.ts` espone un helper `h()` per costruire
+**Decisione.** `src/ui/dom.ts` espone un helper `h()` per costruire
 DOM reale. Ridisegno completo a ogni cambio di stato — non per-keystroke —
 con le modali tenute fuori dal ciclo di redraw.
 
@@ -230,8 +231,8 @@ con le modali tenute fuori dal ciclo di redraw.
 sotto le dita (esempio dato dal codice: l'orologio che avanza ogni minuto e
 forza un redraw mentre l'utente sta scrivendo in un campo). Il prezzo è
 scrivere a mano quel che un framework darebbe gratis (diffing, componenti
-riutilizzabili con stato locale) — mitigato in parte da `moduli.ts` e dai
-componenti in `src/interfaccia/componenti/`.
+riutilizzabili con stato locale) — mitigato in parte da `forms.ts` e dai
+componenti in `src/ui/components/`.
 
 **Vincoli che ne derivano.** Un redraw completo presuppone che lo stato
 applicativo sia l'unica fonte di verità e che il DOM non tenga stato che lo
@@ -239,8 +240,8 @@ stato non conosca — un componente che tiene stato locale fuori da questa
 disciplina rischia di essere azzerato al prossimo redraw. Le modali sono
 un'eccezione dichiarata: vivono fuori dal ciclo apposta.
 
-**Dove vive.** `src/interfaccia/dom.ts`, `src/interfaccia/moduli.ts`,
-`src/interfaccia/componenti/`.
+**Dove vive.** `src/ui/dom.ts`, `src/ui/forms.ts`,
+`src/ui/components/`.
 
 ---
 
@@ -262,8 +263,8 @@ comando a una superficie (riga azioni, sidebar, ecc.) va verificato che la
 pagina di destinazione non disegni già il pulsante equivalente — non c'è
 enforcement automatico, è una disciplina di revisione.
 
-**Dove vive.** `src/interfaccia/comandi.ts`, `src/interfaccia/barraComandi.ts`,
-`src/interfaccia/sidebar.ts`.
+**Dove vive.** `src/ui/commands.ts`, `src/ui/commandBar.ts`,
+`src/ui/sidebar.ts`.
 
 ---
 
@@ -279,7 +280,7 @@ da un'azione esplicita di "duplica", non da un elenco condiviso per materia.
 
 **Conseguenze.** Nel registro si vedono prima i piani del corso corrente,
 poi gli altri marcati "da duplicare". `pianiDelCorso` (in
-`src/dominio/corsi.ts`) non filtra per anno: un piano vecchio resta
+`src/domain/courses.ts`) non filtra per anno: un piano vecchio resta
 duplicabile da un anno all'altro. `corsoId: null` identifica una bozza
 "ancora senza casa".
 
@@ -288,7 +289,7 @@ corsi — condividerlo significa sempre creare una copia indipendente. Un
 eventuale refactor verso un "piano condiviso" romperebbe questa aspettativa
 e richiederebbe una migrazione esplicita del modello dati.
 
-**Dove vive.** `src/dominio/modelli.ts` (`PianoLezione`), `src/dominio/corsi.ts`
+**Dove vive.** `src/domain/models.ts` (`PianoLezione`), `src/domain/courses.ts`
 (`pianiDelCorso`, `nomeDelPiano`).
 
 ---
@@ -305,18 +306,18 @@ scrive e si legge in minuti (`Attivita.durataUd`, mai minuti direttamente).
 
 **Conseguenze.** Lo stesso piano riusato su un'UD di durata diversa (scuola
 diversa, orario diverso) riempie comunque l'ora — non serve riscrivere la
-scaletta. `scalettaSulleUd` (in `src/dominio/calcoli.ts`) posa la scaletta
+scaletta. `scalettaSulleUd` (in `src/domain/calculations.ts`) posa la scaletta
 scritta in UD sui minuti reali della lezione.
 
 **Vincoli che ne derivano.** Qualunque nuovo campo che esprime una durata a
 livello di corso/lezione/conteggio annuale va in UD, non in minuti — solo la
 scaletta del piano lavora in minuti. `MINUTI_UD` è una costante globale
-(`src/dominio/calcoli.ts`), non configurabile per corso: cambiarla in corsa
+(`src/domain/calculations.ts`), non configurabile per corso: cambiarla in corsa
 d'anno cambierebbe la lettura dei dati storici.
 
-**Dove vive.** `src/dominio/calcoli.ts` (`MINUTI_UD`, `unitaDidattiche`),
-`src/dominio/date.ts` (conversioni `minutiDaUd`/`udDaMinuti`/`formattaUd`),
-`src/dominio/attivita.ts` (`Attivita.durataUd`).
+**Dove vive.** `src/domain/calculations.ts` (`MINUTI_UD`, `unitaDidattiche`),
+`src/domain/dates.ts` (conversioni `minutiDaUd`/`udDaMinuti`/`formattaUd`),
+`src/domain/activities.ts` (`Attivita.durataUd`).
 
 ---
 
@@ -338,13 +339,13 @@ distinti (due tappe di tipo `verifica`, non un unico flag per lezione).
 
 **Vincoli che ne derivano.** Il "triangolo" `MomentoValutazione.pianoId` /
 `Lezione.pianoId` deve restare coerente quando entrambi sono popolati —
-controllato da `riferimentiRotti` in `validazione.ts`, ma **non bloccante**:
+controllato da `riferimentiRotti` in `validation.ts`, ma **non bloccante**:
 un refactor che rimuova quel controllo lascerebbe incoerenze silenziose.
-`orfani.ts` diagnostica (mai corregge da solo) i momenti scollegati dalla
+`orphans.ts` diagnostica (mai corregge da solo) i momenti scollegati dalla
 tappa che li ha generati.
 
-**Dove vive.** `src/dominio/modelli.ts` (`Attivita.valutazione`,
-`MomentoValutazione.attivitaId`), `src/dominio/orfani.ts`.
+**Dove vive.** `src/domain/models.ts` (`Attivita.valutazione`,
+`MomentoValutazione.attivitaId`), `src/domain/orphans.ts`.
 
 ---
 
@@ -356,12 +357,12 @@ mai a penalizzare chi l'ha ricevuta — tre conti in tre punti diversi del
 codice avrebbero rischiato di dare tre risultati leggermente diversi.
 
 **Decisione.** `contaComeAssenza(stato)` — che vale `stato === 'assente'`
-soltanto — vive in `src/dominio/calcoli.ts`, unico punto usato dal quadro
+soltanto — vive in `src/domain/calculations.ts`, unico punto usato dal quadro
 della persona, dal riepilogo dell'ora, dalla matrice del corso, dai rapporti
 stampati e dalla soglia delle segnalazioni.
 
 **Conseguenze.** Un'unica fonte di verità tenuta ferma esplicitamente contro
-il rischio di *drift*: `prove/dominio/ritardo.test.mjs` verifica tutti e
+il rischio di *drift*: `tests/domain/lateness.test.mjs` verifica tutti e
 cinque i consumatori insieme.
 
 **Vincoli che ne derivano.** Nessun altro file deve reimplementare questa
@@ -369,7 +370,7 @@ regola (nemmeno per un caso apparentemente speciale): va sempre chiamata
 `contaComeAssenza`, mai riscritta come `stato === 'assente'` a mano in un
 punto nuovo — il test esiste apposta per intercettare la duplicazione.
 
-**Dove vive.** `src/dominio/calcoli.ts`; `prove/dominio/ritardo.test.mjs`.
+**Dove vive.** `src/domain/calculations.ts`; `tests/domain/lateness.test.mjs`.
 
 ---
 
@@ -388,7 +389,7 @@ né come presenza né come assenza.
 **Conseguenze.** È l'appello effettivamente fatto (non lo stato "svolta"
 dichiarato sulla lezione) a determinare quali UD entrano nei conti. Questo
 produce due percentuali distinte e mai fuse fra loro (vedi ADR-11 e
-`src/dominio/matriceCorso.ts`): `% assenza` sulle UD previste dall'orario, e
+`src/domain/courseMatrix.ts`): `% assenza` sulle UD previste dall'orario, e
 `% presenza/appello` sulle sole UD dove l'appello è stato davvero compilato.
 
 **Vincoli che ne derivano.** Qualunque nuova vista che mostri una
@@ -397,8 +398,8 @@ usa — fonderli sarebbe un errore di dominio, non solo di presentazione. Un
 valore di stato non riconosciuto in lettura (JSON vecchio o corrotto) deve
 sempre degradare a `'non-impostato'`, mai a `'presente'`.
 
-**Dove vive.** `src/dominio/modelli.ts` (`StatoPresenza`, `Presenza.stati`),
-`src/dominio/matriceCorso.ts`, `src/dominio/calcoli.ts` (`statoDellOra`).
+**Dove vive.** `src/domain/models.ts` (`StatoPresenza`, `Presenza.stati`),
+`src/domain/courseMatrix.ts`, `src/domain/calculations.ts` (`statoDellOra`).
 
 ---
 
@@ -411,7 +412,7 @@ non cambiarle mai.
 **Decisione.** L'impaginazione dei rapporti PDF vive in `templates/` come
 testo con direttive (`_base.tpl`/`_stile.tpl`/`_testi.tpl`/`_blocchi.tpl`),
 interpretata a runtime, mai ricompilata. La copia "di serie" distribuita con
-l'app è generata da `npm run modelli` dentro `src/dati/modelliPredefiniti.ts`.
+l'app è generata da `npm run templates` dentro `src/data/defaultTemplates.ts`.
 
 **Conseguenze.** Contenuto (`_base`), misure (`_stile`), parole (`_testi`) e
 pezzi ripetuti (`_blocchi`) si toccano per motivi diversi e da persone
@@ -421,14 +422,14 @@ diverse, ciascuno nel proprio file, senza toccare codice TypeScript.
 **comanda sempre** sulla copia di serie: un aggiornamento dell'app non deve
 mai sovrascrivere silenziosamente un modello personalizzato (vedi
 `catalogoModelli.ts::sorteModello`, che distingue `'aggiorna'`/`'arretrato'`
-via hash). `npm run modelli` deve restare sincronizzato con `templates/`,
+via hash). `npm run templates` deve restare sincronizzato con `templates/`,
 controllato da `npm test`. Il catalogo modelli e la cartella `templates/`
 devono avere esattamente gli stessi nomi, controllato da `npm test`.
 
 **Dove vive.** `templates/_base.tpl`, `templates/_stile.tpl`,
-`templates/_testi.tpl`, `templates/_blocchi.tpl`, `src/dati/modelli.ts`,
-`src/dati/modelliPredefiniti.ts`, `src/dati/rapportiPdf.ts`,
-`src/dominio/catalogoModelli.ts`, `src/dominio/verificaModelli.ts`.
+`templates/_testi.tpl`, `templates/_blocchi.tpl`, `src/data/templates.ts`,
+`src/data/defaultTemplates.ts`, `src/data/reportsPdf.ts`,
+`src/domain/templateCatalog.ts`, `src/domain/templateCheck.ts`.
 
 ---
 
@@ -450,8 +451,8 @@ documento, elemento distintivo) non basta a distinguere due file diversi
 tollerata, e distingue file realmente diversi, non versioni dello stesso
 file nel tempo.
 
-**Dove vive.** `src/dati/esportazioni.ts` (`scriviGenerato`),
-`src/dominio/collocazioni.ts`.
+**Dove vive.** `src/data/exports.ts` (`scriviGenerato`),
+`src/domain/locations.ts`.
 
 ---
 
@@ -474,7 +475,7 @@ tramite `distinzione()`.
 intrecci gli stessi 4 elementi, evitando collisioni — non deve introdurre un
 ID generato per comodità.
 
-**Dove vive.** `src/dominio/collocazioni.ts` (`GenereRapporto`,
+**Dove vive.** `src/domain/locations.ts` (`GenereRapporto`,
 `distinzione`).
 
 ---
@@ -494,7 +495,7 @@ stessa documentazione.
 **Conseguenze.** Il materiale di una materia sta tutto insieme, indipendente
 dalla classe. Per le installazioni esistenti, la migrazione a questo layout
 è automatica alla prima apertura (`migraArchivio` in
-`src/dati/archiviazione.ts`).
+`src/data/filing.ts`).
 
 **Vincoli che ne derivano.** I nomi delle cartelle su disco (`allievi/<Cognome
 Nome>/`, `documentazione/`, `in-arrivo/`, `quarantena/`) non si rinominano a
@@ -503,7 +504,7 @@ cuor leggero: rinominarle sposta file già sincronizzati su OneDrive.
 `esportazioni/`: è disallineato rispetto a questa decisione, un promemoria
 che quel file andrebbe aggiornato quando lo si tocca di nuovo.
 
-**Dove vive.** `src/dominio/collocazioni.ts`, `src/dati/archiviazione.ts`
+**Dove vive.** `src/domain/locations.ts`, `src/data/filing.ts`
 (`migraArchivio`).
 
 ---
@@ -527,11 +528,11 @@ dati in chiaro.
 **Vincoli che ne derivano.** L'estensione `.registro` resta un vero ZIP
 leggibile con `unzip`: non diventa mai un formato binario proprietario
 chiuso, nemmeno per guadagni di performance o compattezza. Le prove che
-verificano la compatibilità di formato (`prove/campioni/*.registro`) sono
+verificano la compatibilità di formato (`tests/samples/*.registro`) sono
 l'unica prova del progetto che guarda indietro: si rigenerano con `npm run
 campione` **solo** quando il formato cambia apposta.
 
-**Dove vive.** `src/dati/pacchetto.ts`, `src/dati/zip.ts` (implementazione
+**Dove vive.** `src/data/package.ts`, `src/data/zip.ts` (implementazione
 ZIP manuale su `node:zlib`, nessuna libreria esterna).
 
 ---
@@ -562,8 +563,8 @@ indice+coda" non è invertibile senza perdere l'atomicità "per costruzione".
 Lo storico vive dentro lo stesso file `.registro` (non su disco separato):
 sposta l'intero `.registro` e ti porti dietro anche la cronologia.
 
-**Dove vive.** `src/dati/pacchetto.ts` (`accoda`, `rifai`, `conserva`,
-`spazioMorto`), `src/dati/zip.ts`.
+**Dove vive.** `src/data/package.ts` (`accoda`, `rifai`, `conserva`,
+`spazioMorto`), `src/data/zip.ts`.
 
 ---
 
@@ -588,8 +589,8 @@ funzionerebbe comunque e darebbe una falsa sicurezza. `Pacchetto.chiLoTiene()`
 ignora la serratura se è la stessa macchina+utente (riapertura legittima
 dello stesso processo).
 
-**Dove vive.** `src/dati/pacchetto.ts` (`prendi`, `lascia`, `chiLoTiene`),
-`src/dati/archivio.ts`.
+**Dove vive.** `src/data/package.ts` (`prendi`, `lascia`, `chiLoTiene`),
+`src/data/archive.ts`.
 
 ---
 
@@ -608,12 +609,12 @@ dell'anno da un computer all'altro o rinominandola.
 
 **Vincoli che ne derivano.** Qualunque codice che scrive un percorso in una
 collezione deve produrlo relativo, mai assoluto — anche in casi speciali
-(es. migrazioni: `riscriviPercorsi()` in `src/dati/archiviazione.ts` esiste
+(es. migrazioni: `riscriviPercorsi()` in `src/data/filing.ts` esiste
 apposta per aggiornare tutti i riferimenti quando il layout cambia). Il nome
 della cartella dell'anno, una volta creato, resta "congelato": non si
 rinomina da sé se l'etichetta anno cambia in seguito.
 
-**Dove vive.** `src/dati/percorsi.ts`, `src/dati/archiviazione.ts`
+**Dove vive.** `src/data/paths.ts`, `src/data/filing.ts`
 (`riscriviPercorsi`).
 
 ---
@@ -627,17 +628,17 @@ dell'interfaccia, che è della macchina).
 
 **Decisione.** Due categorie esplicite: **Programma** (`impostazioni.json`
 in `userData`, per macchina) e **Registro** (dentro il `.registro`, per
-documento) — con `src/manifesto.ts` come unica fonte di verità per chiavi,
+documento) — con `src/manifest.ts` come unica fonte di verità per chiavi,
 valori predefiniti e generazione dell'UI corrispondente.
 
 **Conseguenze.** Impossibile sbagliare scope per ignoranza da parte di chi
 sviluppa: ogni chiave nuova compare comunque da qualche parte nell'interfaccia
 (la sezione che raccoglie, "Quel che non sta altrove", se non ne ha una
 più specifica), verificato da
-`prove/interfaccia/sezioniImpostazioni.test.mjs`.
+`tests/ui/settingsSections.test.mjs`.
 
 **Vincoli che ne derivano.** Una nuova impostazione va dichiarata in
-`manifesto.ts`, non scritta ad-hoc in `impostazioni.json` o nel documento —
+`manifest.ts`, non scritta ad-hoc in `impostazioni.json` o nel documento —
 il test fallisce se una chiave manifesto non ha una sezione UI che la mostri.
 L'unica uscita da quella garanzia è `nascosta: true` nel manifesto, e va
 dichiarata: sono le chiavi che *il programma* si scrive addosso (dove sta
@@ -646,9 +647,9 @@ compilano e non hanno effetto. Restano chiavi vere — `valoreAccettabile` le
 accetta, perché è di lì che il widget le scrive — e il test verifica che le
 sole assenti dalla pagina siano esattamente quelle dichiarate tali.
 
-**Dove vive.** `src/manifesto.ts`, `src/ambiente/impostazioni.ts`
+**Dove vive.** `src/manifest.ts`, `src/environment/settings.ts`
 (Programma), `registro.json.impostazioni` dentro il `.registro` (Registro);
-`prove/interfaccia/sezioniImpostazioni.test.mjs`.
+`tests/ui/settingsSections.test.mjs`.
 
 ---
 
@@ -669,13 +670,13 @@ istruzione). `openExternal` resta riservato agli indirizzi web veri, come un
 collegamento dentro un piano lezione.
 
 **Vincoli che ne derivano.** Qualunque nuovo punto che apre un file locale
-deve passare per percorso diretto (`src/dati/apertura.ts::apriConIlSistema`),
+deve passare per percorso diretto (`src/data/opening.ts::apriConIlSistema`),
 mai costruire un URL `file://` da passare a `openExternal`. In
-`src/ambiente/comandi.ts`, `openExternal` resta comunque ristretto a uno
+`src/environment/commands.ts`, `openExternal` resta comunque ristretto a uno
 schema whitelist (`http`, `https`, `mailto`, `tel`).
 
-**Dove vive.** `src/dati/apertura.ts` (`apriConIlSistema`),
-`src/ambiente/comandi.ts` (whitelist schemi `openExternal`).
+**Dove vive.** `src/data/opening.ts` (`apriConIlSistema`),
+`src/environment/commands.ts` (whitelist schemi `openExternal`).
 
 ---
 
@@ -692,17 +693,17 @@ verso Electron/Windows).
 
 **Conseguenze.** La stessa architettura è riconoscibile in due funzionalità
 diverse; il dominio di entrambe è testabile senza Electron, allo stesso modo
-del resto di `src/dominio/`.
+del resto di `src/domain/`.
 
 **Vincoli che ne derivano.** Una terza funzionalità di sistema (se mai
 nascesse) dovrebbe seguire lo stesso schema a tre file, non accorciare il
 percorso mettendo logica di dominio nel file ambiente per comodità.
 
-**Dove vive.** Vassoio: `src/dominio/vassoio.ts` (puro), `src/vassoio.ts`
-(orchestrazione), `src/ambiente/vassoio.ts` (Electron). Agenda:
-`src/dominio/agenda.ts`/`agendaLezione.ts`/`agendaMese.ts`/`agendaPendenze.ts`
-(puro), `src/agenda.ts` (orchestrazione), `src/ambiente/agenda.ts` +
-`src/ambiente/ancoraggio.ts` (Windows/koffi).
+**Dove vive.** Vassoio: `src/domain/tray.ts` (puro), `src/tray.ts`
+(orchestrazione), `src/environment/tray.ts` (Electron). Agenda:
+`src/domain/agenda.ts`/`agendaLesson.ts`/`agendaMonth.ts`/`agendaPending.ts`
+(puro), `src/agenda.ts` (orchestrazione), `src/environment/agenda.ts` +
+`src/environment/anchoring.ts` (Windows/koffi).
 
 ---
 
@@ -732,9 +733,9 @@ finiscono nel cestino di sistema, non persi per sempre.
 avere la propria voce in `eliminazioni.ts::chiusura` (o un ramo indipendente,
 come per l'allievo) che descriva esplicitamente cosa cade a cascata e cosa
 resta scollegato — non basta cancellare il record e sperare che
-`riparazioni.ts` sistemi dopo.
+`repairs.ts` sistemi dopo.
 
-**Dove vive.** `src/dominio/eliminazioni.ts`, `src/dominio/riparazioni.ts`
+**Dove vive.** `src/domain/deletions.ts`, `src/domain/repairs.ts`
 (riconciliazione a posteriori, mai automatica in silenzio).
 
 ---
@@ -754,8 +755,8 @@ restava un'impostazione, cioè un modo di far uscire dalla macchina proprio i
 dati che questa decisione protegge.
 
 **Decisione.** Un modello, qui, è **un file `.gguf`** nella cartella dei
-modelli del registro. Lo carica `dati/llamaCpp.ts` dentro il main process per
-l'assistente, e `dati/mtmd.ts` con il programma `llama-mtmd-cli` per le
+modelli del registro. Lo carica `data/llamaCpp.ts` dentro il main process per
+l'assistente, e `data/mtmd.ts` con il programma `llama-mtmd-cli` per le
 scansioni, che vogliono un modello capace di guardare. Non c'è un servizio da
 accendere e non c'è un indirizzo da configurare. I modelli si scaricano dalla
 pagina «Modelli linguistici», si trascinano dentro o si scelgono dal disco.
@@ -776,8 +777,8 @@ porta fuori un dato del registro. Il nome del modello scritto nelle impostazioni
 è risolto da `modelloNellaCartella()` e non usato com'è: un percorso messo a
 mano in quel JSON non diventa un file che il registro apre.
 
-**Dove vive.** `src/dati/llm.ts`, `src/dati/gguf.ts`, `src/dati/llamaCpp.ts`,
-`src/dati/mtmd.ts`, `src/dati/huggingFace.ts`.
+**Dove vive.** `src/data/llm.ts`, `src/data/gguf.ts`, `src/data/llamaCpp.ts`,
+`src/data/mtmd.ts`, `src/data/huggingFace.ts`.
 
 ---
 
@@ -797,19 +798,19 @@ forzati in un fascicolo per "probabilità".
 
 **Vincoli che ne derivano.** La soglia di fiducia (`FIDUCIA_SUFFICIENTE =
 0.7`) e la soglia di ambiguità (stacco `< 0.2` fra i primi due candidati, in
-`src/dominio/smistamento.ts`) decidono solo se *proporre* un'assegnazione,
+`src/domain/sorting.ts`) decidono solo se *proporre* un'assegnazione,
 mai se *eseguirla* senza conferma — un refactor non deve introdurre un
 percorso che salta la conferma umana, nemmeno per i casi a fiducia 1.0. Un
 allievo riceve al massimo un blocco per passata di smistamento.
 
-**Dove vive.** `src/dominio/smistamento.ts`, `src/dati/smistatore.ts`,
-`src/interfaccia/viste/smistamento.ts`.
+**Dove vive.** `src/domain/sorting.ts`, `src/data/sorter.ts`,
+`src/ui/views/sorting.ts`.
 
 ---
 
 ### ADR-27 — Un contratto davanti al centralino, non al posto suo
 
-**Contesto.** Il registro aveva già un centralino: `src/azioni.ts` costruisce
+**Contesto.** Il registro aveva già un centralino: `src/actions.ts` costruisce
 `GESTORI`, una mappa da `Azione['tipo']` alla funzione che fa il lavoro, e il
 compilatore garantisce che non ci sia un'azione senza gestore né un gestore
 senza azione. Quel che mancava non era il lavoro — provato, in produzione da
@@ -833,8 +834,8 @@ reinterpretare. **Lasciare tutto com'era** avrebbe voluto dire scrivere un
 contratto che non protegge nulla.
 
 **Decisione.** Sostituzione progressiva, un'azione alla volta. Una `Procedura`
-(`src/api/contratto.ts`) dichiara `azione: 'presenze.riga'`, e
-`gestoriDelleProcedure()` la **spande sopra** `GESTORI` in `src/azioni.ts`:
+(`src/api/contract.ts`) dichiara `azione: 'presenze.riga'`, e
+`gestoriDelleProcedure()` la **spande sopra** `GESTORI` in `src/actions.ts`:
 quelle chiavi vincono su quelle di prima. È l'unica riga di quel file che è
 cambiata. Il lavoro resta nel gestore: `daGestore(ore['presenze.riga'], …)`
 compone l'azione e gliela passa, quindi nessuna logica si sposta e nessuna
@@ -846,7 +847,7 @@ un codice d'errore e lascia una riga nel giornale.
 
 La migrazione è finita: **141 azioni su 141** sono sotto contratto.
 
-**Conseguenze.** Il nucleo (`chiama()` in `src/api/nucleo.ts`) diventa l'unico
+**Conseguenze.** Il nucleo (`chiama()` in `src/api/core.ts`) diventa l'unico
 punto che convalida, esegue, cronometra e scrive nel giornale — e quindi
 l'unico punto che tutti i trasporti condividono. Il pannello, il widget, il
 menu nativo e la riga di comando non si assomigliano in niente: da lì in poi
@@ -879,7 +880,7 @@ diventano `undefined`, che per un campo opzionale è un valore legittimo.
   con le sue prove, non un effetto collaterale della migrazione.
 - **Una procedura, un'azione.** Due procedure non possono prendere in carico
   la stessa azione, e nessuna può dichiararne una che il protocollo non
-  conosce. Lo verifica `prove/api/copertura.test.mjs`.
+  conosce. Lo verifica `tests/api/coverage.test.mjs`.
 - **Lo schema di una procedura deve dichiarare tutti i campi della sua
   azione.** È il vincolo che chiude il modo di fallire silenzioso, e si
   verifica **campo per campo** leggendo l'unione `Azione` dal sorgente — non
@@ -891,11 +892,11 @@ diventano `undefined`, che per un campo opzionale è un valore legittimo.
   dipendono da chi ha chiamato — una riga di comando che corregge un voto non
   ha un webview da aggiornare — e restano del pannello e del centralino.
 
-**Dove vive.** `src/api/contratto.ts` (che cos'è una procedura),
-`src/api/nucleo.ts` (`chiama`, `daGestore`, `aEsitoAzione`),
-`src/api/ponte.ts` (`gestoriDelleProcedure`), `src/api/indice.ts`,
-`src/api/procedure/` (11 file, una riga per area), `src/azioni.ts` (la riga che
-li sparge), `prove/api/copertura.test.mjs`.
+**Dove vive.** `src/api/contract.ts` (che cos'è una procedura),
+`src/api/core.ts` (`chiama`, `daGestore`, `aEsitoAzione`),
+`src/api/bridge.ts` (`gestoriDelleProcedure`), `src/api/index.ts`,
+`src/api/procedures/` (11 file, una riga per area), `src/actions.ts` (la riga che
+li sparge), `tests/api/coverage.test.mjs`.
 
 ---
 
@@ -906,14 +907,14 @@ convalidata a runtime. Serviva un validatore, e la scelta ovvia era zod — o
 valibot, o arktype.
 
 Il problema che quel validatore deve risolvere è più piccolo di quel che
-sembra. Il registro ha già `src/dominio/validazione.ts`: 2456 righe che sanno
+sembra. Il registro ha già `src/domain/validation.ts`: 2456 righe che sanno
 che i semestri devono essere contigui, che uno slot di lezione dura un multiplo
 esatto di unità didattica, che una consegna senza destinatari non è completa.
 Quel che mancava non era «sapere se una `Lezione` sta in piedi», ma sapere se
 un **messaggio** ha la forma giusta: «questa procedura vuole un `lezioneId`, un
 `allievoId` e uno stato fra questi cinque».
 
-**Decisione.** Gli schemi sono scritti nel progetto, in `src/api/schemi.ts`, e
+**Decisione.** Gli schemi sono scritti nel progetto, in `src/api/schemas.ts`, e
 **espongono il contratto «Standard Schema»** (`~standard`) — la stessa
 interfaccia che zod, valibot e arktype implementano. Il nucleo non conosce quel
 file: conosce quell'interfaccia.
@@ -956,7 +957,7 @@ un ingresso valido non fosse stato rifiutato — o, peggio, uno storto accettato
   sapere che cosa c'è già nel registro — `validaClasse(classe, altre)`,
   `validaCorso(corso, altri)` — il controllo resta **dentro il gestore**, dove
   quelle cose si sanno, e lo schema si ferma al controllo di forma.
-- **Il nucleo non può importare `schemi.ts` per qualcosa che non sia il
+- **Il nucleo non può importare `schemas.ts` per qualcosa che non sia il
   contratto `~standard`.** È la condizione che tiene aperta la porta di
   uscita: appena il nucleo conoscesse un dettaglio di questa implementazione,
   sostituirla smetterebbe di costare una riga.
@@ -970,9 +971,9 @@ un ingresso valido non fosse stato rifiutato — o, peggio, uno storto accettato
   tolleranza verso un pannello più nuovo — e per questo è anche il vincolo di
   ADR-27 sulla copertura campo per campo.
 
-**Dove vive.** `src/api/schemi.ts` (`Standard`, `Schema`, `Forma`, i
-costruttori, `entita`, `schemaJson`), `src/dominio/validazione.ts` (i
-validatori a cui `entita` passa la palla), `prove/api/schemi.test.mjs`.
+**Dove vive.** `src/api/schemas.ts` (`Standard`, `Schema`, `Forma`, i
+costruttori, `entita`, `schemaJson`), `src/domain/validation.ts` (i
+validatori a cui `entita` passa la palla), `tests/api/schemas.test.mjs`.
 
 ---
 
@@ -1001,9 +1002,9 @@ il condotto, il widget dell'agenda.
 **Decisione.** Un secondo giro di buste sullo stesso canale IPC: `Domanda`
 (`{ id, procedura, ingresso? }`) in salita, `Riscontro`
 (`{ tipo: 'riscontro', id, ok, dati?, errori?, codice? }`) in discesa. Dal lato
-pagina è `chiedi<T>(procedura, ingresso)` in `src/interfaccia/ponte.ts`, con una
+pagina è `chiedi<T>(procedura, ingresso)` in `src/ui/bridge.ts`, con una
 mappa di attese tutta sua; dal lato host è `rispondiDomanda()` in
-`src/pannelli/pannello.ts`.
+`src/panels/panel.ts`.
 
 **Le domande non entrano nella coda delle scritture.** `gestisci()` le
 riconosce perché `typeof busta.procedura === 'string'` e le serve subito.
@@ -1049,7 +1050,7 @@ debiti noti.
   tocca un byte del registro.
 - **Una lettura non dichiara `collezioni`**, e non può prendere in carico
   un'azione: sono due modi di dire la stessa cosa due volte, e
-  `prove/api/copertura.test.mjs` li verifica tutti e due.
+  `tests/api/coverage.test.mjs` li verifica tutti e due.
 - **Una lettura torna il conto già fatto dal dominio**, mai i dati grezzi da
   ricontare, e in una forma piatta e dichiarata invece dei tipi interni.
   `corso.presenze` manda i tre denominatori accanto ai numeri proprio perché
@@ -1059,15 +1060,66 @@ debiti noti.
 - **Non si rimettano campi di ritorno nella `Risposta`** per servire una
   chiamata sola. È esattamente la cosa che questo ADR ha disfatto.
 
-**Dove vive.** `src/protocollo.ts` (`Domanda`, `Riscontro`,
-`MessaggioVersoWebview`), `src/interfaccia/ponte.ts` (`chiedi`, `Esito<T>`),
-`src/pannelli/pannello.ts` (`gestisci`, `rispondiDomanda`),
-`src/api/procedure/lettura.ts` e le letture di `ore.ts` e `rapporti.ts`,
-`src/interfaccia/viste/modelli.ts` (l'unico consumatore dentro il pannello),
-`prove/api/letture.test.mjs` e `prove/api/scritture.test.mjs` — quest'ultimo
+**Dove vive.** `src/protocol.ts` (`Domanda`, `Riscontro`,
+`MessaggioVersoWebview`), `src/ui/bridge.ts` (`chiedi`, `Esito<T>`),
+`src/panels/panel.ts` (`gestisci`, `rispondiDomanda`),
+le letture di `src/api/procedures/` — erano `lettura.ts`, `ore.ts` e `rapporti.ts`,
+oggi `registro/riassunto.ts`, `ore/appello/leggi.ts` e `registro/integrita.ts` —,
+`src/ui/views/templates.ts` (l'unico consumatore dentro il pannello),
+`tests/api/reads.test.mjs` e `tests/api/writes.test.mjs` — quest'ultimo
 legge dal sorgente che `rispondiDomanda` chiami ancora il nucleo e rifiuti
 ancora le scritture, perché quella guardia è una riga sola e si toglie senza
 accorgersene.
+
+### ADR-30 — La quota d'assenza conta le ore che si potevano seguire
+
+**Contesto.** La quota d'assenza è «UD perse su UD previste dall'orario». Due
+cose la rendevano disonesta, e le ha trovate il giro 7. La prima: un'ora a
+orario poi annullata — gita, esame — restava nelle previste. Nove martedì da
+due UD, tre annullati e quattro UD perse si leggevano «22% su 18» invece di
+«33% su 12», e con tre UD perse il 25% vero finiva sotto la soglia del 20%
+senza avviso. La seconda: il campo `confermata` delle segnalazioni doveva dire
+«gli appelli ci sono» e misurava un'altra quota, che per costruzione stava
+quasi sempre sopra la prima — ogni segnalazione usciva confermata, anche con
+l'appello fatto su tre ore di nove.
+
+**Decisione.** Presa da chi usa il registro, non dedotta dal codice.
+1. Le UD previste **non contano** le occorrenze dell'orario che un'ora
+   annullata occupava: stesso giorno, stessa ora d'inizio. Un'ora annullata
+   fuori orario non toglie niente, perché nel monte ore non c'era.
+2. `confermata` vuol dire **appello presente su tutte le UD delle ore segnate
+   svolte** nel periodo. Senza nessuna ora segnata svolta vale vero: non c'è
+   niente che manchi.
+
+**Conseguenze.** Più avvisi sopra soglia, e giusti. Una prova esistente
+(`tests/domain/alerts.test.mjs`) asseriva il significato vecchio ed è stata
+riscritta su questa decisione, con il perché accanto: è l'unica deroga a D2 del
+giro, e dichiarata. Resta aperto il caso dell'ora annullata e recuperata fuori
+orario: oggi il recupero conta come ora tenuta in più, senza legame con quella
+che sostituisce.
+
+**Dove vive.** `udPrevisteDaOrario` in `src/domain/timetable.ts`, che prende le
+lezioni come ultimo argomento — tutti e otto i chiamanti le passano — e
+`segnalazioniDelCorso` in `src/domain/alerts.ts`.
+
+### ADR-31 — I documenti seguono i dati dentro `chiama()`
+
+**Contesto.** La rigenerazione automatica dei PDF (`pdfAutomatici: 'sempre'`)
+stava in `esegui()`, la strada del pannello. L'agenda, l'assistente e il
+condotto chiamano `chiama()` direttamente: una correzione d'appello fatta dal
+widget lasciava il verbale con «assente». Era una regressione nata quando
+l'agenda è passata sotto contratto.
+
+**Decisione.** La regola sta in `chiama()`: dopo una scrittura riuscita che ha
+cambiato la revisione, `rigeneraDopoScrittura`. `esegui()` la tiene solo per le
+azioni che non passano da una procedura. Nello stesso giro la riga di comando
+ha perso `registro chiedi`: da quando il modello gira dentro il processo non
+aveva più un indirizzo da chiamare, e rifarlo come procedura vorrebbe dire una
+conversazione di minuti, che scrive, dentro la fila delle scritture.
+
+**Dove vive.** `src/api/core.ts`, `src/actions.ts` (`passaDaChiama`),
+`src/actions/reports.ts` (`rigeneraDopoScrittura`, `rigenerazioniInAttesa`),
+`tests/api/regeneration.test.mjs`.
 
 ---
 
@@ -1088,8 +1140,8 @@ implicita che viene superata non si cancella, perché la descrizione di *com'era
 si torna indietro per distrazione.
 
 **1. Command bus su un aggregato unico, con push dello stato intero.**
-Cosa fa oggi: le azioni utente (`src/azioni/*.ts`) passano per un orchestratore
-centrale (`Archivio` in `src/dati/archivio.ts`) che tiene l'intero `Registro`
+Cosa fa oggi: le azioni utente (`src/actions/*.ts`) passano per un orchestratore
+centrale (`Archivio` in `src/data/archive.ts`) che tiene l'intero `Registro`
 in memoria e lo modifica in blocco (`archivio.modifica(operazione,
 collezioni)`); l'interfaccia riceve lo stato aggiornato e si ridisegna per
 intero (coerente con ADR-06). Non esiste un bus di eventi granulare per
@@ -1106,7 +1158,7 @@ Cosa fa oggi: una modifica aggiorna subito lo stato in memoria e
 l'interfaccia (percepita come istantanea); la scrittura su disco è
 debounced (350ms di inattività, tetto massimo 2000ms dalla prima modifica
 non salvata — `RITARDO_SALVATAGGIO_MS`/`ATTESA_MASSIMA_MS` in
-`src/dati/archivio.ts`). Perché probabilmente è così: scrivere un file ZIP a
+`src/data/archive.ts`). Perché probabilmente è così: scrivere un file ZIP a
 ogni tasto sarebbe percepibilmente lento (misurato: fino a 40ms per una
 riscrittura completa) e inutile — nessuno vuole un salvataggio per ogni
 carattere digitato in una nota. Cosa costerebbe cambiarla: un crash
@@ -1118,7 +1170,7 @@ rischio a costo di più scritture su disco.
 Cosa fa oggi: non esiste una libreria di validazione schema (zod, io-ts,
 ecc.) applicata campo per campo; la validazione runtime reale si concentra
 sui normalizzatori dei grandi aggregati (`normalizzaRegistro`,
-`normalizzaAnno`, `normalizzaClasse`, ecc. in `src/dominio/validazione.ts`,
+`normalizzaAnno`, `normalizzaClasse`, ecc. in `src/domain/validation.ts`,
 2456 righe), chiamati ai bordi (caricamento file, import). Il type system di
 TypeScript garantisce la forma *a compile time*; a runtime, un valore che
 non rispetta il tipo dichiarato viene semplicemente accettato se non passa
@@ -1138,7 +1190,7 @@ normalizzatori dei grandi aggregati.
 > forza dai normalizzatori dei grandi aggregati»: i client esterni sono
 > arrivati — il widget dell'agenda, la riga di comando, il condotto JSON-RPC —
 > e sono arrivati prima della rete. Oggi ogni chiamata passa da uno schema
-> d'ingresso dichiarato (`src/api/schemi.ts`) convalidato dal nucleo prima di
+> d'ingresso dichiarato (`src/api/schemas.ts`) convalidato dal nucleo prima di
 > toccare l'archivio, e le azioni coperte sono tutte e 141.
 >
 > **Quel che non è cambiato, ed era il nocciolo giusto della decisione**: gli
@@ -1147,7 +1199,7 @@ normalizzatori dei grandi aggregati.
 > al validatore del dominio proprio per non avere due verità sulla stessa
 > entità (ADR-28). Lo schema dice che il *messaggio* ha la forma giusta; il
 > dominio dice che la *cosa* sta in piedi. Sono due domande diverse, e la
-> seconda è sempre stata di `validazione.ts`.
+> seconda è sempre stata di `validation.ts`.
 >
 > **Quel che resta scoperto**: i cinque protocolli del guscio (benvenuto,
 > impostazioni, dialogo, agenda) sullo stesso canale IPC — vedi
@@ -1168,8 +1220,8 @@ dominio, non un aggiustamento locale.
 
 **5. Errori come stringhe italiane libere, non codici strutturati.**
 Cosa fa oggi: `Esito { valido, errori: string[] }` in tutto
-`validazione.ts` — i messaggi di errore sono frasi italiane complete pronte
-per l'interfaccia (spesso composte con `lessico.ts`), non codici tipo
+`validation.ts` — i messaggi di errore sono frasi italiane complete pronte
+per l'interfaccia (spesso composte con `lexicon.ts`), non codici tipo
 `ERR_SEMESTRE_NON_CONTIGUO` con traduzione separata. Perché probabilmente è
 così: l'interfaccia è l'unico consumatore oggi, e un'unica lingua/un unico
 pubblico rende inutile il livello di indirezione di un codice errore.
@@ -1180,7 +1232,7 @@ fare pattern-matching sul testo dell'errore si romperebbe a ogni refactor di
 formulazione.
 
 > **Affrontata a metà da ADR-27.** «Una futura API dovrebbe reintrodurre codici
-> stabili»: l'API c'è, e i codici anche. `src/api/contratto.ts` dichiara otto
+> stabili»: l'API c'è, e i codici anche. `src/api/contract.ts` dichiara otto
 > `Codice` — `ingresso-non-valido`, `non-trovato`, `rifiutato`, `conflitto`,
 > `non-disponibile`, `procedura-sconosciuta`, `non-permesso`, `interno` — otto
 > e non venti: uno in più si aggiunge quando qualcuno deve *reagire* in modo
@@ -1205,7 +1257,7 @@ pacchetti isolati; i confini architetturali dichiarati nel README
 (dominio senza Electron/DOM, interfaccia senza Node, dati/azioni/pannelli
 senza Electron diretto) sono imposti da regole ESLint `no-restricted-imports`
 per cartella in `eslint.config.mjs`, con messaggi di errore scritti apposta
-per spiegare *perché* la regola c'è (es. per `src/dominio/`: "non importa
+per spiegare *perché* la regola c'è (es. per `src/domain/`: "non importa
 niente da fuori di sé: è quel che permette di provarlo con `node --test` in
 due secondi, senza Electron e senza un disco"). Perché probabilmente è così:
 per un progetto di queste dimensioni, un monorepo con `package.json` per
@@ -1220,7 +1272,7 @@ complessità di un monorepo.
 **7. Niente integrazione continua (CI).**
 Cosa fa oggi: non esiste una cartella `.github/workflows` né altra
 configurazione CI nel repository; test (`npm test`), controllo tipi (`npm
-run controllo-tipi`) e stile (`npm run controllo-stile`) sono script npm
+run controllo-tipi`) e stile (`npm run lint`) sono script npm
 eseguiti solo localmente, a discrezione di chi sviluppa. Perché probabilmente
 è così: progetto con un solo manutentore attivo (a giudicare dalla cronologia
 Git) — l'overhead di configurare e mantenere una pipeline CI per un solo
@@ -1245,10 +1297,10 @@ esegue a mano.
 | Nomi colonne tabella "di serie" nei riferimenti `tabella:` dei modelli | Rinominare una colonna in `_testi.tpl` non deve rompere i modelli | Modelli personalizzati smettono di trovare la colonna referenziata |
 | Nessuna risalita `..` nel percorso di un'`immagine:` nei modelli | Vincolo di sicurezza (path traversal) | Un modello potrebbe leggere file fuori dalla cartella consentita |
 | Apertura file per percorso diretto, mai `openExternal`/URL per file locali | Bug di encoding non-ASCII + rischio injection (ADR-22) | Percorsi con caratteri non-ASCII si aprono male; injection via nome file con `&` |
-| `contaComeAssenza` in un solo posto (`dominio/calcoli.ts`) | Tenuto testato contro tutti e 5 i consumatori (ADR-11) | Rischio di tre conteggi diversi fra quadro persona/riepilogo/matrice/rapporti/soglia |
-| Regola soglia assenza in un solo posto (`dominio/segnalazioni.ts`) | Stessa logica di ADR-11 applicata alla soglia di segnalazione | Segnalazioni incoerenti fra viste diverse |
+| `contaComeAssenza` in un solo posto (`domain/calculations.ts`) | Tenuto testato contro tutti e 5 i consumatori (ADR-11) | Rischio di tre conteggi diversi fra quadro persona/riepilogo/matrice/rapporti/soglia |
+| Regola soglia assenza in un solo posto (`domain/alerts.ts`) | Stessa logica di ADR-11 applicata alla soglia di segnalazione | Segnalazioni incoerenti fra viste diverse |
 | Catalogo modelli e cartella `templates/` con gli stessi nomi | Controllato da `npm test` | `npm test` fallisce; i modelli di serie non passano la verifica |
-| `prove/campioni/*.registro` rigenerato **solo** quando il formato cambia apposta | Unica prova che guarda indietro (compatibilità di formato, ADR-17) | Perdita silenziosa della garanzia di compatibilità con documenti vecchi |
+| `tests/samples/*.registro` rigenerato **solo** quando il formato cambia apposta | Unica prova che guarda indietro (compatibilità di formato, ADR-17) | Perdita silenziosa della garanzia di compatibilità con documenti vecchi |
 | "Un comando, una superficie per volta" (ADR-07) | Evita pulsanti duplicati che confondono l'utente | Superfici UI ridondanti, esperienza incoerente |
 | Dominio senza dipendenze da Electron/DOM | Testabilità con `node --test` senza aprire finestre (ADR-02) | `npm test` non gira più senza Electron; perde il confine imposto da ESLint |
 | Widget agenda: `SetWindowPos` non `setBounds`, evitare `movable: false` | Electron riporterebbe la finestra dentro l'area di lavoro, disfacendo l'ancoraggio | Il widget smette di restare ancorato fuori dall'area di lavoro; la riserva appbar va comunque rimossa esplicitamente all'uscita (`spegni()`) |

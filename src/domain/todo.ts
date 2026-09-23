@@ -40,6 +40,7 @@ import {
   type RiconsegneDaFare,
 } from './returns.js'
 import type { Classe, Consegna, Corso, Iso, Registro, Semestre } from './models.js'
+import { confrontaNomi } from './text.js'
 
 /**
  * Le tipologie di lavoro, nell'ordine in cui pesano.
@@ -387,7 +388,7 @@ export function riepilogoTodo (
   const elenco = classi
     .map((classe) => todoDellaClasse(registro, classe, corsi, giorno, tieniConsegna))
     .sort(
-      (a, b) => b.urgenti - a.urgenti || b.aperti - a.aperti || a.classe.localeCompare(b.classe, 'it'),
+      (a, b) => b.urgenti - a.urgenti || b.aperti - a.aperti || confrontaNomi(a.classe, b.classe),
     )
 
   const conti = contoVuoto()

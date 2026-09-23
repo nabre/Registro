@@ -44,8 +44,8 @@ peggio che non averli. Le due regole minime:
    correggere — non arrotondare.
 
    Per le azioni e le procedure non serve contarle a mano:
-   `prove/api/copertura.test.mjs` legge l'unione `Azione` dal sorgente e
-   fallisce se il numero cambia, e `npm run procedure` stampa quante ne sono
+   `tests/api/coverage.test.mjs` legge l'unione `Azione` dal sorgente e
+   fallisce se il numero cambia, e `npm run procedures` stampa quante ne sono
    in quante aree — legge il testo e non compila, quindi risponde anche quando
    `tsc` non passa. Le azioni erano 143 finché `modello.leggi` e
    `modello.prova` sono state azioni; sono diventate letture, e con loro se ne
@@ -66,10 +66,10 @@ debiti; qui l'elenco, per non perderle:
   `git show 9470241^:LACUNE.md`.
 - La GUIDA (allora `README.md`) dichiara `archivio/` ed `esportazioni/` unificate in
   `documentazione/`, ma il codice dice il contrario: `documentazione/` è il
-  nome **vecchio**, e `archiviazione.ts` lo ridivide nelle due radici.
+  nome **vecchio**, e `filing.ts` lo ridivide nelle due radici.
 - `Smistamento.divisione` non viene riletto da `normalizzaSmistamento`: il
   campo non sopravvive a un ciclo di apertura.
-- `'a-mano'` manca da `MOTIVI_QUARANTENA` in `validazione.ts`, ma
+- `'a-mano'` manca da `MOTIVI_QUARANTENA` in `validation.ts`, ma
   `smistamento.ts` lo produce: alla rilettura diventa `'senza-nome'`.
 - La cascata di eliminazione di un allievo non filtra
   `MomentoValutazione.recuperi`: le righe con il suo id restano.

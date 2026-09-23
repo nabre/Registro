@@ -216,7 +216,21 @@ export class Smistatore implements apparato.Smaltitore {
    * si smistano una volta sola e l'originale va nel cestino: è lo stesso giro
    * che faceva l'osservatore, fatto all'apertura invece che di continuo.
    */
-  async assorbiCassettaVecchia (): Promise<void> {
+  assorbiCassettaVecchia (): Promise<void> {
+    // Una promessa sola per volta: la chiamano l'avvio e il cambio di
+    // documento, e due giri insieme leggevano gli stessi PDF due volte — due
+    // smistamenti per lo stesso foglio, e il secondo originale già nel cestino.
+    // Chi arriva mentre il giro va aspetta quello, invece di farne un altro.
+    this.assorbendo ??= this.assorbiUnaVolta().finally(() => {
+      this.assorbendo = null
+    })
+    return this.assorbendo
+  }
+
+  /** Il giro in corso di `assorbiCassettaVecchia`, se ce n'è uno. */
+  private assorbendo: Promise<void> | null = null
+
+  private async assorbiUnaVolta (): Promise<void> {
     const radice = cartellaInArrivo()
     if (!radice) return
     for (const uri of await this.pdfSotto(radice)) {
@@ -429,7 +443,16 @@ export class Smistatore implements apparato.Smaltitore {
   private posaInQuarantena (byte: Uint8Array, nome: string): string | null {
     const dove = deposito()
     if (!dove) return null
-    const relativo = `${QUARANTENA}/${istanteNelNome()} ${nomeSicuro(nome)}`
+    const base = `${QUARANTENA}/${istanteNelNome()} ${nomeSicuro(nome)}`
+    // Il prefisso va al secondo, e due «Scansione.pdf» trascinati insieme ci
+    // cadono dentro tutti e due: il secondo copriva il primo — scritto come
+    // «certamente nuovo» — e i due originali finivano comunque nel cestino. Si
+    // numera come fa l'archivio per ogni altro nome già preso.
+    const punto = base.lastIndexOf('.')
+    const [radice, estensione] =
+      punto > base.lastIndexOf('/') ? [base.slice(0, punto), base.slice(punto)] : [base, '']
+    let relativo = base
+    for (let n = 2; dove.esiste(relativo); n += 1) relativo = `${radice} (${n})${estensione}`
     dove.scrivi(relativo, byte, { certamenteNuovo: true })
     return relativo
   }
@@ -966,6 +989,23 @@ interface EsitoAssegnazione {
 }
 
 /**
+ * Il rifiuto per delle pagine che non sono più da smistare, o null se lo sono
+ * tutte.
+ *
+ * Il controllo sui numeri — da 1 al numero di pagine del PDF — non bastava: una
+ * pagina già archiviata o scartata esce dalle letture ma resta dentro il PDF, e
+ * trascinare due volte la stessa selezione su due persone archiviava le stesse
+ * pagine per tutte e due. Il documento di un minore finiva nel fascicolo di un
+ * altro. Quel che si può archiviare è solo quel che è ancora in ballo.
+ */
+function pagineNonInBallo (smistamento: Smistamento, scelte: readonly number[]): string | null {
+  const inBallo = new Set(smistamento.letture.map((l) => l.numero))
+  const giaFuori = scelte.filter((n) => !inBallo.has(n))
+  if (giaFuori.length === 0) return null
+  return `Pagine non più da smistare (già archiviate o scartate): ${giaFuori.join(', ')}.`
+}
+
+/**
  * Assegna un intervallo di pagine a un allievo, dentro una richiesta. È la
  * forma di sempre: da qui a lì, comprese.
  */
@@ -1031,6 +1071,8 @@ export async function assegnaElenco (
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= smistamento.pagine)
     .sort((x, y) => x - y)
   if (scelte.length === 0) return { ok: false, errore: 'Nessuna pagina da archiviare.' }
+  const giaFuori = pagineNonInBallo(smistamento, scelte)
+  if (giaFuori) return { ok: false, errore: giaFuori }
 
   const byte = await bytePdf(smistamento)
   if (!byte) return { ok: false, errore: 'Il PDF originale non è più nella cartella del registro.' }
@@ -1127,6 +1169,8 @@ export async function assegnaFirme (
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= smistamento.pagine)
     .sort((x, y) => x - y)
   if (scelte.length === 0) return { ok: false, errore: 'Nessuna pagina da archiviare.' }
+  const giaFuori = pagineNonInBallo(smistamento, scelte)
+  if (giaFuori) return { ok: false, errore: giaFuori }
 
   const byte = await bytePdf(smistamento)
   if (!byte) return { ok: false, errore: 'Il PDF originale non è più nella cartella del registro.' }
@@ -1218,6 +1262,8 @@ export async function assegnaAssenze (
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= smistamento.pagine)
     .sort((x, y) => x - y)
   if (scelte.length === 0) return { ok: false, errore: 'Nessuna pagina da archiviare.' }
+  const giaFuori = pagineNonInBallo(smistamento, scelte)
+  if (giaFuori) return { ok: false, errore: giaFuori }
 
   const byte = await bytePdf(smistamento)
   if (!byte) return { ok: false, errore: 'Il PDF originale non è più nella cartella del registro.' }

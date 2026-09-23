@@ -18,10 +18,10 @@ chiamata: da chi la fa fino al disco.
 
 | File | Che cosa dichiara | Quando si tocca |
 | --- | --- | --- |
-| `src/api/contratto.ts` | `Procedura`, `Ambito`, `Origine`, `Genere`, `Codice`, `ErroreApi`, `errore.*`, `EsitoScrittura`, `Risultato`, `VoceGiornale`, `VERSIONE_API` | quasi mai: cambia la busta, non l'elenco |
-| `src/api/schemi.ts` | i costruttori di schema, `convalida`, `schemaJson`, `formaInBreve` | quando manca una forma che nessun costruttore sa dire |
-| `src/api/nucleo.ts` | `chiama()`, l'elenco, `registra`, `osserva`, `SCRITTURA`, `daGestore`, `daEsitoAzione`, `aEsitoAzione`, `descrivi` | quasi mai |
-| `src/api/attrezzi.ts` | `catalogo()`, `catalogoJson()`, `nomeFunzione`, `daNomeFunzione`, le istruzioni per il modello | quando cambia la forma del catalogo, non quando cambia una procedura |
+| `src/api/contract.ts` | `Procedura`, `Ambito`, `Origine`, `Genere`, `Codice`, `ErroreApi`, `errore.*`, `EsitoScrittura`, `Risultato`, `VoceGiornale`, `VERSIONE_API` | quasi mai: cambia la busta, non l'elenco |
+| `src/api/schemas.ts` | i costruttori di schema, `convalida`, `schemaJson`, `formaInBreve` | quando manca una forma che nessun costruttore sa dire |
+| `src/api/core.ts` | `chiama()`, l'elenco, `registra`, `osserva`, `SCRITTURA`, `daGestore`, `daEsitoAzione`, `aEsitoAzione`, `descrivi` | quasi mai |
+| `src/api/tools.ts` | `catalogo()`, `catalogoJson()`, `nomeFunzione`, `daNomeFunzione`, le istruzioni per il modello | quando cambia la forma del catalogo, non quando cambia una procedura |
 
 **`VERSIONE_API` sale solo se cambia la busta.** Aggiungere una procedura è
 retrocompatibile per costruzione, e alzarla ogni volta insegnerebbe a non
@@ -31,11 +31,11 @@ guardarla.
 
 | File | Che cosa | Quando |
 | --- | --- | --- |
-| `src/api/procedure/<segmenti>.ts` | una procedura, `export const procedura` | sempre |
-| `src/api/procedure/<cartella>/indice.ts` | `procedure<Cartella>`: i file suoi e le cartelle sotto | sempre |
-| `src/api/procedure/<area>/comuni.ts` | guardie, elenchi di valori, pezzi di schema che più procedure dell'area si dividono | quando una cosa serve a due |
-| `src/api/procedure/comuni/<origine>.ts` | le guardie che **aree diverse** si dividono: `registro.ts` ha `esigiAnno`, `esigiMateria`, `esigiCorso`, `esigiClasse` | quando una guardia serve a due aree |
-| `src/api/indice.ts` | `TUTTE` e `registraTutte()`: una riga per area | area nuova o sparita |
+| `src/api/procedures/<segmenti>.ts` | una procedura, `export const procedura` | sempre |
+| `src/api/procedures/<cartella>/indice.ts` | `procedure<Cartella>`: i file suoi e le cartelle sotto | sempre |
+| `src/api/procedures/<area>/comuni.ts` | guardie, elenchi di valori, pezzi di schema che più procedure dell'area si dividono | quando una cosa serve a due |
+| `src/api/procedures/common/<origine>.ts` | le guardie che **aree diverse** si dividono: `registro.ts` ha `esigiAnno`, `esigiMateria`, `esigiCorso`, `esigiClasse` | quando una guardia serve a due aree |
+| `src/api/index.ts` | `TUTTE` e `registraTutte()`: una riga per area | area nuova o sparita |
 
 Un aiuto che serve a **una** procedura sta nel file di quella procedura. Metterlo
 in `comuni.ts` costringe ad aprire due file per leggerne una.
@@ -50,10 +50,10 @@ cambia *il modo* di entrare.
 
 | File | Chi fa entrare | La riga che conta |
 | --- | --- | --- |
-| `src/api/ponte.ts` | il centralino delle `Azione` | una procedura con `azione:` prende il posto di quel gestore in `GESTORI` |
-| `src/api/trasporti/condotto.ts` | la riga di comando, via JSON-RPC su named pipe | `permessoMancante(genere, permessi)`: è lì che si decide se uno script può scrivere |
-| `src/api/trasporti/assistente.ts` | il modello locale | `usaAttrezzo` ricontrolla `p.genere !== 'lettura'` prima di chiamare |
-| `src/pannelli/pannello.ts` | il webview | `rispondiDomanda()` rifiuta chi non è di sola lettura |
+| `src/api/bridge.ts` | il centralino delle `Azione` | una procedura con `azione:` prende il posto di quel gestore in `GESTORI` |
+| `src/api/transports/conduit.ts` | la riga di comando, via JSON-RPC su named pipe | `permessoMancante(genere, permessi)`: è lì che si decide se uno script può scrivere |
+| `src/api/transports/assistant.ts` | il modello locale | `usaAttrezzo` ricontrolla `p.genere !== 'lettura'` prima di chiamare |
+| `src/panels/panel.ts` | il webview | `rispondiDomanda()` rifiuta chi non è di sola lettura |
 
 I metodi riservati del condotto — `$versione`, `$elenco`, `$schema`, `$attrezzi`
 — sono il modo in cui chi sta fuori scopre l'API senza averne una copia.
@@ -64,10 +64,10 @@ Solo per le procedure che prendono in carico un'azione.
 
 | File | Che cosa | Attenzione |
 | --- | --- | --- |
-| `src/protocollo.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | due prove **leggono questo sorgente** e contano le varianti |
-| `src/azioni/<area>.ts` | il gestore vero, dentro `modifica(op, collezioni)` | il lavoro sta qui e ci resta |
-| `src/azioni.ts` | `GESTORI`, con `...gestoriDelleProcedure()` sparso per ultimo | le chiavi prese in carico vincono su quelle di prima |
-| `src/azioni/contesto.ts` | `EsitoAzione`, `Gestore`, `contestoDi` | |
+| `src/protocol.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | due prove **leggono questo sorgente** e contano le varianti |
+| `src/actions/<area>.ts` | il gestore vero, dentro `modifica(op, collezioni)` | il lavoro sta qui e ci resta |
+| `src/actions.ts` | `GESTORI`, con `...gestoriDelleProcedure()` sparso per ultimo | le chiavi prese in carico vincono su quelle di prima |
+| `src/actions/context.ts` | `EsitoAzione`, `Gestore`, `contestoDi` | |
 
 Aggiungere un'azione vuol dire toccare **cinque** posti: il protocollo, il
 gestore, la mappa, e i due conti nelle prove. Toglierne una, gli stessi cinque.
@@ -78,7 +78,7 @@ Non si scrivono a mano. Mai.
 
 | File | Lo genera | Lo controlla |
 | --- | --- | --- |
-| `risorse/attrezzi.json` | `npm run attrezzi` | `prove/api/attrezzi.test.mjs`, byte per byte |
+| `resources/tools.json` | `npm run tools` | `tests/api/tools.test.mjs`, byte per byte |
 
 Sta nel versionamento apposta: è il posto in cui una procedura aggiunta, tolta o
 cambiata di forma compare come una differenza leggibile, e in cui si vede che un
@@ -88,13 +88,13 @@ ingresso ha perso un campo.
 
 | Comando | Che cosa verifica |
 | --- | --- |
-| `npm run procedure` | l'albero: percorso = nome, ogni file nel suo indice, ogni cartella fino a `src/api/indice.ts`, il catalogo non in ritardo |
-| `npm run attrezzi` | rigenera il catalogo |
-| `npm run collezioni` | che ogni gestore dichiari le raccolte che tocca davvero |
-| `npm run strati` | che nessuno importi a rovescio: `src/api/` è lo strato «contract», `src/api/trasporti/` è «desktop» |
-| `npm run censimento` | export che nessuno usa |
+| `npm run procedures` | l'albero: percorso = nome, ogni file nel suo indice, ogni cartella fino a `src/api/index.ts`, il catalogo non in ritardo |
+| `npm run tools` | rigenera il catalogo |
+| `npm run collections` | che ogni gestore dichiari le raccolte che tocca davvero |
+| `npm run layers` | che nessuno importi a rovescio: `src/api/` è lo strato «contract», `src/api/transports/` è «desktop» |
+| `npm run census` | export che nessuno usa |
 
-`npm run procedure` legge il testo e non compila: risponde anche quando `tsc` non
+`npm run procedures` legge il testo e non compila: risponde anche quando `tsc` non
 passa, che è il momento in cui serve di più.
 
 ## Le docs
@@ -114,6 +114,6 @@ dimenticano. Se ne trovi uno vecchio, aggiustalo mentre sei lì.
 - **`src/cli/registro.mjs`** non ha una copia dell'elenco: chiede tutto al
   condotto. Una procedura aggiunta stamattina si chiama da lì stasera senza che
   quel file cambi. Si tocca solo per aggiungere un *comando*, non una procedura.
-- **`prove/aiuti/api.ts`** si tocca solo per esportare qualcosa di nuovo verso le
+- **`tests/helpers/api.ts`** si tocca solo per esportare qualcosa di nuovo verso le
   prove, non per una procedura: le prove la raggiungono con `chiama()`.
-- **`src/interfaccia/`** non conosce le procedure: manda `Azione` e `Domanda`.
+- **`src/ui/`** non conosce le procedure: manda `Azione` e `Domanda`.

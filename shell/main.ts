@@ -61,6 +61,7 @@ import {
   spegni,
 } from '../src/startup.js'
 import { PannelloProiezione } from '../src/panels/projection.js'
+import { ascolta as ascoltaInterfaccia } from '../src/environment/windows.js'
 import { chiudiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
@@ -70,6 +71,14 @@ import { registraComandoRiga } from './system/commandLine.js'
 import { regolaPermessi } from './protocol/permissions.js'
 import { privilegiaSchema, registraProtocollo } from './protocol/fileProtocol.js'
 
+// Su Windows un nome nudo — `reg`, `rundll32` — passato a CreateProcess, e
+// quindi a libuv, si cerca prima nella cartella corrente e poi nel PATH. La
+// cartella corrente è quella del doppio clic, cioè quella del `.registro`, che
+// può essere una chiavetta o una cartella condivisa: un `reg.exe` messo lì
+// girerebbe al posto di quello di sistema. Questa variabile toglie la cartella
+// corrente dalla ricerca, per noi e per ogni processo figlio.
+process.env.NoDefaultCurrentDirectoryInExePath = '1'
+
 /**
  * Due copie sullo stesso registro si contraddicono appena una delle due salva:
  * la seconda istanza cede il posto alla prima e se ne va.
@@ -77,11 +86,16 @@ import { privilegiaSchema, registraProtocollo } from './protocol/fileProtocol.js
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  app.on('second-instance', (_evento, argomenti) => {
+  app.on('second-instance', (_evento, argomenti, cartella) => {
+    // Si sta uscendo: riaprire adesso una finestra o un anno vorrebbe dire
+    // riprendersi la serratura che `spegni` sta lasciando.
+    if (inChiusura) return
     // Un doppio clic su un `.registro` mentre il registro è già aperto: la
     // seconda copia se ne va, ma prima consegna alla prima quale anno si
     // voleva. Senza, il doppio clic non farebbe niente e sembrerebbe rotto.
-    const documento = documentoNegliArgomenti(argomenti)
+    // Gli argomenti relativi si leggono dalla cartella della *seconda* copia:
+    // quella della prima, a quest'ora, è un'altra.
+    const documento = documentoNegliArgomenti(argomenti, cartella)
     if (documento) {
       void usaDocumento(documento)
       return
@@ -105,6 +119,7 @@ if (!app.requestSingleInstanceLock()) {
   // registro avviato passa dalla stessa strada del doppio clic su Windows.
   app.on('open-file', (evento, cammino) => {
     evento.preventDefault()
+    if (inChiusura) return
     void app.whenReady().then(() => usaDocumento(Uri.file(cammino)))
   })
 
@@ -224,6 +239,9 @@ async function avvia (): Promise<void> {
     avviatoDalSistema() ||
     conf.get<boolean>('avvio.soloVassoio', false) ||
     !conf.get<boolean>('aperturaAutomatica', true)
+  // Il canale da cui il preload legge lo stato, prima di qualunque finestra
+  // che lo carichi: vedi `ascolta`.
+  ascoltaInterfaccia()
   if (!silenzioso) mostraAvvio()
 
   // L'accensione con il computer: la voce d'avvio di Windows si riscrive qui,
@@ -240,8 +258,18 @@ async function avvia (): Promise<void> {
   // aperta l'applicazione e basta, e altrimenti chiesto — aprirne uno o
   // crearne uno. Non c'è più nessuna «cartella di lavoro» da scegliere: è il
   // documento a dire dove si lavora, e la cartella si ricava da dove sta lui.
-  let documento = documentoNegliArgomenti(process.argv) ?? documentoRicordato()
+  let documento = documentoNegliArgomenti(process.argv, process.cwd()) ?? documentoRicordato()
   let daCreare: AnnoScolastico | null = null
+  // Letti gli argomenti, la cartella corrente non serve più a niente e fa solo
+  // danni: è quella del doppio clic, e Windows non lascia rinominare né
+  // togliere una cartella che un processo tiene come corrente — la chiavetta
+  // non si espelle, la cartella dell'anno non si sposta. Ed è il primo posto in
+  // cui si cercherebbe un eseguibile chiamato per nome (vedi in testa al file).
+  try {
+    process.chdir(app.getPath('home'))
+  } catch {
+    // Resta dov'era: è il comportamento di prima.
+  }
   if (!documento) {
     // Il benvenuto è già la risposta al clic: il riquadro gli lascia il posto
     // quando si mostra. Non prima: chiuso adesso, per un istante non ci sarebbe
@@ -428,12 +456,14 @@ async function chiudiDocumento (): Promise<void> {
  * e quel che si cerca si riconosce da sé, dall'estensione e dall'essere un file
  * che esiste.
  */
-function documentoNegliArgomenti (argomenti: string[]): Uri | null {
+function documentoNegliArgomenti (argomenti: string[], cartella: string): Uri | null {
   for (const argomento of argomenti.slice(1)) {
     if (argomento.startsWith('-')) continue
     if (!èPacchetto(percorso.basename(argomento))) continue
     try {
-      const intero = percorso.resolve(argomento)
+      // Rispetto alla cartella di chi ha lanciato, detta esplicitamente: per la
+      // seconda istanza non è la nostra, e dopo l'avvio la nostra è `home`.
+      const intero = percorso.resolve(cartella, argomento)
       if (statSync(intero).isFile()) return Uri.file(intero)
     } catch {
       // Un argomento che non è un file: non è quello che si cercava.
@@ -475,6 +505,7 @@ async function preparaDocumento (file: Uri): Promise<void> {
  * quel che è in attesa prima di lasciare il documento vecchio.
  */
 async function usaDocumento (file: Uri): Promise<void> {
+  if (inChiusura) return
   // Il benvenuto, se c'era: un documento è arrivato — dal doppio clic, dai
   // recenti di Windows, dalla sua stessa lista — e la domanda «quale anno?» ha
   // avuto risposta.
@@ -484,7 +515,11 @@ async function usaDocumento (file: Uri): Promise<void> {
   // `registroDocenti.usaDocumento` arriverebbe prima di essere registrato, e
   // `executeCommand` lo direbbe alla console e tornerebbe — l'anno non si
   // aprirebbe, senza che niente lo dica a chi ha fatto doppio clic.
-  await prontoPerIComandi
+  if (!(await entroIlTetto(prontoPerIComandi, TETTO_PRONTO_MS))) {
+    console.error(`comandi non pronti dopo ${TETTO_PRONTO_MS / 1000} s: ${file.fsPath} non aperto`)
+    return
+  }
+  if (inChiusura) return
   // I lettori aperti parlano dei documenti dell'anno che si sta lasciando: le
   // loro copie non valgono più, e una finestra che mostra la scheda di un'altra
   // classe è peggio di una finestra chiusa.
@@ -498,13 +533,31 @@ async function usaDocumento (file: Uri): Promise<void> {
  * Si scioglie quando `registroDocenti.*` è registrato.
  *
  * Serve a `usaDocumento`, che può partire da un doppio clic prima che l'avvio
- * sia arrivato a registrare i comandi. Non scade: se l'avvio fallisce non c'è
- * niente da aprire comunque, e il guasto lo racconta già chi l'ha visto.
+ * sia arrivato a registrare i comandi. Il `finally` di `avvia` la scioglie
+ * anche quando l'avvio fallisce; chi aspetta ha comunque un tetto,
+ * `TETTO_PRONTO_MS`, per il caso in cui l'avvio si fermi prima di arrivarci —
+ * un'attesa che non torna — e il doppio clic resterebbe appeso per sempre.
  */
 let dichiaraPronto: () => void = () => undefined
 const prontoPerIComandi = new Promise<void>((sciogli) => {
   dichiaraPronto = sciogli
 })
+
+/** Quanto un documento arrivato presto aspetta che i comandi esistano. */
+const TETTO_PRONTO_MS = 30_000
+
+/** Vero se `promessa` si scioglie entro `ms`, falso se il tempo scade prima. */
+async function entroIlTetto (promessa: Promise<unknown>, ms: number): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const scadenza = new Promise<boolean>((risolvi) => {
+    timer = setTimeout(() => risolvi(false), ms)
+  })
+  try {
+    return await Promise.race([promessa.then(() => true), scadenza])
+  } finally {
+    clearTimeout(timer)
+  }
+}
 
 /** Il dialogo di apertura, filtrato sui documenti del registro. */
 async function scegliDocumento (): Promise<Uri | null> {
@@ -589,14 +642,60 @@ app.on('activate', () => {
  * I salvataggi del registro sono ritardati di mezzo secondo, e `deactivate`
  * esiste apposta per aspettarli. Electron però non aspetta le promesse in
  * `before-quit`: si ferma l'uscita, si aspetta davvero, e solo dopo si esce.
+ *
+ * L'attesa ha un tetto. Una scrittura che non torna — un file tenuto da
+ * OneDrive o dall'antivirus — lasciava il processo vivo senza finestre e senza
+ * icona, e con in mano il lucchetto dell'istanza unica: ogni lancio successivo
+ * finiva in `second-instance` e non faceva niente. Allo scadere si esce lo
+ * stesso: quel che non si è scritto in venti secondi non si scriverà dopo.
  */
 let inChiusura = false
+const TETTO_SPEGNIMENTO_MS = 20_000
 app.on('before-quit', (evento) => {
   if (inChiusura) return
   evento.preventDefault()
   inChiusura = true
   while (smaltibiliGuscio.length > 0) smaltibiliGuscio.pop()?.dispose()
+  // Niente `unref`: il timer deve scattare proprio quando nient'altro lo farebbe.
+  const guardia = setTimeout(() => {
+    console.error(`spegnimento oltre ${TETTO_SPEGNIMENTO_MS / 1000} s: esco senza aspettare`)
+    app.exit(0)
+  }, TETTO_SPEGNIMENTO_MS)
   void spegni()
     .catch((errore: unknown) => console.error('errore nell’ultimo salvataggio', errore))
-    .finally(() => app.exit(0))
+    .finally(() => {
+      clearTimeout(guardia)
+      app.exit(0)
+    })
+})
+
+/**
+ * L'arresto e la disconnessione di Windows.
+ *
+ * `before-quit` lì non scatta — lo dice la documentazione di Electron — e
+ * senza queste righe `spegni` non girava: la serratura restava accanto al
+ * `.registro` («l'anno risulta già aperto» sul PC di casa), e si perdevano il
+ * salvataggio ritardato, un PDF a metà, una pagina di OCR. Windows chiede
+ * prima a ogni finestra se si può chiudere la sessione (`query-session-end`):
+ * si dice di no quanto basta a uscire nel modo solito, che passa da
+ * `before-quit` e dal suo tetto. Nel frattempo Windows mostra «Registro docenti
+ * impedisce l'arresto», e la scritta sparisce appena il processo è uscito.
+ *
+ * `session-end` è l'ultima rete: arriva quando la sessione finisce comunque —
+ * chi ha premuto «Arresta comunque» — e da lì non si torna indietro. Si avvia
+ * l'uscita e si spera che basti.
+ *
+ * Tutti e due arrivano solo alle `BrowserWindow`. Con il registro messo via nel
+ * vassoio, e senza il widget sul desktop, di finestre non ce n'è nessuna: lì
+ * l'arresto di Windows passa ancora senza che `spegni` giri.
+ */
+app.on('browser-window-created', (_evento, finestra) => {
+  finestra.on('query-session-end', (evento) => {
+    if (inChiusura) return
+    evento.preventDefault()
+    app.quit()
+  })
+  finestra.on('session-end', () => {
+    if (!inChiusura) app.quit()
+  })
 })

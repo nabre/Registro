@@ -24,7 +24,7 @@ Quattro li hai nominati tu. Il quinto — `ui/` — è il 41% del codice, e non 
 in nessuno degli altri: un webview non è il processo Electron, non è il
 contratto e non è la logica. È un **cliente**, come la riga di comando, con un
 trasporto diverso. Chiamarlo così e metterlo di fianco dice la verità che il
-codice già rispetta: `src/interfaccia/` oggi non importa **mai** `dati/`,
+codice già rispetta: `src/ui/` oggi non importa **mai** `dati/`,
 `azioni/` né `ambiente/`. Il confine c'è; mancava il nome.
 
 ### La regola delle dipendenze
@@ -40,7 +40,7 @@ cli         →  (niente)                        ← nemmeno contract
 Tre note che contano più della freccia:
 
 **`core/` può importare *tipi* da `contract/`, mai valori.** Oggi
-`azioni/contesto.ts` fa `import type { Azione, Messaggio }` e `dati/modelli.ts`
+`actions/context.ts` fa `import type { Azione, Messaggio }` e `data/templates.ts`
 fa `import type { VoceModello }`: sono sette import, tutti `import type`, tutti
 cancellati alla compilazione. Non è un'inversione di strato — è codice che
 dichiara la forma di quel che riceve. La regola scritta è: *`core/` non importa
@@ -53,8 +53,8 @@ senza che quel file cambi di una riga — e si avvia anche quando la costruzione
 del registro è rotta, che è esattamente il momento in cui serve.
 
 **Le regole le controlla una macchina.** Il progetto ha già quattro controlli
-statici fatti in casa (`npm run collezioni`, `moduli`, `pulsanti`,
-`censimento`); questo ne aggiunge un quinto, `npm run strati`, che legge gli
+statici fatti in casa (`npm run collections`, `forms`, `buttons`,
+`census`); questo ne aggiunge un quinto, `npm run layers`, che legge gli
 import e fallisce se uno attraversa un confine. Una regola d'architettura che
 nessuno verifica è una regola che dura fino al prossimo `import` comodo.
 
@@ -69,7 +69,7 @@ sposta senza toccare una riga.
 
 `dati/` e `azioni/` no: fanno `import * as apparato from 'apparato'` in venticinque
 file. Quel `apparato` non è un pacchetto — è un modulo nostro,
-`src/ambiente/apparato.ts`, che `tsconfig.json` ed `esbuild.mjs` mettono
+`src/environment/platform.ts`, che `tsconfig.json` ed `esbuild.mjs` mettono
 al posto del nome. Ma dietro c'è Electron, e finché l'import c'è, `core/` non è
 puro nemmeno un po'.
 
@@ -86,19 +86,19 @@ Contati, gli usi sono questi:
 | `apparato.EventEmitter`, `Disposable` | 30 | **classi pure** |
 | `apparato.commands`, `env`, `SecretStorage` | 21 | servizi |
 
-E dentro `src/ambiente/`, ventiquattro file, la stessa cucitura è già scavata:
+E dentro `src/environment/`, ventiquattro file, la stessa cucitura è già scavata:
 
-- **puri, zero Electron** — `uri.ts` (230), `eventi.ts` (128),
-  `enumerazioni.ts` (34): **392 righe**
+- **puri, zero Electron** — `uri.ts` (230), `events.ts` (128),
+  `enumerations.ts` (34): **392 righe**
 - **serviti da Electron** — gli altri venti: ~4 500 righe
 
 Le 392 righe pure sono valori di cui `core/` ha bisogno *davvero* (un `Uri` è
 un dato, non una capacità). Le 4 500 sono capacità dell'ospite, e sono quelle
 che vanno invertite.
 
-> `osservatore.ts` (190 righe) sembrava il quarto file puro — non importa
-> `electron` né `node:` — e non lo è: importa `ambiente/contesto.ts`, che
-> Electron lo importa eccome. Se n'è accorto `npm run strati` il giorno in cui
+> `watcher.ts` (190 righe) sembrava il quarto file puro — non importa
+> `electron` né `node:` — e non lo è: importa `environment/context.ts`, che
+> Electron lo importa eccome. Se n'è accorto `npm run layers` il giorno in cui
 > è stato scritto, guardando gli import invece dei pacchetti. È il motivo per
 > cui il passo 1 viene prima del passo 5.
 
@@ -110,12 +110,12 @@ di Electron, è codice dell'ospite finito nella cartella sbagliata.**
 
 | File | Importa | Che cos'è davvero | Dove va |
 | --- | --- | --- | --- |
-| `azioni/proiezione.ts` | `pannelli/proiezione.ts` | apre una finestra e ci punta la mira — «nessuna di queste azioni tocca il registro», dice il file stesso | `desktop/`, passo 7 |
-| `azioni/documenti.ts` | `ambiente/documenti.ts` | l'elenco dei documenti recenti in `userData` | nell'`Impianto`, passo 6 |
-| `azioni/sistema.ts` | `ambiente/impostazioni.ts` | `vociImpostazioni`, `valoreAccettabile`: dati dichiarativi travestiti da ambiente | `contract/manifesto.ts`, passo 3 |
+| `actions/projection.ts` | `panels/projection.ts` | apre una finestra e ci punta la mira — «nessuna di queste azioni tocca il registro», dice il file stesso | `desktop/`, passo 7 |
+| `actions/documents.ts` | `environment/documents.ts` | l'elenco dei documenti recenti in `userData` | nell'`Impianto`, passo 6 |
+| `actions/system.ts` | `environment/settings.ts` | `vociImpostazioni`, `valoreAccettabile`: dati dichiarativi travestiti da ambiente | `contract/manifesto.ts`, passo 3 |
 
 Sono le uniche tre in 5 706 righe di `azioni/`, e stanno scritte come deroghe
-dentro `strumenti/strati.mjs`, ognuna con il passo che la toglie: un'eccezione
+dentro `tools/layers.mjs`, ognuna con il passo che la toglie: un'eccezione
 senza scadenza è una regola in meno.
 
 ### Come si inverte senza riscrivere venticinque file
@@ -173,13 +173,13 @@ export interface Impianto {
 
 **Che cosa si guadagna, concretamente.** `core/` compila e gira senza Electron
 e senza alias del bundler. Oggi otto configurazioni di `esbuild.mjs` portano
-`alias: { electron: './prove/aiuti/finto-electron.mjs' }` per poter provare
+`alias: { electron: './tests/helpers/fake-electron.mjs' }` per poter provare
 `dati/`: dopo l'inversione quell'alias serve solo a `desktop/`, e le prove del
 nucleo chiamano `impianta(sistemaFinto)` in una riga. Una finzione dichiarata
 al posto di una finzione cablata nella costruzione.
 
 **Che cosa costa.** Spostare quattro file, scrivere ~120 righe fra porta e
-delegati, e una riga di `impianta()` all'avvio e in `prove/aiuti/`. I
+delegati, e una riga di `impianta()` all'avvio e in `tests/helpers/`. I
 venticinque file di `core/` che scrivono `apparato.workspace.fs.readFile` non
 cambiano di una lettera.
 
@@ -290,17 +290,17 @@ contract/
   schemi.ts       Standard Schema fatto in casa                      ← da src/api/
   nucleo.ts       chiama(): convalida, cronometro, giornale, codici  ← da src/api/
   router.ts       router(), foglie(), la verifica dei nomi           ← nuovo
-  registro.ts     l'albero delle procedure                           ← da src/api/indice.ts
+  registro.ts     l'albero delle procedure                           ← da src/api/index.ts
   chiamante.ts    il Proxy tipizzato                                 ← nuovo
   link.ts         l'interfaccia dei tre trasporti                    ← nuovo
   ponte.ts        azioni del protocollo ↔ procedure                  ← da src/api/
-  centralino.ts   la mappa dei gestori                               ← da src/azioni.ts
-  protocollo.ts   i messaggi pannello ↔ ospite (1 341 righe)         ← da src/protocollo.ts
-  manifesto.ts    menu, impostazioni, destinazioni                   ← da src/manifesto.ts
-  procedure/      tutte, invariate                                   ← da src/api/procedure/
+  centralino.ts   la mappa dei gestori                               ← da src/actions.ts
+  protocollo.ts   i messaggi pannello ↔ ospite (1 341 righe)         ← da src/protocol.ts
+  manifesto.ts    menu, impostazioni, destinazioni                   ← da src/manifest.ts
+  procedure/      tutte, invariate                                   ← da src/api/procedures/
 ```
 
-**Perché `protocollo.ts` sta qui.** È importato da diciotto cartelle diverse —
+**Perché `protocol.ts` sta qui.** È importato da diciotto cartelle diverse —
 `core`, `contract`, `ui`, `desktop` — perché è il contratto del secondo
 trasporto, quello del pannello. Oggi sta nella radice di `src/` accanto
 all'avvio e a un widget, e quella vicinanza non dice niente a nessuno. Qui dice
@@ -325,8 +325,8 @@ I tre link:
 | Link | Chi lo usa | Da dove viene |
 | --- | --- | --- |
 | `diretto` | menu nativo, vassoio, widget agenda, promemoria | nuovo: dieci righe attorno a `nucleo.chiama` |
-| `ipc` | pannello, proiezione | oggi sparso fra `pannelli/` e `interfaccia/ponte.ts` |
-| `socket` | riga di comando, script | `src/api/trasporti/condotto.ts`, invariato nella sostanza |
+| `ipc` | pannello, proiezione | oggi sparso fra `pannelli/` e `ui/bridge.ts` |
+| `socket` | riga di comando, script | `src/api/transports/conduit.ts`, invariato nella sostanza |
 
 Il `diretto` non è una comodità: oggi il widget dell'agenda e il vassoio
 chiamano `chiama()` a mano, ognuno a modo suo, e il menu nativo passa ancora
@@ -337,9 +337,9 @@ all'agenda.
 
 ```
 desktop/
-  guscio/        principale.ts, preload.ts, menu.ts, le pagine HTML   ← da guscio/
-  sistema/       i 19 file che parlano con Electron                   ← da src/ambiente/
-  pannelli/      chi ospita i webview                                 ← da src/pannelli/
+  shell/        principale.ts, preload.ts, menu.ts, le pagine HTML   ← da shell/
+  sistema/       i 19 file che parlano con Electron                   ← da src/environment/
+  pannelli/      chi ospita i webview                                 ← da src/panels/
   link/          diretto.ts, ipc.ts, socket.ts
   widget/        agenda.ts, vassoio.ts, promemoria.ts                 ← da src/
   avvio.ts                                                            ← da src/
@@ -381,15 +381,15 @@ costruzione sia andata bene.*
 
 ```
 ui/
-  pannello/     principale.ts, stato, viste, moduli, componenti, stili  ← src/interfaccia/
-  proiezione/   la seconda finestra                                     ← src/interfaccia/proiezione.ts
+  pannello/     principale.ts, stato, viste, moduli, componenti, stili  ← src/ui/
+  proiezione/   la seconda finestra                                     ← src/ui/projection.ts
 ```
 
 Non cambia una riga di logica: cambia il nome della cartella e la frase che si
 può dire su di essa. Il pannello parla al registro **solo** attraverso il link
 IPC e i tipi di `contract/protocollo.ts`; per la logica pura pesca da
 `core/dominio/`, che gira in un browser perché non ha dipendenze. Le due cose
-sono già vere oggi: `src/interfaccia/` fa 138 import da `dominio/` e **zero** da
+sono già vere oggi: `src/ui/` fa 138 import da `dominio/` e **zero** da
 `dati/`, `azioni/` o `ambiente/`.
 
 ---
@@ -398,25 +398,25 @@ sono già vere oggi: `src/interfaccia/` fa 138 import da `dominio/` e **zero** d
 
 | Da | A | Righe |
 | --- | --- | --- |
-| `src/dominio/` | `core/dominio/` | 23 175 |
-| `src/dati/` | `core/dati/` | 11 734 |
-| `src/azioni/` | `core/azioni/` | 5 706 |
-| `src/ambiente/{uri,eventi,enumerazioni}.ts` | `core/apparato/` | 392 |
-| `src/ambiente/apparato.ts` | si sdoppia: porta in `core/apparato/`, impianto in `desktop/apparato/` | 142 |
-| `src/ambiente/` (gli altri 20, `osservatore.ts` compreso) | `desktop/apparato/` | ~4 500 |
-| `src/azioni/proiezione.ts` | `desktop/azioni/` — apre finestre, non tocca il registro | 35 |
+| `src/domain/` | `core/dominio/` | 23 175 |
+| `src/data/` | `core/dati/` | 11 734 |
+| `src/actions/` | `core/azioni/` | 5 706 |
+| `src/environment/{uri,eventi,enumerazioni}.ts` | `core/apparato/` | 392 |
+| `src/environment/platform.ts` | si sdoppia: porta in `core/apparato/`, impianto in `desktop/apparato/` | 142 |
+| `src/environment/` (gli altri 20, `watcher.ts` compreso) | `desktop/apparato/` | ~4 500 |
+| `src/actions/projection.ts` | `desktop/azioni/` — apre finestre, non tocca il registro | 35 |
 | `src/api/{contratto,schemi,nucleo,ponte}.ts` | `contract/` | 1 174 |
-| `src/api/indice.ts` | `contract/registro.ts` | 54 |
-| `src/api/procedure/` | `contract/procedure/` | 5 305 |
-| `src/api/trasporti/condotto.ts` | `desktop/link/socket.ts` | 479 |
-| `src/protocollo.ts` | `contract/protocollo.ts` | 1 341 |
-| `src/manifesto.ts` | `contract/manifesto.ts` | 355 |
-| `src/azioni.ts` | `contract/centralino.ts` | 118 |
-| `src/avvio.ts` | `desktop/avvio.ts` | 664 |
+| `src/api/index.ts` | `contract/registro.ts` | 54 |
+| `src/api/procedures/` | `contract/procedure/` | 5 305 |
+| `src/api/transports/conduit.ts` | `desktop/link/socket.ts` | 479 |
+| `src/protocol.ts` | `contract/protocollo.ts` | 1 341 |
+| `src/manifest.ts` | `contract/manifesto.ts` | 355 |
+| `src/actions.ts` | `contract/centralino.ts` | 118 |
+| `src/startup.ts` | `desktop/avvio.ts` | 664 |
 | `src/agenda.ts`, `vassoio.ts`, `promemoria.ts` | `desktop/widget/` | 842 |
-| `src/pannelli/` | `desktop/pannelli/` | 752 |
-| `guscio/` | `desktop/guscio/` | — |
-| `src/interfaccia/` | `ui/pannello/` | 39 312 |
+| `src/panels/` | `desktop/pannelli/` | 752 |
+| `shell/` | `desktop/shell/` | — |
+| `src/ui/` | `ui/pannello/` | 39 312 |
 | `src/cli/registro.mjs` | `cli/` | 530 |
 
 ---
@@ -431,13 +431,13 @@ comportamento, e va disfatto, non aggiustato.
 | # | Passo | Perché in quest'ordine |
 | --- | --- | --- |
 | 0 | I difetti del giro 1 | Riordinare su codice rotto sposta il difetto e rende illeggibile il diff che lo correggeva |
-| 1 | `npm run strati` | ✅ **fatto.** Il controllo prima del lavoro che deve controllare. Scritto contro l'albero di oggi: passa, con tre deroghe dichiarate e datate — e nel nascere ha già corretto due cose che questo documento diceva sbagliate |
+| 1 | `npm run layers` | ✅ **fatto.** Il controllo prima del lavoro che deve controllare. Scritto contro l'albero di oggi: passa, con tre deroghe dichiarate e datate — e nel nascere ha già corretto due cose che questo documento diceva sbagliate |
 | 2 | `ui/` | 39 000 righe, ma è lo spostamento **più isolato** del progetto: nessuno importa `interfaccia/` dall'esterno tranne quattro entry point di esbuild |
 | 3 | `contract/` | Sposta `api/` e i due file di radice che gli appartengono; da qui in poi «l'unica definizione» ha un indirizzo |
 | 4 | `router.ts` + `chiamante.ts` + `link.ts` | Il primo lavoro che non è uno spostamento. L'albero **verifica** i nomi di oggi, quindi o parte o si ferma subito |
 | 5 | `core/` — i file | `dominio`, `dati`, `azioni`, e le 582 righe pure di `ambiente` |
-| 6 | `core/` — l'inversione | La porta, i delegati, `impianta()` all'avvio e in `prove/aiuti/`; via otto alias da `esbuild.mjs` |
-| 7 | `desktop/` | Quel che resta di `ambiente/`, `guscio/`, `pannelli/`, i tre link, i widget |
+| 6 | `core/` — l'inversione | La porta, i delegati, `impianta()` all'avvio e in `tests/helpers/`; via otto alias da `esbuild.mjs` |
+| 7 | `desktop/` | Quel che resta di `ambiente/`, `shell/`, `pannelli/`, i tre link, i widget |
 | 8 | `cli/` | Fuori da `src/`, divisa in comandi; `guarda` e `aspetta` |
 | 9 | I tre link al posto delle tre strade | Agenda, vassoio e menu nativo passano a `chiamante(registro, diretto)` |
 | 10 | Carta | `ARCHITETTURA.md`, `API.md`, `INDICE.md`, e questo file che diventa storia |

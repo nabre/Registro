@@ -61,6 +61,12 @@ export interface WebviewPanel {
   title: string
   iconPath?: Uri
   onDidDispose: Event<void>
+  /**
+   * L'id dei `webContents` della finestra: il nome con cui un comando
+   * dell'apparato la ritrova senza passare dal fuoco. Facoltativo perché i
+   * pannelli finti delle prove non ce l'hanno. Vedi `apparato.schermoIntero`.
+   */
+  readonly idContenuti?: number
   reveal (colonna?: number, senzaFuoco?: boolean): void
   dispose (): void
 }
@@ -83,8 +89,13 @@ let inAscolto = false
  * sullo stesso canale. Senza confrontare `evento.sender.id` ognuna riceverebbe
  * anche le richieste dell'altra, e il registro eseguirebbe due volte quel che
  * gli è stato chiesto una.
+ *
+ * Esportata perché la accenda anche l'avvio, prima del riquadro: splash e
+ * benvenuto caricano lo stesso preload, che legge lo stato della pagina con un
+ * `sendSync` — e senza nessuno in ascolto quella lettura non ha risposta. A
+ * quelle finestre torna `null`, perché non sono pannelli: ma torna.
  */
-function ascolta (): void {
+export function ascolta (): void {
   if (inAscolto) return
   inAscolto = true
   ipcMain.on('registro:interfaccia', (evento, operazione: unknown, valore: unknown) => {
@@ -210,6 +221,7 @@ class FinestraPannello implements WebviewPanel {
   readonly webview: VistaWeb
   readonly viewColumn: number | undefined
   readonly onDidDispose: Event<void>
+  readonly idContenuti: number
 
   /**
    * L'icona che il registro chiede per il proprio pannello: la si accetta e non
@@ -240,6 +252,7 @@ class FinestraPannello implements WebviewPanel {
     // destroyed» — un'eccezione non catturata nel processo principale, cioè il
     // riquadro d'errore che compare chiudendo un pannello.
     const idContenuti = finestra.webContents.id
+    this.idContenuti = idContenuti
 
     pagine.set(id, this.webview)
     perFinestra.set(idContenuti, this.webview)

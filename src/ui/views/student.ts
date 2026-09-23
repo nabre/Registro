@@ -160,6 +160,7 @@ function presenzeDelCorso (allievo: Allievo, corso: Corso): RigaCorso | null {
       corso,
       semestre?.inizio ?? anno?.inizio ?? '',
       semestre?.fine ?? anno?.fine ?? '',
+      stato.registro.lezioni,
     ),
   )
   return matrice.righe[0] ?? null

@@ -79,6 +79,39 @@ export const fatto: EsitoAzione = { ok: true }
 /** Riuscito, e senza aver toccato niente su disco. */
 export const invariato: EsitoAzione = { ok: true, invariato: true }
 
+/** Che cosa vuol dire, per chi legge, un errore di sistema. */
+const MOTIVI_DI_SISTEMA: Record<string, string> = {
+  EBUSY: 'il file è aperto in un altro programma',
+  EPERM: 'il sistema non lascia toccare il file (aperto altrove, o protetto)',
+  EACCES: 'mancano i permessi sul file',
+  ENOENT: 'il file non c’è più',
+  ENOSPC: 'il disco è pieno',
+  ENAMETOOLONG: 'il nome del file è troppo lungo',
+  EEXIST: 'il file c’è già',
+}
+
+/**
+ * Il perché di un guasto, da mostrare a chi ha premuto.
+ *
+ * Un errore di sistema di Node — quelli con `code` e `syscall`: `EBUSY`,
+ * `ENOENT`, `EPERM` — porta nel messaggio il **percorso** intero, e i percorsi
+ * dell'archivio sono fatti con la classe e il cognome-nome dell'allievo:
+ * `…/archivio/DIC4a/Rossi Mario/…pdf`. Un rifiuto passa intero dal pannello,
+ * dal condotto e dall'assistente, e la pulizia di `chiama()` vale solo per i
+ * guasti `interno`. Quindi qui il codice diventa una frase, e il percorso resta
+ * nella console. Le frasi scritte apposta — un `Error` senza `code` — passano
+ * come sono: chi le ha scritte ha deciso che cosa nominare.
+ */
+export function motivoSicuro (errore: unknown, ripiego = 'errore imprevisto'): string {
+  if (!(errore instanceof Error)) return ripiego
+  const { code, syscall } = errore as Error & { code?: unknown, syscall?: unknown }
+  if (typeof code === 'string' && typeof syscall === 'string') {
+    console.error('[azioni]', errore)
+    return MOTIVI_DI_SISTEMA[code] ?? `errore di sistema ${code}`
+  }
+  return errore.message || ripiego
+}
+
 export function rifiuta (...errori: string[]): EsitoAzione {
   return { ok: false, errori }
 }
@@ -316,10 +349,30 @@ export function consegnaConClasse (
  */
 type Cambiamento = (r: Registro) => void | boolean
 
+/** La frase con cui si rifiuta una scrittura arrivata dopo un cambio di documento. */
+export const DOCUMENTO_CAMBIATO = 'Il documento aperto è cambiato: non è stato scritto niente.'
+
+/** Il rifiuto di sopra, con il suo codice: si ritenta dopo aver riaperto il documento giusto. */
+export function documentoCambiato (): EsitoAzione {
+  return rifiutaCon('conflitto', DOCUMENTO_CAMBIATO)
+}
+
 /** Quel che un'azione ha sottomano: il registro da leggere e i modi di scriverlo. */
 interface Contesto {
   /** Serve a chi deve scrivere più volte, o leggere lo stato dopo aver scritto. */
   archivio: Archivio
+  /**
+   * Se il documento aperto — e il suo anno — sono ancora quelli di quando
+   * l'azione è partita.
+   *
+   * Il cambio di documento non passa dalla fila delle scritture: un doppio clic
+   * su un altro `.registro`, un anno recente, arrivano mentre un gestore sta
+   * aspettando un dialogo o un giro di geocodifica che dura minuti. `modifica`
+   * la guarda da sé; la chiamano a mano i gestori che, prima di scrivere nel
+   * registro, scrivono un file nel pacchetto — o che girano in un ciclo lungo e
+   * devono smettere, non soltanto veder rifiutata ogni scrittura.
+   */
+  ancoraQui (): boolean
   /**
    * Da dove è partita la richiesta, per il giornale.
    *
@@ -357,12 +410,17 @@ interface Contesto {
    * — si rifiuta senza scrivere niente: prima si marcava il file come
    * sporco, lo si riscriveva uguale e si rispondeva «fatto» a un clic su
    * qualcosa che non esisteva. Il timbro di aggiornamento lo mette lei.
+   *
+   * Come in `modifica`, `op` può tornare `false` per dire che dentro la voce
+   * non ha trovato quel che cercava — una persona sparita dalla classe mentre
+   * si sceglieva un file — e allora si rifiuta con `mancante`.
    */
   suVoce<K extends RaccoltaConId> (
     collezione: K,
     id: string,
-    op: (voce: Registro[K][number], r: Registro) => void,
+    op: (voce: Registro[K][number], r: Registro) => void | boolean,
     altre?: Collezione[],
+    mancante?: string,
   ): EsitoAzione
   /**
    * Toglie qualcosa dal registro con tutto il suo seguito.
@@ -403,7 +461,19 @@ const NOMI_VOCE: Record<RaccoltaConId, string> = {
 }
 
 export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
+  // Dove si era quando l'azione è partita. `chiama()` lo controlla prima del
+  // turno, ma il turno di un gestore che aspetta dura quanto dura l'attesa, e
+  // il documento può cambiare in mezzo: senza questo, `modifica` scriveva in
+  // qualunque registro fosse aperto in quel momento — le coordinate delle case
+  // di una classe dentro l'anno di un'altra.
+  const documento = archivio.documentoAperto?.toString() ?? null
+  let anno = archivio.registro.annoCorrenteId
+  const ancoraQui = (): boolean =>
+    (archivio.documentoAperto?.toString() ?? null) === documento &&
+    archivio.registro.annoCorrenteId === anno
+
   const modifica = (op: Cambiamento, collezioni: Collezione[], mancante?: string): EsitoAzione => {
+    if (!ancoraQui()) return documentoCambiato()
     // Si prova prima e si dichiara dopo, e l'ordine non è un vezzo:
     // `Archivio.modifica` alza la revisione e segna i file come sporchi appena
     // la si chiama, e non sa tornare indietro. Un rifiuto passato di lì
@@ -420,11 +490,16 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
       return rifiutaCon('non-trovato', mancante ?? 'Non c’è più: forse è già sparito.')
     }
     archivio.modifica(() => undefined, collezioni)
+    // L'anno corrente lo può cambiare la scrittura stessa — togliere l'anno in
+    // uso ne sceglie un altro — e quella è opera di chi sta scrivendo, non di
+    // un documento aperto da un'altra parte: le scritture dopo restano buone.
+    anno = archivio.registro.annoCorrenteId
     return fatto
   }
 
   return {
     archivio,
+    ancoraQui,
     ...(origine ? { origine } : {}),
     get registro () {
       // Preso ogni volta e non copiato all'inizio: chi scrive due volte di
@@ -433,23 +508,32 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
       return archivio.registro
     },
     modifica,
-    suVoce: (collezione, id, op, altre = []) => {
+    suVoce: (collezione, id, op, altre = [], mancante) => {
       const raccolta = archivio.registro[collezione] as Array<{ id: string }>
       if (!raccolta.some((v) => v.id === id)) {
         return rifiutaCon('non-trovato', `${NOMI_VOCE[collezione]} non trovata: forse è già sparita.`)
       }
-      return modifica((r) => {
+      const sparita = `${NOMI_VOCE[collezione]} non trovata: forse è già sparita.`
+      // Quale dei due `false` è arrivato: la voce sparita, o quel che `op`
+      // cercava dentro di lei. Il rifiuto si ricompone dopo, perché la frase
+      // di `modifica` si sceglie prima di sapere quale dei due sarà.
+      let dentro = false
+      const esito = modifica((r) => {
         const voce = (r[collezione] as Array<{ id: string }>).find((v) => v.id === id)
         // Sparita fra la guardia qui sopra e adesso: succede solo ai gestori
         // che aspettano in mezzo, e finora usciva di qui come un «fatto».
         if (!voce) return false
-        op(voce as Registro[typeof collezione][number], r)
+        if (op(voce as Registro[typeof collezione][number], r) === false) {
+          dentro = true
+          return false
+        }
         const timbro = voce as { aggiornataIl?: string; aggiornatoIl?: string }
         if ('aggiornataIl' in timbro) timbro.aggiornataIl = istanteAdesso()
         if ('aggiornatoIl' in timbro) timbro.aggiornatoIl = istanteAdesso()
       },
       [collezione === 'anni' || collezione === 'materie' ? 'registro' : collezione, ...altre],
-      `${NOMI_VOCE[collezione]} non trovata: forse è già sparita.`)
+      sparita)
+      return dentro ? rifiutaCon('non-trovato', mancante ?? sparita) : esito
     },
     nelFascicolo: (classeId, op) =>
       modifica((r) => {

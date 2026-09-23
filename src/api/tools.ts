@@ -9,11 +9,12 @@
 //
 // Serve a due cose che si assomigliano e non sono la stessa:
 //
-//   1. **la riga di comando in italiano.** `registro chiedi «quante ore ha
-//      perso Rossi?»` non può importare TypeScript — la riga di comando non si
-//      compila, apposta, perché deve funzionare anche quando la costruzione non
-//      è andata bene — quindi il catalogo glielo si consegna già fatto, in un
-//      file che si legge con `JSON.parse`.
+//   1. **chi sta fuori dal registro.** Un modello che gira altrove, o uno
+//      script, non può importare TypeScript — nemmeno la riga di comando, che
+//      non si compila apposta, perché deve funzionare anche quando la
+//      costruzione non è andata bene — quindi il catalogo glielo si consegna già
+//      fatto, in un file che si legge con `JSON.parse`. `registro catalogo`
+//      stampa lo stesso, vivo, dal condotto.
 //   2. **il file che si guarda in revisione.** `resources/tools.json` sta nel
 //      versionamento, e una procedura aggiunta, tolta o cambiata di forma
 //      compare lì come una differenza leggibile. È il posto in cui si vede che

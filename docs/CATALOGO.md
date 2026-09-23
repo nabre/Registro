@@ -18,12 +18,12 @@ stesso sistema, non sei elenchi paralleli.
 
 | Superficie | Dove è dichiarata | Che cos'è | Quante |
 |---|---|---|---|
-| **Destinazioni (pagine)** | [`src/interfaccia/pagine.ts`](../src/interfaccia/pagine.ts) — `PAGINE` | Un posto in cui *andare*: barra laterale, palette, navigazione dall'host | 18 |
-| **Viste** | [`src/protocollo.ts`](../src/protocollo.ts) — `type Vista`, instradate da [`src/interfaccia/guscio.ts`](../src/interfaccia/guscio.ts) | Lo schermo che viene davvero disegnato | 16 |
-| **Comandi dell'interfaccia** | [`src/interfaccia/comandi.ts`](../src/interfaccia/comandi.ts) — `COMANDI_UI` | Una cosa da *fare*: riga azioni, palette, scorciatoie | 89 |
-| **Azioni del protocollo** | [`src/protocollo.ts`](../src/protocollo.ts) — `type Azione` | Il comando che attraversa il ponte verso l'host, e **scrive** | 141 |
-| **Procedure di lettura** | [`src/api/procedure/`](../src/api/procedure/) — le procedure con `genere: 'lettura'` | Una domanda al registro che non lo cambia: passa dal canale `Domanda`/`Riscontro`, fuori dalla coda delle scritture (§6.17) | 8 |
-| **Comandi del programma** | [`src/manifesto.ts`](../src/manifesto.ts) — `COMANDI` | Voce del menu nativo / vassoio / agenda / promemoria | 21 |
+| **Destinazioni (pagine)** | [`src/ui/pages.ts`](../src/ui/pages.ts) — `PAGINE` | Un posto in cui *andare*: barra laterale, palette, navigazione dall'host | 18 |
+| **Viste** | [`src/protocol.ts`](../src/protocol.ts) — `type Vista`, instradate da [`src/ui/shell.ts`](../src/ui/shell.ts) | Lo schermo che viene davvero disegnato | 16 |
+| **Comandi dell'interfaccia** | [`src/ui/commands.ts`](../src/ui/commands.ts) — `COMANDI_UI` | Una cosa da *fare*: riga azioni, palette, scorciatoie | 89 |
+| **Azioni del protocollo** | [`src/protocol.ts`](../src/protocol.ts) — `type Azione` | Il comando che attraversa il ponte verso l'host, e **scrive** | 141 |
+| **Procedure di lettura** | [`src/api/procedures/`](../src/api/procedures/) — le procedure con `genere: 'lettura'` | Una domanda al registro che non lo cambia: passa dal canale `Domanda`/`Riscontro`, fuori dalla coda delle scritture (§6.17) | 8 |
+| **Comandi del programma** | [`src/manifest.ts`](../src/manifest.ts) — `COMANDI` | Voce del menu nativo / vassoio / agenda / promemoria | 21 |
 
 ### Come si incastrano
 
@@ -83,7 +83,7 @@ Le regole che tengono insieme il quadro:
 
 ### 2.1 Le 18 `Pagina` di `PAGINE`
 
-Fonte: [`src/interfaccia/pagine.ts`](../src/interfaccia/pagine.ts).
+Fonte: [`src/ui/pages.ts`](../src/ui/pages.ts).
 Colonne: **gruppo** = sezione della barra laterale (`GruppoPagina`);
 **vista** = ciò che `apri()` imposta; **impedimento** = perché non ci si può
 andare; **conteggio** = la pastiglia accanto al titolo (`conto()`); zero non si
@@ -135,59 +135,59 @@ Ordine di presentazione: `gestione` → `registro` → `classe` → `sistema`
 
 ### 2.3 Le 16 `Vista`
 
-`type Vista` è dichiarata in [`src/protocollo.ts`](../src/protocollo.ts) — non
+`type Vista` è dichiarata in [`src/protocol.ts`](../src/protocol.ts) — non
 in `stato.ts` — perché è l'unico elenco che host e webview leggono entrambi:
 `MessaggioNavigazione.vista` la usa. Lo `switch` che le instrada sta in
-[`src/interfaccia/guscio.ts`](../src/interfaccia/guscio.ts).
+[`src/ui/shell.ts`](../src/ui/shell.ts).
 
 | `Vista` | file | schede interne | dati consumati |
 |---|---|---|---|
-| `calendario` | [`viste/calendario.ts`](../src/interfaccia/viste/calendario.ts) | 4 modi (`ModoCalendario`, da `porzioni.ts::MODI_CALENDARIO`): settimana, mese, anno, agenda | `stato.data`, `modoCalendario`, `lezioneId`, `filtroCorsoAgendaId`, `adessoData`/`adessoOra`, `registro.impostazioni`; `annoCorrente`, `lezioniInAgenda`, `classeDiLezione`, `nomeDiLezione`, `scalettaDiLezione`, `compleanniDi`/`compleanniFra`, `semestrePerData` |
-| `todo` | [`viste/todo.ts`](../src/interfaccia/viste/todo.ts) | nessuna propria (delega a `todoClasse.ts`) | `filtroTodo`, `classeTodoId`, `adessoData`; `annoCorrente`, `classiVisibili`, `corsiDellAnnoAperto`; dominio `riepilogoTodo`, `classiConLavoro` |
-| `daSmistare` | [`viste/daSmistare.ts`](../src/interfaccia/viste/daSmistare.ts) | nessuna | `registro.smistamenti`; `classiDiCuiSonoDocente`, `corsiDi`; dominio `daSmistarePerClasse`; esporta `pagineDaSmistareInTutto()` |
-| `lezione` | [`viste/lezione.ts`](../src/interfaccia/viste/lezione.ts) | 3 linguette (`SchedaLezione`): amministrazione (appello + `pannelloConsegne` + `pannelloRiconsegneDellOra`), lezione (piano + griglia voti + `bloccoRecuperiDellOra`), annotazioni (contenuti + osservazioni) | `lezioneId`, `schedaLezione`, `registro`; `lezionePerId`, `lezioneDiRiferimento`, `titoloDiLezione`, `uriDato` |
-| `classi` | [`viste/classi.ts`](../src/interfaccia/viste/classi.ts) | nessuna (elenco + scheda anagrafica) | `classeId`, `registro`; `classePerId`, `classiDellAnno`, `materieDiClasse` |
-| `persone` | [`viste/persone.ts`](../src/interfaccia/viste/persone.ts) | riusa `schedaAllievo()` di `allievo.ts` | `allievoId`, `classiApertePersone`; `annoCorrente`, `classiVisibili`; ricerca locale di modulo |
-| `allievo` | [`viste/allievo.ts`](../src/interfaccia/viste/allievo.ts) | 3 linguette (`SchedaPersona`): anagrafica, docenteClasse (solo con il flag sulla classe), materie | `allievoId`, `classeId`, `adessoData`, `registro`; `classeDellAllievo`, `corsiDi`, `fascicoloDi`, `lezioniDi` |
-| `docenteClasse` | [`viste/docenteClasse.ts`](../src/interfaccia/viste/docenteClasse.ts) | 4 linguette (`SchedaDocente`): todo, documenti, assenze, messaggistica | `schedaDocente`, `filtroTodoClasse`, `adessoData`; `classeDelFascicolo()`, `classiDiCuiSonoDocente`, `fascicoloDi` |
-| `corsi` | [`viste/corsi.ts`](../src/interfaccia/viste/corsi.ts) | nessuna (elenco + scheda con matrice) | `adessoData`/`adessoOra`, `registro`; `corsiDellAnnoAperto`, `pianiPerCorso`, `semestreScelto`; dominio `matriceCorso`, `orario` |
-| `piani` | [`viste/piani.ts`](../src/interfaccia/viste/piani.ts) | nessuna (libreria + editor a due colonne) | `pianoId`, `ricerca`, `registro`; esporta `pianoMostrato()`, `primaOraDelPiano()`, `scordaEditorDelPiano()` |
-| `valutazioni` | [`viste/valutazioni.ts`](../src/interfaccia/viste/valutazioni.ts) | pannelli satellite `pannelloRecuperi` e `pannelloRiconsegna`; esporta `grigliaVoti`/`elencoVoti` a `lezione.ts` | `valutazioneId`, `registro`; `classeDiMomento`, `valutazionePerId`, `corsoDelContesto()`; dominio `orfani`, `recuperi` |
-| `documenti` | [`viste/documenti.ts`](../src/interfaccia/viste/documenti.ts) | 3 schede (`SchedaDocumenti`): corso, lezioni, allievi | `schedaDocumenti`; `corsoDelContesto()`, `corsiDellAnnoAperto`, `nomeSemestreScelto`, `stato.esportati`, `stato.composizioni` |
-| `modelli` | [`viste/modelli.ts`](../src/interfaccia/viste/modelli.ts) | nessuna | `stato.modelli`, `modelloScelto`, `radiceApp`; esporta `modelloAperto`, `modelloDaSalvare`, `salvaModello`, `ripristinaAperto`, `ricaricaAperto`, `provaAperto`, `portaImmagine`, `apriCartellaModelli` |
-| `mappa` | [`viste/mappa.ts`](../src/interfaccia/viste/mappa.ts) | 3 schede (`SchedaMappa`): tutti, domicilio, lavoro | `schedaMappa`, `registro`; `annoCorrente`, `classiDellAnno`; dominio `mappa`; esporta `mostraSullaMappa`, `inquadraTutto`, `indirizziInAttesa` |
-| `impostazioni` | [`viste/impostazioni.ts`](../src/interfaccia/viste/impostazioni.ts) | 2 ambiti (documento / programma) × sezioni | `ambitoImpostazioni`, `schedaDocumento`, `schedaProgramma`, `stato.programma` |
-| `guida` | [`viste/guida.ts`](../src/interfaccia/viste/guida.ts) | elenco di schede testuali, una per `Vista` | nessun dato applicativo |
+| `calendario` | [`views/calendar.ts`](../src/ui/views/calendar.ts) | 4 modi (`ModoCalendario`, da `porzioni.ts::MODI_CALENDARIO`): settimana, mese, anno, agenda | `stato.data`, `modoCalendario`, `lezioneId`, `filtroCorsoAgendaId`, `adessoData`/`adessoOra`, `registro.impostazioni`; `annoCorrente`, `lezioniInAgenda`, `classeDiLezione`, `nomeDiLezione`, `scalettaDiLezione`, `compleanniDi`/`compleanniFra`, `semestrePerData` |
+| `todo` | [`views/todo.ts`](../src/ui/views/todo.ts) | nessuna propria (delega a `classTodo.ts`) | `filtroTodo`, `classeTodoId`, `adessoData`; `annoCorrente`, `classiVisibili`, `corsiDellAnnoAperto`; dominio `riepilogoTodo`, `classiConLavoro` |
+| `daSmistare` | [`views/toSort.ts`](../src/ui/views/toSort.ts) | nessuna | `registro.smistamenti`; `classiDiCuiSonoDocente`, `corsiDi`; dominio `daSmistarePerClasse`; esporta `pagineDaSmistareInTutto()` |
+| `lezione` | [`views/lesson.ts`](../src/ui/views/lesson.ts) | 3 linguette (`SchedaLezione`): amministrazione (appello + `pannelloConsegne` + `pannelloRiconsegneDellOra`), lezione (piano + griglia voti + `bloccoRecuperiDellOra`), annotazioni (contenuti + osservazioni) | `lezioneId`, `schedaLezione`, `registro`; `lezionePerId`, `lezioneDiRiferimento`, `titoloDiLezione`, `uriDato` |
+| `classi` | [`views/classes.ts`](../src/ui/views/classes.ts) | nessuna (elenco + scheda anagrafica) | `classeId`, `registro`; `classePerId`, `classiDellAnno`, `materieDiClasse` |
+| `persone` | [`views/people.ts`](../src/ui/views/people.ts) | riusa `schedaAllievo()` di `student.ts` | `allievoId`, `classiApertePersone`; `annoCorrente`, `classiVisibili`; ricerca locale di modulo |
+| `allievo` | [`views/student.ts`](../src/ui/views/student.ts) | 3 linguette (`SchedaPersona`): anagrafica, docenteClasse (solo con il flag sulla classe), materie | `allievoId`, `classeId`, `adessoData`, `registro`; `classeDellAllievo`, `corsiDi`, `fascicoloDi`, `lezioniDi` |
+| `docenteClasse` | [`views/classTeacher.ts`](../src/ui/views/classTeacher.ts) | 4 linguette (`SchedaDocente`): todo, documenti, assenze, messaggistica | `schedaDocente`, `filtroTodoClasse`, `adessoData`; `classeDelFascicolo()`, `classiDiCuiSonoDocente`, `fascicoloDi` |
+| `corsi` | [`views/courses.ts`](../src/ui/views/courses.ts) | nessuna (elenco + scheda con matrice) | `adessoData`/`adessoOra`, `registro`; `corsiDellAnnoAperto`, `pianiPerCorso`, `semestreScelto`; dominio `matriceCorso`, `orario` |
+| `piani` | [`views/plans.ts`](../src/ui/views/plans.ts) | nessuna (libreria + editor a due colonne) | `pianoId`, `ricerca`, `registro`; esporta `pianoMostrato()`, `primaOraDelPiano()`, `scordaEditorDelPiano()` |
+| `valutazioni` | [`views/assessments.ts`](../src/ui/views/assessments.ts) | pannelli satellite `pannelloRecuperi` e `pannelloRiconsegna`; esporta `grigliaVoti`/`elencoVoti` a `lezione.ts` | `valutazioneId`, `registro`; `classeDiMomento`, `valutazionePerId`, `corsoDelContesto()`; dominio `orfani`, `recuperi` |
+| `documenti` | [`views/documents.ts`](../src/ui/views/documents.ts) | 3 schede (`SchedaDocumenti`): corso, lezioni, allievi | `schedaDocumenti`; `corsoDelContesto()`, `corsiDellAnnoAperto`, `nomeSemestreScelto`, `stato.esportati`, `stato.composizioni` |
+| `modelli` | [`views/templates.ts`](../src/ui/views/templates.ts) | nessuna | `stato.modelli`, `modelloScelto`, `radiceApp`; esporta `modelloAperto`, `modelloDaSalvare`, `salvaModello`, `ripristinaAperto`, `ricaricaAperto`, `provaAperto`, `portaImmagine`, `apriCartellaModelli` |
+| `mappa` | [`views/map.ts`](../src/ui/views/map.ts) | 3 schede (`SchedaMappa`): tutti, domicilio, lavoro | `schedaMappa`, `registro`; `annoCorrente`, `classiDellAnno`; dominio `mappa`; esporta `mostraSullaMappa`, `inquadraTutto`, `indirizziInAttesa` |
+| `impostazioni` | [`views/settings.ts`](../src/ui/views/settings.ts) | 2 ambiti (documento / programma) × sezioni | `ambitoImpostazioni`, `schedaDocumento`, `schedaProgramma`, `stato.programma` |
+| `guida` | [`views/help.ts`](../src/ui/views/help.ts) | elenco di schede testuali, una per `Vista` | nessun dato applicativo |
 
-### 2.4 File satellite (non sono `Vista`, non sono instradati da `guscio.ts`)
+### 2.4 File satellite (non sono `Vista`, non sono instradati da `shell.ts`)
 
 | File | Che cosa esporta | Chi lo usa |
 |---|---|---|
-| [`viste/archivio.ts`](../src/interfaccia/viste/archivio.ts) | righe, cornice e inventario PDF dell'archivio documentale | `docenteClasse.ts`, `assenze.ts`, `daSmistare.ts`, `smistamento.ts` |
-| [`viste/assenze.ts`](../src/interfaccia/viste/assenze.ts) | `schedaAssenze`, `gruppoRichiesteFirma`, `gruppoSegnalazioni` | `docenteClasse.ts`, `todo.ts`, `todoClasse.ts` |
-| [`viste/consegne.ts`](../src/interfaccia/viste/consegne.ts) | `pannelloConsegne`, `gruppoConsegne` | `lezione.ts`, `todo.ts`, `todoClasse.ts` |
-| [`viste/recuperi.ts`](../src/interfaccia/viste/recuperi.ts) | `bloccoRecuperiDellOra`, `pannelloRecuperi`, `gruppoRecuperi` | `lezione.ts`, `valutazioni.ts`, `todo.ts`, `todoClasse.ts`, `riconsegne.ts` |
-| [`viste/riconsegne.ts`](../src/interfaccia/viste/riconsegne.ts) | `pannelloRiconsegneDellOra`, `pannelloRiconsegna`, `gruppoRiconsegne`, `gruppoRiconsegneAllievi` | `lezione.ts`, `valutazioni.ts`, `todo.ts`, `todoClasse.ts` |
-| [`viste/sfoglio.ts`](../src/interfaccia/viste/sfoglio.ts) | `accettaPagine*`, `portaPagine`, `sfoglioSmistamento` | `docenteClasse.ts`, `assenze.ts`, `archivio.ts`, `smistamento.ts` |
-| [`viste/smistamento.ts`](../src/interfaccia/viste/smistamento.ts) | `caricaPdf`, `rileggiScansioni`, `pdfInAttesa` | `docenteClasse.ts`, `daSmistare.ts`, `assenze.ts`, `comandi.ts` |
-| [`viste/todoClasse.ts`](../src/interfaccia/viste/todoClasse.ts) | `schedaTodoClasse`, `sezioniTodoClasse`, `simboloFamiglia`, `riassuntoClasse` | `todo.ts`, `docenteClasse.ts` |
-| [`viste/documenti/anteprima.ts`](../src/interfaccia/viste/documenti/anteprima.ts) | `cornice`, `documentoAperto`, `senzaAnteprima` | `documenti.ts` |
-| [`viste/documenti/csv.ts`](../src/interfaccia/viste/documenti/csv.ts) | `anteprimaCsv` | `documenti.ts` |
-| [`viste/documenti/fogli.ts`](../src/interfaccia/viste/documenti/fogli.ts) | `azzeraRighe`, `sceltiInOrdine` | `documenti.ts`, `comandi.ts` |
-| [`viste/documenti/schede.ts`](../src/interfaccia/viste/documenti/schede.ts) | `delCorso`, `prove`, `piani`, `dellaClasse`, `composizioni`, `matriceLezioni`, `fotoDellaClasse`, `schedeAllievo` | `documenti.ts` |
-| [`viste/impostazioni/anno.ts`](../src/interfaccia/viste/impostazioni/anno.ts) | `schedaAnnoAperto`, `schedaChiusure`, `schedaSettimane`, `schedaElencoAnni` | `impostazioni.ts` |
-| [`viste/impostazioni/documento.ts`](../src/interfaccia/viste/impostazioni/documento.ts) | `schedaCalendario`, `schedaValutazione`, `schedaMaterie`, `schedaFile`, `salvaImpostazioni` | `impostazioni.ts` |
-| [`viste/impostazioni/liste.ts`](../src/interfaccia/viste/impostazioni/liste.ts) | `schedaListe` | `impostazioni.ts` |
-| [`viste/impostazioni/registri.ts`](../src/interfaccia/viste/impostazioni/registri.ts) | `schedaRegistri` | `impostazioni.ts` |
-| [`viste/impostazioni/posta.ts`](../src/interfaccia/viste/impostazioni/posta.ts) | `schedaPosta` | `impostazioni.ts` |
-| [`viste/impostazioni/programma.ts`](../src/interfaccia/viste/impostazioni/programma.ts) | `schedaProgramma`, `vociDellaSezione`, `dovVannoLeOpzioni`, `vociProgramma` | `impostazioni.ts` |
-| [`viste/impostazioni/sezioni.ts`](../src/interfaccia/viste/impostazioni/sezioni.ts) | `SEZIONI_PROGRAMMA`, `gruppiDiSezione`, `vociDiSezione`, `nomeVoce`, `sottoPrefisso` | `impostazioni.ts`, `programma.ts` |
+| [`views/archive.ts`](../src/ui/views/archive.ts) | righe, cornice e inventario PDF dell'archivio documentale | `docenteClasse.ts`, `assenze.ts`, `toSort.ts`, `smistamento.ts` |
+| [`views/absences.ts`](../src/ui/views/absences.ts) | `schedaAssenze`, `gruppoRichiesteFirma`, `gruppoSegnalazioni` | `docenteClasse.ts`, `todo.ts`, `classTodo.ts` |
+| [`views/assignments.ts`](../src/ui/views/assignments.ts) | `pannelloConsegne`, `gruppoConsegne` | `lezione.ts`, `todo.ts`, `classTodo.ts` |
+| [`views/retakes.ts`](../src/ui/views/retakes.ts) | `bloccoRecuperiDellOra`, `pannelloRecuperi`, `gruppoRecuperi` | `lezione.ts`, `valutazioni.ts`, `todo.ts`, `classTodo.ts`, `riconsegne.ts` |
+| [`views/returns.ts`](../src/ui/views/returns.ts) | `pannelloRiconsegneDellOra`, `pannelloRiconsegna`, `gruppoRiconsegne`, `gruppoRiconsegneAllievi` | `lezione.ts`, `valutazioni.ts`, `todo.ts`, `classTodo.ts` |
+| [`views/pageBrowser.ts`](../src/ui/views/pageBrowser.ts) | `accettaPagine*`, `portaPagine`, `sfoglioSmistamento` | `docenteClasse.ts`, `assenze.ts`, `archivio.ts`, `smistamento.ts` |
+| [`views/sorting.ts`](../src/ui/views/sorting.ts) | `caricaPdf`, `rileggiScansioni`, `pdfInAttesa` | `docenteClasse.ts`, `toSort.ts`, `assenze.ts`, `comandi.ts` |
+| [`views/classTodo.ts`](../src/ui/views/classTodo.ts) | `schedaTodoClasse`, `sezioniTodoClasse`, `simboloFamiglia`, `riassuntoClasse` | `todo.ts`, `docenteClasse.ts` |
+| [`views/documents/preview.ts`](../src/ui/views/documents/preview.ts) | `cornice`, `documentoAperto`, `senzaAnteprima` | `documenti.ts` |
+| [`views/documents/csv.ts`](../src/ui/views/documents/csv.ts) | `anteprimaCsv` | `documenti.ts` |
+| [`views/documents/sheets.ts`](../src/ui/views/documents/sheets.ts) | `azzeraRighe`, `sceltiInOrdine` | `documenti.ts`, `comandi.ts` |
+| [`views/documents/cards.ts`](../src/ui/views/documents/cards.ts) | `delCorso`, `prove`, `piani`, `dellaClasse`, `composizioni`, `matriceLezioni`, `fotoDellaClasse`, `schedeAllievo` | `documenti.ts` |
+| [`views/settings/year.ts`](../src/ui/views/settings/year.ts) | `schedaAnnoAperto`, `schedaChiusure`, `schedaSettimane`, `schedaElencoAnni` | `impostazioni.ts` |
+| [`views/settings/document.ts`](../src/ui/views/settings/document.ts) | `schedaCalendario`, `schedaValutazione`, `schedaMaterie`, `schedaFile`, `salvaImpostazioni` | `impostazioni.ts` |
+| [`views/settings/lists.ts`](../src/ui/views/settings/lists.ts) | `schedaListe` | `impostazioni.ts` |
+| [`views/settings/registers.ts`](../src/ui/views/settings/registers.ts) | `schedaRegistri` | `impostazioni.ts` |
+| [`views/settings/mail.ts`](../src/ui/views/settings/mail.ts) | `schedaPosta` | `impostazioni.ts` |
+| [`views/settings/program.ts`](../src/ui/views/settings/program.ts) | `schedaProgramma`, `vociDellaSezione`, `dovVannoLeOpzioni`, `vociProgramma` | `impostazioni.ts` |
+| [`views/settings/sections.ts`](../src/ui/views/settings/sections.ts) | `SEZIONI_PROGRAMMA`, `gruppiDiSezione`, `vociDiSezione`, `nomeVoce`, `sottoPrefisso` | `impostazioni.ts`, `program.ts` |
 
 ---
 
 ## 3. Comandi dell'interfaccia
 
-Fonte: [`src/interfaccia/comandi.ts`](../src/interfaccia/comandi.ts),
+Fonte: [`src/ui/commands.ts`](../src/ui/commands.ts),
 `COMANDI_UI: readonly ComandoUI[]`.
 
 **94 comandi in tutto**: 65 scritti come oggetti letterali, 29 generati da otto
@@ -454,7 +454,7 @@ gruppo «Chi li rifà», nessuna precondizione. Azione:
 
 Quel che stava nella barra dei menu di sistema e da lì è sparito: da quando il
 registro si disegna la barra del titolo da sé, su Windows e Linux la barra dei
-menu non si vede più (`autoHideMenuBar`, in `ambiente/finestre.ts`). Gli
+menu non si vede più (`autoHideMenuBar`, in `environment/windows.ts`). Gli
 acceleratori continuano a farli partire il menu dell'applicazione, che resta
 installato: sono tutti `dalMenu`, e `installaScorciatoie` li salta.
 
@@ -485,24 +485,24 @@ installato: sono tutti `dalMenu`, e `installaScorciatoie` li salta.
 
 ## 4. Comandi del programma
 
-Fonte: [`src/manifesto.ts`](../src/manifesto.ts), `COMANDI: readonly Comando[]`
+Fonte: [`src/manifest.ts`](../src/manifest.ts), `COMANDI: readonly Comando[]`
 — **21 voci**, nell'ordine in cui sono nate. Ognuna è
 `{id, titolo, scorciatoia?}`.
 
-**Chi li registra**: [`src/avvio.ts`](../src/avvio.ts) `avvia()`, passo 15: uno
-per uno con `vscode.commands.registerCommand` (lo shim
-[`src/ambiente/comandi.ts`](../src/ambiente/comandi.ts) li tiene in una mappa
+**Chi li registra**: [`src/startup.ts`](../src/startup.ts) `avvia()`, passo 15: uno
+per uno con `apparato.comandi.registra` (l'apparato:
+[`src/environment/commands.ts`](../src/environment/commands.ts) li tiene in una mappa
 interna). Tre comandi aggiuntivi li registra il guscio in
-[`guscio/principale.ts`](../guscio/principale.ts) — `registroDocenti.esci`,
+[`shell/main.ts`](../shell/main.ts) — `registroDocenti.esci`,
 `registroDocenti.chiudiDocumento`, `registroDocenti.mostraDocumento` — e due
-[`guscio/menu.ts`](../guscio/menu.ts) — `registroDocenti.apriDocumento`,
+[`shell/windows/menu.ts`](../shell/windows/menu.ts) — `registroDocenti.apriDocumento`,
 `workbench.action.openSettings`: **non stanno nel manifesto** perché non sono
 voci di menu dichiarate, ma servizi che il menu invoca.
 
 **Dove compaiono**: il menu nativo li dispone secondo `GRUPPI` in
-[`guscio/menu.ts`](../guscio/menu.ts), non secondo l'ordine di questo array; un
+[`shell/windows/menu.ts`](../shell/windows/menu.ts), non secondo l'ordine di questo array; un
 comando aggiunto qui e non nominato là finisce sotto «Altro», mai perso. Il
-vassoio ([`src/vassoio.ts`](../src/vassoio.ts)) ne espone un
+vassoio ([`src/tray.ts`](../src/tray.ts)) ne espone un
 sottoinsieme insieme ai corsi dell'anno; l'agenda e i promemoria chiamano
 `apriRegistro()` e le sue navigazioni.
 
@@ -522,7 +522,7 @@ sottoinsieme insieme ai corsi dell'anno; l'agenda e i promemoria chiamano
 | 12 | `registroDocenti.nuovaValutazione` | Nuovo momento di valutazione | — | menu nativo |
 | 13 | `registroDocenti.nuovoAnno` | Nuovo anno scolastico | — | menu nativo (chiede le date con un `QuickPick`, poi `esegui(archivio, {tipo:'anno.crea'})`) |
 | 14 | `registroDocenti.ricarica` | Ricarica i dati | — | menu nativo |
-| 15 | `registroDocenti.chiudiDocumento` | Chiudi l'anno | — | menu nativo (l'implementazione vera è in `guscio/principale.ts`) |
+| 15 | `registroDocenti.chiudiDocumento` | Chiudi l'anno | — | menu nativo (l'implementazione vera è in `shell/main.ts`) |
 | 16 | `registroDocenti.provaPosta` | Prova il collegamento della posta | — | menu nativo |
 | 17 | `registroDocenti.provaInvioPosta` | Manda una mail di prova | — | menu nativo |
 | 18 | `registroDocenti.collegaPosta` | Collega la casella di posta | — | menu nativo |
@@ -535,13 +535,13 @@ dichiarato):
 
 | id | registrato in | che cosa fa |
 |---|---|---|
-| `registroDocenti.esci` | `guscio/principale.ts` | `app.quit()` — è la voce «Esci dal registro» del vassoio |
-| `registroDocenti.mostraDocumento` | `guscio/principale.ts` | apre un PDF nel lettore interno (`guscio/lettore.ts`); la chiama `esportazione.mostra` |
-| `registroDocenti.apriDocumento` | `guscio/menu.ts` | apre un documento d'anno; la chiama `documento.apri` |
-| `workbench.action.openSettings` | `guscio/menu.ts` | apre la finestra Impostazioni; la chiama `smistamento.impostazioni` |
+| `registroDocenti.esci` | `shell/main.ts` | `app.quit()` — è la voce «Esci dal registro» del vassoio |
+| `registroDocenti.mostraDocumento` | `shell/main.ts` | apre un PDF nel lettore interno (`shell/windows/reader.ts`); la chiama `esportazione.mostra` |
+| `registroDocenti.apriDocumento` | `shell/windows/menu.ts` | apre un documento d'anno; la chiama `documento.apri` |
+| `workbench.action.openSettings` | `shell/windows/menu.ts` | apre la finestra Impostazioni; la chiama `smistamento.impostazioni` |
 
 `registroDocenti.chiudiDocumento` è **sia** nel manifesto **sia** registrato in
-`guscio/principale.ts`: il manifesto ne dichiara la voce di menu, il guscio ne
+`shell/main.ts`: il manifesto ne dichiara la voce di menu, il guscio ne
 fornisce l'implementazione.
 
 ---
@@ -552,13 +552,13 @@ Ci sono **due ambiti**, e non si toccano mai.
 
 | | Impostazioni **macchina** | Impostazioni **documento** |
 |---|---|---|
-| Dove sono dichiarate | [`src/manifesto.ts`](../src/manifesto.ts) — `IMPOSTAZIONI` | [`src/dominio/modelli.ts`](../src/dominio/modelli.ts) — `interface Impostazioni` |
+| Dove sono dichiarate | [`src/manifest.ts`](../src/manifest.ts) — `IMPOSTAZIONI` | [`src/domain/models.ts`](../src/domain/models.ts) — `interface Impostazioni` |
 | Dove sono scritte | file JSON sotto `userData` (shim di `workspace.getConfiguration().update(…, ConfigurationTarget.Global)`) | dentro il documento `<anno>.registro`, collezione `registro` |
 | Viaggiano col file? | **no** — restano su questo computer | **sì** — seguono il documento su un'altra macchina |
 | Chi le scrive dal protocollo | `programma.salva` / `programma.azzera` | `impostazioni.salva` |
 | Chi le legge nel webview | `MessaggioStato.programma: VoceProgramma[]` | `MessaggioStato.registro.impostazioni` |
-| Predefiniti | `predefinitiImpostazioni()` in `manifesto.ts` | `IMPOSTAZIONI_PREDEFINITE` in [`src/dominio/fabbriche.ts`](../src/dominio/fabbriche.ts) |
-| Dove si vedono | pagina Impostazioni, ambito «Programma»; finestra Impostazioni nativa (`guscio/impostazioni.html`) quando non c'è un anno aperto | pagina Impostazioni, ambito «Registro» |
+| Predefiniti | `predefinitiImpostazioni()` in `manifest.ts` | `IMPOSTAZIONI_PREDEFINITE` in [`src/domain/factories.ts`](../src/domain/factories.ts) |
+| Dove si vedono | pagina Impostazioni, ambito «Programma»; finestra Impostazioni nativa (`shell/pages/settings/settings.html`) quando non c'è un anno aperto | pagina Impostazioni, ambito «Registro» |
 
 **Perché esiste la distinzione.** Il tema, l'agenda sul desktop, l'avvio con
 Windows e la casella di posta parlano di *questo computer*: portare il
@@ -577,14 +577,14 @@ predefinito» e «l'ho deciso io», che è ciò che permette di offrire «Torna 
 predefinito» solo dove c'è qualcosa da ritirare. Ogni valore che rientra da
 `programma.salva` ripassa comunque dalla dogana
 `valoreAccettabile(chiave, valore)` in
-[`src/ambiente/impostazioni.ts`](../src/ambiente/impostazioni.ts).
+[`src/environment/settings.ts`](../src/environment/settings.ts).
 
 ### 5.1 (a) Impostazioni MACCHINA — le 26 voci di `IMPOSTAZIONI`
 
 | # | chiave puntata | tipo | predefinito | scelte | che cosa regola | dove si vede |
 |---|---|---|---|---|---|---|
 | 1 | `registroDocenti.aperturaAutomatica` | `boolean` | `true` | — | Apre il registro all'avvio dell'applicazione quando la cartella dei dati esiste; spento, l'app parte senza finestre | Impostazioni → Programma, sezione «file»/avvio; letta da `avvio.ts` passo 18 |
-| 2 | `registroDocenti.vassoio.attivo` | `boolean` | `true` | — | Tiene l'icona accanto all'orologio, col menu dei corsi dell'anno e l'uscita. Ha effetto al prossimo avvio | Impostazioni → Programma, sezione «desktop»; `src/vassoio.ts` |
+| 2 | `registroDocenti.vassoio.attivo` | `boolean` | `true` | — | Tiene l'icona accanto all'orologio, col menu dei corsi dell'anno e l'uscita. Ha effetto al prossimo avvio | Impostazioni → Programma, sezione «desktop»; `src/tray.ts` |
 | 3 | `registroDocenti.vassoio.chiusuraNelVassoio` | `boolean` | `true` | — | Chiudendo l'ultima finestra il registro resta acceso nel vassoio invece di uscire. Senza icona non ha effetto | Impostazioni → Programma, sezione «desktop» |
 | 4 | `registroDocenti.agenda.attiva` | `boolean` | `false` | — | Tiene la settimana appesa al bordo destro del desktop. Solo su Windows | Impostazioni → Programma, sezione «desktop»; comando `registroDocenti.agenda` |
 | 5 | `registroDocenti.agenda.scheda` | `string` | `'calendario'` | `calendario`, `pendenze`, `lezione` | Con quale delle tre schede l'agenda si riapre. La scrive la linguetta premuta nel widget | scritta dal widget agenda (`ComandoAgenda {tipo:'scheda'}`) |
@@ -595,7 +595,7 @@ predefinito» solo dove c'è qualcosa da ritirare. Ogni valore che rientra da
 | 10 | `registroDocenti.agenda.riga` | `number` | `-1` | — | Posizione verticale dell'agenda libera, in righe di icone; −1 = mai spostata | scritta dal trascinamento |
 | 11 | `registroDocenti.avvio.conWindows` | `boolean` | `false` | — | Accende il registro insieme al computer, senza finestre. Solo per l'applicazione installata | Impostazioni → Programma, sezione «avvio» |
 | 12 | `registroDocenti.avvio.soloVassoio` | `boolean` | `false` | — | Parte senza aprire il registro anche lanciandolo a mano; se non c'è né icona né agenda la finestra si apre lo stesso | Impostazioni → Programma, sezione «avvio» |
-| 13 | `registroDocenti.aspetto.tema` | `string` | `'sistema'` | `sistema`, `chiaro`, `scuro` | Chiaro o scuro per registro, schermo della classe e finestre native | Impostazioni → Programma, sezione «aspetto»; applicata da `src/ambiente/tema.ts` via `nativeTheme.themeSource` |
+| 13 | `registroDocenti.aspetto.tema` | `string` | `'sistema'` | `sistema`, `chiaro`, `scuro` | Chiaro o scuro per registro, schermo della classe e finestre native | Impostazioni → Programma, sezione «aspetto»; applicata da `src/environment/theme.ts` via `nativeTheme.themeSource` |
 | 14 | `registroDocenti.promemoria.attivo` | `boolean` | `true` | — | Notifica di sistema poco prima che una lezione cominci; premendola si apre il registro su quell'ora | Impostazioni → Programma, sezione «avvisi» |
 | 15 | `registroDocenti.promemoria.anticipoMinuti` | `number` | `5` | — | Quanti minuti prima dell'inizio arriva l'avviso; zero = all'ora esatta | Impostazioni → Programma, sezione «avvisi» |
 | 16 | `registroDocenti.proiezione.schermoIntero` | `boolean` | `false` | — | Mette la finestra della proiezione a schermo intero appena aperta | Impostazioni → Programma, sezione «aspetto» |
@@ -605,11 +605,11 @@ predefinito» solo dove c'è qualcosa da ritirare. Ogni valore che rientra da
 | 20 | `registroDocenti.recapiti.telefono` | `string` | `'tel'` | `tel`, `callto`, `skype`, `msteams`, `nessuno` | Con che cosa si compone un numero premuto nell'anagrafica | Impostazioni → Programma, sezione «recapiti»; usata da `sistema.chiama` |
 | 21 | `registroDocenti.recapiti.posta` | `string` | `'sistema'` | `sistema`, `outlook`, `outlookWeb`, `nessuno` | Con che cosa si apre una mail nuova premendo un indirizzo | Impostazioni → Programma, sezione «recapiti»; usata da `sistema.scrivi` |
 | 22 | `registroDocenti.recapiti.outlook` | `string` | `''` | — | Percorso di `OUTLOOK.EXE` quando il registro non lo trova da sé. Serve solo con `recapiti.posta = outlook` | Impostazioni → Programma, sezione «recapiti» |
-| 23 | `registroDocenti.modelli.cartella` | `string` | `''` | — | Dove stanno i file `.gguf`. Vuoto = accanto alle impostazioni del programma; si riempie per tenerli su un altro disco o per usare quelli che si hanno già | Impostazioni → Programma; pagina «Modelli linguistici», letta da `dati/gguf.ts` |
+| 23 | `registroDocenti.modelli.cartella` | `string` | `''` | — | Dove stanno i file `.gguf`. Vuoto = accanto alle impostazioni del programma; si riempie per tenerli su un altro disco o per usare quelli che si hanno già | Impostazioni → Programma; pagina «Modelli linguistici», letta da `data/gguf.ts` |
 | 24 | `registroDocenti.ocr.attivo` | `boolean` | `false` | — | Legge con un modello locale le pagine dei PDF che non contengono testo. Vuole un modello che sappia guardare e il programma `llama-mtmd-cli` | Impostazioni → Programma, sezione «lettura»; spinta al webview come `MessaggioStato.ocrAttivo` |
 | 25 | `registroDocenti.ocr.modello` | `string` | `''` | — | Il file `.gguf` con cui si leggono le scansioni. **Un nome di file**, risolto dentro la cartella dei modelli: un percorso messo a mano non passa | pagina «Modelli linguistici»; scritta dall'azione `llm.scegli` |
 | 26 | `registroDocenti.ocr.proiettore` | `string` | `''` | — | Il secondo file del modello che guarda — quello con `mmproj` nel nome. Senza, il programma parte, ignora la pagina e risponde immaginando | pagina «Modelli linguistici»; `llm.scegli` |
-| 27 | `registroDocenti.ocr.programma` | `string` | `''` | — | Percorso di `llama-mtmd-cli.exe`. Dev'essere un `.exe`, non uno script: la guardia sta in `dati/mtmd.ts` | Impostazioni → Programma, sezione «lettura» |
+| 27 | `registroDocenti.ocr.programma` | `string` | `''` | — | Percorso di `llama-mtmd-cli.exe`. Dev'essere un `.exe`, non uno script: la guardia sta in `data/mtmd.ts` | Impostazioni → Programma, sezione «lettura» |
 | 28 | `registroDocenti.ocr.attesaMassimaSecondi` | `number` | `180` | — | Quanti secondi aspettare la lettura di una pagina prima di rinunciare | Impostazioni → Programma, sezione «lettura» |
 | 29 | `registroDocenti.assistente.attivo` | `boolean` | `false` | — | Accende la pagina «Assistente»: un modello che gira sulla macchina risponde leggendo il registro, e può **soltanto leggere** | Impostazioni → Programma, sezione «assistente» |
 | 30 | `registroDocenti.assistente.modello` | `string` | `''` | — | Il file `.gguf` con cui risponde l'assistente: deve saper chiamare gli strumenti. Stessa guardia dell'OCR | pagina «Modelli linguistici»; `llm.scegli` |
@@ -623,12 +623,12 @@ scritto niente).
 Esistono altre chiavi lette dal codice ma **non dichiarate nel manifesto**,
 perché non sono opzioni ma memoria di stato:
 `registroDocenti.ultimoDocumento` e `registroDocenti.cartellaLavoro`
-(scritte da `guscio/principale.ts` in `preparaDocumento`).
+(scritte da `shell/main.ts` in `preparaDocumento`).
 
 ### 5.2 (b) Impostazioni DOCUMENTO — `Registro.impostazioni`
 
 Predefiniti da `IMPOSTAZIONI_PREDEFINITE` in
-[`src/dominio/fabbriche.ts`](../src/dominio/fabbriche.ts). Scritte con
+[`src/domain/factories.ts`](../src/domain/factories.ts). Scritte con
 `impostazioni.salva`, che le fa passare da `normalizzaImpostazioni`.
 
 | # | campo | tipo | predefinito | effetto |
@@ -642,7 +642,7 @@ Predefiniti da `IMPOSTAZIONI_PREDEFINITE` in
 | 7 | `durataSlotPredefinita` | `number` (minuti) | `MINUTI_UD` = `45` | La durata proposta a una fascia nuova nel modulo Lezione |
 | 8 | `durataPausaPredefinita` | `number` (minuti) | `15` | La durata proposta a una pausa fra due fasce |
 | 9 | `pdfAutomatici` | `QuandoRifarePdf` = `'mai' \| 'chiusura' \| 'sempre'` | `'sempre'` | Quando il registro rifà da sé i PDF di un corso. `chiusura` = quando un'ora è segnata svolta; `sempre` = anche a ogni modifica che tocca il corso, con il debounce di `programmaRigenerazione` (8 s dall'ultima modifica, tetto 60 s dalla prima); `mai` = solo coi pulsanti. Si cambia dai tre comandi `documenti.rifare.*` |
-| 10 | `liste` | `Record<string, VoceLista[]>` (facoltativo) | `{}` | Le voci dei menu a tendina, **solo dove qualcuno le ha cambiate**: una chiave che manca vuol dire «la lista di fabbrica», non «nessuna voce». Le liste riconosciute stanno in [`src/dominio/liste.ts`](../src/dominio/liste.ts); quel che non è una lista riconosciuta non si salva |
+| 10 | `liste` | `Record<string, VoceLista[]>` (facoltativo) | `{}` | Le voci dei menu a tendina, **solo dove qualcuno le ha cambiate**: una chiave che manca vuol dire «la lista di fabbrica», non «nessuna voce». Le liste riconosciute stanno in [`src/domain/lists.ts`](../src/domain/lists.ts); quel che non è una lista riconosciuta non si salva |
 
 Nove campi obbligatori più `liste` facoltativo. Il resto di ciò che si regola
 «nel registro» — semestri, vacanze, settimane A/B, materie — non sta qui: sta
@@ -654,9 +654,9 @@ nell'`AnnoScolastico` e nelle collezioni `materie`/`classi`, e si tocca con
 ## 6. Azioni del protocollo
 
 È la tabella più importante del documento: **tutte e 141 le varianti** di
-`type Azione` in [`src/protocollo.ts`](../src/protocollo.ts), organizzate per i
-**15 file di gestori** in [`src/azioni/`](../src/azioni/). L'indice che li somma
-è [`src/azioni.ts`](../src/azioni.ts), che costruisce `GESTORI: Mappa`: il
+`type Azione` in [`src/protocol.ts`](../src/protocol.ts), organizzate per i
+**15 file di gestori** in [`src/actions/`](../src/actions/). L'indice che li somma
+è [`src/actions.ts`](../src/actions.ts), che costruisce `GESTORI: Mappa`: il
 compilatore non lascia passare un'azione senza gestore, né un gestore senza
 azione.
 
@@ -672,7 +672,7 @@ sono le procedure di lettura `modelli.leggi` e `modelli.prova` (§6.17), e i tre
 campi sono spariti da `Risposta` e da `EsitoAzione` (§7.1).
 
 **Ogni azione, adesso, ha una procedura davanti.** Le 141 procedure di
-scrittura di [`src/api/procedure/`](../src/api/procedure/) dichiarano
+scrittura di [`src/api/procedures/`](../src/api/procedures/) dichiarano
 `azione: '…'` e prendono il posto di quel gestore in `GESTORI` — il lavoro
 resta nel gestore, davanti ci sono la forma dell'ingresso convalidata a
 runtime, un codice d'errore e una riga di giornale. La colonna **procedura**
@@ -697,7 +697,7 @@ note a `suVoce` sono `lezioni`, `piani`, `valutazioni`, `consegne`, `classi`,
 collezione `registro`). `nelFascicolo()` scrive sempre su `fascicoli`.
 Le eliminazioni a cascata non dichiarano collezioni fisse: le decide il piano di
 `eliminazione(registro, bersaglio)` in
-[`src/dominio/eliminazioni.ts`](../src/dominio/eliminazioni.ts).
+[`src/domain/deletions.ts`](../src/domain/deletions.ts).
 
 **idempotente** — rieseguire la stessa richiesta con lo stesso payload lascia il
 sistema nello stesso stato? «parziale» vuol dire che il secondo giro non
@@ -705,7 +705,7 @@ rompe niente ma non è un no-op (un timbro `aggiornatoIl` cambia, oppure il
 secondo tentativo viene rifiutato con un messaggio leggibile).
 
 **procedura** — il nome della procedura di
-[`src/api/procedure/`](../src/api/procedure/) che prende in carico quell'azione.
+[`src/api/procedures/`](../src/api/procedures/) che prende in carico quell'azione.
 È l'informazione che serve davvero: dice **dove sta dichiarata la forma
 dell'ingresso** e come si chiama quella stessa operazione per chi la invoca da
 fuori dal pannello — dalla riga di comando, dal widget dell'agenda, da un
@@ -717,11 +717,11 @@ nomenclature stanno accanto.
 
 Dove la cella porta un «+ `validaAnno`» o simile, il gestore chiama **anche** una funzione
 di dominio di
-[`src/dominio/validazione.ts`](../src/dominio/validazione.ts): lo schema della
+[`src/domain/validation.ts`](../src/domain/validation.ts): lo schema della
 procedura dice che l'oggetto è arrivato intero, il validatore di dominio dice
 se sta in piedi come entità della scuola. Sono due controlli diversi, e per le
 entità intere lo schema non li riscrive — `entita()` in
-[`src/api/schemi.ts`](../src/api/schemi.ts) passa la palla al validatore del
+[`src/api/schemas.ts`](../src/api/schemas.ts) passa la palla al validatore del
 dominio invece di ridire le sue regole in un'altra forma. L'elenco completo
 delle 18 azioni con un `valida*` dietro è nel riepilogo del §6.16.
 
@@ -730,13 +730,13 @@ gestori difesi da quelli che si fidavano del tipo TypeScript. Non serve più:
 adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 
 **Helper comuni a tutti i gestori** (da
-[`src/azioni/contesto.ts`](../src/azioni/contesto.ts)): `fatto` = `{ok:true}`;
+[`src/actions/context.ts`](../src/actions/context.ts)): `fatto` = `{ok:true}`;
 `invariato` = `{ok:true, invariato:true}`; `rifiuta(...errori)`;
 `conMessaggio(testo, livello?, resto?)`; `riassumiInvii(...)`;
 `riponi(elenco, voce, ordina?)` (upsert per id); `apriFile`, `cestina`,
 `scegliFile`, `scegliUnFile`; `consegnaConClasse`; `tipoMime`.
 
-### 6.1 `src/azioni/registro.ts` — anno, materia, corso, orario, classe, persone (20 azioni)
+### 6.1 `src/actions/register.ts` — anno, materia, corso, orario, classe, persone (20 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -761,7 +761,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `classe.duplica` | `classeId: string`, `annoId: string`, `nome: string` | R | `classi`, `corsi` | no — id nuovi a ogni duplicazione | `classi.duplica` + `validaClasse` | Ogni allievo riceve un id nuovo; **non** copia lezioni, valutazioni, fascicolo, consegne |
 | `allievi.importa` | `classeId: string`, `testo: string` | R | `classi` | sì — gli omonimi si saltano | `persone.importa` | Dedup su cognome+nome in minuscolo; **nessun messaggio di riepilogo** (a differenza di `assenze.importa`) |
 
-### 6.2 `src/azioni/ore.ts` — lezione, appello, osservazioni (14 azioni)
+### 6.2 `src/actions/hours.ts` — lezione, appello, osservazioni (14 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -780,7 +780,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `osservazione.salva` | `lezioneId: string`, `osservazione: Osservazione` | R | `lezioni` | sì — `riponi` per id | `ore.osservazione.salva` | — |
 | `osservazione.elimina` | `lezioneId: string`, `osservazioneId: string` | R | `lezioni` | sì | `ore.osservazione.elimina` | Filtra senza rifiutare se non c'era |
 
-### 6.3 `src/azioni/piani.ts` — piano lezione, risorse, avanzamento (11 azioni)
+### 6.3 `src/actions/plans.ts` — piano lezione, risorse, avanzamento (11 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -796,7 +796,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `risorsa.apri` | `pianoId: string`, `attivitaId: string \| null`, `risorsaId: string` | F | — | sì | `risorse.apri` | Collegamento con `openExternal`, altrimenti `apriFile` |
 | `avanzamento.imposta` | `lezioneId: string`, `attivitaId: string`, `stato: StatoAttivita`, `nota?: string` | R | `lezioni` | sì | `avanzamento.imposta` | Crea la riga prendendo il titolo dall'attività del piano |
 
-### 6.4 `src/azioni/valutazioni.ts` — momenti, voti, recuperi, allegati (11 azioni)
+### 6.4 `src/actions/assessments.ts` — momenti, voti, recuperi, allegati (11 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -812,7 +812,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `allegato.apri` | `valutazioneId: string`, `allegatoId: string` | F | — | sì | `valutazioni.allegato.apri` | Delega ad `apriFile` |
 | `allegato.elimina` | `valutazioneId: string`, `allegatoId: string` | R, F | `valutazioni` | parziale — poi rifiuta «non trovato» | `valutazioni.allegato.elimina` | Cestina il file **prima** di togliere la voce |
 
-### 6.5 `src/azioni/consegne.ts` — consegne, raccolta, distribuzione (10 azioni)
+### 6.5 `src/actions/assignments.ts` — consegne, raccolta, distribuzione (10 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -827,7 +827,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `consegna.consegnato` | `consegnaId: string`, `allievoId: string`, `fatta: boolean` | R | `consegne` | parziale — riscrive `fattaIl` ogni volta | `consegne.consegnato` | Spunta «a mano», copiando `file`/`nome` del documento dentro la spunta |
 | `consegna.distribuisci` | `consegnaId: string`, `allieviIds?: string[]` | R, F, P | `consegne` (via `archivio.modifica` diretto) | no — rispedisce e riscrive le bozze | `consegne.distribuisci` | Un messaggio per allievo con l'allegato in base64; destinatari filtrati per `mailAllievo`/`mailTutore`; niente copia nascosta. Chi non ha documento o indirizzo finisce in `falliti`, **mai in silenzio**. Con invio diretto attivo chiede conferma **prima** di generare qualunque bozza; le bozze si scrivono sempre, e **solo chi è partito davvero** viene segnato come consegnato |
 
-### 6.6 `src/azioni/docenteClasse.ts` — fascicolo di classe: firme, recapiti, comunicazioni, assenze (19 azioni)
+### 6.6 `src/actions/classTeacher.ts` — fascicolo di classe: firme, recapiti, comunicazioni, assenze (19 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -851,7 +851,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `assenze.invia` | `classeId: string`, `bloccoId: string`, `allieviIds: string[]` | R, F, P | `fascicoli` (via `segnaInvio`, `archivio.modifica` diretto) | parziale — senza `allieviIds` salta i già inviati | `classe.assenze.invia` + `validaBloccoAssenze` | Una mail per allievo, destinatari in chiaro; esito scritto riga per riga. **Rischio noto**: le righe con indirizzo mancante o allegato illeggibile sono segnate come fallite *prima* del dialogo di conferma, e restano scritte così anche se si annulla |
 | `assenze.spunta` | `classeId: string`, `bloccoId: string`, `allievoId: string`, `spedita: boolean` | R | `fascicoli` | sì — scrive o azzera `riga.invio` in modo assoluto | `classe.assenze.spunta` | Spunta manuale dell'invio. Bypassa `contesto.modifica` |
 
-### 6.7 `src/azioni/smistamento.ts` — ingresso PDF, OCR, matrice di assegnazione (19 azioni)
+### 6.7 `src/actions/sorting.ts` — ingresso PDF, OCR, matrice di assegnazione (19 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -875,7 +875,7 @@ adesso sono difesi tutti, e 141 «sì» identici non sono un'informazione.*
 | `smistamento.elimina` | `smistamentoId: string` | R, F | `smistamenti` | parziale — poi «quello smistamento non c'è più» | `smistamento.pdf.elimina` | Cestina PDF e anteprime, poi toglie la riga |
 | `smistamento.impostazioni` | — | F | — | sì | `smistamento.lettura.impostazioni` | `workbench.action.openSettings` filtrato su `registroDocenti.ocr` |
 
-### 6.8 `src/azioni/rapporti.ts` — generazione PDF (3 azioni)
+### 6.8 `src/actions/reports.ts` — generazione PDF (3 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -888,13 +888,13 @@ gestore**: la chiama `esegui()` dopo ogni azione riuscita che ha cambiato
 `archivio.revisione`, con un debounce di 8 s dall'ultima modifica e un tetto di
 60 s dalla prima, e rifà in background i PDF automatici dei corsi toccati se
 `pdfAutomatici === 'sempre'`. I corsi e il giorno li deduce
-`corsiDaRifare`/`giornoDaRifare` ([`src/dominio/automazione.ts`](../src/dominio/automazione.ts))
+`corsiDaRifare`/`giornoDaRifare` ([`src/domain/automation.ts`](../src/domain/automation.ts))
 leggendo i campi standard che il protocollo porta ovunque: `corsoId`,
 `lezioneId`, `valutazioneId`, `pianoId`, `classeId`, `allievoId`. Un'azione
 nuova entra nell'automazione senza che nessuno debba registrarla a mano.
 `aggiornaDopoChiusura` è la variante immediata, chiamata da `lezione.stato`.
 
-### 6.9 `src/azioni/sistema.ts` — impostazioni, esportazioni, manutenzione, posta (15 azioni)
+### 6.9 `src/actions/system.ts` — impostazioni, esportazioni, manutenzione, posta (15 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -920,17 +920,17 @@ segreto sta nel portachiavi di sistema, e il webview vede solo i booleani e le
 stringhe derivati in `MessaggioStato.posta` (`exchange`, `server`,
 `invioDiretto`, `mittente`, `accesso`).
 
-### 6.10 `src/azioni/documenti.ts` — documento d'anno e recenti (5 azioni)
+### 6.10 `src/actions/documents.ts` — documento d'anno e recenti (5 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
 | `stato.salva` | — | F | — | sì — a vuoto non scrive nulla di nuovo | `stato.salva` | Il Ctrl+S esplicito: forza `archivio.salva()` anche se il registro salva già da sé in write-behind. `invariato`; risponde «Tutto salvato.» |
 | `documento.apri` | `percorso?: string` | F / ∅ (il lavoro è del guscio) | — | sì | `documento.apri` | Delega a `registroDocenti.apriDocumento`; senza percorso apre il dialogo di sistema. Può finire con un riavvio se il documento sta in un'altra cartella di lavoro |
 | `documento.chiudi` | — | ∅ | — | sì | `documento.chiudi` | Delega a `registroDocenti.chiudiDocumento`: libera il file e la sua serratura, il pannello si chiude e torna il benvenuto |
-| `documento.preferito` | `percorso: string`, `preferito: boolean` | F (elenco recenti in `src/ambiente/documenti.ts`) | — | sì | `documento.preferito` | Non `invariato`: l'elenco spinto nello stato cambia |
+| `documento.preferito` | `percorso: string`, `preferito: boolean` | F (elenco recenti in `src/environment/documents.ts`) | — | sì | `documento.preferito` | Non `invariato`: l'elenco spinto nello stato cambia |
 | `documento.dimentica` | `percorso: string` | F (elenco recenti) | — | sì — la seconda volta è un no-op | `documento.dimentica` | Toglie la voce dall'elenco; **il file sul disco non si tocca** |
 
-### 6.11 `src/azioni/esportazioni.ts` — i file già generati (3 azioni)
+### 6.11 `src/actions/exports.ts` — i file già generati (3 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -938,7 +938,7 @@ stringhe derivati in `MessaggioStato.posta` (`exchange`, `server`,
 | `esportazione.mostra` | `percorso: string`, `titolo?: string` | ∅ (materializza una copia) | — | sì | `esportazioni.mostra` | Comando `registroDocenti.mostraDocumento`: lettore PDF **interno** |
 | `esportazione.elimina` | `percorso: string` | F | — | parziale — poi «Quel documento non c'è più» | `esportazioni.elimina` | Se il percorso è di un fascicolo devia su `buttaIlFascicolo` (toglie ricetta **e** PDF insieme) |
 
-### 6.12 `src/azioni/composizioni.ts` — fascicoli multi-PDF (3 azioni)
+### 6.12 `src/actions/compositions.ts` — fascicoli multi-PDF (3 azioni)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
@@ -946,13 +946,13 @@ stringhe derivati in `MessaggioStato.posta` (`exchange`, `server`,
 | `composizione.aggiorna` | `id: string` | F (PDF + ricetta) | — | parziale — stessi percorsi, ma `aggiornataIl` cambia | `composizioni.aggiorna` | Rifà il PDF con i fogli presenti *adesso*, nello stesso ordine; conta separatamente mancanti, protetti e illeggibili (tre rimedi diversi) |
 | `composizione.elimina` | `id: string` | F | — | parziale — poi «non c'è più» | `composizioni.elimina` | Toglie **prima la ricetta, poi il PDF**: ordine dichiarato per garantire l'idempotenza del retry |
 
-### 6.13 `src/azioni/mappa.ts` — geocodifica (1 azione)
+### 6.13 `src/actions/map.ts` — geocodifica (1 azione)
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
 |---|---|---|---|---|---|---|
 | `mappa.geocodifica` | `classeIds?: string[]`, `allievoId?: string`, `rifaiTutto?: boolean` | R, P (rete) | `coordinate` — una `modifica` per ogni indirizzo trovato | parziale — salta i già risolti salvo `rifaiTutto`, e `trovatoIl` cambia a ogni riscrittura | `mappa.geocodifica` | Nominatim/OpenStreetMap via `fetch` dal main process (mai dal webview: CSP `default-src 'none'`); rate-limit forzato 1,1 s fra richieste; 4 query in cascata (via+civico+NAP+paese → … → solo NAP+paese, marcato `approssimato`); tetto 60 indirizzi per invocazione; scrittura incrementale; **sincrono e bloccante nel gestore**, a differenza dell'OCR. Le coordinate stanno per indirizzo, non per persona |
 
-### 6.14 `src/azioni/modelli.ts` — editor dei modelli di stampa (3 azioni)
+### 6.14 `src/actions/templates.ts` — editor dei modelli di stampa (3 azioni)
 
 Erano cinque. `modello.leggi` e `modello.prova` sono diventate letture: stanno
 nel §6.17.
@@ -963,10 +963,10 @@ nel §6.17.
 | `modello.ripristina` | `nome: string` | F | — | sì | `modelli.ripristina` | Rimette la copia di serie; la conferma la chiede la pagina, non il gestore |
 | `modello.immagine` | — | F | — | parziale — riscrive con lo stesso nome file | `modelli.immagine` | Copia un'immagine in `templates/`. Dialogo annullato ⇒ `invariato` |
 
-### 6.15 `src/azioni/proiezione.ts` — lo schermo per la classe (4 azioni)
+### 6.15 `src/actions/projection.ts` — lo schermo per la classe (4 azioni)
 
 Nessuna tocca il `Registro`: tutte tornano `invariato` e scrivono variabili di
-modulo in [`src/pannelli/proiezione.ts`](../src/pannelli/proiezione.ts),
+modulo in [`src/panels/projection.ts`](../src/panels/projection.ts),
 ricalcolando e rispingendo `MessaggioProiezione` con un debounce a microtask.
 
 | `tipo` | payload | effetto | collezioni riscritte | idempotente | procedura | note |
@@ -980,21 +980,21 @@ ricalcolando e rispingendo `MessaggioProiezione` con un debounce a microtask.
 
 | File di gestori | Azioni | Aree toccate |
 |---|---|---|
-| [`registro.ts`](../src/azioni/registro.ts) | 20 | anno, materia, corso, orario, classe, persone, lettura dello stato |
-| [`ore.ts`](../src/azioni/ore.ts) | 14 | lezione, appello, matrice del comportamento |
-| [`piani.ts`](../src/azioni/piani.ts) | 11 | piano lezione, risorse, avanzamento |
-| [`valutazioni.ts`](../src/azioni/valutazioni.ts) | 11 | momenti, voti, recuperi, riconsegne, allegati |
-| [`consegne.ts`](../src/azioni/consegne.ts) | 10 | consegne, raccolta, distribuzione per mail |
-| [`docenteClasse.ts`](../src/azioni/docenteClasse.ts) | 19 | fogli firme, recapiti, comunicazioni, blocchi assenze |
-| [`smistamento.ts`](../src/azioni/smistamento.ts) | 19 | ingresso PDF, quarantena, OCR, matrice di assegnazione |
-| [`rapporti.ts`](../src/azioni/rapporti.ts) | 3 | generazione PDF |
-| [`sistema.ts`](../src/azioni/sistema.ts) | 15 | impostazioni, CSV/MD, manutenzione, telefono, posta |
-| [`documenti.ts`](../src/azioni/documenti.ts) | 5 | documento d'anno, elenco recenti |
-| [`esportazioni.ts`](../src/azioni/esportazioni.ts) | 3 | i file già generati |
-| [`composizioni.ts`](../src/azioni/composizioni.ts) | 3 | fascicoli multi-PDF |
-| [`mappa.ts`](../src/azioni/mappa.ts) | 1 | geocodifica |
-| [`modelli.ts`](../src/azioni/modelli.ts) | 3 | editor dei modelli (leggere e provare sono letture: §6.17) |
-| [`proiezione.ts`](../src/azioni/proiezione.ts) | 4 | schermo per la classe |
+| [`registro.ts`](../src/actions/register.ts) | 20 | anno, materia, corso, orario, classe, persone, lettura dello stato |
+| [`hours.ts`](../src/actions/hours.ts) | 14 | lezione, appello, matrice del comportamento |
+| [`piani.ts`](../src/actions/plans.ts) | 11 | piano lezione, risorse, avanzamento |
+| [`valutazioni.ts`](../src/actions/assessments.ts) | 11 | momenti, voti, recuperi, riconsegne, allegati |
+| [`consegne.ts`](../src/actions/assignments.ts) | 10 | consegne, raccolta, distribuzione per mail |
+| [`docenteClasse.ts`](../src/actions/classTeacher.ts) | 19 | fogli firme, recapiti, comunicazioni, blocchi assenze |
+| [`smistamento.ts`](../src/actions/sorting.ts) | 19 | ingresso PDF, quarantena, OCR, matrice di assegnazione |
+| [`rapporti.ts`](../src/actions/reports.ts) | 3 | generazione PDF |
+| [`system.ts`](../src/actions/system.ts) | 15 | impostazioni, CSV/MD, manutenzione, telefono, posta |
+| [`documenti.ts`](../src/actions/documents.ts) | 5 | documento d'anno, elenco recenti |
+| [`esportazioni.ts`](../src/actions/exports.ts) | 3 | i file già generati |
+| [`composizioni.ts`](../src/actions/compositions.ts) | 3 | fascicoli multi-PDF |
+| [`mappa.ts`](../src/actions/map.ts) | 1 | geocodifica |
+| [`modelli.ts`](../src/actions/templates.ts) | 3 | editor dei modelli (leggere e provare sono letture: §6.17) |
+| [`proiezione.ts`](../src/actions/projection.ts) | 4 | schermo per la classe |
 | **Totale** | **141** | |
 
 Conteggi trasversali:
@@ -1008,7 +1008,7 @@ Conteggi trasversali:
 | Azioni con una funzione `valida*` di dominio | **18** | `anno.crea`, `anno.salva` (`validaAnno`); `materia.salva` (`validaMateria`); `corso.salva`, `orario.imposta` (`validaCorso`); `classe.salva`, `classe.duplica` (`validaClasse`); `lezione.salva` (`validaLezione`); `piano.salva` (`validaPiano`); `risorsa.aggiungi`, `risorsa.salva` (`validaRisorsa`); `valutazione.salva` (`validaValutazione`); `consegna.salva` (`validaConsegna`); `recapito.salva` (`validaRecapito`); `comunicazione.salva`, `comunicazione.invia` (`validaComunicazione`); `assenze.salva`, `assenze.invia` (`validaBloccoAssenze`) |
 | Azioni dichiaratamente idempotenti per progetto | **3** | `corso.crea`, `valutazione.daAttivita`, `orario.genera` |
 | Azioni che aprono un dialogo di sistema dentro il gestore | **11** | `anno.crea` (`showSaveDialog`), `allievo.foto.imposta`, `risorsa.aggiungi`, `allegato.aggiungi`, `consegna.raccogli`, `consegna.documento.allega`, `consegna.firme.aggiungi`, `assenze.foglio.aggiungi`, `assenze.importa` (multi-file), `smistamento.carica` (multi-file), `modello.immagine` |
-| Azioni che aprono un dialogo **fuori** dal gestore | **2** | `posta.invioProva` (finestra dell'host in `dati/posta.ts`), `documento.apri` senza percorso (dialogo del guscio) |
+| Azioni che aprono un dialogo **fuori** dal gestore | **2** | `posta.invioProva` (finestra dell'host in `data/mail.ts`), `documento.apri` senza percorso (dialogo del guscio) |
 | Azioni marcate legacy nel codice | **2** | `smistamento.assegnaManuale`, `smistamento.dividi` |
 | Azioni che scrivono bypassando `contesto.modifica` (chiamano `archivio.modifica` diretto) | **5** | `materia.salva`, `comunicazione.invia`, `comunicazione.spunta`, `assenze.invia`, `assenze.spunta` |
 
@@ -1031,11 +1031,11 @@ riga di comando, e il widget dell'agenda, che riceve schede già composte.
 
 | procedura | dove | ingresso | che cosa torna | perché non è un'azione |
 |---|---|---|---|---|
-| `registro.riassunto` | [`api/procedure/lettura.ts`](../src/api/procedure/lettura.ts) | — | `versione`, `anno` (nullabile), e i conteggi di `classi`, `corsi`, `lezioni`, `valutazioni`, `consegne`, `daSmistare` | è il «che cosa ho aperto» di chi arriva da fuori |
+| `registro.riassunto` | [`api/procedures/registro/riassunto.ts`](../src/api/procedures/registro/riassunto.ts) | — | `versione`, `anno` (nullabile), e i conteggi di `classi`, `corsi`, `lezioni`, `valutazioni`, `consegne`, `daSmistare` | è il «che cosa ho aperto» di chi arriva da fuori |
 | `corsi.elenco` | `lettura.ts` | `annoId?` (senza, l'anno in uso) | `corsi[]`: `id`, `titolo`, `classe`, `classeId`, `materia`, `allievi`, `lezioni`, `fasce` | l'indice da cui si parte per chiedere il resto |
-| `corso.presenze` | `lettura.ts` | `corsoId`, `dal?`, `al?` | `udPreviste`, `udACalendario`, `righe[]` con **i tre denominatori accanto ai numeri**: `udConAppello`, `assenza` (sulle UD previste), `presenza` (su quelle con appello), `frequenza`, più `ritardi`, `prove`, `media`, `nota` | torna **il conto già fatto dal dominio** (`matriceCorso.ts`), mai i dati grezzi da ricontare: un secondo consumatore che rifacesse la divisione la rifarebbe diversa |
-| `ore.appello.leggi` | [`api/procedure/ore.ts`](../src/api/procedure/ore.ts) | `lezioneId` | `lezioneId`, `data`, `ud`, `righe[]` | leggere l'appello non è segnarlo |
-| `registro.integrita` | [`api/procedure/rapporti.ts`](../src/api/procedure/rapporti.ts) | — | `riferimentiRotti`, `riparazioni` | dice che cosa **si saprebbe** riparare; riparare è un'altra cosa, ed è un'azione |
+| `corso.presenze` | `lettura.ts` | `corsoId`, `dal?`, `al?` | `udPreviste`, `udACalendario`, `righe[]` con **i tre denominatori accanto ai numeri**: `udConAppello`, `assenza` (sulle UD previste), `presenza` (su quelle con appello), `frequenza`, più `ritardi`, `prove`, `media`, `nota` | torna **il conto già fatto dal dominio** (`courseMatrix.ts`), mai i dati grezzi da ricontare: un secondo consumatore che rifacesse la divisione la rifarebbe diversa |
+| `ore.appello.leggi` | [`api/procedures/ore/appello/leggi.ts`](../src/api/procedures/ore/appello/leggi.ts) | `lezioneId` | `lezioneId`, `data`, `ud`, `righe[]` | leggere l'appello non è segnarlo |
+| `registro.integrita` | [`api/procedures/registro/integrita.ts`](../src/api/procedures/registro/integrita.ts) | — | `riferimentiRotti`, `riparazioni` | dice che cosa **si saprebbe** riparare; riparare è un'altra cosa, ed è un'azione |
 | `documenti.inventario` | `rapporti.ts` | — | `esportazioni`, `archivio`, `composizioni`, `modelli` | guarda il documento d'anno e conta; non ci scrive |
 | `modelli.leggi` | `rapporti.ts` | `nome` | `testo` (il sorgente) e `nomi: NomiModello` | **era** l'azione `modello.leggi` |
 | `modelli.prova` | `rapporti.ts` | `nome`, `bozza?` (il testo non ancora salvato; senza, quello su disco) | `pdf` in base64, composto in memoria e mai scritto su disco | **era** l'azione `modello.prova` |
@@ -1051,12 +1051,12 @@ del registro, non da una tabella scritta a mano.
 
 Non è il canale delle azioni. È un secondo giro di buste sullo stesso IPC
 (`registro:messaggio`), con due tipi propri in
-[`src/protocollo.ts`](../src/protocollo.ts):
+[`src/protocol.ts`](../src/protocol.ts):
 
 | verso | busta | campi | chi |
 |---|---|---|---|
-| pannello → host | `Domanda` | `id: number`, `procedura: string`, `ingresso?: unknown` | `chiedi()` in [`src/interfaccia/ponte.ts`](../src/interfaccia/ponte.ts) |
-| host → pannello | `Riscontro` | `tipo: 'riscontro'`, `id`, `ok`, `dati?`, `errori?: string[]`, `codice?: string` | `rispondiDomanda()` in [`src/pannelli/pannello.ts`](../src/pannelli/pannello.ts) |
+| pannello → host | `Domanda` | `id: number`, `procedura: string`, `ingresso?: unknown` | `chiedi()` in [`src/ui/bridge.ts`](../src/ui/bridge.ts) |
+| host → pannello | `Riscontro` | `tipo: 'riscontro'`, `id`, `ok`, `dati?`, `errori?: string[]`, `codice?: string` | `rispondiDomanda()` in [`src/panels/panel.ts`](../src/panels/panel.ts) |
 
 `chiedi<T>(procedura, ingresso)` torna un `Esito<T> = { ok, dati, errori,
 codice }` e **non mostra niente da sé**: una lettura che non riesce quasi
@@ -1066,15 +1066,15 @@ dell'API (`non-trovato`, `rifiutato`, `ingresso-non-valido`…), cioè la prima
 cosa che nel protocollo di prima non c'era.
 
 L'unico consumatore dentro il pannello è oggi **la pagina Modelli**
-([`src/interfaccia/viste/modelli.ts`](../src/interfaccia/viste/modelli.ts)),
+([`src/ui/views/templates.ts`](../src/ui/views/templates.ts)),
 che con `chiedi('modelli.leggi', …)` prende sorgente e nomi e con
 `chiedi('modelli.prova', …)` l'anteprima in PDF. Fuori dal pannello ci sono la
 riga di comando ([`src/cli/`](../src/cli/)) e il condotto
-([`src/api/trasporti/condotto.ts`](../src/api/trasporti/condotto.ts)).
+([`src/api/transports/conduit.ts`](../src/api/transports/conduit.ts)).
 
 #### Perché sta fuori dalla coda, e a quale condizione
 
-`gestisci()` in `pannelli/pannello.ts` riconosce una domanda dal campo
+`gestisci()` in `panels/panel.ts` riconosce una domanda dal campo
 `procedura` e la serve **subito**, senza metterla in `this.coda`. Le scritture
 invece restano in fila una dietro l'altra, ed è la garanzia più forte che il
 sistema abbia: due richieste vicine — un doppio clic, un salvataggio e una
@@ -1100,10 +1100,10 @@ mette per iscritto.
 
 ## 7. Messaggi host → pannello
 
-Tutti dichiarati in [`src/protocollo.ts`](../src/protocollo.ts);
+Tutti dichiarati in [`src/protocol.ts`](../src/protocol.ts);
 `MessaggioVersoWebview` è la loro unione più `Risposta` e `Riscontro`. Il canale
 è unico e bidirezionale (`registro:messaggio`); il pannello li riconosce dal
-campo `tipo` in [`src/interfaccia/ponte.ts`](../src/interfaccia/ponte.ts).
+campo `tipo` in [`src/ui/bridge.ts`](../src/ui/bridge.ts).
 
 Le buste sono otto, e si leggono in due gruppi: quelle che **rispondono** a
 qualcosa che il pannello ha chiesto — `Risposta` a una `Richiesta`, `Riscontro`
@@ -1116,14 +1116,14 @@ senza che nessuno le abbia chieste.
 |---|---|---|---|---|
 | `Risposta` | `'risposta'` | `pannelli/pannello.ts: eseguiRichiesta()`, o il ramo «azione sconosciuta» | `ponte.ts`, che risolve la `Promise` in `inAttesa` | dopo ogni `Richiesta`, **sempre dopo** l'eventuale `MessaggioStato` |
 | `Riscontro` | `'riscontro'` | `pannelli/pannello.ts: rispondiDomanda()` | `ponte.ts`, che risolve la `Promise` in `domandeInAttesa` | dopo ogni `Domanda`, **fuori dalla coda delle scritture** (§6.17): non aspetta le richieste in fila davanti |
-| `MessaggioStato` | `'stato'` | `pannelli/pannello.ts: flushStato()` | `interfaccia/stato.ts` (lo store del client) | dopo ogni azione con `ok && !invariato`; su `archivio.alCambiamento` (anche cambi esterni al file); a ogni cambio di una `registroDocenti.*`; a ogni cambio dell'elenco documenti |
-| `MessaggioNavigazione` | `'naviga'` | `apriRegistro()` / `PannelloRegistro.naviga()`, chiamate da comandi di menu, vassoio, agenda, promemoria | `interfaccia/principale.ts` (router); messo in coda in `navigazioneInAttesa` se il webview non ha ancora mandato `stato.leggi` | quando qualcosa fuori dal pannello chiede di aprirlo su un posto preciso |
-| `MessaggioNotifica` | `'notifica'` | `PannelloRegistro.avvisa()` | `componenti/notifiche.ts` | errori non legati a una richiesta puntuale (file-watcher, errori d'archivio) e ogni eccezione non catturata in un gestore |
-| `MessaggioLavoro` | `'lavoro'` | `Smistatore.allAvanzamento` (`src/dati/smistatore.ts`), sottoscritto in `pannello.ts` | UI di smistamento e quarantena | a ogni pagina letta dall'OCR (circa una al minuto) |
+| `MessaggioStato` | `'stato'` | `pannelli/pannello.ts: flushStato()` | `ui/state.ts` (lo store del client) | dopo ogni azione con `ok && !invariato`; su `archivio.alCambiamento` (anche cambi esterni al file); a ogni cambio di una `registroDocenti.*`; a ogni cambio dell'elenco documenti |
+| `MessaggioNavigazione` | `'naviga'` | `apriRegistro()` / `PannelloRegistro.naviga()`, chiamate da comandi di menu, vassoio, agenda, promemoria | `ui/main.ts` (router); messo in coda in `navigazioneInAttesa` se il webview non ha ancora mandato `stato.leggi` | quando qualcosa fuori dal pannello chiede di aprirlo su un posto preciso |
+| `MessaggioNotifica` | `'notifica'` | `PannelloRegistro.avvisa()` | `components/notifications.ts` | errori non legati a una richiesta puntuale (file-watcher, errori d'archivio) e ogni eccezione non catturata in un gestore |
+| `MessaggioLavoro` | `'lavoro'` | `Smistatore.allAvanzamento` (`src/data/sorter.ts`), sottoscritto in `panel.ts` | UI di smistamento e quarantena | a ogni pagina letta dall'OCR (circa una al minuto) |
 | `MessaggioProiezione` | `'proiezione'` | `pannelli/proiezione.ts: PannelloProiezione.spingi()` (debounce a microtask) | **solo** il webview della proiezione | a ogni cambio di mira, impostazioni o registro |
 | `MessaggioStatoProiezione` | `'proiezione.stato'` | `pannelli/proiezione.ts: annuncia()` | **solo** il pannello principale | quando la proiezione si apre, si chiude o cambia impostazioni |
 
-Il verso opposto sono due buste, e `gestisci()` in `pannelli/pannello.ts` le
+Il verso opposto sono due buste, e `gestisci()` in `panels/panel.ts` le
 distingue da un campo:
 
 - `Richiesta { id: number; azione: Azione }` — la scrittura, emessa da
@@ -1152,7 +1152,7 @@ campi facoltativi che ogni `Risposta` si portava dietro — un salvataggio di
 voto, una spunta, una riga d'appello — per servire `modello.leggi` e
 `modello.prova`, due chiamate su centoquarantatré, e due chiamate che scrittura
 non erano. Sono spariti da `Risposta` e dal suo gemello interno `EsitoAzione`
-([`src/azioni/contesto.ts`](../src/azioni/contesto.ts)) quando quelle due sono
+([`src/actions/context.ts`](../src/actions/context.ts)) quando quelle due sono
 diventate le letture `modelli.leggi` e `modelli.prova`: adesso quel che tornano
 lo dichiara il loro schema d'uscita, e `Riscontro.dati` lo porta senza che
 nessun altro debba portarselo dietro (§6.17, §7.8).
@@ -1291,11 +1291,11 @@ scarta il messaggio senza log.
 
 | Sotto-protocollo | Discriminante | Finestra | File |
 |---|---|---|---|
-| Webview del registro e della proiezione | nessuno (è la forma `Richiesta`/`Domanda` in salita e `MessaggioVersoWebview` in discesa: il protocollo vero, §6–§7) | Pannello, Proiezione | [`src/ambiente/finestre.ts`](../src/ambiente/finestre.ts) |
-| Benvenuto | `benvenuto: '…'` | Benvenuto | [`guscio/benvenuto.ts`](../guscio/benvenuto.ts) + [`guscio/benvenuto.html`](../guscio/benvenuto.html) |
-| Impostazioni | `impostazioni: '…'` | Impostazioni | [`guscio/menu.ts`](../guscio/menu.ts) + [`guscio/impostazioni.html`](../guscio/impostazioni.html) |
-| Dialogo | `dialogo: '…'` | Dialogo (input/elenco) | [`src/ambiente/dialoghi.ts`](../src/ambiente/dialoghi.ts) + [`guscio/dialogo.html`](../guscio/dialogo.html) |
-| Agenda | `agenda: { … }` | Agenda (widget) | [`src/ambiente/agenda.ts`](../src/ambiente/agenda.ts) + [`guscio/agenda.html`](../guscio/agenda.html) |
+| Webview del registro e della proiezione | nessuno (è la forma `Richiesta`/`Domanda` in salita e `MessaggioVersoWebview` in discesa: il protocollo vero, §6–§7) | Pannello, Proiezione | [`src/environment/windows.ts`](../src/environment/windows.ts) |
+| Benvenuto | `benvenuto: '…'` | Benvenuto | [`shell/windows/welcome.ts`](../shell/windows/welcome.ts) + [`shell/pages/welcome/welcome.html`](../shell/pages/welcome/welcome.html) |
+| Impostazioni | `impostazioni: '…'` | Impostazioni | [`shell/windows/menu.ts`](../shell/windows/menu.ts) + [`shell/pages/settings/settings.html`](../shell/pages/settings/settings.html) |
+| Dialogo | `dialogo: '…'` | Dialogo (input/elenco) | [`src/environment/dialogs.ts`](../src/environment/dialogs.ts) + [`shell/pages/dialog/dialog.html`](../shell/pages/dialog/dialog.html) |
+| Agenda | `agenda: { … }` | Agenda (widget) | [`src/environment/agenda.ts`](../src/environment/agenda.ts) + [`shell/pages/agenda/agenda.html`](../shell/pages/agenda/agenda.html) |
 
 ### 8.1 Benvenuto
 
@@ -1402,15 +1402,15 @@ cambiato e nessuno se lo ricorda.
 ### 8.5 Il canale sincrono `registro:interfaccia`
 
 Non fa parte del protocollo applicativo. È `ipcRenderer.sendSync`, invocato una
-volta al boot di ogni pagina da [`guscio/preload.ts`](../guscio/preload.ts):
+volta al boot di ogni pagina da [`shell/preload.ts`](../shell/preload.ts):
 
 | chiamata | argomenti | risposta |
 |---|---|---|
-| `sendSync('registro:interfaccia', 'leggi')` | — | lo stato-UI locale persistito di quella finestra (l'equivalente di `vscode.getState()`) |
+| `sendSync('registro:interfaccia', 'leggi')` | — | lo stato-UI locale persistito di quella finestra (il `getState()` di `acquireVsCodeApi()`) |
 | `sendSync('registro:interfaccia', 'scrivi', nuovo)` | il nuovo stato | — |
 
 Risponde `gestisciStatoInterfaccia` in
-[`src/ambiente/finestre.ts`](../src/ambiente/finestre.ts), filtrando per tipo di
+[`src/environment/windows.ts`](../src/environment/windows.ts), filtrando per tipo di
 finestra (`tipiFinestre`). È ciò che fa ritrovare il pannello dove lo si era
 lasciato: `StatoPersistito`, una trentina di campi di `stato.ts` (vista, pagina,
 schede, filtri, id selezionati). **Non confonderlo con `MessaggioStato`**: quello
@@ -1419,16 +1419,16 @@ porta i dati, questo porta le preferenze di visualizzazione.
 ### 8.6 Le 4 autorità di `registro://`
 
 Schema custom registrato da
-[`guscio/protocolloFile.ts`](../guscio/protocolloFile.ts) —
+[`shell/protocol/fileProtocol.ts`](../shell/protocol/fileProtocol.ts) —
 `privilegiaSchema()` prima di `app.whenReady()`, poi `registraProtocollo()`.
 È l'equivalente desktop di `asWebviewUri`.
 
 | Autorità | Forma dell'URL | Che cosa serve | Sorgente |
 |---|---|---|---|
-| `pagina` | `registro://pagina/<id>` | l'HTML delle `VistaWeb` (pannello e proiezione) | `htmlDellaPagina(id)` in `src/ambiente/finestre.ts`, in memoria |
+| `pagina` | `registro://pagina/<id>` | l'HTML delle `VistaWeb` (pannello e proiezione) | `htmlDellaPagina(id)` in `src/environment/windows.ts`, in memoria |
 | `app` | `registro://app/dist/pannello.js` | i bundle e le pagine HTML del guscio | `Uri.joinPath(radiceApp(), ...segmenti)`, verificato da `concesso()` |
 | `dati` | `registro://dati/D:/…/foto.png` | i file del docente: foto, PDF, risorse | `Uri.file(segmenti.join('/'))`, verificato da `concesso()` |
-| `mappa` | `registro://mappa/<z>/<x>/<y>.png` | i tasselli OpenStreetMap in cache | [`guscio/tasselli.ts`](../guscio/tasselli.ts): cache in `userData/tasselli/`, altrimenti scarica |
+| `mappa` | `registro://mappa/<z>/<x>/<y>.png` | i tasselli OpenStreetMap in cache | [`shell/protocol/tiles.ts`](../shell/protocol/tiles.ts): cache in `userData/tasselli/`, altrimenti scarica |
 
 Difese del protocollo:
 
@@ -1451,10 +1451,10 @@ Difese del protocollo:
 
 ### 9.1 Gli 8 `GenereRapporto`
 
-Fonte: [`src/dominio/collocazioni.ts`](../src/dominio/collocazioni.ts). I dati
+Fonte: [`src/domain/locations.ts`](../src/domain/locations.ts). I dati
 che finiscono dentro ogni foglio li compone
-[`src/dominio/datiRapporti.ts`](../src/dominio/datiRapporti.ts); il PDF lo
-disegna [`src/dati/rapportiPdf.ts`](../src/dati/rapportiPdf.ts).
+[`src/domain/reportData.ts`](../src/domain/reportData.ts); il PDF lo
+disegna [`src/data/reportsPdf.ts`](../src/data/reportsPdf.ts).
 
 **Regola del percorso** (`sotto` + `percorsoEsportazione`):
 
@@ -1495,7 +1495,7 @@ Per `allievo` e `foto-classe` il corso lo dice `contesto.corsoId`; se manca e la
 classe ha un corso solo, è quello; con più corsi e nessuno indicato l'ambito
 resta `null` e la cartella diventa `docente-di-classe`.
 
-**Funzioni e costanti esportate da `collocazioni.ts`**
+**Funzioni e costanti esportate da `locations.ts`**
 
 | Nome | Scopo |
 |---|---|
@@ -1511,7 +1511,7 @@ resta `null` e la cartella diventa `docente-di-classe`.
 | `nomeFileArchivio(classe, chi, documento, dettaglio, estensione)` | l'unico posto che incolla i pezzi del nome file |
 | `cartellaDelPercorso(relativo)` | la cartella che contiene un percorso |
 | `documentoPiano(registro, piano)` | il nome stabile del dettaglio di un piano |
-| `percorsoDi(collocazione, estensione = 'pdf')` | **la funzione che produce anche CSV e Markdown**: l'estensione è un parametro, e `azioni/sistema.ts` la chiama con `'csv'` e `'md'` |
+| `percorsoDi(collocazione, estensione = 'pdf')` | **la funzione che produce anche CSV e Markdown**: l'estensione è un parametro, e `actions/system.ts` la chiama con `'csv'` e `'md'` |
 | `radiceDi(collocazione)` | il prefisso senza dettaglio né estensione: così si riconoscono le copie dei `datato` |
 | `precedentiDi(collocazione)` | i vecchi nomi della stessa scheda (`DOCUMENTO_SCHEDE_PRIMA = ['Schede allievo', 'Scheda allievo', 'Schede PiF']`), per non lasciare orfani |
 | `collocazioneDi(registro, genere, id, contesto?)` | la collocazione completa, con l'anno scolastico in testa |
@@ -1520,7 +1520,7 @@ resta `null` e la cartella diventa `docente-di-classe`.
 
 ### 9.2 Le 13 voci di `CATALOGO_MODELLI`
 
-Fonte: [`src/dominio/catalogoModelli.ts`](../src/dominio/catalogoModelli.ts).
+Fonte: [`src/domain/templateCatalog.ts`](../src/domain/templateCatalog.ts).
 
 `RuoloModello` ha quattro valori:
 
@@ -1532,7 +1532,7 @@ Fonte: [`src/dominio/catalogoModelli.ts`](../src/dominio/catalogoModelli.ts).
 | `immagine` | un file che i modelli mostrano (il logo della sede) |
 
 Nessuna voce del catalogo ha oggi ruolo `immagine`: il valore esiste per i file
-portati con `modello.immagine`, e `nomiDelModello` in `azioni/modelli.ts` filtra
+portati con `modello.immagine`, e `nomiDelModello` in `actions/templates.ts` filtra
 via `immagine` e `posta`.
 
 | # | nome | file su disco | titolo | ruolo (strato) | genere per l'anteprima | a che cosa serve |
@@ -1565,8 +1565,8 @@ Altre funzioni esportate: `voceModello(nome)`, `titoloModello(nome)`,
 ### 9.3 Il motore di template
 
 File `.tpl` in `templates/`, risolti in due fasi
-([`src/dominio/rapporti.ts`](../src/dominio/rapporti.ts) +
-[`src/dati/rapportiPdf.ts`](../src/dati/rapportiPdf.ts)): `componiCorpo` espande
+([`src/domain/reports.ts`](../src/domain/reports.ts) +
+[`src/data/reportsPdf.ts`](../src/data/reportsPdf.ts)): `componiCorpo` espande
 le direttive in un albero di blocchi e pota le sezioni vuote, poi `componiPdf`
 disegna con pdf-lib.
 
@@ -1588,15 +1588,15 @@ disegna con pdf-lib.
 
 ## 10. Moduli (form)
 
-[`src/interfaccia/moduli/`](../src/interfaccia/moduli/) contiene **14 file**: 13
+[`src/ui/forms/`](../src/ui/forms/) contiene **14 file**: 13
 di moduli veri più `comune.ts`, che è l'infrastruttura. I punti d'ingresso
 esportati sono **25**.
 
 **Pattern comune**: dati di partenza (l'oggetto esistente, oppure una `crea*` di
-[`src/dominio/fabbriche.ts`](../src/dominio/fabbriche.ts)) →
+[`src/domain/factories.ts`](../src/domain/factories.ts)) →
 `apriModale({titolo, larghezza, corpo, alSalva, azioniSecondarie})` → corpo
 costruito con `campo()`/`riga()`/`sezioneModulo()` → `alSalva` ricompone
-l'oggetto, eventualmente lo passa a `dominio/validazione.ts`, e chiama
+l'oggetto, eventualmente lo passa a `domain/validation.ts`, e chiama
 `salva(contesto, azione, messaggio, dopo?)` → `azioniSecondarie` di solito
 `tastoElimina`/`tastoDuplica` in modalità modifica.
 
@@ -1615,29 +1615,29 @@ hanno bottoni di stato alternativo oltre a Elimina; `editorPiano` e
 | 2 | `moduloPause` | `anno.ts` | `(anno: AnnoScolastico) => void` | Solo vacanze e sospensioni di un anno esistente | `anno.salva` |
 | 3 | `moduloBloccoAssenze` | `assenze.ts` | `(classe: Classe, blocco?: BloccoAssenze) => void` | Periodo di rilevamento assenze: date, testo della mail, destinatari, note | `assenze.salva`, `assenze.elimina` |
 | 4 | `moduloImportaAssenze` | `assenze.ts` | `(classe: Classe, blocco: BloccoAssenze) => void` | Sceglie la cartella di PDF di assenze/ritardi da assegnare per nome file | `assenze.importa` |
-| 5 | `moduloClasse` | `classe.ts` | `(classe?: Classe, dopo?: (classeId: string) => void) => void` | Crea o modifica una classe: nome, materia iniziale, sede, colore, docenza di classe | `classe.salva`, `corso.crea`, `classe.elimina` |
-| 6 | `moduloAllievo` | `classe.ts` | `(classe: Classe, allievo?: Allievo) => void` | Anagrafica di una persona: dati, foto, indirizzo, contatti propri, tutore, datore | `classe.salva`, `allievo.elimina`, `allievo.foto.imposta`, `allievo.foto.togli` |
-| 7 | `moduloImportaAllievi` | `classe.ts` | `(classe: Classe) => void` | Incolla-elenco di nomi per popolare una classe | `allievi.importa` |
-| 8 | `moduloComposizione` | `composizione.ts` | `(scelti: Array<{percorso, nome}>) => void` | Nome e ordine di un fascicolo composto dai documenti spuntati (minimo 2) | `composizione.crea` |
-| 9 | `moduloConsegna` | `consegna.ts` | `(opzioni?: OpzioniModuloConsegna) => void` | Consegna: testo, tipo, destinatario (`a: 'classe' \| 'docente'`), eventuale raccolta di un documento, scadenza | `consegna.salva`, `consegna.elimina` |
-| 10 | `moduloCorso` | `corso.ts` | `(opzioni?: OpzioniModuloCorso) => void` | Crea o modifica un corso: titolo, classe, materia, ore fisse settimanali (`editorRicorrenze`), generazione delle lezioni | `corso.crea`, `corso.salva`, `corso.elimina`, `orario.imposta`, `orario.genera` |
-| 11 | `moduloAvvio` | `corso.ts` | `() => void` | Avvio guidato: da zero alla prima lezione — anno, classe, materia, corso, orario in sequenza | `anno.crea`, `classe.salva`, `materia.salva`, `corso.crea`, `orario.imposta`, `orario.genera` |
+| 5 | `moduloClasse` | `class.ts` | `(classe?: Classe, dopo?: (classeId: string) => void) => void` | Crea o modifica una classe: nome, materia iniziale, sede, colore, docenza di classe | `classe.salva`, `corso.crea`, `classe.elimina` |
+| 6 | `moduloAllievo` | `class.ts` | `(classe: Classe, allievo?: Allievo) => void` | Anagrafica di una persona: dati, foto, indirizzo, contatti propri, tutore, datore | `classe.salva`, `allievo.elimina`, `allievo.foto.imposta`, `allievo.foto.togli` |
+| 7 | `moduloImportaAllievi` | `class.ts` | `(classe: Classe) => void` | Incolla-elenco di nomi per popolare una classe | `allievi.importa` |
+| 8 | `moduloComposizione` | `composition.ts` | `(scelti: Array<{percorso, nome}>) => void` | Nome e ordine di un fascicolo composto dai documenti spuntati (minimo 2) | `composizione.crea` |
+| 9 | `moduloConsegna` | `assignment.ts` | `(opzioni?: OpzioniModuloConsegna) => void` | Consegna: testo, tipo, destinatario (`a: 'classe' \| 'docente'`), eventuale raccolta di un documento, scadenza | `consegna.salva`, `consegna.elimina` |
+| 10 | `moduloCorso` | `course.ts` | `(opzioni?: OpzioniModuloCorso) => void` | Crea o modifica un corso: titolo, classe, materia, ore fisse settimanali (`editorRicorrenze`), generazione delle lezioni | `corso.crea`, `corso.salva`, `corso.elimina`, `orario.imposta`, `orario.genera` |
+| 11 | `moduloAvvio` | `course.ts` | `() => void` | Avvio guidato: da zero alla prima lezione — anno, classe, materia, corso, orario in sequenza | `anno.crea`, `classe.salva`, `materia.salva`, `corso.crea`, `orario.imposta`, `orario.genera` |
 | 12 | `moduloRecapito` | `docenteClasse.ts` | `(classe: Classe, recapito?: Recapito) => void` | Un recapito fisso della classe (capoclasse, azienda, servizio) | `recapito.salva`, `recapito.elimina` |
 | 13 | `moduloComunicazione` | `docenteClasse.ts` | `(classe: Classe, comunicazione?: Comunicazione) => void` | Comunicazione a gruppi con allegati; «salva e apri nella posta» | `comunicazione.salva`, `comunicazione.invia`, `comunicazione.elimina` |
 | 14 | `moduloLezione` | `lezione.ts` | `(opzioni?: OpzioniModuloLezione) => void` | Crea o modifica un'ora: corso, data, aula, stato, fasce orarie (`editorSlot`), piano collegabile | `lezione.salva`, `lezione.duplica`, `lezione.elimina` |
 | 15 | `moduloOsservazione` | `lezione.ts` | `(lezione: Lezione, classe: Classe \| null, osservazione?: Osservazione) => void` | Annotazione su una lezione, rivolta alla classe o a una persona | `osservazione.salva`, `osservazione.elimina` |
-| 16 | `moduloMateria` | `materia.ts` | `(materia?: Materia, dopo?: (materiaId: string) => void) => void` | Crea o modifica una materia, con avviso sui doppioni mentre si scrive | `materia.salva`, `materia.elimina` |
-| 17 | `moduloUnisciMaterie` | `materia.ts` | `(da: Materia) => void` | Unisce due materie doppie, dicendo prima quanti corsi e piani ne sono toccati | `materia.unisci` |
-| 18 | `editorPiano` | `piano.ts` | `(opzioni: {piano?, corsoDaProporre?, lezione?, …}) => EditorPiano` | I campi dell'editor di piano **senza** la finestra: riusabile in modale o in linea | `piano.salva` |
-| 19 | `moduloPiano` | `piano.ts` | `(piano?, dopo?, corsoDaProporre?, lezione?) => void` | La modale attorno a `editorPiano` | `piano.salva`, `piano.duplica`, `piano.elimina` |
-| 20 | `moduloAssegnaPiano` | `piano.ts` | `(lezione: Lezione) => void` | Assegna, crea o toglie il piano di un'ora | `piano.assegna` |
-| 21 | `moduloRecupero` | `recupero.ts` | `(recupero: Recupero, dopo?: () => void) => void` | Data del recupero di una prova, note, documenti, oppure la dispensa | `recupero.imposta` |
-| 22 | `bloccoRisorse` | `risorse.ts` | `(opzioni: OpzioniRisorse) => HTMLElement` | Blocco **non modale** con le risorse di un piano o di una tappa | `risorsa.aggiungi`, `risorsa.apri`, `risorsa.elimina` |
-| 23 | `moduloCollegamento` | `risorse.ts` | `(pianoId: string, attivitaId: string \| null, dopo?) => void` | Aggiunge un collegamento: url più titolo | `risorsa.aggiungi` |
-| 24 | `moduloRisorsa` | `risorse.ts` | `(pianoId, attivitaId, risorsa, dopo?) => void` | Modifica o sposta una risorsa esistente | `risorsa.sposta`, `risorsa.salva`, `risorsa.elimina` |
-| 25 | `moduloValutazione` | `valutazione.ts` | `(momento: MomentoValutazione, dopo?: () => void) => void` | Corregge un momento già nato — non ne crea mai uno: un momento nasce da una tappa-prova del piano | `valutazione.salva`, `valutazione.elimina` |
+| 16 | `moduloMateria` | `subject.ts` | `(materia?: Materia, dopo?: (materiaId: string) => void) => void` | Crea o modifica una materia, con avviso sui doppioni mentre si scrive | `materia.salva`, `materia.elimina` |
+| 17 | `moduloUnisciMaterie` | `subject.ts` | `(da: Materia) => void` | Unisce due materie doppie, dicendo prima quanti corsi e piani ne sono toccati | `materia.unisci` |
+| 18 | `editorPiano` | `plan.ts` | `(opzioni: {piano?, corsoDaProporre?, lezione?, …}) => EditorPiano` | I campi dell'editor di piano **senza** la finestra: riusabile in modale o in linea | `piano.salva` |
+| 19 | `moduloPiano` | `plan.ts` | `(piano?, dopo?, corsoDaProporre?, lezione?) => void` | La modale attorno a `editorPiano` | `piano.salva`, `piano.duplica`, `piano.elimina` |
+| 20 | `moduloAssegnaPiano` | `plan.ts` | `(lezione: Lezione) => void` | Assegna, crea o toglie il piano di un'ora | `piano.assegna` |
+| 21 | `moduloRecupero` | `retake.ts` | `(recupero: Recupero, dopo?: () => void) => void` | Data del recupero di una prova, note, documenti, oppure la dispensa | `recupero.imposta` |
+| 22 | `bloccoRisorse` | `resources.ts` | `(opzioni: OpzioniRisorse) => HTMLElement` | Blocco **non modale** con le risorse di un piano o di una tappa | `risorsa.aggiungi`, `risorsa.apri`, `risorsa.elimina` |
+| 23 | `moduloCollegamento` | `resources.ts` | `(pianoId: string, attivitaId: string \| null, dopo?) => void` | Aggiunge un collegamento: url più titolo | `risorsa.aggiungi` |
+| 24 | `moduloRisorsa` | `resources.ts` | `(pianoId, attivitaId, risorsa, dopo?) => void` | Modifica o sposta una risorsa esistente | `risorsa.sposta`, `risorsa.salva`, `risorsa.elimina` |
+| 25 | `moduloValutazione` | `assessment.ts` | `(momento: MomentoValutazione, dopo?: () => void) => void` | Corregge un momento già nato — non ne crea mai uno: un momento nasce da una tappa-prova del piano | `valutazione.salva`, `valutazione.elimina` |
 
-### 10.1 `moduli/comune.ts` — l'infrastruttura condivisa
+### 10.1 `forms/common.ts` — l'infrastruttura condivisa
 
 | Nome | Firma | Scopo |
 |---|---|---|
@@ -1645,7 +1645,7 @@ hanno bottoni di stato alternativo oltre a Elimina; `editorPiano` e
 | `numero` | `(valore: unknown, predefinito: number) => number` | legge e normalizza un campo numerico |
 | `richiedeAnno` | `(seNonCe: () => void) => AnnoScolastico \| null` | guardia: senza anno notifica e apre l'avvio guidato |
 | `salva` | `(contesto, azione, messaggio, dopo?) => Promise<void>` | manda l'azione, rimette gli errori in cima al modulo senza chiuderlo, altrimenti chiude+notifica+`dopo(idCreato)` |
-| `chiediEliminazione` | `(bersaglio: Bersaglio) => Promise<boolean>` | mostra tutto ciò che sparirebbe insieme all'elemento, usando `dominio/eliminazioni.ts` |
+| `chiediEliminazione` | `(bersaglio: Bersaglio) => Promise<boolean>` | mostra tutto ciò che sparirebbe insieme all'elemento, usando `domain/deletions.ts` |
 | `tastoElimina` | `(opzioni) => HTMLButtonElement` | il bottone Elimina completo, usato in 14 moduli |
 | `tastoDuplica` | `(opzioni) => HTMLButtonElement` | il bottone Duplica completo |
 | `vociTipoAttivita` | `() => VoceLista[]` | le voci della tendina «tipo di attività» |
@@ -1664,9 +1664,9 @@ hanno bottoni di stato alternativo oltre a Elimina; `editorPiano` e
 | `presaDiRiga` | `() => HTMLButtonElement` | la maniglia di trascinamento |
 
 Editor interni non esportati ma centrali: `editorPause` (`anno.ts`),
-`editorTelefoni`, `campoFoto`, `campiIndirizzo` (`classe.ts`),
-`editorRicorrenze` (`corso.ts`), `editorSlot` (`lezione.ts`), `editorAttivita`
-(`piano.ts`). Tutti costruiscono la riga una volta sola e aggiornano solo i nodi
+`editorTelefoni`, `campoFoto`, `campiIndirizzo` (`class.ts`),
+`editorRicorrenze` (`course.ts`), `editorSlot` (`lezione.ts`), `editorAttivita`
+(`plan.ts`). Tutti costruiscono la riga una volta sola e aggiornano solo i nodi
 che cambiano, per non perdere il fuoco della tastiera mentre si digita.
 
 ---
@@ -1680,8 +1680,8 @@ che cambiano, per non perdere il fuoco della tastiera mentre si digita.
 | PDF (rapporto) | `rapporto.genera`, `rapporto.completo`, la rigenerazione automatica | `esportazioni/…` secondo la collocazione del genere | vedi §9.1 |
 | PDF (fascicolo composto) | `composizione.crea`, `composizione.aggiorna` | `esportazioni/…`, più una **ricetta** `Composizione` in JSON dentro il documento | da 2 a 200 PDF esistenti messi in fila |
 | PDF (anteprima di modello) | `modelli.prova` (una **lettura**, §6.17) | **da nessuna parte**: vive in memoria e torna in `Riscontro.dati.pdf` come base64 | il modello in bozza composto sui dati d'esempio |
-| CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF corrispondente, stesso nome, estensione `.csv` (`percorsoCsv`) | `csvValutazioni`, `csvPresenze` in [`src/dati/esportazioni.ts`](../src/dati/esportazioni.ts) |
-| Markdown | `esporta.lezione` | stesso posto del verbale, estensione `.md` (`percorsoDi(dove, 'md')`) | `testoLezione` in `src/dati/esportazioni.ts` |
+| CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF corrispondente, stesso nome, estensione `.csv` (`percorsoCsv`) | `csvValutazioni`, `csvPresenze` in [`src/data/exports.ts`](../src/data/exports.ts) |
+| Markdown | `esporta.lezione` | stesso posto del verbale, estensione `.md` (`percorsoDi(dove, 'md')`) | `testoLezione` in `src/data/exports.ts` |
 | `.eml` | `consegna.distribuisci`, `assenze.invia`, `comunicazione.invia` quando l'invio diretto è spento o fallisce | `bozze/` dentro il documento dell'anno, nome da `nomeBozza(classe, chi, argomento, periodo)` | il messaggio completo con gli allegati |
 
 ### 11.2 Posta
@@ -1730,7 +1730,7 @@ invocazione; scrittura incrementale in `Registro.coordinate`, che sono
 fuori un dato dell'anagrafica, e per questo si preme a mano.
 
 I tasselli della mappa passano invece da `registro://mappa/<z>/<x>/<y>.png`
-([`guscio/tasselli.ts`](../guscio/tasselli.ts)): cache locale in
+([`shell/protocol/tiles.ts`](../shell/protocol/tiles.ts)): cache locale in
 `userData/tasselli/`, scaricati da `tile.openstreetmap.org` con uno
 `User-Agent` dedicato, così la pagina non ha mai bisogno di permesso di rete.
 
@@ -1747,11 +1747,11 @@ llama.cpp. L'attesa massima per pagina è
 I due modelli si scaricano dalla pagina «Modelli linguistici», che li prende da
 Hugging Face o accoglie un `.gguf` trascinato dentro. Il **programma**, invece,
 non si sceglie e non si scarica a mano: alla prima pagina da leggere se lo
-prende il registro ([`src/dati/corredoVista.ts`](../src/dati/corredoVista.ts)),
+prende il registro ([`src/data/visionKit.ts`](../src/data/visionKit.ts)),
 con la stessa macchina e le stesse quattro guardie del corredo della dettatura
 — indirizzo nel sorgente, versione fissa, impronta SHA-256 verificata prima di
 eseguire, estrazione appiattita e stretta
-([`src/dati/corredo.ts`](../src/dati/corredo.ts)). Lo spegne
+([`src/data/kit.ts`](../src/data/kit.ts)). Lo spegne
 `registroDocenti.ocr.scaricoAutomatico`, e un percorso scritto a mano in
 `registroDocenti.ocr.programma` vince comunque.
 
@@ -1762,7 +1762,7 @@ macchina lì lo sa soltanto chi ci insegna.
 Quattro azioni lo accodano (`smistamento.leggiPagine`, `.leggiTutto`,
 `.rileggiAttive`) e una lo ferma (`.fermaLettura`). Sono **fire-and-forget**: il
 gestore accoda e ritorna `fatto` subito. Il lavoro vero lo fa lo `Smistatore`
-([`src/dati/smistatore.ts`](../src/dati/smistatore.ts)), un singleton per
+([`src/data/sorter.ts`](../src/data/sorter.ts)), un singleton per
 finestra con un `while` che consuma **una pagina alla volta**, mai in parallelo,
 e racconta l'avanzamento con `MessaggioLavoro` — un canale separato dallo stato,
 perché una pagina al minuto non deve ridisegnare il pannello intero.
@@ -1784,7 +1784,7 @@ pagina non è stata decisa):
 | Servizio | `smistamento.apri`, `.apriPagine`, `.impostazioni` | apre il PDF o un ritaglio col lettore di sistema; apre le impostazioni OCR |
 
 **Motore di riconoscimento**
-([`src/dominio/smistamento.ts`](../src/dominio/smistamento.ts)): indicizza fino
+([`src/domain/sorting.ts`](../src/domain/sorting.ts)): indicizza fino
 a 4 chiavi per allievo (cognome+nome, nome+cognome, cognome solo se univoco,
 nome solo se univoco), cerca come parola intera nel testo normalizzato della
 pagina, marca `ambiguo` se due candidati sono troppo vicini in fiducia.
@@ -1801,7 +1801,7 @@ Tre origini diverse, che non si pestano i piedi.
 
 | Tasti | Che cosa fa | Dove è dichiarata | Note |
 |---|---|---|---|
-| `Ctrl+K` | Apre la palette dei comandi | `installaScorciatoie()` in [`comandi.ts`](../src/interfaccia/comandi.ts) | gesto del telaio, non un comando del registro; risponde anche dentro un campo di testo |
+| `Ctrl+K` | Apre la palette dei comandi | `installaScorciatoie()` in [`comandi.ts`](../src/ui/commands.ts) | gesto del telaio, non un comando del registro; risponde anche dentro un campo di testo |
 | `Ctrl+B` | Mostra o nasconde la riga delle azioni | `installaScorciatoie()` | **non** la barra laterale, che ha il suo pulsante. Non risponde dentro un campo di testo: lì `Ctrl+B` è il grassetto |
 | `Ctrl+O` | Apri un anno… | `COMANDI_UI: file.apri` (`dalMenu: true`) | l'acceleratore lo gestisce il menu Electron |
 | `Ctrl+S` | Salva (o salva il modello, in pagina Modelli) | `COMANDI_UI: file.salva` | risponde anche dentro un campo di testo: `Ctrl+S` in mezzo a un consuntivo è proprio il momento in cui lo si vuole |
@@ -1831,17 +1831,17 @@ Segnalate qui perché i numeri circolano in altri documenti.
 
 | Cosa | Nei rapporti / nei commenti | Nel codice (verificato) |
 |---|---|---|
-| Varianti di `Azione` | «~150» (commento in `azioni.ts`: «centocinquanta gestori»), «152» in un rapporto, **143** in questo stesso documento fino alla revisione precedente | **141**, senza duplicati; 141 gestori, uno per azione. Erano 143: `modello.leggi` e `modello.prova` sono state ritirate e sono diventate letture (§6.14, §6.17). Il conteggio è provato a macchina da [`prove/api/copertura.test.mjs`](../prove/api/copertura.test.mjs), che legge l'unione `Azione` dal sorgente |
-| Procedure di `src/api/` | il commento in `api/ponte.ts` dice «centocinquanta azioni», quello in `api/nucleo.ts` «le centocinquanta azioni» | il numero non si ricorda: lo stampa `npm run procedure` e lo verifica `prove/api/copertura.test.mjs`. 8 sono letture, senza `azione:`; tutte le altre ne dichiarano una. I due commenti arrotondano il numero delle *azioni* com'era prima del ritiro |
+| Varianti di `Azione` | «~150» (commento in `actions.ts`: «centocinquanta gestori»), «152» in un rapporto, **143** in questo stesso documento fino alla revisione precedente | **141**, senza duplicati; 141 gestori, uno per azione. Erano 143: `modello.leggi` e `modello.prova` sono state ritirate e sono diventate letture (§6.14, §6.17). Il conteggio è provato a macchina da [`tests/api/coverage.test.mjs`](../tests/api/coverage.test.mjs), che legge l'unione `Azione` dal sorgente |
+| Procedure di `src/api/` | il commento in `api/bridge.ts` dice «centocinquanta azioni», quello in `api/core.ts` «le centocinquanta azioni» | il numero non si ricorda: lo stampa `npm run procedures` e lo verifica `tests/api/coverage.test.mjs`. 8 sono letture, senza `azione:`; tutte le altre ne dichiarano una. I due commenti arrotondano il numero delle *azioni* com'era prima del ritiro |
 | Azioni con **F** (filesystem) | 73 in questo documento fino alla revisione precedente | **72**: `modello.leggi` era una di quelle |
 | Azioni **solo** `∅` | 11 | **10**: `modello.prova` era una di quelle |
 | Azioni che non toccano il `Registro` | 48 | **46** (95 **R** + 46 = 141) |
 | Superfici catalogate nel §1 | la prosa diceva «quattro», la tabella ne elencava cinque | **sei**: la tabella ne elenca sei e la prosa lo dice. Quella in più è la superficie delle **procedure di lettura** (§6.17), che prima non esisteva |
 | Comandi di `COMANDI_UI` | «~95» | **89** (60 letterali + 29 generati) |
 | Pagine di `PAGINE` | «22» | **18** |
-| Impostazioni di `manifesto.ts` | «~25» | **26** |
+| Impostazioni di `manifest.ts` | «~25» | **26** |
 | Moduli in `moduli/` | «24» | **25** punti d'ingresso esportati in 13 file (più `comune.ts`) |
-| File di gestori in `src/azioni/` | «15» | **15** file di gestori + `contesto.ts`, che è l'infrastruttura |
+| File di gestori in `src/actions/` | «15» | **15** file di gestori + `contesto.ts`, che è l'infrastruttura |
 | `Vista` | 16 | **16** |
 | `GenereRapporto` | 8 | **8** |
 | `CATALOGO_MODELLI` | 13 | **13** |
@@ -1854,8 +1854,8 @@ e `valutazione.eliminaOrfane`; i quattro valori di `RuoloModello` (§9.2); le 8
 procedure di lettura e le buste `Domanda`/`Riscontro` (§6.17, §7.8).
 
 **Come si rifanno questi conti.** Non a mano: `npm test` esegue
-[`prove/api/copertura.test.mjs`](../prove/api/copertura.test.mjs), che legge
-l'unione `Azione` da [`src/protocollo.ts`](../src/protocollo.ts) contando le
+[`tests/api/coverage.test.mjs`](../tests/api/coverage.test.mjs), che legge
+l'unione `Azione` da [`src/protocol.ts`](../src/protocol.ts) contando le
 graffe, la confronta con le procedure registrate e verifica che **nessuno schema
 perda per strada un campo dell'azione** — perché quello è l'unico modo in cui
 questa migrazione poteva fallire in silenzio: `oggetto()` scarta le chiavi che

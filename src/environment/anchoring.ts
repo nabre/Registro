@@ -606,10 +606,37 @@ export class StrisciaAncorata extends FinestraDiScrivania {
  */
 export class WidgetLibero extends FinestraDiScrivania {
   #rettangolo: Rettangolo
+  /** L'ascoltatore degli schermi, tenuto da parte per poterlo togliere. */
+  #alCambioSchermi: (() => void) | null = null
 
   constructor (finestra: BrowserWindow, rettangoloFisico: Rettangolo) {
     super(finestra)
     this.#rettangolo = rettangoloFisico
+  }
+
+  /**
+   * Gli schermi che cambiano: si rifanno i conti.
+   *
+   * Il bersaglio è in pixel, e la sentinella ce lo riporta ogni secondo. Staccato
+   * il monitor esterno — o cambiata la risoluzione, o la scala — quei pixel
+   * possono stare fuori da ogni schermo, e il widget restava lì: irraggiungibile,
+   * perché non sta in Alt+Tab né nella barra. `posiziona` passa da
+   * `rettangoloVoluto`, che lo riporta dentro lo schermo di adesso.
+   */
+  protected override attacca (): boolean {
+    this.#alCambioSchermi = () => this.posiziona()
+    screen.on('display-added', this.#alCambioSchermi)
+    screen.on('display-removed', this.#alCambioSchermi)
+    screen.on('display-metrics-changed', this.#alCambioSchermi)
+    return true
+  }
+
+  protected override stacca (): void {
+    if (!this.#alCambioSchermi) return
+    screen.off('display-added', this.#alCambioSchermi)
+    screen.off('display-removed', this.#alCambioSchermi)
+    screen.off('display-metrics-changed', this.#alCambioSchermi)
+    this.#alCambioSchermi = null
   }
 
   get rettangolo (): Rettangolo {

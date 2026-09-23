@@ -82,10 +82,24 @@ export function avviaPromemoria (
   /** Le ore già annunciate, per id. Vive quanto la finestra, e basta così. */
   const annunciate = new Set<string>()
   let primoGiro = true
+  /** Il documento su cui la memoria è stata riempita. */
+  let documento = archivio.documentoAperto?.toString() ?? null
 
   const batti = (): void => {
     const { attivo, anticipo } = impostazioni()
     if (!attivo) return
+
+    // Un altro anno aperto è come un registro appena aperto: quel che sta
+    // cominciando adesso lo si vede da sé, e il primo giro deve di nuovo
+    // riempire la memoria e stare zitto. Oggi lo salvava una coincidenza — il
+    // pannello va davanti aprendo un documento, e `finestraDavanti()` tace — e
+    // una regola non deve reggersi su una coincidenza.
+    const apertoAdesso = archivio.documentoAperto?.toString() ?? null
+    if (apertoAdesso !== documento) {
+      documento = apertoAdesso
+      annunciate.clear()
+      primoGiro = true
+    }
 
     const giorno = oggi()
     const ora = adesso()

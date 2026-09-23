@@ -401,11 +401,6 @@ function elencoPiani (): HTMLElement {
 }
 
 /**
- * I momenti nati da questo piano: quelli che lo dichiarano, più quelli
- * attaccati a una lezione che lo usa — un momento creato prima che il legame
- * esistesse resta comunque riconoscibile.
- */
-/**
  * L'editor del piano aperto, vivo fra un ridisegno e l'altro.
  *
  * La pagina si rifà tutta a ogni cambio di stato — un salvataggio, un minuto
@@ -417,8 +412,44 @@ function elencoPiani (): HTMLElement {
  * Cambiando piano l'editor si rifà. Non si perde niente, perché per cambiare
  * piano bisogna prima uscire dal campo in cui si stava scrivendo, e uscire da
  * un campo è esattamente il momento in cui questo editor salva.
+ *
+ * Tenerlo vivo però vuol dire tenerlo **vecchio**: il piano può cambiare
+ * altrove mentre questo editor aspetta in memoria — dalla matita «Modifica la
+ * scaletta» del registro dell'ora, dall'API, da un altro computer — e al primo
+ * campo lasciato qui `componi()` rimandava la scaletta di prima, intera: la
+ * tappa aggiunta altrove spariva senza un avviso. Per questo l'editor si tiene
+ * solo se il piano arrivato è uno di quelli che conosce — quello da cui è
+ * nato, o uno che ha mandato lui — oppure se ci si sta scrivendo dentro, che è
+ * l'unico caso in cui rifarlo farebbe perdere delle parole. Altrimenti si
+ * rifà sul piano com'è adesso.
  */
-let inLavorazione: { pianoId: string, corpo: HTMLElement } | null = null
+let inLavorazione: { pianoId: string, corpo: HTMLElement, noti: Set<string> } | null = null
+
+/**
+ * Il piano ridotto a quel che l'editor scrive, per riconoscerlo.
+ *
+ * Senza i due timbri, che li mette l'host a ogni salvataggio e che l'editor
+ * non tocca; con le chiavi in ordine, perché lo stesso piano rimandato indietro
+ * dall'host può averle in un altro ordine senza essere un altro piano.
+ */
+function impronta (piano: PianoLezione): string {
+  const ordinato = (valore: unknown): unknown =>
+    Array.isArray(valore)
+      ? valore.map(ordinato)
+      : valore && typeof valore === 'object'
+        ? Object.fromEntries(
+            Object.keys(valore)
+              .sort()
+              .map((k) => [k, ordinato((valore as Record<string, unknown>)[k])]),
+          )
+        : valore
+  return JSON.stringify(ordinato({ ...piano, creatoIl: '', aggiornatoIl: '' }))
+}
+
+/** Scorda l'editor tenuto da parte: il piano che modificava non c'è più. */
+export function scordaEditorDelPiano (): void {
+  inLavorazione = null
+}
 
 /**
  * Salva da sé, campo per campo, come fa il registro dell'ora.
@@ -435,30 +466,35 @@ let inLavorazione: { pianoId: string, corpo: HTMLElement } | null = null
  * si scrive. Quel che l'host rifiuta non si perde: resta nei campi, e il
  * salvataggio riparte al gesto dopo.
  */
-/** Scorda l'editor tenuto da parte: il piano che modificava non c'è più. */
-export function scordaEditorDelPiano (): void {
-  inLavorazione = null
-}
-
 function editorDelPiano (piano: PianoLezione): HTMLElement {
-  if (inLavorazione?.pianoId === piano.id) return inLavorazione.corpo
+  if (inLavorazione?.pianoId === piano.id) {
+    if (inLavorazione.corpo.contains(document.activeElement)) return inLavorazione.corpo
+    if (inLavorazione.noti.has(impronta(piano))) return inLavorazione.corpo
+  }
 
   const zonaErrori = h('div')
-  const salvaOra = async (): Promise<void> => {
-    const risposta = await invia({ tipo: 'piano.salva', piano: editor.componi() })
+  const mostraErrori = (errori: string[] | null): void => {
     rimpiazza(
       zonaErrori,
-      risposta.ok
-        ? null
-        : avviso(
-            h(
-              'ul',
-              { class: 'elenco-avviso' },
-              ...(risposta.errori ?? ['Non salvato.']).map((e) => h('li', null, e)),
-            ),
+      errori
+        ? avviso(
+            h('ul', { class: 'elenco-avviso' }, ...errori.map((e) => h('li', null, e))),
             'attenzione',
-          ),
+          )
+        : null,
     )
+  }
+  const salvaOra = async (): Promise<void> => {
+    // Tolto altrove mentre era aperto: salvarlo adesso lo farebbe rinascere,
+    // con dentro la scaletta che qualcuno aveva appena buttato via.
+    if (!pianoPerId(piano.id)) {
+      mostraErrori(['Non c’è più: è stato tolto altrove.'])
+      return
+    }
+    const mandato = editor.componi()
+    if (inLavorazione?.corpo === corpo) inLavorazione.noti.add(impronta(mandato))
+    const risposta = await invia({ tipo: 'piano.salva', piano: mandato })
+    mostraErrori(risposta.ok ? null : risposta.errori ?? ['Non salvato.'])
   }
 
   const editor = editorPiano({
@@ -471,10 +507,15 @@ function editorDelPiano (piano: PianoLezione): HTMLElement {
   })
 
   const corpo = h('div', { class: 'piano-editor' }, zonaErrori, editor.corpo)
-  inLavorazione = { pianoId: piano.id, corpo }
+  inLavorazione = { pianoId: piano.id, corpo, noti: new Set([impronta(piano)]) }
   return corpo
 }
 
+/**
+ * I momenti nati da questo piano: quelli che lo dichiarano, più quelli
+ * attaccati a una lezione che lo usa — un momento creato prima che il legame
+ * esistesse resta comunque riconoscibile.
+ */
 function momentiDelPiano (piano: PianoLezione): MomentoValutazione[] {
   const lezioni = new Set(
     stato.registro.lezioni.filter((l) => l.pianoId === piano.id).map((l) => l.id),

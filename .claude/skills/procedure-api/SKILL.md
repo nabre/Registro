@@ -2,12 +2,12 @@
 name: procedure-api
 description: >
   Come si crea, si cambia e si cancella una procedura dell'API del Registro
-  docenti (`src/api/procedure/`), toccando ogni punto che la riguarda: lo
+  docenti (`src/api/procedures/`), toccando ogni punto che la riguarda: lo
   schema d'ingresso, l'indice della cartella, il ponte con le azioni del
-  protocollo, le prove, il catalogo `risorse/attrezzi.json` che il modello
+  protocollo, le prove, il catalogo `resources/tools.json` che il modello
   legge, la riga di comando e i conti nelle docs. Da usare ogni volta che si
   parla di procedure, API, `definisci`, `chiama()`, schemi d'ingresso, condotto
-  JSON-RPC, attrezzi per l'assistente, `registro chiedi`, o si aggiunge,
+  JSON-RPC, attrezzi per l'assistente, `registro catalogo`, o si aggiunge,
   rinomina, sposta o toglie una funzione dell'API — anche quando la richiesta
   non nomina la parola «procedura», per esempio «esporre una nuova lettura»,
   «far chiamare questa cosa da riga di comando», «l'assistente deve poter
@@ -16,7 +16,7 @@ description: >
 
 # Le procedure dell'API
 
-Una procedura è il contratto davanti al lavoro. Il lavoro sta in `src/azioni/` e
+Una procedura è il contratto davanti al lavoro. Il lavoro sta in `src/actions/` e
 ci resta: una procedura ci mette davanti **la forma dell'ingresso controllata
 quando il programma gira**, **un codice d'errore** accanto alle frasi italiane, e
 **una versione dichiarata**. Serve perché le sponde che chiamano il registro sono
@@ -31,12 +31,12 @@ dentro.
 
 ## Il percorso è l'indirizzo
 
-`ore.appello.casella` sta in `src/api/procedure/ore/appello/casella.ts`, e in
+`ore.appello.casella` sta in `src/api/procedures/ore/appello/casella.ts`, e in
 nessun altro posto. Un file per procedura, `export const procedura`, e il nome
 del file è l'ultimo segmento del nome.
 
 ```
-src/api/procedure/
+src/api/procedures/
 ├── comuni/              le guardie che più aree si dividono, per file d'origine
 │   └── registro.ts      esigiAnno, esigiMateria, esigiCorso, esigiClasse
 ├── ore/
@@ -61,7 +61,7 @@ Regole, con il perché:
   sta nel file di quella procedura: tenerla altrove obbliga ad aprire due file
   per leggerne una.
 
-Che l'albero stia in piedi lo dice `npm run procedure`, che legge il testo e non
+Che l'albero stia in piedi lo dice `npm run procedures`, che legge il testo e non
 compila — serve soprattutto quando `tsc` non passa.
 
 ## I punti d'aggancio
@@ -71,14 +71,14 @@ dettaglio di ciascuno sta in [references/albero.md](references/albero.md).
 
 | Dove | Che cosa | Quando si tocca |
 | --- | --- | --- |
-| `src/api/procedure/<segmenti>.ts` | la procedura | sempre |
+| `src/api/procedures/<segmenti>.ts` | la procedura | sempre |
 | `…/<cartella>/indice.ts` | la registra | sempre |
-| `src/api/indice.ts` | le aree | area nuova o sparita |
-| `src/protocollo.ts` | l'unione `Azione` | se prende in carico un'azione |
-| `src/azioni/<area>.ts` | il gestore | idem |
-| `risorse/attrezzi.json` | il catalogo per il modello | sempre — `npm run attrezzi` |
-| `prove/api/letture.test.mjs` · `scritture.test.mjs` | la prova | sempre |
-| `prove/api/copertura.test.mjs` · `ponte.test.mjs` | i conti delle azioni | azione nuova o tolta |
+| `src/api/index.ts` | le aree | area nuova o sparita |
+| `src/protocol.ts` | l'unione `Azione` | se prende in carico un'azione |
+| `src/actions/<area>.ts` | il gestore | idem |
+| `resources/tools.json` | il catalogo per il modello | sempre — `npm run tools` |
+| `tests/api/reads.test.mjs` · `writes.test.mjs` | la prova | sempre |
+| `tests/api/coverage.test.mjs` · `bridge.test.mjs` | i conti delle azioni | azione nuova o tolta |
 | `docs/API.md` · `docs/INDICE.md` | i conti e le tabelle | sempre |
 
 La riga di comando **non si tocca mai**: non ha una copia dell'elenco, chiede
@@ -97,7 +97,7 @@ viene da modificarla per esporre una procedura, ti stai sbagliando.
      --genere scrittura --titolo "Che cosa fa, in una riga" \
      --azione protocollo.tipo --collezioni lezioni
    ```
-   Fa le cartelle, il file e tutti gli indici fino a `src/api/indice.ts`. Lascia
+   Fa le cartelle, il file e tutti gli indici fino a `src/api/index.ts`. Lascia
    dei `DA SCRIVERE` che non compilano, apposta.
 3. **Scrivi lo schema dell'ingresso.** Un `aiuto:` su ogni campo: è l'unica
    frase che riceverà chi chiama da fuori, e finisce nel JSON Schema e nel
@@ -109,18 +109,18 @@ viene da modificarla per esporre una procedura, ti stai sbagliando.
    aver riletto e una che non si ritenta mai.
 5. **Passa la palla.** Se un gestore esiste, `daGestore(gestori['tipo'], …)`: il
    lavoro sta in un posto solo, come prima. Non riscriverlo qui.
-6. **Scrivi la prova.** Una scrittura in `prove/api/scritture.test.mjs`, una
-   lettura in `letture.test.mjs`. Che cosa deve provare sta in
+6. **Scrivi la prova.** Una scrittura in `tests/api/writes.test.mjs`, una
+   lettura in `reads.test.mjs`. Che cosa deve provare sta in
    [references/prove.md](references/prove.md).
-7. **`npm run attrezzi`**, e guarda la differenza in `risorse/attrezzi.json`: è
+7. **`npm run tools`**, e guarda la differenza in `resources/tools.json`: è
    la procedura come la vedrà il modello, ed è il posto in cui si legge se il
    titolo si capisce e se un campo manca.
 8. **I cancelli**, qui sotto.
 
 Se prende in carico un'azione che **non esiste ancora**, prima va dichiarata in
-`src/protocollo.ts`, poi il gestore in `src/azioni/<area>.ts`, e **poi** i due
-conti che leggono quel sorgente: `prove/api/copertura.test.mjs` («azioni
-trovate») e `prove/api/ponte.test.mjs` («tutte e N le scritture»). Quei due
+`src/protocol.ts`, poi il gestore in `src/actions/<area>.ts`, e **poi** i due
+conti che leggono quel sorgente: `tests/api/coverage.test.mjs` («azioni
+trovate») e `tests/api/bridge.test.mjs` («tutte e N le scritture»). Quei due
 numeri sono scritti a mano apposta: se cambiano, è cambiato il protocollo, e va
 visto.
 
@@ -134,7 +134,7 @@ Il pericolo qui non è rompere: è **non rompere niente di visibile**.
   lo schema non nomina **non arriva al gestore**, e la scrittura risponde «fatto»
   lo stesso. Una nota che non si salva. Una scadenza che sparisce. Per le
   procedure che prendono in carico un'azione questo lo prende
-  `prove/api/copertura.test.mjs`, che confronta campo per campo con l'unione
+  `tests/api/coverage.test.mjs`, che confronta campo per campo con l'unione
   `Azione`. Per le altre non lo prende nessuno: guarda il gestore.
 - **`versione`** sale solo quando la forma di *questa* procedura cambia in modo
   non compatibile. Aggiungere un campo opzionale non è quello.
@@ -151,7 +151,7 @@ Il pericolo qui non è rompere: è **non rompere niente di visibile**.
   giornale e nei comandi che qualcuno ha già scritto negli script. Se non è
   sbagliato, lascialo.
 
-Dopo ogni modifica: `npm run attrezzi`, e **leggi la differenza**. È il modo più
+Dopo ogni modifica: `npm run tools`, e **leggi la differenza**. È il modo più
 veloce di vedere un campo che è sparito.
 
 ## Cancellarne una
@@ -162,32 +162,32 @@ node .claude/skills/procedure-api/scripts/togli.mjs area.cosa.verbo
 ```
 
 Toglie il file, la riga nell'indice, le cartelle rimaste vuote con i loro indici,
-l'area da `src/api/indice.ts`, e poi **elenca dove il nome compare ancora** —
+l'area da `src/api/index.ts`, e poi **elenca dove il nome compare ancora** —
 prove, docs, README. Quelle non le tocca: una prova che cita una procedura tolta
 di solito prova anche altro, e cancellarla sarebbe buttare via una rete insieme
 al ferro vecchio.
 
 Se prendeva in carico un'azione e nessun altro la usa, vanno tolti anche
-l'azione da `src/protocollo.ts` e il suo gestore, e aggiornati i due conti.
+l'azione da `src/protocol.ts` e il suo gestore, e aggiornati i due conti.
 
 ## I cancelli
 
 Nell'ordine, perché ognuno dice una cosa che il successivo dà per buona:
 
 ```sh
-npm run procedure          # l'albero: ogni file al suo posto, nel suo indice, registrato
-npm run attrezzi           # il catalogo, che altrimenti racconta un registro di ieri
-npm run controllo-tipi     # tsc
-npm run controllo-stile    # eslint
+npm run procedures          # l'albero: ogni file al suo posto, nel suo indice, registrato
+npm run tools           # il catalogo, che altrimenti racconta un registro di ieri
+npm run typecheck     # tsc
+npm run lint    # eslint
 npm test                   # tutte le prove, comprese quelle dell'API
 ```
 
-`npm run procedure` sta per primo apposta: legge il testo e non compila, quindi
+`npm run procedures` sta per primo apposta: legge il testo e non compila, quindi
 risponde anche quando `tsc` non passa — ed è proprio allora che serve sapere se
 il file è al posto giusto.
 
-Se `prove/api/attrezzi.test.mjs` fallisce non c'è niente da aggiustare nel JSON:
-si dà `npm run attrezzi` e si legge la differenza, che è esattamente quel che si
+Se `tests/api/tools.test.mjs` fallisce non c'è niente da aggiustare nel JSON:
+si dà `npm run tools` e si legge la differenza, che è esattamente quel che si
 voleva vedere.
 
 ## Le trappole
@@ -195,15 +195,15 @@ voleva vedere.
 Tre modi di sbagliare che non lasciano traccia da nessuna parte:
 
 1. **La procedura che non arriva all'indice.** Il file è lì, scritto giusto, e il
-   nucleo non la conosce. Lo prende `npm run procedure`.
+   nucleo non la conosce. Lo prende `npm run procedures`.
 2. **Il campo che lo schema non dichiara.** Non arriva al gestore, e la risposta
-   è «fatto». Lo prende `copertura.test.mjs`, ma solo per chi ha un'azione.
+   è «fatto». Lo prende `coverage.test.mjs`, ma solo per chi ha un'azione.
 3. **Il catalogo rimasto indietro.** Il modello compone chiamate che il nucleo
    rifiuta, o parla di attrezzi che non esistono più. Lo prende
-   `prove/api/attrezzi.test.mjs`.
+   `tests/api/tools.test.mjs`.
 
 E una regola che vale sempre: **il lavoro non si sposta**. Se ti ritrovi a
-riscrivere in una procedura quel che un gestore di `src/azioni/` fa già, fermati:
+riscrivere in una procedura quel che un gestore di `src/actions/` fa già, fermati:
 o si chiama il gestore, o si estrae una funzione e la chiamano tutti e due —
 estratta, non duplicata.
 
@@ -215,6 +215,6 @@ estratta, non duplicata.
   usarli, e le due coppie che si confondono (`opzionale` vs `nullabile`,
   `scelta` vs `esaustivo`).
 - [references/prove.md](references/prove.md) — che cosa deve provare la prova di
-  una procedura, e i sei file di `prove/api/`.
-- [references/llm.md](references/llm.md) — `risorse/attrezzi.json`, il comando
-  `registro chiedi`, e perché al modello si danno solo le letture.
+  una procedura, e i sei file di `tests/api/`.
+- [references/llm.md](references/llm.md) — `resources/tools.json`, il comando
+  `registro catalogo`, e perché al modello si danno solo le letture.

@@ -530,7 +530,7 @@ export const procedura = definisci({
           // **con gli estremi di questo periodo**: due semestri lunghi diverso
           // hanno due monte ore diversi, e spalmarne uno solo a metà darebbe
           // due quote che non tornano con nessun foglio.
-          const previste = anno ? udPrevisteDaOrario(anno, suo, pezzo.dal, pezzo.al) : 0
+          const previste = anno ? udPrevisteDaOrario(anno, suo, pezzo.dal, pezzo.al, r.lezioni) : 0
           const aCalendario = lezioni.reduce((somma, l) => somma + contaUd(l), 0)
           const monteOre = previste > 0 ? previste : aCalendario
 

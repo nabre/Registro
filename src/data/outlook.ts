@@ -78,7 +78,9 @@ async function dalRegistro (): Promise<string | null> {
     'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\OUTLOOK.EXE'
   const riga = await new Promise<string>((risolvi) => {
     try {
-      execFile('reg', ['query', chiave, '/ve'], (errore, uscita) =>
+      // Per percorso intero: un `reg.exe` nella cartella del documento partirebbe al
+      // posto di quello vero. Vedi `environment/system.ts`.
+      execFile(apparato.diSistema('reg.exe'), ['query', chiave, '/ve'], (errore, uscita) =>
         risolvi(errore ? '' : uscita),
       )
     } catch {
@@ -93,19 +95,35 @@ async function dalRegistro (): Promise<string | null> {
 }
 
 /**
+ * Vero se un percorso scritto a mano può essere quel che il registro fa partire.
+ *
+ * La stessa guardia di `dictation.ts` e `mtmd.ts`: assoluto, perché un percorso
+ * relativo si risolve nella cartella di lavoro — che, aperto il registro con un
+ * doppio clic, è la cartella del documento; e su Windows `.exe`, perché `.bat`,
+ * `.cmd` e `.ps1` non sono programmi ma righe date a un interprete. Su macOS il
+ * percorso è un `.app` che si passa a `open -a`, e il nome del file non si
+ * guarda.
+ */
+export function outlookAccettabile (scritto: string): boolean {
+  if (!percorso.isAbsolute(scritto)) return false
+  return process.platform !== 'win32' || percorso.extname(scritto).toLowerCase() === '.exe'
+}
+
+/**
  * L'eseguibile di Outlook: quello scritto nelle impostazioni, o quello che si
  * trova da sé.
  *
- * Il percorso scritto a mano vince sempre e non si controlla oltre l'esistenza:
- * chi lo scrive sa dove ha installato Office, e un controllo sul nome del file
- * impedirebbe di puntare a una copia portatile o a un collegamento.
+ * Il percorso scritto a mano vince sempre, e oltre all'esistenza si controlla
+ * soltanto la forma (`outlookAccettabile`): chi lo scrive sa dove ha installato
+ * Office, e un controllo sul nome del file impedirebbe di puntare a una copia
+ * portatile.
  */
 async function eseguibileOutlook (): Promise<string | null> {
   const scritto = apparato.impostazioni
     .leggi('registroDocenti.recapiti')
     .get<string>('outlook')
     ?.trim()
-  if (scritto) return (await esiste(scritto)) ? scritto : null
+  if (scritto) return outlookAccettabile(scritto) && (await esiste(scritto)) ? scritto : null
 
   if (process.platform === 'darwin') return primoCheEsiste([APPLICAZIONE_MAC])
   if (process.platform !== 'win32') return null

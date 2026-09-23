@@ -35,7 +35,7 @@
 
 import { nomeCompleto } from '../../domain/calculations.js'
 import { raccoltiDiClasse } from '../../domain/assignments.js'
-import { formattaData } from '../../domain/dates.js'
+import { formattaData, giornoDi } from '../../domain/dates.js'
 import { CHI_INSEGNA } from '../../domain/models.js'
 import type { Allievo, Consegna, Iso, Smistamento } from '../../domain/models.js'
 import { pastiglia, pulsante, quantoMisura, statoVuoto } from '../components/base.js'
@@ -100,7 +100,7 @@ function etichettaDiColonna (genere: GenereFoglio): string {
 
 /** Il giorno di un foglio, come si scrive sotto il suo nome. */
 function giorno (quando: Iso | null): string | null {
-  return quando ? formattaData(quando.slice(0, 10)) : null
+  return quando ? formattaData(giornoDi(quando) ?? '') : null
 }
 
 /**

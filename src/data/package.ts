@@ -203,6 +203,16 @@ export class Pacchetto {
   private dimensione = 0
   /** Quanto del file non è più nominato da nessuno: cresce a ogni accodata. */
   private morto = 0
+  /**
+   * Gli ultimi byte del file come l'abbiamo lasciato — letto o scritto noi —
+   * cioè la coda dello ZIP, che dice dove sta l'indice e quanto è lungo.
+   *
+   * Serve a una domanda sola, prima di accodare: «il file sul disco è ancora
+   * quello?». Accodare riusa gli offset di quando lo si è letto; se intanto un
+   * altro registro ci ha scritto, o qualcuno l'ha compattato, quegli offset
+   * nominano byte che non sono più i nostri — e il documento non si riapre.
+   */
+  private fine: Uint8Array | null = null
   /** La serratura è nostra: alla chiusura si toglie. Falso se si è aperto in lettura. */
   private serrato = false
 
@@ -320,6 +330,7 @@ export class Pacchetto {
     }
     pacchetto.dimensione = aperto.dimensione
     pacchetto.morto = spazioMorto(aperto.voci, aperto.dimensione)
+    pacchetto.fine = ultimiByte(contenuto)
 
     const dichiarato = pacchetto.leggiManifesto()
     if (dichiarato) pacchetto.manifesto = dichiarato
@@ -344,9 +355,12 @@ export class Pacchetto {
   }
 
   private leggiManifesto (): Manifesto | null {
-    const testo = this.testo(MANIFESTO)
-    if (!testo) return null
     try {
+      // Anche l'apertura della voce sta dentro il `try`: un manifesto con il
+      // blocco rovinato è un manifesto illeggibile come un altro, e non deve
+      // impedire di aprire le collezioni, che stanno in blocchi loro.
+      const testo = this.testo(MANIFESTO)
+      if (!testo) return null
       const letto = JSON.parse(testo) as Partial<Manifesto>
       if (typeof letto?.formato !== 'string') return null
       return {
@@ -408,7 +422,7 @@ export class Pacchetto {
    * volentieri collezioni identiche a quelle di prima.
    */
   scrivi (nome: string, testo: string): void {
-    if (this.testo(nome) === testo) return
+    if (this.testoSeSiLegge(nome) === testo) return
     // Il blocco compresso di prima non vale più: si ricomprime al salvataggio,
     // e solo questa voce.
     this.voci.set(nome, {
@@ -431,10 +445,58 @@ export class Pacchetto {
    * quando il contenuto viene da fuori ed è certamente nuovo.
    */
   deposita (nome: string, dati: Uint8Array, opzioni?: { certamenteNuovo?: boolean }): void {
-    if (!opzioni?.certamenteNuovo && uguali(this.bytes(nome), dati)) return
+    if (!opzioni?.certamenteNuovo && uguali(this.bytesSeSiLeggono(nome), dati)) return
     this.voci.set(nome, { bytes: dati, testo: null, pronta: null, apri: null, collocata: null })
     this.segnaRevisione(nome)
     this.modificato = true
+  }
+
+  /**
+   * Il testo di una voce per il solo confronto con quel che si sta per
+   * scrivere: una voce con il blocco rovinato — CRC che non torna, `inflate`
+   * che si ferma — vale come diversa, invece di impedire di scriverci sopra.
+   * Il blocco rotto non si perde: chi riscrive una collezione ne fa prima la
+   * copia in `.storico/`, e la copia si porta dietro il blocco com'era.
+   */
+  private testoSeSiLegge (nome: string): string | null | undefined {
+    try {
+      return this.testo(nome)
+    } catch {
+      return undefined
+    }
+  }
+
+  /** Come `testoSeSiLegge`, per i byte. */
+  private bytesSeSiLeggono (nome: string): Uint8Array | null {
+    try {
+      return this.bytes(nome)
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * Cambia nome a una voce senza aprirla.
+   *
+   * Il blocco compresso passa com'è sotto il nome nuovo, come fa `conserva`:
+   * serve a mettere da parte una voce che non si sa leggere — per un JSON rotto
+   * come per un blocco che non si decomprime — senza doverla leggere per
+   * spostarla. Torna vero se la voce c'era.
+   */
+  rinomina (da: string, a: string): boolean {
+    const voce = this.voci.get(da)
+    if (voce === undefined) return false
+    this.voci.set(a, {
+      bytes: voce.bytes,
+      testo: voce.testo,
+      pronta: voce.pronta ? { ...voce.pronta, nome: a } : null,
+      apri: voce.apri,
+      collocata: null,
+    })
+    this.voci.delete(da)
+    this.segnaRevisione(a)
+    this.modificato = true
+    return true
   }
 
   /** Una scrittura in più per quella voce: il numero cresce e non torna mai indietro. */
@@ -515,8 +577,14 @@ export class Pacchetto {
    * solo anche con il suo passato dentro, e chi lo copia su una chiavetta si
    * porta via pure quello. Costano poco — sono JSON dentro uno ZIP, e dieci
    * versioni dello stesso file si comprimono quasi a niente.
+   *
+   * `aGradini` è la potatura che usa il registro: le ultime `quante`, più la
+   * più recente di ciascuno degli ultimi trenta giorni, più una per settimana
+   * oltre — vedi `daTenere`. Senza, restano le ultime `quante` e basta: a una
+   * copia al minuto sono dieci minuti di passato, e l'aiuto promette «com'era
+   * ieri».
    */
-  conserva (nome: string, quante: number): void {
+  conserva (nome: string, quante: number, opzioni?: { aGradini?: boolean }): void {
     const attuale = this.voci.get(nome)
     if (attuale === undefined) return
     const radice = nome.replace(/\.json$/, '')
@@ -539,8 +607,11 @@ export class Pacchetto {
     this.modificato = true
 
     const copie = this.copieDi(radice)
-    for (const vecchia of copie.slice(0, Math.max(0, copie.length - quante))) {
-      this.voci.delete(vecchia)
+    const tenute = opzioni?.aGradini
+      ? daTenere(copie, quante, Date.now())
+      : new Set(copie.slice(Math.max(0, copie.length - quante)))
+    for (const vecchia of copie) {
+      if (!tenute.has(vecchia)) this.voci.delete(vecchia)
     }
   }
 
@@ -627,7 +698,12 @@ export class Pacchetto {
 
     const blocchi = await this.blocchi()
     try {
-      if (this.dimensione > 0 && !opzioni?.compatta && !this.conviene(blocchi)) {
+      if (
+        this.dimensione > 0 &&
+        !opzioni?.compatta &&
+        !this.conviene(blocchi) &&
+        (await this.sulDiscoÈQuello())
+      ) {
         await this.accoda(blocchi)
       } else {
         await this.rifai(blocchi)
@@ -657,6 +733,22 @@ export class Pacchetto {
       .filter(({ voce }) => !voce?.collocata)
       .reduce((totale, { pronta }) => totale + ingombro(pronta), 0)
     return daScrivere > this.dimensione / 2
+  }
+
+  /**
+   * Vero se il file sul disco è ancora quello che si è letto o scritto per
+   * ultimo: stessa misura, stessa coda.
+   *
+   * Se non lo è — un altro registro ci ha salvato sopra, una compattazione
+   * fatta altrove l'ha rimesso in fila, è stato cancellato — accodare
+   * scriverebbe a offset che non sono più i nostri: nel migliore dei casi si
+   * copre la modifica dell'altro in un modo che nessuno vede, nel peggiore il
+   * documento non si riapre più. Allora si rifà per intero, e chi salva per
+   * ultimo copre: è quel che il dialogo della serratura già promette.
+   */
+  private async sulDiscoÈQuello (): Promise<boolean> {
+    if (this.fine === null) return false
+    return apparato.finisceCon(this.file, this.dimensione, this.fine)
   }
 
   /** La via incrementale: in fondo al file, le voci nuove e poi l'indice. */
@@ -692,6 +784,7 @@ export class Pacchetto {
     })
     this.morto += this.dimensione - restano.reduce((t, v) => t + ingombro(v), 0)
     this.dimensione = da + corpiNuovi.length + coda.length
+    this.fine = ultimiByte(coda)
   }
 
   /** La via completa: si riscrive tutto, e lo spazio morto sparisce. */
@@ -699,7 +792,10 @@ export class Pacchetto {
     const pronte = blocchi.map(({ pronta }) => pronta)
     const archivio = assembla(pronte)
     const temporaneo = this.file.with({ path: `${this.file.path}.tmp` })
-    await apparato.file.writeFile(temporaneo, archivio)
+    // Sul disco per davvero prima della rinomina: senza `fsync`, una corrente
+    // che va via subito dopo può lasciare la rinomina fatta e i dati no, cioè
+    // al posto dell'ultimo documento buono un file della misura giusta e vuoto.
+    await apparato.file.writeFile(temporaneo, archivio, { sincronizza: true })
     await apparato.file.rename(temporaneo, this.file, { overwrite: true })
 
     // Le collocazioni si rifanno tutte: le voci sono state rimesse in fila
@@ -710,6 +806,7 @@ export class Pacchetto {
     })
     this.dimensione = archivio.length
     this.morto = 0
+    this.fine = ultimiByte(archivio)
   }
 
   // ------------------------------------------------------------ serratura
@@ -787,6 +884,68 @@ export class Pacchetto {
 }
 
 const VUOTO = new Uint8Array(0)
+
+/** Quanti byte della fine del file si ricordano: la coda di uno ZIP senza commento. */
+const MISURA_FINE = 22
+
+/** Gli ultimi byte di un contenuto, copiati: il contenuto può essere un buffer grande. */
+function ultimiByte (contenuto: Uint8Array): Uint8Array {
+  return contenuto.slice(Math.max(0, contenuto.length - MISURA_FINE))
+}
+
+/** Tutti i giorni che si guardano uno per uno; oltre, uno per settimana. */
+const GIORNI_UNO_PER_UNO = 30
+
+/** Il tetto delle copie di una collezione, a gradini compresi. */
+const COPIE_MASSIME = 60
+
+const GIORNO_MS = 24 * 60 * 60 * 1000
+
+/** Il momento scritto nel nome di una copia — `classi.2026-09-01-08-30.json` — o null. */
+function momentoDellaCopia (nome: string): number | null {
+  const trovato = /\.(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})\.json$/.exec(nome)
+  if (!trovato) return null
+  const [, anno, mese, giorno, ora, minuto] = trovato.map(Number)
+  const momento = Date.UTC(anno, mese - 1, giorno, ora, minuto)
+  return Number.isNaN(momento) ? null : momento
+}
+
+/**
+ * Quali copie tenere, con la potatura a gradini.
+ *
+ * Le ultime `quante` sempre: sono il «com'era cinque minuti fa» di chi ha
+ * appena cancellato la cosa sbagliata. Poi, fra le altre, la più recente di
+ * ciascuno degli ultimi trenta giorni — «com'era ieri», «com'era lunedì» — e
+ * oltre, la più recente di ogni settimana. Il tutto con un tetto: un anno
+ * scolastico sono una quarantina di settimane, e sessanta copie di un JSON
+ * dentro uno ZIP si comprimono quasi a niente. Oltre il tetto se ne vanno le
+ * più vecchie.
+ *
+ * Le marche sono in UTC, come le scrive `conserva`: il giorno è quello di UTC,
+ * e a mezzanotte di un'ora sbagliata non si perde niente — si tiene una copia
+ * per giorno, non si sceglie quale giorno. Una copia con un nome che non porta
+ * una data si tratta come prima: fuori dalle ultime `quante`, se ne va.
+ */
+function daTenere (copie: string[], quante: number, adesso: number): Set<string> {
+  const tenute = new Set(copie.slice(Math.max(0, copie.length - quante)))
+  const oggi = Math.floor(adesso / GIORNO_MS)
+  const gradiniVisti = new Set<string>()
+  // Dalla più nuova alla più vecchia: la prima incontrata per ogni gradino è
+  // la più recente di quel gradino.
+  for (const copia of [...copie].reverse()) {
+    const momento = momentoDellaCopia(copia)
+    if (momento === null) continue
+    const giorno = Math.floor(momento / GIORNO_MS)
+    const gradino = oggi - giorno < GIORNI_UNO_PER_UNO ? `g${giorno}` : `s${Math.floor(giorno / 7)}`
+    if (gradiniVisti.has(gradino)) continue
+    gradiniVisti.add(gradino)
+    tenute.add(copia)
+  }
+  if (tenute.size <= COPIE_MASSIME) return tenute
+  // In ordine di nome, che è l'ordine del tempo: si tolgono le prime.
+  const ordinate = copie.filter((copia) => tenute.has(copia))
+  return new Set(ordinate.slice(-COPIE_MASSIME))
+}
 
 /** Due contenuti uguali byte per byte: il confronto che decide se c'è da scrivere. */
 function uguali (uno: Uint8Array | null, altro: Uint8Array): boolean {

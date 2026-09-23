@@ -176,11 +176,25 @@ export interface MessaggioPosta {
 const ACAPO = '\r\n'
 
 /**
+ * Un testo su una riga sola.
+ *
+ * Nelle intestazioni di posta e nei comandi SMTP l'a capo è la sintassi: un
+ * oggetto, un indirizzo o un nome di file che ne contiene uno — incollato da un
+ * documento, o scritto apposta in un registro arrivato da fuori — non resta un
+ * testo, diventa un'intestazione in più (`Bcc:` verso chi non doveva leggere)
+ * o un comando in più sul filo. Gli a capo diventano spazi, e il resto resta.
+ */
+function unaRiga (testo: string): string {
+  return testo.replace(/[\r\n]+/g, ' ')
+}
+
+/**
  * Un'intestazione con dentro qualcosa che non è ASCII, scritta come vuole la
  * posta: `=?UTF-8?B?…?=`. Un oggetto passato tale e quale arriverebbe a pezzi,
  * e «Assenze 1° semestre» ha il suo accento.
  */
-function intestazione (testo: string): string {
+function intestazione (grezzo: string): string {
+  const testo = unaRiga(grezzo)
   if (!/[^\u0000-\u007f]/.test(testo)) return testo
   return `=?UTF-8?B?${Buffer.from(testo, 'utf8').toString('base64')}?=`
 }
@@ -205,9 +219,12 @@ export function schiacciaNome (testo: string): string {
  * gli altri: un rapporto che si chiama «Assenze 1° semestre.pdf» deve arrivare
  * con quel nome, e non con uno mangiato a metà.
  */
-function nomeAllegato (nome: string): string {
+function nomeAllegato (grezzo: string): string {
+  // Su macOS e Linux un nome di file può contenere un a capo; e la coda va fra
+  // `"…"` senza passare da `schiacciaNome`, quindi niente virgolette nemmeno lì.
+  const nome = unaRiga(grezzo)
   const coda = nome.match(/\.[^.]+$/)?.[0] ?? ''
-  const ripiego = schiacciaNome(nome.slice(0, nome.length - coda.length)) + coda
+  const ripiego = schiacciaNome(nome.slice(0, nome.length - coda.length)) + coda.replace(/"/g, '')
   return `filename="${ripiego}"${ACAPO} filename*=UTF-8''${encodeURIComponent(nome)}`
 }
 
@@ -291,9 +308,9 @@ export function componiEml (messaggio: MessaggioPosta, adesso = new Date()): str
       'X-Unsent: 1',
       `Date: ${adesso.toUTCString()}`,
       `Subject: ${intestazione(messaggio.oggetto)}`,
-      ...(messaggio.da ? [`From: ${messaggio.da}`] : []),
-      ...(visibili.length > 0 ? [`To: ${visibili.join(', ')}`] : []),
-      ...(messaggio.ccn.length > 0 ? [`Bcc: ${messaggio.ccn.join(', ')}`] : []),
+      ...(messaggio.da ? [`From: ${unaRiga(messaggio.da)}`] : []),
+      ...(visibili.length > 0 ? [`To: ${unaRiga(visibili.join(', '))}`] : []),
+      ...(messaggio.ccn.length > 0 ? [`Bcc: ${unaRiga(messaggio.ccn.join(', '))}`] : []),
       ...testate,
       ...pezzi,
     ].join(ACAPO) + ACAPO
@@ -365,8 +382,8 @@ export function componiPerInvio (
       // indesiderata, ed è quel che non deve succedere a una comunicazione.
       `Message-ID: <${adesso.getTime().toString(36)}.${chiave}@${dominio}>`,
       `Subject: ${intestazione(messaggio.oggetto)}`,
-      ...(messaggio.da ? [`From: ${messaggio.da}`] : []),
-      ...(visibili.length > 0 ? [piega('To', visibili)] : []),
+      ...(messaggio.da ? [`From: ${unaRiga(messaggio.da)}`] : []),
+      ...(visibili.length > 0 ? [piega('To', visibili.map(unaRiga))] : []),
       ...testate,
       ...pezzi,
     ].join(ACAPO) + ACAPO
@@ -383,7 +400,9 @@ export function componiPerInvio (
 export function destinatariBusta (messaggio: MessaggioPosta): string[] {
   const tutti = new Set<string>()
   for (const indirizzo of [...(messaggio.a ?? []), ...messaggio.ccn]) {
-    const pulito = indirizzo.trim()
+    // Una riga sola: questi finiscono in `RCPT TO:<…>`, e un a capo lì dentro
+    // sarebbe un comando SMTP in più.
+    const pulito = unaRiga(indirizzo).trim()
     if (pulito) tutti.add(pulito)
   }
   return [...tutti]

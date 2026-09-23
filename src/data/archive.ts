@@ -87,8 +87,26 @@ const RITARDO_RICARICA_MS = 300
 /** Quanto un file appena scritto da noi resta "nostro" agli occhi del watcher. */
 const FINESTRA_ECO_MS = 2500
 
-/** Quante copie di ogni collezione si tengono dentro `.storico/`. */
+/**
+ * Quante copie recenti di ogni collezione si tengono dentro `.storico/`, a cui
+ * si aggiungono i gradini — una per giorno dell'ultimo mese, una per settimana
+ * oltre: vedi `Pacchetto.conserva`. Dieci da sole, a una al minuto, erano dieci
+ * minuti di passato; «com'era ieri» è la domanda che ci si fa davvero.
+ */
 const COPIE_STORICO = 10
+
+/**
+ * Il tetto dell'attesa fra un salvataggio fallito e il tentativo dopo.
+ *
+ * Si parte da un secondo e si raddoppia: un EPERM di OneDrive passa di solito
+ * in pochi secondi, una chiavetta tolta no, e riprovarci ogni secondo per ore
+ * sarebbe rumore. Un minuto è quanto si rischia al massimo di aspettare dopo
+ * che il disco è tornato disponibile.
+ */
+const RIPROVA_MASSIMA_MS = 60_000
+
+/** Quante volte una ricarica si rifà perché nel frattempo è arrivata una modifica. */
+const RICARICHE_RIFATTE = 3
 
 /** Il contenuto grezzo dei file, prima che la normalizzazione ci metta mano. */
 type FilePersistito = Record<NomeCollezione, unknown>
@@ -151,6 +169,10 @@ export class Archivio implements apparato.Smaltitore {
   /** Quando è arrivata la prima modifica non ancora scritta: zero se non ce n'è. */
   private primaModificaNonSalvata = 0
   private timerRicarica: NodeJS.Timeout | null = null
+  /** Il prossimo tentativo dopo un salvataggio fallito. */
+  private timerRiprova: NodeJS.Timeout | null = null
+  /** Quanti salvataggi di fila sono falliti: decide quanto aspettare il prossimo. */
+  private salvataggiFalliti = 0
   private scritturePendenti = new Set<NomeCollezione>()
   private ultimeScritture = new Map<string, number>()
   /** Il testo scritto per ultimo, per collezione: un file identico non è una modifica. */
@@ -288,7 +310,7 @@ export class Archivio implements apparato.Smaltitore {
     return this.inFila(async () => {
       await this.scriviPendenti()
       this.documento = file
-      return this.leggiTutto()
+      return (await this.leggiTutto()) ?? this.stato
     })
   }
 
@@ -321,11 +343,30 @@ export class Archivio implements apparato.Smaltitore {
    *
    * Quel che era in attesa di essere scritto si scrive prima: una ricarica
    * che arriva fra una modifica e il suo salvataggio non deve cancellarla.
+   *
+   * E quel che arriva *durante* la ricarica nemmeno. La coda tiene in fila le
+   * letture e le scritture, non le modifiche: `modifica` è sincrona e tocca lo
+   * stato vivo, e fra la scrittura del pendente e la sostituzione dello stato
+   * ci sono tre attese — il documento da lasciare, quello da riaprire, il file
+   * da leggere. Una lezione battuta in quell'intervallo finiva nello stato di
+   * prima, che la ricarica buttava via, e la collezione restava «in attesa» di
+   * scrivere il contenuto appena riletto dal disco: sparita senza un errore.
+   * Allora si guarda, subito prima di sostituire lo stato, se il contatore
+   * delle modifiche si è mosso: se sì non si sostituisce niente, si scrive il
+   * nuovo pendente sul documento appena riaperto e si rilegge. Il tetto ai giri
+   * è per chi batte senza mai fermarsi: dopo tre la ricarica passa comunque,
+   * come faceva prima.
    */
   carica (): Promise<Registro> {
     return this.inFila(async () => {
-      await this.scriviPendenti()
-      return this.leggiTutto()
+      for (let giro = 0; ; giro += 1) {
+        const prima = this.modifiche
+        await this.scriviPendenti()
+        const letto = await this.leggiTutto({
+          tieniSe: () => this.modifiche !== prima && giro < RICARICHE_RIFATTE,
+        })
+        if (letto) return letto
+      }
     })
   }
 
@@ -347,7 +388,16 @@ export class Archivio implements apparato.Smaltitore {
     return testaDa(grezzo, cartella)
   }
 
-  private async leggiTutto (): Promise<Registro> {
+  /**
+   * Rilegge il documento e sostituisce lo stato.
+   *
+   * `tieniSe` si chiede dopo l'ultima attesa, subito prima di toccare lo stato:
+   * se risponde di sì, lo stato resta quello che è e si torna null — è la
+   * ricarica che si accorge di una modifica arrivata mentre leggeva, e la fa
+   * scrivere prima di riprovare. Il documento appena riaperto resta in mano:
+   * è lì che la modifica va scritta.
+   */
+  private async leggiTutto (opzioni?: { tieniSe?: () => boolean }): Promise<Registro | null> {
     const file = this.documento
 
     // Il documento di prima si lascia andare — serratura compresa — prima di
@@ -357,6 +407,9 @@ export class Archivio implements apparato.Smaltitore {
     const stesso = file !== null && this.pacchetto?.file.toString() === file.toString()
     await this.lasciaPacchetto({ tieniSerratura: stesso })
     this.pacchetto = file ? await this.prendiPacchetto(file, { giàNostro: stesso }) : null
+    // Da qui alla fine non si aspetta più niente: quel che si decide adesso
+    // vale per lo stato che si sta per sostituire.
+    if (opzioni?.tieniSe?.()) return null
 
     // L'anno in uso è il documento che si è riusciti ad aprire, e nient'altro:
     // un percorso in mano senza il file dietro non è un anno aperto, e
@@ -453,9 +506,12 @@ export class Archivio implements apparato.Smaltitore {
     nome: string,
     dove: string,
   ): Record<string, unknown> | null {
-    const testo = pacchetto.testo(nome)?.trim()
-    if (!testo) return null
     try {
+      // L'apertura della voce sta dentro il `try` come il parse: un blocco con
+      // il CRC che non torna è illeggibile quanto un JSON rotto, e deve seguire
+      // la stessa strada invece di far cadere l'apertura dell'anno intero.
+      const testo = pacchetto.testo(nome)?.trim()
+      if (!testo) return null
       // `: unknown` e non il tipo che `JSON.parse` dichiara, che e' `any`: da un
       // `any` in poi TypeScript smette di controllare, e quel che esce di qui
       // finisce dritto nel registro. Dichiararlo ignoto obbliga a guardarlo
@@ -480,9 +536,12 @@ export class Archivio implements apparato.Smaltitore {
    * collezione, e la voce non si tocca finché non c'è da riscriverla.
    */
   private leggiCollezione (nome: NomeCollezione): unknown {
-    const testo = this.pacchetto?.testo(NOMI[nome])?.trim()
-    if (!testo) return null
     try {
+      // Anche l'apertura della voce: un blocco rovinato è una collezione
+      // illeggibile come un JSON rotto — si segnala, si mette da parte alla
+      // prima modifica, e l'anno si apre lo stesso.
+      const testo = this.pacchetto?.testo(NOMI[nome])?.trim()
+      if (!testo) return null
       // `: unknown` e non il tipo che `JSON.parse` dichiara, che e' `any`: da un
       // `any` in poi TypeScript smette di controllare, e quel che esce di qui
       // finisce dritto nel registro. Dichiararlo ignoto obbliga a guardarlo
@@ -538,6 +597,22 @@ export class Archivio implements apparato.Smaltitore {
       )
       return null
     }
+
+    // Lo stesso rifiuto del contenitore, per i dati che ci stanno dentro: un
+    // anno scritto da un registro più recente può avere campi che qui non si
+    // conoscono. La normalizzazione li scarterebbe in silenzio, e la prima
+    // scrittura — `collezioniMigrate` la fa subito, senza che nessuno tocchi
+    // niente — li cancellerebbe dal documento per sempre.
+    const versione = versioneDati(pacchetto)
+    if (versione !== null && versione > VERSIONE_DATI) {
+      this.emettitoreErrori.fire(
+        `${cartella}${ESTENSIONE} è stato scritto da una versione più recente ` +
+          `del registro (dati ${versione}, qui si arriva a ${VERSIONE_DATI}). ` +
+          'Aggiorna il registro invece di aprirlo: scriverci sopra adesso perderebbe quel che non si sa leggere.',
+      )
+      return null
+    }
+
     await pacchetto.prendi({ giàPresa: opzioni?.giàNostro })
     return pacchetto
   }
@@ -584,6 +659,9 @@ export class Archivio implements apparato.Smaltitore {
   async chiudi (): Promise<void> {
     await this.salva()
     await this.inFila(() => this.lasciaPacchetto())
+    // Un tentativo programmato dopo un fallimento non ha più niente da fare:
+    // l'ultimo salvataggio è appena passato, riuscito o no.
+    this.fermaRiprova()
     await this.smontaDeposito()
   }
 
@@ -602,6 +680,10 @@ export class Archivio implements apparato.Smaltitore {
     if (file) this.ultimeScritture.set(file.toString(), Date.now())
     await this.pacchetto.salva()
     if (file) this.ultimeScritture.set(file.toString(), Date.now())
+    // Riuscito: i tentativi falliti ricominciano da capo, e quello già
+    // programmato non serve più.
+    this.salvataggiFalliti = 0
+    this.fermaRiprova()
     // Il timbro si mette qui, dopo la scrittura vera e per tutte le strade che
     // ci passano: il salvataggio ritardato, quello chiesto a mano, la chiusura
     // dell'anno. Metterlo in una sola di quelle vorrebbe dire una barra che
@@ -721,7 +803,7 @@ export class Archivio implements apparato.Smaltitore {
     )}\n`
 
     if (!this.pacchetto) return
-    this.pacchetto.conserva(NOMI.registro, COPIE_STORICO)
+    this.pacchetto.conserva(NOMI.registro, COPIE_STORICO, { aGradini: true })
     this.pacchetto.scrivi(NOMI.registro, testo)
     this.ultimiTesti.set('registro', testo)
     await this.scriviPacchetto()
@@ -799,7 +881,17 @@ export class Archivio implements apparato.Smaltitore {
     if (this.scritturePendenti.size === 0) {
       // Niente collezioni da riscrivere, ma il documento ha dentro qualcosa di
       // nuovo: un file depositato. Si scrive lo stesso.
-      if (this.pacchetto.sporco) await this.scriviPacchetto()
+      if (!this.pacchetto.sporco) return
+      try {
+        await this.scriviPacchetto()
+      } catch (errore) {
+        // Lo stesso avviso e la stessa riprova delle collezioni: un PDF
+        // archiviato che non arriva sul disco è lavoro in memoria quanto una
+        // lezione. E l'errore sale lo stesso, come prima: chi aspetta questo
+        // salvataggio deve sapere che non è andato.
+        this.salvataggioFallito(errore)
+        throw errore
+      }
       return
     }
 
@@ -817,27 +909,63 @@ export class Archivio implements apparato.Smaltitore {
       this.scritturePendenti.delete(collezione)
     }
 
-    // Le voci si aggiornano tutte in memoria, e poi il documento si scrive una
-    // volta sola: uno ZIP non si aggiorna in una voce sola, e nove scritture di
-    // seguito sarebbero nove archivi interi.
-    for (const collezione of daScrivere) {
-      this.aggiornaVoce(collezione, contenuti.get(collezione))
-    }
-
     try {
+      // Le voci si aggiornano tutte in memoria, e poi il documento si scrive
+      // una volta sola: uno ZIP non si aggiorna in una voce sola, e nove
+      // scritture di seguito sarebbero nove archivi interi.
+      //
+      // Dentro il `try` anche questo: le collezioni sono già uscite dalla coda,
+      // e un `aggiornaVoce` che solleva le lasciava fuori — una modifica data
+      // per scritta che non era arrivata nemmeno nel documento in memoria.
+      for (const collezione of daScrivere) {
+        this.aggiornaVoce(collezione, contenuti.get(collezione))
+      }
       await this.scriviPacchetto()
     } catch (errore) {
       // Un file di sola lettura o un EPERM di OneDrive non devono perdere
       // niente: quel che non si è scritto torna in attesa, e resta in memoria
       // dentro il documento aperto finché non riesce.
       for (const collezione of daScrivere) this.scritturePendenti.add(collezione)
-      this.emettitoreErrori.fire(
-        `Salvataggio dell’anno non riuscito: ${errore instanceof Error ? errore.message : String(errore)}`,
-      )
-      // E la barra torna a dire che c'è roba in attesa: l'errore passa, la
-      // riga che dice «da salvare» resta finché la scrittura non riesce.
-      this.annunciaSalvataggio()
+      this.salvataggioFallito(errore)
     }
+  }
+
+  /**
+   * Dice che un salvataggio non è andato, e ne programma un altro.
+   *
+   * Prima un salvataggio fallito restava fallito fino alla modifica dopo: chi
+   * aveva finito di scrivere e se n'era andato lasciava tutto in memoria, con
+   * la barra che diceva «da salvare» a una stanza vuota. Adesso si riprova da
+   * sé, aspettando un po' di più a ogni fallimento. Il timer non tiene vivo il
+   * processo — allo spegnimento l'ultimo salvataggio lo fa `chiudi` — e
+   * `chiudi` lo toglie.
+   */
+  private salvataggioFallito (errore: unknown): void {
+    this.emettitoreErrori.fire(
+      `Salvataggio dell’anno non riuscito: ${errore instanceof Error ? errore.message : String(errore)}`,
+    )
+    // E la barra torna a dire che c'è roba in attesa: l'errore passa, la
+    // riga che dice «da salvare» resta finché la scrittura non riesce.
+    this.annunciaSalvataggio()
+
+    this.salvataggiFalliti += 1
+    const volte = Math.min(this.salvataggiFalliti - 1, 16)
+    const attesa = Math.min(RIPROVA_MASSIMA_MS, 1000 * 2 ** volte)
+    this.fermaRiprova()
+    const timer = setTimeout(() => {
+      this.timerRiprova = null
+      this.salva().catch((altro: unknown) => {
+        console.error('nuovo tentativo di salvataggio del registro', altro)
+      })
+    }, attesa)
+    timer.unref?.()
+    this.timerRiprova = timer
+  }
+
+  /** Toglie il tentativo programmato dopo un salvataggio fallito, se c'è. */
+  private fermaRiprova (): void {
+    if (this.timerRiprova) clearTimeout(this.timerRiprova)
+    this.timerRiprova = null
   }
 
   /**
@@ -909,11 +1037,11 @@ export class Archivio implements apparato.Smaltitore {
     if (this.ultimiTesti.get(collezione) === testo) return
 
     if (this.illeggibili.has(collezione)) this.mettiDaParte(collezione)
-    // La copia di com'era prima di riscriverla, con le ultime dieci tenute e le
-    // altre buttate. Costa poco — dieci versioni dello stesso JSON dentro uno
+    // La copia di com'era prima di riscriverla, con le ultime dieci tenute più
+    // una per giorno e una per settimana, e le altre buttate. Costa poco — dieci versioni dello stesso JSON dentro uno
     // ZIP si comprimono quasi a niente — e ripaga la prima volta che si vuole
     // sapere che cosa c'era ieri.
-    pacchetto.conserva(nome, COPIE_STORICO)
+    pacchetto.conserva(nome, COPIE_STORICO, { aGradini: true })
     pacchetto.scrivi(nome, testo)
     this.ultimiTesti.set(collezione, testo)
   }
@@ -929,12 +1057,25 @@ export class Archivio implements apparato.Smaltitore {
     const pacchetto = this.pacchetto
     if (!pacchetto) return
     const nome = NOMI[collezione]
-    const rotta = pacchetto.testo(nome)
     this.illeggibili.delete(collezione)
-    if (rotta === null) return
-
     const marca = new Date().toISOString().replace(/[:.]/g, '-')
     const altrove = nome.replace(/\.json$/, `.rotto-${marca}.json`)
+    let rotta: string | null
+    try {
+      rotta = pacchetto.testo(nome)
+    } catch {
+      // Il blocco stesso non si apre — CRC che non torna, `inflate` che si
+      // ferma — e quindi non se ne può fare una copia leggendola: si sposta
+      // il blocco com'è sotto l'altro nome, senza aprirlo. Chi saprà
+      // ripararlo lo troverà intero.
+      if (!pacchetto.rinomina(nome, altrove)) return
+      this.emettitoreErrori.fire(
+        `${nome} non si leggeva: la copia è dentro l’anno con il nome ${altrove}, ` +
+          'e il registro riparte da una collezione nuova.',
+      )
+      return
+    }
+    if (rotta === null) return
     pacchetto.scrivi(altrove, rotta)
     this.emettitoreErrori.fire(
       `${nome} non si leggeva: la copia è dentro l’anno con il nome ${altrove}, ` +
@@ -993,6 +1134,7 @@ export class Archivio implements apparato.Smaltitore {
   dispose (): void {
     if (this.timerSalvataggio) clearTimeout(this.timerSalvataggio)
     if (this.timerRicarica) clearTimeout(this.timerRicarica)
+    this.fermaRiprova()
     // L'ultimo salvataggio *e* la serratura: chi aspetta lo spegnimento passa
     // da `chiudi`, e chi arriva qui senza aspettare — un `dispose` di
     // emergenza — almeno lascia il documento libero per la prossima apertura.
@@ -1002,6 +1144,24 @@ export class Archivio implements apparato.Smaltitore {
     this.osservatore?.dispose()
     this.emettitore.dispose()
     this.emettitoreErrori.dispose()
+  }
+}
+
+/**
+ * La versione dei dati che l'intestazione di un documento dichiara, o null se
+ * non la dichiara o non si legge. Chi non si legge lo dice `leggiVoce` più
+ * avanti, con il suo messaggio: qui interessa solo il caso del numero troppo
+ * alto.
+ */
+function versioneDati (pacchetto: Pacchetto): number | null {
+  try {
+    const testo = pacchetto.testo(NOMI.registro)
+    if (!testo) return null
+    const letto: unknown = JSON.parse(testo)
+    const versione = (letto as { versione?: unknown } | null)?.versione
+    return typeof versione === 'number' ? versione : null
+  } catch {
+    return null
   }
 }
 

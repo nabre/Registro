@@ -74,7 +74,20 @@ let contatoreModali = 0
  * ogni volta guardando il fuoco era il motivo per cui una `conferma()` aperta
  * da dentro un modulo restava orfana: Escape chiudeva il modulo sotto.
  */
-const pila: Array<{ modulo: HTMLFormElement, chiudi: () => void }> = []
+const pila: Array<{ modulo: HTMLFormElement, chiudi: () => void, rinuncia: () => void }> = []
+
+/**
+ * Chiude tutte le modali aperte, dall'ultima alla prima, senza domande.
+ *
+ * Serve quando cambia il documento: un modulo aperto sull'anno di prima,
+ * salvato nel documento nuovo, scriverebbe là dentro una classe o un'ora che
+ * a quel documento non appartengono. Non si chiede niente perché non c'è
+ * niente da salvare: quel che c'era scritto era di un documento che non è più
+ * aperto.
+ */
+export function chiudiTutte (): void {
+  for (const voce of [...pila].reverse()) voce.chiudi()
+}
 
 function elementoAttivabile (radice: HTMLElement): HTMLElement[] {
   return [...radice.querySelectorAll<HTMLElement>(
@@ -90,7 +103,7 @@ document.addEventListener('keydown', (evento) => {
   if (evento.key === 'Escape') {
     evento.stopPropagation()
     evento.preventDefault()
-    cima.chiudi()
+    cima.rinuncia()
     return
   }
 
@@ -136,6 +149,35 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
     opzioni.allaChiusura?.()
     apertaDa?.focus?.()
   }
+
+  // Se nel modulo si è scritto qualcosa. Esc, la «×» e il clic fuori sono
+  // gesti che partono anche per sbaglio — un Esc premuto per chiudere un
+  // suggerimento del sistema, un clic che manca il bordo — e buttavano via
+  // senza dirlo dieci minuti di scaletta. Con qualcosa di scritto chiedono
+  // prima. «Annulla» no: è scritto sul pulsante che cosa fa, e chi lo preme
+  // ha già risposto alla domanda. Le finestre senza `alSalva` non hanno niente
+  // da perdere, e si chiudono sempre subito.
+  let sporco = false
+  let chiedendo = false
+  const rinuncia = () => {
+    if (chiusa || chiedendo) return
+    if (!sporco || !opzioni.alSalva) {
+      chiudi()
+      return
+    }
+    chiedendo = true
+    void conferma({
+      titolo: 'Lasciare le modifiche?',
+      testo: 'Quel che hai scritto in questa finestra non è salvato: chiudendola va perso.',
+      testoConferma: 'Lascia',
+      pericolo: true,
+    }).then((lascia) => {
+      chiedendo = false
+      if (lascia) chiudi()
+    })
+  }
+  corpo.addEventListener('input', () => { sporco = true })
+  corpo.addEventListener('change', () => { sporco = true })
 
   const mostraErrori = (errori: string[]) => {
     rimpiazza(zonaErrori, errori.length > 0 ? avviso(
@@ -206,7 +248,7 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
       ),
       h(
         'button',
-        { class: 'modale__chiudi', type: 'button', attr: { 'aria-label': 'Chiudi' }, onclick: chiudi },
+        { class: 'modale__chiudi', type: 'button', attr: { 'aria-label': 'Chiudi' }, onclick: rinuncia },
         icona('chiudi'),
       ),
     ),
@@ -234,13 +276,13 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
     giuSulloStrato = evento.target === strato
   })
   strato.addEventListener('click', (evento) => {
-    if (giuSulloStrato && evento.target === strato) chiudi()
+    if (giuSulloStrato && evento.target === strato) rinuncia()
   })
 
   strato.appendChild(modulo)
   document.body.appendChild(strato)
   document.body.classList.add('con-modale')
-  pila.push({ modulo, chiudi })
+  pila.push({ modulo, chiudi, rinuncia })
 
   // Un corpo senza campi non lascia il fuoco vagare per la pagina: va sul
   // modulo stesso, che così risponde subito a Escape e Tab.

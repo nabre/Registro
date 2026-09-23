@@ -32,7 +32,7 @@ import type {
 } from './models.js'
 import { FIDUCIA_SUFFICIENTE, indiceNomi, riconosci } from './sorting.js'
 import { Maiuscola, PERSONE } from './lexicon.js'
-import { aggiungiIndirizzo, compilaModello, emailValida, nomeSicuro } from './text.js'
+import { aggiungiIndirizzo, compilaModello, confrontaNomi, emailValida, nomeSicuro } from './text.js'
 
 import { TIPI_RAPPORTO } from './validation.js'
 import { valoriDi } from './objects.js'
@@ -205,7 +205,7 @@ export interface RichiesteFirma {
 function ordinaRichieste (a: RichiestaFirma, b: RichiestaFirma): number {
   return (
     a.dal.localeCompare(b.dal) ||
-    a.classe.localeCompare(b.classe, 'it') ||
+    confrontaNomi(a.classe, b.classe) ||
     nomeCompleto(a.allievo).localeCompare(nomeCompleto(b.allievo), 'it')
   )
 }

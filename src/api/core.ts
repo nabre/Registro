@@ -15,6 +15,7 @@
 import type { Archivio } from '../data/archive.js'
 import type { Azione } from '../protocol.js'
 import { contestoDi, type EsitoAzione, type Gestore } from '../actions/context.js'
+import { rigeneraDopoScrittura } from '../actions/reports.js'
 import { identificatore } from '../domain/identifiers.js'
 import {
   ErroreApi,
@@ -396,6 +397,15 @@ export async function chiama<U = unknown> (
       durataMs: Date.now() - partenza, ok: true,
       modifiche: archivio.revisione - prima,
     })
+    // I documenti seguono i dati, da qualunque parte arrivi la scrittura. La
+    // regola stava solo in `esegui()` del pannello, e l'agenda, l'assistente e
+    // il condotto — che chiamano di qui senza passare di là — lasciavano il
+    // verbale con «assente» dopo una correzione fatta dal widget. Si guarda la
+    // revisione e non l'esito: una scrittura che riesce senza toccare niente
+    // non ha reso vecchio nessun foglio.
+    if (p.genere === 'scrittura' && archivio.revisione !== prima) {
+      rigeneraDopoScrittura(archivio, controllo.value as Record<string, unknown>)
+    }
     return {
       ok: true, api: VERSIONE_API, procedura: nome, versione: p.versione, tracciato,
       dati: uscita.value as U,

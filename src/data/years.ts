@@ -149,7 +149,15 @@ async function travasa (da: apparato.Uri, a: apparato.Uri): Promise<boolean> {
 }
 
 async function togliSeVuota (cartella: apparato.Uri): Promise<void> {
-  if ((await vociDi(cartella)).length > 0) return
+  // Una lettura che solleva, e non `vociDi`: quella su errore torna un elenco
+  // vuoto, e una cartella che non si è potuta leggere — un segnaposto di
+  // OneDrive, un permesso negato — sembrerebbe vuota e verrebbe cancellata
+  // senza cestino con dentro quel che non si è visto.
+  try {
+    if ((await apparato.file.readDirectory(cartella)).length > 0) return
+  } catch {
+    return
+  }
   try {
     // `recursive` su una cartella di cui si è appena verificato che è vuota
     // non toglie niente in più, e non chiede a chi implementa il file system
@@ -247,7 +255,15 @@ export async function migraAnni (radice: apparato.Uri): Promise<EsitoMigrazione 
   // mano: da qui in poi si lavora su un registro normalizzato, non su JSON.
   const grezzo: Record<string, unknown> = {}
   for (const collezione of COLLEZIONI) {
-    const letto = await leggiJson(apparato.Uri.joinPath(radice, NOMI[collezione]))
+    const file = apparato.Uri.joinPath(radice, NOMI[collezione])
+    const letto = await leggiJson(file)
+    // Un file che c'è e non si legge — un segnaposto di OneDrive che non
+    // scarica, un JSON rotto — non è un file che non c'è: migrare adesso
+    // vorrebbe dire scrivere gli anni senza quella collezione e poi mandare
+    // il file nel cestino, che su una chiavetta è una cancellazione. Si lascia
+    // tutto com'è e si riprova al prossimo avvio. Un file vuoto invece si
+    // legge benissimo: non ha niente dentro.
+    if (letto === null && (await esisteFile(file)) && !(await senzaNienteDentro(file))) return null
     if (collezione === 'registro' && letto && typeof letto === 'object') {
       Object.assign(grezzo, letto)
     } else if (letto !== null) {
@@ -353,6 +369,12 @@ export async function impacchettaAnni (radice: apparato.Uri): Promise<string[]> 
 
   const fatti: string[] = []
   for (const cartella of await sottocartelleDi(radice)) {
+    // I file che c'erano e non si sono potuti leggere. Uno solo basta a non
+    // scrivere il documento: scritto senza quella collezione, al prossimo
+    // avvio il documento esisterebbe già e la cartella non si riprenderebbe
+    // più — e intanto `dati/` sarebbe andata nel cestino, che su una chiavetta
+    // vuol dire cancellata.
+    let mancati = 0
     const dati = cartellaCollezioniIn(radice, cartella)
     const documento = percorsoPacchettoIn(radice, cartella)
     if (!dati || !documento) continue
@@ -372,18 +394,40 @@ export async function impacchettaAnni (radice: apparato.Uri): Promise<string[]> 
       // devono entrare nel documento come se fossero dati buoni.
       if (!nome.endsWith('.json') || nome.endsWith('.tmp')) continue
       const testo = await leggiTesto(apparato.Uri.joinPath(dati, nome))
-      if (testo === null) continue
+      if (testo === null) {
+        mancati += 1
+        continue
+      }
       pacchetto.scrivi(nome, testo)
       qualcosa = true
     }
     // E le copie di com'era, che seguono i JSON dentro il documento: sono la
-    // rete di chi si accorge domani che oggi ha cancellato una classe.
-    for (const [nome, tipo] of await vociDi(apparato.Uri.joinPath(dati, STORICO))) {
+    // rete di chi si accorge domani che oggi ha cancellato una classe. Anche
+    // qui una lettura che solleva: uno storico che non si legge non è uno
+    // storico che non c'è, e andrebbe nel cestino con il resto.
+    let storico: Array<[string, apparato.GenereFile]> = []
+    try {
+      storico = await apparato.file.readDirectory(apparato.Uri.joinPath(dati, STORICO))
+    } catch (errore) {
+      if (!(errore instanceof apparato.ErroreFile && errore.code === 'FileNotFound')) mancati += 1
+    }
+    for (const [nome, tipo] of storico) {
       if (tipo === apparato.GenereFile.Directory || !nome.endsWith('.json')) continue
       const testo = await leggiTesto(apparato.Uri.joinPath(dati, STORICO, nome))
-      if (testo !== null) pacchetto.scrivi(`${STORICO}/${nome}`, testo)
+      if (testo === null) {
+        mancati += 1
+        continue
+      }
+      pacchetto.scrivi(`${STORICO}/${nome}`, testo)
     }
     if (!qualcosa) continue
+    if (mancati > 0) {
+      console.warn(
+        `[anni] ${cartella}: ${mancati} file non si sono potuti leggere, ` +
+          'il documento non si scrive e la cartella resta dov’è fino al prossimo avvio.',
+      )
+      continue
+    }
 
     try {
       await pacchetto.salva({ forza: true })
@@ -401,6 +445,12 @@ export async function impacchettaAnni (radice: apparato.Uri): Promise<string[]> 
     fatti.push(cartella)
   }
   return fatti
+}
+
+/** Vero se il file non ha niente dentro, a parte gli spazi. Un file che non si legge non è vuoto. */
+async function senzaNienteDentro (file: apparato.Uri): Promise<boolean> {
+  const testo = await leggiTesto(file)
+  return testo !== null && testo.trim() === ''
 }
 
 /** Il testo di un file, o null se non c'è o non si legge. */
@@ -484,6 +534,15 @@ export async function inglobaCartelle (archivio: Archivio): Promise<number> {
   // Il documento per primo, e per intero: da qui in poi i file ci sono dentro,
   // e le cartelle sono una copia di troppo.
   await archivio.salva()
+  // Ma solo se è andato davvero. `salva` non solleva quando a fallire sono le
+  // collezioni in attesa — le rimette in coda, lo dice alla barra e riprova —
+  // e un disco pieno lasciava i file in memoria e le cartelle nel cestino.
+  // Se resta qualcosa in sospeso non si cancella niente: al prossimo avvio i
+  // file già entrati si riconoscono, e gli altri si riprendono.
+  if (archivio.statoSalvataggio.inSospeso) {
+    console.warn('[anni] il documento non è stato scritto per intero: le cartelle restano dov’erano.')
+    return entrati
+  }
 
   for (const cartella of svuotate) {
     try {

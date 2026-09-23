@@ -146,6 +146,25 @@ async function rinominaConPazienza (da: string, a: string): Promise<void> {
   }
 }
 
+/** Scrive un file intero; con `sincronizza`, passando da un `fsync` prima di chiuderlo. */
+async function scriviTutto (
+  nativo: string,
+  contenuto: Uint8Array,
+  sincronizza: boolean,
+): Promise<void> {
+  if (!sincronizza) {
+    await fs.writeFile(nativo, contenuto)
+    return
+  }
+  const file = await fs.open(nativo, 'w')
+  try {
+    await file.writeFile(contenuto)
+    await file.sync()
+  } finally {
+    await file.close()
+  }
+}
+
 export const filesystem = {
   async readFile (uri: Uri): Promise<Uint8Array> {
     try {
@@ -155,9 +174,21 @@ export const filesystem = {
     }
   },
 
-  async writeFile (uri: Uri, contenuto: Uint8Array): Promise<void> {
+  /**
+   * `sincronizza` chiede che i byte siano sul disco, e non nella cache del
+   * sistema, prima di tornare: serve a chi dopo rinomina il file sopra quello
+   * buono. Senza, una corrente che va via subito dopo la rinomina può lasciare
+   * al posto del documento un file della misura giusta e pieno di zeri — la
+   * rinomina è arrivata sul disco, i dati no.
+   */
+  async writeFile (
+    uri: Uri,
+    contenuto: Uint8Array,
+    opzioni?: { sincronizza?: boolean },
+  ): Promise<void> {
+    const sincronizza = opzioni?.sincronizza ?? false
     try {
-      await fs.writeFile(uri.fsPath, contenuto)
+      await scriviTutto(uri.fsPath, contenuto, sincronizza)
     } catch (errore) {
       // VS Code crea da sé le cartelle che mancano, e il registro ci conta in
       // qualche punto. Si riprova una volta sola, e solo per quel motivo: un
@@ -165,7 +196,7 @@ export const filesystem = {
       if ((errore as NodeJS.ErrnoException | null)?.code !== 'ENOENT') throw tradotto(errore, uri)
       try {
         await fs.mkdir(percorso.dirname(uri.fsPath), { recursive: true })
-        await fs.writeFile(uri.fsPath, contenuto)
+        await scriviTutto(uri.fsPath, contenuto, sincronizza)
       } catch (secondo) {
         throw tradotto(secondo, uri)
       }
@@ -285,6 +316,44 @@ export async function scriviDa (
     await file.write(contenuto, 0, contenuto.length, da)
     if (opzioni?.troncaA !== undefined) await file.truncate(opzioni.troncaA)
     await file.sync()
+  } catch (errore) {
+    throw tradotto(errore, uri)
+  } finally {
+    await file?.close()
+  }
+}
+
+/**
+ * Vero se il file misura ancora `misura` byte e finisce con quei byte.
+ *
+ * È la domanda che si fa prima di accodare: la scrittura incrementale scrive
+ * in fondo al file *come lo si era letto*, e riusa gli offset delle voci di
+ * allora. Se nel frattempo il file è cambiato — un altro registro sullo stesso
+ * documento, una compattazione fatta altrove, una sincronizzazione che l'ha
+ * sostituito — accodare vorrebbe dire scrivere sopra la coda di qualcun altro,
+ * o nominare voci che non stanno più dove l'indice dice. La coda di uno ZIP
+ * porta dentro dove comincia l'indice e quanto è lungo: misura e ultimi byte
+ * uguali vogliono dire, in pratica, lo stesso archivio.
+ *
+ * Un file che non c'è più torna falso: non è da accodare, è da rifare. Un
+ * open, uno stat, una lettura e una chiusura — niente di più, perché si paga a
+ * ogni salvataggio.
+ */
+export async function finisceCon (uri: Uri, misura: number, fine: Uint8Array): Promise<boolean> {
+  let file: fs.FileHandle | null = null
+  try {
+    try {
+      file = await fs.open(uri.fsPath, 'r')
+    } catch (errore) {
+      const codice = (errore as NodeJS.ErrnoException | null)?.code
+      if (codice === 'ENOENT' || codice === 'ENOTDIR') return false
+      throw errore
+    }
+    const { size } = await file.stat()
+    if (size !== misura || fine.length > size) return false
+    const letto = Buffer.alloc(fine.length)
+    const { bytesRead } = await file.read(letto, 0, fine.length, size - fine.length)
+    return bytesRead === fine.length && letto.equals(fine)
   } catch (errore) {
     throw tradotto(errore, uri)
   } finally {

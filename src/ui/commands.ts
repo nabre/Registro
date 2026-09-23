@@ -57,7 +57,6 @@ import {
   salvaModello,
 } from './views/templates.js'
 import { PIF } from '../domain/lexicon.js'
-import { oraDaCompilare } from '../domain/dashboard.js'
 import {
   BLOCCHI,
   NOMI_BLOCCO,
@@ -112,8 +111,8 @@ import {
   annoCorrente,
   corsiDellAnnoAperto,
   corsiDi,
-  lezioniInAgenda,
   nomeSemestreScelto,
+  oraDaFare,
   sceltiPresenti,
   stato,
   type SchedaDocente,
@@ -384,10 +383,6 @@ function statoLezione (): Lezione['stato'] | null {
   return lezioneDelContesto()?.stato ?? null
 }
 
-/** L'ora che chiede qualcosa adesso: il buco da riempire, o la prossima. */
-function oraDaFare () {
-  return oraDaCompilare(stato.registro, lezioniInAgenda(), stato.adessoData, stato.adessoOra)
-}
 
 // ------------------------------------------------------------- i documenti
 
@@ -1556,6 +1551,30 @@ function dentroUnCampo (bersaglio: EventTarget | null): boolean {
 }
 
 /**
+ * Consegna quel che si sta scrivendo prima che parta un comando da tastiera.
+ *
+ * I campi del registro salvano su `change`, cioè uscendo dal campo: un Ctrl+S
+ * premuto a metà di un consuntivo non ne usciva, e `stato.salva` scriveva il
+ * registro senza quel testo — dicendo «Tutto salvato.». Un clic su un
+ * pulsante il campo lo lascia da sé; una scorciatoia no, e allora lo si fa
+ * qui: fuori e subito dentro, con il cursore dov'era. `blur()` fa partire
+ * `change` in modo sincrono, quindi il salvataggio del campo è mandato prima
+ * del comando, e la fila unica dell'host lo esegue prima.
+ */
+function consegnaIlCampo (): void {
+  const attivo = document.activeElement
+  if (!(attivo instanceof HTMLInputElement || attivo instanceof HTMLTextAreaElement)) return
+  const { selectionStart: inizio, selectionEnd: fine } = attivo
+  attivo.blur()
+  attivo.focus()
+  try {
+    if (inizio !== null) attivo.setSelectionRange(inizio, fine ?? inizio)
+  } catch {
+    // Date, numeri, colori: campi che una selezione non ce l'hanno.
+  }
+}
+
+/**
  * I tasti che valgono in tutta la finestra.
  *
  * Si legge la scorciatoia dichiarata dal comando: non c'è una seconda tabella
@@ -1604,6 +1623,7 @@ export function installaScorciatoie (opzioni: {
       if (pezzi.includes('shift') !== evento.shiftKey) continue
       if (pezzi[pezzi.length - 1] !== tasto) continue
       evento.preventDefault()
+      consegnaIlCampo()
       // `void`: una scorciatoia lancia il comando e restituisce subito la
       // tastiera a chi scrive. Non c’è niente da aspettare qui.
       void eseguiComando(comando)

@@ -7,7 +7,7 @@
 
 import { destinatariComunicazione, fileDellaConsegna } from '../../domain/communications.js'
 import { consegneDocumento } from '../../domain/assignments.js'
-import { formattaData } from '../../domain/dates.js'
+import { formattaData, giornoDi } from '../../domain/dates.js'
 import { PIF, Molti } from '../../domain/lexicon.js'
 import { creaComunicazione, creaRecapito } from '../../domain/factories.js'
 import type { Classe, Comunicazione, Recapito } from '../../domain/models.js'
@@ -191,7 +191,7 @@ export function moduloComunicazione (classe: Classe, comunicazione?: Comunicazio
           ? h(
               'p',
               { class: 'testo-quieto' },
-              `Spedita il ${formattaData(base.inviataIl?.slice(0, 10) ?? '', 'lungo')} a ${base.destinatari.length} indirizzi.`,
+              `Spedita il ${formattaData(giornoDi(base.inviataIl) ?? '', 'lungo')} a ${base.destinatari.length} indirizzi.`,
             )
           : null,
         // La firma non si scrive qui: la mette chi spedisce, uguale per tutti i

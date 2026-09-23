@@ -35,6 +35,7 @@
     "buttons": "node tools/buttons.mjs",
     "forms": "node tools/forms.mjs",
     "layers": "node tools/layers.mjs",
+    "docs": "node tools/docs.mjs",
     "pretest": "node esbuild.mjs --test",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "ui-tests": "node tools/uiTests.mjs",

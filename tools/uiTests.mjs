@@ -32,7 +32,7 @@ const radice = percorso.resolve(percorso.dirname(fileURLToPath(import.meta.url))
  * Le prove, nell'ordine in cui conviene leggerle: prima il telaio, poi lo
  * scorrimento che ci vive dentro, poi lo sfoglio.
  */
-const PROVE = ['tests/ui/navigation.py', 'tests/ui/scroll.py', 'tests/ui/pageBrowser.py']
+const PROVE = ['tests/ui/navigation.py', 'tests/ui/scroll.py', 'tests/ui/pageBrowser.py', 'tests/ui/staleEdits.py']
 
 /**
  * Esegue una riga di comando intera nella shell.

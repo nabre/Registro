@@ -40,7 +40,7 @@ import { indirizzo } from '../data/huggingFace.js'
 import { pesiCaricati, scaricaPesi } from '../data/llamaCpp.js'
 import { modelloNellaCartella } from '../data/gguf.js'
 import type { MessaggioScarico } from '../protocol.js'
-import { conMessaggio, invariato, rifiuta, scegliFile, type Parte } from './context.js'
+import { conMessaggio, invariato, motivoSicuro, rifiuta, scegliFile, type Parte } from './context.js'
 
 /**
  * Ogni quanto si racconta a che punto si è: più spesso sarebbe rumore.
@@ -234,7 +234,7 @@ export const llm = {
       const arrivato = importa(file)
       return conMessaggio(`«${arrivato.nome}» è fra i modelli.`)
     } catch (guasto) {
-      return rifiuta(guasto instanceof Error ? guasto.message : 'Il file non si è potuto leggere.')
+      return rifiuta(motivoSicuro(guasto, 'Il file non si è potuto leggere.'))
     }
   },
 
@@ -254,7 +254,7 @@ export const llm = {
       eliminaModello(azione.nome)
       return conMessaggio(`«${azione.nome}» non è più fra i modelli.`)
     } catch (guasto) {
-      return rifiuta(guasto instanceof Error ? guasto.message : 'Il modello non si è potuto togliere.')
+      return rifiuta(motivoSicuro(guasto, 'Il modello non si è potuto togliere.'))
     }
   },
 

@@ -25,7 +25,7 @@ parallelo, si verifica in modo avversariale, si applica in sequenza.**
 Prima di lanciare qualunque agente, l'albero dev'essere verde e tu devi saperlo.
 Il rituale sta nella skill `verifica`; qui basta il risultato: `tsc` pulito,
 `eslint` senza errori, `npm test` verde, i sei controlli statici a posto, e
-`npm run prove-interfaccia` se si toccherà il pannello.
+`npm run ui-tests` se si toccherà il pannello.
 
 **Salva i numeri.** Quante prove passano oggi. Quali avvisi ci sono già. Alla
 fine del giro dovrai distinguere quel che hai rotto tu da quel che era rotto
@@ -36,7 +36,7 @@ ricostruisce a memoria.
 
 **Una dimensione per agente, in sola lettura.** La dimensione non è una cartella:
 è una domanda. «Gli scaricamenti dei componenti esterni» è una dimensione;
-«`src/dati/`» non lo è, perché non dice che cosa cercare.
+«`src/data/`» non lo è, perché non dice che cosa cercare.
 
 Nel prompt di ogni esploratore vanno sempre queste cose:
 
@@ -119,7 +119,7 @@ non prova niente.
    cantieri che le riguardano. Quando una voce è chiusa **si cancella**: il file
    è un tavolo da lavoro, non un archivio.
 3. Quel che ha cambiato una decisione strutturale migra in `docs/DECISIONI.md`.
-4. I conteggi nelle docs si **ricontano**, non si ricordano: `npm run procedure`
+4. I conteggi nelle docs si **ricontano**, non si ricordano: `npm run procedures`
    li stampa e legge il testo senza compilare.
 
 ## Quanto costa

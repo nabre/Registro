@@ -124,11 +124,9 @@ const CONTESTO_MINIMO = 12288
  * qualunque domanda vera — guarda i corsi, scegline uno, chiedine le presenze —
  * e oltre non c'è una risposta che arriva: c'è una macchina che macina.
  *
- * Il tetto gemello è `GIRI_MASSIMI` in `src/cli/registro.mjs`, e **non conta la
- * stessa cosa**: là si contano i *giri* del modello, qui le singole *chiamate*
- * d'attrezzo, e in un giro solo il modello può chiederne più d'una. I due
- * numeri coincidono per scelta, non per necessità: cambiandone uno, si guardi
- * l'altro e si decida se vale anche per lui.
+ * Il tetto gemello stava in `src/cli/registro.mjs` (`GIRI_MASSIMI`), ed è
+ * sparito con il comando «chiedi»: la riga di comando non fa più domande a un
+ * modello. Oggi questo è l'unico freno.
  */
 const CHIAMATE_MASSIME = 10
 

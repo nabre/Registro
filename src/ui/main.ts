@@ -32,9 +32,13 @@ import {
   lezionePerId,
   miraProiezione,
   pianoPerId,
+  riconvalidaRicordati,
   semestrePerData,
   stato,
 } from './state.js'
+import { chiudiTutte } from './components/modal.js'
+import { scordaEditorDelPiano } from './views/plans.js'
+import { scordaDestinatariMandati } from './views/classTeacher.js'
 import {
   moduloAvvio,
   moduloClasse,
@@ -241,7 +245,17 @@ iscrivitiAttesa(disegna)
 
 ascolta((messaggio) => {
   switch (messaggio.tipo) {
-    case 'stato':
+    case 'stato': {
+      // Cambiare documento non ricarica la pagina: quel che la pagina si tiene
+      // in mano per conto suo resterebbe dell'anno di prima. Un modulo aperto,
+      // salvato adesso, scriverebbe una classe dell'anno scorso dentro il
+      // documento nuovo; l'editor del piano tenuto da parte farebbe lo stesso
+      // con una scaletta. Si lascia andare tutto prima che arrivino i dati.
+      if (stato.caricato && messaggio.documenti.corrente !== stato.documenti.corrente) {
+        chiudiTutte()
+        scordaEditorDelPiano()
+        scordaDestinatariMandati()
+      }
       aggiorna({
         registro: messaggio.registro,
         avvisi: messaggio.avvisi,
@@ -263,6 +277,7 @@ ascolta((messaggio) => {
       // I semestri arrivano con i dati: solo adesso si può sapere in quale
       // cade oggi, ed è il periodo su cui si vogliono i conti aprendo.
       allineaSemestre()
+      riconvalidaRicordati()
       // E dopo di lui quel che era stato chiesto a pannello chiuso: il
       // semestre di una prova di novembre deve vincere su quello di oggi.
       if (navigazioneInAttesa) {
@@ -271,6 +286,7 @@ ascolta((messaggio) => {
         eseguiNavigazione(chiesta)
       }
       break
+    }
 
     // L'avanzamento della lettura delle scansioni: arriva a ogni pagina, e
     // tocca solo la scheda «Da smistare».

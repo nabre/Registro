@@ -4,7 +4,7 @@
  * Cancellare il file è la parte facile e non basta: restano la riga
  * nell'indice — che non compila, e va bene — ma anche la cartella vuota con
  * dentro un indice che non indicizza niente, l'area nominata in
- * `src/api/indice.ts`, la voce in `risorse/attrezzi.json` che continuerebbe a
+ * `src/api/index.ts`, la voce in `resources/tools.json` che continuerebbe a
  * raccontare a un modello un attrezzo che non c'è più, e le prove che la
  * chiamano. Le prime quattro le fa questo; le prove no, perché una prova che
  * cita una procedura tolta di solito prova anche altro, e cancellarla sarebbe
@@ -21,8 +21,8 @@ import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'
 import process from 'node:process'
 
-const PROCEDURE = 'src/api/procedure'
-const INDICE = 'src/api/indice.ts'
+const PROCEDURE = 'src/api/procedures'
+const INDICE = 'src/api/index.ts'
 
 const argomenti = process.argv.slice(2)
 const nome = argomenti.find((a) => !a.startsWith('--'))
@@ -54,19 +54,23 @@ const fai = (che, azione) => {
 
 /** Toglie da un file le righe che contengono uno di questi pezzi. */
 function sfila (percorsoFile, pezzi) {
-  const righe = readFileSync(percorsoFile, 'utf8').split('\n')
+  // Il ritorno a capo del file, qualunque sia: su Windows gli indici sono in
+  // CRLF, e riscriverli in LF cambierebbe ogni riga.
+  const testo = readFileSync(percorsoFile, 'utf8')
+  const aCapo = testo.includes('\r\n') ? '\r\n' : '\n'
+  const righe = testo.split(/\r?\n/)
   const tenute = righe.filter((r) => !pezzi.some((pezzo) => r.includes(pezzo)))
   if (tenute.length === righe.length) return false
-  if (!solamenteDire) writeFileSync(percorsoFile, tenute.join('\n'), 'utf8')
+  if (!solamenteDire) writeFileSync(percorsoFile, tenute.join(aCapo), 'utf8')
   return true
 }
 
 /** Quante procedure restano nominate in un indice. */
 function quanteRestano (percorsoIndice) {
   const testo = readFileSync(percorsoIndice, 'utf8')
-  const dentro = /\[\n([\s\S]*?)\n\]/.exec(testo)
+  const dentro = /\[\r?\n([\s\S]*?)\r?\n\]/.exec(testo)
   if (!dentro) return 0
-  return dentro[1].split('\n').filter((r) => r.trim() !== '').length
+  return dentro[1].split(/\r?\n/).filter((r) => r.trim() !== '').length
 }
 
 // 1. Il file.
@@ -79,7 +83,7 @@ let vociTolte = [`from '${sparita}'`, `  ${cammello(ultimo)},`]
 
 while (livello >= 1) {
   const parti = cartelle.slice(0, livello)
-  const indice = join(PROCEDURE, ...parti, 'indice.ts')
+  const indice = join(PROCEDURE, ...parti, 'index.ts')
   if (!existsSync(indice)) break
 
   if (sfila(indice, vociTolte)) fatti.push(`sfilata da   ${indice}`)
@@ -94,18 +98,18 @@ while (livello >= 1) {
   if (restano > 0) break
 
   const cartella = join(PROCEDURE, ...parti)
-  // Una cartella con dentro un `comuni.ts` non si butta a cuor leggero: quelle
+  // Una cartella con dentro un `common.ts` non si butta a cuor leggero: quelle
   // funzioni le può usare un'altra area.
-  if (existsSync(join(cartella, 'comuni.ts'))) {
-    fatti.push(`lasciata     ${cartella}/ — ha un comuni.ts che qualcun altro può usare`)
+  if (existsSync(join(cartella, 'common.ts'))) {
+    fatti.push(`lasciata     ${cartella}/ — ha un common.ts che qualcun altro può usare`)
     break
   }
-  const altri = readdirSync(cartella).filter((v) => v !== 'indice.ts')
+  const altri = readdirSync(cartella).filter((v) => v !== 'index.ts')
   if (altri.length > 0) break
 
   fai(`cancellata  ${cartella}/ — non conteneva altro`, () => rmSync(cartella, { recursive: true }))
   const costante = `procedure${parti.map(capitale).join('')}`
-  sparita = `./${parti.at(-1)}/indice.js`
+  sparita = `./${parti.at(-1)}/index.js`
   vociTolte = [`from '${sparita}'`, `  ...${costante},`]
   livello--
 }
@@ -114,7 +118,7 @@ while (livello >= 1) {
 const area = cartelle[0]
 if (!existsSync(join(PROCEDURE, area))) {
   const costante = `procedure${capitale(area)}`
-  if (sfila(INDICE, [`from './procedure/${area}/indice.js'`, `  ...${costante},`])) {
+  if (sfila(INDICE, [`from './procedures/${area}/index.js'`, `  ...${costante},`])) {
     fatti.push(`sfilata l’area «${area}» da ${INDICE}`)
   }
 }
@@ -134,7 +138,7 @@ function ancoraCitata () {
   try {
     const uscita = execFileSync(
       'git',
-      ['grep', '-n', '--fixed-strings', nome, '--', 'src', 'prove', 'docs', 'strumenti', 'README.md'],
+      ['grep', '-n', '--fixed-strings', nome, '--', 'src', 'tests', 'docs', 'tools', 'README.md'],
       { encoding: 'utf8' },
     )
     return uscita.trim().split('\n').filter(Boolean)
@@ -157,10 +161,10 @@ if (citazioni.length > 0) {
 
 console.log('')
 console.log('Poi, nell’ordine:')
-console.log('  1. npm run procedure   che l’albero stia ancora in piedi')
-console.log('  2. npm run attrezzi    il catalogo, che altrimenti la racconta ancora')
-console.log('  3. se prendeva in carico un’azione: toglierla da src/protocollo.ts e il suo')
-console.log('     gestore da src/azioni/, e aggiornare i due conti che leggono quel sorgente')
-console.log('     (prove/api/copertura.test.mjs, prove/api/ponte.test.mjs)')
+console.log('  1. npm run procedures  che l’albero stia ancora in piedi')
+console.log('  2. npm run tools       il catalogo, che altrimenti la racconta ancora')
+console.log('  3. se prendeva in carico un’azione: toglierla da src/protocol.ts e il suo')
+console.log('     gestore da src/actions/, e aggiornare i due conti che leggono quel sorgente')
+console.log('     (tests/api/coverage.test.mjs, tests/api/bridge.test.mjs)')
 console.log('  4. i conti in docs/API.md e docs/INDICE.md')
-console.log('  5. npm run controllo-tipi && npm run controllo-stile && npm test')
+console.log('  5. npm run typecheck && npm run lint && npm test')

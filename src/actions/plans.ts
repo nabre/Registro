@@ -12,7 +12,17 @@ import { creaPiano, creaRisorsa, duplicaPiano } from '../domain/factories.js'
 import { classeDelCorso, corsoPerId } from '../domain/courses.js'
 import type { Attivita, PianoLezione, Risorsa } from '../domain/models.js'
 import { validaRisorsa, validaPiano } from '../domain/validation.js'
-import { apriFile, cestina, conMessaggio, fatto, rifiuta, riponi, scegliUnFile, type Parte } from './context.js'
+import {
+  apriFile,
+  cestina,
+  conMessaggio,
+  documentoCambiato,
+  fatto,
+  rifiuta,
+  riponi,
+  scegliUnFile,
+  type Parte,
+} from './context.js'
 
 /** Le estensioni che si accettano come immagine: quelle che un webview sa disegnare. */
 const ESTENSIONI_IMMAGINE = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif']
@@ -114,6 +124,9 @@ export const piani = {
     // e il pannello dirà che il file non è più nella cartella.
     for (const { attivita, risorsa } of appese(copia)) {
       if (!risorsa.file) continue
+      // Ogni copia aspetta il disco: se intanto si è aperto un altro anno, i
+      // file di questo piano finirebbero dentro quello.
+      if (!contesto.ancoraQui()) return documentoCambiato()
       const contenuto = await contenutoDi(risorsa.file)
       if (!contenuto) continue
       const nome = risorsa.nome || risorsa.file.split('/').pop() || 'risorsa'
@@ -124,9 +137,10 @@ export const piani = {
       if ('relativo' in esito) risorsa.file = esito.relativo
     }
 
-    contesto.modifica((r) => {
+    const scritto = contesto.modifica((r) => {
       r.piani.push(copia)
     }, ['piani'])
+    if (!scritto.ok) return scritto
     return { ok: true, creato: { id: copia.id } }
   },
 
@@ -171,6 +185,9 @@ export const piani = {
       })
       // Dialogo chiuso senza scegliere: non è un errore, non si dice niente.
       if (!scelto) return fatto
+      // Il dialogo può essere rimasto aperto a lungo: se intanto si è aperto un
+      // altro anno, il file finirebbe dentro quello.
+      if (!contesto.ancoraQui()) return documentoCambiato()
 
       if (immagine && !ESTENSIONI_IMMAGINE.includes(scelto.estensione.replace('.', ''))) {
         return rifiuta(`«${scelto.nome}» non è un'immagine che il registro sappia mostrare.`)
@@ -195,9 +212,11 @@ export const piani = {
 
     const esito = contesto.suVoce('piani', azione.pianoId, (bersaglio) => {
       const risorse = risorseDi(bersaglio, azione.attivitaId)
-      if (!risorse) return
+      // L'attività è sparita mentre si sceglieva il file: «non trovata», non
+      // «fatto» su una risorsa che non c'è da nessuna parte.
+      if (!risorse) return false
       risorse.push(risorsa)
-    })
+    }, [], 'Attività non trovata in questo piano: forse è già sparita.')
     return esito.ok ? { ...esito, creato: { id: risorsa.id } } : esito
   },
 

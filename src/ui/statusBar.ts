@@ -18,10 +18,8 @@
 // giorno in cui dice «senza rete» non la legge più nessuno.
 
 import { CARTE, quanti } from '../domain/lexicon.js'
-import { oraDaCompilare } from '../domain/dashboard.js'
-import { formattaData, oggi } from '../domain/dates.js'
+import { formattaData } from '../domain/dates.js'
 import { nomeCompleto } from '../domain/calculations.js'
-import { riepilogoTodo } from '../domain/todo.js'
 import { icona, type NomeIcona } from './components/icons.js'
 import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from './context.js'
 import {
@@ -36,13 +34,12 @@ import { h, type Figlio } from './dom.js'
 import {
   aggiorna,
   annoCorrente,
-  classiDellAnno,
   corsiDellAnnoAperto,
   lezionePerId,
-  lezioniInAgenda,
-  nelSemestreScelto,
   nomeClasseDiLezione,
   nomeDiPiano,
+  oraDaFare,
+  pendenzeDellaBarra,
   pianoPerId,
   stato,
 } from './state.js'
@@ -393,12 +390,8 @@ function vociDelRegistro (): Figlio[] {
   // non si sta guardando, e non si troverebbe premendola. E dentro il periodo
   // scelto, per la stessa ragione: i due filtri sono qui accanto, e una voce
   // che li ignorasse li smentirebbe a un dito di distanza.
-  const trovata = oraDaCompilare(
-    stato.registro,
-    nelSemestreScelto(lezioniInAgenda()),
-    stato.adessoData,
-    stato.adessoOra,
-  )
+  // Il conto è in `oraDaFare`, lo stesso del comando «Ora da compilare».
+  const trovata = oraDaFare()
 
   if (!trovata) {
     return [
@@ -435,8 +428,8 @@ function vociDelRegistro (): Figlio[] {
 function vociDelLavoro (): Figlio[] {
   const voci: Figlio[] = []
 
-  const classi = classiDellAnno()
-  const riepilogo = riepilogoTodo(stato.registro, classi, corsiDellAnnoAperto(), oggi())
+  // Le stesse della pagina a cui porta il clic: vedi `pendenzeDellaBarra`.
+  const riepilogo = pendenzeDellaBarra()
   if (riepilogo.aperti > 0) {
     voci.push(
       voce({

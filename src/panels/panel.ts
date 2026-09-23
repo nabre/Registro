@@ -300,6 +300,14 @@ export class PannelloRegistro {
     // di nuovo bisogno di quel che le si era consegnato all'inizio.
     if (richiesta.azione.tipo === 'stato.leggi') {
       this.pronto = true
+      // Il registro, subito e non in fila. La richiesta passa dalla coda come
+      // le altre, e dietro una scrittura lunga — venti PDF, una spedizione —
+      // una pagina riaperta restava su «Apertura del registro…» fino al
+      // termine dell'attesa, e il rifiuto poi non lo guardava nessuno. Il
+      // registro in memoria è già lì, e l'ordine delle spinte non si rompe:
+      // quella della scrittura in corso arriva dopo, ed è la più nuova.
+      this.spingiStato()
+      this.flushStato()
       // Com'è messa la proiezione, subito: ricostruendo il webview — un cambio
       // di tema, una finestra riaperta — i suoi comandi devono ritrovarsi come
       // erano, non spenti mentre lo schermo grande è ancora acceso.

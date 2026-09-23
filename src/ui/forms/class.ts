@@ -36,6 +36,7 @@ import { azione } from '../bridge.js'
 import { aggiorna, classePerId, corsiDi, materieDiClasse, stato, uriDato } from '../state.js'
 
 import {
+  baseViva,
   campoCollegato,
   fuocoSullaPresa,
   opzioniMaterie,
@@ -142,8 +143,10 @@ export function moduloClasse (classe?: Classe, dopo?: (classeId: string) => void
         }),
       ),
     alSalva: async (valori, contesto) => {
+      const viva = baseViva(contesto, modifica, base, classePerId(base.id))
+      if (!viva) return
       const aggiornata: Classe = {
-        ...base,
+        ...viva,
         nome: testo(valori.nome),
         sede: testo(valori.sede),
         colore: testo(valori.colore) || base.colore,
@@ -646,8 +649,23 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
         ),
       ),
     alSalva: async (valori, contesto) => {
+      // La classe com'è adesso: `classe.salva` rimanda l'elenco intero, e
+      // ripartire da quello dell'apertura riportava indietro tutti gli altri.
+      const classeViva = classePerId(classe.id)
+      if (!classeViva) {
+        contesto.mostraErrori(['La classe non c’è più: è stata tolta altrove.'])
+        return
+      }
+      const vivo = baseViva(
+        contesto,
+        modifica,
+        base,
+        classeViva.allievi.find((a) => a.id === base.id),
+        'Non c’è più: è stato tolto dalla classe altrove.',
+      )
+      if (!vivo) return
       const aggiornato: Allievo = {
-        ...base,
+        ...vivo,
         cognome: testo(valori.cognome),
         nome: testo(valori.nome),
         dataNascita: testo(valori.dataNascita),
@@ -680,12 +698,12 @@ export function moduloAllievo (classe: Classe, allievo?: Allievo): void {
         return
       }
       const allievi = modifica
-        ? classe.allievi.map((a) => (a.id === aggiornato.id ? aggiornato : a))
-        : [...classe.allievi, aggiornato]
+        ? classeViva.allievi.map((a) => (a.id === aggiornato.id ? aggiornato : a))
+        : [...classeViva.allievi, aggiornato]
 
       await salva(
         contesto,
-        { tipo: 'classe.salva', classe: { ...classe, allievi } },
+        { tipo: 'classe.salva', classe: { ...classeViva, allievi } },
         modifica ? frase(PIF, 'aggiornato') : frase(PIF, 'aggiunto'),
       )
     },

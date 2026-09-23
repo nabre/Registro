@@ -24,7 +24,7 @@
 // I salvataggi vanno in due tempi — file temporaneo, poi `rename` — perché il
 // rename è atomico e un'interruzione a metà lascia al suo posto il file buono.
 
-import { readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { closeSync, fsyncSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 
 /** Come è andata la lettura: il caso serve a decidere se si può scrivere. */
 type EsitoLettura =
@@ -63,7 +63,16 @@ export function leggiJson (percorso: string): EsitoLettura {
  */
 export function scriviJson (percorso: string, valore: unknown): void {
   const temporaneo = `${percorso}.tmp`
-  writeFileSync(temporaneo, `${JSON.stringify(valore, null, 2)}\n`, 'utf8')
+  // Sul disco per davvero prima della rinomina: senza `fsync` il sistema può
+  // far arrivare la rinomina prima dei dati, e una corrente che va via in quel
+  // momento lascia al posto del file buono uno della misura giusta e vuoto.
+  const file = openSync(temporaneo, 'w')
+  try {
+    writeFileSync(file, `${JSON.stringify(valore, null, 2)}\n`, 'utf8')
+    fsyncSync(file)
+  } finally {
+    closeSync(file)
+  }
   renameSync(temporaneo, percorso)
 }
 

@@ -19,6 +19,7 @@ import {
 import { nomeCompleto } from '../domain/calculations.js'
 import { PIF, frase, quanti } from '../domain/lexicon.js'
 import { CHI_INSEGNA } from '../domain/models.js'
+import { plurale } from '../domain/text.js'
 import {
   daConsegnareA,
   destinatariConsegna,
@@ -34,9 +35,11 @@ import {
   cestina,
   conMessaggio,
   consegnaConClasse,
+  documentoCambiato,
   fatto,
   riassumiInvii,
   rifiuta,
+  rifiutaCon,
   riponi,
   scegliUnFile,
   tipoMime,
@@ -162,7 +165,15 @@ export const consegne = {
       tasto: 'Raccogli',
     })
     if (!scelto) return fatto
+    // Il dialogo può essere rimasto aperto a lungo: se intanto si è aperto un
+    // altro anno, la copia finirebbe dentro quello.
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
+    // Quel che era già stato raccolto per la stessa persona si sostituisce:
+    // senza, raccogliendo di nuovo restava accanto il file di prima come
+    // «(2)», che nessuna voce nomina più — un orfano con dati personali.
+    const vecchio =
+      (consegna.documenti ?? []).find((d) => d.allievoId === azione.chi)?.file ?? null
     const nomeDestinazione = nomeFileArchivio(
       classe.nome,
       allievo ? nomeCompleto(allievo) : null,
@@ -173,6 +184,7 @@ export const consegne = {
     const esito = await archiviaCopia(
       percorsoConsegna(classe, nomeDestinazione, allievo ? nomeCompleto(allievo) : null),
       scelto.uri,
+      vecchio,
     )
     if ('errore' in esito) return rifiuta(`Copia non riuscita: ${esito.errore}`)
 
@@ -181,9 +193,10 @@ export const consegne = {
     // che arriva vale anche come prova che il foglio è stato portato — e
     // quindi spunta; ma la spunta resta togliibile senza portarsi via il file.
     const ora = new Date().toISOString()
-    return contesto.modifica((r) => {
+    const scritto = contesto.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === azione.consegnaId)
-      if (!bersaglio) return
+      // Sparita mentre si sceglieva il file: «non trovata», non «fatto».
+      if (!bersaglio) return false
       bersaglio.documenti = [
         ...(bersaglio.documenti ?? []).filter((d) => d.allievoId !== azione.chi),
         { allievoId: azione.chi, file: esito.relativo, nome: scelto.nome, aggiuntoIl: ora },
@@ -192,7 +205,11 @@ export const consegne = {
         bersaglio.fatte.push({ chi: azione.chi, fattaIl: ora, modo: 'mano' })
       }
       bersaglio.aggiornataIl = ora
-    }, ['consegne'])
+    }, ['consegne'], 'Consegna non trovata: forse è già sparita.')
+    // Il file di prima con un altro nome — un PDF al posto di un JPEG — non lo
+    // ha coperto nessuno: va nel cestino, e solo a scrittura riuscita.
+    if (scritto.ok && vecchio && vecchio !== esito.relativo) await cestina(vecchio)
+    return scritto
   },
 
   /**
@@ -219,6 +236,7 @@ export const consegne = {
       tasto: 'Allega',
     })
     if (!scelto) return fatto
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
     // Un nuovo documento allo stesso posto — «per tutti», o di questo allievo —
     // sostituisce quello che c'era: è chi ha ricevuto una versione migliore,
@@ -243,9 +261,9 @@ export const consegne = {
     if ('errore' in esito) return rifiuta(`Copia non riuscita: ${esito.errore}`)
 
     const ora = new Date().toISOString()
-    return contesto.modifica((r) => {
+    const scritto = contesto.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === consegna.id)
-      if (!bersaglio) return
+      if (!bersaglio) return false
       if (allievo) {
         bersaglio.documenti = [
           ...(bersaglio.documenti ?? []).filter((d) => d.allievoId !== allievo.id),
@@ -256,7 +274,11 @@ export const consegne = {
         bersaglio.nomeTutti = scelto.nome
       }
       bersaglio.aggiornataIl = ora
-    }, ['consegne'])
+    }, ['consegne'], 'Consegna non trovata: forse è già sparita.')
+    // Con un'altra estensione il file nuovo non ha coperto il vecchio: via
+    // quello, che nessuna voce nomina più.
+    if (scritto.ok && sostituibile && sostituibile !== esito.relativo) await cestina(sostituibile)
+    return scritto
   },
 
   'consegna.documento.apri': async (contesto, azione) => {
@@ -474,6 +496,16 @@ export const consegne = {
       falliti.push(`${allievo ? nomeCompleto(allievo) : allievoId}: ${guasto}`)
     }
 
+    // Le mail sono partite, ma il documento è cambiato mentre partivano: le
+    // spunte appartengono all'anno di prima, e scriverle qui le metterebbe in
+    // quello aperto adesso. Lo si dice, perché vanno segnate a mano là.
+    if (!contesto.ancoraQui()) {
+      return rifiutaCon(
+        'conflitto',
+        `${plurale(partiti.length, 'documento spedito', 'documenti spediti')}, ma il documento aperto ` +
+          'è cambiato: le spunte non sono state segnate.',
+      )
+    }
     const ora = new Date().toISOString()
     contesto.archivio.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === consegna.id)

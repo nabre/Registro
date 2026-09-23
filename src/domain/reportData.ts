@@ -33,7 +33,7 @@ import {
 import { Maiuscola, PERSONE, PIF, corto, del } from './lexicon.js'
 import { percento } from './text.js'
 import { scriviIndirizzo } from './addresses.js'
-import { oltreSoglia } from './alerts.js'
+import { oltreSoglia, percentoDaLeggere } from './alerts.js'
 import { primoTelefono, scriviTelefoni } from './phones.js'
 import { matriceCorso } from './courseMatrix.js'
 import { celleDiAllievo, nomeSegnoScritto } from './observations.js'
@@ -85,7 +85,7 @@ function udPrevisteDelCorso (
   const dal = semestre?.inizio ?? anno?.inizio
   const al = semestre?.fine ?? anno?.fine
   if (!dal || !al) return 0
-  return udPrevisteDaOrario(anno, corso, dal, al)
+  return udPrevisteDaOrario(anno, corso, dal, al, registro.lezioni)
 }
 
 /** Un rapporto vuoto su cui i costruttori scrivono. */
@@ -1014,10 +1014,12 @@ function sopraLaSoglia (registro: Registro, assenza: number | null): boolean {
 
 function avvisoAssenza (registro: Registro, assenza: number | null): string {
   if (!sopraLaSoglia(registro, assenza)) return ''
-  return (
-    `Attenzione: assenza del ${percento(assenza ?? 0)}, ` +
-    `oltre il ${registro.impostazioni.sogliaAssenza}% previsto.`
-  )
+  const soglia = registro.impostazioni.sogliaAssenza
+  // Appena oltre, l'intero arrotondato cade sulla soglia — 45 UD su 224 sono il
+  // 20,09% — e il foglio da firmare direbbe «assenza del 20%, oltre il 20%».
+  // La stessa regola della pagina Assenze: allora un decimale, per eccesso.
+  const letto = String(percentoDaLeggere(assenza ?? 0, soglia)).replace('.', ',')
+  return `Attenzione: assenza del ${letto}%, oltre il ${soglia}% previsto.`
 }
 
 export function datiAllievo (

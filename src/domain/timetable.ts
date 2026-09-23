@@ -179,21 +179,38 @@ export function lezioniDaOrario (
  * Le sospensioni sono già fuori: `dateDellOrario` salta le vacanze, ed è la
  * ragione per cui le si dichiara. Un corso senza orario fisso non ha un monte
  * ore da cui partire e torna zero: chi chiama decide che cosa farne.
+ *
+ * **E le ore annullate sono fuori anche loro**, quando si passano le lezioni.
+ * Una gita, un esame, un'ora saltata: l'orario la prevedeva, ma nessuno poteva
+ * mancarci. Lasciarla nel monte ore abbassava la quota di tutti — nove martedì
+ * da due UD, tre annullati e quattro UD perse si leggevano «22% su 18» invece
+ * di «33% su 12», e con tre UD perse il 25% vero finiva sotto la soglia del
+ * 20% senza avviso. Si toglie l'occorrenza dell'orario che l'ora annullata
+ * occupava: stesso giorno, stessa ora d'inizio. Un'ora annullata fuori
+ * dall'orario non toglie niente, perché nel monte ore non c'era.
  */
 export function udPrevisteDaOrario (
   anno: AnnoScolastico | null,
   corso: Corso,
   dal: Iso,
   al: Iso,
+  lezioni: readonly Lezione[] = [],
 ): number {
+  const annullate = new Set(
+    lezioni
+      .filter((l) => l.corsoId === corso.id && l.stato === 'annullata')
+      .map((l) => `${l.data} ${inizioLezione(l) ?? ''}`),
+  )
   // Si conta costruendo l'ora che ne uscirebbe, invece di dividere i minuti
   // per quarantacinque: è lo stesso conto che fa una lezione vera, e due
   // aritmetiche diverse per la stessa domanda finiscono per dare due numeri.
-  return dateDellOrario(anno, corso, dal, al).reduce(
-    (somma, { data, ricorrenza }) =>
-      somma + unitaDidattiche(creaLezione(corso.id, data, ricorrenza.inizio, ricorrenza.durataMin)).length,
-    0,
-  )
+  return dateDellOrario(anno, corso, dal, al)
+    .filter(({ data, ricorrenza }) => !annullate.has(`${data} ${ricorrenza.inizio}`))
+    .reduce(
+      (somma, { data, ricorrenza }) =>
+        somma + unitaDidattiche(creaLezione(corso.id, data, ricorrenza.inizio, ricorrenza.durataMin)).length,
+      0,
+    )
 }
 
 /**

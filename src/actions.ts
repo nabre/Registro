@@ -27,15 +27,19 @@ import { modelli } from './actions/templates.js'
 import { ore } from './actions/hours.js'
 import { piani } from './actions/plans.js'
 import { proiezione } from './actions/projection.js'
-import { programmaRigenerazione, rapporti } from './actions/reports.js'
-import { corsiDaRifare, giornoDaRifare, type Riferimenti } from './domain/automation.js'
+import { rapporti, rigeneraDopoScrittura } from './actions/reports.js'
 import { registro } from './actions/register.js'
 import { sistema } from './actions/system.js'
 import { smistamento } from './actions/sorting.js'
 import { valutazioni } from './actions/assessments.js'
 import { vista } from './actions/view.js'
-import { gestoriDelleProcedure } from './api/bridge.js'
+import { azioniSottoContratto, gestoriDelleProcedure } from './api/bridge.js'
 import type { Origine } from './api/contract.js'
+
+// Sta in `actions/reports.ts`, accanto all'attesa che alimenta, e non qui:
+// `api/core.ts` la deve poter chiamare, e da qui passerebbe per il ponte
+// che a sua volta importa il nucleo — un giro chiuso.
+export { rigeneraDopoScrittura }
 
 const GESTORI: Mappa = {
   ...registro,
@@ -73,25 +77,14 @@ export function azioneValida (tipo: string): tipo is Azione['tipo'] {
   return tipo in GESTORI
 }
 
-/**
- * Gli id che un'azione porta con sé, per capire quale corso ha toccato.
- *
- * Si leggono dal messaggio invece di chiederli a ogni gestore: sono gli stessi
- * nomi in tutto il protocollo — `corsoId`, `lezioneId`, `classeId` — e
- * dedurli qui vuol dire che un'azione nuova entra nell'automazione senza che
- * nessuno debba ricordarsi di registrarla.
- */
-function riferimentiDi (azione: Azione): Riferimenti {
-  const dati = azione as unknown as Record<string, unknown>
-  const id = (nome: string) => (typeof dati[nome] === 'string' ? (dati[nome]) : null)
-  return {
-    corsoId: id('corsoId'),
-    lezioneId: id('lezioneId'),
-    valutazioneId: id('valutazioneId'),
-    pianoId: id('pianoId'),
-    classeId: id('classeId'),
-    allievoId: id('allievoId'),
-  }
+/** Le azioni che passano da una procedura, e quindi da `chiama()`. */
+let sottoContratto: Set<string> | null = null
+function passaDaChiama (tipo: string): boolean {
+  // Al primo uso e non al caricamento: `azioniSottoContratto` registra le
+  // procedure, e farlo mentre gli import sono ancora a metà è un ordine che
+  // non si controlla.
+  sottoContratto ??= new Set(azioniSottoContratto())
+  return sottoContratto.has(tipo)
 }
 
 export async function esegui (
@@ -114,19 +107,11 @@ export async function esegui (
   // o stampare un rapporto riescono senza toccare il registro, e reagire al
   // solo «è andata bene» vorrebbe dire rifare venti PDF ogni volta che se ne
   // apre uno.
-  if (esito.ok && archivio.revisione !== prima) {
-    const registro = archivio.registro
-    const riferimenti = riferimentiDi(azione)
-    // Il giorno di cui parla la modifica, quando ce n'è uno: decide il periodo
-    // dei fogli da rifare, che non è sempre quello di oggi.
-    // Si passa l'archivio e non il registro: l'attesa dura fino a un minuto, e
-    // in un minuto il documento può essere stato riletto — vedi il commento in
-    // testa a `programmaRigenerazione`.
-    programmaRigenerazione(
-      archivio,
-      corsiDaRifare(registro, riferimenti),
-      giornoDaRifare(registro, riferimenti),
-    )
+  //
+  // Le azioni passate sotto contratto l'hanno già fatto dentro `chiama()`, che
+  // è la strada di tutti: rifarlo qui sposterebbe soltanto l'orologio.
+  if (esito.ok && archivio.revisione !== prima && !passaDaChiama(azione.tipo)) {
+    rigeneraDopoScrittura(archivio, azione)
   }
   return esito
 }

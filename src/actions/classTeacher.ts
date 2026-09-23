@@ -61,10 +61,12 @@ import {
   cestina,
   conMessaggio,
   consegnaConClasse,
+  documentoCambiato,
   fatto,
   fascicoloDi,
   riassumiInvii,
   rifiuta,
+  rifiutaCon,
   riponi,
   scegliFile,
   scegliUnFile,
@@ -178,6 +180,9 @@ export const docenteClasse = {
 
     const scelto = await scegliUnFile({ titolo: `Firme di consegna — ${consegna.testo}`, tasto: 'Allega' })
     if (!scelto) return fatto
+    // Il dialogo può essere rimasto aperto a lungo: se intanto si è aperto un
+    // altro anno, il foglio firme finirebbe dentro quello.
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
     const esito = await archiviaCopia(
       percorsoConsegna(
@@ -191,11 +196,12 @@ export const docenteClasse = {
 
     return contesto.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === consegna.id)
-      if (!bersaglio) return
+      // Sparita mentre si sceglieva il file: «non trovata», non «fatto».
+      if (!bersaglio) return false
       bersaglio.fileFirme = esito.relativo
       bersaglio.nomeFirme = scelto.nome
       bersaglio.aggiornataIl = new Date().toISOString()
-    }, ['consegne'])
+    }, ['consegne'], 'Consegna non trovata: forse è già sparita.')
   },
 
   'consegna.firme.apri': async (contesto, azione) => {
@@ -324,6 +330,11 @@ export const docenteClasse = {
       })
     }
 
+    // Fra la lettura della comunicazione e qui c'è stata una conferma, che può
+    // restare aperta quanto vuole: se intanto si è aperto un altro anno, questa
+    // comunicazione non è più quella che si ha davanti.
+    if (!contesto.ancoraQui()) return documentoCambiato()
+
     const bozza = await apriBozzaSingola(
       {
         oggetto: comunicazione.oggetto,
@@ -363,6 +374,15 @@ export const docenteClasse = {
       )
     }
 
+    // Partita, ma nel frattempo si è aperto un altro anno: segnarla lì
+    // vorrebbe dire scrivere in un fascicolo che non è il suo.
+    if (!contesto.ancoraQui()) {
+      return rifiutaCon(
+        'conflitto',
+        `Comunicazione spedita a ${indirizzi.length} destinatari, ma il documento aperto è cambiato: ` +
+          'non è stata segnata come inviata.',
+      )
+    }
     segnaComunicazione(contesto.archivio, azione.classeId, azione.comunicazioneId, indirizzi)
     return conMessaggio(`Comunicazione spedita a ${indirizzi.length} destinatari.`)
   },
@@ -457,6 +477,7 @@ export const docenteClasse = {
       tasto: 'Aggiungi',
     })
     if (!scelto) return fatto
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
     // Lo stesso foglio ricaricato — una scansione migliore — sostituisce
     // quello che c'era, invece di accumulare copie dello stesso documento.
@@ -472,7 +493,7 @@ export const docenteClasse = {
     )
     if ('errore' in copiato) return rifiuta(copiato.errore)
 
-    return contesto.modifica((r) => {
+    const scritto = contesto.modifica((r) => {
       scriviFoglio(
         r,
         {
@@ -483,6 +504,10 @@ export const docenteClasse = {
         copiato.foglio,
       )
     }, ['fascicoli'])
+    // Con un'altra estensione il foglio nuovo non ha coperto il vecchio: via
+    // quello, che nessuna riga nomina più. Solo a scrittura riuscita.
+    if (scritto.ok && vecchio && vecchio.file !== copiato.foglio.file) await cestina(vecchio.file)
+    return scritto
   },
 
   'assenze.importa': async (contesto, azione) => {
@@ -497,10 +522,14 @@ export const docenteClasse = {
       molti: true,
     })
     if (!scelti) return fatto
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
-    const presi: Array<{ allievoId: string, foglio: FoglioAssenze }> = []
+    const presi: Array<{ allievoId: string, foglio: FoglioAssenze, vecchio: string | null }> = []
     const fuori: string[] = []
     for (const scelto of scelti) {
+      // Una copia alla volta, e ognuna aspetta il disco: il documento può
+      // cambiare anche a metà del mucchio.
+      if (!contesto.ancoraQui()) return documentoCambiato()
       const allievo = allievoDelFile(scelto.nome, allievi)
       if (!allievo) {
         fuori.push(scelto.nome)
@@ -520,11 +549,11 @@ export const docenteClasse = {
         fuori.push(`${scelto.nome} (${copiato.errore})`)
         continue
       }
-      presi.push({ allievoId: allievo.id, foglio: copiato.foglio })
+      presi.push({ allievoId: allievo.id, foglio: copiato.foglio, vecchio: vecchio?.file ?? null })
     }
 
     if (presi.length > 0) {
-      contesto.modifica((r) => {
+      const scritto = contesto.modifica((r) => {
         for (const preso of presi) {
           scriviFoglio(
             r,
@@ -537,6 +566,11 @@ export const docenteClasse = {
           )
         }
       }, ['fascicoli'])
+      if (!scritto.ok) return scritto
+      // I fogli di prima con un'altra estensione non li ha coperti nessuno.
+      for (const preso of presi) {
+        if (preso.vecchio && preso.vecchio !== preso.foglio.file) await cestina(preso.vecchio)
+      }
     }
 
     // Quel che non si è riconosciuto si dice per nome: assegnarlo a occhio
@@ -617,6 +651,9 @@ export const docenteClasse = {
         continue
       }
 
+      // Il giro legge un allegato dopo l'altro: se intanto si è aperto un altro
+      // anno, le righe da segnare non sono più in quello aperto.
+      if (!contesto.ancoraQui()) return documentoCambiato()
       const { indirizzi, senzaIndirizzo } = destinatariAssenze(blocco, allievo, fascicolo)
       if (indirizzi.length === 0) {
         const motivo = `nessun indirizzo (${senzaIndirizzo.join(', ')})`
@@ -642,6 +679,7 @@ export const docenteClasse = {
         })
       }
       if (illeggibile) {
+        if (!contesto.ancoraQui()) return documentoCambiato()
         const motivo = `allegato «${illeggibile}» non leggibile`
         falliti.push(`${nomeCompleto(allievo)}: ${motivo}`)
         segnaInvio(contesto.archivio, azione, riga.allievoId, [], motivo)
@@ -704,7 +742,21 @@ export const docenteClasse = {
       )
     }
 
-    const scritte = await bozzeDiGruppo(daScrivere, classe.nome)
+    // Dopo la conferma, che resta aperta quanto vuole: le richieste parlano
+    // dell'anno che si aveva davanti, e se non è più quello non partono.
+    if (!contesto.ancoraQui()) return documentoCambiato()
+    // Ognuna si segna appena è partita, non a giro finito: è quel che promette
+    // il commento in testa, e un giro lento che si interrompe a metà deve
+    // lasciare scritto chi l'ha già ricevuta — o al secondo tentativo la stessa
+    // azienda riceve la stessa mail due volte. Chi non parte si segna dopo, con
+    // il motivo, che qui ancora non si sa.
+    const segnati = new Set<number>()
+    const scritte = await bozzeDiGruppo(daScrivere, classe.nome, (indice, ok) => {
+      const pronta = pronte[indice]
+      if (!ok || !pronta || !contesto.ancoraQui()) return
+      segnaInvio(contesto.archivio, azione, pronta.allievoId, pronta.indirizzi)
+      segnati.add(indice)
+    })
     if (!scritte.ok) return rifiuta(scritte.errore ?? 'Le bozze non si sono potute preparare.')
 
     // `daScrivere` e `pronte` crescono insieme, uno alla volta nello stesso
@@ -725,6 +777,15 @@ export const docenteClasse = {
       )
     }
 
+    // Partite, ma il documento è cambiato mentre partivano: le righe ancora da
+    // segnare sono dell'anno di prima, e vanno segnate a mano là.
+    if (!contesto.ancoraQui()) {
+      return rifiutaCon(
+        'conflitto',
+        `${pronte.length - nonPartiti.size} richieste di firma partite, ma il documento aperto è ` +
+          `cambiato: ${segnati.size} segnate, le altre no.`,
+      )
+    }
     for (const [indice, { allievoId, indirizzi }] of pronte.entries()) {
       const guasto = nonPartiti.get(indice)
       const allievo = classe.allievi.find((a) => a.id === allievoId)
@@ -736,7 +797,8 @@ export const docenteClasse = {
         falliti.push(`${allievo ? nomeCompleto(allievo) : allievoId}: ${guasto}`)
         continue
       }
-      segnaInvio(contesto.archivio, azione, allievoId, indirizzi)
+      // Già segnata mentre partiva: riscriverla cambierebbe solo l'ora.
+      if (!segnati.has(indice)) segnaInvio(contesto.archivio, azione, allievoId, indirizzi)
       partite += 1
     }
 

@@ -108,7 +108,23 @@ function barraAvvisi (): Figlio {
               // Il rifiuto lo ha gia' detto `azione`, e «niente da riparare» lo
               // dice l'host con parole sue: qui resta solo il caso in cui il
               // registro e' stato davvero rimesso a posto.
-              if (risposta.ok && !risposta.messaggio) notifica('Registro riparato.', 'successo')
+              //
+              // Le riparazioni non sono gli avvisi uno a uno: fra quelle ci sono
+              // anche correzioni che con i riferimenti non c'entrano — le
+              // etichette dei telefoni — e la barra poteva restare dov'era dopo
+              // un «Registro riparato.». Lo stato nuovo arriva prima della
+              // risposta, quindi qui si sa già se qualcosa resta: lo si dice.
+              if (!risposta.ok || risposta.messaggio) return
+              const restano = stato.avvisi.length
+              if (restano === 0) {
+                notifica('Registro riparato.', 'successo')
+                return
+              }
+              notifica(
+                `Fatto quel che si poteva fare da sé; ${restano} ` +
+                  `riferiment${restano === 1 ? 'o' : 'i'} da sistemare a mano: li elenca «Dettagli».`,
+                'avviso',
+              )
             },
           })
         : null,

@@ -36,7 +36,7 @@ già e disfarla costa.
 | D10 | La **riga di comando resta nuda**: solo moduli `node:`, nessuna dipendenza, nessuna costruzione. Cresce in file e in comandi, non in pacchetti. È la proprietà per cui si avvia anche quando la build del registro è rotta. | presa |
 | D11 | `core/` diventa puro **invertendo, non riscrivendo**: `vscode` smette di essere un alias del bundler e diventa `core/sistema/vscode.ts`, che esporta i valori puri e delega le capacità a un `Impianto` installato all'avvio. I venticinque file che scrivono `vscode.workspace.fs` non cambiano di una lettera. | presa |
 | D12 | `core/` può importare **tipi** da `contract/`, mai valori. Oggi sono sette import, tutti `import type`. | presa |
-| D13 | Le regole degli strati le verifica una macchina: `npm run strati`, scritto **prima** degli spostamenti. Una regola d'architettura che nessuno controlla dura fino al prossimo import comodo. | presa |
+| D13 | Le regole degli strati le verifica una macchina: `npm run layers`, scritto **prima** degli spostamenti. Una regola d'architettura che nessuno controlla dura fino al prossimo import comodo. | presa |
 | D14 | Il modulo dell'ospite si chiama **`apparato`**, non `vscode`. Quel nome era il posto in cui il registro era nato — un'estensione dell'editor — e da quando gira in una finestra sua diceva il falso: nominava un prodotto che non c'è più, e faceva passare per API di qualcun altro il contratto fra il registro e la macchina su cui sta. `apparato` nomina un ruolo, e il ruolo non cambia se domani sotto c'è altro. Scartati: `sistema` (cozza con `azioni/sistema.ts`), `ambiente` (cozza con due locali, e la cartella diventerà `apparato/`), `ospite` (in italiano vale anche «chi è ospitato»). | presa |
 | D16 | La regola dei nomi, una sola: **si traduce quel che nomina un prodotto o un'idea dell'editor, resta quel che nomina un'operazione che si chiama così dappertutto.** Quindi `workspace` → `file`/`impostazioni`/`osserva` (di «workspace» qui non ce n'è nessuno), ma `readFile`, `Uri`, `EventEmitter` e `Webview` restano. Sta scritta in testa a `src/ambiente/apparato.ts`, dove serve. | presa |
 | D15 | Nello stesso spirito, gli identificativi di comando dell'editor diventano quelli del loro ruolo: `revealFileInOS` → `apparato.mostraNellaCartella`, `vscode.open` → `apparato.apri`, `workbench.action.toggleFullScreen` → `apparato.schermoIntero`, `workbench.action.openSettings` → `registroDocenti.impostazioni`. Li implementa il registro e non li consuma nessun altro programma: portavano il nome di un prodotto che non c'entra. | presa |
@@ -63,6 +63,8 @@ già e disfarla costa.
 - [ ] Giro 2: la coda unica sull'archivio (C3), che è l'unico reperto d'architettura del giro
 - [ ] Giro 2: la prova di regressione dell'appello — non ha dove stare finché le prove
       dell'interfaccia restano fuori dalla costruzione (vedi C8)
+- [x] Giro 7: sciame su 8 dimensioni, 8 applicatori — 7 alti (tutti corretti), una
+      sessantina fra medi e bassi, 54 prove nuove (vedi § 3). Le pendenze in C20
 
 ### C2 — La riga di comando
 
@@ -72,7 +74,10 @@ già e disfarla costa.
 - [ ] Spostarla e dividerla: `registro.mjs`, `link.mjs`, `indirizzo.mjs`, `tabella.mjs`, `comandi/`
 - [ ] `aspetta`: oggi un condotto spento è un muro secco al primo `ENOENT`
 - [ ] `guarda`: seguire il giornale mentre il registro lavora
-- [ ] Prove vere: oggi ne ha **zero**. Un condotto finto su socket, come quello già usato per provare i fix del giro 0
+- [ ] Prove vere: nel giro 7 sono nate le prime — `tests/cli/commandLine.test.mjs`,
+      indirizzo del condotto e conversione degli argomenti contro un condotto vero.
+      Mancano tutti gli altri comandi
+- [x] `chiedi` tolto (ADR-31): non aveva più un modello da chiamare fuori dal processo
 - [ ] Il problema di fondo, che è di C3 e non di qui: **149 scritture e 27 letture**. Da terminale si chiede più di quanto si scriva
 - [ ] Aggiornare `docs/API.md` § 8
 
@@ -89,7 +94,7 @@ già e disfarla costa.
       `allievo.foto.togli` tornano quel che c'è invece di rifarlo; `classe.duplica` non
       lo dichiara, ed è giusto
 - [x] Le `collezioni` dichiarate sono quelle che si toccano? **Sì.** Gli 8 casi che
-      `npm run collezioni` segnala «da guardare a mano» sono tutti chiusi: le tre
+      `npm run collections` segnala «da guardare a mano» sono tutti chiusi: le tre
       funzioni opache (`appelloCompleto`, `appelloScritto`, `corsoDi`) leggono e basta,
       e le due chiusure dinamiche (`correzione.applica`, `piano.applica`) raccolgono già
       le proprie collezioni a runtime
@@ -170,7 +175,7 @@ già e disfarla costa.
 
 - [x] Mappa dello stato di fatto: gli strati reggono già — `dominio/` puro, `interfaccia/` non tocca mai `dati`/`azioni`/`ambiente`, `cli/` non importa niente da `src/`
 - [x] Disposizione nuova proposta e scelta (D8)
-- [x] **Passo 1** — `npm run strati`: il controllo, scritto prima degli spostamenti (D13). Passa su 230 file, 3 deroghe dichiarate e datate, 7 cicli segnalati
+- [x] **Passo 1** — `npm run layers`: il controllo, scritto prima degli spostamenti (D13). Passa su 230 file, 3 deroghe dichiarate e datate, 7 cicli segnalati
 - [ ] **Passo 2** — `ui/`: 39k righe ma lo spostamento più isolato del progetto
 - [ ] **Passo 3** — `contract/`: `api/` + `protocollo.ts` + `manifesto.ts` + `azioni.ts`
 - [ ] **Passo 4** — router, chiamante, link (è C4)
@@ -211,13 +216,6 @@ già e disfarla costa.
   | `radiceWorkspace()` · `WorkspaceFolder` | `radiceDiLavoro()` · `CartellaDiLavoro` |
 
 - [x] Le prove che chiamavano l'API con i nomi vecchi, seguite: 8 file. Non è un cambio di comportamento — è la stessa API con altri nomi, e i 1384 test lo confermano
-- [ ] **`docs/ARCHITETTURA.md` è rimasto un cantiere indietro.** C7 è chiuso nel
-      codice — 31 file, 522 occorrenze — ma il documento che dice «com'è oggi»
-      descrive ancora l'alias `vscode` e rimanda venti volte a
-      `src/ambiente/vscode-desktop.ts`, che **non esiste più**: è stato cancellato
-      nel commit `c6e2f92`. Un documento «com'è oggi» che punta a un file morto non
-      invecchia, mente. Da riallineare adesso e non al passo 10, distinguendo le
-      occorrenze vere che restano (la riga sotto) da quelle da riscrivere
 - [ ] Restano per forza, e sono fatti veri su VS Code: `.vscode/settings.json` in `dati/posta.ts`, `--vscode-editor-background` in `stili/tema.css`, `@types/vscode` nel commento di `tsconfig.json`
 
 ### C8 — Le letture
@@ -233,14 +231,14 @@ rispondevano a chi il registro non ce l'ha; le altre undici — `persone.cerca`,
 della pagina e non aveva un attrezzo che ne prendesse uno. Tutte e ventitré sono
 provate, ma il pannello ne chiama cinque, e tre di quelle cinque sono arrivate insieme alla pagina
 «Modelli linguistici», che è nata chiedendo invece di ricalcolare. `chiedi()`
-ha punti di chiamata in due file soli, `viste/modelli.ts` e
-`viste/modelliLinguistici.ts`. Per tutto il resto l'host gli spinge il `Registro` intero
+ha punti di chiamata in due file soli, `ui/views/templates.ts` e
+`ui/views/languageModels.ts`. Per tutto il resto l'host gli spinge il `Registro` intero
 dopo ogni scrittura e lui se lo ricalcola.
 
 Fin qui è la scelta scritta in testa a `api/procedure/lettura.ts`, e per la
 sveltezza regge. Quel che non regge è la conseguenza: **la stessa regola finisce
 scritta in due posti che possono divergere**, ed è già successo. Il commento in
-`viste/allievo.ts` lo racconta senza giri — «la stessa persona era al 12% qui e
+`ui/views/student.ts` lo racconta senza giri — «la stessa persona era al 12% qui e
 al 19% sul foglio stampato» — perché quella vista aveva una copia della formula
 delle presenze invece della funzione del dominio. Oggi la copia è tolta, ma il
 file continua a chiamare `matriceCorso` per conto suo mentre `corso.presenze`
@@ -248,26 +246,31 @@ esiste, torna esattamente quei numeri con i denominatori dichiarati accanto, e
 non la usa nessuno.
 
 - [ ] Il pannello chiama `corso.presenze` invece di rifare `matriceCorso`
-      (`viste/corsi.ts:118`, `viste/allievo.ts:150`). Non è una procedura nuova:
-      è smettere di averne due
+      (`ui/views/courses.ts`, `ui/views/student.ts`). Non è una procedura nuova:
+      è smettere di averne due. **Adesso si può**: fino al giro 7 le due strade
+      divergevano — `corso.presenze` e `persone.scheda` contavano le ore
+      annullate — e passare all'API avrebbe cambiato i numeri a schermo
 - [ ] Il pannello chiama `registro.integrita` invece di rifare `riferimentiRotti`
-      e `riparazioni` (`guscio.ts:78`, `comandi.ts:604`)
+      e `riparazioni` (`ui/shell.ts`, `ui/commands.ts`). Poco urgente: tutte e due
+      girano solo quando servono — all'apertura del menu, o se ci sono avvisi
 - [ ] `ore.cruscotto` — qual è l'ora da compilare adesso. È la prima domanda che
-      un cliente esterno fa, e oggi non c'è modo di farla. La rifanno a mano
-      `barraStato.ts:383` e `comandi.ts:453`
-- [ ] `classe.pendenze` — `riepilogoTodo` sotto contratto. Oggi è rifatto in tre
-      posti: `barraStato.ts:426`, `viste/todo.ts:234` e il widget dell'agenda
+      un cliente esterno fa, e oggi non c'è modo di farla. Nel pannello la regola
+      adesso è una sola, `oraDaFare()` in `ui/state.ts` (barra e comando la
+      contavano in due modi, con e senza semestre)
+- [ ] `classe.pendenze` — `riepilogoTodo` sotto contratto. La barra e la pagina
+      adesso contano sulle stesse classi (`pendenzeDellaBarra()`); il widget
+      dell'agenda (`domain/agendaPending.ts`) include ancora le archiviate
 - [ ] `valutazioni.orfane` — l'anomalia più netta del contratto: esiste la
       scrittura `valutazione.eliminaOrfane` e **non esiste la lettura che la
       precede**. Il pannello deve calcolarsi da sé la lista da cui l'utente
       sceglie che cosa cancellare
 - [ ] `smistamento.daFare` — che cosa c'è in quarantena, per classe.
       `registro.riassunto` ne dà solo il totale
-- [ ] La spinta dello stato ricalcola `riferimentiRotti(registro)` **da zero a
-      ogni scrittura** (`pannelli/pannello.ts:330`): una scansione completa di
-      classi, corsi, piani, lezioni e valutazioni per ogni casella d'appello
-      battuta. Le altre quattro voci della stessa busta si ricavano da indici già
-      in memoria, e hanno il commento che lo dice; questa no
+- [ ] La spinta dello stato ricalcola `riferimentiRotti(registro)` a ogni
+      scrittura (`panels/panel.ts`). Nel giro 7 è diventata lineare — prima
+      chiedeva il nome di **ogni** piano, e il nome ordina tutte le lezioni: era
+      O(piani × lezioni) per ogni casella d'appello. Resta una scansione intera,
+      senza indice come le altre quattro voci della busta
 
 ### C11 — I modelli, da un servizio a un file
 
@@ -318,7 +321,7 @@ responsive, registro vuoto — e stavano fuori da `npm test` e fuori dalla CI.
 eseguirle, nel giro 3, `navigazione.py` era rossa — ferma a prima che nascesse
 la pagina «Modelli linguistici», e nessuno lo sapeva da mesi.
 
-- [x] Portarle dentro la costruzione: `npm run prove-interfaccia`
+- [x] Portarle dentro la costruzione: `npm run ui-tests`
       (`strumenti/proveInterfaccia.mjs`: trova l'interprete, dice che cosa manca
       quando manca, lancia i due file) e un lavoro di CI a parte in
       `.github/workflows/verifica.yml`, perché vogliono Python, playwright e un
@@ -337,42 +340,36 @@ la pagina «Modelli linguistici», e nessuno lo sapeva da mesi.
 > Non è lento. È scritto in un modo che diventa lento se il docente prende una
 > cattedra in più.
 
-- [ ] `dominio/matriceCorso.ts:248` — dentro `allievi.map(...)`, per ogni lezione,
-      un `lezione.presenze.find(p => p.allievoId === …)`: una ricerca lineare in un
-      array grande quanto la classe, dentro due cicli annidati. È O(allievi² ×
-      lezioni). Lo stesso schema in `calcoli.ts:486` per i voti, chiamato una volta
-      per allievo. La correzione è una `Map` costruita una volta prima del ciclo, e
-      i 1394 test sono la rete: è dominio puro
-- [ ] Pesa più di quanto sembri perché `matriceCorso` è chiamata da **sette** punti,
-      e uno è `datiRapporti.ts`, che sta nella catena della rigenerazione automatica
-      dei PDF: un `materia.unisci` la moltiplica per il numero di corsi toccati
-- [ ] `dominio/cruscotto.ts:257` — `lezioniDelCorso` scorre e **riordina** tutte le
-      lezioni dell'anno a ogni chiamata, senza indice per `corsoId`. E
-      `colonnaCruscotto` la chiama **due volte nella stessa funzione** (righe 388 e
-      393) per ricavare due cose diverse dello stesso corso
-- [ ] `dominio/cruscotto.ts:513` — `riepilogoCruscotto` non è chiamata da nessun
-      punto di `interfaccia/`, `api/` o `azioni/`: la usano solo le sue prove. O è
-      una funzionalità pianificata e mai collegata, o va tolta (è anche C6)
-- [ ] I **quattro timeout di sicurezza da 1000 ms** copiati alla lettera in
-      `guscio/{benvenuto,menu,lettore}.ts` e `ambiente/dialoghi.ts`, tutti per
-      mostrare la finestra se `ready-to-show` non arriva. La stessa regola scritta
-      quattro volte: il giorno in cui un secondo non basta su una macchina lenta,
-      bisogna ricordarsene in quattro posti. Un `mostraQuandoPronta()` in
-      `ambiente/finestre.ts`
-- [ ] `guscio/menu.ts:226,241` — `GRUPPI` si aggancia alle voci di menu per
-      **etichetta** (`menu.label === 'Registro'`) e ripete a mano gli id-comando che
-      stanno già in `manifesto.ts`. Rinominare un gruppo nel manifesto fa sparire in
-      silenzio «Apri…», «Recenti» e «Impostazioni…» dal menu nativo
+Chiuso quasi per intero nel giro 7: la `Map` delle presenze in `matriceCorso`
+(tiene il **primo** doppione, come `find`), `riferimentiRotti` lineare (C8), la
+catena morta `riepilogoCruscotto` → `colonnaCruscotto` → `lezioniDelCorso`
+tolta invece che ottimizzata, i quattro timeout da 1000 ms raccolti in
+`mostraComunque()` (`environment/showAnyway.ts`), e la barra di stato che non
+ricalcola più pendenze e ora da compilare a ogni ridisegno (`derivato()` in
+`ui/state.ts`, memoria per oggetto `Registro`). `GRUPPI` in `shell/windows/menu.ts`
+non era accoppiato al manifesto — le etichette sono locali — ma aveva un ramo
+morto che teneva fuori dal menu nativo «Modifica» e «Visualizza»: corretto.
+
+- [ ] Lo stesso schema di `matriceCorso` in `mediaAllievo`
+      (`domain/calculations.ts`): trascurabile oggi (25 × 20 × 25), da fare solo
+      se si tocca il file per altro. Niente `WeakMap` sugli array dei voti: le
+      azioni fanno `push`, e l'indice resterebbe vecchio
 
 ### C6 — Il codice morto
 
 > Toglierlo, senza perdere una funzionalità.
 
-- [ ] Export senza consumatori: `npm run censimento` ne conta **26**, di cui **1** da eliminare e 25 da rendere interni (D6). Il numero era sceso a 4 e poi risalito con il lavoro del ramo: si rilegge, non si ricorda
+- [x] Export senza consumatori: `npm run census` ne conta **zero** alla fine del giro 7. Si rilegge, non si ricorda
+- [ ] Export che usano **solo le prove** — `census` non li vede: `primoGiornoUtile`
+      (`domain/agendaMonth.ts`, descritta e mai collegata al calendario), `TERMINI`
+      (`domain/lexicon.ts`), `dellaCasella` (`domain/mailbox.ts`: il controllo di
+      «chi è entrato» dopo l'accesso OAuth, documentato e mai chiamato — collegarlo o
+      toglierlo), `tendinaAccesa` (`ui/assistant/parts.ts`). Una sessantina di altri
+      export usati solo nel proprio file e dalle prove sono candidati interni (D6)
 - [ ] Funzioni, rami e costanti che nessuno raggiunge
 - [ ] Doppioni: la stessa regola scritta in due posti che possono divergere
 - [x] CSS e risorse non più riferite: **zero orfani**, e zero file `.ts` mai importati (i cinque che risultano tali sono entry point di esbuild)
-- [x] I **7 cicli di import** che stavano dentro `src/interfaccia/` — `moduli/{comune,corso,classe,materia}` e `viste/{recuperi,valutazioni,riconsegne}` — sono **sciolti**: `npm run strati` ne conta zero, e tiene la riga che li conta apposta perché restino zero
+- [x] I **7 cicli di import** che stavano dentro `src/interfaccia/` — `moduli/{comune,corso,classe,materia}` e `viste/{recuperi,valutazioni,riconsegne}` — sono **sciolti**: `npm run layers` ne conta zero, e tiene la riga che li conta apposta perché restino zero
 - [ ] Dopo ogni rimozione: `tsc`, `eslint`, `npm test` (D2)
 
 ---
@@ -453,7 +450,7 @@ riletto a mano prima di toccarlo.
 il dominio (23k righe, quattro ipotesi verificate e tutte e quattro cadute), lo
 strato desktop (`contextIsolation` ovunque, CSP con nonce per pagina, doppia
 difesa contro il traversal in `protocolloFile.ts`, whitelist di schemi su
-`openExternal`), i due casi che `npm run moduli` segnalava come «da guardare a
+`openExternal`), i due casi che `npm run forms` segnalava come «da guardare a
 mano» — entrambi falsi positivi dello strumento, che non sa seguire `valori`
 passato intero a `recapitiScelti` — e i sette cicli di import, già sciolti.
 
@@ -517,7 +514,7 @@ adesso prende una **funzione** e non un valore, così l'ordine fra rilettura e
 cambiamento non si può più sbagliare; i quattro depositi — impostazioni,
 segreti, recenti, posti — l'hanno adottata.
 
-**E una pendenza di C9 chiusa:** `npm run prove-interfaccia` esiste, e con lui un
+**E una pendenza di C9 chiusa:** `npm run ui-tests` esiste, e con lui un
 lavoro di CI a parte. Le 914 righe di regressioni su Chromium non le lanciava
 nessuno da mesi — e infatti **non passavano più**: `navigazione.py` era ferma a
 prima che nascesse la pagina «Modelli linguistici». Si era avverato, parola per
@@ -690,6 +687,66 @@ tornare indietro), dialoghi appoggiati allo splash (`escludiDaiDialoghi`).
       provare a mano: primo avvio → Apri; primo avvio → Crea → annulla e
       conferma; Alt+F4 sullo splash; agenda accesa
 
+### Giro 7 — tutto il progetto, otto dimensioni
+
+Otto esploratori in sola lettura, una domanda ciascuno: integrità del documento
+sul disco, numeri e casi limite del dominio, contratto e trasporti, azioni di
+scrittura, stato della pagina e ridisegni, processi figli e rete, confini del
+processo principale, regole scritte in due posti. Poi otto applicatori su
+perimetri disgiunti, e per ultime — su albero fermo — le modifiche che
+attraversavano più perimetri. **Sette alti, tutti riverificati a mano** prima di
+toccarli; una sessantina fra medi e bassi. Prove: da 1946 a 2000, più una in
+Chromium.
+
+**I sette alti:**
+
+| Dove | Che cosa succedeva |
+| --- | --- |
+| `data/package.ts` | L'accodata scriveva agli offset del file **com'era quando l'aveva letto**, senza guardare il disco. Due scrittori sullo stesso anno — due PC con «Apri lo stesso», installato più portabile — e la modifica del primo spariva, o il file non si apriva più. Adesso si confrontano misura e ultimi 22 byte, e se non tornano si rifà il file intero |
+| `data/archive.ts` | Una ricarica (osservatore, OneDrive) sostituiva lo stato dopo tre attese: una modifica arrivata lì in mezzo spariva in silenzio, anche riaprendo |
+| `data/years.ts` | `impacchettaAnni` e `migraAnni` saltavano un JSON che non si leggeva — un segnaposto OneDrive offline — e poi mandavano `dati/` nel cestino, che su una chiavetta è cancellazione definitiva. Era il difetto corretto nel giro 1 in `inglobaCartelle`, rimasto nelle due sorelle |
+| `actions/reports.ts`, `actions/context.ts` | Il cambio di documento non passa dalla fila: aprire un altro anno mentre venti schede si scrivono, o mentre la geocodifica gira per minuti, faceva finire **i PDF e gli indirizzi dei minori di un anno dentro il documento dell'altro**. Adesso ogni scrittura guarda di essere ancora sul suo documento (`ancoraQui()`), e se no risponde `conflitto` |
+| `data/sorter.ts` | Le stesse pagine si potevano assegnare a due allievi: il documento di un minore nel fascicolo di un altro |
+| `environment/theme.ts`, `data/outlook.ts`, `data/opening.ts` | `reg` e `rundll32` lanciati **per nome**: su Windows il nome si cerca prima nella cartella corrente, che col doppio clic è quella del documento. Provato: un `reg.exe` messo accanto a un `.registro` condiviso partiva allo splash. Percorsi interi in System32, `NoDefaultCurrentDirectoryInExePath`, e una prova statica che rifiuta i nomi nudi |
+| `ui/views/plans.ts` | L'editor del piano restava in memoria e, dopo una modifica fatta altrove, alla prima nota **riscriveva la versione vecchia sopra la nuova** |
+
+Più uno che era un doppione che divergeva: `corso.presenze` e `persone.scheda`
+contavano le ore annullate, la pagina e i PDF no — e bloccava C8. E uno solo su
+Linux: la riga di comando cercava il socket in una cartella diversa dal server.
+
+**Due regole decise da chi usa il registro**, ADR-30: le ore annullate escono
+dal monte ore previsto, e `confermata` misura la copertura degli appelli. Più
+ADR-31: la rigenerazione dei PDF sta in `chiama()`, e l'agenda, l'assistente e
+il condotto non lasciano più i verbali indietro.
+
+**Fra i medi, quel che si vede:** Ctrl+S che salvava senza il campo in cui si
+stava scrivendo; i moduli che al Salva rimandavano la fotografia dell'apertura
+e riportavano indietro gli altri allievi della classe; Esc che buttava dieci
+minuti di scaletta senza chiedere; lo storico del documento che teneva dieci
+minuti di copie mentre l'aiuto prometteva «com'era ieri» (adesso a gradini:
+ultime dieci, una al giorno per trenta giorni, una a settimana); i permessi del
+condotto che si riaccendevano da soli con `programma.salva`; il nome della pipe
+indovinabile da un altro utente della macchina; l'arresto di Windows che non
+chiamava `spegni()`; un tetto di venti secondi allo spegnimento; il widget
+fuori schermo staccando il monitor; lo schermo intero che poteva finire sul
+registro invece che sulla proiezione, davanti alla classe; due scansioni nello
+stesso secondo che si coprivano in quarantena; Exchange oltre i trenta messaggi
+al minuto; il menu nativo senza «Modifica» e «Visualizza» — su macOS niente
+copia e incolla.
+
+**Le ipotesi cadute.** Il markup dai dati: l'unico `innerHTML` della pagina
+disegna icone costanti, il markdown del modello passa da un parser senza HTML,
+e la CSP non ha `unsafe-inline`. Lo zip: CRC sempre verificato, nomi ripuliti
+da `..`, offset controllati. Le date: l'aritmetica è tutta in UTC coerente,
+l'ora legale non la tocca. Le medie: `null` senza voti, pesi zero e assenti
+fuori, schermo e PDF dalla stessa funzione. Una rinuncia dopo trenta secondi
+non esegue mai niente dopo. Le scritture dell'assistente passano sempre da
+`offribile()`. L'iniezione nelle intestazioni dei destinatari, il
+dot-stuffing SMTP, STARTTLS, PKCE: reggono. Nessun `setTimeout` oltre i 24
+giorni. Il mittente di ogni `ipcMain.on` è filtrato per finestra. Il 29
+febbraio in `anniCompiuti` è voluto e provato. `archiviaCopia` prende il
+deposito dopo un solo microtask, e scrive in quello catturato.
+
 ---
 
 ## 4. Che cosa resta, dal giro 3
@@ -804,11 +861,6 @@ raggi, le durate e i piani. Resta il lavoro lungo, che non è un difetto:
 - [ ] Linux su Wayland: senza `desktopName` l'`app_id` può non coincidere con
       il `.desktop`, e il dock di GNOME mostra un'icona generica. Da provare
       con un `.deb` installato
-- [ ] Fuori dall'icona, trovato di passaggio: i nomi italiani di script e file
-      rinominati (`npm run attrezzi`, `risorse/attrezzi.json`, `censimento`,
-      `strati`…) restano in `docs/API.md`, in questo file e soprattutto in
-      `.claude/skills/procedure-api/` e `.claude/skills/verifica/`, che un
-      agente segue alla lettera
 
 ### C15 — L'interfaccia
 
@@ -819,3 +871,73 @@ raggi, le durate e i piani. Resta il lavoro lungo, che non è un difetto:
       dica. In modalità Mese il riporto c'è, con il commento che nomina proprio
       «un anno cambiato sotto» — quindi è un caso già capito, e coperto da una
       parte sola
+
+### C20 — Quel che il giro 7 lascia aperto
+
+> Scritto qui perché un reperto che resta in una conversazione è un reperto perso.
+
+**Da decidere prima del codice:**
+
+- [ ] **L'arresto di Windows con il solo vassoio.** `query-session-end` arriva
+      alle finestre; con il registro ridotto nel vassoio e il widget spento non
+      ce n'è nessuna, e `spegni()` non gira: la serratura resta accanto al
+      `.registro`. La cura è una finestra sentinella nascosta, ma cambia
+      `window-all-closed` e il `getAllWindows()[0]` di `second-instance`
+- [ ] **Un allievo arrivato a metà anno riapre le prove passate**
+      (`domain/returns.ts`): non ha righe di voto, e ogni prova già riconsegnata
+      torna «da correggere» e in ritardo. Contare solo chi ha una voce, o un
+      gesto «non riguarda»
+- [ ] **Voto e assenza insieme** (`valutazioni.voto.imposta`): il dominio accetta
+      apposta la coppia — il numero resta, il conto lo salta (prova in
+      `tests/api/missingGrades.test.mjs`) — ma il PDF stampa il voto. O la
+      procedura rifiuta la coppia, o il PDF scrive «ass.»
+- [ ] **Medie di prove con scale diverse** (`mediaAllievo`): ogni prova fissa la
+      sua scala; se il documento passa da 1–6 a 1–10 a metà anno, la media
+      mescola i due. Almeno un avviso
+- [ ] Un'ora annullata **e recuperata** fuori orario (ADR-30): oggi il recupero
+      conta come ora in più, senza legame con quella che sostituisce
+
+**Lavoro noto, non ancora fatto:**
+
+- [ ] `Pacchetto.chiLoTiene` ignora sempre la serratura della stessa macchina e
+      dello stesso utente: installato più portabile non si avvisano. Serve un
+      controllo del processo (`pid` vivo e avviato dopo l'accensione)
+- [ ] L'eco delle proprie scritture nell'osservatore si riconosce per tempo
+      (2,5 s): un cambiamento vero in quella finestra si perde. Per `stat` non è
+      sicuro — OneDrive tocca l'`mtime` da sé
+- [ ] Ctrl+O e gli altri acceleratori del menu nativo non «consegnano» il campo
+      in cui si sta scrivendo: la pagina non li vede. Il guscio dovrebbe chiedere
+      alla pagina un `blur()` prima di eseguire
+- [ ] I moduli che rimandano ancora la fotografia dell'apertura: `ui/forms/year.ts`
+      (una variabile locale `stato` ombreggia quella della pagina), recapito,
+      comunicazione e blocco assenze (si salvano come voce del fascicolo)
+- [ ] Le chiavi che il condotto lascia cambiare: `modelli.cartella`,
+      `dettatura.modello`, `ocr.modello`, `ocr.proiettore` — file di dati, non
+      eseguibili; da decidere se proteggerle come gli eseguibili
+- [ ] Senza prova: il timer d'inattività del condotto sospeso durante una
+      chiamata lenta, il tetto di 16 MiB per presa, `EACCES` sulla pipe, il giro
+      Exchange vero con `dopoOgni`, l'accesso OAuth che dimentica un account
+      sbagliato
+- [ ] `tests/ui/staleEdits.py` (editor del piano, Ctrl+S) è scritta e registrata
+      in `npm run ui-tests`, ma non è mai girata: su questa macchina manca
+      playwright
+- [ ] Quando una scrittura viene rifiutata dopo `archiviaCopia`, la copia appena
+      fatta resta orfana nell'archivio
+- [ ] `Smistatore.smista` ha due attese prima di `posaInQuarantena` senza
+      guardare il documento; `aggiornaComposizioni` in `rapporto.completo` gira
+      dopo il giro, idem
+- [ ] `data/filing.ts` `archiviaCopia` rifiuta con il messaggio grezzo
+      dell'errore, che nomina il percorso: la pulizia di `motivoSicuro` sta in
+      `actions/` e lo strato dei dati non la vede
+- [ ] `votiDellaScala` con minimo 1 e passo 0,3 propone 6,1, fuori scala
+      (`arrotondaVoto` poi lo riporta a 6)
+- [ ] `tests/environment/systemText.test.mjs` chiama anch'essa `reg` per nome
+- [ ] `docs/ARCHITETTURA.md` dice che non esiste una CI: `.github/workflows/`
+      c'è
+
+**Da provare a mano** (il processo principale non lo avvia nessuna prova):
+arresto di Windows con una modifica fresca e con il solo vassoio; widget libero
+sul monitor esterno, poi staccare il cavo; proiezione a schermo intero aperta
+cliccando subito nel registro; `Registro.exe ..\Y\2026-2027.registro` da un
+terminale con il registro già aperto; doppio clic su un `.registro` mentre
+l'applicazione sta uscendo.

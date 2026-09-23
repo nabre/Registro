@@ -24,6 +24,7 @@ import { icona } from '../../src/environment/context.js'
 import { postoDi, ricordaPosto } from '../../src/environment/placement.js'
 import { coloreSfondo, preferenzeComuni } from '../../src/environment/theme.js'
 import { chiudiLeVieDiFuga } from '../../src/environment/navigation.js'
+import { mostraComunque } from '../../src/environment/showAnyway.js'
 import { Uri } from '../../src/environment/uri.js'
 
 /** Le finestre aperte, per percorso del documento. */
@@ -92,9 +93,7 @@ export function mostraDocumento (file: Uri, titolo: string): void {
   // Il lettore di PDF non sempre annuncia di essere pronto: se dopo un secondo
   // la finestra è ancora nascosta si mostra lo stesso, perché una finestra
   // invisibile che non si può nemmeno chiudere è peggio di una vuota.
-  setTimeout(() => {
-    if (!nata.isDestroyed() && !nata.isVisible()) nata.show()
-  }, 1000)
+  mostraComunque(nata)
 
   nata.on('closed', () => {
     if (aperte.get(chiave) === nata) aperte.delete(chiave)

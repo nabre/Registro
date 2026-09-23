@@ -297,7 +297,11 @@ export const procedura = definisci({
       al,
       periodi,
       corsi: corsiDellaClasse(r, classe.id).map((corso) => {
+        // Le annullate non contano per nessuno, come nella scheda della pagina
+        // e in `persone.assenze`: un'ora che non si è tenuta non è un'ora
+        // persa, e annullarla non cancella l'appello che aveva.
         const tutte = registroDelCorso(r, corso.id)
+          .filter((lezione) => lezione.stato !== 'annullata')
         /**
          * Le cifre di questo corso fra due giorni.
          *
@@ -312,7 +316,7 @@ export const procedura = definisci({
           const momenti = r.valutazioni.filter(
             (v) => v.corsoId === corso.id && nelPeriodo(v.data, inizio, fine),
           )
-          const previste = anno ? udPrevisteDaOrario(anno, corso, inizio, fine) : 0
+          const previste = anno ? udPrevisteDaOrario(anno, corso, inizio, fine, r.lezioni) : 0
           const matrice = matriceCorso(iscritti, lezioni, momenti, r.impostazioni, previste)
           const riga = matrice.righe.find((voce) => voce.allievo.id === allievo.id)
 

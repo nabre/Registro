@@ -45,7 +45,7 @@ export { ErroreFile, GenereFile } from './fs.js'
 // Non è API di VS Code: `workspace.fs` conosce solo il file intero, e il
 // documento d'anno si scrive per pezzi — vedi `data/package.ts`. Sta qui
 // accanto al resto del file system perché è lì che si va a cercarla.
-export { scriviDa } from './fs.js'
+export { finisceCon, scriviDa } from './fs.js'
 export type { StatoFile } from './fs.js'
 
 export { AmbitoImpostazione } from './settings.js'
@@ -96,6 +96,11 @@ export { senzaSegnaposti } from './dialogs.js'
 // prove possano verificare che l'impostazione `aspetto.tema` arrivi davvero a
 // `nativeTheme`, che è il punto da cui si veste ogni finestra.
 export { applicaTema, coloreSfondo, dimensioneTesto, osservaTema, preferenzeComuni, scuro } from './theme.js'
+
+// Nemmeno questa: è il percorso intero di un programma di Windows, perché un
+// nome nudo Windows lo cerca prima nella cartella del documento aperto. Sta qui
+// perché `data/` la raggiunga senza attraversare gli strati. Vedi `system.ts`.
+export { diSistema } from './system.js'
 
 // Da qui in giù: le capacità, raggruppate per quel che fanno.
 //

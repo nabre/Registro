@@ -381,13 +381,18 @@ interface EsitoGiro {
  * indietro nome per nome: un giro non è una cosa sola che riesce o fallisce,
  * sono venticinque, e diciassette famiglie avvisate restano avvisate anche se
  * la diciottesima non lo è.
+ *
+ * `dopoOgni` passa dritto a `spedisciConExchange`: chi deve segnare gli
+ * inviati uno per volta lo riceve con l'indice del messaggio. Con le bozze non
+ * si chiama mai — una bozza non è partita.
  */
 export async function bozzeDiGruppo (
   messaggi: Array<{ messaggio: MessaggioPosta, nome: string }>,
   classe: string,
+  dopoOgni?: (indice: number, ok: boolean) => void,
 ): Promise<EsitoGiro> {
   if (await puoSpedire()) {
-    const esito = await spedisciConExchange(messaggi.map((m) => conMittente(m.messaggio)))
+    const esito = await spedisciConExchange(messaggi.map((m) => conMittente(m.messaggio)), dopoOgni)
     if (esito.ok) {
       return {
         ok: true,
@@ -697,7 +702,13 @@ async function collegaConMicrosoft (
     { location: apparato.DoveAvanzamento.Notification, title: 'Registro: provo a entrare…' },
     async () => await provaExchange(),
   )
-  return esito.ok ? { ok: true, dove: esito.dove } : { ok: false, errore: esito.errore }
+  if (esito.ok) return { ok: true, dove: esito.dove }
+  // `tieni` ha già messo il gettone nel portachiavi, e da lì `oauthNoto()` e
+  // `puoSpedire()` direbbero «collegato» a un account che il server ha appena
+  // rifiutato — magari un altro account, scelto per sbaglio nella pagina di
+  // Microsoft. Collegato vuol dire provato: se la prova dice no, si dimentica.
+  await dimenticaOauth()
+  return { ok: false, errore: esito.errore }
 }
 
 /**

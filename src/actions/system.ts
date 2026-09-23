@@ -153,6 +153,7 @@ export const sistema = {
         corso,
         semestre?.inizio ?? anno?.inizio ?? '',
         semestre?.fine ?? anno?.fine ?? '',
+        contesto.registro.lezioni,
       ),
       periodo,
     )

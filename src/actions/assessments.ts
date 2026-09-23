@@ -13,7 +13,17 @@ import { nuovoIdAllegato } from '../domain/identifiers.js'
 import type { Allegato, RuoloAllegato } from '../domain/models.js'
 import { PIF, RUOLI_ALLEGATO, frase, il } from '../domain/lexicon.js'
 import { validaValutazione } from '../domain/validation.js'
-import { apriFile, cestina, conMessaggio, fatto, rifiuta, riponi, scegliUnFile, type Parte } from './context.js'
+import {
+  apriFile,
+  cestina,
+  conMessaggio,
+  documentoCambiato,
+  fatto,
+  rifiuta,
+  riponi,
+  scegliUnFile,
+  type Parte,
+} from './context.js'
 
 /** Come si chiama il foglio che si sta cercando, nel dialogo che lo chiede. */
 const TITOLI_ALLEGATO: Readonly<Record<RuoloAllegato, string>> = RUOLI_ALLEGATO
@@ -299,6 +309,9 @@ export const valutazioni = {
     })
     // Dialogo chiuso senza scegliere: non è un errore, non si dice niente.
     if (!scelto) return fatto
+    // Il dialogo può essere rimasto aperto a lungo: se intanto si è aperto un
+    // altro anno, la prova di una persona finirebbe dentro quello.
+    if (!contesto.ancoraQui()) return documentoCambiato()
 
     const nomeDestinazione = nomeFileArchivio(
       classe.nome,
@@ -337,9 +350,12 @@ export const valutazioni = {
       file: esito.relativo,
       aggiuntoIl: new Date().toISOString(),
     }
-    contesto.archivio.modifica((r) => {
+    // Da `contesto.modifica` e non dall'archivio: è lei che rifiuta se il
+    // documento è cambiato durante la copia, e che dice «non trovato» invece di
+    // «fatto» se il momento è sparito mentre si sceglieva il file.
+    const scritto = contesto.modifica((r) => {
       const bersaglio = r.valutazioni.find((v) => v.id === azione.valutazioneId)
-      if (!bersaglio) return
+      if (!bersaglio) return false
       // Uno solo per ruolo (e per allievo, se è una prova): il PDF nuovo ha
       // già sovrascritto il file, la voce vecchia non deve restare.
       bersaglio.allegati = bersaglio.allegati.filter(
@@ -347,7 +363,12 @@ export const valutazioni = {
       )
       bersaglio.allegati.push(allegato)
       bersaglio.aggiornatoIl = allegato.aggiuntoIl
-    }, ['valutazioni'])
+    }, ['valutazioni'], 'Momento di valutazione non trovato: forse è già sparito.')
+    if (!scritto.ok) return scritto
+    // Il PDF di prima sotto un altro nome — il momento o la persona rinominati
+    // nel frattempo — non l'ha coperto nessuno: nel cestino, o resterebbe lì
+    // senza una voce che lo nomini.
+    if (vecchio && vecchio !== esito.relativo) await cestina(vecchio)
     return { ok: true, creato: { id: allegato.id } }
   },
 

@@ -60,10 +60,24 @@ export function istanteAdesso (): Istante {
   return new Date().toISOString()
 }
 
-/** Il giorno di un istante completo, o null se non è un istante: serve alle etichette. */
+/**
+ * Il giorno di un istante completo, sull'orologio locale, o null se non è un
+ * istante: serve alle etichette.
+ *
+ * Il giorno si legge in ora locale, come fa `oggi()`: i primi dieci caratteri
+ * di un istante sono il giorno *in UTC*, e un invio alle 00:40 del 15 marzo
+ * risultava fatto il 14. Una data sola, senza ora, resta com'è: è già un giorno,
+ * e `new Date('2026-03-15')` la leggerebbe come mezzanotte UTC, spostandola
+ * indietro a ovest di Greenwich.
+ */
 export function giornoDi (istante: string | null | undefined): Iso | null {
-  const giorno = (istante ?? '').slice(0, 10)
-  return isoValida(giorno) ? giorno : null
+  const testo = istante ?? ''
+  const giorno = testo.slice(0, 10)
+  if (!isoValida(giorno)) return null
+  if (testo.length === 10) return giorno
+  const data = new Date(testo)
+  if (Number.isNaN(data.getTime())) return giorno
+  return `${data.getFullYear()}-${due(data.getMonth() + 1)}-${due(data.getDate())}`
 }
 
 export function sommaGiorni (iso: Iso, giorni: number): Iso {

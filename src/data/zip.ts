@@ -29,6 +29,7 @@
 // risulterebbe cambiato a ogni giro e la cartella sincronizzata avrebbe sempre
 // qualcosa da caricare.
 
+import { kMaxLength } from 'node:buffer'
 import { deflateRaw, deflateRawSync, inflateRawSync } from 'node:zlib'
 
 /** Una voce dell'archivio: il nome com'è dentro lo ZIP, e il suo contenuto. */
@@ -572,7 +573,12 @@ function decomprimi (
     contenuto = corpo
   } else {
     try {
-      contenuto = inflateRawSync(corpo)
+      // Non oltre quel che l'indice dichiara: un blocco rovinato — o fatto
+      // apposta — che si gonfia a gigabyte si ferma qui, invece di riempire la
+      // memoria per poi scoprire che il controllo non torna. Almeno un byte,
+      // che è il minimo che `zlib` accetta.
+      const tetto = Math.min(Math.max(originale, 1), kMaxLength)
+      contenuto = inflateRawSync(corpo, { maxOutputLength: tetto })
     } catch (errore) {
       const detto = errore instanceof Error ? errore.message : String(errore)
       throw new ErroreZip(`la voce «${nome}» non si decomprime: ${detto}`)

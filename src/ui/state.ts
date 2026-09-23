@@ -48,8 +48,10 @@ import {
   compleanniPerGiorno as compleanniDelPeriodo,
   type Compleanno,
 } from '../domain/birthdays.js'
-import { MINUTI_UD, adesso, formattaData, oggi, semestreDi } from '../domain/dates.js'
+import { MINUTI_UD, adesso, formattaData, giornoDi, oggi, semestreDi } from '../domain/dates.js'
 import { registroVuoto } from '../domain/factories.js'
+import { oraDaCompilare } from '../domain/dashboard.js'
+import { riepilogoTodo, type RiepilogoTodo } from '../domain/todo.js'
 import { annoInUso } from '../domain/years.js'
 import {
   PROIEZIONE_PREDEFINITA,
@@ -1472,7 +1474,7 @@ export function nelSemestreSceltoPer<T> (voci: T[], quando: (voce: T) => string)
   const semestre = semestreScelto()
   if (!semestre) return voci
   return voci.filter((voce) => {
-    const giorno = quando(voce).slice(0, 10)
+    const giorno = giornoDi(quando(voce)) ?? quando(voce).slice(0, 10)
     return giorno >= semestre.inizio && giorno <= semestre.fine
   })
 }
@@ -1525,6 +1527,101 @@ export function allineaSemestre (): void {
   // Passa da `aggiorna` e non dallo stato diretto: così la scelta si ricorda, e
   // la vista che sta per disegnarsi la trova già fatta.
   if (suo) aggiorna({ semestreId: suo.id })
+}
+
+/**
+ * Rimette a posto gli altri filtri ricordati: quelli che puntano a qualcosa
+ * del documento.
+ *
+ * È la stessa storia del semestre, qui sopra: una classe filtrata, un corso
+ * dell'agenda, la scheda di una classe nelle pendenze, un periodo di assenze
+ * — sono id di un documento, e aprendone un altro (o togliendo quella classe
+ * altrove) non sono più di nessuno. La pagina li trovava ancora accesi e
+ * filtrava su niente: un calendario vuoto con la tendina che diceva «tutti».
+ * Quel che non esiste più torna `null`, che per ognuno vuol dire «tutti».
+ */
+export function riconvalidaRicordati (): void {
+  const r = stato.registro
+  const classe = (id: string | null) => id !== null && !r.classi.some((c) => c.id === id)
+  const modifiche: Partial<StatoUI> = {}
+  if (classe(stato.filtroClasseId)) modifiche.filtroClasseId = null
+  if (classe(stato.classeTodoId)) modifiche.classeTodoId = null
+  if (stato.filtroCorsoAgendaId && !r.corsi.some((c) => c.id === stato.filtroCorsoAgendaId)) {
+    modifiche.filtroCorsoAgendaId = null
+  }
+  if (
+    stato.bloccoAssenzeId &&
+    !r.fascicoli.some((f) => f.assenze.some((b) => b.id === stato.bloccoAssenzeId))
+  ) {
+    modifiche.bloccoAssenzeId = null
+  }
+  if (Object.keys(modifiche).length > 0) aggiorna(modifiche)
+}
+
+// ------------------------------------------------------------------ derivati
+
+/**
+ * I conti fatti una volta per registro.
+ *
+ * La barra di stato si rifà a ogni ridisegno — ogni clic, ogni minuto — e ogni
+ * volta rifaceva da capo le pendenze di tutte le classi, matrice delle assenze
+ * compresa: millisecondi pagati per rispondere sempre la stessa cosa. La
+ * pagina non tocca mai `stato.registro` sul posto — ogni spinta dell'host ne
+ * porta uno nuovo — e quindi il registro stesso è la chiave giusta: cambia lui,
+ * il conto si rifà; non cambia, il conto è quello di prima. Il resto da cui il
+ * conto dipende (il giorno, i filtri) sta nella `chiave`.
+ *
+ * Quel che torna è condiviso fra chi lo chiede: si legge, non si modifica.
+ */
+const memorie = new WeakMap<Registro, Map<string, unknown>>()
+
+function derivato<T> (nome: string, chiave: string, calcola: () => T): T {
+  let memoria = memorie.get(stato.registro)
+  if (!memoria) {
+    memoria = new Map()
+    memorie.set(stato.registro, memoria)
+  }
+  const voce = `${nome}|${chiave}`
+  if (!memoria.has(voce)) memoria.set(voce, calcola())
+  return memoria.get(voce) as T
+}
+
+/**
+ * L'ora che chiede qualcosa adesso: il buco da riempire, o la prossima.
+ *
+ * Una sola, per la barra di stato e per il comando «Ora da compilare»: erano
+ * due conti, uno dentro il semestre scelto e uno no, e con il secondo semestre
+ * aperto e un buco a ottobre la barra diceva «prossima: 3B · oggi» mentre il
+ * pulsante portava a ottobre. Sulle ore dell'agenda (il filtro del corso) e
+ * dentro il periodo scelto, perché sono i due filtri che la barra ha accanto.
+ */
+export function oraDaFare (): ReturnType<typeof oraDaCompilare> {
+  return derivato(
+    'oraDaFare',
+    [stato.filtroCorsoAgendaId, stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    () =>
+      oraDaCompilare(
+        stato.registro,
+        nelSemestreScelto(lezioniInAgenda()),
+        stato.adessoData,
+        stato.adessoOra,
+      ),
+  )
+}
+
+/**
+ * Le pendenze che la barra conta: le stesse che la pagina delle pendenze
+ * mostra.
+ *
+ * Stesse classi — quelle visibili, archiviate escluse — e stesso giorno. La
+ * barra contava anche le archiviate, e sul giorno del calendario invece che su
+ * quello dell'orologio: una classe archiviata con due consegne scadute faceva
+ * dire «2 pendenze», e il clic portava a una pagina vuota.
+ */
+export function pendenzeDellaBarra (): RiepilogoTodo {
+  return derivato('pendenze', stato.adessoData, () =>
+    riepilogoTodo(stato.registro, classiVisibili(), corsiDellAnnoAperto(), stato.adessoData),
+  )
 }
 
 /** Il semestre in cui cade una data, nell'anno in corso. */

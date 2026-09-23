@@ -15,6 +15,7 @@ import {
   aggiorna,
   classePerId,
   classiVisibili,
+  corsoPerId,
   materiaPerId,
   stato,
 } from '../state.js'
@@ -23,6 +24,7 @@ import { titoloCorso } from '../../domain/courses.js'
 import { moduloClasse } from './class.js'
 import {
   applicaOrario,
+  baseViva,
   campoCollegato,
   campoDi,
   opzioniCorsi,
@@ -226,13 +228,23 @@ export function moduloCorso (opzioni: OpzioniModuloCorso = {}): void {
     corpo: () => corpoModulo,
     alSalva: async (valori, contesto) => {
       if (modifica) {
+        // Com'è adesso: le lezioni generate nel frattempo non stanno qui, ma
+        // un corso tolto altrove non deve rinascere al Salva.
+        const vivo = baseViva(
+          contesto,
+          modifica,
+          corso!,
+          corsoPerId(corso!.id),
+          'Non c’è più: è stato tolto altrove.',
+        )
+        if (!vivo) return
         await salva(
           contesto,
           {
             tipo: 'corso.salva',
             corso: {
-              ...corso!,
-              titolo: testo(valori.titolo) || corso!.titolo,
+              ...vivo,
+              titolo: testo(valori.titolo) || vivo.titolo,
               note: testo(valori.note),
               orario,
             },

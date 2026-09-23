@@ -11,7 +11,7 @@ import { notifica } from '../components/notifications.js'
 import { h, rimpiazza } from '../dom.js'
 import { stato } from '../state.js'
 
-import { salva, tastoElimina, testo } from './common.js'
+import { baseViva, salva, tastoElimina, testo } from './common.js'
 
 /**
  * Unisce due materie in una. Serve quando la stessa materia è finita nel
@@ -139,8 +139,15 @@ export function moduloMateria (materia?: Materia, dopo?: (materiaId: string) => 
         campo({ nome: 'note', etichetta: 'Note', tipo: 'textarea', righe: 2, valore: base.note ?? '' }),
       ),
     alSalva: async (valori, contesto) => {
+      const viva = baseViva(
+        contesto,
+        modifica,
+        base,
+        stato.registro.materie.find((m) => m.id === base.id),
+      )
+      if (!viva) return
       const aggiornata: Materia = {
-        ...base,
+        ...viva,
         nome: testo(valori.nome),
         sigla: testo(valori.sigla),
         colore: testo(valori.colore),

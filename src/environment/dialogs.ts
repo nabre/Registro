@@ -19,6 +19,7 @@ import { BrowserWindow, dialog, ipcMain, screen, shell } from 'electron'
 import { icona, percorsoPreload } from './context.js'
 import { coloreSfondo, preferenzeComuni } from './theme.js'
 import { chiudiLeVieDiFuga } from './navigation.js'
+import { mostraComunque } from './showAnyway.js'
 import { type Annullamento, SorgenteAnnullamento } from './events.js'
 import { CANALE } from './windows.js'
 import { DoveAvanzamento } from './enumerations.js'
@@ -484,11 +485,7 @@ function chiedi (
     // dice quanto è alta — uno sbaglio nel suo script — la si mostra lo stesso,
     // così almeno la si può chiudere.
     finestra.webContents.on('did-fail-load', () => finisci(null))
-    finestra.webContents.on('did-finish-load', () => {
-      setTimeout(() => {
-        if (!finestra.isDestroyed() && !finestra.isVisible()) finestra.show()
-      }, 1000)
-    })
+    finestra.webContents.on('did-finish-load', () => mostraComunque(finestra))
 
     void finestra.loadURL(indirizzo(parametri))
   })

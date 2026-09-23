@@ -65,9 +65,11 @@ import {
   fascicoloDi,
   lezioniInAgenda,
   nomeSemestreScelto,
+  pianoPerId,
   semestreScelto,
   stato,
   toccaIlSemestreScelto,
+  valutazionePerId,
 } from './state.js'
 import { nonElencate, secondoLeParti } from './assistant/parts.js'
 import { SEZIONI_DOCUMENTO, SEZIONI_PROGRAMMA } from './views/settings/sections.js'
@@ -609,9 +611,18 @@ export function veduta (): ContestoAssistente {
       // calendario o nelle pendenze quell'ora è quella che si era aperta
       // un'ora fa e non quella di cui si sta parlando.
       lezioneId: siLavoraSuUnCorso() ? lezione?.id ?? null : null,
-      allievoId: stato.allievoId,
-      pianoId: stato.pianoId,
-      valutazioneId: stato.valutazioneId,
+      // Gli altri tre con la stessa regola: solo nella pagina che li mostra, e
+      // solo se esistono ancora. Partivano sempre, così come li ricordava lo
+      // stato — la persona aperta ieri, il piano di un documento chiuso — e
+      // il modello li prendeva per quel che si stava guardando.
+      allievoId:
+        (stato.vista === 'allievo' || stato.vista === 'persone') &&
+        stato.registro.classi.some((c) => c.allievi.some((a) => a.id === stato.allievoId))
+          ? stato.allievoId
+          : null,
+      pianoId: stato.vista === 'piani' ? pianoPerId(stato.pianoId)?.id ?? null : null,
+      valutazioneId:
+        stato.vista === 'valutazioni' ? valutazionePerId(stato.valutazioneId)?.id ?? null : null,
     },
     periodo: periodo(),
     data: stato.data,

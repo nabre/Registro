@@ -50,7 +50,9 @@ import { formattaData, oggi, semestreDi } from '../domain/dates.js'
 import type { Archivio } from '../data/archive.js'
 import type { Corso, Lezione, Registro, Semestre } from '../domain/models.js'
 import type { DatiRapporto } from '../domain/reports.js'
-import { conMessaggio, rifiuta, type Parte } from './context.js'
+import { corsiDaRifare, giornoDaRifare, type Riferimenti } from '../domain/automation.js'
+import type { Azione } from '../protocol.js'
+import { conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 
 /**
  * Che cosa serve per scrivere il file: il modello, i dati e dove va a finire.
@@ -89,6 +91,40 @@ export async function immagineDelRapporto (nome: string): Promise<Uint8Array | n
 }
 
 /**
+ * Se il documento aperto è ancora quello su cui un lavoro è partito.
+ *
+ * Il cambio di documento non passa dalla fila delle scritture: arriva quando
+ * arriva, anche in mezzo a una fila di venticinque schede. La guardia fatta una
+ * volta all'inizio del giro non bastava — dal foglio dopo il cambio in poi
+ * `scriviGenerato` prendeva il deposito del documento **nuovo**, e le schede
+ * dei minori di un anno finivano dentro il `.registro` di un altro.
+ */
+type Ancora = () => boolean
+
+/** L'ancora di un documento e di un anno, presi da chi la chiede. */
+function stessoDocumento (
+  archivio: Archivio,
+  documento: string | null,
+  anno: string | null,
+): Ancora {
+  return () =>
+    (archivio.documentoAperto?.toString() ?? null) === documento &&
+    archivio.registro.annoCorrenteId === anno
+}
+
+/** L'ancora del documento aperto adesso. */
+function ancoraAdesso (archivio: Archivio): Ancora {
+  return stessoDocumento(
+    archivio,
+    archivio.documentoAperto?.toString() ?? null,
+    archivio.registro.annoCorrenteId,
+  )
+}
+
+/** Quel che si dice quando un giro si ferma perché il documento è cambiato. */
+const GIRO_INTERROTTO = 'Il documento aperto è cambiato: giro interrotto.'
+
+/**
  * Compone un rapporto e lo scrive dove va, senza aprirlo.
  *
  * Sta a sé perché lo usano due strade: il pulsante che ne chiede uno, e la
@@ -98,6 +134,7 @@ export async function immagineDelRapporto (nome: string): Promise<Uint8Array | n
  */
 async function scriviRapporto (
   preparato: Preparato,
+  ancora: Ancora,
 ): Promise<{ relativo: string } | { errore: string }> {
   // La cartella dei modelli si riempie al primo rapporto e non all'avvio:
   // chi non stampa mai non deve trovarsi file che non ha chiesto.
@@ -119,7 +156,7 @@ async function scriviRapporto (
   try {
     byte = await componiPdf(impaginazione, dati, immagineDelRapporto)
   } catch (errore) {
-    return { errore: `Composizione del rapporto non riuscita: ${(errore as Error).message}` }
+    return { errore: `Composizione del rapporto non riuscita: ${motivoSicuro(errore)}` }
   }
 
   // Il nome ripete quel che dicono le cartelle — classe, documento, di chi —
@@ -127,6 +164,11 @@ async function scriviRapporto (
   // una mail o lo si copia sul desktop, e fuori di lì un «Presenze.pdf» non
   // dice più di che classe sia.
   const relativo = percorsoDi(preparato.dove)
+  // Subito prima di scrivere, e non prima di comporre: la composizione è
+  // l'attesa lunga, ed è lì dentro che il documento può cambiare.
+  // `scriviGenerato` prende il deposito senza attese in mezzo, quindi fra
+  // questa riga e la scrittura non può succedere niente.
+  if (!ancora()) return { errore: GIRO_INTERROTTO }
   // Il file vero non serve a nessuno dei due chiamanti: il rapporto si guarda
   // nella cornice della pagina Documenti, che di un percorso relativo sa già
   // fare un indirizzo.
@@ -312,21 +354,31 @@ function dentroIlPeriodo (semestre: Semestre | null, data: string): boolean {
  * lanciarle in parallelo su una cartella sincronizzata è il modo di far
  * litigare OneDrive con se stesso mentre si scrive.
  */
-async function scriviTutti (da: Preparato[]): Promise<{ scritti: number, errori: string[] }> {
+async function scriviTutti (
+  da: Preparato[],
+  ancora: Ancora,
+): Promise<{ scritti: number, errori: string[], interrotto: boolean }> {
   let scritti = 0
   const errori: string[] = []
   for (const preparato of da) {
-    const esito = await scriviRapporto(preparato)
+    // Un documento cambiato ferma il giro intero: quel che resta parlava
+    // dell'anno di prima, e non c'è più un posto giusto dove metterlo.
+    if (!ancora()) return { scritti, errori: [GIRO_INTERROTTO, ...errori], interrotto: true }
+    const esito = await scriviRapporto(preparato, ancora)
+    if ('errore' in esito && esito.errore === GIRO_INTERROTTO) {
+      return { scritti, errori: [GIRO_INTERROTTO, ...errori], interrotto: true }
+    }
     if ('errore' in esito) errori.push(esito.errore)
     else scritti += 1
   }
-  return { scritti, errori }
+  return { scritti, errori, interrotto: false }
 }
 
 async function rapportiDiChiusura (
   registro: Registro,
   lezione: Lezione,
-): Promise<{ scritti: number, errori: string[] }> {
+  ancora: Ancora,
+): Promise<{ scritti: number, errori: string[], interrotto?: boolean }> {
   const corso = registro.corsi.find((c) => c.id === lezione.corsoId) ?? null
   const classe = classeDelCorsoId(registro, lezione.corsoId)
   if (!corso || !classe) return { scritti: 0, errori: [] }
@@ -349,7 +401,7 @@ async function rapportiDiChiusura (
   return scriviTutti([
     ...(verbale ? [verbale] : []),
     ...documentiDelCorso(registro, corso, semestre),
-  ])
+  ], ancora)
 }
 
 /**
@@ -376,6 +428,18 @@ let inAttesa = new Map<string, { corsoId: string, semestreId: string | null }>()
 let orologio: ReturnType<typeof setTimeout> | null = null
 /** Da quando il più vecchio dei corsi in attesa aspetta: vedi `ATTESA_MASSIMA`. */
 let attendeDa = 0
+/**
+ * Le coppie che una chiusura ha appena messo in coda, e che la coda non ha
+ * ancora cominciato a rifare.
+ *
+ * `aggiornaDopoChiusura` toglieva la coppia dall'attesa, ma `esegui` chiama
+ * `programmaRigenerazione` *dopo* il gestore, cioè dopo la chiusura: la coppia
+ * rientrava subito, e gli stessi venticinque PDF si riscrivevano due volte a
+ * otto secondi di distanza. Finché la chiusura non è partita, quel che le si
+ * aggiunge lo vedrà lei — rilegge il registro al suo turno — e l'attesa lo può
+ * saltare. Da quando parte, la coppia esce di qui e l'attesa torna a valere.
+ */
+const appenaAccodate = new Set<string>()
 
 /** La chiave di un corso in un periodo: `corsoId|semestreId`, con l'anno intero vuoto. */
 function chiaveAttesa (corsoId: string, semestreId: string | null): string {
@@ -421,14 +485,19 @@ export function aggiornaDopoChiusura (archivio: Archivio, lezione: Lezione): voi
   // quel che aspetta per quel corso: i fogli dell'altro semestre restano da
   // rifare. Se nel frattempo si tocca ancora quel corso, l'attesa se lo
   // riprende da sé.
-  if (corso) {
-    inAttesa.delete(
-      chiaveAttesa(corso.id, semestreDelCorso(registro, corso, lezione.data)?.id ?? null),
-    )
+  const chiave = corso
+    ? chiaveAttesa(corso.id, semestreDelCorso(registro, corso, lezione.data)?.id ?? null)
+    : null
+  if (chiave) {
+    inAttesa.delete(chiave)
+    appenaAccodate.add(chiave)
   }
 
   coda = coda
     .then(async () => {
+      // Da qui in poi quel che si tocca di questo corso la chiusura non lo
+      // vede più: l'attesa se lo deve riprendere.
+      if (chiave) appenaAccodate.delete(chiave)
       // Adesso, non allora: la stessa guardia di `programmaRigenerazione`, e
       // per lo stesso motivo. Un altro anno aperto vuol dire che questi fogli
       // parlavano di quello di prima, e scriverli adesso li metterebbe nella
@@ -442,10 +511,14 @@ export function aggiornaDopoChiusura (archivio: Archivio, lezione: Lezione): voi
       // di allora, e nel frattempo l'appello può essere stato corretto.
       const suo = ora.lezioni.find((l) => l.id === lezione.id)
       if (!suo) return { scritti: 0, errori: [] }
-      return rapportiDiChiusura(ora, suo)
+      return rapportiDiChiusura(ora, suo, stessoDocumento(archivio, documentoAtteso, annoAtteso))
     })
     .then((esito) => {
       if (esito.scritti === 0 && esito.errori.length === 0) return
+      // Interrotta dal cambio di documento: come la guardia qui sopra, i fogli
+      // mancanti si lasciano indietro, e un avviso a metà non direbbe niente
+      // di utile su un anno che non è più aperto.
+      if (esito.interrotto) return
       const dove = corso ? ` di ${corso.titolo}` : ''
       if (esito.errori.length > 0) {
         void apparato.dialoghi.avvisa(
@@ -462,7 +535,7 @@ export function aggiornaDopoChiusura (archivio: Archivio, lezione: Lezione): voi
     .catch((errore: unknown) => {
       void apparato.dialoghi.avvisa(
         `Registro: i documenti della lezione del ${formattaData(lezione.data)} non si sono potuti rifare: ` +
-          `${errore instanceof Error ? errore.message : String(errore)}`,
+          `${motivoSicuro(errore)}`,
       )
     })
 }
@@ -516,7 +589,7 @@ const ATTESA_MASSIMA = 60000
 // sa adesso — che è quel che si voleva — e le due identità catturate qui sotto
 // impediscono la cosa peggiore: rifare i documenti di un anno dentro la
 // cartella di un altro.
-export function programmaRigenerazione (
+function programmaRigenerazione (
   archivio: Archivio,
   corsiIds: string[],
   giorno: string | null = null,
@@ -534,7 +607,10 @@ export function programmaRigenerazione (
     // giorno — un cognome cambiato, un piano — è quello in cui si sta
     // lavorando, che è il solo che si possa indovinare.
     const semestre = semestreDelCorso(registro, corso, giorno ?? oggi())
-    inAttesa.set(chiaveAttesa(corso.id, semestre?.id ?? null), {
+    const chiave = chiaveAttesa(corso.id, semestre?.id ?? null)
+    // La chiusura in coda la rifarà comunque, e con i dati del suo turno.
+    if (appenaAccodate.has(chiave)) continue
+    inAttesa.set(chiave, {
       corsoId: corso.id,
       semestreId: semestre?.id ?? null,
     })
@@ -577,7 +653,10 @@ export function programmaRigenerazione (
           const semestre = anno?.semestri.find((s) => s.id === semestreId) ?? null
           return documentiDelCorso(ora, corso, semestre)
         })
-        const esito = await scriviTutti(da)
+        const esito = await scriviTutti(da, stessoDocumento(archivio, documentoAtteso, annoAtteso))
+        // Fermato dal cambio di documento: si lascia indietro in silenzio, come
+        // la guardia qui sopra.
+        if (esito.interrotto) return
         if (esito.errori.length > 0) {
           void apparato.dialoghi.avvisa(
             `Registro: ${esito.errori.length} documenti non si sono potuti rifare. ${esito.errori[0]}`,
@@ -587,10 +666,74 @@ export function programmaRigenerazione (
       .catch((errore: unknown) => {
         void apparato.dialoghi.avvisa(
           'Registro: i documenti non si sono potuti rifare: ' +
-            `${errore instanceof Error ? errore.message : String(errore)}`,
+            `${motivoSicuro(errore)}`,
         )
       })
   }, restano)
+}
+
+/**
+ * Gli id che un'azione porta con sé, per capire quale corso ha toccato.
+ *
+ * Si leggono dal messaggio invece di chiederli a ogni gestore: sono gli stessi
+ * nomi in tutto il protocollo — `corsoId`, `lezioneId`, `classeId` — e
+ * dedurli qui vuol dire che un'azione nuova entra nell'automazione senza che
+ * nessuno debba ricordarsi di registrarla.
+ */
+function riferimentiDi (azione: Azione | Record<string, unknown>): Riferimenti {
+  const dati = azione as unknown as Record<string, unknown>
+  const id = (nome: string) => (typeof dati[nome] === 'string' ? (dati[nome]) : null)
+  return {
+    corsoId: id('corsoId'),
+    lezioneId: id('lezioneId'),
+    valutazioneId: id('valutazioneId'),
+    pianoId: id('pianoId'),
+    classeId: id('classeId'),
+    allievoId: id('allievoId'),
+  }
+}
+
+/**
+ * I documenti che una scrittura ha reso vecchi, messi in attesa di essere
+ * rifatti.
+ *
+ * Sta fuori da `esegui` perché la regola deve valere per ogni strada da cui
+ * si scrive, e `esegui` è una sola: l'agenda, l'assistente e il condotto
+ * passano da `chiama()` senza toccarla, e i fogli di un voto messo da lì
+ * restavano quelli di prima. `dati` è l'azione, o l'ingresso di una procedura:
+ * gli id si chiamano allo stesso modo in tutti e due — `corsoId`,
+ * `lezioneId`, `classeId` — e da lì si capisce quale corso è stato toccato.
+ *
+ * Si chiama dopo una scrittura riuscita che ha cambiato la revisione, e non
+ * prima: i conti si fanno sul registro già scritto. Chiamarla due volte per la
+ * stessa scrittura non rifà niente due volte — le coppie in attesa sono
+ * chiavi, e la seconda chiamata sposta soltanto l'orologio.
+ */
+export function rigeneraDopoScrittura (
+  archivio: Archivio,
+  dati: Azione | Record<string, unknown>,
+): void {
+  const registro = archivio.registro
+  const riferimenti = riferimentiDi(dati)
+  // Il giorno di cui parla la modifica, quando ce n'è uno: decide il periodo
+  // dei fogli da rifare, che non è sempre quello di oggi.
+  // Si passa l'archivio e non il registro: l'attesa dura fino a un minuto, e
+  // in un minuto il documento può essere stato riletto — vedi il commento in
+  // testa a `programmaRigenerazione`.
+  programmaRigenerazione(
+    archivio,
+    corsiDaRifare(registro, riferimenti),
+    giornoDaRifare(registro, riferimenti),
+  )
+}
+
+/**
+ * Quanti corsi aspettano di avere i fogli rifatti. Un appiglio per le prove:
+ * la coda è privata, e senza questo «la scrittura dall'agenda rifà i PDF» si
+ * potrebbe provare solo aspettando otto secondi e contando i file.
+ */
+export function rigenerazioniInAttesa (): number {
+  return inAttesa.size
 }
 
 /**
@@ -612,6 +755,7 @@ export function fermaRapporti (): Promise<void> {
   orologio = null
   attendeDa = 0
   inAttesa = new Map()
+  appenaAccodate.clear()
   return coda.then(() => undefined, () => undefined)
 }
 
@@ -628,6 +772,7 @@ export const rapporti = {
    */
   'rapporto.genera': async (contesto, azione) => {
     const registro = contesto.registro
+    const ancora = ancoraAdesso(contesto.archivio)
     // Dove va a finire lo dice il dominio, per tutti e otto i generi: qui
     // restano la scelta del modello e la raccolta dei dati.
     const dove = collocazioneDi(registro, azione.genere, azione.id, {
@@ -711,7 +856,10 @@ export const rapporti = {
 
     if (!pezzi || !dove) return rifiuta('Rapporto sconosciuto.')
 
-    const esito = await scriviRapporto({ ...pezzi, dove })
+    const esito = await scriviRapporto({ ...pezzi, dove }, ancora)
+    if ('errore' in esito && esito.errore === GIRO_INTERROTTO) {
+      return rifiutaCon('conflitto', GIRO_INTERROTTO)
+    }
     if ('errore' in esito) return rifiuta(esito.errore)
 
     return conMessaggio(`Rapporto scritto in ${esito.relativo}.`, 'info', {
@@ -738,6 +886,9 @@ export const rapporti = {
    */
   'rapporto.completo': async (contesto, azione) => {
     const registro = contesto.registro
+    // Il documento di adesso, preso all'ingresso: il giro dura minuti, e ogni
+    // foglio lo controlla prima di scriversi.
+    const ancora = ancoraAdesso(contesto.archivio)
     // Senza un corso indicato: quelli dell'anno aperto, non tutti quelli che il
     // documento contiene. Un documento con dentro tre anni faceva partire le
     // cartelle di tutti e tre — centinaia di fogli, e due terzi di anni chiusi
@@ -771,7 +922,15 @@ export const rapporti = {
     const unaVolta = new Map<string, Preparato>()
     for (const preparato of da) unaVolta.set(percorsoDi(preparato.dove), preparato)
 
-    const esito = await scriviTutti([...unaVolta.values()])
+    const esito = await scriviTutti([...unaVolta.values()], ancora)
+    // Fermato a metà: i fascicoli non si rifanno — sarebbero quelli dell'altro
+    // anno — e si dice quanti fogli erano usciti prima.
+    if (esito.interrotto) {
+      return rifiutaCon(
+        'conflitto',
+        esito.scritti > 0 ? `${GIRO_INTERROTTO} ${esito.scritti} documenti erano già scritti.` : GIRO_INTERROTTO,
+      )
+    }
     // E i fascicoli, che sono fatti con quei fogli: rifarli dopo vuol dire
     // ritrovarli con dentro le schede appena scritte, invece che quelle di
     // stamattina. Chi ne ha uno in mano lo consegna: è la copia che conta.

@@ -29,6 +29,7 @@
 // pagine già archiviate sono documenti di qualcuno e non si muovono.
 
 import { consegneDocumento } from '../../domain/assignments.js'
+import { giornoDi } from '../../domain/dates.js'
 import type { Classe, Smistamento } from '../../domain/models.js'
 import { daSmistarePerClasse, type MucchioDaSmistare } from '../../domain/sorting.js'
 import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
@@ -65,7 +66,7 @@ export function pagineDaSmistareInTutto (): number {
 
 /** Il giorno in cui è arrivato, senza l'ora: qui interessa «da quanto sta lì». */
 function quandoArrivato (smistamento: Smistamento): string {
-  const giorno = smistamento.arrivatoIl.slice(0, 10)
+  const giorno = giornoDi(smistamento.arrivatoIl) ?? smistamento.arrivatoIl.slice(0, 10)
   const [anno, mese, di] = giorno.split('-')
   return di && mese && anno ? `${di}.${mese}.${anno}` : giorno
 }

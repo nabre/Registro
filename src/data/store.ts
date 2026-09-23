@@ -249,11 +249,45 @@ export class Deposito {
       const impronta = this.documento()?.crcDi(dentro) ?? crc32(contenuto)
       if (this.copie.get(dentro) === impronta && (await esiste(destinazione))) return destinazione
 
-      await apparato.file.writeFile(destinazione, contenuto)
+      try {
+        await apparato.file.writeFile(destinazione, contenuto)
+      } catch (errore) {
+        // Su Windows un PDF aperto in Acrobat non si riscrive: EBUSY, EPERM. Si
+        // fa come `servizio`, con un nome numerato accanto — e la copia
+        // occupata non si segna come aggiornata, perché non lo è: la prossima
+        // richiesta riprova sul nome vero.
+        const altrove = await this.copiaAccanto(destinazione, contenuto)
+        if (altrove === null) throw errore
+        return altrove
+      }
       this.copie.set(dentro, impronta)
       await this.scriviCopie()
       return destinazione
     })
+  }
+
+  /**
+   * Scrive la copia sotto un nome numerato accanto a quello vero —
+   * `Verifica (2).pdf` — e ne torna l'indirizzo, o null se nessuno va.
+   */
+  private async copiaAccanto (
+    destinazione: apparato.Uri,
+    contenuto: Uint8Array,
+  ): Promise<apparato.Uri | null> {
+    const nome = destinazione.path.split('/').pop() ?? ''
+    const punto = nome.lastIndexOf('.')
+    const radice = punto > 0 ? nome.slice(0, punto) : nome
+    const estensione = punto > 0 ? nome.slice(punto) : ''
+    for (let copia = 2; copia <= 9; copia += 1) {
+      const dove = apparato.Uri.joinPath(destinazione, '..', `${radice} (${copia})${estensione}`)
+      try {
+        await apparato.file.writeFile(dove, contenuto)
+        return dove
+      } catch {
+        // Occupato anche questo: si prova il prossimo nome.
+      }
+    }
+    return null
   }
 
   /**

@@ -53,15 +53,33 @@ function schermoDellaClasse (): Electron.Display | null {
 }
 
 /**
+ * La finestra a cui appartengono dei `webContents`, o `null` se non c'è più.
+ *
+ * Per l'id dei contenuti e non per quello della finestra: è quello che
+ * `windows.ts` conosce già di ogni pannello, e con cui smista i messaggi.
+ */
+function finestraDeiContenuti (id: number): BrowserWindow | null {
+  const trovata = BrowserWindow.getAllWindows().find((finestra) => finestra.webContents.id === id)
+  return trovata && !trovata.isDestroyed() ? trovata : null
+}
+
+/**
  * Lo schermo intero, che il registro chiede con il comando di VS Code.
  *
- * Agisce sulla finestra che ha il fuoco, come fa VS Code, ed è esattamente
- * quel che serve: `panels/projection.ts` chiama `reveal()` sulla proiezione
- * subito prima, proprio perché a mettersi a schermo intero non sia la finestra
- * di chi insegna.
+ * Con l'id dei `webContents` agisce su quella finestra e su nessun'altra: è
+ * quel che fa `panels/projection.ts`. Prima si fidava del fuoco — `reveal()`
+ * sulla proiezione e un giro di eventi — ma su Windows il fuoco cambia quando
+ * il sistema ha tempo, e se era ancora sul registro a finire a schermo intero
+ * sul proiettore erano i voti e le note, davanti alla classe. Una finestra
+ * nominata e sparita non si sostituisce con quella che ha il fuoco: meglio
+ * niente che quella sbagliata.
+ *
+ * Senza argomento resta la regola di VS Code — la finestra che ha il fuoco —
+ * per chi il comando lo chiede da una finestra che è già quella giusta.
  */
-function aSchermoIntero (): void {
-  const finestra = BrowserWindow.getFocusedWindow()
+function aSchermoIntero (idContenuti?: unknown): void {
+  const nominata = typeof idContenuti === 'number' && Number.isFinite(idContenuti)
+  const finestra = nominata ? finestraDeiContenuti(idContenuti) : BrowserWindow.getFocusedWindow()
   if (!finestra) return
   const schermo = schermoDellaClasse()
   // Prima si sposta, poi si allarga: una finestra messa a schermo intero non
@@ -86,8 +104,8 @@ const dellApparato: Record<string, (...argomenti: unknown[]) => unknown> = {
     if (uri) shell.showItemInFolder(uri.fsPath)
   },
 
-  'apparato.schermoIntero' () {
-    aSchermoIntero()
+  'apparato.schermoIntero' (idContenuti) {
+    aSchermoIntero(idContenuti)
   },
 
   'apparato.apri' (dove) {

@@ -31,7 +31,12 @@ function comandoDiApertura (percorso: string): [string, string[]] {
     // un indirizzo. `explorer.exe` farebbe lo stesso, ma torna sempre un
     // codice d'errore anche quando ha funzionato, e a quel punto non si
     // saprebbe più se ripiegare.
-    return ['rundll32.exe', ['url.dll,FileProtocolHandler', percorso]]
+    //
+    // Per percorso intero, come ogni programma di Windows: un nome nudo si
+    // cerca prima nella cartella di lavoro, che è quella del documento. Vedi
+    // `environment/system.ts`. `open` e `xdg-open` invece si cercano solo nel
+    // PATH, mai nella cartella corrente, e vanno bene così.
+    return [apparato.diSistema('rundll32.exe'), ['url.dll,FileProtocolHandler', percorso]]
   }
   return process.platform === 'darwin' ? ['open', [percorso]] : ['xdg-open', [percorso]]
 }

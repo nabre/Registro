@@ -60,6 +60,11 @@
 // nessuno glielo chieda. Lo stesso avvertimento sta in `docs/API.md`, e va
 // tenuto uguale nei due posti.
 //
+// **Il condotto non allarga sé stesso.** Anche con la scrittura concessa,
+// `programma.salva` e `programma.azzera` rifiutano le chiavi dei permessi del
+// condotto e i percorsi dei programmi che il registro fa partire: vedi
+// `chiaveIntoccabile`.
+//
 // Fuori da Windows il socket nasce con `chmod 0600` subito dopo `listen`: là il
 // permesso del file *è* il controllo d'accesso, e senza quella riga il socket
 // sarebbe aperto a chiunque abbia un account sulla macchina.
@@ -68,7 +73,10 @@
 // esadecimali di uno sha256 di nome utente più cartella dei dati: due docenti
 // sullo stesso computer, o due installazioni dello stesso docente, non si
 // incrociano — e chi legge l'elenco delle pipe di Windows non ci trova scritto
-// chi è al lavoro.
+// chi è al lavoro. Su Windows, dove `\\.\pipe\` è uno solo per tutta la
+// macchina, al nome si aggiunge un segreto casuale scritto nella cartella dei
+// dati dell'utente: l'impronta si indovina, il segreto no, e un altro utente
+// dello stesso computer non può occupare quel nome per primo.
 //
 // **Quel che esce di qui non nomina nessuno.** I messaggi d'errore del
 // trasporto non contengono percorsi della cartella del docente, nomi di
@@ -76,7 +84,8 @@
 // numero di tracciato, e il racconto per intero resta nella console
 // dell'applicazione, dove lo ha già messo il nucleo.
 
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { chmod, unlink } from 'node:fs/promises'
 import { createServer, type Socket } from 'node:net'
 import { homedir, tmpdir, userInfo } from 'node:os'
@@ -126,8 +135,10 @@ const MASSIMO_PRESE = 32
  *
  * Cinque minuti: chi chiama davvero manda entro un secondo dall'apertura, e
  * chi tiene la connessione aperta per riusarla la tiene viva mandando
- * qualcosa. Il timer del socket si azzera a ogni byte nei due sensi, quindi
- * una chiamata lenta non viene mai tagliata a metà.
+ * qualcosa. Il timer del socket si azzera a ogni byte nei due sensi, ma i
+ * byte non sono le chiamate: una geocodifica che lavora dieci minuti in
+ * silenzio veniva tagliata a cinque. Per questo il timer si ferma mentre la
+ * presa ha qualcosa in coda, e riparte quando la coda si svuota.
  */
 const INATTIVITA_MS = 5 * 60 * 1000
 
@@ -155,6 +166,17 @@ const ATTESA_SVUOTAMENTO_MS = 5000
  * leggere riceva un no invece di far crescere la memoria del registro.
  */
 const MASSIMO_IN_CODA = 128
+
+/**
+ * Quanto possono pesare, insieme, le righe che aspettano su una connessione.
+ *
+ * Il tetto sul numero non basta: centoventotto righe da un megabyte l'una per
+ * trentadue prese fanno quattro gigabyte tenuti in memoria dal processo che
+ * ha in mano l'archivio. Sedici megabyte per presa sono larghi per ogni uso vero
+ * — un PDF in base64 sta sotto il megabyte di una riga — e chi li supera riceve
+ * un guasto e la presa chiusa. Si conta in caratteri, come `LIMITE_RIGA`.
+ */
+const MASSIMO_ACCODATO = 16 * 1024 * 1024
 
 /**
  * Il nome dell'applicazione come lo scrive Electron nel percorso di `userData`.
@@ -238,9 +260,65 @@ export function indirizzoCondotto (): string {
     .update(`${nomeUtente()}\n${cartella}`)
     .digest('hex')
     .slice(0, 12)
-  return process.platform === 'win32'
-    ? `\\\\.\\pipe\\registro-docenti-${impronta}`
-    : join(cartellaDelSocket(), `registro-docenti-${impronta}.sock`)
+  if (process.platform !== 'win32') {
+    return join(cartellaDelSocket(), `registro-docenti-${impronta}.sock`)
+  }
+  const segreto = leggiSegreto(cartella)
+  return `\\\\.\\pipe\\registro-docenti-${impronta}${segreto ? `-${segreto}` : ''}`
+}
+
+/**
+ * Il file con il segreto del nome della pipe, dentro la cartella dei dati.
+ *
+ * Su Windows `\\.\pipe\` è **uno solo per tutta la macchina**: su un computer
+ * condiviso — il cambio rapido di utente, un server di desktop remoti — un
+ * altro utente che sappia calcolare l'impronta può creare per primo una pipe
+ * con quel nome. Il registro allora non parte in ascolto (`EACCES`), e la riga
+ * di comando parla con la pipe di un altro: gli manda le chiamate e crede alle
+ * sue risposte. L'impronta non basta a impedirlo perché è di un nome utente e di
+ * un percorso, cioè di cose che si indovinano.
+ *
+ * Il segreto no: sedici byte a caso, scritti la prima volta che il condotto si
+ * accende in un file che sta nel profilo dell'utente — la cui ACL lo lascia
+ * leggere a lui e a nessun altro utente normale — e letti anche da
+ * `src/cli/registro.mjs`, che calcola il nome con la stessa regola. Fuori da
+ * Windows non serve: il socket sta sotto `XDG_RUNTIME_DIR` o nasce `0600`.
+ */
+const FILE_SEGRETO = 'condotto.segreto'
+
+/** La forma del segreto: quel che non la ha non si usa, si rifà. */
+const FORMA_SEGRETO = /^[0-9a-f]{32}$/
+
+/** Il segreto già scritto, o `null` se il condotto non si è mai acceso qui. */
+function leggiSegreto (cartella: string): string | null {
+  try {
+    const letto = readFileSync(join(cartella, FILE_SEGRETO), 'utf8').trim()
+    return FORMA_SEGRETO.test(letto) ? letto : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Il segreto, scritto se non c'è ancora.
+ *
+ * Lo chiama solo `avviaCondotto`, e solo su Windows: un condotto spento non
+ * scrive niente, nemmeno questo file. Due registri che si accendono insieme non
+ * si pestano: chi arriva secondo trova il file e lo legge.
+ */
+function segretoDelCondotto (cartella: string): string {
+  const letto = leggiSegreto(cartella)
+  if (letto) return letto
+  const nuovo = randomBytes(16).toString('hex')
+  mkdirSync(cartella, { recursive: true })
+  try {
+    writeFileSync(join(cartella, FILE_SEGRETO), nuovo, { mode: 0o600, flag: 'w' })
+  } catch {
+    // Scriverlo non si è potuto: si parte con il nome senza segreto piuttosto
+    // che senza condotto, ed è il comportamento di prima.
+    return ''
+  }
+  return leggiSegreto(cartella) ?? nuovo
 }
 
 // ----------------------------------------------------------------- le buste
@@ -389,6 +467,67 @@ function senzaPermesso (che: 'lettura' | 'scrittura', perché: string): GuastoRp
   return new GuastoRpc(CODICI_JSONRPC['non-permesso'], `Il condotto non concede la ${che}.`, {
     codice: 'non-permesso' satisfies Codice,
     messaggi: [perché, `Si concede con l’impostazione «registroDocenti.api.${che}».`],
+  })
+}
+
+/**
+ * Le procedure che scrivono un'impostazione del programma.
+ *
+ * `impostazioni.salva` non c'è: scrive le impostazioni del documento d'anno, e
+ * nessuna chiave `registroDocenti.*` passa di lì.
+ */
+const SCRIVONO_IMPOSTAZIONI = new Set(['programma.salva', 'programma.azzera'])
+
+/**
+ * Le chiavi del programma che il condotto non cambia, anche con la scrittura.
+ *
+ * Due famiglie, e tutte e due sono il condotto che si allarga da solo:
+ *
+ *   - **i permessi del condotto** (`registroDocenti.api.*`). Si rileggono a ogni
+ *     chiamata — vedi `permessiOra` — e così uno script con la sola scrittura
+ *     chiamava `programma.salva` sulla lettura e dalla chiamata dopo leggeva
+ *     tutto. Quel che il docente ha concesso lo cambia il docente;
+ *   - **i percorsi dei programmi che il registro fa partire**: i due eseguibili
+ *     scelti a mano (`ocr.programma`, `dettatura.programma`), OUTLOOK.EXE, e le
+ *     due cartelle in cui il registro tiene i programmi che scarica — un
+ *     eseguibile che ci si trova già dentro lo usa senza riscaricarlo. Cambiarle
+ *     dal condotto vorrebbe dire far eseguire al registro un programma
+ *     qualunque, con dentro i dati della classe.
+ *
+ * Il confronto è senza maiuscole: la dogana di `valoreAccettabile` le chiavi le
+ * conosce esatte, ma un cancello che dipende da un altro controllo per non
+ * avere buchi è un cancello con un buco il giorno in cui l'altro cambia.
+ */
+const PREFISSO_PERMESSI = 'registrodocenti.api.'
+const PERCORSI_ESEGUITI = new Set([
+  'registrodocenti.ocr.programma',
+  'registrodocenti.ocr.cartella',
+  'registrodocenti.dettatura.programma',
+  'registrodocenti.dettatura.cartella',
+  'registrodocenti.recapiti.outlook',
+])
+
+/**
+ * Il rifiuto per una chiave che il condotto non tocca, o `null` se si passa.
+ *
+ * Prima della convalida, come il cancello dei permessi: una chiamata che non si
+ * farà non finisce nel giornale.
+ */
+function chiaveIntoccabile (metodo: string, params: unknown): GuastoRpc | null {
+  if (!SCRIVONO_IMPOSTAZIONI.has(metodo)) return null
+  const chiave = (params as { chiave?: unknown } | null | undefined)?.chiave
+  if (typeof chiave !== 'string') return null
+  const bassa = chiave.trim().toLowerCase()
+  const perche = bassa.startsWith(PREFISSO_PERMESSI)
+    ? 'I permessi del condotto non si cambiano dal condotto.'
+    : PERCORSI_ESEGUITI.has(bassa)
+      ? 'I programmi che il registro fa partire non si cambiano dal condotto.'
+      : null
+  if (!perche) return null
+  return new GuastoRpc(CODICI_JSONRPC['non-permesso'], perche, {
+    codice: 'non-permesso' satisfies Codice,
+    messaggi: [perche, 'Si cambiano dalle impostazioni del registro, a mano.'],
+    campo: 'chiave',
   })
 }
 
@@ -598,6 +737,9 @@ async function eseguiMetodo (
       `«${metodo}» è una procedura di ${manca}, e il condotto non la concede.`,
     )
   }
+
+  const intoccabile = chiaveIntoccabile(metodo, params)
+  if (intoccabile) throw intoccabile
 
   const risultato = await chiama(archivio, metodo, params ?? {}, { origine: 'condotto' })
   if (risultato.ok) return risultato
@@ -862,6 +1004,10 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
    */
   /** Quante righe di questa connessione aspettano il proprio turno. */
   let inCoda = 0
+  /** Rifiutata una riga per lunghezza o per peso, la presa non legge più altro. */
+  let rifiutata = false
+  /** Quanti caratteri pesano, tutte insieme: vedi `MASSIMO_ACCODATO`. */
+  let accodati = 0
 
   const accoda = (riga: string): void => {
     // Il tetto sulla profondità: vedi `MASSIMO_IN_CODA`. Si dice e non si
@@ -875,7 +1021,26 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
         }))
       return
     }
+    // Il tetto sul peso, che quello sul numero non dà: vedi `MASSIMO_ACCODATO`.
+    // Qui si chiude, perché chi manda sedici megabyte senza leggere una
+    // risposta non sta aspettando il proprio turno.
+    if (accodati + riga.length > MASSIMO_ACCODATO) {
+      rifiutata = true
+      void scrivi(presa, null, bustaGuasto(null, CODICI_JSONRPC['non-disponibile'],
+        'Questa connessione ha in attesa più di 16 MiB di richieste.', {
+          codice: 'non-disponibile' satisfies Codice,
+          messaggi: ['Si aspetta la risposta di quel che è già stato mandato, e poi si riprende.'],
+        }))
+      presa.end()
+      return
+    }
     inCoda += 1
+    accodati += riga.length
+    // Con una chiamata in corso il timer d'inattività si ferma: il timer del
+    // socket guarda i byte, non le chiamate, e una lettura che lavora dieci
+    // minuti senza scambiarne veniva tagliata a cinque — il gestore andava
+    // avanti, e chi aveva chiamato leggeva «condotto spento».
+    if (inCoda === 1) presa.setTimeout(0)
     const prima = stato.code.get(presa) ?? Promise.resolve()
     const dopo = prima
       .then(() => rispondi(archivio, presa, riga, stato))
@@ -884,6 +1049,9 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
       })
       .finally(() => {
         inCoda -= 1
+        accodati -= riga.length
+        // Coda vuota: da qui in poi scade di nuovo il silenzio.
+        if (inCoda === 0 && !presa.destroyed) presa.setTimeout(INATTIVITA_MS)
       })
     stato.code.set(presa, dopo)
     // Quando la coda di questa presa è arrivata in fondo e nessuno ha accodato
@@ -894,8 +1062,6 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
     })
   }
 
-  /** Rifiutata una riga per lunghezza, la presa non legge più altro. */
-  let rifiutata = false
 
   /**
    * Una riga troppo lunga si rifiuta *dicendolo*.
@@ -936,14 +1102,16 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
         return
       }
       if (riga.trim() !== '') accoda(riga)
+      if (rifiutata) return
       taglio = resto.indexOf('\n')
     }
     if (resto.length > LIMITE_RIGA) troppoLunga()
   })
 
-  // Una presa che nessuno usa più non resta appesa: il timer si azzera a ogni
-  // byte nei due sensi, quindi una chiamata lenta non viene mai tagliata a
-  // metà, e quel che scade è solo il silenzio.
+  // Una presa che nessuno usa più non resta appesa. Il timer si azzera a ogni
+  // byte nei due sensi, e `accoda` lo ferma finché c'è una chiamata in corso:
+  // una chiamata lenta non viene tagliata a metà, e quel che scade è solo il
+  // silenzio di una presa che non aspetta niente.
   presa.setTimeout(INATTIVITA_MS, () => presa.end())
 
   // Una presa che cade a metà non è un guasto del registro: è un programma che
@@ -1048,14 +1216,18 @@ export async function avviaCondotto (
             'rifiuta ogni chiamata non vale un nome riservato. Non apre niente.'
           : '[condotto] spento. Si accende con «registroDocenti.api.condotto»: da acceso, ogni ' +
             'programma che gira con questo utente può leggere i dati delle persone in ' +
-            'formazione e far partire posta a nome del docente, e con ' +
-            '«registroDocenti.api.scrittura» scrivere nel registro.',
+            'formazione, e con «registroDocenti.api.scrittura» scrivere nel registro e far ' +
+            'partire posta a nome del docente.',
       )
     }
     return condottoSpento()
   }
 
   registraTutte()
+  // Il segreto prima del nome, perché il nome lo contiene: vedi `FILE_SEGRETO`.
+  if (process.platform === 'win32') {
+    segretoDelCondotto(cartellaUtenteVista ?? cartellaUtentePredefinita())
+  }
   const indirizzo = indirizzoCondotto()
 
   // Un socket rimasto in giro da una chiusura brutale impedirebbe l'ascolto.
@@ -1097,7 +1269,12 @@ export async function avviaCondotto (
       // utente ha creato per primo a quel nome. Chi legge la console deve
       // sapere quale delle due andare a guardare, perché sono due giornate
       // diverse.
-      if (male.code === 'EADDRINUSE') {
+      //
+      // `EACCES` è la stessa diagnosi vista da Windows: la pipe con quel nome
+      // l'ha creata per prima un altro utente della macchina, e aprirla non è
+      // permesso. Senza questa riga usciva l'errore nudo di `listen`, che non
+      // dice di andare a guardare chi tiene quel nome.
+      if (male.code === 'EADDRINUSE' || male.code === 'EACCES') {
         rifiuta(new Error(
           `il nome «${indirizzo}» è già preso: o c’è un’altra copia del registro in ascolto, ` +
           'o quel nome l’ha occupato qualcun altro. Il registro parte senza condotto.',

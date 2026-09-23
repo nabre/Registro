@@ -79,6 +79,7 @@ export * as schemi from '../../src/api/schemas.js'
 // Il centralino vero: serve alle prove che verificano che il ponte non abbia
 // cambiato il comportamento di un'azione già esistente.
 export { esegui, azioneValida } from '../../src/actions.js'
+export { fermaRapporti, rigenerazioniInAttesa } from '../../src/actions/reports.js'
 
 // Le fabbriche del dominio, per costruire la scuola su cui si prova. Passano
 // da qui e non da `dist-tests/domain.mjs` perché il registro che si scrive

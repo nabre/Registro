@@ -14,27 +14,27 @@ ricorda, e apre il registro se in quella cartella è già stato usato.
 
 | Cosa | Dove |
 | --- | --- |
-| Modello, calendario, medie, validazione | `src/dominio/` |
-| Impaginazione dei rapporti | `templates/` (la copia di serie), `src/dominio/rapporti.ts`, `src/dati/rapportiPdf.ts` |
-| I modelli visti dal registro: catalogo, controllo, pagina | `src/dominio/catalogoModelli.ts`, `src/dominio/verificaModelli.ts`, `src/azioni/modelli.ts`, `src/interfaccia/viste/modelli.ts` |
-| Dove finisce un documento, e con che nome | `src/dominio/collocazioni.ts` |
-| Che cosa il registro mette dentro un rapporto | `src/dominio/datiRapporti.ts` |
-| Lettura e scrittura dei file | `src/dati/` |
-| Comandi e pannelli | `src/avvio.ts`, `src/pannelli/` |
-| Che cosa il registro sa fare e che cosa si regola | `src/manifesto.ts` |
-| Come si chiamano le cose: i termini, gli articoli, gli elenchi | `src/dominio/lessico.ts` |
-| L'ambiente su cui gira: finestre, dialoghi, file, impostazioni | `src/ambiente/` |
-| Il widget agganciato al bordo del desktop | `src/dominio/agenda*.ts`, `src/agenda.ts`, `src/ambiente/ancoraggio.ts` |
-| Il guscio Electron: avvio, menu, protocollo, pagine native | `guscio/` |
-| Contratto fra host e pannello | `src/protocollo.ts` |
-| Applicazione delle azioni | `src/azioni.ts` |
-| Interfaccia del pannello | `src/interfaccia/` |
-| La mappa degli indirizzi: geometria, geocodifica, tasselli | `src/dominio/mappa.ts`, `src/dati/geocodifica.ts`, `guscio/tasselli.ts` |
-| I modelli del linguaggio: la cartella, lo scarico, chi li fa parlare | `src/dati/gguf.ts`, `src/dati/huggingFace.ts`, `src/dati/llm.ts`, `src/dati/llamaCpp.ts`, `src/dati/mtmd.ts`, `src/interfaccia/viste/modelliLinguistici.ts` |
-| La dettatura: le guardie, il dialetto di whisper, la voce dal microfono | `src/dati/dettatura.ts`, `src/dati/whisper.ts`, `src/interfaccia/assistente/voce.ts` |
-| I programmi che il registro si scarica da sé, e con quali guardie | `src/dati/corredo.ts`, `src/dati/corredoVoce.ts`, `src/dati/corredoVista.ts` |
-| Dove si può andare: l'elenco delle pagine | `src/interfaccia/pagine.ts` |
-| Che cosa si può fare, e in quali pagine | `src/interfaccia/comandi.ts` |
+| Modello, calendario, medie, validazione | `src/domain/` |
+| Impaginazione dei rapporti | `templates/` (la copia di serie), `src/domain/reports.ts`, `src/data/reportsPdf.ts` |
+| I modelli visti dal registro: catalogo, controllo, pagina | `src/domain/templateCatalog.ts`, `src/domain/templateCheck.ts`, `src/actions/templates.ts`, `src/ui/views/templates.ts` |
+| Dove finisce un documento, e con che nome | `src/domain/locations.ts` |
+| Che cosa il registro mette dentro un rapporto | `src/domain/reportData.ts` |
+| Lettura e scrittura dei file | `src/data/` |
+| Comandi e pannelli | `src/startup.ts`, `src/panels/` |
+| Che cosa il registro sa fare e che cosa si regola | `src/manifest.ts` |
+| Come si chiamano le cose: i termini, gli articoli, gli elenchi | `src/domain/lexicon.ts` |
+| L'ambiente su cui gira: finestre, dialoghi, file, impostazioni | `src/environment/` |
+| Il widget agganciato al bordo del desktop | `src/dominio/agenda*.ts`, `src/agenda.ts`, `src/environment/anchoring.ts` |
+| Il guscio Electron: avvio, menu, protocollo, pagine native | `shell/` |
+| Contratto fra host e pannello | `src/protocol.ts` |
+| Applicazione delle azioni | `src/actions.ts` |
+| Interfaccia del pannello | `src/ui/` |
+| La mappa degli indirizzi: geometria, geocodifica, tasselli | `src/domain/map.ts`, `src/data/geocoding.ts`, `shell/protocol/tiles.ts` |
+| I modelli del linguaggio: la cartella, lo scarico, chi li fa parlare | `src/data/gguf.ts`, `src/data/huggingFace.ts`, `src/data/llm.ts`, `src/data/llamaCpp.ts`, `src/data/mtmd.ts`, `src/ui/views/languageModels.ts` |
+| La dettatura: le guardie, il dialetto di whisper, la voce dal microfono | `src/data/dictation.ts`, `src/data/whisper.ts`, `src/ui/assistant/voice.ts` |
+| I programmi che il registro si scarica da sé, e con quali guardie | `src/data/kit.ts`, `src/data/voiceKit.ts`, `src/data/visionKit.ts` |
+| Dove si può andare: l'elenco delle pagine | `src/ui/pages.ts` |
+| Che cosa si può fare, e in quali pagine | `src/ui/commands.ts` |
 
 Il dominio non conosce né l'applicazione né il DOM: lo usano il main process, il
 webview e le prove, ed è per questo che `npm test` gira senza aprire una
@@ -50,7 +50,7 @@ sette documenti indicizzati da [docs/INDICE.md](INDICE.md):
 [IMPIANTO](IMPIANTO.md) e [CANTIERE](CANTIERE.md) — gli ultimi due
 dicono dove va la struttura e a che punto è il lavoro.
 
-**Le parole stanno in un file solo.** `src/dominio/lessico.ts` è l'elenco dei
+**Le parole stanno in un file solo.** `src/domain/lexicon.ts` è l'elenco dei
 termini del registro — la persona in formazione, la classe, il corso, l'unità
 didattica, la fascia oraria, il momento di valutazione — ognuno con singolare,
 plurale, genere e forma corta. Da lì nascono le etichette dei moduli, i messaggi
@@ -74,7 +74,7 @@ dichiarati in `DOCUMENTO_SCHEDE_PRIMA`, così le stampe vecchie continuano a
 essere riconosciute per quel che sono.
 
 Il registro importa un modulo chiamato `apparato`, e non è un pacchetto: quel
-modulo è `src/ambiente/apparato.ts`, risolto da un alias di esbuild e da un
+modulo è `src/environment/platform.ts`, risolto da un alias di esbuild e da un
 `paths` di TypeScript. È l'interfaccia fra il registro e la macchina che lo
 ospita — finestre, dialoghi, file, impostazioni, portachiavi — e tenerla stretta
 in un solo punto è quel che permette ai trentadue file che la usano di non
@@ -98,7 +98,7 @@ stesso tetto, compagni nella stessa azienda — che è il fatto per cui una mapp
 di classe si guarda. Sulla mappa un segnaposto è un indirizzo: il cartellino
 elenca tutti quelli che ci stanno, e la scheda «Indirizzi in comune» li raccoglie
 per iscritto. I `geo` che stavano dentro le anagrafiche dei file vecchi entrano
-nella raccolta alla prima lettura — `coordinateDellAnno`, in `validazione.ts` — e
+nella raccolta alla prima lettura — `coordinateDellAnno`, in `validation.ts` — e
 poi smettono di comparire.
 
 **La mappa è l'unico posto da cui un dato dell'anagrafica esce dalla macchina**,
@@ -121,7 +121,7 @@ rileggono nella scheda della persona, sotto l'indirizzo che le riguarda, con la
 distanza dalla sede e con quel che il geocodificatore ha capito: è lì che un
 «Via Roma» finito nel Cantone sbagliato si riconosce.
 
-Il riquadro della mappa è un componente — `interfaccia/componenti/mappa.ts` — e non
+Il riquadro della mappa è un componente — `ui/components/map.ts` — e non
 un pezzo della pagina: di mappe ce ne sono due, quella grande e quella piccola
 nella scheda di una persona («Dove sta»: casa, azienda, scuola e il tragitto fra
 le prime due). Ognuna tiene dentro la propria chiusura dove guarda e che
@@ -130,14 +130,14 @@ vicenda, e rilegge i punti a ogni disegno invece di tenerseli.
 
 Il pannello, invece, continua a non parlare con nessuno — `default-src 'none'`.
 Anche le carte passano dall'host: `registro://mappa/<z>/<x>/<y>.png`, servito da
-`guscio/tasselli.ts`, che scarica da OpenStreetMap e tiene una cache in
+`shell/protocol/tiles.ts`, che scarica da OpenStreetMap e tiene una cache in
 `userData` — non nella cartella del docente, perché sono immagini di strade e non
 hanno motivo di finire dentro OneDrive.
 
 **La guida sta dentro l'applicazione**, nel gruppo Programma del menu delle pagine:
 una sezione per pagina, con che domanda risponde e i gesti che si fanno, e da
 ogni sezione si va alla pagina vera. Il contenuto è una struttura di dati in
-`src/interfaccia/viste/guida.ts` — chi aggiunge una funzione aggiunge una riga —
+`src/ui/views/help.ts` — chi aggiunge una funzione aggiunge una riga —
 perché una guida faticosa da aggiornare è una guida che dopo tre mesi dice il
 falso, che è peggio di non averla. Questo file resta il documento di chi
 sviluppa: dice *perché*, la guida dice *come*, e
@@ -147,7 +147,7 @@ le scelte aperte e il lavoro che resta, cantiere per cantiere. (C'era un
 stato cancellato nel commit `9470241`, e si rilegge con
 `git show 9470241^:LACUNE.md`.)
 
-L'interfaccia del pannello è scritta senza librerie. `src/interfaccia/dom.ts` è un
+L'interfaccia del pannello è scritta senza librerie. `src/ui/dom.ts` è un
 `h()` che costruisce elementi veri; la vista si ridisegna per intero quando lo
 stato cambia — non a ogni tasto premuto — e le finestre modali vivono fuori dal
 ciclo di ridisegno, così quello che si sta scrivendo non si perde mai.
@@ -162,7 +162,7 @@ ciclo di ridisegno, così quello che si sta scrivendo non si perde mai.
 | Riga compatta delle azioni | Comandi della pagina corrente, con icone e testo affiancati | `comandi.ts` |
 | Proietta e Cerca | Funzioni disponibili da ogni pagina | `comandi.ts`, `palette.ts` |
 | Scheda «Proiezione» | Comandi dello schermo per la classe | comandi con `dove: ['schermo']` |
-| Fascia sotto la barra | Che cosa sta vedendo la classe adesso | `componenti/proiezione.ts` |
+| Fascia sotto la barra | Che cosa sta vedendo la classe adesso | `components/projection.ts` |
 
 **Un comando, una superficie per volta.** Un comando può nominare più pagine —
 «Ora in questo corso» sta nel registro della lezione, nei piani e nelle
@@ -231,7 +231,7 @@ centimetri l'una dall'altra, e quella che il registro chiama «le azioni di
 questa pagina» non conteneva le uniche azioni che quella pagina avesse davvero.
 La modalità accesa si legge sul pulsante (`acceso`), come per i comandi dello
 schermo. Lo stato di scorrimento della striscia dei mesi vive in
-`navigazioneCalendario.ts`, letto sia dalla vista sia dai comandi.
+`calendarNavigation.ts`, letto sia dalla vista sia dai comandi.
 
 Nella testata della vista non resta nessun filtro: il **filtro per corso del
 calendario** sta nella riga delle scelte della barra, accanto ad anno e periodo,
@@ -262,7 +262,7 @@ qualcosa. Erano quattro
 famiglie e dicevano che *cos'era* una pendenza: sotto «Documenti» stavano
 insieme la pagella che il docente deve dare e il certificato che aspetta dagli
 allievi, che sono due lavori con due momenti diversi. Il giudizio sta nel
-dominio — `FamigliaTodo`, `famigliaDiConsegna` in `dominio/todo.ts` — perché lo
+dominio — `FamigliaTodo`, `famigliaDiConsegna` in `domain/todo.ts` — perché lo
 leggono la pagina delle pendenze e la scheda del docente di classe, e due posti
 che contano cose diverse chiamandole con lo stesso nome è il difetto che si
 scopre tardi.
@@ -277,7 +277,7 @@ differenza è quella fra le due percentuali che il registro tiene (vedi
 `matriceCorso`): **da segnalare** quando è oltre soglia anche sulle UD con
 l'appello fatto, **da guardare** quando il numero viene dalle ore previste ma
 l'appello di quelle ore manca. La regola della soglia vive in un posto solo —
-`dominio/segnalazioni.ts` — e la usano anche i due rapporti, perché tre conti in
+`domain/alerts.ts` — e la usano anche i due rapporti, perché tre conti in
 tre posti sono tre occasioni di segnalare persone diverse. Quel che ancora manca
 è il registro di chi è già stato segnalato e quando.
 
@@ -339,16 +339,16 @@ premendola ovunque, e resta segnata mentre la si legge. In testa all'anteprima
 stanno il posto nell'elenco («3 di 12»), le frecce per scorrere i documenti
 della scheda e i gesti di quel foglio — rifarlo, buttarlo via, portarlo in una
 finestra sua. Il telaio del lettore vive fuori dalla vista
-(`componenti/cornice.ts`) e insegue con una posizione fissa il segnaposto che la
+(`components/frame.ts`) e insegue con una posizione fissa il segnaposto che la
 vista dichiara: un `<iframe>` tolto dal documento ricarica, e il ridisegno che
 scatta a ogni minuto riportava a pagina uno chi stava leggendo.
 
-La pagina è quattro file, e il taglio segue le dipendenze: `viste/documenti.ts`
-è il telaio e decide quale scheda si guarda; `viste/documenti/fogli.ts` tiene i
+La pagina è quattro file, e il taglio segue le dipendenze: `views/documents.ts`
+è il telaio e decide quale scheda si guarda; `views/documents/sheets.ts` tiene i
 mattoni — trovare il file, dire se c'è, aprirlo, rifarlo, spuntarlo — e il
 registro delle righe disegnate da cui escono il conto in testa a ogni scheda, la
-casella «tutti» e l'ordine che l'anteprima scorre; `viste/documenti/schede.ts`
-disegna i riquadri; `viste/documenti/anteprima.ts` la cornice. I riquadri e
+casella «tutti» e l'ordine che l'anteprima scorre; `views/documents/cards.ts`
+disegna i riquadri; `views/documents/preview.ts` la cornice. I riquadri e
 l'anteprima sanno dei mattoni, i mattoni non sanno di loro.
 
 **Le righe dei documenti sono minime, e si spuntano.** Lo stato del file è un
@@ -409,17 +409,17 @@ la proiezione, il lettore dei documenti e le impostazioni. Si rilegge solo se
 quel posto cade ancora dentro uno schermo attaccato: staccando il monitor, la
 finestra torna alle misure di sempre invece di aprirsi dove non la vede
 nessuno. La proiezione riprende il posto ma non lo schermo intero, che le dà il
-comando insieme al monitor su cui andare (`src/ambiente/posti.ts`).
+comando insieme al monitor su cui andare (`src/environment/placement.ts`).
 
-Gli stili condivisi sono separati per componente: `barra-comandi.css`,
-`menu.css` e `palette.css`; il loro ordine compare in `stili.css`.
+Gli stili condivisi sono separati per componente: `command-bar.css`,
+`menu.css` e `palette.css`; il loro ordine compare in `styles.css`.
 
-Verifiche: `npm run controllo-tipi`, `npm run controllo-stile`, `npm test`,
+Verifiche: `npm run typecheck`, `npm run lint`, `npm test`,
 `npm run build` — le prime tre sono quelle che `docs/CANTIERE.md` pretende
 prima di spuntare una casella, e le fa girare anche la CI. Le regressioni
-nel browser si eseguono con `python prove/interfaccia/navigazione.py` dopo aver
+nel browser si eseguono con `python tests/ui/navigation.py` dopo aver
 installato Python Playwright e Chromium. Usano dati sintetici e scrivono le
-schermate in `dist-prove/`; non aprono i registri dell'utente.
+schermate in `dist-tests/`; non aprono i registri dell'utente.
 
 ## Il giro, dall'inizio
 
@@ -982,9 +982,9 @@ con i minuti scritti sulla presenza, perché sono una cosa da guardare e non ore
 da giustificare. L'esonero sta fuori per un'altra ragione: dietro c'è
 un'autorizzazione, e abbassare la frequenza di chi ce l'ha vorrebbe dire
 penalizzarlo per un permesso ricevuto. La regola sta in un posto solo —
-`contaComeAssenza` in `dominio/calcoli.ts` — e la usano il quadro della persona,
+`contaComeAssenza` in `domain/calculations.ts` — e la usano il quadro della persona,
 il riepilogo dell'ora, la matrice del corso, i rapporti e la soglia delle
-segnalazioni; `prove/dominio/ritardo.test.mjs` la tiene ferma in tutti e cinque.
+segnalazioni; `tests/domain/lateness.test.mjs` la tiene ferma in tutti e cinque.
 
 È l'appello, e non lo stato dichiarato, a dire quali ore entrano nelle
 percentuali: un'ora con l'appello fatto è un'ora che c'è stata, anche se
@@ -1177,7 +1177,7 @@ L'impaginazione non sta nel codice: sta in `templates/`, dentro la cartella di
 lavoro — quella che contiene il documento dell'anno — un file per rapporto. Sono
 file di testo con righe `direttiva: contenuto`, e valgono dal salvataggio dopo.
 La copia di serie viaggia con il programma: è la `templates/` di questo
-repository, e `npm run modelli` la traduce in `src/dati/modelliPredefiniti.ts`.
+repository, e `npm run templates` la traduce in `src/data/defaultTemplates.ts`.
 Le due cartelle si chiamano uguale e non sono la stessa: questa è la copia che
 il registro scrive quando la cartella del docente è vuota, quella accanto al
 documento è la sua — e comanda sempre la sua.
@@ -1193,7 +1193,7 @@ cose a ogni modifica. *Quale file toccare*: tredici nomi in una cartella non
 dicono che cosa fanno, e `_stile.tpl` e `momento-valutazione.tpl` si
 somigliano abbastanza da sembrare la stessa specie di cosa. *Che cosa
 scriverci*: i nomi che un rapporto sa riempire stavano in una funzione di
-`datiRapporti.ts`, e per conoscerli bisognava leggere il codice. *Se è venuto
+`reportData.ts`, e per conoscerli bisognava leggere il codice. *Se è venuto
 bene*: il lettore dei modelli salta in silenzio la riga che non capisce — è la
 regola giusta, un refuso non deve impedire di stampare il verbale — e quindi
 un refuso si scopriva il giorno dopo, guardando un PDF a cui mancava una
@@ -1203,7 +1203,7 @@ La pagina risponde alle tre. A sinistra l'elenco diviso per quel che una
 modifica cambia: in alto i quattro strati che stanno sotto tutti i fogli, sotto
 un modello per rapporto, e ognuno con la riga che dice che cosa si tocca lì. Al
 centro l'editor, e sotto di lui **i problemi riga per riga** —
-`dominio/verificaModelli.ts` legge il modello con le stesse regole
+`domain/templateCheck.ts` legge il modello con le stesse regole
 dell'impaginatore e dice che cosa verrà saltato; premendo un problema il
 cursore va a quella riga. Accanto, **i nomi che quel rapporto produce**, presi
 dai dati veri e non da un elenco scritto a mano: premendone uno finisce nel
@@ -1230,7 +1230,7 @@ rapporti, non scrivendoli, e allora ricompilare non è un'opzione.
 **E un terzo, `_testi.tpl`: le parole.** Le frasi che contengono un numero — «4
 caselle non impostate», la nota che spiega su che cosa sono calcolate le
 percentuali di presenza — e come si chiamano le colonne delle tabelle. Stavano
-dentro `datiRapporti.ts`, mescolate ai conti che le producono; ma una frase e un
+dentro `reportData.ts`, mescolate ai conti che le producono; ma una frase e un
 conto si cambiano per motivi diversi e da persone diverse, e «dillo in un altro
 modo» non deve costare una ricompilazione. Il modello le richiama con
 `{{frase.nome}}`, e la frase a sua volta contiene i segnaposto del rapporto: si
@@ -1312,8 +1312,8 @@ chi si allarga quando c'è spazio. Se non ci stanno, prima si scrive più piccol
 — fino a `corpo-minimo-tabella`, sotto il quale non si scende — e solo dopo si
 stringe, togliendo a chi è largo e lasciando intere le colonne corte: due punti
 tolti alla colonna «UD» la distruggono e non salvano niente. I conti stanno in
-`dominio/rapporti.ts`, misurati con il font che l'impaginatore presta, e le
-prove che li tengono in `prove/dominio/rapporti.test.mjs` — prima erano quattro righe
+`domain/reports.ts`, misurati con il font che l'impaginatore presta, e le
+prove che li tengono in `tests/domain/reports.test.mjs` — prima erano quattro righe
 dentro il disegno, dove nessuno le ha mai messe alla prova.
 
 Se la cartella non c'è, il registro ci scrive i modelli di serie al primo
@@ -1419,7 +1419,7 @@ chiesta, e prima si poteva solo contare a mano le righe della tabella in fondo.
 registro scrive quando quella cartella non c'è ancora, e si aggiornavano a
 mano: chi modificava un modello e si dimenticava di ricopiarlo lasciava a chi
 installava il registro nuovo i modelli di due versioni prima. Adesso li fa
-`npm run modelli`, e che i due siano in accordo lo controlla `npm test`.
+`npm run templates`, e che i due siano in accordo lo controlla `npm test`.
 
 **I file si aprono passando il percorso, non un indirizzo.** `openExternal`
 consegna alla shell un URL: il grado di «1° semestre» diventa `%C2%B0`, e chi
@@ -1616,7 +1616,7 @@ chiedeva a chi insegna tre cose che non c'entrano con un registro di classe.
 Adesso l'assistente carica il `.gguf` dentro il registro — `node-llama-cpp`, che
 è una libreria e non un servitore — e di installato non c'è più niente.
 
-Ci si guadagna anche una difesa. Fin qui la riga più delicata di `dati/llm.ts`
+Ci si guadagna anche una difesa. Fin qui la riga più delicata di `data/llm.ts`
 controllava che l'indirizzo del servizio, scritto in un file di impostazioni che
 qualunque programma sulla macchina può riscrivere, non mandasse altrove le
 scansioni e le medie. Adesso quella riga non serve: **non c'è una richiesta di
@@ -1655,7 +1655,7 @@ registro/
     esportazioni/       quel che il registro stampa: la stessa struttura, e si può buttare
     in-arrivo/          la cassetta: i PDF di classe da dividere, una cartella per documento
     quarantena/         i PDF con pagine non ancora assegnate
-    allegati/ risorse/ assenze/    quel che resta delle disposizioni di prima
+    allegati/ resources/ assenze/    quel che resta delle disposizioni di prima
   2027-2028.registro
   2027-2028/
     …
@@ -1676,13 +1676,13 @@ Nel documento va quel che il registro scrive e rilegge da sé; nella cartella
 quel che si apre con altri programmi — i PDF perderebbero il doppio clic, a
 stare chiusi in un archivio.
 
-Per vedere com'è fatto senza costruirsi un anno, in `prove/campioni/` c'è un
+Per vedere com'è fatto senza costruirsi un anno, in `tests/samples/` c'è un
 documento con dentro dati inventati — una classe, tre persone in formazione, tre
 ore e una verifica, storico compreso. Si rinomina in `.zip` e si guarda dentro.
-Lo riapre a ogni giro `prove/dati/campione.test.mjs`, ed è la sola prova che
+Lo riapre a ogni giro `tests/data/sample.test.mjs`, ed è la sola prova che
 guarda indietro: le altre scrivono e rileggono con lo stesso codice, e
 resterebbero verdi anche se il formato cambiasse in blocco. Si rigenera con
-`npm run campione`, e solo quando il formato cambia apposta. I documenti veri
+`npm run sample`, e solo quando il formato cambia apposta. I documenti veri
 stanno in `registro/`, che è in `.gitignore` per la ragione ovvia: dentro ci
 sono nomi, voti e assenze di persone.
 
@@ -1703,7 +1703,7 @@ salvataggio. Una serratura della propria macchina non ferma nessuno: è quel che
 resta di un registro chiuso male.
 
 **Senza un anno aperto** — al primo avvio, o dopo aver chiuso il documento — al
-posto della finestra si apre la pagina di benvenuto (`guscio/benvenuto.html`):
+posto della finestra si apre la pagina di benvenuto (`shell/pages/welcome/welcome.html`):
 le due strade, «Apri un anno…» e «Crea un nuovo anno…», e sotto l'elenco dei
 documenti già visti. I preferiti in cima e i recenti sotto, con la cartella di
 ognuno, perché due anni possono chiamarsi uguale; la stella tiene da parte —
@@ -1812,7 +1812,7 @@ cerca il documento di una PiF, si allega una pagella a un'e-mail, si consegna
 un fascicolo a chi subentra. I file archiviati con la disposizione di prima si
 spostano da soli alla prima apertura, e i riferimenti si riscrivono con loro.
 
-Anche il materiale dei piani lezione sta lì. Stava fuori, in `risorse/<id del
+Anche il materiale dei piani lezione sta lì. Stava fuori, in `resources/<id del
 piano>`, da quando un piano apparteneva a una materia e non a una classe;
 adesso il piano è di un corso — e quindi di una classe — e la scheda del lavoro
 di gruppo è un documento di quel corso come il testo di una verifica. Il nome
@@ -1890,15 +1890,15 @@ lasciare il problema in vista.
 ## Sviluppo
 
 ```bash
-npm run sviluppo        # il modo di lavoro: vedi sotto
+npm run dev        # il modo di lavoro: vedi sotto
 npm run build           # una compilazione in dist/
-npm run avvia           # compila e lancia, senza ascolto
-npm run controllo-tipi  # tsc --noEmit
+npm run start           # compila e lancia, senza ascolto
+npm run typecheck  # tsc --noEmit
 npm test                # le prove
-npm run pacchetto       # installer e versione portabile in pacchetti/
+npm run package       # installer e versione portabile in pacchetti/
 ```
 
-`npm run sviluppo` è il comando con cui si lavora. Tiene insieme tre cose:
+`npm run dev` è il comando con cui si lavora. Tiene insieme tre cose:
 esbuild in ascolto su tutti i bundle, l'applicazione avviata, e il
 ricaricamento — che non è uno solo, ed è la ragione per cui vale la pena
 descriverlo:
@@ -1919,8 +1919,8 @@ prima, l'errore si legge nel terminale, e al salvataggio dopo si riprende.
 ### Le cartelle della build
 
 `dist/` sono i bundle dell'applicazione, ed è quel che finisce nel pacchetto.
-`dist-prove/` sono gli stessi sorgenti ricompilati in una forma che Node sa
-importare — ESM, con `electron` sostituito dal finto di `prove/aiuti/finto-electron.mjs`
+`dist-tests/` sono gli stessi sorgenti ricompilati in una forma che Node sa
+importare — ESM, con `electron` sostituito dal finto di `tests/helpers/fake-electron.mjs`
 — e servono solo a `npm test`.
 
 ### I cinque controlli scritti in casa
@@ -1931,11 +1931,11 @@ d'architettura restano vere, perché *una regola che nessuno controlla dura fino
 al prossimo import comodo*.
 
 ```bash
-npm run strati       # nessun import attraversa un confine fra strati, e nessun ciclo
-npm run censimento   # export che non chiama nessuno
-npm run collezioni   # nessuna scrittura tocca una raccolta che non dichiara
-npm run moduli       # ogni campo dichiarato in un modulo viene raccolto al salvataggio
-npm run pulsanti     # nessun comando si disegna senza dire che cosa fa
+npm run layers       # nessun import attraversa un confine fra strati, e nessun ciclo
+npm run census   # export che non chiama nessuno
+npm run collections   # nessuna scrittura tocca una raccolta che non dichiara
+npm run forms       # ogni campo dichiarato in un modulo viene raccolto al salvataggio
+npm run buttons     # nessun comando si disegna senza dire che cosa fa
 ```
 
 Escono con un codice diverso da zero quando trovano qualcosa, e li fa girare
@@ -1966,7 +1966,7 @@ regdoc chiama ore.appello.casella --lezioneId lez-… --allievoId alv-… --ud 0
 ```
 
 `regdoc` **c'è senza che nessuno lo installi**: il registro lo scrive da sé a
-ogni avvio — `guscio/comandoRiga.ts` — in una cartella che aggiunge al PATH
+ogni avvio — `shell/system/commandLine.ts` — in una cartella che aggiunge al PATH
 dell'utente, su Windows, Linux e macOS. Dentro c'è un ponte di cinque righe che
 lancia `src/cli/registro.mjs` con l'eseguibile del registro e
 `ELECTRON_RUN_AS_NODE`: Node non serve che sia installato, perché Electron lo è
@@ -2037,8 +2037,8 @@ vuoto — e riprendendo si ritrova tutto com'era.
 
 Un blocco spento non è un blocco nascosto dal foglio di stile: non finisce
 proprio nel messaggio che raggiunge l'altra finestra. Il filtro sta in
-`dominio/proiezione.ts`, in un posto solo, e le prove che lo tengono sono in
-`prove/dominio/proiezione.test.mjs`.
+`domain/projection.ts`, in un posto solo, e le prove che lo tengono sono in
+`tests/domain/projection.test.mjs`.
 
 ## L'icona accanto all'orologio
 
@@ -2068,9 +2068,9 @@ Chi preferisce la X di sempre spegne `vassoio.chiusuraNelVassoio`; chi non vuole
 l'icona spegne `vassoio.attivo`, e allora la X torna a chiudere l'applicazione da
 sé — un'applicazione viva senza finestre *e* senza icona non si riprende più.
 
-Il codice sta in tre pezzi che non si conoscono: `src/dominio/vassoio.ts` decide
-che cosa scrivere e si prova con `node --test`, `src/vassoio.ts` guarda
-l'orologio e l'archivio, `src/ambiente/vassoio.ts` traduce in menu di Electron.
+Il codice sta in tre pezzi che non si conoscono: `src/domain/tray.ts` decide
+che cosa scrivere e si prova con `node --test`, `src/tray.ts` guarda
+l'orologio e l'archivio, `src/environment/tray.ts` traduce in menu di Electron.
 È la stessa divisione dei promemoria, e per la stessa ragione.
 
 ## L'agenda sul desktop
@@ -2096,7 +2096,7 @@ dell'ora e lo stato passano da `esegui` — lo stesso centralino del pannello, c
 le stesse convalide. Il widget è una seconda porta sullo stesso registro, non un
 secondo registro: le righe dell'appello si allungano da sé quando l'ora cambia
 durata e comprendono chi si è iscritto a metà anno, perché a scriverle è
-`azioni/ore.ts`, come per il registro aperto. Premendo una riga si gira fra
+`actions/hours.ts`, come per il registro aperto. Premendo una riga si gira fra
 presente, assente, in ritardo, esonerato e «da fare», che è l'ordine in cui si fa
 un appello guardando la classe invece dello schermo.
 
@@ -2153,13 +2153,13 @@ progetto — binari già pronti, nessun compilatore. Altrove il comando lo dice 
 non succede nient'altro.
 
 Il codice sta nei soliti tre pezzi che non si conoscono:
-`src/dominio/agenda.ts` costruisce la settimana, decide da che settimana
-partire e fa i conti della griglia — e accanto a lui `agendaMese.ts`,
-`agendaPendenze.ts` e `agendaLezione.ts` fanno la griglia del mese e le altre
+`src/domain/agenda.ts` costruisce la settimana, decide da che settimana
+partire e fa i conti della griglia — e accanto a lui `agendaMonth.ts`,
+`agendaPending.ts` e `agendaLesson.ts` fanno la griglia del mese e le altre
 due schede; tutti e quattro si provano con `node --test`;
-`src/agenda.ts` guarda l'orologio e l'archivio; `src/ambiente/agenda.ts` fa la
-finestra, e sotto di lui `src/ambiente/ancoraggio.ts` parla con Windows. La
-pagina è `guscio/agenda.html`.
+`src/agenda.ts` guarda l'orologio e l'archivio; `src/environment/agenda.ts` fa la
+finestra, e sotto di lui `src/environment/anchoring.ts` parla con Windows. La
+pagina è `shell/pages/agenda/agenda.html`.
 
 Tre avvertenze che stanno nel codice e vale la pena ripetere. La riserva
 dell'agganciato va tolta all'uscita — una appbar registrata e mai rimossa lascia
@@ -2233,11 +2233,11 @@ scritta a mano accanto a una generata è una seconda verità, e questa lo era
 diventata — elencava diciotto chiavi, due delle quali non esistevano più e
 undici delle quali non c'erano mai entrate.
 
-L'elenco vero è `src/manifesto.ts`, che è l'unico: la pagina, la finestra nativa
+L'elenco vero è `src/manifest.ts`, che è l'unico: la pagina, la finestra nativa
 e i valori predefiniti nascono tutti di lì. Ogni chiave finisce in una sezione e
 in una sola, e quel che nessuna sezione nomina finisce in «File e apertura» —
 così un'impostazione aggiunta domani compare comunque, invece di esistere senza
-vedersi. Lo prova `prove/interfaccia/sezioniImpostazioni.test.mjs`, che è la sola
+vedersi. Lo prova `tests/ui/settingsSections.test.mjs`, che è la sola
 cosa di quella pagina che può rompersi in silenzio.
 
 Tutto il resto — orari della griglia, giorni visibili, scala dei voti, durate
@@ -2253,7 +2253,7 @@ stesso motivo.
 
 Ventuno, e l'elenco per intero — con l'identificativo di ognuno e la
 scorciatoia dove c'è — sta in [docs/CATALOGO.md](CATALOGO.md) § 4. Come per
-le impostazioni, la fonte unica è `src/manifesto.ts`: una copia qui accanto
+le impostazioni, la fonte unica è `src/manifest.ts`: una copia qui accanto
 diventa falsa al primo comando aggiunto, ed era già successo (questo elenco ne
 contava sedici, fra cui uno che non esiste).
 

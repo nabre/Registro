@@ -17,7 +17,7 @@ import { istanteAdesso } from '../domain/dates.js'
 import { indirizziDaRisolvere, rubricaDi } from '../domain/map.js'
 import type { Classe, Coordinata } from '../domain/models.js'
 import { plurale } from '../domain/text.js'
-import { conMessaggio, rifiuta, type Parte } from './context.js'
+import { DOCUMENTO_CAMBIATO, conMessaggio, rifiuta, rifiutaCon, type Parte } from './context.js'
 
 /**
  * Quanti indirizzi si cercano al massimo in un giro.
@@ -68,8 +68,16 @@ export const mappa = {
     // fuori dalla macchina. I nomi restano per chi guarda dal pannello, ma dopo
     // la causa e non al posto suo.
     let motivo: string | null = null
+    // Il giro dura minuti, e in quei minuti si può aprire un altro anno: da lì
+    // in poi le case di questa classe non devono finire nella raccolta
+    // `coordinate` di quello. Si smette al primo segno, e lo si dice.
+    let cambiato = false
 
     for (const voce of giro) {
+      if (!contesto.ancoraQui()) {
+        cambiato = true
+        break
+      }
       const esito = await geocodifica(voce.indirizzo)
       if (!esito.trovato) {
         motivo ??= esito.motivo ?? null
@@ -87,22 +95,38 @@ export const mappa = {
         ...(esito.punto.approssimato ? { approssimato: true } : {}),
         trovatoIl: istanteAdesso(),
       }
-      if (esito.punto.approssimato) approssimati += 1
       // Una scrittura per ogni indirizzo trovato, e non una sola alla fine: il
       // giro dura minuti, e un registro chiuso a metà strada non deve buttare
-      // via le risposte già arrivate.
-      contesto.modifica((r) => {
+      // via le risposte già arrivate. Rifiutata vuol dire che il documento è
+      // cambiato durante la domanda: quel punto non si scrive, e il giro finisce.
+      const scritto = contesto.modifica((r) => {
         const indice = r.coordinate.findIndex((c) => c.chiave === nuova.chiave)
         if (indice >= 0) r.coordinate[indice] = nuova
         else r.coordinate.push(nuova)
         r.coordinate.sort((a, b) => a.chiave.localeCompare(b.chiave, 'it'))
       }, ['coordinate'])
+      if (!scritto.ok) {
+        cambiato = true
+        break
+      }
+      if (esito.punto.approssimato) approssimati += 1
       trovati += 1
     }
 
     const restano = lavoro.length - giro.length
     const coda = restano > 0 ? ` Ne restano ${restano}: premere di nuovo per continuare.` : ''
     const contati = plurale(trovati, 'indirizzo trovato', 'indirizzi trovati')
+
+    if (cambiato) {
+      // Un rifiuto anche se qualcosa è stato scritto prima: quel che manca va
+      // cercato riaprendo l'anno giusto, e chi riceve `conflitto` lo sa.
+      return rifiutaCon(
+        'conflitto',
+        trovati > 0
+          ? `Il documento aperto è cambiato: giro interrotto dopo ${contati}.`
+          : DOCUMENTO_CAMBIATO,
+      )
+    }
     // Quante persone ne approfittano: è il numero che dice perché la raccolta
     // sta fuori dall'anagrafica, e su una classe di tirocinanti si vede.
     const persone = new Set(

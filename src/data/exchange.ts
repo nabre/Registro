@@ -448,6 +448,16 @@ export function rimedio (detto: string): string {
       'con «registroDocenti.posta.utente», o uno da cui si è autorizzati a spedire.'
     )
   }
+  // Il tetto di Exchange Online: una trentina di messaggi al minuto per casella.
+  // Superato, il server risponde 421 / 4.4.2 o chiude il filo, e da lì ogni
+  // messaggio del giro fallisce con la stessa riga. Non è un guasto della casella
+  // né della rete: basta aspettare.
+  if (/\b421\b|\b4\.4\.2\b|\brate\b|exceeded|Il server ha chiuso il collegamento/i.test(detto)) {
+    return (
+      'Exchange ha smesso di accettare messaggi per un po’: ne sono partiti troppi in poco ' +
+      `tempo. Si riprova fra un minuto con quelli rimasti. (${detto})`
+    )
+  }
   if (/ENOTFOUND|EAI_AGAIN/i.test(detto)) {
     return `${SERVER} non si trova: il computer non arriva al DNS, o la rete lo blocca. (${detto})`
   }
@@ -492,6 +502,24 @@ export async function provaExchange (): Promise<EsitoExchange> {
 }
 
 /**
+ * Da quanti messaggi in su si rallenta, e di quanto.
+ *
+ * Exchange Online accetta una trentina di messaggi al minuto per casella con
+ * SMTP autenticato; al trentunesimo risponde 421 o chiude il filo, e con un filo
+ * solo per tutto il giro vuol dire che tutti quelli dopo finiscono fra i
+ * falliti. Sotto la soglia si va di corsa come sempre; sopra, un messaggio ogni
+ * poco più di due secondi, che fa ventotto al minuto: una classe intera parte in
+ * un minuto e mezzo invece di fermarsi a metà.
+ */
+const SOGLIA_LENTA = 25
+const PAUSA_MS = 2_100
+
+/** Quanto aspettare fra un messaggio e l'altro, per un giro di `quanti`. */
+export function pausaFraMessaggi (quanti: number): number {
+  return quanti > SOGLIA_LENTA ? PAUSA_MS : 0
+}
+
+/**
  * Consegna i messaggi al server, uno dopo l'altro sullo stesso filo.
  *
  * Un filo solo per tutto il giro, e non uno per messaggio: aprire venticinque
@@ -505,7 +533,15 @@ export async function provaExchange (): Promise<EsitoExchange> {
  * riceve l'elenco di chi è rimasto indietro. È la differenza fra un giro
  * fallito e diciassette famiglie avvisate.
  */
-export async function spedisciConExchange (messaggi: MessaggioPosta[]): Promise<EsitoInvio> {
+/**
+ * `dopoOgni`, se c'è, si chiama subito dopo ogni messaggio con il suo indice e
+ * con com'è andata: serve a chi deve segnare gli inviati uno per volta, e non
+ * a giro finito — un giro lento dura più di un minuto, e può interrompersi.
+ */
+export async function spedisciConExchange (
+  messaggi: MessaggioPosta[],
+  dopoOgni?: (indice: number, ok: boolean) => void,
+): Promise<EsitoInvio> {
   if (messaggi.length === 0) return { ok: true, quante: 0, falliti: [] }
 
   const suo = conto()
@@ -525,12 +561,16 @@ export async function spedisciConExchange (messaggi: MessaggioPosta[]): Promise<
 
   const falliti: MessaggioFallito[] = []
   let quante = 0
+  const pausa = pausaFraMessaggi(messaggi.length)
 
   try {
     for (const [indice, messaggio] of messaggi.entries()) {
+      if (indice > 0 && pausa > 0) await new Promise((risolvi) => setTimeout(risolvi, pausa))
+      let ok = false
       try {
         await consegna(colloquio, messaggio, suo.mittente)
         quante += 1
+        ok = true
       } catch (errore) {
         falliti.push({ indice, errore: rimedio((errore as Error).message) })
         // Si rimette il server in ordine prima del prossimo: dopo un rifiuto
@@ -541,6 +581,13 @@ export async function spedisciConExchange (messaggi: MessaggioPosta[]): Promise<
         } catch {
           // Il filo è caduto: quel che resta lo dirà l'errore del prossimo.
         }
+      }
+      // Fuori dal `try` di sopra, e con uno suo: un guasto di chi ascolta non è
+      // un messaggio fallito, e non deve fermare quelli che restano.
+      try {
+        dopoOgni?.(indice, ok)
+      } catch (errore) {
+        console.error('[exchange] dopoOgni:', errore)
       }
     }
   } finally {
@@ -571,7 +618,10 @@ async function consegna (
   const destinatari = destinatariBusta(messaggio)
   if (destinatari.length === 0) throw new Error('Nessun destinatario.')
 
-  await colloquio.pretendi(`MAIL FROM:<${messaggio.da ?? da}>`, 250)
+  // Una riga sola, come i `RCPT TO` di `destinatariBusta`: un a capo nel mittente
+  // sarebbe un comando in più sul filo.
+  const mittente = (messaggio.da ?? da).replace(/[\r\n]+/g, ' ')
+  await colloquio.pretendi(`MAIL FROM:<${mittente}>`, 250)
 
   // Un indirizzo rifiutato non è un messaggio perso: gli altri lo ricevono lo
   // stesso, e chi non l'ha ricevuto sta scritto nell'errore in fondo. Un

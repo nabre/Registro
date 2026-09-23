@@ -22,7 +22,17 @@ import { aggiornaInventarioModelli } from '../data/templates.js'
 import * as apparato from 'apparato'
 
 import { ESTENSIONE } from '../data/paths.js'
-import { cestina, conMessaggio, fatto, invariato, rifiuta, riponi, scegliUnFile, type Parte } from './context.js'
+import {
+  cestina,
+  conMessaggio,
+  documentoCambiato,
+  fatto,
+  invariato,
+  rifiuta,
+  riponi,
+  scegliUnFile,
+  type Parte,
+} from './context.js'
 
 /**
  * I formati di ritratto che il registro sa mettere dentro un PDF.
@@ -358,6 +368,10 @@ export const registro = {
       return rifiuta(`«${scelto.nome}» non è un JPEG né un PNG: sono i due formati che finiscono nei rapporti.`)
     }
 
+    // Il dialogo è stato aperto per minuti, magari: se nel frattempo si è
+    // aperto un altro anno, la foto andrebbe a finire dentro quello.
+    if (!contesto.ancoraQui()) return documentoCambiato()
+
     const vecchia = allievo.foto ?? null
     const esito = await archiviaCopia(
       percorsoFoto(classe, allievo, formato),
@@ -370,9 +384,14 @@ export const registro = {
 
     const salvato = contesto.suVoce('classi', azione.classeId, (bersaglio) => {
       const chi = bersaglio.allievi.find((a) => a.id === azione.allievoId)
-      if (chi) chi.foto = esito.relativo
-    })
-    if (vecchia && vecchia !== esito.relativo) await cestina(vecchia)
+      // Sparita dalla classe mentre si sceglieva: «non trovata», non «fatto».
+      if (!chi) return false
+      chi.foto = esito.relativo
+    }, [], frase(PIF, 'trovato', { nega: true }))
+    // Solo a scrittura riuscita: rifiutata perché il documento è cambiato,
+    // `cestina` lavorerebbe sul documento nuovo, dove quel percorso è di
+    // qualcun altro.
+    if (salvato.ok && vecchia && vecchia !== esito.relativo) await cestina(vecchia)
     return salvato
   },
 

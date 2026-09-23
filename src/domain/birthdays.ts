@@ -20,6 +20,7 @@
 import { nomeCompleto } from './calculations.js'
 import { isoValida } from './dates.js'
 import type { Allievo, Classe, Iso, Registro } from './models.js'
+import { confrontaNomi } from './text.js'
 
 /** Un compleanno che cade in un certo giorno: chi, di che classe, e quanti anni fa. */
 export interface Compleanno {
@@ -201,7 +202,7 @@ export function compleanniPerGiorno (
 /** Classe, poi cognome: lo stesso ordine degli elenchi, con collazione italiana. */
 function ordina (compleanni: Compleanno[]): Compleanno[] {
   return [...compleanni].sort(
-    (a, b) => a.classe.localeCompare(b.classe, 'it') || a.nome.localeCompare(b.nome, 'it'),
+    (a, b) => confrontaNomi(a.classe, b.classe) || a.nome.localeCompare(b.nome, 'it'),
   )
 }
 

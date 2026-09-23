@@ -422,11 +422,29 @@ export function riepilogaPresenze (presenze: Presenza[]): RiepilogoPresenze {
 
 // ------------------------------------------------------------------ voti
 
-/** Porta il voto dentro la scala e sul passo previsto (di norma 0.25). */
+/**
+ * Un valore portato sul passo più vicino contato da `base`, e tenuto nella scala.
+ *
+ * `Math.round(v / passo) * passo` con un passo che non è una potenza di due —
+ * 0,1, 0,2, 0,3 — non dà il voto ma il suo vicino in virgola mobile: 3,8
+ * diventava 3.8000000000000003, e così finiva nel PDF. Il ritaglio al
+ * milionesimo toglie il residuo senza toccare nessun voto vero. Contare da
+ * `base` invece che da zero è quel che fa la tendina (`votiDellaScala`, che
+ * parte dal minimo): con minimo 1 e passo 0,3 i voti sono 1; 1,3; 1,6…, e un
+ * voto scelto lì non deve salvarsi come 1,2. Il ritaglio finale tiene dentro
+ * la scala anche l'ultimo passo, che può scavalcare il massimo o il minimo.
+ */
+function sulPasso (valore: number, base: number, passo: number, min: number, max: number): number {
+  const passi = Math.round((valore - base) / passo)
+  const netto = Math.round((base + passi * passo) * 1e6) / 1e6
+  return Math.min(max, Math.max(min, netto))
+}
+
+/** Porta il voto dentro la scala e sul passo previsto (di norma 0.25), contato dal minimo. */
 export function arrotondaVoto (valore: number, scala: Scala): number {
   const passo = scala.passo > 0 ? scala.passo : 0.25
   const dentro = Math.min(scala.max, Math.max(scala.min, valore))
-  return Math.round(dentro / passo) * passo
+  return sulPasso(dentro, scala.min, passo, scala.min, scala.max)
 }
 
 /**
@@ -446,7 +464,9 @@ export function notaFineSemestre (
   if (media === null || !Number.isFinite(media)) return null
   const dentro = Math.min(scala.max, Math.max(scala.min, media))
   if (!(passoFineSemestre > 0)) return dentro
-  return Math.round(dentro / passoFineSemestre) * passoFineSemestre
+  // Contata da zero, non dal minimo: la nota va sul mezzo punto intero — 4;
+  // 4,5 — qualunque sia il primo voto della scala.
+  return sulPasso(dentro, 0, passoFineSemestre, scala.min, scala.max)
 }
 
 /**

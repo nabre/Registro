@@ -90,18 +90,33 @@ describe('la soglia di assenza', () => {
   })
 
   it('distingue chi è oltre davvero da chi lo è per appelli mancanti', () => {
-    // Otto UD previste, ma l'appello c'è su una sola ora: chi è mancato a
-    // quella risulta oltre soglia sul previsto e non su quel che si è segnato.
-    const { registro, corso, rossi } = scuolaConOre(4, (i, base) =>
+    // Quattro ore svolte, otto UD previste, ma l'appello c'è su una sola ora:
+    // chi è mancato a quella risulta oltre soglia sul previsto, e le altre tre
+    // ore non dicono niente. È un caso da guardare, non ancora da segnalare.
+    //
+    // Fino al giro 7 qui si asseriva `true`: il campo guardava la quota sulle
+    // UD con l'appello — 100% — e usciva confermato proprio il caso che la
+    // pagina deve chiamare «appelli da completare». Cambiato su decisione
+    // esplicita: `confermata` misura la copertura degli appelli.
+    const { registro, corso, rossi, lezioni } = scuolaConOre(4, (i, base) =>
       i === 0 ? [{ allievoId: base.rossi.id, stati: ['assente', 'assente'] }] : [],
     )
+    for (const lezione of lezioni) lezione.stato = 'svolta'
     registro.impostazioni.sogliaAssenza = 20
 
     const [segnalazione] = segnalazioniDelCorso(registro, corso, PERIODO)
 
     assert.equal(segnalazione.allievoId, rossi.id)
-    // Sulle UD con l'appello fatto è assente al 100%: oltre soglia anche lì.
-    assert.equal(segnalazione.confermata, true)
+    assert.equal(segnalazione.confermata, false, 'tre ore svolte senza appello')
+
+    // Gli stessi numeri con l'appello su tutte le ore svolte: confermata.
+    const coperto = scuolaConOre(4, (i, base) => [
+      { allievoId: base.rossi.id, stati: i < 2 ? ['assente', 'assente'] : ['presente', 'presente'] },
+    ])
+    for (const lezione of coperto.lezioni) lezione.stato = 'svolta'
+    coperto.registro.impostazioni.sogliaAssenza = 20
+    const [piena] = segnalazioniDelCorso(coperto.registro, coperto.corso, PERIODO)
+    assert.equal(piena.confermata, true)
 
     // Con l'appello fatto dappertutto e una sola assenza su otto UD, nessuno
     // esce: la conferma non è un modo per segnalare comunque.
@@ -110,6 +125,24 @@ describe('la soglia di assenza', () => {
     ])
     pieno.registro.impostazioni.sogliaAssenza = 20
     assert.deepEqual(segnalazioniDelCorso(pieno.registro, pieno.corso, PERIODO), [])
+  })
+
+  it('un’ora annullata esce anche dalle UD previste', () => {
+    // Quattro martedì a orario, uno annullato: le UD previste sono sei, non
+    // otto. Rossi perde due UD delle tre ore tenute: il 33%, non il 25%.
+    // Prima l'ora annullata restava nel monte ore e abbassava la quota di
+    // tutti — e con la soglia più alta, la faceva finire sotto senza avviso.
+    const { registro, corso, lezioni } = scuolaConOre(4, (i, base) => [
+      { allievoId: base.rossi.id, stati: i === 1 ? ['assente', 'assente'] : ['presente', 'presente'] },
+    ])
+    lezioni[3].stato = 'annullata'
+    registro.impostazioni.sogliaAssenza = 30
+
+    const [segnalazione] = segnalazioniDelCorso(registro, corso, PERIODO)
+
+    assert.ok(segnalazione, 'con sei UD previste il 33% supera il 30%')
+    assert.equal(segnalazione.udPreviste, 6)
+    assert.equal(segnalazione.udAssenza, 2)
   })
 
   it('le ore annullate non fanno assenze', () => {

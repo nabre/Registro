@@ -37,9 +37,11 @@ import {
 import {
   apriFile,
   cestina,
+  DOCUMENTO_CAMBIATO,
   conMessaggio,
   consegnaConClasse,
   fatto,
+  motivoSicuro,
   rifiuta,
   scegliFile,
   type Parte,
@@ -95,6 +97,24 @@ async function chiudiSeFinito (archivio: Archivio, smistamentoId: string): Promi
   archivio.modifica((r) => {
     r.smistamenti = r.smistamenti.filter((s) => s.id !== smistamentoId)
   }, ['smistamenti'])
+}
+
+/** Una fetta di pagine assegnate, come la scrive lo smistamento. */
+type Fetta = Smistamento['assegnate'][number]
+
+/** Se due fette dicono la stessa cosa: stesse pagine, stessa persona, stessa casella. */
+function stessaFetta (a: Fetta, b: Fetta): boolean {
+  return (
+    a.allievoId === b.allievoId &&
+    a.consegnaId === b.consegnaId &&
+    a.da === b.da &&
+    a.a === b.a &&
+    Boolean(a.firme) === Boolean(b.firme) &&
+    a.assenze?.classeId === b.assenze?.classeId &&
+    a.assenze?.bloccoId === b.assenze?.bloccoId &&
+    a.assenze?.tipo === b.assenze?.tipo &&
+    a.assenze?.firmato === b.assenze?.firmato
+  )
 }
 
 export const smistamento = {
@@ -180,11 +200,17 @@ export const smistamento = {
     const guai: string[] = []
     let entrati = 0
     for (const scelto of scelti) {
+      // Il dialogo, e poi un file dopo l'altro: se intanto si è aperto un altro
+      // anno, quel che resta finirebbe nella quarantena di quello.
+      if (!contesto.ancoraQui()) {
+        guai.push(DOCUMENTO_CAMBIATO)
+        break
+      }
       let byte: Uint8Array
       try {
         byte = await apparato.file.readFile(scelto.uri)
       } catch (errore) {
-        guai.push(`«${scelto.nome}»: non si riesce a leggerlo (${(errore as Error).message}).`)
+        guai.push(`«${scelto.nome}»: non si riesce a leggerlo (${motivoSicuro(errore)}).`)
         continue
       }
       const esito = await smistatore.smista(
@@ -382,7 +408,7 @@ export const smistamento = {
         await estraiElenco(byte, pagine),
       ) ?? null
     } catch (errore) {
-      return rifiuta(`Ritaglio non riuscito: ${(errore as Error).message}`)
+      return rifiuta(`Ritaglio non riuscito: ${motivoSicuro(errore)}`)
     }
     if (!destinazione) return rifiuta('Nessun anno aperto.')
     if (!(await apriConIlSistema(destinazione))) {
@@ -494,7 +520,7 @@ export const smistamento = {
     const indice = classe ? indiceNomi(classe.allievi) : null
 
     const ora = new Date().toISOString()
-    contesto.archivio.modifica((r) => {
+    const scritto = contesto.modifica((r) => {
       for (const fetta of toccate) {
         if (fetta.assenze) {
           togliFoglioAssenze(
@@ -537,7 +563,12 @@ export const smistamento = {
       for (const fetta of toccate) {
         for (let n = fetta.da; n <= fetta.a; n += 1) tornate.add(n)
       }
-      suo.assegnate = suo.assegnate.filter((fetta) => !toccate.includes(fetta))
+      // Per valore e non per identità: fra la lettura qui sopra e adesso ci
+      // sono due attese, e se nel frattempo l'osservatore ha riletto il file
+      // gli oggetti sono nuovi. `includes` non ne trovava più nessuno, la
+      // fetta restava fra le assegnate e le sue pagine tornavano anche fra
+      // quelle da smistare: archiviate e in ballo insieme.
+      suo.assegnate = suo.assegnate.filter((fetta) => !toccate.some((t) => stessaFetta(t, fetta)))
       const restaurate = [...tornate].map((numero) => {
         const pagina = lette[numero - 1]
         const testo = pagina?.testo ?? ''
@@ -551,6 +582,7 @@ export const smistamento = {
       })
       suo.letture = [...suo.letture, ...restaurate].sort((x, y) => x.numero - y.numero)
     }, ['consegne', 'fascicoli', 'smistamenti'])
+    if (!scritto.ok) return scritto
 
     ricostruisci(contesto.archivio, smistamento.id)
     return fatto

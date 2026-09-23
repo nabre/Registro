@@ -23,9 +23,10 @@ import { campo, pastiglia, pulsante, riga, sezioneModulo } from '../components/b
 import { icona } from '../components/icons.js'
 import { apriModale } from '../components/modal.js'
 import { h, rimpiazza } from '../dom.js'
-import { aggiorna, nomeDiPiano, pianiPerCorso, stato } from '../state.js'
+import { aggiorna, lezionePerId, nomeDiPiano, pianiPerCorso, stato } from '../state.js'
 
 import {
+  baseViva,
   campoCollegato,
   corsoProposto,
   fuocoSullaPresa,
@@ -374,8 +375,12 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
         ),
       ),
     alSalva: async (valori, contesto) => {
+      // L'ora com'è adesso: presenze, argomenti e consuntivo non stanno in
+      // questo modulo, e nel frattempo si possono essere scritti altrove.
+      const viva = baseViva(contesto, modifica, base, lezionePerId(base.id))
+      if (!viva) return
       const lezione: Lezione = {
-        ...base,
+        ...viva,
         corsoId: testo(valori.corsoId),
         data: testo(valori.data),
         aula: testo(valori.aula),
@@ -385,7 +390,7 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
       }
       // Cambiare piano dopo che si è già segnato l'avanzamento lascerebbe
       // spunte su attività di un altro piano.
-      if (lezione.pianoId !== base.pianoId) lezione.avanzamento = []
+      if (lezione.pianoId !== viva.pianoId) lezione.avanzamento = []
 
       await salva(
         contesto,

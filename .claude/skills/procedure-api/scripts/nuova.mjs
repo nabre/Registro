@@ -1,6 +1,6 @@
 /**
  * Apre una procedura nuova: il file al posto giusto, le cartelle che mancano,
- * gli indici fino a `src/api/indice.ts`.
+ * gli indici fino a `src/api/index.ts`.
  *
  * Fa la parte meccanica — quella in cui si sbaglia per distrazione e non per
  * giudizio — e si ferma prima di quella che richiede di pensare: lo schema
@@ -25,9 +25,10 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from 'node:path'
 import process from 'node:process'
 
-const PROCEDURE = 'src/api/procedure'
-const INDICE = 'src/api/indice.ts'
-const PROTOCOLLO = 'src/protocollo.ts'
+const PROCEDURE = 'src/api/procedures'
+const INDICE = 'src/api/index.ts'
+const PROTOCOLLO = 'src/protocol.ts'
+const AZIONI = 'src/actions'
 
 // ------------------------------------------------------------- gli argomenti
 
@@ -59,7 +60,7 @@ if (!nome) {
   )
 }
 
-// La forma del nome non è un vezzo: è quella che `prove/api/copertura.test.mjs`
+// La forma del nome non è un vezzo: è quella che `tests/api/coverage.test.mjs`
 // pretende, ed è quella che rende il percorso del file l'indirizzo della
 // procedura. Un nome storto si scopre più tardi, quando il file è già scritto.
 if (!/^[a-z][a-zA-Z]*(\.[a-z][a-zA-Z]*)+$/.test(nome)) {
@@ -116,8 +117,8 @@ if (azione) {
       `L’azione «${azione}» non esiste in ${PROTOCOLLO}.`,
       'Va dichiarata lì, nell’unione `Azione`, prima che una procedura la prenda in carico —',
       'e con lei va contata nei due controlli che leggono quel sorgente:',
-      '  prove/api/copertura.test.mjs   («azioni trovate»)',
-      '  prove/api/ponte.test.mjs       («tutte e N le scritture»)',
+      '  tests/api/coverage.test.mjs   («azioni trovate»)',
+      '  tests/api/bridge.test.mjs     («tutte e N le scritture»)',
     )
   }
 }
@@ -130,18 +131,31 @@ const risali = (f) => (f === 0 ? './' : '../'.repeat(f))
 const f = cartelle.length
 
 const versoApi = `${risali(f)}../`
-const versoAzioni = `${risali(f)}../../azioni/`
+const versoAzioni = `${risali(f)}../../actions/`
+
+/**
+ * Il file dei gestori di un'area. I file sono in inglese e le costanti in
+ * italiano — `ore` sta in `hours.ts` —, quindi il nome non si indovina: si
+ * cerca il file che esporta la costante.
+ */
+function fileDeiGestori (area) {
+  const esporta = new RegExp(`^export const ${area} = \\{`, 'm')
+  const trovato = readdirSync(AZIONI).find((voce) =>
+    voce.endsWith('.ts') && esporta.test(readFileSync(join(AZIONI, voce), 'utf8')))
+  if (!trovato) muori(`Nessun file di ${AZIONI}/ esporta i gestori di «${area}».`)
+  return trovato.replace(/\.ts$/, '')
+}
 
 const righeImport = [
-  ...(azione ? [`import { ${cartelle[0]} } from '${versoAzioni}${cartelle[0]}.js'`] : []),
-  `import { definisci } from '${versoApi}contratto.js'`,
+  ...(azione ? [`import { ${cartelle[0]} } from '${versoAzioni}${fileDeiGestori(cartelle[0])}.js'`] : []),
+  `import { definisci } from '${versoApi}contract.js'`,
   ...(genere === 'scrittura'
     // `daGestore` solo quando c'è un gestore a cui passare la palla: importarlo
     // e non usarlo è un errore di stile, e un file nuovo che non passa
-    // `controllo-stile` insegna a dare quel comando più tardi.
-    ? [`import { ${azione ? 'daGestore, ' : ''}SCRITTURA } from '${versoApi}nucleo.js'`]
+    // `lint` insegna a dare quel comando più tardi.
+    ? [`import { ${azione ? 'daGestore, ' : ''}SCRITTURA } from '${versoApi}core.js'`]
     : []),
-  `import { oggetto } from '${versoApi}schemi.js'`,
+  `import { oggetto } from '${versoApi}schemas.js'`,
 ]
 
 const corpoScrittura = azione
@@ -156,7 +170,7 @@ const corpoScrittura = azione
       '  esegui: (ambito, ingresso) => {',
       '    // DA SCRIVERE: le guardie — quel che può non esistere più va detto con',
       '    // `errore.nonTrovato(...)`, quel che non si può fare con `errore.rifiuta(...)`.',
-      '    // Poi il lavoro, che sta in `src/azioni/`, non qui.',
+      '    // Poi il lavoro, che sta in `src/actions/`, non qui.',
       '    throw new Error(`DA SCRIVERE: ${ambito.tracciato} ${JSON.stringify(ingresso)}`)',
       '  },',
     ]
@@ -212,7 +226,7 @@ function indiceVuoto (parti) {
     '// nominato qui non si registra, e questo è il punto in cui ci si accorge che',
     '// manca.',
     '',
-    `import type { ProceduraQualunque } from '${risali(profondita)}../contratto.js'`,
+    `import type { ProceduraQualunque } from '${risali(profondita)}../contract.js'`,
     '',
     `export const procedure${parti.map(capitale).join('')}: ProceduraQualunque[] = [`,
     ']',
@@ -220,16 +234,26 @@ function indiceVuoto (parti) {
   ].join('\n')
 }
 
+/**
+ * Il testo di un file a righe, con il ritorno a capo con cui è scritto. Su
+ * Windows, con `core.autocrlf`, gli indici sono in CRLF: spezzati sul solo
+ * `\n` ogni riga finiva con `\r`, `']'` non combaciava mai e la voce nuova
+ * finiva in coda al file, fuori dall'array.
+ */
+function righeDi (testo) {
+  return { righe: testo.split(/\r?\n/), aCapo: testo.includes('\r\n') ? '\r\n' : '\n' }
+}
+
 /** Mette una riga di import e una voce nell'array, tenendo l'ordine. */
 function innesta (percorsoIndice, rigaImport, voce) {
-  const righe = readFileSync(percorsoIndice, 'utf8').split('\n')
+  const { righe, aCapo } = righeDi(readFileSync(percorsoIndice, 'utf8'))
   if (righe.some((r) => r === rigaImport)) return false
 
   // L'import va dopo l'ultimo import che gli sta davanti in ordine, e prima
   // degli import delle cartelle — che eslint vuole dopo i file.
-  const cartella = rigaImport.includes('/indice.js')
+  const cartella = rigaImport.includes('/index.js')
   let dove = righe.findLastIndex((r) =>
-    r.startsWith('import ') && (cartella || !r.includes('/indice.js')) && r < rigaImport)
+    r.startsWith('import ') && (cartella || !r.includes('/index.js')) && r < rigaImport)
   if (dove < 0) dove = righe.findLastIndex((r) => r.startsWith('import type '))
   righe.splice(dove + 1, 0, rigaImport)
 
@@ -241,7 +265,7 @@ function innesta (percorsoIndice, rigaImport, voce) {
     if (righe[i] > voce) { posto = i; break }
   }
   righe.splice(posto, 0, voce)
-  writeFileSync(percorsoIndice, righe.join('\n'), 'utf8')
+  writeFileSync(percorsoIndice, righe.join(aCapo), 'utf8')
   return true
 }
 
@@ -255,7 +279,7 @@ fatti.push(`scritto  ${percorso}`)
 // legando ognuno al padre.
 for (let i = cartelle.length; i >= 1; i--) {
   const parti = cartelle.slice(0, i)
-  const indice = join(PROCEDURE, ...parti, 'indice.ts')
+  const indice = join(PROCEDURE, ...parti, 'index.ts')
   if (!existsSync(indice)) {
     writeFileSync(indice, indiceVuoto(parti), 'utf8')
     fatti.push(`scritto  ${indice}`)
@@ -271,7 +295,7 @@ for (let i = cartelle.length; i >= 1; i--) {
   }
 
   if (i > 1) {
-    const padre = join(PROCEDURE, ...cartelle.slice(0, i - 1), 'indice.ts')
+    const padre = join(PROCEDURE, ...cartelle.slice(0, i - 1), 'index.ts')
     if (!existsSync(padre)) {
       writeFileSync(padre, indiceVuoto(cartelle.slice(0, i - 1)), 'utf8')
       fatti.push(`scritto  ${padre}`)
@@ -279,7 +303,7 @@ for (let i = cartelle.length; i >= 1; i--) {
     const costante = `procedure${parti.map(capitale).join('')}`
     const nuovo = innesta(
       padre,
-      `import { ${costante} } from './${parti.at(-1)}/indice.js'`,
+      `import { ${costante} } from './${parti.at(-1)}/index.js'`,
       `  ...${costante},`,
     )
     if (nuovo) fatti.push(`nominata in ${padre}`)
@@ -290,9 +314,9 @@ for (let i = cartelle.length; i >= 1; i--) {
 const area = cartelle[0]
 const costanteArea = `procedure${capitale(area)}`
 const generale = readFileSync(INDICE, 'utf8')
-if (!generale.includes(`from './procedure/${area}/indice.js'`)) {
-  const righe = generale.split('\n')
-  const rigaImport = `import { ${costanteArea} } from './procedure/${area}/indice.js'`
+if (!generale.includes(`from './procedures/${area}/index.js'`)) {
+  const { righe, aCapo } = righeDi(generale)
+  const rigaImport = `import { ${costanteArea} } from './procedures/${area}/index.js'`
   let dove = righe.findLastIndex((r) => r.startsWith('import { procedure') && r < rigaImport)
   if (dove < 0) dove = righe.findLastIndex((r) => r.startsWith('import '))
   righe.splice(dove + 1, 0, rigaImport)
@@ -304,7 +328,7 @@ if (!generale.includes(`from './procedure/${area}/indice.js'`)) {
     if (righe[i] > voce) posto = i
   }
   righe.splice(posto, 0, voce)
-  writeFileSync(INDICE, righe.join('\n'), 'utf8')
+  writeFileSync(INDICE, righe.join(aCapo), 'utf8')
   fatti.push(`area «${area}» aggiunta a ${INDICE}`)
 }
 
@@ -317,14 +341,14 @@ console.log(`  1. lo schema dell’ingresso in ${percorso}, con un «aiuto» su 
 if (azione) {
   console.log(`  2. che lo schema dichiari OGNI campo di «${azione}»: quelli che non dichiara`)
   console.log('     vengono scartati in silenzio, e la scrittura risponde «fatto» lo stesso')
-  console.log('  3. una prova in prove/api/scritture.test.mjs')
+  console.log('  3. una prova in tests/api/writes.test.mjs')
 } else if (genere === 'scrittura') {
   console.log('  2. le guardie: «non c’è più» va distinto da «non si può»')
-  console.log('  3. una prova in prove/api/scritture.test.mjs')
+  console.log('  3. una prova in tests/api/writes.test.mjs')
 } else {
   console.log('  2. la forma dell’uscita: è un contratto con chi la legge')
-  console.log('  3. una prova in prove/api/letture.test.mjs')
+  console.log('  3. una prova in tests/api/reads.test.mjs')
 }
-console.log('  4. npm run procedure   che l’albero stia in piedi')
-console.log('  5. npm run attrezzi    il catalogo per il modello')
-console.log('  6. npm run controllo-tipi && npm run controllo-stile && npm test')
+console.log('  4. npm run procedures  che l’albero stia in piedi')
+console.log('  5. npm run tools       il catalogo per il modello')
+console.log('  6. npm run typecheck && npm run lint && npm test')

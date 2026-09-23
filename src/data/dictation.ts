@@ -71,6 +71,11 @@ import {
 import { WHISPER } from './whisper.js'
 import { senzaVirgolette } from '../domain/text.js'
 
+// Chi spegne il registro ferma anche le trascrizioni in corso. Il segnale vive
+// in `whisper.ts`, che è il file che fa partire il programma; da qui lo si
+// raggiunge come il resto della dettatura.
+export { fermaDettature } from './whisper.js'
+
 // ------------------------------------------------------- che cosa si consegna
 
 /**

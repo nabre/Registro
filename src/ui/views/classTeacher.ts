@@ -117,6 +117,14 @@ function postoDelCestino () {
 const destinatariMandati = new Map<string, string[]>()
 
 /**
+ * Scorda quel che si era mandato: cambiato documento, erano consegne di un
+ * altro registro, e il ricordo non deve sopravvivere al registro di cui parla.
+ */
+export function scordaDestinatariMandati (): void {
+  destinatariMandati.clear()
+}
+
+/**
  * L'elenco dei destinatari con dentro anche questa persona, a partire da quel
  * che si è già mandato.
  */

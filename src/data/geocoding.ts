@@ -73,15 +73,26 @@ const PAESI = 'ch,it,de,fr,at'
 /** Un NAP svizzero: quattro cifre, la prima diversa da zero. */
 const NAP_SVIZZERO = /^[1-9]\d{3}$/
 
-let ultimaChiamata = 0
+/** Il primo istante libero per la prossima richiesta. */
+let prossimoTurno = 0
 
-async function rispettaIlPasso (): Promise<void> {
-  const quandoSiPuo = ultimaChiamata + PAUSA_MS
-  const adesso = Date.now()
-  if (adesso < quandoSiPuo) {
-    await new Promise((risolvi) => setTimeout(risolvi, quandoSiPuo - adesso))
-  }
-  ultimaChiamata = Date.now()
+/**
+ * Aspetta il proprio turno: una richiesta ogni `PAUSA_MS`, anche quando le
+ * domande arrivano insieme.
+ *
+ * Il turno si prenota **prima** dell'attesa, e senza `await` in mezzo: è questo
+ * che ne fa una coda. Letto e scritto dopo l'attesa, due giri partiti insieme —
+ * due pagine della mappa, un secondo clic — calcolavano lo stesso istante e
+ * partivano insieme, contro la sola regola che Nominatim chiede di rispettare.
+ *
+ * `adesso` esiste per le prove. Torna quanto si è aspettato.
+ */
+export async function rispettaIlPasso (adesso: number = Date.now()): Promise<number> {
+  const mio = Math.max(adesso, prossimoTurno)
+  prossimoTurno = mio + PAUSA_MS
+  const attesa = mio - adesso
+  if (attesa > 0) await new Promise((risolvi) => setTimeout(risolvi, attesa))
+  return attesa
 }
 
 /** Un indirizzo collocato, come torna dal servizio: senza ancora una chiave. */

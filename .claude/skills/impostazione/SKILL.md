@@ -3,7 +3,7 @@ name: impostazione
 description: >
   Come si aggiunge, si cambia, si nasconde e si toglie un'impostazione del
   Registro docenti, toccando ogni punto che la riguarda: la dichiarazione in
-  `src/manifesto.ts` (tipo, predefinito, descrizione, `scelte`, `formato`,
+  `src/manifest.ts` (tipo, predefinito, descrizione, `scelte`, `formato`,
   `minimo`/`massimo`, `dipendeDa`, `nascosta`, `avanzata`), la dogana di
   `valoreAccettabile`, la sezione in cui compare, le due superfici che la
   mostrano — la pagina del pannello e la finestra nativa — e le prove che
@@ -23,7 +23,7 @@ Due famiglie, e confonderle è l'unico errore che qui si paga caro (ADR-21 in
 | --- | --- | --- |
 | Dove finisce | `impostazioni.json` in `userData` | dentro il `.registro` dell'anno |
 | Per chi vale | questa macchina, tutti i documenti | quel documento, ovunque lo si apra |
-| Dichiarata in | `src/manifesto.ts` → `IMPOSTAZIONI` | il modello dati, `registro.json` |
+| Dichiarata in | `src/manifest.ts` → `IMPOSTAZIONI` | il modello dati, `registro.json` |
 | Esempi | tema, agenda sul desktop, posta, OCR | scala dei voti, griglia oraria, materie |
 
 La domanda che decide: **se il docente aprisse questo file su un altro
@@ -31,12 +31,12 @@ computer, si aspetterebbe di ritrovare questo valore?** Sì → documento. No �
 programma. Il tema no; la scala dei voti sì, anche fra due anni.
 
 Questa skill parla della prima famiglia. Le impostazioni del documento sono
-campi del modello dati come gli altri: si aggiungono in `src/dominio/modelli.ts`
-e si normalizzano in `src/dominio/validazione.ts`.
+campi del modello dati come gli altri: si aggiungono in `src/domain/models.ts`
+e si normalizzano in `src/domain/validation.ts`.
 
 ## Il manifesto è l'unico elenco
 
-`src/manifesto.ts` è la sola verità: chiave, tipo, predefinito, descrizione,
+`src/manifest.ts` è la sola verità: chiave, tipo, predefinito, descrizione,
 dogana. Da lì nascono i valori predefiniti, la pagina del pannello e la finestra
 nativa. **Non si scrive mai una chiave a mano in `impostazioni.json`**, e non si
 ricopia mai un predefinito altrove: due elenchi da tenere allineati divergono in
@@ -81,7 +81,7 @@ riscritto a mano.
 
 ## La dogana
 
-`valoreAccettabile` in `src/ambiente/impostazioni.ts` è il punto in cui si passa
+`valoreAccettabile` in `src/environment/settings.ts` è il punto in cui si passa
 o non si passa, per **tutti** i chiamanti: la pagina, la finestra nativa, il
 condotto, la riga di comando. Guarda `scelte`, `tipo`, `formato`, `minimo` e
 `massimo`. `undefined` vuol dire «non scrivere».
@@ -92,13 +92,13 @@ con il testo sbagliato e il file con il valore vecchio — è successo, ed è il
 genere di guasto che il docente scopre mesi dopo dal rifiuto di un server di
 posta.
 
-I ripieghi a valle — i `Math.max` di `promemoria.ts`, di `dati/llm.ts` — restano
+I ripieghi a valle — i `Math.max` di `promemoria.ts`, di `data/llm.ts` — restano
 dove sono: sono **la rete, non la dogana**. La dogana impedisce di scrivere il
 valore; la rete impedisce che un file modificato a mano faccia danni.
 
 ## Dove compare
 
-`src/interfaccia/viste/impostazioni/sezioni.ts` divide le chiavi in sezioni **per
+`src/ui/views/settings/sections.ts` divide le chiavi in sezioni **per
 prefisso**. Undici sezioni, e l'ultima `raccoglie: true`: quel che nessuna ha
 nominato finisce lì. È la regola che rende impossibile il guasto peggiore — una
 chiave aggiunta al manifesto e finita in nessuna sezione esisterebbe, si
@@ -118,13 +118,13 @@ nel raccoglitore. Va bene tutte e due, ma va **deciso**, non subìto.
 
 | | Pagina del pannello | Finestra nativa |
 | --- | --- | --- |
-| Dove | `src/interfaccia/viste/impostazioni*` | `guscio/impostazioni.html` + `guscio/menu.ts` |
+| Dove | `src/ui/views/settings*` | `shell/pages/settings/settings.html` + `shell/windows/menu.ts` |
 | Quando serve | quasi sempre | quando **non c'è nessun documento aperto**, e il pannello non esiste |
 | Che cosa può importare | tutto | **niente**: è HTML con script inline |
 
 Ne consegue la regola che governa ogni aggiunta: **quel che le due devono sapere
-si calcola in `vociImpostazioni()`** (in `src/ambiente/impostazioni.ts`) e viaggia
-come campo di `VoceProgramma`, dentro `src/protocollo.ts`. È l'unico punto da cui
+si calcola in `vociImpostazioni()`** (in `src/environment/settings.ts`) e viaggia
+come campo di `VoceProgramma`, dentro `src/protocol.ts`. È l'unico punto da cui
 tutte e due prendono l'elenco, quindi è l'unico in cui il conto non può
 divergere. `sospesa` — la regola di `dipendeDa` — sta lì per questo: prima la
 sapeva solo il pannello, e la finestra nativa mostrava spuntata una concessione
@@ -134,13 +134,13 @@ che il condotto non concedeva.
 
 Tre file, e ognuno sorveglia una cosa diversa:
 
-- `prove/ambiente/impostazioni.test.mjs` — la **dogana**: un indirizzo che non è
+- `tests/environment/settings.test.mjs` — la **dogana**: un indirizzo che non è
   un indirizzo non entra, un numero fuori dagli estremi non entra, una chiave
   inventata non entra, e lo stato del widget non si mostra ma si può scrivere.
-- `prove/interfaccia/sezioniImpostazioni.test.mjs` — che **ogni chiave compaia in
+- `tests/ui/settingsSections.test.mjs` — che **ogni chiave compaia in
   una sezione e in una sola**, e che quel che si salta sia solo quel che il
   manifesto dichiara `nascosta`.
-- `prove/ambiente/menu.test.mjs` — che la finestra nativa riceva ogni voce.
+- `tests/environment/menu.test.mjs` — che la finestra nativa riceva ogni voce.
 
 Sono le tre cose di questa zona che possono rompersi in silenzio. Una chiave
 nuova senza prova non è un rischio teorico: è la prova che fallisce, ed è così
@@ -148,9 +148,9 @@ che si scopre di aver dimenticato la sezione.
 
 ## Il giro completo, per una chiave nuova
 
-1. Dichiararla in `src/manifesto.ts`, con la descrizione discorsiva e le dogane
+1. Dichiararla in `src/manifest.ts`, con la descrizione discorsiva e le dogane
    che le servono.
-2. Deciderne la sezione in `viste/impostazioni/sezioni.ts` — o lasciarla al
+2. Deciderne la sezione in `views/settings/sections.ts` — o lasciarla al
    raccoglitore, sapendo di averlo deciso.
 3. Leggerla dove serve:
    `apparato.impostazioni.leggi('registroDocenti.x').get('y', ripiego)`.

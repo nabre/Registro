@@ -72,6 +72,35 @@ export function richiedeAnno (seNonCe: () => void): AnnoScolastico | null {
   return null
 }
 
+/**
+ * Quel che un modulo di modifica deve prendere come base al momento di salvare:
+ * l'entità com'è **adesso**, non com'era quando la finestra si è aperta.
+ *
+ * Il modulo vive fuori dal ridisegno — è quel che permette di scriverci mentre
+ * l'host spinge dati nuovi — e per la stessa ragione la `base` che ha in mano
+ * è una fotografia dell'apertura. Rimandare `{...base, campi}` riscriveva
+ * tutto quel che il modulo non mostra con i valori di allora: gli allievi di
+ * una classe, l'appello e il consuntivo di un'ora, cambiati nel frattempo da un
+ * altro gesto, tornavano indietro senza che niente lo dicesse. E un'entità
+ * tolta altrove nel frattempo rinasceva al Salva.
+ *
+ * Per un'entità nuova la base è quella del modulo, che non esiste altrove.
+ * Per una modifica si riparte da `attuale`; se non c'è più lo si dice in cima
+ * al modulo e si torna `null`, e chi chiama si ferma lì.
+ */
+export function baseViva<T> (
+  contesto: ContestoModale,
+  modifica: boolean,
+  base: T,
+  attuale: T | null | undefined,
+  tolta = 'Non c’è più: è stata tolta altrove.',
+): T | null {
+  if (!modifica) return base
+  if (attuale) return attuale
+  contesto.mostraErrori([tolta])
+  return null
+}
+
 /** Manda l'azione, e se non passa rimette gli errori in cima al modulo. */
 export async function salva (
   contesto: ContestoModale,

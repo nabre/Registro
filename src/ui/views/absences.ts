@@ -602,7 +602,7 @@ function corniceAssenze (
     : null
   const aPagine = daDividere !== null && stato.sfoglioArchivio === 'pagine'
   const indirizzo = uriDato(foglio.file)
-  const quando = foglio.aggiuntoIl ? formattaData(foglio.aggiuntoIl.slice(0, 10)) : null
+  const quando = foglio.aggiuntoIl ? formattaData(giornoDi(foglio.aggiuntoIl) ?? '') : null
   const comando = {
     classeId: classe.id,
     bloccoId: blocco.id,
@@ -1115,7 +1115,9 @@ function rigaSegnalazione (segnalazione: SegnalazioneAssenza): Figlio {
           `${segnalazione.udAssenza} UD perse su ${segnalazione.udPreviste}`,
       ),
       pastiglia(
-        `${segnalazione.percento}% di assenza`,
+        // Può avere un decimale — 33,4 quando l'intero arrotondato starebbe
+        // sotto la soglia — e il decimale si scrive con la virgola.
+        `${String(segnalazione.percento).replace('.', ',')}% di assenza`,
         segnalazione.confermata ? 'negativo' : 'attenzione',
       ),
       // Non confermata vuol dire che il numero viene dalle ore previste ma

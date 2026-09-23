@@ -12,11 +12,13 @@
 // La cache sta in `userData` e non nella cartella del docente: sono immagini di
 // strade, non dati suoi, e finire dentro OneDrive vorrebbe dire sincronizzare
 // qualche migliaio di file che si riscaricano in un secondo. Non si svuota da
-// sé — un tassello di OpenStreetMap non invecchia in fretta, e chi vuole
-// liberare lo spazio cancella la cartella.
+// sé — chi vuole liberare lo spazio cancella la cartella — ma un tassello più
+// vecchio di una settimana si richiede: le strade cambiano, e soprattutto un
+// tassello venuto male non deve restare per sempre. Se la rete non c'è, si
+// serve quello vecchio, che è meglio di un buco.
 
 import { app, net } from 'electron'
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
 /**
@@ -45,6 +47,12 @@ const ZOOM_MASSIMO = 19
  * vuoto con sopra i suoi segnaposti, che è già la risposta alla domanda.
  */
 const ATTESA_MS = 8_000
+
+/**
+ * Quanto vale un tassello in cache prima di richiederlo: una settimana, come il
+ * `max-age` con cui lo si porge alla pagina.
+ */
+const SCADENZA_MS = 7 * 24 * 60 * 60 * 1000
 
 /**
  * I tasselli che si stanno prendendo adesso, per percorso.
@@ -95,9 +103,12 @@ export function leggiCoordinate (segmenti: string[]): { z: number; x: number; y:
 export async function tassello (z: number, x: number, y: number): Promise<Response> {
   const file = join(cartellaCache(), String(z), String(x), `${y}.png`)
 
+  let vecchio: Uint8Array<ArrayBuffer> | null = null
   try {
-    const byte = await readFile(file)
-    return rispondi({ byte: new Uint8Array(byte) })
+    const [byte, stato] = await Promise.all([readFile(file), stat(file)])
+    if (Date.now() - stato.mtimeMs < SCADENZA_MS) return rispondi({ byte: new Uint8Array(byte) })
+    // Scaduto: si riscarica, e questo si tiene per quando la rete non c'è.
+    vecchio = new Uint8Array(byte)
   } catch {
     // Non c'era: si scarica. È il caso normale la prima volta che si apre la
     // mappa su una zona.
@@ -111,7 +122,10 @@ export async function tassello (z: number, x: number, y: number): Promise<Respon
     })
     inCorso.set(file, corsa)
   }
-  return rispondi(await corsa)
+  const esito = await corsa
+  // Senza rete, o con un server che risponde male, un tassello di un mese fa è
+  // meglio di un buco nella mappa.
+  return rispondi(vecchio && !('byte' in esito) ? { byte: vecchio } : esito)
 }
 
 /** La risposta per chi ha chiesto, costruita nuova ogni volta: vedi `Esito`. */
@@ -136,6 +150,14 @@ async function prendi (file: string, z: number, x: number, y: number): Promise<E
     })
     if (!risposta.ok) {
       return { stato: 502, perché: `il server dei tasselli ha risposto ${risposta.status}` }
+    }
+    // Un 200 che non è un'immagine: la pagina di accesso di un proxy di scuola,
+    // o un avviso del filtro dei contenuti. Messa in cache, sarebbe un tassello
+    // rotto per sempre — o almeno per la settimana della scadenza — anche dopo
+    // che il proxy ha smesso di mettersi in mezzo.
+    const tipo = risposta.headers.get('content-type') ?? ''
+    if (!tipo.toLowerCase().startsWith('image/')) {
+      return { stato: 502, perché: `il server dei tasselli ha risposto con «${tipo}», non un'immagine` }
     }
     const byte = new Uint8Array(await risposta.arrayBuffer())
     // Scritto dopo aver risposto sarebbe più svelto, ma non di quanto conti: il

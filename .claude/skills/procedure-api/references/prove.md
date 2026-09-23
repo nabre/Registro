@@ -1,7 +1,7 @@
 # Provare una procedura
 
-Le prove dell'API stanno in `prove/api/` e girano sul bundle `dist-prove/api.mjs`
-— l'archivio vero sotto, in un grafo solo (vedi `prove/aiuti/api.ts`, dove c'è il
+Le prove dell'API stanno in `tests/api/` e girano sul bundle `dist-tests/api.mjs`
+— l'archivio vero sotto, in un grafo solo (vedi `tests/helpers/api.ts`, dove c'è il
 perché). `npm run pretest` lo ricostruisce; `npm test` lo fa da sé.
 
 ## Indice
@@ -17,29 +17,29 @@ perché). `npm run pretest` lo ricostruisce; `npm test` lo fa da sé.
 
 | File | Difende |
 | --- | --- |
-| `schemi.test.mjs` | la convalida da sola: il percorso dell'errore, `opzionale` contro `nullabile` |
-| `nucleo.test.mjs` | «si convalida prima di toccare l'archivio»: il giornale, i codici, la busta |
-| `ponte.test.mjs` | che innestare una procedura non cambi il comportamento di un'azione |
-| `copertura.test.mjs` | che nessuno schema perda un campo dell'azione che prende in carico |
-| `procedure.test.mjs` | gli elenchi di valori: che restino quelli del dominio |
-| `letture.test.mjs` | che le letture non tocchino niente, e che tornino il conto già fatto |
-| `scritture.test.mjs` | che un ingresso storto sia rifiutato **prima** di toccare l'archivio |
-| `permessi.test.mjs` | il cancello del condotto: `permessoMancante` |
-| `assistente.test.mjs` | il cancello del modello: `usaAttrezzo` non esegue una scrittura |
-| `attrezzi.test.mjs` | che `risorse/attrezzi.json` non sia rimasto indietro |
+| `schemas.test.mjs` | la convalida da sola: il percorso dell'errore, `opzionale` contro `nullabile` |
+| `core.test.mjs` | «si convalida prima di toccare l'archivio»: il giornale, i codici, la busta |
+| `bridge.test.mjs` | che innestare una procedura non cambi il comportamento di un'azione |
+| `coverage.test.mjs` | che nessuno schema perda un campo dell'azione che prende in carico |
+| `procedures.test.mjs` | gli elenchi di valori: che restino quelli del dominio |
+| `reads.test.mjs` | che le letture non tocchino niente, e che tornino il conto già fatto |
+| `writes.test.mjs` | che un ingresso storto sia rifiutato **prima** di toccare l'archivio |
+| `permissions.test.mjs` | il cancello del condotto: `permessoMancante` |
+| `assistant.test.mjs` | il cancello del modello: `usaAttrezzo` non esegue una scrittura |
+| `tools.test.mjs` | che `resources/tools.json` non sia rimasto indietro |
 
 ## Dove va la tua prova
 
-- **una lettura** → `letture.test.mjs`
-- **una scrittura** → `scritture.test.mjs`
+- **una lettura** → `reads.test.mjs`
+- **una scrittura** → `writes.test.mjs`
 - **un elenco di valori nuovo** (`STATI_*`, `GENERI_*`) → anche
-  `procedure.test.mjs`
-- **un'azione nuova** → i conti in `copertura.test.mjs` e `ponte.test.mjs`
-- **un codice d'errore nuovo** → `nucleo.test.mjs`
+  `procedures.test.mjs`
+- **un'azione nuova** → i conti in `coverage.test.mjs` e `bridge.test.mjs`
+- **un codice d'errore nuovo** → `core.test.mjs`
 
-Non serve un file per procedura: `scritture.test.mjs` prova sei scritture scelte
+Non serve un file per procedura: `writes.test.mjs` prova sei scritture scelte
 in sei aree diverse, perché la copertura campo per campo la fa già
-`copertura.test.mjs` leggendo il protocollo. Quel che manca, e che si aggiunge, è
+`coverage.test.mjs` leggendo il protocollo. Quel che manca, e che si aggiunge, è
 il caso che quella procedura ha di suo.
 
 ## Che cosa deve provare
@@ -84,11 +84,11 @@ giusto e non solo ben formato.
 Tre prove non guardano il comportamento ma **il testo dei file**, e vanno capite
 prima di toccarle:
 
-- `copertura.test.mjs` legge l'unione `Azione` da `src/protocollo.ts`, contando
+- `coverage.test.mjs` legge l'unione `Azione` da `src/protocol.ts`, contando
   le graffe — le varianti sono scritte in due stili e un'espressione regolare
   sarebbe più fragile di un contatore.
-- `ponte.test.mjs` e `scritture.test.mjs` leggono la guardia di
-  `rispondiDomanda()` da `src/pannelli/pannello.ts` e la applicano a tutte le
+- `bridge.test.mjs` e `writes.test.mjs` leggono la guardia di
+  `rispondiDomanda()` da `src/panels/panel.ts` e la applicano a tutte le
   procedure.
 
 Sono fatte così apposta: verificare che ogni procedura *dichiari* un genere non
@@ -110,7 +110,7 @@ accorge che è nata un'azione. Quando aggiungi o togli un'azione, aggiorna il
 numero **e** il commento che spiega perché è cambiato — quel commento è la
 memoria di come si è arrivati fin lì.
 
-Lo stesso vale per «tutte e N le scritture» in `ponte.test.mjs`.
+Lo stesso vale per «tutte e N le scritture» in `bridge.test.mjs`.
 
 ## Quel che non si prova qui
 
@@ -118,7 +118,8 @@ Lo stesso vale per «tutte e N le scritture» in `ponte.test.mjs`.
   `anni.crea`) e **quelle che escono in rete** (`posta.*`, `mappa.geocodifica`):
   si fermerebbero ad aspettare una persona o una risposta. Se la tua è di
   queste, prova la guardia e non il giro intero.
-- **Il lavoro del gestore**: è già provato in `prove/azioni/`. Una procedura che
+- **Il lavoro del gestore**: è già provato altrove — la logica nel dominio
+  (`tests/domain/`), i gestori nelle prove dell'API (`tests/api/`). Una procedura che
   passa la palla con `daGestore` non ha bisogno di riprovare quel che il gestore
   fa; ha bisogno di provare quel che la procedura aggiunge — lo schema e le
   guardie.

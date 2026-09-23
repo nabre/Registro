@@ -24,10 +24,17 @@
 //                 primo numero è affidabile.
 //
 // La segnalazione nasce dalla prima, che è quella con cui la scuola ragiona; e
-// **preme** solo quando anche la seconda è oltre soglia. Un semestre con metà
-// appelli dimenticati fa salire la prima da sola: è un caso da guardare, ma non
-// è ancora un caso da segnalare a qualcuno, ed è giusto che si veda la
-// differenza invece di trattarli allo stesso modo.
+// **preme** solo quando gli appelli delle ore svolte ci sono tutti. Un
+// appello dimenticato è un'UD che non si sa se è persa: il numero è da
+// guardare, ma non è ancora un caso da segnalare a qualcuno.
+//
+// Prima `confermata` guardava la seconda quota, e sbagliava verso: gli appelli
+// mancanti **abbassano** la quota sulle previste, non la alzano, e le UD con
+// appello non superano quasi mai le previste — quindi la seconda era sempre
+// sopra la prima, e ogni segnalazione usciva «confermata» anche con l'appello
+// fatto su tre ore di nove. L'unico caso «da completare» era il rovescio:
+// tutti gli appelli fatti, più qualche ora fuori orario. Adesso il campo
+// misura quel che la pagina ne dice: se mancano appelli, e basta.
 //
 // ## Che cosa manca ancora (LACUNE, voce 6)
 //
@@ -36,7 +43,7 @@
 // rifà: è un oggetto del documento d'anno, e non un conto che si rifà a ogni
 // apertura come questo.
 
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from './calculations.js'
+import { allieviAttivi, contaUd, nomeCompleto, ordinaAllievi } from './calculations.js'
 import { classeDelCorsoId, materiaDelCorso, registroDelCorso } from './courses.js'
 import { matriceCorso } from './courseMatrix.js'
 import type {
@@ -45,6 +52,7 @@ import type {
   Classe,
   Corso,
   Iso,
+  Lezione,
   Registro,
   Semestre,
 } from './models.js'
@@ -61,7 +69,26 @@ import { udPrevisteDaOrario } from './timetable.js'
  * né avvisi sui fogli né pendenze in elenco.
  */
 export function oltreSoglia (soglia: number, quota: number | null): boolean {
-  return soglia > 0 && quota !== null && quota * 100 > soglia
+  // Non `quota * 100 > soglia`: 7/100 * 100 fa 7.000000000000001, e una
+  // persona esattamente alla soglia del 7, del 14 o del 28 risultava oltre.
+  return soglia > 0 && quota !== null && quota * 100 - soglia > 1e-9
+}
+
+/**
+ * La percentuale da leggere: intera, o con un decimale per eccesso quando
+ * l'intero la farebbe sembrare dentro la soglia.
+ *
+ * Chi è al 20,3% con la soglia al 20 è oltre; «20% di assenza» accanto a
+ * «oltre il 20%» è una frase che si contraddice. Il decimale per eccesso —
+ * 20,1 e non 20,0 — dice che la soglia è passata, anche di poco.
+ */
+export function percentoDaLeggere (quota: number, soglia: number): number {
+  const intero = Math.round(quota * 100)
+  if (intero > soglia) return intero
+  // Il millesimo si pulisce prima dell'eccesso, o 0,203 * 1000 = 203,00000000000003
+  // diventerebbe 20,4; e chi è oltre di un soffio legge comunque un decimo sopra.
+  const decimi = Math.ceil(Math.round(quota * 1e7) / 1e4)
+  return (decimi > soglia * 10 ? decimi : Math.floor(soglia * 10) + 1) / 10
 }
 
 /** Una persona oltre la soglia, in un corso e in un periodo. */
@@ -78,16 +105,21 @@ export interface SegnalazioneAssenza {
   periodo: string
   /** Quota di assenza sulle UD previste, 0–1: è quella che fa scattare la soglia. */
   assenza: number
-  /** La stessa in punti percentuali, arrotondata: è quel che si legge. */
+  /**
+   * La stessa in punti percentuali, arrotondata: è quel che si legge. Con un
+   * decimale per eccesso quando l'intero non supererebbe la soglia (20,1 e non
+   * 20 con la soglia al 20): vedi `percentoDaLeggere`.
+   */
   percento: number
   /** Di quanto supera la soglia, in punti percentuali. */
   scarto: number
   udAssenza: number
   udPreviste: number
   /**
-   * Vero quando anche la percentuale sulle UD con l'appello fatto è oltre
-   * soglia: allora il numero non dipende dagli appelli mancanti, e il caso è da
-   * segnalare e non solo da guardare.
+   * Vero quando l'appello c'è su tutte le UD delle ore segnate come svolte nel
+   * periodo: allora il numero non dipende da appelli mancanti, e il caso è da
+   * segnalare e non solo da guardare. Senza nessuna ora segnata svolta non c'è
+   * niente che manchi, e vale vero.
    */
   confermata: boolean
 }
@@ -97,11 +129,12 @@ function udPreviste (
   corso: Corso,
   anno: AnnoScolastico | null,
   semestre: Semestre | null,
+  lezioni: readonly Lezione[],
 ): number {
   const dal = semestre?.inizio ?? anno?.inizio
   const al = semestre?.fine ?? anno?.fine
   if (!dal || !al) return 0
-  return udPrevisteDaOrario(anno, corso, dal, al)
+  return udPrevisteDaOrario(anno, corso, dal, al, lezioni)
 }
 
 function dentroIlPeriodo (semestre: Semestre | null, data: Iso): boolean {
@@ -138,8 +171,12 @@ export function segnalazioniDelCorso (
     lezioni,
     [],
     registro.impostazioni,
-    udPreviste(corso, anno, semestre),
+    udPreviste(corso, anno, semestre, registro.lezioni),
   )
+  // Le UD delle ore svolte: quelle su cui l'appello dovrebbe esserci.
+  const udSvolte = lezioni
+    .filter((lezione) => lezione.stato === 'svolta')
+    .reduce((somma, lezione) => somma + contaUd(lezione), 0)
 
   const nome = materiaDelCorso(registro, corso)?.nome ?? corso.titolo
   const periodo = semestre?.etichetta ?? 'anno intero'
@@ -155,13 +192,11 @@ export function segnalazioniDelCorso (
       corso: nome,
       periodo,
       assenza: riga.assenza ?? 0,
-      percento: Math.round((riga.assenza ?? 0) * 100),
+      percento: percentoDaLeggere(riga.assenza ?? 0, soglia),
       scarto: Math.round((riga.assenza ?? 0) * 100) - soglia,
       udAssenza: riga.udAssenza,
       udPreviste: riga.udPreviste,
-      // `presenza` è la quota di *presenza* sulle UD con l'appello: oltre
-      // soglia vuol dire che la quota di assenza corrispondente la supera.
-      confermata: oltreSoglia(soglia, riga.presenza === null ? null : 1 - riga.presenza),
+      confermata: riga.udConAppello >= udSvolte,
     }))
     .sort((a, b) => b.assenza - a.assenza || a.allievo.localeCompare(b.allievo, 'it'))
 }

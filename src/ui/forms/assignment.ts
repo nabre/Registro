@@ -22,6 +22,7 @@ import { classeDelCorsoId, materiaDelCorsoId, nomeCorso, stato } from '../state.
 import {
   VOCI_CATEGORIA_DOCUMENTO,
   VOCI_TIPO_CONSEGNA,
+  baseViva,
   campoDi,
   corsoBuono,
   salva,
@@ -370,8 +371,17 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
       const modo = testo(valori.modoScadenza)
       const scelti = allieviAttuali.filter((allievo) => Boolean(valori[`allievo-${allievo.id}`]))
 
+      // Com'è adesso: chi l'ha già fatta non sta in questo modulo, e le spunte
+      // arrivate mentre era aperto non devono tornare indietro.
+      const viva = baseViva(
+        contesto,
+        modifica,
+        base,
+        stato.registro.consegne.find((c) => c.id === base.id),
+      )
+      if (!viva) return
       const aggiornata: Consegna = {
-        ...base,
+        ...viva,
         corsoId: testo(valori.corsoId) || corsoAttuale,
         testo: testo(valori.testo),
         tipo: testo(valori.tipo) as Consegna['tipo'],

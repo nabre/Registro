@@ -304,6 +304,13 @@ export const procedura = definisci({
      */
     const guarda = (da: string, a: string) => {
       const lezioni = oreDelCorso.filter((l) => nelPeriodo(l.data, da, a))
+      // Le annullate restano fuori dai **conti**, come nella pagina del corso,
+      // negli avvisi e nei rapporti: un'ora che non si è tenuta non è un'ora in
+      // cui qualcuno poteva mancare, e annullarla non cancella l'appello che
+      // aveva. Contate qui, le stesse assenze davano il 10% alla procedura e lo
+      // 0% al foglio stampato. `oreGuardate` resta sulle ore a calendario: dice
+      // quante ore cadono nel periodo, non quante valgono.
+      const tenute = lezioni.filter((l) => l.stato !== 'annullata')
       const momenti = r.valutazioni.filter(
         (v) => v.corsoId === corso.id && nelPeriodo(v.data, da, a),
       )
@@ -311,10 +318,10 @@ export const procedura = definisci({
       // sulle UD delle ore a calendario di quel periodo, che è l'unico monte
       // ore che in quel caso si conosca. La somma resta il totale, perché
       // anche il totale ripiega sullo stesso conto.
-      const previste = anno ? udPrevisteDaOrario(anno, corso, da, a) : 0
+      const previste = anno ? udPrevisteDaOrario(anno, corso, da, a, r.lezioni) : 0
       return {
         oreGuardate: lezioni.length,
-        matrice: matriceCorso(allievi, lezioni, momenti, r.impostazioni, previste),
+        matrice: matriceCorso(allievi, tenute, momenti, r.impostazioni, previste),
       }
     }
 

@@ -25,11 +25,7 @@ import {
   momentoLezione,
   riepilogaPresenze,
 } from './calculations.js'
-import { consegneDaGuardare, consegneDellaLezione } from './assignments.js'
-import { recuperiDaFare, recuperiUrgenti } from './retakes.js'
-import { riconsegneAgliAllievi, riconsegneAperte, riconsegneDaFare } from './returns.js'
-import { nelPeriodo } from './dates.js'
-import type { AnnoScolastico, Corso, Iso, Lezione, Ora, Registro, Semestre } from './models.js'
+import type { Iso, Lezione, Ora, Registro } from './models.js'
 
 /**
  * Un segno su una lezione. Alcuni sono buchi da chiudere, altri sono fatti che
@@ -251,21 +247,6 @@ export function oraDaCompilare (
 }
 
 /**
- * Le lezioni di un corso che contano, in ordine: le annullate non sono ore.
- * Con un periodo, solo quelle che ci cadono dentro.
- */
-export function lezioniDelCorso (
-  registro: Registro,
-  corsoId: string,
-  periodo?: { inizio: Iso, fine: Iso },
-): Lezione[] {
-  return registro.lezioni
-    .filter((l) => l.corsoId === corsoId && l.stato !== 'annullata')
-    .filter((l) => !periodo || nelPeriodo(l.data, periodo.inizio, periodo.fine))
-    .sort(confrontaLezioni)
-}
-
-/**
  * Che cosa dire di un'ora.
  *
  * La regola sul passato è quella che conta: un'ora già trascorsa senza appello
@@ -317,9 +298,9 @@ export function diagnosiLezione (
   const mancanti = presenze.assenti + presenze.parziali
   if (!senzaAppello && mancanti > 0) segni.push('assenze')
 
-  // Quel che c'è da ritirare non si segna qui: lo porta la prima ora utile del
-  // corso, insieme a tutto il resto che aspetta quella classe. Vedi il segno
-  // «todo» in `colonnaCruscotto`.
+  // Quel che c'è da ritirare non si segna qui: lo portava la prima ora utile
+  // del corso, con il segno «todo», nella colonna del vecchio cruscotto — tolta
+  // perché non la chiamava più nessuno. Il segno e il conto restano nel tipo.
 
   const urgenza: Urgenza =
     segni.includes('senza-appello') || segni.includes('da-segnare')
@@ -347,217 +328,4 @@ export function cosaManca (diagnosi: DiagnosiLezione): string[] {
   if (diagnosi.segni.includes('senza-appello')) pezzi.push('senza appello')
   if (diagnosi.segni.includes('da-segnare')) pezzi.push('non segnata svolta')
   return pezzi
-}
-
-interface ColonnaCruscotto {
-  corso: Corso
-  ore: DiagnosiLezione[]
-  /** Quante ore si sono già fatte: quelle la cui data è passata. */
-  passate: number
-  /** Quante hanno un buco aperto. */
-  buchi: number
-  /** Quante ore future la loro scaletta non copre ancora fino in fondo. */
-  daPreparare: number
-  /** La prossima ora da fare, se ce n'è una. */
-  prossima: Lezione | null
-}
-
-/**
- * Una colonna: un corso con le sue ore del periodo, già giudicate e numerate.
- *
- * Le cose da fare non hanno una data: si fanno la prossima volta che si
- * entra in quell'aula. Il segno «todo» sta quindi sulla prima ora non ancora
- * passata di tutto il corso — non del periodo: guardando il primo semestre
- * a ottobre, la prossima ora è di ottobre, e la prima del secondo semestre
- * non deve ripetere lo stesso conto — e si sposta da solo quando quell'ora
- * finisce, senza che niente venga riscritto nei dati.
- *
- * Si contano tutte: arretrate, in scadenza lì, e quelle che stanno solo
- * aperte. È l'unico segno che parla di consegne, ed è giusto che sia uno: la
- * domanda che ci si fa guardando il cruscotto è quanto c'è da fare quando si
- * rivede quella classe, e due icone nella stessa cella la spezzavano in due
- * risposte che si leggevano insieme comunque.
- */
-export function colonnaCruscotto (
-  registro: Registro,
-  corso: Corso,
-  oggi: Iso,
-  periodo?: { inizio: Iso, fine: Iso },
-  ora: Ora = '23:59',
-): ColonnaCruscotto {
-  const ore = lezioniDelCorso(registro, corso.id, periodo).map((lezione, indice) => ({
-    ...diagnosiLezione(registro, lezione, indice + 1, oggi, ora),
-    momento: momentoLezione(lezione, oggi, ora),
-  }))
-
-  const prossimaDelCorso = lezioniDelCorso(registro, corso.id).find(
-    (l) => momentoLezione(l, oggi, ora) !== 'passata',
-  )
-  const prima = prossimaDelCorso ? ore.find((o) => o.lezione.id === prossimaDelCorso.id) : undefined
-  if (prima) {
-    const classe = registro.classi.find((c) => c.id === corso.classeId) ?? null
-    const suoi = consegneDellaLezione(registro, prima.lezione, classe)
-    const daFare = suoi.arretrate.length + suoi.scadono.length + suoi.aperte.length
-    if (daFare > 0) {
-      prima.todo = daFare
-      prima.segni.push('todo')
-    }
-  }
-
-  return {
-    corso,
-    ore: ore.map(({ momento: _momento, ...diagnosi }) => diagnosi),
-    passate: ore.filter((o) => o.momento === 'passata').length,
-    buchi: ore.filter((o) => o.urgenza === 'manca').length,
-    daPreparare: ore.filter((o) => o.urgenza === 'da-preparare').length,
-    prossima: ore.find((o) => o.momento !== 'passata')?.lezione ?? null,
-  }
-}
-
-/** Una tabella del cruscotto: un semestre, con tutti i corsi in colonna. */
-interface SezioneCruscotto {
-  /** Il semestre a cui appartiene, o null se l'anno non ne dichiara. */
-  semestre: Semestre | null
-  colonne: ColonnaCruscotto[]
-  /** Quante righe ha la tabella: il corso più lungo del semestre comanda. */
-  righe: number
-  ore: number
-  passate: number
-  buchi: number
-  daPreparare: number
-  /** Vero se il giorno di oggi cade in questo semestre. */
-  corrente: boolean
-}
-
-interface RiepilogoCruscotto {
-  sezioni: SezioneCruscotto[]
-  ore: number
-  passate: number
-  buchi: number
-  daPreparare: number
-  /** Consegne con il termine passato e qualcuno che manca ancora. */
-  arretrate: number
-  /** Consegne che scadono oggi: sono quelle da ritirare adesso. */
-  daRitirare: number
-  /**
-   * Prove da rifare che aspettano una decisione: nessuna data, o una data
-   * lasciata passare. Non c'è nessun automatismo che le chiuda, e a giugno si
-   * pagano sulla media di qualcuno — è il motivo per cui stanno qui davanti.
-   */
-  recuperi: number
-  /**
-   * I fogli ancora in mano a chi insegna: prove da correggere o da ridare,
-   * recuperi valutati e non restituiti, compiti di chi il giorno della
-   * riconsegna non c'era.
-   *
-   * Uno solo e non tre: la domanda è «quanta carta ho sulla scrivania», e per
-   * quella non conta da quale elenco esca. I tre mucchi si aprono nel Todo.
-   */
-  daRiconsegnare: number
-  /** Le ore di oggi, di tutti i corsi, in ordine di inizio. */
-  oggi: Lezione[]
-  /** L'ora che si sta facendo proprio adesso, se ce n'è una. */
-  inCorso: Lezione | null
-  /** La prossima di oggi che deve ancora cominciare. */
-  prossima: Lezione | null
-  /**
-   * La prossima ora in assoluto: quella di oggi se ce n'è ancora una, altrimenti
-   * la prima del giorno in cui si torna in classe. È la domanda «dove devo
-   * essere fra poco?», e a fine giornata la risposta non sta più in `prossima`
-   * — che tace, perché di oggi non è rimasto niente.
-   */
-  successiva: Lezione | null
-  /**
-   * Le ore che restano da fare, tutte insieme: la giornata in cui si entra la
-   * prossima volta, con dentro quel che non è ancora passato.
-   *
-   * È la giornata della lezione successiva, non «oggi» e non «domani». A metà
-   * mattina è il resto di oggi — con l'ora in corso in testa, perché è quella in
-   * cui si è dentro; a giornata finita salta al giorno in cui si torna in
-   * classe, e fra venerdì e lunedì ci sono due giorni che non contano. Le ore
-   * già fatte non ci sono: hanno la matrice, e qui toglierebbero il posto a quel
-   * che deve ancora succedere. Null quando non resta più niente.
-   */
-  prossimeLezioni: { data: Iso, lezioni: Lezione[] } | null
-}
-
-function sezione (
-  registro: Registro,
-  corsi: Corso[],
-  oggi: Iso,
-  semestre: Semestre | null,
-  ora: Ora,
-): SezioneCruscotto {
-  const periodo = semestre ? { inizio: semestre.inizio, fine: semestre.fine } : undefined
-  const colonne = corsi.map((corso) => colonnaCruscotto(registro, corso, oggi, periodo, ora))
-  return {
-    semestre,
-    colonne,
-    righe: colonne.reduce((massimo, c) => Math.max(massimo, c.ore.length), 0),
-    ore: colonne.reduce((somma, c) => somma + c.ore.length, 0),
-    passate: colonne.reduce((somma, c) => somma + c.passate, 0),
-    buchi: colonne.reduce((somma, c) => somma + c.buchi, 0),
-    daPreparare: colonne.reduce((somma, c) => somma + c.daPreparare, 0),
-    corrente: !semestre || nelPeriodo(oggi, semestre.inizio, semestre.fine),
-  }
-}
-
-/**
- * Il cruscotto intero, una tabella per semestre.
- *
- * I corsi arrivano già scelti da chi chiama — il filtro per classe è una cosa
- * del pannello, non del dominio. Le ore che cadono fuori da ogni semestre non
- * compaiono in nessuna tabella: sono un errore di date che il registro segnala
- * già per conto suo, e inventargli una casella lo nasconderebbe.
- */
-export function riepilogoCruscotto (
-  registro: Registro,
-  corsi: Corso[],
-  anno: AnnoScolastico | null,
-  oggi: Iso,
-  ora: Ora = '23:59',
-): RiepilogoCruscotto {
-  const semestri = anno?.semestri ?? []
-  const sezioni =
-    semestri.length > 0
-      ? [...semestri]
-          .sort((a, b) => a.inizio.localeCompare(b.inizio))
-          .map((semestre) => sezione(registro, corsi, oggi, semestre, ora))
-      : [sezione(registro, corsi, oggi, null, ora)]
-
-  const tutte = sezioni.flatMap((s) => s.colonne).flatMap((c) => c.ore)
-  const consegne = consegneDaGuardare(registro, corsi, oggi)
-  const gruppiRecuperi = recuperiDaFare(registro, corsi, oggi)
-
-  const inOrdine = tutte.map((o) => o.lezione).sort(confrontaLezioni)
-  const diOggi = inOrdine.filter((l) => l.data === oggi)
-
-  // La giornata in cui si entra la prossima volta: quella della prima ora non
-  // ancora passata. Se un'ora è in corso quella giornata è oggi, e ci finisce
-  // dentro anche lei — si sta facendo, quindi è la prima cosa che resta.
-  const daFare = inOrdine.filter((l) => momentoLezione(l, oggi, ora) !== 'passata')
-  const giornoProssime = daFare[0]?.data ?? null
-
-  return {
-    sezioni,
-    inCorso: diOggi.find((l) => momentoLezione(l, oggi, ora) === 'in-corso') ?? null,
-    prossima: diOggi.find((l) => momentoLezione(l, oggi, ora) === 'futura') ?? null,
-    // Un'ora in corso non è la successiva: la successiva è quella dopo.
-    successiva: inOrdine.find((l) => momentoLezione(l, oggi, ora) === 'futura') ?? null,
-    prossimeLezioni: giornoProssime
-      ? { data: giornoProssime, lezioni: daFare.filter((l) => l.data === giornoProssime) }
-      : null,
-    arretrate: consegne.arretrate.length,
-    daRitirare: consegne.scadono.length,
-    recuperi: recuperiUrgenti(gruppiRecuperi),
-    daRiconsegnare:
-      riconsegneAperte(riconsegneDaFare(registro, corsi, oggi)) +
-      gruppiRecuperi.daRiconsegnare.length +
-      riconsegneAgliAllievi(registro, corsi, oggi).length,
-    ore: sezioni.reduce((somma, s) => somma + s.ore, 0),
-    passate: sezioni.reduce((somma, s) => somma + s.passate, 0),
-    buchi: sezioni.reduce((somma, s) => somma + s.buchi, 0),
-    daPreparare: sezioni.reduce((somma, s) => somma + s.daPreparare, 0),
-    oggi: diOggi,
-  }
 }

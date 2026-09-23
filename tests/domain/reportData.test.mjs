@@ -918,6 +918,25 @@ describe('l’assenza oltre la soglia', () => {
     assert.equal(scheda(registro.classi[0].allievi[0]).valori.avvisoAssenza, '')
   })
 
+  it('appena oltre, un decimale: non «del 33%, oltre il 33%»', () => {
+    // Tre ore da due UD, una persa: il 33,3%. Arrotondato all'intero è 33, e
+    // il foglio da firmare direbbe una cosa che si contraddice da sola.
+    const registro = registroCon([
+      ora('2026-10-06', [{ allievoId: 'al-2', stati: ['assente', 'assente'] }]),
+      ora('2026-10-13', [{ allievoId: 'al-2', stati: ['presente', 'presente'] }]),
+      ora('2026-10-20', [{ allievoId: 'al-2', stati: ['presente', 'presente'] }]),
+    ])
+    registro.impostazioni.sogliaAssenza = 33
+    const [, bianchi] = registro.classi[0].allievi
+    const scheda = datiAllievo(
+      registro, registro.classi[0], bianchi, primoSemestre(registro), corso(registro),
+    )
+    assert.equal(
+      scheda.valori.avvisoAssenza,
+      'Attenzione: assenza del 33,4%, oltre il 33% previsto.',
+    )
+  })
+
   it('a zero non segnala nessuno', () => {
     // C'è chi quel conto lo fa altrove e non vuole un avviso su ogni foglio.
     const registro = conAssenze()

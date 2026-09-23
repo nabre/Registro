@@ -125,6 +125,7 @@ function datiCorso (corso: Corso) {
         corso,
         semestreScelto()?.inizio ?? annoCorrente()?.inizio ?? '',
         semestreScelto()?.fine ?? annoCorrente()?.fine ?? '',
+        stato.registro.lezioni,
       ),
     ),
   }

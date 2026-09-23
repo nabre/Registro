@@ -184,8 +184,33 @@ export function ripulisci (uscita: string): string {
 
 // --------------------------------------------------------------- il programma
 
+/**
+ * Il segnale che ferma le trascrizioni in corso.
+ *
+ * Come le letture di `ocr.ts`: `whisper-cli` è un programma a parte, e una
+ * frase su un modello grande può tenerlo occupato per l'intera attesa
+ * dichiarata. Chi spegne il registro non deve aspettarlo, né lasciarlo girare
+ * da solo con il file della voce ancora aperto: il segnale arriva fino a
+ * `execFile`, che al primo strattone ammazza il processo, e il `finally` di
+ * `trascrivi` qui sotto cancella il WAV.
+ */
+let dettature = new AbortController()
+
+/**
+ * Ferma quel che sta trascrivendo adesso: la chiama chi spegne l'applicazione.
+ *
+ * Il controllore si rifà subito dopo, per la stessa ragione di `fermaLetture`:
+ * senza, ogni dettatura chiesta dopo partirebbe con un segnale già tirato e
+ * morirebbe prima di cominciare, senza che niente dica perché.
+ */
+export function fermaDettature (): void {
+  dettature.abort()
+  dettature = new AbortController()
+}
+
 /** Fa girare `whisper-cli` sul file e torna quel che ha stampato. */
 async function esegui (collegamento: Collegamento, file: string): Promise<string> {
+  const segnale = dettature.signal
   return new Promise((risolvi, rifiuta) => {
     execFile(
       collegamento.programma,
@@ -204,10 +229,16 @@ async function esegui (collegamento: Collegamento, file: string): Promise<string
         // percorso sia un eseguibile e non uno script lo controlla
         // `dictation.ts`; questa riga è l'altra metà della stessa difesa.
         shell: false,
+        signal: segnale,
       },
       (guasto, uscita, errori) => {
         if (!guasto) {
           risolvi(uscita)
+          return
+        }
+        // Fermata da noi, e non scaduta: `killed` è vero in tutti e due i casi.
+        if (segnale.aborted) {
+          rifiuta(new Error('La dettatura è stata fermata.', { cause: guasto }))
           return
         }
         const scaduto = (guasto as { killed?: boolean }).killed === true

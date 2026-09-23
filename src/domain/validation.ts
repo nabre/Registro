@@ -2376,12 +2376,15 @@ export function riferimentiRotti (registro: Registro): string[] {
 
   const corsiEsistenti = new Set(registro.corsi.map((c) => c.id))
   for (const piano of registro.piani) {
-    const suo = nomePiano(piano, {
+    // Il nome si fa solo se serve: `nomePiano` filtra e ordina tutte le
+    // lezioni, e farlo per ogni piano — anche per quelli sani, cioè quasi
+    // tutti — a ogni spinta di stato costava piani × lezioni per niente.
+    const suo = () => nomePiano(piano, {
       corso: corsi.get(piano.corsoId ?? '')?.titolo ?? null,
       lezioni: registro.lezioni,
     })
     if (piano.corsoId && !corsiEsistenti.has(piano.corsoId)) {
-      problemi.push(`Il piano «${suo}»: il corso collegato non esiste più.`)
+      problemi.push(`Il piano «${suo()}»: il corso collegato non esiste più.`)
     }
     // Una risorsa senza né indirizzo né file è una riga che non porta da
     // nessuna parte: succede modificando i file a mano, e si dice.
@@ -2390,7 +2393,7 @@ export function riferimentiRotti (registro: Registro): string[] {
       .filter((r) => !r.url && !r.file)
     if (vuote.length > 0) {
       problemi.push(
-        `Il piano «${suo}»: ${plurale(vuote.length, 'risorsa', 'risorse')} senza indirizzo né file.`,
+        `Il piano «${suo()}»: ${plurale(vuote.length, 'risorsa', 'risorse')} senza indirizzo né file.`,
       )
     }
   }

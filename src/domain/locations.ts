@@ -125,7 +125,26 @@ export function nomeFileArchivio (
     (pezzo): pezzo is string => Boolean(pezzo && pezzo.trim()),
   )
   const punto = estensione.startsWith('.') ? estensione : `.${estensione}`
-  return `${nomeSicuro(pezzi.join('_'))}${punto.toLowerCase()}`
+  return `${accorciaNome(nomeSicuro(pezzi.join('_')))}${punto.toLowerCase()}`
+}
+
+/**
+ * Quanti caratteri tiene al più il nome di un file archiviato, estensione esclusa.
+ *
+ * I sistemi non accettano nomi oltre i 255 caratteri, e un dettaglio incollato
+ * da una mail — un titolo di duecento caratteri — faceva fallire la scrittura
+ * con ENAMETOOLONG. Centocinquanta lasciano posto all'estensione e al ` (2)`
+ * dei gemelli, e dicono ancora di che file si tratta.
+ */
+const NOME_FILE_MASSIMO = 150
+
+/** Il nome tagliato a `NOME_FILE_MASSIMO`, senza punti né spazi in coda: Windows non li tiene. */
+function accorciaNome (nome: string): string {
+  // Per caratteri e non per unità UTF-16: un taglio a metà di un'emoji
+  // lascerebbe un surrogato solo, che non è un nome scrivibile.
+  const caratteri = Array.from(nome)
+  if (caratteri.length <= NOME_FILE_MASSIMO) return nome
+  return caratteri.slice(0, NOME_FILE_MASSIMO).join('').replace(/[. ]+$/, '') || 'senza nome'
 }
 
 /** La cartella che contiene un percorso d'archivio: serve per portarsela via intera. */

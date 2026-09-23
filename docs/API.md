@@ -14,7 +14,7 @@ voce per voce, [CATALOGO.md](CATALOGO.md).
 
 ## 1. Perché esiste
 
-Il registro aveva già un contratto, e buono: `src/protocollo.ts` dichiara le
+Il registro aveva già un contratto, e buono: `src/protocol.ts` dichiara le
 azioni come un'unione discriminata, il pannello e l'host importano lo stesso
 tipo, e una richiesta con un campo sbagliato non compila. Finché le due sponde
 sono due bundle compilati insieme e spediti insieme, quel controllo basta.
@@ -45,18 +45,18 @@ che si vuole mettere un contratto davanti a qualcosa che già funziona:
 | --- | --- |
 | `src/api/` — contratto, schemi, nucleo, ponte, indice, attrezzi, i trasporti e un file per procedura | 6.898 righe quando erano 17 file; oggi le stesse divise in 225 |
 | `src/cli/registro.mjs` — la riga di comando | 517 |
-| `prove/api/` — schemi, nucleo, ponte, procedure, copertura, attrezzi | 1.341 in 5 file, poi cresciute a 10 |
+| `tests/api/` — schemi, nucleo, ponte, procedure, copertura, attrezzi | 1.341 in 5 file, poi cresciute a 10 |
 | I file che c'erano già e sono stati toccati | +403 / −163 su 14 file |
 
-E soprattutto: **`src/azioni/` non si è spostato**. Le sue 5.706 righe fanno
+E soprattutto: **`src/actions/` non si è spostato**. Le sue 5.706 righe fanno
 quel che facevano; le procedure gli mettono davanti il contratto e gli passano
-la palla. L'unica eccezione è `src/azioni/modelli.ts`, dove la lettura di un
+la palla. L'unica eccezione è `src/actions/templates.ts`, dove la lettura di un
 modello e la sua anteprima sono state *estratte* in due funzioni esportate —
 `leggiModello`, `provaModello` — perché due procedure di lettura potessero
 chiamarle senza copiarle. Estratte, non duplicate: il lavoro resta in un posto
 solo, come prima.
 
-In `src/azioni.ts` la modifica è di sei righe: `...gestoriDelleProcedure()`
+In `src/actions.ts` la modifica è di sei righe: `...gestoriDelleProcedure()`
 sparso per ultimo dentro `GESTORI`, così che le chiavi prese in carico vincano
 su quelle di prima.
 
@@ -79,13 +79,13 @@ flowchart TB
   azioni["Richiesta → Risposta<br/>le scritture, una per volta in coda"]
   domande["Domanda → Riscontro<br/>le letture, fuori dalla coda"]
   guardia["rispondiDomanda()<br/>rifiuta chi non è di sola lettura"]
-  bus["src/azioni.ts<br/>centralino delle Azioni"]
-  ponte["src/api/ponte.ts<br/>tutte le azioni, prese in carico"]
-  condotto["src/api/trasporti/condotto.ts<br/>named pipe, JSON-RPC 2.0"]
-  nucleo["src/api/nucleo.ts<br/>convalida, esegue, cronometra, racconta"]
-  procedure["src/api/procedure/<br/>un file per procedura"]
-  gestori["src/azioni/*.ts<br/>il lavoro, invariato"]
-  archivio["src/dati/archivio.ts"]
+  bus["src/actions.ts<br/>centralino delle Azioni"]
+  ponte["src/api/bridge.ts<br/>tutte le azioni, prese in carico"]
+  condotto["src/api/transports/conduit.ts<br/>named pipe, JSON-RPC 2.0"]
+  nucleo["src/api/core.ts<br/>convalida, esegue, cronometra, racconta"]
+  procedure["src/api/procedures/<br/>un file per procedura"]
+  gestori["src/actions/*.ts<br/>il lavoro, invariato"]
+  archivio["src/data/archive.ts"]
 
   pannello --> azioni
   pannello --> domande
@@ -127,18 +127,18 @@ Quattro cose da leggere in quel disegno:
 
 | File | Che cosa dichiara |
 | --- | --- |
-| [src/api/schemi.ts](../src/api/schemi.ts) | le forme di un ingresso: convalida, tipo TypeScript, JSON Schema |
-| [src/api/contratto.ts](../src/api/contratto.ts) | `Procedura`, `ErroreApi`, i codici, la busta, il giornale |
-| [src/api/nucleo.ts](../src/api/nucleo.ts) | `chiama()`, l'elenco, `daGestore()`, la traduzione da e verso `EsitoAzione` |
-| [src/api/procedure/](../src/api/procedure/) | una procedura per file, sotto la cartella dei segmenti del suo nome |
-| [src/api/attrezzi.ts](../src/api/attrezzi.ts) | il catalogo che un modello legge, costruito dalle procedure |
-| [src/api/indice.ts](../src/api/indice.ts) | l'elenco delle aree, come `azioni.ts` fa con i gestori |
-| [src/api/ponte.ts](../src/api/ponte.ts) | l'innesto nel centralino |
-| [src/api/trasporti/condotto.ts](../src/api/trasporti/condotto.ts) | il server JSON-RPC locale |
+| [src/api/schemas.ts](../src/api/schemas.ts) | le forme di un ingresso: convalida, tipo TypeScript, JSON Schema |
+| [src/api/contract.ts](../src/api/contract.ts) | `Procedura`, `ErroreApi`, i codici, la busta, il giornale |
+| [src/api/core.ts](../src/api/core.ts) | `chiama()`, l'elenco, `daGestore()`, la traduzione da e verso `EsitoAzione` |
+| [src/api/procedures/](../src/api/procedures/) | una procedura per file, sotto la cartella dei segmenti del suo nome |
+| [src/api/tools.ts](../src/api/tools.ts) | il catalogo che un modello legge, costruito dalle procedure |
+| [src/api/index.ts](../src/api/index.ts) | l'elenco delle aree, come `actions.ts` fa con i gestori |
+| [src/api/bridge.ts](../src/api/bridge.ts) | l'innesto nel centralino |
+| [src/api/transports/conduit.ts](../src/api/transports/conduit.ts) | il server JSON-RPC locale |
 | [src/cli/registro.mjs](../src/cli/registro.mjs) | la riga di comando |
-| [src/protocollo.ts](../src/protocollo.ts) | `Azione`/`Risposta` e, accanto, `Domanda`/`Riscontro` |
-| [src/interfaccia/ponte.ts](../src/interfaccia/ponte.ts) | `invia`, `azione`, `chiedi`: le tre porte del webview |
-| [src/pannelli/pannello.ts](../src/pannelli/pannello.ts) | la coda delle richieste e `rispondiDomanda()` |
+| [src/protocol.ts](../src/protocol.ts) | `Azione`/`Risposta` e, accanto, `Domanda`/`Riscontro` |
+| [src/ui/bridge.ts](../src/ui/bridge.ts) | `invia`, `azione`, `chiedi`: le tre porte del webview |
+| [src/panels/panel.ts](../src/panels/panel.ts) | la coda delle richieste e `rispondiDomanda()` |
 
 ---
 
@@ -231,13 +231,13 @@ accanto, non al posto.
 stringa la frase era cucita al femminile — «Lezione non trovata» giusto,
 «Momento di valutazione non trovata» sbagliato — e l'accordo sarebbe toccato a
 chi scrive ogni procedura. È esattamente il difetto che
-[src/dominio/lessico.ts](../src/dominio/lessico.ts) esiste per non avere.
+[src/domain/lexicon.ts](../src/domain/lexicon.ts) esiste per non avere.
 
 ---
 
 ## 4. Gli schemi
 
-`src/api/schemi.ts` dichiara una forma una volta sola e ne ricava tre cose: la
+`src/api/schemas.ts` dichiara una forma una volta sola e ne ricava tre cose: la
 convalida a runtime, il tipo TypeScript per inferenza, e il JSON Schema per chi
 chiama da fuori.
 
@@ -282,7 +282,7 @@ ingresso: oggetto({
 ```
 
 Il motivo è che la forma di una `Lezione` è già scritta, una volta, in
-`dominio/validazione.ts`, e lì dentro c'è che uno slot dura un multiplo esatto
+`domain/validation.ts`, e lì dentro c'è che uno slot dura un multiplo esatto
 di unità didattica, che i semestri devono essere contigui, che una consegna
 senza destinatari non è completa. Riscriverla qui in forma di schema vorrebbe
 dire **due verità da tenere allineate a mano**, e la seconda resterebbe
@@ -318,10 +318,14 @@ sta nel gestore e ci resta.
 
 Prima di `entita` era la valvola di sfogo per ogni aggregato: «niente controllo,
 tanto subito dopo c'è una `valida*` vera». Adesso, in tutte le procedure,
-`qualunque()` compare **due volte**, tutte e due in
-[src/api/procedure/sistema.ts](../src/api/procedure/sistema.ts), e tutte e due
-per lo stesso motivo — non per un aggregato, ma per un valore la cui forma
-*dipende da un'altra chiave*:
+`qualunque()` compare **tre volte**. Due —
+[impostazioni/salva.ts](../src/api/procedures/impostazioni/salva.ts) e
+[programma/salva.ts](../src/api/procedures/programma/salva.ts) — per lo stesso
+motivo: non per un aggregato, ma per un valore la cui forma *dipende da
+un'altra chiave*. La terza, in
+[assistente/stacca.ts](../src/api/procedures/assistente/stacca.ts), è un blocco
+impaginato che la pagina ha già composto e che il registro si limita a
+riportare:
 
 | Dove | Perché |
 | --- | --- |
@@ -337,7 +341,7 @@ per esteso ha anche un vantaggio: un campo aggiunto a `Impostazioni` fa fallire
 ### Perché fatto in casa e non zod
 
 Il contratto esposto è quello **Standard Schema** (`~standard`), lo stesso che
-zod, valibot e arktype implementano: il nucleo non conosce `schemi.ts`, conosce
+zod, valibot e arktype implementano: il nucleo non conosce `schemas.ts`, conosce
 quell'interfaccia. Il giorno in cui servisse di più — tipi ricorsivi,
 trasformazioni, unioni discriminate profonde — si sostituisce la libreria senza
 toccare una riga di nucleo o di procedura.
@@ -353,8 +357,8 @@ due. La porta per cambiare idea resta aperta, ed è il punto.
 
 **Otto letture, e per il resto scritture.** Le scritture prendono in carico, una
 per una, **tutte le azioni del protocollo**: non ne resta scoperta nessuna. Il
-conto esatto non sta scritto qui apposta — lo stampa `npm run procedure`, e lo
-verificano le prove. Non è un numero ricordato: `prove/api/copertura.test.mjs` legge l'unione dal sorgente,
+conto esatto non sta scritto qui apposta — lo stampa `npm run procedures`, e lo
+verificano le prove. Non è un numero ricordato: `tests/api/coverage.test.mjs` legge l'unione dal sorgente,
 la confronta con l'elenco delle procedure e fallisce se le due liste divergono.
 
 Le azioni erano 143. Due — `modello.leggi` e `modello.prova` — sono state
@@ -367,13 +371,13 @@ Il § 6 racconta il canale che lo ha reso possibile.
 ### L'albero: il percorso è l'indirizzo
 
 Un file per procedura, sotto la cartella dei segmenti del suo nome.
-`ore.appello.casella` sta in `src/api/procedure/ore/appello/casella.ts`, e in
+`ore.appello.casella` sta in `src/api/procedures/ore/appello/casella.ts`, e in
 nessun altro posto: si trova una procedura senza cercarla, si vede a colpo
 d'occhio quante ne ha un'area e quanto è grande ciascuna, e si cancella senza
 dimenticarne un pezzo.
 
 ```
-src/api/procedure/
+src/api/procedures/
 ├── comuni/              le guardie che più aree si dividono, per file d'origine
 │   ├── piani.ts         esigiPiano, esigiLezione
 │   ├── rapporti.ts      i generi di rapporto
@@ -402,12 +406,12 @@ Trovare una procedura voleva dire cercarla nel testo. Adesso il nome *è* il
 percorso, e la vicinanza al gestore la tiene l'import, che è il posto giusto per
 tenerla.
 
-Che l'albero stia in piedi lo dice `npm run procedure`: legge il testo e non
+Che l'albero stia in piedi lo dice `npm run procedures`: legge il testo e non
 compila, quindi risponde anche quando `tsc` non passa — ed è proprio allora che
 serve sapere se il file è al posto giusto. Controlla che il percorso sia il nome,
 che ogni file sia nominato nel suo indice, che ogni cartella arrivi fino a
-`src/api/indice.ts`, che nessuna procedura dichiari un'azione inesistente, e che
-`risorse/attrezzi.json` non sia rimasto indietro.
+`src/api/index.ts`, che nessuna procedura dichiari un'azione inesistente, e che
+`resources/tools.json` non sia rimasto indietro.
 
 ### Le trentadue aree
 
@@ -519,7 +523,7 @@ aperto lo dice.
 nascondono più una persona: «muller» trova «Müller», «MÜLLER» trova
 «Muller», «dellacqua» trova «Dell’Acqua» comunque sia scritto l'apostrofo —
 dritto, curvo o dimenticato. Il confronto passa da `pezziDiRicerca` e
-`corrispondeAlla` in `dominio/testo.ts`, le stesse due funzioni che usa la
+`corrispondeAlla` in `domain/text.ts`, le stesse due funzioni che usa la
 pagina Persone: due normalizzazioni diverse ai due capi del muro sarebbero due
 ricerche che trovano persone diverse a parità di parola scritta. Cercare è un
 gesto di fretta per definizione — lo si fa per **non** dover ricordare come si
@@ -558,7 +562,7 @@ filtro scritto ogni volta è un filtro che ogni volta si comporta un po'
 diversamente — e chi impara a restringere un elenco non sa restringere il
 successivo.
 
-Adesso stanno in [`comuni/filtri.ts`](../src/api/procedure/comuni/filtri.ts), e
+Adesso stanno in [`common/filters.ts`](../src/api/procedures/common/filters.ts), e
 una lettura li prende a pezzi: `...periodo()`, `...ricerca(…)`,
 `...pagina()`. **Modulari**: si compongono, e nessuna lettura li riscrive.
 
@@ -636,7 +640,7 @@ accanto ci sono `esclusiRitirati` ed `esclusiArchiviate`, che dicono **quante**
 ne tiene fuori ciascun interruttore e quindi quale riaccendere. Lo stesso
 numero, con il nome `escluse`, l'hanno preso `classe.persone` (le ritirate) e
 `classi.elenco` (le archiviate), che cadevano nella stessa buca. Le istruzioni
-del modello — in `api/trasporti/assistente.ts` e in `api/attrezzi.ts` — dicono
+del modello — in `api/transports/assistant.ts` e in `api/tools.ts` — dicono
 adesso di guardarli e di richiamare l'attrezzo con i due interruttori a vero.
 
 **Un «non trovato» dice dove si cerca.** `errore.nonTrovato` prende un secondo
@@ -726,7 +730,7 @@ interface Riscontro {
 }
 ```
 
-Stanno in [src/protocollo.ts](../src/protocollo.ts) accanto a
+Stanno in [src/protocol.ts](../src/protocol.ts) accanto a
 `Richiesta`/`Risposta`, e `Riscontro` entra in `MessaggioVersoWebview` come
 ogni altro messaggio spinto.
 
@@ -734,9 +738,9 @@ ogni altro messaggio spinto.
 
 | Dove | Che cosa fa |
 | --- | --- |
-| `chiedi<T>(procedura, ingresso?)` in [src/interfaccia/ponte.ts](../src/interfaccia/ponte.ts) | manda la domanda e torna un `Esito<T>`: `{ ok, dati, errori, codice }` |
-| `rispondiDomanda()` in [src/pannelli/pannello.ts](../src/pannelli/pannello.ts) | la guardia, poi `chiama()`, poi il riscontro |
-| `chiama()` in [src/api/nucleo.ts](../src/api/nucleo.ts) | lo stesso di sempre: convalida, esegue, cronometra, racconta |
+| `chiedi<T>(procedura, ingresso?)` in [src/ui/bridge.ts](../src/ui/bridge.ts) | manda la domanda e torna un `Esito<T>`: `{ ok, dati, errori, codice }` |
+| `rispondiDomanda()` in [src/panels/panel.ts](../src/panels/panel.ts) | la guardia, poi `chiama()`, poi il riscontro |
+| `chiama()` in [src/api/core.ts](../src/api/core.ts) | lo stesso di sempre: convalida, esegue, cronometra, racconta |
 
 Il tipo `T` lo dichiara chi chiama, ed è un atto di fiducia — lo stesso che il
 pannello ripone già nel `Registro` che riceve. La differenza è che dall'altra
@@ -785,7 +789,7 @@ cui si accende un proiettore.
 
 ### L'esempio vero: la pagina Modelli
 
-[src/interfaccia/viste/modelli.ts](../src/interfaccia/viste/modelli.ts) è la
+[src/ui/views/templates.ts](../src/ui/views/templates.ts) è la
 prima pagina a usarlo, e usa tutte e due le letture nate qui:
 
 ```ts
@@ -801,8 +805,8 @@ Prima erano due azioni. `modello.leggi` rispondeva in `Risposta.testo` e
 appesi alla busta di tutte le scritture del registro — un voto salvato, una
 spunta, una riga d'appello — per servire due chiamate che scrittura non erano.
 
-Adesso quei tre campi non esistono più, né in `Risposta` (`src/protocollo.ts`)
-né in `EsitoAzione` (`src/azioni/contesto.ts`). È la misura di che cosa ha
+Adesso quei tre campi non esistono più, né in `Risposta` (`src/protocol.ts`)
+né in `EsitoAzione` (`src/actions/context.ts`). È la misura di che cosa ha
 comprato questo canale: non una funzione in più, **un campo in meno in ogni
 risposta del registro**.
 
@@ -874,7 +878,19 @@ regola del firewall, ascolta la rete della scuola.
 > **Il nome del condotto è un'impronta, non un nome utente.** Dodici caratteri
 > esadecimali di uno sha256 di nome utente più cartella dei dati: due docenti
 > sullo stesso computer non si incrociano, e chi legge l'elenco delle pipe di
-> Windows non ci trova scritto chi è al lavoro.
+> Windows non ci trova scritto chi è al lavoro. Su Windows, dove `\\.\pipe\` è
+> uno solo per tutta la macchina, al nome si aggiunge un segreto casuale scritto
+> in `condotto.segreto` nella cartella dei dati dell'utente: l'impronta si
+> indovina, il segreto no, e un altro utente dello stesso computer non può
+> occupare quel nome per primo. Fuori da Windows il socket sta sotto
+> `XDG_RUNTIME_DIR` quando c'è, e altrimenti nasce `0600` in `tmpdir()`.
+>
+> **Il condotto non allarga sé stesso.** Anche con la scrittura concessa,
+> `programma.salva` e `programma.azzera` rifiutano con `non-permesso` le chiavi
+> `registroDocenti.api.*` — altrimenti chi ha la sola scrittura si scriverebbe
+> la lettura — e i percorsi dei programmi che il registro fa partire:
+> `ocr.programma`, `ocr.cartella`, `dettatura.programma`, `dettatura.cartella`,
+> `recapiti.outlook`. Si cambiano dalle impostazioni, a mano.
 >
 > **Quel che esce di qui non nomina nessuno.** I messaggi d'errore del
 > trasporto non contengono percorsi della cartella del docente, nomi di persone
@@ -882,7 +898,7 @@ regola del firewall, ascolta la rete della scuola.
 > tracciato, e il racconto per intero resta nella console dell'applicazione.
 
 Questo testo sta anche in testa a
-[src/api/trasporti/condotto.ts](../src/api/trasporti/condotto.ts), e i due
+[src/api/transports/conduit.ts](../src/api/transports/conduit.ts), e i due
 vanno tenuti uguali.
 
 ### Metodi
@@ -895,7 +911,7 @@ procedura e `params` è il suo ingresso.
 | `$versione` | `{ api, applicazione, documento, permessi }` — `documento` è il nome dell'anno, mai il percorso; `permessi` è quel che il condotto concede **adesso** |
 | `$elenco` | il ritratto di ogni procedura: nome, versione, genere, titolo, idempotenza, l'azione presa in carico e le collezioni |
 | `$schema` | lo stesso ritratto — `versione`, `azione` e `collezioni` compresi — più i due JSON Schema, di ingresso e di uscita |
-| `$attrezzi` | il catalogo intero come lo legge un modello, più come l'assistente è collegato — è quel che fa funzionare `registro chiedi`. `params.comando` è facoltativo, al più 64 caratteri di `[A-Za-z0-9._-]` |
+| `$attrezzi` | il catalogo intero come lo legge un modello, più come l'assistente è collegato — è quel che stampa `registro catalogo`. `params.comando` è facoltativo, al più 64 caratteri di `[A-Za-z0-9._-]` |
 
 `$versione` non chiede nessun permesso: serve a capire perché una chiamata è
 stata rifiutata, e negarlo vorrebbe dire negare la diagnosi. Gli altri tre
@@ -1006,7 +1022,6 @@ npm run registro -- <comando>        oppure    node src/cli/registro.mjs <comand
 | `registro chiama <procedura> [--campo valore]…` | chiama |
 | `registro stato` | dice se il condotto risponde, e con quali permessi **adesso** |
 | `registro catalogo` | le procedure in JSON, con la forma di ogni ingresso |
-| `registro chiedi "domanda"` | la stessa domanda, in italiano, a un modello locale |
 
 ```console
 $ registro chiama ore.appello.riga --lezioneId lez-m3k9x2-a7f1 \
@@ -1020,7 +1035,10 @@ stamattina si chiama da qui senza toccare una riga di questo file.
 I valori dei `--campo` **si convertono guardando lo schema della procedura**,
 mai indovinando dal testo: un campo dichiarato numero riceve un numero, uno
 booleano riceve vero o falso. Per questo `chiama` fa due giri — prima lo
-schema, poi la chiamata. Dove il contratto ammette `null` — cioè dove il `type`
+schema, poi la chiamata. Solo un campo che ammette più di due tipi — il
+`qualunque()` di `programma.salva`, per esempio — si deduce dal testo: le parole
+di vero e falso, poi un numero, poi JSON se comincia con `{` o `[`, altrimenti il
+testo com'è. Un numero vuoto (`--voto ""`) si rifiuta, non diventa zero. Dove il contratto ammette `null` — cioè dove il `type`
 pubblicato è un elenco che contiene `"null"` — scrivere `--campo null` manda il
 `null`; su un campo di testo che `null` non ammette, «null» resta la parola.
 `--json '{…}'` passa l'ingresso intero e vince sui `--campo`: è il modo di
@@ -1032,49 +1050,34 @@ jq` funziona. Le uscite: **0** fatto, **1** rifiutato, **2** il condotto non
 risponde.
 
 `REGISTRO_CONDOTTO` scavalca l'indirizzo, per un'installazione portatile che
-tiene `userData` altrove.
+tiene `userData` altrove. Senza, la riga di comando lo calcola con le regole
+del condotto: fuori da Windows il socket in `XDG_RUNTIME_DIR` quando c'è,
+altrimenti in `tmpdir()`; su Windows il nome della pipe con il segreto che il
+condotto scrive in `condotto.segreto`, nella cartella dei dati. Le due copie
+della regola le confronta `tests/cli/commandLine.test.mjs`.
 
-### Il catalogo, e la domanda in italiano
+### Il catalogo
 
 ```console
 $ registro catalogo > attrezzi.json
-$ registro chiedi "quante ore ha perso Rossi in matematica?" --passi
-Rossi ne ha perse 14 su 96, cioè il 14,6%.
-
-Letto con:
-  registro chiama corsi.elenco
-  registro chiama corso.presenze --corsoId cor-m3k9x2-a7f1
 ```
 
 `catalogo` stampa tutte le procedure in JSON, con il loro schema d'ingresso e le
 istruzioni per un modello: è quel che si dà in pasto a un programma che non è
 questo. Lo chiede al condotto con `$attrezzi`, quindi è sempre il catalogo del
 registro che sta rispondendo. La stessa cosa, generata e messa nel
-versionamento, sta in [risorse/attrezzi.json](../risorse/attrezzi.json) — vedi
+versionamento, sta in [resources/tools.json](../resources/tools.json) — vedi
 il § 9.
 
-`chiedi` manda la domanda a un modello locale con dentro quel catalogo, esegue
-gli attrezzi che chiede e stampa la risposta. **Solo letture**: al modello si
-danno le procedure che `offribile()` concede — `genere: 'lettura'`, meno quelle
-che dichiarano `perAssistente: false` — e prima di chiamarne una si ricontrolla
-il genere: la whitelist non è l'elenco che si è mandato, è il controllo che si fa
-al ritorno.
-
-`perAssistente: false` lo dichiara la procedura, e le sette che oggi lo fanno
-sono la manutenzione dei modelli e del documento: non rispondono a nessuna
-domanda che un docente farebbe, costano contesto che serve ai dati, e due di
-loro — `llm.catalogo` e `llm.file` — parlerebbero con Hugging Face con una
-stringa composta dal modello. Se gli si chiede di segnare qualcosa risponde
-con il comando che lo farebbe, e lo batte una persona.
-
-`--passi` stampa sotto la risposta i comandi con cui il modello l'ha letta. È la
-ragione per cui il comando ha senso: chi legge sta davanti a un terminale e può
-ribattere quella riga. Una risposta che si verifica vale più di una risposta che
-si deve credere.
-
-Vuole l'assistente acceso — `registroDocenti.assistente.attivo` — e un modello
-che sappia chiamare gli strumenti. Senza, lo dice e indica `elenco` e `catalogo`,
-che di modelli non ne hanno bisogno.
+**`registro chiedi` non c'è più.** Mandava la domanda a Ollama, cioè a un
+servizio con un indirizzo HTTP; da quando il modello è un file `.gguf` caricato
+dentro il registro, un indirizzo a cui mandarla da fuori non c'è, e il comando
+usciva con «Failed to parse URL from undefined/api/chat». Rifarlo vorrebbe dire
+far girare la conversazione dentro il registro attraverso il condotto — una
+procedura nuova, che dovrebbe essere una scrittura o girare con le sole letture,
+perché gli attrezzi dell'assistente comprendono `vista.apri`. Finché quella
+procedura non c'è, `registro chiedi` dice dove si fa la domanda — il riquadro
+«Assistente» della finestra — ed esce con 1.
 
 ---
 
@@ -1122,13 +1125,13 @@ deliberate:
   farsi dare la conversazione da una finestra che sta per chiudersi: un giro in
   più, e un modo in più di perderla.
 
-Il filo dei turni sta in `interfaccia/assistente/chat.ts`, che **non conosce
+Il filo dei turni sta in `ui/assistant/chat.ts`, che **non conosce
 né il riquadro né la finestra**: non importa `stato.ts` e non chiama
 `aggiorna()`. Chi lo ospita gli passa le due cose che gli servono e gli dice
 come ci si ridisegna — la stessa inversione per cui `proiezione.ts` sta in piedi
 senza il codice del registro. Il lavoro del main process sta in
 `pannelli/conversazione.ts`, una volta per tutte e due. È un trasporto come il condotto,
-e sta accanto a lui: `src/api/trasporti/assistente.ts`.
+e sta accanto a lui: `src/api/transports/assistant.ts`.
 
 ```
 riquadro a destra (interfaccia/assistente.ts)
@@ -1143,7 +1146,7 @@ main process (pannelli/{pannello,assistente}.ts → conversazione.ts)
 
 ### Il livello LLM sta sotto, ed è di tutti
 
-L'assistente **non parla a un servizio**: parla a `dati/llm.ts`, che è lo stesso
+L'assistente **non parla a un servizio**: parla a `data/llm.ts`, che è lo stesso
 livello da cui passa la lettura delle scansioni. Sono due usi dello stesso
 impianto, e la separazione corre su due assi.
 
@@ -1162,8 +1165,8 @@ architettura:
 
 | motore | dove | chi lo usa | perché |
 | --- | --- | --- | --- |
-| `dati/llamaCpp.ts` | dentro il processo, via `node-llama-cpp` | l'assistente | niente da installare, niente porta, niente servizio da accendere. **Non accetta immagini**: quella libreria non ha un modo di passarle |
-| `dati/mtmd.ts` | `llama-mtmd-cli`, un eseguibile sul disco | la lettura delle scansioni | è l'unico modo di dare un PNG a un modello locale senza un servizio in mezzo. Stessa forma di whisper.cpp per la dettatura, compreso il corredo: se l'eseguibile non c'è, alla prima pagina se lo scarica il registro (`dati/corredoVista.ts`), e un percorso scritto nelle impostazioni vince comunque |
+| `data/llamaCpp.ts` | dentro il processo, via `node-llama-cpp` | l'assistente | niente da installare, niente porta, niente servizio da accendere. **Non accetta immagini**: quella libreria non ha un modo di passarle |
+| `data/mtmd.ts` | `llama-mtmd-cli`, un eseguibile sul disco | la lettura delle scansioni | è l'unico modo di dare un PNG a un modello locale senza un servizio in mezzo. Stessa forma di whisper.cpp per la dettatura, compreso il corredo: se l'eseguibile non c'è, alla prima pagina se lo scarica il registro (`data/visionKit.ts`), e un percorso scritto nelle impostazioni vince comunque |
 
 **Il confine si riconosce da una regola sola: se cambiando libreria la riga
 cambierebbe, sta nel motore; se resterebbe uguale, sta in `llm.ts`.**
@@ -1177,7 +1180,7 @@ un motore cieco e poi chiedersi perché ogni pagina torna vuota.
 Prima di qui c'era Ollama: un servizio da installare, un indirizzo HTTP, e un
 modello che il registro poteva soltanto nominare sperando che qualcuno l'avesse
 scaricato da un terminale. Adesso quel che il registro usa è un `.gguf` nella
-cartella che governa `dati/gguf.ts`, e la pagina «Modelli linguistici» lo
+cartella che governa `data/gguf.ts`, e la pagina «Modelli linguistici» lo
 scarica, lo accoglie se lo si trascina dentro, lo sceglie e lo butta.
 
 Tre conseguenze, e la seconda è quella che conta per la sicurezza:
@@ -1195,8 +1198,8 @@ Tre conseguenze, e la seconda è quella che conta per la sicurezza:
 3. **Quel che manca si rimedia da dentro**: «il modello non c'è» è una pagina
    con un pulsante, non una riga da battere altrove.
 
-L'unica cosa che parla con la rete è lo scarico, in `dati/huggingFace.ts` e
-`dati/gguf.ts`: porta dentro dei pesi, non porta fuori un dato del registro.
+L'unica cosa che parla con la rete è lo scarico, in `data/huggingFace.ts` e
+`data/gguf.ts`: porta dentro dei pesi, non porta fuori un dato del registro.
 
 ### Solo le letture, e il controllo sta al ritorno
 
@@ -1208,7 +1211,7 @@ passa `conversa()`, ed è là dentro che vive il controllo: la libreria chiama
 quel che le è stato dato, e non lo può allargare. I due controlli non sono lo stesso controllo: il primo
 toglie la tentazione, il secondo toglie il danno. Un modello che si inventa un
 nome, o che ne indovina uno vero fra le scritture, riceve un errore da leggere e
-non una scrittura — e `prove/api/assistente.test.mjs` lo verifica **su tutte e
+non una scrittura — e `tests/api/assistant.test.mjs` lo verifica **su tutte e
 tutte**, non per campione.
 
 Non c'è nessuna impostazione per allargare questo confine, e non è una
@@ -1236,8 +1239,8 @@ modello è il primo passo verso una scrittura che nessuno ha chiesto. Si apre la
 pagina; a creare è chi insegna.
 
 Che l'elenco delle deroghe non cresca di nascosto lo tiene fermo
-`prove/api/assistente.test.mjs`, che lo conta a mano — come i conti di
-`copertura.test.mjs`, e per la stessa ragione: se cambia, è cambiato un
+`tests/api/assistant.test.mjs`, che lo conta a mano — come i conti di
+`coverage.test.mjs`, e per la stessa ragione: se cambia, è cambiato un
 confine, e va visto da una persona.
 
 ### Di che cosa si sta parlando
@@ -1296,7 +1299,7 @@ Le tendine sono quelle della barra **e quelle della pagina**: nel registro
 dell'ora c'è anche «Lezione del corso», e il contesto la scrive come la scrive
 la sua tendina — «✓ 12. gio 14.11 · 08:20 · Frazioni» — invece che con il solo
 `lezioneId`, che è l'unico modo di nominare un'ora che chi chiede non ha mai
-visto. Le etichette vengono da `oreDelCorso()` in `viste/lezione.ts`, cioè dalla
+visto. Le etichette vengono da `oreDelCorso()` in `views/lesson.ts`, cioè dalla
 stessa funzione che riempie la tendina: scritte due volte, la pagina e il
 contesto comincerebbero a chiamare la stessa ora in due modi diversi.
 
@@ -1350,14 +1353,14 @@ minuto fa è il modo più sicuro di rispondere con precisione sulla classe
 sbagliata, proprio dopo che chi chiede ha dichiarato di non voler dire quale.
 
 La regola di che cosa resta nella busta sta in
-[src/interfaccia/assistente/parti.ts](../src/interfaccia/assistente/parti.ts),
+[src/ui/assistant/parts.ts](../src/ui/assistant/parts.ts),
 che non tocca né lo stato né il DOM proprio per poter essere provato: è la riga
 che decide se il nome di una persona in formazione esce dal registro dopo che
 qualcuno ha detto di no, e un difetto lì non si vedrebbe guardando lo schermo.
 Gli id, per esempio, stanno in **tre** posti — i riferimenti, le voci delle
 tendine, le loro alternative — più gli id dell'elenco a schermo: toglierne tre
 su quattro è peggio che non toglierne nessuno, perché chi ha premuto crede di
-averli tolti. Lo prova `prove/interfaccia/partiContesto.test.mjs`.
+averli tolti. Lo prova `tests/ui/contextParts.test.mjs`.
 
 Le scelte si ricordano, come la sidebar: chi le spegne le spegne per come lavora.
 
@@ -1456,7 +1459,7 @@ base64, e meglio niente che una griglia di duemila caratteri — e una busta vuo
 non produce una tabella senza righe: lo dice la frase del modello, mentre una
 griglia vuota farebbe credere che il registro stia nascondendo qualcosa. Che
 ogni lettura con dei dati dentro sappia mostrarsi lo tiene fermo
-`prove/api/presentazione.test.mjs`, che le conta.
+`tests/api/presentation.test.mjs`, che le conta.
 
 **Al modello si chiede il contrario di prima**: non ricopiare, introdurre. Che
 cosa ha guardato, quel che se ne ricava — chi è il caso estremo, se la soglia è
@@ -1476,17 +1479,14 @@ Il modello scrive ancora del testo, e il testo si legge:
 titoletti, e le tabelle che ogni tanto scrive lo stesso — e `risposta.ts` li
 costruisce. Il parser sta in un file suo, senza una riga di DOM, perché è la
 metà che può sbagliare in silenzio: lo prova
-`prove/interfaccia/formatoRisposta.test.mjs`.
+`tests/ui/answerFormat.test.mjs`.
 
 **Non si interpreta HTML**, né nelle risposte né nei risultati: un `<script>`
 resta le parole che sono, e ogni cella è un nodo di testo dentro nodi che decide
 il registro.
 
-La riga di comando fa ancora scrivere le tabelle al modello, ed è una differenza
-voluta: `registro chiedi` gira fuori da Electron, non può importare
-l'impaginatore senza duplicarlo, e un terminale non ha un riquadro in cui
-disegnare. `presentazione` viaggia comunque nel catalogo — è il file che si
-guarda in revisione, e una colonna sparita ci si vede.
+`presentazione` viaggia comunque nel catalogo — è il file che si guarda in
+revisione, e una colonna sparita ci si vede.
 
 ### Il catalogo su disco
 
@@ -1496,20 +1496,20 @@ il `titolo` diventa la descrizione, lo `Schema` diventa `parameters` via
 seconda verità è quella che resta indietro.
 
 Una copia però c'è, e sta nel versionamento:
-[risorse/attrezzi.json](../risorse/attrezzi.json), che
-[src/api/attrezzi.ts](../src/api/attrezzi.ts) costruisce e `npm run attrezzi`
+[resources/tools.json](../resources/tools.json), che
+[src/api/tools.ts](../src/api/tools.ts) costruisce e `npm run tools`
 rigenera. Serve a due cose:
 
-- **la riga di comando**, che non può importare TypeScript e a cui il catalogo
-  va consegnato già fatto (anche se `registro chiedi` usa poi quello vivo, che
-  chiede al condotto con `$attrezzi`: è il solo che non possa essere rimasto
-  indietro di una modifica);
+- **chi sta fuori dal registro**, che non può importare TypeScript e a cui il
+  catalogo va consegnato già fatto (`registro catalogo` stampa invece quello
+  vivo, che chiede al condotto con `$attrezzi`: è il solo che non possa essere
+  rimasto indietro di una modifica);
 - **la revisione**: una procedura aggiunta, tolta o con un campo in meno compare
   lì come una differenza leggibile. È il posto in cui si vede che un ingresso ha
   perso un campo — cosa che, altrimenti, non romperebbe niente di visibile.
 
 È deterministico apposta — nessuna data, nessun contatore — perché
-`prove/api/attrezzi.test.mjs` lo ricostruisce e lo confronta **byte per byte**.
+`tests/api/tools.test.mjs` lo ricostruisce e lo confronta **byte per byte**.
 Se quella prova fallisce non c'è niente da aggiustare nel JSON: si dà `npm run
 attrezzi` e si legge la differenza, che è esattamente quel che si voleva vedere.
 
@@ -1560,17 +1560,15 @@ cosa da fare dentro.
 
 ### Sicurezza
 
-Quattro voci, `registroDocenti.assistente.*`, spente di serie. Quel che va detto
+Le voci `registroDocenti.assistente.*`, spente di serie. Quel che va detto
 per intero:
 
-- **I dati escono dalla macchina solo se qualcuno sposta l'indirizzo.** Domande
-  e risultati finiscono in `fetch` verso `assistente.url`, e i risultati
-  contengono nomi, medie e assenze di persone minorenni. Il predefinito è
-  `127.0.0.1`, e l'indirizzo passa dalla guardia di `dati/llm.ts` — **la
-  stessa dell'OCR, e una sola**: schema `http`/`https` o si torna alla macchina
-  locale. Era scritta due volte, e due copie di una difesa sono una difesa sola
-  più il giorno in cui una resta indietro; `prove/dati/llm.test.mjs` la esercita
-  dai due usi.
+- **I dati non escono dalla macchina.** Domande e risultati contengono nomi,
+  medie e assenze di persone minorenni, e non passano da nessun `fetch`: il
+  modello è un file `.gguf` caricato nel processo del registro
+  (`data/llamaCpp.ts`), e non c'è un indirizzo da configurare male né una
+  richiesta da dirottare. Per questo `registro chiedi`, che parlava a un
+  servizio con un `url`, non c'è più — vedi il § 8.
 - **L'origine `'assistente'` sta nel giornale.** È l'unica riga che dica «questa
   chiamata non l'ha chiesta una persona», e tutte le chiamate di un giro portano
   lo stesso tracciato.
@@ -1587,7 +1585,7 @@ per intero:
   attrezzi, quando fra la domanda e la frase da scrivere si sono infilate delle
   buste di dati con dentro dei nomi di campo. Una regola detta una volta sola,
   in mezzo a sessanta righe, è la prima che scorre via: la ripetizione costa
-  venti parole e `prove/api/assistente.test.mjs` tiene ferme tutte e due le
+  venti parole e `tests/api/assistant.test.mjs` tiene ferme tutte e due le
   volte, perché riordinando il prompt è esattamente quel che si perde senza
   accorgersene.
 
@@ -1600,8 +1598,8 @@ Un contratto che non dichiara i propri limiti è peggio di nessun contratto.
 | Garanzia | Stato |
 | --- | --- |
 | **Si valida prima di scrivere** | sì, per ogni scrittura, e provato: un ingresso malformato lascia `archivio.revisione` intatta |
-| **Nessuno schema perde per strada un campo** | sì, e provato campo per campo: `prove/api/copertura.test.mjs` legge l'unione `Azione` dal sorgente e confronta ogni variante con i campi che lo schema dichiara. Serve perché `oggetto()` scarta le chiavi che non dichiara — è la tolleranza che fa parlare un pannello nuovo con un host vecchio — e uno schema incompleto non romperebbe niente di visibile: l'azione risponderebbe «fatto» e quel campo smetterebbe di arrivare. Una nota che non si salva. Una scadenza che sparisce |
-| **Una lettura non tocca il registro** | dichiarato per tutte e otto e controllato in due modi. Per costruzione, `copertura.test.mjs` verifica che nessuna lettura dichiari `collezioni` né prenda in carico un'azione di scrittura; a macchina, `procedure.test.mjs` verifica che `archivio.revisione` non si muova — ma su quattro delle otto, non su tutte. Vedi il § 12 |
+| **Nessuno schema perde per strada un campo** | sì, e provato campo per campo: `tests/api/coverage.test.mjs` legge l'unione `Azione` dal sorgente e confronta ogni variante con i campi che lo schema dichiara. Serve perché `oggetto()` scarta le chiavi che non dichiara — è la tolleranza che fa parlare un pannello nuovo con un host vecchio — e uno schema incompleto non romperebbe niente di visibile: l'azione risponderebbe «fatto» e quel campo smetterebbe di arrivare. Una nota che non si salva. Una scadenza che sparisce |
+| **Una lettura non tocca il registro** | dichiarato per tutte e otto e controllato in due modi. Per costruzione, `coverage.test.mjs` verifica che nessuna lettura dichiari `collezioni` né prenda in carico un'azione di scrittura; a macchina, `procedures.test.mjs` verifica che `archivio.revisione` non si muova — ma su quattro delle otto, non su tutte. Vedi il § 12 |
 | **Una domanda non può scrivere** | sì: `rispondiDomanda()` rifiuta una procedura che non sia `genere: 'lettura'` prima ancora di chiamare il nucleo. È quel che rende sicuro tenere le domande fuori dalla coda |
 | **Anche l'uscita rispetta il contratto** | sì: una procedura che risponde in una forma diversa da quella dichiarata torna `interno`, e non lascia passare la busta |
 | **Una chiamata per volta** | per trasporto, non in assoluto. Il pannello accoda le proprie richieste; il condotto accoda le righe di ogni connessione. Fra trasporti diversi non c'è una coda sola: quel che li tiene insieme è il turno unico di JavaScript e la coda dell'archivio verso il disco |
@@ -1633,7 +1631,7 @@ node .claude/skills/procedure-api/scripts/nuova.mjs area.cosa.verbo \
 ```
 
 Fa le cartelle, il file al posto giusto — il percorso è il nome — e tutti gli
-indici fino a `src/api/indice.ts`. Lascia dei `DA SCRIVERE` che non compilano,
+indici fino a `src/api/index.ts`. Lascia dei `DA SCRIVERE` che non compilano,
 apposta: una procedura mezza scritta che compila è una procedura che qualcuno
 dimentica mezza scritta. Poi:
 
@@ -1641,7 +1639,7 @@ dimentica mezza scritta. Poi:
    che riceverà chi chiama da fuori, e finisce nel JSON Schema, nella tabella di
    `registro schema` e nella descrizione dell'attrezzo che il modello legge.
 2. **Dichiara ogni campo che l'azione ha.** `oggetto()` scarta quel che non
-   dichiari, e un campo dimenticato non fa rumore: `copertura.test.mjs` è lì
+   dichiari, e un campo dimenticato non fa rumore: `coverage.test.mjs` è lì
    apposta, e fallirà — ma solo se l'azione sta nell'unione.
 3. **Per un'entità intera** usa `entita({ cosa, valida })` con il validatore del
    dominio, non una forma riscritta a mano.
@@ -1652,12 +1650,12 @@ dimentica mezza scritta. Poi:
 5. **Passa la palla al gestore** con `daGestore`: **non copiare la sua logica**,
    o le due copie divergeranno. Se il lavoro sta dentro un gestore e ti serve
    solo un pezzo, *estrailo* in una funzione esportata — come `leggiModello` in
-   `azioni/modelli.ts` — e chiama quella da tutte e due le parti.
-6. **La prova**, in `prove/api/scritture.test.mjs` o `letture.test.mjs`. Se hai
+   `actions/templates.ts` — e chiama quella da tutte e due le parti.
+6. **La prova**, in `tests/api/writes.test.mjs` o `reads.test.mjs`. Se hai
    dichiarato `idempotente: true`, **provalo**: la dichiarazione da sola non è
    una garanzia. Se è una lettura, prova che `archivio.revisione` non si muove.
-7. **I conti**, se hai aggiunto un'azione: `prove/api/copertura.test.mjs` e
-   `prove/api/ponte.test.mjs` li tengono scritti a mano apposta — se cambiano, è
+7. **I conti**, se hai aggiunto un'azione: `tests/api/coverage.test.mjs` e
+   `tests/api/bridge.test.mjs` li tengono scritti a mano apposta — se cambiano, è
    cambiato il protocollo, e va visto.
 
 ### Cambiarne una
@@ -1680,18 +1678,18 @@ node .claude/skills/procedure-api/scripts/togli.mjs area.cosa.verbo
 ```
 
 Toglie il file, la riga nell'indice, le cartelle rimaste vuote, l'area da
-`src/api/indice.ts`, e poi **elenca dove il nome compare ancora**. Quelle non le
+`src/api/index.ts`, e poi **elenca dove il nome compare ancora**. Quelle non le
 tocca: una prova che cita una procedura tolta di solito prova anche altro.
 
 ### I cancelli
 
 ```sh
-npm run procedure          # l'albero: ogni file al suo posto, nel suo indice, registrato
-npm run attrezzi           # il catalogo, che altrimenti racconta un registro di ieri
-npm run controllo-tipi && npm run controllo-stile && npm test
+npm run procedures          # l'albero: ogni file al suo posto, nel suo indice, registrato
+npm run tools           # il catalogo, che altrimenti racconta un registro di ieri
+npm run typecheck && npm run lint && npm test
 ```
 
-`npm run procedure` sta per primo perché legge il testo e non compila: risponde
+`npm run procedures` sta per primo perché legge il testo e non compila: risponde
 anche quando `tsc` non passa, ed è proprio allora che serve.
 
 Se la procedura chiude una lacuna di convalida — cioè se prima accettava un
@@ -1739,17 +1737,17 @@ passate. Quel che resta è di un altro genere.
   finché è così non si aggiunge — una transazione è una cosa che poi va tolta
   con le pinze.
 - **Il giornale ha una presa e nessun ascoltatore.** `osserva()` in
-  `src/api/nucleo.ts` funziona e le prove la usano, ma nell'applicazione in
+  `src/api/core.ts` funziona e le prove la usano, ma nell'applicazione in
   esecuzione **nessuno si iscrive**: ogni chiamata viene raccontata a una
   stanza vuota. L'osservabilità del § 1 oggi è la possibilità di guardare, non
   il guardare. Manca il consumatore — un file che ruota nella cartella dei
   dati, o una vista in Impostazioni.
 - **Quattro letture su otto non hanno la prova a macchina che non scrivono.**
-  `procedure.test.mjs` verifica che `archivio.revisione` non si muova per
+  `procedures.test.mjs` verifica che `archivio.revisione` non si muova per
   `registro.riassunto`, `corsi.elenco`, `corso.presenze` e `ore.appello.leggi`.
   Per `modelli.leggi`, `modelli.prova`, `documenti.inventario` e
   `registro.integrita` resta il controllo per costruzione di
-  `copertura.test.mjs` — niente `collezioni`, nessuna azione presa in carico —
+  `coverage.test.mjs` — niente `collezioni`, nessuna azione presa in carico —
   che è una garanzia più debole: dice che non *dichiarano* di scrivere. E sono
   proprio le quattro che guardano fuori dal registro — `templates/`, le
   cartelle dei documenti, il compositore dei PDF — cioè quelle in cui una

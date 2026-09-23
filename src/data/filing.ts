@@ -1111,8 +1111,16 @@ export async function migraArchivio (archivio: Archivio): Promise<number> {
 
 /** Cancella una cartella e le sue sottocartelle, ma solo se non c'è più niente. */
 async function togliSeVuota (cartella: apparato.Uri): Promise<boolean> {
-  const voci = await vociDi(cartella)
-  if (voci.length === 0 && !(await esisteFile(cartella))) return false
+  // Una lettura che solleva, e non `vociDi`: quella su errore torna un elenco
+  // vuoto, e una cartella che non si è potuta leggere sembrerebbe vuota — e
+  // verrebbe cancellata senza cestino con dentro quel che non si è visto. Su
+  // errore non si tocca niente, come per una cartella che non c'è.
+  let voci: Array<[string, apparato.GenereFile]>
+  try {
+    voci = await apparato.file.readDirectory(cartella)
+  } catch {
+    return false
+  }
   for (const [nome, tipo] of voci) {
     if (tipo !== apparato.GenereFile.Directory) return false
     if (!(await togliSeVuota(apparato.Uri.joinPath(cartella, nome)))) return false
