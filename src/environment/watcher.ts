@@ -143,7 +143,9 @@ export function createFileSystemWatcher (dove: ModelloRelativo): Osservatore {
    */
   let reale = base.fsPath
   const allaBase = (percorso: string): string =>
-    reale === base.fsPath ? percorso : percorsi.join(base.fsPath, percorsi.relative(reale, percorso))
+    reale === base.fsPath
+      ? percorso
+      : percorsi.join(base.fsPath, percorsi.relative(reale, percorso))
 
   const annuncia = (emettitore: EventEmitter<Uri>) => (percorso: string) => {
     // L'unica via lecita per tornare a un `Uri`: `Uri.file`, la stessa che usa
@@ -180,7 +182,8 @@ export function createFileSystemWatcher (dove: ModelloRelativo): Osservatore {
       // interessano; i file che non combaciano non meritano un watcher
       // ciascuno. Senza la stat chokidar ripassa di qui con la stat in mano: in
       // quel giro non si decide niente.
-      ignored: (percorso, stat) => (stat?.isFile() ? !combacia(Uri.file(allaBase(percorso))) : false),
+      ignored: (percorso, stat) =>
+        (stat?.isFile() ? !combacia(Uri.file(allaBase(percorso))) : false),
     })
     osservatore = vivo
     vivo.on('add', annuncia(creato))
