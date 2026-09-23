@@ -494,7 +494,7 @@ export function riprendiConversazione (
  * la stessa ragione: compare nella firma di `detta`, e `npm run census`
  * guarda chi la cita e non chi la può raggiungere per inferenza.
  */
-export interface EsitoDettatura {
+interface EsitoDettatura {
   ok: boolean
   testo: string
   motivo: string
@@ -563,7 +563,7 @@ export function detta (
  * del ponte che non passa da un contratto. La riga che la chiude sta dove la
  * busta arriva — `convalidaTurni` in `panels/assistant.ts` — e non qui.
  */
-export type BustaAssistente =
+type BustaAssistente =
   | { pronto: true }
   // La mezza domanda torna indietro con la conversazione: chi riattacca
   // mentre sta scrivendo si ritrova nel riquadro quel che aveva battuto.

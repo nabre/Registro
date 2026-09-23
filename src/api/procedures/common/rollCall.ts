@@ -27,7 +27,7 @@ export const STATI_APPELLO = esaustivo<StatoPresenza>()([
 ] as const)
 
 /** Quali stati si contano quando non lo si dice: l'assenza, e nient'altro. */
-export const STATI_PREDEFINITI: readonly StatoPresenza[] = ['assente']
+const STATI_PREDEFINITI: readonly StatoPresenza[] = ['assente']
 
 /**
  * `stati`, da mettere nell'ingresso di una lettura che guarda l'appello.

@@ -136,7 +136,7 @@ export function offribile (
 // ----------------------------------------------------------------- il catalogo
 
 /** Una procedura come la vede chi la deve chiamare da fuori. */
-export interface AttrezzoCatalogo {
+interface AttrezzoCatalogo {
   /** Il nome vero, con i punti: `corso.presenze`. */
   nome: string
   /** Il nome da mettere in `tools`, senza punti: `corso_presenze`. */
@@ -185,7 +185,7 @@ export interface AttrezzoCatalogo {
 }
 
 /** Tutto quel che serve per far guidare la riga di comando a un modello. */
-export interface Catalogo {
+interface Catalogo {
   /** La versione del contratto: la stessa che viaggia in ogni busta. */
   api: number
   /** Il nome del comando a cui le righe di esempio si riferiscono. */

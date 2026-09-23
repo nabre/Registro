@@ -293,7 +293,7 @@ interface Richiesta {
  * `OpzioniCondotto` qui sotto: compare nella sua firma, e `npm run census`
  * guarda chi la cita e non chi la può raggiungere per inferenza.
  */
-export interface Permessi {
+interface Permessi {
   lettura: boolean
   scrittura: boolean
 }
@@ -964,7 +964,7 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
 // interna» perche' guarda chi la cita, non chi la puo' raggiungere per
 // inferenza — e toglierle l'`export` diventerebbe un errore il giorno in cui
 // `tsconfig.json` accende l'emissione dei `.d.ts`.
-export interface OpzioniCondotto {
+interface OpzioniCondotto {
   /**
    * La cartella dei dati dell'applicazione — `app.getPath('userData')`, cioè
    * `contesto.globalStorageUri.fsPath`. Entra nell'impronta del nome: due

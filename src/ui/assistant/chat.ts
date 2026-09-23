@@ -87,7 +87,7 @@ interface AttrezzoVisto {
   messaggio?: string
 }
 
-export interface Turno {
+interface Turno {
   ruolo: 'utente' | 'assistente'
   testo: string
   /** Solo sui turni dell'assistente: le procedure che ha aperto per rispondere. */
@@ -867,7 +867,7 @@ export function conversazioneInCorso (): boolean {
  * rimasta indietro sarebbe una seconda cronologia con i nomi della classe
  * dentro, viva in una finestra che nessuno guarda più.
  */
-export interface Bagaglio {
+interface Bagaglio {
   storia: Turno[]
   /**
    * La domanda a metà, che viaggia con la conversazione.

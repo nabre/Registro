@@ -97,7 +97,7 @@ export interface PartiContesto {
  * il menu e chi filtra la busta — e una seconda tabella di nomi sarebbe quella
  * che resta indietro il giorno in cui una parte cambia significato.
  */
-export type ParteAccendibile = Exclude<keyof PartiContesto, 'tendineSpente'>
+type ParteAccendibile = Exclude<keyof PartiContesto, 'tendineSpente'>
 
 export const PARTI: ReadonlyArray<{
   chiave: ParteAccendibile
@@ -263,7 +263,7 @@ export function conTendina (parti: PartiContesto, campo: string, accesa: boolean
 }
 
 /** Come sta un gruppo di tendine: tutte dentro, qualcuna, nessuna. */
-export type StatoGruppo = 'tutto' | 'parte' | 'niente'
+type StatoGruppo = 'tutto' | 'parte' | 'niente'
 
 /**
  * Quanto di un gruppo entra davvero nel contesto.
@@ -398,7 +398,7 @@ export function nonElencate (quante: number): { valore: string, id: null } {
  * «Anno intero», «Tutti i corsi» e i modi del calendario sono scelte vere senza
  * id — e per questo si guarda la formula, che è quella qui sopra.
  */
-export function eNonElencate (opzione: { valore: string, id: string | null }): boolean {
+function eNonElencate (opzione: { valore: string, id: string | null }): boolean {
   return opzione.id === null &&
     opzione.valore.startsWith(TESTA_NON_ELENCATE) &&
     opzione.valore.endsWith(CODA_NON_ELENCATE)

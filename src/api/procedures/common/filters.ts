@@ -364,7 +364,7 @@ export const CAMPI_ESCLUSI = {
 // ------------------------------------------------------------------ la pagina
 
 /** Quante righe tornano quando non lo si dice. */
-export const QUANTE = 50
+const QUANTE = 50
 
 /** Il tetto: oltre, una busta smette di essere una risposta e diventa un file. */
 export const QUANTE_MASSIME = 500

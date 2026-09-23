@@ -37,7 +37,7 @@ export interface Pezzo {
 }
 
 /** Come si allinea una colonna: i numeri a destra, le parole a sinistra. */
-export type Allineamento = 'sinistra' | 'destra'
+type Allineamento = 'sinistra' | 'destra'
 
 export type Blocco =
   | { genere: 'paragrafo', righe: Pezzo[][] }

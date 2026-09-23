@@ -57,7 +57,7 @@ type EventoGiro = Omit<MessaggioAssistente, 'tipo' | 'id'>
  * e la finestra che riattacca sospendeva il giro del riquadro: quello smetteva
  * di ricevere per sempre, con la rotella accesa e nessun `fine`.
  */
-export type OrigineGiro = 'riquadro' | 'finestra'
+type OrigineGiro = 'riquadro' | 'finestra'
 
 interface Giro {
   /** L'id della busta con cui chi ascolta adesso riconosce questo filo. */
@@ -164,7 +164,7 @@ function emetti (chiave: number, evento: EventoGiro): void {
 }
 
 /** Quale giro mettere da parte: lo dice chi consegna, non lo indovina questo file. */
-export interface QualeGiro {
+interface QualeGiro {
   /** La pagina che sta consegnando la conversazione. */
   origine?: OrigineGiro
   /** L'id della busta con cui quella pagina aveva chiesto: `GiroAssistente.busta`. */

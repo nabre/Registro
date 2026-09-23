@@ -133,7 +133,7 @@ export interface Presa {
 }
 
 /** Che cosa si vuol sapere, mentre il microfono è aperto. */
-export interface Ascolto {
+interface Ascolto {
   /**
    * Un pezzo di voce, tagliato a una pausa e pronto da trascrivere.
    *

@@ -58,7 +58,7 @@ const API = 'https://huggingface.co/api'
 // ------------------------------------------------------------- il catalogo
 
 /** A che cosa serve un modello, nel registro. */
-export type PerChe = 'assistente' | 'ocr'
+type PerChe = 'assistente' | 'ocr'
 
 /** Una voce consigliata: un deposito, e perché sta in elenco. */
 export interface VoceCatalogo {

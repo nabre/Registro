@@ -1407,7 +1407,7 @@ export async function usaAttrezzo (
 // ------------------------------------------------------------ il giro vero
 
 /** Che cosa succede mentre si aspetta: lo riceve la pagina, uno per volta. */
-export type Evento =
+type Evento =
   | { genere: 'attrezzo', attrezzo: AttrezzoUsato }
   /** Quel che quella procedura ha letto, già impaginato: lo disegna la pagina. */
   | { genere: 'risultato', risultato: RisultatoAssistente }
@@ -1430,7 +1430,7 @@ export type Evento =
   | { genere: 'limite', chiamate: number }
   | { genere: 'testo', testo: string }
 
-export interface OpzioniConversazione {
+interface OpzioniConversazione {
   /** La conversazione fin qui: alterna utente e assistente, senza le istruzioni. */
   storia: readonly Battuta[]
   /**

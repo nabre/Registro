@@ -56,7 +56,7 @@ export const divisione = () => oggetto({
 }, { aiuto: 'Come dividere il PDF. Senza, vale «nomi»' })
 
 /** Il tipo che `divisione()` descrive: la somma appiattita delle tre varianti. */
-export type DivisioneLarga = { modo: 'nomi' | 'passo' | 'mano'; pagine?: number }
+type DivisioneLarga = { modo: 'nomi' | 'passo' | 'mano'; pagine?: number }
 
 /**
  * La divisione ripassata al gestore com'è arrivata.

@@ -17,7 +17,7 @@ import { testo, type Schema } from '../../schemas.js'
  * non ha nemmeno la *forma* di una chiave nostra. Una chiave di un altro
  * programma, o un pezzo di percorso, non deve arrivare fino a un `update`.
  */
-export const CHIAVE_PROGRAMMA = /^registroDocenti\.[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*$/
+const CHIAVE_PROGRAMMA = /^registroDocenti\.[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*$/
 
 export function chiaveProgramma (): Schema<string> {
   return testo({

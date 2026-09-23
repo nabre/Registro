@@ -36,7 +36,7 @@ export interface Problema {
 // interna» perche' guarda chi la cita, non chi la puo' raggiungere per
 // inferenza — e toglierle l'`export` diventerebbe un errore il giorno in cui
 // `tsconfig.json` accende l'emissione dei `.d.ts`.
-export type EsitoConvalida<T> =
+type EsitoConvalida<T> =
   | { readonly value: T; readonly issues?: undefined }
   | { readonly issues: readonly Problema[] }
 

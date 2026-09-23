@@ -178,7 +178,7 @@ export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = [
  * elenchi di nomi divergono, e il modello racconterebbe a chi chiede una
  * sezione che non si chiama più così.
  */
-export interface SezioneDocumento {
+interface SezioneDocumento {
   id: SchedaDocumento
   titolo: string
   sottotitolo: string

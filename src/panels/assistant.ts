@@ -217,7 +217,7 @@ function annuncia (): void {
  * scartare l'array vuoto vorrebbe dire non distinguere più «la finestra ha
  * consegnato una chat vuota» da «non sta succedendo niente».
  */
-export function consegnaStoria (
+function consegnaStoria (
   storia: readonly TurnoAssistente[],
   verso: 'finestra' | 'riquadro',
   bozza = '',

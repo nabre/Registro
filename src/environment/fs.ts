@@ -119,6 +119,33 @@ async function esiste (nativo: string): Promise<boolean> {
   }
 }
 
+/** I rifiuti di Windows che vogliono dire «il file è occupato adesso», non «non puoi». */
+const OCCUPATO = new Set(['EPERM', 'EACCES', 'EBUSY'])
+
+/**
+ * `fs.rename`, con qualche secondo di pazienza su Windows.
+ *
+ * Lì una rinomina sopra un file che qualcun altro ha aperto in quell'istante —
+ * l'osservatore che ne fa lo `stat`, l'antivirus, l'indicizzatore, il client di
+ * sincronizzazione — fallisce con `EPERM` anche se un attimo dopo riuscirebbe.
+ * Per `scriviJson` vorrebbe dire un salvataggio perso per un caso. Si riprova
+ * con attese crescenti, come fa `graceful-fs`; passato il tempo, l'errore è
+ * vero e sale.
+ */
+async function rinominaConPazienza (da: string, a: string): Promise<void> {
+  const scadenza = Date.now() + 2000
+  for (let attesa = 10; ; attesa = Math.min(attesa * 2, 200)) {
+    try {
+      await fs.rename(da, a)
+      return
+    } catch (errore) {
+      const codice = (errore as NodeJS.ErrnoException).code ?? ''
+      if (process.platform !== 'win32' || !OCCUPATO.has(codice) || Date.now() >= scadenza) throw errore
+      await new Promise((risolvi) => setTimeout(risolvi, attesa))
+    }
+  }
+}
+
 export const filesystem = {
   async readFile (uri: Uri): Promise<Uint8Array> {
     try {
@@ -182,7 +209,7 @@ export const filesystem = {
     // migrazione non passi sopra un file già scritto, e questo lo garantisce.
     if (!opzioni?.overwrite && (await esiste(a.fsPath))) throw ErroreFile.FileExists(a)
     try {
-      await fs.rename(da.fsPath, a.fsPath)
+      await rinominaConPazienza(da.fsPath, a.fsPath)
     } catch (errore) {
       throw tradotto(errore, da)
     }

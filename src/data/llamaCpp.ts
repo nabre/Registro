@@ -235,23 +235,6 @@ let caricato: Pesi | null = null
 let ultimoBuono: { file: string, strati: Strati } | null = null
 
 /**
- * Quanti token di contesto si sono aperti davvero l'ultima volta. Zero se mai.
- *
- * `contextSize` non è quello chiesto: `max` vuol dire «non più di», e la
- * libreria scende fino a quel che la memoria concede. Il numero vero atterra
- * fra `CONTESTO_MINIMO` e `CONTESTO` e finora non lo sapeva nessuno — né chi
- * guarda il registro, né chi deve capire perché a un certo punto la
- * conversazione ha cominciato a dimenticare. Adesso si legge, si scrive in
- * console, e chi espone le cose diagnostiche può chiederlo di qui.
- */
-let ultimoContesto = 0
-
-/** Quanto contesto si è aperto davvero l'ultima volta, per chi lo deve dire. */
-export function contestoAperto (): number {
-  return ultimoContesto
-}
-
-/**
  * Quanti strati del modello vanno sulla scheda video.
  *
  * `'quel che ci sta'` lascia decidere alla libreria, dicendole però quanto
@@ -419,7 +402,6 @@ async function apparecchia (
     try {
       const contesto = await apri(presi.modello, segnale)
       ultimoBuono = { file, strati }
-      ultimoContesto = contesto.contextSize
       console.log(
         `[llama.cpp] contesto aperto: ${contesto.contextSize} token dei ${CONTESTO} chiesti, ` +
         `${strati === 'quel che ci sta' ? 'strati sulla scheda decisi dalla libreria' : `${strati} strati sulla scheda`}.`,
