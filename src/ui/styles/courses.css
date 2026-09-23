@@ -1,0 +1,107 @@
+/* I corsi, il campo con comando, il trascinamento, i menu. */
+
+/* ------------------------------------------------------------------ corsi */
+
+/*
+ * La vista dei corsi: un corso alla volta, scelto dalla tendina in alto. Il
+ * punto colore della classe sta fuori dalla scheda, sul bordo sinistro, perché
+ * è il colore con cui quel corso compare nel calendario e lo si riconosce
+ * prima di leggere il titolo.
+ */
+
+.corso-dettaglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  margin-top: var(--spazio-4);
+}
+
+.corso-dettaglio__testa {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spazio-2);
+}
+
+.corso-dettaglio__testa > .punto-colore {
+  width: 6px;
+  height: auto;
+  border-radius: 3px;
+  flex: 0 0 6px;
+}
+
+/* Il programma del corso: testo libero, e va a capo come lo si è scritto. */
+.corso-scheda__note {
+  white-space: pre-wrap;
+  color: var(--testo-quieto);
+  margin: 0;
+}
+
+/* Il corso per allievo: ore, assenze, voti in colonna. I numeri si leggono
+   incolonnati, i nomi no — la prima colonna resta a sinistra e larga. */
+.tabella--matrice td,
+.tabella--matrice th { text-align: center; font-variant-numeric: tabular-nums; }
+.tabella--matrice .tabella__nome { text-align: left; font-variant-numeric: normal; }
+
+/* La cella che chiede attenzione: assenze che ci sono, prove che mancano. */
+.tabella__cella--attenzione { color: var(--attenzione); font-weight: 600; }
+
+/* I segni della matrice del comportamento dentro una cella: due pastigliette
+   in riga, centrate come il resto dei numeri della matrice. */
+.segni-contati {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-1);
+}
+
+.corso-scheda { flex: 1; }
+
+.corso-scheda__comandi {
+  display: flex;
+  gap: var(--spazio-1);
+}
+
+.corso-scheda__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.corso-scheda__orario {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ campo con comando */
+
+/*
+ * Una tendina e il «+» che crea quel che non elenca ancora: stanno sulla stessa
+ * riga perché sono la stessa domanda, e il pulsante non deve rubare larghezza
+ * al campo.
+ */
+
+.campo__gruppo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.campo__gruppo > .campo__controllo {
+  flex: 1;
+  min-width: 0;
+}
+
+.campo__aiuto--attenzione { color: var(--attenzione); }
+
+.avviso__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.avviso__riga > span { flex: 1; }
+

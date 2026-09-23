@@ -1,0 +1,398 @@
+/* Le misure e il telaio: quel che vale in ogni schermata.
+ *
+ * I colori e i caratteri non stanno qui: stanno in `theme.css`, che è importato
+ * prima di questo file. La separazione è quel che permette di cambiare la
+ * tavolozza — o di leggerla, per vedere che cos'è davvero il grigio di una
+ * scheda — senza scorrere quattrocento righe di telaio.
+ *
+ * Nemmeno le misure stanno più qui: gli spazi, i raggi, la scala del testo, il
+ * riempimento dei comandi, le durate e i piani sono in `metrics.css`, che è
+ * dichiarazioni e nient'altro. Se ne sono andate perché `shell/pages/shared/base.css` le
+ * ricopiava a mano — le finestre native hanno bisogno degli stessi numeri e non
+ * del telaio che c'è qui sotto — e due elenchi di numeri da tenere uguali si
+ * separano al primo ripensamento. Qui restano le tinte che sono un codice, e le
+ * regole.
+ *
+ * Le classi seguono lo schema blocco__elemento--variante, in italiano come il
+ * resto del codice.
+ */
+
+:root {
+  /* Le tinte delle attività: sono le uniche che non cambiano fra chiaro e
+     scuro, e non è una svista. Sono un codice — un colore per genere di
+     attività — e un codice che cambia tinta col tema smette di essere tale:
+     chi si è abituato al ciano del laboratorio lo cerca ciano anche di sera.
+     Restano leggibili perché non si usano mai come fondo di un testo lungo:
+     sono punti, filetti e bordi. */
+  --tinta-introduzione: #6366f1;
+  --tinta-spiegazione: #3b82f6;
+  --tinta-esercizio: #10b981;
+  --tinta-laboratorio: #06b6d4;
+  --tinta-discussione: #f59e0b;
+  --tinta-gruppo: #8b5cf6;
+  --tinta-verifica: #ef4444;
+  --tinta-ripasso: #84cc16;
+  --tinta-compito: #ec4899;
+  --tinta-docenza: #0ea5e9;
+  --tinta-altro: #94a3b8;
+
+  /* Il compleanno. Non è un genere di attività, ma sul calendario sta accanto
+     a quelli, e come quelli non cambia fra chiaro e scuro: è un segno — una
+     torta, un bordo, un fondo appena acceso — e mai il fondo di un testo
+     lungo. Ambra, che è il colore della candelina e non è ancora di nessuno:
+     l'arancio della discussione sta sulle attività, che nel calendario non
+     compaiono mai nella stessa pastiglia. */
+  --tinta-festa: #d97706;
+
+  /* Adesso. La riga che attraversa la colonna di oggi nel calendario, e il
+     bordo dell'ora in corso.
+
+     Non è `--negativo` anche se è rossa: rosso qui non vuol dire «sbagliato»,
+     vuol dire «guarda qui, è questo il momento» — ed è il colore che ogni
+     calendario usa per la stessa riga, quindi si riconosce prima di capirlo.
+     Un magenta e non il rosso degli errori, così le due cose restano
+     distinguibili quando capitano nella stessa schermata: un'ora da compilare
+     e l'ora che sta passando adesso sono due avvisi diversi.
+
+     Come le tinte delle attività, non cambia fra chiaro e scuro: è un filo, un
+     puntino e un bordo, mai il fondo di un testo. */
+  --adesso: #e11d74;
+
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--carattere);
+  font-size: var(--corpo);
+  line-height: var(--interlinea);
+  color: var(--testo);
+  background: var(--sfondo);
+  overflow: hidden;
+  /* Il testo dell'interfaccia si legge meglio con le legature e le cifre
+     tabulari: in un registro le colonne di voti e di ore devono incolonnarsi
+     da sole, senza che nessuno ci metta una larghezza fissa. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.con-modale {
+  overflow: hidden;
+}
+
+/*
+ * Il fuoco della tastiera, una volta sola per tutto il pannello.
+ *
+ * Non c'era. `shell/pages/shared/base.css` ce l'aveva — le finestre native, dodici righe
+ * in tutto — e il pannello, che è il registro, no: sedici regole sparse in
+ * dieci fogli con quattro trattamenti diversi, e `.pulsante`, `.collegamento`,
+ * `.selettore__voce`, `.voce-scelta`, `.voce-laterale` e `.palette__voce` — cioè
+ * quasi tutto quel che si preme — senza niente. Chi lavora con Tab non sapeva
+ * dov'era.
+ *
+ * Il selettore è nudo apposta: pesa (0,1,0), meno di qualunque `.classe:focus-visible`,
+ * e i pochi posti che hanno bisogno di un filo *dentro* invece che fuori —
+ * la barra dei comandi, la barra di stato, la navigazione, che stanno incollate
+ * a un bordo e con lo stacco verrebbero tagliate — continuano a vincere da soli.
+ *
+ * `:focus-visible` e non `:focus`: un pulsante premuto col mouse non deve
+ * restare cerchiato finché non si clicca altrove.
+ */
+:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+.app { height: 100vh; }
+
+/* Il filo di lavoro: due pixel in cima alla finestra mentre una richiesta e'
+   in volo. Sta sopra a tutto e non occupa spazio nel telaio, o accendersi
+   sposterebbe la pagina di due pixel a ogni clic. */
+.filo-lavoro {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accento) 20%, transparent);
+  z-index: var(--piano-filo);
+}
+
+.filo-lavoro span {
+  display: block;
+  height: 100%;
+  width: 35%;
+  background: var(--accento);
+  animation: scorre-filo 1.1s ease-in-out infinite;
+}
+
+@keyframes scorre-filo {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filo-lavoro span { animation: none; width: 100%; opacity: 0.6; }
+}
+
+.caricamento {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------------------ telaio */
+
+/*
+ * Tre righe e una colonna sola: i comandi, la pagina, la barra di stato.
+ *
+ * La colonna a sinistra non c'è più. C'era la barra di navigazione — le pagine
+ * di tutti, l'albero dei corsi, gli elenchi, l'anno — e se n'è andata quando la
+ * barra multifunzione ha smesso di essere un doppione: le stesse pagine si
+ * aprono dalle sue schede, e tredici centimetri di schermo sono tornati alla
+ * tabella che si sta leggendo.
+ *
+ * `minmax(0, 1fr)` sulla riga di mezzo e non `1fr`: con `1fr` il minimo è il
+ * contenuto, e una tabella lunga spingerebbe la barra di stato fuori dallo
+ * schermo invece di far scorrere la pagina.
+ */
+.guscio {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* Quattro righe: la barra del titolo, i comandi, la pagina, lo stato. La
+     prima è la cornice della finestra, che il registro si disegna da sé —
+     vedi `styles/title-bar.css`. */
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  /*
+   * Il margine della pagina cresce con la finestra, entro due limiti: a 1024
+   * sono i 16px che servono a non incollare la tabella al bordo, a 2560 sono 36
+   * e la pagina non sembra spinta contro il vetro. In pixel e non in `rem`: è
+   * spazio, non testo.
+   *
+   * Sta sul telaio e non sul solo contenuto perché lo usano in tre: il
+   * `padding` della pagina, la barra dei comandi che si allinea a lei, e la
+   * fascia della proiezione che esce dai margini con misure negative di pari
+   * valore. Scritto in tre posti, divergerebbe al primo ripensamento.
+   */
+  --margine-pagina: clamp(16px, 1.5vw, 36px);
+}
+
+.contenuto {
+  overflow: auto;
+  padding: var(--margine-pagina);
+}
+
+/*
+ * ------------------------------------------------------ un solo scorrimento
+ *
+ * Le scatole che scorrono nel registro sono una ventina, e fino a qui ognuna
+ * decideva per conto suo: `overscroll-behavior` stava scritto in otto, la barra
+ * sottile in quattro, `scrollbar-gutter` in nessuna. Non era un guasto — era
+ * che scorrere cambiava mano da una pagina all'altra: qui la barra sottile, là
+ * quella di sistema; qui il gesto si ferma in fondo all'elenco, là sfonda e
+ * porta via la pagina sotto. Adesso la regola sta in un posto solo, e chi
+ * aggiunge una scatola che scorre la nomina qui dentro.
+ *
+ * Tre proprietà, tre ragioni distinte:
+ *
+ * - `overscroll-behavior: contain` — arrivati in fondo, il gesto si ferma lì
+ *   invece di proseguire sul telaio. Senza, l'ultimo giro di rotella dentro la
+ *   griglia dei voti porta via la pagina mentre si punta una casella.
+ * - `scrollbar-gutter: stable` — lo spazio della barra è riservato sempre,
+ *   anche quando la barra non c'è. Serve perché qui si ridisegna a ogni tasto:
+ *   filtrando un elenco la barra compare e sparisce, e con lei la colonna
+ *   saltava di lato a ogni lettera scritta.
+ * - `scrollbar-width: thin` — la barra è un attrezzo, non una parte della
+ *   pagina. Il **colore** non si tocca qui: lo dà `color-scheme` in `theme.css`,
+ *   che fa seguire il tema anche a quel che non disegniamo noi.
+ *
+ * Il `gutter` vale per le superfici di lavoro e non per quelle a comparsa: un
+ * menu o la palette vivono il tempo di una scelta, e una fascia vuota riservata
+ * dentro di loro si leggerebbe come un margine storto.
+ */
+.contenuto,
+.sidebar,
+.elenco-laterale,
+.tabella-contenitore--griglia,
+.documenti__barra,
+.documenti__elenco,
+.composizione__ordine,
+.modelli__barra,
+.modelli__problemi,
+.settimana__scorrevole,
+.mese__scorrevole,
+.agenda,
+.anno-griglia__foglio,
+.archivio__barra,
+.mappa__voci,
+.sfoglio__pagine,
+.da-smistare,
+.assistente__filo,
+.modale__corpo {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+/* Le scatole a comparsa e quelle che scorrono di lato: stessa mano, senza la
+   fascia riservata, che qui si vedrebbe. */
+.menu,
+.palette__elenco,
+.mappa__cartellino-chi,
+.barra-comandi__corpo,
+.tabella-contenitore,
+.assistente__tabella-contenitore {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/*
+ * Le pagine sono larghe quanto la finestra. Tutte, senza eccezioni.
+ *
+ * Qui c'erano quattro misure — piena, larga, normale, lettura — assegnate vista
+ * per vista con `:has()`, e l'idea era che una tabella di poche colonne corte,
+ * stirata su due metri di schermo, mette dieci centimetri di vuoto fra il nome
+ * e la sua percentuale.
+ *
+ * Il difetto era un altro, e si vedeva tutti i giorni: le pagine cambiavano
+ * larghezza passando dall'una all'altra. Il calendario arrivava ai bordi, la
+ * pagina accanto si fermava ottanta caratteri prima, e la barra laterale
+ * restava dov'era mentre il contenuto ballava. Su un monitor da lavoro — che è
+ * quello su cui il registro sta aperto tutto il giorno — quel margine bianco
+ * non è respiro, è spazio che una colonna in più avrebbe riempito.
+ *
+ * Il caso della prosa resta risolto dove va risolto: nella guida, dove il testo
+ * si ferma a `76ch` per conto suo. È il testo a doversi fermare, non la pagina
+ * che lo contiene — e infatti l'indice della guida sta accanto, dove prima c'era
+ * il margine.
+ */
+.vista,
+.contenuto > .avviso {
+  width: 100%;
+}
+
+.vista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+/* ------------------------------------------------------------------ testate */
+
+.testata {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  padding-bottom: var(--spazio-3);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.testata__principale {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-4);
+  flex-wrap: wrap;
+}
+
+.testata__titolo {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.testata__sottotitolo,
+.scheda__sottotitolo {
+  margin: 2px 0 0;
+  color: var(--testo-quieto);
+}
+
+.testata__azioni,
+.scheda__azioni {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.testata__contorno {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-4);
+  flex-wrap: wrap;
+}
+
+/*
+ * La testata compatta: una riga sola.
+ *
+ * Il nome della pagina sta già nella barra, un centimetro più sopra, e qui
+ * serve solo il periodo che si sta guardando con i suoi numeri. Il titolo resta
+ * — è l'àncora del lettore di schermo, che la barra non gli dà come
+ * intestazione — ma smette di essere grande.
+ */
+.testata--compatta {
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-3);
+  padding-bottom: var(--spazio-2);
+}
+
+.testata--compatta .testata__titolo {
+  font-size: var(--corpo-titolo);
+}
+
+.testata--compatta .testata__sottotitolo {
+  margin: 0;
+}
+
+.testata--compatta .testata__spazio {
+  flex: 1 1 auto;
+}
+
+.testata--compatta .testata__contorno {
+  justify-content: flex-end;
+  gap: var(--spazio-3);
+}
+
+/* I numeri in riga e non incolonnati: «12 lezioni in settimana» si legge come
+   una frase, e in colonna prendevano tre righe di altezza per tre cifre. */
+.testata--compatta .sintesi {
+  gap: var(--spazio-3);
+}
+
+.testata--compatta .dato {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.testata--compatta .dato__valore {
+  font-size: 1em;
+}
+
+.testata--compatta .dato__etichetta {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.filtri {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+.suggerimento {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-vicino);
+}

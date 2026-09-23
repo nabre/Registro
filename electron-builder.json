@@ -1,0 +1,232 @@
+// Come si impacchetta l'applicazione. `npm run package`.
+//
+// Il file è JSON con i commenti: electron-builder legge anche i `.json` con
+// JSON5, e una configurazione di venti righe che decide dove finiscono i dati
+// dei docenti merita di dire perché.
+//
+// La versione non sta qui: electron-builder legge quella di `package.json`, che
+// è l'unico posto in cui si scrive.
+{
+  "appId": "ch.edu.ti.cptt.registro-docenti",
+  "productName": "Registro docenti",
+  "copyright": "Nabre",
+
+  // Dove vanno i pacchetti, e dove l'applicazione installata andrà a cercare
+  // le versioni nuove: electron-builder scrive questa voce in
+  // `resources/app-update.yml`, che è quel che legge electron-updater. Le
+  // release le fa `.github/workflows/rilascio.yml`; da qui in locale non si
+  // pubblica niente, perché fuori da CI electron-builder non pubblica se non
+  // glielo si chiede con `--publish`.
+  //
+  // `draft`: il workflow crea la bozza, electron-builder ci carica i pacchetti
+  // e `latest.yml`, e la bozza diventa pubblica solo quando è completa. Una
+  // release visibile a metà caricamento è una release che un registro
+  // installato potrebbe provare a scaricare senza trovarci l'installer.
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "nabre",
+      "repo": "Registro",
+      "releaseType": "draft"
+    }
+  ],
+
+  "directories": {
+    "output": "pacchetti",
+    // Le icone: electron-builder cerca `icon.ico` e `icon.png` qui dentro per
+    // l'eseguibile, l'installer e i pacchetti di macOS e Linux. Le fa
+    // `npm run icons` da `resources/registro.svg`.
+    "buildResources": "icons"
+  },
+
+  // Che cosa entra nel pacchetto. `main` in `package.json` punta già a
+  // `dist/main.cjs`: non c'è niente da sovrascrivere qui.
+  //
+  // Le due pagine native non compaiono: `dialog.html` e `settings.html`
+  // sono già dentro `dist/`, dove le copia esbuild. Servite da lì e non
+  // da `shell/`, il protocollo `registro://` resta con una cartella sola da
+  // concedere.
+  "files": [
+    "dist/**/*",
+    // Le mappe dei sorgenti sono undici megabyte che servono solo in sviluppo.
+    "!dist/**/*.map",
+    "resources/**/*",
+    // Le icone entrano anche nel pacchetto e non solo nell'eseguibile: le
+    // finestre, il cassetto accanto all'orologio e le notifiche se le mettono
+    // da sé — vedi `percorsoIconaFinestra()` in `src/environment/context.ts` —
+    // e così in sviluppo e da installato il registro si presenta con la stessa
+    // faccia. Sono due perché servono a due misure: il `.ico` per le icone
+    // piccole, che dentro ha le nove misure disegnate apposta, e il `.png` da
+    // 512 per le notifiche, dove il formato di Windows non è previsto.
+    "icons/icon.ico",
+    "icons/icon.png",
+    "package.json",
+
+    // La riga di comando, che `shell/system/commandLine.ts` fa raggiungere dal
+    // terminale come `regdoc`. Non passa da esbuild — non si compila, e quella
+    // è una scelta raccontata in testa a `src/cli/registro.mjs` — quindi in
+    // `dist/` non ci finisce da sé e va nominata qui. Va anche tenuta fuori
+    // dall'asar, sotto: chi la apre non è il registro.
+    "src/cli/**/*",
+
+    // Le dipendenze: entrano solo quelle di `dependencies` in `package.json`,
+    // con tutto quel che si tirano dietro, ed è electron-builder a calcolarlo.
+    // Tutto ciò che esbuild impacchetta nei bundle — `@cantoo/pdf-lib`,
+    // `pdfjs-dist`, `chokidar` — sta invece in `devDependencies`: serve a
+    // costruire, non a girare, e nel pacchetto sarebbero centoventi megabyte di
+    // copie di codice che nessuno carica, `@napi-rs/canvas` compreso.
+    //
+    // In `dependencies` restano solo i moduli che esbuild lascia `external`:
+    //
+    // - koffi, modulo nativo — è quel che dà al registro `SHAppBarMessage`,
+    //   cioè l'agenda agganciata al bordo del desktop. Il binario sta in un
+    //   pacchetto per piattaforma (`@koromix/koffi-win32-x64`), che entra da sé
+    //   perché è una sua `optionalDependency`.
+    //
+    // - `node-llama-cpp`, che fa girare i modelli del linguaggio dentro il
+    //   processo e porta con sé i binari di llama.cpp. Non si impacchetta nei
+    //   bundle perché la sua struttura di cartelle **è** il modo in cui sceglie
+    //   il binario giusto: appiattirla li perde tutti.
+    //
+    // Prima questa lista era scritta a mano, pacchetto per pacchetto, e non
+    // reggeva: `node-llama-cpp` da solo si tira dietro più di ottanta pacchetti
+    // (`chalk`, `lifecycle-utils`, `yargs`…), ne mancava uno qualsiasi e
+    // l'assistente, installato, diceva «l'installazione del registro è
+    // incompleta». In sviluppo non si vedeva: `node_modules` c'era tutto.
+    //
+    // Un modulo nuovo che debba restare `external` va quindi in `dependencies`,
+    // e basta: fuori dall'asar ci finisce da sé, con la riga in `asarUnpack`.
+
+    // Dei binari di llama.cpp per Windows ne servono tre — quello normale,
+    // quello Vulkan e quello CUDA — perché quale si carichi lo decide la
+    // macchina su cui il registro gira, non quella su cui è stato impacchettato.
+    // Gli altri due che npm installa restano fuori, come prima: ARM non è una
+    // macchina di scuola, e `cuda-ext` pesa da solo trecentocinquanta megabyte.
+    "!node_modules/@node-llama-cpp/win-arm64{,/**/*}",
+    "!node_modules/@node-llama-cpp/win-x64-cuda-ext{,/**/*}"
+  ],
+
+  // pdfjs carica il proprio worker con un `import()` di un URL `file:`, che va
+  // al caricatore di moduli e non al `fs` che Electron corregge per l'asar:
+  // dentro l'archivio quel caricamento può fallire, e l'errore dice «Setting up
+  // fake worker failed» senza nominare né l'asar né il file. Tenerlo fuori
+  // costa un megabyte e toglie di mezzo la questione. Il percorso lo compone
+  // `percorsoWorkerPdf()` in `src/environment/context.ts`, che sa di dover
+  // guardare in `app.asar.unpacked`.
+  "asarUnpack": [
+    "**/pdf.worker.mjs",
+    // Le icone le leggono Windows e non Electron: la notifica passa al sistema
+    // un percorso da aprire, e il `.ico` della finestra lo carica `LoadImage`.
+    // Nessuno dei due sa dell'asar, e dentro l'archivio l'icona semplicemente
+    // non c'era — in sviluppo tutto a posto, installato niente. Il percorso lo
+    // compone `primaIconaPresente()` in `src/environment/context.ts`.
+    "icons/**",
+    "**/src/cli/**",
+    // Tutte le dipendenze, e non solo i moduli nativi: `node-llama-cpp` deve
+    // stare fuori per i suoi binari, e un pacchetto fuori dall'asar cerca i
+    // propri `import` salendo le cartelle di `app.asar.unpacked` — dentro
+    // l'archivio non guarda. `chalk` e compagni vanno quindi fuori con lui.
+    "**/node_modules/**"
+  ],
+
+  // I documenti del registro: `2026-2027.registro`, uno per anno scolastico.
+  //
+  // Dichiararli qui è quel che fa comparire l'icona giusta nel gestore file e
+  // quel che fa aprire il registro con un doppio clic — il percorso arriva
+  // sulla riga di comando, e `shell/main.ts` lo raccoglie da lì.
+  //
+  // Niente `icon`: il documento porta l'icona dell'applicazione, e senza la
+  // chiave electron-builder la prende da sé — su Windows `"$appExe",0`, la
+  // stessa che scrive `shell/system/fileAssociation.ts`, su macOS quella del
+  // pacchetto. Con `icons/icon.ico` la build per macOS si fermava: lì il nome
+  // diventa `icons/icon.icns`, che non esiste.
+  //
+  // Il tipo MIME è nostro e non quello dello ZIP. Lo legge solo Linux, dove
+  // diventa la riga `MimeType=` del `.desktop` e una voce di shared-mime-info:
+  // con `application/zip` il registro si proponeva per aprire **tutti** gli
+  // archivi, e i `.registro` avevano l'icona degli zip. Chi guarda il
+  // contenuto — un servizio di posta — lo riconosce come zip comunque.
+  "fileAssociations": [
+    {
+      "ext": "registro",
+      "name": "Registro docenti",
+      "description": "Anno scolastico del registro docenti",
+      "mimeType": "application/x-registro-docenti",
+      "role": "Editor"
+    }
+  ],
+
+  "win": {
+    // Due bersagli, e il secondo non è un di più: in una scuola l'installazione
+    // può richiedere diritti che il docente non ha, e un eseguibile su chiavetta
+    // è spesso l'unica via percorribile.
+    "target": [
+      "nsis",
+      "portable"
+    ],
+    "icon": "icons/icon.ico"
+  },
+
+  "nsis": {
+    // Non a un clic: chi installa deve poter vedere dove sta mettendo le cose.
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    // Per utente e non per macchina: installare in `Programmi` chiede
+    // l'amministratore, e su una macchina scolastica quello ferma tutto.
+    "perMachine": false,
+    "shortcutName": "Registro docenti",
+    // Disinstallare toglie anche i dati dell'applicazione: `%APPDATA%\Registro
+    // docenti`, cioè impostazioni, recenti, modelli scaricati, corredo della
+    // dettatura e ponte di `regdoc`. Non durante un aggiornamento, che passa
+    // anche lui dal disinstallatore: quello electron-builder lo riconosce da sé.
+    // I documenti `.registro` del docente stanno altrove e non si toccano.
+    "deleteAppDataOnUninstall": true,
+    // Il resto — PATH, associazione dei file, avvio automatico, temporanei —
+    // lo toglie `src/cli/disinstalla.mjs`, chiamato da qui: vedi il file.
+    "include": "os/windows/uninstall.nsh",
+    "artifactName": "${name}-${version}-installer.${ext}"
+  },
+
+  // Il portabile tiene i dati in «Registro docenti - dati», accanto
+  // all'eseguibile (`shell/system/portable.ts`): disinstallarlo è buttare
+  // l'eseguibile e quella cartella, o usare «Disinstalla…» nel menu.
+  "portable": {
+    "artifactName": "${name}-${version}-portabile.${ext}"
+  },
+
+  // macOS non ha un disinstallatore: un'applicazione si butta nel cestino, e
+  // quel che ha scritto in `~/Library` resta. È la voce «Disinstalla…» del
+  // menu (`shell/system/uninstall.ts`) a togliere dati e applicazione insieme.
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "category": "public.app-category.education",
+    "icon": "icons/icon.png"
+  },
+
+  "linux": {
+    // L'AppImage è il portabile di Linux, e come lui non ha un disinstallatore:
+    // vale la voce «Disinstalla…» del menu. `.deb` e `.rpm` sì, e alla rimozione
+    // del pacchetto `os/linux/after-remove.sh` toglie i dati di ogni utente.
+    "target": [
+      "AppImage",
+      "deb",
+      "rpm"
+    ],
+    "category": "Education",
+    // Il `.deb` vuole un manutentore, e `author` in `package.json` non ha
+    // l'indirizzo da cui electron-builder lo ricaverebbe.
+    "maintainer": "Michel Brenna",
+    "icon": "icons/icon.png"
+  },
+
+  // `afterRemove` non si scrive in `linux`: vale solo per i bersagli che hanno
+  // un gestore di pacchetti, e lo schema di electron-builder lo rifiuta lì.
+  "deb": {
+    "afterRemove": "os/linux/after-remove.sh"
+  },
+  "rpm": {
+    "afterRemove": "os/linux/after-remove.sh"
+  }
+}

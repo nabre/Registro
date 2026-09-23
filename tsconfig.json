@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "Node16",
+    "moduleResolution": "Node16",
+
+    // Il modulo `apparato` è un file nostro, e qui glielo si dice anche a
+    // TypeScript.
+    //
+    // Si chiamava `vscode`, e i tipi venivano da `@types/vscode`: il controllo
+    // era una bugia comoda, perché `tsc` verificava il registro contro l'API
+    // dell'editor mentre esbuild lo compilava contro il file nostro. Le due
+    // cose potevano divergere senza che niente lo dicesse — una funzione
+    // dichiarata nei tipi e non scritta qui passava il controllo e scoppiava
+    // all'uso.
+    //
+    // Con questa riga `tsc` guarda esattamente quel che gira. È il controllo che
+    // conta: se `src/environment/` non copre qualcosa, si scopre compilando invece
+    // che con una finestra vuota davanti. E il nome non promette più l'API di un
+    // programma che il registro non usa da un pezzo: nomina un ruolo.
+    "paths": {
+      "apparato": ["./src/environment/platform.ts"]
+    },
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  // `tests/` c'è per i due aiuti scritti in TypeScript — `tests/helpers/data.ts` e
+  // `tests/helpers/documents.ts`. Restandone fuori erano l'unico codice del
+  // progetto che nessuno controllava: costruiscono i registri finti su cui
+  // girano mille prove, e un campo sbagliato lì si sarebbe visto come una prova
+  // che fallisce per il motivo sbagliato. I file `.mjs` delle prove non entrano
+  // comunque: `tsc` guarda i `.ts`, e quelli sono già i bundle costruiti.
+  "include": ["src", "shell", "tests"]
+}

@@ -1,0 +1,655 @@
+/* La mappa: il riquadro con le carte, i segnaposti, e l'elenco accanto. */
+
+.mappa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  min-height: 0;
+}
+
+/*
+ * La catena delle altezze, dal riquadro fino alla finestra.
+ *
+ * Qui c'era un'altezza dichiarata — `clamp(22rem, 68vh, 46rem)` — e nasceva
+ * da un difetto vero: dentro un contenitore che scorre una riga elastica si
+ * allunga fino al suo contenuto, e il riquadro era alto tremila pixel. Il
+ * rimedio però pagava due volte: su un monitor da lavoro restava una fascia di
+ * pagina vuota sotto la carta, e in «vh» l'altezza è una bugia comoda — sopra
+ * la mappa ci sono una testata e una riga di comandi, e la loro somma cambia
+ * con la finestra.
+ *
+ * Il rimedio giusto è togliere lo scorrimento invece di limitarne l'appetito:
+ * il contenitore del telaio si incolonna, la vista prende quel che avanza, e
+ * il corpo della mappa lo riempie. Nessuno scorre, nessuno si allunga, e la
+ * carta è grande quanto lo schermo permette.
+ */
+.contenuto:has(.mappa__corpo) {
+  display: flex;
+  flex-direction: column;
+  /* La pagina non scorre più: a scorrere sono l'elenco e la carta, dentro. */
+  overflow: hidden;
+}
+
+.contenuto:has(.mappa__corpo) > .mappa {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Sopra la vista possono esserci la fascia della proiezione e quella degli
+   avvisi: sono alte quanto sono, e non si schiacciano per far posto alla
+   carta. */
+.contenuto:has(.mappa__corpo) > :not(.mappa) {
+  flex: none;
+}
+
+.mappa__corpo {
+  display: grid;
+  /* L'elenco a sinistra e la carta a destra: si legge un nome e si guarda dove
+     cade, senza spostare gli occhi lungo la pagina. La colonna è larga
+     abbastanza da contenere un indirizzo intero — sotto i venti caratteri una
+     via va a capo ogni riga e l'elenco diventa illeggibile. */
+  grid-template-columns: minmax(18rem, 26rem) minmax(0, 1fr);
+  gap: var(--spazio-3);
+  /* `flex: 1` e non un'altezza: quel che avanza fra la testata e la nota. */
+  flex: 1;
+  min-height: 0;
+}
+
+/* Sotto i mille pixel l'elenco va sotto la mappa: affiancati sarebbero due
+   colonne strette, e la mappa smetterebbe di essere leggibile. */
+@media (max-width: 1000px) {
+  /*
+   * Su una finestra stretta — e quindi quasi sempre bassa — quel che avanza
+   * non basta per due riquadri incolonnati: sarebbero dieci centimetri di
+   * carta e cinque di elenco. Qui torna l'altezza dichiarata, e a scorrere
+   * torna la pagina.
+   */
+  .contenuto:has(.mappa__corpo) {
+    display: block;
+    overflow: auto;
+  }
+
+  .mappa__corpo {
+    flex: none;
+    height: clamp(30rem, 84vh, 60rem);
+    grid-template-columns: minmax(0, 1fr);
+    /* Incolonnati, la carta va sopra: è quella che vuole spazio, e un elenco
+       scorre bene anche in fondo. */
+    grid-template-rows: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .mappa__tela {
+    grid-row: 1;
+  }
+
+  .mappa__colonna {
+    grid-row: 2;
+  }
+}
+
+/* ------------------------------------------------------------------ il riquadro */
+
+.mappa__tela {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  cursor: grab;
+  /* Il trascinamento è nostro: senza questa riga il browser prova a scorrere
+     la pagina e la mappa si muove a scatti sul telefono e sui trackpad. */
+  touch-action: none;
+}
+
+.mappa__tela--in-mano {
+  cursor: grabbing;
+}
+
+.mappa__tasselli,
+.mappa__segni,
+.mappa__tragitti {
+  position: absolute;
+  inset: 0;
+}
+
+.mappa__segni,
+.mappa__tragitti {
+  /* I tasselli prendono i gesti, gli strati sopra no: solo i segnaposti li
+     riprendono, uno per uno. Senza, il trascinamento morirebbe appena il
+     puntatore passa sopra una riga di tragitto. */
+  pointer-events: none;
+}
+
+.mappa__tassello {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  user-select: none;
+  /* Al buio le carte di OpenStreetMap sono una lastra bianca in mezzo a una
+     pagina scura: si spengono un poco, e i segnaposti sopra restano i soli
+     elementi a piena forza. */
+  filter: var(--filtro-tasselli, none);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mappa__tassello {
+    --filtro-tasselli: brightness(0.72) saturate(0.85);
+  }
+}
+
+.mappa__tragitto {
+  stroke: var(--accento);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.65;
+  transition: stroke-width 120ms ease, opacity 120ms ease;
+}
+
+/*
+ * Il collegamento fra una casa e un posto di lavoro, quando lo si guarda.
+ *
+ * Sulla carta di una classe intera le righe sono venti e si incrociano tutte:
+ * quale vada da dove a dove non si legge, e la mappa risponde a metà alla sola
+ * domanda che quelle righe pongono. Il mouse sopra una riga la tira fuori dal
+ * mucchio — tratto pieno, il nome di chi la fa, i due capi accesi — e un clic
+ * la tiene fuori, smorzando tutto il resto finché non la si molla.
+ */
+
+/* La riga larga sotto il puntatore è la sola a prendere il mouse: il gruppo
+   non deve rubarlo alla carta, o il trascinamento morirebbe sopra un nome. */
+.mappa__collegamento {
+  pointer-events: none;
+}
+
+.mappa__tragitto-presa {
+  fill: none;
+  stroke: transparent;
+  /* Sedici pixel attorno a una riga da uno e mezzo: è la larghezza a cui una
+     riga si prende volendo, invece che per caso. */
+  stroke-width: 16;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.mappa__collegamento--acceso .mappa__tragitto {
+  stroke-width: 3.5;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+/* Il nome sta scritto solo sulla riga accesa: venti nomi sempre in vista
+   sarebbero un groviglio peggiore delle righe che spiegano. */
+.mappa__tragitto-nome {
+  display: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  fill: var(--testo);
+  /* Il contorno chiaro sotto le lettere: il nome cade sopra le strade, e senza
+     un alone si legge solo dove la carta è vuota. */
+  paint-order: stroke;
+  stroke: var(--sfondo-alto);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  user-select: none;
+}
+
+.mappa__collegamento--acceso .mappa__tragitto-nome {
+  display: block;
+}
+
+.mappa__segno--acceso .mappa__punta {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  box-shadow: var(--ombra-2);
+}
+
+/*
+ * Un collegamento scelto: il resto della carta si smorza.
+ *
+ * Non sparisce — dove cade il tragitto rispetto a tutti gli altri è metà della
+ * risposta — ma si tira indietro quanto basta perché l'occhio segua una riga
+ * sola. I tasselli scendono di poco: sotto la riga ci sono le strade, ed è su
+ * quelle che si legge la strada che quella persona fa ogni mattina.
+ */
+.mappa__tela--isolata .mappa__tasselli {
+  opacity: 0.6;
+}
+
+.mappa__tela--isolata .mappa__collegamento:not(.mappa__collegamento--acceso) .mappa__tragitto {
+  opacity: 0.12;
+}
+
+.mappa__tela--isolata
+  .mappa__segno:not(.mappa__segno--acceso):not(.mappa__segno--aperto) {
+  opacity: 0.25;
+}
+
+.mappa__tasselli,
+.mappa__segno {
+  transition: opacity 140ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mappa__tragitto,
+  .mappa__tasselli,
+  .mappa__segno {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ i segnaposti */
+
+.mappa__segno {
+  position: absolute;
+  /* Le coordinate cadono sulla punta del segnaposto, non sul suo centro: la
+     punta è il posto, il resto è il disegno che la rende visibile. */
+  transform: translate(-50%, -100%);
+  pointer-events: auto;
+}
+
+.mappa__punta {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--su-tinta);
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: currentColor;
+  box-shadow: var(--ombra-1);
+  cursor: pointer;
+}
+
+.mappa__punta .icona {
+  width: 15px;
+  height: 15px;
+  transform: rotate(45deg);
+  color: var(--su-tinta);
+}
+
+/*
+ * Il colore dice di chi è un punto, e quindi vale per le case: ognuna porta il
+ * colore della sua classe, lo stesso del calendario. Questo è il ripiego, per
+ * la casa che sta in due classi insieme.
+ */
+.mappa__segno--domicilio .mappa__punta {
+  color: var(--accento);
+}
+
+/*
+ * Le aziende sono neutre, e non è una rinuncia: un'azienda non è di nessuna
+ * classe — spesso ci lavorano persone di tre classi diverse — e tingerla del
+ * colore di una delle tre direbbe una cosa falsa. Restano grigie, e a
+ * distinguerle dalle case è la figura dentro la punta; così il colore, sulla
+ * carta, significa una cosa sola.
+ */
+.mappa__segno--lavoro .mappa__punta {
+  color: var(--ufficio);
+}
+
+.mappa__segno--sede .mappa__punta {
+  color: var(--positivo);
+  width: 34px;
+  height: 34px;
+}
+
+.mappa__segno--sede .mappa__punta .icona {
+  width: 18px;
+  height: 18px;
+}
+
+.mappa__segno--aperto {
+  z-index: 3;
+}
+
+.mappa__segno--aperto .mappa__punta {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 2px;
+}
+
+.mappa__cartellino {
+  position: absolute;
+  bottom: calc(100% + var(--spazio-2));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  max-width: 18rem;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-2);
+}
+
+.mappa__cartellino-titolo {
+  font-size: 0.95rem;
+}
+
+.mappa__cartellino-riga {
+  font-size: 0.8rem;
+  color: var(--testo-quieto);
+}
+
+.mappa__cartellino .pulsante {
+  margin-top: var(--spazio-1);
+  align-self: flex-start;
+}
+
+/* ------------------------------------------------------------------ scala e credito */
+
+.mappa__scala {
+  position: absolute;
+  left: var(--spazio-3);
+  bottom: var(--spazio-3);
+  padding: 2px 4px;
+  border: 1px solid var(--testo-quieto);
+  border-top: none;
+  font-size: 0.7rem;
+  color: var(--testo);
+  background: color-mix(in srgb, var(--sfondo) 78%, transparent);
+  text-align: center;
+  pointer-events: none;
+}
+
+.mappa__credito {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  color: var(--testo-quieto);
+  background: color-mix(in srgb, var(--sfondo) 78%, transparent);
+  border-top-left-radius: var(--raggio);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ l'elenco */
+
+.mappa__colonna {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  overflow: hidden;
+}
+
+.mappa__colonna-testata {
+  padding: var(--spazio-2);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.mappa__colonna-testata .selettore {
+  width: 100%;
+}
+
+.mappa__colonna-testata .selettore__voce {
+  flex: 1;
+  justify-content: center;
+}
+
+.mappa__colonna-vuota {
+  margin: 0;
+  padding: var(--spazio-4);
+  color: var(--testo-quieto);
+  font-size: 0.85rem;
+}
+
+.mappa__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.mappa__voce {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mappa__voce:hover:not(:disabled) {
+  background: var(--sfondo-alto-2);
+}
+
+.mappa__voce:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.mappa__voce--attiva {
+  background: var(--sfondo-alto-2);
+  box-shadow: inset 3px 0 0 var(--accento);
+}
+
+/*
+ * Le righe degli indirizzi e degli uffici non sono un pulsante solo: dentro
+ * hanno il gesto che porta la mappa là e, negli uffici, i nomi di chi ci sta —
+ * che sono altri gesti. Un pulsante dentro un pulsante non si può fare, e
+ * nemmeno si vorrebbe: sono due destinazioni diverse.
+ */
+/*
+ * Due righe: sopra l'indirizzo con le sue pastiglie, sotto i nomi di chi ci
+ * sta. I nomi occupano tutta la larghezza e cominciano a sinistra, sotto
+ * l'indirizzo a cui appartengono — messi in coda alla prima riga finivano a
+ * destra, staccati da quel che spiegano, e l'indirizzo si accorciava per far
+ * loro posto.
+ */
+.mappa__voce--indirizzo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'apri stato'
+    'persone persone';
+  align-items: start;
+  gap: var(--spazio-1) var(--spazio-2);
+  cursor: default;
+}
+
+.mappa__voce--indirizzo .mappa__voce-apri {
+  grid-area: apri;
+}
+
+.mappa__voce--indirizzo .mappa__voce-stato {
+  grid-area: stato;
+  justify-content: flex-end;
+}
+
+.mappa__voce-apri {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mappa__voce-apri:disabled {
+  cursor: default;
+  color: var(--testo-quieto);
+}
+
+.mappa__voce-apri strong {
+  font-weight: 600;
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mappa__voce-apri small {
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* I nomi di chi sta a quell'indirizzo: vanno a capo, e sono collegamenti. */
+.mappa__voce-persone {
+  grid-area: persone;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--spazio-3);
+  font-size: 0.8rem;
+}
+
+.mappa__voce-persone .collegamento {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mappa__voce-persone .icona {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--testo-quieto);
+}
+
+/* La riga sotto la mappa: che cosa dicono le distanze, e che cosa manca. */
+.mappa__nota {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------- le coordinate in anagrafica */
+
+/*
+ * Sotto l'indirizzo, nella scheda della persona: il punto trovato, o il gesto
+ * per trovarlo. Va a capo da sola perché l'etichetta del geocodificatore è
+ * lunga — «19, Via Rotondello, Arbedo, Arbedo-Castione, …» — e messa in linea
+ * spingerebbe fuori tutto il resto.
+ */
+.coordinate {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-2);
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--testo-quieto);
+}
+
+.coordinate .icona {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.coordinate__numeri {
+  font-family: var(--carattere-mono, ui-monospace, monospace);
+  color: var(--testo);
+}
+
+.coordinate__nota {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 28rem;
+}
+
+.coordinate--assenti {
+  color: var(--attenzione);
+}
+
+/* Le due pastiglie di stato in coda alla riga dell'elenco: stanno insieme e
+   vanno a capo solo se la colonna è davvero stretta. */
+.mappa__voce-stato {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spazio-1);
+}
+
+/* Le righe del cartellino: chi sta a quell'indirizzo, uno per riga. */
+.mappa__cartellino-chi {
+  list-style: none;
+  margin: var(--spazio-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+.mappa__cartellino-chi li {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-size: 0.82rem;
+}
+
+.mappa__cartellino-chi .icona {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--testo-quieto);
+}
+
+.mappa__cartellino-chi small {
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------- la mappa dentro la scheda di una persona */
+
+/*
+ * Il riquadro «Dove sta»: la stessa tela della pagina, in dieci centimetri.
+ * L'altezza è dichiarata e non elastica — sta dentro una scheda che cresce con
+ * il suo contenuto, e una tela elastica lì dentro si allungherebbe a zero.
+ */
+.dove-sta__tela {
+  height: 16rem;
+  display: flex;
+}
+
+.dove-sta__tela > .mappa__tela {
+  flex: 1;
+  min-height: 0;
+}
+
+/* In un riquadro piccolo i segnaposti della pagina sono enormi: si stringono,
+   e con loro il cartellino, che qui dice tre righe. */
+.dove-sta__tela .mappa__punta {
+  width: 24px;
+  height: 24px;
+}
+
+.dove-sta__tela .mappa__punta .icona {
+  width: 13px;
+  height: 13px;
+}
+
+.dove-sta__tela .mappa__segno--sede .mappa__punta {
+  width: 28px;
+  height: 28px;
+}
+
+.dove-sta__tela .mappa__cartellino {
+  max-width: 14rem;
+}

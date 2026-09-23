@@ -1,0 +1,93 @@
+/*
+ * Il riquadro d'avvio. Piccolo e senza bordi di sistema: la cornice la
+ * disegna il foglio, come per l'agenda.
+ */
+
+@import '../shared/base.css';
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  border: 1px solid var(--bordo);
+  /* Si trascina per la sua superficie: senza barra del titolo è l'unico modo
+     di spostarlo, se copre qualcosa che si sta guardando. */
+  -webkit-app-region: drag;
+  cursor: default;
+}
+
+.riquadro {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spazio-3);
+  padding: var(--spazio-5);
+}
+
+/* ------------------------------------------------------------ la barra
+ *
+ * Senza percentuale, apposta: le fasi dell'avvio durano quel che durano — un
+ * documento su OneDrive, un trasloco di file vecchi — e una percentuale
+ * inventata che si ferma al 90% dice il falso. La barra dice solo «sto
+ * lavorando», che è vero.
+ */
+
+.barra {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  background: var(--sfondo-alto-2);
+  border-radius: var(--raggio-pastiglia);
+}
+
+.barra__corsa {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 40%;
+  background: var(--accento);
+  border-radius: var(--raggio-pastiglia);
+  animation: corsa 1.4s ease-in-out infinite;
+}
+
+@keyframes corsa {
+  from { left: -40%; }
+  to { left: 100%; }
+}
+
+/* Chi ha chiesto meno movimento vede una barra piena e ferma, che pulsa
+   appena: dice lo stesso «sto lavorando» senza far correre niente. */
+@media (prefers-reduced-motion: reduce) {
+  .barra__corsa {
+    left: 0;
+    width: 100%;
+    animation: respiro 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes respiro {
+    from { opacity: 0.35; }
+    to { opacity: 0.8; }
+  }
+}
+
+/* ---------------------------------------------------------- le parole */
+
+.fase {
+  margin: 0;
+  min-height: 1.4em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.versione {
+  margin: 0;
+  font-size: 0.86em;
+}

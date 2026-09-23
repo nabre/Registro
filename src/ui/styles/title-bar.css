@@ -1,0 +1,142 @@
+/*
+ * La barra del titolo che il registro si disegna da sé.
+ *
+ * Tre zone: a sinistra la navigazione e il menu del documento, al centro il
+ * documento aperto, a destra la ricerca. I pulsanti di sistema — minimizza,
+ * ingrandisci, chiudi — non stanno qui: li mette il sistema operativo sopra
+ * questa fascia, e lo spazio che prendono lo dice Chromium.
+ *
+ * ## Le due misure che vengono da fuori
+ *
+ * `--barra-titolo-alta` è la stessa che `environment/theme.ts` dichiara a
+ * Electron (`ALTEZZA_BARRA_TITOLO`): là la fascia dei pulsanti, qui la barra
+ * sotto. Due numeri diversi vorrebbero dire pulsanti che non stanno in mezzo.
+ *
+ * `env(titlebar-area-*)` le dà Chromium quando la fascia c'è — Windows e
+ * Linux — e dicono dove comincia e quanto è larga la parte di barra che resta
+ * al registro. Su macOS non esistono: valgono i valori di ripiego, e lo spazio
+ * per i tre semafori lo fa la regola su `[data-sistema="darwin"]`.
+ */
+
+:root {
+  --barra-titolo-alta: 40px;
+  /* Quanto occupano i tre semafori di macOS: 3 × 12px, i loro spazi, e il
+     margine da cui comincia il primo. Vale solo là — vedi in fondo. */
+  --semafori-larghi: 78px;
+}
+
+.barra-titolo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--barra-titolo-alta);
+  /* Non `padding`: la barra comincia dove finisce quel che il sistema si è
+     preso a sinistra, e finisce dove comincia quel che si è preso a destra.
+     Con `titleBarOverlay` a destra, `titlebar-area-width` è già la larghezza
+     che resta. */
+  padding-left: calc(env(titlebar-area-x, 0px) + 8px);
+  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 8px);
+  background: var(--sfondo-alto);
+  border-bottom: 1px solid var(--bordo-tenue);
+  /* Sopra la pagina e sopra la navigazione: è il bordo della finestra, e i
+     menu che si aprono da qui devono coprire quel che c'è sotto. */
+  z-index: 7;
+  /* Tutta la barra si prende per spostare la finestra — e il doppio clic la
+     ingrandisce, che è il gesto che tutti fanno senza pensarci. I figli che si
+     premono se ne tolgono, qui sotto. */
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.barra-titolo__lato {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Quanto largo è il gruppo di sinistra, tanto è largo quello di destra: il
+     nome al centro sta in mezzo alla barra e non in mezzo a quel che avanza.
+     `flex: 1` su tutti e due, e il centro resta centro anche quando da un lato
+     c'è un pulsante in più. */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.barra-titolo__lato--destra { justify-content: flex-end; }
+
+/* La regola del trascinamento: la barra si prende, quel che ci sta dentro e si
+   preme no. Senza, un clic su «File» sposterebbe la finestra invece di aprire
+   il menu. */
+.barra-titolo button,
+.barra-titolo a,
+.barra-titolo input,
+.barra-titolo select { -webkit-app-region: no-drag; }
+
+/*
+ * Il nome del documento, in mezzo davvero.
+ *
+ * `position: absolute` e non un elemento della riga: in riga si sposterebbe di
+ * lato ogni volta che a sinistra compare un pulsante, e un titolo che balla
+ * non si legge come un titolo. `pointer-events: none` lo lascia essere area di
+ * trascinamento anche dove c'è la scritta — è il punto più largo e più ovvio
+ * da cui prendere la finestra.
+ */
+.barra-titolo__nome {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(40%, 32rem);
+  padding: 0 8px;
+  font-size: .92em;
+  color: var(--testo-quieto);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.barra-titolo__nome > .icona { color: var(--accento); flex: none; }
+
+.barra-titolo__documento {
+  color: var(--testo);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Senza un anno aperto il nome non si spegne: dice che non c'è, e dove si
+   apre. Un titolo vuoto lascerebbe credere che il registro stia caricando. */
+.barra-titolo__documento--vuoto { color: var(--testo-quieto); font-weight: 400; font-style: italic; }
+
+.barra-titolo__separatore { flex: none; opacity: .6; }
+
+.barra-titolo__pagina {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* La ricerca in barra del titolo è più piccola e più quieta: è un attrezzo
+   sempre presente, non un'azione della pagina. */
+.barra-titolo .barra-comandi__cerca { min-height: 28px; font-size: .84em; }
+.barra-titolo .barra-comandi__tendina { min-height: 28px; }
+.barra-titolo .barra-comandi__programma { border-right: 0; border-radius: var(--raggio); }
+
+/*
+ * macOS: i tre semafori stanno a sinistra, dentro la barra, e non si spostano.
+ * Lo spazio glielo fa la barra — `env(titlebar-area-x)` là non esiste e il
+ * ripiego di 8px li lascerebbe sotto il primo pulsante.
+ */
+:root[data-sistema="darwin"] .barra-titolo { padding-left: var(--semafori-larghi); }
+
+/*
+ * Finestra stretta: il centro si restringe prima di sparire.
+ *
+ * Sotto i 48em la pagina in coda al documento se ne va: fra «2026-2027» e
+ * «Calendario», quello che non si trova da nessun'altra parte è il primo — la
+ * pagina la dicono la navigazione, la barra sotto e il percorso in fondo.
+ */
+@media (max-width: 48em) {
+  .barra-titolo__separatore,
+  .barra-titolo__pagina { display: none; }
+  .barra-titolo__nome { max-width: 50%; }
+}

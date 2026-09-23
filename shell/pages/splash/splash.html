@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Il riquadro d'avvio: il nome, una barra che si muove, e la fase in corso.
+  La finestra la apre e la chiude `shell/windows/splash.ts`; la fase arriva
+  come messaggio e la scrive `splash.ts`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Registro docenti</title>
+<link rel="stylesheet" href="registro://app/dist/splash.css">
+</head>
+<body>
+<main class="riquadro" role="status" aria-live="polite">
+  <h1>Registro docenti</h1>
+  <div class="barra" aria-hidden="true"><span class="barra__corsa"></span></div>
+  <p class="fase" id="fase">Avvio del registro…</p>
+  <p class="versione quieto" id="versione"></p>
+</main>
+<script src="registro://app/dist/splash.js"></script>
+</body>
+</html>

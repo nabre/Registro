@@ -1,0 +1,294 @@
+/* I modelli dei rapporti: l'elenco della cartella, l'editor, l'anteprima. */
+
+/*
+ * Due colonne, come nella pagina Documenti e per la stessa ragione: a sinistra
+ * che cosa c'è, a destra quel che si sta guardando. La colonna dell'elenco è
+ * più stretta di quella dei documenti — sono tredici righe di due parole, non
+ * venticinque nomi di persona — e quel che avanza va all'editor, dove si legge
+ * un file di testo che si vuole vedere per intero.
+ */
+.modelli__lavoro {
+  display: grid;
+  grid-template-columns: 22rem minmax(0, 1fr);
+  gap: var(--spazio-4);
+  align-items: start;
+  margin-top: var(--spazio-3);
+}
+
+@media (max-width: 1100px) {
+  .modelli__lavoro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.modelli__barra {
+  position: sticky;
+  top: var(--spazio-2);
+  max-height: calc(100vh - var(--fuori-pagina));
+  overflow-y: auto;
+  padding-right: var(--spazio-1);
+}
+
+.modelli__corpo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+/* ------------------------------------------------------------- l'elenco */
+
+.modelli__elenco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+/* Il titolo di un gruppo — «Sotto tutti i rapporti» — non è una scheda: è
+   un'etichetta, e pesa quanto un'etichetta. */
+.modelli__gruppo {
+  margin: var(--spazio-3) 0 var(--spazio-1);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+}
+
+.modelli__gruppo:first-child {
+  margin-top: 0;
+}
+
+.modelli__voce {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: var(--spazio-2);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.modelli__voce:hover {
+  background: var(--sfondo-alto);
+}
+
+.modelli__voce--scelta {
+  background: var(--sfondo-alto);
+  border-color: var(--bordo);
+}
+
+.modelli__voce-testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.modelli__voce-titolo {
+  font-weight: 600;
+}
+
+/* Il pallino delle modifiche: acceso quando c'è da salvare, spento ma presente
+   quando il file è solo diverso da quello di serie. È l'unica cosa dell'elenco
+   che si legge di sfuggita, e per questo è un punto e non una parola. */
+.modelli__pallino {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--attenzione);
+}
+
+.modelli__pallino--fermo {
+  background: var(--bordo);
+}
+
+/* Arretrato: il file è di chi lo ha modificato, ma la copia di serie è andata
+   avanti. Vuoto con il bordo acceso — non è una cosa da fare adesso, è una
+   cosa da sapere quando si passa di lì. */
+.modelli__pallino--arretrato {
+  background: none;
+  border: 2px solid var(--attenzione);
+}
+
+.modelli__voce-aiuto {
+  color: var(--testo-quieto);
+  line-height: 1.35;
+}
+
+.modelli__voce-file {
+  font-family: var(--carattere-mono);
+  font-size: 0.6875rem;
+  color: var(--testo-quieto);
+}
+
+/* -------------------------------------------------------------- l'editor */
+
+.modelli__sorgente {
+  width: 100%;
+  min-height: 26rem;
+  /* Alta quanto la finestra: un modello è lungo, e si lavora scorrendo dentro
+     il campo invece che scorrendo la pagina — così l'elenco dei problemi qui
+     sotto resta sempre in vista. */
+  height: calc(100vh - 28rem);
+  resize: vertical;
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--campo-sfondo);
+  color: var(--testo);
+  font-family: var(--carattere-mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  /* I modelli si scrivono a righe che non vanno a capo: una `riga:` di
+     intestazione spezzata in due sembra due righe diverse. */
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+
+.modelli__segno {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.modelli__attesa {
+  color: var(--testo-quieto);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------ i problemi */
+
+.modelli__riquadro-problemi {
+  margin-top: var(--spazio-2);
+}
+
+.modelli__nessun-problema {
+  margin: 0;
+  color: var(--positivo);
+}
+
+.modelli__problemi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  /* Un file appena cominciato può avere trenta righe da sistemare: l'elenco
+     scorre invece di spingere l'anteprima fuori dallo schermo. */
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+/* Ogni problema è un pulsante: premendolo il cursore va a quella riga. In un
+   file di duecento righe, «riga 74» senza questo è un numero da contare a
+   mano. */
+.modelli__riga-problema {
+  display: flex;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: 0.25rem var(--spazio-2);
+  border: 0;
+  border-left: 3px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.modelli__riga-problema:hover {
+  background: var(--sfondo-alto);
+}
+
+.modelli__problema--errore .modelli__riga-problema {
+  border-left-color: var(--negativo);
+}
+
+.modelli__problema--avviso .modelli__riga-problema {
+  border-left-color: var(--attenzione);
+}
+
+.modelli__numero-riga {
+  flex: none;
+  min-width: 4.5rem;
+  font-family: var(--carattere-mono);
+  font-size: 0.6875rem;
+  color: var(--testo-quieto);
+}
+
+.modelli__testo-problema {
+  min-width: 0;
+}
+
+/* ----------------------------------------------------------------- i nomi */
+
+.modelli__gruppo-nomi + .modelli__gruppo-nomi {
+  margin-top: var(--spazio-2);
+}
+
+.modelli__titolo-nomi {
+  margin: 0 0 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+}
+
+.modelli__pastiglie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* Un nome si preme e finisce nel punto in cui si stava scrivendo: è la
+   differenza fra un elenco da consultare e un elenco che serve. */
+.modelli__nome {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  font-family: var(--carattere-mono);
+  font-size: 0.6875rem;
+  color: var(--testo);
+  cursor: pointer;
+}
+
+.modelli__nome:hover {
+  border-color: var(--accento);
+  color: var(--accento);
+}
+
+/* ------------------------------------------------------------ l'anteprima */
+
+/*
+ * Le pagine composte, una sotto l'altra.
+ *
+ * Sono immagini e non una cornice con dentro il lettore di PDF: il foglio non
+ * esiste su disco — l'host lo compone e lo rimanda indietro — e un `<iframe>`
+ * vuole un indirizzo. È anche quel che si vuole qui: si guarda com'è venuta la
+ * testata, non si legge il verbale.
+ */
+.modelli__pagine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+
+.modelli__pagina {
+  width: 100%;
+  max-width: 44rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra-1);
+  background: #ffffff;
+}

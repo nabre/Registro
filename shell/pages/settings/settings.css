@@ -1,0 +1,162 @@
+/*
+ * Le impostazioni: la testata che resta attaccata in alto, e la riga di
+ * un'impostazione.
+ *
+ * Le descrizioni del manifesto sono lunghe e discorsive — è lo stile del
+ * progetto, e dicono cose che l'interfaccia deve continuare a dire — quindi la
+ * colonna è larga e ogni campo ha sotto il suo testo intero, non un'etichetta
+ * stretta.
+ */
+
+@import '../shared/base.css';
+
+/* ------------------------------------------------------------- il telaio */
+
+/* La testata resta in vista mentre si scorre: il filtro è la prima cosa che si
+   cerca quando l'elenco è lungo, e cercarlo risalendo sarebbe assurdo. */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  padding: var(--spazio-4) var(--spazio-5) var(--spazio-3);
+  background: var(--sfondo);
+  border-bottom: 1px solid var(--bordo);
+}
+
+#cerca {
+  max-width: 28.75rem;
+}
+
+/* Il rimando alla pagina del registro: si legge e si preme, e non pretende di
+   essere la cosa principale della finestra. */
+#rimando {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  margin: 0 var(--spazio-5) var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+}
+
+#rimando button {
+  min-width: 0;
+  margin-left: auto;
+}
+
+main {
+  padding: var(--spazio-1) var(--spazio-5) var(--spazio-6);
+}
+
+h2 {
+  margin: var(--spazio-5) 0 var(--spazio-1);
+}
+
+.vuoto {
+  padding: var(--spazio-5) 0;
+}
+
+/* -------------------------------------------------------------- la voce */
+
+.voce {
+  padding: var(--spazio-3) 0;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.voce__testata {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.voce__nome {
+  font-weight: 600;
+}
+
+.voce__chiave {
+  font-family: var(--carattere-mono);
+  font-size: 0.84em;
+  color: var(--testo-quieto);
+}
+
+/* «Ritira il valore»: c'è solo sulle impostazioni che il docente ha scritto, e
+   non deve farsi notare più della cosa che ritira. */
+.voce__ritira {
+  min-width: 0;
+  margin-left: auto;
+  padding: 1px 9px;
+  font-size: 0.84em;
+  background: transparent;
+  border-radius: var(--raggio-pastiglia);
+}
+
+/* Una misura da leggere e non da scorrere: oltre le settanta battute l'occhio
+   perde la riga, e queste descrizioni sono lunghe apposta. */
+.voce__aiuto {
+  margin: var(--spazio-1) 0 0;
+  max-width: 68ch;
+  color: var(--testo-quieto);
+}
+
+.voce__campo {
+  margin-top: var(--spazio-2);
+}
+
+/* Da che cosa viene il valore: la stessa pastiglia che porta la pagina del
+   registro, con le stesse parole. Erano due finestre sulle stesse
+   impostazioni, e una sola delle due diceva qual era il predefinito. */
+.voce__pastiglia {
+  padding: 1px 8px;
+  font-size: 0.78em;
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid var(--bordo-tenue);
+  color: var(--testo-quieto);
+}
+
+.voce__pastiglia--scritta {
+  border-color: var(--attenzione, var(--bordo));
+  color: var(--attenzione, var(--testo));
+}
+
+/* Sospesa: il padre è spento, e quindi questa non conta. Si vede che c’è e si
+   vede che non risponde — toglierla vorrebbe dire far cercare una voce che la
+   guida nomina. */
+.voce--sospesa .voce__nome,
+.voce--sospesa .voce__aiuto {
+  opacity: 0.6;
+}
+
+.voce__errore {
+  margin: var(--spazio-1) 0 0;
+  color: var(--negativo);
+}
+
+/* ------------------------------------------------------------- i campi */
+
+/* In `rem`: un campo tiene del testo, e con il testo deve crescere —
+   altrimenti chi ha ingrandito il carattere si ritrova un campo che mostra
+   metà indirizzo. */
+input[type='text'],
+input[type='email'],
+input[type='number'],
+select {
+  max-width: 28.75rem;
+}
+
+input[type='number'] {
+  max-width: 10rem;
+}
+
+.spunta {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  cursor: pointer;
+}

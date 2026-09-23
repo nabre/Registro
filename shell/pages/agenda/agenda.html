@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  L'agenda sul desktop: la striscia appoggiata al bordo dello schermo.
+
+  Tre schede, e tre domande diverse:
+
+    **Calendario** — il mese in testa, la settimana sotto: dove devo essere.
+    **Pendenze** — le ore rimaste aperte e il lavoro per classe: sono indietro?
+    **Lezione** — l'ora di adesso, con l'appello e l'argomento: che sto facendo.
+
+  I gesti: si preme un'ora e il registro si apre su quell'ora, si scorre la
+  settimana con le frecce, si preme una casella del mese per saltarci, e nella
+  scheda «lezione» si fa l'appello e si scrive l'argomento. I bordi si
+  trascinano — quello sinistro per la larghezza, quello di sotto per
+  l'altezza — e, quando il widget è libero, lo si sposta prendendolo per la
+  testata.
+
+  Senza un registro aperto la pagina non resta vuota: dice che manca e offre di
+  aprirne uno, che è l'unica cosa sensata da fare in quel momento.
+
+  Qui c'è il telaio fisso; le schede le disegna `agenda.ts`, l'aspetto sta in
+  `agenda.css`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Agenda</title>
+<link rel="stylesheet" href="registro://app/dist/agenda.css">
+</head>
+<body>
+<div class="maniglia" id="maniglia-larghezza" title="Trascina per cambiare larghezza"></div>
+<div class="maniglia" id="maniglia-altezza" title="Trascina per cambiare altezza"></div>
+<header id="testata">
+  <!--
+    Sopra quel che si legge — dove si è —, sotto le tre linguette. I due
+    bottoni della testata sono quelli che valgono per tutte le schede: aprire
+    il registro, e chiudere la striscia.
+  -->
+  <div class="barra">
+    <span class="barra__titolo" id="titolo">—</span>
+    <button id="registro" type="button" title="Apri il registro">⌂</button>
+    <button id="chiudi" type="button" title="Chiudi l’agenda dal desktop">✕</button>
+  </div>
+  <nav class="linguette" id="linguette"></nav>
+</header>
+<main id="corpo"></main>
+<footer>
+  <span id="misura">—</span>
+  <span id="conteggio"></span>
+</footer>
+<script src="registro://app/dist/agenda.js"></script>
+</body>
+</html>

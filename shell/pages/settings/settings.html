@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Le impostazioni.
+
+  La pagina non sa che cosa sia il registro e non ha un elenco di campi dentro:
+  riceve le voci di `src/manifest.ts` e le percorre una per una — lo fa
+  `settings.ts`. Il vantaggio non è il lavoro risparmiato adesso: è che
+  un'impostazione aggiunta domani al manifesto si trova qui senza che nessuno
+  tocchi questi file.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Registro docenti</title>
+<link rel="stylesheet" href="registro://app/dist/settings.css">
+</head>
+<body>
+<header>
+  <h1 id="titolo">Impostazioni</h1>
+  <input id="cerca" type="text" placeholder="Filtra le impostazioni per nome, chiave o descrizione…" aria-label="Filtra le impostazioni" autocomplete="off">
+</header>
+<!--
+  Questa finestra non è più il posto principale: la pagina Impostazioni del
+  registro mostra le stesse voci raggruppate per argomento, e accanto quelle che
+  stanno dentro il documento d'anno. Resta perché senza documento aperto il
+  pannello non c'è, e da qualche parte queste si devono poter cambiare comunque.
+-->
+<div id="rimando">
+  <span>Le stesse impostazioni, spiegate e insieme a quelle dell’anno, stanno nel registro.</span>
+  <button id="apri-pannello" type="button">Apri nel registro</button>
+</div>
+<main id="radice"></main>
+<script src="registro://app/dist/settings.js"></script>
+</body>
+</html>

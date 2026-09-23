@@ -1,0 +1,96 @@
+/* La navigazione occupa una colonna sola; contenuto e comandi restano indipendenti. */
+.guscio {
+  grid-template-columns: 3.75rem minmax(0, 1fr);
+  grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
+}
+.guscio--con-sidebar {
+  grid-template-columns: 14.5rem minmax(0, 1fr);
+  grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
+}
+.guscio > .barra-titolo { grid-area: titolo; }
+.guscio > .barra-comandi { grid-area: comandi; }
+.guscio > .contenuto { grid-area: contenuto; min-width: 0; }
+.guscio > .barra-stato { grid-area: stato; }
+.sidebar {
+  grid-area: sidebar;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--sfondo-alto);
+  border-right: 1px solid var(--bordo-tenue);
+  padding: 20px 10px 12px;
+}
+
+.sidebar__marchio { display: flex; align-items: center; gap: 10px; padding: 0 12px 22px; }
+.sidebar__marchio > .icona { color: var(--accento); width: 25px; height: 25px; }
+.sidebar__marchio strong { display: block; font-size: 1.12em; letter-spacing: -.02em; }
+.sidebar__marchio small { display: block; color: var(--testo-quieto); font-size: .78em; margin-top: 2px; }
+.sidebar__pagine { display: flex; flex-direction: column; gap: 20px; }
+.sidebar__titolo { margin: 0 12px 6px; font-size: .72em; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--testo-quieto); }
+.sidebar__pagina {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 38px;
+  padding: 8px 12px; border: 0; border-radius: var(--raggio);
+  color: var(--testo); background: transparent; font: inherit; font-size: .9em;
+  text-align: left; cursor: pointer; margin: 2px 0;
+}
+.sidebar__pagina .icona { flex: none; color: var(--testo-quieto); }
+/* Il conto in coda al titolo: quante cose aspettano dentro quella pagina.
+   `margin-left: auto` lo spinge al bordo destro, così i numeri di pagine
+   diverse si incolonnano invece di ballare dietro titoli di lunghezza
+   diversa. Richiusa la sidebar il titolo sparisce e il numero con lui: al
+   suo posto resterebbe una pastiglia senza nulla a cui riferirsi. */
+.sidebar__conto {
+  flex: none; margin-left: auto;
+  min-width: 1.5em; padding: 1px 6px; border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2); color: var(--testo-quieto);
+  font-size: .8em; font-variant-numeric: tabular-nums; text-align: center;
+}
+.sidebar__pagina[aria-current="page"] .sidebar__conto {
+  background: var(--velo-scelto); color: var(--accento);
+}
+/* Richiusa la sidebar il titolo sparisce, e con lui il numero perderebbe quel
+   a cui riferirsi — era la ragione per cui qui c'era `display: none`. Ma
+   nasconderlo del tutto vuol dire che di venti pagine ferme in quarantena non
+   resta **nessun** segno: `pagine.ts` è l'unico posto in cui quel numero
+   compare, e la barra di stato mostra solo le pendenze. Diventa quindi un
+   pallino sull'icona: non dice quanti, dice che c'è qualcosa, ed è quel che
+   serve per decidere di aprire la pagina. Il selettore è più stretto di
+   `.sidebar--compatta .sidebar__pagina > span`, che spegne le etichette. */
+.sidebar--compatta .sidebar__pagina { position: relative; }
+.sidebar--compatta .sidebar__pagina > .sidebar__conto {
+  display: block; position: absolute; top: 6px; right: 6px;
+  min-width: 0; width: 8px; height: 8px; padding: 0; margin: 0;
+  border-radius: var(--raggio-pastiglia); background: var(--accento);
+  overflow: hidden; color: transparent; font-size: 0;
+}
+.sidebar__pagina:hover { background: var(--sfondo-alto-2); }
+.sidebar__pagina[aria-current="page"] {
+  background: color-mix(in srgb, var(--accento) 10%, transparent);
+  color: var(--accento); box-shadow: inset 3px 0 var(--accento); font-weight: 600;
+}
+.sidebar__pagina[aria-current="page"] .icona { color: var(--accento); }
+.sidebar__pagina[aria-disabled="true"] { color: var(--testo-quieto); opacity: .65; }
+.sidebar__pagina:focus-visible { outline: 2px solid var(--fuoco); outline-offset: -2px; }
+/* Su finestre strette la navigazione si apre sopra la pagina, senza coprirla.
+   Ha uno scorrimento proprio e si richiude dopo aver scelto la destinazione. */
+@media (max-width: 64em) {
+  .guscio--con-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "titolo" "comandi" "sidebar" "contenuto" "stato";
+  }
+  .guscio--con-sidebar .sidebar { max-height: 45vh; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--bordo); }
+  .guscio--con-sidebar .sidebar__marchio { display: none; }
+  .guscio--con-sidebar .sidebar__pagine { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .sidebar__pagina { min-height: 40px; }
+}
+
+/* Richiusa, la sidebar conserva tutte le destinazioni sotto forma di icona. */
+.sidebar--compatta { padding: 20px 6px 12px; }
+.sidebar--compatta .sidebar__marchio { justify-content: center; padding: 0 0 18px; }
+.sidebar--compatta .sidebar__marchio > div,
+.sidebar--compatta .sidebar__titolo,
+.sidebar--compatta .sidebar__pagina > span { display: none; }
+.sidebar--compatta .sidebar__pagine { gap: 10px; }
+.sidebar--compatta .sidebar__gruppo + .sidebar__gruppo { border-top: 1px solid var(--bordo-tenue); padding-top: 10px; }
+.sidebar--compatta .sidebar__pagina { justify-content: center; padding: 10px 0; min-height: 40px; }
+.sidebar--compatta .sidebar__pagina .icona { width: 18px; height: 18px; }

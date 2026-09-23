@@ -1,0 +1,458 @@
+/* La pagina Impostazioni: due livelli di navigazione e le righe delle opzioni.
+ *
+ * Il telaio è una griglia di due colonne — le sezioni a sinistra, il contenuto
+ * a destra — che sotto i 900 pixel si impila. Le sezioni restano in cima anche
+ * impilate: sono la mappa della pagina, e una mappa in fondo non la guarda
+ * nessuno. */
+
+.impostazioni__corpo {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: var(--spazio-5);
+  align-items: start;
+}
+
+/* La pagina prende tutta la larghezza che ha: le impostazioni sono righe con
+   una descrizione lunga accanto, e in una colonna stretta ogni riga diventa
+   quattro. `colonna--impostazioni` nasce larga 62rem per le pagine che si
+   leggono come un foglio; qui quel limite lasciava mezza finestra vuota. */
+.impostazioni__corpo .colonna--impostazioni {
+  max-width: none;
+}
+
+@media (max-width: 900px) {
+  .impostazioni__corpo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spazio-4);
+  }
+}
+
+/* ------------------------------------------------------- colonna delle sezioni */
+
+.impostazioni__sezioni {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  /* Resta in vista mentre si scorre una sezione lunga — le settimane A/B sono
+     quaranta righe — perché cambiare argomento non deve costare un viaggio in
+     cima alla pagina. */
+  top: var(--spazio-3);
+}
+
+@media (max-width: 900px) {
+  .impostazioni__sezioni {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.sezione-voce {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sezione-voce:hover { background: var(--sfondo-alto); }
+
+
+.sezione-voce--attiva {
+  background: var(--sfondo-alto);
+  border-color: color-mix(in srgb, var(--accento) 45%, transparent);
+}
+
+.sezione-voce__titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  font-weight: 600;
+}
+
+.sezione-voce--attiva .sezione-voce__titolo { color: var(--accento); }
+
+/* Quante impostazioni di quella sezione sono state decise a mano: un numero
+   piccolo e tondo, che si legge con la coda dell'occhio. */
+.sezione-voce__segno {
+  min-width: 1.35rem;
+  padding: 0 4px;
+  border-radius: var(--raggio-pastiglia);
+  background: color-mix(in srgb, var(--attenzione) 22%, transparent);
+  color: var(--attenzione);
+  font-size: 0.78em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sezione-voce__sottotitolo {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  line-height: 1.35;
+}
+
+@media (max-width: 900px) {
+  .sezione-voce__sottotitolo { display: none; }
+}
+
+/* --------------------------------------------------------- gruppi di opzioni */
+
+.gruppi-opzioni {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+/* Il gruppo «Percorsi e attese» è un `<details>`: quel che sta lì dentro si
+   tocca una volta ogni tre anni — dove sta un `.exe`, quanti secondi aspettare
+   un modello — e in fila con il tema faceva sembrare difficile una pagina che
+   non lo è. Chiuso non pesa; aperto è una sezione come le altre, e si apre da
+   sé quando qualcosa lì dentro è stato deciso a mano. */
+.gruppo-opzioni--avanzate > summary {
+  cursor: pointer;
+  padding: var(--spazio-1) 0;
+  border-radius: var(--raggio-piccolo);
+  list-style-position: inside;
+}
+
+.gruppo-opzioni--avanzate > summary:hover {
+  color: var(--testo);
+}
+
+/* Aperto, il titolo si stacca da quel che elenca invece di restargli attaccato:
+   chiuso è una riga fra le righe, aperto è la testa di un gruppo. */
+.gruppo-opzioni--avanzate[open] > summary {
+  margin-bottom: var(--spazio-1);
+}
+
+.gruppo-opzioni__titolo {
+  margin: 0 0 var(--spazio-2);
+  font-size: var(--corpo-minore);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------- righe delle opzioni */
+
+.voci-opzioni {
+  display: flex;
+  flex-direction: column;
+}
+
+.voce-opzione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-3) 0;
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.voce-opzione:first-child { border-top: none; padding-top: 0; }
+
+/* Decisa a mano: una riga di colore sul fianco, che distingue «l'ho scelto io»
+   da «vale il predefinito» senza dover leggere la pastiglia. */
+.voce-opzione--scritta {
+  border-left: 3px solid color-mix(in srgb, var(--attenzione) 60%, transparent);
+  padding-left: var(--spazio-3);
+  margin-left: calc(var(--spazio-3) * -1);
+}
+
+/* Sospesa: il padre da cui dipende è spento, e finché lo è qui non c'è niente
+   da decidere. Si smorza tutta la riga e non solo il campo — un nome a piena
+   intensità sopra una casella morta si legge come un guasto — ma il testo resta
+   leggibile, perché è lì che c'è scritto che cosa si sta concedendo. */
+.voce-opzione--sospesa { opacity: 0.55; }
+
+.voce-opzione__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.voce-opzione__nome { font-weight: 600; }
+
+.voce-opzione__chiave {
+  color: var(--testo-quieto);
+  font-family: var(--carattere-mono);
+  font-size: 0.78em;
+}
+
+/* Il ritiro sta in fondo alla riga: è il gesto raro, e messo accanto al nome
+   sembrerebbe il gesto principale. */
+.voce-opzione__testata > button:last-child { margin-left: auto; }
+
+.voce-opzione__campo { max-width: 28rem; }
+.voce-opzione__campo .campo { margin: 0; }
+
+.voce-opzione__aiuto {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: 0.88em;
+  line-height: 1.45;
+  max-width: 48rem;
+}
+
+/* ------------------------------------------------------------- anni in elenco */
+
+.anno-riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.anno-riga--corrente { border-color: color-mix(in srgb, var(--accento) 50%, transparent); }
+
+.anno-riga__nome { display: flex; align-items: center; gap: var(--spazio-2); min-width: 10rem; }
+.anno-riga__periodo, .anno-riga__misure { color: var(--testo-quieto); font-size: 0.9em; }
+.anno-riga__azioni { margin-left: auto; display: flex; gap: var(--spazio-1); align-items: center; }
+
+.anno-aperto { display: flex; flex-direction: column; gap: var(--spazio-3); }
+
+/* Le azioni di una riga stanno a destra, sempre nello stesso posto: in un
+   elenco lungo, un cestino che balla da una riga all'altra si preme per
+   sbaglio. */
+.sospensione__azioni,
+.materia__azioni {
+  margin-left: auto;
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: center;
+}
+
+/* ------------------------------------------------------- il documento aperto */
+
+.documento-aperto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  margin-bottom: var(--spazio-3);
+}
+
+.documento-aperto__percorso {
+  color: var(--testo-quieto);
+  font-family: var(--carattere-mono);
+  font-size: 0.82em;
+  word-break: break-all;
+}
+
+/* --------------------------------------------------------- gli anni noti
+ *
+ * Le righe riusano `.voce-laterale`, che sa già disporre nome, sottotitolo e
+ * azioni — ma là si preme la riga, qui no: i gesti stanno dentro, e una riga
+ * che si accende al passaggio prometterebbe un clic che non fa niente.
+ */
+
+.registro-noto {
+  cursor: default;
+  gap: var(--spazio-2);
+}
+
+.registro-noto:hover { background: transparent; }
+
+/* Il percorso su una riga sola, tagliato in fondo: per esteso sono tre righe
+   di cartelle annidate, e la riga diventerebbe più alta della scheda. Quel che
+   serve — dove sta il file — si legge dal titolo, che è lì sopra. */
+.registro-noto .voce-laterale__testo small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- la posta */
+
+.posta-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-5);
+}
+
+/* Di chi è la casella, in una riga: la pastiglia e poi gli indirizzi. Un
+   indirizzo lungo in una colonna stretta va a capo invece di allargare la
+   scheda. */
+.posta-stato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Vuoto finché nessuno ha premuto: senza questo lascerebbe un buco nella
+   scheda appena aperta. */
+.posta-esito:empty { display: none; }
+
+.posta-firma {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+}
+
+.posta-firma p { margin: 0; }
+
+/* --------------------------------------------------- liste dei menu a tendina */
+
+/*
+ * Le liste stanno una sotto l'altra, staccate: sono sette argomenti diversi, e
+ * in un elenco continuo le voci dell'una sembrerebbero la coda dell'altra.
+ */
+.liste-sistema {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+.lista-sistema {
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.lista-sistema:first-of-type { border-top: 0; padding-top: 0; }
+
+/* Il nome della lista, dove si vede, e il ritorno alle voci di fabbrica: il
+   pulsante compare solo quando c'è qualcosa da rimettere a posto. */
+.lista-sistema__testata {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-2);
+}
+
+.lista-sistema__testata h4 { margin: 0; }
+.lista-sistema__testata p { margin: 0; flex: 1 1 14rem; }
+
+/* Perché qui non si aggiunge niente: si dice sopra l'elenco, dove si cerca il
+   pulsante che non c'è. */
+.lista-sistema__vincolo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  margin: 0 0 var(--spazio-2);
+  font-size: 0.9em;
+}
+
+.lista-sistema__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* La riga di una voce: le frecce, la parola che si legge, il valore che si
+   salva, quanto è usata. Le colonne stanno ferme, perché due voci si
+   confrontano guardandole incolonnate. */
+.voce-lista {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(8rem, 1fr) minmax(6rem, 12rem) auto auto;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: 4px var(--spazio-1);
+  border-radius: var(--raggio);
+}
+
+.voce-lista:hover { background: var(--sfondo-alto); }
+
+.voce-lista__ordine { display: flex; gap: 0; }
+
+/* Il valore salvato: si legge e non si tocca — cambiarlo lascerebbe i piani
+   già preparati con un valore che nessuna voce spiega più. */
+.voce-lista__valore {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voce-lista__aggiunta {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-2);
+  padding-left: 2.25rem;
+}
+
+.voce-lista__nuova { max-width: 18rem; }
+
+/* Pannello stretto: il valore e il conto degli usi scendono sotto la parola,
+   invece di stringere fino all'illeggibile la casella che si scrive. */
+@media (max-width: 47.5em) {
+  .voce-lista { grid-template-columns: 2.25rem minmax(0, 1fr) auto; }
+  .voce-lista__valore { grid-column: 2 / -1; }
+}
+
+/*
+ * Il rimando alla pagina in cui quel che la sezione regola si fa davvero.
+ *
+ * Sta in cima alla scheda e non in fondo: chi apre «Assistente» senza un
+ * modello deve trovarlo prima di leggere una casella vuota, non dopo.
+ *
+ * Il riquadro era invisibile: `--raggio-2`, `--sfondo-tenue` e `--testo-tenue`
+ * non esistono in nessun foglio: le tre righe che li nominavano erano proprietà
+ * invalide, e quella con la riserva rendeva `transparent`. Erano tre nomi per
+ * tre cose che il tema ha già — il raggio normale, il primo gradino sopra la
+ * pagina, il testo che si legge dopo — e quindi si sostituiscono invece di
+ * definirli: un doppione in più è un secondo posto da cambiare.
+ */
+.opzioni__rimando {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+}
+
+.opzioni__rimando-testo {
+  margin: 0;
+  flex: 1 1 22rem;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+/* ------------------------------------------------------------ il filtro
+
+   Le sezioni bastano a *sfogliare*, non a *cercare*: chi arriva sapendo il nome
+   — «anticipo», «mittente», o la chiave per esteso letta in un messaggio
+   d'errore — non sa in quale delle undici sezioni sia finita, e girarle tutte
+   per trovarne una è il gesto che la divisione in sezioni doveva risparmiare.
+   Sta sopra l'elenco e non nella colonna delle sezioni perché quel che filtra è
+   l'elenco, e un comando lontano da quel che cambia si legge come se
+   riguardasse altro. */
+.opzioni__cerca {
+  margin-bottom: var(--spazio-4);
+}
+
+/* Larga quanto una riga di testo e non quanto la pagina: una casella lunga
+   trenta centimetri per tre parole dice che ci si aspetta una frase. */
+.opzioni__cerca .campo__controllo {
+  width: 100%;
+  max-width: 26rem;
+}

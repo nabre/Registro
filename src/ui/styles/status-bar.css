@@ -1,0 +1,424 @@
+/* La barra in fondo: che cosa manca, e com'è messa la macchina. */
+
+/*
+ * Attraversa tutta la finestra, barra laterale compresa.
+ *
+ * È una scelta e non una comodità: la barra parla dell'*applicazione* — l'ora
+ * da compilare, la posta, l'anno — non della pagina che si sta guardando.
+ * Fermandosi al bordo del contenuto sembrerebbe una parte della vista, e
+ * cambiando pagina ci si aspetterebbe che cambi anche lei.
+ */
+.barra-stato {
+  /*
+   * Il ritmo della barra, dichiarato una volta.
+   *
+   * Erano numeri sparsi — 2px qui, `--spazio-1` là, `--spazio-2` più sotto — e
+   * il risultato era una riga in cui ogni voce respirava a modo suo: la voce
+   * premibile più larga della tendina, la tendina più alta della voce. Tre
+   * misure sole: quanto respira una voce dentro di sé, quanto stanno lontane
+   * due voci vicine di senso, quanto si staccano due blocchi che parlano di
+   * cose diverse.
+   */
+  --respiro-y: 2px;
+  --respiro-x: var(--spazio-2);
+  --vicino: var(--spazio-1);
+  --stacco: var(--spazio-3);
+
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stacco);
+  padding: 0 var(--spazio-3);
+  /* Alta quanto il suo contenuto, e in `em`: cresce con il testo di sistema
+     invece di tagliarlo. Il minimo tiene la riga ferma quando i blocchi si
+     svuotano: una barra che cambia altezza fa saltare la pagina intera. */
+  min-height: 2.15em;
+  border-top: 1px solid var(--bordo);
+  background: var(--sfondo-alto);
+  font-size: 0.86em;
+  /* La barra non si legge lettera per lettera: si guarda. Un carattere più
+     piccolo del corpo, e le cifre incolonnate perché i conti che cambiano da
+     soli — «legge 3 di 12» — non facciano ballare la riga. */
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  /* Sopra il contenuto che le scorre sotto, sotto le finestre e i menu. */
+  z-index: 4;
+}
+
+.barra-stato__gruppo {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Il gruppo di destra si stringe per ultimo: quel che deve sparire per primo,
+   se la finestra si stringe, è l'anno in uso — non l'ora da compilare. */
+.barra-stato__gruppo--coda {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Com'è messa la macchina non si accorcia: «senza rete» tagliato a metà è la
+   cosa peggiore che questa barra possa scrivere. A cedere spazio è il percorso,
+   che si accorcia da sé. */
+.barra-stato__gruppo--coda > .barra-stato__blocco:last-child { flex: none; }
+
+/*
+ * Un blocco: le voci che rispondono alla stessa domanda.
+ *
+ * Dentro stanno vicine, fra un blocco e l'altro c'è un filo. È la sola
+ * punteggiatura di una riga lunga come tutta la finestra, e senza di lei ogni
+ * voce sembra il seguito di quella prima.
+ */
+.barra-stato__blocco {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+}
+
+/* Un blocco senza niente dentro non lascia il suo filo: non ci sono filtri
+   prima che ci sia un anno, e un percorso non c'è finché non c'è una pagina. */
+.barra-stato__blocco:empty { display: none; }
+
+.barra-stato__blocco:not(:empty) + .barra-stato__blocco:not(:empty) {
+  margin-left: var(--stacco);
+  padding-left: var(--stacco);
+  border-left: 1px solid var(--bordo);
+}
+
+/* ------------------------------------------------------------------ dove sono */
+
+/*
+ * Il percorso della pagina, nel gruppo di destra.
+ *
+ * Sta con le voci di stato e non con quelle che chiedono qualcosa: dire dove si
+ * è non è un lavoro da fare, è com'è messa la schermata — della stessa specie
+ * della rete e dell'anno in uso, che gli stanno accanto.
+ */
+/*
+ * Collassa per lo spazio che trova, non per la larghezza della finestra.
+ *
+ * Una soglia in pixel non sa niente di quel che le sta accanto: la stessa
+ * finestra, con «da compilare: DIC4a · gio 18 set» a sinistra e un corso dal
+ * nome lungo in mezzo, lascia al percorso metà dello spazio di un momento
+ * prima. Qui il percorso è l'unico pezzo della barra che cede: si stringe, e
+ * stringendosi accorcia prima gli anelli di fuori — l'area, il corso — che
+ * sono quelli che si sanno già da altrove. L'anello in cui si è cede per
+ * ultimo, quando gli altri non hanno più niente da dare: è la risposta alla
+ * domanda per cui il percorso esiste, e si tronca solo pur di non spingere la
+ * barra fuori dalla finestra.
+ *
+ * Le soglie qui sotto restano come ultimo gradino, per quando accorciare non
+ * basta più e conviene togliere del tutto.
+ */
+.barra-stato__percorso {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Chi cede per primo. I numeri sono un ordine, non una misura: l'area si
+   accorcia cento volte più in fretta della pagina, e quel che si sta guardando
+   cede per ultimo — cento volte più lentamente dell'area, venti della pagina.
+   Cedere qui vuol dire troncare con i puntini, che `__briciola` sa già fare.
+
+   Era `none`, cioè mai, e per quasi tutta la barra andava bene: gli anelli di
+   fuori si riducono a niente molto prima. Ma quando restava solo l'ultimo e
+   nemmeno lui ci stava — finestra stretta e riga delle azioni piena, per
+   esempio con la scheda della proiezione aperta — non avendo più niente da
+   togliere usciva dal suo riquadro, e bastava un pixel oltre il bordo per far
+   scorrere per storto la finestra intera. Un nome troncato si legge lo stesso;
+   una pagina che scorre di lato no. */
+.barra-stato__passo--mestiere { flex: 0 100 auto; }
+.barra-stato__passo--contesto { flex: 0 40 auto; }
+.barra-stato__passo--pagina { flex: 0 20 auto; }
+.barra-stato__passo--elemento { flex: 0 10 auto; }
+.barra-stato__passo--qui { flex: 0 1 auto; }
+
+/*
+ * Un anello: freccia, icona, parola.
+ *
+ * I cinque anelli si distinguono per l'icona, non per la posizione: il segno
+ * del mestiere è lo stesso della scheda in cima, quello della pagina lo stesso
+ * della voce nella barra laterale, quello della sezione lo stesso della
+ * linguetta premuta. Si riconosce a quale pezzo del percorso si sta guardando
+ * senza leggere cinque parole in fila — che in una barra alta due righe di
+ * testo è l'unica lettura possibile.
+ */
+.barra-stato__passo {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+  padding: var(--respiro-y) var(--respiro-x);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+}
+
+/* Il primo anello non ha freccia e parte dal bordo: senza questo, il percorso
+   sembrerebbe cominciare con un rientro che non significa niente. */
+.barra-stato__passo:first-child { padding-left: 0; }
+
+/*
+ * La freccia: sta dentro l'anello che segue, e ha il suo spazio.
+ *
+ * Il margine è quel che separa davvero i pezzi. Senza, i cinque anelli
+ * diventano una stringa continua di parole e icone in cui non si vede dove
+ * finisce l'uno e comincia l'altro — ed è esattamente quel che un percorso non
+ * deve fare.
+ */
+.barra-stato__freccia {
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  /* La freccia respira più della parola che separa: è lei a dire dove finisce
+     un anello, e appiccicata al testo si legge come un carattere del nome. */
+  margin-right: var(--vicino);
+  color: var(--bordo);
+}
+
+/* L'icona dell'anello: quieta, perché è un segno di riconoscimento e non un
+   avviso. Quella dell'ultimo prende il colore del testo pieno insieme a lui. */
+.barra-stato__segno {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  color: var(--testo-quieto);
+  opacity: 0.85;
+}
+
+/* Le parole si accorciano una per una invece di spingere fuori quel che sta
+   accanto: un anello si capisce anche a metà. `min-width: 0` è quel che glielo
+   permette — senza, una parola tiene larga la sua colonna e a cedere finisce
+   per essere il blocco accanto. */
+.barra-stato__briciola {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Dove si è adesso: l'ultimo anello si stacca.
+ *
+ * Un percorso in cui tutti gli anelli si somigliano si legge dall'inizio ogni
+ * volta per scoprire dove finisce. Con l'ultimo in rilievo la risposta alla
+ * domanda «dove sono» si prende con un'occhiata, e il resto è il contesto che
+ * ci si legge intorno solo quando serve.
+ */
+.barra-stato__passo--qui {
+  border-color: var(--bordo);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__passo--qui .barra-stato__briciola { font-weight: 600; }
+.barra-stato__passo--qui .barra-stato__segno { color: var(--testo); opacity: 1; }
+
+/* Di chi è quel che si sta guardando: l'anello che qualifica tutti quelli dopo
+   di lui, e l'unico del percorso che cambia senza cambiare pagina. Porta il
+   nome in evidenza perché è quello che si controlla con la coda dell'occhio
+   prima di scrivere un voto nella classe sbagliata. */
+.barra-stato__passo--contesto .barra-stato__briciola { color: var(--testo); }
+
+/* Stretto: se ne va prima l'area, poi l'elemento aperto. L'area si sa già — la
+   dice la barra laterale con la sua voce accesa — e l'elemento è scritto in
+   grande nella testata della pagina. Restano il corso, la pagina e la sezione:
+   le tre cose che il percorso sa dire e nessun altro dice tutte insieme.
+   Spariscono per ruolo e non per posizione: con un percorso corto non c'è
+   niente da togliere, e una regola che conta i figli si sarebbe portata via
+   anche quello. */
+@media (max-width: 64em) {
+  .barra-stato__passo--mestiere { display: none; }
+  .barra-stato__passo--contesto { padding-left: 0; }
+  .barra-stato__passo--contesto > .barra-stato__freccia { display: none; }
+}
+
+@media (max-width: 58em) {
+  .barra-stato__passo--elemento { display: none; }
+  .barra-stato__passo--porzione > .barra-stato__freccia { display: none; }
+}
+
+/* Più stretto ancora resta la sola sezione, che è il pezzo più interno e
+   l'unico che non si legge da nessun'altra parte. */
+@media (max-width: 56.25em) {
+  .barra-stato__passo--contesto,
+  .barra-stato__passo--pagina { display: none; }
+}
+
+/* -------------------------------------------------------------------- la voce */
+
+.barra-stato__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+  padding: var(--respiro-y) var(--respiro-x);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+
+/* Il testo si accorcia, l'icona no: un'icona a metà non vuol dire niente,
+   mentre «da compilare: DIC4a · gi…» si capisce lo stesso. */
+.barra-stato__testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-stato__voce .icona {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/*
+ * Quel che si preme si vede che si preme, ma solo passandoci sopra.
+ *
+ * A riposo le voci premibili sono identiche alle altre, ed è voluto: una barra
+ * con cinque pulsanti disegnati chiede di essere usata, e questa invece va
+ * letta. Il cursore e il fondo che si accende bastano a dire che si può.
+ */
+.barra-stato__voce--premibile {
+  cursor: pointer;
+}
+
+.barra-stato__voce--premibile:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__voce--premibile:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -1px;
+}
+
+/* ------------------------------------------------------------------ i filtri */
+
+/*
+ * Le due tendine accanto all'ora da fare: il corso e il periodo.
+ *
+ * Sono controlli in una barra che si legge e non si usa, e devono restare al
+ * loro posto — piccole, senza cornice a riposo, alte quanto una voce. Il bordo
+ * arriva passandoci sopra, come per le voci premibili: chi non le cerca non le
+ * vede, chi le cerca le trova dove ha appena letto il nome del corso.
+ */
+.barra-stato__filtro {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.barra-stato__filtro .icona {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--testo-quieto);
+}
+
+.barra-stato__tendina {
+  /* `none` e non `menulist`: con la cornice di sistema la tendina diventa la
+     cosa più alta e più squadrata della barra, e la riga si gonfia di due
+     pixel per farle posto. */
+  appearance: none;
+  max-width: 11rem;
+  padding: var(--respiro-y) var(--respiro-x) var(--respiro-y) var(--vicino);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* La freccia sta dopo la tendina e non dentro: è lì solo per dire che si apre,
+   e il clic lo prende la tendina che le sta accanto. */
+.barra-stato__filtro > .icona:last-child {
+  margin-left: -2px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.barra-stato__tendina:hover {
+  border-color: var(--bordo);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__tendina:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -1px;
+}
+
+/* Il menu che si apre è disegnato dal sistema e non eredita niente dalla
+   barra: senza questo, su fondo scuro, scriverebbe nero su nero. */
+.barra-stato__tendina option {
+  background: var(--sfondo-alto);
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------------- i toni */
+
+/*
+ * Il colore lo porta l'icona, non il testo.
+ *
+ * Un'intera riga colorata in fondo allo schermo tira l'occhio via da quel che
+ * si sta facendo, e la barra deve poter essere ignorata finché non serve. Il
+ * puntino colorato si vede con la coda dell'occhio e non disturba la lettura.
+ */
+.barra-stato__voce--quiete .icona { color: var(--testo-quieto); }
+.barra-stato__voce--positivo .icona { color: var(--positivo); }
+.barra-stato__voce--attenzione .icona { color: var(--attenzione); }
+.barra-stato__voce--negativo .icona { color: var(--negativo); }
+
+/* Le due che chiedono qualcosa portano anche il testo, perché sono le sole due
+   che si vogliono leggere da lontano. */
+.barra-stato__voce--attenzione .barra-stato__testo { color: var(--attenzione); }
+
+.barra-stato__voce--negativo {
+  border-color: color-mix(in srgb, var(--negativo) 40%, transparent);
+  background: color-mix(in srgb, var(--negativo) 10%, transparent);
+}
+
+.barra-stato__voce--negativo .barra-stato__testo {
+  color: var(--negativo);
+  font-weight: 600;
+}
+
+/* Sotto una certa larghezza le voci di stato spariscono una a una: l'ora da
+   compilare resta, perché è la ragione per cui la barra esiste. */
+@media (max-width: 56.25em) {
+  .barra-stato__gruppo--coda .barra-stato__voce:not(.barra-stato__voce--negativo) {
+    display: none;
+  }
+  /* Con le sue voci sparite, il blocco di coda non è più `:empty` — i figli ci
+     sono ancora, sono solo nascosti — e il filo che lo staccava resterebbe lì
+     a separare il percorso dal nulla. Se «senza rete» c'è il filo serve ancora,
+     perché qualcosa da staccare c'è. */
+  .barra-stato__gruppo--coda
+    > .barra-stato__blocco:last-child:not(:has(.barra-stato__voce--negativo)) {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+  /* I filtri si accorciano prima di sparire: il nome del corso si legge a
+     metà, ma la tendina resta raggiungibile. */
+  .barra-stato__tendina { max-width: 7rem; }
+}
+
+/* Più stretto ancora restano i filtri e l'ora da fare, e nient'altro: sono le
+   due cose per cui la barra esiste. */
+@media (max-width: 34em) {
+  .barra-stato__tendina { max-width: 5.5rem; }
+}

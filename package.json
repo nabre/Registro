@@ -1,0 +1,59 @@
+{
+  "name": "registro-docenti",
+  "productName": "Registro docenti",
+  "description": "Registro di classe per docenti: calendario delle lezioni, classi e persone in formazione, piani lezione e momenti di valutazione.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Michel Brenna",
+  "private": true,
+  "keywords": [
+    "registro",
+    "scuola",
+    "docenti",
+    "lezioni",
+    "valutazioni"
+  ],
+  "main": "dist/main.cjs",
+  "scripts": {
+    "dev": "node tools/dev.mjs",
+    "build": "node esbuild.mjs",
+    "start": "npm run build && electron .",
+    "registro": "node src/cli/registro.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "clean": "node tools/clean.mjs",
+    "census": "node tools/census.mjs",
+    "collections": "node tools/collections.mjs",
+    "buttons": "node tools/buttons.mjs",
+    "forms": "node tools/forms.mjs",
+    "layers": "node tools/layers.mjs",
+    "pretest": "node esbuild.mjs --test",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "ui-tests": "node tools/uiTests.mjs",
+    "package": "node esbuild.mjs --produzione && electron-builder --config electron-builder.json",
+    "icons": "electron tools/icons.cjs",
+    "templates": "node tools/templates.mjs",
+    "procedures": "node tools/procedures.mjs",
+    "tools": "node esbuild.mjs --test && node tools/assistantTools.mjs",
+    "sample": "node esbuild.mjs --test && node tools/sample.mjs"
+  },
+  "devDependencies": {
+    "@cantoo/pdf-lib": "^2.11.1",
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "^24.13.6",
+    "chokidar": "^5.0.0",
+    "electron": "^44.4.4",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "pdfjs-dist": "^6.3.289",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1"
+  },
+  "dependencies": {
+    "koffi": "^3.3.1",
+    "node-llama-cpp": "^3.21.1"
+  }
+}

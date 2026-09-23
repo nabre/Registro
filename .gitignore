@@ -1,0 +1,18 @@
+node_modules/
+dist*/
+pacchetti/
+
+# I documenti d'anno e quel che ne esce non stanno nel repository: sono dati di
+# persone vere. Vivono accanto al documento, fuori da questa cartella — ma se
+# qualcuno ne lascia uno qui per sbaglio, non deve poter finire in un commit.
+*.registro
+*.pdf
+# `registro/` era il predefinito di un'impostazione che non esiste piu — la
+# cartella dei dati adesso la si sceglie aprendo un anno — ma resta qui: e' il
+# nome che una cartella di dati veri ha piu' probabilita' di avere.
+#
+# Con la barra davanti: solo in radice, dove quella cartella nascerebbe. Senza,
+# la regola prendeva anche `src/api/procedure/registro/`, e due procedure vere
+# — `registro.riassunto`, `registro.integrita` — non sono mai entrate in un
+# commit, mentre `src/api/indice.ts` le importa: un clone pulito non compilava.
+/registro/

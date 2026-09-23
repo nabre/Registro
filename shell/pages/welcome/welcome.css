@@ -1,0 +1,159 @@
+/*
+ * La pagina di benvenuto: le due strade in cima, l'elenco degli anni sotto, e
+ * il piede con la versione e l'uscita.
+ */
+
+@import '../shared/base.css';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spazio-5);
+  gap: var(--spazio-4);
+  overflow: hidden;
+}
+
+.testata {
+  flex: none;
+}
+
+.invito {
+  margin: var(--spazio-2) 0 0;
+  max-width: 46ch;
+  color: var(--testo-quieto);
+}
+
+/* ---------------------------------------------------------- le due strade
+ *
+ * Affiancate e larghe uguali: nessuna delle due è un ripiego dell'altra — chi
+ * ha già un anno lo apre, chi comincia adesso lo crea.
+ */
+
+.scelte {
+  display: flex;
+  flex: none;
+  gap: var(--spazio-3);
+}
+
+.scelte button {
+  flex: 1;
+  padding: var(--spazio-3) var(--spazio-4);
+  text-align: left;
+}
+
+.scelte .titolo {
+  display: block;
+  font-weight: 600;
+}
+
+.scelte .sotto {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.92em;
+  font-weight: 400;
+  opacity: 0.78;
+}
+
+/* ------------------------------------------------------------- l'elenco
+ *
+ * Prende quel che resta e scorre: dodici recenti più i preferiti non stanno in
+ * una finestra alta quanto lo schermo di un portatile.
+ */
+
+.recenti {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  min-height: 0;
+}
+
+.recenti .voci {
+  flex: 1;
+}
+
+/* La riga: il nome a sinistra, i due gesti a destra, e la cartella sotto — è
+   quel che distingue due anni che si chiamano uguale. */
+.voci .voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  cursor: pointer;
+}
+
+.voci .voce:hover {
+  background: var(--sfondo-alto-2);
+}
+
+.voce__dati {
+  flex: 1;
+  min-width: 0;
+}
+
+.voce__sotto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voce--mancante {
+  cursor: default;
+}
+
+.voce--mancante .voce__etichetta {
+  color: var(--testo-quieto);
+}
+
+/*
+ * I due gesti restano spenti finché non si passa sulla riga: sono di contorno,
+ * e accesi su dodici righe farebbero una colonna di simboli più visibile dei
+ * nomi.
+ *
+ * Il velo sta sul pulsante e non sul contenitore apposta: l'opacità di un padre
+ * non si annulla da un figlio, e la stella accesa deve restare visibile sempre
+ * — dice com'è messa la riga, non è un gesto da offrire.
+ */
+.gesti {
+  display: flex;
+  flex: none;
+  gap: var(--spazio-1);
+}
+
+.gesti button {
+  min-width: 0;
+  padding: 1px 8px;
+  background: transparent;
+  border-color: transparent;
+  border-radius: var(--raggio-pastiglia);
+  line-height: 1.2;
+  opacity: 0;
+}
+
+.voce:hover .gesti button,
+.gesti button:focus-visible,
+.gesti button.acceso {
+  opacity: 1;
+}
+
+.gesti button.acceso {
+  color: var(--accento);
+}
+
+/* ---------------------------------------------------------------- il piede */
+
+.piede {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+}
+
+.versione {
+  font-size: 0.86em;
+}

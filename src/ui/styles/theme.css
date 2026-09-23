@@ -1,0 +1,254 @@
+/*
+ * Il tema: tutti i colori dell'applicazione, e nient'altro.
+ *
+ * Prima i colori venivano dalle variabili di VS Code — `--vscode-editor-background`
+ * e le altre — perché il registro era un pannello dentro l'editor e doveva
+ * sembrarne parte. Fuori dall'editor quelle variabili non esistono: non sono
+ * «sbagliate», sono *assenti*, e una `var()` assente senza ripiego non produce
+ * un colore brutto, produce una proprietà invalida. Metà delle regole del
+ * registro cadevano in silenzio, e i `color-mix` che le usavano cadevano con
+ * loro, a catena.
+ *
+ * Qui i colori sono nostri. Le due tavolozze — chiara e scura — sono complete e
+ * indipendenti: nessun token è definito in una sola delle due.
+ *
+ * ------------------------------------------------------------------- chiaro/scuro
+ *
+ * Il passaggio fra le due lo comanda il sistema operativo, e non un attributo
+ * sull'elemento radice. È voluto: `src/environment/theme.ts` scrive
+ * `nativeTheme.themeSource` a partire dall'impostazione `aspetto.tema`, ed
+ * Electron da lì fa rispondere `prefers-color-scheme` a *tutte* le finestre —
+ * il registro, lo schermo della classe, le impostazioni, i dialoghi. Una
+ * riga sola nel main process veste l'applicazione intera, e nessuna pagina deve
+ * ricevere un messaggio, ricordarselo, o riapplicarlo dopo un ricaricamento.
+ *
+ * `color-scheme` fa la sua parte per quel che non disegniamo noi: le barre di
+ * scorrimento, il cursore di testo, il calendario dentro un `<input type=date>`.
+ *
+ * -------------------------------------------------------------------- come leggerli
+ *
+ * `--sfondo` è la pagina; `--sfondo-alto` e `--sfondo-alto-2` sono i due
+ * gradini sopra di lei — una scheda, e dentro la scheda una riga in evidenza.
+ * `--testo` e `--testo-quieto` sono il testo e quello che si legge dopo.
+ *
+ * `--su-tinta` è la regola meno ovvia e la più utile: è il colore del testo
+ * *sopra* una tinta piena — un pulsante, una pastiglia di assenza, una casella
+ * di voto. Nel tema chiaro le tinte sono cupe e sopra ci va il bianco; nello
+ * scuro sono accese e sopra ci va il quasi-nero. Un token solo invece di una
+ * decisione a ogni pastiglia, e il contrasto regge in tutti e due i temi.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------- superfici */
+
+  --sfondo: #fbfbfc;
+  --sfondo-alto: #f2f3f6;
+  --sfondo-alto-2: #e6e8ed;
+  /* Il fondo di un campo in cui si scrive: più chiaro della pagina, non più
+     scuro — nel tema chiaro un campo si riconosce perché è bianco. */
+  --campo-sfondo: #ffffff;
+
+  /* Il filetto di ogni riquadro. Stava a #d6dae1, cioè a 1,36:1 dalla pagina:
+     una scheda si riconosceva dal fondo e non dal bordo, e una tabella con le
+     righe divise da `--bordo-tenue` — che è il 55% di questo — non le divideva
+     affatto. Adesso è 1,98:1. Non è il 3:1 che WCAG chiede a un contorno, e non
+     deve esserlo: questo è il filo che separa due superfici, non quello che
+     dice dove si scrive. Quello è `--bordo-forte`. */
+  --bordo: #aeb6c2;
+  --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+
+  /* Il contorno di un campo: 3,67:1 dal bianco che ha dentro e 3,55:1 dalla
+     pagina che ha fuori — il 3:1 che WCAG 1.4.11 chiede al contorno di un
+     comando, da tutt'e due i lati. Serve un token a parte perché nel tema
+     chiaro il fondo del campo è bianco e la pagina è quasi bianca: `--campo-sfondo`
+     sta a 1,03:1 da `--sfondo`, cioè il campo *non* si distingue per il suo
+     fondo. Se non lo dice il bordo, non lo dice nessuno. */
+  --bordo-forte: #7d8695;
+
+  /* ------------------------------------------------------------- i veli
+   *
+   * Lo stesso colore steso sopra quel che c'è, invece di un colore nuovo: è
+   * così che il registro dice «il puntatore è qui», «questa è quella scelta»,
+   * «lascia cadere dentro». Funziona su qualunque fondo — la pagina, una
+   * scheda, una riga in evidenza — ed è il motivo per cui erano `color-mix` e
+   * non tinte piene.
+   *
+   * Erano anche sette percentuali diverse per lo stesso velo neutro e dieci per
+   * quello d'accento: 3, 4, 5, 6, 7, 8, 10 da una parte, e dal 5 al 22
+   * dall'altra. Nessuno sa distinguere il 7% dall'8%; quel che si distingue è
+   * una riga sfiorata che in una tabella è grigia di un grigio e nell'elenco
+   * accanto di un altro. Qui ci sono i quattro che il registro usa davvero,
+   * ognuno con il proprio mestiere. */
+
+  /* Il puntatore è qui. */
+  --velo-sfiorato: color-mix(in srgb, var(--testo) 4%, transparent);
+  /* Una fascia che si stacca appena dal suo riquadro: la testata di una scheda,
+     il piede di una finestra. Non è uno stato, è un piano. */
+  --velo-quieto: color-mix(in srgb, var(--testo) 3%, transparent);
+  /* L'accento appena posato: un comando acceso, una zona che accoglie. */
+  --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
+  /* Questa è quella scelta. */
+  --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+
+  /* --------------------------------------------------------------- il testo */
+
+  --testo: #191d23;
+  --testo-quieto: #5c6473;
+
+  /* --------------------------------------------------------------- le tinte */
+
+  --accento: #2563eb;
+  --accento-caldo: #1d4ed8;
+  --positivo: #15803d;
+  --negativo: #c62828;
+  --attenzione: #b45309;
+  --informativo: var(--accento);
+
+  /* Il grigio dei segnaposti che non sono di nessuno: le aziende sulla mappa.
+     Non è `--testo-quieto`: quello è testo, e su una punta piena di colore
+     sparirebbe contro il fondo della carta. */
+  --ufficio: #5a6472;
+
+  /* Il testo sopra una tinta piena. Vedi la nota in cima. */
+  --su-tinta: #ffffff;
+
+  /*
+   * Il testo sopra un *velo* della propria tinta — la pastiglia: fondo al 18%
+   * o 20% della tinta, e sopra la tinta stessa.
+   *
+   * È il gemello di `--su-tinta`, e nasce dallo stesso conto fatto al
+   * contrario. Una pastiglia scritta con la tinta piena sopra il velo della
+   * tinta piena stava fra 3,46:1 e 3,83:1 — sotto il 4,5:1 che WCAG AA chiede
+   * a un testo piccolo, e questo è testo da dieci pixel e mezzo. La via è
+   * scurire quel che si legge, non ingrandirlo: una pastiglia più grande della
+   * riga in cui sta smette di essere un'annotazione e diventa un titolo.
+   */
+  --su-velo-positivo: #116631;
+  --su-velo-negativo: #9e2020;
+  --su-velo-attenzione: #873e07;
+  --su-velo-informativo: #1e4fbc;
+
+  /*
+   * Il filo che dice dove sta il fuoco della tastiera.
+   *
+   * Era #1d4ed8, cioè l'accento appena scurito: 1,30:1 dall'accento, e il
+   * commento che sta qui diceva il contrario di quel che il colore faceva. Su
+   * `.pulsante--primario` il filo e il pulsante erano la stessa macchia di blu.
+   *
+   * Non è più un blu: è inchiostro. Il fuoco è il massimo contrasto con la
+   * superficie su cui è disegnato — `outline-offset: 1px` lo mette *fuori* dal
+   * comando, sulla pagina — e da lì si stacca da tutto: 18,1:1 dalla pagina e
+   * 3,62:1 dall'accento, che è il 3:1 di WCAG 1.4.11 con margine.
+   */
+  --fuoco: #0b1220;
+
+  /* -------------------------------------------------------------- le ombre */
+
+  /* Nel tema chiaro un'ombra è un velo: due strati, uno stretto per staccare il
+     bordo e uno largo per la distanza. Nera pura sarebbe sporca. */
+  --ombra-1: 0 1px 2px rgba(23, 30, 43, 0.06), 0 1px 1px rgba(23, 30, 43, 0.04);
+  --ombra-2: 0 4px 12px rgba(23, 30, 43, 0.10), 0 1px 3px rgba(23, 30, 43, 0.06);
+  --ombra-3: 0 16px 40px rgba(23, 30, 43, 0.16), 0 2px 8px rgba(23, 30, 43, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --sfondo: #15181d;
+    --sfondo-alto: #1c2027;
+    --sfondo-alto-2: #252b34;
+    /* Al contrario del chiaro: qui il campo è un incavo, più scuro della
+       pagina. È la stessa idea — il campo si stacca — letta al buio. */
+    --campo-sfondo: #0f1216;
+
+    --bordo: #464f5c;
+    --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+    --bordo-forte: #6b7583;
+
+    --velo-sfiorato: color-mix(in srgb, var(--testo) 4%, transparent);
+    --velo-quieto: color-mix(in srgb, var(--testo) 3%, transparent);
+    --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
+    --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+
+    --testo: #e5e9ef;
+    --testo-quieto: #98a1b0;
+
+    --accento: #7aa9ff;
+    --accento-caldo: #9dc0ff;
+    --positivo: #4ec27a;
+    --negativo: #f8615a;
+    --attenzione: #e0a838;
+    --informativo: var(--accento);
+
+    --ufficio: #93a0b2;
+
+    --su-tinta: #12161b;
+
+    /* Al buio si va nel verso opposto: il velo scurisce la tinta invece di
+       schiarirla, e il testo va schiarito. Due su quattro non si toccano —
+       il verde e l'ambra ce la facevano già — ma restano scritti: un token
+       definito in un tema solo è la trappola raccontata in cima a questo file. */
+    --su-velo-positivo: #4ec27a;
+    --su-velo-negativo: #f9817b;
+    --su-velo-attenzione: #e0a838;
+    --su-velo-informativo: #81adff;
+
+    /*
+     * Qui la finestra è vuota, e vale la pena scriverlo: perché un colore piatto
+     * stia a 3:1 dall'accento (#7aa9ff, luminanza 0,397) gli serve una luminanza
+     * sotto 0,099; perché stia a 3:1 dalla pagina (#15181d, luminanza 0,009) gli
+     * serve sopra 0,127. Nessun colore soddisfa tutt'e due — l'accento chiaro e
+     * la pagina cupa stanno da parti opposte e in mezzo non c'è posto.
+     *
+     * Fra le due adiacenze si sceglie la pagina, perché è quella vera: con
+     * `outline-offset: 1px` fra il filo e il pulsante c'è un pixel di pagina, e
+     * il filo non tocca mai l'accento. Bianco: 17,8:1 dalla pagina, e comunque
+     * 2,35:1 dall'accento invece di 1,28.
+     */
+    --fuoco: #ffffff;
+
+    /* Al buio un'ombra da sola non stacca niente: quel che separa una finestra
+       dal fondo è il suo bordo chiaro. L'ombra resta, più profonda, per la
+       distanza. */
+    --ombra-1: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --ombra-2: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --ombra-3: 0 18px 48px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/*
+ * ------------------------------------------------------------------ i caratteri
+ *
+ * Prima erano `--vscode-font-family`, cioè quelli dell'editor. La pila qui sotto
+ * dà su ogni sistema il carattere dell'interfaccia di quel sistema: è la scelta
+ * giusta per un'applicazione, che deve sembrare del computer su cui gira e non
+ * di un altro.
+ *
+ * `--corpo` è l'unica misura del testo dichiarata, e tutto il resto le sta
+ * dietro in `em`: cambiarla ingrandisce il registro intero in modo coerente.
+ *
+ * È in `rem` e non in pixel, e qui sta il punto: `rem` misura la dimensione
+ * predefinita del documento, che non è un valore fisso di Chromium ma quello
+ * che gli passa il main process — `defaultFontSize`, ricavato dalla
+ * «Dimensione testo» di Windows in `src/environment/theme.ts`. Chi ha alzato quel
+ * cursore perché altrimenti non legge trova il registro grande come il resto
+ * del suo computer, senza dover cercare un'impostazione qui dentro.
+ *
+ * 0.8125rem è 13px quando la radice è 16, cioè al 100%: la misura di prima.
+ *
+ * Gli spazi restano in pixel di proposito. «Dimensione testo» ingrandisce il
+ * testo e non i margini — è quel che fa Windows con le proprie finestre — e i
+ * riquadri si allargano lo stesso, perché è il testo dentro a spingerli.
+ */
+:root {
+  --carattere: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI',
+    'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  --carattere-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'JetBrains Mono',
+    Menlo, Consolas, monospace;
+
+  --corpo: 0.8125rem;
+  --interlinea: 1.5;
+}

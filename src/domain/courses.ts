@@ -1,0 +1,265 @@
+// Il corso, e tutto quello che da lì si ricava.
+//
+// Il modello scrive su disco il minimo: una lezione conosce il suo corso e
+// nient'altro. Classe, materia, anno e semestre non sono scritti da nessuna
+// parte perché si leggono passando di qui — ed è il motivo per cui non possono
+// andare in disaccordo con niente.
+//
+// Chiunque debba sapere «di che classe è questa lezione» chiama queste
+// funzioni: l'extension host che disegna l'albero, il webview che disegna il
+// calendario e i test. Sono l'unico posto in cui la catena
+// lezione → corso → classe → anno è scritta.
+
+import { confrontaLezioni, lezioneDelPiano, nomePiano } from './calculations.js'
+import { nelPeriodo, semestreDi } from './dates.js'
+import { confrontaNomi } from './text.js'
+import type {
+  AnnoScolastico,
+  Classe,
+  Consegna,
+  Corso,
+  Fascicolo,
+  Lezione,
+  Materia,
+  MomentoValutazione,
+  PianoLezione,
+  Registro,
+} from './models.js'
+
+// ------------------------------------------------------------------ il corso
+
+export function corsoPerId (registro: Registro, id: string | null): Corso | null {
+  return id ? registro.corsi.find((c) => c.id === id) ?? null : null
+}
+
+/** Il corso di una coppia classe+materia, se già c'è. Ne esiste al più uno. */
+export function corsoDi (registro: Registro, classeId: string, materiaId: string): Corso | null {
+  return registro.corsi.find((c) => c.classeId === classeId && c.materiaId === materiaId) ?? null
+}
+
+/**
+ * Come si chiama un corso quando non gli si dà un titolo: 'Classe — Materia'.
+ *
+ * La classe davanti perché è quella che si cerca. Gli elenchi di corsi si
+ * ordinano per titolo, e con la materia davanti finivano mescolati — le tre
+ * classi di Calcolo professionale lontane dalle due di Laboratorio della stessa
+ * classe. Con la classe davanti un corso sta accanto agli altri della sua
+ * classe, che è come li si tiene in testa: prima si sa dove si entra, poi che
+ * cosa ci si fa.
+ */
+export function titoloCorso (classe: Classe | null, materia: Materia | null): string {
+  return `${classe?.nome ?? 'classe'} — ${materia?.nome ?? 'Materia'}`
+}
+
+/**
+ * Come si chiama una materia dove non c'è posto per il suo nome: «MAT», «ITA».
+ *
+ * La sigla scritta nella materia se c'è, perché è quella che la scuola usa e
+ * che chi insegna riconosce. Se non c'è si ricava dal nome — le iniziali delle
+ * parole, o le prime tre lettere di una parola sola — e non si lascia vuota: la
+ * cella di un mese con due lezioni della stessa classe e due materie diverse,
+ * senza questa parola, mostra due righe identiche.
+ *
+ * Ricavata e non inventata: «Calcolo professionale» diventa «CP» e non un
+ * troncamento a caso, così due materie diverse restano due sigle diverse.
+ */
+export function siglaMateria (materia: Materia | null): string {
+  const scritta = materia?.sigla?.trim()
+  if (scritta) return scritta
+
+  const nome = materia?.nome?.trim() ?? ''
+  if (!nome) return ''
+
+  const parole = nome.split(/[\s'’-]+/).filter((pezzo) => pezzo.length > 0)
+  if (parole.length > 1) return parole.map((parola) => parola[0]?.toUpperCase() ?? '').join('')
+  return nome.slice(0, 3).toUpperCase()
+}
+
+// ------------------------------------------------------------------ dal corso in su
+
+export function classeDelCorso (registro: Registro, corso: Corso | null): Classe | null {
+  return corso ? registro.classi.find((c) => c.id === corso.classeId) ?? null : null
+}
+
+/** La classe di un corso, dato l'id del corso: è la catena più corta del registro. */
+export function classeDelCorsoId (registro: Registro, corsoId: string | null): Classe | null {
+  return classeDelCorso(registro, corsoPerId(registro, corsoId))
+}
+
+/** La classe a cui una consegna si riferisce, passando dal corso. */
+export function classeDellaConsegna (registro: Registro, consegna: Consegna): Classe | null {
+  return classeDelCorsoId(registro, consegna.corsoId)
+}
+
+export function materiaDelCorso (registro: Registro, corso: Corso | null): Materia | null {
+  return corso ? registro.materie.find((m) => m.id === corso.materiaId) ?? null : null
+}
+
+export function annoDellaClasse (registro: Registro, classe: Classe | null): AnnoScolastico | null {
+  return classe ? registro.anni.find((a) => a.id === classe.annoId) ?? null : null
+}
+
+function annoDelCorso (registro: Registro, corso: Corso | null): AnnoScolastico | null {
+  return annoDellaClasse(registro, classeDelCorso(registro, corso))
+}
+
+/** I corsi di una classe, in ordine di titolo: quante materie ci si insegna. */
+export function corsiDellaClasse (registro: Registro, classeId: string): Corso[] {
+  return registro.corsi
+    .filter((c) => c.classeId === classeId)
+    .sort((a, b) => confrontaNomi(a.titolo, b.titolo))
+}
+
+/** I corsi di un anno: quelli delle classi di quell'anno. */
+export function corsiDellAnno (registro: Registro, annoId: string | null): Corso[] {
+  if (!annoId) return [...registro.corsi]
+  const classi = new Set(registro.classi.filter((c) => c.annoId === annoId).map((c) => c.id))
+  return registro.corsi.filter((c) => classi.has(c.classeId))
+}
+
+/** I corsi che usano una materia: serve prima di cancellarla o di fonderla. */
+export function corsiDellaMateria (registro: Registro, materiaId: string): Corso[] {
+  return registro.corsi.filter((c) => c.materiaId === materiaId)
+}
+
+// ------------------------------------------------------------------ dalla lezione
+
+export function corsoDellaLezione (registro: Registro, lezione: Lezione): Corso | null {
+  return corsoPerId(registro, lezione.corsoId)
+}
+
+export function classeDellaLezione (registro: Registro, lezione: Lezione): Classe | null {
+  return classeDelCorso(registro, corsoDellaLezione(registro, lezione))
+}
+
+export function materiaDellaLezione (registro: Registro, lezione: Lezione): Materia | null {
+  return materiaDelCorso(registro, corsoDellaLezione(registro, lezione))
+}
+
+function annoDellaLezione (registro: Registro, lezione: Lezione): AnnoScolastico | null {
+  return annoDelCorso(registro, corsoDellaLezione(registro, lezione))
+}
+
+/** Le lezioni di una classe: di tutti i suoi corsi messi insieme. */
+export function lezioniDellaClasse (registro: Registro, classeId: string): Lezione[] {
+  const corsi = new Set(corsiDellaClasse(registro, classeId).map((c) => c.id))
+  return registro.lezioni.filter((l) => corsi.has(l.corsoId))
+}
+
+/**
+ * Il registro di un corso: tutte le sue lezioni in ordine di calendario.
+ *
+ * Le annullate ci sono anche: nel registro restano, segnate, e sfogliando le
+ * ore si vuole vedere pure quelle. Chi fa i conti — ore svolte, avanzamento —
+ * usa invece `lezioniDelCorso`, che le lascia fuori perché ore non sono.
+ *
+ * L'ordine è quello con cui si sfoglia, non quello con cui stanno nel file. A
+ * parità di giorno decide l'ora d'inizio: due lezioni della stessa materia
+ * nello stesso giorno sono due ore diverse, e invertirle vorrebbe dire
+ * scrivere il consuntivo sulla riga sbagliata.
+ */
+export function registroDelCorso (registro: Registro, corsoId: string | null): Lezione[] {
+  if (!corsoId) return []
+  return registro.lezioni.filter((l) => l.corsoId === corsoId).sort(confrontaLezioni)
+}
+
+/** Le lezioni di un anno: quelle delle classi di quell'anno. */
+export function lezioniDellAnno (registro: Registro, annoId: string | null): Lezione[] {
+  if (!annoId) return [...registro.lezioni]
+  const corsi = new Set(corsiDellAnno(registro, annoId).map((c) => c.id))
+  return registro.lezioni.filter((l) => corsi.has(l.corsoId))
+}
+
+// ------------------------------------------------------------------ dal momento
+
+function corsoDelMomento (registro: Registro, momento: MomentoValutazione): Corso | null {
+  return corsoPerId(registro, momento.corsoId)
+}
+
+export function classeDelMomento (registro: Registro, momento: MomentoValutazione): Classe | null {
+  return classeDelCorso(registro, corsoDelMomento(registro, momento))
+}
+
+/** Le valutazioni di una classe, tutti i corsi insieme. */
+export function valutazioniDellaClasse (
+  registro: Registro,
+  classeId: string,
+): MomentoValutazione[] {
+  const corsi = new Set(corsiDellaClasse(registro, classeId).map((c) => c.id))
+  return registro.valutazioni.filter((v) => corsi.has(v.corsoId))
+}
+
+// ------------------------------------------------------------------ piani
+
+/**
+ * I piani di un corso, dal più recente. Non c'è filtro per anno di proposito:
+ * un piano dell'anno scorso è esattamente quello che si cerca quando si prepara
+ * la stessa ora quest'anno — e per usarlo su un altro corso lo si duplica.
+ */
+export function pianiDelCorso (registro: Registro, corsoId: string | null): PianoLezione[] {
+  return registro.piani
+    .filter((p) => p.corsoId === corsoId)
+    .sort((a, b) => b.aggiornatoIl.localeCompare(a.aggiornatoIl))
+}
+
+// ------------------------------------------------------------------ fascicoli
+
+export function fascicoloDellaClasse (registro: Registro, classeId: string): Fascicolo | null {
+  return registro.fascicoli.find((f) => f.classeId === classeId) ?? null
+}
+
+/**
+ * Come si chiama un piano, con il registro sotto mano: il corso e la lezione.
+ *
+ * `nomePiano` è puro e vuole già pronti il nome del corso e le lezioni; qui si
+ * pescano dal registro, che è quel che hanno in mano l'albero, la barra di
+ * stato e i comandi.
+ */
+export function nomeDelPiano (registro: Registro, piano: PianoLezione): string {
+  return nomePiano(piano, contestoDelPiano(registro, piano))
+}
+
+/**
+ * Di quale lezione è un piano, senza ripetere il corso: «3ª lezione», «bozza del 12.09».
+ *
+ * È quel che va negli elenchi dentro una pagina di corso, dove il corso è
+ * scritto in testata e riscriverlo su ogni riga sarebbe la stessa parola
+ * ventidue volte.
+ */
+export function lezioneDelPianoNelRegistro (registro: Registro, piano: PianoLezione): string {
+  return lezioneDelPiano(piano, contestoDelPiano(registro, piano))
+}
+
+function contestoDelPiano (registro: Registro, piano: PianoLezione) {
+  return {
+    corso: corsoPerId(registro, piano.corsoId)?.titolo ?? null,
+    lezioni: registro.lezioni,
+    numeroDellaLezione: (lezione: Lezione) => numeroDellaLezione(registro, lezione),
+  }
+}
+
+/**
+ * Che numero ha un'ora nel suo corso: «la dodicesima».
+ *
+ * Il conto riparte a ogni semestre, ed è la stessa regola del cruscotto: «la
+ * dodicesima lezione» detto a maggio vuol dire la dodicesima del secondo
+ * semestre, non la trentaquattresima dell'anno. Due conti diversi per la stessa
+ * ora sarebbero due numeri che non tornano fra una pagina e l'altra.
+ *
+ * Le annullate non si contano e non hanno un numero: non sono ore. `null` anche
+ * quando la lezione non è nel registro, o il suo corso non c'è più — chi chiama
+ * scrive la data invece del numero, e non un «0ª lezione».
+ */
+export function numeroDellaLezione (registro: Registro, lezione: Lezione): number | null {
+  if (lezione.stato === 'annullata') return null
+
+  const anno = annoDellaLezione(registro, lezione)
+  const semestre = anno ? semestreDi(anno, lezione.data) : null
+  const sue = registro.lezioni
+    .filter((l) => l.corsoId === lezione.corsoId && l.stato !== 'annullata')
+    .filter((l) => !semestre || nelPeriodo(l.data, semestre.inizio, semestre.fine))
+    .sort(confrontaLezioni)
+
+  const dove = sue.findIndex((l) => l.id === lezione.id)
+  return dove >= 0 ? dove + 1 : null
+}

@@ -1,0 +1,261 @@
+/* Elenchi laterali e tabelle: le due forme in cui si legge una lista. */
+
+/* ------------------------------------------------------------------ elenchi laterali */
+
+.elenco-laterale {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - var(--fuori-pagina));
+  overflow-y: auto;
+}
+
+.elenco-laterale__testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.elenco-laterale__testata h3 { margin: 0; font-size: 1em; }
+
+.elenco-laterale__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.voce-laterale {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-2);
+  border: none;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.voce-laterale:hover { background: var(--sfondo-alto-2); }
+.voce-laterale--attiva { background: color-mix(in srgb, var(--accento) 16%, transparent); }
+/* Una classe archiviata resta in elenco per essere riaperta: il nome va letto.
+   A 0.6 stava intorno a 2,5:1 nel tema chiaro. */
+.voce-laterale--spenta { opacity: 0.75; }
+
+.voce-laterale__testo { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.voce-laterale__testo small { color: var(--testo-quieto); font-size: var(--corpo-piccolo); }
+.voce-laterale__testo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/*
+ * Quando la scaletta non torna con l'ora, il numero si colora.
+ *
+ * La riga sotto il nome è grigia perché quasi sempre dice solo quando è l'ora,
+ * e va letta se si vuole. Questo pezzo no: è lavoro rimasto da fare, e in una
+ * colonna di venti ore lo si deve vedere senza leggerle tutte. Due tinte
+ * perché sono due lavori diversi — l'ambra è tempo d'aula che nessuno ha
+ * pensato, il rosso è roba pensata che in aula non ci sta — e il numero dice
+ * già di quanto.
+ */
+.voce-laterale__scarto { font-weight: 600; }
+
+/* Il corso che tiene le sue ore: l'elenco dei piani è una gerarchia, non una
+   lista piatta, e senza un'intestazione le ore di due corsi diversi si
+   leggerebbero come un elenco solo. Resta in vista mentre si scorre. */
+.elenco-laterale__gruppo {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-3);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-bottom: 1px solid var(--bordo);
+  background: var(--sfondo);
+  font-size: var(--corpo-vicino);
+}
+
+.elenco-laterale__gruppo:first-child { margin-top: 0; }
+
+/* I piani rimasti senza corso: non dovrebbero esistere, e il gruppo lo dice. */
+.elenco-laterale__gruppo--avviso {
+  justify-content: flex-start;
+  color: var(--attenzione);
+  border-bottom-color: var(--attenzione);
+}
+
+.elenco-laterale__sottogruppo {
+  padding: var(--spazio-1) var(--spazio-2);
+  color: var(--testo-quieto);
+  font-size: var(--corpo-minore);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* L'ora che aspetta ancora una scaletta: è un invito, non una voce spenta —
+   ci si clicca sopra per prepararla. */
+.voce-laterale--vuota { color: var(--testo-quieto); }
+.voce-laterale--vuota:hover { color: var(--testo); }
+.voce-laterale--vuota strong { font-weight: 500; }
+
+.voce-laterale__segno { flex: none; opacity: 0.7; }
+
+/* I momenti rimasti senza la tappa che li ha fatti nascere.
+   Stanno dentro un avviso, in cima alla vista: sono la cosa da sistemare, e
+   sotto la griglia dei voti non li vedrebbe nessuno. */
+.orfane { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+.orfane__testata {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.orfane__elenco {
+  list-style: none;
+  margin: var(--spazio-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Titolo, motivo, cestino: il motivo è la metà che conta — «la tappa non c'è
+   più» e «non viene da nessun piano» sono due storie diverse, e si decide
+   diversamente. */
+.orfane__voce {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: 2px 0;
+  border-top: 1px solid var(--bordo-tenue);
+  font-size: 0.92em;
+}
+
+.orfane__voce:first-child { border-top: 0; }
+
+@media (max-width: 47.5em) {
+  .orfane__voce { grid-template-columns: minmax(0, 1fr) auto; }
+  .orfane__voce > span { grid-column: 1 / -1; }
+}
+
+/* ------------------------------------------------------------------ tabelle */
+
+.tabella-contenitore {
+  overflow-x: auto;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+}
+
+.tabella-contenitore--griglia {
+  /* Qui si toglie anche la testata della pagina e la riga dei filtri, che una
+     griglia ha sempre sopra di sé: da lì i 7rem in più. */
+  max-height: calc(100vh - var(--fuori-pagina) - 7rem);
+  overflow-y: auto;
+}
+
+.tabella {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabella th,
+.tabella td {
+  padding: var(--dentro-cella);
+  border-bottom: 1px solid var(--bordo-tenue);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabella thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato);
+  background: var(--sfondo-alto-2);
+  font-weight: 600;
+  font-size: 0.88em;
+}
+
+.tabella tbody tr:hover { background: var(--velo-sfiorato); }
+/* La riga di chi si è ritirato: resta perché la sua storia conta — le assenze
+   già fatte, i voti già presi — e a 0.55 quei numeri stavano a ~2,3:1. */
+.tabella__riga--spenta { opacity: 0.75; }
+.tabella__numero { text-align: right; white-space: nowrap; }
+.tabella__azioni { width: 40px; text-align: right; }
+
+.tabella--voti .tabella__nome,
+.tabella--documenti .tabella__nome {
+  position: sticky;
+  left: 0;
+  background: var(--sfondo-alto);
+  z-index: var(--piano-incollato);
+  /* In `rem`: è la colonna dei nomi, e deve tenerli su una riga anche quando il
+     sistema chiede un testo più grande. */
+  min-width: 11rem;
+}
+
+.tabella--voti thead .tabella__nome,
+.tabella--documenti thead .tabella__nome { z-index: var(--piano-incollato-2); background: var(--sfondo-alto-2); }
+
+/* L'anagrafica di una classe: colonne di testo, non di numeri. Il nome non va
+   mai a capo — è la chiave con cui si scorre l'elenco — mentre indirizzi e
+   recapiti vanno a capo se serve, invece di allargare la tabella oltre lo
+   schermo o di finire tagliati. Un indirizzo di posta troncato non si copia, e
+   copiarlo è quel che si viene a fare qui. */
+.tabella--allievi .tabella__nome { white-space: nowrap; min-width: 11rem; }
+.tabella--allievi td { vertical-align: top; padding-top: 8px; }
+.tabella--allievi .tabella__recapito { overflow-wrap: anywhere; }
+
+.tabella__momento { min-width: 5.75rem; }
+.tabella__momento .collegamento { display: flex; flex-direction: column; }
+.tabella__momento small { color: var(--testo-quieto); font-weight: 400; }
+.tabella__momento-titolo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 8rem; }
+.tabella__momento--scelto { background: color-mix(in srgb, var(--accento) 14%, transparent); }
+
+.tabella__cella { padding: 2px; }
+.tabella__cella--totale { text-align: center; color: var(--testo-quieto); }
+.tabella__media { text-align: center; white-space: nowrap; }
+
+.tabella tfoot td {
+  background: var(--sfondo-alto-2);
+  font-weight: 600;
+  border-top: 1px solid var(--bordo);
+}
+
+.cella-voto {
+  width: 100%;
+  min-width: 3.5rem;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: center;
+}
+
+.cella-voto:hover { border-color: var(--bordo-tenue); }
+/* Il fondo e il bordo accesi *in più* del filo di fuoco, non al posto suo: qui
+   c'era `outline: none`, e in una griglia di duecento caselle il filo era
+   l'unica cosa che diceva su quale si stava per scrivere. */
+.cella-voto:focus { border-color: var(--accento); background: var(--campo-sfondo); }
+.cella-voto--insufficiente { color: var(--negativo); font-weight: 600; }
+.cella-voto--assente { color: var(--testo-quieto); font-style: italic; }
+.cella-voto--errata { background: color-mix(in srgb, var(--negativo) 25%, transparent); }

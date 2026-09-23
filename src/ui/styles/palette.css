@@ -1,0 +1,137 @@
+/* ---------------------------------------------------------------- la palette */
+
+.palette__velo {
+  position: fixed;
+  inset: 0;
+  z-index: var(--piano-palette);
+  display: flex;
+  justify-content: center;
+  /* Non in mezzo allo schermo: un po' più in alto, dove l'occhio sta già —
+     e dove non copre la riga che si stava guardando. */
+  padding-top: 12vh;
+  background: color-mix(in srgb, var(--testo) 25%, transparent);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, calc(100vw - 2 * var(--spazio-4)));
+  max-height: 70vh;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo);
+  box-shadow: var(--ombra-3);
+  overflow: hidden;
+}
+
+.palette__testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.palette__testa .icona {
+  color: var(--testo-quieto);
+}
+
+.palette__campo {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-size: 1.05em;
+}
+
+/* L'unico posto in cui si può essere quando la palette è aperta, e il cursore
+   che lampeggia lo dice già: un filo di fuoco dentro il riquadro cerchierebbe
+   una riga sola in una finestra che ne ha una sola. Le righe sotto, quelle sì,
+   prendono il filo comune. */
+.palette__campo:focus-visible {
+  outline: none;
+}
+
+.palette__elenco {
+  overflow-y: auto;
+  padding: var(--spazio-1);
+}
+
+/* Una riga dell'elenco, e non più un bottone: le quattro righe che azzeravano
+   l'aspetto nativo di `<button>` — bordo, fondo, carattere, allineamento — se
+   ne sono andate con lui. Vedi `components/palette.ts`. */
+.palette__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-radius: var(--raggio);
+  color: var(--testo);
+  cursor: pointer;
+}
+
+.palette__voce .icona {
+  flex: none;
+  color: var(--testo-quieto);
+}
+
+.palette__testo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.palette__titolo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette__aiuto {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La riga scelta si vede dal fondo e non da un bordo: la si sposta con le
+   frecce, e un bordo che salta da una riga all'altra è più difficile da
+   seguire di una fascia piena. */
+.palette__voce--scelta {
+  background: var(--sfondo-alto-2);
+}
+
+/* Spenta, ma leggibile: sotto questa voce c'è la frase che dice **perché** il
+   comando non si può eseguire, ed è la sola ragione per cui la voce è ancora
+   in elenco. A 0.6 quella frase scendeva intorno a 2,4:1 di contrasto nel tema
+   chiaro, cioè sotto il minimo per un testo — la cosa meno leggibile della
+   palette era quella che bisognava leggere. */
+.palette__voce--impedita {
+  opacity: 0.75;
+}
+
+.palette__voce--impedita .palette__aiuto {
+  color: var(--attenzione);
+}
+
+.palette__vuoto {
+  margin: 0;
+  padding: var(--spazio-4);
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+.palette kbd,
+.barra-comandi__cerca kbd {
+  padding: 1px var(--spazio-1);
+  border: 1px solid var(--bordo);
+  border-radius: 4px;
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  font-family: inherit;
+  font-size: 0.78em;
+  white-space: nowrap;
+}

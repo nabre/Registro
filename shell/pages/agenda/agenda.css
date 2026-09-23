@@ -1,0 +1,574 @@
+/*
+ * L'agenda sul desktop: la striscia appoggiata al bordo dello schermo.
+ *
+ * Il foglio segue la pagina dall'alto in basso: la cornice e le maniglie, la
+ * testata con le linguette, e poi una sezione per scheda — il calendario, le
+ * pendenze, la lezione — e il piede.
+ */
+
+@import '../shared/base.css';
+
+/* ------------------------------------------------------------ la cornice */
+
+/* La cornice è tutta qui: la finestra non ha bordi di sistema — glieli
+   toglie `frame: false` — e senza questa riga la striscia si confonderebbe
+   con lo sfondo del desktop dove il muro di casa è chiaro. */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--sfondo);
+  color: var(--testo);
+  border: 1px solid var(--bordo);
+  box-sizing: border-box;
+  font-size: var(--corpo);
+  user-select: none;
+}
+
+/* ----------------------------------------------------------- le maniglie */
+
+/* I due bordi da trascinare: sei pixel, che è quel che si prende con il
+   mouse senza doverci mirare, e il cursore che lo annuncia. Il sinistro
+   cambia la larghezza, quello di sotto l'altezza; tutti e due scattano sulla
+   griglia delle icone del desktop — il conto lo fa il main process. */
+.maniglia {
+  position: fixed;
+  z-index: 2;
+}
+
+#maniglia-larghezza {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+#maniglia-altezza {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.maniglia:hover, .maniglia.tirata {
+  background: var(--accento);
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------------------ la testata */
+
+header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-2) 0 var(--spazio-3);
+  background: var(--sfondo-alto);
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+/* La presa per spostare: c'è solo quando il widget è libero. Il cursore lo
+   dice prima del gesto, che è l'unico modo di farlo scoprire — una testata
+   non ha l'aria di essere trascinabile. */
+body.libero header {
+  cursor: grab;
+}
+
+body.libero header.tirata {
+  cursor: grabbing;
+}
+
+.barra__titolo {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra__quiete {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ i bottoni */
+
+button {
+  /* `base.css` dà ai bottoni una larghezza minima da dialogo — novanta
+     pixel — che qui vuol dire un bottone per riga: la striscia è larga come
+     una colonna di icone. */
+  min-width: 0;
+  background: transparent;
+  color: var(--testo-quieto);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  padding: 2px 6px;
+  font: inherit;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+button[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+button[disabled]:hover {
+  background: transparent;
+  color: var(--testo-quieto);
+}
+
+/* -------------------------------------------------------- le linguette */
+
+/* Tre schede, tre linguette larghe uguali: una scheda che si cerca è una
+   scheda che non si apre, e a questa larghezza non c'è posto per un menu. */
+.linguette {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--spazio-1);
+}
+
+/* Lo spazio va a quella aperta, che è l'unica con un nome da scrivere; le
+   altre si stringono attorno al proprio segno. */
+.linguetta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 2px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--raggio) var(--raggio) 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.linguetta--scelta {
+  flex: 1;
+  min-width: 0;
+  background: var(--sfondo);
+  border-color: var(--bordo);
+  color: var(--testo);
+  font-weight: 600;
+}
+
+/* Il nome lo porta la sola linguetta aperta; le altre stanno nel loro segno.
+   Tre nomi affiancati in una striscia larga come una colonna di icone
+   escono tutti e tre tagliati a metà, e tre parole mozze dicono meno di tre
+   simboli — mentre il nome di dove si è vale la riga che costa. Sotto le tre
+   celle sparisce anche quello. */
+.linguetta__nome {
+  display: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.linguetta--scelta .linguetta__nome {
+  display: block;
+}
+
+body.stretta .linguetta__nome {
+  display: none;
+}
+
+/* Il numero sulla linguetta: quante cose aspettano, viste anche da un'altra
+   scheda. È metà del motivo per cui la striscia sta accesa. */
+.linguetta__conto {
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  color: var(--testo-quieto);
+}
+
+.linguetta__conto--urgente {
+  background: var(--attenzione);
+  color: var(--sfondo);
+}
+
+/* -------------------------------------------------------------- il corpo */
+
+#corpo {
+  flex: 1;
+  /* Senza, l'elenco non si stringe sotto la propria altezza naturale e spinge
+     il piè di pagina fuori dalla striscia: è la regola d'ingombro minimo dei
+     riquadri flessibili, e qui si vede come un piede che semplicemente non
+     c'è. */
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--bordo);
+  padding: var(--spazio-2) var(--spazio-2) var(--spazio-4) var(--spazio-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.sezione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.sezione__testata {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-1);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--bordo-tenue);
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.8em;
+}
+
+.sezione__testata > :first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------- il mese */
+
+.mese {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mese__barra {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.mese__nome {
+  flex: 1;
+  text-align: center;
+  color: var(--testo-quieto);
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mese__riga {
+  display: flex;
+  gap: 1px;
+}
+
+.mese__colonna {
+  flex: 1;
+  text-align: center;
+  color: var(--testo-quieto);
+  font-size: 0.7em;
+  min-width: 0;
+}
+
+/* Una casella: il numero sopra, il pallino sotto. Alta quanto basta a essere
+   premuta senza mirare, e non di più — sopra la settimana ci sono sei righe
+   di queste, e ogni pixel qui è un pixel tolto alle ore. */
+.cella {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 2px 0 3px;
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--testo);
+}
+
+/* Le code degli altri due mesi: ci sono perché la griglia sia un rettangolo,
+   ma non sono il mese che si sta guardando. */
+.cella--altrui { color: var(--testo-quieto); opacity: 0.6; }
+.cella--fuori { opacity: 0.3; cursor: default; }
+.cella--fuori:hover { background: transparent; }
+.cella--chiuso { font-style: italic; }
+.cella--settimana { background: var(--sfondo-alto-2); }
+.cella--oggi { border-color: var(--accento); color: var(--accento); font-weight: 600; }
+
+/* Il pallino dice due cose sole: qui c'è lezione, e qui è rimasto un buco.
+   Il posto c'è comunque, o le righe ballerebbero di due pixel. */
+.cella__punto {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.cella__punto--ore { background: var(--testo-quieto); }
+.cella__punto--manca { background: var(--attenzione); }
+
+/* ------------------------------------------------------ i giorni e le ore */
+
+.giorno--oggi .sezione__testata {
+  color: var(--accento);
+  border-bottom-color: var(--accento);
+}
+
+.giorno__chiuso {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.vuoto {
+  color: var(--testo-quieto);
+  padding: var(--spazio-1) 0;
+  font-style: italic;
+}
+
+/* Il vuoto che si può riempire: nessun registro aperto, e il modo di aprirne
+   uno. Sta al centro perché è l'unica cosa da fare in quel momento. */
+.invito {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3) 0;
+  color: var(--testo-quieto);
+}
+
+.invito button, .bottone {
+  border-color: var(--bordo);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+  padding: 4px 10px;
+}
+
+.avviso {
+  color: var(--attenzione);
+}
+
+.ora {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-left: 3px solid var(--bordo);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+  padding: var(--spazio-1) var(--spazio-2);
+  color: var(--testo);
+}
+
+.ora__orario {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+}
+
+.ora__classe {
+  font-weight: 600;
+}
+
+.ora__riga {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: baseline;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Le fasi, con i colori del registro: quel che è in corso si vede da
+   lontano, quel che è rimasto aperto pure. Il resto sta zitto. */
+.ora--in-corso { border-left-color: var(--accento); background: color-mix(in srgb, var(--accento) 12%, transparent); }
+.ora--da-chiudere { border-left-color: var(--attenzione); }
+.ora--svolta { border-left-color: var(--positivo); }
+.ora--annullata { border-left-color: var(--bordo); opacity: 0.55; text-decoration: line-through; }
+.ora--da-preparare { border-left-color: var(--testo-quieto); }
+
+/* ------------------------------------------------------ le pendenze
+ *
+ * La stessa grammatica della pagina «Pendenze» del registro: un filo a
+ * sinistra che si accende solo per il ritardo, il nome, e il numero in fondo
+ * in cifre a larghezza fissa. Sono la stessa cosa guardata da due finestre —
+ * quella grande e questa striscia — e due disegni diversi le facevano
+ * sembrare due conti diversi.
+ *
+ * Il filo è trasparente quando non c'è ritardo, non assente: così le righe
+ * restano incolonnate fra loro invece di scalare di tre pixel quando una si
+ * accende.
+ *
+ * Rosso e non arancione: qui l'arancione è già la fase di un'ora rimasta
+ * aperta, e lo stesso colore per due cose diverse nella stessa striscia non
+ * si può leggere. */
+
+.pendenza {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  padding: 2px var(--spazio-1);
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+  color: var(--testo);
+}
+
+.pendenza--preme { border-left-color: var(--negativo); }
+
+.pendenza__nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pendenza__conto {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--testo-quieto);
+}
+
+.pendenza__conto--urgente { color: var(--negativo); }
+
+/* Il conto di una classe si incolonna con quelli delle sue righe. */
+.sezione__totale {
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.classe__nome {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 1.1em;
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------- la lezione */
+
+.ora__fase {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+.conti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-2);
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+.conti strong {
+  color: var(--testo);
+  font-variant-numeric: tabular-nums;
+}
+
+.gesti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+}
+
+.gesti button {
+  border-color: var(--bordo);
+}
+
+/* Una riga d'appello: il nome a sinistra, il segno a destra. Il segno sta a
+   destra perché è quel che si scorre con l'occhio quando si controlla di non
+   aver saltato nessuno. */
+.appello {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 3px var(--spazio-1);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--bordo);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+  color: var(--testo);
+}
+
+.appello__nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appello__segno {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+}
+
+.appello--presente { border-left-color: var(--positivo); }
+.appello--assente { border-left-color: var(--attenzione); }
+.appello--ritardo { border-left-color: var(--accento); }
+.appello--esonerato { border-left-color: var(--bordo); opacity: 0.7; }
+.appello--non-impostato { border-left-color: var(--bordo-tenue); }
+.appello--mista .appello__segno { font-style: italic; }
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 3.2em;
+  resize: vertical;
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  padding: var(--spazio-1);
+  font: inherit;
+  user-select: text;
+}
+
+textarea:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+/* --------------------------------------------------------------- il piede */
+
+footer {
+  border-top: 1px solid var(--bordo);
+  /* Sotto resta il posto della maniglia: il testo che le finisse sotto non si
+     potrebbe più selezionare né leggere sul bordo dello schermo. */
+  padding: 2px var(--spazio-2) 8px var(--spazio-3);
+  color: var(--testo-quieto);
+  font-size: 0.8em;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}

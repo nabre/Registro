@@ -1,0 +1,254 @@
+/*
+ * Il foglio comune delle pagine native: dialoghi, impostazioni, benvenuto e
+ * agenda. Ogni pagina ha il suo foglio (`dialog/dialog.css`, …) che comincia
+ * importando questo.
+ *
+ * Sono le pagine che il registro non disegna — `showInputBox`,
+ * `showQuickPick`, il modulo delle impostazioni — e prima avevano ognuna la
+ * propria tavolozza scritta a mano sui colori di sistema (`Canvas`,
+ * `CanvasText`, `Highlight`). Funzionava, ma erano tre aspetti diversi nella
+ * stessa applicazione: il registro, il dialogo che ne esce, e le impostazioni.
+ * Un campo di testo era grigio in una finestra e bianco nell'altra, e i bordi
+ * non avevano lo stesso raggio.
+ *
+ * Adesso i colori sono gli stessi del registro: `theme.css`, importato qui
+ * sotto, è lo stesso file che il pannello carica. Chi cambia `--accento` lo
+ * cambia in cinque finestre.
+ *
+ * E le stesse misure: `metrics.css`, accanto a lui. Prima qui c'era una copia
+ * per valore di `--spazio-1..6` e `--raggio`, perché quei token stavano dentro
+ * `foundations.css` insieme al telaio del pannello, che queste pagine non
+ * possono importare — e una copia per valore è un secondo posto da cambiare
+ * che nessuno cambia: mancavano già `--raggio-piccolo` e `--raggio-grande`, e
+ * un `var(--raggio-piccolo)` scritto qui sarebbe caduto in silenzio. Adesso le
+ * misure sono un file di sole dichiarazioni, e lo leggono tutti e due.
+ *
+ * `esbuild.mjs` scioglie gli `@import` dentro il foglio di ogni pagina
+ * (`dist/dialog.css`, …): il pannello è un bundle diverso, e i due non si
+ * vedono. È il motivo per cui `theme.css` e `metrics.css` devono essere senza
+ * regole — altrimenti le regole del pannello finirebbero nelle pagine native.
+ */
+
+@import '../../../src/ui/styles/theme.css';
+@import '../../../src/ui/styles/metrics.css';
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--carattere);
+  font-size: var(--corpo);
+  line-height: var(--interlinea);
+  color: var(--testo);
+  background: var(--sfondo);
+  /* Una finestra di sistema non si seleziona con il trascinamento: quel che si
+     può selezionare è nominato in fondo al foglio, uno per uno. */
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------------------- titoli */
+
+h1 {
+  margin: 0;
+  font-size: 1.18em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  margin: 0;
+  font-size: 0.86em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+}
+
+.quieto {
+  color: var(--testo-quieto);
+}
+
+.guasto {
+  color: var(--negativo);
+}
+
+/* ------------------------------------------------------------------- i campi
+ *
+ * Un solo aspetto per tutto ciò in cui si scrive o si sceglie. `--campo-sfondo`
+ * fa il suo mestiere in tutti e due i temi: nel chiaro il campo è bianco sopra
+ * una pagina grigina, nello scuro è un incavo sotto di lei.
+ */
+
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='number'],
+select {
+  width: 100%;
+  padding: 6px 9px;
+  font: inherit;
+  color: var(--testo);
+  background: var(--campo-sfondo);
+  /* `--bordo-forte` come nel pannello: nel tema chiaro il fondo di un campo sta
+     a 1,03:1 dalla pagina, e quel che dice dov'è il campo è solo il contorno. */
+  border: 1px solid var(--bordo-forte);
+  border-radius: var(--raggio);
+  user-select: text;
+}
+
+select {
+  /* La freccia la disegna il sistema, e `color-scheme` sulla radice le fa
+     prendere il tema giusto: non c'è niente da ridisegnare a mano. */
+  cursor: pointer;
+}
+
+input[type='checkbox'] {
+  /* In `rem`: una casella di spunta accanto a un testo grande e rimasta piccola
+     è più difficile da centrare col dito, ed è la stessa persona ad averlo
+     ingrandito. */
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accento);
+  cursor: pointer;
+}
+
+/*
+ * Il fuoco si vede sempre, e si vede uguale dappertutto. Due pixel e uno stacco
+ * dal bordo: dentro il bordo il filo si confonderebbe con lui, e su una casella
+ * di spunta sparirebbe del tutto.
+ */
+:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+/* --------------------------------------------------------------- i pulsanti */
+
+button {
+  min-width: 5.75rem;
+  padding: 6px 14px;
+  font: inherit;
+  color: var(--testo);
+  background: var(--sfondo-alto-2);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--testo) 12%, var(--sfondo-alto-2));
+}
+
+button[data-ruolo='conferma'] {
+  color: var(--su-tinta);
+  background: var(--accento);
+  border-color: transparent;
+  font-weight: 500;
+}
+
+button[data-ruolo='conferma']:hover:not(:disabled) {
+  background: var(--accento-caldo);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Un pulsante piccolo e tondo, per le azioni di contorno: «ritira il valore». */
+button.minuto {
+  min-width: 0;
+  padding: 1px 9px;
+  font-size: 0.86em;
+  background: transparent;
+  border-radius: var(--raggio-pastiglia);
+}
+
+/* ------------------------------------------------------ elenchi da scegliere
+ *
+ * Le regole della riga stanno annidate dentro `.voci` apposta: «voce» è una
+ * parola che il progetto usa in due sensi — la riga di un elenco da cui si
+ * sceglie, e la riga di un'impostazione — e le impostazioni hanno le proprie
+ * misure. Annidate, le due non si incontrano.
+ */
+
+.voci {
+  margin: 0;
+  padding: var(--spazio-1);
+  overflow-y: auto;
+  list-style: none;
+  background: var(--campo-sfondo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+}
+
+.voci .voce {
+  padding: var(--dentro-cella);
+  border-radius: calc(var(--raggio) - 2px);
+  cursor: default;
+}
+
+/*
+ * La riga scelta è piena, non velata: in un elenco che si scorre con le frecce
+ * — ed è così che si sceglie qui — deve saltare all'occhio da qualunque punto
+ * si stia guardando.
+ */
+.voci .voce[aria-selected='true'] {
+  background: var(--accento);
+  color: var(--su-tinta);
+}
+
+.voci .voce[aria-selected='true'] .voce__sotto {
+  color: color-mix(in srgb, var(--su-tinta) 78%, transparent);
+}
+
+.voce__etichetta {
+  display: block;
+}
+
+.voce__sotto {
+  display: block;
+  color: var(--testo-quieto);
+  font-size: 0.92em;
+}
+
+.vuoto {
+  padding: var(--spazio-3);
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------------- il monospazio */
+
+.chiave {
+  font-family: var(--carattere-mono);
+  font-size: 0.86em;
+  color: var(--testo-quieto);
+}
+
+/*
+ * Quel che si può prendere con il mouse.
+ *
+ * `body` vieta la selezione perché una finestra di sistema trascinata non deve
+ * evidenziare mezza interfaccia. Ma un percorso di file e il testo di un
+ * guasto si copiano: sono le due cose che chi chiede aiuto deve poter
+ * incollare in un messaggio.
+ *
+ * I nomi qui sotto sono quelli che il markup porta davvero — `voce__chiave` la
+ * chiave di un'impostazione, `voce__sotto` il percorso di un anno recente,
+ * `voce__etichetta` il suo nome, `errore` il testo di un guasto. Prima erano
+ * `.testo-scelto`, `.chiave` e `.guasto`, che **nessun elemento porta**: la
+ * correzione era arrivata al foglio di stile e non al markup, e il divieto
+ * valeva quindi dappertutto lo stesso. Proprio le quattro cose che il commento
+ * qui sopra cita come caso d'uso non si potevano copiare.
+ */
+.voce__chiave,
+.voce__sotto,
+.voce__etichetta,
+.errore {
+  user-select: text;
+  cursor: text;
+}

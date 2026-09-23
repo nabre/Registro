@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  La pagina di benvenuto: quel che si vede quando non c'è nessun anno aperto.
+
+  Prima qui c'era `dialog.showMessageBox` — tre pulsanti di sistema, «Apri…»,
+  «Crea un nuovo anno…», «Esci» — e bastava finché gli anni erano uno. Con due
+  o tre documenti quel dialogo diceva la cosa sbagliata: chiedeva *come*
+  cominciare quando la domanda vera era *quale* anno riaprire, e la risposta
+  stava dietro un dialogo di file da sfogliare ogni volta. Qui l'elenco è la
+  pagina: i preferiti in cima, i recenti sotto, e si riapre un anno con un clic
+  invece che con sei.
+
+  Il telaio sta qui; l'elenco lo riempie `welcome.ts`, l'aspetto è in
+  `welcome.css`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Registro docenti</title>
+<link rel="stylesheet" href="registro://app/dist/welcome.css">
+</head>
+<body>
+<header class="testata">
+  <h1>Registro docenti</h1>
+  <p class="invito" id="invito"></p>
+</header>
+
+<div class="scelte">
+  <button type="button" id="apri" data-ruolo="conferma">
+    <span class="titolo">Apri un anno…</span>
+    <span class="sotto">un documento «.registro» che hai già</span>
+  </button>
+  <button type="button" id="crea">
+    <span class="titolo">Crea un nuovo anno…</span>
+    <span class="sotto">date, semestri e vacanze, in un file nuovo</span>
+  </button>
+</div>
+
+<section class="recenti">
+  <h2>Recenti e preferiti</h2>
+  <ul class="voci" id="elenco"></ul>
+</section>
+
+<footer class="piede">
+  <span class="quieto versione" id="versione"></span>
+  <button type="button" id="esci">Esci</button>
+</footer>
+
+<script src="registro://app/dist/welcome.js"></script>
+</body>
+</html>

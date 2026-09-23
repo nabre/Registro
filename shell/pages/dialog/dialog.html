@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Chiedere una cosa e farne scegliere una: `showInputBox` e `showQuickPick`.
+  Questa pagina è tutte e due — il tipo arriva nella query, insieme ai parametri
+  già ripuliti dal main process (`environment/dialogs.ts`).
+
+  Il markup è vuoto apposta: i due moduli sono diversi abbastanza da non
+  condividere niente oltre al titolo, e li costruisce `dialog.ts`. L'aspetto sta
+  in `dialog.css`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Registro</title>
+<link rel="stylesheet" href="registro://app/dist/dialog.css">
+</head>
+<body>
+<main id="radice"></main>
+<script src="registro://app/dist/dialog.js"></script>
+</body>
+</html>

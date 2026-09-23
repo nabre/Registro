@@ -1,0 +1,150 @@
+/*
+ * Le misure: quanto è grande, quanto è fitto, quanto dura, chi sta sopra.
+ *
+ * Sta a `foundations.css` come `theme.css` sta a tutto il resto — dichiarazioni e
+ * nessuna regola — e nasce da due bisogni che si sono incontrati.
+ *
+ * Il primo: `shell/pages/shared/base.css` ricopiava per valore `--spazio-1..6` e `--raggio`,
+ * perché quei token stavano dentro `foundations.css`, che è pieno di regole — il
+ * telaio, il corpo della pagina, le testate — e che le finestre native non
+ * possono importare. Due elenchi di numeri da tenere uguali a mano, e infatti
+ * non lo erano più: nel guscio mancavano `--raggio-piccolo` e `--raggio-grande`.
+ *
+ * Il secondo: fuori da questi numeri il registro non aveva una grammatica. La
+ * tavolozza sì, ed è buona; ma la dimensione del testo era dichiarata una volta
+ * sola (`--corpo`) e poi scritta a mano in trentacinque valori diversi, il
+ * riempimento dei comandi in centocinquanta posti, `border-radius: 999px` in
+ * diciannove, e i piani della finestra a numeri sparsi che si scoprivano
+ * sbagliati solo quando due cose si coprivano.
+ *
+ * Quel che c'è qui non cambia un pixel: ogni token vale esattamente quel che i
+ * fogli scrivevano già, ed è stato adottato solo dove il numero coincide. Dove
+ * un foglio usa una misura sua — perché quella pagina è davvero diversa — la
+ * misura è rimasta dov'era.
+ */
+
+:root {
+  /* ----------------------------------------------------------- gli spazi */
+
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 24px;
+  --spazio-6: 32px;
+
+  /* ----------------------------------------------------------- i raggi */
+
+  /* Il raggio piccolo: le miniature e i riquadri dentro un riquadro, dove
+     quello normale sembra troppo tondo. Era scritto come `--raggio-1` con un
+     `4px` di riserva e non era definito da nessuna parte: rendeva sempre la
+     riserva, cioè era un valore magico con l'aria di un token. */
+  --raggio-piccolo: 4px;
+  --raggio: 6px;
+  --raggio-grande: 10px;
+
+  /* La pastiglia: mezza altezza da ogni lato, qualunque sia l'altezza. Non è
+     un raggio ma un modo di dire «tonda in fondo», e si scrive con un numero
+     assurdo apposta — 999 è più di qualunque pastiglia sarà mai alta. Stava
+     scritto così in diciannove posti, e in diciannove posti voleva dire la
+     stessa cosa. */
+  --raggio-pastiglia: 999px;
+
+  /* --------------------------------------------------------- la scala del testo
+   *
+   * `--corpo` è in `theme.css` con i caratteri, ed è l'unica misura assoluta:
+   * qui ci sono i gradini sotto di lei, tutti in `em`, così crescono con la
+   * «Dimensione testo» di Windows senza che nessuno li ritocchi.
+   *
+   * Sono sei e non trentacinque. I trentacinque c'erano davvero — 0.85em
+   * quarantotto volte, 0.9em trentuno, 0.82em venti, 0.78em ventidue, e poi la
+   * coda di quelli scritti una volta sola — e sei gradini ne coprono i due
+   * terzi senza spostare un pixel. Il resto è rimasto com'era: dove una pagina
+   * chiede 0.94em perché quella tabella sta larga così, un token che dice
+   * 0.92em non è un miglioramento, è una bugia.
+   */
+  --corpo-minuto: 0.72em;
+  --corpo-minore: 0.78em;
+  --corpo-nota: 0.82em;
+  --corpo-piccolo: 0.85em;
+  --corpo-vicino: 0.9em;
+  --corpo-titolo: 1.05em;
+
+  /* ------------------------------------------------- il riempimento dei comandi
+   *
+   * Quanto spazio c'è fra il bordo di un pulsante e quel che ci sta scritto
+   * dentro: è la misura che decide l'aria di tutta l'applicazione, ed è l'unica
+   * che la scala degli spazi non può dire — comincia a 4px e salta a 8, e i
+   * comandi vivono fra i tre e i dieci.
+   *
+   * In forma breve, `sopra-sotto destra-sinistra`, perché è così che si scrive
+   * un `padding` e perché i due numeri di un comando vanno insieme: cambiarne
+   * uno solo lo fa diventare un altro comando.
+   */
+  --dentro-comando: 5px 10px;
+  --dentro-campo: 5px 8px;
+  --dentro-cella: 6px 10px;
+  /* Un comando senza parole: l'icona e basta, e intorno quel che serve perché
+     resti premibile. Quattro per lato su un'icona da sedici fanno i ventiquattro
+     pixel di WCAG 2.5.8. */
+  --dentro-nudo: 4px;
+
+  /* --------------------------------------------------------- quanto dura
+   *
+   * Due durate e tre curve, che sono quelle che il registro usava già: 120ms
+   * per quel che cambia sotto il dito — un'opacità, uno scavo — e 160ms per
+   * quel che entra ed esce dalla finestra. Più lungo si nota, e quel che si
+   * nota in un registro è il ritardo.
+   *
+   * Ogni animazione ha la sua guardia `prefers-reduced-motion`: i token dicono
+   * quanto dura, non se deve esserci.
+   */
+  --durata-svelta: 120ms;
+  --durata: 160ms;
+  --curva: ease;
+  --curva-entra: ease-out;
+  --curva-esce: ease-in;
+
+  /* ------------------------------------------------------------- i piani
+   *
+   * Chi sta sopra a chi. Erano numeri sparsi, e due di loro erano lo stesso
+   * numero: `.menu` e `.pila-notifiche` stavano tutti e due a 60, cioè chi
+   * vinceva lo decideva l'ordine nel DOM — e l'ordine nel DOM dipendeva da
+   * quando era comparsa la prima notifica, perché la pila si crea alla prima.
+   * Apri un menu contestuale, arriva un avviso, e l'avviso ci finisce sopra:
+   * non lo copre soltanto, gli ruba anche i clic.
+   *
+   * Qui il menu sta sopra, dichiarato: è la cosa che si sta usando in questo
+   * istante, l'avviso è una notizia che può aspettare tre secondi. Il filo di
+   * lavoro sta sopra a tutto perché sono due pixel in cima alla finestra e non
+   * copre niente.
+   *
+   * I numeri da 1 a 6 non sono qui: sono piani *locali* — l'intestazione che
+   * resta in vista dentro la sua tabella, la colonna dei nomi dentro la sua
+   * griglia — e valgono solo fra fratelli. Tranne i due che si ripetono in ogni
+   * tabella del registro, che stanno qui sotto.
+   */
+  --piano-incollato: 1;
+  --piano-incollato-2: 2;
+  --piano-modale: 40;
+  --piano-palette: 50;
+  --piano-notifiche: 60;
+  --piano-menu: 70;
+  --piano-filo: 90;
+
+  /* --------------------------------------------------- quel che non è pagina
+   *
+   * Sopra la pagina c'è la barra dei comandi, sotto la barra di stato, e
+   * attorno il margine: una colonna che vuole essere alta quanto la finestra
+   * deve toglierselo. Quattro scatole lo facevano, e ognuna con un numero suo —
+   * `100vh - 160px`, `- 260px`, `- 9rem` in tre punti — stimato a occhio per la
+   * propria pagina. Finché i numeri restano fermi si somigliano; il giorno in
+   * cui la barra dei comandi cresce di un pixel vanno fuori sincrono in quattro
+   * modi diversi, e nessuno se ne accorge guardando un foglio solo.
+   *
+   * Una misura sola, qui. Chi ha bisogno di togliere anche dell'altro — una
+   * testata, una riga di filtri — parte da questa e aggiunge la sua parte, così
+   * la differenza resta scritta accanto a chi la fa.
+   */
+  --fuori-pagina: 9rem;
+}

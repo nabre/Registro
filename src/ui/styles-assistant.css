@@ -1,0 +1,24 @@
+/*
+ * Il foglio della finestra staccata: cinque `@import` e nient'altro.
+ *
+ * Non è `styles.css` ridotto: è l'elenco di quel che una conversazione usa
+ * davvero — i colori, le fondamenta, i controlli, i contenitori e il foglio
+ * dell'assistente. Il resto (il calendario, la mappa, i documenti, la barra dei
+ * comandi) parla di pagine che in questa finestra non ci sono, e portarselo
+ * dietro vorrebbe dire spedire il vestito di tutto il registro a una finestra
+ * che mostra un filo di turni.
+ *
+ * È la stessa scelta di `styles/projection.css`, e il motivo è quello: la
+ * finestra staccata non è il registro rimpicciolito, è un'altra cosa.
+ *
+ * `theme.css` e `metrics.css` stanno per primi e da soli: non contengono una
+ * regola, contengono i colori, i caratteri e le misure da cui tutte le altre
+ * attingono.
+ */
+
+@import './styles/theme.css';
+@import './styles/metrics.css';
+@import './styles/foundations.css';
+@import './styles/controls.css';
+@import './styles/containers.css';
+@import './styles/assistant.css';

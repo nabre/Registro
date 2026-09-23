@@ -1,0 +1,129 @@
+/* ------------------------------------------------------------------ menu contestuale */
+
+/*
+ * Il menu del tasto destro. Vive attaccato alla finestra, non al contenuto: si
+ * posiziona dove sta il puntatore e non scorre con quello che c'è sotto — tanto
+ * al primo scorrimento se ne va.
+ */
+
+.menu {
+  position: fixed;
+  z-index: var(--piano-menu);
+  min-width: 13.75rem;
+  padding: var(--spazio-1);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-2);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menu__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-1) var(--spazio-2);
+  border: none;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Sfiorata e scelta con la tastiera si tingono uguale — ed è giusto, è lo
+   stesso «questa qui» — ma il velo da solo non basta a chi arriva con Tab
+   mentre il puntatore è fermo su un'altra riga: il filo di fuoco resta. */
+.menu__voce:hover:not(:disabled),
+.menu__voce:focus-visible {
+  background: color-mix(in srgb, var(--accento) 22%, transparent);
+  color: var(--testo);
+}
+
+.menu__voce:disabled { opacity: 0.45; cursor: default; }
+
+.menu__voce--pericolo { color: var(--negativo); }
+.menu__voce--pericolo:hover:not(:disabled),
+.menu__voce--pericolo:focus-visible {
+  background: color-mix(in srgb, var(--negativo) 20%, transparent);
+  color: var(--negativo);
+}
+
+/* L'incolonnamento regge anche dove l'icona manca. */
+.menu__vuoto { width: 16px; flex: 0 0 16px; }
+
+/* Il testo prende lo spazio che avanza: la scorciatoia resta incollata a destra. */
+.menu__testo { flex: 1; }
+.menu__descrizione {
+  display: block;
+  max-width: 28rem;
+  overflow-wrap: anywhere;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+/*
+ * Il titolo di un gruppo di voci.
+ *
+ * Serve alle due tendine della barra — le pagine, il menu del programma — dove
+ * un elenco di quindici righe senza intestazioni sarebbe un muro: «Il registro»,
+ * «Corso — DIC4a», «Classe — DIC4a» dicono di chi parlano le righe sotto.
+ */
+.menu__titolo {
+  padding: var(--spazio-2) var(--spazio-2) var(--spazio-1);
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+/* La voce di dove si sta adesso: si legge senza cercarla, e non è un errore
+   che sia premibile — riportarcisi è un modo di chiudere il menu. */
+.menu__voce--accesa {
+  font-weight: 600;
+}
+
+.menu__voce--accesa .icona {
+  color: var(--accento);
+}
+
+.menu__voce kbd {
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+}
+
+.menu__linea {
+  height: 1px;
+  margin: var(--spazio-1) 0;
+  background: var(--bordo-tenue);
+}
+
+
+.menu { max-height: calc(100vh - 16px); max-width: calc(100vw - 16px); overflow-y: auto; }
+.menu__voce { flex-shrink: 0; min-height: 32px; }
+
+/*
+ * Una voce dentro quella di sopra.
+ *
+ * Il rientro è largo quanto l'icona più il suo spazio: le spunte delle voci
+ * annidate si incolonnano sotto il testo del gruppo, e si legge a colpo d'occhio
+ * che sono una cosa sola. La linea a sinistra è quel che le tiene insieme
+ * quando sono cinque.
+ */
+.menu__voce--rientrata {
+  /* `width: 100%` più un margine sinistro uscirebbe dal menu: qui la larghezza
+     se la prende quel che resta. */
+  width: auto;
+  margin-left: calc(var(--spazio-2) + 16px);
+  border-left: 1px solid var(--bordo-tenue);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+}
+
+/* C'è, si preme, ma adesso non ha niente da dire: non tira l'occhio. */
+.menu__voce--smorzata { opacity: 0.55; }
+.menu__voce--smorzata:hover:not(:disabled),
+.menu__voce--smorzata:focus-visible { opacity: 1; }

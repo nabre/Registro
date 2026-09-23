@@ -1,0 +1,149 @@
+# Una versione nuova in `package.json` diventa un tag e una release, da sé.
+#
+# La versione si scrive in un posto solo — `package.json`, vedi la testa di
+# `electron-builder.json` — e questo file è quel che la trasforma in qualcosa
+# che un registro installato possa scaricare: il tag `v<versione>`, la release
+# con l'installer, il portabile e `latest.yml`, che è il file che
+# electron-updater legge per sapere se c'è di meglio di quel che ha.
+#
+# «La versione è cambiata» si decide guardando i tag e non il diff: se il tag
+# `v<versione>` non esiste ancora, la versione è nuova. Così un push che tocca
+# `package.json` per aggiungere una dipendenza non rilascia niente, un
+# rilascio caduto a metà si rilancia a mano con lo stesso esito, e il primo
+# giro dopo questo file rilascia la versione corrente, che un tag non l'ha mai
+# avuto.
+#
+# L'ordine dei lavori è il punto:
+#
+#   versione → verifica → pacchetti → pubblica
+#
+# La release nasce bozza e diventa pubblica solo alla fine. Una release
+# visibile prima che i pacchetti ci siano tutti è una release che un registro
+# installato può trovare senza trovarci l'installer. E il tag lo crea la
+# pubblicazione, non il primo passo: un rilascio che cade non lascia dietro di
+# sé un tag che direbbe «questa versione è uscita».
+
+name: rilascio
+
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+  # Per rilanciare un rilascio caduto senza dover toccare `package.json`.
+  workflow_dispatch:
+
+# Due push ravvicinati sulla stessa versione non devono fare due release: il
+# secondo aspetta il primo, e poi trova il tag e si ferma.
+concurrency:
+  group: rilascio
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  versione:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.leggi.outputs.tag }}
+      nuova: ${{ steps.leggi.outputs.nuova }}
+      anteprima: ${{ steps.leggi.outputs.anteprima }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: leggi
+        run: |
+          versione=$(node -p "require('./package.json').version")
+          tag="v$versione"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          # `1.2.0-beta.1` è un'anteprima: la release la dichiara tale, ed
+          # electron-updater la offre solo a chi ha chiesto le anteprime.
+          if [[ "$versione" == *-* ]]; then
+            echo "anteprima=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "anteprima=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "nuova=false" >> "$GITHUB_OUTPUT"
+            echo "Il tag $tag esiste già: niente da rilasciare."
+          else
+            echo "nuova=true" >> "$GITHUB_OUTPUT"
+            echo "Versione nuova: $tag."
+          fi
+
+  verifica:
+    needs: versione
+    if: needs.versione.outputs.nuova == 'true'
+    uses: ./.github/workflows/verifica.yml
+
+  pacchetti:
+    needs: [versione, verifica]
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.versione.outputs.tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # Una bozza con lo stesso tag può essere rimasta da un giro caduto:
+      # si butta e si rifà, invece di caricarci sopra pacchetti di un altro
+      # commit. Una release **pubblicata** qui non ci arriva: avrebbe il tag,
+      # e `versione` si sarebbe fermato.
+      - name: Bozza della release
+        shell: bash
+        run: |
+          if gh release view "$TAG" --json isDraft --jq .isDraft 2> /dev/null | grep -q true; then
+            gh release delete "$TAG" --yes
+          fi
+
+          anteprima=()
+          if [ "${{ needs.versione.outputs.anteprima }}" = "true" ]; then
+            anteprima=(--prerelease)
+          fi
+
+          gh release create "$TAG" \
+            --draft \
+            --target "$GITHUB_SHA" \
+            --title "Registro docenti ${TAG#v}" \
+            --generate-notes \
+            "${anteprima[@]}"
+
+      # È `npm run package` spezzato in due: electron-builder qui pubblica,
+      # e lo fa dentro la bozza appena creata, che ritrova dal tag. Carica
+      # l'installer, il portabile, le `.blockmap` per gli aggiornamenti
+      # differenziali e `latest.yml`.
+      - name: Costruzione
+        run: node esbuild.mjs --produzione
+
+      - name: Impacchettamento e caricamento
+        run: npx electron-builder --config electron-builder.json --win --publish always
+
+  pubblica:
+    needs: [versione, pacchetti]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.versione.outputs.tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      # Qui nasce il tag, sul commit indicato alla creazione della bozza.
+      # `--latest` solo per le versioni vere: un'anteprima non deve diventare
+      # quel che GitHub mostra come ultima release.
+      - run: |
+          if [ "${{ needs.versione.outputs.anteprima }}" = "true" ]; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          else
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          fi

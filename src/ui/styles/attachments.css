@@ -1,0 +1,75 @@
+/* I file appesi a una valutazione. */
+
+/* ------------------------------------------------------------------ allegati */
+
+.allegati { display: flex; flex-direction: column; gap: 2px; }
+
+.allegati__testata-prove {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: var(--spazio-3) 0 var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+  padding-bottom: var(--spazio-1);
+}
+
+.allegati__testata-prove h4 { margin: 0; font-size: 0.92em; }
+
+.allegato {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.allegato:hover { background: var(--velo-sfiorato); }
+
+.allegato__ruolo {
+  min-width: 9em;
+  font-size: 0.9em;
+  color: var(--testo-quieto);
+}
+
+.allegato__file {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--accento);
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.allegato__file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.allegato__file:hover { text-decoration: underline; }
+
+.allegato__mancante {
+  flex: 1;
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  font-style: italic;
+}
+
+/* I comandi restano leggeri finché non si passa sopra la riga: una lista di
+   trenta allievi con sessanta pulsanti accesi non si guarda. */
+.allegato__azioni { display: flex; gap: var(--spazio-1); opacity: 0.45; }
+.allegato:hover .allegato__azioni,
+.allegato:focus-within .allegato__azioni { opacity: 1; }
+.allegato--vuoto .allegato__ruolo { color: var(--testo); }
+
+.elenco-collegamenti__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  justify-content: space-between;
+}

@@ -1,0 +1,502 @@
+/* I documenti di un corso: che cosa se ne può stampare, e che cosa c'è già. */
+
+/* I riquadri della pagina, uno sotto l'altro o in griglia: di che corso sono
+   lo dice la testata, e non serve nessuna cornice a ripeterlo. */
+.documenti {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+/*
+ * Le schede si dispongono da sole: tre colonne su una finestra larga, una su
+ * un portatile piccolo.
+ *
+ * Prima le coppie erano dichiarate a mano — verbali con prove, piani con
+ * fascicolo — e bastava una scheda vuota per lasciare mezza riga di bianco
+ * accanto a una piena. `masonry` non c'è ancora dove serve, e `align-items:
+ * start` è quel che le tiene alte quanto il loro contenuto invece di stirarle
+ * tutte come la più lunga della riga.
+ */
+.documenti__griglia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+  gap: var(--spazio-3);
+  align-items: start;
+}
+
+.documenti__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Un elenco lungo non allunga la pagina all'infinito: scorre dentro la sua
+     scheda, e le colonne accanto restano affiancate. */
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+/* Le file corte — i cinque documenti del corso, il fascicolo, l'ora — non
+   scorrono: si vedono tutte, e una barra di scorrimento su cinque righe fa
+   sembrare che ci sia altro sotto. */
+.documenti__elenco--corto {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/*
+ * L'elenco degli allievi sta da solo nella sua scheda, e usa la larghezza: due
+ * colonne di nomi su una finestra larga, una sola quando non ci stanno.
+ *
+ * Venticinque righe alte come le altre facevano una pagina da scorrere tutta
+ * per arrivare all'ultimo cognome, con metà schermo vuoto a destra.
+ */
+.documenti__elenco--lungo {
+  max-height: none;
+  overflow-y: visible;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+  column-gap: var(--spazio-4);
+}
+
+/*
+ * Una riga per documento, alta quanto il suo nome.
+ *
+ * Venticinque righe sono una colonna che si scorre con l'occhio, non una
+ * pagina da leggere: quel che deve arrivare è il nome e se il foglio c'è. Il
+ * resto — la misura, il giorno, i gesti — sta stretto sulla destra, alla misura
+ * minuta, e si legge quando lo si cerca.
+ */
+.documenti__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: 1px 0;
+  border-bottom: 1px solid var(--bordo-tenue, rgba(128, 128, 128, 0.2));
+}
+
+/*
+ * Se il foglio c'è: un punto, non una parola.
+ *
+ * Pieno vuol dire «nella cartella», vuoto «da fare», e in una colonna si
+ * contano senza leggerli. La misura e il giorno stanno nel titolo, che è dove
+ * si vanno a cercare — una volta, per il foglio di cui si dubita, e non
+ * venticinque volte di fila.
+ */
+.documenti__punto {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.documenti__punto--pronto {
+  background: var(--positivo);
+}
+
+.documenti__punto--manca {
+  border: 1.5px solid var(--testo-quieto);
+  opacity: 0.55;
+}
+
+/*
+ * La casella con cui un documento entra nel fascicolo.
+ *
+ * Prima del nome, come in ogni elenco di file: è lì che la mano la cerca. Dove
+ * non c'è niente da scegliere — un foglio ancora da fare, un CSV — resta il suo
+ * posto vuoto, perché le caselle restino incolonnate.
+ */
+.documenti__spunta {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--accento);
+  cursor: pointer;
+}
+
+.documenti__spunta--vuota {
+  cursor: default;
+}
+
+/*
+ * Il gesto che si preme una volta l'anno: si vede quando la riga è sotto il
+ * puntatore o ha il fuoco.
+ *
+ * Venticinque cestini accesi in colonna sono venticinque inviti a sbagliare, e
+ * intanto rubano l'occhio ai due gesti che si fanno davvero. Spento è anche
+ * fuori dai clic, così non lo si preme per sbaglio prima di averlo visto; al
+ * fuoco della tastiera ricompare, e resta raggiungibile con il tabulatore.
+ */
+.documenti__gesto-raro {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.documenti__riga:hover .documenti__gesto-raro,
+.documenti__riga:focus-within .documenti__gesto-raro,
+.documenti__riga--aperta .documenti__gesto-raro,
+.documenti__cella:hover .documenti__gesto-raro,
+.documenti__cella:focus-within .documenti__gesto-raro,
+.documenti__cella--aperta .documenti__gesto-raro {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/*
+ * Dove il puntatore non c'è, il gesto raro non può restare nascosto.
+ *
+ * Su uno schermo che si tocca non esiste un «sotto il puntatore»: il cestino
+ * resterebbe trasparente e fuori dai clic per sempre, e il dito che lo preme
+ * cadrebbe sulla riga — che apre il documento. Cioè il gesto non funziona, e
+ * sembra che non funzioni il programma. Qui si vede sempre, appena smorzato:
+ * la conferma che segue è già la rete contro il tocco per sbaglio.
+ */
+@media (hover: none) {
+  .documenti__gesto-raro {
+    opacity: 0.6;
+    pointer-events: auto;
+  }
+}
+
+.documenti__riga:last-child {
+  border-bottom: none;
+}
+
+/* In due colonne l'ultima riga di sinistra non è l'ultima dell'elenco: il
+   bordo lo si toglie per riga, non per posizione. */
+.documenti__elenco--lungo > .documenti__riga {
+  border-bottom: 1px solid var(--bordo-tenue, rgba(128, 128, 128, 0.2));
+}
+
+/* Il nome prende lo spazio, i pulsanti restano incolonnati a destra: si scende
+   con l'occhio lungo una fila sola invece di cercarli riga per riga. */
+.documenti__riga > .collegamento,
+.documenti__nome {
+  flex: 1;
+  text-align: left;
+  /* Un cognome lungo non spinge fuori i pulsanti: si accorcia lui. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Un documento che non ha una pagina dove andare — le presenze, il fascicolo —
+   porta il nome scritto e non un collegamento: la riga resta uguale, ma non
+   promette un clic che non c'è. */
+.documenti__nome {
+  font-weight: 500;
+}
+
+/*
+ * La riga di un documento che c'è si apre dovunque la si prema.
+ *
+ * La lente è larga due centimetri e la riga è larga quanto la barra: mirare
+ * l'icona venticinque volte di fila è una fatica che non serve a niente, perché
+ * in quella riga non c'è nient'altro da aprire. I pulsanti restano loro — il
+ * clic sopra un pulsante è del pulsante — e la lente resta il gesto che i
+ * lettori di schermo annunciano.
+ */
+.documenti__riga--apribile,
+.documenti__cella--apribile {
+  cursor: pointer;
+}
+
+.documenti__riga--apribile:hover,
+.documenti__cella--apribile:hover {
+  background: var(--sfondo-alto-2);
+}
+
+/*
+ * La riga del documento aperto: una barra di colore sul fianco.
+ *
+ * Non un fondo pieno, che in un elenco di venticinque righe strette peserebbe
+ * come una selezione di testo: qui la riga non è «scelta» per farci qualcosa
+ * sopra — è quella che si sta guardando nella cornice accanto, e il segno deve
+ * dirlo restando in margine.
+ */
+.documenti__riga--aperta,
+.documenti__cella--aperta {
+  background: color-mix(in srgb, var(--accento) 10%, transparent);
+  box-shadow: inset 2px 0 0 var(--accento);
+}
+
+/*
+ * La riga spuntata: un fondo appena acceso.
+ *
+ * Più tenue di quello della riga aperta, e senza la barra sul fianco: sono due
+ * cose diverse che possono capitare insieme — il foglio che si sta guardando è
+ * spesso anche uno di quelli che si stanno mettendo insieme — e devono restare
+ * distinguibili.
+ */
+.documenti__riga--scelta,
+.documenti__cella--scelta {
+  background: color-mix(in srgb, var(--accento) 6%, transparent);
+}
+
+/* I pulsanti di riga stanno attaccati fra loro e staccati dal testo: sono
+   quattro icone piccole, e senza questo respiro si leggono come una sola. */
+.documenti__riga > .pulsante {
+  flex: 0 0 auto;
+  margin-left: -2px;
+}
+
+/*
+ * La matrice delle lezioni: una riga per data, una colonna per documento.
+ *
+ * Le due colonne dei documenti sono larghe uguali e non si stringono: dentro
+ * ognuna stanno una casella, un punto e tre icone, e a colonne diverse i
+ * pulsanti non sarebbero più incolonnati — che è tutto quel che una matrice
+ * compra.
+ */
+.tabella--lezioni td,
+.tabella--lezioni th {
+  vertical-align: middle;
+}
+
+/* Il numero dell'ora: una colonna stretta quanto due cifre, allineata a destra
+   perché le decine si incolonnino con le unità. */
+.documenti__numero {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}
+
+.documenti__quando {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  white-space: nowrap;
+}
+
+.documenti__cella {
+  width: 42%;
+}
+
+.documenti__gesti {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+/*
+ * Le due metà della pagina: la barra dei riquadri e il foglio che si guarda.
+ *
+ * La barra è stretta quanto serve a leggere una riga e premere un pulsante; il
+ * resto va al documento, perché è un A4 e in una colonna non si legge. Scorrono
+ * separate: si scende lungo le ventitré schede della classe senza perdere di
+ * vista la pagina aperta.
+ */
+.documenti__lavoro {
+  display: grid;
+  grid-template-columns: 30rem minmax(0, 1fr);
+  gap: var(--spazio-4);
+  align-items: start;
+  margin-top: var(--spazio-3);
+}
+
+/* Su una finestra stretta le due metà non ci stanno affiancate: prima i
+   riquadri, che sono la ragione della pagina, e sotto il foglio. */
+@media (max-width: 1200px) {
+  .documenti__lavoro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.documenti__barra {
+  position: sticky;
+  top: var(--spazio-2);
+  max-height: calc(100vh - var(--fuori-pagina));
+  overflow-y: auto;
+  /* Un filo d'aria a destra: la barra di scorrimento non deve toccare il
+     bordo dei riquadri. */
+  padding-right: var(--spazio-1);
+}
+
+.documenti__corpo {
+  position: sticky;
+  top: var(--spazio-2);
+  min-width: 0;
+}
+
+/*
+ * Il documento aperto: prende l'area grande della pagina, quella dei riquadri.
+ *
+ * Alto quanto la finestra meno la testata, perché è un foglio A4 e lo si legge
+ * a pagina intera.
+ */
+.documenti__anteprima {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  height: calc(100vh - var(--fuori-pagina));
+  min-height: 30rem;
+}
+
+/* Senza un documento scelto il corpo non è una cornice vuota con il bordo: è
+   una riga che dice come si apre un foglio. */
+.documenti__anteprima--vuota {
+  height: auto;
+  min-height: 0;
+  padding: var(--spazio-3) 0;
+}
+
+.documenti__anteprima-testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.documenti__anteprima-titolo {
+  margin: 0;
+  flex: 1;
+  font-size: 1.05rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* «3 di 12»: sta fra le due frecce e il resto, e non si stringe — è il numero
+   che dice quanto manca alla fine del giro. */
+.documenti__anteprima-conto {
+  flex: 0 0 auto;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Senza un documento aperto la riga e il suo gesto stanno sulla stessa linea:
+   è una frase con un pulsante in fondo, non uno stato vuoto. */
+.documenti__anteprima--vuota {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+/*
+ * Il posto del telaio dentro la pagina, e il telaio che ci si mette sopra.
+ *
+ * Sono due elementi e non uno perché un `<iframe>` tolto dal documento perde
+ * quel che ha caricato: il segnaposto si rifà con la vista — a ogni voto
+ * salvato, a ogni minuto dell'orologio — mentre il telaio sta in fondo alla
+ * pagina, appeso una volta sola, e insegue il segnaposto con una posizione
+ * fissa. Chi legge pagina quattro con lo zoom al 150% ce la ritrova.
+ */
+.cornice-posto {
+  flex: 1;
+  min-height: 0;
+}
+
+.cornice-fissa {
+  position: fixed;
+  /* Sopra la pagina e sotto tutto quel che la copre per mestiere: la riga dei
+     comandi, la palette, le finestre modali. */
+  z-index: 3;
+  border: 1px solid var(--bordo-tenue, rgba(128, 128, 128, 0.25));
+  border-radius: var(--raggio-piccolo);
+  overflow: hidden;
+  background: var(--sfondo, #fff);
+}
+
+.cornice-fissa[hidden] {
+  display: none;
+}
+
+.cornice-fissa__telaio {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/*
+ * Un CSV guardato qui dentro: prende il posto del telaio, con lo stesso bordo.
+ *
+ * Non è un `<iframe>` e non ha bisogno di esserlo — è una tabella disegnata
+ * dalla pagina — quindi sta nella vista come tutto il resto e si rifà con lei.
+ * A scorrere è il contenitore della tabella e non questo riquadro:
+ * l'intestazione appiccicata in cima deve restare ferma mentre le righe
+ * passano, e con due barre di scorrimento una dentro l'altra scivolerebbe via.
+ */
+.documenti__csv {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2);
+  overflow: hidden;
+  border: 1px solid var(--bordo-tenue, rgba(128, 128, 128, 0.25));
+  border-radius: var(--raggio-piccolo);
+  background: var(--sfondo, #fff);
+}
+
+/* La prima riga del file, quella che dice di che cosa è l'esportazione: sopra
+   la tabella e non dentro, o sarebbe una riga con una cella sola e dodici
+   vuote accanto. */
+.documenti__csv-titolo {
+  margin: 0;
+  color: var(--testo-quieto);
+}
+
+/* L'altezza la decide la cornice, non la finestra: qui dentro il contenitore
+   prende quel che resta sotto il titolo. */
+.documenti__csv .tabella-contenitore--griglia {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+/* La prima colonna è quella dei nomi — delle persone, delle date — ed è la
+   chiave con cui si legge ogni riga: resta ferma mentre si scorre verso le
+   colonne di destra, come nella griglia dei voti. */
+.tabella--csv tbody td:first-child,
+.tabella--csv thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: var(--piano-incollato);
+  background: var(--sfondo-alto);
+  white-space: nowrap;
+}
+
+.tabella--csv thead th:first-child {
+  z-index: var(--piano-incollato-2);
+  background: var(--sfondo-alto-2);
+}
+
+
+/*
+ * Il conto di un fascicolo a cui manca qualche pezzo: «23/25».
+ *
+ * Non è un errore — il fascicolo nella cartella è ancora quello di prima, e va
+ * benissimo — ma è quel che bisogna sapere prima di premere «aggiorna», che lo
+ * rifarebbe con due schede in meno.
+ */
+.documenti__manchevole {
+  color: var(--attenzione, var(--testo-quieto));
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * L'elenco dei fogli dentro la modale che compone un fascicolo.
+ *
+ * Numerato, perché il numero è l'informazione: è l'ordine in cui le pagine
+ * finiranno nel PDF. Alto quanto serve e poi si scorre — venticinque schede non
+ * devono spingere il campo del nome fuori dalla finestra.
+ */
+.composizione__ordine {
+  margin: 0;
+  padding-left: var(--spazio-5, 1.5rem);
+  max-height: 11rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--testo-quieto);
+  font-size: 0.95em;
+}

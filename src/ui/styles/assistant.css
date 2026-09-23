@@ -1,0 +1,645 @@
+/* ------------------------------------------------------------- assistente */
+
+/*
+ * Il riquadro a destra, accanto al lavoro.
+ *
+ * È **una colonna della griglia** e non un velo sopra la pagina, ed è la scelta
+ * che conta: chi chiede «quante ore ha perso la 4a» sta guardando la 4a, e una
+ * risposta che le si mette davanti è una risposta che va richiusa per poterla
+ * usare. Aperto il riquadro, il contenuto si stringe; chiuso, riprende il posto
+ * — non resta un pannello nascosto con `hidden`, non c'è proprio.
+ *
+ * Le regole della griglia stanno qui e non in `sidebar.css`, dove `.guscio` è
+ * dichiarato, per una ragione di ordine: là si descrive una finestra con la
+ * navigazione a sinistra, qui la variante con il riquadro a destra. Il foglio
+ * è importato dopo, e a parità di peso vince chi è scritto dopo — la
+ * combinazione `--con-sidebar.--con-assistente` pesa di più di tutte e due e
+ * non dipende dall'ordine.
+ */
+
+:root {
+  /* In `rem`: il riquadro è fatto di testo, e cresce con «Dimensione testo». */
+  --assistente-largo: 23rem;
+}
+
+.guscio--con-assistente {
+  grid-template-columns: 3.75rem minmax(0, 1fr) var(--assistente-largo);
+  grid-template-areas:
+    "titolo titolo titolo"
+    "sidebar comandi assistente"
+    "sidebar contenuto assistente"
+    "stato stato stato";
+}
+
+.guscio--con-sidebar.guscio--con-assistente {
+  grid-template-columns: 14.5rem minmax(0, 1fr) var(--assistente-largo);
+  grid-template-areas:
+    "titolo titolo titolo"
+    "sidebar comandi assistente"
+    "sidebar contenuto assistente"
+    "stato stato stato";
+}
+
+.riquadro-assistente {
+  grid-area: assistente;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: var(--sfondo-alto);
+  border-left: 1px solid var(--bordo-tenue);
+}
+
+/*
+ * Nella finestra stretta il riquadro si sovrappone invece di rubare una
+ * colonna: sotto i 64em la stessa soglia spegne già la navigazione, e tre
+ * colonne su uno schermo così lascerebbero al lavoro una striscia in cui non
+ * ci sta una settimana di calendario. Coprire è il male minore, e si richiude
+ * con Escape o con la ✕ — che qui è l'unico modo per tornare alla pagina.
+ *
+ * `.guscio--con-sidebar` qui non compare: con il riquadro aperto e la finestra
+ * stretta la navigazione la tiene minimizzata `sidebarCostretta` in
+ * `ui/sidebar.ts`, e sparisce anche il pulsante che prometteva di espanderla.
+ * La riga che rimetteva a posto quella combinazione se ne è andata con lei.
+ */
+@media (max-width: 64em) {
+  .guscio--con-assistente {
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
+  }
+  .riquadro-assistente {
+    position: fixed;
+    inset: 0 0 auto auto;
+    height: 100%;
+    width: min(var(--assistente-largo), 100vw);
+    z-index: 40;
+    box-shadow: var(--ombra-3);
+  }
+}
+
+/*
+ * Staccato: la stessa colonna, ma è tutta la finestra.
+ *
+ * Le regole sono due righe perché il riquadro è già una colonna che riempie
+ * quel che le danno: staccandolo cambia solo chi glielo dà — la griglia del
+ * guscio prima, la finestra adesso. Il bordo a sinistra sparisce: separava dal
+ * contenuto, e di contenuto accanto non ce n'è più.
+ */
+.assistente-finestra { height: 100vh; }
+
+.riquadro-assistente--sola {
+  height: 100%;
+  border-left: 0;
+  background: var(--sfondo);
+}
+
+/*
+ * Nella finestra la conversazione ha spazio, e le bolle non devono allargarsi
+ * fino al bordo: una riga lunga trenta centimetri si rilegge male, ed è il
+ * motivo per cui ogni testo lungo ha una misura. Il filo resta centrato.
+ */
+.riquadro-assistente--sola .assistente {
+  width: min(100%, 52rem);
+  margin: 0 auto;
+  padding: var(--spazio-4) var(--spazio-5) var(--spazio-5);
+}
+
+/* ------------------------------------------------------------- la testata */
+
+.riquadro-assistente__testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3) var(--spazio-3) var(--spazio-3) var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.riquadro-assistente__nome {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.riquadro-assistente__nome .icona { color: var(--accento); }
+
+/*
+ * Il modello e «sola lettura», in coda al nome.
+ *
+ * Non è un dettaglio da diagnostica: «sola lettura» è la promessa su cui si
+ * regge tutto il resto, e sta scritta dove la si legge senza cercarla. Il nome
+ * del modello sta lì perché all'inizio lo si cambia spesso, e sapere quale ha
+ * risposto è la prima cosa che serve quando una risposta è storta.
+ */
+.riquadro-assistente__nota {
+  flex: 1;
+  min-width: 0;
+  color: var(--testo-quieto);
+  font-size: 0.86em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------- il pulsante nella barra */
+
+/*
+ * Solo il muso, senza etichetta: sta accanto a «Proietta», che una parola ce
+ * l'ha, e due pulsanti con il testo in fondo alla barra cominciano a spingere
+ * fuori il nome della pagina sulle finestre strette. Il nome resta nel
+ * `title` e in `aria-label`, dove lo trovano il mouse fermo e i lettori di
+ * schermo.
+ */
+.barra-comandi__assistente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.barra-comandi__assistente:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-comandi__assistente--aperto {
+  background: var(--velo-accento);
+  color: var(--accento);
+}
+
+/* ---------------------------------------------------------------- il filo */
+
+.assistente {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) var(--spazio-4) var(--spazio-4);
+}
+
+.assistente__filo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ------------------------------------------------------------------ i turni */
+
+/*
+ * Le due bolle non sono colorate allo stesso modo, e non è una scelta
+ * estetica: quella di chi chiede è piena, quella che risponde è appoggiata al
+ * riquadro. La cosa da riconoscere a colpo d'occhio è *chi ha scritto una
+ * riga*, perché quella dell'assistente non è un dato del registro — è quel che
+ * un modello ha ricavato leggendolo, e non ha la stessa autorità.
+ */
+.assistente__turno {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  max-width: 100%;
+}
+
+.assistente__turno--utente {
+  align-self: flex-end;
+  align-items: flex-end;
+  max-width: 90%;
+}
+
+.assistente__turno--utente .assistente__testo {
+  background: var(--accento);
+  color: var(--su-tinta);
+  border-radius: var(--raggio-grande);
+  padding: var(--spazio-2) var(--spazio-3);
+}
+
+.assistente__turno--assistente .assistente__testo {
+  background: var(--sfondo);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  padding: var(--spazio-3);
+}
+
+.assistente__turno--guasto .assistente__testo {
+  background: color-mix(in srgb, var(--negativo) 12%, transparent);
+  border-color: color-mix(in srgb, var(--negativo) 40%, transparent);
+  color: var(--testo);
+}
+
+/*
+ * Fermato non è guasto: l'ha fermato chi ascoltava.
+ *
+ * Il turno si smorza e basta — nessun rosso, nessun bordo d'allarme. Vestirlo
+ * da errore faceva sembrare rotto un gesto voluto, e chi legge il proprio
+ * registro non ha bisogno di un altro cartello rosso.
+ */
+.assistente__turno--fermato .assistente__testo {
+  border-style: dashed;
+  color: var(--testo-quieto);
+}
+
+.assistente__testo {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: var(--interlinea);
+  /* Il minimo serve alla tabella: senza, una griglia larga gonfia la bolla
+     oltre la colonna invece di scorrere dentro il proprio contenitore. */
+  min-width: 0;
+  max-width: 100%;
+}
+
+/*
+ * La risposta non è più una riga sola di testo.
+ *
+ * Era un `<p>` con `pre-wrap`, e quel che arrivava dal modello si leggeva come
+ * l'aveva scritto: giusto per due frasi, illeggibile per sei persone con le
+ * loro assenze — si cerca un nome scorrendo con il dito, e «4» e «14» si
+ * distinguono contando le cifre. Adesso i dati vanno in tabella, e i blocchi
+ * hanno i loro stili qui sotto. Quel che **non** cambia è che niente di
+ * interpretato entra nella pagina: sono nodi costruiti da `answer.ts`.
+ *
+ * Gli a capo restano dove contano — dentro un paragrafo — e non altrove: una
+ * tabella con `pre-wrap` andrebbe a capo dove il modello ha incolonnato.
+ */
+.assistente__paragrafo,
+.assistente__testo--battuto {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: var(--interlinea);
+}
+
+.assistente__testo > * + * { margin-top: var(--spazio-2); }
+
+.assistente__titoletto {
+  margin: 0;
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.assistente__elenco {
+  margin: 0;
+  padding-left: var(--spazio-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.assistente__testo code {
+  font-family: var(--carattere-mono);
+  font-size: 0.92em;
+  background: color-mix(in srgb, var(--testo) 8%, transparent);
+  border-radius: var(--raggio-piccolo);
+  padding: 0 4px;
+}
+
+/*
+ * La tabella di una risposta.
+ *
+ * Non è quella del registro — `components/table.ts`, che vive in pagine
+ * larghe e tiene ferma l'intestazione scorrendo — perché qui si sta in una
+ * colonna stretta dentro una bolla. Scorre in orizzontale per conto suo invece
+ * di allargare il riquadro: una tabella che spinge fuori la conversazione
+ * nasconde proprio la domanda a cui sta rispondendo.
+ */
+.assistente__tabella-contenitore {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+}
+
+.assistente__tabella {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92em;
+  line-height: 1.35;
+}
+
+.assistente__tabella th,
+.assistente__tabella td {
+  padding: var(--spazio-1) var(--spazio-2);
+  text-align: left;
+  vertical-align: top;
+  white-space: normal;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.assistente__tabella thead th {
+  background: var(--sfondo-alto);
+  font-weight: 600;
+  color: var(--testo-quieto);
+  white-space: nowrap;
+}
+
+/* La prima colonna è quella che si cerca con l'occhio: il nome per esteso, e
+   non va a capo in mezzo a un cognome. */
+.assistente__tabella tbody th {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.assistente__tabella tbody tr:last-child th,
+.assistente__tabella tbody tr:last-child td { border-bottom: none; }
+
+/* I numeri a destra, incolonnati: è l'unico modo di confrontarli con l'occhio
+   invece di contare le cifre. Tabulari, così le colonne non ballano. */
+.assistente__cella--destra {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * L'interruttore del contesto, acceso.
+ *
+ * Il segno si vede da lontano perché è quel che decide se una domanda parla
+ * della pagina che si ha davanti o del registro in generale: un pulsante che
+ * cambia solo di grigio non basta a distinguere le due cose mentre si scrive.
+ */
+.riquadro-assistente__contesto--acceso {
+  color: var(--accento);
+  background: var(--velo-accento);
+}
+
+/*
+ * Acceso, ma non intero: qualche parte del contesto è spenta.
+ *
+ * Un terzo segno e non due, perché sono tre stati veri e chi guarda deve
+ * distinguerli senza aprire il menu: l'assistente sa tutto, sa una parte, non
+ * sa niente. Il colore resta quello dell'acceso — il contesto c'è — e il
+ * contorno tratteggiato dice che manca qualcosa; accanto, nella riga sotto il
+ * nome, c'è scritto quante.
+ */
+.riquadro-assistente__contesto--parziale {
+  color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 7%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accento) 45%, transparent);
+  outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------- i risultati */
+
+/*
+ * Quel che una lettura ha tirato fuori, disegnato dal registro.
+ *
+ * Sta **sotto** la frase del modello e non dentro la sua bolla: non è una cosa
+ * che il modello ha scritto — è la busta della procedura, impaginata dal
+ * contratto — e mostrarla nella stessa cornice vorrebbe dire dare alle sue
+ * parole l'autorità di un dato, o al dato l'incertezza di una frase. Il bordo
+ * a sinistra è il segno di dove finisce il racconto e cominciano i numeri.
+ */
+.assistente__risultato {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) 0 var(--spazio-2) var(--spazio-3);
+  border-left: 2px solid var(--bordo-tenue);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.assistente__risultato-testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spazio-1) var(--spazio-2);
+}
+
+.assistente__risultato-testata h4 {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+/* Il nome della procedura resta scritto: in un registro la fonte di un numero
+   è quel che permette di ricontrollarlo. */
+.assistente__risultato-testata code {
+  font-family: var(--carattere-mono);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+.assistente__blocco-titolo {
+  margin: 0;
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--testo-quieto);
+}
+
+/*
+ * I valori in cima: etichetta e valore, incolonnati.
+ *
+ * Una griglia a due colonne e non una riga di frasi: «Dal 01.02.2027 Al
+ * 30.06.2027 UD previste 36» scritto di seguito è una frase che non si legge,
+ * mentre in colonna le etichette si saltano con l'occhio e restano i valori.
+ */
+.assistente__valori {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px var(--spazio-3);
+  margin: 0;
+  font-size: 0.92em;
+}
+
+.assistente__valori dt { color: var(--testo-quieto); }
+.assistente__valori dd { margin: 0; }
+
+.assistente__coda-tabella {
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------------- gli attrezzi */
+
+/*
+ * Le procedure aperte, sopra la risposta e non sotto.
+ *
+ * Sopra perché si formano *prima* — arrivano mentre si aspetta, e la risposta
+ * viene dopo — e perché quel che dicono va letto prima di leggere la risposta:
+ * sono la sua fonte.
+ */
+.assistente__attrezzi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-2);
+}
+
+.assistente__attrezzo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 2px var(--spazio-2);
+  border-radius: var(--raggio-piccolo);
+  background: color-mix(in srgb, var(--positivo) 14%, transparent);
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+}
+
+.assistente__attrezzo code {
+  font-family: var(--carattere-mono);
+  font-size: 0.94em;
+}
+
+.assistente__attrezzo .icona {
+  width: 0.9em;
+  height: 0.9em;
+  color: var(--positivo);
+}
+
+.assistente__attrezzo--no {
+  background: color-mix(in srgb, var(--negativo) 14%, transparent);
+}
+
+.assistente__attrezzo--no .icona { color: var(--negativo); }
+
+/*
+ * Perché quell'attrezzo non è andato, scritto dove si legge.
+ *
+ * Prima il motivo stava nel solo `title` della pastiglia: invisibile a chi usa
+ * il trackpad, inesistente per chi si fa leggere lo schermo. Qui è una riga
+ * sotto, smorzata perché non copra la risposta, e ce n'è una sola — quella
+ * dell'ultimo attrezzo fallito — perché tre righe uguali quando il modello
+ * insiste sono rumore.
+ */
+.assistente__attrezzo-motivo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  margin-top: var(--spazio-1);
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  line-height: 1.4;
+}
+
+.assistente__attrezzo-motivo .icona {
+  flex: none;
+  width: 0.9em;
+  height: 0.9em;
+  margin-top: 0.2em;
+  color: var(--negativo);
+}
+
+/* ---------------------------------------------------------------- l'attesa */
+
+.assistente__attesa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0;
+  color: var(--testo-quieto);
+}
+
+.assistente__rotella {
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid color-mix(in srgb, var(--accento) 30%, transparent);
+  border-top-color: var(--accento);
+  border-radius: 50%;
+  animation: assistente-gira 0.8s linear infinite;
+}
+
+@keyframes assistente-gira {
+  to { transform: rotate(360deg); }
+}
+
+/* Chi ha chiesto meno animazioni non deve vedere una rotella girare per venti
+   secondi: resta il cerchio fermo, e il testo accanto dice già che si aspetta. */
+@media (prefers-reduced-motion: reduce) {
+  .assistente__rotella { animation: none; }
+}
+
+/* -------------------------------------------------------------- lo scrittoio */
+
+/*
+ * Ancorato in fondo, e non in coda al filo: è l'unica cosa che si preme, e in
+ * un riquadro che cresce a ogni domanda dovrebbe essere rincorsa fin giù ogni
+ * volta.
+ */
+.assistente__scrittoio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.assistente__campo {
+  width: 100%;
+  resize: vertical;
+  min-height: 3.6em;
+  padding: var(--spazio-2) var(--spazio-3);
+  font: inherit;
+  color: var(--testo);
+  background: var(--campo-sfondo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+}
+
+
+.assistente__campo:disabled {
+  background: var(--sfondo-alto-2);
+  color: var(--testo-quieto);
+}
+
+.assistente__gesti {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.assistente__nota {
+  flex: 1;
+  min-width: 0;
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  line-height: 1.3;
+}
+
+/*
+ * Perché la dettatura non ha scritto niente: nello stesso posto della nota
+ * normale, e non in una riga in più. Lo scrittoio è ancorato in fondo, e una
+ * riga che compare lo farebbe saltare su di mezzo centimetro proprio mentre
+ * chi guarda sta leggendo.
+ */
+.assistente__nota--guasto {
+  color: var(--negativo);
+}
+
+/*
+ * Il microfono acceso pulsa.
+ *
+ * È l'unica cosa nel riquadro che dice «ti sto ascoltando adesso», e dev'essere
+ * visibile con la coda dell'occhio: chi detta guarda la casella, non il
+ * pulsante. Chi ha chiesto di non vedere animazioni resta con il colore, che
+ * basta a distinguerlo.
+ */
+.assistente__microfono--acceso {
+  color: var(--negativo);
+  border-color: currentcolor;
+  animation: assistente-ascolto 1.4s ease-in-out infinite;
+}
+
+@keyframes assistente-ascolto {
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistente__microfono--acceso {
+    animation: none;
+  }
+}

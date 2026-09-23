@@ -1,0 +1,52 @@
+/*
+ * La finestra di dialogo: `showInputBox` e `showQuickPick`.
+ *
+ * L'aspetto comune viene da `base.css`, che porta con sé i colori del registro:
+ * chiaro o scuro qui si decide dov'è deciso per tutto il resto — l'impostazione
+ * «aspetto.tema», che il main process gira in `nativeTheme.themeSource`. Qui
+ * sotto resta solo quel che è di questa finestra e di nessun'altra.
+ */
+
+@import '../shared/base.css';
+
+/*
+ * La finestra si adatta alla pagina, ma entro un tetto — vedi `altezza` in
+ * `environment/dialogs.ts` — e il tetto non sa niente di «Dimensione testo»
+ * di Windows. Con il testo al 200% un elenco di otto voci supera quel tetto,
+ * e senza questa riga l'eccedenza non veniva tagliata soltanto: spariva, con
+ * dentro i pulsanti Scegli e Annulla, e restava solo Esc. Adesso scorre.
+ */
+body {
+  padding: var(--spazio-4);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+h1 {
+  margin-bottom: var(--spazio-1);
+}
+
+.invito {
+  margin: 0 0 var(--spazio-3);
+  color: var(--testo-quieto);
+}
+
+/* Un'altezza minima anche da vuoto: l'errore che compare mentre si scrive non
+   deve spingere in giù i pulsanti sotto il dito che sta per premerli. */
+.errore {
+  min-height: 1.4em;
+  margin: var(--spazio-2) 0 0;
+  color: var(--negativo);
+}
+
+.voci {
+  max-height: 26rem;
+  margin-top: var(--spazio-3);
+}
+
+.tasti {
+  display: flex;
+  gap: var(--spazio-2);
+  justify-content: flex-end;
+  margin-top: var(--spazio-3);
+}

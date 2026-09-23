@@ -1,0 +1,185 @@
+/* I modelli del linguaggio: quel che c'è sul disco, e quel che si può scaricare. */
+
+/*
+ * Questo foglio nominava quattro token che non esistono: `--testo-tenue`,
+ * `--testo-piccolo`, `--raggio-2` e `--sfondo-accento-tenue`. Una `var()` senza
+ * definizione non dà un colore brutto, dà una proprietà invalida — la stessa
+ * trappola raccontata in cima a `theme.css` — e qui cadevano nove dichiarazioni
+ * su questa sola pagina.
+ *
+ * I primi tre erano doppioni e sono sostituiti con quel che il tema ha già. Il
+ * quarto nominava una cosa vera che nessun token diceva — un fondo appena
+ * acceso d'accento — ed è diventato `--velo-accento` in `theme.css`, insieme
+ * agli altri tre veli con cui il registro dice in che stato è una cosa.
+ */
+
+/*
+ * Una colonna sola, e non due come nei modelli dei rapporti: qui non si
+ * confronta niente — si guarda un elenco corto e si preme un pulsante — e due
+ * colonne obbligherebbero a spostare gli occhi fra una riga e il suo gesto.
+ */
+.modelli-llm .scheda {
+  margin-top: var(--spazio-3);
+}
+
+.modelli-llm__cartella {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  /* Un percorso lungo va a capo invece di allargare la pagina: su Windows sono
+     spesso settanta caratteri con dentro il nome di chi lavora. */
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------- i mestieri */
+
+.modelli-llm__usi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.modelli-llm__uso {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem auto;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+
+/*
+ * Il motivo sta sotto e occupa tutta la riga: è una frase intera — «il modello
+ * non è più nella cartella: lo si riscarica…» — e incolonnarla accanto alla
+ * tendina la ridurrebbe a tre parole per riga.
+ */
+.modelli-llm__uso .modelli-llm__motivo {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.modelli-llm__uso-testi h4 {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .modelli-llm__uso {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------- le righe */
+
+.modelli-llm__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.modelli-llm__riga {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+}
+
+.modelli-llm__riga-testi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.modelli-llm__riga-azioni {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.modelli-llm__nome {
+  font-weight: 600;
+  /* I nomi dei GGUF sono lunghi e senza spazi — `Qwen2.5-7B-Instruct-Q4_K_M` —
+     e senza questa riga allargherebbero la scheda oltre la finestra. */
+  overflow-wrap: anywhere;
+}
+
+.modelli-llm__peso,
+.modelli-llm__nota {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.modelli-llm__nota {
+  margin: var(--spazio-1) 0 0;
+  flex-basis: 100%;
+}
+
+/* ------------------------------------------------------- quel che si trascina */
+
+/*
+ * Tratteggiata perché si legga come un contenitore e non come un pulsante: è
+ * una zona in cui si lascia cadere qualcosa, e il pulsante che ha dentro è la
+ * via per chi il trascinamento non lo usa.
+ */
+.modelli-llm__zona {
+  margin-top: var(--spazio-3);
+  padding: var(--spazio-4);
+  border: 2px dashed var(--bordo);
+  border-radius: var(--raggio);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-2);
+  text-align: center;
+  color: var(--testo-quieto);
+}
+
+.modelli-llm__zona p {
+  margin: 0;
+}
+
+.modelli-llm__zona--attiva {
+  border-color: var(--accento);
+  background: var(--velo-accento);
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------ lo scarico */
+
+.modelli-llm__cerca {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  margin-bottom: var(--spazio-3);
+}
+
+.modelli-llm__cerca .campo__controllo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* La barra dello scarico resta in vista mentre si scorre: sono venti minuti,
+   e chi scorre l'elenco deve poter vedere a che punto è senza risalire. */
+.modelli-llm__scarico {
+  position: sticky;
+  top: var(--spazio-2);
+  z-index: var(--piano-incollato);
+}
+
+/*
+ * Uno scarico lasciato a metà: si vede che non è un modello.
+ *
+ * Tratteggiata e in tono minore, come la zona in cui si lascia cadere un file:
+ * è una riga che non si può scegliere, e l'unico gesto che porta è il cestino.
+ */
+.modelli-llm__riga--incompiuta {
+  border-style: dashed;
+  opacity: 0.85;
+}

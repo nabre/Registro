@@ -1,0 +1,256 @@
+/* Le scatole in cui sta il contenuto: schede e righe di sintesi. */
+
+/* ------------------------------------------------------------------ schede */
+
+.scheda {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  overflow: hidden;
+}
+
+.scheda__testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+  flex-wrap: wrap;
+}
+
+.scheda__titolo {
+  margin: 0;
+  font-size: var(--corpo-titolo);
+}
+
+.scheda__corpo {
+  padding: var(--spazio-4);
+}
+
+.colonne {
+  display: grid;
+  gap: var(--spazio-4);
+  align-items: start;
+}
+
+.colonne--lezione { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+/* In `rem`: la colonna tiene un elenco di nomi, e cresce con il testo. */
+.colonne--elenco { grid-template-columns: 16rem minmax(0, 1fr); }
+.colonne--valutazioni { grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr); }
+
+/*
+ * In `em` e non in pixel, come gli altri punti di rottura del progetto.
+ *
+ * Dentro una `@media` l'`em` vale la dimensione predefinita del documento —
+ * quella che il main process ricava dalla «Dimensione testo» di Windows — e non
+ * quella della regola. Vuol dire che con il testo al 150% la colonna si spezza
+ * a 1650px invece che a 1100: prima, cioè quando serve davvero, perché a parità
+ * di larghezza ci stanno meno parole. Un punto di rottura in pixel resterebbe
+ * fermo proprio per chi ha ingrandito il testo per riuscire a leggere.
+ */
+@media (max-width: 68.75em) {
+  .colonne--lezione,
+  .colonne--valutazioni {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.colonna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  min-width: 0;
+}
+
+/* Campi e descrizioni: una colonna sola, e larga quanto si legge. */
+.colonna--impostazioni { max-width: 62rem; }
+
+/* ------------------------------------------------------- titoli di mucchio
+ *
+ * Il terzo livello di ogni elenco di lavoro: sotto la classe e sotto la
+ * tipologia c'è il mucchio — «Rimaste indietro», «Scadono oggi», «Da
+ * correggere» — e sono nove elenchi in giro per il registro che lo scrivono.
+ *
+ * Erano un titolo grigio con il numero attaccato al nome: «Scadono oggi · 3»
+ * si legge come una frase sola, e il numero, che è quel che si cerca scorrendo
+ * la pagina, andava pescato dentro la frase. Nome a sinistra, numero a destra:
+ * i numeri si incolonnano da un mucchio all'altro e si leggono scorrendo.
+ *
+ * Il filo che li univa non bastava. Sotto un titolo ci sono delle schede — le
+ * pendenze hanno un bordo, un fondo e un filetto colorato a sinistra — e un
+ * testo grigio fra due schede si legge come una parte dell'elenco, non come
+ * quel che lo intesta: chi scorre non sa più dove comincia un mucchio e dove
+ * finisce quello di prima.
+ *
+ * Il nome sta quindi in una pastiglia: fondo tenue, angoli tondi, larga quanto
+ * la parola. Larga quanto la parola e non quanto la colonna, ed è la
+ * differenza che conta — una fascia da bordo a bordo pesa più del titolo della
+ * tipologia che sta sopra, e rovescia i due livelli: il capitolo sembra meno
+ * importante del mucchio che contiene. Una pastiglia si vede subito e non
+ * grida, e il numero resta fuori, in fondo alla riga, dove si incolonna con
+ * quelli degli altri mucchi.
+ *
+ * Maiuscoletto piccolo e non grassetto grande: sopra c'è il titolo della
+ * tipologia, che è il capitolo, e due titoli della stessa voce fanno un elenco
+ * solo di righe che non si capisce più a chi appartengano.
+ */
+.gruppo-titolo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  margin: 0;
+  font-size: var(--corpo-minore);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.gruppo-titolo__nome {
+  flex: none;
+  padding: 2px var(--spazio-2);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+/* Il numero in fondo alla fascia, incolonnato con quelli degli altri mucchi.
+   Nel markup viene subito dopo il nome, ed è giusto così — chi legge con la
+   voce sente «scadono oggi, tre». */
+.gruppo-titolo__conto {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------------ sintesi */
+
+.sintesi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-5);
+  flex-wrap: wrap;
+}
+
+.sintesi--incassata {
+  padding: var(--spazio-3) var(--spazio-4);
+  margin-bottom: var(--spazio-3);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  border: 1px solid var(--bordo-tenue);
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+}
+
+.dato__valore {
+  font-size: 1.3em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dato__etichetta {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-nota);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dato--positivo .dato__valore { color: var(--positivo); }
+.dato--attenzione .dato__valore { color: var(--attenzione); }
+.dato--negativo .dato__valore { color: var(--negativo); }
+
+.pastiglia {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid transparent;
+  font-size: var(--corpo-nota);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.pastiglia .icona { width: 12px; height: 12px; }
+
+/*
+ * Il fondo resta quello di prima; cambia quel che ci sta sopra.
+ *
+ * Una pastiglia tinta scriveva con la tinta piena sopra il velo della tinta
+ * piena: 3,46:1 il peggiore (l'ambra su una scheda), 3,83:1 il migliore. Il
+ * testo qui è 0,82em di 13px, cioè dieci pixel e mezzo — testo piccolo, e per
+ * WCAG AA vuole 4,5:1. `--su-velo-*` è la stessa tinta portata più a fondo fin
+ * dove il conto torna, e sta in `theme.css` con i suoi numeri: ingrandire la
+ * pastiglia sarebbe stata l'altra strada, ma una pastiglia grande quanto la
+ * riga in cui sta non è più un'annotazione.
+ */
+.pastiglia--neutro { background: var(--sfondo-alto-2); color: var(--testo); }
+.pastiglia--quiete { background: transparent; border-color: var(--bordo-tenue); color: var(--testo-quieto); }
+.pastiglia--positivo { background: color-mix(in srgb, var(--positivo) 18%, transparent); color: var(--su-velo-positivo); }
+.pastiglia--negativo { background: color-mix(in srgb, var(--negativo) 18%, transparent); color: var(--su-velo-negativo); }
+.pastiglia--attenzione { background: color-mix(in srgb, var(--attenzione) 20%, transparent); color: var(--su-velo-attenzione); }
+.pastiglia--informativo { background: color-mix(in srgb, var(--informativo) 18%, transparent); color: var(--su-velo-informativo); }
+
+.punto-colore {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.barra {
+  height: 6px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  overflow: hidden;
+}
+
+.barra__riempimento { height: 100%; border-radius: var(--raggio-pastiglia); }
+.barra__riempimento--positivo { background: var(--positivo); }
+.barra__riempimento--informativo { background: var(--informativo); }
+.barra__riempimento--attenzione { background: var(--attenzione); }
+
+.separatore { height: 1px; background: var(--bordo-tenue); }
+
+.testo-quieto { color: var(--testo-quieto); margin: 0; }
+
+/* L'esito della prova della posta: c'e' solo dopo che si e' premuto. */
+.posta-esito:not(:empty) { margin-top: var(--spazio-3); }
+
+.avviso {
+  display: flex;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo);
+}
+
+.avviso--attenzione { border-color: color-mix(in srgb, var(--attenzione) 45%, transparent); }
+.avviso--negativo { border-color: color-mix(in srgb, var(--negativo) 45%, transparent); }
+.avviso--attenzione .icona { color: var(--attenzione); }
+.avviso--negativo .icona { color: var(--negativo); }
+.avviso--informativo .icona { color: var(--informativo); }
+.avviso__testo { flex: 1; }
+.avviso ul { margin: var(--spazio-1) 0 0; padding-left: var(--spazio-4); }
+
+.stato-vuoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-6) var(--spazio-4);
+  text-align: center;
+}
+
+.stato-vuoto__titolo { margin: 0; font-weight: 600; }
+.stato-vuoto__testo { margin: 0; color: var(--testo-quieto); max-width: 46ch; }
+.stato-vuoto__azione { margin-top: var(--spazio-2); }
+.stato-vuoto__pulsanti { display: flex; gap: var(--spazio-2); }
