@@ -2,7 +2,7 @@
 
 Documento di riferimento per chi sviluppa sul progetto — persone e agenti.
 Dice *perché* le cose stanno dove stanno; il *come si usa* è nel
-[README](../README.md) e nella guida in-app, il *cosa manca* non è più nel
+[GUIDA](GUIDA.md) e nella guida in-app, il *cosa manca* non è più nel
 repository (vedi § 11).
 
 ---

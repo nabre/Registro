@@ -1,0 +1,14 @@
+# Tiene aggiornate le action dei workflow. Le dipendenze npm restano a mano:
+# Electron, node-llama-cpp e koffi portano binari nativi, e un loro
+# aggiornamento va provato sull'applicazione impacchettata, non solo in CI.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    groups:
+      action:
+        patterns: ['*']

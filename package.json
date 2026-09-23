@@ -5,6 +5,14 @@
   "version": "1.0.0",
   "license": "MIT",
   "author": "Michel Brenna",
+  "homepage": "https://github.com/nabre/Registro#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nabre/Registro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nabre/Registro/issues"
+  },
   "private": true,
   "keywords": [
     "registro",

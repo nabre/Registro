@@ -1,0 +1,26 @@
+name: ✨ Proposta
+description: Un'idea per una funzione nuova o per migliorarne una
+labels: [proposta]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Il problema
+      description: Che cosa ti costa fatica oggi, a scuola? Descrivi la situazione prima della soluzione.
+      placeholder: Quando devo …, oggi devo …
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposta
+    attributes:
+      label: La proposta
+      description: Come te lo immagini.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Alternative
+      description: Come ti arrangi adesso, o altre strade che hai considerato.

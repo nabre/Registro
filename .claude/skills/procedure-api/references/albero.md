@@ -104,7 +104,7 @@ passa, che è il momento in cui serve di più.
 | `docs/API.md` | la tabella delle aree, la tabella dei file, gli esempi, e i pochi conti che restano scritti |
 | `docs/INDICE.md` | gli stessi conti, nella riga di API.md |
 | `docs/CATALOGO.md` | solo se la procedura è un comportamento nuovo per chi usa il registro |
-| `README.md` | solo se cambia qualcosa che si vede |
+| `README.md`, `docs/GUIDA.md` | solo se cambia qualcosa che si vede |
 
 I conti nelle docs non li controlla nessuna prova: si aggiornano a mano, e si
 dimenticano. Se ne trovi uno vecchio, aggiustalo mentre sei lì.

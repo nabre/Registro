@@ -261,89 +261,96 @@ export function grigliaVoti (
               // si sposta di sei pixel quando la riga accanto ha un recupero
               // rende la colonna illeggibile proprio dove la si scorre.
               { class: 'tabella__cella tabella__cella--voto' },
-              h('input', {
-                class: [
-                  'cella-voto',
-                  insufficiente && 'cella-voto--insufficiente',
-                  voto?.assente && 'cella-voto--assente',
-                  mancava && 'cella-voto--mancava',
-                ],
-                type: 'text',
-                value: mostrato,
-                placeholder: mancava ? SIGLA_ASSENTE : '',
-                dataset: { riga: indiceRiga, colonna: indiceColonna, fuoco: `voto-${momento.id}-${allievo.id}` },
-                attr: {
-                  'aria-label': `${nomeCompleto(allievo)} — ${momento.titolo}`,
-                  title: mancava
-                    ? 'Assente all’appello di quest’ora: premi X per segnarlo anche qui'
-                    : voto?.nota ?? '',
-                  inputmode: 'decimal',
-                  list: lista.id,
-                },
-                onchange: async (evento: Event) => {
-                  const elemento = evento.target as HTMLInputElement
-                  const letto = leggiCasella(elemento.value)
-                  if (!letto) {
-                    // Il valore battuto **resta nel campo**. Prima si
-                    // rimetteva `mostrato`, cioè il voto di prima: chi
-                    // trascriveva venticinque compiti a raffica battendo Invio
-                    // a ogni riga vedeva la cifra sbagliata sostituita da
-                    // quella vecchia, e la colonna mostrava un numero che
-                    // credeva di aver appena scritto. Peggio: il fuoco è già
-                    // sulla riga dopo quando il lampo rosso arriva, perché la
-                    // navigazione a foglio di calcolo lo sposta prima del
-                    // `blur` che fa scattare questo `change`. È lo stesso
-                    // difetto già corretto sulle date in `components/base.ts`,
-                    // qui su un dato che finisce in pagella.
-                    elemento.classList.add('cella-voto--errata')
-                    setTimeout(() => elemento.classList.remove('cella-voto--errata'), 800)
-                    notifica(
-                      `«${elemento.value}» non è un voto: si scrive un numero, ` +
-                        'oppure «-» per nessun voto e «X» per assente.',
-                      'errore',
-                    )
-                    return
-                  }
-                  const risposta = await azione({
-                    tipo: 'voto.imposta',
-                    valutazioneId: momento.id,
-                    allievoId: allievo.id,
-                    valore: letto.valore,
-                    assente: letto.assente,
-                  })
-                  if (!risposta.ok) {
-                    elemento.value = mostrato
-                    elemento.classList.add('cella-voto--errata')
-                    setTimeout(() => elemento.classList.remove('cella-voto--errata'), 800)
-                  }
-                },
-              }),
-              lista.elemento,
-              // La «R» accanto alla casella, non dentro: dentro sarebbe un
-              // carattere da cancellare per scrivere il voto. Il posto c'è
-              // comunque, anche quando la lettera non serve: è quel che tiene
-              // dritta la colonna.
+              // La riga di tre pezzi sta in un contenitore e non sulla cella:
+              // una `td` in flex smette di essere una cella di tabella, e i voti
+              // di una persona finivano uno sotto l'altro nella prima colonna.
               h(
-                'span',
-                {
+                'div',
+                { class: 'cella-voto__riga' },
+                h('input', {
                   class: [
-                    'cella-voto__tag',
-                    !recupero && 'cella-voto__tag--vuoto',
-                    recupero?.dispensato && 'cella-voto__tag--dispensato',
+                    'cella-voto',
+                    insufficiente && 'cella-voto--insufficiente',
+                    voto?.assente && 'cella-voto--assente',
+                    mancava && 'cella-voto--mancava',
                   ],
+                  type: 'text',
+                  value: mostrato,
+                  placeholder: mancava ? SIGLA_ASSENTE : '',
+                  dataset: { riga: indiceRiga, colonna: indiceColonna, fuoco: `voto-${momento.id}-${allievo.id}` },
                   attr: {
-                    'aria-hidden': recupero ? 'false' : 'true',
-                    title: !recupero
-                      ? ''
-                      : recupero.dispensato
-                        ? 'Non si recupera: dichiarato da chi insegna'
-                        : recupero.previstoIl
-                          ? `Recupero del ${formattaData(recupero.previstoIl, 'giorno')}` +
-                            (recupero.nota ? ` · ${recupero.nota}` : '')
-                          : 'Recupero da fissare',
+                    'aria-label': `${nomeCompleto(allievo)} — ${momento.titolo}`,
+                    title: mancava
+                      ? 'Assente all’appello di quest’ora: premi X per segnarlo anche qui'
+                      : voto?.nota ?? '',
+                    inputmode: 'decimal',
+                    list: lista.id,
                   },
-                },
-                'R',
+                  onchange: async (evento: Event) => {
+                    const elemento = evento.target as HTMLInputElement
+                    const letto = leggiCasella(elemento.value)
+                    if (!letto) {
+                      // Il valore battuto **resta nel campo**. Prima si
+                      // rimetteva `mostrato`, cioè il voto di prima: chi
+                      // trascriveva venticinque compiti a raffica battendo Invio
+                      // a ogni riga vedeva la cifra sbagliata sostituita da
+                      // quella vecchia, e la colonna mostrava un numero che
+                      // credeva di aver appena scritto. Peggio: il fuoco è già
+                      // sulla riga dopo quando il lampo rosso arriva, perché la
+                      // navigazione a foglio di calcolo lo sposta prima del
+                      // `blur` che fa scattare questo `change`. È lo stesso
+                      // difetto già corretto sulle date in `components/base.ts`,
+                      // qui su un dato che finisce in pagella.
+                      elemento.classList.add('cella-voto--errata')
+                      setTimeout(() => elemento.classList.remove('cella-voto--errata'), 800)
+                      notifica(
+                        `«${elemento.value}» non è un voto: si scrive un numero, ` +
+                          'oppure «-» per nessun voto e «X» per assente.',
+                        'errore',
+                      )
+                      return
+                    }
+                    const risposta = await azione({
+                      tipo: 'voto.imposta',
+                      valutazioneId: momento.id,
+                      allievoId: allievo.id,
+                      valore: letto.valore,
+                      assente: letto.assente,
+                    })
+                    if (!risposta.ok) {
+                      elemento.value = mostrato
+                      elemento.classList.add('cella-voto--errata')
+                      setTimeout(() => elemento.classList.remove('cella-voto--errata'), 800)
+                    }
+                  },
+                }),
+                lista.elemento,
+                // La «R» accanto alla casella, non dentro: dentro sarebbe un
+                // carattere da cancellare per scrivere il voto. Il posto c'è
+                // comunque, anche quando la lettera non serve: è quel che tiene
+                // dritta la colonna.
+                h(
+                  'span',
+                  {
+                    class: [
+                      'cella-voto__tag',
+                      !recupero && 'cella-voto__tag--vuoto',
+                      recupero?.dispensato && 'cella-voto__tag--dispensato',
+                    ],
+                    attr: {
+                      'aria-hidden': recupero ? 'false' : 'true',
+                      title: !recupero
+                        ? ''
+                        : recupero.dispensato
+                          ? 'Non si recupera: dichiarato da chi insegna'
+                          : recupero.previstoIl
+                            ? `Recupero del ${formattaData(recupero.previstoIl, 'giorno')}` +
+                              (recupero.nota ? ` · ${recupero.nota}` : '')
+                            : 'Recupero da fissare',
+                    },
+                  },
+                  'R',
+                ),
               ),
             )
           }),

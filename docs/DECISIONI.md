@@ -3,14 +3,14 @@
 ## Premessa
 
 Questo file è il registro delle decisioni architetturali (ADR, *Architecture
-Decision Record*) del progetto. Non racconta: elenca. Il `README.md` è il
+Decision Record*) del progetto. Non racconta: elenca. La [GUIDA](GUIDA.md) è il
 documento del *perché* discorsivo — spiega una scelta dentro la storia che
 l'ha resa necessaria, con l'esempio concreto che l'ha fatta capire. Questo
 file estrae da quella narrazione il nocciolo consultabile: contesto in una
 riga, decisione, conseguenze (comprese quelle scomode), e soprattutto i
 vincoli che una futura rifattorizzazione non può rompere senza saperlo.
 
-Chi ha bisogno di capire *perché* una cosa è com'è, legge il README. Chi sta
+Chi ha bisogno di capire *perché* una cosa è com'è, legge la GUIDA. Chi sta
 per toccare del codice e vuole sapere se sta per rompere un contratto
 implicito, legge qui prima.
 

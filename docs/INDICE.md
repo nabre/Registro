@@ -1,12 +1,15 @@
 # La documentazione del registro
 
-Il `README.md` alla radice resta quel che era: il racconto del progetto, che
-dice **perché** le cose sono come sono. Questi sette documenti non lo
-sostituiscono — lo indicizzano, e aggiungono quel che un racconto non sa fare:
-tabelle complete, diagrammi e contratti.
+Il `README.md` alla radice è la vetrina: che cos'è il registro, come si
+scarica, come si comincia a svilupparlo. Il racconto del progetto, che dice
+**perché** le cose sono come sono, è [GUIDA.md](GUIDA.md) — fino al rilascio
+pubblico stava nel `README.md`. Gli altri sette documenti non lo sostituiscono
+— lo indicizzano, e aggiungono quel che un racconto non sa fare: tabelle
+complete, diagrammi e contratti.
 
 | Documento | Risponde a | Quando si apre |
 | --- | --- | --- |
+| [GUIDA.md](GUIDA.md) | che cosa fa il registro, come si usa, e perché è fatto così | si vuole capire una funzione dall'uso, o il ragionamento dietro |
 | [ARCHITETTURA.md](ARCHITETTURA.md) | com'è fatto, e che cosa succede quando | si arriva nuovi sul progetto, o si tocca un confine fra strati |
 | [MODELLO-DATI.md](MODELLO-DATI.md) | che forma hanno i dati e quali regole li tengono in piedi | si aggiunge un campo, si scrive una migrazione, si legge un `.registro` a mano |
 | [CATALOGO.md](CATALOGO.md) | tutto quel che l'applicazione sa fare, voce per voce | si cerca «esiste già un'azione per questo?» |
@@ -17,7 +20,7 @@ tabelle complete, diagrammi e contratti.
 
 ## Da dove cominciare
 
-- **Capire il progetto:** il `README.md`, poi ARCHITETTURA § 1–5.
+- **Capire il progetto:** la [GUIDA](GUIDA.md), poi ARCHITETTURA § 1–5.
 - **Correggere un difetto:** CATALOGO per trovare l'azione, ARCHITETTURA § 6
   per il giro che fa.
 - **Aggiungere una funzione:** MODELLO-DATI per i dati, API § 11 per metterla
@@ -58,10 +61,10 @@ stava cercando. Stanno scritte nei rispettivi documenti, nelle sezioni dei
 debiti; qui l'elenco, per non perderle:
 
 - `LACUNE.md` è stato cancellato nel commit `9470241` insieme a `REVISIONE.md`,
-  ma il `README.md` lo cita ancora due volte come documento vivo (righe 124 e
+  ma la GUIDA (allora `README.md`) lo cita ancora due volte come documento vivo (righe 124 e
   260). Il contenuto — 57 voci in 7 categorie — è recuperabile con
   `git show 9470241^:LACUNE.md`.
-- Il `README.md` dichiara `archivio/` ed `esportazioni/` unificate in
+- La GUIDA (allora `README.md`) dichiara `archivio/` ed `esportazioni/` unificate in
   `documentazione/`, ma il codice dice il contrario: `documentazione/` è il
   nome **vecchio**, e `archiviazione.ts` lo ridivide nelle due radici.
 - `Smistamento.divisione` non viene riletto da `normalizzaSmistamento`: il

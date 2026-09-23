@@ -160,6 +160,6 @@ che si scopre di aver dimenticato la sezione.
 5. `npm test`, e il rituale della skill `verifica`.
 6. `docs/CATALOGO.md` porta l'elenco completo delle chiavi. Non si rigenera da
    sé — si aggiorna a mano, con i conteggi **contati a macchina sul sorgente**,
-   mai ricordati. Il `README.md` invece non le elenca apposta: c'era una tabella
+   mai ricordati. La `docs/GUIDA.md` invece non le elenca apposta: c'era una tabella
    scritta a mano, ed elencava diciotto chiavi di cui due non esistevano più e
    undici non c'erano mai entrate.
