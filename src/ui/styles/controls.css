@@ -10,6 +10,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spazio-2);
+  min-height: var(--bersaglio-compatto);
   padding: var(--dentro-comando);
   border: 1px solid var(--bordo-tenue);
   border-radius: var(--raggio);
@@ -74,17 +75,20 @@
 }
 
 .pulsante--solo-icona {
-  padding: 5px 6px;
+  min-width: var(--bersaglio-compatto);
+  min-height: var(--bersaglio-compatto);
+  padding: var(--dentro-nudo);
 }
 
 /*
  * Il pulsante di una riga fitta: solo l'icona. Righe con tre o quattro
  * pulsanti non devono pesare più del nome accanto.
  *
- * 24px di lato (14 d'icona, 4+4 di riempimento, 1+1 di bordo), il minimo di
- * WCAG 2.5.8: la misura la dà il riempimento, l'icona resta piccola.
+ * 32px di lato: il bersaglio resta agevole col mouse, l'icona resta piccola.
  */
 .pulsante--minuto {
+  min-width: var(--bersaglio-compatto);
+  min-height: var(--bersaglio-compatto);
   padding: var(--dentro-nudo);
 }
 
@@ -158,6 +162,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spazio-1);
+  min-height: var(--bersaglio-compatto);
   padding: 4px 10px;
   border: none;
   border-radius: calc(var(--raggio) - 2px);
@@ -276,6 +281,7 @@
 
 .campo__controllo {
   width: 100%;
+  min-height: var(--altezza-controllo);
   padding: var(--dentro-campo);
   /* `--bordo-forte` e non `--bordo`: nel tema chiaro il fondo del campo quasi non
      si stacca dalla pagina, e il campo si distingue per il contorno. Vedi `theme.css`. */
@@ -355,9 +361,28 @@ select.campo__controllo--selezione:disabled {
 }
 
 .campo__interruttore {
-  width: 15px;
-  height: 15px;
+  width: 1rem;
+  height: 1rem;
   accent-color: var(--accento);
+}
+
+.campo--interruttore {
+  min-height: var(--bersaglio-compatto);
+}
+
+@media (pointer: coarse) {
+  .pulsante,
+  .pulsante--solo-icona,
+  .pulsante--minuto,
+  .selettore__voce,
+  .campo--interruttore {
+    min-height: var(--bersaglio-tattile);
+  }
+
+  .pulsante--solo-icona,
+  .pulsante--minuto {
+    min-width: var(--bersaglio-tattile);
+  }
 }
 
 .campo__etichetta-in-linea {

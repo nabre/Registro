@@ -122,7 +122,12 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
   document.dispatchEvent(new Event(EVENTO_MODALE_APERTA))
 
   const strato = h('div', { class: 'strato-modale' })
-  const zonaErrori = h('div', { class: 'modale__errori' })
+  const erroriId = `modale-errori-${scope}` // testo-fisso: id dell'elemento, non si legge
+  const zonaErrori = h('div', {
+    class: 'modale__errori',
+    id: erroriId,
+    attr: { role: 'alert', 'aria-live': 'assertive', 'aria-atomic': 'true', tabindex: '-1' },
+  })
   const corpo = h('div', { class: 'modale__corpo' })
 
   // Chi aveva il fuoco lo riavrà alla chiusura; `rifocalizza` ritrova il
@@ -174,18 +179,31 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
   corpo.addEventListener('change', () => { sporco = true })
 
   const mostraErrori = (errori: string[]) => {
-    rimpiazza(zonaErrori, errori.length > 0 ? avviso(
-      h('ul', { class: 'elenco-errori' }, errori.map((e) => h('li', null, e))),
-      'negativo',
-    ) : null)
-    if (errori.length > 0) zonaErrori.scrollIntoView({ block: 'nearest' })
+    const riepilogo = errori.length > 0
+      ? avviso(
+          h('ul', { class: 'elenco-errori' }, errori.map((e) => h('li', null, e))),
+          'negativo',
+        )
+      : null
+    // `zonaErrori` è l'unica regione viva: niente `status` annidato nell'`alert`.
+    riepilogo?.removeAttribute('role')
+    rimpiazza(zonaErrori, riepilogo)
+    if (errori.length > 0) {
+      zonaErrori.scrollIntoView({ block: 'nearest' })
+      zonaErrori.focus()
+    }
   }
 
   const contesto: ContestoModale = { corpo, chiudi, mostraErrori, occupato: () => undefined, scope }
 
   const modulo = h('form', {
     class: ['modale', `modale--${opzioni.larghezza ?? 'media'}`], // testo-fisso: classe CSS
-    attr: { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titoloId },
+    attr: {
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-labelledby': titoloId,
+      'aria-describedby': erroriId,
+    },
     onsubmit: (evento: Event) => {
       evento.preventDefault()
       if (!opzioni.alSalva || impegnata()) return

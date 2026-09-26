@@ -6,6 +6,7 @@ import {
   giorniBrevi,
   mesi,
   daIso,
+  formattaData,
   formattaMese,
   giornoDelMese,
   giornoSettimana,
@@ -97,6 +98,16 @@ export function vistaMese (): HTMLElement {
     const inAula = classiInAula(delGiorno, data)
     const primoDelSuoMese = giornoDelMese(data) === 1
 
+    /** Apre dal giorno vuoto la stessa finestra del doppio clic. */
+    const creaLezione = (): void => {
+      if (!inModifica()) return
+      moduloLezione({
+        data,
+        corsoId: stato.filtroCorsoAgendaId ?? undefined,
+        dopo: (id) => aggiorna({ vista: 'lezione', lezioneId: id }),
+      })
+    }
+
     return h(
       'div',
       {
@@ -111,18 +122,28 @@ export function vistaMese (): HTMLElement {
           data === stato.data && 'mese__cella--scelta',
           chiusura(data) && 'giorno--chiuso',
         ],
-        attr: { title: chiusura(data) || null },
+        attr: {
+          title: chiusura(data) || null,
+          role: 'group',
+          tabindex: '0',
+          'aria-label': formattaData(data, 'lungo'),
+          'aria-current': data === oggi() ? 'date' : null,
+          'aria-keyshortcuts': 'Enter Space F2', // testo-fisso: nomi dei tasti per i lettori di schermo
+        },
         // Il corso filtrato arriva anche da qui, come negli altri punti in cui si
         // crea un'ora. Solo in modifica.
-        ondblclick: () => {
-          if (!inModifica()) return
-          moduloLezione({
-            data,
-            corsoId: stato.filtroCorsoAgendaId ?? undefined,
-            dopo: (id) => aggiorna({ vista: 'lezione', lezioneId: id }),
-          })
-        },
+        ondblclick: creaLezione,
         onclick: () => aggiorna({ data }),
+        onkeydown: (evento: KeyboardEvent) => {
+          if (evento.target !== evento.currentTarget) return
+          if (evento.key === 'Enter' || evento.key === ' ') {
+            evento.preventDefault()
+            aggiorna({ data })
+          } else if (evento.key === 'F2' && inModifica()) {
+            evento.preventDefault()
+            creaLezione()
+          }
+        },
         // Nel mese si sposta di giorno, non di ora: l'ora resta quella.
         ondragover: (evento: DragEvent) => {
           if (!trascinata) return

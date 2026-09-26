@@ -1,4 +1,4 @@
-import { sidebar, sidebarAperta } from './sidebar.js'
+import { chiudiSidebarMobile, sfondoSidebar, sidebar, sidebarAperta } from './sidebar.js'
 import { assistenteAperto, pannelloAssistente } from './assistant.js'
 // Telaio: navigazione e comandi, contenuto, stato.
 
@@ -173,12 +173,16 @@ export function guscio (): Figlio {
         sidebarAperta() && 'guscio--con-sidebar',
         assistenteAperto() && 'guscio--con-assistente',
       ],
+      onkeydown: (evento: KeyboardEvent) => {
+        if (evento.key === 'Escape' && chiudiSidebarMobile()) evento.preventDefault()
+      },
     },
     filoDiLavoro(),
     // La barra del titolo della finestra, disegnata dal registro: sopra tutto,
     // anche sopra la navigazione, perché è il bordo della finestra (`ui/titleBar.ts`).
     barraTitolo(),
     // La barra dei comandi sta nel telaio e non nella vista: parla di tutto il registro.
+    sfondoSidebar(),
     sidebar(),
     barraComandi(),
     h(

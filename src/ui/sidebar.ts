@@ -30,6 +30,23 @@ function imposta (aperta: boolean, restituisciFuoco = false): void {
   })
 }
 
+/** Chiude il cassetto stretto senza cambiare la scelta della sidebar desktop. */
+export function chiudiSidebarMobile (restituisciFuoco = true): boolean {
+  if (!stretta.matches || !stato.sidebarMobile) return false
+  imposta(false, restituisciFuoco)
+  return true
+}
+
+/** Velo del cassetto: separato dalla navigazione, così copre anche la pagina. */
+export function sfondoSidebar (): Figlio {
+  if (!stretta.matches || !sidebarAperta()) return null
+  return h('div', {
+    class: 'sidebar__sfondo',
+    attr: { 'aria-hidden': 'true' },
+    onclick: () => chiudiSidebarMobile(),
+  })
+}
+
 function interruttoreSidebar (): Figlio {
   // C'è solo se c'è qualcosa da aprire o chiudere. Il nome resta «Navigazione»
   // in tutti e due gli stati e lo stato lo dice `aria-expanded`; il gesto lo
@@ -72,7 +89,7 @@ export function sidebar (): HTMLElement {
     onkeydown: (evento: KeyboardEvent) => {
       if (evento.key === 'Escape') {
         evento.preventDefault()
-        imposta(false, true)
+        chiudiSidebarMobile()
       }
     },
   },
@@ -97,7 +114,7 @@ export function sidebar (): HTMLElement {
         },
         onclick: () => {
           vaiA(pagina)
-          if (stretta.matches && sidebarAperta() && !pagina.impedimento?.()) imposta(false, true)
+          if (!pagina.impedimento?.()) chiudiSidebarMobile()
         },
         // Il conto in coda, solo se maggiore di zero.
       }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),

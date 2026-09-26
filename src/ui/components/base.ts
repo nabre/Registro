@@ -143,33 +143,32 @@ export function selettore<T extends string> (
   al: (scelto: T) => void,
   etichetta = testi().scheda,
 ): HTMLElement {
-  const bottoni = voci.map((voce) =>
-    h(
+  // `h()` omette gli attributi con valore booleano `false`: per ARIA serve
+  // invece la stringa esplicita, altrimenti axe vede radio senza
+  // `aria-checked`. Se il valore sta assestandosi, la prima voce resta la
+  // scelta accessibile temporanea: un radiogroup non espone mai zero scelte.
+  const indiceAttivo = Math.max(0, voci.findIndex((voce) => voce.valore === valore))
+  const bottoni = voci.map((voce, indice) => {
+    const attiva = indice === indiceAttivo
+    return h(
       'button',
       {
-        class: ['selettore__voce', voce.valore === valore && 'selettore__voce--attiva'],
+        class: ['selettore__voce', attiva && 'selettore__voce--attiva'],
         type: 'button',
         attr: {
           role: 'radio',
-          'aria-checked': voce.valore === valore,
-          tabindex: voce.valore === valore ? 0 : -1,
+          'aria-checked': String(attiva),
+          tabindex: attiva ? 0 : -1,
         },
         // La chiave di fuoco solo sulla voce accesa: la freccia sceglie, la pagina si
         // ridisegna, e il fuoco ritrova la voce accesa nel gruppo nuovo.
-        dataset: { fuoco: voce.valore === valore ? `selettore:${etichetta}` : undefined }, // testo-fisso: chiave di fuoco, non si legge
+        dataset: { fuoco: attiva ? `selettore:${etichetta}` : undefined }, // testo-fisso: chiave di fuoco, non si legge
         onclick: () => al(voce.valore),
       },
       voce.simbolo ? icona(voce.simbolo) : null,
       h('span', null, voce.testo),
-    ),
-  )
-
-  // Nessuna voce corrisponde al valore (lo stato si sta assestando): la prima
-  // resta nel giro del Tab.
-  if (!voci.some((voce) => voce.valore === valore) && bottoni[0]) {
-    bottoni[0].setAttribute('tabindex', '0')
-    bottoni[0].dataset.fuoco = `selettore:${etichetta}` // testo-fisso: chiave di fuoco, non si legge
-  }
+    )
+  })
 
   const gruppo = h(
     'div',

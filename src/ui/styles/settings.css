@@ -55,8 +55,9 @@
 .gruppo-voce--attivo {
   background: color-mix(in srgb, var(--accento) 14%, transparent);
   border-color: color-mix(in srgb, var(--accento) 45%, transparent);
-  color: var(--accento);
+  color: var(--testo);
 }
+.gruppo-voce--attivo .icona { color: var(--accento); }
 
 /* La sezione che si salva nel file dell'anno porta la pastiglia; le altre no. */
 .sezione-voce__ambito {

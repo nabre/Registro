@@ -47,12 +47,19 @@
    * sotto, in `em`, che crescono con la «Dimensione testo» di Windows. Dove una
    * pagina chiede un valore suo (0.94em per una tabella) lo tiene scritto lì.
    */
-  --corpo-minuto: 0.72em;
-  --corpo-minore: 0.78em;
-  --corpo-nota: 0.82em;
-  --corpo-piccolo: 0.85em;
-  --corpo-vicino: 0.9em;
+  /* Il gradino più basso vale circa 12px col corpo di serie da 14px. */
+  --corpo-minuto: 0.86em;
+  --corpo-minore: 0.88em;
+  --corpo-nota: 0.9em;
+  --corpo-piccolo: 0.92em;
+  --corpo-vicino: 0.95em;
   --corpo-titolo: 1.05em;
+
+  /* Controlli e aree interattive. L'icona resta piccola; cresce la presa. */
+  --altezza-controllo: 34px;
+  --bersaglio-compatto: 32px;
+  --bersaglio-comodo: 40px;
+  --bersaglio-tattile: 44px;
 
   /* ------------------------------------------------- il riempimento dei comandi
    *
@@ -66,8 +73,8 @@
   /* La barra comandi, fitta per stare su una riga. Vale quanto `--dentro-campo`
      ma è un token distinto: se i campi prendono aria, la barra non li segue. */
   --dentro-comando-fitto: 5px 8px;
-  /* Un comando solo icona: 4px per lato su un'icona da 16 fanno i 24px di WCAG 2.5.8. */
-  --dentro-nudo: 4px;
+  /* Un comando solo icona: il riempimento porta la presa ad almeno 32px. */
+  --dentro-nudo: 7px;
   /* Il margine di una scheda, di lato e in fondo: una scheda bianca chiede più
      aria di un riquadro. Fuori scala perché la chiede solo lei. */
   --dentro-scheda: 20px;

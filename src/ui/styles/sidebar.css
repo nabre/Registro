@@ -102,17 +102,23 @@
 .sidebar__pagina[aria-current="page"] .icona { color: var(--accento); }
 .sidebar__pagina[aria-disabled="true"] { color: var(--testo-quieto); opacity: .65; }
 .sidebar__pagina:focus-visible { outline: 2px solid var(--fuoco); outline-offset: -2px; }
-/* Su finestre strette la navigazione si apre sopra la pagina, senza coprirla.
-   Ha uno scorrimento proprio e si richiude dopo aver scelto la destinazione. */
+/* Su finestre strette la colonna compatta resta nel telaio. Aperta, la
+   navigazione diventa un cassetto sopra il lavoro: la pagina non cambia misura. */
 @media (max-width: 64em) {
   .guscio--con-sidebar {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-    grid-template-areas: "titolo" "comandi" "sidebar" "contenuto" "stato";
+    grid-template-columns: var(--sidebar-stretta) minmax(0, 1fr);
+    grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
   }
-  .guscio--con-sidebar .sidebar { max-height: 45vh; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--bordo); }
-  /* Aperta sopra la pagina: resta solo l'intestazione con l'interruttore, a destra. */
-  .guscio--con-sidebar .sidebar { padding-top: 0; }
+  .guscio--con-sidebar .sidebar {
+    position: fixed;
+    inset: var(--barra-titolo-alta) auto 0 0;
+    z-index: 20;
+    width: min(22rem, calc(100vw - 3rem));
+    max-height: none;
+    padding: 0 16px 16px;
+    border-right: 1px solid var(--bordo);
+    box-shadow: var(--ombra-3);
+  }
   .guscio--con-sidebar .sidebar__marchio { margin: 0 -16px 4px; padding: 8px 16px; justify-content: flex-end; }
   .guscio--con-sidebar .sidebar__marchio > .sidebar__logo,
   .guscio--con-sidebar .sidebar__marchio > div { display: none; }
@@ -120,6 +126,12 @@
   /* Nella griglia il programma è una casella come le altre: niente fondo, niente filo sopra. */
   .guscio--con-sidebar .sidebar__gruppo--sistema { margin-top: 0; padding-top: 0; border-top: 0; }
   .sidebar__pagina { min-height: 40px; }
+  .sidebar__sfondo {
+    position: fixed;
+    inset: var(--barra-titolo-alta) 0 0;
+    z-index: 19;
+    background: color-mix(in srgb, var(--testo) 24%, transparent);
+  }
 }
 
 /* Richiusa, la sidebar conserva tutte le destinazioni sotto forma di icona. */

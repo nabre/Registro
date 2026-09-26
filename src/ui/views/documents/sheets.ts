@@ -331,7 +331,9 @@ function gestiFoglio (opzioni: Gesti): Figlio[] {
       simbolo: 'lente',
       variante: 'fantasma',
       // Il pulsante del foglio già nella cornice resta acceso: dice a quale riga appartiene.
-      classe: aperto(opzioni.foglio) ? 'pulsante--minuto pulsante--acceso' : 'pulsante--minuto',
+      classe: aperto(opzioni.foglio)
+        ? 'pulsante--minuto pulsante--acceso documenti__apri'
+        : 'pulsante--minuto documenti__apri',
       titolo: !trovato
         ? t.nonAncoraNome(opzioni.nome)
         : aperto(opzioni.foglio)
@@ -405,6 +407,18 @@ export function rigaFoglio (
 ): HTMLElement {
   const gesti = gestiFoglio(opzioni)
   const suo = opzioni.foglio.trovato
+  // Il nome Ã¨ il gesto principale e resta raggiungibile senza puntatore. La
+  // lente offre lo stesso gesto con un'etichetta piÃ¹ descrittiva.
+  const etichetta = h(
+    'button',
+    {
+      class: 'pulsante pulsante--fantasma documenti__nome documenti__nome-apri',
+      type: 'button',
+      disabled: !suo,
+      onclick: () => guarda(suo),
+    },
+    opzioni.etichetta,
+  )
 
   return h(
     'li',
@@ -420,7 +434,7 @@ export function rigaFoglio (
       onclick: alClicSullaRiga(opzioni),
     },
     spunta(opzioni.foglio, opzioni.nome),
-    opzioni.etichetta,
+    etichetta,
     opzioni.segni ?? null,
     ...gesti,
   )

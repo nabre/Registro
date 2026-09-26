@@ -78,6 +78,7 @@ interface VoceColonna {
 }
 
 function voceColonna (voce: VoceColonna, attiva: boolean, al: () => void): HTMLElement {
+  const id = `impostazioni-scheda-${voce.ambito}-${voce.id}` // testo-fisso: id DOM, non si legge
   return h(
     'button',
     {
@@ -86,8 +87,16 @@ function voceColonna (voce: VoceColonna, attiva: boolean, al: () => void): HTMLE
       // testo-fisso: la chiave di fuoco, non la legge nessuno
       dataset: { fuoco: `sezione-${voce.ambito}-${voce.id}` },
       // Il riassunto sta nel titolo: nella fascia le sezioni sono in fila.
-      attr: { role: 'tab', 'aria-selected': attiva ? 'true' : 'false', title: voce.sottotitolo },
+      attr: {
+        id,
+        role: 'tab',
+        'aria-selected': attiva ? 'true' : 'false',
+        'aria-controls': 'impostazioni-pannello', // testo-fisso: id DOM, non si legge
+        tabindex: attiva ? '0' : '-1',
+        title: voce.sottotitolo,
+      },
       onclick: al,
+      onkeydown: muoviFraSchede,
     },
     h(
       'span',
@@ -108,6 +117,26 @@ function voceColonna (voce: VoceColonna, attiva: boolean, al: () => void): HTMLE
         : null,
     ),
   )
+}
+
+/** Movimento APG dentro una riga di schede, con attivazione automatica. */
+function muoviFraSchede (evento: KeyboardEvent): void {
+  const tasti = [...(evento.currentTarget as HTMLElement)
+    .closest('[role="tablist"]')
+    ?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []]
+  if (tasti.length === 0) return
+  const corrente = tasti.indexOf(evento.currentTarget as HTMLButtonElement)
+  let prossimo: number | null = null
+  if (evento.key === 'ArrowRight' || evento.key === 'ArrowDown') prossimo = (corrente + 1) % tasti.length
+  if (evento.key === 'ArrowLeft' || evento.key === 'ArrowUp') prossimo = (corrente - 1 + tasti.length) % tasti.length
+  if (evento.key === 'Home') prossimo = 0
+  if (evento.key === 'End') prossimo = tasti.length - 1
+  if (prossimo === null) return
+  evento.preventDefault()
+  const tasto = tasti[prossimo]
+  // Il ridisegno ricorda il `data-fuoco` dell'elemento attivo.
+  tasto.focus()
+  tasto.click()
 }
 
 /** La sezione aperta, con il suo gruppo: la stessa che dicono il percorso e la veduta. */
@@ -141,7 +170,8 @@ function voceGruppo (gruppo: GruppoSezioni, attivo: boolean): HTMLElement {
       type: 'button',
       // testo-fisso: la chiave di fuoco, non la legge nessuno
       dataset: { fuoco: `gruppo-${gruppo.id}` },
-      attr: { role: 'tab', 'aria-selected': attivo ? 'true' : 'false' },
+      // Cambia il gruppo di schede, non rappresenta esso stesso un pannello.
+      attr: { 'aria-pressed': attivo ? 'true' : 'false' },
       onclick: () => apriGruppo(gruppo),
     },
     icona(gruppo.simbolo),
@@ -154,7 +184,7 @@ function voceGruppo (gruppo: GruppoSezioni, attivo: boolean): HTMLElement {
  * di quello acceso sotto; resta attaccata in alto scorrendo. Un gruppo di una
  * sezione sola non ha la seconda riga.
  */
-function colonnaSezioni (cercando: boolean): HTMLElement {
+function colonnaSezioni (): HTMLElement {
   const qui = aperta()
   const gruppo = qui.gruppo
 
@@ -178,8 +208,8 @@ function colonnaSezioni (cercando: boolean): HTMLElement {
         // Il numero accanto al titolo dice dove si è messo mano.
         segno: scritte > 0 ? String(scritte) : undefined,
       },
-      // Filtrando nessuna sezione è accesa: l'elenco le attraversa tutte.
-      qui.ambito === 'programma' && !cercando && sezione.id === qui.id,
+      // Anche filtrando una scheda resta selezionata, come richiede il pattern ARIA.
+      qui.ambito === 'programma' && sezione.id === qui.id,
       () => {
         // Scegliere una sezione svuota il filtro, che resterebbe su una sezione non visibile.
         cercatoNelProgramma = ''
@@ -193,7 +223,7 @@ function colonnaSezioni (cercando: boolean): HTMLElement {
     { class: 'impostazioni__fascia' },
     h(
       'nav',
-      { class: 'impostazioni__gruppi', attr: { role: 'tablist', 'aria-label': testi().gruppi } },
+      { class: 'impostazioni__gruppi', attr: { 'aria-label': testi().gruppi } },
       ...GRUPPI_SEZIONI.map((candidato) => voceGruppo(candidato, candidato.id === gruppo.id)),
     ),
     gruppo.voci.length > 1
@@ -342,6 +372,9 @@ function contenutoDocumento (): Figlio[] {
 
 export function vistaImpostazioni (): Figlio {
   const ambito = stato.ambitoImpostazioni
+  const qui = aperta()
+  const haSchede = qui.gruppo.voci.length > 1
+  const schedaId = `impostazioni-scheda-${qui.ambito}-${qui.id}` // testo-fisso: id DOM, non si legge
 
   return h(
     'div',
@@ -351,10 +384,18 @@ export function vistaImpostazioni (): Figlio {
       titolo: testi().titolo,
       aiuto: ambito === 'programma' ? dovVannoLeOpzioni() : testi().documentoAiuto,
     }),
-    colonnaSezioni(ambito === 'programma' && paroleCercate().length > 0),
+    colonnaSezioni(),
     h(
       'div',
-      { class: 'colonna colonna--impostazioni' },
+      {
+        class: 'colonna colonna--impostazioni',
+        id: 'impostazioni-pannello', // testo-fisso: id DOM, non si legge
+        attr: {
+          role: 'tabpanel',
+          'aria-labelledby': haSchede ? schedaId : undefined,
+          'aria-label': haSchede ? undefined : qui.gruppo.titolo,
+        },
+      },
       ...(ambito === 'programma' ? contenutoProgramma() : contenutoDocumento()),
     ),
   )

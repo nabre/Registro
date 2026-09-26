@@ -232,7 +232,8 @@
  * `--corpo` è l'unica misura del testo dichiarata; il resto la segue in `em`.
  * È in `rem`: la radice vale `defaultFontSize`, che il main ricava dalla
  * «Dimensione testo» di Windows (`src/environment/theme.ts`), così il registro
- * cresce come il resto del computer. 0.8125rem è 13px con la radice a 16.
+ * cresce come il resto del computer. 0.875rem è 14px con la radice a 16:
+ * resta fitto, ma note e comandi non partono da una misura troppo minuta.
  *
  * Gli spazi restano in pixel: «Dimensione testo» ingrandisce il testo, non i
  * margini, e i riquadri si allargano perché li spinge il testo.
@@ -243,7 +244,7 @@
   --carattere-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'JetBrains Mono',
     Menlo, Consolas, monospace;
 
-  --corpo: 0.8125rem;
+  --corpo: 0.875rem;
   --interlinea: 1.5;
 }
 

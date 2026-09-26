@@ -69,6 +69,7 @@ input[type='email'],
 input[type='number'],
 select {
   width: 100%;
+  min-height: var(--altezza-controllo);
   padding: 6px 9px;
   font: inherit;
   color: var(--testo);
@@ -107,6 +108,7 @@ input[type='checkbox'] {
 
 button {
   min-width: 5.75rem;
+  min-height: var(--bersaglio-compatto);
   padding: 6px 14px;
   font: inherit;
   color: var(--testo);
@@ -138,11 +140,23 @@ button:disabled {
 
 /* Un pulsante piccolo e tondo per le azioni di contorno: «ritira il valore». */
 button.minuto {
-  min-width: 0;
-  padding: 1px 9px;
-  font-size: 0.86em;
+  min-width: var(--bersaglio-compatto);
+  min-height: var(--bersaglio-compatto);
+  padding: 4px 9px;
+  font-size: var(--corpo-minuto);
   background: transparent;
   border-radius: var(--raggio-pastiglia);
+}
+
+@media (pointer: coarse) {
+  button,
+  button.minuto {
+    min-height: var(--bersaglio-tattile);
+  }
+
+  button.minuto {
+    min-width: var(--bersaglio-tattile);
+  }
 }
 
 /* ------------------------------------------------------ elenchi da scegliere

@@ -18,6 +18,14 @@ import { RADICE } from './common.mjs'
  */
 const PROVE = [
   'tests/ui/navigation.py',
+  'tests/ui/calendarKeyboard.py',
+  'tests/ui/documentsKeyboard.py',
+  'tests/ui/settingsKeyboard.py',
+  'tests/ui/modalErrors.py',
+  'tests/ui/selectorA11y.py',
+  'tests/ui/readability.py',
+  'tests/ui/sidebarDrawer.py',
+  'tests/ui/calendarContrast.py',
   'tests/ui/scroll.py',
   'tests/ui/movimento.py',
   'tests/ui/pageBrowser.py',
@@ -33,6 +41,7 @@ const PROVE = [
   'tests/ui/schoolCalendar.py',
   'tests/ui/giornata.py',
   'tests/ui/oggi.py',
+  'tests/ui/accessibility.py',
 ]
 
 /**

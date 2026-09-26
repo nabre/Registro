@@ -185,6 +185,11 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Interfaccia
 
+- [ ] `aggiorna()` ridisegna ancora l'intera radice: misurare le viste dense e
+      separare gli aggiornamenti locali prima di aggiungere altra complessità.
+- [ ] Spezzare le viste più grandi per responsabilità, iniziando da
+      `views/settings.ts` e dai fogli dei documenti; estrarre solo componenti
+      con stato, gesti o contratto accessibile propri.
 - [ ] Adottare i token nelle pagine: valori unici (0,94em, 0,66em, 1,18em) da
       decidere uno per uno; sette punti di rottura in `px` non scalano con
       «Dimensione testo». Anche il calendario (`calendar.css`) e le pagine con

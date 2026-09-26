@@ -63,7 +63,12 @@
 .appello__cella { width: 34px; }
 .appello thead .appello__cella { display: table-cell; }
 .appello__ud { display: block; font-size: 0.9em; }
-.appello__ora { display: block; font-weight: 400; font-size: 0.85em; opacity: 0.75; }
+.appello__ora {
+  display: block;
+  color: var(--testo-quieto);
+  font-weight: 400;
+  font-size: var(--corpo-piccolo);
+}
 
 /* Dove c'era una pausa le colonne si staccano. */
 .appello__cella--stacco { border-left: 2px solid var(--bordo); }

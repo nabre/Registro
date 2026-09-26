@@ -881,7 +881,9 @@
   color: var(--testo);
 }
 
-.striscia-settimane__voce--vuota { opacity: 0.75; }
+.striscia-settimane__voce--vuota .striscia-settimane__numero {
+  color: var(--testo-quieto);
+}
 
 /*
  * Col calendario ICS acceso, la settimana in cui qualcosa non torna: bordo in
@@ -936,7 +938,7 @@
 /* Una settimana tutta di vacanza si spegne invece di chiedere attenzione. */
 .striscia-settimane__voce--sospesa {
   border-style: dashed;
-  opacity: 0.5;
+  background: var(--velo-quieto);
 }
 
 .striscia-settimane__voce--corrente {
