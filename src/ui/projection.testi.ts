@@ -33,7 +33,8 @@ const it = {
   entro: (scadenza: string) => `entro ${scadenza}`,
   senzaTermine: 'senza termine',
   manca: (chi: string) => ` · manca: ${chi}`,
-  appello: (presenti: number, totale: number) => `Appello · ${presenti} su ${totale}`,
+  appello: (presenti: number, totale: number) =>
+    `Appello · ${presenti} su ${totale}`,
 
   // L'attesa.
   registro: 'Registro',
@@ -42,7 +43,7 @@ const it = {
   riprende: 'lo schermo riprende quando il docente lo riaccende',
   nienteDaMostrare: 'Niente da mostrare',
   schermoPulito: 'Schermo pulito',
-  apriUnOra: 'apri un’ora nel registro',
+  apriUnOra: 'apri una lezione nel registro',
   nessunaScheda: 'nessuna scheda aperta: si aprono dal pannello',
 }
 
@@ -68,11 +69,13 @@ export const testi = catalogo(it, {
     entro: (scadenza) => `bis ${scadenza}`,
     senzaTermine: 'ohne Frist',
     manca: (chi) => ` · fehlt: ${chi}`,
-    appello: (presenti, totale) => `Präsenzkontrolle · ${presenti} von ${totale}`,
+    appello: (presenti, totale) =>
+      `Präsenzkontrolle · ${presenti} von ${totale}`,
     registro: 'Klassenbuch',
     inAttesa: 'wartet auf das Klassenbuch',
     pausa: 'Pause',
-    riprende: 'der Bildschirm geht weiter, wenn die Lehrperson ihn wieder einschaltet',
+    riprende:
+      'der Bildschirm geht weiter, wenn die Lehrperson ihn wieder einschaltet',
     nienteDaMostrare: 'Nichts anzuzeigen',
     schermoPulito: 'Leerer Bildschirm',
     apriUnOra: 'öffne eine Stunde im Klassenbuch',

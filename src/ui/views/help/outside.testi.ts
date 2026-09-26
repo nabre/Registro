@@ -18,7 +18,7 @@ const it = {
     sommario:
       'Il registro a portata di tasto destro, anche a finestre chiuse. Ed è da lì che si esce.',
     scritte: {
-      titoloMenu: 'Regiclass — 2 ore da chiudere',
+      titoloMenu: 'Regiclass — 2 lezioni da chiudere',
       adesso: 'Adesso: ▶ oggi · 10:10–10:55 · …',
       daCompilare: '⚠ Da compilare: I MEC A — Matematica …',
       corsoUno: '⚠ I MEC A — Matematica',
@@ -44,10 +44,10 @@ const it = {
         legenda: [
           'L’icona: un clic riporta davanti il registro — o il benvenuto, senza un anno ' +
             'aperto —, il tasto destro apre il menu.',
-          'Quante ore dell’anno restano da chiudere.',
+          'Quante lezioni dell’anno restano da chiudere.',
           'Dove andare adesso: l’ora in corso, poi quella da compilare — o la prossima.',
           'Un corso per riga, con il segno della sua ora più urgente.',
-          'Le ore del corso in mucchi, con il numero vero fra parentesi.',
+          'Le lezioni del corso in gruppi, con il numero vero fra parentesi.',
           'L’uscita vera anche a finestre chiuse; a registro aperto c’è anche **Esci** nel menu.',
         ],
       },
@@ -57,12 +57,12 @@ const it = {
         termine: 'Il suggerimento',
         testo:
           'Fermandosi sull’icona senza premere si legge l’ora in corso — o quella da ' +
-          'compilare — e quante ore restano da chiudere.',
+          'compilare — e quante lezioni restano da chiudere.',
       },
       {
-        termine: 'Le ore di un corso',
+        termine: 'Le lezioni di un corso',
         testo:
-          'Il sottomenu divide le ore in **In corso**, **Da chiudere**, **Prossime**, ' +
+          'Il sottomenu divide le lezioni in **In corso**, **Da chiudere**, **Prossime**, ' +
           '**Svolte**, **Annullate**; oltre le prime righe dice «e altre N…», e per vederle ' +
           'tutte c’è **Apri il corso**. Un clic su un’ora apre la sua pagina **Lezione**.',
       },
@@ -75,7 +75,7 @@ const it = {
           'dodici ore svolte e un buco, dal primo livello si vede il buco.',
       },
       {
-        termine: 'Il motivo accanto all’ora',
+        termine: 'Il motivo accanto alla lezione',
         testo:
           '«senza appello» o «non segnata svolta» per un’ora da chiudere, «senza piano» o ' +
           '«scaletta corta» per una da preparare, «2 assenti» o «tutti presenti» per una ' +
@@ -128,14 +128,15 @@ const it = {
   },
   promemoria: {
     titolo: 'Il promemoria prima della lezione',
-    sommario: 'Una notifica del sistema poco prima che l’ora cominci, anche a finestre chiuse.',
+    sommario:
+      'Una notifica del sistema poco prima che l’ora cominci, anche a finestre chiuse.',
     scritte: {
       titolo: 'I MEC A fra 5 minuti',
       orario: '08:20–09:05 · Matematica · B12',
       consegne: `${quanti(2, CARTE.pendenza)} (1 in ritardo, 1 da fare): …`,
       unClic: 'un clic',
       lezione: 'Lezione',
-      paginaDellOra: 'la pagina di quell’ora',
+      paginaDellOra: 'la pagina di quella lezione',
       unaVoltaSola: 'si annuncia una volta sola, dentro questa finestra',
       avviso: '08:15 · avviso',
       inizio: '08:20 · inizio',
@@ -145,7 +146,7 @@ const it = {
       {
         didascalia:
           'La notifica di un’ora che comincia alle 08:20, con l’anticipo di serie. Premuta, ' +
-          'apre il registro su quell’ora.',
+          'apre il registro su quella lezione.',
         legenda: [
           'L’anticipo: cinque minuti di serie, da 0 a 120.',
           'Il titolo: la classe, e quanto manca.',
@@ -192,7 +193,8 @@ const it = {
   },
   proiezione: {
     titolo: 'Proiezione',
-    sommario: 'Lo schermo per la classe: una vista diversa sugli stessi dati, non il registro.',
+    sommario:
+      'Lo schermo per la classe: una vista diversa sugli stessi dati, non il registro.',
     scritte: {
       lezione: 'Lezione',
       valutazioni: 'Valutazioni',
@@ -227,7 +229,7 @@ const it = {
           'schermo grande non c’è nessun comando.',
         legenda: [
           '**Proietta** apre lo schermo; acceso, il pulsante dice **Spegni lo schermo** e ' +
-          'porta un punto verde.',
+            'porta un punto verde.',
           '**Proiezione** mette nella riga delle azioni i comandi dello schermo.',
           'La fascia: spenta, accesa in coda, in vista. Un clic la mette in vista.',
           'Parte solo la scheda in vista: il resto non esce dal registro.',
@@ -250,7 +252,7 @@ const it = {
           'e la si porta a mano.',
       },
       {
-        termine: 'Segue l’ora aperta',
+        termine: 'Segue la lezione aperta',
         testo:
           'Lo schermo mostra l’ora aperta nel registro, e si aggiorna da sé a ogni tappa ' +
           'spuntata o argomento scritto. Senza un’ora aperta mostra il corso scelto; senza ' +
@@ -315,7 +317,8 @@ const it = {
   },
   rigaDiComando: {
     titolo: 'Riga di comando',
-    sommario: 'Per chi automatizza: il registro acceso risponde a un comando dal terminale.',
+    sommario:
+      'Per chi automatizza: il registro acceso risponde a un comando dal terminale.',
     scritte: {
       terminale: 'Terminale',
       condotto: 'Condotto',
@@ -383,7 +386,7 @@ const it = {
         testo:
           'Con le virgole, `--campo a,b,c`, o in JSON, `--campo \'["a","b"]\'`; `--campo ""` è ' +
           'l’elenco vuoto. Quel che un’opzione non sa dire — un elenco di oggetti — passa con ' +
-          '`--json \'{"campo": […]}\'`: l’ingresso intero, sempre un oggetto, che vince sulle ' +
+          "`--json '{\"campo\": […]}'`: l’ingresso intero, sempre un oggetto, che vince sulle " +
           'opzioni. `--json` seguito da un elenco si rifiuta; da solo stampa la risposta grezza.',
       },
       {
@@ -753,7 +756,8 @@ export const testi = catalogo(it, {
     },
     rigaDiComando: {
       titolo: 'Befehlszeile',
-      sommario: 'Für alle, die automatisieren: Das laufende Klassenbuch antwortet auf einen ' +
+      sommario:
+        'Für alle, die automatisieren: Das laufende Klassenbuch antwortet auf einen ' +
         'Befehl aus dem Terminal.',
       scritte: {
         terminale: 'Terminal',
@@ -824,7 +828,7 @@ export const testi = catalogo(it, {
           testo:
             'Mit Kommas, `--campo a,b,c`, oder in JSON, `--campo \'["a","b"]\'`; `--campo ""` ' +
             'ist die leere Liste. Was eine Option nicht ausdrücken kann — eine Liste von ' +
-            'Objekten —, geht mit `--json \'{"campo": […]}\'`: die ganze Eingabe, immer ein ' +
+            "Objekten —, geht mit `--json '{\"campo\": […]}'`: die ganze Eingabe, immer ein " +
             'Objekt, das Vorrang vor den Optionen hat. `--json` gefolgt von einer Liste wird ' +
             'abgelehnt; allein gibt es die rohe Antwort aus.',
         },
@@ -1253,7 +1257,7 @@ export const testi = catalogo(it, {
           testo:
             'Avec des virgules, `--campo a,b,c`, ou en JSON, `--campo \'["a","b"]\'` ; ' +
             '`--campo ""` est la liste vide. Ce qu’une option ne sait pas dire — une liste ' +
-            'd’objets — passe par `--json \'{"campo": […]}\'` : l’entrée entière, toujours un ' +
+            "d’objets — passe par `--json '{\"campo\": […]}'` : l’entrée entière, toujours un " +
             'objet, qui l’emporte sur les options. `--json` suivi d’une liste est refusé ; seul, ' +
             'il imprime la réponse brute.',
         },
@@ -1482,7 +1486,8 @@ export const testi = catalogo(it, {
     },
     proiezione: {
       titolo: 'Projection',
-      sommario: 'The screen for the class: a different view of the same data, not the register.',
+      sommario:
+        'The screen for the class: a different view of the same data, not the register.',
       scritte: {
         lezione: Uno(EN.lezione),
         valutazioni: 'Assessments',
@@ -1606,7 +1611,8 @@ export const testi = catalogo(it, {
     },
     rigaDiComando: {
       titolo: 'Command line',
-      sommario: 'For those who automate: the running register answers a command from the terminal.',
+      sommario:
+        'For those who automate: the running register answers a command from the terminal.',
       scritte: {
         terminale: 'Terminal',
         condotto: 'Pipe',
@@ -1674,7 +1680,7 @@ export const testi = catalogo(it, {
           testo:
             'With commas, `--campo a,b,c`, or in JSON, `--campo \'["a","b"]\'`; `--campo ""` is ' +
             'the empty list. What an option cannot express — a list of objects — goes through ' +
-            '`--json \'{"campo": […]}\'`: the whole input, always an object, which wins over the ' +
+            "`--json '{\"campo\": […]}'`: the whole input, always an object, which wins over the " +
             'options. `--json` followed by a list is refused; on its own it prints the raw ' +
             'answer.',
         },

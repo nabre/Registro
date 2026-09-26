@@ -9,11 +9,12 @@ const it = {
   valutazioni: 'Valutazioni',
   nessunVoto: 'nessun voto',
   notaEMedia: (nota: string, media: string) => `nota ${nota} (media ${media})`,
-  votiSu: (voti: number, momenti: number) => `${plurale(voti, 'voto', 'voti')} su ${momenti}`,
+  votiSu: (voti: number, momenti: number) =>
+    `${plurale(voti, 'voto', 'voti')} su ${momenti}`,
   nessunMomento: 'Nessun momento di valutazione nel periodo.',
   peso: (peso: number) => `peso ${peso}`,
   comEAndata: 'Com’è andata',
-  nienteSegnato: 'Niente segnato sulla matrice, in queste ore.',
+  nienteSegnato: 'Niente segnato sulla matrice, in queste lezioni.',
   aspettiOraPerOra: 'Aspetti osservati, ora per ora',
   giorno: 'giorno',
   inTutto: 'in tutto',
@@ -23,11 +24,12 @@ const it = {
   fatte: 'fatte',
   daFare: 'da fare',
   diAssenza: (quota: string) => `${quota} di assenza`,
-  nessunaOra: 'nessuna ora nel periodo',
+  nessunaOra: 'nessuna lezione nel periodo',
   nota: (nota: string) => `nota ${nota}`,
-  ore: (ore: number) => plurale(ore, 'ora', 'ore'),
+  ore: (ore: number) => plurale(ore, 'lezione', 'lezioni'),
   oreSenzaCorso: 'Ore senza corso',
-  corsoEliminato: 'il corso è stato eliminato, quel che era stato annotato resta',
+  corsoEliminato:
+    'il corso è stato eliminato, quel che era stato annotato resta',
 }
 
 export const testi = catalogo(it, {
@@ -35,7 +37,8 @@ export const testi = catalogo(it, {
     valutazioni: 'Beurteilungen',
     nessunVoto: 'keine Note',
     notaEMedia: (nota, media) => `Note ${nota} (Durchschnitt ${media})`,
-    votiSu: (voti, momenti) => `${plurale(voti, 'Note', 'Noten')} von ${momenti}`,
+    votiSu: (voti, momenti) =>
+      `${plurale(voti, 'Note', 'Noten')} von ${momenti}`,
     nessunMomento: 'Keine Leistungsbeurteilung im Zeitraum.',
     peso: (peso) => `Gewichtung ${peso}`,
     comEAndata: 'Wie es lief',
@@ -58,7 +61,8 @@ export const testi = catalogo(it, {
     valutazioni: 'Évaluations',
     nessunVoto: 'pas de note',
     notaEMedia: (nota, media) => `note ${nota} (moyenne ${media})`,
-    votiSu: (voti, momenti) => `${plurale(voti, 'note', 'notes')} sur ${momenti}`,
+    votiSu: (voti, momenti) =>
+      `${plurale(voti, 'note', 'notes')} sur ${momenti}`,
     nessunMomento: 'Aucune évaluation dans la période.',
     peso: (peso) => `pondération ${peso}`,
     comEAndata: 'Comment ça s’est passé',
@@ -67,7 +71,8 @@ export const testi = catalogo(it, {
     giorno: 'jour',
     inTutto: 'en tout',
     nienteAnnotato: 'Rien de noté dans cette branche.',
-    tipoOsservazione: (tipo) => minuscolo(lessico().tipiOsservazione[tipo] ?? tipo),
+    tipoOsservazione: (tipo) =>
+      minuscolo(lessico().tipiOsservazione[tipo] ?? tipo),
     fatte: 'faites',
     daFare: 'à faire',
     diAssenza: (quota) => `${quota} d’absence`,
@@ -81,7 +86,8 @@ export const testi = catalogo(it, {
     valutazioni: 'Assessments',
     nessunVoto: 'no grade',
     notaEMedia: (nota, media) => `grade ${nota} (average ${media})`,
-    votiSu: (voti, momenti) => `${plurale(voti, 'grade', 'grades')} out of ${momenti}`,
+    votiSu: (voti, momenti) =>
+      `${plurale(voti, 'grade', 'grades')} out of ${momenti}`,
     nessunMomento: 'No assessments in the period.',
     peso: (peso) => `weight ${peso}`,
     comEAndata: 'How it went',
@@ -90,7 +96,8 @@ export const testi = catalogo(it, {
     giorno: 'day',
     inTutto: 'in total',
     nienteAnnotato: 'Nothing noted in this subject.',
-    tipoOsservazione: (tipo) => minuscolo(lessico().tipiOsservazione[tipo] ?? tipo),
+    tipoOsservazione: (tipo) =>
+      minuscolo(lessico().tipiOsservazione[tipo] ?? tipo),
     fatte: 'done',
     daFare: 'to do',
     diAssenza: (quota) => `${quota} absence`,

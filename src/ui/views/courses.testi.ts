@@ -6,15 +6,16 @@ import { plurale } from '../../domain/text.js'
 
 const it = {
   // I numeri del corso.
-  oreSvolte: 'ore svolte',
+  oreSvolte: 'lezioni svolte',
   udPreviste: 'UD previste',
   udACalendario: 'UD a calendario',
   annullate: 'annullate',
-  presenzaConAppello: 'presenza (ore con appello)',
+  presenzaConAppello: 'presenza (lezioni con appello)',
   udDiAssenzaSu: (previste: number) => `UD di assenza su ${previste}`,
   valutazioni: 'valutazioni',
   mediaDiClasse: 'media di classe',
-  mediaDiAlcuni: (conVoto: number, tutti: number) => `media di ${conVoto} su ${tutti}`,
+  mediaDiAlcuni: (conVoto: number, tutti: number) =>
+    `media di ${conVoto} su ${tutti}`,
   piani: 'piani',
 
   // La scheda del corso.
@@ -23,24 +24,29 @@ const it = {
   orarioNomeNote: 'Orario, nome e note del corso',
   nuovaLezione: 'Nuova lezione per questo corso',
   ilCheck: 'Il check di questo corso',
-  leOre: 'Le ore di questo corso e le loro scalette',
+  leOre: 'Le lezioni di questo corso e le loro scalette',
   eliminaCorso: 'Elimina il corso',
   corsoEliminato: 'Corso eliminato.',
   lezioneRicorrente: 'Lezione ricorrente:',
   udASettimana: (ud: number) => `${ud} UD a settimana · `,
   nessunaRicorrente: 'Lezione ricorrente: nessuna.',
-  prossimaOra: 'Prossima ora: ',
+  prossimaOra: 'Prossima lezione: ',
 
   // La tabella delle persone.
-  nessunoFrequenta:
-    `La classe non ha ${PIF.plurale} che frequentano: l’elenco si riempie dalla vista Classi.`,
+  nessunoFrequenta: `La classe non ha ${PIF.plurale} che frequentano: l’elenco si riempie dalla vista Classi.`,
   tuttoFatto: 'Tutto fatto',
   mancano: (colonne: readonly string[]) => `Mancano: ${colonne.join(', ')}`,
-  sottotitoloTabella: (ore: number, ud: number, prove: number, periodo: string) =>
-    `${plurale(ore, 'ora', 'ore')} · ` +
+  sottotitoloTabella: (
+    ore: number,
+    ud: number,
+    prove: number,
+    periodo: string,
+  ) =>
+    `${plurale(ore, 'lezione', 'lezioni')} · ` +
     `${ud} UD · ${plurale(prove, 'prova', 'prove')} · ` +
     periodo,
-  sulleUdPreviste: (previste: number) => `Sulle ${previste} UD che l’orario prevede nel periodo`,
+  sulleUdPreviste: (previste: number) =>
+    `Sulle ${previste} UD che l’orario prevede nel periodo`,
   assenza: 'Assenza',
   presenza: 'Presenza',
   udDiAssenza: 'UD di assenza',
@@ -48,7 +54,8 @@ const it = {
   udDelCorsoAiuto: 'Le UD che l’orario del corso prevede nel periodo',
   udDelCorso: 'UD del corso',
   ritardi: 'Ritardi',
-  segnatoAiuto: 'Le caselle segnate sulla matrice del comportamento, in queste ore',
+  segnatoAiuto:
+    'Le caselle segnate sulla matrice del comportamento, in queste lezioni',
   segnato: 'Segnato',
   checkAiuto: 'Le colonne del check fatte, su quante sono',
 
@@ -60,7 +67,8 @@ const it = {
   sigla: 'Sigla',
   siglaEsempio: 'SIG',
   siglaMateria: 'La sigla della materia',
-  siglaVuota: 'Vuota: vale quella ricavata dal nome, che si legge qui in trasparenza',
+  siglaVuota:
+    'Vuota: vale quella ricavata dal nome, che si legge qui in trasparenza',
   nomeMateria: 'Nome della materia',
   unisci: 'Unisci a un’altra materia…',
   nonSiElimina: (corsi: number) =>
@@ -76,7 +84,7 @@ const it = {
   titoloEOrario: 'Titolo e orario…',
   togliCorso: 'Togli il corso…',
   haLezioni: (lezioni: number) =>
-    `Ha ${plurale(lezioni, 'lezione', 'lezioni')}: si toglie solo un corso senza ore.`,
+    `Ha ${plurale(lezioni, 'lezione', 'lezioni')}: si toglie solo un corso senza lezioni.`,
   premiPerAprire: (titolo: string) => `${titolo}: premi per aprirlo qui sotto`,
   togliIlCorso: (dove: string) => `Togli il corso ${dove}`,
   nessunaClasse: 'Nessuna classe nell’anno',
@@ -101,7 +109,8 @@ export const testi = catalogo(it, {
     udDiAssenzaSu: (previste) => `Lektionen abwesend von ${previste}`,
     valutazioni: 'Beurteilungen',
     mediaDiClasse: 'Klassendurchschnitt',
-    mediaDiAlcuni: (conVoto, tutti) => `Durchschnitt von ${conVoto} der ${tutti}`,
+    mediaDiAlcuni: (conVoto, tutti) =>
+      `Durchschnitt von ${conVoto} der ${tutti}`,
     piani: 'Pläne',
     classeSparita: 'Klasse verschwunden',
     materiaSparita: 'Fach verschwunden',
@@ -130,18 +139,22 @@ export const testi = catalogo(it, {
     presenza: 'Anwesenheit',
     udDiAssenza: 'Lekt. abwesend',
     udSeguite: 'Lekt. besucht',
-    udDelCorsoAiuto: 'Die Lektionen, die der Stundenplan des Kurses im Zeitraum vorsieht',
+    udDelCorsoAiuto:
+      'Die Lektionen, die der Stundenplan des Kurses im Zeitraum vorsieht',
     udDelCorso: 'Lekt. des Kurses',
     ritardi: 'Verspätungen',
-    segnatoAiuto: 'Die markierten Felder in der Verhaltensmatrix, in diesen Stunden',
+    segnatoAiuto:
+      'Die markierten Felder in der Verhaltensmatrix, in diesen Stunden',
     segnato: 'Markiert',
     checkAiuto: 'Die erledigten Check-Spalten, von allen',
-    aiutoGriglia: 'Klick: heute erledigt · Rechtsklick: anderer Tag oder entfernen',
+    aiutoGriglia:
+      'Klick: heute erledigt · Rechtsklick: anderer Tag oder entfernen',
     coloreMateria: 'Die Farbe des Fachs',
     sigla: 'Kürzel',
     siglaEsempio: 'KRZ',
     siglaMateria: 'Das Kürzel des Fachs',
-    siglaVuota: 'Leer: Es gilt das aus dem Namen abgeleitete Kürzel, das hier blass zu sehen ist',
+    siglaVuota:
+      'Leer: Es gilt das aus dem Namen abgeleitete Kürzel, das hier blass zu sehen ist',
     nomeMateria: 'Name des Fachs',
     unisci: 'Mit einem anderen Fach zusammenführen…',
     nonSiElimina: (corsi) =>
@@ -157,14 +170,16 @@ export const testi = catalogo(it, {
     haLezioni: (lezioni) =>
       `Hat ${plurale(lezioni, 'Stunde', 'Stunden')}: ` +
       'Entfernen lässt sich nur ein Kurs ohne Stunden.',
-    premiPerAprire: (titolo) => `${titolo}: klicken, um ihn hier unten zu öffnen`,
+    premiPerAprire: (titolo) =>
+      `${titolo}: klicken, um ihn hier unten zu öffnen`,
     togliIlCorso: (dove) => `Kurs ${dove} entfernen`,
     nessunaClasse: 'Keine Klassen im Jahr',
     primaLaClasse:
       'Ein Kurs ist ein Fach in einer Klasse: Die Matrix hat die Klassen in den Spalten und die ' +
       'Fächer in den Zeilen. Zuerst die Klasse.',
     nuovaClasse: 'Neue Klasse',
-    corsoInUnAnno: 'Ein Kurs ist ein Fach, das eine Klasse in einem Schuljahr hat.',
+    corsoInUnAnno:
+      'Ein Kurs ist ein Fach, das eine Klasse in einem Schuljahr hat.',
     contiDel: (periodo) => `die Zahlen gelten für: ${periodo}`,
     aiuto: 'ein Fach in einer Klasse: ein Feld der Matrix',
   },
@@ -188,7 +203,8 @@ export const testi = catalogo(it, {
     eliminaCorso: 'Supprimer le cours',
     corsoEliminato: 'Cours supprimé.',
     lezioneRicorrente: 'Leçon récurrente :',
-    udASettimana: (ud) => `${plurale(ud, 'période', 'périodes')} par semaine · `,
+    udASettimana: (ud) =>
+      `${plurale(ud, 'période', 'périodes')} par semaine · `,
     nessunaRicorrente: 'Leçon récurrente : aucune.',
     prossimaOra: 'Prochaine leçon : ',
     nessunoFrequenta:
@@ -206,18 +222,22 @@ export const testi = catalogo(it, {
     presenza: 'Présence',
     udDiAssenza: 'Pér. d’absence',
     udSeguite: 'Pér. suivies',
-    udDelCorsoAiuto: 'Les périodes que l’horaire du cours prévoit dans l’intervalle choisi',
+    udDelCorsoAiuto:
+      'Les périodes que l’horaire du cours prévoit dans l’intervalle choisi',
     udDelCorso: 'Pér. du cours',
     ritardi: 'Retards',
-    segnatoAiuto: 'Les cases marquées dans la matrice du comportement, pendant ces leçons',
+    segnatoAiuto:
+      'Les cases marquées dans la matrice du comportement, pendant ces leçons',
     segnato: 'Marqué',
     checkAiuto: 'Les colonnes du check faites, sur le total',
-    aiutoGriglia: 'clic : fait aujourd’hui · clic droit : un autre jour, ou la retirer',
+    aiutoGriglia:
+      'clic : fait aujourd’hui · clic droit : un autre jour, ou la retirer',
     coloreMateria: 'La couleur de la branche',
     sigla: 'Sigle',
     siglaEsempio: 'SIG',
     siglaMateria: 'Le sigle de la branche',
-    siglaVuota: 'Vide : c’est le sigle tiré du nom qui s’applique, visible ici en transparence',
+    siglaVuota:
+      'Vide : c’est le sigle tiré du nom qui s’applique, visible ici en transparence',
     nomeMateria: 'Nom de la branche',
     unisci: 'Fusionner avec une autre branche…',
     nonSiElimina: (corsi) =>
@@ -239,7 +259,8 @@ export const testi = catalogo(it, {
       'Un cours, c’est une branche donnée à une classe : la matrice a les classes en colonnes ' +
       'et les branches en lignes. D’abord la classe.',
     nuovaClasse: 'Nouvelle classe',
-    corsoInUnAnno: 'Un cours est une branche donnée à une classe, au sein d’une année.',
+    corsoInUnAnno:
+      'Un cours est une branche donnée à une classe, au sein d’une année.',
     contiDel: (periodo) => `les chiffres portent sur : ${periodo}`,
     aiuto: 'une branche donnée à une classe : un croisement de la matrice',
   },
@@ -280,7 +301,8 @@ export const testi = catalogo(it, {
     presenza: 'Attendance',
     udDiAssenza: 'Periods absent',
     udSeguite: 'Periods attended',
-    udDelCorsoAiuto: 'The periods the course timetable schedules in this time frame',
+    udDelCorsoAiuto:
+      'The periods the course timetable schedules in this time frame',
     udDelCorso: 'Course periods',
     ritardi: 'Late arrivals',
     segnatoAiuto: 'The boxes marked on the behaviour matrix in these lessons',
@@ -291,7 +313,8 @@ export const testi = catalogo(it, {
     sigla: 'Abbreviation',
     siglaEsempio: 'ABB',
     siglaMateria: 'The subject’s abbreviation',
-    siglaVuota: 'Empty: the one derived from the name applies, shown here faintly',
+    siglaVuota:
+      'Empty: the one derived from the name applies, shown here faintly',
     nomeMateria: 'Subject name',
     unisci: 'Merge with another subject…',
     nonSiElimina: (corsi) =>
@@ -314,7 +337,8 @@ export const testi = catalogo(it, {
       'A course is a subject taught to a class: the matrix has classes as columns and subjects ' +
       'as rows. The class comes first.',
     nuovaClasse: 'New class',
-    corsoInUnAnno: 'A course is a subject taught to a class, within a school year.',
+    corsoInUnAnno:
+      'A course is a subject taught to a class, within a school year.',
     contiDel: (periodo) => `figures for: ${periodo}`,
     aiuto: 'a subject taught to a class: one cell of the matrix',
   },

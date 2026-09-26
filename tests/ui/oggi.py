@@ -1,9 +1,9 @@
-"""La pagina «Oggi»: la giornata in una schermata, a tessere che portano altrove.
+"""La Dashboard: la giornata in una schermata, a tessere che portano altrove.
 
 Qui si prova che:
 
-- al primo avvio, senza uno stato ricordato, il registro si apre su «Oggi», e
-  «Oggi» è la prima voce dell'agenda nella barra laterale;
+- al primo avvio, senza uno stato ricordato, il registro si apre sulla Dashboard,
+  prima voce dell'agenda nella barra laterale;
 - la pagina non ha comandi nella riga delle azioni (ADR-07: si guarda e si va);
 - le quattro tessere dicono gli stessi numeri delle pagine a cui portano, e
   ognuna porta alla sua: ore → Calendario (su oggi), da compilare → l'ora che
@@ -96,17 +96,21 @@ with sync_playwright() as p:
         page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
         page.wait_for_load_state('networkidle')
 
-        # Senza uno stato ricordato si comincia da «Oggi», prima voce dell'agenda.
+        # Senza uno stato ricordato si comincia dalla Dashboard, prima voce dell'agenda.
         assert page.evaluate('prova.stato.vista') == 'oggi'
         assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='agenda')[0].id") == 'pagina.oggi'
         laterale = page.locator('#navigazione-laterale')
-        expect(laterale.get_by_role('button', name='Oggi', exact=True)).to_have_attribute('aria-current', 'page')
+        expect(laterale.get_by_role('button', name='Dashboard', exact=True)).to_have_attribute('aria-current', 'page')
 
         page.evaluate(GIORNATA)
         page.evaluate(FRAME)
         vista = page.locator('.vista--oggi')
-        expect(vista.locator('.testata__titolo')).to_have_text('Oggi')
+        expect(vista.locator('.testata__titolo')).to_have_text('Dashboard')
         expect(vista.locator('.testata__sottotitolo')).to_contain_text('martedì 15 settembre 2026')
+        # La Dashboard espone solo il Periodo: niente anno fermo, corso o classe.
+        periodo = page.locator('[data-fuoco="barra-comandi-periodo"]')
+        expect(periodo).to_have_count(1)
+        expect(page.locator('.barra-comandi__scelta--ferma')).to_have_count(0)
         # Niente riga delle azioni: la pagina porta altrove, non fa.
         expect(page.locator('#azioni-pagina')).to_have_count(0)
         page.screenshot(path=str(scatti / f'oggi-{schema}.png'), full_page=True)
@@ -152,6 +156,8 @@ with sync_playwright() as p:
         page.evaluate("prova.aggiorna({ data: '2027-03-01' })")
         tessere.nth(0).click()
         assert page.evaluate('prova.stato.vista') == 'calendario'
+        expect(periodo).to_have_count(1)
+        expect(page.locator('.barra-comandi__scelta--ferma')).to_have_count(1)
         assert page.evaluate('prova.stato.data') == '2026-09-15', 'il calendario non si è portato su oggi'
         apri_oggi(page)
         # «Da compilare» apre l'ora che aspetta da più tempo (quella del 14), come il
@@ -169,17 +175,22 @@ with sync_playwright() as p:
         vista.locator('.oggi-prova').nth(1).click()
         assert page.evaluate('[prova.stato.vista, prova.stato.valutazioneId]') == ['valutazioni', 'v-giovedi']
 
-        # Senza compleanni la scheda non c'è; senza ore, il vuoto lo dice.
+        # Senza ore oggi, la Dashboard anticipa la prossima giornata di lezione.
         page.evaluate('''()=>{
           const r = structuredClone(prova.stato.registro)
           r.classi[0].allievi[0].dataNascita = null
-          r.lezioni = r.lezioni.filter(l => !l.id.startsWith('oggi-'))
+          r.lezioni = r.lezioni.filter(l => l.data < '2026-09-15')
+          const modello = r.lezioni[0]
+          r.lezioni.push({...modello, id: 'prossima-giornata', corsoId: r.corsi[0].id,
+            data: '2026-09-17', stato: 'pianificata'})
           prova.aggiorna({ registro: r })
         }''')
         apri_oggi(page)
-        expect(vista.locator('.oggi-compleanno')).to_have_count(0)
-        expect(vista.locator('.oggi-scheda--ore .stato-vuoto')).to_be_visible()
-        expect(tessere.nth(0).locator('.oggi-tessera__valore')).to_have_text('0')
+        expect(vista.locator('.testata__sottotitolo')).to_contain_text(
+            'Prossima giornata di lezione: giovedì 17 settembre 2026')
+        expect(vista.locator('.oggi-scheda--ore .scheda__titolo')).to_have_text(
+            'Le lezioni della prossima giornata')
+        expect(vista.locator('[data-lezione="prossima-giornata"]')).to_have_count(1)
 
         # Stretta: una colonna, e nessuno scorrimento di lato.
         page.set_viewport_size({'width': 700, 'height': 1000})

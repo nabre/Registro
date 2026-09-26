@@ -22,7 +22,6 @@ import {
   type Vista,
 } from './state.js'
 import { testi } from './pages.testi.js'
-import { parole } from '../domain/words.testi.js'
 
 // Nomi letti una volta: la pagina si ricarica quando cambia lingua (`src/i18n/page.ts`).
 const t = testi()
@@ -42,23 +41,23 @@ type GruppoPagina = 'agenda' | 'registro' | 'classe' | 'anno' | 'sistema'
 
 export interface Pagina {
   /** Un nome stabile: lo cerca la palette, lo invoca chi va per nome. */
-  id: string
-  titolo: string
-  simbolo: NomeIcona
-  gruppo: GruppoPagina
+  id: string;
+  titolo: string;
+  simbolo: NomeIcona;
+  gruppo: GruppoPagina;
   /** La riga che si legge fermandosi sopra: che cosa c'è, in quella pagina. */
-  aiuto?: string
+  aiuto?: string;
   /** Perché adesso non ci si può andare, o `null` se si può. */
-  impedimento?: () => string | null
+  impedimento?: () => string | null;
   /**
    * Quante cose aspettano dentro la pagina, accanto al titolo nella barra
    * laterale: per le pagine che esistono per farsi notare. Zero non si mostra.
    */
-  conto?: () => number
+  conto?: () => number;
   /** Se è qui che si sta adesso. */
-  attiva: () => boolean
+  attiva: () => boolean;
   /** Portarcisi, contesto compreso. */
-  apri: () => void
+  apri: () => void;
 }
 
 /**
@@ -74,7 +73,12 @@ function vaiAlCorso (vista: Vista): void {
       notifica(t.nessunaLezione, 'avviso')
       return
     }
-    aggiorna({ vista, corsoId: corso.id, filtroClasseId: corso.classeId, lezioneId })
+    aggiorna({
+      vista,
+      corsoId: corso.id,
+      filtroClasseId: corso.classeId,
+      lezioneId,
+    })
     return
   }
   aggiorna({
@@ -122,12 +126,12 @@ function vaiAlPannello (scheda: SchedaDocente): void {
  */
 export const PAGINE: readonly Pagina[] = [
   // L'agenda viene prima: le pagine con cui si comincia, indipendenti dal corso.
-  // «Oggi» apre la fila: la giornata in una schermata, da cui si va altrove
+  // La Dashboard apre la fila: la giornata in una schermata, da cui si va altrove
   // senza farci niente.
   {
     id: 'pagina.oggi',
-    titolo: parole().oggi,
-    simbolo: 'sole',
+    titolo: t.dashboard,
+    simbolo: 'dashboard',
     gruppo: 'agenda',
     aiuto: t.oggiAiuto,
     attiva: () => stato.vista === 'oggi',
@@ -272,7 +276,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'spunta',
     gruppo: 'classe',
     aiuto: t.pendenzeClasseAiuto,
-    attiva: () => stato.vista === 'docenteClasse' && stato.schedaDocente === 'todo',
+    attiva: () =>
+      stato.vista === 'docenteClasse' && stato.schedaDocente === 'todo',
     apri: () => vaiAlPannello('todo'),
   },
   {
@@ -290,7 +295,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'documento',
     gruppo: 'classe',
     aiuto: t.archivioAiuto,
-    attiva: () => stato.vista === 'docenteClasse' && stato.schedaDocente === 'documenti',
+    attiva: () =>
+      stato.vista === 'docenteClasse' && stato.schedaDocente === 'documenti',
     apri: () => vaiAlPannello('documenti'),
   },
   {
@@ -299,7 +305,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'calendario',
     gruppo: 'classe',
     aiuto: t.assenzeAiuto,
-    attiva: () => stato.vista === 'docenteClasse' && stato.schedaDocente === 'assenze',
+    attiva: () =>
+      stato.vista === 'docenteClasse' && stato.schedaDocente === 'assenze',
     apri: () => vaiAlPannello('assenze'),
   },
   {
@@ -308,11 +315,11 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'posta',
     gruppo: 'classe',
     aiuto: t.messaggisticaAiuto,
-    attiva: () => stato.vista === 'docenteClasse' && stato.schedaDocente === 'messaggistica',
+    attiva: () =>
+      stato.vista === 'docenteClasse' &&
+      stato.schedaDocente === 'messaggistica',
     apri: () => vaiAlPannello('messaggistica'),
   },
-
-
 
   // Il programma: la macchina, non il registro. Non è nel menu «File», perché la
   // barra laterale è sempre in vista.
@@ -377,7 +384,13 @@ function simboloDelGruppo (gruppo: GruppoPagina): NomeIcona {
 }
 
 /** L'ordine dei gruppi, dal più quotidiano al meno. */
-const ORDINE: readonly GruppoPagina[] = ['agenda', 'registro', 'classe', 'anno', 'sistema']
+const ORDINE: readonly GruppoPagina[] = [
+  'agenda',
+  'registro',
+  'classe',
+  'anno',
+  'sistema',
+]
 
 /**
  * Se la sezione esiste in questo registro: «Docente di classe» solo se almeno
@@ -400,36 +413,41 @@ export function pagineVisibili (): Pagina[] {
 
 /** Un gruppo di destinazioni: una scheda della barra, con dentro le sue pagine. */
 interface GruppoDiPagine {
-  gruppo: GruppoPagina
+  gruppo: GruppoPagina;
   /** Il nome lungo, con dentro il corso o la classe: sta in cima alla tendina. */
-  titolo: string
+  titolo: string;
   /** Il nome corto, che sta scritto sulla scheda. */
-  nome: string
-  simbolo: NomeIcona
+  nome: string;
+  simbolo: NomeIcona;
   /** Se è qui che si sta adesso: la scheda si accende. */
-  attivo: boolean
-  pagine: Pagina[]
+  attivo: boolean;
+  pagine: Pagina[];
 }
 
 /** Le destinazioni raccolte per gruppo, nell'ordine in cui si mostrano. */
 export function gruppiDiPagine (): GruppoDiPagine[] {
   const attiva = paginaAttiva()
-  return ORDINE.filter(sezioneCePer).map((gruppo): GruppoDiPagine => {
-    return {
-      gruppo,
-      titolo: titoloDelGruppo(gruppo),
-      nome: nomeDelGruppo(gruppo),
-      simbolo: simboloDelGruppo(gruppo),
-      attivo: attiva?.gruppo === gruppo,
-      pagine: pagineVisibili().filter((pagina) => pagina.gruppo === gruppo),
-    }
-  }).filter((voce) => voce.pagine.length > 0)
+  return ORDINE.filter(sezioneCePer)
+    .map((gruppo): GruppoDiPagine => {
+      return {
+        gruppo,
+        titolo: titoloDelGruppo(gruppo),
+        nome: nomeDelGruppo(gruppo),
+        simbolo: simboloDelGruppo(gruppo),
+        attivo: attiva?.gruppo === gruppo,
+        pagine: pagineVisibili().filter((pagina) => pagina.gruppo === gruppo),
+      }
+    })
+    .filter((voce) => voce.pagine.length > 0)
 }
 
 /** Preferisce la destinazione scelta, se ancora compatibile con la vista. */
 export function paginaAttiva (): Pagina | null {
-  return PAGINE.find((pagina) => pagina.id === stato.paginaId && pagina.attiva())
-    ?? PAGINE.find((pagina) => pagina.attiva()) ?? null
+  return (
+    PAGINE.find((pagina) => pagina.id === stato.paginaId && pagina.attiva()) ??
+    PAGINE.find((pagina) => pagina.attiva()) ??
+    null
+  )
 }
 
 /**

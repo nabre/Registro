@@ -3,7 +3,15 @@
 // `start.ts`.
 
 import { catalogo } from '../../../i18n/index.js'
-import { CARTE, Molti, PERSONE, PIF, Uno, dei, quanti } from '../../../domain/lexicon.js'
+import {
+  CARTE,
+  Molti,
+  PERSONE,
+  PIF,
+  Uno,
+  dei,
+  quanti,
+} from '../../../domain/lexicon.js'
 import { lessico } from '../../../domain/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
@@ -65,8 +73,8 @@ const it = {
         testo:
           '**Importa da un altro registro…**, nel menu File, porta classi con le persone, corsi, ' +
           'materie e piani da un anno di prima. Per partire da zero: **Nuova classe** in Classi, ' +
-          '**Nuovo corso** in Corsi con le ore della settimana, e **Lezioni sul calendario** ' +
-          'mette le ore fino a fine anno.',
+          '**Nuovo corso** in Corsi con le lezioni della settimana, e **Lezioni sul calendario** ' +
+          'mette le lezioni fino a fine anno.',
       },
       {
         termine: 'Salva l’anno',
@@ -84,7 +92,7 @@ const it = {
           'mettono dopo, con calma.',
       },
       {
-        termine: 'Apri l’ora',
+        termine: 'Apri la lezione',
         testo:
           'Un clic su una lezione del calendario — con **Modifica** spenta —, o sull’ora ' +
           'proposta in fondo a sinistra, apre ' +
@@ -92,19 +100,18 @@ const it = {
           'scaletta e valutazioni, **Annotazioni** per argomenti e osservazioni.',
       },
       {
-        termine: 'Segna l’ora svolta',
+        termine: 'Segna la lezione svolta',
         testo:
-          'Finita la lezione, **Svolta** nella riga delle azioni: l’ora conta fra le ore ' +
+          'Finita la lezione, **Svolta** nella riga delle azioni: la lezione conta fra le lezioni ' +
           'svolte. Un’ora passata senza appello o non segnata resta un buco, e la barra in ' +
           'fondo continua a proporla.',
       },
       {
         termine: 'Guarda che cosa resta',
         testo:
-          '**Oggi**, la prima pagina dell’Agenda, dice la giornata in quattro numeri e porta ' +
-          `dove serve. **${PENDENZE}** raccoglie quel che resta aperto in tutte le classi: ` +
-          'consegne da ritirare, prove da correggere e da ridare, assenze da far firmare. ' +
-          'Quando è vuota, la settimana è in ordine.',
+          'La **Dashboard**, prima pagina dell’Agenda, riassume la giornata e porta dove serve. ' +
+          `**${PENDENZE}** mostra valutazioni e consegne del corso scelto; il gruppo ` +
+          '**Docente di classe** raccoglie invece pratiche e consegne dovute dalla classe.',
       },
     ],
     note: [
@@ -165,7 +172,7 @@ const it = {
           'I due semestri nascono con l’anno, tagliati a fine gennaio. Date e semestri si ' +
           'cambiano in **Impostazioni** › **Anno scolastico**, o con **Modifica l’anno** da ' +
           '`Ctrl+K`; le vacanze da **Vacanze e sospensioni**. ' +
-          'La tendina **Periodo** ferma i conti — medie, assenze, ore — a un semestre o ' +
+          'La tendina **Periodo** ferma i conti — medie, assenze, lezioni — a un semestre o ' +
           'all’«Anno intero».',
       },
       {
@@ -229,7 +236,7 @@ const it = {
       tuttiICorsi: 'Tutti i corsi ▾',
       annoIntero: 'Anno intero ▾',
       proietta: 'Proietta',
-      nuovaOra: 'Nuova ora',
+      nuovaOra: 'Nuova lezione',
     },
     figure: [
       {
@@ -295,7 +302,7 @@ const it = {
         termine: 'Un tasto per pagina',
         tasti: 'Ctrl+1…9',
         testo:
-          'Le prime nove voci della barra, nell’ordine in cui si vedono: `Ctrl+1` è Oggi, ' +
+          'Le prime nove voci della barra, nell’ordine in cui si vedono: `Ctrl+1` è Dashboard, ' +
           '`Ctrl+2` il Calendario, e così giù fino a `Ctrl+9`, Documenti. Il tasto è scritto ' +
           'nel suggerimento della voce.',
       },
@@ -327,7 +334,7 @@ const it = {
         termine: 'La riga delle azioni',
         testo:
           'Soltanto quel che si può fare nella pagina aperta: nel calendario **Oggi** e, con ' +
-          '**Modifica** accesa, **Nuova ora**; nella lezione **Pianificata**, **Svolta** e ' +
+          '**Modifica** accesa, **Nuova lezione**; nella lezione **Pianificata**, **Svolta** e ' +
           '**Annullata**. Il ' +
           'comando più usato è in evidenza, un interruttore acceso si vede premuto. La ' +
           'freccia in fondo alla riga delle scelte la nasconde, come `Ctrl+B`. La guida e le ' +
@@ -338,8 +345,8 @@ const it = {
         termine: 'Modifica, Proietta e Assistente',
         testo:
           'In fondo alla riga delle scelte, da ogni pagina. **Modifica** (`Ctrl+E`) prende in ' +
-          'mano le ore: nel calendario si disegnano, si stirano e si spostano; nella pagina di ' +
-          'un’ora apre «Modifica l’ora». **Proietta** accende lo schermo per la classe e ' +
+          'mano le lezioni: nel calendario si disegnano, si stirano e si spostano; nella pagina di ' +
+          'una lezione apre «Modifica la lezione». **Proietta** accende lo schermo per la classe e ' +
           'diventa **Spegni lo schermo**; acceso, compare **Proiezione**, che mette nella riga ' +
           'delle azioni i comandi dello schermo. **Assistente** c’è solo se è acceso nelle ' +
           'impostazioni.',
@@ -412,7 +419,7 @@ const it = {
       'corso, una classe — quando non si sa dove sta.',
     scritte: {
       cercato: 'nuov',
-      nuovaOra: 'Nuova ora',
+      nuovaOra: 'Nuova lezione',
       nuovaOraAiuto: 'Un’ora fuori orario, o la prima di un corso…',
       nuovoAnno: 'Nuovo anno scolastico',
       nuovoAnnoAiuto: 'Un anno nuovo, in un documento suo…',
@@ -430,7 +437,7 @@ const it = {
           'Si scrive, e l’elenco si restringe a ogni lettera: ogni specie sotto il suo ' +
           'titoletto, e in ogni gruppo prima quel che si può fare adesso. Qui si è nel ' +
           'calendario con **Modifica** ' +
-          `accesa: **Nuova ora** va, **Nuova consegna** è delle ${CARTE.pendenza.plurale} e ` +
+          `accesa: **Nuova lezione** va, **Nuova consegna** è delle ${CARTE.pendenza.plurale} e ` +
           'scende in fondo.',
         legenda: [
           'Le parole, in qualunque ordine e senza accenti: si cercano nel nome, nel gruppo e ' +
@@ -534,7 +541,8 @@ const it = {
   },
   barraStato: {
     titolo: 'La barra in fondo',
-    sommario: 'Che cosa manca, e com’è messa la macchina. Si guarda senza cercare niente.',
+    sommario:
+      'Che cosa manca, e com’è messa la macchina. Si guarda senza cercare niente.',
     scritte: {
       aSinistra: 'a sinistra',
       daCompilare: 'da compilare: DIC4a · lun 14 set',
@@ -544,7 +552,7 @@ const it = {
       aDestra: 'a destra',
       assistente: 'Assistente acceso',
       casella: 'casella collegata',
-      leOre: 'Le ore',
+      leOre: 'Le lezioni',
       diCorsoEPeriodo: 'di corso e periodo',
       buco: 'C’è un buco?',
       buco2: 'ora passata e non chiusa',
@@ -563,7 +571,7 @@ const it = {
           'Nella finestra le due metà stanno sulla stessa riga: a sinistra quel che chiede ' +
           'qualcosa, a destra com’è messa la macchina.',
         legenda: [
-          'L’ora da compilare, o la prossima.',
+          'La lezione da compilare, o la prossima.',
           `Le ${CARTE.pendenza.plurale} aperte.`,
           'Corso e periodo dell’ora proposta.',
           'L’assistente e la lettura delle scansioni: accesi o spenti.',
@@ -575,12 +583,12 @@ const it = {
         didascalia:
           'Prima i buchi, poi il futuro: un’ora di martedì senza appello resta proposta anche ' +
           'giovedì, finché non la si chiude. Senza né buchi né ore in arrivo la voce dice ' +
-          '«nessuna ora in programma».',
+          '«nessuna lezione in programma».',
       },
     ],
     voci: [
       {
-        termine: 'L’ora da compilare',
+        termine: 'La lezione da compilare',
         testo:
           'In fondo a sinistra, con il triangolo giallo: «da compilare: classe · giorno». ' +
           'Senza buchi dice «prossima: classe · giorno ora». Un clic apre quella lezione, e ' +
@@ -694,18 +702,20 @@ const it = {
         termine: 'Le pagine della barra laterale',
         tasti: 'Ctrl+1…9',
         testo:
-          'Le prime nove voci, nell’ordine in cui si vedono: da Oggi a Documenti. Il tasto è ' +
+          'Le prime nove voci, nell’ordine in cui si vedono: da Dashboard a Documenti. Il tasto è ' +
           'scritto nel suggerimento della voce.',
       },
       {
         termine: 'La guida di questa pagina',
         tasti: 'F1',
-        testo: 'Da qualunque pagina: apre la guida sulla sezione che la racconta.',
+        testo:
+          'Da qualunque pagina: apre la guida sulla sezione che la racconta.',
       },
       {
         termine: 'Cerca nella guida',
         tasti: '/',
-        testo: 'Dentro la guida, fuori da un campo: porta il cursore nella casella della ricerca.',
+        testo:
+          'Dentro la guida, fuori da un campo: porta il cursore nella casella della ricerca.',
       },
       {
         termine: 'Salva',
@@ -734,10 +744,10 @@ const it = {
         testo: 'Non dentro un campo di testo.',
       },
       {
-        termine: 'Modifica le ore',
+        termine: 'Modifica le lezioni',
         tasti: 'Ctrl+E',
         testo:
-          'Da qualunque pagina, come l’interruttore **Modifica**: nel calendario le ore si ' +
+          'Da qualunque pagina, come l’interruttore **Modifica**: nel calendario le lezioni si ' +
           'disegnano, si stirano e si spostano; nella pagina di un’ora si apre «Modifica ' +
           'l’ora». Di nuovo `Ctrl+E`, o `Esc` nel calendario, ed esce.',
       },
@@ -752,7 +762,7 @@ const it = {
         termine: 'Nuova lezione',
         tasti: 'Ctrl+Alt+N',
         testo:
-          'Da qualunque pagina, come il pulsante **Nuova ora**: porta nel calendario, accende ' +
+          'Da qualunque pagina, come il pulsante **Nuova lezione**: porta nel calendario, accende ' +
           '**Modifica** e apre il modulo sul giorno scelto, con il corso su cui si lavora; ' +
           'salvata, apre l’ora.',
       },
@@ -769,17 +779,20 @@ const it = {
       {
         termine: 'Ingrandisci, riduci, normale',
         tasti: 'Ctrl+più / Ctrl+- / Ctrl+0',
-        testo: 'Testo e riquadri più grandi o più piccoli, un passo alla volta.',
+        testo:
+          'Testo e riquadri più grandi o più piccoli, un passo alla volta.',
       },
       {
         termine: 'Schermo intero',
         tasti: 'F11',
-        testo: 'Della finestra di chi insegna, non dello schermo per la classe.',
+        testo:
+          'Della finestra di chi insegna, non dello schermo per la classe.',
       },
       {
         termine: 'Il menu del sistema',
         tasti: 'Alt',
-        testo: 'Su Windows e Linux fa comparire la barra dei menu, che resta nascosta.',
+        testo:
+          'Su Windows e Linux fa comparire la barra dei menu, che resta nascosta.',
       },
       {
         termine: 'Nelle finestre di modulo',
@@ -819,7 +832,8 @@ const it = {
       {
         termine: 'Spostare una riga',
         tasti: '↑ / ↓',
-        testo: 'Con il fuoco sulla presa di una riga — una tappa del piano, un’ora dell’orario.',
+        testo:
+          'Con il fuoco sulla presa di una riga — una tappa del piano, un’ora dell’orario.',
       },
       {
         termine: 'Aggiungere a un elenco',
@@ -842,14 +856,16 @@ const it = {
           'fa una lezione sola.',
       },
       {
-        termine: 'Copiare un’ora nel calendario',
+        termine: 'Copiare una lezione nel calendario',
         tasti: 'Ctrl+trascina',
-        testo: 'Trascinare sposta; con Ctrl (o Alt) premuto si lascia una copia.',
+        testo:
+          'Trascinare sposta; con Ctrl (o Alt) premuto si lascia una copia.',
       },
       {
         termine: 'Rinunciare a un trascinamento',
         tasti: 'Esc',
-        testo: 'Fra le pagine da smistare: la pagina torna dov’era, senza avvisi.',
+        testo:
+          'Fra le pagine da smistare: la pagina torna dov’era, senza avvisi.',
       },
       {
         termine: 'Nell’assistente',
@@ -966,10 +982,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Schauen, was noch offen ist',
           testo:
-            '**Heute**, die erste Seite der Agenda, sagt den Tag in vier Zahlen und führt ' +
-            `dorthin, wo es nötig ist. **${Molti(DE.pendenza)}** sammelt, was in allen Klassen offen ist: ` +
-            'Aufträge einzusammeln, Prüfungen zu korrigieren und zurückzugeben, Absenzen zu ' +
-            'unterschreiben. Ist die Liste leer, ist die Woche in Ordnung.',
+            'Das **Dashboard**, die erste Seite der Agenda, fasst den Tag zusammen und führt ' +
+            `weiter. **${Molti(DE.pendenza)}** zeigt Beurteilungen und Aufträge des gewählten ` +
+            'Kurses; **Klassenlehrperson** sammelt Vorgänge und Pflichten der Klasse.',
         },
       ],
       note: [
@@ -1172,7 +1187,7 @@ export const testi = catalogo(it, {
           tasti: 'Ctrl+1…9',
           testo:
             'Die ersten neun Einträge der Leiste, in der Reihenfolge, in der man sie sieht: ' +
-            '`Ctrl+1` ist Heute, `Ctrl+2` der Kalender, und so weiter bis `Ctrl+9`, Dokumente. ' +
+            '`Ctrl+1` ist Dashboard, `Ctrl+2` der Kalender, und so weiter bis `Ctrl+9`, Dokumente. ' +
             'Die Taste steht im Hinweis des Eintrags.',
         },
         {
@@ -1375,7 +1390,8 @@ export const testi = catalogo(it, {
         },
         {
           termine: 'Schliessen',
-          testo: '`Esc`, noch einmal `Ctrl+K` oder ein Klick ausserhalb des Felds.',
+          testo:
+            '`Esc`, noch einmal `Ctrl+K` oder ein Klick ausserhalb des Felds.',
         },
         {
           termine: 'In dieser Hilfe suchen',
@@ -1419,7 +1435,8 @@ export const testi = catalogo(it, {
     },
     barraStato: {
       titolo: 'Die Leiste unten',
-      sommario: 'Was fehlt und wie es um den Computer steht. Man sieht es, ohne zu suchen.',
+      sommario:
+        'Was fehlt und wie es um den Computer steht. Man sieht es, ohne zu suchen.',
       scritte: {
         aSinistra: 'links',
         daCompilare: 'auszufüllen: DIC4a · Mo 14. Sep',
@@ -1583,18 +1600,20 @@ export const testi = catalogo(it, {
           termine: 'Die Seiten der Seitenleiste',
           tasti: 'Ctrl+1…9',
           testo:
-            'Die ersten neun Einträge, in der Reihenfolge, in der man sie sieht: von Heute bis ' +
+            'Die ersten neun Einträge, in der Reihenfolge, in der man sie sieht: von Dashboard bis ' +
             'Dokumente. Die Taste steht im Hinweis des Eintrags.',
         },
         {
           termine: 'Die Hilfe zu dieser Seite',
           tasti: 'F1',
-          testo: 'Von jeder Seite: öffnet die Hilfe beim Abschnitt, der sie beschreibt.',
+          testo:
+            'Von jeder Seite: öffnet die Hilfe beim Abschnitt, der sie beschreibt.',
         },
         {
           termine: 'In der Hilfe suchen',
           tasti: '/',
-          testo: 'In der Hilfe, ausserhalb eines Felds: setzt den Cursor ins Suchfeld.',
+          testo:
+            'In der Hilfe, ausserhalb eines Felds: setzt den Cursor ins Suchfeld.',
         },
         {
           termine: 'Speichern',
@@ -1666,12 +1685,14 @@ export const testi = catalogo(it, {
         {
           termine: 'Vollbild',
           tasti: 'F11',
-          testo: 'Für das Fenster der Lehrperson, nicht für den Bildschirm der Klasse.',
+          testo:
+            'Für das Fenster der Lehrperson, nicht für den Bildschirm der Klasse.',
         },
         {
           termine: 'Das Systemmenü',
           tasti: 'Alt',
-          testo: 'Unter Windows und Linux zeigt es die Menüleiste an, die sonst verborgen ist.',
+          testo:
+            'Unter Windows und Linux zeigt es die Menüleiste an, die sonst verborgen ist.',
         },
         {
           termine: 'In Formularfenstern',
@@ -1725,7 +1746,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Seitenleiste verkleinern',
           tasti: 'Esc',
-          testo: 'Mit dem Fokus in der Seitenleiste verkleinert es sie auf die Symbole.',
+          testo:
+            'Mit dem Fokus in der Seitenleiste verkleinert es sie auf die Symbole.',
         },
         {
           termine: 'Mehreres auswählen',
@@ -1738,12 +1760,14 @@ export const testi = catalogo(it, {
         {
           termine: 'Eine Stunde im Kalender kopieren',
           tasti: 'Ctrl+Ziehen',
-          testo: 'Ziehen verschiebt; mit gedrückter Ctrl- (oder Alt-)Taste bleibt eine Kopie.',
+          testo:
+            'Ziehen verschiebt; mit gedrückter Ctrl- (oder Alt-)Taste bleibt eine Kopie.',
         },
         {
           termine: 'Ein Ziehen abbrechen',
           tasti: 'Esc',
-          testo: 'Bei den zuzuordnenden Seiten: Die Seite geht zurück, wo sie war, ohne Meldung.',
+          testo:
+            'Bei den zuzuordnenden Seiten: Die Seite geht zurück, wo sie war, ohne Meldung.',
         },
         {
           termine: 'Im Assistenten',
@@ -1858,10 +1882,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Voir ce qui reste',
           testo:
-            '**Aujourd’hui**, la première page de l’Agenda, dit la journée en quatre chiffres et ' +
-            `mène là où il faut. **${Molti(FR.pendenza)}** rassemble ce qui reste ouvert dans toutes ` +
-            'les classes : devoirs à ramasser, épreuves à corriger et à rendre, absences à ' +
-            'faire signer. Quand la liste est vide, la semaine est en ordre.',
+            'Le **Tableau de bord**, première page de l’Agenda, résume la journée et mène là où ' +
+            `il faut. **${Molti(FR.pendenza)}** montre les évaluations et devoirs du cours choisi ; ` +
+            '**Enseignant de classe** rassemble les démarches et devoirs dus par la classe.',
         },
       ],
       note: [
@@ -2060,7 +2083,7 @@ export const testi = catalogo(it, {
           tasti: 'Ctrl+1…9',
           testo:
             'Les neuf premières entrées de la barre, dans l’ordre où on les voit : `Ctrl+1` est ' +
-            'Aujourd’hui, `Ctrl+2` le Calendrier, et ainsi de suite jusqu’à `Ctrl+9`, Documents. ' +
+            'Tableau de bord, `Ctrl+2` le Calendrier, et ainsi de suite jusqu’à `Ctrl+9`, Documents. ' +
             'La touche est écrite dans l’info-bulle de l’entrée.',
         },
         {
@@ -2303,7 +2326,8 @@ export const testi = catalogo(it, {
     },
     barraStato: {
       titolo: 'La barre du bas',
-      sommario: 'Ce qui manque, et l’état de la machine. On la regarde sans rien chercher.',
+      sommario:
+        'Ce qui manque, et l’état de la machine. On la regarde sans rien chercher.',
       scritte: {
         aSinistra: 'à gauche',
         daCompilare: 'à remplir : DIC4a · lun 14 sept',
@@ -2464,18 +2488,20 @@ export const testi = catalogo(it, {
           termine: 'Les pages de la barre latérale',
           tasti: 'Ctrl+1…9',
           testo:
-            'Les neuf premières entrées, dans l’ordre où on les voit : d’Aujourd’hui à ' +
+            'Les neuf premières entrées, dans l’ordre où on les voit : de Tableau de bord à ' +
             'Documents. La touche est écrite dans l’info-bulle de l’entrée.',
         },
         {
           termine: 'L’aide de cette page',
           tasti: 'F1',
-          testo: 'Depuis n’importe quelle page : ouvre l’aide à la section qui la décrit.',
+          testo:
+            'Depuis n’importe quelle page : ouvre l’aide à la section qui la décrit.',
         },
         {
           termine: 'Chercher dans l’aide',
           tasti: '/',
-          testo: 'Dans l’aide, hors d’un champ : met le curseur dans la case de recherche.',
+          testo:
+            'Dans l’aide, hors d’un champ : met le curseur dans la case de recherche.',
         },
         {
           termine: 'Enregistrer',
@@ -2542,17 +2568,20 @@ export const testi = catalogo(it, {
         {
           termine: 'Agrandir, réduire, normal',
           tasti: 'Ctrl+plus / Ctrl+- / Ctrl+0',
-          testo: 'Textes et cadres plus grands ou plus petits, un pas à la fois.',
+          testo:
+            'Textes et cadres plus grands ou plus petits, un pas à la fois.',
         },
         {
           termine: 'Plein écran',
           tasti: 'F11',
-          testo: 'Pour la fenêtre de l’enseignant, pas pour l’écran de la classe.',
+          testo:
+            'Pour la fenêtre de l’enseignant, pas pour l’écran de la classe.',
         },
         {
           termine: 'Le menu du système',
           tasti: 'Alt',
-          testo: 'Sous Windows et Linux, fait apparaître la barre de menus, qui reste masquée.',
+          testo:
+            'Sous Windows et Linux, fait apparaître la barre de menus, qui reste masquée.',
         },
         {
           termine: 'Dans les fenêtres de formulaire',
@@ -2564,7 +2593,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Dans les champs de date',
           tasti: '↑ / ↓ / Pg préc / Pg suiv',
-          testo: 'Un jour en avant ou en arrière, un mois en avant ou en arrière.',
+          testo:
+            'Un jour en avant ou en arrière, un mois en avant ou en arrière.',
         },
         {
           termine: 'Dans la grille des notes',
@@ -2619,12 +2649,14 @@ export const testi = catalogo(it, {
         {
           termine: 'Copier une leçon dans le calendrier',
           tasti: 'Ctrl+glisser',
-          testo: 'Glisser déplace ; avec Ctrl (ou Alt) enfoncé, on laisse une copie.',
+          testo:
+            'Glisser déplace ; avec Ctrl (ou Alt) enfoncé, on laisse une copie.',
         },
         {
           termine: 'Renoncer à un glisser',
           tasti: 'Échap',
-          testo: 'Parmi les pages à trier : la page revient où elle était, sans message.',
+          testo:
+            'Parmi les pages à trier : la page revient où elle était, sans message.',
         },
         {
           termine: 'Dans l’assistant',
@@ -2735,10 +2767,9 @@ export const testi = catalogo(it, {
         {
           termine: 'See what is left',
           testo:
-            '**Today**, the first page of the Planner, tells the day in four numbers and takes ' +
-            `you where you need to go. **${Molti(EN.pendenza)}** gathers what is still open in all the ` +
-            'classes: assignments to collect, tests to mark and hand back, absences to get ' +
-            'signed. When it is empty, the week is in order.',
+            'The **Dashboard**, the first Planner page, summarises the day and takes you where ' +
+            `you need to go. **${Molti(EN.pendenza)}** shows assessments and assignments for ` +
+            'the selected course; **Class teacher** gathers class paperwork and obligations.',
         },
       ],
       note: [
@@ -2929,7 +2960,7 @@ export const testi = catalogo(it, {
           termine: 'One key per page',
           tasti: 'Ctrl+1…9',
           testo:
-            'The first nine items in the bar, in the order you see them: `Ctrl+1` is Today, ' +
+            'The first nine items in the bar, in the order you see them: `Ctrl+1` is Dashboard, ' +
             '`Ctrl+2` the Calendar, and so on down to `Ctrl+9`, Documents. The key is written ' +
             'in the item’s tooltip.',
         },
@@ -3168,7 +3199,8 @@ export const testi = catalogo(it, {
     },
     barraStato: {
       titolo: 'The bar at the bottom',
-      sommario: 'What is missing, and how the machine is doing. You glance at it, not search it.',
+      sommario:
+        'What is missing, and how the machine is doing. You glance at it, not search it.',
       scritte: {
         aSinistra: 'left',
         daCompilare: 'to fill in: DIC4a · Mon 14 Sep',
@@ -3328,18 +3360,20 @@ export const testi = catalogo(it, {
           termine: 'The sidebar pages',
           tasti: 'Ctrl+1…9',
           testo:
-            'The first nine items, in the order you see them: from Today to Documents. The key ' +
+            'The first nine items, in the order you see them: from Dashboard to Documents. The key ' +
             'is written in the item’s tooltip.',
         },
         {
           termine: 'The guide for this page',
           tasti: 'F1',
-          testo: 'From any page: opens the guide at the section that describes it.',
+          testo:
+            'From any page: opens the guide at the section that describes it.',
         },
         {
           termine: 'Search the guide',
           tasti: '/',
-          testo: 'Inside the guide, outside a field: puts the cursor in the search box.',
+          testo:
+            'Inside the guide, outside a field: puts the cursor in the search box.',
         },
         {
           termine: 'Save',
@@ -3413,7 +3447,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The system menu',
           tasti: 'Alt',
-          testo: 'On Windows and Linux it shows the menu bar, which stays hidden otherwise.',
+          testo:
+            'On Windows and Linux it shows the menu bar, which stays hidden otherwise.',
         },
         {
           termine: 'In form windows',
@@ -3453,7 +3488,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Moving a row',
           tasti: '↑ / ↓',
-          testo: 'With the focus on a row’s handle — a step of the plan, a lesson in the timetable.',
+          testo:
+            'With the focus on a row’s handle — a step of the plan, a lesson in the timetable.',
         },
         {
           termine: 'Adding to a list',
@@ -3478,12 +3514,14 @@ export const testi = catalogo(it, {
         {
           termine: 'Copying a lesson in the calendar',
           tasti: 'Ctrl+drag',
-          testo: 'Dragging moves; with Ctrl (or Alt) held down, a copy is left behind.',
+          testo:
+            'Dragging moves; with Ctrl (or Alt) held down, a copy is left behind.',
         },
         {
           termine: 'Giving up a drag',
           tasti: 'Esc',
-          testo: 'Among the pages to sort: the page goes back where it was, with no notice.',
+          testo:
+            'Among the pages to sort: the page goes back where it was, with no notice.',
         },
         {
           termine: 'In the assistant',

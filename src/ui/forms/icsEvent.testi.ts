@@ -9,7 +9,8 @@ const it = {
   abbinamentoSalvato: (corso: string) => `Abbinamento a ${corso} salvato.`,
   nonPiuProposti: 'Eventi come questo non saranno più proposti.',
   regolaIgnora: 'Una regola dice che eventi come questo non sono lezioni.',
-  riconosciutoDaRegola: (corso: string) => `Già riconosciuto come ${corso} da una regola.`,
+  riconosciutoDaRegola: (corso: string) =>
+    `Già riconosciuto come ${corso} da una regola.`,
   riconosciutoPerIndizio: (corso: string) =>
     `Già riconosciuto come ${corso}, ma solo per indizio: una regola lo fissa.`,
   nessunaRegola: 'Nessuna regola lo riconosce ancora.',
@@ -19,7 +20,8 @@ const it = {
   salvaAbbina: 'Salva l’abbinamento',
   citato: (titolo: string) => `«${titolo}»`,
   senzaTitolo: '(senza titolo)',
-  unOraSola: (n: number) => `${n} eventi fanno un’ora sola: fra l’uno e l’altro, la pausa.`,
+  unOraSola: (n: number) =>
+    `${n} eventi fanno un’ora sola: fra l’uno e l’altro, la pausa.`,
   nonUnaLezione: 'Non è una lezione',
   segnapostoAula: 'aula 12, laboratorio CAD…',
   riconosci: 'Riconosci gli eventi che dicono',
@@ -34,8 +36,9 @@ const it = {
   nonRiconosce:
     'Il testo non riconosce questo evento, o un’altra regola più precisa lo porta altrove: ' +
     'usa parole che stanno nel titolo o nel luogo.',
-  troppoCorto: 'Dall’evento non esce un’ora di lezione: è troppo corto.',
-  sovrapposta: (corso: string) => `${corso} ha già un’ora che si sovrappone a questa.`,
+  troppoCorto: 'Dall’evento non esce una lezione: è troppo corto.',
+  sovrapposta: (corso: string) =>
+    `${corso} ha già un’ora che si sovrappone a questa.`,
   cEraGia: 'L’abbinamento c’era già: nessuna regola da aggiungere.',
   inPari: 'La lezione è già in pari con il calendario ICS.',
   sincronizzata: 'Lezione sincronizzata dal calendario ICS.',
@@ -47,8 +50,10 @@ export const testi = catalogo(it, {
     lezioneDallEvento: 'Stunde aus dem Termin erstellt.',
     abbinamentoSalvato: (corso) => `Zuordnung zu ${corso} gespeichert.`,
     nonPiuProposti: 'Termine wie dieser werden nicht mehr vorgeschlagen.',
-    regolaIgnora: 'Eine Regel besagt, dass Termine wie dieser keine Stunden sind.',
-    riconosciutoDaRegola: (corso) => `Bereits durch eine Regel als ${corso} erkannt.`,
+    regolaIgnora:
+      'Eine Regel besagt, dass Termine wie dieser keine Stunden sind.',
+    riconosciutoDaRegola: (corso) =>
+      `Bereits durch eine Regel als ${corso} erkannt.`,
     riconosciutoPerIndizio: (corso) =>
       `Bereits als ${corso} erkannt, aber nur aufgrund von Hinweisen: Eine Regel legt es fest.`,
     nessunaRegola: 'Noch keine Regel erkennt ihn.',
@@ -69,7 +74,8 @@ export const testi = catalogo(it, {
       'Präfix mit «*».',
     ricorda: 'Zuordnung für ähnliche Termine merken',
     scegliCorso: 'Wähle den Kurs.',
-    scriviOTogli: 'Schreib den Text, der erkannt werden soll, oder entferne das Häkchen.',
+    scriviOTogli:
+      'Schreib den Text, der erkannt werden soll, oder entferne das Häkchen.',
     scrivi: 'Schreib den Text, der erkannt werden soll.',
     nonRiconosce:
       'Der Text erkennt diesen Termin nicht, oder eine genauere Regel ordnet ihn anderswo zu: ' +
@@ -86,8 +92,10 @@ export const testi = catalogo(it, {
     lezioneDallEvento: 'Leçon générée à partir de l’événement.',
     abbinamentoSalvato: (corso) => `Association à ${corso} enregistrée.`,
     nonPiuProposti: 'Les événements de ce type ne seront plus proposés.',
-    regolaIgnora: 'Une règle indique que les événements de ce type ne sont pas des leçons.',
-    riconosciutoDaRegola: (corso) => `Déjà reconnu comme ${corso} par une règle.`,
+    regolaIgnora:
+      'Une règle indique que les événements de ce type ne sont pas des leçons.',
+    riconosciutoDaRegola: (corso) =>
+      `Déjà reconnu comme ${corso} par une règle.`,
     riconosciutoPerIndizio: (corso) =>
       `Déjà reconnu comme ${corso}, mais seulement par indices : une règle le fixe.`,
     nessunaRegola: 'Aucune règle ne le reconnaît encore.',
@@ -125,7 +133,8 @@ export const testi = catalogo(it, {
     abbinamentoSalvato: (corso) => `Match to ${corso} saved.`,
     nonPiuProposti: 'Events like this one won’t be suggested any more.',
     regolaIgnora: 'A rule says that events like this one aren’t lessons.',
-    riconosciutoDaRegola: (corso) => `Already recognised as ${corso} by a rule.`,
+    riconosciutoDaRegola: (corso) =>
+      `Already recognised as ${corso} by a rule.`,
     riconosciutoPerIndizio: (corso) =>
       `Already recognised as ${corso}, but only from clues: a rule makes it stick.`,
     nessunaRegola: 'No rule recognises it yet.',
@@ -135,7 +144,8 @@ export const testi = catalogo(it, {
     salvaAbbina: 'Save the match',
     citato: (titolo) => `“${titolo}”`,
     senzaTitolo: '(untitled)',
-    unOraSola: (n) => `${n} events make a single lesson: the break falls in between.`,
+    unOraSola: (n) =>
+      `${n} events make a single lesson: the break falls in between.`,
     nonUnaLezione: 'Not a lesson',
     segnapostoAula: 'room 12, CAD lab…',
     riconosci: 'Recognise events that say',
@@ -151,7 +161,8 @@ export const testi = catalogo(it, {
       'The text doesn’t recognise this event, or another, more specific rule sends it ' +
       'elsewhere: use words that appear in the title or the location.',
     troppoCorto: 'The event doesn’t make a lesson: it’s too short.',
-    sovrapposta: (corso) => `${corso} already has a lesson that overlaps this one.`,
+    sovrapposta: (corso) =>
+      `${corso} already has a lesson that overlaps this one.`,
     cEraGia: 'The match was already there: no rule to add.',
     inPari: 'The lesson is already in step with the ICS calendar.',
     sincronizzata: 'Lesson synced from the ICS calendar.',

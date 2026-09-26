@@ -9,31 +9,38 @@ import { lessico } from '../domain/lexicon.testi.js'
 const it = {
   nessunaLezione: 'Questo corso non ha ancora nessuna lezione.',
 
-  oggiAiuto: 'La giornata in una schermata: le ore di oggi, quel che resta aperto, e dove andare',
+  dashboard: 'Dashboard',
+  oggiAiuto:
+    'La giornata in una schermata: le lezioni di oggi, quel che resta aperto, e dove andare',
   calendario: 'Calendario',
-  calendarioAiuto: 'Le ore di tutte le classi insieme, settimana per settimana',
+  calendarioAiuto:
+    'Le lezioni di tutte le classi insieme, settimana per settimana',
   pendenze: Molti(CARTE.pendenza),
   pendenzeAiuto: 'Quel che è stato dato e non è ancora tornato indietro',
   classi: 'Classi',
   classiAiuto: 'L’elenco delle classi e dei loro gruppi',
   persone: Molti(PIF),
-  personeAiuto: 'Tutte le persone dell’anno in un elenco solo, con la loro scheda accanto',
+  personeAiuto:
+    'Tutte le persone dell’anno in un elenco solo, con la loro scheda accanto',
   mappa: 'Mappa',
   mappaAiuto: 'Dove abitano, dove lavorano, e quanto distano dalla sede',
   corsi: 'Corsi',
-  corsiAiuto: 'Quale materia a quale classe, in una matrice: e sotto, il corso scelto',
+  corsiAiuto:
+    'Quale materia a quale classe, in una matrice: e sotto, il corso scelto',
   daSmistare: 'Da smistare',
-  daSmistareAiuto: 'I PDF caricati che aspettano di essere divisi, di tutte le tue classi',
+  daSmistareAiuto:
+    'I PDF caricati che aspettano di essere divisi, di tutte le tue classi',
   lezione: 'Lezione',
-  lezioneAiuto: 'Presenze, argomenti e consegne dell’ora',
+  lezioneAiuto: 'Presenze, argomenti e consegne della lezione',
   valutazioni: 'Valutazioni',
   valutazioniAiuto: 'I momenti di valutazione del corso e i loro voti',
   check: 'Check',
-  checkAiuto: 'Le cose da fare una volta, spuntate persona per persona con il loro giorno',
+  checkAiuto:
+    'Le cose da fare una volta, spuntate persona per persona con il loro giorno',
   checkClasse: 'Check della classe',
   checkClasseAiuto: 'Le cose della classe da verificare come docente di classe',
   piani: 'Piani lezione',
-  pianiAiuto: 'Come è fatta un’ora prima di farla',
+  pianiAiuto: 'Come è fatta una lezione prima di svolgerla',
   documenti: 'Documenti',
   documentiAiuto: 'Quel che esce dal registro e va in mano ad altri',
   pendenzeClasse: `${Molti(CARTE.pendenza)} della classe`,
@@ -45,7 +52,8 @@ const it = {
   messaggistica: 'Messaggistica',
   messaggisticaAiuto: 'Recapiti e comunicazioni alle famiglie',
   impostazioni: 'Impostazioni',
-  impostazioniAiuto: 'Materie, scala dei voti, intestazione dei fogli, posta, modelli linguistici',
+  impostazioniAiuto:
+    'Materie, scala dei voti, intestazione dei fogli, posta, modelli linguistici',
   guida: 'Guida',
   guidaAiuto: 'Come si usa il registro, in una pagina',
 
@@ -66,7 +74,9 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     nessunaLezione: 'Dieser Kurs hat noch keine Stunde.',
-    oggiAiuto: 'Der Tag auf einen Blick: die Stunden von heute, was noch offen ist, und wohin es weitergeht',
+    dashboard: 'Dashboard',
+    oggiAiuto:
+      'Der Tag auf einen Blick: die Stunden von heute, was noch offen ist, und wohin es weitergeht',
     calendario: 'Kalender',
     calendarioAiuto: 'Die Stunden aller Klassen zusammen, Woche für Woche',
     pendenze: Molti(lessico.in('de').pendenza),
@@ -74,11 +84,14 @@ export const testi = catalogo(it, {
     classi: 'Klassen',
     classiAiuto: 'Die Liste der Klassen und ihrer Gruppen',
     persone: Molti(lessico.in('de').pif),
-    personeAiuto: 'Alle Personen des Schuljahrs in einer einzigen Liste, mit ihrem Personenblatt daneben',
+    personeAiuto:
+      'Alle Personen des Schuljahrs in einer einzigen Liste, mit ihrem Personenblatt daneben',
     mappa: 'Karte',
-    mappaAiuto: 'Wo sie wohnen, wo sie arbeiten, und wie weit sie vom Schulhaus entfernt sind',
+    mappaAiuto:
+      'Wo sie wohnen, wo sie arbeiten, und wie weit sie vom Schulhaus entfernt sind',
     corsi: 'Kurse',
-    corsiAiuto: 'Welches Fach welcher Klasse, in einer Matrix: und darunter der gewählte Kurs',
+    corsiAiuto:
+      'Welches Fach welcher Klasse, in einer Matrix: und darunter der gewählte Kurs',
     daSmistare: 'Zuzuordnen',
     daSmistareAiuto:
       'Die geladenen PDFs, die darauf warten, aufgeteilt zu werden, aus all deinen Klassen',
@@ -87,13 +100,16 @@ export const testi = catalogo(it, {
     valutazioni: 'Beurteilungen',
     valutazioniAiuto: 'Die Leistungsbeurteilungen des Kurses und ihre Noten',
     check: 'Check',
-    checkAiuto: 'Was einmal zu tun ist, Person für Person abgehakt, mit dem Tag',
+    checkAiuto:
+      'Was einmal zu tun ist, Person für Person abgehakt, mit dem Tag',
     checkClasse: 'Check der Klasse',
-    checkClasseAiuto: 'Was du als Klassenlehrperson für die Klasse prüfen musst',
+    checkClasseAiuto:
+      'Was du als Klassenlehrperson für die Klasse prüfen musst',
     piani: Molti(lessico.in('de').pianoLezione),
     pianiAiuto: 'Wie eine Stunde aufgebaut ist, bevor man sie hält',
     documenti: 'Dokumente',
-    documentiAiuto: 'Was aus dem Klassenbuch hinausgeht und in andere Hände kommt',
+    documentiAiuto:
+      'Was aus dem Klassenbuch hinausgeht und in andere Hände kommt',
     pendenzeClasse: 'Pendenzen der Klasse',
     pendenzeClasseAiuto: 'Was diese Klasse noch mitbringen oder nachholen muss',
     archivio: 'Dokumentenarchiv',
@@ -103,7 +119,8 @@ export const testi = catalogo(it, {
     messaggistica: 'Mitteilungen',
     messaggisticaAiuto: 'Kontaktadressen und Mitteilungen an die Familien',
     impostazioni: 'Einstellungen',
-    impostazioniAiuto: 'Fächer, Notenskala, Briefkopf der Blätter, E-Mail, Sprachmodelle',
+    impostazioniAiuto:
+      'Fächer, Notenskala, Briefkopf der Blätter, E-Mail, Sprachmodelle',
     guida: 'Hilfe',
     guidaAiuto: 'Wie man das Klassenbuch benutzt, auf einer Seite',
     gruppi: {
@@ -119,29 +136,38 @@ export const testi = catalogo(it, {
   },
   fr: {
     nessunaLezione: 'Ce cours n’a encore aucune leçon.',
-    oggiAiuto: 'La journée en un coup d’œil : les leçons d’aujourd’hui, ce qui reste ouvert, et où aller',
+    dashboard: 'Tableau de bord',
+    oggiAiuto:
+      'La journée en un coup d’œil : les leçons d’aujourd’hui, ce qui reste ouvert, et où aller',
     calendario: 'Calendrier',
-    calendarioAiuto: 'Les leçons de toutes les classes ensemble, semaine après semaine',
+    calendarioAiuto:
+      'Les leçons de toutes les classes ensemble, semaine après semaine',
     pendenze: Molti(lessico.in('fr').pendenza),
     pendenzeAiuto: 'Ce qui a été donné et n’est pas encore revenu',
     classi: 'Classes',
     classiAiuto: 'La liste des classes et de leurs groupes',
     persone: Molti(lessico.in('fr').pif),
-    personeAiuto: 'Toutes les personnes de l’année dans une seule liste, avec leur fiche à côté',
+    personeAiuto:
+      'Toutes les personnes de l’année dans une seule liste, avec leur fiche à côté',
     mappa: 'Carte',
-    mappaAiuto: 'Où ils habitent, où ils travaillent, et à quelle distance de l’école',
+    mappaAiuto:
+      'Où ils habitent, où ils travaillent, et à quelle distance de l’école',
     corsi: 'Cours',
-    corsiAiuto: 'Quelle branche pour quelle classe, dans une matrice : et dessous, le cours choisi',
+    corsiAiuto:
+      'Quelle branche pour quelle classe, dans une matrice : et dessous, le cours choisi',
     daSmistare: 'À trier',
-    daSmistareAiuto: 'Les PDF chargés qui attendent d’être divisés, de toutes tes classes',
+    daSmistareAiuto:
+      'Les PDF chargés qui attendent d’être divisés, de toutes tes classes',
     lezione: 'Leçon',
     lezioneAiuto: 'Présences, sujets et devoirs de la leçon',
     valutazioni: 'Évaluations',
     valutazioniAiuto: 'Les évaluations du cours et leurs notes',
     check: 'Check',
-    checkAiuto: 'Les choses à faire une fois, cochées personne par personne avec leur date',
+    checkAiuto:
+      'Les choses à faire une fois, cochées personne par personne avec leur date',
     checkClasse: 'Check de la classe',
-    checkClasseAiuto: 'Ce qu’il faut vérifier pour la classe comme maître de classe',
+    checkClasseAiuto:
+      'Ce qu’il faut vérifier pour la classe comme maître de classe',
     piani: 'Plans de leçon',
     pianiAiuto: 'Comment une leçon est construite avant de la donner',
     documenti: 'Documents',
@@ -172,7 +198,9 @@ export const testi = catalogo(it, {
   },
   en: {
     nessunaLezione: 'This course has no lessons yet.',
-    oggiAiuto: 'The day at a glance: today’s lessons, what is still open, and where to go next',
+    dashboard: 'Dashboard',
+    oggiAiuto:
+      'The day at a glance: today’s lessons, what is still open, and where to go next',
     calendario: 'Calendar',
     calendarioAiuto: 'The lessons of all classes together, week by week',
     pendenze: Molti(lessico.in('en').pendenza),
@@ -180,25 +208,31 @@ export const testi = catalogo(it, {
     classi: 'Classes',
     classiAiuto: 'The list of classes and their groups',
     persone: Molti(lessico.in('en').pif),
-    personeAiuto: 'Everyone in the year in a single list, with their record alongside',
+    personeAiuto:
+      'Everyone in the year in a single list, with their record alongside',
     mappa: 'Map',
-    mappaAiuto: 'Where they live, where they work, and how far they are from school',
+    mappaAiuto:
+      'Where they live, where they work, and how far they are from school',
     corsi: 'Courses',
-    corsiAiuto: 'Which subject for which class, in a grid: and below, the chosen course',
+    corsiAiuto:
+      'Which subject for which class, in a grid: and below, the chosen course',
     daSmistare: 'To sort',
-    daSmistareAiuto: 'The loaded PDFs waiting to be split, from all your classes',
+    daSmistareAiuto:
+      'The loaded PDFs waiting to be split, from all your classes',
     lezione: 'Lesson',
     lezioneAiuto: 'Attendance, topics and assignments of the lesson',
     valutazioni: 'Assessments',
     valutazioniAiuto: 'The course’s assessments and their grades',
     check: 'Check',
-    checkAiuto: 'Things to do once, ticked off person by person with their date',
+    checkAiuto:
+      'Things to do once, ticked off person by person with their date',
     checkClasse: 'Class check',
     checkClasseAiuto: 'Things to check for the class as its class teacher',
     piani: 'Lesson plans',
     pianiAiuto: 'How a lesson is built before you teach it',
     documenti: 'Documents',
-    documentiAiuto: 'What leaves the register and goes into other people’s hands',
+    documentiAiuto:
+      'What leaves the register and goes into other people’s hands',
     pendenzeClasse: 'Class pending items',
     pendenzeClasseAiuto: 'What this class still has to bring or redo',
     archivio: 'Document archive',
@@ -208,7 +242,8 @@ export const testi = catalogo(it, {
     messaggistica: 'Messages',
     messaggisticaAiuto: 'Contact addresses and messages to families',
     impostazioni: 'Settings',
-    impostazioniAiuto: 'Subjects, grading scale, letterhead, mail, language models',
+    impostazioniAiuto:
+      'Subjects, grading scale, letterhead, mail, language models',
     guida: 'Help',
     guidaAiuto: 'How to use the register, on one page',
     gruppi: {

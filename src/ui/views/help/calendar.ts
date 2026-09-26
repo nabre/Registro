@@ -33,9 +33,9 @@ const T = testi()
 /** Uno schema senza parole attorno: didascalia e legenda stanno nel catalogo. */
 type Schema = Pick<FiguraGuida, 'vista' | 'disegno'>
 
-/** Le voci della barra laterale nei telai di questa parte: l'agenda, da «Oggi». */
+/** Le voci della barra laterale nei telai di questa parte: l'agenda, dalla Dashboard. */
 const LATERALI = [
-  parole().oggi,
+  testiPagine().dashboard,
   T.calendario.scritte.calendario,
   T.calendario.scritte.daSmistare,
 ]
@@ -53,10 +53,15 @@ const LATERALI_REGISTRO = [
 // ------------------------------------------------------------------ le figure
 
 /**
- * Una tessera della pagina «Oggi»: il numero grande e sotto il nome, con le
+ * Una tessera della Dashboard: il numero grande e sotto il nome, con le
  * parole della pagina vera (`today.testi.ts`, `pages.testi.ts`).
  */
-function tesseraOggi (x: number, numero: string, nome: string, tono: Tono): string {
+function tesseraOggi (
+  x: number,
+  numero: string,
+  nome: string,
+  tono: Tono,
+): string {
   return disegno(
     riquadro(x, 72, 116, 44, { tono: 'quieto', raggio: 6 }),
     testo(x + 10, 93, numero, { corpo: 'titolo', forte: true, tono }),
@@ -65,7 +70,7 @@ function tesseraOggi (x: number, numero: string, nome: string, tono: Tono): stri
 }
 
 /**
- * Un'ora della pagina «Oggi»: inizio, classe e materia, e a destra la fase.
+ * Un'ora della Dashboard: inizio, classe e materia, e a destra la fase.
  * L'ora accesa porta prima della fase il segnale «Adesso» o «Prossima».
  */
 function oraDiOggi (
@@ -79,33 +84,47 @@ function oraDiOggi (
   const dove = 620 - largaPastiglia(fase)
   return disegno(
     segnale && riquadro(150, y, 476, 22, { tono: 'accento', raggio: 4 }),
-    testo(158, y + 15, ora, { corpo: 'piccolo', macchina: true, tono: 'quieto' }),
+    testo(158, y + 15, ora, {
+      corpo: 'piccolo',
+      macchina: true,
+      tono: 'quieto',
+    }),
     testo(200, y + 15, cosa, { corpo: 'piccolo', forte: true }),
-    segnale && testo(dove - 8, y + 15, segnale, { corpo: 'piccolo', forte: true, tono: 'accento', ancora: 'fine' }),
+    segnale &&
+      testo(dove - 8, y + 15, segnale, {
+        corpo: 'piccolo',
+        forte: true,
+        tono: 'accento',
+        ancora: 'fine',
+      }),
     pastiglia(dove, y + 2, fase, tono),
   )
 }
 
-/** La pagina «Oggi» vista dall'alto: le tessere, le ore, le prove, i compleanni. */
+/** La Dashboard vista dall'alto: tessere, ore, prove e compleanni. */
 function figuraOggi (): Schema {
   const o = testiOggi()
   const p = testiPagine()
   const s = T.oggi.scritte
-  const sottotitolo = o.sottotitolo(o.saluto('09:30'), formattaData('2026-09-14', 'lungo'))
-  const prova = (y: number, nome: string, fra: string, tono: Tono): string => disegno(
-    testo(154, y + 13, nome, { corpo: 'piccolo', forte: true }),
-    pastiglia(434 - largaPastiglia(fra), y, fra, tono),
+  const sottotitolo = o.sottotitolo(
+    o.saluto('09:30'),
+    formattaData('2026-09-14', 'lungo'),
   )
+  const prova = (y: number, nome: string, fra: string, tono: Tono): string =>
+    disegno(
+      testo(154, y + 13, nome, { corpo: 'piccolo', forte: true }),
+      pastiglia(434 - largaPastiglia(fra), y, fra, tono),
+    )
   return {
     vista: '0 0 640 346',
     disegno: disegno(
       telaio(0, 0, 640, 346, {
         laterali: LATERALI,
-        scelta: LATERALI.indexOf(parole().oggi),
+        scelta: LATERALI.indexOf(p.dashboard),
         stato: T.calendario.scritte.stato,
       }),
       // La testata: il nome della pagina e il saluto con la data.
-      testo(144, 46, parole().oggi, { corpo: 'titolo', forte: true }),
+      testo(144, 46, o.titolo, { corpo: 'titolo', forte: true }),
       testo(144, 62, sottotitolo, { corpo: 'piccolo', tono: 'quieto' }),
       // Le quattro tessere, ognuna una porta.
       tesseraOggi(144, '4', o.oreDiOggi, 'informativo'),
@@ -116,7 +135,14 @@ function figuraOggi (): Schema {
       riquadro(144, 126, 488, 110, { tono: 'quieto', raggio: 6 }),
       testo(154, 142, o.leOreDiOggi, { corpo: 'piccolo', forte: true }),
       oraDiOggi(148, '08:20', s.ora1, o.fasi.svolta, 'positivo'),
-      oraDiOggi(170, '09:10', s.ora2, o.fasi['in-corso'], 'informativo', o.adesso),
+      oraDiOggi(
+        170,
+        '09:10',
+        s.ora2,
+        o.fasi['in-corso'],
+        'informativo',
+        o.adesso,
+      ),
       oraDiOggi(192, '10:15', s.ora1, o.fasi.futura, 'quieto'),
       oraDiOggi(214, '13:30', s.ora2, o.fasi.annullata, 'quieto'),
       // Sotto, a sinistra le prossime prove, a destra i compleanni.
@@ -144,10 +170,10 @@ function largaPastiglia (contenuto: string): number {
 
 /** Una pastiglia di una fila: dove la metteva l'italiano, e almeno `stacco` dopo la precedente. */
 interface PastigliaInFila {
-  x: number
-  contenuto: string
-  tono: Tono
-  stacco?: number
+  x: number;
+  contenuto: string;
+  tono: Tono;
+  stacco?: number;
 }
 
 /**
@@ -158,7 +184,7 @@ interface PastigliaInFila {
 function pastiglieInFila (
   y: number,
   voci: readonly PastigliaInFila[],
-): { disegno: string, fine: number } {
+): { disegno: string; fine: number } {
   let fine = -Infinity
   const pezzi = voci.map(({ x, contenuto, tono, stacco = 3 }) => {
     const dove = Math.max(x, fine + stacco)
@@ -204,10 +230,15 @@ const FIGURA_SETTIMANA: Schema = {
     simbolo('su', 596, 50, 12, 'quieto'),
     ...Array.from({ length: 16 }, (_, i) => {
       const x = 142 + i * 29
-      const tono = i === 5 ? 'accento' : i === 9 || i === 10 ? 'quieto' : 'neutro'
+      const tono =
+        i === 5 ? 'accento' : i === 9 || i === 10 ? 'quieto' : 'neutro'
       return disegno(
         riquadro(x, 64, 26, 18, { tono, tratteggio: i === 9 || i === 10 }),
-        testo(x + 13, 77, String(36 + i), { corpo: 'piccolo', ancora: 'centro', tono }),
+        testo(x + 13, 77, String(36 + i), {
+          corpo: 'piccolo',
+          ancora: 'centro',
+          tono,
+        }),
       )
     }),
     // I giorni.
@@ -218,11 +249,17 @@ const FIGURA_SETTIMANA: Schema = {
       T.calendario.scritte.gio,
       T.calendario.scritte.ven,
     ].map((giorno, i) =>
-      testo(COLONNE[i] + 43, 98, giorno, { corpo: 'piccolo', ancora: 'centro', forte: true })),
+      testo(COLONNE[i] + 43, 98, giorno, {
+        corpo: 'piccolo',
+        ancora: 'centro',
+        forte: true,
+      }),
+    ),
     simbolo('torta', COLONNE[3] + 70, 87, 13, 'accento'),
     // Le ore.
     ...['08', '09', '10', '11'].map((ora, i) =>
-      testo(144, 120 + i * 40, ora, { corpo: 'piccolo', tono: 'quieto' })),
+      testo(144, 120 + i * 40, ora, { corpo: 'piccolo', tono: 'quieto' }),
+    ),
     riquadro(COLONNE[0] + 3, 116, 80, 76, {
       tono: 'positivo',
       etichetta: 'DIC4a',
@@ -279,8 +316,16 @@ function rigaDelTrascinamento (): string {
 const FIGURA_TRASCINA: Schema = {
   vista: '0 0 640 220',
   disegno: disegno(
-    testo(80, 22, T.calendarioOre.scritte.mar, { corpo: 'piccolo', ancora: 'centro', forte: true }),
-    testo(230, 22, T.calendarioOre.scritte.mer, { corpo: 'piccolo', ancora: 'centro', forte: true }),
+    testo(80, 22, T.calendarioOre.scritte.mar, {
+      corpo: 'piccolo',
+      ancora: 'centro',
+      forte: true,
+    }),
+    testo(230, 22, T.calendarioOre.scritte.mer, {
+      corpo: 'piccolo',
+      ancora: 'centro',
+      forte: true,
+    }),
     riquadro(20, 30, 120, 140, { tono: 'quieto' }),
     riquadro(170, 30, 120, 140, { tono: 'quieto' }),
     riquadro(28, 50, 104, 50, {
@@ -289,7 +334,13 @@ const FIGURA_TRASCINA: Schema = {
       sotto: T.calendarioOre.scritte.presa,
       tratteggio: true,
     }),
-    freccia([[134, 76], [176, 136]], { tono: 'accento' }),
+    freccia(
+      [
+        [134, 76],
+        [176, 136],
+      ],
+      { tono: 'accento' },
+    ),
     pastiglia(234, 94, '10:05', 'accento'),
     riquadro(172, 114, 116, 2, { tono: 'accento', raggio: 1 }),
     riquadro(178, 117, 104, 48, { tono: 'accento', etichetta: 'DIC4a' }),
@@ -321,12 +372,27 @@ const FIGURA_ICS: Schema = {
       const x = 20 + i * 48
       return disegno(
         riquadro(x, 12, 44, 22, { tono: i === 2 ? 'accento' : 'neutro' }),
-        testo(x + 8, 27, numero, { corpo: 'piccolo', tono: i === 2 ? 'accento' : 'neutro' }),
+        testo(x + 8, 27, numero, {
+          corpo: 'piccolo',
+          tono: i === 2 ? 'accento' : 'neutro',
+        }),
       )
     }),
-    testo(20 + 48 + 32, 27, '+', { corpo: 'piccolo', tono: 'attenzione', forte: true }),
-    testo(20 + 3 * 48 + 32, 27, '−', { corpo: 'piccolo', tono: 'negativo', forte: true }),
-    testo(20 + 4 * 48 + 32, 27, '?', { corpo: 'piccolo', tono: 'informativo', forte: true }),
+    testo(20 + 48 + 32, 27, '+', {
+      corpo: 'piccolo',
+      tono: 'attenzione',
+      forte: true,
+    }),
+    testo(20 + 3 * 48 + 32, 27, '−', {
+      corpo: 'piccolo',
+      tono: 'negativo',
+      forte: true,
+    }),
+    testo(20 + 4 * 48 + 32, 27, '?', {
+      corpo: 'piccolo',
+      tono: 'informativo',
+      forte: true,
+    }),
     // Il giorno: le ore a sinistra, la corsia ICS a destra.
     riquadro(20, 48, 380, 180, { tono: 'quieto' }),
     testo(30, 64, T.ics.scritte.mer, { corpo: 'piccolo', forte: true }),
@@ -336,8 +402,16 @@ const FIGURA_ICS: Schema = {
       simbolo: 'collegamento',
       aSinistra: true,
     }),
-    riquadro(274, 76, 118, 36, { tono: 'quieto', etichetta: 'DIC4a CP', tratteggio: true }),
-    riquadro(274, 116, 118, 36, { tono: 'quieto', etichetta: 'DIC4a CP', tratteggio: true }),
+    riquadro(274, 76, 118, 36, {
+      tono: 'quieto',
+      etichetta: 'DIC4a CP',
+      tratteggio: true,
+    }),
+    riquadro(274, 116, 118, 36, {
+      tono: 'quieto',
+      etichetta: 'DIC4a CP',
+      tratteggio: true,
+    }),
     riquadro(28, 172, 236, 44, {
       tono: 'negativo',
       etichetta: 'DIC2b',
@@ -353,10 +427,22 @@ const FIGURA_ICS: Schema = {
     }),
     // L'interruttore.
     pastiglia(430, 60, T.ics.scritte.calendarioIcs, 'accento'),
-    testo(430, 124, T.ics.scritte.inModifica, { corpo: 'piccolo', tono: 'quieto' }),
-    testo(430, 156, T.ics.scritte.senzaLezione, { corpo: 'piccolo', tono: 'attenzione' }),
-    testo(430, 176, T.ics.scritte.senzaEvento, { corpo: 'piccolo', tono: 'negativo' }),
-    testo(430, 196, T.ics.scritte.senzaRegola, { corpo: 'piccolo', tono: 'informativo' }),
+    testo(430, 124, T.ics.scritte.inModifica, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
+    testo(430, 156, T.ics.scritte.senzaLezione, {
+      corpo: 'piccolo',
+      tono: 'attenzione',
+    }),
+    testo(430, 176, T.ics.scritte.senzaEvento, {
+      corpo: 'piccolo',
+      tono: 'negativo',
+    }),
+    testo(430, 196, T.ics.scritte.senzaRegola, {
+      corpo: 'piccolo',
+      tono: 'informativo',
+    }),
     bollino(408, 12, 1),
     bollino(264, 76, 2),
     bollino(392, 76, 3),
@@ -369,45 +455,68 @@ const FIGURA_ICS: Schema = {
 const FIGURA_CONFRONTO: Schema = {
   vista: '0 0 640 190',
   disegno: disegno(
-    catena(12, 24, [
-      {
-        etichetta: T.icsRegole.scritte.evento,
-        sotto: T.icsRegole.scritte.titoloELuogo,
-        simbolo: 'calendario',
-      },
-      {
-        etichetta: T.icsRegole.scritte.corso,
-        sotto: T.icsRegole.scritte.quattroProve,
-        tono: 'accento',
-        simbolo: 'libro',
-      },
-      {
-        etichetta: T.icsRegole.scritte.lezione,
-        sotto: T.icsRegole.scritte.piuSovrapposta,
-        simbolo: 'orologio',
-      },
-      {
-        etichetta: T.icsRegole.scritte.proposta,
-        sotto: T.icsRegole.scritte.daSpuntare,
-        tono: 'positivo',
-        simbolo: 'spunta',
-      },
-    ], { largo: 132, stacco: 24, alto: 46 }),
-    testo(20, 94, T.icsRegole.scritte.giornoIntero, { corpo: 'piccolo', tono: 'quieto' }),
-    testo(20, 110, T.icsRegole.scritte.mezzanotte, { corpo: 'piccolo', tono: 'quieto' }),
-    testo(20, 126, T.icsRegole.scritte.lasciatoFuori, { corpo: 'piccolo', tono: 'quieto' }),
+    catena(
+      12,
+      24,
+      [
+        {
+          etichetta: T.icsRegole.scritte.evento,
+          sotto: T.icsRegole.scritte.titoloELuogo,
+          simbolo: 'calendario',
+        },
+        {
+          etichetta: T.icsRegole.scritte.corso,
+          sotto: T.icsRegole.scritte.quattroProve,
+          tono: 'accento',
+          simbolo: 'libro',
+        },
+        {
+          etichetta: T.icsRegole.scritte.lezione,
+          sotto: T.icsRegole.scritte.piuSovrapposta,
+          simbolo: 'orologio',
+        },
+        {
+          etichetta: T.icsRegole.scritte.proposta,
+          sotto: T.icsRegole.scritte.daSpuntare,
+          tono: 'positivo',
+          simbolo: 'spunta',
+        },
+      ],
+      { largo: 132, stacco: 24, alto: 46 },
+    ),
+    testo(20, 94, T.icsRegole.scritte.giornoIntero, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
+    testo(20, 110, T.icsRegole.scritte.mezzanotte, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
+    testo(20, 126, T.icsRegole.scritte.lasciatoFuori, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
     ...[
       T.icsRegole.scritte.prova1,
       T.icsRegole.scritte.prova2,
       T.icsRegole.scritte.prova3,
       T.icsRegole.scritte.prova4,
     ].map((prova, i) => testo(176, 94 + i * 18, prova, { corpo: 'piccolo' })),
-    testo(332, 94, T.icsRegole.scritte.nessunaSotto, { corpo: 'piccolo', tono: 'quieto' }),
-    testo(332, 110, T.icsRegole.scritte.oraDaCreare, { corpo: 'piccolo', tono: 'quieto' }),
+    testo(332, 94, T.icsRegole.scritte.nessunaSotto, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
+    testo(332, 110, T.icsRegole.scritte.oraDaCreare, {
+      corpo: 'piccolo',
+      tono: 'quieto',
+    }),
     pastiglia(488, 84, T.icsRegole.scritte.daCreare, 'positivo'),
     pastiglia(488, 108, T.icsRegole.scritte.daAllineare, 'informativo'),
     pastiglia(488, 132, T.icsRegole.scritte.daAnnullare, 'attenzione'),
-    testo(488, 170, T.icsRegole.scritte.maiDaCancellare, { corpo: 'piccolo', tono: 'negativo' }),
+    testo(488, 170, T.icsRegole.scritte.maiDaCancellare, {
+      corpo: 'piccolo',
+      tono: 'negativo',
+    }),
     bollino(300, 24, 1),
     bollino(612, 24, 2),
   ),
@@ -445,14 +554,20 @@ const FIGURA_PENDENZE: Schema = {
       T.todo.scritte.nuovaConsegna,
       'accento',
     ),
-    ...(['valutazioni', 'documento', 'spunta', 'documento', 'spunta'] as const)
-      .map((icona, i) => riquadro(138 + i * 98, 72, 92, 38, {
+    ...(
+      ['valutazioni', 'documento', 'spunta', 'documento', 'spunta'] as const
+    ).map((icona, i) =>
+      riquadro(138 + i * 98, 72, 92, 38, {
         tono: i === 0 ? 'negativo' : 'neutro',
         etichetta: String([5, 3, 4, 1, 2][i]),
         simbolo: icona,
-      })),
+      }),
+    ),
     riquadro(138, 124, 490, 92, { tono: 'neutro' }),
-    testo(148, 143, T.todo.scritte.consegnaLaClasse, { corpo: 'piccolo', forte: true }),
+    testo(148, 143, T.todo.scritte.consegnaLaClasse, {
+      corpo: 'piccolo',
+      forte: true,
+    }),
     mucchio(152, T.todo.scritte.rimasteIndietro, 'negativo', 262, 220, 3.9),
     mucchio(178, T.todo.scritte.entroLaSettimana, 'neutro', 270, 200, 0.1),
     riquadro(138, 226, 490, 16, { tono: 'quieto' }),
@@ -474,17 +589,27 @@ const FIGURA_TIPOLOGIE: Schema = {
       simbolo: 'valutazioni',
     }),
     testo(325, 80, T.todo.scritte.consegnaUnFoglio, {
-      corpo: 'piccolo', ancora: 'centro', tono: 'quieto',
+      corpo: 'piccolo',
+      ancora: 'centro',
+      tono: 'quieto',
     }),
     testo(525, 80, T.todo.scritte.svolgeQualcosa, {
-      corpo: 'piccolo', ancora: 'centro', tono: 'quieto',
+      corpo: 'piccolo',
+      ancora: 'centro',
+      tono: 'quieto',
     }),
     testo(28, 111, T.todo.scritte.toccaAllaClasse, { forte: true }),
     testo(28, 157, T.todo.scritte.toccaAlDocente, { forte: true }),
     riquadro(230, 88, 190, 38, { etichetta: T.todo.scritte.consegnaLaClasse }),
     riquadro(430, 88, 190, 38, { etichetta: T.todo.scritte.svolgeLaClasse }),
-    riquadro(230, 134, 190, 38, { tono: 'accento', etichetta: T.todo.scritte.consegnaIlDocente }),
-    riquadro(430, 134, 190, 38, { tono: 'accento', etichetta: T.todo.scritte.svolgeIlDocente }),
+    riquadro(230, 134, 190, 38, {
+      tono: 'accento',
+      etichetta: T.todo.scritte.consegnaIlDocente,
+    }),
+    riquadro(430, 134, 190, 38, {
+      tono: 'accento',
+      etichetta: T.todo.scritte.svolgeIlDocente,
+    }),
     testo(320, 192, T.todo.scritte.inCimaInFondo, {
       corpo: 'piccolo',
       ancora: 'centro',
@@ -497,29 +622,54 @@ const FIGURA_TIPOLOGIE: Schema = {
 const FIGURA_SMISTARE: Schema = {
   vista: '0 0 640 210',
   disegno: disegno(
-    catena(12, 24, [
-      { etichetta: 'PDF', sotto: T.smistare.scritte.trascinato, simbolo: 'documento' },
-      { etichetta: T.smistare.scritte.lettura, sotto: T.smistare.scritte.ocr, simbolo: 'lente' },
-      {
-        etichetta: T.smistare.scritte.proposte,
-        sotto: T.smistare.scritte.unNome,
-        tono: 'accento',
-        simbolo: 'utente',
-      },
-      {
-        etichetta: T.smistare.scritte.fascicolo,
-        sotto: T.smistare.scritte.archiviato,
-        tono: 'positivo',
-        simbolo: 'cartella',
-      },
-    ], { largo: 132, stacco: 24, alto: 46 }),
+    catena(
+      12,
+      24,
+      [
+        {
+          etichetta: 'PDF',
+          sotto: T.smistare.scritte.trascinato,
+          simbolo: 'documento',
+        },
+        {
+          etichetta: T.smistare.scritte.lettura,
+          sotto: T.smistare.scritte.ocr,
+          simbolo: 'lente',
+        },
+        {
+          etichetta: T.smistare.scritte.proposte,
+          sotto: T.smistare.scritte.unNome,
+          tono: 'accento',
+          simbolo: 'utente',
+        },
+        {
+          etichetta: T.smistare.scritte.fascicolo,
+          sotto: T.smistare.scritte.archiviato,
+          tono: 'positivo',
+          simbolo: 'cartella',
+        },
+      ],
+      { largo: 132, stacco: 24, alto: 46 },
+    ),
     riquadro(330, 104, 282, 44, {
       tono: 'quieto',
       etichetta: T.smistare.scritte.conferma,
       sotto: T.smistare.scritte.senzaGesto,
     }),
-    freccia([[468, 102], [468, 52]], { tono: 'accento' }),
-    freccia([[78, 72], [78, 146]], { tratteggio: true }),
+    freccia(
+      [
+        [468, 102],
+        [468, 52],
+      ],
+      { tono: 'accento' },
+    ),
+    freccia(
+      [
+        [78, 72],
+        [78, 146],
+      ],
+      { tratteggio: true },
+    ),
     riquadro(12, 150, 200, 44, {
       tono: 'attenzione',
       etichetta: T.smistare.scritte.nonAttribuiti,
@@ -536,67 +686,88 @@ const FIGURA_SMISTARE: Schema = {
 // ------------------------------------------------------------------ le sezioni
 
 export const SEZIONI_CALENDARIO: SezioneGuida[] = [
-  sezione({
-    id: 'oggi',
-    parte: 'agenda',
-    simbolo: 'sole',
-    vista: 'oggi',
-    figure: [figuraOggi()],
-    note: ['meccanismo'],
-    vedi: ['calendario', 'todo', 'smistare', 'barra-stato', 'finestra'],
-  }, T.oggi),
-  sezione({
-    id: 'calendario',
-    parte: 'agenda',
-    simbolo: 'calendario',
-    vista: 'calendario',
-    figure: [FIGURA_SETTIMANA],
-    note: ['meccanismo', 'consiglio'],
-    vedi: ['calendario-ore', 'ics', 'barra-stato', 'date', 'impostazioni'],
-  }, T.calendario),
-  sezione({
-    id: 'calendario-ore',
-    parte: 'agenda',
-    simbolo: 'orologio',
-    vista: 'calendario',
-    figure: [FIGURA_TRASCINA],
-    note: ['meccanismo', 'attenzione'],
-    vedi: ['calendario', 'lezione', 'corsi', 'piani', 'ics'],
-  }, T.calendarioOre),
-  sezione({
-    id: 'ics',
-    parte: 'agenda',
-    simbolo: 'collegamento',
-    vista: 'calendario',
-    figure: [FIGURA_ICS],
-    note: ['attenzione', 'meccanismo', 'consiglio'],
-    vedi: ['ics-regole', 'calendario', 'calendario-ore', 'impostazioni'],
-  }, T.ics),
-  sezione({
-    id: 'ics-regole',
-    parte: 'agenda',
-    simbolo: 'filtro',
-    vista: 'calendario',
-    figure: [FIGURA_CONFRONTO],
-    note: ['meccanismo', 'consiglio'],
-    vedi: ['ics', 'calendario-ore', 'corsi'],
-  }, T.icsRegole),
-  sezione({
-    id: 'todo',
-    parte: 'registro',
-    simbolo: 'spunta',
-    vista: 'todo',
-    figure: [FIGURA_PENDENZE, FIGURA_TIPOLOGIE],
-    note: ['meccanismo', 'attenzione'],
-    vedi: ['valutazioni', 'consegne', 'lezione', 'barra-stato', 'date'],
-  }, T.todo),
-  sezione({
-    id: 'smistare',
-    parte: 'agenda',
-    simbolo: 'documento',
-    vista: 'daSmistare',
-    figure: [FIGURA_SMISTARE],
-    note: ['meccanismo', 'attenzione', 'consiglio'],
-    vedi: ['archivio', 'docente', 'modelli-linguistici', 'finestra'],
-  }, T.smistare),
+  sezione(
+    {
+      id: 'oggi',
+      parte: 'agenda',
+      simbolo: 'dashboard',
+      vista: 'oggi',
+      figure: [figuraOggi()],
+      note: ['meccanismo'],
+      vedi: ['calendario', 'todo', 'smistare', 'barra-stato', 'finestra'],
+    },
+    T.oggi,
+  ),
+  sezione(
+    {
+      id: 'calendario',
+      parte: 'agenda',
+      simbolo: 'calendario',
+      vista: 'calendario',
+      figure: [FIGURA_SETTIMANA],
+      note: ['meccanismo', 'consiglio'],
+      vedi: ['calendario-ore', 'ics', 'barra-stato', 'date', 'impostazioni'],
+    },
+    T.calendario,
+  ),
+  sezione(
+    {
+      id: 'calendario-ore',
+      parte: 'agenda',
+      simbolo: 'orologio',
+      vista: 'calendario',
+      figure: [FIGURA_TRASCINA],
+      note: ['meccanismo', 'attenzione'],
+      vedi: ['calendario', 'lezione', 'corsi', 'piani', 'ics'],
+    },
+    T.calendarioOre,
+  ),
+  sezione(
+    {
+      id: 'ics',
+      parte: 'agenda',
+      simbolo: 'collegamento',
+      vista: 'calendario',
+      figure: [FIGURA_ICS],
+      note: ['attenzione', 'meccanismo', 'consiglio'],
+      vedi: ['ics-regole', 'calendario', 'calendario-ore', 'impostazioni'],
+    },
+    T.ics,
+  ),
+  sezione(
+    {
+      id: 'ics-regole',
+      parte: 'agenda',
+      simbolo: 'filtro',
+      vista: 'calendario',
+      figure: [FIGURA_CONFRONTO],
+      note: ['meccanismo', 'consiglio'],
+      vedi: ['ics', 'calendario-ore', 'corsi'],
+    },
+    T.icsRegole,
+  ),
+  sezione(
+    {
+      id: 'todo',
+      parte: 'registro',
+      simbolo: 'spunta',
+      vista: 'todo',
+      figure: [FIGURA_PENDENZE, FIGURA_TIPOLOGIE],
+      note: ['meccanismo', 'attenzione'],
+      vedi: ['valutazioni', 'consegne', 'lezione', 'barra-stato', 'date'],
+    },
+    T.todo,
+  ),
+  sezione(
+    {
+      id: 'smistare',
+      parte: 'agenda',
+      simbolo: 'documento',
+      vista: 'daSmistare',
+      figure: [FIGURA_SMISTARE],
+      note: ['meccanismo', 'attenzione', 'consiglio'],
+      vedi: ['archivio', 'docente', 'modelli-linguistici', 'finestra'],
+    },
+    T.smistare,
+  ),
 ]

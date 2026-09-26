@@ -9,26 +9,27 @@ import { lessico } from '../domain/lexicon.testi.js'
 const it = {
   corso: 'Corso',
   corsoTitolo:
-    'Restringe a un corso l’ora qui accanto e il calendario. Non cambia il corso del registro.',
+    'Restringe a un corso la lezione qui accanto e il calendario. Non cambia il corso del registro.',
   tuttiICorsi: 'Tutti i corsi',
   periodoTitolo:
-    'Il periodo su cui sono fatti i conti — medie, assenze, ore — e in cui si cerca l’ora qui ' +
+    'Il periodo su cui sono fatti i conti — medie, assenze, lezioni — e in cui si cerca la lezione qui ' +
     'accanto',
   annoIntero: 'Anno intero',
 
   /** «oggi», detto a voce: sta dentro la voce dell'ora. */
   oggi: 'oggi',
-  nessunaOra: 'nessuna ora in programma',
+  nessunaOra: 'nessuna lezione in programma',
   nessunaOraTitolo:
     'Non ci sono lezioni da fare né da compilare, fra quelle che i filtri qui accanto lasciano ' +
     'vedere',
-  daCompilare: (classe: string, quando: string) => `da compilare: ${classe} · ${quando}`,
+  daCompilare: (classe: string, quando: string) =>
+    `da compilare: ${classe} · ${quando}`,
   prossima: (classe: string, quando: string, inizio: string) =>
     `prossima: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
   daCompilareTitolo: (giorno: string) =>
-    `L'ora di ${giorno} è passata e il suo registro non è a posto.\nApri il registro della lezione`,
+    `La lezione di ${giorno} è passata e il suo registro non è a posto.\nApri il registro della lezione`,
   prossimaTitolo: (giorno: string, inizio: string) =>
-    `Prossima ora: ${giorno}${inizio ? `, alle ${inizio}` : ''}.\nApri il registro della lezione`,
+    `Prossima lezione: ${giorno}${inizio ? `, alle ${inizio}` : ''}.\nApri il registro della lezione`,
 
   pendenze: (aperte: number) => quanti(aperte, CARTE.pendenza),
   pendenzeInRitardo: (urgenti: number, aperte: number) =>
@@ -48,7 +49,8 @@ const it = {
   collegataA: (server: string, mittente: string | null) =>
     `Collegata a ${server}${mittente ? ` come ${mittente}` : ''}.\n`,
   invioAcceso: 'L’invio diretto è acceso: le comunicazioni partono da qui.',
-  invioSpento: 'L’invio diretto è spento: il registro prepara le bozze e le mandi tu.',
+  invioSpento:
+    'L’invio diretto è spento: il registro prepara le bozze e le mandi tu.',
   apriPosta: '\nApri le impostazioni della posta',
   bozzeEml: 'bozze in file .eml',
   bozzeEmlTitolo:
@@ -64,7 +66,8 @@ const it = {
   letturaScansioni: 'Lettura delle scansioni',
   spentoBloccato: (nome: string, perche: string) =>
     `${nome}: spento.\n${perche}\nApri i modelli linguistici`,
-  statoModello: (nome: string, acceso: boolean) => `${nome}: ${acceso ? 'acceso' : 'spento'}.\n`,
+  statoModello: (nome: string, acceso: boolean) =>
+    `${nome}: ${acceso ? 'acceso' : 'spento'}.\n`,
   modello: (nome: string) => `Modello: ${nome}.\n`,
   premiPerSpegnere: 'Premi per spegnere',
   premiPerAccendere: 'Premi per accendere',
@@ -118,7 +121,8 @@ export const testi = catalogo(it, {
     casellaCollegata: 'Postfach verbunden',
     collegataA: (server, mittente) =>
       `Verbunden mit ${server}${mittente ? ` als ${mittente}` : ''}.\n`,
-    invioAcceso: 'Das direkte Senden ist eingeschaltet: Die Mitteilungen gehen von hier aus.',
+    invioAcceso:
+      'Das direkte Senden ist eingeschaltet: Die Mitteilungen gehen von hier aus.',
     invioSpento:
       'Das direkte Senden ist ausgeschaltet: Das Klassenbuch bereitet Entwürfe vor, und du ' +
       'sendest sie.',
@@ -132,7 +136,8 @@ export const testi = catalogo(it, {
       `${frase} (Dies ist die ${versione}.)\nÖffne die Aktualisierungen`,
     assistente: 'Assistent',
     letturaScansioni: 'Scans lesen',
-    spentoBloccato: (nome, perche) => `${nome}: aus.\n${perche}\nÖffne die Sprachmodelle`,
+    spentoBloccato: (nome, perche) =>
+      `${nome}: aus.\n${perche}\nÖffne die Sprachmodelle`,
     statoModello: (nome, acceso) => `${nome}: ${acceso ? 'an' : 'aus'}.\n`,
     modello: (nome) => `Modell: ${nome}.\n`,
     premiPerSpegnere: 'Klicken zum Ausschalten',
@@ -182,7 +187,8 @@ export const testi = catalogo(it, {
     casellaCollegata: 'boîte connectée',
     collegataA: (server, mittente) =>
       `Connectée à ${server}${mittente ? ` en tant que ${mittente}` : ''}.\n`,
-    invioAcceso: 'L’envoi direct est activé : les communications partent d’ici.',
+    invioAcceso:
+      'L’envoi direct est activé : les communications partent d’ici.',
     invioSpento:
       'L’envoi direct est désactivé : le registre prépare les brouillons et c’est toi qui les ' +
       'envoies.',
@@ -198,7 +204,8 @@ export const testi = catalogo(it, {
     letturaScansioni: 'Lecture des scans',
     spentoBloccato: (nome, perche) =>
       `${nome} : désactivé.\n${perche}\nOuvre les modèles de langage`,
-    statoModello: (nome, acceso) => `${nome} : ${acceso ? 'activé' : 'désactivé'}.\n`,
+    statoModello: (nome, acceso) =>
+      `${nome} : ${acceso ? 'activé' : 'désactivé'}.\n`,
     modello: (nome) => `Modèle : ${nome}.\n`,
     premiPerSpegnere: 'Clique pour désactiver',
     premiPerAccendere: 'Clique pour activer',
@@ -247,17 +254,20 @@ export const testi = catalogo(it, {
     collegataA: (server, mittente) =>
       `Connected to ${server}${mittente ? ` as ${mittente}` : ''}.\n`,
     invioAcceso: 'Direct sending is on: messages go out from here.',
-    invioSpento: 'Direct sending is off: the register prepares the drafts and you send them.',
+    invioSpento:
+      'Direct sending is off: the register prepares the drafts and you send them.',
     apriPosta: '\nOpen the mail settings',
     bozzeEml: 'drafts as .eml files',
     bozzeEmlTitolo:
       'The mailbox is not connected: messages do not go out from here.\n' +
       'Drafts come out as .eml files to open with the mail program.\n' +
       'Open the mail settings',
-    versione: (frase, versione) => `${frase} (This is ${versione}.)\nOpen the updates`,
+    versione: (frase, versione) =>
+      `${frase} (This is ${versione}.)\nOpen the updates`,
     assistente: 'Assistant',
     letturaScansioni: 'Reading scans',
-    spentoBloccato: (nome, perche) => `${nome}: off.\n${perche}\nOpen the language models`,
+    spentoBloccato: (nome, perche) =>
+      `${nome}: off.\n${perche}\nOpen the language models`,
     statoModello: (nome, acceso) => `${nome}: ${acceso ? 'on' : 'off'}.\n`,
     modello: (nome) => `Model: ${nome}.\n`,
     premiPerSpegnere: 'Click to turn off',

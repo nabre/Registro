@@ -14,7 +14,7 @@ const it = {
   nuovaUdTesto: (fasce: number, ore: number, dueUd: string) => {
     const cosa = [
       fasce > 0 ? plurale(fasce, 'fascia dell’orario', 'fasce dell’orario') : null,
-      ore > 0 ? plurale(ore, 'ora sul calendario', 'ore sul calendario') : null,
+      ore > 0 ? plurale(ore, 'lezione sul calendario', 'lezioni sul calendario') : null,
     ].filter(Boolean).join(' e ')
     return `${Maiuscola(cosa)} tengono le loro UD: un’ora da due UD ` +
       `diventa di ${dueUd}. Le pause dopo la prima si spostano con loro.`
@@ -32,7 +32,7 @@ const it = {
   unaUd: (durata: string) => `1 UD = ${durata}`,
   lezioneNuova: (ud: number, durata: string) => `lezione nuova: ${ud} UD · ${durata}`,
   fissata: (conAppello: number, minuti: number) =>
-    `Fissata: ${plurale(conAppello, 'ora ha', 'ore hanno')} già l’appello, contato in UD ` +
+    `Fissata: ${plurale(conAppello, 'lezione ha', 'lezioni hanno')} già l’appello, contato in UD ` +
     `da ${minuti} minuti. Cambiarla sposterebbe le assenze sotto UD che non sono ` +
     'quelle in cui sono successe.',
   portaAlle: (ora: string) => `Porta alle ${ora}`,

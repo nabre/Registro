@@ -43,7 +43,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Marchio e icone | `resources/`, `icons/`, `tools/icons.cjs` |
 | Pagine | `src/ui/pages.ts` |
 | Barra laterale, `Ctrl+1`…`Ctrl+9` | `src/ui/sidebar.ts`, `src/ui/shortcuts.ts` |
-| Pagina «Oggi» | `src/ui/views/today.ts` |
+| Dashboard | `src/ui/views/today.ts` |
 | Ricerca `Ctrl+K` | `src/ui/components/palette.ts`, `src/ui/titleBar.ts` |
 | Indietro/avanti (`Alt+←`/`Alt+→`) | `src/ui/history.ts` |
 | Comandi e dove compaiono | `src/ui/commands.ts` |

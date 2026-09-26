@@ -28,7 +28,7 @@ const it = {
   mostrate: 'mostrate',
 
   // Gli elenchi a schermo.
-  oreInCalendario: 'ore in calendario',
+  oreInCalendario: 'lezioni in calendario',
   corsi: 'corsi',
   classi: 'classi',
   personeInElenco: `${PIF.plurale} in elenco`,

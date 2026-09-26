@@ -503,7 +503,7 @@ omonimi da dichiarare). Il come: skill `testi`.
 - Componenti: titolo di pagina (`testataVista`), tessere KPI, tabelle con
   intestazione tenue, avatar (`src/ui/components/avatar.ts`), stati vuoti,
   segmenti a pillola.
-- Navigazione: pagina **Oggi** (vista `oggi`, solo collegamenti, ADR-07), barra
+- Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
   laterale a pillola, ricerca in vista (Ctrl+K) con persone, corsi e classi,
   indietro/avanti (`src/ui/history.ts`), Ctrl+1…9.
 - Nessuna dipendenza nuova; icone mancanti da Lucide (ISC) in `icons.ts`.

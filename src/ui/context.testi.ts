@@ -11,7 +11,8 @@ const it = {
     'Nessuna classe aperta: la porta con sé il corso scelto in cima, o la si apre dalla pagina ' +
     'Classi.',
   senzaAnno: 'Non c’è ancora un anno scolastico.',
-  senzaLezione: 'Nessun’ora aperta: si apre dal calendario o dalla pagina Lezione.',
+  senzaLezione:
+    'Nessuna lezione aperta: si apre dal calendario o dalla pagina Lezione.',
   senzaPosta: 'La casella di posta non è collegata.',
 }
 
@@ -23,7 +24,8 @@ export const testi = catalogo(it, {
       'Keine Klasse geöffnet: Sie kommt mit dem oben gewählten Kurs, oder man öffnet sie auf der ' +
       'Seite Klassen.',
     senzaAnno: 'Es gibt noch kein Schuljahr.',
-    senzaLezione: 'Keine Stunde geöffnet: Man öffnet sie im Kalender oder auf der Seite ' +
+    senzaLezione:
+      'Keine Stunde geöffnet: Man öffnet sie im Kalender oder auf der Seite ' +
       'Stunde.',
     senzaPosta: 'Das E-Mail-Postfach ist nicht verbunden.',
   },
@@ -34,7 +36,8 @@ export const testi = catalogo(it, {
       'Aucune classe ouverte : elle vient avec le cours choisi en haut, ou on l’ouvre depuis la ' +
       'page Classes.',
     senzaAnno: 'Il n’y a pas encore d’année scolaire.',
-    senzaLezione: 'Aucune leçon ouverte : elle s’ouvre depuis le calendrier ou la page Leçon.',
+    senzaLezione:
+      'Aucune leçon ouverte : elle s’ouvre depuis le calendrier ou la page Leçon.',
     senzaPosta: 'La boîte de courrier n’est pas connectée.',
   },
   en: {
@@ -44,7 +47,8 @@ export const testi = catalogo(it, {
       'No class open: it comes with the course chosen at the top, or you open it from the ' +
       'Classes page.',
     senzaAnno: 'There is no school year yet.',
-    senzaLezione: 'No lesson open: open one from the calendar or the Lesson page.',
+    senzaLezione:
+      'No lesson open: open one from the calendar or the Lesson page.',
     senzaPosta: 'The mailbox is not connected.',
   },
 })

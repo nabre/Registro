@@ -30,7 +30,8 @@ const it = {
 
   // Nessuna lezione
   vuotoTitolo: 'Nessuna lezione aperta',
-  vuotoTesto: 'Il registro si scrive dentro un’ora: scegline una dal calendario.',
+  vuotoTesto:
+    'Il registro si scrive dentro una lezione: scegline una dal calendario.',
   apriUltima: 'Apri l’ultima lezione',
   vaiAlCalendario: 'Vai al calendario',
 
@@ -60,7 +61,8 @@ export const testi = catalogo(it, {
     materiali: 'Materialien',
     materialiSegnaposto: 'Arbeitsblätter, Links, Buchkapitel',
     consuntivo: 'Rückblick',
-    consuntivoSegnaposto: 'wie es gelaufen ist, was man nächstes Mal wieder aufnimmt',
+    consuntivoSegnaposto:
+      'wie es gelaufen ist, was man nächstes Mal wieder aufnimmt',
 
     precedente: 'Vorherige Stunde dieses Kurses',
     lezioneDelCorso: 'Stunde des Kurses',
@@ -69,7 +71,8 @@ export const testi = catalogo(it, {
     lezioni: (quante) => plurale(quante, 'Stunde', 'Stunden'),
 
     vuotoTitolo: 'Keine Stunde geöffnet',
-    vuotoTesto: 'Das Klassenbuch schreibt man in einer Stunde: Wähle eine im Kalender.',
+    vuotoTesto:
+      'Das Klassenbuch schreibt man in einer Stunde: Wähle eine im Kalender.',
     apriUltima: 'Letzte Stunde öffnen',
     vaiAlCalendario: 'Zum Kalender',
 
@@ -83,7 +86,8 @@ export const testi = catalogo(it, {
     conPause: 'mit Pausen',
   },
   fr: {
-    osservazioniAiuto: 'comment ça s’est passé pour chacun, et ce qui mérite d’être dit en détail',
+    osservazioniAiuto:
+      'comment ça s’est passé pour chacun, et ce qui mérite d’être dit en détail',
     nessunaOsservazione: 'Aucune observation rédigée en détail.',
     pifNonInElenco: 'personne en formation qui n’est plus dans la liste',
     tuttaLaClasse: 'toute la classe',
@@ -95,7 +99,8 @@ export const testi = catalogo(it, {
     materiali: 'Matériel',
     materialiSegnaposto: 'fiches, liens, chapitres du livre',
     consuntivo: 'Bilan',
-    consuntivoSegnaposto: 'comment ça s’est passé, ce qu’il faut reprendre la prochaine fois',
+    consuntivoSegnaposto:
+      'comment ça s’est passé, ce qu’il faut reprendre la prochaine fois',
 
     precedente: 'Leçon précédente de ce cours',
     lezioneDelCorso: 'Leçon du cours',
@@ -104,7 +109,8 @@ export const testi = catalogo(it, {
     lezioni: (quante) => plurale(quante, 'leçon', 'leçons'),
 
     vuotoTitolo: 'Aucune leçon ouverte',
-    vuotoTesto: 'Le registre s’écrit dans une leçon : choisis-en une dans le calendrier.',
+    vuotoTesto:
+      'Le registre s’écrit dans une leçon : choisis-en une dans le calendrier.',
     apriUltima: 'Ouvrir la dernière leçon',
     vaiAlCalendario: 'Aller au calendrier',
 
@@ -118,7 +124,8 @@ export const testi = catalogo(it, {
     conPause: 'avec pauses',
   },
   en: {
-    osservazioniAiuto: 'how it went for each learner, and what needs saying in full',
+    osservazioniAiuto:
+      'how it went for each learner, and what needs saying in full',
     nessunaOsservazione: 'No observations written out in full.',
     pifNonInElenco: 'learner no longer on the list',
     tuttaLaClasse: 'the whole class',
@@ -139,7 +146,8 @@ export const testi = catalogo(it, {
     lezioni: (quante) => plurale(quante, 'lesson', 'lessons'),
 
     vuotoTitolo: 'No lesson open',
-    vuotoTesto: 'The register is written inside a lesson: pick one from the calendar.',
+    vuotoTesto:
+      'The register is written inside a lesson: pick one from the calendar.',
     apriUltima: 'Open the last lesson',
     vaiAlCalendario: 'Go to the calendar',
 

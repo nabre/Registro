@@ -53,7 +53,7 @@ const it = {
   anagrafica: 'Anagrafica e foto',
   aiutoAnagrafica: `Le ${PIF.plurale} con i loro dati e le foto. Senza, le classi arrivano vuote`,
   corsiConOrario: 'Corsi con orario',
-  aiutoCorsi: 'I corsi delle classi, con le ore della settimana: servono anche ai piani',
+  aiutoCorsi: 'I corsi delle classi, con le lezioni della settimana: servono anche ai piani',
   nessunaClasse: 'Nessuna classe in quel registro',
   corsi: (n: number) => plurale(n, 'corso', 'corsi'),
   ceGia: 'c’è già: si salterà',
@@ -62,7 +62,7 @@ const it = {
   pianiECalendari: 'Piani lezione e calendari ICS',
   aiutoPiani:
     'Le scalette dei corsi portati, con i loro allegati: senza lezioni e senza ' +
-    'avanzamento, si riagganciano alle ore di qui quando le si prepara',
+    'avanzamento, si riagganciano alle lezioni di qui quando le si prepara',
   pianiLetti: (n: number) => `${plurale(n, 'piano', 'piani')} sui corsi di quel registro`,
   calendari: 'Calendari ICS e regole',
   aiutoCalendari:

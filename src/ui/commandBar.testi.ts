@@ -12,8 +12,10 @@ const it = {
   eQuelloAperto: 'È il registro aperto: torna nell’elenco da sé',
   togliRiga: 'Toglie la riga dall’elenco. Il file resta dov’è',
   nonDisponibile: ' — non disponibile',
-  recenteTitolo: (percorso: string) => `${percorso}\nTasto destro: preferiti, togli dall’elenco`,
-  fileSparito: 'Il file non si trova più lì. Tasto destro per toglierlo dall’elenco.',
+  recenteTitolo: (percorso: string) =>
+    `${percorso}\nTasto destro: preferiti, togli dall’elenco`,
+  fileSparito:
+    'Il file non si trova più lì. Tasto destro per toglierlo dall’elenco.',
   preferiti: 'Preferiti',
   recenti: 'Recenti',
 
@@ -30,11 +32,13 @@ const it = {
   classeFascicoloTitolo: 'La classe di cui si sta guardando il fascicolo',
   classePaginaTitolo: 'La classe di cui si guardano le persone',
   archiviata: (classe: string) => `${classe} (archiviata)`,
-  corsoAgendaTitolo: 'Restringe il calendario a un corso. Non cambia il corso del registro.',
+  corsoAgendaTitolo:
+    'Restringe il calendario a un corso. Non cambia il corso del registro.',
   tuttiICorsi: 'Tutti i corsi',
   anno: 'Anno',
   annoTitolo: 'L’anno scolastico in uso',
-  periodoTitolo: 'I conteggi — medie, assenze, ore — si fermano a questo periodo',
+  periodoTitolo:
+    'I conteggi — medie, assenze, lezioni — si fermano a questo periodo',
   annoIntero: 'Anno intero',
   classeMappaTitolo: 'Le case e le aziende di una classe sola, o di tutte',
   tutteLeClassi: 'Tutte le classi',
@@ -52,7 +56,8 @@ export const testi = catalogo(it, {
     togliDaiPreferiti: 'Aus den Favoriten entfernen',
     aggiungiAiPreferiti: 'Zu den Favoriten hinzufügen',
     togliDallElenco: 'Aus der Liste entfernen',
-    eQuelloAperto: 'Das ist das offene Klassenbuch: Es kommt von selbst in die Liste zurück',
+    eQuelloAperto:
+      'Das ist das offene Klassenbuch: Es kommt von selbst in die Liste zurück',
     togliRiga: 'Entfernt die Zeile aus der Liste. Die Datei bleibt, wo sie ist',
     nonDisponibile: ' — nicht verfügbar',
     recenteTitolo: (percorso) =>
@@ -65,7 +70,8 @@ export const testi = catalogo(it, {
     comandiSchermo: 'Die Befehle des Bildschirms für die Klasse',
     proiezione: 'Projektion',
     file: 'Datei',
-    fileTitolo: 'Neu, öffnen, speichern, schliessen: das Dokument des Schuljahrs',
+    fileTitolo:
+      'Neu, öffnen, speichern, schliessen: das Dokument des Schuljahrs',
     corso: 'Kurs',
     corsoTitolo: 'Der Kurs, auf den die Seiten des Klassenbuchs gerichtet sind',
     classe: 'Klasse',
@@ -77,9 +83,11 @@ export const testi = catalogo(it, {
     tuttiICorsi: 'Alle Kurse',
     anno: 'Schuljahr',
     annoTitolo: 'Das laufende Schuljahr',
-    periodoTitolo: 'Die Zählungen — Durchschnitte, Absenzen, Stunden — enden bei diesem Zeitraum',
+    periodoTitolo:
+      'Die Zählungen — Durchschnitte, Absenzen, Stunden — enden bei diesem Zeitraum',
     annoIntero: 'Ganzes Jahr',
-    classeMappaTitolo: 'Die Wohnorte und Betriebe einer einzigen Klasse, oder aller',
+    classeMappaTitolo:
+      'Die Wohnorte und Betriebe einer einzigen Klasse, oder aller',
     tutteLeClassi: 'Alle Klassen',
     mostraAzioniTitolo: 'Aktionen anzeigen (Ctrl+B)',
     nascondiAzioniTitolo: 'Aktionen ausblenden (Ctrl+B)',
@@ -91,11 +99,14 @@ export const testi = catalogo(it, {
     togliDaiPreferiti: 'Retirer des favoris',
     aggiungiAiPreferiti: 'Ajouter aux favoris',
     togliDallElenco: 'Retirer de la liste',
-    eQuelloAperto: 'C’est le registre ouvert : il revient tout seul dans la liste',
+    eQuelloAperto:
+      'C’est le registre ouvert : il revient tout seul dans la liste',
     togliRiga: 'Retire la ligne de la liste. Le fichier reste où il est',
     nonDisponibile: ' — non disponible',
-    recenteTitolo: (percorso) => `${percorso}\nClic droit : favoris, retirer de la liste`,
-    fileSparito: 'Le fichier n’est plus là. Clic droit pour le retirer de la liste.',
+    recenteTitolo: (percorso) =>
+      `${percorso}\nClic droit : favoris, retirer de la liste`,
+    fileSparito:
+      'Le fichier n’est plus là. Clic droit pour le retirer de la liste.',
     preferiti: 'Favoris',
     recenti: 'Récents',
     comandiSchermo: 'Les commandes de l’écran pour la classe',
@@ -113,9 +124,11 @@ export const testi = catalogo(it, {
     tuttiICorsi: 'Tous les cours',
     anno: 'Année',
     annoTitolo: 'L’année scolaire en cours',
-    periodoTitolo: 'Les calculs — moyennes, absences, heures — s’arrêtent à cette période',
+    periodoTitolo:
+      'Les calculs — moyennes, absences, heures — s’arrêtent à cette période',
     annoIntero: 'Année entière',
-    classeMappaTitolo: 'Les domiciles et les entreprises d’une seule classe, ou de toutes',
+    classeMappaTitolo:
+      'Les domiciles et les entreprises d’une seule classe, ou de toutes',
     tutteLeClassi: 'Toutes les classes',
     mostraAzioniTitolo: 'Afficher les actions (Ctrl+B)',
     nascondiAzioniTitolo: 'Masquer les actions (Ctrl+B)',
@@ -127,11 +140,14 @@ export const testi = catalogo(it, {
     togliDaiPreferiti: 'Remove from favourites',
     aggiungiAiPreferiti: 'Add to favourites',
     togliDallElenco: 'Remove from list',
-    eQuelloAperto: 'This is the open register: it comes back into the list by itself',
+    eQuelloAperto:
+      'This is the open register: it comes back into the list by itself',
     togliRiga: 'Removes the row from the list. The file stays where it is',
     nonDisponibile: ' — not available',
-    recenteTitolo: (percorso) => `${percorso}\nRight-click: favourites, remove from list`,
-    fileSparito: 'The file is no longer there. Right-click to remove it from the list.',
+    recenteTitolo: (percorso) =>
+      `${percorso}\nRight-click: favourites, remove from list`,
+    fileSparito:
+      'The file is no longer there. Right-click to remove it from the list.',
     preferiti: 'Favourites',
     recenti: 'Recent',
     comandiSchermo: 'The class screen commands',
@@ -149,7 +165,8 @@ export const testi = catalogo(it, {
     tuttiICorsi: 'All courses',
     anno: 'Year',
     annoTitolo: 'The school year in use',
-    periodoTitolo: 'The counts — averages, absences, lessons — stop at this period',
+    periodoTitolo:
+      'The counts — averages, absences, lessons — stop at this period',
     annoIntero: 'Whole year',
     classeMappaTitolo: 'The homes and companies of a single class, or of all',
     tutteLeClassi: 'All classes',

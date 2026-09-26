@@ -13,10 +13,11 @@ const it = {
     regola: 'per regola',
     nome: 'dal nome',
     orario: 'dall’orario',
-    sovrapposizione: 'dall’ora già a calendario',
+    sovrapposizione: 'dalla lezione già a calendario',
   },
   calendarioDaConfrontare: 'Il calendario da confrontare',
-  segnapostoNuovo: 'Aggiungi: https://… oppure webcal://… oppure C:\\…\\orario.ics',
+  segnapostoNuovo:
+    'Aggiungi: https://… oppure webcal://… oppure C:\\…\\orario.ics',
   indirizzoNuovo: 'Indirizzo o file di un calendario da aggiungere',
   nessunCalendario:
     'Il documento non ha ancora calendari: aggiungine uno qui sopra, da un indirizzo o da un file.',
@@ -34,7 +35,8 @@ const it = {
   daDecidere: 'Da decidere…',
   nonELezione: 'Non è una lezione',
   /** Quanti eventi ha un gruppo senza corso, e quando cadono. */
-  gruppo: (quanti: number, quando: string) => `${plurale(quanti, 'evento', 'eventi')}, ${quando}`,
+  gruppo: (quanti: number, quando: string) =>
+    `${plurale(quanti, 'evento', 'eventi')}, ${quando}`,
   dalAl: (dal: string, al: string) => `dal ${dal} al ${al}`,
   regole: (quanti: number) => `Regole di abbinamento (${quanti})`,
   /** Il testo di una regola, fra le virgolette. */
@@ -44,23 +46,31 @@ const it = {
   togliRegola: 'Togli la regola',
   assenti: (quanti: number) => `Nel registro ma non nel calendario (${quanti})`,
   aiutoAssenti:
-    'Solo segnalate: il confronto non cancella niente. Se un’ora non c’è davvero, la si ' +
+    'Solo segnalate: il confronto non cancella niente. Se una lezione non c’è davvero, la si ' +
     'toglie o la si segna annullata dalla sua scheda.',
   eventiLetti: (n: number) => plurale(n, 'evento letto', 'eventi letti'),
-  combaciano: (n: number) => plurale(n, 'lezione combacia', 'lezioni combaciano'),
-  ignorati: (n: number) => plurale(n, 'ignorato per regola', 'ignorati per regola'),
+  combaciano: (n: number) =>
+    plurale(n, 'lezione combacia', 'lezioni combaciano'),
+  ignorati: (n: number) =>
+    plurale(n, 'ignorato per regola', 'ignorati per regola'),
   scartati: (n: number) =>
-    plurale(n, 'di un giorno intero, lasciato fuori', 'di un giorno intero, lasciati fuori'),
+    plurale(
+      n,
+      'di un giorno intero, lasciato fuori',
+      'di un giorno intero, lasciati fuori',
+    ),
   nessunEvento: 'Nel periodo dell’anno in uso il calendario non ha eventi.',
   daCreare: 'Da creare',
-  aiutoDaCreare: 'Eventi di un corso senza una lezione sotto: diventano lezioni pianificate.',
+  aiutoDaCreare:
+    'Eventi di un corso senza una lezione sotto: diventano lezioni pianificate.',
   daAllineare: 'Da allineare',
   aiutoDaAllineare:
     'La lezione c’è, ma a un’altra ora o in un’altra aula: si porta a quel che dice il ' +
     'calendario. Appello, piano e testi restano.',
-  svolteSenzaSpunta: 'Le ore già svolte partono senza spunta.',
+  svolteSenzaSpunta: 'Le lezioni già svolte partono senza spunta.',
   daAnnullare: 'Da annullare',
-  aiutoDaAnnullare: 'Il calendario le dà annullate: si segnano annullate, non si cancellano.',
+  aiutoDaAnnullare:
+    'Il calendario le dà annullate: si segnano annullate, non si cancellano.',
   combacianoTitolo: (quanti: number) => `Combaciano (${quanti})`,
   calendario: 'Calendario',
   aiutoCalendario:
@@ -76,7 +86,8 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     titolo: 'Abgleich mit dem Kalender',
-    sottotitolo: 'der Kalender schlägt vor, das Klassenbuch entscheidet: Gelöscht wird nichts',
+    sottotitolo:
+      'der Kalender schlägt vor, das Klassenbuch entscheidet: Gelöscht wird nichts',
     applicaLeSpunte: 'Angehakte übernehmen',
     vie: {
       regola: 'per Regel',
@@ -85,7 +96,8 @@ export const testi = catalogo(it, {
       sovrapposizione: 'aus der schon eingetragenen Stunde',
     },
     calendarioDaConfrontare: 'Der abzugleichende Kalender',
-    segnapostoNuovo: 'Hinzufügen: https://… oder webcal://… oder C:\\…\\stundenplan.ics',
+    segnapostoNuovo:
+      'Hinzufügen: https://… oder webcal://… oder C:\\…\\stundenplan.ics',
     indirizzoNuovo: 'Adresse oder Datei eines Kalenders, der hinzukommen soll',
     nessunCalendario:
       'Das Dokument hat noch keine Kalender: Füge oben einen hinzu, über eine Adresse oder ' +
@@ -103,7 +115,8 @@ export const testi = catalogo(it, {
     diCheCorso: 'Zu welchem Kurs er gehört',
     daDecidere: 'Noch offen…',
     nonELezione: 'Keine Stunde',
-    gruppo: (quanti, quando) => `${plurale(quanti, 'Termin', 'Termine')}, ${quando}`,
+    gruppo: (quanti, quando) =>
+      `${plurale(quanti, 'Termin', 'Termine')}, ${quando}`,
     dalAl: (dal, al) => `vom ${dal} bis ${al}`,
     regole: (quanti) => `Zuordnungsregeln (${quanti})`,
     citata: (testo) => `«${testo}»`,
@@ -119,8 +132,13 @@ export const testi = catalogo(it, {
       plurale(n, 'Stunde stimmt überein', 'Stunden stimmen überein'),
     ignorati: (n) => plurale(n, 'per Regel ignoriert', 'per Regel ignoriert'),
     scartati: (n) =>
-      plurale(n, 'ganztägiger Termin weggelassen', 'ganztägige Termine weggelassen'),
-    nessunEvento: 'Im Zeitraum des aktuellen Schuljahrs hat der Kalender keine Termine.',
+      plurale(
+        n,
+        'ganztägiger Termin weggelassen',
+        'ganztägige Termine weggelassen',
+      ),
+    nessunEvento:
+      'Im Zeitraum des aktuellen Schuljahrs hat der Kalender keine Termine.',
     daCreare: 'Zu erstellen',
     aiutoDaCreare:
       'Termine eines Kurses ohne Stunde dazu: Sie werden zu geplanten Stunden.',
@@ -128,7 +146,8 @@ export const testi = catalogo(it, {
     aiutoDaAllineare:
       'Die Stunde existiert, aber zu einer anderen Zeit oder in einem anderen Zimmer: ' +
       'Sie wird an den Kalender angepasst. Präsenzkontrolle, Plan und Texte bleiben.',
-    svolteSenzaSpunta: 'Bereits gehaltene Stunden sind zu Beginn nicht angehakt.',
+    svolteSenzaSpunta:
+      'Bereits gehaltene Stunden sind zu Beginn nicht angehakt.',
     daAnnullare: 'Abzusagen',
     aiutoDaAnnullare:
       'Der Kalender führt sie als abgesagt: Sie werden als ausgefallen markiert, nicht gelöscht.',
@@ -140,13 +159,15 @@ export const testi = catalogo(it, {
       'umbenannt und entfernt.',
     confronta: 'Abgleichen',
     unFile: 'Eine Datei…',
-    aiutoUnFile: 'Wählt eine .ics-Datei auf dem Datenträger aus und fügt sie hinzu',
+    aiutoUnFile:
+      'Wählt eine .ics-Datei auf dem Datenträger aus und fügt sie hinzu',
     nonApplicato: 'Der Abgleich konnte nicht übernommen werden.',
     applicato: 'Abgleich übernommen.',
   },
   fr: {
     titolo: 'Comparaison avec le calendrier',
-    sottotitolo: 'le calendrier propose, le registre décide : rien n’est supprimé',
+    sottotitolo:
+      'le calendrier propose, le registre décide : rien n’est supprimé',
     applicaLeSpunte: 'Appliquer les coches',
     vie: {
       regola: 'par règle',
@@ -173,14 +194,16 @@ export const testi = catalogo(it, {
     diCheCorso: 'À quel cours il appartient',
     daDecidere: 'À décider…',
     nonELezione: 'Pas une leçon',
-    gruppo: (quanti, quando) => `${plurale(quanti, 'événement', 'événements')}, ${quando}`,
+    gruppo: (quanti, quando) =>
+      `${plurale(quanti, 'événement', 'événements')}, ${quando}`,
     dalAl: (dal, al) => `du ${dal} au ${al}`,
     regole: (quanti) => `Règles d’association (${quanti})`,
     citata: (testo) => `« ${testo} »`,
     nonELezioneRegola: 'pas une leçon',
     regolaIlleggibile: 'illisible : n’associe rien',
     togliRegola: 'Retirer la règle',
-    assenti: (quanti) => `Dans le registre mais pas dans le calendrier (${quanti})`,
+    assenti: (quanti) =>
+      `Dans le registre mais pas dans le calendrier (${quanti})`,
     aiutoAssenti:
       'Seulement signalées : la comparaison ne supprime rien. Si une leçon n’a vraiment pas ' +
       'lieu, retire-la ou marque-la comme annulée depuis sa fiche.',
@@ -193,7 +216,8 @@ export const testi = catalogo(it, {
         'sur une journée entière, laissé de côté',
         'sur une journée entière, laissés de côté',
       ),
-    nessunEvento: 'Sur la période de l’année en cours, le calendrier n’a aucun événement.',
+    nessunEvento:
+      'Sur la période de l’année en cours, le calendrier n’a aucun événement.',
     daCreare: 'À créer',
     aiutoDaCreare:
       'Événements d’un cours sans leçon correspondante : ils deviennent des leçons prévues.',
@@ -219,7 +243,8 @@ export const testi = catalogo(it, {
   },
   en: {
     titolo: 'Compare with the calendar',
-    sottotitolo: 'the calendar suggests, the register decides: nothing gets deleted',
+    sottotitolo:
+      'the calendar suggests, the register decides: nothing gets deleted',
     applicaLeSpunte: 'Apply ticked items',
     vie: {
       regola: 'by rule',
@@ -245,7 +270,8 @@ export const testi = catalogo(it, {
     diCheCorso: 'Which course it belongs to',
     daDecidere: 'To be decided…',
     nonELezione: 'Not a lesson',
-    gruppo: (quanti, quando) => `${plurale(quanti, 'event', 'events')}, ${quando}`,
+    gruppo: (quanti, quando) =>
+      `${plurale(quanti, 'event', 'events')}, ${quando}`,
     dalAl: (dal, al) => `from ${dal} to ${al}`,
     regole: (quanti) => `Matching rules (${quanti})`,
     citata: (testo) => `“${testo}”`,
@@ -259,10 +285,13 @@ export const testi = catalogo(it, {
     eventiLetti: (n) => plurale(n, 'event read', 'events read'),
     combaciano: (n) => plurale(n, 'lesson matches', 'lessons match'),
     ignorati: (n) => plurale(n, 'ignored by rule', 'ignored by rule'),
-    scartati: (n) => plurale(n, 'all-day event left out', 'all-day events left out'),
-    nessunEvento: 'The calendar has no events in the period of the current school year.',
+    scartati: (n) =>
+      plurale(n, 'all-day event left out', 'all-day events left out'),
+    nessunEvento:
+      'The calendar has no events in the period of the current school year.',
     daCreare: 'To create',
-    aiutoDaCreare: 'Events of a course with no lesson behind them: they become planned lessons.',
+    aiutoDaCreare:
+      'Events of a course with no lesson behind them: they become planned lessons.',
     daAllineare: 'To align',
     aiutoDaAllineare:
       'The lesson is there, but at another time or in another room: it’s brought in line with ' +

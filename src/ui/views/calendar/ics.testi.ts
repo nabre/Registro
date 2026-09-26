@@ -21,7 +21,8 @@ const it = {
   apriLezione: 'Apri la lezione',
   modificaLezione: 'Modifica la lezione…',
   /** Il nome del pulsante che accende la modifica, fra le virgolette. */
-  accendiModifica: (pulsante: string) => `Accendi «${pulsante}» (Ctrl+E) per cambiare l’ora.`,
+  accendiModifica: (pulsante: string) =>
+    `Accendi «${pulsante}» (Ctrl+E) per cambiare la lezione.`,
   generaDai: (quanti: number) => `Genera la lezione dai ${quanti} eventi…`,
   generaDa: 'Genera la lezione dall’evento…',
   cambiaAbbinamento: 'Cambia l’abbinamento al corso…',

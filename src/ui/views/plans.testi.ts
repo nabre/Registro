@@ -13,11 +13,13 @@ const it = {
 
   // L'elenco
   piani: 'Piani',
-  ore: (preparate: number, tutte: number) => `${preparate}/${tutte} ore`,
+  ore: (preparate: number, tutte: number) => `${preparate}/${tutte} lezioni`,
   cerca: 'cerca per data, obiettivo, tappa',
-  nienteCorrisponde: 'Questo corso non ha ore che corrispondono.',
-  nessunCorso: 'Nessun corso da guardare: creane uno, e le sue ore compariranno qui.',
-  preparate: (preparate: number, tutte: number) => `${preparate}/${tutte} preparate`,
+  nienteCorrisponde: 'Questo corso non ha lezioni che corrispondono.',
+  nessunCorso:
+    'Nessun corso da guardare: creane uno, e le sue lezioni compariranno qui.',
+  preparate: (preparate: number, tutte: number) =>
+    `${preparate}/${tutte} preparate`,
   nonAssegnati: (quanti: number) => `Non ancora assegnati (${quanti})`,
   senzaCorso: 'Senza corso',
   daRiagganciare: 'da riagganciare',
@@ -39,12 +41,16 @@ const it = {
   // La testata
   nessunCorsoDaPreparare: 'nessun corso da preparare',
   senzaScaletta: (quante: number) =>
-    plurale(quante, 'ora ancora senza scaletta', 'ore ancora senza scaletta'),
-  tutteConScaletta: 'ogni ora di questo corso ha la sua scaletta',
+    plurale(
+      quante,
+      'lezione ancora senza scaletta',
+      'lezioni ancora senza scaletta',
+    ),
+  tutteConScaletta: 'ogni lezione di questo corso ha la sua scaletta',
   nessunPiano: 'Nessun piano lezione',
   nessunPianoTesto:
-    'Un piano tiene obiettivi e scaletta con i tempi, e appartiene all’ora per cui ' +
-    'lo si prepara. Si comincia da un’ora senza scaletta, nell’elenco qui accanto.',
+    'Un piano tiene obiettivi e scaletta con i tempi, e appartiene alla lezione per cui ' +
+    'lo si prepara. Si comincia da una lezione senza scaletta, nell’elenco qui accanto.',
 }
 
 export const testi = catalogo(it, {
@@ -59,7 +65,8 @@ export const testi = catalogo(it, {
     ore: (preparate, tutte) => `${preparate}/${tutte} Std.`,
     cerca: 'nach Datum, Ziel, Etappe suchen',
     nienteCorrisponde: 'Dieser Kurs hat keine passenden Stunden.',
-    nessunCorso: 'Kein Kurs zum Anzeigen: Lege einen an, und seine Stunden erscheinen hier.',
+    nessunCorso:
+      'Kein Kurs zum Anzeigen: Lege einen an, und seine Stunden erscheinen hier.',
     preparate: (preparate, tutte) => `${preparate}/${tutte} vorbereitet`,
     nonAssegnati: (quanti) => `Noch nicht zugewiesen (${quanti})`,
     senzaCorso: 'Ohne Kurs',
@@ -98,7 +105,8 @@ export const testi = catalogo(it, {
     ore: (preparate, tutte) => `${preparate}/${tutte} leçons`,
     cerca: 'chercher par date, objectif, étape',
     nienteCorrisponde: 'Ce cours n’a pas de leçons qui correspondent.',
-    nessunCorso: 'Aucun cours à afficher : crées-en un, et ses leçons apparaîtront ici.',
+    nessunCorso:
+      'Aucun cours à afficher : crées-en un, et ses leçons apparaîtront ici.',
     preparate: (preparate, tutte) => `${preparate}/${tutte} préparées`,
     nonAssegnati: (quanti) => `Pas encore attribués (${quanti})`,
     senzaCorso: 'Sans cours',
@@ -119,7 +127,11 @@ export const testi = catalogo(it, {
 
     nessunCorsoDaPreparare: 'aucun cours à préparer',
     senzaScaletta: (quante) =>
-      plurale(quante, 'leçon encore sans déroulement', 'leçons encore sans déroulement'),
+      plurale(
+        quante,
+        'leçon encore sans déroulement',
+        'leçons encore sans déroulement',
+      ),
     tutteConScaletta: 'chaque leçon de ce cours a son déroulement',
     nessunPiano: 'Aucun plan de leçon',
     nessunPianoTesto:
@@ -138,7 +150,8 @@ export const testi = catalogo(it, {
     ore: (preparate, tutte) => `${preparate}/${tutte} lessons`,
     cerca: 'search by date, objective, step',
     nienteCorrisponde: 'This course has no matching lessons.',
-    nessunCorso: 'No course to show: create one, and its lessons will appear here.',
+    nessunCorso:
+      'No course to show: create one, and its lessons will appear here.',
     preparate: (preparate, tutte) => `${preparate}/${tutte} prepared`,
     nonAssegnati: (quanti) => `Not yet assigned (${quanti})`,
     senzaCorso: 'No course',
@@ -159,7 +172,11 @@ export const testi = catalogo(it, {
 
     nessunCorsoDaPreparare: 'no course to prepare',
     senzaScaletta: (quante) =>
-      plurale(quante, 'lesson still without an outline', 'lessons still without an outline'),
+      plurale(
+        quante,
+        'lesson still without an outline',
+        'lessons still without an outline',
+      ),
     tutteConScaletta: 'every lesson in this course has its outline',
     nessunPiano: 'No lesson plan',
     nessunPianoTesto:

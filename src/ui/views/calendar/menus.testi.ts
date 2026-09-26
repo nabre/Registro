@@ -32,8 +32,10 @@ const it = {
   pianoTolto: 'Piano tolto dalla lezione.',
 
   // L'orario, in modifica
-  nonSiIcs: 'Non si può: l’ora del calendario ICS non si accorcia, né si esce dal giorno.',
-  nonSi: 'Non si può: resterebbe senza unità didattiche o uscirebbe dal giorno.',
+  nonSiIcs:
+    'Non si può: la lezione del calendario ICS non si accorcia, né si esce dal giorno.',
+  nonSi:
+    'Non si può: resterebbe senza unità didattiche o uscirebbe dal giorno.',
   allunga: 'Allunga di un’unità didattica',
   accorcia: 'Accorcia di un’unità didattica',
   giornoPrima: 'Al giorno prima',
@@ -46,7 +48,8 @@ const it = {
   alle: (ora: string) => `alle ${ora}`,
   inQuestoGiorno: 'in questo giorno',
   nuovaConModulo: 'Nuova lezione con il modulo…',
-  nuovaDi: (quando: string, corso: string) => `Nuova lezione ${quando} di ${corso}`,
+  nuovaDi: (quando: string, corso: string) =>
+    `Nuova lezione ${quando} di ${corso}`,
   nuova: (quando: string) => `Nuova lezione ${quando}…`,
   esci: 'Esci dalla modifica',
 }
@@ -76,13 +79,15 @@ export const testi = catalogo(it, {
     cambiaPiano: 'Plan wechseln',
     togliPiano: 'Plan entfernen',
     togliereTitolo: 'Plan entfernen?',
-    togliereTesto: 'Die Häkchen, die schon bei den Aktivitäten gesetzt sind, verschwinden mit ihm.',
+    togliereTesto:
+      'Die Häkchen, die schon bei den Aktivitäten gesetzt sind, verschwinden mit ihm.',
     pianoTolto: 'Plan von der Stunde entfernt.',
 
     nonSiIcs:
       'Geht nicht: Die Zeit aus dem ICS-Kalender lässt sich nicht kürzen, und der Tag lässt sich ' +
       'nicht verlassen.',
-    nonSi: 'Geht nicht: Es bliebe keine Lektion übrig, oder es ginge über den Tag hinaus.',
+    nonSi:
+      'Geht nicht: Es bliebe keine Lektion übrig, oder es ginge über den Tag hinaus.',
     allunga: 'Um eine Lektion verlängern',
     accorcia: 'Um eine Lektion kürzen',
     giornoPrima: 'Auf den Vortag',
@@ -169,8 +174,10 @@ export const testi = catalogo(it, {
     togliereTesto: 'The ticks already placed on the activities go with it.',
     pianoTolto: 'Plan removed from the lesson.',
 
-    nonSiIcs: 'Not possible: the ICS calendar time can’t be shortened or moved off the day.',
-    nonSi: 'Not possible: it would be left with no periods or spill out of the day.',
+    nonSiIcs:
+      'Not possible: the ICS calendar time can’t be shortened or moved off the day.',
+    nonSi:
+      'Not possible: it would be left with no periods or spill out of the day.',
     allunga: 'Lengthen by one period',
     accorcia: 'Shorten by one period',
     giornoPrima: 'To the day before',

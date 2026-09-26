@@ -18,18 +18,21 @@ const it = {
   materie: Molti(SCUOLA.materia),
 
   // I modi del calendario.
-  settimanaAiuto: 'Le ore sulla griglia dei giorni, alte quanto durano',
+  settimanaAiuto: 'Le lezioni sulla griglia dei giorni, alte quanto durano',
   meseAiuto: 'Una striscia di settimane che scorre senza fine',
   anno: 'Anno',
-  annoAiuto: 'L’anno intero in un foglio: vacanze, semestri e quanti corsi per giorno',
+  annoAiuto:
+    'L’anno intero in un foglio: vacanze, semestri e quanti corsi per giorno',
   agenda: 'Agenda',
-  agendaAiuto: 'Le ore in elenco, una riga ciascuna',
+  agendaAiuto: 'Le lezioni in elenco, una riga ciascuna',
 
   // Le schede dei documenti.
   corso: 'Corso',
-  corsoAiuto: 'Presenze, valutazioni, verbali, prove, piani, fascicolo: i fogli di tutta la classe',
+  corsoAiuto:
+    'Presenze, valutazioni, verbali, prove, piani, fascicolo: i fogli di tutta la classe',
   lezioni: 'Lezioni',
-  lezioniAiuto: 'Un riquadro per ogni ora: il suo verbale, il suo piano, le prove di quel giorno',
+  lezioniAiuto:
+    'Un riquadro per ogni lezione: verbale, piano e prove di quel giorno',
   allievi: Molti(PIF),
   allieviAiuto: `Una scheda per ogni ${PIF.singolare}: profitto, presenze, annotazioni`,
 
@@ -38,7 +41,8 @@ const it = {
   mie: 'Le mie',
   mieAiuto: 'Solo quel che devo fare io: la lista della sera prima',
   delleClassi: 'Delle classi',
-  delleClassiAiuto: 'Solo quel che devono portare loro: la lista che si legge entrando in aula',
+  delleClassiAiuto:
+    'Solo quel che devono portare loro: la lista che si legge entrando in aula',
 
   /** La linguetta della mappa con tutti i punti. */
 }
@@ -54,7 +58,8 @@ export const testi = catalogo(it, {
     settimanaAiuto: 'Die Stunden im Raster der Tage, so hoch, wie sie dauern',
     meseAiuto: 'Ein Band von Wochen, das endlos weiterläuft',
     anno: 'Jahr',
-    annoAiuto: 'Das ganze Jahr auf einem Blatt: Ferien, Semester und wie viele Kurse pro Tag',
+    annoAiuto:
+      'Das ganze Jahr auf einem Blatt: Ferien, Semester und wie viele Kurse pro Tag',
     agenda: 'Agenda',
     agendaAiuto: 'Die Stunden als Liste, eine Zeile pro Stunde',
     corso: 'Kurs',
@@ -62,7 +67,8 @@ export const testi = catalogo(it, {
       'Präsenzen, Beurteilungen, Protokolle, Prüfungen, Pläne, Dossier: die Blätter der ganzen ' +
       'Klasse',
     lezioni: 'Stunden',
-    lezioniAiuto: 'Ein Feld pro Stunde: ihr Protokoll, ihr Plan, die Prüfungen jenes Tages',
+    lezioniAiuto:
+      'Ein Feld pro Stunde: ihr Protokoll, ihr Plan, die Prüfungen jenes Tages',
     allievi: Molti(lessico.in('de').pif),
     allieviAiuto: 'Ein Blatt pro lernende Person: Leistung, Präsenzen, Notizen',
     tutteAiuto: 'Was mich betrifft und was die Klassen betrifft, zusammen',
@@ -79,7 +85,8 @@ export const testi = catalogo(it, {
     anagrafica: 'Données personnelles',
     docenteClasse: Uno(lessico.in('fr').docenteClasse),
     materie: Molti(lessico.in('fr').materia),
-    settimanaAiuto: 'Les leçons sur la grille des jours, aussi hautes qu’elles sont longues',
+    settimanaAiuto:
+      'Les leçons sur la grille des jours, aussi hautes qu’elles sont longues',
     meseAiuto: 'Une bande de semaines qui défile sans fin',
     anno: 'Année',
     annoAiuto:
@@ -91,9 +98,11 @@ export const testi = catalogo(it, {
       'Présences, évaluations, procès-verbaux, épreuves, plans, dossier : les feuilles de toute ' +
       'la classe',
     lezioni: 'Leçons',
-    lezioniAiuto: 'Un cadre par leçon : son procès-verbal, son plan, les épreuves de ce jour-là',
+    lezioniAiuto:
+      'Un cadre par leçon : son procès-verbal, son plan, les épreuves de ce jour-là',
     allievi: Molti(lessico.in('fr').pif),
-    allieviAiuto: 'Une fiche par personne en formation : résultats, présences, annotations',
+    allieviAiuto:
+      'Une fiche par personne en formation : résultats, présences, annotations',
     tutteAiuto: 'Ce qui me revient et ce qui revient aux classes, ensemble',
     mie: 'Les miennes',
     mieAiuto: 'Seulement ce que je dois faire moi : la liste de la veille',
@@ -111,20 +120,23 @@ export const testi = catalogo(it, {
     settimanaAiuto: 'The lessons on the grid of days, as tall as they are long',
     meseAiuto: 'A strip of weeks that scrolls without end',
     anno: 'Year',
-    annoAiuto: 'The whole year on one sheet: holidays, semesters and how many courses per day',
+    annoAiuto:
+      'The whole year on one sheet: holidays, semesters and how many courses per day',
     agenda: 'Agenda',
     agendaAiuto: 'The lessons as a list, one row each',
     corso: 'Course',
     corsoAiuto:
       'Attendance, assessments, lesson records, tests, plans, class file: the sheets for the whole class',
     lezioni: 'Lessons',
-    lezioniAiuto: 'One box per lesson: its lesson record, its plan, that day’s tests',
+    lezioniAiuto:
+      'One box per lesson: its lesson record, its plan, that day’s tests',
     allievi: Molti(lessico.in('en').pif),
     allieviAiuto: 'One sheet per learner: progress, attendance, notes',
     tutteAiuto: 'What is mine to do and what is the classes’, together',
     mie: 'Mine',
     mieAiuto: 'Only what I have to do: the list for the evening before',
     delleClassi: 'The classes’',
-    delleClassiAiuto: 'Only what they have to bring: the list you read on entering the room',
+    delleClassiAiuto:
+      'Only what they have to bring: the list you read on entering the room',
   },
 })

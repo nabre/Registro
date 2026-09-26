@@ -353,7 +353,7 @@ with sync_playwright() as p:
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r}); prova.riconvalidaRicordati()}")
     assert page.evaluate("prova.stato.vista === 'classi' && prova.stato.paginaId === null")
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
-    # «Oggi» non ha riga delle azioni (le sue tessere portano altrove):
+    # La Dashboard non ha riga delle azioni (le sue tessere portano altrove):
     # l'interruttore delle azioni si prova sul calendario.
     page.evaluate("prova.vaiA(prova.PAGINE[0])")
     assert page.evaluate('prova.stato.vista') == 'oggi'

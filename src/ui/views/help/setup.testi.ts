@@ -3,7 +3,15 @@
 // struttura in `setup.ts`.
 
 import { catalogo } from '../../../i18n/index.js'
-import { Molti, PERSONE, PIF, Uno, corto, del, il } from '../../../domain/lexicon.js'
+import {
+  Molti,
+  PERSONE,
+  PIF,
+  Uno,
+  corto,
+  del,
+  il,
+} from '../../../domain/lexicon.js'
 import { lessico } from '../../../domain/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
@@ -47,7 +55,7 @@ const it = {
         legenda: [
           'Orario, nome e note; nuova lezione; il check del corso; le ore del corso e le loro ' +
             'scalette; elimina.',
-          `${PIF.breve}, ore svolte, UD previste e a calendario, presenza sulle ore con appello, ` +
+          `${PIF.breve}, lezioni svolte, UD previste e a calendario, presenza sulle lezioni con appello, ` +
             'valutazioni, media, piani.',
           'L’orario fisso, con le UD della settimana.',
           `La tabella per ${PIF.singolare}: il nome apre la scheda personale.`,
@@ -108,7 +116,7 @@ const it = {
         testo:
           `${Molti(PIF)} che frequentano, ore svolte su quelle a calendario (un’ora passata ` +
           'conta come svolta), UD previste dall’orario e già a calendario, le annullate se ce ' +
-          'ne sono, presenza sulle ore con appello, UD di assenza, valutazioni, media — «media ' +
+          'ne sono, presenza sulle lezioni con appello, UD di assenza, valutazioni, media — «media ' +
           'di 18 su 22» quando non tutti hanno un voto — e piani.',
       },
       {
@@ -118,7 +126,7 @@ const it = {
           'al check del corso; il piano alle ore del corso e alle loro scalette; il cestino ' +
           'elimina il corso. Se il corso ha un check, sotto la tabella c’è la sua griglia, con ' +
           'lo stesso clic della pagina Check. La data dopo ' +
-          '«Prossima ora» si preme e apre quell’ora. La riga «Lezione ricorrente» dice le ore ' +
+          '«Prossima lezione» si preme e apre quella lezione. La riga «Lezione ricorrente» dice le lezioni ' +
           'fisse del corso, o «nessuna»: l’orario si dichiara da **Titolo e orario…**, col ' +
           'tasto destro sulla casella del corso nella matrice.',
       },
@@ -1792,8 +1800,7 @@ export const testi = catalogo(it, {
     },
     classi: {
       titolo: 'Classes',
-      sommario:
-        `The ${EN.pif.plurale}’ personal details: who they are and how to reach them.`,
+      sommario: `The ${EN.pif.plurale}’ personal details: who they are and how to reach them.`,
       scritte: {
         titolo: `Classes and ${EN.pif.plurale}`,
         mappa: 'Map',

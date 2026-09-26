@@ -74,7 +74,7 @@ const it = {
         legenda: [
           'I sei gruppi, per argomento: dall’anno scolastico al programma.',
           'Le sezioni del gruppo acceso. Il numero accanto al nome conta i valori decisi a mano; ' +
-          'le sezioni che stanno nel file dell’anno portano invece la pastiglia **file**.',
+            'le sezioni che stanno nel file dell’anno portano invece la pastiglia **file**.',
           'Il filtro: cerca nome, chiave e descrizione, fra le impostazioni del computer.',
           'La pastiglia dice da che cosa si è cambiato; **Ritira** torna al predefinito.',
           '**Ripristina** ritira tutta la sezione, dopo una conferma.',
@@ -211,7 +211,7 @@ const it = {
           'Tutte e due portano a un registro acceso ma senza finestra.',
         legenda: [
           '**Parti con Windows**: accende il registro con il computer, senza finestre. Anche ' +
-          'nella versione portabile.',
+            'nella versione portabile.',
           '**Parti senza aprire il registro**: senza finestra anche quando lo si lancia a mano.',
           'La rete di sicurezza: se non resta niente da premere, la finestra si apre lo stesso.',
         ],
@@ -223,9 +223,9 @@ const it = {
         legenda: [
           '**Sistema**: mezzo chiaro e mezzo scuro, perché segue Windows e cambia insieme a lui.',
           'Solo sotto Sistema, quando è la scelta: che cosa sta seguendo adesso. Cambia da sé ' +
-          'quando cambia Windows.',
+            'quando cambia Windows.',
           'Le frecce passano alla scheda accanto e la scelgono subito; dall’ultima si torna ' +
-          'alla prima.',
+            'alla prima.',
         ],
       },
     ],
@@ -262,7 +262,7 @@ const it = {
         termine: 'Promemoria e proiezione',
         testo:
           'Ancora in **Generale**. **Avviso prima della lezione** è una notifica con la classe ' +
-          'e quel che resta aperto; premuta, apre quell’ora. **Minuti di anticipo**: di serie ' +
+          'e quel che resta aperto; premuta, apre quella lezione. **Minuti di anticipo**: di serie ' +
           'cinque. **Proiezione a schermo intero** manda la proiezione a tutto schermo appena ' +
           'si apre.',
       },
@@ -381,10 +381,10 @@ const it = {
           'Quanto dura un’UD, e quante UD una lezione nuova.',
           'Le pause: la prima con l’orario, le altre a quante UD dalla precedente.',
           'La prima e l’ultima ora mostrate, con **Porta alle …** quando non stanno sulla ' +
-          'griglia.',
+            'griglia.',
           'I giorni che il calendario e la proiezione mostrano.',
           'Un avanzo: la giornata comincia alle 08:00, e la prima UD intera prima della ' +
-          'ricreazione alle 08:15. **Porta alle 08:15** lo toglie.',
+            'ricreazione alle 08:15. **Porta alle 08:15** lo toglie.',
         ],
       },
     ],
@@ -616,11 +616,11 @@ const it = {
           'della scheda **Posta** dice quale delle due strade vale adesso.',
         legenda: [
           '**Collega la casella**: salva solo se il server accetta. Poi diventa **Ricollega la ' +
-          'casella**.',
+            'casella**.',
           'Nel portachiavi del sistema, non nelle impostazioni: `impostazioni.json` è un file ' +
-          'in chiaro.',
+            'in chiaro.',
           'Con la casella collegata e **Spedisci senza bozza** acceso: chiede conferma, poi ' +
-          'spedisce.',
+            'spedisce.',
           'In tutti gli altri casi: il programma di posta apre la bozza da rileggere.',
         ],
       },
@@ -738,12 +738,12 @@ const it = {
           'di «pronta» le prendono dallo stesso posto.',
         legenda: [
           'Il filetto: c’è solo quando è uscita una versione nuova. La notizia in due parole — ' +
-          'un clic porta qui —, il gesto che ha senso adesso, e la ✕ che lo nasconde fino alla ' +
-          'notizia successiva. Durante lo scarico un filo lungo il bordo dice a che punto è.',
+            'un clic porta qui —, il gesto che ha senso adesso, e la ✕ che lo nasconde fino alla ' +
+            'notizia successiva. Durante lo scarico un filo lungo il bordo dice a che punto è.',
           'La voce della barra in fondo, anche lei solo con una versione nuova: un clic porta ' +
-          'qui.',
+            'qui.',
           'Il benvenuto, senza aprire un anno: accanto alla versione la pastiglia e il gesto. ' +
-          'Quando c’è una versione nuova anche lui ha il filetto, in cima.',
+            'Quando c’è una versione nuova anche lui ha il filetto, in cima.',
         ],
       },
     ],
@@ -1547,7 +1547,8 @@ export const testi = catalogo(it, {
     },
     aggiornamenti: {
       titolo: 'Aktualisierungen',
-      sommario: 'Welche Version läuft, ob es eine neue gibt, und wann sie installiert wird.',
+      sommario:
+        'Welche Version läuft, ob es eine neue gibt, und wann sie installiert wird.',
       scritte: {
         controllo: 'Prüfung',
         chiedeGithub: 'fragt GitHub',
@@ -2403,7 +2404,8 @@ export const testi = catalogo(it, {
     },
     aggiornamenti: {
       titolo: 'Mises à jour',
-      sommario: 'Quelle version tourne, s’il y en a une nouvelle, et quand elle s’installe.',
+      sommario:
+        'Quelle version tourne, s’il y en a une nouvelle, et quand elle s’installe.',
       scritte: {
         controllo: 'Vérification',
         chiedeGithub: 'demande à GitHub',
@@ -3231,7 +3233,8 @@ export const testi = catalogo(it, {
     },
     aggiornamenti: {
       titolo: 'Updates',
-      sommario: 'Which version is running, whether there is a new one, and when it is installed.',
+      sommario:
+        'Which version is running, whether there is a new one, and when it is installed.',
       scritte: {
         controllo: 'Check',
         chiedeGithub: 'asks GitHub',

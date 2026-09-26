@@ -319,7 +319,7 @@ che li prendano.
 | `persone.scheda` | `allievoId`, `dal?`, `al?`, `semestreId?` | anagrafica (indirizzo anche in `via`, `cap`, `localita`) e per corso UD perse, quote con denominatori, ritardi, prove, media, anche per semestre; conti da `matriceCorso` |
 | `persone.argomenti` | `allievoId`, `presenza?` (perse, parziali, seguite, ignote, tutte), `corsoId?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | per ora: argomento, corso, UD perse su UD; totali del periodo |
 | `ore.elenco` | `corsoId?`, `classeId?`, `materiaId?`, `stato?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | ore nel periodo: giorno, orario, corso, quantesima, stato, UD, argomenti, appello fatto |
-| `ore.prossima` | `corsoId?`, `classeId?`, `da?`, `dalleOre?`, `quante?` | la prossima ora (o quella in corso). Unica lettura che guarda l'orologio: rimanda il momento usato. `aCalendario` distingue «finite» da «calendario vuoto». Conto da `prossimaLezione()` |
+| `ore.prossima` | `corsoId?`, `classeId?`, `da?`, `dalleOre?`, `quante?` | la prossima lezione (o quella in corso). Unica lettura che guarda l'orologio: rimanda il momento usato. `aCalendario` distingue «finite» da «calendario vuoto». Conto da `prossimaLezione()` |
 | `ore.leggi` | `lezioneId` | argomenti, materiali, consuntivo, piano, annotazioni con il nome |
 | `valutazioni.elenco` | `corsoId?`, `classeId?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | momenti: titolo, genere, peso, voti messi, media, riconsegne, recuperi |
 | `valutazioni.voti` | `valutazioneId` | una riga per persona della classe: voto, assenza, sufficienza, riconsegna, recupero |

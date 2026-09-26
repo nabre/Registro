@@ -47,7 +47,7 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 
 | id | titolo | gruppo | vista | note |
 |---|---|---|---|---|
-| `pagina.oggi` | Oggi | `agenda` | `oggi` | vista del primo avvio |
+| `pagina.oggi` | Dashboard | `agenda` | `oggi` | vista del primo avvio |
 | `pagina.calendario` | Calendario | `agenda` | `calendario` | |
 | `pagina.pendenze` | Pendenze | `agenda` | `todo` | conto `pendenzeDellaBarra().aperti` |
 | `pagina.daSmistare` | Da smistare | `agenda` | `daSmistare` | conto `pagineDaSmistareInTutto()` |
@@ -74,7 +74,7 @@ solo con almeno una classe di cui si è docente (`sezioneCePer`).
 
 | `GruppoPagina` | nome | pagine |
 |---|---|---|
-| `agenda` | Agenda | Oggi, Calendario, Pendenze, Da smistare |
+| `agenda` | Agenda | Dashboard, Calendario, Da smistare |
 | `registro` | Registro — *corso* | Lezione, Valutazioni, Check, Piani lezione, Documenti |
 | `classe` | Docente di classe — *classe* | le quattro schede del fascicolo |
 | `anno` | L'anno | Persone, Mappa, Corsi, Classi |
@@ -87,7 +87,7 @@ intestazione ([`src/ui/sidebar.ts`](../src/ui/sidebar.ts)).
 
 | `Vista` | file | schede interne |
 |---|---|---|
-| `oggi` | [`views/today.ts`](../src/ui/views/today.ts) | tessere (ore di oggi, da compilare, pendenze, da smistare), ore, prossime valutazioni, compleanni; nessun comando |
+| `oggi` | [`views/today.ts`](../src/ui/views/today.ts) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
 | `calendario` | [`views/calendar.ts`](../src/ui/views/calendar.ts), [`calendar/`](../src/ui/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.ts` |
 | `todo` | [`views/todo.ts`](../src/ui/views/todo.ts) | delega a `classTodo.ts` |
 | `daSmistare` | [`views/toSort.ts`](../src/ui/views/toSort.ts) | — |
@@ -173,7 +173,7 @@ interface ComandoUI {
 | `modifica.annulla` | Annulla (`Ctrl+Z`) | `storia.annulla`; storia in memoria ([`src/data/history.ts`](../src/data/history.ts)), in un campo di testo resta l'annulla del testo |
 | `modifica.ripristina` | Ripristina (`Ctrl+Y`, `Ctrl+Maiusc+Z`) | `storia.ripristina` |
 | `proiezione.schermo` ★◐ | Proietta / Spegni lo schermo | `proiezione.apri` / `proiezione.chiudi` |
-| `calendario.editor` ◐ | Modifica (`Ctrl+E`) | modo del registro: arma la griglia del calendario, rende modificabili le ore esistenti, mostra «Nuova ora» e i comandi ICS |
+| `calendario.editor` ◐ | Modifica (`Ctrl+E`) | modo del registro: arma la griglia del calendario, rende modificabili le lezioni esistenti, mostra «Nuova lezione» e i comandi ICS |
 
 Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
 (`GRUPPI_SEZIONI` in [`src/ui/views/settings/sections.ts`](../src/ui/views/settings/sections.ts)).
@@ -184,10 +184,10 @@ Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
 |---|---|---|
 | `registro.oggi` ★ | Oggi (`Ctrl+Alt+T`, `dalMenu`) | `vaiAOggi()`, e nella settimana scorre all'ora di adesso |
 | `calendario.indietro`, `calendario.avanti` | Indietro, Avanti | `scorriCalendario(±1)` |
-| `registro.oraDaCompilare` | Ora da compilare / Prossima ora | apre l'ora di `oraDaFare()`; anche su `lezione` |
+| `registro.oraDaCompilare` | Lezione da compilare / Prossima lezione | apre la lezione di `oraDaFare()`; anche su `lezione` |
 | `calendario.settimana`, `.mese`, `.anno`, `.agenda` ◐ | i quattro modi | `scegliModoCalendario()` |
 | `calendario.esterno` ◐ | Calendario ICS | mostra gli eventi ICS; `soloSe` settimana e modifica |
-| `registro.nuovaLezione` ★ | Nuova ora (`Ctrl+Alt+N`, `dalMenu`) | `moduloLezione()`; `soloSe` modifica |
+| `registro.nuovaLezione` ★ | Nuova lezione (`Ctrl+Alt+N`, `dalMenu`) | `moduloLezione()`; `soloSe` modifica |
 | `registro.confrontaCalendario` | Confronta con il calendario | `moduloCalendariIcs()`; `soloSe` modifica e ICS acceso |
 
 Sabato e domenica si accendono dai «Giorni mostrati» delle impostazioni.
@@ -204,7 +204,7 @@ ancorate all'ICS ferme.
 | `registro.nuovoCorso` | `corsi` | Nuovo corso | `moduloCorso()` |
 | `registro.nuovaClasse` | `classi`, `corsi` | Nuova classe | `moduloClasse()` |
 | `lezione.stato.pianificata`, `.svolta` ★, `.annullata` ◐ | `lezione` | stato dell'ora | `lezione.stato`; annullare chiede conferma |
-| `lezione.modifica` | `lezione` | Modifica l'ora | `moduloLezione({lezione})` |
+| `lezione.modifica` | `lezione` | Modifica la lezione | `moduloLezione({lezione})` |
 | `piano.vaiAlRegistro` ★ | `piani` | Vai al registro | apre la prima ora del piano |
 | `piano.duplica` | `piani` | Duplica | `piano.duplica` |
 | `piano.elimina` | `piani` | Elimina | `chiediEliminazione` → `piano.elimina` |
@@ -711,7 +711,7 @@ Niente vocabolario di scuola (voicebox non passa `initial_prompt`). ADR-35.
 | `Ctrl+E` | Modifica del calendario | `calendario.editor` |
 | `Ctrl+O` | Apri un anno | `file.apri` (`dalMenu`) |
 | `Ctrl+S` | Salva | `file.salva`; anche nei campi |
-| `Ctrl+Alt+T`, `Ctrl+Alt+N` | Oggi, Nuova ora | `COMANDI_UI` (`dalMenu`) e `COMANDI`: un solo scatto |
+| `Ctrl+Alt+T`, `Ctrl+Alt+N` | Oggi, Nuova lezione | `COMANDI_UI` (`dalMenu`) e `COMANDI`: un solo scatto |
 | `Ctrl+Alt+R` | Mostra il registro | `registroDocenti.apri`, globale |
 | `Ctrl+,` | Impostazioni | `registroDocenti.impostazioni` |
 | `Ctrl+Plus`, `Ctrl+-`, `Ctrl+0`, `F11` | zoom, schermo intero | `finestra.*` (`dalMenu`) |

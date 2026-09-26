@@ -20,9 +20,11 @@ const it = {
     allievi: `Solo ${accorda(PIF, 'alcuno', true)} ${PIF.plurale}`,
     docente: 'A me',
   },
-  aiutoDestinatari: 'La spunta resta individuale: si vede chi ha fatto e chi manca.',
+  aiutoDestinatari:
+    'La spunta resta individuale: si vede chi ha fatto e chi manca.',
   raccoglie: 'Si spunta consegnando un documento',
-  aiutoRaccoglie: 'Ognuno allega il suo file, e si vede a matrice chi non l’ha ancora portato.',
+  aiutoRaccoglie:
+    'Ognuno allega il suo file, e si vede a matrice chi non l’ha ancora portato.',
   cheDocumento: 'Che documento',
   chiLoPorta: 'Chi lo porta',
   versi: {
@@ -48,7 +50,8 @@ const it = {
     data: 'Un giorno preciso',
     nessuno: 'Nessun termine',
   },
-  aiutoTermine: 'Legandolo a una lezione, spostando quell’ora si sposta anche il termine.',
+  aiutoTermine:
+    'Legandolo a una lezione, spostando quella lezione si sposta anche il termine.',
   perLaLezioneDel: 'Per la lezione del',
   altraMateria: 'altra materia',
   nessunaLezioneFutura: 'nessuna lezione futura',
@@ -57,13 +60,15 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
-    serveCorso: 'Zuerst braucht es einen Kurs, dem der Auftrag zugeordnet werden kann.',
+    serveCorso:
+      'Zuerst braucht es einen Kurs, dem der Auftrag zugeordnet werden kann.',
     titoloModifica: 'Auftrag bearbeiten',
     titoloNuova: 'Neuer Auftrag',
     aggiornata: 'Auftrag aktualisiert.',
     assegnata: 'Auftrag erteilt.',
     eliminare: 'Auftrag löschen?',
-    sparisconoSpunte: 'Auch die Häkchen derer, die ihn schon erledigt haben, verschwinden.',
+    sparisconoSpunte:
+      'Auch die Häkchen derer, die ihn schon erledigt haben, verschwinden.',
     eliminata: 'Auftrag gelöscht.',
     segnapostoTesto: 'Übungen 4–7, Seite 132',
     aChiTocca: 'Für wen',
@@ -72,7 +77,8 @@ export const testi = catalogo(it, {
       allievi: 'Nur einzelne Lernende',
       docente: 'Für mich',
     },
-    aiutoDestinatari: 'Abgehakt wird einzeln: Man sieht, wer ihn erledigt hat und wer noch fehlt.',
+    aiutoDestinatari:
+      'Abgehakt wird einzeln: Man sieht, wer ihn erledigt hat und wer noch fehlt.',
     raccoglie: 'Abgehakt wird mit der Abgabe eines Dokuments',
     aiutoRaccoglie:
       'Alle hängen ihre eigene Datei an, und in der Matrix sieht man, wer sie noch nicht ' +
@@ -83,7 +89,8 @@ export const testi = catalogo(it, {
       ricevo: 'Die Lernenden geben es mir ab',
       consegno: 'Ich händige es den Lernenden aus',
     },
-    aiutoVerso: 'Beim Aushändigen zeigt das Häkchen, dass du es übergeben hast.',
+    aiutoVerso:
+      'Beim Aushändigen zeigt das Häkchen, dass du es übergeben hast.',
     comeLoConsegno: 'Wie ich es aushändige',
     modi: {
       mano: 'Persönlich, in der Klasse',
@@ -93,7 +100,8 @@ export const testi = catalogo(it, {
       'Gilt beim Aushändigen: Per E-Mail geht an alle eine eigene Nachricht mit dem Dokument ' +
       'im Anhang, und der Versand selbst gilt als Nachweis.',
     firme: 'Unterschriftenblatt für die Übergabe nötig',
-    aiutoFirme: 'Ein einziges für die ganze Anfrage, unter der Matrix anzuhängen.',
+    aiutoFirme:
+      'Ein einziges für die ganze Anfrage, unter der Matrix anzuhängen.',
     nessunaPif: 'Die Klasse hat keine Lernenden, die sie derzeit besuchen.',
     entroQuando: 'Bis wann',
     ilTermineE: 'Die Frist ist',
@@ -116,7 +124,8 @@ export const testi = catalogo(it, {
     aggiornata: 'Devoir mis à jour.',
     assegnata: 'Devoir donné.',
     eliminare: 'Supprimer le devoir ?',
-    sparisconoSpunte: 'Les coches de ceux qui l’avaient déjà fait disparaissent aussi.',
+    sparisconoSpunte:
+      'Les coches de ceux qui l’avaient déjà fait disparaissent aussi.',
     eliminata: 'Devoir supprimé.',
     segnapostoTesto: 'exercices 4 à 7, page 132',
     aChiTocca: 'Pour qui',
@@ -125,16 +134,19 @@ export const testi = catalogo(it, {
       allievi: 'Seulement certaines personnes en formation',
       docente: 'Pour moi',
     },
-    aiutoDestinatari: 'La coche reste individuelle : on voit qui l’a fait et qui manque.',
+    aiutoDestinatari:
+      'La coche reste individuelle : on voit qui l’a fait et qui manque.',
     raccoglie: 'Se coche en remettant un document',
-    aiutoRaccoglie: 'Chacun joint son fichier, et la matrice montre qui ne l’a pas encore apporté.',
+    aiutoRaccoglie:
+      'Chacun joint son fichier, et la matrice montre qui ne l’a pas encore apporté.',
     cheDocumento: 'Quel document',
     chiLoPorta: 'Qui l’apporte',
     versi: {
       ricevo: 'Les personnes en formation me le remettent',
       consegno: 'Je le remets aux personnes en formation',
     },
-    aiutoVerso: 'Quand c’est toi qui remets, la coche indique que tu l’as donné.',
+    aiutoVerso:
+      'Quand c’est toi qui remets, la coche indique que tu l’as donné.',
     comeLoConsegno: 'Comment je le remets',
     modi: {
       mano: 'En main propre, en classe',
@@ -145,7 +157,8 @@ export const testi = catalogo(it, {
       'document joint, et l’envoi lui-même fait foi.',
     firme: 'Il faut la feuille des signatures de remise',
     aiutoFirme: 'Une seule pour toute la demande, à joindre sous la matrice.',
-    nessunaPif: 'La classe n’a pas de personnes en formation qui la fréquentent.',
+    nessunaPif:
+      'La classe n’a pas de personnes en formation qui la fréquentent.',
     entroQuando: 'Pour quand',
     ilTermineE: 'L’échéance est',
     modiScadenza: {
@@ -153,7 +166,8 @@ export const testi = catalogo(it, {
       data: 'Un jour précis',
       nessuno: 'Pas d’échéance',
     },
-    aiutoTermine: 'Liée à une leçon, l’échéance se déplace quand on déplace cette leçon.',
+    aiutoTermine:
+      'Liée à une leçon, l’échéance se déplace quand on déplace cette leçon.',
     perLaLezioneDel: 'Pour la leçon du',
     altraMateria: 'autre branche',
     nessunaLezioneFutura: 'aucune leçon à venir',
@@ -175,7 +189,8 @@ export const testi = catalogo(it, {
       allievi: 'Only some learners',
       docente: 'Me',
     },
-    aiutoDestinatari: 'Ticks stay individual: you can see who has done it and who hasn’t.',
+    aiutoDestinatari:
+      'Ticks stay individual: you can see who has done it and who hasn’t.',
     raccoglie: 'Ticked off by handing in a document',
     aiutoRaccoglie:
       'Everyone attaches their own file, and the grid shows who hasn’t brought it yet.',
@@ -204,7 +219,8 @@ export const testi = catalogo(it, {
       data: 'A specific day',
       nessuno: 'No deadline',
     },
-    aiutoTermine: 'Tied to a lesson, the deadline moves whenever that lesson moves.',
+    aiutoTermine:
+      'Tied to a lesson, the deadline moves whenever that lesson moves.',
     perLaLezioneDel: 'For the lesson on',
     altraMateria: 'other subject',
     nessunaLezioneFutura: 'no upcoming lessons',

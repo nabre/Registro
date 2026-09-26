@@ -3,7 +3,14 @@
 // di `types.ts`); struttura in `grades.ts`.
 
 import { catalogo } from '../../../i18n/index.js'
-import { CARTE, DOCUMENTO_SCHEDE, Molti, PIF, Uno, VALUTAZIONE } from '../../../domain/lexicon.js'
+import {
+  CARTE,
+  DOCUMENTO_SCHEDE,
+  Molti,
+  PIF,
+  Uno,
+  VALUTAZIONE,
+} from '../../../domain/lexicon.js'
 import { lessico } from '../../../domain/lexicon.testi.js'
 import { testi as automazione } from '../../../domain/automation.testi.js'
 import type { TestiSezione } from './types.js'
@@ -82,7 +89,7 @@ const it = {
       {
         termine: 'Chi era assente all’ora della prova',
         testo:
-          'Se l’appello di quell’ora lo dà assente anche per una sola UD, la casella vuota ' +
+          'Se l’appello di quella lezione lo dà assente anche per una sola UD, la casella vuota ' +
           'mostra la `X` in trasparenza. Per il recupero non serve scriverla; per chiudere la ' +
           'correzione sì: finché la casella resta vuota la prova è «da correggere». Fissare il ' +
           'recupero, o dire che non si recupera, la scrive da sé.',
@@ -260,8 +267,8 @@ const it = {
           'rifatto e valutato, resta aperto finché il foglio non torna.',
         legenda: [
           'Nasce da solo: casella vuota, e `X` alla prova o almeno una UD di assenza all’appello ' +
-            'di quell’ora.',
-          'Fissare il giorno: il calendario della riga sceglie la prossima ora del corso, la ' +
+            'di quella lezione.',
+          'Fissare il giorno: il calendario della riga sceglie la prossima lezione del corso, la ' +
             'matita una data qualsiasi. Quel giorno la riga dice **oggi**.',
           'Il voto, scritto nella riga o nella griglia, chiude il recupero — anche a data passata.',
           'La prova rifatta si riconsegna nella sua riga, con la sua data.',
@@ -274,7 +281,7 @@ const it = {
         termine: 'Nascono da soli',
         testo:
           'Una riga compare per chi ha la casella vuota ed era segnato `X` alla prova, o assente ' +
-          'all’appello di quell’ora anche per una sola UD — e allora la riga dice ' +
+          'all’appello di quella lezione anche per una sola UD — e allora la riga dice ' +
           '«dall’appello». Solo per chi frequenta ancora.',
       },
       {
@@ -287,7 +294,7 @@ const it = {
       {
         termine: 'Fissare il giorno',
         testo:
-          'Il calendario sulla riga fissa la prossima ora del corso. La matita apre **Recupero ' +
+          'Il calendario sulla riga fissa la prossima lezione del corso. La matita apre **Recupero ' +
           'della prova**: **Si rifà il**, **Riconsegnata il**, una **Nota** e i documenti; ' +
           'svuotare la data lo rimette fra quelli da fissare.',
       },
@@ -1957,7 +1964,7 @@ export const testi = catalogo(it, {
           'attend que les mains s’arrêtent : vingt cases de l’appel refont les feuilles une ' +
           'seule fois.',
         'Avant de remettre : **Tout mettre à jour**, puis **Regarder le premier** et les flèches ' +
-        'de ' +
+          'de ' +
           'l’aperçu. On contrôle les feuilles l’une après l’autre, sans chercher les lignes.',
         'La corbeille ne jette que le fichier, qu’on refait au besoin. Une compilation jetée ' +
           'perd aussi la liste de ce qu’elle contenait, et ne peut plus être refaite : ses ' +

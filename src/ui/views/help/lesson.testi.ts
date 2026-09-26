@@ -3,7 +3,17 @@
 // testa di `types.ts`); struttura in `lesson.ts`.
 
 import { catalogo } from '../../../i18n/index.js'
-import { CARTE, FASCIA, Molti, PIF, UD, Uno, corto, del, un } from '../../../domain/lexicon.js'
+import {
+  CARTE,
+  FASCIA,
+  Molti,
+  PIF,
+  UD,
+  Uno,
+  corto,
+  del,
+  un,
+} from '../../../domain/lexicon.js'
 import { lessico } from '../../../domain/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
@@ -14,7 +24,8 @@ const EN = lessico.in('en')
 const it = {
   lezione: {
     titolo: 'Lezione',
-    sommario: 'La schermata che si tiene aperta durante l’ora, e com’è messa l’ora.',
+    sommario:
+      'La schermata che si tiene aperta durante la lezione, e com’è messa la lezione.',
     scritte: {
       calendario: 'Calendario',
       pendenze: Molti(CARTE.pendenza),
@@ -27,7 +38,7 @@ const it = {
       pianificata: 'Pianificata',
       svolta: 'Svolta',
       annullata: 'Annullata',
-      modificaOra: 'Modifica l’ora',
+      modificaOra: 'Modifica la lezione',
       testata: 'giovedì 14.11 · 08:20–10:00 · aula 12',
       statoPianificata: 'pianificata',
       presenti: 'presenti 18/20',
@@ -40,11 +51,11 @@ const it = {
       appello: 'Appello',
       consegne: 'Consegne',
       proveDaRiconsegnare: 'Prove da riconsegnare',
-      oraDaFare: 'l’ora da fare',
+      oraDaFare: 'la lezione da fare',
       daCompilare: 'Da compilare',
       passataNonChiusa: 'passata, non chiusa',
       chiusa: 'chiusa',
-      oraPassa: 'l’ora passa',
+      oraPassa: 'la lezione passa',
       svoltaPrima: 'Svolta anche prima che finisca',
       restaNonConta: 'resta, non conta',
       conConferma: 'con conferma',
@@ -55,27 +66,27 @@ const it = {
     figure: [
       {
         didascalia:
-          'La pagina di un’ora. Il corso non si sceglie qui: è quello della tendina **Corso** ' +
+          'La pagina di una lezione. Il corso non si sceglie qui: è quello della tendina **Corso** ' +
           'in cima, uguale per le cinque pagine del Registro.',
         legenda: [
-          'La riga delle azioni: i tre stati dell’ora e **Modifica l’ora**.',
+          'La riga delle azioni: i tre stati della lezione e **Modifica la lezione**.',
           'La testata: classe, giorno, orario, aula, e i conti dell’appello.',
-          'Il navigatore: ora prima, ora dopo, e la tendina di tutte le ore del corso.',
-          'Le tre schede, una per momento dell’ora.',
+          'Il navigatore: lezione prima, lezione dopo, e la tendina di tutte le lezioni del corso.',
+          'Le tre schede, una per momento della lezione.',
           'Le due colonne della scheda scelta: in Amministrazione l’appello a sinistra; ' +
             'consegne, check e prove da ridare a destra.',
         ],
       },
       {
         didascalia:
-          'Il ciclo di un’ora. I buchi li decide l’orologio, non lo stato: un’ora passata ' +
+          'Il ciclo di una lezione. I buchi li decide l’orologio, non lo stato: una lezione passata ' +
           'senza appello resta da compilare anche se è segnata svolta.',
         legenda: [
-          '**Pianificata**: l’ora prevista. Il suo pulsante ce la riporta da svolta o ' +
+          '**Pianificata**: la lezione prevista. Il suo pulsante ce la riporta da svolta o ' +
             'annullata, senza perdere niente.',
           'Passata senza appello, o senza **Svolta**: la barra in fondo propone per primo il ' +
             'buco più vecchio.',
-          `**Svolta** chiude l’ora: esce dalle ${CARTE.pendenza.plurale}, e da lì il verbale ` +
+          `**Svolta** chiude la lezione: esce dalle ${CARTE.pendenza.plurale}, e da lì il verbale ` +
             'si può fare.',
           '**Annullata**: resta nel registro, ma senza numero, fuori dai conti e dai buchi.',
         ],
@@ -83,17 +94,17 @@ const it = {
     ],
     voci: [
       {
-        termine: 'Aprire un’ora',
+        termine: 'Aprire una lezione',
         testo:
           'Un clic sulla lezione nel calendario — con **Modifica** accesa il clic la sceglie, e ' +
-          '**Invio** la apre —, o sull’ora proposta nella barra in fondo. Nella ' +
-          'riga delle azioni **Ora da compilare** — **Prossima ora** se non manca niente — porta ' +
-          'all’ora che aspetta. Senza un’ora aperta la pagina offre **Apri l’ultima lezione**.',
+          '**Invio** la apre —, o sulla lezione proposta nella barra in fondo. Nella ' +
+          'riga delle azioni **Lezione da compilare** — **Prossima lezione** se non manca niente — porta ' +
+          'alla lezione che aspetta. Senza una lezione aperta la pagina offre **Apri l’ultima lezione**.',
       },
       {
-        termine: 'Le ore del corso',
+        termine: 'Le lezioni del corso',
         testo:
-          'Le frecce passano all’ora prima e a quella dopo dello stesso corso, la tendina salta ' +
+          'Le frecce passano alla lezione prima e a quella dopo dello stesso corso, la tendina salta ' +
           'a una qualunque: «✓ 12. gio 14.11 · 08:20». **✓** è svolta, **×** annullata, e le ' +
           'annullate non hanno numero. Accanto, «12 di 38».',
       },
@@ -102,21 +113,21 @@ const it = {
         testo:
           'Classe, giorno, orario e aula; poi lo stato e i conti dell’appello: presenti, ' +
           'assenti, **da fare** (le caselle ancora vuote), ritardi, durata — e «con pause» ' +
-          'quando l’ora ne ha.',
+          'quando la lezione ne ha.',
       },
       {
-        termine: 'Stato dell’ora',
+        termine: 'Stato della lezione',
         testo:
           '**Pianificata**, **Svolta** e **Annullata** stanno nella riga delle azioni: quello ' +
-          'acceso è in vigore, e si preme quello dove si vuole portare l’ora. **Svolta** resta ' +
+          'acceso è in vigore, e si preme quello dove si vuole portare la lezione. **Svolta** resta ' +
           'in evidenza finché non la si preme; **Annullata** chiede conferma.',
       },
       {
-        termine: 'Modifica l’ora',
+        termine: 'Modifica la lezione',
         testo:
           'Nella riga delle azioni, con **Modifica** accesa (in alto, accanto a **Proietta**, ' +
           'o Ctrl+E): corso, data, aula, stato, orario e scaletta. In fondo **Duplica** — la ' +
-          'copia va poi spostata di data — ed **Elimina**. Spenta, l’ora si legge e si fa ' +
+          'copia va poi spostata di data — ed **Elimina**. Spenta, la lezione si legge e si fa ' +
           'l’appello, ma giorno e orario non si toccano per sbaglio.',
       },
       {
@@ -137,12 +148,12 @@ const it = {
           'com’era all’apertura del modulo e le fasce si scrivono a mano.',
       },
       {
-        termine: 'Un’ora del calendario ICS',
+        termine: 'Una lezione del calendario ICS',
         testo:
           'Agganciata a un evento della scuola ha corso, data e la fascia dell’evento spenti — ' +
           'l’aula anche, se l’evento la scrive — e niente Elimina; accanto si aggiungono fasce e ' +
-          'pause. **Sincronizza da ICS**, in fondo a **Modifica l’ora** o col tasto destro ' +
-          'sull’ora nel calendario, riporta orario, aula e stato a quel che dice il calendario.',
+          'pause. **Sincronizza da ICS**, in fondo a **Modifica la lezione** o col tasto destro ' +
+          'sulla lezione nel calendario, riporta orario, aula e stato a quel che dice il calendario.',
       },
       {
         termine: 'Le tre schede',
@@ -165,7 +176,7 @@ const it = {
           'Le prove del corso ancora in mano a chi insegna, ognuna con quel che le manca: ' +
           '**Da completare** (la griglia con le sole caselle vuote), **Da ridare a** (con la ' +
           'colonna «Riconsegnata il»), **Recuperi da ridare**. **Resa a tutti** e le spunte ' +
-          'scrivono la data di quest’ora, non quella di oggi.',
+          'scrivono la data di questa lezione, non quella di oggi.',
       },
       {
         termine: 'La scaletta in aula',
@@ -183,10 +194,10 @@ const it = {
           '**Cambia** e la matita **Modifica la scaletta**, che la mostra sulle UD di quest’ora.',
       },
       {
-        termine: 'Le prove dell’ora',
+        termine: 'Le prove della lezione',
         testo:
           'Una tappa che è una prova ha nella colonna Prova **Crea la prova**: nasce il momento ' +
-          'di valutazione, con la data di quest’ora, e si apre la pagina Valutazioni su di lui. ' +
+          'di valutazione, con la data di questa lezione, e si apre la pagina Valutazioni su di lui. ' +
           'Poi il pulsante diventa **Voti**, che ci riporta. I voti si mettono anche qui, nella ' +
           'scheda Valutazioni accanto, con il grafico delle note sotto.',
       },
@@ -201,13 +212,13 @@ const it = {
       {
         termine: 'Verbale',
         testo:
-          'Il PDF dell’ora — presenze, scaletta, argomenti, consegne, osservazioni — si fa dalla ' +
-          'pagina **Documenti**, scheda Lezioni. Solo per un’ora **Svolta**: prima uscirebbe ' +
+          'Il PDF della lezione — presenze, scaletta, argomenti, consegne, osservazioni — si fa dalla ' +
+          'pagina **Documenti**, scheda Lezioni. Solo per una lezione **Svolta**: prima uscirebbe ' +
           'senza appello e senza consuntivo.',
       },
     ],
     note: [
-      'Segnare **Svolta** rifà il verbale di quell’ora e i PDF del corso — presenze, voti, ' +
+      'Segnare **Svolta** rifà il verbale di quella lezione e i PDF del corso — presenze, voti, ' +
         'schede — a ' +
         'meno che il rifacimento automatico non sia spento. Non aspetta: l’avviso arriva ' +
         'quando i file sono pronti.',
@@ -309,7 +320,8 @@ const it = {
   },
   consegne: {
     titolo: 'Consegne',
-    sommario: 'Quel che si dà da fare e deve tornare indietro: a chi, come, entro quando.',
+    sommario:
+      'Quel che si dà da fare e deve tornare indietro: a chi, come, entro quando.',
     scritte: {
       aChiTocca: 'A chi tocca',
       conUnFoglio: 'Con un foglio?',
@@ -374,7 +386,7 @@ const it = {
         termine: 'Entro quando',
         testo:
           '**Una lezione del corso** propone le prossime ore della classe, anche di altre ' +
-          'materie: spostando quell’ora si sposta il termine. Oppure **Un giorno preciso**, ' +
+          'materie: spostando quella lezione si sposta il termine. Oppure **Un giorno preciso**, ' +
           'o **Nessun termine**.',
       },
       {
@@ -405,8 +417,7 @@ const it = {
   },
   check: {
     titolo: 'Check',
-    sommario:
-      `Le cose da fare una volta, spuntate ${PIF.singolare} per ${PIF.singolare}, con il giorno.`,
+    sommario: `Le cose da fare una volta, spuntate ${PIF.singolare} per ${PIF.singolare}, con il giorno.`,
     voci: [
       {
         termine: 'Le colonne',
@@ -428,7 +439,7 @@ const it = {
       {
         termine: 'Quale giorno',
         testo:
-          'Dalla pagina, se il corso ha lezione oggi, la spunta va in quell’ora; altrimenti ' +
+          'Dalla pagina, se il corso ha lezione oggi, la spunta va in quella lezione; altrimenti ' +
           'porta la data di oggi. Dentro un’ora — la scheda **Amministrazione**, sotto le ' +
           'consegne — va sempre nell’ora aperta.',
       },
@@ -477,7 +488,8 @@ const it = {
   },
   annotazioni: {
     titolo: 'Svolgimento e osservazioni',
-    sommario: 'Quel che si è fatto nell’ora, e quel che c’è da segnare su qualcuno.',
+    sommario:
+      'Quel che si è fatto nell’ora, e quel che c’è da segnare su qualcuno.',
     scritte: {
       svolgimento: 'Svolgimento',
       argomentiSvolti: 'Argomenti svolti',
@@ -548,7 +560,8 @@ const it = {
   },
   piani: {
     titolo: 'Piani lezione',
-    sommario: 'Le ore del corso e le loro scalette: che cosa è preparato, e che cosa no.',
+    sommario:
+      'Le ore del corso e le loro scalette: che cosa è preparato, e che cosa no.',
     scritte: {
       materia: 'Matematica',
       ore: '18/24 ore',
@@ -1035,8 +1048,7 @@ export const testi = catalogo(it, {
     },
     consegne: {
       titolo: Molti(DE.consegna),
-      sommario:
-        'Was man aufgibt und zurückkommen muss: an wen, wie, bis wann.',
+      sommario: 'Was man aufgibt und zurückkommen muss: an wen, wie, bis wann.',
       scritte: {
         aChiTocca: 'Für wen',
         conUnFoglio: 'Mit einem Blatt?',
@@ -1216,7 +1228,8 @@ export const testi = catalogo(it, {
     },
     annotazioni: {
       titolo: 'Durchführung und Beobachtungen',
-      sommario: 'Was man in der Stunde gemacht hat, und was es über jemanden festzuhalten gibt.',
+      sommario:
+        'Was man in der Stunde gemacht hat, und was es über jemanden festzuhalten gibt.',
       scritte: {
         svolgimento: 'Durchführung',
         argomentiSvolti: 'Behandelte Themen',
@@ -1473,7 +1486,8 @@ export const testi = catalogo(it, {
   fr: {
     lezione: {
       titolo: 'Leçon',
-      sommario: 'L’écran qu’on garde ouvert pendant la leçon, et où en est la leçon.',
+      sommario:
+        'L’écran qu’on garde ouvert pendant la leçon, et où en est la leçon.',
       scritte: {
         calendario: 'Calendrier',
         pendenze: 'En suspens',
@@ -1782,7 +1796,8 @@ export const testi = catalogo(it, {
     },
     consegne: {
       titolo: 'Devoirs',
-      sommario: 'Ce qu’on donne à faire et qui doit revenir : à qui, comment, pour quand.',
+      sommario:
+        'Ce qu’on donne à faire et qui doit revenir : à qui, comment, pour quand.',
       scritte: {
         aChiTocca: 'Pour qui',
         conUnFoglio: 'Avec feuille ?',
@@ -1885,7 +1900,8 @@ export const testi = catalogo(it, {
     },
     check: {
       titolo: 'Check',
-      sommario: 'Les choses à faire une fois, cochées personne par personne, avec le jour.',
+      sommario:
+        'Les choses à faire une fois, cochées personne par personne, avec le jour.',
       voci: [
         {
           termine: 'Les colonnes',
@@ -1959,7 +1975,8 @@ export const testi = catalogo(it, {
     },
     annotazioni: {
       titolo: 'Mise en œuvre et observations',
-      sommario: 'Ce qu’on a fait pendant la leçon, et ce qu’il y a à noter sur quelqu’un.',
+      sommario:
+        'Ce qu’on a fait pendant la leçon, et ce qu’il y a à noter sur quelqu’un.',
       scritte: {
         svolgimento: 'Mise en œuvre',
         argomentiSvolti: 'Sujets traités',
@@ -2033,7 +2050,8 @@ export const testi = catalogo(it, {
     },
     piani: {
       titolo: 'Plans de leçon',
-      sommario: 'Les leçons du cours et leurs déroulements : ce qui est préparé, et ce qui ne l’est pas.',
+      sommario:
+        'Les leçons du cours et leurs déroulements : ce qui est préparé, et ce qui ne l’est pas.',
       scritte: {
         materia: 'Mathématiques',
         ore: '18/24 leçons',
@@ -2210,7 +2228,8 @@ export const testi = catalogo(it, {
   en: {
     lezione: {
       titolo: 'Lesson',
-      sommario: 'The screen you keep open during the lesson, and where the lesson stands.',
+      sommario:
+        'The screen you keep open during the lesson, and where the lesson stands.',
       scritte: {
         calendario: 'Calendar',
         pendenze: Molti(EN.pendenza),
@@ -2683,7 +2702,8 @@ export const testi = catalogo(it, {
     },
     annotazioni: {
       titolo: 'Delivery and observations',
-      sommario: 'What was done in the lesson, and what needs noting about someone.',
+      sommario:
+        'What was done in the lesson, and what needs noting about someone.',
       scritte: {
         svolgimento: 'Delivery',
         argomentiSvolti: 'Topics covered',
@@ -2755,7 +2775,8 @@ export const testi = catalogo(it, {
     },
     piani: {
       titolo: 'Lesson plans',
-      sommario: 'The course’s lessons and their outlines: what is prepared, and what is not.',
+      sommario:
+        'The course’s lessons and their outlines: what is prepared, and what is not.',
       scritte: {
         materia: 'Maths',
         ore: '18/24 lessons',

@@ -5,18 +5,19 @@ import { catalogo } from '../../../i18n/index.js'
 const it = {
   creaProva: 'Crea la prova',
   apri: (titolo: string) => `Apri «${titolo}»`,
-  creaMomento: 'Crea il momento di valutazione di questa tappa, dentro quest’ora',
+  creaMomento:
+    'Crea il momento di valutazione di questa tappa, dentro questa lezione',
   estremi: (minimo: string, massimo: string) => `da ${minimo} a ${massimo}`,
   valutazioni: 'Valutazioni',
   soloRecuperi: 'nessuna prova nata qui, ma oggi si recupera',
-  valutatoQui: 'quel che si è valutato in quest’ora',
+  valutatoQui: 'quel che si è valutato in questa lezione',
   momenti: (quanti: number) =>
     `${quanti === 1 ? 'un momento' : `${quanti} momenti`} · i voti si mettono qui`,
   /** La sigla è quella dell'assenza nell'appello, uguale in tutte le lingue. */
   aiuto: (sigla: string) =>
     `Un voto si scrive nella casella; «${sigla}» segna chi era assente, come nell’appello.`,
   niente:
-    'In quest’ora non si è valutato niente. Un momento nasce dalla tappa del ' +
+    'In questa lezione non si è valutato niente. Un momento nasce dalla tappa del ' +
     'piano che dichiara di essere una prova: lo si crea dal suo pulsante, ' +
     'qui sopra nella scaletta.',
 }
@@ -25,10 +26,12 @@ export const testi = catalogo(it, {
   de: {
     creaProva: 'Prüfung erstellen',
     apri: (titolo) => `«${titolo}» öffnen`,
-    creaMomento: 'Die Leistungsbeurteilung dieser Etappe erstellen, in dieser Stunde',
+    creaMomento:
+      'Die Leistungsbeurteilung dieser Etappe erstellen, in dieser Stunde',
     estremi: (minimo, massimo) => `von ${minimo} bis ${massimo}`,
     valutazioni: 'Beurteilungen',
-    soloRecuperi: 'keine Prüfung aus dieser Stunde, aber heute gibt es eine Nachprüfung',
+    soloRecuperi:
+      'keine Prüfung aus dieser Stunde, aber heute gibt es eine Nachprüfung',
     valutatoQui: 'was in dieser Stunde beurteilt wurde',
     momenti: (quanti) =>
       `${quanti === 1 ? 'eine Beurteilung' : `${quanti} Beurteilungen`} · ` +
@@ -47,7 +50,8 @@ export const testi = catalogo(it, {
     creaMomento: 'Créer l’évaluation de cette étape, dans cette leçon',
     estremi: (minimo, massimo) => `de ${minimo} à ${massimo}`,
     valutazioni: 'Évaluations',
-    soloRecuperi: 'aucune épreuve créée ici, mais aujourd’hui il y a un rattrapage',
+    soloRecuperi:
+      'aucune épreuve créée ici, mais aujourd’hui il y a un rattrapage',
     valutatoQui: 'ce qui a été évalué dans cette leçon',
     momenti: (quanti) =>
       `${quanti === 1 ? 'une évaluation' : `${quanti} évaluations`} · les notes se saisissent ici`,

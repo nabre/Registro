@@ -136,7 +136,8 @@ const it = {
       gio: 'gio',
       disegno: 'Disegno',
       calcolo: 'Calcolo',
-      sigle: 'P presente · X assente · R in ritardo · E esonerato · - non impostato',
+      sigle:
+        'P presente · X assente · R in ritardo · E esonerato · - non impostato',
       numeri: '8% di assenza · nota 5 · 12 ore',
       presenze: 'Presenze',
       giornateStorte: 'giornate storte',
@@ -167,7 +168,7 @@ const it = {
           'Una colonna per ora d’inizio, non per posizione: le 08:20 del lunedì stanno ' +
             'sopra le 08:20 del giovedì.',
           'Casella vuota: quel giorno, a quell’ora, non c’era lezione.',
-          'Una casella è un’UD con la sua sigla, e un clic apre quell’ora.',
+          'Una casella è un’UD con la sua sigla, e un clic apre quella lezione.',
           'Un filo separa le settimane.',
           'Le sigle sono quelle dell’appello e dei fogli stampati.',
           'Il riquadro di una materia: in testa assenza, nota e ore tenute; dentro quattro ' +
@@ -667,7 +668,8 @@ export const testi = catalogo(it, {
         gio: 'Do',
         disegno: 'Zeichnen',
         calcolo: 'Rechnen',
-        sigle: 'P anwesend · X abwesend · R verspätet · E dispensiert · - nicht erfasst',
+        sigle:
+          'P anwesend · X abwesend · R verspätet · E dispensiert · - nicht erfasst',
         numeri: '8 % Absenz · Note 5 · 12 Stunden',
         presenze: 'Anwesenheit',
         giornateStorte: 'schwierige Tage',

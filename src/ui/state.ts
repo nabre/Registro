@@ -3,7 +3,11 @@
 // aspetta la copia nuova); il resto — vista, giorno, selezioni, filtri — è
 // stato locale, e la parte da ritrovare riaprendo il pannello si ricorda.
 
-import { daRicordare, partiValide, type PartiContesto } from './assistant/parts.js'
+import {
+  daRicordare,
+  partiValide,
+  type PartiContesto,
+} from './assistant/parts.js'
 import type { MessaggioStato } from '../protocol.js'
 import type {
   Corso,
@@ -43,7 +47,13 @@ import {
   type Compleanno,
 } from '../domain/birthdays.js'
 import {
-  adesso, etichettaSemestre, formattaData, giornoDi, isoValida, oggi, semestreDi,
+  adesso,
+  etichettaSemestre,
+  formattaData,
+  giornoDi,
+  isoValida,
+  oggi,
+  semestreDi,
 } from '../domain/dates.js'
 import { registroVuoto } from '../domain/factories.js'
 import {
@@ -99,7 +109,12 @@ const VISTE: Vista[] = [
 
 export type ModoCalendario = 'settimana' | 'mese' | 'anno' | 'agenda'
 
-const MODI_CALENDARIO: ModoCalendario[] = ['settimana', 'mese', 'anno', 'agenda']
+const MODI_CALENDARIO: ModoCalendario[] = [
+  'settimana',
+  'mese',
+  'anno',
+  'agenda',
+]
 
 /**
  * Di chi si guardano le consegne nella pagina delle pendenze. Sta qui perché
@@ -107,17 +122,17 @@ const MODI_CALENDARIO: ModoCalendario[] = ['settimana', 'mese', 'anno', 'agenda'
  */
 /** Un blocco in lettura o in attesa di esserlo. */
 interface VoceLavoro {
-  smistamentoId: string
-  pagina: number
-  etichetta: string
+  smistamentoId: string;
+  pagina: number;
+  etichetta: string;
 }
 
 interface StatoLavoro {
-  corrente: VoceLavoro | null
+  corrente: VoceLavoro | null;
   /** Quante pagine sono già state lette in questa infornata, e quante erano. */
-  fatte: number
-  totale: number
-  coda: VoceLavoro[]
+  fatte: number;
+  totale: number;
+  coda: VoceLavoro[];
 }
 
 /**
@@ -126,7 +141,11 @@ interface StatoLavoro {
  */
 export type SchedaLezione = 'amministrazione' | 'lezione' | 'annotazioni'
 
-const SCHEDE_LEZIONE: SchedaLezione[] = ['amministrazione', 'lezione', 'annotazioni']
+const SCHEDE_LEZIONE: SchedaLezione[] = [
+  'amministrazione',
+  'lezione',
+  'annotazioni',
+]
 
 /**
  * Le tre schede della scheda di una persona in formazione: anagrafica (chi è,
@@ -140,12 +159,21 @@ export type AmbitoCheck = 'corso' | 'classe'
 
 const AMBITI_CHECK: AmbitoCheck[] = ['corso', 'classe']
 
-const SCHEDE_PERSONA: SchedaPersona[] = ['anagrafica', 'docenteClasse', 'materie']
+const SCHEDE_PERSONA: SchedaPersona[] = [
+  'anagrafica',
+  'docenteClasse',
+  'materie',
+]
 
 /** Le quattro schede del docente di classe, ognuna col suo ritmo. */
 export type SchedaDocente = 'todo' | 'documenti' | 'assenze' | 'messaggistica'
 
-const SCHEDE_DOCENTE: SchedaDocente[] = ['todo', 'documenti', 'assenze', 'messaggistica']
+const SCHEDE_DOCENTE: SchedaDocente[] = [
+  'todo',
+  'documenti',
+  'assenze',
+  'messaggistica',
+]
 
 /**
  * Le tre schede della pagina Documenti: del corso (presenze, voti, prove,
@@ -175,11 +203,7 @@ const AMBITI_IMPOSTAZIONI: AmbitoImpostazioni[] = ['programma', 'documento']
 
 /** Le sezioni delle impostazioni del programma, nell'ordine in cui si aprono. */
 export type SchedaProgramma =
-  | 'aspetto'
-  | 'posta'
-  | 'modelli'
-  | 'aggiornamenti'
-  | 'condotto'
+  'aspetto' | 'posta' | 'modelli' | 'aggiornamenti' | 'condotto'
 
 const SCHEDE_PROGRAMMA: SchedaProgramma[] = [
   'aspetto',
@@ -212,7 +236,11 @@ const SCHEDE_DOCUMENTO: SchedaDocumento[] = [
 ]
 
 /** Il valore ricordato, se è ancora uno di quelli che esistono. */
-function convalidata<T extends string> (ammessi: T[], ricordata: unknown, ripiego: T): T {
+function convalidata<T extends string> (
+  ammessi: T[],
+  ricordata: unknown,
+  ripiego: T,
+): T {
   return ammessi.includes(ricordata as T) ? (ricordata as T) : ripiego
 }
 
@@ -226,201 +254,201 @@ export const MISURE_SFOGLIO = [130, 170, 230, 310, 420, 560]
 export const ZOOM_PREDEFINITO = 230
 
 interface StatoUI {
-  sidebarDesktop: boolean
-  sidebarMobile: boolean
+  sidebarDesktop: boolean;
+  sidebarMobile: boolean;
   /**
    * Se il riquadro dell'assistente è aperto. Si ricorda, come la sidebar, per
    * ritrovarlo dopo una ricostruzione della pagina; la conversazione invece no
    * (vedi `ui/assistant.ts`).
    */
-  assistenteAperto: boolean
+  assistenteAperto: boolean;
   /**
    * Che cosa si dice all'assistente di dove si sta guardando, parte per parte.
    * Tutto acceso di principio, perché senza contesto il modello indovina un
    * corso; ogni parte si spegne da sé (vedi `assistant/parts.ts`). Si ricorda.
    */
-  contestoAssistente: PartiContesto
+  contestoAssistente: PartiContesto;
 
-  registro: Registro
-  avvisi: string[]
-  caricato: boolean
+  registro: Registro;
+  avvisi: string[];
+  caricato: boolean;
   /**
    * La cartella dei dati come la vede il webview: dentro la sandbox un percorso
    * di disco non si carica, serve l'indirizzo `registro://` mandato dal pannello.
    */
-  radiceDati: string | null
+  radiceDati: string | null;
   /** La radice dei file dell'applicazione: la usa chi disegna le pagine dei PDF. */
-  radiceApp: string | null
+  radiceApp: string | null;
   /** Quanti gesti si possono annullare e ripristinare: li dice l'host, con lo stato. */
-  storia: MessaggioStato['storia']
-  documenti: MessaggioStato['documenti']
+  storia: MessaggioStato['storia'];
+  documenti: MessaggioStato['documenti'];
   /**
    * I documenti nella cartella delle esportazioni, come stanno su disco adesso
    * (il webview non li vede da sé): la pagina Documenti dice «c'è» o «da fare».
    */
-  esportati: MessaggioStato['esportati']
+  esportati: MessaggioStato['esportati'];
   /** Che cosa c'è sotto `archivio/`: i documenti raccolti dalla classe. */
-  archiviati: MessaggioStato['archiviati']
+  archiviati: MessaggioStato['archiviati'];
   /**
    * I fascicoli composti dell'anno: quel che la pagina Documenti elenca nel
    * riquadro «Fascicoli», con il loro PDF accanto.
    */
-  composizioni: MessaggioStato['composizioni']
+  composizioni: MessaggioStato['composizioni'];
   /** Se la lettura automatica delle scansioni è accesa nelle impostazioni. */
-  ocrAttivo: boolean
+  ocrAttivo: boolean;
   /**
    * Le impostazioni del programma (`impostazioni.json`, non quelle del documento):
    * arrivano dal pannello perché il webview in sandbox non vede il file.
    */
-  programma: MessaggioStato['programma']
+  programma: MessaggioStato['programma'];
   /**
    * Com'è messa la posta: server, invio diretto, mittente. Arriva dal pannello:
    * sono impostazioni dell'applicazione.
    */
   posta: {
     /** Vero quando la casella è collegata: si spedisce dal server. */
-    exchange: boolean
-    server: string
-    invioDiretto: boolean
-    mittente: string
+    exchange: boolean;
+    server: string;
+    invioDiretto: boolean;
+    mittente: string;
     /** Il nome con cui si entra, quando è diverso dall'indirizzo. */
-    accesso: string
-  }
+    accesso: string;
+  };
   /** A che punto è la lettura delle scansioni: lavoro della macchina, non dato del registro. */
-  lavoro: StatoLavoro
+  lavoro: StatoLavoro;
   /**
    * Se il computer è in rete, come lo dice il browser. La barra di stato lo
    * mostra prima di «spedisci»: senza rete la posta non esce.
    */
-  rete: boolean
-  vista: Vista
-  paginaId: string | null
+  rete: boolean;
+  vista: Vista;
+  paginaId: string | null;
   /**
    * Se la riga delle azioni è nascosta. Si ricorda; i comandi restano nella
    * palette e nel menu, e la riga si riapre con l'interruttore o Ctrl+B.
    */
-  azioniNascoste: boolean
+  azioniNascoste: boolean;
   /**
    * Di chi sono i comandi nella riga delle azioni: della pagina o dello schermo
    * per la classe (scheda «Proiezione», a schermo acceso). Passa a `'schermo'`
    * quando lo schermo si accende e torna a `'pagina'` spegnendolo o cambiando
    * pagina. Non si ricorda.
    */
-  schedaComandi: 'pagina' | 'schermo'
+  schedaComandi: 'pagina' | 'schermo';
   /** Quale scheda della lezione si sta guardando. */
-  schedaLezione: SchedaLezione
-  schedaPersona: SchedaPersona
+  schedaLezione: SchedaLezione;
+  schedaPersona: SchedaPersona;
   /** Quale scheda del docente di classe si sta guardando. */
-  schedaDocente: SchedaDocente
+  schedaDocente: SchedaDocente;
   /** Se il check aperto appartiene al corso o alla classe del docente di classe. */
-  ambitoCheck: AmbitoCheck
+  ambitoCheck: AmbitoCheck;
   /** Quale scheda della pagina Documenti si sta guardando. */
-  schedaDocumenti: SchedaDocumenti
+  schedaDocumenti: SchedaDocumenti;
   /** Di chi sono le impostazioni aperte: del programma o del documento. */
-  ambitoImpostazioni: AmbitoImpostazioni
+  ambitoImpostazioni: AmbitoImpostazioni;
   /** Quale sezione delle impostazioni del programma. */
-  schedaProgramma: SchedaProgramma
+  schedaProgramma: SchedaProgramma;
   /** Quale sezione delle impostazioni del documento. */
-  schedaDocumento: SchedaDocumento
+  schedaDocumento: SchedaDocumento;
   /**
    * Il documento esportato nell'anteprima (percorso sotto `esportazioni/`), o
    * `null`. Non si ricorda; si svuota quando il file non c'è più.
    */
-  anteprima: string | null
+  anteprima: string | null;
   /**
    * Il documento raccolto aperto nell'archivio documentale (sotto `archivio/`).
    * Separato da `anteprima` perché le due pagine hanno elenchi diversi e una
    * cornice comune chiuderebbe l'una aprendo l'altra. Non si ricorda.
    */
-  anteprimaArchivio: string | null
+  anteprimaArchivio: string | null;
   /**
    * Il foglio aperto nella pagina delle assenze (sotto `archivio/`), separato da
    * `anteprimaArchivio` per la stessa ragione. Non si ricorda.
    */
-  anteprimaAssenze: string | null
+  anteprimaAssenze: string | null;
   /**
    * Le pagine scelte nello sfoglio del PDF da dividere, pronte da trascinare.
    * Stanno nello stato perché la vista si ridisegna a ogni battito dell'orologio;
    * tengono lo smistamento d'origine, così cambiando PDF la scelta non resta
    * appesa al documento sbagliato.
    */
-  pagineScelte: { smistamentoId: string, pagine: number[] } | null
+  pagineScelte: { smistamentoId: string; pagine: number[] } | null;
   /** Come si guarda un PDF da dividere: le pagine (per smistare) o il lettore (per leggere). */
-  sfoglioArchivio: 'pagine' | 'lettore'
+  sfoglioArchivio: 'pagine' | 'lettore';
   /** Quanto sono grandi le pagine nello sfoglio, in pixel di larghezza. Si ricorda. */
-  zoomSfoglio: number
+  zoomSfoglio: number;
   /**
    * Se nello sfoglio si vedono anche le pagine già archiviate. Di norma no: non
    * sono più lavoro da fare; l'interruttore serve a riprendere quella finita
    * sulla riga sbagliata.
    */
-  mostraArchiviate: boolean
+  mostraArchiviate: boolean;
   /**
    * I documenti spuntati nella pagina Documenti (percorsi sotto `esportazioni/`),
    * da combinare in un fascicolo. Valgono per tutte e tre le schede; si svuotano
    * cambiando corso o periodo.
    */
-  documentiScelti: string[]
-  modoCalendario: ModoCalendario
+  documentiScelti: string[];
+  modoCalendario: ModoCalendario;
   /**
    * Se il calendario mostra anche gli eventi ICS del documento (tratteggiati, non
    * si aprono). Lo stesso interruttore accende i segni della striscia «Settimane
    * dell'anno»: quel che non torna fra calendario e registro.
    */
-  mostraCalendarioEsterno: boolean
+  mostraCalendarioEsterno: boolean;
   /**
    * Se il calendario è in modifica: la griglia smette di aprire le lezioni al
    * clic e le prende in mano. Non si ricorda, perché un clic che doveva solo
    * aprire non sposti un'ora.
    */
-  editorCalendario: boolean
+  editorCalendario: boolean;
   /** Se la striscia «Settimane dell'anno» è ripiegata a una riga. Si ricorda. */
-  strisciaSettimaneChiusa: boolean
+  strisciaSettimaneChiusa: boolean;
   /** Giorno di riferimento del calendario: la settimana o il mese che lo contiene. */
-  data: Iso
+  data: Iso;
   /**
    * Il momento presente, aggiornato ogni minuto. Sta nello stato perché il
    * ridisegno che ne segue fa passare un'ora da «in corso» a «finita»; leggere
    * `new Date()` nelle viste le lascerebbe ferme.
    */
-  adessoData: Iso
-  adessoOra: Ora
-  lezioneId: string | null
-  classeId: string | null
+  adessoData: Iso;
+  adessoOra: Ora;
+  lezioneId: string | null;
+  classeId: string | null;
   /** L'allievo di cui si guarda la scheda; vive dentro `classeId`. */
-  allievoId: string | null
+  allievoId: string | null;
   /**
    * Le classi aperte nell'elenco delle persone in formazione: chiuse di
    * principio, si ricordano quelle aperte.
    */
-  classiApertePersone: string[]
+  classiApertePersone: string[];
   /**
    * Il corso su cui sono puntate le pagine di corso (registro, piani,
    * valutazioni, documenti): uno solo, condiviso fra le pagine.
    */
-  corsoId: string | null
-  pianoId: string | null
-  valutazioneId: string | null
+  corsoId: string | null;
+  pianoId: string | null;
+  valutazioneId: string | null;
   /** Filtro per classe delle pagine di corso: piani, valutazioni, registro. */
-  filtroClasseId: string | null
+  filtroClasseId: string | null;
   /**
    * La classe della mappa, o `null` per tutte. Separata dal filtro delle pagine
    * di corso: restringere l'una non restringe l'altro.
    */
-  classeMappaId: string | null
-  filtroCorsoAgendaId: string | null
+  classeMappaId: string | null;
+  filtroCorsoAgendaId: string | null;
   /**
    * Il semestre dei conti, o `null` per l'anno intero: medie e assenze hanno
    * senso per semestre. Si parte da quello in cui cade oggi.
    */
-  semestreId: string | null
+  semestreId: string | null;
   /** Di chi si guardano le consegne nella pagina delle pendenze. */
   /**
    * La classe aperta nella pagina delle pendenze, o `null` per tutte (anche
    * quando la classe scelta non ha più niente in sospeso).
    */
   /** Quale dei tre elenchi è aperto nella colonna della mappa. */
-  schedaMappa: SchedaMappa
+  schedaMappa: SchedaMappa;
   /**
    * Il filtro delle consegne nel pannello del docente di classe, separato da
    * quello delle pendenze. Si parte da tutte: la domanda è «come sta la classe».
@@ -429,62 +457,62 @@ interface StatoUI {
    * Il periodo di assenze aperto nel pannello del docente di classe: uno per
    * volta, perché la matrice è già larga.
    */
-  bloccoAssenzeId: string | null
-  ricerca: string
+  bloccoAssenzeId: string | null;
+  ricerca: string;
   /**
    * Com'è messo lo schermo per la classe. Lo dice l'host: è il solo a sapere se
    * la finestra esiste ancora.
    */
   proiezione: {
-    aperta: boolean
-    impostazioni: ImpostazioniProiezione
-  }
+    aperta: boolean;
+    impostazioni: ImpostazioniProiezione;
+  };
 }
 
 /** La parte di stato che sopravvive a una chiusura del pannello. */
 interface StatoPersistito {
-  allievoId: string | null
+  allievoId: string | null;
   /** Le classi aperte nell'elenco delle persone in formazione. */
-  classiApertePersone: string[]
+  classiApertePersone: string[];
   /** La misura delle pagine nello sfoglio di un PDF da dividere. */
-  zoomSfoglio: number
-  pianoId: string | null
-  valutazioneId: string | null
-  bloccoAssenzeId: string | null
-  ricerca: string
-  sidebarDesktop: boolean
-  sidebarMobile: boolean
-  assistenteAperto: boolean
+  zoomSfoglio: number;
+  pianoId: string | null;
+  valutazioneId: string | null;
+  bloccoAssenzeId: string | null;
+  ricerca: string;
+  sidebarDesktop: boolean;
+  sidebarMobile: boolean;
+  assistenteAperto: boolean;
   /** Le parti del contesto dell'assistente, con la versione della forma (`daRicordare` in `assistant/parts.ts`). */
-  contestoAssistente: PartiContesto & { v?: number }
-  documentiScelti: string[]
+  contestoAssistente: PartiContesto & { v?: number };
+  documentiScelti: string[];
 
-  vista: Vista
-  paginaId: string | null
+  vista: Vista;
+  paginaId: string | null;
   /** Se la riga delle azioni era nascosta. */
-  azioniNascoste: boolean
-  schedaLezione: SchedaLezione
-  schedaPersona: SchedaPersona
-  schedaDocente: SchedaDocente
-  ambitoCheck: AmbitoCheck
-  schedaDocumenti: SchedaDocumenti
-  ambitoImpostazioni: AmbitoImpostazioni
-  schedaProgramma: SchedaProgramma
-  schedaDocumento: SchedaDocumento
-  modoCalendario: ModoCalendario
-  mostraCalendarioEsterno: boolean
-  strisciaSettimaneChiusa: boolean
-  data: Iso
+  azioniNascoste: boolean;
+  schedaLezione: SchedaLezione;
+  schedaPersona: SchedaPersona;
+  schedaDocente: SchedaDocente;
+  ambitoCheck: AmbitoCheck;
+  schedaDocumenti: SchedaDocumenti;
+  ambitoImpostazioni: AmbitoImpostazioni;
+  schedaProgramma: SchedaProgramma;
+  schedaDocumento: SchedaDocumento;
+  modoCalendario: ModoCalendario;
+  mostraCalendarioEsterno: boolean;
+  strisciaSettimaneChiusa: boolean;
+  data: Iso;
   /** L'ora aperta nel registro: riaprendo si torna lì. */
-  lezioneId: string | null
-  classeId: string | null
+  lezioneId: string | null;
+  classeId: string | null;
   /** Il corso su cui erano puntate le pagine di corso. */
-  corsoId: string | null
-  filtroClasseId: string | null
-  classeMappaId: string | null
-  filtroCorsoAgendaId: string | null
-  semestreId: string | null
-  schedaMappa: SchedaMappa
+  corsoId: string | null;
+  filtroClasseId: string | null;
+  classeMappaId: string | null;
+  filtroCorsoAgendaId: string | null;
+  semestreId: string | null;
+  schedaMappa: SchedaMappa;
 }
 
 const persistito = leggiStatoPersistito<StatoPersistito>()
@@ -495,7 +523,8 @@ const persistito = leggiStatoPersistito<StatoPersistito>()
  */
 function schedaDocumentoRicordata (): SchedaDocumento {
   const ricordata: unknown = persistito?.schedaDocumento
-  if (ricordata === 'modelli' || persistito?.vista === 'modelli') return 'intestazione'
+  if (ricordata === 'modelli' || persistito?.vista === 'modelli')
+    return 'intestazione'
   return convalidata(SCHEDE_DOCUMENTO, ricordata, 'anno')
 }
 
@@ -530,26 +559,45 @@ export const stato: StatoUI = {
   // Ogni valore ricordato con un elenco chiuso passa da `convalidata`: una vista
   // o una scheda che non esiste più riaprirebbe il pannello su niente.
   // `'modelli'` non è più una vista: si riapre sulle impostazioni.
-  vista: persistito?.vista === 'modelli'
-    ? 'impostazioni'
-    // Al primo avvio si comincia da «Oggi»; altrimenti dalla pagina lasciata.
-    : convalidata(VISTE, persistito?.vista, 'oggi'),
+  vista:
+    persistito?.vista === 'modelli'
+      ? 'impostazioni'
+      : // Al primo avvio si comincia dalla Dashboard; altrimenti dalla pagina lasciata.
+        convalidata(VISTE, persistito?.vista, 'oggi'),
   paginaId: persistito?.paginaId ?? null,
   azioniNascoste: persistito?.azioniNascoste ?? false,
   schedaComandi: 'pagina',
-  schedaLezione: convalidata(SCHEDE_LEZIONE, persistito?.schedaLezione, 'amministrazione'),
-  schedaPersona: convalidata(SCHEDE_PERSONA, persistito?.schedaPersona, 'anagrafica'),
+  schedaLezione: convalidata(
+    SCHEDE_LEZIONE,
+    persistito?.schedaLezione,
+    'amministrazione',
+  ),
+  schedaPersona: convalidata(
+    SCHEDE_PERSONA,
+    persistito?.schedaPersona,
+    'anagrafica',
+  ),
   schedaDocente: convalidata(SCHEDE_DOCENTE, persistito?.schedaDocente, 'todo'),
   ambitoCheck: convalidata(AMBITI_CHECK, persistito?.ambitoCheck, 'corso'),
-  schedaDocumenti: convalidata(SCHEDE_DOCUMENTI, persistito?.schedaDocumenti, 'corso'),
-  ambitoImpostazioni: persistito?.vista === 'modelli'
-    ? 'documento'
-    : convalidata(AMBITI_IMPOSTAZIONI, persistito?.ambitoImpostazioni, 'documento'),
+  schedaDocumenti: convalidata(
+    SCHEDE_DOCUMENTI,
+    persistito?.schedaDocumenti,
+    'corso',
+  ),
+  ambitoImpostazioni:
+    persistito?.vista === 'modelli'
+      ? 'documento'
+      : convalidata(
+          AMBITI_IMPOSTAZIONI,
+          persistito?.ambitoImpostazioni,
+          'documento',
+        ),
   // `'recapiti'` è dentro «Comunicazioni», che ha l'id della posta; ogni altro
   // nome che non esiste più ricade sulla prima sezione.
-  schedaProgramma: (persistito?.schedaProgramma as string | undefined) === 'recapiti'
-    ? 'posta'
-    : convalidata(SCHEDE_PROGRAMMA, persistito?.schedaProgramma, 'aspetto'),
+  schedaProgramma:
+    (persistito?.schedaProgramma as string | undefined) === 'recapiti'
+      ? 'posta'
+      : convalidata(SCHEDE_PROGRAMMA, persistito?.schedaProgramma, 'aspetto'),
   schedaDocumento: schedaDocumentoRicordata(),
   anteprima: null,
   anteprimaArchivio: null,
@@ -559,7 +607,11 @@ export const stato: StatoUI = {
   zoomSfoglio: persistito?.zoomSfoglio ?? ZOOM_PREDEFINITO,
   mostraArchiviate: false,
   documentiScelti: persistito?.documentiScelti ?? [],
-  modoCalendario: convalidata(MODI_CALENDARIO, persistito?.modoCalendario, 'settimana'),
+  modoCalendario: convalidata(
+    MODI_CALENDARIO,
+    persistito?.modoCalendario,
+    'settimana',
+  ),
   mostraCalendarioEsterno: persistito?.mostraCalendarioEsterno ?? true,
   editorCalendario: false,
   strisciaSettimaneChiusa: persistito?.strisciaSettimaneChiusa ?? false,
@@ -579,7 +631,8 @@ export const stato: StatoUI = {
   filtroCorsoAgendaId: persistito?.filtroCorsoAgendaId ?? null,
   // `undefined` = mai scelto: vale «anno intero» finché, arrivato il registro,
   // `allineaSemestre` sceglie il semestre di oggi. `null` è una scelta: l'anno intero.
-  semestreId: persistito?.semestreId === undefined ? null : persistito.semestreId,
+  semestreId:
+    persistito?.semestreId === undefined ? null : persistito.semestreId,
   schedaMappa: convalidata(SCHEDE_MAPPA, persistito?.schedaMappa, 'tutti'),
   bloccoAssenzeId: persistito?.bloccoAssenzeId ?? null,
   ricerca: persistito?.ricerca ?? '',
@@ -607,7 +660,8 @@ let semestreDaAllineare = persistito?.semestreId === undefined
 function cambiaContesto (modifiche: Partial<StatoUI>): boolean {
   return (
     (modifiche.corsoId !== undefined && modifiche.corsoId !== stato.corsoId) ||
-    (modifiche.semestreId !== undefined && modifiche.semestreId !== stato.semestreId)
+    (modifiche.semestreId !== undefined &&
+      modifiche.semestreId !== stato.semestreId)
   )
 }
 
@@ -617,8 +671,10 @@ function cambiaContesto (modifiche: Partial<StatoUI>): boolean {
  */
 function cambiaClasse (modifiche: Partial<StatoUI>): boolean {
   return (
-    (modifiche.classeId !== undefined && modifiche.classeId !== stato.classeId) ||
-    (modifiche.semestreId !== undefined && modifiche.semestreId !== stato.semestreId)
+    (modifiche.classeId !== undefined &&
+      modifiche.classeId !== stato.classeId) ||
+    (modifiche.semestreId !== undefined &&
+      modifiche.semestreId !== stato.semestreId)
   )
 }
 
@@ -701,14 +757,19 @@ export function aggiorna (modifiche: Partial<StatoUI>): void {
   // Il foglio delle assenze è di una classe e di un periodo: cambiando l'uno o
   // l'altro si chiude, perché le frecce scorrono i fogli di quel periodo.
   const cambiaPeriodo =
-    modifiche.bloccoAssenzeId !== undefined && modifiche.bloccoAssenzeId !== stato.bloccoAssenzeId
-  if (modifiche.anteprimaAssenze === undefined && (cambiaClasse(modifiche) || cambiaPeriodo)) {
+    modifiche.bloccoAssenzeId !== undefined &&
+    modifiche.bloccoAssenzeId !== stato.bloccoAssenzeId
+  if (
+    modifiche.anteprimaAssenze === undefined &&
+    (cambiaClasse(modifiche) || cambiaPeriodo)
+  ) {
     modifiche = { ...modifiche, anteprimaAssenze: null }
   }
   // Cambiando foglio (in tutte e due le cornici) si perdono le pagine scelte:
   // sono pagine di quel PDF.
   if (
-    (modifiche.anteprimaArchivio !== undefined || modifiche.anteprimaAssenze !== undefined) &&
+    (modifiche.anteprimaArchivio !== undefined ||
+      modifiche.anteprimaAssenze !== undefined) &&
     modifiche.pagineScelte === undefined
   ) {
     modifiche = { ...modifiche, pagineScelte: null }
@@ -756,27 +817,33 @@ export function classiDellAnno () {
   const anno = annoCorrente()
   return stato.registro.classi
     .filter((c) => !anno || c.annoId === anno.id)
-    .sort((a, b) => Number(a.archiviata) - Number(b.archiviata) || confrontaNomi(a.nome, b.nome))
+    .sort(
+      (a, b) =>
+        Number(a.archiviata) - Number(b.archiviata) ||
+        confrontaNomi(a.nome, b.nome),
+    )
 }
 
 export function classePerId (id: string | null) {
-  return id ? stato.registro.classi.find((c) => c.id === id) ?? null : null
+  return id ? (stato.registro.classi.find((c) => c.id === id) ?? null) : null
 }
 
 export function lezionePerId (id: string | null) {
-  return id ? stato.registro.lezioni.find((l) => l.id === id) ?? null : null
+  return id ? (stato.registro.lezioni.find((l) => l.id === id) ?? null) : null
 }
 
 export function pianoPerId (id: string | null) {
-  return id ? stato.registro.piani.find((p) => p.id === id) ?? null : null
+  return id ? (stato.registro.piani.find((p) => p.id === id) ?? null) : null
 }
 
 export function valutazionePerId (id: string | null) {
-  return id ? stato.registro.valutazioni.find((v) => v.id === id) ?? null : null
+  return id
+    ? (stato.registro.valutazioni.find((v) => v.id === id) ?? null)
+    : null
 }
 
 export function materiaPerId (id: string | null) {
-  return id ? stato.registro.materie.find((m) => m.id === id) ?? null : null
+  return id ? (stato.registro.materie.find((m) => m.id === id) ?? null) : null
 }
 
 /** Il nome della materia, o stringa vuota: serve nei sottotitoli, dove il vuoto sparisce. */
@@ -814,7 +881,8 @@ export function corsiNelSemestre (): Corso[] {
   const nelPeriodo = new Set<string>()
   for (const l of stato.registro.lezioni) {
     conOre.add(l.corsoId)
-    if (l.data >= semestre.inizio && l.data <= semestre.fine) nelPeriodo.add(l.corsoId)
+    if (l.data >= semestre.inizio && l.data <= semestre.fine)
+      nelPeriodo.add(l.corsoId)
   }
   return corsi.filter(
     (corso) => !corso.id || !conOre.has(corso.id) || nelPeriodo.has(corso.id),
@@ -830,7 +898,10 @@ export function corsoAperto (): Corso | null {
   // Il corso scelto vince anche se le sue ore sono tutte nell'altro semestre:
   // si ripiega solo se non esiste più (o è di un anno chiuso).
   return (
-    dellAnno.find((c) => c.id === stato.corsoId) ?? corsiNelSemestre()[0] ?? dellAnno[0] ?? null
+    dellAnno.find((c) => c.id === stato.corsoId) ??
+    corsiNelSemestre()[0] ??
+    dellAnno[0] ??
+    null
   )
 }
 
@@ -864,11 +935,16 @@ export function valutazioniDi (classeId: string) {
  * cerca fra tutte (dall'albero e dalla palette arriva solo la persona). La
  * chiede anche il percorso, per sapere quali linguette ha la scheda.
  */
-export function classeDellAllievo (allievoId: string | null, dichiarataId: string | null) {
+export function classeDellAllievo (
+  allievoId: string | null,
+  dichiarataId: string | null,
+) {
   const dichiarata = classePerId(dichiarataId)
   return dichiarata?.allievi.some((a) => a.id === allievoId) === true
     ? dichiarata
-    : stato.registro.classi.find((c) => c.allievi.some((a) => a.id === allievoId)) ?? null
+    : (stato.registro.classi.find((c) =>
+        c.allievi.some((a) => a.id === allievoId),
+      ) ?? null)
 }
 
 export function classeDelCorsoId (corsoId: string | null) {
@@ -933,7 +1009,9 @@ export function lezioneDiPiano (piano: PianoLezione): string {
  */
 export function nomeDiLezione (lezione: Lezione): string {
   const numero = numeroDellaLezione(stato.registro, lezione)
-  return numero ? testiCalcoli().ennesimaLezione(numero) : formattaData(lezione.data, 'giorno')
+  return numero
+    ? testiCalcoli().ennesimaLezione(numero)
+    : formattaData(lezione.data, 'giorno')
 }
 
 /**
@@ -943,12 +1021,18 @@ export function nomeDiLezione (lezione: Lezione): string {
 export function titoloDiLezione (lezione: Lezione): string {
   const piano = pianoPerId(lezione.pianoId)
   if (!piano) return ''
-  return piano.obiettivi[0] ?? piano.attivita.find((a) => a.titolo.trim())?.titolo ?? ''
+  return (
+    piano.obiettivi[0] ??
+    piano.attivita.find((a) => a.titolo.trim())?.titolo ??
+    ''
+  )
 }
 
 export function coloreDiLezione (lezione: Lezione): string {
   const corso = stato.registro.corsi.find((c) => c.id === lezione.corsoId)
-  return corso ? coloreDiCorso(corso) : (classeDiLezione(lezione)?.colore ?? '#888888')
+  return corso
+    ? coloreDiCorso(corso)
+    : (classeDiLezione(lezione)?.colore ?? '#888888')
 }
 
 /**
@@ -956,7 +1040,11 @@ export function coloreDiLezione (lezione: Lezione): string {
  * e materia (`coloreDelCorso`).
  */
 export function coloreDiCorso (corso: Corso): string {
-  return coloreDelCorso(corso, classePerId(corso.classeId), materiaPerId(corso.materiaId))
+  return coloreDelCorso(
+    corso,
+    classePerId(corso.classeId),
+    materiaPerId(corso.materiaId),
+  )
 }
 
 /** Le lezioni dell'anno in corso, ristrette alla classe del filtro delle pagine di corso. */
@@ -1098,7 +1186,10 @@ export function fascicoloDi (classeId: string): Fascicolo {
 }
 
 export function nomeClasse (classeId: string): string {
-  return stato.registro.classi.find((c) => c.id === classeId)?.nome ?? testi().senzaClasse
+  return (
+    stato.registro.classi.find((c) => c.id === classeId)?.nome ??
+    testi().senzaClasse
+  )
 }
 
 /**
@@ -1171,14 +1262,19 @@ export function nomeSemestreScelto (): string {
 export function nelSemestreScelto<T extends { data: Iso }> (voci: T[]): T[] {
   const semestre = semestreScelto()
   if (!semestre) return voci
-  return voci.filter((v) => v.data >= semestre.inizio && v.data <= semestre.fine)
+  return voci.filter(
+    (v) => v.data >= semestre.inizio && v.data <= semestre.fine,
+  )
 }
 
 /**
  * Come `nelSemestreScelto`, per voci che portano la data dentro un istante
  * (`creataIl`): conta la parte prima di `T`.
  */
-export function nelSemestreSceltoPer<T> (voci: T[], quando: (voce: T) => string): T[] {
+export function nelSemestreSceltoPer<T> (
+  voci: T[],
+  quando: (voce: T) => string,
+): T[] {
   const semestre = semestreScelto()
   if (!semestre) return voci
   return voci.filter((voce) => {
@@ -1191,7 +1287,9 @@ export function nelSemestreSceltoPer<T> (voci: T[], quando: (voce: T) => string)
  * I periodi che toccano il semestre scelto: basta sovrapporsi, così un periodo
  * a cavallo di gennaio compare in tutti e due.
  */
-export function toccaIlSemestreScelto<T extends { dal: Iso, al: Iso }> (voci: T[]): T[] {
+export function toccaIlSemestreScelto<T extends { dal: Iso; al: Iso }> (
+  voci: T[],
+): T[] {
   const semestre = semestreScelto()
   if (!semestre) return voci
   return voci.filter((v) => v.dal <= semestre.fine && v.al >= semestre.inizio)
@@ -1206,7 +1304,11 @@ export function toccaIlSemestreScelto<T extends { dal: Iso, al: Iso }> (voci: T[
 export function allineaSemestre (): void {
   const anno = annoCorrente()
   // Prima del ritorno anticipato: va fatto a ogni arrivo dei dati.
-  if (stato.semestreId && anno && !anno.semestri.some((s) => s.id === stato.semestreId)) {
+  if (
+    stato.semestreId &&
+    anno &&
+    !anno.semestri.some((s) => s.id === stato.semestreId)
+  ) {
     // Diretto e non da `aggiorna`, che spegnerebbe la spia appena riaccesa.
     stato.semestreId = null
     semestreDaAllineare = true
@@ -1229,21 +1331,28 @@ let annoGiornoRiconvalidato: string | null = null
 export function riconvalidaRicordati (): void {
   const r = stato.registro
   const anno = annoCorrente()
-  const classe = (id: string | null) => id !== null && !r.classi.some((c) => c.id === id)
+  const classe = (id: string | null) =>
+    id !== null && !r.classi.some((c) => c.id === id)
   const modifiche: Partial<StatoUI> = {}
   if (classe(stato.filtroClasseId)) modifiche.filtroClasseId = null
   if (classe(stato.classeMappaId)) modifiche.classeMappaId = null
-  if (stato.filtroCorsoAgendaId && !r.corsi.some((c) => c.id === stato.filtroCorsoAgendaId)) {
+  if (
+    stato.filtroCorsoAgendaId &&
+    !r.corsi.some((c) => c.id === stato.filtroCorsoAgendaId)
+  ) {
     modifiche.filtroCorsoAgendaId = null
   }
   if (
     stato.bloccoAssenzeId &&
-    !r.fascicoli.some((f) => f.assenze.some((b) => b.id === stato.bloccoAssenzeId))
+    !r.fascicoli.some((f) =>
+      f.assenze.some((b) => b.id === stato.bloccoAssenzeId),
+    )
   ) {
     modifiche.bloccoAssenzeId = null
   }
   const senzaDocenze = classiDiCuiSonoDocente().length === 0
-  const dentroSezioneClasse = stato.vista === 'docenteClasse' ||
+  const dentroSezioneClasse =
+    stato.vista === 'docenteClasse' ||
     (stato.vista === 'check' && stato.ambitoCheck === 'classe')
   if (senzaDocenze && dentroSezioneClasse) {
     modifiche.vista = anno ? 'classi' : 'oggi'
@@ -1267,12 +1376,13 @@ export function riconvalidaRicordati (): void {
  */
 export function giornoDentroLAnno (
   data: Iso,
-  anno: { inizio: Iso, fine: Iso } | null,
+  anno: { inizio: Iso; fine: Iso } | null,
   oggiIso: Iso,
 ): Iso {
   if (!anno || !isoValida(anno.inizio) || !isoValida(anno.fine)) return data
   if (anno.inizio > anno.fine) return data
-  const dentro = (giorno: Iso): boolean => giorno >= anno.inizio && giorno <= anno.fine
+  const dentro = (giorno: Iso): boolean =>
+    giorno >= anno.inizio && giorno <= anno.fine
   if (dentro(data)) return data
   if (dentro(oggiIso)) return oggiIso
   return data < anno.inizio ? anno.inizio : anno.fine
@@ -1307,7 +1417,12 @@ function derivato<T> (nome: string, chiave: string, calcola: () => T): T {
 export function oraDaFare (): ReturnType<typeof oraDaCompilare> {
   return derivato(
     'oraDaFare',
-    [stato.filtroCorsoAgendaId, stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    [
+      stato.filtroCorsoAgendaId,
+      stato.semestreId,
+      stato.adessoData,
+      stato.adessoOra,
+    ].join('|'),
     () =>
       oraDaCompilare(
         stato.registro,
@@ -1319,11 +1434,11 @@ export function oraDaFare (): ReturnType<typeof oraDaCompilare> {
 }
 
 /**
- * Le ore di oggi con la loro fase, per la pagina «Oggi»: sulle ore dell'agenda
+ * Le ore di oggi con la loro fase, per la Dashboard: sulle ore dell'agenda
  * come il calendario, annullate comprese (spente). La fase si calcola qui, in
  * memoria, e l'ora di adesso è nella chiave.
  */
-export function oreDiOggi (): Array<{ lezione: Lezione, fase: FaseOra }> {
+export function oreDiOggi (): Array<{ lezione: Lezione; fase: FaseOra }> {
   return derivato(
     'oreDiOggi',
     [stato.filtroCorsoAgendaId, stato.adessoData, stato.adessoOra].join('|'),
@@ -1334,28 +1449,15 @@ export function oreDiOggi (): Array<{ lezione: Lezione, fase: FaseOra }> {
         .sort(confrontaLezioni)
         .map((lezione) => ({
           lezione,
-          fase: faseDellOra(stato.registro, lezione, stato.adessoData, stato.adessoOra, indice),
+          fase: faseDellOra(
+            stato.registro,
+            lezione,
+            stato.adessoData,
+            stato.adessoOra,
+            indice,
+          ),
         }))
     },
-  )
-}
-
-/**
- * Le ore rimaste senza registro nel periodo scelto (tessera «Da compilare» di
- * «Oggi»): stesse ore e stesso giudizio di `oraDaFare`, così il numero e l'ora
- * a cui porta vanno d'accordo.
- */
-export function oreDaChiudere (): Lezione[] {
-  return derivato(
-    'oreDaChiudere',
-    [stato.filtroCorsoAgendaId, stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
-    () => raggruppaOre(
-      stato.registro,
-      nelSemestreScelto(lezioniInAgenda()),
-      stato.adessoData,
-      stato.adessoOra,
-      indiceDiagnosi(stato.registro),
-    ).daChiudere,
   )
 }
 
@@ -1363,7 +1465,7 @@ export function oreDaChiudere (): Lezione[] {
  * Le pendenze che la barra conta: le stesse della pagina delle pendenze
  * (classi visibili, giorno dell'orologio), così il clic non porta a una pagina vuota.
  */
-export function pendenzeDellaBarra (): { aperti: number, urgenti: number } {
+export function pendenzeDellaBarra (): { aperti: number; urgenti: number } {
   const corso = corsoAperto()
   const classe = corso ? classePerId(corso.classeId) : null
   if (!corso || !classe) return { aperti: 0, urgenti: 0 }
@@ -1371,6 +1473,94 @@ export function pendenzeDellaBarra (): { aperti: number, urgenti: number } {
     const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
     return { aperti: todo.aperti, urgenti: todo.urgenti }
   })
+}
+
+/** Oggi se ci sono lezioni; altrimenti la prossima giornata del periodo scelto. */
+export function giornoDellaDashboard (): Iso {
+  const lezioni = nelSemestreScelto(
+    lezioniDellAnno(stato.registro, annoCorrente()?.id ?? null),
+  )
+  if (lezioni.some((lezione) => lezione.data === stato.adessoData))
+    return stato.adessoData
+  return (
+    lezioni
+      .map((lezione) => lezione.data)
+      .filter((data) => data > stato.adessoData)
+      .sort()[0] ?? stato.adessoData
+  )
+}
+
+/** Le ore della giornata rappresentata dalla Dashboard, senza filtri nascosti. */
+export function oreDellaDashboard (): Array<{
+  lezione: Lezione;
+  fase: FaseOra;
+}> {
+  const giorno = giornoDellaDashboard()
+  return derivato(
+    'oreDellaDashboard',
+    [stato.semestreId, giorno, stato.adessoData, stato.adessoOra].join('|'),
+    () => {
+      const indice = indiceDiagnosi(stato.registro)
+      return lezioniDellAnno(stato.registro, annoCorrente()?.id ?? null)
+        .filter((lezione) => lezione.data === giorno)
+        .sort(confrontaLezioni)
+        .map((lezione) => ({
+          lezione,
+          fase: faseDellOra(
+            stato.registro,
+            lezione,
+            stato.adessoData,
+            stato.adessoOra,
+            indice,
+          ),
+        }))
+    },
+  )
+}
+
+/** Buchi della Dashboard nel periodo scelto, senza il filtro corso del calendario. */
+export function oreDaChiudereDashboard (): Lezione[] {
+  return derivato(
+    'oreDaChiudereDashboard',
+    [stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    () =>
+      raggruppaOre(
+        stato.registro,
+        nelSemestreScelto(
+          lezioniDellAnno(stato.registro, annoCorrente()?.id ?? null),
+        ),
+        stato.adessoData,
+        stato.adessoOra,
+        indiceDiagnosi(stato.registro),
+      ).daChiudere,
+  )
+}
+
+/** Prima ora operativa della Dashboard, nello stesso insieme contato dalla tessera. */
+export function oraDaFareDashboard (): ReturnType<typeof oraDaCompilare> {
+  return derivato(
+    'oraDaFareDashboard',
+    [stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    () =>
+      oraDaCompilare(
+        stato.registro,
+        nelSemestreScelto(
+          lezioniDellAnno(stato.registro, annoCorrente()?.id ?? null),
+        ),
+        stato.adessoData,
+        stato.adessoOra,
+      ),
+  )
+}
+
+/** Compleanni della Dashboard: tutte le classi, perché non mostra un filtro corso. */
+export function compleanniDellaDashboard (data: Iso): Compleanno[] {
+  return compleanniDelRegistro(
+    stato.registro,
+    annoCorrente()?.id ?? null,
+    data,
+    null,
+  )
 }
 
 /** Il semestre in cui cade una data, nell'anno in corso. */

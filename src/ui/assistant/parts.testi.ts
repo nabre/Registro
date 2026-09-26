@@ -29,7 +29,7 @@ const it = {
     },
     periodo: {
       testo: 'Periodo dei conti',
-      aiuto: 'Le due date con cui l’assistente restringe medie, assenze e ore.',
+      aiuto: 'Le due date con cui l’assistente restringe medie, assenze e lezioni.',
     },
     riferimenti: {
       testo: 'Gli identificatori',

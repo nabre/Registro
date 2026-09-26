@@ -7,14 +7,15 @@ const it = {
   aiuto: 'quel che esce dal registro e va in mano ad altri',
   nessunCorso: 'Nessun corso',
   nessunCorsoTesto:
-    'I documenti sono di un corso: le ore che si contano e la media in fondo alla ' +
+    'I documenti sono di un corso: le lezioni che si contano e la media in fondo alla ' +
     'griglia sono le sue. Senza corsi non c’è niente da stampare — i corsi si fanno ' +
     'nella pagina Corsi.',
 }
 
 export const testi = catalogo(it, {
   de: {
-    vuotoAnno: 'Die Dokumente entstehen aus einem Kurs, und ein Kurs gehört zu einem Schuljahr.',
+    vuotoAnno:
+      'Die Dokumente entstehen aus einem Kurs, und ein Kurs gehört zu einem Schuljahr.',
     aiuto: 'was das Klassenbuch verlässt und in andere Hände geht',
     nessunCorso: 'Kein Kurs',
     nessunCorsoTesto:
@@ -23,7 +24,8 @@ export const testi = catalogo(it, {
       'Seite Kurse an.',
   },
   fr: {
-    vuotoAnno: 'Les documents sortent d’un cours, et un cours se trouve dans une année.',
+    vuotoAnno:
+      'Les documents sortent d’un cours, et un cours se trouve dans une année.',
     aiuto: 'ce qui sort du registre et passe dans d’autres mains',
     nessunCorso: 'Aucun cours',
     nessunCorsoTesto:

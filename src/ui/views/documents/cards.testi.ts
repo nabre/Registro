@@ -23,7 +23,8 @@ const it = {
   nessunaProva: 'Nessuna prova nel periodo scelto.',
   nessunVoto: 'nessun voto',
   schedaDiProva: (titolo: string) => `la scheda di «${titolo}»`,
-  pianiConto: (quanti: number) => `${plurale(quanti, 'piano', 'piani')} · di questo corso`,
+  pianiConto: (quanti: number) =>
+    `${plurale(quanti, 'piano', 'piani')} · di questo corso`,
   nessunPiano: 'Questo corso non ha piani lezione.',
 
   // Della classe
@@ -34,8 +35,10 @@ const it = {
 
   // Le composizioni
   composizioni: 'Composizioni',
-  quanteComposizioni: (quante: number) => plurale(quante, 'composizione', 'composizioni'),
-  conOrfani: (quante: string, orfani: number) => `${quante} · ${orfani} senza elenco`,
+  quanteComposizioni: (quante: number) =>
+    plurale(quante, 'composizione', 'composizioni'),
+  conOrfani: (quante: string, orfani: number) =>
+    `${quante} · ${orfani} senza elenco`,
   inUnPdf: (quante: string) => `${quante} · più documenti in un PDF solo`,
   mancanti: (dentro: number, tutti: number) =>
     `${dentro} dei ${tutti} documenti sono ancora nella cartella: rifacendolo ` +
@@ -56,13 +59,13 @@ const it = {
     'più — ma i documenti che lo componevano sono ancora nella cartella, uno per uno.',
 
   // Le lezioni
-  ore: (quante: number) => plurale(quante, 'ora', 'ore'),
-  nessunaOra: 'Nessun’ora nel periodo scelto.',
+  ore: (quante: number) => plurale(quante, 'lezione', 'lezioni'),
+  nessunaOra: 'Nessuna lezione nel periodo scelto.',
   numero: 'N.',
   verbale: 'Verbale',
-  annullata: 'L’ora è annullata: non c’è niente da verbalizzare.',
+  annullata: 'La lezione è annullata: non c’è niente da verbalizzare.',
   nonConclusa:
-    'L’ora non è ancora conclusa: il verbale uscirebbe senza appello e senza consuntivo.',
+    'La lezione non è ancora conclusa: il verbale uscirebbe senza appello e senza consuntivo.',
   nomeVerbale: (giorno: string) => `il verbale del ${giorno}`,
   verbaleInTesto: 'Lo stesso verbale in testo, da correggere',
   nessunPianoCella: 'nessun piano',
@@ -93,7 +96,8 @@ export const testi = catalogo(it, {
     nessunaProva: 'Keine Prüfung im gewählten Zeitraum.',
     nessunVoto: 'keine Noten',
     schedaDiProva: (titolo) => `das Blatt zu «${titolo}»`,
-    pianiConto: (quanti) => `${plurale(quanti, 'Plan', 'Pläne')} · dieses Kurses`,
+    pianiConto: (quanti) =>
+      `${plurale(quanti, 'Plan', 'Pläne')} · dieses Kurses`,
     nessunPiano: 'Dieser Kurs hat keine Unterrichtspläne.',
 
     dellaClasse: 'Zur Klasse',
@@ -102,7 +106,8 @@ export const testi = catalogo(it, {
     nomeFascicolo: 'das Klassendossier',
 
     composizioni: 'Zusammenstellungen',
-    quanteComposizioni: (quante) => plurale(quante, 'Zusammenstellung', 'Zusammenstellungen'),
+    quanteComposizioni: (quante) =>
+      plurale(quante, 'Zusammenstellung', 'Zusammenstellungen'),
     conOrfani: (quante, orfani) => `${quante} · ${orfani} ohne Liste`,
     inUnPdf: (quante) => `${quante} · mehrere Dokumente in einem einzigen PDF`,
     mancanti: (dentro, tutti) =>
@@ -136,9 +141,11 @@ export const testi = catalogo(it, {
     nessunPianoCella: 'kein Plan',
 
     foto: 'Klassenfoto',
-    fotoAiuto: 'Ein Gesicht und ein Name pro lernende Person: das Blatt fürs Schulzimmer',
+    fotoAiuto:
+      'Ein Gesicht und ein Name pro lernende Person: das Blatt fürs Schulzimmer',
     nomeFoto: 'das Blatt mit den Gesichtern',
-    schedeConto: (persone, periodo) => `${persone} Lernende · eines pro Person · ${periodo}`,
+    schedeConto: (persone, periodo) =>
+      `${persone} Lernende · eines pro Person · ${periodo}`,
     nessunaPersona: 'Die Klasse hat keine aktiven Lernenden.',
     schedaDiPersona: (nome) => `das Blatt von ${nome}`,
   },
@@ -162,11 +169,13 @@ export const testi = catalogo(it, {
 
     dellaClasse: 'De la classe',
     dellaClasseAiuto: 'vaut pour toutes les branches, et pour l’année entière',
-    fascicoloContiene: 'Personnes en formation, documents et périodes d’absences',
+    fascicoloContiene:
+      'Personnes en formation, documents et périodes d’absences',
     nomeFascicolo: 'le dossier de classe',
 
     composizioni: 'Compilations',
-    quanteComposizioni: (quante) => plurale(quante, 'compilation', 'compilations'),
+    quanteComposizioni: (quante) =>
+      plurale(quante, 'compilation', 'compilations'),
     conOrfani: (quante, orfani) => `${quante} · ${orfani} sans liste`,
     inUnPdf: (quante) => `${quante} · plusieurs documents dans un seul PDF`,
     mancanti: (dentro, tutti) =>
@@ -199,7 +208,8 @@ export const testi = catalogo(it, {
     nessunPianoCella: 'aucun plan',
 
     foto: 'Photos de la classe',
-    fotoAiuto: 'Un visage et un nom par personne en formation : la feuille à emporter en classe',
+    fotoAiuto:
+      'Un visage et un nom par personne en formation : la feuille à emporter en classe',
     nomeFoto: 'le trombinoscope',
     schedeConto: (persone, periodo) =>
       `${plurale(persone, 'personne en formation', 'personnes en formation')} · une chacune · ` +
@@ -222,7 +232,8 @@ export const testi = catalogo(it, {
     nessunaProva: 'No tests in the chosen period.',
     nessunVoto: 'no grades',
     schedaDiProva: (titolo) => `the sheet for “${titolo}”`,
-    pianiConto: (quanti) => `${plurale(quanti, 'plan', 'plans')} · in this course`,
+    pianiConto: (quanti) =>
+      `${plurale(quanti, 'plan', 'plans')} · in this course`,
     nessunPiano: 'This course has no lesson plans.',
 
     dellaClasse: 'For the class',
@@ -231,7 +242,8 @@ export const testi = catalogo(it, {
     nomeFascicolo: 'the class file',
 
     composizioni: 'Compilations',
-    quanteComposizioni: (quante) => plurale(quante, 'compilation', 'compilations'),
+    quanteComposizioni: (quante) =>
+      plurale(quante, 'compilation', 'compilations'),
     conOrfani: (quante, orfani) => `${quante} · ${orfani} without a list`,
     inUnPdf: (quante) => `${quante} · several documents in a single PDF`,
     mancanti: (dentro, tutti) =>

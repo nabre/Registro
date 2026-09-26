@@ -67,7 +67,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
       `src/ui/views/courses.ts` e `src/ui/views/student/attendance.ts` invece
       di `corso.presenze`; `riferimentiRotti`/`riparazioni` in `ui/shell.ts` e
       `ui/commands.ts` invece di `registro.integrita`.
-- [ ] Letture che mancano: `ore.cruscotto` (l'ora da compilare, oggi
+- [ ] Letture che mancano: `ore.cruscotto` (la lezione da compilare, oggi
       `oraDaFare()` in `src/ui/state.ts`), `classe.pendenze` (`riepilogoTodo`),
       `valutazioni.orfane` (la lettura prima di `valutazione.eliminaOrfane`),
       `smistamento.daFare` (quarantena per classe).

@@ -26,7 +26,7 @@ const it = {
   oreFisse: 'Ore fisse in settimana',
   lezioniSulCalendario: 'Lezioni sul calendario',
   aiutoLezioni:
-    'Mette sul calendario le ore che mancano, saltando le sospensioni dell’anno. ' +
+    'Mette sul calendario le lezioni che mancano, saltando le sospensioni dell’anno. ' +
     'Quel che c’è già non viene toccato, quindi si può rilanciare a ogni cambio d’orario.',
   generaLezioni: 'Genera le lezioni',
   generaAppenaCreato: 'Genera le lezioni appena creato il corso',
@@ -44,9 +44,9 @@ const it = {
   nonCreato: 'Corso non creato.',
   creato: 'Corso creato.',
   orarioNonSalvato: 'Corso creato, ma l’orario non si è salvato: riprova dal corso.',
-  creatoConOre: 'Corso creato, con le sue ore sul calendario.',
+  creatoConOre: 'Corso creato, con le sue lezioni sul calendario.',
   creatoConOrario: (sezione: string) =>
-    'Corso creato con il suo orario. Le ore si mettono sul calendario ' +
+    'Corso creato con il suo orario. Le lezioni si mettono sul calendario ' +
     `dal corso, con «${sezione}».`,
   tolto: 'Corso tolto.',
 

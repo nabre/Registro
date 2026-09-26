@@ -1,4 +1,4 @@
-// I testi della guida: Agenda (Oggi, calendari e pagine da smistare) e
+// I testi della guida: Agenda (Dashboard, calendari e pagine da smistare) e
 // Pendenze del Registro. Una
 // chiave per sezione con la forma di `TestiSezione` (testa di `types.ts`);
 // struttura e schemi stanno in `calendar.ts`.
@@ -14,9 +14,9 @@ const EN = lessico.in('en')
 
 const it = {
   oggi: {
-    titolo: 'La pagina Oggi',
+    titolo: 'Dashboard',
     sommario:
-      'La giornata in una schermata: le ore di oggi, quel che resta aperto, e dove andare. Si ' +
+      'La giornata in una schermata: le lezioni di oggi, quel che resta aperto, e dove andare. Si ' +
       'guarda e si va.',
     scritte: {
       ora1: 'DIC4a · Matematica',
@@ -31,9 +31,9 @@ const it = {
           'Al primo avvio il registro si apre qui. Sulla pagina non si fa niente: ogni riquadro ' +
           'porta dove la cosa si fa.',
         legenda: [
-          `Le quattro tessere: le ore di oggi, quelle da compilare, le ${CARTE.pendenza.plurale} ` +
+          `Le quattro tessere: le lezioni di oggi, quelle da compilare, le ${CARTE.pendenza.plurale} ` +
             'aperte, le pagine da smistare. Un clic porta alla loro pagina.',
-          'L’ora in corso — o, fra un’ora e l’altra, la prossima — è accesa. Ogni ora dice la ' +
+          'La lezione in corso — o, fra una lezione e l’altra, la prossima — è accesa. Ogni lezione dice la ' +
             'sua fase, e un clic la apre.',
           'Le prossime valutazioni, con i giorni che mancano.',
           'I compleanni del giorno, quando ce n’è uno.',
@@ -51,19 +51,19 @@ const it = {
       {
         termine: 'Le quattro tessere',
         testo:
-          '**Ore di oggi** porta al calendario su oggi, e sotto dice a che ora è la prossima o ' +
-          'fin quando dura quella in corso. **Da compilare** conta le ore rimaste senza ' +
+          '**Lezioni di oggi** porta al calendario su oggi, e sotto dice a che ora è la prossima o ' +
+          'fin quando dura quella in corso. **Da compilare** conta le lezioni rimaste senza ' +
           'registro nel periodo scelto e apre la più vecchia — o la prossima, se sono tutte in ' +
           `ordine. **${Molti(CARTE.pendenza)}** e **Da smistare** portano alle loro pagine, con ` +
           'lo stesso numero della barra laterale e della barra in fondo.',
       },
       {
-        termine: 'Le ore di oggi',
+        termine: 'Le lezioni di oggi',
         testo:
           'In ordine di calendario: inizio e fine, classe e materia, argomento e aula. La ' +
           'pastiglia dice la fase — **In corso**, **Da chiudere**, **Svolta**, **Da ' +
-          'preparare**, **In programma**, **Annullata**. L’ora in corso porta la scritta ' +
-          '«Adesso»; fra un’ora e l’altra è la prossima ad accendersi, con «Prossima». Un clic ' +
+          'preparare**, **In programma**, **Annullata**. La lezione in corso porta la scritta ' +
+          '«Adesso»; fra una lezione e l’altra è la prossima ad accendersi, con «Prossima». Un clic ' +
           'apre la lezione.',
       },
       {
@@ -90,14 +90,14 @@ const it = {
     note: [
       'I numeri sono quelli delle pagine a cui le tessere portano, contati nello stesso modo: ' +
         'una tessera che dicesse «3» e aprisse una pagina che ne mostra due insegnerebbe a non ' +
-        'crederle. Il filtro **Corso** del calendario restringe anche le ore e i compleanni di ' +
-        'oggi.',
+        'crederle. Il filtro **Periodo** limita la Dashboard; senza lezioni oggi mostra la ' +
+        'prossima giornata di lezione del periodo.',
     ],
   },
   calendario: {
     titolo: 'Calendario',
     sommario:
-      'Quando si fa lezione. Quattro viste delle stesse ore, e il giorno scelto passa dall’una ' +
+      'Quando si fa lezione. Quattro viste delle stesse lezioni, e il giorno scelto passa dall’una ' +
       'all’altra.',
     scritte: {
       calendario: 'Calendario',
@@ -106,7 +106,7 @@ const it = {
       stato: 'da compilare: DIC4a · lun',
       anno: 'Anno',
       agenda: 'Agenda',
-      nuovaOra: 'Nuova ora',
+      nuovaOra: 'Nuova lezione',
       striscia: 'Settimane dell’anno · 34 su 38 con lezioni',
       lun: 'lun 14',
       mar: 'mar 15',
@@ -125,11 +125,11 @@ const it = {
           'la griglia dei giorni con le ore alte quanto durano.',
         legenda: [
           '**Oggi**, le frecce **Indietro** e **Avanti**, le quattro viste e, con **Modifica** ' +
-            'accesa (in alto, accanto a **Proietta**), **Nuova ora**.',
+            'accesa (in alto, accanto a **Proietta**), **Nuova lezione**.',
           'Tutte le settimane dell’anno, anche le vuote: numero, lettera A/B, quante ore. La ' +
             'freccia in cima a destra la ripiega, e il registro se lo ricorda.',
           'I giorni: vacanze spente, confini di semestre, la torta dei compleanni.',
-          'Un’ora: tratteggiata se pianificata, piena se svolta, sbiadita e barrata se annullata.',
+          'Una lezione: tratteggiata se pianificata, piena se svolta, sbiadita e barrata se annullata.',
           'La riga di adesso, nella colonna di oggi: si muove da sola.',
           'Le ore: dalla prima all’ultima della giornata scelta nelle Impostazioni, a ore piene — ' +
             'o, con le pause della giornata, sui confini delle UD —, alla stessa altezza in tutto ' +
@@ -171,15 +171,15 @@ const it = {
         testo:
           'In alto, accanto a **Proietta** (Ctrl+E); nel calendario vale nella settimana e nel ' +
           'mese: la griglia smette di ' +
-          'aprire le ore al clic e le prende in mano. Premendo e tirando sul vuoto si disegna ' +
+          'aprire le lezioni al clic e le prende in mano. Premendo e tirando sul vuoto si disegna ' +
           'una lezione, a unità didattiche intere; un clic secco la mette lunga quanto la ' +
           '**Fascia oraria di una lezione nuova** di Impostazioni › Anno e orario › Calendario. ' +
-          'Con un corso nel filtro l’ora nasce subito di quel corso; senza, si apre ' +
+          'Con un corso nel filtro la lezione nasce subito per quel corso; senza, si apre ' +
           'il modulo con giorno, ora e durata già messi. Le maniglie sopra e sotto un blocco lo ' +
-          'allungano o lo accorciano. Con la modifica accesa compaiono anche **Nuova ora** e i ' +
+          'allungano o lo accorciano. Con la modifica accesa compaiono anche **Nuova lezione** e i ' +
           'comandi del calendario ICS, e un clic su un evento ICS libero ne genera la lezione — ' +
           'su uno già abbinato apre il modulo della sua. Un clic ' +
-          'sceglie un’ora: le frecce la spostano (nella settimana ↑ ↓ di cinque minuti, con ' +
+          'sceglie una lezione: le frecce la spostano (nella settimana ↑ ↓ di cinque minuti, con ' +
           'Maiusc di una UD; nel mese di una settimana; ← → di un giorno), **Ctrl+D** la copia ' +
           'alla settimana dopo, **Invio** la apre, **F2** ' +
           'ne apre il modulo, **Canc** la elimina — subito se è vuota, chiedendo se ha già ' +
@@ -236,7 +236,7 @@ const it = {
         termine: 'Le scorciatoie del menu',
         testo:
           '`Ctrl+Alt+T` e `Ctrl+Alt+N` le ascolta il menu, da qualunque pagina: portano al ' +
-          'calendario e fanno quel che fanno **Oggi** e **Nuova ora**. Con una finestra aperta ' +
+          'calendario e fanno quel che fanno **Dashboard** e **Nuova lezione**. Con una finestra aperta ' +
           'non fanno niente, e un avviso chiede di chiuderla prima.',
       },
       {
@@ -250,7 +250,7 @@ const it = {
         testo:
           'Nella riga delle scelte, «Corso» con «Tutti i corsi»: il calendario mostra solo le ' +
           'ore di quello scelto. Non cambia il corso su cui sono puntate le pagine del Registro; ' +
-          'aprendo da fuori un’ora di un altro corso, il filtro passa su quello.',
+          'aprendo da fuori una lezione di un altro corso, il filtro passa su quello.',
       },
       {
         termine: 'Vacanze, semestri e settimane A/B',
@@ -287,9 +287,9 @@ const it = {
     ],
   },
   calendarioOre: {
-    titolo: 'Le ore sul calendario',
+    titolo: 'Le lezioni sul calendario',
     sommario:
-      'Come si mettono, si spostano e si copiano le ore, e che cosa si fa loro senza aprirle.',
+      'Come si mettono, si spostano e si copiano le lezioni, e che cosa si fa loro senza aprirle.',
     scritte: {
       mar: 'mar',
       mer: 'mer',
@@ -307,24 +307,24 @@ const it = {
     figure: [
       {
         didascalia:
-          'Un’ora si prende con il mouse e si lascia dove va. Il menu del tasto destro fa il resto ' +
+          'Una lezione si prende con il mouse e si lascia dove va. Il menu del tasto destro fa il resto ' +
           'senza aprirla.',
         legenda: [
-          'L’ora presa resta al suo posto, sbiadita, finché non la si lascia.',
+          'La lezione presa resta al suo posto, sbiadita, finché non la si lascia.',
           'La riga dice dove cadrà: ai cinque minuti, o sulle righe delle UD quando la giornata ha ' +
             'le sue pause. Nel mese si cambia solo il giorno.',
           'Con `Ctrl` o `Alt` premuto nasce una copia, e l’originale resta dov’era.',
-          'Il tasto destro su un’ora: quel che si fa senza aprirla.',
+          'Il tasto destro su una lezione: quel che si fa senza aprirla.',
         ],
       },
     ],
     voci: [
       {
-        termine: 'Un’ora nuova',
+        termine: 'Una lezione nuova',
         testo:
           'Si crea con **Modifica** accesa: fuori, il calendario si guarda. Nella settimana si ' +
           'preme e si tira sul vuoto; nel mese un doppio clic sul giorno. Con un corso nel ' +
-          'filtro, l’ora nasce di quel corso. **Nuova ora**, che con **Modifica** accesa compare ' +
+          'filtro, la lezione nasce per quel corso. **Nuova lezione**, che con **Modifica** accesa compare ' +
           'nella riga delle azioni, la apre sul giorno scelto con il corso del momento. La ' +
           'scorciatoia vale dappertutto, e accende la modifica da sé.',
         tasti: 'Ctrl+Alt+N',
@@ -340,9 +340,9 @@ const it = {
       {
         termine: 'Spostare',
         testo:
-          'In modifica si prende l’ora e la si lascia dove va: nella settimana cambiano giorno ' +
-          'e ora, agganciati ai cinque minuti — o, con le pause della giornata, alle righe delle ' +
-          'UD —; nel mese solo il giorno. Appello e testi viaggiano con lei: è la stessa ora, ' +
+          'In modifica si prende la lezione e la si lascia dove va: nella settimana cambiano giorno ' +
+          'e orario, agganciati ai cinque minuti — o, con le pause della giornata, alle righe delle ' +
+          'UD —; nel mese solo il giorno. Appello e testi viaggiano con lei: è la stessa lezione, ' +
           'spostata. Con le pause della giornata le sue UD si ridispongono attorno alla ' +
           'ricreazione, e le pause fatte a mano lasciano il posto a quelle della giornata.',
       },
@@ -354,14 +354,14 @@ const it = {
           'calendario, pronti per la prossima.',
       },
       {
-        termine: 'Due ore alla stessa ora',
+        termine: 'Due lezioni alla stessa ora',
         testo:
           'Si possono volere — una classe divisa, una compresenza — e il registro non le ' +
           'rifiuta: lo dice nell’avviso, con le classi su cui l’ora è finita. Guarda tutte le ' +
           'classi, anche quelle nascoste dal filtro.',
       },
       {
-        termine: 'Il tasto destro su un’ora',
+        termine: 'Il tasto destro su una lezione',
         testo:
           'Sempre: **Apri la lezione**, **Segna come svolta** (o **Riporta a pianificata**), ' +
           '**Annulla la lezione** (o **Non è più annullata**) e le voci del piano — apri, ' +
@@ -376,11 +376,11 @@ const it = {
       {
         termine: 'Annullare o eliminare',
         testo:
-          'Un’ora annullata resta nel registro, barrata, con quel che c’era dentro, e non porta ' +
+          'Una lezione annullata resta nel registro, barrata, con quel che c’era dentro, e non porta ' +
           'più il suo numero. **Elimina** la toglie del tutto, dopo una conferma.',
       },
       {
-        termine: 'Generare le ore',
+        termine: 'Generare le lezioni',
         testo:
           'Le lezioni non si mettono una per una: si dichiara l’orario fisso del corso, e ' +
           '**Genera le lezioni**, nella finestra del corso, mette quelle che mancano fra **Dal** ' +
@@ -388,10 +388,10 @@ const it = {
           'appena creato il corso».',
       },
       {
-        termine: 'Ora da compilare',
+        termine: 'Lezione da compilare',
         testo:
-          'Nella riga delle azioni apre il buco più vecchio — un’ora passata senza appello, o ' +
-          'non segnata svolta —; quando non ce ne sono si chiama **Prossima ora**. Tiene conto ' +
+          'Nella riga delle azioni apre il buco più vecchio — una lezione passata senza appello, o ' +
+          'non segnata svolta —; quando non ce ne sono si chiama **Prossima lezione**. Tiene conto ' +
           'del corso nel filtro e del periodo scelto.',
       },
     ],
@@ -634,7 +634,8 @@ const it = {
   },
   todo: {
     titolo: Molti(CARTE.pendenza),
-    sommario: 'Quel che resta aperto nel corso scelto, senza mescolare altre classi o materie.',
+    sommario:
+      'Quel che resta aperto nel corso scelto, senza mescolare altre classi o materie.',
     scritte: {
       corso: 'DIC4a · Comunicazione',
       ruolo: 'Docente del corso',
@@ -651,7 +652,8 @@ const it = {
       svolgeLaClasse: 'Svolge la classe',
       consegnaIlDocente: 'Consegna il docente',
       svolgeIlDocente: 'Svolge il docente',
-      inCimaInFondo: 'In cima quel che aspetta altri, in fondo quel che dipende da chi insegna',
+      inCimaInFondo:
+        'In cima quel che aspetta altri, in fondo quel che dipende da chi insegna',
     },
     figure: [
       {
@@ -681,7 +683,9 @@ const it = {
       {
         termine: 'Chi deve fare che cosa',
         testo:
-          '**Consegna la classe**: i fogli che le ' + PIF.plurale + ' devono portare. **Svolge ' +
+          '**Consegna la classe**: i fogli che le ' +
+          PIF.plurale +
+          ' devono portare. **Svolge ' +
           'la classe**: quel che è stato assegnato. **Consegna il docente**: pagelle, ' +
           'convocazioni, moduli da far firmare a casa. **Svolge il docente**: fotocopie, ' +
           'preparazioni, amministrazione.',
@@ -739,7 +743,8 @@ const it = {
   },
   smistare: {
     titolo: 'Da smistare',
-    sommario: 'I PDF di classe che hanno ancora pagine senza padrone, di tutte le classi insieme.',
+    sommario:
+      'I PDF di classe che hanno ancora pagine senza padrone, di tutte le classi insieme.',
     scritte: {
       trascinato: 'trascinato o caricato',
       lettura: 'Lettura',
@@ -855,7 +860,7 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     oggi: {
-      titolo: 'Die Seite Heute',
+      titolo: 'Dashboard',
       sommario:
         'Der Tag auf einen Blick: die Stunden von heute, was noch offen ist, und wohin es ' +
         'weitergeht. Man schaut und geht.',
@@ -932,8 +937,8 @@ export const testi = catalogo(it, {
       note: [
         'Die Zahlen sind die der Seiten, zu denen die Kacheln führen, und gleich gezählt: Eine ' +
           'Kachel, die «3» sagt und eine Seite mit zweien öffnet, würde lehren, ihr nicht zu ' +
-          'glauben. Der Filter **Kurs** des Kalenders grenzt auch die Stunden und Geburtstage ' +
-          'von heute ein.',
+          'glauben. Der Filter **Zeitraum** begrenzt das Dashboard; gibt es heute keinen ' +
+          'Unterricht, zeigt es den nächsten Unterrichtstag des Zeitraums.',
       ],
     },
     calendario: {
@@ -1508,7 +1513,8 @@ export const testi = catalogo(it, {
     },
     todo: {
       titolo: Molti(DE.pendenza),
-      sommario: 'Was im gewählten Kurs offen ist, ohne andere Klassen oder Fächer zu mischen.',
+      sommario:
+        'Was im gewählten Kurs offen ist, ohne andere Klassen oder Fächer zu mischen.',
       scritte: {
         corso: 'DIC4a · Kommunikation',
         ruolo: 'Lehrperson des Kurses',
@@ -1525,7 +1531,8 @@ export const testi = catalogo(it, {
         svolgeLaClasse: 'Die Klasse erledigt',
         consegnaIlDocente: 'Die Lehrperson gibt aus',
         svolgeIlDocente: 'Die Lehrperson erledigt',
-        inCimaInFondo: 'Oben, was auf andere wartet, unten, was von der Lehrperson abhängt',
+        inCimaInFondo:
+          'Oben, was auf andere wartet, unten, was von der Lehrperson abhängt',
       },
       figure: [
         {
@@ -1616,7 +1623,8 @@ export const testi = catalogo(it, {
     },
     smistare: {
       titolo: 'Zuzuordnen',
-      sommario: 'Die Klassen-PDF, die noch Seiten ohne Besitzer haben, aus allen Klassen zusammen.',
+      sommario:
+        'Die Klassen-PDF, die noch Seiten ohne Besitzer haben, aus allen Klassen zusammen.',
       scritte: {
         trascinato: 'gezogen oder geladen',
         lettura: 'Lesen',
@@ -1736,7 +1744,7 @@ export const testi = catalogo(it, {
   },
   fr: {
     oggi: {
-      titolo: 'La page Aujourd’hui',
+      titolo: 'Tableau de bord',
       sommario:
         'La journée en un coup d’œil : les leçons d’aujourd’hui, ce qui reste ouvert, et où ' +
         'aller. On regarde, et on y va.',
@@ -1814,8 +1822,8 @@ export const testi = catalogo(it, {
       note: [
         'Les nombres sont ceux des pages où mènent les tuiles, comptés de la même façon : une ' +
           'tuile qui dirait « 3 » et ouvrirait une page qui en montre deux apprendrait à ne pas ' +
-          'la croire. Le filtre **Cours** du calendrier restreint aussi les leçons et les ' +
-          'anniversaires du jour.',
+          'la croire. Le filtre **Période** limite le Tableau de bord ; sans cours aujourd’hui, ' +
+          'il montre la prochaine journée de cours de la période.',
       ],
     },
     calendario: {
@@ -2394,7 +2402,8 @@ export const testi = catalogo(it, {
         svolgeLaClasse: 'La classe fait',
         consegnaIlDocente: 'L’enseignant distribue',
         svolgeIlDocente: 'L’enseignant fait',
-        inCimaInFondo: 'En haut ce qui attend les autres, en bas ce qui dépend de qui enseigne',
+        inCimaInFondo:
+          'En haut ce qui attend les autres, en bas ce qui dépend de qui enseigne',
       },
       figure: [
         {
@@ -2605,7 +2614,7 @@ export const testi = catalogo(it, {
   },
   en: {
     oggi: {
-      titolo: 'The Today page',
+      titolo: 'Dashboard',
       sommario:
         'The day at a glance: today’s lessons, what is still open, and where to go next. You ' +
         'look, and you go.',
@@ -2679,7 +2688,8 @@ export const testi = catalogo(it, {
       note: [
         'The numbers are those of the pages the tiles lead to, counted the same way: a tile ' +
           'that said “3” and opened a page showing two would teach you not to believe it. The ' +
-          'calendar’s **Course** filter also narrows today’s lessons and birthdays.',
+          '**Period** limits the Dashboard; when today has no lessons, it shows the next ' +
+          'teaching day in that period.',
       ],
     },
     calendario: {
@@ -3228,7 +3238,8 @@ export const testi = catalogo(it, {
     },
     todo: {
       titolo: Molti(EN.pendenza),
-      sommario: 'What remains open in the selected course, without mixing classes or subjects.',
+      sommario:
+        'What remains open in the selected course, without mixing classes or subjects.',
       scritte: {
         corso: 'DIC4a · Communication',
         ruolo: 'Course teacher',
@@ -3245,7 +3256,8 @@ export const testi = catalogo(it, {
         svolgeLaClasse: 'The class does',
         consegnaIlDocente: 'The teacher hands out',
         svolgeIlDocente: 'The teacher does',
-        inCimaInFondo: 'At the top what waits on others, at the bottom what is up to the teacher',
+        inCimaInFondo:
+          'At the top what waits on others, at the bottom what is up to the teacher',
       },
       figure: [
         {

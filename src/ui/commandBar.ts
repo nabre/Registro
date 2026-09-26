@@ -16,7 +16,12 @@ import {
 } from './commands.js'
 import { conAttesa } from './components/base.js'
 import { icona, type NomeIcona } from './components/icons.js'
-import { alternaMenuSotto, menuSotto, tendinaAperta, type ElementoMenu } from './components/menu.js'
+import {
+  alternaMenuSotto,
+  menuSotto,
+  tendinaAperta,
+  type ElementoMenu,
+} from './components/menu.js'
 import { notifica } from './components/notifications.js'
 import {
   classeDelFascicolo,
@@ -49,7 +54,10 @@ import {
  * si ridisegna mentre il comando è in volo, e il pulsante che rinasce deve
  * nascere spento (se no un secondo clic lo rilancia).
  */
-const comandiInVolo = new Map<string, { bottone: HTMLButtonElement, spento: boolean } | null>()
+const comandiInVolo = new Map<
+  string,
+  { bottone: HTMLButtonElement; spento: boolean } | null
+>()
 
 /** Il pulsante appena nato di un comando in volo: spento, con la sua rotella. */
 function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
@@ -61,7 +69,10 @@ function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
 }
 
 /** Esegue il comando dal suo pulsante, e se parla con l'host lo tiene in volo. */
-function eseguiDalPulsante (comando: ComandoUI, bottone: HTMLButtonElement): void {
+function eseguiDalPulsante (
+  comando: ComandoUI,
+  bottone: HTMLButtonElement,
+): void {
   // Passa da `eseguiComando` come palette e scorciatoie: il controllo sta in un posto solo.
   const esito = eseguiComando(comando)
   // Un comando che parla con l'host tiene la rotella finché la risposta torna.
@@ -85,7 +96,10 @@ function pulsanteComando (comando: ComandoUI): HTMLElement {
   const titolo = titoloDi(comando)
   const acceso = comando.acceso?.() ?? false
   // Il motivo del no vince sull'aiuto; la scorciatoia in coda, come altrove.
-  const spiegazione = [impedito ?? aiuto, comando.scorciatoia && `(${comando.scorciatoia})`]
+  const spiegazione = [
+    impedito ?? aiuto,
+    comando.scorciatoia && `(${comando.scorciatoia})`,
+  ]
     .filter(Boolean)
     .join(' ')
 
@@ -153,10 +167,13 @@ export const FUOCO_ANNO = 'stato-anno'
  * rifatto) e il fuoco torna sulla riga su cui si è agito.
  */
 function riapriSotto (fuoco: string, elementi: () => ElementoMenu[]): Riapri {
-  return (percorso) => requestAnimationFrame(() => {
-    const bottone = document.querySelector<HTMLElement>(`[data-fuoco="${fuoco}"]`)
-    if (bottone) menuSotto(bottone, elementi(), percorso)
-  })
+  return (percorso) =>
+    requestAnimationFrame(() => {
+      const bottone = document.querySelector<HTMLElement>(
+        `[data-fuoco="${fuoco}"]`,
+      )
+      if (bottone) menuSotto(bottone, elementi(), percorso)
+    })
 }
 
 const riapriMenuFile = riapriSotto(FUOCO_FILE, () => elementiDelProgramma())
@@ -165,8 +182,12 @@ const riapriMenuFile = riapriSotto(FUOCO_FILE, () => elementiDelProgramma())
  * Cambia subito l'elenco che si vede: l'host lo rispedisce comunque e vince,
  * qui si anticipa perché il menu riaperto mostri già com'è andata.
  */
-function anticipaElenco (cambia: (elenco: DocumentoInElenco[]) => DocumentoInElenco[]): void {
-  aggiorna({ documenti: { ...stato.documenti, elenco: cambia(stato.documenti.elenco) } })
+function anticipaElenco (
+  cambia: (elenco: DocumentoInElenco[]) => DocumentoInElenco[],
+): void {
+  aggiorna({
+    documenti: { ...stato.documenti, elenco: cambia(stato.documenti.elenco) },
+  })
 }
 
 /**
@@ -174,7 +195,10 @@ function anticipaElenco (cambia: (elenco: DocumentoInElenco[]) => DocumentoInEle
  * dall'elenco. «Togli dall'elenco» non tocca il file; su quello aperto è
  * spento, perché tornerebbe da sé.
  */
-function menuDelRecente (file: DocumentoInElenco, riapri: Riapri): ElementoMenu[] {
+function menuDelRecente (
+  file: DocumentoInElenco,
+  riapri: Riapri,
+): ElementoMenu[] {
   const t = testi()
   return [
     { titolo: file.etichetta ?? file.nome },
@@ -184,9 +208,16 @@ function menuDelRecente (file: DocumentoInElenco, riapri: Riapri): ElementoMenu[
       al: async () => {
         const preferito = !file.preferito
         anticipaElenco((elenco) =>
-          elenco.map((voce) => (voce.percorso === file.percorso ? { ...voce, preferito } : voce)))
+          elenco.map((voce) =>
+            voce.percorso === file.percorso ? { ...voce, preferito } : voce,
+          ),
+        )
         riapri(file.percorso)
-        await azione({ tipo: 'documento.preferito', percorso: file.percorso, preferito })
+        await azione({
+          tipo: 'documento.preferito',
+          percorso: file.percorso,
+          preferito,
+        })
       },
     },
     'separatore',
@@ -196,7 +227,9 @@ function menuDelRecente (file: DocumentoInElenco, riapri: Riapri): ElementoMenu[
       disabilitato: file.aperto,
       titolo: file.aperto ? t.eQuelloAperto : t.togliRiga,
       al: async () => {
-        anticipaElenco((elenco) => elenco.filter((voce) => voce.percorso !== file.percorso))
+        anticipaElenco((elenco) =>
+          elenco.filter((voce) => voce.percorso !== file.percorso),
+        )
         riapri()
         await azione({ tipo: 'documento.dimentica', percorso: file.percorso })
       },
@@ -247,7 +280,9 @@ function vociRecenti (riapri: Riapri = riapriMenuFile): ElementoMenu[] {
   const recenti = stato.documenti.elenco.filter((file) => !file.preferito)
   const t = testi()
   return [
-    ...(preferiti.length ? [{ titolo: t.preferiti }, ...preferiti.map(riga)] : []),
+    ...(preferiti.length
+      ? [{ titolo: t.preferiti }, ...preferiti.map(riga)]
+      : []),
     ...(recenti.length ? [{ titolo: t.recenti }, ...recenti.map(riga)] : []),
   ]
 }
@@ -261,7 +296,11 @@ function elementiDeiRegistri (): ElementoMenu[] {
     .map((id) => comandoPerId(id))
     .filter((comando): comando is ComandoUI => comando !== null)
     .map(voceDiComando)
-  return [...vociRecenti(riapriSotto(FUOCO_ANNO, elementiDeiRegistri)), 'separatore', ...altri]
+  return [
+    ...vociRecenti(riapriSotto(FUOCO_ANNO, elementiDeiRegistri)),
+    'separatore',
+    ...altri,
+  ]
 }
 
 /**
@@ -279,11 +318,16 @@ export function menuDeiRegistri (bottone: HTMLElement): void {
  */
 function elementiDelProgramma (): ElementoMenu[] {
   const gruppi = gruppiDelMenu()
-  const esci = gruppi.flatMap((gruppo) => gruppo.comandi).find((comando) => comando.id === ESCI)
+  const esci = gruppi
+    .flatMap((gruppo) => gruppo.comandi)
+    .find((comando) => comando.id === ESCI)
   const elementi: ElementoMenu[] = []
   let recentiMessi = false
 
-  const aggiungiGruppo = (gruppo: { titolo: string, comandi: ComandoUI[] }): void => {
+  const aggiungiGruppo = (gruppo: {
+    titolo: string;
+    comandi: ComandoUI[];
+  }): void => {
     const comandi = gruppo.comandi.filter((comando) => comando.id !== ESCI)
     if (!comandi.length) return
     elementi.push('separatore', { titolo: gruppo.titolo })
@@ -361,12 +405,12 @@ export function tendinaDelProgramma (): HTMLElement {
  * barra dei menu. Ripremuto con il menu aperto lo richiude (`alternaMenuSotto`).
  */
 function pulsanteTendina (opzioni: {
-  classe: string
+  classe: string;
   /** Il nome con cui ritrovare il pulsante dopo il ridisegno: vedi `ricordaFuoco`. */
-  fuoco: string
-  testo: string
-  titolo: string
-  apri: (bottone: HTMLElement) => void
+  fuoco: string;
+  testo: string;
+  titolo: string;
+  apri: (bottone: HTMLElement) => void;
 }): HTMLElement {
   const { fuoco } = opzioni
   const bottone = h(
@@ -385,7 +429,10 @@ function pulsanteTendina (opzioni: {
       onclick: () => opzioni.apri(bottone),
       onkeydown: (evento: KeyboardEvent) => {
         // Freccia giù apre soltanto: con il menu aperto non lo richiude.
-        if (evento.key === 'ArrowDown' && bottone.getAttribute('aria-expanded') !== 'true') {
+        if (
+          evento.key === 'ArrowDown' &&
+          bottone.getAttribute('aria-expanded') !== 'true'
+        ) {
           evento.preventDefault()
           opzioni.apri(bottone)
         }
@@ -405,12 +452,12 @@ function pulsanteTendina (opzioni: {
  */
 function scelta (opzioni: {
   /** Il nome con cui ritrovare il fuoco dopo il ridisegno: vedi `ricordaFuoco`. */
-  nome: string
-  etichetta: string
-  titolo: string
-  valore: string
-  al: (valore: string) => void
-  figli: Figlio[]
+  nome: string;
+  etichetta: string;
+  titolo: string;
+  valore: string;
+  al: (valore: string) => void;
+  figli: Figlio[];
 }): HTMLElement {
   return h(
     'label',
@@ -425,7 +472,8 @@ function scelta (opzioni: {
         // testo-fisso: chiave di fuoco, non si legge
         dataset: { fuoco: `barra-comandi-${opzioni.nome}` },
         value: opzioni.valore,
-        onchange: (evento: Event) => opzioni.al((evento.target as HTMLSelectElement).value),
+        onchange: (evento: Event) =>
+          opzioni.al((evento.target as HTMLSelectElement).value),
       },
       ...opzioni.figli,
     ),
@@ -461,7 +509,11 @@ function sceltaCorso (): Figlio {
       .map((corso) => ({ corso, nome: nomeDelCorso(corso) }))
       .sort((a, b) => confrontaNomi(a.nome, b.nome))
       .map(({ corso, nome }) =>
-        h('option', { value: corso.id, selected: corso.id === corrente?.id }, nome),
+        h(
+          'option',
+          { value: corso.id, selected: corso.id === corrente?.id },
+          nome,
+        ),
       ),
   })
 }
@@ -486,7 +538,11 @@ function sceltaClasse (): Figlio {
     valore: corrente?.id ?? '',
     al: scegliClasseDelFascicolo,
     figli: classi.map((classe) =>
-      h('option', { value: classe.id, selected: classe.id === corrente?.id }, classe.nome),
+      h(
+        'option',
+        { value: classe.id, selected: classe.id === corrente?.id },
+        classe.nome,
+      ),
     ),
   })
 }
@@ -537,11 +593,18 @@ function filtriAgenda (): Figlio[] {
       valore: stato.filtroCorsoAgendaId ?? '',
       al: (valore) => aggiorna({ filtroCorsoAgendaId: valore || null }),
       figli: [
-        h('option', { value: '', selected: stato.filtroCorsoAgendaId === null }, t.tuttiICorsi),
+        h(
+          'option',
+          { value: '', selected: stato.filtroCorsoAgendaId === null },
+          t.tuttiICorsi,
+        ),
         ...corsi.map((corso) =>
           h(
             'option',
-            { value: corso.id, selected: corso.id === stato.filtroCorsoAgendaId },
+            {
+              value: corso.id,
+              selected: corso.id === stato.filtroCorsoAgendaId,
+            },
             nomeDelCorso(corso),
           ),
         ),
@@ -564,12 +627,14 @@ function sceltaAnno (): Figlio {
     { class: 'barra-comandi__scelte' },
     // L'anno non si sceglie qui: è il documento aperto, e si cambia aprendone un
     // altro (menu «File», voce dell'anno nella barra di stato, dialogo di apertura).
-    h(
-      'div',
-      { class: 'barra-comandi__scelta barra-comandi__scelta--ferma' },
-      h('span', { class: 'barra-comandi__etichetta' }, t.anno),
-      h('strong', { title: t.annoTitolo }, anno.etichetta),
-    ),
+    stato.vista === 'oggi'
+      ? null
+      : h(
+          'div',
+          { class: 'barra-comandi__scelta barra-comandi__scelta--ferma' },
+          h('span', { class: 'barra-comandi__etichetta' }, t.anno),
+          h('strong', { title: t.annoTitolo }, anno.etichetta),
+        ),
     anno.semestri.length > 0
       ? scelta({
           nome: 'periodo',
@@ -581,11 +646,18 @@ function sceltaAnno (): Figlio {
             ...anno.semestri.map((semestre) =>
               h(
                 'option',
-                { value: semestre.id, selected: semestre.id === stato.semestreId },
+                {
+                  value: semestre.id,
+                  selected: semestre.id === stato.semestreId,
+                },
                 semestre.etichetta,
               ),
             ),
-            h('option', { value: '', selected: stato.semestreId === null }, t.annoIntero),
+            h(
+              'option',
+              { value: '', selected: stato.semestreId === null },
+              t.annoIntero,
+            ),
           ],
         })
       : null,
@@ -612,9 +684,17 @@ function sceltaClasseMappa (): Figlio {
     valore: stato.classeMappaId ?? '',
     al: (valore) => aggiorna({ classeMappaId: valore || null }),
     figli: [
-      h('option', { value: '', selected: stato.classeMappaId === null }, t.tutteLeClassi),
+      h(
+        'option',
+        { value: '', selected: stato.classeMappaId === null },
+        t.tutteLeClassi,
+      ),
       ...classi.map((classe) =>
-        h('option', { value: classe.id, selected: classe.id === stato.classeMappaId }, classe.nome),
+        h(
+          'option',
+          { value: classe.id, selected: classe.id === stato.classeMappaId },
+          classe.nome,
+        ),
       ),
     ],
   })
@@ -646,7 +726,10 @@ function interruttore (id: string, simbolo: NomeIcona, accesa: boolean): Figlio 
   const bottone = h(
     'button',
     {
-      class: ['barra-comandi__schermo', accesa && 'barra-comandi__schermo--acceso'],
+      class: [
+        'barra-comandi__schermo',
+        accesa && 'barra-comandi__schermo--acceso',
+      ],
       type: 'button',
       disabled: impedito !== null,
       // Come i pulsanti dei comandi: il fuoco si ritrova dopo il ridisegno.
@@ -669,11 +752,21 @@ function interruttore (id: string, simbolo: NomeIcona, accesa: boolean): Figlio 
 // ------------------------------------------------------------- le due righe
 
 /** Un riquadro della riga: i comandi che si fanno per lo stesso motivo. */
-function riquadro (gruppo: { titolo: string, comandi: ComandoUI[] }): HTMLElement {
+function riquadro (gruppo: {
+  titolo: string;
+  comandi: ComandoUI[];
+}): HTMLElement {
   return h(
     'div',
-    { class: 'barra-comandi__gruppo', attr: { role: 'group', 'aria-label': gruppo.titolo } },
-    h('div', { class: 'barra-comandi__comandi' }, ...gruppo.comandi.map(pulsanteComando)),
+    {
+      class: 'barra-comandi__gruppo',
+      attr: { role: 'group', 'aria-label': gruppo.titolo },
+    },
+    h(
+      'div',
+      { class: 'barra-comandi__comandi' },
+      ...gruppo.comandi.map(pulsanteComando),
+    ),
   )
 }
 
@@ -725,7 +818,7 @@ function rigaNavigazione (nascoste: boolean, conAzioni: boolean): Figlio {
 
 /** La riga di sotto: le azioni della pagina aperta, o quelle dello schermo. */
 function rigaAzioni (
-  gruppi: Array<{ titolo: string, comandi: ComandoUI[] }>,
+  gruppi: Array<{ titolo: string; comandi: ComandoUI[] }>,
   di: string,
 ): Figlio {
   return h(
@@ -756,6 +849,8 @@ export function barraComandi (): Figlio {
     'div',
     { class: 'barra-comandi' },
     rigaNavigazione(nascoste, gruppi.length > 0),
-    gruppi.length === 0 ? null : rigaAzioni(gruppi, schermo ? testi().proiezione : nomeDelPosto()),
+    gruppi.length === 0
+      ? null
+      : rigaAzioni(gruppi, schermo ? testi().proiezione : nomeDelPosto()),
   )
 }

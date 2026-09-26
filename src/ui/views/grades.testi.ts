@@ -7,7 +7,7 @@ const it = {
   /** Il suggerimento sul titolo di una colonna: il momento, il giorno, il peso. */
   titoloMomento: (titolo: string, data: string, peso: number) =>
     `${titolo} — ${data} · peso ${peso}`,
-  assenteAllAppello: 'Assente all’appello di quest’ora: premi X per segnarlo anche qui',
+  assenteAllAppello: 'Assente all’appello di questa lezione: premi X per segnarlo anche qui',
   nonEUnVoto: (battuto: string) =>
     `«${battuto}» non è un voto: si scrive un numero, ` +
     'oppure «-» per nessun voto e «X» per assente.',

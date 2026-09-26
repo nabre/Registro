@@ -1,17 +1,28 @@
-// La pagina «Oggi»: la giornata in una schermata.
+// La Dashboard: giornata, priorità e collegamenti operativi in una schermata.
 //
 // Solo navigazione: ogni tessera, ora o prova porta alla sua pagina, e niente
 // qui cambia il registro (quindi nessun comando nella riga delle azioni).
 // I numeri vengono dalle stesse funzioni dello stato che usano le pagine di
 // destinazione, così la tessera e la pagina dicono sempre lo stesso conto.
 
-import { formattaData, daIso, differenzaGiorni, giorniBrevi, giornoDelMese, giornoSettimana } from '../../domain/dates.js'
+import {
+  formattaData,
+  daIso,
+  differenzaGiorni,
+  giorniBrevi,
+  giornoDelMese,
+  giornoSettimana,
+} from '../../domain/dates.js'
 import type { FaseOra } from '../../domain/dashboard.js'
 import type { Lezione, MomentoValutazione } from '../../domain/models.js'
 import { istante } from '../../i18n/index.js'
-import { parole } from '../../domain/words.testi.js'
 import { apriMomento, vaiAOggi } from '../calendarNavigation.js'
-import { pastiglia, scheda, statoVuoto, type TonoPastiglia } from '../components/base.js'
+import {
+  pastiglia,
+  scheda,
+  statoVuoto,
+  type TonoPastiglia,
+} from '../components/base.js'
 import { statoVuotoAnno } from '../components/filters.js'
 import { icona, type NomeIcona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
@@ -23,13 +34,15 @@ import {
   annoCorrente,
   coloreDiCorso,
   coloreDiLezione,
-  compleanniDi,
+  compleanniDellaDashboard,
   corsiDellAnnoAperto,
   nomeClasseDiLezione,
   nomeMateriaDiLezione,
-  oraDaFare,
-  oreDaChiudere,
-  oreDiOggi,
+  oraDaFareDashboard,
+  oreDaChiudereDashboard,
+  giornoDellaDashboard,
+  nelSemestreScelto,
+  oreDellaDashboard,
   pendenzeDellaBarra,
   stato,
   titoloDiLezione,
@@ -37,8 +50,8 @@ import {
 import { pagineDaSmistareInTutto } from './toSort.js'
 import { testi } from './today.testi.js'
 
-/** Un'ora di oggi con la sua fase, come la dà `oreDiOggi`. */
-type OraDiOggi = ReturnType<typeof oreDiOggi>[number]
+/** Un'ora della giornata mostrata, con la fase calcolata dallo stato. */
+type OraDiOggi = ReturnType<typeof oreDellaDashboard>[number]
 
 /** Quante prove si annunciano: le prossime cinque bastano a vedere la settimana. */
 const QUANTE_VALUTAZIONI = 5
@@ -61,14 +74,14 @@ function nomeDellaPagina (id: string): string {
  * Tutta la tessera è un `<button>`, così è un bersaglio grande e Invio funziona da sé.
  */
 function tessera (opzioni: {
-  chiave: string
-  simbolo: NomeIcona
-  tono: TonoPastiglia
-  valore: number
-  etichetta: string
-  nota: string
-  pagina: string
-  al: () => void
+  chiave: string;
+  simbolo: NomeIcona;
+  tono: TonoPastiglia;
+  valore: number;
+  etichetta: string;
+  nota: string;
+  pagina: string;
+  al: () => void;
 }): HTMLElement {
   const t = testi()
   const porta = t.portaA(nomeDellaPagina(opzioni.pagina))
@@ -104,15 +117,18 @@ function notaDelleOre (ore: readonly OraDiOggi[]): string {
   if (vive.length === 0) return t.nessunaOraOggi
   const inCorso = vive.find((o) => o.fase === 'in-corso')
   if (inCorso) return t.inCorsoFinoAlle(fineDi(inCorso.lezione))
-  const prossima = vive.find((o) => o.fase === 'futura' || o.fase === 'da-preparare')
+  const prossima = vive.find(
+    (o) => o.fase === 'futura' || o.fase === 'da-preparare',
+  )
   return prossima ? t.prossimaAlle(inizioDi(prossima.lezione)) : t.tutteFatte
 }
 
 function tessere (ore: readonly OraDiOggi[]): HTMLElement {
   const t = testi()
+  const oggi = giornoDellaDashboard() === stato.adessoData
   const tp = testiPagine()
   const vive = ore.filter((o) => o.fase !== 'annullata').length
-  const buchi = oreDaChiudere()
+  const buchi = oreDaChiudereDashboard()
   const pendenze = pendenzeDellaBarra()
   const daSmistare = pagineDaSmistareInTutto()
 
@@ -124,7 +140,7 @@ function tessere (ore: readonly OraDiOggi[]): HTMLElement {
       simbolo: 'calendario',
       tono: 'informativo',
       valore: vive,
-      etichetta: t.oreDiOggi,
+      etichetta: oggi ? t.oreDiOggi : t.oreDellaGiornata,
       nota: notaDelleOre(ore),
       pagina: 'pagina.calendario',
       // Il calendario su oggi, non dove lo si era lasciato: la tessera parla di oggi.
@@ -139,20 +155,33 @@ function tessere (ore: readonly OraDiOggi[]): HTMLElement {
       tono: buchi.length > 0 ? 'attenzione' : 'positivo',
       valore: buchi.length,
       etichetta: t.daCompilare,
-      nota: buchi.length > 0 ? t.laPiuVecchia(formattaData(buchi[0].data, 'giorno')) : t.inPari,
+      nota:
+        buchi.length > 0
+          ? t.laPiuVecchia(formattaData(buchi[0].data, 'giorno'))
+          : t.inPari,
       pagina: 'pagina.corso.registro',
       // La stessa ora del comando «Ora da compilare»: la più vecchia senza registro,
       // o la prossima; se non c'è nessuna delle due si resta sul calendario.
       al: () => {
-        const ora = oraDaFare()
-        if (ora) aggiorna({ vista: 'lezione', lezioneId: ora.lezione.id, data: ora.lezione.data })
+        const ora = oraDaFareDashboard()
+        if (ora)
+          aggiorna({
+            vista: 'lezione',
+            lezioneId: ora.lezione.id,
+            data: ora.lezione.data,
+          })
         else vaiAllaPagina('pagina.calendario')
       },
     }),
     tessera({
       chiave: 'pendenze',
       simbolo: 'spunta',
-      tono: pendenze.urgenti > 0 ? 'negativo' : pendenze.aperti > 0 ? 'attenzione' : 'positivo',
+      tono:
+        pendenze.urgenti > 0
+          ? 'negativo'
+          : pendenze.aperti > 0
+            ? 'attenzione'
+            : 'positivo',
       valore: pendenze.aperti,
       etichetta: tp.pendenze,
       nota: t.urgenti(pendenze.urgenti),
@@ -175,12 +204,18 @@ function tessere (ore: readonly OraDiOggi[]): HTMLElement {
 // ------------------------------------------------------------ le ore di oggi
 
 function inizioDi (lezione: Lezione): string {
-  return lezione.slot.find((s) => s.tipo === 'lezione')?.inizio ?? lezione.slot[0]?.inizio ?? ''
+  return (
+    lezione.slot.find((s) => s.tipo === 'lezione')?.inizio ??
+    lezione.slot[0]?.inizio ??
+    ''
+  )
 }
 
 function fineDi (lezione: Lezione): string {
   const ore = lezione.slot.filter((s) => s.tipo === 'lezione')
-  return (ore[ore.length - 1] ?? lezione.slot[lezione.slot.length - 1])?.fine ?? ''
+  return (
+    (ore[ore.length - 1] ?? lezione.slot[lezione.slot.length - 1])?.fine ?? ''
+  )
 }
 
 /** Il tono di ogni fase: lo stesso significato che hanno i colori altrove. */
@@ -198,7 +233,10 @@ const TONO_FASE: Readonly<Record<FaseOra, TonoPastiglia>> = {
 function oraInEvidenza (ore: readonly OraDiOggi[]): string | null {
   const inCorso = ore.find((o) => o.fase === 'in-corso')
   if (inCorso) return inCorso.lezione.id
-  return ore.find((o) => o.fase === 'futura' || o.fase === 'da-preparare')?.lezione.id ?? null
+  return (
+    ore.find((o) => o.fase === 'futura' || o.fase === 'da-preparare')?.lezione
+      .id ?? null
+  )
 }
 
 function rigaOra (voce: OraDiOggi, evidenza: string | null): HTMLElement {
@@ -227,7 +265,12 @@ function rigaOra (voce: OraDiOggi, evidenza: string | null): HTMLElement {
         dataset: { fuoco: `oggi-ora-${lezione.id}`, lezione: lezione.id },
         style: { '--tinta': coloreDiLezione(lezione) },
         attr: { title: t.apriLOra(classe, inizio) },
-        onclick: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id, data: lezione.data }),
+        onclick: () =>
+          aggiorna({
+            vista: 'lezione',
+            lezioneId: lezione.id,
+            data: lezione.data,
+          }),
       },
       h(
         'span',
@@ -251,7 +294,11 @@ function rigaOra (voce: OraDiOggi, evidenza: string | null): HTMLElement {
         'span',
         { class: 'oggi-ora__stato' },
         accesa
-          ? h('span', { class: 'oggi-ora__segnale' }, fase === 'in-corso' ? t.adesso : t.prossima)
+          ? h(
+              'span',
+              { class: 'oggi-ora__segnale' },
+              fase === 'in-corso' ? t.adesso : t.prossima,
+            )
           : null,
         pastiglia(t.fasi[fase], TONO_FASE[fase]),
       ),
@@ -261,17 +308,32 @@ function rigaOra (voce: OraDiOggi, evidenza: string | null): HTMLElement {
 
 function schedaOre (ore: readonly OraDiOggi[]): HTMLElement {
   const t = testi()
+  const oggi = giornoDellaDashboard() === stato.adessoData
   const vive = ore.filter((o) => o.fase !== 'annullata')
   const evidenza = oraInEvidenza(ore)
   return scheda({
     classe: 'oggi-scheda oggi-scheda--ore',
-    titolo: t.leOreDiOggi,
-    sottotitolo: vive.length > 0
-      ? t.quanteOre(vive.length, inizioDi(vive[0].lezione), fineDi(vive[vive.length - 1].lezione))
-      : undefined,
-    contenuto: ore.length === 0
-      ? statoVuoto({ simbolo: 'sole', titolo: t.nienteOggi, testo: t.nienteOggiTesto })
-      : h('ol', { class: 'oggi-ore' }, ...ore.map((voce) => rigaOra(voce, evidenza))),
+    titolo: oggi ? t.leOreDiOggi : t.leOreDellaGiornata,
+    sottotitolo:
+      vive.length > 0
+        ? t.quanteOre(
+            vive.length,
+            inizioDi(vive[0].lezione),
+            fineDi(vive[vive.length - 1].lezione),
+          )
+        : undefined,
+    contenuto:
+      ore.length === 0
+        ? statoVuoto({
+            simbolo: 'sole',
+            titolo: t.nienteOggi,
+            testo: t.nienteOggiTesto,
+          })
+        : h(
+            'ol',
+            { class: 'oggi-ore' },
+            ...ore.map((voce) => rigaOra(voce, evidenza)),
+          ),
   })
 }
 
@@ -284,9 +346,12 @@ function schedaOre (ore: readonly OraDiOggi[]): HTMLElement {
  */
 function prossimeValutazioni (): MomentoValutazione[] {
   const corsi = new Set(corsiDellAnnoAperto().map((c) => c.id))
-  return stato.registro.valutazioni
+  return nelSemestreScelto(stato.registro.valutazioni)
     .filter((v) => corsi.has(v.corsoId) && v.data >= stato.adessoData)
-    .sort((a, b) => a.data.localeCompare(b.data) || a.titolo.localeCompare(b.titolo))
+    .sort(
+      (a, b) =>
+        a.data.localeCompare(b.data) || a.titolo.localeCompare(b.titolo),
+    )
     .slice(0, QUANTE_VALUTAZIONI)
 }
 
@@ -295,9 +360,17 @@ function foglietto (data: string): HTMLElement {
   return h(
     'span',
     { class: 'oggi-foglietto', attr: { 'aria-hidden': 'true' } },
-    h('span', { class: 'oggi-foglietto__giorno' }, giorniBrevi()[giornoSettimana(data) - 1]),
+    h(
+      'span',
+      { class: 'oggi-foglietto__giorno' },
+      giorniBrevi()[giornoSettimana(data) - 1],
+    ),
     h('span', { class: 'oggi-foglietto__numero' }, String(giornoDelMese(data))),
-    h('span', { class: 'oggi-foglietto__mese' }, istante(daIso(data), { month: 'short', timeZone: 'UTC' })),
+    h(
+      'span',
+      { class: 'oggi-foglietto__mese' },
+      istante(daIso(data), { month: 'short', timeZone: 'UTC' }),
+    ),
   )
 }
 
@@ -327,7 +400,10 @@ function rigaValutazione (momento: MomentoValutazione): HTMLElement {
         h(
           'span',
           { class: 'oggi-prova__corso' },
-          h('span', { class: 'oggi-prova__punto', attr: { 'aria-hidden': 'true' } }),
+          h('span', {
+            class: 'oggi-prova__punto',
+            attr: { 'aria-hidden': 'true' },
+          }),
           corso?.titolo ?? '',
         ),
       ),
@@ -342,9 +418,14 @@ function schedaValutazioni (): HTMLElement {
   return scheda({
     classe: 'oggi-scheda oggi-scheda--prove',
     titolo: t.prossimeValutazioni,
-    contenuto: prove.length === 0
-      ? statoVuoto({ simbolo: 'valutazioni', titolo: t.nessunaValutazione, testo: t.nessunaValutazioneTesto })
-      : h('ol', { class: 'oggi-prove' }, ...prove.map(rigaValutazione)),
+    contenuto:
+      prove.length === 0
+        ? statoVuoto({
+            simbolo: 'valutazioni',
+            titolo: t.nessunaValutazione,
+            testo: t.nessunaValutazioneTesto,
+          })
+        : h('ol', { class: 'oggi-prove' }, ...prove.map(rigaValutazione)),
   })
 }
 
@@ -352,11 +433,15 @@ function schedaValutazioni (): HTMLElement {
 
 /** I compleanni di oggi, se ce n'è: altrimenti la scheda non c'è proprio. */
 function schedaCompleanni (): HTMLElement | null {
-  const festeggiati = compleanniDi(stato.adessoData)
+  const giorno = giornoDellaDashboard()
+  const festeggiati = compleanniDellaDashboard(giorno)
   if (festeggiati.length === 0) return null
   return scheda({
     classe: 'oggi-scheda oggi-scheda--compleanni',
-    titolo: testi().compleanni,
+    titolo:
+      giorno === stato.adessoData
+        ? testi().compleanni
+        : testi().compleanniDellaGiornata,
     contenuto: h(
       'ul',
       { class: 'oggi-compleanni' },
@@ -367,7 +452,8 @@ function schedaCompleanni (): HTMLElement | null {
           h('span', { class: 'oggi-compleanno__tondo' }, icona('torta')),
           h('span', { class: 'oggi-compleanno__nome' }, c.nome),
           h('span', { class: 'oggi-compleanno__classe' }, c.classe),
-        )),
+        ),
+      ),
     ),
   })
 }
@@ -376,8 +462,12 @@ function schedaCompleanni (): HTMLElement | null {
 
 export function vistaOggi (): Figlio {
   const t = testi()
-  const titolo = parole().oggi
-  const sottotitolo = t.sottotitolo(t.saluto(stato.adessoOra), formattaData(stato.adessoData, 'lungo'))
+  const titolo = t.titolo
+  const giorno = giornoDellaDashboard()
+  const sottotitolo =
+    giorno === stato.adessoData
+      ? t.sottotitolo(t.saluto(stato.adessoOra), formattaData(giorno, 'lungo'))
+      : t.prossimaGiornata(formattaData(giorno, 'lungo'))
 
   if (!annoCorrente()) {
     return h(
@@ -389,11 +479,11 @@ export function vistaOggi (): Figlio {
         h('h2', { class: 'testata__titolo' }, titolo),
         h('p', { class: 'testata__sottotitolo' }, sottotitolo),
       ),
-      statoVuotoAnno({ simbolo: 'sole', crea: () => moduloAnno() }),
+      statoVuotoAnno({ simbolo: 'dashboard', crea: () => moduloAnno() }),
     )
   }
 
-  const ore = oreDiOggi()
+  const ore = oreDellaDashboard()
   return h(
     'div',
     { class: 'vista vista--oggi' },
@@ -408,7 +498,12 @@ export function vistaOggi (): Figlio {
       'div',
       { class: 'oggi-griglia' },
       h('div', { class: 'oggi-colonna oggi-colonna--larga' }, schedaOre(ore)),
-      h('div', { class: 'oggi-colonna' }, schedaValutazioni(), schedaCompleanni()),
+      h(
+        'div',
+        { class: 'oggi-colonna' },
+        schedaValutazioni(),
+        schedaCompleanni(),
+      ),
     ),
   )
 }

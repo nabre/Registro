@@ -10,10 +10,10 @@ const it = {
   settimana: (dal: string, al: string, numero: number) => `${dal} – ${al} · settimana ${numero}`,
   guastoIcs: (dove: string, guasto: string) => `${dove} · calendario ICS: ${guasto}`,
   inChiusura: (quante: number, nomi: string) =>
-    `${plurale(quante, 'ora cade', 'ore cadono')} in un giorno di chiusura (${nomi}).`,
-  rimuovi: 'Rimuovi le ore nelle vacanze',
+    `${plurale(quante, 'lezione cade', 'lezioni cadono')} in un giorno di chiusura (${nomi}).`,
+  rimuovi: 'Rimuovi le lezioni nelle vacanze',
   togliereTitolo: (quante: number) =>
-    `Togliere ${perNumero(quante, 'l’ora', `le ${quante} ore`)} nei giorni di chiusura?`,
+    `Togliere ${perNumero(quante, 'la lezione', `le ${quante} lezioni`)} nei giorni di chiusura?`,
   conDati: (quante: number) =>
     `${plurale(quante, 'ha', 'hanno')} già l’appello o uno stato: si perdono. `,
   restano: 'Valutazioni, consegne e spunte legate restano, senza la lezione. Ctrl+Z le riporta.',

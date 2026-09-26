@@ -3,7 +3,15 @@
 
 import { catalogo, numero, perNumero } from '../../i18n/index.js'
 import { etichettaFoglio } from '../../domain/absences.js'
-import { PERSONE, PIF, UD, corto, dei, del, quanti } from '../../domain/lexicon.js'
+import {
+  PERSONE,
+  PIF,
+  UD,
+  corto,
+  dei,
+  del,
+  quanti,
+} from '../../domain/lexicon.js'
 import { lessico } from '../../domain/lexicon.testi.js'
 import type { TipoRapporto } from '../../domain/models.js'
 import { plurale } from '../../domain/text.js'
@@ -17,10 +25,12 @@ const it = {
     firmatoRitardi: { titolo: 'Ritardi firmati', breve: 'rit. ✓' },
   },
   /** Come si chiama un foglio: «assenze», «ritardi firmati». */
-  foglio: (tipo: TipoRapporto, firmato: boolean) => etichettaFoglio(tipo, firmato),
+  foglio: (tipo: TipoRapporto, firmato: boolean) =>
+    etichettaFoglio(tipo, firmato),
   /** «assenze firmate di Rossi Anna» */
   diChi: (che: string, chi: string) => `${che} di ${chi}`,
-  daDividere: (pagine: number) => `da dividere · ${plurale(pagine, 'pagina', 'pagine')}`,
+  daDividere: (pagine: number) =>
+    `da dividere · ${plurale(pagine, 'pagina', 'pagine')}`,
   guarda: (nome: string) => `Guarda ${nome}`,
   sceltaFile: (che: string, chi: string) => `${che} di ${chi}: scegli il file`,
   togliFile: (nome: string) => `Togli ${nome}`,
@@ -37,10 +47,12 @@ const it = {
   giaPartita: '\n\nLa richiesta era già partita: arriverà una seconda volta.',
   prepara: 'Prepara',
   nonPartitaPerche: (errore: string) => `Non partita: ${errore}`,
-  speditaIl: (giorno: string, a: string) => `Spedita il ${giorno} a ${a}\nRispedisci`,
+  speditaIl: (giorno: string, a: string) =>
+    `Spedita il ${giorno} a ${a}\nRispedisci`,
   mancaIndirizzo: (mancano: string) => `Manca l’indirizzo: ${mancano}`,
   spedisciA: (a: string) => `Spedisci a ${a}`,
-  riportaDaMandare: (chi: string) => `Riporta da mandare la richiesta di ${chi}`,
+  riportaDaMandare: (chi: string) =>
+    `Riporta da mandare la richiesta di ${chi}`,
   segnaSpedita: (chi: string) => `Segna spedita la richiesta di ${chi}`,
 
   // Le pastiglie della fase.
@@ -85,13 +97,15 @@ const it = {
   restanoIndietro: (quante: number) =>
     `\n\n${quante} restano indietro: non hanno nessun indirizzo a cui scrivere.`,
   titolo: 'Assenze da far firmare',
-  aiuto: 'un periodo per volta: i fogli che partono, l’e-mail, le firme che tornano',
+  aiuto:
+    'un periodo per volta: i fogli che partono, l’e-mail, le firme che tornano',
   caricaPdf: 'Carica dei PDF',
   caricaPdfAiuto:
     'Porta dentro i PDF della scuola: le loro pagine si trascinano poi sulla casella ' +
     'di chi sono. Si possono anche lasciar cadere sulla pagina.',
   importaFogli: 'Importa fogli',
-  importaFogliAiuto: 'Prende una cartella di PDF e li assegna dal nome del file',
+  importaFogliAiuto:
+    'Prende una cartella di PDF e li assegna dal nome del file',
   preparaInvio: (quante: number) => `Prepara invio (${quante})`,
   completaIndirizzi: `Completa gli indirizzi ${dei(PERSONE.datore)} nelle schede personali`,
   preparaRichieste: 'Prepara le richieste secondo le impostazioni di posta',
@@ -121,12 +135,14 @@ const it = {
   segnaSpeditaDaPosta: 'Segna spedita: l’hai mandata dal programma di posta',
 
   // Le assenze oltre la soglia.
-  udPerse: (perse: number, previste: number) => `${perse} ${corto(UD)} perse su ${previste}`,
+  udPerse: (perse: number, previste: number) =>
+    `${perse} ${corto(UD)} perse su ${previste}`,
   // Può avere un decimale, e il decimale si scrive con la virgola.
-  percentoAssenza: (percento: number) => `${String(percento).replace('.', ',')}% di assenza`,
+  percentoAssenza: (percento: number) =>
+    `${String(percento).replace('.', ',')}% di assenza`,
   appelliDaCompletare: 'appelli da completare',
   apriScheda: 'Apri la scheda',
-  apriSchedaAiuto: 'Le ore di questa persona, una per una',
+  apriSchedaAiuto: 'Le lezioni di questa persona, una per una',
   apriCorso: 'Apri il corso',
   apriCorsoAiuto: 'La stessa percentuale accanto a quella degli altri',
 }
@@ -139,17 +155,28 @@ export const testi = catalogo(it, {
   de: {
     colonne: {
       vergineAssenze: { titolo: 'Zu verschickende Absenzen', breve: 'Abs.' },
-      vergineRitardi: { titolo: 'Zu verschickende Verspätungen', breve: 'Versp.' },
+      vergineRitardi: {
+        titolo: 'Zu verschickende Verspätungen',
+        breve: 'Versp.',
+      },
       invio: { titolo: 'Unterschriftsanfrage verschickt', breve: 'Mail' },
       firmatoAssenze: { titolo: 'Unterschriebene Absenzen', breve: 'Abs. ✓' },
-      firmatoRitardi: { titolo: 'Unterschriebene Verspätungen', breve: 'Versp. ✓' },
+      firmatoRitardi: {
+        titolo: 'Unterschriebene Verspätungen',
+        breve: 'Versp. ✓',
+      },
     },
     foglio: (tipo, firmato) =>
       tipo === 'assenze'
-        ? (firmato ? 'unterschriebene Absenzen' : 'Absenzen')
-        : (firmato ? 'unterschriebene Verspätungen' : 'Verspätungen'),
+        ? firmato
+          ? 'unterschriebene Absenzen'
+          : 'Absenzen'
+        : firmato
+          ? 'unterschriebene Verspätungen'
+          : 'Verspätungen',
     diChi: (che, chi) => `${che} von ${chi}`,
-    daDividere: (pagine) => `aufzuteilen · ${plurale(pagine, 'Seite', 'Seiten')}`,
+    daDividere: (pagine) =>
+      `aufzuteilen · ${plurale(pagine, 'Seite', 'Seiten')}`,
     guarda: (nome) => `${nome} ansehen`,
     sceltaFile: (che, chi) => `${che} von ${chi}: Datei auswählen`,
     togliFile: (nome) => `${nome} entfernen`,
@@ -161,13 +188,16 @@ export const testi = catalogo(it, {
     allegati: (fogli) =>
       `${plurale(fogli, 'Blatt', 'Blätter')} im Anhang. ` +
       'Der Entwurf öffnet sich im Mailprogramm, verschicken musst du ihn selbst.',
-    giaPartita: '\n\nDie Anfrage war schon verschickt: Sie kommt ein zweites Mal an.',
+    giaPartita:
+      '\n\nDie Anfrage war schon verschickt: Sie kommt ein zweites Mal an.',
     prepara: 'Vorbereiten',
     nonPartitaPerche: (errore) => `Nicht verschickt: ${errore}`,
-    speditaIl: (giorno, a) => `Verschickt am ${giorno} an ${a}\nErneut verschicken`,
+    speditaIl: (giorno, a) =>
+      `Verschickt am ${giorno} an ${a}\nErneut verschicken`,
     mancaIndirizzo: (mancano) => `Adresse fehlt: ${mancano}`,
     spedisciA: (a) => `An ${a} verschicken`,
-    riportaDaMandare: (chi) => `Anfrage von ${chi} wieder auf «zu verschicken» setzen`,
+    riportaDaMandare: (chi) =>
+      `Anfrage von ${chi} wieder auf «zu verschicken» setzen`,
     segnaSpedita: (chi) => `Anfrage von ${chi} als verschickt markieren`,
     firmato: 'unterschrieben',
     inAttesa: 'ausstehend',
@@ -175,7 +205,8 @@ export const testi = catalogo(it, {
     nonPartita: 'nicht verschickt',
     inAttesaDellaFirma: 'wartet auf Unterschrift',
     senzaDatore: ` ohne ${de.datore.singolare}`,
-    senzaDatoreAiuto: 'Ohne Adresse des Arbeitgebers geht die E-Mail nicht raus',
+    senzaDatoreAiuto:
+      'Ohne Adresse des Arbeitgebers geht die E-Mail nicht raus',
     apriPeriodo: 'Zeitraum öffnen',
     nessunFoglio: 'kein Blatt geladen',
     contoPeriodo: (firmate, interessati, inviate) =>
@@ -206,16 +237,19 @@ export const testi = catalogo(it, {
       `\n\n${quante} ${perNumero(quante, 'bleibt', 'bleiben')} zurück: ` +
       'Es gibt keine Adresse, an die man schreiben könnte.',
     titolo: 'Absenzen zum Unterschreiben',
-    aiuto: 'ein Zeitraum nach dem anderen: die Blätter, die rausgehen, die E-Mail, ' +
+    aiuto:
+      'ein Zeitraum nach dem anderen: die Blätter, die rausgehen, die E-Mail, ' +
       'die Unterschriften, die zurückkommen',
     caricaPdf: 'PDFs laden',
     caricaPdfAiuto:
       'Hol die PDFs der Schule herein und zieh danach ihre Seiten auf das Feld der ' +
       'Person, zu der sie gehören. Du kannst sie auch einfach auf die Seite fallen lassen.',
     importaFogli: 'Blätter importieren',
-    importaFogliAiuto: 'Nimmt einen Ordner mit PDFs und ordnet sie nach dem Dateinamen zu',
+    importaFogliAiuto:
+      'Nimmt einen Ordner mit PDFs und ordnet sie nach dem Dateinamen zu',
     preparaInvio: (quante) => `Versand vorbereiten (${quante})`,
-    completaIndirizzi: 'Ergänze die Adressen der Arbeitgeber in den Personenblättern',
+    completaIndirizzi:
+      'Ergänze die Adressen der Arbeitgeber in den Personenblättern',
     preparaRichieste: 'Bereitet die Anfragen nach den Mail-Einstellungen vor',
     nessunPeriodo: 'Kein Zeitraum offen',
     spiegaPeriodo:
@@ -237,8 +271,10 @@ export const testi = catalogo(it, {
     apriPeriodoDellaClasse: 'Zeitraum dieser Klasse öffnen',
     preparaEmail: 'E-Mail vorbereiten',
     caricaFirmato: (chi) => `Unterschriebenes Blatt von ${chi} laden`,
-    riportaNonPartita: 'Wieder auf «zu verschicken»: Die E-Mail ist nicht rausgegangen',
-    segnaSpeditaDaPosta: 'Als verschickt markieren: Du hast sie aus dem Mailprogramm verschickt',
+    riportaNonPartita:
+      'Wieder auf «zu verschicken»: Die E-Mail ist nicht rausgegangen',
+    segnaSpeditaDaPosta:
+      'Als verschickt markieren: Du hast sie aus dem Mailprogramm verschickt',
     udPerse: (perse, previste) =>
       `${perse} von ${quanti(previste, de.unitaDidattica)} verpasst`,
     percentoAssenza: (percento) => `${numero(percento)} % Absenzen`,
@@ -258,8 +294,12 @@ export const testi = catalogo(it, {
     },
     foglio: (tipo, firmato) =>
       tipo === 'assenze'
-        ? (firmato ? 'absences signées' : 'absences')
-        : (firmato ? 'retards signés' : 'retards'),
+        ? firmato
+          ? 'absences signées'
+          : 'absences'
+        : firmato
+          ? 'retards signés'
+          : 'retards',
     diChi: (che, chi) => `${che} de ${chi}`,
     daDividere: (pagine) => `à répartir · ${plurale(pagine, 'page', 'pages')}`,
     guarda: (nome) => `Voir ${nome}`,
@@ -273,7 +313,8 @@ export const testi = catalogo(it, {
     allegati: (fogli) =>
       `${plurale(fogli, 'feuille', 'feuilles')} en pièce jointe. ` +
       'Le brouillon s’ouvre dans ton programme de messagerie, et c’est toi qui l’envoies.',
-    giaPartita: '\n\nLa demande était déjà partie : elle arrivera une deuxième fois.',
+    giaPartita:
+      '\n\nLa demande était déjà partie : elle arrivera une deuxième fois.',
     prepara: 'Préparer',
     nonPartitaPerche: (errore) => `Non envoyée : ${errore}`,
     speditaIl: (giorno, a) => `Envoyée le ${giorno} à ${a}\nRenvoyer`,
@@ -318,17 +359,18 @@ export const testi = catalogo(it, {
       `\n\n${quante} ${perNumero(quante, 'reste', 'restent')} de côté : ` +
       'il n’y a aucune adresse à laquelle écrire.',
     titolo: 'Absences à faire signer',
-    aiuto: 'une période à la fois : les feuilles qui partent, l’e-mail, les signatures qui ' +
+    aiuto:
+      'une période à la fois : les feuilles qui partent, l’e-mail, les signatures qui ' +
       'reviennent',
     caricaPdf: 'Charger des PDF',
     caricaPdfAiuto:
       'Fais entrer les PDF de l’école : leurs pages se glissent ensuite sur la case de la ' +
       'personne concernée. On peut aussi les déposer sur la page.',
     importaFogli: 'Importer des feuilles',
-    importaFogliAiuto: 'Prend un dossier de PDF et les attribue d’après le nom du fichier',
+    importaFogliAiuto:
+      'Prend un dossier de PDF et les attribue d’après le nom du fichier',
     preparaInvio: (quante) => `Préparer l’envoi (${quante})`,
-    completaIndirizzi:
-      `Complète les adresses des ${fr.datore.plurale} dans les fiches personnelles`,
+    completaIndirizzi: `Complète les adresses des ${fr.datore.plurale} dans les fiches personnelles`,
     preparaRichieste: 'Prépare les demandes selon les réglages de messagerie',
     nessunPeriodo: 'Aucune période ouverte',
     spiegaPeriodo:
@@ -341,8 +383,7 @@ export const testi = catalogo(it, {
     spediti: 'envoyés',
     firmati: 'signés',
     nonPartiteBreve: 'non envoyés',
-    matriceVuota:
-      `La matrice apparaît dès que la classe compte des ${fr.pif.plurale} qui la fréquentent.`,
+    matriceVuota: `La matrice apparaît dès que la classe compte des ${fr.pif.plurale} qui la fréquentent.`,
     nessunFoglioAiuto:
       'Aucune feuille chargée : glisse ici le PDF de l’école et dépose ses pages sur la ' +
       'case de la personne concernée ; « Importer des feuilles » prend un dossier entier et ' +
@@ -351,7 +392,8 @@ export const testi = catalogo(it, {
     preparaEmail: 'Préparer l’e-mail',
     caricaFirmato: (chi) => `Charger la feuille signée de ${chi}`,
     riportaNonPartita: 'Remettre à envoyer : l’e-mail n’est pas parti',
-    segnaSpeditaDaPosta: 'Marquer comme envoyée : tu l’as envoyée depuis ta messagerie',
+    segnaSpeditaDaPosta:
+      'Marquer comme envoyée : tu l’as envoyée depuis ta messagerie',
     udPerse: (perse, previste) =>
       `${quanti(perse, fr.unitaDidattica)} ${perNumero(perse, 'manquée', 'manquées')} ` +
       `sur ${previste}`,
@@ -372,8 +414,12 @@ export const testi = catalogo(it, {
     },
     foglio: (tipo, firmato) =>
       tipo === 'assenze'
-        ? (firmato ? 'signed absences' : 'absences')
-        : (firmato ? 'signed late arrivals' : 'late arrivals'),
+        ? firmato
+          ? 'signed absences'
+          : 'absences'
+        : firmato
+          ? 'signed late arrivals'
+          : 'late arrivals',
     diChi: (che, chi) => `${che} for ${chi}`,
     daDividere: (pagine) => `to split · ${plurale(pagine, 'page', 'pages')}`,
     guarda: (nome) => `View ${nome}`,
@@ -387,7 +433,8 @@ export const testi = catalogo(it, {
     allegati: (fogli) =>
       `${plurale(fogli, 'sheet', 'sheets')} attached. ` +
       'The draft opens in your email program, and you are the one who sends it.',
-    giaPartita: '\n\nThe request had already gone out: it will arrive a second time.',
+    giaPartita:
+      '\n\nThe request had already gone out: it will arrive a second time.',
     prepara: 'Prepare',
     nonPartitaPerche: (errore) => `Not sent: ${errore}`,
     speditaIl: (giorno, a) => `Sent on ${giorno} to ${a}\nSend again`,
@@ -432,7 +479,8 @@ export const testi = catalogo(it, {
       `\n\n${quante} ${perNumero(quante, 'is', 'are')} left out: ` +
       'there is no address to write to.',
     titolo: 'Absences to get signed',
-    aiuto: 'one period at a time: the sheets going out, the email, the signatures coming back',
+    aiuto:
+      'one period at a time: the sheets going out, the email, the signatures coming back',
     caricaPdf: 'Load PDFs',
     caricaPdfAiuto:
       'Bring in the school’s PDFs: you then drag their pages onto the box of the person ' +
@@ -462,7 +510,8 @@ export const testi = catalogo(it, {
     caricaFirmato: (chi) => `Load ${chi}’s signed sheet`,
     riportaNonPartita: 'Back to “to send”: the email didn’t go out',
     segnaSpeditaDaPosta: 'Mark as sent: you sent it from your email program',
-    udPerse: (perse, previste) => `${perse} of ${quanti(previste, en.unitaDidattica)} missed`,
+    udPerse: (perse, previste) =>
+      `${perse} of ${quanti(previste, en.unitaDidattica)} missed`,
     percentoAssenza: (percento) => `${numero(percento)}% absence`,
     appelliDaCompletare: 'attendance to complete',
     apriScheda: 'Open the record',

@@ -15,7 +15,7 @@ const it = {
   presenti: (presenti: number, su: number, ud: number) =>
     `${presenti} presenti su ${su} · ${ud} UD`,
   udAssenza: (ud: number) => ` · ${ud} UD di assenza`,
-  tuttaLOra: (nome: string) => `Tutta l’ora di ${nome}`,
+  tuttaLOra: (nome: string) => `Tutta la lezione di ${nome}`,
   cella: (nome: string, ud: number, inizio: string, fine: string) =>
     `${nome}, UD ${ud} (${inizio}–${fine})`,
   colonna: (ud: number, inizio: string, fine: string) =>
@@ -31,7 +31,7 @@ const it = {
   azzeraTitolo: (nonImpostato: string) => `Rimette ogni casella a «${nonImpostato}»`,
   azzerareTitolo: 'Azzerare l’appello?',
   azzerareTesto: (nonImpostato: string) =>
-    `Ogni casella dell’ora torna a «${nonImpostato}»: non si può disfare.`,
+    `Ogni casella della lezione torna a «${nonImpostato}»: non si può disfare.`,
   azzerato: 'Appello azzerato: nessuna casella impostata.',
   nessuno: `Nessuna ${PIF.singolare} nella classe`,
   vaiAllaClasse: 'Vai alla classe',

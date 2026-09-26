@@ -12,7 +12,7 @@ const it = {
   soluzioneDelRecupero: 'Soluzione del recupero',
   scansioneDi: (nome: string) => `Scansione di ${nome}`,
   provaDel: (corso: string, data: string) => `${corso} · prova del ${data}`,
-  assenteAppello: ' · risulta assente dall’appello di quell’ora',
+  assenteAppello: ' · risulta assente dall’appello di quella lezione',
   assenteProva: ' · segnato assente alla prova',
   siRifaIl: 'Si rifà il',
   aiutoSiRifa: 'Vuoto lo rimette fra quelli da fissare.',
