@@ -1,0 +1,149 @@
+/*
+ * La finestra di dialogo: `showInputBox`, `showQuickPick` e i messaggi.
+ *
+ * L'aspetto comune e il tema vengono da `base.css` («aspetto.tema», girato dal
+ * main in `nativeTheme.themeSource`); qui solo quel che è di questa finestra.
+ */
+
+@import '../shared/base.css';
+
+/*
+ * La finestra ha un'altezza massima (`altezza` in `environment/dialogs.ts`)
+ * che ignora «Dimensione testo» di Windows: col testo grande il contenuto
+ * scorre, altrimenti l'eccedenza sparisce con dentro i pulsanti.
+ */
+body {
+  padding: var(--spazio-4);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+h1 {
+  margin-bottom: var(--spazio-1);
+}
+
+.invito {
+  margin: 0 0 var(--spazio-3);
+  color: var(--testo-quieto);
+}
+
+/* Altezza minima anche da vuoto: l'errore che compare non sposta i pulsanti. */
+.errore {
+  min-height: 1.4em;
+  margin: var(--spazio-2) 0 0;
+  color: var(--negativo);
+}
+
+.voci {
+  max-height: 26rem;
+  margin-top: var(--spazio-3);
+}
+
+.tasti {
+  display: flex;
+  gap: var(--spazio-2);
+  justify-content: flex-end;
+  margin-top: var(--spazio-3);
+}
+
+/* I messaggi hanno due gruppi di pulsanti, come le modali del pannello: gesti
+   di contorno a sinistra, «Annulla» e il gesto atteso a destra. */
+.tasti__sinistra,
+.tasti__destra {
+  display: flex;
+  gap: var(--spazio-2);
+}
+
+.tasti__sinistra {
+  margin-right: auto;
+}
+
+/* Il gesto che non si disfa: come `.pulsante--pericolo` nel pannello. */
+button[data-ruolo='pericolo'] {
+  color: var(--negativo);
+  background: transparent;
+  border-color: color-mix(in srgb, var(--negativo) 55%, transparent);
+}
+
+button[data-ruolo='pericolo']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--negativo) 15%, transparent);
+}
+
+/* ---------------------------------------------------------------- i messaggi
+ *
+ * L'icona dice il tono con i colori degli avvisi del pannello; il testo resta
+ * neutro, leggibile in tutti e due i temi.
+ */
+
+.messaggio {
+  display: flex;
+  gap: var(--spazio-3);
+  align-items: flex-start;
+}
+
+.messaggio__icona {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--informativo);
+}
+
+.messaggio--avviso .messaggio__icona {
+  color: var(--attenzione);
+}
+
+.messaggio--errore .messaggio__icona {
+  color: var(--negativo);
+}
+
+.messaggio__testi {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+}
+
+/* Il testo si copia (chi chiede aiuto lo incolla); un percorso lungo va a capo. */
+.messaggio h1,
+.messaggio__dettaglio,
+.messaggio__fatti {
+  overflow-wrap: anywhere;
+  user-select: text;
+  cursor: text;
+}
+
+.messaggio__dettaglio {
+  margin: var(--spazio-2) 0 0;
+  color: var(--testo-quieto);
+  white-space: pre-line;
+}
+
+/* Le versioni (del file, del programma) su due colonne, in un riquadro come i campi. */
+.messaggio__fatti {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spazio-1) var(--spazio-3);
+  margin: var(--spazio-3) 0 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  background: var(--campo-sfondo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+}
+
+.messaggio__fatti dt {
+  color: var(--testo-quieto);
+}
+
+.messaggio__fatti dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.messaggio + .tasti {
+  margin-top: var(--spazio-4);
+}

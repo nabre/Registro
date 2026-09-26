@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Chiedere una cosa, farne scegliere una, dirne una: `showInputBox`,
+  `showQuickPick` e i messaggi con i loro pulsanti (`chiediMessaggio`). Questa
+  pagina è tutte e tre — il tipo arriva nella query, insieme ai parametri già
+  ripuliti dal main process (`environment/dialogs.ts`).
+
+  Il markup è vuoto apposta: i tre moduli sono diversi abbastanza da non
+  condividere niente oltre al titolo, e li costruisce `dialog.ts`. L'aspetto sta
+  in `dialog.css`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:;">
+<title>Regiclass</title> <!-- testo-fisso: il marchio non si traduce -->
+<link rel="stylesheet" href="registro://app/dist/dialog.css">
+</head>
+<body>
+<main id="radice"></main>
+<script src="registro://app/dist/dialog.js"></script>
+</body>
+</html>

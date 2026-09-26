@@ -1,0 +1,11 @@
+node_modules/
+dist*/
+pacchetti/
+
+.claude/settings.local.json
+# Le copie di lavoro degli agenti: rami a parte, che rientrano con un merge.
+.claude/worktrees/
+
+# La cache di PowerShell, che PowerShell scrive nella cartella da cui lo si
+# lancia quando HOME punta qui: non è del progetto.
+Microsoft/

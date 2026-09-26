@@ -1,0 +1,312 @@
+/* Le scatole in cui sta il contenuto: schede e righe di sintesi. */
+
+/* ------------------------------------------------------------------ schede */
+
+/*
+ * La scheda è un foglio bianco sulla pagina: `--sfondo-scheda`, filo tenue,
+ * il raggio più largo e un'ombra appena visibile (il perché del bianco è in
+ * `theme.css`).
+ *
+ * `overflow: hidden` fa seguire la curva degli angoli a tabelle e fasce in
+ * testa. Chi ha dentro qualcosa di `sticky` lo toglie (vedi `class-teacher.css`).
+ */
+.scheda {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-scheda);
+  background: var(--sfondo-scheda);
+  box-shadow: var(--ombra-scheda);
+  overflow: hidden;
+}
+
+/*
+ * La testata è il titolo del foglio, senza fascia né filo: la separano dal
+ * corpo il titolo stesso, più grande e scuro, e l'aria sopra.
+ */
+.scheda__testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-4) var(--dentro-scheda) var(--spazio-2);
+  background: transparent;
+  flex-wrap: wrap;
+}
+
+.scheda__titolo {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+}
+
+.scheda__corpo {
+  padding: var(--dentro-scheda);
+}
+
+/* Con la testata sopra il corpo le si accosta; senza, tiene i suoi venti pixel anche in alto. */
+.scheda__testata + .scheda__corpo {
+  padding-top: var(--spazio-2);
+}
+
+.colonne {
+  display: grid;
+  gap: var(--spazio-4);
+  align-items: start;
+}
+
+.colonne--lezione { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+/* In `rem`: la colonna tiene un elenco di nomi e cresce con il testo. */
+.colonne--elenco { grid-template-columns: 16rem minmax(0, 1fr); }
+.colonne--valutazioni { grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr); }
+
+/*
+ * In `em`, come gli altri punti di rottura: dentro una `@media` l'`em` è la
+ * dimensione del documento, che segue la «Dimensione testo» di Windows. Col
+ * testo al 150% la colonna si spezza prima, quando a parità di larghezza ci
+ * stanno meno parole.
+ */
+@media (max-width: 68.75em) {
+  .colonne--lezione,
+  .colonne--valutazioni {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.colonna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  min-width: 0;
+}
+
+/* Campi e descrizioni: una colonna sola, larga quanto si legge. */
+.colonna--impostazioni { max-width: 62rem; }
+
+/* ------------------------------------------------------- titoli di mucchio
+ *
+ * Il terzo livello degli elenchi di lavoro, sotto classe e tipologia: «Rimaste
+ * indietro», «Scadono oggi», «Da correggere».
+ *
+ * Il nome sta in una pastiglia larga quanto la parola: si distingue dalle
+ * schede sotto senza pesare più del titolo della tipologia sopra. Il numero sta
+ * in fondo alla riga, incolonnato con quelli degli altri mucchi. Maiuscoletto
+ * piccolo e non grassetto, per non confondersi col titolo della tipologia.
+ */
+.gruppo-titolo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  margin: 0;
+  font-size: var(--corpo-minore);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.gruppo-titolo__nome {
+  flex: none;
+  padding: 2px var(--spazio-2);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+/* Il numero in fondo alla riga. Nel markup viene subito dopo il nome: con la
+   voce si sente «scadono oggi, tre». */
+.gruppo-titolo__conto {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------------ sintesi */
+
+.sintesi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-5);
+  flex-wrap: wrap;
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+}
+
+.dato__valore {
+  font-size: 1.3em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.dato__etichetta {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-nota);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/*
+ * I numeri in cima a una scheda, a tessere: il nome sopra, piccolo, il valore
+ * sotto, grande, in una griglia che va a capo da sola.
+ *
+ * Il nome sta sopra per `column-reverse`, non nel markup: con la voce si sente
+ * «dodici, lezioni».
+ *
+ * Tutto sotto `.sintesi--incassata`: la testata compatta (`foundations.css`)
+ * mette i suoi `.dato` in riga, come una frase.
+ */
+.sintesi--incassata {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  align-items: stretch;
+  gap: var(--spazio-3);
+  margin-bottom: var(--spazio-4);
+}
+
+/* Tessere alte uguali, nome in cima e numero in fondo: se un nome va a capo i numeri restano allineati. */
+.sintesi--incassata .dato {
+  flex-direction: column-reverse;
+  justify-content: space-between;
+  gap: var(--spazio-1);
+  min-width: 0;
+  padding: var(--spazio-3) var(--spazio-4);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-scheda);
+}
+
+.sintesi--incassata .dato__valore {
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.sintesi--incassata .dato__etichetta {
+  font-size: var(--corpo-piccolo);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.dato--positivo .dato__valore { color: var(--positivo); }
+.dato--attenzione .dato__valore { color: var(--attenzione); }
+.dato--negativo .dato__valore { color: var(--negativo); }
+
+.pastiglia {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px var(--spazio-2);
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid transparent;
+  font-size: var(--corpo-nota);
+  /* Il 500 fa leggere la pastiglia piccola come un'etichetta. */
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.pastiglia .icona { width: 12px; height: 12px; }
+
+/*
+ * Sul velo tinto il testo usa `--su-velo-*` (in `theme.css`): la stessa tinta
+ * più scura, perché a 0,82em il testo è piccolo e WCAG AA vuole 4,5:1.
+ */
+.pastiglia--neutro { background: var(--sfondo-alto-2); color: var(--testo); }
+.pastiglia--quiete { background: transparent; border-color: var(--bordo-tenue); color: var(--testo-quieto); }
+.pastiglia--positivo { background: color-mix(in srgb, var(--positivo) 18%, transparent); color: var(--su-velo-positivo); }
+.pastiglia--negativo { background: color-mix(in srgb, var(--negativo) 18%, transparent); color: var(--su-velo-negativo); }
+.pastiglia--attenzione { background: color-mix(in srgb, var(--attenzione) 20%, transparent); color: var(--su-velo-attenzione); }
+.pastiglia--informativo { background: color-mix(in srgb, var(--informativo) 18%, transparent); color: var(--su-velo-informativo); }
+
+.punto-colore {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.barra {
+  height: 6px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  overflow: hidden;
+}
+
+.barra__riempimento { height: 100%; border-radius: var(--raggio-pastiglia); }
+.barra__riempimento--positivo { background: var(--positivo); }
+.barra__riempimento--informativo { background: var(--informativo); }
+.barra__riempimento--attenzione { background: var(--attenzione); }
+
+.separatore { height: 1px; background: var(--bordo-tenue); }
+
+.testo-quieto { color: var(--testo-quieto); margin: 0; }
+
+/* L'esito della prova della posta: c'è solo dopo che si è premuto. */
+.posta-esito:not(:empty) { margin-top: var(--spazio-3); }
+
+.avviso {
+  display: flex;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border-radius: var(--raggio-grande);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo);
+}
+
+.avviso--attenzione { border-color: color-mix(in srgb, var(--attenzione) 45%, transparent); }
+.avviso--negativo { border-color: color-mix(in srgb, var(--negativo) 45%, transparent); }
+.avviso--attenzione .icona { color: var(--attenzione); }
+.avviso--negativo .icona { color: var(--negativo); }
+.avviso--informativo .icona { color: var(--informativo); }
+.avviso__testo { flex: 1; }
+.avviso ul { margin: var(--spazio-1) 0 0; padding-left: var(--spazio-4); }
+
+.stato-vuoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-6) var(--spazio-4);
+  text-align: center;
+}
+
+/*
+ * L'icona di un vuoto in un tondo tinto d'accento, con un anello più tenue
+ * attorno: lo stesso segno in ogni pagina vuota. L'anello è un'ombra e non un
+ * bordo, per non spostare il tondo.
+ */
+.stato-vuoto .icona--grande {
+  box-sizing: content-box;
+  width: 22px;
+  height: 22px;
+  padding: 11px;
+  margin-bottom: var(--spazio-2);
+  border-radius: 50%;
+  background: var(--velo-accento);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accento) 6%, transparent);
+  color: var(--accento);
+  stroke-width: 1.7;
+}
+
+/*
+ * Un vuoto da solo sulla pagina (non in una scheda) prende un riquadro
+ * tratteggiato: il segno di «qui ci andrà».
+ */
+.vista > .stato-vuoto,
+.colonne > .stato-vuoto,
+.colonna > .stato-vuoto {
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio-scheda);
+  background: color-mix(in srgb, var(--sfondo-scheda) 50%, transparent);
+}
+
+.stato-vuoto__titolo { margin: 0; font-weight: 600; }
+.stato-vuoto__testo { margin: 0; color: var(--testo-quieto); max-width: 46ch; }
+.stato-vuoto__azione { margin-top: var(--spazio-2); }
+.stato-vuoto__pulsanti { display: flex; gap: var(--spazio-2); }

@@ -1,0 +1,123 @@
+/*
+ * Che cosa sta vedendo la classe, nel pannello del docente.
+ *
+ * Una fascia attaccata in cima al contenuto dice che cosa è proiettato adesso,
+ * visto che il proiettore è alle spalle. I comandi sono nella scheda
+ * «Proiezione» della barra; qui restano le linguette e l'avviso dei dati riservati.
+ */
+
+/*
+ * La fascia ricopre i margini della pagina: le misure negative sono
+ * `--margine-pagina`, il `padding` di `.contenuto`, che cresce con la finestra.
+ */
+.barra-proiezione {
+  position: sticky;
+  top: calc(var(--margine-pagina) * -1);
+  z-index: 5;
+  margin: calc(var(--margine-pagina) * -1) calc(var(--margine-pagina) * -1) var(--spazio-4);
+  padding: var(--spazio-2) var(--margine-pagina);
+  background: color-mix(in srgb, var(--accento) 12%, var(--sfondo));
+  border-bottom: 1px solid color-mix(in srgb, var(--accento) 40%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/* In pausa la fascia si spegne come lo schermo, per distinguerla a colpo d'occhio. */
+.barra-proiezione--sospesa {
+  background: var(--sfondo-alto-2);
+  border-bottom-color: var(--bordo);
+}
+
+.barra-proiezione__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+.barra-proiezione__marchio {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  white-space: nowrap;
+}
+
+.barra-proiezione__marchio .icona {
+  color: var(--accento);
+}
+
+.barra-proiezione--sospesa .barra-proiezione__marchio .icona {
+  color: var(--testo-quieto);
+}
+
+.barra-proiezione__blocchi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.barra-proiezione__avviso {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-size: 0.92em;
+  color: var(--attenzione);
+}
+
+.barra-proiezione__avviso .icona {
+  color: var(--attenzione);
+  flex: none;
+}
+
+/* -------------------------------------------------------- gli interruttori */
+
+.blocco-proiettato {
+  font: inherit;
+  color: var(--testo-quieto);
+  background: transparent;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-pastiglia);
+  padding: 2px var(--spazio-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.blocco-proiettato:hover {
+  border-color: var(--bordo);
+  color: var(--testo);
+}
+
+/*
+ * Tre stati: spenta, accesa (fra le schede fra cui si passa) e in vista (quella
+ * che la classe guarda adesso). Conta la terza, che da qui non si vede.
+ */
+.blocco-proiettato--acceso {
+  border-color: var(--accento);
+  color: var(--accento);
+  font-weight: 600;
+}
+
+.blocco-proiettato--in-vista {
+  background: var(--accento);
+  color: var(--su-tinta);
+}
+
+/* I blocchi sui singoli allievi restano riconoscibili anche spenti: vanno guardati due volte. */
+.blocco-proiettato--riservato {
+  border-style: dashed;
+}
+
+.blocco-proiettato--riservato.blocco-proiettato--acceso {
+  border-color: var(--attenzione);
+  border-style: solid;
+  color: var(--attenzione);
+}
+
+/* Blocco riservato in vista: il colore deve gridare, ci sono i singoli allievi sullo schermo. */
+.blocco-proiettato--riservato.blocco-proiettato--in-vista {
+  background: var(--attenzione);
+  color: var(--su-tinta);
+}

@@ -1,0 +1,196 @@
+/*
+ * Le impostazioni: la testata attaccata in alto e la riga di un'impostazione.
+ *
+ * Le descrizioni del manifesto sono lunghe: colonna larga e testo intero sotto
+ * ogni campo, chiuso finché non si apre con la «i» accanto al nome.
+ */
+
+@import '../shared/base.css';
+/* Le schede con la figura (il tema) usano lo stesso foglio del pannello: solo
+   token e misure, che questa pagina ha da `base.css`. */
+@import '../../../src/ui/styles/figure-choice.css';
+
+/* ------------------------------------------------------------- il telaio */
+
+/* La testata resta in vista mentre si scorre: il filtro serve quando l'elenco è lungo. */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  padding: var(--spazio-4) var(--spazio-5) var(--spazio-3);
+  background: var(--sfondo);
+  border-bottom: 1px solid var(--bordo);
+}
+
+#cerca {
+  max-width: 28.75rem;
+}
+
+/* Il rimando alla pagina del registro: premibile ma discreto. */
+#rimando {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  margin: 0 var(--spazio-5) var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+}
+
+#rimando button {
+  min-width: 0;
+  margin-left: auto;
+}
+
+main {
+  padding: var(--spazio-1) var(--spazio-5) var(--spazio-6);
+}
+
+h2 {
+  margin: var(--spazio-5) 0 var(--spazio-1);
+}
+
+.vuoto {
+  padding: var(--spazio-5) 0;
+}
+
+/* -------------------------------------------------------------- la voce */
+
+.voce {
+  padding: var(--spazio-3) 0;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.voce__testata {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.voce__nome {
+  font-weight: 600;
+}
+
+.voce__chiave {
+  font-family: var(--carattere-mono);
+  font-size: 0.84em;
+  color: var(--testo-quieto);
+}
+
+/* «Ritira il valore»: solo sulle impostazioni scritte dal docente, discreto. */
+.voce__ritira {
+  min-width: 0;
+  margin-left: auto;
+  padding: 1px 9px;
+  font-size: 0.84em;
+  background: transparent;
+  border-radius: var(--raggio-pastiglia);
+}
+
+/* La «i» accanto al nome, come quella del pannello (`src/ui/styles/hint.css`).
+   Area premibile dei pulsanti nudi; le regole di `button` del foglio comune
+   (larghezza minima, fondo, bordo) vanno tolte tutte. */
+.voce__segno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: calc(-1 * var(--dentro-nudo)) 0 calc(-1 * var(--dentro-nudo)) 2px;
+  padding: var(--dentro-nudo);
+  border: none;
+  border-radius: var(--raggio-pastiglia);
+  background: transparent;
+  color: var(--testo-quieto);
+  line-height: 0;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.voce__segno:hover:not(:disabled),
+.voce__segno[aria-expanded='true'] {
+  color: var(--accento);
+  background: var(--velo-sfiorato);
+}
+
+.voce__icona {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+/* Al massimo settanta battute per riga: le descrizioni sono lunghe. */
+.voce__aiuto {
+  margin: var(--spazio-1) 0 0;
+  max-width: 68ch;
+  color: var(--testo-quieto);
+}
+
+.voce__campo {
+  margin-top: var(--spazio-2);
+}
+
+/* Un percorso: il campo in sola lettura e «Sfoglia…» sulla stessa riga. */
+.voce__campo:has(.voce__sfoglia) {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+.voce__campo:has(.voce__sfoglia) > label { flex: 1 1 auto; min-width: 0; }
+.voce__campo:has(.voce__sfoglia) input { width: 100%; }
+.voce__sfoglia { flex: none; }
+
+/* Da che cosa viene il valore: la stessa pastiglia, con le stesse parole, della pagina del registro. */
+.voce__pastiglia {
+  padding: 1px 8px;
+  font-size: 0.78em;
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid var(--bordo-tenue);
+  color: var(--testo-quieto);
+}
+
+.voce__pastiglia--scritta {
+  border-color: var(--attenzione, var(--bordo));
+  color: var(--attenzione, var(--testo));
+}
+
+/* Sospesa: il padre è spento e questa non conta. Resta visibile perché la guida la nomina. */
+.voce--sospesa .voce__nome,
+.voce--sospesa .voce__aiuto {
+  opacity: 0.6;
+}
+
+.voce__errore {
+  margin: var(--spazio-1) 0 0;
+  color: var(--negativo);
+}
+
+/* ------------------------------------------------------------- i campi */
+
+/* In `rem`: un campo tiene testo e deve crescere con il carattere. */
+input[type='text'],
+input[type='email'],
+input[type='number'],
+select {
+  max-width: 28.75rem;
+}
+
+input[type='number'] {
+  max-width: 10rem;
+}
+
+.spunta {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  cursor: pointer;
+}

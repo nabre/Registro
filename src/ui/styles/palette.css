@@ -1,0 +1,206 @@
+/* ---------------------------------------------------------------- la palette */
+
+/*
+ * La palette: una scheda sollevata con il campo grande in testa, le righe
+ * sotto titoletti piccoli, la riga scelta come pillola, i tasti in fondo.
+ * Usa i token delle schede della pagina (`--raggio-scheda`, `--sfondo-scheda`);
+ * il valore dopo la virgola è il ripiego dove il tema non li definisce.
+ */
+
+.palette__velo {
+  position: fixed;
+  inset: 0;
+  z-index: var(--piano-palette);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* Un po' sopra il centro, dove l'occhio sta già e senza coprire la riga che si guardava. */
+  padding-top: 12vh;
+  background: color-mix(in srgb, var(--testo) 25%, transparent);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, calc(100vw - 2 * var(--spazio-4)));
+  max-height: 72vh;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-scheda, 12px);
+  background: var(--sfondo-scheda, var(--sfondo));
+  box-shadow: var(--ombra-3);
+  overflow: hidden;
+}
+
+.palette__testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: 14px var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.palette__testa > .icona {
+  flex: none;
+  color: var(--testo-quieto);
+}
+
+.palette__campo {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-size: 1.1em;
+}
+
+.palette__campo::placeholder { color: var(--testo-quieto); }
+
+/* Niente filo di fuoco sul campo: è l'unico posto dove si può essere, lo dice il cursore. */
+.palette__campo:focus-visible {
+  outline: none;
+}
+
+.palette__elenco {
+  overflow-y: auto;
+  padding: 6px var(--spazio-2) var(--spazio-2);
+}
+
+/* Fra un gruppo e l'altro basta l'aria. */
+.palette__gruppo + .palette__gruppo { margin-top: 6px; }
+
+/* Il titoletto: piccolo, maiuscoletto, quieto. Resta in cima mentre si scorre il suo gruppo. */
+.palette__gruppo-titolo {
+  position: sticky;
+  top: -6px;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  padding: 8px var(--spazio-3) 4px;
+  background: var(--sfondo-scheda, var(--sfondo));
+  color: var(--testo-quieto);
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* «6 di 12»: un conto, non un titolo, quindi senza maiuscole. */
+.palette__gruppo-conto {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Una riga dell'elenco, non un bottone: vedi `components/palette.ts`. */
+.palette__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: 7px var(--spazio-3);
+  border-radius: var(--raggio-grande);
+  color: var(--testo);
+  cursor: pointer;
+}
+
+.palette__voce:hover { background: var(--velo-sfiorato); }
+
+/* Il segno in un quadratino tenue: le specie di riga si distinguono dalla forma. */
+.palette__segno {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--raggio);
+  background: var(--velo-quieto);
+  color: var(--testo-quieto);
+}
+
+.palette__testo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.palette__titolo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette__aiuto {
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La riga scelta è una pillola del colore del programma, come la voce accesa
+   della barra laterale. Il testo resta `--testo`: verde su velo verde non si leggerebbe. */
+.palette__voce--scelta,
+.palette__voce--scelta:hover {
+  background: var(--velo-accento);
+}
+
+.palette__voce--scelta .palette__segno {
+  background: var(--sfondo-scheda, var(--sfondo));
+  color: var(--accento);
+}
+
+/* Spenta ma leggibile: la frase sotto dice perché il comando non si può
+   eseguire, e deve restare sopra il contrasto minimo nel tema chiaro. */
+.palette__voce--impedita {
+  opacity: 0.75;
+}
+
+.palette__voce--impedita .palette__aiuto {
+  color: var(--attenzione);
+}
+
+.palette__vuoto {
+  margin: 0;
+  padding: var(--spazio-4);
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+/* Il piede: i tasti della palette, su una fascia appena tinta. */
+.palette__piede {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2) var(--spazio-4);
+  padding: 8px var(--spazio-4);
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+  color: var(--testo-quieto);
+  font-size: 0.78em;
+}
+
+.palette__tasto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.palette__tasto > span { margin-left: 2px; }
+
+.palette kbd {
+  min-width: 1.6em;
+  padding: 1px 5px;
+  border: 1px solid var(--bordo-tenue);
+  border-bottom-width: 2px;
+  border-radius: var(--raggio-piccolo);
+  background: var(--sfondo-scheda, var(--sfondo-alto));
+  color: var(--testo-quieto);
+  font-family: inherit;
+  font-size: 0.78em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.palette__piede kbd { font-size: 0.95em; }

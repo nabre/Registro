@@ -1,0 +1,242 @@
+/* La barra in fondo: che cosa manca, e com'è messa la macchina. */
+
+/*
+ * Attraversa tutta la finestra, barra laterale compresa: parla
+ * dell'applicazione (l'ora da compilare, la posta, l'anno), non della pagina.
+ */
+.barra-stato {
+  /*
+   * Il ritmo della barra: quanto respira una voce, quanto distano due voci
+   * vicine di senso, quanto si staccano due blocchi diversi.
+   */
+  --respiro-y: 2px;
+  --respiro-x: var(--spazio-2);
+  --vicino: var(--spazio-1);
+  --stacco: var(--spazio-3);
+
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stacco);
+  padding: 0 var(--spazio-3);
+  /* Alta quanto il contenuto, in `em`: cresce col testo di sistema. Il minimo
+     tiene ferma la riga quando i blocchi si svuotano, o la pagina salterebbe. */
+  min-height: 2.15em;
+  /* Tenue come il filo sotto la barra dei comandi. */
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto);
+  font-size: 0.86em;
+  /* Carattere più piccolo del corpo e cifre tabulari: i conti che cambiano («legge 3 di 12») non fanno ballare la riga. */
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  /* Sopra il contenuto che scorre, sotto finestre e menu. */
+  z-index: 4;
+}
+
+.barra-stato__gruppo {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Il gruppo di destra si stringe per ultimo: sparisce prima l'anno in uso che l'ora da compilare. */
+.barra-stato__gruppo--coda {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Lo stato della macchina non si accorcia: «senza rete» tagliato a metà non si capisce. */
+.barra-stato__gruppo--coda > .barra-stato__blocco:last-child { flex: none; }
+
+/*
+ * Un blocco: le voci che rispondono alla stessa domanda, vicine; fra un blocco
+ * e l'altro un filo, l'unica punteggiatura della riga.
+ */
+.barra-stato__blocco {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+}
+
+/* Un blocco vuoto non lascia il suo filo (filtri senza anno, interruttori prima delle impostazioni). */
+.barra-stato__blocco:empty { display: none; }
+
+.barra-stato__blocco:not(:empty) + .barra-stato__blocco:not(:empty) {
+  margin-left: var(--stacco);
+  padding-left: var(--stacco);
+  border-left: 1px solid var(--bordo-tenue);
+}
+
+/* -------------------------------------------------------------------- la voce */
+
+.barra-stato__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+  padding: var(--respiro-y) var(--respiro-x);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+
+/* Il testo si accorcia, l'icona no. */
+.barra-stato__testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-stato__voce .icona {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/*
+ * A riposo le voci premibili sono uguali alle altre: la barra si legge. Cursore
+ * e fondo al passaggio dicono che si possono premere.
+ */
+.barra-stato__voce--premibile {
+  cursor: pointer;
+}
+
+.barra-stato__voce--premibile:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__voce--premibile:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -1px;
+}
+
+/* ------------------------------------------------------------------ i filtri */
+
+/*
+ * Le due tendine accanto all'ora da fare: il corso e il periodo. Piccole,
+ * senza cornice a riposo, alte quanto una voce; il bordo arriva al passaggio.
+ */
+.barra-stato__filtro {
+  display: flex;
+  align-items: center;
+  gap: var(--vicino);
+  min-width: 0;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.barra-stato__filtro .icona {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--testo-quieto);
+}
+
+.barra-stato__tendina {
+  /* `none` e non `menulist`: la cornice di sistema gonfierebbe la riga. */
+  appearance: none;
+  max-width: 11rem;
+  padding: var(--respiro-y) var(--respiro-x) var(--respiro-y) var(--vicino);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* La freccia sta dopo la tendina e dice solo che si apre; il clic lo prende la tendina. */
+.barra-stato__filtro > .icona:last-child {
+  margin-left: -2px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.barra-stato__tendina:hover {
+  border-color: var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.barra-stato__tendina:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -1px;
+}
+
+/* Il menu è del sistema e non eredita dalla barra: senza, su fondo scuro, sarebbe nero su nero. */
+.barra-stato__tendina option {
+  background: var(--sfondo-alto);
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------------- i toni */
+
+/*
+ * Il colore lo porta l'icona, non il testo: la barra deve poter essere ignorata
+ * finché non serve.
+ */
+.barra-stato__voce--quiete .icona { color: var(--testo-quieto); }
+.barra-stato__voce--positivo .icona { color: var(--positivo); }
+.barra-stato__voce--informativo .icona { color: var(--informativo); }
+.barra-stato__voce--attenzione .icona { color: var(--attenzione); }
+.barra-stato__voce--negativo .icona { color: var(--negativo); }
+
+/* Le due voci che chiedono qualcosa colorano anche il testo: si leggono da lontano. */
+.barra-stato__voce--attenzione .barra-stato__testo { color: var(--attenzione); }
+
+.barra-stato__voce--negativo {
+  /* Una pastiglia, la forma che nel programma vuol dire «segnale». */
+  border-radius: var(--raggio-pastiglia);
+  border-color: color-mix(in srgb, var(--negativo) 40%, transparent);
+  background: color-mix(in srgb, var(--negativo) 10%, transparent);
+}
+
+.barra-stato__voce--negativo .barra-stato__testo {
+  color: var(--negativo);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- solo le icone */
+
+/*
+ * A destra solo l'icona: lo stato si legge dal colore, la frase è nel titolo.
+ * Il testo resta nel pulsante per chi legge con la voce, fuori vista.
+ */
+.barra-stato__gruppo--coda .barra-stato__testo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Un interruttore spento si vede spento: l'icona sbiadisce. */
+.barra-stato__voce[aria-pressed="false"] .icona { opacity: 0.55; }
+
+/* Sotto una certa larghezza i filtri si accorciano ma restano raggiungibili. */
+@media (max-width: 56.25em) {
+  .barra-stato__tendina { max-width: 7rem; }
+}
+
+/* Più stretto ancora spariscono le icone di destra: restano i filtri, l'ora da
+   fare e «senza rete», che non si nasconde mai. */
+@media (max-width: 34em) {
+  .barra-stato__gruppo--coda .barra-stato__voce:not(.barra-stato__voce--negativo) {
+    display: none;
+  }
+  /* Le voci nascoste non rendono il blocco `:empty`: si nasconde il blocco intero,
+     tranne quello di «senza rete», così non resta un filo a separare il nulla. */
+  .barra-stato__gruppo--coda
+    > .barra-stato__blocco:not(:has(.barra-stato__voce--negativo)) {
+    display: none;
+  }
+  .barra-stato__tendina { max-width: 5.5rem; }
+}

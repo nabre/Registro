@@ -1,0 +1,112 @@
+/*
+ * Il grafico delle note, disegnato da `components/notes.ts`.
+ *
+ * Foglio a sé perché lo importano il pannello e lo schermo per la classe: le
+ * misure vengono dalle variabili che ognuno definisce, così lo stesso grafico
+ * esce piccolo sul portatile e grande sul proiettore. Stessa forma del PDF:
+ * un punto per voto sopra l'asse della scala, con la riga della media.
+ */
+
+/* ------------------------------------------------- il grafico delle note */
+
+.note-grafico__conti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  margin-bottom: var(--spazio-2);
+}
+
+/* I numeri della riga dei conti: stanno qui perché li scrive il componente, in tutte e due le app. */
+.note-grafico__conti .conto strong {
+  color: var(--testo);
+  font-weight: 700;
+}
+
+.note-grafico__conti .conto--quieto {
+  color: color-mix(in srgb, var(--testo-quieto) 80%, transparent);
+}
+
+/* Una riga per etichetta: la media può cadere sulla sufficienza e si coprirebbero. */
+.note-grafico__riga-segno {
+  position: relative;
+  height: 1.15em;
+}
+
+.note-grafico__etichetta {
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+  font-size: 0.72em;
+  color: var(--testo-quieto);
+}
+
+/*
+ * Il campo dei punti: l'altezza la scrive il componente (dipende dalla pila più
+ * alta), le posizioni sono in percentuale sull'asse.
+ */
+.note-grafico__campo {
+  position: relative;
+  border-bottom: 1px solid var(--bordo);
+}
+
+/* La riga della media: tratteggiata, dietro ai punti. */
+.note-grafico__segno {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Tratteggio con un gradiente: un `border-left` tratteggiato di un pixel si perde su fondo scuro. */
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--testo-quieto) 0 3px,
+    transparent 3px 6px
+  );
+  opacity: 0.75;
+}
+
+.note-grafico__punto {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+}
+
+/* La sufficienza si legge dal colore del punto. */
+.note-grafico__punto--sotto {
+  background: var(--negativo);
+}
+
+.note-grafico__punto--sopra {
+  background: var(--positivo);
+}
+
+.note-grafico__asse {
+  position: relative;
+  height: 1.5em;
+  margin-top: 2px;
+}
+
+/* Le lineette dell'asse: il numero sotto il mezzo punto, un trattino più corto e muto sotto il quarto. */
+.note-grafico__lineetta {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 5px;
+  margin-left: -0.5px;
+  background: var(--bordo);
+}
+
+.note-grafico__lineetta--corta {
+  height: 2.5px;
+}
+
+.note-grafico__tacca {
+  position: absolute;
+  top: 6px;
+  font-size: 0.72em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}

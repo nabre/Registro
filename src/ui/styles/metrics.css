@@ -1,0 +1,116 @@
+/*
+ * Le misure: spazi, raggi, scala del testo, riempimenti, durate, piani.
+ *
+ * Solo dichiarazioni, nessuna regola, come `theme.css`: lo importano sia il
+ * pannello sia le pagine native (`shell/pages/shared/base.css`), che non
+ * possono prendere le regole di `foundations.css`. Dove una pagina ha
+ * davvero bisogno di una misura sua, la tiene nel suo foglio.
+ */
+
+:root {
+  /* ----------------------------------------------------------- gli spazi */
+
+  --spazio-1: 4px;
+  --spazio-2: 8px;
+  --spazio-3: 12px;
+  --spazio-4: 16px;
+  --spazio-5: 24px;
+  --spazio-6: 32px;
+
+  /* ----------------------------------------------------------- i raggi
+   *
+   * Più una cosa è grande, più è tondo il raggio, così lo spigolo sembra uguale
+   * a ogni misura: scheda 12px, riquadri (tabelle, menu, avvisi, tessere) 8px,
+   * quel che si preme 6px, segni piccoli dentro un riquadro 4px; pastiglie,
+   * puntini e contatori tondi pieni.
+   *
+   * Le misure stanno una dentro l'altra: un riquadro da 8 con 4 di margine in
+   * una scheda da 12 fa combaciare le curve. Per lo stesso motivo la voce di un
+   * selettore toglie al raggio del selettore il suo margine. */
+
+  /* La scheda, anche le finestre modali. */
+  --raggio-scheda: 12px;
+
+  /* Le miniature, le lezioni sul calendario, le etichette dentro un riquadro. */
+  --raggio-piccolo: 4px;
+  /* Il comando: pulsanti, campi, voci di un elenco, segmenti. */
+  --raggio: 6px;
+  /* Il riquadro: menu, avvisi, notifiche, tabelle, tessere. */
+  --raggio-grande: 8px;
+
+  /* La pastiglia: tonda in fondo a qualunque altezza (999 supera ogni altezza possibile). */
+  --raggio-pastiglia: 999px;
+
+  /* --------------------------------------------------------- la scala del testo
+   *
+   * `--corpo` sta in `theme.css` ed è l'unica misura assoluta; qui i gradini
+   * sotto, in `em`, che crescono con la «Dimensione testo» di Windows. Dove una
+   * pagina chiede un valore suo (0.94em per una tabella) lo tiene scritto lì.
+   */
+  --corpo-minuto: 0.72em;
+  --corpo-minore: 0.78em;
+  --corpo-nota: 0.82em;
+  --corpo-piccolo: 0.85em;
+  --corpo-vicino: 0.9em;
+  --corpo-titolo: 1.05em;
+
+  /* ------------------------------------------------- il riempimento dei comandi
+   *
+   * Lo spazio fra il bordo di un comando e il suo testo, fuori dalla scala
+   * degli spazi (i comandi vivono fra 3 e 10px). In forma `sopra-sotto
+   * destra-sinistra`: i due numeri vanno insieme.
+   */
+  --dentro-comando: 5px 10px;
+  --dentro-campo: 5px 8px;
+  --dentro-cella: 6px 10px;
+  /* La barra comandi, fitta per stare su una riga. Vale quanto `--dentro-campo`
+     ma è un token distinto: se i campi prendono aria, la barra non li segue. */
+  --dentro-comando-fitto: 5px 8px;
+  /* Un comando solo icona: 4px per lato su un'icona da 16 fanno i 24px di WCAG 2.5.8. */
+  --dentro-nudo: 4px;
+  /* Il margine di una scheda, di lato e in fondo: una scheda bianca chiede più
+     aria di un riquadro. Fuori scala perché la chiede solo lei. */
+  --dentro-scheda: 20px;
+
+  /* --------------------------------------------------------- quanto dura
+   *
+   * 120ms per quel che cambia sotto il dito (un'opacità, uno scavo), 160ms per
+   * quel che entra ed esce: più lungo si nota come ritardo.
+   *
+   * Ogni animazione ha la sua guardia `prefers-reduced-motion`: i token dicono
+   * quanto dura, non se deve esserci.
+   */
+  --durata-svelta: 120ms;
+  --durata: 160ms;
+  --curva: ease;
+  --curva-entra: ease-out;
+  --curva-esce: ease-in;
+
+  /* ------------------------------------------------------------- i piani
+   *
+   * Chi sta sopra a chi, con numeri distinti: a pari numero deciderebbe
+   * l'ordine nel DOM. Il menu sta sopra le notifiche (è la cosa che si sta
+   * usando, e una notifica sopra gli ruberebbe i clic); il fumetto di un
+   * suggerimento sopra il menu, perché si apre dentro qualunque cosa; il filo
+   * di lavoro sopra tutto, sono due pixel in cima.
+   *
+   * I piani da 1 a 6 sono locali (valgono fra fratelli) e restano nei fogli,
+   * tranne i due ripetuti in ogni tabella, qui sotto.
+   */
+  --piano-incollato: 1;
+  --piano-incollato-2: 2;
+  --piano-modale: 40;
+  --piano-palette: 50;
+  --piano-notifiche: 60;
+  --piano-menu: 70;
+  --piano-suggerimento: 80;
+  --piano-filo: 90;
+
+  /* --------------------------------------------------- quel che non è pagina
+   *
+   * Barra dei comandi, barra di stato e margine: quel che una colonna alta
+   * quanto la finestra deve togliersi. Chi deve togliere anche altro (una
+   * testata, una riga di filtri) parte da qui e aggiunge la sua parte.
+   */
+  --fuori-pagina: 9rem;
+}

@@ -1,0 +1,194 @@
+// Come si impacchetta l'applicazione. `npm run package`.
+//
+// JSON con commenti di riga (electron-builder lo legge con JSON5; `esbuild.mjs`
+// li toglie riga per riga). La versione viene da `package.json`.
+{
+  // Su Windows è l'AppUserModelID di collegamenti e notifiche: uguale a
+  // `IDENTITA` in `src/environment/notifications.ts` (`verificaIdentita()` in
+  // `esbuild.mjs`).
+  "appId": "ch.nabre.regiclass",
+  "productName": "Regiclass",
+  "copyright": "Nabre",
+
+  // Dove l'applicazione installata cerca le versioni nuove: finisce in
+  // `resources/app-update.yml` per electron-updater (solo col bersaglio `nsis`).
+  //
+  // electron-builder non pubblica mai (`--publish never`): le release le fa
+  // `.github/workflows/rilascio.yml` e le carica `gh`, dopo la firma che cambia
+  // eseguibili e `latest.yml`. `draft` vale per un `--publish always` a mano: una
+  // release visibile a metà caricamento sarebbe scaricata senza installer.
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "nabre",
+      "repo": "Registro",
+      "releaseType": "draft"
+    }
+  ],
+
+  "directories": {
+    "output": "pacchetti",
+    // `icon.ico`, `icon.icns`, `png/` e le immagini NSIS, fatte da `npm run icons`.
+    "buildResources": "icons"
+  },
+
+  // Che cosa entra nel pacchetto (`main` in `package.json` è `dist/main.cjs`).
+  // Le pagine native sono già in `dist/`, dove le copia esbuild.
+  "files": [
+    "dist/**/*",
+    // Le mappe dei sorgenti servono solo in sviluppo.
+    "!dist/**/*.map",
+    "resources/**/*",
+    // Le icone anche fuori dall'eseguibile: finestre, vassoio e notifiche le
+    // caricano da sé (`percorsoIconaFinestra()` in `src/environment/context.ts`).
+    // Il `.ico` per le misure piccole, il `.png` da 512 per le notifiche.
+    "icons/icon.ico",
+    "icons/icon.png",
+    // Il segno per la barra dei menu di macOS (`percorsoIconaCassetto()`).
+    "icons/trayTemplate.png",
+    "icons/trayTemplate@2x.png",
+    "package.json",
+
+    // La riga di comando `regi` (`shell/system/commandLine.ts`): non passa da
+    // esbuild, quindi va nominata qui, e sta fuori dall'asar perché non la apre Electron.
+    "src/cli/**/*",
+
+    // La finestra dell'aggiornamento: resta nell'asar, la ricopia nei temporanei
+    // `src/environment/updateInstaller.ts`.
+    "os/windows/aggiornamento.ps1",
+
+    // Le dipendenze: electron-builder mette quelle di `dependencies` con tutto
+    // quel che si tirano dietro. Quel che esbuild impacchetta sta in
+    // `devDependencies`. In `dependencies` restano solo i moduli `external`:
+    //
+    // - `node-llama-cpp`, che sceglie il binario di llama.cpp dalla propria
+    //   struttura di cartelle;
+    // - `electron-updater`, caricato a runtime con `createRequire` da
+    //   `src/environment/updates.ts`.
+    //
+    // Un modulo nuovo che deve restare `external` va in `dependencies`, e basta.
+
+    // Dei binari di llama.cpp per Windows entrano il normale e il Vulkan (che
+    // copre anche NVIDIA): sceglie la macchina che esegue. Fuori ARM e i due
+    // CUDA, che contengono runtime NVIDIA proprietari: SignPath Foundation non
+    // li ammette (GUIDA, § «La firma del codice»).
+    "!node_modules/@node-llama-cpp/win-arm64{,/**/*}",
+    "!node_modules/@node-llama-cpp/win-x64-cuda{,/**/*}",
+    "!node_modules/@node-llama-cpp/win-x64-cuda-ext{,/**/*}"
+  ],
+
+  // pdfjs carica il worker con un `import()` di un URL `file:`, che non passa
+  // dal `fs` corretto da Electron per l'asar («Setting up fake worker failed»).
+  // Il percorso lo compone `percorsoWorkerPdf()` in `src/environment/context.ts`.
+  "asarUnpack": [
+    "**/pdf.worker.mjs",
+    // Le icone le legge Windows (notifiche, `LoadImage`), che non sa dell'asar.
+    // Il percorso lo compone `primaIconaPresente()` in `src/environment/context.ts`.
+    "icons/**",
+    "**/src/cli/**",
+    // Tutte le dipendenze: `node-llama-cpp` sta fuori per i binari, e da fuori
+    // cerca i propri `import` solo in `app.asar.unpacked`.
+    "**/node_modules/**"
+  ],
+
+  // I documenti `2026-2027.regi`: icona nel gestore file e apertura col doppio
+  // clic (il percorso arriva sulla riga di comando a `shell/main.ts`).
+  //
+  // Niente `icon`: vale quella dell'applicazione (su Windows `"$appExe",0`,
+  // come in `shell/system/fileAssociation.ts`); un `.ico` qui ferma la build macOS.
+  //
+  // MIME nostro, letto solo da Linux: con `application/zip` il registro si
+  // proporrebbe per tutti gli archivi. `name` è il ProgID di Windows, lo stesso
+  // di `shell/system/fileAssociation.ts`.
+  "fileAssociations": [
+    {
+      "ext": "regi",
+      "name": "Regiclass",
+      "description": "Anno scolastico di Regiclass",
+      "mimeType": "application/x-regiclass",
+      "role": "Editor"
+    }
+  ],
+
+  "win": {
+    // Anche il portabile: a scuola installare può richiedere diritti che il docente non ha.
+    "target": [
+      "nsis",
+      "portable"
+    ],
+    "icon": "icons/icon.ico"
+  },
+
+  "nsis": {
+    // GUID fisso: lo stesso dell'installazione precedente, così l'aggiornamento
+    // la sostituisce invece di installarsi accanto. È l'UUID v5 che
+    // electron-builder ricaverebbe da `ch.edu.ti.cptt.registro-docenti`; lo
+    // controlla `verificaIdentita()` in `esbuild.mjs`.
+    "guid": "d199f7cf-2ae9-5477-aea0-9860e9f60bca",
+    // Non a un clic: chi installa vede dove mette le cose. Gli aggiornamenti li
+    // conduce `os/windows/aggiornamento.ps1`, con l'installatore muto.
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    // Le quattro lingue del registro: quella di Windows se è fra queste (anche
+    // svizzera), altrimenti l'italiano. Le parole stanno in
+    // `os/windows/installer.nsh`. Niente selettore: risponde già Windows.
+    "installerLanguages": ["it_IT", "de_DE", "fr_FR", "en_US"],
+    "multiLanguageInstaller": true,
+    "displayLanguageSelector": false,
+    "language": "1040",
+    // Le immagini della procedura le prende electron-builder da `icons/`
+    // (`tools/icons.cjs`).
+    // Per utente: installare in `Programmi` chiede l'amministratore.
+    "perMachine": false,
+    "shortcutName": "Regiclass",
+    // I dati in `%APPDATA%\Regiclass` li toglie `os/windows/uninstall.nsh`,
+    // chiedendo che cosa tenere: quella di electron-builder resta spenta perché
+    // toglierebbe tutto. I `.regi` stanno altrove e non si toccano.
+    "deleteAppDataOnUninstall": false,
+    // PATH, associazione, avvio automatico e temporanei li toglie
+    // `src/cli/disinstalla.mjs`. `installer.nsh` include `uninstall.nsh`:
+    // electron-builder accetta un file solo.
+    "include": "os/windows/installer.nsh",
+    "artifactName": "${name}-${version}-installer.${ext}"
+  },
+
+  // Il portabile tiene i dati in «Regiclass - dati» accanto all'eseguibile
+  // (`shell/system/portable.ts`); si disinstalla col menu o buttando i due.
+  "portable": {
+    "artifactName": "${name}-${version}-portabile.${ext}"
+  },
+
+  // macOS non ha disinstallatore: «Disinstalla…» nel menu
+  // (`shell/system/uninstall.ts`) toglie dati e applicazione.
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "category": "public.app-category.education",
+    // Dalla 16 alla 1024, per il Retina.
+    "icon": "icons/icon.icns"
+  },
+
+  "linux": {
+    // L'AppImage si disinstalla dal menu; `.deb` e `.rpm` alla rimozione
+    // lanciano `os/linux/after-remove.sh`.
+    "target": [
+      "AppImage",
+      "deb",
+      "rpm"
+    ],
+    "category": "Education",
+    // Il `.deb` vuole un manutentore, e `author` in `package.json` non basta.
+    "maintainer": "Michel Brenna",
+    // Una misura per file: ognuno prende la sua invece di rimpicciolire la 512.
+    "icon": "icons/png"
+  },
+
+  // `afterRemove` qui e non in `linux`, dove lo schema di electron-builder lo rifiuta.
+  "deb": {
+    "afterRemove": "os/linux/after-remove.sh"
+  },
+  "rpm": {
+    "afterRemove": "os/linux/after-remove.sh"
+  }
+}

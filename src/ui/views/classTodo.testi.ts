@@ -1,0 +1,102 @@
+// I testi del lavoro aperto di una classe (`classTodo.ts`).
+
+import { catalogo } from '../../i18n/index.js'
+import { plurale } from '../../domain/text.js'
+
+const it = {
+  inRitardo: (quante: number) => `${quante} in ritardo`,
+  nienteInSospeso: 'niente in sospeso',
+  coseAperte: (quante: number) => plurale(quante, 'cosa aperta', 'cose aperte'),
+
+  // Le assenze e le segnalazioni.
+  daSpedire: 'Da spedire',
+  inAttesaDellaFirma: 'In attesa della firma',
+  daSegnalare: 'Da segnalare',
+  appelliIncompleti: 'Da guardare: appelli incompleti',
+
+  // Le valutazioni.
+  recuperiDaFissare: 'Recuperi da fissare',
+  recuperiNonRifatti: 'Recuperi non rifatti',
+  recuperiOggi: 'Recuperi oggi',
+  recuperiSettimana: 'Recuperi entro la settimana',
+  recuperiAvanti: 'Recuperi più avanti',
+  daCorreggere: 'Da correggere',
+  daRiconsegnare: 'Da riconsegnare',
+  recuperiDaRiconsegnare: 'Recuperi da riconsegnare',
+  daRidareA: 'Da ridare a',
+
+  // Le consegne, per scadenza.
+  rimasteIndietro: 'Rimaste indietro',
+  scadonoOggi: 'Scadono oggi',
+  entroSettimana: 'Entro la settimana',
+  piuAvanti: 'Più avanti, o senza termine',
+}
+
+export const testi = catalogo(it, {
+  de: {
+    inRitardo: (quante) => `${quante} überfällig`,
+    nienteInSospeso: 'nichts offen',
+    coseAperte: (quante) => plurale(quante, 'offene Sache', 'offene Sachen'),
+    daSpedire: 'Zu verschicken',
+    inAttesaDellaFirma: 'Warten auf Unterschrift',
+    daSegnalare: 'Zu melden',
+    appelliIncompleti: 'Anschauen: unvollständige Präsenzkontrollen',
+    recuperiDaFissare: 'Anzusetzende Nachprüfungen',
+    recuperiNonRifatti: 'Nicht nachgeholte Nachprüfungen',
+    recuperiOggi: 'Nachprüfungen heute',
+    recuperiSettimana: 'Nachprüfungen in dieser Woche',
+    recuperiAvanti: 'Spätere Nachprüfungen',
+    daCorreggere: 'Zu korrigieren',
+    daRiconsegnare: 'Zurückzugeben',
+    recuperiDaRiconsegnare: 'Zurückzugebende Nachprüfungen',
+    daRidareA: 'Zurückzugeben an',
+    rimasteIndietro: 'Überfällig',
+    scadonoOggi: 'Heute fällig',
+    entroSettimana: 'Bis Ende Woche',
+    piuAvanti: 'Später oder ohne Frist',
+  },
+  fr: {
+    inRitardo: (quante) => `${quante} en retard`,
+    nienteInSospeso: 'rien en suspens',
+    coseAperte: (quante) => plurale(quante, 'élément ouvert', 'éléments ouverts'),
+    daSpedire: 'À envoyer',
+    inAttesaDellaFirma: 'En attente de signature',
+    daSegnalare: 'À signaler',
+    appelliIncompleti: 'À vérifier : appels incomplets',
+    recuperiDaFissare: 'Rattrapages à fixer',
+    recuperiNonRifatti: 'Rattrapages non passés',
+    recuperiOggi: 'Rattrapages aujourd’hui',
+    recuperiSettimana: 'Rattrapages dans la semaine',
+    recuperiAvanti: 'Rattrapages plus tard',
+    daCorreggere: 'À corriger',
+    daRiconsegnare: 'À rendre',
+    recuperiDaRiconsegnare: 'Rattrapages à rendre',
+    daRidareA: 'À rendre à',
+    rimasteIndietro: 'En retard',
+    scadonoOggi: 'Échéance aujourd’hui',
+    entroSettimana: 'D’ici la fin de la semaine',
+    piuAvanti: 'Plus tard, ou sans échéance',
+  },
+  en: {
+    inRitardo: (quante) => `${quante} overdue`,
+    nienteInSospeso: 'nothing pending',
+    coseAperte: (quante) => plurale(quante, 'open item', 'open items'),
+    daSpedire: 'To send',
+    inAttesaDellaFirma: 'Waiting for signature',
+    daSegnalare: 'To report',
+    appelliIncompleti: 'To check: incomplete attendance',
+    recuperiDaFissare: 'Resits to schedule',
+    recuperiNonRifatti: 'Resits not taken',
+    recuperiOggi: 'Resits today',
+    recuperiSettimana: 'Resits this week',
+    recuperiAvanti: 'Later resits',
+    daCorreggere: 'To mark',
+    daRiconsegnare: 'To hand back',
+    recuperiDaRiconsegnare: 'Resits to hand back',
+    daRidareA: 'To hand back to',
+    rimasteIndietro: 'Overdue',
+    scadonoOggi: 'Due today',
+    entroSettimana: 'Within the week',
+    piuAvanti: 'Later, or no deadline',
+  },
+})

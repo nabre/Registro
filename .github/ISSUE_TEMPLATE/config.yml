@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Vulnerabilità di sicurezza
+    url: https://github.com/nabre/Registro/security/advisories/new
+    about: Segnalala in privato, non in una issue pubblica.
+  - name: 📖 Guida
+    url: https://github.com/nabre/Registro/blob/main/docs/GUIDA.md
+    about: Com'è fatto il registro — dati, sviluppo, condotto. La guida d'uso sta dentro l'applicazione (F1).

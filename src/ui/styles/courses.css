@@ -1,0 +1,313 @@
+/* I corsi, il campo con comando, il trascinamento, i menu. */
+
+/* ------------------------------------------------------------------ corsi */
+
+/*
+ * La matrice dei corsi: le classi in colonna, le materie in riga. Una casella
+ * vuota è un «+» appena accennato che si accende al passaggio; una accesa ha
+ * la spunta e il colore del corso, quella aperta è piena. La × per togliere
+ * compare solo sopra la sua casella: è un gesto raro.
+ */
+
+.matrice-corsi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.matrice-corsi__tabella { border-collapse: separate; border-spacing: 3px; }
+
+.matrice-corsi__angolo { vertical-align: bottom; }
+
+.matrice-corsi__angolo,
+.matrice-corsi__materia {
+  text-align: left;
+  padding: 0 var(--spazio-3) 0 0;
+  color: var(--testo-quieto);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.matrice-corsi__materia { color: var(--testo); }
+
+/*
+ * Le classi in colonna col nome ruotato, dal basso in alto: la colonna resta
+ * larga quanto la casella. Il punto colore sta in fondo, sopra la colonna.
+ */
+.matrice-corsi__classe {
+  padding: 0 0 var(--spazio-1);
+  vertical-align: bottom;
+  font-weight: 600;
+}
+
+.matrice-corsi__classe-testo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  max-height: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * La materia in riga: colore, sigla, nome, cestino. I campi non hanno cornice
+ * finché non ci si passa o ci si scrive. La sigla vuota mostra in trasparenza
+ * quella ricavata dal nome.
+ */
+.matrice-corsi__riga-materia {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.matrice-corsi__campo {
+  padding: 2px var(--spazio-1);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+}
+
+.matrice-corsi__campo:hover { border-color: var(--bordo-tenue); }
+.matrice-corsi__campo:focus { border-color: var(--accento); background: var(--sfondo); outline: none; }
+
+.matrice-corsi__campo--nome { width: 12rem; font-weight: 500; }
+
+.matrice-corsi__campo--sigla {
+  width: 3.6rem;
+  /* Il colore della materia come ombra interna e non come bordo: un bordo spesso
+     accanto a bordi sottili si piega a falce negli angoli, e il bordo vero resta
+     libero per sorvolo e fuoco. */
+  box-shadow: inset 3px 0 0 var(--colore-materia, var(--bordo-tenue));
+  background: color-mix(in srgb, var(--colore-materia, var(--testo)) 10%, transparent);
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.matrice-corsi__campo--sigla::placeholder { font-style: italic; font-weight: 500; }
+
+.matrice-corsi__campo--colore {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 1px;
+  cursor: pointer;
+}
+
+/* La riga nuova: tratteggiata, e più quieta finché non ci si scrive. */
+.matrice-corsi__nuova .matrice-corsi__campo { border: 1px dashed var(--bordo-tenue); }
+.matrice-corsi__nuova .matrice-corsi__campo--colore,
+.matrice-corsi__nuova .matrice-corsi__campo--sigla { opacity: 0.7; }
+.matrice-corsi__aiuto-nuova { color: var(--testo-quieto); font-size: 0.85em; padding-left: var(--spazio-2); }
+
+.matrice-corsi__cella { position: relative; padding: 0; text-align: center; }
+
+.matrice-corsi__casella {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: 2.25rem;
+  height: 2rem;
+  border: 1px dashed var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.matrice-corsi__casella--vuota .icona { opacity: 0.35; }
+.matrice-corsi__casella--vuota:hover { border-color: var(--accento); color: var(--accento); }
+.matrice-corsi__casella--vuota:hover .icona { opacity: 1; }
+
+.matrice-corsi__casella--accesa {
+  border: 1px solid color-mix(in srgb, var(--colore-classe, var(--accento)) 60%, transparent);
+  /* Il filo della classe è un'ombra interna, come la sigla qui sopra. */
+  box-shadow: inset 4px 0 0 var(--colore-classe, var(--accento));
+  background: color-mix(in srgb, var(--colore-classe, var(--accento)) 10%, var(--sfondo));
+  color: var(--testo);
+}
+
+.matrice-corsi__casella--accesa:hover { filter: brightness(1.08); }
+
+.matrice-corsi__casella--aperta {
+  background: color-mix(in srgb, var(--colore-classe, var(--accento)) 28%, var(--sfondo));
+  outline: 2px solid var(--accento);
+  outline-offset: -2px;
+}
+
+.matrice-corsi__togli {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 50%;
+  background: var(--sfondo);
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.matrice-corsi__cella:hover .matrice-corsi__togli,
+.matrice-corsi__togli:focus-visible { display: grid; }
+.matrice-corsi__togli:hover { color: var(--negativo); border-color: var(--negativo); }
+
+/*
+ * Il corso scelto, sotto la matrice. Il punto colore della classe sta sul
+ * bordo sinistro, fuori dalla scheda: è il colore del corso nel calendario.
+ */
+
+.corso-dettaglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  /* Nessun margine sopra: lo stacca il `gap` della `.vista`, e in un flex un margine si somma. */
+}
+
+.corso-dettaglio__testa {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spazio-2);
+}
+
+.corso-dettaglio__testa > .punto-colore {
+  width: 6px;
+  height: auto;
+  border-radius: 3px;
+  flex: 0 0 6px;
+  /* Staccata dagli angoli: a filo seguirebbe a metà la curva della scheda. */
+  margin-block: 10px;
+}
+
+/* Il programma del corso: testo libero, va a capo come è stato scritto. */
+.corso-scheda__note {
+  white-space: pre-wrap;
+  color: var(--testo-quieto);
+  margin: 0;
+}
+
+/* Il corso per allievo: ore, assenze, voti incolonnati; la prima colonna resta a sinistra e larga. */
+.tabella--matrice td,
+.tabella--matrice th { text-align: center; font-variant-numeric: tabular-nums; }
+.tabella--matrice .tabella__nome { text-align: left; font-variant-numeric: normal; }
+
+/* La cella che chiede attenzione: assenze che ci sono, prove che mancano. */
+.tabella__cella--attenzione { color: var(--attenzione); font-weight: 600; }
+
+/* I segni della matrice del comportamento in una cella: due pastigliette in riga, centrate. */
+.segni-contati {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-1);
+}
+
+.corso-scheda { flex: 1; }
+
+.corso-scheda__comandi {
+  display: flex;
+  gap: var(--spazio-1);
+}
+
+.corso-scheda__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.corso-scheda__orario {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ campo con comando */
+
+/*
+ * Una tendina e il «+» che crea quel che non elenca ancora, sulla stessa riga:
+ * il pulsante non ruba larghezza al campo.
+ */
+
+.campo__gruppo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.campo__gruppo > .campo__controllo {
+  flex: 1;
+  min-width: 0;
+}
+
+.campo__aiuto--attenzione { color: var(--attenzione); }
+
+.avviso__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.avviso__riga > span { flex: 1; }
+
+
+/* ------------------------------------------------ i dettagli della classe */
+
+/*
+ * I dettagli della classe nella pagina: colore e nome, le due spunte, le note.
+ * Campi veri, salvati uscendo, ma senza l'aria di un modulo aperto.
+ */
+.dettagli-classe { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.dettagli-classe__riga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spazio-3);
+}
+
+.dettagli-classe__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 12rem;
+  flex: 1;
+}
+
+.dettagli-classe__campo > span,
+.dettagli-classe__spunta > span { color: var(--testo-quieto); font-size: 0.85em; }
+
+.dettagli-classe__campo--colore { flex: 0 0 auto; min-width: 0; }
+
+.dettagli-classe__colore {
+  width: 2.25rem;
+  height: 2rem;
+  padding: 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  cursor: pointer;
+}
+
+.dettagli-classe__spunta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  cursor: pointer;
+}
+
+.dettagli-classe__spunta > span { color: var(--testo); font-size: inherit; }

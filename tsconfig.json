@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "Node16",
+    "moduleResolution": "Node16",
+
+    // Il modulo `apparato` è un file nostro, come per esbuild: `tsc` controlla
+    // esattamente quel che gira.
+    "paths": {
+      "apparato": ["./src/environment/platform.ts"]
+    },
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  // `tests/` per gli aiuti in TypeScript (`tests/helpers/*.ts`), che costruiscono
+  // i registri finti delle prove. I `.mjs` delle prove non entrano.
+  "include": ["src", "shell", "tests"]
+}

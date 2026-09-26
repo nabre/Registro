@@ -1,0 +1,754 @@
+/* La pagina Impostazioni: la fascia delle sezioni e le righe delle opzioni.
+ *
+ * Le sezioni del gruppo aperto stanno in fila sopra il titolo, attaccate in
+ * cima mentre si scorre: sono la mappa della pagina. */
+
+/* La pagina prende tutta la larghezza: ogni riga ha una descrizione lunga
+   accanto, e i 62rem di `colonna--impostazioni` lascerebbero mezza finestra vuota. */
+.vista--impostazioni .colonna--impostazioni {
+  max-width: none;
+}
+
+/* ------------------------------------------------------- fascia delle sezioni */
+
+/* Attaccata in cima quando si scorre, come la ricerca della guida: i margini
+   laterali negativi la portano da bordo a bordo della scatola che scorre, il
+   `top` negativo quanto il margine della pagina la attacca al bordo vero, il
+   fondo pieno copre quel che passa sotto. Niente margini negativi in alto
+   (starebbe addosso al titolo) né in basso (la distanza la dà il `gap` della
+   `.vista`). */
+.impostazioni__fascia {
+  position: sticky;
+  top: calc(-1 * var(--margine-pagina));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin: 0 calc(-1 * var(--margine-pagina));
+  padding: var(--spazio-2) var(--margine-pagina);
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: var(--sfondo);
+}
+
+.impostazioni__gruppi,
+.impostazioni__sezioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+}
+
+/* I gruppi: pulsanti con icona, acceso quello aperto. */
+.gruppo-voce {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-3);
+  border: 1px solid transparent;
+  border-radius: var(--raggio-pastiglia);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.gruppo-voce:hover { background: var(--sfondo-alto); color: var(--testo); }
+.gruppo-voce--attivo {
+  background: color-mix(in srgb, var(--accento) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accento) 45%, transparent);
+  color: var(--accento);
+}
+
+/* La sezione che si salva nel file dell'anno porta la pastiglia; le altre no. */
+.sezione-voce__ambito {
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid color-mix(in srgb, var(--accento) 35%, transparent);
+  color: var(--accento);
+  font-size: 0.72em;
+  font-weight: 400;
+}
+
+.sezione-voce {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-1) var(--spazio-3);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sezione-voce:hover { background: var(--sfondo-alto); }
+
+.sezione-voce--attiva {
+  background: var(--sfondo-alto);
+  border-color: color-mix(in srgb, var(--accento) 45%, transparent);
+}
+
+.sezione-voce__titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  font-weight: 600;
+}
+
+.sezione-voce--attiva .sezione-voce__titolo { color: var(--accento); }
+
+/* Quante impostazioni della sezione sono state decise a mano: un numero piccolo e tondo. */
+.sezione-voce__segno {
+  min-width: 1.35rem;
+  padding: 0 4px;
+  border-radius: var(--raggio-pastiglia);
+  background: color-mix(in srgb, var(--attenzione) 22%, transparent);
+  color: var(--attenzione);
+  font-size: 0.78em;
+  font-weight: 600;
+  text-align: center;
+}
+
+
+
+/* --------------------------------------------------------- gruppi di opzioni */
+
+.gruppi-opzioni {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+/* Il gruppo «Percorsi e attese» è un `<details>`: cose che si toccano di rado
+   (dove sta un `.exe`, quanto aspettare un modello). Chiuso non pesa, e si apre
+   da sé quando qualcosa lì dentro è stato deciso a mano. */
+.gruppo-opzioni--avanzate > summary {
+  cursor: pointer;
+  padding: var(--spazio-1) 0;
+  border-radius: var(--raggio-piccolo);
+  list-style-position: inside;
+}
+
+.gruppo-opzioni--avanzate > summary:hover {
+  color: var(--testo);
+}
+
+/* Aperto, il titolo si stacca da quel che elenca: diventa la testa di un gruppo. */
+.gruppo-opzioni--avanzate[open] > summary {
+  margin-bottom: var(--spazio-1);
+}
+
+.gruppo-opzioni__titolo {
+  margin: 0 0 var(--spazio-2);
+  font-size: var(--corpo-minore);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------- righe delle opzioni */
+
+.voci-opzioni {
+  display: flex;
+  flex-direction: column;
+}
+
+.voce-opzione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-3) 0;
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.voce-opzione:first-child { border-top: none; padding-top: 0; }
+
+/* Decisa a mano: una riga di colore sul fianco, distingue dal predefinito senza leggere la pastiglia. */
+.voce-opzione--scritta {
+  border-left: 3px solid color-mix(in srgb, var(--attenzione) 60%, transparent);
+  padding-left: var(--spazio-3);
+  margin-left: calc(var(--spazio-3) * -1);
+}
+
+/* Sospesa: il padre da cui dipende è spento. Si smorza tutta la riga (un nome
+   pieno sopra un campo morto sembrerebbe un guasto), ma il testo resta leggibile. */
+.voce-opzione--sospesa { opacity: 0.55; }
+
+.voce-opzione__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.voce-opzione__nome { font-weight: 600; }
+
+.voce-opzione__chiave {
+  color: var(--testo-quieto);
+  font-family: var(--carattere-mono);
+  font-size: 0.78em;
+}
+
+/* Il ritiro in fondo alla riga: è il gesto raro. */
+.voce-opzione__testata > button:last-child { margin-left: auto; }
+
+.voce-opzione__campo { max-width: 28rem; }
+/* Le schede con la figura vogliono più posto di una tendina. */
+.voce-opzione__campo:has(.scelta-figurata) { max-width: 42rem; }
+.voce-opzione__campo .campo { margin: 0; }
+
+/* Un percorso o un modello: si legge, e si sceglie con il pulsante accanto. */
+.campo-percorso {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 0;
+}
+.campo-percorso__valore {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  font-family: var(--carattere-mono);
+  font-size: 0.88em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+.campo-percorso__valore--vuoto {
+  color: var(--testo-quieto);
+  font-family: inherit;
+  direction: ltr;
+}
+
+.voce-opzione__aiuto {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: 0.88em;
+  line-height: 1.45;
+  max-width: 48rem;
+}
+
+/* ------------------------------------------------------------- anni in elenco */
+
+.anno-riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.anno-riga--corrente { border-color: color-mix(in srgb, var(--accento) 50%, transparent); }
+
+.anno-riga__nome { display: flex; align-items: center; gap: var(--spazio-2); min-width: 10rem; }
+.anno-riga__periodo, .anno-riga__misure { color: var(--testo-quieto); font-size: 0.9em; }
+.anno-riga__azioni { margin-left: auto; display: flex; gap: var(--spazio-1); align-items: center; }
+
+.anno-aperto { display: flex; flex-direction: column; gap: var(--spazio-3); }
+
+/* Le azioni di una riga sempre a destra, nello stesso posto: un cestino che balla si preme per sbaglio. */
+.sospensione__azioni,
+.materia__azioni {
+  margin-left: auto;
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: center;
+}
+
+/* -------------------------------------------------- le pause della giornata */
+
+/* Una voce per pausa: in testa il nome e l'orario risultante, sotto i campi. */
+.pause-giornata {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.pause-giornata__voce {
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+.pause-giornata__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-1);
+}
+
+.pause-giornata__togli { margin-left: auto; }
+
+/* ------------------------------------------------------ la giornata di scuola */
+
+/* Le quattro schede della giornata, numerate nell'ordine in cui le misure si
+   concatenano: il numero lo mette il contatore, e l'ordine sta solo in
+   `settings/schoolDay.ts`. */
+.giornata-passi {
+  counter-reset: passo-giornata;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+.giornata-passi > .scheda { counter-increment: passo-giornata; }
+
+.giornata-passi > .scheda .scheda__titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.giornata-passi > .scheda .scheda__titolo::before {
+  content: counter(passo-giornata);
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--velo-accento);
+  color: var(--accento);
+  font-size: 0.8em;
+  font-weight: 600;
+  flex: none;
+}
+
+.giornata-riassunto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  margin: 0;
+}
+
+/* Il gesto sotto un campo: «Porta alle 7:45». */
+.campo__sotto { margin-top: var(--spazio-1); }
+
+/* La giornata disegnata: una fascia sola, i tratti larghi quanto durano. */
+.giornata-linea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.giornata-linea__tratti {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  height: 2.2em;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  overflow: hidden;
+}
+
+.giornata-linea__tratto {
+  flex-basis: 0;
+  min-width: 2px;
+  display: grid;
+  place-items: center;
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+.giornata-linea__tratto + .giornata-linea__tratto { border-left: 1px solid var(--bordo-tenue); }
+
+.giornata-linea__tratto--ud {
+  background: var(--velo-accento);
+  color: var(--accento);
+}
+
+/* Le pause come sul calendario: a righe, senza colore. */
+.giornata-linea__tratto--pausa {
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--testo) 10%, transparent) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+.giornata-linea__tratto--avanzo {
+  background: color-mix(in srgb, var(--attenzione) 18%, transparent);
+}
+
+.giornata-linea__estremi {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+
+.giornata-linea__nota {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin: 0;
+  font-size: var(--corpo-piccolo);
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------- il documento aperto */
+
+.documento-aperto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  margin-bottom: var(--spazio-3);
+}
+
+.documento-aperto__percorso {
+  color: var(--testo-quieto);
+  font-family: var(--carattere-mono);
+  font-size: 0.82em;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------------------- la posta */
+
+.posta-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-5);
+}
+
+/* Di chi è la casella: la pastiglia e gli indirizzi. Un indirizzo lungo va a capo. */
+.posta-stato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Vuoto finché nessuno ha premuto: altrimenti lascerebbe un buco. */
+.posta-esito:empty { display: none; }
+
+/* --------------------------------------------------- liste dei menu a tendina */
+
+/*
+ * Le liste una sotto l'altra, staccate: sono argomenti diversi.
+ */
+.liste-sistema {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+}
+
+.lista-sistema {
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.lista-sistema:first-of-type { border-top: 0; padding-top: 0; }
+
+/* Il nome della lista (dove si vede sta dietro la «i») e il ritorno alle voci
+   di fabbrica, che compare solo se c'è qualcosa da rimettere a posto. Il
+   titolo prende lo spazio che resta e spinge il pulsante in fondo. */
+.lista-sistema__testata {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-2);
+}
+
+.lista-sistema__testata h4 { margin: 0; flex: 1 1 14rem; }
+
+/* Perché qui non si aggiunge niente: detto sopra l'elenco, dove si cerca il pulsante. */
+.lista-sistema__vincolo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  margin: 0 0 var(--spazio-2);
+  font-size: 0.9em;
+}
+
+.lista-sistema__voci {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /*
+   * L'elenco è una tabella: le colonne le decide lui e ogni riga le eredita
+   * (`subgrid`), così la parte destra non balla fra una riga e l'altra.
+   */
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 1fr) minmax(6rem, 12rem) 8.5rem 2.25rem;
+  column-gap: var(--spazio-2);
+  row-gap: 2px;
+}
+
+/* Le liste con voci colorate hanno una colonna in più dopo la parola; le altre non l'hanno. */
+.lista-sistema__voci--con-colore {
+  grid-template-columns: auto minmax(8rem, 1fr) 4.5rem minmax(6rem, 12rem) 8.5rem 2.25rem;
+}
+
+/* La riga di una voce: frecce, parola, valore salvato, quanto è usata. Colonne ferme per confrontare. */
+.voce-lista {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: 4px var(--spazio-1);
+  border-radius: var(--raggio);
+}
+
+/* Usi allineati a sinistra, cestino al centro: le pastiglie cominciano sulla stessa linea. */
+.voce-lista__usi { justify-self: start; }
+.voce-lista > .pulsante:last-child,
+.voce-lista__vuota { justify-self: center; }
+
+.voce-lista:hover { background: var(--sfondo-alto); }
+
+/* I nomi delle colonne, come nella scaletta: niente sfondo, niente cornice. */
+.voce-lista--intestazione {
+  font-size: 0.76em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.voce-lista--intestazione:hover { background: none; }
+
+.voce-lista__titolo-colore { display: inline-flex; align-items: center; gap: 2px; }
+
+/* Il quadratino del colore, della misura di quello delle classi. */
+.voce-lista__colore {
+  justify-self: start;
+  width: 2.25rem;
+  height: 2rem;
+  padding: 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  cursor: pointer;
+}
+
+.voce-lista__ordine { display: flex; gap: 0; }
+
+/* Il valore salvato si legge e non si tocca: i piani già preparati lo usano. */
+.voce-lista__valore {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La riga della voce nuova, ultima e tratteggiata sopra. Il «+» nella colonna
+   delle frecce, il pulsante sulle colonne di usi e cestino. */
+.voce-lista--nuova {
+  margin-top: var(--spazio-1);
+  padding-top: var(--spazio-2);
+  border-top: 1px dashed var(--bordo-tenue);
+  border-radius: 0;
+}
+
+.voce-lista--nuova:hover { background: none; }
+.voce-lista__segno { justify-self: center; color: var(--testo-quieto); }
+.voce-lista__aggiungi { grid-column: span 2; justify-self: start; }
+
+/* Pannello stretto: valore e conto degli usi scendono sotto la parola. */
+@media (max-width: 47.5em) {
+  .lista-sistema__voci { grid-template-columns: auto minmax(0, 1fr) 8.5rem 2.25rem; }
+  .lista-sistema__voci--con-colore {
+    grid-template-columns: auto minmax(0, 1fr) 4.5rem 8.5rem 2.25rem;
+  }
+  .voce-lista__valore { grid-column: 2 / -1; grid-row: 2; }
+  /* Il valore scende sotto la parola: il suo titolo di colonna non serve più. */
+  .voce-lista__titolo-valore { display: none; }
+}
+
+/*
+ * Il rimando alla pagina dove quel che la sezione regola si fa davvero. In
+ * cima alla scheda: chi apre «Assistente» senza un modello lo trova subito.
+ */
+.opzioni__rimando {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+/* Senza frase (il perché è dietro la «i»), il segno resta attaccato al pulsante. */
+.opzioni__rimando:not(:has(.opzioni__rimando-testo)) {
+  justify-content: flex-start;
+  gap: var(--spazio-1);
+}
+
+.opzioni__rimando-testo {
+  margin: 0;
+  flex: 1 1 22rem;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+/* ------------------------------------------------------------ il filtro
+
+   Le sezioni servono a sfogliare, il filtro a cercare chi conosce il nome
+   («anticipo», «mittente», una chiave letta in un errore). Sta sopra l'elenco
+   perché è l'elenco che filtra. */
+.opzioni__cerca {
+  margin-bottom: var(--spazio-4);
+}
+
+/* Larga quanto una riga di testo: ci si scrivono poche parole. */
+.opzioni__cerca .campo__controllo {
+  width: 100%;
+  max-width: 26rem;
+}
+
+/* ------------------------------------------------------- gli aggiornamenti
+
+   La scheda in testa alla sezione: la riga di quel che succede con il suo
+   gesto, la barra quando si scarica, le note della versione in un `details`.
+   Le parole le scrive `environment/updates.ts`, come per filetto e benvenuto. */
+.aggiornamenti {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+/* La barra dello scarico: sottile, la cifra sta già nel testo. */
+.aggiornamenti > .barra { height: 4px; }
+
+.aggiornamenti__note summary {
+  cursor: pointer;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+/* Le note mantengono gli a capo di chi le ha scritte; una riga lunga va a capo. */
+.aggiornamenti__note-testo {
+  margin: var(--spazio-2) 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-size: var(--corpo-piccolo);
+}
+
+.aggiornamenti__piede {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+/* ------------------------------------------------------- il calendario ICS
+
+   La sorgente con i suoi due gesti, e le regole una per riga: testo → corso,
+   poi il cestino. Su colonna stretta la riga va a capo. */
+.ics-sorgente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.ics-sorgente__campo { flex: 1 1 24rem; min-width: 0; }
+
+.ics-sorgente__gesti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+.ics-regole__testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+.ics-regole {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.ics-regola {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.ics-regola__testo { flex: 1 1 14rem; min-width: 0; }
+.ics-regola__corso { flex: 1 1 14rem; min-width: 0; }
+
+.ics-regola__freccia { color: var(--testo-quieto); }
+
+/* Il corso che non c'è più si vede dal bordo. */
+.ics-regola--orfana .ics-regola__corso .campo__controllo {
+  border-color: var(--attenzione);
+}
+
+.ics-regola--nuova {
+  align-items: flex-end;
+  margin-top: var(--spazio-2);
+  padding-top: var(--spazio-2);
+  border-top: 1px dashed var(--bordo);
+}
+
+/* Un calendario per riga: nome modificabile con i gesti, sotto origine e data
+   della copia, e chiuso il campo per cambiarne l'origine. */
+.ics-calendari {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.ics-calendario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+.ics-calendario__testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.ics-calendario__nome { flex: 1 1 14rem; min-width: 0; }
+
+.ics-calendario__origine summary {
+  cursor: pointer;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.ics-sorgente--nuova { align-items: flex-end; }
+
+/* Il conto di una regola: vuoto finché gli eventi non sono letti. */
+.ics-regola__conto:empty { display: none; }

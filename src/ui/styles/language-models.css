@@ -1,0 +1,155 @@
+/* I modelli del linguaggio: quel che c'è sul disco, e quel che si può scaricare. */
+
+/* Una colonna sola: un elenco corto e un pulsante, senza spostare gli occhi fra riga e gesto. */
+.modelli-llm .scheda {
+  margin-top: var(--spazio-3);
+}
+
+.modelli-llm__cartella {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  /* Un percorso lungo va a capo invece di allargare la pagina. */
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------- i mestieri */
+
+.modelli-llm__usi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.modelli-llm__uso {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem auto;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+
+/* Il motivo è una frase intera: sta sotto, su tutta la riga, e non accanto alla tendina. */
+.modelli-llm__uso .modelli-llm__motivo {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.modelli-llm__uso-testi h4 {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .modelli-llm__uso {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------- le righe */
+
+.modelli-llm__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.modelli-llm__riga {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+}
+
+.modelli-llm__riga-testi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.modelli-llm__riga-azioni {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.modelli-llm__nome {
+  font-weight: 600;
+  /* I nomi dei GGUF sono lunghi e senza spazi: vanno a capo dove capita. */
+  overflow-wrap: anywhere;
+}
+
+.modelli-llm__peso,
+.modelli-llm__nota {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.modelli-llm__nota {
+  margin: var(--spazio-1) 0 0;
+  flex-basis: 100%;
+}
+
+/* ------------------------------------------------------- quel che si trascina */
+
+/*
+ * Tratteggiata perché si legga come zona in cui lasciar cadere un file; il
+ * pulsante dentro è per chi non trascina.
+ */
+.modelli-llm__zona {
+  margin-top: var(--spazio-3);
+  padding: var(--spazio-4);
+  border: 2px dashed var(--bordo);
+  border-radius: var(--raggio-grande);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spazio-2);
+  text-align: center;
+  color: var(--testo-quieto);
+}
+
+.modelli-llm__zona p {
+  margin: 0;
+}
+
+.modelli-llm__zona--attiva {
+  border-color: var(--accento);
+  background: var(--velo-accento);
+  color: var(--testo);
+}
+
+/* ------------------------------------------------------------ lo scarico */
+
+.modelli-llm__cerca {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  margin-bottom: var(--spazio-3);
+}
+
+.modelli-llm__cerca .campo__controllo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* La barra dello scarico resta in vista mentre si scorre: lo scarico è lungo. */
+.modelli-llm__scarico {
+  position: sticky;
+  top: var(--spazio-2);
+  z-index: var(--piano-incollato);
+}
+
+/* Uno scarico a metà: tratteggiato e in tono minore, non si sceglie, si può solo cestinare. */
+.modelli-llm__riga--incompiuta {
+  border-style: dashed;
+  opacity: 0.85;
+}

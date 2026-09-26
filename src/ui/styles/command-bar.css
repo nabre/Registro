@@ -1,0 +1,185 @@
+/* Contesto e azioni della pagina (i gruppi delle pagine stanno nella barra laterale).
+   La barra è fitta apposta: gli spazi fuori scala (6 fra icona e parola, 3 fra
+   un comando e l'altro) servono a tenere la riga intera. */
+.barra-comandi {
+  min-width: 0;
+  padding: 0 var(--margine-pagina);
+  /* Lo stesso spazio che `.contenuto` riserva alla barra di scorrimento
+     (`foundations.css`): allinea il bordo destro dei comandi a quello della
+     pagina. Menu e fumetti stanno in `body`, fissi: il ritaglio non li tocca. */
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  /* Il fondo della pagina, non una fascia: contesto e azioni parlano della pagina
+     sotto. Il filo tenue segna dove finisce la riga che non scorre. */
+  background: var(--sfondo);
+  border-bottom: 1px solid var(--bordo-tenue);
+  z-index: 6;
+}
+.barra-comandi__navigazione {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  /* Lo spazio fra le voci lo assorbe lo spazio elastico; quello fra le righe conta solo a finestra stretta. */
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) 0;
+  min-height: 52px;
+}
+.barra-comandi__tendina,
+.barra-comandi__schermo,
+.barra-comandi__interruttore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  /* 6 e non `--dentro-comando-fitto` (5): nella barra del titolo «Cerca» è alto
+     quanto il suo `padding` e a 5 sarebbe più basso di «File». */
+  padding: 6px var(--spazio-2);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.barra-comandi__tendina:hover,
+.barra-comandi__schermo:hover,
+.barra-comandi__interruttore:hover {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+.barra-comandi button:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+.barra-comandi__pagina {
+  color: var(--testo);
+  font-weight: 600;
+  max-width: 24rem;
+}
+.barra-comandi__spazio { flex: 1 1 0; }
+.barra-comandi__schermo--acceso,
+.barra-comandi__scheda--attiva {
+  background: color-mix(in srgb, var(--positivo) 10%, transparent);
+  color: var(--testo);
+  border-color: color-mix(in srgb, var(--positivo) 35%, transparent);
+}
+.barra-comandi__schermo--acceso::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--positivo);
+  flex: none;
+}
+.barra-comandi__scheda--schermo .icona { color: var(--positivo); }
+/* Il contesto segue la destinazione. A finestra stretta ha una riga propria. */
+.barra-comandi__contesto,
+.barra-comandi__scelte,
+.barra-comandi__scelta {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 0;
+}
+/* Spazio fra le righe come nella navigazione: si vede solo quando vanno a capo. */
+.barra-comandi__contesto { flex-wrap: wrap; gap: var(--spazio-2) var(--spazio-3); }
+.barra-comandi__contesto:empty { display: none; }
+.barra-comandi__scelte { flex-wrap: wrap; gap: var(--spazio-2) var(--spazio-3); }
+.barra-comandi__scelta-nome { font-size: .78em; color: var(--testo-quieto); }
+.barra-comandi__scelta select { max-width: 13rem; min-height: 32px; font-size: .88em; }
+/* Una sola riga: icone piccole, etichette intere e separatori tra i gruppi.
+   Lo scorrimento mantiene accessibili anche i comandi dello schermo. */
+.barra-comandi__corpo {
+  display: flex;
+  align-items: center;
+  /* Lo spazio fra i gruppi e il `padding-right` del gruppo sotto devono restare
+     uguali perché il separatore stia nel mezzo. In verticale, lo stesso passo
+     della riga sopra. */
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) 0;
+  border-top: 1px solid var(--bordo-tenue);
+  overflow-x: auto;
+}
+.barra-comandi__corpo[hidden] { display: none; }
+.barra-comandi__gruppo { flex: none; padding-right: var(--spazio-2); border-right: 1px solid var(--bordo-tenue); }
+.barra-comandi__gruppo:last-child { border-right: 0; padding-right: 0; }
+.barra-comandi__comandi { display: flex; align-items: center; gap: 3px; }
+.comando {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: var(--dentro-comando-fitto);
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-size: .85em;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.comando .icona { width: 1.1em; height: 1.1em; flex: none; color: var(--testo-quieto); }
+.comando:hover:not(:disabled) { background: var(--sfondo-alto-2); border-color: var(--bordo-tenue); }
+.comando--primario { background: color-mix(in srgb, var(--accento) 8%, transparent); font-weight: 600; }
+.comando--primario .icona, .comando--acceso .icona { color: var(--accento); }
+.comando--acceso { background: var(--velo-accento); border-color: var(--accento); }
+
+/*
+ * Il gruppo a segmenti: più interruttori di cui uno solo acceso
+ * (Settimana/Mese/Anno, Tutte/Mie, Pianificata/Svolta/Annullata).
+ *
+ * Lo riconosce `aria-pressed`, che `commandBar.ts` mette sui comandi con stato:
+ * un gruppo fatto solo di questi è una scelta fra valori, disegnata come
+ * binario tenue con il segmento scelto sollevato. Un gruppo misto resta com'è.
+ *
+ * Segmenti alti 26 perché, binario compreso, la riga resti a 32 come i comandi accanto.
+ */
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) {
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--testo) 5%, transparent);
+}
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando {
+  min-height: 26px;
+  border-color: transparent;
+  border-radius: 6px;
+}
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando:hover:not(:disabled) {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--testo) 6%, transparent);
+}
+.barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--sfondo-scheda, var(--sfondo-alto));
+  box-shadow: var(--ombra-scheda, var(--ombra-1));
+  color: var(--testo);
+  font-weight: 600;
+}
+/* Nel tema scuro il segmento scelto si solleva schiarendo, altrimenti sarebbe più scuro del binario. */
+@media (prefers-color-scheme: dark) {
+  .barra-comandi__comandi:has(> .comando[aria-pressed] + .comando[aria-pressed]):not(:has(> .comando:not([aria-pressed]))) > .comando[aria-pressed="true"] {
+    background: var(--sfondo-alto-2);
+  }
+}
+/* Un comando spento mostra perché lo è (regola di `ui/commands.ts`): opacità .75
+   perché su `--testo-quieto` la spiegazione resti leggibile nel tema chiaro. */
+.comando:disabled { color: var(--testo-quieto); opacity: .75; cursor: default; }
+@media (max-width: 80em) {
+  .barra-comandi__contesto { order: 2; flex-basis: 100%; }
+  .barra-comandi__scelta select { max-width: min(19rem, 65vw); }
+}
+@media (max-width: 48em) {
+  .barra-comandi__schermo span { display: none; }
+  .barra-comandi__navigazione { gap: var(--spazio-1); }
+  .barra-comandi__pagina { max-width: 13rem; }
+  .barra-comandi__tendina, .barra-comandi__schermo,
+  .barra-comandi__interruttore, .comando { min-height: 40px; }
+}

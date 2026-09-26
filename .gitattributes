@@ -1,0 +1,14 @@
+# Gli artefatti che una prova confronta byte per byte vanno sul disco sempre
+# uguali, su qualunque macchina.
+#
+# `resources/tools.json` lo genera `npm run tools` con i ritorni a capo di
+# Unix, e `tests/api/tools.test.mjs` lo confronta con quel che il codice
+# rigenera — byte per byte, perché è l'unico modo di accorgersi che un ingresso
+# ha perso un campo. Con `core.autocrlf` acceso, che su Windows è il
+# predefinito, git lo riscriverebbe in CRLF al primo `checkout` e quella prova
+# fallirebbe su un clone appena fatto, senza che nessuno abbia toccato niente.
+#
+# `eol=lf` glielo impedisce. Non vale per il resto del repository: là i ritorni
+# a capo sono un fatto fra chi scrive e il proprio editore, e nessuna prova li
+# guarda.
+resources/tools.json text eol=lf

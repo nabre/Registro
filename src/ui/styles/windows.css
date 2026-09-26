@@ -1,0 +1,162 @@
+/* Quel che si apre sopra il resto: modali e notifiche. */
+
+/* ------------------------------------------------------------------ modali */
+
+.strato-modale {
+  position: fixed;
+  inset: 0;
+  z-index: var(--piano-modale);
+  display: grid;
+  place-items: center;
+  padding: var(--spazio-5);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(1.5px);
+}
+
+/* Una finestra è una scheda sopra la pagina: bordo pieno e ombra lunga. */
+.modale {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 88vh;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-scheda);
+  background: var(--sfondo-scheda);
+  box-shadow: var(--ombra-3);
+  overflow: hidden;
+}
+
+/* Tre larghezze in `rem` (una finestra tiene testo): stretta per una domanda,
+   media per un modulo di modifica, larga per un modulo con un elenco accanto.
+   Sono abbastanza larghe perché i campi a metà e a un quarto stiano in riga. */
+.modale--stretta { max-width: 40rem; }
+.modale--media { max-width: 60rem; }
+.modale--larga { max-width: 78rem; }
+.modale--occupata { opacity: 0.7; pointer-events: none; }
+
+.modale__testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.modale__titolo { margin: 0; font-size: 1.1em; }
+/* La «i» sta fuori dall'`h3`: il titolo è il nome della finestra, un pulsante dentro ci finirebbe. */
+.modale__titoli { display: flex; align-items: center; gap: 2px; }
+.modale__sottotitolo { margin: 2px 0 0; color: var(--testo-quieto); }
+
+.modale__chiudi {
+  border: none;
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+  padding: var(--dentro-nudo);
+  border-radius: var(--raggio);
+}
+
+.modale__chiudi:hover { background: var(--sfondo-alto-2); color: var(--testo); }
+
+.modale__errori:not(:empty) { padding: var(--spazio-3) var(--spazio-4) 0; }
+.elenco-errori,
+.elenco-avviso { margin: 0; padding-left: var(--spazio-4); }
+
+/* Un avviso solo non ha il punto elenco. */
+.elenco-avviso li:only-child { list-style: none; margin-left: calc(-1 * var(--spazio-3)); }
+
+.modale__corpo { padding: var(--spazio-4); overflow-y: auto; }
+/* Le domande a elenco («ecco che cosa sto per fare») vanno a capo davvero. */
+.modale__domanda { margin: 0; white-space: pre-line; }
+
+.modale__piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-3) var(--spazio-4);
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+}
+
+.modale__piede-sinistra,
+.modale__piede-destra { display: flex; gap: var(--spazio-2); }
+
+.elenco-scelta { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+.voce-scelta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.voce-scelta:hover { background: var(--sfondo-alto-2); }
+.voce-scelta--attiva { border-color: var(--accento); }
+.voce-scelta__testo { display: flex; flex-direction: column; min-width: 0; }
+.voce-scelta__testo small { color: var(--testo-quieto); }
+.elenco-scelta__piede { margin-top: var(--spazio-3); }
+
+/* ------------------------------------------------------------------ notifiche */
+
+.pila-notifiche {
+  position: fixed;
+  right: var(--spazio-4);
+  bottom: var(--spazio-4);
+  z-index: var(--piano-notifiche);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  max-width: 23.75rem;
+}
+
+.notifica {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-scheda);
+  box-shadow: var(--ombra-2);
+  animation: entra var(--durata) var(--curva-entra);
+}
+
+.notifica--in-uscita { opacity: 0; transform: translateY(6px); transition: all var(--durata) var(--curva-esce); }
+.notifica--successo .icona { color: var(--positivo); }
+.notifica--avviso .icona { color: var(--attenzione); }
+.notifica--errore .icona { color: var(--negativo); }
+.notifica__testo { flex: 1; }
+.notifica__volte { font-variant-numeric: tabular-nums; opacity: .75; }
+
+/* Riempimento di 4px intorno all'icona da 16: bersaglio da 24, il minimo di WCAG 2.5.8. */
+.notifica__chiudi {
+  border: none;
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+  padding: var(--dentro-nudo);
+  border-radius: var(--raggio);
+}
+
+@keyframes entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Con meno movimento la notifica compare e sparisce senza scivolare.
+   Il congedo non dipende dalla transizione: `notifications.ts` toglie la voce
+   dopo 180ms con un `setTimeout`. */
+@media (prefers-reduced-motion: reduce) {
+  .notifica { animation: none; }
+  .notifica--in-uscita { transition: none; }
+}

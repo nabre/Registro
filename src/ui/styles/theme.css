@@ -1,0 +1,308 @@
+/*
+ * Il tema: tutti i colori dell'applicazione, e nient'altro.
+ *
+ * Le due tavolozze, chiara e scura, sono complete e indipendenti: nessun token
+ * è definito in una sola. Una `var()` senza definizione né ripiego non dà un
+ * colore brutto ma una proprietà invalida, e i `color-mix` che la usano cadono
+ * a catena.
+ *
+ * ------------------------------------------------------------------- chiaro/scuro
+ *
+ * Il passaggio lo comanda il sistema, non un attributo sulla radice:
+ * `src/environment/theme.ts` scrive `nativeTheme.themeSource` da `aspetto.tema`,
+ * ed Electron fa rispondere `prefers-color-scheme` a tutte le finestre. Nessuna
+ * pagina deve ricevere o ricordare niente.
+ *
+ * `color-scheme` copre quel che non disegniamo noi: barre di scorrimento,
+ * cursore di testo, calendario di `<input type=date>`.
+ *
+ * -------------------------------------------------------------------- come leggerli
+ *
+ * `--sfondo` è la pagina; `--sfondo-alto` e `--sfondo-alto-2` i due gradini
+ * sopra. `--testo` e `--testo-quieto` il testo e quello che si legge dopo.
+ *
+ * `--su-tinta` è il colore del testo sopra una tinta piena (pulsante,
+ * pastiglia, casella di voto): bianco sulle tinte cupe del chiaro, quasi nero
+ * su quelle accese dello scuro. Il contrasto regge in tutti e due i temi.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------- superfici
+   *
+   * Grigi neutri, antracite: né caldi né freddi, per non stonare accanto a una
+   * foto, un PDF o il bianco di un foglio scansionato. */
+
+  --sfondo: #fafafa;
+  --sfondo-alto: #f3f3f4;
+  --sfondo-alto-2: #e6e6e8;
+  /* Il fondo di un campo: nel chiaro è bianco, più chiaro della pagina. */
+  --campo-sfondo: #ffffff;
+
+  /*
+   * La scheda: il foglio bianco posato sulla pagina appena tinta, staccato da
+   * un filo e da un'ombra morbida. Bianca come il campo: dentro una scheda un
+   * campo si riconosce dal contorno.
+   *
+   * `--sfondo-alto` resta per i riquadri dentro la scheda e la barra laterale;
+   * lo ricopiano per valore `theme.ts` e l'installatore degli aggiornamenti.
+   */
+  --sfondo-scheda: #ffffff;
+
+  /*
+   * Quel che sta sopra una scheda e si preme: pulsante secondario, voce accesa
+   * di un selettore. Nel chiaro è bianco come la scheda e lo stacca il
+   * contorno; al buio vedi il valore scuro.
+   */
+  --sfondo-rilievo: #ffffff;
+
+  /* Il filetto di ogni riquadro: 2,02:1 dalla pagina. Separa due superfici; il
+     contorno di dove si scrive è `--bordo-forte`. Più chiaro di così una
+     tabella divisa da `--bordo-tenue` (il 55% di questo) non si dividerebbe. */
+  --bordo: #b2b2b8;
+  --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+
+  /* Il contorno di un campo: 4,51:1 dal bianco dentro e 4,32:1 dalla pagina,
+     il 3:1 di WCAG 1.4.11 da tutt'e due i lati. Serve perché nel chiaro
+     `--campo-sfondo` sta a 1,04:1 da `--sfondo`: il campo lo dice solo il bordo. */
+  --bordo-forte: #76767d;
+
+  /* ------------------------------------------------------------- i veli
+   *
+   * Lo stesso colore steso sopra quel che c'è, così funziona su ogni fondo:
+   * «il puntatore è qui», «questa è quella scelta», «lascia cadere dentro».
+   * Quattro veli, ognuno con il proprio mestiere. */
+
+  /* Il puntatore è qui. */
+  --velo-sfiorato: color-mix(in srgb, var(--testo) 4%, transparent);
+  /* Una fascia che si stacca appena dal riquadro (testata di scheda, piede di finestra): un piano, non uno stato. */
+  --velo-quieto: color-mix(in srgb, var(--testo) 3%, transparent);
+  /* L'accento appena posato: un comando acceso, una zona che accoglie. */
+  --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
+  /* Questa è quella scelta. */
+  --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+
+  /* --------------------------------------------------------------- il testo */
+
+  --testo: #1a1a1d;
+  --testo-quieto: #5b5b62;
+
+  /* --------------------------------------------------------------- le tinte
+   *
+   * Tre famiglie, ognuna con un mestiere solo.
+   *
+   * `--primario` è il comando che manda avanti («Salva», «Conferma», la voce
+   * scelta, l'interruttore acceso): inchiostro, l'antracite del testo appena
+   * alleggerito. Un pulsante scuro su pagina chiara si riconosce subito e
+   * lascia i colori a chi deve dire qualcosa.
+   *
+   * `--accento` è il marchio: il verde mela, abbassato finché regge il bianco
+   * sopra (5,27:1). Per icone, filetti, il giorno di oggi, la barra di lavoro,
+   * i veli di scelta: tocchi, non superfici.
+   *
+   * Gli stati: verde bene, rosso male, arancio attenzione, blu informazione.
+   * `--positivo` è un verde puro (142°) distinto dal verde mela dell'accento
+   * (93°), che non fa mai da stato. `--attenzione` è arancio e non ambra perché
+   * l'ambra è del compleanno (`--tinta-festa` in `foundations.css`). */
+
+  --primario: #27272a;
+  --primario-caldo: #3f3f45;
+  --accento: #3d7a0c;
+  --accento-caldo: #2f6108;
+  --positivo: #15803d;
+  --negativo: #b42318;
+  --attenzione: #c2410c;
+  --informativo: #1d4ed8;
+
+  /* Il grigio dei segnaposti senza padrone (le aziende sulla mappa). Non
+     `--testo-quieto`: su una punta piena sparirebbe contro la carta. */
+  --ufficio: #5b5b62;
+
+  /* Il testo sopra una tinta piena. Vedi la nota in cima. */
+  --su-tinta: #ffffff;
+
+  /*
+   * Il testo sopra un velo della propria tinta (la pastiglia: fondo al 18–20%
+   * della tinta). La tinta piena lì sta sotto il 4,5:1 che WCAG AA chiede al
+   * testo piccolo: si scurisce il testo invece di ingrandire la pastiglia.
+   * Così reggono anche su un velo al 22% (il più basso, il rosso, a 4,61:1).
+   */
+  --su-velo-positivo: #146c34;
+  --su-velo-negativo: #ad2217;
+  --su-velo-attenzione: #a5370a;
+  --su-velo-informativo: #1d46c4;
+
+  /*
+   * Il filo del fuoco della tastiera: blu, come `--informativo` e come in ogni
+   * sistema. Un filo scuro attorno al primario scuro non si vedrebbe. Sta a
+   * 6,42:1 dalla pagina (`outline-offset: 1px` lo mette fuori dal comando) e a
+   * 2,22:1 dal primario. Nessun pulsante è blu: il blu è solo informazione e fuoco.
+   */
+  --fuoco: #1d4ed8;
+
+  /* -------------------------------------------------------------- le ombre */
+
+  /* Nel tema chiaro un'ombra è un velo del colore del testo: uno strato stretto
+     per staccare il bordo e uno largo per la distanza. */
+  --ombra-1: 0 1px 2px rgba(26, 26, 29, 0.06), 0 1px 1px rgba(26, 26, 29, 0.04);
+  --ombra-2: 0 4px 12px rgba(26, 26, 29, 0.10), 0 1px 3px rgba(26, 26, 29, 0.06);
+  --ombra-3: 0 16px 40px rgba(26, 26, 29, 0.16), 0 2px 8px rgba(26, 26, 29, 0.08);
+
+  /* L'ombra della scheda: morbida, due strati che si leggono come uno. Dice
+     che il foglio è posato, non che si solleva. */
+  --ombra-scheda: 0 1px 2px rgba(26, 26, 29, 0.05), 0 1px 3px rgba(26, 26, 29, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    /* Antracite, non nero: il nero pieno fa vibrare il testo chiaro e non
+       lascerebbe sotto la pagina il gradino per il campo. */
+    --sfondo: #141416;
+    --sfondo-alto: #1b1b1e;
+    --sfondo-alto-2: #252529;
+    /* Qui il campo è un incavo, più scuro della pagina. */
+    --campo-sfondo: #0d0d0f;
+
+    /* Al buio la scheda è il gradino sopra la pagina, come `--sfondo-alto`: più chiara sembrerebbe accesa. */
+    --sfondo-scheda: #1b1b1e;
+    /* Al buio l'ombra non stacca: il rilievo è un gradino di luce sopra la scheda. */
+    --sfondo-rilievo: #2a2a2f;
+
+    --bordo: #44444b;
+    --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
+    /* 3,84:1 dall'incavo del campo e 3,64:1 dalla pagina. */
+    --bordo-forte: #6e6e76;
+
+    --velo-sfiorato: color-mix(in srgb, var(--testo) 4%, transparent);
+    --velo-quieto: color-mix(in srgb, var(--testo) 3%, transparent);
+    --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
+    --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+
+    --testo: #ececee;
+    --testo-quieto: #a1a1a9;
+
+    /* Al buio il primario si rovescia: quasi il colore del testo, con sopra
+       `--su-tinta` quasi nero. Sfiorato schiarisce ancora. */
+    --primario: #e4e4e7;
+    --primario-caldo: #fafafa;
+    --accento: #8fcf4c;
+    --accento-caldo: #a8dd6e;
+    --positivo: #4ade80;
+    --negativo: #f87060;
+    --attenzione: #ff9a4d;
+    --informativo: #60a5fa;
+
+    --ufficio: #a1a1a9;
+
+    --su-tinta: #111113;
+
+    /* Al buio il testo sul proprio velo è la tinta stessa: tutte e quattro stanno
+       sopra il 4,5:1 (la più bassa, il rosso, 4,70:1 su un velo al 22%). Restano
+       scritti perché nessun token deve esistere in un tema solo. */
+    --su-velo-positivo: #4ade80;
+    --su-velo-negativo: #f87060;
+    --su-velo-attenzione: #ff9a4d;
+    --su-velo-informativo: #60a5fa;
+
+    /*
+     * Il blu schiarito: 7,24:1 dalla pagina e 2,00:1 dal primario quasi bianco.
+     * Il 3:1 da tutti e due i lati è impossibile con un filo piatto: si sceglie
+     * la pagina, che con `outline-offset: 1px` è quella che il filo tocca.
+     */
+    --fuoco: #60a5fa;
+
+    /* Al buio una finestra la stacca il bordo chiaro; l'ombra, più profonda, dice la distanza. */
+    --ombra-1: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --ombra-2: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --ombra-3: 0 18px 48px rgba(0, 0, 0, 0.55);
+
+    /* La scheda al buio la stacca il bordo; l'ombra resta appena, per non sembrare ritagliata. */
+    --ombra-scheda: 0 1px 2px rgba(0, 0, 0, 0.30);
+  }
+}
+
+/*
+ * ------------------------------------------------------------------ i caratteri
+ *
+ * La pila dà su ogni sistema il suo carattere dell'interfaccia.
+ *
+ * `--corpo` è l'unica misura del testo dichiarata; il resto la segue in `em`.
+ * È in `rem`: la radice vale `defaultFontSize`, che il main ricava dalla
+ * «Dimensione testo» di Windows (`src/environment/theme.ts`), così il registro
+ * cresce come il resto del computer. 0.8125rem è 13px con la radice a 16.
+ *
+ * Gli spazi restano in pixel: «Dimensione testo» ingrandisce il testo, non i
+ * margini, e i riquadri si allargano perché li spinge il testo.
+ */
+:root {
+  --carattere: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI',
+    'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  --carattere-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'JetBrains Mono',
+    Menlo, Consolas, monospace;
+
+  --corpo: 0.8125rem;
+  --interlinea: 1.5;
+}
+
+/*
+ * ------------------------------------------------------ le barre di scorrimento
+ *
+ * Una barra sola, uguale in verticale e in orizzontale, in ogni scatola che
+ * scorre, nel pannello e nelle finestre native.
+ *
+ * `scrollbar-width` non si eredita e sta su `*`; `scrollbar-color` si eredita e
+ * basta la radice. Il cursore è il bordo forte velato, la guida trasparente.
+ */
+* {
+  scrollbar-width: thin;
+}
+
+:root {
+  scrollbar-color: color-mix(in srgb, var(--bordo-forte) 70%, transparent) transparent;
+}
+
+/*
+ * ------------------------------------------------------------ un tema a forza
+ *
+ * Le miniature della scelta del tema (`src/ui/views/settings/figures.ts` e la
+ * gemella nativa) disegnano il tema che scelgono, non quello attivo: «Chiaro»
+ * resta chiara anche con l'applicazione scura.
+ *
+ * Una media query vale per tutta la pagina, quindi un contenitore con
+ * `data-tema-figura` ridefinisce i token che le miniature usano. Solo quelli:
+ * un token mancante qui vale quello del tema di fuori, e le miniature non ne
+ * usano altri.
+ *
+ * Sono copie per valore: `tests/ui/themeFigure.test.mjs` le confronta una per
+ * una con le tavolozze di sopra.
+ */
+[data-tema-figura='chiaro'] {
+  color-scheme: light;
+  --sfondo: #fafafa;
+  --sfondo-alto: #f3f3f4;
+  --sfondo-alto-2: #e6e6e8;
+  --campo-sfondo: #ffffff;
+  --sfondo-scheda: #ffffff;
+  --bordo: #b2b2b8;
+  --testo: #1a1a1d;
+  --testo-quieto: #5b5b62;
+  --primario: #27272a;
+  --accento: #3d7a0c;
+}
+
+[data-tema-figura='scuro'] {
+  color-scheme: dark;
+  --sfondo: #141416;
+  --sfondo-alto: #1b1b1e;
+  --sfondo-alto-2: #252529;
+  --campo-sfondo: #0d0d0f;
+  --sfondo-scheda: #1b1b1e;
+  --bordo: #44444b;
+  --testo: #ececee;
+  --testo-quieto: #a1a1a9;
+  --primario: #e4e4e7;
+  --accento: #8fcf4c;
+}

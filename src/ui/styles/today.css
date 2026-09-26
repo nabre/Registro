@@ -1,0 +1,404 @@
+/*
+ * La pagina «Oggi»: la giornata del docente in una schermata, a schede che
+ * portano alle pagine dove le cose si fanno (qui si guarda e si va).
+ *
+ * I token delle schede (fondo, ombra, raggio) vengono da `theme.css`, letti
+ * con un ripiego per i temi che non li dichiarano.
+ */
+
+.vista--oggi {
+  /* La griglia si spezza sulla larghezza della pagina, non della finestra: con
+     barra laterale e assistente aperti la pagina è stretta anche su uno schermo largo. */
+  container-type: inline-size;
+  gap: var(--spazio-5);
+}
+
+.oggi-testata .testata__sottotitolo {
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------------ tessere */
+
+/* Quattro tessere in fila, due per due se stretta: i numeri si leggono insieme. */
+.oggi-tessere {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spazio-4);
+}
+
+@container (max-width: 52em) {
+  .oggi-tessere { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container (max-width: 26em) {
+  .oggi-tessere { grid-template-columns: minmax(0, 1fr); }
+}
+
+/*
+ * La tessera: un pulsante vestito da scheda. Il tono colora solo il tondo
+ * dell'icona, non il fondo: quattro fondi colorati in fila confondono.
+ */
+.oggi-tessera {
+  --tinta: var(--accento);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-3);
+  min-width: 0;
+  padding: var(--spazio-4);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-scheda, 12px);
+  background: var(--sfondo-scheda, var(--sfondo-alto));
+  box-shadow: var(--ombra-scheda, var(--ombra-1));
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--durata-svelta, 120ms) var(--curva, ease),
+    box-shadow var(--durata-svelta, 120ms) var(--curva, ease),
+    transform var(--durata-svelta, 120ms) var(--curva, ease);
+}
+
+.oggi-tessera:hover {
+  border-color: var(--bordo);
+  box-shadow: var(--ombra-2, var(--ombra-scheda, var(--ombra-1)));
+}
+
+.oggi-tessera:active { transform: translateY(1px); }
+
+.oggi-tessera:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 2px;
+}
+
+.oggi-tessera--informativo { --tinta: var(--informativo); }
+.oggi-tessera--positivo { --tinta: var(--positivo); }
+.oggi-tessera--attenzione { --tinta: var(--attenzione); }
+.oggi-tessera--negativo { --tinta: var(--negativo); }
+.oggi-tessera--quiete { --tinta: var(--testo-quieto); }
+
+.oggi-tessera__tondo {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tinta) 14%, transparent);
+  color: var(--tinta);
+}
+
+.oggi-tessera__tondo .icona {
+  width: 20px;
+  height: 20px;
+}
+
+.oggi-tessera__testo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.oggi-tessera__valore {
+  font-size: 1.9em;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.oggi-tessera__etichetta {
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.oggi-tessera__nota {
+  overflow: hidden;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo, 0.86em);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La freccia dice «porta altrove» senza scriverlo: si accende al passaggio. */
+.oggi-tessera__freccia {
+  position: absolute;
+  top: var(--spazio-4);
+  right: var(--spazio-3);
+  color: var(--testo-quieto);
+  opacity: 0.45;
+  transition: opacity var(--durata-svelta, 120ms) var(--curva, ease);
+}
+
+.oggi-tessera:hover .oggi-tessera__freccia,
+.oggi-tessera:focus-visible .oggi-tessera__freccia {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ griglia */
+
+/* Due colonne: le ore, larghe, e accanto quel che viene. Stretta, una sola. */
+.oggi-griglia {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--spazio-4);
+  align-items: start;
+}
+
+@container (max-width: 52em) {
+  .oggi-griglia { grid-template-columns: minmax(0, 1fr); }
+}
+
+.oggi-colonna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  min-width: 0;
+}
+
+/* Il vuoto dentro una scheda senza bordo tratteggiato: il riquadro ce l'ha già. */
+.oggi-scheda .stato-vuoto {
+  padding: var(--spazio-5) var(--spazio-3);
+}
+
+.oggi-scheda .scheda__corpo {
+  padding-left: var(--spazio-2);
+  padding-right: var(--spazio-2);
+}
+
+/* ------------------------------------------------------------ le ore di oggi */
+
+.oggi-ore,
+.oggi-prove,
+.oggi-compleanni {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Una riga per ora: quando, un filo del colore del corso, che cosa, a che punto.
+ * Tutta la riga è un pulsante che apre l'ora.
+ */
+.oggi-ora {
+  --tinta: var(--accento);
+  display: grid;
+  grid-template-columns: 3.6em 4px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spazio-3);
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid transparent;
+  border-radius: var(--raggio, 8px);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oggi-ora:hover { background: var(--velo-sfiorato); }
+
+.oggi-ora:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+/* L'ora in corso, o la prossima: un velo del suo colore e il filo più spesso. */
+.oggi-ora--evidenza {
+  border-color: color-mix(in srgb, var(--tinta) 35%, transparent);
+  background: color-mix(in srgb, var(--tinta) 9%, transparent);
+}
+
+.oggi-ora--evidenza:hover {
+  background: color-mix(in srgb, var(--tinta) 14%, transparent);
+}
+
+.oggi-ora--annullata .oggi-ora__cosa,
+.oggi-ora--annullata .oggi-ora__quando {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.oggi-ora__quando {
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+.oggi-ora__inizio { font-weight: 650; }
+
+.oggi-ora__fine {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo, 0.86em);
+}
+
+.oggi-ora__filo {
+  align-self: stretch;
+  min-height: 2.2em;
+  border-radius: 2px;
+  background: var(--tinta);
+}
+
+.oggi-ora__cosa {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.oggi-ora__titolo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  min-width: 0;
+}
+
+.oggi-ora__classe { font-weight: 650; }
+
+.oggi-ora__materia,
+.oggi-ora__dettagli {
+  overflow: hidden;
+  color: var(--testo-quieto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oggi-ora__dettagli { font-size: var(--corpo-piccolo, 0.86em); }
+
+.oggi-ora__stato {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.oggi-ora__segnale {
+  color: var(--tinta);
+  font-size: var(--corpo-minore, 0.8em);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------ prossime valutazioni */
+
+.oggi-prova {
+  --tinta: var(--accento);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spazio-3);
+  width: 100%;
+  padding: var(--spazio-2);
+  border: 0;
+  border-radius: var(--raggio, 8px);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oggi-prova:hover { background: var(--velo-sfiorato); }
+
+.oggi-prova:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+/* Il foglietto del calendario: giorno, numero grande, mese. */
+.oggi-foglietto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 3.1em;
+  padding: 3px 0 4px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-piccolo, 6px);
+  background: var(--sfondo-alto);
+  line-height: 1.1;
+}
+
+.oggi-foglietto__giorno,
+.oggi-foglietto__mese {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-minuto, 0.72em);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.oggi-foglietto__numero {
+  font-size: 1.15em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.oggi-prova__cosa {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.oggi-prova__titolo {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oggi-prova__corso {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo, 0.86em);
+  white-space: nowrap;
+}
+
+.oggi-prova__punto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tinta);
+}
+
+/* ------------------------------------------------------------------ compleanni */
+
+.oggi-compleanno {
+  --tinta: var(--accento);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2);
+}
+
+.oggi-compleanno__tondo {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tinta) 16%, transparent);
+  color: var(--tinta);
+}
+
+.oggi-compleanno__tondo .icona {
+  width: 16px;
+  height: 16px;
+}
+
+.oggi-compleanno__nome { font-weight: 600; }
+
+.oggi-compleanno__classe {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo, 0.86em);
+}

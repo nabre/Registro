@@ -1,0 +1,886 @@
+/* Il registro di un'ora: appello, osservazioni, scaletta, slot. */
+
+/* ------------------------------------------------------------------ appello */
+
+/*
+ * La matrice: gli allievi in riga, le unità didattiche in colonna. Il nome
+ * resta fermo mentre le colonne scorrono, e la testata resta in alto: non si
+ * perde di vista né la persona né l'UD.
+ */
+
+.appello__telaio { overflow-x: auto; }
+
+.appello {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.appello th,
+.appello td { padding: 3px 4px; text-align: center; vertical-align: middle; }
+
+.appello thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato);
+  background: var(--sfondo);
+  border-bottom: 1px solid var(--bordo);
+  font-weight: 600;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+.appello__riga { border-bottom: 1px solid var(--bordo-tenue); }
+.appello__riga:last-child { border-bottom: none; }
+.appello__riga--segnata { background: color-mix(in srgb, var(--attenzione) 7%, transparent); }
+
+/* Il nome, e accanto il pulsante che vale per tutta la sua ora. */
+.appello__nome {
+  position: sticky;
+  left: 0;
+  z-index: var(--piano-incollato-2);
+  background: var(--sfondo);
+  text-align: left !important;
+  white-space: nowrap;
+}
+
+.appello thead .appello__nome { z-index: 3; }
+.appello__riga--segnata .appello__nome {
+  background: color-mix(in srgb, var(--attenzione) 7%, var(--sfondo));
+}
+
+.appello__cognome {
+  display: inline-block;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin-left: var(--spazio-1);
+}
+
+/* La testata di una colonna: quale UD, a che ora comincia, e il suo pulsante. */
+.appello__cella { width: 34px; }
+.appello thead .appello__cella { display: table-cell; }
+.appello__ud { display: block; font-size: 0.9em; }
+.appello__ora { display: block; font-weight: 400; font-size: 0.85em; opacity: 0.75; }
+
+/* Dove c'era una pausa le colonne si staccano. */
+.appello__cella--stacco { border-left: 2px solid var(--bordo); }
+
+.appello__minuti { width: 62px; }
+.appello__nota { min-width: 7.5rem; text-align: left !important; }
+.appello__nota .campo__controllo { width: 100%; }
+
+/*
+ * Il pulsante dell'appello: uno per casella, ogni clic passa allo stato dopo.
+ * Ogni stato ha il suo colore, presenza compresa, così si distingue una
+ * casella impostata da una mai toccata; il verde è il più tenue. Le lettere
+ * distinguono gli stati anche senza colori. I pulsanti di colonna e di riga
+ * hanno il bordo marcato: comandano più caselle.
+ */
+.stato-presenza {
+  width: 26px;
+  height: 24px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stato-presenza:hover { background: var(--sfondo-alto-2); }
+
+/* Non impostato: la casella è vuota e si vede vuota. */
+.stato-presenza--non-impostato {
+  border-style: dashed;
+  color: color-mix(in srgb, var(--testo-quieto) 60%, transparent);
+  background: var(--velo-quieto);
+}
+
+.stato-presenza--presente {
+  background: color-mix(in srgb, var(--positivo) 80%, transparent);
+  border-color: transparent;
+  color: var(--su-tinta);
+}
+.stato-presenza--assente { background: var(--negativo); border-color: transparent; color: var(--su-tinta); }
+.stato-presenza--ritardo { background: var(--attenzione); border-color: transparent; color: var(--su-tinta); }
+.stato-presenza--esonerato { background: var(--testo-quieto); border-color: transparent; color: var(--su-tinta); }
+/* Stati mescolati: nessuno da mostrare, il punto lo dice. */
+.stato-presenza--misto { border-style: dotted; border-width: 2px; color: var(--testo-quieto); }
+
+/* Tenuto premuto: la casella si scava un attimo, il gesto è stato preso e il menu arriva. */
+.stato-presenza--premuto {
+  transform: scale(0.92);
+  filter: brightness(0.9);
+}
+
+/* Niente selezione di testo: una pressione lunga su un tocco evidenzierebbe la lettera invece di aprire il menu. */
+.stato-presenza {
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform var(--durata-svelta) var(--curva), filter var(--durata-svelta) var(--curva);
+}
+
+/* Con meno movimento lo scavo resta, ma arriva di colpo. */
+@media (prefers-reduced-motion: reduce) {
+  .stato-presenza { transition: none; }
+}
+
+.stato-presenza--colonna { border-width: 2px; }
+.stato-presenza--riga { border-width: 2px; margin-right: 2px; }
+
+/* ------------------------------------------- la matrice del comportamento */
+
+/*
+ * Le persone in riga, gli aspetti in colonna, un quadretto per incrocio.
+ * Scorre di lato come l'appello (gli aspetti si aggiungono da Impostazioni) e
+ * il nome resta fermo.
+ */
+.matrice__telaio { overflow-x: auto; }
+
+.matrice {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.matrice th,
+.matrice td {
+  padding: 2px var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+  text-align: center;
+}
+
+/* I nomi delle colonne: piccoli e quieti, si leggono all'inizio. Restano in cima se la scheda scorre. */
+.matrice__aspetto {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato);
+  max-width: 6.5rem;
+  padding-bottom: var(--spazio-1);
+  background: var(--sfondo-alto);
+  font-size: 0.78em;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--testo-quieto);
+}
+
+/* Il nome non scorre con le colonne. */
+.matrice__chi {
+  position: sticky;
+  left: 0;
+  z-index: var(--piano-incollato-2);
+  min-width: 9rem;
+  padding-right: var(--spazio-2);
+  background: var(--sfondo-alto);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/*
+ * Il quadretto: vuoto, molto bene, da migliorare. Vuoto è appena accennato:
+ * si devono vedere le poche cose segnate. Il colore si riconosce con la coda
+ * dell'occhio mentre si guarda la classe.
+ */
+.cella-segno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.cella-segno:hover { border-color: var(--bordo); background: var(--sfondo-alto-2); }
+
+.cella-segno .icona { width: 16px; height: 16px; }
+
+.cella-segno--positivo {
+  border-color: color-mix(in srgb, var(--positivo) 55%, transparent);
+  background: color-mix(in srgb, var(--positivo) 14%, transparent);
+  color: var(--positivo);
+}
+
+.cella-segno--negativo {
+  border-color: color-mix(in srgb, var(--negativo) 55%, transparent);
+  background: color-mix(in srgb, var(--negativo) 14%, transparent);
+  color: var(--negativo);
+}
+
+/* Un angolo pieno segna la casella che ha una nota. */
+.cella-segno--annotata { position: relative; }
+
+.cella-segno--annotata::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Lo stesso quadretto accanto alla riga della nota, non premibile: dice di quale casella si parla. */
+.cella-segno--ferma { cursor: default; flex: none; }
+.cella-segno--ferma:hover { border-color: var(--bordo-tenue); background: transparent; }
+
+/*
+ * Le annotazioni delle caselle segnate: una riga per casella con il segno, di
+ * chi e su che cosa, e il campo. Si riempiono a fine ora, per questo stanno
+ * sotto la griglia.
+ */
+.matrice-note {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.matrice-note__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 0;
+}
+
+.matrice-note__chi {
+  flex: 0 1 12rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+
+.matrice-note__testo { flex: 1 1 10rem; min-width: 0; }
+
+.osservazioni { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.osservazione {
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo);
+}
+
+.osservazione__testata { display: flex; align-items: center; gap: var(--spazio-2); }
+.osservazione__chi { font-weight: 600; flex: 1; }
+.osservazione__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+.osservazione__testo { margin: var(--spazio-1) 0 0; white-space: pre-wrap; }
+
+/* ------------------------------------------------------------------ piano e scaletta */
+
+.piano-lezione { display: flex; flex-direction: column; gap: var(--spazio-3); }
+.piano-lezione__sintesi { display: flex; flex-direction: column; gap: var(--spazio-2); }
+.piano-lezione__conti { display: flex; gap: var(--spazio-2); flex-wrap: wrap; }
+.piano-lezione__obiettivi h5,
+.blocco-testo h5 {
+  margin: 0 0 var(--spazio-1);
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--testo-quieto);
+}
+
+.piano-lezione__obiettivi ul,
+.blocco-testo ul { margin: 0; padding-left: var(--spazio-4); }
+
+.blocco-testo { margin-top: var(--spazio-3); }
+.blocco-testo p { margin: 0; white-space: pre-wrap; }
+
+/* La scaletta letta è la tabella dell'editor senza campi: numero, attività,
+   tipo, durata, e in aula anche orario, prova e stato. Le colonne stanno
+   sull'elenco e le righe le ereditano, così l'intestazione non si scosta. */
+.scaletta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  counter-reset: passo;
+  --griglia-scaletta: 22px minmax(8rem, 1fr) 8rem 5rem 7rem;
+}
+
+/* In aula due colonne in più: l'orologio e le spunte di che cosa si è fatto. */
+.scaletta--aula {
+  --griglia-scaletta: 22px minmax(8rem, 1fr) 8rem 5rem 7rem 6.5rem 5.5rem;
+}
+
+.scaletta__voce {
+  display: grid;
+  grid-template-columns: var(--griglia-scaletta);
+  align-items: center;
+  column-gap: var(--spazio-2);
+  row-gap: var(--spazio-1);
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+/* I nomi delle colonne non sono una riga di dati: niente cornice. */
+.scaletta__voce--intestazione {
+  padding: 0 var(--spazio-2);
+  border: 0;
+  background: none;
+  font-size: 0.76em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+.scaletta__voce--svolta { border-left: 3px solid var(--positivo); }
+.scaletta__voce--parziale { border-left: 3px solid var(--attenzione); }
+.scaletta__voce--saltata { border-left: 3px solid var(--negativo); opacity: 0.6; }
+
+.scaletta__numero {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sfondo-alto-2);
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+}
+
+.scaletta__titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.scaletta__tipo,
+.scaletta__prova { min-width: 0; }
+.scaletta__durata { font-variant-numeric: tabular-nums; color: var(--testo-quieto); font-size: 0.9em; }
+
+/* Quel che in una colonna non ci sta scende sotto, allineato al titolo. */
+.scaletta__estesa {
+  grid-column: 2 / -1;
+  min-width: 0;
+}
+
+.scaletta__descrizione { margin: var(--spazio-1) 0 0; color: var(--testo-quieto); font-size: 0.92em; }
+.scaletta__stati { display: inline-flex; gap: 2px; }
+
+/* Pannello stretto: un elenco invece di una tabella schiacciata. */
+@media (max-width: 47.5em) {
+  .scaletta__voce { grid-template-columns: 22px minmax(0, 1fr); }
+  .scaletta__voce--intestazione { display: none; }
+  .scaletta__numero { grid-row: 1 / -1; }
+  .scaletta__voce > * { grid-column: 2; }
+}
+
+/* L'intervallo nella scaletta dell'ora, fra la tappa prima e quella dopo: è lì che la classe esce. */
+.scaletta__pausa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 2px 0;
+  border-top: 1px dashed var(--bordo-tenue);
+  border-bottom: 1px dashed var(--bordo-tenue);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+/* Quando cade la tappa, pause comprese. */
+.scaletta__orario {
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stato-attivita {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.stato-attivita:hover { background: var(--sfondo-alto-2); }
+.stato-attivita--attivo { background: var(--primario); color: var(--su-tinta); border-color: transparent; }
+
+/*
+ * L'editor del piano nella pagina «Piani lezione». La riga sopra i campi dice
+ * quel che l'host non ha accettato (tappa senza titolo, corso mancante); vuota,
+ * sparisce del tutto.
+ */
+.piano-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.piano-editor > div:empty { display: none; }
+
+.etichette { display: flex; gap: var(--spazio-1); flex-wrap: wrap; margin-top: var(--spazio-3); }
+
+.elenco-collegamenti { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.riquadro-collegamenti {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  flex-wrap: wrap;
+}
+
+/* Un momento che non viene da nessuna parte: un avviso, e si vede. */
+.riquadro-collegamenti--avviso {
+  border-color: var(--attenzione);
+  background: color-mix(in srgb, var(--attenzione) 10%, var(--sfondo));
+}
+
+/*
+ * Il navigatore delle ore: una riga di controlli attaccata alla testata, non
+ * un riquadro.
+ */
+.navigatore-registro {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  /* Nessun margine sotto: lo stacca il `gap` della `.vista`, e in un flex un margine si somma. */
+  padding: var(--spazio-1) 0;
+  flex-wrap: wrap;
+}
+
+.navigatore-registro__simbolo {
+  color: var(--testo-quieto);
+  flex: none;
+}
+
+/* La tendina delle ore prende lo spazio che avanza; quella del corso è nella barra in cima. */
+.navigatore-registro__lezione {
+  flex: 1 1 22rem;
+  min-width: 10rem;
+}
+
+.navigatore-registro__conta {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.nota-classe {
+  margin: 0 0 var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-left: 3px solid var(--bordo);
+  color: var(--testo-quieto);
+  white-space: pre-wrap;
+}
+
+/* ------------------------------------------------------------------ slot e attività */
+
+.slot-editor,
+.attivita-editor { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.slot-editor__righe { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+.slot-riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.slot-riga--pausa { background: var(--velo-sfiorato); border-style: dashed; }
+.slot-riga__genere { color: var(--testo-quieto); display: inline-flex; }
+.slot-riga__durata { min-width: 3.875rem; color: var(--testo-quieto); font-size: 0.88em; }
+.slot-riga__etichetta { flex: 1; min-width: 5rem; }
+
+/*
+ * Una fascia del calendario ICS in una lezione ancorata: l'ora dell'evento, in
+ * sola lettura (la catena al posto dell'orologio), sul filo dell'accento come
+ * nel calendario. Le fasce libere restano righe normali.
+ */
+.slot-riga--ics {
+  border-left: 3px solid var(--accento);
+  background: color-mix(in srgb, var(--accento) 6%, var(--sfondo));
+}
+
+.slot-riga--ics .slot-riga__genere { color: var(--accento); }
+.slot-riga__ora { min-width: 5.5rem; font-variant-numeric: tabular-nums; }
+
+/*
+ * Riordinare le righe: si afferra solo dalla presa, altrimenti selezionare
+ * un'ora diventerebbe un trascinamento. La riga in viaggio resta al suo posto
+ * sbiadita, e il filo sul bordo di quella sotto il puntatore dice sopra o sotto.
+ */
+.presa-riga { cursor: grab; padding-inline: 2px; color: var(--testo-quieto); }
+.presa-riga:active { cursor: grabbing; }
+.riga-in-viaggio { opacity: 0.45; }
+.riga-posa-sopra { box-shadow: inset 0 2px 0 0 var(--accento); }
+.riga-posa-sotto { box-shadow: inset 0 -2px 0 0 var(--accento); }
+
+/* L'ora ereditata dalla riga sopra si legge, non si scrive. */
+.slot-riga .campo__controllo:disabled {
+  opacity: 0.6;
+  cursor: default;
+  border-style: dashed;
+}
+
+.slot-editor__piede,
+.attivita-editor__piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.slot-editor__comandi { display: flex; gap: var(--spazio-2); align-items: center; flex-wrap: wrap; }
+.slot-editor__conti { display: flex; gap: var(--spazio-2); }
+
+/* Perché l'orario è cambiato da solo: sotto la casella delle pause, sparisce se non c'è niente da dire. */
+.slot-editor__nota { margin: var(--spazio-1) 0 0; font-size: 0.88em; }
+.slot-editor__nota:empty { display: none; }
+
+/* La durata in minuti sta stretta. */
+.slot-riga .campo__controllo--numero { width: 74px; flex: 0 0 auto; }
+
+.attivita-editor__elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+/* La riga di servizio in fondo: quel che è rimasto fuori dall'ora. */
+.attivita-editor__ud {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  margin: var(--spazio-2) 0 var(--spazio-1);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--bordo-tenue);
+  font-size: 0.9em;
+}
+
+.attivita-editor__ud--fuori {
+  border-bottom-color: color-mix(in srgb, var(--negativo) 45%, transparent);
+  color: var(--negativo);
+}
+
+/* Quel che non ci sta più nell'ora resta visibile: toglierlo sarebbe decidere al posto di chi l'ha scritto. */
+.attivita-riga--fuori { opacity: 0.7; }
+.attivita-riga--fuori .attivita-riga__numero { color: var(--negativo); }
+
+/* La testata di un gruppo di UD attaccate: il tratto senza interruzioni, l'unità con cui si pianifica. */
+.attivita-editor__blocco {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  margin: var(--spazio-2) 0 var(--spazio-1);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--bordo);
+  font-size: 0.9em;
+}
+
+.attivita-editor__blocco--vuoto { border-bottom-style: dashed; }
+
+/* Quante UD tiene. */
+.attivita-editor__blocco-ud {
+  padding: 0 6px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+/* L'intervallo fra due blocchi di UD, l'unico confine che spezza un'attività:
+   si vede sempre, è la struttura dell'ora. */
+.attivita-editor__pausa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin: var(--spazio-2) 0 var(--spazio-1);
+  padding: 2px 0;
+  border-top: 1px dashed var(--bordo-tenue);
+  border-bottom: 1px dashed var(--bordo-tenue);
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+}
+
+/* L'orario vero dell'attività, accanto alla durata scritta. */
+.attivita-riga__orario {
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A cavallo fra due UD attigue: il segno resta, quieto, è un'informazione. */
+.attivita-riga--a-cavallo .attivita-riga__durata::after {
+  content: '↴';
+  color: var(--testo-quieto);
+}
+
+/* A cavallo dell'intervallo: qui l'attività si spezza davvero. */
+.attivita-riga--oltre-la-pausa .attivita-riga__durata::after { color: var(--attenzione); }
+
+/* La scaletta è una tabella a colonne ferme: la griglia si dichiara
+   sull'elenco e la ereditano le righe, così le tappe si confrontano in colonna. */
+.attivita-editor__elenco {
+  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 6.5rem 4.5rem;
+}
+
+/* Con un'ora sotto compare la colonna dell'orologio: quando cade la tappa, pause comprese. */
+.attivita-editor__elenco--con-orario {
+  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 6.5rem 6.5rem 4.5rem;
+}
+
+/*
+ * La tinta di una riga è un dato della lista «Tipi di attività» e arriva
+ * scritta in `--tinta-tappa` (vedi `coloreDiVoce` in `domain/lists.ts`). Qui
+ * solo il ripiego, il grigio di `altro`. `tests/ui/activityTypeColors.test.mjs`
+ * vieta regole per valore, che darebbero una seconda risposta al colore.
+ */
+.attivita-riga {
+  --tinta-tappa: var(--tinta-altro);
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--griglia-attivita);
+  align-items: center;
+  column-gap: var(--spazio-2);
+  row-gap: var(--spazio-1);
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--tinta-tappa);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  overflow: hidden;
+}
+
+/*
+ * Il filo del tempo: la tappa larga quanto dura, sul bordo di sotto. Si legge
+ * di sguincio scorrendo la colonna. La misura è la capienza del gruppo di UD
+ * in cui la tappa cade, o la scaletta intera se sotto non c'è un'ora.
+ */
+.attivita-riga__quota {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--tinta-tappa);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* I nomi delle colonne: niente cornice né sfondo, non sono una riga di dati. */
+.attivita-riga--intestazione {
+  padding: 0 var(--spazio-2);
+  border: 0;
+  background: none;
+  font-size: 0.76em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+/* La presa e il numero: si afferra solo dalla presa, o il trascinamento ruberebbe il mouse ai campi. */
+.attivita-riga__ordine { display: flex; align-items: center; gap: 2px; }
+.attivita-riga__numero { font-size: 0.78em; color: var(--testo-quieto); }
+.attivita-riga__titolo { min-width: 0; }
+
+/*
+ * Il tipo: una pastiglia che si preme, non una tendina, per non togliere
+ * larghezza al titolo. Porta il punto della sua tinta e apre l'elenco dei generi.
+ */
+.attivita-riga__tipo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 3px var(--spazio-2);
+  border: 1px solid transparent;
+  border-radius: var(--raggio-pastiglia);
+  background: color-mix(in srgb, var(--tinta-tappa) 12%, transparent);
+  color: var(--testo);
+  font: inherit;
+  font-size: 0.85em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.attivita-riga__tipo:hover { border-color: color-mix(in srgb, var(--tinta-tappa) 55%, transparent); }
+
+.attivita-riga__punto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tinta-tappa);
+}
+
+.attivita-riga__tipo-testo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attivita-riga__durata { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.attivita-riga__durata .campo__controllo { min-width: 0; width: 100%; }
+.attivita-riga__unita { color: var(--testo-quieto); font-size: 0.85em; }
+
+/* Aprire il dettaglio e togliere la tappa stanno vicini: il cestino resta in disparte finché non ci si passa sopra. */
+.attivita-riga__azioni { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.attivita-riga__azioni .pulsante--fantasma:last-child { opacity: 0.55; }
+.attivita-riga:hover .attivita-riga__azioni .pulsante--fantasma { opacity: 1; }
+
+/*
+ * Che cosa c'è dentro la tappa, a dettaglio chiuso: si vede quali tappe hanno
+ * una consegna senza aprirle tutte.
+ */
+.attivita-riga__sommario {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  min-width: 0;
+  font-size: 0.88em;
+  color: var(--testo-quieto);
+}
+
+/* La frase resta su una riga: a dettaglio chiuso la scaletta resta compatta. */
+.attivita-riga__detto {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Il dettaglio della tappa, sotto e allineato al titolo, diviso per gruppi:
+ * come si svolge, quel che dipende dal tipo, la prova, il materiale.
+ */
+.attivita-riga__dettagli {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  min-width: 0;
+  margin-top: var(--spazio-1);
+  padding-top: var(--spazio-2);
+  border-top: 1px dashed var(--bordo-tenue);
+}
+
+/* La tappa aperta si stacca dalle altre. */
+.attivita-riga--aperta {
+  border-color: var(--bordo);
+  background: var(--sfondo-alto);
+}
+
+.gruppo-tappa { min-width: 0; }
+
+/* Il nome del gruppo, quieto come i nomi delle colonne. */
+.gruppo-tappa__titolo {
+  margin: 0 0 var(--spazio-1);
+  font-size: 0.74em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--testo-quieto);
+}
+
+/* I campi per riga li decide lo spazio: la stessa scaletta sta nel modulo largo e in mezzo pannello. */
+.gruppo-tappa__campi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--spazio-2);
+  align-items: start;
+}
+
+.campo-tappa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* L'etichetta si vede anche a campo pieno: il segnaposto sparisce appena si scrive. */
+.campo-tappa__etichetta {
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+}
+
+/* Il campo lungo (come si svolge la tappa) prende tutta la riga: è prosa. */
+.campo-tappa__testo { grid-column: 1 / -1; resize: vertical; min-height: 3.2rem; }
+.campo-tappa:has(> .campo-tappa__testo) { grid-column: 1 / -1; }
+
+/* Una domanda sì/no in riga: la spunta davanti, la domanda accanto. */
+.campo-tappa--sino {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.campo-tappa--sino .campo-tappa__etichetta { font-size: 0.88em; color: var(--testo); }
+
+/* La tappa che è una prova si vede da lontano: è l'unica da cui escono voti. */
+.gruppo-tappa--prova {
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo);
+  border-left: 3px solid var(--tinta-verifica);
+}
+
+/* I pulsanti del materiale restano in disparte finché non ci si passa sopra: si allega di rado. */
+.gruppo-tappa .risorse--compatte .risorse__azioni { opacity: 0.55; }
+.attivita-riga:hover .risorse--compatte .risorse__azioni { opacity: 1; }
+
+/* Pannello stretto: titolo, tipo e durata si impilano accanto al numero. */
+@media (max-width: 47.5em) {
+  .attivita-riga { grid-template-columns: 46px minmax(0, 1fr); }
+  .attivita-riga--intestazione { display: none; }
+  .attivita-riga__ordine { grid-row: 1 / -1; }
+  /* Il filo del tempo sta fuori dal flusso e misura la riga intera: in una colonna sarebbe largo quanto lei. */
+  .attivita-riga > *:not(.attivita-riga__quota) { grid-column: 2; }
+  .attivita-riga__sommario,
+  .attivita-riga__dettagli { grid-column: 2; }
+}
+
+/*
+ * Com'è andata la prova: una colonna per fascia intera, sotto la griglia, perché
+ * dalla colonna dei numeri la forma della distribuzione non si legge.
+ */
+.note-prova { margin-top: var(--spazio-3); }
+
+.note-prova__titolo {
+  margin: 0 0 var(--spazio-1);
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+}
+
+/*
+ * La casella di chi era assente all'appello di quest'ora: una X in trasparenza
+ * come segnaposto, non un voto. Dice chi cercare; la prova può essere stata
+ * fatta un altro giorno.
+ */
+.cella-voto--mancava::placeholder {
+  color: color-mix(in srgb, var(--negativo) 60%, transparent);
+  font-weight: 700;
+}
+

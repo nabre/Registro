@@ -1,0 +1,1468 @@
+/* Le quattro viste del calendario: settimana, mese, anno, agenda. */
+
+/*
+ * La catena delle altezze, dal riquadro fino alla finestra: ogni anello prende
+ * quel che gli passa quello sopra, e la griglia del modo in uso riempie il
+ * resto. Niente `vh`: le fasce sopra la griglia cambiano con la finestra.
+ *
+ * Scorrono le griglie, dentro; la pagina sta ferma, così l'intestazione dei
+ * giorni resta in vista.
+ */
+.contenuto:has(.vista--calendario) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Le fasce sopra la vista (proiezione, avvisi) non si schiacciano per far posto. */
+.contenuto:has(.vista--calendario) > :not(.vista--calendario) {
+  flex: none;
+}
+
+.vista--calendario {
+  flex: 1;
+  min-height: 0;
+}
+
+/* La testata e la sintesi stanno, la griglia prende il resto. */
+.vista--calendario > .testata {
+  flex: none;
+}
+
+.vista--calendario > .settimana,
+.vista--calendario > .mese,
+.vista--calendario > .anno-griglia,
+.vista--calendario > .agenda {
+  flex: 1;
+  min-height: 0;
+}
+
+/*
+ * Nessuna deroga per le finestre basse: ogni modo scorre dentro di sé, e la
+ * settimana non si schiaccia perché `.settimana__scorrevole` tiene un'altezza
+ * minima e sotto quella scorre.
+ */
+
+/* ------------------------------------------------------------------ settimana */
+
+.settimana {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+/* La striscia delle settimane e l'intestazione dei giorni stanno; il corpo prende quel che avanza. */
+.settimana > .striscia-settimane,
+.settimana__intestazione {
+  flex: none;
+}
+
+.settimana__intestazione {
+  display: grid;
+  grid-template-columns: 3.5rem repeat(auto-fit, minmax(0, 1fr));
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+  /*
+   * La stessa fascia della barra riservata dal corpo in `.settimana__scorrevole`
+   * (`foundations.css`), anche se qui non scorre niente: senza, le colonne
+   * dell'intestazione non combacerebbero con quelle del corpo.
+   * `overflow: hidden` serve solo a far valere `scrollbar-gutter`.
+   */
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.settimana__angolo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: var(--spazio-2) 4px;
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+/* A o B nell'angolo sopra i giorni: un'etichetta, si cambia dalle Impostazioni. */
+.settimana__lettera {
+  padding: 0 5px;
+  border-radius: var(--raggio);
+  background: var(--velo-scelto);
+  color: var(--accento);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.settimana__giorno {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spazio-2);
+  border-left: 1px solid var(--bordo-tenue);
+  cursor: pointer;
+}
+
+.settimana__giorno-nome {
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+}
+
+.settimana__giorno-numero { font-size: 1.15em; font-weight: 600; }
+
+.settimana__giorno--oggi .settimana__giorno-numero {
+  color: var(--su-tinta);
+  background: var(--accento);
+  border-radius: var(--raggio-pastiglia);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* La stessa prima colonna dell'intestazione, in `rem` tutte e due: è la
+   colonna delle ore, e se non combaciano «08:00» finisce accanto alla riga sbagliata. */
+/*
+ * Il corpo sta in un riquadro che scorre, così l'intestazione dei giorni resta sopra.
+ */
+.settimana__scorrevole {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.settimana__corpo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.5rem repeat(auto-fit, minmax(0, 1fr));
+  overflow: hidden;
+  /*
+   * `height: 100%`: il corpo riempie il riquadro, e i blocchi in percentuale lo
+   * seguono. `min-height`, scritto dalla vista in pixel, è l'altezza sotto cui
+   * le ore non si leggono: se la finestra è più bassa vince lei e scorre il riquadro.
+   */
+  height: 100%;
+}
+
+.settimana__ore { position: relative; }
+
+.settimana__ora {
+  position: absolute;
+  right: var(--spazio-2);
+  transform: translateY(-50%);
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sui bordi della fascia l'etichetta sta dalla parte di dentro, altrimenti il
+   corpo ne taglierebbe metà. La riga resta dov'è; si sposta solo la scritta. */
+.settimana__ora--prima { transform: none; }
+.settimana__ora--ultima { transform: translateY(-100%); }
+
+.settimana__colonna {
+  position: relative;
+  border-left: 1px solid var(--bordo-tenue);
+}
+
+.settimana__colonna--oggi { background: color-mix(in srgb, var(--accento) 5%, transparent); }
+
+.settimana__riga-ora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--bordo-tenue);
+  pointer-events: none;
+}
+
+/*
+ * Adesso: la riga che attraversa la colonna di oggi, al minuto giusto (la
+ * muove la vista). Dice se l'ora guardata è passata, in corso o da venire.
+ * Sta sopra i blocchi: dietro una lezione si perderebbe proprio quando serve.
+ */
+.settimana__adesso {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--adesso);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Il puntino sul bordo: dice a quale colonna appartiene la riga e la fa trovare dentro un blocco pieno. */
+.settimana__adesso::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--adesso);
+}
+
+
+.blocco {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 6px;
+  border: 1px solid var(--bordo-tenue);
+  border-left: 3px solid var(--accento);
+  border-radius: var(--raggio-piccolo);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.blocco:hover { filter: brightness(1.12); }
+
+.blocco--annullata { opacity: 0.55; text-decoration: line-through; }
+.blocco--svolta { border-style: solid; }
+.blocco--pianificata { border-style: dashed; }
+
+/*
+ * L'ora che sta passando si accende del colore di adesso: dentro un blocco la
+ * riga da sola non dice a quale di due lezioni affiancate appartenga.
+ */
+.blocco--adesso {
+  border-color: var(--adesso);
+  box-shadow: 0 0 0 1px var(--adesso);
+}
+
+/*
+ * Il calendario ICS della scuola, nella sua corsia: una colonna con eventi si
+ * divide, ore del registro a sinistra ed eventi a destra alla stessa altezza.
+ * Gli eventi sono tratteggiati e senza colore: si guardano, non si aprono.
+ */
+.settimana__colonna--ics .blocco { right: calc(34% + 2px); }
+
+.evento-ics {
+  position: absolute;
+  left: 66%;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 4px;
+  border: 1px dashed var(--bordo-tenue);
+  border-left: 3px dashed var(--testo-quieto);
+  border-radius: var(--raggio-piccolo);
+  background: color-mix(in srgb, var(--testo) 4%, transparent);
+  color: var(--testo-quieto);
+  font-size: 0.78em;
+  overflow: hidden;
+  cursor: default;
+}
+
+.evento-ics--annullato { opacity: 0.55; text-decoration: line-through; }
+.evento-ics__ora { font-variant-numeric: tabular-nums; }
+.evento-ics__titolo,
+.evento-ics__luogo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evento-ics__titolo { color: var(--testo); }
+
+.chip--ics {
+  border-left: 3px dashed var(--testo-quieto);
+  background: transparent;
+  outline: 1px dashed var(--bordo-tenue);
+  outline-offset: -1px;
+  color: var(--testo-quieto);
+  cursor: default;
+}
+
+.chip--ics:hover { background: transparent; }
+
+.agenda__voce--ics { color: var(--testo-quieto); cursor: default; }
+.agenda__voce--ics:hover { background: transparent; }
+
+/*
+ * L'ancora: un evento ICS collegato a una lezione. L'evento ancorato prende il
+ * colore della lezione sul bordo, il tratto pieno e la catena; quello libero
+ * resta tratteggiato e dice «libero», perché chiede una decisione. Passando
+ * sopra l'uno si accende l'altro.
+ */
+.evento-ics__testata { display: flex; align-items: center; gap: 3px; }
+.evento-ics__ancora { display: inline-flex; margin-left: auto; color: var(--accento); }
+.evento-ics__ancora--libero,
+.agenda__voce--ics .evento-ics__ancora--libero {
+  color: var(--attenzione);
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+/* Nessuna prova dice di che corso sia: chiede un abbinamento. */
+.evento-ics__senza-corso {
+  display: inline-flex;
+  flex: none;
+  color: var(--attenzione);
+}
+
+.chip--ics .evento-ics__senza-corso .icona { color: var(--attenzione); }
+
+.evento-ics--collegato {
+  border-style: solid;
+  /*
+   * Il colore della lezione a destra, sottile e smorzato: il bordo pieno a
+   * sinistra è della lezione. `--colore-ancora` lo mette `ics.ts`.
+   */
+  border-left: 1px solid var(--bordo-tenue);
+  border-right: 2px solid color-mix(in srgb, var(--colore-ancora, var(--bordo-tenue)) 55%, transparent);
+  background: color-mix(in srgb, var(--testo) 6%, transparent);
+  font: inherit;
+  font-size: 0.78em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.evento-ics--collegato:hover { filter: brightness(1.12); }
+
+.segno-ics {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: auto;
+  color: var(--accento);
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip--ics-collegato { border-left-style: solid; outline-style: solid; }
+.chip--ics .icona { flex: none; margin-left: auto; color: var(--accento); }
+
+/*
+ * Gli eventi scelti con ctrl+clic per farne una lezione sola: contorno pieno
+ * dell'accento, uguale nelle tre viste.
+ */
+.evento-ics--scelto,
+.chip--ics-scelto,
+.agenda__voce--ics-scelta {
+  outline: 2px solid var(--accento);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--accento) 12%, transparent);
+}
+
+/* Nell'agenda l'evento collegato sta sotto la sua ora, rientrato. */
+.agenda__voce--ics-collegata { padding-left: calc(var(--spazio-4) * 2.5); border-top-style: dashed; }
+
+.ancora--accesa {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
+  z-index: 3;
+}
+
+.blocco__pausa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--testo) 10%, transparent) 0 4px,
+    transparent 4px 8px
+  );
+  pointer-events: none;
+}
+
+.blocco__testata {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: baseline;
+  font-size: 0.82em;
+}
+
+.blocco__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+.blocco__classe { font-weight: 600; }
+/* In una colonna stretta si tronca prima la materia: ora e classe sono quel che si cerca. */
+.blocco__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* L'aula su una riga sua, sotto classe e materia, con i puntini. */
+.blocco__aula {
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Il numero dell'ora in cifre tabulari: incolonnato fra i blocchi. */
+.blocco__numero {
+  font-size: 0.85em;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.blocco__piede {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: center;
+  margin-top: auto;
+  font-size: 0.75em;
+  color: var(--testo-quieto);
+}
+
+.blocco--basso { padding: 1px 5px; }
+.blocco--basso .blocco__testata { font-size: 0.75em; }
+
+/* ------------------------------------------------------------------ mese */
+
+.mese {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+/* I nomi dei giorni restano in testa: scorre la striscia. */
+.mese__intestazione {
+  flex: none;
+}
+
+.mese__intestazione {
+  display: grid;
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+}
+
+.mese__giorno-nome {
+  padding: var(--spazio-2);
+  text-align: center;
+  font-size: 0.8em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+}
+
+/*
+ * La striscia continua delle settimane, che scorre da sola: il mese non
+ * finisce al 31, e fine ottobre e inizio novembre stanno uno sotto l'altro.
+ */
+.mese__scorrevole {
+  /* La striscia prende tutto quel che le passa il riquadro, e scorre dentro. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.mese__settimana { display: grid; }
+
+/* Il nome del mese resta in alto finché scorrono le sue settimane. */
+.mese__etichetta {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato-2);
+  padding: var(--spazio-1) var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Il primo del mese si segna: è il confine, in una striscia senza fine. */
+.mese__cella--apre-mese { box-shadow: inset 2px 0 0 var(--accento); }
+
+.mese__cella {
+  min-height: 108px;
+  padding: var(--spazio-1) var(--spazio-2) var(--spazio-2);
+  border-left: 1px solid var(--bordo-tenue);
+  border-top: 1px solid var(--bordo-tenue);
+  cursor: pointer;
+}
+
+.mese__cella--oggi { background: color-mix(in srgb, var(--accento) 8%, transparent); }
+.mese__cella--scelta { outline: 1px solid var(--accento); outline-offset: -1px; }
+
+.mese__numero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85em;
+  color: var(--testo-quieto);
+  margin-bottom: var(--spazio-1);
+}
+
+.mese__conteggio {
+  background: var(--sfondo-alto-2);
+  border-radius: var(--raggio-pastiglia);
+  padding: 0 6px;
+  font-size: 0.9em;
+}
+
+.mese__lezioni { display: flex; flex-direction: column; gap: 2px; }
+
+.chip {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-1);
+  width: 100%;
+  padding: 1px 5px;
+  border: none;
+  border-left: 3px solid var(--accento);
+  border-radius: 3px;
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+  font: inherit;
+  font-size: 0.82em;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.chip:hover { background: var(--sfondo); }
+.chip--annullata { opacity: 0.5; text-decoration: line-through; }
+.chip__ora { color: var(--testo-quieto); font-variant-numeric: tabular-nums; }
+/* `min-width: 0` perché i puntini funzionino: senza, la classe spingerebbe la sigla fuori dalla pastiglia. */
+.chip__testo { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* La sigla in coda, mai troncata: distingue due ore della stessa classe nello
+   stesso giorno. `auto` la spinge a destra quando la cella è larga. */
+.chip__materia {
+  flex: none;
+  margin-left: auto;
+  color: var(--testo-quieto);
+  font-size: 0.82em;
+  letter-spacing: 0.02em;
+}
+
+.mese__altre { font-size: 0.78em; color: var(--testo-quieto); margin-top: 2px; }
+
+/* ------------------------------------------------------------- compleanni */
+
+/* Un compleanno non è un'ora: stessa pastiglia delle lezioni (in colonna nella
+   cella del mese), ma con fondo tinto e torta davanti al nome. */
+.chip--compleanno {
+  background: color-mix(in srgb, var(--tinta-festa) 14%, transparent);
+  align-items: center;
+}
+
+.chip--compleanno:hover { background: color-mix(in srgb, var(--tinta-festa) 24%, transparent); }
+
+/* Il compleanno di una classe che quel giorno non si ha in aula: la stessa
+   pastiglia, sbiadita. Torna piena passandoci sopra. */
+.chip--compleanno-fuori { opacity: 0.5; }
+.chip--compleanno-fuori:hover { opacity: 1; }
+
+.chip__segno {
+  width: 12px;
+  height: 12px;
+  color: var(--tinta-festa);
+}
+
+/* Nell'intestazione della settimana c'è posto per un segno: la torta, e quanti
+   sono se più d'uno. Il resto nel suggerimento. */
+.compleanni-segno {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-top: 2px;
+  color: var(--tinta-festa);
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: help;
+}
+
+.compleanni-segno .icona { width: 13px; height: 13px; }
+
+/* Nessuna delle classi che festeggiano è in aula quel giorno: il segno resta, spento. */
+.compleanni-segno--fuori { opacity: 0.45; }
+
+/* Nell'agenda i compleanni hanno una fascia fra la testata e le ore: appartengono al giorno. */
+.agenda__compleanni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-4);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.agenda__compleanni .chip { width: auto; font-size: 0.86em; }
+
+/* Nell'anno la casella è alta una riga: resta il segno, il nome nel suggerimento. */
+.anno-giorno__torta {
+  width: 9px;
+  height: 9px;
+  color: var(--tinta-festa);
+}
+
+.anno-giorno__torta--fuori { opacity: 0.45; }
+
+/* ------------------------------------------------------------------ agenda */
+
+/* L'agenda scorre dentro il suo riquadro: testata e sintesi restano ferme. */
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  overflow-y: auto;
+}
+
+.agenda__giorno { flex: none; }
+
+.agenda__giorno {
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+.agenda__giorno--oggi { border-color: color-mix(in srgb, var(--accento) 50%, transparent); }
+
+.agenda__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-4);
+  border-bottom: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+}
+
+.agenda__data { font-weight: 600; text-transform: capitalize; }
+
+.agenda__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-4);
+  border: none;
+  border-top: 1px solid var(--bordo-tenue);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda__voce:first-of-type { border-top: none; }
+.agenda__voce:hover { background: var(--sfondo-alto-2); }
+.agenda__voce--annullata { opacity: 0.55; }
+
+.agenda__orario {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  min-width: 6.75rem;
+}
+
+.agenda__testo { display: flex; gap: var(--spazio-2); align-items: baseline; flex: 1; min-width: 0; }
+/* La materia fra classe e argomento, anche per peso: classe in grassetto, argomento quieto, materia normale. */
+.agenda__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda__titolo { color: var(--testo-quieto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda__coda { display: flex; gap: var(--spazio-1); align-items: center; }
+
+/* ------------------------------------------------------------------ trascinamento */
+
+/*
+ * Portare una lezione altrove: mentre viaggia il blocco resta al suo posto
+ * sbiadito, e sotto il puntatore compare la riga dell'ora di arrivo.
+ * Tratteggiata verde vuol dire «copia», piena «sposta».
+ */
+
+.blocco[draggable='true'],
+.chip[draggable='true'] {
+  cursor: grab;
+}
+
+.blocco--in-viaggio {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.zona-posa {
+  background: color-mix(in srgb, var(--accento) 8%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accento) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.settimana__guida {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accento);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.settimana__guida::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accento);
+}
+
+.settimana__guida--copia {
+  background: repeating-linear-gradient(
+    to right,
+    var(--positivo) 0 6px,
+    transparent 6px 10px
+  );
+}
+
+.settimana__guida--copia::after { background: var(--positivo); }
+
+/*
+ * I capi della striscia dei mesi, dove l'anno comincia e finisce: dicono che
+ * lo scorrimento è arrivato in fondo e non si è fermato a metà caricamento.
+ */
+.mese__capo {
+  padding: var(--spazio-4) var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
+  text-align: center;
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------------ cambio di semestre */
+
+/*
+ * Il confine fra i due semestri: di là le medie ripartono, e una verifica il
+ * giorno prima o dopo finisce in un'altra pagella. Si vede più del cambio di
+ * mese: una banda nella striscia, un filo pieno sul giorno che lo apre.
+ */
+
+/* Il filo sta dalla parte del confine: a sinistra il giorno che apre un
+   semestre, a destra quello che lo chiude. */
+.giorno--apre-semestre { box-shadow: inset 5px 0 0 var(--tinta-verifica); }
+.giorno--chiude-semestre { box-shadow: inset -5px 0 0 var(--tinta-verifica); }
+
+/* Un giorno che chiude un semestre e ne apre un altro (dati scritti a mano) porta tutti e due i fili. */
+.giorno--apre-semestre.giorno--chiude-semestre {
+  box-shadow: inset 5px 0 0 var(--tinta-verifica), inset -5px 0 0 var(--tinta-verifica);
+}
+
+/* Nella settimana il confine è una barra piena: un filo sottile sembrerebbe un bordo di cella. */
+.settimana__giorno.giorno--apre-semestre { border-left: 5px solid var(--tinta-verifica); }
+.settimana__giorno.giorno--chiude-semestre { border-right: 5px solid var(--tinta-verifica); }
+.settimana__colonna.giorno--apre-semestre { border-left: 5px solid var(--tinta-verifica); }
+.settimana__colonna.giorno--chiude-semestre { border-right: 5px solid var(--tinta-verifica); }
+
+/* Il confine di semestre accanto al numero del giorno in cui cade, in rosso. */
+.settimana__semestre,
+.segno-semestre {
+  font-size: 0.7em;
+  line-height: 1.2;
+  color: var(--tinta-verifica);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.settimana__semestre { display: block; }
+
+/* Nella cella del mese sta fra il numero e il conteggio delle ore; la riga è già flex. */
+.segno-semestre {
+  padding: 0 var(--spazio-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mese__semestre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2) var(--spazio-3);
+  border-top: 2px solid var(--tinta-verifica);
+  background: color-mix(in srgb, var(--tinta-verifica) 12%, transparent);
+  color: var(--testo);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.mese__semestre-data { color: var(--testo-quieto); font-weight: 400; }
+
+/* ------------------------------------------------ le settimane dell'anno */
+
+/* Tutte le settimane dell'anno, sopra la settimana aperta: quante ne restano
+   e quali sono già piene. */
+.striscia-settimane {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* La prima fascia del riquadro della settimana: margine delle celle e un filo
+     sotto, così le caselle non toccano il bordo arrotondato. */
+  padding: var(--spazio-2) var(--spazio-2) var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.striscia-settimane__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Il pulsante che ripiega la striscia: in fondo alla testata, visibile anche a striscia chiusa. */
+.striscia-settimane__ripiega {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 1.6rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.striscia-settimane__ripiega:hover {
+  border-color: var(--bordo-tenue);
+  color: var(--testo);
+}
+
+.striscia-settimane__ripiega:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
+}
+
+/* Chiusa è una riga sottile: il margine sopra si stringe a quello di sotto. */
+.striscia-settimane--chiusa { padding-top: var(--spazio-1); }
+
+.striscia-settimane__voci {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.striscia-settimane__voce {
+  flex: 1 0 2.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+  color: var(--testo-quieto);
+  font-size: 0.72em;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.striscia-settimane__voce:hover { border-color: var(--accento); }
+.striscia-settimane__numero { font-variant-numeric: tabular-nums; }
+.striscia-settimane__conta { font-weight: 600; }
+
+/* La lettera della quindicina: si stacca dal numero della settimana senza gridare, per controllare l'alternanza. */
+.striscia-settimane__lettera {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accento);
+}
+
+/* Piena o vuota si distingue dal riempimento: è la cosa che si guarda scorrendo. */
+.striscia-settimane__voce--piena {
+  background: color-mix(in srgb, var(--accento) 16%, var(--sfondo));
+  border-color: color-mix(in srgb, var(--accento) 40%, var(--bordo-tenue));
+  color: var(--testo);
+}
+
+.striscia-settimane__voce--vuota { opacity: 0.75; }
+
+/*
+ * Col calendario ICS acceso, la settimana in cui qualcosa non torna: bordo in
+ * basso acceso e sotto il conto i segni «+», «−», «?», leggibili senza colore.
+ * Non si spegne mai, nemmeno vuota o in vacanza.
+ */
+.striscia-settimane__voce.striscia-settimane__voce--ics-anomala {
+  opacity: 1;
+  border-bottom: 2px solid var(--attenzione);
+}
+
+.striscia-settimane__ics {
+  display: flex;
+  gap: 1px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.striscia-settimane__ics--evento { color: var(--attenzione); }
+.striscia-settimane__ics--lezione { color: var(--negativo); }
+.striscia-settimane__ics--regola { color: var(--informativo); }
+
+/*
+ * Il box che diverge dal calendario ICS, nel colore del suo segno: velatura
+ * (`background-image`) e bordo interno sopra il colore del corso, che resta
+ * riconoscibile.
+ */
+.ics-divergente--evento { --tinta-divergenza: var(--attenzione); }
+.ics-divergente--lezione { --tinta-divergenza: var(--negativo); }
+.ics-divergente--regola { --tinta-divergenza: var(--informativo); }
+
+.ics-divergente {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--tinta-divergenza) 18%, transparent),
+    color-mix(in srgb, var(--tinta-divergenza) 18%, transparent)
+  );
+  box-shadow: inset 0 0 0 2px var(--tinta-divergenza);
+}
+
+/* Un evento libero divergente: il tratteggio prende il colore, per non confondersi con uno qualunque. */
+.evento-ics.ics-divergente { border-color: var(--tinta-divergenza); color: var(--testo); }
+
+.striscia-settimane__testata {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+.striscia-settimane__legenda { text-transform: none; letter-spacing: 0; }
+
+/* Una settimana tutta di vacanza si spegne invece di chiedere attenzione. */
+.striscia-settimane__voce--sospesa {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.striscia-settimane__voce--corrente {
+  outline: 2px solid var(--accento);
+  outline-offset: -1px;
+  color: var(--testo);
+}
+
+/* La settimana di oggi: una barretta verde sul fondo e il numero in grassetto.
+   Discreta, perché riempimento e contorno dicono già altro. Non si spegne mai. */
+.striscia-settimane__voce.striscia-settimane__voce--oggi {
+  box-shadow: inset 0 -3px 0 var(--accento);
+  opacity: 1;
+}
+
+.striscia-settimane__voce--oggi .striscia-settimane__numero {
+  font-weight: 700;
+  color: var(--testo);
+}
+
+/* Il confine fra i semestri nella striscia: un segno solo, pieno e
+   arrotondato, nel varco allargato dopo l'ultima settimana del semestre. Fra
+   le caselle e non dentro, per non confondersi con i loro contorni. */
+.striscia-settimane__voce--chiude-semestre {
+  position: relative;
+  margin-right: calc(var(--spazio-2) + 2px);
+}
+
+.striscia-settimane__voce--chiude-semestre::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  /* Al centro del varco: il margine qui sopra più i 2px del `gap`. */
+  right: calc(-1 * (var(--spazio-2) + 4px) / 2 - 1.5px);
+  width: 3px;
+  border-radius: 999px;
+  background: var(--tinta-verifica);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------ il numero di settimana */
+
+/* Nel mese la settimana ha una colonna sua a sinistra: il piano annuale si conta in settimane. */
+.mese__settimana-numero {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-right: 1px solid var(--bordo-tenue);
+  background: none;
+  color: var(--testo-quieto);
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* Numero sopra, lettera sotto: letti di fila si vede se l'alternanza salta. */
+.mese__settimana-numero { grid-auto-flow: row; gap: 1px; }
+
+.mese__settimana-lettera {
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accento);
+}
+
+.mese__settimana-numero:hover { color: var(--accento); }
+
+.mese__settimana-numero--scelta {
+  color: var(--accento);
+  font-weight: 700;
+}
+
+.mese__giorno-nome--settimana { color: var(--testo-quieto); opacity: 0.6; }
+
+/* Il titolo di ogni settimana: numero, giorni, lettera A/B una volta sola. */
+.agenda__settimana {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  margin: var(--spazio-2) 0 calc(-1 * var(--spazio-2));
+  font-size: 0.95em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda__settimana-date { color: var(--testo-quieto); font-weight: 400; }
+
+/* Un giorno senza niente: solo la testata, senza il filo sotto. */
+.agenda__giorno--vuoto .agenda__testata { border-bottom: none; }
+
+/* Sabato, domenica, vacanze: ci sono, ma in secondo piano. */
+.agenda__giorno--libero.agenda__giorno--vuoto { opacity: 0.6; }
+
+/* ------------------------------------------------------- l'anno su una pagina */
+
+/*
+ * Il calendario che la sede stampa e appende: i dodici mesi affiancati nella
+ * stessa griglia, i giorni in riga, così si confrontano a colpo d'occhio.
+ */
+.anno-griglia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-3);
+  min-width: 0;
+}
+
+/* Se i mesi non ci stanno il foglio scorre di lato invece di schiacciare le
+   colonne, e scorre anche in giù perché prende tutta l'altezza che trova.
+
+   Colonna flessibile: le trentun righe dei giorni si spartiscono l'altezza
+   che avanza, senza lasciare una fascia vuota sotto il 31. */
+.anno-griglia__foglio {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--spazio-1);
+}
+
+/* Le due intestazioni tengono la loro altezza. */
+.anno-griglia__riga--semestri,
+.anno-griglia__riga--mesi {
+  flex: none;
+}
+
+/*
+ * Le righe dei giorni crescono in parti uguali fino a riempire il foglio.
+ * `flex: 1 0 auto`: crescono ma non si schiacciano; su una finestra bassa
+ * scorre il foglio (`overflow: auto`).
+ */
+.anno-griglia__riga--giorni {
+  flex: 1 0 auto;
+}
+
+/* Nessuna larghezza minima scritta a mano: le colonne hanno il loro `minmax`
+   e il foglio scorre quando non ci stanno.
+
+   Nessuno spazio fra le celle: la griglia la disegnano i filetti, come nel
+   mese, e le velature cadono sulla stessa base. */
+.anno-griglia__riga {
+  display: grid;
+}
+
+/* Mesi e semestri restano visibili scorrendo in giù. */
+.anno-griglia__riga--semestri,
+.anno-griglia__riga--mesi {
+  position: sticky;
+  z-index: var(--piano-incollato);
+  background: var(--sfondo);
+}
+
+.anno-griglia__riga--semestri { top: 0; }
+.anno-griglia__riga--mesi { top: 1.1rem; padding-bottom: 2px; }
+
+/* Il nome del semestre, centrato sopra i suoi mesi, come sul foglio stampato. */
+.anno-griglia__semestre {
+  padding: 1px 4px;
+  font-size: 0.68em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.anno-griglia__mese {
+  padding: 2px 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--testo-quieto);
+  text-align: center;
+}
+
+/*
+ * I due filetti pesano diverso: il verticale separa i mesi (`--bordo`, pieno),
+ * l'orizzontale i giorni (`--bordo-tenue`). Si legge in colonna, un mese per
+ * volta, e il confine fra i mesi deve vedersi senza fare della griglia una gabbia.
+ */
+.anno-griglia__giorno {
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--bordo);
+  border-top: 1px solid var(--bordo-tenue);
+  font-size: 0.68em;
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+}
+
+/* Nelle due righe d'intestazione niente filetti: sembrerebbero una riga di giorni. */
+.anno-griglia__riga--mesi .anno-griglia__giorno { border-top: 0; }
+
+/*
+ * Un giorno in tre colonnine: lettera della settimana, quel che succede,
+ * iniziale del giorno. Larghezze uguali in tutti i mesi, così le colonnine si
+ * leggono anche in verticale.
+ *
+ * Senza sfondo suo e con i filetti ai bordi, come `.mese__cella`: le velature
+ * di stato (fine settimana, oggi, chiusure) si posano sul fondo del pannello.
+ */
+.anno-giorno {
+  display: grid;
+  grid-template-columns: 0.8rem 1fr 0.8rem;
+  align-items: center;
+  gap: 2px;
+  min-height: 1.15rem;
+  padding: 0 2px;
+  border: 0;
+  /* Filetto pieno a sinistra fra un mese e l'altro (vedi `.anno-griglia__giorno`), tenue in cima fra due giorni. */
+  border-left: 1px solid var(--bordo);
+  border-top: 1px solid var(--bordo-tenue);
+  background: none;
+  color: var(--testo-quieto);
+  font-size: 0.68em;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anno-giorno:not(.anno-giorno--nulla, .anno-giorno--fuori-anno):hover {
+  outline: 1px solid var(--accento);
+  outline-offset: -1px;
+}
+
+/* Il 31 novembre: la cella resta, vuota, o le righe non si allineano più fra i mesi. */
+.anno-giorno--nulla { cursor: default; }
+
+/* I giorni dei mesi di bordo fuori dall'anno scolastico (agosto, fine giugno):
+   tengono le righe, ma spenti e senza clic. */
+.anno-giorno--fuori-anno {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.anno-giorno__settimana {
+  font-weight: 700;
+  color: var(--accento);
+  text-align: center;
+}
+
+/* Il nome della vacanza, oppure i punti colore e il conto dei corsi, in una
+   fila. L'ellissi sta sul testo dentro: `text-overflow` non vale per il testo
+   nudo dentro un flex. */
+.anno-giorno__testo {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.anno-giorno__nome {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anno-giorno__iniziale {
+  font-weight: 600;
+  color: var(--testo);
+  text-align: center;
+}
+
+/* Quanti corsi: lo stesso numero della pastiglia del mese. */
+.anno-giorno__corsi {
+  background: var(--sfondo-alto-2);
+  border-radius: var(--raggio-pastiglia);
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* I punti colore delle classi, piccoli: la casella è alta una riga. */
+.anno-giorno__testo .punto-colore {
+  width: 5px;
+  height: 5px;
+  flex: none;
+}
+
+/* La legenda: i quadretti riusano le classi dei giorni. Dichiarata prima dei
+   modificatori apposta: a parità di specificità vince l'ultima regola. */
+.anno-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-3);
+  font-size: 0.75em;
+  color: var(--testo-quieto);
+}
+
+.anno-legenda__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.anno-legenda__segno {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto);
+}
+
+/* Nella legenda i quadretti del confine sono piccoli: la riga diventa un bordo vero, o sparirebbe. */
+.anno-legenda__segno.anno-giorno--apre {
+  box-shadow: none;
+  border-top: 2px solid var(--tinta-verifica);
+}
+
+.anno-legenda__segno.anno-giorno--chiude {
+  box-shadow: none;
+  border-bottom: 2px solid var(--tinta-verifica);
+}
+
+/* Sabato, domenica e chiusure portano `giorno--festivo` e `giorno--chiuso`
+   come nel mese e nella settimana, così le convenzioni restano una. Qui solo
+   l'iniziale del giorno si spegne nel fine settimana. */
+.anno-giorno.giorno--festivo .anno-giorno__iniziale { color: var(--testo-quieto); }
+.anno-giorno.giorno--chiuso .anno-giorno__iniziale { opacity: 0.5; }
+
+/* Il confine di semestre è una riga orizzontale: sopra il giorno in cui un
+   semestre comincia, sotto quello in cui finisce. */
+.anno-giorno--apre { box-shadow: inset 0 2px 0 0 var(--tinta-verifica); }
+.anno-giorno--chiude { box-shadow: inset 0 -2px 0 0 var(--tinta-verifica); }
+
+/* Un giorno che chiude un semestre e ne apre un altro (dati scritti a mano) porta tutti e due i segni. */
+.anno-giorno--apre.anno-giorno--chiude {
+  box-shadow: inset 0 2px 0 0 var(--tinta-verifica), inset 0 -2px 0 0 var(--tinta-verifica);
+}
+
+.anno-giorno--oggi { background-color: color-mix(in srgb, var(--accento) 8%, transparent); }
+
+.anno-giorno--scelto {
+  outline: 1px solid var(--accento);
+  outline-offset: -1px;
+}
+
+/* ------------------------------------------------ confronto con il calendario ICS */
+
+.confronto-calendario__sorgente {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+}
+
+.confronto-calendario__sorgente .campo__controllo { flex: 1; min-width: 0; }
+
+.confronto-calendario__elenco {
+  display: flex;
+  flex-direction: column;
+  max-height: 18rem;
+  overflow-y: auto;
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+/* Una riga per lezione: quando, a che ora, di che corso, e quel che cambia.
+   Colonne fisse per tenere in fila giorni e ore. */
+.confronto-calendario__voce {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1) var(--spazio-2);
+  padding: var(--spazio-1) 0;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+label.confronto-calendario__voce { cursor: pointer; }
+
+.confronto-calendario__tutte { border-bottom: none; font-weight: 600; }
+
+.confronto-calendario__quando { min-width: 5.5em; font-variant-numeric: tabular-nums; }
+.confronto-calendario__ora { min-width: 7.5em; font-variant-numeric: tabular-nums; }
+.confronto-calendario__corso { font-weight: 600; }
+.confronto-calendario__differenza { color: var(--testo-quieto); font-style: italic; }
+
+.confronto-calendario__regola {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--spazio-2);
+  align-items: center;
+  padding: var(--spazio-1) 0;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.confronto-calendario__combaciano summary { cursor: pointer; padding: var(--spazio-2) 0; }
+
+/*
+ * ------------------------------------------------------------ la modifica
+ *
+ * Il calendario in modifica (`views/calendar/editor.ts`). Si vede che un clic
+ * scrive e non apre: pulsante «Modifica» acceso, cursore a croce sul vuoto,
+ * righe delle ore più marcate, maniglie, tutto nell'accento. Il resto resta com'è.
+ */
+
+/* Il vuoto della colonna si disegna: la croce lo dice prima del clic. */
+.vista--calendario-editor .settimana__colonna {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.vista--calendario-editor .settimana__riga-ora {
+  background: var(--bordo);
+}
+
+/* In modifica il blocco si sceglie, non si apre: la manina diventa freccia. */
+.vista--calendario-editor .blocco,
+.vista--calendario-editor .chip {
+  cursor: default;
+}
+
+.vista--calendario-editor .blocco[draggable='true'],
+.vista--calendario-editor .chip[draggable='true'] {
+  cursor: grab;
+}
+
+/*
+ * L'ora scelta: un anello dell'accento fuori dal bordo, sopra le vicine. È
+ * quella su cui agiscono tastiera e Canc; l'ora di adesso ha il suo magenta.
+ */
+.blocco--scelto,
+.chip--scelto {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
+  z-index: 2;
+}
+
+.blocco--scelto { filter: none; }
+
+/*
+ * Le maniglie, in cima e in fondo al blocco: si vedono col puntatore sul blocco
+ * o col blocco scelto, altrimenti sarebbero un reticolo di trattini.
+ */
+.blocco__maniglia {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  cursor: ns-resize;
+  touch-action: none;
+  z-index: 1;
+}
+
+.blocco__maniglia--inizio { top: -1px; }
+.blocco__maniglia--fine { bottom: -1px; }
+
+.blocco__maniglia::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 3px;
+  margin-left: -11px;
+  border-radius: 2px;
+  background: var(--accento);
+  opacity: 0;
+  transition: opacity var(--durata-svelta) var(--curva);
+}
+
+.blocco__maniglia--inizio::after { top: 2px; }
+.blocco__maniglia--fine::after { bottom: 2px; }
+
+.blocco:hover > .blocco__maniglia::after,
+.blocco--scelto > .blocco__maniglia::after,
+.blocco--in-stiro > .blocco__maniglia::after {
+  opacity: 1;
+}
+
+/*
+ * Mentre si stira o si sposta con le frecce, il blocco mostra l'orario in cui
+ * finirebbe.
+ */
+.blocco[data-orario]::after,
+.settimana__bozza::after {
+  content: attr(data-orario);
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  padding: 0 4px;
+  border-radius: var(--raggio-piccolo);
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-size: var(--corpo-minore);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.blocco--in-stiro {
+  z-index: 3;
+  box-shadow: var(--ombra-2);
+  cursor: ns-resize;
+}
+
+/* La lezione che si sta disegnando: tratteggiata come un'ora pianificata. */
+.settimana__bozza {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border: 1px dashed var(--accento);
+  border-left: 3px solid var(--accento);
+  border-radius: var(--raggio-piccolo);
+  background: var(--velo-scelto);
+  pointer-events: none;
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blocco__maniglia::after { transition: none; }
+}
+
+/* Nella colonna con la corsia ICS la bozza sta dove starà il blocco. */
+.settimana__colonna--ics .settimana__bozza { right: calc(34% + 2px); }
+
+/* In modifica l'evento ICS libero si preme: ne nasce la lezione. */
+.vista--calendario-editor .evento-ics--libero {
+  cursor: pointer;
+}
+
+.vista--calendario-editor .evento-ics--libero:hover {
+  border-color: var(--accento);
+  background: var(--velo-accento);
+}

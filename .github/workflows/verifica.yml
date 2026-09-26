@@ -1,0 +1,120 @@
+# Le verifiche che CANTIERE.md pretende prima di spuntare una casella, fatte da
+# una macchina invece che a memoria.
+#
+# La regola sta scritta in `docs/CANTIERE.md`: una casella si spunta quando il
+# lavoro è **fatto e verificato** — `tsc` pulito, `eslint` senza errori, `npm
+# test` verde. E D2 pretende che i test restino verdi a ogni passo di uno
+# spostamento di cartelle da centomila righe. Finché nessuno lo controllava,
+# quella pretesa valeva quanto la memoria di chi committava.
+#
+# Ci sono anche i controlli statici fatti in casa: non sono un extra,
+# sono il modo in cui questo progetto verifica le proprie regole
+# d'architettura. `strati` in particolare è scritto apposta *prima* degli
+# spostamenti che deve sorvegliare — e non gira né in `pretest` né in `test`,
+# quindi senza questo file non girava mai da solo.
+
+name: verifica
+
+on:
+  # Non parte da sé: la chiama `rilascio.yml` come primo passo di ogni giro —
+  # push su `main` o pull request. Averla anche qui su `push` la faceva girare
+  # due volte sullo stesso commit, e una versione nuova esce comunque solo se
+  # questa, sullo stesso commit, è verde.
+  workflow_call:
+  # Per rilanciarla a mano, da sola, su un ramo qualunque.
+  workflow_dispatch:
+
+jobs:
+  verifica:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      # `npm ci` e non `npm install`: si costruisce con le versioni bloccate,
+      # che è il punto del file di blocco. Un modulo nativo montato per
+      # percorso — `node-llama-cpp` — con una versione diversa da quella
+      # dichiarata è una divergenza che si scopre sulla macchina di chi installa.
+      - run: npm ci
+
+      - name: Tipi
+        run: npx tsc --noEmit
+
+      - name: Stile
+        run: npx eslint .
+
+      # `pretest` costruisce i bundle di `dist-tests/`, da cui le prove
+      # leggono: `npm test` da solo, su una copia appena scaricata, non
+      # troverebbe niente da provare.
+      - name: Prove
+        run: npm test
+
+      - name: Strati
+        run: npm run layers
+
+      - name: Censimento
+        run: npm run census
+
+      - name: Collezioni
+        run: npm run collections
+
+      - name: Moduli
+        run: npm run forms
+
+      - name: Pulsanti
+        run: npm run buttons
+
+      - name: Procedure
+        run: npm run procedures
+
+      # Il multilingua (ADR-38): nessun testo per chi usa il registro scritto
+      # fuori da un catalogo, nessuna grammatica italiana fuori dai cataloghi
+      # italiani, nessun catalogo letto prima che il processo scelga la lingua.
+      - name: Lingue
+        run: npm run i18n -- --severo
+
+      # Che docs e skill citino script e file che esistono: una rimozione o un
+      # cambio di nome lascia indietro i rimandi, e nessun compilatore li legge.
+      - name: Documenti
+        run: npm run docs
+
+  # Le prove dell'interfaccia stanno in un lavoro a parte perché vogliono tre
+  # cose che le altre non chiedono: Python, il pacchetto playwright e un
+  # Chromium scaricato. Tenerle qui invece che nel lavoro principale vuol dire
+  # che chi guarda la verifica vede subito *quale* dei due fronti è caduto, e
+  # che un guasto del browser non nasconde un guasto dei tipi.
+  #
+  # Perché esistono: sono novecento righe di regressioni vere — navigazione,
+  # comandi, filtri, tastiera, responsive, registro vuoto, e pdfjs che disegna
+  # dentro il pannello — e fino a questo commit non le lanciava nessuno. Il
+  # giorno in cui hanno smesso di passare non lo ha saputo nessuno per mesi.
+  interfaccia:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - run: npm ci
+
+      - name: Playwright
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install chromium --with-deps
+
+      # `tools/uiTests.mjs` costruisce da sé, con `node esbuild.mjs --ui`, i
+      # bundle che le prove leggono: non serve `npm run build` prima.
+      - name: Prove dell'interfaccia
+        run: npm run ui-tests

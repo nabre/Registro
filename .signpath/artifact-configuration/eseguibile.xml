@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Primo giro di firma: l'eseguibile dell'applicazione, da solo.
+
+  Si firma prima che electron-builder lo chiuda dentro l'installatore e il
+  portabile: dopo, compresso nell'archivio di NSIS, non lo si raggiunge più.
+  L'artefatto è uno zip con dentro solo l'eseguibile, preso da
+  `pacchetti/win-unpacked/`; le DLL di Electron e i binari di llama.cpp che gli
+  stanno accanto non sono nostri e restano come sono (Foundation: «sign your
+  own binaries only»).
+
+  `versioneWindows` la calcola `node tools/signing.mjs versioni`: è la
+  ProductVersion a quattro cifre che rcedit scrive nell'eseguibile.
+
+  Il `path` segue il `productName` di `electron-builder.json`, come i passi di
+  `rilascio.yml` che nominano l'eseguibile.
+
+  Copia di quel che sta in SignPath, progetto «Regiclass» (`regiclass`), configurazione
+  «eseguibile». Chi cambia l'una cambia l'altra.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="versioneWindows" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="Regiclass.exe" product-name="Regiclass" product-version="${versioneWindows}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

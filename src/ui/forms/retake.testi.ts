@@ -1,0 +1,107 @@
+// I testi di `forms/retake.ts`: la finestra del recupero di una prova.
+
+import { catalogo } from '../../i18n/index.js'
+
+const it = {
+  titolo: 'Recupero della prova',
+  documenti: 'Documenti del recupero',
+  aiutoDocumenti:
+    'Il voto va nella casella di sempre, nella griglia: la prova è una, e la colonna ' +
+    'è la stessa per tutta la classe.',
+  testoDelRecupero: 'Testo della prova di recupero',
+  soluzioneDelRecupero: 'Soluzione del recupero',
+  scansioneDi: (nome: string) => `Scansione di ${nome}`,
+  provaDel: (corso: string, data: string) => `${corso} · prova del ${data}`,
+  assenteAppello: ' · risulta assente dall’appello di quell’ora',
+  assenteProva: ' · segnato assente alla prova',
+  siRifaIl: 'Si rifà il',
+  aiutoSiRifa: 'Vuoto lo rimette fra quelli da fissare.',
+  riconsegnataIl: 'Riconsegnata il',
+  aiutoRiconsegnata: 'Il giorno in cui ha riavuto la sua prova corretta.',
+  nota: 'Nota',
+  segnapostoNota: 'solo la parte B, in laboratorio, ultima ora…',
+  fissato: (giorno: string) => `Recupero fissato per il ${giorno}.`,
+  daFissare: 'Recupero rimesso fra quelli da fissare.',
+  tornaARecuperarla: 'Torna a recuperarla',
+  nonSiRecupera: 'Non si recupera',
+  riaperto: 'Recupero riaperto.',
+  dispensato: 'La prova non si recupera.',
+}
+
+export const testi = catalogo(it, {
+  de: {
+    titolo: 'Nachprüfung',
+    documenti: 'Unterlagen der Nachprüfung',
+    aiutoDocumenti:
+      'Die Note kommt ins gewohnte Feld im Raster: Es gibt nur eine Prüfung, und die Spalte ' +
+      'ist für die ganze Klasse dieselbe.',
+    testoDelRecupero: 'Aufgabenblatt der Nachprüfung',
+    soluzioneDelRecupero: 'Lösung der Nachprüfung',
+    scansioneDi: (nome) => `Scan von ${nome}`,
+    provaDel: (corso, data) => `${corso} · Prüfung vom ${data}`,
+    assenteAppello: ' · laut Präsenzkontrolle in dieser Stunde abwesend',
+    assenteProva: ' · an der Prüfung als abwesend eingetragen',
+    siRifaIl: 'Nachprüfung am',
+    aiutoSiRifa: 'Leer kommt sie zurück zu den noch anzusetzenden.',
+    riconsegnataIl: 'Zurückgegeben am',
+    aiutoRiconsegnata: 'Der Tag, an dem die korrigierte Prüfung zurückkam.',
+    nota: 'Notiz',
+    segnapostoNota: 'nur Teil B, im Labor, letzte Stunde…',
+    fissato: (giorno) => `Nachprüfung auf ${giorno} angesetzt.`,
+    daFissare: 'Nachprüfung zurück bei den noch anzusetzenden.',
+    tornaARecuperarla: 'Doch nachholen',
+    nonSiRecupera: 'Wird nicht nachgeholt',
+    riaperto: 'Nachprüfung wieder offen.',
+    dispensato: 'Die Prüfung wird nicht nachgeholt.',
+  },
+  fr: {
+    titolo: 'Rattrapage de l’épreuve',
+    documenti: 'Documents du rattrapage',
+    aiutoDocumenti:
+      'La note va dans la case habituelle, dans la grille : il n’y a qu’une épreuve, et la ' +
+      'colonne est la même pour toute la classe.',
+    testoDelRecupero: 'Énoncé de l’épreuve de rattrapage',
+    soluzioneDelRecupero: 'Corrigé du rattrapage',
+    scansioneDi: (nome) => `Scan de ${nome}`,
+    provaDel: (corso, data) => `${corso} · épreuve du ${data}`,
+    assenteAppello: ' · absent à l’appel de cette leçon',
+    assenteProva: ' · noté absent à l’épreuve',
+    siRifaIl: 'Rattrapage le',
+    aiutoSiRifa: 'Vide, il revient parmi ceux à fixer.',
+    riconsegnataIl: 'Rendue le',
+    aiutoRiconsegnata: 'Le jour où l’épreuve corrigée a été rendue.',
+    nota: 'Note',
+    segnapostoNota: 'seulement la partie B, au labo, dernière leçon…',
+    fissato: (giorno) => `Rattrapage fixé au ${giorno}.`,
+    daFissare: 'Rattrapage remis parmi ceux à fixer.',
+    tornaARecuperarla: 'La rattraper quand même',
+    nonSiRecupera: 'Pas de rattrapage',
+    riaperto: 'Rattrapage rouvert.',
+    dispensato: 'L’épreuve ne sera pas rattrapée.',
+  },
+  en: {
+    titolo: 'Test resit',
+    documenti: 'Resit documents',
+    aiutoDocumenti:
+      'The grade goes in the usual box in the grid: there is only one test, and the column ' +
+      'is the same for the whole class.',
+    testoDelRecupero: 'Resit test paper',
+    soluzioneDelRecupero: 'Resit solution',
+    scansioneDi: (nome) => `Scan of ${nome}`,
+    provaDel: (corso, data) => `${corso} · test on ${data}`,
+    assenteAppello: ' · marked absent at that lesson’s attendance',
+    assenteProva: ' · marked absent for the test',
+    siRifaIl: 'Resit on',
+    aiutoSiRifa: 'Leave empty to put it back among those still to schedule.',
+    riconsegnataIl: 'Handed back on',
+    aiutoRiconsegnata: 'The day the marked test was handed back.',
+    nota: 'Note',
+    segnapostoNota: 'part B only, in the lab, last period…',
+    fissato: (giorno) => `Resit scheduled for ${giorno}.`,
+    daFissare: 'Resit put back among those still to schedule.',
+    tornaARecuperarla: 'Resit after all',
+    nonSiRecupera: 'No resit',
+    riaperto: 'Resit reopened.',
+    dispensato: 'The test will not be resat.',
+  },
+})

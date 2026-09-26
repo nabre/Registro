@@ -1,0 +1,45 @@
+/*
+ * I fogli di stile del pannello, uno per area.
+ *
+ * L'ordine degli @import conta: a parità di peso vince la regola scritta dopo.
+ * `theme.css` e `metrics.css` vengono per primi perché definiscono i token
+ * (colori, caratteri, misure) che tutti gli altri usano.
+ */
+
+@import './styles/theme.css';
+@import './styles/metrics.css';
+@import './styles/foundations.css';
+@import './styles/controls.css';
+@import './styles/containers.css';
+@import './styles/calendar.css';
+@import './styles/lists.css';
+@import './styles/hour-register.css';
+@import './styles/year.css';
+@import './styles/settings.css';
+@import './styles/figure-choice.css';
+@import './styles/title-bar.css';
+@import './styles/command-bar.css';
+@import './styles/sidebar.css';
+@import './styles/palette.css';
+@import './styles/status-bar.css';
+@import './styles/windows.css';
+@import './styles/attachments.css';
+@import './styles/class-teacher.css';
+@import './styles/retakes.css';
+@import './styles/returns.css';
+@import './styles/check.css';
+@import './styles/student.css';
+@import './styles/courses.css';
+@import './styles/menu.css';
+@import './styles/hint.css';
+@import './styles/documents.css';
+@import './styles/letterhead.css';
+@import './styles/language-models.css';
+@import './styles/sorting.css';
+@import './styles/map.css';
+@import './styles/notes-chart.css';
+@import './styles/help.css';
+@import './styles/assistant.css';
+@import './styles/projection-commands.css';
+@import './styles/today.css';
+@import './styles/motion.css';

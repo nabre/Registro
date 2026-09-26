@@ -1,0 +1,337 @@
+/*
+ * Le carte intestate (una scheda per carta, con il logo e i corsi che la usano)
+ * e la firma delle e-mail, che si scrive in Comunicazioni ma si salva accanto
+ * all'intestazione, nel file dell'anno.
+ */
+
+/* ------------------------------------------------------------- le carte */
+
+/* Le carte in griglia: più ne stanno in vista, meno si scorre trascinando fra l'una e l'altra. */
+.carte-intestate {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: var(--spazio-3);
+  align-items: start;
+}
+
+.carta-intestata {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+/* La predefinita si distingue con il filetto: è una carta come le altre, con un compito in più. */
+.carta-intestata--prima {
+  border-left: 3px solid var(--accento);
+}
+
+.carta-intestata__testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.carta-intestata__titolo {
+  margin: 0;
+  font-size: var(--corpo-vicino);
+  overflow-wrap: anywhere;
+}
+
+.carta-intestata__predefinita {
+  padding: 0 var(--spazio-2);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--velo-accento);
+  color: var(--testo);
+  font-size: var(--corpo-minore);
+}
+
+.carta-intestata__elimina {
+  margin-left: auto;
+}
+
+/*
+ * La zona dei corsi, dove si lascia cadere: sempre tratteggiata; «pronta»
+ * (cornice colorata) mentre si trascina da un'altra carta, «sopra» col
+ * puntatore dentro.
+ */
+/*
+ * Le classi su più colonne, come un giornale, ognuna almeno 9rem: classi alte
+ * e basse si incastrano senza buchi e nessuna si spezza.
+ */
+.carta-intestata__corsi {
+  columns: 9rem;
+  column-gap: var(--spazio-3);
+  min-height: 4rem;
+  padding: var(--spazio-2);
+  border: 1px dashed var(--bordo-forte);
+  border-radius: var(--raggio);
+  transition: background var(--durata-svelta) var(--curva), border-color var(--durata-svelta) var(--curva);
+}
+
+.carta-intestata__corsi--pronta {
+  border-color: var(--accento);
+}
+
+.carta-intestata__corsi--sopra {
+  border-style: solid;
+  border-color: var(--accento);
+  background: var(--velo-accento);
+}
+
+.carta-intestata__vuota,
+.carta-intestata__altri {
+  column-span: all;
+}
+
+.carta-intestata__vuota {
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-minore);
+}
+
+.carta-intestata__altri {
+  display: block;
+  margin-top: var(--spazio-1);
+  color: var(--testo-quieto);
+  font-size: var(--corpo-minuto);
+}
+
+/* Una classe: il nome in testa, che si trascina, e sotto i suoi corsi impilati
+   (la colonna è stretta). `break-inside` non la spezza. */
+.carta-classe {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--spazio-2);
+  break-inside: avoid;
+}
+
+.carta-classe__testata {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 1.5rem;
+}
+
+.carta-classe__nome {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 0 var(--spazio-1);
+  border: 0;
+  border-radius: var(--raggio-piccolo);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-weight: 600;
+  cursor: grab;
+}
+
+.carta-classe__nome:hover {
+  background: var(--velo-sfiorato);
+}
+
+.carta-classe__conto {
+  color: var(--testo-quieto);
+  font-weight: 400;
+  font-size: var(--corpo-minuto);
+}
+
+.carta-classe__corsi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* La pastiglia di un corso: si sceglie, si trascina, e porta il suo «sposta». */
+.corso-carta {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo);
+  transition: background var(--durata-svelta) var(--curva), border-color var(--durata-svelta) var(--curva);
+}
+
+.corso-carta:hover {
+  border-color: var(--bordo-forte);
+  background: var(--velo-sfiorato);
+}
+
+.corso-carta--scelto,
+.corso-carta--scelto:hover {
+  border-color: var(--accento);
+  background: var(--velo-scelto);
+}
+
+.corso-carta--in-viaggio {
+  opacity: 0.5;
+}
+
+/* Bassa e stretta: i nomi lunghi si troncano, l'intero sta nel suggerimento.
+   Alta quanto la testata della classe, così la riga non balla. */
+.corso-carta__nome {
+  max-width: 11em;
+  overflow: hidden;
+  min-height: 1.5rem;
+  padding: 0 6px;
+  line-height: 1.5rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 0;
+  border-radius: var(--raggio-pastiglia);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-size: var(--corpo-minore);
+  cursor: grab;
+}
+
+.corso-carta__nome:active,
+.carta-classe__nome:active {
+  cursor: grabbing;
+}
+
+.corso-carta__nome:focus-visible,
+.carta-classe__nome:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+/* Il «sposta in…» accanto al nome: piccolo, perché la pastiglia resti una. */
+.corso-carta .corso-carta__sposta,
+.carta-classe .corso-carta__sposta {
+  min-height: 0;
+  padding: 0 2px;
+}
+
+/*
+ * Il «sposta» compare solo sul corso scelto (clic o Invio), e sposta tutta la
+ * selezione: su ogni pastiglia sarebbero trenta frecce. Quello della classe
+ * resta sempre accanto al nome.
+ */
+.corso-carta:not(.corso-carta--scelto) > .corso-carta__sposta {
+  display: none;
+}
+
+/* -------------------------------------------------------------- il logo */
+
+/*
+ * Il logo attuale con i pulsanti per cambiarlo. Miniatura ad altezza fissa:
+ * la misura stampata la dà il campo in millimetri.
+ */
+.intestazione__logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.intestazione__miniatura {
+  height: 3.5rem;
+  max-width: 14rem;
+  object-fit: contain;
+  padding: var(--spazio-1);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  /* Bianco anche nel tema scuro: il logo si stampa su carta bianca, un PNG
+     trasparente con scritte nere sparirebbe. */
+  background: #ffffff;
+}
+
+/* ------------------------------------------------------------- la firma */
+
+.firma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.firma__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.firma__gesto--grassetto span { font-weight: 700; }
+.firma__gesto--corsivo span { font-style: italic; }
+.firma__gesto--sottolineato span { text-decoration: underline; }
+
+.firma__stacco {
+  width: 1px;
+  align-self: stretch;
+  margin: 0 var(--spazio-1);
+  background: var(--bordo);
+}
+
+.firma__colore {
+  width: 2rem;
+  height: 1.75rem;
+  padding: 0 2px;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: transparent;
+  cursor: pointer;
+}
+
+/*
+ * Il foglio su cui si scrive: bianco come la mail in cui arriverà, anche nel
+ * tema scuro, perché una firma incollata da Outlook porta colori pensati per
+ * il bianco.
+ */
+.firma__foglio {
+  position: relative;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #ffffff;
+  color: #000000;
+}
+
+.firma__campo {
+  min-height: 6rem;
+  padding: var(--spazio-2) var(--spazio-3);
+  font-family: Aptos, Calibri, sans-serif;
+  font-size: 11pt;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.firma__foglio:focus-within {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 2px var(--velo-accento);
+}
+
+.firma__campo img {
+  max-width: 100%;
+}
+
+/* La firma di serie, in grigio sotto il campo vuoto: quel che partirebbe. */
+.firma__serie {
+  display: none;
+  position: absolute;
+  inset: 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  font-family: Aptos, Calibri, sans-serif;
+  font-size: 11pt;
+  color: #8a8a90;
+  pointer-events: none;
+}
+
+.firma--vuota .firma__serie {
+  display: block;
+}
+
+.firma__serie-sede {
+  font-size: 10pt;
+}

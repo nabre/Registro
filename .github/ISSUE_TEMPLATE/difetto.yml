@@ -1,0 +1,66 @@
+name: 🐞 Difetto
+description: Qualcosa non funziona come dovrebbe
+labels: [difetto]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie della segnalazione.
+
+        ⚠️ **Non allegare file `.regi` e non incollare nomi, voti o assenze di persone reali.**
+        Se serve un esempio, usa `tests/samples/2026-2027.regi` o descrivi la situazione a parole.
+
+  - type: input
+    id: versione
+    attributes:
+      label: Versione
+      description: Si legge nel riquadro d'avvio e nella pagina di benvenuto, o nel nome del file scaricato.
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installazione
+    attributes:
+      label: Tipo di installazione
+      options:
+        - Installer
+        - Portabile
+        - Dai sorgenti (npm run dev)
+    validations:
+      required: true
+
+  - type: input
+    id: sistema
+    attributes:
+      label: Sistema operativo
+      placeholder: Windows 11 23H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: passi
+    attributes:
+      label: Che cosa hai fatto
+      description: I passi per far succedere il difetto.
+      placeholder: |
+        1. Apri la pagina …
+        2. Premi …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: atteso
+    attributes:
+      label: Che cosa ti aspettavi
+    validations:
+      required: true
+
+  - type: textarea
+    id: successo
+    attributes:
+      label: Che cosa è successo davvero
+      description: Messaggi d'errore, screenshot (con i nomi coperti).
+    validations:
+      required: true

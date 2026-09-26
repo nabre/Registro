@@ -1,0 +1,137 @@
+/* La navigazione occupa una colonna sola; contenuto e comandi restano indipendenti. */
+:root {
+  /* La colonna ridotta alle icone. La legge anche la barra del titolo, che ci mette sopra il segno del programma. */
+  --sidebar-stretta: 3.75rem;
+}
+.guscio {
+  grid-template-columns: var(--sidebar-stretta) minmax(0, 1fr);
+  grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
+}
+.guscio--con-sidebar {
+  grid-template-columns: 14.5rem minmax(0, 1fr);
+  grid-template-areas: "titolo titolo" "sidebar comandi" "sidebar contenuto" "stato stato";
+}
+.guscio > .barra-titolo { grid-area: titolo; }
+.guscio > .barra-comandi { grid-area: comandi; }
+.guscio > .contenuto { grid-area: contenuto; min-width: 0; }
+.guscio > .barra-stato { grid-area: stato; }
+.sidebar {
+  grid-area: sidebar;
+  min-height: 0;
+  overflow-y: auto;
+  /* In colonna, perché le pagine si allunghino fino in fondo e il gruppo del
+     programma scenda là (vedi `.sidebar__gruppo--sistema`). */
+  display: flex;
+  flex-direction: column;
+  background: var(--sfondo-alto);
+  border-right: 1px solid var(--bordo-tenue);
+  padding: 0 10px 12px;
+}
+
+/* L'intestazione resta in cima mentre le pagine scorrono sotto. Il margine alto
+   sta dentro di lei, non sulla colonna, altrimenti le voci passerebbero sopra
+   il bordo della finestra; sfondo pieno perché le voci sotto non traspaiano. */
+.sidebar__marchio {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 -10px 4px; padding: 14px 22px 12px;
+  background: var(--sfondo-alto);
+}
+.sidebar__marchio > div { flex: 1; min-width: 0; }
+/* L'interruttore ha misura fissa: la freccia cambia verso, il pulsante non si sposta. */
+.sidebar__interruttore { flex: none; width: 32px; padding: 0; }
+/* Ridotta, l'interruttore porta il libro del registro, lo stesso segno della testata aperta. */
+.sidebar__segno { width: 22px; height: 22px; color: var(--accento); }
+.sidebar__logo { flex: none; width: 25px; height: 25px; color: var(--accento); }
+.sidebar__marchio strong { display: block; font-size: 1.12em; letter-spacing: -.02em; }
+.sidebar__marchio small { display: block; color: var(--testo-quieto); font-size: .78em; margin-top: 2px; }
+/* Misure strette perché tutte le pagine stiano in una finestra alta 900; oltre
+   (più pagine, testo più grande) la colonna scorre. `flex: 1 0 auto` la allunga
+   fino in fondo con poche voci e non la schiaccia con molte. */
+.sidebar__pagine { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; }
+/* Il gruppo del programma (Impostazioni, Guida) in fondo, staccato dalle pagine
+   dell'anno. A colonna piena il margine vale zero. */
+.sidebar__gruppo--sistema { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--bordo-tenue); }
+/* Il titolo del gruppo in minuscolo: porta il nome del corso, che in maiuscolo
+   cambierebbe. Una riga sola, l'intero nel suggerimento. */
+.sidebar__titolo {
+  margin: 0 10px 2px; font-size: .76em; font-weight: 600; color: var(--testo-quieto);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar__pagina {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 30px;
+  /* 8 e non `--raggio`: la voce è una pillola larga quanto la colonna. */
+  padding: 5px 10px; border: 0; border-radius: 8px;
+  color: var(--testo); background: transparent; font: inherit; font-size: .9em;
+  text-align: left; cursor: pointer; margin: 1px 0;
+}
+/* Il nome si accorcia prima di spingere fuori il conto. */
+.sidebar__pagina > span:not(.sidebar__conto) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar__pagina .icona { flex: none; color: var(--testo-quieto); }
+/* Il conto in coda al titolo: quante cose aspettano in quella pagina.
+   `margin-left: auto` incolonna i numeri al bordo destro. */
+.sidebar__conto {
+  flex: none; margin-left: auto;
+  min-width: 1.6em; padding: 0 6px; border-radius: var(--raggio-pastiglia);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-scheda, var(--sfondo-alto)); color: var(--testo-quieto);
+  font-size: .76em; font-weight: 600; line-height: 1.6;
+  font-variant-numeric: tabular-nums; text-align: center;
+}
+.sidebar__pagina[aria-current="page"] .sidebar__conto {
+  border-color: transparent; background: var(--velo-scelto); color: var(--accento);
+}
+/* Ridotta, il conto diventa un pallino sull'icona: dice che c'è qualcosa (per
+   esempio la quarantena, che si vede solo in `pagine.ts`). Il selettore è più
+   stretto di `.sidebar--compatta .sidebar__pagina > span`, che spegne le etichette. */
+.sidebar--compatta .sidebar__pagina { position: relative; }
+.sidebar--compatta .sidebar__pagina > .sidebar__conto {
+  display: block; position: absolute; top: 6px; right: 6px;
+  min-width: 0; width: 8px; height: 8px; padding: 0; margin: 0;
+  border-radius: var(--raggio-pastiglia); background: var(--accento);
+  overflow: hidden; color: transparent; font-size: 0;
+}
+.sidebar__pagina:hover { background: var(--sfondo-alto-2); }
+/* La voce accesa è una pillola: velo appena percettibile, testo pieno, icona
+   nel colore del programma. Il testo resta `--testo`: verde su velo verde non si leggerebbe. */
+.sidebar__pagina[aria-current="page"] {
+  background: color-mix(in srgb, var(--accento) 11%, transparent);
+  color: var(--testo); font-weight: 600;
+}
+.sidebar__pagina[aria-current="page"]:hover { background: color-mix(in srgb, var(--accento) 15%, transparent); }
+.sidebar__pagina[aria-current="page"] .icona { color: var(--accento); }
+.sidebar__pagina[aria-disabled="true"] { color: var(--testo-quieto); opacity: .65; }
+.sidebar__pagina:focus-visible { outline: 2px solid var(--fuoco); outline-offset: -2px; }
+/* Su finestre strette la navigazione si apre sopra la pagina, senza coprirla.
+   Ha uno scorrimento proprio e si richiude dopo aver scelto la destinazione. */
+@media (max-width: 64em) {
+  .guscio--con-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "titolo" "comandi" "sidebar" "contenuto" "stato";
+  }
+  .guscio--con-sidebar .sidebar { max-height: 45vh; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--bordo); }
+  /* Aperta sopra la pagina: resta solo l'intestazione con l'interruttore, a destra. */
+  .guscio--con-sidebar .sidebar { padding-top: 0; }
+  .guscio--con-sidebar .sidebar__marchio { margin: 0 -16px 4px; padding: 8px 16px; justify-content: flex-end; }
+  .guscio--con-sidebar .sidebar__marchio > .sidebar__logo,
+  .guscio--con-sidebar .sidebar__marchio > div { display: none; }
+  .guscio--con-sidebar .sidebar__pagine { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  /* Nella griglia il programma è una casella come le altre: niente fondo, niente filo sopra. */
+  .guscio--con-sidebar .sidebar__gruppo--sistema { margin-top: 0; padding-top: 0; border-top: 0; }
+  .sidebar__pagina { min-height: 40px; }
+}
+
+/* Richiusa, la sidebar conserva tutte le destinazioni sotto forma di icona. */
+.sidebar--compatta { padding: 0 6px 12px; }
+/* Ridotta, la colonna è larga quanto un'icona: il segno del programma è già
+   nella barra del titolo, e in cima resta l'interruttore. */
+.sidebar--compatta .sidebar__marchio { justify-content: center; margin: 0 -6px 4px; padding: 14px 0 12px; }
+.sidebar--compatta .sidebar__marchio > .sidebar__logo,
+.sidebar--compatta .sidebar__marchio > div,
+.sidebar--compatta .sidebar__titolo,
+.sidebar--compatta .sidebar__pagina > span { display: none; }
+.sidebar--compatta .sidebar__pagine { gap: 8px; }
+.sidebar--compatta .sidebar__gruppo + .sidebar__gruppo { border-top: 1px solid var(--bordo-tenue); padding-top: 8px; }
+.sidebar--compatta .sidebar__pagina { justify-content: center; padding: 7px 0; min-height: 34px; }
+.sidebar--compatta .sidebar__pagina .icona { width: 18px; height: 18px; }

@@ -1,0 +1,362 @@
+# Ogni push su `main` e ogni pull request passano di qui: prima la verifica,
+# poi — solo su `main` — se la versione è nuova, il rilascio.
+#
+# Una versione nuova in `package.json` diventa un tag e una release, da sé.
+#
+# La versione si scrive in un posto solo — `package.json`, vedi la testa di
+# `electron-builder.json` — e questo file è quel che la trasforma in qualcosa
+# che un registro installato possa scaricare: il tag `v<versione>`, la release
+# con l'installer, il portabile e `latest.yml`, che è il file che
+# electron-updater legge per sapere se c'è di meglio di quel che ha.
+#
+# «La versione è cambiata» si decide guardando i tag e non il diff: se il tag
+# `v<versione>` non esiste ancora, la versione è nuova. Così un push qualunque
+# verifica e si ferma lì, un push che tocca `package.json` per aggiungere una
+# dipendenza non rilascia niente, un
+# rilascio caduto a metà si rilancia a mano con lo stesso esito, e il primo
+# giro dopo questo file rilascia la versione corrente, che un tag non l'ha mai
+# avuto.
+#
+# L'ordine dei lavori è il punto:
+#
+#   verifica → versione → pacchetti → pubblica
+#
+# La verifica sta in testa e gira sempre, anche quando non c'è niente da
+# rilasciare: è la stessa di `verifica.yml`, che da sola non parte più.
+#
+# La release nasce bozza e diventa pubblica solo alla fine. Una release
+# visibile prima che i pacchetti ci siano tutti è una release che un registro
+# installato può trovare senza trovarci l'installer. E il tag lo crea la
+# pubblicazione, non il primo passo: un rilascio che cade non lascia dietro di
+# sé un tag che direbbe «questa versione è uscita».
+#
+# Dentro `pacchetti` c'è la firma del codice: SignPath, con il certificato di
+# SignPath Foundation, firma prima l'eseguibile e poi l'installatore e il
+# portabile, e ogni firma aspetta un'approvazione a mano su SignPath. Finché il
+# progetto non è ammesso — mancano il segreto `SIGNPATH_API_TOKEN` e la
+# variabile `SIGNPATH_ORGANIZATION_ID` — quei passi si saltano e la release
+# esce come prima, non firmata. Il racconto sta in `docs/GUIDA.md`, § «La firma
+# del codice».
+
+name: rilascio
+
+on:
+  push:
+    branches: [main]
+  # Una pull request si verifica e basta: `versione` non ci arriva.
+  pull_request:
+  # Per rilanciare un rilascio caduto senza dover toccare `package.json`.
+  workflow_dispatch:
+
+# Due push ravvicinati sulla stessa versione non devono fare due release: il
+# secondo aspetta il primo, e poi trova il tag e si ferma. Il gruppo è per ramo,
+# così una pull request non fa la fila dietro a `main`.
+concurrency:
+  group: rilascio-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verifica:
+    uses: ./.github/workflows/verifica.yml
+
+  versione:
+    needs: verifica
+    # Si rilascia solo da `main`. Non da una pull request, il cui codice non
+    # è ancora `main`; e nemmeno da un `workflow_dispatch` lanciato su un altro
+    # ramo, che pubblicherebbe — e farebbe firmare — codice mai unito. La
+    # politica di firma su SignPath dice lo stesso, dall'altra parte.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.leggi.outputs.tag }}
+      nuova: ${{ steps.leggi.outputs.nuova }}
+      anteprima: ${{ steps.leggi.outputs.anteprima }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: leggi
+        run: |
+          versione=$(node -p "require('./package.json').version")
+          tag="v$versione"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          # `1.2.0-beta.1` è un'anteprima: la release la dichiara tale, ed
+          # electron-updater la offre solo a chi ha chiesto le anteprime.
+          if [[ "$versione" == *-* ]]; then
+            echo "anteprima=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "anteprima=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "nuova=false" >> "$GITHUB_OUTPUT"
+            echo "Il tag $tag esiste già: niente da rilasciare."
+          else
+            echo "nuova=true" >> "$GITHUB_OUTPUT"
+            echo "Versione nuova: $tag."
+          fi
+
+  pacchetti:
+    needs: versione
+    if: needs.versione.outputs.nuova == 'true'
+    runs-on: windows-latest
+    # Due richieste di firma, e ognuna aspetta fino a un'ora che qualcuno la
+    # approvi su SignPath: tre ore bastano, e il tetto di GitHub, sei, terrebbe
+    # occupato un runner per niente.
+    timeout-minutes: 180
+    permissions:
+      contents: write
+      # SignPath scarica gli artefatti da firmare con il token del workflow.
+      actions: read
+    env:
+      TAG: ${{ needs.versione.outputs.tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # La firma c'è quando ci sono le due cose che SignPath dà a chi ammette:
+      # il gettone (un segreto) e l'organizzazione (una variabile). Senza, il
+      # giro va avanti e pubblica eseguibili non firmati, come prima. Il resto
+      # dei nomi lo decide SignPath al momento dell'ammissione: vedi GUIDA,
+      # § «La firma del codice».
+      FIRMA: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' }}
+      SIGNPATH_PROGETTO: regiclass
+      SIGNPATH_POLITICA: release-signing
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # Le due forme della versione che le configurazioni di SignPath
+      # confrontano con quel che sta scritto dentro gli eseguibili.
+      - name: Versioni da firmare
+        id: versioni
+        run: node tools/signing.mjs versioni
+
+      # Una bozza con lo stesso tag può essere rimasta da un giro caduto:
+      # si butta e si rifà, invece di caricarci sopra pacchetti di un altro
+      # commit. Una release **pubblicata** qui non ci arriva: avrebbe il tag,
+      # e `versione` si sarebbe fermato.
+      - name: Bozza della release
+        shell: bash
+        run: |
+          if gh release view "$TAG" --json isDraft --jq .isDraft 2> /dev/null | grep -q true; then
+            gh release delete "$TAG" --yes
+          fi
+
+          anteprima=()
+          if [ "${{ needs.versione.outputs.anteprima }}" = "true" ]; then
+            anteprima=(--prerelease)
+          fi
+
+          gh release create "$TAG" \
+            --draft \
+            --target "$GITHUB_SHA" \
+            --title "Regiclass ${TAG#v}" \
+            --generate-notes \
+            "${anteprima[@]}"
+
+      # Il calendario scolastico ufficiale, riletto dai PDF del DECS: è il
+      # primo passo di `npm run package`. Sul runner non c'è `pdftotext`, e lo
+      # script ripiega su pdfplumber.
+      #
+      # Qui però si rilegge soltanto per sapere se il repository è indietro,
+      # e nel pacchetto entra il JSON del commit. Un eseguibile firmato deve
+      # venire dal codice che sta nel repository, verificabile da chiunque
+      # (SignPath Foundation: «built from source code in a verifiable way»):
+      # dati scaricati durante la costruzione e mai committati non lo sono. Se
+      # il DECS ha pubblicato un calendario nuovo, lo dice un avviso, e lo si
+      # porta dentro con `npm run calendario` e un commit.
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Calendario scolastico
+        shell: bash
+        run: |
+          python -m pip install pdfplumber
+          node tools/schoolCalendar.mjs
+          git diff --quiet -- resources/calendario-scolastico-ticino.json src/data/schoolCalendarTicino.ts ||
+            echo "::warning::Il calendario del DECS è cambiato: il pacchetto usa quello del repository. Lanciare npm run calendario e committare."
+          git checkout -- resources/calendario-scolastico-ticino.json src/data/schoolCalendarTicino.ts
+
+      # È `npm run package` spezzato in quattro, perché la firma va messa in
+      # due punti che electron-builder da solo non lascia raggiungere:
+      #
+      #   1. l'applicazione, in `pacchetti/win-unpacked/`;
+      #   2. SignPath firma l'eseguibile, che torna al suo posto;
+      #   3. installatore e portabile, costruiti intorno all'eseguibile firmato;
+      #   4. SignPath firma quei due, e `tools/signing.mjs` rifà impronte e
+      #      `.blockmap`, che electron-builder aveva calcolato prima della firma.
+      #
+      # Senza SignPath (`FIRMA` falso) i passi 2 e 4 si saltano e il resto è
+      # identico. La pubblicazione la fa `gh` e non più electron-builder: quel
+      # che si carica è quel che è uscito dalla firma, non quel che electron-
+      # builder aveva in mano.
+      - name: Costruzione
+        run: node esbuild.mjs --produzione
+
+      # Non `--dir`, che sarebbe il modo ovvio: con il bersaglio `dir`
+      # electron-builder non scrive `resources/app-update.yml` — lo scrive solo
+      # quando fra i bersagli c'è `nsis` — e senza quel file il registro
+      # installato non sa più dove cercare gli aggiornamenti. Si fa allora il
+      # giro intero del solo `nsis`, e l'installatore non firmato che ne esce
+      # si butta: lo rifà il passo dopo la firma.
+      - name: Applicazione
+        shell: bash
+        run: |
+          npx electron-builder --config electron-builder.json --win nsis --publish never
+          test -f pacchetti/win-unpacked/resources/app-update.yml
+          rm -f pacchetti/*.exe pacchetti/*.blockmap
+          find pacchetti -maxdepth 1 -name '*.yml' ! -name builder-debug.yml -delete
+
+      # Le configurazioni di SignPath rifiutano un eseguibile il cui nome del
+      # prodotto o la cui versione non tornano. Qui si guarda prima, con i
+      # valori che legge Windows, e l'errore dice che cosa non torna invece di
+      # arrivare come un rifiuto di SignPath. Gira anche senza firma: un
+      # pacchetto con la versione sbagliata dentro è un guasto comunque.
+      #
+      # Il nome dell'eseguibile segue `productName` di `electron-builder.json`:
+      # sta qui, nel caricamento, nella copia dopo la firma, nel controllo delle
+      # firme e in `.signpath/`.
+      - name: Metadati dell'eseguibile
+        shell: pwsh
+        run: >
+          ./tools/peMetadata.ps1 -Attesa '${{ steps.versioni.outputs.versioneWindows }}'
+          -File 'pacchetti/win-unpacked/Regiclass.exe'
+
+      - name: Eseguibile da firmare
+        id: eseguibile
+        if: env.FIRMA == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: eseguibile-da-firmare
+          path: pacchetti/win-unpacked/Regiclass.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Firma dell'eseguibile
+        if: env.FIRMA == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROGETTO }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLITICA }}
+          artifact-configuration-slug: eseguibile
+          github-artifact-id: ${{ steps.eseguibile.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: pacchetti/eseguibile-firmato
+          parameters: |
+            versioneWindows: ${{ toJSON(steps.versioni.outputs.versioneWindows) }}
+
+      - name: Eseguibile firmato al suo posto
+        if: env.FIRMA == 'true'
+        shell: bash
+        run: cp "pacchetti/eseguibile-firmato/Regiclass.exe" "pacchetti/win-unpacked/Regiclass.exe"
+
+      # `--prepackaged`: electron-builder non rifà l'applicazione, prende quella
+      # di `win-unpacked/` così com'è — firmata — e ci costruisce intorno i due
+      # bersagli di `win.target`, con `latest.yml` e la `.blockmap`.
+      - name: Installatore e portabile
+        run: npx electron-builder --config electron-builder.json --win --prepackaged pacchetti/win-unpacked --publish never
+
+      - name: Metadati degli installatori
+        shell: pwsh
+        run: >
+          ./tools/peMetadata.ps1 -Attesa '${{ steps.versioni.outputs.versione }}'
+          -File "pacchetti/regiclass-${{ steps.versioni.outputs.versione }}-installer.exe",
+          "pacchetti/regiclass-${{ steps.versioni.outputs.versione }}-portabile.exe"
+
+      - name: Installatori da firmare
+        id: installatori
+        if: env.FIRMA == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installatori-da-firmare
+          path: |
+            pacchetti/*-installer.exe
+            pacchetti/*-portabile.exe
+          if-no-files-found: error
+          retention-days: 1
+          # Sono già archivi compressi: ricomprimerli è solo tempo.
+          compression-level: 0
+
+      - name: Firma degli installatori
+        if: env.FIRMA == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROGETTO }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLITICA }}
+          artifact-configuration-slug: installatori
+          github-artifact-id: ${{ steps.installatori.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: pacchetti/firmati
+          parameters: |
+            versione: ${{ toJSON(steps.versioni.outputs.versione) }}
+
+      - name: Impronte degli installatori firmati
+        if: env.FIRMA == 'true'
+        run: node tools/signing.mjs firmati pacchetti/firmati
+
+      # Prima di caricare, la prova che la firma c'è ed è quella giusta: un
+      # eseguibile tornato da SignPath senza firma valida, o firmato da altri,
+      # non deve finire in una release.
+      - name: Controllo delle firme
+        if: env.FIRMA == 'true'
+        shell: pwsh
+        run: |
+          $file = @(Get-Item 'pacchetti/win-unpacked/Regiclass.exe') +
+                  @(Get-ChildItem pacchetti -Filter *-installer.exe) +
+                  @(Get-ChildItem pacchetti -Filter *-portabile.exe)
+          $guasti = 0
+          foreach ($f in $file) {
+            $firma = Get-AuthenticodeSignature -LiteralPath $f.FullName
+            $chi = $firma.SignerCertificate.Subject
+            Write-Host "$($f.Name): $($firma.Status) — $chi"
+            if ($firma.Status -ne 'Valid' -or $chi -notmatch 'SignPath Foundation') { $guasti++ }
+          }
+          if ($guasti) { throw "$guasti eseguibili senza la firma di SignPath Foundation." }
+
+      # Nella bozza appena creata: l'installatore, il portabile, la `.blockmap`
+      # per gli aggiornamenti differenziali e il file che electron-updater
+      # legge — `latest.yml`, o `beta.yml` per un'anteprima. `builder-debug.yml`
+      # è di electron-builder e resta qui.
+      - name: Caricamento nella bozza
+        shell: bash
+        run: |
+          shopt -s nullglob
+          file=(pacchetti/*-installer.exe pacchetti/*-installer.exe.blockmap pacchetti/*-portabile.exe)
+          for yml in pacchetti/*.yml; do
+            [ "$(basename "$yml")" = builder-debug.yml ] || file+=("$yml")
+          done
+          printf '%s\n' "${file[@]}"
+          gh release upload "$TAG" "${file[@]}" --clobber
+
+  pubblica:
+    needs: [versione, pacchetti]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.versione.outputs.tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      # Qui nasce il tag, sul commit indicato alla creazione della bozza.
+      # `--latest` solo per le versioni vere: un'anteprima non deve diventare
+      # quel che GitHub mostra come ultima release.
+      - run: |
+          if [ "${{ needs.versione.outputs.anteprima }}" = "true" ]; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          else
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          fi

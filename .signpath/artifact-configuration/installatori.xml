@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Secondo giro di firma: quel che si scarica dalle release.
+
+  L'artefatto è uno zip con i due eseguibili che electron-builder ha costruito
+  intorno all'eseguibile dell'applicazione già firmato: l'installatore per utente e il
+  portabile. Nome, prodotto e versione devono tornare tutti e tre, o SignPath
+  rifiuta la richiesta.
+
+  `versione` è quella di `package.json`, e la calcola
+  `node tools/signing.mjs versioni`: NSIS la scrive così com'è nella
+  ProductVersion, anteprime comprese.
+
+  Copia di quel che sta in SignPath, progetto «Regiclass» (`regiclass`), configurazione
+  «installatori». Chi cambia l'una cambia l'altra.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="versione" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="regiclass-${versione}-installer.exe" product-name="Regiclass" product-version="${versione}">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="regiclass-${versione}-portabile.exe" product-name="Regiclass" product-version="${versione}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

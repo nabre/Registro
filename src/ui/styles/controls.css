@@ -1,0 +1,428 @@
+/* Le cose che si premono e si compilano: pulsanti, icone, campi. */
+
+/* ------------------------------------------------------------------ pulsanti */
+
+/*
+ * Il pulsante secondario è un foglietto: fondo del rilievo (bianco nel chiaro),
+ * filo tenue, ombra appena. Sfiorato si vela.
+ */
+.pulsante {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--dentro-comando);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-rilievo);
+  box-shadow: var(--ombra-1);
+  color: var(--testo);
+  font: inherit;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pulsante:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--testo) 5%, var(--sfondo-rilievo));
+  border-color: var(--bordo);
+}
+
+.pulsante:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Il comando che manda avanti è inchiostro, non l'accento: il verde è il
+   marchio. Il perché sta accanto a `--primario`, in `theme.css`. */
+.pulsante--primario {
+  background: var(--primario);
+  color: var(--su-tinta);
+  border-color: transparent;
+}
+
+.pulsante--primario:hover:not(:disabled) {
+  background: var(--primario-caldo);
+}
+
+.pulsante--sottile {
+  background: transparent;
+  box-shadow: none;
+}
+
+.pulsante--fantasma {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  padding: var(--dentro-nudo);
+  color: var(--testo-quieto);
+}
+
+.pulsante--fantasma:hover:not(:disabled) {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+.pulsante--pericolo {
+  background: transparent;
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--negativo) 55%, transparent);
+  color: var(--negativo);
+}
+
+.pulsante--pericolo:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--negativo) 15%, transparent);
+}
+
+.pulsante--solo-icona {
+  padding: 5px 6px;
+}
+
+/*
+ * Il pulsante di una riga fitta: solo l'icona. Righe con tre o quattro
+ * pulsanti non devono pesare più del nome accanto.
+ *
+ * 24px di lato (14 d'icona, 4+4 di riempimento, 1+1 di bordo), il minimo di
+ * WCAG 2.5.8: la misura la dà il riempimento, l'icona resta piccola.
+ */
+.pulsante--minuto {
+  padding: var(--dentro-nudo);
+}
+
+.pulsante--minuto .icona {
+  width: 14px;
+  height: 14px;
+}
+
+/*
+ * Il pulsante di quel che si sta già guardando: acceso, non premuto. Dove lo
+ * stesso gesto si ripete riga per riga (la lente accanto ai documenti) segna
+ * quale riga è aperta.
+ */
+.pulsante--acceso:not(:disabled) {
+  color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 14%, transparent);
+}
+
+/* ------------------------------------------------------------------ attesa
+
+   Un comando partito e non ancora tornato: il contenuto resta al suo posto,
+   invisibile, e al centro gira una rotella. Non `display: none`, che
+   cambierebbe la larghezza della casella e sposterebbe la riga. */
+
+.in-corso {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.in-corso > * {
+  visibility: hidden;
+}
+
+.in-corso::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accento);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: gira 0.7s linear infinite;
+}
+
+/* Occupato non è spento: la rotella resta leggibile anche col pulsante `disabled`. */
+.in-corso:disabled {
+  opacity: 1;
+}
+
+@keyframes gira {
+  to { transform: rotate(360deg); }
+}
+
+/* Con meno movimento la rotella resta un anello fermo. */
+@media (prefers-reduced-motion: reduce) {
+  .in-corso::after { animation: none; }
+}
+
+.selettore {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+}
+
+.selettore__voce {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 4px 10px;
+  border: none;
+  border-radius: calc(var(--raggio) - 2px);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* La voce accesa è un foglietto posato: fondo del rilievo e ombra della scheda, come un pulsante. */
+.selettore__voce--attiva {
+  background: var(--sfondo-rilievo);
+  color: var(--testo);
+  box-shadow: var(--ombra-scheda), 0 0 0 1px var(--bordo-tenue);
+}
+
+.collegamento {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accento);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.collegamento:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ icone */
+
+.icona {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icona--grande {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.3;
+  color: var(--testo-quieto);
+}
+
+.icona--minuta {
+  width: 12px;
+  height: 12px;
+}
+
+/* ------------------------------------------------------------------ campi */
+
+.modulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.modulo__riga {
+  display: flex;
+  gap: var(--spazio-3);
+  flex-wrap: wrap;
+}
+
+.modulo__sezione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding-top: var(--spazio-2);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.modulo__titolo-sezione {
+  margin: 0;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* Il ritratto in un modulo: foto e comandi affiancati, con le misure della
+   scheda (`.ritratto__foto`, `.ritratto__vuoto`): è la stessa faccia. */
+.modulo__ritratto {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-3);
+}
+
+.campo--meta { flex: 1 1 calc(50% - var(--spazio-3)); }
+.campo--terzo { flex: 1 1 calc(33.333% - var(--spazio-3)); }
+.campo--quarto { flex: 1 1 calc(25% - var(--spazio-3)); }
+.campo--ricerca { margin-bottom: var(--spazio-2); }
+
+.campo__etichetta {
+  font-size: var(--corpo-vicino);
+  color: var(--testo-quieto);
+}
+
+.campo__obbligo {
+  color: var(--negativo);
+  margin-left: 2px;
+}
+
+.campo__controllo {
+  width: 100%;
+  padding: var(--dentro-campo);
+  /* `--bordo-forte` e non `--bordo`: nel tema chiaro il fondo del campo quasi non
+     si stacca dalla pagina, e il campo si distingue per il contorno. Vedi `theme.css`. */
+  border: 1px solid var(--bordo-forte);
+  border-radius: var(--raggio);
+  background: var(--campo-sfondo);
+  color: var(--testo);
+  font: inherit;
+}
+
+.campo__controllo--area {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.campo__controllo--selezione {
+  background: var(--campo-sfondo);
+  color: var(--testo);
+  border-color: var(--bordo-forte);
+}
+
+/*
+ * La freccia della tendina è nostra: una V sottile e grigia, come un campo
+ * qualunque, invece del triangolo nero di Chromium.
+ *
+ * Immagine `data:` perché un `<select>` non ha pseudo-elementi (il pannello
+ * permette `img-src … data:` in `panels/page.ts`). Il colore non segue
+ * `currentColor`: due frecce, una per tema, coi valori di `--testo-quieto`.
+ *
+ * Con `select.` davanti: le tendine con aspetto proprio («Sposta in classe»,
+ * `sorting.css`) ridefiniscono `background` e `padding` e perderebbero la freccia.
+ */
+select.campo__controllo--selezione {
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%235b5b62' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  select.campo__controllo--selezione {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23a1a1a9' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  }
+}
+
+select.campo__controllo--selezione:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.campo__controllo--ora { width: 96px; }
+.campo__controllo--numero { width: 72px; }
+.campo__controllo--minuti { width: 64px; }
+
+.campo__aiuto {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+/* Il valore di una voce in sola lettura: all'altezza dei controlli accanto, ma
+   senza cornice, perché non è un campo. */
+.campo__dettato {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--testo);
+}
+
+.campo--interruttore {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spazio-2);
+  cursor: pointer;
+}
+
+.campo__interruttore {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accento);
+}
+
+.campo__etichetta-in-linea {
+  font-size: 0.95em;
+}
+
+/* ------------------------------------------------------------------ campo data */
+
+/*
+ * Il campo data è un campo di testo: si scrive `7.9` o `070926` e il registro
+ * completa. Il valore ISO sta in un input nascosto accanto; il wrapper li tiene
+ * insieme senza rompere la griglia dei moduli.
+ */
+.campo__data { display: block; }
+.campo__data .campo__controllo { width: 100%; }
+
+/*
+ * Un campo data si riconosce: dieci caratteri di larghezza e cifre a passo
+ * fisso, incolonnate.
+ */
+.campo__controllo--data {
+  max-width: 11em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nelle griglie strette (tabelle, righe d'elenco) comanda la misura di lì. */
+.tabella .campo__controllo--data,
+.data-linea .campo__controllo--data { max-width: none; }
+
+/* Quel che non si legge come data resta scritto e si segna: cancellarlo farebbe perdere la correzione. */
+.campo__controllo--errata {
+  border-color: var(--negativo);
+  background: color-mix(in srgb, var(--negativo) 8%, transparent);
+}
+
+/* ------------------------------------------------------------------ telefoni
+
+   Le righe dei numeri in un modulo: presa, etichetta, numero, cestino; cresce
+   solo il numero. Un cestino per riga: si toglie quello sbagliato, non l'ultimo. */
+
+.telefoni { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+.telefoni__righe { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+/* Il tasto a sinistra sotto le righe, stretto: è un gesto in più. */
+.telefoni__aggiungi { align-self: flex-start; }
+
+.telefono {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+/* L'etichetta sta stretta: allargarla toglierebbe spazio al numero. */
+.telefono__etichetta { flex: none; width: 8.5rem; }
+
+.telefono__numero { flex: 1; min-width: 6rem; }
+
+/* Su schermo stretto l'etichetta passa sopra il numero. */
+@media (max-width: 34rem) {
+  .telefono { flex-wrap: wrap; }
+  .telefono__etichetta { width: auto; flex: 1 1 100%; }
+  .telefono__numero { flex: 1 1 auto; }
+}
