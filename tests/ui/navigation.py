@@ -26,7 +26,8 @@ with sync_playwright() as p:
     expect(laterale.locator('[aria-current="page"]')).to_have_count(1)
     # Cinque gruppi, ognuno una domanda sola: la giornata, il corso, la classe,
     # l'anagrafe dell'anno, il programma.
-    assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='agenda').map(p=>p.id)")         == ['pagina.oggi', 'pagina.calendario', 'pagina.pendenze', 'pagina.daSmistare']
+    assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='agenda').map(p=>p.id)")         == ['pagina.oggi', 'pagina.calendario', 'pagina.daSmistare']
+    assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='registro').map(p=>p.id)") == ['pagina.corso.registro', 'pagina.corso.valutazioni', 'pagina.pendenze', 'pagina.corso.check', 'pagina.corso.piani', 'pagina.corso.documenti']
     assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='anno').map(p=>p.id)")         == ['pagina.classi', 'pagina.persone', 'pagina.mappa', 'pagina.corsi']
     assert page.evaluate("prova.PAGINE.filter(p=>p.gruppo==='sistema').map(p=>p.id)")         == ['pagina.impostazioni', 'pagina.guida']
     gruppi = page.evaluate("prova.gruppiDiPagine().map(g=>g.gruppo)")
@@ -153,9 +154,19 @@ with sync_playwright() as p:
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.corso.valutazioni'))")
     expect(corso_select).to_be_visible()
     expect(classe_select).to_have_count(0)
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.pendenze'))")
+    expect(corso_select).to_be_visible()
+    assert page.evaluate("prova.stato.vista === 'todo'")
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.corso.check'))")
+    expect(corso_select).to_be_visible()
+    assert page.evaluate("prova.stato.ambitoCheck === 'corso'")
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.assenze'))")
     expect(classe_select).to_be_visible()
     expect(corso_select).to_have_count(0)
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
+    expect(classe_select).to_be_visible()
+    expect(corso_select).to_have_count(0)
+    assert page.evaluate("prova.stato.vista === 'check' && prova.stato.ambitoCheck === 'classe'")
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
     expect(corso_select).to_have_count(0)
     expect(classe_select).to_have_count(0)
@@ -261,42 +272,32 @@ with sync_playwright() as p:
     # pulsante.
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.pendenze'))")
     page.evaluate('()=>new Promise(requestAnimationFrame)')
+    assert page.evaluate("prova.stato.vista") == 'todo'
+    assert page.evaluate("prova.PAGINE.find(p=>p.id==='pagina.pendenze').gruppo") == 'registro'
+    expect(page.locator('[data-fuoco="barra-comandi-corso"]')).to_have_count(1)
     for id in ['todo.tutte', 'todo.mie', 'todo.classi']:
-        expect(page.locator(f'[data-fuoco="comando-{id}"]')).to_have_count(1)
+        expect(page.locator(f'[data-fuoco="comando-{id}"]')).to_have_count(0)
     assert page.evaluate("document.querySelectorAll('.vista--todo .testata .selettore').length") == 0
-    expect(page.locator('[data-fuoco="comando-todo.tutte"]')).to_have_attribute('aria-pressed', 'true')
-    page.locator('[data-fuoco="comando-todo.mie"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
-    assert page.evaluate('prova.stato.filtroTodo') == 'mie'
-    expect(page.locator('[data-fuoco="comando-todo.mie"]')).to_have_attribute('aria-pressed', 'true')
-    expect(page.locator('[data-fuoco="comando-todo.tutte"]')).to_have_attribute('aria-pressed', 'false')
-    page.locator('[data-fuoco="comando-todo.tutte"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
     # Il riepilogo è compatto: una riga per famiglia, la spiegazione nel titolo.
     # Una scheda per tipologia, quante ne dichiara il dominio.
-    expect(page.locator('.todo-sintesi__scheda')).to_have_count(
-        page.evaluate('prova.FAMIGLIE_TODO.length'))
+    expect(page.locator('.todo-sintesi__scheda')).to_have_count(5)
     assert page.evaluate("document.querySelector('.todo-sintesi__scheda').getBoundingClientRect().height < 64")
     assert page.evaluate("!!document.querySelector('.todo-sintesi__scheda').title")
     # Una linguetta per classe con lavoro, piu' «Tutte», e ognuna filtra.
-    schede = page.locator('.todo-schede .selettore__voce')
-    expect(schede).to_have_count(3)
-    expect(page.locator('.todo-classi > *')).to_have_count(2)
+    expect(page.locator('.todo-schede')).to_have_count(0)
     # Con una linguetta aperta il riquadro della classe sparisce: il nome è già
     # sulla linguetta.
-    schede.nth(1).click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
-    assert page.evaluate('prova.stato.classeTodoId') is not None
     expect(page.locator('.todo-classi')).to_have_count(0)
     expect(page.locator('.todo-classe')).to_have_count(0)
     assert page.evaluate("document.querySelectorAll('.todo-famiglia').length > 0")
     # La linguetta aperta si legge: il filo sotto, non una pastiglia piena.
-    expect(page.locator('.todo-schede .selettore__voce--attiva')).to_have_count(1)
     page.screenshot(path=str(root / 'dist-tests/pendenze-compatto.png'))
-    schede.nth(0).click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
-    assert page.evaluate('prova.stato.classeTodoId') is None
-    expect(page.locator('.todo-classi > *')).to_have_count(2)
+    # Nel lavoro del corso una consegna nuova eredita il corso: non puÃ² migrare
+    # per errore verso un'altra classe.
+    page.locator('[data-fuoco="comando-registro.nuovaConsegna"]').click()
+    expect(page.locator('.modale')).to_be_visible()
+    expect(page.locator('.modale [name="corsoId"]')).to_have_count(0)
+    page.keyboard.press('Escape')
     # Accendendo lo schermo compare la scheda Proiezione, già scelta, e la riga
     # delle azioni passa ai comandi dello schermo.
     def proiezione(aperta):
@@ -343,8 +344,15 @@ with sync_playwright() as p:
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r,vista:'calendario'})}")
     assert page.evaluate("prova.gruppiDiPagine().every(g=>g.gruppo!=='classe')")
     expect(page.get_by_role('button', name='Docente di classe')).to_have_count(0)
+    pagina_prima = page.evaluate('prova.stato.paginaId')
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
+    assert page.evaluate('prova.stato.paginaId') == pagina_prima
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
     assert page.evaluate("prova.gruppiDiPagine().some(g=>g.gruppo==='classe')")
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r}); prova.riconvalidaRicordati()}")
+    assert page.evaluate("prova.stato.vista === 'classi' && prova.stato.paginaId === null")
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
     # «Oggi» non ha riga delle azioni (le sue tessere portano altrove):
     # l'interruttore delle azioni si prova sul calendario.
     page.evaluate("prova.vaiA(prova.PAGINE[0])")
@@ -417,6 +425,11 @@ with sync_playwright() as p:
         page.evaluate('()=>new Promise(requestAnimationFrame)')
         expect(page.locator('#azioni-pagina').get_by_role('button', name=comando, exact=True)).to_have_count(1)
         expect(page.locator('main').get_by_role('button', name=comando, exact=True)).to_have_count(0)
+        if destinazione == 'pendenze':
+            page.locator('#azioni-pagina').get_by_role('button', name=comando, exact=True).click()
+            expect(page.locator('.modale [name="corsoId"]')).to_have_count(1)
+            expect(page.locator('.modale [name="a"]')).to_have_value('classe')
+            page.keyboard.press('Escape')
         # Quanti comandi ha la scheda lo dice l'elenco dei comandi, non un numero
         # scritto qui.
         attesi = page.evaluate(

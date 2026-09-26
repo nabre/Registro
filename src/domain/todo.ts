@@ -162,6 +162,68 @@ function aperteDi (gruppi: ConsegneDaFare): number {
   return gruppi.arretrate.length + gruppi.oggi.length + gruppi.presto.length + gruppi.avanti.length
 }
 
+/** Ricalcola i conti dai mucchi effettivamente esposti dalla query. */
+function normalizzaConti (todo: TodoClasse): TodoClasse {
+  const conti = contoVuoto()
+  conti.assenze = {
+    aperti: richiesteAperte(todo.assenze),
+    urgenti: todo.assenze.daSpedire.length,
+  }
+  conti.segnalazioni = {
+    aperti: todo.segnalazioni.length,
+    urgenti: todo.segnalazioni.filter((segnalazione) => segnalazione.confermata).length,
+  }
+  conti.valutazioni = {
+    aperti:
+      riconsegneAperte(todo.riconsegne) +
+      todo.recuperi.daFissare.length + todo.recuperi.scaduti.length +
+      todo.recuperi.oggi.length + todo.recuperi.presto.length +
+      todo.recuperi.avanti.length + todo.recuperi.daRiconsegnare.length +
+      todo.singoli.length,
+    urgenti: riconsegneUrgenti(todo.riconsegne) + recuperiUrgenti(todo.recuperi),
+  }
+  for (const famiglia of FAMIGLIE_CONSEGNA) {
+    conti[famiglia] = {
+      aperti: aperteDi(todo.consegne[famiglia]),
+      urgenti: todo.consegne[famiglia].arretrate.length,
+    }
+  }
+  return {
+    ...todo,
+    conti,
+    aperti: FAMIGLIE_TODO.reduce((somma, famiglia) => somma + conti[famiglia].aperti, 0),
+    urgenti: FAMIGLIE_TODO.reduce((somma, famiglia) => somma + conti[famiglia].urgenti, 0),
+  }
+}
+
+/** Tiene solo le famiglie pertinenti al ruolo, azzerando anche i relativi dati. */
+function limitaFamiglie (todo: TodoClasse, tenute: ReadonlySet<FamigliaTodo>): TodoClasse {
+  const vuote = consegneVuote()
+  return normalizzaConti({
+    ...todo,
+    assenze: tenute.has('assenze')
+      ? todo.assenze
+      : { daSpedire: [], inAttesa: [], firmate: [] },
+    segnalazioni: tenute.has('segnalazioni') ? todo.segnalazioni : [],
+    riconsegne: tenute.has('valutazioni')
+      ? todo.riconsegne
+      : { daCorreggere: [], daRiconsegnare: [], fatte: [] },
+    recuperi: tenute.has('valutazioni')
+      ? todo.recuperi
+      : {
+          scaduti: [], daFissare: [], oggi: [], presto: [], avanti: [],
+          daRiconsegnare: [], chiusi: [],
+        },
+    singoli: tenute.has('valutazioni') ? todo.singoli : [],
+    consegne: Object.fromEntries(
+      FAMIGLIE_CONSEGNA.map((famiglia) => [
+        famiglia,
+        tenute.has(famiglia) ? todo.consegne[famiglia] : vuote[famiglia],
+      ]),
+    ) as Record<FamigliaConsegna, ConsegneDaFare>,
+  })
+}
+
 /**
  * Divide le consegne nelle quattro tipologie, tenendo i mucchi per scadenza:
  * raccogliere, distribuire, far svolgere e fare sono lavori diversi.
@@ -207,42 +269,7 @@ export function todoDellaClasse (
     filtraConsegne(consegneDaFare(registro, suoi, giorno), tieniConsegna),
   )
 
-  const conti = contoVuoto()
-  conti.assenze = {
-    aperti: richiesteAperte(assenze),
-    // Preme solo il «da spedire»: la firma dipende dall'azienda.
-    urgenti: assenze.daSpedire.length,
-  }
-  conti.segnalazioni = {
-    aperti: segnalazioni.length,
-    // Preme quando gli appelli delle ore svolte ci sono tutti (`confermata`,
-    // vedi `alerts.ts`).
-    urgenti: segnalazioni.filter((segnalazione) => segnalazione.confermata).length,
-  }
-  conti.valutazioni = {
-    aperti:
-      riconsegneAperte(riconsegne) +
-      recuperi.daFissare.length +
-      recuperi.scaduti.length +
-      recuperi.oggi.length +
-      recuperi.presto.length +
-      recuperi.avanti.length +
-      recuperi.daRiconsegnare.length +
-      singoli.length,
-    urgenti: riconsegneUrgenti(riconsegne) + recuperiUrgenti(recuperi),
-  }
-  for (const famiglia of FAMIGLIE_CONSEGNA) {
-    conti[famiglia] = {
-      aperti: aperteDi(consegne[famiglia]),
-      // In ritardo: scadenza passata, perché nessun automatismo le chiude.
-      urgenti: consegne[famiglia].arretrate.length,
-    }
-  }
-
-  const aperti = FAMIGLIE_TODO.reduce((somma, f) => somma + conti[f].aperti, 0)
-  const urgenti = FAMIGLIE_TODO.reduce((somma, f) => somma + conti[f].urgenti, 0)
-
-  return {
+  return normalizzaConti({
     classeId: classe.id,
     classe: classe.nome,
     assenze,
@@ -251,10 +278,45 @@ export function todoDellaClasse (
     recuperi,
     singoli,
     consegne,
-    conti,
-    aperti,
-    urgenti,
-  }
+    conti: contoVuoto(),
+    aperti: 0,
+    urgenti: 0,
+  })
+}
+
+/** Lavoro legato a un corso: valutazioni e consegne, senza compiti di classe. */
+export function todoDelCorso (
+  registro: Registro,
+  classe: Classe,
+  corso: Corso,
+  giorno: Iso,
+): TodoClasse {
+  return limitaFamiglie(
+    todoDellaClasse(registro, classe, [corso], giorno),
+    new Set(['valutazioni', ...FAMIGLIE_CONSEGNA]),
+  )
+}
+
+/** Lavoro del docente di classe: pratiche e consegne dovute da classe/allievi. */
+export function todoDelDocenteDiClasse (
+  registro: Registro,
+  classe: Classe,
+  corsi: Corso[],
+  giorno: Iso,
+): TodoClasse {
+  const base = todoDellaClasse(
+    registro,
+    classe,
+    corsi,
+    giorno,
+    (consegna) => consegna.a !== 'docente',
+  )
+  return limitaFamiglie(
+    base,
+    classe.docenteDiClasse
+      ? new Set(['assenze', 'segnalazioni', 'consegnaClasse', 'svolgeClasse'])
+      : new Set(),
+  )
 }
 
 /** Il semestre in cui cade il giorno, dentro l'anno della classe. */

@@ -31,9 +31,9 @@ const t = testi()
  * Il gruppo della destinazione, cioè la sezione della barra laterale:
  *
  *   `agenda`   — la giornata, tutte le classi insieme: oggi, calendario,
- *                pendenze, carta da smistare.
- *   `registro` — le pagine del corso scelto: ora, voti, check, piani, documenti.
- *   `classe`   — il mestiere del docente di classe: pendenze, archivio,
+ *                carta da smistare.
+ *   `registro` — le pagine del corso scelto: ora, voti, pendenze, check, piani, documenti.
+ *   `classe`   — il mestiere del docente di classe: pendenze, check, archivio,
  *                assenze, messaggi.
  *   `anno`     — chi c'è e com'è fatto l'anno: classi, persone, mappa, corsi.
  *   `sistema`  — il programma: impostazioni e guida.
@@ -77,7 +77,24 @@ function vaiAlCorso (vista: Vista): void {
     aggiorna({ vista, corsoId: corso.id, filtroClasseId: corso.classeId, lezioneId })
     return
   }
-  aggiorna({ vista, corsoId: corso.id, filtroClasseId: corso.classeId })
+  aggiorna({
+    vista,
+    corsoId: corso.id,
+    filtroClasseId: corso.classeId,
+    ...(vista === 'check' ? { ambitoCheck: 'corso' as const } : {}),
+  })
+}
+
+/** Apre il check della classe scelta nel ruolo di docente di classe. */
+function vaiAlCheckDellaClasse (): void {
+  const classe = classeDelFascicolo()
+  if (!classe) return
+  aggiorna({
+    vista: 'check',
+    ambitoCheck: 'classe',
+    classeId: classe.id,
+    filtroClasseId: classe.id,
+  })
 }
 
 /**
@@ -124,17 +141,6 @@ export const PAGINE: readonly Pagina[] = [
     aiuto: t.calendarioAiuto,
     attiva: () => stato.vista === 'calendario',
     apri: () => aggiorna({ vista: 'calendario' }),
-  },
-  {
-    id: 'pagina.pendenze',
-    titolo: t.pendenze,
-    simbolo: 'spunta',
-    gruppo: 'agenda',
-    aiuto: t.pendenzeAiuto,
-    // Lo stesso numero della barra in fondo e della tessera di «Oggi».
-    conto: () => pendenzeDellaBarra().aperti,
-    attiva: () => stato.vista === 'todo',
-    apri: () => aggiorna({ vista: 'todo' }),
   },
   // Il gruppo «Anno» comincia dalle classi, poi persone, mappa e corsi.
   {
@@ -213,6 +219,18 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('valutazioni'),
   },
   {
+    id: 'pagina.pendenze',
+    titolo: t.pendenze,
+    simbolo: 'spunta',
+    gruppo: 'registro',
+    aiuto: t.pendenzeAiuto,
+    impedimento: senzaCorso,
+    // Lo stesso numero della barra in fondo e della tessera di «Oggi».
+    conto: () => pendenzeDellaBarra().aperti,
+    attiva: () => stato.vista === 'todo',
+    apri: () => vaiAlCorso('todo'),
+  },
+  {
     // Accanto alle valutazioni: persone in riga e colonne, ma è fatto/non fatto e
     // la data, non un voto.
     id: 'pagina.corso.check',
@@ -221,7 +239,7 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.checkAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'check',
+    attiva: () => stato.vista === 'check' && stato.ambitoCheck === 'corso',
     apri: () => vaiAlCorso('check'),
   },
   {
@@ -256,6 +274,15 @@ export const PAGINE: readonly Pagina[] = [
     aiuto: t.pendenzeClasseAiuto,
     attiva: () => stato.vista === 'docenteClasse' && stato.schedaDocente === 'todo',
     apri: () => vaiAlPannello('todo'),
+  },
+  {
+    id: 'pagina.classe.check',
+    titolo: t.checkClasse,
+    simbolo: 'check',
+    gruppo: 'classe',
+    aiuto: t.checkClasseAiuto,
+    attiva: () => stato.vista === 'check' && stato.ambitoCheck === 'classe',
+    apri: vaiAlCheckDellaClasse,
   },
   {
     id: 'pagina.classe.documenti',
@@ -361,6 +388,16 @@ function sezioneCePer (gruppo: GruppoPagina): boolean {
   return gruppo !== 'classe' || classiDiCuiSonoDocente().length > 0
 }
 
+/** Se una destinazione appartiene a una sezione disponibile nel documento. */
+export function paginaVisibile (pagina: Pagina): boolean {
+  return sezioneCePer(pagina.gruppo)
+}
+
+/** Destinazioni disponibili, condivise da barra e palette. */
+export function pagineVisibili (): Pagina[] {
+  return PAGINE.filter(paginaVisibile)
+}
+
 /** Un gruppo di destinazioni: una scheda della barra, con dentro le sue pagine. */
 interface GruppoDiPagine {
   gruppo: GruppoPagina
@@ -384,7 +421,7 @@ export function gruppiDiPagine (): GruppoDiPagine[] {
       nome: nomeDelGruppo(gruppo),
       simbolo: simboloDelGruppo(gruppo),
       attivo: attiva?.gruppo === gruppo,
-      pagine: PAGINE.filter((pagina) => pagina.gruppo === gruppo),
+      pagine: pagineVisibili().filter((pagina) => pagina.gruppo === gruppo),
     }
   }).filter((voce) => voce.pagine.length > 0)
 }
@@ -409,6 +446,7 @@ export function nomeDelPosto (): string {
  * palette arriva da un'altra strada.
  */
 export function vaiA (pagina: Pagina): void {
+  if (!paginaVisibile(pagina)) return
   const perche = pagina.impedimento?.() ?? null
   if (perche) {
     notifica(perche, 'avviso')

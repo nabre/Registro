@@ -7,6 +7,14 @@ import { describe, it } from 'node:test'
 import { apriInterfaccia } from '../helpers/statoInterfaccia.mjs'
 
 describe('lo stato dell’interfaccia nel ponte', () => {
+  it('convalida l’ambito del check ricordato', () => {
+    const interfaccia = apriInterfaccia({
+      getState: () => ({ ambitoCheck: 'altro' }),
+      setState: () => {},
+    })
+    assert.equal(interfaccia.stato.ambitoCheck, 'corso')
+  })
+
   it('una nuova finestra ripristina pagina, filtri e selezioni dal ponte', () => {
     let salvato = null
     const apri = () => apriInterfaccia({
@@ -18,7 +26,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
       vista: 'docenteClasse',
       paginaId: 'pagina.classe.assenze',
       schedaDocente: 'assenze',
-      filtroTodoClasse: 'tutte',
+      ambitoCheck: 'classe',
       sidebarDesktop: false,
       modoCalendario: 'mese',
       data: '2026-10-02',

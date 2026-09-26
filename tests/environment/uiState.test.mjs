@@ -19,7 +19,6 @@ describe('lo stato dell’interfaccia su disco', () => {
       const preferenze = {
         vista: 'docenteClasse',
         schedaDocente: 'assenze',
-        filtroTodoClasse: 'mie',
         sidebarDesktop: false,
         data: '2026-09-14',
       }

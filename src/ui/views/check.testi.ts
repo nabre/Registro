@@ -58,6 +58,16 @@ const it = {
 
   // La pagina.
   nessunCorso: 'Nessun corso',
+  checkDellaClasse: 'Check della classe',
+  comeDocenteDiClasse: (classe: string) => `${classe} · come docente di classe`,
+  suggerimentoClasse:
+    'Ogni corso ha il proprio check: colonne e spunte restano separate anche quando hanno lo stesso nome.',
+  checkDelCorso: 'Check del corso',
+  nessunaClasseDocente: 'Nessuna classe da docente di classe',
+  checkClasseNonDisponibile:
+    'Il check di classe compare solo per le classi in cui è attiva la modalità docente di classe.',
+  nessunCorsoDellaClasse: 'Nessun corso nella classe',
+  creaCorsoPerCheck: 'Crea almeno un corso per preparare il check della classe.',
   checkInUnCorso:
     'Il check sta dentro un corso — una materia a una classe — e prima si crea quello.',
   vaiAiCorsi: 'Vai ai corsi',
@@ -120,6 +130,16 @@ export const testi = catalogo(it, {
     aiutoOra:
       'Klick: in dieser Stunde erledigt · Rechtsklick: anderer Tag oder entfernen',
     nessunCorso: 'Kein Kurs',
+    checkDellaClasse: 'Check der Klasse',
+    comeDocenteDiClasse: (classe) => `${classe} · als Klassenlehrperson`,
+    suggerimentoClasse:
+      'Jeder Kurs hat seinen eigenen Check: Spalten und Häkchen bleiben auch bei gleichem Namen getrennt.',
+    checkDelCorso: 'Check des Kurses',
+    nessunaClasseDocente: 'Keine Klasse als Klassenlehrperson',
+    checkClasseNonDisponibile:
+      'Der Klassencheck erscheint nur bei Klassen mit aktiver Rolle als Klassenlehrperson.',
+    nessunCorsoDellaClasse: 'Keine Kurse in der Klasse',
+    creaCorsoPerCheck: 'Lege mindestens einen Kurs an, um den Klassencheck vorzubereiten.',
     checkInUnCorso:
       'Der Check gehört zu einem Kurs — einem Fach in einer Klasse —, und den legst du zuerst an.',
     vaiAiCorsi: 'Zu den Kursen',
@@ -181,6 +201,16 @@ export const testi = catalogo(it, {
     preparaColonne: 'Préparer les colonnes dans la page Check',
     aiutoOra: 'clic : fait dans cette leçon · clic droit : un autre jour, ou la retirer',
     nessunCorso: 'Aucun cours',
+    checkDellaClasse: 'Check de la classe',
+    comeDocenteDiClasse: (classe) => `${classe} · comme maître de classe`,
+    suggerimentoClasse:
+      'Chaque cours garde son propre check : colonnes et coches restent séparées, même si elles ont le même nom.',
+    checkDelCorso: 'Check du cours',
+    nessunaClasseDocente: 'Aucune classe comme maître de classe',
+    checkClasseNonDisponibile:
+      'Le check de classe apparaît uniquement pour les classes où le rôle de maître de classe est actif.',
+    nessunCorsoDellaClasse: 'Aucun cours dans la classe',
+    creaCorsoPerCheck: 'Créez au moins un cours pour préparer le check de la classe.',
     checkInUnCorso:
       'Le check vit dans un cours — une branche donnée à une classe — et c’est lui ' +
       'qu’on crée d’abord.',
@@ -242,6 +272,16 @@ export const testi = catalogo(it, {
     preparaColonne: 'Prepare the columns on the Check page',
     aiutoOra: 'click: done in this lesson · right-click: another day, or remove it',
     nessunCorso: 'No course',
+    checkDellaClasse: 'Class check',
+    comeDocenteDiClasse: (classe) => `${classe} · as class teacher`,
+    suggerimentoClasse:
+      'Each course has its own check: columns and ticks stay separate even when they share a name.',
+    checkDelCorso: 'Course check',
+    nessunaClasseDocente: 'No class as class teacher',
+    checkClasseNonDisponibile:
+      'The class check appears only for classes where class teacher mode is active.',
+    nessunCorsoDellaClasse: 'No courses in the class',
+    creaCorsoPerCheck: 'Create at least one course to prepare the class check.',
     checkInUnCorso:
       'The check lives inside a course — a subject taught to a class — so that comes first.',
     vaiAiCorsi: 'Go to courses',

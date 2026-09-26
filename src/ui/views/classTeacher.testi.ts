@@ -65,14 +65,9 @@ const it = {
   matriceQuando: `La matrice compare quando la classe ha delle ${PIF.plurale} attive.`,
   // Le pendenze della classe.
   nienteInClasse: 'niente in sospeso in questa classe',
-  sottotitoloTodo: (riassunto: string, soloMie: boolean) =>
-    `${riassunto} · ${
-      soloMie ? 'solo le consegne personali' : 'tutte le consegne'
-    }; assenze e valutazioni sempre incluse`,
   primaUnCorso:
     'Per aggiungere una pendenza, crea prima un corso per questa classe dalla pagina Corsi.',
   nienteInSospeso: 'Niente in sospeso',
-  nienteInGiro: 'Niente in giro',
   cheCosaCompare:
     'Qui compare da sé quel che resta aperto in questa classe: i rapporti delle ' +
     'assenze da mandare e le firme da avere, le prove da correggere e da ridare, i ' +
@@ -187,15 +182,10 @@ export const testi = catalogo(it, {
       'zeigt die Matrix, wer es noch nicht gebracht hat.',
     matriceQuando: 'Die Matrix erscheint, sobald die Klasse aktive Lernende hat.',
     nienteInClasse: 'in dieser Klasse ist nichts offen',
-    sottotitoloTodo: (riassunto, soloMie) =>
-      `${riassunto} · ${
-        soloMie ? 'nur persönliche Aufträge' : 'alle Aufträge'
-      }; Absenzen und Beurteilungen immer dabei`,
     primaUnCorso:
       'Um eine Pendenz hinzuzufügen, erstelle zuerst auf der Seite «Kurse» einen Kurs ' +
       'für diese Klasse.',
     nienteInSospeso: 'Nichts offen',
-    nienteInGiro: 'Nichts unterwegs',
     cheCosaCompare:
       'Hier erscheint von selbst, was in dieser Klasse offen bleibt: die Absenzenberichte ' +
       'zum Verschicken und die fehlenden Unterschriften, die Prüfungen zum Korrigieren und ' +
@@ -307,15 +297,10 @@ export const testi = catalogo(it, {
       'montre qui ne l’a pas encore apporté.',
     matriceQuando: 'La grille apparaît quand la classe a des personnes en formation actives.',
     nienteInClasse: 'rien en suspens dans cette classe',
-    sottotitoloTodo: (riassunto, soloMie) =>
-      `${riassunto} · ${
-        soloMie ? 'seulement les devoirs personnels' : 'tous les devoirs'
-      } ; absences et évaluations toujours incluses`,
     primaUnCorso:
       'Pour ajouter une tâche en suspens, crée d’abord un cours pour cette classe depuis ' +
       'la page « Cours ».',
     nienteInSospeso: 'Rien en suspens',
-    nienteInGiro: 'Rien en cours',
     cheCosaCompare:
       'Ici apparaît tout seul ce qui reste ouvert dans cette classe : les rapports ' +
       'd’absences à envoyer et les signatures à obtenir, les épreuves à corriger et à ' +
@@ -427,14 +412,9 @@ export const testi = catalogo(it, {
       'grid shows who hasn’t brought it yet.',
     matriceQuando: 'The grid appears once the class has active learners.',
     nienteInClasse: 'nothing pending in this class',
-    sottotitoloTodo: (riassunto, soloMie) =>
-      `${riassunto} · ${
-        soloMie ? 'personal assignments only' : 'all assignments'
-      }; absences and assessments always included`,
     primaUnCorso:
       'To add a pending item, first create a course for this class from the Courses page.',
     nienteInSospeso: 'Nothing pending',
-    nienteInGiro: 'Nothing outstanding',
     cheCosaCompare:
       'Whatever is still open in this class shows up here by itself: absence reports to ' +
       'send and signatures to get, tests to mark and hand back, documents to collect or ' +

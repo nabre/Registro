@@ -1,4 +1,4 @@
-// Dove si sta guardando, detto all'assistente: gemella di `miraProiezione()` in
+﻿// Dove si sta guardando, detto all'assistente: gemella di `miraProiezione()` in
 // `state.ts`. Parte a ogni cambio di vista, perché senza contesto il modello
 // sceglie un corso plausibile e risponde sicuro sul corso sbagliato.
 //
@@ -27,18 +27,14 @@ import {
 } from './context.js'
 import { nomeDelPosto } from './pages.js'
 import {
-  FILTRI_TODO,
-  FILTRI_TODO_CLASSE,
   MODI_CALENDARIO,
   porzioneAttiva,
   porzioniDellaVista,
 } from './tabs.js'
 import {
   annoCorrente,
-  classePerId,
   classiDellAnno,
   classiDiCuiSonoDocente,
-  classiVisibili,
   corsiDellAnnoAperto,
   corsiNelSemestre,
   corsoPerId,
@@ -78,7 +74,6 @@ function elenco (cosa: string, ids: readonly string[]): ElencoVisibile {
     troncato: ids.length > QUANTI_ID,
   }
 }
-
 /**
  * Quante alternative di una tendina si mandano. Le tendine sono cinque o sei e
  * la finestra del modello è già stretta: oltre il tetto, una riga «… e altre N
@@ -283,35 +278,7 @@ function filtri (): VoceContesto[] {
       MODI_CALENDARIO.map((m) => ({ valore: m.testo, id: null })),
     ))
   }
-  if (stato.vista === 'todo') {
-    accesi.push(voce(
-      C.pendenzeMostrate,
-      FILTRI_TODO.find((f) => f.valore === stato.filtroTodo)?.testo ?? stato.filtroTodo,
-      null,
-      FILTRI_TODO.map((f) => ({ valore: f.testo, id: null })),
-    ))
-    // La classe aperta nelle pendenze è un filtro: senza, «che cosa manca?»
-    // avrebbe la risposta di tutte le classi.
-    const classe = classePerId(stato.classeTodoId)
-    accesi.push(voce(
-      C.classePendenze,
-      classe?.nome ?? parole().tutte,
-      classe?.id ?? null,
-      [
-        { valore: parole().tutte, id: null },
-        ...classiVisibili().map((c) => ({ valore: c.nome, id: c.id })),
-      ],
-    ))
-  }
   if (stato.vista === 'docenteClasse') {
-    if (stato.schedaDocente === 'todo') {
-      accesi.push(voce(
-        C.consegneMostrate,
-        FILTRI_TODO_CLASSE.find((f) => f.valore === stato.filtroTodoClasse)?.testo ?? '',
-        null,
-        FILTRI_TODO_CLASSE.map((f) => ({ valore: f.testo, id: null })),
-      ))
-    }
     if (stato.schedaDocente === 'assenze') {
       const blocco = bloccoDelleAssenze()
       if (blocco) {

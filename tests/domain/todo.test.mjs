@@ -18,6 +18,8 @@ import {
   FAMIGLIE_TODO,
   registroVuoto,
   riepilogoTodo,
+  todoDelCorso,
+  todoDelDocenteDiClasse,
   todoDellaClasse,
 } from '../../dist-tests/domain.mjs'
 
@@ -255,5 +257,71 @@ describe('il riepilogo di tutte le classi', () => {
     }
     assert.equal(riepilogo.aperti, 0)
     assert.deepEqual(classiConLavoro(riepilogo), [])
+  })
+})
+
+describe('il todo secondo il ruolo', () => {
+  it('isola il lavoro di due corsi della stessa classe', () => {
+    const { registro, prima } = registroBase()
+    const altro = { ...creaCorso(prima.id, registro.materie[0].id, 'I MEC A — Geometria'), id: 'cor-3' }
+    registro.corsi.push(altro)
+    registro.consegne = [
+      consegnaArretrata('cor-1', 'Algebra'),
+      consegnaArretrata('cor-3', 'Geometria'),
+    ]
+
+    const algebra = todoDelCorso(registro, prima, registro.corsi[0], OGGI)
+    const geometria = todoDelCorso(registro, prima, altro, OGGI)
+
+    assert.deepEqual(algebra.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Algebra'])
+    assert.deepEqual(geometria.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Geometria'])
+    assert.equal(algebra.conti.assenze.aperti, 0)
+    assert.equal(algebra.conti.segnalazioni.aperti, 0)
+  })
+
+  it('nel contesto docente di classe esclude le consegne dovute dal docente', () => {
+    const { registro, prima, corsi } = registroBase()
+    prima.docenteDiClasse = true
+    registro.consegne = [
+      consegnaArretrata('cor-1', 'Dagli allievi', { a: 'classe' }),
+      consegnaArretrata('cor-1', 'Dal docente', { a: 'docente' }),
+    ]
+
+    const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
+
+    assert.deepEqual(todo.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Dagli allievi'])
+    assert.equal(todo.conti.svolgeDocente.aperti, 0)
+    assert.equal(todo.conti.consegnaDocente.aperti, 0)
+    assert.equal(todo.conti.valutazioni.aperti, 0)
+  })
+
+  it('senza ruolo di docente di classe restituisce un todo vuoto', () => {
+    const { registro, prima, corsi } = registroBase()
+    registro.consegne = [consegnaArretrata('cor-1', 'Dagli allievi')]
+
+    const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
+
+    assert.equal(todo.aperti, 0)
+    assert.equal(todo.urgenti, 0)
+    for (const famiglia of FAMIGLIE_TODO) {
+      assert.deepEqual(todo.conti[famiglia], { aperti: 0, urgenti: 0 })
+    }
+  })
+
+  it('ricalcola totali e urgenze dalle sole famiglie visibili', () => {
+    const { registro, prima, corsi } = registroBase()
+    prima.docenteDiClasse = true
+    registro.consegne = [
+      consegnaArretrata('cor-1', 'Scaduta della classe'),
+      creaConsegna('cor-1', 'Senza scadenza', OGGI),
+      consegnaArretrata('cor-1', 'Scaduta del docente', { a: 'docente' }),
+    ]
+
+    const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
+
+    assert.equal(todo.conti.svolgeClasse.aperti, 2)
+    assert.equal(todo.conti.svolgeClasse.urgenti, 1)
+    assert.equal(todo.aperti, 2)
+    assert.equal(todo.urgenti, 1)
   })
 })

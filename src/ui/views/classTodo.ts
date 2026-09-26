@@ -1,6 +1,4 @@
-// Il lavoro aperto di una classe, disegnato una volta sola: lo usano la pagina
-// Todo e il registro della classe, che devono dare gli stessi conti. Le
-// tipologie restano separate anche a schermo.
+// Il lavoro aperto, disegnato una volta sola per corso o classe.
 
 import {
   descriviFamiglia,
@@ -9,7 +7,6 @@ import {
   type FamigliaTodo,
   type TodoClasse,
 } from '../../domain/todo.js'
-import { scheda } from '../components/base.js'
 import { icona, type NomeIcona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
 import { gruppoRichiesteFirma, gruppoSegnalazioni } from './absences.js'
@@ -132,15 +129,4 @@ export function riassuntoClasse (todo: TodoClasse): string {
   const pezzi = [t.coseAperte(todo.aperti)]
   if (todo.urgenti > 0) pezzi.push(t.inRitardo(todo.urgenti))
   return pezzi.join(' · ')
-}
-
-/** La scheda di una classe per la pagina Todo: il nome in testata e sotto le sue tipologie. */
-export function schedaTodoClasse (todo: TodoClasse): Figlio {
-  if (todo.aperti === 0) return null
-  return scheda({
-    titolo: todo.classe,
-    sottotitolo: riassuntoClasse(todo),
-    classe: 'todo-classe',
-    contenuto: h('div', { class: 'todo-classe__corpo' }, ...sezioniTodoClasse(todo)),
-  })
 }

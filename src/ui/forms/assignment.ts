@@ -34,6 +34,8 @@ export interface OpzioniModuloConsegna {
   /** L'ora da cui si sta assegnando: dà corso, data e proposta di termine. */
   lezione?: Lezione
   corsoId?: string
+  /** Nel lavoro del corso il corso è il contesto, non un campo modificabile. */
+  corsoFisso?: boolean
   /**
    * A chi tocca, proposto: dal pannello del docente di classe «a me», dall'ora
    * alla classe.
@@ -100,8 +102,9 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
     prossime: Lezione[],
     proposta: string,
   ) => [
-    // Senza una lezione da cui ereditarlo, il corso si sceglie.
-    lezione
+    // Una consegna esistente non cambia corso: spunte e documenti appartengono
+    // alla classe originaria. Nel lavoro del corso, anche una nuova resta lì.
+    lezione || modifica || opzioni.corsoFisso
       ? null
       : riga(
           campoCorso({

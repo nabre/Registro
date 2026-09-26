@@ -32,7 +32,7 @@ import { statoVuotoAnno } from '../components/filters.js'
 import { icona } from '../components/icons.js'
 import { menuContestuale, menuSotto, type ElementoMenu } from '../components/menu.js'
 import { conferma } from '../components/modal.js'
-import { corsoDelContesto, nomeDelCorso } from '../context.js'
+import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from '../context.js'
 import { h, type Figlio } from '../dom.js'
 import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '../forms/check.js'
 import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '../forms.js'
@@ -41,6 +41,7 @@ import {
   aggiorna,
   annoCorrente,
   classePerId,
+  corsiDi,
   corsoPerId,
   lezioniDiCorso,
   stato,
@@ -508,7 +509,12 @@ export function pannelloCheckDellOra (lezione: Lezione): HTMLElement | null {
   if (!corso) return null
   const check = checkDelCorso(stato.registro, corso.id)
   const apriPagina = (): void =>
-    aggiorna({ vista: 'check', corsoId: corso.id, filtroClasseId: corso.classeId })
+    aggiorna({
+      vista: 'check',
+      ambitoCheck: 'corso',
+      corsoId: corso.id,
+      filtroClasseId: corso.classeId,
+    })
 
   const t = testi()
   if (!check || check.colonne.length === 0) {
@@ -533,12 +539,73 @@ export function pannelloCheckDellOra (lezione: Lezione): HTMLElement | null {
 
 // ------------------------------------------------------------------ la pagina
 
+/** Un check del fascicolo di classe. Ogni corso conserva colonne e comandi propri. */
+function schedaCheckDiClasse (corso: Corso): HTMLElement {
+  const t = testi()
+  const check = checkDelCorso(stato.registro, corso.id)
+  const classe = classePerId(corso.classeId)
+  const contenuto = !check || check.colonne.length === 0
+    ? statoVuoto({
+        simbolo: 'check',
+        titolo: t.nessunaColonna,
+        testo: t.cheColonna,
+        azione: pulsante({
+          testo: t.primaColonna,
+          simbolo: 'piu',
+          variante: 'primario',
+          al: () => moduloColonnaCheck({ corsoId: corso.id }),
+        }),
+      })
+    : allieviDelCheck(stato.registro, corso.id).length === 0
+      ? statoVuoto({
+          simbolo: 'utente',
+          titolo: t.classeVuota,
+          testo: t.righeDelCheck(classe?.nome ?? ''),
+        })
+      : grigliaCheck(corso, check, null)
+
+  return scheda({
+    titolo: nomeDelCorso(corso),
+    sottotitolo: t.checkDelCorso,
+    classe: 'scheda--check scheda--check-classe',
+    contenuto,
+  })
+}
+
 export function vistaCheck (): Figlio {
   if (!annoCorrente()) {
     return statoVuotoAnno({ simbolo: 'check', crea: () => moduloAnno() })
   }
 
   const t = testi()
+  if (stato.ambitoCheck === 'classe') {
+    const classe = classeDelFascicolo()
+    if (!classe) {
+      return statoVuoto({
+        simbolo: 'check',
+        titolo: t.nessunaClasseDocente,
+        testo: t.checkClasseNonDisponibile,
+      })
+    }
+    const corsi = corsiDi(classe.id)
+    return h(
+      'div',
+      { class: 'vista vista--check vista--check-classe' },
+      testataVista({
+        titolo: t.checkDellaClasse,
+        sottotitolo: t.comeDocenteDiClasse(classe.nome),
+        contorno: h('p', { class: 'suggerimento' }, t.suggerimentoClasse),
+      }),
+      corsi.length > 0
+        ? h('div', { class: 'elenco-schede check-classe__corsi' }, ...corsi.map(schedaCheckDiClasse))
+        : statoVuoto({
+            simbolo: 'check',
+            titolo: t.nessunCorsoDellaClasse,
+            testo: t.creaCorsoPerCheck,
+          }),
+    )
+  }
+
   const corso = corsoDelContesto()
   const classe = corso ? classePerId(corso.classeId) : null
   if (!corso || !classe) {

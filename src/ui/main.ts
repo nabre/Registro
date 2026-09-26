@@ -162,10 +162,9 @@ function contestoDellElemento (
       }
       break
     }
-    // La pagina Todo ha una classe scelta sua: chi arriva con una classe chiede quella.
+    // Le pendenze sono del corso: l'elemento da aprire è il corso stesso.
     case 'todo': {
-      modifiche.classeTodoId = elementoId
-      modifiche.filtroClasseId = elementoId
+      alCorso(elementoId)
       break
     }
     case 'classi':
@@ -190,6 +189,7 @@ function contestoDellElemento (
     case 'corsi':
     case 'check': {
       alCorso(elementoId)
+      if (vista === 'check') modifiche.ambitoCheck = 'corso'
       break
     }
     case 'piani': {

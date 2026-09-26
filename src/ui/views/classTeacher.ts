@@ -19,9 +19,9 @@ import { lessico } from '../../domain/lexicon.testi.js'
 import { gestoDelClic } from '../../domain/check.js'
 import { formattaData, giornoDi, oggi } from '../../domain/dates.js'
 import {
-  FAMIGLIE_TODO,
   nomeFamiglia,
-  todoDellaClasse,
+  todoDelDocenteDiClasse,
+  type FamigliaTodo,
 } from '../../domain/todo.js'
 import { smistamentiDellaClasse } from '../../domain/sorting.js'
 import { CHI_INSEGNA } from '../../domain/models.js'
@@ -601,40 +601,36 @@ function schedaDocumenti (classe: Classe, raccolte: Consegna[], righe: RigaArchi
  * (assenze da firmare, prove e recuperi, documenti, attività), lette dallo
  * stesso posto. Una todo nuova nasce agganciata a questa classe.
  */
+const FAMIGLIE_DOCENTE_CLASSE: readonly FamigliaTodo[] = [
+  'assenze',
+  'segnalazioni',
+  'consegnaClasse',
+  'svolgeClasse',
+]
+
 function schedaTodo (classe: Classe) {
   const corsi = corsiDi(classe.id)
-  const filtro = stato.filtroTodoClasse
-  const todo = todoDellaClasse(
-    stato.registro,
-    classe,
-    corsi,
-    stato.adessoData,
-    (consegna) => filtro !== 'mie' || consegna.a === 'docente',
-  )
+  const todo = todoDelDocenteDiClasse(stato.registro, classe, corsi, stato.adessoData)
   const t = testi()
 
   return scheda({
     titolo: Molti(lessico().pendenza),
-    // Che cosa si guarda lo dice il sottotitolo; «Tutte le consegne» e «Consegne
-    // personali» sono comandi nella riga delle azioni.
-    sottotitolo:
-      todo.aperti === 0
-        ? t.nienteInClasse
-        : t.sottotitoloTodo(riassuntoClasse(todo), filtro === 'mie'),
+    // Il sottotitolo riassume il lavoro della classe ancora aperto.
+    sottotitolo: todo.aperti === 0 ? t.nienteInClasse : riassuntoClasse(todo),
     contenuto:
       corsi.length === 0 && todo.aperti === 0
         ? h('p', { class: 'testo-quieto' }, t.primaUnCorso)
         : todo.aperti === 0
           ? statoVuoto({
               simbolo: 'spunta',
-              titolo: filtro === 'mie' ? t.nienteInSospeso : t.nienteInGiro,
+              titolo: t.nienteInSospeso,
               testo: t.cheCosaCompare,
             })
           : h(
               'div',
               { class: 'todo-classe__corpo' },
               sintesiIncassata(
-                ...FAMIGLIE_TODO.map((famiglia) => ({
+                ...FAMIGLIE_DOCENTE_CLASSE.map((famiglia) => ({
                   etichetta: t.etichettaFamiglia(nomeFamiglia(famiglia)),
                   valore: String(todo.conti[famiglia].aperti),
                   tono:

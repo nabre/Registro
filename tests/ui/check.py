@@ -84,6 +84,63 @@ with sync_playwright() as p:
     expect(c2).to_have_text('10.09')
     assert 'data scelta a mano' in c2.get_attribute('title'), c2.get_attribute('title')
 
+    # Come docente di classe, il check mostra un riquadro per corso. Due colonne
+    # omonime restano in due griglie e ogni clic conserva il corso di origine.
+    page.evaluate('''() => {
+      const r = prova.stato.registro
+      const classe = { ...r.classi[0], docenteDiClasse: true }
+      const corsi = r.corsi.map((c, i) => i === 1 ? { ...c, classeId: classe.id } : c)
+      const primo = corsi[0]
+      const secondo = corsi[1]
+      const base = (id, corsoId, colonnaId) => ({ id, corsoId,
+        colonne: [{ id: colonnaId, titolo: 'Consegna' }], spunte: [],
+        creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z' })
+      prova.aggiorna({
+        registro: { ...r, classi: [classe, ...r.classi.slice(1)], corsi,
+          check: [base('chk-classe-1', primo.id, 'consegna-1'),
+            base('chk-classe-2', secondo.id, 'consegna-2')] },
+        vista: 'check', ambitoCheck: 'classe', classeId: classe.id
+      })
+    }''')
+    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    expect(page.get_by_role('heading', name='Check della classe')).to_have_count(1)
+    expect(page.locator('.scheda--check-classe')).to_have_count(2)
+    griglie_classe = page.locator('.scheda--check-classe table.check')
+    expect(griglie_classe).to_have_count(2)
+    expect(griglie_classe.nth(0).locator('.check__titolo')).to_have_text('Consegna')
+    expect(griglie_classe.nth(1).locator('.check__titolo')).to_have_text('Consegna')
+    secondo_corso = page.evaluate('prova.stato.registro.corsi[1].id')
+    page.evaluate('richieste.length = 0')
+    griglie_classe.nth(1).locator('.casella-check').first.click()
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='check.spunta')")
+    spunta_classe = page.evaluate(ULTIMA, 'check.spunta')
+    assert spunta_classe['corsoId'] == secondo_corso, spunta_classe
+    page.wait_for_timeout(50)
+
+    # Senza colonne, l'azione della singola scheda crea la colonna nel suo corso.
+    page.evaluate('''() => {
+      const r = prova.stato.registro
+      prova.aggiorna({ registro: { ...r, check: r.check.filter(c => c.corsoId !== r.corsi[1].id) } })
+    }''')
+    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    seconda_scheda = page.locator('.scheda--check-classe').nth(1)
+    seconda_scheda.get_by_role('button', name='Aggiungi la prima colonna').click()
+    finestra_classe = page.locator('form.modale')
+    finestra_classe.locator('input[name="titolo"]').fill('Prima della seconda')
+    page.evaluate('richieste.length = 0')
+    finestra_classe.get_by_role('button', name='Aggiungi', exact=True).click()
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='check.colonne')")
+    colonne_classe = page.evaluate(ULTIMA, 'check.colonne')
+    assert colonne_classe['corsoId'] == secondo_corso, colonne_classe
+    expect(finestra_classe).to_have_count(0)
+
+    # Tornando all'ambito corso, pagina e comportamento restano quelli esistenti.
+    page.evaluate(PREPARA)
+    page.evaluate("prova.aggiorna({ ambitoCheck: 'corso' })")
+    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    expect(page.locator('.vista--check-classe')).to_have_count(0)
+    expect(page.locator('.vista--check table.check')).to_have_count(1)
+
     # Senza un'ora oggi, il clic spunta con la data di oggi.
     page.evaluate('richieste.length = 0')
     c1.click()

@@ -1,5 +1,5 @@
-// I testi della guida, parte «Agenda»: Oggi, calendario, ore sul calendario,
-// calendario della scuola e sue regole, pendenze, pagine da smistare. Una
+// I testi della guida: Agenda (Oggi, calendari e pagine da smistare) e
+// Pendenze del Registro. Una
 // chiave per sezione con la forma di `TestiSezione` (testa di `types.ts`);
 // struttura e schemi stanno in `calendar.ts`.
 
@@ -634,19 +634,15 @@ const it = {
   },
   todo: {
     titolo: Molti(CARTE.pendenza),
-    sommario: 'Che cosa ho lasciato in giro? Tutto quel che resta aperto, di tutte le classi.',
+    sommario: 'Quel che resta aperto nel corso scelto, senza mescolare altre classi o materie.',
     scritte: {
-      leMie: 'Le mie',
-      delleClassi: 'Delle classi',
+      corso: 'DIC4a · Comunicazione',
+      ruolo: 'Docente del corso',
       nuovaConsegna: 'Nuova consegna',
-      tutte17: 'Tutte · 17',
-      coseAperte: '11 cose aperte · 2 in ritardo',
       consegnaLaClasse: 'Consegna la classe',
       rimasteIndietro: 'Rimaste indietro',
       entroLaSettimana: 'Entro la settimana',
       fatto: 'Fatto · Mostra quel che è stato chiuso',
-      assenzeDaFirmare: 'Assenze da far firmare',
-      assenzeOltreSoglia: 'Assenze oltre la soglia',
       momenti: 'Momenti di valutazione',
       consegnaUnFoglio: 'consegna un foglio',
       svolgeQualcosa: 'svolge qualcosa',
@@ -660,29 +656,27 @@ const it = {
     figure: [
       {
         didascalia:
-          'Dall’alto: chi si guarda, quanto c’è per tipologia, quale classe, e dentro la classe ' +
-          'quel che preme per primo. In fondo, chiuso, quel che è già fatto.',
+          'La pagina appartiene al corso indicato nella testata. Mostra cinque famiglie, ' +
+          'gli elementi aperti per urgenza e, in fondo, quelli già chiusi.',
         legenda: [
-          'Nella riga delle azioni: di chi è il gesto — mio, delle classi, o tutti e due.',
-          'Sette righe, sempre tutte: quante cose aperte per tipologia. Il rosso è il ritardo.',
-          'Le linguette delle classi, ognuna con il suo conto: compaiono da due classi in su.',
-          'Una classe: le sue tipologie, e dentro ognuna i mucchi in ordine di fretta.',
+          'Corso e ruolo rendono esplicito il contesto; qui si lavora come docente del corso.',
+          'Cinque riquadri: valutazioni e quattro tipi di consegna. Il rosso indica il ritardo.',
+          'Ogni famiglia raccoglie solo elementi del corso selezionato, ordinati per urgenza.',
           'Quel che è stato chiuso: si apre quando lo si cerca.',
         ],
       },
       {
         didascalia:
-          'Tre tipologie non hanno un «chi»: la firma la fa l’azienda, il voto lo mette chi ' +
-          'corregge. Le altre quattro sono consegne, lette secondo a chi tocca e che gesto è.',
+          'Le valutazioni formano una famiglia. Le altre quattro nascono dall’incrocio fra chi ' +
+          'agisce — classe o docente — e il gesto: consegnare o svolgere.',
       },
     ],
     voci: [
       {
-        termine: 'Sette righe in cima',
+        termine: 'Un corso alla volta',
         testo:
-          'Una per tipologia, sempre tutte: quante cose aperte e, in rosso, quante in ritardo. ' +
-          'Fermandosi sopra si legge che cosa ci finisce dentro. Non filtrano: dicono da dove ' +
-          'cominciare.',
+          'Pendenze sta nel gruppo **Registro**. Usa il corso scelto nella barra: cambiando corso ' +
+          'cambia tutta la pagina, compreso il comando **Nuova consegna**.',
       },
       {
         termine: 'Chi deve fare che cosa',
@@ -693,23 +687,10 @@ const it = {
           'preparazioni, amministrazione.',
       },
       {
-        termine: 'Una classe alla volta',
-        testo:
-          'Sotto, una scheda per classe, prima quelle con più ritardi. Con due classi o più ' +
-          'compaiono le linguette: «Tutte» e una per classe, ognuna con il suo conto.',
-      },
-      {
-        termine: 'Tutte, Le mie, Delle classi',
-        testo:
-          'Nella riga delle azioni: separano quel che tocca a chi insegna da quel che tocca alle ' +
-          'classi. Valgono per le consegne; prove, recuperi e firme restano sempre in vista.',
-      },
-      {
         termine: 'L’ordine è la fretta',
         testo:
           'Dentro ogni tipologia: **Rimaste indietro**, **Scadono oggi**, **Entro la ' +
-          'settimana**, **Più avanti, o senza termine**. Non per data né per corso: ogni riga ' +
-          'dice il suo corso.',
+          'settimana**, **Più avanti, o senza termine**. Il corso è già dichiarato nella testata.',
       },
       {
         termine: 'Le consegne',
@@ -717,15 +698,6 @@ const it = {
           'Ogni riga dice chi manca — «mancano Rossi, Bianchi, Verdi +2» — e quel riassunto ' +
           'apre il ritiro, con un nome per riga, **Segna tutti** e **Togli tutti**. La spunta ' +
           'in fondo alla riga segna in un gesto chi manca; la matita apre la consegna.',
-      },
-      {
-        termine: 'Assenze oltre la soglia',
-        testo:
-          'Chi supera la soglia di Impostazioni › Didattica › **Valutazione**, corso per corso, ' +
-          'con ' +
-          'le UD perse su quelle previste. **Da segnalare** se è oltre anche sulle ore con ' +
-          'l’appello fatto; **Da guardare: appelli incompleti** se mancano appelli. **Apri la ' +
-          'scheda** e **Apri il corso** portano dove si rimedia.',
       },
       {
         termine: 'I recuperi',
@@ -752,16 +724,14 @@ const it = {
       {
         termine: 'Il riquadro «Fatto»',
         testo:
-          'In fondo, chiuso: **Mostra quel che è stato chiuso** apre assenze firmate, recuperi ' +
-          'chiusi, prove riconsegnate e consegne fatte. Serve a «l’ho già ridata a Rossi?», e da ' +
+          'In fondo, chiuso: **Mostra quel che è stato chiuso** apre recuperi chiusi, prove ' +
+          'riconsegnate e consegne fatte. Serve a «l’ho già ridata a Rossi?», e da ' +
           'lì una riga si riapre.',
       },
     ],
     note: [
-      `Tranne le consegne, le ${CARTE.pendenza.plurale} non si scrivono: si deducono. ` +
-        'Un recupero nasce ' +
-        'dall’appello, una prova da correggere dalle caselle vuote, una segnalazione dalla ' +
-        'percentuale — e ognuna sparisce quando il suo motivo non c’è più.',
+      `Le ${CARTE.pendenza.plurale} delle valutazioni si deducono dai voti e dagli appelli; ` +
+        'le quattro famiglie di consegne si creano e si completano qui o nella lezione.',
       'La data della riconsegna non è contabilità: da lì si contano i termini di un ricorso. ' +
         'Il tasto accanto al campo scrive il giorno da cui si guarda — dentro un’ora quello ' +
         'dell’ora, altrove oggi —, e si corregge a mano.',
@@ -1538,19 +1508,15 @@ export const testi = catalogo(it, {
     },
     todo: {
       titolo: Molti(DE.pendenza),
-      sommario: 'Was habe ich liegen lassen? Alles, was offen ist, in allen Klassen.',
+      sommario: 'Was im gewählten Kurs offen ist, ohne andere Klassen oder Fächer zu mischen.',
       scritte: {
-        leMie: 'Meine',
-        delleClassi: 'Der Klassen',
+        corso: 'DIC4a · Kommunikation',
+        ruolo: 'Lehrperson des Kurses',
         nuovaConsegna: 'Neuer Auftrag',
-        tutte17: 'Alle · 17',
-        coseAperte: '11 offene Sachen · 2 überfällig',
         consegnaLaClasse: 'Die Klasse gibt ab',
         rimasteIndietro: 'Überfällig',
         entroLaSettimana: 'Bis Ende Woche',
         fatto: 'Erledigt · Erledigtes anzeigen',
-        assenzeDaFirmare: 'Absenzen zum Unterschreiben',
-        assenzeOltreSoglia: 'Absenzen über der Schwelle',
         momenti: 'Leistungsbeurteilungen',
         consegnaUnFoglio: 'gibt ein Blatt ab',
         svolgeQualcosa: 'erledigt etwas',
@@ -1564,31 +1530,27 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'Von oben: wessen Sachen, wie viel pro Art, welche Klasse, und in der Klasse, was ' +
-            'zuerst drängt. Ganz unten, zugeklappt, was schon erledigt ist.',
+            'Die Seite gehört zum Kurs in der Kopfzeile. Sie zeigt fünf Bereiche, offene ' +
+            'Einträge nach Dringlichkeit und unten die erledigten.',
           legenda: [
-            'In der Aktionsleiste: wessen Handgriff es ist — meiner, der der Klassen, oder ' +
-              'beide.',
-            'Sieben Zeilen, immer alle: wie viel pro Art offen ist. Rot ist das Überfällige.',
-            'Die Reiter der Klassen, jeder mit seiner Zählung: Sie erscheinen ab zwei Klassen.',
-            'Eine Klasse: ihre Arten, und in jeder die Stapel nach Dringlichkeit.',
+            'Kurs und Rolle zeigen den Kontext: Hier arbeitet man als Lehrperson des Kurses.',
+            'Fünf Felder: Beurteilungen und vier Auftragsarten. Rot bedeutet überfällig.',
+            'Jeder Bereich enthält nur Einträge des gewählten Kurses, nach Dringlichkeit.',
             'Was erledigt wurde: Es öffnet sich, wenn man es sucht.',
           ],
         },
         {
           didascalia:
-            'Drei Arten haben kein «Wer»: Die Unterschrift leistet der Lehrbetrieb, die Note ' +
-            'setzt, wer korrigiert. Die anderen vier sind Aufträge, gelesen danach, wer dran ' +
-            'ist und was zu tun ist.',
+            'Beurteilungen bilden einen Bereich. Die anderen vier entstehen aus der Verbindung ' +
+            'von Handelnden — Klasse oder Lehrperson — und Handlung: abgeben oder erledigen.',
         },
       ],
       voci: [
         {
-          termine: 'Sieben Zeilen oben',
+          termine: 'Ein Kurs auf einmal',
           testo:
-            'Eine pro Art, immer alle: wie viel offen ist und, in Rot, wie viel überfällig. ' +
-            'Fährt man darüber, liest man, was hineinfällt. Sie filtern nicht: Sie sagen, wo ' +
-            'man anfangen soll.',
+            `${Molti(DE.pendenza)} steht im Bereich **Klassenbuch**. Die Seite verwendet den ` +
+            'gewählten Kurs; beim Kurswechsel ändern sich die ganze Seite und **Neuer Auftrag**.',
         },
         {
           termine: 'Wer muss was tun',
@@ -1599,25 +1561,10 @@ export const testi = catalogo(it, {
             'Lehrperson erledigt**: Kopien, Vorbereitungen, Administratives.',
         },
         {
-          termine: 'Eine Klasse nach der anderen',
-          testo:
-            'Darunter ein Block pro Klasse, zuerst die mit den meisten überfälligen Sachen. Ab zwei ' +
-            'Klassen erscheinen die Reiter: «Alle» und einer pro Klasse, jeder mit seiner ' +
-            'Zählung.',
-        },
-        {
-          termine: 'Alle, Meine, Der Klassen',
-          testo:
-            'In der Aktionsleiste: Sie trennen, was die Lehrperson tun muss, von dem, was die ' +
-            'Klassen tun müssen. Sie gelten für Aufträge; Prüfungen, Nachprüfungen und ' +
-            'Unterschriften bleiben immer sichtbar.',
-        },
-        {
           termine: 'Die Reihenfolge ist die Dringlichkeit',
           testo:
             'In jeder Art: **Überfällig**, **Heute fällig**, **Bis Ende Woche**, **Später ' +
-            'oder ohne Frist**. Nicht nach Datum und nicht nach Kurs: Jede Zeile nennt ihren ' +
-            'Kurs.',
+            'oder ohne Frist**. Der Kurs steht bereits in der Kopfzeile.',
         },
         {
           termine: 'Die Aufträge',
@@ -1626,16 +1573,6 @@ export const testi = catalogo(it, {
             'Übersicht öffnet das Einsammeln, mit einem Namen pro Zeile, **Alle markieren** und ' +
             '**Alle entfernen**. Das Häkchen am Ende der Zeile markiert alle Fehlenden auf ' +
             'einmal; der Stift öffnet den Auftrag.',
-        },
-        {
-          termine: 'Absenzen über der Schwelle',
-          testo:
-            'Wer die Schwelle unter Einstellungen › Unterricht › **Beurteilung** überschreitet, ' +
-            'Kurs für Kurs, mit den verpassten Lektionen im Verhältnis zu den vorgesehenen. ' +
-            '**Zu melden**, wenn es auch auf den Stunden mit erledigter Präsenzkontrolle darüber ' +
-            'liegt; **Anschauen: unvollständige Präsenzkontrollen**, wenn Präsenzkontrollen ' +
-            'fehlen. **Personenblatt öffnen** und **Kurs öffnen** führen dorthin, wo man ' +
-            'Abhilfe schafft.',
         },
         {
           termine: 'Die Nachprüfungen',
@@ -1663,17 +1600,15 @@ export const testi = catalogo(it, {
         {
           termine: 'Das Feld «Erledigt»',
           testo:
-            'Ganz unten, zugeklappt: **Erledigtes anzeigen** öffnet unterschriebene Absenzen, ' +
-            'abgeschlossene Nachprüfungen, zurückgegebene Prüfungen und erledigte Aufträge. Es ' +
+            'Ganz unten, zugeklappt: **Erledigtes anzeigen** öffnet abgeschlossene ' +
+            'Nachprüfungen, zurückgegebene Prüfungen und erledigte Aufträge. Es ' +
             'dient für «Habe ich sie Rossi schon zurückgegeben?», und von dort lässt sich eine ' +
             'Zeile wieder öffnen.',
         },
       ],
       note: [
-        `Ausser den Aufträgen schreibt man ${DE.pendenza.plurale} nicht: Sie werden ` +
-          'abgeleitet. Eine Nachprüfung entsteht aus der Präsenzkontrolle, eine zu ' +
-          'korrigierende Prüfung aus den leeren Feldern, eine Meldung aus dem Prozentsatz — ' +
-          'und jede verschwindet, wenn ihr Grund wegfällt.',
+        `${Molti(DE.pendenza)} der Beurteilungen werden aus Noten und Präsenzkontrollen ` +
+          'abgeleitet; die vier Auftragsarten werden hier oder in der Stunde erstellt und erledigt.',
         'Das Rückgabedatum ist keine Buchhaltung: Von ihm aus laufen die Fristen eines ' +
           'Rekurses. Die Taste neben dem Feld schreibt den Tag, von dem aus man schaut — in ' +
           'einer Stunde den der Stunde, sonst heute —, und man korrigiert ihn von Hand.',
@@ -2442,19 +2377,15 @@ export const testi = catalogo(it, {
     todo: {
       titolo: Molti(FR.pendenza),
       sommario:
-        'Qu’est-ce que j’ai laissé traîner ? Tout ce qui reste ouvert, dans toutes les classes.',
+        'Ce qui reste ouvert dans le cours choisi, sans mélanger d’autres classes ou matières.',
       scritte: {
-        leMie: 'Les miennes',
-        delleClassi: 'Des classes',
+        corso: 'DIC4a · Communication',
+        ruolo: 'Enseignant du cours',
         nuovaConsegna: 'Nouveau devoir',
-        tutte17: 'Toutes · 17',
-        coseAperte: '11 éléments ouverts · 2 en retard',
         consegnaLaClasse: 'La classe rend',
         rimasteIndietro: 'En retard',
         entroLaSettimana: 'D’ici la fin de la semaine',
         fatto: 'Terminé · Afficher ce qui a été clos',
-        assenzeDaFirmare: 'Absences à faire signer',
-        assenzeOltreSoglia: 'Absences au-delà du seuil',
         momenti: 'Évaluations',
         consegnaUnFoglio: 'remet une feuille',
         svolgeQualcosa: 'fait quelque chose',
@@ -2468,32 +2399,27 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'De haut en bas : qui on regarde, combien il y a par type, quelle classe, et dans la ' +
-            'classe ce qui presse en premier. En bas, replié, ce qui est déjà fait.',
+            'La page appartient au cours indiqué dans l’en-tête. Elle montre cinq familles, ' +
+            'les éléments ouverts par urgence et, en bas, ceux qui sont terminés.',
           legenda: [
-            'Dans la barre d’actions : à qui revient le geste — à moi, aux classes, ou aux deux.',
-            'Sept lignes, toujours toutes : combien d’éléments ouverts par type. Le rouge, ' +
-              'c’est le retard.',
-            'Les onglets des classes, chacun avec son compte : ils apparaissent dès deux ' +
-              'classes.',
-            'Une classe : ses types, et dans chacun les tas par ordre d’urgence.',
+            'Le cours et le rôle indiquent le contexte : ici, on agit comme enseignant du cours.',
+            'Cinq cadres : évaluations et quatre types de devoir. Le rouge indique le retard.',
+            'Chaque famille contient seulement les éléments du cours choisi, classés par urgence.',
             'Ce qui a été clos : il s’ouvre quand on le cherche.',
           ],
         },
         {
           didascalia:
-            'Trois types n’ont pas de « qui » : la signature, c’est l’entreprise formatrice qui ' +
-            'la donne, la note, c’est qui corrige qui la met. Les quatre autres sont des ' +
-            'devoirs, lus selon à qui c’est le tour et quel geste c’est.',
+            'Les évaluations forment une famille. Les quatre autres croisent qui agit — classe ' +
+            'ou enseignant — avec le geste : rendre ou faire.',
         },
       ],
       voci: [
         {
-          termine: 'Sept lignes en haut',
+          termine: 'Un cours à la fois',
           testo:
-            'Une par type, toujours toutes : combien d’éléments ouverts et, en rouge, combien en ' +
-            'retard. En s’arrêtant dessus, on lit ce qui y tombe. Elles ne filtrent pas : elles ' +
-            'disent par où commencer.',
+            `${Molti(FR.pendenza)} se trouve dans **Registre**. La page utilise le cours choisi ; ` +
+            'changer de cours change toute la page et **Nouveau devoir**.',
         },
         {
           termine: 'Qui doit faire quoi',
@@ -2504,25 +2430,10 @@ export const testi = catalogo(it, {
             'photocopies, préparations, administration.',
         },
         {
-          termine: 'Une classe à la fois',
-          testo:
-            'Dessous, une fiche par classe, d’abord celles qui ont le plus de retards. Dès deux ' +
-            'classes apparaissent les onglets : « Toutes » et un par classe, chacun avec son ' +
-            'compte.',
-        },
-        {
-          termine: 'Toutes, Les miennes, Des classes',
-          testo:
-            'Dans la barre d’actions : ils séparent ce qui revient à qui enseigne de ce qui ' +
-            'revient aux classes. Ils valent pour les devoirs ; épreuves, rattrapages et ' +
-            'signatures restent toujours visibles.',
-        },
-        {
           termine: 'L’ordre, c’est l’urgence',
           testo:
             'Dans chaque type : **En retard**, **Échéance aujourd’hui**, **D’ici la fin de ' +
-            'la semaine**, **Plus tard, ou sans échéance**. Ni par date ni par cours : chaque ' +
-            'ligne indique son cours.',
+            'la semaine**, **Plus tard, ou sans échéance**. Le cours figure déjà dans l’en-tête.',
         },
         {
           termine: 'Les devoirs',
@@ -2531,15 +2442,6 @@ export const testi = catalogo(it, {
             'ouvre le ramassage, avec un nom par ligne, **Marquer tout le monde** et **Retirer ' +
             'tout le monde**. La coche au bout de la ligne marque d’un geste ceux qui manquent ; ' +
             'le crayon ouvre le devoir.',
-        },
-        {
-          termine: 'Absences au-delà du seuil',
-          testo:
-            'Qui dépasse le seuil de Paramètres › Enseignement › **Évaluation**, cours par ' +
-            'cours, avec les périodes manquées sur celles prévues. **À signaler** si c’est ' +
-            'au-delà aussi sur les leçons où l’appel est fait ; **À vérifier : appels ' +
-            'incomplets** s’il manque des appels. **Ouvrir la fiche** et **Ouvrir le cours** ' +
-            'mènent là où l’on y remédie.',
         },
         {
           termine: 'Les rattrapages',
@@ -2567,15 +2469,14 @@ export const testi = catalogo(it, {
         {
           termine: 'Le cadre « Terminé »',
           testo:
-            'En bas, replié : **Afficher ce qui a été clos** ouvre les absences signées, les ' +
-            'rattrapages clos, les épreuves rendues et les devoirs faits. Il sert pour « l’ai-je ' +
+            'En bas, replié : **Afficher ce qui a été clos** ouvre les rattrapages clos, les ' +
+            'épreuves rendues et les devoirs faits. Il sert pour « l’ai-je ' +
             'déjà rendue à Rossi ? », et de là une ligne se rouvre.',
         },
       ],
       note: [
-        `Sauf les devoirs, les ${FR.pendenza.plurale} ne s’écrivent pas : elles se déduisent. ` +
-          'Un rattrapage naît de l’appel, une épreuve à corriger des cases vides, un ' +
-          'signalement du pourcentage — et chacune disparaît quand son motif n’existe plus.',
+        `Les ${FR.pendenza.plurale} des évaluations se déduisent des notes et des appels ; ` +
+          'les quatre familles de devoirs se créent et se terminent ici ou dans la leçon.',
         'La date de restitution n’est pas de la comptabilité : c’est d’elle que partent les ' +
           'délais d’un recours. Le bouton à côté du champ écrit le jour d’où l’on regarde — ' +
           'dans une leçon celui de la leçon, ailleurs aujourd’hui —, et on le corrige à la ' +
@@ -3327,19 +3228,15 @@ export const testi = catalogo(it, {
     },
     todo: {
       titolo: Molti(EN.pendenza),
-      sommario: 'What have I left lying around? Everything still open, across all classes.',
+      sommario: 'What remains open in the selected course, without mixing classes or subjects.',
       scritte: {
-        leMie: 'Mine',
-        delleClassi: 'Classes’',
+        corso: 'DIC4a · Communication',
+        ruolo: 'Course teacher',
         nuovaConsegna: 'New assignment',
-        tutte17: 'All · 17',
-        coseAperte: '11 open items · 2 overdue',
         consegnaLaClasse: 'The class hands in',
         rimasteIndietro: 'Overdue',
         entroLaSettimana: 'Within the week',
         fatto: 'Done · Show what has been closed',
-        assenzeDaFirmare: 'Absences to get signed',
-        assenzeOltreSoglia: 'Absences over the threshold',
         momenti: 'Assessments',
         consegnaUnFoglio: 'hands in a sheet',
         svolgeQualcosa: 'does something',
@@ -3353,30 +3250,27 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'From the top: whose items you are looking at, how many per type, which class, and ' +
-            'within the class what is most pressing. At the bottom, folded, what is already done.',
+            'The page belongs to the course shown in the heading. It shows five families, ' +
+            'open items by urgency and, at the bottom, completed items.',
           legenda: [
-            'In the action bar: whose action it is — mine, the classes’, or both.',
-            'Seven rows, always all of them: how many open items per type. Red means overdue.',
-            'The class tabs, each with its own count: they appear from two classes up.',
-            'A class: its types, and within each the piles in order of urgency.',
+            'Course and role make the context explicit: here you act as course teacher.',
+            'Five boxes: assessments and four assignment types. Red means overdue.',
+            'Each family contains only items from the selected course, ordered by urgency.',
             'What has been closed: it opens when you look for it.',
           ],
         },
         {
           didascalia:
-            'Three types have no “who”: the training company signs, whoever marks gives the ' +
-            'grade. The other four are assignments, read by whose turn it is and what the ' +
-            'action is.',
+            'Assessments form one family. The other four combine who acts — class or teacher — ' +
+            'with the action: handing in or doing.',
         },
       ],
       voci: [
         {
-          termine: 'Seven rows at the top',
+          termine: 'One course at a time',
           testo:
-            'One per type, always all of them: how many open items and, in red, how many ' +
-            'overdue. Hovering shows what ends up in each. They do not filter: they tell you ' +
-            'where to start.',
+            `${Molti(EN.pendenza)} is in **Register**. The page uses the selected course; ` +
+            'changing course changes the entire page and **New assignment**.',
         },
         {
           termine: 'Who has to do what',
@@ -3387,23 +3281,10 @@ export const testi = catalogo(it, {
             'photocopies, preparation, admin.',
         },
         {
-          termine: 'One class at a time',
-          testo:
-            'Below, a card per class, those with the most overdue items first. With two classes ' +
-            'or more the tabs appear: “All” and one per class, each with its own count.',
-        },
-        {
-          termine: 'All, Mine, Classes’',
-          testo:
-            'In the action bar: they separate what is up to the teacher from what is up to the ' +
-            'classes. They apply to assignments; tests, resits and signatures always stay in ' +
-            'view.',
-        },
-        {
           termine: 'The order is urgency',
           testo:
             'Within each type: **Overdue**, **Due today**, **Within the week**, **Later, or no ' +
-            'deadline**. Not by date or by course: each row names its course.',
+            'deadline**. The course is already stated in the heading.',
         },
         {
           termine: 'Assignments',
@@ -3412,15 +3293,6 @@ export const testi = catalogo(it, {
             'summary opens the collection, with one name per row, **Mark all** and **Remove ' +
             'all**. The tick at the end of the row marks everyone missing in one go; the pencil ' +
             'opens the assignment.',
-        },
-        {
-          termine: 'Absences over the threshold',
-          testo:
-            'Whoever goes over the threshold in Settings › Teaching › **Assessment**, course by ' +
-            'course, with the periods missed out of those planned. **To report** if it is over ' +
-            'even on the lessons with attendance taken; **To check: incomplete attendance** if ' +
-            'attendance is missing. **Open the record** and **Open the course** take you where ' +
-            'you can put it right.',
         },
         {
           termine: 'Resits',
@@ -3448,15 +3320,14 @@ export const testi = catalogo(it, {
         {
           termine: 'The “Done” box',
           testo:
-            'At the bottom, folded: **Show what has been closed** opens signed absences, closed ' +
-            'resits, tests handed back and assignments done. It is there for “have I already ' +
+            'At the bottom, folded: **Show what has been closed** opens closed resits, tests ' +
+            'handed back and assignments done. It is there for “have I already ' +
             'given it back to Rossi?”, and from there a row can be reopened.',
         },
       ],
       note: [
-        `Except for assignments, ${EN.pendenza.plurale} are not written: they are worked out. ` +
-          'A resit comes from the attendance, a test to mark from the empty cells, a report ' +
-          'from the percentage — and each disappears when its reason is gone.',
+        `Assessment ${EN.pendenza.plurale} are derived from grades and attendance; ` +
+          'the four assignment families are created and completed here or in the lesson.',
         'The hand-back date is not bookkeeping: the time limits for an appeal run from it. ' +
           'The button next to the field writes the day you are looking from — inside a lesson ' +
           'that lesson’s, elsewhere today —, and it can be corrected by hand.',

@@ -20,7 +20,7 @@ import { confrontaNomi, corrispondeAlla, pezziDiRicerca } from '../../domain/tex
 import { nomeDelCorso } from '../context.js'
 import { h, rifocalizza } from '../dom.js'
 import { EVENTO_MODALE_APERTA } from './modal.js'
-import { PAGINE, vaiA, type Pagina } from '../pages.js'
+import { pagineVisibili, vaiA, type Pagina } from '../pages.js'
 import { aggiorna, classiDellAnno, corsiDellAnnoAperto } from '../state.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './palette.testi.js'
@@ -188,7 +188,7 @@ function trovati (cercato: string): GruppoTrovato[] {
   const tetto = pezzi.length === 0 ? TETTO_A_VUOTO : TETTO
   const classi = pezzi.length === 0 ? [] : classiDellAnno()
   const candidate: Record<Specie, () => Voce[]> = {
-    pagine: () => PAGINE.map(voceDiPagina),
+    pagine: () => pagineVisibili().map(voceDiPagina),
     comandi: () => COMANDI_UI.map(voceDiComando),
     persone: () => vociDellePersone(classi),
     corsi: () => vociDeiCorsi(),

@@ -28,14 +28,15 @@ import { testi } from './context.testi.js'
 const VISTE_DEL_CORSO: readonly Vista[] = [
   'lezione',
   'valutazioni',
-  'check',
+  'todo',
   'piani',
   'documenti',
 ]
 
 /** Se la pagina aperta è puntata su un corso: lo chiede la barra per la tendina. */
 export function siLavoraSuUnCorso (): boolean {
-  return VISTE_DEL_CORSO.includes(stato.vista)
+  return VISTE_DEL_CORSO.includes(stato.vista) ||
+    (stato.vista === 'check' && stato.ambitoCheck === 'corso')
 }
 
 /**
@@ -48,7 +49,8 @@ export function siFiltraLAgenda (): boolean {
 
 /** Se la pagina aperta è puntata su una classe di cui si è docente di classe. */
 export function siLavoraSuUnaClasse (): boolean {
-  return stato.vista === 'docenteClasse'
+  return stato.vista === 'docenteClasse' ||
+    (stato.vista === 'check' && stato.ambitoCheck === 'classe')
 }
 
 /**
@@ -110,7 +112,11 @@ export function corsoDelContesto (): Corso | null {
  */
 export function classeDelContesto (): Classe | null {
   if (stato.vista === 'classi') return classeDellaPaginaClassi()
-  if (stato.vista === 'allievo' || stato.vista === 'docenteClasse') {
+  if (
+    stato.vista === 'allievo' ||
+    stato.vista === 'docenteClasse' ||
+    (stato.vista === 'check' && stato.ambitoCheck === 'classe')
+  ) {
     const scelta = classePerId(stato.classeId)
     if (scelta) return scelta
   }

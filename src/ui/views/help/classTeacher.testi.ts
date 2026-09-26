@@ -28,13 +28,11 @@ const it = {
       messaggistica: 'Messaggistica',
       classe: 'Classe: 3A',
       periodo: 'Periodo: 1° sem.',
-      tutteLeConsegne: 'Tutte le consegne',
-      consegnePersonali: 'Consegne personali',
       nuovaPendenza: 'Nuova pendenza',
       daFirmare: 'Assenze da far firmare',
       oltreSoglia: 'Assenze oltre la soglia',
-      momenti: 'Momenti di valutazione',
-      consegnaClasse: 'Consegna la classe',
+      momenti: 'Consegna la classe',
+      consegnaClasse: 'Svolge la classe',
       inRitardo: '2 in ritardo',
       altre: '…e le altre tipologie, solo quando non sono vuote',
     },
@@ -48,7 +46,7 @@ const it = {
             'classe scelta.',
           'La tendina **Classe** dice di quale fascicolo si parla; **Periodo** restringe ' +
             'matrici, periodi e comunicazioni al semestre.',
-          'Gli interruttori delle consegne e **Nuova pendenza**, nella riga delle azioni.',
+          '**Nuova pendenza**, nella riga delle azioni.',
           'Una riga per tipologia, con il conto di quel che è aperto.',
           '«N in ritardo», l’unica cosa colorata nella testata di una tipologia: quel che ' +
             'preme adesso.',
@@ -64,33 +62,25 @@ const it = {
           'l’ultima.',
       },
       {
-        termine: 'Le sette tipologie',
+        termine: 'Le quattro tipologie',
         testo:
-          'Assenze da far firmare, assenze oltre la soglia, momenti di valutazione, e le ' +
-          'consegne divise per chi deve muoversi: consegna o svolge la classe, consegna o svolge ' +
-          'il docente. Le consegne stanno in mucchi per scadenza — rimaste indietro, oggi, entro ' +
-          'la settimana, più avanti.',
-      },
-      {
-        termine: 'Consegne personali',
-        testo:
-          '**Tutte le consegne** è come si apre: la domanda è come sta la classe. **Consegne ' +
-          'personali** tiene solo le consegne «A me», la lista della sera prima: i documenti ' +
-          'che consegni tu alla classe restano in **Tutte le consegne**. Assenze e momenti di ' +
-          'valutazione restano in vista con tutti e due.',
+          'Assenze da far firmare, assenze oltre la soglia e le consegne che la classe o i ' +
+          'singoli allievi devono consegnare o svolgere. Le consegne stanno in mucchi per ' +
+          'scadenza: rimaste indietro, oggi, entro la settimana, più avanti. Valutazioni e ' +
+          'lavori propri del docente non compaiono qui.',
       },
       {
         termine: 'Nuova pendenza',
         testo:
-          'Apre il modulo di una consegna «A me» sul primo corso della classe. Senza nessun ' +
-          'corso in quella classe il comando è spento: una consegna sta sempre su un corso.',
+          'Apre il modulo di una consegna dovuta dalla classe o dagli allievi. Il corso si ' +
+          'sceglie nel modulo. Senza corsi nella classe il comando è spento: ogni consegna ' +
+          'appartiene a un corso.',
       },
       {
         termine: 'Che cosa è «in ritardo»',
         testo:
-          'Una consegna con la scadenza passata, una richiesta di firma ancora da spedire, un ' +
-          'caso oltre la soglia con gli appelli completi, le prove ferme da più di due ' +
-          'settimane, i recuperi ancora da fissare o non rifatti.',
+          'Una consegna dovuta dalla classe con la scadenza passata, una richiesta di firma ' +
+          'ancora da spedire o un caso oltre la soglia con gli appelli completi.',
       },
       {
         termine: 'Elenco della classe',
@@ -113,8 +103,8 @@ const it = {
       },
     ],
     note: [
-      `Queste pendenze e la pagina **${Molti(CARTE.pendenza)}** in Agenda sono lo stesso ` +
-        'conto disegnato due volte: quel che si chiude qui sparisce anche là.',
+      `La pagina **${Molti(CARTE.pendenza)}** del corso è separata e mostra il corso scelto. ` +
+        'Quando una consegna dovuta dalla classe viene chiusa, si aggiorna anche questa vista.',
     ],
   },
   archivio: {
@@ -624,13 +614,11 @@ export const testi = catalogo(it, {
         messaggistica: 'Mitteilungen',
         classe: 'Klasse: 3A',
         periodo: 'Zeitraum: 1. Sem.',
-        tutteLeConsegne: 'Alle Aufträge',
-        consegnePersonali: 'Persönliche Aufträge',
         nuovaPendenza: 'Neue Pendenz',
         daFirmare: TIPOLOGIE_DE.assenze,
         oltreSoglia: TIPOLOGIE_DE.segnalazioni,
-        momenti: TIPOLOGIE_DE.valutazioni,
-        consegnaClasse: TIPOLOGIE_DE.consegnaClasse,
+        momenti: TIPOLOGIE_DE.consegnaClasse,
+        consegnaClasse: TIPOLOGIE_DE.svolgeClasse,
         inRitardo: '2 überfällig',
         altre: '… und die anderen Arten, nur wenn sie nicht leer sind',
       },
@@ -644,7 +632,7 @@ export const testi = catalogo(it, {
               'gewählte Klasse.',
             'Die Auswahl **Klasse** sagt, um welches Klassendossier es geht; **Zeitraum** ' +
               'beschränkt Matrizen, Zeiträume und Mitteilungen auf das Semester.',
-            'Die Schalter für die Aufträge und **Neue Pendenz**, in der Aktionsleiste.',
+            '**Neue Pendenz** in der Aktionsleiste.',
             'Eine Zeile pro Art, mit der Zahl dessen, was offen ist.',
             '«N überfällig», das einzig Farbige im Kopf einer Art: was jetzt drängt.',
           ],
@@ -659,36 +647,25 @@ export const testi = catalogo(it, {
             'angehakten Klasse und verschwindet mit der letzten.',
         },
         {
-          termine: 'Die sieben Arten',
+          termine: 'Die vier Arten',
           testo:
-            `${TIPOLOGIE_DE.assenze}, ${TIPOLOGIE_DE.segnalazioni}, ` +
-            `${TIPOLOGIE_DE.valutazioni}, und die Aufträge, aufgeteilt nach dem, der handeln ` +
-            'muss: Die Klasse gibt ab oder erledigt, die Lehrperson gibt aus oder erledigt. Die ' +
-            'Aufträge liegen in Stapeln nach Frist — überfällig, heute, bis Ende Woche, ' +
-            'später.',
-        },
-        {
-          termine: 'Persönliche Aufträge',
-          testo:
-            'So öffnet sich die Seite: mit **Alle Aufträge**, denn die Frage ist, wie es der ' +
-            'Klasse geht. **Persönliche Aufträge** behält nur die Aufträge «Für mich», die ' +
-            'Liste vom Vorabend: Die Dokumente, die du der Klasse aushändigst, bleiben unter ' +
-            '**Alle Aufträge**. Absenzen und Beurteilungen bleiben bei beiden sichtbar.',
+            `${TIPOLOGIE_DE.assenze}, ${TIPOLOGIE_DE.segnalazioni} und die Aufträge, welche die ` +
+            'Klasse oder einzelne Lernende abgeben oder erledigen müssen. Die Aufträge liegen ' +
+            'nach Frist in Stapeln: überfällig, heute, bis Ende Woche, später. Beurteilungen und ' +
+            'eigene Arbeiten der Lehrperson erscheinen hier nicht.',
         },
         {
           termine: 'Neue Pendenz',
           testo:
-            'Öffnet das Formular eines Auftrags «Für mich» im ersten Kurs der Klasse. Ohne Kurs ' +
-            'in dieser Klasse ist der Befehl ausgeschaltet: Ein Auftrag gehört immer zu einem ' +
-            'Kurs.',
+            'Öffnet das Formular eines Auftrags, den die Klasse oder einzelne Lernende schulden. ' +
+            'Der Kurs wird im Formular ausdrücklich gewählt. Ohne Kurs in dieser Klasse ist der ' +
+            'Befehl ausgeschaltet: Jeder Auftrag gehört zu einem Kurs.',
         },
         {
           termine: 'Was «überfällig» ist',
           testo:
-            'Ein Auftrag mit abgelaufener Frist, eine Unterschriftsanfrage, die noch zu ' +
-            'verschicken ist, ein Fall über der Schwelle mit vollständigen Präsenzkontrollen, ' +
-            'Prüfungen, die seit über zwei Wochen liegen, Nachprüfungen, die noch anzusetzen ' +
-            'oder nicht nachgeholt sind.',
+            'Ein fälliger Auftrag der Klasse, eine noch nicht verschickte Unterschriftsanfrage ' +
+            'oder ein Fall über der Schwelle mit vollständigen Präsenzkontrollen.',
         },
         {
           termine: 'Klassenliste',
@@ -712,8 +689,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        `Diese Pendenzen und die Seite **${Molti(DE.pendenza)}** in der Agenda sind dieselbe ` +
-          'Zählung, zweimal gezeichnet: Was hier erledigt ist, verschwindet auch dort.',
+        `Die Seite **${Molti(DE.pendenza)}** eines Kurses ist getrennt und zeigt nur den ` +
+          'gewählten Kurs. Wird ein Auftrag der Klasse erledigt, aktualisiert sich auch diese Ansicht.',
       ],
     },
     archivio: {
@@ -1277,13 +1254,11 @@ export const testi = catalogo(it, {
         messaggistica: 'Messagerie',
         classe: 'Classe : 3A',
         periodo: 'Période : S1',
-        tutteLeConsegne: 'Tous les devoirs',
-        consegnePersonali: 'Devoirs personnels',
         nuovaPendenza: 'Nouvelle tâche',
         daFirmare: TIPOLOGIE_FR.assenze,
         oltreSoglia: TIPOLOGIE_FR.segnalazioni,
-        momenti: TIPOLOGIE_FR.valutazioni,
-        consegnaClasse: TIPOLOGIE_FR.consegnaClasse,
+        momenti: TIPOLOGIE_FR.consegnaClasse,
+        consegnaClasse: TIPOLOGIE_FR.svolgeClasse,
         inRitardo: '2 en retard',
         altre: '… et les autres types, seulement quand ils ne sont pas vides',
       },
@@ -1297,8 +1272,7 @@ export const testi = catalogo(it, {
               'la classe choisie.',
             'La liste **Classe** dit de quel dossier de classe on parle ; **Période** restreint ' +
               'matrices, périodes et communications au semestre.',
-            'Les interrupteurs des devoirs et **Nouvelle tâche en suspens**, dans la barre ' +
-              'd’actions.',
+            '**Nouvelle tâche en suspens**, dans la barre d’actions.',
             'Une ligne par type, avec le compte de ce qui est ouvert.',
             '« N en retard », la seule chose en couleur dans l’en-tête d’un type : ce qui presse ' +
               'maintenant.',
@@ -1314,34 +1288,25 @@ export const testi = catalogo(it, {
             'et disparaît avec la dernière.',
         },
         {
-          termine: 'Les sept types',
+          termine: 'Les quatre types',
           testo:
-            'Absences à faire signer, absences au-delà du seuil, évaluations, et les devoirs ' +
-            'répartis selon qui doit agir : la classe rend ou fait, ' +
-            'l’enseignant distribue ou fait. Les devoirs sont en piles par échéance — en ' +
-            'retard, aujourd’hui, d’ici la fin de la semaine, plus tard.',
-        },
-        {
-          termine: 'Devoirs personnels',
-          testo:
-            'La page s’ouvre sur **Tous les devoirs** : la question est de savoir comment va la ' +
-            'classe. **Devoirs personnels** ne garde que les devoirs « Pour moi », la liste de ' +
-            'la veille : les documents que tu remets à la classe restent dans **Tous les ' +
-            'devoirs**. Absences et évaluations restent visibles avec les deux.',
+            'Absences à faire signer, absences au-delà du seuil et devoirs que la classe ou des ' +
+            'élèves doivent rendre ou effectuer. Les devoirs sont groupés par échéance : en ' +
+            'retard, aujourd’hui, d’ici la fin de la semaine, plus tard. Les évaluations et le ' +
+            'travail propre de l’enseignant n’apparaissent pas ici.',
         },
         {
           termine: 'Nouvelle tâche en suspens',
           testo:
-            'Ouvre le formulaire d’un devoir « Pour moi » sur le premier cours de la classe. ' +
-            'Sans aucun cours dans cette classe, la commande est éteinte : un devoir appartient ' +
-            'toujours à un cours.',
+            'Ouvre le formulaire d’un devoir dû par la classe ou par des élèves. Le cours se ' +
+            'choisit explicitement dans le formulaire. Sans cours dans cette classe, la commande ' +
+            'est éteinte : chaque devoir appartient à un cours.',
         },
         {
           termine: 'Ce qui est « en retard »',
           testo:
-            'Un devoir dont l’échéance est passée, une demande de signature encore à envoyer, ' +
-            'un cas au-delà du seuil avec les appels complets, les épreuves en attente depuis ' +
-            'plus de deux semaines, les rattrapages encore à fixer ou pas rattrapés.',
+            'Un devoir dû par la classe dont l’échéance est passée, une demande de signature ' +
+            'encore à envoyer ou un cas au-delà du seuil avec les appels complets.',
         },
         {
           termine: 'Liste de la classe',
@@ -1364,8 +1329,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        `Ces tâches en suspens et la page **${Molti(FR.pendenza)}** dans l’Agenda sont le même ` +
-          'compte dessiné deux fois : ce qui se clôt ici disparaît aussi là-bas.',
+        `La page **${Molti(FR.pendenza)}** d’un cours est séparée et montre le cours choisi. ` +
+          'Lorsqu’un devoir dû par la classe est terminé, cette vue se met aussi à jour.',
       ],
     },
     archivio: {
@@ -1902,13 +1867,11 @@ export const testi = catalogo(it, {
         messaggistica: 'Messages',
         classe: 'Class: 3A',
         periodo: 'Period: Sem. 1',
-        tutteLeConsegne: 'All assignments',
-        consegnePersonali: 'Personal assignments',
         nuovaPendenza: 'New pending item',
         daFirmare: TIPOLOGIE_EN.assenze,
         oltreSoglia: TIPOLOGIE_EN.segnalazioni,
-        momenti: TIPOLOGIE_EN.valutazioni,
-        consegnaClasse: TIPOLOGIE_EN.consegnaClasse,
+        momenti: TIPOLOGIE_EN.consegnaClasse,
+        consegnaClasse: TIPOLOGIE_EN.svolgeClasse,
         inRitardo: '2 overdue',
         altre: '…and the other types, only when they aren’t empty',
       },
@@ -1922,7 +1885,7 @@ export const testi = catalogo(it, {
               'class.',
             'The **Class** drop-down says which class file you’re on; **Period** narrows grids, ' +
               'periods and messages to the semester.',
-            'The assignment switches and **New pending item**, in the action bar.',
+            '**New pending item**, in the action bar.',
             'One row per type, with the count of what’s open.',
             '“N overdue”, the only coloured thing in a type’s header: what’s pressing now.',
           ],
@@ -1937,33 +1900,25 @@ export const testi = catalogo(it, {
             'last.',
         },
         {
-          termine: 'The seven types',
+          termine: 'The four types',
           testo:
-            'Absences to get signed, absences over the threshold, assessments, and the ' +
-            'assignments split by who has to act: the class hands in or does, the teacher hands ' +
-            'out or does. Assignments sit in piles by deadline — overdue, today, within the ' +
-            'week, later.',
-        },
-        {
-          termine: 'Personal assignments',
-          testo:
-            'The page opens on **All assignments**: the question is how the class is doing. ' +
-            '**Personal assignments** keeps only the “Me” assignments, the list for the night ' +
-            'before: documents you hand out to the class stay in **All assignments**. Absences ' +
-            'and assessments stay in view with both.',
+            'Absences to get signed, absences over the threshold, and assignments the class or ' +
+            'individual students must hand in or complete. Assignments sit in deadline groups: ' +
+            'overdue, today, within the week, later. Assessments and the teacher’s own work do ' +
+            'not appear here.',
         },
         {
           termine: 'New pending item',
           testo:
-            'Opens the form for a “Me” assignment on the class’s first course. With no course in ' +
-            'that class the command is off: an assignment always belongs to a course.',
+            'Opens the form for an assignment owed by the class or by individual students. The ' +
+            'course is chosen explicitly in the form. With no course in that class, the command ' +
+            'is off: every assignment belongs to a course.',
         },
         {
           termine: 'What counts as “overdue”',
           testo:
-            'An assignment past its deadline, a signature request still to send, a case over the ' +
-            'threshold with complete attendance, tests waiting for more than two weeks, resits ' +
-            'still to schedule or not resat.',
+            'An assignment owed by the class and past its deadline, a signature request still ' +
+            'to send, or a case over the threshold with complete attendance.',
         },
         {
           termine: 'Class list',
@@ -1986,8 +1941,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        `These pending items and the **${Molti(EN.pendenza)}** page in the Planner are the ` +
-          'same count drawn twice: what you close here disappears there too.',
+        `A course’s **${Molti(EN.pendenza)}** page is separate and shows the selected course. ` +
+          'When an assignment owed by the class is completed, this view updates too.',
       ],
     },
     archivio: {

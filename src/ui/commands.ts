@@ -90,7 +90,7 @@ import { caricaPdf, pdfInAttesa, rileggiScansioni } from './views/sorting.js'
 // La mappa tiene la sua inquadratura in una variabile di modulo (vedi `views/map.ts`).
 import { indirizziInAttesa, inquadraTutto } from './views/map.js'
 // Le porzioni delle pagine (modi, schede, filtri) le nomina solo `tabs.ts`.
-import { FILTRI_TODO, FILTRI_TODO_CLASSE, MODI_CALENDARIO, SCHEDE_DOCUMENTI } from './tabs.js'
+import { MODI_CALENDARIO, SCHEDE_DOCUMENTI } from './tabs.js'
 // Il piano su cui lavorare lo sa la pagina: `stato.pianoId` è nullo finché non
 // se ne sceglie uno, ma un piano a schermo c'è lo stesso.
 import { pianoMostrato, primaOraDelPiano, scordaEditorDelPiano } from './views/plans.js'
@@ -690,18 +690,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       aggiorna({ vista: 'lezione', lezioneId: ora.lezione.id })
     },
   },
-  // I tre filtri delle pendenze come interruttori: si cambiano scorrendo la pagina.
-  ...FILTRI_TODO.map((filtro): ComandoUI => ({
-    id: `todo.${filtro.valore}`,
-    titolo: filtro.testo,
-    simbolo: filtro.simbolo,
-    dove: ['todo'],
-    gruppo: G.cheCosaSiGuarda,
-    aiuto: filtro.aiuto,
-    acceso: () => stato.filtroTodo === filtro.valore,
-    al: () => aggiorna({ filtroTodo: filtro.valore }),
-  })),
-
   {
     id: 'registro.nuovaLezione',
     titolo: t.nuovaOra,
@@ -731,10 +719,10 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     gruppo: G.crea,
     aiuto: t.nuovaConsegnaAiuto,
     primario: true,
-    impedimento: () => (corsiDellAnnoAperto().length > 0 ? null : t.nessunCorsoPerConsegna),
+    impedimento: senzaCorso,
     al: () => {
-      const corso = corsoDelContesto() ?? corsiDellAnnoAperto()[0]
-      if (corso) moduloConsegna({ corsoId: corso.id })
+      const corso = corsoDelContesto()
+      if (corso) moduloConsegna({ corsoId: corso.id, corsoFisso: true })
     },
   },
   {
@@ -888,6 +876,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     gruppo: G.check,
     aiuto: t.aggiungiColonnaAiuto,
     primario: true,
+    soloSe: () => stato.ambitoCheck !== 'classe',
     impedimento: senzaCorso,
     al: () => {
       const corso = corsoDelContesto()
@@ -901,6 +890,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     dove: ['check'],
     gruppo: G.check,
     aiuto: t.colonneAiuto,
+    soloSe: () => stato.ambitoCheck !== 'classe',
     impedimento: () => {
       const corso = corsoDelContesto()
       if (!corso) return senzaCorso()
@@ -1032,20 +1022,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     },
   },
 
-  // I due modi di guardare le pendenze della classe, come interruttori nella
-  // riga delle azioni.
-  ...FILTRI_TODO_CLASSE.map((filtro): ComandoUI => ({
-    id: `docente.pendenze.${filtro.valore}`,
-    titolo: filtro.testo,
-    simbolo: filtro.simbolo,
-    dove: ['docenteClasse'],
-    schedaDocente: 'todo',
-    gruppo: G.cheCosaSiGuarda,
-    aiuto: filtro.aiuto,
-    acceso: () => stato.filtroTodoClasse === filtro.valore,
-    al: () => aggiorna({ filtroTodoClasse: filtro.valore }),
-  })),
-
   {
     id: 'docente.pendenza', titolo: t.nuovaPendenza, simbolo: 'piu',
     dove: ['docenteClasse'], schedaDocente: 'todo', gruppo: G.classe,
@@ -1058,7 +1034,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     al: () => {
       const classe = classeDelFascicolo()
       const corso = classe && corsiDi(classe.id)[0]
-      if (corso) moduloConsegna({ corsoId: corso.id, a: 'docente' })
+      if (corso) moduloConsegna({ corsoId: corso.id, a: 'classe' })
     },
   },
   {

@@ -60,9 +60,7 @@ function pastiglieInFila (
 function figuraDocente (): string {
   const s = T.docente.scritte
   const interruttori = pastiglieInFila(72, [
-    [152, s.tutteLeConsegne, 'accento'],
-    [272, s.consegnePersonali, 'neutro'],
-    [398, s.nuovaPendenza, 'neutro'],
+    [152, s.nuovaPendenza, 'accento'],
   ], 6)
   return disegno(
     telaio(10, 10, 620, 232, {

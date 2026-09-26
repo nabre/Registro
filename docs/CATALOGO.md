@@ -200,8 +200,7 @@ ancorate all'ICS ferme.
 
 | id | dove | titolo | che cosa fa |
 |---|---|---|---|
-| `todo.tutte`, `todo.mie`, `todo.classi` ◐ | `todo` | Tutte, Le mie, Delle classi | `filtroTodo` |
-| `registro.nuovaConsegna` ★ | `todo` | Nuova consegna | `moduloConsegna()` |
+| `registro.nuovaConsegna` ★ | `todo` del corso | Nuova consegna | `moduloConsegna({corsoFisso:true})` |
 | `registro.nuovoCorso` | `corsi` | Nuovo corso | `moduloCorso()` |
 | `registro.nuovaClasse` | `classi`, `corsi` | Nuova classe | `moduloClasse()` |
 | `lezione.stato.pianificata`, `.svolta` ★, `.annullata` ◐ | `lezione` | stato dell'ora | `lezione.stato`; annullare chiede conferma |
@@ -210,8 +209,8 @@ ancorate all'ICS ferme.
 | `piano.duplica` | `piani` | Duplica | `piano.duplica` |
 | `piano.elimina` | `piani` | Elimina | `chiediEliminazione` → `piano.elimina` |
 | `corso.nuovaOra` | `piani`, `valutazioni` | Ora in questo corso | `moduloLezione({corsoId})` |
-| `check.nuovaColonna` ★ | `check` | Aggiungi una colonna | `moduloColonnaCheck()` → `check.colonne` |
-| `check.colonne` | `check` | Colonne | `moduloColonneCheck()` → `check.colonne` (conferma se cadono spunte) |
+| `check.nuovaColonna` ★ | `check` del corso | Aggiungi una colonna | `moduloColonnaCheck()` → `check.colonne` |
+| `check.colonne` | `check` del corso | Colonne | `moduloColonneCheck()` → `check.colonne` (conferma se cadono spunte) |
 
 ### 3.4 Mappa, persone, docente di classe
 
@@ -226,8 +225,7 @@ ancorate all'ICS ferme.
 | `classe.importa` | `classi` | Importa classe dall'anno… | `chiediImportaClasse()`: `classi.altrove`, poi `classe.importa` |
 | `classe.comunicazione` | `allievo` | Nuova comunicazione | `moduloComunicazione()` |
 | `classe.assenze` | `allievo` | Nuovo periodo assenze | `moduloBloccoAssenze()` |
-| `docente.pendenze.tutte`, `.mie` ◐ | `docenteClasse` (`todo`) | filtro | `filtroTodoClasse` |
-| `docente.pendenza` ★ | `todo` | Nuova pendenza | `moduloConsegna({a:'docente'})` |
+| `docente.pendenza` ★ | `todo` docente di classe | Nuova pendenza | `moduloConsegna({a:'classe'})` |
 | `docente.documento` ★ | `documenti` | Chiedi un documento | `moduloConsegna({documento:true})` |
 | `docente.caricaPdf` ★ | `documenti` | Carica dei PDF | `caricaPdf()` → `smistamento.carica` |
 | `docente.rileggiScansioni` | `documenti` | Rileggi le scansioni | `smistamento.rileggiAttive` |

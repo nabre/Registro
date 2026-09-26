@@ -54,7 +54,7 @@ import {
   type FaseOra,
 } from '../domain/dashboard.js'
 import { confrontaLezioni } from '../domain/calculations.js'
-import { riepilogoTodo, type RiepilogoTodo } from '../domain/todo.js'
+import { todoDelCorso } from '../domain/todo.js'
 import { annoInUso } from '../domain/years.js'
 import {
   PROIEZIONE_PREDEFINITA,
@@ -105,15 +105,6 @@ const MODI_CALENDARIO: ModoCalendario[] = ['settimana', 'mese', 'anno', 'agenda'
  * Di chi si guardano le consegne nella pagina delle pendenze. Sta qui perché
  * la legge anche `commands.ts`: i tre modi sono comandi della pagina.
  */
-export type FiltroTodo = 'tutte' | 'mie' | 'classi'
-
-const FILTRI_TODO: FiltroTodo[] = ['tutte', 'mie', 'classi']
-
-/** Di chi sono le consegne dentro la scheda di una classe sola. */
-type FiltroTodoClasse = 'mie' | 'tutte'
-
-const FILTRI_TODO_CLASSE: FiltroTodoClasse[] = ['mie', 'tutte']
-
 /** Un blocco in lettura o in attesa di esserlo. */
 interface VoceLavoro {
   smistamentoId: string
@@ -143,6 +134,11 @@ const SCHEDE_LEZIONE: SchedaLezione[] = ['amministrazione', 'lezione', 'annotazi
  * materie (ore e voti).
  */
 export type SchedaPersona = 'anagrafica' | 'docenteClasse' | 'materie'
+
+/** Se il check riguarda un corso o il lavoro del docente di classe. */
+export type AmbitoCheck = 'corso' | 'classe'
+
+const AMBITI_CHECK: AmbitoCheck[] = ['corso', 'classe']
 
 const SCHEDE_PERSONA: SchedaPersona[] = ['anagrafica', 'docenteClasse', 'materie']
 
@@ -316,6 +312,8 @@ interface StatoUI {
   schedaPersona: SchedaPersona
   /** Quale scheda del docente di classe si sta guardando. */
   schedaDocente: SchedaDocente
+  /** Se il check aperto appartiene al corso o alla classe del docente di classe. */
+  ambitoCheck: AmbitoCheck
   /** Quale scheda della pagina Documenti si sta guardando. */
   schedaDocumenti: SchedaDocumenti
   /** Di chi sono le impostazioni aperte: del programma o del documento. */
@@ -417,19 +415,16 @@ interface StatoUI {
    */
   semestreId: string | null
   /** Di chi si guardano le consegne nella pagina delle pendenze. */
-  filtroTodo: FiltroTodo
   /**
    * La classe aperta nella pagina delle pendenze, o `null` per tutte (anche
    * quando la classe scelta non ha più niente in sospeso).
    */
-  classeTodoId: string | null
   /** Quale dei tre elenchi è aperto nella colonna della mappa. */
   schedaMappa: SchedaMappa
   /**
    * Il filtro delle consegne nel pannello del docente di classe, separato da
    * quello delle pendenze. Si parte da tutte: la domanda è «come sta la classe».
    */
-  filtroTodoClasse: 'mie' | 'tutte'
   /**
    * Il periodo di assenze aperto nel pannello del docente di classe: uno per
    * volta, perché la matrice è già larga.
@@ -455,7 +450,6 @@ interface StatoPersistito {
   zoomSfoglio: number
   pianoId: string | null
   valutazioneId: string | null
-  filtroTodoClasse: 'mie' | 'tutte'
   bloccoAssenzeId: string | null
   ricerca: string
   sidebarDesktop: boolean
@@ -472,6 +466,7 @@ interface StatoPersistito {
   schedaLezione: SchedaLezione
   schedaPersona: SchedaPersona
   schedaDocente: SchedaDocente
+  ambitoCheck: AmbitoCheck
   schedaDocumenti: SchedaDocumenti
   ambitoImpostazioni: AmbitoImpostazioni
   schedaProgramma: SchedaProgramma
@@ -489,8 +484,6 @@ interface StatoPersistito {
   classeMappaId: string | null
   filtroCorsoAgendaId: string | null
   semestreId: string | null
-  filtroTodo: FiltroTodo
-  classeTodoId: string | null
   schedaMappa: SchedaMappa
 }
 
@@ -547,6 +540,7 @@ export const stato: StatoUI = {
   schedaLezione: convalidata(SCHEDE_LEZIONE, persistito?.schedaLezione, 'amministrazione'),
   schedaPersona: convalidata(SCHEDE_PERSONA, persistito?.schedaPersona, 'anagrafica'),
   schedaDocente: convalidata(SCHEDE_DOCENTE, persistito?.schedaDocente, 'todo'),
+  ambitoCheck: convalidata(AMBITI_CHECK, persistito?.ambitoCheck, 'corso'),
   schedaDocumenti: convalidata(SCHEDE_DOCUMENTI, persistito?.schedaDocumenti, 'corso'),
   ambitoImpostazioni: persistito?.vista === 'modelli'
     ? 'documento'
@@ -586,10 +580,7 @@ export const stato: StatoUI = {
   // `undefined` = mai scelto: vale «anno intero» finché, arrivato il registro,
   // `allineaSemestre` sceglie il semestre di oggi. `null` è una scelta: l'anno intero.
   semestreId: persistito?.semestreId === undefined ? null : persistito.semestreId,
-  filtroTodo: convalidata(FILTRI_TODO, persistito?.filtroTodo, 'tutte'),
-  classeTodoId: persistito?.classeTodoId ?? null,
   schedaMappa: convalidata(SCHEDE_MAPPA, persistito?.schedaMappa, 'tutti'),
-  filtroTodoClasse: convalidata(FILTRI_TODO_CLASSE, persistito?.filtroTodoClasse, 'tutte'),
   bloccoAssenzeId: persistito?.bloccoAssenzeId ?? null,
   ricerca: persistito?.ricerca ?? '',
   proiezione: { aperta: false, impostazioni: { ...PROIEZIONE_PREDEFINITA } },
@@ -645,7 +636,6 @@ export function ricorda (): void {
     classiApertePersone: stato.classiApertePersone,
     pianoId: stato.pianoId,
     valutazioneId: stato.valutazioneId,
-    filtroTodoClasse: stato.filtroTodoClasse,
     bloccoAssenzeId: stato.bloccoAssenzeId,
     ricerca: stato.ricerca,
     sidebarDesktop: stato.sidebarDesktop,
@@ -661,6 +651,7 @@ export function ricorda (): void {
     schedaLezione: stato.schedaLezione,
     schedaPersona: stato.schedaPersona,
     schedaDocente: stato.schedaDocente,
+    ambitoCheck: stato.ambitoCheck,
     schedaDocumenti: stato.schedaDocumenti,
     ambitoImpostazioni: stato.ambitoImpostazioni,
     schedaProgramma: stato.schedaProgramma,
@@ -676,8 +667,6 @@ export function ricorda (): void {
     classeMappaId: stato.classeMappaId,
     filtroCorsoAgendaId: stato.filtroCorsoAgendaId,
     semestreId: stato.semestreId,
-    filtroTodo: stato.filtroTodo,
-    classeTodoId: stato.classeTodoId,
     schedaMappa: stato.schedaMappa,
   } satisfies StatoPersistito
   const scritto = JSON.stringify(persistito)
@@ -1244,7 +1233,6 @@ export function riconvalidaRicordati (): void {
   const modifiche: Partial<StatoUI> = {}
   if (classe(stato.filtroClasseId)) modifiche.filtroClasseId = null
   if (classe(stato.classeMappaId)) modifiche.classeMappaId = null
-  if (classe(stato.classeTodoId)) modifiche.classeTodoId = null
   if (stato.filtroCorsoAgendaId && !r.corsi.some((c) => c.id === stato.filtroCorsoAgendaId)) {
     modifiche.filtroCorsoAgendaId = null
   }
@@ -1253,6 +1241,13 @@ export function riconvalidaRicordati (): void {
     !r.fascicoli.some((f) => f.assenze.some((b) => b.id === stato.bloccoAssenzeId))
   ) {
     modifiche.bloccoAssenzeId = null
+  }
+  const senzaDocenze = classiDiCuiSonoDocente().length === 0
+  const dentroSezioneClasse = stato.vista === 'docenteClasse' ||
+    (stato.vista === 'check' && stato.ambitoCheck === 'classe')
+  if (senzaDocenze && dentroSezioneClasse) {
+    modifiche.vista = anno ? 'classi' : 'oggi'
+    modifiche.paginaId = null
   }
   // Il giorno scelto si riporta dentro l'anno aperto solo quando l'anno cambia
   // (o all'avvio): alle altre spinte dell'host si lascia dov'è l'ha portato chi guarda.
@@ -1368,10 +1363,14 @@ export function oreDaChiudere (): Lezione[] {
  * Le pendenze che la barra conta: le stesse della pagina delle pendenze
  * (classi visibili, giorno dell'orologio), così il clic non porta a una pagina vuota.
  */
-export function pendenzeDellaBarra (): RiepilogoTodo {
-  return derivato('pendenze', stato.adessoData, () =>
-    riepilogoTodo(stato.registro, classiVisibili(), corsiDellAnnoAperto(), stato.adessoData),
-  )
+export function pendenzeDellaBarra (): { aperti: number, urgenti: number } {
+  const corso = corsoAperto()
+  const classe = corso ? classePerId(corso.classeId) : null
+  if (!corso || !classe) return { aperti: 0, urgenti: 0 }
+  return derivato('pendenze', `${corso.id}|${stato.adessoData}`, () => {
+    const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
+    return { aperti: todo.aperti, urgenti: todo.urgenti }
+  })
 }
 
 /** Il semestre in cui cade una data, nell'anno in corso. */

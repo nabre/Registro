@@ -40,12 +40,6 @@ const it = {
   delleClassi: 'Delle classi',
   delleClassiAiuto: 'Solo quel che devono portare loro: la lista che si legge entrando in aula',
 
-  // I filtri delle pendenze di una classe.
-  tutteLeConsegne: 'Tutte le consegne',
-  tutteLeConsegneAiuto: 'Quel che tocca a me e quel che tocca alla classe, insieme',
-  consegnePersonali: 'Consegne personali',
-  consegnePersonaliAiuto: 'Solo quel che devo fare io in questa classe: la lista della sera prima',
-
   /** La linguetta della mappa con tutti i punti. */
 }
 
@@ -77,11 +71,6 @@ export const testi = catalogo(it, {
     delleClassi: 'Der Klassen',
     delleClassiAiuto:
       'Nur was sie mitbringen müssen: die Liste, die man beim Betreten des Schulzimmers liest',
-    tutteLeConsegne: 'Alle Aufträge',
-    tutteLeConsegneAiuto: 'Was mich betrifft und was die Klasse betrifft, zusammen',
-    consegnePersonali: 'Persönliche Aufträge',
-    consegnePersonaliAiuto:
-      'Nur was ich selbst in dieser Klasse tun muss: die Liste für den Vorabend',
   },
   fr: {
     amministrazione: 'Administration',
@@ -111,11 +100,6 @@ export const testi = catalogo(it, {
     delleClassi: 'Des classes',
     delleClassiAiuto:
       'Seulement ce qu’elles doivent apporter : la liste qu’on lit en entrant en classe',
-    tutteLeConsegne: 'Tous les devoirs',
-    tutteLeConsegneAiuto: 'Ce qui me revient et ce qui revient à la classe, ensemble',
-    consegnePersonali: 'Devoirs personnels',
-    consegnePersonaliAiuto:
-      'Seulement ce que je dois faire moi dans cette classe : la liste de la veille',
   },
   en: {
     amministrazione: 'Admin',
@@ -142,9 +126,5 @@ export const testi = catalogo(it, {
     mieAiuto: 'Only what I have to do: the list for the evening before',
     delleClassi: 'The classes’',
     delleClassiAiuto: 'Only what they have to bring: the list you read on entering the room',
-    tutteLeConsegne: 'All assignments',
-    tutteLeConsegneAiuto: 'What is mine to do and what is the class’s, together',
-    consegnePersonali: 'Personal assignments',
-    consegnePersonaliAiuto: 'Only what I have to do in this class: the list for the evening before',
   },
 })

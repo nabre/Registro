@@ -1,4 +1,5 @@
 // La guida: oggi, calendario, calendario-ore, ics, ics-regole, todo, smistare.
+// «Pendenze» appartiene al Registro; le altre sezioni qui sono dell'Agenda.
 //
 // Solo struttura e schemi: le parole stanno in `calendar.testi.ts`, il disegno
 // della pagina in `../help.ts`, il vocabolario delle figure in `drawing.ts`.
@@ -36,8 +37,17 @@ type Schema = Pick<FiguraGuida, 'vista' | 'disegno'>
 const LATERALI = [
   parole().oggi,
   T.calendario.scritte.calendario,
-  T.calendario.scritte.pendenze,
   T.calendario.scritte.daSmistare,
+]
+
+/** Le pagine del Registro per il corso scelto. */
+const LATERALI_REGISTRO = [
+  testiPagine().lezione,
+  testiPagine().valutazioni,
+  testiPagine().pendenze,
+  testiPagine().check,
+  testiPagine().piani,
+  testiPagine().documenti,
 ]
 
 // ------------------------------------------------------------------ le figure
@@ -419,73 +429,46 @@ function mucchio (
   return disegno(pastiglia(150, y, nome, tono), righe(dove, y + 7, lRighe, 1))
 }
 
-/** In cima alla pagina delle pendenze: di chi è il gesto. */
-const FILTRI_PENDENZE = pastiglieInFila(28, [
-  { x: 142, contenuto: parole().tutte, tono: 'accento' },
-  { x: 186, contenuto: T.todo.scritte.leMie, tono: 'neutro', stacco: 0.5 },
-  { x: 242, contenuto: T.todo.scritte.delleClassi, tono: 'neutro', stacco: 0.5 },
-])
-
-/** Le linguette delle classi, ognuna con il suo conto. */
-const LINGUETTE_PENDENZE = pastiglieInFila(98, [
-  { x: 138, contenuto: T.todo.scritte.tutte17, tono: 'accento' },
-  { x: 216, contenuto: 'DIC4a · 11', tono: 'neutro', stacco: 5 },
-  { x: 294, contenuto: 'DIC2b · 6', tono: 'neutro', stacco: 5 },
-])
-
 /** La pagina delle pendenze vista dall'alto. */
 const FIGURA_PENDENZE: Schema = {
   vista: '0 0 640 260',
   disegno: disegno(
     telaio(0, 0, 640, 260, {
-      laterali: LATERALI,
-      scelta: LATERALI.indexOf(T.calendario.scritte.pendenze),
+      laterali: LATERALI_REGISTRO,
+      scelta: LATERALI_REGISTRO.indexOf(testiPagine().pendenze),
     }),
-    FILTRI_PENDENZE.disegno,
+    testo(142, 39, T.todo.scritte.corso, { corpo: 'titolo', forte: true }),
+    testo(142, 55, T.todo.scritte.ruolo, { corpo: 'piccolo', tono: 'quieto' }),
     pastiglia(
       Math.min(516, 626 - largaPastiglia(T.todo.scritte.nuovaConsegna)),
       28,
       T.todo.scritte.nuovaConsegna,
       'accento',
     ),
-    ...(['firma', 'avviso', 'valutazioni', 'documento', 'spunta', 'documento', 'spunta'] as const)
-      .map((icona, i) => riquadro(138 + i * 70, 54, 64, 34, {
-        tono: i === 2 ? 'negativo' : 'neutro',
-        etichetta: String([2, 0, 5, 3, 4, 1, 2][i]),
+    ...(['valutazioni', 'documento', 'spunta', 'documento', 'spunta'] as const)
+      .map((icona, i) => riquadro(138 + i * 98, 72, 92, 38, {
+        tono: i === 0 ? 'negativo' : 'neutro',
+        etichetta: String([5, 3, 4, 1, 2][i]),
         simbolo: icona,
       })),
-    LINGUETTE_PENDENZE.disegno,
-    riquadro(138, 124, 490, 88, { tono: 'neutro' }),
-    testo(148, 141, 'DIC4a', { forte: true }),
-    testo(196, 141, T.todo.scritte.coseAperte, { corpo: 'piccolo', tono: 'quieto' }),
-    testo(148, 160, T.todo.scritte.consegnaLaClasse, { corpo: 'piccolo', forte: true }),
-    mucchio(166, T.todo.scritte.rimasteIndietro, 'negativo', 262, 220, 3.9),
-    mucchio(188, T.todo.scritte.entroLaSettimana, 'neutro', 270, 200, 0.1),
-    riquadro(138, 222, 490, 16, { tono: 'quieto' }),
-    testo(148, 234, T.todo.scritte.fatto, { corpo: 'piccolo', tono: 'quieto' }),
-    bollino(Math.max(356, FILTRI_PENDENZE.fine + 29.4), 37, 1),
-    bollino(628, 54, 2),
-    bollino(Math.max(372, LINGUETTE_PENDENZE.fine + 11), 107, 3),
-    bollino(628, 124, 4),
-    bollino(628, 222, 5),
+    riquadro(138, 124, 490, 92, { tono: 'neutro' }),
+    testo(148, 143, T.todo.scritte.consegnaLaClasse, { corpo: 'piccolo', forte: true }),
+    mucchio(152, T.todo.scritte.rimasteIndietro, 'negativo', 262, 220, 3.9),
+    mucchio(178, T.todo.scritte.entroLaSettimana, 'neutro', 270, 200, 0.1),
+    riquadro(138, 226, 490, 16, { tono: 'quieto' }),
+    testo(148, 238, T.todo.scritte.fatto, { corpo: 'piccolo', tono: 'quieto' }),
+    bollino(132, 28, 1),
+    bollino(628, 72, 2),
+    bollino(628, 124, 3),
+    bollino(628, 226, 4),
   ),
 }
 
-/** Le sette tipologie: tre senza un «chi», quattro dall'incrocio. */
+/** Le cinque tipologie del corso: valutazioni e quattro incroci. */
 const FIGURA_TIPOLOGIE: Schema = {
   vista: '0 0 640 200',
   disegno: disegno(
-    riquadro(20, 12, 196, 38, {
-      tono: 'quieto',
-      etichetta: T.todo.scritte.assenzeDaFirmare,
-      simbolo: 'firma',
-    }),
     riquadro(222, 12, 196, 38, {
-      tono: 'quieto',
-      etichetta: T.todo.scritte.assenzeOltreSoglia,
-      simbolo: 'avviso',
-    }),
-    riquadro(424, 12, 196, 38, {
       tono: 'quieto',
       etichetta: T.todo.scritte.momenti,
       simbolo: 'valutazioni',
@@ -600,12 +583,12 @@ export const SEZIONI_CALENDARIO: SezioneGuida[] = [
   }, T.icsRegole),
   sezione({
     id: 'todo',
-    parte: 'agenda',
+    parte: 'registro',
     simbolo: 'spunta',
     vista: 'todo',
     figure: [FIGURA_PENDENZE, FIGURA_TIPOLOGIE],
     note: ['meccanismo', 'attenzione'],
-    vedi: ['valutazioni', 'assenze', 'lezione', 'barra-stato', 'date'],
+    vedi: ['valutazioni', 'consegne', 'lezione', 'barra-stato', 'date'],
   }, T.todo),
   sezione({
     id: 'smistare',

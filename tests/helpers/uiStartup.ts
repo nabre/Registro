@@ -4,7 +4,9 @@
  * `dist-tests/ui.js`.
  */
 import '../../src/ui/main.js'
-import { stato, aggiorna, lezioniInAgenda, MISURE_SFOGLIO } from '../../src/ui/state.js'
+import {
+  stato, aggiorna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati,
+} from '../../src/ui/state.js'
 import { PAGINE, gruppiDiPagine, vaiA } from '../../src/ui/pages.js'
 import { scegliCorso } from '../../src/ui/context.js'
 import { COMANDI_UI } from '../../src/ui/commands.js'
@@ -35,7 +37,8 @@ for (const nome of ['DIC4a', 'DIC4b']) {
 }
 Object.assign(window, {
   prova: {
-    stato, aggiorna, MISURE_SFOGLIO, PAGINE, gruppiDiPagine, vaiA, scegliCorso, lezioniInAgenda,
+    stato, aggiorna, MISURE_SFOGLIO, PAGINE, gruppiDiPagine, vaiA, scegliCorso,
+    lezioniInAgenda, riconvalidaRicordati,
     COMANDI_UI, registroVuoto, collocazioneDi, percorsoDi, FAMIGLIE_TODO, miniatura, dimentica,
   },
 })

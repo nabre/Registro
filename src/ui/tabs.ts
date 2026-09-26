@@ -10,7 +10,6 @@ import {
   stato,
   type ModoCalendario,
   type SchedaDocumenti,
-  type FiltroTodo,
   type SchedaLezione,
   type SchedaPersona,
 } from './state.js'
@@ -126,55 +125,11 @@ export const SCHEDE_DOCUMENTI: ReadonlyArray<{
  * sole di cui si sa a chi tocca il gesto; prove ferme, recuperi e richieste di
  * firma restano sempre in vista.
  */
-export const FILTRI_TODO: ReadonlyArray<{
-  valore: FiltroTodo
-  testo: string
-  simbolo: NomeIcona
-  aiuto: string
-}> = [
-  {
-    valore: 'tutte',
-    testo: parole().tutte,
-    simbolo: 'spunta',
-    aiuto: t.tutteAiuto,
-  },
-  {
-    valore: 'mie',
-    testo: t.mie,
-    simbolo: 'utente',
-    aiuto: t.mieAiuto,
-  },
-  {
-    valore: 'classi',
-    testo: t.delleClassi,
-    simbolo: 'classi',
-    aiuto: t.delleClassiAiuto,
-  },
-]
 
 /**
  * I due modi di guardare le pendenze di una classe: i filtri della pagina
  * delle pendenze senza «delle classi», che qui sarebbe la classe stessa.
  */
-export const FILTRI_TODO_CLASSE: ReadonlyArray<{
-  valore: 'tutte' | 'mie'
-  testo: string
-  simbolo: NomeIcona
-  aiuto: string
-}> = [
-  {
-    valore: 'tutte',
-    testo: t.tutteLeConsegne,
-    simbolo: 'spunta',
-    aiuto: t.tutteLeConsegneAiuto,
-  },
-  {
-    valore: 'mie',
-    testo: t.consegnePersonali,
-    simbolo: 'utente',
-    aiuto: t.consegnePersonaliAiuto,
-  },
-]
 
 /** Una porzione detta a chi la deve mostrare: come si chiama e con che segno. */
 export interface Porzione {

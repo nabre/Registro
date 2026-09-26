@@ -43,12 +43,12 @@ describe('i conteggi che INDICE.md dichiara', () => {
     assert.equal(COMANDI.filter((c) => c.scorciatoia).length, 4)
   })
 
-  it('le destinazioni sono 19', () => {
+  it('le destinazioni sono 20', () => {
     const pagine = sorgente('src/ui/pages.ts')
     const inizio = pagine.indexOf('export const PAGINE')
     assert.ok(inizio >= 0, 'PAGINE non si chiama più così')
     const corpo = pagine.slice(inizio, pagine.indexOf('\n]', inizio))
-    assert.equal((corpo.match(/^\s+id: '/gm) ?? []).length, 19)
+    assert.equal((corpo.match(/^\s+id: '/gm) ?? []).length, 20)
   })
 
   it('le viste sono 19', () => {
