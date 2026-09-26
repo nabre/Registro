@@ -1,0 +1,32 @@
+/*
+ * Il movimento del pannello: solo l'entrata di una pagina quando cambia.
+ * Con «riduci movimento» di Windows non si muove niente.
+ */
+
+/*
+ * L'entrata di una pagina: quattro pixel dal basso e dissolvenza.
+ *
+ * `data-entrata` lo mette `segnaEntrata` in `main.ts` solo quando la pagina
+ * cambia: l'albero si ridisegna a ogni tic, e un'animazione fissa sulla
+ * `.vista` ripartirebbe ogni volta. `--entrata-passata` (negativo) è il tempo
+ * già trascorso, così un ridisegno a metà riprende da dove era arrivato.
+ *
+ * `backwards` e non `both`: una `transform` rimasta sulla `.vista` diventa il
+ * riferimento dei `position: fixed` interni (menu, suggerimenti) e li sposta.
+ */
+@keyframes entrata-pagina {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.contenuto[data-entrata] > .vista {
+  animation: entrata-pagina var(--durata) var(--curva-entra) var(--entrata-passata, 0ms) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contenuto[data-entrata] > .vista {
+    animation: none;
+  }
+}

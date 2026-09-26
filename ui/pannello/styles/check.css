@@ -1,0 +1,201 @@
+/* ------------------------------------------------------------------ check */
+
+/*
+ * La lista di controllo del corso: persone in riga, colonne in colonna, una
+ * casella per incrocio.
+ *
+ * Stessa forma della matrice del comportamento: scorre di lato e il nome resta
+ * fermo. La casella ha due stati, e quando è fatta dice il giorno.
+ */
+.check__telaio { overflow-x: auto; }
+
+.check {
+  /* Larga quanto le sue colonne: stirata, il nome finirebbe lontano dalle caselle. */
+  width: max-content;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.check th,
+.check td {
+  padding: 2px var(--spazio-1);
+  border-bottom: 1px solid var(--bordo-tenue);
+  text-align: center;
+}
+
+/* Le testate restano in cima; sono pulsanti e aprono il menu della colonna anche da tastiera. */
+.check__colonna,
+.check__angolo {
+  position: sticky;
+  top: 0;
+  z-index: var(--piano-incollato);
+  background: var(--sfondo-alto);
+  vertical-align: bottom;
+}
+
+.check .check__angolo {
+  left: 0;
+  z-index: var(--piano-incollato-2);
+  text-align: left;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: var(--testo-quieto);
+}
+
+.check__testata {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: 8rem;
+  padding: var(--spazio-1);
+  border: 1px solid transparent;
+  border-radius: var(--raggio-grande);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.check__testata:hover {
+  border-color: var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+}
+
+.check__titolo {
+  font-size: 0.82em;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
+}
+
+/* Quanti l'hanno fatta, fra chi frequenta: piccolo, in cifre allineate. */
+.check__conto {
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+}
+
+.check__conto--pieno { color: var(--positivo); font-weight: 600; }
+
+/* Il nome non scorre. Il doppio nome pesa quanto `.check th`, che lo centrerebbe. */
+.check .check__chi {
+  position: sticky;
+  left: 0;
+  z-index: var(--piano-incollato);
+  min-width: 9rem;
+  padding-right: var(--spazio-2);
+  background: var(--sfondo-alto);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Chi non frequenta più resta solo per le spunte che ha, sotto tono. */
+.check__riga--ritirata .check__chi { color: var(--testo-quieto); font-weight: 400; }
+
+.check__nota {
+  display: block;
+  font-size: 0.78em;
+  font-weight: 400;
+  color: var(--testo-quieto);
+}
+
+/*
+ * La casella: vuota quasi invisibile, come nella matrice; fatta prende il
+ * verde e dice il giorno in cifre corte.
+ */
+.casella-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 26px;
+  padding: 0 var(--spazio-1);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.casella-check:hover { border-color: var(--bordo); background: var(--sfondo-alto-2); }
+
+.casella-check .icona { width: 16px; height: 16px; }
+
+.casella-check--fatta {
+  border-color: color-mix(in srgb, var(--positivo) 55%, transparent);
+  background: color-mix(in srgb, var(--positivo) 14%, transparent);
+  color: var(--su-velo-positivo);
+}
+
+.casella-check--fatta:hover {
+  background: color-mix(in srgb, var(--positivo) 22%, transparent);
+}
+
+/* Dentro un'ora, la spunta di un altro giorno: bordo tratteggiato. */
+.casella-check--altrove {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--positivo) 7%, transparent);
+}
+
+/* Spuntata in un altro giorno: il clic sinistro non fa niente, c'è il menu. */
+.casella-check--ferma { cursor: context-menu; }
+
+/* Nell'ora, un corso senza colonne: una riga sola, non una scheda vuota. */
+.check-assente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin: var(--spazio-2) 0;
+  font-size: 0.9em;
+}
+
+/* La finestra delle colonne: una riga per colonna, con la presa e il cestino. */
+.colonne-check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.colonne-check__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.colonne-check__titolo { flex: 1; min-width: 0; }
+
+/*
+ * Il check nella scheda della persona: una riga per colonna, la casella a
+ * sinistra — la stessa della griglia — poi il nome della colonna e, per
+ * intero, quando e come è stata spuntata.
+ */
+.check-allievo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--spazio-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.check-allievo__voce {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.check-allievo__titolo { font-weight: 500; overflow-wrap: anywhere; }
+
+.check-allievo__quando { font-size: 0.85em; text-align: right; }

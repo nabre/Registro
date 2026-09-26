@@ -1,0 +1,60 @@
+/* Le riconsegne: le prove svolte che sono ancora in mano a chi insegna. */
+
+/*
+ * Stessa forma dei recuperi e delle consegne (filo a sinistra, testata con
+ * pastiglie, riga quieta sotto): nel todo stanno insieme e si leggono allo
+ * stesso modo, come debiti aperti che nessun automatismo chiude.
+ *
+ * Il filo: arancione da correggere, azzurro corretta e da restituire, verde
+ * restituita. Rosso solo per una prova ferma da più di due settimane.
+ */
+
+.riconsegna--da-correggere { border-left-color: var(--attenzione); }
+.riconsegna--da-riconsegnare { border-left-color: var(--informativo); }
+.riconsegna--riconsegnata { border-left-color: var(--positivo); opacity: 0.75; }
+
+/* Il ritardo vince sullo stato. */
+.riconsegna--tardi { border-left-color: var(--negativo); }
+
+/* Il titolo porta alla griglia dei voti, dove il lavoro si fa. */
+.riconsegna__prova {
+  flex: 1;
+  min-width: 8.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.riconsegna__prova:hover { color: var(--accento); text-decoration: underline; }
+
+.riconsegna__tardi { color: var(--negativo); font-weight: 600; }
+
+/* Le richieste di firma delle assenze: stessa forma delle riconsegne. Il filo
+   dice a che punto sta: da spedire (tocca a chi guarda) o in attesa (tocca all'azienda). */
+.richiesta--da-spedire { border-left-color: var(--attenzione); }
+.richiesta--in-attesa { border-left-color: var(--informativo); }
+.richiesta--firmato { border-left-color: var(--positivo); opacity: 0.75; }
+
+/* Una mail non partita vince sullo stato: di solito è un indirizzo sbagliato. */
+.richiesta--tardi { border-left-color: var(--negativo); }
+
+/* Il nome porta alla matrice del periodo, dove si carica il foglio firmato. */
+.richiesta__allievo {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.richiesta__allievo:hover { text-decoration: underline; }
+.richiesta__dove { flex: 1; min-width: 7.5rem; font-size: 0.9em; }
+.richiesta__guasto { margin: 0; font-size: 0.9em; }

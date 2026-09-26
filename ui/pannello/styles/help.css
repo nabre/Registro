@@ -1,0 +1,837 @@
+/* ------------------------------------------------------------------ guida */
+
+/*
+ * La guida: in cima il benvenuto, poi la ricerca, sotto le sezioni a sinistra
+ * e l'indice a destra, negli stessi gruppi della barra laterale.
+ *
+ * L'indice scorre alla sezione invece di aprirla e chiuderla: non si perde il punto.
+ */
+
+/* ------------------------------------------------------------- benvenuto */
+
+/*
+ * Una fascia sola, con l'accento appena accennato. La ricerca sta subito sotto,
+ * nella sua fascia appiccicata (`.guida__barra-cerca`).
+ */
+.vista--guida {
+  /* Quanto è alta la fascia della ricerca: la scavalcano l'indice e i salti. */
+  --guida-cerca-alto: calc(2.25rem + 2 * var(--spazio-2));
+}
+
+.guida__benvenuto {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'testo'
+    'scorciatoie';
+  gap: var(--spazio-2) var(--spazio-4);
+  align-items: center;
+  /* Niente margine sotto: la distanza la dà il `gap` della `.vista`, e si sommerebbe. */
+  margin-bottom: 0;
+  padding: var(--spazio-4);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background:
+    linear-gradient(
+      135deg,
+      var(--velo-accento) 0%,
+      color-mix(in srgb, var(--velo-accento) 35%, transparent) 55%,
+      transparent 100%
+    ),
+    var(--sfondo-alto);
+}
+
+.guida__benvenuto-testo { grid-area: testo; }
+
+.guida__benvenuto-titolo {
+  margin: 0 0 var(--spazio-1);
+  font-size: 1.15em;
+  color: var(--testo);
+}
+
+.guida__benvenuto-testo p {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--testo-quieto);
+}
+
+.guida__benvenuto-scorciatoie {
+  grid-area: scorciatoie;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+/*
+ * La ricerca resta in cima mentre si scorre, con il fondo pieno della pagina.
+ * Il margine negativo in alto la porta al bordo della scatola che scorre,
+ * oltre il `padding` del contenuto.
+ */
+.guida__barra-cerca {
+  position: sticky;
+  top: calc(-1 * var(--margine-pagina));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  min-height: var(--guida-cerca-alto);
+  /* Come sopra: sotto basta il `gap` della `.vista`. L'aggancio dipende solo da `top`. */
+  margin-bottom: 0;
+  background: var(--sfondo);
+}
+
+.guida__cerca {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.guida__cerca > .icona {
+  position: absolute;
+  left: var(--spazio-2);
+  color: var(--testo-quieto);
+  pointer-events: none;
+}
+
+.guida__cerca input {
+  width: 100%;
+  padding-left: calc(var(--spazio-2) * 2 + 1em);
+}
+
+/* ---------------------------------------------------------------- indice */
+
+/* Il testo a sinistra, l'indice a destra: vedi `vistaGuida`. */
+.colonne--guida { grid-template-columns: minmax(0, 1fr) 16rem; }
+
+.guida__indice {
+  position: sticky;
+  /* Sotto la ricerca appiccicata, non dietro. */
+  top: calc(var(--guida-cerca-alto) - var(--margine-pagina) + var(--spazio-2));
+  align-self: start;
+  max-height: calc(100vh - 8rem - var(--guida-cerca-alto));
+  padding: var(--spazio-3) var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.guida__indice-testa {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  padding: 0 var(--spazio-2) var(--spazio-2);
+  border-bottom: 1px solid var(--bordo-tenue);
+  font-weight: 600;
+  color: var(--testo);
+}
+
+.guida__indice-testa > .icona { color: var(--accento); }
+
+.guida__indice-titolo {
+  margin: 0 0 var(--spazio-1);
+  padding: 0 var(--spazio-2);
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+}
+
+.guida__indice-voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.guida__indice-voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: 4px var(--spazio-2);
+  border: 0;
+  border-radius: var(--raggio);
+  background: none;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.9em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guida__indice-voce:hover,
+.guida__indice-voce:focus-visible {
+  background: var(--velo-sfiorato);
+  color: var(--testo);
+}
+
+/* La sezione che si sta leggendo: l'indice la segue mentre si scorre. */
+.guida__indice-voce--qui,
+.guida__indice-voce--qui:hover {
+  background: var(--velo-scelto);
+  color: var(--accento);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accento);
+}
+
+/* Le sezioni con figure hanno una piccola immagine nell'indice. */
+.guida__indice-figure { display: inline-flex; opacity: 0.55; }
+.guida__indice-figure > .icona { width: 0.95em; height: 0.95em; }
+
+.guida__indice-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Quante voci ha la sezione, o quante rispondono alla ricerca. */
+.guida__indice-conto {
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------------- sezioni */
+
+.guida__parte + .guida__parte { margin-top: var(--spazio-4); }
+
+/*
+ * Il nome del gruppo sopra le sue sezioni, lo stesso dell'indice e della barra
+ * laterale: la guida insegna anche dove stanno le cose.
+ */
+.guida__parte-titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0 0 var(--spazio-2);
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accento);
+}
+
+.guida__parte-titolo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bordo-tenue);
+}
+
+.guida__ancora {
+  /* Lo spazio che la ricerca appiccicata coprirebbe. */
+  scroll-margin-top: calc(var(--guida-cerca-alto) + var(--spazio-3));
+}
+
+.guida__sezione { margin-bottom: var(--spazio-3); }
+
+/*
+ * L'icona della sezione, accanto al titolo: la stessa dell'indice, in un tondo d'accento.
+ */
+.guida__sezione-simbolo {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--velo-accento);
+  color: var(--accento);
+}
+
+.guida__sezione .scheda__titoli { flex: 1; min-width: 0; }
+
+.guida__sezione--passi { border-left: 3px solid var(--accento); }
+
+.guida__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/*
+ * Il gesto e la spiegazione in due colonne: i nomi incolonnati a sinistra si
+ * trovano scorrendo senza leggere il resto.
+ */
+.guida__voce {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--spazio-3);
+  align-items: baseline;
+}
+
+.guida__capo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spazio-1) var(--spazio-2);
+}
+
+.guida__termine { color: var(--testo); }
+
+/* Il numero di un passo: un tondo pieno, i passi si fanno in ordine. */
+.guida__numero {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-size: 0.8em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * La spiegazione ha una misura massima, perché oltre le settanta-ottanta
+ * battute l'occhio sbaglia riga. In `ch`, così resta in battute anche con il
+ * testo più grande.
+ */
+.guida__testo {
+  color: var(--testo-quieto);
+  max-width: 76ch;
+}
+
+/* Il nome di un pulsante, dentro la spiegazione: si trova scorrendo. */
+.guida__testo strong { color: var(--testo); font-weight: 600; }
+
+.guida__codice {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--velo-quieto);
+  color: var(--testo);
+  font-family: var(--carattere-mono);
+  font-size: 0.88em;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- tasti */
+
+.guida__tasti {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.guida__combinazione {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.guida__tasti kbd {
+  min-width: 1.6em;
+  padding: 1px 6px;
+  border: 1px solid var(--bordo);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  font-family: inherit;
+  font-size: 0.78em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.guida__tasti-o { color: var(--testo-quieto); font-size: 0.8em; }
+
+/* ------------------------------------------------ ricerca e risposte */
+
+.guida__cerca-tasto {
+  position: absolute;
+  right: var(--spazio-2);
+  padding: 0 0.45em;
+  border: 1px solid var(--bordo);
+  border-bottom-width: 2px;
+  border-radius: var(--raggio-piccolo, 4px);
+  font-family: var(--carattere-mono);
+  font-size: 0.72em;
+  color: var(--testo-quieto);
+  pointer-events: none;
+}
+
+.guida__cerca input::-webkit-search-cancel-button { margin-right: 3.2em; }
+
+.guida__prova {
+  align-self: center;
+  margin-left: var(--spazio-2);
+  font-size: var(--corpo-piccolo);
+  color: var(--testo-quieto);
+}
+
+.guida__suggerimento {
+  padding: 0.15em 0.7em;
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio-pastiglia, 999px);
+  background: none;
+  color: var(--testo);
+  font: inherit;
+  font-size: var(--corpo-piccolo);
+  cursor: pointer;
+}
+
+.guida__suggerimento:hover { border-color: var(--accento); color: var(--accento); }
+.guida__suggerimento:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 1px; }
+
+/* «Stavi guardando…»: sotto la ricerca, a tutta larghezza. */
+.guida__provenienza {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: center;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo);
+}
+
+.guida__provenienza > .icona { color: var(--accento); }
+.guida__provenienza-testo { flex: 1 1 20rem; }
+.guida__provenienza-sommario { color: var(--testo-quieto); }
+
+/* Il segno sulle parole trovate: l'evidenziatore, tenue, in tutti e due i temi. */
+.guida__segno {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--attenzione) 28%, transparent);
+  color: inherit;
+}
+
+.guida__risposte {
+  margin-bottom: var(--spazio-4);
+  padding: var(--spazio-3);
+  border: 1px solid var(--accento);
+  border-radius: var(--raggio-grande);
+  background: var(--velo-accento);
+}
+
+.guida__risposte-titolo {
+  margin: 0 0 var(--spazio-2);
+  font-size: var(--corpo-piccolo);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accento);
+}
+
+.guida__risposte-elenco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guida__risposta {
+  display: flex;
+  gap: var(--spazio-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid transparent;
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guida__risposta:hover,
+.guida__risposta:focus-visible {
+  border-color: var(--accento);
+  outline: none;
+}
+
+.guida__risposta > .icona:last-child { flex: none; color: var(--testo-quieto); }
+.guida__risposta-simbolo { flex: none; display: inline-flex; color: var(--accento); }
+
+.guida__risposta-corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.guida__risposta-capo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--spazio-2);
+  align-items: baseline;
+}
+
+.guida__risposta-dove,
+.guida__risposta-testo { font-size: var(--corpo-piccolo); color: var(--testo-quieto); }
+
+.guida__vuoto-azioni { display: flex; flex-wrap: wrap; gap: var(--spazio-2); justify-content: center; }
+
+.guida__sezione-azioni { display: flex; gap: var(--spazio-2); align-items: center; }
+
+/* La sezione dopo, spinta a destra in fondo al piede. */
+.guida__vedi-dopo { margin-left: auto; }
+.guida__vedi-prima { color: var(--testo-quieto); }
+
+/*
+ * Il lampo: la voce o la sezione appena raggiunta si accende un attimo, così
+ * l'occhio sa dove posarsi. Con meno movimento è più breve.
+ */
+@keyframes guida-lampo {
+  0%, 30% { background-color: var(--velo-scelto); box-shadow: 0 0 0 4px var(--velo-scelto); }
+  100% { background-color: transparent; box-shadow: 0 0 0 4px transparent; }
+}
+
+.guida--lampo { animation: guida-lampo 1.6s ease-out; border-radius: var(--raggio); }
+
+@media (prefers-reduced-motion: reduce) {
+  .guida--lampo { animation-duration: 0.8s; }
+  .gd-bollino-gruppo circle,
+  .guida__legenda li,
+  .guida__figura-lente { transition: none; }
+}
+
+/* ------------------------------------------------------------ la lente */
+
+/*
+ * La figura ingrandita: un `<dialog>` quasi largo quanto la finestra, con le
+ * stesse classi del disegno piccolo e i colori del tema.
+ */
+.guida__lente {
+  width: min(64rem, calc(100vw - 4rem));
+  max-height: calc(100vh - 4rem);
+  padding: var(--spazio-4);
+  border: 1px solid var(--bordo-forte);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  overflow: auto;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
+}
+
+.guida__lente::backdrop { background: rgb(0 0 0 / 45%); }
+
+.guida__lente-testata {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: center;
+  margin-bottom: var(--spazio-3);
+}
+
+.guida__lente-sezione {
+  display: inline-flex;
+  flex: 1;
+  gap: var(--spazio-2);
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accento);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guida__lente-sezione:hover { text-decoration: underline; }
+
+.guida__lente-conto {
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+}
+
+.guida__lente-corpo { outline: none; }
+.guida__lente-corpo .guida__disegno { max-width: none; }
+.guida__lente .guida__legenda { margin-top: var(--spazio-3); }
+
+/* ------------------------------------------------------------- le figure */
+
+/*
+ * Gli schemi della guida: SVG scritto da `views/help/drawing.ts` con classi
+ * `gd-…` e senza colori. I colori stanno qui, con le variabili del tema.
+ *
+ * Prima la figura e poi le voci: si guarda dove, poi si legge come.
+ */
+.guida__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.guida__figure {
+  display: grid;
+  gap: var(--spazio-3);
+}
+
+.guida__figura {
+  position: relative;
+  margin: 0;
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--velo-quieto);
+}
+
+.guida__figura-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  cursor: zoom-in;
+}
+
+/* La lente in alto a destra: si vede al passaggio, e sempre con la tastiera. */
+.guida__figura-lente {
+  position: absolute;
+  top: var(--spazio-2);
+  right: var(--spazio-2);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--durata-svelta, 120ms) ease;
+}
+
+.guida__figura:hover .guida__figura-lente,
+.guida__figura-lente:focus-visible { opacity: 1; }
+.guida__figura-lente:hover { color: var(--accento); border-color: var(--accento); }
+.guida__figura-lente:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 1px; }
+
+.guida__disegno {
+  width: 100%;
+  max-width: 44rem;
+  height: auto;
+  overflow: visible;
+  font-family: var(--carattere);
+}
+
+/*
+ * La didascalia dice che cosa si guarda: corpo pieno, numero della figura in
+ * accento, un filo a sinistra che la lega al disegno.
+ */
+.guida__didascalia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--spazio-2);
+  align-items: baseline;
+  margin-top: var(--spazio-2);
+  padding: var(--spazio-1) 0 var(--spazio-1) var(--spazio-3);
+  border-left: 3px solid var(--accento);
+  color: var(--testo);
+  max-width: 78ch;
+}
+
+.guida__didascalia-numero {
+  flex: none;
+  font-size: var(--corpo-piccolo);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accento);
+}
+
+.guida__didascalia-testo { flex: 1 1 20rem; }
+
+.guida__legenda {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--spazio-1) var(--spazio-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--corpo-piccolo);
+}
+
+.guida__legenda li {
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: baseline;
+  padding: 2px var(--spazio-1);
+  border-radius: var(--raggio);
+  transition: background var(--durata-svelta, 120ms) ease;
+}
+
+.guida__legenda li:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 1px; }
+.guida__legenda li.guida__legenda-voce--accesa { background: var(--velo-scelto); }
+
+/* Il bollino acceso: più grande, con un alone. Si accende dalla legenda o passandoci sopra. */
+.gd-bollino-gruppo { cursor: help; }
+.gd-bollino-gruppo circle { transition: r var(--durata-svelta, 120ms) ease; }
+.gd-bollino-gruppo--acceso circle { r: 12px; stroke: var(--velo-scelto); stroke-width: 6; }
+
+.guida__legenda-numero {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+/* Le forme. `vector-effect` tiene le linee sottili anche quando lo schema si stringe. */
+.guida__disegno rect,
+.guida__disegno polyline,
+.guida__disegno line,
+.guida__disegno path,
+.guida__disegno circle { vector-effect: non-scaling-stroke; }
+
+.gd-telaio { fill: var(--sfondo); stroke: var(--bordo-forte); stroke-width: 1.2; }
+.gd-zona { stroke: none; }
+.gd-zona--quieto { fill: color-mix(in srgb, var(--testo) 6%, transparent); }
+.gd-zona--accento { fill: var(--velo-accento); }
+
+.gd-r { stroke-width: 1.2; }
+.gd-r--neutro { fill: var(--sfondo-alto); stroke: var(--bordo-forte); }
+.gd-r--quieto { fill: color-mix(in srgb, var(--testo) 5%, transparent); stroke: var(--bordo); }
+.gd-r--accento { fill: var(--velo-accento); stroke: var(--accento); }
+.gd-r--positivo { fill: color-mix(in srgb, var(--positivo) 14%, transparent); stroke: var(--positivo); }
+.gd-r--attenzione { fill: color-mix(in srgb, var(--attenzione) 14%, transparent); stroke: var(--attenzione); }
+.gd-r--negativo { fill: color-mix(in srgb, var(--negativo) 14%, transparent); stroke: var(--negativo); }
+.gd-r--informativo { fill: color-mix(in srgb, var(--informativo) 14%, transparent); stroke: var(--informativo); }
+.gd-r--tratteggio { stroke-dasharray: 5 4; }
+
+.gd-riga { fill: color-mix(in srgb, var(--testo) 16%, transparent); }
+
+.gd-f { fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.gd-f--tratteggio { stroke-dasharray: 5 4; }
+.gd-f--neutro, .gd-f--quieto { stroke: var(--testo-quieto); }
+.gd-punta--neutro, .gd-punta--quieto { fill: var(--testo-quieto); }
+
+.gd-icona { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gd-icona--neutro, .gd-icona--quieto { stroke: var(--testo); }
+
+/* I toni colorati, una riga per tono, per linee, punte e icone. */
+.gd-f--accento, .gd-icona--accento { stroke: var(--accento); }
+.gd-punta--accento { fill: var(--accento); }
+.gd-f--positivo, .gd-icona--positivo { stroke: var(--positivo); }
+.gd-punta--positivo { fill: var(--positivo); }
+.gd-f--attenzione, .gd-icona--attenzione { stroke: var(--attenzione); }
+.gd-punta--attenzione { fill: var(--attenzione); }
+.gd-f--negativo, .gd-icona--negativo { stroke: var(--negativo); }
+.gd-punta--negativo { fill: var(--negativo); }
+.gd-f--informativo, .gd-icona--informativo { stroke: var(--informativo); }
+.gd-punta--informativo { fill: var(--informativo); }
+
+.gd-t { fill: var(--testo); font-size: 12px; }
+.gd-t--titolo { font-size: 14px; }
+.gd-t--piccolo { font-size: 10.5px; }
+.gd-t--forte { font-weight: 600; }
+.gd-t--macchina { font-family: var(--carattere-mono); }
+.gd-t--quieto { fill: var(--testo-quieto); }
+.gd-t--accento { fill: var(--accento); }
+.gd-t--positivo { fill: var(--su-velo-positivo); }
+.gd-t--attenzione { fill: var(--su-velo-attenzione); }
+.gd-t--negativo { fill: var(--su-velo-negativo); }
+.gd-t--informativo { fill: var(--su-velo-informativo); }
+
+.gd-pastiglia { stroke: none; }
+.gd-pastiglia--neutro, .gd-pastiglia--quieto { fill: color-mix(in srgb, var(--testo) 8%, transparent); }
+.gd-pastiglia--accento { fill: var(--velo-accento); }
+.gd-pastiglia--positivo { fill: color-mix(in srgb, var(--positivo) 16%, transparent); }
+.gd-pastiglia--attenzione { fill: color-mix(in srgb, var(--attenzione) 16%, transparent); }
+.gd-pastiglia--negativo { fill: color-mix(in srgb, var(--negativo) 16%, transparent); }
+.gd-pastiglia--informativo { fill: color-mix(in srgb, var(--informativo) 16%, transparent); }
+
+.gd-tasto { fill: var(--sfondo-alto); stroke: var(--bordo-forte); stroke-width: 1; }
+
+.gd-bollino { fill: var(--accento); stroke: var(--sfondo); stroke-width: 2; }
+.gd-bollino-numero { fill: var(--su-tinta); font-size: 11px; font-weight: 700; }
+
+/* --------------------------------------------------------------- le note */
+
+/*
+ * Tre specie di nota, stesso disegno e un colore a testa: meccanismo
+ * informativo, consiglio in accento, attenzione. Il colore sta su bordo e
+ * icona, non sul fondo.
+ */
+.guida__note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.guida__nota {
+  --tinta-nota: var(--informativo);
+  display: flex;
+  gap: var(--spazio-2);
+  align-items: flex-start;
+  padding: var(--spazio-2) var(--spazio-3);
+  border-left: 3px solid var(--tinta-nota);
+  border-radius: var(--raggio-grande);
+  background: color-mix(in srgb, var(--tinta-nota) 7%, transparent);
+  max-width: 78ch;
+}
+
+.guida__nota > .icona { flex: none; margin-top: 0.15em; color: var(--tinta-nota); }
+.guida__nota--consiglio { --tinta-nota: var(--accento); }
+.guida__nota--attenzione { --tinta-nota: var(--attenzione); }
+
+.guida__nota-titolo {
+  display: block;
+  font-size: var(--corpo-piccolo);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+/* ----------------------------------------------------------- vedi anche */
+
+.guida__vedi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-2);
+  align-items: center;
+  padding-top: var(--spazio-2);
+  border-top: 1px solid var(--bordo-tenue);
+  font-size: var(--corpo-piccolo);
+}
+
+.guida__vedi-titolo { color: var(--testo-quieto); }
+
+.guida__vedi-voce {
+  display: inline-flex;
+  gap: var(--spazio-1);
+  align-items: center;
+  padding: 0.15em 0.6em;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-pastiglia, 999px);
+  background: none;
+  color: var(--accento);
+  font: inherit;
+  cursor: pointer;
+}
+
+.guida__vedi-voce:hover { background: var(--velo-sfiorato); }
+.guida__vedi-voce:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 1px; }
+.guida__vedi-voce > .icona { width: 1em; height: 1em; }
+
+@media (max-width: 68.75em) {
+  .colonne--guida { grid-template-columns: minmax(0, 1fr); }
+  /* Stretta, l'indice torna sopra il testo. */
+  .guida__indice { position: static; max-height: none; order: -1; }
+  .guida__voce { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

@@ -1,0 +1,15 @@
+/*
+ * Il foglio della finestra staccata dell'assistente: solo quel che una
+ * conversazione usa (colori, fondamenta, controlli, «i», contenitori,
+ * assistente), senza le pagine del registro. Come `styles/projection.css`.
+ * `theme.css` e `metrics.css` per primi: definiscono i token.
+ */
+
+@import './styles/theme.css';
+@import './styles/metrics.css';
+@import './styles/foundations.css';
+@import './styles/controls.css';
+/* La «i» sotto la casella, che `chat.ts` usa per dire come si chiede. */
+@import './styles/hint.css';
+@import './styles/containers.css';
+@import './styles/assistant.css';

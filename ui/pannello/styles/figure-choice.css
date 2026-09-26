@@ -1,0 +1,319 @@
+/*
+ * Le scelte con la figura, e le figure del tema e della lingua.
+ *
+ * Lo leggono il pannello (`styles.css`) e la finestra nativa delle impostazioni
+ * (`shell/pages/settings/settings.css`): usa solo i token di `theme.css` e le
+ * misure di `metrics.css`, nessuna classe del pannello.
+ */
+
+/* ------------------------------------------------------------- le schede */
+
+.scelta-figurata {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--spazio-3);
+  max-width: 42rem;
+}
+
+/* Un pulsante che non sembra un pulsante: la figura con sotto le parole, il
+   bordo dice che si preme. Ogni proprietà è per esteso perché nella finestra
+   nativa `button` ha un aspetto suo. */
+.scelta-figurata__voce {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spazio-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--spazio-2) var(--spazio-2) var(--spazio-3);
+  font: inherit;
+  text-align: left;
+  color: var(--testo);
+  background: var(--sfondo-alto);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  cursor: pointer;
+}
+.scelta-figurata__voce:hover {
+  border-color: var(--bordo-forte);
+}
+
+/* La scelta attiva: bordo e velo dell'accento, pallino pieno. Il bordo si
+   ispessisce con un'ombra interna: `border-width` sposterebbe il contenuto. */
+.scelta-figurata__voce[aria-checked='true'] {
+  background: var(--velo-scelto);
+  border-color: var(--accento);
+  box-shadow: inset 0 0 0 1px var(--accento);
+}
+
+.scelta-figurata--spenta .scelta-figurata__voce {
+  opacity: 0.55;
+  cursor: default;
+}
+.scelta-figurata--spenta .scelta-figurata__voce:hover {
+  border-color: var(--bordo);
+}
+
+.scelta-figurata__figura {
+  display: block;
+}
+
+.scelta-figurata__nome {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  font-weight: 600;
+}
+
+/* Il pallino del radio: dice «una fra queste». */
+.scelta-figurata__segno {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1.5px solid var(--bordo-forte);
+  border-radius: 50%;
+  background: var(--campo-sfondo);
+}
+.scelta-figurata__voce[aria-checked='true'] .scelta-figurata__segno {
+  border-color: var(--accento);
+  background: radial-gradient(circle, var(--accento) 0 40%, var(--campo-sfondo) 45%);
+}
+
+.scelta-figurata__aiuto {
+  color: var(--testo-quieto);
+  font-size: 0.92em;
+  line-height: 1.4;
+}
+
+.scelta-figurata__nota {
+  color: var(--accento);
+  font-size: 0.92em;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------ la figura del tema
+ *
+ * Il registro in piccolo. I colori vengono da `data-tema-figura`, che in fondo
+ * a `theme.css` ridefinisce i token per la miniatura: qui si usano solo quelli,
+ * perché un token non ridefinito varrebbe quello del tema di fuori. Misure in
+ * pixel: la figura è un disegno e non cresce con il testo. */
+
+.figura-tema,
+.figura-tema-divisa {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+}
+
+.figura-tema {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--sfondo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-piccolo);
+}
+
+.figura-tema__barra {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 14px;
+  padding: 0 6px;
+  background: var(--sfondo-alto);
+  border-bottom: 1px solid var(--bordo);
+}
+.figura-tema__marchio {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--accento);
+}
+.figura-tema__titolo {
+  width: 32%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--testo-quieto);
+  opacity: 0.5;
+}
+
+.figura-tema__corpo {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.figura-tema__lato {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 7px;
+  width: 28%;
+  padding: 8px 6px;
+  background: var(--sfondo-alto);
+  border-right: 1px solid var(--bordo);
+}
+.figura-tema__voce {
+  width: 80%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--testo-quieto);
+  opacity: 0.45;
+}
+.figura-tema__voce:nth-child(3) { width: 62%; }
+.figura-tema__voce:nth-child(4) { width: 70%; }
+.figura-tema__voce--scelta {
+  width: 90%;
+  background: var(--accento);
+  opacity: 1;
+}
+
+.figura-tema__pagina {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+}
+.figura-tema__titoletto {
+  flex: none;
+  width: 45%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--testo);
+}
+/* La scheda usa `--sfondo-scheda`, come le schede vere; il raggio è in scala. */
+.figura-tema__scheda {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  background: var(--sfondo-scheda);
+  border: 1px solid var(--bordo);
+  border-radius: 4px;
+}
+.figura-tema__riga {
+  width: 88%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--testo-quieto);
+  opacity: 0.4;
+}
+.figura-tema__riga:nth-child(2) { width: 70%; }
+.figura-tema__riga:nth-child(3) { width: 78%; }
+.figura-tema__pulsante {
+  flex: none;
+  align-self: flex-end;
+  width: 28%;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--primario);
+}
+
+/* «Sistema»: le due miniature sovrapposte, la scura tagliata lungo la diagonale. */
+.figura-tema-divisa {
+  position: relative;
+}
+.figura-tema-divisa > .figura-tema {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+.figura-tema-divisa > .figura-tema + .figura-tema {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* ----------------------------------------------------- la figura della lingua
+ *
+ * La bandiera (`src/i18n/flags.ts`) in un riquadro 3:2 con la sigla in un
+ * angolo. Schede più strette di quelle del tema, per stare tutte su una riga. */
+
+.scelta-figurata:has(.figura-lingua) {
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+}
+
+.figura-lingua {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--sfondo);
+  border-radius: var(--raggio-piccolo);
+}
+
+.figura-lingua .bandiera {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Il bordo sopra la bandiera: una fascia bianca sparirebbe sul bianco della
+   scheda. Un'ombra sul riquadro finirebbe sotto l'SVG. */
+.figura-lingua::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+  pointer-events: none;
+}
+
+.figura-lingua__sigla {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #fff;
+  background: rgb(0 0 0 / 0.62);
+  border-radius: 3px;
+}
+
+/* «Sistema»: le quattro bandiere in mosaico, un po' spente, con lo schermo in mezzo. */
+.figura-lingua__mosaico {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  background: var(--sfondo-alto);
+  opacity: 0.75;
+}
+.figura-lingua__mosaico > .bandiera {
+  position: static;
+  width: 100%;
+  height: 100%;
+}
+
+.figura-lingua__schermo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--testo);
+  background: var(--sfondo-alto);
+  border: 1px solid var(--bordo-forte);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.figura-lingua__schermo > svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* La scelta attiva: il mosaico torna pieno. */
+.scelta-figurata__voce[aria-checked='true'] .figura-lingua__mosaico {
+  opacity: 1;
+}

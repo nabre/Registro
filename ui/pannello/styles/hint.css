@@ -1,0 +1,79 @@
+/* ------------------------------------------------------------------ suggerimento */
+
+/*
+ * La «i» accanto al nome di una cosa, e la spiegazione dietro.
+ *
+ * Segno piccolo e grigio, acceso solo sotto il puntatore o ad aperto: in un
+ * modulo ce ne sono molti. L'area premibile resta di 24 pixel come i pulsanti nudi.
+ */
+
+.suggerimento {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 2px;
+  /* In un titolo in maiuscoletto la spaziatura sposterebbe l'icona dal suo quadrato. */
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: normal;
+}
+
+.suggerimento__segno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--dentro-nudo);
+  margin: calc(-1 * var(--dentro-nudo)) 0;
+  border: none;
+  border-radius: var(--raggio-pastiglia);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  line-height: 0;
+  cursor: help;
+  transition: color var(--durata-svelta) var(--curva), background var(--durata-svelta) var(--curva);
+}
+
+.suggerimento__segno:hover,
+.suggerimento__segno--aperto {
+  color: var(--accento);
+  background: var(--velo-sfiorato);
+}
+
+.suggerimento__fumetto {
+  position: fixed;
+  z-index: var(--piano-suggerimento);
+  max-width: min(22rem, calc(100vw - 16px));
+  /* Spiegazione lunga in finestra bassa: scorre dentro invece di uscire dal bordo. */
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  box-shadow: var(--ombra-2);
+  color: var(--testo);
+  font-size: var(--corpo-piccolo);
+  line-height: var(--interlinea);
+  font-weight: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  animation: suggerimento-entra var(--durata-svelta) var(--curva-entra);
+}
+
+@keyframes suggerimento-entra {
+  from { opacity: 0; transform: translateY(-2px); }
+}
+
+.suggerimento__fumetto--sopra { animation-name: suggerimento-entra-sopra; }
+
+@keyframes suggerimento-entra-sopra {
+  from { opacity: 0; transform: translateY(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggerimento__segno { transition: none; }
+  .suggerimento__fumetto { animation: none; }
+}

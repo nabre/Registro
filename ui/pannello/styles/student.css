@@ -1,0 +1,579 @@
+/* La scheda di un allievo, le sospensioni, le risorse dei piani. */
+
+/* ------------------------------------------------------------------ scheda allievo
+
+   Un diario: una riga per fatto, la data a sinistra come ancora dell'occhio.
+   Si legge ad alta voce con qualcuno davanti: righe alte, niente tabelle. */
+
+/* -------------------------------------------- le linguette della scheda
+
+   Tre linguette, una per domanda: chi è e dove sta, che cosa c'è da riscuotere,
+   come va nelle materie. Una per volta. */
+.scheda-persona { display: flex; flex-direction: column; gap: var(--spazio-4); }
+
+.scheda-persona__corpo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spazio-4);
+  align-items: start;
+}
+
+/* Perché una linguetta è mezza vuota, o del tutto. */
+.scheda-persona__nota { margin: 0; }
+
+@media (min-width: 70rem) {
+  .scheda-persona__corpo { grid-template-columns: 1fr 1fr; }
+  /* Un riquadro solo prende tutta la riga: l'anagrafica stretta a metà manderebbe a capo i recapiti. */
+  .scheda-persona__corpo > .scheda:only-child { grid-column: 1 / -1; }
+}
+
+/* Il quadro del periodo su tutta la riga: la matrice delle giornate è larga quanto le ore del periodo. */
+.scheda-persona__corpo > .scheda--intera { grid-column: 1 / -1; }
+/* ------------------------------------------------- persone in formazione
+
+   L'elenco a sinistra, la scheda di una persona a destra, con il nome in
+   cima: senza, non si saprebbe di chi sono i pannelli. */
+.persone__intestazione {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-3);
+  padding-bottom: var(--spazio-2);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.persone__intestazione h2 { margin: 0; font-size: 1.25em; }
+
+/* Accanto all'elenco i riquadri di una linguetta vanno in colonna. */
+.vista--persone .scheda-persona__corpo { grid-template-columns: 1fr; }
+
+@media (min-width: 96rem) {
+  .vista--persone .scheda-persona__corpo { grid-template-columns: 1fr 1fr; }
+}
+
+/* La classe come linguetta apribile: tutta la riga è il bersaglio, la freccia
+   dice il verso. Il conto resta a destra, aperta o chiusa. */
+.gruppo-classe {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--bordo);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gruppo-classe:hover { background: var(--sfondo-alto-2); }
+
+.gruppo-classe span:nth-of-type(1) { flex: 1; }
+
+.gruppo-classe__freccia {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--testo-quieto);
+}
+
+.elenco-persone { display: flex; flex-direction: column; }
+
+/* ------------------------------------------------------------------ anagrafica
+
+   I recapiti di una persona in due colonne: etichetta quieta e stretta, dato
+   in testo scuro. L'occhio scende sulla colonna di destra. */
+
+.anagrafica { flex: 1; min-width: 0; }
+
+.anagrafica__gruppo + .anagrafica__gruppo { margin-top: var(--spazio-3); }
+
+/* Il titolino del blocco: piccolo e maiuscoletto, un'etichetta di scaffale che
+   non compete con il nome della persona. */
+.anagrafica__titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin: 0 0 var(--spazio-1);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--bordo-tenue);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--testo-quieto);
+}
+
+.anagrafica__titolo svg { width: 14px; height: 14px; }
+
+.anagrafica__elenco { margin: 0; }
+
+/* Due colonne finché c'è spazio: i dati partono tutti dalla stessa verticale.
+   Stretta, l'etichetta passa sopra il dato. */
+.anagrafica__riga {
+  display: grid;
+  grid-template-columns: minmax(6rem, 11rem) 1fr;
+  gap: 0 var(--spazio-3);
+  align-items: baseline;
+  padding: 3px 0;
+}
+
+.anagrafica__riga + .anagrafica__riga { border-top: 1px solid var(--bordo-tenue); }
+
+@media (max-width: 34rem) {
+  .anagrafica__riga { grid-template-columns: 1fr; gap: 0; }
+}
+
+.anagrafica__etichetta {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+}
+
+.anagrafica__valore { margin: 0; min-width: 0; }
+
+/* Il dato e il tasto di copia sulla stessa riga: il tasto compare avvicinandosi,
+   e resta visibile con il fuoco da tastiera. */
+.anagrafica__dato {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+
+.anagrafica__testo { min-width: 0; overflow-wrap: anywhere; }
+
+.anagrafica__copia {
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--durata-svelta) var(--curva);
+}
+
+.anagrafica__riga:hover .anagrafica__copia,
+.anagrafica__copia:focus-visible { opacity: 1; }
+
+@media (hover: none) {
+  .anagrafica__copia { opacity: 1; }
+}
+
+/* Con meno movimento il tasto di copia appare, non sfuma. */
+@media (prefers-reduced-motion: reduce) {
+  .anagrafica__copia { transition: none; }
+}
+
+/* L'indirizzo su due righe, come su una busta: via sopra, NAP e località sotto. */
+.indirizzo { display: flex; flex-direction: column; }
+
+.indirizzo__citta { font-variant-numeric: tabular-nums; }
+
+/* Sotto il dato: gli anni, le coordinate, una pastiglia. */
+.anagrafica__coda {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  font-size: 0.9em;
+}
+
+/* Quel che manca, in fondo e sottovoce: un promemoria, non un errore. */
+.anagrafica__mancano {
+  margin: var(--spazio-3) 0 0;
+  font-size: 0.85em;
+}
+
+.anagrafica p { margin: 0 0 var(--spazio-1); }
+
+/* ----------------------------------------------------- matrice delle presenze
+ *
+ * Una giornata per riga con la sua data, un'unità didattica per casella con la
+ * sua sigla. Le colonne sono le ore della giornata, incolonnate riga dopo riga:
+ * si vede come sono distribuite le assenze, non solo quante.
+ *
+ * Sigla e colore insieme: il colore dice la gravità da lontano, la sigla
+ * precisa che cosa. Sono le sigle dell'appello e del verbale stampato.
+ */
+
+.matrice-presenze { margin-top: var(--spazio-4); }
+
+/* Se le colonne non ci stanno scorre la matrice, non la pagina. */
+.matrice-presenze__telaio { overflow-x: auto; margin-top: var(--spazio-2); }
+
+.matrice-presenze__tabella {
+  border-collapse: separate;
+  /* Caselle staccate: un reticolo continuo sembrerebbe una tabella da compilare. */
+  border-spacing: 2px;
+}
+
+.matrice-presenze__angolo,
+.matrice-presenze__ora,
+.matrice-presenze thead .matrice-presenze__materie {
+  font-size: 0.72em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
+  padding: 0 0 var(--spazio-1);
+}
+
+.matrice-presenze__angolo { text-align: left; padding-right: var(--spazio-2); }
+
+/* L'ora d'inizio in testa alla colonna: cifre tabulari, niente maiuscoletto. */
+.matrice-presenze__ora {
+  text-transform: none;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+/* Il giorno a sinistra: nome corto e data, cifre tabulari perché le date non ballino. */
+.matrice-presenze__giorno {
+  display: flex;
+  gap: var(--spazio-1);
+  align-items: baseline;
+  font-size: 0.76em;
+  font-weight: 400;
+  color: var(--testo-quieto);
+  text-align: left;
+  padding-right: var(--spazio-2);
+  white-space: nowrap;
+}
+
+.matrice-presenze__nome-giorno { min-width: 2.2em; }
+.matrice-presenze__data { font-variant-numeric: tabular-nums; color: var(--testo); }
+
+/* La giornata storta si segna anche sulla data: si trova scorrendo le date. */
+.matrice-presenze__riga--storta .matrice-presenze__data { font-weight: 600; }
+
+/* Un filo sopra la prima riga di ogni settimana, per contare le settimane a colpo d'occhio. */
+.matrice-presenze__riga--settimana > * { border-top: 1px solid var(--bordo-tenue); }
+
+.matrice-presenze__cella { padding: 0; }
+
+.matrice-presenze__segno {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 20px;
+  border: 1px solid transparent;
+  border-radius: var(--raggio-piccolo);
+  background: transparent;
+  font: inherit;
+  font-size: 0.72em;
+  font-weight: 600;
+  color: var(--testo);
+}
+
+button.matrice-presenze__segno { cursor: pointer; }
+button.matrice-presenze__segno:hover { outline: 2px solid var(--bordo); outline-offset: 1px; }
+
+/* Le ore che quel giorno non c'erano: niente, nemmeno un bordo, o sembrerebbero da riempire. */
+.matrice-presenze__segno--niente { background: none; }
+
+/* Assente: l'unico pieno della matrice, deve saltare all'occhio. */
+.matrice-presenze__segno--assente {
+  background: var(--negativo);
+  color: var(--sfondo);
+}
+
+.matrice-presenze__segno--ritardo {
+  background: color-mix(in srgb, var(--attenzione) 45%, transparent);
+}
+
+.matrice-presenze__segno--esonerato {
+  background: color-mix(in srgb, var(--informativo) 20%, transparent);
+}
+
+/* Presente: quasi niente. È la norma, e l'eccezione deve vedersi. */
+.matrice-presenze__segno--presente {
+  background: color-mix(in srgb, var(--testo) 6%, transparent);
+  color: var(--testo-quieto);
+}
+
+/* Appello non fatto: tratteggio e non tinta. Né presenza né assenza, una domanda senza risposta. */
+.matrice-presenze__segno--non-impostato {
+  background: none;
+  border: 1px dashed var(--bordo);
+  color: var(--testo-quieto);
+}
+
+/* Le materie della giornata, a destra: dicono di che ora si parla, senza pesare quanto le caselle. */
+.matrice-presenze tbody .matrice-presenze__materie {
+  padding-left: var(--spazio-2);
+  font-size: 0.76em;
+  white-space: nowrap;
+}
+
+.legenda-presenze {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1) var(--spazio-3);
+  margin: var(--spazio-2) 0 0;
+  padding: 0;
+  font-size: 0.78em;
+  color: var(--testo-quieto);
+}
+
+.legenda-presenze li { display: flex; align-items: center; gap: var(--spazio-1); }
+
+.legenda-presenze__segno {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 0.72em;
+  font-weight: 600;
+}
+
+.diario {
+  list-style: none;
+  margin: var(--spazio-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diario__voce {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.diario__voce:hover { background: var(--velo-sfiorato); }
+
+/* La data non si muove: è la colonna su cui l'occhio scende. */
+.diario__quando {
+  flex: none;
+  min-width: 7em;
+  font-variant-numeric: tabular-nums;
+}
+
+.diario__cosa { flex: 1; min-width: 0; }
+.diario__nota { color: var(--testo-quieto); font-size: 0.9em; }
+
+/* ------------------------------------------------------- box di una materia
+
+   La linguetta «Materie» ha un box per materia, e dentro i riquadri degli
+   argomenti (presenze, valutazioni, osservazioni). Il bordo dei riquadri li
+   distingue senza titoli grossi. */
+
+.box-materia__temi { display: flex; flex-direction: column; gap: var(--spazio-3); }
+
+.riquadro-tema {
+  padding: var(--spazio-3);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo);
+}
+
+.riquadro-tema .diario { margin-top: var(--spazio-2); }
+/* Nel riquadro la sintesi incassata perde bordo e fondo: non è una scatola nella scatola. */
+.riquadro-tema .sintesi--incassata {
+  margin: var(--spazio-2) 0 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* La riga della nota: la pastiglia e, a destra, il conto dei voti. */
+.riquadro-tema__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: 0;
+}
+
+.riquadro-tema__riga .testo-quieto { margin-left: auto; }
+
+/* Un riquadro vuoto lo dice piano. */
+.riquadro-tema__niente { margin: var(--spazio-2) 0 0; }
+
+/* La matrice del comportamento nella scheda: quella del registro dell'ora
+   girata di novanta gradi, con le date al posto dei nomi. Le intestazioni
+   appiccicate sono su `--sfondo`, il fondo del riquadro che le contiene. */
+.riquadro-tema .matrice__telaio { margin-top: var(--spazio-2); }
+
+.riquadro-tema .matrice__aspetto,
+.riquadro-tema .matrice__chi { background: var(--sfondo); }
+
+/* La colonna delle date è più stretta di quella dei nomi: lo spazio va agli aspetti. */
+.riquadro-tema .matrice__chi { min-width: 6.5rem; }
+
+/* La riga dei totali, staccata da un filo: è la somma delle ore sopra. */
+.riquadro-tema tfoot .matrice__chi,
+.riquadro-tema tfoot td {
+  border-top: 1px solid var(--bordo);
+  font-weight: 600;
+}
+
+.matrice__conto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.matrice__conto--positivo { color: var(--positivo); }
+.matrice__conto--negativo { color: var(--negativo); }
+
+/* Il segno nell'elenco delle annotazioni non si allarga come nella matrice. */
+.riquadro-tema .cella-segno--ferma { flex: none; }
+
+/* ------------------------------------------------------------------ sospensioni
+
+   I giorni senza lezione di un anno: un elenco corto, sotto i semestri. */
+
+.sospensioni {
+  list-style: none;
+  margin: var(--spazio-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sospensione {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.sospensione:hover { background: var(--velo-sfiorato); }
+.sospensione strong { min-width: 12em; }
+.sospensione .testo-quieto { flex: 1; }
+
+/* ------------------------------------------------------------------ risorse dei piani
+
+   Un elenco di materiale: collegamenti, file, immagini. Le immagini hanno una
+   miniatura per ritrovarle; gli altri tipi si distinguono col simbolo. */
+
+.risorse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  margin-top: var(--spazio-2);
+}
+
+.risorse__elenco {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.risorse__azioni { display: flex; gap: var(--spazio-1); flex-wrap: wrap; }
+
+.risorsa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+.risorsa__simbolo {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--testo-quieto);
+}
+
+.risorsa--collegamento .risorsa__simbolo { color: var(--accento); }
+
+/* ------------------------------------------------------------------ ritratto
+
+   La foto con i comandi accanto. Verticale come le foto di classe: un
+   quadrato taglierebbe fronte o mento. */
+
+.ritratto { display: flex; align-items: flex-start; gap: var(--spazio-4); }
+
+/* Foto e comandi in una colonna; i recapiti crescono accanto e a schermo stretto passano sotto. */
+.ritratto__colonna { flex: none; display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.ritratto .anagrafica { min-width: 12rem; }
+
+@media (max-width: 40rem) {
+  .ritratto { flex-wrap: wrap; }
+}
+
+.ritratto__foto,
+.ritratto__vuoto {
+  flex: none;
+  width: 96px;
+  height: 128px;
+  border-radius: var(--raggio-grande);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+}
+
+.ritratto__foto { object-fit: cover; }
+
+.ritratto__vuoto { display: flex; align-items: center; justify-content: center; }
+
+.ritratto__simbolo { width: 32px; height: 32px; color: var(--testo-quieto); }
+
+.ritratto__comandi { display: flex; flex-direction: column; gap: var(--spazio-1); }
+
+/* La miniatura si apre cliccandola, come il titolo. */
+.risorsa__miniatura {
+  flex: none;
+  width: 56px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: var(--raggio-grande);
+  border: 1px solid var(--bordo-tenue);
+  background: var(--sfondo-alto-2);
+  cursor: pointer;
+}
+
+.risorsa__corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.risorsa__note { margin: 0; color: var(--testo-quieto); font-size: 0.92em; }
+
+/* L'indirizzo o il nome del file si taglia invece di allargare la colonna. */
+.risorsa__origine {
+  color: var(--testo-quieto);
+  font-size: 0.85em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* In aula: nessun pulsante, righe più fitte, bersagli comunque grandi. */
+.risorse__elenco--aula { margin-top: var(--spazio-2); }
+.risorse__elenco--aula .risorsa { padding: var(--spazio-1) var(--spazio-2); }
+.risorse__elenco--aula .risorsa__miniatura { width: 40px; height: 30px; }
+
+.piano-lezione__risorse { margin-top: var(--spazio-3); }
+.piano-lezione__risorse h5 {
+  margin: 0;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--testo-quieto);
+}
+
+/* Nella scaletta l'elenco si stringe: le risorse sono una postilla dell'attività. */
+.risorse--compatte { margin-top: var(--spazio-2); gap: var(--spazio-1); }
+.risorse--compatte .risorsa { padding: var(--spazio-1) var(--spazio-2); }
+.risorse--compatte .risorsa__miniatura { width: 40px; height: 30px; }
+.risorse--compatte .risorse__azioni { opacity: 0.55; }
+.scaletta__voce:hover .risorse--compatte .risorse__azioni { opacity: 1; }

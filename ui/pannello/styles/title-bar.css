@@ -1,0 +1,414 @@
+/*
+ * La barra del titolo che il registro si disegna da sé.
+ *
+ * A sinistra il segno del programma, il menu «File» e le frecce della storia;
+ * al centro il documento aperto; a destra la ricerca e, quando c'è, il filetto
+ * degli aggiornamenti. I pulsanti di sistema li mette il sistema operativo
+ * sopra la fascia, e il loro spazio lo dice Chromium.
+ *
+ * `--barra-titolo-alta` deve valere quanto `ALTEZZA_BARRA_TITOLO` in
+ * `environment/theme.ts`, che la dichiara a Electron: altrimenti i pulsanti di
+ * sistema non stanno in mezzo.
+ *
+ * `env(titlebar-area-*)` c'è su Windows e Linux e dice quale parte della barra
+ * resta al registro. Su macOS valgono i ripieghi, e lo spazio per i semafori
+ * lo fa la regola su `[data-sistema="darwin"]`.
+ */
+
+:root {
+  --barra-titolo-alta: 40px;
+  /* La larghezza della ricerca: serve anche al nome al centro, che si stringe
+     per non finirle sotto. Cambia con la finestra, vedi in fondo. */
+  --cerca-larga: 13rem;
+  /* Lo spazio dei tre semafori di macOS (3 × 12px, spazi, margine). Solo là, vedi in fondo. */
+  --semafori-larghi: 78px;
+}
+
+.barra-titolo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--barra-titolo-alta);
+  /* Non `padding` fisso: la barra va da dove finisce quel che il sistema prende
+     a sinistra a dove comincia quel che prende a destra. Con `titleBarOverlay`,
+     `titlebar-area-width` è già la larghezza che resta. */
+  /* A sinistra niente margine: il segno del programma ha già il suo, largo quanto la colonna delle icone. */
+  padding-left: env(titlebar-area-x, 0px);
+  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 8px);
+  background: var(--sfondo-alto);
+  border-bottom: 1px solid var(--bordo-tenue);
+  /* Sopra pagina e navigazione: i menu che si aprono da qui coprono quel che c'è sotto. */
+  z-index: 7;
+  /* Tutta la barra sposta la finestra, e il doppio clic la ingrandisce. I figli premibili se ne tolgono, qui sotto. */
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.barra-titolo__lato {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* I gruppi di sinistra e destra larghi uguali (`flex: 1`): il nome resta in mezzo alla barra. */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.barra-titolo__lato--destra { justify-content: flex-end; }
+
+/*
+ * Il segno del programma, sopra la colonna delle icone della barra laterale:
+ * largo quanto la colonna ridotta, così sta sopra le icone con la navigazione
+ * stretta o larga e l'interruttore dopo non si sposta. È l'icona della finestra.
+ */
+.barra-titolo__marchio {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--sidebar-stretta);
+  height: 100%;
+}
+
+/* Il logo a colori a 20 pixel, la misura della variante piccola. Il colore serve solo al segno di ripiego. */
+.barra-titolo__marchio-segno {
+  width: 20px;
+  height: 20px;
+  color: var(--accento);
+}
+
+/* La barra si trascina, quel che dentro si preme no: altrimenti un clic su «File» sposterebbe la finestra. */
+.barra-titolo button,
+.barra-titolo a,
+.barra-titolo input,
+.barra-titolo select { -webkit-app-region: no-drag; }
+
+/*
+ * La ricerca: una pastiglia che sembra un campo (bianca, filo tenue, tonda) con
+ * il tasto a destra. È un pulsante che apre la palette, e come ogni pulsante
+ * della barra si toglie dall'area di trascinamento.
+ */
+.barra-titolo__cerca {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: var(--cerca-larga);
+  height: 28px;
+  margin-left: var(--spazio-2);
+  padding: 0 4px 0 10px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-scheda, var(--sfondo));
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: var(--corpo-piccolo);
+  cursor: text;
+}
+
+.barra-titolo__cerca:hover {
+  border-color: var(--bordo);
+  color: var(--testo);
+}
+
+.barra-titolo__cerca:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 1px;
+}
+
+.barra-titolo__cerca > .icona { flex: none; }
+
+.barra-titolo__cerca-testo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-titolo__cerca-tasti {
+  flex: none;
+  display: inline-flex;
+  gap: 2px;
+}
+
+.barra-titolo__cerca kbd {
+  min-width: 1.5em;
+  padding: 0 4px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-piccolo);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  font-family: inherit;
+  font-size: 0.85em;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Col filetto degli aggiornamenti accanto la ricerca si riduce alla lente. */
+.barra-titolo__lato--destra:has(.filetto) .barra-titolo__cerca {
+  width: 28px;
+  justify-content: center;
+  padding: 0;
+}
+.barra-titolo__lato--destra:has(.filetto) .barra-titolo__cerca-testo,
+.barra-titolo__lato--destra:has(.filetto) .barra-titolo__cerca-tasti { display: none; }
+
+/*
+ * Il nome del documento, in mezzo davvero.
+ *
+ * `position: absolute`: in riga si sposterebbe ogni volta che a sinistra
+ * compare un pulsante. `pointer-events: none` lo lascia area di trascinamento.
+ *
+ * `--barra-titolo-riserva` è il più largo dei due lati; il nome sta nel mezzo
+ * meno due volte quella, così resta centrato e non copre niente. Il `100%`
+ * dentro si risolve sulla larghezza della barra, dove la si usa.
+ */
+.barra-titolo {
+  --barra-titolo-riserva: max(
+    calc(env(titlebar-area-x, 0px) + var(--sidebar-stretta, 3.75rem) + 9.5rem),
+    calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 8px + var(--cerca-larga) + var(--spazio-4))
+  );
+}
+:root[data-sistema="darwin"] .barra-titolo {
+  --barra-titolo-riserva: max(
+    calc(var(--semafori-larghi) + 9.5rem),
+    calc(8px + var(--cerca-larga) + var(--spazio-4))
+  );
+}
+
+.barra-titolo__nome {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* Più largo del solo nome: dietro c'è il percorso, che si accorcia da sé. */
+  max-width: min(46rem, calc(100% - 2 * var(--barra-titolo-riserva)));
+  padding: 0 8px;
+  font-size: .92em;
+  color: var(--testo-quieto);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.barra-titolo__nome > .icona { color: var(--accento); flex: none; }
+
+.barra-titolo__documento {
+  color: var(--testo);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Senza un anno aperto il nome dice che non c'è, e dove si apre: vuoto sembrerebbe un caricamento. */
+.barra-titolo__documento--vuoto { color: var(--testo-quieto); font-weight: 400; font-style: italic; }
+
+.barra-titolo__pagina {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ↶ ↷: due icone quiete come «File». Spente restano visibili, e il suggerimento dice perché. */
+.barra-titolo__storia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+.barra-titolo__storia:hover:not(:disabled) {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+.barra-titolo__storia:disabled {
+  opacity: .4;
+  cursor: default;
+}
+.barra-titolo__storia:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+/* Uno stacco fra «File» e le frecce: sono cose diverse. */
+.barra-titolo .barra-comandi__tendina + .barra-titolo__storia { margin-left: var(--spazio-1); }
+.barra-titolo .barra-comandi__tendina { min-height: 28px; }
+.barra-titolo .barra-comandi__programma { border-right: 0; border-radius: var(--raggio); padding: 6px 6px 6px 10px; }
+/* «File» senza icona davanti (il segno è accanto), con la freccia quieta. */
+.barra-titolo .barra-comandi__programma .icona { color: inherit; opacity: .7; }
+/* Aperto, il pulsante resta acceso sotto il suo menu. */
+.barra-titolo .barra-comandi__tendina[aria-expanded="true"] {
+  background: var(--sfondo-alto-2);
+  color: var(--testo);
+}
+
+/*
+ * macOS: i tre semafori stanno a sinistra, dentro la barra; lo spazio glielo
+ * fa la barra, perché `env(titlebar-area-x)` là non esiste.
+ *
+ * Niente segno del programma: su Mac la barra della finestra non ha l'icona, e
+ * sembrerebbe un quarto semaforo. L'interruttore comincia subito dopo.
+ */
+:root[data-sistema="darwin"] .barra-titolo { padding-left: var(--semafori-larghi); }
+:root[data-sistema="darwin"] .barra-titolo__marchio { display: none; }
+
+/*
+ * Il percorso, in coda al nome del documento: discreto, nel colore quieto.
+ * Solo l'ultimo anello prende il testo pieno, e il corso lo segue da vicino:
+ * è quel che si controlla prima di scrivere un voto.
+ */
+.percorso {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.percorso__passo {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.percorso__freccia {
+  flex: none;
+  padding: 0 6px;
+  opacity: .55;
+}
+
+.percorso__testo {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.percorso__passo--contesto .percorso__testo { color: var(--testo); opacity: .85; }
+.percorso__passo--qui .percorso__testo { color: var(--testo); font-weight: 500; }
+
+/* Chi cede per primo stringendo (i numeri sono un ordine): prima il corso, poi
+   dove si è; il nome del documento per ultimo. L'area e la scheda si dicono
+   solo a voce (`ANELLI_SOLO_A_VOCE` in `breadcrumb.ts`). */
+.barra-titolo__documento { flex: 0 1 auto; min-width: 4em; }
+.percorso { flex: 0 50 auto; }
+.percorso__passo--contesto { flex: 0 40 auto; }
+.percorso__passo--pagina { flex: 0 20 auto; }
+.percorso__passo--elemento { flex: 0 10 auto; }
+.percorso__passo--qui { flex: 0 1 auto; }
+
+/*
+ * Finestra stretta: gli anelli se ne vanno per ruolo. Prima quel che la testata
+ * della pagina già dice; poi resta l'ultimo anello, e sotto i 40em nemmeno
+ * quello: il nome dell'anno non si trova altrove.
+ *
+ * La ricerca si stringe con loro: sotto gli 80em perde l'aria, sotto i 64em
+ * resta la lente.
+ */
+@media (max-width: 80em) {
+  :root { --cerca-larga: 9.5rem; }
+}
+
+@media (max-width: 64em) {
+  :root { --cerca-larga: 28px; }
+  .barra-titolo__cerca { justify-content: center; padding: 0; }
+  .barra-titolo__cerca-testo,
+  .barra-titolo__cerca-tasti { display: none; }
+}
+
+@media (max-width: 52em) {
+  .percorso__passo--elemento:not(.percorso__passo--qui),
+  .percorso__passo--contesto:not(.percorso__passo--qui) { display: none; }
+}
+
+@media (max-width: 46em) {
+  .percorso__passo:not(.percorso__passo--qui) { display: none; }
+}
+
+@media (max-width: 40em) {
+  .percorso { display: none; }
+  .barra-titolo__nome { max-width: 50%; }
+}
+
+/*
+ * Il filetto degli aggiornamenti, a destra, quando è uscita una versione nuova.
+ *
+ * Basso quanto i pulsanti della barra e senza cornice: velo del suo tono,
+ * segno colorato, due parole, il gesto e la ✕. Lo scarico lo dice un filo di
+ * due pixel sotto. Toni come nella sezione Aggiornamenti e nel benvenuto.
+ */
+.filetto {
+  --filetto-tono: var(--informativo);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  height: 28px;
+  padding: 0 2px 0 8px;
+  overflow: hidden;
+  border-radius: var(--raggio);
+  background: color-mix(in srgb, var(--filetto-tono) 10%, transparent);
+  font-size: var(--corpo-piccolo);
+}
+
+.filetto--positivo { --filetto-tono: var(--positivo); }
+.filetto--attenzione { --filetto-tono: var(--attenzione); }
+
+.filetto > .icona { color: var(--filetto-tono); }
+
+.filetto__testo,
+.filetto__chiudi {
+  min-width: 0;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  cursor: pointer;
+}
+
+.filetto__testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filetto__chiudi { display: inline-flex; color: var(--testo-quieto); }
+
+.filetto__testo:hover,
+.filetto__chiudi:hover { background: var(--velo-sfiorato); color: var(--testo); }
+
+.filetto__testo:focus-visible,
+.filetto__chiudi:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+
+/* Il gesto è un pulsante del registro, stretto alla misura della barra. */
+.filetto .pulsante { min-height: 22px; padding: 1px 8px; font-size: inherit; }
+
+.filetto__quota {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+}
+
+.filetto__quota > span {
+  display: block;
+  height: 100%;
+  background: var(--filetto-tono);
+  transition: width .25s linear;
+}
+
+/* Stretta, la barra tiene segno e gesto; le parole restano nel suggerimento. */
+@media (max-width: 52em) {
+  .filetto__testo { display: none; }
+}

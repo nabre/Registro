@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- L'icona del programma per le misure piccole, dalla 16 alla 48: la
+       spirale di `registro-app.svg` con i mesi raccolti in tre spicchi,
+       perché dieci stacchi a sedici pixel diventano un grigio. Le proporzioni
+       restano: sei decimi di bianco, il passato; un decimo di arancio, oggi;
+       tre decimi velati, quel che viene. La fascia cresce da 9,2 a 12 di
+       raggio in un giro, sopra un bordo interno di 4,5, con 12 gradi di vuoto
+       fra uno spicchio e l'altro. Il quadrato sta sulle unità pari del
+       reticolo da 32 — i pixel interi della 16, con uno di margine — e il
+       punto nel mezzo è largo due pixel esatti. -->
+  <defs>
+    <linearGradient id="fondo" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="30">
+      <stop offset="0" stop-color="#468515"/>
+      <stop offset="0.55" stop-color="#3d7a0c"/>
+      <stop offset="1" stop-color="#2f6108"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#fondo)"/>
+  <path fill="#ffffff" d="M16.97 6.8L17.61 6.86L18.25 6.97L18.89 7.12L19.51 7.31L20.12 7.55L20.72 7.83L21.29 8.15L21.85 8.52L22.37 8.92L22.88 9.36L23.35 9.84L23.78 10.35L24.18 10.89L24.55 11.45L24.87 12.05L25.16 12.67L25.4 13.31L25.59 13.96L25.74 14.63L25.84 15.31L25.9 16L25.91 16.69L25.87 17.39L25.77 18.08L25.64 18.76L25.45 19.44L25.21 20.1L24.93 20.75L24.61 21.38L24.24 21.98L23.82 22.56L23.37 23.11L22.87 23.63L22.34 24.12L21.78 24.57L21.18 24.98L20.56 25.35L19.91 25.67L19.23 25.95L18.54 26.18L17.83 26.36L17.1 26.5L16.37 26.58L15.63 26.61L14.89 26.59L14.15 26.52L13.41 26.39L12.68 26.21L11.97 25.99L11.26 25.71L10.58 25.38L13.75 19.9A4.5 4.5 0 1 0 16.47 11.52Z"/>
+  <path fill="#ff9a4d" d="M8.69 24.12L8.12 23.61L7.58 23.06L7.08 22.48L6.63 21.86L6.21 21.2L5.85 20.52L11.89 17.83A4.5 4.5 0 0 0 12.99 19.34Z"/>
+  <path fill="#ffffff" fill-opacity="0.32" d="M5.04 18.33L4.87 17.56L4.76 16.79L4.7 16L4.7 15.21L4.75 14.42L4.86 13.63L5.02 12.85L5.24 12.08L5.51 11.33L5.83 10.59L6.21 9.88L6.63 9.19L7.11 8.54L7.63 7.91L8.19 7.33L8.79 6.78L9.44 6.27L10.12 5.81L10.83 5.4L11.57 5.03L12.34 4.72L13.12 4.46L13.93 4.26L14.75 4.11L15.53 11.52A4.5 4.5 0 0 0 11.6 16.94Z"/>
+  <circle cx="16" cy="16" r="2" fill="#ffffff"/>
+</svg>

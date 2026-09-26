@@ -1,0 +1,498 @@
+/* Lo smistamento dei fogli in arrivo: la quarantena dei PDF di classe. */
+
+.smistamento {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  padding: var(--spazio-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/*
+ * La coda di lettura delle scansioni: una barra che scorre senza misurare,
+ * perché la durata dell'OCR non si sa. Dice che la macchina lavora, su che
+ * cosa, e permette di fermarla.
+ */
+.lavoro-ocr {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  padding: var(--spazio-2);
+  margin-bottom: var(--spazio-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.lavoro-ocr__testata {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+}
+
+.lavoro-ocr__ferma {
+  margin-left: auto;
+}
+
+.lavoro-ocr__coda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.barra-lavoro {
+  height: 4px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--sfondo-alto-2);
+  overflow: hidden;
+}
+
+.barra-lavoro span {
+  display: block;
+  height: 100%;
+  width: 35%;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--accento);
+  animation: scorre-lavoro 1.4s ease-in-out infinite;
+}
+
+@keyframes scorre-lavoro {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra-lavoro span { animation: none; width: 100%; opacity: 0.5; }
+}
+
+/* La matrice dei documenti respira più delle altre tabelle: le celle sono pulsanti da centrare col dito. */
+.tabella--documenti .tabella__cella { padding: 6px 8px; }
+.tabella--documenti .tabella__nome,
+.tabella--documenti .tabella__media { padding-top: 8px; padding-bottom: 8px; }
+.tabella--documenti tbody td { border-bottom: 1px solid var(--bordo-tenue); }
+
+/* La riga delle firme sta in cima e si stacca: riguarda tutta la colonna, non è un allievo. */
+.tabella__riga-firme td {
+  background: var(--sfondo-alto);
+  border-bottom: 2px solid var(--bordo);
+}
+
+.tabella__riga-firme .tabella__nome {
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+/* Il pulsante che spedisce una colonna intera, nella testata: non allarga la colonna oltre il titolo. */
+.tabella__spedisci {
+  margin-top: 2px;
+  font-size: 0.85em;
+  width: 100%;
+}
+
+/* Ogni casella ha due gesti, lo stato e il file: il file si vede meno, è un'aggiunta. */
+.cella-documento--file { color: var(--accento); }
+.cella-documento--senza-file { opacity: 0.45; }
+.cella-documento--senza-file:hover { opacity: 1; }
+
+/* Le pastiglie della distribuzione stanno insieme: dicono una cosa sola. */
+.consegna__distribuzione {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+}
+
+/* Nella scaletta della lezione i parametri sono una riga sola di lettura. */
+.scaletta__parametri {
+  margin: 2px 0 0;
+  font-size: 0.9em;
+}
+
+/* ------------------------------------------------ lo sfoglio delle pagine */
+
+/*
+ * Il PDF da dividere, guardato a pagine. Scorre dentro di sé, così la matrice
+ * a sinistra, su cui si lascia cadere, resta ferma.
+ */
+.sfoglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  flex: 1;
+  min-height: 0;
+}
+
+.sfoglio__testa {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  font-size: 0.9em;
+}
+
+.sfoglio__scelte {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Il cursore dello zoom in fondo alla testata, lontano dalla scelta: è un comando della vista. */
+.sfoglio__zoom-gruppo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  margin-left: auto;
+  color: var(--testo-quieto);
+}
+
+.sfoglio__zoom {
+  width: 8rem;
+  accent-color: var(--accento);
+}
+
+.sfoglio__pagine {
+  display: grid;
+  /* La misura vera la scrive la vista; questa vale per il primo fotogramma. */
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--spazio-2);
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/*
+ * Una pagina: la fotografia e sotto il numero con il nome che il registro ci
+ * legge. Il cursore è quello di una cosa che si prende.
+ */
+.pagina-sfoglio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-1);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  cursor: grab;
+  user-select: none;
+}
+
+.pagina-sfoglio:hover { border-color: var(--accento); }
+
+/* Scelta: bordo pieno dell'accento e alone, visibili con la coda dell'occhio. */
+.pagina-sfoglio--scelta {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accento) 45%, transparent);
+  background: color-mix(in srgb, var(--accento) 10%, transparent);
+}
+
+/* Già archiviata: resta al suo posto nell'ordine, spenta, e non si prende. */
+.pagina-sfoglio--archiviata {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.pagina-sfoglio--archiviata:hover { border-color: var(--bordo-tenue); }
+
+.pagina-sfoglio__foto {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1.414;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--sfondo);
+  /* Il riquadro del nome si misura su questa: a pagine piccole l'etichetta non ci sta. */
+  container-type: inline-size;
+  container-name: foglio;
+}
+
+.pagina-sfoglio__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Bianco anche nel tema scuro: una scansione si legge meglio su bianco, come il foglio vero. */
+  background: #fff;
+}
+
+/* Finché la fotografia non c'è: il numero grande. */
+.pagina-sfoglio__attesa {
+  font-size: 1.6em;
+  color: var(--testo-quieto);
+}
+
+.pagina-sfoglio__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-width: 0;
+  font-size: 0.82em;
+}
+
+.pagina-sfoglio__numero {
+  font-variant-numeric: tabular-nums;
+  color: var(--testo-quieto);
+  flex: none;
+}
+
+.pagina-sfoglio__riga .pastiglia {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La pagina che segue il puntatore trascinando: sta fuori vista finché il
+   browser non l'ha fotografata, poi sparisce. */
+.pagina-fantasma {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  width: 160px;
+  padding: var(--spazio-1);
+  border: 1px solid var(--accento);
+  border-radius: var(--raggio-grande);
+  background: #fff;
+  box-shadow: var(--ombra-2);
+}
+
+.pagina-fantasma img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Quante pagine si stanno trascinando. */
+.pagina-fantasma__conto {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: var(--raggio-pastiglia);
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Finché la fotografia non c'è dice che sta arrivando: un riquadro vuoto sembrerebbe una pagina bianca. */
+.pagina-sfoglio__nota {
+  font-size: 0.8em;
+  text-align: center;
+}
+
+/*
+ * Il punto in cui il nome è stato letto, e il nome scritto accanto. Contorno e
+ * velo, non un blocco: sotto c'è il nome vero da controllare.
+ */
+.pagina-sfoglio__nome {
+  position: absolute;
+  border: 1.5px solid var(--attenzione);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--attenzione) 18%, transparent);
+  pointer-events: none;
+}
+
+/*
+ * Il contorno dice chi ha letto. Dal testo del PDF: coordinate vere, contorno
+ * pieno. Dall'OCR: il modello dà parole e non posizioni, quindi tratteggio,
+ * «da questa parte» e non «qui».
+ */
+.pagina-sfoglio__nome--testo {
+  border-style: solid;
+  border-color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 16%, transparent);
+}
+
+.pagina-sfoglio__nome--ocr {
+  border-style: dashed;
+}
+
+/*
+ * Il nome appeso fuori dal riquadro (dentro c'è il nome scritto sul foglio):
+ * sotto di norma, sopra quando il riquadro è in fondo, perché la fotografia
+ * ritaglia quel che esce. Un'etichetta: non va a capo e non esce dalla pagina.
+ */
+.pagina-sfoglio__nome-testo {
+  position: absolute;
+  top: 100%;
+  left: -1.5px;
+  max-width: 96cqw;
+  margin-top: 2px;
+  padding: 0 var(--spazio-1);
+  border-radius: 2px;
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* A pagine piccole resta il rettangolo; il nome si legge sotto la pagina. */
+  display: none;
+}
+
+.pagina-sfoglio__nome--ocr .pagina-sfoglio__nome-testo {
+  background: var(--attenzione);
+  color: var(--su-tinta);
+}
+
+.pagina-sfoglio__nome--sopra .pagina-sfoglio__nome-testo {
+  top: auto;
+  bottom: 100%;
+  margin: 0 0 2px;
+}
+
+/* Nella metà destra l'etichetta si appende dal bordo destro: da sinistra
+   uscirebbe dalla fotografia, che la ritaglierebbe. */
+.pagina-sfoglio__nome--destra .pagina-sfoglio__nome-testo {
+  left: auto;
+  right: -1.5px;
+  text-align: right;
+}
+
+@container foglio (min-width: 200px) {
+  .pagina-sfoglio__nome-testo { display: block; }
+}
+
+/* Niente da smistare: una riga, non uno stato vuoto. */
+.sfoglio__finito { margin: 0; }
+
+/* La pagina che l'OCR sta leggendo: bordo dell'accento e la barra della coda sotto. */
+.pagina-sfoglio--in-lettura {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accento) 35%, transparent);
+}
+
+.pagina-sfoglio .barra-lavoro {
+  height: 3px;
+  margin-top: 2px;
+}
+
+/* La coda di lettura nello sfoglio: una fascia sottile fra testata e pagine. */
+.sfoglio .lavoro-ocr {
+  margin: 0;
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+}
+
+/* ------------------------------------------- la pagina «Da smistare», tutte le classi */
+
+/*
+ * L'elenco trasversale dei PDF in attesa: un mucchio per classe, in fondo
+ * quelli senza.
+ *
+ * Righe e non pastiglie come `.da-dividere` nel fascicolo: qui l'elenco è la
+ * pagina, e ogni voce mostra pagine restanti, da quanto è lì e il gesto che la chiude.
+ */
+.da-smistare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-4);
+  min-height: 0;
+  overflow: auto;
+}
+
+.da-smistare__mucchio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.da-smistare__titolo {
+  margin: 0 0 var(--spazio-1);
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+/* Il mucchio senza classe: file che non sono in nessun fascicolo. Il filetto a sinistra lo distingue. */
+.da-smistare__mucchio--orfani {
+  padding-left: var(--spazio-3);
+  border-left: 3px solid color-mix(in srgb, var(--attenzione) 70%, transparent);
+}
+
+.da-smistare__nota {
+  margin: 0 0 var(--spazio-1);
+  max-width: 62ch;
+  font-size: 0.88em;
+}
+
+/*
+ * Una riga per PDF: si stringe solo il nome, il resto tiene la sua misura e le
+ * colonne restano allineate fra le righe.
+ */
+.da-smistare__riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-2);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+}
+
+.da-smistare__riga .icona { flex: none; color: var(--testo-quieto); }
+
+.da-smistare__nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.da-smistare__conto,
+.da-smistare__quando {
+  flex: none;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.da-smistare__conto { color: var(--testo-quieto); }
+
+/* Il gesto che chiude la riga, sempre all'estremità: «Smista» e la tendina cadono nello stesso punto. */
+.da-smistare__coda {
+  flex: none;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* Su finestre strette la riga si impila invece di schiacciare il nome. */
+@media (max-width: 40em) {
+  .da-smistare__riga { flex-wrap: wrap; }
+  .da-smistare__nome { flex-basis: 100%; }
+  .da-smistare__coda { margin-left: 0; }
+}
+
+/*
+ * La tendina che manda un PDF a un'altra classe, in testa alla cornice e in
+ * coda alle righe di «Da smistare». Accanto a pulsanti: ne prende altezza e
+ * raggio. Quieta: non è il gesto normale.
+ */
+.sposta-classe {
+  min-height: 30px;
+  padding: 3px var(--spazio-2);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.sposta-classe:hover { border-color: var(--accento); color: var(--testo); }
+.sposta-classe:focus-visible { outline: 2px solid var(--fuoco); outline-offset: -1px; }
