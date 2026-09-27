@@ -1815,6 +1815,10 @@
           "firmato": {
             "type": "boolean",
             "description": "Vero è quello tornato indietro con la firma sopra"
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file del foglio sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -2007,6 +2011,10 @@
               "maxLength": 64
             },
             "description": "Vuoto vuol dire: tutti quelli pronti e non ancora spediti"
+          },
+          "conferma": {
+            "type": "boolean",
+            "description": "Se true, non chiede conferma prima di spedire direttamente"
           }
         },
         "required": [
@@ -2159,6 +2167,10 @@
             "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
             "minLength": 1,
             "maxLength": 64
+          },
+          "conferma": {
+            "type": "boolean",
+            "description": "Se true, non chiede conferma prima di spedire direttamente"
           }
         },
         "required": [
@@ -2943,6 +2955,10 @@
               "maxLength": 64
             },
             "description": "Solo questi. Lasciato fuori, tutti quelli che aspettano e hanno un documento pronto"
+          },
+          "conferma": {
+            "type": "boolean",
+            "description": "Se true, non chiede conferma prima di spedire direttamente"
           }
         },
         "required": [
@@ -2978,6 +2994,10 @@
             "description": "Di chi è il documento. null vuol dire «lo stesso per tutti»",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file da allegare sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -3304,6 +3324,10 @@
             "description": "La consegna a cui si appende il foglio",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file del foglio firme sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -3385,6 +3409,10 @@
             "description": "L’id della persona, o «docente» per quel che tocca a chi insegna",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file da raccogliere sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -4585,6 +4613,10 @@
             "description": "La carta intestata: un id di impostazioni.intestazione.carte",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file immagine sul disco (PNG o JPEG); se omesso apre il dialogo"
           }
         },
         "required": [
@@ -7317,6 +7349,10 @@
             "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file immagine sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -8233,6 +8269,64 @@
       }
     },
     {
+      "nome": "programma.giornale",
+      "funzione": "programma_giornale",
+      "genere": "lettura",
+      "titolo": "Restituisce le ultime chiamate annotate nel giornale di sessione",
+      "idempotente": true,
+      "riga": "regi chiama programma.giornale",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "limite": {
+            "type": "number",
+            "description": "Quante voci restituire al massimo (predefinito 100, massimo 500)",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "soloErrori": {
+            "type": "boolean",
+            "description": "Se vero, restituisce solo le chiamate fallite o rifiutate"
+          }
+        },
+        "required": [],
+        "additionalProperties": true
+      },
+      "presentazione": {
+        "titolo": "Giornale delle chiamate",
+        "blocchi": [
+          {
+            "tipo": "tabella",
+            "da": "voci",
+            "colonne": [
+              {
+                "campo": "procedura",
+                "testo": "Procedura"
+              },
+              {
+                "campo": "origine",
+                "testo": "Origine"
+              },
+              {
+                "campo": "durataMs",
+                "testo": "Durata (ms)",
+                "formato": "numero"
+              },
+              {
+                "campo": "ok",
+                "testo": "Esito",
+                "formato": "siNo"
+              },
+              {
+                "campo": "codice",
+                "testo": "Codice"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "nome": "programma.salva",
       "funzione": "programma_salva",
       "genere": "scrittura",
@@ -8896,6 +8990,10 @@
             "type": "string",
             "description": "Solo per «collegamento»",
             "maxLength": 2000
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del file o dell’immagine sul disco; se omesso apre il dialogo"
           }
         },
         "required": [
@@ -9279,6 +9377,30 @@
         },
         "required": [
           "smistamentoId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "smistamento.cassetta.assorbi",
+      "funzione": "smistamento_cassetta_assorbi",
+      "genere": "scrittura",
+      "titolo": "Assorbe un file PDF dalla cassetta di arrivo nel documento corrente",
+      "idempotente": false,
+      "collezioni": [
+        "smistamenti"
+      ],
+      "riga": "regi chiama smistamento.cassetta.assorbi --percorso <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "percorso": {
+            "type": "string",
+            "description": "Percorso del file PDF da assorbire"
+          }
+        },
+        "required": [
+          "percorso"
         ],
         "additionalProperties": true
       }
@@ -10121,6 +10243,10 @@
             "description": "Di chi è il compito. Senza, il foglio è del momento e non di una persona",
             "minLength": 1,
             "maxLength": 64
+          },
+          "file": {
+            "type": "string",
+            "description": "Percorso del PDF sul disco; se omesso apre il dialogo"
           }
         },
         "required": [

@@ -178,7 +178,7 @@ export type Azione =
    * Il ritratto di un allievo: il dialogo di sistema sceglie il file e l'host ne
    * tiene una copia in `foto/`.
    */
-  | { tipo: 'allievo.foto.imposta'; classeId: string; allievoId: string }
+  | { tipo: 'allievo.foto.imposta'; classeId: string; allievoId: string; file?: string }
   | { tipo: 'allievo.foto.togli'; classeId: string; allievoId: string }
   | { tipo: 'lezione.salva'; lezione: Lezione }
   /**
@@ -235,6 +235,7 @@ export type Azione =
     genere: TipoRisorsa
     titolo?: string
     url?: string
+    file?: string
   }
   | { tipo: 'risorsa.salva'; pianoId: string; attivitaId: string | null; risorsa: Risorsa }
   /** Sposta la risorsa a un'altra tappa o al piano, senza perdere il file. */
@@ -300,7 +301,7 @@ export type Azione =
    * Spunta consegnando un file, archiviato nella cartella dei dati. Annullando
    * la scelta la consegna resta da fare.
    */
-  | { tipo: 'consegna.raccogli'; consegnaId: string; chi: string }
+  | { tipo: 'consegna.raccogli'; consegnaId: string; chi: string; file?: string }
   /** Apre il file con cui qualcuno ha spuntato. */
   | { tipo: 'consegna.file.apri'; consegnaId: string; chi: string }
   // ------------------------------------------------- distribuire un documento
@@ -308,7 +309,7 @@ export type Azione =
    * Il documento pronto per qualcuno, prima di consegnarlo. `allievoId` nullo =
    * lo stesso per tutti. Averlo non è averlo consegnato: quello è un gesto a parte.
    */
-  | { tipo: 'consegna.documento.allega'; consegnaId: string; allievoId: string | null }
+  | { tipo: 'consegna.documento.allega'; consegnaId: string; allievoId: string | null; file?: string }
   | { tipo: 'consegna.documento.apri'; consegnaId: string; allievoId: string | null }
   | { tipo: 'consegna.documento.togli'; consegnaId: string; allievoId: string | null }
   /** Consegnato a mano: solo la spunta. */
@@ -318,12 +319,12 @@ export type Azione =
    * `allieviIds` parte per tutti quelli in attesa con documento pronto; chi non
    * ha un indirizzo resta indietro e viene nominato.
    */
-  | { tipo: 'consegna.distribuisci'; consegnaId: string; allieviIds?: string[] }
+  | { tipo: 'consegna.distribuisci'; consegnaId: string; allieviIds?: string[]; conferma?: boolean }
   /**
    * Il foglio firme della consegna: uno per tutta la richiesta, ha senso solo
    * quando è il docente a consegnare.
    */
-  | { tipo: 'consegna.firme.aggiungi'; consegnaId: string }
+  | { tipo: 'consegna.firme.aggiungi'; consegnaId: string; file?: string }
   | { tipo: 'consegna.firme.apri'; consegnaId: string }
   | { tipo: 'consegna.firme.togli'; consegnaId: string }
   /** Toglie il file e la spunta: il documento torna atteso. */
@@ -389,6 +390,14 @@ export type Azione =
     nome: string
     contenuto: string
     divisione: Divisione
+  }
+  /**
+   * Assorbe un PDF rimasto nella cartella `in-arrivo/` del disco nel documento corrente.
+   * L'originale va nel cestino solo se è entrato nel documento.
+   */
+  | {
+    tipo: 'smistamento.cassetta.assorbi'
+    percorso: string
   }
   /** Rimette in coda la lettura delle pagine scelte (nome letto male o mancante). */
   | { tipo: 'smistamento.leggiPagine'; smistamentoId: string; pagine: number[] }
@@ -461,7 +470,7 @@ export type Azione =
   | { tipo: 'recapito.elimina'; classeId: string; recapitoId: string }
   | { tipo: 'comunicazione.salva'; classeId: string; comunicazione: Comunicazione }
   | { tipo: 'comunicazione.elimina'; classeId: string; comunicazioneId: string }
-  | { tipo: 'comunicazione.invia'; classeId: string; comunicazioneId: string }
+  | { tipo: 'comunicazione.invia'; classeId: string; comunicazioneId: string; conferma?: boolean }
   /** Spunta «spedita» data a mano dopo l'invio dal programma di posta; `false` torna bozza. */
   | { tipo: 'comunicazione.spunta'; classeId: string; comunicazioneId: string; spedita: boolean }
   // ---------------------------------------------------------------- assenze
@@ -478,6 +487,7 @@ export type Azione =
     allievoId: string
     genere: TipoRapporto
     firmato: boolean
+    file?: string
   }
   | {
     tipo: 'assenze.foglio.apri'
@@ -511,14 +521,14 @@ export type Azione =
    * Richiesta di firma: una mail per allievo all'azienda, con i fogli vergini.
    * `allieviIds` vuoto = tutti i pronti non ancora spediti.
    */
-  | { tipo: 'assenze.invia'; classeId: string; bloccoId: string; allieviIds: string[] }
+  | { tipo: 'assenze.invia'; classeId: string; bloccoId: string; allieviIds: string[]; conferma?: boolean }
   /** La spunta sulla richiesta di un allievo: partita, o tornata da mandare. */
   | { tipo: 'assenze.spunta'; classeId: string; bloccoId: string; allievoId: string; spedita: boolean }
   /**
    * Con `ruolo: 'recupero'` l'allievo è facoltativo: senza è il testo della
    * prova, con è il compito rifatto. `recupero-soluzione` non ha allievo.
    */
-  | { tipo: 'allegato.aggiungi'; valutazioneId: string; ruolo: RuoloAllegato; allievoId?: string | null }
+  | { tipo: 'allegato.aggiungi'; valutazioneId: string; ruolo: RuoloAllegato; allievoId?: string | null; file?: string }
   | { tipo: 'allegato.apri'; valutazioneId: string; allegatoId: string }
   | { tipo: 'allegato.elimina'; valutazioneId: string; allegatoId: string }
   /**
@@ -527,7 +537,7 @@ export type Azione =
    */
   | { tipo: 'impostazioni.salva'; impostazioni: ImpostazioniDaSalvare }
   /** Sceglie il logo della carta intestata e lo porta dentro il documento. */
-  | { tipo: 'intestazione.logo'; cartaId: string }
+  | { tipo: 'intestazione.logo'; cartaId: string; file?: string }
   /** Toglie il logo dalla carta intestata. */
   | { tipo: 'intestazione.togliLogo'; cartaId: string }
   /**

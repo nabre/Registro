@@ -7,12 +7,14 @@
 import type { ProceduraQualunque } from '../../contract.js'
 import { procedura as azzera } from './azzera.js'
 import { procedura as esci } from './esci.js'
+import { procedura as giornale } from './giornale.js'
 import { procedura as salva } from './salva.js'
 import { procedura as sfoglia } from './sfoglia.js'
 
 export const procedureProgramma: ProceduraQualunque[] = [
   azzera,
   esci,
+  giornale,
   salva,
   sfoglia,
 ]

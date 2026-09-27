@@ -3,6 +3,7 @@
 // Si scrive con `nelFascicolo`, che trova o crea il fascicolo della classe.
 
 import { basename } from 'node:path'
+import * as apparato from 'apparato'
 
 import type { Contesto } from './context.js'
 import { contenutoDi, deposito } from '../dati/store.js'
@@ -160,10 +161,18 @@ export const docenteClasse = {
     if ('errore' in trovato) return trovato.errore
     const { consegna, classe } = trovato
 
-    const scelto = await scegliUnFile({
-      titolo: testi().firmeDi(consegna.testo),
-      tasto: comuni().allega,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: testi().firmeDi(consegna.testo),
+        tasto: comuni().allega,
+      })
+    }
     if (!scelto) return fatto
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
@@ -303,7 +312,7 @@ export const docenteClasse = {
     // Con l'invio diretto si conferma prima di spedire.
     if (
       (await puoSpedire()) &&
-      !(await confermaInvio(
+      !(azione.conferma ? true : await confermaInvio(
         t.domandaComunicazione(comunicazione.oggetto || t.laComunicazione, indirizzi.length),
         t.dettaglioComunicazione,
       ))
@@ -435,10 +444,18 @@ export const docenteClasse = {
     const allievo = dove.classe.allievi.find((a) => a.id === azione.allievoId)
     if (!allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${nomeCompleto(allievo)}`,
-      tasto: parole().aggiungi,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${nomeCompleto(allievo)}`,
+        tasto: parole().aggiungi,
+      })
+    }
     if (!scelto) return fatto
     if (!contesto.ancoraQui()) return documentoCambiato()
 
@@ -670,7 +687,7 @@ export const docenteClasse = {
     // Con l'invio diretto si conferma prima, una volta sola per tutto il giro.
     if (
       (await puoSpedire()) &&
-      !(await confermaInvio(
+      !(azione.conferma ? true : await confermaInvio(
         t.domandaRichieste(pronte.length),
         t.dettaglioRichieste(nomePeriodo(blocco)),
       ))

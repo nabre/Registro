@@ -2,6 +2,7 @@
 // raccolto sta dentro la spunta, così i due non si disallineano.
 
 import { basename } from 'node:path'
+import * as apparato from 'apparato'
 
 import { contenutoDi, deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '../dati/filing.js'
@@ -207,12 +208,20 @@ export const consegne = {
       azione.chi === CHI_INSEGNA ? null : classe.allievi.find((a) => a.id === azione.chi) ?? null
     if (azione.chi !== CHI_INSEGNA && !allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: allievo
-        ? `${consegna.testo} — ${nomeCompleto(allievo)}`
-        : `${consegna.testo} — ${classe.nome}`,
-      tasto: testi().raccogli,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: allievo
+          ? `${consegna.testo} — ${nomeCompleto(allievo)}`
+          : `${consegna.testo} — ${classe.nome}`,
+        tasto: testi().raccogli,
+      })
+    }
     if (!scelto) return fatto
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
@@ -271,12 +280,20 @@ export const consegne = {
       : null
     if (azione.allievoId && !allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: allievo
-        ? `${consegna.testo} — ${nomeCompleto(allievo)}`
-        : testi().perTuttiTitolo(consegna.testo),
-      tasto: comuni().allega,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: allievo
+          ? `${consegna.testo} — ${nomeCompleto(allievo)}`
+          : testi().perTuttiTitolo(consegna.testo),
+        tasto: comuni().allega,
+      })
+    }
     if (!scelto) return fatto
     if (!contesto.ancoraQui()) return documentoCambiato()
 
@@ -491,7 +508,7 @@ export const consegne = {
     // Con l'invio diretto si conferma prima: una mail partita non si riprende.
     if (
       (await puoSpedire()) &&
-      !(await confermaInvio(t.domanda(consegna.testo, pronte.length), t.dettaglio))
+      !(azione.conferma ? true : await confermaInvio(t.domanda(consegna.testo, pronte.length), t.dettaglio))
     ) {
       return conMessaggio(t.nientePartito, 'info', { invariato: true })
     }

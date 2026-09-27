@@ -21,9 +21,13 @@ const it = {
     titolo: 'Distribuisce i documenti per e-mail: un messaggio a testa, col suo allegato',
     allieviIds:
       'Solo questi. Lasciato fuori, tutti quelli che aspettano e hanno un documento pronto',
+    conferma: 'Se true, non chiede conferma prima di spedire direttamente',
   },
   elimina: { titolo: 'Butta via una consegna, con i documenti che aveva raccolto' },
-  raccogli: { titolo: 'Spunta raccogliendo il foglio: il file si archivia dentro la spunta' },
+  raccogli: {
+    titolo: 'Spunta raccogliendo il foglio: il file si archivia dentro la spunta',
+    file: 'Percorso del file da raccogliere sul disco; se omesso apre il dialogo',
+  },
   salva: {
     titolo:
       'Salva una consegna, o ne crea una nuova. Di una che c’è già, spunte e ' +
@@ -39,7 +43,10 @@ const it = {
     fatta: 'false toglie solo le spunte senza documento raccolto',
   },
   documento: {
-    allega: { titolo: 'Mette da parte il documento da dare a qualcuno, prima di consegnarlo' },
+    allega: {
+      titolo: 'Mette da parte il documento da dare a qualcuno, prima di consegnarlo',
+      file: 'Percorso del file da allegare sul disco; se omesso apre il dialogo',
+    },
     apri: { titolo: 'Apre il documento pronto con il programma del sistema' },
     togli: {
       titolo:
@@ -62,6 +69,7 @@ const it = {
     aggiungi: {
       titolo: 'Allega il foglio firmato da chi ha ritirato il documento',
       consegnaId: 'La consegna a cui si appende il foglio',
+      file: 'Percorso del file del foglio firme sul disco; se omesso apre il dialogo',
     },
     apri: { titolo: 'Apre il foglio firme di una consegna' },
     togli: {
@@ -129,10 +137,12 @@ export const testi = catalogo(it, {
       titolo: 'Verteilt die Dokumente per E-Mail: eine Nachricht pro Person, mit ihrem Anhang',
       allieviIds:
         'Nur diese. Weggelassen: alle, die warten und ein fertiges Dokument haben',
+      conferma: 'Wenn true, wird vor dem direkten Senden keine Bestätigung verlangt',
     },
     elimina: { titolo: 'Löscht einen Auftrag samt den Dokumenten, die er gesammelt hatte' },
     raccogli: {
       titolo: 'Hakt ab und sammelt dabei das Blatt ein: Die Datei wird im Häkchen abgelegt',
+      file: 'Pfad der einzusammelnden Datei auf der Festplatte; wenn weggelassen, wird der Dialog geöffnet',
     },
     salva: {
       titolo:
@@ -151,6 +161,7 @@ export const testi = catalogo(it, {
     documento: {
       allega: {
         titolo: 'Legt das Dokument bereit, das jemandem gegeben wird, bevor es übergeben wird',
+        file: 'Pfad der anzuhängenden Datei auf der Festplatte; wenn weggelassen, wird der Dialog geöffnet',
       },
       apri: { titolo: 'Öffnet das bereite Dokument mit dem Programm des Systems' },
       togli: {
@@ -175,6 +186,7 @@ export const testi = catalogo(it, {
         titolo:
           'Hängt das Blatt an, das von denen unterschrieben wurde, die das Dokument abgeholt haben',
         consegnaId: 'Der Auftrag, an den das Blatt gehängt wird',
+        file: 'Pfad der Unterschriftenblatt-Datei auf der Festplatte; wenn weggelassen, wird der Dialog geöffnet',
       },
       apri: { titolo: 'Öffnet das Unterschriftenblatt eines Auftrags' },
       togli: {
@@ -242,10 +254,12 @@ export const testi = catalogo(it, {
       titolo: 'Distribue les documents par e-mail : un message par personne, avec sa pièce jointe',
       allieviIds:
         'Seulement ceux-ci. Si on l’omet, tous ceux qui attendent et ont un document prêt',
+      conferma: 'Si vrai, ne demande pas de confirmation avant l’envoi direct',
     },
     elimina: { titolo: 'Supprime un devoir, avec les documents qu’il avait recueillis' },
     raccogli: {
       titolo: 'Coche en recueillant la feuille : le fichier est archivé dans la coche',
+      file: 'Chemin du fichier à collecter sur le disque ; si omis, ouvre la boîte de dialogue',
     },
     salva: {
       titolo:
@@ -264,6 +278,7 @@ export const testi = catalogo(it, {
     documento: {
       allega: {
         titolo: 'Met de côté le document à donner à quelqu’un, avant de le remettre',
+        file: 'Chemin du fichier à joindre sur le disque ; si omis, ouvre la boîte de dialogue',
       },
       apri: { titolo: 'Ouvre le document prêt avec le programme du système' },
       togli: {
@@ -287,6 +302,7 @@ export const testi = catalogo(it, {
       aggiungi: {
         titolo: 'Joint la feuille signée par les personnes qui ont retiré le document',
         consegnaId: 'Le devoir auquel on joint la feuille',
+        file: 'Chemin du fichier de la feuille de signatures sur le disque ; si omis, ouvre la boîte de dialogue',
       },
       apri: { titolo: 'Ouvre la feuille de signatures d’un devoir' },
       togli: {
@@ -353,9 +369,13 @@ export const testi = catalogo(it, {
     distribuisci: {
       titolo: 'Sends the documents by email: one message each, with its attachment',
       allieviIds: 'Only these. Left out, all those waiting who have a document ready',
+      conferma: 'If true, does not ask for confirmation before sending directly',
     },
     elimina: { titolo: 'Deletes an assignment, with the documents it had collected' },
-    raccogli: { titolo: 'Ticks while collecting the sheet: the file is filed inside the tick' },
+    raccogli: {
+      titolo: 'Ticks while collecting the sheet: the file is filed inside the tick',
+      file: 'Path of the file to collect on disk; if omitted opens the dialog',
+    },
     salva: {
       titolo:
         'Saves an assignment, or creates a new one. For an existing one, ticks and documents ' +
@@ -371,7 +391,10 @@ export const testi = catalogo(it, {
       fatta: 'false removes only the ticks without a collected document',
     },
     documento: {
-      allega: { titolo: 'Sets aside the document to give to someone, before handing it over' },
+      allega: {
+        titolo: 'Sets aside the document to give to someone, before handing it over',
+        file: 'Path of the file to attach on disk; if omitted opens the dialog',
+      },
       apri: { titolo: 'Opens the ready document with the system’s program' },
       togli: {
         titolo:
@@ -394,6 +417,7 @@ export const testi = catalogo(it, {
       aggiungi: {
         titolo: 'Attaches the sheet signed by those who collected the document',
         consegnaId: 'The assignment the sheet is attached to',
+        file: 'Path of the signatures sheet file on disk; if omitted opens the dialog',
       },
       apri: { titolo: 'Opens the signature sheet of an assignment' },
       togli: {

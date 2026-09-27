@@ -1,6 +1,6 @@
 import { modelli } from '../../../core/azioni/templates.js'
 import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
+import { identificatore, oggetto, opzionale, testo } from '../../schemas.js'
 import { testi } from './intestazione.testi.js'
 
 /**
@@ -14,6 +14,9 @@ export const procedura = scrittura({
   azione: 'intestazione.logo',
   idempotente: false,
   collezioni: ['registro'],
-  ingresso: oggetto({ cartaId: identificatore({ aiuto: () => testi().cartaId }) }),
+  ingresso: oggetto({
+    cartaId: identificatore({ aiuto: () => testi().cartaId }),
+    file: opzionale(testo({ aiuto: () => testi().logo.file })),
+  }),
   esegui: inoltra(modelli, 'intestazione.logo'),
 })

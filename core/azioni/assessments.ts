@@ -1,6 +1,8 @@
 // I momenti di valutazione, i voti e le prove corrette.
 // I PDF delle prove seguono il momento: eliminarlo li porta via (vedi `cestina`).
 
+import * as apparato from 'apparato'
+
 import { deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '../dati/filing.js'
 import { arrotondaVoto, nomeCompleto, votoValido } from '../dominio/calculations.js'
@@ -274,13 +276,21 @@ export const valutazioni = {
     const allievo = allievoId ? classe.allievi.find((a) => a.id === allievoId) ?? null : null
     if (allievoId && !allievo) return rifiuta(t.pifFuoriClasse)
 
-    const scelto = await scegliUnFile({
-      titolo: allievo
-        ? t.provaDi(azione.ruolo === 'recupero', nomeCompleto(allievo))
-        : `${lessico().ruoliAllegato[azione.ruolo]} — ${momento.titolo}`,
-      tasto: comuni().allega,
-      filtri: { PDF: ['pdf'] },
-    })
+    let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'allegato.pdf'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : '.pdf'
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: allievo
+          ? t.provaDi(azione.ruolo === 'recupero', nomeCompleto(allievo))
+          : `${lessico().ruoliAllegato[azione.ruolo]} — ${momento.titolo}`,
+        tasto: comuni().allega,
+        filtri: { PDF: ['pdf'] },
+      })
+    }
     if (!scelto) return fatto
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()

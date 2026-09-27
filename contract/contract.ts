@@ -317,4 +317,9 @@ export interface VoceGiornale {
   modifiche: number
 }
 
+/** Una voce del giornale salvata con il millisecondo in cui è avvenuta. */
+export interface VoceGiornaleRegistrata extends VoceGiornale {
+  ora: number
+}
+
 export type Spia = (voce: VoceGiornale) => void

@@ -1,6 +1,6 @@
 import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
 import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
+import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
 import { esigiConsegna } from '../common.js'
 import { testi } from '../consegne.testi.js'
 
@@ -16,6 +16,7 @@ export const procedura = scrittura({
   collezioni: ['consegne'],
   ingresso: oggetto({
     consegnaId: identificatore({ aiuto: () => t().consegnaId }),
+    file: opzionale(testo({ aiuto: () => t().file })),
   }),
   esegui: (ambito, ingresso) => {
     esigiConsegna(ambito, ingresso.consegnaId)

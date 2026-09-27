@@ -75,7 +75,7 @@ situazione di famiglia. **Regiclass** tiene tutto sulla tua macchina:
 | ✂️ **Smistamento dei PDF** | Un PDF di classe arrivato dalla segreteria si divide da solo, persona per persona. Le scansioni passano dall'OCR. |
 | 🤖 **Assistente** | Risponde a domande in italiano leggendo i dati veri del registro, con un modello che scarichi o trascini nella finestra. Le domande si possono anche dire a voce, con [voicebox](https://github.com/jamiepine/voicebox) installato e aperto a parte: la voce resta sul tuo computer. |
 | 📽️ **Proiezione** | Una seconda finestra per lo schermo della classe, che segue quel che apri nel registro. |
-| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 207 procedure, con permessi separati per lettura e scrittura. |
+| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 209 procedure, con permessi separati per lettura e scrittura. |
 | 💾 **Portabile** | Una versione che gira da chiavetta senza installazione, per le macchine su cui non si hanno i diritti di amministratore. |
 
 Come si usa ogni pagina lo dice la guida dentro il registro: **F1** da qualunque
@@ -171,13 +171,13 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 
 ```mermaid
 flowchart LR
-    UI["Pannello<br/><sub>src/ui</sub>"] -- protocollo --> A["Azioni<br/><sub>src/actions</sub>"]
-    CLI["regi · JSON-RPC<br/><sub>src/cli · src/api</sub>"] --> API["Procedure<br/><sub>src/api</sub>"]
+    UI["Pannello<br/><sub>ui/</sub>"] -- protocollo --> A["Azioni<br/><sub>core/azioni/</sub>"]
+    CLI["regi · JSON-RPC<br/><sub>cli/ · contract/</sub>"] --> API["Procedure<br/><sub>contract/procedure/</sub>"]
     API --> A
-    A --> D["Dominio<br/><sub>src/domain</sub>"]
-    A --> DATA["Dati<br/><sub>src/data</sub>"]
+    A --> D["Dominio<br/><sub>core/dominio/</sub>"]
+    A --> DATA["Dati<br/><sub>core/dati/</sub>"]
     DATA --> F[("2026-2027.regi")]
-    SHELL["Guscio Electron<br/><sub>shell/</sub>"] --> UI
+    SHELL["Guscio Electron<br/><sub>desktop/shell/</sub>"] --> UI
 ```
 
 Gli strati e i loro confini sono controllati a macchina a ogni push

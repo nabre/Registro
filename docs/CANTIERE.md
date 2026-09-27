@@ -29,27 +29,6 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ## 2. Lavoro aperto
 
-### API e letture
-
-- [ ] Il giornale si legge solo in console (`desktop/avvio.ts`): un file che ruota o
-      una vista in Impostazioni.
-- [ ] `Smistatore.assorbiCassettaVecchia()` (`core/dati/sorter.ts`) scrive
-      `smistamenti` fuori da `chiama()`, a ogni cambio di documento.
-      L'azione `smistamento.cassetta.assorbi` va spezzata per file prima di
-      instradarla (un PDF grosso supererebbe i 30 s della fila).
-- [ ] La spinta dello stato ricalcola `riferimentiRotti` a ogni scrittura
-      (`desktop/pannelli/panel.ts:444`): una scansione intera, senza indice.
-- [ ] Il pannello riceve il `Registro` intero a ogni scrittura: nessuna
-      sottoscrizione parziale.
-- [ ] Le letture che non elencano non hanno paginazione (`corso.presenze`,
-      `valutazioni.voti`, `documenti.inventario`).
-- [ ] Quindici procedure che aprono un dialogo non hanno una controparte da
-      script (API § 7); `smistamento.pdf.deposita` è il modello.
-- [ ] Da decidere, senza urgenza: un contratto unico (OpenAPI) oltre al JSON
-      Schema per procedura; una versione di protocollo negoziata; transazioni su
-      più procedure.
-
-
 ### Prove
 
 - [ ] Una prova di regressione per ogni difetto grave: mancano quella

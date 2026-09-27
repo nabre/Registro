@@ -33,7 +33,8 @@ import type {
   Richiesta,
   SeguiConversazione,
 } from '../../contract/protocollo.js'
-import { alCambioLingua } from '../../core/i18n/index.js'
+import type { Registro } from '../../core/dominio/models.js'
+import { alCambioLingua, lingua } from '../../core/i18n/index.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'
 import { testi } from './panels.testi.js'
 
@@ -431,6 +432,32 @@ export class PannelloRegistro {
     queueMicrotask(() => this.flushStato())
   }
 
+  private cacheAvvisi: {
+    registro: Registro | null
+    revisione: number
+    lingua: string
+    avvisi: string[]
+  } = { registro: null, revisione: -1, lingua: '', avvisi: [] }
+
+  private calcolaAvvisi (): string[] {
+    const l = lingua()
+    if (
+      this.archivio.registro === this.cacheAvvisi.registro &&
+      this.archivio.revisione === this.cacheAvvisi.revisione &&
+      l === this.cacheAvvisi.lingua
+    ) {
+      return this.cacheAvvisi.avvisi
+    }
+    const avvisi = riferimentiRotti(this.archivio.registro)
+    this.cacheAvvisi = {
+      registro: this.archivio.registro,
+      revisione: this.archivio.revisione,
+      lingua: l,
+      avvisi,
+    }
+    return avvisi
+  }
+
   /** La spinta vera e propria; si chiama subito quando deve precedere altro. */
   private flushStato (): void {
     if (!this.spintaInSospeso) return
@@ -447,7 +474,7 @@ export class PannelloRegistro {
       esportati: esportazioniPresenti(),
       archiviati: archiviPresenti(),
       composizioni: composizioniPresenti(),
-      avvisi: riferimentiRotti(this.archivio.registro),
+      avvisi: this.calcolaAvvisi(),
       radiceDati: cartella ? this.pannello.webview.asWebviewUri(cartella).toString() : null,
       radiceApp: this.pannello.webview.asWebviewUri(this.contesto.extensionUri).toString(),
       ocrAttivo: ocrAttivo(),

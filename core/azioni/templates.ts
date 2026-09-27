@@ -2,6 +2,8 @@
 // l'anteprima (in base64, mai scritta). Del documento è solo la carta
 // intestata: il logo passa dalle azioni in fondo, il resto da `impostazioni.salva`.
 
+import * as apparato from 'apparato'
+
 import { CATALOGO_MODELLI, genereDiProva, linguaDelModello, modelloDelGenere, titoloModello, voceModello } from '../dominio/templateCatalog.js'
 import { nomeCompleto } from '../dominio/calculations.js'
 import { documentoPiano, type GenereRapporto } from '../dominio/locations.js'
@@ -262,11 +264,19 @@ export const modelli = {
     if (!contesto.registro.impostazioni.intestazione.carte.some((c) => c.id === azione.cartaId)) {
       return rifiutaCon('non-trovato', t.cartaNonTrovata)
     }
-    const scelto = await scegliUnFile({
-      titolo: t.titoloSceltaLogo,
-      tasto: t.tastoSceltaLogo,
-      filtri: { [parole().immagini]: FORMATI_LOGO },
-    })
+    let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'logo.png'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: t.titoloSceltaLogo,
+        tasto: t.tastoSceltaLogo,
+        filtri: { [parole().immagini]: FORMATI_LOGO },
+      })
+    }
     if (!scelto) return fatto
 
     const formato = scelto.estensione.replace('.', '').toLowerCase()

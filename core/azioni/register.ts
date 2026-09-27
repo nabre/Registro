@@ -404,11 +404,19 @@ export const registro = {
     const t = testi()
     if (!classe || !allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: t.fotoDi(nomeCompleto(allievo)),
-      tasto: t.usaFoto,
-      filtri: { [parole().immagini]: FORMATI_RITRATTO },
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'foto'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: t.fotoDi(nomeCompleto(allievo)),
+        tasto: t.usaFoto,
+        filtri: { [parole().immagini]: FORMATI_RITRATTO },
+      })
+    }
     // Dialogo chiuso senza scegliere: non è un errore, non si dice niente.
     if (!scelto) return fatto
 

@@ -1,7 +1,7 @@
 import { valutazioni } from '../../../../core/azioni/assessments.js'
 import type { RuoloAllegato } from '../../../../core/dominio/models.js'
 import { inoltra, scrittura } from '../../../core.js'
-import { esaustivo, identificatore, nullabile, oggetto, opzionale, scelta } from '../../../schemas.js'
+import { esaustivo, identificatore, nullabile, oggetto, opzionale, scelta, testo } from '../../../schemas.js'
 import { esigiMomento } from '../common.js'
 import { testi } from '../valutazioni.testi.js'
 
@@ -28,6 +28,7 @@ export const procedura = scrittura({
     // Con `ruolo: 'recupero'` l'allievo è facoltativo (senza, è il testo comune
     // della prova di recupero). Il protocollo ammette sia chiave assente sia `null`.
     allievoId: opzionale(nullabile(identificatore({ aiuto: () => t().allievoId }))),
+    file: opzionale(testo({ aiuto: () => t().file })),
   }),
   esegui: (ambito, ingresso) => {
     // Il resto (ruolo «prova» con un allievo, classe, anno aperto) lo controlla il

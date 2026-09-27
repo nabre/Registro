@@ -1,7 +1,7 @@
 # I modelli dei rapporti
 
 > **Questi sono i modelli del programma, e i soli.** `npm run templates` li
-> traduce in `src/data/defaultTemplates.ts`, e il registro stampa con quelli:
+> traduce in `core/dati/defaultTemplates.ts`, e il registro stampa con quelli:
 > non ne scrive più una copia accanto al documento, e non si modificano
 > dall'applicazione (ADR-34). Chi li cambia, li cambia qui, nel repository, e
 > il cambiamento arriva a tutti con l'aggiornamento successivo.

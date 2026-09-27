@@ -12,6 +12,7 @@ import type { ProceduraQualunque } from '../../contract.js'
 import { procedura as daFare } from './daFare.js'
 import { procedureSmistamentoAssenze } from './assenze/index.js'
 import { procedureSmistamentoBozza } from './bozza/index.js'
+import { procedureSmistamentoCassetta } from './cassetta/index.js'
 import { procedureSmistamentoFirme } from './firme/index.js'
 import { procedureSmistamentoLettura } from './lettura/index.js'
 import { procedureSmistamentoPagine } from './pagine/index.js'
@@ -20,6 +21,7 @@ import { procedureSmistamentoPdf } from './pdf/index.js'
 export const procedureSmistamento: ProceduraQualunque[] = [
   ...procedureSmistamentoAssenze,
   ...procedureSmistamentoBozza,
+  ...procedureSmistamentoCassetta,
   ...procedureSmistamentoFirme,
   ...procedureSmistamentoLettura,
   ...procedureSmistamentoPagine,

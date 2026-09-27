@@ -23,6 +23,10 @@ export function riferimentiRotti (registro: Registro): string[] {
   const piani = new Map(registro.piani.map((p) => [p.id, p]))
   const lezioni = new Map(registro.lezioni.map((l) => [l.id, l]))
 
+  const iscrittiDellaClasse = new Map(
+    registro.classi.map((c) => [c.id, new Set(c.allievi.map((a) => a.id))]),
+  )
+
   const annoDi = (corso: Corso | undefined) => {
     const classe = corso ? classi.get(corso.classeId) : undefined
     return classe ? anni.get(classe.annoId) : undefined
@@ -47,7 +51,6 @@ export function riferimentiRotti (registro: Registro): string[] {
     coppie.add(coppia)
   }
 
-  const corsiEsistenti = new Set(registro.corsi.map((c) => c.id))
   for (const piano of registro.piani) {
     // Il nome solo se serve: `nomePiano` filtra e ordina tutte le lezioni, e
     // farlo per ogni piano sano a ogni spinta di stato costerebbe piani × lezioni.
@@ -55,15 +58,21 @@ export function riferimentiRotti (registro: Registro): string[] {
       corso: corsi.get(piano.corsoId ?? '')?.titolo ?? null,
       lezioni: registro.lezioni,
     })
-    if (piano.corsoId && !corsiEsistenti.has(piano.corsoId)) {
+    if (piano.corsoId && !corsi.has(piano.corsoId)) {
       problemi.push(t.pianoSenzaCorso(suo()))
     }
     // Una risorsa senza indirizzo né file non porta da nessuna parte.
-    const vuote = [piano.risorse, ...piano.attivita.map((a) => a.risorse)]
-      .flat()
-      .filter((r) => !r.url && !r.file)
-    if (vuote.length > 0) {
-      problemi.push(t.risorseVuote(suo(), vuote.length))
+    let vuoteCount = 0
+    for (const r of piano.risorse) {
+      if (!r.url && !r.file) vuoteCount++
+    }
+    for (const a of piano.attivita) {
+      for (const r of a.risorse) {
+        if (!r.url && !r.file) vuoteCount++
+      }
+    }
+    if (vuoteCount > 0) {
+      problemi.push(t.risorseVuote(suo(), vuoteCount))
     }
   }
 
@@ -98,7 +107,7 @@ export function riferimentiRotti (registro: Registro): string[] {
     }
     const classe = classi.get(corso.classeId)
     if (classe) {
-      const iscritti = new Set(classe.allievi.map((a) => a.id))
+      const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
       const estranei = momento.voti.filter((v) => !iscritti.has(v.allievoId)).length
       if (estranei > 0) {
         problemi.push(t.votiEstranei(momento.titolo, estranei, classe.nome))
@@ -142,7 +151,7 @@ export function riferimentiRotti (registro: Registro): string[] {
     }
     const classe = classi.get(corso.classeId)
     if (!classe) continue
-    const iscritti = new Set(classe.allievi.map((a) => a.id))
+    const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
     const estranei = [
       ...consegna.allieviIds,
       ...consegna.fatte.map((f) => f.chi).filter((chi) => chi !== CHI_INSEGNA),
@@ -166,7 +175,7 @@ export function riferimentiRotti (registro: Registro): string[] {
     }
     const classe = classi.get(corso.classeId)
     if (!classe) continue
-    const iscritti = new Set(classe.allievi.map((a) => a.id))
+    const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
     const estranei = new Set(
       check.spunte.map((s) => s.allievoId).filter((id) => !iscritti.has(id)),
     ).size

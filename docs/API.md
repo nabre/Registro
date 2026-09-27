@@ -195,7 +195,7 @@ Standard Schema (`~standard`); perché fatto in casa: ADR-28.
 
 ## 5. Le procedure di oggi
 
-**Trentotto letture, e per il resto scritture.** Le scritture prendono in
+**Trentanove letture, e per il resto scritture.** Le scritture prendono in
 carico tutte le azioni del protocollo. Il conto lo stampa `npm run procedures`;
 `tests/api/coverage.test.mjs` confronta l'unione `Azione` con le procedure.
 
@@ -258,7 +258,7 @@ L'area è il primo segmento del nome.
 
 L'elenco per nome: `regi elenco`; in JSON con gli ingressi: `regi catalogo`.
 
-### Le trentotto letture
+### Le trentanove letture
 
 Tre regole per tutte (ADR-29): nessuna scrittura né effetto collaterale; il
 conto già fatto dal dominio, mai dati grezzi; forma piatta dichiarata, non i
@@ -286,6 +286,7 @@ tipi interni.
 | `classi.altrove` | `percorso` | un altro `.regi` letto senza aprirlo: etichetta dell'anno e classi (persone, materie) |
 | `registro.sfoglia` | — | apre il dialogo dei file sui `.regi` e torna `percorso` o `null` |
 | `registro.altrove` | `percorso` | un altro registro blocco per blocco: anno, impostazioni in breve, materie (`nuova`), classi (`esiste`), piani, calendari |
+| `programma.giornale` | `limite?`, `soloErrori?` | ultime chiamate registrate nel giornale in memoria dell'applicazione (non scrive su disco) |
 
 - I calendari si leggono dalla copia nel documento (`calendari/<id>.ics`); la
   rete solo per un documento vecchio senza copia. Scritture:
@@ -306,7 +307,7 @@ tipi interni.
 - Tenute fuori dall'assistente (`perAssistente: false`): `modelli.*`,
   `documenti.inventario`, `registro.integrita`, `llm.*`, `calendario.*`,
   `aggiornamenti.stato`, `classi.altrove`, `registro.sfoglia`,
-  `registro.altrove`.
+  `registro.altrove`, `programma.giornale`.
 
 **Per l'assistente**, che riceve gli id della pagina e ha bisogno di attrezzi
 che li prendano.
@@ -371,7 +372,12 @@ riscrive.
   tornano come usati (vale per tutte le letture: `corsi.elenco` dice l'anno,
   `llm.file` deposito e taglio, `modelli.*` il nome).
 - Tetto 500 righe per busta; di più è `ingresso-non-valido`. `ancora` dice
-  quante restano.
+  quante restano. Le letture di matrice o cruscotto (`corso.presenze`,
+  `valutazioni.voti`, `documenti.inventario`) non hanno paginazione: presenze
+  e voti coprono una griglia limitata alla capienza naturale di una classe
+  (≤ 30 allievi), dove una pagina parziale spezzerebbe i confronti e le medie;
+  l'inventario aggrega i metadati complessivi dei documenti in una sola vista
+  sintetica.
 - `ha`/`senza` si compongono; vuoto = stringa di spazi, elenco senza voci,
   `false` (`pieno()`); zero non è vuoto.
 - Estremi compresi; `null` non passa nessuna soglia (lo si chiede con `senza`).
@@ -527,23 +533,23 @@ scritture**: ogni altra scrittura rinuncia dopo 30 s con `non-disponibile`.
 | `documento.apri` senza `percorso` | il documento | passare `percorso` |
 | `documento.chiudi` con un anno mai salvato | salvare o buttare | — |
 | `llm.importa` con `file` vuoto | il `.gguf` | passare `file` |
-| `consegne.raccogli` | i file | — |
-| `consegne.documento.allega` | il documento | — |
-| `consegne.firme.aggiungi` | il foglio firme | — |
-| `classe.assenze.foglio.aggiungi` | il foglio di assenze | — |
+| `consegne.raccogli` | i file | passare `file` |
+| `consegne.documento.allega` | il documento | passare `file` |
+| `consegne.firme.aggiungi` | il foglio firme | passare `file` |
+| `classe.assenze.foglio.aggiungi` | il foglio di assenze | passare `file` |
 | `classe.assenze.importa` | i fogli | — |
-| `risorse.aggiungi` | il file | — |
-| `valutazioni.allegato.aggiungi` | l'allegato | — |
-| `persone.foto.imposta` | la foto | — |
-| `intestazione.logo` | il logo (PNG o JPEG) | — |
+| `risorse.aggiungi` | il file | passare `file` |
+| `valutazioni.allegato.aggiungi` | l'allegato | passare `file` |
+| `persone.foto.imposta` | la foto | passare `file` |
+| `intestazione.logo` | il logo (PNG o JPEG) | passare `file` |
 | `calendario.aggiungi` con `origine` vuota | il `.ics` | passare `origine` |
 | `registro.sfoglia` | un altro `.regi` (lettura: non tiene la fila) | `registro.altrove` e `registro.importa` con il percorso |
 | `programma.sfoglia` | cartella o file di un'impostazione | `programma.salva` con il percorso, dove permesso |
 | `posta.collega` | indirizzo, nome d'accesso, modo di entrare | — |
 | `posta.invioProva` | l'indirizzo della prova | — |
-| `consegne.distribuisci` con invio diretto | la conferma | — |
-| `classe.comunicazioni.invia` con invio diretto | la conferma | — |
-| `classe.assenze.invia` con invio diretto | la conferma | — |
+| `consegne.distribuisci` con invio diretto | la conferma | passare `conferma: true` |
+| `classe.comunicazioni.invia` con invio diretto | la conferma | passare `conferma: true` |
+| `classe.assenze.invia` con invio diretto | la conferma | passare `conferma: true` |
 
 Quelle che prendono un file si riconoscono da `$elenco`: `idempotente: false`
 con ingresso vuoto o quasi. Quelle che chiedono conferma solo da questa

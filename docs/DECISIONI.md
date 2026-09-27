@@ -542,10 +542,10 @@ SignPath rifiuta la firma.
    e migrazione per passi). Un allievo con data di iscrizione posteriore alla data
    di una prova passata viene escluso da quella prova, non lasciando debiti pregressi
    o buchi fittizi nelle valutazioni.
-2. **Esclusione reciproca voto e assenza:** In alutazioni.voto.imposta, l'attribuzione
-   di un voto (alore !== null) azzera lo stato di assenza (ssente = false),
-   e contrassegnare un allievo come assente (ssente = true) rimuove il valore del
-   voto (alore = null). Non è possibile avere contemporaneamente un voto numerico
+2. **Esclusione reciproca voto e assenza:** In valutazioni.voto.imposta, l'attribuzione
+   di un voto (valore !== null) azzera lo stato di assenza (assente = false),
+   e contrassegnare un allievo come assente (assente = true) rimuove il valore del
+   voto (valore = null). Non è possibile avere contemporaneamente un voto numerico
    e l'assenza segnata sulla stessa prova.
 3. **Scale voti e medie:** Le valutazioni numeriche sono ancorate alla scala definita
    nelle impostazioni del documento (minimo 0%, massimo 100%, con grado di precisione
@@ -562,15 +562,12 @@ SignPath rifiuta la firma.
    che oscura voti, note sensibili e dati personali degli altri allievi quando lo
    schermo è proiettato.
 6. **Normalizzazione e consistenza:** Tutti i campi opzionali di tipo identificativo o
-   chiave esterna sono normalizzati in modo coerente tramite 
-iferimento: stringa non
-   vuota o 
-ull (stringa vuota convertita in 
-ull). Le azioni sulle collezioni
+   chiave esterna sono normalizzati in modo coerente tramite riferimento: stringa non
+   vuota o null (stringa vuota convertita in null). Le azioni sulle collezioni
    utilizzano contesto.modifica dichiarando esplicitamente le partizioni coinvolte.
 
 **Vincoli.** VERSIONE_DATI = 2: i documenti aperti a versione 1 vengono aggiornati
-creando la copia di backup in ersioni-precedenti/ prima di applicare il passo.
+creando la copia di backup in versioni-precedenti/ prima di applicare il passo.
 Nessuna dipendenza crittografica opaca nel file .regi.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/upgrades.ts`, `core/dominio/normalization.ts`,
@@ -601,6 +598,41 @@ barra del titolo con overlay.
 
 **Dove.** `ui/pannello/commandBar.ts`, `ui/pannello/statusBar.ts`,
 `desktop/apparato/windows.ts`.
+
+### ADR-43 — Architettura dell'API: stato monolitico, transazioni, schemi e paginazione
+
+**Decisione.**
+1. **Spinta dello stato monolitico al pannello:** Il pannello webview riceve l'intera
+   istanza immutabile di `Registro` a ogni modifica via IPC (`flushStato`). Data la
+   natura dell'applicazione (monoutente desktop, dimensioni tipiche del registro
+   nell'ordine di pochi megabyte), le sottoscrizioni parziali a singole entità
+   introdurrebbero complessità architetturale (state store distribuiti, riconciliazione,
+   rischio di viste disallineate) senza alcun beneficio percettibile di reattività.
+2. **Atomicità a singola azione e rifiuto delle transazioni multi-procedura:** Ogni
+   chiamata a procedura o azione applicativa è un'unità atomica di mutazione. Non sono
+   ammesse transazioni che abbracciano più procedure consecutive: questo preserva
+   l'invariante di consistenza del documento, la semplicità del rollback a livello di
+   singola azione e la tracciabilità lineare nel giornale degli eventi.
+3. **JSON Schema per procedura e rifiuto di OpenAPI:** Il protocollo JSON-RPC e il
+   centralino utilizzano JSON Schema standard (draft 2020-12) per definire l'ingresso e
+   l'uscita di ciascuna procedura. OpenAPI (specifica pensata per API RESTful HTTP con
+   metodi, rotte e codici di stato HTTP) è inadatta ed eccedente rispetto a un centralino
+   RPC a messaggio tipizzato; la CLI e l'assistente LLM consumano direttamente
+   `resources/tools.json` e le definizioni del manifesto.
+4. **Paginazione naturale vs buste chiuse:** La paginazione a cursore/finestra è
+   adottata per collezioni che possono crescere indefinitamente. Le letture legate al
+   contesto di classe o anno (`corso.presenze`, `valutazioni.voti`,
+   `documenti.inventario`) restituiscono buste chiuse complete senza paginazione: il
+   loro dominio è naturalmente limitato (es. capienza di una classe, tipicamente 20–30
+   allievi, o inventario dell'anno), rendendo la paginazione superflua e d'intralcio
+   ai consumatori sincroni.
+
+**Vincoli.** Nessuna libreria di schema o framework REST aggiuntivo; le procedure rimangono
+autodescrittive tramite `definisci()`. Il salvataggio su disco rimane asincrono e a prova
+di coalescenza.
+
+**Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
+`docs/API.md`.
 
 ## Decisioni implicite
 
