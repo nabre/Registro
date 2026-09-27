@@ -29,15 +29,6 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ## 2. Lavoro aperto
 
-### Prove
-
-- [ ] Una prova di regressione per ogni difetto grave: mancano quella
-      dell'appello (vive in una chiusura del DOM) e `comandiInVolo`.
-- [ ] Nessuna prova end-to-end del giro pagina → preload → main → disco.
-- [ ] Senza prova: `EACCES` sulla pipe, giro Exchange vero, OAuth
-      che dimentica un account sbagliato, scarichi con più iscritti.
-- [ ] Prove dell'interfaccia su Playwright per Node, senza Python (non urge).
-
 ### Interfaccia
 
 - [ ] `docs/immagini/*.png` sono dell'aspetto di prima: da rifare.

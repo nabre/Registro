@@ -53,14 +53,18 @@ import {
  * I comandi partiti e non ancora tornati, per id. Fuori dal DOM perché la barra
  * si ridisegna mentre il comando è in volo, e il pulsante che rinasce deve
  * nascere spento (se no un secondo clic lo rilancia).
+ * Esportata per le prove di regressione.
  */
-const comandiInVolo = new Map<
+export const comandiInVolo = new Map<
   string,
   { bottone: HTMLButtonElement; spento: boolean } | null
 >()
 
-/** Il pulsante appena nato di un comando in volo: spento, con la sua rotella. */
-function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
+/**
+ * Il pulsante appena nato di un comando in volo: spento, con la sua rotella.
+ * Esportata per le prove di regressione.
+ */
+export function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
   if (!comandiInVolo.has(id)) return
   comandiInVolo.set(id, { bottone, spento: bottone.disabled })
   bottone.disabled = true
@@ -68,8 +72,11 @@ function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
   bottone.setAttribute('aria-busy', 'true')
 }
 
-/** Esegue il comando dal suo pulsante, e se parla con l'host lo tiene in volo. */
-function eseguiDalPulsante (
+/**
+ * Esegue il comando dal suo pulsante, e se parla con l'host lo tiene in volo.
+ * Esportata per le prove di regressione.
+ */
+export function eseguiDalPulsante (
   comando: ComandoUI,
   bottone: HTMLButtonElement,
 ): void {
@@ -89,8 +96,11 @@ function eseguiDalPulsante (
   void conAttesa(bottone, esito).then(torna, torna)
 }
 
-/** Un comando compatto: icona e nome affiancati, motivo del no nel titolo. */
-function pulsanteComando (comando: ComandoUI): HTMLElement {
+/**
+ * Un comando compatto: icona e nome affiancati, motivo del no nel titolo.
+ * Esportata per le prove di regressione.
+ */
+export function pulsanteComando (comando: ComandoUI): HTMLElement {
   const impedito = impedimentoDi(comando)
   const aiuto = aiutoDi(comando)
   const titolo = titoloDi(comando)

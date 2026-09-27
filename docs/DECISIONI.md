@@ -634,6 +634,33 @@ di coalescenza.
 **Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
 `docs/API.md`.
 
+### ADR-44 — Prove d'interfaccia con Playwright Python sincrono
+
+**Decisione.** I test d'interfaccia completi con browser reale (25 suite per oltre
+3'700 righe in `tests/ui/*.py`) restano scritti in Python sfruttando
+`playwright.sync_api`. Non si migra il framework a Node.js (`@playwright/test`).
+Le prove di regressione puntuali sui componenti DOM dell'interfaccia (`attendanceClicks`,
+`commandBarInFlight`, ecc.) si scrivono invece in JavaScript/Node.js sotto `tests/ui/*.test.mjs`
+tramite DOM sintetico, eseguibili direttamente con `node --test` e `npm test`.
+
+**Perché.**
+1. `playwright.sync_api` offre una sintassi lineare e sincrona priva di cascate di
+   `await` su ogni locator, asserzione e clic, rendendo i test di flusso UI estremamente
+   chiari e concisi.
+2. L'ambiente Python è leggero, già integrato e isolato nel runner della CI
+   (`.github/workflows/verifica.yml`) e in `tools/uiTests.mjs`.
+3. Una riscrittura completa dei 25 file in TypeScript/Node richiederebbe l'aggiunta di
+   pesanti pacchetti npm in `devDependencies`, aumentando il tempo di installazione e
+   creando potenziale duplicazione senza alcun guadagno di copertura o stabilità.
+4. I test unitari veloci dell'interfaccia girano in millisecondi in memoria con
+   `node --test` senza avviare Chromium.
+
+**Vincoli.** Nessuna dipendenza da Playwright nel `package.json` di produzione o
+di sviluppo Node; Python 3 e Playwright Chromium restano gestiti esternamente via `ui-tests`.
+
+**Dove.** `tools/uiTests.mjs`, `tests/ui/*.py`, `tests/ui/*.test.mjs`.
+
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.

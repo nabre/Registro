@@ -134,3 +134,189 @@ describe('un rifiuto su RCPT dopo un DATA riuscito', () => {
     assert.deepEqual(esito.falliti.map((f) => f.indice), [2])
   })
 })
+
+describe('il colloquio SMTP completo con Exchange', () => {
+  it('provaExchange esegue il saluto, STARTTLS, autenticazione XOAUTH2 e QUIT', async () => {
+    const dialogoSmtp = []
+
+    const FINTO_NET = `
+      import { EventEmitter } from 'node:events'
+      export function connect () {
+        const socket = new EventEmitter()
+        socket.setTimeout = () => socket
+        socket.destroy = () => { socket.emit('close') }
+        socket.write = (chunk) => {
+          globalThis.__smtpScrivi(chunk.toString('utf8'), socket, false)
+        }
+        socket.on('newListener', (evento) => {
+          if (evento === 'data') {
+            queueMicrotask(() => globalThis.__smtpBenvenuto(socket))
+          }
+        })
+        queueMicrotask(() => {
+          socket.emit('connect')
+        })
+        return socket
+      }
+    `
+
+    const FINTO_TLS = `
+      import { EventEmitter } from 'node:events'
+      export function connect () {
+        const tlsSocket = new EventEmitter()
+        tlsSocket.setTimeout = () => tlsSocket
+        tlsSocket.destroy = () => { tlsSocket.emit('close') }
+        tlsSocket.write = (chunk) => {
+          globalThis.__smtpScrivi(chunk.toString('utf8'), tlsSocket, true)
+        }
+        queueMicrotask(() => tlsSocket.emit('secureConnect'))
+        return tlsSocket
+      }
+    `
+
+    globalThis.__smtpBenvenuto = (socket) => {
+      dialogoSmtp.push('S: 220 smtp.office365.com ready')
+      socket.emit('data', Buffer.from('220 smtp.office365.com ready\r\n'))
+    }
+
+    globalThis.__smtpScrivi = (testo, socket, cifrato) => {
+      dialogoSmtp.push(`C(${cifrato ? 'TLS' : 'TCP'}): ${testo.trim()}`)
+      if (testo.startsWith('EHLO') && !cifrato) {
+        socket.emit('data', Buffer.from('250-smtp.office365.com Hello\r\n250-STARTTLS\r\n250 OK\r\n'))
+      } else if (testo.startsWith('STARTTLS')) {
+        socket.emit('data', Buffer.from('220 2.0.0 SMTP server ready\r\n'))
+      } else if (testo.startsWith('EHLO') && cifrato) {
+        socket.emit('data', Buffer.from('250-smtp.office365.com Hello\r\n250-AUTH LOGIN XOAUTH2\r\n250 OK\r\n'))
+      } else if (testo.startsWith('AUTH XOAUTH2')) {
+        socket.emit('data', Buffer.from('235 2.7.0 Authentication successful\r\n'))
+      } else if (testo.startsWith('QUIT')) {
+        socket.emit('data', Buffer.from('221 2.0.0 Service closing\r\n'))
+      }
+    }
+
+    const { provaExchange } = await importaSorgente('core/dati/exchange.ts', {
+      finti: {
+        'node:net': FINTO_NET,
+        'node:tls': FINTO_TLS,
+        './mailbox.js': `
+          export function casella () {
+            return { accesso: 'docente@scuola.ch', mittente: 'docente@scuola.ch' }
+          }
+          export function contoScritto () { return true }
+        `,
+        './oauth.js': `
+          export async function gettoneDaSpedire () { return 'GETTONE_PROVA_123' }
+          export function oauthNoto () { return true }
+        `,
+      },
+    })
+
+    const esito = await provaExchange()
+    assert.equal(esito.ok, true)
+    assert.equal(esito.dove, 'smtp.office365.com')
+    assert.ok(dialogoSmtp.some((r) => r.includes('STARTTLS')))
+    assert.ok(dialogoSmtp.some((r) => r.includes('AUTH XOAUTH2')))
+    assert.ok(dialogoSmtp.some((r) => r.includes('QUIT')))
+  })
+
+  it('spedisciConExchange consegna un messaggio sul canale cifrato con MAIL FROM, RCPT TO e DATA', async () => {
+    const dialogoSmtp = []
+
+    const FINTO_NET = `
+      import { EventEmitter } from 'node:events'
+      export function connect () {
+        const socket = new EventEmitter()
+        socket.setTimeout = () => socket
+        socket.destroy = () => { socket.emit('close') }
+        socket.write = (chunk) => {
+          globalThis.__smtpScriviSpedisci(chunk.toString('utf8'), socket, false)
+        }
+        socket.on('newListener', (evento) => {
+          if (evento === 'data') {
+            queueMicrotask(() => globalThis.__smtpBenvenutoSpedisci(socket))
+          }
+        })
+        queueMicrotask(() => {
+          socket.emit('connect')
+        })
+        return socket
+      }
+    `
+
+    globalThis.__smtpBenvenutoSpedisci = (socket) => {
+      dialogoSmtp.push('S: 220 smtp.office365.com ready')
+      socket.emit('data', Buffer.from('220 smtp.office365.com ready\r\n'))
+    }
+
+    const FINTO_TLS = `
+      import { EventEmitter } from 'node:events'
+      export function connect () {
+        const tlsSocket = new EventEmitter()
+        tlsSocket.setTimeout = () => tlsSocket
+        tlsSocket.destroy = () => { tlsSocket.emit('close') }
+        tlsSocket.write = (chunk) => {
+          globalThis.__smtpScriviSpedisci(chunk.toString('utf8'), tlsSocket, true)
+        }
+        queueMicrotask(() => tlsSocket.emit('secureConnect'))
+        return tlsSocket
+      }
+    `
+
+    globalThis.__smtpScriviSpedisci = (testo, socket, cifrato) => {
+      dialogoSmtp.push(`C(${cifrato ? 'TLS' : 'TCP'}): ${testo.trim()}`)
+      if (testo.startsWith('EHLO') && !cifrato) {
+        socket.emit('data', Buffer.from('250-smtp.office365.com Hello\r\n250-STARTTLS\r\n250 OK\r\n'))
+      } else if (testo.startsWith('STARTTLS')) {
+        socket.emit('data', Buffer.from('220 2.0.0 SMTP server ready\r\n'))
+      } else if (testo.startsWith('EHLO') && cifrato) {
+        socket.emit('data', Buffer.from('250-smtp.office365.com Hello\r\n250-AUTH XOAUTH2\r\n250 OK\r\n'))
+      } else if (testo.startsWith('AUTH XOAUTH2')) {
+        socket.emit('data', Buffer.from('235 2.7.0 Authentication successful\r\n'))
+      } else if (testo.startsWith('MAIL FROM:')) {
+        socket.emit('data', Buffer.from('250 2.1.0 Sender OK\r\n'))
+      } else if (testo.startsWith('RCPT TO:')) {
+        socket.emit('data', Buffer.from('250 2.1.5 Recipient OK\r\n'))
+      } else if (testo.startsWith('DATA')) {
+        socket.emit('data', Buffer.from('354 Send data\r\n'))
+      } else if (testo.endsWith('\r\n.\r\n') || testo === '.\r\n' || testo.endsWith('\n.\n')) {
+        socket.emit('data', Buffer.from('250 2.6.0 Queued mail\r\n'))
+      } else if (testo.startsWith('RSET')) {
+        socket.emit('data', Buffer.from('250 2.0.0 Reset state\r\n'))
+      } else if (testo.startsWith('QUIT')) {
+        socket.emit('data', Buffer.from('221 2.0.0 Bye\r\n'))
+      }
+    }
+
+    const { spedisciConExchange } = await importaSorgente('core/dati/exchange.ts', {
+      finti: {
+        'node:net': FINTO_NET,
+        'node:tls': FINTO_TLS,
+        './mailbox.js': `
+          export function casella () {
+            return { accesso: 'docente@scuola.ch', mittente: 'docente@scuola.ch' }
+          }
+          export function contoScritto () { return true }
+        `,
+        './oauth.js': `
+          export async function gettoneDaSpedire () { return 'GETTONE_PROVA_123' }
+          export function oauthNoto () { return true }
+        `,
+      },
+    })
+
+    const esito = await spedisciConExchange([
+      {
+        a: ['studente@scuola.ch'],
+        ccn: [],
+        oggetto: 'Compiti',
+        corpo: 'Esercizio 4',
+      },
+    ])
+
+    assert.equal(esito.ok, true)
+    assert.equal(esito.quante, 1)
+    assert.ok(dialogoSmtp.some((r) => r.includes('RCPT TO:<studente@scuola.ch>')))
+    assert.ok(dialogoSmtp.some((r) => r.includes('DATA')))
+  })
+})
+
