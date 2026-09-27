@@ -178,7 +178,8 @@
       "rpm"
     ],
     "category": "Education",
-    "desktopName": "ch.nabre.regiclass.desktop",
+    // Il nome del .desktop deriva da `desktopName` in package.json.
+    "syncDesktopName": true,
     // Il `.deb` vuole un manutentore, e `author` in `package.json` non basta.
     "maintainer": "Michel Brenna",
     // Una misura per file: ognuno prende la sua invece di rimpicciolire la 512.
