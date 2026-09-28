@@ -104,23 +104,26 @@ export function sidebar (): HTMLElement {
       // Il titolo lungo («Registro — DIC4a · Matematica») dice di quale corso sono
       // le pagine; se non ci sta si accorcia, intero nel suggerimento.
       h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } }, gruppo.titolo),
-      ...gruppo.pagine.map((pagina) => h('button', {
-        type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
-        attr: {
-          'aria-label': pagina.titolo,
-          'aria-current': pagina.attiva() ? 'page' : null,
-          'aria-disabled': String(Boolean(pagina.impedimento?.())),
-          title: suggerimentoDi(pagina),
-        },
-        onclick: () => {
-          vaiA(pagina)
-          if (!pagina.impedimento?.()) chiudiSidebarMobile()
-        },
-        // Il conto in coda, solo se maggiore di zero.
-      }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
-      (pagina.conto?.() ?? 0) > 0
-        ? h('span', { class: 'sidebar__conto' }, String(pagina.conto?.()))
-        : null)),
+      ...gruppo.pagine.map((pagina) => {
+        const conto = pagina.conto?.() ?? 0
+        return h('button', {
+          type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
+          attr: {
+            'aria-label': pagina.titolo,
+            'aria-current': pagina.attiva() ? 'page' : null,
+            'aria-disabled': String(Boolean(pagina.impedimento?.())),
+            title: suggerimentoDi(pagina),
+          },
+          onclick: () => {
+            vaiA(pagina)
+            if (!pagina.impedimento?.()) chiudiSidebarMobile()
+          },
+          // Il conto in coda, solo se maggiore di zero.
+        }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
+        conto > 0
+          ? h('span', { class: 'sidebar__conto' }, String(conto))
+          : null)
+      }),
     )),
   ),
   )

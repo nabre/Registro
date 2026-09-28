@@ -842,7 +842,10 @@ export function classiVisibili () {
  * decidere se la sezione «Docente di classe» c'è, e la tendina per le sue voci.
  */
 export function classiDiCuiSonoDocente () {
-  return classiVisibili().filter((c) => c.docenteDiClasse)
+  const anno = annoCorrente()
+  return derivato('classiDiCuiSonoDocente', anno?.id ?? '', () =>
+    classiVisibili().filter((c) => c.docenteDiClasse),
+  )
 }
 
 /** Tutte le classi dell'anno, archiviate comprese: serve alla vista Classi. */

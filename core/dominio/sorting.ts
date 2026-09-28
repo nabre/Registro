@@ -552,10 +552,15 @@ export function daSmistarePerClasse (
   const mucchi: MucchioDaSmistare[] = []
 
   for (const { classe, consegneIds } of docenze) {
-    const suoi = smistamentiDellaClasse(inAttesa, classe.id, consegneIds).filter(
-      (s) => !gia.has(s.id),
-    )
-    for (const s of suoi) gia.add(s.id)
+    const sue = new Set(consegneIds)
+    const suoi: Smistamento[] = []
+    for (const s of inAttesa) {
+      if (gia.has(s.id)) continue
+      if (s.classeId === classe.id || (s.consegnaId !== null && sue.has(s.consegnaId))) {
+        gia.add(s.id)
+        suoi.push(s)
+      }
+    }
     if (suoi.length > 0) mucchi.push({ classe, smistamenti: suoi, pagine: pagineDaSmistare(suoi) })
   }
 
@@ -598,8 +603,14 @@ export function dicePagine (pagine: readonly number[]): string {
 
 /** Quante pagine restano da sistemare in tutto: il numero che si mostra da fuori. */
 export function pagineDaSmistare (smistamenti: Smistamento[]): number {
-  return smistamentiInQuarantena(smistamenti).reduce(
-    (totale, s) => totale + s.blocchi.reduce((n, b) => n + (b.a - b.da + 1), 0),
-    0,
-  )
+  let totale = 0
+  for (const s of smistamenti) {
+    if (!smistamentoEsaurito(s)) {
+      for (const b of s.blocchi) {
+        totale += b.a - b.da + 1
+      }
+    }
+  }
+  return totale
 }
+
