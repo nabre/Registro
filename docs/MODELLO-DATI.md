@@ -215,10 +215,15 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 | `sospensioni` | `Sospensione[]` | vacanze e chiusure |
 | `settimane?` | `Record<Iso, LetteraSettimana>` | chiave = il lunedì; scritte a mano, mai calcolate |
 | `note?` | `string` | |
+| `calendarioUfficiale?` | `{ cantone, annoScolastico }` | l'anno segue il calendario ufficiale (v5, ADR-51); assente = scritto a mano |
 | `cartella?` | `string` | nome su disco, **non persistito** |
 
 - Semestri contigui (`validaAnno` rifiuta, `allineaSemestri` ripara);
   `inizio`/`fine` riscritti da `annoAllineato()`; sospensioni dentro l'anno.
+- Con `calendarioUfficiale` inizio, fine e le chiusure collegate (id
+  `sos-<cantone>-<aaaa-aaaa>-…`, `èCollegata`) non si cambiano da `anno.salva`
+  (`motivoCalendarioToccato`); il marcatore lo mette e lo toglie solo
+  `anno.calendario`. Norm.: storto o incompleto → assente.
 - Norm.: `validaAnno`, `normalizzaAnno`; `creaAnno`, `creaAnnoCorrente`.
 
 ### 3.3 `Semestre`
@@ -440,6 +445,7 @@ non parte.
 | `osservazioni` | `Osservazione[]` | |
 | `matrice?` | `CellaOsservata[]` | scritta solo se non vuota |
 | `argomenti?`, `materiali?`, `consuntivo?` | `string` | |
+| `supplenza?` | `boolean` | ora tenuta al posto di un altro docente (v5); scritta solo se vera |
 | `creataIl`, `aggiornataIl` | `Istante` | |
 
 - `Presenza.stati` si riallinea alla lunghezza dell'ora (`contaUd`).

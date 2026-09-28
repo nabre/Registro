@@ -63,7 +63,7 @@ const it = {
         termine: 'Crea un nuovo anno',
         testo:
           'Si sceglie l’anno fra quelli del calendario ufficiale: date, vacanze e festivi ' +
-          'arrivano con lui. Se ci sono altri registri, il registro chiede se portarne dentro ' +
+          'arrivano con lui, e restano collegati al calendario. Se ci sono altri registri, il registro chiede se portarne dentro ' +
           'classi, corsi e impostazioni; poi apre la scheda dell’anno. Dal pannello è lo stesso ' +
           'modulo: **Nuovo anno** in Impostazioni › Anno e orario › Anno scolastico, o sulla ' +
           'pagina di un registro vuoto.',
@@ -933,7 +933,7 @@ export const testi = catalogo(it, {
           termine: 'Ein neues Schuljahr erstellen',
           testo:
             'Man wählt das Schuljahr aus dem offiziellen Kalender: Daten, Ferien und Feiertage ' +
-            'kommen mit. Gibt es schon andere Klassenbücher, fragt das Klassenbuch, ob es ' +
+            'kommen mit und bleiben mit dem Kalender verknüpft. Gibt es schon andere Klassenbücher, fragt das Klassenbuch, ob es ' +
             'Klassen, Kurse und Einstellungen daraus übernehmen soll; dann öffnet es die Seite ' +
             'des Schuljahrs. Im Hauptfenster ist es dasselbe Formular: **Neues Jahr** unter ' +
             'Einstellungen › Schuljahr und Stundenplan › Schuljahr, oder auf der Seite eines ' +
@@ -1833,7 +1833,7 @@ export const testi = catalogo(it, {
           termine: 'Créer une nouvelle année',
           testo:
             'On choisit l’année parmi celles du calendrier officiel : dates, vacances et jours ' +
-            'fériés viennent avec. S’il existe d’autres registres, le registre demande s’il ' +
+            'fériés viennent avec, et restent liés au calendrier. S’il existe d’autres registres, le registre demande s’il ' +
             'faut en reprendre les classes, les cours et les paramètres ; puis il ouvre la ' +
             'fiche de l’année. Depuis la fenêtre principale, c’est le même formulaire : ' +
             '**Nouvelle année** dans Paramètres › Année et horaire › Année scolaire, ou sur la ' +
@@ -2721,7 +2721,7 @@ export const testi = catalogo(it, {
           termine: 'Create a new year',
           testo:
             'You choose the year from those in the official calendar: dates, holidays and bank ' +
-            'holidays come with it. If there are other registers, the register asks whether ' +
+            'holidays come with it, and stay linked to the calendar. If there are other registers, the register asks whether ' +
             'to bring in their classes, courses and settings; then it opens the year’s page. ' +
             'From the main window it is the same form: **New year** in Settings › Year and ' +
             'timetable › School year, or on the page of an empty register.',

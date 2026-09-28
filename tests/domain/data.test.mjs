@@ -274,6 +274,21 @@ describe('anni scolastici', () => {
     const esito = validaAnno({ etichetta: 'x', inizio: '2026-06-30', fine: '2025-09-01', semestri: [] })
     assert.equal(esito.valido, false)
   })
+
+  it('tiene il calendario ufficiale che l’anno segue, e raddrizza quello storto', () => {
+    const anno = (calendarioUfficiale) =>
+      normalizzaRegistro({ anni: [{ inizio: '2026-08-31', fine: '2027-06-16', calendarioUfficiale }] }).anni[0]
+    assert.deepEqual(anno({ cantone: 'TI', annoScolastico: '2026/2027' }).calendarioUfficiale,
+      { cantone: 'TI', annoScolastico: '2026/2027' })
+    // Sigla minuscola e trattino al posto della barra si raddrizzano.
+    assert.deepEqual(anno({ cantone: ' ti ', annoScolastico: '2026-2027' }).calendarioUfficiale,
+      { cantone: 'TI', annoScolastico: '2026/2027' })
+    // Storto vale assente: l'anno è scritto a mano.
+    for (const storto of [undefined, 'TI', { cantone: '' , annoScolastico: '2026/2027' },
+      { cantone: 'TI', annoScolastico: '2026/2028' }, { cantone: 'TI', annoScolastico: 'prossimo' }]) {
+      assert.equal('calendarioUfficiale' in anno(storto), false, JSON.stringify(storto))
+    }
+  })
 })
 
 describe('validazione', () => {

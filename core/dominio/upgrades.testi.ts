@@ -11,6 +11,7 @@ const it = {
     2: 'data di iscrizione per ciascun allievo',
     3: 'distinzione tra pendenze di corso e di docente di classe',
     4: 'dati anagrafici strutturati del docente',
+    5: 'l’anno ricorda se segue il calendario scolastico ufficiale; una lezione può essere segnata come supplenza',
   } as Record<number, string>,
   /** Il passaggio fra due versioni, con i cambiamenti in ordine. */
   racconto: (da: number, a: number, cambi: readonly string[]) =>
@@ -31,6 +32,7 @@ export const testi = catalogo(it, {
       2: 'Einschreibe-Datum für jede lernende Person',
       3: 'Unterscheidung zwischen Pendenzen für Kurse und Klassenlehrpersonen',
       4: 'strukturierte Personalien der Lehrperson',
+      5: 'das Schuljahr merkt sich, ob es dem offiziellen Schulkalender folgt; eine Lektion kann als Stellvertretung markiert werden',
     },
     racconto: (da, a, cambi) => `vom Format ${da} zu ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'Format', dati: 'Daten' },
@@ -46,6 +48,7 @@ export const testi = catalogo(it, {
       2: 'date d’inscription pour chaque élève',
       3: 'distinction entre tâches en suspens de cours et de maître de classe',
       4: 'données d’état civil structurées de l’enseignant',
+      5: 'l’année retient si elle suit le calendrier scolaire officiel ; une leçon peut être marquée comme remplacement',
     },
     racconto: (da, a, cambi) => `du format ${da} au ${a} : ${cambi.join(' ; ')}`,
     cosa: { formato: 'format', dati: 'données' },
@@ -61,6 +64,7 @@ export const testi = catalogo(it, {
       2: 'enrollment date for each student',
       3: 'distinction between course and class teacher pending tasks',
       4: 'structured personal details of the teacher',
+      5: 'the school year remembers whether it follows the official school calendar; a lesson can be marked as a substitution',
     },
     racconto: (da, a, cambi) => `from format ${da} to ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'format', dati: 'data' },

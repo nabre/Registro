@@ -83,6 +83,14 @@
 .pause-editor__intestazione > :nth-child(2),
 .pause-editor__intestazione > :nth-child(3) { width: 8.5em; flex: none; }
 
+/*
+ * Una chiusura del calendario che l'anno segue: si legge e basta. Le date
+ * stanno nelle stesse colonne delle caselle, allineate al testo.
+ */
+.pausa-riga--ufficiale { min-height: 2rem; }
+.pausa-riga--ufficiale .pausa-riga__nome { padding-left: var(--spazio-2); }
+.pausa-riga--ufficiale .pausa-riga__data { padding-left: var(--spazio-2); }
+
 /* Una pausa fuori dall'anno non spegne nessun giorno: si segnala prima di salvare. */
 .pausa-riga--fuori .pausa-riga__data .campo__controllo { border-color: var(--negativo); }
 
@@ -185,8 +193,14 @@
 
 .calendario-ufficiale__piede {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+  gap: var(--spazio-2);
 }
+
+/* «Collega al calendario ufficiale»: la spiegazione accanto al gesto. */
+.calendario-ufficiale__piede > .testo-quieto { flex: 1; margin: 0; }
 
 .calendario-ufficiale__anno {
   display: flex;

@@ -422,13 +422,16 @@ const it = {
           'Il registro porta con sé il calendario scolastico del Ticino: inizio e fine delle ' +
           'lezioni, vacanze e festivi. Un anno nuovo si sceglie fra quelli del calendario — ' +
           'dal benvenuto, da «Nuovo anno scolastico» o dalla tendina **Anno scolastico** in ' +
-          'cima al modulo, che all’apertura ha già scelto l’anno in corso — e vacanze e festivi ' +
-          'arrivano con lui, collegati: quel che non serve si toglie dalle pause. Nel modulo ' +
-          'dell’anno e in quello delle chiusure una casella per ogni voce che l’anno non ha — da ' +
-          'aggiungere, con date diverse, o già scritta a mano e da collegare —, e **Importa le ' +
-          'voci scelte**. ' +
-          'Le chiusure importate restano collegate: se una versione nuova ne corregge le date, ' +
-          'la scheda dell’anno lo dice.',
+          'cima al modulo, che all’apertura ha già scelto l’anno in corso — e nasce **collegato**: ' +
+          'inizio, fine, vacanze e festivi vengono dal calendario e non si cambiano a mano, né nel ' +
+          'modulo né togliendoli dalle chiusure. La pastiglia «Dal calendario ufficiale» lo dice ' +
+          'nella scheda dell’anno. Le chiusure proprie — una giornata d’istituto, un ponte — si ' +
+          'aggiungono e si tolgono come sempre. **Riallinea al calendario** porta l’anno alle date ' +
+          'di una versione nuova del registro; **Stacca dal calendario ufficiale** toglie il blocco ' +
+          'e lascia date e chiusure come sono. Con «date scritte a mano», o in un anno di prima, ' +
+          'nel modulo dell’anno e in quello delle chiusure c’è una casella per ogni voce che ' +
+          'l’anno non ha e **Importa le voci scelte**; **Collega al calendario ufficiale** fa ' +
+          'dell’anno uno collegato, e le chiusure scritte a mano che coincidono diventano sue.',
       },
       {
         termine: 'Tipi di settimana',
@@ -1327,13 +1330,18 @@ export const testi = catalogo(it, {
             'Unterrichts, Ferien und Feiertage. Ein neues Schuljahr wählt man aus denen des ' +
             'Kalenders — im Willkommensbildschirm, über «Neues Schuljahr» oder in der ' +
             'Auswahlliste **Schuljahr** oben im Formular, die beim Öffnen schon das laufende ' +
-            'Schuljahr gewählt hat — und Ferien und Feiertage kommen mit, verknüpft: Was nicht ' +
-            'gebraucht wird, entfernt man aus den Unterbrüchen. Im Formular des Schuljahrs und ' +
-            'in dem der Schliessungen gibt es ein Kästchen für jeden Eintrag, den das Schuljahr ' +
-            'nicht hat — hinzuzufügen, mit anderen Daten, oder schon von Hand eingetragen und zu ' +
-            'verknüpfen —, und **Gewählte Einträge importieren**. Importierte Schliessungen ' +
-            'bleiben verknüpft: Korrigiert eine neue Version ihre Daten, sagt es die Karte des ' +
-            'Schuljahrs.',
+            'Schuljahr gewählt hat — und es entsteht **verknüpft**: Beginn, Ende, Ferien und ' +
+            'Feiertage kommen aus dem Kalender und lassen sich nicht von Hand ändern, weder im ' +
+            'Formular noch durch Entfernen bei den Schliessungen. Das Etikett «Aus dem offiziellen ' +
+            'Kalender» zeigt es auf der Karte des Schuljahrs. Eigene Schliessungen — ein ' +
+            'schulinterner Tag, eine Brücke — fügt man wie immer hinzu oder entfernt sie. **An den ' +
+            'Kalender angleichen** bringt das Schuljahr auf die Daten einer neuen Version des ' +
+            'Klassenbuchs; **Vom offiziellen Kalender lösen** hebt die Sperre auf und lässt Daten ' +
+            'und Schliessungen, wie sie sind. Mit «Daten von Hand eingegeben» oder in einem ' +
+            'früheren Schuljahr gibt es im Formular des Schuljahrs und in dem der Schliessungen ein ' +
+            'Kästchen für jeden Eintrag, den das Schuljahr nicht hat, und **Gewählte Einträge ' +
+            'importieren**; **Mit dem offiziellen Kalender verknüpfen** macht daraus ein verknüpftes ' +
+            'Schuljahr, und von Hand erfasste Schliessungen, die übereinstimmen, werden seine.',
         },
         {
           termine: 'Wochentypen',
@@ -2269,12 +2277,17 @@ export const testi = catalogo(it, {
             'vacances et jours fériés. Une nouvelle année se choisit parmi celles du calendrier ' +
             '— depuis l’écran d’accueil, depuis « Nouvelle année scolaire » ou dans la liste ' +
             '**Année scolaire** en haut du formulaire, qui à l’ouverture a déjà choisi l’année ' +
-            'en cours — et vacances et jours fériés arrivent avec elle, liés : ce qui ne sert ' +
-            'pas se retire des interruptions. Dans le formulaire de l’année et dans celui des ' +
-            'fermetures, une case pour chaque entrée que l’année n’a pas — à ajouter, avec des ' +
-            'dates différentes, ou déjà écrite à la main et à lier —, et **Importer les entrées ' +
-            'choisies**. Les fermetures importées restent liées : si une nouvelle version en ' +
-            'corrige les dates, la carte de l’année le dit.',
+            'en cours — et elle naît **liée** : début, fin, vacances et jours fériés viennent du ' +
+            'calendrier et ne se changent pas à la main, ni dans le formulaire ni en les retirant ' +
+            'des fermetures. La pastille « Du calendrier officiel » l’indique sur la carte de ' +
+            'l’année. Les fermetures propres — une journée d’établissement, un pont — s’ajoutent et ' +
+            'se retirent comme toujours. **Réaligner sur le calendrier** amène l’année aux dates ' +
+            'd’une nouvelle version du registre ; **Détacher du calendrier officiel** retire le ' +
+            'verrou et laisse dates et fermetures telles quelles. Avec « dates saisies à la main », ' +
+            'ou dans une année d’avant, le formulaire de l’année et celui des fermetures ont une ' +
+            'case pour chaque entrée que l’année n’a pas et **Importer les entrées choisies** ; ' +
+            '**Lier au calendrier officiel** en fait une année liée, et les fermetures saisies à la ' +
+            'main qui correspondent deviennent les siennes.',
         },
         {
           termine: 'Types de semaine',
@@ -3194,12 +3207,16 @@ export const testi = catalogo(it, {
             'holidays and public holidays. A new year is chosen from those of the calendar — ' +
             'from the welcome screen, from “New school year” or from the **School year** ' +
             'drop-down at the top of the form, which on opening has already chosen the current ' +
-            'year — and holidays and public holidays come with it, linked: what you do not need ' +
-            'you remove from the breaks. In the year form and in the closures form there is a ' +
-            'box for each entry the year does not have — to be added, with different dates, or ' +
-            'already written by hand and to be linked —, and **Import the chosen entries**. ' +
-            'Imported closures stay linked: if a new version corrects their dates, the year ' +
-            'card says so.',
+            'year — and it is born **linked**: start, end, holidays and public holidays come from ' +
+            'the calendar and can’t be changed by hand, neither in the form nor by removing them ' +
+            'from the closures. The “From the official calendar” badge says so on the year card. ' +
+            'Your own closures — an in-service day, a bridge day — are added and removed as usual. ' +
+            '**Realign with the calendar** brings the year to the dates of a new version of the ' +
+            'register; **Unlink from the official calendar** removes the lock and leaves dates and ' +
+            'closures as they are. With “dates entered by hand”, or in an older year, the year form ' +
+            'and the closures form have a box for each entry the year does not have and **Import ' +
+            'the chosen entries**; **Link to the official calendar** makes it a linked year, and ' +
+            'closures written by hand that match become its own.',
         },
         {
           termine: 'Week types',

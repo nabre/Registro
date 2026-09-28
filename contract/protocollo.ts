@@ -8,6 +8,7 @@
 import type {
   AnnoScolastico,
   BloccoAssenze,
+  CalendarioDellAnno,
   Classe,
   ColonnaCheck,
   Comunicazione,
@@ -92,8 +93,19 @@ export type Azione =
     sospensioni?: Sospensione[]
     /** I nomi dei due semestri, se scritti nel modulo. */
     etichetteSemestri?: [string, string]
+    /**
+     * L'anno del calendario ufficiale che l'anno segue: date e chiusure devono
+     * essere quelle (`motivoCalendarioToccato`).
+     */
+    calendarioUfficiale?: CalendarioDellAnno
   }
   | { tipo: 'anno.salva'; anno: AnnoScolastico }
+  /**
+   * Collega l'anno al calendario ufficiale del suo anno scolastico (date e
+   * chiusure ufficiali, e il marcatore che le blocca), lo riallinea se è già
+   * collegato, o lo stacca: via il marcatore, date e chiusure restano.
+   */
+  | { tipo: 'anno.calendario'; annoId: string; collega: boolean }
   /**
    * Dice se la settimana di `giorno` è A, B o nessuna delle due. Azione a sé e non
    * `anno.salva`: rimandare l'anno intero farebbe sovrascrivere le vacanze fra due

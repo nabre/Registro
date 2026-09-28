@@ -5,7 +5,20 @@ import * as apparato from 'apparato'
 
 import { nomeCompleto } from '../dominio/calculations.js'
 import { lezioniDaOrario, lezioniNeiGiorniChiusi } from '../dominio/timetable.js'
-import { annoAllineato, conLetteraSettimana, motivoSettimanaRifiutata } from '../dominio/years.js'
+import {
+  allineaSemestri,
+  annoAllineato,
+  conLetteraSettimana,
+  motivoSettimanaRifiutata,
+} from '../dominio/years.js'
+import {
+  annoUfficiale,
+  bozzaSincronizzata,
+  calendarioDi,
+  calendarioUfficialePerCantone,
+  marcatoreDi,
+  motivoCalendarioToccato,
+} from '../dominio/schoolCalendar.js'
 import type {
   AnnoScolastico,
   Attivita,
@@ -35,6 +48,7 @@ import { validaAnno, validaCorso, validaMateria, validaClasse } from '../dominio
 import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '../dati/filing.js'
 import { percorsoCopiaCalendario, scriviCopia } from '../dati/calendar.js'
 import { contenutoDi } from '../dati/store.js'
+import { vociDi } from '../dati/bozza.js'
 import { percorsoLogo, portaDentroLaVecchiaCartella } from './templates.js'
 import { percorsoProvvisorio } from '../dati/paths.js'
 import {
@@ -42,15 +56,58 @@ import {
   conMessaggio,
   documentoCambiato,
   fatto,
+  ordinaInBozza,
   rifiuta,
   riponi,
+  riponiInOrdine,
   scegliUnFile,
+  type Contesto,
+  type EsitoAzione,
   type Parte,
 } from './context.js'
 import { parole } from '../dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './register.testi.js'
 import { istanteAdesso } from '../dominio/dates.js'
+
+/**
+ * Perché l'anno così non si scrive, se segue il calendario ufficiale e ne
+ * tocca le voci; `null` se si può (`motivoCalendarioToccato`).
+ */
+function calendarioToccato (prima: AnnoScolastico | null, dopo: AnnoScolastico): string | null {
+  const marcatore = dopo.calendarioUfficiale ?? prima?.calendarioUfficiale
+  const calendario = marcatore ? calendarioDi(marcatore) : null
+  return motivoCalendarioToccato(calendario, prima, dopo)
+}
+
+/**
+ * Riscrive l'anno aperto al posto di `prima`. Nelle chiusure nuove le lezioni
+ * intatte se ne vanno nello stesso gesto; quelle con dati restano e lo si
+ * dice (`lezioniNeiGiorniChiusi`). `detto` si antepone al racconto.
+ */
+function riscriviAnno (
+  contesto: Contesto,
+  prima: AnnoScolastico | null,
+  anno: AnnoScolastico,
+  detto = '',
+): EsitoAzione {
+  const { intatte, conDati } = lezioniNeiGiorniChiusi(contesto.registro, prima, anno)
+  const via = new Set(intatte.map((l) => l.id))
+  const scritto = contesto.modifica((r) => {
+    const cartella = r.anni.find((a) => a.id === anno.id)?.cartella
+    riponiInOrdine(r, 'anni', { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
+    if (via.size > 0) r.lezioni = vociDi(r.lezioni).filter((l) => !via.has(l.id))
+  }, via.size > 0 ? ['registro', 'lezioni'] : ['registro'])
+  if (!scritto.ok || (via.size === 0 && conDati.length === 0 && !detto)) return scritto
+  const t = testi()
+  const tolte = via.size > 0 ? t.tolteInChiusura(via.size) : ''
+  const restano = conDati.length > 0 ? t.restanoInChiusura(conDati.length) : ''
+  return conMessaggio(
+    `${detto} ${tolte}${restano}`.trim(),
+    conDati.length > 0 ? 'avviso' : 'info',
+    scritto,
+  )
+}
 
 /** I formati di ritratto che `@cantoo/pdf-lib` sa incorporare nei PDF. */
 const FORMATI_RITRATTO = ['png', 'jpg', 'jpeg']
@@ -164,9 +221,13 @@ export const registro = {
         ...semestre,
         etichetta: azione.etichetteSemestri?.[indice]?.trim() || semestre.etichetta,
       })),
+      ...(azione.calendarioUfficiale ? { calendarioUfficiale: azione.calendarioUfficiale } : {}),
     }
     const esito = validaAnno(anno)
     if (!esito.valido) return { ok: false, errori: esito.errori }
+    // Un anno che nasce collegato nasce con le date e le chiusure ufficiali.
+    const toccato = calendarioToccato(null, anno)
+    if (toccato) return rifiuta(toccato)
 
     const dove = percorsoProvvisorio(anno.etichetta)
     if (!dove) return rifiuta(testi().senzaCartella)
@@ -183,21 +244,61 @@ export const registro = {
     if (!esito.valido) return { ok: false, errori: esito.errori }
     // Si scrive solo l'anno aperto.
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
-    // Nelle chiusure nuove le lezioni intatte se ne vanno nello stesso gesto;
-    // quelle con dati restano e lo si dice (`lezioniNeiGiorniChiusi`).
     const prima = contesto.registro.anni.find((a) => a.id === anno.id) ?? null
-    const { intatte, conDati } = lezioniNeiGiorniChiusi(contesto.registro, prima, anno)
-    const via = new Set(intatte.map((l) => l.id))
-    const scritto = contesto.modifica((r) => {
-      const cartella = r.anni.find((a) => a.id === anno.id)?.cartella
-      riponi(r.anni, { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
-      if (via.size > 0) r.lezioni = r.lezioni.filter((l) => !via.has(l.id))
-    }, via.size > 0 ? ['registro', 'lezioni'] : ['registro'])
-    if (!scritto.ok || (via.size === 0 && conDati.length === 0)) return scritto
+    // Le voci del calendario ufficiale che l'anno segue non si cambiano qui.
+    const toccato = calendarioToccato(prima, anno)
+    if (toccato) return rifiuta(toccato)
+    return riscriviAnno(contesto, prima, anno)
+  },
+
+  /**
+   * Collega l'anno aperto al calendario ufficiale, o lo riallinea se lo è già:
+   * date, chiusure ufficiali con i loro nomi, e il marcatore che le blocca. Le
+   * chiusure proprie restano; quelle scritte a mano che coincidono con una
+   * voce diventano collegate. Staccare toglie solo il marcatore.
+   */
+  'anno.calendario': (contesto, azione) => {
+    const prima = contesto.registro.anni.find((a) => a.id === azione.annoId)
+    if (!prima || prima.id !== contesto.registro.annoCorrenteId) {
+      return rifiuta(comuni().nonTrovato.anno)
+    }
     const t = testi()
-    const tolte = via.size > 0 ? t.tolteInChiusura(via.size) : ''
-    const restano = conDati.length > 0 ? t.restanoInChiusura(conDati.length) : ''
-    return conMessaggio(`${tolte}${restano}`.trim(), conDati.length > 0 ? 'avviso' : 'info', scritto)
+    if (!azione.collega) {
+      if (!prima.calendarioUfficiale) return fatto
+      const { calendarioUfficiale: _via, ...staccato } = prima
+      return riscriviAnno(contesto, prima, staccato, t.annoStaccato)
+    }
+
+    const marcatore = prima.calendarioUfficiale
+    const calendario = marcatore ? calendarioDi(marcatore) : calendarioUfficialePerCantone()
+    const ufficiale = calendario
+      ? marcatore
+        ? calendario.anni.find((a) => a.annoScolastico === marcatore.annoScolastico) ?? null
+        : annoUfficiale(calendario, prima.inizio)
+      : null
+    if (!calendario || !ufficiale) return rifiuta(t.calendarioAssente(prima.etichetta))
+
+    const bozza = bozzaSincronizzata(calendario, ufficiale, prima)
+    // Inizio e fine si spostano coi semestri: il confine resta dov'è.
+    const semestri = allineaSemestri(prima.semestri).map((semestre, indice, tutti) => ({
+      ...semestre,
+      inizio: indice === 0 ? bozza.inizio : semestre.inizio,
+      fine: indice === tutti.length - 1 ? bozza.fine : semestre.fine,
+    }))
+    const anno = annoAllineato({
+      ...prima,
+      semestri,
+      sospensioni: bozza.sospensioni,
+      calendarioUfficiale: marcatoreDi(calendario, ufficiale),
+    })
+    const esito = validaAnno(anno)
+    if (!esito.valido) return { ok: false, errori: esito.errori }
+    return riscriviAnno(
+      contesto,
+      prima,
+      anno,
+      t.annoCollegato(calendario.cantoneNome, ufficiale.annoScolastico),
+    )
   },
 
   /** La lettera di una settimana (A, B o niente), senza riscrivere il resto dell'anno come `anno.salva`. */
@@ -209,7 +310,7 @@ export const registro = {
     const aggiornato = conLetteraSettimana(anno, azione.giorno, azione.lettera)
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
     return contesto.modifica((r) => {
-      riponi(r.anni, aggiornato, (a, b) => a.inizio.localeCompare(b.inizio))
+      riponiInOrdine(r, 'anni', aggiornato, (a, b) => a.inizio.localeCompare(b.inizio))
     }, ['registro'])
   },
 
@@ -217,7 +318,7 @@ export const registro = {
     const esito = validaMateria(azione.materia, contesto.registro.materie)
     if (!esito.valido) return { ok: false, errori: esito.errori }
     const salvato = contesto.modifica((r) => {
-      riponi(r.materie, azione.materia, (a, b) => confrontaNomi(a.nome, b.nome))
+      riponiInOrdine(r, 'materie', azione.materia, (a, b) => confrontaNomi(a.nome, b.nome))
     }, ['registro'])
     if (!salvato.ok) return salvato
     return { ok: true, creato: { id: azione.materia.id } }
@@ -306,7 +407,7 @@ export const registro = {
     )
     contesto.modifica((r) => {
       r.corsi.push(corso)
-      r.corsi.sort((x, y) => confrontaNomi(x.titolo, y.titolo))
+      ordinaInBozza(r, 'corsi', (x, y) => confrontaNomi(x.titolo, y.titolo))
     }, ['corsi'])
     return { ok: true, creato: { id: corso.id } }
   },
@@ -324,7 +425,7 @@ export const registro = {
     const nuovo = !esistente
     const corso = { ...azione.corso, aggiornatoIl: istanteAdesso() }
     contesto.modifica((r) => {
-      riponi(r.corsi, corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
+      riponiInOrdine(r, 'corsi', corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
     }, ['corsi'])
     return nuovo ? { ok: true, creato: { id: corso.id } } : fatto
   },
@@ -365,7 +466,7 @@ export const registro = {
 
     const scritto = contesto.modifica((r) => {
       r.lezioni.push(...nuove)
-      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
+      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     if (!scritto.ok) return scritto
 

@@ -13,6 +13,12 @@ const sospensione = oggetto({
   al: iso(),
 })
 
+/** L'anno del calendario ufficiale che l'anno segue. */
+const calendarioDellAnno = oggetto({
+  cantone: testo({ aiuto: () => t().cantone }),
+  annoScolastico: testo({ aiuto: () => t().annoScolastico }),
+}, { aiuto: () => t().calendarioUfficiale })
+
 /**
  * I nomi dei due semestri: il protocollo ne vuole esattamente due. `elenco`
  * controlla la lunghezza a runtime, il tipo dichiara una coppia: il travaso
@@ -42,6 +48,7 @@ export const procedura = scrittura({
     confine: opzionale(iso({ aiuto: () => t().confine })),
     sospensioni: opzionale(elenco(sospensione, { aiuto: () => t().sospensioni })),
     etichetteSemestri: opzionale(coppiaDiEtichette),
+    calendarioUfficiale: opzionale(calendarioDellAnno),
   }),
   esegui: inoltra(registro, 'anno.crea'),
 })

@@ -13,9 +13,21 @@ const it = {
     etichetta: 'Come lo si chiama parlando: «2025/2026»',
     confine: 'L’ultimo giorno del primo semestre',
     sospensioni: 'Le pause dichiarate nel modulo: nascono con l’anno, non dopo',
+    calendarioUfficiale:
+      'L’anno del calendario scolastico ufficiale che l’anno segue: date e chiusure devono ' +
+      'essere le sue, e poi non si cambiano a mano',
+    cantone: 'La sigla del cantone: «TI»',
+    annoScolastico: 'L’anno del calendario: «2026/2027»',
   },
   salva: {
     titolo: 'Riscrive un anno intero: etichetta, semestri e pause',
+  },
+  calendario: {
+    titolo:
+      'Collega l’anno al calendario scolastico ufficiale (o lo riallinea), o lo stacca',
+    collega:
+      'true porta date e chiusure ufficiali e le blocca; false toglie il blocco e lascia ' +
+      'date e chiusure come sono',
   },
   settimana: {
     titolo:
@@ -38,9 +50,22 @@ export const testi = catalogo(it, {
       etichetta: 'Wie man es im Gespräch nennt: «2025/2026»',
       confine: 'Der letzte Tag des ersten Semesters',
       sospensioni: 'Die im Formular angegebenen Pausen: Sie entstehen mit dem Jahr, nicht danach',
+      calendarioUfficiale:
+        'Das Jahr des offiziellen Schulkalenders, dem das Schuljahr folgt: Daten und ' +
+        'Schliessungen müssen seine sein und lassen sich dann nicht von Hand ändern',
+      cantone: 'Das Kürzel des Kantons: «TI»',
+      annoScolastico: 'Das Jahr des Kalenders: «2026/2027»',
     },
     salva: {
       titolo: 'Schreibt ein ganzes Jahr neu: Bezeichnung, Semester und Pausen',
+    },
+    calendario: {
+      titolo:
+        'Verknüpft das Schuljahr mit dem offiziellen Schulkalender (oder gleicht es an) oder ' +
+        'löst es',
+      collega:
+        'true übernimmt offizielle Daten und Schliessungen und sperrt sie; false hebt die ' +
+        'Sperre auf und lässt Daten und Schliessungen, wie sie sind',
     },
     settimana: {
       titolo:
@@ -63,9 +88,21 @@ export const testi = catalogo(it, {
       confine: 'Le dernier jour du premier semestre',
       sospensioni:
         'Les pauses déclarées dans le formulaire : elles naissent avec l’année, pas après',
+      calendarioUfficiale:
+        'L’année du calendrier scolaire officiel que l’année suit : dates et fermetures ' +
+        'doivent être les siennes, et ne se changent ensuite plus à la main',
+      cantone: 'Le sigle du canton : « TI »',
+      annoScolastico: 'L’année du calendrier : « 2026/2027 »',
     },
     salva: {
       titolo: 'Réécrit une année entière : libellé, semestres et pauses',
+    },
+    calendario: {
+      titolo:
+        'Lie l’année au calendrier scolaire officiel (ou la réaligne), ou la détache',
+      collega:
+        'true reprend dates et fermetures officielles et les verrouille ; false retire le ' +
+        'verrou et laisse dates et fermetures telles quelles',
     },
     settimana: {
       titolo:
@@ -87,9 +124,20 @@ export const testi = catalogo(it, {
       etichetta: 'What it is called in conversation: “2025/2026”',
       confine: 'The last day of the first semester',
       sospensioni: 'The breaks entered in the form: they are created with the year, not afterwards',
+      calendarioUfficiale:
+        'The year of the official school calendar the year follows: dates and closures must ' +
+        'be its own, and then can’t be changed by hand',
+      cantone: 'The canton’s abbreviation: “TI”',
+      annoScolastico: 'The calendar year: “2026/2027”',
     },
     salva: {
       titolo: 'Rewrites a whole year: label, semesters and breaks',
+    },
+    calendario: {
+      titolo: 'Links the year to the official school calendar (or realigns it), or unlinks it',
+      collega:
+        'true brings in the official dates and closures and locks them; false removes the ' +
+        'lock and leaves dates and closures as they are',
     },
     settimana: {
       titolo: 'Sets the week type of a day (A, B or another entry in the list), or removes it',
