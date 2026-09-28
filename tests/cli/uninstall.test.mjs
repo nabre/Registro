@@ -4,8 +4,8 @@
 // ne va; senza (disinstallazione silenziosa) se ne va tutto.
 //
 // Lo script tocca casa dell'utente, temporanei e registro di sistema: qui gira
-// con `HOME`, `TMP` e `APPDATA` in una cartella di prova e con `SystemRoot`
-// vuota, che gli fa saltare PowerShell.
+// con `HOME`, `TMP` e `APPDATA` in una cartella di prova e con
+// `REGISTRO_SENZA_PULIZIA_WINDOWS`, che gli fa saltare PowerShell.
 
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
@@ -37,19 +37,15 @@ function cartellaUsata () {
   return { casa, dati }
 }
 
-// Su Windows la chiave è `SYSTEMROOT` (le maiuscole non contano) e, se manca,
-// libuv la rimette nell'ambiente del figlio: va tolta in ogni grafia e
-// lasciata vuota. Altrimenti lo script lancia davvero PowerShell sul registro
-// di sistema dell'utente, e ogni giro costa mezzo secondo.
-const AMBIENTE = Object.fromEntries(
-  Object.entries(process.env).filter(([nome]) => nome.toLowerCase() !== 'systemroot'),
-)
+// `SystemRoot` resta: senza, Node su Windows muore all'avvio
+// (`ncrypto::CSPRNG`). PowerShell sul registro di sistema dell'utente lo
+// spegne la variabile, e ogni giro risparmia mezzo secondo.
 
 /** Un giro dello script; le prove girano insieme, ognuna con la sua casa. */
 async function disinstalla (casa, dati, ...altri) {
   const env = {
-    ...AMBIENTE,
-    SystemRoot: '',
+    ...process.env,
+    REGISTRO_SENZA_PULIZIA_WINDOWS: '1',
     HOME: casa,
     USERPROFILE: casa,
     APPDATA: casa,
