@@ -242,10 +242,17 @@ const CON_FINTO = { electron: './tests/helpers/fake-electron.mjs' }
 /** Il finto e in più `apparato`, per chi passa dallo shim come l'applicazione. */
 const CON_FINTO_E_APPARATO = { ...aliasApparato, ...CON_FINTO }
 
+/**
+ * `Temporal` nei bundle di prova, che girano in Node o in Chromium senza:
+ * vedi `tests/helpers/temporal.mjs`. Solo qui, mai in `applicazione`.
+ */
+const conTemporal = { inject: ['tests/helpers/temporal.mjs'] }
+
 /** Un bundle di prova per Node: ESM, senza mappe, `node18`; `extra` di solito è l'alias del finto. */
 function provaNode (entrata, uscita, extra = {}) {
   return {
     ...comune,
+    ...conTemporal,
     entryPoints: [entrata],
     outfile: uscita,
     format: 'esm',
@@ -260,6 +267,7 @@ function provaNode (entrata, uscita, extra = {}) {
 function provaNeutra (entrata, uscita) {
   return {
     ...comune,
+    ...conTemporal,
     entryPoints: [entrata],
     outfile: uscita,
     format: 'esm',
@@ -292,6 +300,7 @@ function provaDeiCataloghi () {
   ]
   return {
     ...comune,
+    ...conTemporal,
     stdin: { contents: righe.join('\n'), resolveDir: '.', sourcefile: 'cataloghi.ts', loader: 'ts' },
     outfile: 'dist-tests/i18n.mjs',
     format: 'esm',
@@ -384,13 +393,14 @@ const prove = [
 ]
 
 /**
- * I bundle delle prove `tests/ui/*.py`, costruiti da `tools/uiTests.mjs`: IIFE
- * per Chromium, più il manifesto che `themeChoice.py` legge da Node. In CI
+ * I bundle delle prove `tests/interfaccia/*.spec.ts`, costruiti da `tools/uiTests.mjs`: IIFE
+ * per Chromium, più il manifesto che `themeChoice.spec.ts` legge da Node. In CI
  * girano senza `pretest`, quindi qui c'è tutto quel che leggono.
  */
 const interfaccia = [
   {
     ...comune,
+    ...conTemporal,
     sourcemap: false,
     entryPoints: ['tests/helpers/uiStartup.ts'],
     outfile: 'dist-tests/ui.js',
@@ -399,6 +409,7 @@ const interfaccia = [
   },
   {
     ...comune,
+    ...conTemporal,
     sourcemap: false,
     entryPoints: ['desktop/shell/pages/settings/settings.ts'],
     outfile: 'dist-tests/native-settings.js',

@@ -15,7 +15,7 @@ import { campo, quieto, riga, sezioneModulo, valoriModulo } from '../components/
 import { icona } from '../components/icons.js'
 import { apriModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import {
   classeDelCorsoId,
   classePerId,
@@ -470,7 +470,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
 
   disegna(corsoIniziale, ambitoIniziale === 'classe' ? classeDocenteAttualeId : null)
 
-  contenitore.addEventListener('change', () => mostra(contenitore))
+  gestisci(contenitore, 'change', () => mostra(contenitore))
 
   apriModale({
     titolo: modifica ? t.titoloModifica : t.titoloNuova,

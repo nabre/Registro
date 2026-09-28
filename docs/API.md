@@ -157,7 +157,9 @@ rimedio («Le persone si cercano con “persone.cerca”»).
 ## 4. Gli schemi
 
 `contract/schemas.ts`: una dichiarazione → convalida, tipo, JSON Schema. Espone
-Standard Schema (`~standard`); perché fatto in casa: ADR-28.
+Standard Schema (`~standard`, ADR-28); sotto convalida valibot (ADR-50), mentre
+la forma e il JSON Schema restano nostri. Un campo dice un problema solo, il
+primo; un oggetto li raccoglie tutti.
 
 | Costruttore | Accetta |
 | --- | --- |

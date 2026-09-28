@@ -25,6 +25,9 @@ export function assicuraSentinella (): BrowserWindow {
       contextIsolation: true,
     },
   })
+  // Una pagina vuota: senza, il renderer non risponde a DevTools e
+  // `_electron.launch` delle prove d'interfaccia resta appeso.
+  void finestraSentinella.loadURL('about:blank')
 
   return finestraSentinella
 }

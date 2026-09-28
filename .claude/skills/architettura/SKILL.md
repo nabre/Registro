@@ -82,7 +82,7 @@ Rappresenta il contratto esplicito tra il motore applicativo, l'interfaccia uten
 - `contract/protocollo.ts`: Definisce le buste dei messaggi IPC scambiati via canale tra il processo main e il frontend (`Richiesta`, `Risposta`, `Domanda`, `Riscontro`, `Notifica`).
 - `contract/manifesto.ts`: Il manifesto delle impostazioni del programma e del documento, con schemi di tipo, valori predefiniti, sezioni di preferenza e definizioni dei comandi.
 - `contract/schemas.ts`: Schemi di validazione dei payload e dei formati di scambio.
-- `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema Zod d'ingresso rigoroso e registrazione centralizzata.
+- `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema d'ingresso (`contract/schemas.ts`, valibot sotto `~standard`) rigoroso e registrazione centralizzata.
 - `contract/centralino.ts`: Il router che smista le chiamate contrattuali e instradamento richieste verso i rispettivi gestori.
 - `contract/bridge.ts`: Interfaccia astratta di comunicazione IPC lato client/server.
 - `contract/tools.ts`: Definizione e serializzazione degli strumenti esposti all'assistente e ai modelli linguistici.
@@ -183,7 +183,7 @@ Qual è lo scopo del codice da aggiungere?
 ├── È un gestore applicativo che riceve un'azione, modifica il registro e dichiara le collezioni?
 │   └── ➔ core/azioni/ (gestori delle azioni con context.modifica)
 │
-├── È una procedura esposta con schema Zod/JSON all'API, all'assistente o alla riga di comando?
+├── È una procedura esposta con schema d'ingresso all'API, all'assistente o alla riga di comando?
 │   └── ➔ contract/procedure/ (contratto esplicito con schema d'ingresso)
 │
 ├── È un protocollo IPC, schema globale di messaggi o definizione delle impostazioni?

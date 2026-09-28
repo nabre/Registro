@@ -214,7 +214,7 @@ function filettoAggiornamenti (): Figlio {
 export function barraTitolo (): Figlio {
   return h(
     'header',
-    { class: 'barra-titolo', attr: { role: 'banner' } },
+    { class: 'barra-titolo', attr: { role: 'banner' }, dataset: { telaio: 'barra-titolo' } },
     // A sinistra il segno (largo quanto la colonna delle icone, non si sposta),
     // il menu «File» e subito dopo le frecce della storia, dove ogni programma
     // tiene «Modifica».

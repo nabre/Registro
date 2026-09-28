@@ -385,7 +385,9 @@ function casellaCheck (casella: Casella): HTMLElement {
           esito === 'spunta' ? quandoDelClic(corsoId, lezione) : null,
         )
       },
-      oncontextmenu: (evento: MouseEvent) => apriMenu(evento, bottone, vociCasella(casella)),
+      // Il pulsante vivo: dopo un ridisegno `bottone` può essere quello scartato.
+      oncontextmenu: (evento: MouseEvent) =>
+        apriMenu(evento, evento.currentTarget as HTMLButtonElement, vociCasella(casella)),
     },
     fatta && data
       ? lezione && qui
@@ -458,8 +460,10 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
           title: t.testata(colonna.titolo, fatte, totale),
           'aria-haspopup': 'menu',
         },
-        onclick: () => menuSotto(bottone, voci()),
-        oncontextmenu: (evento: MouseEvent) => apriMenu(evento, bottone, voci()),
+        onclick: (evento: MouseEvent) =>
+          menuSotto(evento.currentTarget as HTMLButtonElement, voci()),
+        oncontextmenu: (evento: MouseEvent) =>
+          apriMenu(evento, evento.currentTarget as HTMLButtonElement, voci()),
       },
       h('span', { class: 'check__titolo' }, colonna.titolo),
       h(

@@ -95,10 +95,14 @@ function segnaEntrata (): void {
   if (!contenuto) return
   const chiave = chiaveDiEntrata()
   const adesso = performance.now()
-  if (paginaDisegnata !== null && chiave !== paginaDisegnata) entrataDa = adesso
+  const cambiata = paginaDisegnata !== null && chiave !== paginaDisegnata
+  if (cambiata) entrataDa = adesso
   paginaDisegnata = chiave
   const passato = adesso - entrataDa
-  if (passato >= DURATA_ENTRATA) return
+  if (passato >= DURATA_ENTRATA || !cambiata) {
+    delete contenuto.dataset.entrata
+    return
+  }
   contenuto.dataset.entrata = ''
   if (entrataSu?.nodo !== contenuto) {
     // testo-fisso: un valore CSS

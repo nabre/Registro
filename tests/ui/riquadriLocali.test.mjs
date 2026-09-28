@@ -11,9 +11,14 @@
 //
 // Il DOM è finto ma è un albero vero, come in `isole.test.mjs`; stato, ponte
 // con l'host e modali sono finti, il resto è il codice vero.
+//
+// Si prova il percorso classico di `aggiornaElemento`, con `MORFOSI` spento
+// (`percorsoClassico`, sotto); il percorso con `idiomorph` lo prova Chromium
+// in `tests/interfaccia/morfosi.spec.ts`.
 
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 
@@ -101,6 +106,24 @@ function confronto (selettore) {
   return () => false
 }
 
+/** Gli ascoltatori messi su `document`: vedi `scatena`. */
+const suDocumento = []
+
+/** Un evento che sale da `nodo` fino a `document`, come lo farebbe il browser. */
+function scatena (nodo, tipo, altro = {}) {
+  const evento = {
+    type: tipo,
+    bubbles: true,
+    target: nodo,
+    cancelBubble: false,
+    preventDefault () {},
+    stopPropagation () { this.cancelBubble = true },
+    stopImmediatePropagation () { this.cancelBubble = true },
+    ...altro,
+  }
+  for (const [quale, fn] of suDocumento) if (quale === tipo) fn(evento)
+}
+
 class FText extends FNode {
   constructor (testo) { super(); this.testo = String(testo) }
   get textContent () { return this.testo }
@@ -164,7 +187,8 @@ class FDocument extends FNode {
   createElementNS (_ns, tag) { return new FElement(tag) }
   createTextNode (testo) { return new FText(testo) }
   createDocumentFragment () { return new FFragment() }
-  addEventListener () {}
+  // Gli ascoltatori dei nodi disegnati stanno qui (`gestisci` in `dom.ts`).
+  addEventListener (tipo, fn) { suDocumento.push([tipo, fn]) }
   removeEventListener () {}
   dispatchEvent () {}
 }
@@ -239,6 +263,26 @@ const FINTI = {
   menu: 'export const menuSotto = () => {}',
 }
 
+/**
+ * Il DOM finto prova solo il percorso classico di `aggiornaElemento` (ADR-48:
+ * telaio innestato, `data-tieni` parcheggiati, il resto rifatto): `idiomorph`
+ * vuole un DOM che questo non imita. Qui `MORFOSI` si spegne nel sorgente;
+ * il percorso con `idiomorph`, quello dell'applicazione, lo prova Chromium in
+ * `tests/interfaccia/morfosi.spec.ts`.
+ */
+const percorsoClassico = {
+  name: 'percorso-classico',
+  setup (b) {
+    b.onLoad({ filter: /[\\/]ui[\\/]pannello[\\/]dom\.ts$/ }, async (a) => {
+      const sorgente = await readFile(a.path, 'utf8')
+      const interruttore = /^const MORFOSI = (true|false)$/m
+      // Un interruttore sparito o rinominato non deve passare per percorso classico.
+      if (!interruttore.test(sorgente)) throw new Error('dom.ts: manca «const MORFOSI = …»')
+      return { contents: sorgente.replace(interruttore, 'const MORFOSI = false'), loader: 'ts' }
+    })
+  },
+}
+
 const RADICE = fileURLToPath(new URL('../..', import.meta.url))
 const uscita = await build({
   stdin: {
@@ -255,7 +299,7 @@ const uscita = await build({
   format: 'esm',
   platform: 'neutral',
   logLevel: 'silent',
-  plugins: [{
+  plugins: [percorsoClassico, {
     name: 'finti',
     setup (b) {
       const nomi = Object.keys(FINTI).join('|')
@@ -345,10 +389,8 @@ describe('la risposta dell\'assistente', () => {
     // Si chiede: il turno dell'assistente si apre vuoto e aspetta.
     const campo = radice.querySelector('.assistente__campo')
     campo.value = 'Chi manca oggi?'
-    for (const [tipo, fn] of campo.ascoltatori) if (tipo === 'input') fn()
-    for (const [tipo, fn] of campo.ascoltatori) {
-      if (tipo === 'keydown') fn({ key: 'Enter', shiftKey: false, preventDefault () {}, stopPropagation () {} })
-    }
+    scatena(campo, 'input')
+    scatena(campo, 'keydown', { key: 'Enter', shiftKey: false })
     assert.ok(globalThis.filo, 'la domanda è partita')
     const prima = globalThis.ridisegni
     fotogramma()

@@ -4,9 +4,13 @@
 // TypeScript a runtime non c'è. Ogni schema qui convalida a runtime, dà il tipo
 // per inferenza e si descrive in JSON Schema per chi chiama da fuori.
 //
-// Fatto in casa ma con l'interfaccia «Standard Schema» (`~standard`), la
-// stessa di zod, valibot e arktype: `core.ts` conosce solo quella, quindi la
-// libreria si può sostituire senza toccare nucleo o procedure.
+// La convalida la fa valibot (ADR-50, passo 4); fuori si vede solo
+// l'interfaccia «Standard Schema» (`~standard`): `core.ts` conosce quella,
+// quindi la libreria si può sostituire senza toccare nucleo o procedure. La
+// `forma` e il JSON Schema restano nostri: portano l'aiuto pigro nella lingua
+// del momento, `perAssistente`, `aperto` e `severo`, che valibot non racconta.
+
+import * as v from 'valibot'
 
 import { detto, type TestoPigro } from '../core/i18n/index.js'
 import { testi } from './schemas.testi.js'
@@ -107,15 +111,60 @@ interface Opzioni {
   aiuto?: TestoPigro
 }
 
-function schema<T> (forma: Forma, convalida: (valore: unknown) => EsitoConvalida<T>): Schema<T> {
-  return {
-    '~standard': { version: 1, vendor: 'registro', validate: convalida },
+/** Lo schema valibot che fa il lavoro: entra ma non esce, così la libreria resta sostituibile. */
+type Valibot<T> = v.GenericSchema<unknown, T>
+
+// Un simbolo e non una `WeakMap`: `soloDaFuori` ricopia lo schema con lo spread,
+// che porta con sé le chiavi simbolo.
+const VALIBOT = Symbol('valibot')
+
+interface Interno<T> extends Schema<T> {
+  readonly [VALIBOT]: Valibot<T>
+}
+
+function valibotDi<T> (s: Schema<T>): Valibot<T> {
+  return (s as Interno<T>)[VALIBOT]
+}
+
+function schema<T> (forma: Forma, valibot: Valibot<T>): Schema<T> {
+  const interno: Interno<T> = {
+    '~standard': { version: 1, vendor: 'registro', validate: (valore) => esito(valibot, valore) },
     forma,
+    [VALIBOT]: valibot,
+  }
+  return interno
+}
+
+/**
+ * La convalida con valibot, tradotta nel nostro esito. `abortPipeEarly`: un
+ * campo dice un problema solo, il primo (`'M'` su `testo({minimo: 2, modello})`
+ * è corto, non anche fuori forma); un oggetto li raccoglie comunque tutti.
+ */
+function esito<T> (valibot: Valibot<T>, valore: unknown): EsitoConvalida<T> {
+  const r = v.safeParse(valibot, valore, { abortPipeEarly: true })
+  if (r.success) return { value: r.output }
+  return {
+    issues: r.issues.map((p): Problema => p.path
+      ? { message: p.message, path: p.path.map((passo) => passo.key as PropertyKey) }
+      : { message: p.message }),
   }
 }
 
-function male (message: string, path?: readonly PropertyKey[]): EsitoConvalida<never> {
-  return { issues: [path ? { message, path } : { message }] }
+/**
+ * `v.pipe` con i passi facoltativi (`minimo` dato o no). Le sue firme vogliono
+ * i passi contati, e qui dipendono dalle opzioni: il tipo lo dà chi chiama.
+ */
+function catena<I, T> (
+  inizio: v.GenericSchema<unknown, I>,
+  ...passi: Array<v.PipeItem<I, unknown, v.BaseIssue<unknown>> | false>
+): Valibot<T> {
+  const pipe = v.pipe as unknown as (...tutti: unknown[]) => Valibot<T>
+  return pipe(inizio, ...passi.filter((p) => p !== false))
+}
+
+/** Un oggetto semplice: `null` e gli array no, anche se `typeof` dice «object». */
+function èOggetto (valore: unknown): valore is Record<string, unknown> {
+  return typeof valore === 'object' && valore !== null && !Array.isArray(valore)
 }
 
 // ------------------------------------------------------------------- semplici
@@ -131,19 +180,15 @@ export function testo (
     modello: opzioni.modello?.source,
     esempio: opzioni.esempio,
   }
-  return schema<string>(forma, (valore) => {
-    if (typeof valore !== 'string') return male(testi().serveTesto)
-    if (opzioni.minimo !== undefined && valore.length < opzioni.minimo) {
-      return male(testi().testoAlmeno(opzioni.minimo))
-    }
-    if (opzioni.massimo !== undefined && valore.length > opzioni.massimo) {
-      return male(testi().testoOltre(opzioni.massimo))
-    }
-    if (opzioni.modello && !opzioni.modello.test(valore)) {
-      return male(testi().formaAttesa(valore))
-    }
-    return { value: valore }
-  })
+  // I messaggi sono funzioni: valibot li chiama quando rifiuta, e la lingua è
+  // quella del momento, non quella del caricamento.
+  const { minimo, massimo, modello } = opzioni
+  return schema<string>(forma, catena(
+    v.string(() => testi().serveTesto),
+    minimo !== undefined && v.minLength(minimo, () => testi().testoAlmeno(minimo)),
+    massimo !== undefined && v.maxLength(massimo, () => testi().testoOltre(massimo)),
+    modello !== undefined && v.regex(modello, (p) => testi().formaAttesa(String(p.input))),
+  ))
 }
 
 export function numero (
@@ -156,24 +201,22 @@ export function numero (
     massimo: opzioni.massimo,
     intero: opzioni.intero,
   }
-  return schema<number>(forma, (valore) => {
-    if (typeof valore !== 'number' || !Number.isFinite(valore)) return male(testi().serveNumero)
-    if (opzioni.intero && !Number.isInteger(valore)) return male(testi().serveIntero)
-    if (opzioni.minimo !== undefined && valore < opzioni.minimo) {
-      return male(testi().numeroAlmeno(opzioni.minimo))
-    }
-    if (opzioni.massimo !== undefined && valore > opzioni.massimo) {
-      return male(testi().numeroAlPiu(opzioni.massimo))
-    }
-    return { value: valore }
-  })
+  const { minimo, massimo } = opzioni
+  return schema<number>(forma, catena(
+    v.number(() => testi().serveNumero),
+    // `v.number` rifiuta NaN ma non l'infinito: `1/0` come voto guasterebbe le medie.
+    v.finite(() => testi().serveNumero),
+    opzioni.intero === true && v.integer(() => testi().serveIntero),
+    minimo !== undefined && v.minValue(minimo, () => testi().numeroAlmeno(minimo)),
+    massimo !== undefined && v.maxValue(massimo, () => testi().numeroAlPiu(massimo)),
+  ))
 }
 
 export function booleano (opzioni: Opzioni = {}): Schema<boolean> {
-  return schema<boolean>({ genere: 'booleano', aiuto: opzioni.aiuto }, (valore) => {
-    if (typeof valore !== 'boolean') return male(testi().serveBooleano)
-    return { value: valore }
-  })
+  return schema<boolean>(
+    { genere: 'booleano', aiuto: opzioni.aiuto },
+    v.boolean(() => testi().serveBooleano),
+  )
 }
 
 /**
@@ -184,12 +227,10 @@ export function scelta<const V extends readonly string[]> (
   valori: V,
   opzioni: Opzioni = {},
 ): Schema<V[number]> {
-  return schema<V[number]>({ genere: 'scelta', aiuto: opzioni.aiuto, valori }, (valore) => {
-    if (typeof valore !== 'string' || !valori.includes(valore)) {
-      return male(testi().serveUnoFra(valori.join(', ')))
-    }
-    return { value: valore }
-  })
+  return schema<V[number]>(
+    { genere: 'scelta', aiuto: opzioni.aiuto, valori },
+    v.picklist(valori, () => testi().serveUnoFra(valori.join(', '))),
+  )
 }
 
 /**
@@ -234,12 +275,13 @@ export function identificatore (opzioni: Opzioni & {
       massimo: 64,
       ...(opzioni.esempio === undefined ? {} : { esempio: opzioni.esempio }),
     },
-    (valore) => {
-      if (typeof valore !== 'string' || valore.trim() === '') return male(testi().serveIdentificatore)
-      if (valore.length > 64) return male(testi().identificatoreLungo)
+    catena(
+      v.string(() => testi().serveIdentificatore),
+      v.check((valore: string) => valore.trim() !== '', () => testi().serveIdentificatore),
+      v.maxLength(64, () => testi().identificatoreLungo),
       // Si torna il valore ripulito: con gli spazi la procedura non troverebbe la voce.
-      return { value: valore.trim() }
-    },
+      v.trim(),
+    ),
   )
 }
 
@@ -255,27 +297,32 @@ export function iso (opzioni: Opzioni = {}): Schema<string> {
       modello: MODELLO_ISO.source,
       esempio: '2026-09-21',
     },
-    (valore) => {
-      if (typeof valore !== 'string' || !MODELLO_ISO.test(valore)) {
-        return male(testi().serveData)
-      }
-      const [anno, mese, giorno] = valore.split('-').map(Number)
-      // Dalla stringa e non da `Date.UTC`, che mappa gli anni 0–99 su 1900–1999:
-      // `'0000-01-01'` è la sentinella di `risolviPeriodo`
-      // (`procedures/common/filters.ts`) che torna nelle buste, e deve rientrare.
-      //
-      // Il confronto campo per campo serve perché V8 fa traboccare
-      // `2023-02-29T00:00:00Z` al primo marzo invece di dare NaN.
-      const data = new Date(`${valore}T00:00:00Z`)
-      const torna =
-        !Number.isNaN(data.getTime()) &&
-        data.getUTCFullYear() === anno &&
-        data.getUTCMonth() === mese - 1 &&
-        data.getUTCDate() === giorno
-      if (!torna) return male(testi().giornoInesistente(valore))
-      return { value: valore }
-    },
+    catena(
+      v.string(() => testi().serveData),
+      v.regex(MODELLO_ISO, () => testi().serveData),
+      v.check(giornoEsiste, (p) => testi().giornoInesistente(String(p.input))),
+    ),
   )
+}
+
+/**
+ * Vero se `AAAA-MM-GG` è un giorno del calendario. Con `Date` e non con
+ * `Temporal` come `isoValida` del dominio: il contratto gira anche dove
+ * `Temporal` non c'è (gli strumenti in Node che leggono gli schemi).
+ */
+function giornoEsiste (valore: string): boolean {
+  const [anno, mese, giorno] = valore.split('-').map(Number)
+  // Dalla stringa e non da `Date.UTC`, che mappa gli anni 0–99 su 1900–1999:
+  // `'0000-01-01'` è la sentinella di `risolviPeriodo`
+  // (`procedures/common/filters.ts`) che torna nelle buste, e deve rientrare.
+  //
+  // Il confronto campo per campo serve perché V8 fa traboccare
+  // `2023-02-29T00:00:00Z` al primo marzo invece di dare NaN.
+  const data = new Date(`${valore}T00:00:00Z`)
+  return !Number.isNaN(data.getTime()) &&
+    data.getUTCFullYear() === anno &&
+    data.getUTCMonth() === mese - 1 &&
+    data.getUTCDate() === giorno
 }
 
 /** Un'ora del giorno `HH:MM`, sulle ventiquattro. */
@@ -287,12 +334,7 @@ export function ora (opzioni: Opzioni = {}): Schema<string> {
       modello: MODELLO_ORA.source,
       esempio: '08:15',
     },
-    (valore) => {
-      if (typeof valore !== 'string' || !MODELLO_ORA.test(valore)) {
-        return male(testi().serveOra)
-      }
-      return { value: valore }
-    },
+    catena(v.string(() => testi().serveOra), v.regex(MODELLO_ORA, () => testi().serveOra)),
   )
 }
 
@@ -311,27 +353,15 @@ export function elenco<S extends Schema<unknown>> (
     minimo: opzioni.minimo,
     massimo: opzioni.massimo,
   }
-  return schema<Array<Dentro<S>>>(forma, (valore) => {
-    if (!Array.isArray(valore)) return male(testi().serveElenco)
-    if (opzioni.minimo !== undefined && valore.length < opzioni.minimo) {
-      return male(testi().elencoAlmeno(opzioni.minimo))
-    }
-    if (opzioni.massimo !== undefined && valore.length > opzioni.massimo) {
-      return male(testi().elencoAlPiu(opzioni.massimo))
-    }
-    const dentro: unknown[] = []
-    const problemi: Problema[] = []
-    valore.forEach((voce, indice) => {
-      const esito = di['~standard'].validate(voce)
-      if (esito.issues) {
-        for (const p of esito.issues) {
-          problemi.push({ message: p.message, path: [indice, ...(p.path ?? [])] })
-        }
-      } else dentro.push(esito.value)
-    })
-    if (problemi.length > 0) return { issues: problemi }
-    return { value: dentro as Array<Dentro<S>> }
-  })
+  const { minimo, massimo } = opzioni
+  return schema<Array<Dentro<S>>>(forma, catena(
+    v.array(v.unknown(), () => testi().serveElenco),
+    minimo !== undefined && v.minLength(minimo, () => testi().elencoAlmeno(minimo)),
+    massimo !== undefined && v.maxLength(massimo, () => testi().elencoAlPiu(massimo)),
+    // Le voci dopo la lunghezza: un elenco troppo lungo si dice tale, non con
+    // cento errori di voce.
+    v.array(valibotDi(di)),
+  ))
 }
 
 /**
@@ -342,26 +372,18 @@ export function opzionale<S extends Schema<unknown>> (di: S): SchemaOpzionale<De
   // Se il `null` è di qualcuno si decide qui, dalla forma di dentro, che non
   // cambia più.
   const nulloSuo = di.forma.nullo === true
-  return {
-    opzionale: true,
-    forma: di.forma,
-    '~standard': {
-      version: 1,
-      vendor: 'registro',
-      validate: (valore) => {
-        if (valore === undefined) return { value: undefined }
-        // `null` su un campo facoltativo vale come chiave assente: la griglia che
-        // obbliga il modello scrive `null` su tutti i campi che non usa.
-        //
-        // Per distinguere «assente» da «null» si scrive `opzionale(nullabile(x))`
-        // (es. `valutazioni.recupero.imposta`: assente = lascia com'era, `null` =
-        // togli). `opzionale` è il guscio esterno e vede il `null` per primo, quindi
-        // lo lascia passare quando la forma di dentro ha `nullo`.
-        if (valore === null && !nulloSuo) return { value: undefined }
-        return di['~standard'].validate(valore) as EsitoConvalida<Dentro<S> | undefined>
-      },
-    },
-  }
+  const dentro = valibotDi(di) as Valibot<Dentro<S>>
+  // `null` su un campo facoltativo vale come chiave assente: la griglia che
+  // obbliga il modello scrive `null` su tutti i campi che non usa.
+  //
+  // Per distinguere «assente» da «null» si scrive `opzionale(nullabile(x))`
+  // (es. `valutazioni.recupero.imposta`: assente = lascia com'era, `null` =
+  // togli). `opzionale` è il guscio esterno e vede il `null` per primo, quindi
+  // lo lascia passare quando la forma di dentro ha `nullo`.
+  const valibot: Valibot<Dentro<S> | undefined> = nulloSuo
+    ? v.optional(dentro)
+    : v.pipe(v.nullish(dentro), v.transform((valore) => valore ?? undefined))
+  return { ...schema(di.forma, valibot), opzionale: true }
 }
 
 /**
@@ -377,10 +399,10 @@ export function nullabile<S extends Schema<unknown>> (
     ? { readonly vaScrittoOpzionaleDiNullabile: never }
     : unknown),
 ): Schema<Dentro<S> | null> {
-  return schema<Dentro<S> | null>({ ...di.forma, nullo: true }, (valore) => {
-    if (valore === null) return { value: null }
-    return di['~standard'].validate(valore) as EsitoConvalida<Dentro<S> | null>
-  })
+  return schema<Dentro<S> | null>(
+    { ...di.forma, nullo: true },
+    v.nullable(valibotDi(di) as Valibot<Dentro<S>>),
+  )
 }
 
 type Campi = Record<string, Schema<unknown>>
@@ -435,33 +457,30 @@ export function oggetto<const C extends Campi> (
       .map(([nome]) => nome),
     ...(opzioni.severo === true ? { severo: true } : {}),
   }
-  return schema<DaCampi<C>>(forma, (valore) => {
-    if (typeof valore !== 'object' || valore === null || Array.isArray(valore)) {
-      return male(testi().serveOggetto)
-    }
-    const grezzo = valore as Record<string, unknown>
-    const dentro: Record<string, unknown> = {}
-    const problemi: Problema[] = []
-    for (const [nome, s] of Object.entries(campi)) {
-      const esito = s['~standard'].validate(grezzo[nome])
-      if (esito.issues) {
-        for (const p of esito.issues) {
-          problemi.push({ message: p.message, path: [nome, ...(p.path ?? [])] })
-        }
-      } else if (esito.value !== undefined) {
-        // `undefined` non si ricopia: `{nota: null}` e `{}` danno lo stesso oggetto.
-        // Chi vuole la differenza usa `opzionale(nullabile(...))`, che torna `null`.
-        dentro[nome] = esito.value
-      }
-    }
-    if (opzioni.severo === true) {
-      for (const chiave of chiaviEstranee(forma, grezzo)) {
-        problemi.push({ message: testi().campoSconosciuto(chiave), path: [chiave] })
-      }
-    }
-    if (problemi.length > 0) return { issues: problemi }
-    return { value: dentro as DaCampi<C> }
-  })
+  const voci = Object.fromEntries(Object.entries(campi).map(([nome, s]) => [nome, valibotDi(s)]))
+  const nomi = Object.keys(campi)
+  const severo = opzioni.severo === true
+  return schema<DaCampi<C>>(forma, catena(
+    v.custom<Record<string, unknown>>(èOggetto, () => testi().serveOggetto),
+    // Ogni campo dichiarato entra, anche assente, come `undefined`: così lo
+    // guarda il suo schema e il rifiuto è il suo («Serve del testo.»), non la
+    // «chiave mancante» di valibot.
+    //
+    // Con `severo` restano anche le chiavi estranee, e le rifiuta `v.never`, una
+    // per una (`strictObject` si ferma alla prima). Al posto del valore c'è la
+    // chiave: il messaggio la vuole, e valibot lo compone prima di sapere il percorso.
+    v.transform((grezzo: Record<string, unknown>) => ({
+      ...(severo ? Object.fromEntries(chiaviEstranee(forma, grezzo).map((c) => [c, c])) : {}),
+      ...Object.fromEntries(nomi.map((nome) => [nome, grezzo[nome]])),
+    })),
+    severo
+      ? v.objectWithRest(voci, v.never((p) => testi().campoSconosciuto(String(p.input))))
+      : v.object(voci),
+    // `undefined` non si ricopia: `{nota: null}` e `{}` danno lo stesso oggetto.
+    // Chi vuole la differenza usa `opzionale(nullabile(...))`, che torna `null`.
+    v.transform((dentro: Record<string, unknown>) =>
+      Object.fromEntries(Object.entries(dentro).filter(([, valore]) => valore !== undefined))),
+  ))
 }
 
 /** Niente: le procedure che non chiedono nulla. */
@@ -478,10 +497,10 @@ export function vuoto (): Schema<Record<string, never>> {
  * `opzionale(qualunque())`.
  */
 export function qualunque (opzioni: Opzioni = {}): Schema<unknown> {
-  return schema<unknown>({ genere: 'qualunque', aiuto: opzioni.aiuto }, (valore) => {
-    if (valore === undefined) return male(testi().serveValore)
-    return { value: valore }
-  })
+  return schema<unknown>(
+    { genere: 'qualunque', aiuto: opzioni.aiuto },
+    v.custom<unknown>((valore) => valore !== undefined, () => testi().serveValore),
+  )
 }
 
 /** Com'è andata a una funzione `valida*` del dominio. */
@@ -518,24 +537,28 @@ export function entita<T> (opzioni: Opzioni & {
     // scrive `{ id, … }`.
     aperto: true,
   }
-  return schema<T>(forma, (valore) => {
-    if (typeof valore !== 'object' || valore === null || Array.isArray(valore)) {
-      return male(testi().serveEntita(detto(opzioni.cosa)))
-    }
-    const id = (valore as { id?: unknown }).id
-    if (typeof id !== 'string' || id.trim() === '') {
-      return male(testi().entitaSenzaId(detto(opzioni.cosa)), ['id'])
-    }
-    if (!opzioni.valida) return { value: valore as T }
-    let esito: EsitoDominio
-    try {
-      esito = opzioni.valida(valore as T)
-    } catch {
-      return male(testi().entitaFuoriForma(detto(opzioni.cosa)))
-    }
-    if (!esito.valido) return { issues: esito.errori.map((message) => ({ message })) }
-    return { value: valore as T }
-  })
+  const { valida } = opzioni
+  return schema<T>(forma, catena(
+    v.custom<Record<string, unknown>>(èOggetto, () => testi().serveEntita(detto(opzioni.cosa))),
+    v.forward(
+      v.check(
+        (valore: Record<string, unknown>) => typeof valore.id === 'string' && valore.id.trim() !== '',
+        () => testi().entitaSenzaId(detto(opzioni.cosa)),
+      ),
+      ['id'],
+    ),
+    valida !== undefined && v.rawCheck(({ dataset, addIssue }) => {
+      if (!dataset.typed) return
+      let esito: EsitoDominio
+      try {
+        esito = valida(dataset.value as T)
+      } catch {
+        addIssue({ message: testi().entitaFuoriForma(detto(opzioni.cosa)) })
+        return
+      }
+      if (!esito.valido) for (const message of esito.errori) addIssue({ message })
+    }),
+  ))
 }
 
 // ---------------------------------------------------------------- descrizione

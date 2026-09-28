@@ -17,7 +17,7 @@ import {
   sommaGiorni,
 } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { h } from '../../dom.js'
+import { gestisci, h } from '../../dom.js'
 import {
   SETTIMANE_ATTORNO,
   SETTIMANE_IN_PIU,
@@ -74,8 +74,12 @@ function allaRotella (evento: Event): void {
   allungaStriscia?.(viva)
 }
 
-/** Le strisce già portate al loro posto: quella tenuta dal telaio resta dov'è. */
-const posate = new WeakSet<HTMLElement>()
+/**
+ * Le strisce già portate al loro posto, con la chiave di scorrimento che avevano:
+ * quella tenuta dal telaio resta dov'è. La chiave e non il nodo solo, perché un
+ * ridisegno che riusa il nodo (`idiomorph`) può dargli una striscia nuova.
+ */
+const posate = new WeakMap<HTMLElement, string>()
 
 /**
  * Porta la striscia al suo posto, dopo il disegno. Una striscia nuova (si entra
@@ -89,7 +93,8 @@ function posaStriscia (): void {
   if (!viva) return
   if (finestraMese.scorrimento >= 0) {
     // Una striscia nuova già scorsa l'ha rimessa la storia (Alt+freccia): resta lì.
-    if (!posate.has(viva) && viva.scrollTop === 0) viva.scrollTop = finestraMese.scorrimento
+    const giaPosata = posate.get(viva) === viva.dataset.scorrimento
+    if (!giaPosata && viva.scrollTop === 0) viva.scrollTop = finestraMese.scorrimento
   } else {
     const scelta = viva.querySelector<HTMLElement>('.mese__cella--scelta')
     if (scelta) {
@@ -103,7 +108,7 @@ function posaStriscia (): void {
       viva.scrollTop = Math.max(0, viva.scrollTop + dove - riparo)
     }
   }
-  posate.add(viva)
+  posate.set(viva, viva.dataset.scorrimento ?? '')
   finestraMese.scorrimento = viva.scrollTop
 }
 
@@ -320,13 +325,19 @@ export function vistaMese (): HTMLElement {
    * di nessuna settimana: allungando verso l'alto va tolta e rimessa davanti
    * alla nuova prima riga.
    */
-  let cappello: HTMLElement | null = null
+  /**
+   * Si cerca nella striscia per il segno, non si tiene in una variabile: dopo un
+   * ridisegno la striscia viva può portare il cappello di un disegno di prima.
+   */
+  const togliCappello = (striscia: HTMLElement) => {
+    striscia.querySelector(':scope > [data-cappello]')?.remove()
+  }
   const rimettiCappello = (striscia: HTMLElement, lunedi: Iso) => {
-    cappello?.remove()
-    cappello = null
+    togliCappello(striscia)
     // Se la prima settimana apre già un mese, l'etichetta ce l'ha per conto suo.
     if (settimanaDi(lunedi).some((data) => giornoDelMese(data) === 1)) return
-    cappello = etichettaMese(lunedi)
+    const cappello = etichettaMese(lunedi)
+    cappello.dataset.cappello = ''
     striscia.prepend(cappello)
   }
 
@@ -371,8 +382,7 @@ export function vistaMese (): HTMLElement {
     }
     const prima = viva.scrollHeight
     finestraMese.su += quante
-    cappello?.remove()
-    cappello = null
+    togliCappello(viva)
     if (nuove.length > 0) viva.prepend(...nuove)
     rimettiCappello(viva, cimaResa())
     if (quante < SETTIMANE_IN_PIU && anno) {
@@ -426,7 +436,7 @@ export function vistaMese (): HTMLElement {
       allungoInCorso = false
     }
   }
-  scorrevole.addEventListener('scroll', allaRotella)
+  gestisci(scorrevole, 'scroll', allaRotella)
 
   return h(
     'div',

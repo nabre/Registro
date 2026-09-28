@@ -1,8 +1,9 @@
 // La storia delle modifiche per annulla e ripristina, solo in memoria.
 // Un passo è un gesto (più `modifica` raccolte con `AsyncLocalStorage` dentro
-// `inUnPasso`) e tiene il JSON di prima di ogni collezione toccata. Ogni
-// modifica dà alla collezione un numero di versione mai usato: se al momento di
-// annullare il numero non è quello lasciato dal passo, si rifiuta invece di
+// `inUnPasso`) e sa com'era prima ogni collezione toccata dalle patch inverse
+// di immer (ADR-50): solo quel che il gesto ha cambiato, non la collezione intera.
+// Ogni modifica dà alla collezione un numero di versione mai usato: se al momento
+// di annullare il numero non è quello lasciato dal passo, si rifiuta invece di
 // cancellare in silenzio il lavoro altrui. Annullare ridà anche il numero di prima.
 
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -11,8 +12,8 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 const PASSI_MASSIMI = 100
 
 /**
- * Tetto in caratteri delle copie (`length` è gratis). V8 usa 1 o 2 byte per
- * carattere, quindi in memoria vale fino a circa 128 MB.
+ * Tetto in caratteri delle patch, come le pesa chi le fa. V8 usa 1 o 2 byte
+ * per carattere, quindi in memoria vale fino a circa 128 MB.
  */
 const CARATTERI_MASSIMI = 64 * 1024 * 1024
 
@@ -20,17 +21,20 @@ const CARATTERI_MASSIMI = 64 * 1024 * 1024
 const FUSIONE_MS = 1500
 
 /**
- * Un passo chiuso: le copie di prima e i numeri di versione ai due capi. Se
- * `irreversibile` non ha copie: è un segno perché Ctrl+Z lo rifiuti.
+ * Un passo chiuso: come tornare indietro, e i numeri di versione ai due capi.
+ * Se `irreversibile` non ha patch: è un segno perché Ctrl+Z lo rifiuti.
  */
-interface Passo<C extends string> {
-  /** Il testo di ogni collezione toccata, com'era prima del gesto. */
-  copie: Map<C, string>
-  /** Il numero che la collezione aveva quando la copia è stata presa. */
+interface Passo<C extends string, P> {
+  /**
+   * Le patch inverse di ogni collezione, a gruppi nell'ordine delle scritture:
+   * per tornare indietro si parte dall'ultimo gruppo.
+   */
+  patch: Map<C, P[][]>
+  /** Il numero che la collezione aveva prima del gesto. */
   prima: Map<C, number>
   /** Il numero che la collezione ha alla fine del gesto. */
   dopo: Map<C, number>
-  /** Quanti caratteri pesano le copie: serve al tetto. */
+  /** Quanto pesano le patch: serve al tetto. */
   peso: number
   /** Che gesto era, per fondere quelli uguali. Assente: non si fonde. */
   chiave?: string
@@ -41,14 +45,14 @@ interface Passo<C extends string> {
 }
 
 /** Un passo ancora in corso: il gesto non è finito. */
-interface PassoAperto<C extends string> {
-  copie: Map<C, string>
+interface PassoAperto<C extends string, P> {
+  patch: Map<C, P[][]>
   prima: Map<C, number>
   /** Le collezioni che il gesto ha davvero cambiato, con l'ultimo numero dato. */
   dopo: Map<C, number>
   /** Altri hanno scritto sulle stesse collezioni a metà gesto: il passo non entra. */
   guasto: boolean
-  /** Il gesto ha tolto file dal documento: le copie rimetterebbero riferimenti morti. */
+  /** Il gesto ha tolto file dal documento: le patch rimetterebbero riferimenti morti. */
   irreversibile: boolean
   chiave?: string
 }
@@ -60,24 +64,27 @@ export type EsitoStoria<C extends string> =
   | { ok: false; motivo: 'irreversibile' }
   | { ok: false; motivo: 'cambiata'; collezioni: C[] }
 
+/** Le patch inverse di più scritture, nell'ordine per disfarle: dall'ultima. */
+function perDisfare<P> (gruppi: P[][]): P[] {
+  return gruppi.slice().reverse().flat()
+}
+
 /**
  * La storia di un archivio. Non sa niente del registro: le collezioni sono
- * nomi, e il loro contenuto lo legge e lo rimette chi la usa.
+ * nomi, le patch valori opachi, e il contenuto lo legge e lo rimette chi la usa.
  */
-export class Storia<C extends string> {
-  private readonly indietro: Array<Passo<C>> = []
-  private readonly avanti: Array<Passo<C>> = []
+export class Storia<C extends string, P = never> {
+  private readonly indietro: Array<Passo<C, P>> = []
+  private readonly avanti: Array<Passo<C, P>> = []
   private readonly versioni = new Map<C, number>()
   /** Il prossimo numero di versione: cresce e basta, non si riusa mai. */
   private prossima = 1
-  private readonly contesto = new AsyncLocalStorage<PassoAperto<C>>()
+  private readonly contesto = new AsyncLocalStorage<PassoAperto<C, P>>()
   /** I passi in corso, per poterli dichiarare guasti quando si azzera tutto. */
-  private readonly aperti = new Set<PassoAperto<C>>()
+  private readonly aperti = new Set<PassoAperto<C, P>>()
 
-  /**
-   * @param leggi Il testo JSON di una collezione com'è adesso.
-   */
-  constructor (private readonly leggi: (collezione: C) => string) {}
+  /** @param pesa Quanti caratteri pesano delle patch: serve al tetto. */
+  constructor (private readonly pesa: (patch: readonly P[]) => number) {}
 
   /** Quanti passi si possono annullare e quanti ripristinare. */
   get conti (): { annulla: number; ripristina: number } {
@@ -89,8 +96,8 @@ export class Storia<C extends string> {
    * non cambia niente non entra e non svuota il ripristino.
    */
   async inUnPasso<T> (lavoro: () => Promise<T>, chiave?: string): Promise<T> {
-    const passo: PassoAperto<C> = {
-      copie: new Map(),
+    const passo: PassoAperto<C, P> = {
+      patch: new Map(),
       prima: new Map(),
       dopo: new Map(),
       guasto: false,
@@ -126,17 +133,25 @@ export class Storia<C extends string> {
     return this.contesto.exit(lavoro)
   }
 
-  /** Copia le collezioni che si stanno per toccare, se dentro un passo. Va chiamata prima di cambiarle. */
-  ricordaPrima (collezioni: readonly C[]): void {
-    const passo = this.contesto.getStore()
-    // Un passo che non entrerà nella storia non ha bisogno di copie.
-    if (!passo || passo.guasto || passo.irreversibile) return
+  /**
+   * Tiene le patch inverse di una scrittura fatta su una bozza, se dentro un
+   * passo. `inverse` si chiama solo lì: fuori da un gesto (la coda dell'OCR) le
+   * patch non servono e non si pagano. Va chiamata prima di `cambiate`.
+   */
+  ricordaPatch (collezioni: readonly C[], inverse: () => Map<C, P[]>): void {
+    const passo = this.passoCheConta()
+    if (!passo) return
+    let perCollezione: Map<C, P[]> | null = null
     for (const collezione of collezioni) {
-      // Toccata già da questo gesto: la copia buona è quella di allora.
-      if (passo.dopo.has(collezione)) continue
-      // Copia presa ma non usata: si rifà solo se nel frattempo la collezione è cambiata.
-      if (passo.prima.get(collezione) === this.versione(collezione)) continue
-      passo.copie.set(collezione, this.leggi(collezione))
+      perCollezione ??= inverse()
+      const gruppo = perCollezione.get(collezione) ?? []
+      const gruppi = passo.patch.get(collezione)
+      if (gruppi) {
+        gruppi.push(gruppo)
+        continue
+      }
+      // Prima volta nel gesto: le patch partono dal numero di adesso.
+      passo.patch.set(collezione, [gruppo])
       passo.prima.set(collezione, this.versione(collezione))
     }
   }
@@ -156,13 +171,17 @@ export class Storia<C extends string> {
     }
   }
 
-  /** Annulla l'ultimo passo. `rimetti` riceve i testi da rimettere nello stato. */
-  annulla (rimetti: (copie: Map<C, string>) => void): EsitoStoria<C> {
+  /**
+   * Annulla l'ultimo passo. `rimetti` applica allo stato le patch che riceve,
+   * già nell'ordine giusto (se non combaciano lancia senza aver toccato
+   * niente), e torna, per collezione, le patch che lo rifanno.
+   */
+  annulla (rimetti: (patch: Map<C, P[]>) => Map<C, P[]>): EsitoStoria<C> {
     return this.sposta(this.indietro, this.avanti, rimetti)
   }
 
   /** Rifà l'ultimo passo annullato. */
-  ripristina (rimetti: (copie: Map<C, string>) => void): EsitoStoria<C> {
+  ripristina (rimetti: (patch: Map<C, P[]>) => Map<C, P[]>): EsitoStoria<C> {
     return this.sposta(this.avanti, this.indietro, rimetti)
   }
 
@@ -180,18 +199,45 @@ export class Storia<C extends string> {
     // Quelle mai toccate valgono zero: un numero che nessun passo ha visto.
   }
 
+  /**
+   * Stacca la storia dal contesto asincrono, allo smaltimento dell'archivio.
+   * Un `AsyncLocalStorage` acceso resta nell'elenco globale di Node finché non
+   * si spegne, e ogni attesa ne porta dietro il passo: con molti archivi (le
+   * prove) il processo rallenta e la memoria cresce.
+   */
+  smetti (): void {
+    this.azzera()
+    this.contesto.disable()
+  }
+
   private versione (collezione: C): number {
     return this.versioni.get(collezione) ?? 0
   }
 
+  /** Il passo in corso, se entrerà nella storia: per gli altri non serve ricordare niente. */
+  private passoCheConta (): PassoAperto<C, P> | null {
+    const passo = this.contesto.getStore()
+    if (!passo || passo.guasto || passo.irreversibile) return null
+    return passo
+  }
+
+  /** Quanto pesa un passo: le sue patch, come le pesa chi le fa. */
+  private pesoDi (patch: Map<C, P[][]>): number {
+    let peso = 0
+    for (const gruppi of patch.values()) {
+      for (const gruppo of gruppi) peso += this.pesa(gruppo)
+    }
+    return peso
+  }
+
   /**
-   * Annulla e ripristina, a pile invertite: rimette le copie e spinge su `a` il
-   * passo rovesciato con lo stato di adesso.
+   * Annulla e ripristina, a pile invertite: rimette lo stato di prima e spinge
+   * su `a` il passo rovesciato, con lo stato di adesso.
    */
   private sposta (
-    da: Array<Passo<C>>,
-    a: Array<Passo<C>>,
-    rimetti: (copie: Map<C, string>) => void,
+    da: Array<Passo<C, P>>,
+    a: Array<Passo<C, P>>,
+    rimetti: (patch: Map<C, P[]>) => Map<C, P[]>,
   ): EsitoStoria<C> {
     const passo = da.at(-1)
     if (!passo) return { ok: false, motivo: 'vuota' }
@@ -202,40 +248,58 @@ export class Storia<C extends string> {
     }
 
     const cambiate = [...passo.dopo].filter(([c, v]) => this.versione(c) !== v).map(([c]) => c)
-    if (cambiate.length > 0) {
-      // Si butta tutta la storia: tenere i passi sotto vorrebbe dire annullare
-      // fuori ordine, e rimettere la copia cancellerebbe le scritture altrui
-      // (anche quelle dell'OCR, `fuoriDalPasso`).
-      this.indietro.length = 0
-      this.avanti.length = 0
-      return { ok: false, motivo: 'cambiata', collezioni: cambiate }
-    }
+    if (cambiate.length > 0) return this.buttaTutto(cambiate)
 
-    da.pop()
-    const adesso = new Map<C, string>()
-    let peso = 0
-    for (const collezione of passo.copie.keys()) {
-      const testo = this.leggi(collezione)
-      adesso.set(collezione, testo)
-      peso += testo.length
+    const inverse = new Map<C, P[]>()
+    for (const [collezione, gruppi] of passo.patch) inverse.set(collezione, perDisfare(gruppi))
+
+    let rifare: Map<C, P[]>
+    try {
+      rifare = rimetti(inverse)
+    } catch (errore) {
+      // Le patch non combaciano con lo stato: qualcuno l'ha cambiato senza
+      // passare da `modifica`. Come per un numero cambiato, non si rimette niente.
+      console.error('annulla: le patch non combaciano con lo stato di adesso', errore)
+      return this.buttaTutto([...passo.patch.keys()])
     }
-    rimetti(passo.copie)
+    da.pop()
     for (const [collezione, versione] of passo.prima) this.versioni.set(collezione, versione)
 
-    a.push({ copie: adesso, prima: passo.dopo, dopo: passo.prima, peso, quando: Date.now() })
+    const patch = new Map<C, P[][]>()
+    for (const collezione of passo.patch.keys()) {
+      patch.set(collezione, [rifare.get(collezione) ?? []])
+    }
+    a.push({
+      patch,
+      prima: passo.dopo,
+      dopo: passo.prima,
+      peso: this.pesoDi(patch),
+      quando: Date.now(),
+    })
     this.contieni()
-    return { ok: true, collezioni: [...passo.copie.keys()] }
+    return { ok: true, collezioni: [...passo.dopo.keys()] }
+  }
+
+  /**
+   * Butta tutta la storia: tenere i passi sotto vorrebbe dire annullare fuori
+   * ordine, e rimettere lo stato di prima cancellerebbe le scritture altrui
+   * (anche quelle dell'OCR, `fuoriDalPasso`).
+   */
+  private buttaTutto (collezioni: C[]): EsitoStoria<C> {
+    this.indietro.length = 0
+    this.avanti.length = 0
+    return { ok: false, motivo: 'cambiata', collezioni }
   }
 
   /** Chiude un passo e, se ha cambiato qualcosa, lo mette nella storia. */
-  private chiudi (aperto: PassoAperto<C>): void {
+  private chiudi (aperto: PassoAperto<C, P>): void {
     if (aperto.irreversibile) {
       // Anche senza collezioni cambiate: Ctrl+Z deve parlare di questo gesto.
       // La pila sotto se ne va, il segno resta solo (`segnaIrreversibile`).
       this.avanti.length = 0
       this.indietro.length = 0
       this.indietro.push({
-        copie: new Map(), prima: new Map(), dopo: new Map(), peso: 0,
+        patch: new Map(), prima: new Map(), dopo: new Map(), peso: 0,
         quando: Date.now(), irreversibile: true,
       })
       this.contieni()
@@ -251,24 +315,22 @@ export class Storia<C extends string> {
       return
     }
 
-    const copie = new Map<C, string>()
+    const patch = new Map<C, P[][]>()
     const prima = new Map<C, number>()
-    let peso = 0
     for (const collezione of aperto.dopo.keys()) {
-      const testo = aperto.copie.get(collezione)
+      const gruppi = aperto.patch.get(collezione)
       const versione = aperto.prima.get(collezione)
-      // Toccata senza copia (non dovrebbe succedere): il passo non si tiene.
-      if (testo === undefined || versione === undefined) return
-      copie.set(collezione, testo)
+      // Toccata senza patch (non dovrebbe succedere): il passo non si tiene.
+      if (gruppi === undefined || versione === undefined) return
+      patch.set(collezione, gruppi)
       prima.set(collezione, versione)
-      peso += testo.length
     }
 
-    const nuovo: Passo<C> = {
-      copie,
+    const nuovo: Passo<C, P> = {
+      patch,
       prima,
       dopo: new Map(aperto.dopo),
-      peso,
+      peso: this.pesoDi(patch),
       ...(aperto.chiave ? { chiave: aperto.chiave } : {}),
       quando: Date.now(),
     }
@@ -280,7 +342,7 @@ export class Storia<C extends string> {
    * Fonde il passo nuovo con la cima se hanno stessa chiave, stesse collezioni,
    * sono vicini e il nuovo parte dove l'altro finiva.
    */
-  private fondi (nuovo: Passo<C>): boolean {
+  private fondi (nuovo: Passo<C, P>): boolean {
     const cima = this.indietro.at(-1)
     if (!cima || !nuovo.chiave || cima.chiave !== nuovo.chiave) return false
     if (nuovo.quando - cima.quando > FUSIONE_MS) return false
@@ -288,6 +350,9 @@ export class Storia<C extends string> {
     for (const [collezione, versione] of nuovo.prima) {
       if (cima.dopo.get(collezione) !== versione) return false
     }
+    // Le patch si accodano: tornando indietro si disfano prima quelle del nuovo.
+    for (const [collezione, gruppi] of nuovo.patch) cima.patch.get(collezione)?.push(...gruppi)
+    cima.peso += nuovo.peso
     cima.dopo = nuovo.dopo
     cima.quando = nuovo.quando
     return true
@@ -295,14 +360,14 @@ export class Storia<C extends string> {
 
   /** Tiene la storia dentro i tetti, buttando via i passi più vecchi. */
   private contieni (): void {
-    const pesoDi = (pila: Array<Passo<C>>) => pila.reduce((somma, p) => somma + p.peso, 0)
+    const pesoDi = (pila: Array<Passo<C, P>>) => pila.reduce((somma, p) => somma + p.peso, 0)
     let peso = pesoDi(this.indietro) + pesoDi(this.avanti)
     while (
       this.indietro.length + this.avanti.length > PASSI_MASSIMI ||
       (peso > CARATTERI_MASSIMI && this.indietro.length + this.avanti.length > 0)
     ) {
       // Prima i più vecchi da annullare; se non ce n'è, il ripristino più lontano.
-      const via = this.indietro.length > 0 ? this.indietro.shift() : this.avanti.shift()
+      const via = this.indietro.shift() ?? this.avanti.shift()
       peso -= via?.peso ?? 0
     }
   }

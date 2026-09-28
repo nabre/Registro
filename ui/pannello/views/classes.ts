@@ -205,14 +205,19 @@ function dettagliClasse (classe: Classe): HTMLElement {
       // testo-fisso: chiave del fuoco, non si legge
       dataset: { fuoco: `classe-${classe.id}-${campo}` },
       attr: { placeholder: segnaposto, 'aria-label': etichetta },
-      onchange: () => void scriviClasse(classe.id, campo, input.value, () => {
-        input.value = valore
-      }),
+      // Il campo vivo dall'evento: un ridisegno può aver tenuto quello di prima.
+      onchange: (evento: Event) => {
+        const vivo = evento.currentTarget as HTMLInputElement
+        void scriviClasse(classe.id, campo, vivo.value, () => {
+          vivo.value = valore
+        })
+      },
       onkeydown: (evento: KeyboardEvent) => {
-        if (evento.key === 'Enter') input.blur()
+        const vivo = evento.currentTarget as HTMLInputElement
+        if (evento.key === 'Enter') vivo.blur()
         if (evento.key === 'Escape') {
-          input.value = valore
-          input.blur()
+          vivo.value = valore
+          vivo.blur()
         }
       },
     })
@@ -229,9 +234,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
       checked: classe[campo],
       // testo-fisso: chiave del fuoco, non si legge
       dataset: { fuoco: `classe-${classe.id}-${campo}` },
-      onchange: () => void scriviClasse(classe.id, campo, input.checked, () => {
-        input.checked = classe[campo]
-      }),
+      onchange: (evento: Event) => {
+        const vivo = evento.currentTarget as HTMLInputElement
+        void scriviClasse(classe.id, campo, vivo.checked, () => {
+          vivo.checked = classe[campo]
+        })
+      },
     })
     return h(
       'label',
@@ -248,9 +256,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
     // testo-fisso: chiave del fuoco, non si legge
     dataset: { fuoco: `classe-${classe.id}-colore` },
     attr: { 'aria-label': t.coloreNelCalendario, title: t.coloreDellaClasse },
-    onchange: () => void scriviClasse(classe.id, 'colore', colore.value, () => {
-      colore.value = classe.colore
-    }),
+    onchange: (evento: Event) => {
+      const vivo = evento.currentTarget as HTMLInputElement
+      void scriviClasse(classe.id, 'colore', vivo.value, () => {
+        vivo.value = classe.colore
+      })
+    },
   })
 
   const note = h('textarea', {
@@ -260,9 +271,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
     // testo-fisso: chiave del fuoco, non si legge
     dataset: { fuoco: `classe-${classe.id}-note` },
     attr: { placeholder: t.noteSullaClasse, 'aria-label': p.note },
-    onchange: () => void scriviClasse(classe.id, 'note', note.value, () => {
-      note.value = classe.note ?? ''
-    }),
+    onchange: (evento: Event) => {
+      const vivo = evento.currentTarget as HTMLTextAreaElement
+      void scriviClasse(classe.id, 'note', vivo.value, () => {
+        vivo.value = classe.note ?? ''
+      })
+    },
   })
 
   return scheda({
@@ -474,11 +488,11 @@ export function vistaClassi (): Figlio {
     }),
     h(
       'div',
-      { class: 'colonna' },
+      { class: 'colonna', dataset: { telaio: 'classi:corpo' } },
       classe
         ? h(
             'div',
-            { class: 'colonna' },
+            { class: 'colonna', dataset: { telaio: `classe:${classe.id}` } },
             dettagliClasse(classe),
             scheda({
               titolo: classe.nome,

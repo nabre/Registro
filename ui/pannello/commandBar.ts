@@ -134,7 +134,9 @@ export function pulsanteComando (comando: ComandoUI): HTMLElement {
         // Un comando con stato è un interruttore: `aria-pressed` lo annuncia attivo.
         'aria-pressed': comando.acceso ? String(acceso) : null,
       },
-      onclick: () => eseguiDalPulsante(comando, bottone),
+      // Il pulsante vivo: dopo un ridisegno `bottone` può essere quello scartato.
+      onclick: (evento: MouseEvent) =>
+        eseguiDalPulsante(comando, evento.currentTarget as HTMLButtonElement),
     },
     icona(comando.simbolo),
     h('span', { class: 'comando__testo' }, titolo),
@@ -438,15 +440,15 @@ function pulsanteTendina (opzioni: {
         // ridisegno: il menu sopravvive al ridisegno, il pulsante no.
         'aria-expanded': String(tendinaAperta(fuoco)),
       },
-      onclick: () => opzioni.apri(bottone),
+      onclick: (evento: MouseEvent) => opzioni.apri(evento.currentTarget as HTMLButtonElement),
       onkeydown: (evento: KeyboardEvent) => {
         // Freccia giù apre soltanto: con il menu aperto non lo richiude.
         if (
           evento.key === 'ArrowDown' &&
-          bottone.getAttribute('aria-expanded') !== 'true'
+          (evento.currentTarget as HTMLButtonElement).getAttribute('aria-expanded') !== 'true'
         ) {
           evento.preventDefault()
-          opzioni.apri(bottone)
+          opzioni.apri(evento.currentTarget as HTMLButtonElement)
         }
       },
     },
@@ -753,7 +755,9 @@ function interruttore (id: string, simbolo: NomeIcona, accesa: boolean): Figlio 
         'aria-label': titoloDi(comando),
         'aria-pressed': String(accesa),
       },
-      onclick: () => eseguiDalPulsante(comando, bottone),
+      // Il pulsante vivo: dopo un ridisegno `bottone` può essere quello scartato.
+      onclick: (evento: MouseEvent) =>
+        eseguiDalPulsante(comando, evento.currentTarget as HTMLButtonElement),
     },
     icona(simbolo, 'icona--minuta'),
     h('span', null, titoloDi(comando)),
@@ -860,7 +864,7 @@ export function barraComandi (): Figlio {
 
   return h(
     'div',
-    { class: 'barra-comandi' },
+    { class: 'barra-comandi', dataset: { telaio: 'barra-comandi' } },
     rigaNavigazione(nascoste, gruppi.length > 0),
     gruppi.length === 0
       ? null

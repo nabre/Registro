@@ -1111,17 +1111,25 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | `coordinate` | `coordinate.json` | `Coordinata[]`; si riscrive solo con «Trova gli indirizzi» |
 
 Chi modifica dichiara le collezioni toccate e si riscrivono solo quelle
-(anche `eliminazione()` le restituisce). Il contenitore (manifesto, `.storico/`,
+(anche `eliminazione()` le restituisce). Quando l'operazione di
+`Archivio.modifica` lavora sulla bozza di immer (ADR-50,
+[bozza.ts](../core/dati/bozza.ts)) le collezioni si ricavano dalle patch, e la
+dichiarazione resta come controllo: una toccata e non dichiarata lancia con
+`REGISTRO_SVILUPPO=1`, altrove si scrive con un avviso. L'annulla tiene le patch
+inverse di quelle collezioni, e la copia intera di quelle cambiate fuori dalla
+bozza ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 4`
+### 8.2 `VERSIONE_DATI = 5`
 
 La versione dello schema JSON (`registro.json.versione`).
 
 La prima forma pubblica comprende già l'intero modello descritto in questo
 documento. Le versioni successive introducono estensioni progressive con passi
 del formato (v2 per `allievo.iscrittoIl`, v3 per `consegna.docenteDiClasse`, v4
-per i dati strutturati del docente `docenteAppellativo`, `docenteNome`, `docenteCognome`).
+per i dati strutturati del docente `docenteAppellativo`, `docenteNome`, `docenteCognome`,
+v5 per `anno.calendarioUfficiale` e `lezione.supplenza`, senza `porta`: assente vuol dire
+anno scritto a mano e lezione non di supplenza).
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento

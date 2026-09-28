@@ -23,7 +23,7 @@ codice, i nomi di dominio, i commenti e la documentazione sono in italiano.
 | `npm run typecheck` | Controlla TypeScript senza emettere file. |
 | `npm run lint` | Esegue ESLint; i warning `max-len` non sono errori. |
 | `npm test` | Ricostruisce `dist-tests/` ed esegue i test `node:test`. |
-| `npm run ui-tests` | Esegue i test UI; richiede Python e Playwright Chromium. |
+| `npm run ui-tests` | Esegue i test UI; richiede `npx playwright install chromium`. |
 | `npm run ci` | Ripete localmente i passi di `.github/workflows/verifica.yml`. |
 | `npm run clean` | Elimina bundle e cache quando si sospettano artefatti vecchi. |
 

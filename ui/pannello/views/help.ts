@@ -8,7 +8,7 @@
 import { pezzi } from '../assistant/format.js'
 import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
 import { icona, type NomeIcona } from '../components/icons.js'
-import { andaturaScorrimento, dentroUnCampo, h, svg, type Figlio } from '../dom.js'
+import { andaturaScorrimento, dentroUnCampo, gestisci, h, svg, type Figlio } from '../dom.js'
 import { isola, ridisegnaIsola } from '../isole.js'
 import { postoDaVista } from '../posto.js'
 import { iscriviti, stato, vai, type Vista } from '../state.js'
@@ -304,11 +304,11 @@ function accendiBollino (dove: HTMLElement, numero: string | null): void {
 /** Il disegno con i bollini che rispondono al passaggio del puntatore. */
 function disegnoVivo (figura: FiguraGuida, dove: () => HTMLElement): SVGSVGElement {
   const disegno = svg(figura.vista, figura.disegno, 'guida__disegno')
-  disegno.addEventListener('mouseover', (evento) => {
+  gestisci(disegno, 'mouseover', (evento) => {
     const gruppo = (evento.target as Element).closest('[data-bollino]')
     accendiBollino(dove(), gruppo?.getAttribute('data-bollino') ?? null)
   })
-  disegno.addEventListener('mouseleave', () => accendiBollino(dove(), null))
+  gestisci(disegno, 'mouseleave', () => accendiBollino(dove(), null))
   return disegno
 }
 

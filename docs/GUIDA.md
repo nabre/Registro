@@ -142,8 +142,9 @@ npm run typecheck    # tsc --noEmit
 npm run lint         # eslint .
 npm test             # le prove, con node --test
 npm run copertura    # copertura delle prove per cartella, in copertura/
+npm run mutanti -- --file <sorgente.ts> --prove "<prove>"  # StrykerJS su un file, skill prove
 npm run fumo         # Electron vero sul campione, via condotto
-npm run ui-tests     # prove dell'interfaccia su Chromium (Python + Playwright)
+npm run ui-tests     # prove dell'interfaccia su Chromium e Electron (@playwright/test)
 npm run package      # installer e portabile in pacchetti/
 npm run clean        # butta bundle e cache
 ```
@@ -155,7 +156,7 @@ npm run clean        # butta bundle e cache
 - `dist/` = bundle dell'applicazione. `dist-tests/` = gli stessi sorgenti in
   ESM per Node, con `electron` sostituito da `tests/helpers/fake-electron.mjs`
   (li prepara `pretest`).
-- `tests/ui/*.py` usano dati sintetici e stanno fuori da `npm test`.
+- `tests/interfaccia/*.spec.ts` usano dati sintetici e stanno fuori da `npm test`.
 - `npm run copertura` è un rapporto, senza soglia: le righe sono gonfiate dai
   cataloghi di testo e dal codice di modulo, contano funzioni e rami. Le prove
   con `importaSorgente` entrano grazie a `REGISTRO_COPERTURA=1`. Dettagli in

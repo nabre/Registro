@@ -192,7 +192,7 @@ export function vistaSettimana (): HTMLElement {
       // Qui si scorre l'ora del giorno: la chiave è fissa, così passando alla
       // settimana dopo si resta sulla stessa ora. Il mese ha un meccanismo suo
       // (`finestraMese`).
-      { class: 'settimana__scorrevole', dataset: { scorrimento: 'calendario:settimana' } },
+      { class: 'settimana__scorrevole', dataset: { scorrimento: 'calendario:settimana', telaio: 'settimana-scorrevole' } },
       h(
         'div',
         // `min-height` in pixel è il pavimento; sopra comanda `height: 100%` del foglio

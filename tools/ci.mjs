@@ -6,7 +6,7 @@
  *
  * Si saltano:
  *
- * - `uses:` (checkout, setup-node, setup-python): preparano la macchina della CI;
+ * - `uses:` (checkout, setup-node, cache): preparano la macchina della CI;
  * - `npm ci`: rifà `node_modules` da zero; si lancia a mano quando il lock cambia;
  * - i passi a più righe (`run: |`): installazioni, non verifiche
  *   (`tools/uiTests.mjs` dice da sé che cosa manca).

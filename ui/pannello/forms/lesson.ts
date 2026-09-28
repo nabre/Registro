@@ -25,7 +25,7 @@ import { avviso, campo, pastiglia, pulsante, riga, sezioneModulo } from '../comp
 import { icona } from '../components/icons.js'
 import { apriModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { ancorataAIcs, aulaDaIcs } from '../externalCalendar.js'
 import { lezionePerId, nomeDiPiano, pianiPerCorso, stato, vai } from '../state.js'
 
@@ -280,14 +280,14 @@ function editorSlot (
     }
     sincronizzatori.push(sincronizza)
 
-    inizio.addEventListener('change', () => {
+    gestisci(inizio, 'change', () => {
       if (!inizio.value) return sincronizza()
       // Spostando l’ora del primo slot si sposta la lezione intera: gli altri
       // sono attaccati e vengono dietro, senza allungarsi.
       incatena(inizio.value)
     })
 
-    durata.addEventListener('change', () => {
+    gestisci(durata, 'change', () => {
       const scritto = Number(durata.value)
       const minuti = pausa
         ? Math.max(5, Math.round(scritto) || 5)

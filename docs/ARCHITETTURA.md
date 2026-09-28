@@ -221,7 +221,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   oggetto `satisfies Parte`, e un'azione senza gestore non compila. `Contesto`
   ([context.ts](../core/azioni/context.ts)) è la porta verso lo stato:
   `modifica(op, collezioni)`, `suVoce` (timbra `aggiornatoIl`), `nelFascicolo`,
-  `elimina`.
+  `elimina`. Oggi `op` cambia lo stato vivo dopo `ricordaPrima`; `Archivio.modifica`
+  invece passa `op` su una bozza immer e ricava le collezioni dalle patch (ADR-50).
 - **`contract/`** — il contratto davanti ai gestori: protocollo, schemi e procedure
   (ADR-27–29, [API](API.md)).
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
@@ -527,5 +528,6 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   (`app`, `BrowserWindow`, `ipcMain` con `simulaDallaPagina()`, due schermi,
   `safeStorage`, `nativeTheme`; stato su `globalThis.__bancoElectron`) e
   [tests/helpers/fake-node-llama.mjs](../tests/helpers/fake-node-llama.mjs)
-  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia in Python +
-  Playwright (`tests/ui/*.py`, `npm run ui-tests`).
+  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia con
+  @playwright/test (`tests/interfaccia/*.spec.ts`, `npm run ui-tests`), una con
+  Electron vero.

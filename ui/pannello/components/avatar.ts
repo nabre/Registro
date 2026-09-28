@@ -4,7 +4,7 @@
 // prove) resta il nome. La tinta viene dal nome, non dall'ordine: la stessa
 // persona ha lo stesso colore ovunque.
 
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { uriDato } from '../state.js'
 
 /** Quel che basta per disegnare un tondo: il nome, e se c'è la foto. */
@@ -69,7 +69,7 @@ export function avatar (persona: Persona): HTMLElement {
       dataset: { tieni: indirizzo },
       attr: { src: indirizzo, alt: '', loading: 'lazy', decoding: 'async' },
     })
-    foto.addEventListener('error', () => foto.remove(), { once: true })
+    gestisci(foto, 'error', (evento) => (evento.currentTarget as HTMLElement).remove())
     tondo.append(foto)
   }
   return tondo

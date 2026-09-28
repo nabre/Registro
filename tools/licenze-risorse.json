@@ -1,0 +1,32 @@
+[
+  {
+    "cartella": "resources/pdf-fonts",
+    "licenza": "OFL-1.1",
+    "testo": "LICENSE_LIBERATION",
+    "perché": "Liberation Sans, i caratteri dei PDF generati (Red Hat, SIL Open Font License 1.1).",
+    "file": [
+      "LiberationSans-Regular.ttf",
+      "LiberationSans-Bold.ttf",
+      "LiberationSans-Italic.ttf",
+      "LiberationSans-BoldItalic.ttf"
+    ]
+  },
+  {
+    "cartella": "resources/pdf-fonts",
+    "licenza": "BSD-3-Clause",
+    "testo": "LICENSE_FOXIT",
+    "perché": "Caratteri Foxit di PDFium, i sostituti standard per pdf.js nelle anteprime.",
+    "file": [
+      "FoxitDingbats.pfb",
+      "FoxitFixed.pfb",
+      "FoxitFixedBold.pfb",
+      "FoxitFixedBoldItalic.pfb",
+      "FoxitFixedItalic.pfb",
+      "FoxitSerif.pfb",
+      "FoxitSerifBold.pfb",
+      "FoxitSerifBoldItalic.pfb",
+      "FoxitSerifItalic.pfb",
+      "FoxitSymbol.pfb"
+    ]
+  }
+]

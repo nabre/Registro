@@ -6,6 +6,7 @@ import * as apparato from 'apparato'
 
 import { apriConIlSistema } from '../dati/opening.js'
 import type { Archivio } from '../dati/archive.js'
+import { vociDi } from '../dati/bozza.js'
 import { deposito, percorsoVero } from '../dati/store.js'
 import { estensioneDi, nomeDelFileUri } from '../dati/paths.js'
 import { classeDellaConsegna, fascicoloDellaClasse } from '../dominio/courses.js'
@@ -111,16 +112,46 @@ export function riassumiInvii (
   return conMessaggio(`${quanti}.`)
 }
 
-/** L'upsert per id: sostituisce se c'è, aggiunge in fondo se no, e riordina se serve. */
-export function riponi<T extends { id: string }> (
-  elenco: T[],
-  voce: T,
-  ordina?: (a: T, b: T) => number,
-): void {
-  const indice = elenco.findIndex((x) => x.id === voce.id)
+/** L'upsert per id: sostituisce se c'è, aggiunge in fondo se no. */
+export function riponi<T extends { id: string }> (elenco: T[], voce: T): void {
+  // Si cerca fuori dalla bozza: scorrerla farebbe una bozza di ogni voce.
+  const indice = vociDi(elenco).findIndex((x) => x.id === voce.id)
   if (indice >= 0) elenco[indice] = voce
   else elenco.push(voce)
-  if (ordina) elenco.sort(ordina)
+}
+
+/** Le liste in cima al registro. */
+type ListaDelRegistro = {
+  [K in keyof Registro]: Registro[K] extends unknown[] ? K : never
+}[keyof Registro]
+
+/** `riponi` in una lista in cima al registro tenuta in ordine: la voce va dove la mette `sort`. */
+export function riponiInOrdine<K extends ListaDelRegistro> (
+  r: Registro,
+  chiave: K,
+  voce: Registro[K][number] & { id: string },
+  ordina: (a: Registro[K][number], b: Registro[K][number]) => number,
+): void {
+  riponi(r[chiave] as Array<{ id: string }>, voce)
+  ordinaInBozza(r, chiave, ordina)
+}
+
+/**
+ * Ordina una lista in cima al registro come `r[chiave].sort(ordina)`, senza
+ * scorrerla nella bozza, dove ogni voce letta diventa una bozza: si ordinano le
+ * voci com'è adesso (`vociDi`) e, se l'ordine cambia, la lista si rimette
+ * intera. Le patch di quella lista rimessa le accorcia la bozza (`compatta`).
+ */
+export function ordinaInBozza<K extends ListaDelRegistro> (
+  r: Registro,
+  chiave: K,
+  ordina: (a: Registro[K][number], b: Registro[K][number]) => number,
+): void {
+  const voci = vociDi(r[chiave] as Array<Registro[K][number]>)
+  // Ordinare i posti e non le voci dà lo stesso ordine: il `sort` è stabile.
+  const posti = voci.map((_, i) => i).sort((i, j) => ordina(voci[i], voci[j]))
+  if (posti.every((da, a) => da === a)) return
+  ;(r as unknown as Record<K, unknown[]>)[chiave] = posti.map((i) => voci[i])
 }
 
 /** Il fascicolo di una classe dentro una modifica, creato alla prima scrittura. */
@@ -256,9 +287,10 @@ export function consegnaConClasse (
 // ------------------------------------------------------------------ contesto
 
 /**
- * Un cambiamento del registro. Tornare `false` (solo `false`) vuol dire «non
- * l'ho trovato»: serve ai gestori che aspettano un dialogo, durante il quale
- * la voce può sparire.
+ * Un cambiamento del registro, fatto sulla bozza di `Archivio.modificaSe`: gli
+ * oggetti si prendono da `r`, non da `contesto.registro`, e non si portano
+ * fuori. Tornare `false` (solo `false`) vuol dire «non l'ho trovato»: serve ai
+ * gestori che aspettano un dialogo, durante il quale la voce può sparire.
  */
 type Cambiamento = (r: Registro) => void | boolean
 
@@ -330,16 +362,11 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
 
   const modifica = (op: Cambiamento, collezioni: Collezione[], mancante?: string): EsitoAzione => {
     if (!ancoraQui()) return documentoCambiato()
-    // L'ordine conta. Il divieto dell'anno in chiusura prima di toccare lo
-    // stato; la copia per l'annulla prima di `op`, che cambia lo stato vivo;
-    // `Archivio.modifica` solo se `op` riesce, perché alza la revisione e non
-    // torna indietro (qui rende ufficiale quel che `op` ha già fatto).
-    archivio.vietaSeInChiusura()
-    archivio.ricordaPrima(collezioni)
-    if (op(archivio.registro) === false) {
+    // `op` lavora sulla bozza: se torna `false` la bozza si butta, e la
+    // revisione resta quella.
+    if (!archivio.modificaSe(op, collezioni)) {
       return rifiutaCon('non-trovato', mancante ?? testi().nonCePiu)
     }
-    archivio.modifica(() => undefined, collezioni)
     // La scrittura stessa può cambiare l'anno corrente: le successive restano buone.
     anno = archivio.registro.annoCorrenteId
     return fatto
@@ -357,11 +384,15 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
     suVoce: (collezione, id, op, altre = [], mancante) => {
       const raccolta = archivio.registro[collezione] as Array<{ id: string }>
       const sparita = testi().vociSparite[collezione]
-      if (!raccolta.some((v) => v.id === id)) return rifiutaCon('non-trovato', sparita)
+      const indice = raccolta.findIndex((v) => v.id === id)
+      if (indice < 0) return rifiutaCon('non-trovato', sparita)
       // Distingue la voce sparita dal `false` di `op`, per scegliere la frase.
       let dentro = false
       const esito = modifica((r) => {
-        const voce = (r[collezione] as Array<{ id: string }>).find((v) => v.id === id)
+        // Per indice: la bozza parte dallo stato appena guardato, e scorrerla
+        // voce per voce farebbe una bozza di ognuna.
+        const lista = r[collezione] as Array<{ id: string }>
+        const voce = lista[indice]?.id === id ? lista[indice] : lista.find((v) => v.id === id)
         // Sparita durante l'attesa di un gestore.
         if (!voce) return false
         if (op(voce as Registro[typeof collezione][number], r) === false) {

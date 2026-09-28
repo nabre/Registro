@@ -18,7 +18,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 | D4 | La riga di comando è un cliente del condotto: non importa il codice interno, chiede tutto a `$elenco` e `$schema`. |
 | D5 | Un riordino delle cartelle si scrive prima come mappa «da → a» (ARCHITETTURA § 3), poi `git mv` in un commit che non contiene altro. |
 | D6 | Un export senza consumatori esterni **non si cancella se è vivo**: si rende interno. Si cancella solo quel che nessuno chiama, dopo che una prova l'ha confermato. |
-| D7 | Le funzionalità si aggiungono dichiarandole (`definisci()`, schemi, nucleo, giornale), non cablandole; niente librerie nuove per questo. |
+| D7 | Le funzionalità si aggiungono dichiarandole (`definisci()`, schemi, nucleo, giornale), non cablandole. Le librerie si giudicano con i criteri di ADR-50. |
 | D8 | Cinque strati: `core/`, `contract/`, `desktop/`, `ui/`, `cli/` ([ARCHITETTURA.md](ARCHITETTURA.md)). |
 | D9 | `contract/` ha la forma di tRPC senza tRPC: `router()`, `chiamante()` tipizzato, `Link`. |
 | D10 | La riga di comando resta nuda: solo moduli `node:`, nessuna dipendenza, nessuna build. |
@@ -45,6 +45,22 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 - [ ] `registro.json` illeggibile non entra in `illeggibili`: niente
       `mettiDaParte`, e una modifica la riscrive con `anno:null`.
 
+### Librerie (ADR-50)
+
+- [ ] Passo 1 — fast-check, knip, dependency-cruiser, licenze: in CI.
+- [ ] Passo 2 — immer in `modifica` e nella storia, collezioni ricavate dalle patch.
+- [ ] Togliere il percorso classico di `aggiornaElemento` (`MORFOSI` spento)
+      dopo un uso vero del morph senza guasti (D6); allora portare
+      `tests/ui/isole` e `riquadriLocali` su Chromium o ritirarle.
+- [ ] Temporal fuori da `dates.ts`: `core/dominio/calendarIcs.ts` (fuso con
+      `Intl.formatToParts` + `Date.UTC` → `ZonedDateTime`),
+      `timetable.ts:163-178` (ciclo su `Date` in UTC), `factories.ts:160`;
+      `aIso` non riempie gli anni sotto il 1000. Togliere il `declare global`
+      di `dates.ts` quando TypeScript porta `Temporal`.
+- [ ] Passo 5 — @tanstack/virtual-core dove una misura lo chiede (voti, archivio, persone).
+- [ ] Nell'app vera il pannello scambia `stato`/`proiezione.mira` ogni ~680 ms
+      senza fine: capire se è voluto.
+
 ### Coerenza dei dati
 
 - [ ] `integrity.ts` non controlla ancora allievoId in `consegne.documenti`,
@@ -68,7 +84,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Prove
 
-- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/ui/*.py`), che
+- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
 - [ ] Mutation testing (Stryker, tap-runner, via `npx`): `deletions.ts` 87%,
       `calculations.ts:330-735` 97,7%. Sopravvissuti: piano eliminato senza
@@ -92,7 +108,10 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
       codice»).
 - [ ] Prima release firmata: togliere l'avviso SmartScreen dal README e «quando
       la firma sarà attiva» da SECURITY.
-- [ ] Sei pacchetti MIT senza file LICENSE.
+- [ ] Sei pacchetti MIT di produzione senza file LICENSE (`npm run licenze` li
+      elenca): `@reflink/reflink`, `@reflink/reflink-win32-x64-msvc`,
+      `simple-git`, `@simple-git/args-pathspec`, `@simple-git/argv-parser`,
+      `lazy-val`. L'avviso MIT va portato nel pacchetto per altra via.
 
 ### Da provare a mano
 

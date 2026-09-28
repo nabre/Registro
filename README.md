@@ -75,7 +75,7 @@ situazione di famiglia. **Regiklass** tiene tutto sulla tua macchina:
 | ✂️ **Smistamento dei PDF** | Un PDF di classe arrivato dalla segreteria si divide da solo, persona per persona. Le scansioni passano dall'OCR. |
 | 🤖 **Assistente** | Risponde a domande in italiano leggendo i dati veri del registro, con un modello che scarichi o trascini nella finestra. Le domande si possono anche dire a voce, con [voicebox](https://github.com/jamiepine/voicebox) installato e aperto a parte: la voce resta sul tuo computer. |
 | 📽️ **Proiezione** | Una seconda finestra per lo schermo della classe, che segue quel che apri nel registro. |
-| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 215 procedure, con permessi separati per lettura e scrittura. |
+| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 217 procedure, con permessi separati per lettura e scrittura. |
 | 💾 **Portabile** | Una versione che gira da chiavetta senza installazione, per le macchine su cui non si hanno i diritti di amministratore. |
 
 Come si usa ogni pagina lo dice la guida dentro il registro: **F1** da qualunque
@@ -141,8 +141,8 @@ cambiato, i dati no. Aggiornando il registro installato:
 
 ## Sviluppo
 
-Serve **Node.js 24**. Per le prove dell'interfaccia servono anche Python e
-Playwright.
+Serve **Node.js 24**. Per le prove dell'interfaccia serve anche il Chromium di
+Playwright: `npx playwright install chromium`.
 
 ```bash
 git clone https://github.com/nabre/Registro.git

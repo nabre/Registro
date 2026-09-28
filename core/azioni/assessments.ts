@@ -20,7 +20,7 @@ import {
   documentoCambiato,
   fatto,
   rifiuta,
-  riponi,
+  riponiInOrdine,
   scegliUnFile,
   type Parte,
 } from './context.js'
@@ -127,7 +127,7 @@ export const valutazioni = {
       } else {
         momento.allegati = []
       }
-      riponi(r.valutazioni, momento, (a, b) => a.data.localeCompare(b.data))
+      riponiInOrdine(r, 'valutazioni', momento, (a, b) => a.data.localeCompare(b.data))
     }, ['valutazioni'])
     if (!scritto.ok) return scritto
     return nuova ? { ok: true, creato: { id: momento.id } } : fatto

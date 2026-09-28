@@ -329,6 +329,7 @@ export function barraStato (): Figlio {
     {
       class: 'barra-stato',
       attr: { role: 'contentinfo', 'aria-label': testi().statoDelRegistro },
+      dataset: { telaio: 'barra-stato' },
     },
     // Tre blocchi separati da un filo, uno per domanda: che cosa mi tocca, che
     // cosa è acceso, com'è messa la macchina. Un blocco vuoto sparisce con il

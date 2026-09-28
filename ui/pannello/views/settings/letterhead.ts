@@ -15,7 +15,7 @@ import { campo, pulsante, scheda } from '../../components/base.js'
 import { menuSotto, type ElementoMenu } from '../../components/menu.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '../../state.js'
 // salvataggio intestazione gestito con azione diretta per preservare campi docente
@@ -201,23 +201,27 @@ function rendiBersaglio (zona: HTMLElement, cartaId: string): void {
     inViaggio !== null && inViaggio.da !== cartaId &&
     Boolean(evento.dataTransfer?.types.includes(TIPO_CORSI))
 
-  zona.addEventListener('dragenter', (evento: DragEvent) => {
+  // La zona viva dall'evento: un ridisegno può aver tenuto la vecchia al posto
+  // di `zona`. Il conto riparte con i gestori di ogni disegno, come riparte il
+  // bordo acceso che il disegno toglie.
+  const vivo = (evento: Event): HTMLElement => evento.currentTarget as HTMLElement
+  gestisci(zona, 'dragenter', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     dentro += 1
-    zona.classList.add('carta-intestata__corsi--sopra')
+    vivo(evento).classList.add('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(zona, 'dragover', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'move'
-    zona.classList.add('carta-intestata__corsi--sopra')
+    vivo(evento).classList.add('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('dragleave', () => {
+  gestisci(zona, 'dragleave', (evento) => {
     dentro = Math.max(0, dentro - 1)
-    if (dentro === 0) zona.classList.remove('carta-intestata__corsi--sopra')
+    if (dentro === 0) vivo(evento).classList.remove('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(zona, 'drop', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     dentro = 0

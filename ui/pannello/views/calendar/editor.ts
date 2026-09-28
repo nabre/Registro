@@ -268,7 +268,15 @@ export function maniglie (blocco: HTMLElement, lezione: Lezione, fascia: Fascia)
         'aria-hidden': 'true',
         title: capo === 'inizio' ? testi().tiraInizio : testi().tiraFine,
       },
-      onpointerdown: (evento: PointerEvent) => stira(evento, blocco, lezione, capo, fascia),
+      // Il blocco vivo è il genitore della maniglia: `blocco` può essere quello
+      // di un disegno che un ridisegno ha scartato.
+      onpointerdown: (evento: PointerEvent) => stira(
+        evento,
+        (evento.currentTarget as HTMLElement).parentElement ?? blocco,
+        lezione,
+        capo,
+        fascia,
+      ),
       // Il clic che chiude la tirata non deve scegliere né aprire il blocco.
       onclick: (evento: MouseEvent) => evento.stopPropagation(),
     }),

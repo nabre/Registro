@@ -1,5 +1,5 @@
 /**
- * Ponte di prova per `tests/ui/*.py`: stesso renderer, dati sintetici, nessun
+ * Ponte di prova per `tests/interfaccia/*.spec.ts`: stesso renderer, dati sintetici, nessun
  * accesso ai registri reali. Lo costruisce `node esbuild.mjs --ui` in
  * `dist-tests/ui.js`.
  */
@@ -12,7 +12,7 @@ import { postoDaVista } from '../../ui/pannello/posto.js'
 import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '../../ui/pannello/pages.js'
 import { scegliCorso } from '../../ui/pannello/context.js'
 import { COMANDI_UI } from '../../ui/pannello/commands.js'
-// Le miniature hanno bisogno di una tela vera: `tests/ui/pageBrowser.py` le
+// Le miniature hanno bisogno di una tela vera: `tests/interfaccia/pageBrowser.spec.ts` le
 // chiama a mano per provare apertura e chiusura di un documento.
 import { miniatura, dimentica } from '../../ui/pannello/components/thumbnails.js'
 // Due pezzi di dominio che le prove leggono invece di ricopiarli: le regole dei

@@ -12,7 +12,7 @@ import { classeDellaLezione, corsoPerId } from '../dominio/courses.js'
 import type { Lezione, Presenza, Registro, StatoPresenza } from '../dominio/models.js'
 import { validaLezione } from '../dominio/validation.js'
 import { aggiornaDopoChiusura } from './reports.js'
-import { conMessaggio, fatto, rifiuta, riponi, type Parte } from './context.js'
+import { conMessaggio, fatto, ordinaInBozza, rifiuta, riponi, riponiInOrdine, type Parte } from './context.js'
 import { lezioniInChiusura } from '../dominio/timetable.js'
 import { annoInUso } from '../dominio/years.js'
 import { testi as comuni } from './context.testi.js'
@@ -135,7 +135,7 @@ export const ore = {
       lezione.presenze = []
     }
     contesto.modifica((r) => {
-      riponi(r.lezioni, lezione, (a, b) => a.data.localeCompare(b.data))
+      riponiInOrdine(r, 'lezioni', lezione, (a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     const scritta = nuova ? { ok: true as const, creato: { id: lezione.id } } : fatto
     if (!ridisposta) return scritta
@@ -166,7 +166,7 @@ export const ore = {
     }
     contesto.modifica((r) => {
       r.lezioni.push(copia)
-      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
+      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     return { ok: true, creato: { id: copia.id } }
   },
@@ -198,7 +198,7 @@ export const ore = {
       if (azione.inizio) {
         lezione.slot = slotSullePause(lezione.slot, r.impostazioni, azione.inizio)
       }
-      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
+      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
     })
   },
 

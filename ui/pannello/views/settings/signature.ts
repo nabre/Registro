@@ -8,7 +8,7 @@
 // suo posto, con il cursore, per non perdere quel che si sta scrivendo.
 
 import { pulsante } from '../../components/base.js'
-import { h } from '../../dom.js'
+import { gestisci, h } from '../../dom.js'
 import { testi } from './signature.testi.js'
 
 // ------------------------------------------------------------------ la pulizia
@@ -193,7 +193,7 @@ function gesto (
     },
   })
   // Senza, il pulsante porta via il fuoco e la selezione dal campo.
-  bottone.addEventListener('mousedown', (evento) => evento.preventDefault())
+  gestisci(bottone, 'mousedown', (evento) => evento.preventDefault())
   return bottone
 }
 
@@ -218,7 +218,7 @@ function barra (): HTMLElement {
   })
   // Il selettore del colore prende il fuoco: la selezione si rimette da quella
   // tenuta da parte.
-  colore.addEventListener('change', () => {
+  gestisci(colore, 'change', () => {
     campo?.focus()
     rimetti(ultimaSelezione)
     comando('foreColor', colore.value)
@@ -297,18 +297,18 @@ function costruisci (): void {
   // Stili in linea e non `<b>`/`<font>`: li rendono meglio i programmi di posta.
   document.execCommand('styleWithCSS', false, 'true')
 
-  campo.addEventListener('input', segnaVuota)
-  campo.addEventListener('focus', () => {
+  gestisci(campo, 'input', segnaVuota)
+  gestisci(campo, 'focus', () => {
     if (daRimettere) {
       rimetti(daRimettere)
       daRimettere = null
     }
   })
-  campo.addEventListener('blur', () => {
+  gestisci(campo, 'blur', () => {
     // Un campo che esce di pagina per il ridisegno perde il fuoco: non si salva.
     if (campo?.isConnected) consegna()
   })
-  campo.addEventListener('paste', (evento) => {
+  gestisci(campo, 'paste', (evento) => {
     const dati = evento.clipboardData
     if (!dati) return
     evento.preventDefault()
@@ -317,7 +317,7 @@ function costruisci (): void {
     else document.execCommand('insertText', false, dati.getData('text/plain'))
     segnaVuota()
   })
-  campo.addEventListener('drop', (evento) => {
+  gestisci(campo, 'drop', (evento) => {
     const dati = evento.dataTransfer
     if (!dati) return
     evento.preventDefault()
@@ -330,7 +330,8 @@ function costruisci (): void {
   posto = h('div', { class: 'firma__serie', attr: { 'aria-hidden': 'true' } })
   involucro = h(
     'div',
-    { class: 'firma' },
+    // testo-fisso: chiave del nodo tenuto
+    { class: 'firma', dataset: { tieni: 'firma' } },
     barra(),
     h('div', { class: 'firma__foglio' }, campo, posto),
   )
@@ -356,5 +357,14 @@ export function campoFirma (opzioni: OpzioniFirma): HTMLElement {
 
   ;(posto as HTMLElement).replaceChildren(opzioni.diSerie)
   segnaVuota()
-  return involucro as HTMLElement
+  const tenuto = involucro as HTMLElement
+  // Già nella pagina: il disegno nuovo ne porta solo il segnaposto e
+  // `aggiornaElemento` ci rimette questo senza staccarlo (`data-tieni`), come
+  // l'editor del piano. Appeso nel disegno, il nodo lascerebbe la pagina prima
+  // del tempo, e il confronto potrebbe rimodellare un altro `<div>` al suo posto
+  // lasciando fuori il campo che le closure guardano. Il segnaposto porta le
+  // classi di adesso: i suoi attributi passano al nodo tenuto.
+  return tenuto.isConnected
+    ? h('div', { class: tenuto.className, dataset: { tieni: tenuto.dataset.tieni } })
+    : tenuto
 }

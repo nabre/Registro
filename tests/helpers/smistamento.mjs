@@ -86,7 +86,7 @@ export async function archivioDiSmistamento ({ lavoro, dati, docenteDiClasse = f
     r.classi.push(classe)
     r.corsi.push(corso)
     r.consegne.push(consegna)
-  }, ['classi', 'corsi', 'consegne'])
+  }, ['registro', 'classi', 'corsi', 'consegne'])
 
   return { moduli, dominio, archivio, classe, consegna }
 }

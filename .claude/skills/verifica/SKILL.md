@@ -237,8 +237,8 @@ Come si legge:
 - le prove che usano `importaSorgente` contano perché lo script mette
   `REGISTRO_COPERTURA=1`: il modulo va su disco con la mappa invece che in un
   `data:`. A variabile spenta `tests/helpers/sorgente.mjs` fa come sempre;
-- `ui/pannello` ha funzioni basse perché le viste si provano in `tests/ui/`,
-  su Chromium, che il rapporto non vede;
+- `ui/pannello` ha funzioni basse perché le viste si provano in
+  `tests/interfaccia/`, su Chromium, che il rapporto non vede;
 - mentre gira, `dist-tests/` ha le mappe: un `npm test` lanciato in parallelo
   passa lo stesso, ma una ricostruzione altrui a metà corsa falsa il rapporto.
 
@@ -251,7 +251,7 @@ npm run ci -- --solo verifica # solo i controlli; --solo interfaccia per le prov
 
 `tools/ci.mjs` legge **lo stesso** `verifica.yml` che GitHub esegue e ne lancia
 i passi `run:` di una riga, con i loro nomi, fermandosi al primo rosso. Salta
-`npm ci` e le installazioni a più righe (Python, Chromium). Un passo aggiunto al
+`npm ci` e le installazioni a più righe (Chromium). Un passo aggiunto al
 workflow si esegue anche qui senza toccare niente.
 
 Due cose che la forma breve qui sopra non vede e la CI sì:
@@ -260,6 +260,8 @@ Due cose che la forma breve qui sopra non vede e la CI sì:
   Node esce con 1, e la CI è rossa. Si legge anche `# cancelled`;
 - **le prove dell'interfaccia** (`npm run ui-tests`): leggono i testi e i nomi
   accessibili dei pulsanti. I bundle che caricano li costruisce una volta
-  `node esbuild.mjs --ui`, lanciato da `tools/uiTests.mjs`: una prova Python
-  lanciata a mano vuole prima quel comando. Cambiare l'etichetta di una voce di menu rompe una
-  prova Python che nessun `tsc` vede.
+  `node esbuild.mjs --ui`, lanciato da `tools/uiTests.mjs`: una prova lanciata
+  a mano con `npx playwright test -c tests/interfaccia/playwright.config.ts`
+  vuole prima quel comando (e `node esbuild.mjs` per quella che accende
+  Electron). Cambiare l'etichetta di una voce di menu rompe una prova il cui
+  testo `tsc` non legge: il codice nella pagina è una stringa.

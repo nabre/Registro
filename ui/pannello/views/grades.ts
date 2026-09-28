@@ -13,7 +13,7 @@ import { assenteAllOra, rigaDelRecupero } from '../../../core/dominio/retakes.js
 import { collegamento, pastiglia } from '../components/base.js'
 import { } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h } from '../dom.js'
+import { gestisci, h } from '../dom.js'
 import { azione } from '../bridge.js'
 import { postoCorrente, stato, vai } from '../state.js'
 import { tabella } from '../components/table.js'
@@ -352,7 +352,9 @@ export function grigliaVoti (
   const corpo = contenitore.querySelector('table')!
 
   // La navigazione da foglio di calcolo.
-  corpo.addEventListener('keydown', (evento: KeyboardEvent) => {
+  gestisci(corpo, 'keydown', (evento) => {
+    // La tabella viva: dopo un ridisegno `corpo` può essere quella scartata.
+    const tabella = evento.currentTarget as HTMLElement
     const bersaglio = evento.target as HTMLInputElement
     if (!bersaglio.dataset.riga) return
     const riga = Number(bersaglio.dataset.riga)
@@ -377,8 +379,8 @@ export function grigliaVoti (
 
     // Il bersaglio si cerca prima di lasciare questo campo, o Invio sull'ultima
     // riga perderebbe il fuoco. A fine colonna si passa in cima a quella dopo.
-    if (!spostaFuoco(corpo, riga + passo[0], colonna + passo[1]) && passo[0] > 0) {
-      spostaFuoco(corpo, 0, colonna + passo[1] + 1)
+    if (!spostaFuoco(tabella, riga + passo[0], colonna + passo[1]) && passo[0] > 0) {
+      spostaFuoco(tabella, 0, colonna + passo[1] + 1)
     }
     // Il `blur` sempre, anche senza dove andare: `preventDefault` ha tolto a Invio
     // il suo effetto, e senza `change` un ridisegno perderebbe la cifra.

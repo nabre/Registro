@@ -107,13 +107,18 @@ export function pulsanteStato (opzioni: {
   // casella non gira. Il marchio si azzera al tocco dopo.
   let attesa: number | null = null
   let clicSpeso = false
+  /**
+   * Il pulsante che si sta premendo, preso dall'evento: dopo un ridisegno
+   * `bottone` può essere quello scartato.
+   */
+  let premuto: HTMLElement | null = null
 
   const fermaAttesa = (): void => {
     if (attesa !== null) {
       clearTimeout(attesa)
       attesa = null
     }
-    bottone.classList.remove('stato-presenza--premuto')
+    ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
   }
 
   const bottone = h(
@@ -149,11 +154,12 @@ export function pulsanteStato (opzioni: {
         clicSpeso = false
         if (evento.button !== 0) return
         fermaAttesa()
-        bottone.classList.add('stato-presenza--premuto')
+        premuto = evento.currentTarget as HTMLElement
+        premuto.classList.add('stato-presenza--premuto')
         attesa = window.setTimeout(() => {
           attesa = null
           clicSpeso = true
-          bottone.classList.remove('stato-presenza--premuto')
+          ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
           menuStati(evento, inVolo ?? stato, manda)
         }, PRESSIONE_LUNGA)
       },
