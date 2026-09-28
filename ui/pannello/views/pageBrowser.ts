@@ -34,7 +34,7 @@ import {
   miniaturaPronta,
 } from '../components/thumbnails.js'
 import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { azione } from '../bridge.js'
 import { isola, ridisegnaIsola } from '../isole.js'
 import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, ricorda, stato, uriDato } from '../state.js'
@@ -335,11 +335,15 @@ function fotografia (
     )
   }
 
-  const mostra = (immagine: string | null, nitida: boolean) => {
+  /**
+   * Mette la fotografia in `dove`: `posto` al disegno, il posto vivo quando la
+   * fotografia arriva più tardi (un ridisegno può averne tenuto un altro).
+   */
+  const mostra = (dove: HTMLElement, immagine: string | null, nitida: boolean) => {
     if (!immagine) {
       if (!nitida) return
       // Disegno fallito: lo si dice. La pagina resta trascinabile.
-      posto.replaceChildren(
+      dove.replaceChildren(
         h('span', { class: 'pagina-sfoglio__attesa' }, t.pagina(pagina)),
         h('span', { class: 'testo-quieto pagina-sfoglio__nota' }, t.nonDisegnabile),
       )
@@ -348,24 +352,24 @@ function fotografia (
     // Un nodo tenuto per PDF e pagina: il ridisegno rimette l'`<img>` di prima
     // (`dom.ts`, `parcheggia`) e non ridecodifica la fotografia; se la
     // fotografia cambia (quella nitida dopo la provvisoria) cambia solo `src`.
-    const foto = posto.querySelector('img') ?? h('img', {
+    const foto = dove.querySelector('img') ?? h('img', {
       // testo-fisso: la chiave del nodo tenuto
       dataset: { tieni: `${chiave}|${pagina}` },
       attr: { alt: t.pagina(pagina), draggable: 'false' },
     })
     if (foto.getAttribute('src') !== immagine) foto.setAttribute('src', immagine)
-    for (const figlio of Array.from(posto.childNodes)) {
-      if (figlio !== foto) posto.removeChild(figlio)
+    for (const figlio of Array.from(dove.childNodes)) {
+      if (figlio !== foto) dove.removeChild(figlio)
     }
-    if (foto.parentNode !== posto) posto.appendChild(foto)
+    if (foto.parentNode !== dove) dove.appendChild(foto)
     const sopra = segno()
-    if (sopra instanceof Node) posto.appendChild(sopra)
+    if (sopra instanceof Node) dove.appendChild(sopra)
   }
 
   // Quella giusta c'è già: si mette e basta.
   const esatta = miniaturaAllaMisura(chiave, pagina, larghezza)
   if (esatta) {
-    mostra(esatta, true)
+    mostra(posto, esatta, true)
     return posto
   }
 
@@ -373,7 +377,7 @@ function fotografia (
   // l'immagine dell'host, sgranate) e si chiede comunque quella giusta.
   const ripiego = miniaturaPronta(chiave, pagina, larghezza) ?? ripiegoScritto
   if (ripiego) {
-    mostra(ripiego, false)
+    mostra(posto, ripiego, false)
   } else {
     posto.appendChild(h('span', { class: 'pagina-sfoglio__attesa' }, String(pagina)))
     posto.appendChild(h('span', { class: 'testo-quieto pagina-sfoglio__nota' }, t.disegnando))
@@ -381,11 +385,11 @@ function fotografia (
 
   // Una vedetta sola per tutte le pagine, non una per riquadro: vedi
   // `guardaQuando`.
-  guardaQuando(posto, () => {
+  guardaQuando(posto, `${chiave}|${pagina}|${larghezza}`, (vivo) => {
     // Un ridisegno può aver già sostituito il riquadro: lo si riempie solo se è
     // ancora in pagina; la fotografia resta in memoria per il riquadro nuovo.
     void miniatura(indirizzo, chiave, pagina, larghezza).then((immagine) => {
-      if (posto.isConnected) mostra(immagine, true)
+      if (vivo.isConnected) mostra(vivo, immagine, true)
     })
   })
   return posto
@@ -394,35 +398,56 @@ function fotografia (
 /**
  * Un solo `IntersectionObserver` per tutti i riquadri: quando una pagina entra
  * in vista si esegue il suo compito e la si smette di guardare.
+ *
+ * Il compito si lega a una chiave (`data-guarda`), non al nodo del disegno: un
+ * ridisegno può tenere nel documento il riquadro di prima e scartare quello
+ * appena costruito, che non entrerebbe mai in vista. Si guardano i nodi che
+ * sono nel documento a disegno finito, e il compito riceve quello vivo.
  */
-const daGuardare = new WeakMap<Element, () => void>()
+const daGuardare = new Map<string, (vivo: HTMLElement) => void>()
 let vedetta: IntersectionObserver | null = null
+let guardiaProgrammata = false
 
-function guardaQuando (elemento: Element, compito: () => void): void {
-  vedetta ??= new IntersectionObserver(
-    (voci) => {
-      for (const voce of voci) {
-        if (!voce.isIntersecting) continue
-        const suo = daGuardare.get(voce.target)
-        daGuardare.delete(voce.target)
-        vedetta?.unobserve(voce.target)
-        suo?.()
-      }
-    },
-    { rootMargin: ANTICIPO },
-  )
-  daGuardare.set(elemento, compito)
-  vedetta.observe(elemento)
+function guardaQuando (
+  elemento: HTMLElement,
+  chiave: string,
+  compito: (vivo: HTMLElement) => void,
+): void {
+  elemento.dataset.guarda = chiave
+  daGuardare.set(chiave, compito)
+  if (guardiaProgrammata) return
+  guardiaProgrammata = true
+  // Dopo il disegno che sta costruendo il riquadro, quando è nel documento.
+  queueMicrotask(() => {
+    guardiaProgrammata = false
+    vedetta ??= new IntersectionObserver(
+      (voci) => {
+        for (const voce of voci) {
+          if (!voce.isIntersecting) continue
+          const vivo = voce.target as HTMLElement
+          const suo = daGuardare.get(vivo.dataset.guarda ?? '')
+          daGuardare.delete(vivo.dataset.guarda ?? '')
+          vedetta?.unobserve(vivo)
+          suo?.(vivo)
+        }
+      },
+      { rootMargin: ANTICIPO },
+    )
+    for (const vivo of document.querySelectorAll<HTMLElement>('[data-guarda]')) {
+      if (daGuardare.has(vivo.dataset.guarda ?? '')) vedetta.observe(vivo)
+    }
+  })
 }
 
 /**
  * Lascia andare tutto quel che si stava guardando, all'inizio di ogni disegno.
  * `IntersectionObserver` trattiene i nodi osservati anche quando il ridisegno
  * li toglie dal documento; senza questo si accumulano. I riquadri ancora in
- * pagina si riguardano subito dopo; `daGuardare` è una mappa debole.
+ * pagina si riguardano subito dopo.
  */
 function smettiDiGuardare (): void {
   vedetta?.disconnect()
+  daGuardare.clear()
 }
 
 /**
@@ -592,18 +617,18 @@ function riquadroPagina (
     lettura === 'in-corso' ? h('div', { class: 'barra-lavoro' }, h('span', null)) : null,
   )
 
-  riquadro.addEventListener('contextmenu', (evento: MouseEvent) => {
+  gestisci(riquadro, 'contextmenu', (evento) => {
     const adesso = disegnoDi(smistamentoId)
     if (adesso) menuDellaPagina(evento, adesso.smistamento, pagina, adesso.contesto)
   })
 
   if (archiviata) return riquadro
 
-  riquadro.addEventListener('click', (evento) => {
+  gestisci(riquadro, 'click', (evento) => {
     const adesso = disegnoDi(smistamentoId)
     if (adesso) alClic(adesso.smistamento, pagina, evento, adesso.contesto.archiviate)
   })
-  riquadro.addEventListener('dragstart', (evento: DragEvent) => {
+  gestisci(riquadro, 'dragstart', (evento) => {
     // Trascinare una pagina fuori dalla scelta porta solo quella, come in ogni elenco.
     // La scelta non si aggiorna qui: ridisegnerebbe la vista togliendo l'elemento
     // appena preso, e Chromium annullerebbe il trascinamento.
@@ -617,14 +642,15 @@ function riquadroPagina (
     const carico: PagineTrascinate = { smistamentoId, pagine: scelteInVolo }
     evento.dataTransfer?.setData(TIPO_PAGINE, JSON.stringify(carico))
     // Sotto il puntatore va la pagina che si porta, non il riquadro.
-    fantasma(evento, riquadro, scelteInVolo.length)
+    // Il riquadro vivo: dopo un ridisegno `riquadro` può essere quello scartato.
+    fantasma(evento, evento.currentTarget as HTMLElement, scelteInVolo.length)
     // Anche in `text/plain`: rilasciate in un campo di testo, lasciano una frase leggibile.
     const nome = disegnoDi(smistamentoId)?.smistamento.nome ?? smistamento.nome
     evento.dataTransfer?.setData('text/plain', `${nome}: ${dicePagine(scelteInVolo)}`)
     if (evento.dataTransfer) evento.dataTransfer.effectAllowed = 'copy'
     document.body.classList.add(CORPO_IN_VOLO)
   })
-  riquadro.addEventListener('dragend', () => document.body.classList.remove(CORPO_IN_VOLO))
+  gestisci(riquadro, 'dragend', () => document.body.classList.remove(CORPO_IN_VOLO))
   return riquadro
 }
 

@@ -15,7 +15,7 @@ import {
 } from '../../../../core/dominio/dates.js'
 import type { Iso } from '../../../../core/dominio/models.js'
 import { icona } from '../../components/icons.js'
-import { h, type Figlio } from '../../dom.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
 import { anomalieCalendario, icsInVista } from '../../externalCalendar.js'
 import { aggiorna, annoCorrente, lezioniInAgenda, stato } from '../../state.js'
 import { chiusura, festivo, chiudeSemestreDiMezzo, giorniVisibili, letteraDi } from './common.js'
@@ -157,9 +157,9 @@ export function strisciaSettimane (): Figlio {
   // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento
   // appeso. Solo quando cambiano settimana o larghezza.
   if (!chiusa) {
-    // Sul nodo di telaio resta l'ascoltatore del primo disegno: non dipende dallo stato.
-    fila.addEventListener('scroll', () => {
-      scorrimentoFila.sinistra = fila.scrollLeft
+    // Il nodo di telaio resta fra i disegni: la fila si legge dall'evento, non da `fila`.
+    gestisci(fila, 'scroll', (evento) => {
+      scorrimentoFila.sinistra = (evento.currentTarget as HTMLElement).scrollLeft
     })
     requestAnimationFrame(() => {
       // Quella nel documento: se il telaio ha tenuto la vecchia, `fila` è stata scartata.

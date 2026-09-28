@@ -15,7 +15,7 @@ import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import type { Giornata, Ricorrenza } from '../../../core/dominio/models.js'
 import { ricorrenzeIncatenate } from '../../../core/dominio/timetable.js'
 import { pastiglia, pulsante, tendina } from '../components/base.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { stato } from '../state.js'
 import { vociGiornoSettimana, fuocoSullaPresa, presaDiRiga, riordinatore, spostaVoce } from './common.js'
 import { parole } from '../../../core/dominio/words.testi.js'
@@ -138,14 +138,14 @@ export function editorRicorrenze (
     }
     sincronizzatori.push(sincronizza)
 
-    inizio.addEventListener('change', () => {
+    gestisci(inizio, 'change', () => {
       if (!inizio.value) return sincronizza()
       voce.inizio = inizio.value
       // Spostare la prima fascia sposta la giornata: le altre sono attaccate.
       incatena()
     })
 
-    durata.addEventListener('change', () => {
+    gestisci(durata, 'change', () => {
       voce.durataMin = minutiDaUd(Number(durata.value) || 1, giornata().minutiUd)
       // Allungare una fascia spinge avanti quelle che le stanno dietro.
       incatena()

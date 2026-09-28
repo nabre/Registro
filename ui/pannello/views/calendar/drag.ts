@@ -8,7 +8,7 @@ import { lezioniSovrapposte } from '../../../../core/dominio/calculations.js'
 import { lezioniDellAnno } from '../../../../core/dominio/courses.js'
 import { formattaData } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { h } from '../../dom.js'
+import { gestisci, h } from '../../dom.js'
 import { ancorataAIcs } from '../../externalCalendar.js'
 import { notifica } from '../../components/notifications.js'
 import { azione } from '../../bridge.js'
@@ -68,9 +68,9 @@ export function rendiTrascinabile (elemento: HTMLElement, lezione: Lezione): voi
     return
   }
   elemento.draggable = true
-  elemento.addEventListener('dragstart', (evento: DragEvent) => {
+  gestisci(elemento, 'dragstart', (evento) => {
     trascinata = lezione
-    elemento.classList.add('blocco--in-viaggio')
+    ;(evento.currentTarget as HTMLElement).classList.add('blocco--in-viaggio')
     if (!evento.dataTransfer) return
     evento.dataTransfer.effectAllowed = 'copyMove'
     // Un contenuto ci vuole comunque, o Firefox non fa partire il trascinamento.

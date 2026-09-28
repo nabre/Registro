@@ -11,9 +11,14 @@
 //
 // Il DOM è finto ma è un albero vero: genitori, fratelli, `moveBefore` che
 // sposta senza staccare e `insertBefore` che conta i distacchi.
+//
+// Si prova il percorso classico di `aggiornaElemento`, con `MORFOSI` spento
+// (`percorsoClassico`, sotto); il percorso con `idiomorph` lo prova Chromium
+// in `tests/interfaccia/morfosi.spec.ts`.
 
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 
@@ -186,6 +191,26 @@ function fotogramma () {
 
 // ------------------------------------------------------------ i moduli
 
+/**
+ * Il DOM finto prova solo il percorso classico di `aggiornaElemento` (ADR-48:
+ * telaio innestato, `data-tieni` parcheggiati, il resto rifatto): `idiomorph`
+ * vuole un DOM che questo non imita. Qui `MORFOSI` si spegne nel sorgente;
+ * il percorso con `idiomorph`, quello dell'applicazione, lo prova Chromium in
+ * `tests/interfaccia/morfosi.spec.ts`.
+ */
+const percorsoClassico = {
+  name: 'percorso-classico',
+  setup (b) {
+    b.onLoad({ filter: /[\\/]ui[\\/]pannello[\\/]dom\.ts$/ }, async (a) => {
+      const sorgente = await readFile(a.path, 'utf8')
+      const interruttore = /^const MORFOSI = (true|false)$/m
+      // Un interruttore sparito o rinominato non deve passare per percorso classico.
+      if (!interruttore.test(sorgente)) throw new Error('dom.ts: manca «const MORFOSI = …»')
+      return { contents: sorgente.replace(interruttore, 'const MORFOSI = false'), loader: 'ts' }
+    })
+  },
+}
+
 globalThis.ridisegni = 0
 const RADICE = fileURLToPath(new URL('../..', import.meta.url))
 const uscita = await build({
@@ -203,7 +228,7 @@ const uscita = await build({
   format: 'esm',
   platform: 'neutral',
   logLevel: 'silent',
-  plugins: [{
+  plugins: [percorsoClassico, {
     name: 'stato-finto',
     setup (b) {
       b.onResolve({ filter: /\/state\.js$/ }, () => ({ path: 'state', namespace: 'finto' }))

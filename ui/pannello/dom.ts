@@ -1,7 +1,12 @@
-// Costruzione dell'interfaccia senza librerie: `h('div', {class: 'x'}, ...)`
+// Costruzione dell'interfaccia senza framework: `h('div', {class: 'x'}, ...)`
 // crea subito un elemento vero, senza DOM virtuale. La vista si ridisegna solo
 // quando lo stato cambia; fuoco e scorrimento si rimettono con `data-fuoco` e
 // `data-scorrimento`.
+
+// Il pacchetto è solo ESM e `tsc` legge il progetto come CommonJS (TS1479);
+// esbuild lo impacchetta come ESM, e i tipi restano quelli del pacchetto.
+// @ts-expect-error -- TS1479, vedi sopra
+import { Idiomorph } from 'idiomorph'
 
 export type Figlio = Node | string | number | null | undefined | false | Figlio[]
 
@@ -73,7 +78,9 @@ export function h<K extends keyof HTMLElementTagNameMap> (
         }
       }
     } else if (chiave.startsWith('on') && typeof valore === 'function') {
-      elemento.addEventListener(chiave.slice(2).toLowerCase(), valore as EventListener)
+      gestisci(elemento, chiave.slice(2).toLowerCase(), valore as (evento: Event) => void)
+    } else if (riflessa(elemento, chiave, valore)) {
+      // Proprietà e attributo insieme: vedi `riflessa`.
     } else if (chiave in elemento) {
       // Proprietà invece di attributo: `value` e `checked` come attributi non
       // cambiano un campo già toccato.
@@ -85,9 +92,169 @@ export function h<K extends keyof HTMLElementTagNameMap> (
 
   for (const figlio of figli) aggiungi(elemento, figlio)
   if (valoreDellaTendina !== undefined) {
+    const scelto = String(valoreDellaTendina)
+    // Prima gli attributi, poi il valore: un `selected` scritto dopo sposterebbe
+    // di nuovo la scelta di una tendina non ancora toccata.
+    for (const opzione of Array.from((elemento as unknown as HTMLSelectElement).options ?? [])) {
+      if (opzione.value === scelto) opzione.setAttribute('selected', '')
+      else opzione.removeAttribute('selected')
+    }
     (elemento as unknown as Record<string, unknown>).value = valoreDellaTendina
   }
   return elemento
+}
+
+/**
+ * `value`, `checked` e `selected` dei campi anche come attributi (ADR-50, 3a).
+ * La proprietà sola cambia il campo ma non l'albero: un confronto per
+ * attributi (`idiomorph`) non vedrebbe la differenza fra due disegni, e un
+ * campo senza l'attributo `value` verrebbe svuotato. L'attributo va scritto
+ * prima della proprietà, che resta quella che conta per un campo già toccato.
+ * Torna falso per tutto il resto, che segue la strada di sempre.
+ */
+function riflessa (elemento: HTMLElement, chiave: string, valore: unknown): boolean {
+  const tag = elemento.tagName
+  const campo = elemento as unknown as Record<string, unknown>
+  if (chiave === 'value' && tag === 'INPUT') {
+    elemento.setAttribute('value', String(valore))
+    campo.value = valore
+    return true
+  }
+  if (chiave === 'value' && tag === 'TEXTAREA') {
+    campo.defaultValue = String(valore)
+    campo.value = valore
+    return true
+  }
+  if ((chiave === 'checked' && tag === 'INPUT') || (chiave === 'selected' && tag === 'OPTION')) {
+    if (valore) elemento.setAttribute(chiave, '')
+    else elemento.removeAttribute(chiave)
+    campo[chiave] = Boolean(valore)
+    return true
+  }
+  return false
+}
+
+// ------------------------------------------------------------ eventi per delega
+
+/**
+ * Gli ascoltatori dei nodi disegnati non stanno sui nodi ma qui, e li chiama un
+ * ascoltatore solo per tipo su `document` (ADR-50, 3b). Un nodo tenuto da un
+ * ridisegno (telaio, `data-tieni`, o uno che `idiomorph` riusa) può così
+ * ricevere i gestori del disegno nuovo senza che nessuno li tolga e rimetta:
+ * basta passargli la voce (`passaGestori`). Con `addEventListener` sul nodo,
+ * un nodo riusato terrebbe per sempre le closure del primo disegno.
+ *
+ * Restano sui nodi, con `addEventListener`, gli ascoltatori di `window`, di
+ * `document`, dei nodi che il disegno non rifà (modali, menu, palette) e quelli
+ * messi per la durata di un gesto (un trascinamento con il puntatore catturato).
+ */
+type Gestore = (evento: never) => void
+const gestori = new WeakMap<EventTarget, Map<string, Gestore[]>>()
+
+/** I tipi per cui `document` ha già i suoi due ascoltatori. */
+const delegati = new Set<string>()
+
+/**
+ * I tipi che salgono, messi subito al caricamento: prima di qualunque altro
+ * ascoltatore su `document` (le scorciatoie, la modale), così che, come quando
+ * stavano sui nodi, i gestori dei nodi vengano prima e il loro
+ * `stopPropagation` fermi anche quelli. I tipi rari si aggiungono al primo uso.
+ */
+const TIPI_DI_SEMPRE = [
+  'click', 'dblclick', 'auxclick', 'contextmenu', 'mousedown', 'mouseup', 'mouseover',
+  'pointerdown', 'pointerup', 'pointermove', 'pointercancel', 'keydown', 'keyup',
+  'input', 'change', 'submit', 'paste', 'dragstart', 'dragend', 'dragenter', 'dragover',
+  'dragleave', 'drop',
+]
+
+function delega (tipo: string): void {
+  if (delegati.has(tipo)) return
+  if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return
+  delegati.add(tipo)
+  // Due ascoltatori: in salita per chi sale, in discesa per chi non sale
+  // (`focus`, `scroll`, `pointerenter`, un `change` finto senza `bubbles`), che
+  // su `document` si vede solo mentre scende verso il bersaglio.
+  document.addEventListener(tipo, allaSalita)
+  document.addEventListener(tipo, allaDiscesa, true)
+}
+
+for (const tipo of TIPI_DI_SEMPRE) delega(tipo)
+
+/**
+ * Dà a `elemento` un gestore per `tipo`, come `addEventListener` ma per delega.
+ * Il gestore riceve l'evento con `currentTarget` uguale all'elemento: una
+ * closure che vuole il nodo lo prenda da lì, non dalla variabile del disegno,
+ * che dopo un ridisegno può essere il nodo scartato (ADR-50, 3d).
+ */
+export function gestisci<K extends keyof HTMLElementEventMap> (
+  elemento: Element,
+  tipo: K,
+  gestore: (evento: HTMLElementEventMap[K]) => void,
+): void
+export function gestisci (elemento: Element, tipo: string, gestore: (evento: Event) => void): void
+export function gestisci (elemento: Element, tipo: string, gestore: Gestore): void {
+  delega(tipo)
+  let suoi = gestori.get(elemento)
+  if (!suoi) {
+    suoi = new Map()
+    gestori.set(elemento, suoi)
+  }
+  suoi.set(tipo, [...(suoi.get(tipo) ?? []), gestore])
+}
+
+/**
+ * Il nodo `vecchio`, che resta nel documento, prende i gestori di `nuovo`, che
+ * lo sostituisce solo nel disegno. Quelli di prima si lasciano.
+ */
+function passaGestori (vecchio: Node, nuovo: Node): void {
+  const suoi = gestori.get(nuovo)
+  if (suoi) gestori.set(vecchio, suoi)
+  else gestori.delete(vecchio)
+}
+
+/** Il cammino dell'evento, dal bersaglio in su; un evento finto senza `composedPath` si risale a mano. */
+function cammino (evento: Event): EventTarget[] {
+  if (typeof evento.composedPath === 'function') {
+    const percorso = evento.composedPath()
+    if (percorso.length > 0) return percorso
+  }
+  const nodi: EventTarget[] = []
+  for (let n = evento.target as Node | null; n; n = n.parentNode) nodi.push(n)
+  return nodi
+}
+
+/**
+ * Chiama i gestori di `nodo` con `currentTarget` rimesso al nodo (quello vero
+ * sarebbe `document`). Torna falso se uno di loro ha fermato la salita.
+ */
+function chiama (nodo: EventTarget, evento: Event): boolean {
+  const elenco = gestori.get(nodo)?.get(evento.type)
+  if (!elenco || elenco.length === 0) return true
+  Object.defineProperty(evento, 'currentTarget', { configurable: true, get: () => nodo })
+  try {
+    for (const gestore of [...elenco]) (gestore as (e: Event) => void).call(nodo, evento)
+  } finally {
+    delete (evento as { currentTarget?: unknown }).currentTarget
+  }
+  return !evento.cancelBubble
+}
+
+function allaSalita (evento: Event): void {
+  if (!evento.bubbles) return
+  for (const nodo of cammino(evento)) {
+    if (nodo === document || nodo === window) return
+    if (!chiama(nodo, evento)) {
+      // Un gestore sul nodo fermava anche gli ascoltatori di `document`: si fa lo stesso.
+      evento.stopImmediatePropagation()
+      return
+    }
+  }
+}
+
+function allaDiscesa (evento: Event): void {
+  if (evento.bubbles) return
+  const bersaglio = cammino(evento)[0]
+  if (bersaglio && bersaglio !== document && bersaglio !== window) chiama(bersaglio, evento)
 }
 
 /** Un contenitore trasparente, per restituire più nodi da una funzione sola. */
@@ -121,9 +288,17 @@ export function rimpiazza (elemento: Element, ...figli: Figlio[]): void {
  * quindi su un nodo di telaio non se ne mettono che dipendano dallo stato.
  *
  * I nodi pesanti (`data-tieni`) si tengono ovunque stiano: vedi `parcheggia`.
+ *
+ * Questo è il percorso classico. Con `MORFOSI` acceso, un contenitore nel
+ * documento passa da `trasforma`; qui resta chi non c'è ancora (il primo disegno
+ * di un'isola staccata), che non ha niente da conservare.
  */
 export function aggiornaElemento (contenitore: HTMLElement, nuovo: Figlio): void {
   const albero = nuovo instanceof Node ? nuovo : gruppo(nuovo)
+  if (MORFOSI && contenitore.isConnected) {
+    trasforma(contenitore, albero)
+    return
+  }
   const tenuti = parcheggia(contenitore, albero)
   const vecchio = contenitore.firstElementChild
   if (
@@ -236,12 +411,20 @@ function rimetti (tenuti: Tenuto[]): void {
   tenuti[0]?.parcheggio.remove()
 }
 
+/** La chiave di telaio o di scorrimento con cui un elemento resta nel documento. */
+function chiaveDiTelaio (elemento: HTMLElement): string | undefined {
+  if (elemento.dataset.telaio !== undefined) return elemento.dataset.telaio
+  if (elemento.dataset.scorrimento !== undefined) return `scorrimento:${elemento.dataset.scorrimento}`
+  return undefined
+}
+
 /** Se `vecchio` può restare al posto di `nuovo`: stesso nodo di telaio, stessa cosa guardata. */
 function stessoTelaio (vecchio: Element, nuovo: Element): boolean {
   if (!(vecchio instanceof HTMLElement) || !(nuovo instanceof HTMLElement)) return false
-  const chiave = nuovo.dataset.telaio
-  return chiave !== undefined &&
-    vecchio.dataset.telaio === chiave &&
+  const chiaveVecchio = chiaveDiTelaio(vecchio)
+  const chiaveNuovo = chiaveDiTelaio(nuovo)
+  return chiaveNuovo !== undefined &&
+    chiaveVecchio === chiaveNuovo &&
     vecchio.tagName === nuovo.tagName &&
     vecchio.dataset.scorrimento === nuovo.dataset.scorrimento
 }
@@ -257,13 +440,14 @@ function innesta (vecchio: HTMLElement, nuovo: HTMLElement): boolean {
 
   const telaiVecchi = new Map<string, HTMLElement>()
   for (const figlio of vecchio.children) {
-    if (figlio instanceof HTMLElement && figlio.dataset.telaio !== undefined) {
-      telaiVecchi.set(figlio.dataset.telaio, figlio)
+    if (figlio instanceof HTMLElement) {
+      const chiave = chiaveDiTelaio(figlio)
+      if (chiave !== undefined) telaiVecchi.set(chiave, figlio)
     }
   }
   const figli: Node[] = []
   for (const figlio of Array.from(nuovo.childNodes)) {
-    const chiave = figlio instanceof HTMLElement ? figlio.dataset.telaio : undefined
+    const chiave = figlio instanceof HTMLElement ? chiaveDiTelaio(figlio) : undefined
     const tenuto = chiave !== undefined ? telaiVecchi.get(chiave) : undefined
     if (tenuto && innesta(tenuto, figlio as HTMLElement)) {
       telaiVecchi.delete(chiave as string)
@@ -299,6 +483,172 @@ function copiaAttributi (vecchio: HTMLElement, nuovo: HTMLElement): void {
     const valore = nuovo.getAttribute(nome) as string
     if (vecchio.getAttribute(nome) !== valore) vecchio.setAttribute(nome, valore)
   }
+}
+
+// ------------------------------------------------------------ idiomorph
+
+/**
+ * L'interruttore di `idiomorph` (ADR-50, passo 3). Acceso, ogni nodo che il
+ * disegno nuovo porta uguale resta, e con lui selezione, fuoco, transizioni e
+ * scorrimento. Spento, `aggiornaElemento` è quello di ADR-48: telaio innestato,
+ * `data-tieni` parcheggiati, il resto rifatto.
+ *
+ * Il percorso classico resta, per ora, come ripiego: un guasto di `idiomorph`
+ * nell'app vera si spegne qui con una riga, e le prove col DOM finto
+ * (`tests/ui/isole`, `riquadriLocali`) provano lui, a interruttore spento. Si
+ * toglie quando il morph ha girato nell'uso senza guasti (D6: dopo una prova);
+ * il percorso con `idiomorph` lo prova `tests/interfaccia/morfosi.spec.ts`.
+ */
+const MORFOSI = true
+
+/** Il prefisso degli `id` di passaggio: nessun `id` vero comincia così. */
+const PREFISSO_ID = 'regi-morfosi:'
+
+/**
+ * La chiave con cui un nodo resta: `data-tieni` (con il tag), telaio,
+ * scorrimento, isola. Per `idiomorph` diventa un `id` di passaggio: due nodi
+ * con chiavi diverse non si confondono mai, due con la stessa si ritrovano
+ * anche se si sono spostati.
+ */
+function chiaveDiMorfosi (elemento: HTMLElement): string | undefined {
+  const { tieni, telaio, scorrimento, isola } = elemento.dataset
+  const parti: string[] = []
+  if (tieni !== undefined) parti.push(`tieni:${elemento.tagName}|${tieni}`)
+  if (telaio !== undefined) parti.push(`telaio:${telaio}`)
+  if (scorrimento !== undefined) parti.push(`scorrimento:${scorrimento}`)
+  if (isola !== undefined) parti.push(`isola:${isola}`)
+  return parti.length > 0 ? parti.join('|') : undefined
+}
+
+/**
+ * Mette gli `id` di passaggio ai nodi con chiave sotto `radice`. Due nodi con
+ * la stessa chiave si contano (`#1`, `#2`): si accoppiano nell'ordine del
+ * documento, come faceva `parcheggia`. Un nodo che ha già un `id` tiene il suo.
+ */
+function segnaChiavi (radice: ParentNode, conLaRadice: boolean): void {
+  const visti = new Map<string, number>()
+  const nodi = Array.from(radice.querySelectorAll<HTMLElement>(
+    '[data-tieni], [data-telaio], [data-scorrimento], [data-isola]',
+  ))
+  // La radice dell'albero nuovo non è fra i risultati del suo `querySelectorAll`.
+  if (conLaRadice && radice instanceof HTMLElement) nodi.unshift(radice)
+  for (const elemento of nodi) {
+    if (!(elemento instanceof HTMLElement) || elemento.hasAttribute('id')) continue
+    const chiave = chiaveDiMorfosi(elemento)
+    if (chiave === undefined) continue
+    const volta = (visti.get(chiave) ?? 0) + 1
+    visti.set(chiave, volta)
+    elemento.setAttribute('id', `${PREFISSO_ID}${chiave}#${volta}`)
+  }
+}
+
+/** Toglie gli `id` di passaggio rimasti nel documento. */
+function scordaChiavi (radice: ParentNode): void {
+  for (const elemento of Array.from(radice.querySelectorAll(`[id^="${PREFISSO_ID}"]`))) {
+    elemento.removeAttribute('id')
+  }
+}
+
+/**
+ * `idiomorph` inserisce una copia dei nodi nuovi (`importNode`): la copia
+ * perderebbe i gestori (`gestori` è per nodo) e ogni closure del disegno che
+ * tiene il nodo guarderebbe l'originale, fuori dal documento. Mentre lavora gli
+ * si presta il nodo vero; al suo posto, nell'albero che sta ancora leggendo,
+ * resta un commento, così che il suo giro sui figli non salti nessuno.
+ */
+function conNodiVeri<T> (fai: () => T): T {
+  const copia = document.importNode.bind(document)
+  const presta = <N extends Node>(nodo: N, profondo?: boolean): N => {
+    const genitore = nodo.parentNode
+    if (!genitore) return copia(nodo, profondo)
+    genitore.replaceChild(document.createComment(''), nodo)
+    return nodo
+  }
+  Object.defineProperty(document, 'importNode', { configurable: true, value: presta })
+  try {
+    return fai()
+  } finally {
+    // Tolta la proprietà propria, torna quella del prototipo.
+    Reflect.deleteProperty(document, 'importNode')
+  }
+}
+
+/**
+ * `aggiornaElemento` con `idiomorph`: il contenuto di `contenitore` diventa
+ * `albero` toccando solo quel che cambia. Le regole di ADR-48 restano:
+ * - un nodo con chiave (`chiaveDiMorfosi`) si ritrova solo con uno della
+ *   stessa chiave, e un `data-tieni` ritrovato non si tocca dentro: prende gli
+ *   attributi nuovi e basta. Il nodo nuovo non entra mai nel documento, quindi
+ *   un `<iframe>` non carica di nuovo, e `idiomorph` sposta con `moveBefore`;
+ * - un nodo riusato prende i gestori del disegno nuovo (`passaGestori`);
+ * - il campo che ha il fuoco tiene quel che c'è scritto.
+ */
+function trasforma (contenitore: HTMLElement, albero: Node): void {
+  // Il contenitore non si segna: resta com'è, cambia solo dentro.
+  segnaChiavi(contenitore, false)
+  if (albero instanceof Element || albero instanceof DocumentFragment) segnaChiavi(albero, true)
+  /** I nodi vecchi rimpiazzati da un nodo con chiave: si tolgono a lavoro finito. */
+  const daTogliere: ChildNode[] = []
+  try {
+    // Senza `head` da aspettare, `morph` finisce qui: la promessa del tipo non c'è.
+    void conNodiVeri(() => Idiomorph.morph(contenitore, albero, {
+      morphStyle: 'innerHTML',
+      ignoreActiveValue: true,
+      callbacks: {
+        beforeNodeMorphed (vecchio, nuovo) {
+          if (rimpiazzaSenzaChiave(vecchio, nuovo)) {
+            daTogliere.push(vecchio)
+            return false
+          }
+          if (vecchio instanceof HTMLElement && nuovo instanceof HTMLElement &&
+            vecchio.dataset.tieni !== undefined) {
+            // Del nodo tenuto restano figli e gestori: il nuovo è un segnaposto.
+            copiaAttributi(vecchio, nuovo)
+            return false
+          }
+          passaGestori(vecchio, nuovo)
+          // Proprietà senza attributo: `idiomorph` non la vede.
+          if (vecchio instanceof HTMLInputElement && nuovo instanceof HTMLInputElement) {
+            vecchio.indeterminate = nuovo.indeterminate
+          }
+          return true
+        },
+        afterNodeMorphed (vecchio, nuovo) {
+          // Una tendina senza nessuna voce scelta: togliere `selected` a tutte le
+          // voci non basta, il browser riaccenderebbe la prima (vedi `h`).
+          if (vecchio instanceof HTMLSelectElement && nuovo instanceof HTMLSelectElement &&
+            vecchio !== document.activeElement && vecchio.selectedIndex !== nuovo.selectedIndex) {
+            vecchio.selectedIndex = nuovo.selectedIndex
+          }
+        },
+      },
+    }))
+  } finally {
+    for (const nodo of daTogliere) nodo.remove()
+    scordaChiavi(contenitore)
+  }
+}
+
+/**
+ * `idiomorph` riusa per posizione un nodo vecchio senza `id` anche per un nodo
+ * nuovo che ne ha uno: una scatola che scorre nuova partirebbe dallo
+ * scorrimento di un'altra, un `data-tieni` nuovo diventerebbe un `<div>`
+ * qualunque rimodellato, e le closure che tengono il nodo nuovo guarderebbero
+ * fuori dal documento. Allora il nodo nuovo entra lui, davanti al vecchio, e il
+ * vecchio resta lì fino alla fine, perché `idiomorph` prosegue dal suo fratello.
+ * Non se il vecchio contiene nodi da ritrovare: toglierlo li perderebbe.
+ */
+function rimpiazzaSenzaChiave (vecchio: Node, nuovo: Node): boolean {
+  if (!(vecchio instanceof Element) || !(nuovo instanceof Element)) return false
+  const suo = nuovo.getAttribute('id')
+  if (!suo?.startsWith(PREFISSO_ID) || vecchio.getAttribute('id') === suo) return false
+  if (vecchio.querySelector('[id]')) return false
+  const genitore = vecchio.parentNode
+  if (!genitore) return false
+  // Nell'albero nuovo, che `idiomorph` sta ancora leggendo, resta un segno.
+  nuovo.parentNode?.replaceChild(document.createComment(''), nuovo)
+  genitore.insertBefore(nuovo, vecchio)
+  return true
 }
 
 /** SVG inline: `h` non va bene, gli elementi SVG vogliono il loro namespace. */

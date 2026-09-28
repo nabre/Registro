@@ -20,7 +20,7 @@ import type {
 import { pulsante, statoVuoto } from '../components/base.js'
 import { suggerimento } from '../components/hint.js'
 import { icona } from '../components/icons.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import {
   conversa,
   detta,
@@ -533,16 +533,20 @@ function scrittoio (ambiente: Ambiente): Figlio {
     fuocoAllaCasella = false
     // Dopo che l'ospite ha attaccato il nodo.
     queueMicrotask(() => {
-      casella.focus()
-      casella.setSelectionRange(casella.value.length, casella.value.length)
+      // Quella nel documento: un ridisegno che riusa il campo di prima lascia fuori questa.
+      const viva = casella.isConnected
+        ? casella
+        : document.querySelector<HTMLTextAreaElement>('[data-fuoco="assistente-domanda"]')
+      viva?.focus()
+      viva?.setSelectionRange(viva.value.length, viva.value.length)
     })
   }
-  casella.addEventListener('input', () => {
+  gestisci(casella, 'input', (evento) => {
     // Nessun ridisegno a ogni tasto: la bozza si tiene qui e torna nel campo al
     // giro dopo.
-    bozza = casella.value
+    bozza = (evento.currentTarget as HTMLTextAreaElement).value
   })
-  casella.addEventListener('keydown', (evento) => {
+  gestisci(casella, 'keydown', (evento) => {
     // Esc a microfono aperto: si smette senza scrivere niente (premuto per
     // sbaglio, o un nome detto a voce alta).
     if (evento.key === 'Escape' && voce === 'ascolta') {
@@ -554,7 +558,7 @@ function scrittoio (ambiente: Ambiente): Figlio {
     }
     if (evento.key !== 'Enter' || evento.shiftKey) return
     evento.preventDefault()
-    bozza = casella.value
+    bozza = (evento.currentTarget as HTMLTextAreaElement).value
     manda(ambiente)
   })
 

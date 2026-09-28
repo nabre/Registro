@@ -10,6 +10,27 @@ import { preparaDomSintetico } from '../helpers/domSintetico.mjs'
 
 preparaDomSintetico()
 
+// Gli ascoltatori dei nodi disegnati passano da `document` (`gestisci` in
+// `dom.ts`): si tengono quelli che il modulo vi mette, per scatenare un evento.
+const suDocumento = []
+globalThis.document.addEventListener = (tipo, fn) => suDocumento.push([tipo, fn])
+
+/** Un evento che sale da `nodo`, come lo farebbe il browser. */
+function scatena (nodo, tipo, altro = {}) {
+  const evento = {
+    type: tipo,
+    bubbles: true,
+    target: nodo,
+    cancelBubble: false,
+    composedPath: () => [nodo],
+    preventDefault () {},
+    stopPropagation () { this.cancelBubble = true },
+    stopImmediatePropagation () { this.cancelBubble = true },
+    ...altro,
+  }
+  for (const [quale, fn] of suDocumento) if (quale === tipo) fn(evento)
+}
+
 const { importaSorgente } = await import('../helpers/sorgente.mjs')
 const { pulsanteStato } = await importaSorgente('ui/pannello/views/lesson/attendance.ts')
 
@@ -30,16 +51,16 @@ describe('la chiusura di pulsanteStato dell’appello', () => {
     })
 
     // Primo clic rapido: da 'presente' passa a 'assente'
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente'])
 
     // Secondo clic rapido (la promessa non è ancora risolta):
     // deve leggere inVolo ('assente') e passare al prossimo stato ('ritardo'), non ripartire da 'presente'
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente', 'ritardo'])
 
     // Terzo clic rapido: deve passare da 'ritardo' a 'esonerato'
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente', 'ritardo', 'esonerato'])
 
     // Risolviamo l'azione con successo
@@ -62,7 +83,7 @@ describe('la chiusura di pulsanteStato dell’appello', () => {
       },
     })
 
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente'])
 
     // L'azione fallisce
@@ -70,7 +91,7 @@ describe('la chiusura di pulsanteStato dell’appello', () => {
     await new Promise((r) => setTimeout(r, 0))
 
     // Ora inVolo deve essere tornato null: il clic successivo riparte da stato ('presente') -> 'assente'
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente', 'assente'])
   })
 
@@ -94,14 +115,14 @@ describe('la chiusura di pulsanteStato dell’appello', () => {
       clientX: 10,
       clientY: 20,
     }
-    bottone.oncontextmenu(eventoMock)
+    scatena(bottone, 'contextmenu', eventoMock)
 
     // Il clic conseguente al rilascio deve essere scartato (clicSpeso)
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.equal(chiamate.length, 0, 'Il clic speso non deve far avanzare lo stato')
 
     // Il clic successivo (normale) invece funziona
-    bottone.onclick()
+    scatena(bottone, 'click')
     assert.deepEqual(chiamate, ['assente'])
   })
 })

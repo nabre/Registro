@@ -86,7 +86,7 @@ export function sidebar (): HTMLElement {
   return h('aside', {
     id: 'navigazione-laterale', class: ['sidebar', !sidebarAperta() && 'sidebar--compatta'],
     // Lo scorrimento resta al ridisegno (`ricordaScorrimenti` in `dom.ts`).
-    dataset: { scorrimento: 'sidebar' },
+    dataset: { scorrimento: 'sidebar', telaio: 'sidebar' },
     onkeydown: (evento: KeyboardEvent) => {
       if (evento.key === 'Escape') {
         evento.preventDefault()

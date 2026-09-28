@@ -22,7 +22,7 @@ import { parole } from '../../../core/dominio/words.testi.js'
 import { campo, pulsante, type OpzioneSelezione, type OpzioniCampo } from '../components/base.js'
 import { conferma, type ContestoModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { invia } from '../bridge.js'
 import { annoCorrente, classePerId, corsiDi, iscriviti, stato } from '../state.js'
 import { corsiDellAnno } from '../../../core/dominio/courses.js'
@@ -442,58 +442,67 @@ export function riordinatore (
 ): (riga: HTMLElement, presa: HTMLElement, indice: number) => void {
   let partenza: number | null = null
 
-  const pulisci = () => {
+  // I nodi vivi si prendono dall'evento: dopo un ridisegno `righe`, `riga` e
+  // `presa` possono essere quelli scartati, mentre nel documento restano i loro
+  // gemelli di prima.
+  const pulisci = (viva: HTMLElement) => {
     partenza = null
-    for (const riga of righe.children) {
+    for (const riga of (viva.parentElement ?? righe).children) {
       riga.classList.remove('riga-in-viaggio', 'riga-posa-sopra', 'riga-posa-sotto')
     }
   }
+  const suaRiga = (evento: Event) =>
+    (evento.currentTarget as HTMLElement).closest<HTMLElement>('[data-riordina]') ??
+    (evento.currentTarget as HTMLElement)
 
   return (riga, presa, indice) => {
-    presa.addEventListener('pointerdown', () => {
-      riga.draggable = true
+    riga.dataset.riordina = ''
+    gestisci(presa, 'pointerdown', (evento) => {
+      suaRiga(evento).draggable = true
     })
-    presa.addEventListener('pointerup', () => {
-      riga.draggable = false
+    gestisci(presa, 'pointerup', (evento) => {
+      suaRiga(evento).draggable = false
     })
-    presa.addEventListener('keydown', (evento: KeyboardEvent) => {
+    gestisci(presa, 'keydown', (evento) => {
       const verso = evento.key === 'ArrowUp' ? -1 : evento.key === 'ArrowDown' ? 1 : 0
       if (verso === 0) return
       evento.preventDefault()
       posa(indice, indice + verso)
     })
 
-    riga.addEventListener('dragstart', (evento: DragEvent) => {
+    gestisci(riga, 'dragstart', (evento) => {
       partenza = indice
-      riga.classList.add('riga-in-viaggio')
+      suaRiga(evento).classList.add('riga-in-viaggio')
       if (!evento.dataTransfer) return
       evento.dataTransfer.effectAllowed = 'move'
       // Un contenuto ci vuole, o il trascinamento non parte.
       evento.dataTransfer.setData('text/plain', String(indice))
     })
 
-    riga.addEventListener('dragover', (evento: DragEvent) => {
+    gestisci(riga, 'dragover', (evento) => {
       if (partenza === null || partenza === indice) return
       evento.preventDefault()
       if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'move'
-      riga.classList.add(partenza < indice ? 'riga-posa-sotto' : 'riga-posa-sopra')
+      suaRiga(evento).classList.add(partenza < indice ? 'riga-posa-sotto' : 'riga-posa-sopra')
     })
 
-    riga.addEventListener('dragleave', () => {
-      riga.classList.remove('riga-posa-sopra', 'riga-posa-sotto')
+    gestisci(riga, 'dragleave', (evento) => {
+      suaRiga(evento).classList.remove('riga-posa-sopra', 'riga-posa-sotto')
     })
 
-    riga.addEventListener('drop', (evento: DragEvent) => {
+    gestisci(riga, 'drop', (evento) => {
       evento.preventDefault()
       const da = partenza
-      pulisci()
-      riga.draggable = false
+      const viva = suaRiga(evento)
+      pulisci(viva)
+      viva.draggable = false
       if (da !== null) posa(da, indice)
     })
 
-    riga.addEventListener('dragend', () => {
-      pulisci()
-      riga.draggable = false
+    gestisci(riga, 'dragend', (evento) => {
+      const viva = suaRiga(evento)
+      pulisci(viva)
+      viva.draggable = false
     })
   }
 }

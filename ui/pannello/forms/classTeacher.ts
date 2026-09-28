@@ -13,7 +13,7 @@ import type { Classe, Comunicazione, Recapito } from '../../../core/dominio/mode
 import { validaComunicazione, validaRecapito } from '../../../core/dominio/validation.js'
 import { campo, pulsante, riga, sezioneModulo, valoriModulo } from '../components/base.js'
 import { apriModale, conferma } from '../components/modal.js'
-import { h } from '../dom.js'
+import { gestisci, h } from '../dom.js'
 import { invia } from '../bridge.js'
 import { corsiDi, fascicoloDi, stato } from '../state.js'
 
@@ -224,7 +224,7 @@ export function moduloComunicazione (classe: Classe, comunicazione?: Comunicazio
           t.indirizzi(indirizzi.length) +
           (senzaIndirizzo.length > 0 ? t.senzaEmail(senzaIndirizzo.join(', ')) : '')
       }
-      elemento.addEventListener('change', aggiornaConteggio)
+      gestisci(elemento, 'change', aggiornaConteggio)
       aggiornaConteggio()
 
       return elemento

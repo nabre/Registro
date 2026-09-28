@@ -21,7 +21,7 @@ import { campo, pastiglia, pulsante, scheda, statoVuoto } from '../../components
 import { suggerimento } from '../../components/hint.js'
 import { apriModale, conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
 import { azione, invia } from '../../bridge.js'
 import { iscriviti, ridisegna, stato, vai } from '../../state.js'
 import { moduloCalendario } from '../../forms/calendar.js'
@@ -258,7 +258,11 @@ function rigaNuovoCalendario (): HTMLElement {
         simbolo: 'piu',
         variante: 'sottile',
         titolo: t.aggiungiAiuto,
-        al: () => aggiungi(origine.querySelector('input')?.value ?? ''),
+        // Il campo vivo, dalla riga del pulsante: `origine` può essere quello scartato.
+        al: (evento) => aggiungi(
+          (evento.currentTarget as HTMLElement).closest('.ics-sorgente--nuova')
+            ?.querySelector('input')?.value ?? '',
+        ),
       }),
       pulsante({
         testo: t.unFile,
@@ -294,11 +298,13 @@ function contoVivo (
   regole: readonly RegolaCalendario[],
   indice: number,
   conti: ReturnType<typeof contiDelleRegole>,
-): { dove: HTMLElement, rifai: (testo: string) => void } {
+): { dove: HTMLElement, rifai: (testo: string, vivo: Element | null | undefined) => void } {
   const dove = h('span', { class: 'ics-regola__conto' }, segnoConteggio(conti?.[indice]))
-  const rifai = (testo: string): void => {
+  // Il posto vivo lo passa chi chiama: `dove` è quello di questo disegno, e un
+  // ridisegno può averlo scartato tenendo il vecchio.
+  const rifai = (testo: string, vivo: Element | null | undefined): void => {
     const provate = regole.map((r, i) => (i === indice ? { ...r, testo } : r))
-    dove.replaceChildren(segnoConteggio(contiDelleRegole(provate)?.[indice]) ?? '')
+    vivo?.replaceChildren(segnoConteggio(contiDelleRegole(provate)?.[indice]) ?? '')
   }
   return { dove, rifai }
 }
@@ -349,8 +355,9 @@ function rigaRegola (
       cambia({ testo: nuovo })
     },
   })
-  campoTesto.addEventListener('input', (evento) => {
-    conto.rifai((evento.target as HTMLInputElement).value)
+  gestisci(campoTesto, 'input', (evento) => {
+    const riga = (evento.currentTarget as HTMLElement).closest('.ics-regola')
+    conto.rifai((evento.target as HTMLInputElement).value, riga?.querySelector('.ics-regola__conto'))
   })
 
   return h(
@@ -399,13 +406,16 @@ function rigaNuova (): HTMLElement {
   })
   // Il conto della regola che si sta scrivendo, contro quelle già salvate.
   const contoNuovo = h('span', { class: 'ics-regola__conto' })
-  testo.addEventListener('input', (evento) => {
+  gestisci(testo, 'input', (evento) => {
     const scritto = (evento.target as HTMLInputElement).value
     const salvate = calendarioOra().regole
     const conti = scritto.trim()
       ? contiDelleRegole([...salvate, { testo: scritto, corsoId: null }])
       : null
-    contoNuovo.replaceChildren(segnoConteggio(conti?.[salvate.length]) ?? '')
+    // Il posto vivo, non `contoNuovo`: vedi `contoVivo`.
+    const riga = (evento.currentTarget as HTMLElement).closest('.ics-regola')
+    riga?.querySelector('.ics-regola__conto')
+      ?.replaceChildren(segnoConteggio(conti?.[salvate.length]) ?? '')
   })
   const corso = campo({
     nome: 'regola-nuova-corso',
@@ -416,9 +426,12 @@ function rigaNuova (): HTMLElement {
     classe: 'ics-regola__corso',
   })
 
-  const aggiungi = (): void => {
-    const scritto = (testo.querySelector('input')?.value ?? '').trim()
-    const corsoId = corso.querySelector('select')?.value ?? NON_LEZIONE
+  // Si legge la riga viva, trovata dall'evento: `testo` e `corso` sono quelli di
+  // questo disegno, e dopo un ridisegno possono essere copie scartate.
+  const aggiungi = (evento: Event): void => {
+    const riga = (evento.currentTarget as HTMLElement).closest('.ics-regola--nuova')
+    const scritto = (riga?.querySelector('input')?.value ?? '').trim()
+    const corsoId = riga?.querySelector('select')?.value ?? NON_LEZIONE
     const rifiuto = testoRifiutato(scritto)
     if (rifiuto) {
       notifica(scritto ? rifiuto : t.scriviTesto, 'avviso')
@@ -450,7 +463,7 @@ function rigaNuova (): HTMLElement {
       onkeydown: (evento: KeyboardEvent) => {
         if (evento.key === 'Enter' && (evento.target as HTMLElement).tagName === 'INPUT') {
           evento.preventDefault()
-          aggiungi()
+          aggiungi(evento)
         }
       },
     },

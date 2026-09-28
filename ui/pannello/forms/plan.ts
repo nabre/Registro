@@ -31,7 +31,7 @@ import {
 } from '../components/base.js'
 import { apriModale, type ContestoModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { azione, invia } from '../bridge.js'
 import {
   classeDelCorsoId,
@@ -418,7 +418,7 @@ export function editorPiano (opzioni: {
   // Ogni `change` dei campi è una modifica confermata; gli `input` no, per non
   // salvare a ogni lettera. Le tappe hanno il loro `allaModifica`.
   if (opzioni.allaModifica) {
-    corpoModulo.addEventListener('change', () => opzioni.allaModifica?.())
+    gestisci(corpoModulo, 'change', () => opzioni.allaModifica?.())
   }
 
   return {

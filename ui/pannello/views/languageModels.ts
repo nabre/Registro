@@ -18,7 +18,7 @@ import {
 import { suggerimento } from '../components/hint.js'
 import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { isola, isolaPresente, ridisegnaIsola } from '../isole.js'
 import { azione, ascolta, chiedi } from '../bridge.js'
 import { iscriviti, ridisegna, stato } from '../state.js'
@@ -617,8 +617,12 @@ function riquadroRicerca (): Figlio {
         pulsante({
           testo: parole().cerca,
           simbolo: 'lente',
-          al: () => {
-            cercato = casella.value
+          al: (evento) => {
+            // La casella viva, accanto al pulsante: `casella` è quella di questo
+            // disegno, e dopo un ridisegno può essere la copia scartata.
+            const viva = (evento.currentTarget as HTMLElement).closest('.modelli-llm__cerca')
+              ?.querySelector<HTMLInputElement>('input')
+            cercato = (viva ?? casella).value
             return leggiCatalogo()
           },
         }),
@@ -672,17 +676,19 @@ function zonaTrascinamento (): HTMLElement {
     }),
   )
 
-  zona.addEventListener('dragover', (evento: DragEvent) => {
+  // La zona viva dall'evento: un ridisegno può aver tenuto quella di prima.
+  const viva = (evento: Event) => evento.currentTarget as HTMLElement
+  gestisci(zona, 'dragover', (evento) => {
     // Fermato qui, altrimenti la guardia di `main.ts` (che impedisce a un file
     // lasciato fuori bersaglio di portare via il registro) lo prende.
     evento.preventDefault()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    zona.classList.add('modelli-llm__zona--attiva')
+    viva(evento).classList.add('modelli-llm__zona--attiva')
   })
-  zona.addEventListener('dragleave', () => zona.classList.remove('modelli-llm__zona--attiva'))
-  zona.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(zona, 'dragleave', (evento) => viva(evento).classList.remove('modelli-llm__zona--attiva'))
+  gestisci(zona, 'drop', (evento) => {
     evento.preventDefault()
-    zona.classList.remove('modelli-llm__zona--attiva')
+    viva(evento).classList.remove('modelli-llm__zona--attiva')
     const file = Array.from(evento.dataTransfer?.files ?? [])
     if (file.length === 0) return
     const percorso = percorsoDelFile(file[0])

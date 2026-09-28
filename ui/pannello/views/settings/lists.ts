@@ -19,7 +19,7 @@ import { normalizzaTesto } from '../../../../core/dominio/text.js'
 import { pastiglia, pulsante, scheda, selettore } from '../../components/base.js'
 import { icona } from '../../components/icons.js'
 import { suggerimento } from '../../components/hint.js'
-import { h, type Figlio } from '../../dom.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
 import { conferma } from '../../components/modal.js'
 import { isola, ridisegnaIsola } from '../../isole.js'
 import { stato } from '../../state.js'
@@ -251,23 +251,28 @@ function aggiuntaVoce (chiave: ChiaveLista, colori: boolean): HTMLElement {
     'code',
     { class: 'voce-lista__valore', attr: { title: t.valoreCheSiSalvera } },
   )
-  campo.addEventListener('input', () => {
-    anteprima.textContent = valoreDa(campo.value)
+  // I gestori prendono il campo vivo dall'evento: `campo` e `anteprima` sono
+  // quelli di questo disegno, e un ridisegno può averli scartati tenendo i vecchi.
+  gestisci(campo, 'input', (evento) => {
+    const vivo = evento.currentTarget as HTMLInputElement
+    const valore = vivo.parentElement?.querySelector('.voce-lista__valore')
+    if (valore) valore.textContent = valoreDa(vivo.value)
   })
   // Il colore della voce nuova si sceglie prima di aggiungerla; parte dal grigio
   // dei valori sconosciuti.
   const colore = colori
-    ? (campoColore(
+    ? campoColore(
         COLORE_DI_RIPIEGO,
         t.coloreNuova,
         // testo-fisso: la chiave di fuoco, non si legge
         `lista-nuova-${chiave}-colore`,
         null,
-      ) as HTMLInputElement)
+      )
     : null
 
-  const aggiungi = (): Promise<void> | undefined => {
-    const testo = campo.value.trim()
+  const aggiungi = (vivo: HTMLInputElement | null | undefined): Promise<void> | undefined => {
+    if (!vivo) return
+    const testo = vivo.value.trim()
     if (!testo) return
     const base = valoreDa(testo)
     if (!base) return
@@ -277,17 +282,18 @@ function aggiuntaVoce (chiave: ChiaveLista, colori: boolean): HTMLElement {
     let valore = base
     let contatore = 2
     while (usati.has(valore)) valore = `${base}-${contatore++}`
-    campo.value = ''
+    const scelto = vivo.parentElement?.querySelector<HTMLInputElement>('input[type=color]')
+    vivo.value = ''
     return salvaLista(chiave, [
       ...voci,
-      { valore, testo, ...(colore ? { colore: colore.value } : {}) },
+      { valore, testo, ...(scelto ? { colore: scelto.value } : {}) },
     ])
   }
 
-  campo.addEventListener('keydown', (evento: KeyboardEvent) => {
+  gestisci(campo, 'keydown', (evento) => {
     if (evento.key !== 'Enter') return
     evento.preventDefault()
-    void aggiungi()
+    void aggiungi(evento.currentTarget as HTMLInputElement)
   })
 
   return h(
@@ -300,7 +306,15 @@ function aggiuntaVoce (chiave: ChiaveLista, colori: boolean): HTMLElement {
     h(
       'span',
       { class: 'voce-lista__aggiungi' },
-      pulsante({ testo: parole().aggiungi, simbolo: 'piu', variante: 'sottile', al: aggiungi }),
+      pulsante({
+        testo: parole().aggiungi,
+        simbolo: 'piu',
+        variante: 'sottile',
+        al: (evento) => aggiungi(
+          (evento.currentTarget as HTMLElement).closest('li')
+            ?.querySelector<HTMLInputElement>('.voce-lista__nuova'),
+        ),
+      }),
     ),
   )
 }

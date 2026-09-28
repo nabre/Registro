@@ -12,7 +12,7 @@ import { pastiglia, pulsante } from '../components/base.js'
 import { eseguiOAvvisa } from '../components/filters.js'
 import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { isola } from '../isole.js'
 import { classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
 
@@ -343,6 +343,9 @@ function classeAdesso (classe: Classe): Classe {
   return stato.registro.classi.find((c) => c.id === classe.id) ?? classe
 }
 
+/** Quante entrate senza uscita ha contato ogni bersaglio (vedi `rendiBersaglio`). */
+const entrate = new WeakMap<HTMLElement, number>()
+
 /**
  * Fa di un elemento un bersaglio per i PDF trascinati da fuori. `dragover` va
  * fermato a ogni evento, o torna il divieto; `dragleave` scatta anche sui
@@ -354,32 +357,37 @@ export function rendiBersaglio (
   classe: Classe,
   vetrina: Vetrina = VETRINA_ARCHIVIO,
 ): void {
-  let dentro = 0
-  const acceso = (attivo: boolean) => elemento.classList.toggle('archivio--in-arrivo', attivo)
+  // Il bersaglio vivo e il suo conto si prendono dall'evento: un ridisegno a
+  // trascinamento in corso può tenere l'elemento di prima e dargli i gestori
+  // nuovi, e un conto nella closure ripartirebbe da zero.
+  const vivo = (evento: Event) => evento.currentTarget as HTMLElement
+  const acceso = (evento: Event, attivo: boolean) =>
+    vivo(evento).classList.toggle('archivio--in-arrivo', attivo)
 
-  elemento.addEventListener('dragenter', (evento: DragEvent) => {
+  gestisci(elemento, 'dragenter', (evento) => {
     if (portaPagine(evento)) return
     evento.preventDefault()
-    dentro += 1
-    acceso(true)
+    entrate.set(vivo(evento), (entrate.get(vivo(evento)) ?? 0) + 1)
+    acceso(evento, true)
   })
-  elemento.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(elemento, 'dragover', (evento) => {
     if (portaPagine(evento)) return
     evento.preventDefault()
     evento.stopPropagation()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    acceso(true)
+    acceso(evento, true)
   })
-  elemento.addEventListener('dragleave', () => {
-    dentro = Math.max(0, dentro - 1)
-    if (dentro === 0) acceso(false)
+  gestisci(elemento, 'dragleave', (evento) => {
+    const dentro = Math.max(0, (entrate.get(vivo(evento)) ?? 0) - 1)
+    entrate.set(vivo(evento), dentro)
+    if (dentro === 0) acceso(evento, false)
   })
-  elemento.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(elemento, 'drop', (evento) => {
     if (portaPagine(evento)) return
     evento.preventDefault()
     evento.stopPropagation()
-    dentro = 0
-    acceso(false)
+    entrate.set(vivo(evento), 0)
+    acceso(evento, false)
     const file = [...(evento.dataTransfer?.files ?? [])]
     if (file.length === 0) {
       notifica(testi().nessunFile, 'avviso')

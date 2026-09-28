@@ -4,7 +4,7 @@
 // ridisegno mentre si scrive.
 
 import { dataDaTesto, formattaData, spostaData } from '../../../core/dominio/dates.js'
-import { h, type Attributi, type Figlio } from '../dom.js'
+import { gestisci, h, type Attributi, type Figlio } from '../dom.js'
 import { legaAlSegno, suggerimento } from './hint.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './base.testi.js'
@@ -96,9 +96,10 @@ export function pulsante (opzioni: OpzioniPulsante): HTMLButtonElement {
   )
 
   if (al) {
-    bottone.addEventListener('click', (evento) => {
+    gestisci(bottone, 'click', (evento) => {
       const esito = al(evento)
-      if (esito instanceof Promise) void conAttesa(bottone, esito)
+      // Il pulsante vivo, non `bottone`: dopo un ridisegno può essere un altro nodo.
+      if (esito instanceof Promise) void conAttesa(evento.currentTarget as HTMLButtonElement, esito)
     })
   }
 
@@ -125,9 +126,9 @@ export function collegamento (opzioni: {
     },
     opzioni.testo,
   )
-  bottone.addEventListener('click', (evento) => {
+  gestisci(bottone, 'click', (evento) => {
     const esito = opzioni.al(evento)
-    if (esito instanceof Promise) void conAttesa(bottone, esito)
+    if (esito instanceof Promise) void conAttesa(evento.currentTarget as HTMLButtonElement, esito)
   })
   return bottone
 }
@@ -176,13 +177,15 @@ export function selettore<T extends string> (
     bottoni,
   )
 
-  gruppo.addEventListener('keydown', (evento: KeyboardEvent) => {
+  gestisci(gruppo, 'keydown', (evento) => {
     const passo = evento.key === 'ArrowRight' || evento.key === 'ArrowDown'
       ? 1
       : evento.key === 'ArrowLeft' || evento.key === 'ArrowUp' ? -1 : 0
     if (passo === 0) return
     evento.preventDefault()
-    const dove = bottoni.indexOf(document.activeElement as HTMLButtonElement)
+    // Le voci del gruppo vivo: quelle di `bottoni` possono essere state scartate da un ridisegno.
+    const vive = Array.from((evento.currentTarget as HTMLElement).children)
+    const dove = vive.indexOf(document.activeElement as HTMLButtonElement)
     // Gira: dall'ultima si torna alla prima.
     const voce = voci[(Math.max(0, dove) + passo + voci.length) % voci.length]
     if (voce) al(voce.valore)
@@ -296,34 +299,46 @@ export function controlloData (opzioni: OpzioniCampo): HTMLElement {
     attr: { inputmode: 'numeric', autocomplete: 'off', spellcheck: 'false' },
   })
 
-  const mostra = (nuova: string) => {
-    nascosto.value = nuova
-    visibile.value = nuova ? formattaData(nuova) : ''
-    visibile.classList.remove('campo__controllo--errata')
-    visibile.setCustomValidity('')
+  /**
+   * I due campi vivi, da chi riceve l'evento: dopo un ridisegno `visibile` e
+   * `nascosto` possono essere i nodi scartati, mentre nel documento resta la
+   * coppia di prima.
+   */
+  const coppia = (evento: Event): { visibile: HTMLInputElement, nascosto: HTMLInputElement } => {
+    const vivo = evento.currentTarget as HTMLInputElement
+    const suo = vivo.parentElement?.querySelector<HTMLInputElement>('input[type="hidden"]')
+    return { visibile: vivo, nascosto: suo ?? nascosto }
+  }
+
+  const mostra = (campi: ReturnType<typeof coppia>, nuova: string) => {
+    campi.nascosto.value = nuova
+    campi.visibile.value = nuova ? formattaData(nuova) : ''
+    campi.visibile.classList.remove('campo__controllo--errata')
+    campi.visibile.setCustomValidity('')
   }
 
   /** Che cosa c'è scritto adesso: la data, stringa vuota, o null se illeggibile. */
-  const letta = (): string | null => {
-    const scritto = visibile.value.trim()
+  const letta = (campi: ReturnType<typeof coppia>): string | null => {
+    const scritto = campi.visibile.value.trim()
     if (!scritto) return ''
-    return dataDaTesto(scritto, nascosto.value || undefined)
+    return dataDaTesto(scritto, campi.nascosto.value || undefined)
   }
 
-  visibile.addEventListener('change', (evento) => {
-    const nuova = letta()
+  gestisci(visibile, 'change', (evento) => {
+    const campi = coppia(evento)
+    const nuova = letta(campi)
     if (nuova === null) {
-      visibile.classList.add('campo__controllo--errata')
+      campi.visibile.classList.add('campo__controllo--errata')
       // Il valore salvato è nel campo nascosto: lo si svuota e si rende il campo
       // invalido, così il `<form>` ferma il salvataggio invece di tenere la data
       // vecchia in silenzio (`required` non se ne accorge).
-      nascosto.value = ''
+      campi.nascosto.value = ''
       // Impostata e non mostrata: `reportValidity()` ruberebbe il fuoco a un clic su
       // «Annulla». La bolla la mostra il `<form>` al salvataggio.
-      visibile.setCustomValidity(testi().dataIlleggibile)
+      campi.visibile.setCustomValidity(testi().dataIlleggibile)
       return
     }
-    mostra(nuova)
+    mostra(campi, nuova)
     opzioni.al?.(nuova, evento)
   })
 
@@ -334,7 +349,7 @@ export function controlloData (opzioni: OpzioniCampo): HTMLElement {
   let attesaPasso: ReturnType<typeof setTimeout> | null = null
   const RESPIRO_PASSO = 250
 
-  visibile.addEventListener('keydown', (evento: KeyboardEvent) => {
+  gestisci(visibile, 'keydown', (evento) => {
     const passi: Record<string, [number, number]> = {
       ArrowUp: [1, 0],
       ArrowDown: [-1, 0],
@@ -343,23 +358,24 @@ export function controlloData (opzioni: OpzioniCampo): HTMLElement {
     }
     const passo = passi[evento.key]
     if (!passo) return
-    const base = letta() || nascosto.value
+    const campi = coppia(evento)
+    const base = letta(campi) || campi.nascosto.value
     if (!base) return
     evento.preventDefault()
-    mostra(spostaData(base, passo[0], passo[1]))
+    mostra(campi, spostaData(base, passo[0], passo[1]))
     if (attesaPasso) clearTimeout(attesaPasso)
     attesaPasso = setTimeout(() => {
       attesaPasso = null
-      opzioni.al?.(nascosto.value, evento)
+      opzioni.al?.(campi.nascosto.value, evento)
     }, RESPIRO_PASSO)
   })
 
   // Uscendo dal campo non si aspetta: la data parte prima che il fuoco se ne vada.
-  visibile.addEventListener('blur', (evento: Event) => {
+  gestisci(visibile, 'blur', (evento) => {
     if (!attesaPasso) return
     clearTimeout(attesaPasso)
     attesaPasso = null
-    opzioni.al?.(nascosto.value, evento)
+    opzioni.al?.(coppia(evento).nascosto.value, evento)
   })
 
   return h('div', { class: 'campo__data' }, visibile, nascosto)
