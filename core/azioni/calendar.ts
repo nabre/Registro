@@ -15,11 +15,13 @@ import { nuovoIdCalendarioEsterno } from '../dominio/identifiers.js'
 import type { Lezione, Registro, SorgenteCalendario } from '../dominio/models.js'
 import { nomeDaOrigine, normalizzaCalendario } from '../dominio/normalization.js'
 import { validaLezione, validaSlot } from '../dominio/validation.js'
-import { copiaDallOrigine, eliminaCopia } from '../dati/calendar.js'
+import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '../dati/calendar.js'
+import { vociDi } from '../dati/bozza.js'
 import {
   conMessaggio,
   documentoCambiato,
   fatto,
+  ordinaInBozza,
   rifiuta,
   rifiutaCon,
   scegliUnFile,
@@ -112,6 +114,39 @@ export const calendario = {
     }, ['registro'], t.nonCePiu)
     if (!scritto.ok) return scritto
     return conMessaggio(t.aggiornato(scelto.nome))
+  },
+
+  /**
+   * Riscarica tutti i calendari collegati con un indirizzo di rete (un file
+   * sul disco si rilegge da sé). Uno che non si legge tiene la copia di prima
+   * e non ferma gli altri. Una scrittura sola per tutti.
+   */
+  'calendario.aggiornaTutti': async (contesto) => {
+    const t = testi()
+    const inRete = (contesto.registro.impostazioni.calendario?.calendari ?? [])
+      .filter((c) => sorgenteInRete(c.origine))
+    if (inRete.length === 0) return conMessaggio(t.nessunoInRete)
+    const copiati = new Map<string, string>()
+    const guasti: string[] = []
+    for (const scelto of inRete) {
+      try {
+        copiati.set(scelto.id, await copiaDallOrigine(scelto))
+      } catch (guasto) {
+        guasti.push(`${scelto.nome}: ${motivoDi(guasto)}`)
+      }
+    }
+    if (!contesto.ancoraQui()) return documentoCambiato()
+    if (copiati.size > 0) {
+      const scritto = contesto.modifica((r) => {
+        for (const suo of r.impostazioni.calendario?.calendari ?? []) {
+          const quando = copiati.get(suo.id)
+          if (quando) suo.copiatoIl = quando
+        }
+      }, ['registro'])
+      if (!scritto.ok) return scritto
+    }
+    if (guasti.length > 0) return conMessaggio(t.aggiornatiInParte(copiati.size, guasti), 'avviso')
+    return conMessaggio(t.aggiornatiTutti(copiati.size))
   },
 
   'calendario.modifica': async (contesto, azione) => {
@@ -230,20 +265,26 @@ export const calendario = {
     const scritto = contesto.modifica((r) => {
       if (impostazione) r.impostazioni.calendario = impostazione
       else if (impostazione === undefined) delete r.impostazioni.calendario
+      // Le lezioni si cercano fuori dalla bozza, e ci si entra solo per quelle
+      // da cambiare: scorrere la bozza farebbe una bozza di ognuna.
+      const voci = vociDi(r.lezioni)
       for (const voce of azione.allinea) {
-        const lezione = r.lezioni.find((l) => l.id === voce.lezioneId)
+        const indice = voci.findIndex((l) => l.id === voce.lezioneId)
+        const lezione = indice >= 0 ? r.lezioni[indice] : undefined
         if (!lezione) continue
         if (voce.fasce) lezione.slot = slotDaFasce(voce.fasce, slotOrdinati(lezione.slot))
         if (voce.aula !== undefined) lezione.aula = voce.aula
         lezione.aggiornataIl = quando
       }
-      for (const lezione of r.lezioni) {
-        if (!annullate.has(lezione.id)) continue
+      for (const [indice, voce] of voci.entries()) {
+        if (!annullate.has(voce.id)) continue
+        const lezione = r.lezioni[indice]
+        if (!lezione) continue
         lezione.stato = 'annullata'
         lezione.aggiornataIl = quando
       }
       r.lezioni.push(...nuove)
-      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
+      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
     }, ['registro', 'lezioni'])
     if (!scritto.ok) return scritto
 

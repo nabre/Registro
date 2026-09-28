@@ -3,6 +3,7 @@
 
 import type { ProceduraQualunque } from '../../contract.js'
 import { procedura as aggiorna } from './aggiorna.js'
+import { procedura as aggiornaTutti } from './aggiornaTutti.js'
 import { procedura as aggiungi } from './aggiungi.js'
 import { procedura as applica } from './applica.js'
 import { procedura as confronta } from './confronta.js'
@@ -12,6 +13,7 @@ import { procedura as togli } from './togli.js'
 
 export const procedureCalendario: ProceduraQualunque[] = [
   aggiorna,
+  aggiornaTutti,
   aggiungi,
   applica,
   confronta,

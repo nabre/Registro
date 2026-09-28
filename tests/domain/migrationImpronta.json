@@ -1,7 +1,10 @@
 {
-  "versione": 4,
+  "versione": 5,
   "campi": [
     "anni",
+    "anni[].calendarioUfficiale",
+    "anni[].calendarioUfficiale.annoScolastico",
+    "anni[].calendarioUfficiale.cantone",
     "anni[].cartella",
     "anni[].etichetta",
     "anni[].fine",
@@ -291,6 +294,7 @@
     "lezioni[].slot[].inizio",
     "lezioni[].slot[].tipo",
     "lezioni[].stato",
+    "lezioni[].supplenza",
     "materie",
     "materie[].colore",
     "materie[].id",

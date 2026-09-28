@@ -50,6 +50,7 @@ import {
   udPrevisteDaOrario,
   unitaDidattiche,
   votoValido,
+  datiDiario,
   datiPresenze,
   percento,
   percentoAssenza,
@@ -1114,6 +1115,20 @@ describe('le percentuali', () => {
     const dati = datiPresenze(registro, corso, PERIODO)
     assert.equal(dati.elenchi.oltreSoglia.length, 1)
     assert.match(dati.elenchi.oltreSoglia[0], /assenza del 8,4% su 12 UD previste/)
+  })
+
+  it('su carta si elencano solo le ore confermate svolte, i conti restano quelli dello schermo', () => {
+    const { registro, corso } = scuolaDiDodici()
+    // Due ore confermate, due ancora pianificate (con l'appello già preso).
+    registro.lezioni[0].stato = 'svolta'
+    registro.lezioni[1].stato = 'svolta'
+    const diario = datiDiario(registro, corso, PERIODO)
+    assert.equal(diario.tabelle.diario.righe.length, 2)
+    assert.equal(diario.valori.quanti, '2')
+    const presenze = datiPresenze(registro, corso, PERIODO)
+    assert.equal(presenze.valori.quanti, '2')
+    // La percentuale è quella dell'elenco a schermo, pianificate comprese.
+    assert.match(presenze.elenchi.oltreSoglia[0], /assenza del 8,4% su 12 UD previste/)
   })
 })
 

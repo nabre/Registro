@@ -5,7 +5,7 @@
 
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../../core/dominio/calculations.js'
 import { fraIFascicoli, pdfDi } from '../../../../core/dominio/compositions.js'
-import { classeDelCorsoId } from '../../../../core/dominio/courses.js'
+import { classeDelCorsoId, registroDelCorso } from '../../../../core/dominio/courses.js'
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import type { Corso } from '../../../../core/dominio/models.js'
@@ -15,6 +15,7 @@ import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import {
   aggiorna,
+  nelSemestreScelto,
   nomeSemestreScelto,
   stato,
 } from '../../state.js'
@@ -64,6 +65,37 @@ export function delCorso (corso: Corso): HTMLElement {
         rifai: { tipo: 'esporta.valutazioni', corsoId: corso.id, semestreId },
       }),
     ),
+  })
+}
+
+/**
+ * I fogli del docente come persona, non del corso: per ora le ore tenute al
+ * posto di un collega, raccolte nella scheda del corso ristretta a loro.
+ * Contano le sole svolte, come nella scheda.
+ */
+export function delDocente (corso: Corso): HTMLElement {
+  const semestreId = stato.semestreId
+  const supplenze = nelSemestreScelto(registroDelCorso(stato.registro, corso.id))
+    .filter((l) => l.supplenza === true && l.stato === 'svolta')
+  const t = testi()
+
+  return schedaDiFogli({
+    titolo: t.supplenze,
+    sottotitolo: conto(t.oreDiSupplenza(supplenze.length, nomeSemestreScelto())),
+    aiuto: t.supplenzeAiuto,
+    contenuto: () =>
+      supplenze.length === 0
+        ? quieto(t.nessunaSupplenza)
+        : h(
+            'ul',
+            { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-docente-${corso.id}` } },
+            rigaFoglio({
+              etichetta: nome(t.schedaSupplenze),
+              foglio: foglio('supplenze', corso.id, { corsoId: corso.id, semestreId }),
+              nome: t.nomeSchedaSupplenze,
+              rifai: { tipo: 'rapporto.genera', genere: 'supplenze', id: corso.id, semestreId },
+            }),
+          ),
   })
 }
 

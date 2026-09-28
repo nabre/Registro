@@ -12,10 +12,15 @@ import {
   annoUfficiale,
   applicaVoci,
   bozzaDaAnnoUfficiale,
+  bozzaSincronizzata,
   calendarioUfficialePerCantone,
   cantoniUfficialiDisponibili,
   chiusureUfficiali,
+  èCollegata,
+  marcatoreDi,
+  motivoCalendarioToccato,
   periodiImportabili,
+  prefissoCollegato,
   vociDaImportare,
   vociUfficiali,
 } from '../../dist-tests/domain.mjs'
@@ -197,3 +202,115 @@ describe('il registro dei calendari cantonali', () => {
   })
 })
 
+
+describe('un anno che segue il calendario ufficiale', () => {
+  const ticino = calendarioUfficialePerCantone('TI')
+  const ufficiale = ticino.anni.find((a) => a.annoScolastico === '2026/2027')
+  const marcatore = marcatoreDi(ticino, ufficiale)
+
+  /** L'anno collegato com'è appena nato, più una chiusura propria. */
+  const collegato = () => ({
+    id: 'anno-1',
+    etichetta: '2026/2027',
+    ...bozzaSincronizzata(ticino, ufficiale, bozza([
+      { id: 'sos-propria', etichetta: 'Giornata d’istituto', dal: '2026-10-16', al: '2026-10-16' },
+    ])),
+    semestri: [],
+    calendarioUfficiale: marcatore,
+  })
+  const natale = (anno) => anno.sospensioni.find((s) => s.id.endsWith('vacanze-di-natale'))
+
+  it('riconosce le chiusure collegate dal marcatore e dall’id, e solo con il marcatore', () => {
+    const anno = collegato()
+    assert.equal(prefissoCollegato(marcatore), 'sos-ti-2026-2027-')
+    assert.equal(èCollegata(anno, natale(anno)), true)
+    assert.equal(èCollegata(anno, { id: 'sos-propria' }), false)
+    assert.equal(èCollegata({ ...anno, calendarioUfficiale: undefined }, natale(anno)), false)
+    // L'id di un altro anno dello stesso calendario non è di questo.
+    assert.equal(èCollegata(anno, { id: 'sos-ti-2027-2028-vacanze-di-natale' }), false)
+  })
+
+  it('nasce con date e chiusure ufficiali, con i nomi del calendario', () => {
+    const anno = collegato()
+    assert.equal(anno.inizio, ufficiale.inizioAnno)
+    assert.equal(anno.fine, ufficiale.fineAnno)
+    for (const chiusura of chiusureUfficiali(ticino, ufficiale)) {
+      assert.deepEqual(anno.sospensioni.find((s) => s.id === chiusura.id), chiusura)
+    }
+    assert.ok(anno.sospensioni.some((s) => s.id === 'sos-propria'))
+    assert.equal(motivoCalendarioToccato(ticino, null, anno), null)
+  })
+
+  it('una chiusura scritta a mano con le date giuste diventa collegata, col nome ufficiale', () => {
+    const a = natale(collegato())
+    const sincronizzata = bozzaSincronizzata(ticino, ufficiale, bozza([
+      { id: 'sos-mia', etichetta: 'Natale', dal: a.dal, al: a.al },
+    ]))
+    const presa = sincronizzata.sospensioni.find((s) => s.dal === a.dal)
+    assert.equal(presa.id, a.id)
+    assert.equal(presa.etichetta, a.etichetta)
+    assert.equal(sincronizzata.sospensioni.some((s) => s.id === 'sos-mia'), false)
+  })
+
+  it('rifiuta inizio e fine cambiati, a meno che siano i valori ufficiali', () => {
+    const prima = { ...collegato(), inizio: '2026-09-01' }
+    assert.match(motivoCalendarioToccato(ticino, prima, { ...prima, inizio: '2026-09-02' }), /calendario ufficiale/)
+    assert.match(motivoCalendarioToccato(ticino, prima, { ...prima, fine: '2027-06-30' }), /calendario ufficiale/)
+    const ufficialeInizio = { ...prima, inizio: ufficiale.inizioAnno }
+    assert.equal(motivoCalendarioToccato(ticino, prima, ufficialeInizio), null)
+    assert.equal(motivoCalendarioToccato(ticino, prima, prima), null)
+  })
+
+  it('rifiuta una chiusura collegata tolta o cambiata, e una inventata', () => {
+    const prima = collegato()
+    const via = { ...prima, sospensioni: prima.sospensioni.filter((s) => s !== natale(prima)) }
+    assert.match(motivoCalendarioToccato(ticino, prima, via), /Vacanze di Natale/)
+
+    const spostata = structuredClone(prima)
+    natale(spostata).al = '2027-01-10'
+    assert.match(motivoCalendarioToccato(ticino, prima, spostata), /Vacanze di Natale/)
+
+    const rinominata = structuredClone(prima)
+    natale(rinominata).etichetta = 'Natale'
+    assert.match(motivoCalendarioToccato(ticino, prima, rinominata), /Vacanze di Natale/)
+
+    const inventata = structuredClone(prima)
+    inventata.sospensioni.push({ id: 'sos-ti-2026-2027-ponte', etichetta: 'Ponte', dal: '2027-05-07', al: '2027-05-07' })
+    assert.match(motivoCalendarioToccato(ticino, prima, inventata), /Ponte/)
+  })
+
+  it('lascia libere le chiusure proprie, il confine, i nomi dei semestri, le note, le settimane', () => {
+    const prima = collegato()
+    const dopo = structuredClone(prima)
+    dopo.sospensioni = dopo.sospensioni.filter((s) => s.id !== 'sos-propria')
+    dopo.sospensioni.push({ id: 'sos-ponte', etichetta: 'Ponte', dal: '2027-05-07', al: '2027-05-07' })
+    dopo.semestri = [{ id: 's1', numero: 1, etichetta: 'Autunno', inizio: prima.inizio, fine: '2027-01-31' }]
+    dopo.note = 'Sede di Trevano'
+    dopo.settimane = { '2026-09-07': 'A' }
+    assert.equal(motivoCalendarioToccato(ticino, prima, dopo), null)
+  })
+
+  it('il marcatore non si mette né si toglie salvando', () => {
+    const prima = collegato()
+    const { calendarioUfficiale: _via, ...staccato } = prima
+    assert.match(motivoCalendarioToccato(ticino, prima, staccato), /calendario ufficiale/)
+    assert.match(motivoCalendarioToccato(ticino, staccato, prima), /calendario ufficiale/)
+    const altro = { ...prima, calendarioUfficiale: { cantone: 'TI', annoScolastico: '2027/2028' } }
+    assert.match(motivoCalendarioToccato(ticino, prima, altro), /calendario ufficiale/)
+    // Staccato, tutto è libero.
+    assert.equal(motivoCalendarioToccato(ticino, staccato, { ...staccato, inizio: '2026-09-07', sospensioni: [] }), null)
+  })
+
+  it('un anno che nasce collegato vuole date e chiusure ufficiali, tutte', () => {
+    const anno = collegato()
+    assert.ok(motivoCalendarioToccato(ticino, null, { ...anno, inizio: '2026-09-01' }))
+    assert.match(
+      motivoCalendarioToccato(ticino, null, {
+        ...anno,
+        sospensioni: anno.sospensioni.filter((s) => s !== natale(anno)),
+      }),
+      /Vacanze di Natale/,
+    )
+    assert.ok(motivoCalendarioToccato(ticino, null, { ...anno, calendarioUfficiale: { cantone: 'TI', annoScolastico: '1999/2000' } }))
+  })
+})

@@ -216,6 +216,13 @@ const it = {
           'pagina **Documenti**, scheda Lezioni. Solo per una lezione **Svolta**: prima uscirebbe ' +
           'senza appello e senza consuntivo.',
       },
+      {
+        termine: 'Supplenza',
+        testo:
+          'Un’ora tenuta al posto di un altro docente: con **Modifica** accesa, dal calendario si ' +
+          'apre la lezione e si spunta **Supplenza**. Le ore così segnate, se **Svolte**, finiscono ' +
+          'nella pagina **Documenti**, scheda Docente: la scheda del corso con quelle sole.',
+      },
     ],
     note: [
       'Segnare **Svolta** rifà il verbale di quella lezione e i PDF del corso — presenze, voti, ' +
@@ -962,6 +969,14 @@ export const testi = catalogo(it, {
             'man auf der Seite **Dokumente**, Reiter Stunden. Nur für eine Stunde, ' +
             'die **Gehalten** ist: Vorher käme es ohne Präsenzkontrolle und ohne Rückblick ' +
             'heraus.',
+        },
+        {
+          termine: 'Stellvertretung',
+          testo:
+            'Eine Stunde an Stelle einer anderen Lehrperson: Mit eingeschaltetem **Bearbeiten** ' +
+            'öffnet man die Stunde im Kalender und hakt **Stellvertretung** an. So markierte ' +
+            'Stunden, wenn **Gehalten**, landen auf der Seite **Dokumente**, Reiter Lehrperson: ' +
+            'das Kursblatt nur mit diesen.',
         },
       ],
       note: [
@@ -1740,6 +1755,14 @@ export const testi = catalogo(it, {
             'fait depuis la page **Documents**, onglet Leçons. Seulement pour une leçon ' +
             '**Donnée** : avant, il sortirait sans appel et sans bilan.',
         },
+        {
+          termine: 'Remplacement',
+          testo:
+            'Une leçon donnée à la place d’un autre enseignant : avec **Modifier** activé, on ' +
+            'ouvre la leçon depuis le calendrier et on coche **Remplacement**. Les leçons ainsi ' +
+            'marquées, si **Données**, arrivent dans la page **Documents**, onglet Enseignant : ' +
+            'la fiche du cours avec elles seules.',
+        },
       ],
       note: [
         'Marquer **Donnée** refait le procès-verbal de cette leçon et les PDF du cours — ' +
@@ -2505,6 +2528,13 @@ export const testi = catalogo(it, {
             'The lesson’s PDF — attendance, outline, topics, assignments, observations — is ' +
             'made from the **Documents** page, Lessons tab. Only for a lesson that is ' +
             '**Held**: before that it would come out without attendance and without a review.',
+        },
+        {
+          termine: 'Substitution',
+          testo:
+            'A lesson taught in place of another teacher: with **Edit** on, open the lesson from ' +
+            'the calendar and tick **Substitution**. Lessons marked this way, once **Held**, end ' +
+            'up on the **Documents** page, Teacher tab: the course sheet with those alone.',
         },
       ],
       note: [

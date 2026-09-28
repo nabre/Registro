@@ -301,7 +301,7 @@ const it = {
       modifica: 'Modifica…',
       segnaSvolta: 'Segna come svolta',
       annullaLezione: 'Annulla la lezione',
-      assegnaPiano: 'Assegna un piano lezione',
+      supplenza: 'Supplenza',
       copiaSettimana: 'Copia alla settimana prossima',
     },
     figure: [
@@ -364,8 +364,8 @@ const it = {
         termine: 'Il tasto destro su una lezione',
         testo:
           'Sempre: **Apri la lezione**, **Segna come svolta** (o **Riporta a pianificata**), ' +
-          '**Annulla la lezione** (o **Non è più annullata**) e le voci del piano — apri, ' +
-          'assegna, cambia, togli. In modifica il tasto destro sceglie l’ora e aggiunge ' +
+          '**Annulla la lezione** (o **Non è più annullata**), **Supplenza** (con la spunta ' +
+          'quando lo è) e **Apri il piano della lezione**, che lo genera se l’ora non ne ha uno. In modifica il tasto destro sceglie l’ora e aggiunge ' +
           'quel che tocca l’orario: **Modifica…** (F2), nella settimana **Allunga** e ' +
           '**Accorcia** di un’unità didattica, **Al giorno prima** e **Al giorno dopo** (← →), ' +
           '**Copia alla settimana prossima** (Ctrl+D) ed **Elimina** (Canc). Su un’ora con la ' +
@@ -470,6 +470,13 @@ const it = {
           'tratteggiata a destra di ogni giorno. Riaccenderlo rilegge le copie; un calendario ' +
           'che non si legge lo dice il sottotitolo della pagina. Spento, nasconde anche ' +
           'i segni della striscia e **Confronta con il calendario**.',
+      },
+      {
+        termine: 'Aggiorna ICS',
+        testo:
+          'Accanto a **Calendario ICS**, quando è acceso: riscarica tutti i calendari collegati ' +
+          'con un indirizzo e rifà le loro copie nel documento. Lo stesso succede da sé a ogni ' +
+          'avvio del registro. Un calendario che non risponde tiene la copia di prima.',
       },
       {
         termine: 'Evento e ora, legati',
@@ -1159,7 +1166,7 @@ export const testi = catalogo(it, {
         modifica: 'Bearbeiten…',
         segnaSvolta: 'Als gehalten markieren',
         annullaLezione: 'Als ausgefallen markieren',
-        assegnaPiano: 'Unterrichtsplan zuweisen',
+        supplenza: 'Stellvertretung',
         copiaSettimana: 'In die nächste Woche kopieren',
       },
       figure: [
@@ -1227,8 +1234,9 @@ export const testi = catalogo(it, {
           termine: 'Die rechte Maustaste auf einer Stunde',
           testo:
             'Immer: **Stunde öffnen**, **Als gehalten markieren** (oder **Auf geplant ' +
-            'zurücksetzen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**) ' +
-            'und die Einträge zum Plan — öffnen, zuweisen, wechseln, entfernen. Beim Bearbeiten ' +
+            'zurücksetzen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**), ' +
+            '**Stellvertretung** (mit Häkchen, wenn sie es ist) und **Unterrichtsplan öffnen**, ' +
+            'das einen erzeugt, wenn die Stunde keinen hat. Beim Bearbeiten ' +
             'wählt die rechte Maustaste die Stunde und fügt hinzu, was den Stundenplan ' +
             'betrifft: **Bearbeiten…** (F2), in der Woche **Um eine Lektion verlängern** und ' +
             '**Um eine Lektion kürzen**, **Auf den Vortag** und **Auf den Folgetag** (← →), ' +
@@ -1343,6 +1351,14 @@ export const testi = catalogo(it, {
             'liest die Kopien neu; einen Kalender, der sich nicht lesen lässt, meldet der ' +
             'Untertitel der Seite. Ausgeschaltet blendet er auch die Zeichen des Streifens und ' +
             '**Mit dem Kalender abgleichen** aus.',
+        },
+        {
+          termine: 'ICS aktualisieren',
+          testo:
+            'Neben **ICS-Kalender**, wenn er eingeschaltet ist: lädt alle über eine Adresse ' +
+            'verknüpften Kalender neu und erneuert ihre Kopien im Dokument. Dasselbe geschieht ' +
+            'von selbst bei jedem Start des Klassenbuchs. Ein Kalender, der nicht antwortet, ' +
+            'behält die bisherige Kopie.',
         },
         {
           termine: 'Termin und Stunde, verbunden',
@@ -2038,7 +2054,7 @@ export const testi = catalogo(it, {
         modifica: 'Modifier…',
         segnaSvolta: 'Marquer comme donnée',
         annullaLezione: 'Annuler la leçon',
-        assegnaPiano: 'Attribuer un plan de leçon',
+        supplenza: 'Remplacement',
         copiaSettimana: 'Copier à la semaine suivante',
       },
       figure: [
@@ -2104,8 +2120,8 @@ export const testi = catalogo(it, {
           termine: 'Le clic droit sur une leçon',
           testo:
             'Toujours : **Ouvrir la leçon**, **Marquer comme donnée** (ou **Remettre en ' +
-            'prévue**), **Annuler la leçon** (ou **N’est plus annulée**) et les entrées du ' +
-            'plan — ouvrir, attribuer, changer, retirer. En modification, le clic droit choisit ' +
+            'prévue**), **Annuler la leçon** (ou **N’est plus annulée**), **Remplacement** ' +
+            '(coché quand c’en est un) et **Ouvrir le plan de la leçon**, qui en génère un si la leçon n’en a pas. En modification, le clic droit choisit ' +
             'la leçon et ajoute ce qui touche l’horaire : **Modifier…** (F2), dans la semaine ' +
             '**Allonger d’une période** et **Raccourcir d’une période**, **Au jour précédent** ' +
             'et **Au jour suivant** (← →), **Copier à la semaine suivante** (Ctrl+D) et ' +
@@ -2216,6 +2232,14 @@ export const testi = catalogo(it, {
             'relit les copies ; un calendrier qui ne se lit pas est signalé par le sous-titre de ' +
             'la page. Éteint, il masque aussi les signes de la bande et **Comparer avec le ' +
             'calendrier**.',
+        },
+        {
+          termine: 'Mettre à jour l’ICS',
+          testo:
+            'À côté de **Calendrier ICS**, quand il est allumé : retélécharge tous les calendriers ' +
+            'reliés par une adresse et refait leurs copies dans le document. La même chose se ' +
+            'fait d’elle-même à chaque démarrage du registre. Un calendrier qui ne répond pas ' +
+            'garde la copie précédente.',
         },
         {
           termine: 'Événement et leçon, liés',
@@ -2901,7 +2925,7 @@ export const testi = catalogo(it, {
         modifica: 'Edit…',
         segnaSvolta: 'Mark as held',
         annullaLezione: 'Cancel the lesson',
-        assegnaPiano: 'Assign a lesson plan',
+        supplenza: 'Substitution',
         copiaSettimana: 'Copy to next week',
       },
       figure: [
@@ -2966,8 +2990,8 @@ export const testi = catalogo(it, {
           termine: 'Right-click on a lesson',
           testo:
             'Always: **Open the lesson**, **Mark as held** (or **Set back to planned**), ' +
-            '**Cancel the lesson** (or **No longer cancelled**) and the plan items — open, ' +
-            'assign, change, remove. While editing, right-click selects the lesson and adds ' +
+            '**Cancel the lesson** (or **No longer cancelled**), **Substitution** (ticked when ' +
+            'it is one) and **Open the lesson plan**, which generates one if the lesson has none. While editing, right-click selects the lesson and adds ' +
             'what concerns the timetable: **Edit…** (F2), in the week **Lengthen by one ' +
             'period** and **Shorten by one period**, **To the day before** and **To the day ' +
             'after** (← →), **Copy to next week** (Ctrl+D) and **Delete** (Del). On a lesson ' +
@@ -3073,6 +3097,13 @@ export const testi = catalogo(it, {
             'lane to the right of each day. Turning it on again rereads the copies; a calendar ' +
             'that cannot be read is flagged in the page subtitle. Off, it also hides the marks ' +
             'on the strip and **Compare with the calendar**.',
+        },
+        {
+          termine: 'Update ICS',
+          testo:
+            'Next to **ICS calendar**, when it is on: downloads again every calendar linked by ' +
+            'an address and remakes their copies in the document. The same happens by itself at ' +
+            'every start of the register. A calendar that does not answer keeps the previous copy.',
         },
         {
           termine: 'Event and lesson, linked',

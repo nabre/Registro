@@ -927,6 +927,44 @@ Il polyfill di Temporal entra solo nei bundle di prova (`inject` di esbuild,
 **Dove.** `package.json`, `.github/dependabot.yml`, `tools/licenze.mjs`,
 `.dependency-cruiser.cjs`, `knip.json`, `tests/proprieta/`, e i file dei passi 2–5.
 
+### ADR-51 — Un anno può seguire il calendario ufficiale, e allora le sue voci non si toccano
+
+**Decisione.** Un anno ricorda da quale anno del calendario scolastico ufficiale
+prende inizio, fine e chiusure: `AnnoScolastico.calendarioUfficiale = { cantone,
+annoScolastico }` (formato 5, senza `porta`: assente vuol dire anno scritto a
+mano). Le chiusure non hanno un segno loro: è collegata quella con il marcatore
+presente e l'id `sos-<cantone>-<aaaa-aaaa>-…` di quell'anno (`èCollegata`), l'id
+che l'importazione dava già. Con il marcatore `anno.salva` rifiuta inizio e fine
+diversi da prima e dai valori ufficiali, una chiusura collegata tolta o cambiata
+di nome o date, un id collegato che il calendario non ha, e il marcatore messo,
+tolto o cambiato (`motivoCalendarioToccato`, pura, in `core/dominio/schoolCalendar.ts`).
+`anno.crea` con il marcatore vuole date e chiusure ufficiali, tutte. Il marcatore
+lo mettono e lo tolgono solo `anno.calendario` / `anni.calendario`: collegare
+sincronizza nello stesso gesto (date, chiusure con i nomi ufficiali, le scritte a
+mano che coincidono diventano collegate) e serve anche a riallineare; staccare
+toglie solo il marcatore. Un anno nato scegliendo un anno del calendario nasce
+collegato; uno scritto a mano, o di prima, si collega a richiesta.
+
+**Perché.** Le vacanze ufficiali valgono per tutte le classi e decidono quali ore
+si generano e quali si tolgono (`lezioniNeiGiorniChiusi`): cambiarne una per
+sbaglio, o toglierla col cestino, sposta ore senza che nessuno lo voglia. Un
+segno per chiusura avrebbe chiesto di tenerlo coerente con l'id, che già dice da
+dove viene; il marcatore sull'anno basta a dire «queste le decide il cantone». La
+guardia sta nel gestore e non solo nell'interfaccia perché le scritture arrivano
+anche dalla riga di comando e dal condotto.
+
+**Vincoli.** Restano libere le chiusure proprie, il confine e i nomi dei semestri,
+le note, le settimane. Una chiusura collegata che il calendario di questa
+versione non ha più può andarsene; una che ha si porta ai valori ufficiali o si
+lascia com'era. Un marcatore di un calendario che il registro non conosce non
+blocca l'apertura: tiene quel che c'era.
+
+**Dove.** `core/dominio/models.ts`, `core/dominio/schoolCalendar.ts`,
+`core/dominio/normalization.ts`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
+`contract/procedure/anni/calendario.ts`, `ui/pannello/forms/year.ts`,
+`ui/pannello/forms/schoolCalendar.ts`, `ui/pannello/views/settings/year.ts`,
+`desktop/avvio.ts`, `tests/api/officialCalendar.test.mjs`.
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.

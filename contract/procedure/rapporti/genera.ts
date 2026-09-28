@@ -27,6 +27,7 @@ function esigiSoggetto (ambito: Ambito, genere: GenereRapporto, id: string): voi
     case 'presenze':
     case 'diario':
     case 'corso':
+    case 'supplenze':
       return c(r.corsi.some((corso) => corso.id === id), 'corso')
     case 'momento':
       return c(r.valutazioni.some((v) => v.id === id), 'momento')

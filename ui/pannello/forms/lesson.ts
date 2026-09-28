@@ -577,6 +577,15 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
             larghezza: 'quarto',
           }),
         ),
+        riga(
+          campo({
+            nome: 'supplenza',
+            tipo: 'checkbox',
+            etichetta: t.supplenza,
+            valore: base.supplenza === true,
+            aiuto: t.aiutoSupplenza,
+          }),
+        ),
         sezioneModulo(
           t.orario,
           // Ancorata: le fasce del calendario ferme, le altre modificabili (`editorSlot`).
@@ -620,6 +629,9 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
         stato: testo(valori.stato) as Lezione['stato'],
         pianoId: testo(valori.pianoId) || null,
       }
+      // Solo quando è vera, come la scrive la normalizzazione.
+      if (valori.supplenza) lezione.supplenza = true
+      else delete lezione.supplenza
       // Cambiare piano dopo che si è già segnato l'avanzamento lascerebbe
       // spunte su attività di un altro piano.
       if (lezione.pianoId !== viva.pianoId) lezione.avanzamento = []

@@ -8,6 +8,7 @@
 import type {
   AnnoScolastico,
   BloccoAssenze,
+  CalendarioDellAnno,
   Classe,
   ColonnaCheck,
   Comunicazione,
@@ -92,8 +93,19 @@ export type Azione =
     sospensioni?: Sospensione[]
     /** I nomi dei due semestri, se scritti nel modulo. */
     etichetteSemestri?: [string, string]
+    /**
+     * L'anno del calendario ufficiale che l'anno segue: date e chiusure devono
+     * essere quelle (`motivoCalendarioToccato`).
+     */
+    calendarioUfficiale?: CalendarioDellAnno
   }
   | { tipo: 'anno.salva'; anno: AnnoScolastico }
+  /**
+   * Collega l'anno al calendario ufficiale del suo anno scolastico (date e
+   * chiusure ufficiali, e il marcatore che le blocca), lo riallinea se è già
+   * collegato, o lo stacca: via il marcatore, date e chiusure restano.
+   */
+  | { tipo: 'anno.calendario'; annoId: string; collega: boolean }
   /**
    * Dice se la settimana di `giorno` è A, B o nessuna delle due. Azione a sé e non
    * `anno.salva`: rimandare l'anno intero farebbe sovrascrivere le vacanze fra due
@@ -119,6 +131,11 @@ export type Azione =
   | { tipo: 'calendario.aggiungi'; origine: string; nome?: string }
   /** Rilegge l'origine di un calendario e ne rifà la copia nel documento. */
   | { tipo: 'calendario.aggiorna'; calendarioId: string }
+  /**
+   * Riscarica tutti i calendari collegati con un indirizzo di rete; quelli che
+   * non si leggono tengono la copia di prima. Lo fa anche l'avvio.
+   */
+  | { tipo: 'calendario.aggiornaTutti' }
   /** Rinomina un calendario o ne cambia l'origine; un'origine illeggibile non cambia niente. */
   | { tipo: 'calendario.modifica'; calendarioId: string; nome?: string; origine?: string }
   /** Toglie un calendario dal documento, con la sua copia. Le regole restano. */
@@ -580,8 +597,9 @@ export type Azione =
         | 'foto-classe'
         | 'diario'
         | 'corso'
+        | 'supplenze'
     /**
-     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso),
+     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso, supplenze),
      * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova).
      */
     id: string

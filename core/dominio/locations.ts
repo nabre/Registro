@@ -190,6 +190,7 @@ export type GenereRapporto =
   | 'foto-classe'
   | 'diario'
   | 'corso'
+  | 'supplenze'
 
 /** Le parti di cui è fatto il posto di un documento: le cartelle e il nome. */
 export interface Collocazione {
@@ -332,13 +333,14 @@ function collocazioneBase (
     }
   }
 
-  // Valutazioni, presenze, diario e scheda corso hanno il periodo nel nome, se no il secondo semestre
+  // Valutazioni, presenze, diario, scheda corso e supplenze hanno il periodo nel nome, se no il secondo semestre
   // coprirebbe il primo.
   if (
     genere === 'valutazioni' ||
     genere === 'presenze' ||
     genere === 'diario' ||
-    genere === 'corso'
+    genere === 'corso' ||
+    genere === 'supplenze'
   ) {
     const corso = registro.corsi.find((c) => c.id === id) ?? null
     if (!corso) return null
@@ -347,9 +349,11 @@ function collocazioneBase (
       documento:
         genere === 'corso'
           ? testi().documenti.corso
-          : genere === 'diario'
-            ? testi().documenti.diario
-            : testi().documenti[genere === 'presenze' ? 'presenze' : 'valutazioni'],
+          : genere === 'supplenze'
+            ? testi().documenti.supplenze
+            : genere === 'diario'
+              ? testi().documenti.diario
+              : testi().documenti[genere === 'presenze' ? 'presenze' : 'valutazioni'],
       chi: null,
       allievo: null,
       dettaglio: etichettaPeriodo(registro, corso.classeId, contesto.semestreId ?? null),
@@ -578,7 +582,8 @@ function contestiPossibili (
     genere === 'presenze' ||
     genere === 'valutazioni' ||
     genere === 'diario' ||
-    genere === 'corso'
+    genere === 'corso' ||
+    genere === 'supplenze'
   ) {
     const corso = registro.corsi.find((c) => c.id === id) ?? null
     return periodiDi(corso?.classeId ?? null).map((semestreId) => ({ semestreId }))

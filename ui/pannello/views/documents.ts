@@ -1,8 +1,8 @@
 // Tutto quel che il registro sa stampare, in una pagina sola, per chi deve
 // consegnare.
-// Tre schede: Corso (i fogli della classe come gruppo), Lezioni (matrice data ×
+// Le schede: Corso (i fogli della classe come gruppo), Lezioni (matrice data ×
 // documento: piano prima dell'ora, verbale dopo), Allievi (parete di ritratti e
-// una scheda a testa). Ogni riga dice se il foglio c'è, si rifà, si butta e si
+// una scheda a testa), Docente (le supplenze tenute nel corso). Ogni riga dice se il foglio c'è, si rifà, si butta e si
 // guarda nella cornice accanto, che mostra il file vero. Rifare un foglio lo
 // apre nella cornice. In testa alla cornice posizione, frecce e gesti del foglio.
 // La pagina non porta altrove: premere una riga apre il suo documento.
@@ -32,18 +32,22 @@ import {
   composizioni,
   dellaClasse,
   delCorso,
+  delDocente,
   schedeAllievo,
 } from './documents/cards.js'
 
 /** I riquadri della scheda aperta, in una griglia sola: una colonna nella barra, due se c'è spazio. */
 function schedeDelCorso (corso: Corso): Figlio {
-  // Le tre schede richieste: corso, docente di classe, persona in formazione.
+  // Le schede: corso, docente di classe, persona in formazione, docente.
   // Le composizioni in fondo a tutte: non appartengono a nessuna.
   if (stato.schedaDocumenti === 'classe') {
     return [dellaClasse(corso), composizioni()]
   }
   if (stato.schedaDocumenti === 'allievi') {
     return [schedeAllievo(corso), composizioni()]
+  }
+  if (stato.schedaDocumenti === 'docente') {
+    return [delDocente(corso), composizioni()]
   }
   return [delCorso(corso), composizioni()]
 }

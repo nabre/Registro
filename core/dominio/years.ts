@@ -34,15 +34,21 @@ export function annoInUso (registro: Registro): AnnoScolastico | null {
 export function allineaSemestri (semestri: Semestre[]): Semestre[] {
   const ordinati = [...semestri].sort((a, b) => a.inizio.localeCompare(b.inizio))
 
-  return ordinati.map((semestre, indice) => {
-    const inizio = indice === 0 ? semestre.inizio : sommaGiorni(ordinati[indice - 1].fine, 1)
-    return {
+  const allineati: Semestre[] = []
+  for (const semestre of ordinati) {
+    // Il successivo parte dalla fine già raddrizzata, non da quella letta:
+    // altrimenti un primo semestre al contrario farebbe cominciare il secondo
+    // prima del primo, e riallineare cambierebbe ancora (non sarebbe un punto fermo).
+    const precedente = allineati.at(-1)
+    const inizio = precedente ? sommaGiorni(precedente.fine, 1) : semestre.inizio
+    allineati.push({
       ...semestre,
-      numero: (indice + 1) as Semestre['numero'],
+      numero: (allineati.length + 1) as Semestre['numero'],
       inizio,
       fine: semestre.fine >= inizio ? semestre.fine : inizio,
-    }
-  })
+    })
+  }
+  return allineati
 }
 
 /** Da quando a quando va l'anno: gli estremi dei suoi semestri. */

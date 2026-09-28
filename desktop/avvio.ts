@@ -50,9 +50,9 @@ import {
 } from '../core/dati/mail.js'
 import { pdfSotto, smistatoreDi, type Smistatore } from '../core/dati/sorter.js'
 import { formattaData, isoValida, oggi } from '../core/dominio/dates.js'
-import type { Iso, Sospensione } from '../core/dominio/models.js'
+import type { CalendarioDellAnno, Iso, Sospensione } from '../core/dominio/models.js'
 import {
-  anniDaProporre, chiusureUfficiali, type AnnoUfficiale,
+  anniDaProporre, chiusureUfficiali, marcatoreDi, type AnnoUfficiale,
 } from '../core/dominio/schoolCalendar.js'
 import { CALENDARIO_TICINO } from '../core/dati/schoolCalendarTicino.js'
 import { creaAnnoCorrente } from '../core/dominio/factories.js'
@@ -551,6 +551,16 @@ export async function avvia (
   // I PDF rimasti in una vecchia cassetta si smistano all'accensione.
   if (await archivio.esiste()) void assorbiCassetta(archivio)
 
+  // I calendari ICS collegati con un indirizzo si riscaricano a ogni avvio:
+  // la copia nel documento dice il calendario della scuola di adesso. In
+  // fondo, senza aspettarlo: la rete può essere lenta o assente, e chi non si
+  // legge tiene la copia di prima.
+  if (await archivio.esiste()) {
+    esegui(archivio, { tipo: 'calendario.aggiornaTutti' }, 'programma').catch((errore: unknown) => {
+      console.error('aggiornamento dei calendari ICS all’avvio', errore)
+    })
+  }
+
   const conf = apparato.impostazioni.leggi('registroDocenti')
   // Partenza senza finestra (su richiesta o all'accesso, vedi
   // `environment/systemStartup.ts`), ma solo se c'è l'icona per riaprirlo.
@@ -566,6 +576,8 @@ interface AnnoDaCreare {
   inizio: Iso
   fine: Iso
   sospensioni: Sospensione[]
+  /** Scelto un anno del calendario ufficiale, l'anno lo segue: date e chiusure bloccate. */
+  calendarioUfficiale?: CalendarioDellAnno
   /** Appena nato, aprire la finestra che porta classi, corsi e impostazioni da un altro anno. */
   importa: boolean
 }
@@ -624,6 +636,7 @@ export async function chiediAnnoNuovo (): Promise<AnnoDaCreare | null> {
       inizio: anno.inizioAnno ?? proposto.inizio,
       fine: anno.fineAnno ?? proposto.fine,
       sospensioni: chiusureUfficiali(CALENDARIO_TICINO, anno),
+      calendarioUfficiale: marcatoreDi(CALENDARIO_TICINO, anno),
     }
   }
 

@@ -5,6 +5,9 @@ import { catalogo, perNumero } from '../i18n/index.js'
 import { PIF } from '../dominio/lexicon.js'
 import { plurale } from '../dominio/text.js'
 
+/** Il Ticino come lo si chiama a nord delle Alpi. */
+const tessin = (cantone: string): string => (cantone === 'Ticino' ? 'Tessin' : cantone)
+
 const it = {
   senzaCartella: 'Non c’è una cartella in cui far nascere l’anno nuovo.',
   annoNonCreato: 'Non si è potuto creare il documento dell’anno.',
@@ -16,6 +19,13 @@ const it = {
   restanoInChiusura: (n: number) =>
     ` ${plurale(n, 'lezione resta', 'lezioni restano')} in un giorno di chiusura ` +
     'perché ha già appello, testi o voti: da spostare o annullare a mano.',
+  calendarioAssente: (etichetta: string) =>
+    `Il calendario ufficiale non ha l’anno ${etichetta}: l’anno resta scritto a mano.`,
+  annoCollegato: (cantone: string, anno: string) =>
+    `L’anno segue il calendario ufficiale del ${cantone} ${anno}: ` +
+    'inizio, fine e chiusure ufficiali non si cambiano a mano.',
+  annoStaccato:
+    'L’anno non segue più il calendario ufficiale: date e chiusure restano, e si cambiano a mano.',
   stessaMateria: 'Sono la stessa materia.',
   classeOMateria: 'Classe o materia non trovata.',
   classeMateriaFisse:
@@ -63,6 +73,14 @@ export const testi = catalogo(it, {
       ` ${plurale(n, 'Stunde bleibt', 'Stunden bleiben')} an einem ` +
       'schulfreien Tag, weil schon eine Präsenzkontrolle, Texte oder Noten erfasst sind: ' +
       'von Hand verschieben oder absagen.',
+    calendarioAssente: (etichetta) =>
+      `Der offizielle Kalender hat das Schuljahr ${etichetta} nicht: Es bleibt von Hand erfasst.`,
+    annoCollegato: (cantone, anno) =>
+      `Das Schuljahr folgt dem offiziellen Kalender ${tessin(cantone)} ${anno}: ` +
+      'Beginn, Ende und offizielle Schliessungen lassen sich nicht von Hand ändern.',
+    annoStaccato:
+      'Das Schuljahr folgt nicht mehr dem offiziellen Kalender: Daten und Schliessungen bleiben ' +
+      'und lassen sich von Hand ändern.',
     stessaMateria: 'Das ist dasselbe Fach.',
     classeOMateria: 'Klasse oder Fach nicht gefunden.',
     classeMateriaFisse:
@@ -108,6 +126,14 @@ export const testi = catalogo(it, {
     restanoInChiusura: (n) =>
       ` ${plurale(n, 'leçon reste', 'leçons restent')} sur un jour de fermeture ` +
       'parce qu’il y a déjà un appel, des textes ou des notes : à déplacer ou annuler à la main.',
+    calendarioAssente: (etichetta) =>
+      `Le calendrier officiel n’a pas l’année ${etichetta} : elle reste saisie à la main.`,
+    annoCollegato: (cantone, anno) =>
+      `L’année suit le calendrier officiel du ${tessin(cantone)} ${anno} : ` +
+      'début, fin et fermetures officielles ne se changent pas à la main.',
+    annoStaccato:
+      'L’année ne suit plus le calendrier officiel : dates et fermetures restent, et se ' +
+      'changent à la main.',
     stessaMateria: 'C’est la même branche.',
     classeOMateria: 'Classe ou branche introuvable.',
     classeMateriaFisse:
@@ -154,6 +180,14 @@ export const testi = catalogo(it, {
     restanoInChiusura: (n) =>
       ` ${plurale(n, 'lesson remains', 'lessons remain')} on a closure day ` +
       'because attendance, texts or grades are already in: move or cancel by hand.',
+    calendarioAssente: (etichetta) =>
+      `The official calendar doesn’t have the year ${etichetta}: it stays entered by hand.`,
+    annoCollegato: (cantone, anno) =>
+      `The year follows the official ${cantone} ${anno} calendar: ` +
+      'start, end and official closures can’t be changed by hand.',
+    annoStaccato:
+      'The year no longer follows the official calendar: dates and closures stay, and can be ' +
+      'changed by hand.',
     stessaMateria: 'They’re the same subject.',
     classeOMateria: 'Class or subject not found.',
     classeMateriaFisse:

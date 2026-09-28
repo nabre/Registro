@@ -150,6 +150,9 @@ const it = {
   calendarioIcs: 'Calendario ICS',
   calendarioIcsAiuto:
     'Mostra, tratteggiati accanto alle lezioni, gli eventi del calendario ICS del documento',
+  aggiornaIcs: 'Aggiorna ICS',
+  aggiornaIcsAiuto:
+    'Riscarica i calendari ICS collegati con un indirizzo, come a ogni avvio del registro',
   nessunCalendarioIcs:
     'Nessun calendario ICS nel documento: si aggiunge da Impostazioni › Anno e orario › ' +
     'Calendari ICS.',
@@ -435,6 +438,9 @@ export const testi = catalogo(it, {
     calendarioIcs: 'ICS-Kalender',
     calendarioIcsAiuto:
       'Zeigt gestrichelt neben den Stunden die Termine aus dem ICS-Kalender des Dokuments',
+    aggiornaIcs: 'ICS aktualisieren',
+    aggiornaIcsAiuto:
+      'Lädt die über eine Adresse verknüpften ICS-Kalender neu, wie bei jedem Start des Klassenbuchs',
     nessunCalendarioIcs:
       'Kein ICS-Kalender im Dokument: Er wird unter Einstellungen › Schuljahr und Stundenplan › ' +
       'ICS-Kalender hinzugefügt.',
@@ -706,6 +712,9 @@ export const testi = catalogo(it, {
     calendarioIcs: 'Calendrier ICS',
     calendarioIcsAiuto:
       'Montre, en pointillé à côté des leçons, les événements du calendrier ICS du document',
+    aggiornaIcs: 'Mettre à jour l’ICS',
+    aggiornaIcsAiuto:
+      'Retélécharge les calendriers ICS reliés par une adresse, comme à chaque démarrage du registre',
     nessunCalendarioIcs:
       'Aucun calendrier ICS dans le document : il s’ajoute depuis Paramètres › Année et ' +
       'horaire › ' +
@@ -973,6 +982,9 @@ export const testi = catalogo(it, {
     calendarioIcs: 'ICS calendar',
     calendarioIcsAiuto:
       'Shows the events of the document’s ICS calendar, dashed, next to the lessons',
+    aggiornaIcs: 'Update ICS',
+    aggiornaIcsAiuto:
+      'Downloads again the ICS calendars linked by an address, as at every start of the register',
     nessunCalendarioIcs:
       'No ICS calendar in the document: add one from Settings › Year and timetable › ICS ' +
       'calendars.',

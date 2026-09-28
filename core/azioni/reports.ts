@@ -24,6 +24,7 @@ import { contenutoDi } from '../dati/store.js'
 import {
   datiAllievo,
   datiCorso,
+  datiSupplenze,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
@@ -592,6 +593,14 @@ export const rapporti = {
       if (!corso) return rifiuta(t.corsoNonTrovato)
       const semestre = semestreScelto(registro, corso.classeId, azione.semestreId ?? null)
       pezzi = { modello: 'scheda-corso', dati: datiCorso(registro, corso, semestre) }
+    }
+
+    // La stessa scheda, con le sole ore tenute come supplente.
+    if (azione.genere === 'supplenze') {
+      const corso = registro.corsi.find((c) => c.id === azione.id)
+      if (!corso) return rifiuta(t.corsoNonTrovato)
+      const semestre = semestreScelto(registro, corso.classeId, azione.semestreId ?? null)
+      pezzi = { modello: 'scheda-corso', dati: datiSupplenze(registro, corso, semestre) }
     }
 
     if (azione.genere === 'lezione') {

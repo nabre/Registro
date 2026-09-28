@@ -60,6 +60,10 @@ const it = {
     nessunPiano: '— nessun piano —',
     nuovoPiano: 'Nuovo piano per questa materia',
     aiutoPiano: 'La scaletta si può assegnare anche dopo, dal dettaglio della lezione.',
+    supplenza: 'Supplenza',
+    aiutoSupplenza:
+      'L’ora l’hai tenuta al posto di un altro docente. Le supplenze si raccolgono in ' +
+      'Documenti › Docente.',
     aggiornata: 'Lezione aggiornata.',
     creata: 'Lezione creata.',
     sincronizza: 'Sincronizza da ICS',
@@ -141,6 +145,10 @@ export const testi = catalogo(it, {
       nuovoPiano: 'Neuer Plan für dieses Fach',
       aiutoPiano:
         'Den Ablauf kannst du auch später zuweisen, in den Details der Stunde.',
+      supplenza: 'Stellvertretung',
+      aiutoSupplenza:
+        'Du hast die Stunde an Stelle einer anderen Lehrperson gehalten. Die Stellvertretungen ' +
+        'sammeln sich unter Dokumente › Lehrperson.',
       aggiornata: 'Stunde aktualisiert.',
       creata: 'Stunde erstellt.',
       sincronizza: 'Aus ICS synchronisieren',
@@ -219,6 +227,10 @@ export const testi = catalogo(it, {
       nuovoPiano: 'Nouveau plan pour cette branche',
       aiutoPiano:
         'Le déroulement peut aussi être attribué plus tard, depuis le détail de la leçon.',
+      supplenza: 'Remplacement',
+      aiutoSupplenza:
+        'Tu as donné cette leçon à la place d’un autre enseignant. Les remplacements se ' +
+        'retrouvent dans Documents › Enseignant.',
       aggiornata: 'Leçon mise à jour.',
       creata: 'Leçon créée.',
       sincronizza: 'Synchroniser depuis l’ICS',
@@ -292,6 +304,10 @@ export const testi = catalogo(it, {
       nessunPiano: '— no plan —',
       nuovoPiano: 'New plan for this subject',
       aiutoPiano: 'The outline can also be assigned later, from the lesson details.',
+      supplenza: 'Substitution',
+      aiutoSupplenza:
+        'You taught this lesson in place of another teacher. Substitutions are collected ' +
+        'under Documents › Teacher.',
       aggiornata: 'Lesson updated.',
       creata: 'Lesson created.',
       sincronizza: 'Sync from ICS',

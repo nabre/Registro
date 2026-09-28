@@ -15,6 +15,12 @@ const it = {
   aggiunto: (nome: string) => `Calendario «${nome}» aggiunto, con la sua copia nel documento.`,
   copiaDiPrima: (motivo: string) => `${motivo} La copia di prima resta com’era.`,
   aggiornato: (nome: string) => `Calendario «${nome}» aggiornato.`,
+  nessunoInRete: 'Nessun calendario ICS collegato con un indirizzo: niente da riscaricare.',
+  aggiornatiTutti: (quanti: number) =>
+    `${plurale(quanti, 'calendario ICS aggiornato', 'calendari ICS aggiornati')}.`,
+  aggiornatiInParte: (quanti: number, guasti: readonly string[]) =>
+    `${plurale(quanti, 'calendario ICS aggiornato', 'calendari ICS aggiornati')}; non si ` +
+    `leggono, e restano con la copia di prima: ${guasti.join(' · ')}`,
   senzaNome: 'Un calendario ha bisogno di un nome.',
   quelloDiPrima: (motivo: string) => `${motivo} Il calendario resta quello di prima.`,
   corsoSparito: 'Una delle lezioni da creare è di un corso che non c’è più.',
@@ -44,6 +50,12 @@ export const testi = catalogo(it, {
     aggiunto: (nome) => `Kalender «${nome}» hinzugefügt, mit seiner Kopie im Dokument.`,
     copiaDiPrima: (motivo) => `${motivo} Die bisherige Kopie bleibt, wie sie war.`,
     aggiornato: (nome) => `Kalender «${nome}» aktualisiert.`,
+    nessunoInRete: 'Kein ICS-Kalender mit einer Adresse verknüpft: nichts neu herunterzuladen.',
+    aggiornatiTutti: (quanti) =>
+      `${quanti} ICS-Kalender aktualisiert.`,
+    aggiornatiInParte: (quanti, guasti) =>
+      `${quanti} ICS-Kalender aktualisiert; nicht lesbar, sie behalten die bisherige Kopie: ` +
+      guasti.join(' · '),
     senzaNome: 'Ein Kalender braucht einen Namen.',
     quelloDiPrima: (motivo) => `${motivo} Der Kalender bleibt der bisherige.`,
     corsoSparito:
@@ -73,6 +85,12 @@ export const testi = catalogo(it, {
     aggiunto: (nome) => `Calendrier « ${nome} » ajouté, avec sa copie dans le document.`,
     copiaDiPrima: (motivo) => `${motivo} La copie précédente reste telle quelle.`,
     aggiornato: (nome) => `Calendrier « ${nome} » mis à jour.`,
+    nessunoInRete: 'Aucun calendrier ICS relié par une adresse : rien à retélécharger.',
+    aggiornatiTutti: (quanti) =>
+      `${plurale(quanti, 'calendrier ICS mis à jour', 'calendriers ICS mis à jour')}.`,
+    aggiornatiInParte: (quanti, guasti) =>
+      `${plurale(quanti, 'calendrier ICS mis à jour', 'calendriers ICS mis à jour')} ; ` +
+      `illisibles, ils gardent la copie précédente : ${guasti.join(' · ')}`,
     senzaNome: 'Un calendrier a besoin d’un nom.',
     quelloDiPrima: (motivo) => `${motivo} Le calendrier reste celui d’avant.`,
     corsoSparito: 'L’une des leçons à créer appartient à un cours qui n’existe plus.',
@@ -99,6 +117,12 @@ export const testi = catalogo(it, {
     aggiunto: (nome) => `Calendar “${nome}” added, with its copy in the document.`,
     copiaDiPrima: (motivo) => `${motivo} The previous copy stays as it was.`,
     aggiornato: (nome) => `Calendar “${nome}” updated.`,
+    nessunoInRete: 'No ICS calendar linked by an address: nothing to download again.',
+    aggiornatiTutti: (quanti) =>
+      `${plurale(quanti, 'ICS calendar updated', 'ICS calendars updated')}.`,
+    aggiornatiInParte: (quanti, guasti) =>
+      `${plurale(quanti, 'ICS calendar updated', 'ICS calendars updated')}; unreadable, ` +
+      `they keep the previous copy: ${guasti.join(' · ')}`,
     senzaNome: 'A calendar needs a name.',
     quelloDiPrima: (motivo) => `${motivo} The calendar stays as it was.`,
     corsoSparito: 'One of the lessons to create belongs to a course that no longer exists.',
