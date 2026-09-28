@@ -9,6 +9,9 @@ import { plurale } from '../../../../core/dominio/text.js'
 const it = {
   // Del corso
   delCorso: 'Del corso',
+  schedaCorso: 'Scheda del corso',
+  nomeSchedaCorso: 'la scheda completa del corso',
+  schedaDocenteClasse: 'Docente di classe',
   tuttaLaClasse: (periodo: string) => `Di tutta la classe insieme · ${periodo}`,
   presenze: 'Presenze',
   nomePresenze: 'il conto delle presenze',
@@ -18,6 +21,8 @@ const it = {
   nomePresenzeCsv: 'le presenze per il foglio di calcolo',
   valutazioniCsv: 'Valutazioni in CSV',
   nomeValutazioniCsv: 'i voti per il foglio di calcolo',
+  diario: 'Diario',
+  nomeDiario: 'il diario cumulativo delle lezioni',
 
   // Le prove e i piani
   nessunaProva: 'Nessuna prova nel periodo scelto.',
@@ -78,11 +83,18 @@ const it = {
     `${quanti(persone, PIF)} · una ciascuna · ${periodo}`,
   nessunaPersona: `La classe non ha ${PIF.plurale} attive.`,
   schedaDiPersona: (nome: string) => `la scheda di ${nome}`,
+  dettaglioCorso: 'Corso',
+  dettaglioDocenteClasse: 'Docente di classe',
+  schedaDiPersonaCorso: (nome: string) => `la scheda del corso di ${nome}`,
+  schedaDiPersonaClasse: (nome: string) => `la scheda del docente di classe per ${nome}`,
 }
 
 export const testi = catalogo(it, {
   de: {
     delCorso: 'Zum Kurs',
+    schedaCorso: 'Kursblatt',
+    nomeSchedaCorso: 'das vollständige Kursblatt',
+    schedaDocenteClasse: 'Klassenlehrperson',
     tuttaLaClasse: (periodo) => `Für die ganze Klasse zusammen · ${periodo}`,
     presenze: 'Präsenzen',
     nomePresenze: 'die Präsenzübersicht',
@@ -92,6 +104,8 @@ export const testi = catalogo(it, {
     nomePresenzeCsv: 'die Präsenzen für die Tabellenkalkulation',
     valutazioniCsv: 'Beurteilungen als CSV',
     nomeValutazioniCsv: 'die Noten für die Tabellenkalkulation',
+    diario: 'Kurstagebuch',
+    nomeDiario: 'das kumulative Kurstagebuch',
 
     nessunaProva: 'Keine Prüfung im gewählten Zeitraum.',
     nessunVoto: 'keine Noten',
@@ -148,9 +162,16 @@ export const testi = catalogo(it, {
       `${persone} Lernende · eines pro Person · ${periodo}`,
     nessunaPersona: 'Die Klasse hat keine aktiven Lernenden.',
     schedaDiPersona: (nome) => `das Blatt von ${nome}`,
+    dettaglioCorso: 'Kurs',
+    dettaglioDocenteClasse: 'Klassenlehrperson',
+    schedaDiPersonaCorso: (nome) => `das Kursblatt von ${nome}`,
+    schedaDiPersonaClasse: (nome) => `das Klassenlehrperson-Blatt für ${nome}`,
   },
   fr: {
     delCorso: 'Du cours',
+    schedaCorso: 'Fiche du cours',
+    nomeSchedaCorso: 'la fiche complète du cours',
+    schedaDocenteClasse: 'Maître de classe',
     tuttaLaClasse: (periodo) => `De toute la classe ensemble · ${periodo}`,
     presenze: 'Présences',
     nomePresenze: 'le décompte des présences',
@@ -160,6 +181,8 @@ export const testi = catalogo(it, {
     nomePresenzeCsv: 'les présences pour le tableur',
     valutazioniCsv: 'Évaluations en CSV',
     nomeValutazioniCsv: 'les notes pour le tableur',
+    diario: 'Journal',
+    nomeDiario: 'le journal cumulatif des leçons',
 
     nessunaProva: 'Aucune épreuve dans la période choisie.',
     nessunVoto: 'aucune note',
@@ -216,9 +239,16 @@ export const testi = catalogo(it, {
       periodo,
     nessunaPersona: 'La classe n’a pas de personnes en formation actives.',
     schedaDiPersona: (nome) => `la fiche de ${nome}`,
+    dettaglioCorso: 'Cours',
+    dettaglioDocenteClasse: 'Maître de classe',
+    schedaDiPersonaCorso: (nome) => `la fiche de cours de ${nome}`,
+    schedaDiPersonaClasse: (nome) => `la fiche du maître de classe pour ${nome}`,
   },
   en: {
     delCorso: 'For the course',
+    schedaCorso: 'Course sheet',
+    nomeSchedaCorso: 'the full course sheet',
+    schedaDocenteClasse: 'Class teacher',
     tuttaLaClasse: (periodo) => `The whole class together · ${periodo}`,
     presenze: 'Attendance',
     nomePresenze: 'the attendance count',
@@ -228,6 +258,8 @@ export const testi = catalogo(it, {
     nomePresenzeCsv: 'the attendance for the spreadsheet',
     valutazioniCsv: 'Assessments as CSV',
     nomeValutazioniCsv: 'the grades for the spreadsheet',
+    diario: 'Journal',
+    nomeDiario: 'the cumulative lesson journal',
 
     nessunaProva: 'No tests in the chosen period.',
     nessunVoto: 'no grades',
@@ -283,5 +315,9 @@ export const testi = catalogo(it, {
       `${plurale(persone, 'learner', 'learners')} · one each · ${periodo}`,
     nessunaPersona: 'The class has no active learners.',
     schedaDiPersona: (nome) => `the sheet for ${nome}`,
+    dettaglioCorso: 'Course',
+    dettaglioDocenteClasse: 'Class teacher',
+    schedaDiPersonaCorso: (nome) => `the course sheet for ${nome}`,
+    schedaDiPersonaClasse: (nome) => `the class teacher sheet for ${nome}`,
   },
 })

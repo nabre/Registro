@@ -34,8 +34,9 @@ import { apriMicrofono, FREQUENZA, type Presa } from './voice.js'
 import { testi } from './chat.testi.js'
 
 /**
- * Come si ridisegna l'ospite: il pannello rifà il guscio, la finestra staccata
- * sé stessa. Chiamare `aggiorna()` legherebbe questo file allo stato del pannello.
+ * Come si ridisegna l'ospite: il pannello rifà la sola isola del riquadro, la
+ * finestra staccata sé stessa. Chiamare `aggiorna()` legherebbe questo file
+ * allo stato del pannello.
  */
 let ridisegna: () => void = () => undefined
 
@@ -522,7 +523,7 @@ function scrittoio (ambiente: Ambiente): Figlio {
       placeholder: testi().segnaposto,
       'aria-label': testi().etichettaCampo,
     },
-    // Il campo si ricrea a ogni ridisegno del guscio (OCR, filo di lavoro, host):
+    // Il campo si ricrea a ogni ridisegno del riquadro o del guscio (OCR, host):
     // la chiave di fuoco permette a `ricordaFuoco` di rimettere il cursore dov'era.
     dataset: { fuoco: 'assistente-domanda' },
     disabled: inCorso,
@@ -812,9 +813,11 @@ export function corpoAssistente (ambiente: Ambiente): Figlio {
     )
   }
 
+  // Telaio fino al filo: chi ospita con `aggiornaElemento` tiene la scatola
+  // che scorre fra un ridisegno e l'altro (vedi `pannelloAssistente`).
   return h(
     'div',
-    { class: 'assistente' },
+    { class: 'assistente', dataset: { telaio: 'assistente-corpo' } },
     conversazione.length === 0
       ? statoVuoto({
           simbolo: 'bot',
@@ -830,7 +833,7 @@ export function corpoAssistente (ambiente: Ambiente): Figlio {
             // Lo scorrimento resta al ridisegno (`ricordaScorrimenti` in `dom.ts`), e
             // `segueFondo` tiene in fondo chi era in fondo mentre la risposta arriva a
             // pezzi; chi è risalito a rileggere resta dov'è.
-            dataset: { scorrimento: 'assistente', segueFondo: '' },
+            dataset: { telaio: 'assistente-filo', scorrimento: 'assistente', segueFondo: '' },
           },
           ...conversazione.map((turno, indice) =>
             bolla(turno, indice === conversazione.length - 1),

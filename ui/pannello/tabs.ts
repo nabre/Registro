@@ -102,20 +102,20 @@ export const SCHEDE_DOCUMENTI: ReadonlyArray<{
 }> = [
   {
     valore: 'corso',
-    nome: t.corso,
+    nome: t.schedaCorso,
     simbolo: 'libro',
     aiuto: t.corsoAiuto,
   },
   {
-    valore: 'lezioni',
-    nome: t.lezioni,
-    simbolo: 'presa',
-    aiuto: t.lezioniAiuto,
+    valore: 'classe',
+    nome: t.classe,
+    simbolo: 'classi',
+    aiuto: t.classeAiuto,
   },
   {
     valore: 'allievi',
     nome: t.allievi,
-    simbolo: 'classi',
+    simbolo: 'utente',
     aiuto: t.allieviAiuto,
   },
 ]

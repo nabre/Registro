@@ -36,6 +36,8 @@ const GENERE_DEL_RAPPORTO = {
   'fascicolo-classe': 'fascicolo',
   'scheda-allievo': 'allievo',
   'foto-classe': 'foto-classe',
+  'diario-corso': 'diario',
+  'scheda-corso': 'corso',
 }
 
 /** Che cosa ogni modello riceve. */

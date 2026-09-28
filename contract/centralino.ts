@@ -17,6 +17,7 @@ import { llm } from '../core/azioni/llm.js'
 import { documenti } from '../core/azioni/documents.js'
 import { esportazioni } from '../core/azioni/exports.js'
 import { mappa } from '../core/azioni/map.js'
+import { microsoft } from '../core/azioni/microsoft.js'
 import { modelli } from '../core/azioni/templates.js'
 import { ore } from '../core/azioni/hours.js'
 import { piani } from '../core/azioni/plans.js'
@@ -50,6 +51,7 @@ const GESTORI: Mappa = {
   ...smistamento,
   ...rapporti,
   ...sistema,
+  ...microsoft,
   ...documenti,
   ...esportazioni,
   ...mappa,

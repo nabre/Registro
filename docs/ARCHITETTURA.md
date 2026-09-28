@@ -208,7 +208,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   ([store.ts](../core/dati/store.ts)), PDF ([pdf.ts](../core/dati/pdf.ts),
   [reportsPdf.ts](../core/dati/reportsPdf.ts)), posta
   ([mail.ts](../core/dati/mail.ts), [exchange.ts](../core/dati/exchange.ts),
-  [oauth.ts](../core/dati/oauth.ts)), OCR ([ocr.ts](../core/dati/ocr.ts)),
+  [oauth.ts](../core/dati/oauth.ts)), OneDrive ([oneDriveLocale.ts](../core/dati/oneDriveLocale.ts),
+  [microsoft.ts](../core/dati/microsoft.ts), [onedrive.ts](../core/dati/onedrive.ts)), OCR ([ocr.ts](../core/dati/ocr.ts)),
   geocodifica ([geocoding.ts](../core/dati/geocoding.ts)), modelli, dettatura.
 - **`core/dominio/`** — le regole della scuola: modello
   ([models.ts](../core/dominio/models.ts)), date e UD
@@ -231,6 +232,11 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   cursore e scorrimenti ripristinati per chiave (`data-fuoco`,
   `data-scorrimento`); modali e palette fuori dal ciclo. `stato.registro` è
   sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
+  Dove si guarda è un `Posto` e ci si sposta con `vai` (ADR-47); il posto si
+  ricorda per documento (`memoria.ts`). Ogni aggiornamento resta nel suo
+  riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture
+  rifanno solo la loro isola (`isole.ts`, `risorse.ts`), i nodi pesanti
+  `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
 - **`cli/`** — la riga di comando autonoma: `regi`, disinstallazione, esportazioni
   senza interfaccia grafica.
 
@@ -463,6 +469,7 @@ La tabella di che cosa esce, verso dove e quando sta nella
 |---|---|
 | Geocodifica ([core/dati/geocoding.ts](../core/dati/geocoding.ts)) | solo la riga d'indirizzo scomposta, mai nomi; 1 richiesta ogni 1100 ms, User-Agent dichiarato, paesi `ch,it,de,fr,at`, al più 60 indirizzi per volta, cache per indirizzo (ADR-03) |
 | Posta ([core/dati/exchange.ts](../core/dati/exchange.ts), [core/dati/oauth.ts](../core/dati/oauth.ts)) | STARTTLS obbligatorio, `AUTH XOAUTH2`, destinatari solo in `RCPT TO`; OAuth con PKCE S256 su loopback, `state` verificato, scope `SMTP.Send offline_access` (Graph scartato: troppo ampio); scoperta del tenant |
+| OneDrive ([core/dati/microsoft.ts](../core/dati/microsoft.ts), [core/dati/onedrive.ts](../core/dati/onedrive.ts)) | senza rete per gli account sincronizzati sul computer (letti dal disco, solo dentro le loro cartelle); per gli altri lo stesso accesso PKCE della posta, ma scope `Files.Read.All User.Read offline_access` e un gettone di rinnovo per account nel portachiavi; solo lettura; il gettone va solo a `graph.microsoft.com` (lo scarico segue un rimando già firmato, senza gettone); `onedrive.*` `perAssistente: false` (ADR-49) |
 | Modelli ([core/dati/huggingFace.ts](../core/dati/huggingFace.ts) → [core/dati/gguf.ts](../core/dati/gguf.ts)) | in entrata; nessuna chiave; i depositi con condizioni da accettare non si scaricano |
 | `llama-mtmd-cli` ([core/dati/kit.ts](../core/dati/kit.ts), [core/dati/visionKit.ts](../core/dati/visionKit.ts)) | un eseguibile che partirà: versione fissata, SHA-256 prima del nome definitivo, estratti solo l'eseguibile e le sue `.dll`; solo se `modelli.scaricoAutomatico` |
 | Aggiornamenti ([desktop/apparato/updates.ts](../desktop/apparato/updates.ts)) | SHA-512 di `latest.yml` verificato da `electron-updater` e di nuovo prima di lanciare l'installatore ([os/windows/aggiornamento.ps1](../os/windows/aggiornamento.ps1)); solo l'installato su Windows; `ORE_FRA_I_CONTROLLI` |

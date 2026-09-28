@@ -26,35 +26,26 @@ import { Molti } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { testi } from './documents.testi.js'
 
-import { cornice, documentoAperto, senzaAnteprima } from './documents/preview.js'
+import { anteprima } from './documents/preview.js'
 import { azzeraRighe } from './documents/sheets.js'
 import {
   composizioni,
   dellaClasse,
   delCorso,
-  fotoDellaClasse,
-  matriceLezioni,
-  piani,
-  prove,
   schedeAllievo,
 } from './documents/cards.js'
 
 /** I riquadri della scheda aperta, in una griglia sola: una colonna nella barra, due se c'è spazio. */
 function schedeDelCorso (corso: Corso): Figlio {
-  // Le composizioni in fondo a tutte e tre: non appartengono a nessuna.
-  if (stato.schedaDocumenti === 'lezioni') return [matriceLezioni(corso), composizioni()]
-  if (stato.schedaDocumenti === 'allievi') {
-    return [fotoDellaClasse(corso), schedeAllievo(corso), composizioni()]
+  // Le tre schede richieste: corso, docente di classe, persona in formazione.
+  // Le composizioni in fondo a tutte: non appartengono a nessuna.
+  if (stato.schedaDocumenti === 'classe') {
+    return [dellaClasse(corso), composizioni()]
   }
-  return h(
-    'div',
-    { class: 'documenti__griglia' },
-    delCorso(corso),
-    dellaClasse(corso),
-    prove(corso),
-    piani(corso),
-    composizioni(),
-  )
+  if (stato.schedaDocumenti === 'allievi') {
+    return [schedeAllievo(corso), composizioni()]
+  }
+  return [delCorso(corso), composizioni()]
 }
 
 export function vistaDocumenti (): Figlio {
@@ -79,11 +70,12 @@ export function vistaDocumenti (): Figlio {
   // `disegnate`, da cui vengono il conto delle schede e l'elenco dell'anteprima.
   azzeraRighe()
   const riquadri = scelto ? schedeDelCorso(scelto) : null
-  const aperto = documentoAperto()
 
   return h(
     'div',
-    { class: 'vista vista--documenti' },
+    // Telaio fino alla barra e al corpo: un ridisegno (una spunta, «Aggiorna
+    // tutto») non ricrea le scatole che scorrono, e il gesto in corsa resta.
+    { class: 'vista vista--documenti', dataset: { telaio: 'documenti' } },
     // Nella testata solo pagina e corso: schede e «Aggiorna tutto» stanno nella
     // riga delle azioni.
     testataVista({
@@ -102,11 +94,11 @@ export function vistaDocumenti (): Figlio {
       : scelto
         ? h(
             'div',
-            { class: 'documenti__lavoro' },
+            { class: 'documenti__lavoro', dataset: { telaio: 'documenti:lavoro' } },
             // A sinistra la barra dei riquadri, a destra il foglio che si sta guardando.
             h(
               'aside',
-              { class: 'documenti__barra', dataset: { scorrimento: 'documenti:barra' } },
+              { class: 'documenti__barra', dataset: { telaio: 'documenti:barra', scorrimento: 'documenti:barra' } },
               h(
                 'div',
                 // testo-fisso: classi CSS
@@ -116,8 +108,8 @@ export function vistaDocumenti (): Figlio {
             ),
             h(
               'main',
-              { class: 'documenti__corpo' },
-              aperto ? cornice(aperto) : senzaAnteprima(),
+              { class: 'documenti__corpo', dataset: { telaio: 'documenti:corpo' } },
+              anteprima(),
             ),
           )
         : null,

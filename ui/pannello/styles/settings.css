@@ -446,6 +446,101 @@
 /* Vuoto finché nessuno ha premuto: altrimenti lascerebbe un buco. */
 .posta-esito:empty { display: none; }
 
+/* ---------------------------------------------------- account Microsoft */
+
+/* Un account per riga: chi, a che cosa serve, i gesti. Su uno schermo stretto va a capo. */
+.elenco-account-microsoft {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.account-microsoft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2) var(--spazio-3);
+}
+
+.account-microsoft__chi {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 14rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.account-microsoft__chi small { color: var(--testo-quieto); }
+
+.account-microsoft__usi,
+.account-microsoft__azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+/* ------------------------------------------------------ sfogliare OneDrive */
+
+.onedrive__testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+.onedrive__dove { font-weight: 600; overflow-wrap: anywhere; }
+
+.onedrive__gesti { display: flex; flex-wrap: wrap; gap: var(--spazio-2); }
+
+/* L'elenco scorre dentro la finestra: una cartella può avere centinaia di voci. */
+.onedrive__elenco { max-height: 55vh; overflow-y: auto; }
+
+.onedrive__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onedrive__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.onedrive__voce:hover { background: var(--velo-sfiorato); }
+
+.onedrive__nome {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.onedrive__nome { cursor: pointer; }
+button.onedrive__nome:hover span { text-decoration: underline; }
+
+.onedrive__nome > span { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.onedrive__nome small { color: var(--testo-quieto); }
+
+.onedrive__piede:empty { display: none; }
+
 /* --------------------------------------------------- liste dei menu a tendina */
 
 /*

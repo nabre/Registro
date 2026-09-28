@@ -18,6 +18,7 @@ import { createConnection } from 'node:net'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
+import { presaRiconosciuta } from '../helpers/accesso.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-condotto-limiti-')
@@ -97,13 +98,18 @@ after(async () => {
   smonta(radice, archivio)
 })
 
-/** Una connessione che raccoglie le buste e sa dire se il condotto l'ha chiusa. */
-async function apri () {
-  const presa = createConnection(indirizzo)
-  await new Promise((risolvi, rifiuta) => {
-    presa.once('connect', risolvi)
-    presa.once('error', rifiuta)
-  })
+/**
+ * Una connessione che raccoglie le buste e sa dire se il condotto l'ha chiusa.
+ * `nuda` non si presenta: serve dove il rifiuto arriva prima di `$accedi`.
+ */
+async function apri ({ nuda = false } = {}) {
+  const presa = nuda ? createConnection(indirizzo) : await presaRiconosciuta(indirizzo)
+  if (nuda) {
+    await new Promise((risolvi, rifiuta) => {
+      presa.once('connect', risolvi)
+      presa.once('error', rifiuta)
+    })
+  }
   const stato = { buste: [], chiusa: false }
   let resto = ''
   presa.on('data', (pezzo) => {
@@ -162,8 +168,8 @@ describe('la trentatreesima connessione', () => {
     const tenute = []
     try {
       for (let i = 0; i < 32; i++) tenute.push((await apri()).presa)
-      // Quella che resta e legge riceve la diagnosi.
-      const { presa, stato } = await apri()
+      // Quella che resta e legge riceve la diagnosi, prima ancora di presentarsi.
+      const { presa, stato } = await apri({ nuda: true })
       await finché(() => stato.buste.length > 0, () => JSON.stringify(stato))
       assert.equal(stato.buste[0].error.data.codice, 'non-disponibile')
       presa.destroy()

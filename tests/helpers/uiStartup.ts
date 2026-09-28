@@ -5,8 +5,10 @@
  */
 import '../../ui/pannello/main.js'
 import {
-  stato, aggiorna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai, postoCorrente,
+  stato, aggiorna, ridisegna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai,
+  postoCorrente,
 } from '../../ui/pannello/state.js'
+import { postoDaVista } from '../../ui/pannello/posto.js'
 import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '../../ui/pannello/pages.js'
 import { scegliCorso } from '../../ui/pannello/context.js'
 import { COMANDI_UI } from '../../ui/pannello/commands.js'
@@ -46,13 +48,16 @@ function annoDiProva () {
 const registro = annoDiProva()
 Object.assign(window, {
   prova: {
-    stato, aggiorna, vai, postoCorrente, apriLezione, annoDiProva,
+    stato, aggiorna, ridisegna, vai, postoCorrente, postoDaVista, apriLezione, annoDiProva,
     MISURE_SFOGLIO, PAGINE, gruppiDiPagine, vaiA, scegliCorso,
     lezioniInAgenda, riconvalidaRicordati,
     COMANDI_UI, registroVuoto, collocazioneDi, percorsoDi, FAMIGLIE_TODO, miniatura, dimentica,
   },
 })
-aggiorna({ registro, caricato: true, data: '2026-09-14', semestreId: null,
-  corsoId: registro.corsi[0].id, classeId: registro.classi[0].id,
-  documenti: { corrente: null, elenco: [{ nome: '2025-2026', etichetta: null, percorso: 'C:/esempio/2025-2026.regi', cartella: 'C:/esempio', preferito: true, mancante: false, aperto: false }] },
+vai(postoCorrente(), {
+  contesto: { corsoId: registro.corsi[0].id, classeId: registro.classi[0].id },
+  altro: {
+    registro, caricato: true, data: '2026-09-14', semestreId: null,
+    documenti: { corrente: null, elenco: [{ nome: '2025-2026', etichetta: null, percorso: 'C:/esempio/2025-2026.regi', cartella: 'C:/esempio', preferito: true, mancante: false, aperto: false }] },
+  },
 })

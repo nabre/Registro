@@ -20,7 +20,7 @@ import { icona } from '../components/icons.js'
 import { avatar } from '../components/avatar.js'
 import { h, rimpiazza, type Figlio } from '../dom.js'
 import { moduloAllievo, moduloAnno } from '../forms.js'
-import { aggiorna, annoCorrente, classiVisibili, ricorda, stato } from '../state.js'
+import { annoCorrente, classiVisibili, ricorda, stato, vai } from '../state.js'
 import { schedaAllievo } from './student.js'
 import { testi } from './people.testi.js'
 
@@ -106,8 +106,10 @@ function vocePersona (voce: Voce, scelta: boolean): HTMLElement {
           !allievo.attivo && 'voce-laterale--spenta',
         ],
         type: 'button',
-        onclick: () =>
-          aggiorna({ vista: 'persone', classeId: classe.id, allievoId: allievo.id }),
+        // La pagina resta Persone: la scheda accanto è quella dell'allievo del contesto.
+        onclick: () => {
+          vai({ pagina: 'pagina.persone' }, { contesto: { classeId: classe.id, allievoId: allievo.id } })
+        },
       },
       avatar(allievo),
       h(
@@ -207,8 +209,9 @@ function elencoPersone (voci: Voce[], sceltoId: string | null): HTMLElement {
     'div',
     {
       class: 'elenco-laterale',
-      // Lo scorrimento resta dov'era quando si sceglie un nome e la vista si rifà.
-      dataset: { scorrimento: 'elenco-persone' },
+      // Lo scorrimento resta dov'era quando si sceglie un nome e la vista si rifà;
+      // di telaio, la stessa scatola: la rotella in corsa non si perde.
+      dataset: { scorrimento: 'elenco-persone', telaio: 'elenco-persone' },
     },
     h(
       'header',
@@ -267,7 +270,8 @@ export function vistaPersone (): Figlio {
 
   return h(
     'div',
-    { class: 'vista vista--persone' },
+    // Anelli della catena di telaio fino all'elenco che scorre (`dom.ts`).
+    { class: 'vista vista--persone', dataset: { telaio: 'persone' } },
     testataVista({
       titolo: Molti(lessico().pif),
       sottotitolo: elenco.length === 0 ? t.nessunaPerOra : riassunto(elenco),
@@ -278,12 +282,12 @@ export function vistaPersone (): Figlio {
               simbolo: 'utente',
               variante: 'sottile',
               titolo: t.senzaElenco(nomeCompleto(scelta.allievo)),
-              al: () =>
-                aggiorna({
-                  vista: 'allievo',
-                  classeId: scelta.classe.id,
-                  allievoId: scelta.allievo.id,
-                }),
+              al: () => {
+                vai(
+                  { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: scelta.allievo.id } },
+                  { contesto: { classeId: scelta.classe.id } },
+                )
+              },
             }),
             pulsante({
               testo: parole().modifica,
@@ -295,7 +299,7 @@ export function vistaPersone (): Figlio {
     }),
     h(
       'div',
-      { class: 'colonne colonne--elenco' },
+      { class: 'colonne colonne--elenco', dataset: { telaio: 'persone-colonne' } },
       elencoPersone(elenco, scelta?.allievo.id ?? null),
       scelta
         ? h(
@@ -321,7 +325,7 @@ export function vistaPersone (): Figlio {
                     testo: t.vaiAlleClassi,
                     variante: 'primario',
                     simbolo: 'classi',
-                    al: () => aggiorna({ vista: 'classi' }),
+                    al: () => { vai({ pagina: 'pagina.classi' }) },
                   })
                 : undefined,
           }),

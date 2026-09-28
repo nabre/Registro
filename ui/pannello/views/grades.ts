@@ -15,7 +15,7 @@ import { } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
 import { h } from '../dom.js'
 import { azione } from '../bridge.js'
-import { aggiorna, stato } from '../state.js'
+import { postoCorrente, stato, vai } from '../state.js'
 import { tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
 import { testi } from './grades.testi.js'
@@ -108,6 +108,28 @@ interface OpzioniGriglia {
   medie?: boolean
 }
 
+/**
+ * Sceglie un momento, o nessuno, senza lasciare la pagina: in quella delle
+ * valutazioni diventa quel che si guarda; altrove (l'ora, i recuperi) resta
+ * nel contesto e la griglia lo evidenzia.
+ */
+export function scegliMomento (valutazioneId: string | null): void {
+  const qui = postoCorrente()
+  if (qui.pagina !== 'pagina.corso.valutazioni') {
+    vai(qui, { contesto: { valutazioneId }, elementoChiesto: false })
+    return
+  }
+  const corsoId = stato.contesto.corsoId
+  vai(
+    valutazioneId
+      ? { pagina: qui.pagina, soggetto: { tipo: 'valutazione', id: valutazioneId } }
+      : corsoId
+        ? { pagina: qui.pagina, soggetto: { tipo: 'corso', id: corsoId } }
+        : { pagina: qui.pagina },
+    { contesto: { valutazioneId }, elementoChiesto: valutazioneId !== null },
+  )
+}
+
 export function grigliaVoti (
   classe: Classe,
   momenti: MomentoValutazione[],
@@ -142,6 +164,9 @@ export function grigliaVoti (
     griglia: true,
     // testo-fisso: chiave della memoria di scorrimento, non si legge
     scorrimento: `voti:${stato.corsoId ?? ''}:${stato.semestreId ?? ''}`,
+    // Dove la catena di telaio arriva fin qui (la pagina delle valutazioni),
+    // un voto scritto non ferma lo scorrimento in corsa.
+    telaio: 'voti',
     intestazione: [
       h('th', { class: 'tabella__nome' }, Uno(L.pif)),
       ...momenti.map((momento) =>
@@ -150,7 +175,7 @@ export function grigliaVoti (
           { class: ['tabella__momento', stato.valutazioneId === momento.id && 'tabella__momento--scelto'] },
           collegamento({
             titolo: t.titoloMomento(momento.titolo, formattaData(momento.data), momento.peso),
-            al: () => aggiorna({ valutazioneId: momento.id }),
+            al: () => scegliMomento(momento.id),
             testo: [
               h('span', { class: 'tabella__momento-titolo' }, momento.titolo),
               h(

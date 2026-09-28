@@ -21,6 +21,7 @@ import { notifica } from '../../components/notifications.js'
 import { h } from '../../dom.js'
 import { chiediEliminazione, moduloMateria, moduloUnisciMaterie } from '../../forms.js'
 import { azione } from '../../bridge.js'
+import { apriOneDrive } from '../../forms/oneDrive.js'
 import { stato } from '../../state.js'
 import { testi } from './document.testi.js'
 
@@ -366,6 +367,13 @@ export function schedaFile (): HTMLElement {
         variante: 'sottile',
         titolo: t.apriAltroAiuto,
         al: () => azione({ tipo: 'documento.apri' }),
+      }),
+      pulsante({
+        testo: t.apriDaOneDrive,
+        simbolo: 'collegamento',
+        variante: 'sottile',
+        titolo: t.apriDaOneDriveAiuto,
+        al: () => apriOneDrive(),
       }),
       pulsante({
         testo: t.mostraNellaCartella,

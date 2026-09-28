@@ -51,6 +51,15 @@ const it = {
   nomePreso: (indirizzo: string) =>
     `il nome «${indirizzo}» è già preso: o c’è un’altra copia del registro in ascolto, ` +
     'o quel nome l’ha occupato qualcun altro. Il registro parte senza condotto.',
+  chiaveNonScritta:
+    'la chiave del condotto («condotto.chiave») non si è potuta scrivere nella cartella ' +
+    'dei dati. Il registro parte senza condotto.',
+  primaSiPresenta: 'Prima di ogni altra chiamata ci si presenta con «$accedi».',
+  comeSiPresenta:
+    '«$accedi» vuole una sfida casuale e la prova calcolata con la chiave del condotto: ' +
+    '«regi» lo fa da sé.',
+  accessoMalFatto: '«$accedi» vuole «sfida» e «prova» in esadecimale.',
+  chiaveSbagliata: 'La prova non corrisponde alla chiave di questa accensione del condotto.',
 }
 
 export const testi = catalogo(it, {
@@ -104,6 +113,15 @@ export const testi = catalogo(it, {
       `der Name «${indirizzo}» ist schon vergeben: Entweder hört eine andere Kopie des ` +
       'Klassenbuchs zu, oder jemand anders hat diesen Namen belegt. Das Klassenbuch startet ' +
       'ohne Kanal.',
+    chiaveNonScritta:
+      'der Schlüssel des Kanals («condotto.chiave») konnte nicht in den Datenordner ' +
+      'geschrieben werden. Das Klassenbuch startet ohne Kanal.',
+    primaSiPresenta: 'Vor jedem anderen Aufruf meldet man sich mit «$accedi» an.',
+    comeSiPresenta:
+      '«$accedi» verlangt eine zufällige Herausforderung und den mit dem Schlüssel des ' +
+      'Kanals berechneten Nachweis: «regi» erledigt das selbst.',
+    accessoMalFatto: '«$accedi» verlangt «sfida» und «prova» in Hexadezimal.',
+    chiaveSbagliata: 'Der Nachweis passt nicht zum Schlüssel dieses Kanalstarts.',
   },
   fr: {
     nonConcede: (che) =>
@@ -153,6 +171,15 @@ export const testi = catalogo(it, {
     nomePreso: (indirizzo) =>
       `le nom « ${indirizzo} » est déjà pris : soit une autre copie du registre est à ` +
       'l’écoute, soit quelqu’un d’autre a occupé ce nom. Le registre démarre sans canal.',
+    chiaveNonScritta:
+      'la clé du canal (« condotto.chiave ») n’a pas pu être écrite dans le dossier de ' +
+      'données. Le registre démarre sans canal.',
+    primaSiPresenta: 'Avant tout autre appel, on se présente avec « $accedi ».',
+    comeSiPresenta:
+      '« $accedi » veut un défi aléatoire et la preuve calculée avec la clé du canal : ' +
+      '« regi » le fait tout seul.',
+    accessoMalFatto: '« $accedi » veut « sfida » et « prova » en hexadécimal.',
+    chiaveSbagliata: 'La preuve ne correspond pas à la clé de ce démarrage du canal.',
   },
   en: {
     nonConcede: (che) =>
@@ -199,5 +226,14 @@ export const testi = catalogo(it, {
     nomePreso: (indirizzo) =>
       `the name “${indirizzo}” is already taken: either another copy of the register is ` +
       'listening, or someone else has taken that name. The register starts without the pipe.',
+    chiaveNonScritta:
+      'the pipe key (“condotto.chiave”) could not be written to the data folder. The ' +
+      'register starts without the pipe.',
+    primaSiPresenta: 'Before any other call, introduce yourself with “$accedi”.',
+    comeSiPresenta:
+      '“$accedi” wants a random challenge and the proof computed with the pipe key: ' +
+      '“regi” does it by itself.',
+    accessoMalFatto: '“$accedi” wants “sfida” and “prova” in hexadecimal.',
+    chiaveSbagliata: 'The proof does not match the key of this pipe start.',
   },
 })

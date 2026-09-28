@@ -28,13 +28,13 @@ import { scriviIndirizzo } from '../../../../core/dominio/addresses.js'
 import { pastiglia, pulsante, scheda, statoVuoto } from '../../components/base.js'
 import { recapitoPremibile, type GenereRecapito } from '../../components/contacts.js'
 import { notifica } from '../../components/notifications.js'
-import { riquadroMappa } from '../../components/map.js'
+import { riquadroMappa, type Riquadro } from '../../components/map.js'
 import { icona, type NomeIcona } from '../../components/icons.js'
 import { h, type Figlio } from '../../dom.js'
 import { moduloAllievo } from '../../forms.js'
 import { mostraSullaMappa } from '../map.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, corsiDi, fascicoloDi, stato, uriDato } from '../../state.js'
+import { corsiDi, fascicoloDi, stato, uriDato, vai } from '../../state.js'
 import { FASI } from './attendance.js'
 import { testi } from './registry.testi.js'
 
@@ -140,6 +140,32 @@ function rigaCoordinate (
 }
 
 /**
+ * La mappa piccola della persona aperta, tenuta fra due disegni: rifatta a ogni
+ * ridisegno perdeva spostamento e ingrandimento. Una persona nuova, un riquadro
+ * nuovo. I punti li legge da `segniDellaScheda`, riscritti a ogni disegno.
+ */
+let mappaPiccola: { allievoId: string, riquadro: Riquadro } | null = null
+let segniDellaScheda: SegnoMappa[] = []
+
+/** Il cartellino corto della mappa piccola: che punto è e quanto dista dalla sede. */
+function cartellinoCorto (segno: SegnoMappa): HTMLElement {
+  const t = testi()
+  return h(
+    'div',
+    { class: 'mappa__cartellino' },
+    h('strong', { class: 'mappa__cartellino-titolo' }, segno.titolo),
+    h('span', { class: 'mappa__cartellino-riga' }, segno.indirizzo),
+    h(
+      'span',
+      { class: 'mappa__cartellino-riga' },
+      segno.genere === 'sede'
+        ? t.laSede
+        : t.inLineaDAria(scriviDistanza(segno.distanzaKm)),
+    ),
+  )
+}
+
+/**
  * Dove sta: casa, azienda e scuola in un riquadro solo, per vedere le distanze.
  * Lo stesso riquadro della pagina Mappa, in piccolo, con il tragitto
  * casa-azienda tratteggiato e cartellini corti. Assente se c'è solo la scuola.
@@ -151,27 +177,21 @@ export function pannelloDoveSta (classe: Classe, allievo: Allievo): Figlio {
   if (suoi.length === 0) return null
   const t = testi()
 
-  const cartellino = (segno: SegnoMappa) =>
-    h(
-      'div',
-      { class: 'mappa__cartellino' },
-      h('strong', { class: 'mappa__cartellino-titolo' }, segno.titolo),
-      h('span', { class: 'mappa__cartellino-riga' }, segno.indirizzo),
-      h(
-        'span',
-        { class: 'mappa__cartellino-riga' },
-        segno.genere === 'sede'
-          ? t.laSede
-          : t.inLineaDAria(scriviDistanza(segno.distanzaKm)),
-      ),
-    )
-
-  const vivo = riquadroMappa({
-    segni: () => segni,
-    cartellino,
-    // Un margine piccolo: il riquadro è basso.
-    margine: 28,
-  })
+  segniDellaScheda = segni
+  if (mappaPiccola?.allievoId !== allievo.id) {
+    mappaPiccola = {
+      allievoId: allievo.id,
+      riquadro: riquadroMappa({
+        // testo-fisso: la sorgente del nodo tenuto
+        chiave: `mappa:allievo:${allievo.id}`,
+        segni: () => segniDellaScheda,
+        cartellino: cartellinoCorto,
+        // Un margine piccolo: il riquadro è basso.
+        margine: 28,
+      }),
+    }
+  }
+  const vivo = mappaPiccola.riquadro
 
   const casa = suoi.find((segno) => segno.genere === 'domicilio')
   const lavoro = suoi.find((segno) => segno.genere === 'lavoro')
@@ -192,7 +212,7 @@ export function pannelloDoveSta (classe: Classe, allievo: Allievo): Figlio {
       simbolo: 'mappa',
       al: () => mostraSullaMappa((casa ?? lavoro ?? segni[0]).chiave),
     }),
-    contenuto: h('div', { class: 'dove-sta__tela' }, vivo.elemento),
+    contenuto: h('div', { class: 'dove-sta__tela' }, vivo.nelDisegno()),
   })
 }
 
@@ -351,8 +371,9 @@ export function pannelloAssenze (classe: Classe, allievo: Allievo): Figlio {
       testo: t.apriLeAssenze,
       simbolo: 'firma',
       variante: 'fantasma',
-      al: () =>
-        aggiorna({ vista: 'docenteClasse', schedaDocente: 'assenze', classeId: classe.id }),
+      al: () => {
+        vai({ pagina: 'pagina.classe.assenze', soggetto: { tipo: 'classe', id: classe.id } })
+      },
     }),
     contenuto: h(
       'ul',

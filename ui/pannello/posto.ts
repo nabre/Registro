@@ -122,7 +122,6 @@ interface PreferenzeDoc {
 /** I campi di navigazione dello stato di prima, come li leggono le viste. */
 interface CampiVista {
   vista: Vista;
-  paginaId: string | null;
   ambitoCheck?: 'corso' | 'classe';
   schedaDocente?: 'todo' | 'documenti' | 'assenze' | 'messaggistica';
   ambitoImpostazioni?: 'programma' | 'documento';
@@ -276,14 +275,11 @@ export function postoDaVista (vista: Vista, elementoId?: string, registro?: Regi
 
 /**
  * I campi di prima che dicono la pagina: la vista e, dove una vista fa più
- * pagine, ambito o scheda. `paginaId` è `null` per le pagine senza voce.
+ * pagine, ambito o scheda.
  */
 export function derivaVista (posto: Posto): CampiVista {
   const vista = VISTA_DELLA_PAGINA[posto.pagina]
-  const campi: CampiVista = {
-    vista,
-    paginaId: NASCOSTE.includes(posto.pagina) ? null : posto.pagina,
-  }
+  const campi: CampiVista = { vista }
   if (vista === 'check') {
     campi.ambitoCheck = posto.pagina === 'pagina.classe.check' ? 'classe' : 'corso'
   }
@@ -307,10 +303,10 @@ function id (valore: unknown): string | null {
 }
 
 /**
- * Il posto dello stato di prima: per l'adattatore finché le viste scrivono i
- * campi vecchi, e per la memoria scritta da una versione precedente. Comanda
- * la vista, con ambito e scheda: `paginaId` non aggiunge niente (ogni vista
- * con i suoi campi fa una pagina sola) e può essere rimasto di un'altra vista.
+ * Il posto dello stato di prima, per la memoria scritta da una versione
+ * precedente. Comanda la vista, con ambito e scheda: `paginaId` non aggiunge
+ * niente (ogni vista con i suoi campi fa una pagina sola) e può essere rimasto
+ * di un'altra vista.
  * Il soggetto è l'id del tipo che la pagina mostra; se non c'è, `completa`.
  */
 export function postoDaVecchi (vecchi: CampiVecchi): Posto {

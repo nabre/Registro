@@ -19,7 +19,7 @@ import { testi as testiPalette } from './components/palette.testi.js'
 import { parole } from '../../core/dominio/words.testi.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
-import { aggiorna, stato } from './state.js'
+import { ridisegna, stato, vai } from './state.js'
 import { pulsanteDelGesto, statoDegliAggiornamenti } from './views/settings/updates.js'
 import { testi } from './titleBar.testi.js'
 
@@ -179,11 +179,7 @@ function filettoAggiornamenti (): Figlio {
         class: 'filetto__testo',
         type: 'button',
         attr: { title: testi().apriAggiornamenti(frase) },
-        onclick: () => aggiorna({
-          vista: 'impostazioni',
-          ambitoImpostazioni: 'programma',
-          schedaProgramma: 'aggiornamenti',
-        }),
+        onclick: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.aggiornamenti' }) },
       },
       breve,
     ),
@@ -200,7 +196,7 @@ function filettoAggiornamenti (): Figlio {
         onclick: () => {
           if (s) s.notiziaNascosta = notizia
           void azione({ tipo: 'aggiornamenti.nascondiNotizia', notizia })
-          aggiorna({})
+          ridisegna()
         },
       },
       icona('chiudi', 'icona--minuta'),

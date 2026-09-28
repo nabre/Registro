@@ -312,34 +312,25 @@
 }
 
 /*
- * Il posto del telaio nella pagina, e il telaio sopra.
- *
- * Due elementi perché un `<iframe>` tolto dal documento perde quel che ha
- * caricato: il segnaposto si rifà con la vista, il telaio resta appeso in fondo
- * alla pagina e lo insegue con una posizione fissa. Pagina e zoom restano.
+ * Il lettore nella pagina. L'`<iframe>` sta nel flusso come ogni altro nodo:
+ * un ridisegno lo sposta senza staccarlo (`data-tieni`), quindi pagina e zoom
+ * restano.
  */
 .cornice-posto {
   flex: 1;
   min-height: 0;
-}
-
-.cornice-fissa {
-  position: fixed;
-  /* Sopra la pagina e sotto quel che la copre per mestiere: comandi, palette, modali. */
-  z-index: 3;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--bordo-tenue);
   border-radius: var(--raggio-piccolo);
   overflow: hidden;
   background: var(--sfondo);
 }
 
-.cornice-fissa[hidden] {
-  display: none;
-}
-
-.cornice-fissa__telaio {
+.cornice-posto__telaio {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 100%;
   border: 0;
   display: block;
 }

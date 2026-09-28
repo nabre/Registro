@@ -30,7 +30,7 @@ GIORNATA = '''()=>{
   i.pause = { prima: { inizio: '09:30', durataMin: 15 }, seguenti: [{ dopoUd: 2, durataMin: 10 }] }
   i.oraInizioGiornata = '07:30'
   i.oraFineGiornata = '13:00'
-  prova.aggiorna({ vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'calendario' })
+  prova.vai({ pagina: 'pagina.impostazioni', scheda: 'documento.calendario' })
 }'''
 
 
@@ -107,7 +107,7 @@ with chromium() as browser:
         # Un'ora con l'appello fissa l'UD: il campo si spegne, e lo si dice.
         page.evaluate('''()=>{
           prova.stato.registro.lezioni[0].presenze = [{ allievoId: 'x', stati: ['presente'] }]
-          prova.aggiorna({})
+          prova.ridisegna()
         }''')
         page.evaluate(FRAME)
         expect(page.locator('input[name="minutiUd"]')).to_be_disabled()

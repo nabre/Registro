@@ -96,4 +96,9 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Da provare a mano
 
+- [ ] OneDrive dal pannello con gli account sincronizzati su questo PC: sfoglia,
+      «Trova tutti i .regi», apertura (anche di un file solo nel cloud). La
+      lettura da disco è provata a mano su `vxg140@edu.ti.ch`; Graph è negato
+      dal tenant `edu.ti.ch` (consenso dell'amministratore), `sharedWithMe` è in
+      dismissione da parte di Microsoft.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.

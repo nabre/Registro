@@ -264,14 +264,13 @@ interface StatoUI {
   rete: boolean;
   /**
    * Dove si guarda: la pagina, il suo soggetto, la scheda (`posto.ts`). Lo
-   * scrive solo `vai`; `vista`, `paginaId`, ambiti e schede che fanno pagina
-   * ne sono la traduzione per le viste, e gli id qui sotto il contesto.
+   * scrive solo `vai`; `vista`, ambiti e schede che fanno pagina ne sono la
+   * traduzione per le viste, e gli id qui sotto il contesto.
    */
   posto: Posto;
   /** L'ultimo scelto per ogni tipo: resta cambiando pagina (`Contesto` in `posto.ts`). */
   contesto: Contesto;
   vista: Vista;
-  paginaId: string | null;
   /**
    * Se la riga delle azioni è nascosta. Si ricorda; i comandi restano nella
    * palette e nel menu, e la riga si riapre con l'interruttore o Ctrl+B.
@@ -486,7 +485,6 @@ export const stato: StatoUI = {
   posto: postoIniziale,
   contesto: contestoIniziale,
   vista: derivatiIniziali.vista,
-  paginaId: derivatiIniziali.paginaId,
   azioniNascoste: globali.azioniNascoste ?? false,
   schedaComandi: 'pagina',
   schedaLezione: globali.schedaLezione ?? 'amministrazione',
@@ -807,92 +805,32 @@ function applica (modifiche: Partial<StatoUI>): void {
   // ridisegna. Lo stato non si modifica mai sul posto, quindi basta `Object.is`.
   const cambiate = Object.entries(modifiche).filter(([chiave, valore]) =>
     valore !== undefined && !Object.is(stato[chiave as keyof StatoUI], valore))
-  if (cambiate.length === 0) {
-    // `aggiorna({})` è il vecchio modo di dire «ridisegna»: vale ancora finché
-    // chi lo usa non passa a `ridisegna()`. Valori tutti uguali non fanno niente.
-    if (Object.keys(modifiche).length === 0) ridisegna()
-    return
-  }
+  if (cambiate.length === 0) return
   Object.assign(stato, Object.fromEntries(cambiate))
   avvisa()
 }
 
-/** I campi di prima che dicono dove si è: li traduce l'adattatore di `aggiorna`. */
-const CAMPI_DI_POSIZIONE = [
-  'vista',
-  'paginaId',
-  'ambitoCheck',
-  'schedaDocente',
-  'ambitoImpostazioni',
-  'schedaProgramma',
-  'schedaDocumento',
-  ...CAMPI_CONTESTO,
-] as const satisfies readonly (keyof StatoUI)[]
-
-/** Il campo del contesto che porta l'id di un tipo di soggetto. */
-function campoDelTipo (tipo: NonNullable<Posto['soggetto']>['tipo']): keyof Contesto {
-  // testo-fisso: il nome di un campo
-  return `${tipo}Id`
-}
-
 /**
- * Il posto che i campi vecchi chiedono. Il soggetto è l'id appena scelto, se
- * la pagina ne mostra uno: `{ corsoId }` sul Registro vuol dire quel corso, non
- * l'ora di prima di un altro. Restando sulla pagina, un soggetto che i campi
- * vecchi non sanno dire (l'ora del calendario) resta.
+ * I campi che dicono dove si è: li scrive solo `vai`, che li deriva dal posto
+ * (`derivaVista`) e dal contesto. Per `aggiorna` non esistono.
  */
-function postoDelleModifiche (modifiche: Partial<StatoUI>): Posto {
-  const campi = Object.fromEntries(CAMPI_DI_POSIZIONE.map((campo) => [
-    campo,
-    modifiche[campo] !== undefined ? modifiche[campo] : stato[campo],
-  ]))
-  const scelti = CAMPI_CONTESTO.filter((campo) => modifiche[campo] !== undefined)
-  let posto = postoDaVecchi(scelti.length === 0
-    ? campi
-    : {
-        ...campi,
-        ...Object.fromEntries(CAMPI_CONTESTO
-          .filter((campo) => !scelti.includes(campo))
-          .map((campo) => [campo, null])),
-      })
-  if (!posto.soggetto && scelti.length > 0) posto = postoDaVecchi(campi)
-  const prima = stato.posto
-  if (
-    posto.pagina === prima.pagina && !posto.soggetto && prima.soggetto &&
-    modifiche[campoDelTipo(prima.soggetto.tipo)] === undefined
-  ) {
-    posto = { ...posto, soggetto: prima.soggetto }
-  }
-  return posto
-}
+type CampoDelPosto =
+  | 'posto'
+  | 'contesto'
+  | 'vista'
+  | 'ambitoCheck'
+  | 'schedaDocente'
+  | 'ambitoImpostazioni'
+  | 'schedaProgramma'
+  | 'schedaDocumento'
+  | typeof CAMPI_CONTESTO[number]
 
-/**
- * Cambia lo stato e ridisegna. Chi cambia dove si è (vista, schede che fanno
- * pagina, id del contesto) passa da `vai`: finché le viste scrivono i campi
- * vecchi, qui li si traduce nel posto (`postoDaVecchi`) e il resto va con lui,
- * in un passo solo.
- */
-export function aggiorna (modifiche: Partial<StatoUI>): void {
-  if (!CAMPI_DI_POSIZIONE.some((campo) => modifiche[campo] !== undefined)) {
-    applica(modifiche)
-    return
-  }
-  const contesto: Partial<Contesto> = {}
-  const altro: Partial<StatoUI> = {}
-  for (const [campo, valore] of Object.entries(modifiche)) {
-    if (valore === undefined || campo === 'vista' || campo === 'paginaId') continue
-    if ((CAMPI_CONTESTO as readonly string[]).includes(campo)) {
-      (contesto as Record<string, unknown>)[campo] = valore
-    } else {
-      // Anche ambito e schede: fuori dalla loro pagina restano come ultime scelte.
-      (altro as Record<string, unknown>)[campo] = valore
-    }
-  }
-  const posto = postoDelleModifiche(modifiche)
-  // Giorno e semestre li porta solo l'elemento appena scelto, non quello rimasto nel contesto.
-  const elementoChiesto = posto.soggetto !== undefined &&
-    modifiche[campoDelTipo(posto.soggetto.tipo)] !== undefined
-  vai(posto, { contesto, altro, elementoChiesto })
+/** Lo stato che si cambia senza muoversi: tutto meno il posto e i suoi derivati. */
+type ModificheStato = Partial<Omit<StatoUI, CampoDelPosto>>
+
+/** Cambia lo stato e ridisegna. Per cambiare dove si è c'è `vai`. */
+export function aggiorna (modifiche: ModificheStato): void {
+  applica(modifiche)
 }
 
 /**
@@ -917,8 +855,8 @@ interface OpzioniVai {
   preferenze?: Partial<Pick<StatoUI, 'semestreId' | 'filtroCorsoAgendaId'>>
   /** Gli id scelti insieme al posto: il contesto che il soggetto poi completa. */
   contesto?: Partial<Contesto>
-  /** Il resto dello stato da cambiare nello stesso passo (l'adattatore di `aggiorna`). */
-  altro?: Partial<StatoUI>
+  /** Il resto dello stato da cambiare nello stesso passo. */
+  altro?: ModificheStato
   /**
    * Si riconferma il posto di adesso sui dati nuovi: il soggetto non sposta
    * giorno, semestre né filtro scelti da chi guarda.
@@ -939,14 +877,11 @@ export function postoCorrente (): Posto {
 }
 
 /** La sezione da cui si riaprono le impostazioni: l'ultima guardata nel suo ambito. */
-function schedaRicordata (altro: Partial<StatoUI>): Scheda {
-  const ambito = altro.ambitoImpostazioni ?? stato.ambitoImpostazioni
-  const programma = altro.schedaProgramma ?? stato.schedaProgramma
-  const documento = altro.schedaDocumento ?? stato.schedaDocumento
+function schedaRicordata (): Scheda {
   // testo-fisso: l'id di una sezione
-  if (ambito === 'programma') return `programma.${programma}`
+  if (stato.ambitoImpostazioni === 'programma') return `programma.${stato.schedaProgramma}`
   // testo-fisso: l'id di una sezione
-  return `documento.${documento}`
+  return `documento.${stato.schedaDocumento}`
 }
 
 function stessoContesto (a: Contesto, b: Contesto): boolean {
@@ -957,12 +892,12 @@ function stessoContesto (a: Contesto, b: Contesto): boolean {
  * Va in un posto: lo rende vero sul registro (`completa`: il soggetto che
  * manca dal contesto, quello sparito col suo ripiego), porta contesto,
  * giorno e semestre del soggetto, scrive i campi di prima che le viste
- * leggono ancora, e lo dice alla storia. Un `aggiorna` solo.
+ * leggono ancora, e lo dice alla storia. Un passo solo.
  */
 export function vai (chiesto: Posto, opzioni: OpzioniVai = {}): Completato {
-  const altro: Partial<StatoUI> = { ...opzioni.altro, ...opzioni.preferenze }
+  const altro: ModificheStato = { ...opzioni.altro, ...opzioni.preferenze }
   const posto = chiesto.pagina === 'pagina.impostazioni' && !chiesto.scheda
-    ? { ...chiesto, scheda: schedaRicordata(altro) }
+    ? { ...chiesto, scheda: schedaRicordata() }
     : chiesto
   const fatto = completa(
     posto,

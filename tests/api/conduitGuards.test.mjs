@@ -4,9 +4,9 @@
 // prima del gestore; il resto delle impostazioni passa.
 
 import assert from 'node:assert/strict'
-import { createConnection } from 'node:net'
 import { after, before, describe, it } from 'node:test'
 
+import { presaRiconosciuta } from '../helpers/accesso.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-guardie-')
@@ -44,15 +44,15 @@ after(async () => {
 })
 
 /** Una richiesta, una busta. */
-function chiedi (method, params) {
+async function chiedi (method, params) {
+  const presa = await presaRiconosciuta(indirizzo)
   return new Promise((risolvi, rifiuta) => {
     let resto = ''
-    const presa = createConnection(indirizzo)
     const sveglia = setTimeout(() => {
       presa.destroy()
       rifiuta(new Error('il condotto non ha risposto'))
     }, 10000)
-    presa.on('connect', () => presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })}\n`))
+    presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })}\n`)
     presa.on('data', (pezzo) => {
       resto += pezzo.toString('utf8')
       const taglio = resto.indexOf('\n')

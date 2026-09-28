@@ -121,8 +121,8 @@ export function vistaCalendario (): Figlio {
     'div',
     // Il modo sta nella classe come appiglio per gli stili; la catena delle
     // altezze sta in `calendar.css`.
-    // testo-fisso: classi CSS, non testo
     {
+      // testo-fisso: classi CSS, non testo
       class: ['vista', 'vista--calendario', `vista--calendario-${modo}`, inModifica() && 'vista--calendario-editor'],
       // Anello della catena di telaio fino alla fila delle settimane (`weekStrip.ts`).
       dataset: { telaio: 'calendario' },

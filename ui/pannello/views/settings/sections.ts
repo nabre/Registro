@@ -53,6 +53,13 @@ export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = [
     prefissi: ['registroDocenti.posta', 'registroDocenti.recapiti'],
   },
   {
+    id: 'account',
+    // Nessuna chiave: gli account stanno nel portachiavi, e la sezione è la
+    // sua scheda (`views/settings/microsoft.ts`).
+    ...T.programma.account,
+    prefissi: [],
+  },
+  {
     id: 'modelli',
     // File, catalogo e «chi risponde» in testa, gli interruttori sotto.
     ...T.programma.modelli,
@@ -162,6 +169,12 @@ export const GRUPPI_SEZIONI: readonly GruppoSezioni[] = [
     titolo: T.programma.posta.titolo,
     simbolo: 'posta',
     voci: [{ ambito: 'programma', id: 'posta' }],
+  },
+  {
+    id: 'account',
+    titolo: T.programma.account.titolo,
+    simbolo: 'collegamento',
+    voci: [{ ambito: 'programma', id: 'account' }],
   },
   {
     id: 'programma',

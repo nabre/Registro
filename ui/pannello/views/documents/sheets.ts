@@ -285,6 +285,9 @@ function spunta (foglio: Foglio, nome: string): Figlio {
     type: 'checkbox',
     checked: scelto(percorso),
     attr: { title: testi().metti(nome) },
+    // La spunta ridisegna la pagina (conta anche «Combina» nella riga delle
+    // azioni): la chiave di fuoco lascia il cursore sulla casella appena premuta.
+    dataset: { fuoco: `documenti-spunta:${percorso}` }, // testo-fisso: chiave di fuoco, non si legge
     onchange: () => alterna(percorso),
   })
 }
@@ -440,28 +443,6 @@ export function rigaFoglio (
   )
 }
 
-/**
- * La stessa terna dentro una cella di matrice, senza nome: la riga dice già di
- * che ora si parla.
- */
-export function cellaFoglio (opzioni: Gesti): HTMLElement {
-  const gesti = gestiFoglio(opzioni)
-
-  return h(
-    'td',
-    {
-      class: [
-        'documenti__cella',
-        Boolean(opzioni.foglio.trovato) && 'documenti__cella--apribile',
-        aperto(opzioni.foglio) && 'documenti__cella--aperta',
-        scelto(opzioni.foglio.trovato) && 'documenti__cella--scelta',
-      ],
-      attr: { 'aria-current': aperto(opzioni.foglio) ? 'true' : null },
-      onclick: alClicSullaRiga(opzioni),
-    },
-    h('div', { class: 'documenti__gesti' }, spunta(opzioni.foglio, opzioni.nome), ...gesti),
-  )
-}
 
 /**
  * Il nome di un documento nella sua riga o cella. Testo e non collegamento:

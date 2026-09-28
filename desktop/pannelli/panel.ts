@@ -17,6 +17,7 @@ import type { Archivio } from '../../core/dati/archive.js'
 import { ocrAttivo } from '../../core/dati/ocr.js'
 import { collegatoNoto, conto as contoExchange } from '../../core/dati/exchange.js'
 import { invioDiretto, mittente as mittentePosta } from '../../core/dati/mail.js'
+import { accountMicrosoft, cambiAccount } from '../../core/dati/microsoft.js'
 import { smistatoreDi } from '../../core/dati/sorter.js'
 import { riferimentiRotti } from '../../core/dominio/integrity.js'
 import { ErroreVersionePiuRecente, versionePiuRecente } from '../../core/dominio/upgrades.js'
@@ -156,6 +157,9 @@ export class PannelloRegistro {
         if (evento.affectsConfiguration('registroDocenti')) this.spingiStato()
       }),
       new apparato.Smaltitore(alCambioLingua(() => this.spingiStato())),
+      // Gli account Microsoft si leggono dal portachiavi dopo l'avvio, e un
+      // permesso ritirato li cambia senza che nessuno abbia premuto niente.
+      cambiAccount(() => this.spingiStato()),
       // Stato della proiezione, anche quando la si chiude dalla sua finestra.
       allaProiezione((stato) => this.invia(stato)),
       // Dov'è l'assistente (riquadro o finestra), per farsi da parte e
@@ -486,6 +490,7 @@ export class PannelloRegistro {
         mittente: mittentePosta(),
         accesso: contoExchange().utente,
       },
+      microsoft: { account: accountMicrosoft() },
     })
   }
 

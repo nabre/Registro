@@ -22,6 +22,7 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
+import { leggiChiave, presentati } from '../cli/accesso.mjs'
 import { collega, conversazione } from '../cli/link.mjs'
 import { RADICE } from './common.mjs'
 
@@ -185,12 +186,14 @@ async function prova () {
     REGISTRO_SENZA_IDENTITA: '1',
   }
   delete ambienteFiglio.REGISTRO_CONDOTTO
+  delete ambienteFiglio.REGISTRO_CHIAVE
   delete ambienteFiglio.REGISTRO_DATI
   delete ambienteFiglio.REGISTRO_USERDATA
   delete ambienteFiglio.ELECTRON_RUN_AS_NODE
   process.env.APPDATA = appData
   process.env.XDG_CONFIG_HOME = appData
   delete process.env.REGISTRO_CONDOTTO
+  delete process.env.REGISTRO_CHIAVE
 
   let figlio = null
   let uscita = null
@@ -224,6 +227,10 @@ async function prova () {
       throw new Error(`il condotto non risponde entro ${ATTESA_CONDOTTO_MS / 1000} s: ${male.message}`)
     })
     condotto = conversazione(presa)
+    const chiave = leggiChiave()
+    if (!chiave) throw new Error('il condotto risponde ma manca condotto.chiave')
+    const presentazione = await presentati(condotto, chiave)
+    if (presentazione.esito !== 'riconosciuto') throw new Error(`$accedi: ${presentazione.esito}`)
     passo(`condotto pronto dopo ${((Date.now() - inizio) / 1000).toFixed(1)} s`)
 
     const versione = await chiedi(condotto, '$versione')

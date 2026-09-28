@@ -9,7 +9,10 @@ import { pezzi } from '../assistant/format.js'
 import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
 import { icona, type NomeIcona } from '../components/icons.js'
 import { andaturaScorrimento, dentroUnCampo, h, svg, type Figlio } from '../dom.js'
-import { aggiorna, iscriviti, stato, type Vista } from '../state.js'
+import { isola, ridisegnaIsola } from '../isole.js'
+import { postoDaVista } from '../posto.js'
+import { iscriviti, stato, vai, type Vista } from '../state.js'
+import { lingua } from '../../../core/i18n/index.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './help.testi.js'
 import {
@@ -50,14 +53,34 @@ let sezioneQui: string | null = null
 
 let osservatore: IntersectionObserver | null = null
 
+/** Che cosa guarda l'osservatore: si rifà solo se colonne o scatola che scorre sono nuove. */
+let osservate: { colonne: Element, radice: Element | null } | null = null
+
+/**
+ * La guida è un'isola (ADR-48): la rifanno la ricerca, i filtri e i salti,
+ * senza passare dal resto del registro.
+ */
+const ISOLA_GUIDA = 'guida'
+
 // La provenienza si ricorda osservando lo stato cambiare, da qualunque parte si
 // apra la guida. `vistaDiPrima` è la vista all'ultimo cambio visto.
 let vistaDiPrima: Vista = stato.vista
 iscriviti(() => {
-  if (stato.vista === vistaDiPrima) return
-  if (stato.vista === 'guida' && vistaDiPrima !== 'guida') provenienza = vistaDiPrima
-  vistaDiPrima = stato.vista
+  if (stato.vista !== vistaDiPrima) {
+    if (stato.vista === 'guida' && vistaDiPrima !== 'guida') provenienza = vistaDiPrima
+    vistaDiPrima = stato.vista
+  }
+  // Gli effetti dopo il disegno, mai dal disegno. Il microtask mette il
+  // fotogramma dietro quello del ridisegno, che gli iscritti fanno partire
+  // nello stesso giro.
+  if (stato.vista === 'guida') queueMicrotask(() => requestAnimationFrame(dopoIlDisegno))
 })
+
+/** Rifà la guida lei sola, e dopo va dove deve e rimette in ascolto l'indice. */
+function rifaiGuida (): void {
+  ridisegnaIsola(ISOLA_GUIDA)
+  requestAnimationFrame(dopoIlDisegno)
+}
 
 /** La sezione che racconta una pagina. La scheda di una persona sta sotto «scheda». */
 function sezioneDellaVista (vista: Vista | null): SezioneGuida | undefined {
@@ -75,10 +98,10 @@ function apriGuida (sezioneId?: string): void {
   }
   if (stato.vista === 'guida') {
     if (!sezioneId) casellaCerca()?.focus()
-    aggiorna({})
+    rifaiGuida()
     return
   }
-  aggiorna({ vista: 'guida' })
+  vai({ pagina: 'pagina.guida' })
 }
 
 // `F1` ovunque: la guida di quella pagina. `/` dentro la guida: la ricerca.
@@ -176,7 +199,7 @@ function vaiA (sezione: string, voce?: number, subito = false): void {
   if (bersaglioSezione && parteAttiva !== null && bersaglioSezione.parte !== parteAttiva) {
     parteAttiva = null
     destinazione = { sezione, voce }
-    aggiorna({})
+    rifaiGuida()
     return
   }
   const bersaglio = document.getElementById(voce === undefined ? `guida-${sezione}` : idVoce(sezione, voce))
@@ -224,21 +247,31 @@ function tenereInVista (voce: HTMLElement): void {
 /**
  * Dopo ogni disegno: va dove si doveva andare e rimette in ascolto l'indice.
  * L'osservatore guarda la fascia alta della pagina: la sezione che ci passa è
- * quella che si sta leggendo.
+ * quella che si sta leggendo. Si rifà solo quando le colonne sono nuove: un
+ * ridisegno che le tiene (`data-tieni`) tiene anche le ancore osservate.
  */
 function dopoIlDisegno (): void {
-  osservatore?.disconnect()
+  const colonne = document.querySelector('.colonne--guida')
+  const ancore = colonne ? [...colonne.querySelectorAll<HTMLElement>('.guida__ancora')] : []
+  if (!colonne || ancore.length === 0) {
+    osservatore?.disconnect()
+    osservatore = null
+    osservate = null
+    return
+  }
   const contenitore = document.querySelector('main.contenuto')
-  const ancore = [...document.querySelectorAll<HTMLElement>('.guida__ancora')]
-  if (ancore.length === 0) return
-  osservatore = new IntersectionObserver((voci) => {
-    const visibili = voci
-      .filter((voce) => voce.isIntersecting)
-      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-    const prima = visibili[0]?.target as HTMLElement | undefined
-    if (prima?.dataset.sezione) accendiIndice(prima.dataset.sezione)
-  }, { root: contenitore, rootMargin: '0px 0px -65% 0px' })
-  for (const ancora of ancore) osservatore.observe(ancora)
+  if (osservate?.colonne !== colonne || osservate.radice !== contenitore) {
+    osservatore?.disconnect()
+    osservatore = new IntersectionObserver((voci) => {
+      const visibili = voci
+        .filter((voce) => voce.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      const prima = visibili[0]?.target as HTMLElement | undefined
+      if (prima?.dataset.sezione) accendiIndice(prima.dataset.sezione)
+    }, { root: contenitore, rootMargin: '0px 0px -65% 0px' })
+    for (const ancora of ancore) osservatore.observe(ancora)
+    osservate = { colonne, radice: contenitore }
+  }
 
   if (destinazione) {
     const { sezione, voce } = destinazione
@@ -524,7 +557,7 @@ function sezioneGuida (
               simbolo: 'destra',
               variante: 'sottile',
               titolo: T.apriLaPaginaDi(sezione.titolo),
-              al: () => aggiorna({ vista: sezione.vista }),
+              al: () => { if (sezione.vista) vai(postoDaVista(sezione.vista)) },
             })
           : null,
       ),
@@ -629,7 +662,11 @@ function indiceGuida (trovate: Map<string, number>, inRicerca: boolean): HTMLEle
 function cercaAncora (testo: string): void {
   cercato = testo
   parteAttiva = null
-  aggiorna({})
+  // Anche nella casella di adesso: il ridisegno ricorda il valore del campo col
+  // fuoco (`ricordaFuoco`) e rimetterebbe quello di prima, con Esc che non svuota.
+  const scritta = casellaCerca()
+  if (scritta) scritta.value = testo
+  rifaiGuida()
   // Il cursore resta nella casella, in fondo: si può continuare a scrivere.
   requestAnimationFrame(() => {
     const casella = casellaCerca()
@@ -874,11 +911,12 @@ function risposteMigliori (risultato: Risultato): HTMLElement | null {
 // ------------------------------------------------------------------ la pagina
 
 export function vistaGuida (): Figlio {
+  return isola(ISOLA_GUIDA, disegnoGuida, { class: 'vista vista--guida' })
+}
+
+function disegnoGuida (): Figlio[] {
   let risultato = cerca(GUIDA, cercato)
   let parti = partiDellaGuida(risultato)
-
-  // Dopo il disegno: gli elementi devono essere in pagina per l'osservatore e lo scorrimento.
-  requestAnimationFrame(dopoIlDisegno)
 
   let contenitoreFiltri: HTMLElement | null = null
 
@@ -894,16 +932,17 @@ export function vistaGuida (): Figlio {
       contenitoreFiltri.replaceWith(nuoviFiltri)
       contenitoreFiltri = nuoviFiltri
     }
-    parti.colonne.replaceWith(nuove.colonne)
+    // Le colonne in pagina possono essere quelle tenute da un disegno prima
+    // (`colonneDellaGuida`), non il segnaposto di questo.
+    const vive = parti.colonne.isConnected ? parti.colonne : document.querySelector('.colonne--guida')
+    vive?.replaceWith(nuove.colonne)
     parti = nuove
     requestAnimationFrame(dopoIlDisegno)
   }
 
   contenitoreFiltri = filtriGuida(ricerca)
 
-  return h(
-    'div',
-    { class: 'vista vista--guida' },
+  return [
     parti.testata,
     parti.benvenuto,
     // La ricerca e i filtri stanno in una fascia appiccicata in cima
@@ -914,7 +953,7 @@ export function vistaGuida (): Figlio {
       contenitoreFiltri,
     ),
     parti.colonne,
-  )
+  ]
 }
 
 /** Le parti della pagina che cambiano con la ricerca o filtro: tutto tranne la casella. */
@@ -924,8 +963,6 @@ function partiDellaGuida (risultato: Risultato): {
   colonne: HTMLElement
 } {
   const inRicerca = cercato.trim().length > 0
-  const forme = risultato.forme
-  const trovate = new Map(risultato.sezioni.map(({ sezione, voci }) => [sezione.id, voci.length]))
   const vociInTutto = GUIDA.reduce((somma, sezione) => somma + sezione.voci.length, 0)
   const vociTrovateInTutto = risultato.sezioni.reduce((somma, { voci }) => somma + voci.length, 0)
 
@@ -933,16 +970,6 @@ function partiDellaGuida (risultato: Risultato): {
   const sezioniFiltrate = risultato.sezioni.filter(({ sezione }) =>
     inRicerca || parteAttiva === null || sezione.parte === parteAttiva,
   )
-
-  const sezioni = sezioniFiltrate.map(({ sezione, voci }) =>
-    ancora(sezione, sezioneGuida(sezione, voci.map(({ voce }) => voce), forme, inRicerca)),
-  )
-
-  const partiDaMostrare = inRicerca
-    ? PARTI
-    : parteAttiva !== null
-      ? [parteAttiva]
-      : PARTI
 
   const testata = testataVista({
     titolo: T.titolo,
@@ -966,10 +993,46 @@ function partiDellaGuida (risultato: Risultato): {
           ),
   })
 
+  return { testata, benvenuto: benvenuto(), colonne: colonneDellaGuida(risultato, sezioniFiltrate) }
+}
+
+/** Le colonne disegnate l'ultima volta, e che cosa mostravano. */
+let colonneFatte: { chiave: string, nodo: HTMLElement } | null = null
+
+/**
+ * Il testo e l'indice: la parte pesante (le sezioni, le figure in SVG). Dipende
+ * solo da ricerca, filtro e lingua; un ridisegno del registro che non li cambia
+ * (un tocco dell'host, l'OCR che avanza) mette un segnaposto con la stessa
+ * chiave `data-tieni`, e le colonne già in pagina restano quelle, figure e
+ * osservatore compresi (`aggiornaElemento`).
+ */
+function colonneDellaGuida (
+  risultato: Risultato,
+  sezioniFiltrate: Risultato['sezioni'],
+): HTMLElement {
+  // testo-fisso: una chiave, non un testo
+  const chiave = `${lingua()}|${parteAttiva ?? ''}|${cercato}`
+  const classe = 'colonne colonne--guida'
+  if (colonneFatte?.chiave === chiave && colonneFatte.nodo.isConnected) {
+    return h('div', { class: classe, dataset: { tieni: chiave } })
+  }
+
+  const inRicerca = cercato.trim().length > 0
+  const forme = risultato.forme
+  const trovate = new Map(risultato.sezioni.map(({ sezione, voci }) => [sezione.id, voci.length]))
+  const sezioni = sezioniFiltrate.map(({ sezione, voci }) =>
+    ancora(sezione, sezioneGuida(sezione, voci.map(({ voce }) => voce), forme, inRicerca)),
+  )
+  const partiDaMostrare = inRicerca
+    ? PARTI
+    : parteAttiva !== null
+      ? [parteAttiva]
+      : PARTI
+
   // Il testo a sinistra e l'indice a destra: a sinistra c'è già la barra laterale.
   const colonne = h(
     'div',
-    { class: 'colonne colonne--guida' },
+    { class: classe, dataset: { tieni: chiave } },
     h(
       'div',
       { class: 'colonna' },
@@ -1021,6 +1084,6 @@ function partiDellaGuida (risultato: Risultato): {
     ),
     indiceGuida(trovate, inRicerca),
   )
-
-  return { testata, benvenuto: benvenuto(), colonne }
+  colonneFatte = { chiave, nodo: colonne }
+  return colonne
 }

@@ -25,7 +25,7 @@ describe('aggiorna confronta prima di avvisare', () => {
     assert.equal(conti.avvisi, 1)
     const scritture = conti.scritture
     interfaccia.aggiorna({ ricerca: 'Rossi' })
-    interfaccia.aggiorna({ ricerca: 'Rossi', vista: interfaccia.stato.vista })
+    interfaccia.vai(interfaccia.postoCorrente())
     assert.equal(conti.avvisi, 1)
     assert.equal(conti.scritture, scritture)
   })

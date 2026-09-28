@@ -31,17 +31,17 @@ with chromium() as browser:
 
     # Una pagina lunga, scorsa a metà, sopravvive a un ridisegno che non cambia
     # niente (si spunta una riga e la pagina si rifà).
-    page.evaluate("prova.aggiorna({vista:'guida'})")
+    page.evaluate("prova.vai({pagina:'pagina.guida'})")
     page.evaluate(FOTOGRAMMA)
     contenuto.evaluate('(el) => el.scrollTop = 400')
     dove = contenuto.evaluate('(el) => el.scrollTop')
     assert dove > 0, 'la Guida non scorre: la prova non direbbe niente'
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     assert contenuto.evaluate('(el) => el.scrollTop') == dove, 'la pagina è tornata in cima'
 
     # Cambiando vista si riparte dall'alto: è un'altra cosa che si guarda.
-    page.evaluate("prova.aggiorna({vista:'impostazioni'})")
+    page.evaluate("prova.vai({pagina:'pagina.impostazioni'})")
     page.evaluate(FOTOGRAMMA)
     assert contenuto.evaluate('(el) => el.scrollTop') == 0, 'la vista nuova eredita lo scorrimento della precedente'
 
@@ -59,14 +59,14 @@ with chromium() as browser:
     # risposta dell'host, il filo di lavoro): la scatola che scorre è la stessa
     # di prima, e gli scatti in corsa arrivano tutti. Ricreata a ogni disegno,
     # Chromium li perdeva per strada e la pagina «tornava su».
-    page.evaluate("prova.aggiorna({vista:'guida'})")
+    page.evaluate("prova.vai({pagina:'pagina.guida'})")
     page.evaluate(FOTOGRAMMA)
 
     def rotella(con_ridisegni):
         contenuto.evaluate('(el) => el.scrollTop = 0')
         page.wait_for_timeout(100)
         if con_ridisegni:
-            page.evaluate('window.__ridisegni = setInterval(() => prova.aggiorna({}), 50)')
+            page.evaluate('window.__ridisegni = setInterval(() => prova.ridisegna(), 50)')
         page.mouse.move(700, 400)
         for _ in range(10):
             page.mouse.wheel(0, 150)
@@ -105,7 +105,7 @@ with chromium() as browser:
         configurable: true, enumerable: true, writable: true, value: valore,
       })
     }''')
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     page.evaluate('window.__rimetti()')
     dopo = contenuto.evaluate('(el) => el.scrollTop')

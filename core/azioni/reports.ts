@@ -23,6 +23,7 @@ import { componiPdf } from '../dati/reportsPdf.js'
 import { contenutoDi } from '../dati/store.js'
 import {
   datiAllievo,
+  datiCorso,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
@@ -30,6 +31,7 @@ import {
   datiPiano,
   datiPresenze,
   datiValutazioni,
+  datiDiario,
 } from '../dominio/reportData.js'
 import {
   classeDelCorsoId,
@@ -175,7 +177,11 @@ function documentiDelCorso (
   const dove = { corsoId: corso.id, semestreId: semestre?.id ?? null }
 
   return [
-    // Prima i fogli del corso intero, poi uno per allievo.
+    // Prima la scheda completa del corso, poi i fogli di dettaglio e uno per allievo.
+    conPosto(registro, 'corso', corso.id, dove, {
+      modello: 'scheda-corso',
+      dati: datiCorso(registro, corso, semestre),
+    }),
     conPosto(registro, 'presenze', corso.id, dove, {
       modello: 'presenze-classe',
       dati: datiPresenze(registro, corso, semestre),
@@ -183,6 +189,10 @@ function documentiDelCorso (
     conPosto(registro, 'valutazioni', corso.id, dove, {
       modello: 'valutazioni-classe',
       dati: datiValutazioni(registro, corso, semestre),
+    }),
+    conPosto(registro, 'diario', corso.id, dove, {
+      modello: 'diario-corso',
+      dati: datiDiario(registro, corso, semestre),
     }),
     // Anche chi si è ritirato: la sua scheda deve mostrare il ritiro.
     ...ordinaAllievi(classe.allievi).map((allievo) =>
@@ -573,8 +583,16 @@ export const rapporti = {
     const dove = collocazioneDi(registro, azione.genere, azione.id, {
       corsoId: azione.corsoId ?? null,
       semestreId: azione.semestreId ?? null,
+      docenteDiClasse: azione.docenteDiClasse ?? false,
     })
     let pezzi: Omit<Preparato, 'dove'> | null = null
+
+    if (azione.genere === 'corso') {
+      const corso = registro.corsi.find((c) => c.id === azione.id)
+      if (!corso) return rifiuta(t.corsoNonTrovato)
+      const semestre = semestreScelto(registro, corso.classeId, azione.semestreId ?? null)
+      pezzi = { modello: 'scheda-corso', dati: datiCorso(registro, corso, semestre) }
+    }
 
     if (azione.genere === 'lezione') {
       const lezione = registro.lezioni.find((l) => l.id === azione.id)
@@ -598,6 +616,13 @@ export const rapporti = {
         azione.genere === 'presenze'
           ? { modello: 'presenze-classe', dati: datiPresenze(registro, corso, semestre) }
           : { modello: 'valutazioni-classe', dati: datiValutazioni(registro, corso, semestre) }
+    }
+
+    if (azione.genere === 'diario') {
+      const corso = registro.corsi.find((c) => c.id === azione.id)
+      if (!corso) return rifiuta(t.corsoNonTrovato)
+      const semestre = semestreScelto(registro, corso.classeId, azione.semestreId ?? null)
+      pezzi = { modello: 'diario-corso', dati: datiDiario(registro, corso, semestre) }
     }
 
     // Una prova sola: il periodo lo dà la sua data.
@@ -628,11 +653,11 @@ export const rapporti = {
       const allievo = classe?.allievi.find((a) => a.id === azione.id) ?? null
       if (!classe || !allievo) return rifiuta(t.pifNonTrovato)
       const semestre = semestreScelto(registro, classe.id, azione.semestreId ?? null)
-      // Il corso indicato, o l'unico della classe; con più corsi e nessuno
-      // indicato la scheda è della classe (come sceglie la collocazione).
+      // Il corso indicato, o l'unico della classe; con docenteDiClasse la scheda è della classe.
       const suoi = corsiDellaClasse(registro, classe.id)
-      const corso =
-        suoi.find((c) => c.id === azione.corsoId) ?? (suoi.length === 1 ? suoi[0] : null)
+      const corso = azione.docenteDiClasse
+        ? null
+        : suoi.find((c) => c.id === azione.corsoId) ?? (suoi.length === 1 ? suoi[0] : null)
       pezzi = {
         modello: 'scheda-allievo',
         dati: datiAllievo(registro, classe, allievo, semestre, corso),

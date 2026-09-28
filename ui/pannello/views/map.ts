@@ -1,9 +1,10 @@
 // La mappa: dove abita e dove lavora la gente che si ha in classe.
 // Tre parti: i tasselli OpenStreetMap passano dall'host
 // (`registro://mappa/<z>/<x>/<y>.png`, `desktop/shell/protocol/tiles.ts`); i segnaposti
-// li calcola il dominio (`segniDellaMappa`); l'inquadratura vive in una
-// variabile di modulo e non nello stato, perché si muove a ogni fotogramma.
-// Il trascinamento sposta solo tasselli e segnaposti, senza ridisegnare la vista.
+// li calcola il dominio (`segniDellaMappa`); l'inquadratura vive nel riquadro,
+// uno solo per il modulo, e non nello stato, perché si muove a ogni fotogramma.
+// Il trascinamento sposta solo tasselli e segnaposti, senza ridisegnare la vista;
+// un ridisegno della vista rimette lo stesso riquadro (`nelDisegno`).
 
 import { parole } from '../../../core/dominio/words.testi.js'
 import {
@@ -17,7 +18,6 @@ import {
   scriviDistanza,
   segniDellaMappa,
   type Coordinate,
-  type Inquadratura,
   type Rubrica,
   type SegnoMappa,
   type StratiMappa,
@@ -44,20 +44,22 @@ import {
   classiDellAnno,
   ridisegna,
   stato,
+  vai,
   type SchedaMappa,
 } from '../state.js'
 import { testi } from './map.testi.js'
 
 /**
- * Dove si stava guardando: la pagina si ricostruisce a ogni salvataggio e
- * battito dell'orologio, e il riquadro con lei. Queste variabili sopravvivono.
+ * Il segnaposto aperto, con il suo cartellino: lo decidono anche l'elenco e le
+ * schede, e il riquadro lo riprende al disegno.
  */
-let inquadratura: Inquadratura | null = null
-
-/** Il segnaposto aperto, con il suo cartellino. */
 let apertoId: string | null = null
 
-/** Il riquadro vivo: lo comandano i gesti dell'elenco e i comandi della barra. */
+/**
+ * Il riquadro vivo, fatto al primo disegno e poi tenuto: la pagina si
+ * ricostruisce a ogni salvataggio, e un riquadro nuovo perdeva tasselli e
+ * inquadratura. Lo comandano anche i gesti dell'elenco e i comandi della barra.
+ */
 let riquadro: Riquadro | null = null
 
 // ------------------------------------------------------------------ i dati
@@ -124,18 +126,21 @@ function cartellino (segno: SegnoMappa): HTMLElement {
               icona(uso.genere === 'lavoro' ? 'azienda' : 'casa'),
               collegamento({
                 testo: uso.chi,
-                al: () =>
-                  aggiorna({
-                    vista: 'allievo',
-                    classeId: uso.classeId,
-                    allievoId: uso.allievoId,
-                  }),
+                al: () => apriScheda(uso),
               }),
               h('small', null, uso.classe),
             ),
           ),
         )
       : null,
+  )
+}
+
+/** La scheda di chi usa un indirizzo, nella sua classe. */
+function apriScheda (uso: UsoIndirizzo): void {
+  vai(
+    { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: uso.allievoId } },
+    { contesto: { classeId: uso.classeId } },
   )
 }
 
@@ -162,13 +167,15 @@ export function mostraSullaMappa (chiaveIndirizzo: string): void {
   // testo-fisso: l'identificatore del segnaposto
   daPortare = `ind:${chiaveIndirizzo}`
   apertoId = daPortare
-  aggiorna({ vista: 'mappa' })
-  // Già sulla mappa `aggiorna` non ridisegnerebbe: il punto da portare non è stato.
+  vai({ pagina: 'pagina.mappa' })
+  // Già sulla mappa `vai` non ridisegnerebbe: il punto da portare non è stato.
   ridisegna()
 }
 
 /** Porta la mappa su un punto, e ci apre sopra il cartellino. */
-function vaiA (punto: Coordinate, zoomMinimo = 15): void {
+function vaiA (id: string, punto: Coordinate, zoomMinimo = 15): void {
+  apertoId = id
+  riquadro?.apri(id)
   riquadro?.vaiA(punto, zoomMinimo)
 }
 
@@ -188,7 +195,8 @@ function colonna (classi: Classe[]): Figlio {
 
   return h(
     'aside',
-    { class: 'mappa__colonna' },
+    // Anello della catena di telaio fino all'elenco che scorre.
+    { class: 'mappa__colonna', dataset: { telaio: 'mappa-colonna' } },
     h(
       'header',
       { class: 'mappa__colonna-testata' },
@@ -236,7 +244,8 @@ function elencoIndirizzi (classi: Classe[]): Figlio {
 
   return h(
     'ul',
-    { class: 'mappa__voci', dataset: { scorrimento: 'mappa:voci' } },
+    // Nodo di telaio: un ridisegno non lo ricrea, e chi scorre non perde il gesto.
+    { class: 'mappa__voci', dataset: { scorrimento: 'mappa:voci', telaio: 'mappa-voci' } },
     ...ordinate.map(({ voce, usi }) => {
       const persone = new Set(usi.map((uso) => uso.allievoId)).size
       const aziende = [
@@ -267,8 +276,7 @@ function elencoIndirizzi (classi: Classe[]): Figlio {
               onclick: () => {
                 if (!voce.punto) return
                 // testo-fisso: l'identificatore del segnaposto
-                apertoId = `ind:${voce.chiave}`
-                vaiA(voce.punto)
+                vaiA(`ind:${voce.chiave}`, voce.punto)
               },
             },
             // Il nome dell'azienda in testa quando c'è; la via dopo.
@@ -312,12 +320,7 @@ function elencoIndirizzi (classi: Classe[]): Figlio {
                 titolo:
                   `${uso.chi} — ${uso.genere === 'lavoro' ? t.ciLavora : t.ciAbita} · ` +
                   uso.classe,
-                al: () =>
-                  aggiorna({
-                    vista: 'allievo',
-                    classeId: uso.classeId,
-                    allievoId: uso.allievoId,
-                  }),
+                al: () => apriScheda(uso),
               }),
             ),
           ),
@@ -352,19 +355,19 @@ function descriviUsi (usi: UsoIndirizzo[]): string {
  * personale è più corto: `views/student/registry.ts`).
  */
 function telaDellaPagina (): HTMLElement {
-  const vivo = riquadroMappa({
+  riquadro ??= riquadroMappa({
+    // testo-fisso: la sorgente del nodo tenuto
+    chiave: 'mappa:pagina',
     segni: () => segniDellaMappa(classiDellaMappa(), strati(), rubrica()),
     cartellino,
-    inquadratura,
     aperto: apertoId,
-    alloSpostamento: (dove) => {
-      inquadratura = dove
-    },
     allApertura: (id) => {
       apertoId = id
     },
   })
-  riquadro = vivo
+  const vivo = riquadro
+  // Una scheda cambiata chiude il cartellino da fuori.
+  if (vivo.aperto() !== apertoId) vivo.apri(apertoId)
 
   // La richiesta di un punto vale una volta: la si consuma appena il riquadro è in piedi.
   if (daPortare) {
@@ -379,7 +382,7 @@ function telaDellaPagina (): HTMLElement {
     }
   }
 
-  return vivo.elemento
+  return vivo.nelDisegno()
 }
 
 export function vistaMappa (): Figlio {
@@ -443,10 +446,16 @@ export function vistaMappa (): Figlio {
 
   return h(
     'div',
-    { class: 'mappa' },
+    // Anelli della catena di telaio, dal contenuto fino all'elenco (`dom.ts`).
+    { class: 'mappa', dataset: { telaio: 'mappa' } },
     testata,
     // La colonna prima della carta, anche nell'ordine del DOM.
-    h('div', { class: 'mappa__corpo' }, colonna(classi), telaDellaPagina()),
+    h(
+      'div',
+      { class: 'mappa__corpo', dataset: { telaio: 'mappa-corpo' } },
+      colonna(classi),
+      telaDellaPagina(),
+    ),
     h(
       'p',
       { class: 'mappa__nota' },

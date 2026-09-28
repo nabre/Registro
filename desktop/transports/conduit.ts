@@ -26,11 +26,16 @@
 // - Il nome è un'impronta (sha256 di utente + cartella dei dati), non il nome
 //   utente; su Windows si aggiunge un segreto rifatto a ogni accensione
 //   (`FILE_SEGRETO`), perché `\\.\pipe\` è condiviso da tutta la macchina.
+// - Il nome si vede, la chiave no: ogni connessione si presenta con `$accedi`
+//   prima di qualunque altro metodo, dimostrando di conoscere la chiave
+//   (`FILE_CHIAVE`) senza mandarla, e il condotto risponde dimostrando lo
+//   stesso. Chi non legge la cartella dei dati non chiama niente, e una pipe
+//   che occupa il nome dopo un arresto brutale non sa rispondere.
 // - Quel che esce non nomina nessuno: niente percorsi, nomi o segreti; il
 //   guasto imprevisto esce come una riga con il tracciato, e il resto sta
 //   nella console.
 
-import { createHash, randomBytes } from 'node:crypto'
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import { mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { chmod, unlink } from 'node:fs/promises'
 import { createServer, type Socket } from 'node:net'
@@ -219,6 +224,79 @@ function segretoDelCondotto (cartella: string): string {
 function togliSegreto (cartella: string, segreto: string): void {
   if (leggiSegreto(cartella) !== segreto) return
   try { unlinkSync(join(cartella, FILE_SEGRETO)) } catch { /* già via */ }
+}
+
+// ------------------------------------------------------------------ la chiave
+
+/**
+ * Il file con la chiave del condotto, accanto al segreto e su ogni sistema.
+ *
+ * Il segreto finisce nel nome della pipe, che tutta la macchina vede; la chiave
+ * resta nel file, protetto dall'ACL del profilo (o da `0600`), e sulla presa
+ * passano solo prove calcolate con lei (`$accedi`). Si rifà a ogni accensione:
+ * una prova raccolta da una pipe impostora vale solo per una chiave già morta.
+ * La legge anche `cli/accesso.mjs`.
+ */
+const FILE_CHIAVE = 'condotto.chiave'
+
+/** Trentadue byte in esadecimale. */
+const FORMA_CHIAVE = /^[0-9a-f]{64}$/
+
+function leggiChiave (cartella: string): string | null {
+  try {
+    const letto = readFileSync(join(cartella, FILE_CHIAVE), 'utf8').trim()
+    return FORMA_CHIAVE.test(letto) ? letto : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Una chiave nuova, scritta prima di ascoltare con temporaneo e rinomina come
+ * il segreto. A differenza del segreto non c'è ripiego: senza chiave scritta il
+ * condotto non si apre, perché un condotto che nessuno può riconoscere sarebbe
+ * aperto a tutti o a nessuno.
+ */
+function chiaveDelCondotto (cartella: string): Buffer {
+  const nuova = randomBytes(32).toString('hex')
+  const file = join(cartella, FILE_CHIAVE)
+  const provvisorio = `${file}.${process.pid}.nuovo`
+  try {
+    mkdirSync(cartella, { recursive: true })
+    writeFileSync(provvisorio, nuova, { mode: 0o600, flag: 'w' })
+    renameSync(provvisorio, file)
+  } catch (male) {
+    try { unlinkSync(provvisorio) } catch { /* non c'era */ }
+    throw new Error(testi().chiaveNonScritta, { cause: male })
+  }
+  if (leggiChiave(cartella) !== nuova) throw new Error(testi().chiaveNonScritta)
+  return Buffer.from(nuova, 'hex')
+}
+
+/** Toglie la chiave, se è ancora quella scritta da questa accensione. */
+function togliChiave (cartella: string, chiave: Buffer): void {
+  if (leggiChiave(cartella) !== chiave.toString('hex')) return
+  try { unlinkSync(join(cartella, FILE_CHIAVE)) } catch { /* già via */ }
+}
+
+/**
+ * La prova di conoscere la chiave, per una sfida. L'etichetta separa i due
+ * versi: senza, la prova del condotto si potrebbe rimandargli come prova del
+ * cliente. Stessa regola in `cli/accesso.mjs`.
+ */
+function prova (chiave: Buffer, chi: 'cliente' | 'condotto', sfida: string): string {
+  return createHmac('sha256', chiave).update(`${chi}\n${sfida}`).digest('hex')
+}
+
+/** La sfida del cliente: da sedici a sessantaquattro byte, in esadecimale. */
+const FORMA_SFIDA = /^[0-9a-f]{32,128}$/
+const FORMA_PROVA = /^[0-9a-f]{64}$/
+
+/** Le prove uguali, in tempo costante. */
+function proveUguali (attesa: string, data: string): boolean {
+  const a = Buffer.from(attesa, 'hex')
+  const b = Buffer.from(data, 'hex')
+  return a.length === b.length && timingSafeEqual(a, b)
 }
 
 // ----------------------------------------------------------------- le buste
@@ -702,6 +780,7 @@ async function rispondi (
   presa: Socket,
   riga: string,
   stato: StatoCondotto,
+  accesso: Accesso,
 ): Promise<boolean> {
   let richiesta: Richiesta
   try {
@@ -763,6 +842,10 @@ async function rispondi (
     return false
   }
 
+  if (metodo === '$accedi' || !accesso.riconosciuta) {
+    return await presenta(presa, id, attende, metodo, richiesta.params, stato, accesso)
+  }
+
   let esito: unknown
   try {
     esito = await eseguiMetodo(archivio, metodo, richiesta.params, presa)
@@ -800,6 +883,58 @@ async function rispondi (
   return false
 }
 
+/** Se una connessione si è già presentata con la chiave giusta. */
+interface Accesso {
+  riconosciuta: boolean
+}
+
+/**
+ * `$accedi`, e ogni altro metodo di chi non si è ancora presentato.
+ *
+ * Il cliente manda una sfida sua e la prova calcolata su di lei; il condotto
+ * risponde con la propria prova sulla stessa sfida, che il cliente controlla
+ * prima di mandare altro. Una sfida vale una volta per accensione: una prova
+ * copiata non si riusa. Qualunque rifiuto chiude la connessione, e prima di
+ * presentarsi non si risponde nient'altro, nemmeno `$versione`.
+ */
+async function presenta (
+  presa: Socket,
+  id: unknown,
+  attende: boolean,
+  metodo: string,
+  params: unknown,
+  stato: StatoCondotto,
+  accesso: Accesso,
+): Promise<boolean> {
+  const t = testi()
+  const rifiuta = async (messaggio: string): Promise<boolean> => {
+    accesso.riconosciuta = false
+    if (attende) {
+      await scrivi(presa, id, bustaGuasto(id, CODICI_JSONRPC['non-permesso'], messaggio, {
+        codice: 'non-permesso' satisfies Codice,
+        messaggi: [messaggio, t.comeSiPresenta],
+      }))
+    }
+    presa.end()
+    return true
+  }
+
+  if (metodo !== '$accedi') return await rifiuta(t.primaSiPresenta)
+
+  const { sfida, prova: data } = (params ?? {}) as { sfida?: unknown, prova?: unknown }
+  if (typeof sfida !== 'string' || !FORMA_SFIDA.test(sfida) ||
+    typeof data !== 'string' || !FORMA_PROVA.test(data)) {
+    return await rifiuta(t.accessoMalFatto)
+  }
+  if (stato.sfideViste.has(sfida) || !proveUguali(prova(stato.chiave, 'cliente', sfida), data)) {
+    return await rifiuta(t.chiaveSbagliata)
+  }
+  stato.sfideViste.add(sfida)
+  accesso.riconosciuta = true
+  if (attende) await scrivi(presa, id, bustaEsito(id, { prova: prova(stato.chiave, 'condotto', sfida) }))
+  return false
+}
+
 /**
  * Quel che un condotto acceso tiene in mano. Le code stanno qui perché lo
  * spegnimento deve poterle aspettare: altrimenti una modifica entrerebbe dopo
@@ -808,6 +943,13 @@ async function rispondi (
 interface StatoCondotto {
   /** Da qui in poi non si comincia più niente: si risponde e basta. */
   chiuso: boolean
+  /** La chiave di questa accensione: vedi `FILE_CHIAVE`. */
+  chiave: Buffer
+  /**
+   * Le sfide già riconosciute. Ci entrano solo quelle con la prova giusta, cioè
+   * di chi ha la chiave: chi non ce l'ha non può farla crescere.
+   */
+  sfideViste: Set<string>
   /**
    * Una coda per presa (l'ultima promessa della connessione). Resta finché la
    * coda non arriva in fondo, anche a presa chiusa: `svuota()` la aspetta.
@@ -820,6 +962,7 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
   // due pacchetti diventerebbe un punto interrogativo.
   const decodificatore = new StringDecoder('utf8')
   let resto = ''
+  const accesso: Accesso = { riconosciuta: false }
 
   /**
    * La riga entra nella coda della connessione: una richiesta per volta, in
@@ -876,7 +1019,7 @@ function servi (archivio: Archivio, presa: Socket, stato: StatoCondotto): void {
         // avverrebbe senza risposta. Non si guarda `presa.destroyed`: una notifica di
         // chi se n'è andato si esegue lo stesso.
         if (rifiutata) return
-        if (await rispondi(archivio, presa, riga, stato)) rifiutata = true
+        if (await rispondi(archivio, presa, riga, stato, accesso)) rifiutata = true
       })
       .catch((male: unknown) => {
         console.error('[condotto] guasto nella coda', male)
@@ -1029,6 +1172,8 @@ export async function avviaCondotto (
   registraTutte()
   // Il segreto prima del nome, perché il nome lo contiene: vedi `FILE_SEGRETO`.
   const cartellaSegreto = cartellaUtenteVista ?? cartellaUtentePredefinita()
+  // La chiave prima di tutto: se non si scrive, il condotto non si apre.
+  const chiave = chiaveDelCondotto(cartellaSegreto)
   const segreto = process.platform === 'win32' ? segretoDelCondotto(cartellaSegreto) : null
   const indirizzo = indirizzoCondotto()
 
@@ -1036,7 +1181,7 @@ export async function avviaCondotto (
   // sicuro: il nome viene dall'impronta. Le named pipe non lasciano file.
   if (process.platform !== 'win32') await unlink(indirizzo).catch(() => undefined)
 
-  const stato: StatoCondotto = { chiuso: false, code: new Map() }
+  const stato: StatoCondotto = { chiuso: false, chiave, sfideViste: new Set(), code: new Map() }
   const prese = new Set<Socket>()
   const server = createServer((presa) => {
     // Il tetto, detto: una busta e un `end`, non un `destroy`, perché «sono troppe»
@@ -1065,8 +1210,10 @@ export async function avviaCondotto (
   await new Promise<void>((risolvi, rifiuta) => {
     const alGuasto = (male: Error & { code?: string }) => {
       // Ascolto fallito: si chiude il server, o resterebbe appeso al ciclo degli
-      // eventi senza nessuno che chiami `dispose`.
+      // eventi senza nessuno che chiami `dispose`. La chiave se ne va: la riga di
+      // comando non manderà prove a chi occupa il nome.
       server.close()
+      togliChiave(cartellaSegreto, chiave)
       // `EADDRINUSE` (unix) ed `EACCES` (Windows): quel nome è già di qualcuno. Una
       // copia del registro ancora viva, oppure un altro utente che l'ha occupato per
       // primo: la console deve dire dove guardare.
@@ -1139,6 +1286,7 @@ export async function avviaCondotto (
     // libero: un altro utente potrebbe occuparlo, e la riga di comando, trovando
     // ancora il segreto, parlerebbe con lui. Senza file dice «registro spento».
     if (segreto) togliSegreto(cartellaSegreto, segreto)
+    togliChiave(cartellaSegreto, chiave)
   })
 
   return {

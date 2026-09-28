@@ -5447,6 +5447,52 @@
       }
     },
     {
+      "nome": "microsoft.aggiungi",
+      "funzione": "microsoft_aggiungi",
+      "genere": "scrittura",
+      "titolo": "Collega un account Microsoft per cercare i documenti nel suo OneDrive: accesso dal browser",
+      "idempotente": false,
+      "riga": "regi chiama microsoft.aggiungi",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "indirizzo": {
+            "type": "string",
+            "description": "L’indirizzo con cui si entra; senza, lo chiede il registro",
+            "examples": [
+              "nome.cognome@scuola.ch"
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "microsoft.togli",
+      "funzione": "microsoft_togli",
+      "genere": "scrittura",
+      "titolo": "Scollega un account Microsoft: toglie dal portachiavi il permesso di leggere OneDrive",
+      "idempotente": true,
+      "riga": "regi chiama microsoft.togli --indirizzo <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "indirizzo": {
+            "type": "string",
+            "description": "L’indirizzo dell’account, come compare nell’elenco",
+            "examples": [
+              "nome.cognome@scuola.ch"
+            ]
+          }
+        },
+        "required": [
+          "indirizzo"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
       "nome": "modelli.leggi",
       "funzione": "modelli_leggi",
       "genere": "lettura",
@@ -5488,6 +5534,176 @@
           "nome"
         ],
         "additionalProperties": true
+      }
+    },
+    {
+      "nome": "onedrive.apri",
+      "funzione": "onedrive_apri",
+      "genere": "scrittura",
+      "titolo": "Apre un documento del registro trovato su OneDrive: la copia sincronizzata sul computer, o una copia scaricata",
+      "idempotente": false,
+      "riga": "regi chiama onedrive.apri --account <testo> --drive <testo> --id <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "L’account collegato con cui si legge",
+            "examples": [
+              "nome.cognome@scuola.ch"
+            ]
+          },
+          "drive": {
+            "type": "string",
+            "description": "Il drive del documento, come l’ha dato onedrive.elenco o onedrive.cerca"
+          },
+          "id": {
+            "type": "string",
+            "description": "L’id del documento, come l’ha dato onedrive.elenco o onedrive.cerca"
+          }
+        },
+        "required": [
+          "account",
+          "drive",
+          "id"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "onedrive.cerca",
+      "funzione": "onedrive_cerca",
+      "genere": "lettura",
+      "titolo": "I documenti del registro su OneDrive, dal più recente: sincronizzati sul computer, o propri e condivisi",
+      "idempotente": true,
+      "riga": "regi chiama onedrive.cerca --account <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "L’account collegato con cui si legge",
+            "examples": [
+              "nome.cognome@scuola.ch"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": true
+      },
+      "presentazione": {
+        "titolo": "Documenti del registro su OneDrive",
+        "blocchi": [
+          {
+            "tipo": "tabella",
+            "da": "voci",
+            "colonne": [
+              {
+                "campo": "nome",
+                "testo": "Nome"
+              },
+              {
+                "campo": "percorso",
+                "testo": "Percorso",
+                "formato": "elenco"
+              },
+              {
+                "campo": "dimensione",
+                "testo": "Dimensione",
+                "formato": "byte"
+              },
+              {
+                "campo": "modificato",
+                "testo": "Modificato"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "nome": "onedrive.elenco",
+      "funzione": "onedrive_elenco",
+      "genere": "lettura",
+      "titolo": "Una cartella di OneDrive: sottocartelle e documenti del registro",
+      "idempotente": true,
+      "riga": "regi chiama onedrive.elenco --account <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "L’account collegato con cui si legge",
+            "examples": [
+              "nome.cognome@scuola.ch"
+            ]
+          },
+          "drive": {
+            "type": "string",
+            "description": "Il drive; senza, quello dell’account"
+          },
+          "cartella": {
+            "type": "string",
+            "description": "L’id della cartella; senza, la radice"
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": true
+      },
+      "presentazione": {
+        "titolo": "OneDrive",
+        "blocchi": [
+          {
+            "tipo": "valori",
+            "campi": [
+              {
+                "campo": "account",
+                "etichetta": "Account"
+              },
+              {
+                "campo": "nome",
+                "etichetta": "Cartella"
+              },
+              {
+                "campo": "percorso",
+                "etichetta": "Percorso",
+                "formato": "elenco"
+              },
+              {
+                "campo": "altri",
+                "etichetta": "Altri file",
+                "formato": "numero"
+              }
+            ]
+          },
+          {
+            "tipo": "tabella",
+            "da": "voci",
+            "colonne": [
+              {
+                "campo": "nome",
+                "testo": "Nome"
+              },
+              {
+                "campo": "genere",
+                "testo": "Genere"
+              },
+              {
+                "campo": "dimensione",
+                "testo": "Dimensione",
+                "formato": "byte"
+              },
+              {
+                "campo": "modificato",
+                "testo": "Modificato"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -8704,7 +8920,9 @@
               "fascicolo",
               "allievo",
               "momento",
-              "foto-classe"
+              "foto-classe",
+              "diario",
+              "corso"
             ],
             "description": "Quale degli otto fogli"
           },
@@ -8731,6 +8949,10 @@
             "description": "Solo per valutazioni e scheda: il periodo da guardare",
             "minLength": 1,
             "maxLength": 64
+          },
+          "docenteDiClasse": {
+            "type": "boolean",
+            "description": "Se vero genera la scheda del docente di classe"
           }
         },
         "required": [

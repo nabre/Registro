@@ -21,7 +21,8 @@ import { icona } from '../../components/icons.js'
 import { suggerimento } from '../../components/hint.js'
 import { h, type Figlio } from '../../dom.js'
 import { conferma } from '../../components/modal.js'
-import { aggiorna, stato } from '../../state.js'
+import { isola, ridisegnaIsola } from '../../isole.js'
+import { stato } from '../../state.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { salvaImpostazioni } from './document.js'
 import { testi } from './lists.testi.js'
@@ -332,6 +333,9 @@ function intestazioneVoci (colori: boolean): HTMLElement {
 /** La lista che si sta guardando: ricordo di questa scheda, fuori dallo stato. */
 let listaScelta: ChiaveLista = CHIAVI_LISTA[0]
 
+/** Linguette e lista aperta: cambiando linguetta si rifanno loro sole. */
+const ISOLA = 'liste-sistema'
+
 /** Una lista intera: il suo nome, dove si vede, e le voci. */
 function bloccoLista (chiave: ChiaveLista): HTMLElement {
   const definizione = definizioneLista(chiave)
@@ -403,7 +407,8 @@ function linguetteListe (): HTMLElement {
       })),
       (scelta) => {
         listaScelta = scelta
-        aggiorna({})
+        // Una scelta della pagina, non dello stato: si rifà solo la scheda.
+        ridisegnaIsola(ISOLA)
       },
       testi().listaDaModificare,
     ),
@@ -417,11 +422,10 @@ export function schedaListe (): Figlio {
     titolo: t.titolo,
     // La spiegazione dietro la «i»: togliere una voce non fa danni (le tappe la tengono).
     aiuto: h('span', null, t.aiuto, t.aiutoDentro),
-    contenuto: h(
-      'div',
+    contenuto: isola(
+      ISOLA,
+      () => [linguetteListe(), bloccoLista(listaScelta)],
       { class: 'liste-sistema' },
-      linguetteListe(),
-      bloccoLista(listaScelta),
     ),
   })
 }

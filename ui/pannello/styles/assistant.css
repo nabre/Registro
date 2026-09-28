@@ -46,6 +46,15 @@
 }
 
 /*
+ * L'isola del riquadro e il suo involucro di telaio (`ui/assistant.ts`) non
+ * sono scatole: testata e conversazione restano figli della colonna flessibile.
+ */
+.riquadro-assistente__isola,
+.riquadro-assistente__dentro {
+  display: contents;
+}
+
+/*
  * Sotto i 64em il riquadro si sovrappone invece di prendere una colonna: al
  * lavoro resterebbe una striscia troppo stretta. Si richiude con Escape o con
  * la ✕.

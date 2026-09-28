@@ -37,8 +37,8 @@ PREPARA = '''() => {
     attivita: [tappa('t1', 'Apertura'), tappa('t2', 'Esercizi')], risorse: [], note: '', tag: [],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z' }
   const lezioni = r.lezioni.map((l) => l.corsoId === corso.id ? { ...l, pianoId: piano.id } : l)
-  prova.aggiorna({ registro: { ...r, piani: [piano], lezioni }, vista: 'piani', corsoId: corso.id,
-    pianoId: piano.id })
+  prova.vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: piano.id } },
+    { contesto: { corsoId: corso.id }, altro: { registro: { ...r, piani: [piano], lezioni } } })
 }'''
 
 # Lo stesso piano cambiato altrove, con una tappa in più: un registro nuovo,

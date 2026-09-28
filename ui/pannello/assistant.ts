@@ -40,8 +40,9 @@ import { menuSotto, type ElementoMenu } from './components/menu.js'
 import { icona } from './components/icons.js'
 import { h, type Figlio } from './dom.js'
 import { ascolta, azione } from './bridge.js'
+import { isola, isolaPresente, ridisegnaIsola } from './isole.js'
 import { veduta } from './viewpoint.js'
-import { aggiorna, stato } from './state.js'
+import { aggiorna, ridisegna, stato, vai } from './state.js'
 
 /**
  * Se la conversazione è in una finestra a parte. Lo dice l'host e non si
@@ -49,7 +50,16 @@ import { aggiorna, stato } from './state.js'
  */
 let staccato = false
 
-collegaRidisegno(() => aggiorna({}))
+/**
+ * Il riquadro è un'isola (ADR-48): un attrezzo, una tabella, una voce dettata
+ * rifanno lui solo, non la pagina che si sta guardando. Chiuso non c'è, e non
+ * c'è niente da rifare: aprendolo il disegno legge la conversazione com'è.
+ */
+const ISOLA = 'assistente'
+
+collegaRidisegno(() => {
+  if (isolaPresente(ISOLA)) ridisegnaIsola(ISOLA)
+})
 
 ascolta((messaggio) => {
   if (messaggio.tipo !== 'assistente.stato') return
@@ -65,7 +75,8 @@ ascolta((messaggio) => {
     aggiorna({ assistenteAperto: true })
     return
   }
-  if (prima !== staccato) aggiorna({})
+  // Cambiano anche l'interruttore nella barra e la colonna del guscio: tutto.
+  if (prima !== staccato) ridisegna()
 })
 
 /** Se l'assistente è acceso nelle impostazioni del programma. */
@@ -376,11 +387,15 @@ function contesto (): Figlio {
 export function pannelloAssistente (): Figlio {
   if (!assistenteAperto()) return null
 
+  // Telaio dal guscio fino al filo (`aggiornaElemento`): la conversazione che
+  // scorre resta lo stesso nodo, e la rotella in corsa non si perde. I due
+  // involucri non contano per l'impaginazione (`display: contents`).
   return h(
     'aside',
     {
       id: 'riquadro-assistente',
       class: 'riquadro-assistente',
+      dataset: { telaio: 'assistente' },
       attr: { 'aria-label': testi().assistente },
       onkeydown: (evento: KeyboardEvent) => {
         if (evento.key !== 'Escape') return
@@ -388,6 +403,18 @@ export function pannelloAssistente (): Figlio {
         imposta(false, true)
       },
     },
+    isola(ISOLA, dentroAlRiquadro, {
+      class: 'riquadro-assistente__isola',
+      dataset: { telaio: 'assistente-isola' },
+    }),
+  )
+}
+
+/** Testata e conversazione: quel che l'isola rifà. */
+function dentroAlRiquadro (): HTMLElement {
+  return h(
+    'div',
+    { class: 'riquadro-assistente__dentro', dataset: { telaio: 'assistente-dentro' } },
     h(
       'header',
       { class: 'riquadro-assistente__testa' },
@@ -445,10 +472,9 @@ export function pannelloAssistente (): Figlio {
           // domanda: `assistente.contesto` è una scrittura in coda e arriverebbe dopo.
           // Quel canale resta per la finestra staccata.
           contesto: () => secondoLeParti(veduta(), stato.contestoAssistente),
-          alleImpostazioni: () => aggiorna({
-            vista: 'impostazioni',
-            schedaProgramma: 'modelli',
-          }),
+          alleImpostazioni: () => {
+            vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
+          },
         }),
   )
 }

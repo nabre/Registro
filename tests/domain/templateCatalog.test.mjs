@@ -48,6 +48,8 @@ describe('il catalogo dei modelli', () => {
     const generi = CATALOGO_MODELLI.filter((voce) => voce.ruolo === 'rapporto').map((v) => v.genere)
     assert.deepEqual([...generi].sort(), [
       'allievo',
+      'corso',
+      'diario',
       'fascicolo',
       'foto-classe',
       'lezione',

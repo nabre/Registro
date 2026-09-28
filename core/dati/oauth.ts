@@ -23,6 +23,9 @@ const PERMESSI = 'https://outlook.office.com/SMTP.Send offline_access'
 /** Dove si va a chiedere, quando non si sa ancora di che tenant si tratta. */
 const COMUNE = 'organizations'
 
+/** Per che cosa si chiede il permesso: cambia che cosa dire quando la scuola lo nega. */
+type ServizioMicrosoft = 'posta' | 'onedrive'
+
 /**
  * La chiave del gettone di rinnovo nel portachiavi. Vale quanto una password,
  * perciò mai nelle impostazioni.
@@ -94,11 +97,12 @@ const tenantConosciuti = new Map<string, string>()
 
 /**
  * Il tenant di un indirizzo, scoperto dal dominio: la pagina si apre già sulla
- * scuola. Se la scoperta fallisce si ripiega su `organizations`.
+ * scuola. Se la scoperta fallisce si ripiega su `ripiego` (`organizations` per
+ * la posta, che esiste solo nei tenant).
  */
-async function tenantDi (indirizzo: string): Promise<string> {
+export async function tenantDi (indirizzo: string, ripiego = COMUNE): Promise<string> {
   const dominio = dominioDi(indirizzo)
-  if (!dominio) return COMUNE
+  if (!dominio) return ripiego
   const gia = tenantConosciuti.get(dominio)
   if (gia) return gia
 
@@ -107,17 +111,17 @@ async function tenantDi (indirizzo: string): Promise<string> {
       `https://login.microsoftonline.com/${encodeURIComponent(dominio)}/v2.0/.well-known/openid-configuration`,
       { signal: AbortSignal.timeout(ATTESA_MS) },
     )
-    if (!risposta.ok) return COMUNE
+    if (!risposta.ok) return ripiego
     const letto = (await risposta.json()) as { issuer?: string }
     // L'emittente è `https://login.microsoftonline.com/<tenant>/v2.0`: il
     // penultimo pezzo è il numero che serve.
     const pezzi = (letto.issuer ?? '').split('/')
     const tenant = pezzi[pezzi.length - 2] ?? ''
-    if (!tenant) return COMUNE
+    if (!tenant) return ripiego
     tenantConosciuti.set(dominio, tenant)
     return tenant
   } catch {
-    return COMUNE
+    return ripiego
   }
 }
 
@@ -130,7 +134,7 @@ const ATTESA_MS = 15_000
 // ------------------------------------------------------------------ il collegamento
 
 /** Quel che Microsoft risponde quando il gettone arriva. */
-interface Gettoni {
+export interface Gettoni {
   access_token?: string
   refresh_token?: string
   expires_in?: number
@@ -159,7 +163,9 @@ export async function collegaConOauth (suo: Casella): Promise<EsitoOauth> {
   if (!portachiavi) return { ok: false, errore: testi().senzaPortachiavi }
 
   // Il nome di accesso, non l'indirizzo: è quello che Microsoft conosce.
-  return await collegaDalBrowser(await tenantDi(suo.accesso), suo.accesso)
+  const esito = await accediDalBrowser(await tenantDi(suo.accesso), suo.accesso, PERMESSI, 'posta')
+  if (!esito.ok) return { ok: false, errore: esito.errore }
+  return await tieni(esito.gettoni)
 }
 
 /**
@@ -285,9 +291,15 @@ function paginaDiRitorno (errore: string | null): string {
 
 /**
  * Il giro dal browser: pagina, ritorno, scambio del codice con i gettoni.
- * `state` distingue la risposta alla nostra richiesta da ogni altra.
+ * `state` distingue la risposta alla nostra richiesta da ogni altra. Non
+ * conserva niente: i gettoni li tiene chi ha chiesto, ognuno nel suo posto.
  */
-async function collegaDalBrowser (tenant: string, indirizzo: string): Promise<EsitoOauth> {
+export async function accediDalBrowser (
+  tenant: string,
+  indirizzo: string,
+  permessi: string,
+  servizio: ServizioMicrosoft,
+): Promise<{ ok: true, gettoni: Gettoni } | { ok: false, errore: string }> {
   const verificatore = aCaso(48)
   const stato = aCaso(16)
   let rimando = ''
@@ -305,7 +317,7 @@ async function collegaDalBrowser (tenant: string, indirizzo: string): Promise<Es
           response_type: 'code',
           redirect_uri: dove,
           response_mode: 'query',
-          scope: PERMESSI,
+          scope: permessi,
           state: stato,
           code_challenge: impronta(verificatore),
           code_challenge_method: 'S256',
@@ -331,7 +343,7 @@ async function collegaDalBrowser (tenant: string, indirizzo: string): Promise<Es
     return { ok: false, errore: testi().tempoScaduto }
   }
   if (ritorno.error || !ritorno.code) {
-    return { ok: false, errore: spiega(ritorno.error, ritorno.error_description) }
+    return { ok: false, errore: spiega(ritorno.error, ritorno.error_description, servizio) }
   }
   if (ritorno.state !== stato) {
     return { ok: false, errore: testi().rispostaAltrui }
@@ -346,11 +358,32 @@ async function collegaDalBrowser (tenant: string, indirizzo: string): Promise<Es
       code: ritorno.code,
       redirect_uri: rimando,
       code_verifier: verificatore,
-      scope: PERMESSI,
+      scope: permessi,
     }),
   )) as Gettoni
 
-  return await tieni(gettoni)
+  if (!gettoni.refresh_token || !gettoni.access_token) {
+    return { ok: false, errore: spiega(gettoni.error, gettoni.error_description, servizio) }
+  }
+  return { ok: true, gettoni }
+}
+
+/** Un gettone d'accesso nuovo in cambio di quello di rinnovo, per quei permessi. */
+export async function rinnovaConMicrosoft (
+  tenant: string,
+  rinnovo: string,
+  permessi: string,
+): Promise<Gettoni> {
+  return (await aMicrosoft(
+    tenant,
+    'token',
+    new URLSearchParams({
+      client_id: idClientOauth(),
+      grant_type: 'refresh_token',
+      refresh_token: rinnovo,
+      scope: permessi,
+    }),
+  )) as Gettoni
 }
 
 /**
@@ -363,17 +396,7 @@ export async function gettoneDaSpedire (indirizzo: string): Promise<string | nul
   const rinnovo = await rinnovoSalvato()
   if (!rinnovo) return null
 
-  const tenant = await tenantDi(indirizzo)
-  const risposta = (await aMicrosoft(
-    tenant,
-    'token',
-    new URLSearchParams({
-      client_id: idClientOauth(),
-      grant_type: 'refresh_token',
-      refresh_token: rinnovo,
-      scope: PERMESSI,
-    }),
-  )) as Gettoni
+  const risposta = await rinnovaConMicrosoft(await tenantDi(indirizzo), rinnovo, PERMESSI)
 
   if (!risposta.access_token) {
     // `invalid_grant` non guarisce da solo (password cambiata, autorizzazione
@@ -392,7 +415,11 @@ export async function gettoneDaSpedire (indirizzo: string): Promise<string | nul
 }
 
 /** Gli errori di Microsoft (codici `AADSTS…`) tradotti in quel che c'è da fare. */
-function spiega (errore: string | undefined, dettaglio: string | undefined): string {
+export function spiega (
+  errore: string | undefined,
+  dettaglio: string | undefined,
+  servizio: ServizioMicrosoft = 'posta',
+): string {
   const detto = `${errore ?? ''} ${dettaglio ?? ''}`.trim()
   const t = testi()
 
@@ -401,7 +428,11 @@ function spiega (errore: string | undefined, dettaglio: string | undefined): str
   }
   if (errore === 'authorization_declined') return t.rifiutata
   if (/AADSTS7000218/.test(detto)) return t.nonPubblico
-  if (/AADSTS65002|AADSTS650052/.test(detto)) return t.consensoAmministratore(idClientOauth())
+  if (/AADSTS65002|AADSTS650052/.test(detto)) {
+    return servizio === 'onedrive'
+      ? t.consensoAmministratoreOneDrive(idClientOauth())
+      : t.consensoAmministratore(idClientOauth())
+  }
   if (/AADSTS7000215|invalid_client/.test(detto)) return t.clientSconosciuto(idClientOauth())
   if (/AADSTS50020|AADSTS500011/.test(detto)) return t.altraOrganizzazione
   if (/AADSTS65004|consent/i.test(detto)) return t.consensoNegato

@@ -55,7 +55,6 @@ import {
 import { sintesiIncassata } from '../../components/filters.js'
 import { h, type Figlio } from '../../dom.js'
 import {
-  aggiorna,
   annoCorrente,
   lezioniDiCorso,
   nelSemestreScelto,
@@ -64,6 +63,7 @@ import {
   semestreScelto,
   stato,
 } from '../../state.js'
+import { apriLezione } from '../../pages.js'
 import { tabella } from '../../components/table.js'
 import { riquadroTema, nienteQui } from './common.js'
 import { testi } from './attendance.testi.js'
@@ -279,7 +279,7 @@ function matricePresenze (allievo: Allievo, corsi: Corso[], lezioni: Lezione[]):
           class: ['matrice-presenze__segno', `matrice-presenze__segno--${voce.stato}`],
           type: 'button',
           attr: { title: racconto, 'aria-label': racconto },
-          onclick: () => aggiorna({ vista: 'lezione', lezioneId: voce.lezione.id }),
+          onclick: () => apriLezione(voce.lezione.id),
         },
         siglaPresenza(voce.stato),
       ),
@@ -292,6 +292,9 @@ function matricePresenze (allievo: Allievo, corsi: Corso[], lezioni: Lezione[]):
     titoloGruppo(t.giornoPerGiorno, righe.length),
     tabella({
       classi: { telaio: 'matrice-presenze__telaio', tabella: 'matrice-presenze__tabella' },
+      // Larga quanto le ore del giorno: un ridisegno non la riporta a sinistra.
+      // testo-fisso: chiave di scorrimento
+      scorrimento: `presenze:${allievo.id}`,
       intestazione: [
         h('th', { class: 'matrice-presenze__angolo', attr: { scope: 'col' } }, t.giorno),
         ...orari.map((ora) =>
@@ -472,7 +475,7 @@ function elencoGiornate (voci: GiornataStorta[]): Figlio {
         collegamento({
           testo: formattaData(lezione.data, 'giorno'),
           classe: 'diario__quando',
-          al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id }),
+          al: () => apriLezione(lezione.id),
         }),
         pastiglia(voce.nome, voce.tono),
         // La materia è il nome del box; al suo posto le UD perse, e la colonna resta

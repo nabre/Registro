@@ -62,8 +62,11 @@ export function avatar (persona: Persona): HTMLElement {
     attr: { 'aria-hidden': 'true' },
   })
   if (indirizzo) {
+    // Tenuta fra due disegni (`data-tieni`): ricreata, a ogni clic la foto
+    // ripartirebbe dalle iniziali finché non è decodificata di nuovo.
     const foto = h('img', {
       class: 'avatar__foto',
+      dataset: { tieni: indirizzo },
       attr: { src: indirizzo, alt: '', loading: 'lazy', decoding: 'async' },
     })
     foto.addEventListener('error', () => foto.remove(), { once: true })

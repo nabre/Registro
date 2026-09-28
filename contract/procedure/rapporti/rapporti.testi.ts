@@ -15,6 +15,7 @@ const it = {
     id: 'Di che cosa: la lezione, il piano, il corso, la classe, la persona',
     corsoId: 'Solo per la scheda della persona: di quale corso parla',
     semestreId: 'Solo per valutazioni e scheda: il periodo da guardare',
+    docenteDiClasse: 'Se vero genera la scheda del docente di classe',
   },
 }
 
@@ -31,6 +32,7 @@ export const testi = catalogo(it, {
       id: 'Wovon: die Stunde, der Plan, der Kurs, die Klasse, die Person',
       corsoId: 'Nur für das Personenblatt: um welchen Kurs es geht',
       semestreId: 'Nur für Beurteilungen und Personenblatt: der zu betrachtende Zeitraum',
+      docenteDiClasse: 'Wenn wahr, wird das Blatt der Klassenlehrperson erstellt',
     },
   },
   fr: {
@@ -45,6 +47,7 @@ export const testi = catalogo(it, {
       id: 'De quoi : la leçon, le plan, le cours, la classe, la personne',
       corsoId: 'Seulement pour la fiche de la personne : de quel cours elle parle',
       semestreId: 'Seulement pour les évaluations et la fiche : la période à considérer',
+      docenteDiClasse: 'Si vrai, génère la fiche du maître de classe',
     },
   },
   en: {
@@ -59,6 +62,7 @@ export const testi = catalogo(it, {
       id: 'Of what: the lesson, the plan, the course, the class, the person',
       corsoId: 'Only for the person’s sheet: which course it is about',
       semestreId: 'Only for assessments and the sheet: the period to look at',
+      docenteDiClasse: 'If true, generates the class teacher sheet',
     },
   },
 })

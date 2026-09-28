@@ -1,12 +1,14 @@
 // L'anteprima: il foglio che si sta guardando, e i gesti che lo riguardano.
-// È il corpo della pagina; i riquadri stanno stretti a sinistra. Il telaio del
-// lettore vive fuori dalla vista (`components/frame.ts`) e qui se ne dichiara
-// solo il posto: un `<iframe>` rimosso perde quel che ha caricato.
+// È il corpo della pagina; i riquadri stanno stretti a sinistra. È un'isola:
+// una lettura che arriva (la tabella di un CSV) rifà lei sola, non la pagina.
+// Il lettore è un nodo tenuto (`components/frame.ts`): un ridisegno non lo
+// ricarica finché il file è lo stesso.
 
 import { pastiglia, pulsante, quantoMisura } from '../../components/base.js'
 import { corniceDocumento } from '../../components/frame.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
+import { isola } from '../../isole.js'
 import { aggiorna, stato, uriDato } from '../../state.js'
 
 import { scorri } from '../archive.js'
@@ -21,6 +23,21 @@ import {
 } from './sheets.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './preview.testi.js'
+
+/** La chiave dell'isola dell'anteprima: una sola nella pagina. */
+const ISOLA = 'documenti:anteprima' // testo-fisso: una chiave, non un testo
+
+/**
+ * Il corpo della pagina: il documento aperto o la riga che invita ad aprirne
+ * uno. Si legge qui dentro e non da chi disegna la pagina: rifatta da sola,
+ * l'isola guarda lo stato di adesso e le righe dell'ultimo disegno completo.
+ */
+export function anteprima (): HTMLElement {
+  return isola(ISOLA, () => {
+    const aperto = documentoAperto()
+    return aperto ? cornice(aperto) : senzaAnteprima()
+  })
+}
 
 /** Il documento che si sta guardando: dov'è, come si chiama, come sta. */
 interface DaGuardare {
@@ -46,7 +63,7 @@ interface DaGuardare {
  * Il documento aperto nell'anteprima, se il suo file c'è ancora fra le
  * esportazioni. Lo apre la riga del documento; non c'è un elenco a parte.
  */
-export function documentoAperto (): DaGuardare | null {
+function documentoAperto (): DaGuardare | null {
   const percorso = stato.anteprima
   if (!percorso) return null
 
@@ -87,16 +104,17 @@ function freccia (aperto: DaGuardare, passo: -1 | 1): Figlio {
  * Il documento aperto, corpo della pagina. In testa i gesti su questo foglio
  * (rifarlo, buttarlo, aprirlo in una finestra sua) e le frecce con la
  * posizione. Dentro il lettore PDF di Chromium; il telaio non si rifà con la
- * vista (`corniceDocumento`), così un ridisegno non torna a pagina uno.
+ * vista (`corniceDocumento`, `data-tieni`), così un ridisegno non torna a
+ * pagina uno.
  */
-export function cornice (aperto: DaGuardare): Figlio {
+function cornice (aperto: DaGuardare): Figlio {
   const indirizzo = uriDato(aperto.percorso)
   if (!indirizzo) return null
   const giorno = quandoFattoIl(aperto.percorso)
   const suo = aperto.indice >= 0 ? aperto.elenco[aperto.indice] : null
   // Un CSV non si inquadra: al posto del telaio la tabella disegnata dalla pagina.
   const foglio = aperto.percorso.endsWith('.csv')
-  // La stessa chiave del telaio: dice quando la tabella va riletta.
+  // La stessa chiave del lettore: dice quando la tabella va riletta.
   const chiave = `${aperto.percorso}|${aperto.misura}|${aperto.revisione}`
   const t = testi()
 
@@ -163,10 +181,10 @@ export function cornice (aperto: DaGuardare): Figlio {
         al: () => aggiorna({ anteprima: null }),
       }),
     ),
-    // Il segnaposto del telaio, che vive fuori dalla vista; la chiave dice quando
+    // Il lettore, tenuto fra un disegno e l'altro; la chiave dice quando
     // ricaricare, perché il file rifatto sta allo stesso percorso.
     foglio
-      ? anteprimaCsv({ indirizzo: `${indirizzo}?v=${aperto.revisione}-${aperto.misura}`, chiave })
+      ? anteprimaCsv({ indirizzo: `${indirizzo}?v=${aperto.revisione}-${aperto.misura}`, chiave, isola: ISOLA })
       : corniceDocumento({
           indirizzo: `${indirizzo}?v=${aperto.revisione}-${aperto.misura}`,
           chiave,
@@ -179,7 +197,7 @@ export function cornice (aperto: DaGuardare): Figlio {
  * Il corpo della pagina quando non si guarda niente: una riga quieta, e il
  * gesto per aprire il primo se c'è qualcosa da aprire.
  */
-export function senzaAnteprima (): Figlio {
+function senzaAnteprima (): Figlio {
   const elenco = apribili()
   const primo = elenco[0]
   const t = testi()

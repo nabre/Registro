@@ -23,7 +23,7 @@ import {
 import { moduloEventoIcs, moduloLezione } from '../../forms.js'
 import { inModifica } from './editor.js'
 import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
-import { aggiorna, lezionePerId, nomeClasseDiLezione, coloreDiLezione, stato } from '../../state.js'
+import { lezionePerId, nomeClasseDiLezione, coloreDiLezione, ridisegna, stato } from '../../state.js'
 import { apriLezione } from './common.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './ics.testi.js'
@@ -280,7 +280,7 @@ function scegliEvento (mouse: MouseEvent, evento: EventoCalendario): boolean {
   if (sceltiIcs.chiavi.has(evento.chiave)) sceltiIcs.chiavi.delete(evento.chiave)
   else sceltiIcs.chiavi.add(evento.chiave)
   if (sceltiIcs.chiavi.size === 0) togliSceltaIcs()
-  aggiorna({})
+  ridisegna()
   return true
 }
 
@@ -363,7 +363,7 @@ function menuEvento (mouse: MouseEvent, evento: EventoCalendario): void {
           simbolo: 'chiudi',
           al: () => {
             togliSceltaIcs()
-            aggiorna({})
+            ridisegna()
           },
         }
       : 'separatore',

@@ -2,7 +2,7 @@ import { rapporti } from '../../../core/azioni/reports.js'
 import type { GenereRapporto } from '../../../core/dominio/locations.js'
 import { errore, type Ambito, type NomeTermine } from '../../contract.js'
 import { inoltra, scrittura } from '../../core.js'
-import { identificatore, nullabile, oggetto, opzionale, scelta } from '../../schemas.js'
+import { booleano, identificatore, nullabile, oggetto, opzionale, scelta } from '../../schemas.js'
 import { GENERI } from '../common/reports.js'
 import { testi } from './rapporti.testi.js'
 
@@ -25,6 +25,8 @@ function esigiSoggetto (ambito: Ambito, genere: GenereRapporto, id: string): voi
       return c(r.piani.some((p) => p.id === id), 'pianoLezione')
     case 'valutazioni':
     case 'presenze':
+    case 'diario':
+    case 'corso':
       return c(r.corsi.some((corso) => corso.id === id), 'corso')
     case 'momento':
       return c(r.valutazioni.some((v) => v.id === id), 'momento')
@@ -59,6 +61,9 @@ export const procedura = scrittura({
     semestreId: opzionale(nullabile(identificatore({
       aiuto: () => t().semestreId,
     }))),
+    docenteDiClasse: opzionale(booleano({
+      aiuto: () => t().docenteDiClasse,
+    })),
   }),
   esegui: (ambito, ingresso) => {
     esigiSoggetto(ambito, ingresso.genere, ingresso.id)

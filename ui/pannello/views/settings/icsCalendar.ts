@@ -23,7 +23,7 @@ import { apriModale, conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione, invia } from '../../bridge.js'
-import { aggiorna, iscriviti, stato } from '../../state.js'
+import { iscriviti, ridisegna, stato, vai } from '../../state.js'
 import { moduloCalendario } from '../../forms/calendar.js'
 import { opzioniCorsi } from '../../forms/common.js'
 import { contiDelleRegole, segnoConteggio } from '../../ruleCounts.js'
@@ -337,13 +337,13 @@ function rigaRegola (
       if (rifiuto) {
         notifica(nuovo ? rifiuto : t.perToglierla(rifiuto), 'avviso')
         // Il campo mostrerebbe il testo rifiutato: si ridisegna con quello vero.
-        aggiorna({})
+        ridisegna()
         return
       }
       const gia = doppione(nuovo, regola.id)
       if (gia) {
         notifica(t.giaUnaRegola(gia.testo), 'avviso')
-        aggiorna({})
+        ridisegna()
         return
       }
       cambia({ testo: nuovo })
@@ -605,11 +605,7 @@ export function moduloCalendariIcs (): void {
           variante: 'sottile',
           al: () => {
             contesto.chiudi()
-            aggiorna({
-              vista: 'impostazioni',
-              ambitoImpostazioni: 'documento',
-              schedaDocumento: 'ics',
-            })
+            vai({ pagina: 'pagina.impostazioni', scheda: 'documento.ics' })
           },
         }),
       ),

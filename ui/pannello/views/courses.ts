@@ -46,7 +46,7 @@ import {
 import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '../components/filters.js'
 import { corsoDelContesto } from '../context.js'
 import { h, type Figlio } from '../dom.js'
-import { tabella } from '../components/table.js'
+import { inTelaio, tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
 import { grigliaCheck } from './check.js'
 import {
@@ -59,7 +59,6 @@ import {
   moduloUnisciMaterie,
 } from '../forms.js'
 import {
-  aggiorna,
   annoCorrente,
   classePerId,
   classiDellAnno,
@@ -71,8 +70,15 @@ import {
   pianiPerCorso,
   semestreScelto,
   stato,
+  vai,
 } from '../state.js'
+import { apriLezione } from '../pages.js'
 import { testi } from './courses.testi.js'
+
+/** Apre un corso nella pagina dei corsi, sotto la matrice. */
+function apriCorso (corsoId: string): void {
+  vai({ pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: corsoId } })
+}
 
 /**
  * Tutto quel che si sa di un corso, calcolato una volta: la scheda in alto e la
@@ -207,8 +213,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
         variante: 'fantasma',
         // La pagina del check: lì si preparano le colonne.
         titolo: t.ilCheck,
-        al: () =>
-          aggiorna({ vista: 'check', corsoId: corso.id, filtroClasseId: corso.classeId }),
+        al: () => { vai({ pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: corso.id } }) },
       }),
       pulsante({
         simbolo: 'piano',
@@ -217,8 +222,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
         titolo: t.leOre,
         // Anche il corso: la pagina dei piani sceglie con `corsoDelContesto()`, e con
         // la sola classe potrebbe aprire un altro corso.
-        al: () =>
-          aggiorna({ vista: 'piani', corsoId: corso.id, filtroClasseId: corso.classeId }),
+        al: () => { vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'corso', id: corso.id } }) },
       }),
       // Nessuna esportazione qui: i documenti del corso stanno in Documenti.
       // Il corso si toglie da qui: la domanda dice quante ore e quanti voti se ne vanno.
@@ -232,7 +236,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
             { tipo: 'corso.elimina', corsoId: corso.id },
             t.corsoEliminato,
           )
-          if (risposta.ok) aggiorna({ corsoId: null })
+          if (risposta.ok) vai({ pagina: 'pagina.corsi' }, { contesto: { corsoId: null } })
         },
       }),
     ),
@@ -264,7 +268,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
             t.prossimaOra,
             collegamento({
               testo: formattaData(dati.prossima.data),
-              al: () => aggiorna({ vista: 'lezione', lezioneId: dati.prossima?.id ?? null }),
+              al: () => { if (dati.prossima) apriLezione(dati.prossima.id) },
             }),
           )
         : null,
@@ -278,7 +282,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
  * Il corso visto per allievo: ore, assenze, voti, una riga per ciascuno. I
  * numeri arrivano da `datiCorso`, gli stessi della fila sopra.
  */
-function matriceDelCorso (dati: DatiCorso): Figlio {
+function matriceDelCorso (corso: Corso, dati: DatiCorso): Figlio {
   const classe = dati.classe
   if (!classe) return null
   const t = testi()
@@ -368,7 +372,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
     )
   }
 
-  return scheda({
+  return inTelaio(scheda({
     titolo: Molti(L.pif),
     sottotitolo: t.sottotitoloTabella(
       matrice.lezioni,
@@ -378,6 +382,9 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
     ),
     contenuto: tabella({
       variante: 'matrice',
+      // Larga: un clic su un nome o un ridisegno non la riporta a sinistra.
+      telaio: 'allievi',
+      scorrimento: `corsi:allievi:${corso.id}`,
       intestazione: [
         h('th', { class: 'tabella__nome' }, Uno(L.pif)),
         h('th', { attr: { title: t.sulleUdPreviste(matrice.udPreviste) } }, t.assenza),
@@ -410,12 +417,9 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
               collegamento({
                 testo: nomeCompleto(riga.allievo),
                 // Il nome porta alla scheda personale.
-                al: () =>
-                  aggiorna({
-                    vista: 'allievo',
-                    classeId: classe.id,
-                    allievoId: riga.allievo.id,
-                  }),
+                al: () => {
+                  vai({ pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: riga.allievo.id } })
+                },
               }),
             ),
           ),
@@ -456,7 +460,7 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
         ),
       ),
     }),
-  })
+  }), 'corsi:allievi')
 }
 
 /**
@@ -467,13 +471,13 @@ function matriceDelCorso (dati: DatiCorso): Figlio {
 function grigliaDelCorso (corso: Corso, dati: DatiCorso): Figlio {
   const check = checkDelCorso(stato.registro, corso.id)
   if (!check || check.colonne.length === 0 || dati.allievi.length === 0) return null
-  return scheda({
+  return inTelaio(scheda({
     titolo: Uno(lessico().check),
     classe: 'scheda--check',
     aiuto: testi().aiutoGriglia,
     // Nessun pulsante per la pagina: sta fra i comandi in cima alla scheda.
     contenuto: grigliaCheck(corso, check, null),
-  })
+  }), 'corsi:check')
 }
 
 // ------------------------------------------------------------ la matrice
@@ -481,7 +485,7 @@ function grigliaDelCorso (corso: Corso, dati: DatiCorso): Figlio {
 /** Il corso nasce all'incrocio, e si apre qui sotto. */
 async function accendiCorso (classe: Classe, materia: Materia): Promise<void> {
   const risposta = await azione({ tipo: 'corso.crea', classeId: classe.id, materiaId: materia.id })
-  if (risposta.ok && risposta.creato) aggiorna({ corsoId: risposta.creato.id })
+  if (risposta.ok && risposta.creato) apriCorso(risposta.creato.id)
 }
 
 /**
@@ -682,7 +686,7 @@ function casellaCorso (
   const menu = (evento: MouseEvent) =>
     menuContestuale(evento, [
       { titolo: corso.titolo },
-      { testo: t.apriQuiSotto, simbolo: 'destra', al: () => aggiorna({ corsoId: corso.id }) },
+      { testo: t.apriQuiSotto, simbolo: 'destra', al: () => apriCorso(corso.id) },
       { testo: t.titoloEOrario, simbolo: 'matita', al: () => moduloCorso({ corso }) },
       'separatore',
       {
@@ -713,7 +717,7 @@ function casellaCorso (
           title: t.premiPerAprire(corso.titolo),
           'aria-pressed': String(aperto),
         },
-        onclick: () => aggiorna({ corsoId: corso.id }),
+        onclick: () => apriCorso(corso.id),
       },
       icona('spunta', 'icona--minuta'),
     ),
@@ -761,6 +765,10 @@ function matriceCorsi (): Figlio {
   const scelto = perIncrocio.size > 0 ? corsoDelContesto() : null
   return tabella({
     classi: { telaio: 'matrice-corsi', tabella: 'matrice-corsi__tabella' },
+    // Larga quanto le classi dell'anno: un corso acceso o aperto non la riporta
+    // a sinistra (catena di telaio da `vistaCorsi`).
+    telaio: 'matrice',
+    scorrimento: `corsi:matrice:${annoCorrente()?.id ?? ''}`,
     intestazione: [
       h('th', { class: 'matrice-corsi__angolo', attr: { scope: 'col' } }, Uno(lessico().materia)),
       ...classi.map((classe) =>
@@ -808,7 +816,7 @@ export function vistaCorsi (): Figlio {
 
   return h(
     'div',
-    { class: 'vista vista--corsi' },
+    { class: 'vista vista--corsi', dataset: { telaio: 'corsi' } },
     testataVista({
       titolo: Molti(lessico().corso),
       sottotitolo: t.contiDel(nomeSemestreScelto()),
@@ -818,7 +826,9 @@ export function vistaCorsi (): Figlio {
     scelto && dati
       ? h(
           'div',
-          { class: 'corso-dettaglio' },
+          // Per corso: aprendone un altro le tabelle ripartono da capo.
+          // testo-fisso: una chiave, non un testo
+          { class: 'corso-dettaglio', dataset: { telaio: `corsi:${scelto.id}` } },
           h(
             'div',
             { class: 'corso-dettaglio__testa' },
@@ -826,7 +836,7 @@ export function vistaCorsi (): Figlio {
             puntoColore(coloreDiCorso(scelto)),
             schedaCorso(scelto, dati),
           ),
-          matriceDelCorso(dati),
+          matriceDelCorso(scelto, dati),
           grigliaDelCorso(scelto, dati),
         )
       : null,

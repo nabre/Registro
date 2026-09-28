@@ -75,6 +75,8 @@ function risorseDaAula (
         indirizzo
           ? h('img', {
               class: 'risorsa__miniatura',
+              // Tenuta fra due disegni: ricreata, lampeggerebbe a ogni clic.
+              dataset: { tieni: indirizzo },
               attr: { src: indirizzo, alt: risorsa.titolo, loading: 'lazy' },
               onclick: apri,
             })

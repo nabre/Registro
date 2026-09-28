@@ -14,7 +14,7 @@ import { conferma } from '../../components/modal.js'
 import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
 import { notifica } from '../../components/notifications.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato } from '../../state.js'
+import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato, vai } from '../../state.js'
 import { apriLezione } from './common.js'
 import { posa } from './drag.js'
 import {
@@ -137,7 +137,7 @@ function vociPiano (lezione: Lezione): ElementoMenu[] {
     {
       testo: t.apriPiano,
       simbolo: 'piano',
-      al: () => aggiorna({ vista: 'piani', pianoId: piano.id }),
+      al: () => vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: piano.id } }),
     },
     { testo: t.cambiaPiano, simbolo: 'ricarica', al: () => moduloAssegnaPiano(lezione) },
     {

@@ -130,7 +130,7 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     assert.ok(ritorno > dove && ritorno < nucleo, 'la guardia non esce prima di eseguire')
   })
 
-  it('la condizione letta dal sorgente rifiuta tutte e 171 le scritture', () => {
+  it('la condizione letta dal sorgente rifiuta tutte e 174 le scritture', () => {
     // Operatore e valore del confronto si tirano fuori dal sorgente e si applicano
     // all'elenco vero: un `=== 'scrittura'` lascerebbe passare un genere nuovo.
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -143,11 +143,11 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     const letture = tutte.filter((p) => p.genere === 'lettura')
 
     // Le letture del nucleo, contate: cambiare il numero è una scelta da fare qui.
-    assert.equal(letture.length, 39, `letture: ${letture.length}`)
+    assert.equal(letture.length, 41, `letture: ${letture.length}`)
     // Le scritture, contate. Comprendono gesti che non scrivono l'archivio (zoom,
     // dialoghi, aggiornamenti): il genere dice chi può chiamarli da fuori, non se
     // l'archivio cambia.
-    assert.equal(scritture.length, 171, `scritture: ${scritture.length}`)
+    assert.equal(scritture.length, 174, `scritture: ${scritture.length}`)
 
     const passate = scritture.filter((p) => !rifiuterebbe(p)).map((p) => p.nome)
     assert.deepEqual(passate, [], `scritture che una domanda farebbe passare:\n${passate.join('\n')}`)
@@ -855,5 +855,40 @@ describe('il check segue il corso quando le materie si fondono e le classi si co
       nome: 'II INF E',
     })
     assert.equal(esitoDuplicato.ok, false)
+  })
+})
+
+describe('gli account Microsoft e OneDrive, senza portachiavi né rete', () => {
+  // Qui nessuno ha registrato il portachiavi: è il caso di un sistema che non
+  // ne ha uno. Nessuna di queste tocca l'archivio.
+  it('microsoft.aggiungi lo dice, e non scrive', async () => {
+    const prima = archivio.revisione
+    const esito = await api.chiama(archivio, 'microsoft.aggiungi', { indirizzo: 'docente@scuola.ch' })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+    assert.equal(archivio.revisione, prima)
+  })
+
+  it('microsoft.togli di un account che non c’è è «non trovato»', async () => {
+    const esito = await api.chiama(archivio, 'microsoft.togli', { indirizzo: 'nessuno@scuola.ch' })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-trovato')
+    assert.match(esito.messaggi.join(' '), /nessuno@scuola\.ch/)
+  })
+
+  it('onedrive.apri con un account non collegato non apre niente', async () => {
+    const prima = archivio.revisione
+    const esito = await api.chiama(archivio, 'onedrive.apri', {
+      account: 'nessuno@scuola.ch', drive: 'drv-x', id: 'itm-x',
+    })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+    assert.equal(archivio.revisione, prima)
+  })
+
+  it('le tre non si ritentano alla cieca dove aprono qualcosa', () => {
+    assert.equal(api.procedura('microsoft.aggiungi').idempotente, false)
+    assert.equal(api.procedura('onedrive.apri').idempotente, false)
+    assert.equal(api.procedura('microsoft.togli').idempotente, true)
   })
 })

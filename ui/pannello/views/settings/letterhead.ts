@@ -17,7 +17,7 @@ import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, corsiDellAnnoAperto, stato, uriDato } from '../../state.js'
+import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '../../state.js'
 // salvataggio intestazione gestito con azione diretta per preservare campi docente
 import {
   codificaCorsi,
@@ -378,19 +378,20 @@ async function scegliLogo (cartaId: string): Promise<void> {
   const risposta = await azione({ tipo: 'intestazione.logo', cartaId })
   if (!risposta.ok) return
   versioniLogo.set(cartaId, (versioniLogo.get(cartaId) ?? 0) + 1)
-  aggiorna({})
+  ridisegna()
 }
 
 /** Toglie il logo di una carta: i suoi fogli escono con la sola scritta in cima. */
 async function togliLogo (cartaId: string): Promise<void> {
   const risposta = await azione({ tipo: 'intestazione.togliLogo', cartaId })
-  if (risposta.ok) aggiorna({})
+  if (risposta.ok) ridisegna()
 }
 
 /** Il logo com'è adesso, con i gesti per cambiarlo accanto. */
 function riquadroLogo (carta: CartaIntestata): Figlio {
   const indirizzo = uriDato(carta.logo)
   const versione = versioniLogo.get(carta.id) ?? 0
+  const sorgente = versione > 0 ? `${indirizzo}?v=${versione}` : indirizzo
   const t = testi()
   return h(
     'div',
@@ -402,8 +403,11 @@ function riquadroLogo (carta: CartaIntestata): Figlio {
       carta.logo && indirizzo
         ? h('img', {
             class: 'intestazione__miniatura',
+            // Tenuta fra un disegno e l'altro finché il file è lo stesso: una
+            // miniatura ricreata lampeggia a ogni gesto nella pagina.
+            dataset: { tieni: sorgente ?? '' },
             attr: {
-              src: versione > 0 ? `${indirizzo}?v=${versione}` : indirizzo,
+              src: sorgente,
               alt: t.logoAlt,
             },
           })

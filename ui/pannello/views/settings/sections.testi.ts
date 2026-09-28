@@ -23,6 +23,11 @@ const it = {
         'la casella da cui partono le mail, quando si spediscono, la firma, e con che cosa si ' +
         'chiama o si scrive a una persona',
     },
+    // Anche questo è il nome del suo gruppo.
+    account: {
+      titolo: 'Account Microsoft',
+      sottotitolo: 'gli account con cui il registro cerca i documenti su OneDrive',
+    },
     modelli: {
       titolo: 'Modelli linguistici',
       sottotitolo: 'i modelli sulla tua macchina: assistente, scansioni, dettatura',
@@ -110,6 +115,10 @@ export const testi = catalogo(it, {
           'das Postfach, aus dem die Mails verschickt werden, wann sie verschickt werden, die ' +
           'Signatur, und womit man eine Person anruft oder ihr schreibt',
       },
+      account: {
+        titolo: 'Microsoft-Konten',
+        sottotitolo: 'die Konten, mit denen das Klassenbuch Dokumente auf OneDrive sucht',
+      },
       modelli: {
         titolo: 'Sprachmodelle',
         sottotitolo: 'die Modelle auf deinem Computer: Assistent, Scans, Diktat',
@@ -194,6 +203,10 @@ export const testi = catalogo(it, {
           'la boîte d’où partent les e-mails, quand ils partent, la signature, et avec quoi on ' +
           'appelle une personne ou on lui écrit',
       },
+      account: {
+        titolo: 'Comptes Microsoft',
+        sottotitolo: 'les comptes avec lesquels le registre cherche les documents sur OneDrive',
+      },
       modelli: {
         titolo: 'Modèles de langage',
         sottotitolo: 'les modèles sur ta machine : assistant, scans, dictée',
@@ -276,6 +289,10 @@ export const testi = catalogo(it, {
         sottotitolo:
           'the mailbox emails are sent from, when they go out, the signature, and what you use ' +
           'to call or write to someone',
+      },
+      account: {
+        titolo: 'Microsoft accounts',
+        sottotitolo: 'the accounts the register uses to look for documents on OneDrive',
       },
       modelli: {
         titolo: 'Language models',

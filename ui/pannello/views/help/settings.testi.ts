@@ -27,6 +27,7 @@ const it = {
       liste: 'Liste',
       documenti: 'Documenti e stampa',
       comunicazioni: 'Comunicazioni',
+      account: 'Account',
       programma: 'Programma',
       generale: 'Generale',
       aggiornamentiUno: 'Aggiornamenti 1',
@@ -72,7 +73,7 @@ const it = {
           'acceso; scorrendo resta attaccata in alto. Sotto la fascia la sezione aperta, dove ' +
           'ogni riga dice se il valore è quello di fabbrica o se l’hai deciso tu.',
         legenda: [
-          'I sei gruppi, per argomento: dall’anno scolastico al programma.',
+          'I sette gruppi, per argomento: dall’anno scolastico al programma.',
           'Le sezioni del gruppo acceso. Il numero accanto al nome conta i valori decisi a mano; ' +
             'le sezioni che stanno nel file dell’anno portano invece la pastiglia **file**.',
           'Il filtro: cerca nome, chiave e descrizione, fra le impostazioni del computer.',
@@ -102,7 +103,8 @@ const it = {
         testo:
           'Sotto il titolo, due righe che scorrendo restano attaccate in alto: i gruppi, e le ' +
           'sezioni di quello acceso. Premendo un gruppo si apre la sua prima sezione. ' +
-          '**Liste** e **Comunicazioni** hanno una sezione sola, e la seconda riga non c’è.',
+          '**Liste**, **Comunicazioni** e **Account Microsoft** hanno una sezione sola, e la ' +
+          'seconda riga non c’è.',
       },
       {
         termine: 'Dove sta che cosa',
@@ -110,6 +112,7 @@ const it = {
           '**Anno e orario**: Anno scolastico, Calendario, Calendari ICS. **Didattica**: ' +
           'Materie, Valutazione. **Liste**: le voci dei menu a tendina. **Documenti e ' +
           'stampa**: Intestazione, Questo file. **Comunicazioni**: la posta e la firma. ' +
+          '**Account Microsoft**: gli account per cercare i documenti su OneDrive. ' +
           '**Programma**: Generale, Aggiornamenti, Modelli linguistici, Condotto e riga di ' +
           'comando. In questa guida un posto si scrive così: Impostazioni › Anno e orario › ' +
           'Calendario.',
@@ -695,6 +698,78 @@ const it = {
         'altro.',
     ],
   },
+  onedrive: {
+    titolo: 'OneDrive e account Microsoft',
+    sommario:
+      'Impostazioni › **Account Microsoft**: con quali account il registro cerca i documenti ' +
+      '.regi su OneDrive, e come aprirne uno da **Apri da OneDrive…**.',
+    voci: [
+      {
+        termine: 'Sincronizzato su questo computer',
+        testo:
+          'Gli account che il client di OneDrive sincronizza su questo computer compaiono da ' +
+          'soli, con le cartelle della scuola e dei team: si sfogliano senza accedere a niente e ' +
+          'senza il permesso di nessuno.',
+      },
+      {
+        termine: 'Aggiungi account',
+        testo:
+          'Per un account che qui non è sincronizzato: chiede l’indirizzo — già scritto quello ' +
+          'della posta — e apre l’accesso Microsoft nel browser. Molte scuole riservano questo ' +
+          'permesso all’amministratore: allora la pagina lo dice, e resta la strada del client.',
+      },
+      {
+        termine: 'La casella della posta',
+        testo:
+          'Compare nell’elenco con la pastiglia **Casella della posta**. Se il client di ' +
+          'OneDrive la sincronizza si sfoglia subito; se no, **Collega OneDrive** chiede un ' +
+          'secondo accesso, perché il permesso di spedire non vale per leggere i file.',
+      },
+      {
+        termine: 'Sfoglia OneDrive',
+        testo:
+          'Apre le cartelle dell’account: si scende con un clic sul nome, si torna con **Su** ' +
+          'e **Radice**. Si vedono le cartelle e i documenti .regi; gli altri file si contano ' +
+          'soltanto.',
+      },
+      {
+        termine: 'Trova tutti i .regi',
+        testo:
+          'Chiede a Microsoft tutti i documenti del registro dell’account, anche quelli ' +
+          'condivisi da altri, dal più recente. Un file caricato da poco può mancare: lo si ' +
+          'trova sfogliando.',
+      },
+      {
+        termine: 'Apri',
+        testo:
+          'Se il client di OneDrive sincronizza quel file sul computer, si apre quello, e le ' +
+          'modifiche tornano su OneDrive da sole. Altrimenti il registro chiede dove ' +
+          'scaricarne una copia, e apre la copia.',
+      },
+      {
+        termine: 'Dalla ricerca',
+        testo:
+          '**Apri da OneDrive…** sta anche nella ricerca (Ctrl+K) e in Impostazioni › ' +
+          'Documenti e stampa › **Questo file**.',
+      },
+      {
+        termine: 'Scollega',
+        testo:
+          'Toglie dal portachiavi il permesso di leggere il OneDrive di quell’account. La ' +
+          'posta non cambia; il permesso dato al programma si revoca dal proprio profilo ' +
+          'Microsoft.',
+      },
+    ],
+    note: [
+      'Due strade. Le cartelle sincronizzate si leggono dal disco, dove il registro di ' +
+        'Windows dice di quale account sono. Un account collegato nel browser si legge da ' +
+        'Microsoft, con i soli permessi di leggere (`Files.Read.All`) e di sapere chi è entrato ' +
+        '(`User.Read`), nel portachiavi del sistema. Su OneDrive il registro non scrive niente.',
+      'Una copia scaricata non è sincronizzata: quel che ci scrivi non torna su OneDrive. Per ' +
+        'lavorare sull’originale, sincronizza la sua cartella con il client di OneDrive. Se la ' +
+        'scuola nega il permesso, lo deve concedere chi amministra il tenant.',
+    ],
+  },
   aggiornamenti: {
     titolo: 'Aggiornamenti',
     sommario: 'Quale versione gira, se ce n’è una nuova, e quando si installa.',
@@ -841,6 +916,7 @@ export const testi = catalogo(it, {
         liste: 'Listen',
         documenti: 'Dokumente und Druck',
         comunicazioni: 'Kommunikation',
+        account: 'Konten',
         programma: 'Programm',
         generale: 'Allgemein',
         aggiornamentiUno: 'Aktualisierungen 1',
@@ -887,7 +963,7 @@ export const testi = catalogo(it, {
             'Bereich, in dem jede Zeile sagt, ob der Wert der ab Werk ist oder ob du ihn ' +
             'festgelegt hast.',
           legenda: [
-            'Die sechs Gruppen, nach Thema: vom Schuljahr bis zum Programm.',
+            'Die sieben Gruppen, nach Thema: vom Schuljahr bis zum Programm.',
             'Die Bereiche der gewählten Gruppe. Die Zahl neben dem Namen zählt die von Hand ' +
               'festgelegten Werte; die Bereiche, die in der Datei des Schuljahrs liegen, tragen ' +
               'dagegen das Etikett **Datei**.',
@@ -920,7 +996,8 @@ export const testi = catalogo(it, {
           testo:
             'Unter dem Titel zwei Zeilen, die beim Scrollen oben haften bleiben: die Gruppen, ' +
             'und die Bereiche der gewählten Gruppe. Ein Klick auf eine Gruppe öffnet ihren ' +
-            'ersten Bereich. **Listen** und **Kommunikation** haben nur einen Bereich, und die ' +
+            'ersten Bereich. **Listen**, **Kommunikation** und **Microsoft-Konten** haben nur ' +
+            'einen Bereich, und die ' +
             'zweite Zeile fehlt.',
         },
         {
@@ -929,6 +1006,7 @@ export const testi = catalogo(it, {
             '**Schuljahr und Stundenplan**: Schuljahr, Kalender, ICS-Kalender. **Unterricht**: ' +
             'Fächer, Beurteilung. **Listen**: die Einträge der Auswahllisten. **Dokumente und ' +
             'Druck**: Briefkopf, Diese Datei. **Kommunikation**: E-Mail und Signatur. ' +
+            '**Microsoft-Konten**: die Konten, um Dokumente auf OneDrive zu suchen. ' +
             '**Programm**: Allgemein, Aktualisierungen, Sprachmodelle, Kanal und Befehlszeile. ' +
             'In dieser Hilfe schreibt man einen Ort so: Einstellungen › Schuljahr und ' +
             'Stundenplan › Kalender.',
@@ -1545,6 +1623,83 @@ export const testi = catalogo(it, {
           'Anmeldename ergeben dagegen `5.7.60`: die Berechtigung, als jemand anderes zu senden.',
       ],
     },
+    onedrive: {
+      titolo: 'OneDrive und Microsoft-Konten',
+      sommario:
+        'Einstellungen › **Microsoft-Konten**: mit welchen Konten das Klassenbuch ' +
+        '.regi-Dokumente auf OneDrive sucht, und wie man eines über **Aus OneDrive öffnen…** ' +
+        'öffnet.',
+      voci: [
+        {
+          termine: 'Auf diesem Computer synchronisiert',
+          testo:
+            'Konten, die der OneDrive-Client auf diesem Computer synchronisiert, erscheinen von ' +
+            'selbst, mit den Ordnern der Schule und der Teams: Man durchsucht sie ohne Anmeldung ' +
+            'und ohne jemandes Berechtigung.',
+        },
+        {
+          termine: 'Konto hinzufügen',
+          testo:
+            'Für ein Konto, das hier nicht synchronisiert wird: fragt nach der Adresse — die des ' +
+            'E-Mail-Postfachs ist schon eingetragen — und öffnet die Microsoft-Anmeldung im ' +
+            'Browser. Viele Schulen behalten diese Berechtigung der Administration vor: Dann sagt ' +
+            'es die Seite, und es bleibt der Weg über den Client.',
+        },
+        {
+          termine: 'Das E-Mail-Postfach',
+          testo:
+            'Es steht mit der Marke **E-Mail-Postfach** in der Liste. Synchronisiert es der ' +
+            'OneDrive-Client, lässt es sich sofort durchsuchen; sonst verlangt **OneDrive ' +
+            'verbinden** eine zweite Anmeldung, weil die Berechtigung zum Senden nicht zum Lesen ' +
+            'der Dateien gilt.',
+        },
+        {
+          termine: 'OneDrive durchsuchen',
+          testo:
+            'Öffnet die Ordner des Kontos: Mit einem Klick auf den Namen geht man hinein, mit ' +
+            '**Hoch** und **Stamm** zurück. Zu sehen sind Ordner und .regi-Dokumente; die ' +
+            'anderen Dateien werden nur gezählt.',
+        },
+        {
+          termine: 'Alle .regi finden',
+          testo:
+            'Fragt Microsoft nach allen Dokumenten des Klassenbuchs des Kontos, auch den von ' +
+            'anderen geteilten, die neusten zuerst. Eine eben hochgeladene Datei kann fehlen: ' +
+            'Man findet sie beim Durchsuchen.',
+        },
+        {
+          termine: 'Öffnen',
+          testo:
+            'Synchronisiert der OneDrive-Client diese Datei auf dem Computer, wird sie geöffnet, ' +
+            'und die Änderungen gehen von selbst zurück auf OneDrive. Sonst fragt das ' +
+            'Klassenbuch, wohin eine Kopie heruntergeladen werden soll, und öffnet die Kopie.',
+        },
+        {
+          termine: 'Aus der Suche',
+          testo:
+            '**Aus OneDrive öffnen…** steht auch in der Suche (Ctrl+K) und unter ' +
+            'Einstellungen › Dokumente und Druck › **Diese Datei**.',
+        },
+        {
+          termine: 'Trennen',
+          testo:
+            'Entfernt aus dem Schlüsselbund die Berechtigung, das OneDrive dieses Kontos zu ' +
+            'lesen. Die E-Mail ändert sich nicht; die dem Programm erteilte Berechtigung ' +
+            'widerrufst du in deinem Microsoft-Profil.',
+        },
+      ],
+      note: [
+        'Zwei Wege. Synchronisierte Ordner werden von der Festplatte gelesen, wo die ' +
+          'Windows-Registrierung sagt, zu welchem Konto sie gehören. Ein im Browser verbundenes ' +
+          'Konto wird bei Microsoft gelesen, nur mit den Berechtigungen zum Lesen ' +
+          '(`Files.Read.All`) und zu wissen, wer angemeldet ist (`User.Read`), im Schlüsselbund ' +
+          'des Systems. Auf OneDrive schreibt das Klassenbuch nichts.',
+        'Eine heruntergeladene Kopie wird nicht synchronisiert: Was du darin schreibst, geht ' +
+          'nicht zurück auf OneDrive. Um am Original zu arbeiten, synchronisiere seinen Ordner ' +
+          'mit dem OneDrive-Client. Verweigert die Schule die Berechtigung, muss sie erteilen, ' +
+          'wer den Tenant verwaltet.',
+      ],
+    },
     aggiornamenti: {
       titolo: 'Aktualisierungen',
       sommario:
@@ -1696,6 +1851,7 @@ export const testi = catalogo(it, {
         liste: 'Listes',
         documenti: 'Documents et impression',
         comunicazioni: 'Communications',
+        account: 'Comptes',
         programma: 'Programme',
         generale: 'Général',
         aggiornamentiUno: 'Mises à jour 1',
@@ -1742,7 +1898,7 @@ export const testi = catalogo(it, {
             'la section ouverte, où chaque ligne dit si la valeur est celle d’usine ou si tu ' +
             'l’as choisie.',
           legenda: [
-            'Les six groupes, par thème : de l’année scolaire au programme.',
+            'Les sept groupes, par thème : de l’année scolaire au programme.',
             'Les sections du groupe choisi. Le nombre à côté du nom compte les valeurs choisies ' +
               'à la main ; les sections qui sont dans le fichier de l’année portent à la place ' +
               'la pastille **fichier**.',
@@ -1776,7 +1932,8 @@ export const testi = catalogo(it, {
           testo:
             'Sous le titre, deux lignes qui restent collées en haut quand on fait défiler : les ' +
             'groupes, et les sections de celui qui est choisi. Un clic sur un groupe ouvre sa ' +
-            'première section. **Listes** et **Communications** n’ont qu’une section, et la ' +
+            'première section. **Listes**, **Communications** et **Comptes Microsoft** n’ont ' +
+            'qu’une section, et la ' +
             'deuxième ligne n’existe pas.',
         },
         {
@@ -1785,7 +1942,8 @@ export const testi = catalogo(it, {
             '**Année et horaire** : Année scolaire, Calendrier, Calendriers ICS. ' +
             '**Enseignement** : Branches, Évaluation. **Listes** : les entrées des listes ' +
             'déroulantes. **Documents et impression** : En-tête, Ce fichier. **Communications** ' +
-            ': la messagerie et la signature. **Programme** : Général, Mises à jour, Modèles de ' +
+            ': la messagerie et la signature. **Comptes Microsoft** : les comptes pour chercher ' +
+            'les documents sur OneDrive. **Programme** : Général, Mises à jour, Modèles de ' +
             'langage, Canal et ligne de commande. Dans cette aide, un endroit s’écrit ainsi : ' +
             'Paramètres › Année et horaire › Calendrier.',
         },
@@ -2402,6 +2560,83 @@ export const testi = catalogo(it, {
           'inversés donnent en revanche `5.7.60` : l’autorisation d’envoyer en tant qu’un autre.',
       ],
     },
+    onedrive: {
+      titolo: 'OneDrive et comptes Microsoft',
+      sommario:
+        'Paramètres › **Comptes Microsoft** : avec quels comptes le registre cherche les ' +
+        'documents .regi sur OneDrive, et comment en ouvrir un depuis **Ouvrir depuis ' +
+        'OneDrive…**.',
+      voci: [
+        {
+          termine: 'Synchronisé sur cet ordinateur',
+          testo:
+            'Les comptes que le client OneDrive synchronise sur cet ordinateur apparaissent tout ' +
+            'seuls, avec les dossiers de l’école et des équipes : on les parcourt sans connexion ' +
+            'et sans l’autorisation de personne.',
+        },
+        {
+          termine: 'Ajouter un compte',
+          testo:
+            'Pour un compte qui n’est pas synchronisé ici : demande l’adresse — celle de la boîte ' +
+            'aux lettres est déjà écrite — et ouvre la connexion Microsoft dans le navigateur. ' +
+            'Beaucoup d’écoles réservent cette autorisation à l’administration : la page le dit ' +
+            'alors, et il reste la voie du client.',
+        },
+        {
+          termine: 'La boîte aux lettres',
+          testo:
+            'Elle figure dans la liste avec la pastille **Boîte aux lettres**. Si le client ' +
+            'OneDrive la synchronise, elle se parcourt tout de suite ; sinon **Connecter ' +
+            'OneDrive** demande une deuxième connexion, car l’autorisation d’envoyer ne vaut pas ' +
+            'pour lire les fichiers.',
+        },
+        {
+          termine: 'Parcourir OneDrive',
+          testo:
+            'Ouvre les dossiers du compte : on descend d’un clic sur le nom, on revient avec ' +
+            '**Monter** et **Racine**. On voit les dossiers et les documents .regi ; les autres ' +
+            'fichiers sont seulement comptés.',
+        },
+        {
+          termine: 'Trouver tous les .regi',
+          testo:
+            'Demande à Microsoft tous les documents du registre du compte, y compris ceux ' +
+            'partagés par d’autres, du plus récent au plus ancien. Un fichier qui vient d’être ' +
+            'déposé peut manquer : on le trouve en parcourant.',
+        },
+        {
+          termine: 'Ouvrir',
+          testo:
+            'Si le client OneDrive synchronise ce fichier sur l’ordinateur, c’est lui qui ' +
+            's’ouvre, et les modifications retournent sur OneDrive toutes seules. Sinon le ' +
+            'registre demande où en télécharger une copie, et ouvre la copie.',
+        },
+        {
+          termine: 'Depuis la recherche',
+          testo:
+            '**Ouvrir depuis OneDrive…** se trouve aussi dans la recherche (Ctrl+K) et dans ' +
+            'Paramètres › Documents et impression › **Ce fichier**.',
+        },
+        {
+          termine: 'Déconnecter',
+          testo:
+            'Retire du trousseau l’autorisation de lire le OneDrive de ce compte. Les e-mails ne ' +
+            'changent pas ; l’autorisation donnée au programme se retire depuis son profil ' +
+            'Microsoft.',
+        },
+      ],
+      note: [
+        'Deux voies. Les dossiers synchronisés se lisent sur le disque, où le registre de ' +
+          'Windows dit à quel compte ils appartiennent. Un compte connecté dans le navigateur se ' +
+          'lit chez Microsoft, avec les seules autorisations de lire (`Files.Read.All`) et de ' +
+          'savoir qui s’est connecté (`User.Read`), dans le trousseau du système. Le registre ' +
+          'n’écrit rien sur OneDrive.',
+        'Une copie téléchargée n’est pas synchronisée : ce que tu y écris ne retourne pas sur ' +
+          'OneDrive. Pour travailler sur l’original, synchronise son dossier avec le client ' +
+          'OneDrive. Si l’école refuse l’autorisation, c’est la personne qui administre le ' +
+          'tenant qui doit la donner.',
+      ],
+    },
     aggiornamenti: {
       titolo: 'Mises à jour',
       sommario:
@@ -2557,6 +2792,7 @@ export const testi = catalogo(it, {
         liste: 'Lists',
         documenti: 'Documents and printing',
         comunicazioni: 'Communications',
+        account: 'Accounts',
         programma: 'Program',
         generale: 'General',
         aggiornamentiUno: 'Updates 1',
@@ -2603,7 +2839,7 @@ export const testi = catalogo(it, {
             'section, where every row says whether the value is the factory one or one you ' +
             'chose.',
           legenda: [
-            'The six groups, by topic: from the school year to the program.',
+            'The seven groups, by topic: from the school year to the program.',
             'The sections of the chosen group. The number next to the name counts the values ' +
               'set by hand; the sections that live in the year’s file carry the **file** badge ' +
               'instead.',
@@ -2634,7 +2870,8 @@ export const testi = catalogo(it, {
           testo:
             'Under the title, two rows that stay stuck at the top when you scroll: the groups, ' +
             'and the sections of the chosen one. Clicking a group opens its first section. ' +
-            '**Lists** and **Communications** have one section only, and the second row is ' +
+            '**Lists**, **Communications** and **Microsoft accounts** have one section only, ' +
+            'and the second row is ' +
             'not there.',
         },
         {
@@ -2643,6 +2880,7 @@ export const testi = catalogo(it, {
             '**Year and timetable**: School year, Calendar, ICS calendars. **Teaching**: ' +
             'Subjects, Assessment. **Lists**: the items of the drop-downs. **Documents and ' +
             'printing**: Letterhead, This file. **Communications**: the mail and the signature. ' +
+            '**Microsoft accounts**: the accounts to look for documents on OneDrive. ' +
             '**Program**: General, Updates, Language models, Pipe and command line. In this ' +
             'guide a place is written like this: Settings › Year and timetable › Calendar.',
         },
@@ -3229,6 +3467,78 @@ export const testi = catalogo(it, {
           'authenticated sending (SMTP AUTH) turned off for the mailbox: the administrator ' +
           'turns it back on. Sender address and sign-in name swapped give `5.7.60` instead: ' +
           'the permission to send as someone else.',
+      ],
+    },
+    onedrive: {
+      titolo: 'OneDrive and Microsoft accounts',
+      sommario:
+        'Settings › **Microsoft accounts**: which accounts the register uses to look for .regi ' +
+        'documents on OneDrive, and how to open one from **Open from OneDrive…**.',
+      voci: [
+        {
+          termine: 'Synced on this computer',
+          testo:
+            'The accounts the OneDrive client syncs on this computer appear by themselves, with ' +
+            'the school and team folders: you browse them without signing in and without anyone’s ' +
+            'permission.',
+        },
+        {
+          termine: 'Add account',
+          testo:
+            'For an account that is not synced here: asks for the address — the mailbox one is ' +
+            'already filled in — and opens the Microsoft sign-in in the browser. Many schools ' +
+            'reserve this permission for the administrator: the page then says so, and the ' +
+            'client remains the way.',
+        },
+        {
+          termine: 'The email mailbox',
+          testo:
+            'It appears in the list with the **Email mailbox** tag. If the OneDrive client syncs ' +
+            'it, you can browse it right away; otherwise **Connect OneDrive** asks for a second ' +
+            'sign-in, because the permission to send does not cover reading files.',
+        },
+        {
+          termine: 'Browse OneDrive',
+          testo:
+            'Opens the account’s folders: click a name to go in, **Up** and **Root** to go ' +
+            'back. You see folders and .regi documents; other files are only counted.',
+        },
+        {
+          termine: 'Find all .regi',
+          testo:
+            'Asks Microsoft for all the account’s register documents, including those shared ' +
+            'by others, most recent first. A file just uploaded may be missing: you find it by ' +
+            'browsing.',
+        },
+        {
+          termine: 'Open',
+          testo:
+            'If the OneDrive client syncs that file on the computer, that is what opens, and ' +
+            'changes go back to OneDrive by themselves. Otherwise the register asks where to ' +
+            'download a copy, and opens the copy.',
+        },
+        {
+          termine: 'From the search',
+          testo:
+            '**Open from OneDrive…** is also in the search (Ctrl+K) and in Settings › ' +
+            'Documents and printing › **This file**.',
+        },
+        {
+          termine: 'Disconnect',
+          testo:
+            'Removes from the keychain the permission to read that account’s OneDrive. Email ' +
+            'does not change; the permission given to the program is withdrawn from your ' +
+            'Microsoft profile.',
+        },
+      ],
+      note: [
+        'Two ways. Synced folders are read from the disk, where the Windows registry says which ' +
+          'account they belong to. An account connected in the browser is read from Microsoft, ' +
+          'with only the permissions to read (`Files.Read.All`) and to know who signed in ' +
+          '(`User.Read`), in the system keychain. The register writes nothing to OneDrive.',
+        'A downloaded copy is not synced: what you write in it does not go back to OneDrive. ' +
+          'To work on the original, sync its folder with the OneDrive client. If the school ' +
+          'denies the permission, whoever administers the tenant has to grant it.',
       ],
     },
     aggiornamenti: {

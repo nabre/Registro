@@ -10,7 +10,7 @@ import { SEGNI, nomeSegno, segnoFermo } from '../../components/marks.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import type { Risposta } from '../../../../contract/protocollo.js'
-import { aggiorna, stato } from '../../state.js'
+import { ridisegna, stato } from '../../state.js'
 import { tabella } from '../../components/table.js'
 import { minuscolo } from '../../../../core/i18n/index.js'
 import { testi } from './behaviour.testi.js'
@@ -128,7 +128,7 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
                     lezioneId: lezione.id,
                     chiave: chiaveCella(allievo.id, aspetto.valore),
                   }
-                  aggiorna({})
+                  ridisegna()
                 },
               },
             ],
@@ -142,6 +142,10 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
 
   return tabella({
     classi: { telaio: 'matrice__telaio', tabella: 'matrice' },
+    // Un segno messo non riporta la matrice a sinistra (catena in `lesson.ts`).
+    telaio: 'matrice',
+    // testo-fisso: una chiave, non un testo
+    scorrimento: `matrice:${lezione.id}`,
     etichetta: t.aspetti,
     intestazione: [
       h('th', { attr: { scope: 'col' } }, ''),

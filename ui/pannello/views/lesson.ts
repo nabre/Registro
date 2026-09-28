@@ -30,12 +30,14 @@ import {
   type TonoPastiglia,
 } from '../components/base.js'
 import { icona } from '../components/icons.js'
+import { inTelaio } from '../components/table.js'
 import { h, type Figlio } from '../dom.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
 import { pannelloRiconsegneDellOra } from './returns.js'
 import { moduloOsservazione } from '../forms.js'
 import { PORZIONI_LEZIONE } from '../tabs.js'
+import { apriLezione } from '../pages.js'
 import { azione } from '../bridge.js'
 import { consegneDellaLezione } from '../../../core/dominio/assignments.js'
 import { checkDelCorso } from '../../../core/dominio/check.js'
@@ -47,6 +49,7 @@ import {
   lezioniDiCorso,
   stato,
   titoloDiLezione,
+  vai,
   type SchedaLezione,
   type SchedaStrumentiLezione,
 } from '../state.js'
@@ -73,7 +76,7 @@ function pannelloOsservazioni (lezione: Lezione): HTMLElement {
   const t = testi()
   const L = lessico()
 
-  return scheda({
+  return inTelaio(scheda({
     titolo: Molti(L.osservazione),
     aiuto: t.osservazioniAiuto,
     azioni: pulsante({
@@ -84,7 +87,7 @@ function pannelloOsservazioni (lezione: Lezione): HTMLElement {
     }),
     contenuto: h(
       'div',
-      { class: 'colonna' },
+      { class: 'colonna', dataset: { telaio: 'osservazioni:colonna' } },
       matriceOsservata(lezione, classe),
       noteDellaMatrice(lezione, classe),
       lezione.osservazioni.length === 0
@@ -125,7 +128,7 @@ function pannelloOsservazioni (lezione: Lezione): HTMLElement {
               ),
           ),
     ),
-  })
+  }), 'osservazioni')
 }
 
 // ------------------------------------------------------------------ contenuti
@@ -236,7 +239,7 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
   // L'ora precedente e successiva dello stesso corso.
   const vaiA = (indice: number) => {
     const bersaglio = sorelle[indice]
-    if (bersaglio) aggiorna({ lezioneId: bersaglio.id })
+    if (bersaglio) apriLezione(bersaglio.id)
   }
 
   return h(
@@ -255,7 +258,7 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
       valore: lezione.id,
       etichetta: t.lezioneDelCorso,
       classe: 'navigatore-registro__lezione',
-      al: (scelto) => aggiorna({ lezioneId: scelto }),
+      al: (scelto) => apriLezione(scelto),
     }),
     pulsante({
       simbolo: 'destra',
@@ -347,7 +350,8 @@ function pannelloStrumentiLezione (lezione: Lezione): HTMLElement {
 
   return h(
     'div',
-    { class: 'strumenti-lezione' },
+    // testo-fisso: una chiave, non un testo
+    { class: 'strumenti-lezione', dataset: { telaio: `strumenti:${strumenti}` } },
     selettoreStrumenti,
     pannelloCorrente,
   )
@@ -371,12 +375,12 @@ export function vistaLezione (): Figlio {
             testo: t.apriUltima,
             variante: 'primario',
             simbolo: 'agenda',
-            al: () => aggiorna({ lezioneId: riferimento }),
+            al: () => apriLezione(riferimento),
           })
         : pulsante({
             testo: t.vaiAlCalendario,
             variante: 'primario',
-            al: () => aggiorna({ vista: 'calendario' }),
+            al: () => { vai({ pagina: 'pagina.calendario' }) },
           }),
     })
   }
@@ -385,9 +389,21 @@ export function vistaLezione (): Figlio {
   const riepilogo = riepilogaPresenze(lezione.presenze)
   const stati = lessico().statiLezione
 
+  // Catena di telaio dalla radice della vista fino alle matrici che scorrono
+  // di lato (appello, comportamento): un clic ridisegna tutto, e la scatola
+  // ricreata tornerebbe a sinistra (`aggiornaElemento` in `dom.ts`).
+  const colonne = (porzione: SchedaLezione, sinistra: Figlio[], destra: Figlio[]): HTMLElement =>
+    h(
+      'div',
+      // testo-fisso: una chiave, non un testo
+      { class: 'colonne colonne--lezione', dataset: { telaio: `lezione:${porzione}` } },
+      h('div', { class: 'colonna', dataset: { telaio: 'sinistra' } }, ...sinistra),
+      h('div', { class: 'colonna', dataset: { telaio: 'destra' } }, ...destra),
+    )
+
   return h(
     'div',
-    { class: 'vista vista--lezione' },
+    { class: 'vista vista--lezione', dataset: { telaio: 'lezione' } },
     testataVista({
       // Compatta: classe, giorno e numeri dell'ora su una riga, per lasciare in vista
       // l'appello e le consegne.
@@ -435,36 +451,19 @@ export function vistaLezione (): Figlio {
       aggiorna({ schedaLezione: scelta }),
     ),
     stato.schedaLezione === 'amministrazione'
-      ? h(
-          'div',
-          { class: 'colonne colonne--lezione' },
-          h('div', { class: 'colonna' }, pannelloAppello(lezione)),
-          h(
-            'div',
-            { class: 'colonna' },
-            pannelloConsegne(lezione),
-            // Il check sotto le consegne: si spunta nello stesso momento, persona per persona.
-            pannelloCheckDellOra(lezione),
-            // Le prove da ridare accanto alle consegne da ritirare: stesso momento.
-            pannelloRiconsegneDellOra(lezione),
-          ),
-        )
+      ? colonne('amministrazione', [pannelloAppello(lezione)], [
+          pannelloConsegne(lezione),
+          // Il check sotto le consegne: si spunta nello stesso momento, persona per persona.
+          pannelloCheckDellOra(lezione),
+          // Le prove da ridare accanto alle consegne da ritirare: stesso momento.
+          pannelloRiconsegneDellOra(lezione),
+        ])
       : null,
     stato.schedaLezione === 'lezione'
-      ? h(
-          'div',
-          { class: 'colonne colonne--lezione' },
-          h('div', { class: 'colonna' }, pannelloPiano(lezione)),
-          h('div', { class: 'colonna' }, pannelloStrumentiLezione(lezione)),
-        )
+      ? colonne('lezione', [pannelloPiano(lezione)], [pannelloStrumentiLezione(lezione)])
       : null,
     stato.schedaLezione === 'annotazioni'
-      ? h(
-          'div',
-          { class: 'colonne colonne--lezione' },
-          h('div', { class: 'colonna' }, pannelloContenuti(lezione)),
-          h('div', { class: 'colonna' }, pannelloOsservazioni(lezione)),
-        )
+      ? colonne('annotazioni', [pannelloContenuti(lezione)], [pannelloOsservazioni(lezione)])
       : null,
   )
 }

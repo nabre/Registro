@@ -35,11 +35,11 @@ import { azione, chiedi } from '../bridge.js'
 import { classeDellaPaginaClassi } from '../context.js'
 import { validaClasse } from '../../../core/dominio/validation.js'
 import {
-  aggiorna,
   annoCorrente,
   classePerId,
   materieDiClasse,
   stato,
+  vai,
 } from '../state.js'
 import { tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
@@ -89,6 +89,9 @@ function tabellaAllievi (classe: Classe): HTMLElement {
 
   return tabella({
     variante: 'allievi',
+    // Tante colonne: scorre di lato, e un campo salvato sopra non la riporta a sinistra.
+    // testo-fisso: chiave di scorrimento, non si legge
+    scorrimento: `allievi:${classe.id}`,
     intestazione: [
       h('th', null, Uno(L.pif)),
       h('th', null, t.nascita),
@@ -112,7 +115,7 @@ function tabellaAllievi (classe: Classe): HTMLElement {
             collegamento({
               testo: nomeCompleto(allievo),
               titolo: t.apriScheda,
-              al: () => aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
+              al: () => { vai({ pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: allievo.id } }, { contesto: { classeId: classe.id } }) },
             }),
             allievo.attivo ? null : pastiglia(t.nonFrequenta, 'quiete'),
           ),
@@ -179,7 +182,7 @@ async function scriviClasse (
 async function eliminaClasse (classe: Classe): Promise<void> {
   if (!(await chiediEliminazione({ genere: 'classe', id: classe.id }))) return
   const risposta = await azione({ tipo: 'classe.elimina', classeId: classe.id })
-  if (risposta.ok) aggiorna({ classeId: null })
+  if (risposta.ok) vai({ pagina: 'pagina.classi' }, { contesto: { classeId: null } })
 }
 
 /**
@@ -443,7 +446,7 @@ export function chiediImportaClasse (): void {
       if (!risposta) return
       contesto.chiudi()
       notifica(t.importata(nome), 'successo')
-      if (risposta.creato) aggiorna({ vista: 'classi', classeId: risposta.creato.id })
+      if (risposta.creato) vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: risposta.creato.id } })
     },
   })
   void leggiClassi(documentoScelto, modale)

@@ -82,6 +82,22 @@ const it = {
     'Senza quel file non si sa a quale indirizzo bussare. Se il registro tiene i dati',
     'altrove (installazione portatile), l’indirizzo si dà con REGISTRO_CONDOTTO.',
   ].join('\n'),
+  mancaChiave: (file) => [
+    'Il registro non risponde sul condotto: manca la sua chiave.',
+    '',
+    `Il registro scrive la chiave in ${file} ogni volta che accende il condotto, e la toglie`,
+    'quando lo spegne. Senza, «regi» non sa presentarsi e non bussa a nessuno. Se il',
+    'registro tiene i dati altrove (installazione portatile), il file si dà con REGISTRO_CHIAVE.',
+  ].join('\n'),
+  chiaveRifiutata: [
+    'Il registro ha rifiutato la chiave: quella nel file non è di questa accensione del condotto.',
+    'Succede se REGISTRO_CHIAVE indica il file di un altro registro. Altrimenti riapri il registro.',
+  ].join('\n'),
+  impostore: [
+    'Chi risponde sul condotto non ha dimostrato di avere la chiave del registro: non si manda',
+    'altro. Di solito è un registro chiuso male; riaprilo. Se il registro è aperto e succede',
+    'ancora, un altro programma occupa il nome del condotto.',
+  ].join('\n'),
 
   // Gli argomenti
   scrittoPiùVolte: (nome) => `--${nome} è scritto più volte: vale l’ultimo.`,
@@ -226,6 +242,25 @@ const de = {
     'Klassenbuch seine Daten anderswo auf (portable Installation), gibt man die Adresse',
     'mit REGISTRO_CONDOTTO an.',
   ].join('\n'),
+  mancaChiave: (file) => [
+    'Das Klassenbuch antwortet nicht auf dem Kanal: Sein Schlüssel fehlt.',
+    '',
+    `Das Klassenbuch schreibt den Schlüssel nach ${file}, jedes Mal wenn es den Kanal`,
+    'einschaltet, und entfernt ihn beim Ausschalten. Ohne ihn kann sich «regi» nicht',
+    'anmelden und klopft nirgends an. Bewahrt das Klassenbuch seine Daten anderswo auf',
+    '(portable Installation), gibt man die Datei mit REGISTRO_CHIAVE an.',
+  ].join('\n'),
+  chiaveRifiutata: [
+    'Das Klassenbuch hat den Schlüssel abgelehnt: Der in der Datei gehört nicht zu diesem',
+    'Kanalstart. Das passiert, wenn REGISTRO_CHIAVE auf die Datei eines anderen Klassenbuchs',
+    'zeigt. Sonst öffne das Klassenbuch neu.',
+  ].join('\n'),
+  impostore: [
+    'Wer auf dem Kanal antwortet, hat nicht nachgewiesen, den Schlüssel des Klassenbuchs zu',
+    'haben: Es wird nichts weiter geschickt. Meist ist es ein unsauber beendetes Klassenbuch;',
+    'öffne es neu. Passiert es bei offenem Klassenbuch wieder, belegt ein anderes Programm den',
+    'Namen des Kanals.',
+  ].join('\n'),
   scrittoPiùVolte: (nome) => `--${nome} steht mehrmals da: Es gilt das letzte.`,
   jsonElenco:
     '--json erwartet ein Objekt: Die Eingabe ist immer ein Objekt. ' +
@@ -357,6 +392,24 @@ const fr = {
     'Sans ce fichier, on ne sait pas à quelle adresse frapper. Si le registre garde ses',
     'données ailleurs (installation portable), l’adresse se donne avec REGISTRO_CONDOTTO.',
   ].join('\n'),
+  mancaChiave: (file) => [
+    'Le registre ne répond pas sur le canal : sa clé manque.',
+    '',
+    `Le registre écrit la clé dans ${file} chaque fois qu’il active le canal, et l’enlève`,
+    'quand il le désactive. Sans elle, « regi » ne sait pas se présenter et ne frappe chez',
+    'personne. Si le registre garde ses données ailleurs (installation portable), le fichier',
+    'se donne avec REGISTRO_CHIAVE.',
+  ].join('\n'),
+  chiaveRifiutata: [
+    'Le registre a refusé la clé : celle du fichier n’est pas celle de ce démarrage du canal.',
+    'Cela arrive si REGISTRO_CHIAVE indique le fichier d’un autre registre. Sinon, rouvre le',
+    'registre.',
+  ].join('\n'),
+  impostore: [
+    'Ce qui répond sur le canal n’a pas prouvé avoir la clé du registre : on n’envoie rien',
+    'd’autre. D’habitude, c’est un registre mal fermé ; rouvre-le. Si cela se reproduit avec',
+    'le registre ouvert, un autre programme occupe le nom du canal.',
+  ].join('\n'),
   scrittoPiùVolte: (nome) => `--${nome} est écrit plusieurs fois : c’est le dernier qui compte.`,
   jsonElenco:
     '--json attend un objet : l’entrée est toujours un objet. ' +
@@ -487,6 +540,24 @@ const en = {
     'Without that file there is no knowing which address to knock on. If the register',
     'keeps its data elsewhere (portable installation), give the address with',
     'REGISTRO_CONDOTTO.',
+  ].join('\n'),
+  mancaChiave: (file) => [
+    'The register is not answering on the pipe: its key is missing.',
+    '',
+    `The register writes the key to ${file} every time it turns the pipe on, and removes it`,
+    'when it turns it off. Without it, “regi” cannot introduce itself and knocks on no door.',
+    'If the register keeps its data elsewhere (portable installation), give the file with',
+    'REGISTRO_CHIAVE.',
+  ].join('\n'),
+  chiaveRifiutata: [
+    'The register refused the key: the one in the file does not belong to this pipe start.',
+    'This happens if REGISTRO_CHIAVE points at another register’s file. Otherwise, reopen the',
+    'register.',
+  ].join('\n'),
+  impostore: [
+    'Whatever answers on the pipe has not proved it holds the register’s key: nothing else is',
+    'sent. Usually it is a register that closed badly; reopen it. If it happens again with the',
+    'register open, another program is holding the pipe’s name.',
   ].join('\n'),
   scrittoPiùVolte: (nome) => `--${nome} is given more than once: the last one wins.`,
   jsonElenco:

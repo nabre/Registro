@@ -40,13 +40,12 @@ import { graficoNote } from '../components/notes.js'
 import { notifica } from '../components/notifications.js'
 import { h, type Figlio } from '../dom.js'
 import { chiediEliminazione, moduloAnno, moduloValutazione } from '../forms.js'
-import { grigliaVoti, SIGLA_ASSENTE } from './grades.js'
+import { grigliaVoti, scegliMomento, SIGLA_ASSENTE } from './grades.js'
 import { pannelloRecuperi } from './retakes.js'
 import { pannelloRiconsegna } from './returns.js'
 import { testi } from './assessments.testi.js'
 import { azione } from '../bridge.js'
 import {
-  aggiorna,
   annoCorrente,
   classeDiMomento,
   classePerId,
@@ -55,7 +54,9 @@ import {
   valutazionePerId,
   nomeSemestreScelto,
   nelSemestreScelto,
+  vai,
 } from '../state.js'
+import { apriLezione } from '../pages.js'
 
 /**
  * I momenti di un corso nel semestre scelto dalla barra (quello in cui cade la
@@ -137,7 +138,8 @@ function dettaglioMomento (momento: MomentoValutazione): HTMLElement {
             testo: t.vaiAllaLezione,
             simbolo: 'calendario',
             variante: 'fantasma',
-            al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id, data: lezione.data }),
+            // L'ora porta con sé il suo giorno.
+            al: () => apriLezione(lezione.id),
           })
         : null,
       pulsante({
@@ -158,7 +160,7 @@ function dettaglioMomento (momento: MomentoValutazione): HTMLElement {
             valutazioneId: momento.id,
           })
           if (!risposta.ok) return
-          aggiorna({ valutazioneId: null })
+          scegliMomento(null)
           notifica(t.momentoEliminato, 'info')
         },
       }),
@@ -279,7 +281,7 @@ function riquadroOrfane (corso: Corso | null): Figlio {
             collegamento({
               testo: `${formattaData(orfana.momento.data)} · ${orfana.momento.titolo}`,
               titolo: t.apriQuestoMomento,
-              al: () => aggiorna({ valutazioneId: orfana.momento.id }),
+              al: () => scegliMomento(orfana.momento.id),
             }),
             h(
               'span',
@@ -329,7 +331,7 @@ export function vistaValutazioni (): Figlio {
       azione: pulsante({
         testo: t.vaiAiCorsi,
         variante: 'primario',
-        al: () => aggiorna({ vista: 'corsi' }),
+        al: () => { vai({ pagina: 'pagina.corsi' }) },
       }),
     })
   }
@@ -344,9 +346,11 @@ export function vistaValutazioni (): Figlio {
       : null
   const momentoMostrato = daMostrare ?? momenti.at(-1) ?? null
 
+  // Catena di telaio fino alla griglia dei voti (`grades.ts`): la scatola che
+  // scorre di lato resta la stessa a ogni voto scritto.
   return h(
     'div',
-    { class: 'vista vista--valutazioni' },
+    { class: 'vista vista--valutazioni', dataset: { telaio: 'valutazioni' } },
     testataVista({
       titolo: Molti(lessico().momento),
       sottotitolo: `${classe.nome} · ${nomeSemestreScelto()}`,
@@ -370,10 +374,10 @@ export function vistaValutazioni (): Figlio {
         })
       : h(
           'div',
-          { class: 'colonne colonne--valutazioni' },
+          { class: 'colonne colonne--valutazioni', dataset: { telaio: 'valutazioni:colonne' } },
           h(
             'div',
-            { class: 'colonna colonna--larga' },
+            { class: 'colonna colonna--larga', dataset: { telaio: 'valutazioni:griglia' } },
             // Si scrive anche qui: è la pagina dell'anno intero, per correggere voti
             // vecchi e mettere quelli che non appartengono a un'ora.
             grigliaVoti(classe, momenti),

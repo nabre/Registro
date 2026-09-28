@@ -5,7 +5,7 @@ from banco import FOTOGRAMMA, chromium, pannello
 
 with chromium() as browser:
     page, errors = pannello(browser)
-    page.evaluate("prova.aggiorna({vista:'impostazioni',ambitoImpostazioni:'documento',schedaDocumento:'anno'})")
+    page.evaluate("prova.vai({pagina:'pagina.impostazioni',scheda:'documento.anno'})")
     page.evaluate(FOTOGRAMMA)
 
     # I gruppi cambiano insieme di schede: pulsanti, non una falsa tablist annidata.
