@@ -476,7 +476,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     const prima = archivio.registro.classi.map((c) => c.archiviata)
     archivio.modifica((r) => {
       for (const classe of r.classi) classe.archiviata = true
-    }, [])
+    }, ['classi'])
     try {
       const esito = await api.chiama(archivio, 'persone.cerca', {})
       assert.equal(esito.ok, true, JSON.stringify(esito))
@@ -495,7 +495,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     } finally {
       archivio.modifica((r) => {
         r.classi.forEach((classe, i) => { classe.archiviata = prima[i] })
-      }, [])
+      }, ['classi'])
     }
   })
 
@@ -531,7 +531,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
       const [uno, due] = r.classi[0].allievi
       uno.cognome = 'Müller'; uno.nome = 'Jürg'
       due.cognome = 'Dell’Acqua'; due.nome = 'Renée'
-    }, [])
+    }, ['classi'])
     try {
       for (const [cercato, atteso] of [
         ['muller', 'Müller Jürg'],
@@ -552,7 +552,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     } finally {
       archivio.modifica((r) => {
         r.classi[0].allievi.forEach((a, i) => { [a.cognome, a.nome] = prima[i] })
-      }, [])
+      }, ['classi'])
     }
   })
 
@@ -584,7 +584,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     const prima = archivio.registro.classi.map((c) => c.archiviata)
     archivio.modifica((r) => {
       r.classi.find((c) => c.nome === 'II MEC B').archiviata = true
-    }, [])
+    }, ['classi'])
     try {
       const esito = await api.chiama(archivio, 'classi.elenco', {})
       assert.equal(esito.ok, true, JSON.stringify(esito))
@@ -597,7 +597,7 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     } finally {
       archivio.modifica((r) => {
         r.classi.forEach((classe, i) => { classe.archiviata = prima[i] })
-      }, [])
+      }, ['classi'])
     }
   })
 
@@ -925,13 +925,13 @@ describe('persone.argomenti', () => {
       r.lezioni.find((l) => l.id === secondaOra.id).argomenti = 'Equazioni di primo grado'
       r.lezioni.find((l) => l.id === oraSenzaOrario.id).argomenti = 'La Grande Guerra'
       r.lezioni.find((l) => l.id === altraOraSenzaOrario.id).argomenti = ''
-    }, [])
+    }, ['lezioni'])
     try {
       await fai()
     } finally {
       archivio.modifica((r) => {
         r.lezioni.forEach((l, i) => { l.argomenti = prima[i] })
-      }, [])
+      }, ['lezioni'])
     }
   }
 
@@ -1075,7 +1075,7 @@ describe('i filtri che le letture si dividono', () => {
     const prima = archivio.registro.lezioni.map((l) => l.argomenti)
     archivio.modifica((r) => {
       r.lezioni.find((l) => l.id === primaOra.id).argomenti = 'Frazioni equivalenti'
-    }, [])
+    }, ['lezioni'])
     try {
       const cercate = await api.chiama(archivio, 'ore.elenco', { cerca: 'frazioni' })
       assert.deepEqual(cercate.dati.ore.map((o) => o.id), [primaOra.id])
@@ -1090,7 +1090,7 @@ describe('i filtri che le letture si dividono', () => {
     } finally {
       archivio.modifica((r) => {
         r.lezioni.forEach((l, i) => { l.argomenti = prima[i] })
-      }, [])
+      }, ['lezioni'])
     }
   })
 })

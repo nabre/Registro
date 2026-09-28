@@ -221,7 +221,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   oggetto `satisfies Parte`, e un'azione senza gestore non compila. `Contesto`
   ([context.ts](../core/azioni/context.ts)) è la porta verso lo stato:
   `modifica(op, collezioni)`, `suVoce` (timbra `aggiornatoIl`), `nelFascicolo`,
-  `elimina`.
+  `elimina`. Oggi `op` cambia lo stato vivo dopo `ricordaPrima`; `Archivio.modifica`
+  invece passa `op` su una bozza immer e ricava le collezioni dalle patch (ADR-50).
 - **`contract/`** — il contratto davanti ai gestori: protocollo, schemi e procedure
   (ADR-27–29, [API](API.md)).
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML

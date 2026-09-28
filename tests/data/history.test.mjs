@@ -106,18 +106,33 @@ describe('la storia dei gesti', () => {
     archivio.dispose()
   })
 
-  it('prende la copia di prima anche da chi cambia lo stato prima di dichiararlo', async () => {
-    // Il modo del contesto delle azioni: cambia lo stato vivo, poi chiama
-    // `modifica` con un'operazione vuota.
+  it('un\'operazione che rinuncia non lascia niente, nemmeno a metà', async () => {
+    // Il modo del contesto delle azioni: la voce sparita si scopre sulla bozza.
     const archivio = await archivioVuoto()
+    const revisione = archivio.revisione
+    let esito
     await archivio.inUnPasso(async () => {
-      archivio.ricordaPrima(['classi'])
-      archivio.registro.classi.push(api.creaClasse('anno-prova', 'IV A'))
-      archivio.modifica(() => undefined, ['classi'])
+      esito = archivio.modificaSe((r) => {
+        r.classi.push(api.creaClasse('anno-prova', 'IV A'))
+        return false
+      }, ['classi'])
     })
-    assert.deepEqual(nomi(archivio), ['IV A'])
-    assert.equal(archivio.annulla().ok, true)
-    assert.deepEqual(nomi(archivio), [], 'la copia di prima era già quella di dopo')
+    assert.equal(esito, false)
+    assert.deepEqual(nomi(archivio), [])
+    assert.equal(archivio.revisione, revisione)
+    assert.deepEqual(archivio.contiStoria, { annulla: 0, ripristina: 0 })
+    archivio.dispose()
+  })
+
+  it('un oggetto preso dallo stato vivo e cambiato nell\'operazione ferma la scrittura', async () => {
+    // Non farebbe patch: non arriverebbe su disco né nella storia.
+    const archivio = await archivioVuoto()
+    archivio.modifica((r) => { r.classi.push(api.creaClasse('anno-prova', 'IV A')) }, ['classi'])
+    const viva = archivio.registro.classi[0]
+    assert.throws(
+      () => archivio.modifica(() => { viva.nome = 'IV B' }, ['classi']),
+      /fuori dalla bozza/,
+    )
     archivio.dispose()
   })
 
