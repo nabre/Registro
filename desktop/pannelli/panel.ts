@@ -40,13 +40,13 @@ import { testi } from './panels.testi.js'
 
 /** Nome del programma, solo nella barra quando non c'è un anno aperto. */
 // testo-fisso: il marchio, lo stesso in tutte le lingue
-const NOME_PROGRAMMA = 'Regiclass'
+const NOME_PROGRAMMA = 'Regiklass'
 
 /** L'estensione del documento in fondo a un nome, senza distinguere maiuscole. */
 const ESTENSIONE_FINALE = new RegExp(`${ESTENSIONE.replace('.', '\\.')}$`, 'i')
 
 /**
- * Titolo della finestra, «2026-2027 — Regiclass»: il nome del file senza
+ * Titolo della finestra, «2026-2027 — Regiklass»: il nome del file senza
  * estensione viene prima, perché la barra delle applicazioni taglia a destra.
  */
 function titoloFinestra (percorso: string | null): string {
@@ -198,7 +198,7 @@ export class PannelloRegistro {
     const pannello = apparato.finestre.crea(
       'registroDocenti.pannello',
       // testo-fisso: il marchio non si traduce
-      'Regiclass',
+      'Regiklass',
       apparato.ViewColumn.One,
       {
         enableScripts: true,
@@ -258,7 +258,7 @@ export class PannelloRegistro {
     if (PannelloRegistro.finestreDiErrore.has(frase)) return
     PannelloRegistro.finestreDiErrore.add(frase)
     // testo-fisso: il marchio non si traduce
-    const messaggioFinestra = typeof testo === 'string' ? `Regiclass: ${testo}` : testo
+    const messaggioFinestra = typeof testo === 'string' ? `Regiklass: ${testo}` : testo
     void apparato.dialoghi.errore(messaggioFinestra as unknown as string).finally(() => {
       PannelloRegistro.finestreDiErrore.delete(frase)
     })
@@ -501,7 +501,7 @@ export class PannelloRegistro {
       radiceApp: this.contesto.extensionUri,
       bundle: 'panel',
       // testo-fisso: il marchio non si traduce
-      titolo: 'Regiclass',
+      titolo: 'Regiklass',
       classe: 'app',
     })
   }

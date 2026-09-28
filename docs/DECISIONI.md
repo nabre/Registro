@@ -1,4 +1,4 @@
-# Decisioni architetturali — Regiclass
+# Decisioni architetturali — Regiklass
 
 Le scelte strutturali e i vincoli che una rifattorizzazione non può rompere
 senza saperlo. Per ogni ADR: la decisione, i vincoli, dove vive.
@@ -512,17 +512,17 @@ omonimi da dichiarare). Il come: skill `testi`.
 miniatura del tema, nei blocchi `[data-tema-figura]`
 (`tests/ui/themeFigure.test.mjs`).
 
-### ADR-40 — Il nome: Regiclass
+### ADR-40 — Il nome: Regiklass
 
 **Decisione.**
-- Marchio **Regiclass**, non si traduce; nome npm `regiclass`, artefatti
-  `regiclass-<versione>-installer.exe` / `-portabile.exe`.
-- `appId` `ch.nabre.regiclass`; `nsis.guid` fisso al GUID ricavato dal vecchio
+- Marchio **Regiklass**, non si traduce; nome npm `regiklass`, artefatti
+  `regiklass-<versione>-installer.exe` / `-portabile.exe`.
+- `appId` `ch.nabre.regiklass`; `nsis.guid` fisso al GUID ricavato dal vecchio
   `ch.edu.ti.cptt.registro-docenti`.
-- Eseguibile `Regiclass.exe`: lo script d'aggiornamento installato
-  (`os/windows/aggiornamento.ps1`) riconosce ancora il nome precedente e
-  riapre quello nuovo nello stesso percorso.
-- Cartella dei dati `%APPDATA%\Regiclass` (rinominata al primo avvio).
+- Eseguibile `Regiklass.exe`: lo script d'aggiornamento installato
+  (`os/windows/aggiornamento.ps1`) riconosce ancora i nomi precedenti (`Regiclass.exe`
+  e `Registro docenti.exe`) e riapre quello nuovo nello stesso percorso.
+- Cartella dei dati `%APPDATA%\Regiklass` (rinominata al primo avvio).
 - Estensione `.regi`.
 - Comando `regi`.
 - Restano: formato `registro-docenti/anno`, protocollo `registro://`, chiavi

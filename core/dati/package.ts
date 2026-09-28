@@ -455,7 +455,7 @@ export class Pacchetto {
       formato: FORMATO,
       versione: VERSIONE_PACCHETTO,
       // testo-fisso: il marchio, scritto dentro il documento
-      applicazione: this.manifesto.applicazione ?? 'Regiclass',
+      applicazione: this.manifesto.applicazione ?? 'Regiklass',
       scritto: new Date().toISOString(),
     }
 

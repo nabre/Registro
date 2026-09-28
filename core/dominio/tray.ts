@@ -40,7 +40,7 @@ export const SEGNO_FASE: Readonly<Record<FaseOra, string>> = {
 }
 
 /** Il nome del programma, in testa al menu e al suggerimento. */
-const MARCHIO = 'Regiclass' // testo-fisso: il marchio non si traduce
+const MARCHIO = 'Regiklass' // testo-fisso: il marchio non si traduce
 
 /**
  * I mucchi in cui le ore di un corso si presentano, nell'ordine del menu.
@@ -112,7 +112,7 @@ interface OraDaFareVassoio {
 }
 
 export interface AlberoVassoio {
-  /** La riga spenta in testa al menu: «Regiclass — 2 ore da chiudere». */
+  /** La riga spenta in testa al menu: «Regiklass — 2 ore da chiudere». */
   intestazione: string
   /** Il testo che compare fermandosi sopra l'icona, su due o tre righe. */
   suggerimento: string

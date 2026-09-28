@@ -1,4 +1,4 @@
-"""Gate WCAG automatico dell'intera shell Regiclass con axe-core locale.
+"""Gate WCAG automatico dell'intera shell Regiklass con axe-core locale.
 
 Costruire prima i bundle con ``node esbuild.mjs --ui``. Il test visita ogni
 pagina dichiarata dall'app in entrambi gli schemi colore. Fallisce solo per
@@ -47,7 +47,7 @@ def prepara(browser, schema):
     errori = []
     page.on('pageerror', lambda errore: errori.append(str(errore)))
     page.set_content(
-        '<html lang="it"><head><title>Regiclass</title></head>'
+        '<html lang="it"><head><title>Regiklass</title></head>'
         '<body class="app"><div id="radice"></div></body></html>')
     page.add_script_tag(content=PONTE)
     page.add_style_tag(path=str(root / 'dist-tests/ui.css'))

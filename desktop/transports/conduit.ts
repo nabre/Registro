@@ -98,7 +98,7 @@ const MASSIMO_ACCODATO = 16 * 1024 * 1024
  * `cli/common.mjs`: così la riga di comando ritrova il condotto.
  */
 // testo-fisso: il `productName` dell'applicazione, parte di un percorso
-const NOME_APPLICAZIONE = 'Regiclass'
+const NOME_APPLICAZIONE = 'Regiklass'
 
 // -------------------------------------------------------------- l'indirizzo
 
@@ -157,10 +157,10 @@ export function indirizzoCondotto (): string {
     .digest('hex')
     .slice(0, 12)
   if (process.platform !== 'win32') {
-    return join(cartellaDelSocket(), `regiclass-${impronta}.sock`)
+    return join(cartellaDelSocket(), `regiklass-${impronta}.sock`)
   }
   const segreto = leggiSegreto(cartella)
-  return `\\\\.\\pipe\\regiclass-${impronta}${segreto ? `-${segreto}` : ''}`
+  return `\\\\.\\pipe\\regiklass-${impronta}${segreto ? `-${segreto}` : ''}`
 }
 
 /**

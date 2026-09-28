@@ -249,9 +249,9 @@ async function cifra (presa: Socket, server: string): Promise<TLSSocket> {
   })
 }
 
-/** Il nome per `EHLO`: il nome della macchina ripulito, o `regiclass`. */
+/** Il nome per `EHLO`: il nome della macchina ripulito, o `regiklass`. */
 function nomeDelCliente (): string {
-  return hostname().replace(/[^A-Za-z0-9.-]/g, '') || 'regiclass'
+  return hostname().replace(/[^A-Za-z0-9.-]/g, '') || 'regiklass'
 }
 
 /** Legge una risposta non sollecitata (il saluto d'apertura) e pretende `atteso`. */

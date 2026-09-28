@@ -1,4 +1,4 @@
-# Regiclass
+# Regiklass
 
 Applicazione desktop Electron/TypeScript per gestire un registro di classe. Il
 codice, i nomi di dominio, i commenti e la documentazione sono in italiano.

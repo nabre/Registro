@@ -28,10 +28,10 @@ export function indirizzo () {
     .slice(0, 12)
   if (process.platform !== 'win32') {
     const corsa = process.env.XDG_RUNTIME_DIR
-    return join(corsa && corsa !== '' ? corsa : tmpdir(), `regiclass-${impronta}.sock`)
+    return join(corsa && corsa !== '' ? corsa : tmpdir(), `regiklass-${impronta}.sock`)
   }
   const segreto = segretoDelCondotto(cartella)
-  return segreto ? `\\\\.\\pipe\\regiclass-${impronta}-${segreto}` : null
+  return segreto ? `\\\\.\\pipe\\regiklass-${impronta}-${segreto}` : null
 }
 
 /** Il segreto del nome della pipe, come l'ha scritto il condotto; `null` se non c'è. */

@@ -1,7 +1,7 @@
 ---
 name: sciame
 description: >
-  Come si conduce un «giro di sciame» su Regiclass — il modo di lavorare
+  Come si conduce un «giro di sciame» su Regiklass — il modo di lavorare
   che la decisione D1 di `docs/CANTIERE.md` ha reso il modo di lavorare del
   progetto: si esplora in parallelo su dimensioni disgiunte, si verifica in modo
   avversariale, si applica su perimetri di file che non si sovrappongono, e si

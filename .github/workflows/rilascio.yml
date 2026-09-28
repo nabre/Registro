@@ -120,7 +120,7 @@ jobs:
       # dei nomi lo decide SignPath al momento dell'ammissione: vedi GUIDA,
       # § «La firma del codice».
       FIRMA: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' }}
-      SIGNPATH_PROGETTO: regiclass
+      SIGNPATH_PROGETTO: regiklass
       SIGNPATH_POLITICA: release-signing
     steps:
       - uses: actions/checkout@v7
@@ -157,7 +157,7 @@ jobs:
           gh release create "$TAG" \
             --draft \
             --target "$GITHUB_SHA" \
-            --title "Regiclass ${TAG#v}" \
+            --title "Regiklass ${TAG#v}" \
             --generate-notes \
             "${anteprima[@]}"
 
@@ -228,7 +228,7 @@ jobs:
         shell: pwsh
         run: >
           ./tools/peMetadata.ps1 -Attesa '${{ steps.versioni.outputs.versioneWindows }}'
-          -File 'pacchetti/win-unpacked/Regiclass.exe'
+          -File 'pacchetti/win-unpacked/Regiklass.exe'
 
       - name: Eseguibile da firmare
         id: eseguibile
@@ -236,7 +236,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: eseguibile-da-firmare
-          path: pacchetti/win-unpacked/Regiclass.exe
+          path: pacchetti/win-unpacked/Regiklass.exe
           if-no-files-found: error
           retention-days: 1
 
@@ -259,7 +259,7 @@ jobs:
       - name: Eseguibile firmato al suo posto
         if: env.FIRMA == 'true'
         shell: bash
-        run: cp "pacchetti/eseguibile-firmato/Regiclass.exe" "pacchetti/win-unpacked/Regiclass.exe"
+        run: cp "pacchetti/eseguibile-firmato/Regiklass.exe" "pacchetti/win-unpacked/Regiklass.exe"
 
       # `--prepackaged`: electron-builder non rifà l'applicazione, prende quella
       # di `win-unpacked/` così com'è — firmata — e ci costruisce intorno i due
@@ -271,8 +271,8 @@ jobs:
         shell: pwsh
         run: >
           ./tools/peMetadata.ps1 -Attesa '${{ steps.versioni.outputs.versione }}'
-          -File "pacchetti/regiclass-${{ steps.versioni.outputs.versione }}-installer.exe",
-          "pacchetti/regiclass-${{ steps.versioni.outputs.versione }}-portabile.exe"
+          -File "pacchetti/regiklass-${{ steps.versioni.outputs.versione }}-installer.exe",
+          "pacchetti/regiklass-${{ steps.versioni.outputs.versione }}-portabile.exe"
 
       - name: Installatori da firmare
         id: installatori
@@ -315,7 +315,7 @@ jobs:
         if: env.FIRMA == 'true'
         shell: pwsh
         run: |
-          $file = @(Get-Item 'pacchetti/win-unpacked/Regiclass.exe') +
+          $file = @(Get-Item 'pacchetti/win-unpacked/Regiklass.exe') +
                   @(Get-ChildItem pacchetti -Filter *-installer.exe) +
                   @(Get-ChildItem pacchetti -Filter *-portabile.exe)
           $guasti = 0

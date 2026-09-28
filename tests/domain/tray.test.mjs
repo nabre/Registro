@@ -159,7 +159,7 @@ describe('il menu del vassoio', () => {
     const albero = alberoVassoio(registro, OGGI, '12:00')
 
     assert.equal(albero.daChiudere, 3)
-    assert.equal(albero.intestazione, 'Regiclass — 3 ore da chiudere')
+    assert.equal(albero.intestazione, 'Regiklass — 3 ore da chiudere')
   })
 
   it('niente da chiudere si dice, invece di lasciare la riga muta', () => {
@@ -169,7 +169,7 @@ describe('il menu del vassoio', () => {
     const albero = alberoVassoio(registro, OGGI)
 
     assert.equal(albero.daChiudere, 0)
-    assert.equal(albero.intestazione, 'Regiclass — niente da chiudere')
+    assert.equal(albero.intestazione, 'Regiklass — niente da chiudere')
   })
 
   it('porta all’ora su cui andare: il buco vecchio prima della prossima', () => {
@@ -288,6 +288,6 @@ describe('il menu del vassoio', () => {
     assert.deepEqual(albero.corsi, [])
     assert.equal(albero.daFare, null)
     assert.equal(albero.inCorso, null)
-    assert.equal(albero.suggerimento, 'Regiclass')
+    assert.equal(albero.suggerimento, 'Regiklass')
   })
 })

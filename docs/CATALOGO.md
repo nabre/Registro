@@ -1,4 +1,4 @@
-# Catalogo delle funzioni — Regiclass
+# Catalogo delle funzioni — Regiklass
 
 L'inventario di quel che l'applicazione sa fare, superficie per superficie: la
 risposta a «esiste già un'azione per questo?». Le procedure dell'API, le

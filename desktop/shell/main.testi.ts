@@ -16,17 +16,17 @@ const it = {
   documento: 'Documento',
 
   // Gli aggiornamenti
-  aggiornatoAlla: (versione: string) => `Regiclass è aggiornato alla versione ${versione}`,
+  aggiornatoAlla: (versione: string) => `Regiklass è aggiornato alla versione ${versione}`,
   noteDellaRelease: 'Che cosa cambia lo trovi nelle note della release, su GitHub.',
   aggiornamentoFallito: 'L’aggiornamento non è andato a buon fine',
   giraAncora: (versione: string) =>
     `Gira ancora la versione ${versione}. Si può riprovare da ` +
     'Impostazioni › Programma › Aggiornamenti.',
-  versionePronta: (versione: string) => `Regiclass ${versione} è pronto`,
+  versionePronta: (versione: string) => `Regiklass ${versione} è pronto`,
 
   // Aprire un anno
   nonSiÈAperto: (file: string, motivo: string) => `${file} non si è aperto: ${motivo}`,
-  estensioneNonValida: (file: string) => `${file} non è un documento Regiclass (.regi).`,
+  estensioneNonValida: (file: string) => `${file} non è un documento Regiklass (.regi).`,
   apriUnAnno: 'Apri un anno del registro',
 
   // La prima X che non chiude
@@ -43,15 +43,15 @@ export const testi = catalogo(it, {
     aproAnno: (nome) => `Schuljahr ${nome} wird geöffnet…`,
     preparoRegistro: 'Klassenbuch wird vorbereitet…',
     documento: 'Dokument',
-    aggiornatoAlla: (versione) => `Regiclass ist auf Version ${versione} aktualisiert`,
+    aggiornatoAlla: (versione) => `Regiklass ist auf Version ${versione} aktualisiert`,
     noteDellaRelease: 'Was sich ändert, steht in den Release-Notes auf GitHub.',
     aggiornamentoFallito: 'Die Aktualisierung hat nicht geklappt',
     giraAncora: (versione) =>
       `Es läuft noch Version ${versione}. Du kannst es erneut versuchen unter ` +
       'Einstellungen › Programm › Aktualisierungen.',
-    versionePronta: (versione) => `Regiclass ${versione} ist bereit`,
+    versionePronta: (versione) => `Regiklass ${versione} ist bereit`,
     nonSiÈAperto: (file, motivo) => `${file} liess sich nicht öffnen: ${motivo}`,
-    estensioneNonValida: (file) => `${file} ist kein Regiclass-Dokument (.regi).`,
+    estensioneNonValida: (file) => `${file} ist kein Regiklass-Dokument (.regi).`,
     apriUnAnno: 'Schuljahr des Klassenbuchs öffnen',
     restaAccantoAllOrologio: 'Das Klassenbuch bleibt neben der Uhr',
     comeSiRiapre:
@@ -64,15 +64,15 @@ export const testi = catalogo(it, {
     aproAnno: (nome) => `Ouverture de l’année ${nome}…`,
     preparoRegistro: 'Préparation du registre…',
     documento: 'Document',
-    aggiornatoAlla: (versione) => `Regiclass est à jour, version ${versione}`,
+    aggiornatoAlla: (versione) => `Regiklass est à jour, version ${versione}`,
     noteDellaRelease: 'Ce qui change se trouve dans les notes de version, sur GitHub.',
     aggiornamentoFallito: 'La mise à jour n’a pas abouti',
     giraAncora: (versione) =>
       `C’est encore la version ${versione} qui tourne. On peut réessayer depuis ` +
       'Paramètres › Programme › Mises à jour.',
-    versionePronta: (versione) => `Regiclass ${versione} est prêt`,
+    versionePronta: (versione) => `Regiklass ${versione} est prêt`,
     nonSiÈAperto: (file, motivo) => `${file} ne s’est pas ouvert : ${motivo}`,
-    estensioneNonValida: (file) => `${file} n’est pas un document Regiclass (.regi).`,
+    estensioneNonValida: (file) => `${file} n’est pas un document Regiklass (.regi).`,
     apriUnAnno: 'Ouvrir une année du registre',
     restaAccantoAllOrologio: 'Le registre reste près de l’horloge',
     comeSiRiapre:
@@ -85,15 +85,15 @@ export const testi = catalogo(it, {
     aproAnno: (nome) => `Opening the year ${nome}…`,
     preparoRegistro: 'Getting the register ready…',
     documento: 'Document',
-    aggiornatoAlla: (versione) => `Regiclass has been updated to version ${versione}`,
+    aggiornatoAlla: (versione) => `Regiklass has been updated to version ${versione}`,
     noteDellaRelease: 'You’ll find what has changed in the release notes, on GitHub.',
     aggiornamentoFallito: 'The update did not succeed',
     giraAncora: (versione) =>
       `Version ${versione} is still running. You can try again from ` +
       'Settings › Program › Updates.',
-    versionePronta: (versione) => `Regiclass ${versione} is ready`,
+    versionePronta: (versione) => `Regiklass ${versione} is ready`,
     nonSiÈAperto: (file, motivo) => `${file} did not open: ${motivo}`,
-    estensioneNonValida: (file) => `${file} is not a Regiclass document (.regi).`,
+    estensioneNonValida: (file) => `${file} is not a Regiklass document (.regi).`,
     apriUnAnno: 'Open a year of the register',
     restaAccantoAllOrologio: 'The register stays next to the clock',
     comeSiRiapre:

@@ -16,7 +16,7 @@ const it = {
     'Il registro non ha ricevuto il permesso. Torna al registro: là c’è scritto perché.',
   permessoRicevuto:
     'Il registro ha ricevuto il permesso. Puoi chiudere questa scheda e tornare al registro.',
-  accedi: (indirizzo: string) => `Regiclass: accedi come ${indirizzo} nel browser che si è aperto…`,
+  accedi: (indirizzo: string) => `Regiklass: accedi come ${indirizzo} nel browser che si è aperto…`,
   accessoNonAperto: (dettaglio: string) =>
     `Il registro non è riuscito ad aprire l’accesso nel browser. (${dettaglio})`,
   tempoScaduto: 'È passato troppo tempo senza che l’accesso finisse: riprova.',
@@ -59,7 +59,7 @@ export const testi = catalogo(it, {
       'Das Klassenbuch hat die Berechtigung erhalten. Du kannst diesen Tab schliessen und ' +
       'zum Klassenbuch zurückkehren.',
     accedi: (indirizzo) =>
-      `Regiclass: Melde dich im geöffneten Browser als ${indirizzo} an…`,
+      `Regiklass: Melde dich im geöffneten Browser als ${indirizzo} an…`,
     accessoNonAperto: (dettaglio) =>
       `Das Klassenbuch konnte die Anmeldung im Browser nicht öffnen. (${dettaglio})`,
     tempoScaduto: 'Es ist zu viel Zeit vergangen, ohne dass die Anmeldung abgeschlossen wurde: ' +
@@ -103,7 +103,7 @@ export const testi = catalogo(it, {
     permessoRicevuto:
       'Le registre a reçu l’autorisation. Tu peux fermer cet onglet et retourner au registre.',
     accedi: (indirizzo) =>
-      `Regiclass : connecte-toi en tant que ${indirizzo} dans le navigateur qui s’est ouvert…`,
+      `Regiklass : connecte-toi en tant que ${indirizzo} dans le navigateur qui s’est ouvert…`,
     accessoNonAperto: (dettaglio) =>
       `Le registre n’a pas réussi à ouvrir la connexion dans le navigateur. (${dettaglio})`,
     tempoScaduto: 'Trop de temps a passé sans que la connexion aboutisse : réessaie.',
@@ -145,7 +145,7 @@ export const testi = catalogo(it, {
     permessoRicevuto:
       'The register has received permission. You can close this tab and go back to the ' +
       'register.',
-    accedi: (indirizzo) => `Regiclass: sign in as ${indirizzo} in the browser that has opened…`,
+    accedi: (indirizzo) => `Regiklass: sign in as ${indirizzo} in the browser that has opened…`,
     accessoNonAperto: (dettaglio) =>
       `The register couldn’t open the sign-in page in the browser. (${dettaglio})`,
     tempoScaduto: 'Too much time passed without the sign-in finishing: try again.',

@@ -259,7 +259,7 @@ export function mostraBenvenuto (azioni: Azioni): Promise<Scelta | null> {
   const nata = new BrowserWindow({
     ...postoDi('benvenuto', { width: 860, height: 580, minWidth: 520, minHeight: 420 }),
     // testo-fisso: il marchio non si traduce
-    title: 'Regiclass',
+    title: 'Regiklass',
     show: false,
     backgroundColor: coloreSfondo(),
     ...icona(),

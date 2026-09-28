@@ -10,7 +10,7 @@ with sync_playwright() as p:
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.set_content(
-        '<html lang="it"><head><title>Regiclass</title></head>'
+        '<html lang="it"><head><title>Regiklass</title></head>'
         '<body class="app"><div id="radice"></div></body></html>')
     page.add_script_tag(content='''window.acquireVsCodeApi=()=>({
       getState:()=>null,setState:()=>{},postMessage:m=>{

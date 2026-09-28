@@ -14,14 +14,14 @@ const it = {
   diCorso: (titolo: string) => ` di ${titolo}`,
   diCorsi: (quanti: number) => ` di ${quanti} corsi`,
   aggiornatiConErrori: (scritti: number, dove: string, falliti: number, primo: string) =>
-    `Regiclass: ${scritti} documenti${dove} aggiornati, ${falliti} no. ${primo}`,
+    `Regiklass: ${scritti} documenti${dove} aggiornati, ${falliti} no. ${primo}`,
   aggiornatiDopo: (scritti: number, dove: string, giorno: string) =>
-    `Regiclass: ${scritti} documenti${dove} aggiornati dopo la lezione del ${giorno}.`,
+    `Regiklass: ${scritti} documenti${dove} aggiornati dopo la lezione del ${giorno}.`,
   nonRifattiDellaLezione: (giorno: string, motivo: string) =>
-    `Regiclass: i documenti della lezione del ${giorno} non si sono potuti rifare: ${motivo}`,
+    `Regiklass: i documenti della lezione del ${giorno} non si sono potuti rifare: ${motivo}`,
   nonRifatti: (falliti: number, primo: string) =>
-    `Regiclass: ${falliti} documenti non si sono potuti rifare. ${primo}`,
-  nonRifattiPerche: (motivo: string) => `Regiclass: i documenti non si sono potuti rifare: ${motivo}`,
+    `Regiklass: ${falliti} documenti non si sono potuti rifare. ${primo}`,
+  nonRifattiPerche: (motivo: string) => `Regiklass: i documenti non si sono potuti rifare: ${motivo}`,
   lezioneNonTrovata: 'Lezione non trovata.',
   pianoNonTrovato: 'Piano non trovato.',
   corsoNonTrovato: 'Corso non trovato.',
@@ -49,14 +49,14 @@ export const testi = catalogo(it, {
     diCorso: (titolo) => ` von ${titolo}`,
     diCorsi: (quanti) => ` von ${quanti} Kursen`,
     aggiornatiConErrori: (scritti, dove, falliti, primo) =>
-      `Regiclass: ${plurale(scritti, 'Dokument', 'Dokumente')}${dove} aktualisiert, ${falliti} nicht. ${primo}`,
+      `Regiklass: ${plurale(scritti, 'Dokument', 'Dokumente')}${dove} aktualisiert, ${falliti} nicht. ${primo}`,
     aggiornatiDopo: (scritti, dove, giorno) =>
-      `Regiclass: ${plurale(scritti, 'Dokument', 'Dokumente')}${dove} nach der Stunde vom ${giorno} aktualisiert.`,
+      `Regiklass: ${plurale(scritti, 'Dokument', 'Dokumente')}${dove} nach der Stunde vom ${giorno} aktualisiert.`,
     nonRifattiDellaLezione: (giorno, motivo) =>
-      `Regiclass: Die Dokumente der Stunde vom ${giorno} konnten nicht neu erstellt werden: ${motivo}`,
+      `Regiklass: Die Dokumente der Stunde vom ${giorno} konnten nicht neu erstellt werden: ${motivo}`,
     nonRifatti: (falliti, primo) =>
-      `Regiclass: ${plurale(falliti, 'Dokument konnte', 'Dokumente konnten')} nicht neu erstellt werden. ${primo}`,
-    nonRifattiPerche: (motivo) => `Regiclass: Die Dokumente konnten nicht neu erstellt werden: ${motivo}`,
+      `Regiklass: ${plurale(falliti, 'Dokument konnte', 'Dokumente konnten')} nicht neu erstellt werden. ${primo}`,
+    nonRifattiPerche: (motivo) => `Regiklass: Die Dokumente konnten nicht neu erstellt werden: ${motivo}`,
     lezioneNonTrovata: 'Stunde nicht gefunden.',
     pianoNonTrovato: 'Plan nicht gefunden.',
     corsoNonTrovato: 'Kurs nicht gefunden.',
@@ -82,14 +82,14 @@ export const testi = catalogo(it, {
     diCorso: (titolo) => ` de ${titolo}`,
     diCorsi: (quanti) => ` de ${quanti} cours`,
     aggiornatiConErrori: (scritti, dove, falliti, primo) =>
-      `Regiclass : ${plurale(scritti, 'document', 'documents')}${dove} mis à jour, ${falliti} non. ${primo}`,
+      `Regiklass : ${plurale(scritti, 'document', 'documents')}${dove} mis à jour, ${falliti} non. ${primo}`,
     aggiornatiDopo: (scritti, dove, giorno) =>
-      `Regiclass : ${plurale(scritti, 'document', 'documents')}${dove} mis à jour après la leçon du ${giorno}.`,
+      `Regiklass : ${plurale(scritti, 'document', 'documents')}${dove} mis à jour après la leçon du ${giorno}.`,
     nonRifattiDellaLezione: (giorno, motivo) =>
-      `Regiclass : les documents de la leçon du ${giorno} n’ont pas pu être refaits : ${motivo}`,
+      `Regiklass : les documents de la leçon du ${giorno} n’ont pas pu être refaits : ${motivo}`,
     nonRifatti: (falliti, primo) =>
-      `Regiclass : ${plurale(falliti, 'document n’a pas pu être refait', 'documents n’ont pas pu être refaits')}. ${primo}`,
-    nonRifattiPerche: (motivo) => `Regiclass : les documents n’ont pas pu être refaits : ${motivo}`,
+      `Regiklass : ${plurale(falliti, 'document n’a pas pu être refait', 'documents n’ont pas pu être refaits')}. ${primo}`,
+    nonRifattiPerche: (motivo) => `Regiklass : les documents n’ont pas pu être refaits : ${motivo}`,
     lezioneNonTrovata: 'Leçon introuvable.',
     pianoNonTrovato: 'Plan introuvable.',
     corsoNonTrovato: 'Cours introuvable.',
@@ -116,14 +116,14 @@ export const testi = catalogo(it, {
     diCorso: (titolo) => ` for ${titolo}`,
     diCorsi: (quanti) => ` for ${quanti} courses`,
     aggiornatiConErrori: (scritti, dove, falliti, primo) =>
-      `Regiclass: ${plurale(scritti, 'document', 'documents')}${dove} updated, ${falliti} not. ${primo}`,
+      `Regiklass: ${plurale(scritti, 'document', 'documents')}${dove} updated, ${falliti} not. ${primo}`,
     aggiornatiDopo: (scritti, dove, giorno) =>
-      `Regiclass: ${plurale(scritti, 'document', 'documents')}${dove} updated after the lesson on ${giorno}.`,
+      `Regiklass: ${plurale(scritti, 'document', 'documents')}${dove} updated after the lesson on ${giorno}.`,
     nonRifattiDellaLezione: (giorno, motivo) =>
-      `Regiclass: the documents for the lesson on ${giorno} could not be redone: ${motivo}`,
+      `Regiklass: the documents for the lesson on ${giorno} could not be redone: ${motivo}`,
     nonRifatti: (falliti, primo) =>
-      `Regiclass: ${plurale(falliti, 'document', 'documents')} could not be redone. ${primo}`,
-    nonRifattiPerche: (motivo) => `Regiclass: the documents could not be redone: ${motivo}`,
+      `Regiklass: ${plurale(falliti, 'document', 'documents')} could not be redone. ${primo}`,
+    nonRifattiPerche: (motivo) => `Regiklass: the documents could not be redone: ${motivo}`,
     lezioneNonTrovata: 'Lesson not found.',
     pianoNonTrovato: 'Plan not found.',
     corsoNonTrovato: 'Course not found.',

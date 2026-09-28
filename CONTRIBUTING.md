@@ -1,4 +1,4 @@
-# Contribuire a Regiclass
+# Contribuire a Regiklass
 
 Grazie di voler dare una mano. Questo file dice che cosa serve perché una
 proposta entri senza giri a vuoto.

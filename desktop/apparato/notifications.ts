@@ -17,7 +17,7 @@ export { integrazioneSistemaAbilitata }
  * Uguale a `appId` di `electron-builder.json`: lo verifica `verificaIdentita()` in
  * `esbuild.mjs` con un'espressione regolare su questa riga, da tenere di questa forma.
  */
-const IDENTITA = 'ch.nabre.regiclass'
+const IDENTITA = 'ch.nabre.regiklass'
 
 /**
  * Identità propria del portabile, perché il suo pin non si confonda con quello
@@ -41,7 +41,7 @@ function identitaDiQuestoProcesso (): string {
 let dichiarata = false
 export function dichiaraIdentita (): void {
   if (process.platform === 'linux') {
-    app.setDesktopName('ch.nabre.regiclass.desktop')
+    app.setDesktopName('ch.nabre.regiklass.desktop')
   }
   if (dichiarata || process.platform !== 'win32') return
   dichiarata = true

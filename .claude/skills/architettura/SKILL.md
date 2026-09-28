@@ -1,16 +1,16 @@
 ---
 name: architettura
 description: >
-  I cinque strati di Regiclass (core, contract, desktop, ui, cli),
+  I cinque strati di Regiklass (core, contract, desktop, ui, cli),
   le regole di isolamento e dipendenza verificate da `npm run layers`,
   la purezza di `core/dominio/`, e la guida decisionale su dove collocare ogni nuovo file.
   Da usare ogni volta che si aggiunge, sposta o scompone un modulo, si disegna una nuova
   funzione, si tocca un import fra strati diversi, o `npm run layers` segnala una violazione.
 ---
 
-# L'architettura a cinque strati di Regiclass
+# L'architettura a cinque strati di Regiklass
 
-Regiclass è organizzato in **cinque strati concentrici**, ciascuno con un perimetro di responsabilità rigoroso e confini d'importazione non negoziabili. L'architettura garantisce l'indipendenza della logica di scuola dalla tecnologia grafica (Electron e DOM), la portabilità e velocità dei test, la robustezza del runtime e la chiarezza contrattuale delle API.
+Regiklass è organizzato in **cinque strati concentrici**, ciascuno con un perimetro di responsabilità rigoroso e confini d'importazione non negoziabili. L'architettura garantisce l'indipendenza della logica di scuola dalla tecnologia grafica (Electron e DOM), la portabilità e velocità dei test, la robustezza del runtime e la chiarezza contrattuale delle API.
 
 I confini tra gli strati non sono convenzioni verbali: sono verificati automaticamente da `npm run layers` (`tools/layers.mjs`) e dalle regole di linting in `eslint.config.mjs`.
 
@@ -69,7 +69,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
    - Ogni file implementa una porzione dell'unione `Azione` definita nel contratto.
    - Riceve il contesto di mutazione (`core/azioni/context.ts`), valida lo stato, applica le modifiche di dominio e dichiara esplicitamente le collezioni JSON modificate tramite `context.modifica(op, collezioni)`.
 4. **`core/i18n/` (gestione delle lingue)**:
-   - Il dispositivo multilingua di Regiclass (ADR-38).
+   - Il dispositivo multilingua di Regiklass (ADR-38).
    - Gestisce lo stato della lingua (`core/i18n/state.ts`) e le utilità per le pagine (`core/i18n/page.ts`).
    - Sta sotto tutti gli altri moduli e non dipende da nessun altro strato.
 5. **`core/apparato/` (interfaccia verso l'host)**:
@@ -133,7 +133,7 @@ Le dipendenze del codice devono seguire rigorosamente la direzione consentita ("
 
 ### L'eccezione contrattuale di `core/`: SOLO tipi (`import type`)
 
-Una regola fondamentale del design di Regiclass riguarda la relazione tra `core/` e `contract/`:
+Una regola fondamentale del design di Regiklass riguarda la relazione tra `core/` e `contract/`:
 
 - I gestori in `core/azioni/` e la logica in `core/` hanno la necessità di conoscere la firma delle azioni o i tipi dei payload (es. `Azione`, `Risposta`).
 - Tuttavia, `core/` non deve avere dipendenze di valore a runtime da `contract/`. Un import di valore violerebbe il principio che `core/` è alla base di tutto e non dipende da contratti esterni.

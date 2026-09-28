@@ -248,7 +248,7 @@ export async function avvia (
   // copia com'era. Iscritto prima della prima apertura per la stessa ragione.
   contesto.subscriptions.push(
     // testo-fisso: il marchio non si traduce
-    archivio.allAvviso((testo) => void apparato.dialoghi.informa(`Regiclass: ${testo}`)),
+    archivio.allAvviso((testo) => void apparato.dialoghi.informa(`Regiklass: ${testo}`)),
   )
 
   annuncia(documento ? testi().leggo : testi().preparo)
@@ -306,7 +306,7 @@ export async function avvia (
   smistatoreAttivo = smistatore
   contesto.subscriptions.push(smistatore)
   // testo-fisso: il marchio non si traduce
-  smistatore.alTermine((testo) => void apparato.dialoghi.informa(`Regiclass: ${testo}`))
+  smistatore.alTermine((testo) => void apparato.dialoghi.informa(`Regiklass: ${testo}`))
 
   // La lettura OCR di una pagina scrive senza passare da `chiama()` (dura minuti
   // e terrebbe ferma la fila): la si annota a mano nel giornale. Qui perché
@@ -395,7 +395,7 @@ export async function avvia (
     const esito = await esegui(archivio, { tipo: 'anno.crea', ...date }, 'programma')
     if (!esito.ok) {
       // testo-fisso: il marchio non si traduce
-      void apparato.dialoghi.errore(`Regiclass: ${(esito.errori ?? []).join(' ')}`)
+      void apparato.dialoghi.errore(`Regiklass: ${(esito.errori ?? []).join(' ')}`)
       return
     }
     await archivio.salva()
@@ -659,7 +659,7 @@ export async function creaPrimoAnno (anno: AnnoDaCreare): Promise<string | null>
   const esito = await esegui(archivio, { tipo: 'anno.crea', ...date }, 'programma')
   if (!esito.ok) {
     // testo-fisso: il marchio non si traduce
-    void apparato.dialoghi.errore(`Regiclass: ${(esito.errori ?? []).join(' ')}`)
+    void apparato.dialoghi.errore(`Regiklass: ${(esito.errori ?? []).join(' ')}`)
     return null
   }
   // «Salva con nome» annullato: nessun documento, quindi niente da aprire.
@@ -734,7 +734,7 @@ async function salvaAnnoConNome (): Promise<string | null> {
     title: testi().salvaAnnoConNome(nomeDelPacchetto(vecchio)),
     saveLabel: parole().salva,
     defaultUri: cartella ? apparato.Uri.joinPath(cartella, nome) : undefined,
-    filters: { Regiclass: [ESTENSIONE] },
+    filters: { Regiklass: [ESTENSIONE] },
   })
   if (!dove) return null
   if (!(await archivio.salvaCome(dove))) return null

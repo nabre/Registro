@@ -80,21 +80,21 @@ describe('i messaggi', () => {
   it('senza bottoni è una nuvoletta nel pannello, non una finestra da chiudere', async () => {
     const pannello = apriIlPannello()
     // `smistatore.alTermine` ne manda una per ogni PDF: venti file, venti clic.
-    assert.equal(await dialoghi.informa('Regiclass: 3 documenti assegnati.'), undefined)
+    assert.equal(await dialoghi.informa('Regiklass: 3 documenti assegnati.'), undefined)
     assert.equal(bancoElectron.messaggi.length, 0)
     assert.deepEqual(pannello.webContents.inviati.at(-1).messaggio, {
       tipo: 'notifica',
       livello: 'info',
-      testo: 'Regiclass: 3 documenti assegnati.',
+      testo: 'Regiklass: 3 documenti assegnati.',
     })
   })
 
   it('senza nessun pannello la dice in una finestra del registro, non di sistema', async () => {
-    const { promessa, finestra } = conLaFinestra(() => dialoghi.errore('Regiclass: non riesco a scrivere.'))
+    const { promessa, finestra } = conLaFinestra(() => dialoghi.errore('Regiklass: non riesco a scrivere.'))
     const parametri = parametriDi(finestra)
     assert.equal(parametri.tipo, 'messaggio')
     assert.equal(parametri.livello, 'errore')
-    // «Regiclass:» davanti, nella finestra del registro, è una parola in più.
+    // «Regiklass:» davanti, nella finestra del registro, è una parola in più.
     assert.equal(parametri.messaggio, 'Non riesco a scrivere.')
     assert.deepEqual(parametri.bottoni, [{ etichetta: 'Chiudi', ruolo: 'primario', aSinistra: false }])
     ipcMain.simulaDallaPagina(finestra.webContents.id, { dialogo: 'conferma', indice: 0 })
@@ -115,7 +115,7 @@ describe('i messaggi', () => {
   })
 
   it('un messaggio lungo va nel corpo, e il titolo lo dà il tono', () => {
-    const lungo = 'Regiclass: ' + 'i documenti della lezione non si sono potuti rifare, '.repeat(3)
+    const lungo = 'Regiklass: ' + 'i documenti della lezione non si sono potuti rifare, '.repeat(3)
     const { finestra } = conLaFinestra(() => dialoghi.avvisa(lungo, { modal: true }))
     const parametri = parametriDi(finestra)
     assert.equal(parametri.messaggio, 'Attenzione')
@@ -201,7 +201,7 @@ describe('i messaggi', () => {
 
 describe('un anno scritto da un registro più recente', () => {
   const DAL_PACCHETTO =
-    'Regiclass: 2027-2028.regi è stato scritto da una versione più recente del registro ' +
+    'Regiklass: 2027-2028.regi è stato scritto da una versione più recente del registro ' +
     '(formato 3, qui si arriva a 2). Aggiorna il registro invece di aprirlo: scriverci sopra ' +
     'adesso perderebbe quel che non si sa leggere.'
 
@@ -377,7 +377,7 @@ describe('l’avanzamento', () => {
   it('esegue il compito e racconta nel pannello', async () => {
     const pannello = apriIlPannello()
     const esito = await dialoghi.conAvanzamento(
-      { title: 'Regiclass: provo a entrare…' },
+      { title: 'Regiklass: provo a entrare…' },
       async (avanzamento) => {
         avanzamento.report({ message: 'quasi…' })
         return 'fatto'
@@ -385,7 +385,7 @@ describe('l’avanzamento', () => {
     )
     assert.equal(esito, 'fatto')
     const detti = pannello.webContents.inviati.map((voce) => voce.messaggio.testo)
-    assert.deepEqual(detti, ['Regiclass: provo a entrare…', 'quasi…'])
+    assert.deepEqual(detti, ['Regiklass: provo a entrare…', 'quasi…'])
   })
 
   it('l’errore del compito arriva a chi ha chiamato', async () => {

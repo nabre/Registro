@@ -329,7 +329,7 @@ const prove = [
     alias: CON_FINTO_E_APPARATO,
   }),
   // Il trasloco del nome: cartella dei dati da «Registro docenti» a
-  // «Regiclass» e percorsi scritti dentro. Solo `node:`.
+  // «Regiklass» e percorsi scritti dentro. Solo `node:`.
   provaNode('core/dati/formerName.ts', 'dist-tests/formerName.mjs'),
   // Le sezioni della pagina Impostazioni, senza DOM: un'impostazione che non
   // finisce in nessuna sezione esiste e non si vede.

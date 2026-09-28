@@ -48,8 +48,9 @@ rm -rf /tmp/registro-pagina-* /tmp/registro-voce-* /tmp/registro-aggiornamento-*
 
 getent passwd | while IFS=: read -r _nome _x _uid _gid _info casa _shell; do
   [ -n "$casa" ] && [ "$casa" != "/" ] && [ -d "$casa" ] || continue
-  # Anche col nome precedente del programma, se l'avvio non l'ha già tolto.
-  rm -rf "$casa/.config/Regiclass" "$casa/.cache/Regiclass" \
+  # Anche coi nomi precedenti del programma, se l'avvio non li ha già tolti.
+  rm -rf "$casa/.config/Regiklass" "$casa/.cache/Regiklass" \
+    "$casa/.config/Regiclass" "$casa/.cache/Regiclass" \
     "$casa/.config/Registro docenti" "$casa/.cache/Registro docenti"
   # I ponti di `shell/system/commandLine.ts`, e non un omonimo di qualcun altro.
   for comando in regi regdoc; do
@@ -60,7 +61,8 @@ getent passwd | while IFS=: read -r _nome _x _uid _gid _info casa _shell; do
   done
   for profilo in "$casa/.profile" "$casa/.zprofile"; do
     [ -f "$profilo" ] || continue
-    sed -i -e '/^# >>> Regiclass: regi >>>$/,/^# <<< Regiclass: regi <<<$/d' \
+    sed -i -e '/^# >>> Regiklass: regi >>>$/,/^# <<< Regiklass: regi <<<$/d' \
+      -e '/^# >>> Regiclass: regi >>>$/,/^# <<< Regiclass: regi <<<$/d' \
       -e '/^# >>> Registro docenti: regdoc >>>$/,/^# <<< Registro docenti: regdoc <<<$/d' "$profilo"
   done
 done

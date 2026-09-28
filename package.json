@@ -1,7 +1,7 @@
 {
-  "name": "regiclass",
-  "productName": "Regiclass",
-  "desktopName": "ch.nabre.regiclass.desktop",
+  "name": "regiklass",
+  "productName": "Regiklass",
+  "desktopName": "ch.nabre.regiklass.desktop",
   "description": "Registro di classe per docenti: calendario delle lezioni, classi e persone in formazione, piani lezione e momenti di valutazione.",
   "version": "1.0.0",
   "license": "MIT",

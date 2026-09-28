@@ -18,7 +18,7 @@ const it = {
     sommario:
       'Il registro a portata di tasto destro, anche a finestre chiuse. Ed è da lì che si esce.',
     scritte: {
-      titoloMenu: 'Regiclass — 2 lezioni da chiudere',
+      titoloMenu: 'Regiklass — 2 lezioni da chiudere',
       adesso: 'Adesso: ▶ oggi · 10:10–10:55 · …',
       daCompilare: '⚠ Da compilare: I MEC A — Matematica …',
       corsoUno: '⚠ I MEC A — Matematica',
@@ -438,7 +438,7 @@ export const testi = catalogo(it, {
         'Das Klassenbuch einen Rechtsklick entfernt, auch bei geschlossenen Fenstern. Und dort ' +
         'beendet man es.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 abzuschliessen',
+        titoloMenu: 'Regiklass — 2 abzuschliessen',
         adesso: 'Jetzt: ▶ heute · 10:10–10:55 · …',
         daCompilare: '⚠ Auszufüllen: I MEC A — Mathematik …',
         corsoUno: '⚠ I MEC A — Mathematik',
@@ -881,7 +881,7 @@ export const testi = catalogo(it, {
         'Le registre à portée de clic droit, même fenêtres fermées. Et c’est par là qu’on le ' +
         'quitte.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 leçons à clôturer',
+        titoloMenu: 'Regiklass — 2 leçons à clôturer',
         adesso: 'Maintenant : ▶ aujourd’hui · 10:10–10:55',
         daCompilare: '⚠ À remplir : I MEC A — Mathématiques …',
         corsoUno: '⚠ I MEC A — Mathématiques',
@@ -1308,7 +1308,7 @@ export const testi = catalogo(it, {
         'The register a right-click away, even with its windows closed. And that is where you ' +
         'quit.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 lessons to close',
+        titoloMenu: 'Regiklass — 2 lessons to close',
         adesso: 'Now: ▶ today · 10:10–10:55 · …',
         daCompilare: '⚠ To fill in: I MEC A — Maths …',
         corsoUno: '⚠ I MEC A — Maths',

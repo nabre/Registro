@@ -1,7 +1,7 @@
 ---
 name: testi
 description: >
-  Come si scrive, si traduce e si legge un testo di Regiclass nel
+  Come si scrive, si traduce e si legge un testo di Regiklass nel
   dispositivo multilingua (ADR-38): i cataloghi `*.testi.ts` accanto al codice,
   le quattro lingue (it, de, fr, en) una sotto l'altra, `catalogo()`, `lessico()`,
   `parole()`, le frasi come funzioni, la regola «mai a livello di modulo», e
@@ -104,7 +104,7 @@ function vista (): Figlio {
    salvato, non deve cambiare con la lingua della macchina.
 10. **Non si traduce:** identificatori, chiavi di impostazione, valori salvati
     nel documento (`'presente'`, `'scritto'`), nomi di cartelle su disco
-    (`esportazioni/`, `versioni-precedenti/`), il marchio «Regiclass»,
+    (`esportazioni/`, `versioni-precedenti/`), il marchio «Regiklass»,
     nomi di prodotti (Outlook, voicebox, GitHub), le sigle dell'appello, i log
     per chi sviluppa (`console.*`), i dati già scritti dal docente.
 11. **Si traduce:** tutto quel che una persona legge — interfaccia, dialoghi,

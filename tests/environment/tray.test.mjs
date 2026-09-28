@@ -76,7 +76,7 @@ describe('i separatori che non separano niente', () => {
 describe('la traduzione in menu di Electron', () => {
   it('porta etichette, spegnimenti e sottomenu dove Electron li cerca', () => {
     const vassoio = acceso([
-      { etichetta: 'Regiclass — 2 ore da chiudere', spenta: true },
+      { etichetta: 'Regiklass — 2 ore da chiudere', spenta: true },
       SEPARATORE,
       {
         etichetta: '⚠ I MEC A — Matematica',
@@ -94,7 +94,7 @@ describe('la traduzione in menu di Electron', () => {
     assert.deepEqual(
       modello.map((voce) => voce.type ?? voce.label),
       [
-        'Regiclass — 2 ore da chiudere',
+        'Regiklass — 2 ore da chiudere',
         'separator',
         '⚠ I MEC A — Matematica',
         'separator',

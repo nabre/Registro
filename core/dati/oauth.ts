@@ -55,7 +55,8 @@ let notoRinnovabile = false
 const CLIENT_PREDEFINITO = '14d82eec-204b-4c2f-b7e8-296a70dab67e'
 
 function idClientOauth (): string {
-  return process.env.REGICLASS_OAUTH_CLIENT_ID ||
+  return process.env.REGIKLASS_OAUTH_CLIENT_ID ||
+    process.env.REGICLASS_OAUTH_CLIENT_ID ||
     process.env.REGISTRO_OAUTH_CLIENT_ID ||
     CLIENT_PREDEFINITO
 }
@@ -273,7 +274,7 @@ function paginaDiRitorno (errore: string | null): string {
     `<!doctype html><html lang="${lingua()}"><meta charset="utf-8">` +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
     // testo-fisso: il marchio, uguale in ogni lingua
-    `<title>${titolo} — Regiclass</title>` +
+    `<title>${titolo} — Regiklass</title>` +
     '<style>body{font:16px/1.5 system-ui,sans-serif;margin:0;display:grid;place-items:center;' +
     'min-height:100vh;padding:24px;color:#1b1b1b;background:#f6f6f4}' +
     'main{max-width:34rem;text-align:center}h1{font-size:1.5rem;margin:0 0 .5rem}' +

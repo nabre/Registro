@@ -47,10 +47,10 @@ SetFont "Segoe UI" 9
 ; (PATH per `regi`, apertura dei `.regi`, controllo degli aggiornamenti): lo
 ; chiede SignPath, uguale in ogni lingua.
 
-LangString registroBenvenutoTitolo 1040 "Benvenuto in Regiclass"
-LangString registroBenvenutoTitolo 1031 "Willkommen bei Regiclass"
-LangString registroBenvenutoTitolo 1036 "Bienvenue dans Regiclass"
-LangString registroBenvenutoTitolo 1033 "Welcome to Regiclass"
+LangString registroBenvenutoTitolo 1040 "Benvenuto in Regiklass"
+LangString registroBenvenutoTitolo 1031 "Willkommen bei Regiklass"
+LangString registroBenvenutoTitolo 1036 "Bienvenue dans Regiklass"
+LangString registroBenvenutoTitolo 1033 "Welcome to Regiklass"
 
 LangString registroBenvenutoTesto 1040 "Il registro di classe per chi insegna: il calendario delle lezioni, le classi e le persone in formazione, i piani lezione e i momenti di valutazione.$\r$\n$\r$\nNelle prossime pagine scegli per chi installarlo e dove. Non servono i permessi di amministratore, se lo installi solo per te.$\r$\n$\r$\nI documenti degli anni scolastici — i file .regi — stanno dove decidi tu, e l'installazione non li tocca.$\r$\n$\r$\nPer il tuo utente di Windows il registro aggiunge i collegamenti nel menu Start e sul desktop, l'apertura dei file .regi con un doppio clic e il comando regi nel PATH; la disinstallazione li toglie. Chiede a GitHub se c'è una versione nuova, senza mandare niente del registro: si spegne in Impostazioni › Programma › Aggiornamenti."
 LangString registroBenvenutoTesto 1031 "Das Klassenbuch für Lehrpersonen: der Kalender der Stunden, die Klassen und die Lernenden, die Unterrichtspläne und die Leistungsbeurteilungen.$\r$\n$\r$\nAuf den nächsten Seiten wählst du, für wen und wohin es installiert wird. Installierst du es nur für dich, brauchst du keine Administratorrechte.$\r$\n$\r$\nDie Dokumente der Schuljahre — die .regi-Dateien — liegen, wo du willst, und die Installation rührt sie nicht an.$\r$\n$\r$\nFür dein Windows-Benutzerkonto fügt das Klassenbuch Verknüpfungen im Startmenü und auf dem Desktop hinzu, das Öffnen von .regi-Dateien per Doppelklick und den Befehl regi im PATH; die Deinstallation entfernt sie wieder. Es fragt bei GitHub nach, ob es eine neue Version gibt, ohne etwas aus dem Klassenbuch zu senden: Abschalten lässt sich das unter Einstellungen › Programm › Aktualisierungen."
@@ -62,10 +62,10 @@ LangString registroFineTitolo 1031 "Das Klassenbuch ist installiert"
 LangString registroFineTitolo 1036 "Le registre est installé"
 LangString registroFineTitolo 1033 "The register is installed"
 
-LangString registroFineTesto 1040 "Regiclass ${VERSION} è pronto. Lo trovi nel menu Start e sul desktop.$\r$\n$\r$\nLe versioni nuove arrivano da sé: il registro le scarica e le installa quando esci, oppure quando premi «Riavvia e aggiorna» nelle impostazioni — senza ripassare da queste pagine."
-LangString registroFineTesto 1031 "Regiclass ${VERSION} ist bereit. Du findest es im Startmenü und auf dem Desktop.$\r$\n$\r$\nNeue Versionen kommen von selbst: Das Klassenbuch lädt sie herunter und installiert sie, wenn du es beendest oder in den Einstellungen «Neu starten und aktualisieren» drückst — ohne diese Seiten noch einmal zu durchlaufen."
-LangString registroFineTesto 1036 "Regiclass ${VERSION} est prêt. Tu le trouves dans le menu Démarrer et sur le bureau.$\r$\n$\r$\nLes nouvelles versions arrivent toutes seules : le registre les télécharge et les installe quand tu le quittes, ou quand tu appuies sur « Redémarrer et mettre à jour » dans les paramètres — sans repasser par ces pages."
-LangString registroFineTesto 1033 "Regiclass ${VERSION} is ready. You’ll find it in the Start menu and on the desktop.$\r$\n$\r$\nNew versions arrive by themselves: the register downloads them and installs them when you quit, or when you press “Restart and update” in the settings — without going through these pages again."
+LangString registroFineTesto 1040 "Regiklass ${VERSION} è pronto. Lo trovi nel menu Start e sul desktop.$\r$\n$\r$\nLe versioni nuove arrivano da sé: il registro le scarica e le installa quando esci, oppure quando premi «Riavvia e aggiorna» nelle impostazioni — senza ripassare da queste pagine."
+LangString registroFineTesto 1031 "Regiklass ${VERSION} ist bereit. Du findest es im Startmenü und auf dem Desktop.$\r$\n$\r$\nNeue Versionen kommen von selbst: Das Klassenbuch lädt sie herunter und installiert sie, wenn du es beendest oder in den Einstellungen «Neu starten und aktualisieren» drückst — ohne diese Seiten noch einmal zu durchlaufen."
+LangString registroFineTesto 1036 "Regiklass ${VERSION} est prêt. Tu le trouves dans le menu Démarrer et sur le bureau.$\r$\n$\r$\nLes nouvelles versions arrivent toutes seules : le registre les télécharge et les installe quand tu le quittes, ou quand tu appuies sur « Redémarrer et mettre à jour » dans les paramètres — sans repasser par ces pages."
+LangString registroFineTesto 1033 "Regiklass ${VERSION} is ready. You’ll find it in the Start menu and on the desktop.$\r$\n$\r$\nNew versions arrive by themselves: the register downloads them and installs them when you quit, or when you press “Restart and update” in the settings — without going through these pages again."
 
 LangString registroFineApri 1040 "Apri il registro adesso"
 LangString registroFineApri 1031 "Klassenbuch jetzt öffnen"
@@ -104,10 +104,10 @@ LangString registroDatiImpostazioni 1031 "Einstellungen: Programmeinstellungen, 
 LangString registroDatiImpostazioni 1036 "Paramètres : paramètres du programme, registres récents, fenêtres"
 LangString registroDatiImpostazioni 1033 "Settings: program settings, recent registers, windows"
 
-LangString registroAssociazioneTipo 1040 "Anno scolastico Regiclass"
-LangString registroAssociazioneTipo 1031 "Regiclass-Schuljahr"
-LangString registroAssociazioneTipo 1036 "Année scolaire Regiclass"
-LangString registroAssociazioneTipo 1033 "Regiclass school year"
+LangString registroAssociazioneTipo 1040 "Anno scolastico Regiklass"
+LangString registroAssociazioneTipo 1031 "Regiklass-Schuljahr"
+LangString registroAssociazioneTipo 1036 "Année scolaire Regiklass"
+LangString registroAssociazioneTipo 1033 "Regiklass school year"
 
 !ifndef BUILD_UNINSTALLER
   !macro customWelcomePage
@@ -156,9 +156,9 @@ LangString registroAssociazioneTipo 1033 "Regiclass school year"
 
   !macro customInstall
     ${if} $installMode == "all"
-      WriteRegStr HKLM "Software\Classes\Regiclass" "" "$(registroAssociazioneTipo)"
+      WriteRegStr HKLM "Software\Classes\Regiklass" "" "$(registroAssociazioneTipo)"
     ${else}
-      WriteRegStr HKCU "Software\Classes\Regiclass" "" "$(registroAssociazioneTipo)"
+      WriteRegStr HKCU "Software\Classes\Regiklass" "" "$(registroAssociazioneTipo)"
     ${endIf}
   !macroend
 !endif

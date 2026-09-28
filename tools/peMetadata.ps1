@@ -1,11 +1,11 @@
-﻿<#
+<#
 .SYNOPSIS
   Controlla nome del prodotto e versione scritti dentro gli eseguibili.
 
 .DESCRIPTION
   Le configurazioni degli artefatti di SignPath
   (`.signpath/artifact-configuration/`) firmano un eseguibile solo se il suo
-  nome del prodotto è «Regiclass» e la sua versione è quella del
+  nome del prodotto è «Regiklass» e la sua versione è quella del
   rilascio: è una condizione di SignPath Foundation. Qui si fa lo stesso
   controllo prima di mandarlo, con i valori che legge Windows — la
   ProductName e la ProductVersion della tabella delle stringhe, quelle che
@@ -17,12 +17,12 @@
   `pacchetti/` dopo `npm run package`.
 
 .EXAMPLE
-  ./tools/peMetadata.ps1 -Attesa 1.0.0.0 -File 'pacchetti/win-unpacked/Regiclass.exe'
+  ./tools/peMetadata.ps1 -Attesa 1.0.0.0 -File 'pacchetti/win-unpacked/Regiklass.exe'
 #>
 param(
   [Parameter(Mandatory)] [string] $Attesa,
   [Parameter(Mandatory)] [string[]] $File,
-  [string] $Prodotto = 'Regiclass'
+  [string] $Prodotto = 'Regiklass'
 )
 
 $ErrorActionPreference = 'Stop'

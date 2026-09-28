@@ -29,10 +29,6 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ## 2. Lavoro aperto
 
-### Interfaccia
-
-- [ ] `docs/immagini/*.png` sono dell'aspetto di prima: da rifare.
-
 ### Modelli e assistente
 
 - [ ] Le scansioni senza programma esterno, il giorno in cui `node-llama-cpp`
@@ -43,7 +39,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Rilascio, firma, nome
 
-- [ ] SignPath: domanda come Regiclass (progetto `regiclass`); 2FA; app GitHub;
+- [ ] SignPath: domanda come Regiklass (progetto `regiklass`); 2FA; app GitHub;
       configurazioni `eseguibile` e `installatori`; politica
       `release-signing`; segreto e variabile su GitHub (GUIDA § «La firma del
       codice»).

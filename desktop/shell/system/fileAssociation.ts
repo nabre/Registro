@@ -27,7 +27,7 @@ function Imposta-ValoreRegistro([string]$sottochiave, [string]$nome, [string]$va
     }
   } finally { $chiave.Dispose() }
 }
-$classeRegistro = 'Regiclass'
+$classeRegistro = 'Regiklass'
 function Punta-ANoi([Microsoft.Win32.RegistryKey]$radice) {
   $comando = $radice.OpenSubKey('Software\Classes\' + $classeRegistro + '\shell\open\command')
   if (-not $comando) { return $false }

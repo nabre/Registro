@@ -124,7 +124,7 @@ if (!app.requestSingleInstanceLock()) {
   void app.whenReady().then(avvia).catch((errore: unknown) => {
     console.error('avvio interrotto:', errore)
     // testo-fisso: il marchio non si traduce
-    dialog.showErrorBox('Regiclass', testi().avvioFermato(String(errore)))
+    dialog.showErrorBox('Regiklass', testi().avvioFermato(String(errore)))
     app.exit(1)
   })
 }
@@ -353,7 +353,7 @@ async function avvia (): Promise<void> {
     console.error('avvio interrotto:', errore)
     chiudiAvvio()
     // testo-fisso: il marchio non si traduce
-    dialog.showErrorBox('Regiclass', testi().avvioFermato(testo))
+    dialog.showErrorBox('Regiklass', testi().avvioFermato(testo))
   } finally {
     // Anche se l'avvio si è fermato, chi aspetta i comandi smette di aspettare.
     // Scioglierla due volte non fa niente.
@@ -652,7 +652,7 @@ async function scegliDocumento (): Promise<Uri | null> {
     defaultPath: app.getPath('documents'),
     filters: [
       // testo-fisso: il marchio non si traduce
-      { name: 'Regiclass', extensions: [ESTENSIONE.slice(1)] },
+      { name: 'Regiklass', extensions: [ESTENSIONE.slice(1)] },
     ],
   })
   const scelto = esito.canceled ? undefined : esito.filePaths[0]

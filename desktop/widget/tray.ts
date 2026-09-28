@@ -22,7 +22,7 @@ import { alberoProcedure, chiamante, linkDiretto, type ChiamanteNodo } from '../
 /** Ogni quanto si guarda l'orologio. */
 const BATTITO = 30_000
 
-const MARCHIO = 'Regiclass' // testo-fisso: il marchio non si traduce
+const MARCHIO = 'Regiklass' // testo-fisso: il marchio non si traduce
 
 function impostazioni () {
   const conf = apparato.impostazioni.leggi('registroDocenti.vassoio')

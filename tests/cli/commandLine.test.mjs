@@ -28,7 +28,7 @@ const dati = percorso.join(lavoro, 'registro')
  * La cartella dei dati come la ricava la riga di comando da `APPDATA` (Windows)
  * o da `XDG_CONFIG_HOME` (altrove): passando `radice` a tutte e due, cade qui.
  */
-const cartellaUtente = percorso.join(radice, 'Regiclass')
+const cartellaUtente = percorso.join(radice, 'Regiklass')
 process.env.REGISTRO_USERDATA = cartellaUtente
 
 /** Dove nasce il socket fuori da Windows: la regola che la riga di comando ignorava. */
@@ -148,7 +148,7 @@ describe('l’indirizzo del condotto', () => {
 
     if (process.platform === 'win32') {
       // Il nome porta il segreto: l'impronta da sola si indovina.
-      assert.match(api.indirizzoCondotto(), /regiclass-[0-9a-f]{12}-[0-9a-f]{32}$/)
+      assert.match(api.indirizzoCondotto(), /regiklass-[0-9a-f]{12}-[0-9a-f]{32}$/)
     }
 
     const { codice, uscita, errore } = await lancia(['stato', '--json'])
