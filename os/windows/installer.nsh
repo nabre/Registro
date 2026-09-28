@@ -139,6 +139,8 @@ LangString registroAssociazioneTipo 1033 "Regiklass school year"
       !define MUI_FINISHPAGE_RUN
       !define MUI_FINISHPAGE_RUN_FUNCTION "StartApp"
     !endif
+    !define MUI_PAGE_CUSTOMFUNCTION_SHOW registroFascia
+    !insertmacro MUI_PAGE_FINISH
   !macroend
 
   !macro customInit

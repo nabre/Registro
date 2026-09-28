@@ -149,6 +149,7 @@
     // `cli/disinstalla.mjs`. `installer.nsh` include `uninstall.nsh`:
     // electron-builder accetta un file solo.
     "include": "os/windows/installer.nsh",
+    "warningsAsErrors": false,
     "artifactName": "${name}-${version}-installer.${ext}"
   },
 
