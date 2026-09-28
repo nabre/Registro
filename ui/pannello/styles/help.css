@@ -699,7 +699,7 @@
 }
 
 .guida__lente-corpo { outline: none; }
-.guida__lente-corpo .guida__disegno { max-width: none; }
+.guida__lente-corpo .guida__disegno { max-width: min(100%, 56rem); margin-inline: auto; }
 .guida__lente .guida__legenda { margin-top: var(--spazio-3); }
 
 /* ------------------------------------------------------------- le figure */
@@ -733,6 +733,7 @@
 .guida__figura-corpo {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spazio-2);
   cursor: zoom-in;
 }
@@ -762,8 +763,10 @@
 
 .guida__disegno {
   width: 100%;
-  max-width: 100%;
+  max-width: 44rem;
   height: auto;
+  margin-inline: auto;
+  display: block;
   overflow: visible;
   font-family: var(--carattere);
 }
