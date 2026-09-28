@@ -21,6 +21,7 @@ import {
   rispondeA,
   type FiguraGuida,
   type NotaGuida,
+  type ParteGuida,
   type Risultato,
   type SezioneGuida,
   type VoceGuida,
@@ -34,6 +35,9 @@ const T = testi()
 // ridisegni e si perdono chiudendo il registro.
 
 let cercato = ''
+
+/** Il filtro per macro-argomento selezionato: null mostra tutte le parti. */
+let parteAttiva: ParteGuida | null = null
 
 /** La pagina da cui si è arrivati alla guida: la si propone in cima. */
 let provenienza: Vista | null = null
@@ -66,6 +70,7 @@ function sezioneDellaVista (vista: Vista | null): SezioneGuida | undefined {
 function apriGuida (sezioneId?: string): void {
   if (sezioneId) {
     cercato = ''
+    parteAttiva = null
     destinazione = { sezione: sezioneId }
   }
   if (stato.vista === 'guida') {
@@ -167,6 +172,13 @@ function idVoce (sezione: string, voce: number): string {
  * interromperebbe uno scorrimento morbido.
  */
 function vaiA (sezione: string, voce?: number, subito = false): void {
+  const bersaglioSezione = GUIDA.find((s) => s.id === sezione)
+  if (bersaglioSezione && parteAttiva !== null && bersaglioSezione.parte !== parteAttiva) {
+    parteAttiva = null
+    destinazione = { sezione, voce }
+    aggiorna({})
+    return
+  }
   const bersaglio = document.getElementById(voce === undefined ? `guida-${sezione}` : idVoce(sezione, voce))
   if (!bersaglio) return
   bersaglio.scrollIntoView({
@@ -563,14 +575,16 @@ function indiceGuida (trovate: Map<string, number>, inRicerca: boolean): HTMLEle
       'div',
       { class: 'guida__indice-testa' },
       icona('libro'),
-      h('span', null, inRicerca ? T.doveSiTrova : T.argomenti),
+      h('span', { class: 'guida__indice-titolo-testa' }, inRicerca ? T.doveSiTrova : T.argomenti),
+      h('span', { class: 'guida__indice-conto-totale' }, String(GUIDA.length)),
     ),
     ...PARTI.map((parte) => {
       const sezioni = GUIDA.filter((sezione) => sezione.parte === parte && trovate.has(sezione.id))
       if (sezioni.length === 0) return null
+      const parteAttivaOra = parteAttiva === parte && !inRicerca
       return h(
         'div',
-        { class: 'guida__indice-parte' },
+        { class: ['guida__indice-parte', parteAttivaOra && 'guida__indice-parte--attiva'] },
         h('h4', { class: 'guida__indice-titolo' }, T.parti[parte]),
         h(
           'ul',
@@ -614,6 +628,7 @@ function indiceGuida (trovate: Map<string, number>, inRicerca: boolean): HTMLEle
 
 function cercaAncora (testo: string): void {
   cercato = testo
+  parteAttiva = null
   aggiorna({})
   // Il cursore resta nella casella, in fondo: si può continuare a scrivere.
   requestAnimationFrame(() => {
@@ -630,6 +645,19 @@ function cercaAncora (testo: string): void {
  */
 function campoCerca (risultato: () => Risultato, alCambio: () => void): HTMLElement {
   const tasto = h('span', { class: 'guida__cerca-tasto', attr: { 'aria-hidden': 'true' } }, cercato ? T.tastoInvio : '/')
+  const pulisci = cercato
+    ? h(
+        'button',
+        {
+          class: 'guida__cerca-pulisci',
+          type: 'button',
+          title: T.mostraTutta,
+          onclick: () => cercaAncora(''),
+        },
+        icona('chiudi'),
+      )
+    : null
+
   return h(
     'div',
     { class: 'guida__cerca' },
@@ -643,6 +671,7 @@ function campoCerca (risultato: () => Risultato, alCambio: () => void): HTMLElem
       attr: { 'aria-label': T.cercaNellaGuida, autocomplete: 'off', spellcheck: 'false' },
       oninput: (evento: Event) => {
         cercato = (evento.target as HTMLInputElement).value
+        parteAttiva = null
         tasto.textContent = cercato ? T.tastoInvio : '/'
         alCambio()
       },
@@ -662,7 +691,59 @@ function campoCerca (risultato: () => Risultato, alCambio: () => void): HTMLElem
         }
       },
     }),
+    pulisci,
     tasto,
+  )
+}
+
+/** La barra delle pillole per filtrare velocemente per macro-argomento. */
+function filtriGuida (alCambio: () => void): HTMLElement {
+  const pillola = (
+    testo: string,
+    conto: number,
+    attivo: boolean,
+    alClick: () => void,
+  ): HTMLElement =>
+    h(
+      'button',
+      {
+        class: ['guida__filtro-pillola', attivo && 'guida__filtro-pillola--attivo'],
+        type: 'button',
+        attr: { 'aria-pressed': attivo ? 'true' : 'false' },
+        onclick: alClick,
+      },
+      h('span', null, testo),
+      h('span', { class: 'guida__filtro-conto' }, String(conto)),
+    )
+
+  return h(
+    'div',
+    { class: 'guida__filtri', attr: { 'aria-label': T.filtraPerParte } },
+    pillola(
+      parole().tutte,
+      GUIDA.length,
+      parteAttiva === null && !cercato,
+      () => {
+        parteAttiva = null
+        if (cercato) cercato = ''
+        alCambio()
+        document.querySelector('main.contenuto')?.scrollTo({ top: 0, behavior: andaturaScorrimento() })
+      },
+    ),
+    ...PARTI.map((parte) => {
+      const quante = GUIDA.filter((s) => s.parte === parte).length
+      return pillola(
+        T.parti[parte],
+        quante,
+        parteAttiva === parte && !cercato,
+        () => {
+          parteAttiva = parteAttiva === parte ? null : parte
+          if (cercato) cercato = ''
+          alCambio()
+          document.querySelector('main.contenuto')?.scrollTo({ top: 0, behavior: andaturaScorrimento() })
+        },
+      )
+    }),
   )
 }
 
@@ -710,12 +791,20 @@ function benvenuto (): HTMLElement {
       cercato
         ? null
         : [
-            scorciatoia(T.primiPassi, 'stella', 'primi-passi'),
-            scorciatoia(T.scorciatoie, 'stellaPiena', 'scorciatoie'),
-            scorciatoia(T.guai, 'avviso', 'guai'),
-            h('span', { class: 'guida__prova' }, T.prova),
-            ...T.daProvare.map((parola) =>
-              h('button', { class: 'guida__suggerimento', type: 'button', onclick: () => cercaAncora(parola) }, parola),
+            h(
+              'div',
+              { class: 'guida__benvenuto-lanci' },
+              scorciatoia(T.primiPassi, 'stella', 'primi-passi'),
+              scorciatoia(T.scorciatoie, 'stellaPiena', 'scorciatoie'),
+              scorciatoia(T.guai, 'avviso', 'guai'),
+            ),
+            h(
+              'div',
+              { class: 'guida__benvenuto-suggerimenti' },
+              h('span', { class: 'guida__prova' }, T.prova),
+              ...T.daProvare.map((parola) =>
+                h('button', { class: 'guida__suggerimento', type: 'button', onclick: () => cercaAncora(parola) }, parola),
+              ),
             ),
           ],
     ),
@@ -791,31 +880,44 @@ export function vistaGuida (): Figlio {
   // Dopo il disegno: gli elementi devono essere in pagina per l'osservatore e lo scorrimento.
   requestAnimationFrame(dopoIlDisegno)
 
-  // Una lettera in più rifà le tre parti che dipendono dalla ricerca e lascia la
-  // fascia della casella, così il fuoco resta.
+  let contenitoreFiltri: HTMLElement | null = null
+
+  // Una lettera o un filtro rifà le parti che dipendono dalla ricerca, lasciando
+  // la casella al suo posto per non perdere il fuoco.
   const ricerca = (): void => {
     risultato = cerca(GUIDA, cercato)
     const nuove = partiDellaGuida(risultato)
     parti.testata.replaceWith(nuove.testata)
     parti.benvenuto.replaceWith(nuove.benvenuto)
+    if (contenitoreFiltri) {
+      const nuoviFiltri = filtriGuida(ricerca)
+      contenitoreFiltri.replaceWith(nuoviFiltri)
+      contenitoreFiltri = nuoviFiltri
+    }
     parti.colonne.replaceWith(nuove.colonne)
     parti = nuove
     requestAnimationFrame(dopoIlDisegno)
   }
+
+  contenitoreFiltri = filtriGuida(ricerca)
 
   return h(
     'div',
     { class: 'vista vista--guida' },
     parti.testata,
     parti.benvenuto,
-    // La ricerca sta in una fascia sua, appiccicata in cima: dentro il benvenuto
-    // `sticky` non uscirebbe dal genitore, che scorre via.
-    h('div', { class: 'guida__barra-cerca' }, campoCerca(() => risultato, ricerca)),
+    // La ricerca e i filtri stanno in una fascia appiccicata in cima
+    h(
+      'div',
+      { class: 'guida__barra-cerca' },
+      campoCerca(() => risultato, ricerca),
+      contenitoreFiltri,
+    ),
     parti.colonne,
   )
 }
 
-/** Le parti della pagina che cambiano con la ricerca: tutto tranne la casella. */
+/** Le parti della pagina che cambiano con la ricerca o filtro: tutto tranne la casella. */
 function partiDellaGuida (risultato: Risultato): {
   testata: HTMLElement
   benvenuto: HTMLElement
@@ -827,9 +929,20 @@ function partiDellaGuida (risultato: Risultato): {
   const vociInTutto = GUIDA.reduce((somma, sezione) => somma + sezione.voci.length, 0)
   const vociTrovateInTutto = risultato.sezioni.reduce((somma, { voci }) => somma + voci.length, 0)
 
-  const sezioni = risultato.sezioni.map(({ sezione, voci }) =>
+  // Se è attiva una macro-area e non si sta cercando, filtriamo le sezioni
+  const sezioniFiltrate = risultato.sezioni.filter(({ sezione }) =>
+    inRicerca || parteAttiva === null || sezione.parte === parteAttiva,
+  )
+
+  const sezioni = sezioniFiltrate.map(({ sezione, voci }) =>
     ancora(sezione, sezioneGuida(sezione, voci.map(({ voce }) => voce), forme, inRicerca)),
   )
+
+  const partiDaMostrare = inRicerca
+    ? PARTI
+    : parteAttiva !== null
+      ? [parteAttiva]
+      : PARTI
 
   const testata = testataVista({
     titolo: T.titolo,
@@ -840,11 +953,17 @@ function partiDellaGuida (risultato: Risultato): {
           vociTrovateInTutto > 0 ? 'informativo' : 'attenzione',
           'lente',
         )
-      : pastiglia(
-          T.conto(GUIDA.length, vociInTutto, FIGURE.length),
-          'quiete',
-          'informazione',
-        ),
+      : parteAttiva !== null
+        ? pastiglia(
+            `${T.parti[parteAttiva]} (${sezioniFiltrate.length})`,
+            'informativo',
+            'segnalibro',
+          )
+        : pastiglia(
+            T.conto(GUIDA.length, vociInTutto, FIGURE.length),
+            'quiete',
+            'informazione',
+          ),
   })
 
   // Il testo a sinistra e l'indice a destra: a sinistra c'è già la barra laterale.
@@ -875,9 +994,9 @@ function partiDellaGuida (risultato: Risultato): {
           })
         : inRicerca
           ? [risposteMigliori(risultato), ...sezioni]
-          : PARTI.map((parte) => {
+          : partiDaMostrare.map((parte) => {
               const diQuesta = sezioni.filter((_, indice) =>
-                risultato.sezioni[indice].sezione.parte === parte)
+                sezioniFiltrate[indice].sezione.parte === parte)
               if (diQuesta.length === 0) return null
               return h(
                 'div',
@@ -886,6 +1005,19 @@ function partiDellaGuida (risultato: Risultato): {
                 ...diQuesta,
               )
             }),
+      h(
+        'div',
+        { class: 'guida__fondo-navigazione' },
+        pulsante({
+          testo: T.tornaInCima,
+          simbolo: 'su',
+          variante: 'sottile',
+          al: () => {
+            document.querySelector('main.contenuto')?.scrollTo({ top: 0, behavior: andaturaScorrimento() })
+            casellaCerca()?.focus()
+          },
+        }),
+      ),
     ),
     indiceGuida(trovate, inRicerca),
   )
