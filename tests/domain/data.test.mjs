@@ -10,6 +10,10 @@ import {
   LIMITI_UD,
   creaAnno,
   creaAnnoCorrente,
+  creaCheck,
+  creaConsegna,
+  creaCorso,
+  creaMateria,
   creaRicorrenza,
   creaLezione,
   creaSlot,
@@ -45,9 +49,10 @@ import {
   validaValutazione,
   prossimaLezione,
 } from '../../dist-tests/domain.mjs'
+import { ore, scuolaMinima } from '../helpers/register.mjs'
 
 describe('quel che si legge da un file scritto a mano', () => {
-  it('un voto che non è un numero resta vuoto, non diventa zero', () => {
+  it('un voto con la virgola vale come col punto, non diventa zero', () => {
     // «4,5» con la virgola italiana è 4.5, non NaN o 0.
     const registro = normalizzaRegistro({
       valutazioni: [
@@ -67,7 +72,7 @@ describe('quel che si legge da un file scritto a mano', () => {
 
     assert.deepEqual(
       registro.valutazioni[0].voti.map((v) => v.valore),
-      [null, 4.5, 5],
+      [4.5, 4.5, 5],
     )
   })
 
@@ -465,6 +470,51 @@ describe('normalizzazione di quel che si trova su disco', () => {
     const problemi = riferimentiRotti(registro)
     assert.equal(problemi.length, 1)
     assert.match(problemi[0], /non iscritte/)
+  })
+})
+
+describe('riferimentiRotti: rimandi ad altri corsi e persone estranee', () => {
+  /** La scuola minima con un'ora e una verifica del corso, e un'ora di Storia della stessa classe. */
+  function conAltroCorso () {
+    const base = scuolaMinima()
+    const { registro, classe, corso } = base
+    const [lezione] = ore(registro, corso, ['2026-09-14'])
+    const momento = creaValutazione(corso.id, 'Verifica', registro.impostazioni.scala, '2026-10-05')
+    registro.valutazioni.push(momento)
+    const materia = creaMateria('Storia')
+    registro.materie.push(materia)
+    const altro = creaCorso(classe.id, materia.id, 'Storia')
+    registro.corsi.push(altro)
+    const [oraAltrui] = ore(registro, altro, ['2026-09-15'])
+    return { ...base, lezione, momento, oraAltrui }
+  }
+
+  it('segnala una consegna legata a un’ora di un altro corso', () => {
+    const { registro, corso, oraAltrui } = conAltroCorso()
+    assert.deepEqual(riferimentiRotti(registro), [])
+    registro.consegne.push(creaConsegna(corso.id, 'Esercizi', oraAltrui.data, oraAltrui.id))
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala una spunta del check in un’ora di un altro corso', () => {
+    const { registro, corso, rossi, oraAltrui } = conAltroCorso()
+    const lista = creaCheck(corso.id)
+    lista.spunte.push({
+      allievoId: rossi.id, colonnaId: 'col-1', lezioneId: oraAltrui.id, data: oraAltrui.data,
+      fattaIl: '2026-09-15T08:30:00.000Z',
+    })
+    registro.check.push(lista)
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala appello, recuperi e prove di persone che non sono nella classe', () => {
+    const { registro, lezione, momento } = conAltroCorso()
+    assert.deepEqual(riferimentiRotti(registro), [])
+    lezione.presenze = [{ allievoId: 'all-sparito', stati: ['assente'] }]
+    assert.equal(riferimentiRotti(registro).length, 1)
+    lezione.presenze = []
+    momento.recuperi = [{ allievoId: 'all-sparito', previstoIl: null }]
+    assert.equal(riferimentiRotti(registro).length, 1)
   })
 })
 

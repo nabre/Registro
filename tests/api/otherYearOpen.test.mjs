@@ -14,7 +14,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro7-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-')
 
 let api
 let archivio

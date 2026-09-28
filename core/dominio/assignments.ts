@@ -263,7 +263,7 @@ export function avanzamentoConsegna (
 }
 
 /** Le consegne di un corso, dalla più urgente: prima chi scade, poi chi no. */
-function consegneDelCorso (registro: Registro, corsoId: string): Consegna[] {
+export function consegneDelCorso (registro: Registro, corsoId: string): Consegna[] {
   return registro.consegne
     .filter((c) => c.corsoId === corsoId)
     .sort((a, b) => {

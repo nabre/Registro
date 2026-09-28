@@ -215,6 +215,12 @@ function segretoDelCondotto (cartella: string): string {
   return leggiSegreto(cartella) ?? nuovo
 }
 
+/** Toglie il segreto, se è ancora quello scritto da questa accensione. */
+function togliSegreto (cartella: string, segreto: string): void {
+  if (leggiSegreto(cartella) !== segreto) return
+  try { unlinkSync(join(cartella, FILE_SEGRETO)) } catch { /* già via */ }
+}
+
 // ----------------------------------------------------------------- le buste
 
 /**
@@ -1022,9 +1028,8 @@ export async function avviaCondotto (
 
   registraTutte()
   // Il segreto prima del nome, perché il nome lo contiene: vedi `FILE_SEGRETO`.
-  if (process.platform === 'win32') {
-    segretoDelCondotto(cartellaUtenteVista ?? cartellaUtentePredefinita())
-  }
+  const cartellaSegreto = cartellaUtenteVista ?? cartellaUtentePredefinita()
+  const segreto = process.platform === 'win32' ? segretoDelCondotto(cartellaSegreto) : null
   const indirizzo = indirizzoCondotto()
 
   // Un socket rimasto da una chiusura brutale impedirebbe l'ascolto. Toglierlo è
@@ -1130,6 +1135,10 @@ export async function avviaCondotto (
       stato.code.clear()
       if (process.platform !== 'win32') void unlink(indirizzo).catch(() => undefined)
     })
+    // Spenta la pipe, il suo nome (segreto compreso, visibile a tutti) resta
+    // libero: un altro utente potrebbe occuparlo, e la riga di comando, trovando
+    // ancora il segreto, parlerebbe con lui. Senza file dice «registro spento».
+    if (segreto) togliSegreto(cartellaSegreto, segreto)
   })
 
   return {

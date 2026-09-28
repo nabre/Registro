@@ -293,7 +293,9 @@ export const procedura = definisci({
           // questo periodo: la quota deve coincidere con quella stampata.
           const { minutiUd } = r.impostazioni
           const previste = anno
-            ? udPrevisteDaOrario(anno, suo, pezzo.dal, pezzo.al, minutiUd, r.lezioni)
+            ? udPrevisteDaOrario(
+                anno, suo, pezzo.dal, pezzo.al, minutiUd, r.lezioni, r.impostazioni.pause,
+              )
             : 0
           const aCalendario = lezioni.reduce((somma, l) => somma + contaUd(l, minutiUd), 0)
           const monteOre = previste > 0 ? previste : aCalendario

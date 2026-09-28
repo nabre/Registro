@@ -5,7 +5,7 @@
 
 import * as apparato from 'apparato'
 
-import type { Archivio } from '.../../../core/dati/archive.js'
+import type { Archivio } from '../../core/dati/archive.js'
 import {
   bloccoAperto,
   contenutoProiezione,
@@ -14,7 +14,7 @@ import {
   vistaCalendarioValida,
   type ImpostazioniProiezione,
   type MiraProiezione,
-} from '.../../../core/dominio/projection.js'
+} from '../../core/dominio/projection.js'
 import type { MessaggioProiezione, MessaggioStatoProiezione } from '../../contract/protocollo.js'
 import { alCambioLingua } from '../../core/i18n/index.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'

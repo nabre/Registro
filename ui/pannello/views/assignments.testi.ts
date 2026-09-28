@@ -64,6 +64,9 @@ const it = {
     'La consegna torna fra quelle da chiedere. I documenti raccolti restano: ' +
     'se ne vanno solo le spunte senza foglio.',
   modificaConsegna: 'Modifica la consegna',
+  ambitoClasse: 'Docente di classe',
+  spostaACorso: 'Sposta in corso d’insegnamento',
+  spostaAClasse: 'Sposta in docente di classe',
   dataIlGiorno: (giorno: string) => `data il ${giorno}`,
   per: (giorno: string) => ` · per ${giorno}`,
   arretrateInTutto: (arretrate: number, quante: number) =>
@@ -137,6 +140,9 @@ export const testi = catalogo(it, {
       'Der Auftrag kommt wieder zu denen, die noch einzufordern sind. Eingesammelte ' +
       'Dokumente bleiben: Es verschwinden nur die Häkchen ohne Blatt.',
     modificaConsegna: 'Auftrag bearbeiten',
+    ambitoClasse: 'Klassenlehrperson',
+    spostaACorso: 'In Unterrichtskurs verschieben',
+    spostaAClasse: 'Zu Klassenlehrperson verschieben',
     dataIlGiorno: (giorno) => `erteilt am ${giorno}`,
     per: (giorno) => ` · bis ${giorno}`,
     arretrateInTutto: (arretrate, quante) => `${arretrate} überfällig · ${quante} insgesamt`,
@@ -208,6 +214,9 @@ export const testi = catalogo(it, {
       'Le devoir revient parmi ceux à réclamer. Les documents recueillis restent : seules ' +
       'les coches sans feuille disparaissent.',
     modificaConsegna: 'Modifier le devoir',
+    ambitoClasse: 'Maître de classe',
+    spostaACorso: 'Déplacer vers le cours',
+    spostaAClasse: 'Déplacer vers le maître de classe',
     dataIlGiorno: (giorno) => `donné le ${giorno}`,
     per: (giorno) => ` · pour le ${giorno}`,
     arretrateInTutto: (arretrate, quante) => `${arretrate} en retard · ${quante} au total`,
@@ -276,6 +285,9 @@ export const testi = catalogo(it, {
       'The assignment goes back among those still to ask for. Collected documents stay: ' +
       'only the ticks without a sheet go.',
     modificaConsegna: 'Edit the assignment',
+    ambitoClasse: 'Class teacher',
+    spostaACorso: 'Move to course',
+    spostaAClasse: 'Move to class teacher',
     dataIlGiorno: (giorno) => `set on ${giorno}`,
     per: (giorno) => ` · due ${giorno}`,
     arretrateInTutto: (arretrate, quante) => `${arretrate} overdue · ${quante} in total`,

@@ -72,14 +72,21 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
   const modifica = Boolean(opzioni.consegna)
 
   // Risoluzione ambito iniziale
-  const classeInizialeDocente = opzioni.classeId
-    ? classiDocente.find((c) => c.id === opzioni.classeId) ?? null
+  const classeDellaConsegna = opzioni.consegna
+    ? classeDelCorsoId(opzioni.consegna.corsoId)
     : null
 
+  const classeInizialeDocente = opzioni.classeId
+    ? classiDocente.find((c) => c.id === opzioni.classeId) ?? null
+    : (classeDellaConsegna && classeDellaConsegna.docenteDiClasse ? classeDellaConsegna : null)
+
   let ambitoIniziale: 'corso' | 'classe' =
-    opzioni.ambito === 'classe' || (classeInizialeDocente && !opzioni.corsoId)
+    opzioni.ambito ??
+    (opzioni.consegna?.docenteDiClasse
       ? 'classe'
-      : 'corso'
+      : opzioni.consegna && classeDellaConsegna?.docenteDiClasse && opzioni.consegna.tipo === 'amministrativo'
+        ? 'classe'
+        : (classeInizialeDocente && !opzioni.corsoId && !opzioni.consegna ? 'classe' : 'corso'))
 
   if (classiDocente.length === 0) {
     ambitoIniziale = 'corso'
@@ -98,7 +105,13 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
   }
 
   const base = opzioni.consegna ?? {
-    ...creaConsegna(corsoIniziale, '', lezione?.data ?? stato.data ?? oggi(), lezione?.id ?? null),
+    ...creaConsegna(
+      corsoIniziale,
+      '',
+      lezione?.data ?? stato.data ?? oggi(),
+      lezione?.id ?? null,
+      ambitoIniziale === 'classe',
+    ),
     a: opzioni.a ?? 'classe',
     tipo: opzioni.documento
       ? ('consegna' as const)
@@ -144,7 +157,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
     proposta: string,
   ) => {
     const puoCambiareAmbito =
-      !lezione && !modifica && !opzioni.corsoFisso && classiDocente.length > 0
+      !lezione && !opzioni.corsoFisso && classiDocente.length > 0
 
     const selettoreAmbito = puoCambiareAmbito
       ? h(
@@ -187,7 +200,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
       : null
 
     const rigaDestinazione =
-      lezione || modifica || opzioni.corsoFisso
+      lezione || opzioni.corsoFisso
         ? null
         : ambitoAttuale === 'classe'
           ? riga(
@@ -435,7 +448,9 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
 
     if (nuovoAmbito === 'classe') {
       const targetClasse =
-        classiDocente.find((c) => c.id === classeDocenteAttualeId) ?? classiDocente[0]
+        classiDocente.find((c) => c.id === classeDocenteAttualeId) ??
+        (classeDelCorsoId(corsoAttuale)?.docenteDiClasse ? classeDelCorsoId(corsoAttuale) : null) ??
+        classiDocente[0]
       if (targetClasse) {
         classeDocenteAttualeId = targetClasse.id
         const suoCorso = corsiDi(targetClasse.id)[0]
@@ -444,7 +459,9 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
         }
       }
     } else {
-      corsoAttuale = corsoBuono(opzioni.corsoId)
+      const classe = classeDocenteAttualeId ? classePerId(classeDocenteAttualeId) : null
+      const corsiDellaClasse = classe ? corsiDi(classe.id) : []
+      corsoAttuale = corsiDellaClasse[0]?.id ?? corsoBuono(opzioni.corsoId)
       classeDocenteAttualeId = null
     }
 
@@ -460,7 +477,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
     sottotitolo:
       ambitoAttuale === 'classe' && classeDocenteAttualeId
         ? `${t.classeDocenteEtichetta(classePerId(classeDocenteAttualeId)?.nome ?? '')}${lezione ? ` · ${formattaData(lezione.data, 'lungo')}` : ''}`
-        : `${nomeCorso(corsoIniziale)}${lezione ? ` · ${formattaData(lezione.data, 'lungo')}` : ''}`,
+        : `${nomeCorso(corsoAttuale)}${lezione ? ` · ${formattaData(lezione.data, 'lungo')}` : ''}`,
     larghezza: 'media',
     corpo: () => contenitore,
     alSalva: async (valori, contesto) => {
@@ -484,8 +501,16 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
         stato.registro.consegne.find((c) => c.id === base.id),
       )
       if (!viva) return
+
+      const corsoCambiato = corsoSceltoId !== viva.corsoId
+      const allieviIdsValidi = new Set(allieviAttuali.map((allievo) => allievo.id))
+      const allieviScelti = a === 'allievi'
+        ? scelti.map((allievo) => allievo.id).filter((id) => allieviIdsValidi.has(id))
+        : []
+
       const aggiornata: Consegna = {
         ...viva,
+        docenteDiClasse: ambitoAttuale === 'classe',
         corsoId: corsoSceltoId,
         testo: testo(valori.testo),
         tipo: testo(valori.tipo) as Consegna['tipo'],
@@ -499,10 +524,14 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
             : undefined,
         firmeRichieste: valori.raccoglie ? Boolean(valori.firmeRichieste) : undefined,
         a,
-        allieviIds: a === 'allievi' ? scelti.map((allievo) => allievo.id) : [],
+        allieviIds: allieviScelti,
+        dataLezioneId: corsoCambiato ? null : viva.dataLezioneId,
         scadenzaLezioneId: modo === 'lezione' ? testo(valori.scadenzaLezioneId) || null : null,
         scadenza: modo === 'data' ? testo(valori.scadenza) || null : null,
         note: testo(valori.note),
+        fatte: corsoCambiato
+          ? viva.fatte.filter((f) => f.chi === 'docente' || allieviIdsValidi.has(f.chi))
+          : viva.fatte,
       }
 
       await salva(

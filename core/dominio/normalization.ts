@@ -944,13 +944,12 @@ export function normalizzaPiano (grezzo: unknown, corsoId: string | null = null)
 
 function normalizzaVoto (grezzo: unknown): Voto {
   const dati = oggetto(grezzo)
-  // Un valore che non è un numero («4,5» a mano) resta vuoto invece di valere zero.
-  const letto = typeof dati.valore === 'number' ? dati.valore : Number(dati.valore)
-  const valore =
-    dati.valore === null || dati.valore === undefined || !Number.isFinite(letto) ? null : letto
+  // Vuoto o illeggibile resta vuoto: `Number('')` fa 0, un voto fuori scala
+  // che entrerebbe nella media. La virgola vale come punto, come in `numero()`.
+  const valore = numero(dati.valore, Number.NaN)
   return {
     allievoId: testo(dati.allievoId),
-    valore,
+    valore: Number.isFinite(valore) ? valore : null,
     assente: booleano(dati.assente, false),
     nota: testo(dati.nota),
     // Solo se è una data vera; se no «non riconsegnata».
@@ -1592,6 +1591,7 @@ export function normalizzaConsegna (grezzo: unknown): Consegna {
     scadenzaLezioneId: riferimento(dati.scadenzaLezioneId),
     scadenza: isoValida(dati.scadenza) ? String(dati.scadenza) : null,
     note: testo(dati.note),
+    docenteDiClasse: booleano(dati.docenteDiClasse, false),
     fatte,
     creataIl: testo(dati.creataIl, ora),
     aggiornataIl: testo(dati.aggiornataIl, ora),

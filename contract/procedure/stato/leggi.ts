@@ -17,6 +17,9 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'stato.leggi',
   idempotente: true,
+  // La prima volta porta dentro l'intestazione di una vecchia `templates/`
+  // (`portaDentroLaVecchiaCartella`).
+  collezioni: ['registro'],
   ingresso: vuoto(),
   esegui: inoltra(registro, 'stato.leggi'),
 })

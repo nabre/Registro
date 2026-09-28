@@ -307,17 +307,6 @@ describe('sette scritture: l’ingresso buono passa, quello storto non scrive', 
       assert.equal(archivio.revisione, prima, `${nome} ha scritto e poi ha detto di no`)
     })
   }
-
-  it('rifiutare non lascia niente dietro di sé, nemmeno a metà', async () => {
-    // Tutte e sette di fila, un conto solo in fondo: l'archivio conta le modifiche,
-    // quindi anche una scrittura poi annullata si vedrebbe.
-    const prima = archivio.revisione
-    for (const { nome, storto } of sette()) {
-      const esito = await api.chiama(archivio, nome, storto)
-      assert.equal(esito.ok, false, nome)
-    }
-    assert.equal(archivio.revisione, prima)
-  })
 })
 
 describe('impostazioni.salva non perde il calendario ICS', () => {

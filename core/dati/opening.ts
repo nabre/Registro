@@ -22,11 +22,37 @@ function comandoDiApertura (percorso: string): [string, string[]] {
   return process.platform === 'darwin' ? ['open', [percorso]] : ['xdg-open', [percorso]]
 }
 
+// Estensioni che il sistema non «apre» ma esegue. I file arrivano dentro il
+// documento, che può venire da altri (una cartella condivisa, una mail), e la
+// copia materializzata la scrive il programma: niente Mark-of-the-Web, quindi
+// nessun avviso di SmartScreen fra il clic e l'esecuzione.
+const ESEGUIBILI = new Set([
+  'exe', 'com', 'scr', 'pif', 'cpl', 'msi', 'msp', 'msix', 'appx', 'appxbundle',
+  'bat', 'cmd', 'ps1', 'psm1', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'hta',
+  'lnk', 'url', 'website', 'scf', 'inf', 'reg', 'msc', 'jar', 'dll', 'sys',
+  'application', 'appref-ms', 'gadget', 'settingcontent-ms', 'library-ms',
+  'searchconnector-ms', 'diagcab', 'xll', 'iso', 'img', 'vhd', 'vhdx',
+  'app', 'command', 'tool', 'pkg', 'dmg', 'terminal', 'workflow',
+  'sh', 'desktop', 'appimage', 'run', 'bin',
+])
+
+/**
+ * Vero se il nome, come lo leggerebbe Windows (punti e spazi in coda tolti),
+ * finisce con un'estensione che si esegue.
+ */
+export function èEseguibile (percorso: string): boolean {
+  const nome = percorso.split(/[\\/]/).pop()?.replace(/[. ]+$/, '') ?? ''
+  const punto = nome.lastIndexOf('.')
+  return punto >= 0 && ESEGUIBILI.has(nome.slice(punto + 1).toLowerCase())
+}
+
 /**
  * Apre un file con il programma del sistema; se non riesce lo mostra nella sua
- * cartella. Torna falso se non è riuscita nessuna delle due.
+ * cartella. Torna falso se non è riuscita nessuna delle due. Un eseguibile non
+ * si lancia: si mostra soltanto, e l'eventuale doppio clic resta di chi guarda.
  */
 export async function apriConIlSistema (file: apparato.Uri): Promise<boolean> {
+  if (èEseguibile(file.fsPath)) return mostraNellaCartella(file)
   const [comando, argomenti] = comandoDiApertura(file.fsPath)
   const aperto = await new Promise<boolean>((risolvi) => {
     try {
@@ -36,7 +62,10 @@ export async function apriConIlSistema (file: apparato.Uri): Promise<boolean> {
     }
   })
   if (aperto) return true
+  return mostraNellaCartella(file)
+}
 
+async function mostraNellaCartella (file: apparato.Uri): Promise<boolean> {
   try {
     await apparato.comandi.esegui('apparato.mostraNellaCartella', file)
     return true

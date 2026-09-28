@@ -218,7 +218,8 @@
       "titolo": "Riscrive un anno intero: etichetta, semestri e pause",
       "idempotente": true,
       "collezioni": [
-        "registro"
+        "registro",
+        "lezioni"
       ],
       "riga": "regi chiama anni.salva --anno <oggetto>",
       "parametri": {
@@ -2974,7 +2975,8 @@
       "titolo": "Mette da parte il documento da dare a qualcuno, prima di consegnarlo",
       "idempotente": false,
       "collezioni": [
-        "consegne"
+        "consegne",
+        "smistamenti"
       ],
       "riga": "regi chiama consegne.documento.allega --consegnaId <testo> --allievoId <testo>",
       "parametri": {
@@ -3047,7 +3049,8 @@
       "titolo": "Toglie il documento pronto dalla consegna e dal documento dell’anno (non va nel cestino di sistema)",
       "idempotente": true,
       "collezioni": [
-        "consegne"
+        "consegne",
+        "smistamenti"
       ],
       "riga": "regi chiama consegne.documento.togli --consegnaId <testo> --allievoId <testo>",
       "parametri": {
@@ -3224,7 +3227,9 @@
       "titolo": "Butta via una consegna, con i documenti che aveva raccolto",
       "idempotente": true,
       "collezioni": [
-        "consegne"
+        "consegne",
+        "smistamenti",
+        "fascicoli"
       ],
       "riga": "regi chiama consegne.elimina --consegnaId <testo>",
       "parametri": {
@@ -3392,7 +3397,8 @@
       "titolo": "Spunta raccogliendo il foglio: il file si archivia dentro la spunta",
       "idempotente": false,
       "collezioni": [
-        "consegne"
+        "consegne",
+        "smistamenti"
       ],
       "riga": "regi chiama consegne.raccogli --consegnaId <testo> --chi <testo>",
       "parametri": {
@@ -3658,7 +3664,8 @@
         "valutazioni",
         "consegne",
         "check",
-        "smistamenti"
+        "smistamenti",
+        "fascicoli"
       ],
       "riga": "regi chiama corsi.elimina --corsoId <testo>",
       "parametri": {
@@ -4294,6 +4301,7 @@
       "idempotente": true,
       "collezioni": [
         "registro",
+        "corsi",
         "lezioni"
       ],
       "riga": "regi chiama impostazioni.salva --impostazioni <oggetto>",
@@ -5013,7 +5021,8 @@
         "lezioni",
         "piani",
         "valutazioni",
-        "consegne"
+        "consegne",
+        "check"
       ],
       "riga": "regi chiama manutenzione.ripara",
       "parametri": {
@@ -5290,7 +5299,8 @@
         "valutazioni",
         "consegne",
         "check",
-        "smistamenti"
+        "smistamenti",
+        "fascicoli"
       ],
       "riga": "regi chiama materie.elimina --materiaId <testo>",
       "parametri": {
@@ -7299,7 +7309,8 @@
         "valutazioni",
         "consegne",
         "check",
-        "fascicoli"
+        "fascicoli",
+        "smistamenti"
       ],
       "riga": "regi chiama persone.elimina --classeId <testo> --allievoId <testo>",
       "parametri": {
@@ -7845,7 +7856,7 @@
               "string",
               "null"
             ],
-            "description": "null stacca il piano dall’ora",
+            "description": "null stacca il piano dall’ora. Un piano di un altro corso si rifiuta",
             "minLength": 1,
             "maxLength": 64
           }
@@ -8106,7 +8117,7 @@
       "nome": "piani.perLezione",
       "funzione": "piani_perLezione",
       "genere": "scrittura",
-      "titolo": "Apre il piano di un’ora: vuoto da completare, o copiato da uno che c’è",
+      "titolo": "Apre il piano di un’ora: generato con obiettivi e scaletta sulle sue UD, o copiato da uno che c’è",
       "idempotente": true,
       "collezioni": [
         "piani",
@@ -8127,7 +8138,7 @@
               "string",
               "null"
             ],
-            "description": "Il piano da ricopiare. Senza, o nullo, ne nasce uno da completare",
+            "description": "Il piano da ricopiare. Senza, o nullo, ne nasce uno con obiettivi e scaletta da rivedere",
             "minLength": 1,
             "maxLength": 64
           }
@@ -10115,6 +10126,9 @@
       "genere": "scrittura",
       "titolo": "Chiede lo stato del registro, e rilegge la cartella dei modelli",
       "idempotente": true,
+      "collezioni": [
+        "registro"
+      ],
       "riga": "regi chiama stato.leggi",
       "parametri": {
         "type": "object",
@@ -10129,6 +10143,9 @@
       "genere": "scrittura",
       "titolo": "Rilegge il documento aperto e la cartella dei modelli",
       "idempotente": true,
+      "collezioni": [
+        "registro"
+      ],
       "riga": "regi chiama stato.ricarica",
       "parametri": {
         "type": "object",

@@ -850,6 +850,11 @@ export interface Consegna {
   scadenza: Iso | null
   note?: string
   /**
+   * Se la consegna appartiene alle attività del docente di classe (`true`)
+   * oppure a un corso d'insegnamento (`false` o assente).
+   */
+  docenteDiClasse?: boolean
+  /**
    * Se spuntarla vuol dire consegnare un foglio: la categoria del documento.
    * È quel che la rende una «richiesta di documento», con un file per ciascuno
    * e la matrice di chi manca. Assente sulle consegne normali.
@@ -1327,7 +1332,7 @@ export interface Registro {
  * `migrationVersion.test.mjs`, `upgrades.test.mjs`, `formatUpgrade.test.mjs`.
  * Vedi la skill `formato`.
  */
-export const VERSIONE_DATI = 2
+export const VERSIONE_DATI = 3
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

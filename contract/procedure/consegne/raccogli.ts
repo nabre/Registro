@@ -10,7 +10,7 @@ export const procedura = scrittura({
   azione: 'consegna.raccogli',
   // Apre un dialogo e copia un file: ritentare vuol dire scegliere di nuovo.
   idempotente: false,
-  collezioni: ['consegne'],
+  collezioni: ['consegne', 'smistamenti'],
   ingresso: oggetto({
     consegnaId: identificatore(),
     chi: chiSpunta,

@@ -242,7 +242,7 @@ Il come: skill `impostazione`.
 (`core/dati/opening.ts`, `apriConIlSistema`), mai `openExternal` su un
 `file://` (codifica non-ASCII rotta, injection con `&`).
 
-**Vincoli.** `openExternal` solo per `http`, `https`, `mailto`, `tel`
+**Vincoli.** `openExternal` solo per `http`, `https`, `mailto`, `tel` e i modi di chiamata `callto`, `skype`, `msteams`
 (`desktop/apparato/commands.ts`).
 
 ### ADR-23 — Funzioni di sistema in tre file che non si conoscono
@@ -686,6 +686,58 @@ ricerca automatica restano sempre disponibili nelle impostazioni del programma.
 
 **Dove.** `contract/manifesto.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
 `os/windows/installer.nsh`.
+
+### ADR-46 — Risoluzione questioni di cantiere: registro mono-docente, purezza delle viste, azioni per campo e calcoli canonici
+
+**Decisione.**
+1. **Registro mono-docente e dati strutturati (D-4):** Regiklass è un'applicazione
+   personale destinata a un unico docente titolare che apre e modifica il
+   documento. Si rigetta l'introduzione di metadati complessi di paternità o
+   controllo accessi multi-utente per ogni scrittura. Per valorizzare la
+   documentazione generata e le stampe, l'identità del docente viene
+   strutturata (`appellativo`, `nome`, `cognome`) e integrata automaticamente nei
+   modelli di stampa (`templates/`) e nei rapporti PDF.
+2. **Purezza assoluta delle viste e rimozione scritture implicite (D-2):** In
+   osservanza del principio fondamentale «una lettura o vista non scrive mai dati»,
+   la pagina dei piani lezione (`ui/pannello/views/plans.ts`) e qualsiasi altra
+   vista non possono generare o assegnare entità durante il disegno o la semplice
+   navigazione. La creazione o associazione di un piano per una lezione priva di
+   scaletta richiede un'interazione esplicita dell'utente tramite pulsante dedicato.
+3. **Azioni atomiche per campo contro scritture sovrapposte (D-3):** Per eliminare
+   il rischio di regressione dello stato causato dall'invio di oggetti interi
+   concorrenti o ravvicinati (es. rinomina e archiviazione quasi simultanee di una
+   classe), le mutazioni si scompongono in azioni mirate per campo o intento
+   (es. rinomina, archiviazione, impostazione docente di classe), estendendo il
+   pattern collaudato di `lezione.testi`.
+4. **Calcolo canonico dei tempi di scaletta (D-5):** L'arrotondamento ai 5 minuti
+   delle attività non è un mero artefatto visivo dell'interfaccia, ma una regola
+   canonica di dominio. I calcoli di `durataPiano`, `scalettaSulleUd` e
+   `minutiDiScarto` in `core/dominio/calculations.ts` operano sui valori coerenti,
+   eliminando ogni discrepanza tra il tempo mostrato a schermo e quello calcolato.
+5. **Rigidità dei parametri di calendario e orario (D-6):** Il parametro `pause`
+   nella funzione `udPrevisteDaOrario` in `core/dominio/timetable.ts` è reso
+   obbligatorio a livello di tipo TypeScript per prevenire omissioni accidentali
+   nei nuovi chiamanti e garantire uniformità nel computo delle assenze.
+6. **Reversibilità delle spunte di consegna (D-7):** L'azione `consegna.spunta` con
+   `fatta: false` consente al docente di rimuovere la spunta anche qualora sia
+   stata registrata a seguito di una spedizione via posta elettronica (`modo: 'email'`),
+   preservando la sovranità decisionale dell'insegnante sulle spunte.
+7. **Font PDF e licenze (D-8):** I font Liberation adottati per la generazione dei
+   PDF vengono allineati alla versione 2.x rilasciata sotto licenza SIL Open Font
+   License (OFL), superando le ambiguità della precedente licenza GPL con eccezione font.
+
+**Perché.**
+Garantisce la coerenza architetturale tra strati, elimina le sovrascritture di stato concorrenti,
+allinea i calcoli visivi a quelli del dominio e formalizza l'identità personale del registro.
+
+**Vincoli.**
+Nessun side-effect di scrittura durante il ciclo di rendering (`h()`) o le funzioni `vaiA`.
+Retrocompatibilità garantita per il segnaposto `{{docente}}` nei modelli esistenti.
+
+**Dove.**
+`core/dominio/models.ts`, `core/dominio/calculations.ts`, `core/dominio/timetable.ts`,
+`core/azioni/assignments.ts`, `ui/pannello/views/plans.ts`, `ui/pannello/views/classes.ts`,
+`templates/`.
 
 
 ## Decisioni implicite

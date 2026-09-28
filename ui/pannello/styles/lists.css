@@ -61,7 +61,13 @@
 .voce-laterale--spenta { opacity: 0.75; }
 
 .voce-laterale__testo { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.voce-laterale__testo small { color: var(--testo-quieto); font-size: var(--corpo-piccolo); }
+.voce-laterale__testo small {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .voce-laterale__testo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /*

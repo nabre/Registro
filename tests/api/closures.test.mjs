@@ -1,6 +1,7 @@
 // Le ore nei giorni di chiusura: `anni.salva` toglie, con una chiusura nuova,
 // le ore intatte che ci cadono dentro (quelle con dati restano, e lo dice);
 // `ore.chiusure.togli` toglie a richiesta tutte quelle di un intervallo.
+// `anni.settimana` segna il tipo di settimana e rifiuta quel che non può tenere.
 
 import assert from 'node:assert/strict'
 import { after, before, describe, it } from 'node:test'
@@ -89,5 +90,30 @@ describe('ore.chiusure.togli', () => {
     const esito = await api.chiama(archivio, 'ore.chiusure.togli', { dal: '2027-01-11', al: '2027-01-17' })
     assert.equal(esito.ok, false)
     assert.equal(esiste(sabato.id), true)
+  })
+})
+
+describe('anni.settimana', () => {
+  const segna = (giorno, lettera) => {
+    const anno = archivio.registro.anni[0]
+    return api.chiama(archivio, 'anni.settimana', { annoId: anno.id, giorno, lettera })
+  }
+
+  it('una voce valida si scrive', async () => {
+    const esito = await segna(archivio.registro.anni[0].inizio, 'A')
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+  })
+
+  it('una lettera vuota, di spazi o troppo lunga si rifiuta invece di sparire', async () => {
+    for (const lettera of ['', '   ', 'x'.repeat(41)]) {
+      const esito = await segna(archivio.registro.anni[0].inizio, lettera)
+      assert.equal(esito.ok, false, `«${lettera}» accettata`)
+    }
+  })
+
+  it('un giorno fuori dall’anno si rifiuta', async () => {
+    const esito = await segna('1999-01-04', 'A')
+    assert.equal(esito.ok, false, JSON.stringify(esito))
+    assert.equal(archivio.registro.anni[0].settimane?.['1999-01-04'], undefined)
   })
 })

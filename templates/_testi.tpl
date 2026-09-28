@@ -58,8 +58,8 @@ voti: Voti
 media: Media
 voto-piu-alto: Voto più alto
 voto-piu-basso: Voto più basso
-sufficienti: No. suff.
-insufficienti: No. Ins.
+sufficienti: N. suff.
+insufficienti: N. insuff.
 lezioni-a-calendario: Lezioni a calendario
 ud-previste: UD previste
 ud-a-calendario: UD a calendario

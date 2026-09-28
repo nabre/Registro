@@ -1,10 +1,10 @@
 // Errori dei file. Minuscoli perché finiscono in coda a un altro messaggio.
 
-import { catalogo } from '.../../../core/i18n/index.js'
+import { catalogo } from '../../core/i18n/index.js'
 
 const it = {
   nonTrovato: (dove: string) => `file non trovato: ${dove}`,
-  giàQualcosa: (dove: string) => `c'è già qualcosa: ${dove}`,
+  giàQualcosa: (dove: string) => `c’è già qualcosa: ${dove}`,
   permessoNegato: (dove: string) => `permesso negato: ${dove}`,
   èUnaCartella: (dove: string) => `è una cartella: ${dove}`,
   percorsoIgnoto: 'percorso ignoto',

@@ -142,6 +142,13 @@ export class Archivio implements apparato.Smaltitore {
    * chiusura è rifiutata.
    */
   private inChiusura = false
+  /**
+   * Il documento aperto è stato riscritto sul disco da un registro più recente
+   * (un altro PC aggiornato, via OneDrive). Lo stato in memoria resta da leggere,
+   * ma non si scrive più: il salvataggio riscriverebbe per intero il formato
+   * vecchio sopra quello nuovo.
+   */
+  private superato = false
   /** Spento per sempre (`chiudi` allo spegnimento): nessun documento si apre più. */
   private spento = false
   /** Dove va la copia d'emergenza se accanto al documento non si riesce a scrivere. */
@@ -336,6 +343,7 @@ export class Archivio implements apparato.Smaltitore {
     // lascia senza anno. Stesso file (ricarica): la serratura resta.
     const stesso = file !== null && vecchio?.file.toString() === file.toString()
     const nuovo = file ? await this.prendiPacchetto(file, { giàNostro: stesso }) : null
+    if (nuovo || !file) this.superato = false
     if (file && !nuovo && vecchio) {
       // Non si è aperto (già detto): resta quello di prima, intero.
       this.documento = vecchio.file
@@ -535,10 +543,20 @@ export class Archivio implements apparato.Smaltitore {
       return null
     }
 
+    // Ricarica: un file sparito o vuoto è quasi sempre una sostituzione a metà
+    // (OneDrive cancella e riscrive). Aperto vuoto, lo stato si svuoterebbe e il
+    // primo salvataggio coprirebbe il file vero appena tornato: resta quel che
+    // c'è, e si riprova al prossimo evento.
+    if (opzioni?.giàNostro) {
+      const misura = await apparato.file.stat(file).then((stato) => stato.size, () => 0)
+      if (misura === 0) return null
+    }
+
     let pacchetto: Pacchetto
     try {
       pacchetto = await Pacchetto.apri(file)
     } catch (errore) {
+      if (errore instanceof ErroreVersionePiuRecente && opzioni?.giàNostro) this.superato = true
       this.emettitoreErrori.fire(
         errore instanceof ErroreVersionePiuRecente
           ? errore
@@ -553,6 +571,7 @@ export class Archivio implements apparato.Smaltitore {
     // ignoti e `collezioniMigrate` li cancellerebbe subito dal documento.
     const versione = versioneDati(pacchetto)
     if (versione !== null && versione > VERSIONE_DATI) {
+      if (opzioni?.giàNostro) this.superato = true
       this.emettitoreErrori.fire(new ErroreVersionePiuRecente({
         file: `${cartella}${ESTENSIONE}`, cosa: 'dati', delFile: versione, quiFinoA: VERSIONE_DATI,
       }))
@@ -904,6 +923,9 @@ export class Archivio implements apparato.Smaltitore {
   vietaSeInChiusura (): void {
     if (this.inChiusura) {
       throw new Error(testi().inChiusura)
+    }
+    if (this.superato) {
+      throw new Error(testi().superato)
     }
   }
 

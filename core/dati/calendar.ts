@@ -6,6 +6,7 @@
 import * as apparato from 'apparato'
 
 import type { SorgenteCalendario } from '../dominio/models.js'
+import { testoDaByteIcs } from '../dominio/calendarIcs.js'
 import { deposito } from './store.js'
 import { istanteAdesso } from '../dominio/dates.js'
 import { testi } from './calendar.testi.js'
@@ -44,12 +45,24 @@ async function scarica (indirizzo: string): Promise<string> {
   if (dichiarati > MASSIMO_BYTE) throw new Error(testi().troppoGrande)
   const byte = new Uint8Array(await risposta.arrayBuffer())
   if (byte.byteLength > MASSIMO_BYTE) throw new Error(testi().troppoGrande)
-  return new TextDecoder('utf-8').decode(byte)
+  return testoDaByteIcs(byte)
+}
+
+/**
+ * Vero se il file sta su un altro computer (`\\server\quota`, `//server`,
+ * `file://server/…`). Aprirlo è una connessione SMB, e Windows vi manda da solo
+ * l'impronta della password di chi usa il programma: un'origine scritta in un
+ * documento ricevuto la farebbe uscire verso chiunque.
+ */
+function inRete (scritto: string, uri: apparato.Uri): boolean {
+  // `file:////server/…` l'uri lo normalizza in un percorso locale: si guarda anche lo scritto.
+  return uri.authority !== '' || /^[\\/]{2}/.test(uri.fsPath) || /^file:[\\/]{4}/i.test(scritto)
 }
 
 async function daFile (percorso: string): Promise<string> {
   const pulito = percorso.trim().replace(/^"|"$/g, '')
   const uri = /^file:\/\//i.test(pulito) ? apparato.Uri.parse(pulito) : apparato.Uri.file(pulito)
+  if (inRete(pulito, uri)) throw new Error(testi().fileInRete)
   let byte: Uint8Array
   try {
     byte = await apparato.file.readFile(uri)
@@ -57,7 +70,7 @@ async function daFile (percorso: string): Promise<string> {
     throw new Error(testi().fileNonSiApre)
   }
   if (byte.byteLength > MASSIMO_BYTE) throw new Error(testi().fileTroppoGrande)
-  return new TextDecoder('utf-8').decode(byte)
+  return testoDaByteIcs(byte)
 }
 
 /** Controlla che il testo sia un calendario, e lo torna. */

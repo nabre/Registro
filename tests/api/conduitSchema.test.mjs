@@ -12,7 +12,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro12-condotto-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-condotto-')
 
 let api
 let archivio
@@ -39,7 +39,7 @@ before(async () => {
 
   registra(
     definisci({
-      nome: 'giro12.ferma',
+      nome: 'prova.erma',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Aspetta che la prova la sblocchi, per tenere piena la coda',
@@ -53,7 +53,7 @@ before(async () => {
       },
     }),
     definisci({
-      nome: 'giro12.codiceIgnoto',
+      nome: 'prova.odiceIgnoto',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Lancia un errore con un codice che il contratto non conosce',
@@ -151,9 +151,9 @@ const riga = (id, method, params) => `${JSON.stringify({ jsonrpc: '2.0', id, met
 
 describe('«$schema» con la sola scrittura', () => {
   it('lo schema di una scrittura si concede', async () => {
-    const busta = await chiedi('$schema', { procedura: 'giro12.ferma' })
+    const busta = await chiedi('$schema', { procedura: 'prova.erma' })
     assert.ok(busta.result, JSON.stringify(busta))
-    assert.equal(busta.result.nome, 'giro12.ferma')
+    assert.equal(busta.result.nome, 'prova.erma')
     assert.ok(busta.result.ingresso, 'lo schema d’ingresso è quel che serve a comporre la chiamata')
   })
 
@@ -163,7 +163,7 @@ describe('«$schema» con la sola scrittura', () => {
   })
 
   it('un nome sconosciuto non si distingue da una lettura negata', async () => {
-    const busta = await chiedi('$schema', { procedura: 'giro12.nonEsiste' })
+    const busta = await chiedi('$schema', { procedura: 'prova.onEsiste' })
     assert.equal(busta.error?.data?.codice, 'non-permesso', JSON.stringify(busta))
   })
 
@@ -177,7 +177,7 @@ describe('«$schema» con la sola scrittura', () => {
 
 describe('il codice che il contratto non conosce', () => {
   it('esce comunque con un «code» numerico', async () => {
-    const busta = await chiedi('giro12.codiceIgnoto', {})
+    const busta = await chiedi('prova.odiceIgnoto', {})
     assert.ok(busta.error, JSON.stringify(busta))
     assert.equal(typeof busta.error.code, 'number', `busta senza code: ${JSON.stringify(busta)}`)
     assert.equal(busta.error.code, -32603)
@@ -188,7 +188,7 @@ describe('i rifiuti della coda portano l’id della riga', () => {
   it('la coda piena risponde a ogni id, non a null', async () => {
     const { presa, aspetta } = await apri()
     try {
-      presa.write(riga('ferma', 'giro12.ferma', {}))
+      presa.write(riga('ferma', 'prova.erma', {}))
       // Mentre `ferma` aspetta, le 130 righe dopo si accodano: le prime 127
       // entrano, le ultime tre trovano la coda piena.
       let tutte = ''
@@ -209,7 +209,7 @@ describe('i rifiuti della coda portano l’id della riga', () => {
   it('il tetto dei 16 MiB risponde all’id della riga che lo supera', async () => {
     const { presa, aspetta } = await apri()
     try {
-      presa.write(riga('ferma', 'giro12.ferma', {}))
+      presa.write(riga('ferma', 'prova.erma', {}))
       // Diciassette righe da un milione di caratteri: ognuna sotto il tetto di
       // 1 MiB per riga, tutte insieme sopra i 16 MiB accodati.
       const zavorra = 'a'.repeat(1_000_000)

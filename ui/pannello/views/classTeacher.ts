@@ -19,6 +19,7 @@ import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { gestoDelClic } from '../../../core/dominio/check.js'
 import { formattaData, giornoDi, oggi } from '../../../core/dominio/dates.js'
 import {
+  FAMIGLIE_CONSEGNA,
   nomeFamiglia,
   todoDelDocenteDiClasse,
   type FamigliaTodo,
@@ -604,8 +605,7 @@ function schedaDocumenti (classe: Classe, raccolte: Consegna[], righe: RigaArchi
 const FAMIGLIE_DOCENTE_CLASSE: readonly FamigliaTodo[] = [
   'assenze',
   'segnalazioni',
-  'consegnaClasse',
-  'svolgeClasse',
+  ...FAMIGLIE_CONSEGNA,
 ]
 
 function schedaTodo (classe: Classe) {

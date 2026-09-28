@@ -277,6 +277,27 @@ export function letteraSettimana (
 }
 
 /**
+ * Perché un tipo di settimana non si può scrivere su quel giorno, o `null` se
+ * si può. Si chiede prima di `conLetteraSettimana`, che una voce storta la
+ * scarta in silenzio: chi l'ha chiesta deve saperlo. Togliere (`null`) va
+ * sempre bene, anche una voce rimasta fuori dall'anno; metterla su un giorno
+ * fuori dall'anno no: nessuna vista ne mostrerebbe la settimana.
+ */
+export function motivoSettimanaRifiutata (
+  anno: AnnoScolastico,
+  giorno: Iso,
+  lettera: unknown,
+): string | null {
+  if (lettera === null) return null
+  if (!letteraValida(lettera)) return testi().letteraNonValida
+  const estremi = estremiAnno(anno)
+  if (!isoValida(giorno) || !estremi || giorno < estremi.inizio || giorno > estremi.fine) {
+    return testi().giornoFuoriAnno(giorno)
+  }
+  return null
+}
+
+/**
  * L'anno con la lettera di una settimana messa, cambiata o tolta, come copia
  * (per validarlo prima di scriverlo). `null` toglie la voce.
  */

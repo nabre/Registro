@@ -16,7 +16,7 @@ const it = {
   nonLeggibile: 'Non è un file che si possa leggere.',
   nonFile: (nome: string) => `«${nome}» non è un file.`,
   nonGguf: (nome: string) => `«${nome}» non è un file .gguf: i modelli hanno questa estensione.`,
-  finto: (nome: string) => `«${nome}» si chiama .gguf ma non lo è: dentro non c'è un modello.`,
+  finto: (nome: string) => `«${nome}» si chiama .gguf ma non lo è: dentro non c’è un modello.`,
   nonScaricato: (nome: string) => `«${nome}» non è fra i modelli scaricati.`,
   staArrivando: (nome: string) => `«${nome}» sta ancora arrivando: prima lo si ferma.`,
   fermato: 'Scarico fermato.',

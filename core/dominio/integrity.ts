@@ -86,6 +86,17 @@ export function riferimentiRotti (registro: Registro): string[] {
     if (anno && (lezione.data < anno.inizio || lezione.data > anno.fine)) {
       problemi.push(t.lezioneFuoriAnno(lezione.data, anno.etichetta, corso.titolo))
     }
+    // Righe intestate a chi non è della classe: nessuna griglia le mostra.
+    const classe = classi.get(corso.classeId)
+    if (classe) {
+      const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
+      const estranei = new Set([
+        ...lezione.presenze.map((p) => p.allievoId),
+        ...lezione.osservazioni.map((o) => o.allievoId).filter((id): id is string => Boolean(id)),
+        ...(lezione.matrice ?? []).map((c) => c.allievoId),
+      ].filter((id) => !iscritti.has(id))).size
+      if (estranei > 0) problemi.push(t.lezioneEstranei(lezione.data, estranei, classe.nome))
+    }
     if (!lezione.pianoId) continue
     const piano = piani.get(lezione.pianoId)
     if (!piano) {
@@ -111,6 +122,13 @@ export function riferimentiRotti (registro: Registro): string[] {
       const estranei = momento.voti.filter((v) => !iscritti.has(v.allievoId)).length
       if (estranei > 0) {
         problemi.push(t.votiEstranei(momento.titolo, estranei, classe.nome))
+      }
+      const proveEstranee = new Set([
+        ...(momento.recuperi ?? []).map((r) => r.allievoId),
+        ...momento.allegati.map((a) => a.allievoId).filter((id): id is string => Boolean(id)),
+      ].filter((id) => !iscritti.has(id))).size
+      if (proveEstranee > 0) {
+        problemi.push(t.proveEstranee(momento.titolo, proveEstranee, classe.nome))
       }
     }
     if (momento.pianoId && !piani.has(momento.pianoId)) {
@@ -144,8 +162,14 @@ export function riferimentiRotti (registro: Registro): string[] {
       continue
     }
     for (const rimando of [consegna.dataLezioneId, consegna.scadenzaLezioneId]) {
-      if (rimando && !lezioni.has(rimando)) {
+      if (!rimando) continue
+      const lezione = lezioni.get(rimando)
+      if (!lezione) {
         problemi.push(t.consegnaLezioneSparita(consegna.testo))
+        break
+      }
+      if (lezione.corsoId !== consegna.corsoId) {
+        problemi.push(t.consegnaLezioneAltroCorso(consegna.testo))
         break
       }
     }
@@ -172,6 +196,13 @@ export function riferimentiRotti (registro: Registro): string[] {
     const appese = check.spunte.filter((s) => s.lezioneId && !lezioni.has(s.lezioneId)).length
     if (appese > 0) {
       problemi.push(t.spunteAppese(corso.titolo, appese))
+    }
+    const altrove = check.spunte.filter((s) => {
+      const lezione = s.lezioneId ? lezioni.get(s.lezioneId) : undefined
+      return lezione !== undefined && lezione.corsoId !== check.corsoId
+    }).length
+    if (altrove > 0) {
+      problemi.push(t.spunteAltroCorso(corso.titolo, altrove))
     }
     const classe = classi.get(corso.classeId)
     if (!classe) continue

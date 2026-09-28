@@ -9,6 +9,7 @@ const it = {
   /** Che cosa cambia, per numero di versione a cui porta il passo. */
   passi: {
     2: 'data di iscrizione per ciascun allievo',
+    3: 'distinzione tra pendenze di corso e di docente di classe',
   } as Record<number, string>,
   /** Il passaggio fra due versioni, con i cambiamenti in ordine. */
   racconto: (da: number, a: number, cambi: readonly string[]) =>
@@ -26,7 +27,8 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     passi: {
-      2: 'Einschreibe-Datum für jeden Schüler',
+      2: 'Einschreibe-Datum für jede lernende Person',
+      3: 'Unterscheidung zwischen Pendenzen für Kurse und Klassenlehrpersonen',
     },
     racconto: (da, a, cambi) => `vom Format ${da} zu ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'Format', dati: 'Daten' },
@@ -40,6 +42,7 @@ export const testi = catalogo(it, {
   fr: {
     passi: {
       2: 'date d’inscription pour chaque élève',
+      3: 'distinction entre tâches en suspens de cours et de maître de classe',
     },
     racconto: (da, a, cambi) => `du format ${da} au ${a} : ${cambi.join(' ; ')}`,
     cosa: { formato: 'format', dati: 'données' },
@@ -53,6 +56,7 @@ export const testi = catalogo(it, {
   en: {
     passi: {
       2: 'enrollment date for each student',
+      3: 'distinction between course and class teacher pending tasks',
     },
     racconto: (da, a, cambi) => `from format ${da} to ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'format', dati: 'data' },

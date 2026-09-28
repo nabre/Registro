@@ -7,7 +7,7 @@ import { plurale } from './text.js'
 const it = {
   classeSenzaAnno: (classe: string) => `La classe «${classe}» punta a un anno inesistente.`,
   corsoSenzaClasse: (corso: string) =>
-    `Il corso «${corso}» punta a una classe o a una materia che non c'è più.`,
+    `Il corso «${corso}» punta a una classe o a una materia che non c’è più.`,
   corsiDoppi: (corso: string) => `Due corsi per la stessa materia nella stessa classe: «${corso}».`,
   pianoSenzaCorso: (piano: string) => `Il piano «${piano}»: il corso collegato non esiste più.`,
   risorseVuote: (piano: string, n: number) =>
@@ -15,17 +15,22 @@ const it = {
   lezioneSenzaCorso: (data: string, corsoId: string) =>
     `Lezione del ${data} senza corso (${corsoId}).`,
   lezioneFuoriAnno: (data: string, anno: string, corso: string) =>
-    `Lezione del ${data} fuori dall'anno ${anno} («${corso}»).`,
+    `Lezione del ${data} fuori dall’anno ${anno} («${corso}»).`,
   lezionePianoSparito: (data: string) =>
     `Lezione del ${data}: il piano assegnato non esiste più.`,
   lezionePianoAltroCorso: (data: string) =>
     `Lezione del ${data}: il piano assegnato è di un altro corso.`,
+  lezioneEstranei: (data: string, n: number, classe: string) =>
+    `Lezione del ${data}: appello, osservazioni o matrice di ${quanti(n, PIF)} ` +
+    `non iscritte a ${classe}.`,
   valutazioneSenzaCorso: (titolo: string) => `Valutazione «${titolo}» senza corso.`,
   valutazioneFuoriSemestre: (titolo: string, data: string) =>
     `Valutazione «${titolo}» del ${data}: nessun semestre la contiene.`,
   votiEstranei: (titolo: string, n: number, classe: string) =>
     `Valutazione «${titolo}»: ${plurale(n, 'voto', 'voti')} di ${PIF.plurale} ` +
     `non iscritte a ${classe}.`,
+  proveEstranee: (titolo: string, n: number, classe: string) =>
+    `Valutazione «${titolo}»: recuperi o prove di ${quanti(n, PIF)} non iscritte a ${classe}.`,
   valutazionePianoSparito: (titolo: string) =>
     `Valutazione «${titolo}»: il piano collegato non esiste più.`,
   valutazioneLezioneSparita: (titolo: string) =>
@@ -39,12 +44,17 @@ const it = {
     `La consegna «${testo}» non appartiene più a nessun corso.`,
   consegnaLezioneSparita: (testo: string) =>
     `La consegna «${testo}»: la lezione a cui è legata non esiste più.`,
+  consegnaLezioneAltroCorso: (testo: string) =>
+    `La consegna «${testo}»: la lezione a cui è legata è di un altro corso.`,
   consegnaEstranei: (testo: string, n: number, classe: string) =>
     `La consegna «${testo}» cita ${quanti(n, PIF)} non iscritte a ${classe}.`,
   checkSenzaCorso: 'Un check non appartiene più a nessun corso.',
   spunteAppese: (corso: string, n: number) =>
     `Il check di «${corso}»: ${plurale(n, 'spunta cita', 'spunte citano')} ` +
     'una lezione che non esiste più.',
+  spunteAltroCorso: (corso: string, n: number) =>
+    `Il check di «${corso}»: ${plurale(n, 'spunta cita', 'spunte citano')} ` +
+    'una lezione di un altro corso.',
   spunteEstranee: (corso: string, n: number, classe: string) =>
     `Il check di «${corso}» ha spunte di ${quanti(n, PIF)} non iscritte a ${classe}.`,
 }
@@ -73,12 +83,18 @@ export const testi = catalogo(it, {
     lezionePianoAltroCorso: (data) =>
       `Stunde vom ${data}: Der zugewiesene Unterrichtsplan gehört zu einem ` +
       'anderen Kurs.',
+    lezioneEstranei: (data, n, classe) =>
+      `Stunde vom ${data}: Präsenzkontrolle, Beobachtungen oder Matrix von ` +
+      `${plurale(n, 'Lernenden', 'Lernenden')}, die nicht in ${classe} eingeschrieben sind.`,
     valutazioneSenzaCorso: (titolo) => `Leistungsbeurteilung «${titolo}» ohne Kurs.`,
     valutazioneFuoriSemestre: (titolo, data) =>
       `Leistungsbeurteilung «${titolo}» vom ${data}: Sie liegt in keinem Semester.`,
     votiEstranei: (titolo, n, classe) =>
       `Leistungsbeurteilung «${titolo}»: ${plurale(n, 'Note', 'Noten')} von Lernenden, ` +
       `die nicht in ${classe} eingeschrieben sind.`,
+    proveEstranee: (titolo, n, classe) =>
+      `Leistungsbeurteilung «${titolo}»: Nachprüfungen oder Prüfungen von ` +
+      `${plurale(n, 'Lernenden', 'Lernenden')}, die nicht in ${classe} eingeschrieben sind.`,
     valutazionePianoSparito: (titolo) =>
       `Leistungsbeurteilung «${titolo}»: Der verknüpfte Unterrichtsplan existiert nicht mehr.`,
     valutazioneLezioneSparita: (titolo) =>
@@ -94,6 +110,9 @@ export const testi = catalogo(it, {
     consegnaLezioneSparita: (testo) =>
       `Der Auftrag «${testo}»: Die Stunde, mit der er verknüpft ist, ` +
       'existiert nicht mehr.',
+    consegnaLezioneAltroCorso: (testo) =>
+      `Der Auftrag «${testo}»: Die Stunde, mit der er verknüpft ist, ` +
+      'gehört zu einem anderen Kurs.',
     consegnaEstranei: (testo, n, classe) =>
       `Der Auftrag «${testo}» nennt ${plurale(n, 'Lernende', 'Lernende')}, ` +
       `die nicht in ${classe} eingeschrieben sind.`,
@@ -101,6 +120,9 @@ export const testi = catalogo(it, {
     spunteAppese: (corso, n) =>
       `Der Check von «${corso}»: ${plurale(n, 'Häkchen verweist', 'Häkchen verweisen')} ` +
       'auf eine Stunde, die es nicht mehr gibt.',
+    spunteAltroCorso: (corso, n) =>
+      `Der Check von «${corso}»: ${plurale(n, 'Häkchen verweist', 'Häkchen verweisen')} ` +
+      'auf eine Stunde eines anderen Kurses.',
     spunteEstranee: (corso, n, classe) =>
       `Der Check von «${corso}» hat Häkchen von ${plurale(n, 'Lernenden', 'Lernenden')}, ` +
       `die nicht in ${classe} eingeschrieben sind.`,
@@ -122,12 +144,16 @@ export const testi = catalogo(it, {
       `Leçon du ${data} : le plan de leçon attribué n’existe plus.`,
     lezionePianoAltroCorso: (data) =>
       `Leçon du ${data} : le plan de leçon attribué appartient à un autre cours.`,
+    lezioneEstranei: (data, n, classe) =>
+      `Leçon du ${data} : appel, observations ou matrice de ${nonInscrites(n)} en ${classe}.`,
     valutazioneSenzaCorso: (titolo) => `Évaluation « ${titolo} » sans cours.`,
     valutazioneFuoriSemestre: (titolo, data) =>
       `Évaluation « ${titolo} » du ${data} : aucun semestre ne la contient.`,
     votiEstranei: (titolo, n, classe) =>
       `Évaluation « ${titolo} » : ${plurale(n, 'note', 'notes')} de personnes en formation ` +
       `non inscrites en ${classe}.`,
+    proveEstranee: (titolo, n, classe) =>
+      `Évaluation « ${titolo} » : rattrapages ou épreuves de ${nonInscrites(n)} en ${classe}.`,
     valutazionePianoSparito: (titolo) =>
       `Évaluation « ${titolo} » : le plan de leçon associé n’existe plus.`,
     valutazioneLezioneSparita: (titolo) =>
@@ -140,6 +166,8 @@ export const testi = catalogo(it, {
     consegnaSenzaCorso: (testo) => `Le devoir « ${testo} » n’appartient plus à aucun cours.`,
     consegnaLezioneSparita: (testo) =>
       `Le devoir « ${testo} » : la leçon à laquelle il est lié n’existe plus.`,
+    consegnaLezioneAltroCorso: (testo) =>
+      `Le devoir « ${testo} » : la leçon à laquelle il est lié appartient à un autre cours.`,
     consegnaEstranei: (testo, n, classe) =>
       `Le devoir « ${testo} » mentionne ` +
       `${nonInscrites(n)} ` +
@@ -148,6 +176,9 @@ export const testi = catalogo(it, {
     spunteAppese: (corso, n) =>
       `Le check de « ${corso} » : ${plurale(n, 'coche renvoie', 'coches renvoient')} ` +
       'à une leçon qui n’existe plus.',
+    spunteAltroCorso: (corso, n) =>
+      `Le check de « ${corso} » : ${plurale(n, 'coche renvoie', 'coches renvoient')} ` +
+      'à une leçon d’un autre cours.',
     spunteEstranee: (corso, n, classe) =>
       `Le check de « ${corso} » a des coches de ` +
       `${nonInscrites(n)} ` +
@@ -169,11 +200,17 @@ export const testi = catalogo(it, {
       `Lesson on ${data}: the assigned lesson plan no longer exists.`,
     lezionePianoAltroCorso: (data) =>
       `Lesson on ${data}: the assigned lesson plan belongs to another course.`,
+    lezioneEstranei: (data, n, classe) =>
+      `Lesson on ${data}: attendance, observations or matrix for ` +
+      `${plurale(n, 'learner', 'learners')} not enrolled in ${classe}.`,
     valutazioneSenzaCorso: (titolo) => `Assessment “${titolo}” with no course.`,
     valutazioneFuoriSemestre: (titolo, data) =>
       `Assessment “${titolo}” on ${data}: no semester contains it.`,
     votiEstranei: (titolo, n, classe) =>
       `Assessment “${titolo}”: ${plurale(n, 'grade', 'grades')} for learners ` +
+      `not enrolled in ${classe}.`,
+    proveEstranee: (titolo, n, classe) =>
+      `Assessment “${titolo}”: make-ups or tests for ${plurale(n, 'learner', 'learners')} ` +
       `not enrolled in ${classe}.`,
     valutazionePianoSparito: (titolo) =>
       `Assessment “${titolo}”: the linked lesson plan no longer exists.`,
@@ -187,6 +224,8 @@ export const testi = catalogo(it, {
     consegnaSenzaCorso: (testo) => `The assignment “${testo}” no longer belongs to any course.`,
     consegnaLezioneSparita: (testo) =>
       `The assignment “${testo}”: the lesson it’s linked to no longer exists.`,
+    consegnaLezioneAltroCorso: (testo) =>
+      `The assignment “${testo}”: the lesson it’s linked to belongs to another course.`,
     consegnaEstranei: (testo, n, classe) =>
       `The assignment “${testo}” mentions ${plurale(n, 'learner', 'learners')} ` +
       `not enrolled in ${classe}.`,
@@ -194,6 +233,9 @@ export const testi = catalogo(it, {
     spunteAppese: (corso, n) =>
       `The check for “${corso}”: ${plurale(n, 'tick refers', 'ticks refer')} ` +
       'to a lesson that no longer exists.',
+    spunteAltroCorso: (corso, n) =>
+      `The check for “${corso}”: ${plurale(n, 'tick refers', 'ticks refer')} ` +
+      'to a lesson of another course.',
     spunteEstranee: (corso, n, classe) =>
       `The check for “${corso}” has ticks from ${plurale(n, 'learner', 'learners')} ` +
       `not enrolled in ${classe}.`,

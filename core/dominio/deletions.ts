@@ -81,6 +81,23 @@ function fileDellaConsegna (consegna: Consegna): string[] {
   return file
 }
 
+/** Se qualche comunicazione allega una di queste consegne. */
+function allegateAComunicazioni (registro: Registro, consegne: Set<string>): boolean {
+  return registro.fascicoli.some((f) =>
+    f.comunicazioni.some((c) => c.documentiIds.some((id) => consegne.has(id))),
+  )
+}
+
+/** Toglie le consegne che se ne vanno dagli allegati: un id di nessuno non si spedisce. */
+function staccaDalleComunicazioni (registro: Registro, consegne: Set<string>): void {
+  for (const fascicolo of registro.fascicoli) {
+    for (const comunicazione of fascicolo.comunicazioni) {
+      if (!comunicazione.documentiIds.some((id) => consegne.has(id))) continue
+      comunicazione.documentiIds = comunicazione.documentiIds.filter((id) => !consegne.has(id))
+    }
+  }
+}
+
 /**
  * La chiusura di un'eliminazione: tutto quel che, tolto il bersaglio, non ha
  * più posto. Si scende una volta dall'alto (anno, classi, corsi, lezioni e
@@ -425,13 +442,21 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     if (sueAssenze.length > 0) perdite.push(t.fogliDiAssenze(sueAssenze.length))
     if (sueRighe.length > 0) collezioni.add('fascicoli')
 
+    // `applica` toglie anche righe senza voto, recuperi e caselle, e stacca le
+    // prove: l'archivio riscrive solo quel che si dichiara, e il resto
+    // tornerebbe alla riapertura.
+    const righeSue = registro.valutazioni.some((v) =>
+      v.voti.some((x) => x.allievoId === bersaglio.id) ||
+      v.allegati.some((a) => a.allievoId === bersaglio.id),
+    )
     collezioni.add('classi')
-    if (presenze > 0 || osservazioni > 0) collezioni.add('lezioni')
-    if (voti > 0) collezioni.add('valutazioni')
+    if (presenze > 0 || osservazioni > 0 || caselle > 0) collezioni.add('lezioni')
+    if (righeSue || recuperi > 0) collezioni.add('valutazioni')
     if (sueConsegne > 0 || documentiSuoi > 0 || soloSue.size > 0) collezioni.add('consegne')
     if (smistamentiSuoi.size > 0 || smistamentiToccati) collezioni.add('smistamenti')
     if (spunteSue > 0) collezioni.add('check')
     if (suoi > 0) collezioni.add('fascicoli')
+    if (allegateAComunicazioni(registro, soloSue)) collezioni.add('fascicoli')
 
     // Le sue schede già stampate, in tutte le materie e tutti i periodi.
     aggiungiGenerati(registro, file, 'allievo', bersaglio.id)
@@ -469,7 +494,10 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
             if (allegato.allievoId === bersaglio.id) allegato.allievoId = null
           }
         }
-        if (soloSue.size > 0) r.consegne = r.consegne.filter((c) => !soloSue.has(c.id))
+        if (soloSue.size > 0) {
+          r.consegne = r.consegne.filter((c) => !soloSue.has(c.id))
+          staccaDalleComunicazioni(r, soloSue)
+        }
         if (smistamentiSuoi.size > 0) {
           r.smistamenti = r.smistamenti.filter((s) => !smistamentiSuoi.has(s.id))
         }
@@ -542,6 +570,9 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     const voti = contaVoti(registro, valutazioni)
     perdite.push(t.momenti(valutazioni.size, voti))
   }
+
+  // Le comunicazioni che le allegavano.
+  if (allegateAComunicazioni(registro, consegne)) collezioni.add('fascicoli')
 
   if (consegne.size > 0) {
     if (bersaglio.genere !== 'consegna') perdite.push(t.consegne(consegne.size))
@@ -798,7 +829,10 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
         }
       }
       if (valutazioni.size > 0) r.valutazioni = r.valutazioni.filter((v) => !valutazioni.has(v.id))
-      if (consegne.size > 0) r.consegne = r.consegne.filter((c) => !consegne.has(c.id))
+      if (consegne.size > 0) {
+        r.consegne = r.consegne.filter((c) => !consegne.has(c.id))
+        staccaDalleComunicazioni(r, consegne)
+      }
       if (check.size > 0) r.check = r.check.filter((c) => !check.has(c.id))
       if (smistamenti.size > 0) r.smistamenti = r.smistamenti.filter((s) => !smistamenti.has(s.id))
     },

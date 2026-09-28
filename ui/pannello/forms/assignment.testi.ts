@@ -89,7 +89,7 @@ export const testi = catalogo(it, {
     segnapostoTestoClasse: 'Einwilligung Exkursion, Arztzeugnis, Anmeldeformular…',
     aiutoAmbito:
       'Wähle, ob der Auftrag einen Unterrichtskurs oder Aufgaben der Klassenlehrperson betrifft.',
-    nessunaClasseDocente: 'Keine Klassen mit Klassenlehrerfunktion.',
+    nessunaClasseDocente: 'Keine Klassen mit Funktion als Klassenlehrperson.',
     nessunCorsoPerClasse: 'Diese Klasse hat keine Kurse, denen der Auftrag zugeordnet werden kann.',
     aChiTocca: 'Für wen',
     destinatari: {

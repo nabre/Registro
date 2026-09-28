@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { deflateSync } from 'node:zlib'
 import { describe, it } from 'node:test'
 
-import { PDFDocument, StandardFonts } from '@cantoo/pdf-lib'
+import { PDFDocument } from '@cantoo/pdf-lib'
 
 import {
   contaPagine,
@@ -18,6 +18,7 @@ import {
   impostaWorker,
   unisciPdf,
 } from '../../dist-tests/pdf.mjs'
+import { pagelle } from '../helpers/smistamento.mjs'
 
 impostaWorker(pathToFileURL(fileURLToPath(new URL('../../dist-tests/pdf.worker.mjs', import.meta.url))).href)
 // I caratteri standard accanto ai bundle: senza, pdfjs stima le larghezze del
@@ -30,18 +31,6 @@ impostaCaratteri(fileURLToPath(new URL('../../dist-tests/pdf-fonts', import.meta
  */
 const testoPagine = async (byte) =>
   (await testoConPosizioni(byte)).map((pagina) => pagina.testo)
-
-/** Un PDF con una pagina per nome, come quello che manda la segreteria. */
-async function pagelle (nomi) {
-  const documento = await PDFDocument.create()
-  const font = await documento.embedFont(StandardFonts.Helvetica)
-  for (const nome of nomi) {
-    const pagina = documento.addPage([595, 842])
-    pagina.drawText('Pagella — DIC4a', { x: 60, y: 780, size: 16, font })
-    pagina.drawText(`Allievo: ${nome}`, { x: 60, y: 740, size: 12, font })
-  }
-  return documento.save()
-}
 
 /** Un PNG in scala di grigi, scritto a mano: serve da finta scansione. */
 function pngGrigio (larghezza, altezza) {

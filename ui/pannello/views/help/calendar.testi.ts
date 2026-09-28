@@ -264,7 +264,7 @@ const it = {
         testo:
           'Una vacanza dichiarata dopo aver messo l’orario, o un’ora messa a mano in un giorno ' +
           'chiuso: nella settimana un avviso dice quante ore cadono in un giorno di chiusura, e ' +
-          'quale. Con **Modifica** accesa, **Rimuovi le ore nelle vacanze** le toglie tutte ' +
+          'quale. Con **Modifica** accesa, **Rimuovi le lezioni nelle vacanze** le toglie tutte ' +
           'insieme, dopo una conferma; `Ctrl+Z` le riporta.',
       },
       {

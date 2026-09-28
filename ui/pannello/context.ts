@@ -86,6 +86,10 @@ export function scegliCorso (id: string): void {
     modifiche.lezioneId = lezioneDiRiferimentoDiCorso(id)
     if (!modifiche.lezioneId) modifiche.vista = 'piani'
   }
+  if (stato.vista === 'piani') {
+    modifiche.pianoId = null
+    modifiche.lezioneId = null
+  }
   if (stato.vista === 'allievo') modifiche.vista = 'classi'
   if (stato.vista === 'docenteClasse' && !classePerId(corso.classeId)?.docenteDiClasse) {
     modifiche.vista = 'classi'

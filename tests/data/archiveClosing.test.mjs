@@ -174,6 +174,46 @@ describe('fra la chiusura e l’apertura che segue', () => {
   })
 })
 
+describe('ricaricare un anno portato avanti da un registro più recente', () => {
+  it('non si scrive più sopra il documento più recente', async () => {
+    const { archivio, file, errori } = await annoAperto()
+    // Un altro PC, aggiornato, riscrive lo stesso documento al formato suo;
+    // OneDrive lo porta qui e il watcher ricarica.
+    const altrove = Pacchetto.nuovo(file)
+    altrove.scrivi('registro.json', JSON.stringify({ versione: 999, anno: { id: 'x', etichetta: '2099/2100' }, materie: [] }))
+    altrove.scrivi('classi.json', JSON.stringify([{ nome: 'DI LÀ' }]))
+    await altrove.salva({ forza: true })
+
+    await archivio.carica()
+    assert.ok(errori.length > 0, 'si dice perché non si è ricaricato')
+    assert.throws(() => archivio.modifica((r) => {
+      r.classi.push(creaClasse(r.anni[0]?.id ?? 'x', 'QUI'))
+    }, ['classi']), /più recente/)
+    await archivio.salva()
+    assert.deepEqual(classiSulDisco(file), ['DI LÀ'], 'il documento più recente resta intero')
+    archivio.dispose()
+  })
+})
+
+describe('ricaricare un anno sparito per un momento', () => {
+  it('lo stato resta, e il file tornato non si copre con un anno vuoto', async () => {
+    const { archivio, file } = await annoAperto()
+    const intero = readFileSync(file.fsPath)
+    // OneDrive sostituisce il file: prima lo toglie, poi lo riscrive.
+    rmSync(file.fsPath)
+    await archivio.carica()
+    assert.deepEqual(archivio.registro.classi.map((c) => c.nome), ['I MEC A'])
+    writeFileSync(file.fsPath, intero)
+    writeFileSync(file.fsPath, new Uint8Array(0))
+    await archivio.carica()
+    assert.deepEqual(archivio.registro.classi.map((c) => c.nome), ['I MEC A'])
+    writeFileSync(file.fsPath, intero)
+    await archivio.carica()
+    assert.deepEqual(classiSulDisco(file), ['I MEC A'])
+    archivio.dispose()
+  })
+})
+
 describe('aprire un anno che non si apre', () => {
   it('l’anno di prima resta aperto, e non si dice aperto quello nuovo', async () => {
     const { archivio, file } = await annoAperto()

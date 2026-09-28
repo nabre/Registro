@@ -142,7 +142,7 @@ const it = {
     ritardi: number,
   ) =>
     `Presenti ${presenti}/${conAppello} · assenti ${assenti} · parziali ${parziali} · ritardi ${ritardi}`,
-  appelloIncompleto: (caselle: number) => `Appello incompleto: ${caselle} caselle non impostate.`,
+  appelloIncompleto: (caselle: number) => `Appello incompleto: ${plurale(caselle, 'casella non impostata', 'caselle non impostate')}.`,
   notaPresenze: (previste: number, aCalendario: number) =>
     `Le UD previste dall’orario del corso nel periodo sono ${previste}, ` +
     `di cui ${aCalendario} già a calendario. «% presenza» e «% assenza» sono calcolate su ` +

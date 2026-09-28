@@ -471,7 +471,7 @@ La tabella di che cosa esce, verso dove e quando sta nella
 | Dettatura ([core/dati/dictation.ts](../core/dati/dictation.ts) → [core/dati/voicebox.ts](../core/dati/voicebox.ts)) | solo loopback, ricontrollato a ogni lettura ([core/dominio/loopback.ts](../core/dominio/loopback.ts)); `redirect: 'manual'`; intoccabile dal condotto; un `POST /transcribe` per pausa ([ui/pannello/assistant/voice.ts](../ui/pannello/assistant/voice.ts)), 120 s; WAV mai sul disco del registro (ADR-35) |
 | Modello locale ([core/dati/llm.ts](../core/dati/llm.ts)) | non esce: `.gguf` in processo (ADR-25) |
 
-`openExternal` è ristretto a `http`, `https`, `mailto`, `tel`
+`openExternal` è ristretto a `http`, `https`, `mailto`, `tel`, `callto`, `skype`, `msteams`
 ([desktop/apparato/commands.ts](../desktop/apparato/commands.ts)); i file locali si
 aprono per percorso (ADR-22).
 

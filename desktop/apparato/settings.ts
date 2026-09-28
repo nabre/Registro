@@ -14,8 +14,8 @@ import {
   sospesa,
   type VoceImpostazione,
 } from '../../contract/manifesto.js'
-import { perchéNonLocale } from '.../../../core/dominio/loopback.js'
-import { sembraIndirizzo } from '.../../../core/dominio/mailbox.js'
+import { perchéNonLocale } from '../../core/dominio/loopback.js'
+import { sembraIndirizzo } from '../../core/dominio/mailbox.js'
 import type { VoceProgramma } from '../../contract/protocollo.js'
 import { EventEmitter } from '../../core/apparato/events.js'
 import { testi } from './settings.testi.js'

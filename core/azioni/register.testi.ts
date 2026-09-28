@@ -1,7 +1,7 @@
 // I testi di `register.ts`: anagrafica, orari, foto, import da un altro registro.
 // «File → Salva l’anno con nome…» deve coincidere con `manifest.testi.ts`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo, perNumero } from '../i18n/index.js'
 import { PIF } from '../dominio/lexicon.js'
 import { plurale } from '../dominio/text.js'
 
@@ -18,18 +18,22 @@ const it = {
     'perché ha già appello, testi o voti: da spostare o annullare a mano.',
   stessaMateria: 'Sono la stessa materia.',
   classeOMateria: 'Classe o materia non trovata.',
+  classeMateriaFisse:
+    'Classe e materia di un corso non si cambiano: si crea un corso nuovo o si uniscono le materie.',
   senzaOrario: 'Il corso non ha ancora un orario: prima si dichiarano le ore fisse.',
   periodoRovescio: 'Il periodo finisce prima di cominciare.',
-  giaTutte: (n: number) => `Le ${n} lezioni di questo periodo ci sono già tutte.`,
+  giaTutte: (n: number) => n === 1
+    ? 'L’unica lezione di questo periodo c’è già.'
+    : `Le ${n} lezioni di questo periodo ci sono già tutte.`,
   orarioMaiNelPeriodo:
     'In questo periodo l’orario non cade mai: controllare le date e le sospensioni.',
   aggiunte: (n: number, corso: string, saltate: number, conflitti: number) =>
-    `${n} lezioni aggiunte a ${corso}` +
-    (saltate > 0 ? `, ${saltate} c’erano già` : '') +
+    `${plurale(n, 'lezione aggiunta', 'lezioni aggiunte')} a ${corso}` +
+    (saltate > 0 ? `, ${saltate} ${perNumero(saltate, 'c’era già', 'c’erano già')}` : '') +
     (conflitti > 0 ? `, ${conflitti} in conflitto con un’altra classe` : '') +
     '.',
   nonSiTogliDaQui: (nomi: readonly string[]) =>
-    `L'elenco non contiene ${nomi.join(', ')}: per togliere ` +
+    `L’elenco non contiene ${nomi.join(', ')}: per togliere ` +
     `${nomi.length === 1 ? 'una persona' : 'delle persone'} dalla classe si usa ` +
     '`persone.elimina` (azione `allievo.elimina`), che toglie anche voti e presenze.',
   fotoDi: (nome: string) => `Foto di ${nome}`,
@@ -59,9 +63,14 @@ export const testi = catalogo(it, {
       'von Hand verschieben oder absagen.',
     stessaMateria: 'Das ist dasselbe Fach.',
     classeOMateria: 'Klasse oder Fach nicht gefunden.',
+    classeMateriaFisse:
+      'Klasse und Fach eines Kurses lassen sich nicht ändern: Erstelle einen neuen Kurs ' +
+      'oder führe die Fächer zusammen.',
     senzaOrario: 'Der Kurs hat noch keinen Stundenplan: Erfasse zuerst die festen Stunden.',
     periodoRovescio: 'Der Zeitraum endet, bevor er beginnt.',
-    giaTutte: (n) => `Die ${n} Stunden dieses Zeitraums sind schon alle da.`,
+    giaTutte: (n) => n === 1
+      ? 'Die einzige Stunde dieses Zeitraums ist schon da.'
+      : `Die ${n} Stunden dieses Zeitraums sind schon alle da.`,
     orarioMaiNelPeriodo:
       'In diesem Zeitraum fällt keine Stunde des Stundenplans: Prüfe die Daten und die Unterbrüche.',
     aggiunte: (n, corso, saltate, conflitti) =>
@@ -97,9 +106,14 @@ export const testi = catalogo(it, {
       'parce qu’il y a déjà un appel, des textes ou des notes : à déplacer ou annuler à la main.',
     stessaMateria: 'C’est la même branche.',
     classeOMateria: 'Classe ou branche introuvable.',
+    classeMateriaFisse:
+      'La classe et la branche d’un cours ne changent pas : crée un nouveau cours ' +
+      'ou fusionne les branches.',
     senzaOrario: 'Le cours n’a pas encore d’horaire : il faut d’abord saisir les heures fixes.',
     periodoRovescio: 'L’intervalle se termine avant de commencer.',
-    giaTutte: (n) => `Les ${n} leçons de cet intervalle existent déjà toutes.`,
+    giaTutte: (n) => n === 1
+      ? 'L’unique leçon de cet intervalle existe déjà.'
+      : `Les ${n} leçons de cet intervalle existent déjà toutes.`,
     orarioMaiNelPeriodo:
       'Dans cet intervalle, l’horaire ne prévoit aucune leçon : vérifie les dates et les interruptions.',
     aggiunte: (n, corso, saltate, conflitti) =>
@@ -136,9 +150,13 @@ export const testi = catalogo(it, {
       'because attendance, texts or grades are already in: move or cancel by hand.',
     stessaMateria: 'They’re the same subject.',
     classeOMateria: 'Class or subject not found.',
+    classeMateriaFisse:
+      'A course’s class and subject can’t change: create a new course or merge the subjects.',
     senzaOrario: 'The course has no timetable yet: enter the fixed hours first.',
     periodoRovescio: 'The period ends before it starts.',
-    giaTutte: (n) => `All ${n} lessons in this period are already there.`,
+    giaTutte: (n) => n === 1
+      ? 'The only lesson in this period is already there.'
+      : `All ${n} lessons in this period are already there.`,
     orarioMaiNelPeriodo:
       'No timetabled lesson falls in this period: check the dates and the breaks.',
     aggiunte: (n, corso, saltate, conflitti) =>

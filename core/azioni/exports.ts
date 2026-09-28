@@ -17,7 +17,9 @@ import { testi } from './exports.testi.js'
 
 /** Vero se il percorso sta fra le esportazioni, i soli file che si possono rifare. */
 function fraLeEsportazioni (percorso: string): boolean {
-  return percorso.startsWith(`${ESPORTAZIONI}/`) && !percorso.includes('..')
+  if (!percorso.startsWith(`${ESPORTAZIONI}/`)) return false
+  // Risale solo un segmento `..` (o `.`): «Verifica... finale.pdf» è un nome.
+  return !percorso.split(/[\\/]/).some((segmento) => segmento === '..' || segmento === '.')
 }
 
 

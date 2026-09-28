@@ -1,5 +1,5 @@
 {
-  "versione": 2,
+  "versione": 3,
   "campi": [
     "anni",
     "anni[].cartella",
@@ -86,6 +86,7 @@
     "consegne[].creataIl",
     "consegne[].data",
     "consegne[].dataLezioneId",
+    "consegne[].docenteDiClasse",
     "consegne[].documenti",
     "consegne[].documenti[].aggiuntoIl",
     "consegne[].documenti[].allievoId",

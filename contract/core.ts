@@ -170,8 +170,8 @@ const SCADUTO = Symbol('turno scaduto')
  * `modifica()` vincerebbe in silenzio.
  *
  * Non può stallare perché nessun gestore rientra in `chiama()` (nessuna
- * chiamata sotto `core/azioni/` o `src/api/procedures/`):
- * `tests/api/queue.test.mjs` lo verifica. Come `Archivio.inFila`, la fila
+ * chiamata sotto `core/azioni/` o `contract/procedure/`):
+ * `npm run layers` lo verifica. Come `Archivio.inFila`, la fila
  * aspetta la fine e non l'esito, quindi un errore non blocca chi segue.
  */
 async function inFila<T> (lavoro: () => Promise<T>, rinuncia: () => T): Promise<T> {

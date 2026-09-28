@@ -16,29 +16,33 @@ const it = {
   giaPartita: 'Questa comunicazione è già partita.',
   senzaIndirizzi: 'Nessun destinatario ha un indirizzo valido: la comunicazione resta bozza.',
   allegatoIlleggibile: (testo: string) => `L’allegato «${testo}» non si riesce a leggere.`,
+  allegatoMancante: (testo: string | null) => testo === null
+    ? 'Un allegato scelto non c’è più: toglilo dalla comunicazione prima di spedirla.'
+    : `«${testo}» non ha un documento raccolto da allegare: raccoglilo o toglilo ` +
+      'dalla comunicazione prima di spedirla.',
   laComunicazione: 'la comunicazione',
-  domandaComunicazione: (oggetto: string, n: number) => `Spedire «${oggetto}» a ${n} destinatari?`,
+  domandaComunicazione: (oggetto: string, n: number) => `Spedire «${oggetto}» a ${plurale(n, 'destinatario', 'destinatari')}?`,
   dettaglioComunicazione: 'Partono dalla casella del registro, in copia nascosta.',
   nientePartitoComunicazione: 'Non è partito niente: la comunicazione resta com’era.',
   /** Il nome della bozza di una comunicazione senza oggetto. */
   comunicazione: 'Comunicazione',
   bozzaNonPreparata: 'La bozza non si è potuta preparare.',
   bozzaAperta: (n: number, percorso: string) =>
-    `Bozza per ${n} destinatari in copia nascosta aperta nel programma di ` +
+    `Bozza per ${plurale(n, 'destinatario', 'destinatari')} in copia nascosta aperta nel programma di ` +
     `posta: ${percorso}. Quando l’hai spedita, spuntala nell’elenco.`,
   speditaMaCambiato: (n: number) =>
-    `Comunicazione spedita a ${n} destinatari, ma il documento aperto è cambiato: ` +
+    `Comunicazione spedita a ${plurale(n, 'destinatario', 'destinatari')}, ma il documento aperto è cambiato: ` +
     'non è stata segnata come inviata.',
   speditaNonATutti: (n: number, avviso: string) =>
-    `Comunicazione spedita a ${n} destinatari, ma non a tutti: ${avviso}`,
-  spedita: (n: number) => `Comunicazione spedita a ${n} destinatari.`,
+    `Comunicazione spedita a ${plurale(n, 'destinatario', 'destinatari')}, ma non a tutti: ${avviso}`,
+  spedita: (n: number) => `Comunicazione spedita a ${plurale(n, 'destinatario', 'destinatari')}.`,
   riportataABozza: 'Comunicazione riportata a bozza.',
-  segnataSpedita: (n: number) => `Comunicazione segnata come spedita a ${n} destinatari.`,
+  segnataSpedita: (n: number) => `Comunicazione segnata come spedita a ${plurale(n, 'destinatario', 'destinatari')}.`,
   senzaFrequentanti: `La classe non ha ${PIF.plurale} che frequentano.`,
   assegnatiConFuori: (presi: number, fuori: readonly string[]) =>
-    `${presi} fogli assegnati. Non riconosciuti: ${fuori.join(', ')}. ` +
+    `${plurale(presi, 'foglio assegnato', 'fogli assegnati')}. Non riconosciuti: ${fuori.join(', ')}. ` +
     `Vanno aggiunti dalla casella ${del(PIF)}.`,
-  assegnati: (presi: number) => `${presi} fogli assegnati.`,
+  assegnati: (presi: number) => `${plurale(presi, 'foglio assegnato', 'fogli assegnati')}.`,
   nessunFoglioDaAprire: 'Nessun foglio da aprire.',
   nessunFoglioDaTogliere: 'Nessun foglio da togliere.',
   nessunFoglioDaAllegare: (nome: string) => `${nome}: nessun foglio da allegare`,
@@ -48,16 +52,16 @@ const it = {
   richiestaDiFirma: 'Richiesta di firma',
   spediteRichieste: (n: number) =>
     plurale(n, 'richiesta di firma spedita', 'richieste di firma spedite'),
-  domandaRichieste: (n: number) => `Spedire ${n} richieste di firma?`,
+  domandaRichieste: (n: number) => `Spedire ${plurale(n, 'richiesta di firma', 'richieste di firma')}?`,
   dettaglioRichieste: (periodo: string) =>
     `Una per ${PIF.singolare}, agli indirizzi del periodo ${periodo}.`,
   nientePartitoRichieste: 'Non è partito niente: le richieste restano da mandare.',
   bozzePronte: (n: number, dove: string) =>
-    `${n} bozze pronte in ${dove}. Mandale una alla volta dal programma ` +
+    `${plurale(n, 'bozza pronta', 'bozze pronte')} in ${dove}. Mandale una alla volta dal programma ` +
     `di posta e spunta ogni ${PIF.singolare} quando la sua richiesta è partita.`,
   partiteMaCambiato: (partite: number, segnate: number) =>
-    `${partite} richieste di firma partite, ma il documento aperto è ` +
-    `cambiato: ${segnate} segnate, le altre no.`,
+    `${plurale(partite, 'richiesta di firma partita', 'richieste di firma partite')}, ` +
+    `ma il documento aperto è cambiato: ${plurale(segnate, 'segnata', 'segnate')}, le altre no.`,
   richiestaNonTrovata: 'Richiesta non trovata.',
   riportataDaMandare: (nome: string) => `Richiesta di ${nome} riportata da mandare.`,
   richiestaSpedita: (nome: string) => `Richiesta di ${nome} segnata come spedita.`,
@@ -75,6 +79,10 @@ export const testi = catalogo(it, {
     senzaIndirizzi:
       'Keine empfangende Person hat eine gültige Adresse: Die Mitteilung bleibt ein Entwurf.',
     allegatoIlleggibile: (testo) => `Der Anhang «${testo}» lässt sich nicht lesen.`,
+    allegatoMancante: (testo) => testo === null
+      ? 'Ein gewählter Anhang existiert nicht mehr: Entferne ihn aus der Mitteilung, bevor du sie verschickst.'
+      : `Zu «${testo}» wurde kein Dokument eingesammelt, das sich anhängen lässt: Sammle es ein ` +
+        'oder entferne es aus der Mitteilung, bevor du sie verschickst.',
     laComunicazione: 'die Mitteilung',
     domandaComunicazione: (oggetto, n) =>
       `«${oggetto}» an ${plurale(n, 'Empfänger', 'Empfänger')} verschicken?`,
@@ -134,6 +142,10 @@ export const testi = catalogo(it, {
     senzaIndirizzi:
       'Aucun destinataire n’a d’adresse valable : la communication reste un brouillon.',
     allegatoIlleggibile: (testo) => `La pièce jointe « ${testo} » ne peut pas être lue.`,
+    allegatoMancante: (testo) => testo === null
+      ? 'Une pièce jointe choisie n’existe plus : retire-la de la communication avant de l’envoyer.'
+      : `« ${testo} » n’a aucun document recueilli à joindre : recueille-le ` +
+        'ou retire-le de la communication avant de l’envoyer.',
     laComunicazione: 'la communication',
     domandaComunicazione: (oggetto, n) =>
       `Envoyer « ${oggetto} » à ${plurale(n, 'destinataire', 'destinataires')} ?`,
@@ -194,6 +206,10 @@ export const testi = catalogo(it, {
     giaPartita: 'This message has already been sent.',
     senzaIndirizzi: 'No recipient has a valid address: the message stays a draft.',
     allegatoIlleggibile: (testo) => `The attachment “${testo}” can’t be read.`,
+    allegatoMancante: (testo) => testo === null
+      ? 'A chosen attachment no longer exists: remove it from the message before sending.'
+      : `“${testo}” has no collected document to attach: collect it ` +
+        'or remove it from the message before sending.',
     laComunicazione: 'the message',
     domandaComunicazione: (oggetto, n) =>
       `Send “${oggetto}” to ${plurale(n, 'recipient', 'recipients')}?`,

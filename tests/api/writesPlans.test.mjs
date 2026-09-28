@@ -6,8 +6,15 @@
 //   - `classe.salva` con un elenco più corto toglie le persone con il loro
 //     seguito (voti, presenze);
 //   - `voto.imposta` e `recupero.imposta` rifiutano persone di un'altra classe;
-//   - `lezione.salva` non sposta su un'altra classe un'ora con l'appello;
+//   - `lezione.salva` non sposta su un'altra classe un'ora con l'appello, né su
+//     un altro corso un'ora citata da momenti, consegne o spunte;
+//   - `ore.salva` rifiuta un corso inesistente;
+//   - `corso.salva` non cambia classe né materia di un corso esistente;
+//   - `materia.unisci` porta le regole del calendario sul corso superstite;
+//   - un'eliminazione in un documento che si chiude non cestina i file;
 //   - `piano.salva` toglie dal pacchetto i file di una tappa tolta;
+//   - `piano.assegna` non lega a una lezione il piano di un altro corso, e un
+//     piano generato ha timbri completi e tappe sui minuti dell'UD;
 //   - gli identificatori nati nello stesso millisecondo non si ripetono.
 //
 // Le azioni passano da `esegui`, la strada del pannello, col deposito vero.
@@ -17,9 +24,10 @@ import { writeFileSync } from 'node:fs'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
+import { creaCorso, creaLezione, generaPianoPerLezione } from '../../dist-tests/domain.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro12-scritture-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-api-scritture-piani-')
 
 let api
 let archivio
@@ -30,6 +38,7 @@ let rossi
 let bianchi
 let verdi
 let corso
+let storia
 let corsoStessaClasse
 let corsoAltraClasse
 let momento
@@ -43,6 +52,7 @@ const deposito = () => archivio.deposito
 const pianoPerId = (id) => archivio.registro.piani.find((p) => p.id === id)
 const classePerId = (id) => archivio.registro.classi.find((c) => c.id === id)
 const lezionePerId = (id) => archivio.registro.lezioni.find((l) => l.id === id)
+const ISTANTE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
 
 /** Un piano con una risorsa-file su una tappa, e il file davvero nel deposito. */
 function pianoConFile (nomeFile, titoloTappa = 'Lavoro di gruppo') {
@@ -92,7 +102,7 @@ before(async () => {
   verdi = creaAllievo('Verdi', 'Anna')
   altra.allievi.push(verdi)
   const matematica = creaMateria('Matematica')
-  const storia = creaMateria('Storia')
+  storia = creaMateria('Storia')
   corso = creaCorso(classe.id, matematica.id, 'I MEC A — Matematica')
   corsoStessaClasse = creaCorso(classe.id, storia.id, 'I MEC A — Storia')
   corsoAltraClasse = creaCorso(altra.id, matematica.id, 'II ELE B — Matematica')
@@ -334,6 +344,176 @@ describe('lezione.salva e il cambio di corso', () => {
     const esito = await salva(ora, corsoStessaClasse.id)
     assert.equal(esito.ok, true, JSON.stringify(esito))
     assert.equal(lezionePerId(ora.id).presenze.length, 1)
+  })
+
+  it('un’ora citata da un momento non passa a un altro corso', async () => {
+    const lezione = oraCon([])
+    const citante = api.creaValutazione(corso.id, 'Verifica', archivio.registro.impostazioni.scala, lezione.data)
+    citante.lezioneId = lezione.id
+    archivio.modifica((r) => { r.valutazioni.push(citante) }, ['valutazioni'])
+    const esito = await salva(lezione, corsoStessaClasse.id)
+    assert.equal(esito.ok, false)
+    assert.equal(lezionePerId(lezione.id).corsoId, corso.id)
+  })
+
+  it('nemmeno un’ora citata da una consegna', async () => {
+    const lezione = oraCon([])
+    const consegna = api.creaConsegna(corso.id, 'Esercizi', lezione.data, lezione.id)
+    archivio.modifica((r) => { r.consegne.push(consegna) }, ['consegne'])
+    const esito = await salva(lezione, corsoStessaClasse.id)
+    assert.equal(esito.ok, false)
+  })
+
+  it('nemmeno un’ora citata da una spunta del check', async () => {
+    const lezione = oraCon([])
+    const lista = {
+      id: 'chk-prova-rimando',
+      corsoId: corso.id,
+      colonne: [],
+      spunte: [{
+        allievoId: rossi.id, colonnaId: 'col-1', lezioneId: lezione.id, data: lezione.data,
+        fattaIl: '2026-10-05T08:30:00.000Z',
+      }],
+      creatoIl: '2026-10-05T08:30:00.000Z',
+      aggiornatoIl: '2026-10-05T08:30:00.000Z',
+    }
+    archivio.modifica((r) => { r.check.push(lista) }, ['check'])
+    const esito = await salva(lezione, corsoStessaClasse.id)
+    assert.equal(esito.ok, false)
+    archivio.modifica((r) => { r.check = r.check.filter((c) => c.id !== lista.id) }, ['check'])
+  })
+
+  it('un appello vuoto nell’ingresso non cancella quello del registro', async () => {
+    const lezione = oraCon([{ allievoId: rossi.id, stati: ['assente'] }])
+    const esito = await esegui({
+      tipo: 'lezione.salva',
+      lezione: { ...lezionePerId(lezione.id), corsoId: corsoAltraClasse.id, presenze: [] },
+    })
+    assert.equal(esito.ok, false)
+    assert.equal(lezionePerId(lezione.id).presenze.length, 1)
+  })
+
+  it('ore.salva rifiuta un corso che non c’è', async () => {
+    const lezione = api.creaLezione('cor-mai-esistito', '2026-10-06', '08:20', 45)
+    const esito = await api.chiama(archivio, 'ore.salva', { lezione })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-trovato', JSON.stringify(esito))
+    assert.equal(lezionePerId(lezione.id), undefined)
+  })
+})
+
+describe('corso.salva e materia.unisci', () => {
+  it('classe e materia di un corso esistente non cambiano', async () => {
+    const vivo = archivio.registro.corsi.find((c) => c.id === corsoStessaClasse.id)
+    const esito = await esegui({ tipo: 'corso.salva', corso: { ...vivo, classeId: corsoAltraClasse.classeId } })
+    assert.equal(esito.ok, false)
+    const materia = await esegui({ tipo: 'corso.salva', corso: { ...vivo, materiaId: corso.materiaId } })
+    assert.equal(materia.ok, false)
+    assert.equal(archivio.registro.corsi.find((c) => c.id === vivo.id).materiaId, storia.id)
+  })
+
+  it('le regole del calendario seguono il corso superstite', async () => {
+    const doppia = api.creaMateria('Mate')
+    const doppione = api.creaCorso(classe.id, doppia.id, 'I MEC A — Mate')
+    archivio.modifica((r) => {
+      r.materie.push(doppia)
+      r.corsi.push(doppione)
+      r.impostazioni.calendario = {
+        calendari: [],
+        regole: [{ id: 'reg-prova-mate', testo: 'MATE', corsoId: doppione.id }],
+      }
+    }, ['registro', 'corsi'])
+    const esito = await esegui({ tipo: 'materia.unisci', daId: doppia.id, aId: corso.materiaId })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(archivio.registro.impostazioni.calendario.regole[0].corsoId, corso.id)
+  })
+})
+
+describe('eliminare mentre il documento si chiude', () => {
+  it('non cestina i file se la scrittura poi sarebbe vietata', async () => {
+    const consegna = api.creaConsegna(corso.id, 'Relazione', '2026-10-05')
+    const file = 'consegne/prova/relazione.pdf'
+    archivio.deposito.scrivi(file, new TextEncoder().encode('pdf'))
+    consegna.fileTutti = file
+    archivio.modifica((r) => { r.consegne.push(consegna) }, ['consegne'])
+
+    archivio.inChiusura = true
+    try {
+      await esegui({ tipo: 'consegna.elimina', consegnaId: consegna.id }).catch(() => null)
+    } finally {
+      archivio.inChiusura = false
+    }
+    assert.ok(archivio.deposito.esiste(file), 'il file è uscito ma la consegna è rimasta')
+    assert.ok(archivio.registro.consegne.some((c) => c.id === consegna.id))
+  })
+})
+
+describe('generaPianoPerLezione', () => {
+  // Pura: un corso fuori dal registro basta.
+  const corso = creaCorso('cls-prova', 'mat-prova', 'I MEC A — Matematica')
+
+  it('i timbri sono istanti completi, come quelli di creaPiano', () => {
+    const lezione = creaLezione(corso.id, '2026-09-14', '08:20', 45)
+    const piano = generaPianoPerLezione(lezione, corso, { minutiUd: 45 })
+    assert.match(piano.creatoIl, ISTANTE)
+    assert.match(piano.aggiornatoIl, ISTANTE)
+  })
+
+  it('con UD da 45′ ogni tappa dura un multiplo di 5 minuti e la scaletta riempie l’ora', () => {
+    for (const durata of [45, 90, 135]) {
+      const lezione = creaLezione(corso.id, '2026-09-14', '08:20', durata)
+      const piano = generaPianoPerLezione(lezione, corso, { minutiUd: 45 })
+      for (const tappa of piano.attivita) {
+        const minuti = tappa.durataUd * 45
+        assert.ok(
+          Math.abs(minuti - Math.round(minuti / 5) * 5) < 1e-6,
+          `${tappa.titolo}: ${minuti} minuti non sono un multiplo di 5 (ora di ${durata}′)`,
+        )
+      }
+      const totale = piano.attivita.reduce((s, a) => s + a.durataUd * 45, 0)
+      assert.ok(Math.abs(totale - durata) < 1e-6, `scaletta di ${totale}′ per un’ora di ${durata}′`)
+    }
+  })
+})
+
+describe('piano.assegna e il corso del piano', () => {
+  let lezione
+  let suo
+  let altrui
+  let libero
+
+  before(() => {
+    lezione = api.creaLezione(corso.id, '2026-09-14', '08:20', 45)
+    suo = api.creaPiano(corso.id)
+    altrui = api.creaPiano(corsoStessaClasse.id)
+    libero = api.creaPiano(null)
+    archivio.modifica((r) => {
+      r.lezioni.push(lezione)
+      r.piani.push(suo, altrui, libero)
+    }, ['lezioni', 'piani'])
+  })
+
+  const assegna = (pianoId) =>
+    api.esegui(archivio, { tipo: 'piano.assegna', lezioneId: lezione.id, pianoId })
+  const pianoDellaLezione = () =>
+    archivio.registro.lezioni.find((l) => l.id === lezione.id).pianoId
+
+  it('rifiuta il piano di un altro corso e lascia la lezione com’era', async () => {
+    const esito = await assegna(altrui.id)
+    assert.equal(esito.ok, false, 'assegnato il piano di un altro corso')
+    assert.equal(pianoDellaLezione(), null)
+  })
+
+  it('accetta il piano del corso della lezione', async () => {
+    const esito = await assegna(suo.id)
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(pianoDellaLezione(), suo.id)
+  })
+
+  it('accetta un piano senza corso', async () => {
+    const esito = await assegna(libero.id)
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(pianoDellaLezione(), libero.id)
   })
 })
 

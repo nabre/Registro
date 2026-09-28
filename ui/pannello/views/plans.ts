@@ -3,15 +3,27 @@
 // più ore, anche di classi diverse. La scaletta si vede come striscia di tempo,
 // per capire subito se le attività stanno nell'ora.
 
-import { attivitaValutata } from '../../../core/dominio/activities.js'
+import {
+  attivitaConCheck,
+  attivitaConPendenza,
+  attivitaValutata,
+} from '../../../core/dominio/activities.js'
+import {
+  avanzamentoConsegna,
+  consegneDelCorso,
+  scadenzaConsegna,
+} from '../../../core/dominio/assignments.js'
+import { checkDelCorso } from '../../../core/dominio/check.js'
 import {
   confrontaLezioni,
   durataPiano,
   minutiDiAttivita,
   minutiDiScarto,
+  udDaMinutiAttivita,
 } from '../../../core/dominio/calculations.js'
 import { indiceDiagnosi, oraCoperta } from '../../../core/dominio/dashboard.js'
 import { formattaData, formattaDurata } from '../../../core/dominio/dates.js'
+import { creaAttivita } from '../../../core/dominio/factories.js'
 
 /**
  * Quanto vale un'unità didattica quando il piano non sta su nessun'ora: il
@@ -26,7 +38,8 @@ function durataInMinuti (ud: number): string {
   return formattaDurata(minutiDiAttivita(ud, minutiPerUd()))
 }
 import { lezioniDellAnno } from '../../../core/dominio/courses.js'
-import type { Corso, Lezione, MomentoValutazione, PianoLezione } from '../../../core/dominio/models.js'
+import { numeriDelleLezioni } from '../../../core/dominio/courses.js'
+import type { Consegna, Corso, Lezione, MomentoValutazione, PianoLezione } from '../../../core/dominio/models.js'
 import { corrispondeAlla, pezziDiRicerca } from '../../../core/dominio/text.js'
 import { Molti, quanti } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
@@ -37,10 +50,12 @@ import {
   collegamento,
   conAttesa,
   pastiglia,
+  pulsante,
   scheda,
   statoVuoto,
   testataVista,
 } from '../components/base.js'
+import { notifica } from '../components/notifications.js'
 import { statoVuotoAnno } from '../components/filters.js'
 import { corsoDelContesto } from '../context.js'
 import { icona } from '../components/icons.js'
@@ -51,14 +66,15 @@ import { apriMomento } from '../calendarNavigation.js'
 import {
   aggiorna,
   annoCorrente,
+  classeDelCorsoId,
   classeDiMomento,
   lezioneDiPiano,
+  lezionePerId,
+  lezioniDiCorso,
   nomeClasseDiLezione,
   nomeDiLezione,
   nomeDiPiano,
-  nelSemestreScelto,
   pianoPerId,
-  semestreScelto,
   stato,
 } from '../state.js'
 
@@ -97,31 +113,27 @@ function semestriDelCorso (corso: Corso | null): GruppoSemestre[] {
   if (!corso) return []
   const anno = annoCorrente()
   const pezzi = pezziDiRicerca(stato.ricerca)
-  const lezioni = nelSemestreScelto(lezioniDellAnno(stato.registro, anno?.id ?? null))
+  const lezioni = lezioniDellAnno(stato.registro, anno?.id ?? null)
     .filter((l) => l.corsoId === corso.id)
     .filter((l) => {
       if (pezzi.length === 0) return true
       const piano = pianoPerId(l.pianoId)
       return (
         corrispondeAlla(formattaData(l.data), pezzi) ||
+        corrispondeAlla(formattaData(l.data, 'giorno'), pezzi) ||
         (piano ? corrispondeAlla(testoDiPiano(piano), pezzi) : false)
       )
     })
     .sort((a, b) => a.data.localeCompare(b.data))
 
-  const scelto = semestreScelto()
-  const semestri = [...(anno?.semestri ?? [])]
-    .filter((s) => !scelto || s.id === scelto.id)
-    .sort((a, b) => a.numero - b.numero)
+  const semestri = [...(anno?.semestri ?? [])].sort((a, b) => a.numero - b.numero)
   const gruppi: GruppoSemestre[] = semestri.map((semestre) => ({
     etichetta: semestre.etichetta,
     lezioni: lezioni.filter((l) => l.data >= semestre.inizio && l.data <= semestre.fine),
   }))
 
-  // Le ore fuori dai semestri si dichiarano solo guardando l'anno intero: con un
-  // semestre scelto `lezioni` le ha già escluse.
   const dentro = new Set(gruppi.flatMap((g) => g.lezioni.map((l) => l.id)))
-  const fuori = scelto ? [] : lezioni.filter((l) => !dentro.has(l.id))
+  const fuori = lezioni.filter((l) => !dentro.has(l.id))
   if (fuori.length > 0) gruppi.push({ etichetta: testi().fuoriSemestri, lezioni: fuori })
 
   return gruppi.filter((g) => g.lezioni.length > 0)
@@ -166,11 +178,17 @@ function argomentoDiPiano (piano: PianoLezione): string {
 }
 
 /** La riga di un piano nell'elenco: quel che è, e quanto pesa. */
-function voceDiPiano (piano: PianoLezione, etichetta: string, sotto: Figlio): HTMLElement {
+function voceDiPiano (
+  piano: PianoLezione,
+  etichetta: string,
+  sotto: Figlio,
+  attivoId: string | null = null,
+): HTMLElement {
+  const isAttivo = attivoId ? piano.id === attivoId : stato.pianoId === piano.id
   return h(
     'button',
     {
-      class: ['voce-laterale', stato.pianoId === piano.id && 'voce-laterale--attiva'],
+      class: ['voce-laterale', isAttivo && 'voce-laterale--attiva'],
       type: 'button',
       onclick: () => aggiorna({ pianoId: piano.id }),
     },
@@ -199,20 +217,25 @@ function scartoScritto (scarto: number): HTMLElement {
 }
 
 /** La riga di un'ora: la sua scaletta, o l'invito a prepararla. */
-function voceDiLezione (lezione: Lezione): HTMLElement {
+function voceDiLezione (
+  lezione: Lezione,
+  lezioneAttivaId: string | null = null,
+  attivoPianoId: string | null = null,
+): HTMLElement {
   const piano = pianoPerId(lezione.pianoId)
-  // Il nome dell'ora in grande e la data sotto: lo stesso nome del piano appeso
-  // a quell'ora.
   const nome = nomeDiLezione(lezione)
   const quando = formattaData(lezione.data, 'giorno')
+  const isAttivo = lezioneAttivaId
+    ? lezione.id === lezioneAttivaId
+    : (piano ? piano.id === attivoPianoId : false)
 
   if (!piano) {
     return h(
       'button',
       {
-        class: 'voce-laterale voce-laterale--vuota',
+        class: ['voce-laterale', 'voce-laterale--vuota', isAttivo && 'voce-laterale--attiva'],
         type: 'button',
-        // Senza piano, il clic lo crea vuoto e apre l'editor; riusarne uno si fa dal
+        // Senza piano, il clic lo crea e apre l'editor; riusarne uno si fa dal
         // calendario, dal registro dell'ora o da «Duplica».
         // `conAttesa` perché questo `button` scritto a mano resterebbe premibile mentre
         // la scaletta nasce, e un secondo clic farebbe fallire un'altra `piano.perLezione`.
@@ -221,7 +244,10 @@ function voceDiLezione (lezione: Lezione): HTMLElement {
           void conAttesa(
             tasto,
             azione({ tipo: 'piano.perLezione', lezioneId: lezione.id }).then((risposta) => {
-              if (risposta.ok && risposta.creato) aggiorna({ pianoId: risposta.creato.id })
+              if (risposta.ok && risposta.creato) {
+                notifica(testi().pianoGenerato, 'successo')
+                aggiorna({ pianoId: risposta.creato.id, lezioneId: lezione.id })
+              }
             }),
           )
         },
@@ -235,18 +261,155 @@ function voceDiLezione (lezione: Lezione): HTMLElement {
       icona('piu', 'voce-laterale__segno'),
     )
   }
-  // Una scaletta che non torna con l'ora va detta, o l'ora sembra pronta.
-  const scarto = minutiDiScarto(piano, lezione, minutiPerUd())
-  if (scarto !== 0) {
-    return voceDiPiano(piano, nome, [quando, ' · ', scartoScritto(scarto)])
-  }
 
-  // Preparata, l'ora dice solo quando è: la riga sotto il nome resta per
-  // «senza piano — preparala», così le ore da fare si vedono.
-  return voceDiPiano(piano, nome, quando)
+  const argomento = argomentoDiPiano(piano)
+  const haArgomento = Boolean(argomento && argomento !== testi().scalettaVuota)
+  const scarto = minutiDiScarto(piano, lezione, minutiPerUd())
+  const sotto: Figlio =
+    scarto !== 0
+      ? [quando, haArgomento ? ` · ${argomento}` : '', ' · ', scartoScritto(scarto)]
+      : haArgomento
+        ? `${quando} · ${argomento}`
+        : quando
+
+  return h(
+    'button',
+    {
+      class: ['voce-laterale', isAttivo && 'voce-laterale--attiva'],
+      type: 'button',
+      onclick: () => aggiorna({ pianoId: piano.id, lezioneId: lezione.id }),
+    },
+    h(
+      'span',
+      { class: 'voce-laterale__testo' },
+      h('strong', null, nome),
+      h('small', null, sotto),
+    ),
+    piano.attivita.some(attivitaValutata)
+      ? icona('valutazioni', 'voce-laterale__segno')
+      : null,
+  )
 }
 
-function elencoPiani (): HTMLElement {
+/**
+ * Navigatore interattivo delle lezioni del corso:
+ * permette di scorrere linearmente le ore del corso con avanti/indietro,
+ * mostra l'ora attiva con la data e permette di saltare alla prima da preparare.
+ */
+function navigatoreLezioniCorso (
+  corso: Corso,
+  pianoAttivo: PianoLezione | null,
+  lezioneAttiva: Lezione | null,
+): HTMLElement | null {
+  const sorelle = lezioniDiCorso(corso.id).sort(confrontaLezioni)
+  if (sorelle.length === 0) return null
+
+  const numeri = numeriDelleLezioni(stato.registro, sorelle)
+  const minutiUd = minutiPerUd()
+  const t = testi()
+
+  const attiva =
+    lezioneAttiva ??
+    (pianoAttivo
+      ? sorelle.find((l) => l.pianoId === pianoAttivo.id) ?? primaOraDelPiano(pianoAttivo)
+      : null) ??
+    sorelle[0] ??
+    null
+  const posizione = attiva ? sorelle.findIndex((l) => l.id === attiva.id) : -1
+
+  const senzaPiano = sorelle.filter((l) => !l.pianoId)
+  const conScarto = sorelle.filter((l) => {
+    const p = pianoPerId(l.pianoId)
+    return p ? minutiDiScarto(p, l, minutiUd) !== 0 : false
+  })
+  const pronte = sorelle.filter((l) => {
+    const p = pianoPerId(l.pianoId)
+    return p ? minutiDiScarto(p, l, minutiUd) === 0 : false
+  })
+
+  const vaiA = (indice: number) => {
+    const bersaglio = sorelle[indice]
+    if (!bersaglio) return
+    if (bersaglio.pianoId) {
+      aggiorna({ pianoId: bersaglio.pianoId, lezioneId: bersaglio.id })
+    } else {
+      void azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id }).then((risposta) => {
+        if (risposta.ok && risposta.creato) {
+          notifica(t.pianoGenerato, 'successo')
+          aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
+        }
+      })
+    }
+  }
+
+  const primaDaFare = senzaPiano[0] ?? null
+  const vaiAPrimaDaFare = (evento: MouseEvent) => {
+    if (!primaDaFare) return
+    const tasto = evento.currentTarget as HTMLButtonElement
+    void conAttesa(
+      tasto,
+      azione({ tipo: 'piano.perLezione', lezioneId: primaDaFare.id }).then((risposta) => {
+        if (risposta.ok && risposta.creato) {
+          notifica(t.pianoGenerato, 'successo')
+          aggiorna({ pianoId: risposta.creato.id, lezioneId: primaDaFare.id })
+        }
+      }),
+    )
+  }
+
+  const numAttivo = attiva ? numeri.get(attiva.id) ?? null : null
+  const descAttiva = attiva
+    ? `${numAttivo ? `#${numAttivo} · ` : ''}${formattaData(attiva.data, 'giorno')} ${formattaData(attiva.data)}`
+    : t.navigatoreLezioni
+
+  return h(
+    'div',
+    { class: 'navigatore-piani' },
+    h(
+      'div',
+      { class: 'navigatore-piani__passo' },
+      pulsante({
+        simbolo: 'sinistra',
+        variante: 'fantasma',
+        titolo: t.precedente,
+        disabilitato: posizione <= 0,
+        al: () => vaiA(posizione - 1),
+      }),
+      h('span', { class: 'navigatore-piani__lezione-corrente' }, descAttiva),
+      pulsante({
+        simbolo: 'destra',
+        variante: 'fantasma',
+        titolo: t.successiva,
+        disabilitato: posizione < 0 || posizione >= sorelle.length - 1,
+        al: () => vaiA(posizione + 1),
+      }),
+    ),
+    h(
+      'div',
+      { class: 'navigatore-piani__sintesi' },
+      pastiglia(
+        t.preparate(pronte.length, sorelle.length),
+        pronte.length === sorelle.length ? 'positivo' : 'informativo',
+      ),
+      conScarto.length > 0
+        ? pastiglia(`${conScarto.length} ${t.daCalibrare}`, 'attenzione', 'avviso')
+        : null,
+    ),
+    primaDaFare
+      ? pulsante({
+          testo: t.vaiAProssimaDaPreparare,
+          variante: 'sottile',
+          simbolo: 'bacchetta',
+          al: vaiAPrimaDaFare,
+        })
+      : pastiglia(t.tuttePreparate, 'positivo', 'spunta'),
+  )
+}
+
+function elencoPiani (
+  pianoAttivo: PianoLezione | null,
+  lezioneAttivaId: string | null = null,
+): HTMLElement {
   const corso = corsoScelto()
   const gruppi = semestriDelCorso(corso)
   const sciolti = pianiSciolti(corso)
@@ -259,6 +422,7 @@ function elencoPiani (): HTMLElement {
     .filter(coperta).length
   const ore = gruppi.reduce((somma, g) => somma + g.lezioni.length, 0)
   const t = testi()
+  const attivoId = pianoAttivo?.id ?? null
 
   return h(
     'aside',
@@ -301,7 +465,9 @@ function elencoPiani (): HTMLElement {
                 t.preparate(gruppo.lezioni.filter(coperta).length, gruppo.lezioni.length),
               ),
             ),
-            ...gruppo.lezioni.map((lezione) => h('li', null, voceDiLezione(lezione))),
+            ...gruppo.lezioni.map((lezione) =>
+              h('li', null, voceDiLezione(lezione, lezioneAttivaId, attivoId)),
+            ),
           ]),
           ...(sciolti.length > 0
             ? [
@@ -322,6 +488,7 @@ function elencoPiani (): HTMLElement {
                       `${argomentoDiPiano(piano)} · ` +
                         `${quanti(piano.attivita.length, lessico().attivita)} · ` +
                         durataInMinuti(durataPiano(piano)),
+                      attivoId,
                     ),
                   ),
                 ),
@@ -344,6 +511,7 @@ function elencoPiani (): HTMLElement {
                       piano,
                       lezioneDiPiano(piano),
                       t.corsoSparito(argomentoDiPiano(piano)),
+                      attivoId,
                     ),
                   ),
                 ),
@@ -455,7 +623,7 @@ function collegamentiDelPiano (piano: PianoLezione): Figlio {
     .filter((l) => l.pianoId === piano.id)
     .sort((a, b) => b.data.localeCompare(a.data))
   const momenti = momentiDelPiano(piano)
-  if (usiInLezioni.length === 0 && momenti.length === 0) return null
+  if (usiInLezioni.length <= 1 && momenti.length === 0) return null
 
   const valutate = new Set(momenti.map((m) => m.lezioneId))
   // Il piano prevede almeno una prova: serve a segnare le ore che non ce l'hanno ancora.
@@ -467,7 +635,7 @@ function collegamentiDelPiano (piano: PianoLezione): Figlio {
     contenuto: h(
       'div',
       null,
-      usiInLezioni.length > 0
+      usiInLezioni.length > 1
         ? h(
             'section',
             { class: 'blocco-testo' },
@@ -520,18 +688,169 @@ function collegamentiDelPiano (piano: PianoLezione): Figlio {
   })
 }
 
-/** La colonna del piano aperto: l'editor, e nient'altro. */
+/**
+ * Strumenti del corso collegabili al piano: le pendenze aperte e le colonne del
+ * check, con la possibilità di inserirle al volo nella scaletta come attività dedicata.
+ */
+function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | null): Figlio {
+  const corsoId = piano.corsoId ?? lezione?.corsoId ?? null
+  if (!corsoId) return null
+  const corso = stato.registro.corsi.find((c) => c.id === corsoId)
+  if (!corso) return null
+
+  const classe = classeDelCorsoId(corsoId)
+  const consegne = consegneDelCorso(stato.registro, corsoId)
+  const pendenzeAperte = consegne.filter((c) => !avanzamentoConsegna(c, classe).completa)
+  const check = checkDelCorso(stato.registro, corsoId)
+  const colonneCheck = check?.colonne ?? []
+
+  if (pendenzeAperte.length === 0 && colonneCheck.length === 0) return null
+
+  const t = testi()
+  const perUd = minutiPerUd()
+
+  const inserisciAttivitaPendenza = async (c: Consegna): Promise<void> => {
+    const nuova = creaAttivita(t.ritiroConsegna(c.testo), udDaMinutiAttivita(5, perUd))
+    nuova.tipo = 'compito'
+    nuova.parametri = { consegnaId: c.id }
+    scordaEditorDelPiano()
+    const aggiornato: PianoLezione = {
+      ...piano,
+      attivita: [...piano.attivita, nuova],
+    }
+    const risposta = await invia({ tipo: 'piano.salva', piano: aggiornato })
+    if (risposta.ok) {
+      notifica(t.inseritaInScaletta(c.testo), 'successo')
+    }
+  }
+
+  const inserisciAttivitaCheck = async (
+    colonnaId: string,
+    colonnaTitolo: string,
+  ): Promise<void> => {
+    const nuova = creaAttivita(t.verificaCheck(colonnaTitolo), udDaMinutiAttivita(5, perUd))
+    nuova.tipo = 'verifica'
+    nuova.parametri = { checkColonnaId: colonnaId }
+    scordaEditorDelPiano()
+    const aggiornato: PianoLezione = {
+      ...piano,
+      attivita: [...piano.attivita, nuova],
+    }
+    const risposta = await invia({ tipo: 'piano.salva', piano: aggiornato })
+    if (risposta.ok) {
+      notifica(t.inseritaInScaletta(colonnaTitolo), 'successo')
+    }
+  }
+
+  const sezioni: Figlio[] = []
+  if (pendenzeAperte.length > 0) {
+    sezioni.push(
+      h(
+        'section',
+        { class: 'blocco-testo' },
+        h('h5', null, t.pendenzeDelCorso),
+        h(
+          'ul',
+          { class: 'elenco-collegamenti' },
+          ...pendenzeAperte.map((c) => {
+            const avanzamento = avanzamentoConsegna(c, classe)
+            const giaCollegata = piano.attivita.some((a) => {
+              const p = attivitaConPendenza(a)
+              return p === c.id || p === 'tutte'
+            })
+            const scadenza = scadenzaConsegna(stato.registro, c)
+            return h(
+              'li',
+              { class: 'elenco-collegamenti__voce strumenti-piano__riga' },
+              h(
+                'div',
+                { class: 'strumenti-piano__info' },
+                icona('allegato', 'icona--minuta'),
+                h('strong', null, c.testo),
+                pastiglia(`${avanzamento.fatte}/${avanzamento.destinatari.length}`, 'quiete'),
+                scadenza ? pastiglia(formattaData(scadenza, 'giorno'), 'attenzione') : null,
+              ),
+              giaCollegata
+                ? pastiglia(t.giaInScaletta, 'positivo')
+                : pulsante({
+                    testo: t.inserisciNellaScaletta,
+                    simbolo: 'piu',
+                    variante: 'sottile',
+                    al: () => {
+                      void inserisciAttivitaPendenza(c)
+                    },
+                  }),
+            )
+          }),
+        ),
+      ),
+    )
+  }
+
+  if (colonneCheck.length > 0) {
+    sezioni.push(
+      h(
+        'section',
+        { class: 'blocco-testo' },
+        h('h5', null, t.checkDelCorso),
+        h(
+          'ul',
+          { class: 'elenco-collegamenti' },
+          ...colonneCheck.map((col) => {
+            const giaCollegata = piano.attivita.some((a) => {
+              const k = attivitaConCheck(a)
+              return k === col.id || k === 'tutte'
+            })
+            return h(
+              'li',
+              { class: 'elenco-collegamenti__voce strumenti-piano__riga' },
+              h(
+                'div',
+                { class: 'strumenti-piano__info' },
+                icona('spunta', 'icona--minuta'),
+                h('strong', null, col.titolo),
+              ),
+              giaCollegata
+                ? pastiglia(t.giaInScaletta, 'positivo')
+                : pulsante({
+                    testo: t.inserisciNellaScaletta,
+                    simbolo: 'piu',
+                    variante: 'sottile',
+                    al: () => {
+                      void inserisciAttivitaCheck(col.id, col.titolo)
+                    },
+                  }),
+            )
+          }),
+        ),
+      ),
+    )
+  }
+
+  return scheda({
+    titolo: t.strumentiCollegati,
+    sottotitolo: t.spazioInScaletta,
+    contenuto: h('div', { class: 'strumenti-piano' }, ...sezioni),
+  })
+}
+
+/** La colonna del piano aperto: l'editor e gli strumenti collegati. */
 function dettaglioPiano (piano: PianoLezione): HTMLElement {
+  const lezione = primaOraDelPiano(piano)
+  const titolo = lezione
+    ? `${nomeDiLezione(lezione)} · ${formattaData(lezione.data, 'giorno')} ${formattaData(lezione.data)}`
+    : nomeDiPiano(piano)
+
   return h(
     'div',
     { class: 'colonna' },
     scheda({
-      titolo: nomeDiPiano(piano),
-      // Il corso lo dice già la prima riga dell'editor.
-      sottotitolo: piano.corsoId ? testi().siSalva : testi().senzaCorsoTesto,
+      titolo,
+      sottotitolo: testi().siSalva,
       // Niente pulsanti: duplicare, eliminare e andare al registro sono comandi della pagina.
       contenuto: editorDelPiano(piano),
     }),
+    pannelloPendenzeECheckPiano(piano, lezione),
     collegamentiDelPiano(piano),
   )
 }
@@ -544,14 +863,25 @@ function dettaglioPiano (piano: PianoLezione): HTMLElement {
  */
 export function pianoMostrato (): PianoLezione | null {
   const corso = corsoScelto()
-  const primo =
-    [
+  if (corso) {
+    const perPianoId = pianoPerId(stato.pianoId)
+    if (perPianoId && perPianoId.corsoId === corso.id) {
+      return perPianoId
+    }
+    if (stato.lezioneId) {
+      const l = lezionePerId(stato.lezioneId)
+      if (l && l.corsoId === corso.id && l.pianoId) {
+        const p = pianoPerId(l.pianoId)
+        if (p) return p
+      }
+    }
+    const delCorso = [
       ...semestriDelCorso(corso).flatMap((g) => g.lezioni.map((l) => pianoPerId(l.pianoId))),
       ...pianiSciolti(corso),
-    ].find((x): x is PianoLezione => x !== null) ??
-    pianiSenzaCorso()[0] ??
-    null
-  return pianoPerId(stato.pianoId) ?? primo
+    ].find((x): x is PianoLezione => x !== null)
+    if (delCorso) return delCorso
+  }
+  return pianoPerId(stato.pianoId) ?? pianiSenzaCorso()[0] ?? null
 }
 
 /**
@@ -568,6 +898,9 @@ export function primaOraDelPiano (piano: PianoLezione): Lezione | null {
   )
 }
 
+let generazioneInCorso = false
+let tentataGenerazioneId: string | null = null
+
 export function vistaPiani (): Figlio {
   const anno = annoCorrente()
   if (!anno) {
@@ -575,8 +908,42 @@ export function vistaPiani (): Figlio {
   }
 
   const corso = corsoScelto()
+  const sorelle = corso ? lezioniDiCorso(corso.id).sort(confrontaLezioni) : []
   const gruppi = semestriDelCorso(corso)
   const piano = pianoMostrato()
+
+  // Determiniamo la lezione attiva coerente fra navigatore e sidebar
+  const lezioneAttiva: Lezione | null =
+    (stato.lezioneId ? sorelle.find((l) => l.id === stato.lezioneId) : null) ??
+    (piano
+      ? sorelle.find((l) => l.pianoId === piano.id) ?? primaOraDelPiano(piano)
+      : null) ??
+    sorelle[0] ??
+    null
+
+  // Se non c'è ancora un piano per questo corso, ma ci sono lezioni, auto-generiamo
+  // il piano per la prima lezione da preparare quando si entra nella vista
+  if (!piano && sorelle.length > 0 && !generazioneInCorso) {
+    const bersaglio = (lezioneAttiva && !lezioneAttiva.pianoId)
+      ? lezioneAttiva
+      : sorelle.find((l) => !l.pianoId) ?? sorelle[0]
+    if (bersaglio && !bersaglio.pianoId && tentataGenerazioneId !== bersaglio.id) {
+      generazioneInCorso = true
+      tentataGenerazioneId = bersaglio.id
+      void azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id })
+        .then((risposta) => {
+          generazioneInCorso = false
+          if (risposta.ok && risposta.creato) {
+            tentataGenerazioneId = null
+            notifica(testi().pianoGenerato, 'successo')
+            aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
+          }
+        })
+        .catch(() => {
+          generazioneInCorso = false
+        })
+    }
+  }
 
   // Le ore che aspettano ancora una scaletta, contate in testata.
   const daPreparare = gruppi.reduce(
@@ -589,19 +956,18 @@ export function vistaPiani (): Figlio {
     { class: 'vista vista--piani' },
     testataVista({
       titolo: Molti(lessico().pianoLezione),
-      // Nessun «nuovo piano»: un piano nasce dall'ora che lo aspetta.
       sottotitolo:
         !corso
           ? t.nessunCorsoDaPreparare
           : daPreparare > 0
             ? t.senzaScaletta(daPreparare)
             : t.tutteConScaletta,
-      // Niente filtri: il corso si sceglie dalla barra in cima.
+      contorno: corso ? navigatoreLezioniCorso(corso, piano, lezioneAttiva) : null,
     }),
     h(
       'div',
       { class: 'colonne colonne--elenco' },
-      elencoPiani(),
+      elencoPiani(piano, lezioneAttiva?.id ?? null),
       piano
         ? dettaglioPiano(piano)
         : h(
@@ -610,8 +976,30 @@ export function vistaPiani (): Figlio {
             statoVuoto({
               simbolo: 'piano',
               titolo: t.nessunPiano,
-              // Nessun pulsante «crea»: un piano nasce dall'ora che lo aspetta.
               testo: t.nessunPianoTesto,
+              azione: sorelle.length > 0
+                ? [
+                    pulsante({
+                      testo: t.generaPiano,
+                      variante: 'primario',
+                      simbolo: 'bacchetta',
+                      al: (evento) => {
+                        const bersaglio = sorelle.find((l) => !l.pianoId) ?? sorelle[0]
+                        if (!bersaglio) return
+                        const tasto = evento.currentTarget as HTMLButtonElement
+                        void conAttesa(
+                          tasto,
+                          azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id }).then((risposta) => {
+                            if (risposta.ok && risposta.creato) {
+                              notifica(t.pianoGenerato, 'successo')
+                              aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
+                            }
+                          }),
+                        )
+                      },
+                    }),
+                  ]
+                : undefined,
             }),
           ),
     ),

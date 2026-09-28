@@ -125,7 +125,7 @@ export const procedura = scrittura({
   azione: 'impostazioni.salva',
   // Il gestore sostituisce l'oggetto intero.
   idempotente: true,
-  collezioni: ['registro', 'lezioni'],
+  collezioni: ['registro', 'corsi', 'lezioni'],
   ingresso: oggetto({ impostazioni: IMPOSTAZIONI }),
   esegui: inoltra(sistema, 'impostazioni.salva'),
 })

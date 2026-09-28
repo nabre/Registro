@@ -374,8 +374,14 @@
   min-width: 0;
 }
 
-.scaletta__tipo,
-.scaletta__prova { min-width: 0; }
+.scaletta__tipo { min-width: 0; }
+.scaletta__prova {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+}
 .scaletta__durata { font-variant-numeric: tabular-nums; color: var(--testo-quieto); font-size: 0.9em; }
 
 /* Quel che in una colonna non ci sta scende sotto, allineato al titolo. */
@@ -445,6 +451,68 @@
 .etichette { display: flex; gap: var(--spazio-1); flex-wrap: wrap; margin-top: var(--spazio-3); }
 
 .elenco-collegamenti { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* Gli strumenti collegati al piano (pendenze e check) */
+.strumenti-piano {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+}
+
+.strumenti-piano__riga {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) 0;
+}
+
+.strumenti-piano__info {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Il selettore degli strumenti nella colonna destra della lezione */
+.selettore-strumenti {
+  display: flex;
+  gap: var(--spazio-1);
+  margin-bottom: var(--spazio-2);
+  padding: 2px;
+  background: var(--sfondo-alto);
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+}
+
+.selettore-strumenti__voce {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  min-height: var(--bersaglio-compatto);
+  padding: 4px 10px;
+  border: none;
+  border-radius: calc(var(--raggio) - 2px);
+  background: transparent;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color var(--durata-svelta) var(--curva),
+              color var(--durata-svelta) var(--curva);
+}
+
+.selettore-strumenti__voce:hover {
+  color: var(--testo);
+}
+
+.selettore-strumenti__voce--attiva {
+  background: var(--sfondo-rilievo);
+  color: var(--testo);
+  font-weight: 500;
+  box-shadow: var(--ombra-scheda), 0 0 0 1px var(--bordo-tenue);
+}
 
 .riquadro-collegamenti {
   display: flex;
@@ -652,12 +720,12 @@
 /* La scaletta è una tabella a colonne ferme: la griglia si dichiara
    sull'elenco e la ereditano le righe, così le tappe si confrontano in colonna. */
 .attivita-editor__elenco {
-  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 6.5rem 4.5rem;
+  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 7.6rem 4.5rem;
 }
 
 /* Con un'ora sotto compare la colonna dell'orologio: quando cade la tappa, pause comprese. */
 .attivita-editor__elenco--con-orario {
-  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 6.5rem 6.5rem 4.5rem;
+  --griglia-attivita: 46px minmax(9rem, 1fr) 8rem 7.6rem 6.5rem 4.5rem;
 }
 
 /*
@@ -744,9 +812,41 @@
 }
 
 .attivita-riga__tipo-testo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.attivita-riga__durata { display: flex; align-items: center; gap: 4px; min-width: 0; }
-.attivita-riga__durata .campo__controllo { min-width: 0; width: 100%; }
-.attivita-riga__unita { color: var(--testo-quieto); font-size: 0.85em; }
+.attivita-riga__durata { display: flex; align-items: center; gap: 3px; min-width: 0; }
+.attivita-riga__passo {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+.attivita-riga__passo:hover:not(:disabled) {
+  border-color: var(--bordo);
+  background: var(--sfondo-alto-2);
+}
+.attivita-riga__passo:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.attivita-riga__durata-input {
+  min-width: 0;
+  width: 2.4rem;
+  padding: 2px 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.attivita-riga__unita { color: var(--testo-quieto); font-size: 0.82em; white-space: nowrap; }
 
 /* Aprire il dettaglio e togliere la tappa stanno vicini: il cestino resta in disparte finché non ci si passa sopra. */
 .attivita-riga__azioni { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
@@ -850,6 +950,62 @@
   border-radius: var(--raggio-grande);
   background: var(--sfondo);
   border-left: 3px solid var(--tinta-verifica);
+}
+
+/* Selettore rapido della durata in blocchi da 5 minuti */
+.durata-tappa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
+.selettore-durata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.selettore-durata__chip {
+  padding: 3px 8px;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  color: var(--testo);
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.selettore-durata__chip:hover:not(:disabled) {
+  border-color: var(--primario);
+  background: var(--sfondo-alto-2);
+}
+
+.selettore-durata__chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.selettore-durata__chip--attivo {
+  border-color: var(--primario);
+  background: var(--primario);
+  color: var(--testo-su-primario);
+  font-weight: 600;
+}
+
+.selettore-durata__separatore {
+  width: 1px;
+  height: 18px;
+  background: var(--bordo-tenue);
+  margin: 0 4px;
+}
+
+.durata-tappa__aiuto {
+  font-size: 0.82em;
+  color: var(--testo-quieto);
+  margin-top: 2px;
 }
 
 /* I pulsanti del materiale restano in disparte finché non ci si passa sopra: si allega di rado. */

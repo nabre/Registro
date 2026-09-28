@@ -37,10 +37,10 @@ const it = {
     `Regiklass: ${anni} anni sono ora altrettanti documenti «${estensione}». ` +
     'Le cartelle «dati» di prima sono nel cestino.',
   riordinati: (n: number) =>
-    `Regiklass: ${n} documenti rimessi in ordine sotto «archivio/» ed ` +
+    `Regiklass: ${plurale(n, 'documento rimesso', 'documenti rimessi')} in ordine sotto «archivio/» ed ` +
     '«esportazioni/», per classe, corso e documento.',
   inglobati: (n: number, documento: string) =>
-    `Regiklass: ${n} documenti dell’anno sono ora dentro «${documento}». ` +
+    `Regiklass: ${plurale(n, 'documento dell’anno è', 'documenti dell’anno sono')} ora dentro «${documento}». ` +
     'Le cartelle di prima sono nel cestino.',
   traslocoFallito:
     'Regiklass: non ho potuto rimettere in ordine tutti i documenti archiviati. ' +

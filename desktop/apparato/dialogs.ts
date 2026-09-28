@@ -17,9 +17,9 @@ import { Uri } from '../../core/apparato/uri.js'
 import { eUnPannello } from './windows.js'
 import { executeCommand, openExternal } from './commands.js'
 import { statoAggiornamenti } from './updates.js'
-import { limita } from '.../../../core/dominio/calculations.js'
-import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '.../../../core/dominio/upgrades.js'
-import { parole } from '.../../../core/dominio/words.testi.js'
+import { limita } from '../../core/dominio/calculations.js'
+import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '../../core/dominio/upgrades.js'
+import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './dialogs.testi.js'
 
 // ------------------------------------------------------------------ le forme
