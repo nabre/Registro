@@ -71,9 +71,9 @@ Apri la skill pertinente prima di intervenire:
 - Una funzione visibile richiede anche l'aggiornamento della guida in
   `ui/pannello/views/help/`; `tests/ui/help.test.mjs` ne controlla la coerenza.
 - Non modificare a mano `resources/tools.json`,
-  `core/dati/defaultTemplates.ts`, `core/dati/schoolCalendarTicino.ts` o
-  `tests/samples/2026-2027.regi`: rigenerali con gli script indicati in
-  `docs/GUIDA.md`.
+  `core/dati/defaultTemplates.ts`, `core/dati/schoolCalendarTicino.ts`,
+  `core/dati/modelliConsigliati.ts` o `tests/samples/2026-2027.regi`:
+  rigenerali con gli script indicati in `docs/GUIDA.md`.
 - Una lettura non deve scrivere né creare file. Le scritture dichiarano le
   collezioni toccate e passano da `contesto.modifica`.
 - Un export senza consumatori non implica codice morto: se il comportamento è

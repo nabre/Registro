@@ -175,6 +175,7 @@ passi in locale. Come leggerne l'uscita: `.claude/skills/verifica/SKILL.md`.
 File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `core/dati/defaultTemplates.ts` (`npm run templates`),
 `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
+`core/dati/modelliConsigliati.ts` (`npm run modelli-consigliati`),
 `tests/samples/2026-2027.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 

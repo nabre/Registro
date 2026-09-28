@@ -48,6 +48,7 @@
     "calendario": "node tools/schoolCalendar.mjs",
     "procedures": "node tools/procedures.mjs",
     "tools": "node esbuild.mjs --test && node tools/assistantTools.mjs",
+    "modelli-consigliati": "node tools/modelliConsigliati.mjs",
     "sample": "node esbuild.mjs --test && node tools/sample.mjs"
   },
   "devDependencies": {

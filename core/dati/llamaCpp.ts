@@ -71,7 +71,14 @@ const COMMENTO_MASSIMO = 256
  * Quanto resta caldo un contesto inutilizzato. Costa 600–900 MB che servono
  * anche ad altri; cinque minuti coprono le domande che arrivano di seguito.
  */
-const RIPOSO_MS = 5 * 60_000
+export const RIPOSO_MS = 5 * 60_000
+
+/**
+ * Quanto restano in memoria i pesi dopo l'ultima domanda. Tengono gigabyte di
+ * RAM o memoria video; quindici minuti lasciano passare una pausa di lezione
+ * senza dover ricaricare i pesi da disco al ritorno.
+ */
+export const RIPOSO_PESI_MS = 15 * 60_000
 
 /**
  * Il `pattern` con cui `api/schemas.ts` scrive una data, l'unico del catalogo:
@@ -97,6 +104,8 @@ interface Pesi {
   congedo: (() => void) | null
   /** Il contesto rimasto aperto dall'ultima domanda, o `null`. Vedi `Caldo`. */
   caldo: Caldo | null
+  /** Il timer del riposo dei pesi, fermo mentre una domanda li usa. Vedi `RIPOSO_PESI_MS`. */
+  sonno: ReturnType<typeof setTimeout> | null
 }
 
 /** La sequenza di un contesto: è lì dentro che sta quel che il modello ha già letto. */
@@ -141,6 +150,10 @@ const inVolo = new Map<string, Promise<Pesi>>()
 
 /** Un altro che li sta usando: fino a che non molla, non si smaltiscono. */
 function presta (quali: Pesi): Pesi {
+  if (quali.sonno) {
+    clearTimeout(quali.sonno)
+    quali.sonno = null
+  }
   quali.utenti += 1
   return quali
 }
@@ -148,10 +161,16 @@ function presta (quali: Pesi): Pesi {
 /** Finita: se era l'ultimo e qualcuno aspettava per portarli via, si fa avanti. */
 function molla (quali: Pesi): void {
   quali.utenti -= 1
-  if (quali.utenti > 0 || !quali.congedo) return
-  const aspetta = quali.congedo
-  quali.congedo = null
-  aspetta()
+  if (quali.utenti > 0) return
+  if (quali.congedo) {
+    const aspetta = quali.congedo
+    quali.congedo = null
+    aspetta()
+    return
+  }
+  if (caricato === quali) {
+    addormentaPesi(quali)
+  }
 }
 
 /**
@@ -159,6 +178,10 @@ function molla (quali: Pesi): void {
  * Aspetta invece di rifiutare; l'attesa è limitata dalla scadenza delle domande.
  */
 async function smaltisci (quali: Pesi): Promise<void> {
+  if (quali.sonno) {
+    clearTimeout(quali.sonno)
+    quali.sonno = null
+  }
   if (quali.utenti > 0) {
     await new Promise<void>((liberi) => {
       quali.congedo = liberi
@@ -203,6 +226,22 @@ function addormenta (quali: Pesi, caldo: Caldo): void {
 }
 
 /**
+ * Mette a riposo i pesi caricati: se ne vanno fra `RIPOSO_PESI_MS`, se nessuno
+ * li ha ripresi. Allo scatto ricontrolla che siano ancora quelli caricati e che
+ * non abbiano utenti.
+ */
+function addormentaPesi (quali: Pesi): void {
+  if (quali.sonno) clearTimeout(quali.sonno)
+  quali.sonno = setTimeout(() => {
+    quali.sonno = null
+    if (caricato !== quali || quali.utenti > 0) return
+    void scaricaPesi()
+  }, RIPOSO_PESI_MS)
+  // Il timer non tiene vivo il processo (né le prove né la chiusura).
+  quali.sonno.unref?.()
+}
+
+/**
  * I pesi di quel file con quegli strati, caricandoli se serve. Il file è già
  * risolto da `llm.ts` nella cartella dei modelli. Tornano in prestito: chi li
  * prende li deve mollare.
@@ -240,7 +279,7 @@ async function carica (file: string, strati: Strati, segnale: AbortSignal): Prom
     // Il caricamento dura secondi e `apparecchia` può ripeterlo: dev'essere interrompibile.
     loadSignal: segnale,
   })
-  caricato = { file, modello, strati, utenti: 0, congedo: null, caldo: null }
+  caricato = { file, modello, strati, utenti: 0, congedo: null, caldo: null, sonno: null }
   return caricato
 }
 

@@ -375,7 +375,9 @@ condotto e assistente. `esegui()` la tiene solo per le azioni senza procedura.
    vanno in una nota davanti all'ultima domanda, mai salvata. Il prefisso
    [istruzioni + catalogo] resta identico byte per byte.
 2. Contesto caldo (`Caldo` in `core/dati/llamaCpp.ts`): legato ai pesi; se ne va
-   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe.
+   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe. I pesi (`Pesi`)
+   restano caricati e si scaricano automaticamente dopo `RIPOSO_PESI_MS` (15 min)
+   di inattività, per liberare memoria di sistema e VRAM.
 
 Una domanda alla volta (`inFila`); le istruzioni entrano sempre come storia
 (modelli senza battuta di sistema).

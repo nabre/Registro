@@ -33,9 +33,6 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 - [ ] Le scansioni senza programma esterno, il giorno in cui `node-llama-cpp`
       accetta immagini: via `mtmd.ts` e `ocr.programma`.
-- [ ] Il modello caricato non si scarica da sé (`llamaCpp.ts`): tiene la
-      memoria fino a un cambio di modello.
-- [ ] Il catalogo dei consigliati è scritto a mano in `huggingFace.ts`.
 
 ### Rilascio, firma, nome
 
