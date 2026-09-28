@@ -9,10 +9,11 @@
  * Uso: `npm run buttons`
  */
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
-import { daRadice, fileSotto } from './common.mjs'
+import { RADICE, daRadice, fileSotto } from './common.mjs'
 
-const RADICE = 'ui/pannello'
+const PANNELLO = 'ui/pannello'
 
 /**
  * Le fabbriche di comandi: nome → come si chiama il loro gestore. Solo
@@ -57,9 +58,10 @@ function argomento (testo, da) {
 const muti = []
 const daGuardare = []
 
-for (const percorso of fileSotto(RADICE)) {
+const letti = fileSotto(join(RADICE, PANNELLO))
+for (const percorso of letti) {
   const testo = readFileSync(percorso, 'utf8')
-  const nome = daRadice(percorso)
+  const nome = daRadice(percorso, RADICE)
   const righeFino = (indice) => testo.slice(0, indice).split('\n').length
 
   for (const [fabbrica, gestore] of Object.entries(FABBRICHE)) {
@@ -110,4 +112,6 @@ if (daGuardare.length) {
   for (const voce of daGuardare) console.log(voce)
 }
 
-process.exitCode = muti.length ? 1 : 0
+// Zero file letti è una radice sbagliata, non un pannello in ordine.
+if (letti.length === 0) console.log('Nessun file letto: la radice del progetto è sbagliata?')
+process.exitCode = muti.length || letti.length === 0 ? 1 : 0

@@ -18,17 +18,15 @@ prova che:
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/themeChoice.py`
-Le fotografie vanno in `dist-tests/`, o nella cartella di `SCATTI`.
+Le fotografie vanno in `dist-tests/schermate/`, o nella cartella di `SCATTI`.
 """
-from pathlib import Path
 import json
 import os
 import subprocess
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-scatti = Path(os.environ.get('SCATTI', root / 'dist-tests'))
-scatti.mkdir(parents=True, exist_ok=True)
+from banco import FRAME, RADICE, chromium, pannello, schermata
+
 etichetta = os.environ.get('ETICHETTA', 'dopo')
 # Solo le fotografie, senza asserzioni: per fermare il «prima» di un cambio.
 solo_scatti = os.environ.get('SOLO_SCATTI') == '1'
@@ -41,7 +39,7 @@ scelte = json.loads(subprocess.run(
     ['node', '--input-type=module', '-e',
      "const { IMPOSTAZIONI } = await import('./dist-tests/manifest.mjs');"
      f"process.stdout.write(JSON.stringify(IMPOSTAZIONI['{CHIAVE}'].scelte))"],
-    cwd=root, check=True, capture_output=True, encoding='utf-8',
+    cwd=RADICE, check=True, capture_output=True, encoding='utf-8',
 ).stdout)
 
 
@@ -54,31 +52,11 @@ def voce(valore='sistema'):
     }
 
 
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
 FONDO = "(el)=>getComputedStyle(el.querySelector('.figura-tema')).backgroundColor"
 
 
-def pannello(browser, schema):
-    page = browser.new_page(viewport={'width': 1280, 'height': 900}, color_scheme=schema)
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+def aspetto(browser, schema):
+    page, errori = pannello(browser, 1280, 900, color_scheme=schema)
     page.evaluate(
         "(v)=>prova.aggiorna({vista:'impostazioni',ambitoImpostazioni:'programma',"
         "schedaProgramma:'aspetto',programma:[v]})", voce())
@@ -87,9 +65,9 @@ def pannello(browser, schema):
 
 
 def prova_pannello(browser, schema):
-    page, errori = pannello(browser, schema)
-    page.locator('.voce-opzione').first.screenshot(path=str(scatti / f'pannello-{schema}-{etichetta}.png'))
-    page.screenshot(path=str(scatti / f'pagina-{schema}-{etichetta}.png'))
+    page, errori = aspetto(browser, schema)
+    schermata(page.locator('.voce-opzione').first, f'pannello-{schema}-{etichetta}.png')
+    schermata(page, f'pagina-{schema}-{etichetta}.png')
     if solo_scatti:
         return
 
@@ -150,22 +128,17 @@ def prova_pannello(browser, schema):
 
 
 def prova_nativa(browser, schema):
-    page = browser.new_page(viewport={'width': 760, 'height': 700}, color_scheme=schema)
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content(
-        '<html lang="it"><body><header><h1 id="titolo">Impostazioni</h1>'
-        '<input id="cerca" type="text"></header>'
-        '<div id="rimando"><button id="apri-pannello" type="button">Apri</button></div>'
-        '<main id="radice"></main></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/native-settings.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/native-settings.js'))
+    page, errori = pannello(
+        browser, 760, 700, color_scheme=schema, bundle='native-settings',
+        html='<html lang="it"><body><header><h1 id="titolo">Impostazioni</h1>'
+             '<input id="cerca" type="text"></header>'
+             '<div id="rimando"><button id="apri-pannello" type="button">Apri</button></div>'
+             '<main id="radice"></main></body></html>')
     page.evaluate(
         "(v)=>window.dispatchEvent(new MessageEvent('message',{data:{impostazioni:'schema',"
         "titolo:'Impostazioni',voci:[v]}}))", voce())
     page.evaluate(FRAME)
-    page.locator('.voce').first.screenshot(path=str(scatti / f'nativa-{schema}-{etichetta}.png'))
+    schermata(page.locator('.voce').first, f'nativa-{schema}-{etichetta}.png')
     if solo_scatti:
         return
 
@@ -192,10 +165,8 @@ def prova_nativa(browser, schema):
     assert not errori, errori
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     for schema in ('light', 'dark'):
         prova_pannello(browser, schema)
         prova_nativa(browser, schema)
-    browser.close()
 print('OK: tema a schede con miniature, nel pannello e nella finestra nativa, in tutti e due i temi')

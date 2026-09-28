@@ -311,3 +311,44 @@
 }
 
 .dettagli-classe__spunta > span { color: var(--testo); font-size: inherit; }
+
+/* ------------------------------------------------------------------ navigatore piani e lezioni */
+
+.riga-azioni-scaletta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  margin-bottom: var(--spazio-2);
+}
+
+.navigatore-piani {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  flex-wrap: wrap;
+}
+
+.navigatore-piani__passo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  background: var(--sfondo-scheda, var(--sfondo));
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  padding: 2px var(--spazio-1);
+}
+
+.navigatore-piani__lezione-corrente {
+  font-weight: 600;
+  font-size: 0.9em;
+  padding: 0 var(--spazio-2);
+  white-space: nowrap;
+}
+
+.navigatore-piani__sintesi {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+

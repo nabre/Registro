@@ -10,6 +10,7 @@ import {
 import { attivitaValutata } from '../../../core/dominio/activities.js'
 import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
 import { creaPiano } from '../../../core/dominio/factories.js'
+import { generaAttivitaStandard, generaObiettiviStandard } from '../../../core/dominio/plans.js'
 import type {
   Attivita,
   Lezione,
@@ -144,11 +145,31 @@ export function editorPiano (opzioni: {
   // Il piano nasce sul corso indicato, o su quello della classe filtrata se è
   // uno solo; resta cambiabile.
   const corsiDelFiltro = stato.filtroClasseId ? corsiDi(stato.filtroClasseId) : []
-  const base =
+  const iniziale =
     piano ??
     creaPiano(
       opzioni.corsoDaProporre ?? (corsiDelFiltro.length === 1 ? corsiDelFiltro[0].id : null),
     )
+
+  const minutiUd = stato.registro.impostazioni.minutiUd
+  const udDellOra = (): number => (lezione ? Math.max(1, contaUd(lezione, minutiUd)) : 1)
+  // Un piano vuoto parte da obiettivi e scaletta proposti, scritti su una copia:
+  // il piano di `stato.registro` resta com'è finché non si salva, e «Annulla»
+  // non lascia niente.
+  const autoGenerato = iniziale.attivita.length === 0 && iniziale.obiettivi.length === 0
+  const base: PianoLezione = autoGenerato
+    ? {
+        ...iniziale,
+        obiettivi: generaObiettiviStandard(),
+        attivita: generaAttivitaStandard(
+          udDellOra(),
+          '',
+          classeDelCorsoId(iniziale.corsoId)?.docenteDiClasse ?? false,
+          minutiUd,
+        ),
+      }
+    : iniziale
+
   // La tendina del corso resta dove c'è un corso da scegliere.
   const corsoFermo = Boolean(opzioni.corsoDettato && base.corsoId)
   // Copia profonda di quel che l'editor tocca: con `parametri` e `valutazione`
@@ -173,10 +194,12 @@ export function editorPiano (opzioni: {
       .filter(Boolean),
     prerequisiti: testo(valori.prerequisiti),
     note: testo(valori.note),
-    tag: String(valori.tag ?? '')
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean),
+    tag: valori.tag !== undefined
+      ? String(valori.tag)
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : (base.tag ?? []),
     risorse: risorsePiano,
     attivita,
   })
@@ -237,13 +260,35 @@ export function editorPiano (opzioni: {
     disegnaRisorsePiano()
   })
 
-  const particolari = modifica ? statiDelPiano(base) : []
-
   /**
    * Il modulo, `null` finché la costruzione non è finita: dentro c'è chi lo
    * rilegge (la tendina dei tipi guarda il corso scelto).
    */
   let modulo: HTMLElement | null = null
+
+  const zonaAttivita = h('div')
+  const disegnaAttivita = (): void => {
+    rimpiazza(
+      zonaAttivita,
+      editorAttivita(
+        attivita,
+        (nuove) => {
+          attivita = nuove
+          opzioni.allaModifica?.()
+        },
+        lezione,
+        gestoreRisorse,
+        () => {
+          const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
+          return classeDelCorsoId(scelto || base.corsoId)?.docenteDiClasse ?? false
+        },
+        base.corsoId,
+      ),
+    )
+  }
+  disegnaAttivita()
+
+  const particolari = modifica ? statiDelPiano(base) : []
 
   const corpoModulo: HTMLElement = h(
     'div',
@@ -296,43 +341,38 @@ export function editorPiano (opzioni: {
       ),
       riga(
         campo({
-          nome: 'tag',
-          etichetta: t.etichette,
-          valore: base.tag.join(', '),
-          segnaposto: t.segnapostoEtichette,
-          aiuto: t.aiutoEtichette,
-          larghezza: 'meta',
-        }),
-        campo({
           nome: 'note',
           etichetta: parole().note,
           tipo: 'textarea',
           righe: 2,
           valore: base.note ?? '',
           aiuto: t.aiutoNote,
-          larghezza: 'meta',
         }),
       ),
     ),
     // La spiegazione dietro la «i»; che allegare salva il piano resta in vista.
     sezioneModulo(
       { testo: Uno(L.scaletta), aiuto: t.aiutoScaletta },
-      h('p', { class: 'testo-quieto' }, t.allegareSalva),
-      editorAttivita(
-        attivita,
-        (nuove) => {
-          attivita = nuove
-          // Una tappa spostata, aggiunta o tolta non passa da un `change`: si avvisa qui.
-          opzioni.allaModifica?.()
-        },
-        lezione,
-        gestoreRisorse,
-        // Il corso si legge dal campo: cambiandolo cambiano i tipi offerti.
-        () => {
-          const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
-          return classeDelCorsoId(scelto || base.corsoId)?.docenteDiClasse ?? false
-        },
+      h(
+        'div',
+        { class: 'riga-azioni-scaletta' },
+        h('p', { class: 'testo-quieto' }, t.allegareSalva),
+        pulsante({
+          testo: t.rigeneraAttivita,
+          variante: 'sottile',
+          simbolo: 'bacchetta',
+          al: () => {
+            const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
+            const corsoIdScelto = scelto || base.corsoId
+            const isDoc = classeDelCorsoId(corsoIdScelto)?.docenteDiClasse ?? false
+            attivita = generaAttivitaStandard(udDellOra(), '', isDoc, minutiUd)
+            disegnaAttivita()
+            // Nella modale salva il suo pulsante: «Annulla» deve poter rinunciare.
+            opzioni.allaModifica?.()
+          },
+        }),
       ),
+      zonaAttivita,
     ),
     // Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura).
     sezioneModulo(
@@ -343,6 +383,14 @@ export function editorPiano (opzioni: {
 
   modulo = corpoModulo
   disegnaRisorsePiano()
+
+  // Nella pagina, che salva campo per campo, la proposta si scrive subito (dopo
+  // che chi ha aperto l'editor lo tiene in mano); nella modale la salva solo il
+  // pulsante, così «Annulla» non lascia un piano orfano.
+  if (autoGenerato && opzioni.allaModifica) {
+    const allaModifica = opzioni.allaModifica
+    setTimeout(() => allaModifica(), 0)
+  }
 
   // Ogni `change` dei campi è una modifica confermata; gli `input` no, per non
   // salvare a ogni lettera. Le tappe hanno il loro `allaModifica`.

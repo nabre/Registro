@@ -113,6 +113,9 @@ const IMPOSTAZIONI = oggetto({
       }),
     }), { aiuto: () => t().carte }),
     docente: testo({ aiuto: () => t().docente }),
+    docenteAppellativo: opzionale(testo()),
+    docenteNome: opzionale(testo()),
+    docenteCognome: opzionale(testo()),
     firma: opzionale(testo({
       aiuto: () => t().firma,
     })),
@@ -125,7 +128,7 @@ export const procedura = scrittura({
   azione: 'impostazioni.salva',
   // Il gestore sostituisce l'oggetto intero.
   idempotente: true,
-  collezioni: ['registro', 'lezioni'],
+  collezioni: ['registro', 'corsi', 'lezioni'],
   ingresso: oggetto({ impostazioni: IMPOSTAZIONI }),
   esegui: inoltra(sistema, 'impostazioni.salva'),
 })

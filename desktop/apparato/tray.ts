@@ -5,7 +5,7 @@
 import { Menu, nativeImage, Tray, type MenuItemConstructorOptions, type NativeImage } from 'electron'
 
 import { percorsoIconaCassetto } from './context.js'
-import { alCambioLingua } from '.../../../core/i18n/index.js'
+import { alCambioLingua } from '../../core/i18n/index.js'
 
 /** Una voce del menu. Senza `al` è una scritta, con `sotto` è un sottomenu. */
 export interface VoceVassoio {

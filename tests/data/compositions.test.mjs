@@ -1,6 +1,8 @@
 // Le composizioni dall'inizio alla fine: comporre, rifare, buttare via, con un
 // anno vero in una cartella temporanea. Buttare via sono due cancellazioni
-// (elenco e PDF): si guarda che cosa resta nel documento, anche riaprendo.
+// (elenco e PDF): si guarda che cosa resta nel documento, anche riaprendo. In
+// fondo, buttare via un documento esportato: un nome con i puntini
+// («Verifica... finale.pdf») non è una risalita.
 //
 // Gira su `dist-tests/data.mjs`, dati e azioni in un grafo solo: con bundle
 // separati il deposito sarebbe due.
@@ -116,8 +118,8 @@ describe('rifare una composizione', () => {
     const esito = await esegui(moduli.composizioni, { tipo: 'composizione.aggiorna', id })
     assert.ok(esito.ok, `aggiornamento rifiutato: ${JSON.stringify(esito.errori)}`)
     assert.equal(esito.messaggio.livello, 'avviso')
-    assert.match(esito.messaggio.testo, /1 rimasti fuori/)
-    assert.match(esito.messaggio.testo, /non erano più nella cartella/)
+    assert.match(esito.messaggio.testo, /1 rimasto fuori/)
+    assert.match(esito.messaggio.testo, /1 non era più nella cartella/)
 
     // Il fascicolo c'è lo stesso, con dentro la scheda che è rimasta.
     const unito = await PDFDocument.load(deposito().leggi(FASCICOLO))
@@ -257,5 +259,28 @@ describe('un PDF senza elenco', () => {
     })
     assert.ok(esito.ok, `eliminazione rifiutata: ${JSON.stringify(esito.errori)}`)
     assert.equal(deposito().esiste(FASCICOLO), false, 'il PDF senza elenco è rimasto')
+  })
+})
+
+describe('i documenti esportati con i puntini nel nome', () => {
+  const PUNTINI = 'esportazioni/Matematica/DIC4a/Verifica... finale.pdf'
+
+  it('si buttano come gli altri: i puntini dentro un nome non risalgono', async () => {
+    moduli.deposito().scrivi(PUNTINI, await foglio('Verifica finale'))
+    const esito = await esegui(moduli.esportazioni, { tipo: 'esportazione.elimina', percorso: PUNTINI })
+    assert.ok(esito.ok, `rifiutato: ${JSON.stringify(esito.errori)}`)
+    assert.equal(moduli.deposito().esiste(PUNTINI), false)
+  })
+
+  it('un segmento «..» resta rifiutato, anche con le barre rovesce', async () => {
+    for (const fuori of [
+      'esportazioni/../calendari/x.ics',
+      'esportazioni/Matematica/../../registro.json',
+      'esportazioni\\..\\registro.json',
+      'esportazioni/./x.pdf',
+    ]) {
+      const esito = await esegui(moduli.esportazioni, { tipo: 'esportazione.elimina', percorso: fuori })
+      assert.equal(esito.ok, false, `accettato: ${fuori}`)
+    }
   })
 })

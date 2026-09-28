@@ -19,9 +19,9 @@ import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } fro
 import { EventEmitter, type Smaltibile } from '../../core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { consegnaAllAiutante } from './updateInstaller.js'
-import { parole } from '.../../../core/dominio/words.testi.js'
+import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './updates.testi.js'
-import { istante, numero } from '.../../../core/i18n/index.js'
+import { istante, numero } from '../../core/i18n/index.js'
 
 /** Dove stanno le release: il ripiego quando da sé non si può. */
 const PAGINA_RELEASE = 'https://github.com/nabre/Registro/releases/latest'

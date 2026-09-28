@@ -15,7 +15,7 @@ import {
   type MessaggioPosta,
 } from '../dati/mail.js'
 import { nomeCompleto } from '../dominio/calculations.js'
-import { CHI_INSEGNA, type Collezione, type Registro } from '../dominio/models.js'
+import { CHI_INSEGNA, type Collezione, type Consegna, type Registro } from '../dominio/models.js'
 import {
   daConsegnareA,
   destinatariConsegna,
@@ -23,6 +23,7 @@ import {
   siConsegna,
   testoConsegna,
 } from '../dominio/assignments.js'
+import { classeDelCorsoId, classeDellaConsegna } from '../dominio/courses.js'
 import { oggi, periodoNelNome, istanteAdesso } from '../dominio/dates.js'
 import { corpoConsegna } from '../dominio/factories.js'
 import { validaConsegna } from '../dominio/validation.js'
@@ -72,7 +73,7 @@ function haFette (registro: Registro, consegnaId: string, chi: string): boolean 
  * questo se ne va o viene sostituito: «riprendi le pagine» non deve cestinare
  * il documento nuovo.
  */
-function staccaFette (r: Registro, consegnaId: string, chi: string): void {
+export function staccaFette (r: Registro, consegnaId: string, chi: string): void {
   for (const smistamento of r.smistamenti) {
     const pdf = smistamento.consegnaId
     if (!smistamento.assegnate.some((f) => fettaDelDocumento(f, pdf, consegnaId, chi))) continue
@@ -83,8 +84,22 @@ function staccaFette (r: Registro, consegnaId: string, chi: string): void {
 }
 
 /** Le collezioni toccate dal documento di una persona: anche `smistamenti` se `staccaFette` lavora. */
-function collezioniDocumento (registro: Registro, consegnaId: string, chi: string): Collezione[] {
+export function collezioniDocumento (
+  registro: Registro,
+  consegnaId: string,
+  chi: string,
+): Collezione[] {
   return haFette(registro, consegnaId, chi) ? ['consegne', 'smistamenti'] : ['consegne']
+}
+
+/**
+ * Se `chi` può avere una spunta su quella consegna: il docente, o una persona
+ * della sua classe. Un id qualunque lascerebbe spunte di nessuno, o di
+ * un'altra classe.
+ */
+function chiDellaConsegna (registro: Registro, consegna: Consegna, chi: string): boolean {
+  if (chi === CHI_INSEGNA) return true
+  return classeDellaConsegna(registro, consegna)?.allievi.some((a) => a.id === chi) ?? false
 }
 
 /** Segna il documento spedito per mail, sostituendo la spunta di prima di quella persona. */
@@ -123,7 +138,18 @@ export const consegne = {
     if (!contesto.registro.corsi.some((c) => c.id === azione.consegna.corsoId)) {
       return rifiuta(testi().corsoAssente)
     }
-    const nuova = !contesto.registro.consegne.some((c) => c.id === azione.consegna.id)
+    const prima = contesto.registro.consegne.find((c) => c.id === azione.consegna.id)
+    const nuova = !prima
+    // Spunte, documenti e firme sono di persone di quella classe: in un'altra
+    // sarebbero di estranei. Senza, il cambio di classe è solo un indirizzo.
+    if (
+      prima &&
+      classeDelCorsoId(contesto.registro, prima.corsoId)?.id !==
+        classeDelCorsoId(contesto.registro, azione.consegna.corsoId)?.id &&
+      (prima.fatte.length > 0 || (prima.documenti ?? []).length > 0 || prima.fileFirme)
+    ) {
+      return rifiuta(testi().altraClasse)
+    }
     const consegna = { ...azione.consegna, aggiornataIl: istanteAdesso() }
     const scritto = contesto.modifica((r) => {
       const viva = r.consegne.find((c) => c.id === consegna.id)
@@ -157,13 +183,18 @@ export const consegne = {
 
   /**
    * La spunta di una persona sola. Non si toglie se porta un documento
-   * raccolto: per quello c'è `consegna.documento.togli`.
+   * raccolto (salvo che sia stata inviata per posta): per quello c'è
+   * `consegna.documento.togli`.
    */
   'consegna.spunta': (contesto, azione) => {
     const consegna = contesto.registro.consegne.find((c) => c.id === azione.consegnaId)
     const gia = consegna?.fatte.find((f) => f.chi === azione.chi)
-    if (!azione.fatta && gia?.file) {
+    if (!azione.fatta && gia?.file && gia.modo !== 'email') {
       return rifiuta(testi().documentoRaccolto)
+    }
+    // Togliere la spunta di un estraneo è pulizia; darla, no.
+    if (consegna && azione.fatta && !chiDellaConsegna(contesto.registro, consegna, azione.chi)) {
+      return rifiuta(comuni().nonTrovato.pif)
     }
     // Già nello stato chiesto: invariato (idempotente). La spunta esistente
     // resta intatta, con la sua data e il suo file.
@@ -186,7 +217,7 @@ export const consegne = {
 
     return contesto.suVoce('consegne', azione.consegnaId, (consegna) => {
       if (!azione.fatta) {
-        consegna.fatte = consegna.fatte.filter((f) => f.file)
+        consegna.fatte = consegna.fatte.filter((f) => f.file && f.modo !== 'email')
         return
       }
       const quando = istanteAdesso()
@@ -390,7 +421,17 @@ export const consegne = {
   'consegna.consegnato': (contesto, azione) => {
     const consegna = contesto.registro.consegne.find((c) => c.id === azione.consegnaId)
     if (!consegna) return rifiuta(comuni().nonTrovato.consegna)
+    const gia = consegna.fatte.find((f) => f.chi === azione.allievoId)
     const documento = documentoPer(consegna, azione.allievoId)
+    // La regola di `consegna.spunta`: un file raccolto non se ne va con la
+    // spunta. La copia del documento distribuito, che questa stessa azione
+    // mette nella spunta, sì: il documento resta fra quelli della consegna.
+    if (!azione.fatta && gia?.file && gia.file !== documento?.file) {
+      return rifiuta(testi().documentoRaccolto)
+    }
+    if (azione.fatta && !chiDellaConsegna(contesto.registro, consegna, azione.allievoId)) {
+      return rifiuta(comuni().nonTrovato.pif)
+    }
     const ora = istanteAdesso()
 
     return contesto.modifica((r) => {

@@ -62,8 +62,7 @@ const FAMIGLIE_CORSO: readonly FamigliaTodo[] = [
 const FAMIGLIE_CLASSE_DOCENTE: readonly FamigliaTodo[] = [
   'assenze',
   'segnalazioni',
-  'consegnaClasse',
-  'svolgeClasse',
+  ...FAMIGLIE_CONSEGNA,
 ]
 
 function schedaFatto (
@@ -153,7 +152,10 @@ function barraNavigazioneTodo (
               dataset: { fuoco: voce.fuoco ?? fuocoCat(voce.id) },
               attr: {
                 'aria-selected': String(accesa),
-                title: `${voce.titolo} (${voce.conto})`,
+                title:
+                  voce.conto > 0
+                    ? `${voce.titolo} (${t.coseAperte(voce.conto)}${voce.urgenti > 0 ? ` · ${t.inRitardo(voce.urgenti)}` : ''})`
+                    : voce.titolo,
               },
               onclick: voce.al,
             },
@@ -163,10 +165,7 @@ function barraNavigazioneTodo (
               ? h(
                   'span',
                   {
-                    class: [
-                      'pastiglia pastiglia--minuta',
-                      voce.urgenti > 0 ? 'pastiglia--negativo' : 'pastiglia--quiete',
-                    ],
+                    class: 'pastiglia pastiglia--minuta pastiglia--quiete',
                     style: { marginLeft: '4px' },
                   },
                   String(voce.conto),
@@ -197,7 +196,10 @@ function barraNavigazioneTodo (
                   dataset: { fuoco: voce.fuoco ?? fuocoSotto(voce.id) },
                   attr: {
                     'aria-selected': String(accesa),
-                    title: `${voce.titolo} (${voce.conto})`,
+                    title:
+                      voce.conto > 0
+                        ? `${voce.titolo} (${t.coseAperte(voce.conto)}${voce.urgenti > 0 ? ` · ${t.inRitardo(voce.urgenti)}` : ''})`
+                        : voce.titolo,
                   },
                   onclick: voce.al,
                 },
@@ -207,10 +209,7 @@ function barraNavigazioneTodo (
                   ? h(
                       'span',
                       {
-                        class: [
-                          'pastiglia pastiglia--minuta',
-                          voce.urgenti > 0 ? 'pastiglia--negativo' : 'pastiglia--quiete',
-                        ],
+                        class: 'pastiglia pastiglia--minuta pastiglia--quiete',
                         style: { marginLeft: '4px' },
                       },
                       String(voce.conto),
@@ -429,6 +428,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: nomeDelCorso(corso),
+        contorno: todo.aperti > 0 ? pastiglia(t.coseAperte(todo.aperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -471,6 +471,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.docenteDiClasseEtichetta(classe.nome),
+        contorno: todo.aperti > 0 ? pastiglia(t.coseAperte(todo.aperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -486,6 +487,12 @@ export function vistaTodo (): Figlio {
             simbolo: 'spunta',
             titolo: t.vuotoTitolo,
             testo: t.vuotoTestoDocenteClasse,
+            azione: pulsante({
+              testo: t.assegnaPrima,
+              variante: 'primario',
+              simbolo: 'piu',
+              al: () => moduloConsegna({ classeId: classe.id, ambito: 'classe' }),
+            }),
           })
         : h('div', { class: 'todo-classe__corpo' }, ...sezioniTodoClasse(todo)),
       schedaFatto(chiuse, todo.recuperi.chiusi, todo.riconsegne.fatte),
@@ -528,6 +535,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.corsiAiuto,
+        contorno: totaleCorsiAperti > 0 ? pastiglia(t.coseAperte(totaleCorsiAperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -589,6 +597,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.docenteDiClasseAiuto,
+        contorno: totaleClassiAperti > 0 ? pastiglia(t.coseAperte(totaleClassiAperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -604,6 +613,12 @@ export function vistaTodo (): Figlio {
             simbolo: 'spunta',
             titolo: t.vuotoTitolo,
             testo: t.vuotoTestoDocenteClasse,
+            azione: pulsante({
+              testo: t.assegnaPrima,
+              variante: 'primario',
+              simbolo: 'piu',
+              al: () => moduloConsegna({ ambito: 'classe' }),
+            }),
           })
         : h('div', { class: 'todo-classi' }, ...schedeClassi),
       schedaFatto(chiuseClassi, recuperiChiusiClassi, riconsegneFatteClassi),
@@ -672,6 +687,7 @@ export function vistaTodo (): Figlio {
     testataVista({
       titolo: Molti(lessico().pendenza),
       sottotitolo: t.tutteAiuto,
+      contorno: totaleGlobaleAperti > 0 ? pastiglia(t.coseAperte(totaleGlobaleAperti), 'quiete') : null,
       compatta: true,
     }),
     barraNav,
@@ -701,10 +717,7 @@ export function vistaTodo (): Figlio {
                 icona('libro', 'icona--minuta'),
                 h('span', null, t.sezioneCorsi),
                 totaleCorsiAperti > 0
-                  ? pastiglia(
-                      String(totaleCorsiAperti),
-                      totaleCorsiUrgenti > 0 ? 'negativo' : 'quiete',
-                    )
+                  ? pastiglia(String(totaleCorsiAperti), 'quiete')
                   : null,
               ),
               pulsante({
@@ -731,10 +744,7 @@ export function vistaTodo (): Figlio {
                     icona('classi', 'icona--minuta'),
                     h('span', null, t.sezioneDocenteClasse),
                     totaleClassiAperti > 0
-                      ? pastiglia(
-                          String(totaleClassiAperti),
-                          totaleClassiUrgenti > 0 ? 'negativo' : 'quiete',
-                        )
+                      ? pastiglia(String(totaleClassiAperti), 'quiete')
                       : null,
                   ),
                   pulsante({

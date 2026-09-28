@@ -7,7 +7,6 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
-  IMPOSTAZIONI_PREDEFINITE,
   componiCorpo,
   conBase,
   leggiBlocchi,
@@ -15,95 +14,34 @@ import {
   leggiRichiestaGalleria,
   leggiRichiestaTabella,
   leggiTesti,
-  creaAllievo,
-  creaAnno,
-  creaAttivita,
-  creaFascicolo,
-  creaLezione,
-  creaPiano,
-  creaValutazione,
-  datiAllievo,
-  datiFascicolo,
-  datiFotoClasse,
-  datiLezione,
-  datiMomento,
-  datiPiano,
-  datiPresenze,
-  datiValutazioni,
   leggiModello,
-  normalizzaRegistro,
 } from '../../dist-tests/domain.mjs'
 
 import { leggiModelli } from '../../tools/templates.mjs'
+import { datiDelGenere, registroCompleto } from '../helpers/modelli.mjs'
 
 /** In intestazione e piede li mette l'impaginatore, non i dati del rapporto. */
 const DELLA_PAGINA = new Set(['pagina', 'pagine'])
 
 /**
- * Un registro con dentro un po' di tutto: serve a far uscire ogni tabella che
- * i modelli sanno chiedere, non a essere realistico.
+ * Il genere di dati che riceve ogni rapporto: la stessa coppia che
+ * `actions/reports.ts` fa, scritta qui e non letta dal catalogo.
  */
-function registroCompleto () {
-  const anno = creaAnno('2026-09-01', '2027-06-30', '2026/27', '2027-01-31')
-  anno.id = 'a1'
-  anno.semestri[0].id = 's1'
-
-  const anna = { ...creaAllievo('Rossi', 'Anna'), id: 'al-1' }
-  const luca = { ...creaAllievo('Bianchi', 'Luca'), id: 'al-2' }
-
-  const piano = { ...creaPiano('cor-1'), id: 'pia-1' }
-  piano.obiettivi = ['Saper leggere una fattura']
-  piano.attivita = [creaAttivita('Esercizi', 2)]
-  piano.prerequisiti = 'Le quattro operazioni'
-  piano.note = 'Portare la calcolatrice'
-
-  const lezione = creaLezione('cor-1', '2026-10-06', '08:00', 90)
-  lezione.id = 'lez-1'
-  lezione.stato = 'svolta'
-  lezione.pianoId = piano.id
-  lezione.presenze = [{ allievoId: 'al-1', stati: ['presente', 'assente'] }]
-  lezione.argomenti = 'Le percentuali'
-  lezione.consuntivo = 'Fatto quasi tutto'
-  lezione.materiali = 'Fotocopie'
-
-  const valutazione = creaValutazione('cor-1', 'Prova di ottobre', undefined, '2026-10-20')
-  valutazione.id = 'val-1'
-  valutazione.voti = [{ allievoId: 'al-1', valore: 5, assente: false, nota: '' }]
-
-  const fascicolo = creaFascicolo('cl-1')
-  fascicolo.id = 'fas-1'
-
-  return normalizzaRegistro({
-    anni: [anno],
-    annoCorrenteId: 'a1',
-    materie: [{ id: 'mat-1', nome: 'Calcolo professionale' }],
-    classi: [{ id: 'cl-1', annoId: 'a1', nome: 'DIC2', allievi: [anna, luca] }],
-    corsi: [{ id: 'cor-1', classeId: 'cl-1', materiaId: 'mat-1', titolo: 'CP — DIC2' }],
-    lezioni: [lezione],
-    piani: [piano],
-    valutazioni: [valutazione],
-    fascicoli: [fascicolo],
-    impostazioni: IMPOSTAZIONI_PREDEFINITE,
-  })
+const GENERE_DEL_RAPPORTO = {
+  'verbale-lezione': 'lezione',
+  'momento-valutazione': 'momento',
+  'piano-lezione': 'piano',
+  'valutazioni-classe': 'valutazioni',
+  'presenze-classe': 'presenze',
+  'fascicolo-classe': 'fascicolo',
+  'scheda-allievo': 'allievo',
+  'foto-classe': 'foto-classe',
 }
 
-/** Che cosa ogni modello riceve: la stessa coppia che `actions/reports.ts` fa. */
+/** Che cosa ogni modello riceve. */
 function datiPerModello (registro) {
-  const classe = registro.classi[0]
-  const corso = registro.corsi[0]
-  const semestre = registro.anni[0].semestri[0]
-  const allievo = classe.allievi[0]
-
-  return {
-    'verbale-lezione': datiLezione(registro, registro.lezioni[0], []),
-    'momento-valutazione': datiMomento(registro, registro.valutazioni[0]),
-    'piano-lezione': datiPiano(registro, registro.piani[0]),
-    'valutazioni-classe': datiValutazioni(registro, corso, semestre),
-    'presenze-classe': datiPresenze(registro, corso, semestre),
-    'fascicolo-classe': datiFascicolo(registro, classe),
-    'scheda-allievo': datiAllievo(registro, classe, allievo, semestre, corso),
-    'foto-classe': datiFotoClasse(registro, classe),
-  }
+  return Object.fromEntries(Object.entries(GENERE_DEL_RAPPORTO)
+    .map(([nome, genere]) => [nome, datiDelGenere(registro, genere)]))
 }
 
 /**

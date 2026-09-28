@@ -106,6 +106,24 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Niente `cache: 'pip'` di setup-python: vuole un requirements.txt, e
+      # playwright si installa senza. Si tiene la cartella di pip e quella dei
+      # browser; la chiave cambia con la lista delle prove, e `playwright
+      # install` scarica comunque la versione giusta se quella ripresa è vecchia.
+      - name: Cache di pip
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: pip-${{ runner.os }}-${{ hashFiles('tools/uiTests.mjs') }}
+          restore-keys: pip-${{ runner.os }}-
+
+      - name: Cache di Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('tools/uiTests.mjs') }}
+          restore-keys: playwright-${{ runner.os }}-
+
       - run: npm ci
 
       - name: Playwright
@@ -118,3 +136,26 @@ jobs:
       # bundle che le prove leggono: non serve `npm run build` prima.
       - name: Prove dell'interfaccia
         run: npm run ui-tests
+
+  # La prova del fumo: l'unica che accende un Electron vero invece del finto
+  # di `tests/helpers/fake-electron.mjs`. Costruisce, avvia il registro sul
+  # campione in una cartella provvisoria, gli parla dal condotto come `regi` e
+  # lo chiude con `programma.esci`. Su Windows perché lì gira il resto e perché
+  # la named pipe è il caso di chi usa il registro; fuori servirebbe `xvfb-run`.
+  fumo:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Costruzione
+        run: npm run build
+
+      - name: Prova del fumo
+        run: node tools/fumo.mjs --senza-costruire

@@ -9,8 +9,10 @@ import { describe, it } from 'node:test'
 import {
   creaAllievo,
   creaAnno,
+  creaBloccoAssenze,
   creaClasse,
   creaConsegna,
+  creaComunicazione,
   creaCorso,
   creaFascicolo,
   creaLezione,
@@ -612,5 +614,677 @@ describe('la data di una spunta', () => {
       lista.spunte.map((s) => [s.lezioneId, s.data]),
       [['lez-1', '2026-09-11']],
     )
+  })
+})
+
+// Le collezioni che un'eliminazione dichiara: l'archivio riscrive (e sa
+// annullare) solo quelle annunciate, e una riga tolta dallo stato vivo ma non
+// dal disco torna alla riapertura.
+
+/** La scena di due persone con un'ora e una verifica del corso. */
+function conOraEVerifica () {
+  const scena = scenaDiDue()
+  const lezione = creaLezione(scena.corso.id, '2026-09-14', '08:20', 45)
+  scena.registro.lezioni.push(lezione)
+  const momento = creaValutazione(scena.corso.id, 'Verifica', scena.registro.impostazioni.scala, '2026-10-05')
+  scena.registro.valutazioni.push(momento)
+  return { ...scena, lezione, momento }
+}
+
+describe('eliminazioni: collezioni dichiarate', () => {
+  it('un allievo con sola riga voto vuota dichiara «valutazioni»', () => {
+    const { registro, classe, momento, rossi } = conOraEVerifica()
+    momento.voti = [{ allievoId: rossi.id, valore: null, assente: false }]
+    const piano = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+    assert.ok(piano.collezioni.includes('valutazioni'), piano.collezioni.join(','))
+  })
+
+  it('un allievo con solo recupero o prova allegata dichiara «valutazioni»', () => {
+    const { registro, classe, momento, rossi } = conOraEVerifica()
+    momento.recuperi = [{ allievoId: rossi.id, previstoIl: null }]
+    let piano = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+    assert.ok(piano.collezioni.includes('valutazioni'), piano.collezioni.join(','))
+
+    momento.recuperi = []
+    momento.allegati = [{
+      id: 'all-1', ruolo: 'prova', allievoId: rossi.id, nome: 'p.pdf', file: 'x/p.pdf',
+      aggiuntoIl: new Date().toISOString(),
+    }]
+    piano = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+    assert.ok(piano.collezioni.includes('valutazioni'), piano.collezioni.join(','))
+  })
+
+  it('un allievo con sole caselle della matrice dichiara «lezioni»', () => {
+    const { registro, classe, lezione, rossi } = conOraEVerifica()
+    lezione.presenze = []
+    lezione.matrice = [{ allievoId: rossi.id, aspetto: 'ordine', segno: null }]
+    const piano = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+    assert.ok(piano.collezioni.includes('lezioni'), piano.collezioni.join(','))
+  })
+
+  it('una consegna allegata a una comunicazione esce dagli allegati', () => {
+    const { registro, classe, corso } = conOraEVerifica()
+    const consegna = creaConsegna(corso.id, 'Modulo', '2026-09-20')
+    registro.consegne.push(consegna)
+    const fascicolo = creaFascicolo(classe.id)
+    const comunicazione = creaComunicazione(fascicolo)
+    comunicazione.documentiIds = [consegna.id, 'con-altra']
+    fascicolo.comunicazioni.push(comunicazione)
+    registro.fascicoli.push(fascicolo)
+
+    const piano = eliminazione(registro, { genere: 'consegna', id: consegna.id })
+    assert.ok(piano.collezioni.includes('fascicoli'), piano.collezioni.join(','))
+    piano.applica(registro)
+    assert.deepEqual(registro.fascicoli[0].comunicazioni[0].documentiIds, ['con-altra'])
+  })
+})
+
+// Quel che la domanda dice e quel che l'archivio riscrive, per intero: le
+// perdite con il loro numero, e le collezioni senza una di meno (una modifica
+// persa alla riapertura) né una di più (un file riscritto per niente).
+
+/** Le collezioni in ordine, per confrontarle intere. */
+const ordinate = (esito) => [...esito.collezioni].sort()
+
+/** Le righe attese, più quella dei fogli stampati se l'eliminazione ne trova. */
+function conFogli (esito, righe) {
+  const n = esito.file.stampati.length
+  if (n === 0) return righe
+  return [...righe, `${n} ${n === 1 ? 'foglio già stampato' : 'fogli già stampati'} nella cartella`]
+}
+
+function documento (allievoId, file) {
+  return { allievoId, file, nome: file.split('/').pop(), aggiuntoIl: ADESSO }
+}
+
+function foglio (file) {
+  return { tipo: 'assenze', firmato: false, file, nome: file.split('/').pop(), aggiuntoIl: ADESSO }
+}
+
+function nelFascicolo (registro, classe) {
+  const fascicolo = creaFascicolo(classe.id)
+  registro.fascicoli.push(fascicolo)
+  return fascicolo
+}
+
+function spunta (allievoId, colonnaId = 'clc-1', lezioneId = null) {
+  return { allievoId, colonnaId, lezioneId, data: '2026-09-10', fattaIl: ADESSO }
+}
+
+function soloA (corso, allievo, testo = 'Sua') {
+  return { ...creaConsegna(corso.id, testo, '2026-09-20'), a: 'allievi', allieviIds: [allievo.id] }
+}
+
+describe('eliminazioni: le collezioni di ogni genere, né una di più', () => {
+  const casi = [
+    ['una consegna', ['consegne'], ({ registro, corso }) => {
+      const consegna = creaConsegna(corso.id, 'Esercizi', '2026-09-20')
+      registro.consegne.push(consegna)
+      return { genere: 'consegna', id: consegna.id }
+    }],
+    ['una lezione sola', ['lezioni'], ({ lezione }) => ({ genere: 'lezione', id: lezione.id })],
+    ['una lezione con consegna e momento legati', ['consegne', 'lezioni', 'valutazioni'],
+      ({ registro, corso, lezione, momento }) => {
+        registro.consegne.push(creaConsegna(corso.id, 'Esercizi', '2026-09-20', lezione.id))
+        momento.lezioneId = lezione.id
+        return { genere: 'lezione', id: lezione.id }
+      }],
+    ['una lezione che fa da scadenza', ['consegne', 'lezioni'], ({ registro, corso, lezione }) => {
+      const consegna = creaConsegna(corso.id, 'Esercizi', '2026-09-10')
+      consegna.scadenzaLezioneId = lezione.id
+      registro.consegne.push(consegna)
+      return { genere: 'lezione', id: lezione.id }
+    }],
+    ['una valutazione', ['valutazioni'], ({ momento }) => ({ genere: 'valutazione', id: momento.id })],
+    ['un piano che nessuno usa', ['piani'], ({ registro, corso }) => {
+      const piano = creaPiano(corso.id)
+      registro.piani.push(piano)
+      return { genere: 'piano', id: piano.id }
+    }],
+    ['un corso vuoto', ['corsi'], ({ registro, classe }) => {
+      const corso = creaCorso(classe.id, registro.materie[0].id, 'Vuoto')
+      registro.corsi.push(corso)
+      return { genere: 'corso', id: corso.id }
+    }],
+    ['un corso con un piano', ['corsi', 'piani'], ({ registro, classe }) => {
+      const corso = creaCorso(classe.id, registro.materie[0].id, 'Con piano')
+      registro.corsi.push(corso)
+      registro.piani.push(creaPiano(corso.id))
+      return { genere: 'corso', id: corso.id }
+    }],
+    ['un corso con il suo check', ['check', 'corsi'], ({ registro, classe }) => {
+      const corso = creaCorso(classe.id, registro.materie[0].id, 'Con check')
+      registro.corsi.push(corso)
+      registro.check.push(creaCheck(corso.id, [{ id: 'clc-1', titolo: 'Quaderno' }]))
+      return { genere: 'corso', id: corso.id }
+    }],
+    ['una materia senza corsi', ['registro'], ({ registro }) => {
+      const materia = creaMateria('Storia')
+      registro.materie.push(materia)
+      return { genere: 'materia', id: materia.id }
+    }],
+    ['una materia con il suo corso', ['corsi', 'lezioni', 'registro', 'valutazioni'],
+      ({ corso }) => ({ genere: 'materia', id: corso.materiaId })],
+    ['un anno senza classi', ['registro'], ({ registro }) => {
+      const anno = creaAnno('2027-09-01', '2028-06-30')
+      registro.anni.push(anno)
+      return { genere: 'anno', id: anno.id }
+    }],
+    ['un anno con la sua classe', ['classi', 'corsi', 'fascicoli', 'lezioni', 'registro', 'valutazioni'],
+      ({ anno }) => ({ genere: 'anno', id: anno.id })],
+    ['una classe', ['classi', 'corsi', 'fascicoli', 'lezioni', 'valutazioni'],
+      ({ classe }) => ({ genere: 'classe', id: classe.id })],
+  ]
+
+  for (const [come, attese, prepara] of casi) {
+    it(`${come} dichiara ${attese.join(', ')}`, () => {
+      const scena = conOraEVerifica()
+      const bersaglio = prepara(scena)
+      assert.deepEqual(ordinate(eliminazione(scena.registro, bersaglio)), attese)
+    })
+  }
+})
+
+describe('eliminazioni: le collezioni di chi se ne va', () => {
+  const casi = [
+    ['senza tracce', ['classi'], () => {}],
+    ['con la sola presenza', ['classi', 'lezioni'], ({ lezione, rossi }) => {
+      lezione.presenze = [{ allievoId: rossi.id, stati: ['presente'] }]
+    }],
+    ['con la sola osservazione', ['classi', 'lezioni'], ({ lezione, rossi }) => {
+      lezione.osservazioni = [creaOsservazione('merito', 'Bene', rossi.id)]
+    }],
+    ['con le tracce degli altri soltanto', ['classi'], ({ registro, corso, lezione, momento, bianchi }) => {
+      lezione.presenze = [{ allievoId: bianchi.id, stati: ['presente'] }]
+      lezione.osservazioni = [creaOsservazione('merito', 'Bene', bianchi.id)]
+      lezione.matrice = [{ allievoId: bianchi.id, aspetto: 'ordine', segno: null }]
+      momento.voti = [{ allievoId: bianchi.id, valore: 5, assente: false }]
+      const consegna = creaConsegna(corso.id, 'Di classe', '2026-09-20')
+      consegna.fatte = [{ chi: bianchi.id, fattaIl: ADESSO, file: 'consegne/b.pdf' }]
+      consegna.documenti = [documento(bianchi.id, 'consegne/bd.pdf')]
+      registro.consegne.push(consegna, soloA(corso, bianchi))
+    }],
+    ['con una consegna solo sua', ['classi', 'consegne'], ({ registro, corso, rossi }) => {
+      registro.consegne.push(soloA(corso, rossi))
+    }],
+    ['citato fra i destinatari con altri', ['classi', 'consegne'], ({ registro, corso, rossi, bianchi }) => {
+      registro.consegne.push({
+        ...creaConsegna(corso.id, 'A coppie', '2026-09-20'), a: 'allievi', allieviIds: [bianchi.id, rossi.id],
+      })
+    }],
+    ['con una spunta senza file', ['classi', 'consegne'], ({ registro, corso, rossi }) => {
+      const consegna = creaConsegna(corso.id, 'Di classe', '2026-09-20')
+      consegna.fatte = [{ chi: rossi.id, fattaIl: ADESSO }]
+      registro.consegne.push(consegna)
+    }],
+    ['con un documento raccolto', ['classi', 'consegne'], ({ registro, corso, rossi }) => {
+      const consegna = creaConsegna(corso.id, 'Di classe', '2026-09-20')
+      consegna.documenti = [documento(rossi.id, 'consegne/r.pdf')]
+      registro.consegne.push(consegna)
+    }],
+    ['con un documento nel fascicolo', ['classi', 'fascicoli'], ({ registro, classe, rossi }) => {
+      nelFascicolo(registro, classe).documenti.push({
+        id: 'doc-1', allievoId: rossi.id, titolo: 'Certificato', categoria: 'certificato',
+        file: 'documenti/c.pdf', nome: 'c.pdf', aggiuntoIl: ADESSO,
+      })
+    }],
+    ['con una riga di assenze senza fogli', ['classi', 'fascicoli'], ({ registro, classe, rossi }) => {
+      const fascicolo = nelFascicolo(registro, classe)
+      const blocco = creaBloccoAssenze('2026-09-01', '2027-01-31', fascicolo)
+      blocco.righe = [{ allievoId: rossi.id, fogli: [], invio: null }]
+      fascicolo.assenze.push(blocco)
+    }],
+    ['con una fetta smistata a suo nome', ['classi', 'smistamenti'], ({ registro, classe, rossi }) => {
+      const smistamento = creaSmistamento('quarantena/p.pdf', 'p.pdf', 2, null, classe.id)
+      smistamento.assegnate = [{ allievoId: rossi.id, consegnaId: null, da: 1, a: 1 }]
+      registro.smistamenti.push(smistamento)
+    }],
+    ['proposto da un blocco', ['classi', 'smistamenti'], ({ registro, classe, rossi }) => {
+      const smistamento = creaSmistamento('quarantena/p.pdf', 'p.pdf', 2, null, classe.id)
+      smistamento.blocchi = [{
+        id: 'blc-1', da: 1, a: 1, allievoId: rossi.id, motivo: 'da-confermare', estratto: '', fiducia: 0.9, lettura: 'testo',
+      }]
+      registro.smistamenti.push(smistamento)
+    }],
+    ['con una spunta del check', ['check', 'classi'], ({ registro, corso, rossi }) => {
+      const lista = creaCheck(corso.id, [{ id: 'clc-1', titolo: 'Quaderno' }])
+      lista.spunte = [spunta(rossi.id)]
+      registro.check.push(lista)
+    }],
+    ['con un PDF che aspetta la consegna solo sua', ['classi', 'consegne', 'smistamenti'],
+      ({ registro, corso, classe, rossi }) => {
+        const sua = soloA(corso, rossi)
+        registro.consegne.push(sua)
+        registro.smistamenti.push(creaSmistamento('quarantena/p.pdf', 'p.pdf', 1, sua.id, classe.id))
+      }],
+    ['con la consegna solo sua allegata a una comunicazione', ['classi', 'consegne', 'fascicoli'],
+      ({ registro, corso, classe, rossi }) => {
+        const sua = soloA(corso, rossi)
+        registro.consegne.push(sua)
+        const fascicolo = nelFascicolo(registro, classe)
+        const comunicazione = creaComunicazione(fascicolo)
+        comunicazione.documentiIds = [sua.id]
+        fascicolo.comunicazioni.push(comunicazione)
+      }],
+  ]
+
+  for (const [come, attese, prepara] of casi) {
+    it(`l’allievo ${come} dichiara ${attese.join(', ')}`, () => {
+      const scena = conOraEVerifica()
+      prepara(scena)
+      const { registro, classe, rossi } = scena
+      const esito = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+      assert.deepEqual(ordinate(esito), attese)
+    })
+  }
+})
+
+describe('eliminazioni: che cosa si dice togliendo un allievo', () => {
+  /** Rossi lascia qualcosa dappertutto, e Bianchi accanto a lui lo stesso. */
+  function tracceDiRossi () {
+    const scena = conOraEVerifica()
+    const { registro, classe, corso, lezione, momento, rossi, bianchi } = scena
+    const seconda = creaLezione(corso.id, '2026-09-15', '08:20', 45)
+    registro.lezioni.push(seconda)
+    lezione.presenze = [
+      { allievoId: rossi.id, stati: ['presente'] },
+      { allievoId: bianchi.id, stati: ['presente'] },
+    ]
+    seconda.presenze = [{ allievoId: rossi.id, stati: ['assente'] }]
+    lezione.osservazioni = [
+      creaOsservazione('merito', 'Bene', rossi.id),
+      creaOsservazione('merito', 'Bene', bianchi.id),
+    ]
+    lezione.matrice = [
+      { allievoId: rossi.id, aspetto: 'ordine', segno: null },
+      { allievoId: bianchi.id, aspetto: 'ordine', segno: null },
+    ]
+    // Un voto, un'assenza e una riga vuota: la riga vuota non è un voto.
+    momento.voti = [
+      { allievoId: rossi.id, valore: 5, assente: false },
+      { allievoId: bianchi.id, valore: 4, assente: false },
+    ]
+    const assente = creaValutazione(corso.id, 'Orale', registro.impostazioni.scala, '2026-10-12')
+    assente.voti = [{ allievoId: rossi.id, valore: null, assente: true }]
+    assente.recuperi = [
+      { allievoId: rossi.id, previstoIl: null },
+      { allievoId: bianchi.id, previstoIl: null },
+    ]
+    const vuota = creaValutazione(corso.id, 'Scritto', registro.impostazioni.scala, '2026-10-19')
+    vuota.voti = [{ allievoId: rossi.id, valore: null, assente: false }]
+    registro.valutazioni.push(assente, vuota)
+
+    const lista = creaCheck(corso.id, [{ id: 'clc-1', titolo: 'Quaderno' }])
+    lista.spunte = [spunta(rossi.id), spunta(bianchi.id)]
+    registro.check.push(lista)
+
+    const diClasse = creaConsegna(corso.id, 'Di classe', '2026-09-20')
+    diClasse.fatte = [
+      { chi: rossi.id, fattaIl: ADESSO, file: 'consegne/r.pdf' },
+      { chi: bianchi.id, fattaIl: ADESSO, file: 'consegne/b.pdf' },
+    ]
+    diClasse.documenti = [documento(rossi.id, 'consegne/rd.pdf'), documento(bianchi.id, 'consegne/bd.pdf')]
+    const aCoppie = {
+      ...creaConsegna(corso.id, 'A coppie', '2026-09-20'), a: 'allievi', allieviIds: [rossi.id, bianchi.id],
+    }
+    const sua = soloA(corso, rossi)
+    sua.fileTutti = 'consegne/tutti.pdf'
+    registro.consegne.push(diClasse, aCoppie, sua)
+
+    const attesa = creaSmistamento('quarantena/s.pdf', 's.pdf', 1, sua.id, classe.id)
+    attesa.letture = [{ numero: 1, testo: '', lettura: 'niente', anteprima: 'quarantena/anteprime/s-p1.png' }]
+    registro.smistamenti.push(attesa)
+
+    rossi.foto = 'foto/rossi.jpg'
+
+    const fascicolo = nelFascicolo(registro, classe)
+    fascicolo.documenti.push(
+      { id: 'doc-r', allievoId: rossi.id, titolo: 'C', categoria: 'certificato', file: 'documenti/r.pdf', nome: 'r.pdf', aggiuntoIl: ADESSO },
+      { id: 'doc-b', allievoId: bianchi.id, titolo: 'C', categoria: 'certificato', file: 'documenti/b.pdf', nome: 'b.pdf', aggiuntoIl: ADESSO },
+    )
+    const blocco = creaBloccoAssenze('2026-09-01', '2027-01-31', fascicolo)
+    blocco.righe = [
+      { allievoId: rossi.id, fogli: [foglio('assenze/r1.pdf'), foglio('assenze/r2.pdf')], invio: null },
+      { allievoId: bianchi.id, fogli: [foglio('assenze/b1.pdf')], invio: null },
+    ]
+    fascicolo.assenze.push(blocco)
+
+    return { ...scena, seconda, assente, lista, diClasse, aCoppie, fascicolo, blocco }
+  }
+
+  it('conta ogni sua traccia, e solo le sue', () => {
+    const { registro, classe, rossi } = tracceDiRossi()
+    const esito = eliminazione(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+
+    assert.equal(esito.nome, 'Rossi Maria')
+    assert.deepEqual(esito.perdite, [
+      '2 presenze registrate',
+      '2 voti',
+      '1 recupero',
+      '1 osservazione',
+      '1 spunta del check',
+      '1 casella del comportamento',
+      '2 documenti raccolti',
+      '1 consegna che era solo sua',
+      '1 PDF in quarantena',
+      'la sua foto',
+      '2 fogli di assenze',
+    ])
+    assert.deepEqual(esito.staccati, [
+      '1 documento resta nel fascicolo, senza intestatario',
+      '2 consegne restano, senza il suo nome fra i destinatari',
+    ])
+    assert.deepEqual(esito.file.documenti, [
+      'consegne/r.pdf',
+      'consegne/rd.pdf',
+      'consegne/tutti.pdf',
+      'quarantena/s.pdf',
+      'quarantena/anteprime/s-p1.png',
+      'foto/rossi.jpg',
+      'assenze/r1.pdf',
+      'assenze/r2.pdf',
+    ])
+    assert.deepEqual(
+      ordinate(esito),
+      ['check', 'classi', 'consegne', 'fascicoli', 'lezioni', 'smistamenti', 'valutazioni'],
+    )
+  })
+
+  it('applicata, toglie le sue righe e lascia quelle di Bianchi', () => {
+    const {
+      registro, classe, lezione, seconda, assente, lista,
+      diClasse, aCoppie, fascicolo, blocco, rossi, bianchi,
+    } = tracceDiRossi()
+    togli(registro, { genere: 'allievo', classeId: classe.id, id: rossi.id })
+
+    assert.deepEqual(lezione.presenze.map((p) => p.allievoId), [bianchi.id])
+    assert.deepEqual(seconda.presenze, [])
+    assert.deepEqual(lezione.osservazioni.map((o) => o.allievoId), [bianchi.id])
+    assert.deepEqual(lezione.matrice.map((c) => c.allievoId), [bianchi.id])
+    assert.deepEqual(assente.voti, [])
+    assert.deepEqual(assente.recuperi.map((x) => x.allievoId), [bianchi.id])
+    assert.deepEqual(lista.spunte.map((s) => s.allievoId), [bianchi.id])
+    assert.deepEqual(registro.consegne.map((c) => c.id), [diClasse.id, aCoppie.id])
+    assert.deepEqual(diClasse.fatte.map((f) => f.chi), [bianchi.id])
+    assert.deepEqual(diClasse.documenti.map((d) => d.allievoId), [bianchi.id])
+    assert.deepEqual(aCoppie.allieviIds, [bianchi.id])
+    assert.deepEqual(registro.smistamenti, [])
+    assert.deepEqual(fascicolo.documenti.map((d) => d.allievoId), [null, bianchi.id])
+    assert.deepEqual(blocco.righe.map((r) => r.allievoId), [bianchi.id])
+  })
+})
+
+describe('eliminazioni: che cosa si dice togliendo il resto', () => {
+  it('il corso dice ore, voti, consegne, check e PDF, e non sé stesso', () => {
+    const { registro, classe, corso, rossi, bianchi } = scenaDiDue()
+    registro.lezioni.push(
+      creaLezione(corso.id, '2026-09-14', '08:20', 45),
+      creaLezione(corso.id, '2026-09-15', '08:20', 45),
+    )
+    const scritto = creaValutazione(corso.id, 'Scritto', registro.impostazioni.scala, '2026-10-05')
+    scritto.voti = [
+      { allievoId: rossi.id, valore: 5, assente: false },
+      { allievoId: bianchi.id, valore: null, assente: false },
+    ]
+    const orale = creaValutazione(corso.id, 'Orale', registro.impostazioni.scala, '2026-10-12')
+    orale.voti = [{ allievoId: rossi.id, valore: null, assente: true }]
+    registro.valutazioni.push(scritto, orale)
+    const altroCorso = creaCorso(classe.id, registro.materie[0].id, 'Altro')
+    registro.corsi.push(altroCorso)
+    const uno = creaConsegna(corso.id, 'Uno', '2026-09-20')
+    registro.consegne.push(
+      uno,
+      creaConsegna(corso.id, 'Due', '2026-09-21'),
+      creaConsegna(altroCorso.id, 'Altrui', '2026-09-20'),
+    )
+    const lista = creaCheck(corso.id, [{ id: 'clc-1', titolo: 'A' }, { id: 'clc-2', titolo: 'B' }])
+    lista.spunte = [spunta(rossi.id), spunta(rossi.id, 'clc-2'), spunta(bianchi.id)]
+    registro.check.push(lista, creaCheck(altroCorso.id))
+    const attesa = creaSmistamento('quarantena/s.pdf', 's.pdf', 1, uno.id, null)
+    attesa.letture = [{ numero: 1, testo: '', lettura: 'niente', anteprima: 'quarantena/s-p1.png' }]
+    registro.smistamenti.push(attesa, creaSmistamento('quarantena/altro.pdf', 'altro.pdf', 1, null, null))
+
+    const esito = eliminazione(registro, { genere: 'corso', id: corso.id })
+
+    assert.equal(esito.nome, 'il corso «I MEC A — Matematica»')
+    assert.equal(esito.invece, null)
+    assert.deepEqual(esito.perdite, conFogli(esito, [
+      '2 lezioni, con appello, osservazioni e consuntivo',
+      '2 momenti di valutazione, con 2 voti',
+      '2 consegne',
+      '1 check, con 3 spunte',
+      '1 PDF in quarantena',
+    ]))
+    assert.deepEqual(esito.staccati, [])
+    assert.deepEqual(esito.file.documenti, ['quarantena/s.pdf', 'quarantena/s-p1.png'])
+    assert.deepEqual(ordinate(esito), ['check', 'consegne', 'corsi', 'lezioni', 'smistamenti', 'valutazioni'])
+
+    togli(registro, { genere: 'corso', id: corso.id })
+    assert.deepEqual(registro.consegne.map((c) => c.testo), ['Altrui'])
+    assert.deepEqual(registro.check.map((c) => c.corsoId), [altroCorso.id])
+    assert.deepEqual(registro.smistamenti.map((s) => s.nome), ['altro.pdf'])
+  })
+
+  it('il corso lascia i suoi piani e lo dice una volta', () => {
+    const { registro, corso } = scenaDiDue()
+    registro.piani.push(creaPiano(corso.id), creaPiano(corso.id), creaPiano(null))
+    const esito = eliminazione(registro, { genere: 'corso', id: corso.id })
+    assert.deepEqual(esito.staccati, ['2 piani lezione restano, senza corso'])
+  })
+
+  it('la materia dice anche i corsi che si porta via', () => {
+    const { registro, corso } = scenaDiDue()
+    const esito = eliminazione(registro, { genere: 'materia', id: corso.materiaId })
+    assert.equal(esito.nome, 'la materia «Matematica»')
+    assert.deepEqual(esito.perdite, conFogli(esito, ['1 corso']))
+    assert.match(esito.invece, /Unirla/)
+  })
+
+  it('la classe dice allievi, foto, corsi, PDF in attesa e fascicolo', () => {
+    const { registro, classe, rossi } = scenaDiDue()
+    rossi.foto = 'foto/rossi.jpg'
+    const fascicolo = nelFascicolo(registro, classe)
+    fascicolo.documenti.push({
+      id: 'doc-1', allievoId: null, titolo: 'C', categoria: 'certificato', file: 'documenti/c.pdf', nome: 'c.pdf', aggiuntoIl: ADESSO,
+    })
+    fascicolo.comunicazioni.push(creaComunicazione(fascicolo), creaComunicazione(fascicolo))
+    const blocco = creaBloccoAssenze('2026-09-01', '2027-01-31', fascicolo)
+    blocco.righe = [{ allievoId: rossi.id, fogli: [foglio('assenze/1.pdf'), foglio('assenze/2.pdf')], invio: null }]
+    fascicolo.assenze.push(blocco)
+    registro.smistamenti.push(
+      creaSmistamento('quarantena/sua.pdf', 'sua.pdf', 1, null, classe.id),
+      creaSmistamento('quarantena/altra.pdf', 'altra.pdf', 1, null, 'cls-altra'),
+    )
+
+    const esito = eliminazione(registro, { genere: 'classe', id: classe.id })
+
+    assert.equal(esito.nome, 'la classe I MEC A')
+    assert.deepEqual(esito.perdite, conFogli(esito, [
+      lessico.quanti(2, lessico.PIF),
+      '1 foto',
+      '1 corso',
+      '1 PDF in quarantena',
+      'il fascicolo della classe: 1 documento, 2 comunicazioni, 1 periodo di assenze con 2 fogli',
+    ]))
+    assert.deepEqual(esito.file.documenti, [
+      'foto/rossi.jpg', 'quarantena/sua.pdf', 'documenti/c.pdf', 'assenze/1.pdf', 'assenze/2.pdf',
+    ])
+    assert.match(esito.invece, /Archiviarla/)
+  })
+
+  it('una classe vuota non dice allievi, e un fascicolo vuoto non si dice', () => {
+    const { registro, anno } = scenaDiDue()
+    const vuota = creaClasse(anno.id, 'II MEC')
+    registro.classi.push(vuota)
+    nelFascicolo(registro, vuota)
+    const esito = eliminazione(registro, { genere: 'classe', id: vuota.id })
+    assert.deepEqual(esito.perdite, [])
+    assert.deepEqual(ordinate(esito), ['classi', 'fascicoli'])
+  })
+
+  it('l’anno aperto dice cartella, classi con i loro allievi e il resto', () => {
+    const { registro, anno } = registroPieno()
+    const esito = eliminazione(registro, { genere: 'anno', id: anno.id })
+    assert.equal(esito.nome, 'l’anno 2026/2027')
+    assert.deepEqual(esito.perdite, conFogli(esito, [
+      'la cartella «2026/2027» per intero, con la sua documentazione',
+      `2 classi, con ${lessico.quanti(4, lessico.PIF)}`,
+      '2 corsi',
+      '2 lezioni, con appello, osservazioni e consuntivo',
+      '2 momenti di valutazione, con 4 voti',
+      'il fascicolo della classe: 1 documento',
+      'il fascicolo della classe: 1 documento',
+    ]))
+    assert.deepEqual(esito.staccati, ['2 piani lezione restano, senza corso'])
+    assert.match(esito.invece, /cestino/)
+  })
+
+  it('un anno non aperto dice la sua cartella e che il resto non si conta', () => {
+    const { registro } = registroPieno()
+    const vecchio = creaAnno('2025-09-01', '2026-06-30')
+    vecchio.cartella = 'Anno vecchio'
+    registro.anni.push(vecchio)
+    const esito = eliminazione(registro, { genere: 'anno', id: vecchio.id })
+    assert.deepEqual(esito.perdite, [
+      'la cartella «Anno vecchio» per intero, con la sua documentazione',
+      'quel che contiene: non è l’anno aperto, e non si può contarlo da qui',
+    ])
+  })
+
+  it('la consegna dice i documenti raccolti e non sé stessa', () => {
+    const { registro, corso, rossi, bianchi } = scenaDiDue()
+    const consegna = creaConsegna(corso.id, 'Pagella', '2026-10-01')
+    consegna.fatte = [
+      { chi: rossi.id, fattaIl: ADESSO, file: 'consegne/r.pdf' },
+      { chi: bianchi.id, fattaIl: ADESSO },
+    ]
+    consegna.documenti = [documento(bianchi.id, 'consegne/b.pdf')]
+    consegna.fileTutti = 'consegne/tutti.pdf'
+    consegna.fileFirme = 'consegne/firme.pdf'
+    registro.consegne.push(consegna, creaConsegna(corso.id, 'Altra', '2026-10-02'))
+
+    const esito = eliminazione(registro, { genere: 'consegna', id: consegna.id })
+
+    assert.equal(esito.nome, 'la consegna «Pagella»')
+    assert.deepEqual(esito.perdite, conFogli(esito, ['4 documenti raccolti']))
+    assert.deepEqual(
+      esito.file.documenti,
+      ['consegne/r.pdf', 'consegne/b.pdf', 'consegne/tutti.pdf', 'consegne/firme.pdf'],
+    )
+    assert.match(esito.invece, /Spuntarla/)
+  })
+
+  it('una consegna senza file non dice niente', () => {
+    const { registro, corso } = scenaDiDue()
+    const consegna = creaConsegna(corso.id, 'Esercizi', '2026-10-01')
+    registro.consegne.push(consegna)
+    const esito = eliminazione(registro, { genere: 'consegna', id: consegna.id })
+    assert.deepEqual(esito.perdite, conFogli(esito, []))
+    assert.deepEqual(esito.file.documenti, [])
+  })
+
+  it('il piano dice le ore che restano senza scaletta', () => {
+    const { registro, piano } = registroPieno()
+    const esito = eliminazione(registro, { genere: 'piano', id: piano.id })
+    assert.match(esito.nome, /^il piano di Matematica — I MEC A/)
+    assert.deepEqual(esito.staccati, ['1 lezione resta, senza scaletta e senza le spunte già messe'])
+  })
+})
+
+describe('eliminazioni: la lezione tolta lascia la sua data', () => {
+  it('le consegne legate prendono data e scadenza dell’ora, le altre no', () => {
+    const { registro, corso, lezione, momento, rossi } = conOraEVerifica()
+    const altra = creaLezione(corso.id, '2026-09-21', '08:20', 45)
+    registro.lezioni.push(altra)
+    const nata = creaConsegna(corso.id, 'Nata nell’ora', '2026-09-01', lezione.id)
+    const scade = creaConsegna(corso.id, 'Scade nell’ora', '2026-09-01')
+    scade.scadenzaLezioneId = lezione.id
+    const estranea = creaConsegna(corso.id, 'Altrove', '2026-09-01', altra.id)
+    estranea.scadenzaLezioneId = altra.id
+    estranea.scadenza = '2026-09-02'
+    registro.consegne.push(nata, scade, estranea)
+    momento.lezioneId = lezione.id
+    const lista = creaCheck(corso.id, [{ id: 'clc-1', titolo: 'Quaderno' }])
+    lista.spunte = [spunta(rossi.id, 'clc-1', lezione.id)]
+    registro.check.push(lista)
+
+    const esito = togli(registro, { genere: 'lezione', id: lezione.id })
+
+    assert.equal(esito.nome, 'la lezione del 2026-09-14')
+    assert.deepEqual(esito.staccati, [
+      '1 spunta del check resta, con la data al posto della lezione',
+      '2 consegne restano, con la data al posto della lezione',
+      '1 momento di valutazione resta, senza la lezione a cui era legato',
+    ])
+    assert.deepEqual(ordinate(esito), ['check', 'consegne', 'lezioni', 'valutazioni'])
+    assert.deepEqual([nata.data, nata.dataLezioneId], ['2026-09-14', null])
+    assert.deepEqual([scade.data, scade.scadenza, scade.scadenzaLezioneId], ['2026-09-01', '2026-09-14', null])
+    assert.deepEqual(
+      [estranea.data, estranea.dataLezioneId, estranea.scadenza, estranea.scadenzaLezioneId],
+      ['2026-09-01', altra.id, '2026-09-02', altra.id],
+    )
+    assert.deepEqual([lista.spunte[0].data, lista.spunte[0].lezioneId], ['2026-09-14', null])
+    assert.equal(momento.lezioneId, null)
+  })
+})
+
+describe('eliminazioni: il secondo di due, e chi non c’è', () => {
+  /** Due di tutto, con nomi diversi: sbagliare bersaglio si vede dal nome. */
+  function dueDiTutto () {
+    const pieno = registroPieno()
+    const { registro, prima, seconda } = pieno
+    const anno2 = creaAnno('2027-09-01', '2028-06-30')
+    const materia2 = creaMateria('Storia')
+    registro.anni.push(anno2)
+    registro.materie.push(materia2)
+    seconda.lezione.data = '2026-09-21'
+    seconda.momento.titolo = 'Verifica B'
+    const consegna2 = creaConsegna(seconda.corso.id, 'Seconda', '2026-09-20')
+    registro.consegne.push(creaConsegna(prima.corso.id, 'Prima', '2026-09-20'), consegna2)
+    return { ...pieno, anno2, materia2, consegna2 }
+  }
+
+  const casi = [
+    ['anno', (s) => ({ genere: 'anno', id: s.anno2.id }), 'l’anno 2027/2028'],
+    ['materia', (s) => ({ genere: 'materia', id: s.materia2.id }), 'la materia «Storia»'],
+    ['classe', (s) => ({ genere: 'classe', id: s.seconda.classe.id }), 'la classe I MEC B'],
+    ['corso', (s) => ({ genere: 'corso', id: s.seconda.corso.id }), 'il corso «Matematica — I MEC B»'],
+    ['allievo', (s) => ({ genere: 'allievo', classeId: s.seconda.classe.id, id: s.seconda.bianchi.id }), 'Bianchi Luca'],
+    ['lezione', (s) => ({ genere: 'lezione', id: s.seconda.lezione.id }), 'la lezione del 2026-09-21'],
+    ['piano', (s) => ({ genere: 'piano', id: s.seconda.piano.id }), /^il piano di Matematica — I MEC B/],
+    ['valutazione', (s) => ({ genere: 'valutazione', id: s.seconda.momento.id }), 'il momento «Verifica B»'],
+    ['consegna', (s) => ({ genere: 'consegna', id: s.consegna2.id }), 'la consegna «Seconda»'],
+  ]
+
+  for (const [genere, mira, nome] of casi) {
+    it(`${genere}: trova il secondo, e un id che non c’è non trova niente`, () => {
+      const scena = dueDiTutto()
+      const bersaglio = mira(scena)
+      const esito = eliminazione(scena.registro, bersaglio)
+      if (nome instanceof RegExp) assert.match(esito.nome, nome)
+      else assert.equal(esito.nome, nome)
+      assert.equal(eliminazione(scena.registro, { ...bersaglio, id: 'mai-esistito' }), null)
+    })
+  }
+
+  it('un allievo cercato nella classe sbagliata non c’è', () => {
+    const { registro, prima, seconda } = dueDiTutto()
+    assert.equal(
+      eliminazione(registro, { genere: 'allievo', classeId: seconda.classe.id, id: prima.rossi.id }),
+      null,
+    )
+    assert.equal(
+      eliminazione(registro, { genere: 'allievo', classeId: 'cls-mai-esistita', id: prima.rossi.id }),
+      null,
+    )
+  })
+
+  it('togliere il secondo lascia il primo', () => {
+    const { registro, anno, anno2, materia, materia2 } = dueDiTutto()
+    togli(registro, { genere: 'materia', id: materia2.id })
+    assert.deepEqual(registro.materie.map((m) => m.id), [materia.id])
+    togli(registro, { genere: 'anno', id: anno2.id })
+    assert.deepEqual(registro.anni.map((a) => a.id), [anno.id])
+    assert.equal(registro.annoCorrenteId, anno.id, 'l’anno aperto resta aperto')
   })
 })

@@ -148,6 +148,9 @@ const SCHEDE_LEZIONE: SchedaLezione[] = [
   'annotazioni',
 ]
 
+/** I tre strumenti della lezione: valutazioni, pendenze, check. */
+export type SchedaStrumentiLezione = 'valutazioni' | 'pendenze' | 'check'
+
 /**
  * Le tre schede della scheda di una persona in formazione: anagrafica (chi è,
  * come raggiungerla), docente di classe (da riscuotere, da firmare, annotato),
@@ -338,6 +341,8 @@ interface StatoUI {
   schedaComandi: 'pagina' | 'schermo';
   /** Quale scheda della lezione si sta guardando. */
   schedaLezione: SchedaLezione;
+  /** Quale strumento della lezione si sta guardando nel pannello destro (valutazioni, pendenze, check). */
+  schedaStrumentiLezione: SchedaStrumentiLezione;
   schedaPersona: SchedaPersona;
   /** Quale scheda delle pendenze si sta guardando ('tutte' o id corso/classe). */
   schedaTodo: string;
@@ -576,6 +581,7 @@ export const stato: StatoUI = {
     persistito?.schedaLezione,
     'amministrazione',
   ),
+  schedaStrumentiLezione: 'valutazioni',
   schedaPersona: convalidata(
     SCHEDE_PERSONA,
     persistito?.schedaPersona,
@@ -1478,13 +1484,116 @@ export function oreDiOggi (): Array<{ lezione: Lezione; fase: FaseOra }> {
 
 /**
  * Le pendenze che la barra conta: il totale di tutte le pendenze aperte
- * nell'agenda per l'anno in corso (classi e corsi).
+ * per il filtro considerato (scheda todo attiva, corso o classe aperta, oppure anno intero).
  */
 export function pendenzeDellaBarra (): { aperti: number; urgenti: number } {
   const classiDocente = classiDiCuiSonoDocente()
   const corsi = corsiDellAnnoAperto()
   if (classiDocente.length === 0 && corsi.length === 0) return { aperti: 0, urgenti: 0 }
-  return derivato('pendenze', `${stato.adessoData}`, () => {
+
+  const chiave = [
+    stato.vista,
+    stato.schedaTodo ?? '',
+    stato.corsoId ?? '',
+    stato.classeId ?? '',
+    stato.ambitoCheck ?? '',
+    stato.adessoData,
+  ].join('|')
+
+  return derivato('pendenze', chiave, () => {
+    // 1. Vista todo: il filtro considerato è la scheda attiva
+    if (stato.vista === 'todo') {
+      const scheda = stato.schedaTodo || 'tutte'
+      if (scheda.startsWith('corso:')) {
+        const corsoId = scheda.slice(6)
+        const corso = corsi.find((c) => c.id === corsoId)
+        if (corso) {
+          const classe = classePerId(corso.classeId)
+          if (classe) {
+            const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
+            return { aperti: todo.aperti, urgenti: todo.urgenti }
+          }
+        }
+        return { aperti: 0, urgenti: 0 }
+      }
+      if (scheda === 'corsi') {
+        let aperti = 0
+        let urgenti = 0
+        for (const corso of corsi) {
+          const classe = classePerId(corso.classeId)
+          if (classe) {
+            const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
+            aperti += todo.aperti
+            urgenti += todo.urgenti
+          }
+        }
+        return { aperti, urgenti }
+      }
+      if (scheda.startsWith('classe:')) {
+        const classeId = scheda.slice(7)
+        const classe = classiDocente.find((c) => c.id === classeId)
+        if (classe) {
+          const todo = todoDelDocenteDiClasse(
+            stato.registro,
+            classe,
+            corsiDi(classe.id),
+            stato.adessoData,
+          )
+          return { aperti: todo.aperti, urgenti: todo.urgenti }
+        }
+        return { aperti: 0, urgenti: 0 }
+      }
+      if (scheda === 'classi') {
+        let aperti = 0
+        let urgenti = 0
+        for (const classe of classiDocente) {
+          const todo = todoDelDocenteDiClasse(
+            stato.registro,
+            classe,
+            corsiDi(classe.id),
+            stato.adessoData,
+          )
+          aperti += todo.aperti
+          urgenti += todo.urgenti
+        }
+        return { aperti, urgenti }
+      }
+    }
+
+    // 2. Vista legata a un corso
+    const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'documenti']
+    const eCorso =
+      visteCorso.includes(stato.vista) ||
+      (stato.vista === 'check' && stato.ambitoCheck === 'corso')
+    if (eCorso) {
+      const corso = corsoAperto()
+      if (corso) {
+        const classe = classePerId(corso.classeId)
+        if (classe) {
+          const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
+          return { aperti: todo.aperti, urgenti: todo.urgenti }
+        }
+      }
+    }
+
+    // 3. Vista legata alla docenza di classe
+    const eClasse =
+      stato.vista === 'docenteClasse' ||
+      (stato.vista === 'check' && stato.ambitoCheck === 'classe')
+    if (eClasse) {
+      const classe = classiDocente.find((c) => c.id === stato.classeId) ?? classiDocente[0]
+      if (classe) {
+        const todo = todoDelDocenteDiClasse(
+          stato.registro,
+          classe,
+          corsiDi(classe.id),
+          stato.adessoData,
+        )
+        return { aperti: todo.aperti, urgenti: todo.urgenti }
+      }
+    }
+
+    // 4. Tutte le pendenze dell'anno
     let aperti = 0
     let urgenti = 0
     for (const corso of corsi) {

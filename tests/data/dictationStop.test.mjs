@@ -12,6 +12,15 @@ import { describe, it } from 'node:test'
 // condividono il segnale.
 import { VOICEBOX, fermaDettature } from '../../dist-tests/dictation.mjs'
 
+/** Aspetta che una cosa diventi vera, senza aspettare per sempre. */
+async function finché (vero, ms = 5000) {
+  const fine = Date.now() + ms
+  while (!vero()) {
+    if (Date.now() > fine) throw new Error('non è successo in tempo')
+    await new Promise((poi) => setTimeout(poi, 10))
+  }
+}
+
 /** Un voicebox che prende la voce e non risponde più. */
 async function servizioAppeso () {
   const aperte = new Set()
@@ -22,6 +31,7 @@ async function servizioAppeso () {
   await new Promise((pronto) => server.listen(0, '127.0.0.1', pronto))
   return {
     indirizzo: `http://127.0.0.1:${server.address().port}`,
+    ricevute: () => aperte.size,
     chiudi: () => {
       for (const presa of aperte) presa.destroy()
       server.close()
@@ -41,9 +51,12 @@ describe('fermaDettature', () => {
       const inizio = Date.now()
       const lunga = collegamento(servizio.indirizzo, 60_000)
       const trascrizione = VOICEBOX.trascrivi(lunga, registrazione)
-      setTimeout(() => fermaDettature(), 300)
+      // Si ferma quando la richiesta è arrivata al servizio, non prima: è la
+      // trascrizione in corso che va interrotta.
+      void finché(() => servizio.ricevute() >= 1).then(fermaDettature, fermaDettature)
 
       await assert.rejects(trascrizione, /fermata/)
+      assert.ok(servizio.ricevute() >= 1, 'fermata prima che la richiesta partisse')
       assert.ok(Date.now() - inizio < 10_000, 'non si è fermata: è arrivata a scadenza')
       // La voce se ne va anche così.
       assert.ok(registrazione.campioni.every((campione) => campione === 0))

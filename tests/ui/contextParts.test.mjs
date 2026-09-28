@@ -96,11 +96,8 @@ describe('le parti del contesto', () => {
   // «non dirgli niente».
   it('spenta la pagina se ne vanno solo pagina, scheda, sezione e vista', () => {
     const ridotta = con({ pagina: false })
-    assert.equal(ridotta.pagina, null)
-    assert.equal(ridotta.scheda, null)
-    assert.equal(ridotta.sezione, null)
     // Anche la vista: è lo stesso fatto col nome del codice.
-    assert.equal(ridotta.vista, null)
+    for (const chiave of ['pagina', 'scheda', 'sezione', 'vista']) assert.equal(ridotta[chiave], null, chiave)
     // E il resto resta.
     assert.equal(ridotta.scelte.length, 1)
     assert.equal(ridotta.filtri.length, 1)
@@ -139,11 +136,10 @@ describe('le parti del contesto', () => {
   })
 
   it('ogni altra parte si spegne per conto suo', () => {
-    assert.deepEqual(con({ scelte: false }).scelte, [])
-    assert.deepEqual(con({ filtri: false }).filtri, [])
-    assert.equal(con({ periodo: false }).periodo, null)
-    assert.equal(con({ ricerca: false }).ricerca, null)
-    assert.equal(con({ visibili: false }).visibili, null)
+    const spenta = { scelte: [], filtri: [], periodo: null, ricerca: null, visibili: null }
+    for (const [parte, atteso] of Object.entries(spenta)) {
+      assert.deepEqual(con({ [parte]: false })[parte], atteso, parte)
+    }
     // Spegnerne una non tocca le altre: la testata le accende una per volta.
     assert.equal(con({ ricerca: false }).periodo.dal, '2027-02-01')
   })
@@ -171,18 +167,19 @@ describe('una tendina per volta', () => {
   it('spenta la tendina, se ne va anche il suo id', () => {
     const ridotta = secondoLeParti(CON_LA_BARRA, conTendina(PARTI_INTERE, 'Corso', false))
     assert.deepEqual(ridotta.scelte.map((v) => v.campo), ['Anno scolastico', 'Periodo', 'Classe'])
-    assert.equal(ridotta.riferimenti.corsoId, null)
     // E **solo** il suo: classe e semestre restano.
-    assert.equal(ridotta.riferimenti.classeId, 'cls-0001')
-    assert.equal(ridotta.riferimenti.semestreId, 'sem-0002')
-    assert.equal(ridotta.riferimenti.annoId, 'ann-0001')
+    const { corsoId, classeId, semestreId, annoId } = ridotta.riferimenti
+    assert.deepEqual(
+      { corsoId, classeId, semestreId, annoId },
+      { corsoId: null, classeId: 'cls-0001', semestreId: 'sem-0002', annoId: 'ann-0001' },
+    )
   })
 
   it('vale per ogni tendina che porta un id, non per il solo corso', () => {
     const senza = (campo) => secondoLeParti(CON_LA_BARRA, conTendina(PARTI_INTERE, campo, false))
-    assert.equal(senza('Classe').riferimenti.classeId, null)
-    assert.equal(senza('Anno scolastico').riferimenti.annoId, null)
-    assert.equal(senza('Periodo').riferimenti.semestreId, null)
+    for (const [campo, id] of [['Classe', 'classeId'], ['Anno scolastico', 'annoId'], ['Periodo', 'semestreId']]) {
+      assert.equal(senza(campo).riferimenti[id], null, campo)
+    }
     // Il periodo dei conti ha un interruttore suo: l'id del semestre dice quale
     // semestre, le date su che cosa si contano medie e assenze.
     assert.equal(senza('Periodo').periodo.dal, '2027-02-01')
@@ -191,10 +188,7 @@ describe('una tendina per volta', () => {
   it('spento il gruppo, se ne vanno gli id di tutte le sue tendine', () => {
     const ridotta = secondoLeParti(CON_LA_BARRA, { ...PARTI_INTERE, scelte: false })
     assert.deepEqual(ridotta.scelte, [])
-    assert.equal(ridotta.riferimenti.corsoId, null)
-    assert.equal(ridotta.riferimenti.classeId, null)
-    assert.equal(ridotta.riferimenti.annoId, null)
-    assert.equal(ridotta.riferimenti.semestreId, null)
+    for (const id of ['corsoId', 'classeId', 'annoId', 'semestreId']) assert.equal(ridotta.riferimenti[id], null, id)
     // Quel che nessuna tendina nomina resta: nessun interruttore l'ha spento.
     assert.equal(ridotta.riferimenti.allievoId, 'all-0007')
   })
@@ -298,17 +292,9 @@ describe('che cosa c’è dentro ogni parte', () => {
 
   // Una parte vuota lo dice invece di sparire, così l'interruttore si ritrova.
   it('una parte vuota dice che qui non c’è niente', () => {
-    const dentro = riassunti({
-      ...VEDUTA,
-      filtri: [],
-      ricerca: null,
-      visibili: null,
-      periodo: null,
-    })
-    assert.equal(dentro.filtri, 'niente qui')
-    assert.equal(dentro.ricerca, 'niente qui')
-    assert.equal(dentro.visibili, 'niente qui')
-    assert.equal(dentro.periodo, 'niente qui')
+    const vuote = { filtri: [], ricerca: null, visibili: null, periodo: null }
+    const dentro = riassunti({ ...VEDUTA, ...vuote })
+    for (const parte of Object.keys(vuote)) assert.equal(dentro[parte], 'niente qui', parte)
   })
 
   it('accorcia gli elenchi lunghi invece di riempire il menu', () => {
@@ -344,11 +330,11 @@ describe('quel che era ricordato', () => {
   })
 
   it('quel che non c’è o non si riconosce torna intero', () => {
-    assert.deepEqual(partiValide(undefined), PARTI_INTERE)
-    assert.deepEqual(partiValide('sì'), PARTI_INTERE)
     // Un campo storto non zittisce l'assistente: il contesto acceso è il caso
     // normale.
-    assert.deepEqual(partiValide({ ricerca: 'forse' }), PARTI_INTERE)
+    for (const ricordato of [undefined, 'sì', { ricerca: 'forse' }]) {
+      assert.deepEqual(partiValide(ricordato), PARTI_INTERE, JSON.stringify(ricordato))
+    }
   })
 
   it('tiene quel che riconosce e completa il resto', () => {

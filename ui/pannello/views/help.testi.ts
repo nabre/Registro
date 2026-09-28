@@ -63,7 +63,7 @@ const it = {
   nienteTesto:
     'Prova con una parola sola, o con il nome di un pulsante com’è scritto sullo ' +
     'schermo. Ctrl+K cerca invece fra le pagine e i comandi.',
-  forseCercavi: (parola: string) => `Forse cercavi «${parola}»`,
+  forseCercavi: (parola: string) => `Forse cercavi «${parola}»?`,
   mostraTutta: 'Mostra tutta la guida',
 
   // Il benvenuto.

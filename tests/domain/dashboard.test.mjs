@@ -5,35 +5,16 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
-  creaAnno,
-  creaClasse,
-  creaCorso,
   creaLezione,
-  creaMateria,
   creaOsservazione,
   creaValutazione,
   diagnosiLezione,
   indiceDiagnosi,
-  registroVuoto,
 } from '../../dist-tests/domain.mjs'
-import { conPiano } from '../helpers/register.mjs'
+import { conPiano, scuolaMinima } from '../helpers/register.mjs'
 
+// L'anno di `scuolaMinima` ha i due semestri di serie, col confine a fine gennaio.
 const OGGI = '2027-03-01'
-
-/** Un anno con due semestri, una classe, un corso: il minimo per contare. */
-function registroConCorso () {
-  const registro = registroVuoto()
-  const anno = creaAnno('2026-09-01', '2027-06-30', '2026/27', '2027-01-31')
-  const classe = creaClasse(anno.id, 'I MEC A')
-  const materia = creaMateria('Matematica')
-  const corso = creaCorso(classe.id, materia.id, 'Matematica — I MEC A')
-  registro.anni.push(anno)
-  registro.annoCorrenteId = anno.id
-  registro.classi.push(classe)
-  registro.materie.push(materia)
-  registro.corsi.push(corso)
-  return { registro, anno, classe, corso }
-}
 
 /** Aggiunge un'ora al corso e la torna, così il test la può sporcare. */
 function ora (registro, corso, data, ritocchi = {}) {
@@ -44,7 +25,7 @@ function ora (registro, corso, data, ritocchi = {}) {
 
 describe('diagnosi di un’ora', () => {
   it('un’ora passata senza appello è un buco', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-02-10')
 
     const esito = diagnosiLezione(registro, lezione, 1, OGGI)
@@ -52,7 +33,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('righe d’appello tutte vuote sono un appello non fatto', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-02-10', {
       stato: 'svolta',
       presenze: [{ allievoId: 'a1', stati: ['non-impostato'] }],
@@ -63,7 +44,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('la stessa ora domani è solo un’ora da fare', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-03-10')
 
     const esito = diagnosiLezione(registro, lezione, 1, OGGI)
@@ -73,7 +54,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('non si fida dello stato dichiarato: guarda la data', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-02-10', {
       presenze: [{ allievoId: 'a1', stati: ['presente'] }],
     })
@@ -86,7 +67,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('un’ora futura con la scaletta piena è preparata', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-03-10')
     conPiano(registro, lezione, 1)
 
@@ -96,7 +77,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('una scaletta che non arriva in fondo all’ora lascia l’ora da preparare', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-03-10')
     // Mezz'ora di attività su un'ora da 45: il quarto d'ora in fondo non l'ha
     // pensato nessuno.
@@ -109,7 +90,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('un piano assegnato e ancora vuoto non prepara niente', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-03-10')
     conPiano(registro, lezione, 0)
 
@@ -118,7 +99,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('una scaletta più lunga dell’ora la copre: sforare è un altro problema', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-03-10')
     conPiano(registro, lezione, 2)
 
@@ -128,7 +109,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('un’ora passata senza piano non è un buco: si è svolta lo stesso', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-02-10', {
       stato: 'svolta',
       presenze: [{ allievoId: 'a1', stati: ['presente'] }],
@@ -140,7 +121,7 @@ describe('diagnosi di un’ora', () => {
   })
 
   it('dice quel che c’è, non solo quel che manca', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const lezione = ora(registro, corso, '2027-02-10', {
       stato: 'svolta',
       consuntivo: 'fatto tutto',
@@ -167,7 +148,7 @@ describe('diagnosi di un’ora', () => {
 
 describe('il todo nel cruscotto', () => {
   it('un’ora annullata e passata non è un buco', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     ora(registro, corso, '2027-02-10', { stato: 'annullata' })
 
     const diagnosi = diagnosiLezione(registro, registro.lezioni[0], 1, OGGI)
@@ -182,7 +163,7 @@ describe('l’indice della diagnosi', () => {
   // L'indice è solo una scorciatoia: con o senza, la diagnosi è la stessa (il
   // vassoio lo usa, la vista no).
   it('con o senza indice la diagnosi è la stessa', () => {
-    const { registro, corso } = registroConCorso()
+    const { registro, corso } = scuolaMinima()
     const coperta = ora(registro, corso, '2027-03-10')
     conPiano(registro, coperta, 1)
     const corta = ora(registro, corso, '2027-03-11')

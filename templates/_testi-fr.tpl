@@ -31,7 +31,7 @@ orario: Horaire
 aula: Salle
 durata: Durée
 stato: Statut
-etichette: Étiquettes
+etichette: Mots-clés
 corsi: Cours
 tipo: Type
 peso: Pondération

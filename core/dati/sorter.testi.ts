@@ -10,7 +10,7 @@ const it = {
   suFile: (nome: string, detto: string) => `«${nome}»: ${detto}`,
   assegnatiEDaSistemare: (assegnate: number, daSistemare: number) =>
     `${assegnate} assegnati, ${daSistemare} da sistemare a mano.`,
-  assegnati: (assegnate: number) => `${assegnate} documenti assegnati.`,
+  assegnati: (assegnate: number) => `${plurale(assegnate, 'documento assegnato', 'documenti assegnati')}.`,
   nonSiLegge: (motivo: string) => `non si riesce a leggerlo (${motivo}).`,
   vuoto: 'è vuoto.',
   illeggibilePerche: (motivo: string) => `non è un PDF leggibile (${motivo}).`,
@@ -20,7 +20,7 @@ const it = {
   pagina: (nome: string, numero: number) => `${nome} · pagina ${numero}`,
   nonPiuQui: (nome: string) => `«${nome}» non è più nella cartella del registro.`,
   nienteDiLeggibile: (etichetta: string) =>
-    `${etichetta}: non se n'è cavato niente di leggibile.`,
+    `${etichetta}: non se n’è cavato niente di leggibile.`,
   pagineGiaFuori: (pagine: readonly number[]) =>
     `Pagine non più da smistare (già archiviate o scartate): ${pagine.join(', ')}.`,
   smistamentoSparito: 'Quello smistamento non c’è più.',

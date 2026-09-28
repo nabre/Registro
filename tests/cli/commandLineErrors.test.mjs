@@ -11,49 +11,18 @@
 //   5. `--campo=valore`, per i valori che cominciano con `--`.
 
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { EventEmitter } from 'node:events'
 import { mkdtempSync, rmSync } from 'node:fs'
-import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, before, describe, it } from 'node:test'
+import { condottoFinto, lanciatore, nomeDelCondotto } from '../helpers/cli.mjs'
 
-const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
-
-const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-giro13-cli-'))
+const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-cli-'))
 
 after(() => rmSync(radice, { recursive: true, force: true }))
 
-function lancia (argomenti, ambiente = {}) {
-  return new Promise((risolvi, rifiuta) => {
-    const figlio = spawn(process.execPath, [CLI, ...argomenti], {
-      env: {
-        ...process.env,
-        APPDATA: radice,
-        XDG_CONFIG_HOME: radice,
-        REGISTRO_COMANDO: 'registro',
-        ...ambiente,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let uscita = ''
-    let errore = ''
-    figlio.stdout.on('data', (pezzo) => { uscita += pezzo })
-    figlio.stderr.on('data', (pezzo) => { errore += pezzo })
-    figlio.on('error', rifiuta)
-    figlio.on('close', (codice) => risolvi({ codice, uscita, errore }))
-  })
-}
-
-function nomeDelCondotto (etichetta) {
-  const nome = `registro-giro13-${etichetta}-${randomBytes(6).toString('hex')}`
-  return process.platform === 'win32'
-    ? `\\\\.\\pipe\\${nome}`
-    : percorso.join(radice, `${nome}.sock`)
-}
+const lancia = lanciatore(radice)
 
 const SCHEMA_ECO = {
   type: 'object',
@@ -64,51 +33,13 @@ const SCHEMA_ECO = {
   },
 }
 
-/**
- * Un condotto finto che risponde a `$schema` e rimanda l'ingresso ricevuto.
- * Con `chiudeDopoSchema` risponde a `$schema` e chiude subito la presa, come un
- * registro che si spegne fra le due richieste.
- */
-async function condottoFinto ({ chiudeDopoSchema = false } = {}) {
-  const dove = nomeDelCondotto(chiudeDopoSchema ? 'chiude' : 'eco')
-  const chiamate = []
-  const server = createServer((presa) => {
-    let resto = ''
-    presa.on('data', (pezzo) => {
-      resto += pezzo.toString('utf8')
-      let taglio = resto.indexOf('\n')
-      while (taglio >= 0) {
-        const richiesta = JSON.parse(resto.slice(0, taglio))
-        resto = resto.slice(taglio + 1)
-        if (richiesta.method !== '$schema') chiamate.push(richiesta)
-        const result = richiesta.method === '$schema'
-          ? { nome: 'prova.eco', ingresso: SCHEMA_ECO }
-          : { ok: true, dati: richiesta.params }
-        const riga = `${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`
-        if (chiudeDopoSchema) {
-          presa.end(riga)
-          return
-        }
-        presa.write(riga)
-        taglio = resto.indexOf('\n')
-      }
-    })
-    presa.on('error', () => undefined)
-  })
-  await new Promise((risolvi) => server.listen(dove, risolvi))
-  return { dove, chiamate, chiudi: () => new Promise((risolvi) => server.close(() => risolvi())) }
-}
-
 describe('le parole e i valori della riga di comando', () => {
   let finto
 
-  before(async () => { finto = await condottoFinto() })
+  before(async () => { finto = await condottoFinto({ radice, schema: SCHEMA_ECO }) })
   after(() => finto.chiudi())
 
-  const eco = async (...argomenti) => {
-    const esito = await lancia(['chiama', 'prova.eco', ...argomenti], { REGISTRO_CONDOTTO: finto.dove })
-    return { ...esito, dati: esito.codice === 0 ? JSON.parse(esito.uscita) : null }
-  }
+  const eco = (...argomenti) => finto.eco(...argomenti)
 
   it('--json seguito da un elenco è un errore d’uso, non un ingresso vuoto', async () => {
     const prima = finto.chiamate.length
@@ -200,7 +131,9 @@ describe('il registro che chiude fra lo schema e la chiamata', () => {
     assert.equal(esito, null)
   })
 
-  before(async () => { finto = await condottoFinto({ chiudeDopoSchema: true }) })
+  before(async () => {
+    finto = await condottoFinto({ radice, schema: SCHEMA_ECO, chiudeDopoSchema: true })
+  })
   after(() => finto.chiudi())
 
   it('esce 2, «il registro non risponde», e non 0 muto', async () => {
@@ -213,7 +146,7 @@ describe('il registro che chiude fra lo schema e la chiamata', () => {
 })
 
 describe('gli errori d’uso a registro chiuso', () => {
-  const chiuso = { REGISTRO_CONDOTTO: nomeDelCondotto('chiuso') }
+  const chiuso = { REGISTRO_CONDOTTO: nomeDelCondotto(radice, 'chiuso') }
 
   it('«schema» senza nome è un errore d’uso, non «condotto spento»', async () => {
     const { codice, errore } = await lancia(['schema'], chiuso)

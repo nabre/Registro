@@ -4,37 +4,13 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `node esbuild.mjs --ui` e poi
 `python tests/ui/calendarKeyboard.py`.
 """
-from pathlib import Path
 import re
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FRAME, chromium, pannello
 
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
-
-
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errori = pannello(browser)
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
     page.evaluate("prova.aggiorna({modoCalendario:'mese', data:'2026-09-16'})")
     page.evaluate(FRAME)
@@ -71,6 +47,5 @@ with sync_playwright() as p:
     expect(page.locator('.modale input[type="hidden"][name="data"]')).to_have_value('2026-09-14')
 
     assert not errori, errori
-    browser.close()
 
 print('calendarKeyboard: ok')

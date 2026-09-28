@@ -6,7 +6,6 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
-  creaAnno,
   creaClasse,
   creaConsegna,
   creaCorso,
@@ -16,24 +15,19 @@ import {
   creaValutazione,
   materieSimili,
   nomeNormalizzato,
-  registroVuoto,
   riferimentiRotti,
   riparazioni,
 } from '../../dist-tests/domain.mjs'
+import { scuolaMinima } from '../helpers/register.mjs'
 
-/** Un registro minimo ma coerente: anno, classe, materia, corso. */
+/**
+ * La scuola minima col titolo di serie nell'ordine nuovo: quello vecchio è già
+ * una riparazione, e il registro non sarebbe sano.
+ */
 function registroBase () {
-  const registro = registroVuoto()
-  const anno = creaAnno('2026-09-01', '2027-06-30')
-  const classe = creaClasse(anno.id, 'I MEC A')
-  const materia = creaMateria('Matematica')
-  const corso = creaCorso(classe.id, materia.id, 'I MEC A — Matematica')
-  registro.anni.push(anno)
-  registro.annoCorrenteId = anno.id
-  registro.classi.push(classe)
-  registro.materie.push(materia)
-  registro.corsi.push(corso)
-  return { registro, anno, classe, materia, corso }
+  const scuola = scuolaMinima()
+  scuola.corso.titolo = 'I MEC A — Matematica'
+  return scuola
 }
 
 /** Applica tutte le correzioni proposte, come fa l'azione di manutenzione. */

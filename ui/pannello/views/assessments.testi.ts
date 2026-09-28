@@ -14,9 +14,9 @@ const it = {
   verifica: 'Verifica',
   proveCorrette: 'Prove corrette',
   classeSenzaPif: `La classe non ha ${PIF.plurale} attive.`,
-  /** Sotto il titolo del momento: il giorno, il tipo (la parola salvata), il peso, e se è sganciato. */
+  /** Sotto il titolo del momento: il giorno, il tipo, il peso, e se è sganciato. */
   sottotitolo: (data: string, tipo: TipoValutazione, peso: number, motivo: MotivoOrfano | null) =>
-    `${data} · ${tipo} · peso ${peso}` +
+    `${data} · ${minuscolo(lessico.in('it').tipiValutazione[tipo])} · peso ${numero(peso)}` +
     (motivo ? ` · sganciato: ${motivi.in('it')[motivo]}` : ''),
   vaiAllaLezione: 'Vai alla lezione',
   eliminaMomento: 'Elimina il momento di valutazione',

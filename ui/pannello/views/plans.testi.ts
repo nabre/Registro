@@ -35,10 +35,15 @@ const it = {
   valutazioniUscite: 'Valutazioni che ne sono uscite',
   senzaClasse: 'senza classe',
   siSalva: 'quel che si scrive si salva da sé',
-  senzaCorsoTesto:
-    'senza corso: non compare fra i piani di nessuna lezione — riagganciane uno qui sotto',
 
   // La testata
+  navigatoreLezioni: 'Navigatore delle lezioni',
+  precedente: 'Lezione precedente',
+  successiva: 'Lezione successiva',
+  vaiAProssimaDaPreparare: 'Prima da preparare',
+  tuttePreparate: 'Tutte le lezioni hanno un piano',
+  pianoGenerato: 'Piano generato e assegnato.',
+  daCalibrare: 'Da calibrare',
   nessunCorsoDaPreparare: 'nessun corso da preparare',
   senzaScaletta: (quante: number) =>
     plurale(
@@ -48,9 +53,21 @@ const it = {
     ),
   tutteConScaletta: 'ogni lezione di questo corso ha la sua scaletta',
   nessunPiano: 'Nessun piano lezione',
+  generaPiano: 'Genera piano',
   nessunPianoTesto:
     'Un piano tiene obiettivi e scaletta con i tempi, e appartiene alla lezione per cui ' +
     'lo si prepara. Si comincia da una lezione senza scaletta, nell’elenco qui accanto.',
+  nessunPianoLezione: (nome: string) =>
+    `La lezione ${nome} non ha ancora un piano. Creane uno per stabilire gli obiettivi e la scaletta delle attività.`,
+  strumentiCollegati: 'Pendenze e Check del corso',
+  spazioInScaletta: 'inserisci attività nella scaletta per evaderle durante l’ora',
+  pendenzeDelCorso: 'Pendenze da evadere',
+  checkDelCorso: 'Check',
+  inserisciNellaScaletta: 'Inserisci nella scaletta',
+  giaInScaletta: 'già in scaletta',
+  ritiroConsegna: (titolo: string) => `Ritiro: ${titolo}`,
+  verificaCheck: (titolo: string) => `Check: ${titolo}`,
+  inseritaInScaletta: (titolo: string) => `Attività «${titolo}» inserita nella scaletta.`,
 }
 
 export const testi = catalogo(it, {
@@ -82,17 +99,34 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Daraus entstandene Beurteilungen',
     senzaClasse: 'ohne Klasse',
     siSalva: 'was man schreibt, speichert sich selbst',
-    senzaCorsoTesto:
-      'ohne Kurs: erscheint bei keiner Stunde unter den Plänen — ordne unten einen zu',
 
+    navigatoreLezioni: 'Stundennavigator',
+    precedente: 'Vorherige Stunde',
+    successiva: 'Nächste Stunde',
+    vaiAProssimaDaPreparare: 'Erste vorzubereiten',
+    tuttePreparate: 'Alle Stunden haben einen Plan',
+    pianoGenerato: 'Plan erstellt und zugewiesen.',
+    daCalibrare: 'Anzupassen',
     nessunCorsoDaPreparare: 'kein Kurs vorzubereiten',
     senzaScaletta: (quante) =>
       plurale(quante, 'Stunde noch ohne Ablauf', 'Stunden noch ohne Ablauf'),
     tutteConScaletta: 'jede Stunde dieses Kurses hat ihren Ablauf',
     nessunPiano: 'Kein Unterrichtsplan',
+    generaPiano: 'Plan generieren',
     nessunPianoTesto:
       'Ein Plan enthält Ziele und Ablauf mit den Zeiten und gehört zu der Stunde, für die man ' +
       'ihn vorbereitet. Man beginnt bei einer Stunde ohne Ablauf, in der Liste daneben.',
+    nessunPianoLezione: (nome) =>
+      `Die Stunde ${nome} hat noch keinen Plan. Erstelle einen, um Ziele und Ablauf festzulegen.`,
+    strumentiCollegati: 'Pendenzen und Checks des Kurses',
+    spazioInScaletta: 'Aktivitäten in den Ablauf einfügen, um sie während der Stunde zu erledigen',
+    pendenzeDelCorso: 'Zu erledigende Pendenzen',
+    checkDelCorso: 'Checks',
+    inserisciNellaScaletta: 'In Ablauf einfügen',
+    giaInScaletta: 'bereits im Ablauf',
+    ritiroConsegna: (titolo) => `Einsammeln: ${titolo}`,
+    verificaCheck: (titolo) => `Check: ${titolo}`,
+    inseritaInScaletta: (titolo) => `Aktivität «${titolo}» in den Ablauf eingefügt.`,
   },
   fr: {
     fuoriSemestri: 'Hors des semestres',
@@ -122,9 +156,14 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Évaluations qui en sont issues',
     senzaClasse: 'sans classe',
     siSalva: 'ce qu’on écrit s’enregistre tout seul',
-    senzaCorsoTesto:
-      'sans cours : il n’apparaît parmi les plans d’aucune leçon — rattaches-en un ci-dessous',
 
+    navigatoreLezioni: 'Navigateur des leçons',
+    precedente: 'Leçon précédente',
+    successiva: 'Leçon suivante',
+    vaiAProssimaDaPreparare: 'Première à préparer',
+    tuttePreparate: 'Toutes les leçons ont un plan',
+    pianoGenerato: 'Plan généré et attribué.',
+    daCalibrare: 'À ajuster',
     nessunCorsoDaPreparare: 'aucun cours à préparer',
     senzaScaletta: (quante) =>
       plurale(
@@ -134,10 +173,22 @@ export const testi = catalogo(it, {
       ),
     tutteConScaletta: 'chaque leçon de ce cours a son déroulement',
     nessunPiano: 'Aucun plan de leçon',
+    generaPiano: 'Générer le plan',
     nessunPianoTesto:
       'Un plan contient les objectifs et le déroulement avec les temps, et il appartient à ' +
       'la leçon pour laquelle on le prépare. On commence par une leçon sans déroulement, dans la ' +
       'liste ci-contre.',
+    nessunPianoLezione: (nome) =>
+      `La leçon ${nome} n’a pas encore de plan. Crées-en un pour définir les objectifs et le déroulement.`,
+    strumentiCollegati: 'Tâches en suspens et checks du cours',
+    spazioInScaletta: 'insérer des activités dans le déroulement pour les traiter pendant l’heure',
+    pendenzeDelCorso: 'Tâches en suspens à traiter',
+    checkDelCorso: 'Checks',
+    inserisciNellaScaletta: 'Insérer dans le déroulement',
+    giaInScaletta: 'déjà dans le déroulement',
+    ritiroConsegna: (titolo) => `Rendu : ${titolo}`,
+    verificaCheck: (titolo) => `Check : ${titolo}`,
+    inseritaInScaletta: (titolo) => `Activité « ${titolo} » insérée dans le déroulement.`,
   },
   en: {
     fuoriSemestri: 'Outside the semesters',
@@ -167,9 +218,14 @@ export const testi = catalogo(it, {
     valutazioniUscite: 'Assessments that came out of it',
     senzaClasse: 'no class',
     siSalva: 'what you write saves itself',
-    senzaCorsoTesto:
-      'no course: it doesn’t appear among the plans of any lesson — reattach one below',
 
+    navigatoreLezioni: 'Lesson navigator',
+    precedente: 'Previous lesson',
+    successiva: 'Next lesson',
+    vaiAProssimaDaPreparare: 'First to prepare',
+    tuttePreparate: 'All lessons have a plan',
+    pianoGenerato: 'Plan generated and assigned.',
+    daCalibrare: 'To adjust',
     nessunCorsoDaPreparare: 'no course to prepare',
     senzaScaletta: (quante) =>
       plurale(
@@ -179,8 +235,20 @@ export const testi = catalogo(it, {
       ),
     tutteConScaletta: 'every lesson in this course has its outline',
     nessunPiano: 'No lesson plan',
+    generaPiano: 'Generate plan',
     nessunPianoTesto:
       'A plan holds objectives and an outline with timings, and belongs to the lesson you ' +
       'prepare it for. Start from a lesson without an outline, in the list alongside.',
+    nessunPianoLezione: (nome) =>
+      `The lesson ${nome} has no plan yet. Create one to set objectives and the outline.`,
+    strumentiCollegati: 'Pending items and checks of the course',
+    spazioInScaletta: 'insert activities into the plan to address them during the lesson',
+    pendenzeDelCorso: 'Pending items to clear',
+    checkDelCorso: 'Checks',
+    inserisciNellaScaletta: 'Insert into plan',
+    giaInScaletta: 'already in plan',
+    ritiroConsegna: (titolo) => `Collect: ${titolo}`,
+    verificaCheck: (titolo) => `Check: ${titolo}`,
+    inseritaInScaletta: (titolo) => `Activity "${titolo}" added to plan.`,
   },
 })

@@ -141,6 +141,8 @@ npm start            # compila e lancia
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint .
 npm test             # le prove, con node --test
+npm run copertura    # copertura delle prove per cartella, in copertura/
+npm run fumo         # Electron vero sul campione, via condotto
 npm run ui-tests     # prove dell'interfaccia su Chromium (Python + Playwright)
 npm run package      # installer e portabile in pacchetti/
 npm run clean        # butta bundle e cache
@@ -154,6 +156,17 @@ npm run clean        # butta bundle e cache
   ESM per Node, con `electron` sostituito da `tests/helpers/fake-electron.mjs`
   (li prepara `pretest`).
 - `tests/ui/*.py` usano dati sintetici e stanno fuori da `npm test`.
+- `npm run copertura` è un rapporto, senza soglia: le righe sono gonfiate dai
+  cataloghi di testo e dal codice di modulo, contano funzioni e rami. Le prove
+  con `importaSorgente` entrano grazie a `REGISTRO_COPERTURA=1`. Dettagli in
+  `.claude/skills/verifica/SKILL.md`.
+- `npm run fumo` (`tools/fumo.mjs`) accende un Electron vero, le altre prove
+  usano quello finto, sul campione in una cartella provvisoria con il condotto
+  acceso e il solo vassoio. Chiede `$versione` e `classi.elenco` come `regi`,
+  chiude con `programma.esci` e pretende un'uscita pulita entro 20 s, senza
+  processi rimasti né scritture nella cartella dei dati vera. Costruisce da sé
+  (`--senza-costruire` per saltare). Fuori da `npm test`; in CI è il lavoro
+  `fumo` di `verifica.yml`, su Windows.
 
 Controlli fatti in casa:
 

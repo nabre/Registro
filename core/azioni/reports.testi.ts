@@ -14,13 +14,15 @@ const it = {
   diCorso: (titolo: string) => ` di ${titolo}`,
   diCorsi: (quanti: number) => ` di ${quanti} corsi`,
   aggiornatiConErrori: (scritti: number, dove: string, falliti: number, primo: string) =>
-    `Regiklass: ${scritti} documenti${dove} aggiornati, ${falliti} no. ${primo}`,
+    `Regiklass: ${plurale(scritti, 'documento', 'documenti')}${dove} ` +
+    `${perNumero(scritti, 'aggiornato', 'aggiornati')}, ${falliti} no. ${primo}`,
   aggiornatiDopo: (scritti: number, dove: string, giorno: string) =>
-    `Regiklass: ${scritti} documenti${dove} aggiornati dopo la lezione del ${giorno}.`,
+    `Regiklass: ${plurale(scritti, 'documento', 'documenti')}${dove} ` +
+    `${perNumero(scritti, 'aggiornato', 'aggiornati')} dopo la lezione del ${giorno}.`,
   nonRifattiDellaLezione: (giorno: string, motivo: string) =>
     `Regiklass: i documenti della lezione del ${giorno} non si sono potuti rifare: ${motivo}`,
   nonRifatti: (falliti: number, primo: string) =>
-    `Regiklass: ${falliti} documenti non si sono potuti rifare. ${primo}`,
+    `Regiklass: ${plurale(falliti, 'documento non si è potuto', 'documenti non si sono potuti')} rifare. ${primo}`,
   nonRifattiPerche: (motivo: string) => `Regiklass: i documenti non si sono potuti rifare: ${motivo}`,
   lezioneNonTrovata: 'Lezione non trovata.',
   pianoNonTrovato: 'Piano non trovato.',
@@ -31,13 +33,15 @@ const it = {
   rapportoSconosciuto: 'Rapporto sconosciuto.',
   scritto: (relativo: string) => `Rapporto scritto in ${relativo}.`,
   nessunCorso: 'Nessun corso da esportare in quest’anno.',
-  giaScritti: (scritti: number) => `${scritti} documenti erano già scritti.`,
+  giaScritti: (scritti: number) => `${plurale(scritti, 'documento era già scritto', 'documenti erano già scritti')}.`,
   nessunoScritto: (dove: string, primo: string) => `Nessun documento${dove} scritto. ${primo}`,
   scrittiConErrori: (scritti: number, dove: string, falliti: number, primo: string) =>
-    `${scritti} documenti${dove} scritti, ${falliti} no. ${primo}`,
+    `${plurale(scritti, 'documento', 'documenti')}${dove} ` +
+    `${perNumero(scritti, 'scritto', 'scritti')}, ${falliti} no. ${primo}`,
   scrittiTutti: (scritti: number, dove: string, fascicoli: number) =>
-    `${scritti} documenti${dove} scritti nella cartella dei dati` +
-    `${fascicoli > 0 ? `, e ${fascicoli} fascicoli rifatti` : ''}.`,
+    `${plurale(scritti, 'documento', 'documenti')}${dove} ` +
+    `${perNumero(scritti, 'scritto', 'scritti')} nella cartella dei dati` +
+    `${fascicoli > 0 ? `, e ${plurale(fascicoli, 'fascicolo rifatto', 'fascicoli rifatti')}` : ''}.`,
 }
 
 export const testi = catalogo(it, {

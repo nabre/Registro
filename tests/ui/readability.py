@@ -2,18 +2,14 @@
 
 Esecuzione isolata: `node esbuild.mjs --ui && python tests/ui/readability.py`.
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright
-
-root = Path(__file__).resolve().parents[2]
+from banco import RADICE, chromium
 
 
 def numero(valore: str) -> float:
     return float(valore.removesuffix('px'))
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     page = browser.new_page(viewport={'width': 720, 'height': 480})
     page.set_content('''<html lang="it"><body>
       <main class="prova">
@@ -36,7 +32,7 @@ with sync_playwright() as p:
       </main>
     </body></html>''')
     for foglio in ('theme.css', 'metrics.css', 'controls.css', 'command-bar.css'):
-        page.add_style_tag(path=str(root / 'ui' / 'pannello' / 'styles' / foglio))
+        page.add_style_tag(path=str(RADICE / 'ui' / 'pannello' / 'styles' / foglio))
     page.add_style_tag(content='''
       body { margin: 0; font: var(--corpo)/var(--interlinea) var(--carattere); }
       .prova { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -66,16 +62,14 @@ with sync_playwright() as p:
     nativa = browser.new_page(viewport={'width': 720, 'height': 480})
     nativa.set_content('''<input type="text"><button>Salva</button>
       <button class="minuto">X</button>''')
-    nativa.add_style_tag(path=str(root / 'ui' / 'pannello' / 'styles' / 'theme.css'))
-    nativa.add_style_tag(path=str(root / 'ui' / 'pannello' / 'styles' / 'metrics.css'))
-    nativa.add_style_tag(path=str(root / 'desktop' / 'shell' / 'pages' / 'shared' / 'base.css'))
+    nativa.add_style_tag(path=str(RADICE / 'ui' / 'pannello' / 'styles' / 'theme.css'))
+    nativa.add_style_tag(path=str(RADICE / 'ui' / 'pannello' / 'styles' / 'metrics.css'))
+    nativa.add_style_tag(path=str(RADICE / 'desktop' / 'shell' / 'pages' / 'shared' / 'base.css'))
     for selettore in ('input', 'button', 'button.minuto'):
         scatola = nativa.locator(selettore).first.bounding_box()
         assert scatola and scatola['height'] >= 32, (selettore, scatola)
-    browser.close()
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     context = browser.new_context(viewport={'width': 720, 'height': 480}, has_touch=True)
     page = context.new_page()
     page.set_content('''<button class="pulsante pulsante--minuto">A</button>
@@ -84,10 +78,9 @@ with sync_playwright() as p:
         <button class="comando" aria-pressed="false">Anno</button>
       </div>''')
     for foglio in ('theme.css', 'metrics.css', 'controls.css', 'command-bar.css'):
-        page.add_style_tag(path=str(root / 'ui' / 'pannello' / 'styles' / foglio))
+        page.add_style_tag(path=str(RADICE / 'ui' / 'pannello' / 'styles' / foglio))
     for selettore in ('.pulsante--minuto', '.comando'):
         scatola = page.locator(selettore).first.bounding_box()
         assert scatola and scatola['height'] >= 44, (selettore, scatola)
     minuto = page.locator('.pulsante--minuto').bounding_box()
     assert minuto and minuto['width'] >= 44, minuto
-    browser.close()

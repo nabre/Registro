@@ -17,7 +17,7 @@ const it = {
   disinstalla: 'Disinstalla',
   domanda: 'Disinstallare Regiklass?',
   cosaSeNeVa: (cartella: string) =>
-    "Si tolgono dal computer le impostazioni, gli account, l'elenco dei registri recenti, i modelli " +
+    'Si tolgono dal computer le impostazioni, gli account, l’elenco dei registri recenti, i modelli ' +
     `scaricati, il comando «regi» e tutto quel che il registro ha salvato per sé in «${cartella}».`,
   documentiRestano: 'I documenti degli anni scolastici — i file .regi — restano dove sono.',
   chiederàCosaTenere: 'Il disinstallatore chiederà se tenere i modelli, gli account e le impostazioni.',
@@ -31,7 +31,7 @@ const it = {
     },
     account: {
       domanda: 'Togliere anche gli account?',
-      dettaglio: "Password della posta e collegamento con l'account Microsoft.",
+      dettaglio: 'Password della posta e collegamento con l’account Microsoft.',
     },
     impostazioni: {
       domanda: 'Togliere anche le impostazioni?',

@@ -9,7 +9,9 @@ export const procedura = scrittura({
   titolo: () => testi().elimina.titolo,
   azione: 'corso.elimina',
   idempotente: true,
-  collezioni: ['corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'smistamenti'],
+  collezioni: [
+    'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'smistamenti', 'fascicoli',
+  ],
   ingresso: oggetto({ corsoId: identificatore() }),
   esegui: (ambito, ingresso) => {
     esigiCorso(ambito, ingresso.corsoId)

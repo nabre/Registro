@@ -107,6 +107,7 @@ export function presenzeDelCorso (allievo: Allievo, corso: Corso): RigaCorso | n
       semestre?.fine ?? anno?.fine ?? '',
       stato.registro.impostazioni.minutiUd,
       stato.registro.lezioni,
+      stato.registro.impostazioni.pause,
     ),
   )
   return matrice.righe[0] ?? null

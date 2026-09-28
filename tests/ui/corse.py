@@ -1,6 +1,6 @@
 """Le corse fra quel che la pagina ha in mano e quel che il registro è diventato.
 
-Giro 12. Ogni prova qui apre una finestra, o manda un clic, e *nel frattempo*
+Ogni prova qui apre una finestra, o manda un clic, e *nel frattempo*
 cambia il registro come farebbe un'altra finestra o l'assistente; poi guarda
 che cosa parte:
 
@@ -20,37 +20,17 @@ rispinge il registro prima di rispondere, come fa il pannello vero.
 
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
-`node esbuild.mjs --ui` e poi `python tests/ui/giro12_corse.py`
+`node esbuild.mjs --ui` e poi `python tests/ui/corse.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, OGGI, ULTIMA, attendi_risposte, chromium, pannello, ponte
 
-PONTE = '''
-window.richieste = []
-window.trattieni = false
-window.trattenute = []
-const rispondi = (m) => window.dispatchEvent(new MessageEvent('message',
-  { data: { tipo: 'risposta', id: m.id, ok: true } }))
-window.rilascia = () => { const m = trattenute.shift(); if (m) rispondi(m) }
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (!m.id) return
-    if (trattieni) { trattenute.push(m); return }
-    setTimeout(() => {
-      // Come il pannello: il registro nuovo arriva prima della risposta.
-      if (m.azione?.tipo === 'impostazioni.salva') {
-        const r = prova.stato.registro
-        prova.aggiorna({ registro: { ...r, impostazioni: m.azione.impostazioni } })
-      }
-      rispondi(m)
-    }, 0)
-  },
-})
-'''
+# Come il pannello: il registro nuovo arriva prima della risposta.
+RISPINGE = '''if (m.azione?.tipo === 'impostazioni.salva') {
+  const r = prova.stato.registro
+  prova.aggiorna({ registro: { ...r, impostazioni: m.azione.impostazioni } })
+}'''
 
 PREPARA = '''() => {
   const r = prova.stato.registro
@@ -73,27 +53,14 @@ ALTROVE = '''([colonne, spunte]) => {
   prova.aggiorna({ registro: { ...r, check: [check] } })
 }'''
 
-OGGI = ("(()=>{const o=new Date();const d=n=>String(n).padStart(2,'0');"
-        "return `${o.getFullYear()}-${d(o.getMonth()+1)}-${d(o.getDate())}`})()")
-
-ULTIMA = "(tipo) => richieste.filter(m=>m.azione?.tipo===tipo).map(m=>m.azione).at(-1) ?? null"
 QUANTE = "(tipo) => richieste.filter(m=>m.azione?.tipo===tipo).length"
-FOTOGRAMMA = '()=>new Promise(requestAnimationFrame)'
 
 C1 = {'id': 'c1', 'titolo': 'Regolamento'}
 C2 = {'id': 'c2', 'titolo': 'Quaderno'}
 C3 = {'id': 'c3', 'titolo': 'Relazione'}
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errors = pannello(browser, ponte_js=ponte(prima_di_rispondere=RISPINGE))
 
     page.evaluate(PREPARA)
     page.evaluate(FOTOGRAMMA)
@@ -203,7 +170,7 @@ with sync_playwright() as p:
     page.keyboard.type('Alfa prova')
     page.keyboard.press('Enter')
     page.wait_for_function("richieste.some(m=>m.azione?.tipo==='impostazioni.salva')")
-    page.wait_for_timeout(50)
+    attendi_risposte(page)
     page.evaluate(FOTOGRAMMA)
     attivo = page.evaluate('document.activeElement?.dataset?.fuoco ?? null')
     assert attivo == chiave, f'dopo il salvataggio il fuoco è su {attivo}'
@@ -213,7 +180,7 @@ with sync_playwright() as p:
     liste = page.evaluate(ULTIMA, 'impostazioni.salva')['impostazioni']['liste']
     testi = [v['testo'] for voci in liste.values() for v in voci]
     assert 'Alfa prova' in testi and 'Beta prova' in testi, testi
-    page.wait_for_timeout(50)
+    attendi_risposte(page)
 
     # 6. I giorni visibili: il registro nuovo arriva fra due clic, prima del
     # ridisegno, e il secondo clic parte da lì.
@@ -264,6 +231,5 @@ with sync_playwright() as p:
     assert any(s['id'] == 's-nuova' for s in anno['sospensioni']), anno['sospensioni']
 
     assert not errors, errors
-    browser.close()
 
-print('corse del giro 12: ok')
+print('corse: ok')

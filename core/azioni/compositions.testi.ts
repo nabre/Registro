@@ -1,19 +1,20 @@
 // I testi di `compositions.ts`: le composizioni di PDF, com'è andato farle,
 // rifarle e buttarle via.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo, perNumero } from '../i18n/index.js'
 import { plurale } from '../dominio/text.js'
 
 const it = {
   nessunoNellaCartella: 'Nessuno di quei documenti è più nella cartella: prima si rifanno.',
   nessunoLeggibile: 'Nessuno di quei PDF si è lasciato leggere.',
   nonScritto: 'Il fascicolo non si è potuto scrivere.',
-  mancanti: (n: number) => `${n} non erano più nella cartella`,
-  protetti: (n: number) => `${n} protetti da password`,
-  illeggibili: (n: number) => `${n} non si sono lasciati leggere`,
-  tuttiDentro: (nome: string, scritti: number) => `«${nome}»: ${scritti} documenti in un PDF solo.`,
+  mancanti: (n: number) => `${n} ${perNumero(n, 'non era', 'non erano')} più nella cartella`,
+  protetti: (n: number) => `${plurale(n, 'protetto', 'protetti')} da password`,
+  illeggibili: (n: number) =>
+    `${n} ${perNumero(n, 'non si è lasciato', 'non si sono lasciati')} leggere`,
+  tuttiDentro: (nome: string, scritti: number) => `«${nome}»: ${plurale(scritti, 'documento', 'documenti')} in un PDF solo.`,
   qualcunoFuori: (nome: string, scritti: number, fuori: number, motivi: readonly string[]) =>
-    `«${nome}»: ${scritti} documenti; ${fuori} rimasti fuori — ${motivi.join(', ')}.`,
+    `«${nome}»: ${plurale(scritti, 'documento', 'documenti')}; ${plurale(fuori, 'rimasto', 'rimasti')} fuori — ${motivi.join(', ')}.`,
   senzaNome: 'Dai un nome alla composizione: è il nome del file che ne esce.',
   almenoDue: 'Servono almeno due documenti da combinare.',
   alMassimo: (massimo: number) => `Una composizione tiene al massimo ${massimo} fogli.`,

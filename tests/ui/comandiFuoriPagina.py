@@ -1,6 +1,6 @@
 """I comandi che partono da fuori dalla loro pagina.
 
-Giro 13. Tre strade arrivano a un comando senza passare dalla barra, e tutte e
+Tre strade arrivano a un comando senza passare dalla barra, e tutte e
 tre lo facevano partire in un posto dove la barra non l'avrebbe mai mostrato:
 
 - la palette elencava tutti i comandi, anche quelli di un'altra pagina: aperta
@@ -16,50 +16,19 @@ tre lo facevano partire in un posto dove la barra non l'avrebbe mai mostrato:
 
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
-`node esbuild.mjs --ui` e poi `python tests/ui/giro13_comandi.py`
+`node esbuild.mjs --ui` e poi `python tests/ui/comandiFuoriPagina.py`
 """
-from pathlib import Path
 import re
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
+from banco import FRAME, OGGI, esegui, pannello
 
 # Come fa l'host: un messaggio `naviga` che arriva dalla finestra.
 NAVIGA = "(m) => window.dispatchEvent(new MessageEvent('message', { data: { tipo: 'naviga', ...m } }))"
 
-OGGI = ("(()=>{const o=new Date();const d=n=>String(n).padStart(2,'0');"
-        "return `${o.getFullYear()}-${d(o.getMonth()+1)}-${d(o.getDate())}`})()")
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
-
-
-def pagina(browser):
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
-    return page, errori
-
-
 def palette_fuori_posto(browser):
     """Ctrl+K «svolta» dal calendario non segna l'ora aperta prima."""
-    page, errori = pagina(browser)
+    page, errori = pannello(browser)
     lezione = page.evaluate('prova.stato.registro.lezioni[0].id')
     page.evaluate(f"prova.aggiorna({{ vista: 'lezione', lezioneId: '{lezione}' }})")
     page.evaluate(FRAME)
@@ -93,7 +62,7 @@ def palette_fuori_posto(browser):
 
 def nuova_ora_dal_menu(browser):
     """Ctrl+Alt+N dal menu apre lo stesso modulo del pulsante «Nuova ora»."""
-    page, errori = pagina(browser)
+    page, errori = pannello(browser)
     corso = page.evaluate('prova.stato.registro.corsi[1].id')
     page.evaluate(f"prova.aggiorna({{ vista: 'calendario', corsoId: '{corso}', "
                   "filtroClasseId: null, data: '2026-09-16' })")
@@ -110,7 +79,7 @@ def nuova_ora_dal_menu(browser):
 
 def oggi_dal_menu(browser):
     """Ctrl+Alt+T riporta la striscia dei mesi su oggi, come il pulsante «Oggi»."""
-    page, errori = pagina(browser)
+    page, errori = pannello(browser)
     oggi = page.evaluate(OGGI)
     page.evaluate(f"prova.aggiorna({{ vista: 'calendario', modoCalendario: 'mese', data: '{oggi}' }})")
     page.evaluate(FRAME)
@@ -131,7 +100,7 @@ def oggi_dal_menu(browser):
 
 def menu_con_modale_aperta(browser):
     """Un acceleratore del menu non cambia pagina sotto una finestra aperta."""
-    page, errori = pagina(browser)
+    page, errori = pannello(browser)
     page.evaluate("prova.aggiorna({ vista: 'calendario' })")
     page.evaluate(FRAME)
     page.evaluate(NAVIGA, {'vista': 'calendario', 'nuovo': True})
@@ -148,17 +117,5 @@ def menu_con_modale_aperta(browser):
     page.close()
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    fallite = []
-    for prova in (palette_fuori_posto, nuova_ora_dal_menu, oggi_dal_menu, menu_con_modale_aperta):
-        try:
-            prova(browser)
-            print(f'ok   {prova.__name__}')
-        except Exception as errore:  # noqa: BLE001 — si raccolgono tutte, poi si esce
-            fallite.append(prova.__name__)
-            print(f'NO   {prova.__name__}: {errore}')
-    browser.close()
-    if fallite:
-        raise SystemExit(f'fallite: {", ".join(fallite)}')
-    print('giro13_comandi: tutto verde')
+esegui('comandiFuoriPagina', (palette_fuori_posto, nuova_ora_dal_menu, oggi_dal_menu,
+                             menu_con_modale_aperta))

@@ -7,18 +7,14 @@
 //   3. `--json` e `--campo` sullo stesso campo: vince `--json`, e lo si dice.
 
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, before, describe, it } from 'node:test'
 
-const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
+import { condottoFinto, lanciatore } from '../helpers/cli.mjs'
 
-const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-giro12-cli-'))
+const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-cli-opzioni-'))
 const lavoro = percorso.join(radice, 'lavoro')
 const dati = percorso.join(lavoro, 'registro')
 const cartellaUtente = percorso.join(radice, 'Regiklass')
@@ -36,26 +32,7 @@ after(async () => {
   rmSync(radice, { recursive: true, force: true })
 })
 
-function lancia (argomenti, ambiente = {}) {
-  return new Promise((risolvi, rifiuta) => {
-    const figlio = spawn(process.execPath, [CLI, ...argomenti], {
-      env: {
-        ...process.env,
-        APPDATA: radice,
-        XDG_CONFIG_HOME: radice,
-        REGISTRO_COMANDO: 'registro',
-        ...ambiente,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let uscita = ''
-    let errore = ''
-    figlio.stdout.on('data', (pezzo) => { uscita += pezzo })
-    figlio.stderr.on('data', (pezzo) => { errore += pezzo })
-    figlio.on('error', rifiuta)
-    figlio.on('close', (codice) => risolvi({ codice, uscita, errore }))
-  })
-}
+const lancia = lanciatore(radice)
 
 describe('con la sola scrittura', () => {
   before(async () => {
@@ -79,7 +56,7 @@ describe('con la sola scrittura', () => {
       Uri.file(percorso.join(dati, '2026-2027.regi')),
     )
     registra(definisci({
-      nome: 'giro12.nota',
+      nome: 'prova.nota',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Una scrittura vera, con un campo numerico da convertire',
@@ -103,7 +80,7 @@ describe('con la sola scrittura', () => {
 
   it('una scrittura si chiama, con i --campo convertiti dallo schema', async () => {
     const { codice, uscita, errore } = await lancia(
-      ['chiama', 'giro12.nota', '--minuti', '17'], suCondotto())
+      ['chiama', 'prova.nota', '--minuti', '17'], suCondotto())
     assert.equal(codice, 0, errore)
     assert.equal(typeof JSON.parse(uscita).revisione, 'number')
     assert.equal(archivio.registro.impostazioni.durataPausaPredefinita, 17)
@@ -137,39 +114,9 @@ const SCHEMA_ECO = {
 
 describe('le opzioni della riga di comando', () => {
   let finto
-  let dove
-
-  before(async () => {
-    const nome = `registro-giro12-finto-${randomBytes(6).toString('hex')}`
-    dove = process.platform === 'win32'
-      ? `\\\\.\\pipe\\${nome}`
-      : percorso.join(radice, `${nome}.sock`)
-    finto = createServer((presa) => {
-      let resto = ''
-      presa.on('data', (pezzo) => {
-        resto += pezzo.toString('utf8')
-        let taglio = resto.indexOf('\n')
-        while (taglio >= 0) {
-          const richiesta = JSON.parse(resto.slice(0, taglio))
-          resto = resto.slice(taglio + 1)
-          const result = richiesta.method === '$schema'
-            ? { nome: 'prova.eco', ingresso: SCHEMA_ECO }
-            : { ok: true, dati: richiesta.params }
-          presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`)
-          taglio = resto.indexOf('\n')
-        }
-      })
-      presa.on('error', () => undefined)
-    })
-    await new Promise((risolvi) => finto.listen(dove, risolvi))
-  })
-
-  after(() => new Promise((risolvi) => finto.close(() => risolvi())))
-
-  const eco = async (...argomenti) => {
-    const esito = await lancia(['chiama', 'prova.eco', ...argomenti], { REGISTRO_CONDOTTO: dove })
-    return { ...esito, dati: esito.codice === 0 ? JSON.parse(esito.uscita) : null }
-  }
+  before(async () => { finto = await condottoFinto({ radice, schema: SCHEMA_ECO }) })
+  after(() => finto.chiudi())
+  const eco = (...argomenti) => finto.eco(...argomenti)
 
   it('un campo di testo senza valore è un errore d’uso, non la parola «vero»', async () => {
     const { codice, errore } = await eco('--cerca')

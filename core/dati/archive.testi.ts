@@ -44,6 +44,7 @@ const it = {
   nonSalvatoIn: (dove: string, motivo: string) =>
     `Non riesco a salvare l’anno in ${dove}: ${motivo}`,
   inChiusura: 'L’anno si sta chiudendo: la modifica non è stata fatta.',
+  superato: 'Il documento è stato aggiornato da un registro più recente: qui si può solo leggere. Aggiorna il programma per modificarlo.',
   salvataggioFallito: (motivo: string) => `Salvataggio dell’anno non riuscito: ${motivo}`,
   messaDaParte: (nome: string, altrove: string) =>
     `${nome} non si leggeva: la copia è dentro l’anno con il nome ${altrove}, ` +
@@ -88,6 +89,7 @@ export const testi = catalogo(it, {
     nonSalvatoIn: (dove, motivo) =>
       `Das Schuljahr lässt sich nicht in ${dove} speichern: ${motivo}`,
     inChiusura: 'Das Schuljahr wird gerade geschlossen: Die Änderung wurde nicht ausgeführt.',
+    superato: 'Das Dokument wurde von einem neueren Register aktualisiert: Hier kann es nur gelesen werden. Aktualisiere das Programm, um es zu ändern.',
     salvataggioFallito: (motivo) => `Speichern des Schuljahrs nicht gelungen: ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} war nicht lesbar: Die Kopie liegt im Schuljahr unter dem Namen ${altrove}, ` +
@@ -128,6 +130,7 @@ export const testi = catalogo(it, {
       `Impossible de créer le document de l’année ${etichetta} : ${motivo}`,
     nonSalvatoIn: (dove, motivo) => `Impossible d’enregistrer l’année dans ${dove} : ${motivo}`,
     inChiusura: 'L’année est en train de se fermer : la modification n’a pas été faite.',
+    superato: 'Le document a été mis à jour par un registre plus récent : ici, il ne peut qu’être lu. Mets à jour le programme pour le modifier.',
     salvataggioFallito: (motivo) => `Échec de l’enregistrement de l’année : ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} était illisible : la copie se trouve dans l’année sous le nom ${altrove}, ` +
@@ -166,6 +169,7 @@ export const testi = catalogo(it, {
       `I can’t create the document for the year ${etichetta}: ${motivo}`,
     nonSalvatoIn: (dove, motivo) => `I can’t save the year in ${dove}: ${motivo}`,
     inChiusura: 'The year is closing: the change wasn’t made.',
+    superato: 'The document was updated by a newer register: here it can only be read. Update the program to change it.',
     salvataggioFallito: (motivo) => `Saving the year failed: ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} couldn’t be read: the copy is inside the year under the name ${altrove}, ` +

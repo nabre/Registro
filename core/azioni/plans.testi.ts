@@ -14,7 +14,9 @@ const it = {
   copiato: (data: string, classe: string) =>
     `Piano copiato per la lezione del ${data}${classe ? ` di ${classe}` : ''}.`,
   creato: (data: string, classe: string) =>
-    `Piano da completare creato per la lezione del ${data}${classe ? ` di ${classe}` : ''}.`,
+    `Piano generato per la lezione del ${data}${classe ? ` di ${classe}` : ''}: ` +
+    'obiettivi e scaletta sono da rivedere.',
+  altroCorso: 'Il piano è di un altro corso: si assegna solo alle lezioni del suo corso.',
   attivitaNonTrovata: 'Attività non trovata in questo piano.',
   attivitaSparita: 'Attività non trovata in questo piano: forse è già sparita.',
   titoloImmagine: 'Aggiungi un’immagine al piano',
@@ -38,8 +40,9 @@ export const testi = catalogo(it, {
     copiato: (data, classe) =>
       `Plan für die Stunde vom ${data}${classe ? ` (${classe})` : ''} kopiert.`,
     creato: (data, classe) =>
-      `Auszufüllender Plan für die Stunde vom ${data}${classe ? ` (${classe})` : ''} ` +
-      'erstellt.',
+      `Plan für die Stunde vom ${data}${classe ? ` (${classe})` : ''} generiert: ` +
+      'Ziele und Ablauf sind zu überprüfen.',
+    altroCorso: 'Der Plan gehört zu einem anderen Kurs: Er wird nur Stunden seines Kurses zugewiesen.',
     attivitaNonTrovata: 'Aktivität in diesem Plan nicht gefunden.',
     attivitaSparita: 'Aktivität in diesem Plan nicht gefunden: Vielleicht ist sie schon weg.',
     titoloImmagine: 'Ein Bild zum Plan hinzufügen',
@@ -61,7 +64,9 @@ export const testi = catalogo(it, {
     copiato: (data, classe) =>
       `Plan copié pour la leçon du ${data}${classe ? ` de ${classe}` : ''}.`,
     creato: (data, classe) =>
-      `Plan à compléter créé pour la leçon du ${data}${classe ? ` de ${classe}` : ''}.`,
+      `Plan généré pour la leçon du ${data}${classe ? ` de ${classe}` : ''} : ` +
+      'objectifs et déroulement sont à revoir.',
+    altroCorso: 'Le plan appartient à un autre cours : il ne s’attribue qu’aux leçons de son cours.',
     attivitaNonTrovata: 'Activité introuvable dans ce plan.',
     attivitaSparita: 'Activité introuvable dans ce plan : elle a peut-être déjà disparu.',
     titoloImmagine: 'Ajouter une image au plan',
@@ -82,7 +87,9 @@ export const testi = catalogo(it, {
     copiato: (data, classe) =>
       `Plan copied for the lesson on ${data}${classe ? ` (${classe})` : ''}.`,
     creato: (data, classe) =>
-      `Plan created for the lesson on ${data}${classe ? ` (${classe})` : ''}, ready to fill in.`,
+      `Plan generated for the lesson on ${data}${classe ? ` (${classe})` : ''}: ` +
+      'review the objectives and outline.',
+    altroCorso: 'The plan belongs to another course: it can only be assigned to lessons of its course.',
     attivitaNonTrovata: 'Activity not found in this plan.',
     attivitaSparita: 'Activity not found in this plan: it may already have gone.',
     titoloImmagine: 'Add an image to the plan',

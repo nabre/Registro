@@ -9,7 +9,7 @@
 // al motore.
 
 import { conversa } from '../../desktop/transports/assistant.js'
-import type { Archivio } from '.../../../core/dati/archive.js'
+import type { Archivio } from '../../core/dati/archive.js'
 import type { Conversazione, MessaggioAssistente } from '../../contract/protocollo.js'
 
 /** Un evento del giro senza il suo destinatario: l'`id` lo mette chi ascolta. */

@@ -1,6 +1,6 @@
 /**
- * Verifica che la documentazione nomini cose che esistono, in `docs/*.md` e
- * `.claude/skills/**\/*.md`:
+ * Verifica che la documentazione nomini cose che esistono, in `docs/*.md`,
+ * `.claude/skills/**\/*.md` e nei documenti in radice (`README.md`, …):
  *
  *   1. ogni `npm run X`, anche nei blocchi di codice, è uno script di `package.json`;
  *   2. ogni percorso fra backtick che comincia come un file del progetto
@@ -17,7 +17,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-import { daRadice, fileSotto, piano } from './common.mjs'
+import { RADICE, daRadice, fileSotto, piano } from './common.mjs'
 
 // ---------------------------------------------------------------- le deroghe
 
@@ -43,18 +43,32 @@ const RADICI = [
 
 // ------------------------------------------------------------------ i documenti
 
-/** I documenti da leggere: `docs/*.md` e ogni `.md` sotto le skill. */
+/**
+ * I documenti in radice che si leggono anche loro: chi arriva al progetto
+ * comincia da qui, e un percorso rotto qui lo manda nel posto sbagliato.
+ */
+const IN_RADICE = ['README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'templates/LEGGIMI.md']
+
+/** I documenti da leggere: `docs/*.md`, ogni `.md` sotto le skill e quelli in radice. */
 function documenti () {
   const trovati = []
-  for (const voce of readdirSync('docs', { withFileTypes: true })) {
-    if (voce.isFile() && voce.name.endsWith('.md')) trovati.push(join('docs', voce.name))
+  for (const voce of readdirSync(join(RADICE, 'docs'), { withFileTypes: true })) {
+    if (voce.isFile() && voce.name.endsWith('.md')) trovati.push(join(RADICE, 'docs', voce.name))
   }
-  const skill = join('.claude', 'skills')
+  const skill = join(RADICE, '.claude', 'skills')
   if (existsSync(skill)) fileSotto(skill, ['.md'], trovati)
-  return trovati.map((percorso) => daRadice(percorso))
+  for (const nome of IN_RADICE) {
+    if (existsSync(join(RADICE, nome))) trovati.push(join(RADICE, nome))
+  }
+  return trovati.map((percorso) => daRadice(percorso, RADICE))
 }
 
-const SCRIPT = new Set(Object.keys(JSON.parse(readFileSync('package.json', 'utf8')).scripts ?? {}))
+/** Vero se il percorso, scritto dalla radice, esiste sul disco. */
+function esiste (percorso) {
+  return existsSync(join(RADICE, percorso))
+}
+
+const SCRIPT = new Set(Object.keys(JSON.parse(readFileSync(join(RADICE, 'package.json'), 'utf8')).scripts ?? {}))
 
 /** La citazione ripulita: senza numeri di riga, ancore e punteggiatura in coda. */
 function ripulita (grezza) {
@@ -81,7 +95,7 @@ let citazioni = 0
 
 const elenco = documenti()
 for (const file of elenco) {
-  const righe = readFileSync(file, 'utf8').split(/\r?\n/)
+  const righe = readFileSync(join(RADICE, file), 'utf8').split(/\r?\n/)
   let dentroBlocco = false
 
   righe.forEach((riga, i) => {
@@ -106,7 +120,7 @@ for (const file of elenco) {
       if (!RADICI.some((radice) => percorso.startsWith(radice))) continue
       if (modello(percorso)) continue
       citazioni += 1
-      if (existsSync(percorso) || inDeroga(file, percorso)) continue
+      if (esiste(percorso) || inDeroga(file, percorso)) continue
       rilievi.push(`${dove}  percorso  \`${piano(percorso)}\` non esiste`)
     }
 
@@ -117,7 +131,7 @@ for (const file of elenco) {
       if (/^[a-z]+:|^#|^$/i.test(bersaglio) || modello(bersaglio)) continue
       const percorso = piano(join(dirname(file), decodeURI(bersaglio)))
       citazioni += 1
-      if (existsSync(percorso) || inDeroga(file, percorso)) continue
+      if (esiste(percorso) || inDeroga(file, percorso)) continue
       rilievi.push(`${dove}  collegamento  \`${trovato[1]}\` non porta a niente`)
     }
   })
@@ -137,4 +151,6 @@ if (SENZA_PERCORSI.size > 0) {
   for (const file of SENZA_PERCORSI) console.log(`  ${file}`)
 }
 
-process.exitCode = rilievi.length ? 1 : 0
+// Zero documenti letti è una radice sbagliata, non una documentazione in ordine.
+if (elenco.length === 0) console.log('Nessun documento letto: la radice del progetto è sbagliata?')
+process.exitCode = rilievi.length || elenco.length === 0 ? 1 : 0

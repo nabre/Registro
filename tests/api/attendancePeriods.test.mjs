@@ -10,6 +10,14 @@ import assert from 'node:assert/strict'
 import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import {
+  SEMESTRE_INVENTATO,
+  eNonTrovato,
+  eUnPeriodoSenzaSemestri,
+  eUnSemestreSolo,
+  senzaSemestri,
+  sonoIntersecati,
+} from '../helpers/periodi.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-periodi-')
 
@@ -261,12 +269,7 @@ describe('corso.presenze: un periodo solo', () => {
     const tutti = await chiedi({ dal: DAL, al: AL })
     const secondo = anno.semestri[1]
     const esito = await chiedi({ dal: DAL, al: AL, semestreId: secondo.id })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-
-    assert.equal(esito.dati.periodi.length, 1)
-    assert.equal(esito.dati.periodi[0].semestreId, secondo.id)
-    assert.equal(esito.dati.dal, '2026-11-01')
-    assert.equal(esito.dati.al, AL)
+    eUnSemestreSolo(esito, secondo, { dal: '2026-11-01', al: AL })
 
     // Le stesse cifre della busta senza filtro: il filtro restringe, non ricalcola.
     assert.deepEqual(esito.dati.periodi[0], tutti.dati.periodi[1])
@@ -280,12 +283,7 @@ describe('corso.presenze: un periodo solo', () => {
   })
 
   it('un semestreId inventato è un errore, non una busta vuota', async () => {
-    // Un id che non è di quest'anno è un errore, con il posto dove trovare quelli
-    // veri.
-    const esito = await chiedi({ dal: DAL, al: AL, semestreId: 'sem-inventato-0001' })
-    assert.equal(esito.ok, false, 'un id che non esiste ha risposto come se ci fosse')
-    assert.equal(esito.codice, 'non-trovato')
-    assert.match(esito.messaggi.join(' '), /anni\.elenco/)
+    eNonTrovato(await chiedi({ dal: DAL, al: AL, semestreId: SEMESTRE_INVENTATO }))
   })
 })
 
@@ -293,15 +291,10 @@ describe('corso.presenze: il periodo tagliato e l’anno senza semestri', () => 
   it('un dal a metà semestre taglia il periodo, e la busta dichiara il taglio', async () => {
     const meta = '2026-09-15'
     const esito = await chiedi({ dal: meta, al: AL })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
+    sonoIntersecati(esito, meta, AL, anno.semestri)
+    assert.equal(anno.semestri[0].fine, CONFINE)
 
     const [primo, secondo] = esito.dati.periodi
-    // Il `dal` chiesto, non quello del semestre: un denominatore più largo darebbe
-    // una quota più bassa del vero.
-    assert.equal(primo.dal, meta)
-    assert.notEqual(primo.dal, anno.semestri[0].inizio)
-    assert.equal(primo.al, CONFINE)
-    assert.equal(secondo.dal, '2026-11-01')
 
     // Sette martedì da metà settembre a fine ottobre, contro nove.
     assert.equal(primo.udPreviste, 14)
@@ -318,20 +311,12 @@ describe('corso.presenze: il periodo tagliato e l’anno senza semestri', () => 
   it('un anno senza semestri dà comunque un periodo, con le cifre del totale', async () => {
     // Il raggruppamento non sparisce: un array di uno. Un anno senza semestri non
     // è valido (`validation.ts`) ma arriva da un file riparato a mano.
-    const veri = anno.semestri
-    archivio.modifica((r) => { r.anni[0].semestri = [] }, ['registro'])
-    try {
+    await senzaSemestri(archivio, async () => {
       const esito = await chiedi({ dal: DAL, al: AL })
-      assert.equal(esito.ok, true, JSON.stringify(esito))
-      assert.equal(esito.dati.periodi.length, 1)
-
-      const solo = esito.dati.periodi[0]
-      assert.equal(solo.semestreId, '', 'senza semestri non c’è nessun id da dichiarare')
-      assert.equal(solo.numero, 0)
-      assert.equal(solo.dal, DAL)
-      assert.equal(solo.al, AL)
+      eUnPeriodoSenzaSemestri(esito, DAL, AL)
 
       // Un periodo solo vuol dire che le sue cifre **sono** il totale.
+      const [solo] = esito.dati.periodi
       assert.equal(solo.udPreviste, esito.dati.udPreviste)
       assert.equal(solo.udACalendario, esito.dati.udACalendario)
       assert.equal(solo.oreGuardate, esito.dati.oreGuardate)
@@ -341,8 +326,6 @@ describe('corso.presenze: il periodo tagliato e l’anno senza semestri', () => 
       assert.equal(riga.periodi[0].udAssenza, riga.udAssenza)
       assert.equal(riga.periodi[0].assenza, riga.assenza)
       assert.equal(riga.periodi[0].media, riga.media)
-    } finally {
-      archivio.modifica((r) => { r.anni[0].semestri = veri }, ['registro'])
-    }
+    })
   })
 })

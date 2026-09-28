@@ -18,6 +18,10 @@ const it = {
   maiUsata: 'mai usata',
   togliUsata: 'Togli la voce: quel che l’ha già scelta resta com’è',
   togli: 'Togli la voce',
+  togliereTitolo: (voce: string) => `Togliere «${voce}»?`,
+  togliereTesto: (volte: number) =>
+    (volte === 1 ? 'È già stata scelta una volta' : `È già stata scelta ${volte} volte`) +
+    ': quel che l’ha scelta resta com’è, ma la voce non si offre più nelle tendine.',
   nuovaSegnaposto: 'una voce nuova',
   nuovaEtichetta: 'Come si legge la voce nuova',
   valoreCheSiSalvera: 'Il valore che si salverà',
@@ -63,6 +67,10 @@ export const testi = catalogo(it, {
     maiUsata: 'nie verwendet',
     togliUsata: 'Eintrag entfernen: Was ihn schon gewählt hat, bleibt, wie es ist',
     togli: 'Eintrag entfernen',
+    togliereTitolo: (voce) => `«${voce}» entfernen?`,
+    togliereTesto: (volte) =>
+      (volte === 1 ? 'Er wurde schon einmal gewählt' : `Er wurde schon ${volte}-mal gewählt`) +
+      ': Was ihn gewählt hat, bleibt, wie es ist, aber die Auswahllisten bieten ihn nicht mehr an.',
     nuovaSegnaposto: 'ein neuer Eintrag',
     nuovaEtichetta: 'Wie der neue Eintrag heisst',
     valoreCheSiSalvera: 'Der Wert, der gespeichert wird',
@@ -108,6 +116,10 @@ export const testi = catalogo(it, {
     maiUsata: 'jamais utilisée',
     togliUsata: 'Retirer l’entrée : ce qui l’a déjà choisie reste tel quel',
     togli: 'Retirer l’entrée',
+    togliereTitolo: (voce) => `Retirer « ${voce} » ?`,
+    togliereTesto: (volte) =>
+      (volte === 1 ? 'Elle a déjà été choisie une fois' : `Elle a déjà été choisie ${volte} fois`) +
+      ' : ce qui l’a choisie reste tel quel, mais les listes déroulantes ne la proposent plus.',
     nuovaSegnaposto: 'une nouvelle entrée',
     nuovaEtichetta: 'Comment se lit la nouvelle entrée',
     valoreCheSiSalvera: 'La valeur qui sera enregistrée',
@@ -152,6 +164,10 @@ export const testi = catalogo(it, {
     maiUsata: 'never used',
     togliUsata: 'Remove the entry: whatever already chose it stays as it is',
     togli: 'Remove the entry',
+    togliereTitolo: (voce) => `Remove “${voce}”?`,
+    togliereTesto: (volte) =>
+      (volte === 1 ? 'It has already been chosen once' : `It has already been chosen ${volte} times`) +
+      ': whatever chose it stays as it is, but the drop-down lists no longer offer it.',
     nuovaSegnaposto: 'a new entry',
     nuovaEtichetta: 'How the new entry reads',
     valoreCheSiSalvera: 'The value that will be saved',

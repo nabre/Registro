@@ -4,15 +4,17 @@
 // radici quando cambia l'anno, chiudersi.
 
 import assert from 'node:assert/strict'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { beforeEach, describe, it } from 'node:test'
+import { after, beforeEach, describe, it } from 'node:test'
 
 import { finestreCostruite, ipcMain } from '../helpers/fake-electron.mjs'
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
 /** La radice dell'app, scelta prima che lo shim la chieda: la calcola da qui. */
-const RADICE = percorso.join(tmpdir(), 'registro-app')
+const RADICE = mkdtempSync(percorso.join(tmpdir(), 'registro-app-'))
+after(() => rmSync(RADICE, { recursive: true, force: true }))
 process.env.REGISTRO_APPPATH = percorso.join(RADICE, 'dist')
 
 const { htmlDellaPagina, radiciConcesse, Uri, ViewColumn, finestre } = await import('../../dist-tests/environment.mjs')

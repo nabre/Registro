@@ -144,9 +144,9 @@ function tabellaAllievi (classe: Classe): HTMLElement {
 type CampoClasse = 'nome' | 'colore' | 'note' | 'docenteDiClasse' | 'archiviata'
 
 /**
- * Scrive un campo cambiato sulla classe com'è adesso: `classe.salva` manda la
- * classe intera, e quella del disegno perderebbe gli allievi aggiunti nel
- * frattempo. Un nome vuoto o già usato nell'anno non si scrive.
+ * Scrive un campo cambiato sulla classe com'è adesso: la mutazione atomica
+ * `classe.modifica` invia solo il campo toccato ed evita di sovrascrivere
+ * campi concorrenti o l'elenco degli allievi.
  */
 async function scriviClasse (
   classeId: string,
@@ -156,9 +156,10 @@ async function scriviClasse (
 ): Promise<void> {
   const viva = classePerId(classeId)
   if (!viva) return
+  const pulito = typeof valore === 'string' && campo !== 'note' ? valore.trim() : valore
   const aggiornata: Classe = {
     ...viva,
-    [campo]: typeof valore === 'string' && campo !== 'note' ? valore.trim() : valore,
+    [campo]: pulito,
   }
   const esito = validaClasse(aggiornata, stato.registro.classi)
   if (!esito.valido) {
@@ -166,7 +167,11 @@ async function scriviClasse (
     torna()
     return
   }
-  const risposta = await azione({ tipo: 'classe.salva', classe: aggiornata })
+  const risposta = await azione({
+    tipo: 'classe.modifica',
+    classeId,
+    [campo]: pulito,
+  })
   if (!risposta.ok) torna()
 }
 

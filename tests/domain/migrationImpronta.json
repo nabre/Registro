@@ -1,5 +1,5 @@
 {
-  "versione": 2,
+  "versione": 4,
   "campi": [
     "anni",
     "anni[].cartella",
@@ -86,6 +86,7 @@
     "consegne[].creataIl",
     "consegne[].data",
     "consegne[].dataLezioneId",
+    "consegne[].docenteDiClasse",
     "consegne[].documenti",
     "consegne[].documenti[].aggiuntoIl",
     "consegne[].documenti[].allievoId",
@@ -222,6 +223,9 @@
     "impostazioni.intestazione.carte[].logo",
     "impostazioni.intestazione.carte[].sede",
     "impostazioni.intestazione.docente",
+    "impostazioni.intestazione.docenteAppellativo",
+    "impostazioni.intestazione.docenteCognome",
+    "impostazioni.intestazione.docenteNome",
     "impostazioni.intestazione.firma",
     "impostazioni.intestazione.vecchiaCartellaVista",
     "impostazioni.liste",

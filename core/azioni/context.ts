@@ -401,6 +401,10 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
           documenti: piani.flatMap((p) => p.file.documenti),
         },
       }
+      // I file escono prima di `modifica`: i suoi divieti si guardano qui, o un
+      // documento in chiusura perderebbe i file e terrebbe le righe.
+      if (!ancoraQui()) return documentoCambiato()
+      archivio.vietaSeInChiusura()
       // Con file portati da qualcuno il gesto non si annulla: la storia tiene
       // le collezioni, non i file. I fogli stampati non contano: si rifanno.
       const { risorse, allegati, documenti } = piano.file

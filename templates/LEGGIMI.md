@@ -292,7 +292,7 @@ fine:
 
 Dentro il giro i nomi si scrivono come fuori — `{{allievo}}`, `tabella: prove` —
 e valgono per la voce di quel giro: chi scrive un modello non deve imparare due
-vocabolari. Quali gruppi un rapporto offre lo dice `datiRapporti.ts`, come per
+vocabolari. Quali gruppi un rapporto offre lo dice `reportData.ts`, come per
 le tabelle.
 
 ### Un'immagine
@@ -429,7 +429,7 @@ cosa diversa da quella che si compila — mentre le parole si scrivono in
 Quel che non sta qui sono le parole che escono dai conti: i nomi delle colonne,
 le caselle («ass.», «da fissare»), le frasi composte con i dati di una persona
 («Attenzione: assenza del 21%…»). Le scrive il registro, dal catalogo
-`src/domain/reportData.testi.ts`, già nella lingua in cui si stampa.
+`core/dominio/reportData.testi.ts`, già nella lingua in cui si stampa.
 
 ### Tradurre un modello
 
@@ -446,7 +446,7 @@ le lingue; i nomi dei segnaposto, delle tabelle e dei blocchi anche.
   Gli stessi segnaposto in tutte e quattro: un `{{udSenzaAppello}}` perso in
   tedesco è un numero che sul foglio tedesco non c'è.
 - **Una lingua nuova** è un file `_testi-xx.tpl` con tutte le frasi, una voce
-  nel catalogo `src/domain/templateCatalog.ts`, e la lingua nel registro.
+  nel catalogo `core/dominio/templateCatalog.ts`, e la lingua nel registro.
 
 `npm test` controlla le quattro cose che si sbagliano senza accorgersene: che
 ogni lingua abbia tutte le frasi dell'italiano e nessuna in più, che ogni
@@ -463,9 +463,14 @@ intestazioni seguite dal nulla. Anche una `sezione:` sparisce se sotto di lei
 non è rimasto niente.
 
 Disponibili ovunque: `{{titolo}}`, `{{anno}}`, `{{classe}}`, `{{materia}}`,
-`{{corso}}` (classe e materia insieme), `{{generato}}`. In intestazione e piede
-anche `{{pagina}}` e `{{pagine}}` — e dentro le frasi che la banda richiama:
-`{{frase.pagina-di-pagine}}` è «pagina {{pagina}} di {{pagine}}».
+`{{corso}}` (classe e materia insieme), `{{generato}}`. I dati
+dell’intestazione del documento offrono la scuola con `{{sede}}` e il docente
+con `{{docente}}` (la firma per esteso). Per comporre la firma o l’intestazione
+sono disponibili anche i campi strutturati: `{{docente.appellativo}}`,
+`{{docente.nome}}`, `{{docente.cognome}}`, e `{{docente.completo}}`
+(l’unione dei tre o, in loro assenza, la stringa `{{docente}}`). In intestazione
+e piede anche `{{pagina}}` e `{{pagine}}` — e dentro le frasi che la banda
+richiama: `{{frase.pagina-di-pagine}}` è «pagina {{pagina}} di {{pagine}}».
 
 I valori li scrive il registro nella lingua in cui stampa: `{{titolo}}` è
 «Verbale della lezione» o «Unterrichtsprotokoll», `{{periodo}}` è «anno intero»
@@ -474,7 +479,7 @@ restano come sono stati scritti.
 
 Quelli propri di ogni rapporto — e i nomi degli elenchi, delle tabelle e dei
 gruppi su cui `ripeti:` gira — sono scritti in
-`src/dominio/datiRapporti.ts`, una funzione per rapporto.
+`core/dominio/reportData.ts`, una funzione per rapporto.
 
 I PDF che ne escono finiscono in `registro/esportazioni/<materia>/<classe>/`,
 divisi in due cartelle: `classe/` per i fogli di tutta la classe,
@@ -491,7 +496,7 @@ ristampare tutto quando si cambia un modello.
 ## Aggiungere un rapporto
 
 Un modello nuovo in questa cartella non basta: il registro deve sapere quali
-dati mettergli dentro. Serve una funzione in `datiRapporti.ts` e una voce in
-`src/azioni/rapporti.ts`, il suo titolo in `reportData.testi.ts` e le sue
+dati mettergli dentro. Serve una funzione in `reportData.ts` e una voce in
+`core/azioni/reports.ts`, il suo titolo in `reportData.testi.ts` e le sue
 parole nei quattro `_testi`. Modificare quelli che ci sono, invece, si fa
 tutto da qui.

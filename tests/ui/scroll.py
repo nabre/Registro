@@ -16,22 +16,11 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/scroll.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright
+from banco import FOTOGRAMMA, chromium, pannello
 
-root = Path(__file__).resolve().parents[2]
-
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     # Bassa apposta: su una finestra alta la Guida non scorre.
-    page = browser.new_page(viewport={'width': 1280, 'height': 600})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.tutte=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); tutte.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+    page, errors = pannello(browser, 1280, 600)
 
     contenuto = page.locator('main.contenuto')
 
@@ -43,17 +32,17 @@ with sync_playwright() as p:
     # Una pagina lunga, scorsa a metà, sopravvive a un ridisegno che non cambia
     # niente (si spunta una riga e la pagina si rifà).
     page.evaluate("prova.aggiorna({vista:'guida'})")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     contenuto.evaluate('(el) => el.scrollTop = 400')
     dove = contenuto.evaluate('(el) => el.scrollTop')
     assert dove > 0, 'la Guida non scorre: la prova non direbbe niente'
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert contenuto.evaluate('(el) => el.scrollTop') == dove, 'la pagina è tornata in cima'
 
     # Cambiando vista si riparte dall'alto: è un'altra cosa che si guarda.
     page.evaluate("prova.aggiorna({vista:'impostazioni'})")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert contenuto.evaluate('(el) => el.scrollTop') == 0, 'la vista nuova eredita lo scorrimento della precedente'
 
     # La regola unica di `styles/foundations.css` arriva sulla scatola: il gesto
@@ -67,6 +56,5 @@ with sync_playwright() as p:
     assert 'thin' in stile, f'manca `scrollbar-width: thin`: {stile}'
 
     assert not errors, f'errori JS: {errors}'
-    browser.close()
 
 print('scorrimento: ok')

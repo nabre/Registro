@@ -58,11 +58,23 @@ function quanteVolte (chiave: ChiaveLista, valore: string): number {
   }
 }
 
-/** Scrive una lista intera, lasciando le altre come stanno. */
-function salvaLista (chiave: ChiaveLista, voci: VoceLista[]): void {
-  void salvaImpostazioni({
+/**
+ * Scrive una lista intera, lasciando le altre come stanno. Torna la promessa
+ * perché il pulsante resti spento finché la scrittura non è tornata.
+ */
+function salvaLista (chiave: ChiaveLista, voci: VoceLista[]): Promise<void> {
+  return salvaImpostazioni({
     liste: { ...(stato.registro.impostazioni.liste ?? {}), [chiave]: voci },
   })
+}
+
+/**
+ * Le voci come sono adesso nel registro, lette al momento del gesto: quelle
+ * del ridisegno sarebbero vecchie se un'altra modifica è appena tornata, e due
+ * gesti rapidi si annullerebbero a vicenda.
+ */
+function vociAttuali (chiave: ChiaveLista): VoceLista[] {
+  return vociDiLista(stato.registro.impostazioni, chiave)
 }
 
 /** Rimette la lista com'era nata: la chiave sparisce, e torna la predefinita. */
@@ -78,7 +90,7 @@ async function azzeraLista (chiave: ChiaveLista, etichetta: string): Promise<voi
   if (!vai) return
   const liste = { ...(stato.registro.impostazioni.liste ?? {}) }
   delete liste[chiave]
-  void salvaImpostazioni({ liste })
+  await salvaImpostazioni({ liste })
 }
 
 /**
@@ -115,12 +127,33 @@ function rigaVoce (
   const usi = quanteVolte(chiave, voce.valore)
   const t = testi()
 
-  const sposta = (verso: number) => {
-    const destinazione = indice + verso
-    if (destinazione < 0 || destinazione >= voci.length) return
-    const copia = [...voci]
-    ;[copia[indice], copia[destinazione]] = [copia[destinazione], copia[indice]]
-    salvaLista(chiave, copia)
+  // La voce si ritrova per valore, che non cambia mai: l'indice del ridisegno
+  // può essere già scivolato.
+  const cambia = (cambio: (v: VoceLista) => VoceLista): Promise<void> =>
+    salvaLista(chiave, vociAttuali(chiave).map((v) => (v.valore === voce.valore ? cambio(v) : v)))
+
+  const sposta = (verso: number): Promise<void> | undefined => {
+    const copia = [...vociAttuali(chiave)]
+    const da = copia.findIndex((v) => v.valore === voce.valore)
+    const destinazione = da + verso
+    if (da < 0 || destinazione < 0 || destinazione >= copia.length) return
+    ;[copia[da], copia[destinazione]] = [copia[destinazione], copia[da]]
+    return salvaLista(chiave, copia)
+  }
+
+  const togli = async (): Promise<void> => {
+    // Si conta di nuovo: fra il ridisegno e il clic può essere stata scelta.
+    const volte = quanteVolte(chiave, voce.valore)
+    if (volte > 0) {
+      const vai = await conferma({
+        titolo: t.togliereTitolo(voce.testo),
+        testo: t.togliereTesto(volte),
+        testoConferma: t.togli,
+        pericolo: true,
+      })
+      if (!vai) return
+    }
+    await salvaLista(chiave, vociAttuali(chiave).filter((v) => v.valore !== voce.valore))
   }
 
   return h(
@@ -154,8 +187,7 @@ function rigaVoce (
       attr: { 'aria-label': t.comeSiLegge },
       onchange: (evento: Event) => {
         const testo = (evento.target as HTMLInputElement).value.trim()
-        const copia = voci.map((v, i) => (i === indice ? { ...v, testo: testo || v.valore } : v))
-        salvaLista(chiave, copia)
+        void cambia((v) => ({ ...v, testo: testo || v.valore }))
       },
     }),
     // Il colore accanto alla parola.
@@ -165,8 +197,7 @@ function rigaVoce (
           t.coloreDi(voce.testo),
           // testo-fisso: la chiave di fuoco, non si legge
           `lista-${chiave}-${voce.valore}-colore`,
-          (colore) =>
-            salvaLista(chiave, voci.map((v, i) => (i === indice ? { ...v, colore } : v))),
+          (colore) => void cambia((v) => ({ ...v, colore })),
         )
       : null,
     // Il valore non si tocca mai, nemmeno nelle liste aperte: è quel che sta nei
@@ -185,7 +216,7 @@ function rigaVoce (
           simbolo: 'cestino',
           variante: 'fantasma',
           titolo: usi > 0 ? t.togliUsata : t.togli,
-          al: () => salvaLista(chiave, voci.filter((_, i) => i !== indice)),
+          al: togli,
         })
       : h('span', { class: 'voce-lista__vuota', attr: { 'aria-hidden': 'true' } }),
   )
@@ -203,7 +234,7 @@ function valoreDa (testo: string): string {
  * La riga per aggiungere una voce: l'ultima della tabella, con le stesse
  * colonne. Solo nelle liste a testo libero.
  */
-function aggiuntaVoce (chiave: ChiaveLista, voci: VoceLista[], colori: boolean): HTMLElement {
+function aggiuntaVoce (chiave: ChiaveLista, colori: boolean): HTMLElement {
   const t = testi()
   const campo = h('input', {
     class: 'campo__controllo voce-lista__nuova',
@@ -234,24 +265,28 @@ function aggiuntaVoce (chiave: ChiaveLista, voci: VoceLista[], colori: boolean):
       ) as HTMLInputElement)
     : null
 
-  const aggiungi = () => {
+  const aggiungi = (): Promise<void> | undefined => {
     const testo = campo.value.trim()
     if (!testo) return
     const base = valoreDa(testo)
     if (!base) return
+    const voci = vociAttuali(chiave)
     // Un valore già usato prende un numero in coda invece di sovrascrivere.
     const usati = new Set(voci.map((v) => v.valore))
     let valore = base
     let contatore = 2
     while (usati.has(valore)) valore = `${base}-${contatore++}`
     campo.value = ''
-    salvaLista(chiave, [...voci, { valore, testo, ...(colore ? { colore: colore.value } : {}) }])
+    return salvaLista(chiave, [
+      ...voci,
+      { valore, testo, ...(colore ? { colore: colore.value } : {}) },
+    ])
   }
 
   campo.addEventListener('keydown', (evento: KeyboardEvent) => {
     if (evento.key !== 'Enter') return
     evento.preventDefault()
-    aggiungi()
+    void aggiungi()
   })
 
   return h(
@@ -347,7 +382,7 @@ function bloccoLista (chiave: ChiaveLista): HTMLElement {
       { class: ['lista-sistema__voci', colori && 'lista-sistema__voci--con-colore'] },
       intestazioneVoci(colori),
       ...voci.map((_, indice) => rigaVoce(chiave, voci, indice, definizione.aperta, colori)),
-      definizione.aperta ? aggiuntaVoce(chiave, voci, colori) : null,
+      definizione.aperta ? aggiuntaVoce(chiave, colori) : null,
     ),
   )
 }

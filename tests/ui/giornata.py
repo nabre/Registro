@@ -17,29 +17,11 @@ l'unità didattica, le pause, l'inizio e la fine, i giorni. Qui si prova che:
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/giornata.py`
-Le fotografie vanno in `dist-tests/`, o nella cartella di `SCATTI`.
+Le fotografie vanno in `dist-tests/schermate/`, o nella cartella di `SCATTI`.
 """
-from pathlib import Path
-import os
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-scatti = Path(os.environ.get('SCATTI', root / 'dist-tests'))
-scatti.mkdir(parents=True, exist_ok=True)
-
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
+from banco import FRAME, chromium, pannello, schermata
 
 # Ricreazione alle 9:30, poi due UD e dieci minuti; la giornata dalle 7:30, che
 # non sta sulla griglia: dieci minuti prima della ricreazione avanzano.
@@ -57,20 +39,12 @@ def salvate(page):
         "()=>richieste.filter(m=>m.azione?.tipo==='impostazioni.salva').map(m=>m.azione.impostazioni)")
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     for schema in ['light', 'dark']:
-        page = browser.new_page(viewport={'width': 1280, 'height': 1400}, color_scheme=schema)
-        errori = []
-        page.on('pageerror', lambda e: errori.append(str(e)))
-        page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-        page.add_script_tag(content=PONTE)
-        page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-        page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-        page.wait_for_load_state('networkidle')
+        page, errori = pannello(browser, 1280, 1400, color_scheme=schema)
         page.evaluate(GIORNATA)
         page.evaluate(FRAME)
-        page.screenshot(path=str(scatti / f'giornata-{schema}.png'), full_page=True)
+        schermata(page, f'giornata-{schema}.png', full_page=True)
 
         # Quattro passi, in quest'ordine, numerati dal contatore.
         passi = page.locator('.giornata-passi > .scheda .scheda__titolo')
@@ -141,6 +115,5 @@ with sync_playwright() as p:
 
         assert not errori, errori
         page.close()
-    browser.close()
 
 print('giornata: ok')

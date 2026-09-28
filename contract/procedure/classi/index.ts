@@ -10,6 +10,7 @@ import { procedura as duplica } from './duplica.js'
 import { procedura as elenco } from './elenco.js'
 import { procedura as elimina } from './elimina.js'
 import { procedura as importa } from './importa.js'
+import { procedura as modifica } from './modifica.js'
 import { procedura as salva } from './salva.js'
 
 export const procedureClassi: ProceduraQualunque[] = [
@@ -18,5 +19,6 @@ export const procedureClassi: ProceduraQualunque[] = [
   elenco,
   elimina,
   importa,
+  modifica,
   salva,
 ]

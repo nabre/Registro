@@ -6,9 +6,10 @@
 // esbuild lo mette al posto di `electron` nel bundle `dist/ambiente.mjs` (ramo
 // `--test` di esbuild.mjs).
 
-import { mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /** La cartella che fa da `userData`: la prova la sceglie con REGISTRO_USERDATA. */
 function cartellaDati () {
@@ -261,6 +262,13 @@ const banco = (globalThis.__bancoElectron ??= {
   sistemaScuro: false,
   temaScelto: 'system',
   ascoltatoriTema: [],
+  /** `protocol`: gli schemi privilegiati e i gestori, per schema. */
+  schemiPrivilegiati: [],
+  protocolli: {},
+  /** Gli indirizzi chiesti a `net.fetch`, in ordine. */
+  scaricati: [],
+  /** I gestori dei permessi della sessione predefinita. */
+  permessi: { richiesta: null, controllo: null },
 })
 
 /** Il banco di lavoro, per le prove che vogliono predisporre le risposte. */
@@ -452,6 +460,49 @@ export class Tray extends Emettitore {
 /** Tutti i vassoi costruiti, distrutti compresi. */
 export const vassoiCostruiti = banco.vassoi
 
+/**
+ * Lo schema `registro://`: il gestore passato a `protocol.handle` finisce in
+ * `banco.protocolli`, e la prova lo chiama con una richiesta sua.
+ */
+export const protocol = {
+  registerSchemesAsPrivileged (schemi) {
+    banco.schemiPrivilegiati.push(...schemi)
+  },
+  handle (schema, gestore) {
+    banco.protocolli[schema] = gestore
+  },
+}
+
+/**
+ * `net.fetch` dei file: annota l'indirizzo in `banco.scaricati` e legge il file
+ * dal disco (404 se non c'è). Il tipo MIME lo darebbe Chromium: qui non conta.
+ */
+export const net = {
+  async fetch (indirizzo) {
+    banco.scaricati.push(indirizzo)
+    try {
+      return new Response(readFileSync(fileURLToPath(indirizzo)), { status: 200 })
+    } catch {
+      return new Response('', { status: 404 })
+    }
+  },
+}
+
+/**
+ * La sessione predefinita: i due gestori dei permessi restano sul banco
+ * (`banco.permessi.richiesta`, `banco.permessi.controllo`) e la prova li chiama.
+ */
+export const session = {
+  defaultSession: {
+    setPermissionRequestHandler (gestore) {
+      banco.permessi.richiesta = gestore
+    },
+    setPermissionCheckHandler (gestore) {
+      banco.permessi.controllo = gestore
+    },
+  },
+}
+
 class FintoIpc extends Emettitore {
   /**
    * Un messaggio dalla pagina, come lo consegnerebbe Electron: `sender.id` è
@@ -477,4 +528,7 @@ export default {
   BrowserWindow,
   ipcMain,
   Tray,
+  protocol,
+  net,
+  session,
 }

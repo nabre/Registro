@@ -5,6 +5,12 @@ import { catalogo } from '../../../../core/i18n/index.js'
 import { ordinalePausa } from '../../../../core/dominio/breaks.js'
 import { Maiuscola } from '../../../../core/dominio/lexicon.js'
 
+/** «della seconda», «dell’ottava», «dell’11ª»: davanti a vocale l'articolo si elide. */
+function dellaPausa (indice: number): string {
+  const ordinale = ordinalePausa(indice)
+  return /^(?:[aeiou]|8|11(?!\d))/i.test(ordinale) ? `dell’${ordinale}` : `della ${ordinale}`
+}
+
 /** «première», «2e», «3e»… */
 function ordinaleFr (indice: number): string {
   return indice === 0 ? 'première' : `${indice + 1}e`
@@ -21,12 +27,12 @@ const it = {
   /** Il nome di una pausa con la maiuscola: «Seconda pausa». */
   nomePausa: (indice: number) => `${Maiuscola(ordinalePausa(indice))} pausa`,
   durataMinuti: 'Durata (minuti)',
-  durataDella: (indice: number) => `Durata della ${ordinalePausa(indice)} pausa`,
+  durataDella: (indice: number) => `Durata ${dellaPausa(indice)} pausa`,
   inizio: 'Inizio',
   inizioPrima: 'Inizio della prima pausa',
   // L'unità nell'etichetta: «2» da solo non dice se sono ore, UD o minuti.
   dopoUd: (minuti: number) => `Dopo (UD da ${minuti} min)`,
-  distanzaDella: (indice: number) => `Distanza della ${ordinalePausa(indice)} pausa`,
+  distanzaDella: (indice: number) => `Distanza ${dellaPausa(indice)} pausa`,
   togliPrima: 'Togli la prima pausa: la seconda resta dov’è e prende il suo orario',
   togliQuesta: 'Togli questa pausa: la successiva si conta dalla precedente',
   aggiungiPrima: 'Aggiungi la prima pausa',

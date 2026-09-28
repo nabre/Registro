@@ -17,26 +17,9 @@ da `src/i18n/page.ts` prima di ogni altro modulo.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/lingue.py`
 """
-from pathlib import Path
-import os
 import re
-from playwright.sync_api import sync_playwright
 
-root = Path(__file__).resolve().parents[2]
-scatti = Path(os.environ.get('SCATTI', root / 'dist-tests'))
-scatti.mkdir(parents=True, exist_ok=True)
-
-PONTE = '''
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
+from banco import FRAME, chromium, pannello, schermata
 
 # Parole che in tedesco, francese e inglese non esistono (preposizioni
 # articolate, avverbi comuni). Una parola attaccata a un punto o a una barra è
@@ -51,18 +34,11 @@ SOLO_ITALIANO = re.compile(
 
 errori_totali = []
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     for lingua in ['de', 'fr', 'en']:
-        page = browser.new_page(viewport={'width': 1400, 'height': 1000})
-        errori = []
-        page.on('pageerror', lambda e: errori.append(str(e)))
-        page.set_content('<html><body class="app"><div id="radice"></div></body></html>')
-        page.add_script_tag(content=f"window.registroLingua = '{lingua}'")
-        page.add_script_tag(content=PONTE)
-        page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-        page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-        page.wait_for_load_state('networkidle')
+        # Senza `lang`: deve metterlo il pannello, dalla lingua.
+        page, errori = pannello(browser, 1400, html='<html><body class="app"><div id="radice"></div></body></html>',
+                                lingua=lingua)
         assert page.evaluate('document.documentElement.lang') == lingua
 
         ids = page.evaluate('prova.PAGINE.map(p=>p.id)')
@@ -76,11 +52,10 @@ with sync_playwright() as p:
                     riga = riga.strip()[:100]
                     errori_totali.append(f'{lingua} {pagina}: «{trovata.group(0)}» in «{riga}»')
             if pagina == 'pagina.calendario':
-                page.screenshot(path=str(scatti / f'lingua-{lingua}.png'))
+                schermata(page, f'lingua-{lingua}.png')
 
         assert not errori, errori
         page.close()
-    browser.close()
 
 if errori_totali:
     print('\n'.join(sorted(set(errori_totali))))

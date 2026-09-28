@@ -12,6 +12,7 @@
 //   node esbuild.mjs                  costruisce una volta
 //   node esbuild.mjs --produzione     minifica e lascia fuori le mappe
 //   node esbuild.mjs --test           i bundle di `node --test`
+//   node esbuild.mjs --test --copertura  gli stessi, con le mappe per `tools/copertura.mjs`
 //   node esbuild.mjs --ui             i bundle delle prove Python di `tests/ui/`
 //
 // Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazione`.
@@ -86,12 +87,15 @@ function uuidDiElectronBuilder (nome) {
  */
 function copiaCaratteriPdf (dove) {
   mkdirSync(dove, { recursive: true })
-  cpSync('node_modules/pdfjs-dist/standard_fonts', dove, { recursive: true })
+  cpSync('resources/pdf-fonts', dove, { recursive: true })
 }
 
 const test = process.argv.includes('--test')
 const ui = process.argv.includes('--ui')
 const produzione = process.argv.includes('--produzione')
+// Le mappe inline servono solo a riportare la copertura sui `.ts`: senza, i
+// bundle di prova restano leggeri come sempre.
+const mappeDiProva = process.argv.includes('--copertura') ? 'inline' : false
 
 /** Il modulo `apparato` risolto nel file nostro. */
 const aliasApparato = { apparato: './desktop/apparato/platform.ts' }
@@ -243,7 +247,7 @@ function provaNode (entrata, uscita, extra = {}) {
     format: 'esm',
     platform: 'node',
     target: 'node18',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
     ...extra,
   }
 }
@@ -256,7 +260,7 @@ function provaNeutra (entrata, uscita) {
     outfile: uscita,
     format: 'esm',
     platform: 'neutral',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
   }
 }
 
@@ -288,7 +292,7 @@ function provaDeiCataloghi () {
     outfile: 'dist-tests/i18n.mjs',
     format: 'esm',
     platform: 'neutral',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
   }
 }
 

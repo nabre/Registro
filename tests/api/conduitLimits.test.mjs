@@ -20,18 +20,18 @@ import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro13-condotto-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-condotto-limiti-')
 
 let api
 let archivio
 let condotto
 let indirizzo
 
-/** Quante volte `giro13.segna` è stata eseguita. */
+/** Quante volte `prova.segna` è stata eseguita. */
 let segnate = 0
-/** Quante `giro13.ferma` sono arrivate in fondo. */
+/** Quante `prova.ferma` sono arrivate in fondo. */
 let finite = 0
-/** Chi aspetta che una `giro13.ferma` cominci, e chi la sblocca. */
+/** Chi aspetta che una `prova.ferma` cominci, e chi la sblocca. */
 let partita = () => undefined
 const sblocchi = []
 const sblocca = () => { for (const via of sblocchi.splice(0)) via() }
@@ -55,7 +55,7 @@ before(async () => {
 
   registra(
     definisci({
-      nome: 'giro13.segna',
+      nome: 'prova.segna',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Conta le volte in cui è stata eseguita',
@@ -69,7 +69,7 @@ before(async () => {
       },
     }),
     definisci({
-      nome: 'giro13.ferma',
+      nome: 'prova.ferma',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Aspetta che la prova la sblocchi',
@@ -139,7 +139,7 @@ describe('dopo un JSON rotto', () => {
     try {
       // Un `write` solo: le due righe finiscono in coda insieme, prima che la prima
       // sia letta.
-      presa.write(`{rotto\n${riga({ id: 2, method: 'giro13.segna', params: {} })}`)
+      presa.write(`{rotto\n${riga({ id: 2, method: 'prova.segna', params: {} })}`)
       await finché(() => stato.chiusa, () => JSON.stringify(stato))
       // Il tempo di un giro della coda, se la seconda riga ci fosse ancora.
       await pausa(200)
@@ -189,7 +189,7 @@ describe('la coda piena', () => {
     const { presa, stato } = await apri()
     try {
       // `ferma` tiene la coda, le 127 notifiche dopo la riempiono fino a 128.
-      let testo = riga({ id: 'ferma', method: 'giro13.ferma', params: {} })
+      let testo = riga({ id: 'ferma', method: 'prova.ferma', params: {} })
       for (let i = 0; i < 127; i++) testo += riga({ method: '$versione' })
       // Tre notifiche di troppo e una richiesta di troppo.
       for (let i = 0; i < 3; i++) testo += riga({ method: '$versione' })
@@ -214,7 +214,7 @@ describe('il tetto di 16 MiB per presa', () => {
     const { presa, stato } = await apri()
     try {
       // Blocca la coda con una chiamata lenta.
-      presa.write(riga({ id: 'ferma', method: 'giro13.ferma', params: {} }))
+      presa.write(riga({ id: 'ferma', method: 'prova.ferma', params: {} }))
       // Manda righe da 500 KB l'una (sotto LIMITE_RIGA di 1 MB): 34 righe = 17 MB > 16 MB MASSIMO_ACCODATO.
       const pezzo = 'x'.repeat(500 * 1024)
       for (let i = 0; i < 34; i++) {
@@ -237,7 +237,7 @@ describe('il timer d’inattività durante una chiamata lenta', () => {
     try {
       const cominciata = new Promise((risolvi) => { partita = risolvi })
       // Avvia una chiamata lenta.
-      presa.write(riga({ id: 'lenta', method: 'giro13.ferma', params: {} }))
+      presa.write(riga({ id: 'lenta', method: 'prova.ferma', params: {} }))
       await cominciata
 
       // Imposta un timeout sul socket locale e aspetta più a lungo di un normale ciclo.
@@ -261,7 +261,7 @@ describe('lo spegnimento', () => {
     const cominciata = new Promise((risolvi) => { partita = risolvi })
     const { presa } = await apri()
     // Manda e chiude: il modo normale di mandare una notifica.
-    presa.write(riga({ method: 'giro13.ferma', params: {} }))
+    presa.write(riga({ method: 'prova.ferma', params: {} }))
     await cominciata
     presa.destroy()
     // Il tempo perché il condotto veda la chiusura della presa.
@@ -289,13 +289,15 @@ describe('il segreto del nome della pipe', () => {
     skip: process.platform !== 'win32' && 'la pipe col segreto è di Windows',
   }, async () => {
     const { avviaCondotto, indirizzoCondotto } = api
-    const primo = leggi()
-    assert.match(primo, /^[0-9a-f]{32}$/)
+    // Spento il condotto, il segreto se ne va con lui: il nome della pipe resta
+    // libero per chiunque, e la riga di comando non deve più cercarlo.
+    assert.throws(leggi, { code: 'ENOENT' }, 'il segreto è rimasto dopo lo spegnimento')
+    const primo = indirizzo
 
     condotto = await avviaCondotto(archivio, { cartellaUtente: process.env.REGISTRO_USERDATA })
     const secondo = leggi()
     assert.match(secondo, /^[0-9a-f]{32}$/)
-    assert.notEqual(secondo, primo, 'il segreto è rimasto lo stesso fra due accensioni')
+    assert.ok(!primo.endsWith(`-${secondo}`), 'il segreto è rimasto lo stesso fra due accensioni')
     assert.ok(indirizzoCondotto().endsWith(`-${secondo}`))
 
     // E il nome nuovo risponde davvero.

@@ -5,6 +5,8 @@ import type { MomentoValutazione } from '../../../core/dominio/models.js'
 import { validaValutazione } from '../../../core/dominio/validation.js'
 import { inoltra, scrittura } from '../../core.js'
 import { entita, oggetto } from '../../schemas.js'
+import { esigiLezione, esigiPiano } from '../common/plans.js'
+import { esigiCorso } from '../common/register.js'
 import { testi } from './valutazioni.testi.js'
 
 export const procedura = scrittura({
@@ -21,5 +23,11 @@ export const procedura = scrittura({
       valida: validaValutazione,
     }),
   }),
-  esegui: inoltra(valutazioni, 'valutazione.salva'),
+  esegui: (ambito, ingresso) => {
+    const { corsoId, lezioneId, pianoId } = ingresso.valutazione
+    esigiCorso(ambito, corsoId)
+    if (lezioneId) esigiLezione(ambito, lezioneId)
+    if (pianoId) esigiPiano(ambito, pianoId)
+    return inoltra(valutazioni, 'valutazione.salva')(ambito, ingresso)
+  },
 })

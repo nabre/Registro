@@ -66,6 +66,35 @@ type Muro = number
  */
 const MASSIMO_OCCORRENZE = 3000
 
+/** Spazio o tabulazione: in testa a una riga, la continuazione della precedente. */
+function piega (b: number | undefined): boolean {
+  return b === 0x20 || b === 0x09
+}
+
+/**
+ * Il testo di un file ICS dai suoi byte, con le righe piegate già sciolte. Si
+ * scioglie prima di decodificare: la piega cade a 75 byte, anche a metà di un
+ * carattere di più byte, e decodificando prima ne resterebbero due «�».
+ */
+export function testoDaByteIcs (byte: Uint8Array): string {
+  const sciolti = new Uint8Array(byte.length)
+  let n = 0
+  for (let i = 0; i < byte.length; i += 1) {
+    const b = byte[i]
+    if (b === 0x0d && byte[i + 1] === 0x0a && piega(byte[i + 2])) {
+      i += 2
+      continue
+    }
+    if ((b === 0x0d || b === 0x0a) && piega(byte[i + 1])) {
+      i += 1
+      continue
+    }
+    sciolti[n] = b
+    n += 1
+  }
+  return new TextDecoder('utf-8').decode(sciolti.subarray(0, n))
+}
+
 /** Le righe logiche: una riga che comincia con uno spazio continua la precedente. */
 function righe (testo: string): string[] {
   // Il BOM che Blocco note mette in testa ai file UTF-8.

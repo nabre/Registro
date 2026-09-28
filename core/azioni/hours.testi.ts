@@ -9,6 +9,9 @@ const it = {
     'L’ora ha già appello, osservazioni o comportamento di un’altra classe: ' +
     'non si può spostare su un corso di un’altra classe. ' +
     'Si crea una lezione nuova nel corso giusto.',
+  citataAltrove:
+    'L’ora è legata a valutazioni, consegne o check del suo corso: ' +
+    'non si può spostare su un altro corso. Si crea una lezione nuova nel corso giusto.',
   ridisposta: 'L’ora cadeva su una pausa della giornata: spezzata e spostata, con le stesse UD.',
   nessunaInChiusura: 'Nessuna ora cade in un giorno di chiusura.',
   tolteInChiusura: (n: number) => `${plurale(n, 'ora tolta', 'ore tolte')} dai giorni di chiusura.`,
@@ -22,6 +25,9 @@ export const testi = catalogo(it, {
       'Die Stunde hat schon eine Präsenzkontrolle, Beobachtungen oder Verhalten einer ' +
       'anderen Klasse: Sie lässt sich nicht in einen Kurs einer anderen Klasse verschieben. ' +
       'Erstelle eine neue Stunde im richtigen Kurs.',
+    citataAltrove:
+      'Die Stunde ist mit Bewertungen, Aufträgen oder Checks ihres Kurses verknüpft: ' +
+      'Sie lässt sich nicht in einen anderen Kurs verschieben. Erstelle eine neue Stunde im richtigen Kurs.',
     ridisposta:
       'Die Stunde fiel auf eine Pause im Tagesablauf: aufgeteilt und verschoben, ' +
       'mit denselben Lektionen.',
@@ -36,6 +42,9 @@ export const testi = catalogo(it, {
       'La leçon a déjà un appel, des observations ou un comportement d’une autre classe : ' +
       'on ne peut pas la déplacer vers un cours d’une autre classe. ' +
       'Crée une nouvelle leçon dans le bon cours.',
+    citataAltrove:
+      'La leçon est liée à des évaluations, des devoirs ou des checks de son cours : ' +
+      'on ne peut pas la déplacer vers un autre cours. Crée une nouvelle leçon dans le bon cours.',
     ridisposta:
       'La leçon tombait sur une pause de la journée : scindée et déplacée, ' +
       'avec les mêmes périodes.',
@@ -50,6 +59,9 @@ export const testi = catalogo(it, {
       'The lesson already has attendance, observations or behaviour from another class: ' +
       'it can’t be moved to a course of another class. ' +
       'Create a new lesson in the right course.',
+    citataAltrove:
+      'The lesson is linked to assessments, assignments or checks of its course: ' +
+      'it can’t be moved to another course. Create a new lesson in the right course.',
     ridisposta:
       'The lesson fell on a break in the day: split and moved, with the same periods.',
     nessunaInChiusura: 'No lesson falls on a closure day.',

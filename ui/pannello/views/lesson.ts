@@ -37,6 +37,8 @@ import { pannelloRiconsegneDellOra } from './returns.js'
 import { moduloOsservazione } from '../forms.js'
 import { PORZIONI_LEZIONE } from '../tabs.js'
 import { azione } from '../bridge.js'
+import { consegneDellaLezione } from '../../../core/dominio/assignments.js'
+import { checkDelCorso } from '../../../core/dominio/check.js'
 import {
   aggiorna,
   classeDiLezione,
@@ -46,6 +48,7 @@ import {
   stato,
   titoloDiLezione,
   type SchedaLezione,
+  type SchedaStrumentiLezione,
 } from '../state.js'
 import { pannelloAppello } from './lesson/attendance.js'
 import { matriceOsservata, noteDellaMatrice } from './lesson/behaviour.js'
@@ -269,6 +272,87 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
   )
 }
 
+// ------------------------------------------------------------------ strumenti della lezione
+
+/**
+ * Il pannello destro della scheda lezione: permette di passare con immediatezza
+ * fra valutazioni (voti e prove), pendenze (consegne dell'ora) e check dell'ora.
+ */
+function pannelloStrumentiLezione (lezione: Lezione): HTMLElement {
+  const t = testi()
+  const strumenti = stato.schedaStrumentiLezione ?? 'valutazioni'
+
+  // Quanti elementi per ciascuno strumento
+  const momenti = stato.registro.valutazioni.filter((v) => v.lezioneId === lezione.id)
+  const classe = classeDiLezione(lezione)
+  const consegne = consegneDellaLezione(stato.registro, lezione, classe)
+  const quanteConsegne =
+    consegne.arretrate.length +
+    consegne.scadono.length +
+    consegne.date.length +
+    consegne.aperte.length
+  const check = checkDelCorso(stato.registro, lezione.corsoId)
+  const quanteCheck = check?.colonne.length ?? 0
+
+  const opzioniStrumenti: Array<{
+    id: SchedaStrumentiLezione
+    etichetta: string
+    conto?: number
+  }> = [
+    {
+      id: 'valutazioni',
+      etichetta: t.schedaValutazioni,
+      conto: momenti.length > 0 ? momenti.length : undefined,
+    },
+    {
+      id: 'pendenze',
+      etichetta: t.schedaPendenze,
+      conto: quanteConsegne > 0 ? quanteConsegne : undefined,
+    },
+    {
+      id: 'check',
+      etichetta: t.schedaCheck,
+      conto: quanteCheck > 0 ? quanteCheck : undefined,
+    },
+  ]
+
+  const selettoreStrumenti = h(
+    'div',
+    { class: 'selettore-strumenti' },
+    ...opzioniStrumenti.map((opz) =>
+      h(
+        'button',
+        {
+          class: [
+            'selettore-strumenti__voce',
+            strumenti === opz.id && 'selettore-strumenti__voce--attiva',
+          ],
+          type: 'button',
+          onclick: () => aggiorna({ schedaStrumentiLezione: opz.id }),
+        },
+        opz.etichetta,
+        opz.conto !== undefined
+          ? pastiglia(String(opz.conto), strumenti === opz.id ? 'informativo' : 'quiete')
+          : null,
+      ),
+    ),
+  )
+
+  const pannelloCorrente =
+    strumenti === 'pendenze'
+      ? pannelloConsegne(lezione)
+      : strumenti === 'check'
+        ? (pannelloCheckDellOra(lezione) ?? h('div'))
+        : pannelloValutazioni(lezione)
+
+  return h(
+    'div',
+    { class: 'strumenti-lezione' },
+    selettoreStrumenti,
+    pannelloCorrente,
+  )
+}
+
 // ------------------------------------------------------------------ vista
 
 export function vistaLezione (): Figlio {
@@ -371,7 +455,7 @@ export function vistaLezione (): Figlio {
           'div',
           { class: 'colonne colonne--lezione' },
           h('div', { class: 'colonna' }, pannelloPiano(lezione)),
-          h('div', { class: 'colonna' }, pannelloValutazioni(lezione)),
+          h('div', { class: 'colonna' }, pannelloStrumentiLezione(lezione)),
         )
       : null,
     stato.schedaLezione === 'annotazioni'

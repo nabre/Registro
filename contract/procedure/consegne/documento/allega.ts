@@ -10,7 +10,7 @@ export const procedura = scrittura({
   azione: 'consegna.documento.allega',
   // Dialogo e copia di file, come `raccogli`.
   idempotente: false,
-  collezioni: ['consegne'],
+  collezioni: ['consegne', 'smistamenti'],
   ingresso: oggetto({
     consegnaId: identificatore(),
     allievoId: perChi,

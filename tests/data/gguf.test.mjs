@@ -11,13 +11,15 @@
 //      stesso nome non si scrivono l'uno sul `.ipull` dell'altro.
 
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { beforeEach, describe, it } from 'node:test'
+import { after, beforeEach, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-gguf-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-gguf-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 const {
   cartellaModelli,
@@ -44,6 +46,8 @@ beforeEach(() => {
 
 /** Un server che serve quei byte una volta sola, e si chiude da sé. */
 async function servitore (corpo, { lento = false } = {}) {
+  let mandati = 0
+  const battiti = new Set()
   const server = createServer((_richiesta, risposta) => {
     risposta.writeHead(200, {
       'content-type': 'application/octet-stream',
@@ -54,7 +58,6 @@ async function servitore (corpo, { lento = false } = {}) {
       return
     }
     // Un byte ogni tanto: tiene aperto lo scarico il tempo di annullarlo.
-    let mandati = 0
     const battito = setInterval(() => {
       if (mandati >= corpo.length) {
         clearInterval(battito)
@@ -64,11 +67,28 @@ async function servitore (corpo, { lento = false } = {}) {
       risposta.write(corpo.subarray(mandati, mandati + 1))
       mandati += 1
     }, 50)
+    battiti.add(battito)
   })
   await new Promise((pronto) => server.listen(0, '127.0.0.1', pronto))
   return {
     uri: `http://127.0.0.1:${server.address().port}/pesi.gguf`,
-    chiudi: () => { server.close() },
+    mandati: () => mandati,
+    // Il server lento, lasciato a sé, manderebbe il resto a un byte ogni 50 ms
+    // e terrebbe vivo il processo per dieci secondi: si taglia qui.
+    chiudi: () => {
+      for (const battito of battiti) clearInterval(battito)
+      server.closeAllConnections()
+      server.close()
+    },
+  }
+}
+
+/** Aspetta che una cosa diventi vera, senza aspettare per sempre. */
+async function finché (vero, ms = 5000) {
+  const fine = Date.now() + ms
+  while (!vero()) {
+    if (Date.now() > fine) throw new Error('non è successo in tempo')
+    await new Promise((poi) => setTimeout(poi, 10))
   }
 }
 
@@ -119,8 +139,8 @@ describe('lo scarico fermato a mano', () => {
         sorgente: { deposito: 'tale/quale', file: 'pesi.gguf' },
         segnale: fermo.signal,
       })
-      // Il tempo che lo scarico cominci davvero: prima non c'è niente da ripulire.
-      await new Promise((poi) => setTimeout(poi, 300))
+      // Che lo scarico cominci davvero: prima non c'è niente da ripulire.
+      await finché(() => server.mandati() >= 1)
       fermo.abort()
 
       await assert.rejects(corsa, /fermato/i)

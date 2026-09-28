@@ -513,7 +513,7 @@ const it = {
         termine: 'Forse cercavi',
         testo:
           'Una parola sbagliata di una lettera non lascia a mani vuote: la guida propone la ' +
-          'più vicina con **Forse cercavi «…»**. **Mostra tutta la guida** torna a tutto.',
+          'più vicina con **Forse cercavi «…»?**. **Mostra tutta la guida** torna a tutto.',
       },
       {
         termine: 'La guida della pagina in cui si è',
@@ -1884,7 +1884,7 @@ export const testi = catalogo(it, {
           testo:
             'Le **Tableau de bord**, première page de l’Agenda, résume la journée et mène là où ' +
             `il faut. **${Molti(FR.pendenza)}** montre les évaluations et devoirs du cours choisi ; ` +
-            '**Enseignant de classe** rassemble les démarches et devoirs dus par la classe.',
+            '**Maître de classe** rassemble les démarches et devoirs dus par la classe.',
         },
       ],
       note: [

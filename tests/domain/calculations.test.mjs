@@ -7,10 +7,17 @@ import { describe, it } from 'node:test'
 
 import {
   IMPOSTAZIONI_PREDEFINITE,
+  MINUTI_MINIMI_ATTIVITA,
+  PASSO_MINUTI_ATTIVITA,
   matriceCorso,
   scalettaSulleUd,
+  arrotondaMinutiAttivita,
+  arrotondaCentesimo,
   arrotondaVoto,
   votiDellaScala,
+  minutiAttivita,
+  minutiDiScarto,
+  udDaMinutiAttivita,
   avanzamentoPiano,
   confrontaPianoConLezione,
   creaAttivita,
@@ -22,12 +29,14 @@ import {
   fineLezione,
   formattaVoto,
   inizioLezione,
+  lezioneNellaGiornata,
   lezioniSovrapposte,
   mediaAllievo,
   mediaMomento,
   minutiEffettivi,
   minutiTotali,
   momentoLezione,
+  normalizzaValutazione,
   ordinaAllievi,
   riepilogaPresenze,
   contaUd,
@@ -38,6 +47,7 @@ import {
   statiAllineati,
   statoDellOra,
   statoUd,
+  udPrevisteDaOrario,
   unitaDidattiche,
   votoValido,
   datiPresenze,
@@ -45,6 +55,8 @@ import {
   percentoAssenza,
   segnalazioniDelCorso,
   notaFineSemestre,
+  segnato,
+  siglaPresenza,
 } from '../../dist-tests/domain.mjs'
 import { scuolaMinima } from '../helpers/register.mjs'
 
@@ -174,6 +186,33 @@ describe('presenze', () => {
 
   it('con la classe vuota non divide per zero', () => {
     assert.equal(riepilogaPresenze([]).quotaPresenza, 1)
+  })
+
+  it('la quota di presenza conta i presenti su chi ha un appello', () => {
+    // Cinque con l'appello, uno mancato per tutta l'ora: 4 su 5.
+    assert.equal(riepilogaPresenze(presenze).quotaPresenza, 0.8)
+  })
+
+  it('esonerato è solo chi lo è per tutte le UD decise', () => {
+    const riepilogo = riepilogaPresenze([{ allievoId: 'a', stati: ['esonerato', 'presente'] }])
+    assert.equal(riepilogo.esonerati, 0)
+    assert.equal(riepilogo.presenti, 1)
+  })
+
+  it('segna le irregolarità, non la presenza né la casella vuota', () => {
+    const casi = [
+      ['non-impostato', false],
+      ['presente', false],
+      ['assente', true],
+      ['ritardo', true],
+      ['esonerato', true],
+    ]
+    for (const [stato, atteso] of casi) assert.equal(segnato(stato), atteso, stato)
+  })
+
+  it('uno stato sconosciuto ha la sigla del non detto', () => {
+    assert.equal(siglaPresenza('assente'), 'X')
+    assert.equal(siglaPresenza('xyz'), '-')
   })
 
   it('quel che non è stato detto resta non detto', () => {
@@ -392,6 +431,20 @@ describe('medie', () => {
     assert.equal(conDiverse.scaleEterogenee, true)
   })
 
+  it('basta un estremo o la sufficienza diversi per dire le scale eterogenee', () => {
+    const casi = [
+      ['solo il minimo', { ...scala, min: 0 }, true],
+      ['solo il massimo', { ...scala, max: 10 }, true],
+      ['solo la sufficienza', { ...scala, sufficienza: 3.5 }, true],
+      ['uguali, anche se oggetti diversi', { ...scala }, undefined],
+    ]
+    const m1 = momento('m1', 1, [{ allievoId: 'x', valore: 4, assente: false }])
+    for (const [caso, altra, atteso] of casi) {
+      const m2 = { ...momento('m2', 1, [{ allievoId: 'x', valore: 5, assente: false }]), scala: altra }
+      assert.equal(mediaAllievo([m1, m2], 'x').scaleEterogenee, atteso, caso)
+    }
+  })
+
   it('calcola la media di classe di un singolo momento', () => {
     const m = momento('m1', 1, [
       { allievoId: 'x', valore: 4, assente: false },
@@ -399,6 +452,15 @@ describe('medie', () => {
       { allievoId: 'z', valore: null, assente: true },
     ])
     assert.equal(mediaMomento(m), 5)
+  })
+
+  it('la media di un momento salta le caselle vuote', () => {
+    const m = momento('m1', 1, [
+      { allievoId: 'x', valore: 4, assente: false },
+      { allievoId: 'y', valore: null, assente: false },
+    ])
+    assert.equal(mediaMomento(m), 4)
+    assert.equal(mediaMomento(momento('m2', 1, [{ allievoId: 'x', valore: null, assente: false }])), null)
   })
 
   it('anche la media di un momento si ferma al centesimo', () => {
@@ -427,10 +489,45 @@ describe('medie', () => {
     assert.equal(esito.fasce[5], 1)
   })
 
+  it('la sufficienza piena conta fra i sufficienti', () => {
+    const esito = distribuzione(momento('m1', 1, [
+      { allievoId: 'a', valore: 3, assente: false },
+      { allievoId: 'b', valore: 4, assente: false },
+      { allievoId: 'c', valore: 5, assente: false },
+    ]))
+    assert.equal(esito.sufficienti, 2)
+    assert.equal(esito.insufficienti, 1)
+    assert.equal(esito.quotaSufficienti, 2 / 3)
+    assert.equal(esito.media, 4)
+  })
+
+  it('una prova senza voti non ha estremi né quota', () => {
+    const esito = distribuzione(momento('m1', 1, [{ allievoId: 'a', valore: null, assente: true }]))
+    assert.equal(esito.conteggio, 0)
+    assert.equal(esito.media, null)
+    assert.equal(esito.minimo, null)
+    assert.equal(esito.massimo, null)
+    assert.equal(esito.quotaSufficienti, 0)
+    assert.deepEqual(esito.fasce, {})
+  })
+
   it('scrive i voti senza zeri inutili', () => {
     assert.equal(formattaVoto(4.5), '4.5')
     assert.equal(formattaVoto(4), '4')
     assert.equal(formattaVoto(null), '—')
+  })
+
+  it('toglie gli zeri in coda, non quelli in mezzo', () => {
+    const casi = [
+      [4.05, '4.05'],
+      [10, '10'],
+      [4.5, '4.5'],
+      [4, '4'],
+      [4.25, '4.25'],
+      [Number.NaN, '—'],
+      [Number.POSITIVE_INFINITY, '—'],
+    ]
+    for (const [valore, atteso] of casi) assert.equal(formattaVoto(valore), atteso, String(valore))
   })
 
   it('porta il voto sul passo della scala e dentro gli estremi', () => {
@@ -440,10 +537,24 @@ describe('medie', () => {
     assert.equal(arrotondaVoto(0, scala), 1)
   })
 
+  it('un passo zero o negativo torna ai quarti', () => {
+    for (const passo of [0, -1]) {
+      assert.equal(arrotondaVoto(4.13, { ...scala, passo }), 4.25, `passo ${passo}`)
+      assert.equal(arrotondaVoto(4.3, { ...scala, passo }), 4.25, `passo ${passo}`)
+    }
+  })
+
   it('riconosce i voti fuori scala', () => {
     assert.equal(votoValido(4, scala), true)
     assert.equal(votoValido(6.5, scala), false)
     assert.equal(votoValido(Number.NaN, scala), false)
+  })
+
+  it('gli estremi della scala sono voti validi, un soffio fuori no', () => {
+    const casi = [[1, true], [6, true], [0.99, false], [6.01, false]]
+    for (const [valore, atteso] of casi) {
+      assert.equal(votoValido(valore, scala), atteso, String(valore))
+    }
   })
 })
 
@@ -708,13 +819,13 @@ describe('la scaletta posata sulle unità didattiche', () => {
     assert.deepEqual(esito.posti.map((p) => p.ud), [0, 0, 1])
     assert.equal(esito.minutiLezione, 90)
     assert.equal(esito.udLezione, 2)
-    assert.equal(esito.durataPiano, 1.75)
-    assert.equal(esito.scostamento, -0.25)
+    assert.equal(esito.durataPiano, 80 / 45)
+    assert.equal(esito.scostamento, 80 / 45 - 2)
   })
 
   it('segna l’attività che sta a cavallo di due UD', () => {
     const lezione = oraDiDueUd()
-    // 30 + 30: la seconda comincia al minuto 30 e finisce al 60, oltre il
+    // 35 + 35: la seconda comincia al minuto 35 e finisce al 70, oltre il
     // confine dei 45.
     const esito = scalettaSulleUd(
       [creaAttivita('a', 0.75), creaAttivita('b', 0.75)],
@@ -735,14 +846,15 @@ describe('la scaletta posata sulle unità didattiche', () => {
     )
 
     assert.equal(esito.posti[1].ud, null, 'la seconda comincia oltre la fine')
-    assert.equal(esito.scostamento, 0.5)
+    assert.equal(esito.durataPiano, 115 / 45)
+    assert.equal(esito.scostamento, 115 / 45 - 2)
   })
 
   it('conta i minuti presi in ciascuna UD', () => {
     const lezione = oraDiDueUd()
     const esito = scalettaSulleUd([creaAttivita('unica', 1.5)], lezione, 45)
 
-    assert.deepEqual(esito.ud.map((u) => u.occupati), [45, 23])
+    assert.deepEqual(esito.ud.map((u) => u.occupati), [45, 25])
     assert.deepEqual(esito.ud.map((u) => u.capienza), [45, 45])
     // Il cambio con cui la scaletta si posa sull'ora: la media delle sue UD.
     assert.equal(esito.minutiPerUd, 45)
@@ -756,8 +868,9 @@ describe('la scaletta posata sulle unità didattiche', () => {
       45,
     )
 
-    // Cinque centesimi di unità non sono un'attività: si sale al quarto.
-    assert.equal(esito.durataPiano, 0.5)
+    // Cinque centesimi di unità non sono un'attività: si sale al minimo (5 minuti).
+    // Insieme ai 10 minuti del quarto d'ora fanno 20 minuti (20 / 45 UD).
+    assert.equal(esito.durataPiano, 20 / 45)
     assert.deepEqual(esito.posti.map((p) => p.ud), [0, 0])
   })
 
@@ -806,11 +919,11 @@ describe('la scaletta posata sulle unità didattiche', () => {
     )
 
     assert.deepEqual(esito.posti.map((p) => [p.oraInizio, p.oraFine]), [
-      ['08:00', '08:34'],
-      // Comincia alle 08:30, ne restano 15 prima dell'intervallo: gli altri 15
-      // cadono dopo, e l'attività finisce alle 09:15, non alle 09:00.
-      ['08:34', '09:23'],
-      ['09:23', '09:34'],
+      ['08:00', '08:35'],
+      // Comincia alle 08:35, ne restano 10 prima dell'intervallo: gli altri 25
+      // cadono dopo, e l'attività finisce alle 09:25.
+      ['08:35', '09:25'],
+      ['09:25', '09:35'],
     ])
     assert.equal(esito.blocchi[1].pausaPrima, 15)
   })
@@ -819,9 +932,9 @@ describe('la scaletta posata sulle unità didattiche', () => {
     const esito = scalettaSulleUd([creaAttivita('corta', 0.25)], lezioneConPausa(), 45)
 
     assert.equal(esito.ud.length, 2)
-    assert.deepEqual(esito.ud.map((u) => u.occupati), [11, 0])
+    assert.deepEqual(esito.ud.map((u) => u.occupati), [10, 0])
     assert.deepEqual(esito.ud.map((u) => u.blocco), [0, 1])
-    assert.deepEqual(esito.blocchi.map((b) => b.occupati), [11, 0])
+    assert.deepEqual(esito.blocchi.map((b) => b.occupati), [10, 0])
   })
 
   it('raggruppa le UD attaccate e dice quante ne tiene ogni gruppo', () => {
@@ -842,7 +955,7 @@ describe('la scaletta posata sulle unità didattiche', () => {
       ['15:00', '16:30'],
     ])
     // Cento minuti: novanta nel primo gruppo, dieci dopo l'intervallo.
-    assert.deepEqual(esito.blocchi.map((b) => b.occupati), [90, 11])
+    assert.deepEqual(esito.blocchi.map((b) => b.occupati), [90, 10])
     assert.equal(esito.posti[0].blocco, 0)
     assert.equal(esito.posti[0].bloccoFine, 1)
     assert.equal(esito.posti[0].oltreLaPausa, true)
@@ -865,6 +978,36 @@ describe('la scaletta posata sulle unità didattiche', () => {
     assert.equal(esito.posti[0].aCavallo, false)
     assert.equal(esito.posti[0].oltreLaPausa, false)
     assert.equal(esito.scostamento, 1)
+  })
+})
+
+describe('lo scarto della scaletta rispetto alla lezione (minutiDiScarto)', () => {
+  function oraDiDueUd () {
+    return creaLezione('cor-1', '2027-03-01', '08:20', 90)
+  }
+
+  it('calcola la differenza esatta tra minuti arrotondati a 5 e minuti della lezione', () => {
+    const lezione = oraDiDueUd()
+    // Due attività: 0.25 (10 min) e 0.75 (35 min) -> 45 min su 90 min di lezione -> -45 min
+    const piano = creaPiano()
+    piano.attivita = [creaAttivita('intro', 0.25), creaAttivita('spiegazione', 0.75)]
+    assert.equal(minutiDiScarto(piano, lezione, 45), -45)
+  })
+
+  it('quando la scaletta sfora la lezione, lo scarto in minuti è positivo', () => {
+    const lezione = oraDiDueUd()
+    // Due attività: 1.5 (70 min) e 0.75 (35 min) -> 105 min su 90 min -> +15 min
+    const piano = creaPiano()
+    piano.attivita = [creaAttivita('teoria', 1.5), creaAttivita('lab', 0.75)]
+    assert.equal(minutiDiScarto(piano, lezione, 45), 15)
+  })
+
+  it('scaletta perfettamente allineata dà zero minuti di scarto', () => {
+    const lezione = oraDiDueUd()
+    // Due attività da 1 UD ciascuna (45 min + 45 min = 90 min su 90 min) -> 0 min
+    const piano = creaPiano()
+    piano.attivita = [creaAttivita('prima', 1), creaAttivita('seconda', 1)]
+    assert.equal(minutiDiScarto(piano, lezione, 45), 0)
   })
 })
 
@@ -895,6 +1038,28 @@ describe('i voti che una scala ammette', () => {
     assert.equal(votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 0 }).length, 11)
     assert.equal(votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: -1 }).length, 11)
     assert.equal(votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 99 }).length, 11)
+  })
+
+  it('un passo largo quanto la scala dà solo i due estremi', () => {
+    assert.deepEqual(votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 5 }), ['1', '6'])
+    // Appena oltre la scala è un passo storto: si torna al mezzo punto.
+    const ripiego = votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 10 })
+    assert.equal(ripiego.length, 11)
+    assert.equal(ripiego[1], '1.5')
+    assert.equal(ripiego.at(-1), '6')
+  })
+
+  it('un passo che non divide la scala non va oltre il massimo', () => {
+    const voti = votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 0.3 })
+    assert.ok(voti.every((v) => Number(v) <= 6), voti.join(' '))
+    assert.equal(voti.at(-1), '5.8')
+  })
+
+  it('un passo che la divide arriva al massimo', () => {
+    assert.equal(votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 0.25 }).at(-1), '6')
+    const decimi = votiDellaScala({ min: 1, max: 6, sufficienza: 4, passo: 0.1 })
+    assert.equal(decimi.length, 51)
+    assert.equal(decimi.at(-1), '6')
   })
 })
 
@@ -987,5 +1152,118 @@ describe('i voti sul passo, senza residui', () => {
     assert.equal(notaFineSemestre(4.37, scala(0.25), 0.5), 4.5)
     // Un passo che scavalca il massimo non porta la nota fuori scala.
     assert.equal(notaFineSemestre(6, scala(0.25), 4), 6)
+  })
+
+  it('senza una media vera non c’è nota', () => {
+    assert.equal(notaFineSemestre(null, scala(0.25), 0.5), null)
+    assert.equal(notaFineSemestre(Number.NaN, scala(0.25), 0.5), null)
+    assert.equal(notaFineSemestre(Number.POSITIVE_INFINITY, scala(0.25), 0.5), null)
+  })
+})
+
+describe('durata delle attività a blocchi di 5 minuti', () => {
+  it('garantisce che il passo e il minimo siano 5 minuti', () => {
+    assert.equal(MINUTI_MINIMI_ATTIVITA, 5)
+    assert.equal(PASSO_MINUTI_ATTIVITA, 5)
+  })
+
+  it('arrotonda al multiplo di 5 più vicino con minimo di 5 minuti', () => {
+    assert.equal(arrotondaMinutiAttivita(0), 5)
+    assert.equal(arrotondaMinutiAttivita(-10), 5)
+    assert.equal(arrotondaMinutiAttivita(1), 5)
+    assert.equal(arrotondaMinutiAttivita(2), 5)
+    assert.equal(arrotondaMinutiAttivita(4), 5)
+    assert.equal(arrotondaMinutiAttivita(5), 5)
+    assert.equal(arrotondaMinutiAttivita(6), 5)
+    assert.equal(arrotondaMinutiAttivita(7), 5)
+    assert.equal(arrotondaMinutiAttivita(8), 10)
+    assert.equal(arrotondaMinutiAttivita(11), 10)
+    assert.equal(arrotondaMinutiAttivita(13), 15)
+    assert.equal(arrotondaMinutiAttivita(18), 20)
+    assert.equal(arrotondaMinutiAttivita(44), 45)
+  })
+
+  it('calcola la durata in minuti di un’attività assicurando multipli di 5 e min 5', () => {
+    const attivita = { ...creaAttivita('spiegazione', 0.5), durataUd: 0.2 } // 0.2 * 50 = 10 min
+    assert.equal(minutiAttivita(attivita, 50), 10)
+
+    const breve = { ...creaAttivita('lampo', 0.5), durataUd: 0.02 } // 0.02 * 50 = 1 min -> 5 min
+    assert.equal(minutiAttivita(breve, 50), 5)
+
+    const frazione = { ...creaAttivita('frazione', 0.5), durataUd: 0.33 } // 0.33 * 50 = 16.5 min -> 15 min
+    assert.equal(minutiAttivita(frazione, 50), 15)
+  })
+
+  it('converte minuti in UD mantenendo i vincoli di passo e minimo', () => {
+    // 15 minuti su UD da 50 = 0.3 UD
+    assert.equal(udDaMinutiAttivita(15, 50), 0.3)
+    // 2 minuti arrotonda a 5 minuti = 0.1 UD
+    assert.equal(udDaMinutiAttivita(2, 50), 0.1)
+    // Se minutiPerUd non è valido usa il predefinito 50
+    assert.equal(udDaMinutiAttivita(10, 0), 0.2)
+  })
+})
+
+describe('un voto letto dal file', () => {
+  const valoreDi = (valore) =>
+    normalizzaValutazione({ voti: [{ allievoId: 'a1', valore }] }).voti[0].valore
+
+  it('vuoto o di soli spazi resta vuoto, non zero', () => {
+    assert.equal(valoreDi(''), null)
+    assert.equal(valoreDi('  '), null)
+  })
+
+  it('con la virgola vale come col punto', () => {
+    assert.equal(valoreDi('4,5'), 4.5)
+    assert.equal(valoreDi('5'), 5)
+    assert.equal(valoreDi(5.25), 5.25)
+  })
+
+  it('illeggibile resta vuoto', () => {
+    assert.equal(valoreDi('buono'), null)
+    assert.equal(valoreDi(null), null)
+  })
+})
+
+describe('il centesimo di una media', () => {
+  it('il mezzo centesimo va in su anche dove la virgola mobile lo perde', () => {
+    assert.equal(arrotondaCentesimo(4.475), 4.48)
+    assert.equal(arrotondaCentesimo(1.005), 1.01)
+    assert.equal(arrotondaCentesimo(3.994), 3.99)
+  })
+
+  it('i negativi si arrotondano come i positivi, senza meno zero', () => {
+    assert.equal(arrotondaCentesimo(-4.475), -4.48)
+    assert.equal(arrotondaCentesimo(-0.001), 0)
+  })
+})
+
+describe('le UD previste, con l’ora annullata che comincia dopo la pausa', () => {
+  // Il lunedì una fascia che comincia nella pausa delle 09:50: la lezione vera
+  // nasce alle 10:05, e annullata va tolta lo stesso.
+  const pause = { prima: { inizio: '09:50', durataMin: 15 }, seguenti: [] }
+  const anno = { id: 'a1', inizio: '2026-09-01', fine: '2026-09-30', sospensioni: [] }
+  const corso = {
+    id: 'c1',
+    orario: [{ id: 'r1', giorno: 1, inizio: '09:50', durataMin: 90, aula: '' }],
+  }
+  const annullata = lezioneNellaGiornata('c1', '2026-09-07', '09:50', 90, { minutiUd: 45, pause })
+  annullata.stato = 'annullata'
+
+  it('la lezione vera comincia dopo la pausa', () => {
+    assert.equal(inizioLezione(annullata), '10:05')
+  })
+
+  it('l’ora annullata non conta fra le previste', () => {
+    // Quattro lunedì in settembre 2026, due UD ciascuno.
+    assert.equal(udPrevisteDaOrario(anno, corso, anno.inizio, anno.fine, 45, [], pause), 8)
+    assert.equal(udPrevisteDaOrario(anno, corso, anno.inizio, anno.fine, 45, [annullata], pause), 6)
+  })
+
+  it('senza pause la chiave resta l’ora dell’orario', () => {
+    const semplice = creaLezione('c1', '2026-09-14', '09:50', 90)
+    semplice.stato = 'annullata'
+    const { inizio, fine } = anno
+    assert.equal(udPrevisteDaOrario(anno, corso, inizio, fine, 45, [semplice], undefined), 6)
   })
 })

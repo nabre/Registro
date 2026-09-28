@@ -130,7 +130,7 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     assert.ok(ritorno > dove && ritorno < nucleo, 'la guardia non esce prima di eseguire')
   })
 
-  it('la condizione letta dal sorgente rifiuta tutte e 170 le scritture', () => {
+  it('la condizione letta dal sorgente rifiuta tutte e 171 le scritture', () => {
     // Operatore e valore del confronto si tirano fuori dal sorgente e si applicano
     // all'elenco vero: un `=== 'scrittura'` lascerebbe passare un genere nuovo.
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -147,7 +147,7 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     // Le scritture, contate. Comprendono gesti che non scrivono l'archivio (zoom,
     // dialoghi, aggiornamenti): il genere dice chi può chiamarli da fuori, non se
     // l'archivio cambia.
-    assert.equal(scritture.length, 170, `scritture: ${scritture.length}`)
+    assert.equal(scritture.length, 171, `scritture: ${scritture.length}`)
 
     const passate = scritture.filter((p) => !rifiuterebbe(p)).map((p) => p.nome)
     assert.deepEqual(passate, [], `scritture che una domanda farebbe passare:\n${passate.join('\n')}`)
@@ -307,17 +307,6 @@ describe('sette scritture: l’ingresso buono passa, quello storto non scrive', 
       assert.equal(archivio.revisione, prima, `${nome} ha scritto e poi ha detto di no`)
     })
   }
-
-  it('rifiutare non lascia niente dietro di sé, nemmeno a metà', async () => {
-    // Tutte e sette di fila, un conto solo in fondo: l'archivio conta le modifiche,
-    // quindi anche una scrittura poi annullata si vedrebbe.
-    const prima = archivio.revisione
-    for (const { nome, storto } of sette()) {
-      const esito = await api.chiama(archivio, nome, storto)
-      assert.equal(esito.ok, false, nome)
-    }
-    assert.equal(archivio.revisione, prima)
-  })
 })
 
 describe('impostazioni.salva non perde il calendario ICS', () => {
@@ -808,5 +797,63 @@ describe('il check segue il corso quando le materie si fondono e le classi si co
     const vecchi = new Set(vecchia.colonne.map((c) => c.id))
     assert.equal(nuova.colonne.some((c) => vecchi.has(c.id)), false, 'id di colonna condivisi')
     assert.deepEqual(nuova.spunte, [])
+  })
+
+  it('classi.modifica aggiorna solo i campi passati lasciando inalterati gli altri e gli allievi', async () => {
+    const prima = archivio.registro.classi.find((c) => c.id === classe.id)
+    const allieviPrima = JSON.parse(JSON.stringify(prima.allievi))
+    const nomePrima = prima.nome
+
+    // 1. Modifica atomica di note e colore
+    const esito1 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      colore: '#123456',
+      note: 'Note aggiornate',
+    })
+    assert.equal(esito1.ok, true, JSON.stringify(esito1))
+
+    let aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.colore, '#123456')
+    assert.equal(aggiornata.note, 'Note aggiornate')
+    assert.equal(aggiornata.nome, nomePrima)
+    assert.deepEqual(aggiornata.allievi, allieviPrima, 'gli allievi non devono essere toccati')
+
+    // 2. Modifica di docenteDiClasse e archiviata
+    const esito2 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      docenteDiClasse: true,
+      archiviata: true,
+    })
+    assert.equal(esito2.ok, true, JSON.stringify(esito2))
+
+    aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.docenteDiClasse, true)
+    assert.equal(aggiornata.archiviata, true)
+    assert.equal(aggiornata.colore, '#123456')
+    assert.deepEqual(aggiornata.allievi, allieviPrima)
+
+    // 3. Modifica del nome
+    const esito3 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: 'I INF E2',
+    })
+    assert.equal(esito3.ok, true, JSON.stringify(esito3))
+    aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.nome, 'I INF E2')
+    assert.deepEqual(aggiornata.allievi, allieviPrima)
+
+    // 4. Rifiuto se nome vuoto
+    const esitoVuoto = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: '   ',
+    })
+    assert.equal(esitoVuoto.ok, false)
+
+    // 5. Rifiuto se nome duplicato
+    const esitoDuplicato = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: 'II INF E',
+    })
+    assert.equal(esitoDuplicato.ok, false)
   })
 })

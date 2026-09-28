@@ -1,10 +1,16 @@
 // Il file di posta consegnato al programma di posta: l'unico pezzo dell'invio
-// che si possa provare. Oggetto accentato, nomi degli allegati, copia nascosta.
+// che si possa provare. Oggetto accentato, nomi degli allegati, copia nascosta,
+// destinatari piegati, e gli allegati scelti che non danno un file.
 
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { componiEml, componiPerInvio, destinatariBusta } from '../../dist-tests/domain.mjs'
+import {
+  allegatiMancanti,
+  componiEml,
+  componiPerInvio,
+  destinatariBusta,
+} from '../../dist-tests/domain.mjs'
 
 /** Le intestazioni, dalla testa fino alla prima riga vuota. */
 function testate (eml) {
@@ -15,6 +21,20 @@ function valore (eml, nome) {
   const riga = testate(eml).find((r) => r.toLowerCase().startsWith(`${nome.toLowerCase()}:`))
   return riga ? riga.slice(nome.length + 1).trim() : null
 }
+
+/** Un'intestazione ricucita: le righe di continuazione cominciano con uno spazio. */
+function ricucita (messaggio, nome) {
+  const testa = messaggio.split('\r\n\r\n')[0].replace(/\r\n /g, ' ')
+  const riga = testa.split('\r\n').find((r) => r.startsWith(`${nome}:`))
+  return riga ? riga.slice(nome.length + 1).trim() : null
+}
+
+const conAllegato = (nome) => ({
+  oggetto: 'x',
+  corpo: 'y',
+  ccn: ['a@b.ch'],
+  allegati: [{ nome, tipo: 'application/pdf', contenuto: 'AAAA' }],
+})
 
 describe('il file di posta', () => {
   it('si apre come bozza da mandare, non come messaggio ricevuto', () => {
@@ -198,5 +218,77 @@ describe('il messaggio che parte per il server', () => {
       }),
       ['docente@edu.ti.ch', 'uno@b.ch'],
     )
+  })
+})
+
+describe('il nome dell’allegato', () => {
+  it('il `name=` di ripiego tiene l’estensione', () => {
+    for (const scritto of [componiEml(conAllegato('Pagella 1° semestre.pdf')), componiPerInvio(conAllegato('Pagella 1° semestre.pdf'))]) {
+      assert.match(scritto, /Content-Type: application\/pdf; name="Pagella_1_semestre\.pdf"/)
+    }
+  })
+
+  it('`filename*=` codifica anche apostrofo, parentesi e asterisco', () => {
+    const eml = componiEml(conAllegato("L'uscita (bozza)*.pdf"))
+    const valore = eml.match(/filename\*=UTF-8''(\S+)/)[1]
+    assert.doesNotMatch(valore, /['()*]/)
+    assert.equal(valore, 'L%27uscita%20%28bozza%29%2A.pdf')
+    assert.equal(decodeURIComponent(valore), "L'uscita (bozza)*.pdf")
+  })
+})
+
+describe('l’oggetto accentato lungo', () => {
+  const oggetto = 'Comunicazione alle famiglie: uscita didattica al Monte San Giorgio — ' +
+    'autorizzazione, costi e orari del 12 ottobre è confermata'
+
+  it('va in parole codificate di al più 75 caratteri, su righe di al più 76', () => {
+    for (const scritto of [componiEml({ oggetto, corpo: 'x', ccn: ['a@b.ch'] }), componiPerInvio({ oggetto, corpo: 'x', ccn: [] })]) {
+      const parole = ricucita(scritto, 'Subject').split(' ')
+      assert.ok(parole.length > 1, 'spezzato')
+      for (const parola of parole) {
+        assert.match(parola, /^=\?UTF-8\?B\?[A-Za-z0-9+/=]+\?=$/)
+        assert.ok(parola.length <= 75, `parola lunga: ${parola.length}`)
+      }
+      const inizio = testate(scritto).findIndex((r) => r.startsWith('Subject:'))
+      for (let i = inizio; i < testate(scritto).length; i++) {
+        const riga = testate(scritto)[i]
+        if (i > inizio && !riga.startsWith(' ')) break
+        assert.ok(riga.length <= 76, `riga lunga: ${riga.length}`)
+      }
+      // Ogni parola è UTF-8 intero: niente lettere spezzate a metà.
+      const dentro = parole
+        .map((p) => Buffer.from(p.slice('=?UTF-8?B?'.length, -2), 'base64'))
+        .map((b) => {
+          const testo = b.toString('utf8')
+          assert.ok(!testo.includes('�'), 'lettera spezzata')
+          return testo
+        })
+        .join('')
+      assert.equal(dentro, oggetto)
+    }
+  })
+})
+
+describe('il `.eml` con molti destinatari', () => {
+  it('piega `To` e `Bcc` sotto i 998 caratteri, senza perdere indirizzi', () => {
+    const molti = Array.from({ length: 40 }, (_, i) => `famiglia.numero${i}@edu.ti.ch`)
+    const eml = componiEml({ oggetto: 'x', corpo: 'y', a: molti, ccn: molti })
+    for (const riga of testate(eml)) assert.ok(riga.length < 998, `riga lunga: ${riga.length}`)
+    for (const nome of ['To', 'Bcc']) {
+      assert.equal(ricucita(eml, nome), molti.join(', '))
+    }
+  })
+})
+
+describe('gli allegati scelti di una comunicazione', () => {
+  it('dice quali non danno un file: consegna sparita o senza file «a me»', () => {
+    const registro = {
+      consegne: [
+        { id: 'csg-pronta', documento: 'modulo', documenti: [{ allievoId: 'docente', file: 'a.pdf', nome: 'a.pdf' }] },
+        { id: 'csg-vuota', documento: 'modulo', documenti: [] },
+      ],
+    }
+    const comunicazione = { documentiIds: ['csg-pronta', 'csg-vuota', 'csg-sparita'] }
+    assert.deepEqual(allegatiMancanti(registro, comunicazione), ['csg-vuota', 'csg-sparita'])
   })
 })

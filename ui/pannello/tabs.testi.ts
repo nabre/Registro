@@ -39,10 +39,6 @@ const it = {
   // I filtri delle pendenze.
   tutteAiuto: 'Quel che tocca a me e quel che tocca alle classi, insieme',
   mie: 'Le mie',
-  mieAiuto: 'Solo quel che devo fare io: la lista della sera prima',
-  delleClassi: 'Delle classi',
-  delleClassiAiuto:
-    'Solo quel che devono portare loro: la lista che si legge entrando in aula',
 
   /** La linguetta della mappa con tutti i punti. */
 }
@@ -73,10 +69,6 @@ export const testi = catalogo(it, {
     allieviAiuto: 'Ein Blatt pro lernende Person: Leistung, Präsenzen, Notizen',
     tutteAiuto: 'Was mich betrifft und was die Klassen betrifft, zusammen',
     mie: 'Meine',
-    mieAiuto: 'Nur was ich selbst tun muss: die Liste für den Vorabend',
-    delleClassi: 'Der Klassen',
-    delleClassiAiuto:
-      'Nur was sie mitbringen müssen: die Liste, die man beim Betreten des Schulzimmers liest',
   },
   fr: {
     amministrazione: 'Administration',
@@ -105,10 +97,6 @@ export const testi = catalogo(it, {
       'Une fiche par personne en formation : résultats, présences, annotations',
     tutteAiuto: 'Ce qui me revient et ce qui revient aux classes, ensemble',
     mie: 'Les miennes',
-    mieAiuto: 'Seulement ce que je dois faire moi : la liste de la veille',
-    delleClassi: 'Des classes',
-    delleClassiAiuto:
-      'Seulement ce qu’elles doivent apporter : la liste qu’on lit en entrant en classe',
   },
   en: {
     amministrazione: 'Admin',
@@ -134,9 +122,5 @@ export const testi = catalogo(it, {
     allieviAiuto: 'One sheet per learner: progress, attendance, notes',
     tutteAiuto: 'What is mine to do and what is the classes’, together',
     mie: 'Mine',
-    mieAiuto: 'Only what I have to do: the list for the evening before',
-    delleClassi: 'The classes’',
-    delleClassiAiuto:
-      'Only what they have to bring: the list you read on entering the room',
   },
 })

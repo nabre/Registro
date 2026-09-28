@@ -19,10 +19,7 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/staleEdits.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright
-
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, chromium, pannello
 
 # Un piano con due tappe, sull'ora del primo corso. Serve solo a queste prove.
 PREPARA = '''() => {
@@ -48,19 +45,11 @@ CAMBIA_ALTROVE = '''() => {
   prova.aggiorna({ registro: { ...r, piani } })
 }'''
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.tutte=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); tutte.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errors = pannello(browser)
 
     page.evaluate(PREPARA)
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     tappe = page.locator('.piano-editor input.attivita-riga__titolo')
     assert tappe.count() == 2, f'l’editor non mostra le due tappe del piano: {tappe.count()}'
 
@@ -68,7 +57,7 @@ with sync_playwright() as p:
     # nell'editor: la pagina deve mostrare la scaletta nuova.
     page.evaluate('() => document.activeElement?.blur()')
     page.evaluate(CAMBIA_ALTROVE)
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert tappe.count() == 3, f'l’editor mostra ancora la scaletta vecchia: {tappe.count()} tappe'
 
     # E quel che salva adesso parte dalla scaletta nuova, con la tappa di
@@ -102,6 +91,5 @@ with sync_playwright() as p:
     assert page.evaluate("document.activeElement?.getAttribute('name')") == 'note', 'Ctrl+S ha tolto il fuoco'
 
     assert not errors, f'errori JS: {errors}'
-    browser.close()
 
 print('modifiche vecchie: ok')

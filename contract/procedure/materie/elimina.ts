@@ -13,6 +13,7 @@ export const procedura = scrittura({
   // loro ore, voti, consegne e check.
   collezioni: [
     'registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'smistamenti',
+    'fascicoli',
   ],
   ingresso: oggetto({ materiaId: identificatore() }),
   esegui: (ambito, ingresso) => {

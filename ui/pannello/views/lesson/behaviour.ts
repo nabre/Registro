@@ -9,6 +9,7 @@ import { menuContestuale } from '../../components/menu.js'
 import { SEGNI, nomeSegno, segnoFermo } from '../../components/marks.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
+import type { Risposta } from '../../../../contract/protocollo.js'
 import { aggiorna, stato } from '../../state.js'
 import { tabella } from '../../components/table.js'
 import { minuscolo } from '../../../../core/i18n/index.js'
@@ -26,13 +27,13 @@ function chiaveCella (allievoId: string, aspetto: string): string {
 }
 
 /** Scrive una casella e basta: il resto della matrice non si tocca. */
-async function scriviCella (
+function scriviCella (
   lezione: Lezione,
   allievoId: string,
   aspetto: string,
   cambio: { segno?: SegnoOsservato | null; nota?: string },
-): Promise<void> {
-  await azione({ tipo: 'osservazione.cella', lezioneId: lezione.id, allievoId, aspetto, ...cambio })
+): Promise<Risposta> {
+  return azione({ tipo: 'osservazione.cella', lezioneId: lezione.id, allievoId, aspetto, ...cambio })
 }
 
 /**
@@ -57,8 +58,23 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
     const chi = `${nomeCompleto(allievo)} · ${aspetto.testo}`
 
     // Vuota, molto bene, da migliorare, e da capo: tre stati e un gesto solo.
-    const prossimo: SegnoOsservato | null =
-      segno === null ? 'positivo' : segno === 'positivo' ? 'negativo' : null
+    const prossimoSegno = (da: SegnoOsservato | null): SegnoOsservato | null =>
+      da === null ? 'positivo' : da === 'positivo' ? 'negativo' : null
+    const prossimo = prossimoSegno(segno)
+
+    /**
+     * Il segno che la casella ha mandato e non ha ancora visto tornare: come
+     * nell'appello (`attendance.ts`), un secondo clic rapido ripartirebbe dal
+     * segno del ridisegno e manderebbe lo stesso. Respinto, si torna al ridisegno.
+     * La scatola distingue «niente in volo» dalla casella svuotata (`null`).
+     */
+    let inVolo: { segno: SegnoOsservato | null } | null = null
+    const manda = (scelto: SegnoOsservato | null): void => {
+      inVolo = { segno: scelto }
+      void scriviCella(lezione, allievo.id, aspetto.valore, { segno: scelto }).then((esito) => {
+        if (!esito.ok) inVolo = null
+      })
+    }
 
     const bottone = h(
       'button',
@@ -82,7 +98,7 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
             .join('\n'),
           'aria-label': `${chi}: ${nomeSegno(segno)}`,
         },
-        onclick: () => void scriviCella(lezione, allievo.id, aspetto.valore, { segno: prossimo }),
+        onclick: () => manda(prossimoSegno(inVolo ? inVolo.segno : segno)),
         oncontextmenu: (evento: MouseEvent) =>
           menuContestuale(
             evento,

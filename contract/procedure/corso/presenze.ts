@@ -210,7 +210,9 @@ export const procedura = definisci({
       // Zero previste in un periodo: `matriceCorso` ripiega sulle UD a calendario di
       // quel periodo, come fa sul totale.
       const previste = anno
-        ? udPrevisteDaOrario(anno, corso, da, a, r.impostazioni.minutiUd, r.lezioni)
+        ? udPrevisteDaOrario(
+            anno, corso, da, a, r.impostazioni.minutiUd, r.lezioni, r.impostazioni.pause,
+          )
         : 0
       return {
         oreGuardate: lezioni.length,

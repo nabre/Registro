@@ -145,6 +145,11 @@ const TRACCIATI: Record<string, string> = {
   // L'imbuto: il filtro, cioè che cosa l'assistente sa della pagina. Gambo corto
   // e bocca larga, perché a 16 px un imbuto lungo sembra una freccia in giù.
   filtro: '<path d="M4 5h16l-6.2 7.4V19l-3.6-2.2v-4.4z"/>',
+  // Lo scambio: spostare tra corso e docente di classe. Tracciato di Lucide («arrow-left-right», licenza ISC).
+  scambio: '<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
+  // La bacchetta magica: generazione automatica. Tracciato di Lucide («wand-2», licenza ISC).
+  bacchetta:
+    '<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4M3 8h4M19 14v4M17 16h4"/>',
 }
 
 export type NomeIcona = keyof typeof TRACCIATI

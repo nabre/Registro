@@ -5,7 +5,7 @@ import * as apparato from 'apparato'
 
 import { nomeCompleto } from '../dominio/calculations.js'
 import { lezioniDaOrario, lezioniNeiGiorniChiusi } from '../dominio/timetable.js'
-import { annoAllineato, conLetteraSettimana } from '../dominio/years.js'
+import { annoAllineato, conLetteraSettimana, motivoSettimanaRifiutata } from '../dominio/years.js'
 import type {
   AnnoScolastico,
   Attivita,
@@ -204,6 +204,8 @@ export const registro = {
   'anno.settimana': (contesto, azione) => {
     const anno = contesto.registro.anni.find((a) => a.id === azione.annoId)
     if (!anno) return rifiuta(comuni().nonTrovato.anno)
+    const motivo = motivoSettimanaRifiutata(anno, azione.giorno, azione.lettera)
+    if (motivo) return rifiuta(motivo)
     const aggiornato = conLetteraSettimana(anno, azione.giorno, azione.lettera)
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
     return contesto.modifica((r) => {
@@ -273,6 +275,11 @@ export const registro = {
           lista.corsoId = dove
         }
       }
+      // Le regole del calendario che nominavano il doppione.
+      for (const regola of r.impostazioni.calendario?.regole ?? []) {
+        const dove = regola.corsoId ? superstiti.get(regola.corsoId) : undefined
+        if (dove) regola.corsoId = dove
+      }
       r.corsi = r.corsi.filter((c) => !superstiti.has(c.id))
       r.materie = r.materie.filter((m) => m.id !== azione.daId)
 
@@ -307,7 +314,14 @@ export const registro = {
   'corso.salva': (contesto, azione) => {
     const esito = validaCorso(azione.corso, contesto.registro.corsi)
     if (!esito.valido) return { ok: false, errori: esito.errori }
-    const nuovo = !contesto.registro.corsi.some((c) => c.id === azione.corso.id)
+    const esistente = contesto.registro.corsi.find((c) => c.id === azione.corso.id)
+    // Classe e materia sono il corso: cambiarle sposterebbe lezioni, voti e
+    // consegne su un'altra classe. Il modulo le blocca; qui si rifiuta.
+    if (esistente && (esistente.classeId !== azione.corso.classeId ||
+      esistente.materiaId !== azione.corso.materiaId)) {
+      return rifiuta(testi().classeMateriaFisse)
+    }
+    const nuovo = !esistente
     const corso = { ...azione.corso, aggiornatoIl: istanteAdesso() }
     contesto.modifica((r) => {
       riponi(r.corsi, corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
@@ -379,6 +393,25 @@ export const registro = {
       riponi(r.classi, classe)
     }, ['classi'])
     return nuova ? { ok: true, creato: { id: classe.id } } : fatto
+  },
+
+  'classe.modifica': (contesto, azione) => {
+    if (azione.nome !== undefined) {
+      const nome = azione.nome.trim()
+      if (!nome) return rifiuta(testi().nomeObbligatorio)
+      const duplicato = contesto.registro.classi.find(
+        (c) => c.id !== azione.classeId && c.nome.toLowerCase() === nome.toLowerCase(),
+      )
+      if (duplicato) return rifiuta(testi().nomeGiaUsato(nome))
+    }
+    return contesto.suVoce('classi', azione.classeId, (classe) => {
+      if (azione.nome !== undefined) classe.nome = azione.nome.trim()
+      if (azione.colore !== undefined) classe.colore = azione.colore
+      if (azione.note !== undefined) classe.note = azione.note
+      if (azione.docenteDiClasse !== undefined) classe.docenteDiClasse = azione.docenteDiClasse
+      if (azione.archiviata !== undefined) classe.archiviata = azione.archiviata
+      classe.aggiornataIl = istanteAdesso()
+    })
   },
 
   // Con la classe se ne vanno corsi, ore, voti e fascicolo.

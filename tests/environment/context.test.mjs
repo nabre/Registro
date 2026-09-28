@@ -4,12 +4,14 @@
 // senza installer.
 
 import assert from 'node:assert/strict'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { describe, it } from 'node:test'
+import { after, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-contesto-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-contesto-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 /**
  * La radice si legge una volta sola: la prova la fissa prima di importare lo

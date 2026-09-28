@@ -18,7 +18,7 @@ import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import { aggiorna, corsiDellAnnoAperto, stato, uriDato } from '../../state.js'
-import { salvaImpostazioni } from './document.js'
+// salvataggio intestazione gestito con azione diretta per preservare campi docente
 import {
   codificaCorsi,
   daTrascinare,
@@ -63,9 +63,58 @@ function nomeCarta (carta: CartaIntestata, indice: number): string {
   return carta.sede.trim() || testi().cartaN(indice + 1)
 }
 
+/**
+ * Salva l'intestazione completa (carte, docente strutturato e firma per le stampe).
+ * Sincronizza il nome visualizzato quando si modificano i dati anagrafici.
+ */
+function salvaIntestazione (modifiche: {
+  carte?: CartaIntestata[]
+  docente?: string
+  docenteAppellativo?: string
+  docenteNome?: string
+  docenteCognome?: string
+}): Promise<void> {
+  const attuale = stato.registro.impostazioni.intestazione
+  const carte = modifiche.carte ?? attuale.carte
+  const appellativo = modifiche.docenteAppellativo !== undefined
+    ? modifiche.docenteAppellativo.trim()
+    : (attuale.docenteAppellativo ?? '')
+  const nome = modifiche.docenteNome !== undefined
+    ? modifiche.docenteNome.trim()
+    : (attuale.docenteNome ?? '')
+  const cognome = modifiche.docenteCognome !== undefined
+    ? modifiche.docenteCognome.trim()
+    : (attuale.docenteCognome ?? '')
+
+  let docente = modifiche.docente !== undefined ? modifiche.docente.trim() : attuale.docente
+  const toccoAnagrafica = modifiche.docenteAppellativo !== undefined ||
+    modifiche.docenteNome !== undefined ||
+    modifiche.docenteCognome !== undefined
+  if (modifiche.docente === undefined && toccoAnagrafica) {
+    const composto = [appellativo, nome, cognome].filter(Boolean).join(' ')
+    if (composto) {
+      docente = composto
+    }
+  }
+
+  const { intestazione: _intestazione, ...resto } = stato.registro.impostazioni
+  const intestazione = {
+    carte: carte.map(({ id, sede, altezzaLogo, corsi }) => ({
+      id, sede, altezzaLogo, corsi: [...corsi],
+    })),
+    docente,
+    ...(appellativo ? { docenteAppellativo: appellativo } : {}),
+    ...(nome ? { docenteNome: nome } : {}),
+    ...(cognome ? { docenteCognome: cognome } : {}),
+    ...(attuale.firma && attuale.firma.trim() !== '' ? { firma: attuale.firma } : {}),
+  }
+
+  return azione({ tipo: 'impostazioni.salva', impostazioni: { ...resto, intestazione } }).then(() => undefined)
+}
+
 /** Salva la matrice intera: l'host la completa e tiene i loghi per id. */
 function salvaCarte (carte: CartaIntestata[]): Promise<void> {
-  return salvaImpostazioni({ intestazione: { carte } })
+  return salvaIntestazione({ carte })
 }
 
 /** Cambia un campo di una carta, lasciando le altre com'erano. */
@@ -510,13 +559,40 @@ export function vistaIntestazione (): Figlio[] {
         'div',
         { class: 'modulo' },
         campo({
+          nome: 'intestazioneDocenteAppellativo',
+          etichetta: t.docenteAppellativo,
+          valore: intestazione.docenteAppellativo ?? '',
+          segnaposto: t.docenteAppellativoSegnaposto,
+          aiuto: t.docenteAppellativoAiuto,
+          larghezza: 'quarto',
+          al: (valore) => void salvaIntestazione({ docenteAppellativo: valore }),
+        }),
+        campo({
+          nome: 'intestazioneDocenteNome',
+          etichetta: parole().nome,
+          valore: intestazione.docenteNome ?? '',
+          segnaposto: t.docenteNomeSegnaposto,
+          aiuto: t.docenteNomeAiuto,
+          larghezza: 'terzo',
+          al: (valore) => void salvaIntestazione({ docenteNome: valore }),
+        }),
+        campo({
+          nome: 'intestazioneDocenteCognome',
+          etichetta: parole().cognome,
+          valore: intestazione.docenteCognome ?? '',
+          segnaposto: t.docenteCognomeSegnaposto,
+          aiuto: t.docenteCognomeAiuto,
+          larghezza: 'terzo',
+          al: (valore) => void salvaIntestazione({ docenteCognome: valore }),
+        }),
+        campo({
           nome: 'intestazioneDocente',
           etichetta: Uno(lessico().docente),
           valore: intestazione.docente,
           segnaposto: t.docenteSegnaposto,
           aiuto: t.docenteAiuto,
-          larghezza: 'meta',
-          al: (valore) => void salvaImpostazioni({ intestazione: { docente: valore.trim() } }),
+          larghezza: 'piena',
+          al: (valore) => void salvaIntestazione({ docente: valore }),
         }),
       ),
     }),

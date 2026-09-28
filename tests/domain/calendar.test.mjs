@@ -15,6 +15,7 @@ import {
   leggiCalendario,
   lezioneDaEventi,
   regoleConScelta,
+  testoDaByteIcs,
 } from '../../dist-tests/domain.mjs'
 import { FINE, INIZIO, scuolaMinima } from '../helpers/register.mjs'
 
@@ -122,6 +123,26 @@ describe('leggiCalendario', () => {
       'RRULE:FREQ=WEEKLY;UNTIL=20261005T235959Z',
     ]), '2026-09-20', FINE)
     assert.deepEqual(eventi.map((e) => e.data), ['2026-09-21', '2026-09-28', '2026-10-05'])
+  })
+})
+
+describe('le righe ICS piegate a metà di un carattere', () => {
+  it('si sciolgono sui byte, prima di decodificare', () => {
+    const trattino = new TextEncoder().encode('—')
+    assert.equal(trattino.length, 3)
+    const riga = (testo) => [...new TextEncoder().encode(testo)]
+    const byte = new Uint8Array([
+      ...riga('BEGIN:VCALENDAR\r\nSUMMARY:Mat '),
+      trattino[0],
+      ...riga('\r\n '),
+      trattino[1], trattino[2],
+      ...riga(' A\nLOCATION:B'),
+      ...riga('\n\t12\r\nEND:VCALENDAR\r\n'),
+    ])
+    const testo = testoDaByteIcs(byte)
+    assert.ok(!testo.includes('�'), testo)
+    assert.match(testo, /SUMMARY:Mat — A\r?\n/)
+    assert.match(testo, /LOCATION:B12\r?\n/)
   })
 })
 

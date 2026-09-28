@@ -261,6 +261,7 @@ export const smistamento = {
     if (proposte.length === 0) return rifiuta(testi().nessunaProposta)
 
     const guai: string[] = []
+    let archiviate = 0
     for (const proposta of proposte) {
       const esito = await assegnaPagine(
         contesto.archivio,
@@ -270,10 +271,14 @@ export const smistamento = {
         proposta.da,
         proposta.a,
       )
-      if (!esito.ok && esito.errore) guai.push(esito.errore)
+      if (esito.ok) archiviate += 1
+      else if (esito.errore) guai.push(esito.errore)
     }
     await chiudiSeFinito(contesto.archivio, smistamento.id)
-    return guai.length > 0 ? rifiuta(...guai) : fatto
+    // Come `smistamento.carica`: quel che è archiviato è scritto, e un rifiuto lo nasconderebbe.
+    if (guai.length > 0 && archiviate === 0) return rifiuta(...guai)
+    if (guai.length > 0) return conMessaggio(guai.join(' '), 'avviso')
+    return fatto
   },
 
   /** Butta le pagine scelte, a intervalli per non rifare la bozza a ogni pagina. */

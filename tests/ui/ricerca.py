@@ -13,37 +13,14 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/ricerca.py`
 """
-from pathlib import Path
 import re
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
+from banco import FRAME, esegui, pannello
 
 
-def pagina(browser, larga=1440):
-    page = browser.new_page(viewport={'width': larga, 'height': 900})
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
-    return page, errori
+def pagina(browser):
+    return pannello(browser, 1440, 900)
 
 
 def titoletti(page):
@@ -134,17 +111,4 @@ def percorso_corto_ma_intero_a_voce(browser):
     page.close()
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    fallite = []
-    for prova in (pastiglia_apre_la_palette, persone_corsi_classi, percorso_corto_ma_intero_a_voce):
-        try:
-            prova(browser)
-            print(f'ok   {prova.__name__}')
-        except Exception as errore:  # noqa: BLE001 — si raccolgono tutte, poi si esce
-            fallite.append(prova.__name__)
-            print(f'NO   {prova.__name__}: {errore}')
-    browser.close()
-    if fallite:
-        raise SystemExit(f'fallite: {", ".join(fallite)}')
-    print('ricerca: tutto verde')
+esegui('ricerca', (pastiglia_apre_la_palette, persone_corsi_classi, percorso_corto_ma_intero_a_voce))

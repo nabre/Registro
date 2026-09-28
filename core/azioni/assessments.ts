@@ -38,6 +38,15 @@ function fuoriClasse (registro: Registro, momento: MomentoValutazione, allievoId
   return classe !== null && !classe.allievi.some((a) => a.id === allievoId)
 }
 
+/** Vero se il momento ha dati intestati a persone: voti, recuperi, prove. */
+function conDatiDiPersone (momento: MomentoValutazione): boolean {
+  return (
+    momento.voti.some((v) => v.valore !== null || v.assente) ||
+    (momento.recuperi ?? []).length > 0 ||
+    momento.allegati.some((a) => a.allievoId !== null)
+  )
+}
+
 export const valutazioni = {
   /** Il momento di valutazione di una tappa del piano; se c'è già, torna quello. */
   'valutazione.daAttivita': (contesto, azione) => {
@@ -84,12 +93,35 @@ export const valutazioni = {
   'valutazione.salva': (contesto, azione) => {
     const esito = validaValutazione(azione.valutazione)
     if (!esito.valido) return { ok: false, errori: esito.errori }
-    const nuova = !contesto.registro.valutazioni.some((v) => v.id === azione.valutazione.id)
-    const momento = { ...azione.valutazione, aggiornatoIl: istanteAdesso() }
+    const registro = contesto.registro
+    const chiesto = azione.valutazione
+    // Rimandi a cose che non ci sono: il momento finirebbe sganciato da subito.
+    if (!corsoPerId(registro, chiesto.corsoId)) return rifiuta(comuni().nonTrovato.corso)
+    if (chiesto.lezioneId && !registro.lezioni.some((l) => l.id === chiesto.lezioneId)) {
+      return rifiuta(comuni().nonTrovato.lezione)
+    }
+    if (chiesto.pianoId && !registro.piani.some((p) => p.id === chiesto.pianoId)) {
+      return rifiuta(comuni().nonTrovato.piano)
+    }
+    const vivo = registro.valutazioni.find((v) => v.id === chiesto.id)
+    if (vivo) {
+      // Voti di persone di un'altra classe non li mostrerebbe nessuna griglia.
+      const da = corsoPerId(registro, vivo.corsoId)?.classeId ?? null
+      const a = corsoPerId(registro, chiesto.corsoId)?.classeId ?? null
+      if (da !== null && da !== a && conDatiDiPersone(vivo)) return rifiuta(testi().altraClasse)
+      if (vivo.voti.some((v) => v.valore !== null && !votoValido(v.valore, chiesto.scala))) {
+        return rifiuta(testi().scalaStretta(chiesto.scala.min, chiesto.scala.max))
+      }
+    }
+    const nuova = !vivo
+    const momento = { ...chiesto, aggiornatoIl: istanteAdesso() }
     const scritto = contesto.modifica((r) => {
       const viva = r.valutazioni.find((v) => v.id === momento.id)
       if (viva) {
-        momento.voti = viva.voti
+        // I voti si riportano sul passo della scala nuova, come `voto.imposta`.
+        momento.voti = viva.voti.map((v) =>
+          v.valore === null ? v : { ...v, valore: arrotondaVoto(v.valore, momento.scala) },
+        )
         momento.recuperi = viva.recuperi
         momento.allegati = viva.allegati
       } else {

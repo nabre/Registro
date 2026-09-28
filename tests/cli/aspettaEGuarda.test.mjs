@@ -2,51 +2,22 @@
 
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, describe, it } from 'node:test'
-
-const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
+import { CLI, lanciatore, nomeDelCondotto } from '../helpers/cli.mjs'
 
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-cli-aspetta-guarda-'))
 
 after(() => rmSync(radice, { recursive: true, force: true }))
 
-function lancia (argomenti, ambiente = {}) {
-  return new Promise((risolvi, rifiuta) => {
-    const figlio = spawn(process.execPath, [CLI, ...argomenti], {
-      env: {
-        ...process.env,
-        APPDATA: radice,
-        XDG_CONFIG_HOME: radice,
-        REGISTRO_COMANDO: 'registro',
-        ...ambiente,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let uscita = ''
-    let errore = ''
-    figlio.stdout.on('data', (pezzo) => { uscita += pezzo })
-    figlio.stderr.on('data', (pezzo) => { errore += pezzo })
-    figlio.on('error', rifiuta)
-    figlio.on('close', (codice) => risolvi({ codice, uscita, errore }))
-  })
-}
-
-function nomeDelCondotto (etichetta) {
-  const nome = `registro-ag-${etichetta}-${randomBytes(6).toString('hex')}`
-  return process.platform === 'win32'
-    ? `\\\\.\\pipe\\${nome}`
-    : percorso.join(radice, `${nome}.sock`)
-}
+const lancia = lanciatore(radice)
 
 describe('il comando aspetta e l’opzione --aspetta', () => {
   it('il comando aspetta ritenta finché il condotto non si accende e torna 0', async () => {
-    const dove = nomeDelCondotto('aspetta')
+    const dove = nomeDelCondotto(radice, 'ag-aspetta')
 
     let server = null
     const timer = setTimeout(() => {
@@ -76,7 +47,7 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
   })
 
   it('l’opzione --aspetta su un altro comando attende prima di eseguire', async () => {
-    const dove = nomeDelCondotto('opzione-aspetta')
+    const dove = nomeDelCondotto(radice, 'ag-opzione-aspetta')
 
     let server = null
     const timer = setTimeout(() => {
@@ -107,7 +78,7 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
 
 describe('il comando guarda', () => {
   it('riceve lo streaming del giornale dal condotto', async () => {
-    const dove = nomeDelCondotto('guarda')
+    const dove = nomeDelCondotto(radice, 'ag-guarda')
 
     const server = createServer((presa) => {
       presa.on('data', (pezzo) => {

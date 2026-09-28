@@ -1,6 +1,6 @@
 // Perché una password non si salva. Minuscoli perché finiscono in coda a un altro messaggio.
 
-import { catalogo } from '.../../../core/i18n/index.js'
+import { catalogo } from '../../core/i18n/index.js'
 
 const it = {
   segretiBloccati:

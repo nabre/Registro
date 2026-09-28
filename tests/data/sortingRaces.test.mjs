@@ -9,16 +9,14 @@
 // deposito.
 
 import assert from 'node:assert/strict'
-import { mkdirSync, writeFileSync } from 'node:fs'
-import * as percorso from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
 import { after, before, describe, it } from 'node:test'
 
-import { PDFDocument, StandardFonts } from '@cantoo/pdf-lib'
+import { PDFDocument } from '@cantoo/pdf-lib'
 
 import { cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import { archivioDiSmistamento, eseguiAzione, pagelle as pagelleDiClasse } from '../helpers/smistamento.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro7-smistamento-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-smistamento-corse-')
 
 after(() => smonta(radice))
 
@@ -27,68 +25,14 @@ let archivio
 let classe
 let consegna
 
-/** Un PDF di classe: una pagina per persona, con il nome in testa. */
-async function pagelle (nomi) {
-  const documento = await PDFDocument.create()
-  const font = await documento.embedFont(StandardFonts.Helvetica)
-  for (const nome of nomi) {
-    const pagina = documento.addPage([595, 842])
-    pagina.drawText(`Allievo: ${nome}`, { x: 60, y: 740, size: 12, font })
-  }
-  return documento.save()
-}
+/** Un PDF di classe con il solo nome su ogni pagina. */
+const pagelle = (nomi) => pagelleDiClasse(nomi, { titolo: null })
 
 /** L'azione, chiamata come la chiama il centralino. */
-function esegui (azione) {
-  const contesto = {
-    archivio,
-    registro: archivio.registro,
-    modifica: (cambia, collezioni) => {
-      archivio.modifica(cambia, collezioni)
-      return { ok: true, errori: [] }
-    },
-  }
-  return moduli.smistamento[azione.tipo](contesto, azione)
-}
+const esegui = (azione) => eseguiAzione(archivio, moduli.smistamento, azione)
 
 before(async () => {
-  mkdirSync(process.env.REGISTRO_USERDATA, { recursive: true })
-  mkdirSync(dati, { recursive: true })
-  writeFileSync(
-    percorso.join(process.env.REGISTRO_USERDATA, 'impostazioni.json'),
-    JSON.stringify({ cartellaLavoro: lavoro }),
-  )
-
-  moduli = await import('../../dist-tests/data.mjs')
-  const { Archivio, registraDeposito, Uri, impostaCaratteri, impostaWorker } = moduli
-  const dominio = await import('../../dist-tests/domain.mjs')
-  impostaWorker(
-    pathToFileURL(fileURLToPath(new URL('../../dist-tests/pdf.worker.mjs', import.meta.url))).href,
-  )
-  impostaCaratteri(fileURLToPath(new URL('../../dist-tests/pdf-fonts', import.meta.url)))
-
-  archivio = new Archivio(Uri.file(process.env.REGISTRO_USERDATA))
-  registraDeposito(archivio.deposito)
-  await archivio.apri(null)
-  await archivio.creaAnno(
-    dominio.creaAnno('2026-09-01', '2027-06-30'),
-    Uri.file(percorso.join(dati, '2026-2027.regi')),
-  )
-
-  const annoId = archivio.registro.anni[0].id
-  const materia = dominio.creaMateria('Matematica', 'MAT')
-  classe = dominio.creaClasse(annoId, 'DIC4a')
-  classe.allievi = [dominio.creaAllievo('Rossi', 'Mario'), dominio.creaAllievo('Bianchi', 'Luca')]
-  const corso = dominio.creaCorso(classe.id, materia.id, 'DIC4a — Matematica')
-  consegna = dominio.creaConsegna(corso.id, 'Pagella 3° anno', '2026-10-01')
-  consegna.documento = 'modulo'
-
-  archivio.modifica((r) => {
-    r.materie.push(materia)
-    r.classi.push(classe)
-    r.corsi.push(corso)
-    r.consegne.push(consegna)
-  }, ['classi', 'corsi', 'consegne'])
+  ;({ moduli, archivio, classe, consegna } = await archivioDiSmistamento({ lavoro, dati }))
 })
 
 after(() => archivio?.dispose())

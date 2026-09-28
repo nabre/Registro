@@ -6,7 +6,7 @@ import { catalogo } from '../../../core/i18n/index.js'
 const it = {
   assegna: {
     titolo: 'Aggancia un piano a un’ora, o lo stacca',
-    pianoId: 'null stacca il piano dall’ora',
+    pianoId: 'null stacca il piano dall’ora. Un piano di un altro corso si rifiuta',
   },
   duplica: {
     titolo: 'Una copia del piano, con i file delle sue risorse ricopiati davvero',
@@ -61,8 +61,11 @@ const it = {
     },
   },
   perLezione: {
-    titolo: 'Apre il piano di un’ora: vuoto da completare, o copiato da uno che c’è',
-    daPianoId: 'Il piano da ricopiare. Senza, o nullo, ne nasce uno da completare',
+    titolo:
+      'Apre il piano di un’ora: generato con obiettivi e scaletta sulle sue UD, o copiato ' +
+      'da uno che c’è',
+    daPianoId:
+      'Il piano da ricopiare. Senza, o nullo, ne nasce uno con obiettivi e scaletta da rivedere',
   },
   salva: {
     titolo: 'Scrive un piano per intero: lo crea se non c’era, lo riscrive se c’era',
@@ -74,7 +77,7 @@ export const testi = catalogo(it, {
   de: {
     assegna: {
       titolo: 'Hängt einen Plan an eine Stunde an oder löst ihn davon',
-      pianoId: 'null löst den Plan von der Stunde',
+      pianoId: 'null löst den Plan von der Stunde. Ein Plan eines anderen Kurses wird abgelehnt',
     },
     duplica: {
       titolo: 'Eine Kopie des Plans, mit den Dateien seiner Ressourcen wirklich mitkopiert',
@@ -132,9 +135,11 @@ export const testi = catalogo(it, {
     },
     perLezione: {
       titolo:
-        'Öffnet den Plan einer Stunde: leer zum Ausfüllen oder kopiert von einem ' +
-        'bestehenden',
-      daPianoId: 'Der zu kopierende Plan. Ohne ihn, oder mit null, entsteht einer zum Ausfüllen',
+        'Öffnet den Plan einer Stunde: generiert mit Lernzielen und Ablauf nach ihren ' +
+        'Lektionen oder kopiert von einem bestehenden',
+      daPianoId:
+        'Der zu kopierende Plan. Ohne ihn, oder mit null, entsteht einer mit Lernzielen und ' +
+        'Ablauf zum Überprüfen',
     },
     salva: {
       titolo:
@@ -146,7 +151,7 @@ export const testi = catalogo(it, {
   fr: {
     assegna: {
       titolo: 'Rattache un plan à une leçon, ou l’en détache',
-      pianoId: 'null détache le plan de la leçon',
+      pianoId: 'null détache le plan de la leçon. Un plan d’un autre cours est refusé',
     },
     duplica: {
       titolo: 'Une copie du plan, avec les fichiers de ses ressources vraiment recopiés',
@@ -171,7 +176,7 @@ export const testi = catalogo(it, {
         assegnatoA: 'Attribué à',
         tappe: 'Étapes',
         obiettivi: 'Objectifs',
-        etichette: 'Étiquettes',
+        etichette: 'Mots-clés',
       },
     },
     elimina: {
@@ -202,19 +207,22 @@ export const testi = catalogo(it, {
     },
     perLezione: {
       titolo:
-        'Ouvre le plan d’une leçon : vide à compléter, ou copié d’un plan existant',
-      daPianoId: 'Le plan à recopier. Sans, ou avec null, il en naît un à compléter',
+        'Ouvre le plan d’une leçon : généré avec objectifs et déroulement selon ses périodes, ' +
+        'ou copié d’un plan existant',
+      daPianoId:
+        'Le plan à recopier. Sans, ou avec null, il en naît un avec objectifs et déroulement ' +
+        'à revoir',
     },
     salva: {
       titolo:
         'Écrit un plan en entier : le crée s’il n’existait pas, le réécrit s’il existait',
-      piano: 'Le plan en entier : objectifs, déroulement, ressources, étiquettes',
+      piano: 'Le plan en entier : objectifs, déroulement, ressources, mots-clés',
     },
   },
   en: {
     assegna: {
       titolo: 'Attaches a plan to a lesson, or detaches it',
-      pianoId: 'null detaches the plan from the lesson',
+      pianoId: 'null detaches the plan from the lesson. A plan from another course is refused',
     },
     duplica: {
       titolo: 'A copy of the plan, with the files of its resources actually copied',
@@ -269,8 +277,12 @@ export const testi = catalogo(it, {
       },
     },
     perLezione: {
-      titolo: 'Opens the plan of a lesson: empty to fill in, or copied from an existing one',
-      daPianoId: 'The plan to copy. Without it, or with null, a new one to fill in is created',
+      titolo:
+        'Opens the plan of a lesson: generated with objectives and an outline fitted to its ' +
+        'periods, or copied from an existing one',
+      daPianoId:
+        'The plan to copy. Without it, or with null, a new one is created with objectives and ' +
+        'an outline to review',
     },
     salva: {
       titolo: 'Writes a whole plan: creates it if it was not there, rewrites it if it was',

@@ -139,6 +139,15 @@ export type Azione =
   }
   | { tipo: 'piano.perLezione'; lezioneId: string; daPianoId?: string | null }
   | { tipo: 'classe.salva'; classe: Classe }
+  | {
+    tipo: 'classe.modifica'
+    classeId: string
+    nome?: string
+    colore?: string
+    note?: string
+    docenteDiClasse?: boolean
+    archiviata?: boolean
+  }
   | { tipo: 'classe.elimina'; classeId: string }
   | { tipo: 'classe.duplica'; classeId: string; annoId: string; nome: string }
   /**

@@ -4,16 +4,17 @@
 // conferma modale prima di eliminare una lezione.
 
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { beforeEach, describe, it } from 'node:test'
+import { after, beforeEach, describe, it } from 'node:test'
 
 import { app, BrowserWindow, bancoElectron, finestreCostruite, ipcMain } from '../helpers/fake-electron.mjs'
 
 const RADICE_PROGETTO = fileURLToPath(new URL('../..', import.meta.url))
-const RADICE = percorso.join(tmpdir(), 'registro-app')
+const RADICE = mkdtempSync(percorso.join(tmpdir(), 'registro-app-'))
+after(() => rmSync(RADICE, { recursive: true, force: true }))
 process.env.REGISTRO_APPPATH = percorso.join(RADICE, 'dist')
 
 const { senzaSegnaposti, Uri, ViewColumn, dialoghi, finestre } = await import('../../dist-tests/environment.mjs')

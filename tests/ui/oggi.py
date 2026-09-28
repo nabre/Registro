@@ -22,30 +22,12 @@ mattino e cade la sera non prova niente.
 
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `node esbuild.mjs --ui` e poi
-`python tests/ui/oggi.py`. Le fotografie vanno in `dist-tests/`, o nella
-cartella di `SCATTI`.
+`python tests/ui/oggi.py`. Le fotografie vanno in `dist-tests/schermate/`, o
+nella cartella di `SCATTI`.
 """
-from pathlib import Path
-import os
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-scatti = Path(os.environ.get('SCATTI', root / 'dist-tests'))
-scatti.mkdir(parents=True, exist_ok=True)
-
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
-
-FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
+from banco import FRAME, chromium, pannello, schermata
 
 # Quattro ore martedì 15: alle 8:20 finita senza appello, alle 9:30 in corso,
 # alle 10:15 da fare, e una annullata. Più due prove (oggi e giovedì) e un
@@ -85,18 +67,10 @@ def apri_oggi(page):
     expect(page.locator('.vista--oggi')).to_have_count(1)
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     for schema in ['light', 'dark']:
-        page = browser.new_page(viewport={'width': 1400, 'height': 1000}, color_scheme=schema)
-        errori = []
-        page.on('pageerror', lambda e: errori.append(str(e)))
-        page.clock.set_fixed_time('2026-09-15T09:30:00')
-        page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-        page.add_script_tag(content=PONTE)
-        page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-        page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-        page.wait_for_load_state('networkidle')
+        page, errori = pannello(browser, 1400, color_scheme=schema,
+                                prima=lambda page: page.clock.set_fixed_time('2026-09-15T09:30:00'))
 
         # Senza uno stato ricordato si comincia dalla Dashboard, prima voce dell'agenda.
         assert page.evaluate('prova.stato.vista') == 'oggi'
@@ -115,7 +89,7 @@ with sync_playwright() as p:
         expect(page.locator('.barra-comandi__scelta--ferma')).to_have_count(0)
         # Niente riga delle azioni: la pagina porta altrove, non fa.
         expect(page.locator('#azioni-pagina')).to_have_count(0)
-        page.screenshot(path=str(scatti / f'oggi-{schema}.png'), full_page=True)
+        schermata(page, f'oggi-{schema}.png', full_page=True)
 
         # Le tessere: quattro, ognuna con la sua destinazione.
         tessere = vista.locator('.oggi-tessera')
@@ -211,6 +185,5 @@ with sync_playwright() as p:
 
         assert not errori, errori
         page.close()
-    browser.close()
 
 print('oggi: ok')

@@ -1,6 +1,8 @@
 node_modules/
 dist*/
 pacchetti/
+# Il rapporto di `npm run copertura`.
+copertura/
 
 .claude/settings.local.json
 # Le copie di lavoro degli agenti: rami a parte, che rientrano con un merge.

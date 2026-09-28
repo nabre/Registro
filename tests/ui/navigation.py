@@ -3,22 +3,14 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/navigation.py`
 """
-from pathlib import Path
 from datetime import date, timedelta
 import re
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.tutte=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); tutte.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+from banco import FOTOGRAMMA, attendi_risposte, chromium, pannello, schermata
+
+with chromium() as browser:
+    page, errors = pannello(browser)
     expect(page.get_by_role('navigation', name='Navigazione principale')).to_be_visible()
     navigazione = page.locator('[data-fuoco="apri-navigazione"]')
     laterale = page.locator('#navigazione-laterale')
@@ -46,7 +38,7 @@ with sync_playwright() as p:
     alto = laterale.bounding_box()['y']
     assert abs(laterale.locator('.sidebar__marchio').bounding_box()['y'] - alto) < 1
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert laterale.evaluate('(el) => el.scrollTop') == scorrimento
     page.set_viewport_size({'width': 1440, 'height': 1000})
     prima = page.locator('main').bounding_box()['width']
@@ -57,12 +49,12 @@ with sync_playwright() as p:
     laterale.get_by_role('button', name='Corsi', exact=True).click()
     expect(laterale.get_by_role('button', name='Corsi', exact=True)).to_have_attribute('aria-current', 'page')
     laterale.get_by_role('button', name='Calendario', exact=True).click()
-    page.screenshot(path=str(root / 'dist-tests/sidebar-compatta.png'))
+    schermata(page, 'sidebar-compatta.png')
     navigazione.click()
     expect(laterale).to_be_visible()
     # Il ridisegno della sidebar arriva un frame dopo: aperto prima, il menu si
     # richiuderebbe.
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # Menu: frecce, Home/End, Escape e restituzione del focus.
     file = page.get_by_role('button', name='File', exact=True)
     file.focus(); page.keyboard.press('ArrowDown')
@@ -104,12 +96,12 @@ with sync_playwright() as p:
         riga.click(button='right')
         figlio.locator('.menu__voce').first.click()
         for _ in range(3):
-            page.evaluate('()=>new Promise(requestAnimationFrame)')
+            page.evaluate(FOTOGRAMMA)
         expect(padre).to_have_count(1)
         expect(riga).to_be_focused()
         page.evaluate('prova.aggiorna({})')
         for _ in range(3):
-            page.evaluate('()=>new Promise(requestAnimationFrame)')
+            page.evaluate(FOTOGRAMMA)
         expect(padre).to_have_count(1)
         expect(file).to_have_attribute('aria-expanded', 'true')
         file.click()
@@ -135,17 +127,17 @@ with sync_playwright() as p:
         r"prova.COMANDI_UI.filter(c=>/^(corso\.esporta|corso\.verbale|lezione\.calendario|corso\.nuovaOra)/.test(c.id))"
         ".every(c=>!c.dove.includes('lezione'))"
     )
-    page.screenshot(path=str(root / 'dist-tests/lezione-compatta.png'))
+    schermata(page, 'lezione-compatta.png')
     # Visita tutte le destinazioni con un contesto valido.
     ids = page.evaluate('prova.PAGINE.map(p=>p.id)')
     for id in ids:
         page.evaluate("prova.scegliCorso(prova.stato.registro.corsi[0].id)")
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
         titolo = page.evaluate("id=>prova.PAGINE.find(p=>p.id===id).titolo", id)
         laterale.get_by_role('button', name=titolo, exact=True).click()
         expect(laterale.locator('[aria-current="page"]')).to_have_count(1)
         page.wait_for_function('document.querySelector("main")?.textContent.length > 0')
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
         assert page.evaluate('prova.gruppiDiPagine().filter(g=>g.attivo).length') == 1, id
         assert page.evaluate('id=>prova.gruppiDiPagine().find(g=>g.attivo).gruppo===prova.PAGINE.find(p=>p.id===id).gruppo', id), id
     # Le tendine del contesto compaiono solo dove filtrano qualcosa.
@@ -181,15 +173,15 @@ with sync_playwright() as p:
     expect(page.locator('main').get_by_role('button', name='Oggi', exact=True)).to_have_count(0)
     # La modalità si legge sul pulsante acceso, e le frecce spostano il periodo.
     page.locator('[data-fuoco="comando-calendario.mese"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.modoCalendario') == 'mese'
     expect(page.locator('[data-fuoco="comando-calendario.mese"]')).to_have_attribute('aria-pressed', 'true')
     prima = page.evaluate('prova.stato.data')
     page.locator('[data-fuoco="comando-calendario.avanti"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.data') != prima
     page.locator('[data-fuoco="comando-registro.oggi"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # La data locale, come `oggi()` in `dominio/date.ts`: `toISOString()` darebbe
     # quella UTC, diversa fra mezzanotte e le due in estate.
     oggi = page.evaluate(
@@ -197,7 +189,7 @@ with sync_playwright() as p:
         "return `${o.getFullYear()}-${d(o.getMonth()+1)}-${d(o.getDate())}`})()")
     assert page.evaluate('prova.stato.data') == oggi
     page.locator('[data-fuoco="comando-calendario.settimana"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # La striscia delle settimane segna un confine solo: la fine del semestre che
     # ne ha un altro dopo (la fine dell'ultimo è il bordo della striscia).
     expect(page.locator('.striscia-settimane')).to_have_count(1)
@@ -231,16 +223,16 @@ with sync_playwright() as p:
     corso_registro = page.evaluate('prova.stato.corsoId')
     altro = page.evaluate('prova.stato.registro.corsi[1].id')
     filtro_agenda.select_option(altro)
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.filtroCorsoAgendaId') == altro
     assert page.evaluate('prova.stato.corsoId') == corso_registro
     assert page.evaluate('prova.lezioniInAgenda().every(l=>l.corsoId===prova.stato.filtroCorsoAgendaId)')
     # E il corso del registro non tocca quello del calendario.
     page.evaluate("prova.scegliCorso(prova.stato.registro.corsi[0].id)")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.filtroCorsoAgendaId') == altro
     filtro_agenda.select_option('')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.filtroCorsoAgendaId') is None
     # Un filtro puntato su un corso che nel documento aperto non c'è (il campo è
     # ricordato fra un anno e l'altro) lascia la tendina in bianco: se il browser
@@ -251,23 +243,23 @@ with sync_playwright() as p:
     expect(tendina).to_have_count(1)
     assert tendina.evaluate('(e) => e.options[0].textContent') == 'Tutti i corsi'
     page.evaluate("prova.aggiorna({filtroCorsoAgendaId:'corso-di-un-altro-anno'})")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert tendina.evaluate('(e) => e.selectedIndex') == -1
     assert tendina.evaluate('(e) => e.options[0].selected') is False
     assert tendina.input_value() == ''
     # Un corso che c'è si accende: `h` applica il `value` dopo aver appeso le
     # option.
     page.evaluate('prova.aggiorna({filtroCorsoAgendaId:prova.stato.registro.corsi[1].id})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert tendina.input_value() == page.evaluate('prova.stato.filtroCorsoAgendaId')
     page.evaluate('prova.aggiorna({filtroCorsoAgendaId:null})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert tendina.evaluate('(e) => e.selectedIndex') == 0
-    page.screenshot(path=str(root / 'dist-tests/calendario-compatto.png'))
+    schermata(page, 'calendario-compatto.png')
     # Pendenze: i tre filtri sono comandi della pagina, e l'acceso si legge sul
     # pulsante.
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.pendenze'))")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate("prova.stato.vista") == 'todo'
     assert page.evaluate("prova.PAGINE.find(p=>p.id==='pagina.pendenze').gruppo") == 'agenda'
     expect(page.locator('[data-fuoco="barra-comandi-corso"]')).to_have_count(0)
@@ -285,10 +277,10 @@ with sync_playwright() as p:
     tab_corso = page.locator('[data-fuoco^="todo-tab-corso:"]').first
     if tab_corso.count() > 0:
         tab_corso.click()
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
         expect(page.locator('.todo-classe__corpo')).to_have_count(1)
         expect(page.locator('.todo-classi')).to_have_count(0)
-    page.screenshot(path=str(root / 'dist-tests/pendenze-compatto.png'))
+    schermata(page, 'pendenze-compatto.png')
     # Nel lavoro del corso una consegna nuova eredita il corso: non puÃ² migrare
     # per errore verso un'altra classe.
     page.locator('[data-fuoco="comando-registro.nuovaConsegna"]').click()
@@ -299,7 +291,7 @@ with sync_playwright() as p:
     # delle azioni passa ai comandi dello schermo.
     def proiezione(aperta):
         page.evaluate("a=>{const i=prova.stato.proiezione.impostazioni; window.dispatchEvent(new MessageEvent('message',{data:{tipo:'proiezione.stato',aperta:a,impostazioni:i}}))}", aperta)
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
 
     proiezione(True)
     expect(page.locator('[data-fuoco="scheda-proiezione"]')).to_be_visible()
@@ -311,19 +303,19 @@ with sync_playwright() as p:
     assert page.evaluate("document.querySelectorAll('.barra-proiezione button').length")         == page.evaluate("document.querySelectorAll('.barra-proiezione .blocco-proiettato').length")
     # Cambiando pagina la riga torna ai comandi della pagina, e la scheda resta.
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.schedaComandi') == 'pagina'
     expect(page.locator('[data-fuoco="comando-proiezione.nomi"]')).to_have_count(0)
     expect(page.locator('[data-fuoco="comando-calendario.avanti"]')).to_have_count(1)
     expect(page.locator('[data-fuoco="scheda-proiezione"]')).to_be_visible()
     page.locator('[data-fuoco="scheda-proiezione"]').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('[data-fuoco="comando-proiezione.nomi"]')).to_have_count(1)
     # La scheda in piu' non manda la barra fuori dalla finestra stretta.
     page.set_viewport_size({'width': 560, 'height': 850})
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-    page.screenshot(path=str(root / 'dist-tests/barra-proiezione-560.png'))
+    schermata(page, 'barra-proiezione-560.png')
     page.set_viewport_size({'width': 1440, 'height': 1000})
     # Spegnendo, la scheda se ne va con lo schermo e la riga torna alla pagina.
     proiezione(False)
@@ -367,7 +359,7 @@ with sync_playwright() as p:
     # Finestra stretta e menu lungo: scroll interno non chiude il menu.
     for width in [1440, 900, 560]:
         page.set_viewport_size({'width': width, 'height': 850})
-        page.screenshot(path=str(root / f'dist-tests/barra-{width}.png'))
+        schermata(page, f'barra-{width}.png')
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
     file.click()
     page.locator('.menu').evaluate('(m)=>m.scrollTop=m.scrollHeight')
@@ -377,13 +369,13 @@ with sync_playwright() as p:
     voce_corsi = laterale.get_by_role('button', name='Corsi', exact=True)
     voce_corsi.focus()
     page.keyboard.press('Enter')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(voce_corsi).to_be_focused()
     # Su finestra stretta il pannello si apre a richiesta e si chiude scegliendo.
     expect(laterale).to_have_class('sidebar sidebar--compatta')
     navigazione.click()
     expect(laterale).to_be_visible()
-    page.screenshot(path=str(root / 'dist-tests/sidebar-560.png'))
+    schermata(page, 'sidebar-560.png')
     laterale.get_by_role('button', name='Corsi', exact=True).click()
     expect(laterale).to_have_class('sidebar sidebar--compatta')
     expect(navigazione).to_be_focused()
@@ -401,7 +393,7 @@ with sync_playwright() as p:
     expect(navigazione).to_have_count(0)
     expect(laterale).to_have_class('sidebar sidebar--compatta')
     assert laterale.bounding_box()['width'] < 80
-    page.screenshot(path=str(root / 'dist-tests/sidebar-assistente-560.png'))
+    schermata(page, 'sidebar-assistente-560.png')
     # Chiuso il riquadro la colonna torna com'era: la scelta era solo sospesa.
     page.evaluate("()=>prova.aggiorna({assistenteAperto:false})")
     expect(navigazione).to_have_count(1)
@@ -411,7 +403,7 @@ with sync_playwright() as p:
     page.evaluate("prova.vaiA(prova.PAGINE[0])")
     page.emulate_media(color_scheme='dark')
     page.set_viewport_size({'width': 1440, 'height': 1000})
-    page.screenshot(path=str(root / 'dist-tests/navigazione-scura.png'))
+    schermata(page, 'navigazione-scura.png')
     # Docente di classe: una sola navigazione e un solo comando per operazione.
     page.emulate_media(color_scheme='light')
     schede = {'documenti': 'documenti', 'assenze': 'assenze',
@@ -419,7 +411,7 @@ with sync_playwright() as p:
     for destinazione, comando in [('documenti', 'Chiedi un documento'),
                                   ('assenze', 'Nuovo periodo'), ('messaggistica', 'Nuova comunicazione')]:
         page.evaluate("id => prova.vaiA(prova.PAGINE.find(p => p.id === 'pagina.classe.' + id))", destinazione)
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
         expect(page.locator('#azioni-pagina').get_by_role('button', name=comando, exact=True)).to_have_count(1)
         expect(page.locator('main').get_by_role('button', name=comando, exact=True)).to_have_count(0)
         # Quanti comandi ha la scheda lo dice l'elenco dei comandi, non un numero
@@ -434,7 +426,7 @@ with sync_playwright() as p:
         expect(page.locator('[data-fuoco="comando-classe.nuovoAllievo"]')).to_have_count(0)
         expect(page.locator('[data-fuoco="comando-classe.incollaElenco"]')).to_have_count(0)
         expect(page.locator('.docente-classe > .selettore')).to_have_count(0)
-        page.screenshot(path=str(root / f'dist-tests/docente-{destinazione}.png'))
+        schermata(page, f'docente-{destinazione}.png')
     # Archivio documentale: una scansione si guarda nella cornice della pagina,
     # non nel lettore del sistema. La cornice vive fuori dalla vista: si prova qui
     # che un ridisegno non la porti via.
@@ -458,26 +450,26 @@ with sync_playwright() as p:
         archiviati: [{ percorso: 'archivio/pagella.pdf', misura: 12345, revisione: 0 }],
         radiceDati: 'https://esempio.invalido/dati' })
     }""")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # A cornice chiusa la matrice prende tutta la larghezza: una colonna sola.
     expect(page.locator('.archivio--con-foglio')).to_have_count(0)
     # La casella piena è l'unico elenco dei fogli raccolti, e premendola si apre
     # il documento: nessun secondo riquadro che li ripeta.
     expect(page.locator('.cella-documento--file')).to_have_count(1)
     page.locator('.cella-documento--file').first.click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.archivio--con-foglio')).to_have_count(1)
     expect(page.locator('.archivio__titolo')).to_have_text('Rossi Maria')
     # La casella della matrice si accende: si vede da dove si era partiti.
     expect(page.locator('.cella-documento--aperta')).to_have_count(1)
     # Il telaio del lettore non sta nella vista: un ridisegno non lo porta via.
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.cornice-posto')).to_have_count(1)
     assert page.evaluate("document.querySelectorAll('.cornice-fissa__telaio').length") == 1
-    page.screenshot(path=str(root / 'dist-tests/archivio-documentale.png'))
+    schermata(page, 'archivio-documentale.png')
     page.locator('.archivio__testa').get_by_title('Torna alla matrice a schermo intero').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.archivio--con-foglio')).to_have_count(0)
     assert page.evaluate('prova.stato.anteprimaArchivio') is None
     # Caricare un PDF non chiede niente: il documento lo dice la casella su cui si
@@ -496,7 +488,7 @@ with sync_playwright() as p:
     # Nuovo periodo: due date e basta. Il nome lo ricava chi salva dal semestre,
     # e le date partono dal semestre di oggi.
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.assenze'))")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     page.locator('[data-fuoco="comando-docente.assenze"]').first.click()
     expect(page.locator('.modale')).to_have_count(1)
     modale = page.locator('.modale')
@@ -516,7 +508,7 @@ with sync_playwright() as p:
         assert campo_data.get_attribute('min') == anno[0], campo_data.get_attribute('min')
         assert campo_data.get_attribute('max') == anno[1], campo_data.get_attribute('max')
         assert campo_data.input_value() >= anno[0] and campo_data.input_value() <= anno[1]
-    page.screenshot(path=str(root / 'dist-tests/assenze-nuovo-periodo.png'))
+    schermata(page, 'assenze-nuovo-periodo.png')
     modale.get_by_role('button', name='Annulla', exact=True).click()
     expect(page.locator('.modale')).to_have_count(0)
 
@@ -545,13 +537,13 @@ with sync_playwright() as p:
         archiviati: [{ percorso: 'archivio/assenze.pdf', misura: 4321, revisione: 0 }],
         radiceDati: 'https://esempio.invalido/dati' })
     }""")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # A cornice chiusa la matrice prende tutta la larghezza.
     expect(page.locator('.archivio--con-foglio')).to_have_count(0)
     casella = page.locator('.tabella--assenze .cella-documento--consegnato')
     expect(casella).to_have_count(1)
     casella.first.click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.archivio--con-foglio')).to_have_count(1)
     expect(page.locator('.archivio__titolo')).to_have_text('Rossi Maria')
     # Di chi è e che foglio è: due rapporti della stessa persona si somigliano.
@@ -560,18 +552,18 @@ with sync_playwright() as p:
     # La casella della matrice si accende: si vede da dove si era partiti.
     expect(page.locator('.cella-documento--aperta')).to_have_count(1)
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.cornice-posto')).to_have_count(1)
-    page.screenshot(path=str(root / 'dist-tests/docente-assenze-cornice.png'))
+    schermata(page, 'docente-assenze-cornice.png')
     # Cambiando periodo la cornice si chiude: il foglio era di quel periodo.
     page.evaluate("prova.aggiorna({ bloccoAssenzeId: 'altro' })")
     assert page.evaluate('prova.stato.anteprimaAssenze') is None
     page.evaluate("prova.aggiorna({ bloccoAssenzeId: 'blo-ass' })")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     page.locator('.tabella--assenze .cella-documento--consegnato').first.click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     page.locator('.archivio__testa').get_by_title('Torna alla matrice a schermo intero').click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.archivio--con-foglio')).to_have_count(0)
     assert page.evaluate('prova.stato.anteprimaAssenze') is None
     page.evaluate('registro=>prova.aggiorna({registro, schedaDocente: "todo"})', registro_prima)
@@ -610,7 +602,9 @@ with sync_playwright() as p:
     assert 'presenze' in page.locator('.composizione__ordine li').first.inner_text().lower()
     page.get_by_role('textbox', name='Nome della composizione').fill('Ordine di pagina')
     page.locator('.modale').get_by_role('button', name='Combina', exact=True).click()
-    page.wait_for_timeout(100)
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='composizione.crea'"
+                           " && m.azione.nome==='Ordine di pagina')")
+    attendi_risposte(page)
     assert page.evaluate("richieste.find(m=>m.azione?.tipo==='composizione.crea'"
                          " && m.azione.nome==='Ordine di pagina').azione.percorsi") == percorsi
     # E la casella in testa toglie tutto in un gesto solo.
@@ -632,7 +626,7 @@ with sync_playwright() as p:
     assert page.evaluate("richieste.some(m=>m.azione?.tipo==='composizione.crea'"
                          " && m.azione.nome==='Consiglio di classe'"
                          " && m.azione.percorsi[0]==='esportazioni/b.pdf')")
-    page.screenshot(path=str(root / 'dist-tests/documenti-fascicolo.png'))
+    schermata(page, 'documenti-fascicolo.png')
     # Il riquadro dei fascicoli compare solo quando ce n'è uno, e la riga offre di
     # rifarlo.
     page.evaluate("prova.aggiorna({documentiScelti:[],composizioni:[{id:'fas-1',nome:'Consiglio di classe',"
@@ -650,8 +644,8 @@ with sync_playwright() as p:
     riga.hover()
     page.get_by_title('Butta via la composizione «Consiglio di classe» dalla cartella').click()
     page.locator('.modale').get_by_role('button', name='Butta via', exact=True).click()
-    page.wait_for_timeout(100)
-    assert page.evaluate("richieste.some(m=>m.azione?.tipo==='composizione.elimina' && m.azione.id==='fas-1')")
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='composizione.elimina' && m.azione.id==='fas-1')")
+    attendi_risposte(page)
     assert not page.evaluate("richieste.some(m=>m.azione?.tipo==='esportazione.elimina')")
     # La riga se ne va subito, senza aspettare lo stato dall'host: altrimenti si
     # leggerebbe «non ha funzionato».
@@ -694,15 +688,15 @@ with sync_playwright() as p:
     orfano.hover()
     page.get_by_title('Butta via il PDF «Vecchio pacchetto» dalla cartella').click()
     page.locator('.modale').get_by_role('button', name='Butta via', exact=True).click()
-    page.wait_for_timeout(100)
-    assert page.evaluate("richieste.some(m=>m.azione?.tipo==='esportazione.elimina'"
-                         " && m.azione.percorso==='esportazioni/composizioni/Vecchio pacchetto.pdf')")
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='esportazione.elimina'"
+                           " && m.azione.percorso==='esportazioni/composizioni/Vecchio pacchetto.pdf')")
+    attendi_risposte(page)
     expect(page.get_by_role('heading', name='Composizioni', exact=True)).to_have_count(0)
     # La casella «Cerca su Hugging Face» si scrive mentre la pagina si ridisegna
     # (quattro volte al secondo durante uno scarico): `data-fuoco` tiene il fuoco
     # e le lettere. Il vecchio indirizzo porta alle impostazioni del programma.
     page.evaluate("prova.aggiorna({vista:'modelliLinguistici'})")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     # Senza risposta dall'host la pagina resta in attesa, senza casella: si
     # risponde come il guscio.
     page.evaluate('''() => {
@@ -714,21 +708,21 @@ with sync_playwright() as p:
         } }))
       }
     }''')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     casella = 'input[type="search"][aria-label="Cerca un modello su Hugging Face"]'
     expect(page.locator(casella)).to_have_count(1)
     page.locator(casella).click()
     page.keyboard.type('qwen')
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator(casella)).to_be_focused()
     expect(page.locator(casella)).to_have_value('qwen')
     # Si continua a battere senza riprendere il campo, mentre i ridisegni arrivano.
     page.keyboard.type('-vl')
     page.evaluate('prova.aggiorna({})')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator(casella)).to_have_value('qwen-vl')
-    page.screenshot(path=str(root / 'dist-tests/modelli-linguistici.png'))
+    schermata(page, 'modelli-linguistici.png')
 
     # Nessun corso e corso senza lezioni non lasciano una vista incoerente.
     page.evaluate("()=>{prova.aggiorna({vista:'lezione'}); prova.stato.registro.lezioni=[]; prova.scegliCorso(prova.stato.registro.corsi[0].id)}")
@@ -736,5 +730,4 @@ with sync_playwright() as p:
     page.evaluate("prova.aggiorna({registro:prova.registroVuoto(),vista:'calendario'})")
     expect(page.get_by_role('navigation', name='Navigazione principale')).to_be_visible()
     assert not errors, errors
-    browser.close()
 print('OK: pagine, contesto, comandi e filtri di calendario e pendenze, scheda della proiezione, tendine corso/classe (anche quando il filtro punta a un corso sparito), sezione docente, file recenti, tastiera, azioni nascoste, responsive, casella di ricerca dei modelli che regge i ridisegni, registro vuoto; nessun errore JS')

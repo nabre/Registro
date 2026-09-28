@@ -166,7 +166,6 @@ const it = {
   nuovaConsegna: 'Nuova consegna',
   nuovaConsegnaAiuto:
     'Qualcosa che si dà e deve tornare indietro: un compito, un documento',
-  nessunCorsoPerConsegna: 'Non c’è ancora nessun corso a cui darla.',
   nuovoCorso: 'Nuovo corso',
   nuovoCorsoAiuto: 'Una materia a una classe, con il suo orario',
 
@@ -450,8 +449,6 @@ export const testi = catalogo(it, {
     nuovaConsegna: 'Neuer Auftrag',
     nuovaConsegnaAiuto:
       'Etwas, das man ausgibt und das zurückkommen muss: eine Aufgabe, ein Dokument',
-    nessunCorsoPerConsegna:
-      'Es gibt noch keinen Kurs, für den man ihn erteilen könnte.',
     nuovoCorso: 'Neuer Kurs',
     nuovoCorsoAiuto: 'Ein Fach für eine Klasse, mit seinem Stundenplan',
     modificaOra: 'Stunde bearbeiten',
@@ -722,7 +719,6 @@ export const testi = catalogo(it, {
     nuovaConsegna: 'Nouveau devoir',
     nuovaConsegnaAiuto:
       'Quelque chose qu’on donne et qui doit revenir : un devoir, un document',
-    nessunCorsoPerConsegna: 'Il n’y a encore aucun cours auquel le donner.',
     nuovoCorso: 'Nouveau cours',
     nuovoCorsoAiuto: 'Une branche pour une classe, avec son horaire',
     modificaOra: 'Modifier la leçon',
@@ -987,7 +983,6 @@ export const testi = catalogo(it, {
     nuovaConsegna: 'New assignment',
     nuovaConsegnaAiuto:
       'Something handed out that has to come back: a task, a document',
-    nessunCorsoPerConsegna: 'There is no course yet to give it to.',
     nuovoCorso: 'New course',
     nuovoCorsoAiuto: 'A subject for a class, with its timetable',
     modificaOra: 'Edit the lesson',

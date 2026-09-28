@@ -2,7 +2,7 @@
 // scritto da un registro più recente. Le parole comuni («Chiudi», «Annulla»…)
 // le dà `parole()`.
 
-import { catalogo } from '.../../../core/i18n/index.js'
+import { catalogo } from '../../core/i18n/index.js'
 
 /** Quale versione del documento supera quella che il registro sa leggere. */
 type CosaVersione = 'dati' | 'formato'
