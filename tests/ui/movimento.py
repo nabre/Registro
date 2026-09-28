@@ -40,14 +40,14 @@ with chromium() as browser:
         page.evaluate('document.activeElement && document.activeElement.blur()')
 
     # Tre pagine di fila: il calendario, la Guida scorsa a metà, le Impostazioni.
-    page.evaluate("prova.aggiorna({vista:'calendario'})")
+    page.evaluate("prova.vai({pagina:'pagina.calendario'})")
     fotogramma()
-    page.evaluate("prova.aggiorna({vista:'guida'})")
+    page.evaluate("prova.vai({pagina:'pagina.guida'})")
     fotogramma()
     contenuto.evaluate('(el) => el.scrollTop = 400')
     scorsa = contenuto.evaluate('(el) => el.scrollTop')
     assert scorsa > 0, 'la Guida non scorre: la prova non direbbe niente'
-    page.evaluate("prova.aggiorna({vista:'impostazioni'})")
+    page.evaluate("prova.vai({pagina:'pagina.impostazioni'})")
     fotogramma()
     assert contenuto.evaluate('(el) => el.scrollTop') == 0, 'aprire una pagina deve mostrarla dall’alto'
 
@@ -93,7 +93,7 @@ with chromium() as browser:
     fuori_dai_campi()
     page.keyboard.press('Alt+ArrowLeft')
     fotogramma()
-    page.evaluate("prova.aggiorna({vista:'corsi'})")
+    page.evaluate("prova.vai({pagina:'pagina.corsi'})")
     fotogramma()
     assert contenuto.evaluate('(el) => el.scrollTop') == 0, 'una pagina aperta a mano ha ereditato uno scorrimento'
     fuori_dai_campi()
@@ -112,9 +112,9 @@ with chromium() as browser:
         aggiornatoIl: '2026-09-01T08:00:00.000Z' })
       prova.aggiorna({ registro: { ...r, piani: [piano('piano-p'), piano('piano-q')] } })
     }''')
-    page.evaluate("prova.aggiorna({vista:'piani', pianoId:'piano-p'})")
+    page.evaluate("prova.vai({pagina:'pagina.corso.piani', soggetto:{tipo:'piano', id:'piano-p'}})")
     fotogramma()
-    page.evaluate("prova.aggiorna({pianoId:'piano-q'})")
+    page.evaluate("prova.vai({pagina:'pagina.corso.piani', soggetto:{tipo:'piano', id:'piano-q'}})")
     fotogramma()
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
     fotogramma()
@@ -129,7 +129,7 @@ with chromium() as browser:
             assert page.evaluate('prova.stato.ambitoCheck') == ambito, 'Alt+← ha perso l’ambito del check'
         else:
             assert page.evaluate('prova.stato.pianoId') == piano, f'Alt+← doveva riaprire {piano}'
-    page.evaluate("prova.aggiorna({vista:'corsi'})")
+    page.evaluate("prova.vai({pagina:'pagina.corsi'})")
     fotogramma()
 
     # Dentro un campo di testo Alt+← è di chi scrive.
@@ -154,14 +154,14 @@ with chromium() as browser:
 
     # L'entrata c'è nel disegno del cambio di pagina, non in un aggiornamento
     # arrivato dopo.
-    page.evaluate("prova.aggiorna({vista:'guida'})")
+    page.evaluate("prova.vai({pagina:'pagina.guida'})")
     fotogramma()
     assert contenuto.get_attribute('data-entrata') is not None, 'cambiando pagina manca data-entrata'
     animazione = page.locator('main.contenuto > .vista').evaluate('(el) => getComputedStyle(el).animationName')
     assert animazione == 'entrata-pagina', f'la vista non si anima entrando: {animazione!r}'
     # Finita l'entrata (160 ms), un ridisegno non la rifà.
     page.wait_for_function("document.querySelector('main.contenuto > .vista').getAnimations().length === 0")
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     fotogramma()
     assert contenuto.get_attribute('data-entrata') is None, 'data-entrata resta anche senza cambio di pagina'
     # Ferma, la vista non ha trasformazioni: i menu `position: fixed` là dentro la
@@ -170,7 +170,7 @@ with chromium() as browser:
 
     # Chi ha chiesto meno movimento: l'attributo può esserci, l'animazione no.
     page.emulate_media(reduced_motion='reduce')
-    page.evaluate("prova.aggiorna({vista:'impostazioni'})")
+    page.evaluate("prova.vai({pagina:'pagina.impostazioni'})")
     fotogramma()
     animazione = page.locator('main.contenuto > .vista').evaluate('(el) => getComputedStyle(el).animationName')
     assert animazione == 'none', f'con «riduci movimento» la pagina si anima lo stesso: {animazione!r}'

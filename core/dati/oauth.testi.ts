@@ -33,6 +33,14 @@ const it = {
     `l’applicazione ${client} (Microsoft Graph Command Line Tools) sul permesso delegato ` +
     'SMTP.Send di Office 365 Exchange Online». Fino ad allora le comunicazioni escono come ' +
     'file .eml, e a spedirle sei tu.',
+  consensoAmministratoreOneDrive: (client: string) =>
+    'La scuola non lascia che il registro legga il tuo OneDrive, e non è una cosa che si ' +
+    'possa rimediare da qui: il consenso lo deve dare chi amministra il tenant. Conviene ' +
+    'girargli la richiesta così com’è — «consenso amministratore per l’applicazione ' +
+    `${client} (Microsoft Graph Command Line Tools) sui permessi delegati Files.Read.All e ` +
+    'User.Read di Microsoft Graph». Non serve per i documenti che il client di OneDrive ' +
+    'sincronizza su questo computer: quell’account compare già in Account Microsoft, e si ' +
+    'sfoglia senza accesso.',
   clientSconosciuto: (client: string) =>
     `Microsoft non riconosce l’applicazione ${client}: se l’ha ritirata, il registro va ` +
     'aggiornato.',
@@ -80,6 +88,14 @@ export const testi = catalogo(it, {
       `«Administratorzustimmung für die Anwendung ${client} (Microsoft Graph Command Line ` +
       'Tools) für die delegierte Berechtigung SMTP.Send von Office 365 Exchange Online». Bis ' +
       'dahin werden die Mitteilungen als .eml-Dateien erstellt, und du versendest sie selbst.',
+    consensoAmministratoreOneDrive: (client) =>
+      'Die Schule erlaubt dem Klassenbuch nicht, dein OneDrive zu lesen, und das lässt sich ' +
+      'von hier aus nicht beheben: Die Zustimmung muss erteilen, wer den Tenant verwaltet. ' +
+      'Am besten leitest du die Anfrage genau so weiter — «Administratorzustimmung für die ' +
+      `Anwendung ${client} (Microsoft Graph Command Line Tools) für die delegierten ` +
+      'Berechtigungen Files.Read.All und User.Read von Microsoft Graph». Für Dokumente, die der ' +
+      'OneDrive-Client auf diesem Computer synchronisiert, braucht es sie nicht: Dieses Konto ' +
+      'steht schon unter Microsoft-Konten und lässt sich ohne Anmeldung durchsuchen.',
     clientSconosciuto: (client) =>
       `Microsoft erkennt die Anwendung ${client} nicht: Falls sie zurückgezogen wurde, muss ` +
       'das Klassenbuch aktualisiert werden.',
@@ -122,6 +138,14 @@ export const testi = catalogo(it, {
       `« consentement administrateur pour l’application ${client} (Microsoft Graph Command ` +
       'Line Tools) sur l’autorisation déléguée SMTP.Send d’Office 365 Exchange Online ». ' +
       'D’ici là, les communications sortent en fichiers .eml, et c’est toi qui les envoies.',
+    consensoAmministratoreOneDrive: (client) =>
+      'L’école ne laisse pas le registre lire ton OneDrive, et ce n’est pas une chose qui se ' +
+      'règle d’ici : le consentement doit être donné par la personne qui administre le tenant. ' +
+      'Mieux vaut lui transmettre la demande telle quelle — « consentement administrateur ' +
+      `pour l’application ${client} (Microsoft Graph Command Line Tools) sur les ` +
+      'autorisations déléguées Files.Read.All et User.Read de Microsoft Graph ». Ce n’est pas ' +
+      'nécessaire pour les documents que le client OneDrive synchronise sur cet ordinateur : ce ' +
+      'compte figure déjà dans Comptes Microsoft et se parcourt sans connexion.',
     clientSconosciuto: (client) =>
       `Microsoft ne reconnaît pas l’application ${client} : si elle a été retirée, le ` +
       'registre doit être mis à jour.',
@@ -163,6 +187,14 @@ export const testi = catalogo(it, {
       `“admin consent for the application ${client} (Microsoft Graph Command Line Tools) ` +
       'on the delegated permission SMTP.Send of Office 365 Exchange Online”. Until then, ' +
       'messages come out as .eml files, and you send them yourself.',
+    consensoAmministratoreOneDrive: (client) =>
+      'The school doesn’t let the register read your OneDrive, and it isn’t something that ' +
+      'can be fixed from here: consent has to be given by whoever administers the tenant. ' +
+      'It’s best to pass the request on exactly as it is — “admin consent for the ' +
+      `application ${client} (Microsoft Graph Command Line Tools) on the delegated ` +
+      'permissions Files.Read.All and User.Read of Microsoft Graph”. It is not needed for the ' +
+      'documents the OneDrive client syncs on this computer: that account already appears in ' +
+      'Microsoft accounts and can be browsed without signing in.',
     clientSconosciuto: (client) =>
       `Microsoft doesn’t recognise the application ${client}: if it has been withdrawn, the ` +
       'register needs updating.',

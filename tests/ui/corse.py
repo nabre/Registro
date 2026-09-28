@@ -40,7 +40,8 @@ PREPARA = '''() => {
     spunte: [{ allievoId: r.classi[0].allievi[0].id, colonnaId: 'c2', lezioneId: null,
       data: '2026-09-10', fattaIl: '2026-09-10T08:00:00.000Z' }],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-10T08:00:00.000Z' }
-  prova.aggiorna({ registro: { ...r, check: [check] }, vista: 'check', corsoId: corso.id })
+  prova.vai({ pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: corso.id } },
+    { altro: { registro: { ...r, check: [check] } } })
 }'''
 
 # Cambia il check come farebbe un'altra finestra: colonne e spunte nuove.
@@ -143,8 +144,8 @@ with chromium() as browser:
     vecchia = page.evaluate(
         "prova.stato.registro.lezioni.find(l=>l.corsoId===prova.stato.registro.corsi[0].id).id")
     assert vecchia != 'lez-oggi'
-    page.evaluate("id => prova.aggiorna({ vista: 'lezione', lezioneId: id, "
-                  "schedaLezione: 'amministrazione' })", vecchia)
+    page.evaluate("id => prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id } }, "
+                  "{ altro: { schedaLezione: 'amministrazione' } })", vecchia)
     page.evaluate(FOTOGRAMMA)
     page.locator(f'[data-fuoco="check-{allievo}-c1"]').click(button='right')
     page.evaluate('richieste.length = 0')
@@ -155,8 +156,7 @@ with chromium() as browser:
 
     # 5. Le liste: una voce nuova, Invio, la pagina si rifà, e il fuoco resta nel
     # campo per scrivere la seconda di fila.
-    page.evaluate("prova.aggiorna({ vista: 'impostazioni', ambitoImpostazioni: 'documento', "
-                  "schedaDocumento: 'liste' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.impostazioni', scheda: 'documento.liste' })")
     page.evaluate(FOTOGRAMMA)
     # Una lista alla volta, dietro la sua linguetta: la prima è chiusa e non ha
     # il campo per aggiungere, i supporti sì.
@@ -184,7 +184,7 @@ with chromium() as browser:
 
     # 6. I giorni visibili: il registro nuovo arriva fra due clic, prima del
     # ridisegno, e il secondo clic parte da lì.
-    page.evaluate("prova.aggiorna({ schedaDocumento: 'calendario' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.impostazioni', scheda: 'documento.calendario' })")
     page.evaluate(FOTOGRAMMA)
     prima = page.evaluate('[...prova.stato.registro.impostazioni.giorniVisibili]')
     page.evaluate('richieste.length = 0; trattieni = true')
@@ -208,7 +208,7 @@ with chromium() as browser:
       const r = prova.stato.registro
       const anni = r.anni.map((a) => a.id === r.annoCorrenteId
         ? { ...a, settimane: { '2026-09-14': 'A' } } : a)
-      prova.aggiorna({ registro: { ...r, anni }, schedaDocumento: 'anno' })
+      prova.vai({ pagina: 'pagina.impostazioni', scheda: 'documento.anno' }, { altro: { registro: { ...r, anni } } })
     }''')
     page.evaluate(FOTOGRAMMA)
     page.locator('button', has_text='Pulisci').click()

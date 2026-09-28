@@ -25,13 +25,14 @@ import { apriModale } from '../components/modal.js'
 import { h, rimpiazza, type Figlio } from '../dom.js'
 import { azione } from '../bridge.js'
 import {
-  aggiorna,
   classePerId,
   classiDellAnno,
   corsiDi,
   materieDiClasse,
+  postoCorrente,
   stato,
   uriDato,
+  vai,
 } from '../state.js'
 
 import {
@@ -176,7 +177,7 @@ export function moduloClasse (classe?: Classe, dopo?: (classeId: string) => void
             dopo(classeId)
             return
           }
-          aggiorna({ vista: 'classi', classeId })
+          vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classeId } })
         },
       )
     },
@@ -187,7 +188,12 @@ export function moduloClasse (classe?: Classe, dopo?: (classeId: string) => void
             chiedi: { genere: 'classe', id: base.id },
             azione: { tipo: 'classe.elimina', classeId: base.id },
             fatto: t.eliminata,
-            poi: () => aggiorna({ classeId: null }),
+            // La pagina resta; se mostrava la classe tolta, `completa` ne sceglie un'altra.
+            poi: () => {
+              const qui = postoCorrente()
+              const suo = qui.soggetto?.tipo === 'classe' && qui.soggetto.id === base.id
+              vai(suo ? { pagina: qui.pagina } : qui, { contesto: { classeId: null } })
+            },
           })
         : null,
   })

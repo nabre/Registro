@@ -103,6 +103,9 @@ paragrafo: {{nota}}
 sezione: {{frase.griglia-presenze}}
 usa: griglia-appello
 
+sezione: {{frase.diario-lezioni}}
+tabella: diario
+
 sezione: {{frase.annotazioni}}
 tabella: annotazioni
 
@@ -112,3 +115,18 @@ tabella: annotazioni
 # segnate la sezione non esce.
 sezione: {{frase.com-e-andata}}
 tabella: comportamento
+
+sezione: {{frase.check}}
+tabella: check
+
+sezione: {{frase.consegne}}
+tabella: consegne
+
+sezione: {{frase.recuperi}}
+tabella: recuperi
+
+sezione: {{frase.richieste-documenti}}
+tabella: documenti
+
+sezione: {{frase.comunicazioni}}
+tabella: comunicazioni

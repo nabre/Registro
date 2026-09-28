@@ -10,7 +10,7 @@ import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
 import { stato, vai } from './state.js'
-import { chiaveDelPosto } from './posto.js'
+import { chiaveDelPosto, type PaginaId } from './posto.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
 import { barraTitolo } from './titleBar.js'
@@ -77,6 +77,23 @@ function vistaCorrente (): Figlio {
     case 'guida':
       return vistaGuida()
   }
+}
+
+/**
+ * La vista come anello della catena di telaio (`dom.ts`): senza, ogni scatola
+ * che scorre dentro la vista si ricreava a ogni disegno e il gesto in corsa si
+ * perdeva. La chiave è la vista; cambiando posto cambia già lo scorrimento di
+ * `main.contenuto`, che non si tiene, e con lui la radice. Una vista che si
+ * dà una chiave sua (il calendario) la tiene. Sulle radici delle viste non ci
+ * sono ascoltatori: quelli del primo disegno resterebbero.
+ */
+function vistaNelTelaio (): Figlio {
+  const vista = vistaCorrente()
+  if (vista instanceof HTMLElement && vista.dataset.telaio === undefined) {
+    // testo-fisso: una chiave, non un testo
+    vista.dataset.telaio = `vista:${stato.vista}`
+  }
+  return vista
 }
 
 /**
@@ -155,13 +172,30 @@ export function mostraFiloDiLavoro (acceso: boolean): void {
 }
 
 /**
- * La chiave di scorrimento di `.contenuto`: il posto, pagina e soggetto
- * (`chiaveDelPosto`, la stessa della fila di Alt+←). Cambiandolo si riparte
- * dall'alto; restando, il ridisegno a ogni gesto non fa perdere il punto.
+ * Le pagine dove il soggetto si sceglie da dentro (l'elenco dei corsi, dei
+ * piani, delle prove, delle classi; l'ora nel calendario): cambiarlo non è
+ * andare altrove, e la pagina resta dov'era invece di ripartire dall'alto.
+ */
+const SOGGETTO_DA_DENTRO: ReadonlySet<PaginaId> = new Set<PaginaId>([
+  'pagina.corsi',
+  'pagina.corso.piani',
+  'pagina.corso.valutazioni',
+  'pagina.corso.check',
+  'pagina.classi',
+  'pagina.calendario',
+  'pagina.pendenze',
+])
+
+/**
+ * La chiave di scorrimento di `.contenuto`: il posto (`chiaveDelPosto`), con il
+ * soggetto solo dove aprirne un altro è andare altrove (un'ora, un allievo).
+ * Cambiandola si riparte dall'alto e la catena di telaio si rifà; restando, il
+ * ridisegno a ogni gesto non fa perdere il punto (ADR-48).
  */
 function chiaveDellaPagina (): string {
+  const livello = SOGGETTO_DA_DENTRO.has(stato.posto.pagina) ? 'pagina' : 'soggetto'
   // testo-fisso: una chiave, non un testo
-  return `pagina:${chiaveDelPosto(stato.posto)}`
+  return `pagina:${chiaveDelPosto(stato.posto, livello)}`
 }
 
 export function guscio (): Figlio {
@@ -196,7 +230,7 @@ export function guscio (): Figlio {
       { class: 'contenuto', dataset: { telaio: 'contenuto', scorrimento: chiaveDellaPagina() } },
       barraProiezione(),
       barraAvvisi(),
-      vistaCorrente(),
+      vistaNelTelaio(),
     ),
     // L'assistente è una colonna della griglia, non un velo: chiuso non disegna
     // niente (`ui/assistant.ts`).

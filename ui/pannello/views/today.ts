@@ -31,10 +31,12 @@ import { statoVuotoAnno } from '../components/filters.js'
 import { icona, type NomeIcona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
 import { moduloAnno } from '../forms.js'
-import { PAGINE, vaiA } from '../pages.js'
+import { isola, isolaPresente, ridisegnaIsola } from '../isole.js'
+import { alMinuto } from '../orologio.js'
+import { apriLezione, PAGINE, vaiA } from '../pages.js'
+import type { PaginaId } from '../posto.js'
 import { testi as testiPagine } from '../pages.testi.js'
 import {
-  aggiorna,
   annoCorrente,
   coloreDiCorso,
   coloreDiLezione,
@@ -63,13 +65,13 @@ type OraDiOggi = ReturnType<typeof oreDiOggiDashboard>[number]
 const QUANTE_VALUTAZIONI = 5
 
 /** Va in una pagina per nome, con i controlli di `vaiA`. */
-function vaiAllaPagina (id: string): void {
+function vaiAllaPagina (id: PaginaId): void {
   const pagina = PAGINE.find((p) => p.id === id)
   if (pagina) vaiA(pagina)
 }
 
 /** Il nome di una pagina come lo scrive la barra laterale. */
-function nomeDellaPagina (id: string): string {
+function nomeDellaPagina (id: PaginaId): string {
   return PAGINE.find((p) => p.id === id)?.titolo ?? id
 }
 
@@ -86,7 +88,7 @@ function tessera (opzioni: {
   valore: number;
   etichetta: string;
   nota: string;
-  pagina: string;
+  pagina: PaginaId;
   al: () => void;
 }): HTMLElement {
   const t = testi()
@@ -169,12 +171,7 @@ function tessere (oreOggi: readonly OraDiOggi[]): HTMLElement {
       // o la prossima; se non c'è nessuna delle due si resta sul calendario.
       al: () => {
         const ora = oraDaFareDashboard()
-        if (ora)
-          aggiorna({
-            vista: 'lezione',
-            lezioneId: ora.lezione.id,
-            data: ora.lezione.data,
-          })
+        if (ora) apriLezione(ora.lezione.id)
         else vaiAllaPagina('pagina.calendario')
       },
     }),
@@ -296,7 +293,7 @@ function schedaStatistiche (): HTMLElement {
               stats.percentualeCoperte,
             )}`,
           },
-          onclick: () => vaiAllaPagina('pagina.piani'),
+          onclick: () => vaiAllaPagina('pagina.corso.piani'),
         },
         h(
           'div',
@@ -327,7 +324,7 @@ function schedaStatistiche (): HTMLElement {
             title: t.presenzeMedie,
             'aria-label': `${t.presenzeMedie}: ${stats.tassoPresenzaMedio !== null ? t.presenzeDettaglio(stats.tassoPresenzaMedio) : t.nessunDatoPresenze}`,
           },
-          onclick: () => vaiAllaPagina('pagina.assenze'),
+          onclick: () => vaiAllaPagina('pagina.classe.assenze'),
         },
         h(
           'div',
@@ -360,7 +357,7 @@ function schedaStatistiche (): HTMLElement {
             title: t.valutazioniPeriodo,
             'aria-label': `${t.valutazioniPeriodo}: ${t.valutazioniDettaglio(stats.valutazioniSvolte, stats.valutazioniTotali)}`,
           },
-          onclick: () => vaiAllaPagina('pagina.valutazioni'),
+          onclick: () => vaiAllaPagina('pagina.corso.valutazioni'),
         },
         h(
           'div',
@@ -454,12 +451,7 @@ function rigaOra (voce: OraDiOggi, evidenza: string | null): HTMLElement {
         dataset: { fuoco: `oggi-ora-${lezione.id}`, lezione: lezione.id },
         style: { '--tinta': coloreDiLezione(lezione) },
         attr: { title: t.apriLOra(classe, inizio) },
-        onclick: () =>
-          aggiorna({
-            vista: 'lezione',
-            lezioneId: lezione.id,
-            data: lezione.data,
-          }),
+        onclick: () => apriLezione(lezione.id),
       },
       h(
         'span',
@@ -692,6 +684,22 @@ function schedaCompleanni (): HTMLElement | null {
 
 // --------------------------------------------------------------- la pagina
 
+// Il minuto che passa cambia le fasi delle ore di oggi («in corso», «prossima»)
+// e la nota della tessera che le conta: si rifanno solo quei due riquadri, non
+// la pagina (`orologio.ts`). Le chiavi dicono che cosa segna l'ora.
+// testo-fisso: chiave di un'isola, non si legge
+const ISOLA_TESSERE = 'oggi-adesso:tessere'
+// testo-fisso: chiave di un'isola, non si legge
+const ISOLA_ORE = 'oggi-adesso'
+/** Il contenitore dell'isola non fa scatola: griglia e colonna restano quelle di prima. */
+const IN_LINEA = { style: { display: 'contents' } }
+
+alMinuto(() => {
+  for (const chiave of [ISOLA_TESSERE, ISOLA_ORE]) {
+    if (isolaPresente(chiave)) ridisegnaIsola(chiave)
+  }
+})
+
 export function vistaOggi (): Figlio {
   const t = testi()
   const titolo = t.titolo
@@ -727,7 +735,7 @@ export function vistaOggi (): Figlio {
       h('h2', { class: 'testata__titolo' }, titolo),
       h('p', { class: 'testata__sottotitolo' }, sottotitolo),
     ),
-    tessere(oreOggi),
+    isola(ISOLA_TESSERE, () => tessere(oreDiOggiDashboard()), IN_LINEA),
     schedaStatistiche(),
     h(
       'div',
@@ -735,7 +743,7 @@ export function vistaOggi (): Figlio {
       h(
         'div',
         { class: 'oggi-colonna oggi-colonna--larga' },
-        schedaOreOggi(oreOggi),
+        isola(ISOLA_ORE, () => schedaOreOggi(oreDiOggiDashboard()), IN_LINEA),
         schedaOreProssima(oreProssima, dataProssima),
       ),
       h(

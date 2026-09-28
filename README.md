@@ -75,7 +75,7 @@ situazione di famiglia. **Regiklass** tiene tutto sulla tua macchina:
 | ✂️ **Smistamento dei PDF** | Un PDF di classe arrivato dalla segreteria si divide da solo, persona per persona. Le scansioni passano dall'OCR. |
 | 🤖 **Assistente** | Risponde a domande in italiano leggendo i dati veri del registro, con un modello che scarichi o trascini nella finestra. Le domande si possono anche dire a voce, con [voicebox](https://github.com/jamiepine/voicebox) installato e aperto a parte: la voce resta sul tuo computer. |
 | 📽️ **Proiezione** | Una seconda finestra per lo schermo della classe, che segue quel che apri nel registro. |
-| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 210 procedure, con permessi separati per lettura e scrittura. |
+| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 215 procedure, con permessi separati per lettura e scrittura. |
 | 💾 **Portabile** | Una versione che gira da chiavetta senza installazione, per le macchine su cui non si hanno i diritti di amministratore. |
 
 Come si usa ogni pagina lo dice la guida dentro il registro: **F1** da qualunque
@@ -244,7 +244,7 @@ valgono le loro regole:
 | --- | --- | --- |
 | GitHub | aggiornamenti; programma per leggere le scansioni | [GitHub Privacy Statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement) |
 | OpenStreetMap (Nominatim, tasselli della mappa) | indirizzi sulla mappa | [OSMF Privacy Policy](https://osmfoundation.org/wiki/Privacy_Policy) |
-| Microsoft (accesso e posta Office 365) | spedire la posta dalla casella della scuola | [Microsoft Privacy Statement](https://www.microsoft.com/privacy/privacystatement) |
+| Microsoft (accesso, posta Office 365, OneDrive) | spedire la posta dalla casella della scuola; cercare e aprire i documenti `.regi` su OneDrive | [Microsoft Privacy Statement](https://www.microsoft.com/privacy/privacystatement) |
 | Hugging Face | cercare e scaricare i modelli dell'assistente | [Hugging Face Privacy Policy](https://huggingface.co/privacy) |
 
 <details>

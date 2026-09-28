@@ -739,6 +739,103 @@ Retrocompatibilità garantita per il segnaposto `{{docente}}` nei modelli esiste
 `core/azioni/assignments.ts`, `ui/pannello/views/plans.ts`, `ui/pannello/views/classes.ts`,
 `templates/`.
 
+### ADR-47 — Un posto solo per sapere dove si è, ricordato per documento
+
+**Decisione.** Dove si guarda è un valore solo, `Posto = { pagina, soggetto?, scheda? }`
+(`ui/pannello/posto.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
+`pagina.classe.pendenze`, senza voce nella barra), `soggetto` l'elemento aperto (corso,
+classe, lezione, allievo, piano, valutazione), `scheda` la sezione delle impostazioni.
+Ci si sposta solo con `vai(posto)` (`state.ts`); un solo risolutore puro, `completa`,
+ricava corso, classe, filtro, giorno e semestre dal soggetto e ripiega in modo
+deterministico quando il soggetto non c'è più. `stato.vista` e gli id di selezione sono
+derivati, scritti solo da `vai`. Una sola chiave, `chiaveDelPosto`, per storia,
+scorrimento ed entrata. Il posto e le scelte che contengono id (giorno, semestre,
+filtri) si ricordano **per documento** (`ui/pannello/memoria.ts`), sotto il percorso
+normalizzato del `.regi`, al più venti documenti; le preferenze dell'interfaccia
+restano globali. La navigazione dell'host (`naviga`, `vista.apri`) passa dalla stessa
+tabella (`postoDaVista`) e dallo stesso `completa`.
+
+**Perché.** Cinque concetti sovrapposti (vista, destinazione, sotto-pagina, schede,
+filtri), tre chiavi di posto, quattro modi di aprire un'ora e id ricordati fra un anno
+e l'altro facevano riaprire documenti su id estranei e tornare indietro in posti a
+metà.
+
+**Vincoli.** `completa` e `vai` non scrivono nel documento (ADR-46) e non toccano il
+DOM (ADR-06). `Vista`, `VISTE` e `vista.apri` restano il contratto verso fuori; gli
+alias (`modelli`, `modelliLinguistici`) si risolvono solo nella tabella. Gli id di
+`PAGINE` non cambiano. Al cambio di documento la storia si azzera e il posto si
+ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira` e
+`assistente.contesto`, in un passaggio solo. Il JSON vecchio si migra, non si rifiuta.
+
+**Dove.** `ui/pannello/posto.ts`, `ui/pannello/memoria.ts`, `ui/pannello/state.ts`,
+`ui/pannello/history.ts`, `ui/pannello/pages.ts`, `ui/pannello/main.ts`.
+
+### ADR-48 — Ogni aggiornamento resta nel suo riquadro
+
+**Decisione.** Un cambio dello stato globale ridisegna la pagina (ADR-06) con un
+telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, contenuto,
+radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
+lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
+un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
+`ui/pannello/isole.ts`, `leggi(…, { isola })` in `risorse.ts`). I nodi pesanti
+(`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) portano
+`data-tieni="<sorgente>"` e non si ricreano finché la sorgente non cambia. L'orologio
+muove solo ciò che segna l'ora (`orologio.ts`, `alMinuto`). Nessun ridisegno e
+nessuna richiesta all'host partono dal disegno.
+
+**Perché.** Rifare tutta la pagina per una lettura arrivata, un avanzamento o il
+minuto che passa la faceva lampeggiare, ricaricava i PDF, interrompeva lo
+scorrimento e i trascinamenti.
+
+**Vincoli.** Il contenuto di un'isola è funzione dello stato e delle letture, come il
+resto: il DOM non tiene stato (ADR-06). Contenitore d'isola, nodo di telaio e nodo
+tenuto conservano gli ascoltatori del primo disegno: non se ne mettono che dipendano
+dallo stato. Un nodo tenuto si sposta solo con `moveBefore` senza uscire dal
+documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgente:
+cambia se cambia ciò che il nodo mostra.
+
+**Dove.** `ui/pannello/dom.ts`, `ui/pannello/isole.ts`, `ui/pannello/risorse.ts`,
+`ui/pannello/orologio.ts`, `ui/pannello/shell.ts`, `tests/ui/isole.test.mjs`.
+
+
+### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
+
+**Decisione.** Il registro cerca i `.regi` su OneDrive per due strade. La prima:
+gli account che il client di OneDrive sincronizza su questo computer, letti da
+`HKCU\Software\Microsoft\OneDrive\Accounts` (`UserEmail`, `UserFolder`, e le
+librerie sotto `Tenants`), si sfogliano e si cercano sul disco
+(`core/dati/oneDriveLocale.ts`), senza accesso né consenso; l'id di una voce è il
+percorso, il drive `locale`, e un percorso fuori da quelle cartelle si rifiuta.
+La seconda, per gli account che qui non sono sincronizzati: Microsoft Graph, a
+nome degli account collegati in Impostazioni › «Account Microsoft». L'accesso è quello
+della posta (`core/dati/oauth.ts`: browser di sistema, PKCE, client pubblico
+«Microsoft Graph Command Line Tools»), con scope `Files.Read.All User.Read
+offline_access`. Ogni account ha il suo gettone di rinnovo nel portachiavi; l'elenco
+degli account sta nel portachiavi accanto ai gettoni, non nelle impostazioni. Aprire
+un documento apre sempre un file sul disco: quello sincronizzato dal client di
+OneDrive se c'è (registro di Windows `HKCU\Software\Microsoft\OneDrive\Accounts`;
+`OneDriveCommercial`/`OneDrive` solo se il registro non lega nessuna cartella
+all'account) e ha la misura che dice Graph, altrimenti una copia scaricata dove si
+sceglie. Un omonimo di un altro account non si apre mai al posto dell'originale.
+
+**Perché.** Nel tenant `edu.ti.ch` il consenso a `Files.Read.All` per il client
+pubblico è riservato all'amministratore («L'approvazione dell'amministratore è
+necessaria»): Graph da solo lascerebbe fuori proprio i docenti per cui la
+funzione esiste, mentre il client di OneDrive quasi sempre c'è già. La casella
+della posta ha già un account Microsoft, ma un gettone vale
+per una risorsa sola: `SMTP.Send` non legge file, e allargare lo scope della posta
+avrebbe chiesto a ogni docente un permesso che l'invio non usa. Scrivere su OneDrive
+lo fa già il client di sincronizzazione, che conosce i conflitti; un secondo scrittore
+li moltiplicherebbe (ADR-19).
+
+**Vincoli.** Solo lettura: nessuno scope `Write`. Il gettone non attraversa il
+ponte; il pannello vede indirizzi e pastiglie. Le letture `onedrive.*` restano fuori
+dall'assistente (`perAssistente: false`). Una copia scaricata non si risincronizza, e
+lo si dice a chi la apre.
+
+**Dove.** `core/dati/microsoft.ts`, `core/dati/onedrive.ts`, `core/dominio/onedrive.ts`,
+`core/dati/oneDriveLocale.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
+`ui/pannello/views/settings/microsoft.ts`, `ui/pannello/forms/oneDrive.ts`.
 
 ## Decisioni implicite
 
@@ -746,7 +843,8 @@ Scelte che il codice applica senza un ADR; il perché è ricostruito.
 
 1. **Un aggregato unico, stato spinto intero.** `Archivio`
    (`core/dati/archive.ts`) tiene il `Registro` in memoria e lo modifica in
-   blocco; il pannello riceve lo stato intero e ridisegna (ADR-06). Un solo
+   blocco; il pannello riceve lo stato intero e ridisegna (ADR-06, con il
+   telaio stabile e le isole di ADR-48). Un solo
    scrittore: più utenti vorrebbero ripensarlo da capo.
 2. **Risposta prima del disco.** La scrittura è ritardata di 350 ms
    (`RITARDO_SALVATAGGIO_MS`), al massimo 2000 ms dalla prima modifica

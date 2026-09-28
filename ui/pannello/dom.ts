@@ -142,12 +142,14 @@ export function aggiornaElemento (contenitore: HTMLElement, nuovo: Figlio): void
 // ------------------------------------------------------------ nodi pesanti
 
 /**
- * Un nodo pesante tenuto fra due disegni: il vecchio, già nel documento, e il
- * segnaposto che il disegno nuovo ha messo al suo posto.
+ * Un nodo pesante tenuto fra due disegni: il vecchio, già nel documento, il
+ * segnaposto che il disegno nuovo ha messo al suo posto, e il `<template>` inerte
+ * che occupa quel posto al posto del segnaposto.
  */
 interface Tenuto {
   vecchio: HTMLElement
   segnaposto: HTMLElement
+  posto: Node
   parcheggio: HTMLElement
 }
 
@@ -200,10 +202,18 @@ function parcheggia (contenitore: HTMLElement, albero: Node): Tenuto[] {
     const chiave = `${nodo.tagName}|${nodo.dataset.tieni ?? ''}`
     liberi.set(chiave, [...(liberi.get(chiave) ?? []), nodo])
   }
-  const coppie: Array<{ vecchio: HTMLElement, segnaposto: HTMLElement }> = []
+  const coppie: Array<{ vecchio: HTMLElement, segnaposto: HTMLElement, posto: Node }> = []
   for (const segnaposto of pesanti(albero)) {
     const vecchio = liberi.get(`${segnaposto.tagName}|${segnaposto.dataset.tieni ?? ''}`)?.shift()
-    if (vecchio) coppie.push({ vecchio, segnaposto })
+    if (!vecchio) continue
+    // Il segnaposto non entra mai nel documento: un `<iframe>` entrato comincerebbe
+    // a caricare la sua sorgente, una richiesta in più a ogni disegno. Al suo
+    // posto va un `<template>`, inerte. La radice dell'albero non ha genitore e
+    // resta com'è.
+    const genitore = segnaposto.parentNode
+    const posto = genitore ? document.createElement('template') : segnaposto
+    genitore?.replaceChild(posto, segnaposto)
+    coppie.push({ vecchio, segnaposto, posto })
   }
   if (coppie.length === 0) return []
   const parcheggio = document.createElement('div')
@@ -215,13 +225,13 @@ function parcheggia (contenitore: HTMLElement, albero: Node): Tenuto[] {
 
 /** Ogni nodo parcheggiato torna al posto del suo segnaposto; il parcheggio sparisce. */
 function rimetti (tenuti: Tenuto[]): void {
-  for (const { vecchio, segnaposto } of tenuti) {
-    const genitore = segnaposto.parentNode
-    // Un segnaposto finito fuori dal documento non ha dove ricevere il vecchio.
-    if (!genitore || !segnaposto.isConnected) continue
+  for (const { vecchio, segnaposto, posto } of tenuti) {
+    const genitore = posto.parentNode
+    // Un posto finito fuori dal documento non ha dove ricevere il vecchio.
+    if (!genitore || !posto.isConnected) continue
     copiaAttributi(vecchio, segnaposto)
-    sposta(vecchio, genitore, segnaposto)
-    genitore.removeChild(segnaposto)
+    sposta(vecchio, genitore, posto)
+    genitore.removeChild(posto)
   }
   tenuti[0]?.parcheggio.remove()
 }

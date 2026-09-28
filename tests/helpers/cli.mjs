@@ -4,9 +4,12 @@
 
 import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
+import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import * as percorso from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { prova } from '../../cli/accesso.mjs'
 
 export const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
 
@@ -45,6 +48,33 @@ export function nomeDelCondotto (radice, etichetta) {
 }
 
 /**
+ * La chiave di un condotto finto, scritta in `radice`, e la risposta a
+ * `$accedi` che dimostra di averla. `ambiente` va alla riga di comando accanto
+ * a `REGISTRO_CONDOTTO`.
+ */
+export function accessoFinto (radice) {
+  const chiave = randomBytes(32)
+  const file = percorso.join(radice, `chiave-${randomBytes(6).toString('hex')}`)
+  writeFileSync(file, chiave.toString('hex'))
+  return {
+    ambiente: { REGISTRO_CHIAVE: file },
+    /** Se la riga è `$accedi`, risponde con la prova e torna `true`. */
+    risponde (presa, riga) {
+      let richiesta
+      try {
+        richiesta = JSON.parse(riga.trim())
+      } catch {
+        return false
+      }
+      if (richiesta?.method !== '$accedi') return false
+      const result = { prova: prova(chiave, 'condotto', richiesta.params?.sfida ?? '') }
+      presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`)
+      return true
+    },
+  }
+}
+
+/**
  * Un condotto finto che sa lo schema di `prova.eco` e rimanda l'ingresso
  * ricevuto: `eco(...argomenti)` lancia `chiama prova.eco` contro di lui e
  * legge i dati rimandati. Con `chiudeDopoSchema` risponde a `$schema` e chiude
@@ -52,6 +82,8 @@ export function nomeDelCondotto (radice, etichetta) {
  */
 export async function condottoFinto ({ radice, schema, chiudeDopoSchema = false }) {
   const dove = nomeDelCondotto(radice, chiudeDopoSchema ? 'chiude' : 'eco')
+  const accesso = accessoFinto(radice)
+  const ambiente = { REGISTRO_CONDOTTO: dove, ...accesso.ambiente }
   const chiamate = []
   const server = createServer((presa) => {
     let resto = ''
@@ -59,19 +91,21 @@ export async function condottoFinto ({ radice, schema, chiudeDopoSchema = false 
       resto += pezzo.toString('utf8')
       let taglio = resto.indexOf('\n')
       while (taglio >= 0) {
-        const richiesta = JSON.parse(resto.slice(0, taglio))
+        const riga = resto.slice(0, taglio)
         resto = resto.slice(taglio + 1)
+        taglio = resto.indexOf('\n')
+        if (accesso.risponde(presa, riga)) continue
+        const richiesta = JSON.parse(riga)
         if (richiesta.method !== '$schema') chiamate.push(richiesta)
         const result = richiesta.method === '$schema'
           ? { nome: 'prova.eco', ingresso: schema }
           : { ok: true, dati: richiesta.params }
-        const riga = `${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`
+        const busta = `${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`
         if (chiudeDopoSchema) {
-          presa.end(riga)
+          presa.end(busta)
           return
         }
-        presa.write(riga)
-        taglio = resto.indexOf('\n')
+        presa.write(busta)
       }
     })
     presa.on('error', () => undefined)
@@ -80,10 +114,11 @@ export async function condottoFinto ({ radice, schema, chiudeDopoSchema = false 
   const lancia = lanciatore(radice)
   return {
     dove,
+    ambiente,
     chiamate,
     chiudi: () => new Promise((risolvi) => server.close(() => risolvi())),
     eco: async (...argomenti) => {
-      const esito = await lancia(['chiama', 'prova.eco', ...argomenti], { REGISTRO_CONDOTTO: dove })
+      const esito = await lancia(['chiama', 'prova.eco', ...argomenti], ambiente)
       return { ...esito, dati: esito.codice === 0 ? JSON.parse(esito.uscita) : null }
     },
   }

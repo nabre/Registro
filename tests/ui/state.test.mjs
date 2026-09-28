@@ -87,7 +87,6 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     arrivaDocumento(seconda, registro, 'c:\\esempio\\a.regi')
     const atteso = {
       vista: 'docenteClasse',
-      paginaId: 'pagina.classe.assenze',
       schedaDocente: 'assenze',
       data: '2026-10-02',
       ricerca: 'Rossi',
@@ -154,7 +153,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     const interfaccia = apri()
     arrivaDocumento(interfaccia, annoDiProva(), 'C:/esempio/A.regi')
     const prima = disco.scritture
-    interfaccia.aggiorna({ vista: 'persone', ricerca: 'Bianchi' })
+    interfaccia.vai({ pagina: 'pagina.persone' }, { altro: { ricerca: 'Bianchi' } })
     // La scrittura deve avvenire in modo perfettamente sincrono sulla stessa riga di esecuzione
     assert.equal(disco.scritture, prima + 1, 'setState non è stato chiamato subito')
     const voce = disco.salvato.documenti['c:/esempio/a.regi']

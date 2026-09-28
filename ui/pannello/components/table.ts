@@ -20,6 +20,13 @@ interface OpzioniTabella {
    * `dom.ts`): una spunta non la riporta in cima, cambiare matrice sì.
    */
   scorrimento?: string
+  /**
+   * La chiave di telaio del contenitore (`data-telaio`, vedi `aggiornaElemento`
+   * in `dom.ts`): se tutta la catena dalla radice è telaio, il contenitore resta
+   * lo stesso nodo fra due disegni e un clic non ferma né riporta indietro lo
+   * scorrimento. Senza catena non fa niente.
+   */
+  telaio?: string
   /** Le celle dell'intestazione: i `<th>` della riga in cima. */
   intestazione: Figlio[]
   /** Le righe del corpo, già costruite. */
@@ -48,7 +55,7 @@ export function tabella (opzioni: OpzioniTabella): HTMLElement {
     {
       class: opzioni.classi?.telaio ??
         ['tabella-contenitore', opzioni.griglia && 'tabella-contenitore--griglia'],
-      ...(opzioni.scorrimento ? { dataset: { scorrimento: opzioni.scorrimento } } : {}),
+      dataset: { scorrimento: opzioni.scorrimento, telaio: opzioni.telaio },
     },
     h(
       'table',
@@ -61,4 +68,17 @@ export function tabella (opzioni: OpzioniTabella): HTMLElement {
       opzioni.piede ? h('tfoot', null, h('tr', null, ...opzioni.piede)) : null,
     ),
   )
+}
+
+/**
+ * Porta la catena di telaio dentro una scheda di `base.ts`: la sezione e il suo
+ * corpo diventano anelli, così la tabella che ci sta dentro può restare lo
+ * stesso nodo. Sul telaio non si mettono ascoltatori legati allo stato: restano
+ * quelli del primo disegno.
+ */
+export function inTelaio<T extends HTMLElement> (nodo: T, chiave: string): T {
+  nodo.dataset.telaio = chiave
+  const corpo = Array.from(nodo.children).find((figlio) => figlio.classList.contains('scheda__corpo'))
+  if (corpo instanceof HTMLElement) corpo.dataset.telaio = `${chiave}:corpo`
+  return nodo
 }

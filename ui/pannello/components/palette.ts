@@ -21,7 +21,7 @@ import { nomeDelCorso } from '../context.js'
 import { h, rifocalizza } from '../dom.js'
 import { EVENTO_MODALE_APERTA } from './modal.js'
 import { pagineVisibili, vaiA, type Pagina } from '../pages.js'
-import { aggiorna, classiDellAnno, corsiDellAnnoAperto } from '../state.js'
+import { classiDellAnno, corsiDellAnnoAperto, vai } from '../state.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './palette.testi.js'
 
@@ -94,7 +94,10 @@ function vociDellePersone (classi: readonly Classe[]): Voce[] {
       sotto: classe.nome,
       aiuto: null,
       impedito: null,
-      al: () => aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
+      al: () => vai(
+        { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: allievo.id } },
+        { contesto: { classeId: classe.id } },
+      ),
     }))
 }
 
@@ -113,7 +116,8 @@ function vociDeiCorsi (): Voce[] {
       aiuto: null,
       anche: corso.titolo === nome ? undefined : corso.titolo,
       impedito: null,
-      al: () => aggiorna({ vista: 'corsi', corsoId: corso.id, filtroClasseId: corso.classeId }),
+      // Il corso porta con sé la sua classe come filtro (`completa`).
+      al: () => vai({ pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: corso.id } }),
     }
   })
 }
@@ -127,7 +131,7 @@ function vociDelleClassi (classi: readonly Classe[]): Voce[] {
     sotto: quanti(allieviAttivi(classe).length, lessico().pif),
     aiuto: null,
     impedito: null,
-    al: () => aggiorna({ vista: 'classi', classeId: classe.id }),
+    al: () => vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classe.id } }),
   }))
 }
 

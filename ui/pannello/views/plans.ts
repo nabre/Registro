@@ -76,7 +76,29 @@ import {
   nomeDiPiano,
   pianoPerId,
   stato,
+  vai,
 } from '../state.js'
+import { apriLezione } from '../pages.js'
+
+/**
+ * Apre nella pagina dei piani la scaletta scelta con l'ora accanto; senza
+ * scaletta, l'ora del corso che ne aspetta una. Com'era con `aggiorna`: il
+ * giorno e il semestre li porta solo la scaletta chiesta per nome.
+ */
+function apriNeiPiani (pianoId: string | null, lezione: Lezione | null = null): void {
+  const oraAccanto = lezione ? { lezioneId: lezione.id } : {}
+  if (pianoId) {
+    vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: pianoId } }, { contesto: oraAccanto })
+    return
+  }
+  const corsoId = lezione?.corsoId ?? stato.contesto.corsoId
+  vai(
+    corsoId
+      ? { pagina: 'pagina.corso.piani', soggetto: { tipo: 'corso', id: corsoId } }
+      : { pagina: 'pagina.corso.piani' },
+    { contesto: { pianoId: null, ...oraAccanto }, elementoChiesto: false },
+  )
+}
 
 /**
  * Le ore di un corso, divise per semestre; le ore fuori dai semestri restano in
@@ -190,7 +212,7 @@ function voceDiPiano (
     {
       class: ['voce-laterale', isAttivo && 'voce-laterale--attiva'],
       type: 'button',
-      onclick: () => aggiorna({ pianoId: piano.id }),
+      onclick: () => apriNeiPiani(piano.id),
     },
     h(
       'span',
@@ -235,7 +257,7 @@ function voceDiLezione (
       {
         class: ['voce-laterale', 'voce-laterale--vuota', isAttivo && 'voce-laterale--attiva'],
         type: 'button',
-        onclick: () => aggiorna({ pianoId: null, lezioneId: lezione.id }),
+        onclick: () => apriNeiPiani(null, lezione),
       },
       h(
         'span',
@@ -262,7 +284,7 @@ function voceDiLezione (
     {
       class: ['voce-laterale', isAttivo && 'voce-laterale--attiva'],
       type: 'button',
-      onclick: () => aggiorna({ pianoId: piano.id, lezioneId: lezione.id }),
+      onclick: () => apriNeiPiani(piano.id, lezione),
     },
     h(
       'span',
@@ -315,7 +337,7 @@ function navigatoreLezioniCorso (
   const vaiA = (indice: number) => {
     const bersaglio = sorelle[indice]
     if (!bersaglio) return
-    aggiorna({ pianoId: bersaglio.pianoId ?? null, lezioneId: bersaglio.id })
+    apriNeiPiani(bersaglio.pianoId ?? null, bersaglio)
   }
 
   const primaDaFare = senzaPiano[0] ?? null
@@ -327,7 +349,7 @@ function navigatoreLezioniCorso (
       azione({ tipo: 'piano.perLezione', lezioneId: primaDaFare.id }).then((risposta) => {
         if (risposta.ok && risposta.creato) {
           notifica(t.pianoGenerato, 'successo')
-          aggiorna({ pianoId: risposta.creato.id, lezioneId: primaDaFare.id })
+          apriNeiPiani(risposta.creato.id, primaDaFare)
         }
       }),
     )
@@ -403,7 +425,8 @@ function elencoPiani (
   return h(
     'aside',
     // Per corso: cambiandolo si riparte dall'alto dell'elenco.
-    { class: 'elenco-laterale', dataset: { scorrimento: `piani:${corso?.id ?? ''}` } }, // testo-fisso: chiave di scorrimento
+    // Di telaio: un clic su una voce non ferma la rotella in corsa.
+    { class: 'elenco-laterale', dataset: { telaio: 'piani:elenco', scorrimento: `piani:${corso?.id ?? ''}` } }, // testo-fisso: chiave di scorrimento
     h(
       'header',
       { class: 'elenco-laterale__testata' },
@@ -500,13 +523,19 @@ function elencoPiani (
 
 /**
  * L'editor del piano aperto, tenuto vivo fra un ridisegno e l'altro: il corpo
- * dei campi si costruisce una volta per piano e `rimpiazza` lo sposta, così non
- * si perde quel che si sta scrivendo. Si tiene solo se il piano arrivato è uno
+ * dei campi si costruisce una volta per piano e resta nella pagina (`data-tieni`),
+ * così non si perde quel che si sta scrivendo. Si tiene solo se il piano arrivato è uno
  * che conosce (quello di partenza o uno che ha mandato lui) o se ci si sta
  * scrivendo; altrimenti il piano è cambiato altrove e l'editor si rifà, perché
  * `componi()` rimanderebbe la scaletta vecchia.
  */
 let inLavorazione: { pianoId: string, corpo: HTMLElement, noti: Set<string> } | null = null
+
+/**
+ * Quanti editor si sono costruiti: nella chiave del nodo tenuto, perché un
+ * editor rifatto per lo stesso piano non prenda il posto del vecchio.
+ */
+let editorCostruiti = 0
 
 /**
  * Il piano ridotto a quel che l'editor scrive, per riconoscerlo: senza i timbri
@@ -539,8 +568,16 @@ export function scordaEditorDelPiano (): void {
  */
 function editorDelPiano (piano: PianoLezione): HTMLElement {
   if (inLavorazione?.pianoId === piano.id) {
-    if (inLavorazione.corpo.contains(document.activeElement)) return inLavorazione.corpo
-    if (inLavorazione.noti.has(impronta(piano))) return inLavorazione.corpo
+    const { corpo } = inLavorazione
+    if (corpo.contains(document.activeElement) || inLavorazione.noti.has(impronta(piano))) {
+      // Già nella pagina: il disegno nuovo ne porta solo il segnaposto e
+      // `aggiornaElemento` ci rimette il vecchio senza staccarlo (`data-tieni`),
+      // così fuoco, selezione e scorrimento dei campi restano dove sono.
+      // Appeso nel disegno nuovo, il nodo lascerebbe la pagina prima del tempo.
+      return corpo.isConnected
+        ? h('div', { class: 'piano-editor', dataset: { tieni: corpo.dataset.tieni } })
+        : corpo
+    }
   }
 
   const zonaErrori = h('div')
@@ -576,7 +613,13 @@ function editorDelPiano (piano: PianoLezione): HTMLElement {
     },
   })
 
-  const corpo = h('div', { class: 'piano-editor' }, zonaErrori, editor.corpo)
+  const corpo = h(
+    'div',
+    // testo-fisso: chiave del nodo tenuto
+    { class: 'piano-editor', dataset: { tieni: `piano:${piano.id}:${++editorCostruiti}` } },
+    zonaErrori,
+    editor.corpo,
+  )
   inLavorazione = { pianoId: piano.id, corpo, noti: new Set([impronta(piano)]) }
   return corpo
 }
@@ -626,7 +669,7 @@ function collegamentiDelPiano (piano: PianoLezione): Figlio {
                   { class: 'elenco-collegamenti__voce' },
                   collegamento({
                     testo: `${formattaData(lezione.data)} · ${nomeClasseDiLezione(lezione)}`,
-                    al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id }),
+                    al: () => apriLezione(lezione.id),
                   }),
                   // Prova prevista e non ancora fatta in quell'ora: lo si dice. Il momento
                   // nasce dalla tappa dentro la lezione, non da qui.
@@ -905,7 +948,7 @@ export function vistaPiani (): Figlio {
   const t = testi()
   return h(
     'div',
-    { class: 'vista vista--piani' },
+    { class: 'vista vista--piani', dataset: { telaio: 'piani' } },
     testataVista({
       titolo: Molti(lessico().pianoLezione),
       sottotitolo:
@@ -918,7 +961,7 @@ export function vistaPiani (): Figlio {
     }),
     h(
       'div',
-      { class: 'colonne colonne--elenco' },
+      { class: 'colonne colonne--elenco', dataset: { telaio: 'piani:colonne' } },
       elencoPiani(piano, lezioneAttiva?.id ?? null),
       piano
         ? dettaglioPiano(piano)
@@ -945,7 +988,7 @@ export function vistaPiani (): Figlio {
                           azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id }).then((risposta) => {
                             if (risposta.ok && risposta.creato) {
                               notifica(t.pianoGenerato, 'successo')
-                              aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
+                              apriNeiPiani(risposta.creato.id, bersaglio)
                             }
                           }),
                         )

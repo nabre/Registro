@@ -48,7 +48,6 @@ import { cellaNome } from '../components/avatar.js'
 import { moduloComunicazione, moduloConsegna, moduloRecapito } from '../forms.js'
 import { azione } from '../bridge.js'
 import {
-  aggiorna,
   classiDiCuiSonoDocente,
   corsiDi,
   fascicoloDi,
@@ -56,6 +55,7 @@ import {
   nelSemestreSceltoPer,
   nomeSemestreScelto,
   stato,
+  vai,
 } from '../state.js'
 import {
   aperto,
@@ -68,7 +68,7 @@ import {
 } from './archive.js'
 import { schedaAssenze } from './absences.js'
 import { accettaPagine, accettaPagineFirme, accettaPagineSullaRiga } from './pageDrop.js'
-import { codaLettura, comandiDelPdf, pdfDaDividere, rendiBersaglio } from './sorting.js'
+import { codaLettura, codaLetturaInIsola, comandiDelPdf, pdfDaDividere, rendiBersaglio } from './sorting.js'
 import { riassuntoClasse, sezioniTodoClasse } from './classTodo.js'
 import { testi } from './classTeacher.testi.js'
 
@@ -797,7 +797,7 @@ function archivioDocumentale (classe: Classe) {
       pdfDaDividere(classe),
       // La coda di lettura compare qui solo quando nessun PDF è aperto: altrimenti
       // sta fra le pagine.
-      indice >= 0 ? null : codaLettura(),
+      indice >= 0 ? null : codaLetturaInIsola(),
       schedaDocumenti(classe, raccolte, righe),
     ],
     indice >= 0
@@ -821,7 +821,9 @@ function pannelloDocenteClasse (classe: Classe) {
 
   return h(
     'div',
-    { class: 'docente-classe' },
+    // Anello della catena di telaio fino alla barra dell'archivio (`pannelloArchivio`).
+    // testo-fisso: la chiave del telaio
+    { class: 'docente-classe', dataset: { telaio: 'docente-classe' } },
     stato.schedaDocente === 'todo' ? schedaTodo(corrente) : null,
     // Figli diretti e non in un contenitore: lo stacco fra le schede lo dà la
     // colonna, e un `div` in mezzo lo annullerebbe.
@@ -849,7 +851,7 @@ export function vistaDocenteClasse () {
         testo: t.vaiAlleClassi,
         variante: 'primario',
         simbolo: 'classi',
-        al: () => aggiorna({ vista: 'classi' }),
+        al: () => { vai({ pagina: 'pagina.classi' }) },
       }),
     })
   }

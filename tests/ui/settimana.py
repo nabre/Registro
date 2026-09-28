@@ -262,7 +262,7 @@ def oggi_all_ora(browser):
     page.evaluate(due_frame)
     assert page.locator('.settimana__scorrevole').evaluate('(e) => e.scrollTop') == 40
     # Un ridisegno qualunque, idem.
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(due_frame)
     page.evaluate(due_frame)
     assert page.locator('.settimana__scorrevole').evaluate('(e) => e.scrollTop') == 40

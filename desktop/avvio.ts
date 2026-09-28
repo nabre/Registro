@@ -39,6 +39,7 @@ import { fermaLetture } from '../core/dati/ocr.js'
 import { ripulisciTemporaneiVecchi } from '../core/dati/temporaryFiles.js'
 import { annota, osserva } from '../contract/core.js'
 import { identificatore } from '../core/dominio/identifiers.js'
+import { registraPortachiaviMicrosoft } from '../core/dati/microsoft.js'
 import { registraPortachiaviOauth } from '../core/dati/oauth.js'
 import {
   azzeraPosta,
@@ -155,6 +156,8 @@ export async function avvia (
   // Prima di tutto: il primo stato spinto al pannello deve già sapere se la
   // casella di posta è collegata.
   registraPortachiaviOauth(contesto.secrets)
+  // Gli account per OneDrive: l'elenco arriva dopo, e il pannello si ridisegna.
+  void registraPortachiaviMicrosoft(contesto.secrets)
 
   // Il giornale delle chiamate, acceso prima di aprire un documento per vedere
   // anche i guasti d'avvio. Solo rifiuti e chiamate lente, e solo in console:

@@ -16,6 +16,7 @@ import { realpathSync } from 'node:fs'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 
+import { fileDellaChiave, leggiChiave, presentati } from './accesso.mjs'
 import { cartellaUtente } from './common.mjs'
 import { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
 import { testi } from './testi.mjs'
@@ -29,6 +30,7 @@ import { comandoAspetta } from './comandi/aspetta.mjs'
 
 export { indirizzo } from './indirizzo.mjs'
 export { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
+export { leggiChiave, presentati } from './accesso.mjs'
 
 /**
  * Il nome del comando nell'aiuto: lo dichiara il ponte di
@@ -209,7 +211,24 @@ async function principale () {
     return muto()
   }
 
+  // La chiave dopo il collegamento: con `--aspetta` il registro la scrive
+  // accendendosi, prima di ascoltare.
+  const chiave = leggiChiave()
+  if (!chiave) {
+    presa.destroy()
+    scriviErrore(t.mancaChiave(fileDellaChiave()))
+    return USCITA_MUTO
+  }
+
   const condotto = conversazione(presa)
+  const presentazione = await presentati(condotto, chiave)
+  if (presentazione.esito !== 'riconosciuto') {
+    condotto.chiudi()
+    if (presentazione.esito === 'muto') return muto()
+    scriviErrore(presentazione.esito === 'rifiutato' ? t.chiaveRifiutata : t.impostore)
+    return USCITA_MUTO
+  }
+
   const opzioniContesto = {
     COMANDO,
     USCITA_RIFIUTO,

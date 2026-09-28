@@ -38,15 +38,15 @@ import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '../fo
 import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '../forms.js'
 import { azione } from '../bridge.js'
 import {
-  aggiorna,
   annoCorrente,
   classePerId,
   corsiDi,
   corsoPerId,
   lezioniDiCorso,
   stato,
+  vai,
 } from '../state.js'
-import { tabella } from '../components/table.js'
+import { inTelaio, tabella } from '../components/table.js'
 import { testi } from './check.testi.js'
 
 // ------------------------------------------------------------------ il quando
@@ -489,6 +489,11 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
 
   return tabella({
     classi: { telaio: 'check__telaio', tabella: 'check' },
+    // Una spunta non riporta la griglia a sinistra: stesso nodo se la catena
+    // di telaio arriva fin qui, se no almeno lo scorrimento ricordato.
+    telaio: 'check',
+    // testo-fisso: una chiave, non un testo
+    scorrimento: `check:${corso.id}:${lezione?.id ?? ''}`,
     etichetta: t.checkDi(nomeDelCorso(corso)),
     intestazione: [
       h('th', { class: 'check__angolo', attr: { scope: 'col' } }, Molti(lessico().pif)),
@@ -508,13 +513,9 @@ export function pannelloCheckDellOra (lezione: Lezione): HTMLElement | null {
   const corso = corsoPerId(lezione.corsoId)
   if (!corso) return null
   const check = checkDelCorso(stato.registro, corso.id)
-  const apriPagina = (): void =>
-    aggiorna({
-      vista: 'check',
-      ambitoCheck: 'corso',
-      corsoId: corso.id,
-      filtroClasseId: corso.classeId,
-    })
+  const apriPagina = (): void => {
+    vai({ pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: corso.id } })
+  }
 
   const t = testi()
   if (!check || check.colonne.length === 0) {
@@ -527,14 +528,14 @@ export function pannelloCheckDellOra (lezione: Lezione): HTMLElement | null {
     )
   }
 
-  return scheda({
+  return inTelaio(scheda({
     titolo: Uno(lessico().check),
     aiuto: t.aiutoOra,
     classe: 'scheda--check',
     // Nessun pulsante per la pagina del check (sta nella barra laterale); le
     // colonne si cambiano col menu sulla testata.
     contenuto: grigliaCheck(corso, check, lezione),
-  })
+  }), 'check-ora')
 }
 
 // ------------------------------------------------------------------ la pagina
@@ -564,12 +565,14 @@ function schedaCheckDiClasse (corso: Corso): HTMLElement {
         })
       : grigliaCheck(corso, check, null)
 
-  return scheda({
+  // testo-fisso: una chiave, non un testo
+  const telaio = `check:${corso.id}`
+  return inTelaio(scheda({
     titolo: nomeDelCorso(corso),
     sottotitolo: t.checkDelCorso,
     classe: 'scheda--check scheda--check-classe',
     contenuto,
-  })
+  }), telaio)
 }
 
 export function vistaCheck (): Figlio {
@@ -590,14 +593,19 @@ export function vistaCheck (): Figlio {
     const corsi = corsiDi(classe.id)
     return h(
       'div',
-      { class: 'vista vista--check vista--check-classe' },
+      // Catena di telaio fino alle griglie: una spunta non le riporta a sinistra.
+      { class: 'vista vista--check vista--check-classe', dataset: { telaio: 'check-classe' } },
       testataVista({
         titolo: t.checkDellaClasse,
         sottotitolo: t.comeDocenteDiClasse(classe.nome),
         contorno: h('p', { class: 'suggerimento' }, t.suggerimentoClasse),
       }),
       corsi.length > 0
-        ? h('div', { class: 'elenco-schede check-classe__corsi' }, ...corsi.map(schedaCheckDiClasse))
+        ? h(
+            'div',
+            { class: 'elenco-schede check-classe__corsi', dataset: { telaio: 'check-classe:corsi' } },
+            ...corsi.map(schedaCheckDiClasse),
+          )
         : statoVuoto({
             simbolo: 'check',
             titolo: t.nessunCorsoDellaClasse,
@@ -616,7 +624,7 @@ export function vistaCheck (): Figlio {
       azione: pulsante({
         testo: t.vaiAiCorsi,
         variante: 'primario',
-        al: () => aggiorna({ vista: 'corsi' }),
+        al: () => { vai({ pagina: 'pagina.corsi' }) },
       }),
     })
   }
@@ -626,7 +634,7 @@ export function vistaCheck (): Figlio {
 
   return h(
     'div',
-    { class: 'vista vista--check' },
+    { class: 'vista vista--check', dataset: { telaio: 'check' } },
     testataVista({
       titolo: Uno(lessico().check),
       sottotitolo: nomeDelCorso(corso),
@@ -658,6 +666,6 @@ export function vistaCheck (): Figlio {
             titolo: t.classeVuota,
             testo: t.righeDelCheck(classe.nome),
           })
-        : scheda({ contenuto: grigliaCheck(corso, check, null) }),
+        : inTelaio(scheda({ contenuto: grigliaCheck(corso, check, null) }), 'check:scheda'),
   )
 }

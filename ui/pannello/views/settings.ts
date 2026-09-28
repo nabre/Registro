@@ -13,7 +13,9 @@ import type { VoceProgramma } from '../../../contract/protocollo.js'
 import { h, type Figlio } from '../dom.js'
 import { minuscolo } from '../../../core/i18n/index.js'
 import { testi } from './settings.testi.js'
-import { aggiorna, ridisegna, stato, type SchedaDocumento, type SchedaProgramma } from '../state.js'
+import { isola, ridisegnaIsola } from '../isole.js'
+import type { Scheda } from '../posto.js'
+import { stato, vai, type SchedaDocumento, type SchedaProgramma } from '../state.js'
 import {
   schedaAnnoAperto,
   schedaChiusure,
@@ -25,6 +27,7 @@ import { contenutoGiornata } from './settings/schoolDay.js'
 import { schedaListe } from './settings/lists.js'
 import { schedaCalendarioIcs } from './settings/icsCalendar.js'
 import { schedaFirma, schedaPosta } from './settings/mail.js'
+import { schedaAccountMicrosoft } from './settings/microsoft.js'
 import { schedaAggiornamenti } from './settings/updates.js'
 import { contenutoModelliLinguistici } from './languageModels.js'
 import { vistaIntestazione } from './settings/letterhead.js'
@@ -154,11 +157,16 @@ function apriGruppo (gruppo: GruppoSezioni): void {
   cercatoNelProgramma = ''
   if (prima.ambito === 'documento') {
     const sezione = SEZIONI_DOCUMENTO.find((candidata) => candidata.id === prima.id)
-    if (sezione) aggiorna({ ambitoImpostazioni: 'documento', schedaDocumento: sezione.id })
+    if (sezione) apriSezione('documento', sezione.id)
     return
   }
   const sezione = SEZIONI_PROGRAMMA.find((candidata) => candidata.id === prima.id)
-  if (sezione) aggiorna({ ambitoImpostazioni: 'programma', schedaProgramma: sezione.id })
+  if (sezione) apriSezione('programma', sezione.id)
+}
+
+/** Porta a una sezione: è una scheda del posto delle impostazioni. */
+function apriSezione (ambito: 'documento' | 'programma', id: SchedaDocumento | SchedaProgramma): void {
+  vai({ pagina: 'pagina.impostazioni', scheda: `${ambito}.${id}` as Scheda })
 }
 
 /** Un gruppo tematico nella prima riga della fascia: icona e nome. */
@@ -195,7 +203,7 @@ function colonnaSezioni (): HTMLElement {
       return voceColonna(
         { ...sezione, ambito },
         qui.ambito === 'documento' && sezione.id === qui.id,
-        () => aggiorna({ ambitoImpostazioni: 'documento', schedaDocumento: sezione.id }),
+        () => apriSezione('documento', sezione.id),
       )
     }
     const sezione = SEZIONI_PROGRAMMA.find((candidata) => candidata.id === id)
@@ -212,10 +220,11 @@ function colonnaSezioni (): HTMLElement {
       qui.ambito === 'programma' && sezione.id === qui.id,
       () => {
         // Scegliere una sezione svuota il filtro, che resterebbe su una sezione non visibile.
+        const svuotaFiltro = cercatoNelProgramma !== ''
         cercatoNelProgramma = ''
-        aggiorna({ ambitoImpostazioni: 'programma', schedaProgramma: sezione.id })
-        // Sulla sezione già aperta `aggiorna` non ridisegnerebbe: il filtro va svuotato a vista.
-        ridisegna()
+        apriSezione('programma', sezione.id)
+        // Sulla sezione già aperta `vai` non ridisegna: il filtro va svuotato a vista.
+        if (svuotaFiltro) ridisegnaIsola(ISOLA_PROGRAMMA)
       },
     )
   }
@@ -246,10 +255,10 @@ function colonnaSezioni (): HTMLElement {
 let cercatoNelProgramma = ''
 
 /**
- * La scheda dei risultati in pagina, per rifare solo lei a ogni lettera: il
- * resto della pagina non cambia mentre si cerca.
+ * Quel che sta sotto la casella del filtro: a ogni lettera si rifà lui solo
+ * (ADR-48), la casella resta dov'è col suo cursore e la fascia non cambia.
  */
-let risultatiInPagina: Element | null = null
+const ISOLA_PROGRAMMA = 'impostazioni-programma'
 
 /** Se una voce risponde a quel che si sta cercando: nome, chiave o descrizione. */
 function corrisponde (voce: VoceProgramma, parole: readonly string[]): boolean {
@@ -281,18 +290,8 @@ function campoCerca (): HTMLElement {
       attr: { 'aria-label': t.filtraEtichetta, autocomplete: 'off' },
       // Su `input` e non su `change`: il filtro risponde mentre si scrive.
       oninput: (evento: Event) => {
-        const cercavaGia = paroleCercate().length > 0
         cercatoNelProgramma = (evento.target as HTMLInputElement).value
-        const parole = paroleCercate()
-        // Passando dal cercare al non cercare cambiano colonna e fascia: ridisegno
-        // intero. Altrimenti si rifà solo l'elenco dei trovati.
-        if (cercavaGia && parole.length > 0 && risultatiInPagina?.isConnected) {
-          const nuovi = risultati(parole)
-          risultatiInPagina.replaceWith(nuovi)
-          risultatiInPagina = nuovi
-          return
-        }
-        aggiorna({})
+        ridisegnaIsola(ISOLA_PROGRAMMA)
       },
     }),
   )
@@ -347,21 +346,24 @@ function contenutoProgramma (): Figlio[] {
   const sezione =
     SEZIONI_PROGRAMMA.find((candidata) => candidata.id === stato.schedaProgramma) ??
     SEZIONI_PROGRAMMA[0]
+  // In un'isola con la classe della colonna: gli stessi spazi fra le schede.
+  return [campoCerca(), isola(ISOLA_PROGRAMMA, () => sottoIlFiltro(sezione), { class: 'colonna' })]
+}
+
+function sottoIlFiltro (sezione: (typeof SEZIONI_PROGRAMMA)[number]): Figlio[] {
   const parole = paroleCercate()
-  if (parole.length > 0) {
-    risultatiInPagina = risultati(parole)
-    return [campoCerca(), risultatiInPagina]
-  }
+  if (parole.length > 0) return [risultati(parole)]
 
   return [
-    campoCerca(),
     // I gesti di una sezione (collegare una casella, la firma, scaricare un
     // modello) stanno sopra le sue chiavi.
     sezione.id === 'posta' ? schedaPosta() : null,
     sezione.id === 'posta' ? schedaFirma() : null,
+    sezione.id === 'account' ? schedaAccountMicrosoft() : null,
     sezione.id === 'aggiornamenti' ? schedaAggiornamenti() : null,
     ...(sezione.id === 'modelli' ? contenutoModelliLinguistici() : []),
-    schedaProgramma(sezione),
+    // Una sezione senza chiavi (gli account) è tutta nella sua scheda.
+    sezione.prefissi.length > 0 ? schedaProgramma(sezione) : null,
   ]
 }
 

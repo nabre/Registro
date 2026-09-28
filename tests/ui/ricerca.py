@@ -98,7 +98,7 @@ def percorso_corto_ma_intero_a_voce(browser):
     """In cima non c'è «Registro» né la linguetta; nell'etichetta sì."""
     page, errori = pagina(browser)
     lezione = page.evaluate('prova.stato.registro.lezioni[0].id')
-    page.evaluate(f"prova.aggiorna({{ vista: 'lezione', lezioneId: '{lezione}' }})")
+    page.evaluate(f"prova.apriLezione('{lezione}')")
     page.evaluate(FRAME)
     percorso = page.locator('.barra-titolo .percorso')
     expect(percorso.locator('.percorso__passo--mestiere')).to_have_count(0)

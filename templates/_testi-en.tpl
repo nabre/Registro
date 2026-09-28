@@ -60,6 +60,11 @@ datore: Employer
 telefono-rappresentante: Guardian's phone
 telefono-datore: Employer's phone
 nota-semestre: Semester grade
+ud-settimanali: Weekly periods
+lezioni-svolte: Lessons held
+ud-svolte: Periods completed
+presenza-media: Average attendance
+media-di-classe: Class average
 
 # --- I titoli delle sezioni
 
@@ -92,6 +97,17 @@ esecuzione-e-riconsegna: Taken and returned
 i-momenti: The assessments
 recuperi: Resits
 da-ridare: Tests still to be handed back
+check: Checklist
+dettaglio-prove: Assessment details
+quadro-orario: Timetable
+sospensioni-calendario: Calendar breaks
+consegne: Assignments and tasks
+richieste-documenti: Class documents and requests
+comunicazioni: Communications
+dettaglio-assenze: Absences and signatures detail
+diario-lezioni: Lesson journal
+piani-lezione: Lesson plans
+pendenze: Course pending tasks
 
 # --- Le frasi
 

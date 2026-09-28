@@ -141,20 +141,18 @@ describe('la tabella vista ⇄ posto', () => {
 
   it('check e docente di classe distinguono le pagine con ambito e scheda', () => {
     assert.deepEqual(derivaVista({ pagina: 'pagina.classe.check' }),
-      { vista: 'check', paginaId: 'pagina.classe.check', ambitoCheck: 'classe' })
+      { vista: 'check', ambitoCheck: 'classe' })
     assert.deepEqual(derivaVista({ pagina: 'pagina.classe.pendenze' }),
-      { vista: 'docenteClasse', paginaId: null, schedaDocente: 'todo' })
+      { vista: 'docenteClasse', schedaDocente: 'todo' })
     assert.deepEqual(derivaVista({ pagina: 'pagina.classe.assenze' }),
-      { vista: 'docenteClasse', paginaId: 'pagina.classe.assenze', schedaDocente: 'assenze' })
+      { vista: 'docenteClasse', schedaDocente: 'assenze' })
     assert.deepEqual(derivaVista({ pagina: 'pagina.impostazioni', scheda: 'documento.ics' }), {
-      vista: 'impostazioni', paginaId: 'pagina.impostazioni',
-      ambitoImpostazioni: 'documento', schedaDocumento: 'ics',
+      vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'ics',
     })
   })
 
   it('le nascoste non hanno voce nella barra', () => {
     assert.deepEqual([...NASCOSTE].sort(), ['pagina.allievo', 'pagina.classe.pendenze'])
-    for (const pagina of NASCOSTE) assert.equal(derivaVista({ pagina }).paginaId, null)
   })
 
   it('con il registro, un id di classe apre il lato classe', () => {

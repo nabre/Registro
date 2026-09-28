@@ -24,7 +24,12 @@ import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
 import { ascolta, invia, iscrivitiAttesa } from './bridge.js'
 import { oggi } from '../../core/dominio/dates.js'
-import type { MessaggioNavigazione, MessaggioStato } from '../../contract/protocollo.js'
+import type {
+  MessaggioNavigazione,
+  MessaggioStato,
+  MessaggioVersoWebview,
+} from '../../contract/protocollo.js'
+import { isolaPresente, ridisegnaIsola } from './isole.js'
 import { chiaveDelPosto, postoDaVista } from './posto.js'
 import {
   aggiorna,
@@ -34,6 +39,7 @@ import {
   inBlocco,
   iscriviti,
   miraProiezione,
+  ridisegna,
   riconvalidaRicordati,
   ritrovaDocumento,
   stato,
@@ -254,6 +260,46 @@ function ricevoStato (messaggio: MessaggioStato): void {
   })
 }
 
+type MessaggioLavoro = Extract<MessaggioVersoWebview, { tipo: 'lavoro' }>
+
+/**
+ * Le isole che mostrano la lettura delle scansioni: la coda nello
+ * smistamento e nello sfoglio, e la voce della barra di stato.
+ */
+// testo-fisso: chiavi di isole, non si leggono
+const ISOLE_DEL_LAVORO = ['coda-lettura', 'barra-stato']
+
+/** I PDF che la lettura tocca: quello in corso e quelli in coda. */
+function pdfAlLavoro (lavoro: Pick<MessaggioLavoro, 'corrente' | 'coda'>): string {
+  const ids = new Set(lavoro.coda.map((voce) => voce.smistamentoId))
+  if (lavoro.corrente) ids.add(lavoro.corrente.smistamentoId)
+  return [...ids].sort().join('|')
+}
+
+/**
+ * Una pagina letta cambia solo chi mostra la coda: si scrive nello stato
+ * senza avvisare e si rifanno le sue isole, non tutta la pagina a ogni
+ * pagina letta (un trascinamento nello sfoglio si interrompeva). Senza isole
+ * in pagina, o quando un PDF entra o esce dalla lettura (i suoi comandi
+ * cambiano), si ridisegna tutto.
+ */
+function avanzaLavoro (messaggio: MessaggioLavoro): void {
+  const altriPdf = pdfAlLavoro(messaggio) !== pdfAlLavoro(stato.lavoro)
+  // Un oggetto nuovo, non ritocchi: chi confronta con `Object.is` vede il cambio.
+  stato.lavoro = {
+    corrente: messaggio.corrente,
+    fatte: messaggio.fatte,
+    totale: messaggio.totale,
+    coda: messaggio.coda,
+  }
+  const presenti = ISOLE_DEL_LAVORO.filter(isolaPresente)
+  if (altriPdf || presenti.length === 0) {
+    ridisegna()
+    return
+  }
+  for (const chiave of presenti) ridisegnaIsola(chiave)
+}
+
 iscriviti(disegna)
 // La fila dei posti visitati (Alt+←/→), che fornisce anche gli scorrimenti del ritorno.
 installaCammino()
@@ -268,14 +314,7 @@ ascolta((messaggio) => {
 
     // L'avanzamento della lettura delle scansioni, a ogni pagina.
     case 'lavoro':
-      aggiorna({
-        lavoro: {
-          corrente: messaggio.corrente,
-          fatte: messaggio.fatte,
-          totale: messaggio.totale,
-          coda: messaggio.coda,
-        },
-      })
+      avanzaLavoro(messaggio)
       break
 
     // Com'è messo lo schermo per la classe: lo sa solo l'host, perché la finestra

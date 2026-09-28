@@ -157,6 +157,7 @@ interface ComandoUI {
 | id | titolo | che cosa fa |
 |---|---|---|
 | `file.apri` ★ | Apri un anno… (`Ctrl+O`, `dalMenu`) | `documento.apri` |
+| `file.apriDaOneDrive` | Apri da OneDrive… | `apriOneDrive()`: `onedrive.elenco`, `onedrive.cerca`, poi `onedrive.apri` |
 | `file.importaRegistro` | Importa da un altro registro… | `moduloImportaRegistro()`: `registro.sfoglia`, `registro.altrove`, poi `registro.importa` |
 | `file.salva` | Salva / Salva l'anno con nome… (`Ctrl+S`) | `stato.salva`; primario con un anno provvisorio |
 | `file.ricarica` | Ricarica | `stato.ricarica` |
@@ -312,7 +313,8 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 
 ### 5.1 Le 31 chiavi del programma
 
-Sezioni di `SEZIONI_PROGRAMMA`: Generale, Comunicazioni, Modelli linguistici,
+Sezioni di `SEZIONI_PROGRAMMA`: Generale, Comunicazioni, Account Microsoft (nessuna
+chiave: gli account stanno nel portachiavi, ADR-49), Modelli linguistici,
 Aggiornamenti, Condotto e riga di comando.
 
 | chiave `registroDocenti.…` | tipo, predefinito | che cosa regola |
@@ -376,6 +378,7 @@ lo tiene `tests/api/coverage.test.mjs`.
 | [`classTeacher.ts`](../core/azioni/classTeacher.ts) | `consegna.firme.aggiungi`, `.firme.apri`, `.firme.togli`, `.file.apri`, `.file.togli` → `consegne.*`; `recapito.salva`, `.elimina` → `classe.recapiti.*`; `comunicazione.salva`, `.elimina`, `.invia`, `.spunta` → `classe.comunicazioni.*`; `assenze.salva`, `.elimina`, `.foglio.aggiungi`, `.importa`, `.foglio.apri`, `.foglio.togli`, `.invia`, `.spunta` → `classe.assenze.*` |
 | [`sorting.ts`](../core/azioni/sorting.ts) | `smistamento.carica`→`smistamento.pdf.carica`, `.deposita`→`.pdf.deposita`, `.dividi`→`.pdf.dividi`, `.attribuisci`→`.pdf.attribuisci`, `.apri`→`.pdf.apri`, `.elimina`→`.pdf.elimina`, `.assegnaPagine`→`.pagine.assegna`, `.assegnaManuale`→`.pagine.assegnaManuale`, `.scartaPagine`→`.pagine.scarta`, `.apriPagine`→`.pagine.apri`, `.riprendiPagine`→`.pagine.riprendi`, `.confermaTutto`→`.bozza.conferma`, `.assegnaAssenze`→`.assenze.assegna`, `.assegnaFirme`→`.firme.assegna`, `.leggiPagine`→`.lettura.pagine`, `.leggiTutto`→`.lettura.tutto`, `.rileggiAttive`→`.lettura.attive`, `.fermaLettura`→`.lettura.ferma`, `.impostazioni`→`.lettura.impostazioni` |
 | [`system.ts`](../core/azioni/system.ts) | `impostazioni.salva`, `programma.salva`, `programma.sfoglia`, `programma.azzera`, `esporta.valutazioni`, `esporta.presenze`, `esporta.lezione`, `manutenzione.ripara`, `sistema.apriCartella`, `finestra.zoom`, `finestra.schermoIntero`, `programma.esci`, `sistema.chiama`, `sistema.scrivi`, `posta.prova`, `posta.invioProva`, `posta.collega`, `posta.scollega`, `sistema.messaggio` |
+| [`microsoft.ts`](../core/azioni/microsoft.ts) | `microsoft.aggiungi`, `microsoft.togli`, `onedrive.apri` |
 | [`calendar.ts`](../core/azioni/calendar.ts) | `calendario.aggiungi`, `calendario.aggiorna`, `calendario.modifica`, `calendario.togli`, `calendario.applica` |
 | [`check.ts`](../core/azioni/check.ts) | `check.colonne`, `check.spunta`, `check.data`, `check.lezione` |
 | [`documents.ts`](../core/azioni/documents.ts) | `stato.salva`, `documento.apri`, `documento.chiudi`, `documento.preferito`, `documento.dimentica` |
@@ -429,7 +432,7 @@ Comportamenti da sapere:
 - `proiezione.mira` torna `invariato` e non accende l'indicatore di lavoro.
 - `rapporto.completo` genera in serie, mai in parallelo (OneDrive).
 - Il gettone OAuth non attraversa mai il ponte: il pannello vede solo
-  `MessaggioStato.posta`.
+  `MessaggioStato.posta` e `MessaggioStato.microsoft` (indirizzi, nessun gettone).
 
 Le letture (senza azione): API § 5.
 

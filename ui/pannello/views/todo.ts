@@ -31,6 +31,7 @@ import {
   corsiDellAnnoAperto,
   corsiDi,
   stato,
+  vai,
 } from '../state.js'
 import { gruppoConsegne } from './assignments.js'
 import { riassuntoClasse, sezioniTodoClasse, simboloFamiglia } from './classTodo.js'
@@ -50,6 +51,15 @@ const fuocoTabClasse = (id: string) => `todo-tab-classe:${id}`
 const fuocoCat = (id: string) => `todo-cat-${id}`
 // testo-fisso: selettore fuoco sottocategoria
 const fuocoSotto = (id: string) => `todo-sotto-${id}`
+
+/**
+ * Le pendenze di un corso solo: la scheda e il corso di lavoro insieme, così
+ * il Registro aperto dopo è quello del corso guardato. Le pendenze restano la
+ * pagina, senza soggetto: il corso lo sceglie la scheda.
+ */
+function apriPendenzeDelCorso (corsoId: string): void {
+  vai({ pagina: 'pagina.pendenze' }, { contesto: { corsoId }, altro: { schedaTodo: idSchedaCorso(corsoId) } })
+}
 
 const FAMIGLIE_CORSO: readonly FamigliaTodo[] = [
   'valutazioni',
@@ -375,7 +385,7 @@ export function vistaTodo (): Figlio {
           conto: todo?.aperti ?? 0,
           urgenti: todo?.urgenti ?? 0,
           fuoco: fuocoTabCorso(corso.id),
-          al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+          al: () => apriPendenzeDelCorso(corso.id),
         }
       }),
     ]
@@ -521,7 +531,7 @@ export function vistaTodo (): Figlio {
             azioni: pulsante({
               testo: parole().apri,
               variante: 'sottile',
-              al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+              al: () => apriPendenzeDelCorso(corso.id),
             }),
             contenuto: h('div', { class: 'todo-classe__corpo' }, ...sezioniTodoClasse(todo)),
           }),
@@ -644,7 +654,7 @@ export function vistaTodo (): Figlio {
       const btn = pulsante({
         testo: parole().apri,
         variante: 'sottile',
-        al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+        al: () => apriPendenzeDelCorso(corso.id),
       })
       btn.dataset.fuoco = fuocoTabCorso(corso.id)
       schedeCorsi.push(

@@ -81,6 +81,8 @@ const it = {
     'Un anno nuovo, in un documento suo: si apre subito, e lo salvi con nome quando vuoi',
   apri: 'Apri un anno…',
   apriAiuto: 'Un altro documento «.regi», scelto dal disco',
+  apriDaOneDrive: 'Apri da OneDrive…',
+  apriDaOneDriveAiuto: 'Un documento «.regi» nel OneDrive di un account Microsoft collegato',
   importaRegistro: 'Importa da un altro registro…',
   importaRegistroAiuto:
     'Da un altro documento «.regi»: impostazioni, materie, classi con persone e corsi, ' +
@@ -368,6 +370,8 @@ export const testi = catalogo(it, {
       'es unter einem Namen, wann du willst',
     apri: 'Schuljahr öffnen…',
     apriAiuto: 'Ein anderes «.regi»-Dokument, ausgewählt auf der Festplatte',
+    apriDaOneDrive: 'Aus OneDrive öffnen…',
+    apriDaOneDriveAiuto: 'Ein «.regi»-Dokument im OneDrive eines verbundenen Microsoft-Kontos',
     importaRegistro: 'Aus einem anderen Klassenbuch importieren…',
     importaRegistroAiuto:
       'Aus einem anderen «.regi»-Dokument: Einstellungen, Fächer, Klassen mit Personen und ' +
@@ -639,6 +643,8 @@ export const testi = catalogo(it, {
       'l’enregistres sous un nom quand tu veux',
     apri: 'Ouvrir une année…',
     apriAiuto: 'Un autre document « .regi », choisi sur le disque',
+    apriDaOneDrive: 'Ouvrir depuis OneDrive…',
+    apriDaOneDriveAiuto: 'Un document « .regi » dans le OneDrive d’un compte Microsoft connecté',
     importaRegistro: 'Importer d’un autre registre…',
     importaRegistroAiuto:
       'D’un autre document « .regi » : paramètres, branches, classes avec personnes et ' +
@@ -905,6 +911,8 @@ export const testi = catalogo(it, {
       'name whenever you like',
     apri: 'Open a year…',
     apriAiuto: 'Another “.regi” document, chosen from the disk',
+    apriDaOneDrive: 'Open from OneDrive…',
+    apriDaOneDriveAiuto: 'A “.regi” document in the OneDrive of a connected Microsoft account',
     importaRegistro: 'Import from another register…',
     importaRegistroAiuto:
       'From another “.regi” document: settings, subjects, classes with people and courses, ' +

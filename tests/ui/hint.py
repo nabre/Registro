@@ -29,14 +29,15 @@ PREPARA = '''() => {
   const check = { id: 'chk-prova', corsoId: corso.id,
     colonne: [{ id: 'c1', titolo: 'Regolamento' }], spunte: [],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-10T08:00:00.000Z' }
-  prova.aggiorna({ registro: { ...r, check: [check] }, vista: 'check', corsoId: corso.id })
+  prova.vai({ pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: corso.id } },
+    { altro: { registro: { ...r, check: [check] } } })
 }'''
 
 with chromium() as browser:
     page, errors = pannello(browser)
 
     # La pagina delle classi: la testata porta la sua «i».
-    page.evaluate("() => prova.aggiorna({ vista: 'classi' })")
+    page.evaluate("() => prova.vai({ pagina: 'pagina.classi' })")
     page.evaluate(FOTOGRAMMA)
 
     fumetto = page.locator('.suggerimento__fumetto')
@@ -79,7 +80,7 @@ with chromium() as browser:
     # Un ridisegno toglie la «i» di sotto: il fumetto non resta orfano.
     segno.click()
     expect(fumetto).to_have_count(1)
-    page.evaluate("() => prova.aggiorna({ vista: 'calendario' })")
+    page.evaluate("() => prova.vai({ pagina: 'pagina.calendario' })")
     expect(fumetto).to_have_count(0)
     page.evaluate(PREPARA)
     page.evaluate(FOTOGRAMMA)

@@ -10,6 +10,7 @@ import { documentoPiano, type GenereRapporto } from '../dominio/locations.js'
 import { classeDelCorsoId, corsiDellaClasse } from '../dominio/courses.js'
 import {
   datiAllievo,
+  datiCorso,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
@@ -120,6 +121,11 @@ function datiDiProva (
   if (genere === 'piano') {
     const piano = registro.piani[0] ?? null
     return piano ? { dati: datiPiano(registro, piano), di: documentoPiano(registro, piano) } : null
+  }
+
+  if (genere === 'corso') {
+    if (!corso) return null
+    return { dati: datiCorso(registro, corso, null), di: corso.titolo }
   }
 
   if (genere === 'valutazioni' || genere === 'presenze') {

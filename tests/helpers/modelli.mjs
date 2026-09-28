@@ -12,6 +12,7 @@ import {
   creaPiano,
   creaValutazione,
   datiAllievo,
+  datiCorso,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
@@ -19,6 +20,7 @@ import {
   datiPiano,
   datiPresenze,
   datiValutazioni,
+  datiDiario,
   normalizzaRegistro,
 } from '../../dist-tests/domain.mjs'
 
@@ -48,6 +50,19 @@ export function registroCompleto () {
   lezione.argomenti = 'Le percentuali'
   lezione.consuntivo = 'Fatto quasi tutto'
   lezione.materiali = 'Fotocopie'
+  lezione.osservazioni = [{
+    id: 'oss-1',
+    allievoId: 'al-1',
+    tipo: 'merito',
+    testo: 'Ottima partecipazione',
+    creataIl: '2026-10-06T08:30:00.000Z',
+  }]
+  lezione.matrice = [{
+    allievoId: 'al-1',
+    aspetto: 'partecipazione',
+    segno: 'positivo',
+    nota: 'Attivo e propositivo',
+  }]
 
   const valutazione = creaValutazione('cor-1', 'Prova di ottobre', undefined, '2026-10-20')
   valutazione.id = 'val-1'
@@ -56,16 +71,51 @@ export function registroCompleto () {
   const fascicolo = creaFascicolo('cl-1')
   fascicolo.id = 'fas-1'
 
+  const check = {
+    id: 'chk-1',
+    corsoId: 'cor-1',
+    colonne: [{ id: 'col-1', titolo: 'Regolamento' }],
+    spunte: [{ allievoId: 'al-1', colonnaId: 'col-1', lezioneId: 'lez-1', data: '2026-10-06', fattaIl: '2026-10-06T08:00:00.000Z' }],
+    creatoIl: '2026-09-01T08:00:00.000Z',
+    aggiornatoIl: '2026-09-01T08:00:00.000Z',
+  }
+
+  const consegna = {
+    id: 'cng-1',
+    corsoId: 'cor-1',
+    testo: 'Firma contratto',
+    tipo: 'amministrativo',
+    a: 'allievi',
+    allieviIds: ['al-1', 'al-2'],
+    dataLezioneId: null,
+    data: '2026-09-05',
+    scadenzaLezioneId: null,
+    scadenza: '2026-09-30',
+    documento: 'contratto-tirocinio',
+    verso: 'ricevo',
+    fatte: [{ chi: 'al-1', fattaIl: '2026-09-10T10:00:00.000Z' }],
+    creataIl: '2026-09-01T08:00:00.000Z',
+    aggiornataIl: '2026-09-01T08:00:00.000Z',
+  }
+
   return normalizzaRegistro({
     anni: [anno],
     annoCorrenteId: 'a1',
     materie: [{ id: 'mat-1', nome: 'Calcolo professionale' }],
     classi: [{ id: 'cl-1', annoId: 'a1', nome: 'DIC2', allievi: [anna, luca] }],
-    corsi: [{ id: 'cor-1', classeId: 'cl-1', materiaId: 'mat-1', titolo: 'CP — DIC2' }],
+    corsi: [{
+      id: 'cor-1',
+      classeId: 'cl-1',
+      materiaId: 'mat-1',
+      titolo: 'CP — DIC2',
+      orario: [{ id: 'ric-1', giorno: 2, inizio: '08:00', durataMin: 90, aula: 'A1' }],
+    }],
     lezioni: [lezione],
     piani: [piano],
     valutazioni: [valutazione],
     fascicoli: [fascicolo],
+    consegne: [consegna],
+    check: [check],
     impostazioni: IMPOSTAZIONI_PREDEFINITE,
   })
 }
@@ -93,6 +143,10 @@ export function datiDelGenere (registro, genere) {
       return datiFascicolo(registro, classe)
     case 'foto-classe':
       return datiFotoClasse(registro, classe)
+    case 'diario':
+      return datiDiario(registro, corso, semestre)
+    case 'corso':
+      return datiCorso(registro, corso, semestre)
     default:
       return datiAllievo(registro, classe, classe.allievi[0], semestre, corso)
   }

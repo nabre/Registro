@@ -13,10 +13,11 @@ with chromium() as browser:
 
     # Due PDF selezionati rendono disponibile la modale Composizione.
     page.evaluate("""()=>{const r=prova.stato.registro, c=r.corsi[0];
-      prova.aggiorna({vista:'documenti',paginaId:null,schedaDocumenti:'corso',corsoId:c.id,
-        filtroClasseId:c.classeId,documentiScelti:['esportazioni/a.pdf','esportazioni/b.pdf'],
-        esportati:[{percorso:'esportazioni/a.pdf',misura:10,revisione:0},
-                   {percorso:'esportazioni/b.pdf',misura:10,revisione:0}],anteprima:null})}""")
+      prova.vai({pagina:'pagina.corso.documenti',soggetto:{tipo:'corso',id:c.id}},{
+        contesto:{filtroClasseId:c.classeId},
+        altro:{schedaDocumenti:'corso',documentiScelti:['esportazioni/a.pdf','esportazioni/b.pdf'],
+          esportati:[{percorso:'esportazioni/a.pdf',misura:10,revisione:0},
+                     {percorso:'esportazioni/b.pdf',misura:10,revisione:0}],anteprima:null}})}""")
     page.evaluate(FOTOGRAMMA)
     page.locator('[data-fuoco="comando-documenti.combina"]').click()
 

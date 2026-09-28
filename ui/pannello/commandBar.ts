@@ -47,6 +47,7 @@ import {
   corsiDellAnnoAperto,
   corsiNelSemestre,
   stato,
+  vai,
 } from './state.js'
 
 /**
@@ -106,6 +107,7 @@ export function pulsanteComando (comando: ComandoUI): HTMLElement {
   const titolo = titoloDi(comando)
   const acceso = comando.acceso?.() ?? false
   // Il motivo del no vince sull'aiuto; la scorciatoia in coda, come altrove.
+  // Sul pulsante non si scrive: lo affollerebbe, e la dicono il titolo e il menu.
   const spiegazione = [
     impedito ?? aiuto,
     comando.scorciatoia && `(${comando.scorciatoia})`,
@@ -136,13 +138,6 @@ export function pulsanteComando (comando: ComandoUI): HTMLElement {
     },
     icona(comando.simbolo),
     h('span', { class: 'comando__testo' }, titolo),
-    comando.scorciatoia
-      ? h(
-          'kbd',
-          { class: 'comando__scorciatoia', attr: { 'aria-hidden': 'true' } },
-          comando.scorciatoia,
-        )
-      : null,
   )
   rinasceInVolo(comando.id, bottone)
   return bottone
@@ -579,7 +574,7 @@ function sceltaClasseDellaPagina (): Figlio {
     etichetta: t.classe,
     titolo: t.classePaginaTitolo,
     valore: corrente.id,
-    al: (valore) => aggiorna({ classeId: valore }),
+    al: (valore) => vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: valore } }),
     figli: classi.map((classe) =>
       h(
         'option',

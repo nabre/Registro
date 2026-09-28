@@ -39,7 +39,7 @@ const OCCUPATO = new Set(['EPERM', 'EACCES', 'EBUSY'])
 
 /**
  * `renameSync` che su Windows riprova per due secondi se il file è tenuto aperto
- * (antivirus, indicizzatore, OneDrive). Versione sincrona di `rinominaConPazienza`
+ * (antivirus, indicizzatore, OneDrive). Versione sincrona di `conPazienza`
  * in `fs.ts`, qui perché questo modulo non deve importare Electron.
  */
 function rinominaConPazienzaSync (da: string, a: string): void {

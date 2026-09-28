@@ -37,7 +37,7 @@ with chromium() as browser:
     assert scorrimento > 0
     alto = laterale.bounding_box()['y']
     assert abs(laterale.locator('.sidebar__marchio').bounding_box()['y'] - alto) < 1
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     assert laterale.evaluate('(el) => el.scrollTop') == scorrimento
     page.set_viewport_size({'width': 1440, 'height': 1000})
@@ -99,7 +99,7 @@ with chromium() as browser:
             page.evaluate(FOTOGRAMMA)
         expect(padre).to_have_count(1)
         expect(riga).to_be_focused()
-        page.evaluate('prova.aggiorna({})')
+        page.evaluate('prova.ridisegna()')
         for _ in range(3):
             page.evaluate(FOTOGRAMMA)
         expect(padre).to_have_count(1)
@@ -332,19 +332,19 @@ with chromium() as browser:
     assert page.evaluate("prova.stato.vista") == 'docenteClasse'
     assert page.evaluate("prova.stato.registro.classi.find(c=>c.id===prova.stato.classeId).docenteDiClasse")
     # Senza nessuna docenza di classe la sezione sparisce, e torna con la spunta.
-    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r,vista:'calendario'})}")
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.vai({pagina:'pagina.calendario'},{altro:{registro:r}})}")
     assert page.evaluate("prova.gruppiDiPagine().every(g=>g.gruppo!=='classe')")
     expect(page.get_by_role('button', name='Docente di classe')).to_have_count(0)
-    pagina_prima = page.evaluate('prova.stato.paginaId')
+    pagina_prima = page.evaluate('prova.postoCorrente().pagina')
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
-    assert page.evaluate('prova.stato.paginaId') == pagina_prima
-    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
+    assert page.evaluate('prova.postoCorrente().pagina') == pagina_prima
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.vai({pagina:prova.postoCorrente().pagina},{contesto:{classeId:r.classi[0].id},altro:{registro:r}})}")
     assert page.evaluate("prova.gruppiDiPagine().some(g=>g.gruppo==='classe')")
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r}); prova.riconvalidaRicordati()}")
     # Senza docenze la sezione non c'è più: `completa` ripiega sulle Classi.
     assert page.evaluate("prova.stato.vista === 'classi' && prova.postoCorrente().pagina === 'pagina.classi'")
-    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.vai({pagina:prova.postoCorrente().pagina},{contesto:{classeId:r.classi[0].id},altro:{registro:r}})}")
     # La Dashboard non ha riga delle azioni (le sue tessere portano altrove):
     # l'interruttore delle azioni si prova sul calendario.
     page.evaluate("prova.vaiA(prova.PAGINE[0])")
@@ -449,9 +449,9 @@ with chromium() as browser:
         mailAllievo: true, mailTutore: true,
         creataIl: '2026-09-01T08:00:00.000Z', aggiornataIl: '2026-09-01T08:00:00.000Z',
       }]
-      prova.aggiorna({ registro: r, schedaDocente: 'documenti', semestreId: null,
+      prova.vai({ pagina: 'pagina.classe.documenti' }, { altro: { registro: r, semestreId: null,
         archiviati: [{ percorso: 'archivio/pagella.pdf', misura: 12345, revisione: 0 }],
-        radiceDati: 'https://esempio.invalido/dati' })
+        radiceDati: 'https://esempio.invalido/dati' } })
     }""")
     page.evaluate(FOTOGRAMMA)
     # A cornice chiusa la matrice prende tutta la larghezza: una colonna sola.
@@ -465,11 +465,13 @@ with chromium() as browser:
     expect(page.locator('.archivio__titolo')).to_have_text('Rossi Maria')
     # La casella della matrice si accende: si vede da dove si era partiti.
     expect(page.locator('.cella-documento--aperta')).to_have_count(1)
-    # Il telaio del lettore non sta nella vista: un ridisegno non lo porta via.
-    page.evaluate('prova.aggiorna({})')
+    # Il telaio del lettore è tenuto (`data-tieni`): un ridisegno non lo ricrea.
+    page.evaluate("document.querySelector('.cornice-posto__telaio').__segnato = true")
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.cornice-posto')).to_have_count(1)
-    assert page.evaluate("document.querySelectorAll('.cornice-fissa__telaio').length") == 1
+    assert page.evaluate("document.querySelectorAll('.cornice-posto__telaio').length") == 1
+    assert page.evaluate("document.querySelector('.cornice-posto__telaio').__segnato === true")
     schermata(page, 'archivio-documentale.png')
     page.locator('.archivio__testa').get_by_title('Torna alla matrice a schermo intero').click()
     page.evaluate(FOTOGRAMMA)
@@ -535,10 +537,10 @@ with chromium() as browser:
         }],
         creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z',
       }]
-      prova.aggiorna({ registro: r, schedaDocente: 'assenze', semestreId: null,
+      prova.vai({ pagina: 'pagina.classe.assenze' }, { altro: { registro: r, semestreId: null,
         bloccoAssenzeId: 'blo-ass',
         archiviati: [{ percorso: 'archivio/assenze.pdf', misura: 4321, revisione: 0 }],
-        radiceDati: 'https://esempio.invalido/dati' })
+        radiceDati: 'https://esempio.invalido/dati' } })
     }""")
     page.evaluate(FOTOGRAMMA)
     # A cornice chiusa la matrice prende tutta la larghezza.
@@ -554,7 +556,7 @@ with chromium() as browser:
     expect(page.locator('.archivio__conto')).to_have_text('1 di 1')
     # La casella della matrice si accende: si vede da dove si era partiti.
     expect(page.locator('.cella-documento--aperta')).to_have_count(1)
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.cornice-posto')).to_have_count(1)
     schermata(page, 'docente-assenze-cornice.png')
@@ -569,17 +571,18 @@ with chromium() as browser:
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.archivio--con-foglio')).to_have_count(0)
     assert page.evaluate('prova.stato.anteprimaAssenze') is None
-    page.evaluate('registro=>prova.aggiorna({registro, schedaDocente: "todo"})', registro_prima)
+    page.evaluate('registro=>prova.vai({pagina: "pagina.classe.pendenze"}, {altro: {registro}})', registro_prima)
 
     # La pendenza non deve ricadere sul corso di un'altra classe.
-    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.corsi=r.corsi.filter(c=>c.classeId!==prova.stato.classeId); prova.aggiorna({registro:r,schedaDocente:'todo'})}")
+    page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.corsi=r.corsi.filter(c=>c.classeId!==prova.stato.classeId); prova.vai({pagina:'pagina.classe.pendenze'},{altro:{registro:r}})}")
     expect(page.locator('[data-fuoco="comando-docente.pendenza"]')).to_be_disabled()
     page.evaluate('registro=>prova.aggiorna({registro})', registro_prima)
     # Il fascicolo: senza spunte il comando è spento, con due chiede il nome e
     # manda i percorsi nell'ordine della pagina.
     page.evaluate("()=>{const c=prova.stato.registro.corsi[0];"
-                  " prova.aggiorna({vista:'documenti',paginaId:null,schedaDocumenti:'corso',"
-                  " corsoId:c.id,filtroClasseId:c.classeId,documentiScelti:[],anteprima:null})}")
+                  " prova.vai({pagina:'pagina.corso.documenti',soggetto:{tipo:'corso',id:c.id}},"
+                  " {contesto:{filtroClasseId:c.classeId},"
+                  " altro:{schedaDocumenti:'corso',documentiScelti:[],anteprima:null}})}")
     combina = page.locator('[data-fuoco="comando-documenti.combina"]')
     expect(combina).to_be_disabled()
     # Le caselle delle righe, cliccate davvero: sono l'unico modo di accendere
@@ -698,7 +701,7 @@ with chromium() as browser:
     # La casella «Cerca su Hugging Face» si scrive mentre la pagina si ridisegna
     # (quattro volte al secondo durante uno scarico): `data-fuoco` tiene il fuoco
     # e le lettere. Il vecchio indirizzo porta alle impostazioni del programma.
-    page.evaluate("prova.aggiorna({vista:'modelliLinguistici'})")
+    page.evaluate("prova.vai({pagina:'pagina.impostazioni', scheda:'programma.modelli'})")
     page.evaluate(FOTOGRAMMA)
     # Senza risposta dall'host la pagina resta in attesa, senza casella: si
     # risponde come il guscio.
@@ -716,13 +719,13 @@ with chromium() as browser:
     expect(page.locator(casella)).to_have_count(1)
     page.locator(casella).click()
     page.keyboard.type('qwen')
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     expect(page.locator(casella)).to_be_focused()
     expect(page.locator(casella)).to_have_value('qwen')
     # Si continua a battere senza riprendere il campo, mentre i ridisegni arrivano.
     page.keyboard.type('-vl')
-    page.evaluate('prova.aggiorna({})')
+    page.evaluate('prova.ridisegna()')
     page.evaluate(FOTOGRAMMA)
     expect(page.locator(casella)).to_have_value('qwen-vl')
     schermata(page, 'modelli-linguistici.png')
@@ -764,9 +767,9 @@ with chromium() as browser:
     assert page.evaluate('prova.stato.filtroCorsoAgendaId') == anno_a['corsi'][0]['id']
 
     # Nessun corso e corso senza lezioni non lasciano una vista incoerente.
-    page.evaluate("()=>{prova.aggiorna({vista:'lezione'}); prova.stato.registro.lezioni=[]; prova.scegliCorso(prova.stato.registro.corsi[0].id)}")
+    page.evaluate("()=>{prova.vai({pagina:'pagina.corso.registro'}); prova.stato.registro.lezioni=[]; prova.scegliCorso(prova.stato.registro.corsi[0].id)}")
     assert page.evaluate('prova.stato.vista') == 'piani'
-    page.evaluate("prova.aggiorna({registro:prova.registroVuoto(),vista:'calendario'})")
+    page.evaluate("prova.vai({pagina:'pagina.calendario'},{altro:{registro:prova.registroVuoto()}})")
     expect(page.get_by_role('navigation', name='Navigazione principale')).to_be_visible()
     assert not errors, errors
 print('OK: pagine, contesto, memoria per documento, comandi e filtri di calendario e pendenze, scheda della proiezione, tendine corso/classe (anche quando il filtro punta a un corso sparito), sezione docente, file recenti, tastiera, azioni nascoste, responsive, casella di ricerca dei modelli che regge i ridisegni, registro vuoto; nessun errore JS')

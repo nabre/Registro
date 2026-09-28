@@ -60,6 +60,11 @@ datore: Arbeitgeber
 telefono-rappresentante: Telefon der gesetzlichen Vertretung
 telefono-datore: Telefon des Arbeitgebers
 nota-semestre: Semesternote
+ud-settimanali: Wöchentliche Lektionen
+lezioni-svolte: Gehaltene Lektionen
+ud-svolte: Gehaltene Lektionen
+presenza-media: Durchschnittliche Anwesenheit
+media-di-classe: Klassenschnitt
 
 # --- I titoli delle sezioni
 
@@ -92,6 +97,17 @@ esecuzione-e-riconsegna: Durchführung und Rückgabe
 i-momenti: Die Beurteilungen
 recuperi: Nachprüfungen
 da-ridare: Noch zurückzugebende Prüfungen
+check: Checkliste
+dettaglio-prove: Detail der Prüfungen
+quadro-orario: Stundenplan
+sospensioni-calendario: Unterrichtsfreie Tage
+consegne: Aufgaben und Abgaben
+richieste-documenti: Dokumente und Klassenabgaben
+comunicazioni: Mitteilungen
+dettaglio-assenze: Absenzen und Unterschriften
+diario-lezioni: Unterrichtstagebuch
+piani-lezione: Lektionspläne
+pendenze: Pendenzen des Kurses
 
 # --- Le frasi
 

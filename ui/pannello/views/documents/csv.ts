@@ -16,10 +16,17 @@ const fogli = risorse<string[][]>(4)
 
 /**
  * La tabella di un CSV, o il suo posto mentre lo si legge. `chiave` è quella
- * del telaio dei PDF: cambia quando il file viene rifatto.
+ * del lettore dei PDF: cambia quando il file viene rifatto. `isola` è quella
+ * che la mostra: a lettura finita si rifà lei sola, non la pagina.
  */
-export function anteprimaCsv (opzioni: { indirizzo: string, chiave: string }): Figlio {
-  const letto = fogli.leggi(opzioni.chiave, () => leggi(opzioni.indirizzo))
+export function anteprimaCsv (opzioni: {
+  indirizzo: string
+  chiave: string
+  isola: string
+}): Figlio {
+  const letto = fogli.leggi(opzioni.chiave, () => leggi(opzioni.indirizzo), {
+    isola: opzioni.isola,
+  })
   if (letto.stato === 'vuoto' || letto.stato === 'inVolo') {
     return riquadro(quieto(testi().leggendo))
   }

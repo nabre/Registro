@@ -30,9 +30,9 @@ def palette_fuori_posto(browser):
     """Ctrl+K «svolta» dal calendario non segna l'ora aperta prima."""
     page, errori = pannello(browser)
     lezione = page.evaluate('prova.stato.registro.lezioni[0].id')
-    page.evaluate(f"prova.aggiorna({{ vista: 'lezione', lezioneId: '{lezione}' }})")
+    page.evaluate(f"prova.apriLezione('{lezione}')")
     page.evaluate(FRAME)
-    page.evaluate("prova.aggiorna({ vista: 'calendario' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.calendario' })")
     page.evaluate(FRAME)
     # L'ora è ancora quella «del contesto», ma la pagina non la mostra più.
     assert page.evaluate('prova.stato.lezioneId') == lezione
@@ -50,7 +50,7 @@ def palette_fuori_posto(browser):
     assert partite == 0, 'Svolta partita da una pagina che non mostra l’ora'
     expect(page.locator('.notifica--avviso')).to_have_count(1)
     # Nella sua pagina invece risponde, come prima.
-    page.evaluate("prova.aggiorna({ vista: 'lezione' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.corso.registro' })")
     page.evaluate(FRAME)
     page.locator('body').press('Control+k')
     page.locator('.palette__campo').fill('svolta')
@@ -64,8 +64,8 @@ def nuova_ora_dal_menu(browser):
     """Ctrl+Alt+N dal menu apre lo stesso modulo del pulsante «Nuova ora»."""
     page, errori = pannello(browser)
     corso = page.evaluate('prova.stato.registro.corsi[1].id')
-    page.evaluate(f"prova.aggiorna({{ vista: 'calendario', corsoId: '{corso}', "
-                  "filtroClasseId: null, data: '2026-09-16' })")
+    page.evaluate(f"prova.vai({{ pagina: 'pagina.calendario' }}, {{ contesto: {{ corsoId: '{corso}', "
+                  "filtroClasseId: null }, altro: { data: '2026-09-16' } })")
     page.evaluate(FRAME)
     # L'host manda sempre «oggi»: è il pannello che sa quale giorno si guarda.
     page.evaluate(NAVIGA, {'vista': 'calendario', 'data': '2026-10-20', 'nuovo': True})
@@ -81,7 +81,7 @@ def oggi_dal_menu(browser):
     """Ctrl+Alt+T riporta la striscia dei mesi su oggi, come il pulsante «Oggi»."""
     page, errori = pannello(browser)
     oggi = page.evaluate(OGGI)
-    page.evaluate(f"prova.aggiorna({{ vista: 'calendario', modoCalendario: 'mese', data: '{oggi}' }})")
+    page.evaluate(f"prova.vai({{ pagina: 'pagina.calendario' }}, {{ altro: {{ modoCalendario: 'mese', data: '{oggi}' }} }})")
     page.evaluate(FRAME)
     striscia = page.locator('.mese__scorrevole')
     expect(striscia).to_have_count(1)
@@ -101,7 +101,7 @@ def oggi_dal_menu(browser):
 def menu_con_modale_aperta(browser):
     """Un acceleratore del menu non cambia pagina sotto una finestra aperta."""
     page, errori = pannello(browser)
-    page.evaluate("prova.aggiorna({ vista: 'calendario' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.calendario' })")
     page.evaluate(FRAME)
     page.evaluate(NAVIGA, {'vista': 'calendario', 'nuovo': True})
     expect(page.locator('.modale')).to_have_count(1)

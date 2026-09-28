@@ -28,7 +28,7 @@ import { eseguiOAvvisa } from '../components/filters.js'
 import { h, type Figlio } from '../dom.js'
 import { apriMomento } from '../calendarNavigation.js'
 import { corsoPendenza, pendenza } from '../components/pending.js'
-import { tabella } from '../components/table.js'
+import { inTelaio, tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
 import { moduloRecupero } from '../forms.js'
 import { notifica } from '../components/notifications.js'
@@ -463,7 +463,9 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
   const t = testi()
   const L = lessico()
 
-  return scheda({
+  // Anello della catena di telaio della pagina delle valutazioni: la tabella
+  // resta lo stesso nodo e un comando non la riporta a sinistra.
+  return inTelaio(scheda({
     titolo: Molti(L.recupero),
     sottotitolo:
       daFissare.length > 0
@@ -475,11 +477,14 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
     classe: 'scheda--recuperi',
     contenuto: h(
       'div',
-      { class: 'recuperi' },
+      { class: 'recuperi', dataset: { telaio: 'recuperi' } },
       postoAllegato(momento, 'recupero', t.testoDelRecupero),
       postoAllegato(momento, 'recupero-soluzione', L.ruoliAllegato['recupero-soluzione']),
       tabella({
         variante: 'recuperi',
+        telaio: 'recuperi:tabella',
+        // testo-fisso: una chiave, non un testo
+        scorrimento: `recuperi:${momento.id}`,
         intestazione: [
           h('th', null, Uno(L.pif)),
           h('th', null, t.colonnaSiRifaIl),
@@ -492,7 +497,7 @@ export function pannelloRecuperi (momento: MomentoValutazione): Figlio {
         righe: recuperi.map(rigaTabella),
       }),
     ),
-  })
+  }), 'recuperi')
 }
 
 /**

@@ -18,7 +18,7 @@
 // Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazione`.
 
 import { createHash } from 'node:crypto'
-import { cpSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import * as esbuild from 'esbuild'
@@ -86,8 +86,12 @@ function uuidDiElectronBuilder (nome) {
  * legge da una cartella per misurare le lettere, e nel pacchetto `node_modules` non c'è.
  */
 function copiaCaratteriPdf (dove) {
-  mkdirSync(dove, { recursive: true })
-  cpSync('resources/pdf-fonts', dove, { recursive: true })
+  try {
+    mkdirSync(dove, { recursive: true })
+    cpSync('resources/pdf-fonts', dove, { recursive: true })
+  } catch (errore) {
+    if (!existsSync(dove)) throw errore
+  }
 }
 
 const test = process.argv.includes('--test')

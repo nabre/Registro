@@ -17,11 +17,12 @@ import { apriModale } from '../components/modal.js'
 import { h } from '../dom.js'
 import { apriMomento } from '../calendarNavigation.js'
 import {
-  aggiorna,
   lezionePerId,
   nomeCorso,
   pianoPerId,
+  postoCorrente,
   stato,
+  vai,
   valutazionePerId,
 } from '../state.js'
 
@@ -207,7 +208,19 @@ export function moduloValutazione (momento: MomentoValutazione): void {
         chiedi: { genere: 'valutazione', id: momento.id },
         azione: { tipo: 'valutazione.elimina', valutazioneId: momento.id },
         fatto: t.eliminato,
-        poi: () => aggiorna({ valutazioneId: null }),
+        poi: () => {
+          // Il momento tolto non resta scelto; nella sua pagina si torna al corso.
+          const qui = postoCorrente()
+          const corsoId = stato.contesto.corsoId
+          vai(
+            qui.soggetto?.tipo !== 'valutazione'
+              ? qui
+              : corsoId
+                ? { pagina: qui.pagina, soggetto: { tipo: 'corso', id: corsoId } }
+                : { pagina: qui.pagina },
+            { contesto: { valutazioneId: null }, elementoChiesto: false },
+          )
+        },
       }),
   })
 }

@@ -19,9 +19,9 @@
 // perché anno e deposito sono variabili di modulo.
 
 import assert from 'node:assert/strict'
-import { createConnection } from 'node:net'
 import { after, before, describe, it } from 'node:test'
 
+import { presaRiconosciuta } from '../helpers/accesso.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-condotto-')
@@ -70,14 +70,14 @@ after(async () => {
  * corretto non manderebbe) e raccoglie le buste. Torna anche `chiusa`, perché
  * per alcuni guasti la chiusura fa parte della risposta giusta.
  */
-function bussa (testo, { attese = 1, attesaMs = 10000, finoAllaChiusura = false } = {}) {
+async function bussa (testo, { attese = 1, attesaMs = 10000, finoAllaChiusura = false } = {}) {
+  const presa = await presaRiconosciuta(indirizzo)
   return new Promise((risolvi, rifiuta) => {
     const buste = []
     let chiusa = false
     let finita = false
     let resto = ''
 
-    const presa = createConnection(indirizzo)
     const sveglia = setTimeout(() => {
       finisci(new Error(
         `il condotto non ha risposto entro ${attesaMs} ms: ${buste.length} buste su ${attese}`,
@@ -93,7 +93,7 @@ function bussa (testo, { attese = 1, attesaMs = 10000, finoAllaChiusura = false 
       else risolvi({ buste, chiusa })
     }
 
-    presa.on('connect', () => presa.write(testo))
+    presa.write(testo)
     presa.on('data', (pezzo) => {
       resto += pezzo.toString('utf8')
       let taglio = resto.indexOf('\n')

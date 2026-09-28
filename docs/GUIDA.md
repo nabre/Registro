@@ -312,6 +312,7 @@ nessun'altra (per chi usa: la guida in-app, «Che cosa esce dal computer»).
 | Geocodifica | `nominatim.openstreetmap.org` | indirizzi (via, NAP, località), una richiesta al secondo, `User-Agent` dichiarato | solo con «Trova gli indirizzi» (`core/dati/geocoding.ts`) |
 | Carte della mappa | `tile.openstreetmap.org` | coordinate dei tasselli (la zona, non i nomi) | guardando la mappa o il riquadro «Dove sta» di un allievo; cache in `tasselli/` (`desktop/shell/protocol/tiles.ts`) |
 | Posta | `login.microsoftonline.com`, `smtp.office365.com` | accesso alla casella e messaggi con allegati | collegando la casella, e spedendo con «Spedisci senza bozza» (spento di serie) (`core/dati/oauth.ts`, `core/dati/exchange.ts`) |
+| OneDrive | `login.microsoftonline.com`, `graph.microsoft.com` | accesso all'account; nomi di cartelle e file letti, e lo scarico di un `.regi` non sincronizzato | collegando un account in «Account Microsoft», sfogliando, cercando o aprendo da OneDrive (`core/dati/microsoft.ts`, `core/dati/onedrive.ts`) |
 | Calendario della scuola | l'indirizzo ICS scritto dal docente | una GET, senza dati | aggiungendo, aggiornando o confrontando un calendario (`core/dati/calendar.ts`) |
 | Aggiornamenti | release di GitHub | «qual è l'ultima versione», poi lo scarico | all'avvio e ogni sei ore, se acceso |
 | Modelli | `huggingface.co` | parole cercate, depositi e file da scaricare | cercando o scaricando (`core/dati/huggingFace.ts`) |

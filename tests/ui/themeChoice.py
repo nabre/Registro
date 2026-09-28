@@ -58,8 +58,8 @@ FONDO = "(el)=>getComputedStyle(el.querySelector('.figura-tema')).backgroundColo
 def aspetto(browser, schema):
     page, errori = pannello(browser, 1280, 900, color_scheme=schema)
     page.evaluate(
-        "(v)=>prova.aggiorna({vista:'impostazioni',ambitoImpostazioni:'programma',"
-        "schedaProgramma:'aspetto',programma:[v]})", voce())
+        "(v)=>prova.vai({pagina:'pagina.impostazioni',scheda:'programma.aspetto'},"
+        "{altro:{programma:[v]}})", voce())
     page.evaluate(FRAME)
     return page, errori
 

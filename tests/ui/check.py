@@ -35,7 +35,8 @@ PREPARA = '''() => {
     spunte: [{ allievoId: r.classi[0].allievi[0].id, colonnaId: 'c2', lezioneId: null,
       data: '2026-09-10', fattaIl: '2026-09-10T08:00:00.000Z' }],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-10T08:00:00.000Z' }
-  prova.aggiorna({ registro: { ...r, check: [check] }, vista: 'check', corsoId: corso.id })
+  prova.vai({ pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: corso.id } },
+    { altro: { registro: { ...r, check: [check] } } })
 }'''
 
 # Un'ora del primo corso oggi: la pagina deve spuntare dentro quella.
@@ -80,11 +81,10 @@ with chromium() as browser:
       const base = (id, corsoId, colonnaId) => ({ id, corsoId,
         colonne: [{ id: colonnaId, titolo: 'Consegna' }], spunte: [],
         creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z' })
-      prova.aggiorna({
-        registro: { ...r, classi: [classe, ...r.classi.slice(1)], corsi,
+      prova.vai({ pagina: 'pagina.classe.check', soggetto: { tipo: 'classe', id: classe.id } }, {
+        altro: { registro: { ...r, classi: [classe, ...r.classi.slice(1)], corsi,
           check: [base('chk-classe-1', primo.id, 'consegna-1'),
-            base('chk-classe-2', secondo.id, 'consegna-2')] },
-        vista: 'check', ambitoCheck: 'classe', classeId: classe.id
+            base('chk-classe-2', secondo.id, 'consegna-2')] } },
       })
     }''')
     page.evaluate(FOTOGRAMMA)
@@ -121,7 +121,7 @@ with chromium() as browser:
 
     # Tornando all'ambito corso, pagina e comportamento restano quelli esistenti.
     page.evaluate(PREPARA)
-    page.evaluate("prova.aggiorna({ ambitoCheck: 'corso' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.corso.check' })")
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.vista--check-classe')).to_have_count(0)
     expect(page.locator('.vista--check table.check')).to_have_count(1)
@@ -232,7 +232,8 @@ with chromium() as browser:
 
     # Dentro un'ora: la stessa griglia nella scheda Amministrazione, e il clic
     # spunta in quell'ora.
-    page.evaluate("id => prova.aggiorna({ vista: 'lezione', lezioneId: id, schedaLezione: 'amministrazione' })",
+    page.evaluate("id => prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id } },"
+                  " { altro: { schedaLezione: 'amministrazione' } })",
                   lezione_vecchia)
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.vista--lezione .scheda--check')).to_have_count(1)
@@ -257,7 +258,7 @@ with chromium() as browser:
     # Un corso senza colonne: una riga che porta alla pagina, niente griglia.
     altra = page.evaluate(
         "prova.stato.registro.lezioni.find(l=>l.corsoId===prova.stato.registro.corsi[1].id).id")
-    page.evaluate("id => prova.aggiorna({ lezioneId: id })", altra)
+    page.evaluate("id => prova.apriLezione(id)", altra)
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.vista--lezione .scheda--check')).to_have_count(0)
     expect(page.locator('.vista--lezione .check-assente')).to_have_count(1)
@@ -284,7 +285,7 @@ with chromium() as browser:
     # La scheda del corso: riepilogo per colonna, colonna «Check» nella matrice, e
     # la griglia intera che si spunta come la pagina.
     attivi = page.evaluate('prova.stato.registro.classi[0].allievi.filter(a=>a.attivo).length')
-    page.evaluate("prova.aggiorna({ vista: 'corsi' })")
+    page.evaluate("prova.vai({ pagina: 'pagina.corsi' })")
     page.evaluate(FOTOGRAMMA)
     numeri = page.locator('.corso-scheda .sintesi')
     quaderno = numeri.locator('.dato', has_text='Quaderno')
@@ -316,7 +317,7 @@ with chromium() as browser:
       const attivi = r.classi[0].allievi.filter((a) => a.attivo)
       const spunte = attivi.map((a) => ({ allievoId: a.id, colonnaId: 'c2', lezioneId: null,
         data: '2026-09-10', fattaIl: '2026-09-10T08:00:00.000Z' }))
-      prova.aggiorna({ registro: { ...r, check: [{ ...r.check[0], spunte }] }, vista: 'corsi' })
+      prova.vai({ pagina: 'pagina.corsi' }, { altro: { registro: { ...r, check: [{ ...r.check[0], spunte }] } } })
     }''')
     page.evaluate(FOTOGRAMMA)
     quaderno = page.locator('.corso-scheda .sintesi .dato', has_text='Quaderno')
@@ -327,8 +328,8 @@ with chromium() as browser:
     # La scheda della persona, linguetta Materie: un riquadro «Check» con una
     # casella per colonna.
     page.evaluate(PREPARA)
-    page.evaluate('''(id) => prova.aggiorna({ vista: 'allievo', classeId: prova.stato.registro.classi[0].id,
-      allievoId: id, schedaPersona: 'materie' })''', allievo)
+    page.evaluate('''(id) => prova.vai({ pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id } },
+      { contesto: { classeId: prova.stato.registro.classi[0].id }, altro: { schedaPersona: 'materie' } })''', allievo)
     page.evaluate(FOTOGRAMMA)
     tema = page.locator('.riquadro-tema', has=page.locator('.gruppo-titolo__nome', has_text='Check'))
     expect(tema).to_have_count(1)

@@ -13,9 +13,11 @@ import { eseguiOAvvisa } from '../components/filters.js'
 import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
 import { h, type Figlio } from '../dom.js'
+import { isola } from '../isole.js'
 import { classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
 
 import { guardaNellArchivio } from './archive.js'
+import { ISOLA_LETTURA } from './pageBrowser.js'
 import { portaPagine } from './pageDrop.js'
 import { testi } from './sorting.testi.js'
 
@@ -245,6 +247,16 @@ export async function rileggiScansioni (classe: Classe): Promise<void> {
 }
 
 /**
+ * La coda di lettura fuori dalla cornice, da sola: l'isola che `main.ts` rifà a
+ * ogni pagina letta. Dentro la cornice di un PDF da dividere la coda è parte
+ * dell'isola della cornice (`corniceFoglio`), e si usa `codaLettura`.
+ * `display: contents`: vuota non lascia uno spazio nella colonna.
+ */
+export function codaLetturaInIsola (): HTMLElement {
+  return isola(ISOLA_LETTURA, codaLettura, { style: 'display: contents' })
+}
+
+/**
  * La coda di lettura: che cosa si sta leggendo e che cosa aspetta. Nessuna
  * percentuale sul singolo foglio (l'OCR non la dà): pagine fatte, rimaste, e
  * il modo di fermare tutto.
@@ -324,6 +336,14 @@ export async function caricaPdf (
 }
 
 /**
+ * La classe com'è adesso: il bersaglio può essere un nodo di telaio, tenuto fra
+ * due disegni con gli ascoltatori del primo.
+ */
+function classeAdesso (classe: Classe): Classe {
+  return stato.registro.classi.find((c) => c.id === classe.id) ?? classe
+}
+
+/**
  * Fa di un elemento un bersaglio per i PDF trascinati da fuori. `dragover` va
  * fermato a ogni evento, o torna il divieto; `dragleave` scatta anche sui
  * figli, quindi si contano entrate e uscite per non far lampeggiare la cornice.
@@ -365,7 +385,7 @@ export function rendiBersaglio (
       notifica(testi().nessunFile, 'avviso')
       return
     }
-    void deposita(file, classe, vetrina)
+    void deposita(file, classeAdesso(classe), vetrina)
   })
 }
 

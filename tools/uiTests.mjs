@@ -22,6 +22,7 @@ const PROVE = [
   'tests/ui/navigation.py',
   'tests/ui/calendarKeyboard.py',
   'tests/ui/documentsKeyboard.py',
+  'tests/ui/documentiRiquadri.py',
   'tests/ui/settingsKeyboard.py',
   'tests/ui/modalErrors.py',
   'tests/ui/selectorA11y.py',
@@ -43,6 +44,11 @@ const PROVE = [
   'tests/ui/schoolCalendar.py',
   'tests/ui/giornata.py',
   'tests/ui/oggi.py',
+  'tests/ui/persone.py',
+  'tests/ui/telaioVista.py',
+  'tests/ui/sfoglioIsole.py',
+  'tests/ui/riquadri.py',
+  'tests/ui/tabelle.py',
   'tests/ui/accessibility.py',
 ]
 

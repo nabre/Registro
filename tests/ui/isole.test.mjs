@@ -19,6 +19,9 @@ import { build } from 'esbuild'
 
 // ------------------------------------------------------------ il DOM finto
 
+/** Ogni nodo che entra nel documento: un `<iframe>` entrato comincia a caricare. */
+const entrati = []
+
 class FNode {
   constructor () {
     this.parentNode = null
@@ -61,8 +64,15 @@ class FNode {
       const i = prima ? this.childNodes.indexOf(prima) : this.childNodes.length
       this.childNodes.splice(i, 0, n)
       n.parentNode = this
+      if (this.isConnected) for (const e of [n, ...n.discendenti()]) entrati.push(e)
     }
     return nodo
+  }
+
+  replaceChild (nuovo, vecchio) {
+    this.insertBefore(nuovo, vecchio)
+    this.togli(vecchio)
+    return vecchio
   }
 
   /** Come Chromium: sposta senza staccare, solo fra due posti nel documento. */
@@ -325,6 +335,31 @@ describe('nodi pesanti (data-tieni)', () => {
     assert.equal(r.querySelectorAll('iframe').length, 1)
     assert.equal(globalThis.document.body.children.length, 1, 'il parcheggio non resta')
     r.remove()
+  })
+
+  it('il segnaposto non entra mai nel documento: nessun caricamento in più', () => {
+    const r = radice()
+    aggiornaElemento(r, pagina('pdf:1', 'a'))
+    const cornice = r.querySelector('iframe')
+    const iframeEntrati = () => entrati.filter((e) => e.tagName === 'IFRAME' && e !== cornice).length
+    const prima = iframeEntrati()
+    for (let i = 0; i < 5; i++) aggiornaElemento(r, pagina('pdf:1', `c${i}`))
+    assert.equal(iframeEntrati(), prima, 'ridisegni completi')
+    assert.equal(r.querySelector('iframe'), cornice)
+
+    const s = radice()
+    aggiornaElemento(s, h('div', null, isola('cornice', () => pagina('pdf:2', 'a'))))
+    const interna = s.querySelector('iframe')
+    const primaIsola = entrati.filter((e) => e.tagName === 'IFRAME' && e !== interna).length
+    for (let i = 0; i < 5; i++) {
+      ridisegnaIsola('cornice')
+      fotogramma()
+    }
+    assert.equal(entrati.filter((e) => e.tagName === 'IFRAME' && e !== interna).length, primaIsola, 'ridisegni d\'isola')
+    assert.equal(s.querySelector('iframe'), interna)
+    assert.equal(s.querySelectorAll('template').length + r.querySelectorAll('template').length, 0, 'nessun posto rimasto')
+    r.remove()
+    s.remove()
   })
 
   it('una sorgente nuova è un nodo nuovo', () => {

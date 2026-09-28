@@ -12,6 +12,11 @@ Qui si prova che:
 - i due box «Oggi» e «La prossima giornata» mostrano le rispettive lezioni in ordine;
 - le ore di oggi stanno in ordine, con la loro fase, e quella in corso è accesa;
   un clic apre l'ora;
+- un'ora aperta da qui porta al Registro con l'ora per soggetto, e il
+  contesto la segue: il suo corso e il filtro sulla sua classe;
+- le quattro statistiche portano alle loro pagine (piani, assenze, valutazioni);
+- il minuto che passa rifà solo le ore di oggi e le tessere: la fase «in
+  corso» si spegne senza ridisegnare la pagina;
 - le prossime valutazioni partono da oggi e un clic apre la prova;
 - i compleanni di oggi compaiono solo se ce n'è;
 - la voce «Pendenze» della barra laterale porta il suo conto.
@@ -160,6 +165,43 @@ with chromium() as browser:
         apri_oggi(page)
         vista.locator('.oggi-prova').nth(1).click()
         assert page.evaluate('[prova.stato.vista, prova.stato.valutazioneId]') == ['valutazioni', 'v-giovedi']
+
+        # L'ora di un altro corso: il Registro si apre su di lei, e il contesto
+        # (corso di lavoro, filtro per classe) passa al suo corso.
+        page.evaluate("prova.scegliCorso(prova.stato.registro.corsi[0].id)")
+        apri_oggi(page)
+        ore.nth(1).click()
+        posto = page.evaluate('prova.postoCorrente()')
+        assert posto == {'pagina': 'pagina.corso.registro', 'soggetto': {'tipo': 'lezione', 'id': 'oggi-2'}}, posto
+        corso = page.evaluate("prova.stato.registro.lezioni.find(l=>l.id==='oggi-2').corsoId")
+        assert corso == page.evaluate('prova.stato.registro.corsi[1].id')
+        assert page.evaluate('[prova.stato.contesto.corsoId, prova.stato.corsoId]') == [corso, corso]
+        classe = page.evaluate('c=>prova.stato.registro.corsi.find(x=>x.id===c).classeId', corso)
+        assert page.evaluate('prova.stato.filtroClasseId') == classe
+        assert page.evaluate('[prova.stato.lezioneId, prova.stato.data]') == ['oggi-2', '2026-09-15']
+
+        # Le statistiche portano alle pagine che esistono, non a nomi sbagliati.
+        for chiave, pagina in [('piani', 'pagina.corso.piani'), ('presenze', 'pagina.classe.assenze'),
+                               ('valutazioni', 'pagina.corso.valutazioni')]:
+            apri_oggi(page)
+            vista.locator(f'[data-fuoco="oggi-stat-{chiave}"]').click()
+            assert page.evaluate('prova.postoCorrente().pagina') == pagina, chiave
+
+        # Il minuto che passa: alle 9:56 l'ora delle 9:10 non è più in corso e si
+        # accende la prossima. Solo le isole dell'ora si rifanno: la pagina è la stessa.
+        apri_oggi(page)
+        page.evaluate("()=>{window.__vistaOggi=document.querySelector('.vista--oggi');"
+                      "window.__statistiche=document.querySelector('.oggi-scheda--statistiche')}")
+        page.clock.set_fixed_time('2026-09-15T09:56:00')
+        page.evaluate("window.dispatchEvent(new Event('focus'))")
+        page.evaluate(FRAME)
+        expect(ore.nth(1).locator('.pastiglia')).not_to_have_text('In corso')
+        assert vista.locator('.oggi-ora--evidenza').get_attribute('data-lezione') == 'oggi-3'
+        expect(tessere.nth(0).locator('.oggi-tessera__nota')).to_have_text('La prossima alle 10:15')
+        assert page.evaluate("document.querySelector('.vista--oggi')===window.__vistaOggi"), 'la pagina si è rifatta'
+        assert page.evaluate("document.querySelector('.oggi-scheda--statistiche')===window.__statistiche")
+        page.clock.set_fixed_time('2026-09-15T09:30:00')
+        page.evaluate("window.dispatchEvent(new Event('focus'))")
 
         # Senza ore oggi, la Dashboard anticipa la prossima giornata di lezione.
         page.evaluate('''()=>{

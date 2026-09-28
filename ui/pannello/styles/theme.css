@@ -68,6 +68,11 @@
      `--campo-sfondo` sta a 1,04:1 da `--sfondo`: il campo lo dice solo il bordo. */
   --bordo-forte: #76767d;
 
+  /* Il filetto attorno alla finestra, che ha la barra del titolo disegnata da
+     noi e quindi nessun bordo di sistema: stacca il foglio chiaro da quel che
+     c'è sotto, anche un'altra finestra bianca. */
+  --bordo-finestra: #9a9aa1;
+
   /* ------------------------------------------------------------- i veli
    *
    * Lo stesso colore steso sopra quel che c'è, così funziona su ogni fondo:
@@ -82,6 +87,9 @@
   --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
   /* Questa è quella scelta. */
   --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+  /* Il giorno di oggi nella settimana: fondo e filetti della striscia. */
+  --velo-oggi: color-mix(in srgb, var(--accento) 7%, transparent);
+  --filo-oggi: color-mix(in srgb, var(--accento) 40%, transparent);
 
   /* --------------------------------------------------------------- il testo */
 
@@ -175,11 +183,16 @@
     --bordo-tenue: color-mix(in srgb, var(--bordo) 55%, transparent);
     /* 3,84:1 dall'incavo del campo e 3,64:1 dalla pagina. */
     --bordo-forte: #6e6e76;
+    /* Al buio il filetto è un filo di luce: sotto c'è spesso un'altra finestra scura. */
+    --bordo-finestra: #56565e;
 
     --velo-sfiorato: color-mix(in srgb, var(--testo) 4%, transparent);
     --velo-quieto: color-mix(in srgb, var(--testo) 3%, transparent);
     --velo-accento: color-mix(in srgb, var(--accento) 12%, transparent);
     --velo-scelto: color-mix(in srgb, var(--accento) 18%, transparent);
+    /* Al buio l'accento acceso regge meno tinta di fondo, più filo. */
+    --velo-oggi: color-mix(in srgb, var(--accento) 6%, transparent);
+    --filo-oggi: color-mix(in srgb, var(--accento) 45%, transparent);
 
     --testo: #ececee;
     --testo-quieto: #a1a1a9;

@@ -138,7 +138,7 @@ describe('il registro che chiude fra lo schema e la chiamata', () => {
 
   it('esce 2, «il registro non risponde», e non 0 muto', async () => {
     const { codice, uscita, errore } = await lancia(
-      ['chiama', 'prova.eco', '--cerca', 'rossi'], { REGISTRO_CONDOTTO: finto.dove })
+      ['chiama', 'prova.eco', '--cerca', 'rossi'], finto.ambiente)
     assert.equal(codice, 2, errore)
     assert.equal(uscita, '')
     assert.match(errore, /non risponde sul condotto/)

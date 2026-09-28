@@ -57,9 +57,49 @@ const PIANO_FANTASMA = 'pia-inesistente-0001'
 const CALENDARIO = percorso.join(radice, 'orario.ics')
 /** Un altro anno, chiuso: `classi.altrove` lo legge senza aprirlo. */
 const ANNO_SCORSO = percorso.join(dati, '2025-2026.regi')
+/** L'account Microsoft collegato nel portachiavi finto. */
+const ACCOUNT = 'docente@scuola.ch'
+const fetchVero = globalThis.fetch
 
 /**
- * Le trentotto letture con un ingresso buono per ciascuna: un elenco solo,
+ * Microsoft finto: il rinnovo del gettone e le poche letture di Graph che
+ * OneDrive fa. Nella radice una cartella, un documento e un file qualunque;
+ * quel che non è Microsoft passa al `fetch` vero.
+ */
+async function grafoFinto (indirizzo, opzioni) {
+  const url = String(indirizzo)
+  const json = (corpo) => new Response(JSON.stringify(corpo), {
+    status: 200, headers: { 'content-type': 'application/json' },
+  })
+  const regi = {
+    id: 'itm-regi', name: '2026-2027.regi', size: 2048, file: {},
+    lastModifiedDateTime: '2026-09-20T10:00:00Z',
+    parentReference: { driveId: 'drv-prova', path: '/drive/root:' },
+  }
+  if (url.startsWith('https://login.microsoftonline.com/')) {
+    return json({ access_token: 'gettone-finto', expires_in: 3600 })
+  }
+  if (!url.startsWith('https://graph.microsoft.com/')) return fetchVero(indirizzo, opzioni)
+  assert.equal(opzioni?.headers?.authorization, 'Bearer gettone-finto')
+  const via = new URL(url).pathname.replace('/v1.0', '')
+  if (via === '/me/drive') return json({ id: 'drv-prova' })
+  if (via === '/me/drive/root') return json({ id: 'root', name: 'root', root: {} })
+  if (via === '/me/drive/root/children') {
+    return json({
+      value: [
+        { id: 'itm-cartella', name: 'Scuola', folder: { childCount: 2 }, parentReference: { driveId: 'drv-prova' } },
+        regi,
+        { id: 'itm-pdf', name: 'orario.pdf', size: 10, file: {} },
+      ],
+    })
+  }
+  if (via.startsWith('/me/drive/root/search(')) return json({ value: [regi] })
+  if (via === '/me/drive/sharedWithMe') return json({ value: [] })
+  return new Response(JSON.stringify({ error: { message: `non previsto: ${via}` } }), { status: 404 })
+}
+
+/**
+ * Le quarantuno letture con un ingresso buono per ciascuna: un elenco solo,
  * perché «risponde» e «non tocca niente» girino sulle stesse.
  */
 function leTutte () {
@@ -114,6 +154,9 @@ function leTutte () {
     ['classe.pendenze', { classeId: classe.id, oggi: DAL }],
     ['smistamento.daFare', { classeId: classe.id }],
     ['programma.giornale', {}],
+    // Da un Graph finto (`grafoFinto`): la rete qui non c'è.
+    ['onedrive.elenco', { account: ACCOUNT }],
+    ['onedrive.cerca', { account: ACCOUNT }],
   ]
 }
 
@@ -137,6 +180,20 @@ before(async () => {
 
   api = await import('../../dist-tests/api.mjs')
   api.registraTutte()
+
+  globalThis.fetch = grafoFinto
+  // Nessun account sincronizzato: ACCOUNT passa da Graph, qualunque sia il computer.
+  api.fissaOneDriveLocali([])
+  const segreti = new Map([
+    ['registroDocenti.microsoft.account', JSON.stringify([{ indirizzo: ACCOUNT, nome: 'Docente', tenant: 'tnt' }])],
+    [`registroDocenti.microsoft.rinnovo.${ACCOUNT}`, 'rinnovo-finto'],
+  ])
+  await api.registraPortachiaviMicrosoft({
+    get: async (chiave) => segreti.get(chiave),
+    store: async (chiave, valore) => { segreti.set(chiave, valore) },
+    delete: async (chiave) => { segreti.delete(chiave) },
+    onDidChange: () => ({ dispose () {} }),
+  })
 
   const {
     Archivio, Uri,
@@ -261,10 +318,13 @@ before(async () => {
   await archivio.salva()
 })
 
-after(() => smonta(radice, archivio))
+after(() => {
+  globalThis.fetch = fetchVero
+  return smonta(radice, archivio)
+})
 
 describe('l’elenco delle letture', () => {
-  it('sono trentanove, e la tabella di questo file è esattamente quella', () => {
+  it('sono quarantuno, e la tabella di questo file è esattamente quella', () => {
     // La tabella copre tutte le letture dichiarate: una lettura dimenticata qui
     // sfuggirebbe alle due prove che seguono.
     const dichiarate = api.procedure()
@@ -273,11 +333,11 @@ describe('l’elenco delle letture', () => {
       .sort()
     const provate = leTutte().map(([nome]) => nome).sort()
     assert.deepEqual(provate, dichiarate)
-    assert.equal(dichiarate.length, 39, `letture dichiarate: ${dichiarate.length}`)
+    assert.equal(dichiarate.length, 41, `letture dichiarate: ${dichiarate.length}`)
   })
 })
 
-describe('le trentanove letture rispondono, e nella forma che dichiarano', () => {
+describe('le quarantuno letture rispondono, e nella forma che dichiarano', () => {
   it('registro.riassunto conta l’anno, le classi, i corsi e le ore', async () => {
     const esito = await api.chiama(archivio, 'registro.riassunto', {})
     assert.equal(esito.ok, true, JSON.stringify(esito))
@@ -655,7 +715,7 @@ describe('le trentanove letture rispondono, e nella forma che dichiarano', () =>
 })
 
 describe('nessuna lettura tocca il registro', () => {
-  it('tutte e trentotto lasciano «archivio.revisione» dov’era', async () => {
+  it('tutte e quarantuno lasciano «archivio.revisione» dov’era', async () => {
     // Una per una, col nome: la prima cosa che si vuole sapere è quale ha scritto.
     const mosse = []
     for (const [nome, ingresso] of leTutte()) {
@@ -669,7 +729,7 @@ describe('nessuna lettura tocca il registro', () => {
     assert.deepEqual(mosse, [], `letture che hanno scritto:\n${mosse.join('\n')}`)
   })
 
-  it('nessuna delle trentotto letture crea o modifica file sul disco', async () => {
+  it('nessuna delle quarantuno letture crea o modifica file sul disco', async () => {
     const scansionaDisco = (dir) => {
       const risultati = []
       for (const entry of readdirSync(dir, { withFileTypes: true, recursive: true })) {
@@ -1462,3 +1522,77 @@ describe('le tre nuove letture di cantiere: cruscotto, pendenze, daFare', () => 
   })
 })
 
+
+describe('OneDrive, letto da un Graph finto', () => {
+  it('onedrive.elenco mostra cartelle e documenti, e conta soltanto gli altri file', async () => {
+    const esito = await api.chiama(archivio, 'onedrive.elenco', { account: ACCOUNT })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(esito.dati.cartella, null)
+    assert.equal(esito.dati.drive, 'drv-prova')
+    assert.deepEqual(esito.dati.voci.map((voce) => [voce.genere, voce.nome]), [
+      ['cartella', 'Scuola'],
+      ['regi', '2026-2027.regi'],
+    ])
+    assert.equal(esito.dati.altri, 1)
+  })
+
+  it('onedrive.cerca torna solo i documenti del registro', async () => {
+    const esito = await api.chiama(archivio, 'onedrive.cerca', { account: ACCOUNT })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.deepEqual(esito.dati.voci.map((voce) => voce.id), ['itm-regi'])
+  })
+
+  it('un account che non è collegato è «non disponibile», con la frase da mostrare', async () => {
+    const esito = await api.chiama(archivio, 'onedrive.elenco', { account: 'altro@scuola.ch' })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+    assert.match(esito.messaggi.join(' '), /altro@scuola\.ch/)
+  })
+})
+
+describe('OneDrive sincronizzato sul computer, senza Graph', () => {
+  const SINCRONIZZATO = 'sincronizzato@scuola.ch'
+  const personale = percorso.join(radice, 'OneDrive - Scuola')
+  const libreria = percorso.join(radice, 'Scuola', 'Classe - Documenti')
+
+  before(() => {
+    mkdirSync(percorso.join(personale, 'Classi'), { recursive: true })
+    mkdirSync(libreria, { recursive: true })
+    writeFileSync(percorso.join(personale, 'Classi', '2026-2027.regi'), 'x')
+    writeFileSync(percorso.join(personale, 'Classi', 'orario.pdf'), 'x')
+    writeFileSync(percorso.join(libreria, 'comune.regi'), 'xy')
+    api.fissaOneDriveLocali([{ indirizzo: SINCRONIZZATO, nome: 'Docente', cartelle: [personale, libreria] }])
+  })
+
+  after(() => api.fissaOneDriveLocali([]))
+
+  it('alla radice mostra le cartelle sincronizzate, e dentro i documenti', async () => {
+    const radiceLetta = await api.chiama(archivio, 'onedrive.elenco', { account: SINCRONIZZATO })
+    assert.equal(radiceLetta.ok, true, JSON.stringify(radiceLetta))
+    assert.equal(radiceLetta.dati.locale, true)
+    assert.deepEqual(radiceLetta.dati.voci.map((voce) => voce.nome), ['Classe - Documenti', 'OneDrive - Scuola'])
+
+    const classi = await api.chiama(archivio, 'onedrive.elenco', {
+      account: SINCRONIZZATO, drive: 'locale', cartella: percorso.join(personale, 'Classi'),
+    })
+    assert.equal(classi.ok, true, JSON.stringify(classi))
+    assert.deepEqual(classi.dati.voci.map((voce) => voce.nome), ['2026-2027.regi'])
+    assert.equal(classi.dati.altri, 1)
+    assert.equal(classi.dati.superiore, personale)
+  })
+
+  it('cerca in tutte le cartelle, senza chiedere niente a Microsoft', async () => {
+    const esito = await api.chiama(archivio, 'onedrive.cerca', { account: SINCRONIZZATO })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(esito.dati.locale, true)
+    assert.deepEqual(esito.dati.voci.map((voce) => voce.nome).sort(), ['2026-2027.regi', 'comune.regi'])
+  })
+
+  it('una cartella fuori da quelle sincronizzate si rifiuta', async () => {
+    const esito = await api.chiama(archivio, 'onedrive.elenco', {
+      account: SINCRONIZZATO, drive: 'locale', cartella: dati,
+    })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+  })
+})

@@ -34,14 +34,37 @@ import { notifica } from '../components/notifications.js'
 import { h, rimpiazza } from '../dom.js'
 import { azione, invia } from '../bridge.js'
 import {
-  aggiorna,
   classeDelCorsoId,
   corsiDi,
   nomeCorso,
   nomeDiPiano,
   pianiPerCorso,
+  postoCorrente,
   stato,
+  vai,
 } from '../state.js'
+
+/**
+ * Sceglie un piano, o nessuno, senza lasciare la pagina: in quella dei piani
+ * diventa quel che si guarda (senza, si torna al corso); altrove resta solo
+ * nel contesto.
+ */
+function scegliPiano (pianoId: string | null): void {
+  const qui = postoCorrente()
+  if (qui.pagina !== 'pagina.corso.piani') {
+    vai(qui, { contesto: { pianoId }, elementoChiesto: false })
+    return
+  }
+  const corsoId = stato.contesto.corsoId
+  vai(
+    pianoId
+      ? { pagina: qui.pagina, soggetto: { tipo: 'piano', id: pianoId } }
+      : corsoId
+        ? { pagina: qui.pagina, soggetto: { tipo: 'corso', id: corsoId } }
+        : { pagina: qui.pagina },
+    { contesto: { pianoId }, elementoChiesto: pianoId !== null },
+  )
+}
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
@@ -437,7 +460,7 @@ export function moduloPiano (
             await dopo(pianoId)
             return
           }
-          aggiorna({ vista: 'piani', pianoId })
+          vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: pianoId } })
         },
       )
     },
@@ -448,14 +471,14 @@ export function moduloPiano (
               contesto,
               azione: { tipo: 'piano.duplica', pianoId: editor.base.id },
               fatto: t.duplicato,
-              poi: (idCreato) => aggiorna({ pianoId: idCreato }),
+              poi: (idCreato) => scegliPiano(idCreato),
             }),
             tastoElimina({
               contesto,
               chiedi: { genere: 'piano', id: editor.base.id },
               azione: { tipo: 'piano.elimina', pianoId: editor.base.id },
               fatto: t.eliminato,
-              poi: () => aggiorna({ pianoId: null }),
+              poi: () => scegliPiano(null),
             }),
           ]
         : null,

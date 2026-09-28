@@ -41,6 +41,7 @@ import type {
 } from '../core/dominio/models.js'
 import type { Composizione } from '../core/dominio/compositions.js'
 import type { AllineamentoDaCalendario, LezioneDaCalendario } from '../core/dominio/calendar.js'
+import type { AccountMicrosoft } from '../core/dominio/onedrive.js'
 import type {
   ContenutoProiezione,
   ImpostazioniProiezione,
@@ -577,18 +578,22 @@ export type Azione =
         | 'allievo'
         | 'momento'
         | 'foto-classe'
+        | 'diario'
+        | 'corso'
     /**
-     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze),
+     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso),
      * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova).
      */
     id: string
     /**
      * Solo per la scheda dell'allievo: il corso di cui parla, perché una media fra
-     * due materie non ha senso. Vuoto solo se la classe non ha corsi.
+     * due materie non ha senso. Vuoto se la scheda è per il docente di classe.
      */
     corsoId?: string | null
     /** Solo per valutazioni e scheda dell'allievo: il periodo da guardare. */
     semestreId?: string | null
+    /** Scheda allievo dal punto di vista del docente di classe (tutte le materie). */
+    docenteDiClasse?: boolean
   }
   /**
    * Tutti i fogli di un corso in un colpo: presenze, griglia dei voti, una scheda
@@ -673,6 +678,19 @@ export type Azione =
   | { tipo: 'posta.collega' }
   /** Toglie dal portachiavi le credenziali della casella: si torna alle bozze. */
   | { tipo: 'posta.scollega' }
+  /**
+   * Collega un account Microsoft per leggere il suo OneDrive: l'indirizzo (dato,
+   * o chiesto dall'host con la casella della posta già scritta) e l'accesso dal
+   * browser. Il gettone resta nel portachiavi dell'host, mai nel webview.
+   */
+  | { tipo: 'microsoft.aggiungi'; indirizzo?: string }
+  /** Scollega un account Microsoft: toglie il suo gettone dal portachiavi. */
+  | { tipo: 'microsoft.togli'; indirizzo: string }
+  /**
+   * Apre un documento `.regi` trovato su OneDrive: il file sincronizzato sul
+   * computer se c'è, altrimenti una copia scaricata dove si sceglie.
+   */
+  | { tipo: 'onedrive.apri'; account: string; drive: string; id: string }
   | { tipo: 'sistema.messaggio'; livello: 'info' | 'avviso' | 'errore'; testo: string }
   // ------------------------------------------------------------------- mappa
   /**
@@ -1384,6 +1402,11 @@ export interface MessaggioStato {
      */
     accesso: string
   }
+  /**
+   * Gli account Microsoft: quelli collegati per OneDrive, e la casella della
+   * posta anche se non lo è ancora. Nessun gettone: solo chi e che cosa.
+   */
+  microsoft: { account: AccountMicrosoft[] }
   /** Quanti gesti si possono annullare e ripristinare: accendono ↶ ↷ e il suggerimento. */
   storia: { annulla: number; ripristina: number }
   documenti: {

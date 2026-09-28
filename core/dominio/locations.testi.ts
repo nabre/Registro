@@ -13,6 +13,9 @@ const it = {
     prove: 'Prove',
     fascicolo: 'Fascicolo',
     fotoClasse: 'Foto della classe',
+    diario: 'Diario',
+    corso: 'Corso',
+    schedaDocenteClasse: 'Scheda allievo (docente di classe)',
   },
 }
 
@@ -26,6 +29,9 @@ export const testi = catalogo(it, {
       prove: 'Prüfungen',
       fascicolo: 'Klassendossier',
       fotoClasse: 'Klassenfoto',
+      diario: 'Tagebuch',
+      corso: 'Kurs',
+      schedaDocenteClasse: 'Schülerblatt (Klassenlehrperson)',
     },
   },
   fr: {
@@ -37,6 +43,9 @@ export const testi = catalogo(it, {
       prove: 'Épreuves',
       fascicolo: 'Dossier de classe',
       fotoClasse: 'Photo de classe',
+      diario: 'Journal',
+      corso: 'Cours',
+      schedaDocenteClasse: 'Fiche élève (maître de classe)',
     },
   },
   en: {
@@ -48,6 +57,9 @@ export const testi = catalogo(it, {
       prove: 'Tests',
       fascicolo: 'Class file',
       fotoClasse: 'Class photo',
+      diario: 'Journal',
+      corso: 'Course',
+      schedaDocenteClasse: 'Student sheet (class teacher)',
     },
   },
 })

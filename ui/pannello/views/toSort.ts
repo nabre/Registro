@@ -17,7 +17,7 @@ import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/bas
 import { suggerimento } from '../components/hint.js'
 import { icona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
-import { aggiorna, classiDiCuiSonoDocente, stato } from '../state.js'
+import { classiDiCuiSonoDocente, stato, vai } from '../state.js'
 
 import { guardaNellArchivio } from './archive.js'
 import { spostaInClasse } from './sorting.js'
@@ -85,12 +85,10 @@ function quandoArrivato (smistamento: Smistamento): string {
  * classe `indiceAperto` non troverebbe il file fra le righe.
  */
 function vaiASmistare (classe: Classe, smistamento: Smistamento): void {
-  aggiorna({
-    vista: 'docenteClasse',
-    schedaDocente: 'documenti',
-    classeId: classe.id,
-    filtroClasseId: classe.id,
-  })
+  vai(
+    { pagina: 'pagina.classe.documenti', soggetto: { tipo: 'classe', id: classe.id } },
+    { contesto: { filtroClasseId: classe.id } },
+  )
   guardaNellArchivio(smistamento.file)
 }
 
@@ -195,12 +193,14 @@ export function vistaDaSmistare (): Figlio {
             testo: t.vaiArchivio,
             variante: 'primario',
             simbolo: 'documento',
-            al: () => aggiorna({ vista: 'docenteClasse', schedaDocente: 'documenti' }),
+            al: () => { vai({ pagina: 'pagina.classe.documenti' }) },
           }),
         })
       : h(
           'div',
-          { class: 'da-smistare', dataset: { scorrimento: 'da-smistare' } },
+          // Telaio: con la catena della vista la scatola che scorre resta la stessa.
+          // testo-fisso: chiavi di scorrimento e di telaio
+          { class: 'da-smistare', dataset: { scorrimento: 'da-smistare', telaio: 'da-smistare' } },
           ...tutti.map((mucchio) =>
             mucchio.classe
               ? mucchioDiClasse(mucchio, mucchio.classe, t)
