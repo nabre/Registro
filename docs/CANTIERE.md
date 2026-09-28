@@ -84,7 +84,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Prove
 
-- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/ui/*.py`), che
+- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
 - [ ] Mutation testing (Stryker, tap-runner, via `npx`): `deletions.ts` 87%,
       `calculations.ts:330-735` 97,7%. Sopravvissuti: piano eliminato senza

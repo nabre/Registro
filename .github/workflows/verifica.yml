@@ -112,38 +112,26 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-
-      # Niente `cache: 'pip'` di setup-python: vuole un requirements.txt, e
-      # playwright si installa senza. Si tiene la cartella di pip e quella dei
-      # browser; la chiave cambia con la lista delle prove, e `playwright
-      # install` scarica comunque la versione giusta se quella ripresa è vecchia.
-      - name: Cache di pip
-        uses: actions/cache@v4
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: pip-${{ runner.os }}-${{ hashFiles('tools/uiTests.mjs') }}
-          restore-keys: pip-${{ runner.os }}-
-
+      # Il Chromium che vuole la versione di @playwright/test del lockfile: la
+      # chiave cambia con il lockfile, e `playwright install` scarica comunque
+      # la revisione giusta se quella ripresa è vecchia.
       - name: Cache di Chromium
         uses: actions/cache@v4
         with:
           path: ~\AppData\Local\ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('tools/uiTests.mjs') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: playwright-${{ runner.os }}-
 
       - run: npm ci
 
+      # A più righe apposta: `tools/ci.mjs` salta le installazioni.
       - name: Playwright
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install playwright
-          python -m playwright install chromium --with-deps
+          npx playwright install chromium --with-deps
 
-      # `tools/uiTests.mjs` costruisce da sé, con `node esbuild.mjs --ui`, i
-      # bundle che le prove leggono: non serve `npm run build` prima.
+      # `tools/uiTests.mjs` costruisce da sé, con `node esbuild.mjs --ui` e
+      # `node esbuild.mjs`, i bundle e `dist/` che le prove leggono: non serve
+      # `npm run build` prima.
       - name: Prove dell'interfaccia
         run: npm run ui-tests
 

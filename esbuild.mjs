@@ -393,13 +393,14 @@ const prove = [
 ]
 
 /**
- * I bundle delle prove `tests/ui/*.py`, costruiti da `tools/uiTests.mjs`: IIFE
- * per Chromium, più il manifesto che `themeChoice.py` legge da Node. In CI
+ * I bundle delle prove `tests/interfaccia/*.spec.ts`, costruiti da `tools/uiTests.mjs`: IIFE
+ * per Chromium, più il manifesto che `themeChoice.spec.ts` legge da Node. In CI
  * girano senza `pretest`, quindi qui c'è tutto quel che leggono.
  */
 const interfaccia = [
   {
     ...comune,
+    ...conTemporal,
     sourcemap: false,
     entryPoints: ['tests/helpers/uiStartup.ts'],
     outfile: 'dist-tests/ui.js',

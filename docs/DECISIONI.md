@@ -643,7 +643,7 @@ di coalescenza.
 **Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
 `docs/API.md`.
 
-### ADR-44 — Prove d'interfaccia con Playwright Python sincrono
+### ADR-44 — Prove d'interfaccia con Playwright Python sincrono (superata)
 
 **Decisione.** I test d'interfaccia completi con browser reale (25 suite per oltre
 3'700 righe in `tests/ui/*.py`) restano scritti in Python sfruttando
@@ -668,6 +668,8 @@ tramite DOM sintetico, eseguibili direttamente con `node --test` e `npm test`.
 di sviluppo Node; Python 3 e Playwright Chromium restano gestiti esternamente via `ui-tests`.
 
 **Dove.** `tools/uiTests.mjs`, `tests/ui/*.py`, `tests/ui/*.test.mjs`.
+
+*Superata da ADR-50 (passo 5): le prove d'interfaccia sono @playwright/test in TypeScript (`tests/interfaccia/`), Python non serve più. Restano valide le prove puntuali `tests/ui/*.test.mjs` su DOM sintetico.*
 
 ### ADR-45 — Controllo degli aggiornamenti disattivato per impostazione predefinita
 

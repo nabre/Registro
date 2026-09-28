@@ -528,5 +528,6 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   (`app`, `BrowserWindow`, `ipcMain` con `simulaDallaPagina()`, due schermi,
   `safeStorage`, `nativeTheme`; stato su `globalThis.__bancoElectron`) e
   [tests/helpers/fake-node-llama.mjs](../tests/helpers/fake-node-llama.mjs)
-  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia in Python +
-  Playwright (`tests/ui/*.py`, `npm run ui-tests`).
+  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia con
+  @playwright/test (`tests/interfaccia/*.spec.ts`, `npm run ui-tests`), una con
+  Electron vero.

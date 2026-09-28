@@ -123,7 +123,7 @@ export function avanti (): boolean {
 /**
  * Aggiunge agli scorrimenti del ridisegno quelli del posto a cui si torna. Va
  * chiamata prima di `rimpiazza`, vale una volta e solo dopo un passo nella
- * fila: altrimenti una pagina si apre dall'alto (`tests/ui/scroll.py`). Rimette
+ * fila: altrimenti una pagina si apre dall'alto (`tests/interfaccia/scroll.spec.ts`). Rimette
  * solo le scatole che la pagina di adesso non ha: la barra laterale non
  * appartiene al posto e non deve saltare.
  */

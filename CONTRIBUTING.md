@@ -28,8 +28,8 @@ npm ci
 npm run dev
 ```
 
-Serve Node.js 24. Per `npm run ui-tests` servono anche Python, il pacchetto
-`playwright` e `python -m playwright install chromium`.
+Serve Node.js 24. Per `npm run ui-tests` serve anche il Chromium di Playwright:
+`npx playwright install chromium`.
 
 ## Orientarsi
 
