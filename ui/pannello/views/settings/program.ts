@@ -20,7 +20,7 @@ import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { azione } from '../../bridge.js'
-import { stato } from '../../state.js'
+import { stato, vai } from '../../state.js'
 import { sceltaConFigure } from './figures.js'
 import {
   avanzateDiSezione,
@@ -66,7 +66,7 @@ function comeSiLegge (voce: VoceProgramma, valore: string | number | boolean): s
  * quando il padre si riaccende, ma una casella spuntata sotto un interruttore
  * spento direbbe concesso quel che non lo è.
  */
-function controllo (voce: VoceProgramma, spenta: boolean): Figlio {
+function controllo (voce: VoceProgramma, spenta: boolean, aiModelli: () => void): Figlio {
   if (voce.tipo === 'boolean') {
     const acceso = Boolean(voce.valore) && !spenta
     return campo({
@@ -125,6 +125,8 @@ function controllo (voce: VoceProgramma, spenta: boolean): Figlio {
     return campoPercorso(voce, spenta)
   }
 
+  if (voce.formato === 'modello') return campoModello(voce, aiModelli)
+
   return campo({
     nome: voce.chiave,
     tipo: voce.formato === 'email' ? 'email' : 'text',
@@ -172,6 +174,40 @@ function campoPercorso (voce: VoceProgramma, spenta: boolean): Figlio {
   )
 }
 
+/**
+ * Un modello: il nome del file si legge e basta. Si sceglie fra quelli
+ * scaricati, nella sezione dei modelli: battuto a mano sarebbe un nome che la
+ * cartella forse non ha.
+ */
+function campoModello (voce: VoceProgramma, aiModelli: () => void): Figlio {
+  const t = testi()
+  const scritto = String(voce.valore ?? '').trim()
+  return h(
+    'div',
+    { class: 'campo-percorso' },
+    h(
+      'span',
+      {
+        class: ['campo-percorso__valore', scritto === '' && 'campo-percorso__valore--vuoto'],
+        attr: { title: scritto || null },
+      },
+      scritto || t.nessunModello,
+    ),
+    pulsante({
+      testo: t.scegliModello,
+      simbolo: 'bot',
+      variante: 'sottile',
+      titolo: t.scegliModelloAiuto,
+      al: aiModelli,
+    }),
+  )
+}
+
+/** Il rimando di serie alla sezione dei modelli; chi ha un filtro aperto passa il suo. */
+function apriModelli (): void {
+  vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
+}
+
 async function sfoglia (chiave: string): Promise<void> {
   await azione({ tipo: 'programma.sfoglia', chiave })
 }
@@ -179,8 +215,12 @@ async function sfoglia (chiave: string): Promise<void> {
 /**
  * Una riga di impostazione: che cos'è, com'è adesso, e da dove viene il valore.
  * La chiave resta scritta in piccolo: è quella dei messaggi d'errore e della guida.
+ * `aiModelli` porta alla sezione dei modelli: il filtro passa il suo, che si svuota.
  */
-export function vociProgramma (voce: VoceProgramma): HTMLElement {
+export function vociProgramma (
+  voce: VoceProgramma,
+  aiModelli: () => void = apriModelli,
+): HTMLElement {
   // Già decisa da chi ha costruito l'elenco, con la stessa regola della finestra nativa.
   const spenta = voce.sospesa
   // Un interruttore a cui manca quel che richiede arriva spento e non si
@@ -190,11 +230,9 @@ export function vociProgramma (voce: VoceProgramma): HTMLElement {
   return h(
     'div',
     {
-      class: [
-        'voce-opzione',
-        voce.scritta && 'voce-opzione--scritta',
-        spenta && 'voce-opzione--sospesa',
-      ],
+      // Una voce decisa a mano non si evidenzia: cambiare un'impostazione è
+      // normale, non un avviso. Lo dice la pastiglia, con il tono delle altre.
+      class: ['voce-opzione', spenta && 'voce-opzione--sospesa'],
     },
     h(
       'div',
@@ -216,7 +254,7 @@ export function vociProgramma (voce: VoceProgramma): HTMLElement {
       bloccata && !spenta ? pastiglia(t.nonSiAccende, 'attenzione') : null,
       // Modificata: si dice anche il predefinito, per decidere se ritirarla.
       voce.scritta
-        ? pastiglia(t.modificata(comeSiLegge(voce, voce.predefinito)), 'attenzione')
+        ? pastiglia(t.modificata(comeSiLegge(voce, voce.predefinito)), 'quiete')
         : pastiglia(t.predefinito(comeSiLegge(voce, voce.valore)), 'quiete'),
       h('code', { class: 'voce-opzione__chiave' }, voce.chiave),
       voce.scritta
@@ -229,7 +267,7 @@ export function vociProgramma (voce: VoceProgramma): HTMLElement {
           })
         : null,
     ),
-    h('div', { class: 'voce-opzione__campo' }, controllo(voce, spenta || bloccata !== null)),
+    h('div', { class: 'voce-opzione__campo' }, controllo(voce, spenta || bloccata !== null, aiModelli)),
     bloccata && !spenta ? h('p', { class: 'voce-opzione__aiuto' }, bloccata) : null,
   )
 }
@@ -307,7 +345,7 @@ function disegnaAvanzate (sezione: SezioneProgramma, voci: VoceProgramma[]): Fig
     h(
       'summary',
       { class: 'gruppo-opzioni__titolo' },
-      testi().giaInstallati(voci.length),
+      testi().avanzate(voci.length),
     ),
     h('div', { class: 'voci-opzioni' }, ...voci.map((voce) => vociProgramma(voce))),
   )

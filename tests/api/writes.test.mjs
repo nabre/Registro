@@ -381,6 +381,25 @@ describe('le carte intestate stanno nel documento, e ogni corso ne ha una', () =
     assert.deepEqual(intestazione.carte[1].corsi, [uno])
   })
 
+  it('un salvataggio senza le parti del nome non le cancella, se il nome non cambia', async () => {
+    const carteAdesso = carte().map(({ id, sede, altezzaLogo, corsi }) => ({ id, sede, altezzaLogo, corsi }))
+    const salva = (intestazione) => api.chiama(archivio, 'impostazioni.salva', {
+      impostazioni: { ...senzaIntestazione(), intestazione: { carte: carteAdesso, ...intestazione } },
+    })
+    await salva({ docente: 'Prof. Mario Rossi', docenteAppellativo: 'Prof.', docenteNome: 'Mario', docenteCognome: 'Rossi' })
+    // Come la scala dei voti: rimanda il nome completo e basta.
+    assert.equal((await salva({ docente: 'Prof. Mario Rossi' })).ok, true)
+    let intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+    assert.equal(intestazione.docenteAppellativo, 'Prof.')
+    // Il nome scritto a mano diverso: le parti vecchie non valgono più.
+    assert.equal((await salva({ docente: 'Anna Bianchi' })).ok, true)
+    intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docente, 'Anna Bianchi')
+    assert.equal(intestazione.docenteNome, undefined)
+  })
+
   it('un corso che la pagina non manda finisce sulla prima carta', async () => {
     const intestazione = structuredClone(archivio.registro.impostazioni.intestazione)
     const tolto = intestazione.carte[1].corsi[0]

@@ -15,7 +15,7 @@ import {
   stessoIndirizzo,
 } from '../dominio/mailbox.js'
 import { componiEml, schiacciaNome, type MessaggioPosta } from '../dominio/communications.js'
-import { casella, scriviCasella, type Casella } from './mailbox.js'
+import { casella, scriviCasella } from './mailbox.js'
 import { apriConIlSistema } from './opening.js'
 import { nomeFileArchivio } from './filing.js'
 import {
@@ -412,72 +412,46 @@ export async function inviaProva (firma: string): Promise<StatoPosta | null> {
 
 // ------------------------------------------------------------------ collegare l'account
 
-/** I due modi di entrare, come si presentano a chi deve sceglierne uno. */
-function modi () {
-  const t = testi()
-  return [
-    {
-      label: t.modoOauth,
-      description: t.modoOauthNota,
-      detail: t.modoOauthDettaglio,
-      modo: 'oauth' as const,
-    },
-    {
-      label: t.modoPassword,
-      detail: t.modoPasswordDettaglio,
-      modo: 'password' as const,
-    },
-  ]
-}
-
 /**
- * Collega la casella: si sceglie come entrare, si prova, e la chiave resta nel
- * portachiavi del sistema solo se Exchange accetta. Nelle impostazioni va solo
- * l'indirizzo, che non è un segreto.
+ * Collega la casella: si chiede solo con che account si entra; il mittente si
+ * sceglie fra gli indirizzi che Microsoft dice di quell'account. Il gettone
+ * resta nel portachiavi solo se Exchange accetta; nelle impostazioni vanno i due
+ * indirizzi, che non sono segreti.
  */
 export async function collegaAccount (): Promise<StatoPosta | null> {
   const t = testi()
   const prima = casella()
 
-  // Prima l'indirizzo da cui si scrive, poi il nome d'accesso già riempito con
-  // lo stesso: nelle scuole spesso differiscono (sigla contro indirizzo).
-  const scrive = await apparato.dialoghi.chiediTesto({
+  const entra = (await apparato.dialoghi.chiediTesto({
     title: t.titoloCollega,
-    prompt: t.domandaMittente,
-    value: prima?.mittente ?? '',
-    validateInput: (scritto: string) => (sembraIndirizzo(scritto) ? null : t.serveIndirizzo),
-  })
-  if (!scrive) return null
-
-  const entra = await apparato.dialoghi.chiediTesto({
-    title: t.titoloAccesso,
     prompt: t.domandaAccesso,
-    value: prima && !stessoIndirizzo(prima.accesso, prima.mittente) ? prima.accesso : scrive.trim(),
+    value: prima?.accesso ?? '',
     validateInput: (scritto: string) => (sembraIndirizzo(scritto) ? null : t.serveAccesso),
-  })
+  }))?.trim()
   if (!entra) return null
 
-  const suo = componiCasella(entra, scrive)
-  if (!suo) return null
+  const dato = await collegaConOauth(entra)
+  if (!dato.ok) return nonCollegato(dato.errore)
 
-  const scelto = await apparato.dialoghi.chiediScelta(modi(), {
-    title: t.titoloModo(descriviCasella(suo)),
-    placeHolder: t.domandaModo,
-  })
-  if (!scelto) return null
-
-  // Scritta prima della prova: da lì la leggono il collegamento a Microsoft
-  // (che dal dominio trova l'organizzazione) e la prova sul server.
+  const scrive = await scegliMittente(dato.indirizzi ?? [], prima?.mittente ?? '', entra)
+  if (!scrive) {
+    // Chiuso senza scegliere: niente collegamento a metà.
+    await dimenticaOauth()
+    return null
+  }
+  const suo = componiCasella(entra, scrive) ?? { accesso: entra, mittente: entra }
+  // Scritta prima della prova: da lì la legge il server.
   await scriviCasella(suo)
 
-  const esito = await collegaConMicrosoft(suo)
+  const esito = await apparato.dialoghi.conAvanzamento(
+    { title: t.provoAEntrare },
+    async () => await provaExchange(),
+  )
   if (!esito.ok) {
-    return {
-      collegato: false,
-      casella: '',
-      livello: 'errore',
-      testo: t.accountNonCollegato(esito.errore ?? t.nessunaSpiegazione),
-    }
+    // Il gettone è già nel portachiavi: se il server lo rifiuta si dimentica,
+    // altrimenti `puoSpedire()` direbbe «collegato» a un account non valido.
+    await dimenticaOauth()
+    return nonCollegato(esito.errore)
   }
 
   return {
@@ -490,25 +464,44 @@ export async function collegaAccount (): Promise<StatoPosta | null> {
   }
 }
 
-/**
- * Accesso a Microsoft e poi prova sul server: il gettone può esserci e il
- * server rifiutarlo lo stesso (SMTP spento dall'amministratore).
- */
-async function collegaConMicrosoft (
-  suo: Casella,
-): Promise<{ ok: boolean, dove?: string, errore?: string }> {
-  const dato = await collegaConOauth(suo)
-  if (!dato.ok) return { ok: false, errore: dato.errore }
+function nonCollegato (errore: string | undefined): StatoPosta {
+  const t = testi()
+  return {
+    collegato: false,
+    casella: '',
+    livello: 'errore',
+    testo: t.accountNonCollegato(errore ?? t.nessunaSpiegazione),
+  }
+}
 
-  const esito = await apparato.dialoghi.conAvanzamento(
-    { title: testi().provoAEntrare },
-    async () => await provaExchange(),
+/**
+ * Il mittente, fra gli indirizzi dell'account: uno solo si prende senza
+ * chiedere. `null` se si chiude la scelta.
+ */
+async function scegliMittente (
+  indirizzi: readonly string[],
+  prima: string,
+  accesso: string,
+): Promise<string | null> {
+  const t = testi()
+  const elenco = indirizzi.length > 0 ? indirizzi : [accesso]
+  if (elenco.length === 1) return elenco[0]
+
+  const scelta = await apparato.dialoghi.chiediScelta(
+    elenco.map((indirizzo, posto) => ({
+      label: indirizzo,
+      description: [
+        posto === 0
+          ? t.principale
+          : stessoIndirizzo(indirizzo, accesso) ? t.nomeDiAccesso : t.alias,
+        stessoIndirizzo(indirizzo, prima) ? t.inUso : '',
+      ].filter(Boolean).join(' · '),
+      picked: stessoIndirizzo(indirizzo, prima),
+      indirizzo,
+    })),
+    { title: t.titoloMittente, placeHolder: t.domandaMittente },
   )
-  if (esito.ok) return { ok: true, dove: esito.dove }
-  // Il gettone è già nel portachiavi: se il server lo rifiuta si dimentica,
-  // altrimenti `puoSpedire()` direbbe «collegato» a un account non valido.
-  await dimenticaOauth()
-  return { ok: false, errore: esito.errore }
+  return scelta?.indirizzo ?? null
 }
 
 /** Le voci di `registroDocenti.posta` che si azzerano. */

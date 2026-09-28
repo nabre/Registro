@@ -48,24 +48,17 @@ const it = {
     `Prova spedita a ${a}: ${server} l’ha presa in carico. Se non ` +
     'arriva entro qualche minuto, guarda nella posta indesiderata di chi la riceve — da qui ' +
     'in poi il registro non la vede più.',
-  modoOauth: 'Account Microsoft, con il codice',
-  modoOauthNota: 'da provare per primo',
-  modoOauthDettaglio:
-    'La pagina di Microsoft aperta da qualunque browser, anche dal telefono. Non c’è niente da ' +
-    'registrare: il registro si presenta con un’applicazione pubblica di Microsoft.',
-  modoPassword: 'Password per le app',
-  modoPasswordDettaglio:
-    'Una password generata dal profilo Microsoft, valida solo per questo. Funziona senza ' +
-    'registrare niente, ma il tenant può averla disattivata.',
   titoloCollega: 'Regiklass — collega la casella',
-  domandaMittente: 'L’indirizzo da cui si scrive, quello che le famiglie vedono: per esempio nome.cognome@edu.ti.ch',
-  titoloAccesso: 'Regiklass — con che nome si entra',
   domandaAccesso:
-    'Il nome con cui si entra nella casella, se è diverso dall’indirizzo: alla scuola è la ' +
-    'sigla, per esempio xxx000@edu.ti.ch. Lascialo uguale all’indirizzo se non ne hai una.',
+    'Con che account entri nella posta della scuola? Il nome di accesso, per esempio ' +
+    'xxx000@edu.ti.ch: l’indirizzo da cui scrivi lo scegli dopo, fra quelli dell’account.',
   serveAccesso: 'Ci vuole un nome di accesso nella forma di un indirizzo.',
-  titoloModo: (casella: string) => `Regiklass — come entrare in ${casella}`,
-  domandaModo: 'Come vuoi collegare la casella?',
+  titoloMittente: 'Regiklass — da che indirizzo scrivi',
+  domandaMittente: 'L’indirizzo che le famiglie vedono in «Da», fra quelli del tuo account',
+  principale: 'indirizzo principale',
+  alias: 'alias',
+  nomeDiAccesso: 'nome di accesso',
+  inUso: 'in uso adesso',
   accountNonCollegato: (motivo: string) => `Account non collegato. ${motivo}`,
   accountCollegato: (casella: string, dove: string) => `Account collegato: ${casella}, consegna a ${dove}. `,
   daAccendere:
@@ -127,26 +120,18 @@ export const testi = catalogo(it, {
       `Test an ${a} gesendet: ${server} hat ihn übernommen. Kommt er nicht innert einiger ` +
       'Minuten an, schau im Spam-Ordner der empfangenden Person nach — ab hier sieht das ' +
       'Klassenbuch ihn nicht mehr.',
-    modoOauth: 'Microsoft-Konto, mit dem Code',
-    modoOauthNota: 'zuerst ausprobieren',
-    modoOauthDettaglio:
-      'Die Seite von Microsoft, in einem beliebigen Browser geöffnet, auch auf dem Telefon. Es muss ' +
-      'nichts registriert werden: Das Klassenbuch meldet sich mit einer öffentlichen Anwendung von ' +
-      'Microsoft an.',
-    modoPassword: 'App-Kennwort',
-    modoPasswordDettaglio:
-      'Ein Kennwort, das im Microsoft-Profil erzeugt wird und nur dafür gilt. Es funktioniert, ' +
-      'ohne etwas zu registrieren, aber der Tenant kann es deaktiviert haben.',
     titoloCollega: 'Regiklass — Postfach verbinden',
-    domandaMittente: 'Die Adresse, von der du schreibst und die die Familien sehen: zum Beispiel vorname.name@edu.ti.ch',
-    titoloAccesso: 'Regiklass — mit welchem Namen du dich anmeldest',
     domandaAccesso:
-      'Der Name, mit dem du dich im Postfach anmeldest, wenn er sich von der Adresse unterscheidet: ' +
-      'an der Schule ist es das Kürzel, zum Beispiel xxx000@edu.ti.ch. Lass die Adresse ' +
-      'stehen, wenn du keines hast.',
+      'Mit welchem Konto meldest du dich bei der Mail der Schule an? Der Anmeldename, zum ' +
+      'Beispiel xxx000@edu.ti.ch: Die Adresse, von der du schreibst, wählst du danach unter ' +
+      'denen des Kontos.',
     serveAccesso: 'Es braucht einen Anmeldenamen in Form einer Adresse.',
-    titoloModo: (casella) => `Regiklass — wie du dich bei ${casella} anmeldest`,
-    domandaModo: 'Wie möchtest du das Postfach verbinden?',
+    titoloMittente: 'Regiklass — von welcher Adresse du schreibst',
+    domandaMittente: 'Die Adresse, die die Familien unter «Von» sehen, unter denen deines Kontos',
+    principale: 'Hauptadresse',
+    alias: 'Alias',
+    nomeDiAccesso: 'Anmeldename',
+    inUso: 'jetzt in Gebrauch',
     accountNonCollegato: (motivo) => `Konto nicht verbunden. ${motivo}`,
     accountCollegato: (casella, dove) => `Konto verbunden: ${casella}, Zustellung an ${dove}. `,
     daAccendere:
@@ -207,25 +192,18 @@ export const testi = catalogo(it, {
       `Test envoyé à ${a} : ${server} l’a pris en charge. S’il n’arrive pas d’ici quelques ` +
       'minutes, regarde dans les indésirables de la personne qui le reçoit — à partir d’ici, le ' +
       'registre ne le voit plus.',
-    modoOauth: 'Compte Microsoft, avec le code',
-    modoOauthNota: 'à essayer en premier',
-    modoOauthDettaglio:
-      'La page de Microsoft ouverte depuis n’importe quel navigateur, même sur le téléphone. Aucune ' +
-      'inscription n’est nécessaire : le registre se présente avec une application publique de Microsoft.',
-    modoPassword: 'Mot de passe d’application',
-    modoPasswordDettaglio:
-      'Un mot de passe généré depuis le profil Microsoft, valable seulement pour cela. Il ' +
-      'fonctionne sans rien inscrire, mais le tenant peut l’avoir désactivé.',
     titoloCollega: 'Regiklass — connecter la boîte aux lettres',
-    domandaMittente:
-      'L’adresse depuis laquelle tu écris, celle que les familles voient : par exemple prenom.nom@edu.ti.ch',
-    titoloAccesso: 'Regiklass — avec quel nom tu te connectes',
     domandaAccesso:
-      'Le nom avec lequel tu te connectes à la boîte aux lettres, s’il est différent de l’adresse : à ' +
-      'l’école, c’est le sigle, par exemple xxx000@edu.ti.ch. Laisse l’adresse si tu n’en as pas.',
+      'Avec quel compte te connectes-tu à la messagerie de l’école ? Le nom de connexion, par ' +
+      'exemple xxx000@edu.ti.ch : l’adresse depuis laquelle tu écris se choisit ensuite, parmi ' +
+      'celles du compte.',
     serveAccesso: 'Il faut un nom de connexion sous la forme d’une adresse.',
-    titoloModo: (casella) => `Regiklass — comment te connecter à ${casella}`,
-    domandaModo: 'Comment veux-tu connecter la boîte aux lettres ?',
+    titoloMittente: 'Regiklass — depuis quelle adresse tu écris',
+    domandaMittente: 'L’adresse que les familles voient dans « De », parmi celles de ton compte',
+    principale: 'adresse principale',
+    alias: 'alias',
+    nomeDiAccesso: 'nom de connexion',
+    inUso: 'utilisée maintenant',
     accountNonCollegato: (motivo) => `Compte non connecté. ${motivo}`,
     accountCollegato: (casella, dove) => `Compte connecté : ${casella}, remise à ${dove}. `,
     daAccendere:
@@ -282,24 +260,18 @@ export const testi = catalogo(it, {
     provaSpedita: (a, server) =>
       `Test sent to ${a}: ${server} has taken it on. If it does not arrive within a few minutes, ` +
       'look in the recipient’s junk mail — from here on the register can no longer see it.',
-    modoOauth: 'Microsoft account, with the code',
-    modoOauthNota: 'try this first',
-    modoOauthDettaglio:
-      'The Microsoft page, opened from any browser, even on your phone. There is nothing to ' +
-      'register: the register presents itself with a public Microsoft application.',
-    modoPassword: 'App password',
-    modoPasswordDettaglio:
-      'A password generated from the Microsoft profile, valid only for this. It works without ' +
-      'registering anything, but the tenant may have switched it off.',
     titoloCollega: 'Regiklass — connect the mailbox',
-    domandaMittente: 'The address you write from, the one families see: for example firstname.surname@edu.ti.ch',
-    titoloAccesso: 'Regiklass — which name to sign in with',
     domandaAccesso:
-      'The name you sign in to the mailbox with, if it differs from the address: at school it is ' +
-      'your code, for example xxx000@edu.ti.ch. Leave it the same as the address if you do not have one.',
+      'Which account do you sign in to the school mail with? The sign-in name, for example ' +
+      'xxx000@edu.ti.ch: you choose the address you write from afterwards, among the ' +
+      'account’s addresses.',
     serveAccesso: 'A sign-in name in the form of an address is needed.',
-    titoloModo: (casella) => `Regiklass — how to sign in to ${casella}`,
-    domandaModo: 'How do you want to connect the mailbox?',
+    titoloMittente: 'Regiklass — which address you write from',
+    domandaMittente: 'The address families see in “From”, among those of your account',
+    principale: 'primary address',
+    alias: 'alias',
+    nomeDiAccesso: 'sign-in name',
+    inUso: 'in use now',
     accountNonCollegato: (motivo) => `Account not connected. ${motivo}`,
     accountCollegato: (casella, dove) => `Account connected: ${casella}, delivering to ${dove}. `,
     daAccendere:

@@ -135,7 +135,8 @@ const it: TestiManifesto = {
         'L’indirizzo da cui si scrive, quello che le famiglie vedono in «Da» e a cui rispondono: per ' +
         'esempio nome.cognome@edu.ti.ch. Non è una credenziale. Vale in tutti e due i casi — il ' +
         'server e il file .eml — e serve anche perché una comunicazione tutta in copia nascosta ' +
-        'abbia qualcuno nel campo «A». Vuoto vuol dire «lo stesso del nome di accesso».',
+        'abbia qualcuno nel campo «A». Vuoto vuol dire «lo stesso del nome di accesso». Non si ' +
+        'scrive a mano: si sceglie nella scheda Posta fra gli indirizzi dell’account collegato.',
     },
     'registroDocenti.posta.utente': {
       etichetta: 'Nome di accesso',
@@ -143,7 +144,8 @@ const it: TestiManifesto = {
         'Il nome con cui il registro entra nella casella: nel tenant di una scuola è la sigla che dà ' +
         'l’amministrazione, per esempio xxx000@edu.ti.ch, diversa dall’indirizzo con nome e cognome. ' +
         'Vuoto vuol dire «lo stesso del mittente». Quel che apre la casella non sta qui — sta nel ' +
-        'portachiavi del sistema, e ce lo mette il comando «Collega la casella di posta».',
+        'portachiavi del sistema, e ce lo mette il comando «Collega la casella di posta», che ' +
+        'chiede anche questo nome: la scheda Posta lo mostra.',
     },
     'registroDocenti.posta.invioDiretto': {
       etichetta: 'Spedisci senza bozza',
@@ -438,7 +440,8 @@ export const testi = catalogo(it, {
           'antworten: zum Beispiel vorname.nachname@edu.ti.ch. Mit der Anmeldung hat sie nichts zu tun. ' +
           'Sie gilt in beiden Fällen — Server und .eml-Datei — und sorgt auch dafür, dass eine ' +
           'Mitteilung ganz in Blindkopie jemanden im Feld «An» hat. Leer heisst «gleich wie der ' +
-          'Anmeldename».',
+          'Anmeldename». Man schreibt sie nicht von Hand: Sie wird in der Karte E-Mail unter den ' +
+          'Adressen des verbundenen Kontos gewählt.',
       },
       'registroDocenti.posta.utente': {
         etichetta: 'Anmeldename',
@@ -447,7 +450,7 @@ export const testi = catalogo(it, {
           'Kürzel der Verwaltung, zum Beispiel xxx000@edu.ti.ch, anders als die Adresse mit Vor- und ' +
           'Nachnamen. Leer heisst «gleich wie der Absender». Was das Postfach öffnet, steht nicht ' +
           'hier — es liegt im Schlüsselbund des Systems, und dort legt es der Befehl «Postfach ' +
-          'verbinden» ab.',
+          'verbinden» ab, der auch nach diesem Namen fragt: Die Karte E-Mail zeigt ihn.',
       },
       'registroDocenti.posta.invioDiretto': {
         etichetta: 'Ohne Entwurf senden',
@@ -742,7 +745,8 @@ export const testi = catalogo(it, {
           'elles répondent : par exemple prenom.nom@edu.ti.ch. Ce n’est pas une donnée de connexion. Elle ' +
           'vaut dans les deux cas — le serveur et le fichier .eml — et sert aussi à ce qu’une ' +
           'communication entièrement en copie cachée ait quelqu’un dans le champ « À ». Vide ' +
-          'signifie « le même que le nom d’utilisateur ».',
+          'signifie « le même que le nom d’utilisateur ». Elle ne s’écrit pas à la main : elle se ' +
+          'choisit dans la carte Messagerie parmi les adresses du compte connecté.',
       },
       'registroDocenti.posta.utente': {
         etichetta: 'Nom d’utilisateur',
@@ -751,7 +755,8 @@ export const testi = catalogo(it, {
           'le code attribué par l’administration, par exemple xxx000@edu.ti.ch, différent de ' +
           'l’adresse avec prénom et nom. Vide signifie « le même que l’expéditeur ». Ce qui ouvre ' +
           'la boîte n’est pas ici — c’est dans le trousseau du système, où le place la commande ' +
-          '« Connecter la boîte aux lettres ».',
+          '« Connecter la boîte aux lettres », qui demande aussi ce nom : la carte Messagerie le ' +
+          'montre.',
       },
       'registroDocenti.posta.invioDiretto': {
         etichetta: 'Envoyer sans brouillon',
@@ -1050,7 +1055,8 @@ export const testi = catalogo(it, {
           'The address you write from, the one families see in “From” and reply to: for example ' +
           'firstname.lastname@edu.ti.ch. It is not a credential. It applies in both cases — the ' +
           'server and the .eml file — and also makes sure a message sent entirely in blind copy has ' +
-          'someone in the “To” field. Empty means “the same as the sign-in name”.',
+          'someone in the “To” field. Empty means “the same as the sign-in name”. It is not typed ' +
+          'by hand: it is chosen in the Mail card among the connected account’s addresses.',
       },
       'registroDocenti.posta.utente': {
         etichetta: 'Sign-in name',
@@ -1059,7 +1065,7 @@ export const testi = catalogo(it, {
           'given by the administration, for example xxx000@edu.ti.ch, different from the address ' +
           'with first and last name. Empty means “the same as the sender”. What opens the mailbox ' +
           'is not here — it is in the system keychain, where the “Connect the mailbox” command ' +
-          'puts it.',
+          'puts it, which also asks for this name: the Mail card shows it.',
       },
       'registroDocenti.posta.invioDiretto': {
         etichetta: 'Send without a draft',

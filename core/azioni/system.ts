@@ -23,7 +23,7 @@ import {
 } from '../dominio/contacts.js'
 import { apriConOutlook } from '../dati/outlook.js'
 import { etichettaSemestre, nelSemestre, oraValida } from '../dominio/dates.js'
-import type { Registro } from '../dominio/models.js'
+import type { Intestazione, Registro } from '../dominio/models.js'
 import type { ImpostazioniDaSalvare } from '../../contract/protocollo.js'
 import { riparazioni } from '../dominio/repairs.js'
 import { conCarteComplete, normalizzaImpostazioni } from '../dominio/normalization.js'
@@ -48,6 +48,23 @@ function percorsoCsv (
 /** Un'impostazione dei recapiti: con che cosa si chiama, con che cosa si scrive. */
 function scelta (chiave: 'telefono' | 'posta'): string | undefined {
   return apparato.impostazioni.leggi('registroDocenti.recapiti').get<string>(chiave)
+}
+
+/**
+ * Appellativo, nome e cognome di prima, quando chi salva non li manda e non ha
+ * cambiato il nome completo: si salva l'intestazione intera, e un ritocco di
+ * un'altra impostazione non deve cancellarli.
+ */
+function partiDelNome (
+  attuale: Intestazione,
+  nuova: { docente?: string },
+): Pick<Intestazione, 'docenteAppellativo' | 'docenteNome' | 'docenteCognome'> {
+  if ((nuova.docente ?? '').trim() !== attuale.docente.trim()) return {}
+  return {
+    ...(attuale.docenteAppellativo ? { docenteAppellativo: attuale.docenteAppellativo } : {}),
+    ...(attuale.docenteNome ? { docenteNome: attuale.docenteNome } : {}),
+    ...(attuale.docenteCognome ? { docenteCognome: attuale.docenteCognome } : {}),
+  }
 }
 
 /**
@@ -119,6 +136,7 @@ export const sistema = {
         ...azione.impostazioni,
         intestazione: nuova
           ? {
+              ...partiDelNome(attuale, nuova),
               ...nuova,
               carte: nuova.carte.map((c) => ({ ...c, logo: loghi.get(c.id) })),
               vecchiaCartellaVista: attuale.vecchiaCartellaVista,

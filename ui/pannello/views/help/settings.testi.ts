@@ -164,11 +164,12 @@ const it = {
           'l’accensione viene rifiutata, e togliendo il modello l’interruttore si spegne.',
       },
       {
-        termine: 'Programmi già installati',
+        termine: 'Avanzate',
         testo:
-          'Un gruppo chiuso in fondo a **Modelli linguistici**, con il numero delle voci: ' +
-          '**Programma llama-mtmd-cli** e **Indirizzo di voicebox**, che si toccano di rado. ' +
-          'Si apre da sé se dentro c’è qualcosa di modificato.',
+          'Un gruppo chiuso in fondo alla sezione, con il numero delle voci che si toccano di ' +
+          'rado: in **Modelli linguistici** **Programma llama-mtmd-cli** e **Indirizzo di ' +
+          'voicebox**. Si apre da sé se dentro c’è qualcosa di modificato. La finestra ' +
+          '**Impostazioni del programma…** le tiene allo stesso modo, in fondo a ogni gruppo.',
       },
       {
         termine: 'Quando valgono',
@@ -603,7 +604,7 @@ const it = {
       'sole, e con che firma.',
     scritte: {
       collega: 'Collega la casella',
-      chiedeIndirizzo: 'chiede l’indirizzo',
+      chiedeIndirizzo: 'chiede l’account',
       accessoNelBrowser: 'accesso nel browser',
       portachiavi: 'Portachiavi',
       gettone: 'il gettone',
@@ -633,12 +634,13 @@ const it = {
     ],
     voci: [
       {
-        termine: 'Indirizzo del mittente e nome di accesso',
+        termine: 'Account e mittente',
         testo:
-          '**Indirizzo del mittente**: quello che le famiglie vedono in «Da». **Nome di ' +
-          'accesso**: il nome con cui si entra, nelle scuole spesso una sigla come ' +
-          '`xxx000@edu.ti.ch`. Vuoto, ognuno vale l’altro; quando sono diversi, la scheda li ' +
-          'mostra tutti e due.',
+          '**Collega la casella** chiede solo l’**Account**, il nome con cui si entra (nelle ' +
+          'scuole spesso una sigla come `xxx000@edu.ti.ch`). Dopo l’accesso si sceglie il ' +
+          '**Mittente**, quello che le famiglie vedono in «Da», fra gli indirizzi che Microsoft ' +
+          'dice di quell’account; si cambia poi dal menu della scheda, senza ricollegare. Non ' +
+          'si scrivono a mano: la scheda li mostra, con server, porta e modo di accesso.',
       },
       {
         termine: 'Prova il collegamento',
@@ -696,9 +698,8 @@ const it = {
         'casella. Il prezzo: niente bozze sul server e niente copia in «Posta inviata».',
       'Se l’accesso a Microsoft riesce ma il server rifiuta, può darsi che la scuola tenga ' +
         'spento l’invio autenticato (SMTP AUTH) sulla casella: lo riaccende l’amministratore. ' +
-        'Indirizzo del mittente e nome di accesso scambiati danno invece `5.7.60`: il ' +
-        'permesso di spedire come un ' +
-        'altro.',
+        'Un mittente che la scuola non lascia usare (un alias, di solito) dà invece `5.7.60`: il ' +
+        'permesso di spedire come un altro. Si torna all’indirizzo principale dal menu.',
     ],
   },
   onedrive: {
@@ -1062,11 +1063,12 @@ export const testi = catalogo(it, {
             'sich der Schalter aus.',
         },
         {
-          termine: 'Bereits installierte Programme',
+          termine: 'Erweitert',
           testo:
-            'Eine zugeklappte Gruppe ganz unten in **Sprachmodelle**, mit der Zahl der ' +
-            'Einträge: **Programm llama-mtmd-cli** und **Adresse von voicebox**, die man selten ' +
-            'anfasst. Sie klappt von selbst auf, wenn darin etwas geändert ist.',
+            'Eine zugeklappte Gruppe ganz unten im Bereich, mit der Zahl der Einträge, die man ' +
+            'selten anfasst: in **Sprachmodelle** **Programm llama-mtmd-cli** und **Adresse von ' +
+            'voicebox**. Sie klappt von selbst auf, wenn darin etwas geändert ist. Das Fenster ' +
+            '**Programmeinstellungen…** hält sie genauso, ganz unten in jeder Gruppe.',
         },
         {
           termine: 'Wann sie gelten',
@@ -1529,7 +1531,7 @@ export const testi = catalogo(it, {
         'selbst abgehen, und mit welcher Signatur.',
       scritte: {
         collega: 'Postfach verbinden',
-        chiedeIndirizzo: 'fragt nach der Adresse',
+        chiedeIndirizzo: 'fragt nach dem Konto',
         accessoNelBrowser: 'Anmeldung im Browser',
         portachiavi: 'Schlüsselbund',
         gettone: 'das Token',
@@ -1559,12 +1561,14 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Absenderadresse und Anmeldename',
+          termine: 'Konto und Absender',
           testo:
-            '**Absenderadresse**: die, welche die Familien unter «Von» sehen. **Anmeldename**: ' +
-            'der Name, mit dem man sich anmeldet, an Schulen oft ein Kürzel wie ' +
-            '`xxx000@edu.ti.ch`. Leer gilt das eine für das andere; sind sie verschieden, zeigt ' +
-            'die Karte beide.',
+            '**Postfach verbinden** fragt nur nach dem **Konto**, dem Namen, mit dem man sich ' +
+            'anmeldet (an Schulen oft ein Kürzel wie `xxx000@edu.ti.ch`). Nach der Anmeldung ' +
+            'wählt man den **Absender**, den die Familien unter «Von» sehen, unter den Adressen, ' +
+            'die Microsoft für dieses Konto angibt; ändern lässt er sich danach im Menü der ' +
+            'Karte, ohne neu zu verbinden. Beides schreibt man nicht von Hand: Die Karte zeigt ' +
+            'sie, mit Server, Port und Anmeldeart.',
         },
         {
           termine: 'Verbindung testen',
@@ -1627,8 +1631,9 @@ export const testi = catalogo(it, {
           '«Gesendete Elemente».',
         'Klappt die Anmeldung bei Microsoft, aber der Server lehnt ab, hat die Schule ' +
           'vielleicht das authentifizierte Senden (SMTP AUTH) für das Postfach ausgeschaltet: ' +
-          'Die Administration schaltet es wieder ein. Vertauschte Absenderadresse und ' +
-          'Anmeldename ergeben dagegen `5.7.60`: die Berechtigung, als jemand anderes zu senden.',
+          'Die Administration schaltet es wieder ein. Ein Absender, den die Schule nicht erlaubt ' +
+          '(meist ein Alias), ergibt dagegen `5.7.60`: die Berechtigung, als jemand anderes zu ' +
+          'senden. Im Menü wieder die Hauptadresse wählen.',
       ],
     },
     onedrive: {
@@ -2004,11 +2009,12 @@ export const testi = catalogo(it, {
             'l’interrupteur se désactive.',
         },
         {
-          termine: 'Programmes déjà installés',
+          termine: 'Avancé',
           testo:
-            'Un groupe replié tout en bas de **Modèles de langage**, avec le nombre de ' +
-            'réglages : **Programme llama-mtmd-cli** et **Adresse de voicebox**, qu’on touche ' +
-            'rarement. Il s’ouvre de lui-même si quelque chose y est modifié.',
+            'Un groupe replié tout en bas de la section, avec le nombre de réglages qu’on touche ' +
+            'rarement : dans **Modèles de langage** **Programme llama-mtmd-cli** et **Adresse de ' +
+            'voicebox**. Il s’ouvre de lui-même si quelque chose y est modifié. La fenêtre ' +
+            '**Paramètres du programme…** les range de la même façon, en bas de chaque groupe.',
         },
         {
           termine: 'Quand ils prennent effet',
@@ -2473,7 +2479,7 @@ export const testi = catalogo(it, {
         'partent tout seuls, et avec quelle signature.',
       scritte: {
         collega: 'Connecter la boîte',
-        chiedeIndirizzo: 'demande l’adresse',
+        chiedeIndirizzo: 'demande le compte',
         accessoNelBrowser: 'dans le navigateur',
         portachiavi: 'Trousseau',
         gettone: 'le jeton',
@@ -2503,12 +2509,14 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Adresse de l’expéditeur et nom d’utilisateur',
+          termine: 'Compte et expéditeur',
           testo:
-            '**Adresse de l’expéditeur** : celle que les familles voient dans « De ». **Nom ' +
-            'd’utilisateur** : le nom avec lequel on se connecte, dans les écoles souvent un ' +
-            'sigle comme `xxx000@edu.ti.ch`. Vide, l’un vaut l’autre ; quand ils sont ' +
-            'différents, la carte les montre tous les deux.',
+            '**Connecter la boîte** demande seulement le **Compte**, le nom de connexion (dans ' +
+            'les écoles souvent un sigle comme `xxx000@edu.ti.ch`). Après la connexion, on ' +
+            'choisit l’**Expéditeur**, celui que les familles voient dans « De », parmi les ' +
+            'adresses que Microsoft donne pour ce compte ; il se change ensuite dans le menu de ' +
+            'la carte, sans reconnecter. On ne les écrit pas à la main : la carte les montre, ' +
+            'avec serveur, port et mode de connexion.',
         },
         {
           termine: 'Tester la connexion',
@@ -2569,8 +2577,9 @@ export const testi = catalogo(it, {
           'envoyés ».',
         'Si la connexion à Microsoft réussit mais que le serveur refuse, il se peut que ' +
           'l’école garde désactivé l’envoi authentifié (SMTP AUTH) sur la boîte : c’est ' +
-          'l’administrateur qui le réactive. Adresse de l’expéditeur et nom d’utilisateur ' +
-          'inversés donnent en revanche `5.7.60` : l’autorisation d’envoyer en tant qu’un autre.',
+          'l’administrateur qui le réactive. Un expéditeur que l’école n’autorise pas (un alias, ' +
+          'en général) donne en revanche `5.7.60` : l’autorisation d’envoyer en tant qu’un autre. ' +
+          'Reviens à l’adresse principale dans le menu.',
       ],
     },
     onedrive: {
@@ -2943,11 +2952,12 @@ export const testi = catalogo(it, {
             'model, turning it on is refused, and removing the model turns the switch off.',
         },
         {
-          termine: 'Programs already installed',
+          termine: 'Advanced',
           testo:
-            'A closed group at the bottom of **Language models**, with the number of items: ' +
-            '**llama-mtmd-cli program** and **voicebox address**, which you rarely touch. It ' +
-            'opens by itself if something inside has been changed.',
+            'A closed group at the bottom of the section, with the number of items you rarely ' +
+            'touch: in **Language models** **llama-mtmd-cli program** and **voicebox address**. ' +
+            'It opens by itself if something inside has been changed. The **Program settings…** ' +
+            'window keeps them the same way, at the bottom of each group.',
         },
         {
           termine: 'When they apply',
@@ -3390,7 +3400,7 @@ export const testi = catalogo(it, {
         'by themselves, and with what signature.',
       scritte: {
         collega: 'Connect the mailbox',
-        chiedeIndirizzo: 'asks for the address',
+        chiedeIndirizzo: 'asks for the account',
         accessoNelBrowser: 'sign-in in the browser',
         portachiavi: 'Keychain',
         gettone: 'the token',
@@ -3420,11 +3430,13 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Sender address and sign-in name',
+          termine: 'Account and sender',
           testo:
-            '**Sender address**: the one families see in “From”. **Sign-in name**: the name you ' +
-            'sign in with, in schools often a code such as `xxx000@edu.ti.ch`. Empty, each ' +
-            'stands for the other; when they differ, the card shows both.',
+            '**Connect the mailbox** asks only for the **Account**, the name you sign in with ' +
+            '(in schools often a code such as `xxx000@edu.ti.ch`). After signing in you choose ' +
+            'the **Sender**, the one families see in “From”, among the addresses Microsoft gives ' +
+            'for that account; you change it later from the card’s menu, without reconnecting. ' +
+            'Neither is typed by hand: the card shows them, with server, port and sign-in method.',
         },
         {
           termine: 'Test the connection',
@@ -3482,8 +3494,9 @@ export const testi = catalogo(it, {
           'The price: no drafts on the server and no copy in “Sent Items”.',
         'If signing in to Microsoft works but the server refuses, the school may keep ' +
           'authenticated sending (SMTP AUTH) turned off for the mailbox: the administrator ' +
-          'turns it back on. Sender address and sign-in name swapped give `5.7.60` instead: ' +
-          'the permission to send as someone else.',
+          'turns it back on. A sender the school does not allow (usually an alias) gives ' +
+          '`5.7.60` instead: the permission to send as someone else. Go back to the primary ' +
+          'address in the menu.',
       ],
     },
     onedrive: {

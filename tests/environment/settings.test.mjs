@@ -9,7 +9,7 @@
 // memoria sullo stesso file.
 
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, beforeEach, describe, it } from 'node:test'
@@ -23,6 +23,7 @@ const {
   onDidChangeConfiguration,
   dialogoPercorso,
   ricaricaImpostazioni,
+  ritiraChiaviDismesse,
   valoreConMotivo,
   vociImpostazioni,
 } = await import('../../dist-tests/settings.mjs')
@@ -166,6 +167,20 @@ describe('la dogana guarda tutto quel che il manifesto dichiara', () => {
     assert.equal(accettato('registroDocenti.dettatura.programma', 'C:/voce/whisper-cli.exe'), undefined)
   })
 
+  it('le vecchie chiavi della posta si tolgono da sole all’avvio', () => {
+    // Del server a mano, prima dell'accesso Microsoft: solo «Azzera» le toglieva.
+    const VECCHIE = ['server', 'porta', 'autenticazione', 'clientId', 'tenant']
+      .map((nome) => `registroDocenti.posta.${nome}`)
+    scritte({
+      ...Object.fromEntries(VECCHIE.map((chiave) => [chiave, 'x'])),
+      [MITTENTE]: 'nome.cognome@edu.ti.ch',
+    })
+    ritiraChiaviDismesse()
+
+    const rimaste = JSON.parse(readFileSync(FILE, 'utf8'))
+    assert.deepEqual(Object.keys(rimaste), [MITTENTE])
+  })
+
   it('l’indirizzo di voicebox è di questo computer, o non entra', () => {
     const CHIAVE = 'registroDocenti.dettatura.indirizzo'
     for (const buono of [
@@ -211,6 +226,33 @@ describe('la dogana guarda tutto quel che il manifesto dichiara', () => {
     assert.equal(accettato('registroDocenti.ocr.programma', 'llama-mtmd-cli.exe'), undefined)
   })
 
+  it('un modello è il nome nudo di un .gguf, come lo scrive «Modelli linguistici»', () => {
+    // La stessa regola di `modelloNellaCartella`: un percorso intero passava la
+    // dogana e poi il registro lo ignorava, il nome giusto era respinto.
+    for (const chiave of [
+      'registroDocenti.ocr.modello',
+      'registroDocenti.ocr.proiettore',
+      'registroDocenti.assistente.modello',
+    ]) {
+      assert.equal(accettato(chiave, ''), '', chiave)
+      assert.equal(accettato(chiave, 'qwen2.5-3b-instruct-q4_k_m.gguf'), 'qwen2.5-3b-instruct-q4_k_m.gguf')
+      assert.equal(accettato(chiave, 'Vista.GGUF'), 'Vista.GGUF')
+      for (const storto of [
+        'C:\\Modelli\\qwen.gguf',
+        '/modelli/qwen.gguf',
+        '..\\qwen.gguf',
+        '../qwen.gguf',
+        'C:qwen.gguf',
+        'qwen.gguf.ipull',
+        'qwen.bin',
+      ]) {
+        const esito = valoreConMotivo(chiave, storto)
+        assert.equal(esito.valore, undefined, `${chiave}: ${storto}`)
+        assert.match(esito.motivo, /\.gguf/, storto)
+      }
+    }
+  })
+
   it('ogni voce che si mostra ha un nome scritto, e i percorsi hanno il loro dialogo', () => {
     for (const voce of vociImpostazioni()) {
       assert.ok(IMPOSTAZIONI[voce.chiave].etichetta, `${voce.chiave} non ha un’etichetta`)
@@ -242,6 +284,27 @@ describe('le voci che le due superfici mostrano', () => {
     // Nessuna chiave sparisce dalle due superfici.
     const mostrate = vociImpostazioni().map((candidata) => candidata.chiave)
     assert.deepEqual(mostrate, Object.keys(IMPOSTAZIONI))
+  })
+
+  it('partire nascosti vuole l’icona, e la dettatura vuole l’assistente', () => {
+    // Il programma lo fa già (`desktop/avvio.ts`, `ui/pannello/assistant.ts`):
+    // le due superfici devono dirlo, non mostrare accesa una voce senza effetto.
+    scritte({ 'registroDocenti.vassoio.attivo': false, 'registroDocenti.avvio.soloVassoio': true })
+    assert.equal(voce('registroDocenti.avvio.soloVassoio').dipendeDa, 'registroDocenti.vassoio.attivo')
+    assert.equal(voce('registroDocenti.avvio.soloVassoio').sospesa, true)
+
+    scritte({ 'registroDocenti.dettatura.attivo': true })
+    assert.equal(voce('registroDocenti.dettatura.attivo').dipendeDa, 'registroDocenti.assistente.attivo')
+    assert.equal(voce('registroDocenti.dettatura.attivo').sospesa, true)
+  })
+
+  it('le chiavi che scrive il collegamento della casella lo dicono', () => {
+    // La finestra nativa le mostra in sola lettura, senza «Ritira».
+    const del = vociImpostazioni().filter((candidata) => candidata.delCollegamento)
+    assert.deepEqual(
+      del.map((candidata) => candidata.chiave).sort(),
+      ['registroDocenti.posta.mittente', 'registroDocenti.posta.utente'],
+    )
   })
 
   it('il padre spento sospende le figlie, e lo dice a chi disegna', async () => {

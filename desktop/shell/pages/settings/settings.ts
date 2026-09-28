@@ -36,6 +36,8 @@ interface Campo {
   etichetta?: HTMLSpanElement
   /** Solo per i percorsi: «Sfoglia…», accanto al campo. */
   accanto?: HTMLButtonElement
+  /** Una riga fissa sotto il campo: dove si cambia quel che qui si legge soltanto. */
+  nota?: string
   mostra (voce: VoceProgramma): void
 }
 
@@ -401,6 +403,20 @@ function campoDi (voce: VoceProgramma, quandoCambia: (valore: Valore) => void): 
     return { elemento: campo, accanto: sfoglia, mostra }
   }
 
+  // Casella e mittente li scrive «Collega la casella», e il mittente si sceglie
+  // fra gli indirizzi dell'account: qui si leggono soltanto, come nel pannello.
+  if (voce.delCollegamento) {
+    const campo = elemento('input')
+    campo.type = 'text'
+    campo.readOnly = true
+    const mostra = (stato: VoceProgramma): void => {
+      campo.value = String(stato.valore)
+      campo.placeholder = t.nessunaCasella
+    }
+    mostra(voce)
+    return { elemento: campo, nota: t.delCollegamento, mostra }
+  }
+
   // Il modello si sceglie nel registro («Modelli linguistici»): qui si legge soltanto.
   if (voce.formato === 'modello') {
     const campo = elemento('input')
@@ -535,6 +551,7 @@ function disegnaVoce (voce: VoceProgramma): HTMLDivElement {
   }
   if (campo.accanto) contenitore.append(campo.accanto)
   blocco.append(contenitore)
+  if (campo.nota) blocco.append(elemento('p', 'voce__aiuto', campo.nota))
 
   if (descrizione) {
     blocco.append(descrizione.testo)
@@ -571,9 +588,11 @@ function vestiVoce (voce: VoceProgramma): void {
   pezzo.provenienza.textContent = voce.scritta
     ? t.modificata(comeSiLegge(voce, voce.predefinito))
     : t.predefinito(comeSiLegge(voce, voce.valore))
-  pezzo.provenienza.classList.toggle('voce__pastiglia--scritta', voce.scritta)
+  // Un parametro del collegamento non è una scelta fatta a mano: niente
+  // «modificata», e niente «Ritira», che staccherebbe la casella dal suo gettone.
+  pezzo.provenienza.hidden = voce.delCollegamento
 
-  pezzo.ritira.hidden = !voce.scritta
+  pezzo.ritira.hidden = !voce.scritta || voce.delCollegamento
   pezzo.ritira.title = t.tornaAlPredefinito(comeSiLegge(voce, voce.predefinito))
 
   // Il campo col fuoco non si aggiorna, o il cursore salterebbe. Le spunte sì:
@@ -588,14 +607,29 @@ function disegna (): void {
   radice.replaceChildren()
   disegnate.clear()
 
-  let gruppo: string | null = null
+  // I gruppi nell'ordine del manifesto; le voci rare in fondo al loro, chiuse,
+  // come nel pannello.
+  const gruppi: Array<{ nome: string, voci: VoceProgramma[] }> = []
   for (const voce of voci) {
     const suo = gruppoDi(voce.chiave)
-    if (suo !== gruppo) {
-      gruppo = suo
-      radice.append(elemento('h2', null, titoloGruppo(suo)))
+    const ultimo = gruppi[gruppi.length - 1]
+    if (ultimo && ultimo.nome === suo) ultimo.voci.push(voce)
+    else gruppi.push({ nome: suo, voci: [voce] })
+  }
+
+  for (const gruppo of gruppi) {
+    radice.append(elemento('h2', null, titoloGruppo(gruppo.nome)))
+    for (const voce of gruppo.voci.filter((candidata) => !candidata.avanzata)) {
+      radice.append(disegnaVoce(voce))
     }
-    radice.append(disegnaVoce(voce))
+    const avanzate = gruppo.voci.filter((candidata) => candidata.avanzata)
+    if (avanzate.length === 0) continue
+    const riquadro = elemento('details', 'avanzate')
+    // Aperto da sé quando qualcosa lì dentro è stato deciso a mano.
+    riquadro.open = avanzate.some((voce) => voce.scritta)
+    riquadro.append(elemento('summary', 'avanzate__titolo', t.avanzate(avanzate.length)))
+    for (const voce of avanzate) riquadro.append(disegnaVoce(voce))
+    radice.append(riquadro)
   }
 
   filtra()
@@ -622,6 +656,14 @@ function filtra (): void {
 
   // L'avviso precedente si toglie prima di contare, o terrebbe visibile l'ultimo titolo.
   radice.querySelector('.vuoto')?.remove()
+
+  // Le avanzate senza voci che passano spariscono; con il filtro si aprono,
+  // o quel che si cerca resterebbe chiuso dentro.
+  for (const riquadro of radice.querySelectorAll<HTMLDetailsElement>('details.avanzate')) {
+    const dentro = [...riquadro.querySelectorAll<HTMLElement>(':scope > .voce')]
+    riquadro.hidden = dentro.every((blocco) => blocco.hidden)
+    if (cercate.length > 0 && !riquadro.hidden) riquadro.open = true
+  }
 
   // I titoli dei gruppi rimasti senza voci si nascondono.
   for (const titolo of radice.querySelectorAll('h2')) {

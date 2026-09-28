@@ -4,7 +4,7 @@
 // *raccoglie* quel che nessun'altra nomina.
 
 import { Maiuscola } from '../../../../core/dominio/lexicon.js'
-import { IMPOSTAZIONI } from '../../../../contract/manifesto.js'
+import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifesto.js'
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import type { NomeIcona } from '../../components/icons.js'
 import type { SchedaDocumento, SchedaProgramma } from '../../state.js'
@@ -238,7 +238,13 @@ export function gruppoDellaSezione (ambito: AmbitoSezione, id: string): GruppoSe
  * stessa funzione, accanto alla riga che ne spiega l'effetto.
  */
 export const CHIAVI_IN_SCHEDA: Readonly<Record<string, readonly string[]>> = {
-  posta: ['registroDocenti.posta.invioDiretto'],
+  // La casella si mostra nella scheda Posta, non si scrive a mano: l'account si
+  // collega dal browser, e il mittente si sceglie fra gli indirizzi dell'account.
+  posta: [
+    'registroDocenti.posta.invioDiretto',
+    'registroDocenti.posta.utente',
+    'registroDocenti.posta.mittente',
+  ],
   // Il modello si sceglie nella riga «Chi risponde» in testa alla sezione.
   modelli: [
     'registroDocenti.ocr.modello',
@@ -289,7 +295,9 @@ export function vociMostrateDaSezione (
   const promosse = CHIAVI_IN_SCHEDA[sezione.id] ?? []
   return [
     ...vociDiSezione(voci, sezione),
-    ...voci.filter((voce) => promosse.includes(voce.chiave)),
+    ...voci.filter((voce) =>
+      promosse.includes(voce.chiave) && !CHIAVI_DEL_COLLEGAMENTO.includes(voce.chiave),
+    ),
   ]
 }
 

@@ -564,7 +564,7 @@ const it = {
       {
         termine: 'Spedire dal registro',
         testo:
-          'In Impostazioni › **Comunicazioni**: **Collega la casella** chiede l’indirizzo e apre ' +
+          'In Impostazioni › **Comunicazioni**: **Collega la casella** chiede l’account e apre ' +
           'il browser sulla pagina di accesso Microsoft, **Prova il collegamento** controlla senza ' +
           'mandare niente. Poi si accende «Spedisci senza bozza», sotto «Quando parte», che di ' +
           'suo è spento.',
@@ -1203,8 +1203,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Aus dem Klassenbuch verschicken',
           testo:
-            'Unter Einstellungen › **Kommunikation**: **Postfach verbinden** fragt nach der ' +
-            'Adresse und öffnet den Browser auf der Anmeldeseite von Microsoft, **Verbindung ' +
+            'Unter Einstellungen › **Kommunikation**: **Postfach verbinden** fragt nach dem ' +
+            'Konto und öffnet den Browser auf der Anmeldeseite von Microsoft, **Verbindung ' +
             'testen** prüft, ohne etwas zu schicken. Dann schaltet man «Ohne Entwurf senden» ' +
             'ein, unter «Wann es verschickt wird», das von sich aus ausgeschaltet ist.',
         },
@@ -1819,7 +1819,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Envoyer depuis le registre',
           testo:
-            'Dans Paramètres › **Communications** : **Connecter la boîte** demande l’adresse et ' +
+            'Dans Paramètres › **Communications** : **Connecter la boîte** demande le compte et ' +
             'ouvre le navigateur sur la page de connexion Microsoft, **Tester la connexion** ' +
             'vérifie sans rien envoyer. Puis on active « Envoyer sans brouillon », sous « Quand ' +
             'ça part », qui est désactivé par défaut.',
@@ -2413,7 +2413,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Sending from the register',
           testo:
-            'In Settings › **Communications**: **Connect the mailbox** asks for the address and opens ' +
+            'In Settings › **Communications**: **Connect the mailbox** asks for the account and opens ' +
             'the browser on the Microsoft sign-in page, **Test the connection** checks without ' +
             'sending anything. Then turn on “Send without a draft”, under “When it goes out”, ' +
             'which is off by default.',

@@ -330,11 +330,26 @@ function risultati (parole: readonly string[]): HTMLElement {
           'section',
           { class: 'gruppo-opzioni' },
           h('h4', { class: 'gruppo-opzioni__titolo' }, gruppo.titolo),
-          h('div', { class: 'voci-opzioni' }, ...gruppo.voci.map((voce) => vociProgramma(voce))),
+          h(
+            'div',
+            { class: 'voci-opzioni' },
+            ...gruppo.voci.map((voce) => vociProgramma(voce, aiModelliDalFiltro)),
+          ),
         ),
       ),
     ),
   })
+}
+
+/**
+ * Dal filtro alla sezione dei modelli, dove un modello si sceglie davvero: il
+ * filtro si svuota, o resterebbe sopra la sezione aperta.
+ */
+function aiModelliDalFiltro (): void {
+  cercatoNelProgramma = ''
+  apriSezione('programma', 'modelli')
+  // Se la sezione era già quella, `vai` non ridisegna.
+  ridisegnaIsola(ISOLA_PROGRAMMA)
 }
 
 /** Le parole del filtro, già divise: vuoto vuol dire che non si cerca. */

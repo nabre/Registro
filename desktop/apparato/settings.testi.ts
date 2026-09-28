@@ -17,6 +17,7 @@ const it = {
   programmaIntero: 'Ci vuole il percorso intero del programma.',
   soloExe: 'Dev’essere un programma .exe.',
   fileIntero: 'Ci vuole il percorso intero del file.',
+  soloNomeModello: 'Ci vuole il nome di un file .gguf della cartella dei modelli, senza percorso.',
   unFile: (estensioni: readonly string[]) =>
     `Ci vuole un file ${estensioni.map((e) => `.${e}`).join(' o ')}.`,
 
@@ -40,6 +41,7 @@ export const testi = catalogo(it, {
     programmaIntero: 'Nötig ist der vollständige Pfad des Programms.',
     soloExe: 'Es muss ein .exe-Programm sein.',
     fileIntero: 'Nötig ist der vollständige Pfad der Datei.',
+    soloNomeModello: 'Nötig ist der Name einer .gguf-Datei im Modellordner, ohne Pfad.',
     unFile: (estensioni) => `Nötig ist eine Datei vom Typ ${estensioni.map((e) => `.${e}`).join(' oder ')}.`,
     filtroProgrammi: 'Programme',
     filtroFile: 'Dateien',
@@ -59,6 +61,7 @@ export const testi = catalogo(it, {
     programmaIntero: 'Il faut le chemin complet du programme.',
     soloExe: 'Ce doit être un programme .exe.',
     fileIntero: 'Il faut le chemin complet du fichier.',
+    soloNomeModello: 'Il faut le nom d’un fichier .gguf du dossier des modèles, sans chemin.',
     unFile: (estensioni) => `Il faut un fichier ${estensioni.map((e) => `.${e}`).join(' ou ')}.`,
     filtroProgrammi: 'Programmes',
     filtroFile: 'Fichiers',
@@ -77,6 +80,7 @@ export const testi = catalogo(it, {
     programmaIntero: 'It needs the full path of the program.',
     soloExe: 'It must be an .exe program.',
     fileIntero: 'It needs the full path of the file.',
+    soloNomeModello: 'It needs the name of a .gguf file in the models folder, without a path.',
     unFile: (estensioni) => `It needs a ${estensioni.map((e) => `.${e}`).join(' or ')} file.`,
     filtroProgrammi: 'Programs',
     filtroFile: 'Files',

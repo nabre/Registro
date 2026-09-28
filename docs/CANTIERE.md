@@ -45,6 +45,12 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 - [ ] `registro.json` illeggibile non entra in `illeggibili`: niente
       `mettiDaParte`, e una modifica la riscrive con `anno:null`.
 
+### Impostazioni
+
+- [ ] Riordino delle pagine Impostazioni secondo [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md):
+      guasti G1–G8 (fase 0), poi contratto dei controlli, gerarchia ad aree,
+      doppioni. Decisioni aperte in § 8 del piano.
+
 ### Librerie (ADR-50)
 
 - [ ] Passo 1 — fast-check, knip, dependency-cruiser, licenze: in CI.

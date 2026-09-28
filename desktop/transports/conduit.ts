@@ -450,6 +450,7 @@ const PERCORSI_ESEGUITI = new Set([
   'registrodocenti.modelli.cartella',
   'registrodocenti.ocr.modello',
   'registrodocenti.ocr.proiettore',
+  'registrodocenti.assistente.modello',
 ])
 const DOVE_VA_LA_VOCE = new Set(['registrodocenti.dettatura.indirizzo'])
 

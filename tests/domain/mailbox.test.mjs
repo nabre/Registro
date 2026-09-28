@@ -9,6 +9,7 @@ import {
   componiCasella,
   descriviCasella,
   dominioDi,
+  indirizziDellAccount,
   sembraIndirizzo,
   stessoIndirizzo,
 } from '../../dist-tests/domain.mjs'
@@ -59,5 +60,23 @@ describe('la casella', () => {
     assert.equal(dominioDi('senza-chiocciola'), '')
     assert.equal(sembraIndirizzo('nome.cognome@edu.ti.ch'), true)
     assert.equal(sembraIndirizzo('nome cognome'), false)
+  })
+})
+
+describe('gli indirizzi da cui un account può scrivere', () => {
+  it('il principale per primo, poi quelli detti, poi gli alias, per ultimo il nome di accesso', () => {
+    const proxy = ['smtp:alias@scuola.ch', 'SMTP:Maria.Rossi@scuola.ch', 'x500:/o=niente']
+    assert.deepEqual(
+      indirizziDellAccount(['maria.rossi@scuola.ch', 'xxx000@scuola.ch'], proxy, 'xxx000@scuola.ch'),
+      ['Maria.Rossi@scuola.ch', 'xxx000@scuola.ch', 'alias@scuola.ch'],
+    )
+  })
+
+  it('senza profilo bastano gli indirizzi del gettone; niente doppioni né non-indirizzi', () => {
+    assert.deepEqual(
+      indirizziDellAccount([undefined, 'Nome Cognome', 'm.rossi@scuola.ch', 'M.ROSSI@scuola.ch'], [], 'xxx000@scuola.ch'),
+      ['m.rossi@scuola.ch', 'xxx000@scuola.ch'],
+    )
+    assert.deepEqual(indirizziDellAccount([], [], ''), [])
   })
 })
