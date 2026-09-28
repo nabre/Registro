@@ -13,21 +13,12 @@
 Esecuzione: `npm run ui-tests`, oppure `node esbuild.mjs --ui` e poi
 `python tests/ui/schoolCalendar.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import chromium, pannello
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errors = pannello(browser)
 
     page.locator('.barra-comandi__programma').click()
     page.get_by_text('Nuovo anno scolastico').first.click()
@@ -64,7 +55,7 @@ with sync_playwright() as p:
     expect(modale.get_by_text('Importa da un altro registro')).to_be_visible()
 
     modale.locator('button[type=submit]').first.click()
-    page.wait_for_timeout(300)
+    page.wait_for_function("richieste.some(m=>m.azione?.tipo==='anno.crea')")
     crea = [m['azione'] for m in page.evaluate('richieste')
             if m.get('azione', {}).get('tipo') == 'anno.crea']
     assert len(crea) == 1, crea
@@ -76,5 +67,4 @@ with sync_playwright() as p:
     assert len(ids) == len(nomi) - 1, (ids, nomi)
 
     assert not errors, errors
-    browser.close()
     print('calendario ufficiale: ok')

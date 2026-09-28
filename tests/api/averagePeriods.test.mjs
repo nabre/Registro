@@ -16,6 +16,14 @@ import assert from 'node:assert/strict'
 import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import {
+  SEMESTRE_INVENTATO,
+  eNonTrovato,
+  eUnPeriodoSenzaSemestri,
+  eUnSemestreSolo,
+  senzaSemestri,
+  sonoIntersecati,
+} from '../helpers/periodi.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-periodi-medie-')
 
@@ -199,12 +207,7 @@ describe('persone.medie raggruppa per periodo', () => {
   it('con semestreId: un periodo solo, con le cifre di quel semestre', async () => {
     const [, secondo] = semestri()
     const esito = await api.chiama(archivio, 'persone.medie', { semestreId: secondo.id })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-
-    assert.equal(esito.dati.periodi.length, 1)
-    assert.equal(esito.dati.periodi[0].semestreId, secondo.id)
-    assert.equal(esito.dati.dal, INIZIO_SECONDO)
-    assert.equal(esito.dati.al, AL)
+    eUnSemestreSolo(esito, secondo)
 
     const riga = rigaDi(esito, rossi)
     assert.equal(riga.periodi.length, 1)
@@ -220,11 +223,7 @@ describe('persone.medie raggruppa per periodo', () => {
   })
 
   it('un semestreId che non esiste è «non-trovato», non una busta vuota', async () => {
-    const esito = await api.chiama(archivio, 'persone.medie', { semestreId: 'sem-inventato-0001' })
-    assert.equal(esito.ok, false, JSON.stringify(esito))
-    assert.equal(esito.codice, 'non-trovato')
-    // Il rimedio scritto accanto: dove si va a prendere l'id buono.
-    assert.match(esito.messaggi.join(' '), /anni\.elenco/)
+    eNonTrovato(await api.chiama(archivio, 'persone.medie', { semestreId: SEMESTRE_INVENTATO }))
   })
 
   it('dal e al che tagliano i semestri: i periodi escono intersecati', async () => {
@@ -232,19 +231,8 @@ describe('persone.medie raggruppa per periodo', () => {
       dal: '2026-11-01',
       al: '2027-03-31',
     })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
     const [primo, secondo] = semestri()
-
-    // Gli estremi veri: dal giorno chiesto al giorno chiesto.
-    assert.deepEqual(
-      esito.dati.periodi.map((p) => [p.semestreId, p.dal, p.al]),
-      [
-        [primo.id, '2026-11-01', FINE_PRIMO],
-        [secondo.id, INIZIO_SECONDO, '2027-03-31'],
-      ],
-    )
-    assert.equal(esito.dati.dal, '2026-11-01')
-    assert.equal(esito.dati.al, '2027-03-31')
+    sonoIntersecati(esito, '2026-11-01', '2027-03-31', [primo, secondo])
 
     // Matematica di ottobre resta fuori: il totale si rifà su quel che resta.
     const riga = rigaDi(esito, rossi)
@@ -257,32 +245,17 @@ describe('persone.medie raggruppa per periodo', () => {
     assert.equal(riga.prove, 2)
   })
 
-  it('un anno senza semestri torna un periodo solo, con semestreId vuoto', async () => {
-    const anno = archivio.registro.anni[0]
-    const suoi = anno.semestri
-    // Un anno senza scansione non è valido, ma `periodiDa` deve reggerlo (documento
-    // vecchio o letto male). Si toglie per una chiamata e si rimette.
-    archivio.modifica((r) => { r.anni[0].semestri = [] }, ['registro'])
-    try {
-      const esito = await api.chiama(archivio, 'persone.medie', {})
-      assert.equal(esito.ok, true, JSON.stringify(esito))
-      assert.equal(esito.dati.periodi.length, 1)
-      assert.equal(esito.dati.periodi[0].semestreId, '')
-      assert.equal(esito.dati.periodi[0].numero, 0)
-      assert.equal(esito.dati.periodi[0].dal, DAL)
-      assert.equal(esito.dati.periodi[0].al, AL)
+  it('un anno senza semestri torna un periodo solo, con semestreId vuoto', () => senzaSemestri(archivio, async () => {
+    const esito = await api.chiama(archivio, 'persone.medie', {})
+    eUnPeriodoSenzaSemestri(esito, DAL, AL)
 
-      // Il raggruppamento non sparisce: chi legge la busta ha una strada sola.
-      const riga = rigaDi(esito, rossi)
-      assert.equal(riga.periodi.length, 1)
-      assert.equal(riga.periodi[0].semestreId, '')
-      assert.equal(riga.periodi[0].prove, 3)
-      assert.equal(riga.periodi[0].media, 3.2)
-      assert.equal(riga.media, 3.2)
-    } finally {
-      archivio.modifica((r) => { r.anni[0].semestri = suoi }, ['registro'])
-    }
-  })
+    const riga = rigaDi(esito, rossi)
+    assert.equal(riga.periodi.length, 1)
+    assert.equal(riga.periodi[0].semestreId, '')
+    assert.equal(riga.periodi[0].prove, 3)
+    assert.equal(riga.periodi[0].media, 3.2)
+    assert.equal(riga.media, 3.2)
+  }))
 })
 
 describe('persone.medie dice quel che ha lasciato fuori', () => {

@@ -1,23 +1,15 @@
 """Cassetto responsive: sovrapposizione, misure stabili e tastiera."""
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, chromium, pannello
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 720, 'height': 850})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{if(m.id)setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
+with chromium() as browser:
+    page, errors = pannello(browser, 720, 850)
 
     for width in (720, 900, 1024):
         page.set_viewport_size({'width': width, 'height': 850})
         page.evaluate('prova.aggiorna({sidebarMobile:false})')
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
         toggle = page.locator('[data-fuoco="apri-navigazione"]')
         sidebar = page.locator('#navigazione-laterale')
         expect(toggle).to_have_attribute('aria-controls', 'navigazione-laterale')
@@ -52,6 +44,5 @@ with sync_playwright() as p:
     expect(page.locator('.sidebar__sfondo')).to_have_count(0)
     assert page.locator('#navigazione-laterale').evaluate('(el)=>getComputedStyle(el).position') != 'fixed'
     assert not errors, errors
-    browser.close()
 
 print('sidebar drawer: ok')

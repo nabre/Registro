@@ -40,6 +40,8 @@
     "i18n": "node tools/i18n.mjs",
     "pretest": "node esbuild.mjs --test",
     "test": "node --test \"tests/**/*.test.mjs\"",
+    "copertura": "node tools/copertura.mjs",
+    "fumo": "node tools/fumo.mjs",
     "ui-tests": "node tools/uiTests.mjs",
     "ci": "node tools/ci.mjs",
     "package": "node tools/schoolCalendar.mjs && node esbuild.mjs --produzione && electron-builder --config electron-builder.json",

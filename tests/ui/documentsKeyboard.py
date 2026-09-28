@@ -3,27 +3,12 @@
 Esecuzione: `node esbuild.mjs --ui` e poi
 `python tests/ui/documentsKeyboard.py`.
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
+from banco import FRAME, chromium, pannello
 
-root = Path(__file__).resolve().parents[2]
-
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda error: errors.append(str(error)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.acquireVsCodeApi=()=>({
-      getState:()=>null,setState:()=>{},postMessage:m=>{
-        if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{
-          data:{tipo:'risposta',id:m.id,ok:true}})),0)
-      }})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-
-    FRAME = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
+with chromium() as browser:
+    page, errors = pannello(browser)
 
     # Riga: il nome visibile e' un vero pulsante. Invio e Spazio aprono il PDF.
     percorso_riga = page.evaluate("""() => {
@@ -85,4 +70,3 @@ with sync_playwright() as p:
     assert page.evaluate('prova.stato.anteprima') == percorso_cella
 
     assert errors == [], errors
-    browser.close()

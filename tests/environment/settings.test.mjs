@@ -9,12 +9,14 @@
 // memoria sullo stesso file.
 
 import assert from 'node:assert/strict'
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { beforeEach, describe, it } from 'node:test'
+import { after, beforeEach, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-impostazioni-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-impostazioni-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 const {
   getConfiguration,

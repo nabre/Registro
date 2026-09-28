@@ -6,26 +6,12 @@ violazioni WCAG di impatto ``critical`` o ``serious``; stampa regola, pagina e
 selettori, senza scaricare codice da CDN.
 """
 from collections import defaultdict
-from pathlib import Path
-from playwright.sync_api import sync_playwright
 
+from banco import FRAME, PAGINA_CON_TITOLO, RADICE, chromium, pannello
 
-root = Path(__file__).resolve().parents[2]
-axe = root / 'node_modules/axe-core/axe.min.js'
+axe = RADICE / 'node_modules/axe-core/axe.min.js'
 if not axe.is_file():
     raise RuntimeError('axe-core non installato: eseguire npm install')
-
-PONTE = '''
-window.richieste = []
-window.acquireVsCodeApi = () => ({
-  getState: () => null, setState: () => {},
-  postMessage: (m) => {
-    richieste.push(m)
-    if (m.id) setTimeout(() => window.dispatchEvent(new MessageEvent('message',
-      { data: { tipo: 'risposta', id: m.id, ok: true } })), 0)
-  },
-})
-'''
 
 CONFIGURAZIONE = {
     'runOnly': {
@@ -39,21 +25,9 @@ CONFIGURAZIONE = {
 def prepara(browser, schema):
     # Niente campionamento durante la dissolvenza d'ingresso: axe altrimenti
     # misura il testo semitrasparente a metà animazione e produce falsi contrasti.
-    page = browser.new_page(
-        viewport={'width': 1440, 'height': 1000},
-        color_scheme=schema,
-        reduced_motion='reduce',
-    )
-    errori = []
-    page.on('pageerror', lambda errore: errori.append(str(errore)))
-    page.set_content(
-        '<html lang="it"><head><title>Regiklass</title></head>'
-        '<body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
+    page, errori = pannello(browser, html=PAGINA_CON_TITOLO, color_scheme=schema,
+                            reduced_motion='reduce')
     page.add_script_tag(path=str(axe))
-    page.wait_for_load_state('networkidle')
     return page, errori
 
 
@@ -80,8 +54,7 @@ def formato(trovate):
     return '\n'.join(righe)
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     trovate = defaultdict(list)
     for schema in ('light', 'dark'):
         page, errori = prepara(browser, schema)
@@ -92,12 +65,11 @@ with sync_playwright() as p:
               if (!prova.stato.corsoId && corso) prova.scegliCorso(corso.id)
               prova.vaiA(prova.PAGINE.find(pagina => pagina.id === id))
             }''', pagina)
-            page.evaluate('()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
+            page.evaluate(FRAME)
             page.wait_for_function('document.querySelector("main")?.textContent.length > 0')
             controlla(page, schema, pagina, trovate)
         assert not errori, f'errori JavaScript ({schema}): {errori}'
         page.close()
-    browser.close()
 
 if trovate:
     raise AssertionError('Violazioni WCAG critical/serious:\n' + formato(trovate))

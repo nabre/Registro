@@ -10,14 +10,12 @@ sbagliato. Qui si misura con `getBoundingClientRect`, a tre larghezze e con la
 barra laterale aperta e compatta, perché i guasti di questo genere compaiono
 solo a certe misure.
 """
-from pathlib import Path
 import re
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FRAME as due_frame, chromium, pannello, schermata
 
 TOLLERANZA = 1
-due_frame = '()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))'
 
 # Tutto in una chiamata dentro la pagina: niente ridisegni fra una misura e
 # l'altra.
@@ -84,13 +82,6 @@ def controlla(m, dove):
 # La fascia oraria ferma, la striscia che si ripiega, sabato e domenica dalla
 # barra, «Oggi» che porta anche all'ora di adesso.
 
-# Il ponte con la memoria dell'interfaccia: `setState` si tiene da parte per
-# vedere che cosa il pannello ricorderebbe.
-PONTE = ('window.richieste=[]; window.ricordato=null; window.acquireVsCodeApi=()=>({'
-         'getState:()=>null,setState:s=>{window.ricordato=s},postMessage:m=>{richieste.push(m);'
-         " if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',"
-         "{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})")
-
 ORE = r"""() => {
   const corpo = document.querySelector('.settimana__corpo').getBoundingClientRect()
   return [...document.querySelectorAll('.settimana__ora')]
@@ -104,23 +95,15 @@ MISURA_COLONNE = r"""() => {
   return testa.map((t, i) => [r(t).left - r(corpo[i]).left, r(t).right - r(corpo[i]).right])
 }"""
 
-SCATTI = root / 'dist-tests'
-
-
 def controlla_colonne(colonne, dove):
     for i, (sx, dx) in enumerate(colonne):
         assert abs(sx) <= TOLLERANZA and abs(dx) <= TOLLERANZA, (dove, 'colonna', i, sx, dx)
 
 
 def apri(browser, altezza=1000):
-    page = browser.new_page(viewport={'width': 1440, 'height': altezza})
-    errori = []
-    page.on('pageerror', lambda e: errori.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content=PONTE)
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+    # Il ponte tiene da parte `setState` in `ricordato`: che cosa il pannello
+    # ricorderebbe.
+    page, errori = pannello(browser, 1440, altezza)
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
     page.evaluate("prova.aggiorna({modoCalendario:'settimana', data:'2026-09-14'})")
     page.evaluate(due_frame)
@@ -162,7 +145,7 @@ def striscia_ripiegabile(browser):
     expect(pulsante).to_have_attribute('aria-expanded', 'true')
     expect(page.locator('.striscia-settimane__voci')).to_be_visible()
     aperta = page.evaluate("document.querySelector('.striscia-settimane').getBoundingClientRect().height")
-    page.screenshot(path=str(SCATTI / 'striscia-aperta.png'))
+    schermata(page, 'striscia-aperta.png')
     pulsante.click()
     page.evaluate(due_frame)
     pulsante = page.locator('.striscia-settimane__ripiega')
@@ -173,7 +156,7 @@ def striscia_ripiegabile(browser):
     chiusa = page.evaluate("document.querySelector('.striscia-settimane').getBoundingClientRect().height")
     assert chiusa < aperta * 0.6 and chiusa < 34, (aperta, chiusa)
     assert page.evaluate('window.ricordato && window.ricordato.strisciaSettimaneChiusa') is True
-    page.screenshot(path=str(SCATTI / 'striscia-chiusa.png'))
+    schermata(page, 'striscia-chiusa.png')
     # Chiusa, la testata dei giorni combacia ancora col corpo.
     controlla_colonne(page.evaluate(MISURA_COLONNE), 'striscia chiusa')
     pulsante.click()
@@ -220,7 +203,7 @@ def modifica(browser):
     assert page.evaluate('prova.stato.vista') == 'calendario'
     expect(blocco).to_have_class(re.compile(r'blocco--scelto'))
     assert blocco.locator('.blocco__maniglia').count() == 2
-    page.screenshot(path=str(SCATTI / 'editor-scelta.png'))
+    schermata(page, 'editor-scelta.png')
 
     # Sul vuoto dell'ultima colonna, dalle 15 per un'ora e mezza: due UD con
     # un'azione sola. Col filtro del corso nasce subito; senza, si apre il modulo
@@ -287,16 +270,8 @@ def oggi_all_ora(browser):
     page.close()
 
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errors = pannello(browser)
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
     # Settembre, e maggio con la settimana accesa in fondo alla striscia: resta
     # visibile anche su finestra stretta.
@@ -319,10 +294,9 @@ with sync_playwright() as p:
     page.set_viewport_size({'width': 1440, 'height': 1000})
     page.evaluate("prova.aggiorna({data:'2026-09-14'})")
     page.evaluate(due_frame)
-    page.screenshot(path=str(root / 'dist-tests/settimana.png'))
+    schermata(page, 'settimana.png')
     assert not errors, errors
     for caso in (fascia_fissa, striscia_ripiegabile, modifica, oggi_all_ora):
         caso(browser)
-    browser.close()
 
 print('OK: settimana — testata e corpo combaciano, ore dentro il corpo e sulla loro riga, blocchi all\'ora giusta, striscia col suo margine e la settimana accesa in vista; fascia ferma, striscia ripiegabile, Modifica, Oggi all\'ora di adesso')

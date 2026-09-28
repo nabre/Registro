@@ -2,7 +2,8 @@
 // **ogni impostazione del manifesto finisce in un posto, e in uno solo**. Il
 // posto è l'elenco di una sezione o la sua scheda dedicata
 // (`CHIAVI_IN_SCHEDA`); una chiave promossa sparisce dall'elenco apposta, e qui
-// si conta lo stesso. Nomi e ordine delle sezioni sono liberi.
+// si conta lo stesso. Nomi e ordine delle sezioni sono liberi: qui non si
+// fissano, si provano le regole che li dispongono.
 
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
@@ -104,14 +105,9 @@ describe('le sezioni delle impostazioni del programma', () => {
     }
   })
 
-  it('«Generale» raccoglie quel che nessuna ha nominato', () => {
+  it('una sezione sola raccoglie quel che nessuna ha nominato', () => {
     const raccoglie = SEZIONI_PROGRAMMA.filter((sezione) => sezione.raccoglie)
     assert.equal(raccoglie.length, 1, 'una sola sezione può raccogliere: altrimenti le orfane si duplicano')
-    // La sezione che raccoglie il resto è la prima, e le sue chiavi restano sue.
-    assert.equal(raccoglie[0].id, 'aspetto')
-    assert.ok(!SEZIONI_PROGRAMMA.some((sezione) => sezione.id === 'file'))
-    const sue = vociDiSezione(VOCI, raccoglie[0]).map((voce) => voce.chiave)
-    assert.ok(sue.some((chiave) => chiave.startsWith('registroDocenti.aspetto.')))
 
     // Un'impostazione di un gruppo nuovo compare nella sezione che raccoglie.
     const nuova = {
@@ -134,62 +130,11 @@ describe('le sezioni delle impostazioni del programma', () => {
     assert.ok(dentro.includes(nuova.chiave))
   })
 
-  it('posta e recapiti stanno insieme, in «Comunicazioni»', () => {
-    const posta = SEZIONI_PROGRAMMA.find((sezione) => sezione.id === 'posta')
-    assert.equal(posta.titolo, 'Comunicazioni')
-    assert.ok(!SEZIONI_PROGRAMMA.some((sezione) => sezione.id === 'recapiti'))
-    const recapiti = VOCI.filter((voce) => voce.chiave.startsWith('registroDocenti.recapiti.'))
-    assert.ok(recapiti.length > 0, 'nessuna chiave dei recapiti nel manifesto')
-    for (const voce of recapiti) {
-      const sue = SEZIONI_PROGRAMMA.filter((sezione) =>
-        vociMostrateDaSezione(VOCI, sezione).some((altra) => altra.chiave === voce.chiave),
-      )
-      assert.deepEqual(sue.map((sezione) => sezione.id), ['posta'], voce.chiave)
-    }
-  })
-
-  it('i modelli e le loro impostazioni stanno in una sezione sola', () => {
-    // File, chi risponde e interruttori stanno insieme.
-    for (const chiave of [
-      'registroDocenti.modelli.cartella',
-      'registroDocenti.ocr.attivo',
-      'registroDocenti.assistente.attivo',
-      'registroDocenti.dettatura.attivo',
-    ]) {
-      const sue = SEZIONI_PROGRAMMA.filter((sezione) => sottoPrefisso(chiave, sezione.prefissi))
-      assert.deepEqual(sue.map((sezione) => sezione.id), ['modelli'], chiave)
-    }
-  })
-
-  it('la cartella dei modelli sta nella sua sezione, non nel raccoglitore', () => {
-    // La cartella da gigabyte non finisce nella sezione che raccoglie il resto.
-    const suoi = SEZIONI_PROGRAMMA.filter((sezione) =>
-      sottoPrefisso('registroDocenti.modelli.cartella', sezione.prefissi),
-    )
-    assert.deepEqual(suoi.map((sezione) => sezione.id), ['modelli'])
-  })
-
   it('un prefisso prende la chiave esatta e quelle puntate sotto, non quelle che le somigliano', () => {
     assert.equal(sottoPrefisso('registroDocenti.posta', ['registroDocenti.posta']), true)
     assert.equal(sottoPrefisso('registroDocenti.posta.mittente', ['registroDocenti.posta']), true)
     // `postaAltro` non è dentro `posta`: il prefisso vale col punto.
     assert.equal(sottoPrefisso('registroDocenti.postaAltro', ['registroDocenti.posta']), false)
-  })
-
-  it('dentro una sezione le voci restano divise per gruppo, con un titolo leggibile', () => {
-    const aspetto = SEZIONI_PROGRAMMA.find((sezione) => sezione.id === 'aspetto')
-    const gruppi = gruppiDiSezione(VOCI, aspetto)
-
-    // Un gruppo per argomento, nell'ordine del manifesto.
-    assert.deepEqual(gruppi.map((gruppo) => gruppo.prefisso), [
-      'registroDocenti.aspetto',
-      'registroDocenti.vassoio',
-      'registroDocenti.avvio',
-      'registroDocenti.promemoria',
-      'registroDocenti.proiezione',
-    ])
-    assert.equal(gruppi[1].titolo, 'Icona accanto all’orologio')
-    assert.ok(gruppi[1].voci.every((voce) => voce.chiave.startsWith('registroDocenti.vassoio.')))
   })
 
   it('il condotto ha una sezione sua, con l’avviso in testa', () => {
@@ -203,26 +148,41 @@ describe('le sezioni delle impostazioni del programma', () => {
     assert.ok(condotto.avvertenza, 'la sezione che concede un accesso deve dire che cosa concede')
   })
 
-  it('i programmi già installati stanno in fondo, non in fila con il resto', () => {
-    // Le impostazioni avanzate stanno a parte dagli interruttori.
-    const modelli = SEZIONI_PROGRAMMA.find((sezione) => sezione.id === 'modelli')
-    const avanzate = avanzateDiSezione(VOCI, modelli).map((voce) => voce.chiave)
-    const correnti = gruppiDiSezione(VOCI, modelli).flatMap((gruppo) =>
-      gruppo.voci.map((voce) => voce.chiave),
-    )
+  it('dentro una sezione le voci restano divise per gruppo, nell’ordine del manifesto', () => {
+    for (const sezione of SEZIONI_PROGRAMMA) {
+      const gruppi = gruppiDiSezione(VOCI, sezione)
+      for (const gruppo of gruppi) {
+        assert.ok(gruppo.titolo, `${sezione.id} › ${gruppo.prefisso}: gruppo senza titolo`)
+        assert.ok(
+          gruppo.voci.every((voce) => sottoPrefisso(voce.chiave, [gruppo.prefisso])),
+          `${sezione.id} › ${gruppo.prefisso}: una voce di un altro gruppo`,
+        )
+      }
+      // I gruppi arrivano nell'ordine in cui il manifesto nomina la loro prima voce.
+      const posto = (chiave) => VOCI.findIndex((voce) => voce.chiave === chiave)
+      const primaVoce = gruppi.map((gruppo) => posto(gruppo.voci[0].chiave))
+      assert.deepEqual(primaVoce, [...primaVoce].sort((a, b) => a - b), sezione.id)
+    }
+  })
 
-    assert.ok(avanzate.includes('registroDocenti.dettatura.indirizzo'))
-    assert.ok(avanzate.includes('registroDocenti.ocr.programma'))
-    assert.ok(correnti.includes('registroDocenti.dettatura.attivo'))
-    assert.ok(correnti.includes('registroDocenti.dettatura.taglia'))
-    // Nessuna chiave in tutte e due: sarebbe la stessa riga due volte.
-    assert.deepEqual(avanzate.filter((chiave) => correnti.includes(chiave)), [])
-    // E insieme fanno la sezione intera.
-    assert.equal(avanzate.length + correnti.length, vociDiSezione(VOCI, modelli).length)
+  it('le voci avanzate stanno a parte, e con le altre fanno la sezione intera', () => {
+    for (const sezione of SEZIONI_PROGRAMMA) {
+      const avanzate = avanzateDiSezione(VOCI, sezione).map((voce) => voce.chiave)
+      const correnti = gruppiDiSezione(VOCI, sezione).flatMap((gruppo) =>
+        gruppo.voci.map((voce) => voce.chiave),
+      )
+      assert.ok(avanzate.every((chiave) => IMPOSTAZIONI[chiave].avanzata), sezione.id)
+      assert.ok(correnti.every((chiave) => !IMPOSTAZIONI[chiave].avanzata), sezione.id)
+      // Nessuna chiave in tutte e due: sarebbe la stessa riga due volte.
+      assert.deepEqual(avanzate.filter((chiave) => correnti.includes(chiave)), [], sezione.id)
+      const tutte = vociDiSezione(VOCI, sezione).length
+      assert.equal(avanzate.length + correnti.length, tutte, sezione.id)
+    }
   })
 
   it('il nome di una voce è quello scritto nel manifesto', () => {
-    assert.equal(nomeVoce('registroDocenti.promemoria.anticipoMinuti'), 'Minuti di anticipo')
+    const chiave = 'registroDocenti.promemoria.anticipoMinuti'
+    assert.equal(nomeVoce(chiave), IMPOSTAZIONI[chiave].etichetta)
     // Senza etichetta — una chiave che non è un'impostazione — si ricava a parole.
     assert.equal(nomeVoce('registroDocenti.qualcosaDiNuovo'), 'Qualcosa di nuovo')
   })
@@ -302,39 +262,6 @@ describe('i gruppi tematici della colonna', () => {
     // cercata nel documento ricade sul primo gruppo.
     assert.equal(gruppoDellaSezione('programma', 'modelli').id, 'programma')
     assert.equal(gruppoDellaSezione('documento', 'modelli').id, GRUPPI_SEZIONI[0].id)
-    assert.equal(gruppoDellaSezione('documento', 'intestazione').id, 'stampa')
-  })
-
-  it('i calendari ICS hanno una sezione loro, dopo la griglia', () => {
-    const anno = GRUPPI_SEZIONI.find((gruppo) => gruppo.id === 'anno')
-    assert.deepEqual(anno.voci.map((voce) => voce.id), ['anno', 'calendario', 'ics'])
-    assert.equal(sezioneAperta('documento', 'ics', 'aspetto').titolo, 'Calendari ICS')
-  })
-
-  it('le liste sono un gruppo loro, subito dopo la didattica', () => {
-    const id = GRUPPI_SEZIONI.map((gruppo) => gruppo.id)
-    assert.equal(id.indexOf('liste'), id.indexOf('didattica') + 1)
-    const liste = GRUPPI_SEZIONI.find((gruppo) => gruppo.id === 'liste')
-    assert.deepEqual(liste.voci, [{ ambito: 'documento', id: 'liste' }])
-  })
-
-  it('Comunicazioni è un gruppo di una sezione sola, con il suo stesso nome', () => {
-    // La fascia e il percorso saltano la sezione quando ripeterebbe il gruppo.
-    const qui = sezioneAperta('programma', 'anno', 'posta')
-    assert.equal(qui.gruppo.id, 'comunicazioni')
-    assert.equal(qui.gruppo.voci.length, 1)
-    assert.equal(qui.titolo, qui.gruppo.titolo)
-  })
-
-  it('il programma raccoglie anche i modelli linguistici e il condotto, in coda', () => {
-    const programma = GRUPPI_SEZIONI.find((gruppo) => gruppo.id === 'programma')
-    assert.deepEqual(programma.voci.slice(-2), [
-      { ambito: 'programma', id: 'modelli' },
-      { ambito: 'programma', id: 'condotto' },
-    ])
-    const id = GRUPPI_SEZIONI.map((gruppo) => gruppo.id)
-    assert.ok(!id.includes('modelli'), 'il gruppo «Modelli locali» è tornato')
-    assert.ok(!id.includes('avanzate'), 'il gruppo «Avanzate» è tornato')
   })
 
   it('la sezione aperta porta il suo gruppo, e una scheda sconosciuta ricade sulla prima', () => {

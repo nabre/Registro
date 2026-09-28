@@ -16,13 +16,15 @@
 
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { describe, it } from 'node:test'
+import { after, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-corredo-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-corredo-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 const { scarica, scompatta, scriviZip } = await import('../../dist-tests/kit.mjs')
 

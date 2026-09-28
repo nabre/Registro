@@ -7,14 +7,25 @@
 // `nodeLlama` per il `node-llama-cpp` finto; `finti` per moduli scritti lì per
 // lì, da nome a testo; `plugins` per sostituire un modulo per un importatore
 // solo; `external` per lasciare fuori un pacchetto.
+//
+// Con `REGISTRO_COPERTURA=1` (lo mette `tools/copertura.mjs`) il modulo va su
+// disco con la mappa inline: la copertura di Node ignora i `data:` e senza
+// mappa non saprebbe da quale `.ts` viene il codice.
 
 import { build } from 'esbuild'
-import { fileURLToPath } from 'node:url'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const RADICE = fileURLToPath(new URL('../..', import.meta.url))
 
 /** Il finto `electron` comune, con le barre giuste per un `import` in un testo. */
 const FINTO_ELECTRON = `${RADICE}/tests/helpers/fake-electron.mjs`.replace(/\\/g, '/')
+
+/** Dove vanno i moduli compilati quando si misura la copertura; se no, da nessuna parte. */
+const CARTELLA_COPERTURA = process.env.REGISTRO_COPERTURA === '1'
+  ? `${RADICE}/copertura/moduli`
+  : null
+let compilati = 0
 
 /** Il finto comune, più una `Notification` che si comanda da `globalThis.__notifiche`. */
 export const ELECTRON_CON_NOTIFICHE = `
@@ -63,8 +74,10 @@ export async function importaSorgente (
   const ingresso = sorgente.startsWith('export')
     ? { stdin: { contents: sorgente, resolveDir: RADICE, loader: 'ts', sourcefile: 'prova.ts' } }
     : { entryPoints: [`${RADICE}/${sorgente}`] }
+  const file = CARTELLA_COPERTURA && `${CARTELLA_COPERTURA}/${process.pid}-${compilati++}.mjs`
   const uscita = await build({
     ...ingresso,
+    ...(file ? { outfile: file, sourcemap: 'inline' } : {}),
     bundle: true,
     write: false,
     platform: 'node',
@@ -81,5 +94,10 @@ export async function importaSorgente (
     },
   })
   const testo = uscita.outputFiles[0].text
+  if (file) {
+    mkdirSync(CARTELLA_COPERTURA, { recursive: true })
+    writeFileSync(file, testo)
+    return await import(pathToFileURL(file).href)
+  }
   return await import(`data:text/javascript;base64,${Buffer.from(testo).toString('base64')}`)
 }

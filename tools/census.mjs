@@ -11,7 +11,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { daRadice, fileSotto } from './common.mjs'
+import { RADICE, daRadice, fileSotto } from './common.mjs'
 
 /** Cartelle di codice: tutto quel che può nominare un simbolo va guardato. */
 const CARTELLE = ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools']
@@ -19,7 +19,7 @@ const CARTELLE = ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools']
 /** File sciolti fuori dalle cartelle di codice che però importano il resto. */
 const SCIOLTI = ['esbuild.mjs']
 
-const radice = process.cwd()
+const radice = RADICE
 
 /** Tutte le forme in cui qui dentro si scrive codice: un export si nomina da ognuna. */
 const ESTENSIONI = ['.ts', '.mts', '.mjs', '.cjs']
@@ -103,4 +103,6 @@ for (const rilievo of rilievi) {
 // Fa fallire solo quel che nessuno chiama, cioè codice morto. Quel che è solo
 // «interno» è un consiglio: certi tipi restano esportati apposta perché
 // compaiono nella firma di una funzione esportata (il motivo è nel sorgente).
-process.exitCode = mai.length ? 1 : 0
+// Zero file letti è una radice sbagliata, non un progetto senza codice morto.
+if (percorsi.length === 0) console.log('Nessun file letto: la radice del progetto è sbagliata?')
+process.exitCode = mai.length || percorsi.length === 0 ? 1 : 0

@@ -20,27 +20,16 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/movimento.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright
+from banco import FOTOGRAMMA, chromium, pannello
 
-root = Path(__file__).resolve().parents[2]
-
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+with chromium() as browser:
     # Bassa apposta, come in `scroll.py`: la Guida deve scorrere.
-    page = browser.new_page(viewport={'width': 1280, 'height': 600})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.tutte=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); tutte.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+    page, errors = pannello(browser, 1280, 600)
 
     contenuto = page.locator('main.contenuto')
 
     def fotogramma():
-        page.evaluate('()=>new Promise(requestAnimationFrame)')
+        page.evaluate(FOTOGRAMMA)
 
     def vista():
         return page.evaluate('prova.stato.vista')
@@ -139,7 +128,8 @@ with sync_playwright() as p:
     assert contenuto.get_attribute('data-entrata') is not None, 'cambiando pagina manca data-entrata'
     animazione = page.locator('main.contenuto > .vista').evaluate('(el) => getComputedStyle(el).animationName')
     assert animazione == 'entrata-pagina', f'la vista non si anima entrando: {animazione!r}'
-    page.wait_for_timeout(300)
+    # Finita l'entrata (160 ms), un ridisegno non la rifà.
+    page.wait_for_function("document.querySelector('main.contenuto > .vista').getAnimations().length === 0")
     page.evaluate('prova.aggiorna({})')
     fotogramma()
     assert contenuto.get_attribute('data-entrata') is None, 'data-entrata resta anche senza cambio di pagina'
@@ -155,6 +145,5 @@ with sync_playwright() as p:
     assert animazione == 'none', f'con «riduci movimento» la pagina si anima lo stesso: {animazione!r}'
 
     assert not errors, f'errori JS: {errors}'
-    browser.close()
 
 print('movimento: ok')

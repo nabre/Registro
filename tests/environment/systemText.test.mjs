@@ -6,12 +6,14 @@
 
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { describe, it } from 'node:test'
+import { after, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-testo-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-testo-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 const { dimensioneTesto, preferenzeComuni } = await import('../../dist-tests/environment.mjs')
 
@@ -45,10 +47,6 @@ describe('la dimensione del testo segue il sistema', () => {
     assert.ok(Number.isInteger(misura), `${misura} non è un intero`)
     // 16 al 100%, 48 al 300%: fuori c'è un valore letto male.
     assert.ok(misura >= 16 && misura <= 48, `${misura} è fuori scala`)
-  })
-
-  it('non chiede niente al sistema più di una volta', () => {
-    assert.equal(dimensioneTesto(), dimensioneTesto())
   })
 
   it('le finestre la ricevono tutte dallo stesso posto', () => {

@@ -21,7 +21,7 @@ import { beforeEach, describe, it } from 'node:test'
 
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-giro12-'))
+process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-'))
 
 /**
  * La libreria finta: `createModelDownloader` chiede a `globalThis.__finto`

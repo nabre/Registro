@@ -171,7 +171,7 @@ describe('la rinomina di jsonStore su Windows', () => {
       `,
       },
     })
-    const cartella = mkdtempSync(join(tmpdir(), 'registro-giro12-'))
+    const cartella = mkdtempSync(join(tmpdir(), 'registro-json-scrittura-'))
     const piattaforma = Object.getOwnPropertyDescriptor(process, 'platform')
     Object.defineProperty(process, 'platform', { value: 'win32' })
     try {
@@ -198,7 +198,7 @@ describe('la rinomina di jsonStore su Windows', () => {
       `,
       },
     })
-    const cartella = mkdtempSync(join(tmpdir(), 'registro-giro12-'))
+    const cartella = mkdtempSync(join(tmpdir(), 'registro-json-scrittura-'))
     try {
       assert.throws(() => scriviJson(join(cartella, 'x.json'), {}), /ENOSPC/)
       assert.equal(globalThis.__rinomine, 1)

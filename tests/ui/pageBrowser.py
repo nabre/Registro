@@ -10,17 +10,16 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/pageBrowser.py`
 """
-from pathlib import Path
 import json
 import subprocess
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import BUNDLE, FOTOGRAMMA, RADICE, chromium, pannello, schermata
 
 
 # Un PDF di tre pagine, un nome per pagina: la prima e la terza sono della
 # stessa persona, quindi le pagine si scelgono a mano.
-pdf = root / 'dist-tests' / 'sfoglio-prova.pdf'
+pdf = BUNDLE / 'sfoglio-prova.pdf'
 subprocess.run(
     ['node', '-e', f"""
 const {{ PDFDocument, StandardFonts }} = require('@cantoo/pdf-lib')
@@ -36,30 +35,25 @@ const fs = require('node:fs')
   fs.writeFileSync({json.dumps(str(pdf))}, await documento.save())
 }})()
 """],
-    cwd=root, check=True,
+    cwd=RADICE, check=True,
 )
 byte = pdf.read_bytes()
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1600, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
+consolle = []
+
+
+def prepara(page):
     # Anche la console: una chiusura di PDF che fallisce non fa cadere la pagina ma
     # lascia un errore qui, così si vede se `thumbnails.ts` smette di chiudere.
-    consolle = []
     page.on('console', lambda m: consolle.append(m.text) if m.type == 'error' and 'ERR_UNKNOWN_URL_SCHEME' not in m.text else None)
-
     # La cartella dei dati servita da qui (nel pannello è `registro://`): basta un
     # indirizzo da cui `fetch` porti dei byte.
     page.route('https://dati.prova/**', lambda rotta: rotta.fulfill(
         status=200, content_type='application/pdf', body=byte))
 
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+
+with chromium() as browser:
+    page, errors = pannello(browser, 1600, prima=prepara)
 
     # Un PDF in attesa sulla classe di cui si è docente, agganciato a una
     # richiesta.
@@ -130,11 +124,11 @@ with sync_playwright() as p:
       }
       prova.aggiorna({ registro: s.registro })
     }''')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     barra = page.locator('.archivio__barra')
     assert barra.evaluate('el => el.scrollHeight > el.clientHeight + 2'), 'il riquadro non scorre'
     barra.evaluate('el => { el.scrollTop = 300 }')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     appiccicata = page.evaluate('''() => {
       const barra = document.querySelector('.archivio__barra')
       const testa = document.querySelector('.tabella--documenti thead th')
@@ -148,7 +142,12 @@ with sync_playwright() as p:
     cursore = page.locator('.sfoglio__zoom')
     cursore.fill(str(page.evaluate('prova.MISURE_SFOGLIO.length - 1')))
     cursore.dispatch_event('change')
-    page.wait_for_timeout(4000)
+    # pdfjs ridisegna ogni pagina alla misura nuova, più fitta.
+    page.wait_for_function('''([larga, misura]) => {
+      const prima = document.querySelector('.pagina-sfoglio')
+      const img = prima?.querySelector('img')
+      return prima.getBoundingClientRect().width > misura && img?.complete && img.naturalWidth > larga
+    }''', arg=[larga_prima, misura_prima], timeout=30000)
     assert pagine.first.bounding_box()['width'] > misura_prima, 'le pagine non si sono allargate'
     larga_dopo = pagine.first.locator('img').evaluate('img => img.naturalWidth')
     assert larga_dopo > larga_prima, f'disegnata alla stessa risoluzione: {larga_prima} -> {larga_dopo}'
@@ -156,7 +155,10 @@ with sync_playwright() as p:
     assert page.evaluate('prova.stato.zoomSfoglio') == page.evaluate('prova.MISURE_SFOGLIO.at(-1)')
     cursore.fill('2')
     cursore.dispatch_event('change')
-    page.wait_for_timeout(1500)
+    page.wait_for_function('''(larga) => {
+      const img = document.querySelector('.pagina-sfoglio img')
+      return prova.stato.zoomSfoglio === prova.MISURE_SFOGLIO[2] && img?.complete && img.naturalWidth < larga
+    }''', arg=larga_dopo, timeout=30000)
 
     # Due pagine che non si toccano: la prima, e la terza con Ctrl.
     pagine.nth(0).click()
@@ -215,12 +217,12 @@ with sync_playwright() as p:
                     { id: 'b3', da: 3, a: 3, allievoId: null, motivo: 'senza-testo', estratto: '', fiducia: 0, lettura: 'niente' }]
       prova.aggiorna({ registro: prova.stato.registro })
     }""")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.pagina-sfoglio')).to_have_count(2)
     interruttore = page.locator('.sfoglio__testa button', has_text='Archiviate (1)')
     expect(interruttore).to_be_visible()
     interruttore.click()
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     expect(page.locator('.pagina-sfoglio')).to_have_count(3)
     expect(page.locator('.pagina-sfoglio--archiviata')).to_have_count(1)
 
@@ -255,8 +257,7 @@ with sync_playwright() as p:
     assert esito['a2'] == esito['a1'], 'riaperto dopo il cambio di versione, esce diverso'
     assert esito['a3'] == esito['a1'], 'riaperto dopo dimentica(), esce diverso'
 
-    page.screenshot(path=str(root / 'dist-tests/sfoglio.png'))
+    schermata(page, 'sfoglio.png')
     assert not errors, errors
     assert not consolle, consolle
-    browser.close()
     print('sfoglio: ok')

@@ -22,9 +22,18 @@ function comandoAppeso (id) {
   return () => chiamato
 }
 
-/** L'esito dell'azione, o `'appesa'` se non arriva entro mezzo secondo. */
-function entroPoco (promessa) {
-  return Promise.race([promessa, new Promise((risolvi) => setTimeout(() => risolvi('appesa'), 500))])
+/**
+ * L'esito dell'azione, o `'appesa'` se non arriva entro mezzo secondo. Il
+ * mezzo secondo è un tetto, non un'attesa: una risposta pronta lo scavalca.
+ */
+async function entroPoco (promessa) {
+  let tetto
+  const appesa = new Promise((risolvi) => { tetto = setTimeout(() => risolvi('appesa'), 500) })
+  try {
+    return await Promise.race([promessa, appesa])
+  } finally {
+    clearTimeout(tetto)
+  }
 }
 
 describe('le azioni che chiudono il pannello', () => {

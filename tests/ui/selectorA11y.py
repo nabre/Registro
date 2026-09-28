@@ -1,29 +1,16 @@
 """Scelte alternative: radio complete, una scelta e movimento da tastiera."""
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, FRAME, PAGINA_CON_TITOLO, chromium, pannello
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda error: errors.append(str(error)))
-    page.set_content(
-        '<html lang="it"><head><title>Regiklass</title></head>'
-        '<body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.acquireVsCodeApi=()=>({
-      getState:()=>null,setState:()=>{},postMessage:m=>{
-        if(m.id)setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{
-          data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
+with chromium() as browser:
+    page, errors = pannello(browser, html=PAGINA_CON_TITOLO)
     page.evaluate("""()=>{
       const corso=prova.stato.registro.corsi[0]
       prova.scegliCorso(corso.id)
       prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.corso.registro'))
     }""")
-    page.evaluate('()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
+    page.evaluate(FRAME)
 
     gruppi = page.get_by_role('radiogroup')
     assert gruppi.count() > 0
@@ -40,13 +27,12 @@ with sync_playwright() as p:
     attiva = gruppo.locator('[role="radio"][aria-checked="true"]')
     attiva.focus()
     page.keyboard.press('ArrowRight')
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     nuova = page.get_by_role('radiogroup').first.locator(
         '[role="radio"][aria-checked="true"]')
     expect(nuova).to_be_focused()
     expect(nuova).to_have_attribute('tabindex', '0')
 
     assert not errors, errors
-    browser.close()
 
 print('selectorA11y: ok')

@@ -1,13 +1,13 @@
-// I numeri che `docs/INDICE.md` dichiara, tenuti fermi da una macchina: «i
-// conteggi vanno verificati, non ricordati». Più in fondo, gli stessi conti
-// dell'API (procedure, aree, letture) come li scrivono `README.md`,
-// `docs/INDICE.md` e `docs/API.md`.
+// I numeri che le docs dichiarano, confrontati con quelli che il codice dice:
+// «i conteggi vanno verificati, non ricordati». Le cifre di `docs/INDICE.md`
+// che si derivano dal sorgente, e i conti dell'API (procedure, aree, letture)
+// come li scrivono `README.md`, `docs/INDICE.md` e `docs/API.md`.
 //
 // Si leggono i sorgenti, come in `coverage.test.mjs`, perché alcune verità
 // stanno in un **tipo** (`Vista`, le entità del modello).
 //
-// **Come si aggiorna.** Quando un numero cambia a ragione, si cambia qui *e* in
-// `docs/INDICE.md`, nella stessa modifica.
+// **Come si aggiorna.** Qui non c'è nessun numero scritto: quando il codice
+// cambia a ragione, si corregge la doc che la prova nomina.
 
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
 import { azioniSottoContratto, procedure, registraTutte } from '../dist-tests/api.mjs'
-import { COMANDI, IMPOSTAZIONI } from '../dist-tests/manifest.mjs'
+import { IMPOSTAZIONI } from '../dist-tests/manifest.mjs'
 
 registraTutte()
 
@@ -34,48 +34,30 @@ function varianti (testo, nome) {
 }
 
 describe('i conteggi che INDICE.md dichiara', () => {
-  it('le impostazioni del programma sono 32', () => {
-    assert.equal(Object.keys(IMPOSTAZIONI).length, 32)
-  })
+  // Solo i numeri che il sorgente dice senza ambiguità. Comandi dell'interfaccia
+  // (una parte nasce da `...spread`) ed entità (il conto somma `type` e
+  // interfacce non esportate) non si derivano da un testo: non si fissano qui.
+  const indice = sorgente('docs/INDICE.md').replace(/\s+/g, ' ')
 
-  it('i comandi del manifesto sono 20, e quattro hanno una scorciatoia', () => {
-    assert.equal(COMANDI.length, 20)
-    assert.equal(COMANDI.filter((c) => c.scorciatoia).length, 4)
-  })
-
-  it('le destinazioni sono 19', () => {
+  it('INDICE.md dice quante destinazioni e quante viste', () => {
     const pagine = sorgente('ui/pannello/pages.ts')
     const inizio = pagine.indexOf('export const PAGINE')
     assert.ok(inizio >= 0, 'PAGINE non si chiama più così')
     const corpo = pagine.slice(inizio, pagine.indexOf('\n]', inizio))
-    assert.equal((corpo.match(/^\s+id: '/gm) ?? []).length, 19)
-  })
-
-  it('le viste sono 19', () => {
+    const destinazioni = (corpo.match(/^\s+id: '/gm) ?? []).length
     // Le viste del protocollo. L'assistente non è una vista: è un riquadro
-    // (`ui/assistant.ts`). «Modelli linguistici» è una sezione delle impostazioni
-    // ma resta un nome di vista, e `aggiorna` la porta lì.
-    assert.equal(varianti(sorgente('contract/protocollo.ts'), 'Vista'), 19)
+    // (`ui/assistant.ts`).
+    const viste = varianti(sorgente('contract/protocollo.ts'), 'Vista')
+
+    const scritto = /(\d+) destinazioni, (\d+) viste/.exec(indice)
+    assert.ok(scritto, 'la frase «N destinazioni, N viste» non c’è più in INDICE.md: la forma è cambiata?')
+    assert.deepEqual(scritto.slice(1).map(Number), [destinazioni, viste], 'destinazioni, viste')
   })
 
-  it('i comandi dell’interfaccia sono 95', () => {
-    // I comandi della pagina: una parte scritta a mano, una parte nata da
-    // `...spread`, che non si conta a occhio.
-    const comandi = sorgente('ui/pannello/commands.ts')
-    const letterali = (comandi.match(/^ {4}id: '/gm) ?? []).length
-    assert.equal(letterali, 66, 'i comandi scritti per esteso')
-    // I generati si contano a runtime nel pannello; qui si fissa la parte
-    // che un sorgente può dire, e la somma resta scritta in INDICE.md.
-    assert.equal((comandi.match(/\.\.\./g) ?? []).length >= 8, true)
-  })
-
-  it('le entità del modello sono 55', () => {
-    const modelli = sorgente('core/dominio/models.ts')
-    const interfacce = (modelli.match(/^export interface /gm) ?? []).length
-    // Le `export interface` di `models.ts`; il conto di MODELLO-DATI aggiunge
-    // `Divisione` (un `type`), `Indirizzo` (riesportato) e `DocumentoAllievo` (non
-    // esportata). Qui si tiene la parte che si misura senza ambiguità.
-    assert.equal(interfacce, 52)
+  it('INDICE.md dice quante impostazioni macchina', () => {
+    const scritto = /(\d+) impostazioni macchina/.exec(indice)
+    assert.ok(scritto, 'la frase «N impostazioni macchina» non c’è più in INDICE.md: la forma è cambiata?')
+    assert.equal(Number(scritto[1]), Object.keys(IMPOSTAZIONI).length)
   })
 })
 

@@ -9,6 +9,8 @@
  */
 
 import { spawnSync } from 'node:child_process'
+import { readdirSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { RADICE } from './common.mjs'
 
@@ -34,8 +36,8 @@ const PROVE = [
   'tests/ui/hint.py',
   'tests/ui/lingue.py',
   'tests/ui/ricerca.py',
-  'tests/ui/giro12_corse.py',
-  'tests/ui/giro13_comandi.py',
+  'tests/ui/corse.py',
+  'tests/ui/comandiFuoriPagina.py',
   'tests/ui/settimana.py',
   'tests/ui/themeChoice.py',
   'tests/ui/schoolCalendar.py',
@@ -43,6 +45,26 @@ const PROVE = [
   'tests/ui/oggi.py',
   'tests/ui/accessibility.py',
 ]
+
+/** Il modulo comune delle prove: si importa, non si lancia. */
+const BANCO = 'tests/ui/banco.py'
+
+// L'elenco e la cartella devono coincidere: una prova nuova non elencata non
+// girerebbe mai, una tolta dalla cartella farebbe cadere il giro.
+const presenti = readdirSync(join(RADICE, 'tests/ui'))
+  .filter((nome) => nome.endsWith('.py'))
+  .map((nome) => `tests/ui/${nome}`)
+  .filter((prova) => prova !== BANCO)
+const fuoriElenco = presenti.filter((prova) => !PROVE.includes(prova))
+const senzaFile = PROVE.filter((prova) => !presenti.includes(prova))
+if (fuoriElenco.length > 0 || senzaFile.length > 0) {
+  process.stderr.write(
+    'L’elenco delle prove in tools/uiTests.mjs non coincide con tests/ui/*.py.\n' +
+    (fuoriElenco.length > 0 ? `  non elencate: ${fuoriElenco.join(', ')}\n` : '') +
+    (senzaFile.length > 0 ? `  senza file: ${senzaFile.join(', ')}\n` : ''),
+  )
+  process.exit(1)
+}
 
 /**
  * Esegue una riga di comando intera nella shell: su Windows `spawnSync` con

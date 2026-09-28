@@ -1,18 +1,15 @@
 """Errori modali: riepilogo annunciato, descritto e focalizzato dopo submit."""
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, chromium, pannello, ponte
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:m.azione?.tipo==='composizione.crea'?{tipo:'risposta',id:m.id,ok:false,errori:['Nome già usato']}:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
+# `composizione.crea` risponde di no, come l'host con un nome già usato.
+NOME_GIA_USATO = ("m.azione?.tipo === 'composizione.crea'"
+                  " ? { tipo: 'risposta', id: m.id, ok: false, errori: ['Nome già usato'] }"
+                  " : { tipo: 'risposta', id: m.id, ok: true }")
+
+with chromium() as browser:
+    page, errors = pannello(browser, ponte_js=ponte(risposta=NOME_GIA_USATO))
 
     # Due PDF selezionati rendono disponibile la modale Composizione.
     page.evaluate("""()=>{const r=prova.stato.registro, c=r.corsi[0];
@@ -20,7 +17,7 @@ with sync_playwright() as p:
         filtroClasseId:c.classeId,documentiScelti:['esportazioni/a.pdf','esportazioni/b.pdf'],
         esportati:[{percorso:'esportazioni/a.pdf',misura:10,revisione:0},
                    {percorso:'esportazioni/b.pdf',misura:10,revisione:0}],anteprima:null})}""")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
     page.locator('[data-fuoco="comando-documenti.combina"]').click()
 
     dialogo = page.get_by_role('dialog')
@@ -40,6 +37,5 @@ with sync_playwright() as p:
     expect(dialogo.locator('[aria-invalid="true"]')).to_have_count(0)
 
     assert not errors, errors
-    browser.close()
 
 print('errori modali: ok')

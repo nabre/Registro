@@ -4,12 +4,14 @@
 // modulo mostra tutte le impostazioni.
 
 import assert from 'node:assert/strict'
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { describe, it } from 'node:test'
+import { after, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-menu-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-menu-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 // Un'impostazione scritta nel file prima che il modulo legga: distingue il
 // valore del docente dal predefinito. È un interruttore senza `richiede`,

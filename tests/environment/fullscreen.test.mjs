@@ -11,7 +11,8 @@ import { after, beforeEach, describe, it } from 'node:test'
 
 import { bancoElectron, finestreCostruite } from '../helpers/fake-electron.mjs'
 
-const RADICE = percorso.join(tmpdir(), 'registro-app')
+const RADICE = mkdtempSync(percorso.join(tmpdir(), 'registro-app-'))
+after(() => rmSync(RADICE, { recursive: true, force: true }))
 process.env.REGISTRO_APPPATH = percorso.join(RADICE, 'dist')
 
 // Una `userData` tutta di questa prova: le finestre ci scrivono dove stavano.

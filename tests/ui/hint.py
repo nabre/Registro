@@ -17,10 +17,9 @@ Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/hint.py`
 """
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
-root = Path(__file__).resolve().parents[2]
+from banco import FOTOGRAMMA, chromium, pannello
 
 # Il check del primo corso, con una colonna: serve per la finestra «Scegli la
 # data…», che ha un campo con la sua «i».
@@ -33,20 +32,12 @@ PREPARA = '''() => {
   prova.aggiorna({ registro: { ...r, check: [check] }, vista: 'check', corsoId: corso.id })
 }'''
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={'width': 1440, 'height': 1000})
-    errors = []
-    page.on('pageerror', lambda e: errors.append(str(e)))
-    page.set_content('<html lang="it"><body class="app"><div id="radice"></div></body></html>')
-    page.add_script_tag(content='''window.richieste=[]; window.acquireVsCodeApi=()=>({getState:()=>null,setState:()=>{},postMessage:m=>{richieste.push(m); if(m.id) setTimeout(()=>window.dispatchEvent(new MessageEvent('message',{data:{tipo:'risposta',id:m.id,ok:true}})),0)}})''')
-    page.add_style_tag(path=str(root / 'dist-tests/ui.css'))
-    page.add_script_tag(path=str(root / 'dist-tests/ui.js'))
-    page.wait_for_load_state('networkidle')
+with chromium() as browser:
+    page, errors = pannello(browser)
 
     # La pagina delle classi: la testata porta la sua «i».
     page.evaluate("() => prova.aggiorna({ vista: 'classi' })")
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
 
     fumetto = page.locator('.suggerimento__fumetto')
     titolo = page.locator('.vista--classi .testata__titolo')
@@ -74,6 +65,8 @@ with sync_playwright() as p:
     segno.click()
     expect(fumetto).to_have_count(1)
     page.mouse.move(5, 995)
+    # Attesa fissa voluta: prova che il fumetto fermato NON si chiude dopo il
+    # ritardo con cui si chiuderebbe al puntatore che se ne va.
     page.wait_for_timeout(400)
     expect(fumetto).to_have_count(1)
     # Sta nella finestra, sotto o sopra il segno.
@@ -89,7 +82,7 @@ with sync_playwright() as p:
     page.evaluate("() => prova.aggiorna({ vista: 'calendario' })")
     expect(fumetto).to_have_count(0)
     page.evaluate(PREPARA)
-    page.evaluate('()=>new Promise(requestAnimationFrame)')
+    page.evaluate(FOTOGRAMMA)
 
     # Dentro una modale: «Scegli la data…» ha il campo con la sua «i».
     allievo = page.evaluate('prova.stato.registro.classi[0].allievi[0].id')
@@ -125,6 +118,5 @@ with sync_playwright() as p:
     expect(finestra).to_have_count(0)
 
     assert not errors, errors
-    browser.close()
 
 print('suggerimento: ok')

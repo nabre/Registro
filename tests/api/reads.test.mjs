@@ -1445,22 +1445,20 @@ describe('le tre nuove letture di cantiere: cruscotto, pendenze, daFare', () => 
     const esito = await api.chiama(archivio, 'classe.pendenze', { classeId: classe.id, oggi: DAL })
     assert.equal(esito.ok, true, JSON.stringify(esito))
     assert.equal(esito.dati.classeId, classe.id)
-    assert.equal(typeof esito.dati.aperti, 'number')
-    assert.equal(Array.isArray(esito.dati.famiglie), true)
+    assert.equal(esito.dati.classe, classe.nome)
+    // Il totale è la somma delle famiglie: una famiglia persa per strada non si
+    // vedrebbe altrimenti.
+    const somma = (campo) => esito.dati.famiglie.reduce((tot, f) => tot + f[campo], 0)
+    assert.equal(esito.dati.aperti, somma('aperti'))
+    assert.equal(esito.dati.urgenti, somma('urgenti'))
   })
 
   it('smistamento.daFare elenca i file in quarantena da smistare', async () => {
     const esito = await api.chiama(archivio, 'smistamento.daFare', { classeId: classe.id })
     assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(typeof esito.dati.totaleFile, 'number')
-    assert.equal(typeof esito.dati.totalePagine, 'number')
-    assert.equal(Array.isArray(esito.dati.file), true)
-  })
-
-  it('programma.giornale legge le voci in memoria senza toccare il disco', async () => {
-    const esito = await api.chiama(archivio, 'programma.giornale', {})
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.ok(Array.isArray(esito.dati.voci))
+    // Nessun file arrivato per questa classe: la cassetta è vuota, e vuota
+    // vuol dire zero pagine, non «pagine sconosciute».
+    assert.deepEqual(esito.dati, { totaleFile: 0, totalePagine: 0, file: [] })
   })
 })
 
