@@ -122,7 +122,8 @@ with chromium() as browser:
       for (let n = 0; n < 30; n += 1) {
         classe.allievi.push({ id: `alv-${n}`, cognome: `Cognome${n}`, nome: 'Prova', attivo: true })
       }
-      prova.aggiorna({ registro: s.registro })
+      // Un registro nuovo, come ogni spinta dell'host: lo stesso oggetto non è un cambio.
+      prova.aggiorna({ registro: { ...s.registro } })
     }''')
     page.evaluate(FOTOGRAMMA)
     barra = page.locator('.archivio__barra')
@@ -215,7 +216,7 @@ with chromium() as browser:
       sm.letture = sm.letture.filter((l) => l.numero !== 2)
       sm.blocchi = [{ id: 'b1', da: 1, a: 1, allievoId: null, motivo: 'senza-testo', estratto: '', fiducia: 0, lettura: 'niente' },
                     { id: 'b3', da: 3, a: 3, allievoId: null, motivo: 'senza-testo', estratto: '', fiducia: 0, lettura: 'niente' }]
-      prova.aggiorna({ registro: prova.stato.registro })
+      prova.aggiorna({ registro: { ...prova.stato.registro } })
     }""")
     page.evaluate(FOTOGRAMMA)
     expect(page.locator('.pagina-sfoglio')).to_have_count(2)

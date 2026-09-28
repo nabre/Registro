@@ -4,7 +4,7 @@
 
 import { oggi, sommaGiorni, sommaMesi } from '../../core/dominio/dates.js'
 import type { Iso } from '../../core/dominio/models.js'
-import { aggiorna, classeDelCorsoId, stato, type ModoCalendario } from './state.js'
+import { aggiorna, classeDelCorsoId, ridisegna, stato, type ModoCalendario } from './state.js'
 
 /** Quante settimane si disegnano di slancio, prima e dopo il giorno scelto. */
 export const SETTIMANE_ATTORNO = 8
@@ -73,6 +73,9 @@ export function vaiAOggi (): void {
   // e farebbe saltare la prima settimana aperta dopo.
   finestraSettimana.versoAdesso = stato.modoCalendario === 'settimana'
   aggiorna({ vista: 'calendario', data: oggi() })
+  // La striscia ricentrata non sta nello stato: già su oggi, `aggiorna` non
+  // ridisegnerebbe.
+  ridisegna()
 }
 
 /** Come si guarda il calendario: settimana, mese, anno, agenda. */
@@ -80,6 +83,8 @@ export function scegliModoCalendario (modo: ModoCalendario): void {
   // Passando al mese la striscia si riporta sul giorno scelto.
   if (modo === 'mese') ricentraMese()
   aggiorna({ modoCalendario: modo })
+  // Idem se si era già nel mese: la striscia va riportata sul giorno.
+  if (modo === 'mese') ridisegna()
 }
 
 /**

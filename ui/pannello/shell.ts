@@ -8,7 +8,7 @@ import { conferma } from './components/modal.js'
 import { barraProiezione } from './components/projection.js'
 import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
-import { azione, lavoroInCorso } from './bridge.js'
+import { azione } from './bridge.js'
 import { aggiorna, stato } from './state.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
@@ -135,20 +135,22 @@ function barraAvvisi (): Figlio {
 }
 
 /**
- * Il filo che dice che il registro sta lavorando. Vive sul telaio e legge il
- * canale, non lo stato: resta finché l'ultima risposta torna, anche quando un
- * ridisegno porta via il pulsante con la sua rotella.
+ * Il filo che dice che il registro sta lavorando. Sta fuori da `#radice` e non
+ * passa dal disegno: accenderlo e spegnerlo, due volte per ogni richiesta lenta,
+ * non rifà la pagina. Resta finché l'ultima risposta torna, anche quando un
+ * ridisegno porta via il pulsante con la sua rotella. Lo accende il canale
+ * (`iscrivitiAttesa` in `main.ts`).
  */
-function filoDiLavoro (): Figlio {
-  if (!lavoroInCorso()) return null
-  return h(
-    'div',
-    {
-      class: 'filo-lavoro',
-      attr: { role: 'status', 'aria-live': 'polite', 'aria-label': testi().staLavorando },
-    },
-    h('span', null),
-  )
+let filo: HTMLElement | null = null
+
+export function mostraFiloDiLavoro (acceso: boolean): void {
+  if (!filo) {
+    filo = h('div', { class: 'filo-lavoro', hidden: true, attr: { role: 'status', 'aria-live': 'polite' } }, h('span', null))
+    document.body.appendChild(filo)
+  }
+  // L'etichetta si scrive a ogni accensione: la lingua può essere cambiata.
+  if (acceso) filo.setAttribute('aria-label', testi().staLavorando)
+  filo.hidden = !acceso
 }
 
 /**
@@ -168,6 +170,9 @@ export function guscio (): Figlio {
   return h(
     'div',
     {
+      // Nodo di telaio, tenuto fra un disegno e l'altro (`aggiornaElemento`): il
+      // suo ascoltatore non dipende dallo stato.
+      dataset: { telaio: 'guscio' },
       class: [
         'guscio',
         sidebarAperta() && 'guscio--con-sidebar',
@@ -177,7 +182,6 @@ export function guscio (): Figlio {
         if (evento.key === 'Escape' && chiudiSidebarMobile()) evento.preventDefault()
       },
     },
-    filoDiLavoro(),
     // La barra del titolo della finestra, disegnata dal registro: sopra tutto,
     // anche sopra la navigazione, perché è il bordo della finestra (`ui/titleBar.ts`).
     barraTitolo(),
@@ -187,7 +191,8 @@ export function guscio (): Figlio {
     barraComandi(),
     h(
       'main',
-      { class: 'contenuto', dataset: { scorrimento: chiaveDellaPagina() } },
+      // Tenuto anche lui finché si guarda la stessa cosa: è la scatola che scorre.
+      { class: 'contenuto', dataset: { telaio: 'contenuto', scorrimento: chiaveDellaPagina() } },
       barraProiezione(),
       barraAvvisi(),
       vistaCorrente(),

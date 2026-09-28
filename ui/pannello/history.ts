@@ -4,7 +4,7 @@
 // cambia pagina finisce in fila senza saperlo.
 
 import { ricordaScorrimenti } from './dom.js'
-import { aggiorna, iscriviti, lezionePerId, riconvalidaRicordati, stato } from './state.js'
+import { aggiorna, iscriviti, lezionePerId, riconvalidaRicordati, ridisegna, stato } from './state.js'
 
 type Scorrimenti = ReturnType<typeof ricordaScorrimenti>
 
@@ -153,6 +153,8 @@ function passo (verso: -1 | 1): boolean {
   indice = arrivo
   daRitrovare = voce.scorrimenti
   aggiorna({ ...voce.posto, schedaComandi: 'pagina' })
+  // `daRitrovare` si consuma al disegno, anche se il posto è quello di adesso.
+  ridisegna()
   // Una classe o un corso cancellati intanto restano nel posto ricordato.
   riconvalidaRicordati()
   return true

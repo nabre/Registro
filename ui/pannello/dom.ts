@@ -109,11 +109,93 @@ export function rimpiazza (elemento: Element, ...figli: Figlio[]): void {
 }
 
 /**
- * Aggiorna il contenuto di un contenitore specifico (es. la sola vista principale)
- * preservando la struttura circostante.
+ * Rifà il contenuto di un contenitore, ma tiene al loro posto i nodi di telaio
+ * (`data-telaio`) che ci sono già: la scatola che scorre ricreata a ogni disegno
+ * perderebbe gli scatti della rotella in corsa (Chromium li lega al nodo) e
+ * tornerebbe su. Il resto si ricostruisce da capo come sempre (ADR-06).
+ *
+ * Un nodo di telaio si tiene se la sua chiave, il tag e `data-scorrimento` sono
+ * gli stessi: cambiando pagina cambia la chiave di scorrimento, il nodo è nuovo
+ * e si riparte dall'alto. Del nodo tenuto si copiano gli attributi e si
+ * sostituiscono i figli; gli ascoltatori restano quelli del primo disegno,
+ * quindi su un nodo di telaio non se ne mettono che dipendano dallo stato.
  */
-export function aggiornaElemento (contenitore: HTMLElement, ...figli: Figlio[]): void {
-  rimpiazza(contenitore, ...figli)
+export function aggiornaElemento (contenitore: HTMLElement, nuovo: Figlio): void {
+  const vecchio = contenitore.firstElementChild
+  if (
+    nuovo instanceof HTMLElement &&
+    vecchio instanceof HTMLElement &&
+    contenitore.childNodes.length === 1 &&
+    innesta(vecchio, nuovo)
+  ) {
+    return
+  }
+  rimpiazza(contenitore, nuovo)
+}
+
+/** Se `vecchio` può restare al posto di `nuovo`: stesso nodo di telaio, stessa cosa guardata. */
+function stessoTelaio (vecchio: Element, nuovo: Element): boolean {
+  if (!(vecchio instanceof HTMLElement) || !(nuovo instanceof HTMLElement)) return false
+  const chiave = nuovo.dataset.telaio
+  return chiave !== undefined &&
+    vecchio.dataset.telaio === chiave &&
+    vecchio.tagName === nuovo.tagName &&
+    vecchio.dataset.scorrimento === nuovo.dataset.scorrimento
+}
+
+/**
+ * Porta `vecchio` a essere `nuovo` senza staccarlo dal documento: staccato,
+ * perderebbe lo scorrimento. Scende nei figli di telaio; gli altri figli sono
+ * quelli nuovi.
+ */
+function innesta (vecchio: HTMLElement, nuovo: HTMLElement): boolean {
+  if (!stessoTelaio(vecchio, nuovo)) return false
+  copiaAttributi(vecchio, nuovo)
+
+  const telaiVecchi = new Map<string, HTMLElement>()
+  for (const figlio of vecchio.children) {
+    if (figlio instanceof HTMLElement && figlio.dataset.telaio !== undefined) {
+      telaiVecchi.set(figlio.dataset.telaio, figlio)
+    }
+  }
+  const figli: Node[] = []
+  for (const figlio of Array.from(nuovo.childNodes)) {
+    const chiave = figlio instanceof HTMLElement ? figlio.dataset.telaio : undefined
+    const tenuto = chiave !== undefined ? telaiVecchi.get(chiave) : undefined
+    if (tenuto && innesta(tenuto, figlio as HTMLElement)) {
+      telaiVecchi.delete(chiave as string)
+      figli.push(tenuto)
+    } else {
+      figli.push(figlio)
+    }
+  }
+
+  // Prima via quel che non resta, poi i nuovi davanti ai tenuti: i tenuti non
+  // si spostano mai, perché l'ordine del telaio non cambia fra due disegni.
+  const restano = new Set(figli)
+  for (const figlio of Array.from(vecchio.childNodes)) {
+    if (!restano.has(figlio)) vecchio.removeChild(figlio)
+  }
+  let dopo: ChildNode | null = vecchio.firstChild
+  for (const figlio of figli) {
+    if (figlio === dopo) {
+      dopo = dopo.nextSibling
+      continue
+    }
+    vecchio.insertBefore(figlio, dopo)
+  }
+  return true
+}
+
+/** Gli attributi di `nuovo` su `vecchio`: quelli in più si tolgono, i diversi si riscrivono. */
+function copiaAttributi (vecchio: HTMLElement, nuovo: HTMLElement): void {
+  for (const nome of vecchio.getAttributeNames()) {
+    if (!nuovo.hasAttribute(nome)) vecchio.removeAttribute(nome)
+  }
+  for (const nome of nuovo.getAttributeNames()) {
+    const valore = nuovo.getAttribute(nome) as string
+    if (vecchio.getAttribute(nome) !== valore) vecchio.setAttribute(nome, valore)
+  }
 }
 
 /** SVG inline: `h` non va bene, gli elementi SVG vogliono il loro namespace. */
@@ -189,7 +271,9 @@ export function ripristinaFuoco (ricordo: FuocoRicordato | null): void {
     `[data-fuoco="${CSS.escape(ricordo.chiave)}"]`,
   )
   if (!elemento) return
-  elemento.focus()
+  // Senza scorrere: lo scorrimento lo rimette `ripristinaScorrimenti`, e un campo
+  // in cima alla pagina riporterebbe su chi intanto è sceso.
+  elemento.focus({ preventScroll: true })
   const campo = elemento as HTMLInputElement | HTMLTextAreaElement
   if (ricordo.valore !== null && contenutoTestuale(elemento) && campo.value !== ricordo.valore) {
     campo.value = ricordo.valore
@@ -302,7 +386,9 @@ export function ripristinaScorrimenti (ricordo: Map<string, ScorrimentoRicordato
       elemento.scrollLeft = dove.sinistra
       continue
     }
-    elemento.scrollTop = dove.alto
-    elemento.scrollLeft = dove.sinistra
+    // Una scatola di telaio tenuta dal disegno (`aggiornaElemento`) è già lì:
+    // riscriverle lo stesso valore fermerebbe lo scorrimento dolce in corso.
+    if (elemento.scrollTop !== dove.alto) elemento.scrollTop = dove.alto
+    if (elemento.scrollLeft !== dove.sinistra) elemento.scrollLeft = dove.sinistra
   }
 }

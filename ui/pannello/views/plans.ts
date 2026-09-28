@@ -402,7 +402,8 @@ function elencoPiani (
 
   return h(
     'aside',
-    { class: 'elenco-laterale' },
+    // Per corso: cambiandolo si riparte dall'alto dell'elenco.
+    { class: 'elenco-laterale', dataset: { scorrimento: `piani:${corso?.id ?? ''}` } }, // testo-fisso: chiave di scorrimento
     h(
       'header',
       { class: 'elenco-laterale__testata' },

@@ -3,11 +3,12 @@ import { assistenteAperto } from './assistant.js'
 import { h, type Figlio } from './dom.js'
 import { icona } from './components/icons.js'
 import { gruppiDiPagine, vaiA, type Pagina } from './pages.js'
-import { aggiorna, stato } from './state.js'
+import { aggiorna, ridisegna, stato } from './state.js'
 import { testi } from './sidebar.testi.js'
 
 const stretta = window.matchMedia('(max-width: 64em)')
-stretta.addEventListener('change', () => aggiorna({}))
+// La larghezza della finestra non sta nello stato: cambiandola si ridisegna a mano.
+stretta.addEventListener('change', () => ridisegna())
 
 /**
  * Se la navigazione è ridotta per forza: su finestra stretta con l'assistente

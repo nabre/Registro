@@ -25,6 +25,18 @@ import { testi } from './calendar.testi.js'
 // ------------------------------------------------------------------ settimana
 
 /**
+ * Dove si era lasciata la fila, per quale settimana aperta e quanto era larga.
+ * La fila si rifà a ogni disegno e ripartirebbe da capo: si ricentra solo se
+ * cambiano settimana o larghezza, altrimenti torna dove l'aveva lasciata chi
+ * la scorreva.
+ */
+const scorrimentoFila: { lunedi: Iso | null, larghezza: number, sinistra: number } = {
+  lunedi: null,
+  larghezza: 0,
+  sinistra: 0,
+}
+
+/**
  * Tutte le settimane dell'anno scolastico, anche quelle vuote (buchi o pause
  * da vedere). Il confine si segna dove un semestre finisce, se ne segue un
  * altro. Si ripiega; chiusa resta la testata con il conto e il pulsante.
@@ -131,15 +143,33 @@ export function strisciaSettimane (): Figlio {
     .length
   const fila = h('div', { class: 'striscia-settimane__voci', attr: { id: 'striscia-settimane-voci' } }, ...voci)
   // La settimana aperta dev'essere visibile nella fila: si scorre solo la fila,
-  // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento appeso.
-  if (!chiusa) requestAnimationFrame(() => {
-    const accesa = fila.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
-    if (!accesa) return
-    const vista = fila.getBoundingClientRect()
-    const voce = accesa.getBoundingClientRect()
-    if (voce.left >= vista.left && voce.right <= vista.right) return
-    fila.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
-  })
+  // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento
+  // appeso. Solo quando cambiano settimana o larghezza: un ridisegno qualunque
+  // rimette la fila dov'era.
+  if (!chiusa) {
+    fila.addEventListener('scroll', () => {
+      scorrimentoFila.sinistra = fila.scrollLeft
+    })
+    requestAnimationFrame(() => {
+      const larghezza = fila.clientWidth
+      if (scorrimentoFila.lunedi === corrente && scorrimentoFila.larghezza === larghezza) {
+        fila.scrollLeft = scorrimentoFila.sinistra
+        return
+      }
+      scorrimentoFila.lunedi = corrente
+      scorrimentoFila.larghezza = larghezza
+      fila.scrollLeft = scorrimentoFila.sinistra
+      const accesa = fila.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
+      if (accesa) {
+        const vista = fila.getBoundingClientRect()
+        const voce = accesa.getBoundingClientRect()
+        if (voce.left < vista.left || voce.right > vista.right) {
+          fila.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
+        }
+      }
+      scorrimentoFila.sinistra = fila.scrollLeft
+    })
+  }
   return h(
     'div',
     { class: ['striscia-settimane', chiusa && 'striscia-settimane--chiusa'] },

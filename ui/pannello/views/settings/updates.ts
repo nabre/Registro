@@ -11,7 +11,7 @@ import type { NomeIcona } from '../../components/icons.js'
 import { conferma } from '../../components/modal.js'
 import { h, type Figlio } from '../../dom.js'
 import { ascolta, azione, chiedi } from '../../bridge.js'
-import { aggiorna, stato } from '../../state.js'
+import { ridisegna, stato } from '../../state.js'
 import { testi } from './updates.testi.js'
 
 // ------------------------------------------------------------------ memoria
@@ -20,8 +20,7 @@ import { testi } from './updates.testi.js'
 // finisce con il pannello.
 
 let ultimo: StatoAggiornamenti | null = null
-let chiesto = false
-let inAscolto = false
+let avviato = false
 
 /** Se la sezione è davanti agli occhi: solo allora vale la pena ridisegnare. */
 function sottoGliOcchi (): boolean {
@@ -32,9 +31,14 @@ function sottoGliOcchi (): boolean {
   )
 }
 
-function ascoltaAggiornamenti (): void {
-  if (inAscolto) return
-  inAscolto = true
+/**
+ * Si mette in ascolto e chiede lo stato all'host, una volta per vita del
+ * pannello: la chiama l'avvio (`main.ts`), non il disegno, che la rifarebbe
+ * partire a ogni ridisegno.
+ */
+export function avviaAggiornamenti (): void {
+  if (avviato) return
+  avviato = true
   ascolta((messaggio) => {
     if (messaggio.tipo !== 'aggiornamenti') return
     const prima = ultimo
@@ -42,8 +46,9 @@ function ascoltaAggiornamenti (): void {
     // L'ascolto dura quanto il pannello: fuori da questa sezione si ridisegna solo
     // quando cambia quel che mostrano la barra in fondo e il filetto, altrimenti
     // uno scarico ridisegnerebbe il registro di continuo.
-    if (sottoGliOcchi() || cambiaFuori(prima, ultimo)) aggiorna({})
+    if (sottoGliOcchi() || cambiaFuori(prima, ultimo)) ridisegna()
   })
+  void leggi()
 }
 
 async function leggi (): Promise<void> {
@@ -51,7 +56,7 @@ async function leggi (): Promise<void> {
   const esito = await chiedi<StatoAggiornamenti>('aggiornamenti.stato', undefined, { diFondo: true })
   const prima = ultimo
   if (esito.ok && esito.dati) ultimo = esito.dati
-  if (sottoGliOcchi() || cambiaFuori(prima, ultimo)) aggiorna({})
+  if (sottoGliOcchi() || cambiaFuori(prima, ultimo)) ridisegna()
 }
 
 /**
@@ -70,15 +75,9 @@ function cambiaFuori (
 
 /**
  * Lo stato degli aggiornamenti per chi sta fuori dalla sezione — la barra in
- * fondo, il filetto. La prima chiamata si mette in ascolto e chiede lo stato
- * all'host; finché non risponde vale `null`.
+ * fondo, il filetto. Finché l'host non risponde a `avviaAggiornamenti` vale `null`.
  */
 export function statoDegliAggiornamenti (): StatoAggiornamenti | null {
-  ascoltaAggiornamenti()
-  if (!chiesto) {
-    chiesto = true
-    void leggi()
-  }
   return ultimo
 }
 

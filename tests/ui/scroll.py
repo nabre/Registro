@@ -55,6 +55,62 @@ with chromium() as browser:
     assert 'stable' in stile, f'manca `scrollbar-gutter: stable`: {stile}'
     assert 'thin' in stile, f'manca `scrollbar-width: thin`: {stile}'
 
+    # La rotella mentre il registro si ridisegna di continuo (l'orologio, una
+    # risposta dell'host, il filo di lavoro): la scatola che scorre è la stessa
+    # di prima, e gli scatti in corsa arrivano tutti. Ricreata a ogni disegno,
+    # Chromium li perdeva per strada e la pagina «tornava su».
+    page.evaluate("prova.aggiorna({vista:'guida'})")
+    page.evaluate(FOTOGRAMMA)
+
+    def rotella(con_ridisegni):
+        contenuto.evaluate('(el) => el.scrollTop = 0')
+        page.wait_for_timeout(100)
+        if con_ridisegni:
+            page.evaluate('window.__ridisegni = setInterval(() => prova.aggiorna({}), 50)')
+        page.mouse.move(700, 400)
+        for _ in range(10):
+            page.mouse.wheel(0, 150)
+            page.wait_for_timeout(30)
+        page.wait_for_timeout(500)
+        if con_ridisegni:
+            page.evaluate('clearInterval(window.__ridisegni)')
+        return contenuto.evaluate('(el) => el.scrollTop')
+
+    senza = rotella(False)
+    con = rotella(True)
+    assert senza > 600, f'la Guida scorre troppo poco perché la prova dica qualcosa: {senza}'
+    assert abs(con - senza) <= 150, f'scatti persi durante i ridisegni: {con} invece di {senza}'
+
+    # Un ridisegno lento, e intanto la pagina scorre (il compositore non aspetta
+    # JavaScript): alla fine si resta dove si è arrivati, non dove si era
+    # all'inizio del disegno. Lo scorrimento a metà costruzione lo simula la
+    # prima lettura di `stato.avvisi`, che avviene solo dentro il telaio.
+    contenuto.evaluate('(el) => el.scrollTop = 400')
+    page.evaluate('''() => {
+      const s = prova.stato
+      let valore = s.avvisi
+      let armato = true
+      Object.defineProperty(s, 'avvisi', {
+        configurable: true, enumerable: true,
+        get () {
+          if (armato) {
+            armato = false
+            document.querySelector('main.contenuto').scrollTop += 300
+          }
+          return valore
+        },
+        set (nuovo) { valore = nuovo },
+      })
+      window.__rimetti = () => Object.defineProperty(s, 'avvisi', {
+        configurable: true, enumerable: true, writable: true, value: valore,
+      })
+    }''')
+    page.evaluate('prova.aggiorna({})')
+    page.evaluate(FOTOGRAMMA)
+    page.evaluate('window.__rimetti()')
+    dopo = contenuto.evaluate('(el) => el.scrollTop')
+    assert dopo == 700, f'il ridisegno lento ha riportato indietro lo scorrimento: {dopo} invece di 700'
+
     assert not errors, f'errori JS: {errors}'
 
 print('scorrimento: ok')

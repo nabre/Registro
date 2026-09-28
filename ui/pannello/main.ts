@@ -19,7 +19,7 @@ import {
   ripristinaFuoco,
   ripristinaScorrimenti,
 } from './dom.js'
-import { guscio } from './shell.js'
+import { guscio, mostraFiloDiLavoro } from './shell.js'
 import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
 import { ascolta, invia, iscrivitiAttesa } from './bridge.js'
@@ -43,6 +43,7 @@ import {
 import { chiudiTutte } from './components/modal.js'
 import { scordaEditorDelPiano } from './views/plans.js'
 import { scordaDestinatariMandati } from './views/classTeacher.js'
+import { avviaAggiornamenti } from './views/settings/updates.js'
 import {
   moduloClasse,
   moduloCorso,
@@ -61,6 +62,12 @@ const DURATA_ENTRATA = 160
 let paginaDisegnata: string | null = null
 /** Quando è entrata la pagina di adesso, in `performance.now()`. */
 let entrataDa = -Infinity
+/**
+ * Il `main.contenuto` a cui si è data l'entrata e il suo ritardo. Il nodo resta
+ * fra due disegni della stessa pagina (`aggiornaElemento`): gli si rimette lo
+ * stesso ritardo, perché cambiarlo a animazione in corso la farebbe saltare.
+ */
+let entrataSu: { nodo: HTMLElement, ritardo: string } | null = null
 
 /**
  * Quale pagina si sta guardando, per l'entrata: vista, destinazione e scheda
@@ -89,8 +96,11 @@ function segnaEntrata (): void {
   const passato = adesso - entrataDa
   if (passato >= DURATA_ENTRATA) return
   contenuto.dataset.entrata = ''
-  // testo-fisso: un valore CSS
-  contenuto.style.setProperty('--entrata-passata', `${-Math.round(passato)}ms`)
+  if (entrataSu?.nodo !== contenuto) {
+    // testo-fisso: un valore CSS
+    entrataSu = { nodo: contenuto, ritardo: `${-Math.round(passato)}ms` }
+  }
+  contenuto.style.setProperty('--entrata-passata', entrataSu.ritardo)
 }
 
 function disegna (): void {
@@ -100,11 +110,14 @@ function disegna (): void {
     disegnoProgrammato = false
     // Fuoco e scorrimento non stanno nello stato: si salvano e si rimettono (ogni
     // scatola con `data-scorrimento`). Dopo Alt+← si aggiunge lo scorrimento del
-    // posto a cui si torna (`history.ts`).
+    // posto a cui si torna (`history.ts`). Si fotografano dopo aver costruito la
+    // vista, che può durare centinaia di millisecondi: intanto la pagina scorre,
+    // e una foto presa prima la riporterebbe indietro.
     const t0 = performance.now()
+    const nuovo = guscio()
     const fuoco = ricordaFuoco()
     const scorrimenti = conGliScorrimentiDelRitorno(ricordaScorrimenti())
-    aggiornaElemento(radice, guscio())
+    aggiornaElemento(radice, nuovo)
     segnaEntrata()
     ripristinaFuoco(fuoco)
     ripristinaScorrimenti(scorrimenti)
@@ -291,8 +304,8 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
 iscriviti(disegna)
 // La fila dei posti visitati (Alt+←/→), che fornisce anche gli scorrimenti del ritorno.
 installaCammino()
-// Il canale fa ridisegnare quando il filo di lavoro si accende o si spegne.
-iscrivitiAttesa(disegna)
+// Il filo di lavoro si accende e si spegne da sé, fuori dal disegno (`shell.ts`).
+iscrivitiAttesa(mostraFiloDiLavoro)
 
 ascolta((messaggio) => {
   switch (messaggio.tipo) {
@@ -442,4 +455,7 @@ avviaRete()
 // La prima richiesta è anche il segnale all'host che il webview è vivo.
 void invia({ tipo: 'stato.leggi' })
   .catch((errore: unknown) => console.warn('[stato.leggi]', errore))
+// Dopo il segnale di vita: lo stato degli aggiornamenti per la barra in fondo e
+// il titolo, chiesto una volta e poi spinto dall'host.
+avviaAggiornamenti()
 disegna()
