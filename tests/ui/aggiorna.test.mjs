@@ -54,3 +54,57 @@ describe('aggiorna confronta prima di avvisare', () => {
     assert.equal(conti.scritture, scritture)
   })
 })
+
+// L'orologio: il minuto nuovo non ridisegna, lo sente solo chi segna l'ora
+// (`alMinuto` in `orologio.ts`); il giorno nuovo sì. Stato e orologio nello
+// stesso pacchetto, perché gli iscritti di `alMinuto` sono quelli che `batti` chiama.
+describe('il battito dell’orologio', async () => {
+  const { build } = await import('esbuild')
+  const { runInNewContext } = await import('node:vm')
+  const { fileURLToPath } = await import('node:url')
+  const cartella = fileURLToPath(new URL('../../ui/pannello/', import.meta.url))
+  const pacchetto = await build({
+    stdin: {
+      contents: "export * from './state.ts'\nexport { alMinuto } from './orologio.ts'",
+      resolveDir: cartella,
+      loader: 'ts',
+    },
+    bundle: true,
+    write: false,
+    platform: 'browser',
+    format: 'iife',
+    globalName: 'interfaccia',
+  })
+
+  it('un battito nello stesso giorno non ridisegna e avvisa chi segna l’ora', () => {
+    const battiti = []
+    const ambiente = {
+      navigator: { onLine: true },
+      window: { addEventListener () {} },
+      document: { addEventListener () {}, activeElement: null, querySelector: () => null },
+      HTMLTextAreaElement: class {},
+      HTMLInputElement: class {},
+      setInterval: (fn) => { battiti.push(fn); return 0 },
+      clearInterval () {},
+      acquireVsCodeApi: () => ({ getState: () => null, setState () {} }),
+    }
+    runInNewContext(pacchetto.outputFiles[0].text, ambiente)
+    const ui = ambiente.interfaccia
+    let avvisi = 0
+    const minuti = []
+    ui.iscriviti(() => { avvisi += 1 })
+    ui.alMinuto((ora) => minuti.push(ora))
+    ui.avviaOrologio()
+    // Un minuto che non è quello di adesso, lo stesso giorno.
+    ui.stato.adessoOra = '99:99'
+    battiti[0]()
+    assert.equal(avvisi, 0)
+    assert.equal(minuti.length, 1)
+    assert.equal(ui.stato.adessoOra, minuti[0])
+    // Un altro giorno: si ridisegna, e il minuto non si annuncia a parte.
+    ui.stato.adessoData = '2000-01-01'
+    battiti[0]()
+    assert.equal(avvisi, 1)
+    assert.equal(minuti.length, 1)
+  })
+})

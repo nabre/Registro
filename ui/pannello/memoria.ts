@@ -10,56 +10,36 @@
 
 import { isoValida } from '../../core/dominio/dates.js'
 import type { Iso } from '../../core/dominio/models.js'
+import {
+  CAMPI_CONTESTO,
+  paginaValida,
+  schedaValida,
+  SCHEDE_DOCUMENTO,
+  SCHEDE_PROGRAMMA,
+  type Contesto,
+  type Posto,
+  type SchedaDocumento,
+  type SchedaProgramma,
+  type TipoSoggetto,
+} from './posto.js'
 
-// I tipi del posto stanno in `posto.ts`; finché non c'è, questi sono la sola
-// forma che la memoria deve conservare, e il giro 2 li sostituisce con quelli.
-const TIPI_SOGGETTO = ['corso', 'classe', 'lezione', 'allievo', 'piano', 'valutazione'] as const
-type TipoSoggetto = (typeof TIPI_SOGGETTO)[number]
-
-export interface Posto {
-  pagina: string
-  soggetto?: { tipo: TipoSoggetto, id: string }
-  scheda?: string
-}
-
-export interface Contesto {
-  corsoId: string | null
-  classeId: string | null
-  filtroClasseId: string | null
-  lezioneId: string | null
-  pianoId: string | null
-  valutazioneId: string | null
-  allievoId: string | null
-}
-
-const CAMPI_CONTESTO = [
-  'corsoId',
-  'classeId',
-  'filtroClasseId',
-  'lezioneId',
-  'pianoId',
-  'valutazioneId',
-  'allievoId',
-] as const satisfies readonly (keyof Contesto)[]
-
-// Gli elenchi chiusi ricopiati da `state.ts`: importarlo leggerebbe il ponte.
-// Un valore che non c'è più si scarta e `state.ts` rimette il predefinito.
-const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'annotazioni'] as const
-const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as const
-const SCHEDE_DOCUMENTI = ['corso', 'lezioni', 'allievi'] as const
-const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const
-const MODI_CALENDARIO = ['settimana', 'mese', 'anno', 'agenda'] as const
-const SCHEDE_PROGRAMMA = ['aspetto', 'posta', 'modelli', 'aggiornamenti', 'condotto'] as const
-const SCHEDE_DOCUMENTO = [
-  'anno',
-  'calendario',
-  'ics',
+const TIPI_SOGGETTO: readonly TipoSoggetto[] = [
+  'corso',
+  'classe',
+  'lezione',
+  'allievo',
+  'piano',
   'valutazione',
-  'materie',
-  'liste',
-  'intestazione',
-  'file',
-] as const
+]
+
+// Gli elenchi chiusi delle preferenze di forma stanno qui e `state.ts` li
+// importa: la lettura li convalida, lo stato ne ricava i tipi. Un valore che
+// non c'è più si scarta e `state.ts` rimette il predefinito.
+export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'annotazioni'] as const
+export const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as const
+export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni'] as const
+export const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const
+export const MODI_CALENDARIO = ['settimana', 'mese', 'anno', 'agenda'] as const
 
 /** Le preferenze di forma: valgono per ogni documento. */
 export interface Globali {
@@ -79,13 +59,13 @@ export interface Globali {
   azioniNascoste: boolean
   /** La sezione da cui si riapre ciascun ambito delle impostazioni. */
   ultimaSchedaImpostazioni: {
-    programma?: (typeof SCHEDE_PROGRAMMA)[number]
-    documento?: (typeof SCHEDE_DOCUMENTO)[number]
+    programma?: SchedaProgramma
+    documento?: SchedaDocumento
   }
 }
 
 /** Le scelte con id di un anno, fuori dal posto. */
-export interface PreferenzeDocumento {
+interface PreferenzeDocumento {
   filtroCorsoAgendaId: string | null
   classeMappaId: string | null
   bloccoAssenzeId: string | null
@@ -142,7 +122,7 @@ const MASSIMO_RICERCA = 200
 const MASSIMO_CONTESTO_ASSISTENTE = 2000
 
 /** Chi migra il JSON vecchio in un posto; se manca, i campi restano grezzi. */
-export interface OpzioniLettura {
+interface OpzioniLettura {
   postoDaVecchi?: (vecchi: CampiVecchi) => Posto | null
 }
 
@@ -238,17 +218,21 @@ function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
   return contesto
 }
 
+/**
+ * Il posto ricordato, se la sua pagina esiste ancora. Pagina e scheda si
+ * convalidano qui con le regole di `posto.ts`; che il soggetto ci sia ancora
+ * nel documento lo decide `completa`, che ha il registro.
+ */
 function postoDa (grezzo: unknown): Posto | null {
   const posto = oggetto(grezzo)
-  if (!posto || typeof posto.pagina !== 'string' || !posto.pagina.startsWith('pagina.'))
-    return null
+  if (!posto || !paginaValida(posto.pagina)) return null
   const letto: Posto = { pagina: posto.pagina }
   const soggetto = oggetto(posto.soggetto)
   const tipo = ammesso(TIPI_SOGGETTO, soggetto?.tipo)
   const idSoggetto = id(soggetto?.id)
   if (tipo && idSoggetto) letto.soggetto = { tipo, id: idSoggetto }
-  if (typeof posto.scheda === 'string' && posto.scheda.length <= MASSIMO_ID)
-    letto.scheda = posto.scheda
+  const scheda = schedaValida(posto.scheda)
+  if (scheda) letto.scheda = scheda
   return letto
 }
 

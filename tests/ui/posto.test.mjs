@@ -434,9 +434,7 @@ describe('chiaveDelPosto', () => {
 })
 
 describe('PaginaId e PAGINE', () => {
-  it('ogni pagina della barra è un PaginaId, e ogni PaginaId è in PAGINE o fra le nascoste', {
-    skip: 'si accende nel giro 2, quando PAGINE è tipata con PaginaId e legge posto.ts',
-  }, async () => {
+  it('ogni pagina della barra è un PaginaId, e ogni PaginaId è in PAGINE o fra le nascoste', async () => {
     const { preparaDomSintetico } = await import('../helpers/domSintetico.mjs')
     preparaDomSintetico()
     const { PAGINE } = await importaSorgente('ui/pannello/pages.ts')

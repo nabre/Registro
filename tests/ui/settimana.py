@@ -155,14 +155,14 @@ def striscia_ripiegabile(browser):
     expect(page.locator('.striscia-settimane__testata')).to_contain_text('Settimane dell')
     chiusa = page.evaluate("document.querySelector('.striscia-settimane').getBoundingClientRect().height")
     assert chiusa < aperta * 0.6 and chiusa < 34, (aperta, chiusa)
-    assert page.evaluate('window.ricordato && window.ricordato.strisciaSettimaneChiusa') is True
+    assert page.evaluate('window.ricordato && window.ricordato.globali.strisciaSettimaneChiusa') is True
     schermata(page, 'striscia-chiusa.png')
     # Chiusa, la testata dei giorni combacia ancora col corpo.
     controlla_colonne(page.evaluate(MISURA_COLONNE), 'striscia chiusa')
     pulsante.click()
     page.evaluate(due_frame)
     expect(page.locator('.striscia-settimane__ripiega')).to_have_attribute('aria-expanded', 'true')
-    assert page.evaluate('window.ricordato.strisciaSettimaneChiusa') is False
+    assert page.evaluate('window.ricordato.globali.strisciaSettimaneChiusa') is False
     assert not errori, errori
     page.close()
 

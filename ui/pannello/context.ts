@@ -3,8 +3,8 @@
 // `commands.ts` (che cosa si può fare) senza legarsi l'uno all'altro.
 
 import type { Classe, Corso, Lezione } from '../../core/dominio/models.js'
+import type { Posto } from './posto.js'
 import {
-  aggiorna,
   annoCorrente,
   classePerId,
   classiDellAnno,
@@ -12,10 +12,10 @@ import {
   corsoAperto,
   corsoPerId,
   lezionePerId,
-  lezioneDiRiferimentoDiCorso,
   nomeClasse,
   nomeMateria,
   stato,
+  vai,
   type Vista,
 } from './state.js'
 import { testi } from './context.testi.js'
@@ -64,37 +64,44 @@ export function classeDelFascicolo (): Classe | null {
 }
 
 /**
- * Cambia la classe del pannello del docente di classe. Non tocca il corso (là
- * si lavora per classe), sì il filtro per classe che le pagine del corso leggono.
+ * Cambia la classe del pannello del docente di classe, restando sulla scheda.
+ * Non tocca il corso (là si lavora per classe), sì il filtro per classe che le
+ * pagine del corso leggono.
  */
 export function scegliClasseDelFascicolo (id: string): void {
   const classe = classePerId(id)
   if (!classe?.docenteDiClasse) return
-  aggiorna({ classeId: classe.id, filtroClasseId: classe.id })
+  vai(
+    { pagina: stato.posto.pagina, soggetto: { tipo: 'classe', id: classe.id } },
+    { contesto: { classeId: classe.id, filtroClasseId: classe.id } },
+  )
 }
 
-/** Cambia il corso e riallinea la lezione e la classe mostrate. */
+/**
+ * Cambia il corso di lavoro. Le pagine del corso si spostano sul corso (il
+ * Registro sulla sua ora di riferimento, o sui piani se non ne ha); la scheda
+ * di una persona, o un fascicolo di una classe che non ne ha, lasciano il
+ * posto all'elenco delle classi; le altre pagine restano dove sono.
+ */
 export function scegliCorso (id: string): void {
   const corso = corsoPerId(id)
   if (!corso) return
-  const modifiche: Parameters<typeof aggiorna>[0] = {
-    corsoId: corso.id,
-    filtroClasseId: corso.classeId,
-    classeId: corso.classeId,
+  const { pagina, scheda } = stato.posto
+  let posto: Posto = scheda ? { pagina, scheda } : { pagina }
+  if (pagina.startsWith('pagina.corso.') || pagina === 'pagina.corsi') {
+    posto = { pagina, soggetto: { tipo: 'corso', id: corso.id } }
+  } else if (pagina === 'pagina.calendario' && stato.posto.soggetto) {
+    // Il calendario ha un filtro suo: l'ora guardata resta.
+    posto = stato.posto
+  } else if (
+    pagina === 'pagina.allievo' ||
+    (pagina.startsWith('pagina.classe.') && !classePerId(corso.classeId)?.docenteDiClasse)
+  ) {
+    posto = { pagina: 'pagina.classi' }
   }
-  if (stato.vista === 'lezione') {
-    modifiche.lezioneId = lezioneDiRiferimentoDiCorso(id)
-    if (!modifiche.lezioneId) modifiche.vista = 'piani'
-  }
-  if (stato.vista === 'piani') {
-    modifiche.pianoId = null
-    modifiche.lezioneId = null
-  }
-  if (stato.vista === 'allievo') modifiche.vista = 'classi'
-  if (stato.vista === 'docenteClasse' && !classePerId(corso.classeId)?.docenteDiClasse) {
-    modifiche.vista = 'classi'
-  }
-  aggiorna(modifiche)
+  vai(posto, {
+    contesto: { corsoId: corso.id, filtroClasseId: corso.classeId, classeId: corso.classeId },
+  })
 }
 
 /**

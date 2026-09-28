@@ -9,7 +9,8 @@ import { barraProiezione } from './components/projection.js'
 import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
-import { aggiorna, stato } from './state.js'
+import { stato, vai } from './state.js'
+import { chiaveDelPosto } from './posto.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
 import { barraTitolo } from './titleBar.js'
@@ -66,10 +67,10 @@ function vistaCorrente (): Figlio {
     case 'impostazioni':
       return vistaImpostazioni()
     case 'modelli':
-      // `aggiorna` porta `'modelli'` sull'intestazione delle impostazioni dell'anno.
+      // La tabella del posto (`postoDaVista`) porta `'modelli'` sull'intestazione.
       return vistaImpostazioni()
     case 'modelliLinguistici':
-      // `aggiorna` porta questa vista alle impostazioni del programma.
+      // La tabella del posto porta questa vista alle impostazioni del programma.
       return vistaImpostazioni()
     case 'mappa':
       return vistaMappa()
@@ -127,7 +128,7 @@ function barraAvvisi (): Figlio {
         testo: parole().dettagli,
         variante: 'fantasma',
         // Dritto alla sezione che elenca i riferimenti da sistemare.
-        al: () => aggiorna({ vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'file' }),
+        al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'documento.file' }) },
       }),
     ),
     'attenzione',
@@ -154,13 +155,13 @@ export function mostraFiloDiLavoro (acceso: boolean): void {
 }
 
 /**
- * La chiave di scorrimento di `.contenuto`: che cosa si guarda (pagina,
- * persona, classe, corso, ora). Cambiandola si riparte dall'alto; restando
- * sulla stessa, il ridisegno a ogni gesto non fa perdere il punto.
+ * La chiave di scorrimento di `.contenuto`: il posto, pagina e soggetto
+ * (`chiaveDelPosto`, la stessa della fila di Alt+←). Cambiandolo si riparte
+ * dall'alto; restando, il ridisegno a ogni gesto non fa perdere il punto.
  */
 function chiaveDellaPagina (): string {
-  const soggetto = [stato.allievoId, stato.classeId, stato.corsoId, stato.lezioneId]
-  return ['pagina', stato.vista, stato.paginaId ?? '', ...soggetto.map((id) => id ?? '')].join(':')
+  // testo-fisso: una chiave, non un testo
+  return `pagina:${chiaveDelPosto(stato.posto)}`
 }
 
 export function guscio (): Figlio {

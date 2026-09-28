@@ -1,7 +1,8 @@
 // Lo stato dell'interfaccia: che cosa si sta guardando. `registro` è la copia
 // dei dati dell'host e da qui non si modifica mai (si manda un'azione e si
-// aspetta la copia nuova); il resto — vista, giorno, selezioni, filtri — è
-// stato locale, e la parte da ritrovare riaprendo il pannello si ricorda.
+// aspetta la copia nuova); il resto — posto, giorno, selezioni, filtri — è
+// stato locale, e la parte da ritrovare riaprendo il pannello si ricorda
+// (`memoria.ts`): le preferenze di forma per tutti, il posto per documento.
 
 import {
   daRicordare,
@@ -51,7 +52,6 @@ import {
   etichettaSemestre,
   formattaData,
   giornoDi,
-  isoValida,
   oggi,
   semestreDi,
 } from '../../core/dominio/dates.js'
@@ -74,6 +74,37 @@ import {
 } from '../../core/dominio/projection.js'
 import type { Vista } from '../../contract/protocollo.js'
 import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
+import { battiMinuto } from './orologio.js'
+import {
+  CAMPI_CONTESTO,
+  chiaveDelPosto,
+  completa,
+  derivaVista,
+  giornoNellAnno,
+  postoDaVecchi,
+  type Completato,
+  type Contesto,
+  type Posto,
+  type Scheda,
+  type SchedaDocumento,
+  type SchedaProgramma,
+} from './posto.js'
+import {
+  chiaveDocumento,
+  conVoce,
+  leggiMemoria,
+  MODI_CALENDARIO,
+  SCHEDE_DOCUMENTI,
+  SCHEDE_LEZIONE,
+  SCHEDE_MAPPA,
+  SCHEDE_PERSONA,
+  serializza,
+  VOCE_SENZA_DOCUMENTO,
+  voceDel,
+  type Globali,
+  type Memoria,
+  type VoceDocumento,
+} from './memoria.js'
 import { confrontaNomi } from '../../core/dominio/text.js'
 import { testi as testiCalcoli } from '../../core/dominio/calculations.testi.js'
 import { testi } from './state.testi.js'
@@ -81,46 +112,18 @@ import { testi } from './state.testi.js'
 /** L'elenco delle sezioni sta nel protocollo: lo legge anche l'host. */
 export type { Vista } from '../../contract/protocollo.js'
 
-/**
- * Le viste, per convalidare quella ricordata. Scritte a mano perché un'unione
- * di tipi non esiste a tempo di esecuzione; una vista dimenticata qui si
- * riapre sul calendario.
- */
-const VISTE: Vista[] = [
-  'oggi',
-  'calendario',
-  'todo',
-  'daSmistare',
-  'lezione',
-  'classi',
-  'persone',
-  'allievo',
-  'docenteClasse',
-  'corsi',
-  'piani',
-  'valutazioni',
-  'check',
-  'documenti',
-  'modelli',
-  'modelliLinguistici',
-  'mappa',
-  'impostazioni',
-  'guida',
-]
-
-export type ModoCalendario = 'settimana' | 'mese' | 'anno' | 'agenda'
-
-const MODI_CALENDARIO: ModoCalendario[] = [
-  'settimana',
-  'mese',
-  'anno',
-  'agenda',
-]
+// Le sezioni delle impostazioni stanno col posto (`posto.ts`), di cui fanno parte.
+export type { SchedaDocumento, SchedaProgramma } from './posto.js'
 
 /**
- * Di chi si guardano le consegne nella pagina delle pendenze. Sta qui perché
- * la legge anche `commands.ts`: i tre modi sono comandi della pagina.
+ * La regola del giorno dentro l'anno sta in `posto.ts`, che la usa per l'ora
+ * aperta; qui la si ripete col nome che le prove del calendario conoscono.
  */
+export { giornoNellAnno as giornoDentroLAnno } from './posto.js'
+
+/** Come si guarda il calendario: la settimana, il mese, l'anno o l'agenda. */
+export type ModoCalendario = (typeof MODI_CALENDARIO)[number]
+
 /** Un blocco in lettura o in attesa di esserlo. */
 interface VoceLavoro {
   smistamentoId: string;
@@ -140,13 +143,7 @@ interface StatoLavoro {
  * Le tre schede di una lezione: amministrazione (mentre la classe entra),
  * lezione (durante e dopo), annotazioni.
  */
-export type SchedaLezione = 'amministrazione' | 'lezione' | 'annotazioni'
-
-const SCHEDE_LEZIONE: SchedaLezione[] = [
-  'amministrazione',
-  'lezione',
-  'annotazioni',
-]
+export type SchedaLezione = (typeof SCHEDE_LEZIONE)[number]
 
 /** I tre strumenti della lezione: valutazioni, pendenze, check. */
 export type SchedaStrumentiLezione = 'valutazioni' | 'pendenze' | 'check'
@@ -156,97 +153,32 @@ export type SchedaStrumentiLezione = 'valutazioni' | 'pendenze' | 'check'
  * come raggiungerla), docente di classe (da riscuotere, da firmare, annotato),
  * materie (ore e voti).
  */
-export type SchedaPersona = 'anagrafica' | 'docenteClasse' | 'materie'
+export type SchedaPersona = (typeof SCHEDE_PERSONA)[number]
 
 /** Se il check riguarda un corso o il lavoro del docente di classe. */
 type AmbitoCheck = 'corso' | 'classe'
 
-const AMBITI_CHECK: AmbitoCheck[] = ['corso', 'classe']
-
-const SCHEDE_PERSONA: SchedaPersona[] = [
-  'anagrafica',
-  'docenteClasse',
-  'materie',
-]
-
 /** Le quattro schede del docente di classe, ognuna col suo ritmo. */
 export type SchedaDocente = 'todo' | 'documenti' | 'assenze' | 'messaggistica'
-
-const SCHEDE_DOCENTE: SchedaDocente[] = [
-  'todo',
-  'documenti',
-  'assenze',
-  'messaggistica',
-]
 
 /**
  * Le tre schede della pagina Documenti: del corso (presenze, voti, prove,
  * piani), delle lezioni (un riquadro per ora), degli allievi (una scheda a testa).
  */
-export type SchedaDocumenti = 'corso' | 'lezioni' | 'allievi'
-
-/** I valori ammessi: serve a convalidare quel che il pannello si ricorda. */
-const SCHEDE_DOCUMENTI: SchedaDocumenti[] = ['corso', 'lezioni', 'allievi']
+export type SchedaDocumenti = (typeof SCHEDE_DOCUMENTI)[number]
 
 /**
  * Che cosa guarda la mappa: tutti gli indirizzi, solo le aziende, solo le case.
  * Una scheda sola comanda insieme l'elenco e i segnaposti. La sede resta
  * accesa in tutte: è il punto da cui si leggono le distanze.
  */
-export type SchedaMappa = 'tutti' | 'lavoro' | 'domicilio'
-
-const SCHEDE_MAPPA: SchedaMappa[] = ['tutti', 'lavoro', 'domicilio']
+export type SchedaMappa = (typeof SCHEDE_MAPPA)[number]
 
 /**
  * Di chi sono le impostazioni che si guardano: del documento (viaggiano col
  * `.regi`) o del programma (restano su questa macchina, per tutti gli anni).
  */
 type AmbitoImpostazioni = 'programma' | 'documento'
-
-const AMBITI_IMPOSTAZIONI: AmbitoImpostazioni[] = ['programma', 'documento']
-
-/** Le sezioni delle impostazioni del programma, nell'ordine in cui si aprono. */
-export type SchedaProgramma =
-  'aspetto' | 'posta' | 'modelli' | 'aggiornamenti' | 'condotto'
-
-const SCHEDE_PROGRAMMA: SchedaProgramma[] = [
-  'aspetto',
-  'posta',
-  'modelli',
-  'aggiornamenti',
-  'condotto',
-]
-
-/** Le sezioni delle impostazioni del documento d'anno. */
-export type SchedaDocumento =
-  | 'anno'
-  | 'calendario'
-  | 'ics'
-  | 'valutazione'
-  | 'materie'
-  | 'liste'
-  | 'intestazione'
-  | 'file'
-
-const SCHEDE_DOCUMENTO: SchedaDocumento[] = [
-  'anno',
-  'calendario',
-  'ics',
-  'valutazione',
-  'materie',
-  'liste',
-  'intestazione',
-  'file',
-]
-
-/** Il valore ricordato, se è ancora uno di quelli che esistono. */
-function convalidata<T extends string> (
-  ammessi: T[],
-  ricordata: unknown,
-  ripiego: T,
-): T {
-  return ammessi.includes(ricordata as T) ? (ricordata as T) : ripiego
-}
 
 /**
  * Gli scalini dello zoom delle pagine nello sfoglio, in pixel: abbastanza
@@ -318,6 +250,11 @@ interface StatoUI {
     /** Il nome con cui si entra, quando è diverso dall'indirizzo. */
     accesso: string;
   };
+  /**
+   * Gli account Microsoft collegati per OneDrive, e la casella della posta.
+   * Arriva dal pannello: i gettoni restano nel portachiavi dell'host.
+   */
+  microsoft: MessaggioStato['microsoft'];
   /** A che punto è la lettura delle scansioni: lavoro della macchina, non dato del registro. */
   lavoro: StatoLavoro;
   /**
@@ -325,6 +262,14 @@ interface StatoUI {
    * mostra prima di «spedisci»: senza rete la posta non esce.
    */
   rete: boolean;
+  /**
+   * Dove si guarda: la pagina, il suo soggetto, la scheda (`posto.ts`). Lo
+   * scrive solo `vai`; `vista`, `paginaId`, ambiti e schede che fanno pagina
+   * ne sono la traduzione per le viste, e gli id qui sotto il contesto.
+   */
+  posto: Posto;
+  /** L'ultimo scelto per ogni tipo: resta cambiando pagina (`Contesto` in `posto.ts`). */
+  contesto: Contesto;
   vista: Vista;
   paginaId: string | null;
   /**
@@ -477,74 +422,44 @@ interface StatoUI {
   };
 }
 
-/** La parte di stato che sopravvive a una chiusura del pannello. */
-interface StatoPersistito {
-  allievoId: string | null;
-  /** Le classi aperte nell'elenco delle persone in formazione. */
-  classiApertePersone: string[];
-  /** La misura delle pagine nello sfoglio di un PDF da dividere. */
-  zoomSfoglio: number;
-  pianoId: string | null;
-  valutazioneId: string | null;
-  bloccoAssenzeId: string | null;
-  ricerca: string;
-  sidebarDesktop: boolean;
-  sidebarMobile: boolean;
-  assistenteAperto: boolean;
-  /** Le parti del contesto dell'assistente, con la versione della forma (`daRicordare` in `assistant/parts.ts`). */
-  contestoAssistente: PartiContesto & { v?: number };
-  documentiScelti: string[];
-
-  vista: Vista;
-  paginaId: string | null;
-  /** Se la riga delle azioni era nascosta. */
-  azioniNascoste: boolean;
-  schedaLezione: SchedaLezione;
-  schedaPersona: SchedaPersona;
-  schedaTodo: string;
-  schedaDocente: SchedaDocente;
-  ambitoCheck: AmbitoCheck;
-  schedaDocumenti: SchedaDocumenti;
-  ambitoImpostazioni: AmbitoImpostazioni;
-  schedaProgramma: SchedaProgramma;
-  schedaDocumento: SchedaDocumento;
-  modoCalendario: ModoCalendario;
-  mostraCalendarioEsterno: boolean;
-  strisciaSettimaneChiusa: boolean;
-  data: Iso;
-  /** L'ora aperta nel registro: riaprendo si torna lì. */
-  lezioneId: string | null;
-  classeId: string | null;
-  /** Il corso su cui erano puntate le pagine di corso. */
-  corsoId: string | null;
-  filtroClasseId: string | null;
-  classeMappaId: string | null;
-  filtroCorsoAgendaId: string | null;
-  semestreId: string | null;
-  schedaMappa: SchedaMappa;
+/** Nessun id scelto: il contesto di un documento mai aperto. */
+const CONTESTO_VUOTO: Contesto = {
+  corsoId: null,
+  classeId: null,
+  filtroClasseId: null,
+  lezioneId: null,
+  pianoId: null,
+  valutazioneId: null,
+  allievoId: null,
 }
-
-const persistito = leggiStatoPersistito<StatoPersistito>()
 
 /**
- * La sezione del documento su cui si era rimasti. `'modelli'` (sezione o vista)
- * non esiste più: si riapre sull'intestazione, la parte rimasta nel documento.
+ * Quel che si ricorda (`memoria.ts`), letto una volta dal ponte. Un JSON di
+ * una versione precedente si migra qui: il posto lo ricava `postoDaVecchi`, e
+ * la sua voce aspetta il primo documento che si apre.
  */
-function schedaDocumentoRicordata (): SchedaDocumento {
-  const ricordata: unknown = persistito?.schedaDocumento
-  if (ricordata === 'modelli' || persistito?.vista === 'modelli')
-    return 'intestazione'
-  return convalidata(SCHEDE_DOCUMENTO, ricordata, 'anno')
-}
+let memoria: Memoria = leggiMemoria(leggiStatoPersistito<unknown>(), { postoDaVecchi })
+
+const globali: Partial<Globali> = memoria.globali
+
+/**
+ * La voce del JSON vecchio: vale già all'avvio, come valevano i campi di
+ * prima, e il primo documento che arriva la adotta (`voceDel`).
+ */
+const primaVoce: VoceDocumento | null = memoria.documenti[VOCE_SENZA_DOCUMENTO] ?? null
+
+const postoIniziale: Posto = primaVoce?.posto ?? { pagina: 'pagina.oggi' }
+const contestoIniziale: Contesto = { ...CONTESTO_VUOTO, ...primaVoce?.contesto }
+const derivatiIniziali = derivaVista(postoIniziale)
 
 export const stato: StatoUI = {
   registro: registroVuoto(),
   avvisi: [],
   caricato: false,
-  sidebarDesktop: persistito?.sidebarDesktop ?? true,
-  sidebarMobile: persistito?.sidebarMobile ?? false,
-  assistenteAperto: persistito?.assistenteAperto ?? false,
-  contestoAssistente: partiValide(persistito?.contestoAssistente),
+  sidebarDesktop: globali.sidebarDesktop ?? true,
+  sidebarMobile: globali.sidebarMobile ?? false,
+  assistenteAperto: globali.assistenteAperto ?? false,
+  contestoAssistente: partiValide(globali.contestoAssistente),
   radiceDati: null,
   radiceApp: null,
   storia: { annulla: 0, ripristina: 0 },
@@ -561,92 +476,56 @@ export const stato: StatoUI = {
     mittente: '',
     accesso: '',
   },
+  microsoft: { account: [] },
   lavoro: { corrente: null, fatte: 0, totale: 0, coda: [] },
   // `navigator.onLine` è un «no» affidabile e un «sì» ottimista: basta a non far
   // partire le comunicazioni col cavo staccato.
   rete: navigator.onLine,
-  // Ogni valore ricordato con un elenco chiuso passa da `convalidata`: una vista
-  // o una scheda che non esiste più riaprirebbe il pannello su niente.
-  // `'modelli'` non è più una vista: si riapre sulle impostazioni.
-  vista:
-    persistito?.vista === 'modelli'
-      ? 'impostazioni'
-      : // Al primo avvio si comincia dalla Dashboard; altrimenti dalla pagina lasciata.
-        convalidata(VISTE, persistito?.vista, 'oggi'),
-  paginaId: persistito?.paginaId ?? null,
-  azioniNascoste: persistito?.azioniNascoste ?? false,
+  // La memoria ha già scartato i valori che non esistono più: qui restano i
+  // predefiniti di chi non ne ha.
+  posto: postoIniziale,
+  contesto: contestoIniziale,
+  vista: derivatiIniziali.vista,
+  paginaId: derivatiIniziali.paginaId,
+  azioniNascoste: globali.azioniNascoste ?? false,
   schedaComandi: 'pagina',
-  schedaLezione: convalidata(
-    SCHEDE_LEZIONE,
-    persistito?.schedaLezione,
-    'amministrazione',
-  ),
+  schedaLezione: globali.schedaLezione ?? 'amministrazione',
   schedaStrumentiLezione: 'valutazioni',
-  schedaPersona: convalidata(
-    SCHEDE_PERSONA,
-    persistito?.schedaPersona,
-    'anagrafica',
-  ),
-  schedaTodo: persistito?.schedaTodo ?? 'tutte',
-  schedaDocente: convalidata(SCHEDE_DOCENTE, persistito?.schedaDocente, 'todo'),
-  ambitoCheck: convalidata(AMBITI_CHECK, persistito?.ambitoCheck, 'corso'),
-  schedaDocumenti: convalidata(
-    SCHEDE_DOCUMENTI,
-    persistito?.schedaDocumenti,
-    'corso',
-  ),
-  ambitoImpostazioni:
-    persistito?.vista === 'modelli'
-      ? 'documento'
-      : convalidata(
-          AMBITI_IMPOSTAZIONI,
-          persistito?.ambitoImpostazioni,
-          'documento',
-        ),
-  // `'recapiti'` è dentro «Comunicazioni», che ha l'id della posta; ogni altro
-  // nome che non esiste più ricade sulla prima sezione.
-  schedaProgramma:
-    (persistito?.schedaProgramma as string | undefined) === 'recapiti'
-      ? 'posta'
-      : convalidata(SCHEDE_PROGRAMMA, persistito?.schedaProgramma, 'aspetto'),
-  schedaDocumento: schedaDocumentoRicordata(),
+  schedaPersona: globali.schedaPersona ?? 'anagrafica',
+  schedaTodo: primaVoce?.schedaTodo ?? 'tutte',
+  schedaDocente: derivatiIniziali.schedaDocente ?? 'todo',
+  ambitoCheck: derivatiIniziali.ambitoCheck ?? 'corso',
+  schedaDocumenti: globali.schedaDocumenti ?? 'corso',
+  ambitoImpostazioni: derivatiIniziali.ambitoImpostazioni ?? 'documento',
+  schedaProgramma: derivatiIniziali.schedaProgramma ??
+    globali.ultimaSchedaImpostazioni?.programma ?? 'aspetto',
+  schedaDocumento: derivatiIniziali.schedaDocumento ??
+    globali.ultimaSchedaImpostazioni?.documento ?? 'anno',
   anteprima: null,
   anteprimaArchivio: null,
   anteprimaAssenze: null,
   pagineScelte: null,
   sfoglioArchivio: 'pagine',
-  zoomSfoglio: persistito?.zoomSfoglio ?? ZOOM_PREDEFINITO,
+  zoomSfoglio: globali.zoomSfoglio ?? ZOOM_PREDEFINITO,
   mostraArchiviate: false,
-  documentiScelti: persistito?.documentiScelti ?? [],
-  modoCalendario: convalidata(
-    MODI_CALENDARIO,
-    persistito?.modoCalendario,
-    'settimana',
-  ),
-  mostraCalendarioEsterno: persistito?.mostraCalendarioEsterno ?? true,
+  documentiScelti: primaVoce?.documentiScelti ?? [],
+  modoCalendario: globali.modoCalendario ?? 'settimana',
+  mostraCalendarioEsterno: globali.mostraCalendarioEsterno ?? true,
   editorCalendario: false,
-  strisciaSettimaneChiusa: persistito?.strisciaSettimaneChiusa ?? false,
-  // Convalidata: una data storta lascerebbe la settimana su una griglia vuota.
-  data: isoValida(persistito?.data) ? persistito.data : oggi(),
+  strisciaSettimaneChiusa: globali.strisciaSettimaneChiusa ?? false,
+  data: primaVoce?.giorno ?? oggi(),
   adessoData: oggi(),
   adessoOra: adesso(),
-  lezioneId: persistito?.lezioneId ?? null,
-  classeId: persistito?.classeId ?? null,
-  allievoId: persistito?.allievoId ?? null,
-  classiApertePersone: persistito?.classiApertePersone ?? [],
-  corsoId: persistito?.corsoId ?? null,
-  pianoId: persistito?.pianoId ?? null,
-  valutazioneId: persistito?.valutazioneId ?? null,
-  filtroClasseId: persistito?.filtroClasseId ?? null,
-  classeMappaId: persistito?.classeMappaId ?? null,
-  filtroCorsoAgendaId: persistito?.filtroCorsoAgendaId ?? null,
-  // `undefined` = mai scelto: vale «anno intero» finché, arrivato il registro,
+  ...contestoIniziale,
+  classiApertePersone: primaVoce?.classiApertePersone ?? [],
+  classeMappaId: primaVoce?.classeMappaId ?? null,
+  filtroCorsoAgendaId: primaVoce?.filtroCorsoAgendaId ?? null,
+  // Assente = mai scelto: vale «anno intero» finché, arrivato il registro,
   // `allineaSemestre` sceglie il semestre di oggi. `null` è una scelta: l'anno intero.
-  semestreId:
-    persistito?.semestreId === undefined ? null : persistito.semestreId,
-  schedaMappa: convalidata(SCHEDE_MAPPA, persistito?.schedaMappa, 'tutti'),
-  bloccoAssenzeId: persistito?.bloccoAssenzeId ?? null,
-  ricerca: persistito?.ricerca ?? '',
+  semestreId: primaVoce?.semestreId ?? null,
+  schedaMappa: globali.schedaMappa ?? 'tutti',
+  bloccoAssenzeId: primaVoce?.bloccoAssenzeId ?? null,
+  ricerca: primaVoce?.ricerca ?? '',
   proiezione: { aperta: false, impostazioni: { ...PROIEZIONE_PREDEFINITA } },
 }
 
@@ -662,7 +541,7 @@ export function iscriviti (ascoltatore: Ascoltatore): () => void {
  * Se il semestre va ancora portato su quello di oggi. Dichiarata prima di
  * `aggiorna`, che la spegne quando si sceglie un semestre.
  */
-let semestreDaAllineare = persistito?.semestreId === undefined
+let semestreDaAllineare = primaVoce?.semestreId === undefined
 
 /**
  * Se una modifica cambia corso o periodo: l'anteprima di prima mostrerebbe un
@@ -689,80 +568,209 @@ function cambiaClasse (modifiche: Partial<StatoUI>): boolean {
   )
 }
 
+// ------------------------------------------------------------------ memoria
+
+/**
+ * Il documento di cui lo stato porta posto e scelte (il percorso, come lo dice
+ * l'host), e se era provvisorio. `undefined`: non ne è ancora arrivato nessuno.
+ */
+let documentoRitrovato: string | null | undefined
+let documentoProvvisorio = false
+
+/** La chiave del documento aperto nella memoria, o `null` se non se ne ricorda niente. */
+function chiaveDelDocumento (): string | null {
+  return chiaveDocumento(stato.documenti.corrente, stato.documenti.provvisorio === true)
+}
+
+/** Quel che del documento aperto si ricorda: il posto e le scelte con i suoi id. */
+function voceDiAdesso (): VoceDocumento {
+  const voce: VoceDocumento = {
+    usato: '',
+    posto: stato.posto,
+    contesto: stato.contesto,
+    giorno: stato.data,
+    filtroCorsoAgendaId: stato.filtroCorsoAgendaId,
+    classeMappaId: stato.classeMappaId,
+    bloccoAssenzeId: stato.bloccoAssenzeId,
+    schedaTodo: stato.schedaTodo,
+    classiApertePersone: stato.classiApertePersone,
+    documentiScelti: stato.documentiScelti,
+    ricerca: stato.ricerca,
+  }
+  // Un semestre mai scelto non si scrive: riaprendo va ancora allineato a oggi.
+  if (!semestreDaAllineare) voce.semestreId = stato.semestreId
+  return voce
+}
+
+function globaliDiAdesso (): Partial<Globali> {
+  return {
+    schedaLezione: stato.schedaLezione,
+    schedaPersona: stato.schedaPersona,
+    schedaDocumenti: stato.schedaDocumenti,
+    schedaMappa: stato.schedaMappa,
+    modoCalendario: stato.modoCalendario,
+    mostraCalendarioEsterno: stato.mostraCalendarioEsterno,
+    strisciaSettimaneChiusa: stato.strisciaSettimaneChiusa,
+    zoomSfoglio: stato.zoomSfoglio,
+    sidebarDesktop: stato.sidebarDesktop,
+    sidebarMobile: stato.sidebarMobile,
+    assistenteAperto: stato.assistenteAperto,
+    contestoAssistente: { ...daRicordare(stato.contestoAssistente) },
+    azioniNascoste: stato.azioniNascoste,
+    ultimaSchedaImpostazioni: {
+      programma: stato.schedaProgramma,
+      documento: stato.schedaDocumento,
+    },
+  }
+}
+
 /**
  * Scrive nelle preferenze locali quel che si ritrova riaprendo. Fuori da
  * `aggiorna` perché certe cose si ricordano senza ridisegnare. Scrive solo se
  * è cambiato qualcosa (`aggiorna` chiama a ogni battito), ma subito: una
- * finestra chiusa un attimo dopo il gesto deve averlo salvato.
+ * finestra chiusa un attimo dopo il gesto deve averlo salvato. Prima dei dati
+ * non scrive: il posto non sarebbe ancora quello del documento. Un documento
+ * senza percorso (provvisorio) tiene solo le preferenze di forma.
  */
 let ultimoRicordato: string | null = null
 
 export function ricorda (): void {
-  const persistito = {
-    allievoId: stato.allievoId,
-    classiApertePersone: stato.classiApertePersone,
-    pianoId: stato.pianoId,
-    valutazioneId: stato.valutazioneId,
-    bloccoAssenzeId: stato.bloccoAssenzeId,
-    ricerca: stato.ricerca,
-    sidebarDesktop: stato.sidebarDesktop,
-    sidebarMobile: stato.sidebarMobile,
-    assistenteAperto: stato.assistenteAperto,
-    contestoAssistente: daRicordare(stato.contestoAssistente),
-    documentiScelti: stato.documentiScelti,
-    zoomSfoglio: stato.zoomSfoglio,
-
-    vista: stato.vista,
-    paginaId: stato.paginaId,
-    azioniNascoste: stato.azioniNascoste,
-    schedaLezione: stato.schedaLezione,
-    schedaPersona: stato.schedaPersona,
-    schedaTodo: stato.schedaTodo,
-    schedaDocente: stato.schedaDocente,
-    ambitoCheck: stato.ambitoCheck,
-    schedaDocumenti: stato.schedaDocumenti,
-    ambitoImpostazioni: stato.ambitoImpostazioni,
-    schedaProgramma: stato.schedaProgramma,
-    schedaDocumento: stato.schedaDocumento,
-    modoCalendario: stato.modoCalendario,
-    mostraCalendarioEsterno: stato.mostraCalendarioEsterno,
-    strisciaSettimaneChiusa: stato.strisciaSettimaneChiusa,
-    data: stato.data,
-    lezioneId: stato.lezioneId,
-    classeId: stato.classeId,
-    corsoId: stato.corsoId,
-    filtroClasseId: stato.filtroClasseId,
-    classeMappaId: stato.classeMappaId,
-    filtroCorsoAgendaId: stato.filtroCorsoAgendaId,
-    semestreId: stato.semestreId,
-    schedaMappa: stato.schedaMappa,
-  } satisfies StatoPersistito
-  const scritto = JSON.stringify(persistito)
-  if (scritto === ultimoRicordato) return
-  ultimoRicordato = scritto
-  scriviStatoPersistito(persistito)
+  if (!stato.caricato) return
+  const chiave = chiaveDelDocumento()
+  const globaliNuove = globaliDiAdesso()
+  const voce = chiave === null ? null : voceDiAdesso()
+  // Senza `usato`, che cambia a ogni scrittura: conta se è cambiato il resto.
+  const impronta = JSON.stringify([globaliNuove, chiave, voce])
+  if (impronta === ultimoRicordato) return
+  ultimoRicordato = impronta
+  memoria = { ...memoria, globali: globaliNuove }
+  if (voce) memoria = conVoce(memoria, chiave, voce, new Date())
+  // Il ponte vuole un oggetto; `serializza` lo tiene sotto il limite del disco.
+  scriviStatoPersistito(JSON.parse(serializza(memoria)) as unknown)
 }
 
-export function aggiorna (modifiche: Partial<StatoUI>): void {
-  // «Modelli linguistici» è una sezione delle impostazioni del programma: chi
-  // chiede la vista con quel nome (barra, assistente) arriva lì.
-  if (modifiche.vista === 'modelliLinguistici') {
-    modifiche = {
-      ...modifiche,
-      vista: 'impostazioni',
-      ambitoImpostazioni: 'programma',
-      schedaProgramma: 'modelli',
+/**
+ * Mette nello stato la voce di un documento: il suo posto e contesto, il
+ * giorno, le scelte; senza voce, la Dashboard e niente scelto. Il posto si
+ * convalida dopo, sui dati del documento (`riconvalidaRicordati`).
+ */
+function caricaVoce (voce: VoceDocumento | null): void {
+  const posto: Posto = voce?.posto ?? { pagina: 'pagina.oggi' }
+  const contesto: Contesto = { ...CONTESTO_VUOTO, ...voce?.contesto }
+  // Diretto e non da `applica`, che spegnerebbe l'allineamento del semestre.
+  Object.assign(stato, {
+    posto,
+    contesto,
+    ...contesto,
+    ...derivaVista(posto),
+    data: voce?.giorno ?? stato.adessoData,
+    semestreId: voce?.semestreId ?? null,
+    filtroCorsoAgendaId: voce?.filtroCorsoAgendaId ?? null,
+    classeMappaId: voce?.classeMappaId ?? null,
+    bloccoAssenzeId: voce?.bloccoAssenzeId ?? null,
+    schedaTodo: voce?.schedaTodo ?? 'tutte',
+    classiApertePersone: voce?.classiApertePersone ?? [],
+    documentiScelti: voce?.documentiScelti ?? [],
+    ricerca: voce?.ricerca ?? '',
+  } satisfies Partial<StatoUI>)
+  semestreDaAllineare = voce?.semestreId === undefined
+  // Il giorno ricordato si riporta dentro l'anno del documento.
+  annoGiornoRiconvalidato = null
+  avvisa()
+}
+
+/**
+ * Dopo l'arrivo dei dati: se il documento è cambiato porta nello stato quel
+ * che se ne ricorda (`caricaVoce`). `'nuovo'` se è un altro documento,
+ * `'adottato'` se è lo stesso che ha preso un percorso (un anno provvisorio
+ * salvato con nome: si resta dove si è, e la voce nasce da qui), `null` se
+ * è lo stesso di prima.
+ */
+export function ritrovaDocumento (): 'nuovo' | 'adottato' | null {
+  const { corrente, provvisorio } = stato.documenti
+  if (corrente === documentoRitrovato) return null
+  const eraProvvisorio = documentoRitrovato !== undefined && documentoProvvisorio
+  documentoRitrovato = corrente
+  documentoProvvisorio = provvisorio === true
+  const chiave = chiaveDelDocumento()
+  if (eraProvvisorio && chiave !== null && !memoria.documenti[chiave]) return 'adottato'
+  const trovata = voceDel(memoria, chiave)
+  memoria = trovata.memoria
+  caricaVoce(trovata.voce)
+  return 'nuovo'
+}
+
+// ------------------------------------------------------------------ aggiornare
+
+/** Quanti `inBlocco` sono aperti, e se dentro qualcosa è cambiato. */
+let blocchi = 0
+let cambiatoNelBlocco = false
+
+/** Ricorda e ridisegna; dentro un blocco, alla sua fine. */
+function avvisa (): void {
+  if (blocchi > 0) {
+    cambiatoNelBlocco = true
+    return
+  }
+  ricorda()
+  for (const ascoltatore of ascoltatori) ascoltatore()
+}
+
+/** Come la fila di Alt+←/→ prende un posto: nuovo, al posto di quello di adesso, o un passo. */
+export type ModoStoria = 'aggiungi' | 'sostituisci' | 'passo'
+
+/** Chi segue i posti raggiunti (`history.ts`), col giorno che si lascia. */
+type SeguePosto = (fatto: Completato, storia: ModoStoria, giornoLasciato: Iso) => void
+
+const seguaci = new Set<SeguePosto>()
+
+/** L'ultimo posto raggiunto dentro un blocco, da dire alla fine. */
+let postoInSospeso: Parameters<SeguePosto> | null = null
+
+/** Segue ogni posto raggiunto da `vai`. Torna la disiscrizione. */
+export function seguiPosti (seguace: SeguePosto): () => void {
+  seguaci.add(seguace)
+  return () => seguaci.delete(seguace)
+}
+
+function segnalaPosto (...posto: Parameters<SeguePosto>): void {
+  if (blocchi === 0) {
+    for (const seguace of seguaci) seguace(...posto)
+    return
+  }
+  // Nel blocco conta l'ultimo posto; un «aggiungi» non si perde per un
+  // «sostituisci» dopo, e il giorno lasciato è quello di prima del blocco.
+  const prima = postoInSospeso
+  const storia = prima?.[1] === 'aggiungi' && posto[1] === 'sostituisci' ? 'aggiungi' : posto[1]
+  postoInSospeso = [posto[0], storia, prima?.[2] ?? posto[2]]
+}
+
+/**
+ * Più cambi come uno solo: ascoltatori, memoria e storia sentono solo lo
+ * stato finale. Serve dove un gesto fa più passi (l'arrivo dei dati:
+ * documento, semestre, posto) e uno stato a metà partirebbe verso l'host (la
+ * mira dello schermo con gli id dell'anno di prima).
+ */
+export function inBlocco (fn: () => void): void {
+  blocchi += 1
+  try {
+    fn()
+  } finally {
+    blocchi -= 1
+    if (blocchi === 0) {
+      const posto = postoInSospeso
+      postoInSospeso = null
+      if (posto) segnalaPosto(...posto)
+      if (cambiatoNelBlocco) {
+        cambiatoNelBlocco = false
+        avvisa()
+      }
     }
   }
-  // Idem per `'modelli'`: nel documento ne resta la carta intestata.
-  if (modifiche.vista === 'modelli') {
-    modifiche = {
-      ...modifiche,
-      vista: 'impostazioni',
-      ambitoImpostazioni: 'documento',
-      schedaDocumento: 'intestazione',
-    }
-  }
+}
+
+/** Mette le modifiche nello stato, con le regole che legano un campo all'altro. */
+function applica (modifiche: Partial<StatoUI>): void {
   if (modifiche.anteprimaArchivio === undefined && cambiaClasse(modifiche)) {
     modifiche = { ...modifiche, anteprimaArchivio: null }
   }
@@ -798,7 +806,7 @@ export function aggiorna (modifiche: Partial<StatoUI>): void {
   // nuovo, l'orologio nello stesso minuto, un clic sulla scheda già aperta) non
   // ridisegna. Lo stato non si modifica mai sul posto, quindi basta `Object.is`.
   const cambiate = Object.entries(modifiche).filter(([chiave, valore]) =>
-    !Object.is(stato[chiave as keyof StatoUI], valore))
+    valore !== undefined && !Object.is(stato[chiave as keyof StatoUI], valore))
   if (cambiate.length === 0) {
     // `aggiorna({})` è il vecchio modo di dire «ridisegna»: vale ancora finché
     // chi lo usa non passa a `ridisegna()`. Valori tutti uguali non fanno niente.
@@ -806,8 +814,85 @@ export function aggiorna (modifiche: Partial<StatoUI>): void {
     return
   }
   Object.assign(stato, Object.fromEntries(cambiate))
-  ricorda()
-  for (const ascoltatore of ascoltatori) ascoltatore()
+  avvisa()
+}
+
+/** I campi di prima che dicono dove si è: li traduce l'adattatore di `aggiorna`. */
+const CAMPI_DI_POSIZIONE = [
+  'vista',
+  'paginaId',
+  'ambitoCheck',
+  'schedaDocente',
+  'ambitoImpostazioni',
+  'schedaProgramma',
+  'schedaDocumento',
+  ...CAMPI_CONTESTO,
+] as const satisfies readonly (keyof StatoUI)[]
+
+/** Il campo del contesto che porta l'id di un tipo di soggetto. */
+function campoDelTipo (tipo: NonNullable<Posto['soggetto']>['tipo']): keyof Contesto {
+  // testo-fisso: il nome di un campo
+  return `${tipo}Id`
+}
+
+/**
+ * Il posto che i campi vecchi chiedono. Il soggetto è l'id appena scelto, se
+ * la pagina ne mostra uno: `{ corsoId }` sul Registro vuol dire quel corso, non
+ * l'ora di prima di un altro. Restando sulla pagina, un soggetto che i campi
+ * vecchi non sanno dire (l'ora del calendario) resta.
+ */
+function postoDelleModifiche (modifiche: Partial<StatoUI>): Posto {
+  const campi = Object.fromEntries(CAMPI_DI_POSIZIONE.map((campo) => [
+    campo,
+    modifiche[campo] !== undefined ? modifiche[campo] : stato[campo],
+  ]))
+  const scelti = CAMPI_CONTESTO.filter((campo) => modifiche[campo] !== undefined)
+  let posto = postoDaVecchi(scelti.length === 0
+    ? campi
+    : {
+        ...campi,
+        ...Object.fromEntries(CAMPI_CONTESTO
+          .filter((campo) => !scelti.includes(campo))
+          .map((campo) => [campo, null])),
+      })
+  if (!posto.soggetto && scelti.length > 0) posto = postoDaVecchi(campi)
+  const prima = stato.posto
+  if (
+    posto.pagina === prima.pagina && !posto.soggetto && prima.soggetto &&
+    modifiche[campoDelTipo(prima.soggetto.tipo)] === undefined
+  ) {
+    posto = { ...posto, soggetto: prima.soggetto }
+  }
+  return posto
+}
+
+/**
+ * Cambia lo stato e ridisegna. Chi cambia dove si è (vista, schede che fanno
+ * pagina, id del contesto) passa da `vai`: finché le viste scrivono i campi
+ * vecchi, qui li si traduce nel posto (`postoDaVecchi`) e il resto va con lui,
+ * in un passo solo.
+ */
+export function aggiorna (modifiche: Partial<StatoUI>): void {
+  if (!CAMPI_DI_POSIZIONE.some((campo) => modifiche[campo] !== undefined)) {
+    applica(modifiche)
+    return
+  }
+  const contesto: Partial<Contesto> = {}
+  const altro: Partial<StatoUI> = {}
+  for (const [campo, valore] of Object.entries(modifiche)) {
+    if (valore === undefined || campo === 'vista' || campo === 'paginaId') continue
+    if ((CAMPI_CONTESTO as readonly string[]).includes(campo)) {
+      (contesto as Record<string, unknown>)[campo] = valore
+    } else {
+      // Anche ambito e schede: fuori dalla loro pagina restano come ultime scelte.
+      (altro as Record<string, unknown>)[campo] = valore
+    }
+  }
+  const posto = postoDelleModifiche(modifiche)
+  // Giorno e semestre li porta solo l'elemento appena scelto, non quello rimasto nel contesto.
+  const elementoChiesto = posto.soggetto !== undefined &&
+    modifiche[campoDelTipo(posto.soggetto.tipo)] !== undefined
+  vai(posto, { contesto, altro, elementoChiesto })
 }
 
 /**
@@ -815,7 +900,111 @@ export function aggiorna (modifiche: Partial<StatoUI>): void {
  * (una lettura arrivata, uno scarico che avanza) e deve farlo vedere.
  */
 export function ridisegna (): void {
+  if (blocchi > 0) {
+    cambiatoNelBlocco = true
+    return
+  }
   for (const ascoltatore of ascoltatori) ascoltatore()
+}
+
+// ------------------------------------------------------------------ il posto
+
+interface OpzioniVai {
+  /** Il giorno da guardare: comanda su quello del soggetto (`naviga` con la data). */
+  giorno?: Iso
+  storia?: ModoStoria
+  /** Le preferenze del documento da cambiare insieme: semestre, filtro dell'agenda. */
+  preferenze?: Partial<Pick<StatoUI, 'semestreId' | 'filtroCorsoAgendaId'>>
+  /** Gli id scelti insieme al posto: il contesto che il soggetto poi completa. */
+  contesto?: Partial<Contesto>
+  /** Il resto dello stato da cambiare nello stesso passo (l'adattatore di `aggiorna`). */
+  altro?: Partial<StatoUI>
+  /**
+   * Si riconferma il posto di adesso sui dati nuovi: il soggetto non sposta
+   * giorno, semestre né filtro scelti da chi guarda.
+   */
+  riprendi?: boolean
+  /**
+   * Se il soggetto è un elemento chiesto per nome (un'ora, una prova), che
+   * porta con sé giorno e semestre. Di norma: se il posto ne ha uno. Un'ora
+   * che la pagina si prende da sé (il Registro di un corso) non cambia il
+   * periodo scelto.
+   */
+  elementoChiesto?: boolean
+}
+
+/** Dove si è adesso. */
+export function postoCorrente (): Posto {
+  return stato.posto
+}
+
+/** La sezione da cui si riaprono le impostazioni: l'ultima guardata nel suo ambito. */
+function schedaRicordata (altro: Partial<StatoUI>): Scheda {
+  const ambito = altro.ambitoImpostazioni ?? stato.ambitoImpostazioni
+  const programma = altro.schedaProgramma ?? stato.schedaProgramma
+  const documento = altro.schedaDocumento ?? stato.schedaDocumento
+  // testo-fisso: l'id di una sezione
+  if (ambito === 'programma') return `programma.${programma}`
+  // testo-fisso: l'id di una sezione
+  return `documento.${documento}`
+}
+
+function stessoContesto (a: Contesto, b: Contesto): boolean {
+  return CAMPI_CONTESTO.every((campo) => a[campo] === b[campo])
+}
+
+/**
+ * Va in un posto: lo rende vero sul registro (`completa`: il soggetto che
+ * manca dal contesto, quello sparito col suo ripiego), porta contesto,
+ * giorno e semestre del soggetto, scrive i campi di prima che le viste
+ * leggono ancora, e lo dice alla storia. Un `aggiorna` solo.
+ */
+export function vai (chiesto: Posto, opzioni: OpzioniVai = {}): Completato {
+  const altro: Partial<StatoUI> = { ...opzioni.altro, ...opzioni.preferenze }
+  const posto = chiesto.pagina === 'pagina.impostazioni' && !chiesto.scheda
+    ? { ...chiesto, scheda: schedaRicordata(altro) }
+    : chiesto
+  const fatto = completa(
+    posto,
+    { ...stato.contesto, ...opzioni.contesto },
+    altro.registro ?? stato.registro,
+    stato.adessoData,
+    {
+      semestreId: altro.semestreId !== undefined ? altro.semestreId : stato.semestreId,
+      filtroCorsoAgendaId: altro.filtroCorsoAgendaId !== undefined
+        ? altro.filtroCorsoAgendaId
+        : stato.filtroCorsoAgendaId,
+    },
+  )
+  const stesso = chiaveDelPosto(fatto.posto) === chiaveDelPosto(stato.posto)
+  const pref: Partial<StatoUI> = {}
+  const { giorno, semestreId, filtroCorsoAgendaId } = fatto.preferenzeDoc
+  if (!stesso && opzioni.riprendi !== true) {
+    const trovato = fatto.posto.soggetto
+    const chiestoDavvero = (opzioni.elementoChiesto ?? chiesto.soggetto !== undefined) &&
+      trovato?.tipo === chiesto.soggetto?.tipo && trovato?.id === chiesto.soggetto?.id
+    if (chiestoDavvero) {
+      if (giorno !== undefined) pref.data = giorno
+      if (semestreId !== undefined) pref.semestreId = semestreId
+    }
+    if (filtroCorsoAgendaId !== undefined) pref.filtroCorsoAgendaId = filtroCorsoAgendaId
+  } else if (filtroCorsoAgendaId === null) {
+    // Un filtro su un corso che non c'è più si spegne comunque.
+    pref.filtroCorsoAgendaId = null
+  }
+  const giornoLasciato = stato.data
+  applica({
+    ...pref,
+    ...altro,
+    ...(opzioni.giorno ? { data: opzioni.giorno } : {}),
+    // Gli oggetti di prima se non cambiano: `applica` confronta con `Object.is`.
+    posto: stesso ? stato.posto : fatto.posto,
+    contesto: stessoContesto(fatto.contesto, stato.contesto) ? stato.contesto : fatto.contesto,
+    ...fatto.contesto,
+    ...fatto.derivati,
+  })
+  segnalaPosto(fatto, opzioni.storia ?? 'aggiungi', giornoLasciato)
+  return fatto
 }
 
 // ------------------------------------------------------------------ selezioni
@@ -1280,14 +1469,23 @@ export function avviaRete (): () => void {
 
 /**
  * Fa battere l'orologio dello stato ogni quindici secondi, e subito quando il
- * pannello torna in primo piano. Si ridisegna solo quando cambia il minuto;
- * il battito più fitto evita che il minuto nuovo si veda in ritardo.
+ * pannello torna in primo piano. Si ridisegna solo quando cambia il giorno; il
+ * minuto nuovo lo sente chi segna l'ora (`alMinuto` in `orologio.ts`). Il
+ * battito più fitto evita che il minuto nuovo si veda in ritardo.
  */
 export function avviaOrologio (): () => void {
   const batti = () => {
     const data = oggi()
     const ora = adesso()
     if (data === stato.adessoData && ora === stato.adessoOra) return
+    if (data === stato.adessoData) {
+      // Solo il minuto: niente ridisegno, si sposta da sé chi segna l'ora
+      // (`orologio.ts`). Diretto e non da `aggiorna`: le memorie derivate con
+      // `adessoOra` nella chiave si ricalcolano al prossimo ridisegno naturale.
+      stato.adessoOra = ora
+      battiMinuto(ora)
+      return
+    }
     // Si riprova al battito dopo: non si ridisegna sotto le dita di chi scrive.
     if (scrivendoInUnCampo()) return
     // Né durante il tiro o lo stiro di un'ora: il ridisegno perde la cattura del
@@ -1387,22 +1585,18 @@ export function allineaSemestre (): void {
 let annoGiornoRiconvalidato: string | null = null
 
 /**
- * Azzera i filtri ricordati che puntano a qualcosa che nel documento non c'è
- * più (classe, corso dell'agenda, periodo di assenze): `null` vuol dire «tutti».
+ * A ogni arrivo dei dati: azzera le scelte ricordate che puntano a qualcosa
+ * che nel documento non c'è più (classe della mappa, periodo di assenze:
+ * `null` vuol dire «tutti»), riporta il giorno dentro l'anno quando l'anno
+ * cambia, e riconferma il posto sui dati nuovi (`completa`: l'ora cancellata,
+ * il corso di un altro anno, la sezione del docente di classe sparita).
  */
 export function riconvalidaRicordati (): void {
   const r = stato.registro
   const anno = annoCorrente()
-  const classe = (id: string | null) =>
-    id !== null && !r.classi.some((c) => c.id === id)
   const modifiche: Partial<StatoUI> = {}
-  if (classe(stato.filtroClasseId)) modifiche.filtroClasseId = null
-  if (classe(stato.classeMappaId)) modifiche.classeMappaId = null
-  if (
-    stato.filtroCorsoAgendaId &&
-    !r.corsi.some((c) => c.id === stato.filtroCorsoAgendaId)
-  ) {
-    modifiche.filtroCorsoAgendaId = null
+  if (stato.classeMappaId !== null && !r.classi.some((c) => c.id === stato.classeMappaId)) {
+    modifiche.classeMappaId = null
   }
   if (
     stato.bloccoAssenzeId &&
@@ -1412,42 +1606,18 @@ export function riconvalidaRicordati (): void {
   ) {
     modifiche.bloccoAssenzeId = null
   }
-  const senzaDocenze = classiDiCuiSonoDocente().length === 0
-  const dentroSezioneClasse =
-    stato.vista === 'docenteClasse' ||
-    (stato.vista === 'check' && stato.ambitoCheck === 'classe')
-  if (senzaDocenze && dentroSezioneClasse) {
-    modifiche.vista = anno ? 'classi' : 'oggi'
-    modifiche.paginaId = null
-  }
   // Il giorno scelto si riporta dentro l'anno aperto solo quando l'anno cambia
   // (o all'avvio): alle altre spinte dell'host si lascia dov'è l'ha portato chi guarda.
   const chiaveAnno = anno ? `${anno.id}|${anno.inizio}|${anno.fine}` : null
   if (chiaveAnno !== annoGiornoRiconvalidato) {
     annoGiornoRiconvalidato = chiaveAnno
-    const giorno = giornoDentroLAnno(stato.data, anno, oggi())
+    const giorno = giornoNellAnno(stato.data, anno, oggi())
     if (giorno !== stato.data) modifiche.data = giorno
   }
-  if (Object.keys(modifiche).length > 0) aggiorna(modifiche)
-}
-
-/**
- * Il giorno da guardare in un anno: quello scelto se ci cade, se no oggi se ci
- * cade, se no il capo dell'anno più vicino. Senza anno, o con estremi storti,
- * resta quello scelto.
- */
-export function giornoDentroLAnno (
-  data: Iso,
-  anno: { inizio: Iso; fine: Iso } | null,
-  oggiIso: Iso,
-): Iso {
-  if (!anno || !isoValida(anno.inizio) || !isoValida(anno.fine)) return data
-  if (anno.inizio > anno.fine) return data
-  const dentro = (giorno: Iso): boolean =>
-    giorno >= anno.inizio && giorno <= anno.fine
-  if (dentro(data)) return data
-  if (dentro(oggiIso)) return oggiIso
-  return data < anno.inizio ? anno.inizio : anno.fine
+  inBlocco(() => {
+    if (Object.keys(modifiche).length > 0) applica(modifiche)
+    vai(stato.posto, { storia: 'sostituisci', riprendi: true })
+  })
 }
 
 // ------------------------------------------------------------------ derivati

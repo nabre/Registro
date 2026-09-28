@@ -54,26 +54,28 @@ export type PaginaId =
 /** Le destinazioni senza voce nella barra: ci si arriva da un elemento. */
 export const NASCOSTE: readonly PaginaId[] = ['pagina.allievo', 'pagina.classe.pendenze']
 
-type TipoSoggetto = 'corso' | 'classe' | 'lezione' | 'allievo' | 'piano' | 'valutazione'
+export type TipoSoggetto = 'corso' | 'classe' | 'lezione' | 'allievo' | 'piano' | 'valutazione'
 
 /** Di che cosa è la pagina: un elemento del registro, per tipo e id. */
-export interface Soggetto {
+interface Soggetto {
   tipo: TipoSoggetto;
   id: string;
 }
 
 // Le sezioni delle impostazioni stanno qui e non in `state.ts`, che le
-// importerà: il posto non deve dipendere dallo stato.
-type SchedaProgramma = 'aspetto' | 'posta' | 'modelli' | 'aggiornamenti' | 'condotto'
+// importa: il posto non deve dipendere dallo stato.
+/** Le sezioni delle impostazioni del programma, nell'ordine in cui si aprono. */
+export type SchedaProgramma = 'aspetto' | 'posta' | 'account' | 'modelli' | 'aggiornamenti' | 'condotto'
 
-const SCHEDE_PROGRAMMA: readonly SchedaProgramma[] = [
-  'aspetto', 'posta', 'modelli', 'aggiornamenti', 'condotto',
+export const SCHEDE_PROGRAMMA: readonly SchedaProgramma[] = [
+  'aspetto', 'posta', 'account', 'modelli', 'aggiornamenti', 'condotto',
 ]
 
-type SchedaDocumento =
+/** Le sezioni delle impostazioni del documento d'anno. */
+export type SchedaDocumento =
   | 'anno' | 'calendario' | 'ics' | 'valutazione' | 'materie' | 'liste' | 'intestazione' | 'file'
 
-const SCHEDE_DOCUMENTO: readonly SchedaDocumento[] = [
+export const SCHEDE_DOCUMENTO: readonly SchedaDocumento[] = [
   'anno', 'calendario', 'ics', 'valutazione', 'materie', 'liste', 'intestazione', 'file',
 ]
 
@@ -100,6 +102,11 @@ export interface Contesto {
   valutazioneId: string | null;
   allievoId: string | null;
 }
+
+/** I campi del contesto, per chi li copia uno per uno (la memoria, lo stato). */
+export const CAMPI_CONTESTO = [
+  'corsoId', 'classeId', 'filtroClasseId', 'lezioneId', 'pianoId', 'valutazioneId', 'allievoId',
+] as const satisfies readonly (keyof Contesto)[]
 
 /**
  * Le preferenze del documento che il posto legge e può spostare: il periodo
@@ -203,7 +210,7 @@ const SOGGETTI: Readonly<Record<PaginaId, readonly TipoSoggetto[]>> = {
   'pagina.classe.pendenze': ['classe'],
 }
 
-function paginaValida (pagina: unknown): pagina is PaginaId {
+export function paginaValida (pagina: unknown): pagina is PaginaId {
   return typeof pagina === 'string' && Object.hasOwn(VISTA_DELLA_PAGINA, pagina)
 }
 
@@ -222,7 +229,7 @@ function diClasse (pagina: PaginaId): boolean {
  * «Comunicazioni», che ha l'id della posta; i `modelli` del documento sono
  * rimasti la carta intestata.
  */
-function schedaValida (scheda: unknown): Scheda | undefined {
+export function schedaValida (scheda: unknown): Scheda | undefined {
   if (scheda === 'programma.recapiti') return 'programma.posta'
   if (scheda === 'documento.modelli') return 'documento.intestazione'
   if (typeof scheda !== 'string') return undefined
@@ -468,9 +475,14 @@ class Letture {
 
 /**
  * Il giorno da guardare in un anno: quello chiesto se ci cade, se no oggi se
- * ci cade, se no il capo dell'anno più vicino (`giornoDentroLAnno` in `state.ts`).
+ * ci cade, se no il capo dell'anno più vicino. Senza anno, o con estremi
+ * storti, resta quello chiesto.
  */
-function giornoNellAnno (data: Iso, anno: AnnoScolastico | null, oggi: Iso): Iso {
+export function giornoNellAnno (
+  data: Iso,
+  anno: Pick<AnnoScolastico, 'inizio' | 'fine'> | null,
+  oggi: Iso,
+): Iso {
   if (!anno || !isoValida(anno.inizio) || !isoValida(anno.fine)) return data
   if (anno.inizio > anno.fine) return data
   const dentro = (giorno: Iso): boolean => giorno >= anno.inizio && giorno <= anno.fine
@@ -479,7 +491,7 @@ function giornoNellAnno (data: Iso, anno: AnnoScolastico | null, oggi: Iso): Iso
   return data < anno.inizio ? anno.inizio : anno.fine
 }
 
-interface Completato {
+export interface Completato {
   posto: Posto;
   contesto: Contesto;
   /** I campi di prima che dicono la pagina (`derivaVista` del posto completato). */

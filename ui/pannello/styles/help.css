@@ -194,6 +194,12 @@
   background: color-mix(in srgb, currentColor 18%, transparent);
 }
 
+/* Sulla pillola accesa il velo del testo schiarirebbe l'accento: un tono più
+   deciso tiene il contrasto del numero (axe, color-contrast). */
+.guida__filtro-pillola--attivo > .guida__filtro-conto {
+  background: var(--accento-caldo);
+}
+
 /* ---------------------------------------------------------------- indice */
 
 /* Il testo a sinistra, l'indice a destra: proporzionato alla finestra. */
@@ -233,7 +239,7 @@
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--velo-accento);
-  color: var(--accento);
+  color: var(--accento-caldo);
 }
 
 .guida__indice-parte--attiva {

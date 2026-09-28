@@ -86,8 +86,23 @@ window.addEventListener('message', (evento: MessageEvent<MessaggioVersoWebview>)
     }
     return
   }
+  traccia('←', messaggio.tipo)
   for (const ascoltatore of ascoltatori) ascoltatore(messaggio)
 })
+
+/**
+ * In sviluppo, il traffico col host in console (`console.debug`, livello
+ * «Dettagliato»): un giro che si ripete da solo (un'azione che fa rispingere lo
+ * stato, che la rifà partire) si vede come una riga che torna ogni secondo.
+ */
+const TRACCIA = typeof process === 'undefined' ||
+  !process.env.NODE_ENV ||
+  process.env.NODE_ENV === 'development'
+
+function traccia (verso: '→' | '←', cosa: string): void {
+  // testo-fisso: diagnostica interna di sviluppo
+  if (TRACCIA) console.debug(`[ponte ${verso}] ${cosa} ${Math.round(performance.now())} ms`)
+}
 
 // ------------------------------------------------------------------ attesa
 
@@ -169,6 +184,7 @@ export function invia (azione: Azione): Promise<Risposta> {
   const id = contatore
   const richiesta: Richiesta = { id, azione }
   const conta = !DI_FONDO.has(azione.tipo)
+  traccia('→', azione.tipo)
   if (conta) segnaAttesa(1)
   return new Promise<Risposta>((risolvi) => {
     inAttesa.set(id, (risposta) => {
@@ -218,6 +234,7 @@ export function chiedi<T> (
   const id = contatore
   const domanda: Domanda = { id, procedura, ingresso }
   const conta = !opzioni.diFondo
+  traccia('→', `? ${procedura}`)
   if (conta) segnaAttesa(1)
   return new Promise<Esito<T>>((risolvi) => {
     domandeInAttesa.set(id, (riscontro) => {

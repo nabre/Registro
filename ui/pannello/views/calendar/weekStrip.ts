@@ -141,38 +141,56 @@ export function strisciaSettimane (): Figlio {
   const piene = [...quante.entries()]
     .filter(([lunedi, n]) => n > 0 && lunedi >= prima && lunedi <= ultima)
     .length
-  const fila = h('div', { class: 'striscia-settimane__voci', attr: { id: 'striscia-settimane-voci' } }, ...voci)
+  // La fila è un nodo di telaio (`dom.ts`), come i suoi genitori fino al
+  // contenuto: un ridisegno le cambia i figli ma non la ricrea, e chi la sta
+  // scorrendo non perde il gesto né la posizione.
+  const fila = h(
+    'div',
+    {
+      class: 'striscia-settimane__voci',
+      attr: { id: 'striscia-settimane-voci' },
+      dataset: { telaio: 'fila-settimane' },
+    },
+    ...voci,
+  )
   // La settimana aperta dev'essere visibile nella fila: si scorre solo la fila,
   // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento
-  // appeso. Solo quando cambiano settimana o larghezza: un ridisegno qualunque
-  // rimette la fila dov'era.
+  // appeso. Solo quando cambiano settimana o larghezza.
   if (!chiusa) {
+    // Sul nodo di telaio resta l'ascoltatore del primo disegno: non dipende dallo stato.
     fila.addEventListener('scroll', () => {
       scorrimentoFila.sinistra = fila.scrollLeft
     })
     requestAnimationFrame(() => {
-      const larghezza = fila.clientWidth
+      // Quella nel documento: se il telaio ha tenuto la vecchia, `fila` è stata scartata.
+      const viva = document.getElementById('striscia-settimane-voci')
+      if (!viva) return
+      const larghezza = viva.clientWidth
       if (scorrimentoFila.lunedi === corrente && scorrimentoFila.larghezza === larghezza) {
-        fila.scrollLeft = scorrimentoFila.sinistra
+        // Una fila nuova (rientrando nel calendario, o riaperta) riparte da zero:
+        // torna dov'era. Quella tenuta è già lì, e non la si tocca mentre scorre.
+        if (viva.scrollLeft === 0 && scorrimentoFila.sinistra > 0) {
+          viva.scrollLeft = scorrimentoFila.sinistra
+        }
         return
       }
       scorrimentoFila.lunedi = corrente
       scorrimentoFila.larghezza = larghezza
-      fila.scrollLeft = scorrimentoFila.sinistra
-      const accesa = fila.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
+      const accesa = viva.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
       if (accesa) {
-        const vista = fila.getBoundingClientRect()
+        const vista = viva.getBoundingClientRect()
         const voce = accesa.getBoundingClientRect()
         if (voce.left < vista.left || voce.right > vista.right) {
-          fila.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
+          viva.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
         }
       }
-      scorrimentoFila.sinistra = fila.scrollLeft
+      scorrimentoFila.sinistra = viva.scrollLeft
     })
   }
   return h(
     'div',
-    { class: ['striscia-settimane', chiusa && 'striscia-settimane--chiusa'] },
+    // Anello della catena di telaio fino alla fila.
+    { class: ['striscia-settimane', chiusa && 'striscia-settimane--chiusa'], dataset: { telaio: 'striscia' } },
     h(
       'div',
       { class: 'striscia-settimane__testata' },

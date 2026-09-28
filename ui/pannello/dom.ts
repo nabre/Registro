@@ -119,18 +119,111 @@ export function rimpiazza (elemento: Element, ...figli: Figlio[]): void {
  * e si riparte dall'alto. Del nodo tenuto si copiano gli attributi e si
  * sostituiscono i figli; gli ascoltatori restano quelli del primo disegno,
  * quindi su un nodo di telaio non se ne mettono che dipendano dallo stato.
+ *
+ * I nodi pesanti (`data-tieni`) si tengono ovunque stiano: vedi `parcheggia`.
  */
 export function aggiornaElemento (contenitore: HTMLElement, nuovo: Figlio): void {
+  const albero = nuovo instanceof Node ? nuovo : gruppo(nuovo)
+  const tenuti = parcheggia(contenitore, albero)
   const vecchio = contenitore.firstElementChild
   if (
-    nuovo instanceof HTMLElement &&
+    albero instanceof HTMLElement &&
     vecchio instanceof HTMLElement &&
     contenitore.childNodes.length === 1 &&
-    innesta(vecchio, nuovo)
+    innesta(vecchio, albero)
   ) {
+    rimetti(tenuti)
     return
   }
-  rimpiazza(contenitore, nuovo)
+  rimpiazza(contenitore, albero)
+  rimetti(tenuti)
+}
+
+// ------------------------------------------------------------ nodi pesanti
+
+/**
+ * Un nodo pesante tenuto fra due disegni: il vecchio, già nel documento, e il
+ * segnaposto che il disegno nuovo ha messo al suo posto.
+ */
+interface Tenuto {
+  vecchio: HTMLElement
+  segnaposto: HTMLElement
+  parcheggio: HTMLElement
+}
+
+/** I `data-tieni` più esterni sotto `radice`: quelli dentro un altro viaggiano con lui. */
+function pesanti (radice: ParentNode): HTMLElement[] {
+  const tutti = Array.from(radice.querySelectorAll<HTMLElement>('[data-tieni]'))
+  if (radice instanceof HTMLElement && radice.dataset.tieni !== undefined) tutti.unshift(radice)
+  return tutti.filter((nodo) => {
+    for (let su = nodo.parentElement; su && su !== radice; su = su.parentElement) {
+      if (su.dataset.tieni !== undefined) return false
+    }
+    return true
+  })
+}
+
+/**
+ * Sposta senza staccare, dove si può: `moveBefore` (Chromium 133+) porta un
+ * `<iframe>` altrove senza ricaricarlo, `insertBefore` lo ricarica. Vale solo
+ * fra due posti entrambi nel documento; altrimenti si ripiega su `insertBefore`.
+ */
+function sposta (nodo: Node, genitore: Node, prima: Node | null): void {
+  const muovi = (genitore as { moveBefore?: (n: Node, p: Node | null) => void }).moveBefore
+  if (typeof muovi === 'function' && nodo.isConnected && genitore.isConnected) {
+    try {
+      muovi.call(genitore, nodo, prima)
+      return
+    } catch {
+      // Radici diverse: si sposta alla vecchia maniera.
+    }
+  }
+  genitore.insertBefore(nodo, prima)
+}
+
+/**
+ * Un nodo con `data-tieni="<sorgente>"` (un `<iframe>`, un visore PDF, un
+ * `<canvas>`, un `<video>`, un'immagine grande) non si ricrea finché il disegno
+ * nuovo ne porta uno con lo stesso tag e la stessa sorgente: il vecchio va in un
+ * parcheggio nascosto nel documento prima che il disegno stacchi i suoi
+ * antenati, e torna al posto del nuovo dopo. Non si stacca mai, quindi non
+ * ricarica. Del vecchio restano figli e ascoltatori; gli attributi sono quelli
+ * del nuovo, e se la sorgente cambia la chiave cambia e il nodo è nuovo.
+ */
+function parcheggia (contenitore: HTMLElement, albero: Node): Tenuto[] {
+  if (!contenitore.isConnected) return []
+  if (!(albero instanceof Element || albero instanceof DocumentFragment)) return []
+  const vecchi = pesanti(contenitore)
+  if (vecchi.length === 0) return []
+  const liberi = new Map<string, HTMLElement[]>()
+  for (const nodo of vecchi) {
+    const chiave = `${nodo.tagName}|${nodo.dataset.tieni ?? ''}`
+    liberi.set(chiave, [...(liberi.get(chiave) ?? []), nodo])
+  }
+  const coppie: Array<{ vecchio: HTMLElement, segnaposto: HTMLElement }> = []
+  for (const segnaposto of pesanti(albero)) {
+    const vecchio = liberi.get(`${segnaposto.tagName}|${segnaposto.dataset.tieni ?? ''}`)?.shift()
+    if (vecchio) coppie.push({ vecchio, segnaposto })
+  }
+  if (coppie.length === 0) return []
+  const parcheggio = document.createElement('div')
+  parcheggio.hidden = true
+  document.body.appendChild(parcheggio)
+  for (const { vecchio } of coppie) sposta(vecchio, parcheggio, null)
+  return coppie.map((coppia) => ({ ...coppia, parcheggio }))
+}
+
+/** Ogni nodo parcheggiato torna al posto del suo segnaposto; il parcheggio sparisce. */
+function rimetti (tenuti: Tenuto[]): void {
+  for (const { vecchio, segnaposto } of tenuti) {
+    const genitore = segnaposto.parentNode
+    // Un segnaposto finito fuori dal documento non ha dove ricevere il vecchio.
+    if (!genitore || !segnaposto.isConnected) continue
+    copiaAttributi(vecchio, segnaposto)
+    sposta(vecchio, genitore, segnaposto)
+    genitore.removeChild(segnaposto)
+  }
+  tenuti[0]?.parcheggio.remove()
 }
 
 /** Se `vecchio` può restare al posto di `nuovo`: stesso nodo di telaio, stessa cosa guardata. */
@@ -352,9 +445,20 @@ export function andaturaScorrimento (): ScrollBehavior {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
 }
 
-export function ricordaScorrimenti (): Map<string, ScorrimentoRicordato> {
+/** Le scatole con `data-scorrimento` sotto `dentro`, lui compreso. */
+function scatole (dentro: ParentNode): HTMLElement[] {
+  const tutte = Array.from(dentro.querySelectorAll<HTMLElement>('[data-scorrimento]'))
+  const proprio = dentro instanceof HTMLElement && dentro.dataset.scorrimento !== undefined
+  if (proprio) tutte.unshift(dentro)
+  return tutte
+}
+
+/** `dentro` restringe la foto a un pezzo della pagina: un'isola che si ridisegna da sola. */
+export function ricordaScorrimenti (
+  dentro: ParentNode = document,
+): Map<string, ScorrimentoRicordato> {
   const ricordo = new Map<string, ScorrimentoRicordato>()
-  for (const elemento of document.querySelectorAll<HTMLElement>('[data-scorrimento]')) {
+  for (const elemento of scatole(dentro)) {
     const chiave = elemento.dataset.scorrimento
     if (!chiave) continue
     // Chi segue il fondo si ricorda anche in cima: la conversazione appena aperta
@@ -375,9 +479,12 @@ export function ricordaScorrimenti (): Map<string, ScorrimentoRicordato> {
  * `data-segue-fondo` vuole lo stesso posto, non lo stesso pixel: chi era in
  * fondo alla conversazione resta in fondo mentre cresce, chi era risalito resta lì.
  */
-export function ripristinaScorrimenti (ricordo: Map<string, ScorrimentoRicordato>): void {
+export function ripristinaScorrimenti (
+  ricordo: Map<string, ScorrimentoRicordato>,
+  dentro: ParentNode = document,
+): void {
   if (ricordo.size === 0) return
-  for (const elemento of document.querySelectorAll<HTMLElement>('[data-scorrimento]')) {
+  for (const elemento of scatole(dentro)) {
     const chiave = elemento.dataset.scorrimento
     const dove = chiave ? ricordo.get(chiave) : undefined
     if (!dove) continue
