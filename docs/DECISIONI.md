@@ -312,7 +312,9 @@ nel giornale, per tutti i trasporti. Doppia nomenclatura: azione
   procedura.
 - Il nucleo non spinge lo stato al pannello.
 
-### ADR-28 — Schemi fatti in casa, contratto Standard Schema
+### ADR-28 — Schemi nostri sopra valibot, contratto Standard Schema
+
+*Modificata da ADR-50 (passo 4): la convalida la fa valibot.*
 
 **Decisione.** `contract/schemas.ts` espone `~standard`, come zod/valibot; il
 nucleo conosce solo quell'interfaccia. Una dichiarazione dà convalida, tipo
@@ -328,6 +330,11 @@ la forma minima e cede al validatore del dominio.
   `type: ["number", "null"]`).
 - Uno schema d'oggetto scarta le chiavi non dichiarate (tolleranza verso un
   pannello più nuovo).
+- La convalida la fa valibot, dietro `~standard`. Forma e JSON Schema restano
+  nostri (`schemaJson`): portano l'aiuto nella lingua del momento,
+  `perAssistente`, `aperto`, `severo`, `nullo`, `entita()`; per questo
+  `@valibot/to-json-schema` non serve. Un campo dice un problema solo, il primo
+  (`abortPipeEarly`); un oggetto li raccoglie tutti.
 
 **Dove.** `contract/schemas.ts`, `core/dominio/validation.ts`, `tests/api/schemas.test.mjs`.
 
