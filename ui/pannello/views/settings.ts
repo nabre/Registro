@@ -13,7 +13,7 @@ import type { VoceProgramma } from '../../../contract/protocollo.js'
 import { h, type Figlio } from '../dom.js'
 import { minuscolo } from '../../../core/i18n/index.js'
 import { testi } from './settings.testi.js'
-import { aggiorna, stato, type SchedaDocumento, type SchedaProgramma } from '../state.js'
+import { aggiorna, ridisegna, stato, type SchedaDocumento, type SchedaProgramma } from '../state.js'
 import {
   schedaAnnoAperto,
   schedaChiusure,
@@ -214,6 +214,8 @@ function colonnaSezioni (): HTMLElement {
         // Scegliere una sezione svuota il filtro, che resterebbe su una sezione non visibile.
         cercatoNelProgramma = ''
         aggiorna({ ambitoImpostazioni: 'programma', schedaProgramma: sezione.id })
+        // Sulla sezione già aperta `aggiorna` non ridisegnerebbe: il filtro va svuotato a vista.
+        ridisegna()
       },
     )
   }

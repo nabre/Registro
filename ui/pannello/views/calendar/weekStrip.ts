@@ -25,6 +25,18 @@ import { testi } from './calendar.testi.js'
 // ------------------------------------------------------------------ settimana
 
 /**
+ * Dove si era lasciata la fila, per quale settimana aperta e quanto era larga.
+ * La fila si rifà a ogni disegno e ripartirebbe da capo: si ricentra solo se
+ * cambiano settimana o larghezza, altrimenti torna dove l'aveva lasciata chi
+ * la scorreva.
+ */
+const scorrimentoFila: { lunedi: Iso | null, larghezza: number, sinistra: number } = {
+  lunedi: null,
+  larghezza: 0,
+  sinistra: 0,
+}
+
+/**
  * Tutte le settimane dell'anno scolastico, anche quelle vuote (buchi o pause
  * da vedere). Il confine si segna dove un semestre finisce, se ne segue un
  * altro. Si ripiega; chiusa resta la testata con il conto e il pulsante.
@@ -129,20 +141,56 @@ export function strisciaSettimane (): Figlio {
   const piene = [...quante.entries()]
     .filter(([lunedi, n]) => n > 0 && lunedi >= prima && lunedi <= ultima)
     .length
-  const fila = h('div', { class: 'striscia-settimane__voci', attr: { id: 'striscia-settimane-voci' } }, ...voci)
+  // La fila è un nodo di telaio (`dom.ts`), come i suoi genitori fino al
+  // contenuto: un ridisegno le cambia i figli ma non la ricrea, e chi la sta
+  // scorrendo non perde il gesto né la posizione.
+  const fila = h(
+    'div',
+    {
+      class: 'striscia-settimane__voci',
+      attr: { id: 'striscia-settimane-voci' },
+      dataset: { telaio: 'fila-settimane' },
+    },
+    ...voci,
+  )
   // La settimana aperta dev'essere visibile nella fila: si scorre solo la fila,
-  // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento appeso.
-  if (!chiusa) requestAnimationFrame(() => {
-    const accesa = fila.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
-    if (!accesa) return
-    const vista = fila.getBoundingClientRect()
-    const voce = accesa.getBoundingClientRect()
-    if (voce.left >= vista.left && voce.right <= vista.right) return
-    fila.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
-  })
+  // di lato e se serve (`scrollIntoView` muoverebbe la pagina), a elemento
+  // appeso. Solo quando cambiano settimana o larghezza.
+  if (!chiusa) {
+    // Sul nodo di telaio resta l'ascoltatore del primo disegno: non dipende dallo stato.
+    fila.addEventListener('scroll', () => {
+      scorrimentoFila.sinistra = fila.scrollLeft
+    })
+    requestAnimationFrame(() => {
+      // Quella nel documento: se il telaio ha tenuto la vecchia, `fila` è stata scartata.
+      const viva = document.getElementById('striscia-settimane-voci')
+      if (!viva) return
+      const larghezza = viva.clientWidth
+      if (scorrimentoFila.lunedi === corrente && scorrimentoFila.larghezza === larghezza) {
+        // Una fila nuova (rientrando nel calendario, o riaperta) riparte da zero:
+        // torna dov'era. Quella tenuta è già lì, e non la si tocca mentre scorre.
+        if (viva.scrollLeft === 0 && scorrimentoFila.sinistra > 0) {
+          viva.scrollLeft = scorrimentoFila.sinistra
+        }
+        return
+      }
+      scorrimentoFila.lunedi = corrente
+      scorrimentoFila.larghezza = larghezza
+      const accesa = viva.querySelector<HTMLElement>('.striscia-settimane__voce--corrente')
+      if (accesa) {
+        const vista = viva.getBoundingClientRect()
+        const voce = accesa.getBoundingClientRect()
+        if (voce.left < vista.left || voce.right > vista.right) {
+          viva.scrollLeft += voce.left - vista.left - (vista.width - voce.width) / 2
+        }
+      }
+      scorrimentoFila.sinistra = viva.scrollLeft
+    })
+  }
   return h(
     'div',
-    { class: ['striscia-settimane', chiusa && 'striscia-settimane--chiusa'] },
+    // Anello della catena di telaio fino alla fila.
+    { class: ['striscia-settimane', chiusa && 'striscia-settimane--chiusa'], dataset: { telaio: 'striscia' } },
     h(
       'div',
       { class: 'striscia-settimane__testata' },

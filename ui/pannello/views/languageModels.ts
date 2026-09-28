@@ -20,7 +20,7 @@ import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
 import { h, type Figlio } from '../dom.js'
 import { azione, ascolta, chiedi } from '../bridge.js'
-import { aggiorna, stato } from '../state.js'
+import { iscriviti, ridisegna, stato } from '../state.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './languageModels.testi.js'
 
@@ -134,7 +134,7 @@ async function leggi (): Promise<void> {
   } else {
     erroreElenco = esito.errori.join(' ') || testi().elencoNonLetto
   }
-  aggiorna({})
+  ridisegna()
 }
 
 /** Il catalogo, e la ricerca se c'è qualcosa da cercare: una chiamata, righe della stessa forma. */
@@ -144,7 +144,7 @@ async function leggiCatalogo (): Promise<void> {
   const esito = await chiedi<typeof catalogo>('llm.catalogo', cercato ? { cerca: cercato } : {})
   if (questo !== giroCatalogo) return
   if (esito.ok && esito.dati) catalogo = esito.dati
-  aggiorna({})
+  ridisegna()
 }
 
 /** I file veri di un deposito: i nomi cambiano, e si chiedono quando servono. */
@@ -163,7 +163,7 @@ async function apri (deposito: string, taglio: string): Promise<void> {
     return
   }
   aperto = { deposito, ...esito.dati }
-  aggiorna({})
+  ridisegna()
 }
 
 /**
@@ -190,12 +190,12 @@ async function scarica (deposito: string, file: string, per?: UsoModello): Promi
   const primo = scarico === null
   if (primo) scarico = { file, byte: 0, totale: 0 }
   else if (nuovo) inCoda = [...inCoda, file]
-  aggiorna({})
+  ridisegna()
   const risposta = await azione({ tipo: 'llm.scarica', deposito, file, ...(per ? { per } : {}) })
   if (!risposta.ok) {
     if (primo && scarico?.file === file) scarico = null
     if (nuovo) inCoda = inCoda.filter((nome) => nome !== file)
-    aggiorna({})
+    ridisegna()
   }
 }
 
@@ -256,7 +256,7 @@ function ascoltaScarico (): void {
       // vista: l'ascolto dura per tutta la vita del pannello e altrimenti
       // ridisegnerebbe il registro quattro volte al secondo. Tornando qui, il
       // ridisegno legge `scarico` già aggiornato.
-      if (modelliInVista()) aggiorna({})
+      if (modelliInVista()) ridisegna()
       return
     }
     scarico = null
@@ -524,7 +524,7 @@ function riquadroDeposito (): Figlio {
   return scheda({
     titolo: aperto.deposito,
     aiuto: t.tagli,
-    azioni: pulsante({ testo: parole().chiudi, al: () => { aperto = null; aggiorna({}) } }),
+    azioni: pulsante({ testo: parole().chiudi, al: () => { aperto = null; ridisegna() } }),
     contenuto: h(
       'ul',
       { class: 'modelli-llm__elenco' },
@@ -669,6 +669,19 @@ function zonaTrascinamento (): HTMLElement {
 // --------------------------------------------------------------- la vista
 
 /**
+ * La prima volta che si entra nella sezione si chiedono l'elenco e il catalogo
+ * e ci si mette in ascolto dello scarico. Lo fa un iscritto allo stato e non il
+ * disegno: il disegno si rifà a ogni gesto e non deve far partire letture.
+ */
+iscriviti(() => {
+  if (chiesto || !modelliInVista()) return
+  chiesto = true
+  ascoltaScarico()
+  void leggi()
+  void leggiCatalogo()
+})
+
+/**
  * Se la sezione dei modelli è in vista: le impostazioni del programma su
  * «Modelli linguistici».
  */
@@ -683,12 +696,6 @@ export function modelliInVista (): boolean {
  * con quale, i consigliati e la ricerca. Le voci della sezione seguono sotto.
  */
 export function contenutoModelliLinguistici (): Figlio[] {
-  ascoltaScarico()
-  if (!chiesto) {
-    chiesto = true
-    void leggi()
-    void leggiCatalogo()
-  }
 
   const t = testi()
   if (!dati) {

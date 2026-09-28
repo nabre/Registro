@@ -15,7 +15,7 @@
  */
 .vista--guida {
   /* Quanto è alta la fascia della ricerca: la scavalcano l'indice e i salti. */
-  --guida-cerca-alto: calc(2.25rem + 2 * var(--spazio-2));
+  --guida-cerca-alto: calc(5.2rem + 2 * var(--spazio-2));
 }
 
 .guida__benvenuto {
@@ -23,7 +23,8 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     'testo'
-    'scorciatoie';
+    'scorciatoie'
+    'provenienza';
   gap: var(--spazio-2) var(--spazio-4);
   align-items: center;
   /* Niente margine sotto: la distanza la dà il `gap` della `.vista`, e si sommerebbe. */
@@ -51,15 +52,37 @@
 
 .guida__benvenuto-testo p {
   margin: 0;
-  max-width: 68ch;
   color: var(--testo-quieto);
 }
 
 .guida__benvenuto-scorciatoie {
   grid-area: scorciatoie;
   display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.guida__benvenuto-lanci {
+  display: flex;
   flex-wrap: wrap;
   gap: var(--spazio-2);
+}
+
+.guida__benvenuto-suggerimenti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  align-items: center;
+}
+
+@media (min-width: 64em) {
+  .guida__benvenuto {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-areas:
+      'testo scorciatoie'
+      'provenienza provenienza';
+    align-items: start;
+  }
 }
 
 /*
@@ -72,8 +95,10 @@
   top: calc(-1 * var(--margine-pagina));
   z-index: 2;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--spazio-2);
   min-height: var(--guida-cerca-alto);
+  padding: var(--spazio-2) 0;
   /* Come sopra: sotto basta il `gap` della `.vista`. L'aggancio dipende solo da `top`. */
   margin-bottom: 0;
   background: var(--sfondo);
@@ -96,12 +121,89 @@
 .guida__cerca input {
   width: 100%;
   padding-left: calc(var(--spazio-2) * 2 + 1em);
+  padding-right: 5rem;
+}
+
+.guida__cerca-pulisci {
+  position: absolute;
+  right: calc(var(--spazio-2) + 2.5em);
+  display: inline-grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--velo-quieto);
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.guida__cerca-pulisci:hover {
+  background: var(--velo-accento);
+  color: var(--accento);
+}
+
+/* Le pillole per filtrare velocemente per macro-argomento */
+.guida__filtri {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.guida__filtro-pillola {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-1);
+  padding: 3px 10px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio-pastiglia, 999px);
+  background: var(--sfondo-alto);
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: var(--corpo-piccolo);
+  cursor: pointer;
+  transition: all var(--durata-svelta, 120ms) ease;
+  white-space: nowrap;
+}
+
+.guida__filtro-pillola:hover {
+  border-color: var(--accento);
+  color: var(--testo);
+  background: var(--velo-sfiorato);
+}
+
+.guida__filtro-pillola--attivo {
+  border-color: var(--accento);
+  background: var(--accento);
+  color: var(--su-tinta);
+  font-weight: 600;
+}
+
+.guida__filtro-pillola--attivo:hover {
+  background: var(--accento);
+  color: var(--su-tinta);
+}
+
+.guida__filtro-conto {
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* Sulla pillola accesa il velo del testo schiarirebbe l'accento: un tono più
+   deciso tiene il contrasto del numero (axe, color-contrast). */
+.guida__filtro-pillola--attivo > .guida__filtro-conto {
+  background: var(--accento-caldo);
 }
 
 /* ---------------------------------------------------------------- indice */
 
-/* Il testo a sinistra, l'indice a destra: vedi `vistaGuida`. */
-.colonne--guida { grid-template-columns: minmax(0, 1fr) 16rem; }
+/* Il testo a sinistra, l'indice a destra: proporzionato alla finestra. */
+.colonne--guida { grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 21vw, 24rem); }
 
 .guida__indice {
   position: sticky;
@@ -127,6 +229,23 @@
   border-bottom: 1px solid var(--bordo-tenue);
   font-weight: 600;
   color: var(--testo);
+}
+
+.guida__indice-titolo-testa { flex: 1; }
+
+.guida__indice-conto-totale {
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--velo-accento);
+  color: var(--accento-caldo);
+}
+
+.guida__indice-parte--attiva {
+  border-left: 2px solid var(--accento);
+  padding-left: var(--spazio-1);
+  margin-left: calc(-1 * var(--spazio-1));
 }
 
 .guida__indice-testa > .icona { color: var(--accento); }
@@ -261,14 +380,15 @@
 }
 
 /*
- * Il gesto e la spiegazione in due colonne: i nomi incolonnati a sinistra si
- * trovano scorrendo senza leggere il resto.
+ * Il gesto e la spiegazione: su schermi normali a due colonne termine/testo,
+ * su schermi ampi a griglia di schede a due colonne per sfruttare tutta la larghezza.
  */
 .guida__voce {
   display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
+  grid-template-columns: 14rem minmax(0, 1fr);
   gap: var(--spazio-3);
   align-items: baseline;
+  padding: var(--spazio-1) 0;
 }
 
 .guida__capo {
@@ -295,14 +415,43 @@
   font-variant-numeric: tabular-nums;
 }
 
-/*
- * La spiegazione ha una misura massima, perché oltre le settanta-ottanta
- * battute l'occhio sbaglia riga. In `ch`, così resta in battute anche con il
- * testo più grande.
- */
 .guida__testo {
   color: var(--testo-quieto);
-  max-width: 76ch;
+  max-width: none;
+}
+
+/* Su schermi larghi le voci sfruttano lo spazio orizzontale in due colonne bilanciate */
+@media (min-width: 75em) {
+  .guida__voci {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spazio-2) var(--spazio-3);
+  }
+
+  .guida__voce {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spazio-1);
+    padding: var(--spazio-2) var(--spazio-3);
+    border: 1px solid var(--bordo-tenue);
+    border-radius: var(--raggio);
+    background: var(--sfondo);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 3%);
+    transition: border-color var(--durata-svelta, 120ms) ease, box-shadow var(--durata-svelta, 120ms) ease;
+  }
+
+  .guida__voce:hover {
+    border-color: color-mix(in srgb, var(--accento) 40%, var(--bordo-tenue));
+    box-shadow: 0 2px 6px rgb(0 0 0 / 6%);
+  }
+
+  .guida__voce--passo {
+    border-left: 3px solid var(--accento);
+  }
+
+  .guida__testo {
+    line-height: 1.5;
+  }
 }
 
 /* Il nome di un pulsante, dentro la spiegazione: si trova scorrendo. */
@@ -556,7 +705,7 @@
 }
 
 .guida__lente-corpo { outline: none; }
-.guida__lente-corpo .guida__disegno { max-width: none; }
+.guida__lente-corpo .guida__disegno { max-width: min(100%, 56rem); margin-inline: auto; }
 .guida__lente .guida__legenda { margin-top: var(--spazio-3); }
 
 /* ------------------------------------------------------------- le figure */
@@ -590,6 +739,7 @@
 .guida__figura-corpo {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spazio-2);
   cursor: zoom-in;
 }
@@ -621,6 +771,8 @@
   width: 100%;
   max-width: 44rem;
   height: auto;
+  margin-inline: auto;
+  display: block;
   overflow: visible;
   font-family: var(--carattere);
 }
@@ -638,7 +790,7 @@
   padding: var(--spazio-1) 0 var(--spazio-1) var(--spazio-3);
   border-left: 3px solid var(--accento);
   color: var(--testo);
-  max-width: 78ch;
+  max-width: none;
 }
 
 .guida__didascalia-numero {
@@ -769,8 +921,8 @@
  * icona, non sul fondo.
  */
 .guida__note {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
   gap: var(--spazio-2);
 }
 
@@ -783,7 +935,7 @@
   border-left: 3px solid var(--tinta-nota);
   border-radius: var(--raggio-grande);
   background: color-mix(in srgb, var(--tinta-nota) 7%, transparent);
-  max-width: 78ch;
+  max-width: none;
 }
 
 .guida__nota > .icona { flex: none; margin-top: 0.15em; color: var(--tinta-nota); }
@@ -796,6 +948,13 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--testo-quieto);
+}
+
+.guida__fondo-navigazione {
+  display: flex;
+  justify-content: center;
+  padding: var(--spazio-4) 0;
+  margin-top: var(--spazio-2);
 }
 
 /* ----------------------------------------------------------- vedi anche */

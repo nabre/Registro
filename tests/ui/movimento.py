@@ -101,6 +101,37 @@ with chromium() as browser:
     fotogramma()
     assert vista() == 'corsi', 'dopo una pagina nuova non c’è più niente «avanti»'
 
+    # La fila ricorda il posto intero: il piano aperto e l'ambito del check.
+    # Due piani dello stesso corso sono due posti; il check della classe e
+    # quello del corso anche.
+    page.evaluate('''() => {
+      const r = prova.stato.registro
+      const corso = r.corsi[0]
+      const piano = (id) => ({ id, corsoId: corso.id, obiettivi: [id], prerequisiti: '', attivita: [],
+        risorse: [], note: '', tag: [], creatoIl: '2026-09-01T08:00:00.000Z',
+        aggiornatoIl: '2026-09-01T08:00:00.000Z' })
+      prova.aggiorna({ registro: { ...r, piani: [piano('piano-p'), piano('piano-q')] } })
+    }''')
+    page.evaluate("prova.aggiorna({vista:'piani', pianoId:'piano-p'})")
+    fotogramma()
+    page.evaluate("prova.aggiorna({pianoId:'piano-q'})")
+    fotogramma()
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
+    fotogramma()
+    page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.corso.check'))")
+    fotogramma()
+    for vista_ora, ambito, piano in [('check', 'classe', None), ('piani', None, 'piano-q'), ('piani', None, 'piano-p')]:
+        fuori_dai_campi()
+        page.keyboard.press('Alt+ArrowLeft')
+        fotogramma()
+        assert vista() == vista_ora, f'Alt+← doveva tornare a {vista_ora}: {vista()!r}'
+        if ambito:
+            assert page.evaluate('prova.stato.ambitoCheck') == ambito, 'Alt+← ha perso l’ambito del check'
+        else:
+            assert page.evaluate('prova.stato.pianoId') == piano, f'Alt+← doveva riaprire {piano}'
+    page.evaluate("prova.aggiorna({vista:'corsi'})")
+    fotogramma()
+
     # Dentro un campo di testo Alt+← è di chi scrive.
     campo = page.locator('input[type="text"], input:not([type]), textarea').first
     if campo.count():

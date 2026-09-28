@@ -1,33 +1,29 @@
 // Indietro e avanti fra le pagine del registro, come in un browser: Alt+← / Alt+→
 // e i tasti laterali del mouse (`shortcuts.ts`) percorrono la fila dei posti.
-// Ascolta lo stato con `iscriviti` e non passa da `aggiorna`: ogni strada che
-// cambia pagina finisce in fila senza saperlo.
+// La fila la riempie `vai` (`seguiPosti`): ogni strada che cambia posto passa
+// di lì, anche i vecchi `aggiorna` tradotti dall'adattatore.
 
 import { ricordaScorrimenti } from './dom.js'
-import { aggiorna, iscriviti, lezionePerId, riconvalidaRicordati, stato } from './state.js'
+import { chiaveDelPosto, completa, type Completato, type Posto } from './posto.js'
+import {
+  aggiorna,
+  inBlocco,
+  ridisegna,
+  seguiPosti,
+  stato,
+  vai,
+  type ModoStoria,
+} from './state.js'
+import type { Iso } from '../../core/dominio/models.js'
 
 type Scorrimenti = ReturnType<typeof ricordaScorrimenti>
 
-/**
- * Quel che basta rimettere nello stato per ritrovarsi in un posto. Include il
- * filtro per classe perché le pagine del corso filtrano per corso e classe
- * insieme (come `vaiAlCorso` in `pages.ts`).
- */
-type Posto = Pick<
-  typeof stato,
-  | 'vista'
-  | 'paginaId'
-  | 'schedaDocente'
-  | 'allievoId'
-  | 'classeId'
-  | 'corsoId'
-  | 'lezioneId'
-  | 'filtroClasseId'
->
-
 interface Voce {
+  /** `chiaveDelPosto`: la stessa di `data-scorrimento` (`shell.ts`), così tornando si ritrova lo scorrimento. */
   chiave: string
   posto: Posto
+  /** Il giorno guardato: tornando, il calendario si rimette lì. */
+  giorno: Iso
   /** Dov'era arrivato l'occhio quando ce ne siamo andati. */
   scorrimenti: Scorrimenti
 }
@@ -38,123 +34,81 @@ const MASSIMO = 50
 const fila: Voce[] = []
 /** Dove si è nella fila: l'ultima voce, salvo dopo un «indietro». */
 let indice = -1
-/** Il documento a cui la fila appartiene. `undefined`: nessuno ancora. */
-let documento: string | null | undefined
-/** Una registrazione già chiesta per la fine del gesto in corso. */
-let registrazioneInCoda = false
 /** Gli scorrimenti da rimettere al prossimo disegno, dopo un passo nella fila. */
 let daRitrovare: Scorrimenti | null = null
 
-/**
- * Che cosa si sta guardando: la stessa chiave di `data-scorrimento`
- * (`chiaveDellaPagina` in `shell.ts`), così tornando si ritrova lo scorrimento
- * salvato sotto quella chiave. In più la scheda del docente di classe, perché
- * le sue schede sono destinazioni distinte della barra laterale.
- */
-function chiaveDi (posto: Posto): string {
-  const soggetto = [posto.allievoId, posto.classeId, posto.corsoId, posto.lezioneId]
-  const scheda = posto.vista === 'docenteClasse' ? posto.schedaDocente : ''
-  return [posto.vista, posto.paginaId ?? '', scheda, ...soggetto.map((id) => id ?? '')].join(':')
-}
-
-function postoCorrente (): Posto {
-  return {
-    vista: stato.vista,
-    paginaId: stato.paginaId,
-    schedaDocente: stato.schedaDocente,
-    allievoId: stato.allievoId,
-    classeId: stato.classeId,
-    corsoId: stato.corsoId,
-    lezioneId: stato.lezioneId,
-    filtroClasseId: stato.filtroClasseId,
-  }
+/** Svuota la fila: in un altro documento i posti di prima puntano a id che non ci sono. */
+export function azzeraStoria (): void {
+  fila.length = 0
+  indice = -1
+  daRitrovare = null
 }
 
 /**
- * Se il posto esiste ancora. Solo lezione e allievo ne hanno bisogno: sono la
- * scheda di quell'elemento, le altre viste reggono un id sparito da sé.
+ * Mette in fila il posto raggiunto, se è nuovo. Gira prima del disegno (che
+ * aspetta il fotogramma), quindi lo scorrimento della pagina lasciata si legge
+ * ancora dal DOM.
  */
-function esiste (posto: Posto): boolean {
-  if (posto.vista === 'lezione') return lezionePerId(posto.lezioneId) !== null
-  if (posto.vista === 'allievo') {
-    return stato.registro.classi.some((c) => c.allievi.some((a) => a.id === posto.allievoId))
-  }
-  return true
-}
-
-/**
- * Mette in fila il posto in cui si è, se è nuovo. Gira in un microtask a fine
- * gesto: aprire una pagina passa spesso da due `aggiorna` (vista, poi
- * destinazione) e registrare a ogni chiamata metterebbe in fila un posto a metà.
- * Il microtask parte prima del disegno, quindi lo scorrimento della pagina di
- * prima si legge ancora dal DOM.
- */
-function registra (): void {
-  registrazioneInCoda = false
+function segui (fatto: Completato, storia: ModoStoria, giornoLasciato: Iso): void {
   if (!stato.caricato) return
-  const posto = postoCorrente()
-  const chiave = chiaveDi(posto)
+  const chiave = chiaveDelPosto(fatto.posto)
   const qui = fila[indice]
-  if (qui?.chiave === chiave) {
-    qui.posto = posto
+  // Un passo ha già spostato l'indice: la voce si rinfresca col posto completato.
+  if (storia === 'passo' || qui?.chiave === chiave) {
+    if (qui) Object.assign(qui, { chiave, posto: fatto.posto, giorno: stato.data })
     return
   }
-  // La pagina di prima è ancora disegnata: il suo scorrimento si legge adesso.
-  if (qui) qui.scorrimenti = ricordaScorrimenti()
+  if (storia === 'sostituisci' && qui) {
+    Object.assign(qui, { chiave, posto: fatto.posto, giorno: stato.data })
+    return
+  }
+  if (qui) {
+    qui.scorrimenti = ricordaScorrimenti()
+    qui.giorno = giornoLasciato
+  }
   // Andando altrove da un posto raggiunto con «indietro», l'«avanti» si perde.
   fila.splice(indice + 1)
-  fila.push({ chiave, posto, scorrimenti: new Map() })
+  fila.push({ chiave, posto: fatto.posto, giorno: stato.data, scorrimenti: new Map() })
   if (fila.length > MASSIMO) fila.splice(0, fila.length - MASSIMO)
   indice = fila.length - 1
 }
 
-function allAggiornamento (): void {
-  if (!stato.caricato) return
-  // Un altro documento: i posti di prima puntano a id che qui non esistono.
-  const corrente = stato.documenti.corrente
-  if (corrente !== documento) {
-    documento = corrente
-    fila.length = 0
-    indice = -1
-  }
-  // Restando nello stesso posto la voce si aggiorna subito (es. il corso cambiato
-  // nella barra in cima), così il gesto che poi porta altrove non la sporca.
-  const qui = fila[indice]
-  if (qui && qui.chiave === chiaveDi(postoCorrente())) {
-    qui.posto = postoCorrente()
-    return
-  }
-  if (registrazioneInCoda) return
-  registrazioneInCoda = true
-  queueMicrotask(registra)
-}
-
-/** Aggancia la fila allo stato. Una volta, all'avvio del pannello. */
+/** Aggancia la fila ai posti raggiunti. Una volta, all'avvio del pannello. */
 export function installaCammino (): void {
-  iscriviti(allAggiornamento)
+  seguiPosti(segui)
 }
 
 /**
- * Un passo nella fila: -1 indietro, +1 avanti. Vero se si è mossa. I posti che
- * non esistono più si saltano; il cambio di stato che segue non mette in fila
- * niente perché `registra` trova la stessa chiave e la rinfresca.
+ * Se la voce si ritrova ancora così com'era: se `completa` la porterebbe
+ * altrove (l'ora cancellata, la persona uscita), si salta.
  */
+function ritrovabile (voce: Voce): boolean {
+  const fatto = completa(voce.posto, stato.contesto, stato.registro, stato.adessoData, {
+    semestreId: stato.semestreId,
+    filtroCorsoAgendaId: stato.filtroCorsoAgendaId,
+  })
+  return chiaveDelPosto(fatto.posto) === voce.chiave
+}
+
+/** Un passo nella fila: -1 indietro, +1 avanti. Vero se si è mossa. */
 function passo (verso: -1 | 1): boolean {
-  // Un gesto in coda si chiude prima: se no il posto lasciato entrerebbe in fila
-  // dopo il passo, al posto sbagliato.
-  if (registrazioneInCoda) registra()
   const qui = fila[indice]
   if (!qui) return false
   let arrivo = indice + verso
-  while (fila[arrivo] && !esiste(fila[arrivo].posto)) arrivo += verso
+  while (fila[arrivo] && !ritrovabile(fila[arrivo])) arrivo += verso
   const voce = fila[arrivo]
   if (!voce) return false
   qui.scorrimenti = ricordaScorrimenti()
+  qui.giorno = stato.data
   indice = arrivo
   daRitrovare = voce.scorrimenti
-  aggiorna({ ...voce.posto, schedaComandi: 'pagina' })
-  // Una classe o un corso cancellati intanto restano nel posto ricordato.
-  riconvalidaRicordati()
+  inBlocco(() => {
+    vai(voce.posto, { storia: 'passo', giorno: voce.giorno })
+    // Cambiare pagina riporta la riga delle azioni sui comandi della pagina.
+    aggiorna({ schedaComandi: 'pagina' })
+  })
+  // `daRitrovare` si consuma al disegno, anche se il posto è quello di adesso.
+  ridisegna()
   return true
 }
 

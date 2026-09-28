@@ -234,10 +234,12 @@ with chromium() as browser:
     filtro_agenda.select_option('')
     page.evaluate(FOTOGRAMMA)
     assert page.evaluate('prova.stato.filtroCorsoAgendaId') is None
-    # Un filtro puntato su un corso che nel documento aperto non c'è (il campo è
-    # ricordato fra un anno e l'altro) lascia la tendina in bianco: se il browser
-    # accendesse «Tutti i corsi», riscegliere quella voce non farebbe partire
-    # nessun `change`.
+    # Un filtro puntato su un corso che nel documento aperto non c'è lascia la
+    # tendina in bianco: se il browser accendesse «Tutti i corsi», riscegliere
+    # quella voce non farebbe partire nessun `change`. Fra un anno e l'altro il
+    # filtro non passa più (è ricordato per documento: A tiene il suo, B parte
+    # da nessuno, tornando in A si ritrova; vedi il cambio di documento in
+    # fondo): qui lo si mette a mano.
     expect(page.locator('[data-fuoco="barra-stato-corso"]')).to_have_count(0)
     tendina = page.locator('[data-fuoco="barra-comandi-corso-agenda"]')
     expect(tendina).to_have_count(1)
@@ -340,7 +342,8 @@ with chromium() as browser:
     assert page.evaluate("prova.gruppiDiPagine().some(g=>g.gruppo==='classe')")
     page.evaluate("prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.classe.check'))")
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi.forEach(c=>{c.docenteDiClasse=false}); prova.aggiorna({registro:r}); prova.riconvalidaRicordati()}")
-    assert page.evaluate("prova.stato.vista === 'classi' && prova.stato.paginaId === null")
+    # Senza docenze la sezione non c'è più: `completa` ripiega sulle Classi.
+    assert page.evaluate("prova.stato.vista === 'classi' && prova.postoCorrente().pagina === 'pagina.classi'")
     page.evaluate("()=>{const r=structuredClone(prova.stato.registro); r.classi[0].docenteDiClasse=true; prova.aggiorna({registro:r,classeId:r.classi[0].id})}")
     # La Dashboard non ha riga delle azioni (le sue tessere portano altrove):
     # l'interruttore delle azioni si prova sul calendario.
@@ -724,10 +727,46 @@ with chromium() as browser:
     expect(page.locator(casella)).to_have_value('qwen-vl')
     schermata(page, 'modelli-linguistici.png')
 
+    # Cambio di documento: ogni `.regi` riapre dove lo si era lasciato. A su una
+    # pagina con un soggetto; B, mai aperto, parte dalla Dashboard senza niente
+    # scelto e con la fila di Alt+← vuota; tornando in A si ritrova pagina,
+    # soggetto e filtro dell'agenda.
+    ARRIVA = '''([percorso, registro]) => window.dispatchEvent(new MessageEvent('message', { data: {
+      tipo: 'stato', registro, avvisi: [], radiceDati: null, radiceApp: null,
+      documenti: { corrente: percorso, elenco: [] }, storia: { annulla: 0, ripristina: 0 },
+      esportati: [], archiviati: [], composizioni: [], ocrAttivo: false, programma: [],
+      posta: prova.stato.posta } }))'''
+    anno_a = page.evaluate('prova.annoDiProva()')
+    anno_b = page.evaluate('prova.annoDiProva()')
+    page.evaluate(ARRIVA, ['C:/esempio/A.regi', anno_a])
+    page.evaluate(FOTOGRAMMA)
+    soggetto_a = anno_a['corsi'][1]['id']
+    page.evaluate("id=>prova.vai({pagina:'pagina.corso.piani',soggetto:{tipo:'corso',id}})", soggetto_a)
+    page.evaluate("id=>prova.aggiorna({filtroCorsoAgendaId:id})", anno_a['corsi'][0]['id'])
+    page.evaluate(FOTOGRAMMA)
+    page.evaluate(ARRIVA, ['C:/esempio/B.regi', anno_b])
+    page.evaluate(FOTOGRAMMA)
+    assert page.evaluate('prova.postoCorrente()') == {'pagina': 'pagina.oggi'}
+    assert page.evaluate('prova.stato.vista') == 'oggi'
+    assert page.evaluate('prova.stato.corsoId') is None
+    assert page.evaluate('prova.stato.filtroCorsoAgendaId') is None
+    # La fila è vuota: Alt+← non riporta nelle pagine dell'anno A.
+    page.evaluate('document.activeElement && document.activeElement.blur()')
+    page.keyboard.press('Alt+ArrowLeft')
+    page.evaluate(FOTOGRAMMA)
+    assert page.evaluate('prova.postoCorrente()') == {'pagina': 'pagina.oggi'}
+    page.evaluate(ARRIVA, ['C:/esempio/A.regi', anno_a])
+    page.evaluate(FOTOGRAMMA)
+    assert page.evaluate('prova.postoCorrente()') == {
+        'pagina': 'pagina.corso.piani', 'soggetto': {'tipo': 'corso', 'id': soggetto_a}}
+    assert page.evaluate('prova.stato.vista') == 'piani'
+    assert page.evaluate('prova.stato.corsoId') == soggetto_a
+    assert page.evaluate('prova.stato.filtroCorsoAgendaId') == anno_a['corsi'][0]['id']
+
     # Nessun corso e corso senza lezioni non lasciano una vista incoerente.
     page.evaluate("()=>{prova.aggiorna({vista:'lezione'}); prova.stato.registro.lezioni=[]; prova.scegliCorso(prova.stato.registro.corsi[0].id)}")
     assert page.evaluate('prova.stato.vista') == 'piani'
     page.evaluate("prova.aggiorna({registro:prova.registroVuoto(),vista:'calendario'})")
     expect(page.get_by_role('navigation', name='Navigazione principale')).to_be_visible()
     assert not errors, errors
-print('OK: pagine, contesto, comandi e filtri di calendario e pendenze, scheda della proiezione, tendine corso/classe (anche quando il filtro punta a un corso sparito), sezione docente, file recenti, tastiera, azioni nascoste, responsive, casella di ricerca dei modelli che regge i ridisegni, registro vuoto; nessun errore JS')
+print('OK: pagine, contesto, memoria per documento, comandi e filtri di calendario e pendenze, scheda della proiezione, tendine corso/classe (anche quando il filtro punta a un corso sparito), sezione docente, file recenti, tastiera, azioni nascoste, responsive, casella di ricerca dei modelli che regge i ridisegni, registro vuoto; nessun errore JS')

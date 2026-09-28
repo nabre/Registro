@@ -15,6 +15,12 @@ Ctrl+S non consegnava il campo in cui si stava scrivendo: i campi salvano su
 «Tutto salvato.». Prima della correzione nessun `piano.salva` con la nota
 precedeva lo `stato.salva`.
 
+Cambiando documento, la mira dello schermo per la classe partiva a ogni passo
+dell'arrivo dei dati: la prima portava il registro nuovo con il corso e l'ora
+dell'anno di prima, e l'host la riceveva come vera. Adesso l'arrivo dei dati è
+un blocco solo (`ricevoStato` in `main.ts`): la prima mira dopo il cambio
+porta solo id del documento nuovo.
+
 Prerequisiti: Python playwright, Chromium installato; npm install.
 Esecuzione dalla cartella app: `npm run ui-tests`, oppure da sola
 `node esbuild.mjs --ui` e poi `python tests/ui/staleEdits.py`
@@ -89,6 +95,28 @@ with chromium() as browser:
     assert nota == 'portare i fogli quadrettati e il righello', f'nota consegnata storta: {nota!r}'
     # E il cursore è ancora lì: si continua a scrivere.
     assert page.evaluate("document.activeElement?.getAttribute('name')") == 'note', 'Ctrl+S ha tolto il fuoco'
+
+    # Cambio di documento: la prima mira dopo porta solo id di B.
+    ARRIVA = '''([percorso, registro]) => window.dispatchEvent(new MessageEvent('message', { data: {
+      tipo: 'stato', registro, avvisi: [], radiceDati: null, radiceApp: null,
+      documenti: { corrente: percorso, elenco: [] }, storia: { annulla: 0, ripristina: 0 },
+      esportati: [], archiviati: [], composizioni: [], ocrAttivo: false, programma: [],
+      posta: prova.stato.posta } }))'''
+    anno_a = page.evaluate('prova.annoDiProva()')
+    anno_b = page.evaluate('prova.annoDiProva()')
+    page.evaluate(ARRIVA, ['C:/esempio/A.regi', anno_a])
+    page.evaluate('id => prova.apriLezione(id)', anno_a['lezioni'][1]['id'])
+    page.evaluate(FOTOGRAMMA)
+    assert page.evaluate('prova.stato.corsoId') == anno_a['corsi'][1]['id']
+    page.evaluate('richieste.length = 0')
+    page.evaluate(ARRIVA, ['C:/esempio/B.regi', anno_b])
+    page.wait_for_function("richieste.some(m => m.azione?.tipo === 'proiezione.mira')")
+    mire = page.evaluate("richieste.filter(m => m.azione?.tipo === 'proiezione.mira').map(m => m.azione.mira)")
+    assert mire, 'cambiando documento non è partita nessuna mira'
+    di_b = {x['id'] for chiave in ('corsi', 'classi', 'lezioni') for x in anno_b[chiave]}
+    for campo in ('lezioneId', 'corsoId', 'classeId'):
+        valore = mire[0][campo]
+        assert valore is None or valore in di_b, f'la prima mira dopo il cambio porta {campo} dell’anno A: {valore}'
 
     assert not errors, f'errori JS: {errors}'
 

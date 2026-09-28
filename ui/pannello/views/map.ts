@@ -42,6 +42,7 @@ import {
   aggiorna,
   annoCorrente,
   classiDellAnno,
+  ridisegna,
   stato,
   type SchedaMappa,
 } from '../state.js'
@@ -162,6 +163,8 @@ export function mostraSullaMappa (chiaveIndirizzo: string): void {
   daPortare = `ind:${chiaveIndirizzo}`
   apertoId = daPortare
   aggiorna({ vista: 'mappa' })
+  // Già sulla mappa `aggiorna` non ridisegnerebbe: il punto da portare non è stato.
+  ridisegna()
 }
 
 /** Porta la mappa su un punto, e ci apre sopra il cartellino. */
@@ -193,6 +196,7 @@ function colonna (classi: Classe[]): Figlio {
         // Il cartellino aperto può parlare di un punto che la scheda nuova non mostra: si chiude.
         apertoId = null
         aggiorna({ schedaMappa: scelta })
+        ridisegna()
       }),
     ),
     elencoIndirizzi(classi),
