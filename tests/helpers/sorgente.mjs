@@ -85,6 +85,8 @@ export async function importaSorgente (
     target: 'node18',
     logLevel: 'silent',
     external,
+    // `Temporal`, che Node non ha: come i bundle di `esbuild.mjs --test`.
+    inject: [`${RADICE}/tests/helpers/temporal.mjs`],
     plugins: [moduliFinti(finti), ...plugins],
     alias: {
       apparato: `${RADICE}/desktop/apparato/platform.ts`,

@@ -97,6 +97,7 @@ const finti = {
 globalThis.finti = finti
 
 const { outputFiles } = await build({
+  inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
   entryPoints: [fileURLToPath(new URL('../../ui/pannello/externalCalendar.ts', import.meta.url))],
   bundle: true,
   format: 'esm',
