@@ -17,3 +17,6 @@ copertura/
 # Cache Python
 __pycache__/
 *.pyc
+# La copia di lavoro e il rapporto di `npm run mutanti`.
+.stryker-tmp/
+reports/mutation/

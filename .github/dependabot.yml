@@ -1,5 +1,6 @@
-# Tiene aggiornate le action dei workflow. Le dipendenze npm restano a mano:
-# Electron e node-llama-cpp portano binari nativi, e un loro
+# Tiene aggiornate le action dei workflow e le dipendenze npm (ADR-50). Le
+# minori e le correzioni npm arrivano insieme, una richiesta a settimana.
+# Electron e node-llama-cpp restano a mano: portano binari nativi, e un loro
 # aggiornamento va provato sull'applicazione impacchettata, non solo in CI.
 version: 2
 updates:
@@ -12,3 +13,15 @@ updates:
     groups:
       action:
         patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    ignore:
+      - dependency-name: electron
+      - dependency-name: node-llama-cpp
+    groups:
+      minori:
+        update-types: ['minor', 'patch']

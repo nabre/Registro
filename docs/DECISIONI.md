@@ -837,6 +837,87 @@ lo si dice a chi la apre.
 `core/dati/oneDriveLocale.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
 `ui/pannello/views/settings/microsoft.ts`, `ui/pannello/forms/oneDrive.ts`.
 
+### ADR-50 — Librerie: criteri di adozione, e le prime adottate
+
+**Decisione.** D7 non vieta più le librerie: le giudica. Una libreria entra se passa
+tutti questi criteri, scritti qui perché ogni proposta futura abbia la stessa regola.
+
+1. **Licenza permissiva** (MIT, ISC, 0BSD, BSD, Apache-2.0), verificata a macchina
+   su tutto l'albero (`npm run licenze`), non a memoria.
+2. **Sviluppo o programma.** Una dipendenza di sviluppo non arriva sul computer del
+   docente: si adotta con larghezza. Una del programma deve togliere più codice di
+   quanto ne porta, e non toccare il formato `.regi` né la rete.
+3. **Dietro un confine già nostro.** Entra sotto un contratto che c'è già
+   (`~standard` degli schemi, `modifica` dell'archivio, `aggiornaElemento` del DOM,
+   le funzioni di `dates.ts`): chi usa quel confine non cambia.
+4. **Niente sostituti di quel che è specifico.** Non entrano: framework d'interfaccia
+   (React, Vue, Svelte), tRPC, zod, librerie ZIP (JSZip & co.: l'aggiunta
+   incrementale sicura al file è nostra), librerie i18n al posto del lessico.
+5. **La riga di comando resta nuda** (D10): niente di questo arriva in `cli/`.
+6. **Un passo alla volta**, con `npm run ci` verde dopo ognuno.
+
+Adottate, in quest'ordine:
+
+| Passo | Libreria | Dove | Perché |
+| --- | --- | --- | --- |
+| 1 | fast-check (dev) | `tests/proprieta/` | prove per proprietà sulle invarianti già dichiarate: indirizzi (ADR-03), ZIP scritto e riletto, migrazioni, normalizzazione |
+| 1 | knip (dev) | `npm run knip`, accanto a `census` | export, file e dipendenze inutilizzati: il lavoro di D6, che resta la regola (si rende interno, si cancella dopo una prova) |
+| 1 | dependency-cruiser (dev) | `npm run layers` | le regole dei cinque strati come configurazione dichiarativa |
+| 1 | license-checker-rseidelsohn (dev) | `npm run licenze`, in CI | le licenze dell'albero come controllo, non come promemoria |
+| 2 | immer | `core/dati/archive.ts` `modifica`, `core/dati/history.ts` | le collezioni toccate si ricavano dalle patch; l'annulla con le patch inverse |
+| 3 | idiomorph | `ui/pannello/dom.ts` | selezione, fuoco e transizioni conservati da sé. Dopo ADR-48 il guadagno è piccolo e i guasti possibili sono silenziosi: entra solo dopo i prerequisiti (3a `h()` riflette `value`/`checked`/`selected` come attributi; 3b eventi per delega su `document`; 3c i circa 100 `addEventListener` sui nodi convertiti; 3d le closure che tengono un nodo controllate, `guardaQuando` e `posate` rifatti), e dietro un interruttore spento finché la rete di prove non è verde |
+| 4 | valibot | dietro `~standard` in `contract/schemas.ts` | schemi senza manutenzione fatta in casa; il nucleo non cambia (Standard Schema) |
+| 4 | Temporal | `core/dominio/dates.ts` e calendario | `PlainDate`/`PlainTime` per date scolastiche senza fuso. Nativo in Electron 44 (processo principale e pagina); `temporal-polyfill` solo per le prove in Node |
+| 5 | @playwright/test (dev) | prove d'interfaccia | l'app vera con `_electron.launch`, in TypeScript; supera ADR-44 quando la migrazione è completa |
+| 5 | @tanstack/virtual-core | tabelle lunghe | solo dove una misura dice che una tabella è lenta |
+
+Dependabot raggruppa gli aggiornamenti minori e di correzione delle dipendenze npm in
+una richiesta settimanale; Electron e node-llama-cpp restano a mano (binari nativi,
+da provare sul pacchetto).
+
+Come sono entrate:
+
+- **immer** (passo 2): `core/dati/bozza.ts` tiene un'istanza `Immer` locale
+  (`autoFreeze` spento, patch attive). `modifica` gira su una bozza, ricava le
+  collezioni toccate dalle patch e le applica **in posto**, perché gestori in
+  attesa di un dialogo e lo smistatore tengono riferimenti vivi. L'annulla mette
+  raccolte nuove, come faceva con le copie. La dichiarazione resta un controllo:
+  una collezione toccata e non dichiarata lancia con `npm run dev`, altrove
+  scrive con un avviso, perché fermarsi perderebbe il lavoro. La storia tiene le
+  patch inverse del solo cambiato, non la collezione intera. Il formato su disco
+  non cambia.
+- **idiomorph** (passo 3): `h()` riflette `value`/`checked`/`selected` come
+  attributi. I gestori stanno in un registro di `dom.ts` e li chiama per delega
+  un ascoltatore per tipo su `document` (`gestisci`), con `currentTarget` sul
+  nodo vivo. Il morph lavora dietro `aggiornaElemento`, con l'interruttore
+  `MORFOSI`. Le chiavi di telaio, `data-tieni`, scorrimento e isola diventano
+  `id` provvisori; un `data-tieni` ritrovato prende solo gli attributi; i nodi
+  nuovi entrano originali, non come copie; un nodo riusato riceve i gestori del
+  disegno nuovo. `MORFOSI` è acceso. Il percorso classico di ADR-48 resta
+  come ripiego a un interruttore, provato col DOM finto (`percorsoClassico`);
+  il morph si prova su Chromium (`tests/interfaccia/morfosi.spec.ts`). Il
+  ripiego si toglie dopo un uso vero senza guasti (D6).
+- **valibot** (passo 4): solo in `main.cjs`. `@valibot/to-json-schema` non è
+  adottato (ADR-28).
+- **Temporal** (passo 4): in `dates.ts`, con i tipi dichiarati a mano finché
+  TypeScript non li porta.
+- **@playwright/test** (passo 5): le prove Python sono migrate tutte in
+  `tests/interfaccia/*.spec.ts`, più `electron.spec.ts` con `_electron.launch`.
+  La CI non usa più Python.
+
+**Perché.** «Niente librerie nuove» proteggeva da riscritture e da dipendenze opache,
+ma lasciava da mantenere in casa quel che altri mantengono meglio (schemi, confronto
+del DOM, date, controlli statici). Una regola con criteri protegge le stesse cose e
+lascia passare quel che le rispetta.
+
+**Vincoli.** Criteri 1–6 per ogni libreria nuova, anche di sviluppo. Il contratto
+davanti a ogni libreria resta nostro: sostituirla non deve toccare chi la usa.
+Il polyfill di Temporal entra solo nei bundle di prova (`inject` di esbuild,
+`tests/helpers/temporal.mjs`), mai in `dist/`.
+
+**Dove.** `package.json`, `.github/dependabot.yml`, `tools/licenze.mjs`,
+`.dependency-cruiser.cjs`, `knip.json`, `tests/proprieta/`, e i file dei passi 2–5.
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.

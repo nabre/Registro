@@ -59,6 +59,16 @@ jobs:
       - name: Censimento
         run: npm run census
 
+      # File, export e dipendenze che nessuno usa (ADR-50, passo 1). La regola
+      # resta D6: un export vivo si rende interno, si cancella dopo una prova.
+      - name: Inutilizzati
+        run: npm run knip
+
+      # Le licenze di tutto l'albero come controllo, non come promemoria
+      # (ADR-50, criterio 1): una non ammessa ferma la verifica.
+      - name: Licenze
+        run: npm run licenze
+
       - name: Collezioni
         run: npm run collections
 
