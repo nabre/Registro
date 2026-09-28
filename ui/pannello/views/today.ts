@@ -14,7 +14,11 @@ import {
   giornoSettimana,
 } from '../../../core/dominio/dates.js'
 import type { FaseOra } from '../../../core/dominio/dashboard.js'
-import type { Lezione, MomentoValutazione } from '../../../core/dominio/models.js'
+import type {
+  Corso,
+  Lezione,
+  MomentoValutazione,
+} from '../../../core/dominio/models.js'
 import { istante } from '../../../core/i18n/index.js'
 import { apriMomento, vaiAOggi } from '../calendarNavigation.js'
 import {
@@ -595,9 +599,14 @@ function foglietto (data: string): HTMLElement {
   )
 }
 
-function rigaValutazione (momento: MomentoValutazione): HTMLElement {
+function rigaValutazione (
+  momento: MomentoValutazione,
+  mappaCorsi?: ReadonlyMap<string, Corso>,
+): HTMLElement {
   const t = testi()
-  const corso = corsiDellAnnoAperto().find((c) => c.id === momento.corsoId)
+  const corso = mappaCorsi
+    ? mappaCorsi.get(momento.corsoId)
+    : corsiDellAnnoAperto().find((c) => c.id === momento.corsoId)
   const giorni = differenzaGiorni(stato.adessoData, momento.data)
   return h(
     'li',
@@ -636,6 +645,7 @@ function rigaValutazione (momento: MomentoValutazione): HTMLElement {
 function schedaValutazioni (): HTMLElement {
   const t = testi()
   const prove = prossimeValutazioni()
+  const mappaCorsi = new Map(corsiDellAnnoAperto().map((c) => [c.id, c]))
   return scheda({
     classe: 'oggi-scheda oggi-scheda--prove',
     titolo: t.prossimeValutazioni,
@@ -646,7 +656,11 @@ function schedaValutazioni (): HTMLElement {
             titolo: t.nessunaValutazione,
             testo: t.nessunaValutazioneTesto,
           })
-        : h('ol', { class: 'oggi-prove' }, ...prove.map(rigaValutazione)),
+        : h(
+            'ol',
+            { class: 'oggi-prove' },
+            ...prove.map((p) => rigaValutazione(p, mappaCorsi)),
+          ),
   })
 }
 

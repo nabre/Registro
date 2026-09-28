@@ -16,7 +16,7 @@ import './system/portable.js'
 import './system/userData.js'
 
 import { app, dialog } from 'electron'
-import { statSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -27,6 +27,7 @@ import {
   percorsoCaratteriPdf,
   percorsoIcona,
   percorsoIconaFinestra,
+  percorsoPreload,
   percorsoWorkerPdf,
 } from '../apparato/context.js'
 import { getConfiguration, ritiraChiaviDismesse } from '../apparato/settings.js'
@@ -151,6 +152,11 @@ function raccontaLIcona (): void {
 const smaltibiliGuscio: Array<{ dispose (): unknown }> = []
 
 async function avvia (): Promise<void> {
+  const preload = percorsoPreload()
+  if (!existsSync(preload)) {
+    throw new Error(testi().preloadMancante(preload))
+  }
+
   // Finestra sentinella per intercettare query-session-end anche a solo vassoio.
   assicuraSentinella()
 

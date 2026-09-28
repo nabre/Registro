@@ -54,7 +54,10 @@ export function avviaVassoio (
   let foto = fotografa()
 
   const vassoio: Vassoio | null = creaVassoio({
-    menu: () => (foto.aperto ? vociDelMenu(foto.albero, apri, reg) : vociSenzaAnno(foto.documenti, reg)),
+    menu: () =>
+      foto.aperto
+        ? vociDelMenu(foto.albero, apri, reg)
+        : vociSenzaAnno(foto.documenti, reg),
     suggerimento: () =>
       foto.aperto ? foto.albero.suggerimento : `${MARCHIO}\n${testi().nessunAnnoAperto}`,
     // Senza un anno, il clic porta al benvenuto e non a un pannello vuoto.

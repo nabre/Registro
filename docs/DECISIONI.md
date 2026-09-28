@@ -662,6 +662,31 @@ di sviluppo Node; Python 3 e Playwright Chromium restano gestiti esternamente vi
 
 **Dove.** `tools/uiTests.mjs`, `tests/ui/*.py`, `tests/ui/*.test.mjs`.
 
+### ADR-45 — Controllo degli aggiornamenti disattivato per impostazione predefinita
+
+**Decisione.** L'impostazione `registroDocenti.aggiornamenti.controlloAutomatico`
+ha valore predefinito `false`. All'avvio dell'applicazione non viene effettuata
+alcuna chiamata o polling di rete verso GitHub Releases senza l'esplicita volontà
+dell'utente. Il controllo manuale («Controlla adesso») e l'attivazione della
+ricerca automatica restano sempre disponibili nelle impostazioni del programma.
+
+**Perché.**
+1. Rispetto della sovranità e privacy dell'utente: un registro di classe
+   contenente dati di allievi non deve aprire connessioni di rete esterne di
+   propria iniziativa appena lanciato.
+2. Rispetto delle politiche di fondazioni di firma del codice aperto (SignPath
+   Foundation) e compatibilità con ambienti scolastici operanti su reti isolate,
+   a consumo o dietro proxy restrittivi.
+3. Trasparenza: l'utente ha il pieno controllo su quando effettuare richieste
+   di rete verso server esterni.
+
+**Vincoli.** Nessuna richiesta di rete per gli aggiornamenti finché
+`controlloAutomatico` non è abilitato dall'utente o non viene premuto
+«Controlla adesso».
+
+**Dove.** `contract/manifesto.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
+`os/windows/installer.nsh`.
+
 
 ## Decisioni implicite
 

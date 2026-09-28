@@ -95,7 +95,9 @@ export const sistema = {
     if (errori.length > 0) return rifiuta(...errori)
     // I loghi delle carte tolte si cestinano dopo, solo a scrittura riuscita.
     const prima = contesto.registro.impostazioni.intestazione.carte
-    const restano = new Set(azione.impostazioni.intestazione?.carte.map((c) => c.id) ?? prima.map((c) => c.id))
+    const restano = new Set(
+      azione.impostazioni.intestazione?.carte.map((c) => c.id) ?? prima.map((c) => c.id),
+    )
     // Non è orfano un logo che una carta rimasta nomina ancora.
     const vivi = new Set(
       prima.filter((c) => restano.has(c.id) && c.logo).map((c) => c.logo as string),

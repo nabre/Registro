@@ -341,7 +341,7 @@ Aggiornamenti, Condotto e riga di comando.
 | `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox |
 | `dettatura.taglia` | `turbo` \| `large` \| `medium` \| `small` \| `base`; `turbo` | modello Whisper di voicebox |
 | `dettatura.indirizzo` | indirizzoLocale, avanzata; `http://127.0.0.1:17493` | dove sta voicebox (ADR-35) |
-| `aggiornamenti.controlloAutomatico` | bool; `true` | controllo all'avvio e ogni sei ore |
+| `aggiornamenti.controlloAutomatico` | bool; `false` | controllo all'avvio e ogni sei ore |
 | `aggiornamenti.scaricoAutomatico` | bool; `true` | scarica senza chiedere |
 | `aggiornamenti.installaAllaChiusura` | bool; `true` | installa all'uscita |
 | `api.condotto` | bool; `false` | il condotto locale |

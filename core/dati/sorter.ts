@@ -212,8 +212,7 @@ export class Smistatore implements apparato.Smaltitore {
       return { assegnate: 0, inQuarantena: 0, errore: testi().vuoto }
     }
 
-    // @ts-expect-error documento è privato in Archivio ma presente a runtime
-    const documentoInizio = this.archivio.documento
+    const documentoInizio = this.archivio.documentoAperto
 
     let lette: Awaited<ReturnType<typeof testoConPosizioni>>
     let totale: number
@@ -223,10 +222,8 @@ export class Smistatore implements apparato.Smaltitore {
       lette = await testoConPosizioni(byte)
     } catch (errore) {
       if (
-        // @ts-expect-error documento è privato in Archivio ma presente a runtime
-        !this.archivio.documento ||
-        // @ts-expect-error documento è privato in Archivio ma presente a runtime
-        this.archivio.documento.toString() !== documentoInizio?.toString()
+        !this.archivio.documentoAperto ||
+        this.archivio.documentoAperto.toString() !== documentoInizio?.toString()
       ) {
         return { assegnate: 0, inQuarantena: 0, errore: testi().senzaAnno }
       }
@@ -251,10 +248,8 @@ export class Smistatore implements apparato.Smaltitore {
     }
 
     if (
-      // @ts-expect-error documento è privato in Archivio ma presente a runtime
-      !this.archivio.documento ||
-      // @ts-expect-error documento è privato in Archivio ma presente a runtime
-      this.archivio.documento.toString() !== documentoInizio?.toString()
+      !this.archivio.documentoAperto ||
+      this.archivio.documentoAperto.toString() !== documentoInizio?.toString()
     ) {
       return { assegnate: 0, inQuarantena: 0, errore: testi().senzaAnno }
     }

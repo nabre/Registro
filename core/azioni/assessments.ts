@@ -141,7 +141,9 @@ export const valutazioni = {
     // Il voto entra sul passo della scala (quarti di punto: 4.3 → 4.25).
     // Mutua esclusione rigida: se assente=true, il valore è forzato a null; se valore != null, assente è false.
     const assente = azione.valore !== null ? false : Boolean(azione.assente)
-    const valore = assente || azione.valore === null ? null : arrotondaVoto(azione.valore, momento.scala)
+    const valore = assente || azione.valore === null
+      ? null
+      : arrotondaVoto(azione.valore, momento.scala)
     return contesto.suVoce('valutazioni', azione.valutazioneId, (bersaglio) => {
       const voto = bersaglio.voti.find((v) => v.allievoId === azione.allievoId)
       if (voto) {

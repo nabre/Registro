@@ -42,37 +42,12 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
       codice»).
 - [ ] Prima release firmata: togliere l'avviso SmartScreen dal README e «quando
       la firma sarà attiva» da SECURITY.
-- [ ] Da decidere: controllo degli aggiornamenti acceso di serie (se la
-      Foundation lo contesta); `publisherName` in `win.signtoolOptions` quando
-      le release firmate sono la regola; firma del disinstallatore.
 - [ ] Font Liberation 1.x di pdfjs (GPL con eccezione): i 2.x sono OFL, se
       chiesto. Sei pacchetti MIT senza file LICENSE.
 
 ### Da provare a mano
 
-- [ ] Aggiornando su Windows un'installazione col nome precedente: una voce in
-      «App installate», cartella dei dati spostata, avvio automatico,
-      associazione `.regi`, `regi` nel PATH, icona sulla barra.
-- [ ] Installatore: le tre modalità (tutti gli utenti, un utente, portabile)
-      con barra, pin, notifiche, icona dei `.regi`, disinstallazione; le altre
-      scale oltre il 250%, la pagina di fine, il disinstallatore.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.
-- [ ] Arresto di Windows con una modifica fresca e con il solo vassoio; widget
-      sul monitor esterno e cavo staccato; proiezione a schermo intero; aprire un
-      `.regi` da terminale o con doppio clic mentre il registro esce.
-- [ ] Linux: la fascia dei pulsanti su GNOME e KDE.
-- [ ] Barra del titolo su Windows accanto ai pulsanti di sistema
-      (`--barra-titolo-riserva`).
-- [ ] Calendario: il modulo dell'anno con il calendario ufficiale (spostare
-      l'inizio, importare, salvare); la scelta dell'anno dal benvenuto su
-      un'installazione nuova; «Nuovo anno scolastico» con «Sì, importa».
-- [ ] Pause: aggiungere e togliere pause, ore nuove dal calendario e dal modulo,
-      trascinare, copiare con Ctrl, stirare sopra una ricreazione, due pause e
-      fasce sul bordo, un'ora vecchia con la casella spenta.
-- [ ] Liste: cambiare il colore di un tipo di attività, «Rimetti le voci di
-      fabbrica», pannello stretto, chiaro e scuro.
-- [ ] A occhio: `pendenza`, `corniceFoglio`, `collegamento`, `tendina` (valore
-      fuori elenco), le figure SVG nuove della guida.
 
 ### Questioni aperte
 

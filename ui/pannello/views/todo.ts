@@ -90,7 +90,10 @@ function schedaFatto (
   })
 }
 
-function schedaFamiglia (conto: { aperti: number; urgenti: number }, famiglia: FamigliaTodo): Figlio {
+function schedaFamiglia (
+  conto: { aperti: number; urgenti: number },
+  famiglia: FamigliaTodo,
+): Figlio {
   return h(
     'article',
     {
@@ -278,7 +281,12 @@ export function vistaTodo (): Figlio {
   let totaleClassiAperti = 0
   let totaleClassiUrgenti = 0
   for (const classe of classiDocente) {
-    const todo = todoDelDocenteDiClasse(stato.registro, classe, corsiDi(classe.id), stato.adessoData)
+    const todo = todoDelDocenteDiClasse(
+      stato.registro,
+      classe,
+      corsiDi(classe.id),
+      stato.adessoData,
+    )
     todoClassiDocente.set(classe.id, todo)
     totaleClassiAperti += todo.aperti
     totaleClassiUrgenti += todo.urgenti
@@ -469,7 +477,9 @@ export function vistaTodo (): Figlio {
       h(
         'div',
         { class: 'todo-sintesi' },
-        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(todo.conti[famiglia], famiglia)),
+        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) =>
+          schedaFamiglia(todo.conti[famiglia], famiglia),
+        ),
       ),
       todo.aperti === 0
         ? statoVuoto({
@@ -585,7 +595,9 @@ export function vistaTodo (): Figlio {
       h(
         'div',
         { class: 'todo-sintesi' },
-        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(contiClassi[famiglia], famiglia)),
+        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) =>
+          schedaFamiglia(contiClassi[famiglia], famiglia),
+        ),
       ),
       totaleClassiAperti === 0
         ? statoVuoto({

@@ -9,12 +9,14 @@ import * as percorso from 'node:path'
 import { beforeEach, describe, it } from 'node:test'
 
 import { finestreCostruite, ipcMain } from '../helpers/fake-electron.mjs'
+import { importaSorgente } from '../helpers/sorgente.mjs'
 
 /** La radice dell'app, scelta prima che lo shim la chieda: la calcola da qui. */
 const RADICE = percorso.join(tmpdir(), 'registro-app')
 process.env.REGISTRO_APPPATH = percorso.join(RADICE, 'dist')
 
 const { htmlDellaPagina, radiciConcesse, Uri, ViewColumn, finestre } = await import('../../dist-tests/environment.mjs')
+const { haDiscriminanteCanale } = await importaSorgente('desktop/apparato/channels.ts')
 
 /** La cartella dell'anno, come la darebbe `cartellaAnno()`. */
 const ANNO = Uri.file(percorso.join(tmpdir(), 'registro-dati', '2026-2027'))
@@ -146,6 +148,26 @@ describe('i messaggi', () => {
     const { pannello } = apriPannello()
     pannello.dispose()
     assert.equal(await pannello.webview.postMessage({ tipo: 'stato' }), false)
+  })
+
+  it('riconosce tutti i discriminanti ammessi su registro:messaggio e rifiuta il resto', () => {
+    assert.equal(haDiscriminanteCanale({ tipo: 'risposta' }), true)
+    assert.equal(haDiscriminanteCanale({ id: 1, azione: { tipo: 'ore.salva' } }), true)
+    assert.equal(haDiscriminanteCanale({ id: 4, procedura: 'aggiornamenti.stato' }), true)
+    assert.equal(haDiscriminanteCanale({ id: 5, storia: [] }), true)
+    assert.equal(haDiscriminanteCanale({ id: 6, campioni: [] }), true)
+    assert.equal(haDiscriminanteCanale({ id: 7, segui: 'c-1' }), true)
+    assert.equal(haDiscriminanteCanale({ dialogo: 1 }), true)
+    assert.equal(haDiscriminanteCanale({ benvenuto: 'pronto' }), true)
+    assert.equal(haDiscriminanteCanale({ impostazioni: 'mostra' }), true)
+    assert.equal(haDiscriminanteCanale({ avvio: 'pronto' }), true)
+
+    assert.equal(haDiscriminanteCanale(null), false)
+    assert.equal(haDiscriminanteCanale(undefined), false)
+    assert.equal(haDiscriminanteCanale('testo'), false)
+    assert.equal(haDiscriminanteCanale(42), false)
+    assert.equal(haDiscriminanteCanale({}), false)
+    assert.equal(haDiscriminanteCanale({ id: 1, payload: 'sconosciuto' }), false)
   })
 })
 

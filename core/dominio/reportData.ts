@@ -333,7 +333,12 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
     .sort((a, b) => a.data.localeCompare(b.data))
 
   dati.valori = {
-    ...comuni(registro, t.titoli.piano, etichettaSemestre(null), piano.corsoId ? [piano.corsoId] : []),
+    ...comuni(
+      registro,
+      t.titoli.piano,
+      etichettaSemestre(null),
+      piano.corsoId ? [piano.corsoId] : [],
+    ),
     classe: classe?.nome ?? '',
     materia: materiaDelCorso(registro, corso)?.nome ?? '',
     corso: corso?.titolo ?? '',
@@ -776,7 +781,12 @@ export function datiFotoClasse (registro: Registro, classe: Classe): DatiRapport
   const attivi = ordinaAllievi(allieviAttivi(classe))
 
   dati.valori = {
-    ...comuni(registro, testi().titoli.foto, etichettaSemestre(null), corsiDellaClasse(registro, classe.id).map((c) => c.id)),
+    ...comuni(
+      registro,
+      testi().titoli.foto,
+      etichettaSemestre(null),
+      corsiDellaClasse(registro, classe.id).map((c) => c.id),
+    ),
     classe: classe.nome,
     // La parete è della classe, non di un insegnamento: vuoti perché la
     // testata comune li nomina.
@@ -806,7 +816,12 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
 
   dati.valori = {
     // L'anno intero: recapiti, documenti e comunicazioni non si azzerano a gennaio.
-    ...comuni(registro, t.titoli.fascicolo, etichettaSemestre(null), corsiDellaClasse(registro, classe.id).map((c) => c.id)),
+    ...comuni(
+      registro,
+      t.titoli.fascicolo,
+      etichettaSemestre(null),
+      corsiDellaClasse(registro, classe.id).map((c) => c.id),
+    ),
     classe: classe.nome,
     // Il fascicolo è della classe: materia e corso esistono vuoti perché la
     // testata li nomina, e un valore assente sembrerebbe dimenticato.

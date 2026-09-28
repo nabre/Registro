@@ -24,7 +24,9 @@ const radice = process.cwd()
 /** Tutte le forme in cui qui dentro si scrive codice: un export si nomina da ognuna. */
 const ESTENSIONI = ['.ts', '.mts', '.mjs', '.cjs']
 
-const percorsi = CARTELLE.filter((c) => existsSync(join(radice, c))).flatMap((c) => fileSotto(join(radice, c), ESTENSIONI))
+const percorsi = CARTELLE
+  .filter((c) => existsSync(join(radice, c)))
+  .flatMap((c) => fileSotto(join(radice, c), ESTENSIONI))
   .concat(SCIOLTI.map((f) => join(radice, f)).filter(existsSync))
 
 const relativo = (percorso) => daRadice(percorso, radice)

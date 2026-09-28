@@ -34,6 +34,8 @@ const it = {
   comeSiRiapre:
     'Riaprilo con un clic sull’icona. Per chiuderlo davvero: tasto destro sull’icona → ' +
     '«Esci dal registro».',
+  preloadMancante: (file: string) =>
+    `Il file di preload non esiste (${file}). Costruisci l’applicazione con «npm run build» prima di avviarla.`,
 }
 
 export const testi = catalogo(it, {
@@ -57,6 +59,8 @@ export const testi = catalogo(it, {
     comeSiRiapre:
       'Öffne es wieder mit einem Klick auf das Symbol. Um es wirklich zu schliessen: Rechtsklick ' +
       'auf das Symbol → «Klassenbuch beenden».',
+    preloadMancante: (file) =>
+      `Die Preload-Datei existiert nicht (${file}). Bitte baue die Anwendung zuerst mit «npm run build».`,
   },
   fr: {
     avvioFermato: (motivo) => `Le démarrage s’est arrêté : ${motivo}`,
@@ -78,6 +82,8 @@ export const testi = catalogo(it, {
     comeSiRiapre:
       'Rouvre-le d’un clic sur l’icône. Pour le fermer vraiment : clic droit sur l’icône → ' +
       '« Quitter le registre ».',
+    preloadMancante: (file) =>
+      `Le fichier de préchargement n’existe pas (${file}). Construis d’abord l’application avec « npm run build ».`,
   },
   en: {
     avvioFermato: (motivo) => `Start-up stopped: ${motivo}`,
@@ -99,5 +105,7 @@ export const testi = catalogo(it, {
     comeSiRiapre:
       'Reopen it with a click on the icon. To really close it: right-click the icon → ' +
       '“Quit the register”.',
+    preloadMancante: (file) =>
+      `The preload file does not exist (${file}). Please build the application with “npm run build” first.`,
   },
 })

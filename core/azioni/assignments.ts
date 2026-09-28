@@ -508,7 +508,9 @@ export const consegne = {
     // Con l'invio diretto si conferma prima: una mail partita non si riprende.
     if (
       (await puoSpedire()) &&
-      !(azione.conferma ? true : await confermaInvio(t.domanda(consegna.testo, pronte.length), t.dettaglio))
+      !(azione.conferma
+        ? true
+        : await confermaInvio(t.domanda(consegna.testo, pronte.length), t.dettaglio))
     ) {
       return conMessaggio(t.nientePartito, 'info', { invariato: true })
     }
