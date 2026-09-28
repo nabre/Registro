@@ -197,7 +197,7 @@ export function racconta (s: Grezzo): RaccontoAggiornamenti {
     default:
       return {
         breve: t.fermoBreve,
-        frase: impostazione('controlloAutomatico', true) ? t.fermoDaSé : t.fermoSpento,
+        frase: impostazione('controlloAutomatico', false) ? t.fermoDaSé : t.fermoSpento,
         tono: 'quiete',
         gesto: controlla(),
       }
@@ -426,7 +426,7 @@ export function avviaAggiornamenti (): Smaltibile {
   const regola = (): void => {
     ferma()
     if (!adesso().supportato) return
-    if (!impostazione('controlloAutomatico', true)) return
+    if (!impostazione('controlloAutomatico', false)) return
     primo = setTimeout(controllaAggiornamenti, ATTESA_PRIMO_CONTROLLO_MS)
     giro = setInterval(controllaAggiornamenti, ORE_FRA_I_CONTROLLI * 3_600_000)
     // I timer non tengono acceso il processo.

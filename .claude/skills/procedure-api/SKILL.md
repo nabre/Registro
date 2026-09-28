@@ -1,7 +1,7 @@
 ---
 name: procedure-api
 description: >
-  Come si crea, si cambia e si cancella una procedura dell'API di Regiclass
+  Come si crea, si cambia e si cancella una procedura dell'API di Regiklass
   (`contract/procedure/`), toccando ogni punto che la riguarda: lo
   schema d'ingresso, l'indice della cartella, il ponte con le azioni del
   protocollo, le prove, il catalogo `resources/tools.json` che il modello

@@ -15,7 +15,7 @@
   Il `path` segue il `productName` di `electron-builder.json`, come i passi di
   `rilascio.yml` che nominano l'eseguibile.
 
-  Copia di quel che sta in SignPath, progetto «Regiclass» (`regiclass`), configurazione
+  Copia di quel che sta in SignPath, progetto «Regiklass» (`regiklass`), configurazione
   «eseguibile». Chi cambia l'una cambia l'altra.
 -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
@@ -23,7 +23,7 @@
     <parameter name="versioneWindows" required="true" />
   </parameters>
   <zip-file>
-    <pe-file path="Regiclass.exe" product-name="Regiclass" product-version="${versioneWindows}">
+    <pe-file path="Regiklass.exe" product-name="Regiklass" product-version="${versioneWindows}">
       <authenticode-sign />
     </pe-file>
   </zip-file>

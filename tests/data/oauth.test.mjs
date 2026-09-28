@@ -32,3 +32,67 @@ describe('la porta dell’accesso Microsoft', () => {
     assert.equal(esito.error, undefined)
   })
 })
+
+describe('il rinnovo OAuth non valido (invalid_grant)', () => {
+  it('dimentica il gettone di rinnovo e azzera lo stato collegato', async () => {
+    const CHIAVE_RINNOVO = 'registroDocenti.posta.rinnovo'
+    const deposito = new Map([[CHIAVE_RINNOVO, 'TOKEN_NON_VALIDO']])
+    const portachiavi = {
+      async get (chiave) { return deposito.get(chiave) ?? null },
+      async store (chiave, valore) { deposito.set(chiave, valore) },
+      async delete (chiave) { deposito.delete(chiave) },
+    }
+
+    const fetchOriginale = globalThis.fetch
+    try {
+      globalThis.fetch = async (url) => {
+        const u = String(url)
+        if (u.includes('.well-known/openid-configuration')) {
+          return {
+            ok: true,
+            async json () {
+              return { issuer: 'https://login.microsoftonline.com/tenant-123/v2.0' }
+            },
+          }
+        }
+        if (u.includes('/oauth2/v2.0/token')) {
+          return {
+            ok: false,
+            async json () {
+              return {
+                error: 'invalid_grant',
+                error_description: 'AADSTS700082: The refresh token has expired.',
+              }
+            },
+          }
+        }
+        return await fetchOriginale(url)
+      }
+
+      const { gettoneDaSpedire, oauthNoto, registraPortachiaviOauth } =
+        await importaSorgente('core/dati/oauth.ts')
+
+      registraPortachiaviOauth(portachiavi)
+      // Attesa breve per il callback di caricamento iniziale dal portachiavi.
+      await new Promise((risolvi) => setTimeout(risolvi, 10))
+      assert.equal(oauthNoto(), true)
+      assert.equal(deposito.has(CHIAVE_RINNOVO), true)
+
+      await assert.rejects(
+        () => gettoneDaSpedire('docente@scuola.ch'),
+        (errore) => {
+          assert.ok(errore instanceof Error)
+          return true
+        },
+      )
+
+      assert.equal(deposito.has(CHIAVE_RINNOVO), false)
+      assert.equal(oauthNoto(), false)
+      const riprova = await gettoneDaSpedire('docente@scuola.ch')
+      assert.equal(riprova, null)
+    } finally {
+      globalThis.fetch = fetchOriginale
+    }
+  })
+})
+

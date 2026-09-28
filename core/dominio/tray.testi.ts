@@ -1,4 +1,4 @@
-// I testi di `tray.ts`: menu e suggerimento dell'icona. Il marchio «Regiclass»
+// I testi di `tray.ts`: menu e suggerimento dell'icona. Il marchio «Regiklass»
 // non si traduce e sta nel sorgente. Si contano le lezioni del calendario:
 // «ore» in italiano, `lessico().lezione` nelle altre lingue.
 

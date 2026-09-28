@@ -21,7 +21,7 @@ const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-giro12-cli-'))
 const lavoro = percorso.join(radice, 'lavoro')
 const dati = percorso.join(lavoro, 'registro')
-const cartellaUtente = percorso.join(radice, 'Regiclass')
+const cartellaUtente = percorso.join(radice, 'Regiklass')
 process.env.REGISTRO_USERDATA = cartellaUtente
 delete process.env.REGISTRO_CONDOTTO
 

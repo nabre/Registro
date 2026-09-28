@@ -326,7 +326,7 @@ const it = {
     note: [
       'Le impostazioni stanno in `impostazioni.json` e gli anni recenti in ' +
         '`documenti.json`, nella cartella dei dati del programma. Nella versione portabile ' +
-        'quella cartella è «Regiclass - dati», accanto all’eseguibile, e se ne va ' +
+        'quella cartella è «Regiklass - dati», accanto all’eseguibile, e se ne va ' +
         'insieme a lui.',
       'La sezione del condotto si legge prima di spuntare: acceso, qualunque programma che ' +
         'gira con il tuo accesso può leggere i dati delle persone senza chiedere. Si accende ' +
@@ -1153,7 +1153,7 @@ export const testi = catalogo(it, {
       note: [
         'Die Einstellungen liegen in `impostazioni.json` und die letzten Schuljahre in ' +
           '`documenti.json`, im Datenordner des Programms. In der portablen Version ist dieser ' +
-          'Ordner «Regiclass - dati», neben der ausführbaren Datei, und wandert mit ihr.',
+          'Ordner «Regiklass - dati», neben der ausführbaren Datei, und wandert mit ihr.',
         'Den Bereich des Kanals liest man, bevor man ein Häkchen setzt: Eingeschaltet kann ' +
           'jedes Programm, das mit deinem Zugang läuft, die Daten der Personen ohne Nachfrage ' +
           'lesen. Man schaltet ihn für die nötige Zeit ein, und dann wieder aus.',
@@ -2014,7 +2014,7 @@ export const testi = catalogo(it, {
       note: [
         'Les paramètres sont dans `impostazioni.json` et les années récentes dans ' +
           '`documenti.json`, dans le dossier des données du programme. Dans la version ' +
-          'portable, ce dossier est « Regiclass - dati », à côté de l’exécutable, et ' +
+          'portable, ce dossier est « Regiklass - dati », à côté de l’exécutable, et ' +
           'part avec lui.',
         'La section du canal se lit avant de cocher : activé, n’importe quel programme qui ' +
           'tourne avec ton accès peut lire les données des personnes sans demander. On ' +
@@ -2861,7 +2861,7 @@ export const testi = catalogo(it, {
       note: [
         'The settings live in `impostazioni.json` and the recent years in ' +
           '`documenti.json`, in the program’s data folder. In the portable version that ' +
-          'folder is “Regiclass - dati”, next to the executable, and goes wherever it ' +
+          'folder is “Regiklass - dati”, next to the executable, and goes wherever it ' +
           'goes.',
         'Read the pipe section before ticking anything: when on, any program running with ' +
           'your account can read people’s data without asking. Turn it on for as long as you ' +

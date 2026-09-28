@@ -966,9 +966,9 @@ export async function componiPdf (
 
   pdf.setTitle(sanifica(riempi(modello.titolo, dati.valori)))
   // testo-fisso: il marchio, uguale in tutte le lingue
-  pdf.setProducer('Regiclass')
+  pdf.setProducer('Regiklass')
   // testo-fisso: il marchio, uguale in tutte le lingue
-  pdf.setCreator('Regiclass')
+  pdf.setCreator('Regiklass')
 
   corpo.forEach((blocco, i) => {
     // Prima di un capitolo si guarda se ci sta.

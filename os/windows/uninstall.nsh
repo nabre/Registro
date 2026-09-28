@@ -1,5 +1,5 @@
 ; Quel che la disinstallazione toglie oltre ai file del programma: lo fa
-; `src/cli/disinstalla.mjs`, come la voce «Disinstalla…» sugli altri sistemi
+; `cli/disinstalla.mjs`, come la voce «Disinstalla…» sugli altri sistemi
 ; (dati, temporanei, `regi` e PATH, associazione dei `.regi`, avvio automatico).
 ;
 ; Lo esegue l'eseguibile del registro con `ELECTRON_RUN_AS_NODE`, in
@@ -95,7 +95,7 @@
 !macro customUnInstall
   ${ifNot} ${isUpdated}
     System::Call 'Kernel32::SetEnvironmentVariable(t "ELECTRON_RUN_AS_NODE", t "1")i'
-    ExecWait '"$INSTDIR\${APP_EXECUTABLE_FILENAME}" "$INSTDIR\resources\app.asar.unpacked\src\cli\disinstalla.mjs" --eseguibile "$INSTDIR\${APP_EXECUTABLE_FILENAME}" --tieni "$tieni"'
+    ExecWait '"$INSTDIR\${APP_EXECUTABLE_FILENAME}" "$INSTDIR\resources\app.asar.unpacked\cli\disinstalla.mjs" --eseguibile "$INSTDIR\${APP_EXECUTABLE_FILENAME}" --tieni "$tieni"'
     System::Call 'Kernel32::SetEnvironmentVariable(t "ELECTRON_RUN_AS_NODE", p 0)i'
     ; La rete sotto lo script, solo se non si tiene niente. I dati sono
     ; dell'utente anche con un'installazione per tutti; la cartella porta

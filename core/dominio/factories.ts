@@ -136,7 +136,10 @@ export function registroVuoto (): Registro {
       scala: { ...SCALA_PREDEFINITA },
       intestazione: {
         ...IMPOSTAZIONI_PREDEFINITE.intestazione,
-        carte: IMPOSTAZIONI_PREDEFINITE.intestazione.carte.map((carta) => ({ ...carta, corsi: [] })),
+        carte: IMPOSTAZIONI_PREDEFINITE.intestazione.carte.map((carta) => ({
+          ...carta,
+          corsi: [],
+        })),
       },
     },
   }

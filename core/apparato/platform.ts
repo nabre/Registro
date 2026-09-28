@@ -203,7 +203,10 @@ export interface Impianto {
     avvisa: (messaggio: string, ...resto: any[]) => Promise<string | undefined>
     errore: (messaggio: string, ...resto: any[]) => Promise<string | undefined>
     chiediTesto: (opzioni?: any) => Promise<string | undefined>
-    chiediScelta: <T extends VoceScelta>(voci: T[] | Promise<T[]>, opzioni?: any) => Promise<T | undefined>
+    chiediScelta: <T extends VoceScelta>(
+      voci: T[] | Promise<T[]>,
+      opzioni?: any,
+    ) => Promise<T | undefined>
     chiediFile: (opzioni?: any) => Promise<Uri[] | undefined>
     chiediDoveSalvare: (opzioni?: any) => Promise<Uri | undefined>
     apriDocumento: (cosa: any, opzioni?: any) => Promise<void>
@@ -260,7 +263,11 @@ const filePredefinito: InterfacciaFileSystem = {
       throw tradotto(errore, uri)
     }
   },
-  async writeFile (uri: Uri, contenuto: Uint8Array, opzioni?: { sincronizza?: boolean }): Promise<void> {
+  async writeFile (
+    uri: Uri,
+    contenuto: Uint8Array,
+    opzioni?: { sincronizza?: boolean },
+  ): Promise<void> {
     try {
       if (opzioni?.sincronizza) {
         const fileHandle = await fs.open(uri.fsPath, 'w')
@@ -293,7 +300,14 @@ const filePredefinito: InterfacciaFileSystem = {
   async readDirectory (uri: Uri): Promise<Array<[string, GenereFile]>> {
     try {
       const voci = await fs.readdir(uri.fsPath, { withFileTypes: true })
-      return voci.map((v) => [v.name, v.isDirectory() ? GenereFile.Directory : v.isFile() ? GenereFile.File : GenereFile.Unknown])
+      return voci.map((v) => [
+        v.name,
+        v.isDirectory()
+          ? GenereFile.Directory
+          : v.isFile()
+            ? GenereFile.File
+            : GenereFile.Unknown,
+      ])
     } catch (errore) {
       throw tradotto(errore, uri)
     }
@@ -302,7 +316,11 @@ const filePredefinito: InterfacciaFileSystem = {
     try {
       const dati = await fs.stat(uri.fsPath)
       return {
-        type: dati.isDirectory() ? GenereFile.Directory : dati.isFile() ? GenereFile.File : GenereFile.Unknown,
+        type: dati.isDirectory()
+          ? GenereFile.Directory
+          : dati.isFile()
+            ? GenereFile.File
+            : GenereFile.Unknown,
         ctime: Math.round(dati.birthtimeMs || dati.ctimeMs),
         mtime: Math.round(dati.mtimeMs),
         size: dati.size,
@@ -350,7 +368,11 @@ async function scriviDaPredefinito (uri: Uri, da: number, contenuto: Uint8Array)
   }
 }
 
-async function finisceConPredefinito (uri: Uri, misura: number, fine: Uint8Array): Promise<boolean> {
+async function finisceConPredefinito (
+  uri: Uri,
+  misura: number,
+  fine: Uint8Array,
+): Promise<boolean> {
   let f: fs.FileHandle | null = null
   try {
     try {
@@ -423,7 +445,10 @@ export function cartelleDiLavoro (): CartellaDiLavoro[] | undefined {
   return ottieniImpianto().cartelleDiLavoro?.()
 }
 
-export function osserva (glob: string | ModelloRelativo, ascoltatore?: (evento: Uri) => void): Osservatore {
+export function osserva (
+  glob: string | ModelloRelativo,
+  ascoltatore?: (evento: Uri) => void,
+): Osservatore {
   const imp = ottieniImpianto()
   if (imp.osserva) return imp.osserva(glob, ascoltatore)
   return new Smaltitore(() => {}) as unknown as Osservatore
@@ -431,7 +456,8 @@ export function osserva (glob: string | ModelloRelativo, ascoltatore?: (evento: 
 
 export const impostazioni = {
   leggi: (sezione?: string): Configurazione => ottieniImpianto().impostazioni.leggi(sezione),
-  alCambio: (ascoltatore: (cambio: CambioImpostazione) => void): Smaltibile => ottieniImpianto().impostazioni.alCambio(ascoltatore),
+  alCambio: (ascoltatore: (cambio: CambioImpostazione) => void): Smaltibile =>
+    ottieniImpianto().impostazioni.alCambio(ascoltatore),
 }
 
 export const finestre = {
@@ -452,7 +478,10 @@ export const dialoghi = {
     ottieniImpianto().dialoghi?.errore(messaggio, ...resto) ?? Promise.resolve(undefined),
   chiediTesto: (opzioni?: any): Promise<string | undefined> =>
     ottieniImpianto().dialoghi?.chiediTesto(opzioni) ?? Promise.resolve(undefined),
-  chiediScelta: <T extends VoceScelta>(voci: T[] | Promise<T[]>, opzioni?: any): Promise<T | undefined> =>
+  chiediScelta: <T extends VoceScelta>(
+    voci: T[] | Promise<T[]>,
+    opzioni?: any,
+  ): Promise<T | undefined> =>
     ottieniImpianto().dialoghi?.chiediScelta(voci, opzioni) ?? Promise.resolve(undefined),
   chiediFile: (opzioni?: any): Promise<Uri[] | undefined> =>
     ottieniImpianto().dialoghi?.chiediFile?.(opzioni) ?? Promise.resolve(undefined),
@@ -481,7 +510,8 @@ export const comandi = {
 }
 
 export const esterno = {
-  apri: (indirizzo: Uri | string) => ottieniImpianto().esterno?.apri(indirizzo) ?? Promise.resolve(),
+  apri: (indirizzo: Uri | string) =>
+    ottieniImpianto().esterno?.apri(indirizzo) ?? Promise.resolve(),
   appunti: {
     readText: () => {
       const res = ottieniImpianto().esterno?.appunti?.readText?.() ?? ottieniImpianto().esterno?.appunti?.leggi?.() ?? ''
@@ -521,7 +551,8 @@ export const aggiornamenti = {
 }
 
 export const documenti = {
-  impostaPreferito: (percorso: string, preferito: boolean) => ottieniImpianto().documenti?.impostaPreferito(percorso, preferito),
+  impostaPreferito: (percorso: string, preferito: boolean) =>
+    ottieniImpianto().documenti?.impostaPreferito(percorso, preferito),
   dimentica: (percorso: string) => ottieniImpianto().documenti?.dimentica(percorso),
 }
 

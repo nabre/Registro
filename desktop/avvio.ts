@@ -10,6 +10,7 @@ import {
 } from './apparato/documents.js'
 
 import { avviaCondotto, condottoDaAprire, type Condotto } from '../desktop/transports/conduit.js'
+import { annotaErroreSuDisco } from './apparato/errorLog.js'
 import { avviatoDalSistema } from './apparato/systemStartup.js'
 import { vassoioAcceso } from './apparato/tray.js'
 import { esegui } from '../contract/centralino.js'
@@ -26,6 +27,7 @@ import {
   cartellaDelProvvisorio,
   cartellaDellUltimoDocumento,
   cartellaDocumento,
+  cartellaInArrivo,
   impostaCartellaProvvisori,
   nomeDelPacchetto,
   percorsoPacchetto,
@@ -45,7 +47,7 @@ import {
   provaCollegamento,
   scollegaAccount,
 } from '../core/dati/mail.js'
-import { smistatoreDi, type Smistatore } from '../core/dati/sorter.js'
+import { pdfSotto, smistatoreDi, type Smistatore } from '../core/dati/sorter.js'
 import { formattaData, isoValida, oggi } from '../core/dominio/dates.js'
 import type { Iso, Sospensione } from '../core/dominio/models.js'
 import {
@@ -163,6 +165,7 @@ export async function avvia (
         console.warn(
           `[api] ${voce.procedura} — ${voce.codice} (${voce.origine}, ${voce.durataMs} ms, ${voce.tracciato})`,
         )
+        annotaErroreSuDisco(contesto.globalStorageUri.fsPath, voce)
       } else if (voce.durataMs >= LENTA_MS) {
         console.warn(
           `[api] ${voce.procedura} — ${voce.durataMs} ms (${voce.origine}, ${voce.tracciato})`,
@@ -245,7 +248,7 @@ export async function avvia (
   // copia com'era. Iscritto prima della prima apertura per la stessa ragione.
   contesto.subscriptions.push(
     // testo-fisso: il marchio non si traduce
-    archivio.allAvviso((testo) => void apparato.dialoghi.informa(`Regiclass: ${testo}`)),
+    archivio.allAvviso((testo) => void apparato.dialoghi.informa(`Regiklass: ${testo}`)),
   )
 
   annuncia(documento ? testi().leggo : testi().preparo)
@@ -303,7 +306,7 @@ export async function avvia (
   smistatoreAttivo = smistatore
   contesto.subscriptions.push(smistatore)
   // testo-fisso: il marchio non si traduce
-  smistatore.alTermine((testo) => void apparato.dialoghi.informa(`Regiclass: ${testo}`))
+  smistatore.alTermine((testo) => void apparato.dialoghi.informa(`Regiklass: ${testo}`))
 
   // La lettura OCR di una pagina scrive senza passare da `chiama()` (dura minuti
   // e terrebbe ferma la fila): la si annota a mano nel giornale. Qui perché
@@ -392,7 +395,7 @@ export async function avvia (
     const esito = await esegui(archivio, { tipo: 'anno.crea', ...date }, 'programma')
     if (!esito.ok) {
       // testo-fisso: il marchio non si traduce
-      void apparato.dialoghi.errore(`Regiclass: ${(esito.errori ?? []).join(' ')}`)
+      void apparato.dialoghi.errore(`Regiklass: ${(esito.errori ?? []).join(' ')}`)
       return
     }
     await archivio.salva()
@@ -499,6 +502,30 @@ export async function avvia (
   let osservatore = archivio.osserva()
   contesto.subscriptions.push(new apparato.Smaltitore(() => osservatore.dispose()))
 
+  /**
+   * Assorbe i PDF rimasti nella cartella in-arrivo/ del disco, uno per uno
+   * attraverso l'azione del protocollo, per non bloccare la coda di scrittura.
+   */
+  async function assorbiCassetta (arch: Archivio): Promise<void> {
+    const radice = cartellaInArrivo()
+    if (!radice) return
+    try {
+      const elenco = await pdfSotto(radice)
+      for (const uri of elenco) {
+        await esegui(
+          arch,
+          {
+            tipo: 'smistamento.cassetta.assorbi',
+            percorso: uri.fsPath || uri.path,
+          },
+          'programma',
+        )
+      }
+    } catch (errore) {
+      console.error('assorbimento cassetta in-arrivo', errore)
+    }
+  }
+
   // I PDF in ingresso stanno nel documento dell'anno: cambiandolo cambia anche
   // quel che c'è da smistare, ed eventualmente una vecchia cassetta da svuotare.
   let documentoCorrente = percorsoPacchetto()?.toString() ?? null
@@ -509,7 +536,7 @@ export async function avvia (
       documentoCorrente = adesso
       osservatore.dispose()
       osservatore = archivio.osserva()
-      smistatore.assorbiCassettaVecchia().catch((errore: unknown) => {
+      assorbiCassetta(archivio).catch((errore: unknown) => {
         console.error('ripresa della cassetta del documento precedente', errore)
       })
       // I file mostrati stanno nell'anno: sandbox e radice del webview vanno
@@ -519,7 +546,7 @@ export async function avvia (
   )
 
   // I PDF rimasti in una vecchia cassetta si smistano all'accensione.
-  if (await archivio.esiste()) void smistatore.assorbiCassettaVecchia()
+  if (await archivio.esiste()) void assorbiCassetta(archivio)
 
   const conf = apparato.impostazioni.leggi('registroDocenti')
   // Partenza senza finestra (su richiesta o all'accesso, vedi
@@ -632,7 +659,7 @@ export async function creaPrimoAnno (anno: AnnoDaCreare): Promise<string | null>
   const esito = await esegui(archivio, { tipo: 'anno.crea', ...date }, 'programma')
   if (!esito.ok) {
     // testo-fisso: il marchio non si traduce
-    void apparato.dialoghi.errore(`Regiclass: ${(esito.errori ?? []).join(' ')}`)
+    void apparato.dialoghi.errore(`Regiklass: ${(esito.errori ?? []).join(' ')}`)
     return null
   }
   // «Salva con nome» annullato: nessun documento, quindi niente da aprire.
@@ -707,7 +734,7 @@ async function salvaAnnoConNome (): Promise<string | null> {
     title: testi().salvaAnnoConNome(nomeDelPacchetto(vecchio)),
     saveLabel: parole().salva,
     defaultUri: cartella ? apparato.Uri.joinPath(cartella, nome) : undefined,
-    filters: { Regiclass: [ESTENSIONE] },
+    filters: { Regiklass: [ESTENSIONE] },
   })
   if (!dove) return null
   if (!(await archivio.salvaCome(dove))) return null

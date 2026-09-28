@@ -20,6 +20,19 @@ const it = {
   sfoglia: {
     titolo: 'Sceglie con il dialogo del sistema la cartella o il file di un’impostazione',
   },
+  giornale: {
+    titolo: 'Restituisce le ultime chiamate annotate nel giornale di sessione',
+    limite: 'Quante voci restituire al massimo (predefinito 100, massimo 500)',
+    soloErrori: 'Se vero, restituisce solo le chiamate fallite o rifiutate',
+    presentazione: {
+      titolo: 'Giornale delle chiamate',
+      procedura: 'Procedura',
+      origine: 'Origine',
+      durataMs: 'Durata (ms)',
+      ok: 'Esito',
+      codice: 'Codice',
+    },
+  },
 }
 
 export const testi = catalogo(it, {
@@ -39,6 +52,19 @@ export const testi = catalogo(it, {
     },
     sfoglia: {
       titolo: 'Wählt mit dem Dialog des Systems den Ordner oder die Datei einer Einstellung',
+    },
+    giornale: {
+      titolo: 'Gibt die letzten im Sitzungsjournal protokollierten Aufrufe zurück',
+      limite: 'Maximale Anzahl zurückzugebender Einträge (Standard 100, maximal 500)',
+      soloErrori: 'Wenn wahr, werden nur fehlgeschlagene oder abgelehnte Aufrufe zurückgegeben',
+      presentazione: {
+        titolo: 'Aufrufjournal',
+        procedura: 'Prozedur',
+        origine: 'Herkunft',
+        durataMs: 'Dauer (ms)',
+        ok: 'Ergebnis',
+        codice: 'Code',
+      },
     },
   },
   fr: {
@@ -61,6 +87,19 @@ export const testi = catalogo(it, {
       titolo:
         'Choisit avec la boîte de dialogue du système le dossier ou le fichier d’un paramètre',
     },
+    giornale: {
+      titolo: 'Renvoie les derniers appels enregistrés dans le journal de session',
+      limite: 'Nombre maximal d’entrées à renvoyer (par défaut 100, maximum 500)',
+      soloErrori: 'Si vrai, renvoie uniquement les appels échoués ou rejetés',
+      presentazione: {
+        titolo: 'Journal des appels',
+        procedura: 'Procédure',
+        origine: 'Origine',
+        durataMs: 'Durée (ms)',
+        ok: 'Résultat',
+        codice: 'Code',
+      },
+    },
   },
   en: {
     comune: {
@@ -78,6 +117,19 @@ export const testi = catalogo(it, {
     },
     sfoglia: {
       titolo: 'Picks the folder or file of a setting with the system dialog',
+    },
+    giornale: {
+      titolo: 'Returns the last calls recorded in the session journal',
+      limite: 'Maximum number of entries to return (default 100, maximum 500)',
+      soloErrori: 'If true, returns only failed or rejected calls',
+      presentazione: {
+        titolo: 'Call log',
+        procedura: 'Procedure',
+        origine: 'Origin',
+        durataMs: 'Duration (ms)',
+        ok: 'Result',
+        codice: 'Code',
+      },
     },
   },
 })

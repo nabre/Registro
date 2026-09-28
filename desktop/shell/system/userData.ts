@@ -1,5 +1,5 @@
-// Porta la cartella dei dati dal nome precedente («Registro docenti») a quello
-// di `userData` (Regiclass), con `traslocaDati` di `core/dati/formerName.ts`:
+// Porta la cartella dei dati dal nome precedente («Regiclass» o «Registro docenti») a quello
+// di `userData` (Regiklass), con `traslocaDati` di `core/dati/formerName.ts`:
 //
 // - rinomina riuscita, o niente da rinominare: si va avanti sulla nuova;
 // - rinomina fallita (un file là dentro aperto): per questa sessione si lavora
@@ -42,25 +42,28 @@ function traslocaLaCartellaDeiDati (): void {
   // `--user-data-dir`) i dati veri non vanno traslocati.
   if (!stessoPosto(dirname(nuova), cartellaDelSistema) || basename(nuova) !== app.getName()) return
 
-  const vecchia = join(cartellaDelSistema, NOME_VECCHIO)
-  if (stessoPosto(vecchia, nuova)) return
-  const trasloco = traslocaDati(vecchia, nuova)
-  switch (trasloco.esito) {
-    case 'traslocata':
-      console.info(
-        `Dati portati da «${vecchia}» a «${nuova}»` +
-        (trasloco.riscritti.length > 0 ? `; riscritti: ${trasloco.riscritti.join(', ')}` : ''),
-      )
-      break
-    case 'fallita':
-      console.warn(`Dati non rinominati, resto su «${vecchia}» per questa volta: ${trasloco.motivo}`)
-      restaSullaVecchia(vecchia)
-      break
-    case 'entrambe':
-      console.warn(`Ci sono «${vecchia}» e «${nuova}»: uso la seconda, la prima resta com'è.`)
-      break
-    case 'niente':
-      break
+  // testo-fisso: nome precedente dell'applicazione da migrare
+  for (const nomeVecchio of ['Regiclass', NOME_VECCHIO]) {
+    const vecchia = join(cartellaDelSistema, nomeVecchio)
+    if (stessoPosto(vecchia, nuova)) continue
+    const trasloco = traslocaDati(vecchia, nuova)
+    switch (trasloco.esito) {
+      case 'traslocata':
+        console.info(
+          `Dati portati da «${vecchia}» a «${nuova}»` +
+          (trasloco.riscritti.length > 0 ? `; riscritti: ${trasloco.riscritti.join(', ')}` : ''),
+        )
+        return
+      case 'fallita':
+        console.warn(`Dati non rinominati, resto su «${vecchia}» per questa volta: ${trasloco.motivo}`)
+        restaSullaVecchia(vecchia)
+        return
+      case 'entrambe':
+        console.warn(`Ci sono «${vecchia}» e «${nuova}»: uso la seconda, la prima resta com'è.`)
+        break
+      case 'niente':
+        break
+    }
   }
 }
 

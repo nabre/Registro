@@ -113,6 +113,7 @@ function leTutte () {
     ['ore.cruscotto', { oggi: DAL, ora: '08:00' }],
     ['classe.pendenze', { classeId: classe.id, oggi: DAL }],
     ['smistamento.daFare', { classeId: classe.id }],
+    ['programma.giornale', {}],
   ]
 }
 
@@ -263,7 +264,7 @@ before(async () => {
 after(() => smonta(radice, archivio))
 
 describe('l’elenco delle letture', () => {
-  it('sono trentotto, e la tabella di questo file è esattamente quella', () => {
+  it('sono trentanove, e la tabella di questo file è esattamente quella', () => {
     // La tabella copre tutte le letture dichiarate: una lettura dimenticata qui
     // sfuggirebbe alle due prove che seguono.
     const dichiarate = api.procedure()
@@ -272,11 +273,11 @@ describe('l’elenco delle letture', () => {
       .sort()
     const provate = leTutte().map(([nome]) => nome).sort()
     assert.deepEqual(provate, dichiarate)
-    assert.equal(dichiarate.length, 38, `letture dichiarate: ${dichiarate.length}`)
+    assert.equal(dichiarate.length, 39, `letture dichiarate: ${dichiarate.length}`)
   })
 })
 
-describe('le trentotto letture rispondono, e nella forma che dichiarano', () => {
+describe('le trentanove letture rispondono, e nella forma che dichiarano', () => {
   it('registro.riassunto conta l’anno, le classi, i corsi e le ore', async () => {
     const esito = await api.chiama(archivio, 'registro.riassunto', {})
     assert.equal(esito.ok, true, JSON.stringify(esito))
@@ -1454,6 +1455,12 @@ describe('le tre nuove letture di cantiere: cruscotto, pendenze, daFare', () => 
     assert.equal(typeof esito.dati.totaleFile, 'number')
     assert.equal(typeof esito.dati.totalePagine, 'number')
     assert.equal(Array.isArray(esito.dati.file), true)
+  })
+
+  it('programma.giornale legge le voci in memoria senza toccare il disco', async () => {
+    const esito = await api.chiama(archivio, 'programma.giornale', {})
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.ok(Array.isArray(esito.dati.voci))
   })
 })
 

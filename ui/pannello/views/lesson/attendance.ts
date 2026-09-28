@@ -73,7 +73,11 @@ function menuStati (
   )
 }
 
-function pulsanteStato (opzioni: {
+/**
+ * Esportata per le prove di regressione: verifica che la chiusura del DOM
+ * tenga traccia dello stato in volo nei clic a raffica.
+ */
+export function pulsanteStato (opzioni: {
   stato: StatoPresenza | null
   titolo: string
   fuoco: string

@@ -295,7 +295,7 @@ const DICHIARAZIONI = {
   // ----------------------------------------------------------- gli aggiornamenti
   'registroDocenti.aggiornamenti.controlloAutomatico': {
     tipo: 'boolean',
-    predefinito: true,
+    predefinito: false,
   },
   'registroDocenti.aggiornamenti.scaricoAutomatico': {
     tipo: 'boolean',

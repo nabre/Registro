@@ -1,5 +1,5 @@
 // I testi di `startup.ts`: avvio, traslochi, anno occupato, posta, anno nuovo.
-// «Regiclass» in testa agli avvisi è il marchio e non si traduce.
+// «Regiklass» in testa agli avvisi è il marchio e non si traduce.
 
 import { catalogo } from '../core/i18n/index.js'
 import { plurale } from '../core/dominio/text.js'
@@ -26,35 +26,35 @@ const it = {
 
   // --------------------------------------------------------- i traslochi
   migratoUno: (corrente: string) =>
-    `Regiclass: i dati sono ora nella cartella «${corrente}», una per anno scolastico.`,
+    `Regiklass: i dati sono ora nella cartella «${corrente}», una per anno scolastico.`,
   migratiMolti: (anni: number, corrente: string) =>
-    `Regiclass: i dati sono stati divisi in ${anni} cartelle, una per anno scolastico. ` +
+    `Regiklass: i dati sono stati divisi in ${anni} cartelle, una per anno scolastico. ` +
     `In uso: «${corrente}».`,
   impacchettatoUno: (documento: string) =>
-    `Regiclass: i dati dell’anno stanno ora nel documento «${documento}». ` +
+    `Regiklass: i dati dell’anno stanno ora nel documento «${documento}». ` +
     'La cartella «dati» di prima è nel cestino.',
   impacchettatiMolti: (anni: number, estensione: string) =>
-    `Regiclass: ${anni} anni sono ora altrettanti documenti «${estensione}». ` +
+    `Regiklass: ${anni} anni sono ora altrettanti documenti «${estensione}». ` +
     'Le cartelle «dati» di prima sono nel cestino.',
   riordinati: (n: number) =>
-    `Regiclass: ${n} documenti rimessi in ordine sotto «archivio/» ed ` +
+    `Regiklass: ${n} documenti rimessi in ordine sotto «archivio/» ed ` +
     '«esportazioni/», per classe, corso e documento.',
   inglobati: (n: number, documento: string) =>
-    `Regiclass: ${n} documenti dell’anno sono ora dentro «${documento}». ` +
+    `Regiklass: ${n} documenti dell’anno sono ora dentro «${documento}». ` +
     'Le cartelle di prima sono nel cestino.',
   traslocoFallito:
-    'Regiclass: non ho potuto rimettere in ordine tutti i documenti archiviati. ' +
+    'Regiklass: non ho potuto rimettere in ordine tutti i documenti archiviati. ' +
     'Chiudi i programmi che tengono aperti i file e riapri il registro.',
 
   // -------------------------------------------------------------- la posta
-  posta: (testo: string) => `Regiclass — posta: ${testo}`,
+  posta: (testo: string) => `Regiklass — posta: ${testo}`,
   azzera: 'Azzera',
   azzeraDomanda: 'Azzerare la posta del registro?',
   azzeraDettaglio:
     'Toglie la password e il gettone dal portachiavi, i gettoni in memoria e tutte le ' +
     'impostazioni registroDocenti.posta.* (indirizzo, tenant, ID applicazione, invio ' +
     'diretto). Il collegamento andrà rifatto da capo.',
-  senzaCartella: 'Regiclass: nessuna cartella di lavoro aperta.',
+  senzaCartella: 'Regiklass: nessuna cartella di lavoro aperta.',
 
   // ------------------------------------------------------------ l'anno nuovo
   calendarioUfficiale: (cantone: string) => `calendario ufficiale del ${cantone}`,
@@ -97,33 +97,33 @@ export const testi = catalogo(it, {
     finestre: 'Die Fenster werden vorbereitet…',
     apro: 'Das Klassenbuch wird geöffnet…',
     migratoUno: (corrente) =>
-      `Regiclass: Die Daten sind jetzt im Ordner «${corrente}», einer pro Schuljahr.`,
+      `Regiklass: Die Daten sind jetzt im Ordner «${corrente}», einer pro Schuljahr.`,
     migratiMolti: (anni, corrente) =>
-      `Regiclass: Die Daten wurden auf ${anni} Ordner aufgeteilt, einer pro Schuljahr. ` +
+      `Regiklass: Die Daten wurden auf ${anni} Ordner aufgeteilt, einer pro Schuljahr. ` +
       `In Gebrauch: «${corrente}».`,
     impacchettatoUno: (documento) =>
-      `Regiclass: Die Daten des Schuljahrs sind jetzt im Dokument «${documento}». ` +
+      `Regiklass: Die Daten des Schuljahrs sind jetzt im Dokument «${documento}». ` +
       'Der bisherige Ordner «dati» ist im Papierkorb.',
     impacchettatiMolti: (anni, estensione) =>
-      `Regiclass: ${anni} Schuljahre sind jetzt ebenso viele «${estensione}»-Dokumente. ` +
+      `Regiklass: ${anni} Schuljahre sind jetzt ebenso viele «${estensione}»-Dokumente. ` +
       'Die bisherigen Ordner «dati» sind im Papierkorb.',
     riordinati: (n) =>
-      `Regiclass: ${plurale(n, 'Dokument', 'Dokumente')} unter «archivio/» und ` +
+      `Regiklass: ${plurale(n, 'Dokument', 'Dokumente')} unter «archivio/» und ` +
       '«esportazioni/» neu geordnet, nach Klasse, Kurs und Dokument.',
     inglobati: (n, documento) =>
-      `Regiclass: ${plurale(n, 'Dokument', 'Dokumente')} des Schuljahrs sind jetzt in ` +
+      `Regiklass: ${plurale(n, 'Dokument', 'Dokumente')} des Schuljahrs sind jetzt in ` +
       `«${documento}». Die bisherigen Ordner sind im Papierkorb.`,
     traslocoFallito:
-      'Regiclass: Ich konnte nicht alle abgelegten Dokumente neu ordnen. ' +
+      'Regiklass: Ich konnte nicht alle abgelegten Dokumente neu ordnen. ' +
       'Schliesse die Programme, die die Dateien offen halten, und öffne das Klassenbuch neu.',
-    posta: (testo) => `Regiclass — E-Mail: ${testo}`,
+    posta: (testo) => `Regiklass — E-Mail: ${testo}`,
     azzera: 'Zurücksetzen',
     azzeraDomanda: 'E-Mail des Klassenbuchs zurücksetzen?',
     azzeraDettaglio:
       'Entfernt das Passwort und das Token aus dem Schlüsselbund, die Tokens im Speicher und ' +
       'alle Einstellungen registroDocenti.posta.* (Adresse, Tenant, Anwendungs-ID, direkter ' +
       'Versand). Die Verbindung muss danach neu eingerichtet werden.',
-    senzaCartella: 'Regiclass: Kein Arbeitsordner geöffnet.',
+    senzaCartella: 'Regiklass: Kein Arbeitsordner geöffnet.',
     calendarioUfficiale: (cantone) => `offizieller Schulkalender des Kantons ${tessin(cantone)}`,
     vacanzeDel: (calendario) => `Ferien und Feiertage aus dem ${calendario}`,
     scegliDate: 'Daten auswählen…',
@@ -161,34 +161,34 @@ export const testi = catalogo(it, {
     finestre: 'Je prépare les fenêtres…',
     apro: 'J’ouvre le registre…',
     migratoUno: (corrente) =>
-      `Regiclass : les données sont maintenant dans le dossier « ${corrente} », ` +
+      `Regiklass : les données sont maintenant dans le dossier « ${corrente} », ` +
       'un par année scolaire.',
     migratiMolti: (anni, corrente) =>
-      `Regiclass : les données ont été réparties en ${anni} dossiers, un par année scolaire. ` +
+      `Regiklass : les données ont été réparties en ${anni} dossiers, un par année scolaire. ` +
       `En cours : « ${corrente} ».`,
     impacchettatoUno: (documento) =>
-      `Regiclass : les données de l’année sont maintenant dans le document « ${documento} ». ` +
+      `Regiklass : les données de l’année sont maintenant dans le document « ${documento} ». ` +
       'L’ancien dossier « dati » est dans la corbeille.',
     impacchettatiMolti: (anni, estensione) =>
-      `Regiclass : ${anni} années sont maintenant autant de documents « ${estensione} ». ` +
+      `Regiklass : ${anni} années sont maintenant autant de documents « ${estensione} ». ` +
       'Les anciens dossiers « dati » sont dans la corbeille.',
     riordinati: (n) =>
-      `Regiclass : ${plurale(n, 'document remis', 'documents remis')} en ordre sous ` +
+      `Regiklass : ${plurale(n, 'document remis', 'documents remis')} en ordre sous ` +
       '« archivio/ » et « esportazioni/ », par classe, cours et document.',
     inglobati: (n, documento) =>
-      `Regiclass : ${plurale(n, 'document', 'documents')} de l’année sont maintenant dans ` +
+      `Regiklass : ${plurale(n, 'document', 'documents')} de l’année sont maintenant dans ` +
       `« ${documento} ». Les anciens dossiers sont dans la corbeille.`,
     traslocoFallito:
-      'Regiclass : je n’ai pas pu remettre en ordre tous les documents archivés. ' +
+      'Regiklass : je n’ai pas pu remettre en ordre tous les documents archivés. ' +
       'Ferme les programmes qui gardent les fichiers ouverts et rouvre le registre.',
-    posta: (testo) => `Regiclass — messagerie : ${testo}`,
+    posta: (testo) => `Regiklass — messagerie : ${testo}`,
     azzera: 'Réinitialiser',
     azzeraDomanda: 'Réinitialiser la messagerie du registre ?',
     azzeraDettaglio:
       'Retire le mot de passe et le jeton du trousseau, les jetons en mémoire et tous les ' +
       'paramètres registroDocenti.posta.* (adresse, tenant, ID d’application, envoi ' +
       'direct). La connexion devra être refaite depuis le début.',
-    senzaCartella: 'Regiclass : aucun dossier de travail ouvert.',
+    senzaCartella: 'Regiklass : aucun dossier de travail ouvert.',
     calendarioUfficiale: (cantone) => `calendrier scolaire officiel du ${tessin(cantone)}`,
     vacanzeDel: (calendario) => `vacances et jours fériés du ${calendario}`,
     scegliDate: 'Choisir les dates…',
@@ -226,33 +226,33 @@ export const testi = catalogo(it, {
     finestre: 'Getting the windows ready…',
     apro: 'Opening the register…',
     migratoUno: (corrente) =>
-      `Regiclass: the data is now in the folder “${corrente}”, one per school year.`,
+      `Regiklass: the data is now in the folder “${corrente}”, one per school year.`,
     migratiMolti: (anni, corrente) =>
-      `Regiclass: the data has been split into ${anni} folders, one per school year. ` +
+      `Regiklass: the data has been split into ${anni} folders, one per school year. ` +
       `In use: “${corrente}”.`,
     impacchettatoUno: (documento) =>
-      `Regiclass: the year’s data is now in the document “${documento}”. ` +
+      `Regiklass: the year’s data is now in the document “${documento}”. ` +
       'The old “dati” folder is in the recycle bin.',
     impacchettatiMolti: (anni, estensione) =>
-      `Regiclass: ${anni} years are now as many “${estensione}” documents. ` +
+      `Regiklass: ${anni} years are now as many “${estensione}” documents. ` +
       'The old “dati” folders are in the recycle bin.',
     riordinati: (n) =>
-      `Regiclass: ${plurale(n, 'document', 'documents')} tidied up under “archivio/” and ` +
+      `Regiklass: ${plurale(n, 'document', 'documents')} tidied up under “archivio/” and ` +
       '“esportazioni/”, by class, course and document.',
     inglobati: (n, documento) =>
-      `Regiclass: ${plurale(n, 'document', 'documents')} of the year are now inside ` +
+      `Regiklass: ${plurale(n, 'document', 'documents')} of the year are now inside ` +
       `“${documento}”. The old folders are in the recycle bin.`,
     traslocoFallito:
-      'Regiclass: I couldn’t tidy up all the filed documents. ' +
+      'Regiklass: I couldn’t tidy up all the filed documents. ' +
       'Close the programs keeping the files open and reopen the register.',
-    posta: (testo) => `Regiclass — email: ${testo}`,
+    posta: (testo) => `Regiklass — email: ${testo}`,
     azzera: 'Reset',
     azzeraDomanda: 'Reset the register’s email?',
     azzeraDettaglio:
       'Removes the password and the token from the keychain, the tokens in memory and all the ' +
       'registroDocenti.posta.* settings (address, tenant, application ID, direct ' +
       'sending). The connection will have to be set up from scratch.',
-    senzaCartella: 'Regiclass: no working folder open.',
+    senzaCartella: 'Regiklass: no working folder open.',
     calendarioUfficiale: (cantone) => `official ${cantone} school calendar`,
     vacanzeDel: (calendario) => `holidays and public holidays from the ${calendario}`,
     scegliDate: 'Choose the dates…',

@@ -1,4 +1,4 @@
-# Regiclass — il documento tecnico
+# Regiklass — il documento tecnico
 
 Registro di classe per docenti: calendario delle lezioni, classi e persone in
 formazione, piani lezione, valutazioni. Applicazione desktop Electron +
@@ -90,8 +90,8 @@ Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).
 - Un anno nuovo non salvato sta in `anni-nuovi/` fra i dati dell'applicazione
   (`core/dati/paths.ts`).
 
-**I dati dell'applicazione** (`userData`): `%APPDATA%\Regiclass` per
-l'installato, `Regiclass - dati` accanto all'eseguibile per il portabile
+**I dati dell'applicazione** (`userData`): `%APPDATA%\Regiklass` per
+l'installato, `Regiklass - dati` accanto all'eseguibile per il portabile
 (`desktop/shell/system/portable.ts`).
 
 | File o cartella | Che cosa |
@@ -175,6 +175,7 @@ passi in locale. Come leggerne l'uscita: `.claude/skills/verifica/SKILL.md`.
 File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `core/dati/defaultTemplates.ts` (`npm run templates`),
 `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
+`core/dati/modelliConsigliati.ts` (`npm run modelli-consigliati`),
 `tests/samples/2026-2027.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 
@@ -256,7 +257,7 @@ firma si saltano. All'ammissione:
    configurazioni `eseguibile` e `installatori` con il contenuto dei due `.xml`,
    politica `release-signing` con approvazione a mano, 2FA;
 3. su GitHub (*Settings › Secrets and variables › Actions*): segreto e
-   variabile. Se progetto o politica hanno altri nomi di `regiclass` e
+   variabile. Se progetto o politica hanno altri nomi di `regiklass` e
    `release-signing`, si cambiano `SIGNPATH_PROGETTO` e `SIGNPATH_POLITICA` in
    testa al lavoro `pacchetti`;
 4. alla prima release firmata, togliere l'avviso SmartScreen dal README (il

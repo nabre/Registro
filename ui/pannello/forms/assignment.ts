@@ -114,7 +114,9 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
   let corsoAttuale = corsoIniziale
   let classeDocenteAttualeId: string | null =
     classeInizialeDocente?.id ??
-    (classeDelCorsoId(corsoIniziale)?.docenteDiClasse ? (classeDelCorsoId(corsoIniziale)?.id ?? null) : null) ??
+    (classeDelCorsoId(corsoIniziale)?.docenteDiClasse
+      ? (classeDelCorsoId(corsoIniziale)?.id ?? null)
+      : null) ??
     (classiDocente[0]?.id ?? null)
   let allieviAttuali: ReturnType<typeof ordinaAllievi> = []
 
@@ -141,7 +143,8 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
     prossime: Lezione[],
     proposta: string,
   ) => {
-    const puoCambiareAmbito = !lezione && !modifica && !opzioni.corsoFisso && classiDocente.length > 0
+    const puoCambiareAmbito =
+      !lezione && !modifica && !opzioni.corsoFisso && classiDocente.length > 0
 
     const selettoreAmbito = puoCambiareAmbito
       ? h(

@@ -25,7 +25,7 @@ let giro = 0
 /** Una cartella dei dati con un po' di tutto, come la lascia un registro usato. */
 function cartellaUsata () {
   const casa = percorso.join(radice, `casa-${++giro}`)
-  const dati = percorso.join(casa, 'Regiclass')
+  const dati = percorso.join(casa, 'Regiklass')
   for (const cartella of ['modelli-linguistici', 'dettatura', 'lettura', 'interfaccia', 'Local Storage', 'bin', 'tasselli']) {
     mkdirSync(percorso.join(dati, cartella), { recursive: true })
     writeFileSync(percorso.join(dati, cartella, 'dentro'), '')
@@ -97,7 +97,7 @@ describe('disinstalla.mjs --tieni', () => {
 
   it('toglie la cartella di cache di electron-updater in LOCALAPPDATA', () => {
     const { casa, dati } = cartellaUsata()
-    const updaterCache = percorso.join(casa, 'localappdata', 'regiclass-updater')
+    const updaterCache = percorso.join(casa, 'localappdata', 'regiklass-updater')
     mkdirSync(updaterCache, { recursive: true })
     writeFileSync(percorso.join(updaterCache, 'pending-update.exe'), '')
     disinstalla(casa, dati)

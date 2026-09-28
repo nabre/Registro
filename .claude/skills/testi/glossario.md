@@ -17,7 +17,7 @@ scelto e fissa quelle che il lessico non ha.
 | Grafia | — | svizzera: **ss**, mai ß | svizzera | britannica (colour, programme→**program** solo per il software) |
 | Apostrofo | ’ | ’ | ’ | ’ |
 
-Il marchio «Regiclass» non si traduce (ADR-40; fino alla 1.8.0 era «Registro
+Il marchio «Regiklass» non si traduce (ADR-40; fino alla 1.8.0 era «Registro
 docenti»). «registro», il nome comune, invece sì: è la riga qui sotto. Nomi di prodotti (Outlook,
 Teams, voicebox, GitHub, Hugging Face, Whisper) invariati.
 

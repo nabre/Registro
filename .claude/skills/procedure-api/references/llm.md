@@ -32,7 +32,7 @@ quella che resta indietro.
 {
   "api": 1,
   "comando": "registro",
-  "istruzioni": "Rispondi a domande su Regiclass, un registro di classe italiano, con gli…",
+  "istruzioni": "Rispondi a domande su Regiklass, un registro di classe italiano, con gli…",
   "attrezzi": [
     {
       "nome": "corso.presenze",

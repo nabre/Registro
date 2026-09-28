@@ -37,7 +37,7 @@ const CACHE = [
  * Le cartelle dell'utente da ripulire: la vera (il `productName`, come in
  * `app.getPath('userData')`) e il doppione «Electron», che si toglie intero.
  */
-const VERA = 'Regiclass'
+const VERA = 'Regiklass'
 const DOPPIONE = 'Electron'
 
 function cartellaUtente (nome) {

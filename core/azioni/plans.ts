@@ -210,11 +210,19 @@ export const piani = {
       if (!esito.valido) return { ok: false, errori: esito.errori }
     } else {
       const immagine = azione.genere === 'immagine'
-      const scelto = await scegliUnFile({
-        titolo: immagine ? t.titoloImmagine : t.titoloFile,
-        tasto: immagine ? t.tastoImmagine : t.tastoFile,
-        filtri: immagine ? { [parole().immagini]: ESTENSIONI_IMMAGINE } : undefined,
-      })
+      let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+      if (azione.file) {
+        const uri = apparato.Uri.file(azione.file)
+        const nome = uri.path.split('/').pop() ?? 'file'
+        const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+        scelto = { nome, uri, estensione }
+      } else {
+        scelto = await scegliUnFile({
+          titolo: immagine ? t.titoloImmagine : t.titoloFile,
+          tasto: immagine ? t.tastoImmagine : t.tastoFile,
+          filtri: immagine ? { [parole().immagini]: ESTENSIONI_IMMAGINE } : undefined,
+        })
+      }
       if (!scelto) return fatto
       // Durante il dialogo può essersi aperto un altro anno.
       if (!contesto.ancoraQui()) return documentoCambiato()

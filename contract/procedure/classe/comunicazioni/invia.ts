@@ -1,6 +1,6 @@
 import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
 import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
+import { booleano, identificatore, oggetto, opzionale } from '../../../schemas.js'
 import { esigiComunicazione } from '../common.js'
 import { testi } from '../classe.testi.js'
 
@@ -18,6 +18,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     classeId: identificatore(),
     comunicazioneId: identificatore(),
+    conferma: opzionale(booleano({ aiuto: () => testi().comunicazioni.invia.conferma })),
   }),
   esegui: (ambito, ingresso) => {
     esigiComunicazione(ambito, ingresso.classeId, ingresso.comunicazioneId)

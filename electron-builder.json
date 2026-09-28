@@ -6,8 +6,8 @@
   // Su Windows è l'AppUserModelID di collegamenti e notifiche: uguale a
   // `IDENTITA` in `desktop/apparato/notifications.ts` (`verificaIdentita()` in
   // `esbuild.mjs`).
-  "appId": "ch.nabre.regiclass",
-  "productName": "Regiclass",
+  "appId": "ch.nabre.regiklass",
+  "productName": "Regiklass",
   "copyright": "Nabre",
 
   // Dove l'applicazione installata cerca le versioni nuove: finisce in
@@ -103,9 +103,9 @@
   "fileAssociations": [
     {
       "ext": "regi",
-      "name": "Regiclass",
-      "description": "Anno scolastico di Regiclass",
-      "mimeType": "application/x-regiclass",
+      "name": "Regiklass",
+      "description": "Anno scolastico di Regiklass",
+      "mimeType": "application/x-regiklass",
       "role": "Editor"
     }
   ],
@@ -140,8 +140,8 @@
     // (`tools/icons.cjs`).
     // Per utente: installare in `Programmi` chiede l'amministratore.
     "perMachine": false,
-    "shortcutName": "Regiclass",
-    // I dati in `%APPDATA%\Regiclass` li toglie `os/windows/uninstall.nsh`,
+    "shortcutName": "Regiklass",
+    // I dati in `%APPDATA%\Regiklass` li toglie `os/windows/uninstall.nsh`,
     // chiedendo che cosa tenere: quella di electron-builder resta spenta perché
     // toglierebbe tutto. I `.regi` stanno altrove e non si toccano.
     "deleteAppDataOnUninstall": false,
@@ -149,10 +149,11 @@
     // `cli/disinstalla.mjs`. `installer.nsh` include `uninstall.nsh`:
     // electron-builder accetta un file solo.
     "include": "os/windows/installer.nsh",
+    "warningsAsErrors": false,
     "artifactName": "${name}-${version}-installer.${ext}"
   },
 
-  // Il portabile tiene i dati in «Regiclass - dati» accanto all'eseguibile
+  // Il portabile tiene i dati in «Regiklass - dati» accanto all'eseguibile
   // (`desktop/shell/system/portable.ts`); si disinstalla col menu o buttando i due.
   "portable": {
     "artifactName": "${name}-${version}-portabile.${ext}"
@@ -178,7 +179,8 @@
       "rpm"
     ],
     "category": "Education",
-    "desktopName": "ch.nabre.regiclass.desktop",
+    // Il nome del .desktop deriva da `desktopName` in package.json.
+    "syncDesktopName": true,
     // Il `.deb` vuole un manutentore, e `author` in `package.json` non basta.
     "maintainer": "Michel Brenna",
     // Una misura per file: ognuno prende la sua invece di rimpicciolire la 512.

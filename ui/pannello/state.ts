@@ -802,12 +802,33 @@ export function annoCorrente () {
   return annoInUso(stato.registro)
 }
 
+/**
+ * Conti fatti una volta per registro. `stato.registro` non si modifica mai sul
+ * posto (ogni spinta dell'host ne porta uno nuovo), quindi fa da chiave; il
+ * resto da cui il conto dipende (giorno, filtri) sta in `chiave`. Il risultato
+ * è condiviso: si legge, non si modifica.
+ */
+const memorie = new WeakMap<Registro, Map<string, unknown>>()
+
+function derivato<T> (nome: string, chiave: string, calcola: () => T): T {
+  let memoria = memorie.get(stato.registro)
+  if (!memoria) {
+    memoria = new Map()
+    memorie.set(stato.registro, memoria)
+  }
+  const voce = `${nome}|${chiave}`
+  if (!memoria.has(voce)) memoria.set(voce, calcola())
+  return memoria.get(voce) as T
+}
+
 /** Le classi dell'anno in corso, archiviate escluse, in ordine di nome. */
 export function classiVisibili () {
   const anno = annoCorrente()
-  return stato.registro.classi
-    .filter((c) => (!anno || c.annoId === anno.id) && !c.archiviata)
-    .sort((a, b) => confrontaNomi(a.nome, b.nome))
+  return derivato('classiVisibili', anno?.id ?? '', () =>
+    stato.registro.classi
+      .filter((c) => (!anno || c.annoId === anno.id) && !c.archiviata)
+      .sort((a, b) => confrontaNomi(a.nome, b.nome)),
+  )
 }
 
 /**
@@ -821,13 +842,15 @@ export function classiDiCuiSonoDocente () {
 /** Tutte le classi dell'anno, archiviate comprese: serve alla vista Classi. */
 export function classiDellAnno () {
   const anno = annoCorrente()
-  return stato.registro.classi
-    .filter((c) => !anno || c.annoId === anno.id)
-    .sort(
-      (a, b) =>
-        Number(a.archiviata) - Number(b.archiviata) ||
-        confrontaNomi(a.nome, b.nome),
-    )
+  return derivato('classiDellAnno', anno?.id ?? '', () =>
+    stato.registro.classi
+      .filter((c) => !anno || c.annoId === anno.id)
+      .sort(
+        (a, b) =>
+          Number(a.archiviata) - Number(b.archiviata) ||
+          confrontaNomi(a.nome, b.nome),
+      ),
+  )
 }
 
 export function classePerId (id: string | null) {
@@ -869,8 +892,10 @@ export function corsoPerId (id: string | null): Corso | null {
  */
 export function corsiDellAnnoAperto (): Corso[] {
   const anno = annoCorrente()
-  return corsiDellAnno(stato.registro, anno?.id ?? null).sort((a, b) =>
-    confrontaNomi(a.titolo, b.titolo),
+  return derivato('corsiDellAnnoAperto', anno?.id ?? '', () =>
+    corsiDellAnno(stato.registro, anno?.id ?? null).sort((a, b) =>
+      confrontaNomi(a.titolo, b.titolo),
+    ),
   )
 }
 
@@ -879,20 +904,23 @@ export function corsiDellAnnoAperto (): Corso[] {
  * semestre scelto, più quelli senza nessuna ora (appena creati, da ritrovare).
  */
 export function corsiNelSemestre (): Corso[] {
-  const corsi = corsiDellAnnoAperto()
   const semestre = semestreScelto()
-  if (!semestre) return corsi
-  // Una passata sola su tutte le lezioni: la barra lo chiede a ogni ridisegno.
-  const conOre = new Set<string>()
-  const nelPeriodo = new Set<string>()
-  for (const l of stato.registro.lezioni) {
-    conOre.add(l.corsoId)
-    if (l.data >= semestre.inizio && l.data <= semestre.fine)
-      nelPeriodo.add(l.corsoId)
-  }
-  return corsi.filter(
-    (corso) => !corso.id || !conOre.has(corso.id) || nelPeriodo.has(corso.id),
-  )
+  return derivato('corsiNelSemestre', `${annoCorrente()?.id ?? ''}|${semestre?.id ?? ''}`, () => {
+    const corsi = corsiDellAnnoAperto()
+    if (!semestre) return corsi
+    // Una passata sola su tutte le lezioni: la barra lo chiede a ogni ridisegno.
+    const conOre = new Set<string>()
+    const nelPeriodo = new Set<string>()
+    for (const l of stato.registro.lezioni) {
+      conOre.add(l.corsoId)
+      if (l.data >= semestre.inizio && l.data <= semestre.fine) {
+        nelPeriodo.add(l.corsoId)
+      }
+    }
+    return corsi.filter(
+      (corso) => !corso.id || !conOre.has(corso.id) || nelPeriodo.has(corso.id),
+    )
+  })
 }
 
 /**
@@ -1395,25 +1423,6 @@ export function giornoDentroLAnno (
 }
 
 // ------------------------------------------------------------------ derivati
-
-/**
- * Conti fatti una volta per registro. `stato.registro` non si modifica mai sul
- * posto (ogni spinta dell'host ne porta uno nuovo), quindi fa da chiave; il
- * resto da cui il conto dipende (giorno, filtri) sta in `chiave`. Il risultato
- * è condiviso: si legge, non si modifica.
- */
-const memorie = new WeakMap<Registro, Map<string, unknown>>()
-
-function derivato<T> (nome: string, chiave: string, calcola: () => T): T {
-  let memoria = memorie.get(stato.registro)
-  if (!memoria) {
-    memoria = new Map()
-    memorie.set(stato.registro, memoria)
-  }
-  const voce = `${nome}|${chiave}`
-  if (!memoria.has(voce)) memoria.set(voce, calcola())
-  return memoria.get(voce) as T
-}
 
 /**
  * L'ora che chiede qualcosa adesso: il buco da riempire, o la prossima. Una

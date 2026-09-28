@@ -1,4 +1,4 @@
-# Decisioni architetturali — Regiclass
+# Decisioni architetturali — Regiklass
 
 Le scelte strutturali e i vincoli che una rifattorizzazione non può rompere
 senza saperlo. Per ogni ADR: la decisione, i vincoli, dove vive.
@@ -375,7 +375,9 @@ condotto e assistente. `esegui()` la tiene solo per le azioni senza procedura.
    vanno in una nota davanti all'ultima domanda, mai salvata. Il prefisso
    [istruzioni + catalogo] resta identico byte per byte.
 2. Contesto caldo (`Caldo` in `core/dati/llamaCpp.ts`): legato ai pesi; se ne va
-   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe.
+   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe. I pesi (`Pesi`)
+   restano caricati e si scaricano automaticamente dopo `RIPOSO_PESI_MS` (15 min)
+   di inattività, per liberare memoria di sistema e VRAM.
 
 Una domanda alla volta (`inFila`); le istruzioni entrano sempre come storia
 (modelli senza battuta di sistema).
@@ -512,17 +514,17 @@ omonimi da dichiarare). Il come: skill `testi`.
 miniatura del tema, nei blocchi `[data-tema-figura]`
 (`tests/ui/themeFigure.test.mjs`).
 
-### ADR-40 — Il nome: Regiclass
+### ADR-40 — Il nome: Regiklass
 
 **Decisione.**
-- Marchio **Regiclass**, non si traduce; nome npm `regiclass`, artefatti
-  `regiclass-<versione>-installer.exe` / `-portabile.exe`.
-- `appId` `ch.nabre.regiclass`; `nsis.guid` fisso al GUID ricavato dal vecchio
+- Marchio **Regiklass**, non si traduce; nome npm `regiklass`, artefatti
+  `regiklass-<versione>-installer.exe` / `-portabile.exe`.
+- `appId` `ch.nabre.regiklass`; `nsis.guid` fisso al GUID ricavato dal vecchio
   `ch.edu.ti.cptt.registro-docenti`.
-- Eseguibile `Regiclass.exe`: lo script d'aggiornamento installato
-  (`os/windows/aggiornamento.ps1`) riconosce ancora il nome precedente e
-  riapre quello nuovo nello stesso percorso.
-- Cartella dei dati `%APPDATA%\Regiclass` (rinominata al primo avvio).
+- Eseguibile `Regiklass.exe`: lo script d'aggiornamento installato
+  (`os/windows/aggiornamento.ps1`) riconosce ancora i nomi precedenti (`Regiclass.exe`
+  e `Registro docenti.exe`) e riapre quello nuovo nello stesso percorso.
+- Cartella dei dati `%APPDATA%\Regiklass` (rinominata al primo avvio).
 - Estensione `.regi`.
 - Comando `regi`.
 - Restano: formato `registro-docenti/anno`, protocollo `registro://`, chiavi
@@ -542,10 +544,10 @@ SignPath rifiuta la firma.
    e migrazione per passi). Un allievo con data di iscrizione posteriore alla data
    di una prova passata viene escluso da quella prova, non lasciando debiti pregressi
    o buchi fittizi nelle valutazioni.
-2. **Esclusione reciproca voto e assenza:** In alutazioni.voto.imposta, l'attribuzione
-   di un voto (alore !== null) azzera lo stato di assenza (ssente = false),
-   e contrassegnare un allievo come assente (ssente = true) rimuove il valore del
-   voto (alore = null). Non è possibile avere contemporaneamente un voto numerico
+2. **Esclusione reciproca voto e assenza:** In valutazioni.voto.imposta, l'attribuzione
+   di un voto (valore !== null) azzera lo stato di assenza (assente = false),
+   e contrassegnare un allievo come assente (assente = true) rimuove il valore del
+   voto (valore = null). Non è possibile avere contemporaneamente un voto numerico
    e l'assenza segnata sulla stessa prova.
 3. **Scale voti e medie:** Le valutazioni numeriche sono ancorate alla scala definita
    nelle impostazioni del documento (minimo 0%, massimo 100%, con grado di precisione
@@ -562,15 +564,12 @@ SignPath rifiuta la firma.
    che oscura voti, note sensibili e dati personali degli altri allievi quando lo
    schermo è proiettato.
 6. **Normalizzazione e consistenza:** Tutti i campi opzionali di tipo identificativo o
-   chiave esterna sono normalizzati in modo coerente tramite 
-iferimento: stringa non
-   vuota o 
-ull (stringa vuota convertita in 
-ull). Le azioni sulle collezioni
+   chiave esterna sono normalizzati in modo coerente tramite riferimento: stringa non
+   vuota o null (stringa vuota convertita in null). Le azioni sulle collezioni
    utilizzano contesto.modifica dichiarando esplicitamente le partizioni coinvolte.
 
 **Vincoli.** VERSIONE_DATI = 2: i documenti aperti a versione 1 vengono aggiornati
-creando la copia di backup in ersioni-precedenti/ prima di applicare il passo.
+creando la copia di backup in versioni-precedenti/ prima di applicare il passo.
 Nessuna dipendenza crittografica opaca nel file .regi.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/upgrades.ts`, `core/dominio/normalization.ts`,
@@ -601,6 +600,93 @@ barra del titolo con overlay.
 
 **Dove.** `ui/pannello/commandBar.ts`, `ui/pannello/statusBar.ts`,
 `desktop/apparato/windows.ts`.
+
+### ADR-43 — Architettura dell'API: stato monolitico, transazioni, schemi e paginazione
+
+**Decisione.**
+1. **Spinta dello stato monolitico al pannello:** Il pannello webview riceve l'intera
+   istanza immutabile di `Registro` a ogni modifica via IPC (`flushStato`). Data la
+   natura dell'applicazione (monoutente desktop, dimensioni tipiche del registro
+   nell'ordine di pochi megabyte), le sottoscrizioni parziali a singole entità
+   introdurrebbero complessità architetturale (state store distribuiti, riconciliazione,
+   rischio di viste disallineate) senza alcun beneficio percettibile di reattività.
+2. **Atomicità a singola azione e rifiuto delle transazioni multi-procedura:** Ogni
+   chiamata a procedura o azione applicativa è un'unità atomica di mutazione. Non sono
+   ammesse transazioni che abbracciano più procedure consecutive: questo preserva
+   l'invariante di consistenza del documento, la semplicità del rollback a livello di
+   singola azione e la tracciabilità lineare nel giornale degli eventi.
+3. **JSON Schema per procedura e rifiuto di OpenAPI:** Il protocollo JSON-RPC e il
+   centralino utilizzano JSON Schema standard (draft 2020-12) per definire l'ingresso e
+   l'uscita di ciascuna procedura. OpenAPI (specifica pensata per API RESTful HTTP con
+   metodi, rotte e codici di stato HTTP) è inadatta ed eccedente rispetto a un centralino
+   RPC a messaggio tipizzato; la CLI e l'assistente LLM consumano direttamente
+   `resources/tools.json` e le definizioni del manifesto.
+4. **Paginazione naturale vs buste chiuse:** La paginazione a cursore/finestra è
+   adottata per collezioni che possono crescere indefinitamente. Le letture legate al
+   contesto di classe o anno (`corso.presenze`, `valutazioni.voti`,
+   `documenti.inventario`) restituiscono buste chiuse complete senza paginazione: il
+   loro dominio è naturalmente limitato (es. capienza di una classe, tipicamente 20–30
+   allievi, o inventario dell'anno), rendendo la paginazione superflua e d'intralcio
+   ai consumatori sincroni.
+
+**Vincoli.** Nessuna libreria di schema o framework REST aggiuntivo; le procedure rimangono
+autodescrittive tramite `definisci()`. Il salvataggio su disco rimane asincrono e a prova
+di coalescenza.
+
+**Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
+`docs/API.md`.
+
+### ADR-44 — Prove d'interfaccia con Playwright Python sincrono
+
+**Decisione.** I test d'interfaccia completi con browser reale (25 suite per oltre
+3'700 righe in `tests/ui/*.py`) restano scritti in Python sfruttando
+`playwright.sync_api`. Non si migra il framework a Node.js (`@playwright/test`).
+Le prove di regressione puntuali sui componenti DOM dell'interfaccia (`attendanceClicks`,
+`commandBarInFlight`, ecc.) si scrivono invece in JavaScript/Node.js sotto `tests/ui/*.test.mjs`
+tramite DOM sintetico, eseguibili direttamente con `node --test` e `npm test`.
+
+**Perché.**
+1. `playwright.sync_api` offre una sintassi lineare e sincrona priva di cascate di
+   `await` su ogni locator, asserzione e clic, rendendo i test di flusso UI estremamente
+   chiari e concisi.
+2. L'ambiente Python è leggero, già integrato e isolato nel runner della CI
+   (`.github/workflows/verifica.yml`) e in `tools/uiTests.mjs`.
+3. Una riscrittura completa dei 25 file in TypeScript/Node richiederebbe l'aggiunta di
+   pesanti pacchetti npm in `devDependencies`, aumentando il tempo di installazione e
+   creando potenziale duplicazione senza alcun guadagno di copertura o stabilità.
+4. I test unitari veloci dell'interfaccia girano in millisecondi in memoria con
+   `node --test` senza avviare Chromium.
+
+**Vincoli.** Nessuna dipendenza da Playwright nel `package.json` di produzione o
+di sviluppo Node; Python 3 e Playwright Chromium restano gestiti esternamente via `ui-tests`.
+
+**Dove.** `tools/uiTests.mjs`, `tests/ui/*.py`, `tests/ui/*.test.mjs`.
+
+### ADR-45 — Controllo degli aggiornamenti disattivato per impostazione predefinita
+
+**Decisione.** L'impostazione `registroDocenti.aggiornamenti.controlloAutomatico`
+ha valore predefinito `false`. All'avvio dell'applicazione non viene effettuata
+alcuna chiamata o polling di rete verso GitHub Releases senza l'esplicita volontà
+dell'utente. Il controllo manuale («Controlla adesso») e l'attivazione della
+ricerca automatica restano sempre disponibili nelle impostazioni del programma.
+
+**Perché.**
+1. Rispetto della sovranità e privacy dell'utente: un registro di classe
+   contenente dati di allievi non deve aprire connessioni di rete esterne di
+   propria iniziativa appena lanciato.
+2. Rispetto delle politiche di fondazioni di firma del codice aperto (SignPath
+   Foundation) e compatibilità con ambienti scolastici operanti su reti isolate,
+   a consumo o dietro proxy restrittivi.
+3. Trasparenza: l'utente ha il pieno controllo su quando effettuare richieste
+   di rete verso server esterni.
+
+**Vincoli.** Nessuna richiesta di rete per gli aggiornamenti finché
+`controlloAutomatico` non è abilitato dall'utente o non viene premuto
+«Controlla adesso».
+
+**Dove.** `contract/manifesto.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
+`os/windows/installer.nsh`.
+
 
 ## Decisioni implicite
 

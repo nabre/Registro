@@ -19,7 +19,7 @@ import { CARTELLA_PORTABILE_VECCHIA, traslocaDati } from '../../../core/dati/for
 
 /** Il nome della cartella dei dati, accanto all'eseguibile portabile. */
 // testo-fisso: nome di una cartella su disco, che deve restare quello in ogni lingua
-const CARTELLA_DATI = 'Regiclass - dati'
+const CARTELLA_DATI = 'Regiklass - dati'
 
 /**
  * La cartella dei dati accanto all'eseguibile, rinominata se ha ancora il nome
@@ -29,14 +29,18 @@ const CARTELLA_DATI = 'Regiclass - dati'
  */
 function cartellaDati (cartellaEseguibile: string): string {
   const nuova = join(cartellaEseguibile, CARTELLA_DATI)
-  const vecchia = join(cartellaEseguibile, CARTELLA_PORTABILE_VECCHIA)
-  const trasloco = traslocaDati(vecchia, nuova)
-  if (trasloco.esito === 'fallita') {
-    console.warn(`Dati del portabile non rinominati, resto su «${vecchia}»: ${trasloco.motivo}`)
-    return vecchia
-  }
-  if (trasloco.esito === 'entrambe') {
-    console.warn(`Ci sono «${vecchia}» e «${nuova}»: uso la seconda, la prima resta com'è.`)
+  // testo-fisso: cartella del portabile col nome precedente da migrare
+  for (const nomeVecchio of ['Regiclass - dati', CARTELLA_PORTABILE_VECCHIA]) {
+    const vecchia = join(cartellaEseguibile, nomeVecchio)
+    const trasloco = traslocaDati(vecchia, nuova)
+    if (trasloco.esito === 'fallita') {
+      console.warn(`Dati del portabile non rinominati, resto su «${vecchia}»: ${trasloco.motivo}`)
+      return vecchia
+    }
+    if (trasloco.esito === 'entrambe') {
+      console.warn(`Ci sono «${vecchia}» e «${nuova}»: uso la seconda, la prima resta com'è.`)
+    }
+    if (trasloco.esito === 'traslocata') break
   }
   return nuova
 }

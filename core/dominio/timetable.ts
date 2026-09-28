@@ -96,7 +96,11 @@ export function lezioniInChiusura (
   const classi = new Set(registro.classi.filter((c) => c.annoId === anno.id).map((c) => c.id))
   const corsi = new Set(registro.corsi.filter((c) => classi.has(c.classeId)).map((c) => c.id))
   return registro.lezioni.filter((lezione) =>
-    corsi.has(lezione.corsoId) && lezione.data >= dal && lezione.data <= al && sospeso(anno, lezione.data))
+    corsi.has(lezione.corsoId) &&
+    lezione.data >= dal &&
+    lezione.data <= al &&
+    sospeso(anno, lezione.data),
+  )
 }
 
 /** Se la ricorrenza vale in quella data: dentro i suoi estremi, quando li ha. */

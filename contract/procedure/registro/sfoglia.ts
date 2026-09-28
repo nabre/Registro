@@ -41,7 +41,7 @@ export const procedura = definisci({
       canSelectMany: false,
       canSelectFiles: true,
       canSelectFolders: false,
-      filters: { Regiclass: [ESTENSIONE.slice(1)] },
+      filters: { Regiklass: [ESTENSIONE.slice(1)] },
     })
     return { percorso: scelti?.[0]?.fsPath ?? null }
   },

@@ -136,7 +136,7 @@ describe('registro.sfoglia', () => {
       assert.equal(esito.ok, true, JSON.stringify(esito))
       assert.equal(esito.dati.percorso, SCORSO)
       assert.equal(archivio.revisione, prima)
-      assert.deepEqual(banco.aperture.at(-1).filters, [{ name: 'Regiclass', extensions: ['regi'] }])
+      assert.deepEqual(banco.aperture.at(-1).filters, [{ name: 'Regiklass', extensions: ['regi'] }])
     } finally {
       banco.rispostaAlleAperture = { canceled: true, filePaths: [] }
     }

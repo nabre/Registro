@@ -11,7 +11,18 @@ export const CANALE_INTERFACCIA = 'registro:interfaccia'
 export const CANALE_LINGUA = 'registro:lingua'
 
 /** I discriminanti noti per i messaggi che transitano su `CANALE`. */
-const DISCRIMINANTI_CANALE = ['tipo', 'dialogo', 'benvenuto', 'impostazioni'] as const
+const DISCRIMINANTI_CANALE = [
+  'tipo',
+  'azione',
+  'procedura',
+  'storia',
+  'campioni',
+  'segui',
+  'dialogo',
+  'benvenuto',
+  'impostazioni',
+  'avvio',
+] as const
 
 /** Verifica se un messaggio è un oggetto non nullo avente una proprietà tra quelle in `DISCRIMINANTI_CANALE`. */
 export function haDiscriminanteCanale (messaggio: unknown): boolean {

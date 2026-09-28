@@ -28,14 +28,14 @@ const it = {
   casellaNonCollegata:
     'La casella non è collegata: non c’è niente da cui far partire una prova. Premi ' +
     '«Collega la casella», poi riprova.',
-  titoloProva: 'Regiclass — manda una mail di prova',
+  titoloProva: 'Regiklass — manda una mail di prova',
   domandaProva:
     'A che indirizzo mandarla. Parte davvero, adesso, e non si può richiamare: di solito si ' +
     'manda a sé stessi.',
   serveIndirizzo: 'Ci vuole un indirizzo di posta.',
   oggettoProva: (quando: string) => `Prova del registro — ${quando}`,
   corpoProva: (casella: string, server: string, quando: string) =>
-    'Questa è una mail di prova mandata da Regiclass.\n\n' +
+    'Questa è una mail di prova mandata da Regiklass.\n\n' +
     `Casella: ${casella}\n` +
     `Server: ${server}\n` +
     `Quando: ${quando}\n\n` +
@@ -57,21 +57,21 @@ const it = {
   modoPasswordDettaglio:
     'Una password generata dal profilo Microsoft, valida solo per questo. Funziona senza ' +
     'registrare niente, ma il tenant può averla disattivata.',
-  titoloCollega: 'Regiclass — collega la casella',
+  titoloCollega: 'Regiklass — collega la casella',
   domandaMittente: 'L’indirizzo da cui si scrive, quello che le famiglie vedono: per esempio nome.cognome@edu.ti.ch',
-  titoloAccesso: 'Regiclass — con che nome si entra',
+  titoloAccesso: 'Regiklass — con che nome si entra',
   domandaAccesso:
     'Il nome con cui si entra nella casella, se è diverso dall’indirizzo: alla scuola è la ' +
     'sigla, per esempio xxx000@edu.ti.ch. Lascialo uguale all’indirizzo se non ne hai una.',
   serveAccesso: 'Ci vuole un nome di accesso nella forma di un indirizzo.',
-  titoloModo: (casella: string) => `Regiclass — come entrare in ${casella}`,
+  titoloModo: (casella: string) => `Regiklass — come entrare in ${casella}`,
   domandaModo: 'Come vuoi collegare la casella?',
   accountNonCollegato: (motivo: string) => `Account non collegato. ${motivo}`,
   accountCollegato: (casella: string, dove: string) => `Account collegato: ${casella}, consegna a ${dove}. `,
   daAccendere:
     'Per far partire le comunicazioni da sé resta da accendere ' +
     'registroDocenti.posta.invioDiretto.',
-  provoAEntrare: 'Regiclass: provo a entrare…',
+  provoAEntrare: 'Regiklass: provo a entrare…',
   postaAzzerata:
     'Posta azzerata: tolti il gettone dal portachiavi, quelli in memoria, i tenant ricordati ' +
     'e tutte le impostazioni registroDocenti.posta.*. Ora si riparte da zero con «Collega la ' +
@@ -106,14 +106,14 @@ export const testi = catalogo(it, {
     casellaNonCollegata:
       'Das Postfach ist nicht verbunden: Es gibt nichts, von dem ein Test ausgehen könnte. ' +
       'Wähle «Postfach verbinden» und versuche es dann erneut.',
-    titoloProva: 'Regiclass — Test-E-Mail senden',
+    titoloProva: 'Regiklass — Test-E-Mail senden',
     domandaProva:
       'An welche Adresse sie gehen soll. Sie wird wirklich gesendet, jetzt, und lässt sich nicht ' +
       'zurückholen: Meist schickst du sie dir selbst.',
     serveIndirizzo: 'Es braucht eine E-Mail-Adresse.',
     oggettoProva: (quando) => `Test des Klassenbuchs — ${quando}`,
     corpoProva: (casella, server, quando) =>
-      'Dies ist eine Test-E-Mail von Regiclass.\n\n' +
+      'Dies ist eine Test-E-Mail von Regiklass.\n\n' +
       `Postfach: ${casella}\n` +
       `Server: ${server}\n` +
       `Zeitpunkt: ${quando}\n\n` +
@@ -137,22 +137,22 @@ export const testi = catalogo(it, {
     modoPasswordDettaglio:
       'Ein Kennwort, das im Microsoft-Profil erzeugt wird und nur dafür gilt. Es funktioniert, ' +
       'ohne etwas zu registrieren, aber der Tenant kann es deaktiviert haben.',
-    titoloCollega: 'Regiclass — Postfach verbinden',
+    titoloCollega: 'Regiklass — Postfach verbinden',
     domandaMittente: 'Die Adresse, von der du schreibst und die die Familien sehen: zum Beispiel vorname.name@edu.ti.ch',
-    titoloAccesso: 'Regiclass — mit welchem Namen du dich anmeldest',
+    titoloAccesso: 'Regiklass — mit welchem Namen du dich anmeldest',
     domandaAccesso:
       'Der Name, mit dem du dich im Postfach anmeldest, wenn er sich von der Adresse unterscheidet: ' +
       'an der Schule ist es das Kürzel, zum Beispiel xxx000@edu.ti.ch. Lass die Adresse ' +
       'stehen, wenn du keines hast.',
     serveAccesso: 'Es braucht einen Anmeldenamen in Form einer Adresse.',
-    titoloModo: (casella) => `Regiclass — wie du dich bei ${casella} anmeldest`,
+    titoloModo: (casella) => `Regiklass — wie du dich bei ${casella} anmeldest`,
     domandaModo: 'Wie möchtest du das Postfach verbinden?',
     accountNonCollegato: (motivo) => `Konto nicht verbunden. ${motivo}`,
     accountCollegato: (casella, dove) => `Konto verbunden: ${casella}, Zustellung an ${dove}. `,
     daAccendere:
       'Damit die Mitteilungen von selbst hinausgehen, muss noch ' +
       'registroDocenti.posta.invioDiretto eingeschaltet werden.',
-    provoAEntrare: 'Regiclass: Anmeldung läuft…',
+    provoAEntrare: 'Regiklass: Anmeldung läuft…',
     postaAzzerata:
       'E-Mail zurückgesetzt: Entfernt wurden das Token aus dem Schlüsselbund, die Tokens im ' +
       'Speicher, die gemerkten Tenants und alle Einstellungen registroDocenti.posta.*. Jetzt ' +
@@ -186,14 +186,14 @@ export const testi = catalogo(it, {
     casellaNonCollegata:
       'La boîte aux lettres n’est pas connectée : il n’y a rien d’où faire partir un essai. ' +
       'Choisis « Connecter la boîte aux lettres », puis réessaie.',
-    titoloProva: 'Regiclass — envoyer un e-mail de test',
+    titoloProva: 'Regiklass — envoyer un e-mail de test',
     domandaProva:
       'À quelle adresse l’envoyer. Il part vraiment, maintenant, et ne peut pas être rappelé : ' +
       'en général, tu te l’envoies à toi-même.',
     serveIndirizzo: 'Il faut une adresse e-mail.',
     oggettoProva: (quando) => `Test du registre — ${quando}`,
     corpoProva: (casella, server, quando) =>
-      'Ceci est un e-mail de test envoyé par Regiclass.\n\n' +
+      'Ceci est un e-mail de test envoyé par Regiklass.\n\n' +
       `Boîte aux lettres : ${casella}\n` +
       `Serveur : ${server}\n` +
       `Quand : ${quando}\n\n` +
@@ -216,22 +216,22 @@ export const testi = catalogo(it, {
     modoPasswordDettaglio:
       'Un mot de passe généré depuis le profil Microsoft, valable seulement pour cela. Il ' +
       'fonctionne sans rien inscrire, mais le tenant peut l’avoir désactivé.',
-    titoloCollega: 'Regiclass — connecter la boîte aux lettres',
+    titoloCollega: 'Regiklass — connecter la boîte aux lettres',
     domandaMittente:
       'L’adresse depuis laquelle tu écris, celle que les familles voient : par exemple prenom.nom@edu.ti.ch',
-    titoloAccesso: 'Regiclass — avec quel nom tu te connectes',
+    titoloAccesso: 'Regiklass — avec quel nom tu te connectes',
     domandaAccesso:
       'Le nom avec lequel tu te connectes à la boîte aux lettres, s’il est différent de l’adresse : à ' +
       'l’école, c’est le sigle, par exemple xxx000@edu.ti.ch. Laisse l’adresse si tu n’en as pas.',
     serveAccesso: 'Il faut un nom de connexion sous la forme d’une adresse.',
-    titoloModo: (casella) => `Regiclass — comment te connecter à ${casella}`,
+    titoloModo: (casella) => `Regiklass — comment te connecter à ${casella}`,
     domandaModo: 'Comment veux-tu connecter la boîte aux lettres ?',
     accountNonCollegato: (motivo) => `Compte non connecté. ${motivo}`,
     accountCollegato: (casella, dove) => `Compte connecté : ${casella}, remise à ${dove}. `,
     daAccendere:
       'Pour que les communications partent d’elles-mêmes, il reste à activer ' +
       'registroDocenti.posta.invioDiretto.',
-    provoAEntrare: 'Regiclass : connexion en cours…',
+    provoAEntrare: 'Regiklass : connexion en cours…',
     postaAzzerata:
       'Messagerie remise à zéro : le jeton du trousseau, ceux en mémoire, les tenants mémorisés ' +
       'et tous les paramètres registroDocenti.posta.* ont été retirés. Tu repars maintenant de ' +
@@ -263,14 +263,14 @@ export const testi = catalogo(it, {
     casellaNonCollegata:
       'The mailbox is not connected: there is nothing to send a test from. Choose ' +
       '“Connect the mailbox”, then try again.',
-    titoloProva: 'Regiclass — send a test email',
+    titoloProva: 'Regiklass — send a test email',
     domandaProva:
       'Which address to send it to. It really goes out, now, and cannot be recalled: usually you ' +
       'send it to yourself.',
     serveIndirizzo: 'An email address is needed.',
     oggettoProva: (quando) => `Register test — ${quando}`,
     corpoProva: (casella, server, quando) =>
-      'This is a test email sent by Regiclass.\n\n' +
+      'This is a test email sent by Regiklass.\n\n' +
       `Mailbox: ${casella}\n` +
       `Server: ${server}\n` +
       `When: ${quando}\n\n` +
@@ -291,21 +291,21 @@ export const testi = catalogo(it, {
     modoPasswordDettaglio:
       'A password generated from the Microsoft profile, valid only for this. It works without ' +
       'registering anything, but the tenant may have switched it off.',
-    titoloCollega: 'Regiclass — connect the mailbox',
+    titoloCollega: 'Regiklass — connect the mailbox',
     domandaMittente: 'The address you write from, the one families see: for example firstname.surname@edu.ti.ch',
-    titoloAccesso: 'Regiclass — which name to sign in with',
+    titoloAccesso: 'Regiklass — which name to sign in with',
     domandaAccesso:
       'The name you sign in to the mailbox with, if it differs from the address: at school it is ' +
       'your code, for example xxx000@edu.ti.ch. Leave it the same as the address if you do not have one.',
     serveAccesso: 'A sign-in name in the form of an address is needed.',
-    titoloModo: (casella) => `Regiclass — how to sign in to ${casella}`,
+    titoloModo: (casella) => `Regiklass — how to sign in to ${casella}`,
     domandaModo: 'How do you want to connect the mailbox?',
     accountNonCollegato: (motivo) => `Account not connected. ${motivo}`,
     accountCollegato: (casella, dove) => `Account connected: ${casella}, delivering to ${dove}. `,
     daAccendere:
       'For messages to go out by themselves, registroDocenti.posta.invioDiretto still has to be ' +
       'switched on.',
-    provoAEntrare: 'Regiclass: signing in…',
+    provoAEntrare: 'Regiklass: signing in…',
     postaAzzerata:
       'Mail reset: the token in the keychain, the ones in memory, the remembered tenants and ' +
       'all the registroDocenti.posta.* settings have been removed. Now start again from scratch ' +

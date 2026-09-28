@@ -129,7 +129,7 @@ const it = {
           'La sola cartella vera accanto al file, con il suo nome: le bozze che il programma ' +
             'di posta apre, e in `versioni-precedenti/` la copia di un anno portato al formato ' +
             'di oggi.',
-          'In `%APPDATA%\\Regiclass` — nella versione portabile, in `Regiclass - dati` accanto ' +
+          'In `%APPDATA%\\Regiklass` — nella versione portabile, in `Regiklass - dati` accanto ' +
             'al programma. Non viaggia con l’anno. Quella delle versioni di prima, ' +
             '`%APPDATA%\\Registro docenti`, ci si sposta da sé al primo avvio.',
         ],
@@ -710,7 +710,7 @@ export const testi = catalogo(it, {
             'Der einzige echte Ordner neben der Datei, mit ihrem Namen: die Entwürfe, die das ' +
               'Mailprogramm öffnet, und in `versioni-precedenti/` die Kopie eines Schuljahrs, ' +
               'das ins heutige Format gebracht wurde.',
-            'In `%APPDATA%\\Regiclass` — in der portablen Version in `Regiclass - dati` neben ' +
+            'In `%APPDATA%\\Regiklass` — in der portablen Version in `Regiklass - dati` neben ' +
               'dem Programm. Reist nicht mit dem Schuljahr. Der Ordner früherer Versionen, ' +
               '`%APPDATA%\\Registro docenti`, zieht beim ersten Start von selbst hierher um.',
           ],
@@ -1327,7 +1327,7 @@ export const testi = catalogo(it, {
             'Le seul vrai dossier à côté du fichier, avec son nom : les brouillons que la ' +
               'messagerie ouvre, et dans `versioni-precedenti/` la copie d’une année amenée au ' +
               'format d’aujourd’hui.',
-            'Dans `%APPDATA%\\Regiclass` — dans la version portable, dans `Regiclass - dati` à ' +
+            'Dans `%APPDATA%\\Regiklass` — dans la version portable, dans `Regiklass - dati` à ' +
               'côté du programme. Ne voyage pas avec l’année. Celui des versions précédentes, ' +
               '`%APPDATA%\\Registro docenti`, s’y déplace tout seul au premier démarrage.',
           ],
@@ -1931,7 +1931,7 @@ export const testi = catalogo(it, {
             'The only real folder next to the file, with its name: the drafts the email ' +
               'program opens, and in `versioni-precedenti/` the copy of a year brought up to ' +
               'today’s format.',
-            'In `%APPDATA%\\Regiclass` — in the portable version, in `Regiclass - dati` next to ' +
+            'In `%APPDATA%\\Regiklass` — in the portable version, in `Regiklass - dati` next to ' +
               'the program. It doesn’t travel with the year. The one from earlier versions, ' +
               '`%APPDATA%\\Registro docenti`, moves here by itself on the first start.',
           ],

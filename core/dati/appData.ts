@@ -8,7 +8,7 @@ import * as percorso from 'node:path'
 
 /** Il nome dell'applicazione, per la cartella dei dati. */
 // testo-fisso: il nome di una cartella sul disco, che il registro deve ritrovare in ogni lingua
-const NOME_APPLICAZIONE = 'Regiclass'
+const NOME_APPLICAZIONE = 'Regiklass'
 
 /** La cartella dei dati dell'applicazione, con le regole di ogni sistema. */
 export function cartellaApplicazione (): string {

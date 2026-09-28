@@ -1,4 +1,4 @@
-# Architettura di Regiclass
+# Architettura di Regiklass
 
 Com'è fatto e che cosa succede quando. Dove stanno i dati e come si costruisce:
 [GUIDA](GUIDA.md). Il perché: [DECISIONI](DECISIONI.md). Il lavoro aperto:
@@ -32,14 +32,14 @@ I conteggi verificati (azioni, procedure, viste, impostazioni, entità) stanno i
 flowchart TB
   docente["Docente<br/>un solo utente, sulla sua macchina"]
 
-  registro["<b>Regiclass</b><br/>app Electron su Windows<br/>un documento .regi per anno"]
+  registro["<b>Regiklass</b><br/>app Electron su Windows<br/>un documento .regi per anno"]
 
   nominatim["Nominatim / OpenStreetMap<br/>nominatim.openstreetmap.org"]
   tiles["Tile OpenStreetMap<br/>tile.openstreetmap.org"]
   exchange["Exchange Online<br/>smtp.office365.com:587 STARTTLS"]
   entra["Microsoft Entra ID<br/>login.microsoftonline.com"]
   hugging["Hugging Face<br/>huggingface.co — solo per scaricare i modelli"]
-  github["GitHub<br/>release di Regiclass e di llama.cpp"]
+  github["GitHub<br/>release di Regiklass e di llama.cpp"]
   ics["Calendario ICS della scuola<br/>l'indirizzo che il docente ha scritto"]
   voicebox["voicebox<br/>127.0.0.1 — su questo computer"]
   disco["Filesystem e OneDrive<br/>cartella del docente"]
@@ -514,7 +514,7 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   strati (§ 4).
 - electron-builder: `node_modules` escluso tranne `node-llama-cpp`
   (`asarUnpack` con `pdf.worker.mjs`); `nsis` per utente e `portable`;
-  `fileAssociations` per `.regi` con MIME `application/x-regiclass`. La firma la
+  `fileAssociations` per `.regi` con MIME `application/x-regiklass`. La firma la
   chiede `rilascio.yml` (GUIDA § «La firma del codice»).
 - Prove: `node:test`. Finti: [tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs)
   (`app`, `BrowserWindow`, `ipcMain` con `simulaDallaPagina()`, due schermi,

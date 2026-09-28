@@ -287,4 +287,43 @@ describe('la coda degli scarichi', () => {
       iscrizione.dispose()
     }
   })
+
+  it('supporta più iscritti contemporanei e la cancellazione selettiva', async () => {
+    const racconti1 = []
+    const racconti2 = []
+    const iscrizione1 = registraAvanzamentoScarico((avanzamento) => racconti1.push(avanzamento))
+    const iscrizione2 = registraAvanzamentoScarico((avanzamento) => racconti2.push(avanzamento))
+
+    try {
+      const chiedi = (file) => llm['llm.scarica']({}, { tipo: 'llm.scarica', deposito: 'd/d', file })
+      assert.equal(chiedi('multi1.gguf').ok, true)
+      await finché(() => globalThis.__finto.vivi.has('multi1.gguf'))
+
+      // Entrambi gli iscritti ricevono le notifiche di inizio / avanzamento
+      assert.ok(racconti1.length > 0)
+      assert.equal(racconti1.length, racconti2.length)
+      assert.equal(racconti1.at(-1).file, 'multi1.gguf')
+      assert.equal(racconti2.at(-1).file, 'multi1.gguf')
+
+      // Disiscriviamo solo il primo ascoltatore
+      iscrizione1.dispose()
+      const quante1Prima = racconti1.length
+
+      // Facciamo finire lo scarico
+      await lasciaFinire('multi1.gguf')
+      await finché(() => racconti2.some((r) => r.file === 'multi1.gguf' && r.finito))
+
+      // Il primo ascoltatore non ha ricevuto altri eventi dopo la disiscrizione
+      assert.equal(racconti1.length, quante1Prima)
+
+      // Il secondo ascoltatore continua a ricevere gli eventi fino alla fine
+      const finito = racconti2.find((r) => r.file === 'multi1.gguf' && r.finito)
+      assert.ok(finito)
+      assert.equal(finito.nome, 'multi1.gguf')
+    } finally {
+      iscrizione1.dispose()
+      iscrizione2.dispose()
+    }
+  })
 })
+

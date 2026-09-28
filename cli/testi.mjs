@@ -136,7 +136,7 @@ const it = {
   niente: 'niente',
 
   aiuto: (comando) => [
-    'Regiclass — riga di comando.',
+    'Regiklass — riga di comando.',
     '',
     `  ${comando} elenco                    le procedure che il registro espone`,
     `  ${comando} schema <procedura>        i campi dell’ingresso; con --json lo schema intero`,
@@ -267,7 +267,7 @@ const de = {
   e: ' und ',
   niente: 'nichts',
   aiuto: (comando) => [
-    'Regiclass — Befehlszeile.',
+    'Regiklass — Befehlszeile.',
     '',
     `  ${comando} elenco                    die Prozeduren, die das Klassenbuch anbietet`,
     `  ${comando} schema <prozedur>         die Felder der Eingabe; mit --json das ganze Schema`,
@@ -394,7 +394,7 @@ const fr = {
   e: ' et ',
   niente: 'rien',
   aiuto: (comando) => [
-    'Regiclass — ligne de commande.',
+    'Regiklass — ligne de commande.',
     '',
     `  ${comando} elenco                    les procédures que le registre expose`,
     `  ${comando} schema <procédure>        les champs de l’entrée ; avec --json le schéma entier`,
@@ -521,7 +521,7 @@ const en = {
   e: ' and ',
   niente: 'nothing',
   aiuto: (comando) => [
-    'Regiclass — command line.',
+    'Regiklass — command line.',
     '',
     `  ${comando} elenco                    the procedures the register exposes`,
     `  ${comando} schema <procedure>        the input fields; with --json the whole schema`,

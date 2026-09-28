@@ -59,7 +59,6 @@ import {
 } from './pdf.js'
 import { contenutoDi, deposito } from './store.js'
 import {
-  cartellaInArrivo,
   nomeDelFileUri,
   nomeSicuro,
   vociDi,
@@ -114,6 +113,17 @@ export interface PaginaLetta {
   modifiche: number
 }
 
+/** Trova ricorsivamente tutti i PDF sotto una cartella. */
+export async function pdfSotto (cartella: apparato.Uri): Promise<apparato.Uri[]> {
+  const trovati: apparato.Uri[] = []
+  for (const [nome, tipo] of await vociDi(cartella)) {
+    const uri = apparato.Uri.joinPath(cartella, nome)
+    if (tipo === apparato.GenereFile.Directory) trovati.push(...(await pdfSotto(uri)))
+    else if (nome.toLowerCase().endsWith('.pdf')) trovati.push(uri)
+  }
+  return trovati
+}
+
 export class Smistatore implements apparato.Smaltitore {
   private readonly emettitore = new apparato.EventEmitter<string>()
   /** Racconta quel che ha fatto, per la notifica in interfaccia. */
@@ -156,57 +166,6 @@ export class Smistatore implements apparato.Smaltitore {
   }
 
   // ---------------------------------------------------------------- l'ingresso
-
-  /**
-   * I PDF rimasti in `in-arrivo/` su disco (una macchina non aggiornata può
-   * ancora riempirla): si smistano una volta, l'originale va nel cestino.
-   */
-  assorbiCassettaVecchia (): Promise<void> {
-    // Un giro per volta (lo chiamano avvio e cambio di documento): due giri
-    // smisterebbero gli stessi PDF due volte.
-    this.assorbendo ??= this.assorbiUnaVolta().finally(() => {
-      this.assorbendo = null
-    })
-    return this.assorbendo
-  }
-
-  /** Il giro in corso di `assorbiCassettaVecchia`, se ce n'è uno. */
-  private assorbendo: Promise<void> | null = null
-
-  private async assorbiUnaVolta (): Promise<void> {
-    const radice = cartellaInArrivo()
-    if (!radice) return
-    for (const uri of await this.pdfSotto(radice)) {
-      const nome = nomeDelFileUri(uri, '')
-      const t = testi()
-      try {
-        const esito = await this.smistaFile(uri)
-        if (esito.errore) this.emettitore.fire(t.suFile(nome, esito.errore))
-        else if (esito.inQuarantena > 0) {
-          this.emettitore.fire(
-            t.suFile(nome, t.assegnatiEDaSistemare(esito.assegnate, esito.inQuarantena)),
-          )
-        } else if (esito.assegnate > 0) {
-          this.emettitore.fire(t.suFile(nome, t.assegnati(esito.assegnate)))
-        }
-      } catch (errore) {
-        // Si dice, e il file resta per un secondo tentativo.
-        this.emettitore.fire(
-          t.suFile(nome, errore instanceof Error ? errore.message : String(errore)),
-        )
-      }
-    }
-  }
-
-  private async pdfSotto (cartella: apparato.Uri): Promise<apparato.Uri[]> {
-    const trovati: apparato.Uri[] = []
-    for (const [nome, tipo] of await vociDi(cartella)) {
-      const uri = apparato.Uri.joinPath(cartella, nome)
-      if (tipo === apparato.GenereFile.Directory) trovati.push(...(await this.pdfSotto(uri)))
-      else if (nome.toLowerCase().endsWith('.pdf')) trovati.push(uri)
-    }
-    return trovati
-  }
 
   /**
    * Un PDF su disco: si legge, si smista, e solo se è entrato nel documento
@@ -253,8 +212,7 @@ export class Smistatore implements apparato.Smaltitore {
       return { assegnate: 0, inQuarantena: 0, errore: testi().vuoto }
     }
 
-    // @ts-expect-error documento è privato in Archivio ma presente a runtime
-    const documentoInizio = this.archivio.documento
+    const documentoInizio = this.archivio.documentoAperto
 
     let lette: Awaited<ReturnType<typeof testoConPosizioni>>
     let totale: number
@@ -264,10 +222,8 @@ export class Smistatore implements apparato.Smaltitore {
       lette = await testoConPosizioni(byte)
     } catch (errore) {
       if (
-        // @ts-expect-error documento è privato in Archivio ma presente a runtime
-        !this.archivio.documento ||
-        // @ts-expect-error documento è privato in Archivio ma presente a runtime
-        this.archivio.documento.toString() !== documentoInizio?.toString()
+        !this.archivio.documentoAperto ||
+        this.archivio.documentoAperto.toString() !== documentoInizio?.toString()
       ) {
         return { assegnate: 0, inQuarantena: 0, errore: testi().senzaAnno }
       }
@@ -292,10 +248,8 @@ export class Smistatore implements apparato.Smaltitore {
     }
 
     if (
-      // @ts-expect-error documento è privato in Archivio ma presente a runtime
-      !this.archivio.documento ||
-      // @ts-expect-error documento è privato in Archivio ma presente a runtime
-      this.archivio.documento.toString() !== documentoInizio?.toString()
+      !this.archivio.documentoAperto ||
+      this.archivio.documentoAperto.toString() !== documentoInizio?.toString()
     ) {
       return { assegnate: 0, inQuarantena: 0, errore: testi().senzaAnno }
     }

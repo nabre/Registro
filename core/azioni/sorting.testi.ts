@@ -36,6 +36,10 @@ const it = {
     `«${nome}»: ${plurale(pagine, 'pagina', 'pagine')} passate da ${da} a ${a}.`,
   oraDi: (nome: string, classe: string) => `«${nome}» è ora di ${classe}.`,
   nessunPdf: 'Nessun PDF da aprire.',
+  assegnatiEDaSistemare: (assegnate: number, daSistemare: number) =>
+    `${assegnate} assegnati, ${daSistemare} da sistemare a mano.`,
+  assegnati: (assegnate: number) =>
+    `${plurale(assegnate, 'documento assegnato', 'documenti assegnati')}.`,
 }
 
 export const testi = catalogo(it, {
@@ -69,6 +73,10 @@ export const testi = catalogo(it, {
       `«${nome}»: ${plurale(pagine, 'Seite', 'Seiten')} von ${da} zu ${a} verschoben.`,
     oraDi: (nome, classe) => `«${nome}» gehört jetzt zu ${classe}.`,
     nessunPdf: 'Kein PDF zum Öffnen.',
+    assegnatiEDaSistemare: (assegnate, daSistemare) =>
+      `${assegnate} zugeordnet, ${daSistemare} manuell zu bearbeiten.`,
+    assegnati: (assegnate) =>
+      `${plurale(assegnate, 'Dokument zugeordnet', 'Dokumente zugeordnet')}.`,
   },
   fr: {
     pagina: (n) => `page ${n}`,
@@ -100,6 +108,10 @@ export const testi = catalogo(it, {
       `« ${nome} » : ${plurale(pagine, 'page déplacée', 'pages déplacées')} de ${da} à ${a}.`,
     oraDi: (nome, classe) => `« ${nome} » appartient maintenant à ${classe}.`,
     nessunPdf: 'Aucun PDF à ouvrir.',
+    assegnatiEDaSistemare: (assegnate, daSistemare) =>
+      `${assegnate} attribués, ${daSistemare} à traiter manuellement.`,
+    assegnati: (assegnate) =>
+      `${plurale(assegnate, 'document attribué', 'documents attribués')}.`,
   },
   en: {
     pagina: (n) => `page ${n}`,
@@ -131,5 +143,9 @@ export const testi = catalogo(it, {
       `“${nome}”: ${plurale(pagine, 'page', 'pages')} moved from ${da} to ${a}.`,
     oraDi: (nome, classe) => `“${nome}” now belongs to ${classe}.`,
     nessunPdf: 'No PDF to open.',
+    assegnatiEDaSistemare: (assegnate, daSistemare) =>
+      `${assegnate} assigned, ${daSistemare} to sort manually.`,
+    assegnati: (assegnate) =>
+      `${plurale(assegnate, 'document assigned', 'documents assigned')}.`,
   },
 })

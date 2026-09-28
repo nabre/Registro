@@ -206,6 +206,21 @@ export const smistamento = {
     return fatto
   },
 
+  /** Assorbe un singolo PDF rimasto nella cartella in-arrivo del disco. */
+  'smistamento.cassetta.assorbi': async (contesto, azione) => {
+    const uri = apparato.Uri.file(azione.percorso)
+    const smistatore = smistatoreDi(contesto.archivio)
+    const esito = await smistatore.smistaFile(uri)
+    if (esito.errore) return rifiuta(esito.errore)
+    if (esito.inQuarantena > 0) {
+      return conMessaggio(testi().assegnatiEDaSistemare(esito.assegnate, esito.inQuarantena), 'avviso')
+    }
+    if (esito.assegnate > 0) {
+      return conMessaggio(testi().assegnati(esito.assegnate), 'info')
+    }
+    return fatto
+  },
+
   /** Le pagine trascinate su una casella della matrice: come l'assegnazione a mano, ma per elenco. */
   'smistamento.assegnaPagine': async (contesto, azione) => {
     // La consegna deve riguardare la persona: anche qui, non solo nella matrice.

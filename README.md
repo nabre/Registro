@@ -2,7 +2,7 @@
 
 <img src="icons/icon.png" alt="" width="112" height="112">
 
-# Regiclass
+# Regiklass
 
 **Il registro di classe che vive sul tuo computer, non sul server di qualcun altro.**
 
@@ -20,7 +20,7 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 [**Scarica**](https://github.com/nabre/Registro/releases/latest) ·
 [Funzioni](#che-cosa-fa) ·
 [Aggiornamenti](#aggiornamenti) ·
-[Da Registro docenti a Regiclass](#da-registro-docenti-a-regiclass) ·
+[Da Registro docenti a Regiklass](#da-registro-docenti-a-regiklass) ·
 [Com'è fatto](docs/GUIDA.md) ·
 [Sviluppo](#sviluppo) ·
 [Documentazione](docs/INDICE.md) ·
@@ -53,7 +53,7 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 ## Perché
 
 Su un registro ci sono nomi di minorenni, assenze, medie e a volte una
-situazione di famiglia. **Regiclass** tiene tutto sulla tua macchina:
+situazione di famiglia. **Regiklass** tiene tutto sulla tua macchina:
 
 - **un documento per anno**: `2026-2027.regi` sta nella cartella di lavoro
   e si copia, si salva e si archivia come qualunque altro file;
@@ -75,7 +75,7 @@ situazione di famiglia. **Regiclass** tiene tutto sulla tua macchina:
 | ✂️ **Smistamento dei PDF** | Un PDF di classe arrivato dalla segreteria si divide da solo, persona per persona. Le scansioni passano dall'OCR. |
 | 🤖 **Assistente** | Risponde a domande in italiano leggendo i dati veri del registro, con un modello che scarichi o trascini nella finestra. Le domande si possono anche dire a voce, con [voicebox](https://github.com/jamiepine/voicebox) installato e aperto a parte: la voce resta sul tuo computer. |
 | 📽️ **Proiezione** | Una seconda finestra per lo schermo della classe, che segue quel che apri nel registro. |
-| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 207 procedure, con permessi separati per lettura e scrittura. |
+| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 209 procedure, con permessi separati per lettura e scrittura. |
 | 💾 **Portabile** | Una versione che gira da chiavetta senza installazione, per le macchine su cui non si hanno i diritti di amministratore. |
 
 Come si usa ogni pagina lo dice la guida dentro il registro: **F1** da qualunque
@@ -89,8 +89,8 @@ Scarica l'ultima versione dalla pagina delle
 
 | File | Per chi |
 | --- | --- |
-| `regiclass-x.y.z-installer.exe` | Installazione per utente, senza diritti di amministratore. |
-| `regiclass-x.y.z-portabile.exe` | Nessuna installazione: i dati restano in una cartella accanto all'eseguibile. |
+| `regiklass-x.y.z-installer.exe` | Installazione per utente, senza diritti di amministratore. |
+| `regiklass-x.y.z-portabile.exe` | Nessuna installazione: i dati restano in una cartella accanto all'eseguibile. |
 
 Al primo avvio il registro propone di creare un anno: lo si sceglie fra
 quelli del calendario scolastico ufficiale, con vacanze e festivi già dentro,
@@ -124,7 +124,7 @@ com'era, in `versioni-precedenti/` nella cartella che ha il nome dell'anno,
 accanto al file. Un anno scritto da una versione più recente invece non si
 apre: la finestra che lo dice propone di scaricare la versione nuova.
 
-### Da Registro docenti a Regiclass
+### Da Registro docenti a Regiklass
 
 Fino alla 1.8.0 il programma si chiamava **Registro docenti**. Il nome è
 cambiato, i dati no. Aggiornando il registro installato:
@@ -132,7 +132,7 @@ cambiato, i dati no. Aggiornando il registro installato:
 - **resta una sola installazione**: l'aggiornamento arriva da sé come gli
   altri, e in «App installate» la voce è sempre una, con il nome nuovo;
 - **la cartella dei dati si sposta da sé** al primo avvio, da
-  `%APPDATA%\Registro docenti` a `%APPDATA%\Regiclass`: impostazioni, account
+  `%APPDATA%\Registro docenti` a `%APPDATA%\Regiklass`: impostazioni, account
   della posta e modelli scaricati vengono con lei;
 - **i documenti dell'anno hanno estensione `.regi`**;
 - **il comando dal terminale è `regi`**, al posto di `regdoc`;
@@ -171,13 +171,13 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 
 ```mermaid
 flowchart LR
-    UI["Pannello<br/><sub>src/ui</sub>"] -- protocollo --> A["Azioni<br/><sub>src/actions</sub>"]
-    CLI["regi · JSON-RPC<br/><sub>src/cli · src/api</sub>"] --> API["Procedure<br/><sub>src/api</sub>"]
+    UI["Pannello<br/><sub>ui/</sub>"] -- protocollo --> A["Azioni<br/><sub>core/azioni/</sub>"]
+    CLI["regi · JSON-RPC<br/><sub>cli/ · contract/</sub>"] --> API["Procedure<br/><sub>contract/procedure/</sub>"]
     API --> A
-    A --> D["Dominio<br/><sub>src/domain</sub>"]
-    A --> DATA["Dati<br/><sub>src/data</sub>"]
+    A --> D["Dominio<br/><sub>core/dominio/</sub>"]
+    A --> DATA["Dati<br/><sub>core/dati/</sub>"]
     DATA --> F[("2026-2027.regi")]
-    SHELL["Guscio Electron<br/><sub>shell/</sub>"] --> UI
+    SHELL["Guscio Electron<br/><sub>desktop/shell/</sub>"] --> UI
 ```
 
 Gli strati e i loro confini sono controllati a macchina a ogni push
@@ -207,11 +207,11 @@ automatico. Il giro della firma è raccontato nella
 Free code signing provided by [SignPath.io](https://signpath.io), certificate
 by [SignPath Foundation](https://signpath.org).
 
-Gli eseguibili per Windows — l'applicazione (`Regiclass.exe`), l'installer e
+Gli eseguibili per Windows — l'applicazione (`Regiklass.exe`), l'installer e
 il portabile — li
 costruisce GitHub Actions da questo repository pubblico, dal ramo `main`, e li
 firma SignPath con il certificato di SignPath Foundation. Ogni firma va
-approvata a mano. Un eseguibile che si presenta come Regiclass e non porta la
+approvata a mano. Un eseguibile che si presenta come Regiklass e non porta la
 firma di **SignPath Foundation** non viene da qui. I componenti di altri
 progetti open source dentro il pacchetto (Electron, llama.cpp) restano con la
 firma dei loro autori, o senza: non li firmiamo noi.
@@ -250,7 +250,7 @@ valgono le loro regole:
 <details>
 <summary>In English</summary>
 
-Windows binaries (the application — `Regiclass.exe` —, the installer and the
+Windows binaries (the application — `Regiklass.exe` —, the installer and the
 portable executable)
 are built by GitHub Actions from the `main` branch of this public
 repository and signed by SignPath with the SignPath Foundation certificate;

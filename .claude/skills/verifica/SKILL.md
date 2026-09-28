@@ -1,7 +1,7 @@
 ---
 name: verifica
 description: >
-  Il rituale di verifica di Regiclass: i tre controlli d'obbligo
+  Il rituale di verifica di Regiklass: i tre controlli d'obbligo
   (`npx tsc --noEmit`, `npx eslint .`, `npm test`) e gli otto controlli statici
   fatti in casa (`layers`, `census`, `collections`, `forms`, `buttons`,
   `procedures`, `docs`, `i18n`) — che cosa guarda ognuno, come si legge la sua uscita, che cosa

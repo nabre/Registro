@@ -28,7 +28,7 @@ interface TestiManifesto {
 }
 
 const it: TestiManifesto = {
-  titoloImpostazioni: 'Regiclass',
+  titoloImpostazioni: 'Regiklass',
   comandi: {
     'registroDocenti.apri': 'Mostra il registro',
     'registroDocenti.guida': 'Guida',
@@ -329,7 +329,7 @@ const it: TestiManifesto = {
 
 export const testi = catalogo(it, {
   de: {
-    titoloImpostazioni: 'Regiclass',
+    titoloImpostazioni: 'Regiklass',
     comandi: {
       'registroDocenti.apri': 'Klassenbuch anzeigen',
       'registroDocenti.guida': 'Hilfe',
@@ -634,7 +634,7 @@ export const testi = catalogo(it, {
     },
   },
   fr: {
-    titoloImpostazioni: 'Regiclass',
+    titoloImpostazioni: 'Regiklass',
     comandi: {
       'registroDocenti.apri': 'Afficher le registre',
       'registroDocenti.guida': 'Aide',
@@ -942,7 +942,7 @@ export const testi = catalogo(it, {
     },
   },
   en: {
-    titoloImpostazioni: 'Regiclass',
+    titoloImpostazioni: 'Regiklass',
     comandi: {
       'registroDocenti.apri': 'Show the register',
       'registroDocenti.guida': 'Help',

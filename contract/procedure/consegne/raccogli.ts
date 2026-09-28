@@ -1,6 +1,6 @@
 import { consegne } from '../../../core/azioni/assignments.js'
 import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
+import { identificatore, oggetto, opzionale, testo } from '../../schemas.js'
 import { chiSpunta, esigiConsegna } from './common.js'
 import { testi } from './consegne.testi.js'
 
@@ -14,6 +14,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     consegnaId: identificatore(),
     chi: chiSpunta,
+    file: opzionale(testo({ aiuto: () => testi().raccogli.file })),
   }),
   esegui: (ambito, ingresso) => {
     esigiConsegna(ambito, ingresso.consegnaId)
