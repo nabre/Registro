@@ -112,6 +112,38 @@
       }
     },
     {
+      "nome": "anni.calendario",
+      "funzione": "anni_calendario",
+      "genere": "scrittura",
+      "titolo": "Collega l’anno al calendario scolastico ufficiale (o lo riallinea), o lo stacca",
+      "idempotente": true,
+      "collezioni": [
+        "registro",
+        "lezioni"
+      ],
+      "riga": "regi chiama anni.calendario --annoId <testo> --collega <booleano>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "annoId": {
+            "type": "string",
+            "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "collega": {
+            "type": "boolean",
+            "description": "true porta date e chiusure ufficiali e le blocca; false toglie il blocco e lascia date e chiusure come sono"
+          }
+        },
+        "required": [
+          "annoId",
+          "collega"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
       "nome": "anni.crea",
       "funzione": "anni_crea",
       "genere": "scrittura",
@@ -202,6 +234,25 @@
             "minItems": 2,
             "maxItems": 2,
             "description": "I nomi dei due semestri, nell’ordine"
+          },
+          "calendarioUfficiale": {
+            "type": "object",
+            "description": "L’anno del calendario scolastico ufficiale che l’anno segue: date e chiusure devono essere le sue, e poi non si cambiano a mano",
+            "properties": {
+              "cantone": {
+                "type": "string",
+                "description": "La sigla del cantone: «TI»"
+              },
+              "annoScolastico": {
+                "type": "string",
+                "description": "L’anno del calendario: «2026/2027»"
+              }
+            },
+            "required": [
+              "cantone",
+              "annoScolastico"
+            ],
+            "additionalProperties": true
           }
         },
         "required": [
@@ -923,6 +974,23 @@
         "required": [
           "calendarioId"
         ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "calendario.aggiornaTutti",
+      "funzione": "calendario_aggiornaTutti",
+      "genere": "scrittura",
+      "titolo": "Riscarica tutti i calendari ICS collegati con un indirizzo e ne aggiorna le copie",
+      "idempotente": true,
+      "collezioni": [
+        "registro"
+      ],
+      "riga": "regi chiama calendario.aggiornaTutti",
+      "parametri": {
+        "type": "object",
+        "properties": {},
+        "required": [],
         "additionalProperties": true
       }
     },
@@ -8922,9 +8990,10 @@
               "momento",
               "foto-classe",
               "diario",
-              "corso"
+              "corso",
+              "supplenze"
             ],
-            "description": "Quale degli otto fogli"
+            "description": "Quale foglio"
           },
           "id": {
             "type": "string",

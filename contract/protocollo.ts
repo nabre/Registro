@@ -131,6 +131,11 @@ export type Azione =
   | { tipo: 'calendario.aggiungi'; origine: string; nome?: string }
   /** Rilegge l'origine di un calendario e ne rifà la copia nel documento. */
   | { tipo: 'calendario.aggiorna'; calendarioId: string }
+  /**
+   * Riscarica tutti i calendari collegati con un indirizzo di rete; quelli che
+   * non si leggono tengono la copia di prima. Lo fa anche l'avvio.
+   */
+  | { tipo: 'calendario.aggiornaTutti' }
   /** Rinomina un calendario o ne cambia l'origine; un'origine illeggibile non cambia niente. */
   | { tipo: 'calendario.modifica'; calendarioId: string; nome?: string; origine?: string }
   /** Toglie un calendario dal documento, con la sua copia. Le regole restano. */

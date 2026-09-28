@@ -472,6 +472,13 @@ const it = {
           'i segni della striscia e **Confronta con il calendario**.',
       },
       {
+        termine: 'Aggiorna ICS',
+        testo:
+          'Accanto a **Calendario ICS**, quando è acceso: riscarica tutti i calendari collegati ' +
+          'con un indirizzo e rifà le loro copie nel documento. Lo stesso succede da sé a ogni ' +
+          'avvio del registro. Un calendario che non risponde tiene la copia di prima.',
+      },
+      {
         termine: 'Evento e ora, legati',
         testo:
           'Un evento che cade su un’ora del suo corso ne prende il colore, e l’ora porta una ' +
@@ -1344,6 +1351,14 @@ export const testi = catalogo(it, {
             'liest die Kopien neu; einen Kalender, der sich nicht lesen lässt, meldet der ' +
             'Untertitel der Seite. Ausgeschaltet blendet er auch die Zeichen des Streifens und ' +
             '**Mit dem Kalender abgleichen** aus.',
+        },
+        {
+          termine: 'ICS aktualisieren',
+          testo:
+            'Neben **ICS-Kalender**, wenn er eingeschaltet ist: lädt alle über eine Adresse ' +
+            'verknüpften Kalender neu und erneuert ihre Kopien im Dokument. Dasselbe geschieht ' +
+            'von selbst bei jedem Start des Klassenbuchs. Ein Kalender, der nicht antwortet, ' +
+            'behält die bisherige Kopie.',
         },
         {
           termine: 'Termin und Stunde, verbunden',
@@ -2219,6 +2234,14 @@ export const testi = catalogo(it, {
             'calendrier**.',
         },
         {
+          termine: 'Mettre à jour l’ICS',
+          testo:
+            'À côté de **Calendrier ICS**, quand il est allumé : retélécharge tous les calendriers ' +
+            'reliés par une adresse et refait leurs copies dans le document. La même chose se ' +
+            'fait d’elle-même à chaque démarrage du registre. Un calendrier qui ne répond pas ' +
+            'garde la copie précédente.',
+        },
+        {
           termine: 'Événement et leçon, liés',
           testo:
             'Un événement qui tombe sur une leçon de son cours en prend la couleur, et la leçon ' +
@@ -3074,6 +3097,13 @@ export const testi = catalogo(it, {
             'lane to the right of each day. Turning it on again rereads the copies; a calendar ' +
             'that cannot be read is flagged in the page subtitle. Off, it also hides the marks ' +
             'on the strip and **Compare with the calendar**.',
+        },
+        {
+          termine: 'Update ICS',
+          testo:
+            'Next to **ICS calendar**, when it is on: downloads again every calendar linked by ' +
+            'an address and remakes their copies in the document. The same happens by itself at ' +
+            'every start of the register. A calendar that does not answer keeps the previous copy.',
         },
         {
           termine: 'Event and lesson, linked',

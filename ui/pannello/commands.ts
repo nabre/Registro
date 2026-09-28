@@ -327,7 +327,7 @@ function statoLezione (): Lezione['stato'] | null {
 }
 
 /**
- * Se l'interruttore «Calendario ICS» è acceso: gli altri due comandi del
+ * Se l'interruttore «Calendario ICS» è acceso: gli altri comandi del
  * riquadro si vedono solo allora, perché lavorano sui suoi eventi.
  */
 function calendarioIcsAcceso (): boolean {
@@ -664,6 +664,22 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     acceso: calendarioIcsAcceso,
     impedimento: () => (haCalendarioEsterno() ? null : t.nessunCalendarioIcs),
     al: () => mostraCalendarioEsterno(!stato.mostraCalendarioEsterno),
+  },
+  // Riscarica i calendari collegati con un indirizzo, come a ogni avvio; poi
+  // rilegge gli eventi. Solo con «Calendario ICS» acceso, accanto a lui.
+  {
+    id: 'calendario.aggiornaIcs',
+    titolo: t.aggiornaIcs,
+    simbolo: 'ricarica',
+    dove: ['calendario'],
+    gruppo: G.calendarioIcs,
+    soloSe: () =>
+      stato.modoCalendario === 'settimana' && stato.editorCalendario && calendarioIcsAcceso(),
+    aiuto: t.aggiornaIcsAiuto,
+    al: async () => {
+      const risposta = await azione({ tipo: 'calendario.aggiornaTutti' })
+      if (risposta.ok) mostraCalendarioEsterno(true)
+    },
   },
   // Le ore che il calendario della scuola ha e il registro no, più le spostate.
   // Solo con «Calendario ICS» acceso; il primo calendario si aggiunge da

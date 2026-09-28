@@ -551,6 +551,16 @@ export async function avvia (
   // I PDF rimasti in una vecchia cassetta si smistano all'accensione.
   if (await archivio.esiste()) void assorbiCassetta(archivio)
 
+  // I calendari ICS collegati con un indirizzo si riscaricano a ogni avvio:
+  // la copia nel documento dice il calendario della scuola di adesso. In
+  // fondo, senza aspettarlo: la rete può essere lenta o assente, e chi non si
+  // legge tiene la copia di prima.
+  if (await archivio.esiste()) {
+    esegui(archivio, { tipo: 'calendario.aggiornaTutti' }, 'programma').catch((errore: unknown) => {
+      console.error('aggiornamento dei calendari ICS all’avvio', errore)
+    })
+  }
+
   const conf = apparato.impostazioni.leggi('registroDocenti')
   // Partenza senza finestra (su richiesta o all'accesso, vedi
   // `environment/systemStartup.ts`), ma solo se c'è l'icona per riaprirlo.

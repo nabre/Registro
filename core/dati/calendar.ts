@@ -23,7 +23,7 @@ const RICORDO_MS = 60_000
 const letti = new Map<string, { quando: number; testo: string }>()
 
 /** Vero se la sorgente è un indirizzo di rete e non un percorso. */
-function sorgenteInRete (sorgente: string): boolean {
+export function sorgenteInRete (sorgente: string): boolean {
   return /^(https?|webcals?):\/\//i.test(sorgente.trim())
 }
 

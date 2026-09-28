@@ -3,7 +3,8 @@
 // un file: la rete qui non serve.
 
 import assert from 'node:assert/strict'
-import { renameSync, writeFileSync } from 'node:fs'
+import { readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:http'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
@@ -291,5 +292,53 @@ describe('più calendari, e toglierli', () => {
     const esito = await api.chiama(archivio, 'calendario.togli', { calendarioId: primo().id })
     assert.equal(esito.ok, true, JSON.stringify(esito).slice(0, 400))
     assert.equal(archivio.registro.impostazioni.calendario, undefined)
+  })
+})
+
+describe('calendario.aggiornaTutti', () => {
+  it('senza calendari in rete non scrive niente: un file si rilegge da sé', async () => {
+    const prima = archivio.revisione
+    const esito = await api.chiama(archivio, 'calendario.aggiornaTutti', {})
+    assert.equal(esito.ok, true, JSON.stringify(esito).slice(0, 400))
+    assert.equal(archivio.revisione, prima)
+  })
+
+  it('riscarica quelli collegati con un indirizzo, e uno che non risponde tiene la copia', async () => {
+    const server = createServer((richiesta, risposta) => {
+      if (richiesta.url === '/orario.ics') {
+        risposta.writeHead(200, { 'content-type': 'text/calendar' })
+        risposta.end(readFileSync(file))
+      } else {
+        risposta.writeHead(404)
+        risposta.end()
+      }
+    })
+    await new Promise((fatto) => server.listen(0, '127.0.0.1', fatto))
+    const { port } = server.address()
+    try {
+      const buono = await api.chiama(archivio, 'calendario.aggiungi', {
+        origine: `http://127.0.0.1:${port}/orario.ics`,
+        nome: 'In rete',
+      })
+      assert.equal(buono.ok, true, JSON.stringify(buono).slice(0, 400))
+      const inRete = () => archivio.registro.impostazioni.calendario.calendari.find((c) => c.nome === 'In rete')
+      const copiaPrima = inRete().copiatoIl
+      // Un orologio che avanza: la nuova copia porta un momento diverso.
+      await new Promise((fatto) => setTimeout(fatto, 5))
+
+      const esito = await api.chiama(archivio, 'calendario.aggiornaTutti', {})
+      assert.equal(esito.ok, true, JSON.stringify(esito).slice(0, 400))
+      assert.notEqual(inRete().copiatoIl, copiaPrima)
+
+      // Il server non lo serve più: resta la copia di prima, con un avviso.
+      server.close()
+      server.closeAllConnections()
+      const copiaBuona = inRete().copiatoIl
+      const fallito = await api.chiama(archivio, 'calendario.aggiornaTutti', {})
+      assert.equal(fallito.ok, true)
+      assert.equal(inRete().copiatoIl, copiaBuona)
+    } finally {
+      server.close()
+    }
   })
 })
