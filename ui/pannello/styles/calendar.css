@@ -352,6 +352,17 @@
 
 .evento-ics--collegato:hover { filter: brightness(1.12); }
 
+/* Il segno delle ore di supplenza, prima del collegamento ICS. */
+.blocco__supplenza {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-left: auto;
+  color: var(--accento);
+}
+
+.blocco__supplenza + .segno-ics { margin-left: 2px; }
+
 .segno-ics {
   display: inline-flex;
   align-items: center;
@@ -409,6 +420,8 @@
 .blocco__classe { font-weight: 600; }
 /* In una colonna stretta si tronca prima la materia: ora e classe sono quel che si cerca. */
 .blocco__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Sotto la classe, nei blocchi abbastanza alti: una riga sua, con i puntini. */
+.blocco__materia--riga { font-size: 0.82em; }
 /* L'aula su una riga sua, sotto classe e materia, con i puntini. */
 .blocco__aula {
   font-size: 0.85em;

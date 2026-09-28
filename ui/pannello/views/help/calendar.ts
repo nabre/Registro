@@ -352,7 +352,7 @@ const FIGURA_TRASCINA: Schema = {
       T.calendarioOre.scritte.modifica,
       T.calendarioOre.scritte.segnaSvolta,
       T.calendarioOre.scritte.annullaLezione,
-      T.calendarioOre.scritte.assegnaPiano,
+      T.calendarioOre.scritte.supplenza,
       T.calendarioOre.scritte.copiaSettimana,
     ].map((voce, i) => testo(414, 44 + i * 23, voce, { corpo: 'piccolo' })),
     testo(414, 182, parole().elimina, { corpo: 'piccolo', tono: 'negativo' }),

@@ -36,6 +36,7 @@ const it = {
     scheda: `Scheda ${del(PIF)}`,
     diario: 'Diario delle lezioni',
     corso: 'Scheda del corso',
+    supplenze: 'Supplenze nel corso',
   },
   colonne: {
     pif: corto(PIF),
@@ -217,6 +218,7 @@ export const testi = catalogo(it, {
       scheda: 'Personenblatt',
       diario: 'Kurstagebuch',
       corso: 'Kursblatt',
+      supplenze: 'Stellvertretungen im Kurs',
     },
     colonne: {
       pif: 'LP',
@@ -374,6 +376,7 @@ export const testi = catalogo(it, {
       scheda: 'Fiche de la personne en formation',
       diario: 'Journal des leçons',
       corso: 'Fiche du cours',
+      supplenze: 'Remplacements dans le cours',
     },
     colonne: {
       pif: 'PeF',
@@ -531,6 +534,7 @@ export const testi = catalogo(it, {
       scheda: 'Learner sheet',
       diario: 'Lesson journal',
       corso: 'Course sheet',
+      supplenze: 'Substitutions in the course',
     },
     colonne: {
       pif: 'Learner',

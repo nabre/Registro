@@ -82,6 +82,18 @@ const it = {
   schedeConto: (persone: number, periodo: string) =>
     `${quanti(persone, PIF)} · una ciascuna · ${periodo}`,
   nessunaPersona: `La classe non ha ${PIF.plurale} attive.`,
+
+  // Del docente
+  supplenze: 'Supplenze',
+  supplenzeAiuto:
+    'le ore tenute al posto di un altro docente: la scheda del corso con quelle sole',
+  oreDiSupplenza: (quante: number, periodo: string) =>
+    `${plurale(quante, 'ora svolta', 'ore svolte')} · ${periodo}`,
+  nessunaSupplenza:
+    'Nessuna supplenza svolta nel periodo scelto. Un’ora si segna come supplenza ' +
+    'modificandola dal calendario.',
+  schedaSupplenze: 'Scheda delle supplenze',
+  nomeSchedaSupplenze: 'la scheda delle supplenze',
   schedaDiPersona: (nome: string) => `la scheda di ${nome}`,
   dettaglioCorso: 'Corso',
   dettaglioDocenteClasse: 'Docente di classe',
@@ -161,6 +173,16 @@ export const testi = catalogo(it, {
     schedeConto: (persone, periodo) =>
       `${persone} Lernende · eines pro Person · ${periodo}`,
     nessunaPersona: 'Die Klasse hat keine aktiven Lernenden.',
+    supplenze: 'Stellvertretungen',
+    supplenzeAiuto:
+      'die Stunden an Stelle einer anderen Lehrperson: das Kursblatt nur mit diesen',
+    oreDiSupplenza: (quante, periodo) =>
+      `${quante} ${quante === 1 ? 'gehaltene Stunde' : 'gehaltene Stunden'} · ${periodo}`,
+    nessunaSupplenza:
+      'Keine gehaltene Stellvertretung im gewählten Zeitraum. Eine Stunde markiert man als ' +
+      'Stellvertretung, indem man sie im Kalender bearbeitet.',
+    schedaSupplenze: 'Blatt der Stellvertretungen',
+    nomeSchedaSupplenze: 'das Blatt der Stellvertretungen',
     schedaDiPersona: (nome) => `das Blatt von ${nome}`,
     dettaglioCorso: 'Kurs',
     dettaglioDocenteClasse: 'Klassenlehrperson',
@@ -238,6 +260,16 @@ export const testi = catalogo(it, {
       `${plurale(persone, 'personne en formation', 'personnes en formation')} · une chacune · ` +
       periodo,
     nessunaPersona: 'La classe n’a pas de personnes en formation actives.',
+    supplenze: 'Remplacements',
+    supplenzeAiuto:
+      'les leçons données à la place d’un autre enseignant : la fiche du cours avec elles seules',
+    oreDiSupplenza: (quante, periodo) =>
+      `${plurale(quante, 'leçon donnée', 'leçons données')} · ${periodo}`,
+    nessunaSupplenza:
+      'Aucun remplacement donné dans la période choisie. Une leçon se marque comme ' +
+      'remplacement en la modifiant depuis le calendrier.',
+    schedaSupplenze: 'Fiche des remplacements',
+    nomeSchedaSupplenze: 'la fiche des remplacements',
     schedaDiPersona: (nome) => `la fiche de ${nome}`,
     dettaglioCorso: 'Cours',
     dettaglioDocenteClasse: 'Maître de classe',
@@ -314,6 +346,16 @@ export const testi = catalogo(it, {
     schedeConto: (persone, periodo) =>
       `${plurale(persone, 'learner', 'learners')} · one each · ${periodo}`,
     nessunaPersona: 'The class has no active learners.',
+    supplenze: 'Substitutions',
+    supplenzeAiuto:
+      'the lessons taught in place of another teacher: the course sheet with those alone',
+    oreDiSupplenza: (quante, periodo) =>
+      `${plurale(quante, 'lesson taught', 'lessons taught')} · ${periodo}`,
+    nessunaSupplenza:
+      'No substitutions taught in the chosen period. A lesson is marked as a substitution ' +
+      'by editing it from the calendar.',
+    schedaSupplenze: 'Substitutions sheet',
+    nomeSchedaSupplenze: 'the substitutions sheet',
     schedaDiPersona: (nome) => `the sheet for ${nome}`,
     dettaglioCorso: 'Course',
     dettaglioDocenteClasse: 'Class teacher',

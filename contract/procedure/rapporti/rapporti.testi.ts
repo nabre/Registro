@@ -11,7 +11,7 @@ const it = {
   },
   genera: {
     titolo: 'Compone un rapporto in PDF e dice dove lo ha messo',
-    genere: 'Quale degli otto fogli',
+    genere: 'Quale foglio',
     id: 'Di che cosa: la lezione, il piano, il corso, la classe, la persona',
     corsoId: 'Solo per la scheda della persona: di quale corso parla',
     semestreId: 'Solo per valutazioni e scheda: il periodo da guardare',
@@ -28,7 +28,7 @@ export const testi = catalogo(it, {
     },
     genera: {
       titolo: 'Erstellt einen Bericht als PDF und sagt, wo er abgelegt wurde',
-      genere: 'Welches der acht Blätter',
+      genere: 'Welches Blatt',
       id: 'Wovon: die Stunde, der Plan, der Kurs, die Klasse, die Person',
       corsoId: 'Nur für das Personenblatt: um welchen Kurs es geht',
       semestreId: 'Nur für Beurteilungen und Personenblatt: der zu betrachtende Zeitraum',
@@ -43,7 +43,7 @@ export const testi = catalogo(it, {
     },
     genera: {
       titolo: 'Compose un rapport en PDF et indique où il l’a mis',
-      genere: 'Laquelle des huit feuilles',
+      genere: 'Quelle feuille',
       id: 'De quoi : la leçon, le plan, le cours, la classe, la personne',
       corsoId: 'Seulement pour la fiche de la personne : de quel cours elle parle',
       semestreId: 'Seulement pour les évaluations et la fiche : la période à considérer',
@@ -58,7 +58,7 @@ export const testi = catalogo(it, {
     },
     genera: {
       titolo: 'Composes a PDF report and says where it put it',
-      genere: 'Which of the eight sheets',
+      genere: 'Which sheet',
       id: 'Of what: the lesson, the plan, the course, the class, the person',
       corsoId: 'Only for the person’s sheet: which course it is about',
       semestreId: 'Only for assessments and the sheet: the period to look at',

@@ -301,7 +301,7 @@ const it = {
       modifica: 'Modifica…',
       segnaSvolta: 'Segna come svolta',
       annullaLezione: 'Annulla la lezione',
-      assegnaPiano: 'Assegna un piano lezione',
+      supplenza: 'Supplenza',
       copiaSettimana: 'Copia alla settimana prossima',
     },
     figure: [
@@ -364,8 +364,8 @@ const it = {
         termine: 'Il tasto destro su una lezione',
         testo:
           'Sempre: **Apri la lezione**, **Segna come svolta** (o **Riporta a pianificata**), ' +
-          '**Annulla la lezione** (o **Non è più annullata**) e le voci del piano — apri, ' +
-          'assegna, cambia, togli. In modifica il tasto destro sceglie l’ora e aggiunge ' +
+          '**Annulla la lezione** (o **Non è più annullata**), **Supplenza** (con la spunta ' +
+          'quando lo è) e **Apri il piano della lezione**, che lo genera se l’ora non ne ha uno. In modifica il tasto destro sceglie l’ora e aggiunge ' +
           'quel che tocca l’orario: **Modifica…** (F2), nella settimana **Allunga** e ' +
           '**Accorcia** di un’unità didattica, **Al giorno prima** e **Al giorno dopo** (← →), ' +
           '**Copia alla settimana prossima** (Ctrl+D) ed **Elimina** (Canc). Su un’ora con la ' +
@@ -1159,7 +1159,7 @@ export const testi = catalogo(it, {
         modifica: 'Bearbeiten…',
         segnaSvolta: 'Als gehalten markieren',
         annullaLezione: 'Als ausgefallen markieren',
-        assegnaPiano: 'Unterrichtsplan zuweisen',
+        supplenza: 'Stellvertretung',
         copiaSettimana: 'In die nächste Woche kopieren',
       },
       figure: [
@@ -1227,8 +1227,9 @@ export const testi = catalogo(it, {
           termine: 'Die rechte Maustaste auf einer Stunde',
           testo:
             'Immer: **Stunde öffnen**, **Als gehalten markieren** (oder **Auf geplant ' +
-            'zurücksetzen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**) ' +
-            'und die Einträge zum Plan — öffnen, zuweisen, wechseln, entfernen. Beim Bearbeiten ' +
+            'zurücksetzen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**), ' +
+            '**Stellvertretung** (mit Häkchen, wenn sie es ist) und **Unterrichtsplan öffnen**, ' +
+            'das einen erzeugt, wenn die Stunde keinen hat. Beim Bearbeiten ' +
             'wählt die rechte Maustaste die Stunde und fügt hinzu, was den Stundenplan ' +
             'betrifft: **Bearbeiten…** (F2), in der Woche **Um eine Lektion verlängern** und ' +
             '**Um eine Lektion kürzen**, **Auf den Vortag** und **Auf den Folgetag** (← →), ' +
@@ -2038,7 +2039,7 @@ export const testi = catalogo(it, {
         modifica: 'Modifier…',
         segnaSvolta: 'Marquer comme donnée',
         annullaLezione: 'Annuler la leçon',
-        assegnaPiano: 'Attribuer un plan de leçon',
+        supplenza: 'Remplacement',
         copiaSettimana: 'Copier à la semaine suivante',
       },
       figure: [
@@ -2104,8 +2105,8 @@ export const testi = catalogo(it, {
           termine: 'Le clic droit sur une leçon',
           testo:
             'Toujours : **Ouvrir la leçon**, **Marquer comme donnée** (ou **Remettre en ' +
-            'prévue**), **Annuler la leçon** (ou **N’est plus annulée**) et les entrées du ' +
-            'plan — ouvrir, attribuer, changer, retirer. En modification, le clic droit choisit ' +
+            'prévue**), **Annuler la leçon** (ou **N’est plus annulée**), **Remplacement** ' +
+            '(coché quand c’en est un) et **Ouvrir le plan de la leçon**, qui en génère un si la leçon n’en a pas. En modification, le clic droit choisit ' +
             'la leçon et ajoute ce qui touche l’horaire : **Modifier…** (F2), dans la semaine ' +
             '**Allonger d’une période** et **Raccourcir d’une période**, **Au jour précédent** ' +
             'et **Au jour suivant** (← →), **Copier à la semaine suivante** (Ctrl+D) et ' +
@@ -2901,7 +2902,7 @@ export const testi = catalogo(it, {
         modifica: 'Edit…',
         segnaSvolta: 'Mark as held',
         annullaLezione: 'Cancel the lesson',
-        assegnaPiano: 'Assign a lesson plan',
+        supplenza: 'Substitution',
         copiaSettimana: 'Copy to next week',
       },
       figure: [
@@ -2966,8 +2967,8 @@ export const testi = catalogo(it, {
           termine: 'Right-click on a lesson',
           testo:
             'Always: **Open the lesson**, **Mark as held** (or **Set back to planned**), ' +
-            '**Cancel the lesson** (or **No longer cancelled**) and the plan items — open, ' +
-            'assign, change, remove. While editing, right-click selects the lesson and adds ' +
+            '**Cancel the lesson** (or **No longer cancelled**), **Substitution** (ticked when ' +
+            'it is one) and **Open the lesson plan**, which generates one if the lesson has none. While editing, right-click selects the lesson and adds ' +
             'what concerns the timetable: **Edit…** (F2), in the week **Lengthen by one ' +
             'period** and **Shorten by one period**, **To the day before** and **To the day ' +
             'after** (← →), **Copy to next week** (Ctrl+D) and **Delete** (Del). On a lesson ' +

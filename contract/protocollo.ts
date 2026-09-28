@@ -592,8 +592,9 @@ export type Azione =
         | 'foto-classe'
         | 'diario'
         | 'corso'
+        | 'supplenze'
     /**
-     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso),
+     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso, supplenze),
      * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova).
      */
     id: string

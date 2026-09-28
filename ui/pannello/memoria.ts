@@ -37,7 +37,7 @@ const TIPI_SOGGETTO: readonly TipoSoggetto[] = [
 // non c'è più si scarta e `state.ts` rimette il predefinito.
 export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'annotazioni'] as const
 export const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as const
-export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni'] as const
+export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni', 'docente'] as const
 export const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const
 export const MODI_CALENDARIO = ['settimana', 'mese', 'anno', 'agenda'] as const
 

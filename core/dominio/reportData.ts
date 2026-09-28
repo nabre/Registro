@@ -720,9 +720,11 @@ export function datiPresenze (
   const classe = classeDelCorsoId(registro, corso.id)
   const periodo = etichettaSemestre(semestre)
 
-  // Ore del periodo senza annullate e UD previste: li conta
-  // `matriceDelCorsoNelPeriodo`, come segnalazioni e CSV.
-  const { lezioni, matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  // I conti (assenze, percentuali, UD) come a schermo e nelle segnalazioni:
+  // `matriceDelCorsoNelPeriodo`, un posto solo. Le ore che si elencano su carta
+  // invece sono solo quelle confermate svolte.
+  const { lezioni: contate, matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  const lezioni = contate.filter((l) => l.stato === 'svolta')
   const totali = matrice.classe
 
   dati.valori = {
@@ -1352,7 +1354,8 @@ export function datiAllievo (
   // un'assenza di mezza mattina da una di tutto il giorno.
   const ore = corsi
     .flatMap((suo) => registroDelCorso(registro, suo.id))
-    .filter((l) => l.stato !== 'annullata' && nelPeriodo(l.data))
+    // Su carta solo le ore confermate svolte: una pianificata non è ancora avvenuta.
+    .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data))
     .sort((a, b) => a.data.localeCompare(b.data))
 
   // Colonne dell'ora più lunga del periodo: le caselle che non esistono
@@ -1441,7 +1444,7 @@ export function datiAllievo (
 
   const daLezioni = corsi
     .flatMap((suo) => registroDelCorso(registro, suo.id))
-    .filter((l) => nelPeriodo(l.data))
+    .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data))
     .flatMap((lezione) =>
       lezione.osservazioni
         .filter((osservazione) => osservazione.allievoId === allievo.id)
@@ -1475,7 +1478,9 @@ export function datiAllievo (
     ...colonne((c) => [c.data, c.corso, c.aspetto, c.comeEAndata, c.annotazione]),
     pesi: [2, 4, 3, 3, 6],
     righe: celleDiAllievo(
-      corsi.flatMap((suo) => registroDelCorso(registro, suo.id)).filter((l) => nelPeriodo(l.data)),
+      corsi
+        .flatMap((suo) => registroDelCorso(registro, suo.id))
+        .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data)),
       allievo.id,
     )
       .reverse()
@@ -1633,9 +1638,11 @@ export function datiDiario (
   const dati = vuoto()
   const classe = classeDelCorsoId(registro, corso.id)
   const lezioni = registroDelCorso(registro, corso.id)
-    .filter((l) => l.stato !== 'annullata' && (!semestre || nelSemestre(semestre, l.data)))
+    // Solo le ore confermate svolte: il diario racconta quel che è stato fatto.
+    .filter((l) => l.stato === 'svolta' && (!semestre || nelSemestre(semestre, l.data)))
     .sort(confrontaLezioni)
 
+  // I totali come a schermo; le righe del diario sono le sole svolte (sopra).
   const { matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
   const totali = matrice.classe
 
@@ -1706,8 +1713,9 @@ export function datiCorso (
   const t = testi()
   const dati = vuoto()
   const classe = classeDelCorsoId(registro, corso.id)
+  // Solo le ore confermate svolte, come nelle parti che la scheda raccoglie.
   const lezioni = registroDelCorso(registro, corso.id)
-    .filter((l) => l.stato !== 'annullata' && (!semestre || nelSemestre(semestre, l.data)))
+    .filter((l) => l.stato === 'svolta' && (!semestre || nelSemestre(semestre, l.data)))
     .sort(confrontaLezioni)
 
   const dp = datiPresenze(registro, corso, semestre)
@@ -1892,5 +1900,45 @@ export function datiCorso (
     dati.tabelle.check = { ...colonne((c) => [c.pif]), righe: [] }
   }
 
+  return dati
+}
+
+/**
+ * La scheda del corso ristretta alle ore tenute come supplente: le stesse
+ * parti, ma contano solo le lezioni segnate `supplenza` e quel che nasce da
+ * loro (prove fatte in quelle ore, consegne date o raccolte lì, piani usati).
+ * Si restringe il registro invece di riscrivere la scheda, così le due non
+ * possono raccontare in due modi diversi.
+ */
+export function datiSupplenze (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+): DatiRapporto {
+  const sue = new Set(
+    registro.lezioni.filter((l) => l.corsoId === corso.id && l.supplenza === true).map((l) => l.id),
+  )
+  const delCorso = (corsoId: string | null) => corsoId === corso.id
+  const ristretto: Registro = {
+    ...registro,
+    lezioni: registro.lezioni.filter((l) => !delCorso(l.corsoId) || sue.has(l.id)),
+    valutazioni: registro.valutazioni.filter(
+      (v) => !delCorso(v.corsoId) || (v.lezioneId !== null && sue.has(v.lezioneId)),
+    ),
+    consegne: (registro.consegne ?? []).filter(
+      (c) =>
+        !delCorso(c.corsoId) ||
+        (c.dataLezioneId !== null && sue.has(c.dataLezioneId)) ||
+        (c.scadenzaLezioneId !== null && sue.has(c.scadenzaLezioneId)),
+    ),
+    // Un piano del corso resta solo se una supplenza l'ha usato.
+    piani: registro.piani.filter(
+      (p) =>
+        !delCorso(p.corsoId) ||
+        registro.lezioni.some((l) => sue.has(l.id) && l.pianoId === p.id),
+    ),
+  }
+  const dati = datiCorso(ristretto, corso, semestre)
+  dati.valori.titolo = testi().titoli.supplenze
   return dati
 }

@@ -39,6 +39,8 @@ const it = {
     'Un riquadro per ogni lezione: verbale, piano e prove di quel giorno',
   allievi: Uno(PIF),
   allieviAiuto: `Dettaglio per il corso e docente di classe per ogni ${PIF.singolare}`,
+  docente: 'Docente',
+  docenteAiuto: 'I fogli miei come docente: le supplenze tenute in questo corso',
 
   // I filtri delle pendenze.
   tutteAiuto: 'Quel che tocca a me e quel che tocca alle classi, insieme',
@@ -74,6 +76,8 @@ export const testi = catalogo(it, {
       'Ein Feld pro Stunde: ihr Protokoll, ihr Plan, die Prüfungen jenes Tages',
     allievi: Uno(lessico.in('de').pif),
     allieviAiuto: 'Detail für den Kurs und Klassenlehrperson pro lernende Person',
+    docente: 'Lehrperson',
+    docenteAiuto: 'Meine Blätter als Lehrperson: die Stellvertretungen in diesem Kurs',
     tutteAiuto: 'Was mich betrifft und was die Klassen betrifft, zusammen',
     mie: 'Meine',
   },
@@ -105,6 +109,8 @@ export const testi = catalogo(it, {
     allievi: Uno(lessico.in('fr').pif),
     allieviAiuto:
       'Détail pour le cours et le maître de classe pour chaque personne en formation',
+    docente: 'Enseignant',
+    docenteAiuto: 'Mes feuilles d’enseignant : les remplacements donnés dans ce cours',
     tutteAiuto: 'Ce qui me revient et ce qui revient aux classes, ensemble',
     mie: 'Les miennes',
   },
@@ -134,6 +140,8 @@ export const testi = catalogo(it, {
       'One box per lesson: its lesson record, its plan, that day’s tests',
     allievi: Uno(lessico.in('en').pif),
     allieviAiuto: 'Detail for course and class teacher for each learner',
+    docente: 'Teacher',
+    docenteAiuto: 'My sheets as a teacher: the substitutions taught in this course',
     tutteAiuto: 'What is mine to do and what is the classes’, together',
     mie: 'Mine',
   },
