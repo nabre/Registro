@@ -116,9 +116,19 @@ function comuni (
     generato: formattaData(oggi()),
     sede: carta.sede,
     docente: intestazione.docente,
+    'docente.appellativo': intestazione.docenteAppellativo ?? '',
+    'docente.nome': intestazione.docenteNome ?? '',
+    'docente.cognome': intestazione.docenteCognome ?? '',
+    'docente.completo':
+      [intestazione.docenteAppellativo, intestazione.docenteNome, intestazione.docenteCognome]
+        .filter(Boolean)
+        .join(' ') || intestazione.docente,
     [CHIAVE_CARTA]: carta.id,
   }
 }
+
+/** Esportata per le prove o l'accesso diretto ai valori comuni dell'intestazione. */
+export const valoriComuni = comuni
 
 /**
  * La chiave dei valori con l'id della carta intestata: non si stampa, ma dice

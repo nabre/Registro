@@ -51,6 +51,12 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return testi().passi[3]
     },
   },
+  {
+    a: 4,
+    get cambia () {
+      return testi().passi[4]
+    },
+  },
 ]
 
 /** Com'è andata la lettura di un documento: da che versione, a quale, con quali passi. */

@@ -113,6 +113,9 @@ const IMPOSTAZIONI = oggetto({
       }),
     }), { aiuto: () => t().carte }),
     docente: testo({ aiuto: () => t().docente }),
+    docenteAppellativo: opzionale(testo()),
+    docenteNome: opzionale(testo()),
+    docenteCognome: opzionale(testo()),
     firma: opzionale(testo({
       aiuto: () => t().firma,
     })),

@@ -2781,6 +2781,52 @@
       }
     },
     {
+      "nome": "classi.modifica",
+      "funzione": "classi_modifica",
+      "genere": "scrittura",
+      "titolo": "Modifica uno o più campi di una classe senza toccare gli altri",
+      "idempotente": true,
+      "collezioni": [
+        "classi"
+      ],
+      "riga": "regi chiama classi.modifica --classeId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "classeId": {
+            "type": "string",
+            "description": "La classe da modificare",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nuovo nome o sigla della classe"
+          },
+          "colore": {
+            "type": "string",
+            "description": "Colore della classe nel calendario, in esadecimale"
+          },
+          "note": {
+            "type": "string",
+            "description": "Note o promemoria sulla classe"
+          },
+          "docenteDiClasse": {
+            "type": "boolean",
+            "description": "Se chi tiene il registro ne è docente di classe"
+          },
+          "archiviata": {
+            "type": "boolean",
+            "description": "Vero per archiviare la classe; di norma resta fuori dall’elenco attivo"
+          }
+        },
+        "required": [
+          "classeId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
       "nome": "classi.salva",
       "funzione": "classi_salva",
       "genere": "scrittura",
@@ -4569,6 +4615,15 @@
                   "docente": {
                     "type": "string",
                     "description": "Chi firma, in fondo a ogni pagina, qualunque carta. Vuoto, resta il resto del piede"
+                  },
+                  "docenteAppellativo": {
+                    "type": "string"
+                  },
+                  "docenteNome": {
+                    "type": "string"
+                  },
+                  "docenteCognome": {
+                    "type": "string"
                   },
                   "firma": {
                     "type": "string",

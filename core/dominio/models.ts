@@ -1197,6 +1197,12 @@ export interface Intestazione {
   carte: CartaIntestata[]
   /** Chi firma, in fondo a sinistra di ogni pagina: una persona sola, qualunque carta. */
   docente: string
+  /** Titolo o appellativo del docente: Prof., Prof.ssa, Ing., Maestro, ecc. */
+  docenteAppellativo?: string
+  /** Nome proprio del docente. */
+  docenteNome?: string
+  /** Cognome del docente. */
+  docenteCognome?: string
   /**
    * La firma delle e-mail in HTML, quando non è quella di serie (che usa il
    * nome qui sopra e la scuola della prima carta).
@@ -1332,7 +1338,7 @@ export interface Registro {
  * `migrationVersion.test.mjs`, `upgrades.test.mjs`, `formatUpgrade.test.mjs`.
  * Vedi la skill `formato`.
  */
-export const VERSIONE_DATI = 3
+export const VERSIONE_DATI = 4
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

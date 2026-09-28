@@ -57,6 +57,8 @@ const it = {
   nessunPianoTesto:
     'Un piano tiene obiettivi e scaletta con i tempi, e appartiene alla lezione per cui ' +
     'lo si prepara. Si comincia da una lezione senza scaletta, nell’elenco qui accanto.',
+  nessunPianoLezione: (nome: string) =>
+    `La lezione ${nome} non ha ancora un piano. Creane uno per stabilire gli obiettivi e la scaletta delle attività.`,
   strumentiCollegati: 'Pendenze e Check del corso',
   spazioInScaletta: 'inserisci attività nella scaletta per evaderle durante l’ora',
   pendenzeDelCorso: 'Pendenze da evadere',
@@ -114,6 +116,8 @@ export const testi = catalogo(it, {
     nessunPianoTesto:
       'Ein Plan enthält Ziele und Ablauf mit den Zeiten und gehört zu der Stunde, für die man ' +
       'ihn vorbereitet. Man beginnt bei einer Stunde ohne Ablauf, in der Liste daneben.',
+    nessunPianoLezione: (nome) =>
+      `Die Stunde ${nome} hat noch keinen Plan. Erstelle einen, um Ziele und Ablauf festzulegen.`,
     strumentiCollegati: 'Pendenzen und Checks des Kurses',
     spazioInScaletta: 'Aktivitäten in den Ablauf einfügen, um sie während der Stunde zu erledigen',
     pendenzeDelCorso: 'Zu erledigende Pendenzen',
@@ -174,6 +178,8 @@ export const testi = catalogo(it, {
       'Un plan contient les objectifs et le déroulement avec les temps, et il appartient à ' +
       'la leçon pour laquelle on le prépare. On commence par une leçon sans déroulement, dans la ' +
       'liste ci-contre.',
+    nessunPianoLezione: (nome) =>
+      `La leçon ${nome} n’a pas encore de plan. Crées-en un pour définir les objectifs et le déroulement.`,
     strumentiCollegati: 'Tâches en suspens et checks du cours',
     spazioInScaletta: 'insérer des activités dans le déroulement pour les traiter pendant l’heure',
     pendenzeDelCorso: 'Tâches en suspens à traiter',
@@ -233,6 +239,8 @@ export const testi = catalogo(it, {
     nessunPianoTesto:
       'A plan holds objectives and an outline with timings, and belongs to the lesson you ' +
       'prepare it for. Start from a lesson without an outline, in the list alongside.',
+    nessunPianoLezione: (nome) =>
+      `The lesson ${nome} has no plan yet. Create one to set objectives and the outline.`,
     strumentiCollegati: 'Pending items and checks of the course',
     spazioInScaletta: 'insert activities into the plan to address them during the lesson',
     pendenzeDelCorso: 'Pending items to clear',

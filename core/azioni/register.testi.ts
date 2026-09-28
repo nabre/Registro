@@ -46,6 +46,8 @@ const it = {
   senzaAnnoPerImport: 'Non c’è un anno aperto in cui portare qualcosa.',
   nienteScelto: 'Non si è scelto niente da portare.',
   nessunoNelTesto: `Nessuna ${PIF.singolare} riconosciuta nel testo incollato.`,
+  nomeObbligatorio: 'Il nome è obbligatorio.',
+  nomeGiaUsato: (nome: string) => `C’è già una classe chiamata «${nome}».`,
 }
 
 export const testi = catalogo(it, {
@@ -92,6 +94,8 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'Es ist kein Schuljahr geöffnet, in das etwas kommen könnte.',
     nienteScelto: 'Es wurde nichts zum Übernehmen ausgewählt.',
     nessunoNelTesto: 'Im eingefügten Text wurden keine Lernenden erkannt.',
+    nomeObbligatorio: 'Der Name ist obligatorisch.',
+    nomeGiaUsato: (nome) => `Es gibt bereits eine Klasse namens «${nome}».`,
   },
   fr: {
     senzaCartella: 'Il n’y a pas de dossier où créer la nouvelle année.',
@@ -136,6 +140,8 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'Aucune année n’est ouverte pour y amener quoi que ce soit.',
     nienteScelto: 'Rien n’a été choisi à reprendre.',
     nessunoNelTesto: 'Aucune personne en formation reconnue dans le texte collé.',
+    nomeObbligatorio: 'Le nom est obligatoire.',
+    nomeGiaUsato: (nome) => `Il y a déjà une classe appelée « ${nome} ».`,
   },
   en: {
     senzaCartella: 'There’s no folder to create the new year in.',
@@ -178,5 +184,7 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'There’s no open year to bring anything into.',
     nienteScelto: 'Nothing was chosen to bring over.',
     nessunoNelTesto: 'No learner recognised in the pasted text.',
+    nomeObbligatorio: 'Name is required.',
+    nomeGiaUsato: (nome) => `There is already a class named “${nome}”.`,
   },
 })

@@ -44,7 +44,9 @@ import {
   creaValutazione,
   mediaAllievo,
   normalizzaImpostazioni,
+  normalizzaIntestazione,
   normalizzaValutazione,
+  valoriComuni,
   notaFineSemestre,
   validaValutazione,
   prossimaLezione,
@@ -999,5 +1001,77 @@ describe('la nota di fine semestre', () => {
     assert.equal(normalizzaImpostazioni({ passoFineSemestre: 99 }).passoFineSemestre, 10)
     // Scritto a mano, in italiano.
     assert.equal(normalizzaImpostazioni({ passoFineSemestre: '0,5' }).passoFineSemestre, 0.5)
+  })
+})
+
+describe('dati strutturati del docente e integrazione documenti', () => {
+  it('normalizza i dati anagrafici del docente e compone docente se vuoto', () => {
+    const intestazione = normalizzaIntestazione({
+      docenteAppellativo: '  Prof.  ',
+      docenteNome: ' Mario ',
+      docenteCognome: ' Rossi ',
+    })
+    assert.equal(intestazione.docenteAppellativo, 'Prof.')
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+    assert.equal(intestazione.docente, 'Prof. Mario Rossi')
+  })
+
+  it('mantiene piena retrocompatibilità con docente stringa se i campi strutturati mancano', () => {
+    const intestazione = normalizzaIntestazione({
+      docente: 'Docente Storico',
+    })
+    assert.equal(intestazione.docente, 'Docente Storico')
+    assert.equal(intestazione.docenteAppellativo, undefined)
+    assert.equal(intestazione.docenteNome, undefined)
+    assert.equal(intestazione.docenteCognome, undefined)
+  })
+
+  it('preserva docente se già valorizzato anche in presenza di nome o cognome', () => {
+    const intestazione = normalizzaIntestazione({
+      docente: 'Firma Speciale',
+      docenteNome: 'Mario',
+      docenteCognome: 'Rossi',
+    })
+    assert.equal(intestazione.docente, 'Firma Speciale')
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+  })
+
+  it('espone i segnaposto docente, docente.appellativo, docente.nome, docente.cognome, docente.completo', () => {
+    const reg = normalizzaRegistro({
+      impostazioni: {
+        intestazione: {
+          carte: [{ id: 'car-1', sede: 'Scuola', corsi: [] }],
+          docenteAppellativo: 'Prof.ssa',
+          docenteNome: 'Maria',
+          docenteCognome: 'Bianchi',
+          docente: 'Prof.ssa Maria Bianchi',
+        },
+      },
+    })
+    const dati = valoriComuni(reg, 'Titolo', 'Semestre 1', [])
+    assert.equal(dati.docente, 'Prof.ssa Maria Bianchi')
+    assert.equal(dati['docente.appellativo'], 'Prof.ssa')
+    assert.equal(dati['docente.nome'], 'Maria')
+    assert.equal(dati['docente.cognome'], 'Bianchi')
+    assert.equal(dati['docente.completo'], 'Prof.ssa Maria Bianchi')
+  })
+
+  it('docente.completo ripiega su docente quando i campi strutturati non sono valorizzati', () => {
+    const reg = normalizzaRegistro({
+      impostazioni: {
+        intestazione: {
+          carte: [{ id: 'car-1', sede: 'Scuola', corsi: [] }],
+          docente: 'Mario Rossi',
+        },
+      },
+    })
+    const dati = valoriComuni(reg, 'Titolo', 'Semestre 1', [])
+    assert.equal(dati.docente, 'Mario Rossi')
+    assert.equal(dati['docente.appellativo'], '')
+    assert.equal(dati['docente.nome'], '')
+    assert.equal(dati['docente.cognome'], '')
+    assert.equal(dati['docente.completo'], 'Mario Rossi')
   })
 })

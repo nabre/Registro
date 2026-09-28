@@ -1,5 +1,5 @@
 {
-  "versione": 3,
+  "versione": 4,
   "campi": [
     "anni",
     "anni[].cartella",
@@ -223,6 +223,9 @@
     "impostazioni.intestazione.carte[].logo",
     "impostazioni.intestazione.carte[].sede",
     "impostazioni.intestazione.docente",
+    "impostazioni.intestazione.docenteAppellativo",
+    "impostazioni.intestazione.docenteCognome",
+    "impostazioni.intestazione.docenteNome",
     "impostazioni.intestazione.firma",
     "impostazioni.intestazione.vecchiaCartellaVista",
     "impostazioni.liste",

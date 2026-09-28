@@ -1145,6 +1145,12 @@ function rigaIntestazione (valore: unknown): string {
   return typeof valore === 'string' ? valore.replace(/\s+/g, ' ').trim().slice(0, 200) : ''
 }
 
+/** Un campo di testo facoltativo per l'intestazione: stringa non vuota o undefined. */
+function testoOSenza (valore: unknown): string | undefined {
+  const pulito = rigaIntestazione(valore)
+  return pulito || undefined
+}
+
 /**
  * Una carta intestata dal file. Il logo passa solo se è un'immagine dentro il
  * documento (un nome che finisce a un lettore di file non deve uscirne);
@@ -1190,9 +1196,21 @@ export function normalizzaIntestazione (grezzo: unknown): Intestazione {
   const firma = typeof dati.firma === 'string' && dati.firma.trim() !== ''
     ? dati.firma.slice(0, 50_000)
     : undefined
+
+  const docenteAppellativo = testoOSenza(dati.docenteAppellativo)
+  const docenteNome = testoOSenza(dati.docenteNome)
+  const docenteCognome = testoOSenza(dati.docenteCognome)
+  let docente = rigaIntestazione(dati.docente)
+  if (!docente && (docenteNome || docenteCognome)) {
+    docente = [docenteAppellativo, docenteNome, docenteCognome].filter(Boolean).join(' ')
+  }
+
   return {
     carte: carte.length > 0 ? carte : [cartaVuota('car-prima')],
-    docente: rigaIntestazione(dati.docente),
+    docente,
+    ...(docenteAppellativo ? { docenteAppellativo } : {}),
+    ...(docenteNome ? { docenteNome } : {}),
+    ...(docenteCognome ? { docenteCognome } : {}),
     ...(firma ? { firma } : {}),
     ...(dati.vecchiaCartellaVista === true ? { vecchiaCartellaVista: true } : {}),
   }

@@ -395,6 +395,25 @@ export const registro = {
     return nuova ? { ok: true, creato: { id: classe.id } } : fatto
   },
 
+  'classe.modifica': (contesto, azione) => {
+    if (azione.nome !== undefined) {
+      const nome = azione.nome.trim()
+      if (!nome) return rifiuta(testi().nomeObbligatorio)
+      const duplicato = contesto.registro.classi.find(
+        (c) => c.id !== azione.classeId && c.nome.toLowerCase() === nome.toLowerCase(),
+      )
+      if (duplicato) return rifiuta(testi().nomeGiaUsato(nome))
+    }
+    return contesto.suVoce('classi', azione.classeId, (classe) => {
+      if (azione.nome !== undefined) classe.nome = azione.nome.trim()
+      if (azione.colore !== undefined) classe.colore = azione.colore
+      if (azione.note !== undefined) classe.note = azione.note
+      if (azione.docenteDiClasse !== undefined) classe.docenteDiClasse = azione.docenteDiClasse
+      if (azione.archiviata !== undefined) classe.archiviata = azione.archiviata
+      classe.aggiornataIl = istanteAdesso()
+    })
+  },
+
   // Con la classe se ne vanno corsi, ore, voti e fascicolo.
   'classe.elimina': (contesto, azione) => {
     return contesto.elimina({ genere: 'classe', id: azione.classeId })

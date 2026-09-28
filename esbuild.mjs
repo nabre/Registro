@@ -87,7 +87,7 @@ function uuidDiElectronBuilder (nome) {
  */
 function copiaCaratteriPdf (dove) {
   mkdirSync(dove, { recursive: true })
-  cpSync('node_modules/pdfjs-dist/standard_fonts', dove, { recursive: true })
+  cpSync('resources/pdf-fonts', dove, { recursive: true })
 }
 
 const test = process.argv.includes('--test')

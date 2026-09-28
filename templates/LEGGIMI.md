@@ -463,9 +463,14 @@ intestazioni seguite dal nulla. Anche una `sezione:` sparisce se sotto di lei
 non è rimasto niente.
 
 Disponibili ovunque: `{{titolo}}`, `{{anno}}`, `{{classe}}`, `{{materia}}`,
-`{{corso}}` (classe e materia insieme), `{{generato}}`. In intestazione e piede
-anche `{{pagina}}` e `{{pagine}}` — e dentro le frasi che la banda richiama:
-`{{frase.pagina-di-pagine}}` è «pagina {{pagina}} di {{pagine}}».
+`{{corso}}` (classe e materia insieme), `{{generato}}`. I dati
+dell’intestazione del documento offrono la scuola con `{{sede}}` e il docente
+con `{{docente}}` (la firma per esteso). Per comporre la firma o l’intestazione
+sono disponibili anche i campi strutturati: `{{docente.appellativo}}`,
+`{{docente.nome}}`, `{{docente.cognome}}`, e `{{docente.completo}}`
+(l’unione dei tre o, in loro assenza, la stringa `{{docente}}`). In intestazione
+e piede anche `{{pagina}}` e `{{pagine}}` — e dentro le frasi che la banda
+richiama: `{{frase.pagina-di-pagine}}` è «pagina {{pagina}} di {{pagine}}».
 
 I valori li scrive il registro nella lingua in cui stampa: `{{titolo}}` è
 «Verbale della lezione» o «Unterrichtsprotokoll», `{{periodo}}` è «anno intero»

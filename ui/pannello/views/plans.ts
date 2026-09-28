@@ -235,22 +235,7 @@ function voceDiLezione (
       {
         class: ['voce-laterale', 'voce-laterale--vuota', isAttivo && 'voce-laterale--attiva'],
         type: 'button',
-        // Senza piano, il clic lo crea e apre l'editor; riusarne uno si fa dal
-        // calendario, dal registro dell'ora o da «Duplica».
-        // `conAttesa` perché questo `button` scritto a mano resterebbe premibile mentre
-        // la scaletta nasce, e un secondo clic farebbe fallire un'altra `piano.perLezione`.
-        onclick: (evento: MouseEvent) => {
-          const tasto = evento.currentTarget as HTMLButtonElement
-          void conAttesa(
-            tasto,
-            azione({ tipo: 'piano.perLezione', lezioneId: lezione.id }).then((risposta) => {
-              if (risposta.ok && risposta.creato) {
-                notifica(testi().pianoGenerato, 'successo')
-                aggiorna({ pianoId: risposta.creato.id, lezioneId: lezione.id })
-              }
-            }),
-          )
-        },
+        onclick: () => aggiorna({ pianoId: null, lezioneId: lezione.id }),
       },
       h(
         'span',
@@ -330,16 +315,7 @@ function navigatoreLezioniCorso (
   const vaiA = (indice: number) => {
     const bersaglio = sorelle[indice]
     if (!bersaglio) return
-    if (bersaglio.pianoId) {
-      aggiorna({ pianoId: bersaglio.pianoId, lezioneId: bersaglio.id })
-    } else {
-      void azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id }).then((risposta) => {
-        if (risposta.ok && risposta.creato) {
-          notifica(t.pianoGenerato, 'successo')
-          aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
-        }
-      })
-    }
+    aggiorna({ pianoId: bersaglio.pianoId ?? null, lezioneId: bersaglio.id })
   }
 
   const primaDaFare = senzaPiano[0] ?? null
@@ -870,9 +846,8 @@ export function pianoMostrato (): PianoLezione | null {
     }
     if (stato.lezioneId) {
       const l = lezionePerId(stato.lezioneId)
-      if (l && l.corsoId === corso.id && l.pianoId) {
-        const p = pianoPerId(l.pianoId)
-        if (p) return p
+      if (l && l.corsoId === corso.id) {
+        return l.pianoId ? (pianoPerId(l.pianoId) ?? null) : null
       }
     }
     const delCorso = [
@@ -898,9 +873,6 @@ export function primaOraDelPiano (piano: PianoLezione): Lezione | null {
   )
 }
 
-let generazioneInCorso = false
-let tentataGenerazioneId: string | null = null
-
 export function vistaPiani (): Figlio {
   const anno = annoCorrente()
   if (!anno) {
@@ -921,35 +893,14 @@ export function vistaPiani (): Figlio {
     sorelle[0] ??
     null
 
-  // Se non c'è ancora un piano per questo corso, ma ci sono lezioni, auto-generiamo
-  // il piano per la prima lezione da preparare quando si entra nella vista
-  if (!piano && sorelle.length > 0 && !generazioneInCorso) {
-    const bersaglio = (lezioneAttiva && !lezioneAttiva.pianoId)
-      ? lezioneAttiva
-      : sorelle.find((l) => !l.pianoId) ?? sorelle[0]
-    if (bersaglio && !bersaglio.pianoId && tentataGenerazioneId !== bersaglio.id) {
-      generazioneInCorso = true
-      tentataGenerazioneId = bersaglio.id
-      void azione({ tipo: 'piano.perLezione', lezioneId: bersaglio.id })
-        .then((risposta) => {
-          generazioneInCorso = false
-          if (risposta.ok && risposta.creato) {
-            tentataGenerazioneId = null
-            notifica(testi().pianoGenerato, 'successo')
-            aggiorna({ pianoId: risposta.creato.id, lezioneId: bersaglio.id })
-          }
-        })
-        .catch(() => {
-          generazioneInCorso = false
-        })
-    }
-  }
-
   // Le ore che aspettano ancora una scaletta, contate in testata.
   const daPreparare = gruppi.reduce(
     (somma, g) => somma + g.lezioni.filter((l) => !l.pianoId).length,
     0,
   )
+  const bersaglio: Lezione | null =
+    (stato.lezioneId && lezioneAttiva && !lezioneAttiva.pianoId ? lezioneAttiva : null) ??
+    (sorelle.length > 0 ? sorelle.find((l) => !l.pianoId) ?? sorelle[0] ?? null : null)
   const t = testi()
   return h(
     'div',
@@ -976,16 +927,17 @@ export function vistaPiani (): Figlio {
             statoVuoto({
               simbolo: 'piano',
               titolo: t.nessunPiano,
-              testo: t.nessunPianoTesto,
-              azione: sorelle.length > 0
+              testo:
+                stato.lezioneId && lezioneAttiva && !lezioneAttiva.pianoId
+                  ? t.nessunPianoLezione(nomeDiLezione(lezioneAttiva))
+                  : t.nessunPianoTesto,
+              azione: bersaglio
                 ? [
                     pulsante({
                       testo: t.generaPiano,
                       variante: 'primario',
                       simbolo: 'bacchetta',
                       al: (evento) => {
-                        const bersaglio = sorelle.find((l) => !l.pianoId) ?? sorelle[0]
-                        if (!bersaglio) return
                         const tasto = evento.currentTarget as HTMLButtonElement
                         void conAttesa(
                           tasto,

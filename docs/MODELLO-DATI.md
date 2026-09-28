@@ -812,7 +812,10 @@ Del documento, dell'anno in uso (ADR-21). Chiavi del programma: CATALOGO § 5.
 | campo | tipo | nota |
 |---|---|---|
 | `carte` | `CartaIntestata[]` | almeno una; la prima è la predefinita |
-| `docente` | `string` | chi firma (`{{docente}}`) |
+| `docente` | `string` | chi firma (`{{docente}}`, retrocompatibile) |
+| `docenteAppellativo?` | `string` | Prof., Ing., Maestro… (`{{docente.appellativo}}`) |
+| `docenteNome?` | `string` | nome proprio (`{{docente.nome}}`) |
+| `docenteCognome?` | `string` | cognome (`{{docente.cognome}}`) |
 | `firma?` | `string` | HTML delle e-mail (≤ 50 000 caratteri); assente = quella di serie |
 | `vecchiaCartellaVista?` | `true` | la vecchia `templates/` accanto è già stata letta |
 
@@ -1111,13 +1114,14 @@ Chi modifica dichiara le collezioni toccate e si riscrivono solo quelle
 (anche `eliminazione()` le restituisce). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 3`
+### 8.2 `VERSIONE_DATI = 4`
 
 La versione dello schema JSON (`registro.json.versione`).
 
 La prima forma pubblica comprende già l'intero modello descritto in questo
 documento. Le versioni successive introducono estensioni progressive con passi
-del formato (v2 per `allievo.iscrittoIl`, v3 per `consegna.docenteDiClasse`).
+del formato (v2 per `allievo.iscrittoIl`, v3 per `consegna.docenteDiClasse`, v4
+per i dati strutturati del docente `docenteAppellativo`, `docenteNome`, `docenteCognome`).
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento

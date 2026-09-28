@@ -53,7 +53,10 @@ async function servitore (rispondi) {
   })
   await new Promise((pronto) => server.listen(0, '127.0.0.1', pronto))
   conto.uri = `http://127.0.0.1:${server.address().port}/pacco.bin`
-  conto.chiudi = () => { server.close() }
+  conto.chiudi = () => {
+    server.closeAllConnections?.()
+    server.close()
+  }
   return conto
 }
 
