@@ -8,6 +8,8 @@
 // - un nodo di telaio resta, e con lui un bottone senza chiave che il disegno
 //   porta uguale: tutti e due rispondono con i gestori del disegno nuovo, non
 //   con quelli del primo;
+// - un pulsante col fuoco tiene i figli uguali e prende il testo nuovo: un
+//   ridisegno fra `mousedown` e `mouseup` non perde il clic;
 // - una scatola che scorre resta dov'era anche senza la catena di telaio e
 //   senza `ripristinaScorrimenti`: il nodo è lo stesso;
 // - il campo in cui si scrive tiene fuoco, selezione e quel che c'è scritto,
@@ -138,6 +140,44 @@ test('telaio_e_nodi_riusati_prendono_i_gestori_nuovi', async ({ page }) => {
   })
   // Il clic sale dal bottone al telaio: i due gestori, entrambi del secondo disegno.
   expect(esito).toEqual({ stessi: true, colpi: ['bottone 2', 'telaio 2'] })
+  expect(errori).toEqual([])
+})
+
+test('pulsante_col_fuoco_tiene_i_figli_e_il_clic', async ({ page }) => {
+  const errori = await pagina(page)
+  await page.evaluate(() => {
+    const { h, aggiornaElemento } = (window as unknown as { dom: Dom }).dom
+    const radice = document.getElementById('radice') as HTMLElement
+    const colpi: string[] = []
+    const disegno = (giro: number) => h(
+      'button',
+      { type: 'button', style: 'width:200px;height:40px', onclick: () => colpi.push(`giro ${giro}`) },
+      h('span', { class: 'icona' }, '●'),
+      h('span', { class: 'nome' }, `giro ${giro}`),
+    )
+    Object.assign(window, { colpi, disegna: (g: number) => aggiornaElemento(radice, disegno(g)) })
+    ;(window as unknown as { disegna: (g: number) => void }).disegna(1)
+  })
+  const bottone = page.locator('#radice button')
+  const r = await bottone.boundingBox()
+  if (!r) throw new Error('il pulsante non si vede')
+  // Il `mousedown` sull'icona dà il fuoco; un ridisegno prima del `mouseup`
+  // (l'orologio, una spinta dell'host) non deve staccare il nodo sotto il puntatore.
+  await page.mouse.move(r.x + 8, r.y + r.height / 2)
+  await page.mouse.down()
+  const prima = await page.evaluate(() => {
+    const icona = document.querySelector('#radice .icona')
+    ;(window as unknown as { disegna: (g: number) => void }).disegna(2)
+    return {
+      fuoco: document.activeElement?.tagName,
+      stessa: document.querySelector('#radice .icona') === icona,
+      nome: document.querySelector('#radice .nome')?.textContent,
+    }
+  })
+  await page.mouse.up()
+  expect(prima).toEqual({ fuoco: 'BUTTON', stessa: true, nome: 'giro 2' })
+  expect(await page.evaluate(() => (window as unknown as { colpi: string[] }).colpi))
+    .toEqual(['giro 2'])
   expect(errori).toEqual([])
 })
 

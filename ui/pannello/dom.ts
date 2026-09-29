@@ -399,11 +399,18 @@ function trasforma (contenitore: HTMLElement, albero: Node): void {
   if (albero instanceof Element || albero instanceof DocumentFragment) segnaChiavi(albero, true)
   /** I nodi vecchi rimpiazzati da un nodo con chiave: si tolgono a lavoro finito. */
   const daTogliere: ChildNode[] = []
+  // Col fuoco `idiomorph` (`ignoreActiveValue`) non tocca i figli: giusto per un
+  // campo in cui si scrive, sbagliato per un pulsante, che dopo la scelta da una
+  // tendina terrebbe il testo di prima. Rifarne i figli per intero, però, stacca
+  // il nodo sotto il puntatore: un ridisegno fra `mousedown` (che dà il fuoco) e
+  // `mouseup` perderebbe il clic. Allora l'eccezione vale solo per i campi.
+  const attivo = document.activeElement
+  const ignoraAttivo = attivo instanceof HTMLElement && campoDaScrivere(attivo)
   try {
     // Senza `head` da aspettare, `morph` finisce qui: la promessa del tipo non c'è.
     void conNodiVeri(() => Idiomorph.morph(contenitore, albero, {
       morphStyle: 'innerHTML',
-      ignoreActiveValue: true,
+      ignoreActiveValue: ignoraAttivo,
       callbacks: {
         beforeNodeMorphed (vecchio, nuovo) {
           if (rimpiazzaSenzaChiave(vecchio, nuovo)) {
@@ -417,15 +424,6 @@ function trasforma (contenitore: HTMLElement, albero: Node): void {
             return false
           }
           passaGestori(vecchio, nuovo)
-          // Col fuoco `idiomorph` (`ignoreActiveValue`) non tocca i figli: giusto
-          // per un campo in cui si scrive, sbagliato per un pulsante, che dopo la
-          // scelta da una tendina terrebbe il testo di prima. Lo si rifà qui.
-          if (vecchio === document.activeElement && vecchio instanceof HTMLElement &&
-            nuovo instanceof HTMLElement && !campoDaScrivere(vecchio)) {
-            copiaAttributi(vecchio, nuovo)
-            vecchio.replaceChildren(...Array.from(nuovo.childNodes))
-            return false
-          }
           // Proprietà senza attributo: `idiomorph` non la vede.
           if (vecchio instanceof HTMLInputElement && nuovo instanceof HTMLInputElement) {
             vecchio.indeterminate = nuovo.indeterminate
