@@ -38,3 +38,6 @@ tabella: recuperi
 # cui lo si è ridistribuito, chi mancava no.
 sezione: {{frase.da-ridare}}
 tabella: daRidare
+
+sezione: {{frase.check}}
+tabella: check

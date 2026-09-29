@@ -50,7 +50,10 @@ export function cartaDelCorso (intestazione: Intestazione, corsoId: string | nul
  * La carta di un foglio con più corsi (fascicolo o foto di classe): quella
  * comune a tutti, altrimenti la prima.
  */
-export function cartaDeiCorsi (intestazione: Intestazione, corsiIds: readonly string[]): CartaIntestata {
+export function cartaDeiCorsi (
+  intestazione: Intestazione,
+  corsiIds: readonly string[],
+): CartaIntestata {
   const carte = new Set(corsiIds.map((id) => cartaDelCorso(intestazione, id).id))
   if (carte.size === 1) {
     const [unica] = carte
@@ -72,7 +75,9 @@ export function spostaCorsi (
   const muovi = new Set(corsiIds)
   return carte.map((carta) => {
     const restano = carta.corsi.filter((id) => !muovi.has(id))
-    return carta.id === cartaId ? { ...carta, corsi: [...restano, ...corsiIds] } : { ...carta, corsi: restano }
+    return carta.id === cartaId
+      ? { ...carta, corsi: [...restano, ...corsiIds] }
+      : { ...carta, corsi: restano }
   })
 }
 

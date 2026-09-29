@@ -136,7 +136,10 @@ export function registroVuoto (): Registro {
       scala: { ...SCALA_PREDEFINITA },
       intestazione: {
         ...IMPOSTAZIONI_PREDEFINITE.intestazione,
-        carte: IMPOSTAZIONI_PREDEFINITE.intestazione.carte.map((carta) => ({ ...carta, corsi: [] })),
+        carte: IMPOSTAZIONI_PREDEFINITE.intestazione.carte.map((carta) => ({
+          ...carta,
+          corsi: [],
+        })),
       },
     },
   }
@@ -318,6 +321,7 @@ export function creaConsegna (
   testo: string,
   data: Iso,
   lezioneId: string | null = null,
+  docenteDiClasse = false,
 ): Consegna {
   return {
     id: nuovoIdConsegna(),
@@ -331,6 +335,7 @@ export function creaConsegna (
     scadenzaLezioneId: null,
     scadenza: null,
     note: '',
+    docenteDiClasse,
     fatte: [],
     // Gli stessi valori della normalizzazione: nata qui o riletta dopo un
     // riavvio, la consegna scrive alle stesse persone.

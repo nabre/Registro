@@ -17,9 +17,9 @@ import { Uri } from '../../core/apparato/uri.js'
 import { eUnPannello } from './windows.js'
 import { executeCommand, openExternal } from './commands.js'
 import { statoAggiornamenti } from './updates.js'
-import { limita } from '.../../../core/dominio/calculations.js'
-import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '.../../../core/dominio/upgrades.js'
-import { parole } from '.../../../core/dominio/words.testi.js'
+import { limita } from '../../core/dominio/calculations.js'
+import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '../../core/dominio/upgrades.js'
+import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './dialogs.testi.js'
 
 // ------------------------------------------------------------------ le forme
@@ -214,7 +214,7 @@ export async function chiediMessaggio (voce: Messaggio): Promise<number | null> 
   const parametri: ParametriDialogo = {
     tipo: 'messaggio',
     // testo-fisso: il marchio non si traduce
-    titolo: voce.titolo ?? 'Regiclass',
+    titolo: voce.titolo ?? 'Regiklass',
     livello: voce.livello,
     messaggio: voce.messaggio,
     dettaglio: voce.dettaglio ?? '',
@@ -246,9 +246,9 @@ export async function chiediMessaggio (voce: Messaggio): Promise<number | null> 
   return indice
 }
 
-/** Toglie il «Regiclass: » iniziale (anche con lo spazio francese prima dei due punti). */
+/** Toglie il «Regiklass: » iniziale (anche con lo spazio francese prima dei due punti). Accetta anche il vecchio prefisso. */
 function senzaPrefisso (testo: string): string {
-  const senza = testo.replace(/^Regiclass\s?:\s+/, '')
+  const senza = testo.replace(/^(?:Regiklass|Regiclass)\s?:\s+/, '')
   return senza.charAt(0).toUpperCase() + senza.slice(1)
 }
 
@@ -261,7 +261,7 @@ function titoloDelTono (livello: LivelloMessaggio): string {
     case 'avviso': return parole().attenzione
     case 'errore': return testi().qualcosaNonÈAndato
     // testo-fisso: il marchio non si traduce
-    default: return 'Regiclass'
+    default: return 'Regiklass'
   }
 }
 
@@ -677,7 +677,7 @@ export async function showInputBox (opzioni: OpzioniInputBox = {}): Promise<stri
     {
       tipo: 'input',
       // testo-fisso: il marchio non si traduce
-      titolo: opzioni.title ?? 'Regiclass',
+      titolo: opzioni.title ?? 'Regiklass',
       invito: opzioni.prompt ?? '',
       valore: opzioni.value ?? '',
       segnaposto: opzioni.placeHolder ?? '',
@@ -699,7 +699,7 @@ export async function showQuickPick<T extends VoceScelta> (
     {
       tipo: 'elenco',
       // testo-fisso: il marchio non si traduce
-      titolo: opzioni.title ?? 'Regiclass',
+      titolo: opzioni.title ?? 'Regiklass',
       segnaposto: opzioni.placeHolder ?? parole().filtra,
       voci: elenco.map((voce) => ({
         etichetta: senzaSegnaposti(voce.label),

@@ -178,6 +178,9 @@ const DICHIARAZIONI = {
   'registroDocenti.avvio.soloVassoio': {
     tipo: 'boolean',
     predefinito: false,
+    // Senza icona accanto all'orologio partire nascosti vorrebbe dire sparire:
+    // `desktop/avvio.ts` la ignora già.
+    dipendeDa: 'registroDocenti.vassoio.attivo',
   },
   'registroDocenti.avvio.integrazioneSistema': {
     tipo: 'boolean',
@@ -206,6 +209,9 @@ const DICHIARAZIONI = {
     tipo: 'string',
     predefinito: '',
     formato: 'email',
+    // Lo scrive «Collega la casella» e si cambia dal menu della scheda Posta;
+    // non è un campo in nessuna delle due superfici (`CHIAVI_DEL_COLLEGAMENTO`).
+    avanzata: true,
   },
   'registroDocenti.posta.utente': {
     tipo: 'string',
@@ -213,6 +219,7 @@ const DICHIARAZIONI = {
     // Un indirizzo completo (`xxx000@edu.ti.ch`): una sigla senza dominio il
     // server la rifiuterebbe solo all'invio.
     formato: 'email',
+    avanzata: true,
   },
   'registroDocenti.posta.invioDiretto': {
     tipo: 'boolean',
@@ -277,6 +284,9 @@ const DICHIARAZIONI = {
   'registroDocenti.dettatura.attivo': {
     tipo: 'boolean',
     predefinito: false,
+    // La voce dettata la scrive l'assistente: spento lui, il microfono non parte
+    // (`ui/pannello/assistant.ts`).
+    dipendeDa: 'registroDocenti.assistente.attivo',
   },
   'registroDocenti.dettatura.taglia': {
     tipo: 'string',
@@ -295,7 +305,7 @@ const DICHIARAZIONI = {
   // ----------------------------------------------------------- gli aggiornamenti
   'registroDocenti.aggiornamenti.controlloAutomatico': {
     tipo: 'boolean',
-    predefinito: true,
+    predefinito: false,
   },
   'registroDocenti.aggiornamenti.scaricoAutomatico': {
     tipo: 'boolean',
@@ -399,6 +409,25 @@ export const CHIAVI_DISMESSE: readonly string[] = [
   'registroDocenti.agenda.celleAltezza',
   'registroDocenti.agenda.colonna',
   'registroDocenti.agenda.riga',
+  // La posta prima dell'accesso Microsoft: `azzeraPosta` le toglieva solo a mano.
+  'registroDocenti.posta.server',
+  'registroDocenti.posta.porta',
+  'registroDocenti.posta.autenticazione',
+  'registroDocenti.posta.clientId',
+  'registroDocenti.posta.tenant',
+]
+
+/**
+ * Le chiavi che scrive «Collega la casella», non una scelta fatta a mano: si
+ * mostrano come parametri del collegamento e si cambiano nel registro, in
+ * Comunicazioni. Non contano fra le modificate, il filtro non le offre come
+ * campi, e né «Ripristina» né «Ritira» le toccano: ritirarle staccherebbe la
+ * casella dal suo gettone. Le leggono tutte e due le superfici
+ * (`VoceProgramma.delCollegamento`).
+ */
+export const CHIAVI_DEL_COLLEGAMENTO: readonly string[] = [
+  'registroDocenti.posta.utente',
+  'registroDocenti.posta.mittente',
 ]
 
 /** Quel che `sospesa` guarda di una voce: comune al manifesto e al protocollo, senza dipendere da questo. */

@@ -3,12 +3,15 @@
 
 import { allineaSemestri, annoAllineato } from '../../../core/dominio/years.js'
 import {
-  differenzaGiorni, etichettaAnno, oggi, primoAnnoScolastico, sommaGiorni,
+  differenzaGiorni, etichettaAnno, formattaData, oggi, primoAnnoScolastico, sommaGiorni,
 } from '../../../core/dominio/dates.js'
 import { creaSospensione } from '../../../core/dominio/factories.js'
-import type { AnnoScolastico, Iso, Sospensione } from '../../../core/dominio/models.js'
+import type {
+  AnnoScolastico, CalendarioDellAnno, Iso, Sospensione,
+} from '../../../core/dominio/models.js'
+import { èCollegata } from '../../../core/dominio/schoolCalendar.js'
 import { campo, pulsante, riga, sezioneModulo } from '../components/base.js'
-import { apriModale } from '../components/modal.js'
+import { apriModale, type ContestoModale } from '../components/modal.js'
 import { suggerimento } from '../components/hint.js'
 import { h, rimpiazza } from '../dom.js'
 
@@ -18,6 +21,8 @@ import { moduloImportaRegistro } from './registerImport.js'
 import {
   anniUfficialiDaProporre,
   bozzaUfficiale,
+  pastigliaCalendario,
+  pastigliaChiusuraUfficiale,
   sceltaAnnoUfficiale,
   sezioneCalendarioUfficiale,
 } from './schoolCalendar.js'
@@ -29,18 +34,31 @@ import { testi } from './year.testi.js'
 /**
  * Le pause che quasi ogni anno ha, col mese in cui cadono di solito:
  * scorciatoie che creano la riga già intitolata e datata, da spostare.
+ * `ufficiale`: la porta già il calendario, e in un anno che lo segue sarebbe
+ * un doppione.
  */
 const PAUSE_TIPICHE: Array<{
   chiave: keyof ReturnType<typeof testi>['pauseTipiche']
   mese: number
   giorni: number
+  ufficiale: boolean
 }> = [
-  { chiave: 'autunno', mese: 10, giorni: 14 },
-  { chiave: 'natale', mese: 12, giorni: 14 },
-  { chiave: 'carnevale', mese: 2, giorni: 7 },
-  { chiave: 'pasqua', mese: 4, giorni: 7 },
-  { chiave: 'istituto', mese: 0, giorni: 1 },
+  { chiave: 'autunno', mese: 10, giorni: 14, ufficiale: true },
+  { chiave: 'natale', mese: 12, giorni: 14, ufficiale: true },
+  { chiave: 'carnevale', mese: 2, giorni: 7, ufficiale: true },
+  { chiave: 'pasqua', mese: 4, giorni: 7, ufficiale: true },
+  { chiave: 'istituto', mese: 0, giorni: 1, ufficiale: false },
 ]
+
+/**
+ * Il campo data si blocca, o si sblocca: in un anno che segue il calendario
+ * inizio e fine sono del calendario. Si spegne la casella scritta; quella
+ * nascosta tiene il valore, che il modulo legge lo stesso.
+ */
+function bloccaData (campoData: HTMLElement, bloccata: boolean): void {
+  const scritta = campoData.querySelector<HTMLInputElement>('input[type="text"]')
+  if (scritta) scritta.disabled = bloccata
+}
 
 /**
  * Le pause dell'anno: una riga per vacanza (nome, dal, al). Si ridisegna solo
@@ -51,6 +69,8 @@ function editorPause (
   iniziali: Sospensione[],
   dentro: { inizio: Iso, fine: Iso },
   allaModifica: (pause: Sospensione[]) => void,
+  /** Il calendario che l'anno segue: le sue chiusure si leggono e basta. */
+  segue: CalendarioDellAnno | null = null,
 ): HTMLElement {
   const t = testi()
   let pause = iniziali.map((s) => ({ ...s }))
@@ -71,8 +91,26 @@ function editorPause (
     disegna()
   }
 
+  /**
+   * Una chiusura del calendario che l'anno segue: nome e date da leggere, la
+   * pastiglia al posto del cestino.
+   */
+  const rigaUfficiale = (pausa: Sospensione): HTMLElement => {
+    const giorni = differenzaGiorni(pausa.dal, pausa.al) + 1
+    return h(
+      'li',
+      { class: 'pausa-riga pausa-riga--ufficiale' },
+      h('span', { class: 'pausa-riga__nome' }, pausa.etichetta),
+      h('span', { class: 'pausa-riga__data' }, formattaData(pausa.dal)),
+      h('span', { class: 'pausa-riga__data' }, formattaData(pausa.al)),
+      h('span', { class: 'testo-quieto' }, t.giorni(giorni)),
+      pastigliaChiusuraUfficiale(),
+    )
+  }
+
   /** Una riga: le tre caselle, il conto dei giorni, il cestino. */
   const riga = (pausa: Sospensione): HTMLElement => {
+    if (segue && èCollegata({ calendarioUfficiale: segue }, pausa)) return rigaUfficiale(pausa)
     const statoPausa = h('span', { class: 'testo-quieto' })
 
     // Quanti giorni dura e se sta nell'anno: si riscrive in posto, senza rifare
@@ -183,7 +221,7 @@ function editorPause (
           variante: 'sottile',
           al: () => aggiungi('', 0, 1),
         }),
-        ...PAUSE_TIPICHE.map((tipica) => {
+        ...PAUSE_TIPICHE.filter((tipica) => !segue || !tipica.ufficiale).map((tipica) => {
           const nome = t.pauseTipiche[tipica.chiave]
           return pulsante({
             testo: nome,
@@ -215,9 +253,10 @@ export function moduloPause (anno: AnnoScolastico): void {
       editorPause(pause, { inizio: anno.inizio, fine: anno.fine }, (nuove) => {
         pause = nuove
         ufficiale.ridisegna()
-      }),
+      }, anno.calendarioUfficiale ?? null),
     )
   }
+  let modale: ContestoModale | null = null
   // Solo le chiusure: inizio e fine dell'anno si cambiano dal modulo dell'anno.
   const ufficiale = sezioneCalendarioUfficiale({
     leggi: () => ({ inizio: anno.inizio, fine: anno.fine, sospensioni: pause }),
@@ -226,10 +265,12 @@ export function moduloPause (anno: AnnoScolastico): void {
       disegnaPause()
     },
     soloPause: true,
+    anno: () => stato.registro.anni.find((a) => a.id === anno.id) ?? null,
+    fatto: () => modale?.chiudi(),
   })
   disegnaPause()
 
-  apriModale({
+  modale = apriModale({
     titolo: t.giorniSenzaLezione(anno.etichetta),
     sottotitolo: t.sottotitoloPause,
     larghezza: 'media',
@@ -279,6 +320,12 @@ export function moduloAnno (anno?: AnnoScolastico): void {
     : null
 
   let pause = anno?.sospensioni.map((x) => ({ ...x })) ?? iniziale?.sospensioni ?? []
+  // Il calendario che l'anno segue, o seguirà nascendo: inizio, fine e
+  // chiusure ufficiali si leggono e basta. Un anno esistente lo cambia solo coi
+  // gesti della sezione del calendario; uno che nasce, con la tendina in cima.
+  let segue: CalendarioDellAnno | null = anno
+    ? anno.calendarioUfficiale ?? null
+    : iniziale?.calendarioUfficiale ?? null
   const semestri = anno ? allineaSemestri(anno.semestri) : []
   const primo = semestri[0] ?? null
   const secondo = semestri[1] ?? null
@@ -313,12 +360,14 @@ export function moduloAnno (anno?: AnnoScolastico): void {
   const bozza = () => ({ ...date(), sospensioni: pause })
   const contenitorePause = h('div')
   const disegnaPause = () => {
+    bloccaData(campoInizio, segue !== null)
+    bloccaData(campoFine, segue !== null)
     rimpiazza(
       contenitorePause,
       editorPause(pause, date(), (nuove) => {
         pause = nuove
         ufficiale.ridisegna()
-      }),
+      }, segue),
     )
   }
   /** Riscrive nel modulo l'anno che arriva dal calendario ufficiale. */
@@ -339,28 +388,40 @@ export function moduloAnno (anno?: AnnoScolastico): void {
     pause = nuovo.sospensioni
     disegnaPause()
   }
+  let modale: ContestoModale | null = null
   const ufficiale = sezioneCalendarioUfficiale({
     leggi: bozza,
     applica: (nuovo) => {
       applicaBozza(nuovo)
       scelta?.ridisegna()
     },
+    anno: anno ? () => stato.registro.anni.find((a) => a.id === anno.id) ?? null : undefined,
+    fatto: () => modale?.chiudi(),
+    seguira: anno ? undefined : () => segue,
   })
   // La tendina in cima, solo per un anno che nasce: sceglierne uno porta date,
-  // vacanze e festivi.
+  // vacanze e festivi, e l'anno nascerà collegato; «date scritte a mano» lo
+  // lascia libero.
   const scelta = anno
     ? null
     : sceltaAnnoUfficiale({
         leggi: bozza,
         applica: (nuovo) => {
+          segue = nuovo.calendarioUfficiale
           applicaBozza(nuovo)
           ufficiale.ridisegna()
           scelta?.ridisegna()
         },
+        seguira: () => segue,
+        aMano: () => {
+          segue = null
+          disegnaPause()
+          ufficiale.ridisegna()
+        },
       })
   disegnaPause()
 
-  apriModale({
+  modale = apriModale({
     titolo: modifica ? t.anno(anno!.etichetta) : titoloComando('registroDocenti.nuovoAnno'),
     larghezza: 'media',
     corpo: () =>
@@ -368,6 +429,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
         'div',
         { class: 'modulo' },
         scelta?.elemento ?? null,
+        anno ? pastigliaCalendario(anno) : null,
         campo({
           nome: 'etichetta',
           etichetta: t.etichetta,
@@ -466,6 +528,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
             confine,
             sospensioni: [...pause].sort((a, b) => a.dal.localeCompare(b.dal)),
             etichetteSemestri: [testo(valori.primoEtichetta), testo(valori.secondoEtichetta)],
+            ...(segue ? { calendarioUfficiale: segue } : {}),
           },
           t.annoCreato,
           // Dopo la risposta: lo stato del documento nuovo arriva prima (vedi

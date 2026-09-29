@@ -100,6 +100,18 @@ describe('il racconto degli aggiornamenti', () => {
     }
   })
 
+  it('«fermo» dice se il controllo automatico è attivo o spento', async () => {
+    const fermo = () => api.racconta(grezzo({ fase: 'fermo' })).frase
+    assert.match(fermo(), /Il controllo automatico è spento/)
+    const conf = api.impostazioni.leggi('registroDocenti.aggiornamenti')
+    await conf.update('controlloAutomatico', true)
+    try {
+      assert.match(fermo(), /succede da sé poco dopo l’avvio/)
+    } finally {
+      await conf.update('controlloAutomatico', undefined)
+    }
+  })
+
   it('chi non si aggiorna da sé ha la pagina delle release, e nessuna notizia', () => {
     const r = api.racconta(grezzo({ supportato: false, motivo: 'Portabile.' }))
     assert.equal(r.frase, 'Portabile.')

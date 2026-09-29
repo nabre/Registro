@@ -17,6 +17,7 @@ import { llm } from '../core/azioni/llm.js'
 import { documenti } from '../core/azioni/documents.js'
 import { esportazioni } from '../core/azioni/exports.js'
 import { mappa } from '../core/azioni/map.js'
+import { microsoft } from '../core/azioni/microsoft.js'
 import { modelli } from '../core/azioni/templates.js'
 import { ore } from '../core/azioni/hours.js'
 import { piani } from '../core/azioni/plans.js'
@@ -30,10 +31,6 @@ import { valutazioni } from '../core/azioni/assessments.js'
 import { vista } from '../core/azioni/view.js'
 import { azioniSottoContratto, gestoriDelleProcedure } from './bridge.js'
 import type { Origine } from './contract.js'
-
-// Definita in `actions/reports.ts` perché `api/core.ts` la chiama, e da qui
-// l'import sarebbe circolare (attraverso il ponte).
-export { rigeneraDopoScrittura }
 
 const GESTORI: Mappa = {
   ...registro,
@@ -50,6 +47,7 @@ const GESTORI: Mappa = {
   ...smistamento,
   ...rapporti,
   ...sistema,
+  ...microsoft,
   ...documenti,
   ...esportazioni,
   ...mappa,

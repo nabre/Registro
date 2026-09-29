@@ -185,7 +185,7 @@ export class Pacchetto {
    * Apre un pacchetto dal disco. Un file assente dà un pacchetto vuoto; un file
    * non valido solleva, perché ripartire da vuoto lo sovrascriverebbe.
    */
-  static async apri (file: apparato.Uri): Promise<Pacchetto> {
+  static async apri (file: apparato.Uri, opzioni?: { codaInFondo?: boolean }): Promise<Pacchetto> {
     let contenuto: Uint8Array
     try {
       contenuto = await apparato.file.readFile(file)
@@ -205,7 +205,7 @@ export class Pacchetto {
     try {
       // Solo la struttura: le voci si decomprimono quando qualcuno le chiede,
       // e lo storico resta compresso.
-      aperto = apriZip(contenuto)
+      aperto = apriZip(contenuto, opzioni)
     } catch (errore) {
       const detto = errore instanceof ErroreZip ? errore.message : String(errore)
       throw new ErrorePacchetto(testi().nonSiApre(`${nomeDelPacchetto(file)}${ESTENSIONE}`, detto))
@@ -455,7 +455,7 @@ export class Pacchetto {
       formato: FORMATO,
       versione: VERSIONE_PACCHETTO,
       // testo-fisso: il marchio, scritto dentro il documento
-      applicazione: this.manifesto.applicazione ?? 'Regiclass',
+      applicazione: this.manifesto.applicazione ?? 'Regiklass',
       scritto: new Date().toISOString(),
     }
 

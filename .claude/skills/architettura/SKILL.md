@@ -1,16 +1,16 @@
 ---
 name: architettura
 description: >
-  I cinque strati di Regiclass (core, contract, desktop, ui, cli),
+  I cinque strati di Regiklass (core, contract, desktop, ui, cli),
   le regole di isolamento e dipendenza verificate da `npm run layers`,
   la purezza di `core/dominio/`, e la guida decisionale su dove collocare ogni nuovo file.
   Da usare ogni volta che si aggiunge, sposta o scompone un modulo, si disegna una nuova
   funzione, si tocca un import fra strati diversi, o `npm run layers` segnala una violazione.
 ---
 
-# L'architettura a cinque strati di Regiclass
+# L'architettura a cinque strati di Regiklass
 
-Regiclass è organizzato in **cinque strati concentrici**, ciascuno con un perimetro di responsabilità rigoroso e confini d'importazione non negoziabili. L'architettura garantisce l'indipendenza della logica di scuola dalla tecnologia grafica (Electron e DOM), la portabilità e velocità dei test, la robustezza del runtime e la chiarezza contrattuale delle API.
+Regiklass è organizzato in **cinque strati concentrici**, ciascuno con un perimetro di responsabilità rigoroso e confini d'importazione non negoziabili. L'architettura garantisce l'indipendenza della logica di scuola dalla tecnologia grafica (Electron e DOM), la portabilità e velocità dei test, la robustezza del runtime e la chiarezza contrattuale delle API.
 
 I confini tra gli strati non sono convenzioni verbali: sono verificati automaticamente da `npm run layers` (`tools/layers.mjs`) e dalle regole di linting in `eslint.config.mjs`.
 
@@ -62,14 +62,14 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
    - Tutte le sue prove girano all'istante con `npm test` o `node --test` senza finestre né dischi finti.
 2. **`core/dati/` (persistenza e I/O)**:
    - Gestisce la persistenza del documento `.regi`: lettura e scrittura dell'archivio (`core/dati/archive.ts`), compressione e pacchetto ZIP (`core/dati/package.ts`, `core/dati/zip.ts`), materializzazione su disco (`core/dati/store.ts`).
-   - Gestisce i formati e i servizi esterni: generazione PDF (`core/dati/pdf.ts`, `core/dati/reportsPdf.ts`), invio posta ed Exchange (`core/dati/mail.ts`, `core/dati/exchange.ts`, `core/dati/oauth.ts`), modelli di lezione (`core/dati/templates.ts`), geocodifica Nominatim (`core/dati/geocoding.ts`), OCR (`core/dati/ocr.ts`).
+   - Gestisce i formati e i servizi esterni: generazione PDF (`core/dati/pdf.ts`, `core/dati/reportsPdf.ts`), invio posta ed Exchange (`core/dati/mail.ts`, `core/dati/exchange.ts`, `core/dati/oauth.ts`), OneDrive con Microsoft Graph (`core/dati/microsoft.ts`, `core/dati/onedrive.ts`), modelli di lezione (`core/dati/templates.ts`), geocodifica Nominatim (`core/dati/geocoding.ts`), OCR (`core/dati/ocr.ts`).
    - Non importa mai direttamente `electron`: per interagire con l'ambiente host passa dall'astrazione di `core/apparato/`.
 3. **`core/azioni/` (gestori applicativi)**:
    - I gestori applicativi che eseguono le mutazioni richieste dall'utente.
    - Ogni file implementa una porzione dell'unione `Azione` definita nel contratto.
    - Riceve il contesto di mutazione (`core/azioni/context.ts`), valida lo stato, applica le modifiche di dominio e dichiara esplicitamente le collezioni JSON modificate tramite `context.modifica(op, collezioni)`.
 4. **`core/i18n/` (gestione delle lingue)**:
-   - Il dispositivo multilingua di Regiclass (ADR-38).
+   - Il dispositivo multilingua di Regiklass (ADR-38).
    - Gestisce lo stato della lingua (`core/i18n/state.ts`) e le utilità per le pagine (`core/i18n/page.ts`).
    - Sta sotto tutti gli altri moduli e non dipende da nessun altro strato.
 5. **`core/apparato/` (interfaccia verso l'host)**:
@@ -82,7 +82,7 @@ Rappresenta il contratto esplicito tra il motore applicativo, l'interfaccia uten
 - `contract/protocollo.ts`: Definisce le buste dei messaggi IPC scambiati via canale tra il processo main e il frontend (`Richiesta`, `Risposta`, `Domanda`, `Riscontro`, `Notifica`).
 - `contract/manifesto.ts`: Il manifesto delle impostazioni del programma e del documento, con schemi di tipo, valori predefiniti, sezioni di preferenza e definizioni dei comandi.
 - `contract/schemas.ts`: Schemi di validazione dei payload e dei formati di scambio.
-- `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema Zod d'ingresso rigoroso e registrazione centralizzata.
+- `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema d'ingresso (`contract/schemas.ts`, valibot sotto `~standard`) rigoroso e registrazione centralizzata.
 - `contract/centralino.ts`: Il router che smista le chiamate contrattuali e instradamento richieste verso i rispettivi gestori.
 - `contract/bridge.ts`: Interfaccia astratta di comunicazione IPC lato client/server.
 - `contract/tools.ts`: Definizione e serializzazione degli strumenti esposti all'assistente e ai modelli linguistici.
@@ -106,6 +106,13 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
   - `ui/pannello/components/` (`components/`): componenti grafici riutilizzabili (pulsanti, schede, modali, tabelle).
   - `ui/pannello/bridge.ts` (`bridge.ts`): il ponte di comunicazione che invia le richieste IPC al main process e gestisce lo stato di ritorno.
   - `ui/pannello/dom.ts` (`dom.ts`): motore di rendering DOM con funzione `h()` e ripristino chirurgico di cursore, fuoco e scorrimento.
+  - **Dove si è (ADR-47):** un `Posto` (`posto.ts`); si naviga solo con `vai(posto)`, `vaiA(pagina)` o `apriLezione(id)`, mai con `aggiorna({vista…})`. Il posto si ricorda per documento (`memoria.ts`).
+  - **Ogni aggiornamento resta nel suo riquadro (ADR-48).** Scrivendo una vista:
+    - una lettura asincrona (anteprima, PDF, CSV, miniature, avanzamento) va in un'`isola` (`isole.ts`) e si legge con `risorse.leggi(…, { isola })`: all'arrivo si rifà solo quella;
+    - un nodo pesante (`iframe`, visore, `canvas`, mappa, immagine grande) porta `data-tieni="<sorgente>"`;
+    - un contenitore che scorre porta `data-scorrimento` e, se la catena dalla radice lo permette, `data-telaio`;
+    - niente `chiedi`/`invia`/`aggiorna`/`scrollIntoView` dentro `h()`: si fanno in un gesto o in un iscritto;
+    - ciò che segna l'ora si muove con `alMinuto` (`orologio.ts`), non ridisegnando.
 - **Isolamento stringente**: gira dentro una sandbox Chromium con CSP `default-src 'none'`. Non ha accesso a Node (`node:*`) né a moduli Electron. Non può importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`. Comunica con il sistema esclusivamente tramite messaggi IPC scambiati sul ponte `ui/pannello/bridge.ts`.
 
 ### `cli/`: La linea di comando
@@ -133,7 +140,7 @@ Le dipendenze del codice devono seguire rigorosamente la direzione consentita ("
 
 ### L'eccezione contrattuale di `core/`: SOLO tipi (`import type`)
 
-Una regola fondamentale del design di Regiclass riguarda la relazione tra `core/` e `contract/`:
+Una regola fondamentale del design di Regiklass riguarda la relazione tra `core/` e `contract/`:
 
 - I gestori in `core/azioni/` e la logica in `core/` hanno la necessità di conoscere la firma delle azioni o i tipi dei payload (es. `Azione`, `Risposta`).
 - Tuttavia, `core/` non deve avere dipendenze di valore a runtime da `contract/`. Un import di valore violerebbe il principio che `core/` è alla base di tutto e non dipende da contratti esterni.
@@ -176,7 +183,7 @@ Qual è lo scopo del codice da aggiungere?
 ├── È un gestore applicativo che riceve un'azione, modifica il registro e dichiara le collezioni?
 │   └── ➔ core/azioni/ (gestori delle azioni con context.modifica)
 │
-├── È una procedura esposta con schema Zod/JSON all'API, all'assistente o alla riga di comando?
+├── È una procedura esposta con schema d'ingresso all'API, all'assistente o alla riga di comando?
 │   └── ➔ contract/procedure/ (contratto esplicito con schema d'ingresso)
 │
 ├── È un protocollo IPC, schema globale di messaggi o definizione delle impostazioni?

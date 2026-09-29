@@ -1,4 +1,4 @@
-# Regiclass — il documento tecnico
+# Regiklass — il documento tecnico
 
 Registro di classe per docenti: calendario delle lezioni, classi e persone in
 formazione, piani lezione, valutazioni. Applicazione desktop Electron +
@@ -90,8 +90,8 @@ Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).
 - Un anno nuovo non salvato sta in `anni-nuovi/` fra i dati dell'applicazione
   (`core/dati/paths.ts`).
 
-**I dati dell'applicazione** (`userData`): `%APPDATA%\Regiclass` per
-l'installato, `Regiclass - dati` accanto all'eseguibile per il portabile
+**I dati dell'applicazione** (`userData`): `%APPDATA%\Regiklass` per
+l'installato, `Regiklass - dati` accanto all'eseguibile per il portabile
 (`desktop/shell/system/portable.ts`).
 
 | File o cartella | Che cosa |
@@ -141,7 +141,10 @@ npm start            # compila e lancia
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint .
 npm test             # le prove, con node --test
-npm run ui-tests     # prove dell'interfaccia su Chromium (Python + Playwright)
+npm run copertura    # copertura delle prove per cartella, in copertura/
+npm run mutanti -- --file <sorgente.ts> --prove "<prove>"  # StrykerJS su un file, skill prove
+npm run fumo         # Electron vero sul campione, via condotto
+npm run ui-tests     # prove dell'interfaccia su Chromium e Electron (@playwright/test)
 npm run package      # installer e portabile in pacchetti/
 npm run clean        # butta bundle e cache
 ```
@@ -153,7 +156,18 @@ npm run clean        # butta bundle e cache
 - `dist/` = bundle dell'applicazione. `dist-tests/` = gli stessi sorgenti in
   ESM per Node, con `electron` sostituito da `tests/helpers/fake-electron.mjs`
   (li prepara `pretest`).
-- `tests/ui/*.py` usano dati sintetici e stanno fuori da `npm test`.
+- `tests/interfaccia/*.spec.ts` usano dati sintetici e stanno fuori da `npm test`.
+- `npm run copertura` è un rapporto, senza soglia: le righe sono gonfiate dai
+  cataloghi di testo e dal codice di modulo, contano funzioni e rami. Le prove
+  con `importaSorgente` entrano grazie a `REGISTRO_COPERTURA=1`. Dettagli in
+  `.claude/skills/verifica/SKILL.md`.
+- `npm run fumo` (`tools/fumo.mjs`) accende un Electron vero, le altre prove
+  usano quello finto, sul campione in una cartella provvisoria con il condotto
+  acceso e il solo vassoio. Chiede `$versione` e `classi.elenco` come `regi`,
+  chiude con `programma.esci` e pretende un'uscita pulita entro 20 s, senza
+  processi rimasti né scritture nella cartella dei dati vera. Costruisce da sé
+  (`--senza-costruire` per saltare). Fuori da `npm test`; in CI è il lavoro
+  `fumo` di `verifica.yml`, su Windows.
 
 Controlli fatti in casa:
 
@@ -175,6 +189,7 @@ passi in locale. Come leggerne l'uscita: `.claude/skills/verifica/SKILL.md`.
 File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `core/dati/defaultTemplates.ts` (`npm run templates`),
 `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
+`core/dati/modelliConsigliati.ts` (`npm run modelli-consigliati`),
 `tests/samples/2026-2027.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 
@@ -256,7 +271,7 @@ firma si saltano. All'ammissione:
    configurazioni `eseguibile` e `installatori` con il contenuto dei due `.xml`,
    politica `release-signing` con approvazione a mano, 2FA;
 3. su GitHub (*Settings › Secrets and variables › Actions*): segreto e
-   variabile. Se progetto o politica hanno altri nomi di `regiclass` e
+   variabile. Se progetto o politica hanno altri nomi di `regiklass` e
    `release-signing`, si cambiano `SIGNPATH_PROGETTO` e `SIGNPATH_POLITICA` in
    testa al lavoro `pacchetti`;
 4. alla prima release firmata, togliere l'avviso SmartScreen dal README (il
@@ -298,6 +313,7 @@ nessun'altra (per chi usa: la guida in-app, «Che cosa esce dal computer»).
 | Geocodifica | `nominatim.openstreetmap.org` | indirizzi (via, NAP, località), una richiesta al secondo, `User-Agent` dichiarato | solo con «Trova gli indirizzi» (`core/dati/geocoding.ts`) |
 | Carte della mappa | `tile.openstreetmap.org` | coordinate dei tasselli (la zona, non i nomi) | guardando la mappa o il riquadro «Dove sta» di un allievo; cache in `tasselli/` (`desktop/shell/protocol/tiles.ts`) |
 | Posta | `login.microsoftonline.com`, `smtp.office365.com` | accesso alla casella e messaggi con allegati | collegando la casella, e spedendo con «Spedisci senza bozza» (spento di serie) (`core/dati/oauth.ts`, `core/dati/exchange.ts`) |
+| OneDrive | `login.microsoftonline.com`, `graph.microsoft.com` | accesso all'account; nomi di cartelle e file letti, e lo scarico di un `.regi` non sincronizzato | collegando un account in «Account Microsoft», sfogliando, cercando o aprendo da OneDrive (`core/dati/microsoft.ts`, `core/dati/onedrive.ts`) |
 | Calendario della scuola | l'indirizzo ICS scritto dal docente | una GET, senza dati | aggiungendo, aggiornando o confrontando un calendario (`core/dati/calendar.ts`) |
 | Aggiornamenti | release di GitHub | «qual è l'ultima versione», poi lo scarico | all'avvio e ogni sei ore, se acceso |
 | Modelli | `huggingface.co` | parole cercate, depositi e file da scaricare | cercando o scaricando (`core/dati/huggingFace.ts`) |

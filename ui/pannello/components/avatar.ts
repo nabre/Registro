@@ -4,7 +4,7 @@
 // prove) resta il nome. La tinta viene dal nome, non dall'ordine: la stessa
 // persona ha lo stesso colore ovunque.
 
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { uriDato } from '../state.js'
 
 /** Quel che basta per disegnare un tondo: il nome, e se c'è la foto. */
@@ -34,7 +34,7 @@ function prima (parola: string | undefined): string {
  * Le iniziali, nome poi cognome. Senza cognome, prima e ultima parola del nome
  * intero: «Maria De Santis» è «MS».
  */
-export function iniziali (persona: Persona): string {
+function iniziali (persona: Persona): string {
   if (persona.cognome !== undefined) return prima(persona.nome) + prima(persona.cognome)
   const parole = persona.nome.trim().split(/\s+/).filter(Boolean)
   if (parole.length <= 1) return prima(parole[0])
@@ -62,11 +62,14 @@ export function avatar (persona: Persona): HTMLElement {
     attr: { 'aria-hidden': 'true' },
   })
   if (indirizzo) {
+    // Tenuta fra due disegni (`data-tieni`): ricreata, a ogni clic la foto
+    // ripartirebbe dalle iniziali finché non è decodificata di nuovo.
     const foto = h('img', {
       class: 'avatar__foto',
+      dataset: { tieni: indirizzo },
       attr: { src: indirizzo, alt: '', loading: 'lazy', decoding: 'async' },
     })
-    foto.addEventListener('error', () => foto.remove(), { once: true })
+    gestisci(foto, 'error', (evento) => (evento.currentTarget as HTMLElement).remove())
     tondo.append(foto)
   }
   return tondo

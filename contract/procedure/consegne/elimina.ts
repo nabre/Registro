@@ -10,7 +10,7 @@ export const procedura = scrittura({
   azione: 'consegna.elimina',
   // Al secondo giro la consegna non c'è più, e lo si dice.
   idempotente: true,
-  collezioni: ['consegne'],
+  collezioni: ['consegne', 'smistamenti', 'fascicoli'],
   ingresso: oggetto({ consegnaId: identificatore() }),
   esegui: (ambito, ingresso) => {
     esigiConsegna(ambito, ingresso.consegnaId)

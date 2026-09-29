@@ -72,7 +72,7 @@ function regole (): Regole {
  * «proiettare» e «proiettando» → «proiett», che trova anche «proietta» e
  * «proiettore»; «ora» resta «ora», perché «or» troverebbe mezzo vocabolario.
  */
-export function radice (parola: string): string {
+function radice (parola: string): string {
   const { lunghe, finali } = regole()
   if (parola.length > 6 && lunghe.test(parola)) return parola.replace(lunghe, '')
   return parola.length > 4 ? parola.replace(finali, '') : parola

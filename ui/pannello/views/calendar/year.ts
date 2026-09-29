@@ -113,10 +113,11 @@ export function vistaAnno (): HTMLElement {
 
   return h(
     'div',
-    { class: 'anno-griglia' },
+    // Anelli della catena di telaio fino al foglio che scorre (`dom.ts`).
+    { class: 'anno-griglia', dataset: { telaio: 'anno' } },
     h(
       'div',
-      { class: 'anno-griglia__foglio', dataset: { scorrimento: 'calendario:anno' } },
+      { class: 'anno-griglia__foglio', dataset: { scorrimento: 'calendario:anno', telaio: 'anno-foglio' } },
       // Il nome del semestre sopra i suoi mesi, una scritta sola larga quanto il gruppo.
       h(
         'div',

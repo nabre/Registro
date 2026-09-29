@@ -68,7 +68,7 @@ export function siScarica (): boolean {
 }
 
 /** Se lo deve fare: l'interruttore, che si spegne. */
-export function scaricoAutomatico (): boolean {
+function scaricoAutomatico (): boolean {
   return acceso()
 }
 

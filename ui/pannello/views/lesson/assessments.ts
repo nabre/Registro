@@ -14,6 +14,7 @@ import { h, type Figlio } from '../../dom.js'
 import { bloccoRecuperiDellOra } from '../retakes.js'
 import { graficoNote } from '../../components/notes.js'
 import { grigliaVoti } from '../grades.js'
+import { inTelaio } from '../../components/table.js'
 import { classeDiLezione, stato } from '../../state.js'
 import { apriMomento } from '../../calendarNavigation.js'
 import { Molti } from '../../../../core/dominio/lexicon.js'
@@ -81,7 +82,9 @@ export function pannelloValutazioni (lezione: Lezione): HTMLElement {
   const recuperi = bloccoRecuperiDellOra(lezione)
   const t = testi()
 
-  return scheda({
+  // Anello della catena di telaio dell'ora (`lesson.ts`): la griglia dei voti
+  // resta lo stesso nodo e un voto scritto non la riporta a sinistra.
+  return inTelaio(scheda({
     titolo: t.valutazioni,
     sottotitolo:
       momenti.length === 0
@@ -113,7 +116,7 @@ export function pannelloValutazioni (lezione: Lezione): HTMLElement {
           )
         : h(
             'div',
-            null,
+            { dataset: { telaio: 'valutazioni-ora:griglie' } },
             // Senza media e nota: qui si guarda una prova sola.
             grigliaVoti(classe, momenti, { medie: false }),
             // Un grafico per prova, sotto la griglia.
@@ -130,5 +133,5 @@ export function pannelloValutazioni (lezione: Lezione): HTMLElement {
             // In fondo i recuperi di prove di un altro giorno.
             recuperi,
           ),
-  })
+  }), 'valutazioni-ora')
 }

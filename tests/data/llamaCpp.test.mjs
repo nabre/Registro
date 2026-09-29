@@ -18,16 +18,17 @@ import { importaSorgente } from '../helpers/sorgente.mjs'
 let LLAMA_CPP
 let scaricaPesi
 let pesiInUso
+let RIPOSO_MS
+let RIPOSO_PESI_MS
 
 before(async () => {
-  ;({ LLAMA_CPP, scaricaPesi, pesiInUso } = await importaSorgente('core/dati/llamaCpp.ts', {
+  ;({ LLAMA_CPP, scaricaPesi, pesiInUso, RIPOSO_MS, RIPOSO_PESI_MS } = await importaSorgente('core/dati/llamaCpp.ts', {
     nodeLlama: 'tests/helpers/fake-node-llama.mjs',
   }))
 })
 
 const FILE = '/finto/qwen.gguf'
 const ISTRUZIONI = 'Sei l’assistente del registro. Rispondi in italiano.'
-const RIPOSO_MS = 5 * 60_000
 
 /** Un collegamento come lo costruirebbe `llm.ts`, con quel che serve qui. */
 function collegamento (altro = {}) {
@@ -193,6 +194,61 @@ describe('llama.cpp: il riposo', () => {
       mock.timers.tick(RIPOSO_MS)
       await lascia()
       assert.equal(secondo.disposed, true)
+    } finally {
+      mock.timers.reset()
+    }
+  })
+
+  it('a quindici minuti dall’ultima domanda anche i pesi del modello se ne vanno', async () => {
+    mock.timers.enable({ apis: ['setTimeout'] })
+    try {
+      await LLAMA_CPP.chatta(collegamento(), giro('uno?'))
+      const [primoContesto] = banco.contesti
+      const [primoModello] = banco.modelli
+      assert.equal(primoModello.disposed, false)
+
+      // A 5 minuti il contesto è chiuso, ma i pesi sono ancora caricati.
+      mock.timers.tick(RIPOSO_MS)
+      await lascia()
+      assert.equal(primoContesto.disposed, true)
+      assert.equal(primoModello.disposed, false)
+      assert.equal(pesiInUso(FILE), true)
+
+      // A 15 minuti anche i pesi vengono scaricati per liberare memoria.
+      mock.timers.tick(RIPOSO_PESI_MS - RIPOSO_MS)
+      await lascia()
+      assert.equal(primoModello.disposed, true)
+      assert.equal(pesiInUso(FILE), false)
+    } finally {
+      mock.timers.reset()
+    }
+  })
+
+  it('una nuova domanda prima di quindici minuti resetta il timer del riposo dei pesi', async () => {
+    mock.timers.enable({ apis: ['setTimeout'] })
+    try {
+      await LLAMA_CPP.chatta(collegamento(), giro('uno?'))
+      const [primoModello] = banco.modelli
+
+      // Passano 10 minuti (più di RIPOSO_MS ma meno di RIPOSO_PESI_MS)
+      mock.timers.tick(10 * 60_000)
+      await lascia()
+      assert.equal(primoModello.disposed, false)
+
+      // Arriva un'altra domanda: il modello non viene ricaricato da zero
+      await LLAMA_CPP.chatta(collegamento(), giro('due?'))
+      assert.equal(banco.modelli.length, 1)
+      assert.equal(primoModello.disposed, false)
+
+      // Passano altri 10 minuti (totale 20 dall'inizio, ma solo 10 dalla seconda domanda)
+      mock.timers.tick(10 * 60_000)
+      await lascia()
+      assert.equal(primoModello.disposed, false)
+
+      // Altri 5 minuti: adesso sono passati 15 minuti dall'ultima domanda
+      mock.timers.tick(5 * 60_000)
+      await lascia()
+      assert.equal(primoModello.disposed, true)
     } finally {
       mock.timers.reset()
     }

@@ -10,16 +10,11 @@
 //      risponde lo schema e rimanda quel che ha ricevuto.
 
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, before, describe, it } from 'node:test'
-
-const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
+import { condottoFinto, lanciatore } from '../helpers/cli.mjs'
 
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-cli-'))
 const lavoro = percorso.join(radice, 'lavoro')
@@ -28,7 +23,7 @@ const dati = percorso.join(lavoro, 'registro')
  * La cartella dei dati come la ricava la riga di comando da `APPDATA` (Windows)
  * o da `XDG_CONFIG_HOME` (altrove): passando `radice` a tutte e due, cade qui.
  */
-const cartellaUtente = percorso.join(radice, 'Regiclass')
+const cartellaUtente = percorso.join(radice, 'Regiklass')
 process.env.REGISTRO_USERDATA = cartellaUtente
 
 /** Dove nasce il socket fuori da Windows: la regola che la riga di comando ignorava. */
@@ -67,31 +62,7 @@ after(async () => {
   rmSync(radice, { recursive: true, force: true })
 })
 
-/**
- * Lancia la riga di comando e raccoglie quel che dice. `APPDATA` e
- * `XDG_CONFIG_HOME` puntano alla radice della prova, non ai dati veri di chi
- * esegue `npm test`.
- */
-function lancia (argomenti, ambiente = {}) {
-  return new Promise((risolvi, rifiuta) => {
-    const figlio = spawn(process.execPath, [CLI, ...argomenti], {
-      env: {
-        ...process.env,
-        APPDATA: radice,
-        XDG_CONFIG_HOME: radice,
-        REGISTRO_COMANDO: 'registro',
-        ...ambiente,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let uscita = ''
-    let errore = ''
-    figlio.stdout.on('data', (pezzo) => { uscita += pezzo })
-    figlio.stderr.on('data', (pezzo) => { errore += pezzo })
-    figlio.on('error', rifiuta)
-    figlio.on('close', (codice) => risolvi({ codice, uscita, errore }))
-  })
-}
+const lancia = lanciatore(radice)
 
 /** Cambia per un momento la piattaforma che vede tutto il processo. */
 function comeSe (piattaforma, fare) {
@@ -148,7 +119,7 @@ describe('l’indirizzo del condotto', () => {
 
     if (process.platform === 'win32') {
       // Il nome porta il segreto: l'impronta da sola si indovina.
-      assert.match(api.indirizzoCondotto(), /regiclass-[0-9a-f]{12}-[0-9a-f]{32}$/)
+      assert.match(api.indirizzoCondotto(), /regiklass-[0-9a-f]{12}-[0-9a-f]{32}$/)
     }
 
     const { codice, uscita, errore } = await lancia(['stato', '--json'])
@@ -161,7 +132,7 @@ describe('l’indirizzo del condotto', () => {
 // ------------------------------------------------------------ il condotto finto
 
 /**
- * Un condotto che sa lo schema di `prova.eco` e rimanda l'ingresso: mostra che
+ * Lo schema di `prova.eco` che il condotto finto dà: col suo eco mostra che
  * cosa la riga di comando ha fatto di ogni `--campo`.
  */
 const SCHEMA_ECO = {
@@ -175,39 +146,11 @@ const SCHEMA_ECO = {
 
 describe('la conversione dei --campo', () => {
   let finto
-  let dove
 
-  before(async () => {
-    const nome = `registro-cli-finto-${randomBytes(6).toString('hex')}`
-    dove = process.platform === 'win32'
-      ? `\\\\.\\pipe\\${nome}`
-      : percorso.join(radice, `${nome}.sock`)
-    finto = createServer((presa) => {
-      let resto = ''
-      presa.on('data', (pezzo) => {
-        resto += pezzo.toString('utf8')
-        let taglio = resto.indexOf('\n')
-        while (taglio >= 0) {
-          const richiesta = JSON.parse(resto.slice(0, taglio))
-          resto = resto.slice(taglio + 1)
-          const result = richiesta.method === '$schema'
-            ? { nome: 'prova.eco', ingresso: SCHEMA_ECO }
-            : { ok: true, dati: richiesta.params }
-          presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: richiesta.id, result })}\n`)
-          taglio = resto.indexOf('\n')
-        }
-      })
-      presa.on('error', () => undefined)
-    })
-    await new Promise((risolvi) => finto.listen(dove, risolvi))
-  })
+  before(async () => { finto = await condottoFinto({ radice, schema: SCHEMA_ECO }) })
+  after(() => finto.chiudi())
 
-  after(() => new Promise((risolvi) => finto.close(() => risolvi())))
-
-  const eco = async (...argomenti) => {
-    const esito = await lancia(['chiama', 'prova.eco', ...argomenti], { REGISTRO_CONDOTTO: dove })
-    return { ...esito, dati: esito.codice === 0 ? JSON.parse(esito.uscita) : null }
-  }
+  const eco = (...argomenti) => finto.eco(...argomenti)
 
   it('un campo largo prende il testo com’è, se non è altro', async () => {
     const { codice, dati, errore } = await eco('--valore', 'a@b.it')

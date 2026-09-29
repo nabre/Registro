@@ -1,6 +1,6 @@
 import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
 import { inoltra, scrittura } from '../../../core.js'
-import { elenco, identificatore, oggetto } from '../../../schemas.js'
+import { booleano, elenco, identificatore, oggetto, opzionale } from '../../../schemas.js'
 import { esigiBlocco } from '../common.js'
 import { testi } from '../classe.testi.js'
 
@@ -23,6 +23,7 @@ export const procedura = scrittura({
     // Obbligatorio come nel protocollo: l'elenco vuoto vuol già dire «tutti quelli
     // pronti e non ancora spediti».
     allieviIds: elenco(identificatore(), { aiuto: () => t().allieviIds }),
+    conferma: opzionale(booleano({ aiuto: () => t().conferma })),
   }),
   esegui: (ambito, ingresso) => {
     esigiBlocco(ambito, ingresso.classeId, ingresso.bloccoId)

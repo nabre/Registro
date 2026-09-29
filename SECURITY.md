@@ -1,6 +1,6 @@
 # Sicurezza
 
-Regiclass custodisce dati di persone reali, spesso minorenni. Una
+Regiklass custodisce dati di persone reali, spesso minorenni. Una
 vulnerabilità qui non è un difetto come gli altri.
 
 ## Versioni supportate
@@ -14,7 +14,7 @@ Gli eseguibili per Windows si scaricano solo dalle
 [release](https://github.com/nabre/Registro/releases) di questo repository.
 Quando la firma del codice sarà attiva (vedi il README, § «Code signing
 policy»), porteranno la firma di **SignPath Foundation**: un eseguibile che si
-presenta come Regiclass — o, fino alla 1.8.0, come Registro docenti — con una
+presenta come Regiklass — o, fino alla 1.8.0, come Registro docenti — con una
 firma diversa non viene da qui, e va segnalato come sotto.
 
 ## Come segnalare

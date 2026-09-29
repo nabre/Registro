@@ -93,7 +93,7 @@ export const MODI_CALENDARIO: ReadonlyArray<{
   },
 ]
 
-/** Le tre schede della pagina Documenti: di che cosa si stanno guardando i fogli. */
+/** Le schede della pagina Documenti: di che cosa si stanno guardando i fogli. */
 export const SCHEDE_DOCUMENTI: ReadonlyArray<{
   valore: SchedaDocumenti
   nome: string
@@ -102,21 +102,27 @@ export const SCHEDE_DOCUMENTI: ReadonlyArray<{
 }> = [
   {
     valore: 'corso',
-    nome: t.corso,
+    nome: t.schedaCorso,
     simbolo: 'libro',
     aiuto: t.corsoAiuto,
   },
   {
-    valore: 'lezioni',
-    nome: t.lezioni,
-    simbolo: 'presa',
-    aiuto: t.lezioniAiuto,
+    valore: 'classe',
+    nome: t.classe,
+    simbolo: 'classi',
+    aiuto: t.classeAiuto,
   },
   {
     valore: 'allievi',
     nome: t.allievi,
-    simbolo: 'classi',
+    simbolo: 'utente',
     aiuto: t.allieviAiuto,
+  },
+  {
+    valore: 'docente',
+    nome: t.docente,
+    simbolo: 'scambio',
+    aiuto: t.docenteAiuto,
   },
 ]
 

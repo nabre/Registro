@@ -4,21 +4,21 @@
 import { catalogo } from '../../../core/i18n/index.js'
 
 const it = {
-  tipoDiFile: 'Anno scolastico Regiclass',
-  apriCon: 'Apri con Regiclass',
+  tipoDiFile: 'Anno scolastico Regiklass',
+  apriCon: 'Apri con Regiklass',
 }
 
 export const testi = catalogo(it, {
   de: {
-    tipoDiFile: 'Regiclass-Schuljahr',
-    apriCon: 'Mit Regiclass öffnen',
+    tipoDiFile: 'Regiklass-Schuljahr',
+    apriCon: 'Mit Regiklass öffnen',
   },
   fr: {
-    tipoDiFile: 'Année scolaire Regiclass',
-    apriCon: 'Ouvrir avec Regiclass',
+    tipoDiFile: 'Année scolaire Regiklass',
+    apriCon: 'Ouvrir avec Regiklass',
   },
   en: {
-    tipoDiFile: 'Regiclass school year',
-    apriCon: 'Open with Regiclass',
+    tipoDiFile: 'Regiklass school year',
+    apriCon: 'Open with Regiklass',
   },
 })

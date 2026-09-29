@@ -17,7 +17,7 @@ import { ZOOM_MASSIMO } from '../../../core/dominio/map.js'
 const SERVIZIO = 'https://tile.openstreetmap.org'
 
 // testo-fisso: lo User-Agent che OpenStreetMap chiede, non lo legge nessuno nel registro
-const CHI_CHIAMA = 'Regiclass/1.0 (+https://github.com/nabre/Registro)'
+const CHI_CHIAMA = 'Regiklass/1.0 (+https://github.com/nabre/Registro)'
 
 /**
  * Quanto si aspetta un tassello prima di lasciar perdere: sono venti

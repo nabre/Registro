@@ -17,7 +17,7 @@ import {
   sommaGiorni,
 } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { h } from '../../dom.js'
+import { gestisci, h } from '../../dom.js'
 import {
   SETTIMANE_ATTORNO,
   SETTIMANE_IN_PIU,
@@ -26,7 +26,15 @@ import {
 } from '../../calendarNavigation.js'
 import { eventiEsterni } from '../../externalCalendar.js'
 import { moduloLezione } from '../../forms.js'
-import { aggiorna, annoCorrente, compleanniDi, lezioniInAgenda, stato } from '../../state.js'
+import { apriLezione } from '../../pages.js'
+import {
+  aggiorna,
+  annoCorrente,
+  compleanniDi,
+  iscriviti,
+  lezioniInAgenda,
+  stato,
+} from '../../state.js'
 import {
   apreQui,
   chiudeQui,
@@ -48,7 +56,69 @@ import { testi } from './calendar.testi.js'
  * Le settimane sono una striscia sola: scorrendo si va avanti e indietro, e
  * vicino a un capo la striscia si allunga da sé. Il nome del mese resta
  * appiccicato in alto mentre le sue settimane scorrono.
+ *
+ * La striscia è un nodo di telaio (`dom.ts`): un ridisegno ne rifà i figli ma
+ * non la ricrea, e chi scorre non perde il gesto. Il suo ascoltatore è quello
+ * del primo disegno; per questo chiama `allungaStriscia`, che ogni disegno
+ * rimette con i dati di adesso. Dove portarla lo decide `posaStriscia`, dopo il
+ * disegno e mai da lui.
  */
+
+/** Allunga la striscia viva vicino a un capo, con le lezioni dell'ultimo disegno. */
+let allungaStriscia: ((viva: HTMLElement) => void) | null = null
+
+/** L'ascoltatore della striscia: non legge niente del disegno che l'ha messo. */
+function allaRotella (evento: Event): void {
+  const viva = evento.currentTarget as HTMLElement
+  finestraMese.scorrimento = viva.scrollTop
+  allungaStriscia?.(viva)
+}
+
+/**
+ * Le strisce già portate al loro posto, con la chiave di scorrimento che avevano:
+ * quella tenuta dal telaio resta dov'è. La chiave e non il nodo solo, perché un
+ * ridisegno che riusa il nodo (`idiomorph`) può dargli una striscia nuova.
+ */
+const posate = new WeakMap<HTMLElement, string>()
+
+/**
+ * Porta la striscia al suo posto, dopo il disegno. Una striscia nuova (si entra
+ * nel mese, o si è cambiato giorno) torna dove si era rimasti; ricentrata
+ * (`finestraMese.scorrimento` negativo: «Oggi», le frecce) va sul giorno
+ * scelto. Quella tenuta non si tocca: rimetterle lo scorrimento a ogni
+ * ridisegno fermava la rotella.
+ */
+function posaStriscia (): void {
+  const viva = document.querySelector<HTMLElement>('.mese__scorrevole')
+  if (!viva) return
+  if (finestraMese.scorrimento >= 0) {
+    // Una striscia nuova già scorsa l'ha rimessa la storia (Alt+freccia): resta lì.
+    const giaPosata = posate.get(viva) === viva.dataset.scorrimento
+    if (!giaPosata && viva.scrollTop === 0) viva.scrollTop = finestraMese.scorrimento
+  } else {
+    const scelta = viva.querySelector<HTMLElement>('.mese__cella--scelta')
+    if (scelta) {
+      // Con i rettangoli e non con `offsetTop`: il genitore posizionato della cella
+      // potrebbe non essere questo.
+      const dove = scelta.getBoundingClientRect().top - viva.getBoundingClientRect().top
+      // Il nome del mese sta appiccicato in alto: si lascia spazio, o coprirebbe il
+      // giorno cercato.
+      const cartello = viva.querySelector<HTMLElement>('.mese__etichetta')
+      const riparo = (cartello?.offsetHeight ?? 0) + 8
+      viva.scrollTop = Math.max(0, viva.scrollTop + dove - riparo)
+    }
+  }
+  posate.set(viva, viva.dataset.scorrimento ?? '')
+  finestraMese.scorrimento = viva.scrollTop
+}
+
+// Dopo ogni modifica, nel mese, la striscia si guarda a disegno fatto. Il
+// disegno parte da un iscritto venuto dopo questo: il microtask mette il
+// fotogramma di qui in fila dietro al suo.
+iscriviti(() => {
+  if (stato.vista !== 'calendario' || stato.modoCalendario !== 'mese') return
+  queueMicrotask(() => requestAnimationFrame(posaStriscia))
+})
 
 export function vistaMese (): HTMLElement {
   const t = testi()
@@ -104,7 +174,7 @@ export function vistaMese (): HTMLElement {
       moduloLezione({
         data,
         corsoId: stato.filtroCorsoAgendaId ?? undefined,
-        dopo: (id) => aggiorna({ vista: 'lezione', lezioneId: id }),
+        dopo: (id) => apriLezione(id),
       })
     }
 
@@ -244,21 +314,31 @@ export function vistaMese (): HTMLElement {
   /** Il cartello che dice dove l'anno comincia o finisce: la striscia ha un fondo. */
   const capo = (testo: string): HTMLElement => h('div', { class: 'mese__capo' }, testo)
 
-  const scorrevole = h('div', { class: 'mese__scorrevole' })
+  const scorrevole = h('div', {
+    class: 'mese__scorrevole',
+    // Cambiando settimana di partenza la striscia è un'altra: nodo nuovo.
+    dataset: { telaio: 'mese-striscia', scorrimento: `calendario:mese:${ancora}` },
+  })
 
   /**
    * L'etichetta del mese in cima quando la striscia comincia a metà mese. Non è
    * di nessuna settimana: allungando verso l'alto va tolta e rimessa davanti
    * alla nuova prima riga.
    */
-  let cappello: HTMLElement | null = null
-  const rimettiCappello = (lunedi: Iso) => {
-    cappello?.remove()
-    cappello = null
+  /**
+   * Si cerca nella striscia per il segno, non si tiene in una variabile: dopo un
+   * ridisegno la striscia viva può portare il cappello di un disegno di prima.
+   */
+  const togliCappello = (striscia: HTMLElement) => {
+    striscia.querySelector(':scope > [data-cappello]')?.remove()
+  }
+  const rimettiCappello = (striscia: HTMLElement, lunedi: Iso) => {
+    togliCappello(striscia)
     // Se la prima settimana apre già un mese, l'etichetta ce l'ha per conto suo.
     if (settimanaDi(lunedi).some((data) => giornoDelMese(data) === 1)) return
-    cappello = etichettaMese(lunedi)
-    scorrevole.prepend(cappello)
+    const cappello = etichettaMese(lunedi)
+    cappello.dataset.cappello = ''
+    striscia.prepend(cappello)
   }
 
   let allungoInCorso = false
@@ -270,7 +350,9 @@ export function vistaMese (): HTMLElement {
   const cimaResa = () => sommaGiorni(ancora, -finestraMese.su * 7)
   const fondoReso = () => sommaGiorni(ancora, finestraMese.giu * 7)
 
-  const allungaGiu = () => {
+  // `viva` è la striscia nel documento: il telaio può aver tenuto quella di un
+  // disegno di prima al posto di `scorrevole`.
+  const allungaGiu = (viva: HTMLElement) => {
     if (capoSotto) return
     const nuove: HTMLElement[] = []
     let quante = 0
@@ -281,14 +363,14 @@ export function vistaMese (): HTMLElement {
       quante += 1
     }
     finestraMese.giu += quante
-    scorrevole.append(...nuove)
+    viva.append(...nuove)
     if (quante < SETTIMANE_IN_PIU && anno) {
       capoSotto = capo(t.finisceAnno(anno.etichetta))
-      scorrevole.append(capoSotto)
+      viva.append(capoSotto)
     }
   }
 
-  const allungaSu = () => {
+  const allungaSu = (viva: HTMLElement) => {
     if (capoSopra) return
     const nuove: HTMLElement[] = []
     let quante = 0
@@ -298,18 +380,17 @@ export function vistaMese (): HTMLElement {
       nuove.push(...pezzi(lunedi))
       quante += 1
     }
-    const prima = scorrevole.scrollHeight
+    const prima = viva.scrollHeight
     finestraMese.su += quante
-    cappello?.remove()
-    cappello = null
-    if (nuove.length > 0) scorrevole.prepend(...nuove)
-    rimettiCappello(cimaResa())
+    togliCappello(viva)
+    if (nuove.length > 0) viva.prepend(...nuove)
+    rimettiCappello(viva, cimaResa())
     if (quante < SETTIMANE_IN_PIU && anno) {
       capoSopra = capo(t.cominciaAnno(anno.etichetta))
-      scorrevole.prepend(capoSopra)
+      viva.prepend(capoSopra)
     }
     // Aggiungendo sopra si rimette il contenuto dov'era, senza strappi.
-    scorrevole.scrollTop += scorrevole.scrollHeight - prima
+    viva.scrollTop += viva.scrollHeight - prima
   }
 
   // La finestra iniziale si accorcia contro i capi dell'anno.
@@ -333,7 +414,7 @@ export function vistaMese (): HTMLElement {
   }
   finestraMese.giu = resteGiu
 
-  rimettiCappello(cimaResa())
+  rimettiCappello(scorrevole, cimaResa())
   if (anno && !dentroLAnno(sommaGiorni(cimaResa(), -7))) {
     capoSopra = capo(t.cominciaAnno(anno.etichetta))
     scorrevole.prepend(capoSopra)
@@ -343,45 +424,24 @@ export function vistaMese (): HTMLElement {
     scorrevole.append(capoSotto)
   }
 
-  scorrevole.addEventListener('scroll', () => {
-    finestraMese.scorrimento = scorrevole.scrollTop
+  allungaStriscia = (viva) => {
     if (allungoInCorso) return
     allungoInCorso = true
     try {
-      if (scorrevole.scrollTop < SOGLIA_ALLUNGA) allungaSu()
-      else if (
-        scorrevole.scrollHeight - scorrevole.scrollTop - scorrevole.clientHeight < SOGLIA_ALLUNGA
-      ) {
-        allungaGiu()
+      if (viva.scrollTop < SOGLIA_ALLUNGA) allungaSu(viva)
+      else if (viva.scrollHeight - viva.scrollTop - viva.clientHeight < SOGLIA_ALLUNGA) {
+        allungaGiu(viva)
       }
     } finally {
       allungoInCorso = false
     }
-  })
-
-  // La misura si prende solo a elemento appeso: prima non ha altezza.
-  requestAnimationFrame(() => {
-    if (finestraMese.scorrimento >= 0) {
-      scorrevole.scrollTop = finestraMese.scorrimento
-      return
-    }
-    const scelta = scorrevole.querySelector<HTMLElement>('.mese__cella--scelta')
-    if (scelta) {
-      // Con i rettangoli e non con `offsetTop`: il genitore posizionato della cella
-      // potrebbe non essere questo.
-      const dove = scelta.getBoundingClientRect().top - scorrevole.getBoundingClientRect().top
-      // Il nome del mese sta appiccicato in alto: si lascia spazio, o coprirebbe il
-      // giorno cercato.
-      const cartello = scorrevole.querySelector<HTMLElement>('.mese__etichetta')
-      const riparo = (cartello?.offsetHeight ?? 0) + 8
-      scorrevole.scrollTop = Math.max(0, scorrevole.scrollTop + dove - riparo)
-    }
-    finestraMese.scorrimento = scorrevole.scrollTop
-  })
+  }
+  gestisci(scorrevole, 'scroll', allaRotella)
 
   return h(
     'div',
-    { class: 'mese' },
+    // Anello della catena di telaio fino alla striscia.
+    { class: 'mese', dataset: { telaio: 'mese' } },
     h(
       'div',
       { class: 'mese__intestazione', style: { gridTemplateColumns: colonne } },

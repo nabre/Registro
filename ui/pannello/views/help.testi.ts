@@ -63,7 +63,7 @@ const it = {
   nienteTesto:
     'Prova con una parola sola, o con il nome di un pulsante com’è scritto sullo ' +
     'schermo. Ctrl+K cerca invece fra le pagine e i comandi.',
-  forseCercavi: (parola: string) => `Forse cercavi «${parola}»`,
+  forseCercavi: (parola: string) => `Forse cercavi «${parola}»?`,
   mostraTutta: 'Mostra tutta la guida',
 
   // Il benvenuto.
@@ -80,6 +80,9 @@ const it = {
   daProvare: ['assenza', 'voto', 'rapporti', 'copia', 'proiettare', 'dettatura', 'consegna', 'Ctrl'],
   staviGuardando: 'Stavi guardando ',
   leggiCome: 'Leggi come funziona',
+  tornaInCima: 'Torna in cima',
+  filtraPerParte: 'Filtra per argomento:',
+  tutteLeParti: 'Tutte le sezioni',
 }
 
 export const testi = catalogo(it, {
@@ -142,6 +145,9 @@ export const testi = catalogo(it, {
     daProvare: ['Absenz', 'Note', 'Bericht', 'Kopie', 'projizieren', 'Diktat', 'Auftrag', 'Ctrl'],
     staviGuardando: 'Du kommst von ',
     leggiCome: 'So funktioniert es',
+    tornaInCima: 'Nach oben',
+    filtraPerParte: 'Nach Thema filtern:',
+    tutteLeParti: 'Alle Abschnitte',
   },
   fr: {
     titolo: 'Aide',
@@ -202,6 +208,9 @@ export const testi = catalogo(it, {
     daProvare: ['absence', 'note', 'rapport', 'copie', 'projeter', 'dictée', 'devoir', 'Ctrl'],
     staviGuardando: 'Tu regardais ',
     leggiCome: 'Lire comment ça marche',
+    tornaInCima: 'Haut de page',
+    filtraPerParte: 'Filtrer par sujet :',
+    tutteLeParti: 'Toutes les sections',
   },
   en: {
     titolo: 'Help',
@@ -262,5 +271,8 @@ export const testi = catalogo(it, {
     daProvare: ['absence', 'grade', 'report', 'copy', 'project', 'dictation', 'assignment', 'Ctrl'],
     staviGuardando: 'You were looking at ',
     leggiCome: 'Read how it works',
+    tornaInCima: 'Back to top',
+    filtraPerParte: 'Filter by topic:',
+    tutteLeParti: 'All sections',
   },
 })

@@ -14,13 +14,14 @@ import {
 import {
   aggiorna,
   classiDiCuiSonoDocente,
+  inBlocco,
   lezioneDiRiferimentoDiCorso,
   nomeClasse,
   pendenzeDellaBarra,
   stato,
-  type SchedaDocente,
-  type Vista,
+  vai,
 } from './state.js'
+import type { PaginaId } from './posto.js'
 import { testi } from './pages.testi.js'
 
 // Nomi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).
@@ -40,8 +41,8 @@ const t = testi()
 type GruppoPagina = 'agenda' | 'registro' | 'classe' | 'anno' | 'sistema'
 
 export interface Pagina {
-  /** Un nome stabile: lo cerca la palette, lo invoca chi va per nome. */
-  id: string;
+  /** Un nome stabile: lo cerca la palette, lo invoca chi va per nome, lo ricorda la memoria. */
+  id: PaginaId;
   titolo: string;
   simbolo: NomeIcona;
   gruppo: GruppoPagina;
@@ -60,64 +61,28 @@ export interface Pagina {
   apri: () => void;
 }
 
+/** Apre un'ora nel Registro del suo corso: il corso di lavoro la segue. */
+export function apriLezione (lezioneId: string): void {
+  vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: lezioneId } })
+}
+
 /**
- * Apre una pagina puntata sul corso del contesto. Corso e classe insieme,
- * perché le pagine filtrano per tutti e due.
+ * Apre una pagina del registro sul corso del contesto (nel Registro, quello
+ * dell'ora aperta). Il Registro di un corso senza ore non c'è: lo si dice.
  */
-function vaiAlCorso (vista: Vista): void {
+function vaiAlCorso (pagina: PaginaId): void {
   const corso = corsoDelContesto()
   if (!corso) return
-  if (vista === 'lezione') {
-    const lezioneId = lezioneDiRiferimentoDiCorso(corso.id)
-    if (!lezioneId) {
-      notifica(t.nessunaLezione, 'avviso')
-      return
-    }
-    aggiorna({
-      vista,
-      corsoId: corso.id,
-      filtroClasseId: corso.classeId,
-      lezioneId,
-    })
+  if (pagina === 'pagina.corso.registro' && !lezioneDiRiferimentoDiCorso(corso.id)) {
+    notifica(t.nessunaLezione, 'avviso')
     return
   }
-  aggiorna({
-    vista,
-    corsoId: corso.id,
-    filtroClasseId: corso.classeId,
-    ...(vista === 'check' ? { ambitoCheck: 'corso' as const } : {}),
-  })
+  vai({ pagina, soggetto: { tipo: 'corso', id: corso.id } })
 }
 
-/** Apre il check della classe scelta nel ruolo di docente di classe. */
-function vaiAlCheckDellaClasse (): void {
-  const classe = classeDelFascicolo()
-  if (!classe) return
-  aggiorna({
-    vista: 'check',
-    ambitoCheck: 'classe',
-    classeId: classe.id,
-    filtroClasseId: classe.id,
-  })
-}
-
-/**
- * Apre il pannello del docente di classe su una scheda: le quattro schede
- * sono destinazioni a sé («Assenze», non «il pannello e la terza linguetta»).
- */
-function vaiAlPannello (scheda: SchedaDocente): void {
-  // La classe del fascicolo, non quella del contesto: la sezione esiste solo
-  // dove il mestiere c'è, e qui una classe buona c'è sempre.
-  const classe = classeDelFascicolo()
-  if (!classe) return
-  // Anche il filtro per classe, come in `vaiAlCorso`: uscendo si va in una
-  // pagina del corso, che non deve trovarsi il filtro di prima.
-  aggiorna({
-    vista: 'docenteClasse',
-    classeId: classe.id,
-    filtroClasseId: classe.id,
-    schedaDocente: scheda,
-  })
+/** Se si è in questa pagina: una sola domanda, al posto. */
+function qui (id: PaginaId): () => boolean {
+  return () => stato.posto.pagina === id
 }
 
 /**
@@ -134,8 +99,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'dashboard',
     gruppo: 'agenda',
     aiuto: t.oggiAiuto,
-    attiva: () => stato.vista === 'oggi',
-    apri: () => aggiorna({ vista: 'oggi' }),
+    attiva: qui('pagina.oggi'),
+    apri: () => { vai({ pagina: 'pagina.oggi' }) },
   },
   {
     id: 'pagina.calendario',
@@ -143,8 +108,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'calendario',
     gruppo: 'agenda',
     aiuto: t.calendarioAiuto,
-    attiva: () => stato.vista === 'calendario',
-    apri: () => aggiorna({ vista: 'calendario' }),
+    attiva: qui('pagina.calendario'),
+    apri: () => { vai({ pagina: 'pagina.calendario' }) },
   },
   // Il gruppo «Anno» comincia dalle classi, poi persone, mappa e corsi.
   {
@@ -153,8 +118,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'classi',
     gruppo: 'anno',
     aiuto: t.classiAiuto,
-    attiva: () => stato.vista === 'classi',
-    apri: () => aggiorna({ vista: 'classi' }),
+    attiva: qui('pagina.classi'),
+    apri: () => { vai({ pagina: 'pagina.classi' }) },
   },
   {
     // Con l'anno e non con la classe: la domanda è «chi è questa persona», e di
@@ -164,8 +129,9 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'utente',
     gruppo: 'anno',
     aiuto: t.personeAiuto,
-    attiva: () => stato.vista === 'persone' || stato.vista === 'allievo',
-    apri: () => aggiorna({ vista: 'persone' }),
+    // La scheda di una persona non ha voce: si accende l'elenco da cui viene.
+    attiva: () => stato.posto.pagina === 'pagina.persone' || stato.posto.pagina === 'pagina.allievo',
+    apri: () => { vai({ pagina: 'pagina.persone' }) },
   },
   {
     // Con l'anno: la domanda è «da dove arriva la gente» (visite in azienda,
@@ -175,8 +141,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'mappa',
     gruppo: 'anno',
     aiuto: t.mappaAiuto,
-    attiva: () => stato.vista === 'mappa',
-    apri: () => aggiorna({ vista: 'mappa' }),
+    attiva: qui('pagina.mappa'),
+    apri: () => { vai({ pagina: 'pagina.mappa' }) },
   },
   // Com'è fatto l'anno: ci si entra a settembre e quando cambia qualcosa.
   {
@@ -185,8 +151,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'libro',
     gruppo: 'anno',
     aiuto: t.corsiAiuto,
-    attiva: () => stato.vista === 'corsi',
-    apri: () => aggiorna({ vista: 'corsi' }),
+    attiva: qui('pagina.corsi'),
+    apri: () => { vai({ pagina: 'pagina.corsi' }) },
   },
   // La carta che entra (scansioni da dividere) e le pendenze: lavoro della giornata / agenda.
   {
@@ -196,8 +162,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'agenda',
     aiuto: t.pendenzeAiuto,
     conto: () => pendenzeDellaBarra().aperti,
-    attiva: () => stato.vista === 'todo',
-    apri: () => aggiorna({ vista: 'todo' }),
+    attiva: qui('pagina.pendenze'),
+    apri: () => { vai({ pagina: 'pagina.pendenze' }) },
   },
   {
     // Guarda tutte le classi, e una parte di quel che mostra una classe non ce l'ha ancora.
@@ -207,8 +173,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'agenda',
     aiuto: t.daSmistareAiuto,
     conto: pagineDaSmistareInTutto,
-    attiva: () => stato.vista === 'daSmistare',
-    apri: () => aggiorna({ vista: 'daSmistare' }),
+    attiva: qui('pagina.daSmistare'),
+    apri: () => { vai({ pagina: 'pagina.daSmistare' }) },
   },
   // Il registro: le pagine del corso scelto in cima. Senza corso restano spente
   // e dicono che cosa manca, perché l'elenco non cambi altezza.
@@ -219,8 +185,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.lezioneAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'lezione',
-    apri: () => vaiAlCorso('lezione'),
+    attiva: qui('pagina.corso.registro'),
+    apri: () => vaiAlCorso('pagina.corso.registro'),
   },
   {
     id: 'pagina.corso.valutazioni',
@@ -229,8 +195,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.valutazioniAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'valutazioni',
-    apri: () => vaiAlCorso('valutazioni'),
+    attiva: qui('pagina.corso.valutazioni'),
+    apri: () => vaiAlCorso('pagina.corso.valutazioni'),
   },
   {
     // Accanto alle valutazioni: persone in riga e colonne, ma è fatto/non fatto e
@@ -241,8 +207,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.checkAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'check' && stato.ambitoCheck === 'corso',
-    apri: () => vaiAlCorso('check'),
+    attiva: qui('pagina.corso.check'),
+    apri: () => vaiAlCorso('pagina.corso.check'),
   },
   {
     id: 'pagina.corso.piani',
@@ -251,8 +217,8 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.pianiAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'piani',
-    apri: () => vaiAlCorso('piani'),
+    attiva: qui('pagina.corso.piani'),
+    apri: () => vaiAlCorso('pagina.corso.piani'),
   },
   {
     id: 'pagina.corso.documenti',
@@ -261,13 +227,13 @@ export const PAGINE: readonly Pagina[] = [
     gruppo: 'registro',
     aiuto: t.documentiAiuto,
     impedimento: senzaCorso,
-    attiva: () => stato.vista === 'documenti',
-    apri: () => vaiAlCorso('documenti'),
+    attiva: qui('pagina.corso.documenti'),
+    apri: () => vaiAlCorso('pagina.corso.documenti'),
   },
 
   // Il docente di classe: le schede del fascicolo di classe.
   // Nessuna dichiara un impedimento: la sezione esiste solo dove il mestiere c'è
-  // (`sezioneCePer`) e lì `classeDelFascicolo()` trova sempre una classe.
+  // (`sezioneCePer`) e lì `completa` trova sempre la classe del fascicolo.
 
   {
     id: 'pagina.classe.check',
@@ -275,8 +241,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'check',
     gruppo: 'classe',
     aiuto: t.checkClasseAiuto,
-    attiva: () => stato.vista === 'check' && stato.ambitoCheck === 'classe',
-    apri: vaiAlCheckDellaClasse,
+    attiva: qui('pagina.classe.check'),
+    apri: () => { vai({ pagina: 'pagina.classe.check' }) },
   },
   {
     id: 'pagina.classe.documenti',
@@ -284,9 +250,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'documento',
     gruppo: 'classe',
     aiuto: t.archivioAiuto,
-    attiva: () =>
-      stato.vista === 'docenteClasse' && stato.schedaDocente === 'documenti',
-    apri: () => vaiAlPannello('documenti'),
+    attiva: qui('pagina.classe.documenti'),
+    apri: () => { vai({ pagina: 'pagina.classe.documenti' }) },
   },
   {
     id: 'pagina.classe.assenze',
@@ -294,9 +259,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'calendario',
     gruppo: 'classe',
     aiuto: t.assenzeAiuto,
-    attiva: () =>
-      stato.vista === 'docenteClasse' && stato.schedaDocente === 'assenze',
-    apri: () => vaiAlPannello('assenze'),
+    attiva: qui('pagina.classe.assenze'),
+    apri: () => { vai({ pagina: 'pagina.classe.assenze' }) },
   },
   {
     id: 'pagina.classe.messaggistica',
@@ -304,10 +268,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'posta',
     gruppo: 'classe',
     aiuto: t.messaggisticaAiuto,
-    attiva: () =>
-      stato.vista === 'docenteClasse' &&
-      stato.schedaDocente === 'messaggistica',
-    apri: () => vaiAlPannello('messaggistica'),
+    attiva: qui('pagina.classe.messaggistica'),
+    apri: () => { vai({ pagina: 'pagina.classe.messaggistica' }) },
   },
 
   // Il programma: la macchina, non il registro. Non è nel menu «File», perché la
@@ -318,8 +280,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'impostazioni',
     gruppo: 'sistema',
     aiuto: t.impostazioniAiuto,
-    attiva: () => stato.vista === 'impostazioni',
-    apri: () => aggiorna({ vista: 'impostazioni' }),
+    attiva: qui('pagina.impostazioni'),
+    apri: () => { vai({ pagina: 'pagina.impostazioni' }) },
   },
   {
     id: 'pagina.guida',
@@ -327,8 +289,8 @@ export const PAGINE: readonly Pagina[] = [
     simbolo: 'informazione',
     gruppo: 'sistema',
     aiuto: t.guidaAiuto,
-    attiva: () => stato.vista === 'guida',
-    apri: () => aggiorna({ vista: 'guida' }),
+    attiva: qui('pagina.guida'),
+    apri: () => { vai({ pagina: 'pagina.guida' }) },
   },
 ]
 
@@ -430,13 +392,9 @@ export function gruppiDiPagine (): GruppoDiPagine[] {
     .filter((voce) => voce.pagine.length > 0)
 }
 
-/** Preferisce la destinazione scelta, se ancora compatibile con la vista. */
+/** La destinazione in cui si è: quella del posto (la scheda di una persona accende Persone). */
 export function paginaAttiva (): Pagina | null {
-  return (
-    PAGINE.find((pagina) => pagina.id === stato.paginaId && pagina.attiva()) ??
-    PAGINE.find((pagina) => pagina.attiva()) ??
-    null
-  )
+  return PAGINE.find((pagina) => pagina.attiva()) ?? null
 }
 
 /**
@@ -444,7 +402,7 @@ export function paginaAttiva (): Pagina | null {
  * L'unica vista senza destinazione è la scheda di una persona.
  */
 export function nomeDelPosto (): string {
-  if (stato.vista === 'allievo') return t.schedaPersona
+  if (stato.posto.pagina === 'pagina.allievo') return t.schedaPersona
   return paginaAttiva()?.titolo ?? t.gruppi.registro
 }
 
@@ -459,11 +417,10 @@ export function vaiA (pagina: Pagina): void {
     notifica(perche, 'avviso')
     return
   }
-  pagina.apri()
-  // Cambiare pagina riporta la riga delle azioni sui comandi della pagina, anche
-  // dalla scheda «Proiezione» (lo schermo resta acceso).
-  aggiorna({
-    schedaComandi: 'pagina',
-    ...(pagina.attiva() ? { paginaId: pagina.id } : {}),
+  inBlocco(() => {
+    pagina.apri()
+    // Cambiare pagina riporta la riga delle azioni sui comandi della pagina, anche
+    // dalla scheda «Proiezione» (lo schermo resta acceso).
+    aggiorna({ schedaComandi: 'pagina' })
   })
 }

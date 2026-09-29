@@ -44,7 +44,6 @@ const it = {
   documenti: 'Documenti',
   documentiAiuto: 'Quel che esce dal registro e va in mano ad altri',
   pendenzeClasse: `${Molti(CARTE.pendenza)} della classe`,
-  pendenzeClasseAiuto: 'Quel che questa classe deve ancora portare o rifare',
   archivio: 'Archivio documentale',
   archivioAiuto: 'Chi ha consegnato e chi no, foglio per foglio',
   assenze: 'Assenze',
@@ -111,7 +110,6 @@ export const testi = catalogo(it, {
     documentiAiuto:
       'Was aus dem Klassenbuch hinausgeht und in andere Hände kommt',
     pendenzeClasse: `${Molti(lessico.in('de').pendenza)} der Klasse`,
-    pendenzeClasseAiuto: 'Was diese Klasse noch mitbringen oder nachholen muss',
     archivio: 'Dokumentenarchiv',
     archivioAiuto: 'Wer abgegeben hat und wer nicht, Blatt für Blatt',
     assenze: 'Absenzen',
@@ -173,7 +171,6 @@ export const testi = catalogo(it, {
     documenti: 'Documents',
     documentiAiuto: 'Ce qui sort du registre et passe entre d’autres mains',
     pendenzeClasse: `${Molti(lessico.in('fr').pendenza)} de la classe`,
-    pendenzeClasseAiuto: 'Ce que cette classe doit encore apporter ou refaire',
     archivio: 'Archive des documents',
     archivioAiuto: 'Qui a rendu et qui pas, feuille par feuille',
     assenze: 'Absences',
@@ -234,7 +231,6 @@ export const testi = catalogo(it, {
     documentiAiuto:
       'What leaves the register and goes into other people’s hands',
     pendenzeClasse: `Class ${lessico.in('en').pendenza.plurale}`,
-    pendenzeClasseAiuto: 'What this class still has to bring or redo',
     archivio: 'Document archive',
     archivioAiuto: 'Who has handed in and who hasn’t, sheet by sheet',
     assenze: 'Absences',

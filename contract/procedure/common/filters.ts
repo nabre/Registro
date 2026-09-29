@@ -447,7 +447,7 @@ export function presenzaDi<const C extends readonly string[]> (
  * Se un valore conta come pieno: stringa di soli spazi ed elenco vuoto sono
  * vuoti, uno zero no.
  */
-export function pieno (valore: unknown): boolean {
+function pieno (valore: unknown): boolean {
   if (valore === null || valore === undefined) return false
   if (typeof valore === 'string') return valore.trim() !== ''
   if (Array.isArray(valore)) return valore.length > 0

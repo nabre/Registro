@@ -18,9 +18,10 @@ import {
 import { suggerimento } from '../components/hint.js'
 import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
+import { isola, isolaPresente, ridisegnaIsola } from '../isole.js'
 import { azione, ascolta, chiedi } from '../bridge.js'
-import { aggiorna, stato } from '../state.js'
+import { iscriviti, ridisegna, stato } from '../state.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './languageModels.testi.js'
 
@@ -123,6 +124,29 @@ let erroreElenco = ''
 let giroCatalogo = 0
 let giroDeposito = 0
 
+/**
+ * Le isole della sezione (ADR-48): quel che la pagina dei modelli mostra, e
+ * dentro la barra dello scarico, che l'avanzamento rifà quattro volte al
+ * secondo senza toccare il resto delle impostazioni.
+ */
+const ISOLA_MODELLI = 'modelli-llm'
+const ISOLA_SCARICHI = 'scarichi'
+
+/**
+ * Rifà i modelli dopo una lettura o un gesto: solo la loro isola, se è in
+ * pagina. Senza isola si ridisegna tutto come prima (la lettura può arrivare
+ * mentre si cambia pagina).
+ */
+function rifai (): void {
+  if (isolaPresente(ISOLA_MODELLI)) ridisegnaIsola(ISOLA_MODELLI)
+  else ridisegna()
+}
+
+/** Due file della fila uguali, nello stesso ordine. */
+function stessaFila (una: readonly string[], altra: readonly string[]): boolean {
+  return una.length === altra.length && una.every((file, indice) => file === altra[indice])
+}
+
 // ------------------------------------------------------------- le domande
 
 /** Rilegge l'elenco dei modelli e ridisegna. */
@@ -134,7 +158,7 @@ async function leggi (): Promise<void> {
   } else {
     erroreElenco = esito.errori.join(' ') || testi().elencoNonLetto
   }
-  aggiorna({})
+  rifai()
 }
 
 /** Il catalogo, e la ricerca se c'è qualcosa da cercare: una chiamata, righe della stessa forma. */
@@ -144,7 +168,7 @@ async function leggiCatalogo (): Promise<void> {
   const esito = await chiedi<typeof catalogo>('llm.catalogo', cercato ? { cerca: cercato } : {})
   if (questo !== giroCatalogo) return
   if (esito.ok && esito.dati) catalogo = esito.dati
-  aggiorna({})
+  rifai()
 }
 
 /** I file veri di un deposito: i nomi cambiano, e si chiedono quando servono. */
@@ -163,7 +187,7 @@ async function apri (deposito: string, taglio: string): Promise<void> {
     return
   }
   aperto = { deposito, ...esito.dati }
-  aggiorna({})
+  rifai()
 }
 
 /**
@@ -190,12 +214,12 @@ async function scarica (deposito: string, file: string, per?: UsoModello): Promi
   const primo = scarico === null
   if (primo) scarico = { file, byte: 0, totale: 0 }
   else if (nuovo) inCoda = [...inCoda, file]
-  aggiorna({})
+  rifai()
   const risposta = await azione({ tipo: 'llm.scarica', deposito, file, ...(per ? { per } : {}) })
   if (!risposta.ok) {
     if (primo && scarico?.file === file) scarico = null
     if (nuovo) inCoda = inCoda.filter((nome) => nome !== file)
-    aggiorna({})
+    rifai()
   }
 }
 
@@ -249,14 +273,20 @@ function ascoltaScarico (): void {
   ascolta((messaggio) => {
     if (messaggio.tipo !== 'scarico') return
     const avanzamento = messaggio
+    const primaFila = inCoda
     inCoda = avanzamento.coda
     if (!avanzamento.finito) {
+      const prima = scarico
       scarico = { file: avanzamento.file, byte: avanzamento.byte, totale: avanzamento.totale }
       // Il numero si segna sempre, il ridisegno solo se la pagina dei modelli è in
-      // vista: l'ascolto dura per tutta la vita del pannello e altrimenti
-      // ridisegnerebbe il registro quattro volte al secondo. Tornando qui, il
+      // vista: l'ascolto dura per tutta la vita del pannello. Tornando qui, il
       // ridisegno legge `scarico` già aggiornato.
-      if (modelliInVista()) aggiorna({})
+      if (!modelliInVista()) return
+      // Solo i byte: si rifà la barra, quattro volte al secondo. Un file nuovo o
+      // la fila cambiata cambiano anche i pulsanti delle righe («In fila»).
+      const soloNumeri = prima?.file === scarico.file && stessaFila(primaFila, inCoda)
+      if (soloNumeri && isolaPresente(ISOLA_SCARICHI)) ridisegnaIsola(ISOLA_SCARICHI)
+      else rifai()
       return
     }
     scarico = null
@@ -524,7 +554,7 @@ function riquadroDeposito (): Figlio {
   return scheda({
     titolo: aperto.deposito,
     aiuto: t.tagli,
-    azioni: pulsante({ testo: parole().chiudi, al: () => { aperto = null; aggiorna({}) } }),
+    azioni: pulsante({ testo: parole().chiudi, al: () => { aperto = null; rifai() } }),
     contenuto: h(
       'ul',
       { class: 'modelli-llm__elenco' },
@@ -566,8 +596,8 @@ function riquadroRicerca (): Figlio {
       'aria-label': t.cercaEtichetta,
       autocomplete: 'off',
     },
-    // `data-fuoco` perché uno scarico in corso ridisegna la pagina quattro volte
-    // al secondo (`ascoltaScarico`), e senza `ricordaFuoco` perderebbe la casella.
+    // `data-fuoco` perché una lettura finita rifà l'isola dei modelli, e senza
+    // `ricordaFuoco` la casella si perderebbe.
     dataset: { fuoco: 'ricerca-modelli' },
     // `input` e non `change`, che arriva solo al `blur`: altrimenti il ridisegno
     // rinascerebbe con il valore vecchio.
@@ -587,8 +617,12 @@ function riquadroRicerca (): Figlio {
         pulsante({
           testo: parole().cerca,
           simbolo: 'lente',
-          al: () => {
-            cercato = casella.value
+          al: (evento) => {
+            // La casella viva, accanto al pulsante: `casella` è quella di questo
+            // disegno, e dopo un ridisegno può essere la copia scartata.
+            const viva = (evento.currentTarget as HTMLElement).closest('.modelli-llm__cerca')
+              ?.querySelector<HTMLInputElement>('input')
+            cercato = (viva ?? casella).value
             return leggiCatalogo()
           },
         }),
@@ -642,17 +676,19 @@ function zonaTrascinamento (): HTMLElement {
     }),
   )
 
-  zona.addEventListener('dragover', (evento: DragEvent) => {
+  // La zona viva dall'evento: un ridisegno può aver tenuto quella di prima.
+  const viva = (evento: Event) => evento.currentTarget as HTMLElement
+  gestisci(zona, 'dragover', (evento) => {
     // Fermato qui, altrimenti la guardia di `main.ts` (che impedisce a un file
     // lasciato fuori bersaglio di portare via il registro) lo prende.
     evento.preventDefault()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    zona.classList.add('modelli-llm__zona--attiva')
+    viva(evento).classList.add('modelli-llm__zona--attiva')
   })
-  zona.addEventListener('dragleave', () => zona.classList.remove('modelli-llm__zona--attiva'))
-  zona.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(zona, 'dragleave', (evento) => viva(evento).classList.remove('modelli-llm__zona--attiva'))
+  gestisci(zona, 'drop', (evento) => {
     evento.preventDefault()
-    zona.classList.remove('modelli-llm__zona--attiva')
+    viva(evento).classList.remove('modelli-llm__zona--attiva')
     const file = Array.from(evento.dataTransfer?.files ?? [])
     if (file.length === 0) return
     const percorso = percorsoDelFile(file[0])
@@ -669,6 +705,19 @@ function zonaTrascinamento (): HTMLElement {
 // --------------------------------------------------------------- la vista
 
 /**
+ * La prima volta che si entra nella sezione si chiedono l'elenco e il catalogo
+ * e ci si mette in ascolto dello scarico. Lo fa un iscritto allo stato e non il
+ * disegno: il disegno si rifà a ogni gesto e non deve far partire letture.
+ */
+iscriviti(() => {
+  if (chiesto || !modelliInVista()) return
+  chiesto = true
+  ascoltaScarico()
+  void leggi()
+  void leggiCatalogo()
+})
+
+/**
  * Se la sezione dei modelli è in vista: le impostazioni del programma su
  * «Modelli linguistici».
  */
@@ -683,16 +732,15 @@ export function modelliInVista (): boolean {
  * con quale, i consigliati e la ricerca. Le voci della sezione seguono sotto.
  */
 export function contenutoModelliLinguistici (): Figlio[] {
-  ascoltaScarico()
-  if (!chiesto) {
-    chiesto = true
-    void leggi()
-    void leggiCatalogo()
-  }
+  // In un'isola con la classe della colonna che la ospita: stessi spazi, e il
+  // vuoto resta figlio di una `.colonna` (il suo riquadro tratteggiato).
+  return [isola(ISOLA_MODELLI, modelli, { class: 'colonna' })]
+}
 
+function modelli (): Figlio {
   const t = testi()
   if (!dati) {
-    return [statoVuoto(erroreElenco
+    return statoVuoto(erroreElenco
       ? {
           simbolo: 'bot',
           titolo: t.elencoNonLettoTitolo,
@@ -702,17 +750,17 @@ export function contenutoModelliLinguistici (): Figlio[] {
       : {
           simbolo: 'bot',
           titolo: t.staGuardando,
-        })]
+        })
   }
 
   // I modelli usabili e gli scarichi interrotti si contano a parte.
   const locali = dati.modelli.filter((modello) => !modello.incompiuto)
   const aMeta = dati.modelli.filter((modello) => modello.incompiuto)
 
-  return [h(
+  return h(
     'div',
     { class: 'modelli-llm' },
-    rigaScarico(),
+    isola(ISOLA_SCARICHI, rigaScarico),
     scheda({
       titolo: t.chiRisponde,
       aiuto: t.chiRispondeAiuto,
@@ -762,5 +810,5 @@ export function contenutoModelliLinguistici (): Figlio[] {
     }),
     riquadroDeposito(),
     riquadroRicerca(),
-  )]
+  )
 }

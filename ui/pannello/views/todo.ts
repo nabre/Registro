@@ -31,6 +31,7 @@ import {
   corsiDellAnnoAperto,
   corsiDi,
   stato,
+  vai,
 } from '../state.js'
 import { gruppoConsegne } from './assignments.js'
 import { riassuntoClasse, sezioniTodoClasse, simboloFamiglia } from './classTodo.js'
@@ -51,6 +52,15 @@ const fuocoCat = (id: string) => `todo-cat-${id}`
 // testo-fisso: selettore fuoco sottocategoria
 const fuocoSotto = (id: string) => `todo-sotto-${id}`
 
+/**
+ * Le pendenze di un corso solo: la scheda e il corso di lavoro insieme, così
+ * il Registro aperto dopo è quello del corso guardato. Le pendenze restano la
+ * pagina, senza soggetto: il corso lo sceglie la scheda.
+ */
+function apriPendenzeDelCorso (corsoId: string): void {
+  vai({ pagina: 'pagina.pendenze' }, { contesto: { corsoId }, altro: { schedaTodo: idSchedaCorso(corsoId) } })
+}
+
 const FAMIGLIE_CORSO: readonly FamigliaTodo[] = [
   'valutazioni',
   'consegnaClasse',
@@ -62,8 +72,7 @@ const FAMIGLIE_CORSO: readonly FamigliaTodo[] = [
 const FAMIGLIE_CLASSE_DOCENTE: readonly FamigliaTodo[] = [
   'assenze',
   'segnalazioni',
-  'consegnaClasse',
-  'svolgeClasse',
+  ...FAMIGLIE_CONSEGNA,
 ]
 
 function schedaFatto (
@@ -90,7 +99,10 @@ function schedaFatto (
   })
 }
 
-function schedaFamiglia (conto: { aperti: number; urgenti: number }, famiglia: FamigliaTodo): Figlio {
+function schedaFamiglia (
+  conto: { aperti: number; urgenti: number },
+  famiglia: FamigliaTodo,
+): Figlio {
   return h(
     'article',
     {
@@ -150,7 +162,10 @@ function barraNavigazioneTodo (
               dataset: { fuoco: voce.fuoco ?? fuocoCat(voce.id) },
               attr: {
                 'aria-selected': String(accesa),
-                title: `${voce.titolo} (${voce.conto})`,
+                title:
+                  voce.conto > 0
+                    ? `${voce.titolo} (${t.coseAperte(voce.conto)}${voce.urgenti > 0 ? ` · ${t.inRitardo(voce.urgenti)}` : ''})`
+                    : voce.titolo,
               },
               onclick: voce.al,
             },
@@ -160,10 +175,7 @@ function barraNavigazioneTodo (
               ? h(
                   'span',
                   {
-                    class: [
-                      'pastiglia pastiglia--minuta',
-                      voce.urgenti > 0 ? 'pastiglia--negativo' : 'pastiglia--quiete',
-                    ],
+                    class: 'pastiglia pastiglia--minuta pastiglia--quiete',
                     style: { marginLeft: '4px' },
                   },
                   String(voce.conto),
@@ -194,7 +206,10 @@ function barraNavigazioneTodo (
                   dataset: { fuoco: voce.fuoco ?? fuocoSotto(voce.id) },
                   attr: {
                     'aria-selected': String(accesa),
-                    title: `${voce.titolo} (${voce.conto})`,
+                    title:
+                      voce.conto > 0
+                        ? `${voce.titolo} (${t.coseAperte(voce.conto)}${voce.urgenti > 0 ? ` · ${t.inRitardo(voce.urgenti)}` : ''})`
+                        : voce.titolo,
                   },
                   onclick: voce.al,
                 },
@@ -204,10 +219,7 @@ function barraNavigazioneTodo (
                   ? h(
                       'span',
                       {
-                        class: [
-                          'pastiglia pastiglia--minuta',
-                          voce.urgenti > 0 ? 'pastiglia--negativo' : 'pastiglia--quiete',
-                        ],
+                        class: 'pastiglia pastiglia--minuta pastiglia--quiete',
                         style: { marginLeft: '4px' },
                       },
                       String(voce.conto),
@@ -278,7 +290,12 @@ export function vistaTodo (): Figlio {
   let totaleClassiAperti = 0
   let totaleClassiUrgenti = 0
   for (const classe of classiDocente) {
-    const todo = todoDelDocenteDiClasse(stato.registro, classe, corsiDi(classe.id), stato.adessoData)
+    const todo = todoDelDocenteDiClasse(
+      stato.registro,
+      classe,
+      corsiDi(classe.id),
+      stato.adessoData,
+    )
     todoClassiDocente.set(classe.id, todo)
     totaleClassiAperti += todo.aperti
     totaleClassiUrgenti += todo.urgenti
@@ -368,7 +385,7 @@ export function vistaTodo (): Figlio {
           conto: todo?.aperti ?? 0,
           urgenti: todo?.urgenti ?? 0,
           fuoco: fuocoTabCorso(corso.id),
-          al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+          al: () => apriPendenzeDelCorso(corso.id),
         }
       }),
     ]
@@ -421,6 +438,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: nomeDelCorso(corso),
+        contorno: todo.aperti > 0 ? pastiglia(t.coseAperte(todo.aperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -463,19 +481,28 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.docenteDiClasseEtichetta(classe.nome),
+        contorno: todo.aperti > 0 ? pastiglia(t.coseAperte(todo.aperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
       h(
         'div',
         { class: 'todo-sintesi' },
-        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(todo.conti[famiglia], famiglia)),
+        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) =>
+          schedaFamiglia(todo.conti[famiglia], famiglia),
+        ),
       ),
       todo.aperti === 0
         ? statoVuoto({
             simbolo: 'spunta',
             titolo: t.vuotoTitolo,
             testo: t.vuotoTestoDocenteClasse,
+            azione: pulsante({
+              testo: t.assegnaPrima,
+              variante: 'primario',
+              simbolo: 'piu',
+              al: () => moduloConsegna({ classeId: classe.id, ambito: 'classe' }),
+            }),
           })
         : h('div', { class: 'todo-classe__corpo' }, ...sezioniTodoClasse(todo)),
       schedaFatto(chiuse, todo.recuperi.chiusi, todo.riconsegne.fatte),
@@ -504,7 +531,7 @@ export function vistaTodo (): Figlio {
             azioni: pulsante({
               testo: parole().apri,
               variante: 'sottile',
-              al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+              al: () => apriPendenzeDelCorso(corso.id),
             }),
             contenuto: h('div', { class: 'todo-classe__corpo' }, ...sezioniTodoClasse(todo)),
           }),
@@ -518,6 +545,7 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.corsiAiuto,
+        contorno: totaleCorsiAperti > 0 ? pastiglia(t.coseAperte(totaleCorsiAperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
@@ -579,19 +607,28 @@ export function vistaTodo (): Figlio {
       testataVista({
         titolo: Molti(lessico().pendenza),
         sottotitolo: t.docenteDiClasseAiuto,
+        contorno: totaleClassiAperti > 0 ? pastiglia(t.coseAperte(totaleClassiAperti), 'quiete') : null,
         compatta: true,
       }),
       barraNav,
       h(
         'div',
         { class: 'todo-sintesi' },
-        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) => schedaFamiglia(contiClassi[famiglia], famiglia)),
+        ...FAMIGLIE_CLASSE_DOCENTE.map((famiglia) =>
+          schedaFamiglia(contiClassi[famiglia], famiglia),
+        ),
       ),
       totaleClassiAperti === 0
         ? statoVuoto({
             simbolo: 'spunta',
             titolo: t.vuotoTitolo,
             testo: t.vuotoTestoDocenteClasse,
+            azione: pulsante({
+              testo: t.assegnaPrima,
+              variante: 'primario',
+              simbolo: 'piu',
+              al: () => moduloConsegna({ ambito: 'classe' }),
+            }),
           })
         : h('div', { class: 'todo-classi' }, ...schedeClassi),
       schedaFatto(chiuseClassi, recuperiChiusiClassi, riconsegneFatteClassi),
@@ -617,7 +654,7 @@ export function vistaTodo (): Figlio {
       const btn = pulsante({
         testo: parole().apri,
         variante: 'sottile',
-        al: () => aggiorna({ schedaTodo: idSchedaCorso(corso.id), corsoId: corso.id }),
+        al: () => apriPendenzeDelCorso(corso.id),
       })
       btn.dataset.fuoco = fuocoTabCorso(corso.id)
       schedeCorsi.push(
@@ -660,6 +697,7 @@ export function vistaTodo (): Figlio {
     testataVista({
       titolo: Molti(lessico().pendenza),
       sottotitolo: t.tutteAiuto,
+      contorno: totaleGlobaleAperti > 0 ? pastiglia(t.coseAperte(totaleGlobaleAperti), 'quiete') : null,
       compatta: true,
     }),
     barraNav,
@@ -689,10 +727,7 @@ export function vistaTodo (): Figlio {
                 icona('libro', 'icona--minuta'),
                 h('span', null, t.sezioneCorsi),
                 totaleCorsiAperti > 0
-                  ? pastiglia(
-                      String(totaleCorsiAperti),
-                      totaleCorsiUrgenti > 0 ? 'negativo' : 'quiete',
-                    )
+                  ? pastiglia(String(totaleCorsiAperti), 'quiete')
                   : null,
               ),
               pulsante({
@@ -719,10 +754,7 @@ export function vistaTodo (): Figlio {
                     icona('classi', 'icona--minuta'),
                     h('span', null, t.sezioneDocenteClasse),
                     totaleClassiAperti > 0
-                      ? pastiglia(
-                          String(totaleClassiAperti),
-                          totaleClassiUrgenti > 0 ? 'negativo' : 'quiete',
-                        )
+                      ? pastiglia(String(totaleClassiAperti), 'quiete')
                       : null,
                   ),
                   pulsante({

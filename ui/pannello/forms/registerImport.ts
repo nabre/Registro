@@ -12,7 +12,7 @@ import { campo, pulsante, sezioneModulo } from '../components/base.js'
 import { apriModale, type ContestoModale } from '../components/modal.js'
 import { h } from '../dom.js'
 import { chiedi } from '../bridge.js'
-import { aggiorna, stato } from '../state.js'
+import { stato, vai } from '../state.js'
 import { inviaDalModulo } from './common.js'
 import { testi } from './registerImport.testi.js'
 
@@ -274,7 +274,7 @@ export function moduloImportaRegistro (): void {
       if (!risposta) return
       // L'esito lo mostra `invia`, come per ogni risposta.
       modale.chiudi()
-      if (classi.length > 0) aggiorna({ vista: 'classi' })
+      if (classi.length > 0) vai({ pagina: 'pagina.classi' })
     },
   })
   void leggi()

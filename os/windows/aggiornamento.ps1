@@ -97,7 +97,7 @@ Diario "aggiornamento dalla $($p.da) alla $($p.a) in «$($p.cartella)»"
 
 $testiPerLingua = @{
   it = @{
-    Titolo = 'Aggiornamento di Regiclass'
+    Titolo = 'Aggiornamento di Regiklass'
     Sottotitolo = 'Aggiornamento dalla versione {0} alla {1}'
     Piede = "Il documento dell’anno non si tocca. Non spegnere il computer finché non ha finito."
     Passo1 = 'Salvataggio e chiusura del registro'
@@ -115,7 +115,7 @@ $testiPerLingua = @{
     AnnullataDettaglio = "Se Windows ha chiesto il permesso di amministratore, serve un «Sì». Codice d’uscita: {0}."
     NonRiuscita = "L’installazione non è andata a buon fine: c’è ancora la versione {0}."
     Codice = "Codice d’uscita: {0}."
-    Installato = 'Regiclass {0} è installato.'
+    Installato = 'Regiklass {0} è installato.'
     LaTrovi = 'La trovi alla prossima apertura. Questa finestra si chiude da sé.'
     ApriRegistro = 'Apri il registro'
     Chiudi = 'Chiudi'
@@ -136,11 +136,11 @@ $testiPerLingua = @{
     VentiMinutiDettaglio = 'Potrebbe essere fermo su una domanda nascosta. Chiudi questa finestra e riavvia il computer prima di riprovare.'
     Aggiornato = 'Il registro è aggiornato.'
     NonAncoraAperto = "Il registro non si è ancora aperto. Forse è partito nascosto accanto all’orologio."
-    Pronto = 'Regiclass {0} è pronto.'
+    Pronto = 'Regiklass {0} è pronto.'
     Storto = "Qualcosa è andato storto mentre seguivo l’installazione."
   }
   de = @{
-    Titolo = 'Aktualisierung von Regiclass'
+    Titolo = 'Aktualisierung von Regiklass'
     Sottotitolo = 'Aktualisierung von Version {0} auf {1}'
     Piede = 'Das Dokument des Schuljahrs wird nicht angetastet. Schalte den Computer nicht aus, bis alles fertig ist.'
     Passo1 = 'Klassenbuch speichern und schliessen'
@@ -158,7 +158,7 @@ $testiPerLingua = @{
     AnnullataDettaglio = 'Wenn Windows nach Administratorrechten gefragt hat, braucht es ein «Ja». Exitcode: {0}.'
     NonRiuscita = 'Die Installation hat nicht geklappt: Es ist immer noch Version {0} da.'
     Codice = 'Exitcode: {0}.'
-    Installato = 'Regiclass {0} ist installiert.'
+    Installato = 'Regiklass {0} ist installiert.'
     LaTrovi = 'Du findest sie beim nächsten Öffnen. Dieses Fenster schliesst sich von selbst.'
     ApriRegistro = 'Klassenbuch öffnen'
     Chiudi = 'Schliessen'
@@ -179,11 +179,11 @@ $testiPerLingua = @{
     VentiMinutiDettaglio = 'Vielleicht hängt es an einer verborgenen Frage. Schliesse dieses Fenster und starte den Computer neu, bevor du es erneut versuchst.'
     Aggiornato = 'Das Klassenbuch ist aktualisiert.'
     NonAncoraAperto = 'Das Klassenbuch hat sich noch nicht geöffnet. Vielleicht ist es versteckt neben der Uhr gestartet.'
-    Pronto = 'Regiclass {0} ist bereit.'
+    Pronto = 'Regiklass {0} ist bereit.'
     Storto = 'Etwas ist schiefgegangen, während ich die Installation verfolgte.'
   }
   fr = @{
-    Titolo = 'Mise à jour de Regiclass'
+    Titolo = 'Mise à jour de Regiklass'
     Sottotitolo = 'Mise à jour de la version {0} à la {1}'
     Piede = "Le document de l’année n’est pas touché. N’éteins pas l’ordinateur avant que ce soit fini."
     Passo1 = 'Enregistrement et fermeture du registre'
@@ -201,7 +201,7 @@ $testiPerLingua = @{
     AnnullataDettaglio = "Si Windows a demandé l’autorisation d’administrateur, il faut répondre « Oui ». Code de sortie : {0}."
     NonRiuscita = "L’installation n’a pas abouti : c’est encore la version {0}."
     Codice = 'Code de sortie : {0}.'
-    Installato = 'Regiclass {0} est installé.'
+    Installato = 'Regiklass {0} est installé.'
     LaTrovi = 'Tu la trouveras à la prochaine ouverture. Cette fenêtre se ferme toute seule.'
     ApriRegistro = 'Ouvrir le registre'
     Chiudi = 'Fermer'
@@ -222,11 +222,11 @@ $testiPerLingua = @{
     VentiMinutiDettaglio = "Il est peut-être bloqué sur une question cachée. Ferme cette fenêtre et redémarre l’ordinateur avant de réessayer."
     Aggiornato = 'Le registre est à jour.'
     NonAncoraAperto = "Le registre ne s’est pas encore ouvert. Il a peut-être démarré caché près de l’horloge."
-    Pronto = 'Regiclass {0} est prêt.'
+    Pronto = 'Regiklass {0} est prêt.'
     Storto = "Quelque chose s’est mal passé pendant que je suivais l’installation."
   }
   en = @{
-    Titolo = 'Regiclass update'
+    Titolo = 'Regiklass update'
     Sottotitolo = 'Updating from version {0} to {1}'
     Piede = "The year’s document is not touched. Don’t switch the computer off until it has finished."
     Passo1 = 'Saving and closing the register'
@@ -244,7 +244,7 @@ $testiPerLingua = @{
     AnnullataDettaglio = 'If Windows asked for administrator permission, it needs a “Yes”. Exit code: {0}.'
     NonRiuscita = 'The installation did not succeed: version {0} is still there.'
     Codice = 'Exit code: {0}.'
-    Installato = 'Regiclass {0} is installed.'
+    Installato = 'Regiklass {0} is installed.'
     LaTrovi = "You’ll find it the next time you open it. This window closes by itself."
     ApriRegistro = 'Open the register'
     Chiudi = 'Close'
@@ -265,7 +265,7 @@ $testiPerLingua = @{
     VentiMinutiDettaglio = 'It may be stuck on a hidden question. Close this window and restart the computer before trying again.'
     Aggiornato = 'The register is updated.'
     NonAncoraAperto = 'The register has not opened yet. Maybe it started hidden next to the clock.'
-    Pronto = 'Regiclass {0} is ready.'
+    Pronto = 'Regiklass {0} is ready.'
     Storto = 'Something went wrong while I was following the installation.'
   }
 }
@@ -392,7 +392,7 @@ $xaml = @"
         <Image x:Name="Icona" Width="44" Height="44" Margin="0,0,14,0"
                RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-          <TextBlock Text="Regiclass" FontSize="17" FontWeight="SemiBold"
+          <TextBlock Text="Regiklass" FontSize="17" FontWeight="SemiBold"
                      Foreground="@@Testo@@"/>
           <TextBlock x:Name="Sottotitolo" Foreground="@@Quieto@@" Margin="0,2,0,0"/>
         </StackPanel>
@@ -666,11 +666,13 @@ function Messaggio ([string]$testo, [string]$dettaglio = '', [string]$tono = 'no
 $nomeEseguibile = [IO.Path]::GetFileNameWithoutExtension($p.eseguibile)
 
 # L'eseguibile da controllare e riaprire: quello di `parametri.json`, o
-# `Regiclass.exe` nella stessa cartella se la versione installata si chiama così.
+# `Regiklass.exe` nella stessa cartella se la versione installata si chiama così.
 function Eseguibile {
   if (Test-Path -LiteralPath $p.eseguibile) { return $p.eseguibile }
-  $nuovo = Join-Path (Split-Path -Parent $p.eseguibile) 'Regiclass.exe'
+  $nuovo = Join-Path (Split-Path -Parent $p.eseguibile) 'Regiklass.exe'
   if (Test-Path -LiteralPath $nuovo) { return $nuovo }
+  $vecchio = Join-Path (Split-Path -Parent $p.eseguibile) 'Regiclass.exe'
+  if (Test-Path -LiteralPath $vecchio) { return $vecchio }
   return $p.eseguibile
 }
 

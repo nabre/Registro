@@ -5,9 +5,10 @@ gira, dà il tipo TypeScript per inferenza, e si sa descrivere in JSON Schema �
 che è quel che finisce in `resources/tools.json` e in `regi schema`.
 
 Il contratto esposto è quello «Standard Schema» (`~standard`), lo stesso di zod e
-valibot: il nucleo non conosce `schemas.ts`, conosce quell'interfaccia. Se un
-giorno servisse di più, si sostituisce la libreria senza toccare una riga di
-nucleo o di procedura.
+valibot: il nucleo non conosce `schemas.ts`, conosce quell'interfaccia. Sotto,
+la convalida la fa valibot (ADR-28, ADR-50); forma, messaggi e JSON Schema
+restano nostri. Lo schema valibot resta interno: una procedura non lo vede e
+non lo importa. Sostituire la libreria non tocca nucleo né procedure.
 
 ## Indice
 

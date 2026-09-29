@@ -1,0 +1,26 @@
+[
+  {
+    "deposito": "bartowski/Qwen2.5-7B-Instruct-GGUF",
+    "chiave": "qwen7",
+    "perChe": "assistente",
+    "taglio": "Q4_K_M"
+  },
+  {
+    "deposito": "bartowski/Qwen2.5-3B-Instruct-GGUF",
+    "chiave": "qwen3",
+    "perChe": "assistente",
+    "taglio": "Q4_K_M"
+  },
+  {
+    "deposito": "ggml-org/Qwen2.5-VL-7B-Instruct-GGUF",
+    "chiave": "qwenVl",
+    "perChe": "ocr",
+    "taglio": "Q4_K_M"
+  },
+  {
+    "deposito": "ggml-org/SmolVLM-500M-Instruct-GGUF",
+    "chiave": "smolVlm",
+    "perChe": "ocr",
+    "taglio": "Q8_0"
+  }
+]

@@ -5,8 +5,8 @@ cancella (la storia sta in git); una decisione presa migra in
 [DECISIONI.md](DECISIONI.md).
 
 **Regola del file:** una voce si chiude quando il lavoro è **fatto e
-verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
-`npm test` verde (skill `verifica`). Non prima.
+verificato** — `npm run ci -- --solo verifica` verde (tipi, stile, prove e
+controlli statici; skill `verifica`). Non prima.
 
 ## 1. Regole di lavoro
 
@@ -18,100 +18,115 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 | D4 | La riga di comando è un cliente del condotto: non importa il codice interno, chiede tutto a `$elenco` e `$schema`. |
 | D5 | Un riordino delle cartelle si scrive prima come mappa «da → a» (ARCHITETTURA § 3), poi `git mv` in un commit che non contiene altro. |
 | D6 | Un export senza consumatori esterni **non si cancella se è vivo**: si rende interno. Si cancella solo quel che nessuno chiama, dopo che una prova l'ha confermato. |
-| D7 | Le funzionalità si aggiungono dichiarandole (`definisci()`, schemi, nucleo, giornale), non cablandole; niente librerie nuove per questo. |
+| D7 | Le funzionalità si aggiungono dichiarandole (`definisci()`, schemi, nucleo, giornale), non cablandole. Le librerie si giudicano con i criteri di ADR-50. |
 | D8 | Cinque strati: `core/`, `contract/`, `desktop/`, `ui/`, `cli/` ([ARCHITETTURA.md](ARCHITETTURA.md)). |
 | D9 | `contract/` ha la forma di tRPC senza tRPC: `router()`, `chiamante()` tipizzato, `Link`. |
 | D10 | La riga di comando resta nuda: solo moduli `node:`, nessuna dipendenza, nessuna build. |
 | D11 | `core/` diventa puro invertendo `apparato`, non riscrivendo (ARCHITETTURA § 3). |
 | D12 | `core/` importa da `contract/` solo tipi. |
 | D13 | Le regole degli strati le verifica `npm run layers`. |
-| D14–D16 | I nomi dicono il ruolo, non un prodotto (`apparato`, non `vscode`): ADR-02. |
+| D14 | I nomi dicono il ruolo, non un prodotto (`apparato`, non `vscode`): ADR-02. |
 
 ## 2. Lavoro aperto
 
-### API e letture
+### Archivio e sincronizzazione
 
-- [ ] Il giornale si legge solo in console (`desktop/avvio.ts`): un file che ruota o
-      una vista in Impostazioni.
-- [ ] `Smistatore.assorbiCassettaVecchia()` (`core/dati/sorter.ts`) scrive
-      `smistamenti` fuori da `chiama()`, a ogni cambio di documento.
-      L'azione `smistamento.cassetta.assorbi` va spezzata per file prima di
-      instradarla (un PDF grosso supererebbe i 30 s della fila).
-- [ ] La spinta dello stato ricalcola `riferimentiRotti` a ogni scrittura
-      (`desktop/pannelli/panel.ts:444`): una scansione intera, senza indice.
-- [ ] Il pannello riceve il `Registro` intero a ogni scrittura: nessuna
-      sottoscrizione parziale.
-- [ ] Le letture che non elencano non hanno paginazione (`corso.presenze`,
-      `valutazioni.voti`, `documenti.inventario`).
-- [ ] Quindici procedure che aprono un dialogo non hanno una controparte da
-      script (API § 7); `smistamento.pdf.deposita` è il modello.
-- [ ] Da decidere, senza urgenza: un contratto unico (OpenAPI) oltre al JSON
-      Schema per procedura; una versione di protocollo negoziata; transazioni su
-      più procedure.
+- [ ] Due PC sullo stesso `.regi`: con il file cambiato fuori, `salva` fa
+      `rifai` di tutte le voci in memoria (`core/dati/package.ts`, «chi salva
+      per ultimo copre») e cancella il lavoro dell'altro, anche in collezioni
+      non toccate. Proposta: riaprire dal disco e riapplicare solo le
+      collezioni pendenti; conflitto sulla stessa collezione → copia accanto e
+      avviso. Decisione strutturale (ADR-19): da scrivere in DECISIONI prima.
 
+
+### Impostazioni
+
+- [ ] Riordino delle pagine Impostazioni secondo [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md):
+      fase 0 (guasti G1–G8) fatta; restano contratto dei controlli, gerarchia
+      ad aree, doppioni (piano § 7). Decisioni aperte in § 8 del piano.
+
+### Librerie (ADR-50)
+
+- [ ] Togliere il percorso classico di `aggiornaElemento` (`MORFOSI` spento)
+      dopo un uso vero del morph senza guasti (D6); allora portare
+      `tests/ui/isole.test.mjs` e `riquadriLocali.test.mjs` su Chromium o ritirarle.
+- [ ] Temporal fuori da `dates.ts`: `core/dominio/calendarIcs.ts` (fuso con
+      `Intl.formatToParts` + `Date.UTC` → `ZonedDateTime`),
+      `timetable.ts:163-178` (ciclo su `Date` in UTC), `factories.ts:160`;
+      `aIso` non riempie gli anni sotto il 1000. Togliere il `declare global`
+      di `dates.ts` quando TypeScript porta `Temporal`.
+- [ ] Verificare nel Chromium di Electron il crollo di Chromium 153 quando il
+      morph sposta un `th` con `moveBefore` (oggi evitato: `data-chiave` solo
+      sull'elemento col fuoco, `components/virtuale.ts`).
+- [ ] Un ridisegno delle pagine voti o archivio con 40 allievi costa 80–130 ms
+      anche con tabelle corte: è il morph della pagina intera (ADR-06), non la
+      tabella. `pendenzeDellaBarra` ricalcola tutto a ogni ridisegno (~12 ms
+      con 200 prove). `oggi()` costa ~20 µs col polyfill: `grades.ts` e altre
+      viste lo chiamano per cella.
+- [ ] Le regole della bozza immer (ADR-50) si controllano solo in esecuzione
+      (`controllaVivo`, `controllaSenzaBozze`, prove): valutare regole ESLint.
+      Fuori dal passo del pannello, lezione nuova, sposta e duplica sono
+      2–2,5× più lente (cicli O(N) di immer, ≤ 22 ms su 20000 lezioni): uno
+      script fisso in `tools/` per rendere confrontabili le misure.
+- [ ] Nell'app vera il pannello scambia `stato`/`proiezione.mira` ogni ~680 ms
+      senza fine: capire se è voluto.
+
+### Strati
+
+- [ ] Otto deroghe dichiarate in `tools/layers.mjs` (`DEROGHE`), da togliere
+      una per una: `contract/` → `desktop/azioni/projection.ts` (cinque: la
+      proiezione va chiesta dall'apparato); `core/azioni/system.ts` →
+      `desktop/apparato/settings.ts` (impostazioni dichiarate in `core/` o
+      passate dall'apparato); `core/dominio/schoolCalendar.ts` →
+      `core/dati/schoolCalendars.ts` e `ui/pannello/forms/schoolCalendar.ts` →
+      `core/dati/schoolCalendarTicino.ts` (i calendari generati sono dati puri:
+      indice nel dominio).
+
+
+### Sicurezza
+
+- [ ] `desktop/apparato/theme.ts`: finestre col ponte con `sandbox:false`;
+      preload in bundle senza `require` di Node.
+- [ ] Fuses Electron (`NodeOptions`, `NodeCliInspect`, asar integrity):
+      `RunAsNode` serve a `regi`.
+- [ ] `node-llama-cpp` nel main process legge GGUF di depositi qualunque:
+      `utilityProcess`, impronta fissata per il catalogo consigliato.
+- [ ] Dettatura: `127.0.0.1:17493` occupabile da un altro utente se voicebox è
+      spento; token o verifica del processo.
+- [ ] Condotto: dopo un arresto brutale `condotto.segreto` resta; la riga di
+      comando dovrebbe verificare il proprietario della pipe
+      (`GetNamedPipeServerProcessId`).
 
 ### Prove
 
-- [ ] Una prova di regressione per ogni difetto grave: mancano quella
-      dell'appello (vive in una chiusura del DOM) e `comandiInVolo`.
-- [ ] Nessuna prova end-to-end del giro pagina → preload → main → disco.
-- [ ] Senza prova: `EACCES` sulla pipe, giro Exchange vero, OAuth
-      che dimentica un account sbagliato, scarichi con più iscritti.
-- [ ] Prove dell'interfaccia su Playwright per Node, senza Python (non urge).
-
-### Interfaccia
-
-- [ ] `docs/immagini/*.png` sono dell'aspetto di prima: da rifare.
+- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
+      `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
+- [ ] Mutanti sopravvissuti (misura di prima, `deletions.ts` 87%,
+      `calculations.ts:330-735` 97,7%): piano eliminato senza prova che
+      dichiari `lezioni` (~:755); guardie `n > 0` delle perdite (~:343-413: una
+      perdita a zero non deve comparire); `calculations.ts` ~:344 (lezione
+      senza appello nei dati di prova). Rimisurare con `npm run mutanti`.
+- [ ] In locale gira Node 26.7, il progetto e la CI chiedono Node 24: `npm ci`
+      e le prove vanno ripetute con la versione giusta.
 
 ### Modelli e assistente
 
 - [ ] Le scansioni senza programma esterno, il giorno in cui `node-llama-cpp`
       accetta immagini: via `mtmd.ts` e `ocr.programma`.
-- [ ] Il modello caricato non si scarica da sé (`llamaCpp.ts`): tiene la
-      memoria fino a un cambio di modello.
-- [ ] Il catalogo dei consigliati è scritto a mano in `huggingFace.ts`.
 
 ### Rilascio, firma, nome
 
-- [ ] SignPath: domanda come Regiclass (progetto `regiclass`); 2FA; app GitHub;
+- [ ] SignPath (differito): domanda come Regiklass (progetto `regiklass`); 2FA; app GitHub;
       configurazioni `eseguibile` e `installatori`; politica
       `release-signing`; segreto e variabile su GitHub (GUIDA § «La firma del
       codice»).
 - [ ] Prima release firmata: togliere l'avviso SmartScreen dal README e «quando
       la firma sarà attiva» da SECURITY.
-- [ ] Da decidere: controllo degli aggiornamenti acceso di serie (se la
-      Foundation lo contesta); `publisherName` in `win.signtoolOptions` quando
-      le release firmate sono la regola; firma del disinstallatore.
-- [ ] Font Liberation 1.x di pdfjs (GPL con eccezione): i 2.x sono OFL, se
-      chiesto. Sei pacchetti MIT senza file LICENSE.
+- [ ] Sei pacchetti MIT di produzione senza file LICENSE (`npm run licenze` li
+      elenca): `@reflink/reflink`, `@reflink/reflink-win32-x64-msvc`,
+      `simple-git`, `@simple-git/args-pathspec`, `@simple-git/argv-parser`,
+      `lazy-val`. L'avviso MIT va portato nel pacchetto per altra via.
 
 ### Da provare a mano
 
-- [ ] Aggiornando su Windows un'installazione col nome precedente: una voce in
-      «App installate», cartella dei dati spostata, avvio automatico,
-      associazione `.regi`, `regi` nel PATH, icona sulla barra.
-- [ ] Installatore: le tre modalità (tutti gli utenti, un utente, portabile)
-      con barra, pin, notifiche, icona dei `.regi`, disinstallazione; le altre
-      scale oltre il 250%, la pagina di fine, il disinstallatore.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.
-- [ ] Arresto di Windows con una modifica fresca e con il solo vassoio; widget
-      sul monitor esterno e cavo staccato; proiezione a schermo intero; aprire un
-      `.regi` da terminale o con doppio clic mentre il registro esce.
-- [ ] Linux: la fascia dei pulsanti su GNOME e KDE.
-- [ ] Barra del titolo su Windows accanto ai pulsanti di sistema
-      (`--barra-titolo-riserva`).
-- [ ] Calendario: il modulo dell'anno con il calendario ufficiale (spostare
-      l'inizio, importare, salvare); la scelta dell'anno dal benvenuto su
-      un'installazione nuova; «Nuovo anno scolastico» con «Sì, importa».
-- [ ] Pause: aggiungere e togliere pause, ore nuove dal calendario e dal modulo,
-      trascinare, copiare con Ctrl, stirare sopra una ricreazione, due pause e
-      fasce sul bordo, un'ora vecchia con la casella spenta.
-- [ ] Liste: cambiare il colore di un tipo di attività, «Rimetti le voci di
-      fabbrica», pannello stretto, chiaro e scuro.
-- [ ] A occhio: `pendenza`, `corniceFoglio`, `collegamento`, `tendina` (valore
-      fuori elenco), le figure SVG nuove della guida.
-
-### Questioni aperte
-
-- [ ] Più docenti della stessa classe sullo stesso registro: nessuna struttura
-      dice «di chi è» una scrittura.

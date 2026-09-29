@@ -52,7 +52,7 @@ const RESPIRO_MS = 250
 // ----------------------------------------------------------------- un pacco
 
 /** Di che genere è il pezzo: mentre scende si chiama in un modo o nell'altro. */
-export type Pezzo = 'programma' | 'modello'
+type Pezzo = 'programma' | 'modello'
 
 /** Un file da prendere, con tutto quel che serve per fidarsene. */
 export interface Pacco {

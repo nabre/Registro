@@ -15,6 +15,7 @@ import {
   lezioniDi,
   nomeSemestreScelto,
   stato,
+  vai,
   type SchedaPersona,
 } from '../state.js'
 import { quadroDelPeriodo } from './student/attendance.js'
@@ -95,7 +96,7 @@ export function vistaAllievo (): Figlio {
         azione: pulsante({
           testo: t.vaiAllePersone,
           variante: 'primario',
-          al: () => aggiorna({ vista: 'persone' }),
+          al: () => { vai({ pagina: 'pagina.persone' }) },
         }),
       }),
     )
@@ -106,7 +107,9 @@ export function vistaAllievo (): Figlio {
   const elenco = ordinaAllievi(classe.allievi)
   const dove = elenco.findIndex((a) => a.id === allievo.id)
   const vaiA = (quale: Allievo | undefined) =>
-    quale ? () => aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: quale.id }) : undefined
+    quale
+      ? () => { vai({ pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: quale.id } }, { contesto: { classeId: classe.id } }) }
+      : undefined
   const precedente = elenco[dove - 1]
   const successivo = elenco[dove + 1]
 
@@ -140,7 +143,7 @@ export function vistaAllievo (): Figlio {
           testo: t.tornaAllElenco,
           simbolo: 'sinistra',
           variante: 'sottile',
-          al: () => aggiorna({ vista: 'persone' }),
+          al: () => { vai({ pagina: 'pagina.persone' }) },
         }),
         // La scheda in PDF si chiede da Documenti, con quelle degli altri.
         pulsante({

@@ -28,7 +28,7 @@ import { setTimeout as aspetta } from 'node:timers/promises'
 import { cartellaUtente, cartellaUtentePrecedente, NOME_APPLICAZIONE, NOME_PRECEDENTE } from './common.mjs'
 
 /** L'`appId` di `electron-builder.json`: su macOS dà il nome a qualche file. */
-const IDENTITA = 'ch.nabre.regiclass'
+const IDENTITA = 'ch.nabre.regiklass'
 
 /** L'identità precedente (`IDENTITA_VECCHIA` in `core/dati/formerName.ts`). */
 const IDENTITA_PRECEDENTE = 'ch.edu.ti.cptt.registro-docenti'
@@ -44,6 +44,7 @@ const TEMPORANEI = ['registro-pagina-', 'registro-voce-', 'registro-aggiornament
  * profili: le sue, e quelle col nome precedente.
  */
 const BLOCCHI = [
+  ['# >>> Regiklass: regi >>>', '# <<< Regiklass: regi <<<'],
   ['# >>> Regiclass: regi >>>', '# <<< Regiclass: regi <<<'],
   ['# >>> Registro docenti: regdoc >>>', '# <<< Registro docenti: regdoc <<<'],
 ]
@@ -187,12 +188,12 @@ function togliComandoDaUnix () {
 /** Quel che macOS tiene fuori da `Application Support`, a nome del programma. */
 function togliDaMacOS () {
   const libreria = join(homedir(), 'Library')
-  for (const identita of [IDENTITA, IDENTITA_PRECEDENTE]) {
+  for (const identita of [IDENTITA, 'ch.nabre.regiclass', IDENTITA_PRECEDENTE]) {
     togli(join(libreria, 'Preferences', `${identita}.plist`))
     togli(join(libreria, 'Saved Application State', `${identita}.savedState`))
     togli(join(libreria, 'Caches', identita))
   }
-  for (const nome of [NOME_APPLICAZIONE, NOME_PRECEDENTE]) {
+  for (const nome of [NOME_APPLICAZIONE, 'Regiclass', NOME_PRECEDENTE]) {
     togli(join(libreria, 'Caches', nome))
     togli(join(libreria, 'Logs', nome))
   }
@@ -230,7 +231,7 @@ if ($ambiente -and $bin.Count -gt 0) {
 }
 
 # Classe ed estensione di adesso, e classe col nome precedente.
-foreach ($coppia in @(@('Regiclass', '.regi'), @('Registro docenti', $null))) {
+foreach ($coppia in @(@('Regiklass', '.regi'), @('Regiclass', '.regi'), @('Registro docenti', $null))) {
   $classe = $coppia[0]
   $chiaveEstensione = if ($coppia[1]) { 'Software\Classes\' + $coppia[1] } else { $null }
   $nostra = $false
@@ -305,7 +306,10 @@ $risposta = [UIntPtr]::Zero
 
 function puliziaDiWindows (dati, eseguibile, portabile) {
   const windows = process.env.SystemRoot
-  if (!windows) return Promise.resolve()
+  // Le prove non toccano il registro di sistema di chi le lancia. Non possono
+  // togliere `SystemRoot`: senza, Node su Windows non inizializza il
+  // generatore casuale e il processo muore all'avvio.
+  if (!windows || process.env.REGISTRO_SENZA_PULIZIA_WINDOWS) return Promise.resolve()
   return new Promise((risolvi) => {
     execFile(join(windows, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), [
       '-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand',
@@ -343,10 +347,12 @@ async function disinstalla () {
   if (process.platform === 'darwin') togliDaMacOS()
   if (process.platform === 'linux') {
     togli(join(homedir(), '.cache', NOME_APPLICAZIONE))
+    togli(join(homedir(), '.cache', 'Regiclass'))
     togli(join(homedir(), '.cache', NOME_PRECEDENTE))
   }
   const locale = process.env.LOCALAPPDATA ?? (process.platform === 'win32' ? join(homedir(), 'AppData', 'Local') : null)
   if (locale) {
+    togli(join(locale, 'regiklass-updater'))
     togli(join(locale, 'regiclass-updater'))
     togli(join(locale, 'registro-docenti-updater'))
   }

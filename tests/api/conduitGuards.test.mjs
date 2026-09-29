@@ -4,9 +4,9 @@
 // prima del gestore; il resto delle impostazioni passa.
 
 import assert from 'node:assert/strict'
-import { createConnection } from 'node:net'
 import { after, before, describe, it } from 'node:test'
 
+import { presaRiconosciuta } from '../helpers/accesso.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-guardie-')
@@ -44,15 +44,15 @@ after(async () => {
 })
 
 /** Una richiesta, una busta. */
-function chiedi (method, params) {
+async function chiedi (method, params) {
+  const presa = await presaRiconosciuta(indirizzo)
   return new Promise((risolvi, rifiuta) => {
     let resto = ''
-    const presa = createConnection(indirizzo)
     const sveglia = setTimeout(() => {
       presa.destroy()
       rifiuta(new Error('il condotto non ha risposto'))
     }, 10000)
-    presa.on('connect', () => presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })}\n`))
+    presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })}\n`)
     presa.on('data', (pezzo) => {
       resto += pezzo.toString('utf8')
       const taglio = resto.indexOf('\n')
@@ -104,6 +104,7 @@ describe('le chiavi che il condotto non tocca', () => {
       'registroDocenti.modelli.cartella',
       'registroDocenti.ocr.modello',
       'registroDocenti.ocr.proiettore',
+      'registroDocenti.assistente.modello',
     ]) {
       const busta = await chiedi('programma.salva', { chiave, valore: 'C:\\altrove\\x.exe' })
       assert.equal(busta.error?.data?.codice, 'non-permesso', `${chiave}: ${JSON.stringify(busta)}`)
@@ -129,5 +130,20 @@ describe('le chiavi che il condotto non tocca', () => {
     })
     assert.equal(busta.error, undefined, JSON.stringify(busta))
     assert.equal(busta.result.ok, true)
+  })
+})
+
+describe('«Lettura spenta» in Da smistare', () => {
+  it('porta il pannello su Modelli linguistici, dove il modello si sceglie', async () => {
+    // Prima apriva la finestra nativa, dove il modello si legge soltanto.
+    const chieste = []
+    api.registraNavigatore((navigazione) => chieste.push(navigazione))
+    try {
+      const busta = await chiedi('smistamento.lettura.impostazioni', {})
+      assert.equal(busta.error, undefined, JSON.stringify(busta))
+      assert.deepEqual(chieste, [{ tipo: 'naviga', vista: 'modelliLinguistici' }])
+    } finally {
+      api.registraNavigatore(null)
+    }
   })
 })

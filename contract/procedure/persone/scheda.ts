@@ -207,7 +207,9 @@ export const procedura = definisci({
             (v) => v.corsoId === corso.id && nelPeriodo(v.data, inizio, fine),
           )
           const previste = anno
-            ? udPrevisteDaOrario(anno, corso, inizio, fine, r.impostazioni.minutiUd, r.lezioni)
+            ? udPrevisteDaOrario(
+                anno, corso, inizio, fine, r.impostazioni.minutiUd, r.lezioni, r.impostazioni.pause,
+              )
             : 0
           const matrice = matriceCorso(iscritti, lezioni, momenti, r.impostazioni, previste)
           const riga = matrice.righe.find((voce) => voce.allievo.id === allievo.id)

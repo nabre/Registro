@@ -9,19 +9,22 @@
 // La stessa tendina sposta i resti di una scansione che attraversa due classi;
 // le pagine già archiviate non si muovono.
 
-import { consegneDocumento } from '../../../core/dominio/assignments.js'
+import { raccoglieDocumento } from '../../../core/dominio/assignments.js'
 import { formattaData, giornoDi } from '../../../core/dominio/dates.js'
-import type { Classe, Smistamento } from '../../../core/dominio/models.js'
-import { daSmistarePerClasse, type MucchioDaSmistare } from '../../../core/dominio/sorting.js'
+import type { Classe, Registro, Smistamento } from '../../../core/dominio/models.js'
+import { daSmistarePerClasse, pagineDaSmistare, type MucchioDaSmistare } from '../../../core/dominio/sorting.js'
 import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
 import { suggerimento } from '../components/hint.js'
 import { icona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
-import { aggiorna, classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
+import { classiDiCuiSonoDocente, stato, vai } from '../state.js'
 
 import { guardaNellArchivio } from './archive.js'
 import { spostaInClasse } from './sorting.js'
 import { testi } from './sorting.testi.js'
+
+let cacheRegistro: Registro | null = null
+let mucchiInMemoria: MucchioDaSmistare[] = []
 
 /**
  * I mucchi da mostrare: uno per classe di cui si è docente, più gli orfani. Le
@@ -29,18 +32,45 @@ import { testi } from './sorting.testi.js'
  * sono, non che cosa manca nel periodo.
  */
 function mucchi (): MucchioDaSmistare[] {
-  return daSmistarePerClasse(
+  if (cacheRegistro === stato.registro) return mucchiInMemoria
+
+  const classi = classiDiCuiSonoDocente()
+  const classiIds = new Set(classi.map((c) => c.id))
+  const classePerCorso = new Map<string, string>()
+  for (const corso of stato.registro.corsi) {
+    if (classiIds.has(corso.classeId)) {
+      classePerCorso.set(corso.id, corso.classeId)
+    }
+  }
+  const consegnePerClasse = new Map<string, string[]>()
+  for (const c of stato.registro.consegne) {
+    if (raccoglieDocumento(c)) {
+      const clsId = classePerCorso.get(c.corsoId)
+      if (clsId) {
+        let elenco = consegnePerClasse.get(clsId)
+        if (!elenco) {
+          elenco = []
+          consegnePerClasse.set(clsId, elenco)
+        }
+        elenco.push(c.id)
+      }
+    }
+  }
+
+  cacheRegistro = stato.registro
+  mucchiInMemoria = daSmistarePerClasse(
     stato.registro.smistamenti,
-    classiDiCuiSonoDocente().map((classe) => ({
+    classi.map((classe) => ({
       classe,
-      consegneIds: consegneDocumento(stato.registro, corsiDi(classe.id)).map((c) => c.id),
+      consegneIds: consegnePerClasse.get(classe.id) ?? [],
     })),
   )
+  return mucchiInMemoria
 }
 
 /** Quante pagine aspettano in tutto: è il numero che la barra laterale mostra. */
 export function pagineDaSmistareInTutto (): number {
-  return mucchi().reduce((totale, mucchio) => totale + mucchio.pagine, 0)
+  return pagineDaSmistare(stato.registro.smistamenti)
 }
 
 /** Il giorno in cui è arrivato, senza l'ora: qui interessa «da quanto sta lì». */
@@ -55,19 +85,20 @@ function quandoArrivato (smistamento: Smistamento): string {
  * classe `indiceAperto` non troverebbe il file fra le righe.
  */
 function vaiASmistare (classe: Classe, smistamento: Smistamento): void {
-  aggiorna({
-    vista: 'docenteClasse',
-    schedaDocente: 'documenti',
-    classeId: classe.id,
-    filtroClasseId: classe.id,
-  })
+  vai(
+    { pagina: 'pagina.classe.documenti', soggetto: { tipo: 'classe', id: classe.id } },
+    { contesto: { filtroClasseId: classe.id } },
+  )
   guardaNellArchivio(smistamento.file)
 }
 
 /** Una riga: che file è, quante pagine restano, da quando aspetta. */
-function riga (smistamento: Smistamento, ...coda: Figlio[]): HTMLElement {
+function riga (
+  smistamento: Smistamento,
+  t: ReturnType<typeof testi>,
+  ...coda: Figlio[]
+): HTMLElement {
   const restano = smistamento.blocchi.reduce((n, b) => n + (b.a - b.da + 1), 0)
-  const t = testi()
   return h(
     'div',
     { class: 'da-smistare__riga' },
@@ -81,8 +112,11 @@ function riga (smistamento: Smistamento, ...coda: Figlio[]): HTMLElement {
 }
 
 /** Un mucchio con la sua classe: si va e si smista, o si manda altrove. */
-function mucchioDiClasse (mucchio: MucchioDaSmistare, classe: Classe): HTMLElement {
-  const t = testi()
+function mucchioDiClasse (
+  mucchio: MucchioDaSmistare,
+  classe: Classe,
+  t: ReturnType<typeof testi>,
+): HTMLElement {
   return h(
     'section',
     { class: 'da-smistare__mucchio' },
@@ -95,6 +129,7 @@ function mucchioDiClasse (mucchio: MucchioDaSmistare, classe: Classe): HTMLEleme
     ...mucchio.smistamenti.map((smistamento) =>
       riga(
         smistamento,
+        t,
         // Il gesto normale è dividerlo; spostarlo in un'altra classe viene dopo, più quieto.
         spostaInClasse(smistamento, t.spostaIn),
         pulsante({
@@ -110,8 +145,10 @@ function mucchioDiClasse (mucchio: MucchioDaSmistare, classe: Classe): HTMLEleme
 }
 
 /** Il mucchio senza classe. */
-function mucchioSenzaClasse (mucchio: MucchioDaSmistare): HTMLElement {
-  const t = testi()
+function mucchioSenzaClasse (
+  mucchio: MucchioDaSmistare,
+  t: ReturnType<typeof testi>,
+): HTMLElement {
   return h(
     'section',
     { class: 'da-smistare__mucchio da-smistare__mucchio--orfani' },
@@ -130,7 +167,7 @@ function mucchioSenzaClasse (mucchio: MucchioDaSmistare): HTMLElement {
       t.finche,
     ),
     ...mucchio.smistamenti.map((smistamento) =>
-      riga(smistamento, spostaInClasse(smistamento, t.diQualeClasse)),
+      riga(smistamento, t, spostaInClasse(smistamento, t.diQualeClasse)),
     ),
   )
 }
@@ -156,16 +193,18 @@ export function vistaDaSmistare (): Figlio {
             testo: t.vaiArchivio,
             variante: 'primario',
             simbolo: 'documento',
-            al: () => aggiorna({ vista: 'docenteClasse', schedaDocente: 'documenti' }),
+            al: () => { vai({ pagina: 'pagina.classe.documenti' }) },
           }),
         })
       : h(
           'div',
-          { class: 'da-smistare', dataset: { scorrimento: 'da-smistare' } },
+          // Telaio: con la catena della vista la scatola che scorre resta la stessa.
+          // testo-fisso: chiavi di scorrimento e di telaio
+          { class: 'da-smistare', dataset: { scorrimento: 'da-smistare', telaio: 'da-smistare' } },
           ...tutti.map((mucchio) =>
             mucchio.classe
-              ? mucchioDiClasse(mucchio, mucchio.classe)
-              : mucchioSenzaClasse(mucchio),
+              ? mucchioDiClasse(mucchio, mucchio.classe, t)
+              : mucchioSenzaClasse(mucchio, t),
           ),
         ),
   )

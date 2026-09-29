@@ -60,13 +60,18 @@ export function sceltaFigurata (opzioni: OpzioniSceltaFigurata): HTMLElement {
    * Accende una scheda subito, prima che torni il valore salvato: intanto deve
    * dirsi scelta e tenere il fuoco, dove `data-fuoco` lo ritrova al ridisegno.
    */
-  const scegli = (indice: number): void => {
+  const scegli = (indice: number, evento: Event): void => {
     if (disabilitato) return
-    schede.forEach((scheda, i) => {
+    // Le schede del gruppo vivo: dopo un ridisegno `schede` può essere il gruppo scartato.
+    const gruppo = (evento.currentTarget as HTMLElement).closest('.scelta-figurata')
+    const vive = gruppo
+      ? Array.from(gruppo.querySelectorAll<HTMLElement>('.scelta-figurata__voce'))
+      : schede
+    vive.forEach((scheda, i) => {
       scheda.setAttribute('aria-checked', i === indice ? 'true' : 'false')
       scheda.tabIndex = i === indice ? 0 : -1
     })
-    schede[indice]?.focus()
+    vive[indice]?.focus()
     const valore = scelte[indice]?.valore
     if (valore === undefined || valore === scelto) return
     scelto = valore
@@ -92,12 +97,12 @@ export function sceltaFigurata (opzioni: OpzioniSceltaFigurata): HTMLElement {
           'aria-disabled': disabilitato ? 'true' : null,
         },
         tabIndex: indice === entrata && !disabilitato ? 0 : -1,
-        onclick: () => scegli(indice),
+        onclick: (evento: MouseEvent) => scegli(indice, evento),
         onkeydown: (evento: KeyboardEvent) => {
           const prossima = dove(evento.key, indice, scelte.length)
           if (prossima === null) return
           evento.preventDefault()
-          scegli(prossima)
+          scegli(prossima, evento)
         },
       },
       h('span', { class: 'scelta-figurata__figura', attr: { 'aria-hidden': 'true' } }, voce.figura),

@@ -10,6 +10,7 @@ const it = {
     attivitaId: 'La tappa a cui appenderla; null vuol dire «del piano intero»',
     genere: 'Un collegamento resta un indirizzo; un file e un’immagine si scelgono da disco',
     url: 'Solo per «collegamento»',
+    file: 'Percorso del file o dell’immagine sul disco; se omesso apre il dialogo',
   },
   apri: {
     titolo: 'Apre la risorsa: il collegamento nel browser, il file col programma di sistema',
@@ -39,6 +40,7 @@ export const testi = catalogo(it, {
         'Ein Link bleibt eine Adresse; eine Datei und ein Bild werden auf der Festplatte ' +
         'ausgewählt',
       url: 'Nur für «collegamento»',
+      file: 'Pfad der Datei oder des Bildes auf der Festplatte; wenn weggelassen, öffnet sich der Dialog',
     },
     apri: {
       titolo: 'Öffnet die Ressource: den Link im Browser, die Datei mit dem Programm des Systems',
@@ -65,6 +67,7 @@ export const testi = catalogo(it, {
       genere:
         'Un lien reste une adresse ; un fichier et une image se choisissent sur le disque',
       url: 'Seulement pour « collegamento »',
+      file: 'Chemin du fichier ou de l’image sur le disque ; si omis, ouvre la boîte de dialogue',
     },
     apri: {
       titolo:
@@ -90,6 +93,7 @@ export const testi = catalogo(it, {
       attivitaId: 'The step to attach it to; null means “of the whole plan”',
       genere: 'A link stays an address; a file and an image are picked from disk',
       url: 'Only for “collegamento”',
+      file: 'Path of the file or image on disk; if omitted opens the dialog',
     },
     apri: {
       titolo: 'Opens the resource: the link in the browser, the file with the system’s program',

@@ -2,11 +2,63 @@
 //
 // Non `Date`: il registro ragiona per giorni, e `new Date('2025-09-15')` è
 // mezzanotte UTC, che fa scivolare il giorno a ogni conversione. Le date
-// entrano ed escono come stringhe; `Date` serve solo dentro, in UTC, come
-// contatore di giorni.
+// entrano ed escono come stringhe; dentro il conto lo fa `Temporal.PlainDate`,
+// un giorno senza ora né fuso (ADR-50, passo 4). Nativo in Electron 44; nelle
+// prove lo inietta esbuild (`tests/helpers/temporal.mjs`).
+//
+// `Date` resta dove c'è davvero un istante (`giornoDi`, `istanteAdesso`,
+// `istanteNelNome`) e in `aIso`/`daIso`, il ponte per chi conta in
+// millisecondi (`calendarIcs.ts`, `timetable.ts`).
 
 import type { AnnoScolastico, Iso, Istante, Ora, Semestre } from './models.js'
 import { testi } from './dates.testi.js'
+
+// TypeScript 5.9 non conosce ancora `Temporal`: qui solo quel che questo file
+// usa. Una dichiarazione e non i tipi di `temporal-polyfill`, che è una
+// dipendenza di sviluppo e il dominio non importa niente da fuori (`npm run
+// layers`). Va tolta quando la libreria di TypeScript porta `Temporal`, o le
+// dichiarazioni diventano due.
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Temporal {
+    interface PlainDate {
+      readonly year: number
+      readonly month: number
+      readonly day: number
+      /** 1 = lunedì … 7 = domenica. */
+      readonly dayOfWeek: number
+      readonly weekOfYear: number | undefined
+      readonly daysInMonth: number
+      add (durata: { days?: number; months?: number }): PlainDate
+      with (campi: { day?: number }): PlainDate
+      until (altra: PlainDate): { readonly days: number }
+      toString (): string
+    }
+    interface PlainTime {
+      toString (opzioni?: { smallestUnit?: 'minute' }): string
+    }
+    const PlainDate: { from (valore: string): PlainDate }
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Now {
+      function plainDateISO (): PlainDate
+      function plainTimeISO (): PlainTime
+    }
+  }
+}
+
+/**
+ * Il giorno di una stringa 'AAAA-MM-GG', o null se non lo è. Solo quella forma:
+ * `PlainDate.from` accetterebbe anche '20260915' e '2026-09-15T08:00'.
+ */
+function giorno (iso: string): Temporal.PlainDate | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null
+  try {
+    return Temporal.PlainDate.from(iso)
+  } catch {
+    // Il 30 febbraio: una stringa ISO fuori calendario si rifiuta, non trabocca.
+    return null
+  }
+}
 
 // Giorni e mesi sono funzioni e non costanti: si leggono nella lingua attuale
 // (`dates.testi.ts`), non in quella dell'avvio.
@@ -53,9 +105,7 @@ export function daIso (iso: Iso): Date {
 
 /** Vero se la stringa ha la forma 'AAAA-MM-GG' ed è un giorno esistente. */
 export function isoValida (valore: unknown): valore is Iso {
-  if (typeof valore !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valore)) return false
-  const data = new Date(`${valore}T00:00:00Z`)
-  return !Number.isNaN(data.getTime()) && aIso(data) === valore
+  return typeof valore === 'string' && giorno(valore) !== null
 }
 
 /** Vero se la stringa ha la forma 'HH:MM' su 24 ore. */
@@ -65,14 +115,12 @@ export function oraValida (valore: unknown): valore is Ora {
 
 /** Oggi secondo l'orologio locale, non secondo UTC: a mezzanotte cambia qui. */
 export function oggi (): Iso {
-  const ora = new Date()
-  return `${ora.getFullYear()}-${due(ora.getMonth() + 1)}-${due(ora.getDate())}`
+  return Temporal.Now.plainDateISO().toString()
 }
 
 /** L'ora del momento, sull'orologio di chi guarda. */
 export function adesso (): Ora {
-  const ora = new Date()
-  return `${due(ora.getHours())}:${due(ora.getMinutes())}`
+  return Temporal.Now.plainTimeISO().toString({ smallestUnit: 'minute' })
 }
 
 /** L'istante di adesso, completo: è quel che si scrive nei timbri di creazione e modifica. */
@@ -95,28 +143,33 @@ export function giornoDi (istante: string | null | undefined): Iso | null {
   return `${data.getFullYear()}-${due(data.getMonth() + 1)}-${due(data.getDate())}`
 }
 
+// Una data che non è una data torna com'è (come in `spostaData`) e un conto
+// su di lei dà NaN: `Temporal` lancerebbe, e un campo scritto male non deve
+// far cadere una vista.
+
+/** Un numero di giorni non intero conta i giorni interi passati, come faceva `Date`. */
 export function sommaGiorni (iso: Iso, giorni: number): Iso {
-  return aIso(new Date(daIso(iso).getTime() + giorni * GIORNO_MS))
+  const g = giorno(iso)
+  if (!g || !Number.isFinite(giorni)) return iso
+  return g.add({ days: Math.floor(giorni) }).toString()
 }
 
+/** 31 gennaio + 1 mese non esiste: si tiene l'ultimo giorno del mese. */
 export function sommaMesi (iso: Iso, mesi: number): Iso {
-  const data = daIso(iso)
-  const giorno = data.getUTCDate()
-  data.setUTCDate(1)
-  data.setUTCMonth(data.getUTCMonth() + mesi)
-  // 31 gennaio + 1 mese non esiste: si tiene l'ultimo giorno del mese.
-  const ultimo = new Date(Date.UTC(data.getUTCFullYear(), data.getUTCMonth() + 1, 0)).getUTCDate()
-  data.setUTCDate(Math.min(giorno, ultimo))
-  return aIso(data)
+  const g = giorno(iso)
+  if (!g || !Number.isFinite(mesi)) return iso
+  return g.add({ months: Math.trunc(mesi) }).toString()
 }
 
 export function differenzaGiorni (da: Iso, a: Iso): number {
-  return Math.round((daIso(a).getTime() - daIso(da).getTime()) / GIORNO_MS)
+  const inizio = giorno(da)
+  const fine = giorno(a)
+  return inizio && fine ? inizio.until(fine).days : Number.NaN
 }
 
 /** Giorno della settimana con 1 = lunedì … 7 = domenica (ISO 8601). */
 export function giornoSettimana (iso: Iso): number {
-  return daIso(iso).getUTCDay() || 7
+  return giorno(iso)?.dayOfWeek ?? Number.NaN
 }
 
 /** Il lunedì della settimana che contiene la data. */
@@ -132,11 +185,8 @@ export function settimanaDi (iso: Iso): Iso[] {
 
 /** Numero di settimana ISO 8601, quello con cui i piani annuali si contano. */
 export function settimanaIso (iso: Iso): number {
-  const data = daIso(iso)
-  // Il giovedì della stessa settimana decide a quale anno appartiene.
-  data.setUTCDate(data.getUTCDate() + 4 - (data.getUTCDay() || 7))
-  const capodanno = new Date(Date.UTC(data.getUTCFullYear(), 0, 1))
-  return Math.ceil(((data.getTime() - capodanno.getTime()) / GIORNO_MS + 1) / 7)
+  // Nel calendario ISO `weekOfYear` c'è sempre: il `?? NaN` è per le date storte.
+  return giorno(iso)?.weekOfYear ?? Number.NaN
 }
 
 export function primoDelMese (iso: Iso): Iso {
@@ -144,8 +194,8 @@ export function primoDelMese (iso: Iso): Iso {
 }
 
 export function ultimoDelMese (iso: Iso): Iso {
-  const data = daIso(iso)
-  return aIso(new Date(Date.UTC(data.getUTCFullYear(), data.getUTCMonth() + 1, 0)))
+  const g = giorno(iso)
+  return g ? g.with({ day: g.daysInMonth }).toString() : iso
 }
 
 /**
@@ -278,17 +328,15 @@ export function formattaData (
   iso: Iso,
   stile: 'breve' | 'lungo' | 'giorno' | 'corto' = 'breve',
 ): string {
-  if (!isoValida(iso)) return '—'
-  const data = daIso(iso)
-  const giorno = data.getUTCDate()
-  const mese = data.getUTCMonth()
-  const anno = data.getUTCFullYear()
+  const g = giorno(iso)
+  if (!g) return '—'
+  const { day, month, year, dayOfWeek } = g
   if (stile === 'lungo') {
-    return testi().dataLunga(giorniLunghi()[giornoSettimana(iso) - 1], giorno, mesi()[mese], anno)
+    return testi().dataLunga(giorniLunghi()[dayOfWeek - 1], day, mesi()[month - 1], year)
   }
-  if (stile === 'giorno') return `${giorniBrevi()[giornoSettimana(iso) - 1]} ${giorno}`
-  if (stile === 'corto') return `${due(giorno)}.${due(mese + 1)}`
-  return `${due(giorno)}.${due(mese + 1)}.${anno}`
+  if (stile === 'giorno') return `${giorniBrevi()[dayOfWeek - 1]} ${day}`
+  if (stile === 'corto') return `${due(day)}.${due(month)}`
+  return `${due(day)}.${due(month)}.${year}`
 }
 
 /**
@@ -348,9 +396,10 @@ export function giornoDelMese (iso: Iso): number {
   return Number(iso.slice(8, 10))
 }
 
+/** «settembre 2026»; quel che non è una data esce come un trattino, come in `formattaData`. */
 export function formattaMese (iso: Iso): string {
-  const data = daIso(iso)
-  return `${mesi()[data.getUTCMonth()]} ${data.getUTCFullYear()}`
+  const g = giorno(iso)
+  return g ? `${mesi()[g.month - 1]} ${g.year}` : '—'
 }
 
 /** '1h 30' oppure '45 min': come lo si direbbe a voce. */
@@ -376,9 +425,9 @@ export function etichettaAnno (inizio: Iso): string {
  * poi è quello del giorno, prima è quello precedente.
  */
 export function primoAnnoScolastico (iso: Iso): number {
-  const data = daIso(iso)
-  const anno = data.getUTCFullYear()
-  return data.getUTCMonth() >= 7 ? anno : anno - 1
+  const g = giorno(iso)
+  if (!g) return Number.NaN
+  return g.month >= 8 ? g.year : g.year - 1
 }
 
 // ------------------------------------------------------------------ scrivere una data
@@ -411,8 +460,8 @@ export function dataDaTesto (valore: string, riferimento?: Iso): Iso | null {
   if (mese < 1 || mese > 12 || giorno < 1 || giorno > 31) return null
 
   const iso = `${String(anno).padStart(4, '0')}-${due(mese)}-${due(giorno)}`
-  // Andata e ritorno da `Date`: se torna un'altra data, quella scritta non esiste.
-  return aIso(daIso(iso)) === iso ? iso : null
+  // Un 31 aprile `Temporal` lo rifiuta invece di farlo scivolare al 1° maggio.
+  return isoValida(iso) ? iso : null
 }
 
 /** Giorno, mese e anno da quel che è stato scritto, completando dal riferimento. */

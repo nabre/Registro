@@ -69,22 +69,8 @@ import {
 } from '../dominio/locations.js'
 import { testi } from './filing.testi.js'
 
-// Le regole dei nomi stanno nel dominio (le usa anche il webview); si
-// riesportano qui perché chi archivia importi un file solo.
-export {
-  ARCHIVIO,
-  DEGLI_ALLIEVI,
-  DOCENTE_DI_CLASSE,
-  DI_CLASSE,
-  ESPORTAZIONI,
-  FOTO,
-  cartellaDelPercorso,
-  documentoPiano,
-  estensioneDi,
-  nomeFileArchivio,
-  nomeSicuro,
-  percorsoArchivio,
-}
+// `nomeFileArchivio` si riesporta per chi archivia.
+export { nomeFileArchivio }
 
 /**
  * I documenti da spostare da `docente-di-classe/` sotto il corso (le presenze

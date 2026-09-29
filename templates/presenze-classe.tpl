@@ -28,3 +28,10 @@ sezione: {{frase.da-seguire}}
 avviso: {{frase.oltre-soglia}}
 elenco: oltreSoglia
 fine:
+
+sezione: {{frase.quadro-orario}}
+campi: {{frase.orario}}={{orarioSettimanale}}; {{frase.aula}}={{aule}}; {{frase.ud-settimanali}}={{udSettimanali}}
+tabella: orario
+
+sezione: {{frase.sospensioni-calendario}}
+tabella: sospensioni

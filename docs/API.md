@@ -157,7 +157,9 @@ rimedio («Le persone si cercano con “persone.cerca”»).
 ## 4. Gli schemi
 
 `contract/schemas.ts`: una dichiarazione → convalida, tipo, JSON Schema. Espone
-Standard Schema (`~standard`); perché fatto in casa: ADR-28.
+Standard Schema (`~standard`, ADR-28); sotto convalida valibot (ADR-50), mentre
+la forma e il JSON Schema restano nostri. Un campo dice un problema solo, il
+primo; un oggetto li raccoglie tutti.
 
 | Costruttore | Accetta |
 | --- | --- |
@@ -195,7 +197,7 @@ Standard Schema (`~standard`); perché fatto in casa: ADR-28.
 
 ## 5. Le procedure di oggi
 
-**Trentotto letture, e per il resto scritture.** Le scritture prendono in
+**Quarantuno letture, e per il resto scritture.** Le scritture prendono in
 carico tutte le azioni del protocollo. Il conto lo stampa `npm run procedures`;
 `tests/api/coverage.test.mjs` confronta l'unione `Azione` con le procedure.
 
@@ -226,7 +228,7 @@ contract/procedure/
   file nel suo indice, ogni cartella fino a `contract/registro.ts`, nessuna azione
   inesistente, `resources/tools.json` aggiornato.
 
-### Le quaranta aree
+### Le quarantadue aree
 
 L'area è il primo segmento del nome.
 
@@ -249,6 +251,7 @@ L'area è il primo segmento del nome.
 | `proiezione` | la finestra davanti alla classe |
 | `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
+| `microsoft` · `onedrive` | gli account Microsoft collegati, e i documenti `.regi` del loro OneDrive: sfogliarli, cercarli, aprirne uno |
 | `sistema` · `impostazioni` · `programma` · `manutenzione` | configurazione, scorciatoie di sistema, riparazioni |
 | `aggiornamenti` | versione in uso; controllo, scarico, installazione |
 | `registro` | riassunto e integrità; importazione da un altro registro |
@@ -258,7 +261,7 @@ L'area è il primo segmento del nome.
 
 L'elenco per nome: `regi elenco`; in JSON con gli ingressi: `regi catalogo`.
 
-### Le trentotto letture
+### Le quarantuno letture
 
 Tre regole per tutte (ADR-29): nessuna scrittura né effetto collaterale; il
 conto già fatto dal dominio, mai dati grezzi; forma piatta dichiarata, non i
@@ -286,6 +289,9 @@ tipi interni.
 | `classi.altrove` | `percorso` | un altro `.regi` letto senza aprirlo: etichetta dell'anno e classi (persone, materie) |
 | `registro.sfoglia` | — | apre il dialogo dei file sui `.regi` e torna `percorso` o `null` |
 | `registro.altrove` | `percorso` | un altro registro blocco per blocco: anno, impostazioni in breve, materie (`nuova`), classi (`esiste`), piani, calendari |
+| `programma.giornale` | `limite?`, `soloErrori?` | ultime chiamate registrate nel giornale in memoria dell'applicazione (non scrive su disco) |
+| `onedrive.elenco` | `account`, `drive?`, `cartella?` | una cartella di OneDrive: sottocartelle e `.regi` (`id`, `drive`, `percorso`), `superiore`, quanti `altri` file, `locale` |
+| `onedrive.cerca` | `account` | i `.regi` dell'account, dal più recente: sul disco se è sincronizzato qui (`locale`), altrimenti quelli che l'indice di Microsoft trova, propri e condivisi |
 
 - I calendari si leggono dalla copia nel documento (`calendari/<id>.ics`); la
   rete solo per un documento vecchio senza copia. Scritture:
@@ -306,7 +312,16 @@ tipi interni.
 - Tenute fuori dall'assistente (`perAssistente: false`): `modelli.*`,
   `documenti.inventario`, `registro.integrita`, `llm.*`, `calendario.*`,
   `aggiornamenti.stato`, `classi.altrove`, `registro.sfoglia`,
-  `registro.altrove`.
+  `registro.altrove`, `programma.giornale`, `onedrive.*`.
+- OneDrive (`core/dati/onedrive.ts`, `core/dati/microsoft.ts`,
+  `core/dati/oneDriveLocale.ts`): un account che il client di OneDrive
+  sincronizza sul computer si legge dal disco, senza accesso (`drive: 'locale'`,
+  `id` = percorso, solo dentro le sue cartelle); gli altri a nome di un account
+  di `microsoft.aggiungi` (`indirizzo?`; accesso dal browser,
+  permessi Graph `Files.Read.All` e `User.Read`, gettone nel portachiavi).
+  `onedrive.apri` (`account`, `drive`, `id`) apre il file sincronizzato dal
+  client di OneDrive se c'è, altrimenti ne scarica una copia dove si sceglie;
+  su OneDrive non si scrive. `microsoft.togli` (`indirizzo`) toglie il gettone.
 
 **Per l'assistente**, che riceve gli id della pagina e ha bisogno di attrezzi
 che li prendano.
@@ -371,7 +386,12 @@ riscrive.
   tornano come usati (vale per tutte le letture: `corsi.elenco` dice l'anno,
   `llm.file` deposito e taglio, `modelli.*` il nome).
 - Tetto 500 righe per busta; di più è `ingresso-non-valido`. `ancora` dice
-  quante restano.
+  quante restano. Le letture di matrice o cruscotto (`corso.presenze`,
+  `valutazioni.voti`, `documenti.inventario`) non hanno paginazione: presenze
+  e voti coprono una griglia limitata alla capienza naturale di una classe
+  (≤ 30 allievi), dove una pagina parziale spezzerebbe i confronti e le medie;
+  l'inventario aggrega i metadati complessivi dei documenti in una sola vista
+  sintetica.
 - `ha`/`senza` si compongono; vuoto = stringa di spazi, elenco senza voci,
   `false` (`pieno()`); zero non è vuoto.
 - Estremi compresi; `null` non passa nessuna soglia (lo si chiede con `senza`).
@@ -455,6 +475,19 @@ messaggio, UTF-8. Mai TCP.
 > `desktop/shell/main.ts`. Fuori da Windows il socket sta in `XDG_RUNTIME_DIR`, o in
 > `tmpdir()`.
 >
+> **Il nome si vede, la chiave no.** A ogni accensione il condotto scrive
+> trentadue byte casuali in `condotto.chiave` (cartella dei dati, temporaneo e
+> rinomina, `0600`) e li toglie allo spegnimento; se non riesce a scriverli non
+> si apre. Ogni connessione comincia con `$accedi`: prima non risponde niente,
+> nemmeno `$versione`. Sulla presa passano solo prove, mai la chiave:
+> HMAC-SHA256 di `cliente\n<sfida>` dal cliente, di `condotto\n<sfida>` dal
+> condotto, che il cliente controlla prima di mandare altro. Una sfida vale una
+> volta per accensione; un rifiuto chiude la connessione e scarta le righe in
+> coda. Chi non legge la cartella dei dati non chiama niente, e una pipe che
+> occupa il nome dopo un arresto brutale non sa rispondere. Un programma dello
+> stesso utente legge la chiave come leggerebbe il `.regi`: contro di lui non
+> protegge.
+>
 > **Il condotto non allarga sé stesso.** Anche con la scrittura concessa,
 > `programma.salva`, `programma.azzera` e `programma.sfoglia` rifiutano con
 > `non-permesso` le chiavi `registroDocenti.api.*`, `ocr.programma` e
@@ -474,7 +507,8 @@ uguali.
 
 | Metodo | Torna | Permesso |
 | --- | --- | --- |
-| `$versione` | `{ api, applicazione, documento, permessi }` (il nome dell'anno, mai il percorso) | nessuno |
+| `$accedi` | `{ prova }` del condotto; `params`: `sfida` (32–128 cifre esadecimali, nuova) e `prova` del cliente (64) | nessuno: è il primo metodo, e l'unico prima di presentarsi |
+| `$versione` | `{ api, applicazione, documento, permessi }` (il nome dell'anno, mai il percorso) | nessuno, dopo `$accedi` |
 | `$elenco` | per procedura: nome, versione, genere, titolo, idempotenza, azione, collezioni | lettura |
 | `$schema` | lo stesso, più i JSON Schema di ingresso e uscita | lettura; per una scrittura basta la scrittura |
 | `$attrezzi` | il catalogo del modello e come è collegato l'assistente (`regi catalogo`); `params.comando?` ≤ 64 caratteri `[A-Za-z0-9._-]` | lettura |
@@ -527,23 +561,23 @@ scritture**: ogni altra scrittura rinuncia dopo 30 s con `non-disponibile`.
 | `documento.apri` senza `percorso` | il documento | passare `percorso` |
 | `documento.chiudi` con un anno mai salvato | salvare o buttare | — |
 | `llm.importa` con `file` vuoto | il `.gguf` | passare `file` |
-| `consegne.raccogli` | i file | — |
-| `consegne.documento.allega` | il documento | — |
-| `consegne.firme.aggiungi` | il foglio firme | — |
-| `classe.assenze.foglio.aggiungi` | il foglio di assenze | — |
+| `consegne.raccogli` | i file | passare `file` |
+| `consegne.documento.allega` | il documento | passare `file` |
+| `consegne.firme.aggiungi` | il foglio firme | passare `file` |
+| `classe.assenze.foglio.aggiungi` | il foglio di assenze | passare `file` |
 | `classe.assenze.importa` | i fogli | — |
-| `risorse.aggiungi` | il file | — |
-| `valutazioni.allegato.aggiungi` | l'allegato | — |
-| `persone.foto.imposta` | la foto | — |
-| `intestazione.logo` | il logo (PNG o JPEG) | — |
+| `risorse.aggiungi` | il file | passare `file` |
+| `valutazioni.allegato.aggiungi` | l'allegato | passare `file` |
+| `persone.foto.imposta` | la foto | passare `file` |
+| `intestazione.logo` | il logo (PNG o JPEG) | passare `file` |
 | `calendario.aggiungi` con `origine` vuota | il `.ics` | passare `origine` |
 | `registro.sfoglia` | un altro `.regi` (lettura: non tiene la fila) | `registro.altrove` e `registro.importa` con il percorso |
 | `programma.sfoglia` | cartella o file di un'impostazione | `programma.salva` con il percorso, dove permesso |
 | `posta.collega` | indirizzo, nome d'accesso, modo di entrare | — |
 | `posta.invioProva` | l'indirizzo della prova | — |
-| `consegne.distribuisci` con invio diretto | la conferma | — |
-| `classe.comunicazioni.invia` con invio diretto | la conferma | — |
-| `classe.assenze.invia` con invio diretto | la conferma | — |
+| `consegne.distribuisci` con invio diretto | la conferma | passare `conferma: true` |
+| `classe.comunicazioni.invia` con invio diretto | la conferma | passare `conferma: true` |
+| `classe.assenze.invia` con invio diretto | la conferma | passare `conferma: true` |
 
 Quelle che prendono un file si riconoscono da `$elenco`: `idempotente: false`
 con ingresso vuoto o quasi. Quelle che chiedono conferma solo da questa
@@ -569,8 +603,9 @@ npm run regi -- <comando>            oppure    node cli/registro.mjs <comando>
 ```
 
 Installato: **`regi`**, dal ponte nel PATH (`desktop/shell/system/commandLine.ts`).
-Solo moduli `node:`, nessuna copia dell'elenco: chiede `$elenco`, `$schema`,
-`$attrezzi`, `$versione` al condotto.
+Solo moduli `node:`, nessuna copia dell'elenco: si presenta con `$accedi`
+(`cli/accesso.mjs`), poi chiede `$elenco`, `$schema`, `$attrezzi`, `$versione`
+al condotto.
 
 | Comando | Che cosa fa |
 | --- | --- |
@@ -600,6 +635,9 @@ $ regi chiama ore.appello.riga --lezioneId lez-m3k9x2-a7f1 \
 - `REGISTRO_CONDOTTO` scavalca l'indirizzo. Senza, la regola è quella del
   condotto (§ 7); su Windows senza `condotto.segreto` esce con 2. Le due copie
   della regola le confronta `tests/cli/commandLine.test.mjs`.
+- `REGISTRO_CHIAVE` scavalca il file della chiave. Senza chiave, con la chiave
+  rifiutata o davanti a una pipe che non sa la prova del condotto esce con 2 e
+  non manda altro (`tests/cli/accesso.test.mjs`).
 
 ## 9. L'assistente
 

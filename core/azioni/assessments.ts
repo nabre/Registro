@@ -1,6 +1,9 @@
 // I momenti di valutazione, i voti e le prove corrette.
 // I PDF delle prove seguono il momento: eliminarlo li porta via (vedi `cestina`).
 
+import * as apparato from 'apparato'
+
+import { comeAdesso } from '../dati/bozza.js'
 import { deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '../dati/filing.js'
 import { arrotondaVoto, nomeCompleto, votoValido } from '../dominio/calculations.js'
@@ -34,6 +37,15 @@ import { istanteAdesso } from '../dominio/dates.js'
 function fuoriClasse (registro: Registro, momento: MomentoValutazione, allievoId: string): boolean {
   const classe = classeDelMomento(registro, momento)
   return classe !== null && !classe.allievi.some((a) => a.id === allievoId)
+}
+
+/** Vero se il momento ha dati intestati a persone: voti, recuperi, prove. */
+function conDatiDiPersone (momento: MomentoValutazione): boolean {
+  return (
+    momento.voti.some((v) => v.valore !== null || v.assente) ||
+    (momento.recuperi ?? []).length > 0 ||
+    momento.allegati.some((a) => a.allievoId !== null)
+  )
 }
 
 export const valutazioni = {
@@ -82,18 +94,54 @@ export const valutazioni = {
   'valutazione.salva': (contesto, azione) => {
     const esito = validaValutazione(azione.valutazione)
     if (!esito.valido) return { ok: false, errori: esito.errori }
-    const nuova = !contesto.registro.valutazioni.some((v) => v.id === azione.valutazione.id)
-    const momento = { ...azione.valutazione, aggiornatoIl: istanteAdesso() }
-    const scritto = contesto.modifica((r) => {
-      const viva = r.valutazioni.find((v) => v.id === momento.id)
-      if (viva) {
-        momento.voti = viva.voti
-        momento.recuperi = viva.recuperi
-        momento.allegati = viva.allegati
-      } else {
-        momento.allegati = []
+    const registro = contesto.registro
+    const chiesto = azione.valutazione
+    // Rimandi a cose che non ci sono: il momento finirebbe sganciato da subito.
+    if (!corsoPerId(registro, chiesto.corsoId)) return rifiuta(comuni().nonTrovato.corso)
+    const lezione = chiesto.lezioneId ? registro.lezioni.find((l) => l.id === chiesto.lezioneId) : null
+    if (chiesto.lezioneId && !lezione) {
+      return rifiuta(comuni().nonTrovato.lezione)
+    }
+    if (lezione && lezione.corsoId !== chiesto.corsoId) {
+      return rifiuta(testi().lezioneAltroCorso)
+    }
+    const piano = chiesto.pianoId ? registro.piani.find((p) => p.id === chiesto.pianoId) : null
+    if (chiesto.pianoId && !piano) {
+      return rifiuta(comuni().nonTrovato.piano)
+    }
+    if (piano && piano.corsoId && piano.corsoId !== chiesto.corsoId) {
+      return rifiuta(testi().pianoAltroCorso)
+    }
+    if (piano && lezione?.pianoId && piano.id !== lezione.pianoId) {
+      return rifiuta(testi().pianoDiversoDaLezione)
+    }
+    const vivo = registro.valutazioni.find((v) => v.id === chiesto.id)
+    if (vivo) {
+      // Voti di persone di un'altra classe non li mostrerebbe nessuna griglia.
+      const da = corsoPerId(registro, vivo.corsoId)?.classeId ?? null
+      const a = corsoPerId(registro, chiesto.corsoId)?.classeId ?? null
+      if (da !== null && da !== a && conDatiDiPersone(vivo)) return rifiuta(testi().altraClasse)
+      if (vivo.voti.some((v) => v.valore !== null && !votoValido(v.valore, chiesto.scala))) {
+        return rifiuta(testi().scalaStretta(chiesto.scala.min, chiesto.scala.max))
       }
-      riponi(r.valutazioni, momento, (a, b) => a.data.localeCompare(b.data))
+    }
+    const nuova = !vivo
+    const momento = { ...chiesto, aggiornatoIl: istanteAdesso() }
+    const scritto = contesto.modifica((r) => {
+      // Com'è adesso e non la bozza: i suoi pezzi vanno in un oggetto nuovo.
+      const viva = comeAdesso(r.valutazioni.find((v) => v.id === momento.id))
+      const salvato = viva
+        ? {
+            ...momento,
+            // I voti si riportano sul passo della scala nuova, come `voto.imposta`.
+            voti: viva.voti.map((v) =>
+              v.valore === null ? v : { ...v, valore: arrotondaVoto(v.valore, momento.scala) },
+            ),
+            recuperi: viva.recuperi,
+            allegati: viva.allegati,
+          }
+        : { ...momento, allegati: [] }
+      riponi(r.valutazioni, salvato, (a, b) => a.data.localeCompare(b.data))
     }, ['valutazioni'])
     if (!scritto.ok) return scritto
     return nuova ? { ok: true, creato: { id: momento.id } } : fatto
@@ -139,7 +187,9 @@ export const valutazioni = {
     // Il voto entra sul passo della scala (quarti di punto: 4.3 → 4.25).
     // Mutua esclusione rigida: se assente=true, il valore è forzato a null; se valore != null, assente è false.
     const assente = azione.valore !== null ? false : Boolean(azione.assente)
-    const valore = assente || azione.valore === null ? null : arrotondaVoto(azione.valore, momento.scala)
+    const valore = assente || azione.valore === null
+      ? null
+      : arrotondaVoto(azione.valore, momento.scala)
     return contesto.suVoce('valutazioni', azione.valutazioneId, (bersaglio) => {
       const voto = bersaglio.voti.find((v) => v.allievoId === azione.allievoId)
       if (voto) {
@@ -274,13 +324,21 @@ export const valutazioni = {
     const allievo = allievoId ? classe.allievi.find((a) => a.id === allievoId) ?? null : null
     if (allievoId && !allievo) return rifiuta(t.pifFuoriClasse)
 
-    const scelto = await scegliUnFile({
-      titolo: allievo
-        ? t.provaDi(azione.ruolo === 'recupero', nomeCompleto(allievo))
-        : `${lessico().ruoliAllegato[azione.ruolo]} — ${momento.titolo}`,
-      tasto: comuni().allega,
-      filtri: { PDF: ['pdf'] },
-    })
+    let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'allegato.pdf'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : '.pdf'
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: allievo
+          ? t.provaDi(azione.ruolo === 'recupero', nomeCompleto(allievo))
+          : `${lessico().ruoliAllegato[azione.ruolo]} — ${momento.titolo}`,
+        tasto: comuni().allega,
+        filtri: { PDF: ['pdf'] },
+      })
+    }
     if (!scelto) return fatto
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()

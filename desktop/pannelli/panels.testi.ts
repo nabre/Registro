@@ -1,17 +1,17 @@
 // Testi dei pannelli: titoli delle finestre accanto al registro (assistente,
-// proiezione) e frasi di rifiuto di domande o azioni. «Regiclass» è il marchio,
+// proiezione) e frasi di rifiuto di domande o azioni. «Regiklass» è il marchio,
 // uguale in ogni lingua.
 
-import { catalogo } from '.../../../core/i18n/index.js'
+import { catalogo } from '../../core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ assistant.ts
   persaNelloSpostamento: 'La domanda si è persa nello spostamento: va rifatta.',
-  finestraAssistente: 'Regiclass · assistente',
+  finestraAssistente: 'Regiklass · assistente',
   paginaAssistente: 'Assistente',
 
   // ------------------------------------------------------------ projection.ts
-  finestraProiezione: 'Regiclass · proiezione',
+  finestraProiezione: 'Regiklass · proiezione',
   paginaProiezione: 'Proiezione',
 
   // ------------------------------------------------------------ panel.ts
@@ -25,9 +25,9 @@ export const testi = catalogo(it, {
   de: {
     persaNelloSpostamento:
       'Die Frage ist beim Verschieben verloren gegangen: Sie muss neu gestellt werden.',
-    finestraAssistente: 'Regiclass · Assistent',
+    finestraAssistente: 'Regiklass · Assistent',
     paginaAssistente: 'Assistent',
-    finestraProiezione: 'Regiclass · Projektion',
+    finestraProiezione: 'Regiklass · Projektion',
     paginaProiezione: 'Projektion',
     nonSalvato: ' (nicht gespeichert)',
     scrive: (procedura) =>
@@ -37,9 +37,9 @@ export const testi = catalogo(it, {
   fr: {
     persaNelloSpostamento:
       'La question s’est perdue pendant le déplacement : il faut la reposer.',
-    finestraAssistente: 'Regiclass · assistant',
+    finestraAssistente: 'Regiklass · assistant',
     paginaAssistente: 'Assistant',
-    finestraProiezione: 'Regiclass · projection',
+    finestraProiezione: 'Regiklass · projection',
     paginaProiezione: 'Projection',
     nonSalvato: ' (non enregistré)',
     scrive: (procedura) =>
@@ -48,9 +48,9 @@ export const testi = catalogo(it, {
   },
   en: {
     persaNelloSpostamento: 'The question was lost in the move: it needs to be asked again.',
-    finestraAssistente: 'Regiclass · assistant',
+    finestraAssistente: 'Regiklass · assistant',
     paginaAssistente: 'Assistant',
-    finestraProiezione: 'Regiclass · projection',
+    finestraProiezione: 'Regiklass · projection',
     paginaProiezione: 'Projection',
     nonSalvato: ' (not saved)',
     scrive: (procedura) =>

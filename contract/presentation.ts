@@ -25,7 +25,7 @@ import type { ProceduraQualunque } from './contract.js'
 const QUANTE_RIGHE = 200
 
 /** Come si scrive un valore: quel che decide se va a destra e come si legge. */
-export type Formato =
+type Formato =
   /** Parole. A sinistra. */
   | 'testo'
   /** Un numero come sta nella busta. A destra. */
@@ -62,10 +62,10 @@ type ColonnaAnnidata<R> = {
 }[keyof R]
 
 /** Una colonna di una tabella: da quale campo viene e come si intitola. */
-export type Colonna<R = Record<string, unknown>> = ColonnaPiana<R> | ColonnaAnnidata<R>
+type Colonna<R = Record<string, unknown>> = ColonnaPiana<R> | ColonnaAnnidata<R>
 
 /** Un valore in cima: il periodo, la classe, quante UD. */
-export interface Valore<U = Record<string, unknown>> {
+interface Valore<U = Record<string, unknown>> {
   campo: keyof U & string
   etichetta: TestoPigro
   formato?: Formato
@@ -97,7 +97,7 @@ type Tabella<U> = {
  * `colonne` è tipizzata e non `any`: altrimenti un campo inesistente
  * diventerebbe in silenzio una colonna di trattini (`scrivi(undefined)`).
  */
-export type Blocco<U> =
+type Blocco<U> =
   | { tipo: 'valori', titolo?: TestoPigro, campi: Array<Valore<U>> }
   | Tabella<U>
   | { tipo: 'elenco', da: keyof U & string, titolo?: TestoPigro }

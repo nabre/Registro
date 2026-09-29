@@ -169,3 +169,16 @@ export function riassuntoParametri (
 export function attivitaValutata (attivita: Attivita): boolean {
   return attivita.valutazione !== undefined && attivita.valutazione !== null
 }
+
+/** L'identificatore della consegna legata a questa tappa, o null se non c'è. */
+export function attivitaConPendenza (attivita: Attivita): string | null {
+  const c = attivita.parametri?.consegnaId
+  return typeof c === 'string' && c.trim() ? c.trim() : null
+}
+
+/** L'identificatore della colonna check legata a questa tappa, o null se non c'è. */
+export function attivitaConCheck (attivita: Attivita): string | null {
+  const c = attivita.parametri?.checkColonnaId
+  return typeof c === 'string' && c.trim() ? c.trim() : null
+}
+

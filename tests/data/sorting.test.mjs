@@ -4,19 +4,20 @@
 // macchina.
 //
 // Poi lo split a mano (pagine, chi, quale documento), provato anche su un PDF
-// entrato senza documento.
+// entrato senza documento; e «Conferma tutto» che archivia qualcosa e inciampa
+// su altro non dice «rifiutato» quando ha già scritto.
 //
 // Gira su `dist-tests/data.mjs`: con bundle separati il deposito sarebbe due.
 
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import * as percorso from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
 import { after, before, describe, it } from 'node:test'
 
-import { PDFDocument, StandardFonts } from '@cantoo/pdf-lib'
+import { PDFDocument } from '@cantoo/pdf-lib'
 
 import { cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import { archivioDiSmistamento, eseguiAzione, pagelle } from '../helpers/smistamento.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-smistamento-')
 
@@ -27,34 +28,8 @@ let archivio
 let classe
 let consegna
 
-/** Un PDF di classe: una pagina per persona, con il nome in testa. */
-async function pagelle (nomi) {
-  const documento = await PDFDocument.create()
-  const font = await documento.embedFont(StandardFonts.Helvetica)
-  for (const nome of nomi) {
-    const pagina = documento.addPage([595, 842])
-    pagina.drawText('Pagella — DIC4a', { x: 60, y: 780, size: 16, font })
-    pagina.drawText(`Allievo: ${nome}`, { x: 60, y: 740, size: 12, font })
-  }
-  return documento.save()
-}
-
-/** Il contesto che il centralino passa a un'azione. */
-function contesto () {
-  return {
-    archivio,
-    registro: archivio.registro,
-    modifica: (cambia, collezioni) => {
-      archivio.modifica(cambia, collezioni)
-      return { ok: true, errori: [] }
-    },
-  }
-}
-
 /** L'azione, chiamata come la chiama il centralino. */
-function esegui (azione) {
-  return moduli.smistamento[azione.tipo](contesto(), azione)
-}
+const esegui = (azione) => eseguiAzione(archivio, moduli.smistamento, azione)
 
 /** Lo smistamento che c'è adesso, uno solo: le prove vanno in fila. */
 function solo () {
@@ -64,46 +39,9 @@ function solo () {
 }
 
 before(async () => {
-  mkdirSync(process.env.REGISTRO_USERDATA, { recursive: true })
-  mkdirSync(dati, { recursive: true })
-  writeFileSync(
-    percorso.join(process.env.REGISTRO_USERDATA, 'impostazioni.json'),
-    JSON.stringify({ cartellaLavoro: lavoro }),
-  )
-
-  moduli = await import('../../dist-tests/data.mjs')
-  const { Archivio, registraDeposito, Uri, impostaCaratteri, impostaWorker } = moduli
-  const dominio = await import('../../dist-tests/domain.mjs')
-
-  // Il worker di pdfjs, come all'avvio: senza, nessuna pagina si legge.
-  impostaWorker(
-    pathToFileURL(fileURLToPath(new URL('../../dist-tests/pdf.worker.mjs', import.meta.url))).href,
-  )
-  impostaCaratteri(fileURLToPath(new URL('../../dist-tests/pdf-fonts', import.meta.url)))
-
-  archivio = new Archivio(Uri.file(process.env.REGISTRO_USERDATA))
-  registraDeposito(archivio.deposito)
-  await archivio.apri(null)
-  await archivio.creaAnno(
-    dominio.creaAnno('2026-09-01', '2027-06-30'),
-    Uri.file(percorso.join(dati, '2026-2027.regi')),
-  )
-
-  const annoId = archivio.registro.anni[0].id
-  const materia = dominio.creaMateria('Matematica', 'MAT')
-  classe = dominio.creaClasse(annoId, 'DIC4a')
-  classe.docenteDiClasse = true
-  classe.allievi = [dominio.creaAllievo('Rossi', 'Mario'), dominio.creaAllievo('Bianchi', 'Luca')]
-  const corso = dominio.creaCorso(classe.id, materia.id, 'DIC4a — Matematica')
-  consegna = dominio.creaConsegna(corso.id, 'Pagella 3° anno', '2026-10-01')
-  consegna.documento = 'modulo'
-
-  archivio.modifica((r) => {
-    r.materie.push(materia)
-    r.classi.push(classe)
-    r.corsi.push(corso)
-    r.consegne.push(consegna)
-  }, ['classi', 'corsi', 'consegne'])
+  ;({ moduli, archivio, classe, consegna } = await archivioDiSmistamento({
+    lavoro, dati, docenteDiClasse: true,
+  }))
 })
 
 describe('un PDF trascinato nel pannello', () => {
@@ -741,6 +679,55 @@ describe('il PDF che attraversa due classi', () => {
     })
     assert.ok(esito.ok)
     assert.deepEqual(solo().letture.map((l) => l.numero), [2])
+  })
+
+  after(async () => {
+    for (const rimasto of [...archivio.registro.smistamenti]) {
+      await esegui({ tipo: 'smistamento.elimina', smistamentoId: rimasto.id })
+    }
+  })
+})
+
+describe('«Conferma tutto» con una riga che non va', () => {
+  // Una consegna nuova: su quella di sopra Rossi ha già il suo documento.
+  let pagella
+
+  before(async () => {
+    const dominio = await import('../../dist-tests/domain.mjs')
+    pagella = { ...dominio.creaConsegna(consegna.corsoId, 'Pagella 4° anno', '2026-11-02'), documento: 'modulo' }
+    archivio.modifica((r) => { r.consegne.push(pagella) }, ['consegne'])
+  })
+
+  it('archivia le altre e lo dice come avviso, non come rifiuto', async () => {
+    const entrato = await esegui({
+      tipo: 'smistamento.deposita',
+      consegnaId: pagella.id,
+      nome: 'pagelle DIC4a.pdf',
+      contenuto: Buffer.from(await pagelle(['Rossi Mario', 'Bianchi Luca'])).toString('base64'),
+      divisione: { modo: 'mano' },
+    })
+    assert.ok(entrato.ok, `rilascio rifiutato: ${JSON.stringify(entrato.errori)}`)
+    const smistamento = solo()
+    const [rossi] = classe.allievi
+
+    // La prima pagina a Rossi; la seconda a qualcuno che la classe non ha più.
+    archivio.modifica((r) => {
+      const s = r.smistamenti.find((x) => x.id === smistamento.id)
+      s.blocchi = [
+        { ...s.blocchi[0], id: 'b1', da: 1, a: 1, allievoId: rossi.id },
+        { ...s.blocchi[0], id: 'b2', da: 2, a: 2, allievoId: 'allievo-sparito' },
+      ]
+    }, ['smistamenti'])
+
+    const esito = await esegui({
+      tipo: 'smistamento.confermaTutto',
+      smistamentoId: smistamento.id,
+    })
+    const archiviato = archivio.registro.consegne
+      .find((c) => c.id === pagella.id).documenti?.some((d) => d.allievoId === rossi.id)
+    assert.ok(archiviato, 'la pagina di Rossi non è stata archiviata')
+    assert.equal(esito.ok, true, `rifiutato benché scritto: ${JSON.stringify(esito.errori)}`)
+    assert.equal(esito.messaggio?.livello, 'avviso')
   })
 
   after(async () => {

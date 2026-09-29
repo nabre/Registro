@@ -1,4 +1,4 @@
-# Catalogo delle funzioni — Regiclass
+# Catalogo delle funzioni — Regiklass
 
 L'inventario di quel che l'applicazione sa fare, superficie per superficie: la
 risposta a «esiste già un'azione per questo?». Le procedure dell'API, le
@@ -157,6 +157,7 @@ interface ComandoUI {
 | id | titolo | che cosa fa |
 |---|---|---|
 | `file.apri` ★ | Apri un anno… (`Ctrl+O`, `dalMenu`) | `documento.apri` |
+| `file.apriDaOneDrive` | Apri da OneDrive… | `apriOneDrive()`: `onedrive.elenco`, `onedrive.cerca`, poi `onedrive.apri` |
 | `file.importaRegistro` | Importa da un altro registro… | `moduloImportaRegistro()`: `registro.sfoglia`, `registro.altrove`, poi `registro.importa` |
 | `file.salva` | Salva / Salva l'anno con nome… (`Ctrl+S`) | `stato.salva`; primario con un anno provvisorio |
 | `file.ricarica` | Ricarica | `stato.ricarica` |
@@ -302,17 +303,22 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
   ([`desktop/apparato/settings.ts`](../desktop/apparato/settings.ts)).
 - Formati: `cartella`/`eseguibile`/`file` si scelgono con «Sfoglia…»
   (`programma.sfoglia`); `modello` solo dalla riga «Chi risponde» dei Modelli
-  linguistici (`CHIAVI_IN_SCHEDA`); `indirizzoLocale` solo `http` di questo
-  computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)). Le voci
-  `avanzata` stanno in «Programmi già installati».
+  linguistici (`CHIAVI_IN_SCHEDA`), altrove in sola lettura, e la dogana vuole il
+  nome nudo di un `.gguf` (`nomeDiModello`,
+  [`core/dati/ggufName.ts`](../core/dati/ggufName.ts)); `indirizzoLocale` solo
+  `http` di questo computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)).
+  Le voci `avanzata` stanno in «Avanzate (n)», chiuse in fondo alla sezione (e al
+  gruppo nella finestra nativa).
 - Dal condotto non si toccano `registroDocenti.api.*`, `ocr.programma`,
-  `dettatura.indirizzo` (API § 7).
+  `ocr.modello`, `ocr.proiettore`, `assistente.modello`, `dettatura.indirizzo`
+  (API § 7).
 - Il procedimento per aggiungerne una: skill `impostazione`.
 - Le impostazioni del documento, campo per campo: MODELLO-DATI § 3.44.
 
 ### 5.1 Le 31 chiavi del programma
 
-Sezioni di `SEZIONI_PROGRAMMA`: Generale, Comunicazioni, Modelli linguistici,
+Sezioni di `SEZIONI_PROGRAMMA`: Generale, Comunicazioni, Account Microsoft (nessuna
+chiave: gli account stanno nel portachiavi, ADR-49), Modelli linguistici,
 Aggiornamenti, Condotto e riga di comando.
 
 | chiave `registroDocenti.…` | tipo, predefinito | che cosa regola |
@@ -322,7 +328,7 @@ Aggiornamenti, Condotto e riga di comando.
 | `vassoio.attivo` | bool; `true` | icona accanto all'orologio (al prossimo avvio) |
 | `vassoio.chiusuraNelVassoio` | bool; `true` | chiudendo resta nel vassoio; dipende da `vassoio.attivo` |
 | `avvio.conWindows` | bool; `false` | avvio con il computer, senza finestre (solo installato) |
-| `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro |
+| `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro; dipende da `vassoio.attivo` |
 | `promemoria.attivo` | bool; `true` | notifica prima di una lezione |
 | `promemoria.anticipoMinuti` | 0–120; `5` | quanto prima; dipende da `promemoria.attivo` |
 | `proiezione.schermoIntero` | bool; `false` | proiezione a schermo intero |
@@ -338,10 +344,10 @@ Aggiornamenti, Condotto e riga di comando.
 | `ocr.programma` | eseguibile, avanzata; `''` | un `llama-mtmd-cli.exe` proprio |
 | `assistente.attivo` | bool; `false` | l'assistente; richiede `assistente.modello` |
 | `assistente.modello` | modello; `''` | il `.gguf` che risponde |
-| `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox |
+| `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox; dipende da `assistente.attivo` |
 | `dettatura.taglia` | `turbo` \| `large` \| `medium` \| `small` \| `base`; `turbo` | modello Whisper di voicebox |
 | `dettatura.indirizzo` | indirizzoLocale, avanzata; `http://127.0.0.1:17493` | dove sta voicebox (ADR-35) |
-| `aggiornamenti.controlloAutomatico` | bool; `true` | controllo all'avvio e ogni sei ore |
+| `aggiornamenti.controlloAutomatico` | bool; `false` | controllo all'avvio e ogni sei ore |
 | `aggiornamenti.scaricoAutomatico` | bool; `true` | scarica senza chiedere |
 | `aggiornamenti.installaAllaChiusura` | bool; `true` | installa all'uscita |
 | `api.condotto` | bool; `false` | il condotto locale |
@@ -351,7 +357,7 @@ Aggiornamenti, Condotto e riga di comando.
 - `CHIAVI_DISMESSE`: le chiavi tolte che `ritiraChiaviDismesse()` cancella da un
   `impostazioni.json` vecchio (attese diventate costanti, vecchia dettatura
   whisper.cpp, agenda sul desktop, `aperturaAutomatica`,
-  `recapiti.outlook`…). `ritiraCorredoWhisper()`
+  `recapiti.outlook`, la vecchia posta a mano `posta.server`/`porta`/…). `ritiraCorredoWhisper()`
   ([`core/dati/dictation.ts`](../core/dati/dictation.ts)) cancella la vecchia
   cartella della dettatura.
 - Stato, non opzioni (fuori dal manifesto): `registroDocenti.ultimoDocumento`,
@@ -376,6 +382,7 @@ lo tiene `tests/api/coverage.test.mjs`.
 | [`classTeacher.ts`](../core/azioni/classTeacher.ts) | `consegna.firme.aggiungi`, `.firme.apri`, `.firme.togli`, `.file.apri`, `.file.togli` → `consegne.*`; `recapito.salva`, `.elimina` → `classe.recapiti.*`; `comunicazione.salva`, `.elimina`, `.invia`, `.spunta` → `classe.comunicazioni.*`; `assenze.salva`, `.elimina`, `.foglio.aggiungi`, `.importa`, `.foglio.apri`, `.foglio.togli`, `.invia`, `.spunta` → `classe.assenze.*` |
 | [`sorting.ts`](../core/azioni/sorting.ts) | `smistamento.carica`→`smistamento.pdf.carica`, `.deposita`→`.pdf.deposita`, `.dividi`→`.pdf.dividi`, `.attribuisci`→`.pdf.attribuisci`, `.apri`→`.pdf.apri`, `.elimina`→`.pdf.elimina`, `.assegnaPagine`→`.pagine.assegna`, `.assegnaManuale`→`.pagine.assegnaManuale`, `.scartaPagine`→`.pagine.scarta`, `.apriPagine`→`.pagine.apri`, `.riprendiPagine`→`.pagine.riprendi`, `.confermaTutto`→`.bozza.conferma`, `.assegnaAssenze`→`.assenze.assegna`, `.assegnaFirme`→`.firme.assegna`, `.leggiPagine`→`.lettura.pagine`, `.leggiTutto`→`.lettura.tutto`, `.rileggiAttive`→`.lettura.attive`, `.fermaLettura`→`.lettura.ferma`, `.impostazioni`→`.lettura.impostazioni` |
 | [`system.ts`](../core/azioni/system.ts) | `impostazioni.salva`, `programma.salva`, `programma.sfoglia`, `programma.azzera`, `esporta.valutazioni`, `esporta.presenze`, `esporta.lezione`, `manutenzione.ripara`, `sistema.apriCartella`, `finestra.zoom`, `finestra.schermoIntero`, `programma.esci`, `sistema.chiama`, `sistema.scrivi`, `posta.prova`, `posta.invioProva`, `posta.collega`, `posta.scollega`, `sistema.messaggio` |
+| [`microsoft.ts`](../core/azioni/microsoft.ts) | `microsoft.aggiungi`, `microsoft.togli`, `onedrive.apri` |
 | [`calendar.ts`](../core/azioni/calendar.ts) | `calendario.aggiungi`, `calendario.aggiorna`, `calendario.modifica`, `calendario.togli`, `calendario.applica` |
 | [`check.ts`](../core/azioni/check.ts) | `check.colonne`, `check.spunta`, `check.data`, `check.lezione` |
 | [`documents.ts`](../core/azioni/documents.ts) | `stato.salva`, `documento.apri`, `documento.chiudi`, `documento.preferito`, `documento.dimentica` |
@@ -429,7 +436,7 @@ Comportamenti da sapere:
 - `proiezione.mira` torna `invariato` e non accende l'indicatore di lavoro.
 - `rapporto.completo` genera in serie, mai in parallelo (OneDrive).
 - Il gettone OAuth non attraversa mai il ponte: il pannello vede solo
-  `MessaggioStato.posta`.
+  `MessaggioStato.posta` e `MessaggioStato.microsoft` (indirizzi, nessun gettone).
 
 Le letture (senza azione): API § 5.
 
@@ -651,6 +658,14 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
 - Invio diretto: Exchange Online, OAuth PKCE (`core/dati/oauth.ts`,
   `core/dati/exchange.ts`); `registroDocenti.azzeraPosta` ripulisce portachiavi,
   memoria e impostazioni.
+- «Collega la casella» chiede solo l'account; il mittente si sceglie fra gli
+  indirizzi dell'account (`email`/`upn` del gettone con `openid email profile`,
+  alias da `User.Read` se il tenant lo concede; `indirizziDellAccount`,
+  `core/dominio/mailbox.ts`), conservati nel portachiavi e spinti in
+  `MessaggioStato.posta.indirizzi`. `posta.utente` e `posta.mittente` non sono
+  campi: li mostra la scheda Posta (`CHIAVI_DEL_COLLEGAMENTO`, in
+  `contract/manifesto.ts`), fuori da «modificate» e da «Ripristina»; la finestra
+  nativa li legge da `VoceProgramma.delCollegamento`, in sola lettura e senza «Ritira».
 
 ### 11.3 Geocodifica
 

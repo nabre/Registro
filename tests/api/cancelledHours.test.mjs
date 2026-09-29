@@ -73,7 +73,7 @@ function comeLaPagina () {
   const tenute = r.lezioni.filter(
     (l) => l.corsoId === corso.id && l.data >= DAL && l.data <= AL && l.stato !== 'annullata',
   )
-  const previste = udPrevisteDaOrario(anno, corso, DAL, AL, 45)
+  const previste = udPrevisteDaOrario(anno, corso, DAL, AL, 45, r.lezioni, r.impostazioni.pause)
   const matrice = matriceCorso([rossi], tenute, [], r.impostazioni, previste)
   return { previste, riga: matrice.righe[0] }
 }
@@ -81,7 +81,7 @@ function comeLaPagina () {
 describe('le ore annullate, nelle letture per corso e per persona', () => {
   it('la pagina non le conta: è il riferimento', () => {
     const { previste, riga } = comeLaPagina()
-    assert.equal(previste, 10, 'cinque martedì da due UD')
+    assert.equal(previste, 8, 'quattro martedì da due UD')
     assert.equal(riga.udAssenza, 0)
   })
 

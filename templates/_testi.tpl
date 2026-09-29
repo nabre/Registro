@@ -58,8 +58,8 @@ voti: Voti
 media: Media
 voto-piu-alto: Voto più alto
 voto-piu-basso: Voto più basso
-sufficienti: No. suff.
-insufficienti: No. Ins.
+sufficienti: N. suff.
+insufficienti: N. insuff.
 lezioni-a-calendario: Lezioni a calendario
 ud-previste: UD previste
 ud-a-calendario: UD a calendario
@@ -82,6 +82,11 @@ datore: Datore di lavoro
 telefono-rappresentante: Telefono del rappresentante
 telefono-datore: Telefono del datore
 nota-semestre: Nota di fine semestre
+ud-settimanali: UD settimanali
+lezioni-svolte: Lezioni svolte
+ud-svolte: UD svolte
+presenza-media: Presenza media
+media-di-classe: Media di classe
 
 # --- I titoli delle sezioni
 
@@ -114,6 +119,17 @@ esecuzione-e-riconsegna: Esecuzione e riconsegna
 i-momenti: I momenti
 recuperi: Recuperi
 da-ridare: Prove ancora da ridare
+check: Lista di controllo
+dettaglio-prove: Dettaglio delle prove
+quadro-orario: Quadro orario
+sospensioni-calendario: Sospensioni del calendario
+consegne: Consegne e compiti
+richieste-documenti: Richieste e consegne di classe
+comunicazioni: Comunicazioni
+dettaglio-assenze: Dettaglio assenze e firme
+diario-lezioni: Diario delle lezioni
+piani-lezione: Piani di lezione
+pendenze: Pendenze del corso
 
 # --- Le frasi
 

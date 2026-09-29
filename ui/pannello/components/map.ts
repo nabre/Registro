@@ -3,7 +3,9 @@
 // di una persona. Ogni riquadro tiene il suo stato (inquadratura, zoom,
 // cartellino) nella chiusura che lo costruisce; i punti li rilegge a ogni
 // disegno da `segni()`. Il disegno è imperativo: si rifà a ogni pixel di
-// trascinamento, e ricostruire l'albero lo farebbe arrancare.
+// trascinamento, e ricostruire l'albero lo farebbe arrancare. Per la stessa
+// ragione il riquadro non si ricrea a ogni ridisegno della pagina: chi lo usa
+// lo tiene e lo mette nel disegno con `nelDisegno()`.
 
 import {
   barraScala,
@@ -24,6 +26,11 @@ import { icona } from './icons.js'
 import { testi } from './map.testi.js'
 
 interface OpzioniMappa {
+  /**
+   * Che cosa guarda il riquadro (`mappa:pagina`, `mappa:allievo:<id>`): la
+   * sorgente con cui il ridisegno della pagina lo ritrova (`data-tieni`).
+   */
+  chiave: string
   /** I punti da disegnare, riletti a ogni disegno. */
   segni: () => SegnoMappa[]
   /**
@@ -59,6 +66,13 @@ export interface Riquadro {
   apri: (id: string | null) => void
   /** Dove sta guardando adesso. */
   dove: () => Inquadratura | null
+  /** Il segnaposto col cartellino aperto, o `null`. */
+  aperto: () => string | null
+  /**
+   * Il nodo da mettere nel disegno della pagina: il riquadro stesso, o un
+   * segnaposto che il ridisegno sostituisce con lui (`data-tieni`, `dom.ts`).
+   */
+  nelDisegno: () => HTMLElement
 }
 
 /** Un nodo SVG con i suoi attributi: `h` non va bene, qui il namespace è un altro. */
@@ -71,6 +85,11 @@ function nodoSvg<K extends keyof SVGElementTagNameMap> (
   return nodo
 }
 
+/** Che punti ci sono: la chiave dice se l'inquadratura va rifatta. */
+function chiaveDi (segni: readonly SegnoMappa[]): string {
+  return segni.map((segno) => segno.id).join('|')
+}
+
 /** La figura dentro la punta: è lei a dire che posto è. */
 function simboloDi (segno: SegnoMappa): 'casa' | 'azienda' | 'classi' {
   if (segno.genere === 'sede') return 'classi'
@@ -79,8 +98,11 @@ function simboloDi (segno: SegnoMappa): 'casa' | 'azienda' | 'classi' {
 
 export function riquadroMappa (opzioni: OpzioniMappa): Riquadro {
   let inquadratura: Inquadratura | null = opzioni.inquadratura ?? null
-  /** Su che cosa era stata fatta l'inquadratura automatica: se cambia, si rifà. */
-  let inquadratoSu = ''
+  /**
+   * Su che cosa era stata fatta l'inquadratura automatica: se cambia, si rifà.
+   * Un'inquadratura data da fuori vale per i punti di adesso: non si rifà.
+   */
+  let inquadratoSu = inquadratura ? chiaveDi(opzioni.segni()) : ''
   let apertoId: string | null = opzioni.aperto ?? null
 
   /**
@@ -100,7 +122,7 @@ export function riquadroMappa (opzioni: OpzioniMappa): Riquadro {
 
   const elemento = h(
     'div',
-    { class: 'mappa__tela' },
+    { class: 'mappa__tela', dataset: { tieni: opzioni.chiave } },
     h('div', { class: 'mappa__tasselli' }),
     svg('0 0 100 100', '', 'mappa__tragitti'),
     h('div', { class: 'mappa__segni' }),
@@ -113,11 +135,6 @@ export function riquadroMappa (opzioni: OpzioniMappa): Riquadro {
   const sopra = elemento.querySelector<HTMLElement>('.mappa__segni') as HTMLElement
   const linee = elemento.querySelector<SVGSVGElement>('.mappa__tragitti') as SVGSVGElement
   const scala = elemento.querySelector<HTMLElement>('.mappa__scala') as HTMLElement
-
-  /** Che punti ci sono adesso: la chiave dice se l'inquadratura va rifatta. */
-  function chiaveDi (segni: readonly SegnoMappa[]): string {
-    return segni.map((segno) => segno.id).join('|')
-  }
 
   function disegna (segni: SegnoMappa[]): void {
     const larghezza = elemento.clientWidth
@@ -327,6 +344,9 @@ export function riquadroMappa (opzioni: OpzioniMappa): Riquadro {
   }
 
   function vaiA (punto: Coordinate, zoomMinimo = 15): void {
+    // Scelta da chi guarda, anche a riquadro non ancora misurato: la prima
+    // misura non la rimpiazza con l'inquadratura automatica.
+    inquadratoSu = chiaveDi(opzioni.segni())
     sposta({
       centro: { lat: punto.lat, lon: punto.lon },
       zoom: Math.max(inquadratura?.zoom ?? zoomMinimo, zoomMinimo),
@@ -426,24 +446,60 @@ export function riquadroMappa (opzioni: OpzioniMappa): Riquadro {
     applicaRilievo()
   })
 
-  // Le misure si sanno solo a riquadro messo nella pagina: il primo disegno e
-  // ogni cambio di larghezza passano di qui.
-  const osservatore = new ResizeObserver(() => {
-    if (!elemento.isConnected) {
-      // Il riquadro di un ridisegno precedente: l'osservatore se ne va con lui.
-      osservatore.disconnect()
-      return
-    }
+  /**
+   * Rifà il disegno sui punti di adesso; se sono cambiati (un'altra scheda, un
+   * indirizzo trovato) rifà anche l'inquadratura, altrimenti resta quella di
+   * chi guarda.
+   */
+  function rifai (): void {
     const attuali = opzioni.segni()
     if (!inquadratura || inquadratoSu !== chiaveDi(attuali)) {
+      if (elemento.clientWidth === 0 || elemento.clientHeight === 0) return
       inquadratoSu = chiaveDi(attuali)
       inquadratura = inquadraturaPer(attuali, elemento.clientWidth, elemento.clientHeight, {
         margine: opzioni.margine,
       })
     }
     disegna(attuali)
+  }
+
+  // Le misure si sanno solo a riquadro messo nella pagina: il primo disegno e
+  // ogni cambio di larghezza passano di qui.
+  const osservatore = new ResizeObserver(() => {
+    if (!elemento.isConnected) {
+      // Staccato (si è lasciata la pagina): l'osservatore lo molla, e lo
+      // riprende `nelDisegno` se il riquadro torna.
+      osservatore.disconnect()
+      return
+    }
+    rifai()
   })
   osservatore.observe(elemento)
 
-  return { elemento, ridisegna, vaiA, inquadraTutto, apri, dove: () => inquadratura }
+  /**
+   * Il nodo per il disegno della pagina. Nel documento c'è già: si rifà sui
+   * dati di adesso e al disegno va un segnaposto con la stessa sorgente, che
+   * `aggiornaElemento` sostituisce con questo nodo; così tasselli, inquadratura
+   * e gesti restano. La classe è quella di adesso (`--isolata`, `--in-mano`):
+   * il nodo tenuto prende gli attributi del segnaposto. Staccato, torna lui.
+   */
+  function nelDisegno (): HTMLElement {
+    if (!elemento.isConnected) {
+      osservatore.observe(elemento)
+      return elemento
+    }
+    rifai()
+    return h('div', { class: elemento.className, dataset: { tieni: opzioni.chiave } })
+  }
+
+  return {
+    elemento,
+    ridisegna,
+    vaiA,
+    inquadraTutto,
+    apri,
+    dove: () => inquadratura,
+    aperto: () => apertoId,
+    nelDisegno,
+  }
 }

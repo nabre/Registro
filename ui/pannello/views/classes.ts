@@ -35,11 +35,11 @@ import { azione, chiedi } from '../bridge.js'
 import { classeDellaPaginaClassi } from '../context.js'
 import { validaClasse } from '../../../core/dominio/validation.js'
 import {
-  aggiorna,
   annoCorrente,
   classePerId,
   materieDiClasse,
   stato,
+  vai,
 } from '../state.js'
 import { tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
@@ -89,6 +89,9 @@ function tabellaAllievi (classe: Classe): HTMLElement {
 
   return tabella({
     variante: 'allievi',
+    // Tante colonne: scorre di lato, e un campo salvato sopra non la riporta a sinistra.
+    // testo-fisso: chiave di scorrimento, non si legge
+    scorrimento: `allievi:${classe.id}`,
     intestazione: [
       h('th', null, Uno(L.pif)),
       h('th', null, t.nascita),
@@ -112,7 +115,7 @@ function tabellaAllievi (classe: Classe): HTMLElement {
             collegamento({
               testo: nomeCompleto(allievo),
               titolo: t.apriScheda,
-              al: () => aggiorna({ vista: 'allievo', classeId: classe.id, allievoId: allievo.id }),
+              al: () => { vai({ pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: allievo.id } }, { contesto: { classeId: classe.id } }) },
             }),
             allievo.attivo ? null : pastiglia(t.nonFrequenta, 'quiete'),
           ),
@@ -144,9 +147,9 @@ function tabellaAllievi (classe: Classe): HTMLElement {
 type CampoClasse = 'nome' | 'colore' | 'note' | 'docenteDiClasse' | 'archiviata'
 
 /**
- * Scrive un campo cambiato sulla classe com'è adesso: `classe.salva` manda la
- * classe intera, e quella del disegno perderebbe gli allievi aggiunti nel
- * frattempo. Un nome vuoto o già usato nell'anno non si scrive.
+ * Scrive un campo cambiato sulla classe com'è adesso: la mutazione atomica
+ * `classe.modifica` invia solo il campo toccato ed evita di sovrascrivere
+ * campi concorrenti o l'elenco degli allievi.
  */
 async function scriviClasse (
   classeId: string,
@@ -156,9 +159,10 @@ async function scriviClasse (
 ): Promise<void> {
   const viva = classePerId(classeId)
   if (!viva) return
+  const pulito = typeof valore === 'string' && campo !== 'note' ? valore.trim() : valore
   const aggiornata: Classe = {
     ...viva,
-    [campo]: typeof valore === 'string' && campo !== 'note' ? valore.trim() : valore,
+    [campo]: pulito,
   }
   const esito = validaClasse(aggiornata, stato.registro.classi)
   if (!esito.valido) {
@@ -166,7 +170,11 @@ async function scriviClasse (
     torna()
     return
   }
-  const risposta = await azione({ tipo: 'classe.salva', classe: aggiornata })
+  const risposta = await azione({
+    tipo: 'classe.modifica',
+    classeId,
+    [campo]: pulito,
+  })
   if (!risposta.ok) torna()
 }
 
@@ -174,7 +182,7 @@ async function scriviClasse (
 async function eliminaClasse (classe: Classe): Promise<void> {
   if (!(await chiediEliminazione({ genere: 'classe', id: classe.id }))) return
   const risposta = await azione({ tipo: 'classe.elimina', classeId: classe.id })
-  if (risposta.ok) aggiorna({ classeId: null })
+  if (risposta.ok) vai({ pagina: 'pagina.classi' }, { contesto: { classeId: null } })
 }
 
 /**
@@ -197,14 +205,19 @@ function dettagliClasse (classe: Classe): HTMLElement {
       // testo-fisso: chiave del fuoco, non si legge
       dataset: { fuoco: `classe-${classe.id}-${campo}` },
       attr: { placeholder: segnaposto, 'aria-label': etichetta },
-      onchange: () => void scriviClasse(classe.id, campo, input.value, () => {
-        input.value = valore
-      }),
+      // Il campo vivo dall'evento: un ridisegno può aver tenuto quello di prima.
+      onchange: (evento: Event) => {
+        const vivo = evento.currentTarget as HTMLInputElement
+        void scriviClasse(classe.id, campo, vivo.value, () => {
+          vivo.value = valore
+        })
+      },
       onkeydown: (evento: KeyboardEvent) => {
-        if (evento.key === 'Enter') input.blur()
+        const vivo = evento.currentTarget as HTMLInputElement
+        if (evento.key === 'Enter') vivo.blur()
         if (evento.key === 'Escape') {
-          input.value = valore
-          input.blur()
+          vivo.value = valore
+          vivo.blur()
         }
       },
     })
@@ -221,9 +234,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
       checked: classe[campo],
       // testo-fisso: chiave del fuoco, non si legge
       dataset: { fuoco: `classe-${classe.id}-${campo}` },
-      onchange: () => void scriviClasse(classe.id, campo, input.checked, () => {
-        input.checked = classe[campo]
-      }),
+      onchange: (evento: Event) => {
+        const vivo = evento.currentTarget as HTMLInputElement
+        void scriviClasse(classe.id, campo, vivo.checked, () => {
+          vivo.checked = classe[campo]
+        })
+      },
     })
     return h(
       'label',
@@ -240,9 +256,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
     // testo-fisso: chiave del fuoco, non si legge
     dataset: { fuoco: `classe-${classe.id}-colore` },
     attr: { 'aria-label': t.coloreNelCalendario, title: t.coloreDellaClasse },
-    onchange: () => void scriviClasse(classe.id, 'colore', colore.value, () => {
-      colore.value = classe.colore
-    }),
+    onchange: (evento: Event) => {
+      const vivo = evento.currentTarget as HTMLInputElement
+      void scriviClasse(classe.id, 'colore', vivo.value, () => {
+        vivo.value = classe.colore
+      })
+    },
   })
 
   const note = h('textarea', {
@@ -252,9 +271,12 @@ function dettagliClasse (classe: Classe): HTMLElement {
     // testo-fisso: chiave del fuoco, non si legge
     dataset: { fuoco: `classe-${classe.id}-note` },
     attr: { placeholder: t.noteSullaClasse, 'aria-label': p.note },
-    onchange: () => void scriviClasse(classe.id, 'note', note.value, () => {
-      note.value = classe.note ?? ''
-    }),
+    onchange: (evento: Event) => {
+      const vivo = evento.currentTarget as HTMLTextAreaElement
+      void scriviClasse(classe.id, 'note', vivo.value, () => {
+        vivo.value = classe.note ?? ''
+      })
+    },
   })
 
   return scheda({
@@ -438,7 +460,7 @@ export function chiediImportaClasse (): void {
       if (!risposta) return
       contesto.chiudi()
       notifica(t.importata(nome), 'successo')
-      if (risposta.creato) aggiorna({ vista: 'classi', classeId: risposta.creato.id })
+      if (risposta.creato) vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: risposta.creato.id } })
     },
   })
   void leggiClassi(documentoScelto, modale)
@@ -466,11 +488,12 @@ export function vistaClassi (): Figlio {
     }),
     h(
       'div',
-      { class: 'colonna' },
+      { class: 'colonna', dataset: { telaio: 'classi:corpo' } },
       classe
         ? h(
             'div',
-            { class: 'colonna' },
+            // testo-fisso: chiave di telaio
+            { class: 'colonna', dataset: { telaio: `classe:${classe.id}` } },
             dettagliClasse(classe),
             scheda({
               titolo: classe.nome,

@@ -13,6 +13,8 @@ const pacchetto = await build({
   platform: 'browser',
   format: 'iife',
   globalName: 'interfaccia',
+  // `Temporal`, che il contesto di Node non ha: vedi `tests/helpers/temporal.mjs`.
+  inject: [fileURLToPath(new URL('./temporal.mjs', import.meta.url))],
 })
 
 /**

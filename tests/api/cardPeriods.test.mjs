@@ -18,6 +18,13 @@ import assert from 'node:assert/strict'
 import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import {
+  SEMESTRE_INVENTATO,
+  eNonTrovato,
+  eUnPeriodoSenzaSemestri,
+  eUnSemestreSolo,
+  sonoIntersecati,
+} from '../helpers/periodi.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-periodi-scheda-')
 
@@ -202,26 +209,17 @@ describe('persone.scheda: i periodi in cima', () => {
     assert.equal(esito.dati.al, secondo.fine)
   })
 
-  // Un `semestreId` inventato non è una busta vuota, che si leggerebbe «non ha
-  // assenze».
   it('un semestreId inventato è un «non-trovato», non una busta vuota', async () => {
-    const esito = await api.chiama(archivio, 'persone.scheda', {
-      allievoId: rossi.id, semestreId: 'sem-inventato-0001',
-    })
-    assert.equal(esito.ok, false)
-    assert.equal(esito.codice, 'non-trovato')
-    assert.match(esito.messaggi.join(' '), /anni\.elenco/)
+    eNonTrovato(await api.chiama(archivio, 'persone.scheda', {
+      allievoId: rossi.id, semestreId: SEMESTRE_INVENTATO,
+    }))
   })
 
   it('con semestreId il periodo è uno solo, e sono i suoi giorni', async () => {
     const esito = await api.chiama(archivio, 'persone.scheda', {
       allievoId: rossi.id, semestreId: secondo.id,
     })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(esito.dati.periodi.length, 1)
-    assert.equal(esito.dati.periodi[0].semestreId, secondo.id)
-    assert.equal(esito.dati.dal, secondo.inizio)
-    assert.equal(esito.dati.al, secondo.fine)
+    eUnSemestreSolo(esito, secondo)
   })
 
   // «Da dicembre a marzo» interseca i semestri: le cifre del primo sono solo di
@@ -230,14 +228,7 @@ describe('persone.scheda: i periodi in cima', () => {
     const esito = await api.chiama(archivio, 'persone.scheda', {
       allievoId: rossi.id, dal: '2026-12-01', al: '2027-03-31',
     })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(esito.dati.periodi.length, 2)
-    assert.deepEqual(
-      esito.dati.periodi.map((p) => [p.dal, p.al]),
-      [['2026-12-01', primo.fine], [secondo.inizio, '2027-03-31']],
-    )
-    assert.equal(esito.dati.dal, '2026-12-01')
-    assert.equal(esito.dati.al, '2027-03-31')
+    sonoIntersecati(esito, '2026-12-01', '2027-03-31', [primo, secondo])
 
     // In dicembre di Storia non c'è nessuna ora: il primo periodo è vuoto.
     const riga = corsoDi(esito.dati, storia.id)
@@ -341,14 +332,7 @@ describe('persone.scheda: il periodo viene dai filtri comuni', () => {
   // prima resta fuori.
   it('un anno senza semestri dà un periodo solo, con semestreId vuoto', async () => {
     const esito = await api.chiama(archivio, 'persone.scheda', { allievoId: gialli.id })
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(esito.dati.periodi.length, 1)
-    assert.equal(esito.dati.periodi[0].semestreId, '')
-    assert.equal(esito.dati.periodi[0].numero, 0)
-    assert.equal(esito.dati.periodi[0].dal, NUDO.inizio)
-    assert.equal(esito.dati.periodi[0].al, NUDO.fine)
-    assert.equal(esito.dati.dal, NUDO.inizio)
-    assert.equal(esito.dati.al, NUDO.fine)
+    eUnPeriodoSenzaSemestri(esito, NUDO.inizio, NUDO.fine)
 
     // Due UD previste (l'unica ora dell'anno) e nessuna assenza.
     const riga = corsoDi(esito.dati, corsoNudo.id)

@@ -9,17 +9,30 @@ const it = {
     `le comunicazioni partono dal registro, consegnate a ${server}`,
   esconoComeEml: 'le comunicazioni escono come file .eml, da spedire dal programma di posta',
   daCollegare: 'casella da collegare',
-  premiCollega: 'Premi «Collega la casella»: chiede l’indirizzo e apre l’accesso nel browser.',
+  premiCollega:
+    'Premi «Collega la casella»: chiede solo l’account, apre l’accesso nel browser e fa ' +
+    'scegliere il mittente fra gli indirizzi dell’account.',
   collegata: 'casella collegata',
-  accesso: (indirizzo: string) => ` · accesso ${indirizzo}`,
-  consegnaA: (server: string) => ` · consegna a ${server}`,
+  account: 'Account',
+  mittente: 'Mittente («Da»)',
+  mittenteAiuto:
+    'Gli indirizzi del tuo account, come li dice Microsoft. Se la scuola non lascia spedire ' +
+    'dagli alias, il server rifiuta con 5.7.60: torna all’indirizzo principale.',
+  nonDetto: '—',
+  server: 'Server',
+  serverValore: (server: string, porta: number) =>
+    server ? `${server}, porta ${porta}, STARTTLS` : '—',
+  autenticazione: 'Accesso',
+  autenticazioneValore:
+    'account Microsoft dal browser; il registro ha solo il permesso di spedire, nel portachiavi',
+  comunicazioni: 'Comunicazioni',
   quandoParte: 'Quando parte',
   posta: 'Posta',
   ricollega: 'Ricollega la casella',
   collega: 'Collega la casella',
   collegaAiuto:
-    'Chiede l’indirizzo, apre la pagina di Microsoft nel browser, e prova. Quel che apre ' +
-    'la casella va nel portachiavi del sistema, non nelle impostazioni.',
+    'Chiede l’account, apre la pagina di Microsoft nel browser, fa scegliere il mittente e ' +
+    'prova. Quel che apre la casella va nel portachiavi del sistema, non nelle impostazioni.',
   prova: 'Prova il collegamento',
   provaAiuto: 'Va a bussare alla casella e si fa dire di chi è. Non manda niente.',
   mandaProva: 'Manda una prova',
@@ -57,17 +70,30 @@ export const testi = catalogo(it, {
       'die Mitteilungen gehen als .eml-Dateien hinaus, zum Versand aus dem Mailprogramm',
     daCollegare: 'Postfach nicht verbunden',
     premiCollega:
-      'Drücke «Postfach verbinden»: Es fragt nach der Adresse und öffnet die Anmeldung im Browser.',
+      'Drücke «Postfach verbinden»: Es fragt nur nach dem Konto, öffnet die Anmeldung im ' +
+      'Browser und lässt den Absender unter den Adressen des Kontos wählen.',
     collegata: 'Postfach verbunden',
-    accesso: (indirizzo) => ` · Anmeldung ${indirizzo}`,
-    consegnaA: (server) => ` · Zustellung über ${server}`,
+    account: 'Konto',
+    mittente: 'Absender («Von»)',
+    mittenteAiuto:
+      'Die Adressen deines Kontos, wie Microsoft sie angibt. Erlaubt die Schule das Senden von ' +
+      'Aliasen nicht, lehnt der Server mit 5.7.60 ab: Nimm wieder die Hauptadresse.',
+    nonDetto: '—',
+    server: 'Server',
+    serverValore: (server, porta) => (server ? `${server}, Port ${porta}, STARTTLS` : '—'),
+    autenticazione: 'Anmeldung',
+    autenticazioneValore:
+      'Microsoft-Konto im Browser; das Klassenbuch hat nur die Berechtigung zu senden, im ' +
+      'Schlüsselbund',
+    comunicazioni: 'Mitteilungen',
     quandoParte: 'Wann es verschickt wird',
     posta: 'E-Mail',
     ricollega: 'Postfach neu verbinden',
     collega: 'Postfach verbinden',
     collegaAiuto:
-      'Fragt nach der Adresse, öffnet die Seite von Microsoft im Browser und testet. Was das ' +
-      'Postfach öffnet, kommt in den Schlüsselbund des Systems, nicht in die Einstellungen.',
+      'Fragt nach dem Konto, öffnet die Seite von Microsoft im Browser, lässt den Absender wählen ' +
+      'und testet. Was das Postfach öffnet, kommt in den Schlüsselbund des Systems, nicht in ' +
+      'die Einstellungen.',
     prova: 'Verbindung testen',
     provaAiuto: 'Klopft beim Postfach an und lässt sich sagen, wem es gehört. Verschickt nichts.',
     mandaProva: 'Test senden',
@@ -106,18 +132,30 @@ export const testi = catalogo(it, {
       'les communications sortent en fichiers .eml, à envoyer depuis le programme de messagerie',
     daCollegare: 'boîte à connecter',
     premiCollega:
-      'Clique sur « Connecter la boîte » : il demande l’adresse et ouvre la connexion dans le ' +
-      'navigateur.',
+      'Clique sur « Connecter la boîte » : il demande seulement le compte, ouvre la connexion ' +
+      'dans le navigateur et fait choisir l’expéditeur parmi les adresses du compte.',
     collegata: 'boîte connectée',
-    accesso: (indirizzo) => ` · accès ${indirizzo}`,
-    consegnaA: (server) => ` · remise à ${server}`,
+    account: 'Compte',
+    mittente: 'Expéditeur (« De »)',
+    mittenteAiuto:
+      'Les adresses de ton compte, telles que Microsoft les donne. Si l’école ne laisse pas ' +
+      'envoyer depuis les alias, le serveur refuse avec 5.7.60 : reviens à l’adresse principale.',
+    nonDetto: '—',
+    server: 'Serveur',
+    serverValore: (server, porta) => (server ? `${server}, port ${porta}, STARTTLS` : '—'),
+    autenticazione: 'Connexion',
+    autenticazioneValore:
+      'compte Microsoft dans le navigateur ; le registre n’a que l’autorisation d’envoyer, ' +
+      'dans le trousseau',
+    comunicazioni: 'Communications',
     quandoParte: 'Quand ça part',
     posta: 'Messagerie',
     ricollega: 'Reconnecter la boîte',
     collega: 'Connecter la boîte',
     collegaAiuto:
-      'Demande l’adresse, ouvre la page de Microsoft dans le navigateur, et teste. Ce qui ouvre ' +
-      'la boîte va dans le trousseau du système, pas dans les paramètres.',
+      'Demande le compte, ouvre la page de Microsoft dans le navigateur, fait choisir ' +
+      'l’expéditeur et teste. Ce qui ouvre la boîte va dans le trousseau du système, pas dans ' +
+      'les paramètres.',
     prova: 'Tester la connexion',
     provaAiuto: 'Va frapper à la boîte et se fait dire à qui elle est. N’envoie rien.',
     mandaProva: 'Envoyer un test',
@@ -153,17 +191,29 @@ export const testi = catalogo(it, {
     esconoComeEml: 'messages go out as .eml files, to be sent from the mail program',
     daCollegare: 'mailbox to connect',
     premiCollega:
-      'Press “Connect the mailbox”: it asks for the address and opens the sign-in in the browser.',
+      'Press “Connect the mailbox”: it asks only for the account, opens the sign-in in the ' +
+      'browser and lets you choose the sender among the account’s addresses.',
     collegata: 'mailbox connected',
-    accesso: (indirizzo) => ` · sign-in ${indirizzo}`,
-    consegnaA: (server) => ` · delivered to ${server}`,
+    account: 'Account',
+    mittente: 'Sender (“From”)',
+    mittenteAiuto:
+      'Your account’s addresses, as Microsoft gives them. If the school does not allow sending ' +
+      'from aliases, the server refuses with 5.7.60: go back to the primary address.',
+    nonDetto: '—',
+    server: 'Server',
+    serverValore: (server, porta) => (server ? `${server}, port ${porta}, STARTTLS` : '—'),
+    autenticazione: 'Sign-in',
+    autenticazioneValore:
+      'Microsoft account in the browser; the register only has the permission to send, in the ' +
+      'keychain',
+    comunicazioni: 'Communications',
     quandoParte: 'When it goes out',
     posta: 'Mail',
     ricollega: 'Reconnect the mailbox',
     collega: 'Connect the mailbox',
     collegaAiuto:
-      'Asks for the address, opens Microsoft’s page in the browser, and tests. What opens the ' +
-      'mailbox goes into the system keychain, not into the settings.',
+      'Asks for the account, opens Microsoft’s page in the browser, lets you choose the sender ' +
+      'and tests. What opens the mailbox goes into the system keychain, not into the settings.',
     prova: 'Test the connection',
     provaAiuto: 'Knocks on the mailbox and asks whose it is. Sends nothing.',
     mandaProva: 'Send a test',

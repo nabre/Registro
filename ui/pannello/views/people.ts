@@ -18,11 +18,16 @@ import { pastiglia, pulsante, quieto, statoVuoto, testataVista } from '../compon
 import { statoVuotoAnno } from '../components/filters.js'
 import { icona } from '../components/icons.js'
 import { avatar } from '../components/avatar.js'
-import { h, rimpiazza, type Figlio } from '../dom.js'
+import { finestra, isolaVirtuale, rifaiElenco, stileVuoto } from '../components/virtuale.js'
+import { h, type Figlio } from '../dom.js'
 import { moduloAllievo, moduloAnno } from '../forms.js'
-import { aggiorna, annoCorrente, classiVisibili, ricorda, stato } from '../state.js'
+import { annoCorrente, classiVisibili, ricorda, stato, vai } from '../state.js'
 import { schedaAllievo } from './student.js'
 import { testi } from './people.testi.js'
+
+/** L'altezza di una persona in elenco e di una testata di classe, finché non le si misura. */
+const ALTEZZA_VOCE = 58
+const ALTEZZA_TESTATA = 30
 
 /** Quel che si sta cercando; vive quanto il pannello (vedi la nota in testa). */
 let cercato = ''
@@ -106,8 +111,14 @@ function vocePersona (voce: Voce, scelta: boolean): HTMLElement {
           !allievo.attivo && 'voce-laterale--spenta',
         ],
         type: 'button',
-        onclick: () =>
-          aggiorna({ vista: 'persone', classeId: classe.id, allievoId: allievo.id }),
+        // Il fuoco torna qui dopo un ridisegno: scorrendo con Tab la finestra
+        // rifà l'elenco sotto il cursore (`components/virtuale.ts`).
+        // testo-fisso: chiave del fuoco, non si legge
+        dataset: { fuoco: `persona-${allievo.id}` },
+        // La pagina resta Persone: la scheda accanto è quella dell'allievo del contesto.
+        onclick: () => {
+          vai({ pagina: 'pagina.persone' }, { contesto: { classeId: classe.id, allievoId: allievo.id } })
+        },
       },
       avatar(allievo),
       h(
@@ -120,70 +131,162 @@ function vocePersona (voce: Voce, scelta: boolean): HTMLElement {
   )
 }
 
-/** I nomi raggruppati per classe: l'ordine con cui si legge un registro. */
-function gruppiDiClasse (
-  voci: Voce[],
-  sceltoId: string | null,
-  ridisegna: () => void,
-): Figlio {
-  if (voci.length === 0) {
-    return quieto(testi().nessunaCorrispondenza)
-  }
+/** La chiave della finestra sull'elenco (`components/virtuale.ts`). */
+// testo-fisso: chiave della finestra, non si legge
+const ELENCO = 'persone'
 
+/** Quel che si disegna in fila: la testata di una classe, o una persona. */
+type Posto =
+  | { gruppo: Voce[], aperta: boolean }
+  | { voce: Voce, testata: number, posto: number, di: number }
+
+/** Le classi con le loro persone, in una fila sola: la finestra conta lì. */
+function inFila (voci: Voce[]): Posto[] {
   const gruppi = new Map<string, Voce[]>()
   for (const voce of voci) {
     const fila = gruppi.get(voce.classe.id)
     if (fila) fila.push(voce)
     else gruppi.set(voce.classe.id, [voce])
   }
-
-  return [...gruppi.values()].map((fila) => {
-    const classe = fila[0].classe
+  const posti: Posto[] = []
+  for (const fila of gruppi.values()) {
     // Cercando, le classi si aprono tutte; la chiusura torna svuotando la casella.
-    const aperta = apertaDaChiGuarda(classe.id) || cercato.trim() !== ''
-    return h(
+    const aperta = apertaDaChiGuarda(fila[0].classe.id) || cercato.trim() !== ''
+    const testata = posti.length
+    posti.push({ gruppo: fila, aperta })
+    if (aperta) fila.forEach((voce, n) => posti.push({ voce, testata, posto: n + 1, di: fila.length }))
+  }
+  return posti
+}
+
+/** La testata apribile di una classe, col conto delle sue persone. */
+function testataDiClasse (fila: Voce[], aperta: boolean, dataset?: Record<string, string>): HTMLElement {
+  const classe = fila[0].classe
+  return h(
+    'button',
+    {
+      class: ['elenco-laterale__gruppo', 'gruppo-classe'],
+      type: 'button',
+      dataset,
+      attr: { 'aria-expanded': aperta },
+      onclick: () => {
+        inverti(classe.id)
+        rifaiElenco(ELENCO)
+      },
+    },
+    icona(aperta ? 'giu' : 'destra', 'gruppo-classe__freccia'),
+    h('span', null, classe.nome),
+    h('span', { class: 'testo-quieto' }, String(fila.length)),
+  )
+}
+
+/**
+ * I nomi raggruppati per classe: l'ordine con cui si legge un registro. Con
+ * molte persone si disegnano solo quelle in vista (`components/virtuale.ts`):
+ * la testata della classe della prima resta, appiccicata in cima, e al posto
+ * delle altre c'è un vuoto della loro misura. La ricerca lavora sui dati
+ * (`filtrate`), non su quel che è disegnato.
+ */
+function gruppiDiClasse (voci: Voce[], sceltoId: string | null): Figlio {
+  if (voci.length === 0) {
+    return quieto(testi().nessunaCorrispondenza)
+  }
+  const posti = inFila(voci)
+  const f = finestra({
+    chiave: ELENCO,
+    conto: posti.length,
+    stima: (indice) => 'gruppo' in posti[indice] ? ALTEZZA_TESTATA : ALTEZZA_VOCE,
+    chiaveDi: (indice) => {
+      const posto = posti[indice]
+      // testo-fisso: chiave di gruppo
+      return 'gruppo' in posto ? `classe:${posto.gruppo[0].classe.id}` : posto.voce.allievo.id
+    },
+    // La testata della classe di ogni persona disegnata: quella della prima in
+    // vista resta appiccicata in cima.
+    sempre: (indici) => indici.flatMap((indice) => {
+      const posto = posti[indice]
+      return 'gruppo' in posto ? [] : [posto.testata]
+    }),
+  })
+
+  if (!f.attiva) {
+    return posti.flatMap((posto) => 'gruppo' in posto
+      ? [h(
+          'div',
+          null,
+          testataDiClasse(posto.gruppo, posto.aperta),
+          posto.aperta
+            ? h(
+                'ul',
+                { class: 'elenco-laterale__voci' },
+                ...posto.gruppo.map((voce) => vocePersona(voce, voce.allievo.id === sceltoId)),
+              )
+            : null,
+        )]
+      : [])
+  }
+
+  // Una classe per volta: la testata, poi le sue persone in vista, con un vuoto
+  // dentro l'elenco al posto di quelle saltate. Fra due classi il vuoto sta fuori.
+  const vuoto = (tag: 'div' | 'li', px: number, segno?: Record<string, string>) =>
+    h(tag, {
+      class: 'elenco-laterale__vuoto',
+      style: stileVuoto(px, false),
+      dataset: segno,
+      attr: { 'aria-hidden': 'true' },
+    })
+  const fuori: HTMLElement[] = []
+  let testata: HTMLElement | null = null
+  let dentro: HTMLElement[] = []
+  let saltato = 0
+  const chiudi = () => {
+    if (!testata) return
+    fuori.push(h(
       'div',
       null,
-      h(
-        'button',
-        {
-          class: ['elenco-laterale__gruppo', 'gruppo-classe'],
-          type: 'button',
-          attr: { 'aria-expanded': aperta },
-          onclick: () => {
-            inverti(classe.id)
-            ridisegna()
-          },
-        },
-        icona(aperta ? 'giu' : 'destra', 'gruppo-classe__freccia'),
-        h('span', null, classe.nome),
-        h('span', { class: 'testo-quieto' }, String(fila.length)),
-      ),
-      aperta
-        ? h(
-            'ul',
-            { class: 'elenco-laterale__voci' },
-            ...fila.map((voce) => vocePersona(voce, voce.allievo.id === sceltoId)),
-          )
+      testata,
+      dentro.length > 0
+        ? h('ul', { class: 'elenco-laterale__voci elenco-laterale__voci--finestra' }, ...dentro)
         : null,
-    )
-  })
+    ))
+    testata = null
+    dentro = []
+  }
+  for (const [n, pezzo] of f.pezzi.entries()) {
+    if (pezzo.indice === undefined) {
+      if (n === 0) fuori.push(vuoto('div', pezzo.vuoto, f.inizio))
+      else saltato += pezzo.vuoto
+      continue
+    }
+    const posto = posti[pezzo.indice]
+    if ('gruppo' in posto) {
+      chiudi()
+      if (saltato > 0) fuori.push(vuoto('div', saltato))
+      saltato = 0
+      testata = testataDiClasse(posto.gruppo, posto.aperta, f.misurata(pezzo.indice))
+      continue
+    }
+    if (saltato > 0) dentro.push(vuoto('li', saltato))
+    saltato = 0
+    const riga = vocePersona(posto.voce, posto.voce.allievo.id === sceltoId)
+    Object.assign(riga.dataset, f.misurata(pezzo.indice))
+    riga.setAttribute('aria-setsize', String(posto.di))
+    riga.setAttribute('aria-posinset', String(posto.posto))
+    dentro.push(riga)
+  }
+  chiudi()
+  if (saltato > 0) fuori.push(vuoto('div', saltato))
+  return fuori
 }
+
 /**
  * L'elenco laterale, con la casella che lo restringe. Un `input` scritto a mano
  * e non un `campo` (che reagisce a `change`): si filtra a ogni lettera e si rifà
- * solo questa scatola.
+ * solo l'isola dell'elenco.
  */
 function elencoPersone (voci: Voce[], sceltoId: string | null): HTMLElement {
-  const conto = h('span', { class: 'testo-quieto' }, String(filtrate(voci).length))
-  const corpo = h('div', { class: 'elenco-persone' })
-
-  const ridisegna = () => {
-    const restano = filtrate(voci)
-    rimpiazza(corpo, gruppiDiClasse(restano, sceltoId, ridisegna))
-    rimpiazza(conto, String(restano.length))
-  }
-  ridisegna()
+  const conto = h('span', { class: 'testo-quieto elenco-laterale__conto' }, String(filtrate(voci).length))
+  const corpo = isolaVirtuale(ELENCO, () => gruppiDiClasse(filtrate(voci), sceltoId), { class: 'elenco-persone' })
   const t = testi()
 
   const casella = h('input', {
@@ -198,8 +301,12 @@ function elencoPersone (voci: Voce[], sceltoId: string | null): HTMLElement {
     // `data-fuoco` rimette il cursore qui dopo un ridisegno vero (dati dall'host).
     dataset: { fuoco: 'ricerca-persone' },
     oninput: (evento: Event) => {
-      cercato = (evento.target as HTMLInputElement).value
-      ridisegna()
+      const campo = evento.currentTarget as HTMLInputElement
+      cercato = campo.value
+      rifaiElenco(ELENCO)
+      // Il conto vivo: dopo un ridisegno `conto` può essere il nodo scartato.
+      const vivo = campo.closest('.elenco-laterale')?.querySelector('.elenco-laterale__conto')
+      if (vivo) vivo.textContent = String(filtrate(voci).length)
     },
   })
 
@@ -207,8 +314,9 @@ function elencoPersone (voci: Voce[], sceltoId: string | null): HTMLElement {
     'div',
     {
       class: 'elenco-laterale',
-      // Lo scorrimento resta dov'era quando si sceglie un nome e la vista si rifà.
-      dataset: { scorrimento: 'elenco-persone' },
+      // Lo scorrimento resta dov'era quando si sceglie un nome e la vista si rifà;
+      // di telaio, la stessa scatola: la rotella in corsa non si perde.
+      dataset: { scorrimento: 'elenco-persone', telaio: 'elenco-persone' },
     },
     h(
       'header',
@@ -267,7 +375,8 @@ export function vistaPersone (): Figlio {
 
   return h(
     'div',
-    { class: 'vista vista--persone' },
+    // Anelli della catena di telaio fino all'elenco che scorre (`dom.ts`).
+    { class: 'vista vista--persone', dataset: { telaio: 'persone' } },
     testataVista({
       titolo: Molti(lessico().pif),
       sottotitolo: elenco.length === 0 ? t.nessunaPerOra : riassunto(elenco),
@@ -278,12 +387,12 @@ export function vistaPersone (): Figlio {
               simbolo: 'utente',
               variante: 'sottile',
               titolo: t.senzaElenco(nomeCompleto(scelta.allievo)),
-              al: () =>
-                aggiorna({
-                  vista: 'allievo',
-                  classeId: scelta.classe.id,
-                  allievoId: scelta.allievo.id,
-                }),
+              al: () => {
+                vai(
+                  { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: scelta.allievo.id } },
+                  { contesto: { classeId: scelta.classe.id } },
+                )
+              },
             }),
             pulsante({
               testo: parole().modifica,
@@ -295,7 +404,7 @@ export function vistaPersone (): Figlio {
     }),
     h(
       'div',
-      { class: 'colonne colonne--elenco' },
+      { class: 'colonne colonne--elenco', dataset: { telaio: 'persone-colonne' } },
       elencoPersone(elenco, scelta?.allievo.id ?? null),
       scelta
         ? h(
@@ -321,7 +430,7 @@ export function vistaPersone (): Figlio {
                     testo: t.vaiAlleClassi,
                     variante: 'primario',
                     simbolo: 'classi',
-                    al: () => aggiorna({ vista: 'classi' }),
+                    al: () => { vai({ pagina: 'pagina.classi' }) },
                   })
                 : undefined,
           }),

@@ -167,13 +167,6 @@
 
 .voce-opzione:first-child { border-top: none; padding-top: 0; }
 
-/* Decisa a mano: una riga di colore sul fianco, distingue dal predefinito senza leggere la pastiglia. */
-.voce-opzione--scritta {
-  border-left: 3px solid color-mix(in srgb, var(--attenzione) 60%, transparent);
-  padding-left: var(--spazio-3);
-  margin-left: calc(var(--spazio-3) * -1);
-}
-
 /* Sospesa: il padre da cui dipende è spento. Si smorza tutta la riga (un nome
    pieno sopra un campo morto sembrerebbe un guasto), ma il testo resta leggibile. */
 .voce-opzione--sospesa { opacity: 0.55; }
@@ -445,6 +438,128 @@
 
 /* Vuoto finché nessuno ha premuto: altrimenti lascerebbe un buco. */
 .posta-esito:empty { display: none; }
+
+/* I parametri della casella: nome a sinistra, valore a destra; si leggono, non
+   si scrivono. Su uno schermo stretto il valore va sotto il nome. */
+.posta-parametri {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: var(--spazio-2) var(--spazio-4);
+  margin: 0;
+}
+
+.posta-parametri dt { color: var(--testo-quieto); }
+.posta-parametri dd { margin: 0; overflow-wrap: anywhere; }
+/* Il nome sta già nella colonna a sinistra: l'etichetta del menu resta solo per
+   chi legge con il lettore di schermo. */
+.posta-parametri dd .campo__etichetta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 34rem) {
+  .posta-parametri { grid-template-columns: 1fr; gap: 0; }
+  .posta-parametri dd { margin-bottom: var(--spazio-2); }
+}
+
+/* ---------------------------------------------------- account Microsoft */
+
+/* Un account per riga: chi, a che cosa serve, i gesti. Su uno schermo stretto va a capo. */
+.elenco-account-microsoft {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.account-microsoft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2) var(--spazio-3);
+}
+
+.account-microsoft__chi {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 14rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.account-microsoft__chi small { color: var(--testo-quieto); }
+
+.account-microsoft__usi,
+.account-microsoft__azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+/* ------------------------------------------------------ sfogliare OneDrive */
+
+.onedrive__testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+.onedrive__dove { font-weight: 600; overflow-wrap: anywhere; }
+
+.onedrive__gesti { display: flex; flex-wrap: wrap; gap: var(--spazio-2); }
+
+/* L'elenco scorre dentro la finestra: una cartella può avere centinaia di voci. */
+.onedrive__elenco { max-height: 55vh; overflow-y: auto; }
+
+.onedrive__voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onedrive__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) var(--spazio-2);
+  border-radius: var(--raggio);
+}
+
+.onedrive__voce:hover { background: var(--velo-sfiorato); }
+
+.onedrive__nome {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.onedrive__nome { cursor: pointer; }
+button.onedrive__nome:hover span { text-decoration: underline; }
+
+.onedrive__nome > span { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.onedrive__nome small { color: var(--testo-quieto); }
+
+.onedrive__piede:empty { display: none; }
 
 /* --------------------------------------------------- liste dei menu a tendina */
 

@@ -29,8 +29,8 @@ const it = {
       'lui; quando spedisce il registro, in fondo va quella di Impostazioni › Comunicazioni.',
     destinatari: 'Destinatari',
     aiutoDestinatari: 'Gli indirizzi vanno in copia nascosta: nessuno vede la lista degli altri.',
-    spedita: (giorno: string, n: number) => `Spedita il ${giorno} a ${n} indirizzi.`,
-    indirizzi: (n: number) => `${n} indirizzi`,
+    spedita: (giorno: string, n: number) => `Spedita il ${giorno} a ${plurale(n, 'indirizzo', 'indirizzi')}.`,
+    indirizzi: (n: number) => plurale(n, 'indirizzo', 'indirizzi'),
     senzaEmail: (nomi: string) => ` · senza e-mail: ${nomi}`,
     salvaBozza: 'Salva bozza',
     bozzaSalvata: 'Bozza salvata.',
@@ -40,7 +40,7 @@ const it = {
       'L’e-mail spedita resta nella casella di posta, dove è stata mandata.',
     eliminataDalloStorico: 'Comunicazione eliminata dallo storico.',
     salvaEApri: 'Salva e apri nella posta',
-    preparare: (n: number) => `Preparare la bozza per ${n} destinatari?`,
+    preparare: (n: number) => `Preparare la bozza per ${plurale(n, 'destinatario', 'destinatari')}?`,
     siApreNellaPosta:
       'Si apre nel programma di posta, con gli indirizzi già in copia nascosta. ' +
       'A spedirla sei tu: poi la spunti nell’elenco delle comunicazioni.',

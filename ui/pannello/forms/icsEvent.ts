@@ -26,7 +26,7 @@ import { testi } from './icsEvent.testi.js'
 /** Il valore della tendina che dice «non è una lezione». */
 const IGNORA = '—ignora—'
 
-export interface OpzioniModuloEventoIcs {
+interface OpzioniModuloEventoIcs {
   evento: EventoCalendario
   /** Gli eventi che con quello fanno una lezione sola: tutti diventano la stessa ora. */
   gruppo: EventoCalendario[]

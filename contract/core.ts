@@ -24,6 +24,7 @@ import {
   type Risultato,
   type Spia,
   type VoceGiornale,
+  type VoceGiornaleRegistrata,
 } from './contract.js'
 import { booleano, convalida, numero, oggetto, opzionale, scelta, testo, type Schema } from './schemas.js'
 import { detto } from '../core/i18n/index.js'
@@ -75,6 +76,10 @@ export function procedure (): Array<ProceduraQualunque> {
 
 const SPIE = new Set<Spia>()
 
+/** Capienza massima del giornale in memoria: 500 chiamate recenti. */
+const CAPIENZA_GIORNALE = 500
+const BUFFER_GIORNALE: VoceGiornaleRegistrata[] = []
+
 /**
  * Sta a guardare ogni chiamata. La spia riceve nome, origine, durata ed esito,
  * mai l'ingresso, che contiene nomi di persone.
@@ -85,6 +90,12 @@ export function osserva (spia: Spia): () => void {
 }
 
 function racconta (voce: VoceGiornale): void {
+  const registrata: VoceGiornaleRegistrata = { ...voce, ora: Date.now() }
+  BUFFER_GIORNALE.push(registrata)
+  if (BUFFER_GIORNALE.length > CAPIENZA_GIORNALE) {
+    BUFFER_GIORNALE.shift()
+  }
+
   for (const spia of SPIE) {
     try {
       spia(voce)
@@ -92,6 +103,12 @@ function racconta (voce: VoceGiornale): void {
       // Una spia rotta non fa fallire la chiamata che stava guardando.
     }
   }
+}
+
+/** Le ultime voci annotate nel giornale di sessione, dalla più vecchia alla più recente. */
+export function ultimeVociGiornale (limite?: number): readonly VoceGiornaleRegistrata[] {
+  const n = limite && limite > 0 ? Math.min(limite, BUFFER_GIORNALE.length) : BUFFER_GIORNALE.length
+  return BUFFER_GIORNALE.slice(-n)
 }
 
 /**
@@ -153,8 +170,8 @@ const SCADUTO = Symbol('turno scaduto')
  * `modifica()` vincerebbe in silenzio.
  *
  * Non può stallare perché nessun gestore rientra in `chiama()` (nessuna
- * chiamata sotto `core/azioni/` o `src/api/procedures/`):
- * `tests/api/queue.test.mjs` lo verifica. Come `Archivio.inFila`, la fila
+ * chiamata sotto `core/azioni/` o `contract/procedure/`):
+ * `npm run layers` lo verifica. Come `Archivio.inFila`, la fila
  * aspetta la fine e non l'esito, quindi un errore non blocca chi segue.
  */
 async function inFila<T> (lavoro: () => Promise<T>, rinuncia: () => T): Promise<T> {

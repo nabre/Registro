@@ -1,6 +1,8 @@
 node_modules/
 dist*/
 pacchetti/
+# Il rapporto di `npm run copertura`.
+copertura/
 
 .claude/settings.local.json
 # Le copie di lavoro degli agenti: rami a parte, che rientrano con un merge.
@@ -8,9 +10,13 @@ pacchetti/
 .agents/
 
 # La cache di PowerShell, che PowerShell scrive nella cartella da cui lo si
-# lancia quando HOME punta qui: non è del progetto.
-Microsoft/
+# lancia quando HOME punta qui: non è del progetto. Solo nella radice: senza
+# la barra davanti prenderebbe anche `contract/procedure/microsoft/`.
+/Microsoft/
 
 # Cache Python
 __pycache__/
 *.pyc
+# La copia di lavoro e il rapporto di `npm run mutanti`.
+.stryker-tmp/
+reports/mutation/

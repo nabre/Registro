@@ -27,6 +27,7 @@ const it = {
       liste: 'Liste',
       documenti: 'Documenti e stampa',
       comunicazioni: 'Comunicazioni',
+      account: 'Account',
       programma: 'Programma',
       generale: 'Generale',
       aggiornamentiUno: 'Aggiornamenti 1',
@@ -72,7 +73,7 @@ const it = {
           'acceso; scorrendo resta attaccata in alto. Sotto la fascia la sezione aperta, dove ' +
           'ogni riga dice se il valore è quello di fabbrica o se l’hai deciso tu.',
         legenda: [
-          'I sei gruppi, per argomento: dall’anno scolastico al programma.',
+          'I sette gruppi, per argomento: dall’anno scolastico al programma.',
           'Le sezioni del gruppo acceso. Il numero accanto al nome conta i valori decisi a mano; ' +
             'le sezioni che stanno nel file dell’anno portano invece la pastiglia **file**.',
           'Il filtro: cerca nome, chiave e descrizione, fra le impostazioni del computer.',
@@ -102,7 +103,8 @@ const it = {
         testo:
           'Sotto il titolo, due righe che scorrendo restano attaccate in alto: i gruppi, e le ' +
           'sezioni di quello acceso. Premendo un gruppo si apre la sua prima sezione. ' +
-          '**Liste** e **Comunicazioni** hanno una sezione sola, e la seconda riga non c’è.',
+          '**Liste**, **Comunicazioni** e **Account Microsoft** hanno una sezione sola, e la ' +
+          'seconda riga non c’è.',
       },
       {
         termine: 'Dove sta che cosa',
@@ -110,6 +112,7 @@ const it = {
           '**Anno e orario**: Anno scolastico, Calendario, Calendari ICS. **Didattica**: ' +
           'Materie, Valutazione. **Liste**: le voci dei menu a tendina. **Documenti e ' +
           'stampa**: Intestazione, Questo file. **Comunicazioni**: la posta e la firma. ' +
+          '**Account Microsoft**: gli account per cercare i documenti su OneDrive. ' +
           '**Programma**: Generale, Aggiornamenti, Modelli linguistici, Condotto e riga di ' +
           'comando. In questa guida un posto si scrive così: Impostazioni › Anno e orario › ' +
           'Calendario.',
@@ -161,11 +164,12 @@ const it = {
           'l’accensione viene rifiutata, e togliendo il modello l’interruttore si spegne.',
       },
       {
-        termine: 'Programmi già installati',
+        termine: 'Avanzate',
         testo:
-          'Un gruppo chiuso in fondo a **Modelli linguistici**, con il numero delle voci: ' +
-          '**Programma llama-mtmd-cli** e **Indirizzo di voicebox**, che si toccano di rado. ' +
-          'Si apre da sé se dentro c’è qualcosa di modificato.',
+          'Un gruppo chiuso in fondo alla sezione, con il numero delle voci che si toccano di ' +
+          'rado: in **Modelli linguistici** **Programma llama-mtmd-cli** e **Indirizzo di ' +
+          'voicebox**. Si apre da sé se dentro c’è qualcosa di modificato. La finestra ' +
+          '**Impostazioni del programma…** le tiene allo stesso modo, in fondo a ogni gruppo.',
       },
       {
         termine: 'Quando valgono',
@@ -326,7 +330,7 @@ const it = {
     note: [
       'Le impostazioni stanno in `impostazioni.json` e gli anni recenti in ' +
         '`documenti.json`, nella cartella dei dati del programma. Nella versione portabile ' +
-        'quella cartella è «Regiclass - dati», accanto all’eseguibile, e se ne va ' +
+        'quella cartella è «Regiklass - dati», accanto all’eseguibile, e se ne va ' +
         'insieme a lui.',
       'La sezione del condotto si legge prima di spuntare: acceso, qualunque programma che ' +
         'gira con il tuo accesso può leggere i dati delle persone senza chiedere. Si accende ' +
@@ -419,13 +423,16 @@ const it = {
           'Il registro porta con sé il calendario scolastico del Ticino: inizio e fine delle ' +
           'lezioni, vacanze e festivi. Un anno nuovo si sceglie fra quelli del calendario — ' +
           'dal benvenuto, da «Nuovo anno scolastico» o dalla tendina **Anno scolastico** in ' +
-          'cima al modulo, che all’apertura ha già scelto l’anno in corso — e vacanze e festivi ' +
-          'arrivano con lui, collegati: quel che non serve si toglie dalle pause. Nel modulo ' +
-          'dell’anno e in quello delle chiusure una casella per ogni voce che l’anno non ha — da ' +
-          'aggiungere, con date diverse, o già scritta a mano e da collegare —, e **Importa le ' +
-          'voci scelte**. ' +
-          'Le chiusure importate restano collegate: se una versione nuova ne corregge le date, ' +
-          'la scheda dell’anno lo dice.',
+          'cima al modulo, che all’apertura ha già scelto l’anno in corso — e nasce **collegato**: ' +
+          'inizio, fine, vacanze e festivi vengono dal calendario e non si cambiano a mano, né nel ' +
+          'modulo né togliendoli dalle chiusure. La pastiglia «Dal calendario ufficiale» lo dice ' +
+          'nella scheda dell’anno. Le chiusure proprie — una giornata d’istituto, un ponte — si ' +
+          'aggiungono e si tolgono come sempre. **Riallinea al calendario** porta l’anno alle date ' +
+          'di una versione nuova del registro; **Stacca dal calendario ufficiale** toglie il blocco ' +
+          'e lascia date e chiusure come sono. Con «date scritte a mano», o in un anno di prima, ' +
+          'nel modulo dell’anno e in quello delle chiusure c’è una casella per ogni voce che ' +
+          'l’anno non ha e **Importa le voci scelte**; **Collega al calendario ufficiale** fa ' +
+          'dell’anno uno collegato, e le chiusure scritte a mano che coincidono diventano sue.',
       },
       {
         termine: 'Tipi di settimana',
@@ -597,7 +604,7 @@ const it = {
       'sole, e con che firma.',
     scritte: {
       collega: 'Collega la casella',
-      chiedeIndirizzo: 'chiede l’indirizzo',
+      chiedeIndirizzo: 'chiede l’account',
       accessoNelBrowser: 'accesso nel browser',
       portachiavi: 'Portachiavi',
       gettone: 'il gettone',
@@ -627,12 +634,13 @@ const it = {
     ],
     voci: [
       {
-        termine: 'Indirizzo del mittente e nome di accesso',
+        termine: 'Account e mittente',
         testo:
-          '**Indirizzo del mittente**: quello che le famiglie vedono in «Da». **Nome di ' +
-          'accesso**: il nome con cui si entra, nelle scuole spesso una sigla come ' +
-          '`xxx000@edu.ti.ch`. Vuoto, ognuno vale l’altro; quando sono diversi, la scheda li ' +
-          'mostra tutti e due.',
+          '**Collega la casella** chiede solo l’**Account**, il nome con cui si entra (nelle ' +
+          'scuole spesso una sigla come `xxx000@edu.ti.ch`). Dopo l’accesso si sceglie il ' +
+          '**Mittente**, quello che le famiglie vedono in «Da», fra gli indirizzi che Microsoft ' +
+          'dice di quell’account; si cambia poi dal menu della scheda, senza ricollegare. Non ' +
+          'si scrivono a mano: la scheda li mostra, con server, porta e modo di accesso.',
       },
       {
         termine: 'Prova il collegamento',
@@ -690,9 +698,80 @@ const it = {
         'casella. Il prezzo: niente bozze sul server e niente copia in «Posta inviata».',
       'Se l’accesso a Microsoft riesce ma il server rifiuta, può darsi che la scuola tenga ' +
         'spento l’invio autenticato (SMTP AUTH) sulla casella: lo riaccende l’amministratore. ' +
-        'Indirizzo del mittente e nome di accesso scambiati danno invece `5.7.60`: il ' +
-        'permesso di spedire come un ' +
-        'altro.',
+        'Un mittente che la scuola non lascia usare (un alias, di solito) dà invece `5.7.60`: il ' +
+        'permesso di spedire come un altro. Si torna all’indirizzo principale dal menu.',
+    ],
+  },
+  onedrive: {
+    titolo: 'OneDrive e account Microsoft',
+    sommario:
+      'Impostazioni › **Account Microsoft**: con quali account il registro cerca i documenti ' +
+      '.regi su OneDrive, e come aprirne uno da **Apri da OneDrive…**.',
+    voci: [
+      {
+        termine: 'Sincronizzato su questo computer',
+        testo:
+          'Gli account che il client di OneDrive sincronizza su questo computer compaiono da ' +
+          'soli, con le cartelle della scuola e dei team: si sfogliano senza accedere a niente e ' +
+          'senza il permesso di nessuno.',
+      },
+      {
+        termine: 'Aggiungi account',
+        testo:
+          'Per un account che qui non è sincronizzato: chiede l’indirizzo — già scritto quello ' +
+          'della posta — e apre l’accesso Microsoft nel browser. Molte scuole riservano questo ' +
+          'permesso all’amministratore: allora la pagina lo dice, e resta la strada del client.',
+      },
+      {
+        termine: 'La casella della posta',
+        testo:
+          'Compare nell’elenco con la pastiglia **Casella della posta**. Se il client di ' +
+          'OneDrive la sincronizza si sfoglia subito; se no, **Collega OneDrive** chiede un ' +
+          'secondo accesso, perché il permesso di spedire non vale per leggere i file.',
+      },
+      {
+        termine: 'Sfoglia OneDrive',
+        testo:
+          'Apre le cartelle dell’account: si scende con un clic sul nome, si torna con **Su** ' +
+          'e **Radice**. Si vedono le cartelle e i documenti .regi; gli altri file si contano ' +
+          'soltanto.',
+      },
+      {
+        termine: 'Trova tutti i .regi',
+        testo:
+          'Chiede a Microsoft tutti i documenti del registro dell’account, anche quelli ' +
+          'condivisi da altri, dal più recente. Un file caricato da poco può mancare: lo si ' +
+          'trova sfogliando.',
+      },
+      {
+        termine: 'Apri',
+        testo:
+          'Se il client di OneDrive sincronizza quel file sul computer, si apre quello, e le ' +
+          'modifiche tornano su OneDrive da sole. Altrimenti il registro chiede dove ' +
+          'scaricarne una copia, e apre la copia.',
+      },
+      {
+        termine: 'Dalla ricerca',
+        testo:
+          '**Apri da OneDrive…** sta anche nella ricerca (Ctrl+K) e in Impostazioni › ' +
+          'Documenti e stampa › **Questo file**.',
+      },
+      {
+        termine: 'Scollega',
+        testo:
+          'Toglie dal portachiavi il permesso di leggere il OneDrive di quell’account. La ' +
+          'posta non cambia; il permesso dato al programma si revoca dal proprio profilo ' +
+          'Microsoft.',
+      },
+    ],
+    note: [
+      'Due strade. Le cartelle sincronizzate si leggono dal disco, dove il registro di ' +
+        'Windows dice di quale account sono. Un account collegato nel browser si legge da ' +
+        'Microsoft, con i soli permessi di leggere (`Files.Read.All`) e di sapere chi è entrato ' +
+        '(`User.Read`), nel portachiavi del sistema. Su OneDrive il registro non scrive niente.',
+      'Una copia scaricata non è sincronizzata: quel che ci scrivi non torna su OneDrive. Per ' +
+        'lavorare sull’originale, sincronizza la sua cartella con il client di OneDrive. Se la ' +
+        'scuola nega il permesso, lo deve concedere chi amministra il tenant.',
     ],
   },
   aggiornamenti: {
@@ -841,6 +920,7 @@ export const testi = catalogo(it, {
         liste: 'Listen',
         documenti: 'Dokumente und Druck',
         comunicazioni: 'Kommunikation',
+        account: 'Konten',
         programma: 'Programm',
         generale: 'Allgemein',
         aggiornamentiUno: 'Aktualisierungen 1',
@@ -887,7 +967,7 @@ export const testi = catalogo(it, {
             'Bereich, in dem jede Zeile sagt, ob der Wert der ab Werk ist oder ob du ihn ' +
             'festgelegt hast.',
           legenda: [
-            'Die sechs Gruppen, nach Thema: vom Schuljahr bis zum Programm.',
+            'Die sieben Gruppen, nach Thema: vom Schuljahr bis zum Programm.',
             'Die Bereiche der gewählten Gruppe. Die Zahl neben dem Namen zählt die von Hand ' +
               'festgelegten Werte; die Bereiche, die in der Datei des Schuljahrs liegen, tragen ' +
               'dagegen das Etikett **Datei**.',
@@ -920,7 +1000,8 @@ export const testi = catalogo(it, {
           testo:
             'Unter dem Titel zwei Zeilen, die beim Scrollen oben haften bleiben: die Gruppen, ' +
             'und die Bereiche der gewählten Gruppe. Ein Klick auf eine Gruppe öffnet ihren ' +
-            'ersten Bereich. **Listen** und **Kommunikation** haben nur einen Bereich, und die ' +
+            'ersten Bereich. **Listen**, **Kommunikation** und **Microsoft-Konten** haben nur ' +
+            'einen Bereich, und die ' +
             'zweite Zeile fehlt.',
         },
         {
@@ -929,6 +1010,7 @@ export const testi = catalogo(it, {
             '**Schuljahr und Stundenplan**: Schuljahr, Kalender, ICS-Kalender. **Unterricht**: ' +
             'Fächer, Beurteilung. **Listen**: die Einträge der Auswahllisten. **Dokumente und ' +
             'Druck**: Briefkopf, Diese Datei. **Kommunikation**: E-Mail und Signatur. ' +
+            '**Microsoft-Konten**: die Konten, um Dokumente auf OneDrive zu suchen. ' +
             '**Programm**: Allgemein, Aktualisierungen, Sprachmodelle, Kanal und Befehlszeile. ' +
             'In dieser Hilfe schreibt man einen Ort so: Einstellungen › Schuljahr und ' +
             'Stundenplan › Kalender.',
@@ -981,11 +1063,12 @@ export const testi = catalogo(it, {
             'sich der Schalter aus.',
         },
         {
-          termine: 'Bereits installierte Programme',
+          termine: 'Erweitert',
           testo:
-            'Eine zugeklappte Gruppe ganz unten in **Sprachmodelle**, mit der Zahl der ' +
-            'Einträge: **Programm llama-mtmd-cli** und **Adresse von voicebox**, die man selten ' +
-            'anfasst. Sie klappt von selbst auf, wenn darin etwas geändert ist.',
+            'Eine zugeklappte Gruppe ganz unten im Bereich, mit der Zahl der Einträge, die man ' +
+            'selten anfasst: in **Sprachmodelle** **Programm llama-mtmd-cli** und **Adresse von ' +
+            'voicebox**. Sie klappt von selbst auf, wenn darin etwas geändert ist. Das Fenster ' +
+            '**Programmeinstellungen…** hält sie genauso, ganz unten in jeder Gruppe.',
         },
         {
           termine: 'Wann sie gelten',
@@ -1153,7 +1236,7 @@ export const testi = catalogo(it, {
       note: [
         'Die Einstellungen liegen in `impostazioni.json` und die letzten Schuljahre in ' +
           '`documenti.json`, im Datenordner des Programms. In der portablen Version ist dieser ' +
-          'Ordner «Regiclass - dati», neben der ausführbaren Datei, und wandert mit ihr.',
+          'Ordner «Regiklass - dati», neben der ausführbaren Datei, und wandert mit ihr.',
         'Den Bereich des Kanals liest man, bevor man ein Häkchen setzt: Eingeschaltet kann ' +
           'jedes Programm, das mit deinem Zugang läuft, die Daten der Personen ohne Nachfrage ' +
           'lesen. Man schaltet ihn für die nötige Zeit ein, und dann wieder aus.',
@@ -1249,13 +1332,18 @@ export const testi = catalogo(it, {
             'Unterrichts, Ferien und Feiertage. Ein neues Schuljahr wählt man aus denen des ' +
             'Kalenders — im Willkommensbildschirm, über «Neues Schuljahr» oder in der ' +
             'Auswahlliste **Schuljahr** oben im Formular, die beim Öffnen schon das laufende ' +
-            'Schuljahr gewählt hat — und Ferien und Feiertage kommen mit, verknüpft: Was nicht ' +
-            'gebraucht wird, entfernt man aus den Unterbrüchen. Im Formular des Schuljahrs und ' +
-            'in dem der Schliessungen gibt es ein Kästchen für jeden Eintrag, den das Schuljahr ' +
-            'nicht hat — hinzuzufügen, mit anderen Daten, oder schon von Hand eingetragen und zu ' +
-            'verknüpfen —, und **Gewählte Einträge importieren**. Importierte Schliessungen ' +
-            'bleiben verknüpft: Korrigiert eine neue Version ihre Daten, sagt es die Karte des ' +
-            'Schuljahrs.',
+            'Schuljahr gewählt hat — und es entsteht **verknüpft**: Beginn, Ende, Ferien und ' +
+            'Feiertage kommen aus dem Kalender und lassen sich nicht von Hand ändern, weder im ' +
+            'Formular noch durch Entfernen bei den Schliessungen. Das Etikett «Aus dem offiziellen ' +
+            'Kalender» zeigt es auf der Karte des Schuljahrs. Eigene Schliessungen — ein ' +
+            'schulinterner Tag, eine Brücke — fügt man wie immer hinzu oder entfernt sie. **An den ' +
+            'Kalender angleichen** bringt das Schuljahr auf die Daten einer neuen Version des ' +
+            'Klassenbuchs; **Vom offiziellen Kalender lösen** hebt die Sperre auf und lässt Daten ' +
+            'und Schliessungen, wie sie sind. Mit «Daten von Hand eingegeben» oder in einem ' +
+            'früheren Schuljahr gibt es im Formular des Schuljahrs und in dem der Schliessungen ein ' +
+            'Kästchen für jeden Eintrag, den das Schuljahr nicht hat, und **Gewählte Einträge ' +
+            'importieren**; **Mit dem offiziellen Kalender verknüpfen** macht daraus ein verknüpftes ' +
+            'Schuljahr, und von Hand erfasste Schliessungen, die übereinstimmen, werden seine.',
         },
         {
           termine: 'Wochentypen',
@@ -1443,7 +1531,7 @@ export const testi = catalogo(it, {
         'selbst abgehen, und mit welcher Signatur.',
       scritte: {
         collega: 'Postfach verbinden',
-        chiedeIndirizzo: 'fragt nach der Adresse',
+        chiedeIndirizzo: 'fragt nach dem Konto',
         accessoNelBrowser: 'Anmeldung im Browser',
         portachiavi: 'Schlüsselbund',
         gettone: 'das Token',
@@ -1473,12 +1561,14 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Absenderadresse und Anmeldename',
+          termine: 'Konto und Absender',
           testo:
-            '**Absenderadresse**: die, welche die Familien unter «Von» sehen. **Anmeldename**: ' +
-            'der Name, mit dem man sich anmeldet, an Schulen oft ein Kürzel wie ' +
-            '`xxx000@edu.ti.ch`. Leer gilt das eine für das andere; sind sie verschieden, zeigt ' +
-            'die Karte beide.',
+            '**Postfach verbinden** fragt nur nach dem **Konto**, dem Namen, mit dem man sich ' +
+            'anmeldet (an Schulen oft ein Kürzel wie `xxx000@edu.ti.ch`). Nach der Anmeldung ' +
+            'wählt man den **Absender**, den die Familien unter «Von» sehen, unter den Adressen, ' +
+            'die Microsoft für dieses Konto angibt; ändern lässt er sich danach im Menü der ' +
+            'Karte, ohne neu zu verbinden. Beides schreibt man nicht von Hand: Die Karte zeigt ' +
+            'sie, mit Server, Port und Anmeldeart.',
         },
         {
           termine: 'Verbindung testen',
@@ -1541,8 +1631,86 @@ export const testi = catalogo(it, {
           '«Gesendete Elemente».',
         'Klappt die Anmeldung bei Microsoft, aber der Server lehnt ab, hat die Schule ' +
           'vielleicht das authentifizierte Senden (SMTP AUTH) für das Postfach ausgeschaltet: ' +
-          'Die Administration schaltet es wieder ein. Vertauschte Absenderadresse und ' +
-          'Anmeldename ergeben dagegen `5.7.60`: die Berechtigung, als jemand anderes zu senden.',
+          'Die Administration schaltet es wieder ein. Ein Absender, den die Schule nicht erlaubt ' +
+          '(meist ein Alias), ergibt dagegen `5.7.60`: die Berechtigung, als jemand anderes zu ' +
+          'senden. Im Menü wieder die Hauptadresse wählen.',
+      ],
+    },
+    onedrive: {
+      titolo: 'OneDrive und Microsoft-Konten',
+      sommario:
+        'Einstellungen › **Microsoft-Konten**: mit welchen Konten das Klassenbuch ' +
+        '.regi-Dokumente auf OneDrive sucht, und wie man eines über **Aus OneDrive öffnen…** ' +
+        'öffnet.',
+      voci: [
+        {
+          termine: 'Auf diesem Computer synchronisiert',
+          testo:
+            'Konten, die der OneDrive-Client auf diesem Computer synchronisiert, erscheinen von ' +
+            'selbst, mit den Ordnern der Schule und der Teams: Man durchsucht sie ohne Anmeldung ' +
+            'und ohne jemandes Berechtigung.',
+        },
+        {
+          termine: 'Konto hinzufügen',
+          testo:
+            'Für ein Konto, das hier nicht synchronisiert wird: fragt nach der Adresse — die des ' +
+            'E-Mail-Postfachs ist schon eingetragen — und öffnet die Microsoft-Anmeldung im ' +
+            'Browser. Viele Schulen behalten diese Berechtigung der Administration vor: Dann sagt ' +
+            'es die Seite, und es bleibt der Weg über den Client.',
+        },
+        {
+          termine: 'Das E-Mail-Postfach',
+          testo:
+            'Es steht mit der Marke **E-Mail-Postfach** in der Liste. Synchronisiert es der ' +
+            'OneDrive-Client, lässt es sich sofort durchsuchen; sonst verlangt **OneDrive ' +
+            'verbinden** eine zweite Anmeldung, weil die Berechtigung zum Senden nicht zum Lesen ' +
+            'der Dateien gilt.',
+        },
+        {
+          termine: 'OneDrive durchsuchen',
+          testo:
+            'Öffnet die Ordner des Kontos: Mit einem Klick auf den Namen geht man hinein, mit ' +
+            '**Hoch** und **Stamm** zurück. Zu sehen sind Ordner und .regi-Dokumente; die ' +
+            'anderen Dateien werden nur gezählt.',
+        },
+        {
+          termine: 'Alle .regi finden',
+          testo:
+            'Fragt Microsoft nach allen Dokumenten des Klassenbuchs des Kontos, auch den von ' +
+            'anderen geteilten, die neusten zuerst. Eine eben hochgeladene Datei kann fehlen: ' +
+            'Man findet sie beim Durchsuchen.',
+        },
+        {
+          termine: 'Öffnen',
+          testo:
+            'Synchronisiert der OneDrive-Client diese Datei auf dem Computer, wird sie geöffnet, ' +
+            'und die Änderungen gehen von selbst zurück auf OneDrive. Sonst fragt das ' +
+            'Klassenbuch, wohin eine Kopie heruntergeladen werden soll, und öffnet die Kopie.',
+        },
+        {
+          termine: 'Aus der Suche',
+          testo:
+            '**Aus OneDrive öffnen…** steht auch in der Suche (Ctrl+K) und unter ' +
+            'Einstellungen › Dokumente und Druck › **Diese Datei**.',
+        },
+        {
+          termine: 'Trennen',
+          testo:
+            'Entfernt aus dem Schlüsselbund die Berechtigung, das OneDrive dieses Kontos zu ' +
+            'lesen. Die E-Mail ändert sich nicht; die dem Programm erteilte Berechtigung ' +
+            'widerrufst du in deinem Microsoft-Profil.',
+        },
+      ],
+      note: [
+        'Zwei Wege. Synchronisierte Ordner werden von der Festplatte gelesen, wo die ' +
+          'Windows-Registrierung sagt, zu welchem Konto sie gehören. Ein im Browser verbundenes ' +
+          'Konto wird bei Microsoft gelesen, nur mit den Berechtigungen zum Lesen ' +
+          '(`Files.Read.All`) und zu wissen, wer angemeldet ist (`User.Read`), im Schlüsselbund ' +
+          'des Systems. Auf OneDrive schreibt das Klassenbuch nichts.',
+        'Eine heruntergeladene Kopie wird nicht synchronisiert: Was du darin schreibst, geht ' +
+          'nicht zurück auf OneDrive. Um am Original zu arbeiten, synchronisiere seinen Ordner ' +
+          'mit dem OneDrive-Client. Verweigert die Schule die Berechtigung, muss sie erteilen, ' +
+          'wer den Tenant verwaltet.',
       ],
     },
     aggiornamenti: {
@@ -1696,6 +1864,7 @@ export const testi = catalogo(it, {
         liste: 'Listes',
         documenti: 'Documents et impression',
         comunicazioni: 'Communications',
+        account: 'Comptes',
         programma: 'Programme',
         generale: 'Général',
         aggiornamentiUno: 'Mises à jour 1',
@@ -1742,7 +1911,7 @@ export const testi = catalogo(it, {
             'la section ouverte, où chaque ligne dit si la valeur est celle d’usine ou si tu ' +
             'l’as choisie.',
           legenda: [
-            'Les six groupes, par thème : de l’année scolaire au programme.',
+            'Les sept groupes, par thème : de l’année scolaire au programme.',
             'Les sections du groupe choisi. Le nombre à côté du nom compte les valeurs choisies ' +
               'à la main ; les sections qui sont dans le fichier de l’année portent à la place ' +
               'la pastille **fichier**.',
@@ -1776,7 +1945,8 @@ export const testi = catalogo(it, {
           testo:
             'Sous le titre, deux lignes qui restent collées en haut quand on fait défiler : les ' +
             'groupes, et les sections de celui qui est choisi. Un clic sur un groupe ouvre sa ' +
-            'première section. **Listes** et **Communications** n’ont qu’une section, et la ' +
+            'première section. **Listes**, **Communications** et **Comptes Microsoft** n’ont ' +
+            'qu’une section, et la ' +
             'deuxième ligne n’existe pas.',
         },
         {
@@ -1785,7 +1955,8 @@ export const testi = catalogo(it, {
             '**Année et horaire** : Année scolaire, Calendrier, Calendriers ICS. ' +
             '**Enseignement** : Branches, Évaluation. **Listes** : les entrées des listes ' +
             'déroulantes. **Documents et impression** : En-tête, Ce fichier. **Communications** ' +
-            ': la messagerie et la signature. **Programme** : Général, Mises à jour, Modèles de ' +
+            ': la messagerie et la signature. **Comptes Microsoft** : les comptes pour chercher ' +
+            'les documents sur OneDrive. **Programme** : Général, Mises à jour, Modèles de ' +
             'langage, Canal et ligne de commande. Dans cette aide, un endroit s’écrit ainsi : ' +
             'Paramètres › Année et horaire › Calendrier.',
         },
@@ -1838,11 +2009,12 @@ export const testi = catalogo(it, {
             'l’interrupteur se désactive.',
         },
         {
-          termine: 'Programmes déjà installés',
+          termine: 'Avancé',
           testo:
-            'Un groupe replié tout en bas de **Modèles de langage**, avec le nombre de ' +
-            'réglages : **Programme llama-mtmd-cli** et **Adresse de voicebox**, qu’on touche ' +
-            'rarement. Il s’ouvre de lui-même si quelque chose y est modifié.',
+            'Un groupe replié tout en bas de la section, avec le nombre de réglages qu’on touche ' +
+            'rarement : dans **Modèles de langage** **Programme llama-mtmd-cli** et **Adresse de ' +
+            'voicebox**. Il s’ouvre de lui-même si quelque chose y est modifié. La fenêtre ' +
+            '**Paramètres du programme…** les range de la même façon, en bas de chaque groupe.',
         },
         {
           termine: 'Quand ils prennent effet',
@@ -2014,7 +2186,7 @@ export const testi = catalogo(it, {
       note: [
         'Les paramètres sont dans `impostazioni.json` et les années récentes dans ' +
           '`documenti.json`, dans le dossier des données du programme. Dans la version ' +
-          'portable, ce dossier est « Regiclass - dati », à côté de l’exécutable, et ' +
+          'portable, ce dossier est « Regiklass - dati », à côté de l’exécutable, et ' +
           'part avec lui.',
         'La section du canal se lit avant de cocher : activé, n’importe quel programme qui ' +
           'tourne avec ton accès peut lire les données des personnes sans demander. On ' +
@@ -2111,12 +2283,17 @@ export const testi = catalogo(it, {
             'vacances et jours fériés. Une nouvelle année se choisit parmi celles du calendrier ' +
             '— depuis l’écran d’accueil, depuis « Nouvelle année scolaire » ou dans la liste ' +
             '**Année scolaire** en haut du formulaire, qui à l’ouverture a déjà choisi l’année ' +
-            'en cours — et vacances et jours fériés arrivent avec elle, liés : ce qui ne sert ' +
-            'pas se retire des interruptions. Dans le formulaire de l’année et dans celui des ' +
-            'fermetures, une case pour chaque entrée que l’année n’a pas — à ajouter, avec des ' +
-            'dates différentes, ou déjà écrite à la main et à lier —, et **Importer les entrées ' +
-            'choisies**. Les fermetures importées restent liées : si une nouvelle version en ' +
-            'corrige les dates, la carte de l’année le dit.',
+            'en cours — et elle naît **liée** : début, fin, vacances et jours fériés viennent du ' +
+            'calendrier et ne se changent pas à la main, ni dans le formulaire ni en les retirant ' +
+            'des fermetures. La pastille « Du calendrier officiel » l’indique sur la carte de ' +
+            'l’année. Les fermetures propres — une journée d’établissement, un pont — s’ajoutent et ' +
+            'se retirent comme toujours. **Réaligner sur le calendrier** amène l’année aux dates ' +
+            'd’une nouvelle version du registre ; **Détacher du calendrier officiel** retire le ' +
+            'verrou et laisse dates et fermetures telles quelles. Avec « dates saisies à la main », ' +
+            'ou dans une année d’avant, le formulaire de l’année et celui des fermetures ont une ' +
+            'case pour chaque entrée que l’année n’a pas et **Importer les entrées choisies** ; ' +
+            '**Lier au calendrier officiel** en fait une année liée, et les fermetures saisies à la ' +
+            'main qui correspondent deviennent les siennes.',
         },
         {
           termine: 'Types de semaine',
@@ -2302,7 +2479,7 @@ export const testi = catalogo(it, {
         'partent tout seuls, et avec quelle signature.',
       scritte: {
         collega: 'Connecter la boîte',
-        chiedeIndirizzo: 'demande l’adresse',
+        chiedeIndirizzo: 'demande le compte',
         accessoNelBrowser: 'dans le navigateur',
         portachiavi: 'Trousseau',
         gettone: 'le jeton',
@@ -2332,12 +2509,14 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Adresse de l’expéditeur et nom d’utilisateur',
+          termine: 'Compte et expéditeur',
           testo:
-            '**Adresse de l’expéditeur** : celle que les familles voient dans « De ». **Nom ' +
-            'd’utilisateur** : le nom avec lequel on se connecte, dans les écoles souvent un ' +
-            'sigle comme `xxx000@edu.ti.ch`. Vide, l’un vaut l’autre ; quand ils sont ' +
-            'différents, la carte les montre tous les deux.',
+            '**Connecter la boîte** demande seulement le **Compte**, le nom de connexion (dans ' +
+            'les écoles souvent un sigle comme `xxx000@edu.ti.ch`). Après la connexion, on ' +
+            'choisit l’**Expéditeur**, celui que les familles voient dans « De », parmi les ' +
+            'adresses que Microsoft donne pour ce compte ; il se change ensuite dans le menu de ' +
+            'la carte, sans reconnecter. On ne les écrit pas à la main : la carte les montre, ' +
+            'avec serveur, port et mode de connexion.',
         },
         {
           termine: 'Tester la connexion',
@@ -2398,8 +2577,86 @@ export const testi = catalogo(it, {
           'envoyés ».',
         'Si la connexion à Microsoft réussit mais que le serveur refuse, il se peut que ' +
           'l’école garde désactivé l’envoi authentifié (SMTP AUTH) sur la boîte : c’est ' +
-          'l’administrateur qui le réactive. Adresse de l’expéditeur et nom d’utilisateur ' +
-          'inversés donnent en revanche `5.7.60` : l’autorisation d’envoyer en tant qu’un autre.',
+          'l’administrateur qui le réactive. Un expéditeur que l’école n’autorise pas (un alias, ' +
+          'en général) donne en revanche `5.7.60` : l’autorisation d’envoyer en tant qu’un autre. ' +
+          'Reviens à l’adresse principale dans le menu.',
+      ],
+    },
+    onedrive: {
+      titolo: 'OneDrive et comptes Microsoft',
+      sommario:
+        'Paramètres › **Comptes Microsoft** : avec quels comptes le registre cherche les ' +
+        'documents .regi sur OneDrive, et comment en ouvrir un depuis **Ouvrir depuis ' +
+        'OneDrive…**.',
+      voci: [
+        {
+          termine: 'Synchronisé sur cet ordinateur',
+          testo:
+            'Les comptes que le client OneDrive synchronise sur cet ordinateur apparaissent tout ' +
+            'seuls, avec les dossiers de l’école et des équipes : on les parcourt sans connexion ' +
+            'et sans l’autorisation de personne.',
+        },
+        {
+          termine: 'Ajouter un compte',
+          testo:
+            'Pour un compte qui n’est pas synchronisé ici : demande l’adresse — celle de la boîte ' +
+            'aux lettres est déjà écrite — et ouvre la connexion Microsoft dans le navigateur. ' +
+            'Beaucoup d’écoles réservent cette autorisation à l’administration : la page le dit ' +
+            'alors, et il reste la voie du client.',
+        },
+        {
+          termine: 'La boîte aux lettres',
+          testo:
+            'Elle figure dans la liste avec la pastille **Boîte aux lettres**. Si le client ' +
+            'OneDrive la synchronise, elle se parcourt tout de suite ; sinon **Connecter ' +
+            'OneDrive** demande une deuxième connexion, car l’autorisation d’envoyer ne vaut pas ' +
+            'pour lire les fichiers.',
+        },
+        {
+          termine: 'Parcourir OneDrive',
+          testo:
+            'Ouvre les dossiers du compte : on descend d’un clic sur le nom, on revient avec ' +
+            '**Monter** et **Racine**. On voit les dossiers et les documents .regi ; les autres ' +
+            'fichiers sont seulement comptés.',
+        },
+        {
+          termine: 'Trouver tous les .regi',
+          testo:
+            'Demande à Microsoft tous les documents du registre du compte, y compris ceux ' +
+            'partagés par d’autres, du plus récent au plus ancien. Un fichier qui vient d’être ' +
+            'déposé peut manquer : on le trouve en parcourant.',
+        },
+        {
+          termine: 'Ouvrir',
+          testo:
+            'Si le client OneDrive synchronise ce fichier sur l’ordinateur, c’est lui qui ' +
+            's’ouvre, et les modifications retournent sur OneDrive toutes seules. Sinon le ' +
+            'registre demande où en télécharger une copie, et ouvre la copie.',
+        },
+        {
+          termine: 'Depuis la recherche',
+          testo:
+            '**Ouvrir depuis OneDrive…** se trouve aussi dans la recherche (Ctrl+K) et dans ' +
+            'Paramètres › Documents et impression › **Ce fichier**.',
+        },
+        {
+          termine: 'Déconnecter',
+          testo:
+            'Retire du trousseau l’autorisation de lire le OneDrive de ce compte. Les e-mails ne ' +
+            'changent pas ; l’autorisation donnée au programme se retire depuis son profil ' +
+            'Microsoft.',
+        },
+      ],
+      note: [
+        'Deux voies. Les dossiers synchronisés se lisent sur le disque, où le registre de ' +
+          'Windows dit à quel compte ils appartiennent. Un compte connecté dans le navigateur se ' +
+          'lit chez Microsoft, avec les seules autorisations de lire (`Files.Read.All`) et de ' +
+          'savoir qui s’est connecté (`User.Read`), dans le trousseau du système. Le registre ' +
+          'n’écrit rien sur OneDrive.',
+        'Une copie téléchargée n’est pas synchronisée : ce que tu y écris ne retourne pas sur ' +
+          'OneDrive. Pour travailler sur l’original, synchronise son dossier avec le client ' +
+          'OneDrive. Si l’école refuse l’autorisation, c’est la personne qui administre le ' +
+          'tenant qui doit la donner.',
       ],
     },
     aggiornamenti: {
@@ -2557,6 +2814,7 @@ export const testi = catalogo(it, {
         liste: 'Lists',
         documenti: 'Documents and printing',
         comunicazioni: 'Communications',
+        account: 'Accounts',
         programma: 'Program',
         generale: 'General',
         aggiornamentiUno: 'Updates 1',
@@ -2603,7 +2861,7 @@ export const testi = catalogo(it, {
             'section, where every row says whether the value is the factory one or one you ' +
             'chose.',
           legenda: [
-            'The six groups, by topic: from the school year to the program.',
+            'The seven groups, by topic: from the school year to the program.',
             'The sections of the chosen group. The number next to the name counts the values ' +
               'set by hand; the sections that live in the year’s file carry the **file** badge ' +
               'instead.',
@@ -2634,7 +2892,8 @@ export const testi = catalogo(it, {
           testo:
             'Under the title, two rows that stay stuck at the top when you scroll: the groups, ' +
             'and the sections of the chosen one. Clicking a group opens its first section. ' +
-            '**Lists** and **Communications** have one section only, and the second row is ' +
+            '**Lists**, **Communications** and **Microsoft accounts** have one section only, ' +
+            'and the second row is ' +
             'not there.',
         },
         {
@@ -2643,6 +2902,7 @@ export const testi = catalogo(it, {
             '**Year and timetable**: School year, Calendar, ICS calendars. **Teaching**: ' +
             'Subjects, Assessment. **Lists**: the items of the drop-downs. **Documents and ' +
             'printing**: Letterhead, This file. **Communications**: the mail and the signature. ' +
+            '**Microsoft accounts**: the accounts to look for documents on OneDrive. ' +
             '**Program**: General, Updates, Language models, Pipe and command line. In this ' +
             'guide a place is written like this: Settings › Year and timetable › Calendar.',
         },
@@ -2692,11 +2952,12 @@ export const testi = catalogo(it, {
             'model, turning it on is refused, and removing the model turns the switch off.',
         },
         {
-          termine: 'Programs already installed',
+          termine: 'Advanced',
           testo:
-            'A closed group at the bottom of **Language models**, with the number of items: ' +
-            '**llama-mtmd-cli program** and **voicebox address**, which you rarely touch. It ' +
-            'opens by itself if something inside has been changed.',
+            'A closed group at the bottom of the section, with the number of items you rarely ' +
+            'touch: in **Language models** **llama-mtmd-cli program** and **voicebox address**. ' +
+            'It opens by itself if something inside has been changed. The **Program settings…** ' +
+            'window keeps them the same way, at the bottom of each group.',
         },
         {
           termine: 'When they apply',
@@ -2861,7 +3122,7 @@ export const testi = catalogo(it, {
       note: [
         'The settings live in `impostazioni.json` and the recent years in ' +
           '`documenti.json`, in the program’s data folder. In the portable version that ' +
-          'folder is “Regiclass - dati”, next to the executable, and goes wherever it ' +
+          'folder is “Regiklass - dati”, next to the executable, and goes wherever it ' +
           'goes.',
         'Read the pipe section before ticking anything: when on, any program running with ' +
           'your account can read people’s data without asking. Turn it on for as long as you ' +
@@ -2956,12 +3217,16 @@ export const testi = catalogo(it, {
             'holidays and public holidays. A new year is chosen from those of the calendar — ' +
             'from the welcome screen, from “New school year” or from the **School year** ' +
             'drop-down at the top of the form, which on opening has already chosen the current ' +
-            'year — and holidays and public holidays come with it, linked: what you do not need ' +
-            'you remove from the breaks. In the year form and in the closures form there is a ' +
-            'box for each entry the year does not have — to be added, with different dates, or ' +
-            'already written by hand and to be linked —, and **Import the chosen entries**. ' +
-            'Imported closures stay linked: if a new version corrects their dates, the year ' +
-            'card says so.',
+            'year — and it is born **linked**: start, end, holidays and public holidays come from ' +
+            'the calendar and can’t be changed by hand, neither in the form nor by removing them ' +
+            'from the closures. The “From the official calendar” badge says so on the year card. ' +
+            'Your own closures — an in-service day, a bridge day — are added and removed as usual. ' +
+            '**Realign with the calendar** brings the year to the dates of a new version of the ' +
+            'register; **Unlink from the official calendar** removes the lock and leaves dates and ' +
+            'closures as they are. With “dates entered by hand”, or in an older year, the year form ' +
+            'and the closures form have a box for each entry the year does not have and **Import ' +
+            'the chosen entries**; **Link to the official calendar** makes it a linked year, and ' +
+            'closures written by hand that match become its own.',
         },
         {
           termine: 'Week types',
@@ -3135,7 +3400,7 @@ export const testi = catalogo(it, {
         'by themselves, and with what signature.',
       scritte: {
         collega: 'Connect the mailbox',
-        chiedeIndirizzo: 'asks for the address',
+        chiedeIndirizzo: 'asks for the account',
         accessoNelBrowser: 'sign-in in the browser',
         portachiavi: 'Keychain',
         gettone: 'the token',
@@ -3165,11 +3430,13 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Sender address and sign-in name',
+          termine: 'Account and sender',
           testo:
-            '**Sender address**: the one families see in “From”. **Sign-in name**: the name you ' +
-            'sign in with, in schools often a code such as `xxx000@edu.ti.ch`. Empty, each ' +
-            'stands for the other; when they differ, the card shows both.',
+            '**Connect the mailbox** asks only for the **Account**, the name you sign in with ' +
+            '(in schools often a code such as `xxx000@edu.ti.ch`). After signing in you choose ' +
+            'the **Sender**, the one families see in “From”, among the addresses Microsoft gives ' +
+            'for that account; you change it later from the card’s menu, without reconnecting. ' +
+            'Neither is typed by hand: the card shows them, with server, port and sign-in method.',
         },
         {
           termine: 'Test the connection',
@@ -3227,8 +3494,81 @@ export const testi = catalogo(it, {
           'The price: no drafts on the server and no copy in “Sent Items”.',
         'If signing in to Microsoft works but the server refuses, the school may keep ' +
           'authenticated sending (SMTP AUTH) turned off for the mailbox: the administrator ' +
-          'turns it back on. Sender address and sign-in name swapped give `5.7.60` instead: ' +
-          'the permission to send as someone else.',
+          'turns it back on. A sender the school does not allow (usually an alias) gives ' +
+          '`5.7.60` instead: the permission to send as someone else. Go back to the primary ' +
+          'address in the menu.',
+      ],
+    },
+    onedrive: {
+      titolo: 'OneDrive and Microsoft accounts',
+      sommario:
+        'Settings › **Microsoft accounts**: which accounts the register uses to look for .regi ' +
+        'documents on OneDrive, and how to open one from **Open from OneDrive…**.',
+      voci: [
+        {
+          termine: 'Synced on this computer',
+          testo:
+            'The accounts the OneDrive client syncs on this computer appear by themselves, with ' +
+            'the school and team folders: you browse them without signing in and without anyone’s ' +
+            'permission.',
+        },
+        {
+          termine: 'Add account',
+          testo:
+            'For an account that is not synced here: asks for the address — the mailbox one is ' +
+            'already filled in — and opens the Microsoft sign-in in the browser. Many schools ' +
+            'reserve this permission for the administrator: the page then says so, and the ' +
+            'client remains the way.',
+        },
+        {
+          termine: 'The email mailbox',
+          testo:
+            'It appears in the list with the **Email mailbox** tag. If the OneDrive client syncs ' +
+            'it, you can browse it right away; otherwise **Connect OneDrive** asks for a second ' +
+            'sign-in, because the permission to send does not cover reading files.',
+        },
+        {
+          termine: 'Browse OneDrive',
+          testo:
+            'Opens the account’s folders: click a name to go in, **Up** and **Root** to go ' +
+            'back. You see folders and .regi documents; other files are only counted.',
+        },
+        {
+          termine: 'Find all .regi',
+          testo:
+            'Asks Microsoft for all the account’s register documents, including those shared ' +
+            'by others, most recent first. A file just uploaded may be missing: you find it by ' +
+            'browsing.',
+        },
+        {
+          termine: 'Open',
+          testo:
+            'If the OneDrive client syncs that file on the computer, that is what opens, and ' +
+            'changes go back to OneDrive by themselves. Otherwise the register asks where to ' +
+            'download a copy, and opens the copy.',
+        },
+        {
+          termine: 'From the search',
+          testo:
+            '**Open from OneDrive…** is also in the search (Ctrl+K) and in Settings › ' +
+            'Documents and printing › **This file**.',
+        },
+        {
+          termine: 'Disconnect',
+          testo:
+            'Removes from the keychain the permission to read that account’s OneDrive. Email ' +
+            'does not change; the permission given to the program is withdrawn from your ' +
+            'Microsoft profile.',
+        },
+      ],
+      note: [
+        'Two ways. Synced folders are read from the disk, where the Windows registry says which ' +
+          'account they belong to. An account connected in the browser is read from Microsoft, ' +
+          'with only the permissions to read (`Files.Read.All`) and to know who signed in ' +
+          '(`User.Read`), in the system keychain. The register writes nothing to OneDrive.',
+        'A downloaded copy is not synced: what you write in it does not go back to OneDrive. ' +
+          'To work on the original, sync its folder with the OneDrive client. If the school ' +
+          'denies the permission, whoever administers the tenant has to grant it.',
       ],
     },
     aggiornamenti: {

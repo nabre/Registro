@@ -10,9 +10,7 @@
 // Serve un archivio vero: si misura l'ordine delle scritture.
 
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, before, describe, it, mock } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
@@ -222,36 +220,8 @@ describe('l’ordine delle scritture', () => {
 })
 
 describe('il rientro, che è il presupposto della fila', () => {
-  it('nessun gestore chiama il nucleo: verificato sul sorgente', () => {
-    // Nessun gestore rientra in `chiama()`, o la fila si fermerebbe fino al tetto
-    // («il registro era occupato»). Si legge il sorgente e si vieta tutto; che la
-    // strada di una lettura esista lo mostra `fila.chiamaUnaLettura`.
-    const cartelle = [
-      fileURLToPath(new URL('../../core/azioni', import.meta.url)),
-      fileURLToPath(new URL('../../contract/procedure', import.meta.url)),
-    ]
-    const colpevoli = []
-    const guarda = (dove) => {
-      for (const voce of readdirSync(dove)) {
-        const pieno = percorso.join(dove, voce)
-        if (statSync(pieno).isDirectory()) {
-          guarda(pieno)
-          continue
-        }
-        if (!voce.endsWith('.ts')) continue
-        const testo = readFileSync(pieno, 'utf8')
-        // `chiama(` preceduto da una non-lettera: `daGestore`, `richiamare` e le
-        // citazioni fra apici non contano.
-        for (const riga of testo.split('\n')) {
-          if (riga.trimStart().startsWith('//') || riga.trimStart().startsWith('*')) continue
-          if (/(?<![A-Za-z])chiama\s*\(/.test(riga)) colpevoli.push(`${pieno}: ${riga.trim()}`)
-        }
-      }
-    }
-    for (const cartella of cartelle) guarda(cartella)
-    assert.deepEqual(colpevoli, [], 'un gestore rientra in chiama(): la fila unica può stallare')
-  })
-
+  // Che nessun gestore rientri in `chiama()` lo controlla `npm run layers` sul
+  // sorgente; qui si prova la strada buona.
   it('una scrittura che chiede una lettura al nucleo non stalla', async () => {
     const esito = await api.chiama(archivio, 'fila.chiamaUnaLettura', {})
     assert.equal(esito.ok, true)

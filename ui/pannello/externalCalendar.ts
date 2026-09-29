@@ -1,15 +1,16 @@
 // I calendari ICS del documento, accanto alle lezioni. Gli eventi arrivano da
 // `calendario.eventi` per tutto l'anno e restano in memoria finché non cambiano
-// i calendari o l'anno (la vista si ridisegna a ogni spunta). La chiave di un
+// i calendari o l'anno (la vista si ridisegna a ogni spunta). Li chiede
+// l'iscritto allo stato, non il disegno, che legge soltanto. La chiave di un
 // evento porta davanti l'id del suo calendario, così due calendari con lo
 // stesso UID restano due eventi. File a sé perché lo leggono la vista e
 // `commands.ts`.
 //
-// Le lezioni collegate per certo a un evento si allineano da sole
-// (`allineaCollegate`): inizio, fine e aula li detta il calendario della scuola
-// (`ancorataAIcs`). Solo per collegamenti certi e lezioni non ancora fatte (il
-// criterio è in `domain/calendar.ts`); il resto, e le ore annullate, restano
-// proposte del confronto.
+// Le lezioni collegate per certo a un evento si allineano da sole, dal
+// calendario e in una scrittura (`allineaCollegate`): inizio, fine e aula li
+// detta il calendario della scuola (`ancorataAIcs`). Solo per collegamenti
+// certi e lezioni non ancora fatte (il criterio è in `domain/calendar.ts`); il
+// resto, e le ore annullate, restano proposte del confronto.
 
 import type { EventoCalendario } from '../../core/dominio/calendarIcs.js'
 import { abbina, corsiConfrontabili, dicituraDi } from '../../core/dominio/calendarRules.js'
@@ -27,9 +28,10 @@ import {
 } from '../../core/dominio/calendar.js'
 import { oggi } from '../../core/dominio/dates.js'
 import type { Iso, Registro } from '../../core/dominio/models.js'
-import { azione, chiedi } from './bridge.js'
+import { azione, chiedi, invia } from './bridge.js'
 import { notifica } from './components/notifications.js'
-import { aggiorna, annoCorrente, stato } from './state.js'
+import { risorse } from './risorse.js'
+import { aggiorna, annoCorrente, iscriviti, stato } from './state.js'
 import { testi } from './externalCalendar.testi.js'
 
 interface Richiesta {
@@ -39,15 +41,25 @@ interface Richiesta {
 }
 
 interface Letti {
-  chiave: string
   tutti: EventoCalendario[]
   perGiorno: Map<Iso, EventoCalendario[]>
   /** La frase del guasto, se la lettura non è riuscita: si dice, e non si riprova da sola. */
   errore: string | null
 }
 
-let letti: Letti | null = null
-let inVolo: string | null = null
+/**
+ * Le letture per chiave (`risorse.ts`): vuoto, in volo, pronto, errore. Il
+ * disegno legge soltanto (ADR-06: il pannello disegna senza chiedere
+ * all'host); una chiave mai letta parte al più in un microtask dopo. Di solito
+ * la fa partire prima l'iscritto allo stato, all'ingresso nella vista.
+ */
+const letture = risorse<Letti>(4)
+
+/**
+ * Le viste che leggono gli eventi: il calendario e la scheda delle regole
+ * nelle impostazioni. Entrandoci la lettura parte prima del disegno.
+ */
+const VISTE_CON_EVENTI: ReadonlySet<string> = new Set(['calendario', 'impostazioni'])
 
 /**
  * Che cosa andrebbe letto adesso, o `null`. La chiave porta il momento della
@@ -61,16 +73,25 @@ function richiesta (): Richiesta | null {
   return { chiave: `${quali}|${anno.inizio}|${anno.fine}`, dal: anno.inizio, al: anno.fine }
 }
 
-async function carica (voluta: Richiesta): Promise<void> {
-  if (inVolo === voluta.chiave) return
-  inVolo = voluta.chiave
+const NESSUN_EVENTO: EventoCalendario[] = []
+
+/** Gli eventi letti per la chiave di adesso, o `null` se non ci sono ancora. */
+function letti (): Letti | null {
+  const voluta = richiesta()
+  if (!voluta) return null
+  const voce = letture.leggi(voluta.chiave, () => carica(voluta))
+  if (voce.stato === 'pronto') return voce.valore
+  if (voce.stato === 'errore') {
+    return { tutti: NESSUN_EVENTO, perGiorno: new Map(), errore: voce.errore || testi().nonSiLegge }
+  }
+  return null
+}
+
+async function carica (voluta: Richiesta): Promise<Letti> {
   const esito = await chiedi<{
     eventi: EventoCalendario[]
     guasti: Array<{ nome: string, motivo: string }>
   }>('calendario.eventi', { dal: voluta.dal, al: voluta.al })
-  // Un calendario cambiato mentre si leggeva: vince l'ultima chiesta.
-  if (inVolo !== voluta.chiave) return
-  inVolo = null
   const perGiorno = new Map<Iso, EventoCalendario[]>()
   for (const evento of esito.dati?.eventi ?? []) {
     const gruppo = perGiorno.get(evento.data) ?? []
@@ -79,16 +100,30 @@ async function carica (voluta: Richiesta): Promise<void> {
   }
   // Un calendario che non si legge non spegne gli altri: la frase lo nomina.
   const guasti = (esito.dati?.guasti ?? []).map((g) => testi().guasto(g.nome, g.motivo))
-  letti = {
-    chiave: voluta.chiave,
+  return {
     tutti: esito.dati?.eventi ?? [],
     perGiorno,
     errore: esito.ok
       ? (guasti.length > 0 ? guasti.join(' ') : null)
       : esito.errori.join(' ') || testi().nonSiLegge,
   }
-  aggiorna({})
 }
+
+/**
+ * L'iscritto allo stato: fa partire la lettura all'ingresso in una vista che
+ * legge gli eventi o quando cambia la chiave (anno, calendari, copia nuova), e
+ * l'allineamento quando cambiano registro o eventi. Mai dal disegno: una
+ * scrittura a metà ridisegno ne farebbe partire un altro.
+ */
+function allaModifica (): void {
+  const voluta = richiesta()
+  if (voluta && VISTE_CON_EVENTI.has(stato.vista)) {
+    letture.avvia(voluta.chiave, () => carica(voluta))
+  }
+  forseAllinea()
+}
+
+iscriviti(allaModifica)
 
 /**
  * Se il calendario ICS si vede adesso: interruttore acceso, calendario in
@@ -110,18 +145,12 @@ export function haCalendarioEsterno (): boolean {
 }
 
 /**
- * Gli eventi di un giorno in ordine d'ora. Se mancano parte la lettura e si
- * risponde vuoto: all'arrivo la vista si ridisegna.
+ * Gli eventi di un giorno in ordine d'ora. Se mancano si risponde vuoto:
+ * all'arrivo la vista si ridisegna.
  */
 export function eventiEsterni (data: Iso): EventoCalendario[] {
   if (!icsInVista()) return []
-  const voluta = richiesta()
-  if (!voluta) return []
-  if (letti?.chiave !== voluta.chiave) {
-    void carica(voluta)
-    return []
-  }
-  return letti.perGiorno.get(data) ?? []
+  return letti()?.perGiorno.get(data) ?? []
 }
 
 /**
@@ -140,43 +169,64 @@ const NESSUNO: Collegamenti = {
 function collegamenti (): Collegamenti {
   // Non guarda l'interruttore della settimana: catena e blocco del trascinamento
   // restano anche a eventi nascosti.
-  const eventi = eventiCaricati()
-  if (!eventi || eventi.length === 0 || !letti) return NESSUNO
-  if (collegati?.registro !== stato.registro || collegati.eventi !== letti.tutti) {
+  const eventi = letti()?.tutti
+  if (!eventi || eventi.length === 0) return NESSUNO
+  if (collegati?.registro !== stato.registro || collegati.eventi !== eventi) {
     collegati = {
       registro: stato.registro,
-      eventi: letti.tutti,
+      eventi,
       esito: collegaEventi(
         stato.registro,
-        letti.tutti,
+        eventi,
         stato.registro.impostazioni.calendario?.regole ?? [],
       ),
     }
-    // Fuori dal disegno: una scrittura a metà ridisegno ne farebbe partire un altro.
-    queueMicrotask(() => void allineaCollegate())
   }
   return collegati.esito
 }
 
 /** Una scrittura d'allineamento alla volta: la prossima guarda il registro che ne esce. */
 let allineando = false
+/** Registro o eventi cambiati mentre si scriveva: finita la scrittura si riguarda. */
+let daRiguardare = false
+/** Registro ed eventi già guardati: lo stesso paio non si riguarda. */
+let guardati: { registro: Registro, eventi: readonly EventoCalendario[] } | null = null
 
 /**
  * I passi d'allineamento già tentati, per lezione (chiave di
- * `allineamentoAutomatico`): non si riprova a ogni ridisegno e un rifiuto si
+ * `allineamentoAutomatico`): non si riprova a ogni modifica e un rifiuto si
  * dice una volta. Quando la lezione torna a combaciare i passi si scordano.
  */
 const giaTentati = new Map<string, Set<string>>()
 
 /**
+ * Chiamata dall'iscritto: se nel calendario sono cambiati registro o eventi,
+ * guarda se c'è da allineare. Fuori dal calendario non si allinea: ci si pensa
+ * quando ci si torna.
+ */
+function forseAllinea (): void {
+  if (stato.vista !== 'calendario') return
+  const esito = collegamenti()
+  if (esito === NESSUNO || !collegati) return
+  if (guardati?.registro === collegati.registro && guardati.eventi === collegati.eventi) return
+  guardati = { registro: collegati.registro, eventi: collegati.eventi }
+  // Dopo gli altri iscritti: il disegno di questa modifica viene prima.
+  queueMicrotask(() => void allineaCollegate())
+}
+
+/**
  * Porta le lezioni collegate per certo a inizio, fine e aula del calendario.
  * Quali lo decide il dominio (`allineamentiAutomatici`); qui si spedisce con
- * `calendario.applica`. Dopo la scrittura i collegamenti si rifanno e non resta
- * niente da fare: così il giro si ferma.
+ * `calendario.applica`, tutte in una scrittura. Dopo la scrittura i
+ * collegamenti si rifanno e non resta niente da fare: così il giro si ferma.
  */
 async function allineaCollegate (): Promise<void> {
-  if (allineando || !collegati) return
-  const { registro, eventi, esito } = collegati
+  if (!collegati) return
+  if (allineando) {
+    daRiguardare = true
+    return
+  }
+  const { registro, esito } = collegati
   const giorno = oggi()
   const scelta = allineamentiAutomatici(registro, esito, giorno)
   for (const lezioneId of scelta.combaciano) giaTentati.delete(lezioneId)
@@ -199,37 +249,52 @@ async function allineaCollegate (): Promise<void> {
   }
   if (allinea.length === 0) return
 
+  // Tentato, riuscito o no: se qualcosa cambia la chiave è un'altra.
+  for (const { lezioneId, chiave } of tentati) {
+    const suoi = giaTentati.get(lezioneId) ?? new Set<string>()
+    suoi.add(chiave)
+    giaTentati.set(lezioneId, suoi)
+  }
+
   allineando = true
   try {
-    // Una lezione per scrittura: un rifiuto ferma quella sola.
-    let riuscite = 0
-    for (const [i, voce] of allinea.entries()) {
-      const risposta = await azione({
-        tipo: 'calendario.applica',
-        // Senza `regole`, che restano come sono. `automatico` fa ricontrollare la
-        // voce all'host sul registro vero.
-        automatico: true,
-        crea: [],
-        allinea: [voce],
-        annulla: [],
-      })
-      // Tentato, riuscito o no: se qualcosa cambia la chiave è un'altra.
-      const { lezioneId, chiave } = tentati[i]
-      const suoi = giaTentati.get(lezioneId) ?? new Set<string>()
-      suoi.add(chiave)
-      giaTentati.set(lezioneId, suoi)
-      if (risposta.ok) riuscite += 1
-    }
-    if (riuscite > 0) {
-      notifica(testi().allineate(riuscite), 'info')
-    }
+    const riuscite = await spedisci(allinea)
+    if (riuscite > 0) notifica(testi().allineate(riuscite), 'info')
   } finally {
     allineando = false
   }
-  // Se intanto sono arrivati eventi nuovi, si guarda di nuovo.
-  if (collegati && (collegati.registro !== registro || collegati.eventi !== eventi)) {
-    queueMicrotask(() => void allineaCollegate())
+  if (daRiguardare) {
+    daRiguardare = false
+    guardati = null
+    forseAllinea()
   }
+}
+
+/**
+ * Spedisce l'allineamento e dice quante lezioni sono andate. Tutte insieme:
+ * una scrittura, una spinta e un ridisegno. `calendario.applica` però rifiuta
+ * in blocco: se una voce non passa si riprova una lezione alla volta, così un
+ * rifiuto ferma quella sola. Uscendo dal calendario ci si ferma.
+ */
+async function spedisci (allinea: AllineamentoDaCalendario[]): Promise<number> {
+  // Senza `regole`, che restano come sono. `automatico` fa ricontrollare la
+  // voce all'host sul registro vero.
+  const applica = (voci: AllineamentoDaCalendario[]) => ({
+    tipo: 'calendario.applica' as const,
+    automatico: true,
+    crea: [],
+    allinea: voci,
+    annulla: [],
+  })
+  if (allinea.length === 1) return (await azione(applica(allinea))).ok ? 1 : 0
+  // In blocco senza avviso: il rifiuto lo dicono subito sotto le voci una per una.
+  if ((await invia(applica(allinea))).ok) return allinea.length
+  let riuscite = 0
+  for (const voce of allinea) {
+    if (stato.vista !== 'calendario') break
+    if ((await azione(applica([voce]))).ok) riuscite += 1
+  }
+  return riuscite
 }
 
 /** Le diciture di abbinamento degli eventi, ricordate per chiave finché il registro è lo stesso. */
@@ -298,7 +363,7 @@ let anomalie: { esito: Collegamenti, perSettimana: Map<Iso, AnomalieSettimana> }
  */
 export function anomalieCalendario (): Map<Iso, AnomalieSettimana> | null {
   const esito = collegamenti()
-  const eventi = letti?.tutti
+  const eventi = letti()?.tutti
   if (esito === NESSUNO || !eventi) return null
   if (anomalie?.esito !== esito) {
     anomalie = { esito, perSettimana: anomaliePerSettimana(stato.registro, eventi, esito) }
@@ -307,25 +372,18 @@ export function anomalieCalendario (): Map<Iso, AnomalieSettimana> | null {
 }
 
 /**
- * Tutti gli eventi letti, o `null` se non ci sono ancora (e allora parte la
- * lettura). Ignora l'interruttore: li usa la scheda delle regole. L'array
- * resta lo stesso finché non cambiano i calendari, quindi fa da chiave.
+ * Tutti gli eventi letti, o `null` se non ci sono ancora. Ignora
+ * l'interruttore: li usa la scheda delle regole. L'array resta lo stesso
+ * finché non cambiano i calendari, quindi fa da chiave.
  */
 export function eventiCaricati (): readonly EventoCalendario[] | null {
-  const voluta = richiesta()
-  if (!voluta) return null
-  if (letti?.chiave !== voluta.chiave) {
-    void carica(voluta)
-    return null
-  }
-  return letti.tutti
+  return letti()?.tutti ?? null
 }
 
 /** Perché il calendario ICS non si vede, se si era chiesto di vederlo. */
 export function guastoCalendarioEsterno (): string | null {
   if (!icsInVista()) return null
-  const voluta = richiesta()
-  return voluta && letti?.chiave === voluta.chiave ? letti.errore : null
+  return letti()?.errore ?? null
 }
 
 /**
@@ -334,9 +392,8 @@ export function guastoCalendarioEsterno (): string | null {
  * «Aggiorna» nelle impostazioni.
  */
 export function mostraCalendarioEsterno (acceso: boolean): void {
-  if (acceso) {
-    letti = null
-    inVolo = null
-  }
+  // Scordata la lettura, l'iscritto la rifà alla prossima modifica, questa.
+  const voluta = richiesta()
+  if (acceso && voluta) letture.dimentica(voluta.chiave)
   aggiorna({ mostraCalendarioEsterno: acceso })
 }

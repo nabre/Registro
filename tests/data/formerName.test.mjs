@@ -24,7 +24,7 @@ function sistema () {
   mkdirSync(cartella, { recursive: true })
   return {
     vecchia: percorso.join(cartella, 'Registro docenti'),
-    nuova: percorso.join(cartella, 'Regiclass'),
+    nuova: percorso.join(cartella, 'Regiklass'),
   }
 }
 
@@ -69,7 +69,7 @@ describe('il trasloco della cartella dei dati', () => {
     // Un posto dove non si può rinominare: dentro un file.
     const bloccato = percorso.join(radice, `file-${giro}`)
     writeFileSync(bloccato, '')
-    const esito = traslocaDati(vecchia, percorso.join(bloccato, 'Regiclass'))
+    const esito = traslocaDati(vecchia, percorso.join(bloccato, 'Regiklass'))
     assert.equal(esito.esito, 'fallita')
     assert.ok(esito.motivo.length > 0)
     assert.equal(existsSync(vecchia), true)

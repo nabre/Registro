@@ -27,6 +27,8 @@ type NomeModello =
   | 'momento-valutazione'
   | 'fascicolo-classe'
   | 'foto-classe'
+  | 'diario-corso'
+  | 'scheda-corso'
   | '_firma.html'
 
 const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
@@ -90,6 +92,14 @@ const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
     'foto-classe': {
       titolo: 'Parete di ritratti',
       aiuto: 'Le facce della classe su un foglio solo, con i nomi sotto',
+    },
+    'diario-corso': {
+      titolo: 'Diario del corso',
+      aiuto: 'Tutte le lezioni svolte del corso in un unico foglio cronologico con argomenti, compiti e assenze',
+    },
+    'scheda-corso': {
+      titolo: 'Scheda del corso',
+      aiuto: 'Il documento unico del corso: presenze, valutazioni, diario, piani, pendenze e controlli',
     },
     '_firma.html': {
       titolo: 'Firma delle e-mail',
@@ -161,6 +171,14 @@ export const testi = catalogo(it, {
         titolo: 'Fotowand',
         aiuto: 'Die Gesichter der Klasse auf einem einzigen Blatt, mit den Namen darunter',
       },
+      'diario-corso': {
+        titolo: 'Kurstagebuch',
+        aiuto: 'Alle gehaltenen Lektionen des Kurses auf einem einzigen chronologischen Blatt mit Themen, Aufgaben und Absenzen',
+      },
+      'scheda-corso': {
+        titolo: 'Kursblatt',
+        aiuto: 'Das einheitliche Kursdokument: Präsenzen, Beurteilungen, Tagebuch, Pläne, Pendenzen und Checkliste',
+      },
       '_firma.html': {
         titolo: 'E-Mail-Signatur',
         aiuto: 'Was das Klassenbuch unter jede Nachricht setzt, wenn das Dokument keine eigene hat. Es ist HTML',
@@ -229,6 +247,14 @@ export const testi = catalogo(it, {
         titolo: 'Mur de portraits',
         aiuto: 'Les visages de la classe sur une seule feuille, avec les noms dessous',
       },
+      'diario-corso': {
+        titolo: 'Journal du cours',
+        aiuto: 'Toutes les leçons données du cours sur une seule feuille chronologique avec sujets, devoirs et absences',
+      },
+      'scheda-corso': {
+        titolo: 'Fiche du cours',
+        aiuto: 'Le document unique du cours: présences, évaluations, journal, plans, tâches et contrôles',
+      },
       '_firma.html': {
         titolo: 'Signature des e-mails',
         aiuto: 'Ce que le registre ajoute au bas de chaque message qu’il envoie, si le document n’a pas la sienne. C’est du HTML',
@@ -296,6 +322,14 @@ export const testi = catalogo(it, {
       'foto-classe': {
         titolo: 'Portrait wall',
         aiuto: 'The faces of the class on a single sheet, with the names underneath',
+      },
+      'diario-corso': {
+        titolo: 'Course journal',
+        aiuto: 'All held lessons of the course on a single chronological sheet with topics, tasks and absences',
+      },
+      'scheda-corso': {
+        titolo: 'Course sheet',
+        aiuto: 'The unified course document: attendance, assessments, journal, plans, pending tasks and checks',
       },
       '_firma.html': {
         titolo: 'Email signature',

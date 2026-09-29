@@ -67,6 +67,16 @@ export function allegatiComunicazione (
   )
 }
 
+/**
+ * Gli id scelti come allegati che un allegato non lo danno: consegna sparita,
+ * o senza file raccolto «a me». Spedire senza dirlo farebbe partire la
+ * comunicazione monca.
+ */
+export function allegatiMancanti (registro: Registro, comunicazione: Comunicazione): string[] {
+  const pronti = new Set(allegatiComunicazione(registro, comunicazione).map((c) => c.id))
+  return comunicazione.documentiIds.filter((id) => !pronti.has(id))
+}
+
 /** Il file raccolto da una consegna «a me»: quel che si allega davvero. */
 export function fileDellaConsegna (consegna: Consegna): { file: string, nome: string } | null {
   const suo = (consegna.documenti ?? []).find((d) => d.allievoId === CHI_INSEGNA)
@@ -130,7 +140,7 @@ export function corpoDelMessaggio (
  */
 
 /** Un allegato già in base64, come lo si legge da disco. */
-export interface AllegatoPosta {
+interface AllegatoPosta {
   nome: string
   tipo: string
   /** Il file stesso, in base64: è così che viaggia, dovunque vada. */
@@ -166,13 +176,34 @@ function unaRiga (testo: string): string {
 }
 
 /**
+ * Quanti byte UTF-8 per parola codificata. Una parola non supera 75 caratteri
+ * e una riga che ne contiene non supera 76 (RFC 2047): 36 byte fanno 48 di
+ * base64, 60 con la cornice, e ci sta anche «Subject: » davanti.
+ */
+const BYTE_PER_PAROLA = 36
+
+/**
  * Un'intestazione non ASCII scritta come vuole la posta, `=?UTF-8?B?…?=`,
- * perché «Assenze 1° semestre» arrivi intero.
+ * perché «Assenze 1° semestre» arrivi intero. Un oggetto lungo va in più
+ * parole su righe piegate, spezzate fra un carattere e l'altro: mai a metà
+ * dei byte di una lettera.
  */
 function intestazione (grezzo: string): string {
   const testo = unaRiga(grezzo)
   if (!/[^\u0000-\u007f]/.test(testo)) return testo
-  return `=?UTF-8?B?${Buffer.from(testo, 'utf8').toString('base64')}?=`
+  const pezzi: string[] = []
+  let pezzo = ''
+  for (const carattere of testo) {
+    if (pezzo && Buffer.byteLength(pezzo + carattere, 'utf8') > BYTE_PER_PAROLA) {
+      pezzi.push(pezzo)
+      pezzo = ''
+    }
+    pezzo += carattere
+  }
+  if (pezzo) pezzi.push(pezzo)
+  return pezzi
+    .map((parte) => `=?UTF-8?B?${Buffer.from(parte, 'utf8').toString('base64')}?=`)
+    .join(`${ACAPO} `)
 }
 
 /** Base64 spezzato a 76 colonne, come vuole il MIME. */
@@ -190,16 +221,30 @@ export function schiacciaNome (testo: string): string {
 }
 
 /**
- * Il nome di un allegato in tutti e due i modi: `filename=` ASCII per i
- * programmi vecchi, `filename*=` UTF-8 per gli altri.
+ * Il nome ASCII di un allegato, per chi non legge `filename*=`: schiacciato,
+ * ma con la sua estensione, se no il file arriva senza tipo.
  */
-function nomeAllegato (grezzo: string): string {
+function nomeRipiego (grezzo: string): string {
   // Un nome di file può contenere un a capo (macOS, Linux), e la coda va fra
   // `"…"` senza passare da `schiacciaNome`: via anche le virgolette.
   const nome = unaRiga(grezzo)
   const coda = nome.match(/\.[^.]+$/)?.[0] ?? ''
-  const ripiego = schiacciaNome(nome.slice(0, nome.length - coda.length)) + coda.replace(/"/g, '')
-  return `filename="${ripiego}"${ACAPO} filename*=UTF-8''${encodeURIComponent(nome)}`
+  return schiacciaNome(nome.slice(0, nome.length - coda.length)) + coda.replace(/"/g, '')
+}
+
+/**
+ * Il nome di un allegato in tutti e due i modi: `filename=` ASCII per i
+ * programmi vecchi, `filename*=` UTF-8 per gli altri. `encodeURIComponent`
+ * lascia in chiaro `'()*`, che RFC 5987 non ammette: l'apostrofo, poi,
+ * chiuderebbe il campo della lingua.
+ */
+function nomeAllegato (grezzo: string): string {
+  const nome = unaRiga(grezzo)
+  const codificato = encodeURIComponent(nome).replace(
+    /['()*]/g,
+    (segno) => `%${segno.charCodeAt(0).toString(16).toUpperCase()}`,
+  )
+  return `filename="${nomeRipiego(nome)}"${ACAPO} filename*=UTF-8''${codificato}`
 }
 
 /**
@@ -236,7 +281,7 @@ function partiMime (
         [
           `--${confine}`,
           // testo-fisso: intestazione MIME
-          `Content-Type: ${allegato.tipo}; name="${schiacciaNome(allegato.nome)}"`,
+          `Content-Type: ${allegato.tipo}; name="${nomeRipiego(allegato.nome)}"`,
           'Content-Transfer-Encoding: base64',
           // testo-fisso: intestazione MIME
           `Content-Disposition: attachment; ${nomeAllegato(allegato.nome)}`,
@@ -269,10 +314,10 @@ export function componiEml (messaggio: MessaggioPosta, adesso = new Date()): str
       // testo-fisso: intestazione MIME
       `Subject: ${intestazione(messaggio.oggetto)}`,
       ...(messaggio.da ? [`From: ${unaRiga(messaggio.da)}`] : []), // testo-fisso: intestazione MIME
+      // Piegate come nell'invio: trenta famiglie in copia sforano i 998 caratteri.
+      ...(visibili.length > 0 ? [piega('To', visibili.map(unaRiga))] : []),
       // testo-fisso: intestazione MIME
-      ...(visibili.length > 0 ? [`To: ${unaRiga(visibili.join(', '))}`] : []),
-      // testo-fisso: intestazione MIME
-      ...(messaggio.ccn.length > 0 ? [`Bcc: ${unaRiga(messaggio.ccn.join(', '))}`] : []),
+      ...(messaggio.ccn.length > 0 ? [piega('Bcc', messaggio.ccn.map(unaRiga))] : []),
       ...testate,
       ...pezzi,
     ].join(ACAPO) + ACAPO

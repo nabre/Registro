@@ -62,6 +62,7 @@ import { haCalendarioEsterno, mostraCalendarioEsterno } from './externalCalendar
 import { moduloCalendariIcs } from './views/settings/icsCalendar.js'
 import { chiediImportaClasse } from './views/classes.js'
 import { azione } from './bridge.js'
+import { apriOneDrive } from './forms/oneDrive.js'
 import {
   classeDelContesto,
   classeDelFascicolo,
@@ -82,6 +83,7 @@ import {
   oraDaFare,
   sceltiPresenti,
   stato,
+  vai,
   type SchedaDocente,
   type Vista,
 } from './state.js'
@@ -92,6 +94,7 @@ import { caricaPdf, pdfInAttesa, rileggiScansioni } from './views/sorting.js'
 import { indirizziInAttesa, inquadraTutto } from './views/map.js'
 // Le porzioni delle pagine (modi, schede, filtri) le nomina solo `tabs.ts`.
 import { MODI_CALENDARIO, SCHEDE_DOCUMENTI } from './tabs.js'
+import { apriLezione } from './pages.js'
 // Il piano su cui lavorare lo sa la pagina: `stato.pianoId` è nullo finché non
 // se ne sceglie uno, ma un piano a schermo c'è lo stesso.
 import { pianoMostrato, primaOraDelPiano, scordaEditorDelPiano } from './views/plans.js'
@@ -324,7 +327,7 @@ function statoLezione (): Lezione['stato'] | null {
 }
 
 /**
- * Se l'interruttore «Calendario ICS» è acceso: gli altri due comandi del
+ * Se l'interruttore «Calendario ICS» è acceso: gli altri comandi del
  * riquadro si vedono solo allora, perché lavorano sui suoi eventi.
  */
 function calendarioIcsAcceso (): boolean {
@@ -362,6 +365,17 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     dalMenu: true,
     primario: true,
     al: () => azione({ tipo: 'documento.apri' }),
+  },
+  {
+    // Un `.regi` che sta su OneDrive: la finestra è del pannello, quindi niente
+    // menu nativo.
+    id: 'file.apriDaOneDrive',
+    titolo: t.apriDaOneDrive,
+    simbolo: 'collegamento',
+    dove: ['app'],
+    gruppo: G.documento,
+    aiuto: t.apriDaOneDriveAiuto,
+    al: () => apriOneDrive(),
   },
   {
     // Dopo «Apri»: l'altro modo di servirsi di un anno non aperto, portandone
@@ -651,6 +665,22 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     impedimento: () => (haCalendarioEsterno() ? null : t.nessunCalendarioIcs),
     al: () => mostraCalendarioEsterno(!stato.mostraCalendarioEsterno),
   },
+  // Riscarica i calendari collegati con un indirizzo, come a ogni avvio; poi
+  // rilegge gli eventi. Solo con «Calendario ICS» acceso, accanto a lui.
+  {
+    id: 'calendario.aggiornaIcs',
+    titolo: t.aggiornaIcs,
+    simbolo: 'ricarica',
+    dove: ['calendario'],
+    gruppo: G.calendarioIcs,
+    soloSe: () =>
+      stato.modoCalendario === 'settimana' && stato.editorCalendario && calendarioIcsAcceso(),
+    aiuto: t.aggiornaIcsAiuto,
+    al: async () => {
+      const risposta = await azione({ tipo: 'calendario.aggiornaTutti' })
+      if (risposta.ok) mostraCalendarioEsterno(true)
+    },
+  },
   // Le ore che il calendario della scuola ha e il registro no, più le spostate.
   // Solo con «Calendario ICS» acceso; il primo calendario si aggiunge da
   // Impostazioni › Anno e orario › Calendari ICS.
@@ -688,7 +718,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     al: () => {
       const ora = oraDaFare()
       if (!ora) return
-      aggiorna({ vista: 'lezione', lezioneId: ora.lezione.id })
+      apriLezione(ora.lezione.id)
     },
   },
   {
@@ -709,7 +739,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       moduloLezione({
         corsoId: corsoDelContesto()?.id,
         data: stato.data,
-        dopo: (lezioneId) => aggiorna({ vista: 'lezione', lezioneId }),
+        dopo: (lezioneId) => apriLezione(lezioneId),
       }),
   },
   {
@@ -808,7 +838,8 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     al: () => {
       const piano = pianoMostrato()
       const lezione = piano ? primaOraDelPiano(piano) : null
-      if (lezione) aggiorna({ vista: 'lezione', lezioneId: lezione.id, data: lezione.data })
+      // L'ora porta con sé il suo giorno (`completa`).
+      if (lezione) apriLezione(lezione.id)
     },
   },
   {
@@ -823,7 +854,9 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       const piano = pianoMostrato()
       if (!piano) return
       const risposta = await azione({ tipo: 'piano.duplica', pianoId: piano.id })
-      if (risposta.ok && risposta.creato) aggiorna({ pianoId: risposta.creato.id })
+      if (risposta.ok && risposta.creato) {
+        vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: risposta.creato.id } })
+      }
     },
   },
   {
@@ -842,7 +875,8 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       if (!risposta.ok) return
       // L'editor tenuto da parte modificava un piano che non c'è più.
       scordaEditorDelPiano()
-      aggiorna({ pianoId: null })
+      // Senza piano la pagina torna sul corso di lavoro.
+      vai({ pagina: 'pagina.corso.piani' }, { contesto: { pianoId: null } })
     },
   },
   {
@@ -861,7 +895,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
         corsoId: corso.id,
         classeId: corso.classeId,
         data: stato.data,
-        dopo: (lezioneId) => aggiorna({ vista: 'lezione', lezioneId }),
+        dopo: (lezioneId) => apriLezione(lezioneId),
       })
     },
   },
@@ -1144,7 +1178,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     impedimento: () => classeDelFascicolo() ? null : t.selezionaClasse,
     al: () => {
       const classe = classeDelFascicolo()
-      if (classe) aggiorna({ vista: 'classi', classeId: classe.id })
+      if (classe) vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classe.id } })
     },
   },
 
@@ -1355,7 +1389,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
 // -------------------------------------------------------------- le raccolte
 
 /** Se il comando vive in quel posto. */
-export function vive (comando: ComandoUI, posto: Posto): boolean {
+function vive (comando: ComandoUI, posto: Posto): boolean {
   return comando.dove.includes(posto) &&
     (posto !== 'docenteClasse' || !comando.schedaDocente || comando.schedaDocente === stato.schedaDocente) &&
     (comando.soloSe?.() ?? true)

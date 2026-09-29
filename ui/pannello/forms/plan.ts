@@ -10,6 +10,7 @@ import {
 import { attivitaValutata } from '../../../core/dominio/activities.js'
 import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
 import { creaPiano } from '../../../core/dominio/factories.js'
+import { generaAttivitaStandard, generaObiettiviStandard } from '../../../core/dominio/plans.js'
 import type {
   Attivita,
   Lezione,
@@ -30,17 +31,40 @@ import {
 } from '../components/base.js'
 import { apriModale, type ContestoModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { azione, invia } from '../bridge.js'
 import {
-  aggiorna,
   classeDelCorsoId,
   corsiDi,
   nomeCorso,
   nomeDiPiano,
   pianiPerCorso,
+  postoCorrente,
   stato,
+  vai,
 } from '../state.js'
+
+/**
+ * Sceglie un piano, o nessuno, senza lasciare la pagina: in quella dei piani
+ * diventa quel che si guarda (senza, si torna al corso); altrove resta solo
+ * nel contesto.
+ */
+function scegliPiano (pianoId: string | null): void {
+  const qui = postoCorrente()
+  if (qui.pagina !== 'pagina.corso.piani') {
+    vai(qui, { contesto: { pianoId }, elementoChiesto: false })
+    return
+  }
+  const corsoId = stato.contesto.corsoId
+  vai(
+    pianoId
+      ? { pagina: qui.pagina, soggetto: { tipo: 'piano', id: pianoId } }
+      : corsoId
+        ? { pagina: qui.pagina, soggetto: { tipo: 'corso', id: corsoId } }
+        : { pagina: qui.pagina },
+    { contesto: { pianoId }, elementoChiesto: pianoId !== null },
+  )
+}
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
@@ -103,7 +127,7 @@ function statiDelPiano (base: PianoLezione): Array<{ testo: string, blocca: bool
 }
 
 /** I campi di un piano, staccati dalla finestra che li contiene. */
-export interface EditorPiano {
+interface EditorPiano {
   /** Il corpo dei campi: si appende a una modale o dentro una pagina. */
   corpo: HTMLElement
   /** Il piano com'è adesso nei campi, pronto da mandare al registro. */
@@ -144,11 +168,31 @@ export function editorPiano (opzioni: {
   // Il piano nasce sul corso indicato, o su quello della classe filtrata se è
   // uno solo; resta cambiabile.
   const corsiDelFiltro = stato.filtroClasseId ? corsiDi(stato.filtroClasseId) : []
-  const base =
+  const iniziale =
     piano ??
     creaPiano(
       opzioni.corsoDaProporre ?? (corsiDelFiltro.length === 1 ? corsiDelFiltro[0].id : null),
     )
+
+  const minutiUd = stato.registro.impostazioni.minutiUd
+  const udDellOra = (): number => (lezione ? Math.max(1, contaUd(lezione, minutiUd)) : 1)
+  // Un piano vuoto parte da obiettivi e scaletta proposti, scritti su una copia:
+  // il piano di `stato.registro` resta com'è finché non si salva, e «Annulla»
+  // non lascia niente.
+  const autoGenerato = iniziale.attivita.length === 0 && iniziale.obiettivi.length === 0
+  const base: PianoLezione = autoGenerato
+    ? {
+        ...iniziale,
+        obiettivi: generaObiettiviStandard(),
+        attivita: generaAttivitaStandard(
+          udDellOra(),
+          '',
+          classeDelCorsoId(iniziale.corsoId)?.docenteDiClasse ?? false,
+          minutiUd,
+        ),
+      }
+    : iniziale
+
   // La tendina del corso resta dove c'è un corso da scegliere.
   const corsoFermo = Boolean(opzioni.corsoDettato && base.corsoId)
   // Copia profonda di quel che l'editor tocca: con `parametri` e `valutazione`
@@ -173,10 +217,12 @@ export function editorPiano (opzioni: {
       .filter(Boolean),
     prerequisiti: testo(valori.prerequisiti),
     note: testo(valori.note),
-    tag: String(valori.tag ?? '')
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean),
+    tag: valori.tag !== undefined
+      ? String(valori.tag)
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : (base.tag ?? []),
     risorse: risorsePiano,
     attivita,
   })
@@ -237,13 +283,35 @@ export function editorPiano (opzioni: {
     disegnaRisorsePiano()
   })
 
-  const particolari = modifica ? statiDelPiano(base) : []
-
   /**
    * Il modulo, `null` finché la costruzione non è finita: dentro c'è chi lo
    * rilegge (la tendina dei tipi guarda il corso scelto).
    */
   let modulo: HTMLElement | null = null
+
+  const zonaAttivita = h('div')
+  const disegnaAttivita = (): void => {
+    rimpiazza(
+      zonaAttivita,
+      editorAttivita(
+        attivita,
+        (nuove) => {
+          attivita = nuove
+          opzioni.allaModifica?.()
+        },
+        lezione,
+        gestoreRisorse,
+        () => {
+          const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
+          return classeDelCorsoId(scelto || base.corsoId)?.docenteDiClasse ?? false
+        },
+        base.corsoId,
+      ),
+    )
+  }
+  disegnaAttivita()
+
+  const particolari = modifica ? statiDelPiano(base) : []
 
   const corpoModulo: HTMLElement = h(
     'div',
@@ -296,43 +364,38 @@ export function editorPiano (opzioni: {
       ),
       riga(
         campo({
-          nome: 'tag',
-          etichetta: t.etichette,
-          valore: base.tag.join(', '),
-          segnaposto: t.segnapostoEtichette,
-          aiuto: t.aiutoEtichette,
-          larghezza: 'meta',
-        }),
-        campo({
           nome: 'note',
           etichetta: parole().note,
           tipo: 'textarea',
           righe: 2,
           valore: base.note ?? '',
           aiuto: t.aiutoNote,
-          larghezza: 'meta',
         }),
       ),
     ),
     // La spiegazione dietro la «i»; che allegare salva il piano resta in vista.
     sezioneModulo(
       { testo: Uno(L.scaletta), aiuto: t.aiutoScaletta },
-      h('p', { class: 'testo-quieto' }, t.allegareSalva),
-      editorAttivita(
-        attivita,
-        (nuove) => {
-          attivita = nuove
-          // Una tappa spostata, aggiunta o tolta non passa da un `change`: si avvisa qui.
-          opzioni.allaModifica?.()
-        },
-        lezione,
-        gestoreRisorse,
-        // Il corso si legge dal campo: cambiandolo cambiano i tipi offerti.
-        () => {
-          const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
-          return classeDelCorsoId(scelto || base.corsoId)?.docenteDiClasse ?? false
-        },
+      h(
+        'div',
+        { class: 'riga-azioni-scaletta' },
+        h('p', { class: 'testo-quieto' }, t.allegareSalva),
+        pulsante({
+          testo: t.rigeneraAttivita,
+          variante: 'sottile',
+          simbolo: 'bacchetta',
+          al: () => {
+            const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
+            const corsoIdScelto = scelto || base.corsoId
+            const isDoc = classeDelCorsoId(corsoIdScelto)?.docenteDiClasse ?? false
+            attivita = generaAttivitaStandard(udDellOra(), '', isDoc, minutiUd)
+            disegnaAttivita()
+            // Nella modale salva il suo pulsante: «Annulla» deve poter rinunciare.
+            opzioni.allaModifica?.()
+          },
+        }),
       ),
+      zonaAttivita,
     ),
     // Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura).
     sezioneModulo(
@@ -344,10 +407,18 @@ export function editorPiano (opzioni: {
   modulo = corpoModulo
   disegnaRisorsePiano()
 
+  // Nella pagina, che salva campo per campo, la proposta si scrive subito (dopo
+  // che chi ha aperto l'editor lo tiene in mano); nella modale la salva solo il
+  // pulsante, così «Annulla» non lascia un piano orfano.
+  if (autoGenerato && opzioni.allaModifica) {
+    const allaModifica = opzioni.allaModifica
+    setTimeout(() => allaModifica(), 0)
+  }
+
   // Ogni `change` dei campi è una modifica confermata; gli `input` no, per non
   // salvare a ogni lettera. Le tappe hanno il loro `allaModifica`.
   if (opzioni.allaModifica) {
-    corpoModulo.addEventListener('change', () => opzioni.allaModifica?.())
+    gestisci(corpoModulo, 'change', () => opzioni.allaModifica?.())
   }
 
   return {
@@ -389,7 +460,7 @@ export function moduloPiano (
             await dopo(pianoId)
             return
           }
-          aggiorna({ vista: 'piani', pianoId })
+          vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: pianoId } })
         },
       )
     },
@@ -400,14 +471,14 @@ export function moduloPiano (
               contesto,
               azione: { tipo: 'piano.duplica', pianoId: editor.base.id },
               fatto: t.duplicato,
-              poi: (idCreato) => aggiorna({ pianoId: idCreato }),
+              poi: (idCreato) => scegliPiano(idCreato),
             }),
             tastoElimina({
               contesto,
               chiedi: { genere: 'piano', id: editor.base.id },
               azione: { tipo: 'piano.elimina', pianoId: editor.base.id },
               fatto: t.eliminato,
-              poi: () => aggiorna({ pianoId: null }),
+              poi: () => scegliPiano(null),
             }),
           ]
         : null,

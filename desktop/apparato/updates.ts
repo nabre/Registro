@@ -19,9 +19,9 @@ import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } fro
 import { EventEmitter, type Smaltibile } from '../../core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { consegnaAllAiutante } from './updateInstaller.js'
-import { parole } from '.../../../core/dominio/words.testi.js'
+import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './updates.testi.js'
-import { istante, numero } from '.../../../core/i18n/index.js'
+import { istante, numero } from '../../core/i18n/index.js'
 
 /** Dove stanno le release: il ripiego quando da sé non si può. */
 const PAGINA_RELEASE = 'https://github.com/nabre/Registro/releases/latest'
@@ -197,7 +197,7 @@ export function racconta (s: Grezzo): RaccontoAggiornamenti {
     default:
       return {
         breve: t.fermoBreve,
-        frase: impostazione('controlloAutomatico', true) ? t.fermoDaSé : t.fermoSpento,
+        frase: impostazione('controlloAutomatico', false) ? t.fermoDaSé : t.fermoSpento,
         tono: 'quiete',
         gesto: controlla(),
       }
@@ -426,7 +426,7 @@ export function avviaAggiornamenti (): Smaltibile {
   const regola = (): void => {
     ferma()
     if (!adesso().supportato) return
-    if (!impostazione('controlloAutomatico', true)) return
+    if (!impostazione('controlloAutomatico', false)) return
     primo = setTimeout(controllaAggiornamenti, ATTESA_PRIMO_CONTROLLO_MS)
     giro = setInterval(controllaAggiornamenti, ORE_FRA_I_CONTROLLI * 3_600_000)
     // I timer non tengono acceso il processo.

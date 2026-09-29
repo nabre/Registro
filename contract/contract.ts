@@ -23,7 +23,7 @@ import { testi } from './core.testi.js'
 export const VERSIONE_API = 1
 
 /** Quel che una procedura ha sottomano: lo stesso contesto dei gestori di sempre. */
-export type Contesto = ReturnType<typeof contestoDi>
+type Contesto = ReturnType<typeof contestoDi>
 
 /**
  * Da dove arriva una chiamata: si scrive nel giornale, non cambia i permessi.
@@ -315,6 +315,11 @@ export interface VoceGiornale {
   codice?: Codice
   /** Quante modifiche ha fatto l'archivio: 0 se non ha toccato niente. */
   modifiche: number
+}
+
+/** Una voce del giornale salvata con il millisecondo in cui è avvenuta. */
+export interface VoceGiornaleRegistrata extends VoceGiornale {
+  ora: number
 }
 
 export type Spia = (voce: VoceGiornale) => void

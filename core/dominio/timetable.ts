@@ -96,7 +96,11 @@ export function lezioniInChiusura (
   const classi = new Set(registro.classi.filter((c) => c.annoId === anno.id).map((c) => c.id))
   const corsi = new Set(registro.corsi.filter((c) => classi.has(c.classeId)).map((c) => c.id))
   return registro.lezioni.filter((lezione) =>
-    corsi.has(lezione.corsoId) && lezione.data >= dal && lezione.data <= al && sospeso(anno, lezione.data))
+    corsi.has(lezione.corsoId) &&
+    lezione.data >= dal &&
+    lezione.data <= al &&
+    sospeso(anno, lezione.data),
+  )
 }
 
 /** Se la ricorrenza vale in quella data: dentro i suoi estremi, quando li ha. */
@@ -238,7 +242,9 @@ export function lezioniDaOrario (
  *
  * Con `lezioni`, si tolgono anche le occorrenze occupate da un'ora annullata
  * (stesso giorno e ora d'inizio): nessuno poteva mancarci, e lasciarle
- * abbasserebbe la quota di assenza sotto la soglia.
+ * abbasserebbe la quota di assenza sotto la soglia. L'ora d'inizio è quella
+ * della lezione che ne nasce, come in `lezioniDaOrario`: con le `pause` della
+ * giornata una fascia che comincia in pausa fa una lezione che comincia dopo.
  */
 export function udPrevisteDaOrario (
   anno: AnnoScolastico | null,
@@ -246,17 +252,25 @@ export function udPrevisteDaOrario (
   dal: Iso,
   al: Iso,
   minutiUd: number,
-  lezioni: readonly Lezione[] = [],
+  lezioni: readonly Lezione[],
+  pause: Giornata['pause'],
 ): number {
   const annullate = new Set(
     lezioni
       .filter((l) => l.corsoId === corso.id && l.stato === 'annullata')
       .map((l) => `${l.data} ${inizioLezione(l) ?? ''}`),
   )
+  const giornata: Giornata = { minutiUd, pause }
+  const annullata = (data: Iso, ricorrenza: Ricorrenza): boolean => {
+    if (annullate.size === 0) return false
+    const nasce =
+      lezioneNellaGiornata(corso.id, data, ricorrenza.inizio, ricorrenza.durataMin, giornata)
+    return annullate.has(`${data} ${inizioLezione(nasce) ?? ''}`)
+  }
   // Si costruisce l'ora che ne uscirebbe invece di dividere i minuti: lo stesso
   // conto di una lezione vera.
   return dateDellOrario(anno, corso, dal, al)
-    .filter(({ data, ricorrenza }) => !annullate.has(`${data} ${ricorrenza.inizio}`))
+    .filter(({ data, ricorrenza }) => !annullata(data, ricorrenza))
     .reduce(
       (somma, { data, ricorrenza }) =>
         somma +

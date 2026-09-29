@@ -306,10 +306,15 @@ export function scriviZip (voci: VoceZip[], livello = CORRENTE): Buffer {
  * Dove comincia la coda, cercandola dal fondo. Non si ferma ai 64 KB del
  * commento: dopo un salvataggio interrotto, sotto i corpi a metà c'è ancora la
  * coda buona. Vale solo una coda che punti a un indice vero, non una firma a caso.
+ * Con `codaInFondo` rifiuta una coda nello spazio morto (seguita da corpi a metà).
  */
-function inizioCoda (dati: Buffer): number {
+function inizioCoda (dati: Buffer, opzioni?: { codaInFondo?: boolean }): number {
   for (let i = dati.length - CODA; i >= 0; i -= 1) {
     if (dati.readUInt32LE(i) !== FIRMA_CODA) continue
+    if (opzioni?.codaInFondo) {
+      const commento = dati.readUInt16LE(i + 20)
+      if (i + CODA + commento !== dati.length) continue
+    }
     const dove = dati.readUInt32LE(i + 16)
     const quante = dati.readUInt16LE(i + 10)
     if (quante === 0) {
@@ -348,12 +353,13 @@ interface ZipAperto {
 /**
  * Apre un archivio e ne torna le voci in ordine d'indice. Subito si verifica la
  * struttura; il contenuto di ogni voce si verifica col CRC quando lo si apre.
+ * `codaInFondo` (usata in ricarica) rifiuta archivi con code nello spazio morto.
  */
-export function apriZip (contenuto: Uint8Array): ZipAperto {
+export function apriZip (contenuto: Uint8Array, opzioni?: { codaInFondo?: boolean }): ZipAperto {
   const dati = Buffer.from(contenuto.buffer, contenuto.byteOffset, contenuto.byteLength)
   if (dati.length < CODA) throw new ErroreZip(testi().troppoCorto)
 
-  const coda = inizioCoda(dati)
+  const coda = inizioCoda(dati, opzioni)
   if (coda < 0) throw new ErroreZip(testi().senzaCoda)
 
   const quante = dati.readUInt16LE(coda + 10)

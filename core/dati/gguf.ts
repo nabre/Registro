@@ -25,14 +25,13 @@ import * as percorso from 'node:path'
 
 import { nomeSicuro, senzaVirgolette } from '../dominio/text.js'
 import { cartellaApplicazione } from './appData.js'
+import { ESTENSIONE, nomeDiModello } from './ggufName.js'
 import { modulo } from './nodeLlama.js'
 import { testi } from './gguf.testi.js'
 
 /** La sottocartella dei modelli, dentro i dati dell'applicazione. */
 const CARTELLA = 'modelli-linguistici'
 
-/** L'estensione, l'unica. */
-export const ESTENSIONE = '.gguf'
 
 /** I quattro byte con cui comincia un file GGUF, e che nessun altro formato ha. */
 const MAGIA = 'GGUF'
@@ -226,12 +225,9 @@ export function modelliLocali (): ModelloLocale[] {
  * e non deve poter indicare un file qualunque del disco.
  */
 export function modelloNellaCartella (nome: string): string {
+  // Solo il nome nudo di un `.gguf`: la stessa regola della dogana delle impostazioni.
+  if (!nomeDiModello(nome)) return ''
   const pulito = nome.trim()
-  if (pulito === '') return ''
-  // Solo un nome di file: niente separatori, risalite o lettere di unità.
-  if (pulito !== percorso.basename(pulito)) return ''
-  // Solo `.gguf`: un `.ipull` sono pesi tronchi.
-  if (percorso.extname(pulito).toLowerCase() !== ESTENSIONE) return ''
   const intero = percorso.join(cartellaModelli(), pulito)
   try {
     return statSync(intero).isFile() ? intero : ''

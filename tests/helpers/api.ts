@@ -25,7 +25,6 @@ export {
   foglie,
   linkDiretto,
   registraTutte,
-  router,
   TUTTE,
 } from '../../contract/registro.js'
 // Il catalogo per il modello, che una prova confronta col file su disco.
@@ -61,6 +60,11 @@ export { impagina, scrivi } from '../../contract/presentation.js'
 // Chi porta il registro su una pagina: senza guscio non c'è nessuno iscritto,
 // e si provano le due risposte.
 export { registraNavigatore } from '../../core/azioni/view.js'
+// Gli account Microsoft con un portachiavi finto: le letture di OneDrive
+// rispondono da un Graph finto (`tests/api/reads.test.mjs`).
+export { registraPortachiaviMicrosoft } from '../../core/dati/microsoft.js'
+// Gli account sincronizzati fissati a mano: il registro di Windows di chi prova non conta.
+export { fissaOneDriveLocali } from '../../core/dati/oneDriveLocale.js'
 export { azioniSottoContratto } from '../../contract/bridge.js'
 export { VERSIONE_API, ErroreApi, errore, definisci } from '../../contract/contract.js'
 export { STATI_LEZIONE } from '../../contract/procedure/ore/common.js'

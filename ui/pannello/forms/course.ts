@@ -13,12 +13,13 @@ import { notifica } from '../components/notifications.js'
 import { h } from '../dom.js'
 import { azione, invia } from '../bridge.js'
 import {
-  aggiorna,
   classePerId,
   classiVisibili,
   corsoPerId,
   materiaPerId,
+  postoCorrente,
   stato,
+  vai,
 } from '../state.js'
 import { coloreDelCorso, titoloCorso } from '../../../core/dominio/courses.js'
 
@@ -46,7 +47,7 @@ import { testi } from './course.testi.js'
  * materia si creano da qui. Su un corso esistente classe e materia non si
  * toccano: porterebbero lezioni e voti addosso a un'altra classe.
  */
-export interface OpzioniModuloCorso {
+interface OpzioniModuloCorso {
   corso?: Corso
   /** La classe da proporre a un corso nuovo. */
   classeId?: string
@@ -303,7 +304,7 @@ export function moduloCorso (opzioni: OpzioniModuloCorso = {}): void {
         esitoOrario.ok ? 'successo' : 'avviso',
       )
       if (opzioni.dopo) opzioni.dopo(corsoId)
-      else aggiorna({ vista: 'corsi', corsoId })
+      else vai({ pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: corsoId } })
     },
     azioniSecondarie: (contesto) =>
       modifica
@@ -312,7 +313,14 @@ export function moduloCorso (opzioni: OpzioniModuloCorso = {}): void {
             chiedi: { genere: 'corso', id: corso!.id },
             azione: { tipo: 'corso.elimina', corsoId: corso!.id },
             fatto: t.tolto,
-            poi: () => aggiorna({ corsoId: null }),
+            poi: () => {
+              // Il corso tolto non resta scelto; nella sua pagina si resta, senza di lui.
+              const qui = postoCorrente()
+              vai(
+                qui.soggetto?.tipo === 'corso' ? { pagina: qui.pagina } : qui,
+                { contesto: { corsoId: null }, elementoChiesto: false },
+              )
+            },
           })
         : null,
   })

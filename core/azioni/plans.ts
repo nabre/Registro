@@ -5,7 +5,8 @@ import * as apparato from 'apparato'
 import { archivia, archiviaCopia, percorsoRisorsaPiano, pulisciCopiaOrfana, rinominaArchivio } from '../dati/filing.js'
 import { contenutoDi } from '../dati/store.js'
 import { formattaData, istanteAdesso } from '../dominio/dates.js'
-import { creaPiano, creaRisorsa, duplicaPiano } from '../dominio/factories.js'
+import { creaRisorsa, duplicaPiano } from '../dominio/factories.js'
+import { generaPianoPerLezione } from '../dominio/plans.js'
 import { classeDelCorso, corsoPerId } from '../dominio/courses.js'
 import type { Attivita, PianoLezione, Registro, Risorsa } from '../dominio/models.js'
 import { validaRisorsa, validaPiano } from '../dominio/validation.js'
@@ -114,7 +115,10 @@ export const piani = {
     return contesto.elimina({ genere: 'piano', id: azione.pianoId })
   },
 
-  /** Il piano di una lezione, vuoto o copiato, legato al corso dell'ora. */
+  /**
+   * Il piano di una lezione, legato al corso dell'ora: copiato da un altro, o
+   * generato con obiettivi e scaletta calibrati sulle UD dell'ora.
+   */
   'piano.perLezione': async (contesto, azione) => {
     const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
     const t = testi()
@@ -134,7 +138,13 @@ export const piani = {
       : null
     if (azione.daPianoId && !origine) return rifiuta(t.origineSparita)
 
-    const piano = origine ? duplicaPiano(origine) : creaPiano()
+    const materia = contesto.registro.materie.find((m) => m.id === corso.materiaId)
+    const piano = origine
+      ? duplicaPiano(origine)
+      : generaPianoPerLezione(lezione, corso, {
+          materiaNome: materia?.nome ?? corso.titolo,
+          minutiUd: contesto.registro.impostazioni.minutiUd,
+        })
     piano.corsoId = corso.id
     // La copia ha file suoi, come in `piano.duplica`.
     if (origine && !(await ricopiaFile(contesto, piano))) return documentoCambiato()
@@ -176,11 +186,17 @@ export const piani = {
   },
 
   'piano.assegna': (contesto, azione) => {
-    if (azione.pianoId && !contesto.registro.piani.some((p) => p.id === azione.pianoId)) {
-      return rifiuta(comuni().nonTrovato.piano)
+    const piano = azione.pianoId
+      ? contesto.registro.piani.find((p) => p.id === azione.pianoId)
+      : null
+    if (azione.pianoId && !piano) return rifiuta(comuni().nonTrovato.piano)
+    const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
+    // Il piano di un altro corso sparirebbe dall'elenco dei piani di quell'ora e
+    // ne porterebbe la materia; uno senza corso (bozza) si aggancia a qualunque.
+    if (piano?.corsoId && lezione && piano.corsoId !== lezione.corsoId) {
+      return rifiuta(testi().altroCorso)
     }
     // Lo stesso piano di prima non è un cambio: l'avanzamento resta.
-    const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
     if (lezione && (lezione.pianoId ?? null) === azione.pianoId) return invariato
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       lezione.pianoId = azione.pianoId
@@ -210,11 +226,19 @@ export const piani = {
       if (!esito.valido) return { ok: false, errori: esito.errori }
     } else {
       const immagine = azione.genere === 'immagine'
-      const scelto = await scegliUnFile({
-        titolo: immagine ? t.titoloImmagine : t.titoloFile,
-        tasto: immagine ? t.tastoImmagine : t.tastoFile,
-        filtri: immagine ? { [parole().immagini]: ESTENSIONI_IMMAGINE } : undefined,
-      })
+      let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+      if (azione.file) {
+        const uri = apparato.Uri.file(azione.file)
+        const nome = uri.path.split('/').pop() ?? 'file'
+        const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+        scelto = { nome, uri, estensione }
+      } else {
+        scelto = await scegliUnFile({
+          titolo: immagine ? t.titoloImmagine : t.titoloFile,
+          tasto: immagine ? t.tastoImmagine : t.tastoFile,
+          filtri: immagine ? { [parole().immagini]: ESTENSIONI_IMMAGINE } : undefined,
+        })
+      }
       if (!scelto) return fatto
       // Durante il dialogo può essersi aperto un altro anno.
       if (!contesto.ancoraQui()) return documentoCambiato()

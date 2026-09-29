@@ -2,36 +2,35 @@
 // saprebbe mostrare, quindi si legge e si disegna. Il testo arriva dallo stesso
 // indirizzo `registro://` dei PDF, e le celle le ricava `leggiCsv`, la stessa
 // grammatica di chi l'ha scritto. Si legge una volta per versione del file,
-// non a ogni ridisegno.
+// non a ogni ridisegno, e mai dentro il disegno (`risorse.ts`).
 
 import { leggiCsv } from '../../../../core/dominio/csv.js'
 import { tabella } from '../../components/table.js'
 import { h, type Figlio } from '../../dom.js'
-import { aggiorna } from '../../state.js'
+import { risorse } from '../../risorse.js'
 import { quieto } from '../../components/base.js'
 import { testi } from './csv.testi.js'
 
-/** Il foglio letto, con la chiave della versione da cui è venuto. */
-interface Letto {
-  chiave: string
-  righe: string[][] | null
-  errore: string | null
-}
-
-let letto: Letto | null = null
-/** La chiave che si sta leggendo adesso: non se ne chiedono due uguali. */
-let inCorso: string | null = null
+/** I fogli letti, per versione del file. */
+const fogli = risorse<string[][]>(4)
 
 /**
  * La tabella di un CSV, o il suo posto mentre lo si legge. `chiave` è quella
- * del telaio dei PDF: cambia quando il file viene rifatto.
+ * del lettore dei PDF: cambia quando il file viene rifatto. `isola` è quella
+ * che la mostra: a lettura finita si rifà lei sola, non la pagina.
  */
-export function anteprimaCsv (opzioni: { indirizzo: string, chiave: string }): Figlio {
-  if (letto?.chiave !== opzioni.chiave) {
-    chiedi(opzioni.indirizzo, opzioni.chiave)
+export function anteprimaCsv (opzioni: {
+  indirizzo: string
+  chiave: string
+  isola: string
+}): Figlio {
+  const letto = fogli.leggi(opzioni.chiave, () => leggi(opzioni.indirizzo), {
+    isola: opzioni.isola,
+  })
+  if (letto.stato === 'vuoto' || letto.stato === 'inVolo') {
     return riquadro(quieto(testi().leggendo))
   }
-  if (letto.errore !== null) {
+  if (letto.stato === 'errore') {
     return riquadro(
       h(
         'p',
@@ -41,7 +40,7 @@ export function anteprimaCsv (opzioni: { indirizzo: string, chiave: string }): F
     )
   }
 
-  const { titolo, intestazione, corpo } = scomponi(letto.righe ?? [])
+  const { titolo, intestazione, corpo } = scomponi(letto.valore)
   if (intestazione.length === 0) {
     return riquadro(quieto(testi().vuoto))
   }
@@ -52,6 +51,8 @@ export function anteprimaCsv (opzioni: { indirizzo: string, chiave: string }): F
     tabella({
       variante: 'csv',
       griglia: true,
+      // Per versione del file: un foglio rifatto riparte dall'alto.
+      scorrimento: `csv:${opzioni.chiave}`, // testo-fisso: chiave di scorrimento
       intestazione: pareggia(intestazione, colonne).map((cella) => h('th', null, cella)),
       righe: corpo.map((riga) =>
         h(
@@ -71,26 +72,11 @@ function riquadro (...dentro: Figlio[]): HTMLElement {
   return h('div', { class: 'documenti__csv' }, ...dentro)
 }
 
-/** Chiede il foglio, una volta per versione; a lettura finita la vista si ridisegna. */
-function chiedi (indirizzo: string, chiave: string): void {
-  if (inCorso === chiave) return
-  inCorso = chiave
-  void (async () => {
-    try {
-      const risposta = await fetch(indirizzo)
-      if (!risposta.ok) throw new Error(testi().risposta(risposta.status))
-      letto = { chiave, righe: leggiCsv(await risposta.text()), errore: null }
-    } catch (errore) {
-      letto = {
-        chiave,
-        righe: null,
-        errore: errore instanceof Error ? errore.message : String(errore),
-      }
-    } finally {
-      inCorso = null
-      aggiorna({})
-    }
-  })()
+/** Legge il foglio dall'indirizzo `registro://` e lo divide in celle. */
+async function leggi (indirizzo: string): Promise<string[][]> {
+  const risposta = await fetch(indirizzo)
+  if (!risposta.ok) throw new Error(testi().risposta(risposta.status))
+  return leggiCsv(await risposta.text())
 }
 
 /**

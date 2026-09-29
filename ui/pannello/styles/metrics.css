@@ -108,7 +108,8 @@
    * l'ordine nel DOM. Il menu sta sopra le notifiche (è la cosa che si sta
    * usando, e una notifica sopra gli ruberebbe i clic); il fumetto di un
    * suggerimento sopra il menu, perché si apre dentro qualunque cosa; il filo
-   * di lavoro sopra tutto, sono due pixel in cima.
+   * di lavoro sopra tutto, sono due pixel in cima; sopra ancora solo il
+   * filetto della finestra, che non riceve clic.
    *
    * I piani da 1 a 6 sono locali (valgono fra fratelli) e restano nei fogli,
    * tranne i due ripetuti in ogni tabella, qui sotto.
@@ -121,6 +122,7 @@
   --piano-menu: 70;
   --piano-suggerimento: 80;
   --piano-filo: 90;
+  --piano-cornice: 95;
 
   /* --------------------------------------------------- quel che non è pagina
    *

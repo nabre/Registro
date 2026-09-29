@@ -63,6 +63,15 @@ const it = {
   salva: {
     titolo: 'Scrive una classe intera con il suo elenco di iscritti',
   },
+  modifica: {
+    titolo: 'Modifica uno o più campi di una classe senza toccare gli altri',
+    classeId: 'La classe da modificare',
+    nome: 'Nuovo nome o sigla della classe',
+    colore: 'Colore della classe nel calendario, in esadecimale',
+    note: 'Note o promemoria sulla classe',
+    docenteDiClasse: 'Se chi tiene il registro ne è docente di classe',
+    archiviata: 'Vero per archiviare la classe; di norma resta fuori dall’elenco attivo',
+  },
 }
 
 export const testi = catalogo(it, {
@@ -132,6 +141,16 @@ export const testi = catalogo(it, {
     salva: {
       titolo: 'Schreibt eine ganze Klasse mit ihrer Liste der Eingeschriebenen',
     },
+    modifica: {
+      titolo: 'Ändert ein oder mehrere Felder einer Klasse, ohne die anderen zu berühren',
+      classeId: 'Die zu ändernde Klasse',
+      nome: 'Neuer Name oder Bezeichnung der Klasse',
+      colore: 'Farbe der Klasse im Kalender, hexadezimal',
+      note: 'Notizen oder Hinweise zur Klasse',
+      docenteDiClasse: 'Ob die Person, die das Klassenbuch führt, ihre Klassenlehrperson ist',
+      archiviata:
+        'Wahr, um die Klasse zu archivieren; normalerweise bleibt sie aus der aktiven Liste',
+    },
   },
   fr: {
     comune: {
@@ -198,6 +217,16 @@ export const testi = catalogo(it, {
     salva: {
       titolo: 'Écrit une classe entière avec sa liste d’inscrits',
     },
+    modifica: {
+      titolo: 'Modifie un ou plusieurs champs d’une classe sans toucher aux autres',
+      classeId: 'La classe à modifier',
+      nome: 'Nouveau nom ou code de la classe',
+      colore: 'Couleur de la classe dans le calendrier, en hexadécimal',
+      note: 'Notes ou remarques sur la classe',
+      docenteDiClasse: 'Si la personne qui tient le registre en est maître de classe',
+      archiviata:
+        'Vrai pour archiver la classe ; en principe elle reste hors de la liste active',
+    },
   },
   en: {
     comune: {
@@ -259,6 +288,15 @@ export const testi = catalogo(it, {
     },
     salva: {
       titolo: 'Writes a whole class with its list of enrolled people',
+    },
+    modifica: {
+      titolo: 'Modifies one or more fields of a class without touching the others',
+      classeId: 'The class to modify',
+      nome: 'New name or code of the class',
+      colore: 'Class colour in the calendar, in hexadecimal',
+      note: 'Notes or reminders about the class',
+      docenteDiClasse: 'Whether the person keeping the register is its class teacher',
+      archiviata: 'True to archive the class; normally it stays off the active list',
     },
   },
 })

@@ -1,4 +1,6 @@
 import { registro } from '../../../core/azioni/register.js'
+import { motivoSettimanaRifiutata } from '../../../core/dominio/years.js'
+import { errore } from '../../contract.js'
 import { inoltra, scrittura } from '../../core.js'
 import { identificatore, iso, nullabile, oggetto, testo } from '../../schemas.js'
 import { esigiAnno } from '../common/register.js'
@@ -21,7 +23,11 @@ export const procedura = scrittura({
     lettera: nullabile(testo({ aiuto: () => t().lettera })),
   }),
   esegui: (ambito, ingresso) => {
-    esigiAnno(ambito, ingresso.annoId)
+    const anno = esigiAnno(ambito, ingresso.annoId)
+    // Una lettera storta o un giorno fuori dall'anno si dicono: l'azione li
+    // scarterebbe in silenzio rispondendo «fatto».
+    const motivo = motivoSettimanaRifiutata(anno, ingresso.giorno, ingresso.lettera)
+    if (motivo) throw errore.rifiuta(motivo)
     return inoltra(registro, 'anno.settimana')(ambito, ingresso)
   },
 })

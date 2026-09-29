@@ -7,7 +7,7 @@ import '../../core/i18n/page.js'
 import './styles/projection.css'
 
 import { graficoNote } from './components/notes.js'
-import { h, rimpiazza, type Figlio } from './dom.js'
+import { aggiornaElemento, h, type Figlio } from './dom.js'
 import type {
   AnnoProiettato,
   AppelloProiettato,
@@ -63,7 +63,8 @@ function sezioneCon (classe: string | null, titolo: string, ...figli: Figlio[]):
     'section',
     { class: ['blocco', classe] },
     h('h2', { class: 'blocco__titolo' }, titolo),
-    h('div', { class: 'blocco__corpo' }, ...figli),
+    // Telaio: vedi `telaioDelBlocco`.
+    h('div', { class: 'blocco__corpo', dataset: { telaio: 'corpo' } }, ...figli),
   )
 }
 
@@ -96,7 +97,8 @@ function risorsa (voce: RisorsaProiettata): Figlio {
     return h(
       'figure',
       { class: 'figura' },
-      h('img', { class: 'figura__immagine', src, alt: voce.titolo }),
+      // Tenuta fra un messaggio e l'altro: ricreata, l'immagine lampeggerebbe.
+      h('img', { class: 'figura__immagine', src, alt: voce.titolo, dataset: { tieni: src } }),
       h('figcaption', { class: 'figura__nome' }, voce.titolo),
     )
   }
@@ -599,7 +601,7 @@ function appello (dati: AppelloProiettato): Figlio {
     testi().appello(dati.presenti, dati.totale),
     h(
       'div',
-      { class: 'tabella-scorrevole' },
+      { class: 'tabella-scorrevole', dataset: { telaio: 'tabella' } },
       h(
         'table',
         { class: 'appello' },
@@ -671,6 +673,20 @@ function strisciaSchede (schede: ContenutoProiezione['schede']): Figlio {
   )
 }
 
+/**
+ * Il blocco aperto è la scatola che scorre: fra due messaggi sulla stessa
+ * scheda della stessa ora resta lo stesso nodo (`aggiornaElemento`), e una
+ * scaletta lunga non torna in cima a ogni presenza segnata. Cambiando scheda o
+ * ora la chiave cambia, e si riparte dall'alto.
+ */
+function telaioDelBlocco (blocco: HTMLElement, dati: ContenutoProiezione): void {
+  const quale = (['argomenti', 'scaletta', 'appello', 'consegne', 'calendario', 'valutazioni', 'documenti'] as const)
+    .find((nome) => dati[nome])
+  blocco.dataset.telaio = 'blocco'
+  // testo-fisso: una chiave, non un testo
+  blocco.dataset.scorrimento = `${quale ?? ''}|${dati.intestazione.data ?? ''}|${dati.intestazione.orario ?? ''}`
+}
+
 function pagina (): Figlio {
   const t = testi()
   if (!contenuto) return segnaposto(t.registro, t.inAttesa)
@@ -693,9 +709,11 @@ function pagina (): Figlio {
     (contenuto.valutazioni ? valutazioni(contenuto.valutazioni) : null) ??
     (contenuto.documenti ? documenti(contenuto.documenti) : null)
 
+  if (aperto instanceof HTMLElement) telaioDelBlocco(aperto, contenuto)
+
   return h(
     'div',
-    { class: 'foglio' },
+    { class: 'foglio', dataset: { telaio: 'foglio' } },
     intestazione(contenuto.intestazione),
     strisciaSchede(contenuto.schede),
     aperto ??
@@ -708,6 +726,9 @@ function pagina (): Figlio {
 
 let disegnoProgrammato = false
 
+/** L'ultimo messaggio disegnato: lo stesso contenuto spinto di nuovo non ridisegna. */
+let ultimoDisegnato = ''
+
 function disegna (): void {
   if (!radice || disegnoProgrammato) return
   disegnoProgrammato = true
@@ -716,13 +737,17 @@ function disegna (): void {
     // Le misure stanno su una classe della radice: ridefiniscono corpo e spazi, e
     // la pagina si stringe tutta insieme.
     radice?.classList.toggle('proiezione--compatta', contenuto?.compatta !== false)
-    rimpiazza(radice, pagina())
+    // Non `rimpiazza`: i nodi di telaio e le immagini tenute restano dove sono.
+    aggiornaElemento(radice, pagina())
   })
 }
 
 window.addEventListener('message', (evento: MessageEvent<MessaggioProiezione>) => {
   const messaggio = evento.data
   if (!messaggio || messaggio.tipo !== 'proiezione') return
+  const firma = JSON.stringify([messaggio.contenuto, messaggio.radiceDati])
+  if (firma === ultimoDisegnato) return
+  ultimoDisegnato = firma
   contenuto = messaggio.contenuto
   radiceDati = messaggio.radiceDati
   disegna()

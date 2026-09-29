@@ -9,7 +9,7 @@ export const procedura = scrittura({
   titolo: () => testi().elimina.titolo,
   azione: 'allievo.elimina',
   idempotente: true,
-  collezioni: ['classi', 'lezioni', 'valutazioni', 'consegne', 'check', 'fascicoli'],
+  collezioni: ['classi', 'lezioni', 'valutazioni', 'consegne', 'check', 'fascicoli', 'smistamenti'],
   ingresso: oggetto({
     classeId: identificatore(),
     allievoId: identificatore(),

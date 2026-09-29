@@ -31,7 +31,14 @@ import { h, rimpiazza, type Figlio } from '../dom.js'
 import { corsoPendenza, pendenza } from '../components/pending.js'
 import { moduloConsegna } from '../forms.js'
 import { azione } from '../bridge.js'
-import { classeDelCorsoId, classeDiLezione, iscriviti, nomeCorso, stato } from '../state.js'
+import {
+  classeDelCorsoId,
+  classeDiLezione,
+  classiDiCuiSonoDocente,
+  iscriviti,
+  nomeCorso,
+  stato,
+} from '../state.js'
 import { testi } from './assignments.testi.js'
 
 /** Con che icona si riconosce ogni tipo nell'elenco; il nome sta nel catalogo. */
@@ -165,7 +172,7 @@ function inOrdine (consegna: Consegna, destinatari: string[]): string[] {
  * Le spunte partono subito, una per una: chiudere a metà non perde niente. Il
  * contenuto si ridisegna a ogni spunta perché i conti seguano.
  */
-function moduloSpunta (consegnaId: string, opzioni: { lezione?: Lezione } = {}): void {
+export function moduloSpunta (consegnaId: string, opzioni: { lezione?: Lezione } = {}): void {
   const corpo = h('div', { class: 'modulo ritiro' })
   const t = testi()
 
@@ -196,6 +203,9 @@ function moduloSpunta (consegnaId: string, opzioni: { lezione?: Lezione } = {}):
         'div',
         { class: 'ritiro__testa' },
         pastiglia(t.tipi[consegna.tipo], 'quiete', SIMBOLI_TIPO[consegna.tipo]),
+        consegna.docenteDiClasse
+          ? pastiglia(t.ambitoClasse, 'informativo', 'classi')
+          : null,
         consegna.a === 'docente'
           ? pastiglia(t.toccaAMe, 'informativo', 'utente')
           : consegna.a === 'allievi'
@@ -271,7 +281,27 @@ function moduloSpunta (consegnaId: string, opzioni: { lezione?: Lezione } = {}):
     azioniSecondarie: (contesto) => {
       const consegna = stato.registro.consegne.find((c) => c.id === consegnaId)
       if (!consegna) return null
+      const classe = classeDi(consegna)
+      const puoCambiare = Boolean(
+        classe && classiDiCuiSonoDocente().some((c) => c.id === classe.id),
+      )
       return [
+        puoCambiare
+          ? pulsante({
+              testo: consegna.docenteDiClasse ? t.spostaACorso : t.spostaAClasse,
+              simbolo: 'scambio',
+              variante: 'fantasma',
+              al: async () => {
+                await eseguiOAvvisa({
+                  tipo: 'consegna.salva',
+                  consegna: {
+                    ...consegna,
+                    docenteDiClasse: !consegna.docenteDiClasse,
+                  },
+                })
+              },
+            })
+          : null,
         // «Spunta tutti»: scrive una spunta per nome, non un «fatta» generico.
         pulsante({
           testo: t.spuntaTutti,
@@ -357,6 +387,9 @@ function rigaConsegna (
   opzioni: { lezione?: Lezione, mostraCorso?: boolean } = {},
 ): HTMLElement {
   const classe = classeDi(consegna)
+  const eDocenteDiClasse = Boolean(
+    classe && classiDiCuiSonoDocente().some((c) => c.id === classe.id),
+  )
   const avanzamento = avanzamentoConsegna(consegna, classe)
   const scadenza = scadenzaConsegna(stato.registro, consegna)
   const data = dataConsegna(stato.registro, consegna)
@@ -375,6 +408,9 @@ function rigaConsegna (
       ),
       h('strong', { class: 'consegna__testo' }, consegna.testo),
       opzioni.mostraCorso ? corsoPendenza('consegna', nomeCorso(consegna.corsoId)) : null,
+      consegna.docenteDiClasse
+        ? pastiglia(t.ambitoClasse, 'informativo', 'classi')
+        : null,
       consegna.documento !== undefined
         ? pastiglia(consegna.documento, 'quiete', 'documento')
         : null,
@@ -406,6 +442,22 @@ function rigaConsegna (
         : consegna.a === 'allievi'
           ? pastiglia(quanti(consegna.allieviIds.length, L.pif), 'informativo', 'utente')
           : pastiglia(L.classe.singolare, 'quiete', 'classi'),
+      eDocenteDiClasse
+        ? pulsante({
+            simbolo: 'scambio',
+            variante: 'fantasma',
+            titolo: consegna.docenteDiClasse ? t.spostaACorso : t.spostaAClasse,
+            al: async () => {
+              await eseguiOAvvisa({
+                tipo: 'consegna.salva',
+                consegna: {
+                  ...consegna,
+                  docenteDiClasse: !consegna.docenteDiClasse,
+                },
+              })
+            },
+          })
+        : null,
       // Spunta chi manca, o toglie le spunte senza documento (una scrittura per
       // nome); quelle con un foglio raccolto restano.
       pulsante({

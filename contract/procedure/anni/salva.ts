@@ -26,7 +26,7 @@ export const procedura = scrittura({
   titolo: () => testi().salva.titolo,
   azione: 'anno.salva',
   idempotente: true,
-  collezioni: ['registro'],
+  collezioni: ['registro', 'lezioni'],
   ingresso: oggetto({
     anno: entita<AnnoScolastico>({ cosa: () => Uno(lessico().annoScolastico), valida: annoValido }),
   }),

@@ -25,6 +25,12 @@ const it = {
       titolo: 'Archivia in blocco tutte le proposte che hanno già un nome',
     },
   },
+  cassetta: {
+    assorbi: {
+      titolo: 'Assorbe un file PDF dalla cassetta di arrivo nel documento corrente',
+      percorso: 'Percorso del file PDF da assorbire',
+    },
+  },
   firme: {
     assegna: {
       titolo: 'Archivia le pagine scelte come foglio firme di una richiesta',
@@ -136,6 +142,12 @@ export const testi = catalogo(it, {
     bozza: {
       conferma: {
         titolo: 'Legt alle Vorschläge, die schon einen Namen haben, auf einmal ab',
+      },
+    },
+    cassetta: {
+      assorbi: {
+        titolo: 'Übernimmt eine PDF-Datei aus dem Eingangsordner in das aktuelle Dokument',
+        percorso: 'Pfad der zu übernehmenden PDF-Datei',
       },
     },
     firme: {
@@ -258,6 +270,12 @@ export const testi = catalogo(it, {
         titolo: 'Classe en bloc toutes les propositions qui ont déjà un nom',
       },
     },
+    cassetta: {
+      assorbi: {
+        titolo: 'Absorbe un fichier PDF de la boîte d’arrivée dans le document courant',
+        percorso: 'Chemin du fichier PDF à absorber',
+      },
+    },
     firme: {
       assegna: {
         titolo: 'Classe les pages choisies comme feuille de signatures d’une demande',
@@ -377,6 +395,12 @@ export const testi = catalogo(it, {
     bozza: {
       conferma: {
         titolo: 'Files in one go all the proposals that already have a name',
+      },
+    },
+    cassetta: {
+      assorbi: {
+        titolo: 'Absorbs a PDF file from the inbox into the current document',
+        percorso: 'Path of the PDF file to absorb',
       },
     },
     firme: {

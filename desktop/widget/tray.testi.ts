@@ -1,6 +1,6 @@
 // I testi di `tray.ts`: le voci fisse del menu dell'icona accanto all'orologio.
 // Quel che dice delle ore e dei corsi sta in `domain/tray.testi.ts`; il marchio
-// «Regiclass» non si traduce.
+// «Regiklass» non si traduce.
 
 import { catalogo } from '../../core/i18n/index.js'
 

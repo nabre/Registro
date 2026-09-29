@@ -15,10 +15,11 @@ import { corniceDocumento } from '../components/frame.js'
 import { dimentica } from '../components/thumbnails.js'
 import { conferma } from '../components/modal.js'
 import { h, type Figlio } from '../dom.js'
+import { isola } from '../isole.js'
 import { azione } from '../bridge.js'
 import { aggiorna, stato, uriDato } from '../state.js'
 
-import { sfoglioSmistamento } from './pageBrowser.js'
+import { ISOLA_LETTURA, sfoglioSmistamento } from './pageBrowser.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './archive.testi.js'
 
@@ -318,8 +319,22 @@ interface OpzioniCorniceFoglio {
  * Il foglio aperto: testata con i suoi gesti, e sotto il documento. Telaio
  * comune all'archivio documentale e ai rapporti di assenza; cambiano le parole
  * e i gesti sul registro.
+ *
+ * Un PDF da dividere mostra la lettura delle scansioni (i gesti in testa, la
+ * coda e le pagine in lettura sotto): la cornice intera è allora l'isola che
+ * `main.ts` rifà a ogni pagina letta. `display: contents` perché il contenitore
+ * dell'isola non si metta fra la cornice e la sua colonna.
  */
 export function corniceFoglio (o: OpzioniCorniceFoglio): HTMLElement {
+  if (!o.daDividere) return disegnaCornice(o)
+  return isola(ISOLA_LETTURA, () => disegnaCornice(o), {
+    style: 'display: contents',
+    // testo-fisso: la chiave del telaio
+    dataset: { telaio: 'isola-cornice' },
+  })
+}
+
+function disegnaCornice (o: OpzioniCorniceFoglio): HTMLElement {
   const foglio = o.foglio
   const indirizzo = uriDato(foglio.file)
   const quando = giorno(foglio.aggiuntoIl)
@@ -331,7 +346,9 @@ export function corniceFoglio (o: OpzioniCorniceFoglio): HTMLElement {
 
   return h(
     'div',
-    { class: 'archivio__anteprima' },
+    // Telaio: una pagina letta rifà l'isola, e lo sfoglio sotto resta lo stesso
+    // (i riquadri, il trascinamento in corso). testo-fisso: la chiave del telaio
+    { class: 'archivio__anteprima', dataset: { telaio: 'cornice' } },
     h(
       'header',
       { class: 'archivio__testa' },
@@ -386,7 +403,7 @@ export function corniceFoglio (o: OpzioniCorniceFoglio): HTMLElement {
             // Revisione nella chiave, come nella cornice: un PDF riscritto sta allo stesso
             // percorso, e le fotografie sarebbero quelle vecchie.
             chiave: `sfoglio|${foglio.file}|${foglio.misura}|${foglio.revisione}`,
-            coda: o.coda(),
+            coda: o.coda,
           })
         : siGuardaQui(foglio.file)
           ? corniceDocumento({
@@ -464,6 +481,8 @@ export function corniceArchivio (
  * Il telaio della pagina: i riquadri, e accanto il foglio aperto. Due colonne
  * solo con un foglio aperto. I riquadri stanno sempre nella stessa barra, che
  * è la scatola che scorre: aprire o chiudere un foglio non cambia lo scorrimento.
+ * Tutti e tre sono nodi di telaio (`data-telaio`): con la catena della vista la
+ * barra resta la stessa fra due disegni, e così lo sfoglio nella cornice.
  */
 export function pannelloArchivio (
   riquadri: Figlio,
@@ -475,16 +494,18 @@ export function pannelloArchivio (
    */
   chiave?: string,
 ): HTMLElement {
+  // testo-fisso: chiavi del telaio
+  const telaio = chiave ?? 'archivio'
   const barra = h(
     'div',
-    { class: 'archivio__barra', ...(chiave ? { dataset: { scorrimento: chiave } } : {}) },
+    { class: 'archivio__barra', dataset: { scorrimento: chiave, telaio: 'barra' } },
     riquadri,
   )
-  if (!anteprima) return h('div', { class: 'archivio' }, barra)
+  if (!anteprima) return h('div', { class: 'archivio', dataset: { telaio } }, barra)
   return h(
     'div',
-    { class: 'archivio archivio--con-foglio' },
+    { class: 'archivio archivio--con-foglio', dataset: { telaio } },
     barra,
-    h('main', { class: 'archivio__corpo' }, anteprima),
+    h('main', { class: 'archivio__corpo', dataset: { telaio: 'corpo' } }, anteprima),
   )
 }

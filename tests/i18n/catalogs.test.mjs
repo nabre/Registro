@@ -55,10 +55,35 @@ function forma (valore) {
 }
 
 /**
+ * Dove due forme divergono, come `percorso: trovato ≠ atteso`. Un solo
+ * `deepEqual` su tutti i cataloghi darebbe un diff illeggibile: qui ogni
+ * differenza dice il suo posto.
+ */
+function differenzeDiForma (trovata, attesa, percorso = '', raccolte = []) {
+  const qui = percorso || '(radice)'
+  const genere = (v) => (Array.isArray(v) ? 'elenco' : v && typeof v === 'object' ? 'oggetto' : v)
+  if (genere(trovata) !== genere(attesa)) {
+    raccolte.push(`${qui}: ${genere(trovata)} ≠ ${genere(attesa)}`)
+    return raccolte
+  }
+  if (typeof attesa !== 'object' || attesa === null) return raccolte
+  const chiavi = new Set([...Object.keys(attesa), ...Object.keys(trovata)])
+  for (const chiave of chiavi) {
+    const sotto = percorso ? `${percorso}.${chiave}` : chiave
+    if (!(chiave in trovata)) raccolte.push(`${sotto}: manca`)
+    else if (!(chiave in attesa)) raccolte.push(`${sotto}: in più`)
+    else differenzeDiForma(trovata[chiave], attesa[chiave], sotto, raccolte)
+  }
+  return raccolte
+}
+
+/**
  * Parole che esistono solo in italiano. Due diverse nella stessa frase di una
  * traduzione vogliono dire che la frase è rimasta com'era.
  */
-const SOLO_ITALIANO = /\b(della|delle|degli|dello|nella|nelle|negli|questo|questa|sono|anche|perché|più|già|dell’|all’|sull’|nell’)\b/giu
+// I confini sono lettere Unicode e non `\b`, che non vede «à» ed «é»: con `\b`
+// «già», «più» e «perché» non si trovavano mai. Le forme elise vanno attaccate.
+const SOLO_ITALIANO = /(?<!\p{L})(?:(?:della|delle|degli|dello|nella|nelle|negli|questo|questa|sono|anche|perché|più|già)(?!\p{L})|dell’|all’|sull’|nell’)/giu
 
 /** Quante parole solo-italiane diverse ci sono nel testo. */
 function paroleItaliane (testo) {
@@ -132,32 +157,42 @@ describe('i cataloghi', () => {
     assert.ok(tutti.length > 0)
   })
 
-  for (const { dove, catalogo } of tutti) {
-    describe(dove, () => {
-      const italiano = catalogo.in('it')
+  // Tre prove sole, su tutti i cataloghi e tutte le lingue: una per ogni cosa
+  // che si controlla. Ogni colpevole dice catalogo, lingua e percorso.
+  const traduzioni = tutti.flatMap(({ dove, catalogo }) => {
+    const italiano = catalogo.in('it')
+    return LINGUE.filter((l) => l !== 'it')
+      .map((altra) => ({ dove: `${dove} › ${altra}`, italiano, tradotto: catalogo.in(altra) }))
+  })
 
-      for (const altra of LINGUE.filter((l) => l !== 'it')) {
-        const tradotto = catalogo.in(altra)
+  it('ogni traduzione ha la stessa forma dell’italiano', () => {
+    const colpevoli = []
+    for (const { dove, italiano, tradotto } of traduzioni) {
+      colpevoli.push(...differenzeDiForma(forma(tradotto), forma(italiano)).map((d) => `${dove} › ${d}`))
+    }
+    assert.deepEqual(colpevoli, [])
+  })
 
-        it(`${altra}: ha la stessa forma dell’italiano`, () => {
-          assert.deepEqual(forma(tradotto), forma(italiano))
-        })
-
-        it(`${altra}: nessun testo vuoto`, () => {
-          const vuoti = foglie(tradotto).filter((f) => f.testo.trim() === '').map((f) => f.percorso)
-          const vuotiInItaliano = new Set(foglie(italiano).filter((f) => f.testo.trim() === '').map((f) => f.percorso))
-          assert.deepEqual(vuoti.filter((p) => !vuotiInItaliano.has(p)), [])
-        })
-
-        it(`${altra}: nessuna frase rimasta in italiano`, () => {
-          const rimaste = foglie(tradotto)
-            .filter((f) => paroleItaliane(f.testo) >= 2)
-            .map((f) => `${f.percorso}: ${f.testo.slice(0, 80)}`)
-          assert.deepEqual(rimaste, [])
-        })
+  it('nessuna traduzione ha un testo vuoto', () => {
+    const colpevoli = []
+    for (const { dove, italiano, tradotto } of traduzioni) {
+      const vuotiInItaliano = new Set(foglie(italiano).filter((f) => f.testo.trim() === '').map((f) => f.percorso))
+      for (const f of foglie(tradotto)) {
+        if (f.testo.trim() === '' && !vuotiInItaliano.has(f.percorso)) colpevoli.push(`${dove} › ${f.percorso}: vuoto`)
       }
-    })
-  }
+    }
+    assert.deepEqual(colpevoli, [])
+  })
+
+  it('nessuna traduzione ha una frase rimasta in italiano', () => {
+    const colpevoli = []
+    for (const { dove, tradotto } of traduzioni) {
+      for (const f of foglie(tradotto)) {
+        if (paroleItaliane(f.testo) >= 2) colpevoli.push(`${dove} › ${f.percorso}: ${f.testo.slice(0, 80)}`)
+      }
+    }
+    assert.deepEqual(colpevoli, [])
+  })
 })
 
 describe('le impostazioni', () => {

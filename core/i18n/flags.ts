@@ -69,7 +69,7 @@ const BANDIERE: Readonly<Record<Lingua, Disegno>> = {
  * La bandiera di una lingua. Riempie il riquadro tagliando i bordi (`slice`),
  * così proporzioni diverse danno riquadri uguali.
  */
-export function bandiera (lingua: Lingua, documento: Document = document): SVGSVGElement {
+function bandiera (lingua: Lingua, documento: Document = document): SVGSVGElement {
   const { viewBox, forme } = BANDIERE[lingua]
   const svg = documento.createElementNS(SVG, 'svg')
   svg.setAttribute('viewBox', viewBox)

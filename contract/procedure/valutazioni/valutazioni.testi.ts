@@ -105,6 +105,7 @@ const it = {
         'Appende un PDF a una prova: il testo, la soluzione, o il compito corretto di qualcuno',
       ruolo: 'Che foglio è: testo, soluzione, prova corretta, recupero',
       allievoId: 'Di chi è il compito. Senza, il foglio è del momento e non di una persona',
+      file: 'Percorso del PDF sul disco; se omesso apre il dialogo',
     },
     apri: {
       titolo: 'Apre il PDF appeso a una prova con il visualizzatore del sistema',
@@ -253,6 +254,7 @@ export const testi = catalogo(it, {
         allievoId:
           'Wem die Arbeit gehört. Ohne gehört das Blatt zur Leistungsbeurteilung und nicht ' +
           'zu einer Person',
+        file: 'Pfad des PDFs auf der Festplatte; wenn weggelassen, öffnet sich der Dialog',
       },
       apri: {
         titolo: 'Öffnet das an eine Prüfung angehängte PDF mit dem Anzeigeprogramm des Systems',
@@ -404,6 +406,7 @@ export const testi = catalogo(it, {
         allievoId:
           'À qui appartient la copie. Sans, la feuille est celle de l’évaluation et non ' +
           'd’une personne',
+        file: 'Chemin du PDF sur le disque ; si omis, ouvre la boîte de dialogue',
       },
       apri: {
         titolo: 'Ouvre le PDF joint à une épreuve avec la visionneuse du système',
@@ -551,6 +554,7 @@ export const testi = catalogo(it, {
         allievoId:
           'Whose work it is. Without it, the paper belongs to the assessment and not to a ' +
           'person',
+        file: 'Path of the PDF on disk; if omitted opens the dialog',
       },
       apri: {
         titolo: 'Opens the PDF attached to a test with the system viewer',

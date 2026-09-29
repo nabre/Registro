@@ -23,7 +23,7 @@ export interface Link {
   chiudi? (): Promise<void>
 }
 
-export interface OpzioniLinkDiretto {
+interface OpzioniLinkDiretto {
   originePredefinita?: Origine
 }
 

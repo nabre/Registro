@@ -71,6 +71,19 @@ body.con-modale {
 
 .app { height: 100vh; }
 
+/* Il filetto attorno alla finestra: la barra del titolo è nostra, e Windows
+   senza la sua cornice lascia la pagina senza contorno sopra il desktop. Sta
+   sopra a tutto e lascia passare i clic; `main.ts` lo accende solo a finestra
+   libera, perché ingrandita o a schermo intero non ha niente da cui staccarsi. */
+:root[data-cornice] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  border: 1px solid var(--bordo-finestra);
+  pointer-events: none;
+  z-index: var(--piano-cornice);
+}
+
 /* Il filo di lavoro: due pixel in cima alla finestra mentre una richiesta è in
    volo. Sopra a tutto e fuori dal telaio, così accendendosi non sposta la pagina. */
 .filo-lavoro {

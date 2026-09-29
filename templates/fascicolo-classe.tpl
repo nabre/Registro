@@ -12,9 +12,21 @@ campi: {{frase.corsi}}={{corsi}}
 
 sezione: {{frase.persone-in-formazione}}
 tabella: allievi
+galleria: allievi | colonne 4 | altezza 32
 
-sezione: {{frase.documenti-raccolti}}
+sezione: {{frase.richieste-documenti}}
+tabella: richiesteDocumenti
 tabella: documenti
+
+sezione: {{frase.comunicazioni}}
+tabella: comunicazioni
 
 sezione: {{frase.periodi-di-assenze}}
 tabella: assenze
+tabella: dettaglioAssenze
+
+sezione: {{frase.pendenze}}
+tabella: pendenze
+
+sezione: {{frase.check}}
+tabella: check

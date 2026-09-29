@@ -31,7 +31,7 @@ orario: Horaire
 aula: Salle
 durata: Durée
 stato: Statut
-etichette: Étiquettes
+etichette: Mots-clés
 corsi: Cours
 tipo: Type
 peso: Pondération
@@ -63,6 +63,11 @@ datore: Employeur
 telefono-rappresentante: Téléphone du représentant légal
 telefono-datore: Téléphone de l'employeur
 nota-semestre: Note semestrielle
+ud-settimanali: Périodes hebdomadaires
+lezioni-svolte: Leçons données
+ud-svolte: Périodes données
+presenza-media: Présence moyenne
+media-di-classe: Moyenne de classe
 
 # --- I titoli delle sezioni
 
@@ -95,6 +100,17 @@ esecuzione-e-riconsegna: Passation et restitution
 i-momenti: Les évaluations
 recuperi: Rattrapages
 da-ridare: Épreuves encore à rendre
+check: Liste de contrôle
+dettaglio-prove: Détail des évaluations
+quadro-orario: Grille horaire
+sospensioni-calendario: Congés du calendrier
+consegne: Devoirs et travaux
+richieste-documenti: Documents et remises de classe
+comunicazioni: Communications
+dettaglio-assenze: Détail des absences et signatures
+diario-lezioni: Journal des leçons
+piani-lezione: Plans de leçon
+pendenze: En suspens du cours
 
 # --- Le frasi
 

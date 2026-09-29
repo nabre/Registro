@@ -59,6 +59,16 @@ jobs:
       - name: Censimento
         run: npm run census
 
+      # File, export e dipendenze che nessuno usa (ADR-50, passo 1). La regola
+      # resta D6: un export vivo si rende interno, si cancella dopo una prova.
+      - name: Inutilizzati
+        run: npm run knip
+
+      # Le licenze di tutto l'albero come controllo, non come promemoria
+      # (ADR-50, criterio 1): una non ammessa ferma la verifica.
+      - name: Licenze
+        run: npm run licenze
+
       - name: Collezioni
         run: npm run collections
 
@@ -102,19 +112,48 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - uses: actions/setup-python@v7
+      # Il Chromium che vuole la versione di @playwright/test del lockfile: la
+      # chiave cambia con il lockfile, e `playwright install` scarica comunque
+      # la revisione giusta se quella ripresa è vecchia.
+      - name: Cache di Chromium
+        uses: actions/cache@v4
         with:
-          python-version: '3.12'
+          path: ~\AppData\Local\ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - run: npm ci
 
+      # A più righe apposta: `tools/ci.mjs` salta le installazioni.
       - name: Playwright
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install playwright
-          python -m playwright install chromium --with-deps
+          npx playwright install chromium --with-deps
 
-      # `tools/uiTests.mjs` costruisce da sé, con `node esbuild.mjs --ui`, i
-      # bundle che le prove leggono: non serve `npm run build` prima.
+      # `tools/uiTests.mjs` costruisce da sé, con `node esbuild.mjs --ui` e
+      # `node esbuild.mjs`, i bundle e `dist/` che le prove leggono: non serve
+      # `npm run build` prima.
       - name: Prove dell'interfaccia
         run: npm run ui-tests
+
+  # La prova del fumo: l'unica che accende un Electron vero invece del finto
+  # di `tests/helpers/fake-electron.mjs`. Costruisce, avvia il registro sul
+  # campione in una cartella provvisoria, gli parla dal condotto come `regi` e
+  # lo chiude con `programma.esci`. Su Windows perché lì gira il resto e perché
+  # la named pipe è il caso di chi usa il registro; fuori servirebbe `xvfb-run`.
+  fumo:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Costruzione
+        run: npm run build
+
+      - name: Prova del fumo
+        run: node tools/fumo.mjs --senza-costruire

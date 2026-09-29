@@ -12,13 +12,15 @@
 //   5. **niente scarichi né file**: la voce non tocca il disco.
 
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, before, beforeEach, describe, it } from 'node:test'
 
-process.env.REGISTRO_USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-dettatura-'))
+const USERDATA = mkdtempSync(percorso.join(tmpdir(), 'registro-dettatura-'))
+process.env.REGISTRO_USERDATA = USERDATA
+after(() => rmSync(USERDATA, { recursive: true, force: true }))
 
 const {
   collegamentoDettatura,

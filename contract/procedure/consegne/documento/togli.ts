@@ -10,7 +10,7 @@ export const procedura = scrittura({
   azione: 'consegna.documento.togli',
   // Già tolto è lo stato che si chiedeva: il gestore risponde `invariato`.
   idempotente: true,
-  collezioni: ['consegne'],
+  collezioni: ['consegne', 'smistamenti'],
   ingresso: oggetto({
     consegnaId: identificatore(),
     allievoId: perChi,

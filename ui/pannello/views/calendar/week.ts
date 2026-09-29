@@ -13,8 +13,9 @@ import {
   settimanaDi,
   settimanaIso,
 } from '../../../../core/dominio/dates.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
+import type { Iso, Lezione, Ora } from '../../../../core/dominio/models.js'
 import { h } from '../../dom.js'
+import { alMinuto } from '../../orologio.js'
 import { finestraSettimana } from '../../calendarNavigation.js'
 import { eventiEsterni } from '../../externalCalendar.js'
 import { aggiorna, compleanniDi, lezioniInAgenda, stato } from '../../state.js'
@@ -48,6 +49,29 @@ const PIXEL_PER_MINUTO_MAX = 2.6
 const ALTEZZA_IDEALE = 620
 /** Sotto tre ore la griglia non si legge più: si tiene comunque questa finestra. */
 const FASCIA_MINIMA = 180
+
+/** Dove sta la riga di adesso nella fascia; fuori fascia c'è ma non si vede. */
+function posizioneAdesso (ora: Ora, primaOra: number, ultimaOra: number) {
+  const minuti = minutiDaOra(ora)
+  const fuori = minuti < primaOra || minuti > ultimaOra
+  return {
+    attr: { title: testi().adesso(ora), hidden: fuori },
+    style: { top: `${((minuti - primaOra) / (ultimaOra - primaOra)) * 100}%` },
+  }
+}
+
+// A ogni minuto la riga scende da sé: il resto della settimana non cambia, e
+// ridisegnarla tutta (ogni blocco, ogni evento) si vedeva.
+alMinuto((ora) => {
+  for (const riga of document.querySelectorAll<HTMLElement>('.settimana__adesso')) {
+    const { attr, style } = posizioneAdesso(
+      ora, Number(riga.dataset.prima), Number(riga.dataset.ultima),
+    )
+    riga.title = attr.title
+    riga.hidden = attr.hidden
+    riga.style.top = style.top
+  }
+})
 
 /**
  * La fascia oraria da disegnare: la giornata delle Impostazioni, a ore piene,
@@ -117,7 +141,8 @@ export function vistaSettimana (): HTMLElement {
 
   const settimana = h(
     'div',
-    { class: 'settimana' },
+    // Anello della catena di telaio fino alla fila delle settimane (`weekStrip.ts`).
+    { class: 'settimana', dataset: { telaio: 'settimana' } },
     strisciaSettimane(),
     h(
       'div',
@@ -167,7 +192,7 @@ export function vistaSettimana (): HTMLElement {
       // Qui si scorre l'ora del giorno: la chiave è fissa, così passando alla
       // settimana dopo si resta sulla stessa ora. Il mese ha un meccanismo suo
       // (`finestraMese`).
-      { class: 'settimana__scorrevole', dataset: { scorrimento: 'calendario:settimana' } },
+      { class: 'settimana__scorrevole', dataset: { scorrimento: 'calendario:settimana', telaio: 'settimana-scorrevole' } },
       h(
         'div',
         // `min-height` in pixel è il pavimento; sopra comanda `height: 100%` del foglio
@@ -269,16 +294,13 @@ export function vistaSettimana (): HTMLElement {
                 style: { top: alto(minuto) },
               }),
             ),
-            // La riga di adesso, solo nella colonna di oggi; si muove con l'orologio dello stato.
-            data === stato.adessoData &&
-          minutiDaOra(stato.adessoOra) >= primaOra &&
-          minutiDaOra(stato.adessoOra) <= ultimaOra
+            // La riga di adesso, solo nella colonna di oggi. C'è anche fuori fascia,
+            // nascosta: a ogni minuto la sposta `spostaRigheAdesso`, senza ridisegnare.
+            data === stato.adessoData
               ? h('div', {
                   class: 'settimana__adesso',
-                  attr: { title: t.adesso(stato.adessoOra) },
-                  style: {
-                    top: `${((minutiDaOra(stato.adessoOra) - primaOra) / (ultimaOra - primaOra)) * 100}%`,
-                  },
+                  dataset: { prima: String(primaOra), ultima: String(ultimaOra) },
+                  ...posizioneAdesso(stato.adessoOra, primaOra, ultimaOra),
                 })
               : null,
             ...lezioniDelGiorno(lezioni, data).map((lezione) =>
@@ -297,7 +319,10 @@ export function vistaSettimana (): HTMLElement {
   // lo scorrimento ricordato.
   if (finestraSettimana.versoAdesso) {
     finestraSettimana.versoAdesso = false
-    requestAnimationFrame(() => portaAdAdesso(settimana, primaOra, ultimaOra))
+    // Quella nel documento: il telaio può aver tenuto la vecchia al posto di questa.
+    requestAnimationFrame(() => portaAdAdesso(
+      document.querySelector<HTMLElement>('.settimana') ?? settimana, primaOra, ultimaOra,
+    ))
   }
   return settimana
 }

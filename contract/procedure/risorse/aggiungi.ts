@@ -41,6 +41,7 @@ export const procedura = scrittura({
     }),
     titolo: opzionale(testo({ massimo: TITOLO_MASSIMO })),
     url: opzionale(testo({ massimo: URL_MASSIMO, aiuto: () => t().url })),
+    file: opzionale(testo({ aiuto: () => t().file })),
   }),
   esegui: (ambito, ingresso) => {
     const piano = esigiPiano(ambito, ingresso.pianoId)

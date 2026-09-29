@@ -4,7 +4,7 @@
 
 import { BrowserWindow, clipboard, screen, shell } from 'electron'
 
-import { limita } from '.../../../core/dominio/calculations.js'
+import { limita } from '../../core/dominio/calculations.js'
 import { Smaltitore } from '../../core/apparato/events.js'
 import { Uri } from '../../core/apparato/uri.js'
 
@@ -113,9 +113,13 @@ export async function executeCommand<T> (nome: string, ...argomenti: unknown[]):
 /**
  * Gli unici schemi consegnati a `shell.openExternal`. Gli indirizzi arrivano
  * anche da piani lezione altrui, e su Windows certi schemi registrati dai
- * programmi eseguono comandi (es. `ms-msdt:`).
+ * programmi eseguono comandi (es. `ms-msdt:`). `callto:`, `skype:` e
+ * `msteams:` sono i modi di chiamata di `recapiti.telefono`
+ * (`core/dominio/contacts.ts`): aprono un programma di telefonate, non file.
  */
-const SCHEMI_AMMESSI = new Set(['http:', 'https:', 'mailto:', 'tel:'])
+const SCHEMI_AMMESSI = new Set([
+  'http:', 'https:', 'mailto:', 'tel:', 'callto:', 'skype:', 'msteams:',
+])
 
 /** Apre un indirizzo web nel browser. I file passano da `data/opening.ts`, non di qui. */
 export function openExternal (uri: Uri): Promise<boolean> {

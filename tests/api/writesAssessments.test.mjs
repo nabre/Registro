@@ -6,7 +6,8 @@
 //   - `valutazioni.voto.riconsegna` senza casella o con id inventato non
 //     risponde «fatto» né alza la revisione;
 //   - `valutazioni.salva` non rimette la copia vecchia sopra voti e allegati
-//     scritti nel frattempo;
+//     scritti nel frattempo, e rifiuta corso, lezione e piano inesistenti, il
+//     cambio di classe con voti e una scala che lascerebbe voti fuori;
 //   - una consegna nuova non accetta percorsi di file da chi chiama, e
 //     `consegne.elimina` non cestina il file di un'altra;
 //   - `piani.salva` non accetta una risorsa col file di un altro;
@@ -23,7 +24,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro13-scritture-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-api-scritture-valutazioni-')
 
 let api
 let archivio
@@ -32,6 +33,7 @@ let rossi
 let bianchi
 let verdi
 let corso
+let corsoAltraClasse
 
 const byte = (testo) => new TextEncoder().encode(testo)
 const chiama = (nome, ingresso) => api.chiama(archivio, nome, ingresso)
@@ -62,11 +64,12 @@ before(async () => {
   corso = creaCorso(classe.id, matematica.id, 'I MEC A — Matematica')
   // Il martedì alle 8:20: `orario.genera` ne ha bisogno.
   corso.orario = [{ id: 'ric-mar-0001', giorno: 2, inizio: '08:20', durataMin: 50 }]
+  corsoAltraClasse = creaCorso(altra.id, matematica.id, 'II ELE B — Matematica')
 
   archivio.modifica((r) => {
     r.classi.push(classe, altra)
     r.materie.push(matematica)
-    r.corsi.push(corso)
+    r.corsi.push(corso, corsoAltraClasse)
   }, ['classi', 'corsi', 'registro'])
 })
 
@@ -188,6 +191,65 @@ describe('valutazioni.salva su un momento che c’è già', () => {
     assert.equal(esito.ok, true, JSON.stringify(esito))
     assert.equal(momentoVivo(nuovo.id).voti.length, 1)
     assert.deepEqual(momentoVivo(nuovo.id).allegati, [])
+  })
+})
+
+describe('valutazione.salva, dalla strada del pannello', () => {
+  const salva = (valutazione) => api.esegui(archivio, { tipo: 'valutazione.salva', valutazione })
+
+  /** Un momento del corso, già nel registro. */
+  function momento (altro = {}) {
+    const nuovo = api.creaValutazione(corso.id, 'Verifica', archivio.registro.impostazioni.scala, '2026-10-05')
+    Object.assign(nuovo, altro)
+    archivio.modifica((r) => { r.valutazioni.push(nuovo) }, ['valutazioni'])
+    return nuovo
+  }
+
+  it('rifiuta corso, lezione o piano che non ci sono', async () => {
+    const scala = archivio.registro.impostazioni.scala
+    const nuovo = () => api.creaValutazione(corso.id, 'Prova', scala, '2026-10-07')
+    assert.equal((await salva({ ...nuovo(), corsoId: 'cor-mai' })).ok, false)
+    assert.equal((await salva({ ...nuovo(), lezioneId: 'lez-mai' })).ok, false)
+    assert.equal((await salva({ ...nuovo(), pianoId: 'pia-mai' })).ok, false)
+    const api1 = await chiama('valutazioni.salva', {
+      valutazione: { ...nuovo(), lezioneId: 'lez-mai' },
+    })
+    assert.equal(api1.codice, 'non-trovato', JSON.stringify(api1))
+  })
+
+  it('rifiuta lezione o piano di un altro corso', async () => {
+    const scala = archivio.registro.impostazioni.scala
+    const oraAltra = api.creaLezione(corsoAltraClasse.id, '2026-10-06', '08:20', 45)
+    const pianoAltro = api.creaPiano('Piano altro corso')
+    pianoAltro.corsoId = corsoAltraClasse.id
+    archivio.modifica((r) => {
+      r.lezioni.push(oraAltra)
+      r.piani.push(pianoAltro)
+    }, ['lezioni', 'piani'])
+    const nuovo = () => api.creaValutazione(corso.id, 'Prova', scala, '2026-10-07')
+    const conOraAltra = await salva({ ...nuovo(), lezioneId: oraAltra.id })
+    assert.equal(conOraAltra.ok, false)
+    const conPianoAltro = await salva({ ...nuovo(), pianoId: pianoAltro.id })
+    assert.equal(conPianoAltro.ok, false)
+  })
+
+  it('un momento con voti non passa a un corso di un’altra classe', async () => {
+    const m = momento({ voti: [{ allievoId: rossi.id, valore: 5, assente: false }] })
+    const esito = await salva({ ...momentoVivo(m.id), corsoId: corsoAltraClasse.id })
+    assert.equal(esito.ok, false)
+    assert.equal(momentoVivo(m.id).corsoId, corso.id)
+  })
+
+  it('una scala che lascerebbe voti fuori si rifiuta; i voti dentro vanno sul passo', async () => {
+    const m = momento({ voti: [{ allievoId: rossi.id, valore: 5.75, assente: false }] })
+    const vivo = momentoVivo(m.id)
+    const stretta = await salva({ ...vivo, scala: { ...vivo.scala, max: 5 } })
+    assert.equal(stretta.ok, false)
+    assert.equal(momentoVivo(m.id).scala.max, vivo.scala.max)
+
+    const aMezzi = await salva({ ...vivo, scala: { ...vivo.scala, passo: 0.5 } })
+    assert.equal(aMezzi.ok, true, JSON.stringify(aMezzi))
+    assert.equal(momentoVivo(m.id).voti[0].valore, 6)
   })
 })
 

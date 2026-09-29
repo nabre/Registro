@@ -1,4 +1,4 @@
-# Contribuire a Regiclass
+# Contribuire a Regiklass
 
 Grazie di voler dare una mano. Questo file dice che cosa serve perché una
 proposta entri senza giri a vuoto.
@@ -28,8 +28,8 @@ npm ci
 npm run dev
 ```
 
-Serve Node.js 24. Per `npm run ui-tests` servono anche Python, il pacchetto
-`playwright` e `python -m playwright install chromium`.
+Serve Node.js 24. Per `npm run ui-tests` serve anche il Chromium di Playwright:
+`npx playwright install chromium`.
 
 ## Orientarsi
 
@@ -58,7 +58,7 @@ Il lavoro in corso e le scelte ancora aperte sono in [CANTIERE](docs/CANTIERE.md
   divide un lavoro largo in pezzi che non si pestano i piedi, in
   `.claude/skills/sciame/`.
 - **Una funzione che si vede cambia anche la guida.** La guida d'uso sta in
-  `src/ui/views/help/`, una sezione per pagina: il nome di un pulsante si scrive
+  `ui/pannello/views/help/`, una sezione per pagina: il nome di un pulsante si scrive
   com'è sullo schermo, e `tests/ui/help.test.mjs` controlla che si tenga insieme.
 
 ## Prima di aprire la pull request
@@ -70,13 +70,14 @@ npx tsc --noEmit
 npx eslint .
 npm test
 npm run layers && npm run census && npm run collections
-npm run forms && npm run buttons && npm run procedures && npm run docs
+npm run forms && npm run buttons && npm run procedures
+npm run i18n -- --severo && npm run docs
 ```
 
-I sette controlli scritti in casa verificano regole d'architettura che
-TypeScript non vede: nessun import attraversa uno strato, nessun export resta
-inutilizzato, ogni campo di un modulo viene salvato, i documenti citano file
-che esistono. Quando uno fallisce, l'uscita dice dove. `npm run ci` esegue in
+Gli otto controlli scritti in casa verificano regole che TypeScript non vede:
+nessun import attraversa uno strato, nessun export resta inutilizzato, ogni
+campo di un modulo viene salvato, nessun testo per chi legge sta fuori da un
+catalogo, i documenti citano file che esistono. Quando uno fallisce, l'uscita dice dove. `npm run ci` esegue in
 locale gli stessi passi della CI, letti da `.github/workflows/verifica.yml`.
 
 ## Commit e versioni

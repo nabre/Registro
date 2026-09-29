@@ -1,4 +1,4 @@
-// I testi di `tray.ts`: menu e suggerimento dell'icona. Il marchio «Regiclass»
+// I testi di `tray.ts`: menu e suggerimento dell'icona. Il marchio «Regiklass»
 // non si traduce e sta nel sorgente. Si contano le lezioni del calendario:
 // «ore» in italiano, `lessico().lezione` nelle altre lingue.
 
@@ -33,8 +33,8 @@ const it = {
     inCorso: (quante: number) => `${quante} in corso`,
     daChiudere: (quante: number) => `${quante} da chiudere`,
     prossime: (quante: number) => `${quante} in programma`,
-    svolte: (quante: number) => `${quante} svolte`,
-    annullate: (quante: number) => `${quante} annullate`,
+    svolte: (quante: number) => plurale(quante, 'svolta', 'svolte'),
+    annullate: (quante: number) => plurale(quante, 'annullata', 'annullate'),
   },
   nessunaOra: 'nessuna ora',
   daCompilare: 'Da compilare',

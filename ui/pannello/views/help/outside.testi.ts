@@ -18,7 +18,7 @@ const it = {
     sommario:
       'Il registro a portata di tasto destro, anche a finestre chiuse. Ed è da lì che si esce.',
     scritte: {
-      titoloMenu: 'Regiclass — 2 lezioni da chiudere',
+      titoloMenu: 'Regiklass — 2 lezioni da chiudere',
       adesso: 'Adesso: ▶ oggi · 10:10–10:55 · …',
       daCompilare: '⚠ Da compilare: I MEC A — Matematica …',
       corsoUno: '⚠ I MEC A — Matematica',
@@ -412,6 +412,15 @@ const it = {
           'Accendi il condotto e riprova. Chi tiene i dati altrove — la versione portabile — dà ' +
           'l’indirizzo con la variabile `REGISTRO_CONDOTTO`.',
       },
+      {
+        termine: 'La chiave del condotto',
+        testo:
+          'A ogni accensione il registro scrive una chiave nuova in «condotto.chiave», nella ' +
+          'sua cartella dei dati, e la toglie quando spegne il condotto. `regi` la legge e ' +
+          'dimostra di averla senza mandarla; il registro fa lo stesso. Se `regi` dice che chi ' +
+          'risponde non ha la chiave, non manda altro: di solito il registro si è chiuso male, e ' +
+          'basta riaprirlo. Con la versione portabile il file si dà con `REGISTRO_CHIAVE`.',
+      },
     ],
     note: [
       'Acceso il condotto, ogni programma che gira con il tuo utente può chiamarlo senza ' +
@@ -438,7 +447,7 @@ export const testi = catalogo(it, {
         'Das Klassenbuch einen Rechtsklick entfernt, auch bei geschlossenen Fenstern. Und dort ' +
         'beendet man es.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 abzuschliessen',
+        titoloMenu: 'Regiklass — 2 abzuschliessen',
         adesso: 'Jetzt: ▶ heute · 10:10–10:55 · …',
         daCompilare: '⚠ Auszufüllen: I MEC A — Mathematik …',
         corsoUno: '⚠ I MEC A — Mathematik',
@@ -856,6 +865,16 @@ export const testi = catalogo(it, {
             'Daten anderswo hat — die portable Version —, gibt die Adresse mit der Variablen ' +
             '`REGISTRO_CONDOTTO` an.',
         },
+        {
+          termine: 'Der Schlüssel des Kanals',
+          testo:
+            'Bei jedem Einschalten schreibt das Klassenbuch einen neuen Schlüssel nach ' +
+            '«condotto.chiave» in seinem Datenordner und entfernt ihn, wenn es den Kanal ' +
+            'ausschaltet. `regi` liest ihn und weist nach, dass es ihn hat, ohne ihn zu schicken; ' +
+            'das Klassenbuch tut dasselbe. Sagt `regi`, wer antwortet, habe den Schlüssel nicht, ' +
+            'schickt es nichts weiter: Meist wurde das Klassenbuch unsauber beendet, und es genügt, ' +
+            'es neu zu öffnen. Bei der portablen Version gibt man die Datei mit `REGISTRO_CHIAVE` an.',
+        },
       ],
       note: [
         'Ist der Kanal an, kann jedes Programm, das mit deinem Benutzer läuft, ihn ohne ' +
@@ -881,7 +900,7 @@ export const testi = catalogo(it, {
         'Le registre à portée de clic droit, même fenêtres fermées. Et c’est par là qu’on le ' +
         'quitte.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 leçons à clôturer',
+        titoloMenu: 'Regiklass — 2 leçons à clôturer',
         adesso: 'Maintenant : ▶ aujourd’hui · 10:10–10:55',
         daCompilare: '⚠ À remplir : I MEC A — Mathématiques …',
         corsoUno: '⚠ I MEC A — Mathématiques',
@@ -1284,6 +1303,16 @@ export const testi = catalogo(it, {
             'registre était éteint. Active le canal et réessaie. Qui garde ses données ailleurs ' +
             '— la version portable — donne l’adresse avec la variable `REGISTRO_CONDOTTO`.',
         },
+        {
+          termine: 'La clé du canal',
+          testo:
+            'À chaque activation, le registre écrit une nouvelle clé dans « condotto.chiave », ' +
+            'dans son dossier de données, et l’enlève quand il désactive le canal. `regi` la lit ' +
+            'et prouve qu’il l’a sans l’envoyer ; le registre fait de même. Si `regi` dit que ce ' +
+            'qui répond n’a pas la clé, il n’envoie rien d’autre : d’habitude le registre s’est ' +
+            'mal fermé, et il suffit de le rouvrir. Avec la version portable, le fichier se donne ' +
+            'avec `REGISTRO_CHIAVE`.',
+        },
       ],
       note: [
         'Le canal activé, tout programme qui tourne avec ton compte peut l’appeler sans ' +
@@ -1308,7 +1337,7 @@ export const testi = catalogo(it, {
         'The register a right-click away, even with its windows closed. And that is where you ' +
         'quit.',
       scritte: {
-        titoloMenu: 'Regiclass — 2 lessons to close',
+        titoloMenu: 'Regiklass — 2 lessons to close',
         adesso: 'Now: ▶ today · 10:10–10:55 · …',
         daCompilare: '⚠ To fill in: I MEC A — Maths …',
         corsoUno: '⚠ I MEC A — Maths',
@@ -1705,6 +1734,16 @@ export const testi = catalogo(it, {
             '`regi` does not know which name to knock on, and exits with 2 as if the register ' +
             'were not running. Turn the pipe on and try again. If you keep the data elsewhere — ' +
             'the portable version — give the address with the `REGISTRO_CONDOTTO` variable.',
+        },
+        {
+          termine: 'The pipe key',
+          testo:
+            'Every time it turns the pipe on, the register writes a new key to “condotto.chiave” ' +
+            'in its data folder, and removes it when it turns the pipe off. `regi` reads it and ' +
+            'proves it has it without sending it; the register does the same. If `regi` says ' +
+            'whatever answers does not have the key, it sends nothing else: usually the register ' +
+            'closed badly, and reopening it is enough. With the portable version, give the file ' +
+            'with `REGISTRO_CHIAVE`.',
         },
       ],
       note: [

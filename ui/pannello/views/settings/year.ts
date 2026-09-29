@@ -29,7 +29,16 @@ import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { h } from '../../dom.js'
 import { moduloAnno, moduloPause } from '../../forms.js'
-import { vociUfficialiDaImportare } from '../../forms/schoolCalendar.js'
+import { èCollegata } from '../../../../core/dominio/schoolCalendar.js'
+import {
+  collegaAlCalendario,
+  pastigliaCalendario,
+  pastigliaChiusuraUfficiale,
+  riallineaAlCalendario,
+  vociDaRiallineare,
+  vociUfficialiDaImportare,
+} from '../../forms/schoolCalendar.js'
+import { testi as testiCalendario } from '../../forms/schoolCalendar.testi.js'
 import { azione } from '../../bridge.js'
 import { annoCorrente, stato } from '../../state.js'
 import { testi } from './year.testi.js'
@@ -111,6 +120,7 @@ export function schedaAnnoAperto (): HTMLElement {
     contenuto: h(
       'div',
       { class: 'anno-aperto' },
+      pastigliaCalendario(corrente),
       h(
         'div',
         { class: 'anno__semestri' },
@@ -142,9 +152,24 @@ export function schedaAnnoAperto (): HTMLElement {
 
 /**
  * Il calendario ufficiale ha date o chiusure diverse dall'anno: il registro lo
- * nota da sé ma non scrive niente; cosa importare si sceglie nel modulo dell'anno.
+ * nota da sé ma non scrive niente; cosa importare si sceglie nel modulo dell'anno,
+ * o si collega l'anno al calendario. Un anno che lo segue si riallinea in un gesto.
  */
 function avvisoCalendarioUfficiale (anno: AnnoScolastico): HTMLElement | null {
+  const tc = testiCalendario()
+  if (anno.calendarioUfficiale) {
+    const diverse = vociDaRiallineare(anno)
+    if (diverse === 0) return null
+    return avviso(
+      h(
+        'span',
+        null,
+        `${tc.daRiallineare(diverse)} `,
+        collegamento({ testo: tc.riallinea, al: () => void riallineaAlCalendario(anno) }),
+      ),
+      'informativo',
+    )
+  }
   const quante = vociUfficialiDaImportare(anno)
   if (quante === 0) return null
   const t = testi()
@@ -154,6 +179,8 @@ function avvisoCalendarioUfficiale (anno: AnnoScolastico): HTMLElement | null {
       null,
       t.calendarioUfficiale(quante),
       collegamento({ testo: t.rivediImporta, al: () => moduloAnno(anno) }),
+      ' · ',
+      collegamento({ testo: tc.collega, al: () => void collegaAlCalendario(anno) }),
     ),
     'informativo',
   )
@@ -211,6 +238,7 @@ export function schedaElencoAnni (): HTMLElement {
               { class: 'anno-riga__nome' },
               h('strong', null, corrente.etichetta),
               pastiglia(t.aperto, 'positivo', 'spunta'),
+              pastigliaCalendario(corrente),
             ),
             h(
               'span',
@@ -297,6 +325,8 @@ export function schedaChiusure (): HTMLElement {
             { class: 'sospensioni' },
             ...anno.sospensioni.map((sospensione) => {
               const giorni = differenzaGiorni(sospensione.dal, sospensione.al) + 1
+              // Una chiusura del calendario che l'anno segue non si toglie da qui.
+              const ufficiale = èCollegata(anno, sospensione)
               return h(
                 'li',
                 { class: 'sospensione' },
@@ -312,13 +342,14 @@ export function schedaChiusure (): HTMLElement {
                 h(
                   'span',
                   { class: 'sospensione__azioni' },
+                  ufficiale ? pastigliaChiusuraUfficiale() : null,
                   pulsante({
                     simbolo: 'matita',
                     variante: 'fantasma',
                     titolo: t.modificaChiusure,
                     al: () => moduloPause(anno),
                   }),
-                  pulsante({
+                  ufficiale ? null : pulsante({
                     simbolo: 'cestino',
                     variante: 'fantasma',
                     titolo: t.togliChiusura,

@@ -10,10 +10,11 @@
  * Uso: `npm run forms`
  */
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
-import { daRadice, fileSotto } from './common.mjs'
+import { RADICE, daRadice, fileSotto } from './common.mjs'
 
-const RADICE = 'ui/pannello'
+const PANNELLO = 'ui/pannello'
 
 
 /** Il testo della chiamata che comincia alla parentesi data. */
@@ -33,9 +34,10 @@ function chiamataDa (testo, apertura) {
 const rilievi = []
 const daGuardare = []
 
-for (const percorso of fileSotto(RADICE)) {
+const letti = fileSotto(join(RADICE, PANNELLO))
+for (const percorso of letti) {
   const testo = readFileSync(percorso, 'utf8')
-  const nome = daRadice(percorso)
+  const nome = daRadice(percorso, RADICE)
 
   for (const apertura of testo.matchAll(/\bapriModale\s*\(/g)) {
     const corpo = chiamataDa(testo, apertura.index + apertura[0].length - 1)
@@ -107,4 +109,6 @@ if (daGuardare.length) {
   for (const voce of daGuardare) console.log(voce)
 }
 
-process.exitCode = rilievi.length ? 1 : 0
+// Zero file letti è una radice sbagliata, non un pannello in ordine.
+if (letti.length === 0) console.log('Nessun file letto: la radice del progetto è sbagliata?')
+process.exitCode = rilievi.length || letti.length === 0 ? 1 : 0

@@ -6,6 +6,8 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+  attivitaConCheck,
+  attivitaConPendenza,
   attivitaValutata,
   creaAttivita,
   normalizzaPiano,
@@ -153,5 +155,19 @@ describe('la valutazione che stava sul piano', () => {
     const piano = normalizzaPiano({ attivita: [{ titolo: 'Esercizi', tipo: 'esercizio' }] })
     assert.equal(piano.attivita.length, 1)
     assert.equal(piano.attivita.some(attivitaValutata), false)
+  })
+})
+
+describe('collegamenti a pendenze e check', () => {
+  it('estrae l’identificatore della consegna se presente', () => {
+    assert.equal(attivitaConPendenza(attivita('compito', { consegnaId: 'cons-1' })), 'cons-1')
+    assert.equal(attivitaConPendenza(attivita('compito', { consegnaId: '   ' })), null)
+    assert.equal(attivitaConPendenza(attivita('compito', undefined)), null)
+  })
+
+  it('estrae l’identificatore della colonna check se presente', () => {
+    assert.equal(attivitaConCheck(attivita('verifica', { checkColonnaId: 'col-1' })), 'col-1')
+    assert.equal(attivitaConCheck(attivita('verifica', { checkColonnaId: '' })), null)
+    assert.equal(attivitaConCheck(attivita('verifica', undefined)), null)
   })
 })

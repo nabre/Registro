@@ -3,6 +3,7 @@
 // Si scrive con `nelFascicolo`, che trova o crea il fascicolo della classe.
 
 import { basename } from 'node:path'
+import * as apparato from 'apparato'
 
 import type { Contesto } from './context.js'
 import { contenutoDi, deposito } from '../dati/store.js'
@@ -35,10 +36,12 @@ import {
 import { allieviAttivi, nomeCompleto } from '../dominio/calculations.js'
 import {
   allegatiComunicazione,
+  allegatiMancanti,
   fileDellaConsegna,
   destinatariComunicazione,
 } from '../dominio/communications.js'
 import { documentoPer } from '../dominio/assignments.js'
+import { collezioniDocumento, staccaFette } from './assignments.js'
 import { fascicoloDellaClasse } from '../dominio/courses.js'
 import { oggi, periodoNelNome, istanteAdesso } from '../dominio/dates.js'
 import type {
@@ -160,10 +163,18 @@ export const docenteClasse = {
     if ('errore' in trovato) return trovato.errore
     const { consegna, classe } = trovato
 
-    const scelto = await scegliUnFile({
-      titolo: testi().firmeDi(consegna.testo),
-      tasto: comuni().allega,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: testi().firmeDi(consegna.testo),
+        tasto: comuni().allega,
+      })
+    }
     if (!scelto) return fatto
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
@@ -231,8 +242,11 @@ export const docenteClasse = {
       if (!bersaglio) return
       bersaglio.documenti = (bersaglio.documenti ?? []).filter((d) => d.allievoId !== azione.chi)
       bersaglio.fatte = bersaglio.fatte.filter((f) => f.chi !== azione.chi)
+      // Come `consegna.documento.togli`: una fetta rimasta farebbe cestinare a
+      // «riprendi le pagine» il documento raccolto dopo.
+      staccaFette(r, azione.consegnaId, azione.chi)
       bersaglio.aggiornataIl = istanteAdesso()
-    }, ['consegne'])
+    }, collezioniDocumento(contesto.registro, azione.consegnaId, azione.chi))
   },
 
   'recapito.salva': (contesto, azione) => {
@@ -246,9 +260,9 @@ export const docenteClasse = {
   'recapito.elimina': (contesto, azione) => {
     return contesto.nelFascicolo(azione.classeId, (fascicolo) => {
       fascicolo.recapiti = fascicolo.recapiti.filter((x) => x.id !== azione.recapitoId)
-      // Le comunicazioni che lo citavano perdono solo quel destinatario.
-      for (const comunicazione of fascicolo.comunicazioni) {
-        comunicazione.recapitiIds = comunicazione.recapitiIds.filter(
+      // Comunicazioni e periodi di assenze che lo citavano perdono solo quel destinatario.
+      for (const conRecapiti of [...fascicolo.comunicazioni, ...fascicolo.assenze]) {
+        conRecapiti.recapitiIds = conRecapiti.recapitiIds.filter(
           (id) => id !== azione.recapitoId,
         )
       }
@@ -284,6 +298,13 @@ export const docenteClasse = {
     const { indirizzi } = destinatariComunicazione(classe, fascicolo, comunicazione)
     if (indirizzi.length === 0) return rifiuta(t.senzaIndirizzi)
 
+    // Un allegato scelto che non c'è: meglio non spedire che spedire monca.
+    const mancante = allegatiMancanti(contesto.registro, comunicazione)[0]
+    if (mancante !== undefined) {
+      const consegna = contesto.registro.consegne.find((c) => c.id === mancante)
+      return rifiuta(t.allegatoMancante(consegna?.testo ?? null))
+    }
+
     // Gli allegati si leggono adesso: quel che parte è il file com'è oggi.
     const allegati = []
     for (const raccolta of allegatiComunicazione(contesto.registro, comunicazione)) {
@@ -303,7 +324,7 @@ export const docenteClasse = {
     // Con l'invio diretto si conferma prima di spedire.
     if (
       (await puoSpedire()) &&
-      !(await confermaInvio(
+      !(azione.conferma ? true : await confermaInvio(
         t.domandaComunicazione(comunicazione.oggetto || t.laComunicazione, indirizzi.length),
         t.dettaglioComunicazione,
       ))
@@ -435,10 +456,18 @@ export const docenteClasse = {
     const allievo = dove.classe.allievi.find((a) => a.id === azione.allievoId)
     if (!allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${nomeCompleto(allievo)}`,
-      tasto: parole().aggiungi,
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'file'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: `${etichettaFoglio(azione.genere, azione.firmato)} — ${nomeCompleto(allievo)}`,
+        tasto: parole().aggiungi,
+      })
+    }
     if (!scelto) return fatto
     if (!contesto.ancoraQui()) return documentoCambiato()
 
@@ -670,7 +699,7 @@ export const docenteClasse = {
     // Con l'invio diretto si conferma prima, una volta sola per tutto il giro.
     if (
       (await puoSpedire()) &&
-      !(await confermaInvio(
+      !(azione.conferma ? true : await confermaInvio(
         t.domandaRichieste(pronte.length),
         t.dettaglioRichieste(nomePeriodo(blocco)),
       ))

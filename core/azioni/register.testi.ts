@@ -1,9 +1,12 @@
 // I testi di `register.ts`: anagrafica, orari, foto, import da un altro registro.
 // «File → Salva l’anno con nome…» deve coincidere con `manifest.testi.ts`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo, perNumero } from '../i18n/index.js'
 import { PIF } from '../dominio/lexicon.js'
 import { plurale } from '../dominio/text.js'
+
+/** Il Ticino come lo si chiama a nord delle Alpi. */
+const tessin = (cantone: string): string => (cantone === 'Ticino' ? 'Tessin' : cantone)
 
 const it = {
   senzaCartella: 'Non c’è una cartella in cui far nascere l’anno nuovo.',
@@ -16,20 +19,31 @@ const it = {
   restanoInChiusura: (n: number) =>
     ` ${plurale(n, 'lezione resta', 'lezioni restano')} in un giorno di chiusura ` +
     'perché ha già appello, testi o voti: da spostare o annullare a mano.',
+  calendarioAssente: (etichetta: string) =>
+    `Il calendario ufficiale non ha l’anno ${etichetta}: l’anno resta scritto a mano.`,
+  annoCollegato: (cantone: string, anno: string) =>
+    `L’anno segue il calendario ufficiale del ${cantone} ${anno}: ` +
+    'inizio, fine e chiusure ufficiali non si cambiano a mano.',
+  annoStaccato:
+    'L’anno non segue più il calendario ufficiale: date e chiusure restano, e si cambiano a mano.',
   stessaMateria: 'Sono la stessa materia.',
   classeOMateria: 'Classe o materia non trovata.',
+  classeMateriaFisse:
+    'Classe e materia di un corso non si cambiano: si crea un corso nuovo o si uniscono le materie.',
   senzaOrario: 'Il corso non ha ancora un orario: prima si dichiarano le ore fisse.',
   periodoRovescio: 'Il periodo finisce prima di cominciare.',
-  giaTutte: (n: number) => `Le ${n} lezioni di questo periodo ci sono già tutte.`,
+  giaTutte: (n: number) => n === 1
+    ? 'L’unica lezione di questo periodo c’è già.'
+    : `Le ${n} lezioni di questo periodo ci sono già tutte.`,
   orarioMaiNelPeriodo:
     'In questo periodo l’orario non cade mai: controllare le date e le sospensioni.',
   aggiunte: (n: number, corso: string, saltate: number, conflitti: number) =>
-    `${n} lezioni aggiunte a ${corso}` +
-    (saltate > 0 ? `, ${saltate} c’erano già` : '') +
+    `${plurale(n, 'lezione aggiunta', 'lezioni aggiunte')} a ${corso}` +
+    (saltate > 0 ? `, ${saltate} ${perNumero(saltate, 'c’era già', 'c’erano già')}` : '') +
     (conflitti > 0 ? `, ${conflitti} in conflitto con un’altra classe` : '') +
     '.',
   nonSiTogliDaQui: (nomi: readonly string[]) =>
-    `L'elenco non contiene ${nomi.join(', ')}: per togliere ` +
+    `L’elenco non contiene ${nomi.join(', ')}: per togliere ` +
     `${nomi.length === 1 ? 'una persona' : 'delle persone'} dalla classe si usa ` +
     '`persone.elimina` (azione `allievo.elimina`), che toglie anche voti e presenze.',
   fotoDi: (nome: string) => `Foto di ${nome}`,
@@ -42,6 +56,8 @@ const it = {
   senzaAnnoPerImport: 'Non c’è un anno aperto in cui portare qualcosa.',
   nienteScelto: 'Non si è scelto niente da portare.',
   nessunoNelTesto: `Nessuna ${PIF.singolare} riconosciuta nel testo incollato.`,
+  nomeObbligatorio: 'Il nome è obbligatorio.',
+  nomeGiaUsato: (nome: string) => `C’è già una classe chiamata «${nome}».`,
 }
 
 export const testi = catalogo(it, {
@@ -57,11 +73,24 @@ export const testi = catalogo(it, {
       ` ${plurale(n, 'Stunde bleibt', 'Stunden bleiben')} an einem ` +
       'schulfreien Tag, weil schon eine Präsenzkontrolle, Texte oder Noten erfasst sind: ' +
       'von Hand verschieben oder absagen.',
+    calendarioAssente: (etichetta) =>
+      `Der offizielle Kalender hat das Schuljahr ${etichetta} nicht: Es bleibt von Hand erfasst.`,
+    annoCollegato: (cantone, anno) =>
+      `Das Schuljahr folgt dem offiziellen Kalender ${tessin(cantone)} ${anno}: ` +
+      'Beginn, Ende und offizielle Schliessungen lassen sich nicht von Hand ändern.',
+    annoStaccato:
+      'Das Schuljahr folgt nicht mehr dem offiziellen Kalender: Daten und Schliessungen bleiben ' +
+      'und lassen sich von Hand ändern.',
     stessaMateria: 'Das ist dasselbe Fach.',
     classeOMateria: 'Klasse oder Fach nicht gefunden.',
+    classeMateriaFisse:
+      'Klasse und Fach eines Kurses lassen sich nicht ändern: Erstelle einen neuen Kurs ' +
+      'oder führe die Fächer zusammen.',
     senzaOrario: 'Der Kurs hat noch keinen Stundenplan: Erfasse zuerst die festen Stunden.',
     periodoRovescio: 'Der Zeitraum endet, bevor er beginnt.',
-    giaTutte: (n) => `Die ${n} Stunden dieses Zeitraums sind schon alle da.`,
+    giaTutte: (n) => n === 1
+      ? 'Die einzige Stunde dieses Zeitraums ist schon da.'
+      : `Die ${n} Stunden dieses Zeitraums sind schon alle da.`,
     orarioMaiNelPeriodo:
       'In diesem Zeitraum fällt keine Stunde des Stundenplans: Prüfe die Daten und die Unterbrüche.',
     aggiunte: (n, corso, saltate, conflitti) =>
@@ -83,6 +112,8 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'Es ist kein Schuljahr geöffnet, in das etwas kommen könnte.',
     nienteScelto: 'Es wurde nichts zum Übernehmen ausgewählt.',
     nessunoNelTesto: 'Im eingefügten Text wurden keine Lernenden erkannt.',
+    nomeObbligatorio: 'Der Name ist obligatorisch.',
+    nomeGiaUsato: (nome) => `Es gibt bereits eine Klasse namens «${nome}».`,
   },
   fr: {
     senzaCartella: 'Il n’y a pas de dossier où créer la nouvelle année.',
@@ -95,11 +126,24 @@ export const testi = catalogo(it, {
     restanoInChiusura: (n) =>
       ` ${plurale(n, 'leçon reste', 'leçons restent')} sur un jour de fermeture ` +
       'parce qu’il y a déjà un appel, des textes ou des notes : à déplacer ou annuler à la main.',
+    calendarioAssente: (etichetta) =>
+      `Le calendrier officiel n’a pas l’année ${etichetta} : elle reste saisie à la main.`,
+    annoCollegato: (cantone, anno) =>
+      `L’année suit le calendrier officiel du ${tessin(cantone)} ${anno} : ` +
+      'début, fin et fermetures officielles ne se changent pas à la main.',
+    annoStaccato:
+      'L’année ne suit plus le calendrier officiel : dates et fermetures restent, et se ' +
+      'changent à la main.',
     stessaMateria: 'C’est la même branche.',
     classeOMateria: 'Classe ou branche introuvable.',
+    classeMateriaFisse:
+      'La classe et la branche d’un cours ne changent pas : crée un nouveau cours ' +
+      'ou fusionne les branches.',
     senzaOrario: 'Le cours n’a pas encore d’horaire : il faut d’abord saisir les heures fixes.',
     periodoRovescio: 'L’intervalle se termine avant de commencer.',
-    giaTutte: (n) => `Les ${n} leçons de cet intervalle existent déjà toutes.`,
+    giaTutte: (n) => n === 1
+      ? 'L’unique leçon de cet intervalle existe déjà.'
+      : `Les ${n} leçons de cet intervalle existent déjà toutes.`,
     orarioMaiNelPeriodo:
       'Dans cet intervalle, l’horaire ne prévoit aucune leçon : vérifie les dates et les interruptions.',
     aggiunte: (n, corso, saltate, conflitti) =>
@@ -122,6 +166,8 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'Aucune année n’est ouverte pour y amener quoi que ce soit.',
     nienteScelto: 'Rien n’a été choisi à reprendre.',
     nessunoNelTesto: 'Aucune personne en formation reconnue dans le texte collé.',
+    nomeObbligatorio: 'Le nom est obligatoire.',
+    nomeGiaUsato: (nome) => `Il y a déjà une classe appelée « ${nome} ».`,
   },
   en: {
     senzaCartella: 'There’s no folder to create the new year in.',
@@ -134,11 +180,23 @@ export const testi = catalogo(it, {
     restanoInChiusura: (n) =>
       ` ${plurale(n, 'lesson remains', 'lessons remain')} on a closure day ` +
       'because attendance, texts or grades are already in: move or cancel by hand.',
+    calendarioAssente: (etichetta) =>
+      `The official calendar doesn’t have the year ${etichetta}: it stays entered by hand.`,
+    annoCollegato: (cantone, anno) =>
+      `The year follows the official ${cantone} ${anno} calendar: ` +
+      'start, end and official closures can’t be changed by hand.',
+    annoStaccato:
+      'The year no longer follows the official calendar: dates and closures stay, and can be ' +
+      'changed by hand.',
     stessaMateria: 'They’re the same subject.',
     classeOMateria: 'Class or subject not found.',
+    classeMateriaFisse:
+      'A course’s class and subject can’t change: create a new course or merge the subjects.',
     senzaOrario: 'The course has no timetable yet: enter the fixed hours first.',
     periodoRovescio: 'The period ends before it starts.',
-    giaTutte: (n) => `All ${n} lessons in this period are already there.`,
+    giaTutte: (n) => n === 1
+      ? 'The only lesson in this period is already there.'
+      : `All ${n} lessons in this period are already there.`,
     orarioMaiNelPeriodo:
       'No timetabled lesson falls in this period: check the dates and the breaks.',
     aggiunte: (n, corso, saltate, conflitti) =>
@@ -160,5 +218,7 @@ export const testi = catalogo(it, {
     senzaAnnoPerImport: 'There’s no open year to bring anything into.',
     nienteScelto: 'Nothing was chosen to bring over.',
     nessunoNelTesto: 'No learner recognised in the pasted text.',
+    nomeObbligatorio: 'Name is required.',
+    nomeGiaUsato: (nome) => `There is already a class named “${nome}”.`,
   },
 })

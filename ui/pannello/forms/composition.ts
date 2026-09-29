@@ -43,7 +43,7 @@ export function moduloComposizione (scelti: Array<{ percorso: string, nome: stri
         // L'elenco numerato: l'ordine delle pagine si vede prima di fare il PDF.
         h(
           'ol',
-          { class: 'composizione__ordine' },
+          { class: 'composizione__ordine', dataset: { scorrimento: 'composizione:ordine' } },
           scelti.map((foglio) => h('li', { attr: { title: foglio.percorso } }, foglio.nome)),
         ),
         campo({

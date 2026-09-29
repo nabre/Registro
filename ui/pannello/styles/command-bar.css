@@ -144,22 +144,6 @@
 .comando--primario .icona, .comando--acceso .icona { color: var(--accento); }
 .comando--acceso { background: var(--velo-accento); border-color: var(--accento); }
 
-.comando__scorciatoia {
-  margin-left: 4px;
-  padding: 1px 4px;
-  font-size: 0.78em;
-  font-family: inherit;
-  color: var(--testo-quieto);
-  background: var(--sfondo-alto-2);
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio-piccolo);
-  line-height: 1.2;
-}
-.comando:hover .comando__scorciatoia {
-  border-color: var(--bordo);
-  color: var(--testo);
-}
-
 /*
  * Il gruppo a segmenti: più interruttori di cui uno solo acceso
  * (Settimana/Mese/Anno, Tutte/Mie, Pianificata/Svolta/Annullata).

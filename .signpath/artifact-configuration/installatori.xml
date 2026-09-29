@@ -11,7 +11,7 @@
   `node tools/signing.mjs versioni`: NSIS la scrive così com'è nella
   ProductVersion, anteprime comprese.
 
-  Copia di quel che sta in SignPath, progetto «Regiclass» (`regiclass`), configurazione
+  Copia di quel che sta in SignPath, progetto «Regiklass» (`regiklass`), configurazione
   «installatori». Chi cambia l'una cambia l'altra.
 -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
@@ -19,10 +19,10 @@
     <parameter name="versione" required="true" />
   </parameters>
   <zip-file>
-    <pe-file path="regiclass-${versione}-installer.exe" product-name="Regiclass" product-version="${versione}">
+    <pe-file path="regiklass-${versione}-installer.exe" product-name="Regiklass" product-version="${versione}">
       <authenticode-sign />
     </pe-file>
-    <pe-file path="regiclass-${versione}-portabile.exe" product-name="Regiclass" product-version="${versione}">
+    <pe-file path="regiklass-${versione}-portabile.exe" product-name="Regiklass" product-version="${versione}">
       <authenticode-sign />
     </pe-file>
   </zip-file>

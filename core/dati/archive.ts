@@ -24,6 +24,17 @@ import { testi } from './archive.testi.js'
 import { Deposito, dentroIlDocumento } from './store.js'
 import { Storia, type EsitoStoria } from './history.js'
 import {
+  applicaInBozza,
+  applicaInPosto,
+  copiaDelle,
+  inBozza,
+  perCollezione,
+  pesoDelle,
+  sostituisciLeToccate,
+  type Differenze,
+  type Patch,
+} from './bozza.js'
+import {
   ErrorePacchetto,
   ESTENSIONE,
   Pacchetto,
@@ -142,6 +153,13 @@ export class Archivio implements apparato.Smaltitore {
    * chiusura è rifiutata.
    */
   private inChiusura = false
+  /**
+   * Il documento aperto è stato riscritto sul disco da un registro più recente
+   * (un altro PC aggiornato, via OneDrive). Lo stato in memoria resta da leggere,
+   * ma non si scrive più: il salvataggio riscriverebbe per intero il formato
+   * vecchio sopra quello nuovo.
+   */
+  private superato = false
   /** Spento per sempre (`chiudi` allo spegnimento): nessun documento si apre più. */
   private spento = false
   /** Dove va la copia d'emergenza se accanto al documento non si riesce a scrivere. */
@@ -153,9 +171,7 @@ export class Archivio implements apparato.Smaltitore {
   private modifiche = 0
 
   /** Annulla e ripristina (`history.ts`); si azzera quando lo stato si rilegge. */
-  private readonly storia = new Storia<NomeCollezione>(
-    (collezione) => this.testoPerLaStoria(collezione),
-  )
+  private readonly storia = new Storia<NomeCollezione, Patch>(pesoDelle)
 
   private readonly emettitoreStoria = new apparato.EventEmitter<void>()
   /** Scatta quando cambia la storia senza che cambino i dati (per i pulsanti ↶ ↷). */
@@ -164,6 +180,14 @@ export class Archivio implements apparato.Smaltitore {
   private readonly emettitore = new apparato.EventEmitter<Registro>()
   /** Scatta a ogni cambiamento dello stato, da qualunque parte arrivi. */
   readonly alCambiamento = this.emettitore.event
+
+  private readonly emettitoreDifferenze = new apparato.EventEmitter<Differenze>()
+  /**
+   * Scatta con `alCambiamento` quando lo cambiano `modifica`, annulla o
+   * ripristina: quali collezioni, e le patch se ci sono. Oggi non lo ascolta
+   * nessun trasporto; è il gancio per mandare al pannello solo le differenze.
+   */
+  readonly alleDifferenze = this.emettitoreDifferenze.event
 
   private readonly emettitoreErrori = new apparato.EventEmitter<string | ErroreVersionePiuRecente>()
   readonly allErrore = this.emettitoreErrori.event
@@ -336,6 +360,7 @@ export class Archivio implements apparato.Smaltitore {
     // lascia senza anno. Stesso file (ricarica): la serratura resta.
     const stesso = file !== null && vecchio?.file.toString() === file.toString()
     const nuovo = file ? await this.prendiPacchetto(file, { giàNostro: stesso }) : null
+    if (nuovo || !file) this.superato = false
     if (file && !nuovo && vecchio) {
       // Non si è aperto (già detto): resta quello di prima, intero.
       this.documento = vecchio.file
@@ -369,10 +394,10 @@ export class Archivio implements apparato.Smaltitore {
     // Solo un documento aperto davvero è l'anno in uso: altrimenti si
     // accetterebbero modifiche senza dove scriverle.
     impostaDocumento(this.pacchetto ? file : null)
-    const intestazione = this.leggiIntestazione(this.pacchetto)
     // Quel che si sapeva del documento di prima non vale per questo.
     this.ultimiTesti.clear()
     this.illeggibili.clear()
+    const intestazione = this.leggiIntestazione(this.pacchetto)
 
     const grezzo = {} as FilePersistito
     for (const collezione of COLLEZIONI) {
@@ -395,7 +420,10 @@ export class Archivio implements apparato.Smaltitore {
 
     // Quel che la lettura ha migrato va fissato su disco: gli id nati nella
     // migrazione (es. dei corsi) cambierebbero a ogni caricamento.
-    const migrate = this.collezioniMigrate(grezzo)
+    // Se il formato vecchio chiedeva una copia e questa non è riuscita, non si
+    // accoda niente: il documento non va toccato senza copia di sicurezza.
+    const puòSalvare = formato.passi.length === 0 || copia !== null
+    const migrate = puòSalvare ? this.collezioniMigrate(grezzo) : []
     if (migrate.length > 0) {
       for (const collezione of migrate) this.scritturePendenti.add(collezione)
       this.programmaSalvataggio()
@@ -486,11 +514,21 @@ export class Archivio implements apparato.Smaltitore {
     try {
       // Anche l'apertura nel `try`: un blocco col CRC sbagliato vale come JSON rotto.
       const testo = pacchetto.testo(nome)?.trim()
-      if (!testo) return null
+      if (!testo) {
+        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        return null
+      }
       // `unknown` e non `any`: obbliga a controllare prima di usare.
       const letto: unknown = JSON.parse(testo)
-      return letto && typeof letto === 'object' ? (letto as Record<string, unknown>) : null
+      if (letto && typeof letto === 'object' && !Array.isArray(letto)) {
+        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        return letto as Record<string, unknown>
+      }
+      if (nome === NOMI.registro) this.illeggibili.add('registro')
+      this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, testi().nonOggetto))
+      return null
     } catch (errore) {
+      if (nome === NOMI.registro) this.illeggibili.add('registro')
       this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, motivoDi(errore)))
       return null
     }
@@ -535,10 +573,20 @@ export class Archivio implements apparato.Smaltitore {
       return null
     }
 
+    // Ricarica: un file sparito o vuoto è quasi sempre una sostituzione a metà
+    // (OneDrive cancella e riscrive). Aperto vuoto, lo stato si svuoterebbe e il
+    // primo salvataggio coprirebbe il file vero appena tornato: resta quel che
+    // c'è, e si riprova al prossimo evento.
+    if (opzioni?.giàNostro) {
+      const misura = await apparato.file.stat(file).then((stato) => stato.size, () => 0)
+      if (misura === 0) return null
+    }
+
     let pacchetto: Pacchetto
     try {
-      pacchetto = await Pacchetto.apri(file)
+      pacchetto = await Pacchetto.apri(file, { codaInFondo: opzioni?.giàNostro })
     } catch (errore) {
+      if (errore instanceof ErroreVersionePiuRecente && opzioni?.giàNostro) this.superato = true
       this.emettitoreErrori.fire(
         errore instanceof ErroreVersionePiuRecente
           ? errore
@@ -553,6 +601,7 @@ export class Archivio implements apparato.Smaltitore {
     // ignoti e `collezioniMigrate` li cancellerebbe subito dal documento.
     const versione = versioneDati(pacchetto)
     if (versione !== null && versione > VERSIONE_DATI) {
+      if (opzioni?.giàNostro) this.superato = true
       this.emettitoreErrori.fire(new ErroreVersionePiuRecente({
         file: `${cartella}${ESTENSIONE}`, cosa: 'dati', delFile: versione, quiFinoA: VERSIONE_DATI,
       }))
@@ -844,24 +893,69 @@ export class Archivio implements apparato.Smaltitore {
   // ---------------------------------------------------------------- scrittura
 
   /**
-   * Applica una modifica allo stato vivo, in posto, e programma il salvataggio
-   * delle collezioni dichiarate.
+   * Applica una modifica allo stato vivo e programma il salvataggio delle
+   * collezioni toccate. L'operazione lavora su una bozza (`bozza.ts`): le
+   * collezioni toccate si ricavano dalle sue patch, e `collezioni` resta la
+   * dichiarazione di chi scrive, controllata (`controllaDichiarate`). Le patch
+   * poi si riportano sullo stato in posto: gli oggetti restano gli stessi.
+   * Quel che l'operazione prende dalla bozza non va portato fuori: finita
+   * l'operazione la bozza si chiude, e toccarla lancia. E dentro l'operazione
+   * si cambia la bozza, non un oggetto preso prima dallo stato vivo: quello non
+   * farebbe patch, e non arriverebbe su disco (`controllaVivo`).
+   * Niente patch: non si scrive niente, ma la revisione sale lo stesso, come
+   * per ogni gesto andato a buon fine.
    */
   modifica (
     operazione: (registro: Registro) => void,
     collezioni: NomeCollezione[] = COLLEZIONI,
   ): Registro {
+    this.scrivi(operazione, collezioni, false)
+    return this.stato
+  }
+
+  /**
+   * Come `modifica`, ma l'operazione può rinunciare tornando `false` (solo
+   * `false`): la bozza si butta, lo stato e la revisione restano quelli, e
+   * torna `false`. Serve a chi scopre dentro l'operazione che la voce non c'è
+   * più (il contesto delle azioni, dopo l'attesa di un dialogo).
+   */
+  modificaSe (
+    operazione: (registro: Registro) => boolean | void,
+    collezioni: NomeCollezione[] = COLLEZIONI,
+  ): boolean {
+    return this.scrivi(operazione, collezioni, true)
+  }
+
+  private scrivi (
+    operazione: (registro: Registro) => boolean | void,
+    collezioni: readonly NomeCollezione[],
+    puoRinunciare: boolean,
+  ): boolean {
     this.vietaSeInChiusura()
-    // La copia di prima va presa prima di toccare lo stato.
-    this.storia.ricordaPrima(collezioni)
-    operazione(this.stato)
-    this.storia.cambiate(collezioni)
+    const vivo = dichiarazioneSevera() ? JSON.stringify(this.stato) : null
+    let rinuncia = false
+    const { patch, inverse } = inBozza(this.stato, (bozza) => {
+      rinuncia = operazione(bozza) === false && puoRinunciare
+    })
+    if (vivo !== null) controllaVivo(vivo, this.stato)
+    if (rinuncia) return false
+    if (vivo !== null) controllaSenzaBozze(patch)
+    const toccate = patch.length > 0 ? [...perCollezione(patch).keys()] : []
+    if (toccate.length > 0) {
+      controllaDichiarate(toccate, collezioni)
+      // Prima la copia per la storia: riportare le patch in posto cambia gli
+      // oggetti vivi, e fra quelli ci sono i valori delle inverse.
+      this.storia.ricordaPatch(toccate, () => perCollezione(copiaDelle(inverse)))
+      applicaInPosto(this.stato, patch)
+    }
+    this.storia.cambiate(toccate)
     this.modifiche += 1
     this.stato.versione = VERSIONE_DATI
-    for (const collezione of collezioni) this.scritturePendenti.add(collezione)
-    this.programmaSalvataggio()
+    for (const collezione of toccate) this.scritturePendenti.add(collezione)
+    if (toccate.length > 0) this.programmaSalvataggio()
     this.emettitore.fire(this.stato)
-    return this.stato
+    this.emettitoreDifferenze.fire({ collezioni: toccate, patch })
+    return true
   }
 
   // ---------------------------------------------------------------- annulla e ripristina
@@ -872,14 +966,6 @@ export class Archivio implements apparato.Smaltitore {
    */
   inUnPasso<T> (lavoro: () => Promise<T>, chiave?: string): Promise<T> {
     return this.storia.inUnPasso(lavoro, chiave)
-  }
-
-  /**
-   * Si segna com'erano le collezioni prima di cambiarle. `modifica` lo fa da sé;
-   * serve a chi cambia lo stato vivo prima di chiamarla (il contesto delle azioni).
-   */
-  ricordaPrima (collezioni: readonly NomeCollezione[]): void {
-    this.storia.ricordaPrima(collezioni)
   }
 
   /** Il gesto in corso toglie file e non si potrà annullare (`Storia.segnaIrreversibile`). */
@@ -899,24 +985,27 @@ export class Archivio implements apparato.Smaltitore {
 
   /**
    * Solleva se il documento si sta chiudendo. Pubblico per il contesto delle
-   * azioni, che cambia lo stato prima di chiamare `modifica`.
+   * azioni, che toglie file dal documento prima di chiamare `modifica`.
    */
   vietaSeInChiusura (): void {
     if (this.inChiusura) {
       throw new Error(testi().inChiusura)
+    }
+    if (this.superato) {
+      throw new Error(testi().superato)
     }
   }
 
   /** Annulla l'ultimo gesto. */
   annulla (): EsitoStoria<NomeCollezione> {
     this.vietaSeInChiusura()
-    return this.dopoLaStoria(this.storia.annulla((copie) => this.rimettiCopie(copie)))
+    return this.dopoLaStoria(this.storia.annulla((inverse) => this.rimetti(inverse)))
   }
 
   /** Rifà l'ultimo gesto annullato. */
   ripristina (): EsitoStoria<NomeCollezione> {
     this.vietaSeInChiusura()
-    return this.dopoLaStoria(this.storia.ripristina((copie) => this.rimettiCopie(copie)))
+    return this.dopoLaStoria(this.storia.ripristina((inverse) => this.rimetti(inverse)))
   }
 
   /** Un rifiuto che ha svuotato la storia va detto a chi disegna i pulsanti. */
@@ -931,52 +1020,31 @@ export class Archivio implements apparato.Smaltitore {
   }
 
   /**
-   * Il testo di una collezione per la storia. Per `'registro'`: materie,
-   * impostazioni e anni (i gesti sul calendario li cambiano); la cartella di un
-   * anno la riprende `rimettiCopie` dal documento.
+   * Rimette nello stato un passo della storia e lo fa scrivere. Le patch vanno
+   * su una bozza, così se non combaciano lancia senza aver toccato niente, e le
+   * raccolte rimesse sono oggetti nuovi. Torna le patch che rifanno quel che ha
+   * disfatto. Non passa da `modifica`: le versioni le rimette la storia, e un
+   * annulla non va in pila. Niente normalizzazione: le patch vengono da uno
+   * stato già normalizzato.
    */
-  private testoPerLaStoria (collezione: NomeCollezione): string {
-    if (collezione === 'registro') {
-      return JSON.stringify({
-        materie: this.stato.materie,
-        impostazioni: this.stato.impostazioni,
-        anni: this.stato.anni,
-        annoCorrenteId: this.stato.annoCorrenteId,
-      })
-    }
-    return JSON.stringify(this.contenutoDi(collezione))
-  }
+  private rimetti (inverse: Map<NomeCollezione, Patch[]>): Map<NomeCollezione, Patch[]> {
+    // La cartella di un anno sta nel documento, non nei dati del gesto.
+    const cartelle = new Map(this.stato.anni.map((a) => [a.id, a.cartella]))
+    const { nuovo, patch, inverse: indietro } = inBozza(this.stato, (bozza) => {
+      applicaInBozza(bozza, [...inverse.values()].flat())
+      if (inverse.has('registro')) tieniLeCartelle(bozza, cartelle)
+    })
+    // Qui non in posto: chi confronta prima e dopo un annulla guarda l'identità
+    // delle raccolte (`core/azioni/history.ts`).
+    sostituisciLeToccate(this.stato, nuovo, patch)
 
-  /**
-   * Rimette nello stato le copie di un passo e le fa scrivere. Non passa da
-   * `modifica`: le versioni le rimette la storia, e un annulla non va in pila.
-   * Niente normalizzazione: le copie vengono da uno stato già normalizzato.
-   */
-  private rimettiCopie (copie: Map<NomeCollezione, string>): void {
-    for (const [collezione, testo] of copie) {
-      const valore: unknown = JSON.parse(testo)
-      if (collezione === 'registro') {
-        const { materie, impostazioni, anni, annoCorrenteId } =
-          valore as Pick<Registro, 'materie' | 'impostazioni' | 'anni' | 'annoCorrenteId'>
-        this.stato.materie = materie
-        this.stato.impostazioni = impostazioni
-        // La cartella resta quella di adesso; un anno che torna tiene la sua.
-        const cartelle = new Map(this.stato.anni.map((a) => [a.id, a.cartella]))
-        this.stato.anni = anni.map((anno) => {
-          if (!cartelle.has(anno.id)) return anno
-          const { cartella: _vecchia, ...resto } = anno
-          const cartella = cartelle.get(anno.id)
-          return cartella === undefined ? resto : { ...resto, cartella }
-        })
-        this.stato.annoCorrenteId = annoCorrenteId
-      } else {
-        ;(this.stato as unknown as Record<string, unknown>)[collezione] = valore
-      }
-      this.scritturePendenti.add(collezione)
-    }
+    const collezioni = [...inverse.keys()]
+    for (const collezione of collezioni) this.scritturePendenti.add(collezione)
     this.modifiche += 1
     this.programmaSalvataggio()
     this.emettitore.fire(this.stato)
+    this.emettitoreDifferenze.fire({ collezioni, patch })
+    return perCollezione(copiaDelle(indietro))
   }
 
   /** Programma la scrittura poco dopo l'ultima modifica, ed entro il tetto dalla prima. */
@@ -1209,7 +1277,79 @@ export class Archivio implements apparato.Smaltitore {
     this.emettitore.dispose()
     this.emettitoreErrori.dispose()
     this.emettitoreStoria.dispose()
+    this.emettitoreDifferenze.dispose()
+    this.storia.smetti()
   }
+}
+
+/**
+ * Dopo un annulla la cartella di un anno resta quella di adesso: sta nel nome
+ * del documento, non nei dati del gesto. Un anno che torna tiene la sua.
+ */
+function tieniLeCartelle (stato: Registro, cartelle: Map<string, string | undefined>): void {
+  for (const anno of stato.anni) {
+    if (!cartelle.has(anno.id)) continue
+    const cartella = cartelle.get(anno.id)
+    if (cartella === undefined) delete anno.cartella
+    else anno.cartella = cartella
+  }
+}
+
+/**
+ * Vero dove un errore di chi scrive ferma la scrittura: con `npm run dev` e
+ * nelle prove (`node --test` mette `NODE_TEST_CONTEXT` ai suoi figli), così
+ * una dichiarazione sbagliata si vede subito e non diventa un avviso perso.
+ */
+function dichiarazioneSevera (): boolean {
+  return process.env.REGISTRO_SVILUPPO === '1' || process.env.NODE_TEST_CONTEXT !== undefined
+}
+
+/**
+ * Lo stato vivo dev'essere quello di prima dell'operazione: un oggetto preso
+ * dallo stato fuori dalla bozza e cambiato dentro non fa patch, quindi non
+ * finisce su disco né nella storia. Costa due JSON dello stato intero: si
+ * guarda solo dove la dichiarazione è severa.
+ */
+function controllaVivo (prima: string, stato: Registro): void {
+  if (JSON.stringify(stato) === prima) return
+  // testo-fisso: diagnostica interna di sviluppo
+  throw new Error('modifica: lo stato vivo è cambiato fuori dalla bozza')
+}
+
+/**
+ * Nelle patch non dev'esserci un pezzo della bozza: un oggetto nuovo fatto
+ * con pezzi presi dalla bozza (`{ ...voce, voti: bozza.voti }`) può uscirne
+ * con dentro bozze che immer ha già chiuso, e nello stato vivo farebbero
+ * lanciare ogni lettura dopo. Chi li vuole li prende con `comeAdesso`. Si
+ * guarda solo dove la dichiarazione è severa: costa un JSON delle patch.
+ */
+function controllaSenzaBozze (patch: readonly Patch[]): void {
+  try {
+    JSON.stringify(patch)
+  } catch (errore) {
+    const dove = patch.map((una) => `/${una.path.join('/')}`).join(', ')
+    // testo-fisso: diagnostica interna di sviluppo
+    throw new Error(`modifica: una bozza chiusa è finita nelle patch (${dove})`, { cause: errore })
+  }
+}
+
+/**
+ * Le collezioni toccate devono essere fra quelle dichiarate. In sviluppo una
+ * mancante lancia prima di toccare lo stato: è un errore di chi scrive, e va
+ * visto subito. Altrove si scrive lo stesso quel che le patch dicono, con un
+ * avviso: fermare il gesto perderebbe il lavoro del docente, e scrivere solo il
+ * dichiarato lascerebbe su disco una collezione vecchia sotto quella in memoria.
+ */
+function controllaDichiarate (
+  toccate: readonly NomeCollezione[],
+  dichiarate: readonly NomeCollezione[],
+): void {
+  const mancanti = toccate.filter((collezione) => !dichiarate.includes(collezione))
+  if (mancanti.length === 0) return
+  // testo-fisso: diagnostica interna di sviluppo
+  const frase = `modifica: toccate ma non dichiarate: ${mancanti.join(', ')} (dichiarate: ${dichiarate.join(', ') || 'nessuna'})`
+  if (dichiarazioneSevera()) throw new Error(frase)
+  console.warn(frase)
 }
 
 /**

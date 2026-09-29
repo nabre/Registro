@@ -48,6 +48,8 @@ import { procedureValutazioni } from './procedure/valutazioni/index.js'
 import { procedureVista } from './procedure/vista/index.js'
 import { procedureAggiornamenti } from './procedure/aggiornamenti/index.js'
 import { procedureCheck } from './procedure/check/index.js'
+import { procedureMicrosoft } from './procedure/microsoft/index.js'
+import { procedureOnedrive } from './procedure/onedrive/index.js'
 import { procedureStoria } from './procedure/storia/index.js'
 
 export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
@@ -74,7 +76,9 @@ export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
   ...procedureManutenzione,
   ...procedureMappa,
   ...procedureMaterie,
+  ...procedureMicrosoft,
   ...procedureModelli,
+  ...procedureOnedrive,
   ...procedureOrario,
   ...procedureOre,
   ...procedurePersone,
@@ -104,7 +108,7 @@ export function registraTutte (): void {
   registra(...TUTTE)
 }
 
-export { alberoProcedure, foglie, router, type AlberoProcedure } from './router.js'
-export { linkDiretto, type Link, type OpzioniLinkDiretto } from './link.js'
-export { chiamante, type ChiamanteNodo, type FunzioneChiamabile, type OpzioniChiamata } from './chiamante.js'
+export { alberoProcedure, foglie } from './router.js'
+export { linkDiretto } from './link.js'
+export { chiamante, type ChiamanteNodo } from './chiamante.js'
 

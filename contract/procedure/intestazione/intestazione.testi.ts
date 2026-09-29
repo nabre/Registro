@@ -8,6 +8,7 @@ const it = {
   logo: {
     titolo:
       'Il logo della carta intestata: si sceglie dal disco e se ne tiene una copia nel documento',
+    file: 'Percorso del file immagine sul disco (PNG o JPEG); se omesso apre il dialogo',
   },
   togliLogo: {
     titolo:
@@ -23,6 +24,7 @@ export const testi = catalogo(it, {
       titolo:
         'Das Logo des Briefpapiers: Es wird auf der Festplatte ausgewählt, und eine Kopie ' +
         'bleibt im Dokument',
+      file: 'Pfad der Bilddatei auf der Festplatte (PNG oder JPEG); wenn weggelassen, öffnet sich der Dialog',
     },
     togliLogo: {
       titolo:
@@ -36,6 +38,7 @@ export const testi = catalogo(it, {
       titolo:
         'Le logo du papier à en-tête : on le choisit sur le disque et on en garde une copie ' +
         'dans le document',
+      file: 'Chemin du fichier image sur le disque (PNG ou JPEG) ; si omis, ouvre la boîte de dialogue',
     },
     togliLogo: {
       titolo:
@@ -47,6 +50,7 @@ export const testi = catalogo(it, {
     cartaId: 'The letterhead: an id from impostazioni.intestazione.carte',
     logo: {
       titolo: 'The letterhead’s logo: it is picked from disk and a copy is kept in the document',
+      file: 'Path of the image file on disk (PNG or JPEG); if omitted opens the dialog',
     },
     togliLogo: {
       titolo:

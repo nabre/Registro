@@ -34,7 +34,7 @@ function segnaposti (testo) {
  * Parole che esistono solo in italiano: due nella stessa frase tradotta
  * vogliono dire che è rimasta com'era (come in `tests/i18n/catalogs.test.mjs`).
  */
-const SOLO_ITALIANO = /\b(della|delle|degli|dello|nella|nelle|negli|questo|questa|sono|anche|perché|più|già|dell’|all’|sull’|nell’)\b/giu
+const SOLO_ITALIANO = /(?<!\p{L})(?:(?:della|delle|degli|dello|nella|nelle|negli|questo|questa|sono|anche|perché|più|già)(?!\p{L})|dell’|all’|sull’|nell’)/giu
 
 describe('le parole dei rapporti, lingua per lingua', () => {
   it('l’italiano ha le sue frasi', () => {
@@ -47,11 +47,9 @@ describe('le parole dei rapporti, lingua per lingua', () => {
     const tradotto = leggiTesti(sorgente ?? '')
 
     describe(`${file}.tpl`, () => {
-      it('c’è, fra i modelli del programma', () => {
-        assert.ok(sorgente, `manca templates/${file}.tpl`)
-      })
-
       it('ha le stesse frasi dell’italiano, né una in più né una in meno', () => {
+        // Un file che manca darebbe «tutte le frasi mancano»: si dice prima perché.
+        assert.ok(sorgente, `manca templates/${file}.tpl`)
         assert.deepEqual(Object.keys(tradotto.frasi).sort(), Object.keys(italiano.frasi).sort())
       })
 

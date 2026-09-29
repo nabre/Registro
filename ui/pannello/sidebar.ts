@@ -3,11 +3,12 @@ import { assistenteAperto } from './assistant.js'
 import { h, type Figlio } from './dom.js'
 import { icona } from './components/icons.js'
 import { gruppiDiPagine, vaiA, type Pagina } from './pages.js'
-import { aggiorna, stato } from './state.js'
+import { aggiorna, ridisegna, stato } from './state.js'
 import { testi } from './sidebar.testi.js'
 
 const stretta = window.matchMedia('(max-width: 64em)')
-stretta.addEventListener('change', () => aggiorna({}))
+// La larghezza della finestra non sta nello stato: cambiandola si ridisegna a mano.
+stretta.addEventListener('change', () => ridisegna())
 
 /**
  * Se la navigazione è ridotta per forza: su finestra stretta con l'assistente
@@ -85,7 +86,7 @@ export function sidebar (): HTMLElement {
   return h('aside', {
     id: 'navigazione-laterale', class: ['sidebar', !sidebarAperta() && 'sidebar--compatta'],
     // Lo scorrimento resta al ridisegno (`ricordaScorrimenti` in `dom.ts`).
-    dataset: { scorrimento: 'sidebar' },
+    dataset: { scorrimento: 'sidebar', telaio: 'sidebar' },
     onkeydown: (evento: KeyboardEvent) => {
       if (evento.key === 'Escape') {
         evento.preventDefault()
@@ -104,23 +105,26 @@ export function sidebar (): HTMLElement {
       // Il titolo lungo («Registro — DIC4a · Matematica») dice di quale corso sono
       // le pagine; se non ci sta si accorcia, intero nel suggerimento.
       h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } }, gruppo.titolo),
-      ...gruppo.pagine.map((pagina) => h('button', {
-        type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
-        attr: {
-          'aria-label': pagina.titolo,
-          'aria-current': pagina.attiva() ? 'page' : null,
-          'aria-disabled': String(Boolean(pagina.impedimento?.())),
-          title: suggerimentoDi(pagina),
-        },
-        onclick: () => {
-          vaiA(pagina)
-          if (!pagina.impedimento?.()) chiudiSidebarMobile()
-        },
-        // Il conto in coda, solo se maggiore di zero.
-      }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
-      (pagina.conto?.() ?? 0) > 0
-        ? h('span', { class: 'sidebar__conto' }, String(pagina.conto?.()))
-        : null)),
+      ...gruppo.pagine.map((pagina) => {
+        const conto = pagina.conto?.() ?? 0
+        return h('button', {
+          type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
+          attr: {
+            'aria-label': pagina.titolo,
+            'aria-current': pagina.attiva() ? 'page' : null,
+            'aria-disabled': String(Boolean(pagina.impedimento?.())),
+            title: suggerimentoDi(pagina),
+          },
+          onclick: () => {
+            vaiA(pagina)
+            if (!pagina.impedimento?.()) chiudiSidebarMobile()
+          },
+          // Il conto in coda, solo se maggiore di zero.
+        }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
+        conto > 0
+          ? h('span', { class: 'sidebar__conto' }, String(conto))
+          : null)
+      }),
     )),
   ),
   )

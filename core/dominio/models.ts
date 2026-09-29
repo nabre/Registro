@@ -51,6 +51,14 @@ export interface Sospensione {
  */
 export type LetteraSettimana = string
 
+/** Quale anno di quale calendario ufficiale: `{ cantone: 'TI', annoScolastico: '2026/2027' }`. */
+export interface CalendarioDellAnno {
+  /** La sigla del cantone, come nel calendario: 'TI'. */
+  cantone: string
+  /** L'anno del calendario, come `etichettaAnno`: '2026/2027'. */
+  annoScolastico: string
+}
+
 /**
  * Un anno scolastico, anche unità di stoccaggio: una cartella con le sue
  * classi, ore e documenti.
@@ -73,6 +81,14 @@ export interface AnnoScolastico {
    */
   settimane?: Record<Iso, LetteraSettimana>
   note?: string
+  /**
+   * L'anno del calendario scolastico ufficiale da cui l'anno prende inizio,
+   * fine e chiusure (`domain/schoolCalendar.ts`). Finché c'è, quelle voci non
+   * si toccano a mano: le chiusure collegate si riconoscono dall'id
+   * (`èCollegata`), e si riallineano o si staccano con `anno.calendario`.
+   * Assente, l'anno è scritto a mano: il caso di ogni anno nato prima.
+   */
+  calendarioUfficiale?: CalendarioDellAnno
   /**
    * La cartella in cui l'anno vive, '2025-2026'. Non si scrive nel file: la
    * riempie `Archivio` in lettura, per chi deve scrivere in un anno non in uso.
@@ -529,6 +545,12 @@ export interface Lezione {
   materiali?: string
   /** Come è andata: il consuntivo che si scrive a fine ora. */
   consuntivo?: string
+  /**
+   * L'ora l'ho tenuta al posto di un altro docente. Si segna perché le
+   * supplenze si rendicontano a parte (pagina Documenti, scheda Docente).
+   * Assente vuol dire no: il caso di ogni lezione nata prima.
+   */
+  supplenza?: boolean
   creataIl: Istante
   aggiornataIl: Istante
 }
@@ -849,6 +871,11 @@ export interface Consegna {
   scadenzaLezioneId: string | null
   scadenza: Iso | null
   note?: string
+  /**
+   * Se la consegna appartiene alle attività del docente di classe (`true`)
+   * oppure a un corso d'insegnamento (`false` o assente).
+   */
+  docenteDiClasse?: boolean
   /**
    * Se spuntarla vuol dire consegnare un foglio: la categoria del documento.
    * È quel che la rende una «richiesta di documento», con un file per ciascuno
@@ -1192,6 +1219,12 @@ export interface Intestazione {
   carte: CartaIntestata[]
   /** Chi firma, in fondo a sinistra di ogni pagina: una persona sola, qualunque carta. */
   docente: string
+  /** Titolo o appellativo del docente: Prof., Prof.ssa, Ing., Maestro, ecc. */
+  docenteAppellativo?: string
+  /** Nome proprio del docente. */
+  docenteNome?: string
+  /** Cognome del docente. */
+  docenteCognome?: string
   /**
    * La firma delle e-mail in HTML, quando non è quella di serie (che usa il
    * nome qui sopra e la scuola della prima carta).
@@ -1327,7 +1360,7 @@ export interface Registro {
  * `migrationVersion.test.mjs`, `upgrades.test.mjs`, `formatUpgrade.test.mjs`.
  * Vedi la skill `formato`.
  */
-export const VERSIONE_DATI = 2
+export const VERSIONE_DATI = 5
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

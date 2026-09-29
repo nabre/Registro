@@ -31,6 +31,7 @@ import { moduloLezione } from '../../forms.js'
 import {
   annoCorrente,
   compleanniFra,
+  iscriviti,
   lezioniInAgenda,
   nomeClasseDiLezione,
   nomeMateriaDiLezione,
@@ -59,6 +60,29 @@ import { minuscolo } from '../../../../core/i18n/index.js'
  * riferimento; ai ridisegni dopo resta dove l'ha lasciata chi guarda.
  */
 let agendaPortataSu: Iso | null = null
+
+/**
+ * Porta l'agenda sul giorno di riferimento, o sul primo elencato dopo, a
+ * disegno fatto: dal disegno lo scorrimento partiva a ogni ridisegno in cui
+ * il giorno era nuovo, anche a metà gesto.
+ */
+function portaAgenda (): void {
+  if (agendaPortataSu === stato.data) return
+  const giorni = Array.from(document.querySelectorAll<HTMLElement>('[data-agenda-giorno]'))
+  if (giorni.length === 0) return
+  agendaPortataSu = stato.data
+  const bersaglio = giorni.find((giorno) => (giorno.dataset.agendaGiorno ?? '') >= stato.data) ??
+    giorni[giorni.length - 1]
+  bersaglio.scrollIntoView({ block: 'start' })
+}
+
+// Il disegno parte da un iscritto venuto dopo questo: il microtask mette il
+// fotogramma di qui in fila dietro al suo.
+iscriviti(() => {
+  if (stato.vista !== 'calendario' || stato.modoCalendario !== 'agenda') return
+  if (agendaPortataSu === stato.data) return
+  queueMicrotask(() => requestAnimationFrame(portaAgenda))
+})
 
 export function vistaAgenda (): HTMLElement {
   const t = testi()
@@ -124,21 +148,11 @@ export function vistaAgenda (): HTMLElement {
   // Il confine fra i semestri si segna fra i due giorni elencati in cui cambia.
   let semestrePrecedente = semestrePerData(primo)
 
-  // Il giorno su cui portarsi: quello di riferimento o il primo elencato dopo.
-  const elencati = [...settimane.values()].flat()
-  const bersaglio = elencati.find((data) => data >= stato.data) ?? elencati.at(-1)
-  if (bersaglio && agendaPortataSu !== stato.data) {
-    agendaPortataSu = stato.data
-    requestAnimationFrame(() => {
-      document
-        .querySelector(`[data-agenda-giorno="${bersaglio}"]`)
-        ?.scrollIntoView({ block: 'start' })
-    })
-  }
-
   return h(
     'div',
-    { class: 'agenda', dataset: { scorrimento: 'calendario:agenda' } },
+    // Nodo di telaio (`dom.ts`): un ridisegno non lo ricrea, chi scorre non
+    // perde il gesto. Dove portarlo lo decide `portaAgenda`, dopo il disegno.
+    { class: 'agenda', dataset: { scorrimento: 'calendario:agenda', telaio: 'agenda' } },
     ...[...settimane].flatMap(([lunedi, giorni]) => [
       // Il titolo della settimana: il numero, i giorni che copre e la lettera,
       // che vale per tutta la settimana.
