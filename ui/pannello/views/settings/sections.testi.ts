@@ -40,6 +40,10 @@ const it = {
       titolo: 'Condotto e riga di comando',
       sottotitolo: 'se altri programmi possono parlare con il registro',
     },
+    calendari: {
+      titolo: 'Calendari ufficiali',
+      sottotitolo: 'i calendari scolastici che il registro conosce, con il PDF da cui vengono',
+    },
   } satisfies Record<string, Nome>,
   avvertenzaCondotto:
     'Qui si concede a **programmi che non sono il registro** di guardarci dentro. Acceso il '
@@ -131,6 +135,10 @@ export const testi = catalogo(it, {
         titolo: 'Kanal und Befehlszeile',
         sottotitolo: 'ob andere Programme mit dem Klassenbuch sprechen dürfen',
       },
+      calendari: {
+        titolo: 'Offizielle Kalender',
+        sottotitolo: 'die Schulkalender, die das Klassenbuch kennt, mit dem PDF, aus dem sie stammen',
+      },
     },
     avvertenzaCondotto:
       'Hier erlaubst du **Programmen, die nicht das Klassenbuch sind**, hineinzuschauen. Ist der '
@@ -219,6 +227,10 @@ export const testi = catalogo(it, {
         titolo: 'Canal et ligne de commande',
         sottotitolo: 'si d’autres programmes peuvent parler avec le registre',
       },
+      calendari: {
+        titolo: 'Calendriers officiels',
+        sottotitolo: 'les calendriers scolaires que le registre connaît, avec le PDF d’où ils viennent',
+      },
     },
     avvertenzaCondotto:
       'Ici, tu permets à **des programmes qui ne sont pas le registre** de regarder dedans. Le '
@@ -305,6 +317,10 @@ export const testi = catalogo(it, {
       condotto: {
         titolo: 'Pipe and command line',
         sottotitolo: 'whether other programs may talk to the register',
+      },
+      calendari: {
+        titolo: 'Official calendars',
+        sottotitolo: 'the school calendars the register knows, with the PDF they come from',
       },
     },
     avvertenzaCondotto:

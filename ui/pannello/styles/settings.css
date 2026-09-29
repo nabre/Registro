@@ -868,3 +868,54 @@ button.onedrive__nome:hover span { text-decoration: underline; }
 
 /* Il conto di una regola: vuoto finché gli eventi non sono letti. */
 .ics-regola__conto:empty { display: none; }
+
+/* ------------------------------------------------------- i calendari ufficiali
+
+   Una scheda per cantone, un `details` per anno: in testa anno, date e quante
+   chiusure, dentro le date lunghe, le chiusure in tabella e il PDF. */
+.calendario-ufficiale__anni {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+.calendario-ufficiale__anno > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  cursor: pointer;
+}
+
+.calendario-ufficiale__anno[open] > summary { margin-bottom: var(--spazio-2); }
+
+.calendario-ufficiale__riassunto {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+
+.calendario-ufficiale__date {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--spazio-1) var(--spazio-3);
+  margin: 0 0 var(--spazio-2);
+}
+
+.calendario-ufficiale__date dt { color: var(--testo-quieto); }
+.calendario-ufficiale__date dd { margin: 0; }
+
+.tabella--calendario-ufficiale td { font-variant-numeric: tabular-nums; }
+
+.calendario-ufficiale__fonte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  margin: var(--spazio-2) 0 0;
+  font-size: var(--corpo-piccolo);
+}
+
+.calendario-ufficiale__etichetta { color: var(--testo-quieto); }
+
+/* Il nome del file è lungo e senza spazi: va a capo dove serve. */
+.calendario-ufficiale__pdf { overflow-wrap: anywhere; }

@@ -29,6 +29,7 @@ import { schedaCalendarioIcs } from './settings/icsCalendar.js'
 import { schedaFirma, schedaPosta } from './settings/mail.js'
 import { schedaAccountMicrosoft } from './settings/microsoft.js'
 import { schedaAggiornamenti } from './settings/updates.js'
+import { schedeCalendariUfficiali } from './settings/officialCalendars.js'
 import { contenutoModelliLinguistici } from './languageModels.js'
 import { vistaIntestazione } from './settings/letterhead.js'
 import {
@@ -376,6 +377,7 @@ function sottoIlFiltro (sezione: (typeof SEZIONI_PROGRAMMA)[number]): Figlio[] {
     sezione.id === 'posta' ? schedaFirma() : null,
     sezione.id === 'account' ? schedaAccountMicrosoft() : null,
     sezione.id === 'aggiornamenti' ? schedaAggiornamenti() : null,
+    ...(sezione.id === 'calendari' ? schedeCalendariUfficiali() : []),
     ...(sezione.id === 'modelli' ? contenutoModelliLinguistici() : []),
     // Una sezione senza chiavi (gli account) è tutta nella sua scheda.
     sezione.prefissi.length > 0 ? schedaProgramma(sezione) : null,
