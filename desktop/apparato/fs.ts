@@ -61,16 +61,15 @@ async function esiste (nativo: string): Promise<boolean> {
 const OCCUPATO = new Set(['EPERM', 'EACCES', 'EBUSY'])
 
 /**
- * `fs.rename` che su Windows riprova per due secondi, con attese crescenti come
- * `graceful-fs`: un file tenuto aperto un attimo (antivirus, sincronizzazione,
- * osservatore) fa fallire la rinomina con `EPERM`.
+ * Ripete `azione` su Windows per due secondi, con attese crescenti come
+ * `graceful-fs`: un file tenuto aperto un attimo (antivirus, sincronizzazione
+ * di OneDrive, osservatore) fa fallire rinomina e apertura con `EPERM` o `EBUSY`.
  */
-async function rinominaConPazienza (da: string, a: string): Promise<void> {
+async function conPazienza<T> (azione: () => Promise<T>): Promise<T> {
   const scadenza = Date.now() + 2000
   for (let attesa = 10; ; attesa = Math.min(attesa * 2, 200)) {
     try {
-      await fs.rename(da, a)
-      return
+      return await azione()
     } catch (errore) {
       const codice = (errore as NodeJS.ErrnoException).code ?? ''
       if (process.platform !== 'win32' || !OCCUPATO.has(codice) || Date.now() >= scadenza) throw errore
@@ -166,7 +165,7 @@ export const filesystem = {
     // Verifica non atomica, sufficiente per un solo processo sulla cartella.
     if (!opzioni?.overwrite && (await esiste(a.fsPath))) throw ErroreFile.FileExists(a)
     try {
-      await rinominaConPazienza(da.fsPath, a.fsPath)
+      await conPazienza(() => fs.rename(da.fsPath, a.fsPath))
     } catch (errore) {
       throw tradotto(errore, da)
     }
@@ -219,8 +218,9 @@ export async function scriviDa (
 ): Promise<void> {
   let file: fs.FileHandle | null = null
   try {
-    // `r+` e non `a`, che ignorerebbe l'offset.
-    file = await fs.open(uri.fsPath, 'r+')
+    // `r+` e non `a`, che ignorerebbe l'offset. Con pazienza: è il documento
+    // d'anno, e OneDrive lo tiene aperto un attimo dopo ogni scrittura.
+    file = await conPazienza(() => fs.open(uri.fsPath, 'r+'))
     await file.write(contenuto, 0, contenuto.length, da)
     await file.sync()
   } catch (errore) {

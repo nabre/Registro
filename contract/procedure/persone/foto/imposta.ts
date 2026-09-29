@@ -1,6 +1,6 @@
 import { registro } from '../../../../core/azioni/register.js'
 import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
+import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
 import { esigiPersona } from '../common.js'
 import { testi } from '../persone.testi.js'
 
@@ -17,6 +17,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     classeId: identificatore(),
     allievoId: identificatore(),
+    file: opzionale(testo({ aiuto: () => testi().foto.imposta.file })),
   }),
   esegui: (ambito, ingresso) => {
     esigiPersona(ambito, ingresso.classeId, ingresso.allievoId)

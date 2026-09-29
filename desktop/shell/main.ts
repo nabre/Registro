@@ -16,7 +16,7 @@ import './system/portable.js'
 import './system/userData.js'
 
 import { app, dialog } from 'electron'
-import { statSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -27,6 +27,7 @@ import {
   percorsoCaratteriPdf,
   percorsoIcona,
   percorsoIconaFinestra,
+  percorsoPreload,
   percorsoWorkerPdf,
 } from '../apparato/context.js'
 import { getConfiguration, ritiraChiaviDismesse } from '../apparato/settings.js'
@@ -124,7 +125,7 @@ if (!app.requestSingleInstanceLock()) {
   void app.whenReady().then(avvia).catch((errore: unknown) => {
     console.error('avvio interrotto:', errore)
     // testo-fisso: il marchio non si traduce
-    dialog.showErrorBox('Regiclass', testi().avvioFermato(String(errore)))
+    dialog.showErrorBox('Regiklass', testi().avvioFermato(String(errore)))
     app.exit(1)
   })
 }
@@ -151,6 +152,11 @@ function raccontaLIcona (): void {
 const smaltibiliGuscio: Array<{ dispose (): unknown }> = []
 
 async function avvia (): Promise<void> {
+  const preload = percorsoPreload()
+  if (!existsSync(preload)) {
+    throw new Error(testi().preloadMancante(preload))
+  }
+
   // Finestra sentinella per intercettare query-session-end anche a solo vassoio.
   assicuraSentinella()
 
@@ -353,7 +359,7 @@ async function avvia (): Promise<void> {
     console.error('avvio interrotto:', errore)
     chiudiAvvio()
     // testo-fisso: il marchio non si traduce
-    dialog.showErrorBox('Regiclass', testi().avvioFermato(testo))
+    dialog.showErrorBox('Regiklass', testi().avvioFermato(testo))
   } finally {
     // Anche se l'avvio si è fermato, chi aspetta i comandi smette di aspettare.
     // Scioglierla due volte non fa niente.
@@ -652,7 +658,7 @@ async function scegliDocumento (): Promise<Uri | null> {
     defaultPath: app.getPath('documents'),
     filters: [
       // testo-fisso: il marchio non si traduce
-      { name: 'Regiclass', extensions: [ESTENSIONE.slice(1)] },
+      { name: 'Regiklass', extensions: [ESTENSIONE.slice(1)] },
     ],
   })
   const scelto = esito.canceled ? undefined : esito.filePaths[0]

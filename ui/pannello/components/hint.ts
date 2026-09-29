@@ -6,7 +6,7 @@
 // lo taglierebbe) e vive fuori dal ridisegno: finché è aperto, a ogni
 // fotogramma controlla che il segno sia ancora nella pagina e lo segue.
 
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { icona } from './icons.js'
 import { testi } from './hint.testi.js'
 
@@ -57,7 +57,12 @@ export function suggerimento (testo: Figlio, opzioni: OpzioniSuggerimento = {}):
   const id = `suggerimento-${++contatore}` // testo-fisso: id dell’elemento, non si legge
   const nascosto = h('span', { id, class: 'suggerimento__testo', hidden: true }, testo)
 
-  const segno = h(
+  /**
+   * Il segno a cui si lega il fumetto. Ogni gesto lo rimette a quello che l'ha
+   * ricevuto: dopo un ridisegno nel documento può restare il segno di prima, e
+   * questo, del disegno nuovo, non entrarci mai.
+   */
+  let segno = h(
     'button',
     {
       type: 'button',
@@ -156,7 +161,10 @@ export function suggerimento (testo: Figlio, opzioni: OpzioniSuggerimento = {}):
     chiudi()
   }
 
-  segno.addEventListener('click', (e) => {
+  const vivo = (e: Event) => { segno = e.currentTarget as HTMLButtonElement }
+
+  gestisci(segno, 'click', (e) => {
+    vivo(e)
     // Dentro la `<label>` di una casella il clic spunterebbe anche lei.
     e.preventDefault()
     e.stopPropagation()
@@ -167,7 +175,8 @@ export function suggerimento (testo: Figlio, opzioni: OpzioniSuggerimento = {}):
     apri()
     fermo = true
   })
-  segno.addEventListener('pointerenter', (e) => {
+  gestisci(segno, 'pointerenter', (e) => {
+    vivo(e)
     if (e.pointerType !== 'mouse' || fumetto) {
       clearTimeout(attesa)
       return
@@ -175,15 +184,18 @@ export function suggerimento (testo: Figlio, opzioni: OpzioniSuggerimento = {}):
     clearTimeout(attesa)
     attesa = setTimeout(apri, ATTESA_APERTURA)
   })
-  segno.addEventListener('pointerleave', () => {
+  gestisci(segno, 'pointerleave', (e) => {
+    vivo(e)
     if (fumetto && !fermo) chiudiFraPoco()
     else if (!fumetto) clearTimeout(attesa)
   })
   // Col tabulatore si apre subito; col clic apre il clic.
-  segno.addEventListener('focus', () => {
+  gestisci(segno, 'focus', (e) => {
+    vivo(e)
     if (segno.matches(':focus-visible')) apri()
   })
-  segno.addEventListener('blur', () => {
+  gestisci(segno, 'blur', (e) => {
+    vivo(e)
     if (!fermo) chiudi()
   })
 

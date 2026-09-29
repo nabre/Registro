@@ -12,13 +12,15 @@ import { statoDegliAggiornamenti } from './views/settings/updates.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
+import { isola } from './isole.js'
+import { apriLezione } from './pages.js'
 import {
-  aggiorna,
   annoCorrente,
   nomeClasseDiLezione,
   oraDaFare,
   pendenzeDellaBarra,
   stato,
+  vai,
 } from './state.js'
 import { testi } from './statusBar.testi.js'
 
@@ -107,7 +109,7 @@ function vociDelRegistro (): Figlio[] {
         ? t.daCompilareTitolo(formattaData(lezione.data, 'lungo'))
         : t.prossimaTitolo(formattaData(lezione.data, 'lungo'), inizio),
       tono: manca ? 'attenzione' : 'quiete',
-      al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id, data: lezione.data }),
+      al: () => apriLezione(lezione.id),
     }),
   ]
 }
@@ -130,26 +132,31 @@ function vociDelLavoro (): Figlio[] {
             ? t.pendenzeInRitardo(riepilogo.urgenti, riepilogo.aperti)
             : t.pendenzeTitolo,
         tono: riepilogo.urgenti > 0 ? 'attenzione' : 'quiete',
-        al: () => aggiorna({ vista: 'todo' }),
+        al: () => { vai({ pagina: 'pagina.pendenze' }) },
       }),
     )
   }
 
-  // La lettura delle scansioni: solo mentre lavora.
-  const lavoro = stato.lavoro
-  if (lavoro.totale > 0) {
-    voci.push(
-      voce({
-        simbolo: 'orologio',
-        testo: t.legge(lavoro.fatte + 1, lavoro.totale),
-        // `.etichetta`: `corrente` è un oggetto (smistamento, numero, etichetta).
-        titolo: lavoro.corrente ? t.staLeggendo(lavoro.corrente.etichetta) : t.staLeggendoTutto,
-        tono: 'quiete',
-      }),
-    )
-  }
+  // La lettura delle scansioni, in un'isola sua: avanza a ogni pagina letta e
+  // `main.ts` rifà solo lei, non la pagina. `display: contents` perché la voce
+  // resti un figlio della riga, come le altre.
+  voci.push(isola('barra-stato', voceDellaLettura, { style: 'display: contents' }))
 
   return voci
+}
+
+/** «legge 3/12»: solo mentre la lettura delle scansioni lavora. */
+function voceDellaLettura (): Figlio {
+  const lavoro = stato.lavoro
+  if (lavoro.totale <= 0) return null
+  const t = testi()
+  return voce({
+    simbolo: 'orologio',
+    testo: t.legge(lavoro.fatte + 1, lavoro.totale),
+    // `.etichetta`: `corrente` è un oggetto (smistamento, numero, etichetta).
+    titolo: lavoro.corrente ? t.staLeggendo(lavoro.corrente.etichetta) : t.staLeggendoTutto,
+    tono: 'quiete',
+  })
 }
 
 // ------------------------------------------------------------- la connettività
@@ -183,7 +190,7 @@ function vociDellaPosta (): Figlio[] {
           (posta.invioDiretto ? t.invioAcceso : t.invioSpento) +
           t.apriPosta,
         tono: 'positivo',
-        al: () => aggiorna({ vista: 'impostazioni' }),
+        al: () => { vai({ pagina: 'pagina.impostazioni' }) },
       }),
     ]
   }
@@ -194,7 +201,7 @@ function vociDellaPosta (): Figlio[] {
       testo: t.bozzeEml,
       titolo: t.bozzeEmlTitolo,
       tono: 'quiete',
-      al: () => aggiorna({ vista: 'impostazioni' }),
+      al: () => { vai({ pagina: 'pagina.impostazioni' }) },
     }),
   ]
 }
@@ -215,11 +222,7 @@ function vociDellAggiornamento (): Figlio[] {
       titolo: testi().versione(frase, s.versione),
       // Il tono è quello del racconto: una versione nuova non è un guasto.
       tono,
-      al: () => aggiorna({
-        vista: 'impostazioni',
-        ambitoImpostazioni: 'programma',
-        schedaProgramma: 'aggiornamenti',
-      }),
+      al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.aggiornamenti' }) },
     }),
   ]
 }
@@ -277,7 +280,7 @@ function interruttoreDelModello (opzioni: {
     tono: acceso ? 'positivo' : 'quiete',
     acceso,
     al: () => {
-      if (bloccata !== null) aggiorna({ vista: 'modelliLinguistici' })
+      if (bloccata !== null) vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
       else void scriviNelProgramma(opzioni.chiaveAttivo, !acceso)
     },
   })
@@ -326,6 +329,7 @@ export function barraStato (): Figlio {
     {
       class: 'barra-stato',
       attr: { role: 'contentinfo', 'aria-label': testi().statoDelRegistro },
+      dataset: { telaio: 'barra-stato' },
     },
     // Tre blocchi separati da un filo, uno per domanda: che cosa mi tocca, che
     // cosa è acceso, com'è messa la macchina. Un blocco vuoto sparisce con il

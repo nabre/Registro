@@ -1,10 +1,11 @@
-# Decisioni architetturali — Regiclass
+# Decisioni architetturali — Regiklass
 
 Le scelte strutturali e i vincoli che una rifattorizzazione non può rompere
 senza saperlo. Per ogni ADR: la decisione, i vincoli, dove vive.
 
-Regole: numerazione progressiva, mai riusata. Un ADR superato non si cancella:
-si segna «modificata da ADR-NN» nel titolo. Il lavoro aperto sta in
+Regole: numerazione progressiva, mai riusata. Un ADR cambiato o superato non
+si cancella: si segna «modificata da ADR-NN» o «superata da ADR-NN» nel titolo,
+e il testo dice quel che vale adesso. Il lavoro aperto sta in
 [CANTIERE.md](CANTIERE.md).
 
 ## Gli ADR
@@ -66,10 +67,11 @@ pagina (`ui/pannello/views/help.ts`, `ui/pannello/views/help/`). È l'unico post
 **Vincoli.** Una pagina con comandi propri aggiunge la sua voce. Nessuna prova
 lo controlla.
 
-### ADR-06 — UI senza framework
+### ADR-06 — UI senza framework (modificata da ADR-48 e ADR-50)
 
-**Decisione.** DOM vero con `h()` (`ui/pannello/dom.ts`); ridisegno completo a ogni
-cambio di stato; le modali stanno fuori dal ciclo di ridisegno.
+**Decisione.** DOM vero con `h()` (`ui/pannello/dom.ts`); ogni cambio di stato
+ridisegna la pagina: telaio stabile e isole (ADR-48), confronto del DOM con
+idiomorph (ADR-50). Le modali stanno fuori dal ciclo di ridisegno.
 
 **Vincoli.** Lo stato applicativo è l'unica fonte di verità: il DOM non tiene
 stato che lo stato non conosca, o il ridisegno lo azzera.
@@ -232,7 +234,11 @@ fonte unica di chiavi, predefiniti e interfaccia.
 **Vincoli.** Una chiave nuova si dichiara nel manifesto; ogni chiave arriva a
 tutte e due le superfici (`tests/ui/settingsSections.test.mjs`). Uno stato che
 il programma scrive da sé non è un'impostazione: va in `userData/interfaccia/`.
-Il come: skill `impostazione`.
+Una chiave scritta da un gesto (`CHIAVI_DEL_COLLEGAMENTO`: casella e mittente,
+da «Collega la casella») si mostra in sola lettura e non si ritira, in tutte e
+due le superfici. Una dipendenza che il programma rispetta si dichiara
+(`dipendeDa`), perché le superfici non mostrino accesa una voce senza effetto.
+Il come: skill `impostazione`; il riordino: [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md).
 
 **Dove.** `contract/manifesto.ts`, `desktop/apparato/settings.ts`.
 
@@ -242,7 +248,7 @@ Il come: skill `impostazione`.
 (`core/dati/opening.ts`, `apriConIlSistema`), mai `openExternal` su un
 `file://` (codifica non-ASCII rotta, injection con `&`).
 
-**Vincoli.** `openExternal` solo per `http`, `https`, `mailto`, `tel`
+**Vincoli.** `openExternal` solo per `http`, `https`, `mailto`, `tel` e i modi di chiamata `callto`, `skype`, `msteams`
 (`desktop/apparato/commands.ts`).
 
 ### ADR-23 — Funzioni di sistema in tre file che non si conoscono
@@ -275,11 +281,12 @@ pagina «Modelli linguistici», si trascinano o si scelgono. Senza modello:
 scansioni in quarantena, assistente spento.
 
 **Vincoli.** Nessuna dipendenza cloud, nemmeno opzionale. L'unica rete è lo
-scarico dei pesi da Hugging Face. Il nome nelle impostazioni passa da
-`modelloNellaCartella()`: un percorso scritto a mano non diventa un file
-aperto. `node-llama-cpp` e i binari restano fuori dall'`asar`.
+scarico dei pesi da Hugging Face. Il nome nelle impostazioni è il nome nudo di
+un `.gguf` (`nomeDiModello`, la stessa regola alla dogana e al caricamento) e
+passa da `modelloNellaCartella()`: un percorso scritto a mano non diventa un
+file aperto. `node-llama-cpp` e i binari restano fuori dall'`asar`.
 
-**Dove.** `core/dati/llm.ts`, `core/dati/gguf.ts`, `core/dati/huggingFace.ts`.
+**Dove.** `core/dati/llm.ts`, `core/dati/gguf.ts`, `core/dati/ggufName.ts`, `core/dati/huggingFace.ts`.
 
 ### ADR-26 — Smistamento dei PDF: niente archivio senza conferma
 
@@ -312,7 +319,7 @@ nel giornale, per tutti i trasporti. Doppia nomenclatura: azione
   procedura.
 - Il nucleo non spinge lo stato al pannello.
 
-### ADR-28 — Schemi fatti in casa, contratto Standard Schema
+### ADR-28 — Schemi nostri sopra valibot, contratto Standard Schema (modificata da ADR-50)
 
 **Decisione.** `contract/schemas.ts` espone `~standard`, come zod/valibot; il
 nucleo conosce solo quell'interfaccia. Una dichiarazione dà convalida, tipo
@@ -328,6 +335,11 @@ la forma minima e cede al validatore del dominio.
   `type: ["number", "null"]`).
 - Uno schema d'oggetto scarta le chiavi non dichiarate (tolleranza verso un
   pannello più nuovo).
+- La convalida la fa valibot, dietro `~standard`. Forma e JSON Schema restano
+  nostri (`schemaJson`): portano l'aiuto nella lingua del momento,
+  `perAssistente`, `aperto`, `severo`, `nullo`, `entita()`; per questo
+  `@valibot/to-json-schema` non serve. Un campo dice un problema solo, il primo
+  (`abortPipeEarly`); un oggetto li raccoglie tutti.
 
 **Dove.** `contract/schemas.ts`, `core/dominio/validation.ts`, `tests/api/schemas.test.mjs`.
 
@@ -375,7 +387,9 @@ condotto e assistente. `esegui()` la tiene solo per le azioni senza procedura.
    vanno in una nota davanti all'ultima domanda, mai salvata. Il prefisso
    [istruzioni + catalogo] resta identico byte per byte.
 2. Contesto caldo (`Caldo` in `core/dati/llamaCpp.ts`): legato ai pesi; se ne va
-   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe.
+   con loro, dopo `RIPOSO_MS` (5 min) o se la domanda si rompe. I pesi (`Pesi`)
+   restano caricati e si scaricano automaticamente dopo `RIPOSO_PESI_MS` (15 min)
+   di inattività, per liberare memoria di sistema e VRAM.
 
 Una domanda alla volta (`inFila`); le istruzioni entrano sempre come storia
 (modelli senza battuta di sistema).
@@ -506,23 +520,23 @@ omonimi da dichiarare). Il come: skill `testi`.
 - Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
   laterale a pillola, ricerca in vista (Ctrl+K) con persone, corsi e classi,
   indietro/avanti (`ui/pannello/history.ts`), Ctrl+1…9.
-- Nessuna dipendenza nuova; icone mancanti da Lucide (ISC) in `icons.ts`.
+- Nessuna libreria per l'aspetto; icone mancanti da Lucide (ISC) in `icons.ts`.
 
 **Vincoli.** Un token nuovo va in tutte e due le tavolozze e, se lo usa la
 miniatura del tema, nei blocchi `[data-tema-figura]`
 (`tests/ui/themeFigure.test.mjs`).
 
-### ADR-40 — Il nome: Regiclass
+### ADR-40 — Il nome: Regiklass
 
 **Decisione.**
-- Marchio **Regiclass**, non si traduce; nome npm `regiclass`, artefatti
-  `regiclass-<versione>-installer.exe` / `-portabile.exe`.
-- `appId` `ch.nabre.regiclass`; `nsis.guid` fisso al GUID ricavato dal vecchio
+- Marchio **Regiklass**, non si traduce; nome npm `regiklass`, artefatti
+  `regiklass-<versione>-installer.exe` / `-portabile.exe`.
+- `appId` `ch.nabre.regiklass`; `nsis.guid` fisso al GUID ricavato dal vecchio
   `ch.edu.ti.cptt.registro-docenti`.
-- Eseguibile `Regiclass.exe`: lo script d'aggiornamento installato
-  (`os/windows/aggiornamento.ps1`) riconosce ancora il nome precedente e
-  riapre quello nuovo nello stesso percorso.
-- Cartella dei dati `%APPDATA%\Regiclass` (rinominata al primo avvio).
+- Eseguibile `Regiklass.exe`: lo script d'aggiornamento installato
+  (`os/windows/aggiornamento.ps1`) riconosce ancora i nomi precedenti (`Regiclass.exe`
+  e `Registro docenti.exe`) e riapre quello nuovo nello stesso percorso.
+- Cartella dei dati `%APPDATA%\Regiklass` (rinominata al primo avvio).
 - Estensione `.regi`.
 - Comando `regi`.
 - Restano: formato `registro-docenti/anno`, protocollo `registro://`, chiavi
@@ -534,81 +548,376 @@ in `.github/workflows/rilascio.yml` e in
 stesso negli eseguibili, in `.signpath/` e in `tools/peMetadata.ps1`, o
 SignPath rifiuta la firma.
 
-### ADR-41 — Risoluzione questioni aperte di cantiere: prove, valutazioni, scale e riservatezza
+### ADR-41 — Questioni di cantiere: iscrizione, voto e assenza, scale, riservatezza
 
 **Decisione.**
-1. **Allievi arrivati a metà anno:** Iscrizione esplicita tramite campo
-   Allievo.iscrittoIl?: Iso (introdotto nel formato dati con VERSIONE_DATI = 2
-   e migrazione per passi). Un allievo con data di iscrizione posteriore alla data
-   di una prova passata viene escluso da quella prova, non lasciando debiti pregressi
-   o buchi fittizi nelle valutazioni.
-2. **Esclusione reciproca voto e assenza:** In alutazioni.voto.imposta, l'attribuzione
-   di un voto (alore !== null) azzera lo stato di assenza (ssente = false),
-   e contrassegnare un allievo come assente (ssente = true) rimuove il valore del
-   voto (alore = null). Non è possibile avere contemporaneamente un voto numerico
-   e l'assenza segnata sulla stessa prova.
-3. **Scale voti e medie:** Le valutazioni numeriche sono ancorate alla scala definita
-   nelle impostazioni del documento (minimo 0%, massimo 100%, con grado di precisione
-   del passo conservato). Nel calcolo della media (mediaAllievo), qualora un allievo
-   abbia valutazioni espresse su scale eterogenee, viene calcolata la media normalizzata
-   e restituito il contrassegno scaleEterogenee = true per avvisare l'interfaccia.
-4. **Indipendenza delle ore:** Confermato il principio di ADR-30: ogni ora o lezione
-   cancellata, spostata o recuperata fuori orario mantiene la propria identità e
-   contabilità oraria senza legami invisibili.
-5. **Formato archivio e riservatezza in aula:** Confermato ADR-17 sul formato .regi
-   (ZIP compresso contenente file JSON leggibili in chiaro, senza cifratura del file
-   per preservare ispezionabilità, longevità e recuperabilità da backup). La riservatezza
-   durante le lezioni è demandata alla modalità videoproiezione/aula dell'interfaccia,
-   che oscura voti, note sensibili e dati personali degli altri allievi quando lo
-   schermo è proiettato.
-6. **Normalizzazione e consistenza:** Tutti i campi opzionali di tipo identificativo o
-   chiave esterna sono normalizzati in modo coerente tramite 
-iferimento: stringa non
-   vuota o 
-ull (stringa vuota convertita in 
-ull). Le azioni sulle collezioni
-   utilizzano contesto.modifica dichiarando esplicitamente le partizioni coinvolte.
+1. **Iscritti a metà anno:** `Allievo.iscrittoIl?: Iso` (formato 2). Una prova
+   prima dell'iscrizione non conta per l'allievo: niente debiti né buchi finti.
+2. **Voto e assenza si escludono:** in `valutazioni.voto.imposta` un voto azzera
+   `assente`, e `assente: true` azzera il voto.
+3. **Scale:** i voti stanno sulla scala del documento (0–100 %, passo
+   conservato). `mediaAllievo` su scale diverse normalizza e torna
+   `scaleEterogenee: true`, che l'interfaccia segnala.
+4. **Ore indipendenti:** conferma ADR-30. Un'ora annullata, spostata o
+   recuperata fuori orario tiene identità e conti suoi, senza legami nascosti.
+5. **Riservatezza:** conferma ADR-17, `.regi` in chiaro e senza cifratura
+   (ispezione, longevità, recupero da backup). In aula protegge la modalità
+   proiezione, che nasconde voti, note e dati degli altri allievi.
+6. **Riferimenti:** un id opzionale è una stringa non vuota o `null` (vuota →
+   `null`). Le azioni scrivono con `contesto.modifica` e dichiarano le collezioni.
 
-**Vincoli.** VERSIONE_DATI = 2: i documenti aperti a versione 1 vengono aggiornati
-creando la copia di backup in ersioni-precedenti/ prima di applicare il passo.
-Nessuna dipendenza crittografica opaca nel file .regi.
+**Vincoli.** Un documento v1 passa a v2 solo dopo la copia in
+`versioni-precedenti/` (ADR-37). Niente cifratura opaca nel `.regi`.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/upgrades.ts`, `core/dominio/normalization.ts`,
 `core/dominio/calculations.ts`, `core/azioni/assessments.ts`, `core/azioni/register.ts`,
 `core/azioni/sorting.ts`, `core/azioni/assignments.ts`, `core/azioni/classTeacher.ts`.
 
-### ADR-42 — Decisioni di interfaccia: scorrimento a due colonne, finestre figlie e filtri di contesto
+### ADR-42 — Interfaccia: due scorrimenti, finestre figlie, filtri di contesto
 
 **Decisione.**
-1. **Doppio scorrimento indipendente nelle pagine a due colonne:** Nelle viste
-   a due colonne (Classi, Persone, Piani, Registri, Documenti, Modelli), la lista
-   di sinistra e la scheda di destra mantengono scorrimenti separati e indipendenti.
-   Questo consente di consultare ed esplorare elenchi lunghi senza perdere la
-   posizione nella scheda di dettaglio.
-2. **Cornice nativa del sistema per le finestre figlie staccate (assistente):**
-   La finestra dell'assistente staccato mantiene la cornice di sistema dell'OS,
-   differenziando chiaramente la finestra satellite dal frame overlay del registro
-   principale.
-3. **Unicità dei filtri di contesto:** I filtri di corso e periodo risiedono
-   unicamente nella riga di contesto/comandi in alto, eliminando le tendine
-   duplicate nella barra di stato in basso.
+1. **Due scorrimenti nelle pagine a due colonne** (Classi, Persone, Piani,
+   Registri, Documenti, Modelli): lista e scheda scorrono ognuna per sé, e la
+   posizione nella scheda resta mentre si scorre un elenco lungo.
+2. **Finestre figlie con la cornice del sistema** (l'assistente staccato); la
+   finestra principale tiene la barra del titolo in overlay.
+3. **Filtri di contesto in un posto:** corso e periodo solo nella riga dei
+   comandi in alto, non nella barra di stato.
 
-**Vincoli.** Nessun duplicato di controlli di contesto fra barra comandi e barra
-di stato. I pannelli a due colonne conservano contenitori di scorrimento isolati
-e chiavi `data-scorrimento` dedicate. Le finestre figlie staccate adottano la
-decorazione standard della piattaforma, mentre la finestra principale conserva la
-barra del titolo con overlay.
+**Vincoli.** Nessun controllo di contesto doppio fra barra dei comandi e barra
+di stato. Ogni colonna ha il suo contenitore di scorrimento con una chiave
+`data-scorrimento` sua.
 
 **Dove.** `ui/pannello/commandBar.ts`, `ui/pannello/statusBar.ts`,
 `desktop/apparato/windows.ts`.
+
+### ADR-43 — API: stato intero, azioni atomiche, JSON Schema, paginazione (modificata da ADR-50)
+
+**Decisione.**
+1. **Stato intero al pannello:** il pannello riceve tutto il `Registro` a ogni
+   modifica (`flushStato`). Un docente, pochi megabyte: sottoscrizioni per
+   entità porterebbero riconciliazione e viste disallineate senza guadagno
+   visibile.
+2. **Un'azione, un'unità atomica:** niente transazioni che abbracciano più
+   procedure; annullare e giornale restano per azione.
+3. **JSON Schema (draft 2020-12) per ingresso e uscita di ogni procedura, non
+   OpenAPI:** OpenAPI descrive REST su HTTP (rotte, metodi, codici), non un
+   centralino RPC a messaggi tipizzati. CLI e assistente leggono
+   `resources/tools.json`.
+4. **Paginazione solo per collezioni che crescono senza limite.** Le letture
+   legate a una classe o a un anno (`corso.presenze`, `valutazioni.voti`,
+   `documenti.inventario`) tornano la busta intera: 20–30 allievi, un anno.
+
+**Vincoli.** Niente framework REST; le procedure si descrivono da sé con
+`definisci()`. La libreria di convalida sta dietro `~standard` (ADR-28, ADR-50).
+Il salvataggio su disco resta asincrono e coalescente.
+
+**Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
+`docs/API.md`.
+
+### ADR-44 — Prove d'interfaccia con Playwright Python sincrono (superata da ADR-50)
+
+**Oggi.** Le prove d'interfaccia sono @playwright/test in TypeScript
+(`tests/interfaccia/`), sull'app vera con `_electron.launch`; Python non serve
+più (ADR-50, passo 5). Restano valide le prove puntuali `tests/ui/*.test.mjs`
+su DOM sintetico, con `node --test` dentro `npm test`.
+
+**Decisione di allora.** Le 25 suite con browser vero (`tests/ui/*.py`)
+restavano in Python con `playwright.sync_api`: sintassi sincrona senza `await`,
+Python già in CI, e migrare voleva pacchetti npm pesanti senza guadagno di
+copertura. ADR-50 ha tolto il divieto di librerie che reggeva l'ultimo motivo.
+
+### ADR-45 — Controllo degli aggiornamenti spento di serie
+
+**Decisione.** `registroDocenti.aggiornamenti.controlloAutomatico` vale `false`:
+all'avvio nessuna richiesta a GitHub Releases. «Controlla adesso» e il
+controllo automatico restano nelle impostazioni del programma.
+
+**Perché.** Un registro con i dati degli allievi non apre connessioni di sua
+iniziativa. Le reti scolastiche sono spesso isolate, a consumo o dietro proxy.
+La politica di SignPath Foundation lo chiede.
+
+**Vincoli.** Nessuna richiesta per gli aggiornamenti senza `controlloAutomatico`
+acceso o «Controlla adesso». La regola è degli aggiornamenti: l'avvio
+riscarica i calendari ICS che il docente ha collegato con un indirizzo
+(`calendario.aggiornaTutti`), perché è lui ad averli chiesti.
+
+**Dove.** `contract/manifesto.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
+`os/windows/installer.nsh`.
+
+### ADR-46 — Questioni di cantiere: un docente, viste pure, azioni per campo, calcoli canonici
+
+**Decisione.**
+1. **Un docente per registro:** niente paternità né permessi per scrittura.
+   L'identità del docente è strutturata (`appellativo`, `nome`, `cognome`) ed
+   entra nei modelli (`templates/`) e nei PDF.
+2. **Le viste non scrivono:** né la pagina dei piani (`ui/pannello/views/plans.ts`)
+   né altre creano o assegnano entità disegnando o navigando. Un piano per
+   un'ora senza scaletta nasce da un pulsante.
+3. **Azioni per campo:** le scritture si dividono per campo o intento
+   (rinomina, archivia, docente di classe), come `lezione.testi`, perché due
+   oggetti interi inviati a ridosso non si coprano a vicenda.
+4. **L'arrotondamento a 5 minuti è regola di dominio:** `durataPiano`,
+   `scalettaSulleUd` e `minutiDiScarto` (`core/dominio/calculations.ts`) contano
+   quel che lo schermo mostra.
+5. **`pause` obbligatorio** in `udPrevisteDaOrario` (`core/dominio/timetable.ts`):
+   un chiamante nuovo non può dimenticarlo.
+6. **Spunta di consegna reversibile:** `consegna.spunta` con `fatta: false`
+   toglie anche una spunta nata da un invio (`modo: 'email'`).
+7. **Font Liberation 2.x** per i PDF, licenza SIL OFL.
+
+**Vincoli.** Niente scritture durante il disegno (`h()`) né in `vai`
+(ADR-47). `{{docente}}` resta valido nei modelli esistenti.
+
+**Dove.** `core/dominio/models.ts`, `core/dominio/calculations.ts`, `core/dominio/timetable.ts`,
+`core/azioni/assignments.ts`, `ui/pannello/views/plans.ts`, `ui/pannello/views/classes.ts`,
+`templates/`.
+
+### ADR-47 — Un posto solo per sapere dove si è, ricordato per documento
+
+**Decisione.** Dove si guarda è un valore solo, `Posto = { pagina, soggetto?, scheda? }`
+(`ui/pannello/posto.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
+`pagina.classe.pendenze`, senza voce nella barra), `soggetto` l'elemento aperto (corso,
+classe, lezione, allievo, piano, valutazione), `scheda` la sezione delle impostazioni.
+Ci si sposta solo con `vai(posto)` (`state.ts`); un solo risolutore puro, `completa`,
+ricava corso, classe, filtro, giorno e semestre dal soggetto e ripiega in modo
+deterministico quando il soggetto non c'è più. `stato.vista` e gli id di selezione sono
+derivati, scritti solo da `vai`. Una sola chiave, `chiaveDelPosto`, per storia,
+scorrimento ed entrata. Il posto e le scelte che contengono id (giorno, semestre,
+filtri) si ricordano **per documento** (`ui/pannello/memoria.ts`), sotto il percorso
+normalizzato del `.regi`, al più venti documenti; le preferenze dell'interfaccia
+restano globali. La navigazione dell'host (`naviga`, `vista.apri`) passa dalla stessa
+tabella (`postoDaVista`) e dallo stesso `completa`.
+
+**Perché.** Cinque concetti sovrapposti (vista, destinazione, sotto-pagina, schede,
+filtri), tre chiavi di posto, quattro modi di aprire un'ora e id ricordati fra un anno
+e l'altro facevano riaprire documenti su id estranei e tornare indietro in posti a
+metà.
+
+**Vincoli.** `completa` e `vai` non scrivono nel documento (ADR-46) e non toccano il
+DOM (ADR-06). `Vista`, `VISTE` e `vista.apri` restano il contratto verso fuori; gli
+alias (`modelli`, `modelliLinguistici`) si risolvono solo nella tabella. Gli id di
+`PAGINE` non cambiano. Al cambio di documento la storia si azzera e il posto si
+ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira` e
+`assistente.contesto`, in un passaggio solo. Il JSON vecchio si migra, non si rifiuta.
+
+**Dove.** `ui/pannello/posto.ts`, `ui/pannello/memoria.ts`, `ui/pannello/state.ts`,
+`ui/pannello/history.ts`, `ui/pannello/pages.ts`, `ui/pannello/main.ts`.
+
+### ADR-48 — Ogni aggiornamento resta nel suo riquadro (modificata da ADR-50)
+
+**Decisione.** Un cambio dello stato globale ridisegna la pagina (ADR-06) con un
+telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, contenuto,
+radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
+lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
+un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
+`ui/pannello/isole.ts`, `leggi(…, { isola })` in `risorse.ts`). I nodi pesanti
+(`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) portano
+`data-tieni="<sorgente>"` e non si ricreano finché la sorgente non cambia. L'orologio
+muove solo ciò che segna l'ora (`orologio.ts`, `alMinuto`). Nessun ridisegno e
+nessuna richiesta all'host partono dal disegno.
+
+**Perché.** Rifare tutta la pagina per una lettura arrivata, un avanzamento o il
+minuto che passa la faceva lampeggiare, ricaricava i PDF, interrompeva lo
+scorrimento e i trascinamenti.
+
+**Vincoli.** Il contenuto di un'isola è funzione dello stato e delle letture, come il
+resto: il DOM non tiene stato (ADR-06). I gestori si mettono con `gestisci`
+(ADR-50): un nodo riusato da telaio, isola o morph riceve quelli del disegno
+nuovo, e un gestore prende il nodo vivo da `currentTarget`, non da una closure.
+Un `addEventListener` diretto su un nodo che resta tiene il gestore del primo
+disegno: non ne dipenda dallo stato. Un nodo tenuto si sposta solo con `moveBefore` senza uscire dal
+documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgente:
+cambia se cambia ciò che il nodo mostra.
+
+**Dove.** `ui/pannello/dom.ts`, `ui/pannello/isole.ts`, `ui/pannello/risorse.ts`,
+`ui/pannello/orologio.ts`, `ui/pannello/shell.ts`, `tests/ui/isole.test.mjs`.
+
+### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
+
+**Decisione.** Il registro cerca i `.regi` su OneDrive per due strade. La prima:
+gli account che il client di OneDrive sincronizza su questo computer, letti da
+`HKCU\Software\Microsoft\OneDrive\Accounts` (`UserEmail`, `UserFolder`, e le
+librerie sotto `Tenants`), si sfogliano e si cercano sul disco
+(`core/dati/oneDriveLocale.ts`), senza accesso né consenso; l'id di una voce è il
+percorso, il drive `locale`, e un percorso fuori da quelle cartelle si rifiuta.
+La seconda, per gli account che qui non sono sincronizzati: Microsoft Graph, a
+nome degli account collegati in Impostazioni › «Account Microsoft». L'accesso è quello
+della posta (`core/dati/oauth.ts`: browser di sistema, PKCE, client pubblico
+«Microsoft Graph Command Line Tools»), con scope `Files.Read.All User.Read
+offline_access`. Ogni account ha il suo gettone di rinnovo nel portachiavi; l'elenco
+degli account sta nel portachiavi accanto ai gettoni, non nelle impostazioni. Aprire
+un documento apre sempre un file sul disco: quello sincronizzato dal client di
+OneDrive se c'è (registro di Windows `HKCU\Software\Microsoft\OneDrive\Accounts`;
+`OneDriveCommercial`/`OneDrive` solo se il registro non lega nessuna cartella
+all'account) e ha la misura che dice Graph, altrimenti una copia scaricata dove si
+sceglie. Un omonimo di un altro account non si apre mai al posto dell'originale.
+
+**Perché.** Nel tenant `edu.ti.ch` il consenso a `Files.Read.All` per il client
+pubblico è riservato all'amministratore («L'approvazione dell'amministratore è
+necessaria»): Graph da solo lascerebbe fuori proprio i docenti per cui la
+funzione esiste, mentre il client di OneDrive quasi sempre c'è già. La casella
+della posta ha già un account Microsoft, ma un gettone vale per una risorsa sola.
+La posta chiede `SMTP.Send` e `openid email profile` (chi è entrato, per
+proporre il mittente); gli alias li legge con `User.Read` dal gettone di
+rinnovo, se il tenant lo concede, e senza si tiene gli indirizzi dell'accesso.
+`Files.Read.All` nella posta avrebbe chiesto a ogni docente un permesso che
+l'invio non usa. Scrivere su OneDrive
+lo fa già il client di sincronizzazione, che conosce i conflitti; un secondo scrittore
+li moltiplicherebbe (ADR-19).
+
+**Vincoli.** Solo lettura: nessuno scope `Write`. Il gettone non attraversa il
+ponte; il pannello vede indirizzi e pastiglie. Le letture `onedrive.*` restano fuori
+dall'assistente (`perAssistente: false`). Una copia scaricata non si risincronizza, e
+lo si dice a chi la apre.
+
+**Dove.** `core/dati/microsoft.ts`, `core/dati/onedrive.ts`, `core/dominio/onedrive.ts`,
+`core/dati/oneDriveLocale.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
+`ui/pannello/views/settings/microsoft.ts`, `ui/pannello/forms/oneDrive.ts`.
+
+### ADR-50 — Librerie: criteri di adozione, e le prime adottate
+
+**Decisione.** D7 non vieta più le librerie: le giudica. Una libreria entra se passa
+tutti questi criteri, scritti qui perché ogni proposta futura abbia la stessa regola.
+
+1. **Licenza permissiva** (MIT, ISC, 0BSD, BSD, Apache-2.0), verificata a macchina
+   su tutto l'albero (`npm run licenze`), non a memoria.
+2. **Sviluppo o programma.** Una dipendenza di sviluppo non arriva sul computer del
+   docente: si adotta con larghezza. Una del programma deve togliere più codice di
+   quanto ne porta, e non toccare il formato `.regi` né la rete.
+3. **Dietro un confine già nostro.** Entra sotto un contratto che c'è già
+   (`~standard` degli schemi, `modifica` dell'archivio, `aggiornaElemento` del DOM,
+   le funzioni di `dates.ts`): chi usa quel confine non cambia.
+4. **Niente sostituti di quel che è specifico.** Non entrano: framework d'interfaccia
+   (React, Vue, Svelte), tRPC, zod, librerie ZIP (JSZip & co.: l'aggiunta
+   incrementale sicura al file è nostra), librerie i18n al posto del lessico.
+5. **La riga di comando resta nuda** (D10): niente di questo arriva in `cli/`.
+6. **Un passo alla volta**, con `npm run ci` verde dopo ognuno.
+
+Adottate, in quest'ordine:
+
+| Passo | Libreria | Dove | Perché |
+| --- | --- | --- | --- |
+| 1 | fast-check (dev) | `tests/proprieta/` | prove per proprietà sulle invarianti già dichiarate: indirizzi (ADR-03), ZIP scritto e riletto, migrazioni, normalizzazione |
+| 1 | knip (dev) | `npm run knip`, accanto a `census` | export, file e dipendenze inutilizzati: il lavoro di D6, che resta la regola (si rende interno, si cancella dopo una prova) |
+| 1 | dependency-cruiser (dev) | `npm run layers` | le regole dei cinque strati come configurazione dichiarativa |
+| 1 | license-checker-rseidelsohn (dev) | `npm run licenze`, in CI | le licenze dell'albero come controllo, non come promemoria |
+| 1 | @stryker-mutator/core (dev) | `npm run mutanti`, mai in CI | controllo mirato delle prove di un file (skill `prove`) |
+| 2 | immer | `core/dati/archive.ts` `modifica`, `core/dati/history.ts` | le collezioni toccate si ricavano dalle patch; l'annulla con le patch inverse |
+| 3 | idiomorph | `ui/pannello/dom.ts` | selezione, fuoco e transizioni conservati da sé. Dopo ADR-48 il guadagno è piccolo e i guasti possibili silenziosi: è entrato dopo i prerequisiti (attributi riflessi, eventi per delega, closure che tengono un nodo rifatte) e dietro l'interruttore `MORFOSI` |
+| 4 | valibot | dietro `~standard` in `contract/schemas.ts` | schemi senza manutenzione fatta in casa; il nucleo non cambia (Standard Schema) |
+| 4 | Temporal | `core/dominio/dates.ts` e calendario | `PlainDate`/`PlainTime` per date scolastiche senza fuso. Nativo in Electron 44 (processo principale e pagina); `temporal-polyfill` (dev) solo per le prove in Node |
+| 5 | @playwright/test (dev) | `tests/interfaccia/` | l'app vera con `_electron.launch`, in TypeScript; supera ADR-44 |
+| 5 | @tanstack/virtual-core | tabelle lunghe | prevista, non ancora in uso: entra dove una misura dice che una tabella è lenta |
+
+Dependabot raggruppa gli aggiornamenti minori e di correzione delle dipendenze npm in
+una richiesta settimanale; Electron e node-llama-cpp restano a mano (binari nativi,
+da provare sul pacchetto).
+
+Come sono entrate:
+
+- **immer** (passo 2): `core/dati/bozza.ts` tiene un'istanza `Immer` locale
+  (`autoFreeze` spento, patch attive). `modifica` gira su una bozza, ricava le
+  collezioni toccate dalle patch e le applica **in posto**, perché gestori in
+  attesa di un dialogo e lo smistatore tengono riferimenti vivi. L'annulla mette
+  raccolte nuove, come faceva con le copie. La dichiarazione resta un controllo:
+  una collezione toccata e non dichiarata lancia con `npm run dev` e nelle
+  prove, dal docente scrive con un avviso, perché fermarsi perderebbe il lavoro.
+  Anche le azioni scrivono sulla bozza (`contesto.modifica` → `modificaSe`, che
+  rinuncia se l'operazione torna `false`). La storia tiene solo le patch
+  inverse del cambiato, non la collezione intera. Il formato su disco non
+  cambia. Regole per chi scrive un'operazione: gli oggetti si prendono da `r`,
+  non si portano fuori e si confrontano per id; un oggetto nuovo non contiene
+  pezzi della bozza (`comeAdesso`); dopo `sort`, `reverse` o `splice` una lista
+  non si rilegge nella stessa operazione (limite di immer 11 con
+  `enableArrayMethods`). Nelle prove ogni scrittura di un'azione deve lasciare
+  patch (`sorvegliaScritture`).
+- **idiomorph** (passo 3): `h()` riflette `value`/`checked`/`selected` come
+  attributi. I gestori stanno in un registro di `dom.ts` e li chiama per delega
+  un ascoltatore per tipo su `document` (`gestisci`), con `currentTarget` sul
+  nodo vivo. Il morph lavora dietro `aggiornaElemento`, con l'interruttore
+  `MORFOSI`. Le chiavi di telaio, `data-tieni`, scorrimento e isola diventano
+  `id` provvisori; un `data-tieni` ritrovato prende solo gli attributi; i nodi
+  nuovi entrano originali, non come copie; un nodo riusato riceve i gestori del
+  disegno nuovo. `MORFOSI` è acceso. Il percorso classico di ADR-48 resta
+  come ripiego a un interruttore, provato col DOM finto (`percorsoClassico`);
+  il morph si prova su Chromium (`tests/interfaccia/morfosi.spec.ts`). Il
+  ripiego si toglie dopo un uso vero senza guasti (D6).
+- **valibot** (passo 4): solo in `main.cjs`. `@valibot/to-json-schema` non è
+  adottato (ADR-28).
+- **Temporal** (passo 4): in `dates.ts`, con i tipi dichiarati a mano finché
+  TypeScript non li porta.
+- **@playwright/test** (passo 5): le prove Python sono migrate tutte in
+  `tests/interfaccia/*.spec.ts`, più `electron.spec.ts` con `_electron.launch`.
+  La CI non usa più Python.
+- **@tanstack/virtual-core** (passo 5): solo in
+  `ui/pannello/components/virtuale.ts`, dietro `isola`/`aggiornaElemento`.
+  Entrata dove `tests/interfaccia/misure.spec.ts` misurava secondi: colonne dei
+  voti e dell'archivio (da 20), elenco delle persone (da 60). Si finestrano solo
+  le colonne: le righe le limita la classe. Solo l'elemento col fuoco porta
+  `data-chiave`, perché spostare un `th` con `moveBefore` fa cadere Chromium
+  153. La correzione dello scorrimento della libreria è spenta.
+
+**Perché.** «Niente librerie nuove» proteggeva da riscritture e da dipendenze opache,
+ma lasciava da mantenere in casa quel che altri mantengono meglio (schemi, confronto
+del DOM, date, controlli statici). Una regola con criteri protegge le stesse cose e
+lascia passare quel che le rispetta.
+
+**Vincoli.** Criteri 1–6 per ogni libreria nuova, anche di sviluppo. Il contratto
+davanti a ogni libreria resta nostro: sostituirla non deve toccare chi la usa.
+Il polyfill di Temporal entra solo nei bundle di prova (`inject` di esbuild,
+`tests/helpers/temporal.mjs`), mai in `dist/`.
+
+**Dove.** `package.json`, `.github/dependabot.yml`, `tools/licenze.mjs`,
+`.dependency-cruiser.cjs`, `knip.config.ts`, `stryker.config.json`,
+`tools/mutanti.mjs`, `tests/proprieta/`, e i file dei passi 2–5.
+
+### ADR-51 — Un anno può seguire il calendario ufficiale, e allora le sue voci non si toccano
+
+**Decisione.** Un anno ricorda da quale anno del calendario scolastico ufficiale
+prende inizio, fine e chiusure: `AnnoScolastico.calendarioUfficiale = { cantone,
+annoScolastico }` (formato 5, senza `porta`: assente vuol dire anno scritto a
+mano). Le chiusure non hanno un segno loro: è collegata quella con il marcatore
+presente e l'id `sos-<cantone>-<aaaa-aaaa>-…` di quell'anno (`èCollegata`), l'id
+che l'importazione dava già. Con il marcatore `anno.salva` rifiuta inizio e fine
+diversi da prima e dai valori ufficiali, una chiusura collegata tolta o cambiata
+di nome o date, un id collegato che il calendario non ha, e il marcatore messo,
+tolto o cambiato (`motivoCalendarioToccato`, pura, in `core/dominio/schoolCalendar.ts`).
+`anno.crea` con il marcatore vuole date e chiusure ufficiali, tutte. Il marcatore
+lo mettono e lo tolgono solo `anno.calendario` / `anni.calendario`: collegare
+sincronizza nello stesso gesto (date, chiusure con i nomi ufficiali, le scritte a
+mano che coincidono diventano collegate) e serve anche a riallineare; staccare
+toglie solo il marcatore. Un anno nato scegliendo un anno del calendario nasce
+collegato; uno scritto a mano, o di prima, si collega a richiesta.
+
+**Perché.** Le vacanze ufficiali valgono per tutte le classi e decidono quali ore
+si generano e quali si tolgono (`lezioniNeiGiorniChiusi`): cambiarne una per
+sbaglio, o toglierla col cestino, sposta ore senza che nessuno lo voglia. Un
+segno per chiusura avrebbe chiesto di tenerlo coerente con l'id, che già dice da
+dove viene; il marcatore sull'anno basta a dire «queste le decide il cantone». La
+guardia sta nel gestore e non solo nell'interfaccia perché le scritture arrivano
+anche dalla riga di comando e dal condotto.
+
+**Vincoli.** Restano libere le chiusure proprie, il confine e i nomi dei semestri,
+le note, le settimane. Una chiusura collegata che il calendario di questa
+versione non ha più può andarsene; una che ha si porta ai valori ufficiali o si
+lascia com'era. Un marcatore di un calendario che il registro non conosce non
+blocca l'apertura: tiene quel che c'era.
+
+**Dove.** `core/dominio/models.ts`, `core/dominio/schoolCalendar.ts`,
+`core/dominio/normalization.ts`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
+`contract/procedure/anni/calendario.ts`, `ui/pannello/forms/year.ts`,
+`ui/pannello/forms/schoolCalendar.ts`, `ui/pannello/views/settings/year.ts`,
+`desktop/avvio.ts`, `tests/api/officialCalendar.test.mjs`.
 
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.
 
 1. **Un aggregato unico, stato spinto intero.** `Archivio`
-   (`core/dati/archive.ts`) tiene il `Registro` in memoria e lo modifica in
-   blocco; il pannello riceve lo stato intero e ridisegna (ADR-06). Un solo
+   (`core/dati/archive.ts`) tiene il `Registro` in memoria e lo modifica su una
+   bozza (ADR-50), applicata in posto; il pannello riceve lo stato intero e ridisegna (ADR-06, con il
+   telaio stabile e le isole di ADR-48). Un solo
    scrittore: più utenti vorrebbero ripensarlo da capo.
 2. **Risposta prima del disco.** La scrittura è ritardata di 350 ms
    (`RITARDO_SALVATAGGIO_MS`), al massimo 2000 ms dalla prima modifica
@@ -656,3 +965,5 @@ Quelli che non stanno già in un ADR, più i più gravi, in una riga:
 | Nessun dato personale nei modelli di serie | ADR-34 |
 | `dettatura.indirizzo` locale e intoccabile dal condotto | ADR-35 |
 | Dominio senza Electron né DOM | ADR-02 |
+| Con `calendarioUfficiale` date e chiusure collegate si cambiano solo con `anno.calendario` | ADR-51 |
+| Ogni libreria dietro un contratto nostro, nessuna in `cli/` | ADR-50 |

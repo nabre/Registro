@@ -7,14 +7,13 @@ import { fineLezione, inizioLezione } from '../../../../core/dominio/calculation
 import { formattaData, oraDaMinuti, sommaGiorni } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
 import type { NomeIcona } from '../../components/icons.js'
-import { eseguiOAvvisa } from '../../components/filters.js'
 import { ancorataAIcs } from '../../externalCalendar.js'
-import { moduloAssegnaPiano, moduloLezione, sincronizzaDaIcs } from '../../forms.js'
+import { moduloLezione, sincronizzaDaIcs } from '../../forms.js'
 import { conferma } from '../../components/modal.js'
 import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
 import { notifica } from '../../components/notifications.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato } from '../../state.js'
+import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato, vai } from '../../state.js'
 import { apriLezione } from './common.js'
 import { posa } from './drag.js'
 import {
@@ -33,7 +32,7 @@ import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './menus.testi.js'
 
 /**
- * Quel che si può fare a una lezione senza aprirla: stato e piano ci sono
+ * Quel che si può fare a una lezione senza aprirla: stato, supplenza e piano ci sono
  * sempre. Le voci che cambiano l'orario (modulo, durata, giorno, copia,
  * eliminazione) solo in modifica, ognuna con il suo tasto.
  */
@@ -78,7 +77,7 @@ export function menuLezione (evento: MouseEvent, lezione: Lezione): void {
     ...modifica,
     'separatore',
     ...vociStato(lezione),
-    'separatore',
+    vocePerSupplenza(lezione),
     ...vociPiano(lezione),
     ...(inModificaOra ? vociOrario(lezione, ancorata) : []),
   ])
@@ -126,37 +125,49 @@ function vociStato (lezione: Lezione): ElementoMenu[] {
   ]
 }
 
-/** Il piano dell'ora: segue la lezione quando si sposta o si copia, e si cambia da qui. */
-function vociPiano (lezione: Lezione): ElementoMenu[] {
-  const piano = pianoPerId(lezione.pianoId)
+/**
+ * Supplenza sì o no, come interruttore: la spunta dice com'è adesso. Si
+ * salva l'ora intera, come dal modulo.
+ */
+function vocePerSupplenza (lezione: Lezione): ElementoMenu {
   const t = testi()
-  if (!piano) {
-    return [{ testo: t.assegnaPiano, simbolo: 'piano', al: () => moduloAssegnaPiano(lezione) }]
+  return {
+    testo: t.supplenza,
+    simbolo: 'scambio',
+    accesa: lezione.supplenza === true,
+    al: async () => {
+      const { supplenza: _, ...senza } = lezione
+      const nuova: Lezione = lezione.supplenza ? senza : { ...senza, supplenza: true }
+      const risposta = await azione({ tipo: 'lezione.salva', lezione: nuova })
+      if (!risposta.ok) return
+      notifica(nuova.supplenza ? t.segnataSupplenza : t.nonPiuSupplenza, 'successo')
+    },
+  }
+}
+
+/**
+ * Il piano dell'ora, sempre: si apre quello che ha, e se non ne ha uno lo si
+ * genera e assegna prima (`piano.perLezione`). Assegnarne un altro si fa
+ * dalla lezione.
+ */
+function vociPiano (lezione: Lezione): ElementoMenu[] {
+  const t = testi()
+  const apri = (id: string) => {
+    vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id } })
   }
   return [
+    'separatore',
     {
       testo: t.apriPiano,
       simbolo: 'piano',
-      al: () => aggiorna({ vista: 'piani', pianoId: piano.id }),
-    },
-    { testo: t.cambiaPiano, simbolo: 'ricarica', al: () => moduloAssegnaPiano(lezione) },
-    {
-      testo: t.togliPiano,
-      simbolo: 'chiudi',
       al: async () => {
-        // Togliere il piano azzera le spunte, che si riferivano alle sue attività.
-        const sicuro =
-          lezione.avanzamento.length === 0 ||
-          (await conferma({
-            titolo: t.togliereTitolo,
-            testo: t.togliereTesto,
-            testoConferma: parole().togli,
-          }))
-        if (!sicuro) return
-        await eseguiOAvvisa(
-          { tipo: 'piano.assegna', lezioneId: lezione.id, pianoId: null },
-          t.pianoTolto,
-        )
+        const piano = pianoPerId(lezione.pianoId)
+        if (piano) {
+          apri(piano.id)
+          return
+        }
+        const risposta = await azione({ tipo: 'piano.perLezione', lezioneId: lezione.id })
+        if (risposta.ok && risposta.creato) apri(risposta.creato.id)
       },
     },
   ]

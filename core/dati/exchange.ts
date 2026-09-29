@@ -32,6 +32,7 @@ const PORTA = 587
 /** Dove si spedisce e con che nome ci si presenta. */
 interface ContoExchange {
   server: string
+  porta: number
   /** Con che nome si entra: il login del tenant, quello che vuole l'autenticazione. */
   utente: string
   /** Da che indirizzo si scrive: quello che va in `MAIL FROM` e in «Da». */
@@ -44,7 +45,7 @@ interface ContoExchange {
  */
 export function conto (): ContoExchange {
   const suo = casella()
-  return { server: SERVER, utente: suo?.accesso ?? '', mittente: suo?.mittente ?? '' }
+  return { server: SERVER, porta: PORTA, utente: suo?.accesso ?? '', mittente: suo?.mittente ?? '' }
 }
 
 /** Se c'è abbastanza scritto per provarci: un nome con cui entrare. */
@@ -249,9 +250,9 @@ async function cifra (presa: Socket, server: string): Promise<TLSSocket> {
   })
 }
 
-/** Il nome per `EHLO`: il nome della macchina ripulito, o `regiclass`. */
+/** Il nome per `EHLO`: il nome della macchina ripulito, o `regiklass`. */
 function nomeDelCliente (): string {
-  return hostname().replace(/[^A-Za-z0-9.-]/g, '') || 'regiclass'
+  return hostname().replace(/[^A-Za-z0-9.-]/g, '') || 'regiklass'
 }
 
 /** Legge una risposta non sollecitata (il saluto d'apertura) e pretende `atteso`. */

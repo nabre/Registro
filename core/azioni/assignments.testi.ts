@@ -7,6 +7,9 @@ import { plurale } from '../dominio/text.js'
 
 const it = {
   corsoAssente: 'Il corso della consegna non esiste.',
+  altraClasse:
+    'Questa consegna ha già spunte o documenti raccolti: non si sposta in un corso ' +
+    'di un’altra classe. Creane una nuova per quella classe.',
   documentoRaccolto:
     'Quella consegna ha un documento raccolto: togli prima il documento, ' +
     'altrimenti se ne andrebbe con la spunta.',
@@ -26,16 +29,19 @@ const it = {
   dettaglio: `Una e-mail per ${PIF.singolare}, con il suo documento in allegato.`,
   nientePartito: 'Non è partito niente: i documenti restano da mandare.',
   bozzePronte: (n: number, dove: string) =>
-    `${n} bozze pronte in ${dove}. Mandale una alla volta dal programma ` +
+    `${plurale(n, 'bozza pronta', 'bozze pronte')} in ${dove}. Mandale una alla volta dal programma ` +
     `di posta e spunta ogni ${PIF.singolare} quando il suo documento è partito.`,
   cambiatoDurante: (partiti: number, segnati: number) =>
     `${plurale(partiti, 'documento spedito', 'documenti spediti')}, ma il documento aperto ` +
-    `è cambiato: ${segnati} segnati, gli altri no.`,
+    `è cambiato: ${plurale(segnati, 'segnato', 'segnati')}, gli altri no.`,
 }
 
 export const testi = catalogo(it, {
   de: {
     corsoAssente: 'Den Kurs des Auftrags gibt es nicht.',
+    altraClasse:
+      'Dieser Auftrag hat schon Häkchen oder eingesammelte Dokumente: Er lässt sich nicht in ' +
+      'einen Kurs einer anderen Klasse verschieben. Erstelle einen neuen für jene Klasse.',
     documentoRaccolto:
       'Zu diesem Auftrag wurde ein Dokument eingesammelt: Entferne zuerst das Dokument, ' +
       'sonst würde es mit dem Häkchen verschwinden.',
@@ -62,6 +68,9 @@ export const testi = catalogo(it, {
   },
   fr: {
     corsoAssente: 'Le cours du devoir n’existe pas.',
+    altraClasse:
+      'Ce devoir a déjà des coches ou des documents recueillis : il ne peut pas passer dans ' +
+      'un cours d’une autre classe. Crées-en un nouveau pour cette classe.',
     documentoRaccolto:
       'Ce devoir a un document recueilli : retire d’abord le document, ' +
       'sinon il disparaîtrait avec la coche.',
@@ -89,6 +98,9 @@ export const testi = catalogo(it, {
   },
   en: {
     corsoAssente: 'The assignment’s course doesn’t exist.',
+    altraClasse:
+      'This assignment already has ticks or collected documents: it can’t move to a course ' +
+      'of another class. Create a new one for that class.',
     documentoRaccolto:
       'That assignment has a collected document: remove the document first, ' +
       'otherwise it would disappear along with the tick.',

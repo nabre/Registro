@@ -105,6 +105,23 @@ after(() => smonta(radice, archivio))
 
 // ------------------------------------------- il canale delle domande, la regola
 
+describe('le scritture delle azioni lasciano patch, dentro le collezioni dichiarate', () => {
+  // `sorvegliaScritture` (helpers/archivio.mjs) sta su ogni archivio delle
+  // prove: qui si vede che ferma davvero i due errori che deve vedere.
+  it('una riuscita senza patch si ferma', () => {
+    assert.throws(() => archivio.modificaSe(() => undefined, ['classi']), /senza patch/)
+  })
+
+  it('una collezione toccata e non dichiarata si ferma', () => {
+    const revisione = archivio.revisione
+    assert.throws(
+      () => archivio.modificaSe((r) => { r.impostazioni.sogliaAssenza += 1 }, ['classi']),
+      /non dichiarate: registro/,
+    )
+    assert.equal(archivio.revisione, revisione, 'niente è stato scritto')
+  })
+})
+
 describe('rispondiDomanda, letto dal sorgente', () => {
   it('cerca la procedura per nome e guarda il suo genere', () => {
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -130,7 +147,7 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     assert.ok(ritorno > dove && ritorno < nucleo, 'la guardia non esce prima di eseguire')
   })
 
-  it('la condizione letta dal sorgente rifiuta tutte e 169 le scritture', () => {
+  it('la condizione letta dal sorgente rifiuta tutte e 176 le scritture', () => {
     // Operatore e valore del confronto si tirano fuori dal sorgente e si applicano
     // all'elenco vero: un `=== 'scrittura'` lascerebbe passare un genere nuovo.
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -143,11 +160,11 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     const letture = tutte.filter((p) => p.genere === 'lettura')
 
     // Le letture del nucleo, contate: cambiare il numero è una scelta da fare qui.
-    assert.equal(letture.length, 38, `letture: ${letture.length}`)
+    assert.equal(letture.length, 41, `letture: ${letture.length}`)
     // Le scritture, contate. Comprendono gesti che non scrivono l'archivio (zoom,
     // dialoghi, aggiornamenti): il genere dice chi può chiamarli da fuori, non se
     // l'archivio cambia.
-    assert.equal(scritture.length, 169, `scritture: ${scritture.length}`)
+    assert.equal(scritture.length, 176, `scritture: ${scritture.length}`)
 
     const passate = scritture.filter((p) => !rifiuterebbe(p)).map((p) => p.nome)
     assert.deepEqual(passate, [], `scritture che una domanda farebbe passare:\n${passate.join('\n')}`)
@@ -307,17 +324,6 @@ describe('sette scritture: l’ingresso buono passa, quello storto non scrive', 
       assert.equal(archivio.revisione, prima, `${nome} ha scritto e poi ha detto di no`)
     })
   }
-
-  it('rifiutare non lascia niente dietro di sé, nemmeno a metà', async () => {
-    // Tutte e sette di fila, un conto solo in fondo: l'archivio conta le modifiche,
-    // quindi anche una scrittura poi annullata si vedrebbe.
-    const prima = archivio.revisione
-    for (const { nome, storto } of sette()) {
-      const esito = await api.chiama(archivio, nome, storto)
-      assert.equal(esito.ok, false, nome)
-    }
-    assert.equal(archivio.revisione, prima)
-  })
 })
 
 describe('impostazioni.salva non perde il calendario ICS', () => {
@@ -390,6 +396,25 @@ describe('le carte intestate stanno nel documento, e ogni corso ne ha una', () =
     assert.equal(intestazione.carte[0].altezzaLogo, 18)
     assert.equal(intestazione.carte[0].logo, LOGO)
     assert.deepEqual(intestazione.carte[1].corsi, [uno])
+  })
+
+  it('un salvataggio senza le parti del nome non le cancella, se il nome non cambia', async () => {
+    const carteAdesso = carte().map(({ id, sede, altezzaLogo, corsi }) => ({ id, sede, altezzaLogo, corsi }))
+    const salva = (intestazione) => api.chiama(archivio, 'impostazioni.salva', {
+      impostazioni: { ...senzaIntestazione(), intestazione: { carte: carteAdesso, ...intestazione } },
+    })
+    await salva({ docente: 'Prof. Mario Rossi', docenteAppellativo: 'Prof.', docenteNome: 'Mario', docenteCognome: 'Rossi' })
+    // Come la scala dei voti: rimanda il nome completo e basta.
+    assert.equal((await salva({ docente: 'Prof. Mario Rossi' })).ok, true)
+    let intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+    assert.equal(intestazione.docenteAppellativo, 'Prof.')
+    // Il nome scritto a mano diverso: le parti vecchie non valgono più.
+    assert.equal((await salva({ docente: 'Anna Bianchi' })).ok, true)
+    intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docente, 'Anna Bianchi')
+    assert.equal(intestazione.docenteNome, undefined)
   })
 
   it('un corso che la pagina non manda finisce sulla prima carta', async () => {
@@ -808,5 +833,98 @@ describe('il check segue il corso quando le materie si fondono e le classi si co
     const vecchi = new Set(vecchia.colonne.map((c) => c.id))
     assert.equal(nuova.colonne.some((c) => vecchi.has(c.id)), false, 'id di colonna condivisi')
     assert.deepEqual(nuova.spunte, [])
+  })
+
+  it('classi.modifica aggiorna solo i campi passati lasciando inalterati gli altri e gli allievi', async () => {
+    const prima = archivio.registro.classi.find((c) => c.id === classe.id)
+    const allieviPrima = JSON.parse(JSON.stringify(prima.allievi))
+    const nomePrima = prima.nome
+
+    // 1. Modifica atomica di note e colore
+    const esito1 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      colore: '#123456',
+      note: 'Note aggiornate',
+    })
+    assert.equal(esito1.ok, true, JSON.stringify(esito1))
+
+    let aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.colore, '#123456')
+    assert.equal(aggiornata.note, 'Note aggiornate')
+    assert.equal(aggiornata.nome, nomePrima)
+    assert.deepEqual(aggiornata.allievi, allieviPrima, 'gli allievi non devono essere toccati')
+
+    // 2. Modifica di docenteDiClasse e archiviata
+    const esito2 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      docenteDiClasse: true,
+      archiviata: true,
+    })
+    assert.equal(esito2.ok, true, JSON.stringify(esito2))
+
+    aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.docenteDiClasse, true)
+    assert.equal(aggiornata.archiviata, true)
+    assert.equal(aggiornata.colore, '#123456')
+    assert.deepEqual(aggiornata.allievi, allieviPrima)
+
+    // 3. Modifica del nome
+    const esito3 = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: 'I INF E2',
+    })
+    assert.equal(esito3.ok, true, JSON.stringify(esito3))
+    aggiornata = archivio.registro.classi.find((c) => c.id === classe.id)
+    assert.equal(aggiornata.nome, 'I INF E2')
+    assert.deepEqual(aggiornata.allievi, allieviPrima)
+
+    // 4. Rifiuto se nome vuoto
+    const esitoVuoto = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: '   ',
+    })
+    assert.equal(esitoVuoto.ok, false)
+
+    // 5. Rifiuto se nome duplicato
+    const esitoDuplicato = await api.chiama(archivio, 'classi.modifica', {
+      classeId: classe.id,
+      nome: 'II INF E',
+    })
+    assert.equal(esitoDuplicato.ok, false)
+  })
+})
+
+describe('gli account Microsoft e OneDrive, senza portachiavi né rete', () => {
+  // Qui nessuno ha registrato il portachiavi: è il caso di un sistema che non
+  // ne ha uno. Nessuna di queste tocca l'archivio.
+  it('microsoft.aggiungi lo dice, e non scrive', async () => {
+    const prima = archivio.revisione
+    const esito = await api.chiama(archivio, 'microsoft.aggiungi', { indirizzo: 'docente@scuola.ch' })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+    assert.equal(archivio.revisione, prima)
+  })
+
+  it('microsoft.togli di un account che non c’è è «non trovato»', async () => {
+    const esito = await api.chiama(archivio, 'microsoft.togli', { indirizzo: 'nessuno@scuola.ch' })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-trovato')
+    assert.match(esito.messaggi.join(' '), /nessuno@scuola\.ch/)
+  })
+
+  it('onedrive.apri con un account non collegato non apre niente', async () => {
+    const prima = archivio.revisione
+    const esito = await api.chiama(archivio, 'onedrive.apri', {
+      account: 'nessuno@scuola.ch', drive: 'drv-x', id: 'itm-x',
+    })
+    assert.equal(esito.ok, false)
+    assert.equal(esito.codice, 'non-disponibile')
+    assert.equal(archivio.revisione, prima)
+  })
+
+  it('le tre non si ritentano alla cieca dove aprono qualcosa', () => {
+    assert.equal(api.procedura('microsoft.aggiungi').idempotente, false)
+    assert.equal(api.procedura('onedrive.apri').idempotente, false)
+    assert.equal(api.procedura('microsoft.togli').idempotente, true)
   })
 })

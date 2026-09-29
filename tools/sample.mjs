@@ -49,7 +49,19 @@ const archivio = new Archivio(Uri.file(process.env.REGISTRO_USERDATA))
 await archivio.apri(null)
 
 const documento = percorso.join(banco, 'lavoro', 'registro', '2026-2027.regi')
-const anno = await archivio.creaAnno(d.creaAnno('2026-09-01', '2027-06-30'), Uri.file(documento))
+// L'anno segue il calendario ufficiale (dal formato 5): le sue chiusure,
+// collegate, più una propria. Le date restano quelle di sempre, come in un anno
+// collegato prima che il calendario le correggesse: le prove le cercano così.
+const calendario = d.CALENDARI_UFFICIALI[0]
+const ufficiale = calendario.anni.find((a) => a.annoScolastico === '2026/2027')
+const anno = await archivio.creaAnno({
+  ...d.creaAnno('2026-09-01', '2027-06-30'),
+  sospensioni: [
+    ...d.chiusureUfficiali(calendario, ufficiale),
+    d.creaSospensione('Giornata d’istituto', '2026-10-16', '2026-10-16'),
+  ].sort((a, b) => a.dal.localeCompare(b.dal)),
+  calendarioUfficiale: d.marcatoreDi(calendario, ufficiale),
+}, Uri.file(documento))
 if (!anno) throw new Error("l'anno del campione non si è creato")
 const materia = d.creaMateria('Calcolo professionale', 'CAL')
 const classe = d.creaClasse(anno.id, 'I MEC A')

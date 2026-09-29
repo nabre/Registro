@@ -1,7 +1,7 @@
 ---
 name: formato
 description: >
-  Come si cambia la forma dei dati che Regiclass scrive nei
+  Come si cambia la forma dei dati che Regiklass scrive nei
   documenti `.regi`, senza lasciare indietro quelli già scritti: il numero
   `VERSIONE_DATI` in `core/dominio/models.ts`, il passo del formato in
   `core/dominio/upgrades.ts` (`PASSI_DEL_FORMATO`, `porta`), la normalizzazione

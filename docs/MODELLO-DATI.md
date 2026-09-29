@@ -215,10 +215,15 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 | `sospensioni` | `Sospensione[]` | vacanze e chiusure |
 | `settimane?` | `Record<Iso, LetteraSettimana>` | chiave = il lunedì; scritte a mano, mai calcolate |
 | `note?` | `string` | |
+| `calendarioUfficiale?` | `{ cantone, annoScolastico }` | l'anno segue il calendario ufficiale (v5, ADR-51); assente = scritto a mano |
 | `cartella?` | `string` | nome su disco, **non persistito** |
 
 - Semestri contigui (`validaAnno` rifiuta, `allineaSemestri` ripara);
   `inizio`/`fine` riscritti da `annoAllineato()`; sospensioni dentro l'anno.
+- Con `calendarioUfficiale` inizio, fine e le chiusure collegate (id
+  `sos-<cantone>-<aaaa-aaaa>-…`, `èCollegata`) non si cambiano da `anno.salva`
+  (`motivoCalendarioToccato`); il marcatore lo mette e lo toglie solo
+  `anno.calendario`. Norm.: storto o incompleto → assente.
 - Norm.: `validaAnno`, `normalizzaAnno`; `creaAnno`, `creaAnnoCorrente`.
 
 ### 3.3 `Semestre`
@@ -440,6 +445,7 @@ non parte.
 | `osservazioni` | `Osservazione[]` | |
 | `matrice?` | `CellaOsservata[]` | scritta solo se non vuota |
 | `argomenti?`, `materiali?`, `consuntivo?` | `string` | |
+| `supplenza?` | `boolean` | ora tenuta al posto di un altro docente (v5); scritta solo se vera |
 | `creataIl`, `aggiornataIl` | `Istante` | |
 
 - `Presenza.stati` si riallinea alla lunghezza dell'ora (`contaUd`).
@@ -638,6 +644,7 @@ Due usi: `Impostazioni.scala` (per le prove nuove) e `MomentoValutazione.scala`
 |---|---|---|
 | `id`, `corsoId`, `testo` | `string` | |
 | `tipo` | `TipoConsegna` | |
+| `docenteDiClasse?` | `boolean` | vero se pendenza del docente di classe anziché del corso |
 | `a` | `'classe' \| 'docente' \| 'allievi'` | |
 | `allieviIds` | `string[]` | solo con `a === 'allievi'` |
 | `dataLezioneId` | `string \| null` | se c'è, vince sulla data |
@@ -811,7 +818,10 @@ Del documento, dell'anno in uso (ADR-21). Chiavi del programma: CATALOGO § 5.
 | campo | tipo | nota |
 |---|---|---|
 | `carte` | `CartaIntestata[]` | almeno una; la prima è la predefinita |
-| `docente` | `string` | chi firma (`{{docente}}`) |
+| `docente` | `string` | chi firma (`{{docente}}`, retrocompatibile) |
+| `docenteAppellativo?` | `string` | Prof., Ing., Maestro… (`{{docente.appellativo}}`) |
+| `docenteNome?` | `string` | nome proprio (`{{docente.nome}}`) |
+| `docenteCognome?` | `string` | cognome (`{{docente.cognome}}`) |
 | `firma?` | `string` | HTML delle e-mail (≤ 50 000 caratteri); assente = quella di serie |
 | `vecchiaCartellaVista?` | `true` | la vecchia `templates/` accanto è già stata letta |
 
@@ -1106,16 +1116,28 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | `smistamenti` | `smistamenti.json` | `Smistamento[]` |
 | `coordinate` | `coordinate.json` | `Coordinata[]`; si riscrive solo con «Trova gli indirizzi» |
 
-Chi modifica dichiara le collezioni toccate e si riscrivono solo quelle
-(anche `eliminazione()` le restituisce). Il contenitore (manifesto, `.storico/`,
+Ogni scrittura passa da `Archivio.modifica` (o `modificaSe`, che rinuncia se
+l'operazione torna `false`: la strada di `contesto.modifica`). L'operazione
+lavora sulla bozza di immer (ADR-50, [bozza.ts](../core/dati/bozza.ts)): le
+collezioni da riscrivere si ricavano dalle patch, e si riscrivono solo quelle.
+Chi scrive le dichiara lo stesso (anche `eliminazione()` le restituisce), come
+controllo: una toccata e non dichiarata lancia con `REGISTRO_SVILUPPO=1` e nelle
+prove, altrove si scrive con un avviso. Le patch si riportano sullo stato in
+posto; quelle di una lista riordinata o con una voce in mezzo si accorciano a
+quel che cambia. L'annulla tiene le patch inverse
+([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 1`
+### 8.2 `VERSIONE_DATI = 5`
 
 La versione dello schema JSON (`registro.json.versione`).
 
 La prima forma pubblica comprende già l'intero modello descritto in questo
-documento. Non esistono versioni precedenti del formato `.regi`.
+documento. Le versioni successive introducono estensioni progressive con passi
+del formato (v2 per `allievo.iscrittoIl`, v3 per `consegna.docenteDiClasse`, v4
+per i dati strutturati del docente `docenteAppellativo`, `docenteNome`, `docenteCognome`,
+v5 per `anno.calendarioUfficiale` e `lezione.supplenza`, senza `porta`: assente vuol dire
+anno scritto a mano e lezione non di supplenza).
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento

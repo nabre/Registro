@@ -7,7 +7,10 @@ import { catalogo } from '../../../core/i18n/index.js'
 const it = {
   elimina: { titolo: 'Toglie una persona dalla classe con presenze, voti e osservazioni' },
   foto: {
-    imposta: { titolo: 'Il ritratto di una persona: si sceglie dal disco e se ne tiene una copia' },
+    imposta: {
+      titolo: 'Il ritratto di una persona: si sceglie dal disco e se ne tiene una copia',
+      file: 'Percorso del file immagine sul disco; se omesso apre il dialogo',
+    },
     togli: { titolo: 'Via il ritratto dall’anagrafica, e via il file' },
   },
   importa: {
@@ -26,6 +29,7 @@ export const testi = catalogo(it, {
         titolo:
           'Das Porträt einer Person: Man wählt es auf dem Datenträger, und eine Kopie wird ' +
           'behalten',
+        file: 'Pfad der Bilddatei auf der Festplatte; wenn weggelassen, öffnet sich der Dialog',
       },
       togli: { titolo: 'Entfernt das Porträt aus den Personalien, und die Datei dazu' },
     },
@@ -41,6 +45,7 @@ export const testi = catalogo(it, {
     foto: {
       imposta: {
         titolo: 'Le portrait d’une personne : on le choisit sur le disque et on en garde une copie',
+        file: 'Chemin du fichier image sur le disque ; si omis, ouvre la boîte de dialogue',
       },
       togli: { titolo: 'Retire le portrait des données personnelles, et le fichier avec' },
     },
@@ -56,6 +61,7 @@ export const testi = catalogo(it, {
     foto: {
       imposta: {
         titolo: 'A person’s portrait: chosen from the disk, and a copy is kept',
+        file: 'Path of the image file on disk; if omitted opens the dialog',
       },
       togli: { titolo: 'Removes the portrait from the personal details, and the file with it' },
     },

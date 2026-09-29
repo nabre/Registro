@@ -45,12 +45,12 @@ const it = {
   calendarioUfficiale: 'Calendario ufficiale',
   aiutoUfficialeAnno:
     'Inizio e fine delle lezioni, vacanze e festivi pubblicati dal cantone: si ' +
-    'sceglie che cosa portare nell’anno. Le pause importate restano collegate, e se ' +
-    'una versione nuova del registro ne corregge le date lo dice qui.',
+    'sceglie che cosa portare nell’anno, o si collega l’anno al calendario: allora inizio, ' +
+    'fine e chiusure ufficiali non si cambiano più a mano finché non lo si stacca.',
   aiutoUfficialeNuovo:
-    'Scelto l’anno in cima, vacanze e festivi sono già fra le pause qui sotto, ' +
-    'collegate al calendario: quel che non serve si toglie dall’elenco, e se le ' +
-    'date cambiano a mano qui si vede che cosa manca.',
+    'Scelto l’anno in cima, inizio, fine, vacanze e festivi vengono dal calendario e ' +
+    'restano bloccati; le pause proprie si aggiungono sotto. Con «date scritte a mano» ' +
+    'tutto resta libero, e qui si vede che cosa manca.',
   aiutoPause:
     'Vacanze e giorni di chiusura: valgono per tutte le classi dell’anno, e la ' +
     'generazione dell’orario li salta.',
@@ -110,13 +110,13 @@ export const testi = catalogo(it, {
     calendarioUfficiale: 'Offizieller Schulkalender',
     aiutoUfficialeAnno:
       'Unterrichtsbeginn und -ende, Ferien und Feiertage, wie der Kanton sie veröffentlicht: ' +
-      'Du wählst, was ins Schuljahr kommt. Importierte Unterbrüche bleiben verknüpft, und ' +
-      'korrigiert eine neue Version des Klassenbuchs ihre Daten, steht es hier.',
+      'Du wählst, was ins Schuljahr kommt, oder verknüpfst das Schuljahr mit dem Kalender: ' +
+      'Dann lassen sich Beginn, Ende und offizielle Schliessungen nicht mehr von Hand ändern, ' +
+      'bis du es wieder löst.',
     aiutoUfficialeNuovo:
-      'Ist das Schuljahr oben gewählt, stehen Ferien und Feiertage schon bei den ' +
-      'Unterbrüchen weiter unten, mit dem Kalender verknüpft: Was nicht gebraucht wird, ' +
-      'entfernst du aus der Liste, und ändern sich die Daten von Hand, siehst du hier, ' +
-      'was fehlt.',
+      'Ist das Schuljahr oben gewählt, kommen Beginn, Ende, Ferien und Feiertage aus dem ' +
+      'Kalender und bleiben gesperrt; eigene Unterbrüche fügst du unten hinzu. Mit «Daten ' +
+      'von Hand eingegeben» bleibt alles frei, und hier siehst du, was fehlt.',
     aiutoPause:
       'Ferien und Schliessungstage: Sie gelten für alle Klassen des Schuljahrs, und beim ' +
       'Erzeugen der Stunden aus dem Stundenplan werden sie übersprungen.',
@@ -175,12 +175,13 @@ export const testi = catalogo(it, {
     calendarioUfficiale: 'Calendrier officiel',
     aiutoUfficialeAnno:
       'Début et fin des cours, vacances et jours fériés publiés par le canton : tu choisis ' +
-      'ce que tu reprends dans l’année. Les interruptions importées restent liées, et si ' +
-      'une nouvelle version du registre en corrige les dates, c’est indiqué ici.',
+      'ce que tu reprends dans l’année, ou tu lies l’année au calendrier : début, fin et ' +
+      'fermetures officielles ne se changent alors plus à la main tant que tu ne la ' +
+      'détaches pas.',
     aiutoUfficialeNuovo:
-      'Une fois l’année choisie en haut, vacances et jours fériés sont déjà parmi les ' +
-      'interruptions ci-dessous, liées au calendrier : ce qui ne sert pas se retire de la ' +
-      'liste, et si les dates changent à la main, on voit ici ce qui manque.',
+      'Une fois l’année choisie en haut, début, fin, vacances et jours fériés viennent du ' +
+      'calendrier et restent verrouillés ; tes propres interruptions s’ajoutent dessous. ' +
+      'Avec « dates saisies à la main », tout reste libre, et on voit ici ce qui manque.',
     aiutoPause:
       'Vacances et jours de fermeture : ils valent pour toutes les classes de l’année, et ' +
       'la génération des leçons depuis l’horaire les saute.',
@@ -239,12 +240,12 @@ export const testi = catalogo(it, {
     calendarioUfficiale: 'Official calendar',
     aiutoUfficialeAnno:
       'Start and end of lessons, holidays and public holidays published by the canton: ' +
-      'you choose what to bring into the year. Imported breaks stay linked, and if a new ' +
-      'version of the register corrects their dates, it says so here.',
+      'you choose what to bring into the year, or link the year to the calendar: then start, ' +
+      'end and official closures can’t be changed by hand until you unlink it.',
     aiutoUfficialeNuovo:
-      'With the year chosen at the top, holidays and public holidays are already among the ' +
-      'breaks below, linked to the calendar: remove what you don’t need from the list, and ' +
-      'if the dates are changed by hand, you can see here what’s missing.',
+      'With the year chosen at the top, start, end, holidays and public holidays come from ' +
+      'the calendar and stay locked; add your own breaks below. With “dates entered by hand” ' +
+      'everything stays free, and you can see here what’s missing.',
     aiutoPause:
       'Holidays and closure days: they apply to every class in the year, and generating ' +
       'lessons from the timetable skips them.',

@@ -92,6 +92,23 @@ function conDatiDiPersone (lezione: Lezione): boolean {
   )
 }
 
+/**
+ * Vero se l'ora è citata da momenti, consegne o spunte del check di un corso
+ * diverso da `corsoId`: spostata lì, quei rimandi punterebbero a un'ora
+ * d'altri. L'eliminazione li stacca fissando la data; il salvataggio rifiuta.
+ */
+function citataFuoriDalCorso (registro: Registro, lezioneId: string, corsoId: string): boolean {
+  return (
+    registro.valutazioni.some((v) => v.lezioneId === lezioneId && v.corsoId !== corsoId) ||
+    registro.consegne.some((c) =>
+      (c.dataLezioneId === lezioneId || c.scadenzaLezioneId === lezioneId) && c.corsoId !== corsoId,
+    ) ||
+    registro.check.some((lista) =>
+      lista.corsoId !== corsoId && lista.spunte.some((s) => s.lezioneId === lezioneId),
+    )
+  )
+}
+
 export const ore = {
   'lezione.salva': (contesto, azione) => {
     const esito = validaLezione(azione.lezione, contesto.registro.impostazioni.minutiUd)
@@ -103,10 +120,23 @@ export const ore = {
     const fuori = slotFuoriDallePause(lezione.slot, contesto.registro.impostazioni)
     const ridisposta = fuori !== lezione.slot
     lezione.slot = fuori
+    if (lezione.pianoId) {
+      const piano = contesto.registro.piani.find((p) => p.id === lezione.pianoId)
+      if (!piano) return rifiuta(comuni().nonTrovato.piano)
+      if (piano.corsoId && piano.corsoId !== lezione.corsoId) {
+        return rifiuta(testi().pianoAltroCorso)
+      }
+    }
     // Cambio di classe: rifiutato se l'ora ha dati di persone, altrimenti
     // l'appello muto si butta e si rifà sulla classe nuova.
+    if (prima && prima.corsoId !== lezione.corsoId &&
+      citataFuoriDalCorso(contesto.registro, prima.id, lezione.corsoId)) {
+      return rifiuta(testi().citataAltrove)
+    }
+    // Si guarda anche l'ora com'è nel registro: chi salva con un appello vuoto
+    // non deve poterlo cancellare passando di classe.
     if (prima && classeCambiata(contesto.registro, prima, lezione)) {
-      if (conDatiDiPersone(lezione)) {
+      if (conDatiDiPersone(prima) || conDatiDiPersone(lezione)) {
         return rifiuta(testi().altraClasse)
       }
       lezione.presenze = []

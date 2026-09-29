@@ -86,7 +86,7 @@ describe('un anno da un registro più recente', () => {
       assert.deepEqual(versionePiuRecente(fraseVersionePiuRecente(versione)), versione)
     }
     // Con il prefisso che le mette chi la mostra, e dentro un testo più lungo.
-    const detta = `Regiclass: ${fraseVersionePiuRecente({ file: 'a.regi', cosa: 'dati', delFile: 7, quiFinoA: 6 })}`
+    const detta = `Regiklass: ${fraseVersionePiuRecente({ file: 'a.regi', cosa: 'dati', delFile: 7, quiFinoA: 6 })}`
     assert.equal(versionePiuRecente(detta)?.file, 'a.regi')
     assert.equal(versionePiuRecente('Non riesco ad aprire a.regi'), null)
   })
@@ -112,7 +112,7 @@ describe('un anno da un registro più recente', () => {
 
   it('versionePiuRecente riconosce un Error generico con la frase nel messaggio', () => {
     const dettaglio = { file: '2027-2028.regi', cosa: 'formato', delFile: 3, quiFinoA: 1 }
-    const generico = new Error(`Regiclass: ${fraseVersionePiuRecente(dettaglio)}`)
+    const generico = new Error(`Regiklass: ${fraseVersionePiuRecente(dettaglio)}`)
     assert.deepEqual(versionePiuRecente(generico), dettaglio)
   })
 

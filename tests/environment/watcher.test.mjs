@@ -6,7 +6,7 @@
 // e si contano le ricariche: zero.
 
 import assert from 'node:assert/strict'
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, before, beforeEach, describe, it } from 'node:test'
@@ -20,7 +20,7 @@ const PATTERN_ARCHIVIO = '{registro.json,*/dati/*.json}'
 /** La finestra di tolleranza di `archive.ts`, alla lettera. */
 const FINESTRA_ECO_MS = 1500
 
-const RADICE = percorso.join(tmpdir(), 'registro-prove-osservatore')
+const RADICE = mkdtempSync(percorso.join(tmpdir(), 'registro-prove-osservatore-'))
 const ANNO = '2026-2027'
 
 /** Aspetta che una condizione si avveri, o rinuncia: gli eventi dei file non sono immediati. */
@@ -50,7 +50,6 @@ function tutti (eventi) {
 }
 
 before(() => {
-  rmSync(RADICE, { recursive: true, force: true })
   mkdirSync(percorso.join(RADICE, ANNO, 'dati'), { recursive: true })
   mkdirSync(percorso.join(RADICE, ANNO, 'documentazione', '1A'), { recursive: true })
   mkdirSync(percorso.join(RADICE, ANNO, '.storico'), { recursive: true })
@@ -237,6 +236,8 @@ describe('la difesa contro l’eco delle proprie scritture', () => {
 
       assert.ok(await finoA(() => tutti(eventi).length >= 1), 'nessun evento')
       // Un attimo perché arrivi l'ultimo: la finestra di tolleranza li copre tutti.
+      // Attesa fissa voluta: prova che una ricarica NON parte, e l'assenza di un
+      // evento non ha un evento da aspettare.
       await new Promise((risolvi) => setTimeout(risolvi, 300))
       assert.equal(conteggio.ricariche, 0, 'il registro si sarebbe ricaricato da solo')
     } finally {

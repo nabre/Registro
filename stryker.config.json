@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "command",
+  "buildCommand": "node tools/mutanti.mjs --costruisci",
+  "symlinkNodeModules": false,
+  "coverageAnalysis": "off",
+  "reporters": ["clear-text", "html", "json"],
+  "htmlReporter": { "fileName": "reports/mutation/mutation.html" },
+  "jsonReporter": { "fileName": "reports/mutation/mutation.json" },
+  "tempDirName": ".stryker-tmp",
+  "ignorePatterns": ["/dist", "/dist-tests", "/pacchetti", "/copertura", "/.claude/worktrees", "/.agents"],
+  "concurrency": 8,
+  "timeoutMS": 20000,
+  "timeoutFactor": 2
+}

@@ -8,8 +8,9 @@ import { conferma } from './components/modal.js'
 import { barraProiezione } from './components/projection.js'
 import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
-import { azione, lavoroInCorso } from './bridge.js'
-import { aggiorna, stato } from './state.js'
+import { azione } from './bridge.js'
+import { stato, vai } from './state.js'
+import { chiaveDelPosto, type PaginaId } from './posto.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
 import { barraTitolo } from './titleBar.js'
@@ -66,16 +67,33 @@ function vistaCorrente (): Figlio {
     case 'impostazioni':
       return vistaImpostazioni()
     case 'modelli':
-      // `aggiorna` porta `'modelli'` sull'intestazione delle impostazioni dell'anno.
+      // La tabella del posto (`postoDaVista`) porta `'modelli'` sull'intestazione.
       return vistaImpostazioni()
     case 'modelliLinguistici':
-      // `aggiorna` porta questa vista alle impostazioni del programma.
+      // La tabella del posto porta questa vista alle impostazioni del programma.
       return vistaImpostazioni()
     case 'mappa':
       return vistaMappa()
     case 'guida':
       return vistaGuida()
   }
+}
+
+/**
+ * La vista come anello della catena di telaio (`dom.ts`): senza, ogni scatola
+ * che scorre dentro la vista si ricreava a ogni disegno e il gesto in corsa si
+ * perdeva. La chiave è la vista; cambiando posto cambia già lo scorrimento di
+ * `main.contenuto`, che non si tiene, e con lui la radice. Una vista che si
+ * dà una chiave sua (il calendario) la tiene. Sulle radici delle viste non ci
+ * sono ascoltatori: quelli del primo disegno resterebbero.
+ */
+function vistaNelTelaio (): Figlio {
+  const vista = vistaCorrente()
+  if (vista instanceof HTMLElement && vista.dataset.telaio === undefined) {
+    // testo-fisso: una chiave, non un testo
+    vista.dataset.telaio = `vista:${stato.vista}`
+  }
+  return vista
 }
 
 /**
@@ -127,7 +145,7 @@ function barraAvvisi (): Figlio {
         testo: parole().dettagli,
         variante: 'fantasma',
         // Dritto alla sezione che elenca i riferimenti da sistemare.
-        al: () => aggiorna({ vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'file' }),
+        al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'documento.file' }) },
       }),
     ),
     'attenzione',
@@ -135,30 +153,49 @@ function barraAvvisi (): Figlio {
 }
 
 /**
- * Il filo che dice che il registro sta lavorando. Vive sul telaio e legge il
- * canale, non lo stato: resta finché l'ultima risposta torna, anche quando un
- * ridisegno porta via il pulsante con la sua rotella.
+ * Il filo che dice che il registro sta lavorando. Sta fuori da `#radice` e non
+ * passa dal disegno: accenderlo e spegnerlo, due volte per ogni richiesta lenta,
+ * non rifà la pagina. Resta finché l'ultima risposta torna, anche quando un
+ * ridisegno porta via il pulsante con la sua rotella. Lo accende il canale
+ * (`iscrivitiAttesa` in `main.ts`).
  */
-function filoDiLavoro (): Figlio {
-  if (!lavoroInCorso()) return null
-  return h(
-    'div',
-    {
-      class: 'filo-lavoro',
-      attr: { role: 'status', 'aria-live': 'polite', 'aria-label': testi().staLavorando },
-    },
-    h('span', null),
-  )
+let filo: HTMLElement | null = null
+
+export function mostraFiloDiLavoro (acceso: boolean): void {
+  if (!filo) {
+    filo = h('div', { class: 'filo-lavoro', hidden: true, attr: { role: 'status', 'aria-live': 'polite' } }, h('span', null))
+    document.body.appendChild(filo)
+  }
+  // L'etichetta si scrive a ogni accensione: la lingua può essere cambiata.
+  if (acceso) filo.setAttribute('aria-label', testi().staLavorando)
+  filo.hidden = !acceso
 }
 
 /**
- * La chiave di scorrimento di `.contenuto`: che cosa si guarda (pagina,
- * persona, classe, corso, ora). Cambiandola si riparte dall'alto; restando
- * sulla stessa, il ridisegno a ogni gesto non fa perdere il punto.
+ * Le pagine dove il soggetto si sceglie da dentro (l'elenco dei corsi, dei
+ * piani, delle prove, delle classi; l'ora nel calendario): cambiarlo non è
+ * andare altrove, e la pagina resta dov'era invece di ripartire dall'alto.
+ */
+const SOGGETTO_DA_DENTRO: ReadonlySet<PaginaId> = new Set<PaginaId>([
+  'pagina.corsi',
+  'pagina.corso.piani',
+  'pagina.corso.valutazioni',
+  'pagina.corso.check',
+  'pagina.classi',
+  'pagina.calendario',
+  'pagina.pendenze',
+])
+
+/**
+ * La chiave di scorrimento di `.contenuto`: il posto (`chiaveDelPosto`), con il
+ * soggetto solo dove aprirne un altro è andare altrove (un'ora, un allievo).
+ * Cambiandola si riparte dall'alto e la catena di telaio si rifà; restando, il
+ * ridisegno a ogni gesto non fa perdere il punto (ADR-48).
  */
 function chiaveDellaPagina (): string {
-  const soggetto = [stato.allievoId, stato.classeId, stato.corsoId, stato.lezioneId]
-  return ['pagina', stato.vista, stato.paginaId ?? '', ...soggetto.map((id) => id ?? '')].join(':')
+  const livello = SOGGETTO_DA_DENTRO.has(stato.posto.pagina) ? 'pagina' : 'soggetto'
+  // testo-fisso: una chiave, non un testo
+  return `pagina:${chiaveDelPosto(stato.posto, livello)}`
 }
 
 export function guscio (): Figlio {
@@ -168,6 +205,9 @@ export function guscio (): Figlio {
   return h(
     'div',
     {
+      // Nodo di telaio, tenuto fra un disegno e l'altro (`aggiornaElemento`): il
+      // suo ascoltatore non dipende dallo stato.
+      dataset: { telaio: 'guscio' },
       class: [
         'guscio',
         sidebarAperta() && 'guscio--con-sidebar',
@@ -177,7 +217,6 @@ export function guscio (): Figlio {
         if (evento.key === 'Escape' && chiudiSidebarMobile()) evento.preventDefault()
       },
     },
-    filoDiLavoro(),
     // La barra del titolo della finestra, disegnata dal registro: sopra tutto,
     // anche sopra la navigazione, perché è il bordo della finestra (`ui/titleBar.ts`).
     barraTitolo(),
@@ -187,10 +226,11 @@ export function guscio (): Figlio {
     barraComandi(),
     h(
       'main',
-      { class: 'contenuto', dataset: { scorrimento: chiaveDellaPagina() } },
+      // Tenuto anche lui finché si guarda la stessa cosa: è la scatola che scorre.
+      { class: 'contenuto', dataset: { telaio: 'contenuto', scorrimento: chiaveDellaPagina() } },
       barraProiezione(),
       barraAvvisi(),
-      vistaCorrente(),
+      vistaNelTelaio(),
     ),
     // L'assistente è una colonna della griglia, non un velo: chiuso non disegna
     // niente (`ui/assistant.ts`).

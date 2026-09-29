@@ -22,8 +22,8 @@ import { testi } from './commandLine.testi.js'
 const NOME = 'regi'
 
 /** Le due righe che dicono «da qui a qui l'ha scritto il registro». */
-const APERTURA = '# >>> Regiclass: regi >>>'
-const CHIUSURA = '# <<< Regiclass: regi <<<'
+const APERTURA = '# >>> Regiklass: regi >>>'
+const CHIUSURA = '# <<< Regiklass: regi <<<'
 
 // ------------------------------------------------------------------ i percorsi
 

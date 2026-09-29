@@ -69,6 +69,7 @@ import type {
   Allievo,
   Coordinata,
   AnnoScolastico,
+  CalendarioDellAnno,
   Attivita,
   Check,
   Consegna,
@@ -265,6 +266,7 @@ function normalizzaAnno (grezzo: unknown): AnnoScolastico {
   const inizio = unaData(dati.inizio, '2024-09-01')
   const fine = unaData(dati.fine, '2025-06-30')
   const semestri = normalizzaSemestri(dati.semestri, inizio, fine)
+  const calendarioUfficiale = normalizzaCalendarioDellAnno(dati.calendarioUfficiale)
 
   // Le date dell'anno scritte nel file valgono solo senza semestri: con i
   // semestri le riscrive `annoAllineato`.
@@ -281,7 +283,22 @@ function normalizzaAnno (grezzo: unknown): AnnoScolastico {
     // qualsiasi diventa il lunedì della sua settimana.
     settimane: ordinaSettimane(oggetto(dati.settimane)),
     note: testo(dati.note),
+    ...(calendarioUfficiale ? { calendarioUfficiale } : {}),
   })
+}
+
+/**
+ * Il calendario ufficiale di un anno, se si legge: un cantone e un anno
+ * «AAAA/AAAA+1». Storto vale assente, cioè anno scritto a mano: un marcatore
+ * sbagliato bloccherebbe voci che nessun calendario riconosce.
+ */
+function normalizzaCalendarioDellAnno (grezzo: unknown): CalendarioDellAnno | undefined {
+  const dati = oggetto(grezzo)
+  const cantone = testo(dati.cantone).trim().toUpperCase()
+  const annoScolastico = testo(dati.annoScolastico).trim().replace('-', '/')
+  const anni = /^(\d{4})\/(\d{4})$/.exec(annoScolastico)
+  if (!cantone || !anni || Number(anni[2]) !== Number(anni[1]) + 1) return undefined
+  return { cantone, annoScolastico }
 }
 
 /**
@@ -773,6 +790,8 @@ function normalizzaLezione (grezzo: unknown, minutiUd: number, corsoId = ''): Le
     argomenti: testo(dati.argomenti) || testo(dati.titolo),
     materiali: testo(dati.materiali),
     consuntivo: testo(dati.consuntivo),
+    // Solo quando è vera: una lezione normale non porta il campo.
+    ...(dati.supplenza === true ? { supplenza: true } : {}),
     creataIl: testo(dati.creataIl, ora),
     aggiornataIl: testo(dati.aggiornataIl, ora),
   }
@@ -944,13 +963,12 @@ export function normalizzaPiano (grezzo: unknown, corsoId: string | null = null)
 
 function normalizzaVoto (grezzo: unknown): Voto {
   const dati = oggetto(grezzo)
-  // Un valore che non è un numero («4,5» a mano) resta vuoto invece di valere zero.
-  const letto = typeof dati.valore === 'number' ? dati.valore : Number(dati.valore)
-  const valore =
-    dati.valore === null || dati.valore === undefined || !Number.isFinite(letto) ? null : letto
+  // Vuoto o illeggibile resta vuoto: `Number('')` fa 0, un voto fuori scala
+  // che entrerebbe nella media. La virgola vale come punto, come in `numero()`.
+  const valore = numero(dati.valore, Number.NaN)
   return {
     allievoId: testo(dati.allievoId),
-    valore,
+    valore: Number.isFinite(valore) ? valore : null,
     assente: booleano(dati.assente, false),
     nota: testo(dati.nota),
     // Solo se è una data vera; se no «non riconsegnata».
@@ -1146,6 +1164,12 @@ function rigaIntestazione (valore: unknown): string {
   return typeof valore === 'string' ? valore.replace(/\s+/g, ' ').trim().slice(0, 200) : ''
 }
 
+/** Un campo di testo facoltativo per l'intestazione: stringa non vuota o undefined. */
+function testoOSenza (valore: unknown): string | undefined {
+  const pulito = rigaIntestazione(valore)
+  return pulito || undefined
+}
+
 /**
  * Una carta intestata dal file. Il logo passa solo se è un'immagine dentro il
  * documento (un nome che finisce a un lettore di file non deve uscirne);
@@ -1191,9 +1215,21 @@ export function normalizzaIntestazione (grezzo: unknown): Intestazione {
   const firma = typeof dati.firma === 'string' && dati.firma.trim() !== ''
     ? dati.firma.slice(0, 50_000)
     : undefined
+
+  const docenteAppellativo = testoOSenza(dati.docenteAppellativo)
+  const docenteNome = testoOSenza(dati.docenteNome)
+  const docenteCognome = testoOSenza(dati.docenteCognome)
+  let docente = rigaIntestazione(dati.docente)
+  if (!docente && (docenteNome || docenteCognome)) {
+    docente = [docenteAppellativo, docenteNome, docenteCognome].filter(Boolean).join(' ')
+  }
+
   return {
     carte: carte.length > 0 ? carte : [cartaVuota('car-prima')],
-    docente: rigaIntestazione(dati.docente),
+    docente,
+    ...(docenteAppellativo ? { docenteAppellativo } : {}),
+    ...(docenteNome ? { docenteNome } : {}),
+    ...(docenteCognome ? { docenteCognome } : {}),
     ...(firma ? { firma } : {}),
     ...(dati.vecchiaCartellaVista === true ? { vecchiaCartellaVista: true } : {}),
   }
@@ -1592,6 +1628,7 @@ export function normalizzaConsegna (grezzo: unknown): Consegna {
     scadenzaLezioneId: riferimento(dati.scadenzaLezioneId),
     scadenza: isoValida(dati.scadenza) ? String(dati.scadenza) : null,
     note: testo(dati.note),
+    docenteDiClasse: booleano(dati.docenteDiClasse, false),
     fatte,
     creataIl: testo(dati.creataIl, ora),
     aggiornataIl: testo(dati.aggiornataIl, ora),

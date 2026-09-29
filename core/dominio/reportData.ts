@@ -5,9 +5,11 @@
 import {
   SIGLE_PRESENZA,
   allieviAttivi,
+  confrontaLezioni,
   distribuzione,
   distribuzioneAPunti,
   formattaVoto,
+  inizioLezione,
   mediaAllievo,
   minutiDiAttivita,
   contaUd,
@@ -23,10 +25,12 @@ import {
   classeDelCorsoId,
   corsiDellaClasse,
   materiaDelCorso,
+  nomeDelPiano,
   registroDelCorso,
 } from './courses.js'
 import { LINGUA_PREDEFINITA, lingua, minuscolo, type Lingua } from '../i18n/index.js'
 import { Maiuscola } from './lexicon.js'
+import { lessico } from './lexicon.testi.js'
 import { percento } from './text.js'
 import { scriviIndirizzo } from './addresses.js'
 import { oltreSoglia, percentoAssenza } from './alerts.js'
@@ -42,6 +46,8 @@ import {
   formattaData,
   formattaDurata,
   formattaUd,
+  giorniBrevi,
+  giorniLunghi,
   giornoDi,
   nelSemestre,
   oggi,
@@ -116,9 +122,19 @@ function comuni (
     generato: formattaData(oggi()),
     sede: carta.sede,
     docente: intestazione.docente,
+    'docente.appellativo': intestazione.docenteAppellativo ?? '',
+    'docente.nome': intestazione.docenteNome ?? '',
+    'docente.cognome': intestazione.docenteCognome ?? '',
+    'docente.completo':
+      [intestazione.docenteAppellativo, intestazione.docenteNome, intestazione.docenteCognome]
+        .filter(Boolean)
+        .join(' ') || intestazione.docente,
     [CHIAVE_CARTA]: carta.id,
   }
 }
+
+/** Esportata per le prove o l'accesso diretto ai valori comuni dell'intestazione. */
+export const valoriComuni = comuni
 
 /**
  * La chiave dei valori con l'id della carta intestata: non si stampa, ma dice
@@ -333,7 +349,12 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
     .sort((a, b) => a.data.localeCompare(b.data))
 
   dati.valori = {
-    ...comuni(registro, t.titoli.piano, etichettaSemestre(null), piano.corsoId ? [piano.corsoId] : []),
+    ...comuni(
+      registro,
+      t.titoli.piano,
+      etichettaSemestre(null),
+      piano.corsoId ? [piano.corsoId] : [],
+    ),
     classe: classe?.nome ?? '',
     materia: materiaDelCorso(registro, corso)?.nome ?? '',
     corso: corso?.titolo ?? '',
@@ -553,6 +574,26 @@ export function datiValutazioni (
     ),
   }
 
+  // La lista di controllo del corso, se c'è: chi ha firmato, portato, completato.
+  const checkCorso = registro.check?.find((c) => c.corsoId === corso.id)
+  if (checkCorso && checkCorso.colonne.length > 0) {
+    dati.tabelle.check = {
+      ...colonne((c) => [c.pif, ...checkCorso.colonne.map((col) => col.titolo)]),
+      pesi: [4, ...checkCorso.colonne.map(() => 2)],
+      righe: (classe?.allievi ?? []).map((allievo) => [
+        nomeCompleto(allievo),
+        ...checkCorso.colonne.map((col) => {
+          const spunta = checkCorso.spunte.find(
+            (s) => s.allievoId === allievo.id && s.colonnaId === col.id,
+          )
+          return spunta ? (spunta.data ? `✓ ${formattaData(spunta.data)}` : '✓') : ''
+        }),
+      ]),
+    }
+  } else {
+    dati.tabelle.check = { ...colonne((c) => [c.pif]), righe: [] }
+  }
+
   return dati
 }
 
@@ -679,9 +720,11 @@ export function datiPresenze (
   const classe = classeDelCorsoId(registro, corso.id)
   const periodo = etichettaSemestre(semestre)
 
-  // Ore del periodo senza annullate e UD previste: li conta
-  // `matriceDelCorsoNelPeriodo`, come segnalazioni e CSV.
-  const { lezioni, matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  // I conti (assenze, percentuali, UD) come a schermo e nelle segnalazioni:
+  // `matriceDelCorsoNelPeriodo`, un posto solo. Le ore che si elencano su carta
+  // invece sono solo quelle confermate svolte.
+  const { lezioni: contate, matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  const lezioni = contate.filter((l) => l.stato === 'svolta')
   const totali = matrice.classe
 
   dati.valori = {
@@ -762,6 +805,45 @@ export function datiPresenze (
   dati.valori.udACalendario = String(matrice.ud)
   dati.valori.nota = t.notaPresenze(matrice.udPreviste, matrice.ud)
 
+  // Quadro orario e calendario
+  const auleSet = new Set<string>()
+  for (const r of corso.orario) if (r.aula) auleSet.add(r.aula)
+  for (const l of lezioni) if (l.aula) auleSet.add(l.aula)
+  dati.valori.aule = [...auleSet].join(', ') || '—'
+
+  const gb = giorniBrevi()
+  dati.valori.orarioSettimanale = corso.orario
+    .map((r) => `${gb[r.giorno - 1] ?? r.giorno} ${r.inizio}`)
+    .join(', ') || '—'
+
+  const udSet = corso.orario.reduce(
+    (s, r) => s + (r.durataMin ? Math.round(r.durataMin / registro.impostazioni.minutiUd) : 1),
+    0,
+  )
+  dati.valori.udSettimanali = String(udSet)
+
+  const gl = giorniLunghi()
+  dati.tabelle.orario = {
+    ...colonne((c) => [c.giorno, c.orario, c.durata, c.aula, c.validita]),
+    pesi: [3, 2, 2, 2, 3],
+    righe: corso.orario.map((r) => [
+      gl[r.giorno - 1] ?? String(r.giorno),
+      r.inizio,
+      formattaDurata(r.durataMin),
+      r.aula ?? '',
+      (r.dal || r.al) ? `${r.dal ? formattaData(r.dal) : ''}–${r.al ? formattaData(r.al) : ''}` : '',
+    ]),
+  }
+
+  const sospensioni = (annoInUso(registro)?.sospensioni ?? []).filter(
+    (s) => !semestre || (s.al >= semestre.inizio && s.dal <= semestre.fine),
+  )
+  dati.tabelle.sospensioni = {
+    ...colonne((c) => [c.sospensione, c.dal, c.al]),
+    pesi: [6, 3, 3],
+    righe: sospensioni.map((s) => [s.etichetta, formattaData(s.dal), formattaData(s.al)]),
+  }
+
   return dati
 }
 
@@ -776,7 +858,12 @@ export function datiFotoClasse (registro: Registro, classe: Classe): DatiRapport
   const attivi = ordinaAllievi(allieviAttivi(classe))
 
   dati.valori = {
-    ...comuni(registro, testi().titoli.foto, etichettaSemestre(null), corsiDellaClasse(registro, classe.id).map((c) => c.id)),
+    ...comuni(
+      registro,
+      testi().titoli.foto,
+      etichettaSemestre(null),
+      corsiDellaClasse(registro, classe.id).map((c) => c.id),
+    ),
     classe: classe.nome,
     // La parete è della classe, non di un insegnamento: vuoti perché la
     // testata comune li nomina.
@@ -806,7 +893,12 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
 
   dati.valori = {
     // L'anno intero: recapiti, documenti e comunicazioni non si azzerano a gennaio.
-    ...comuni(registro, t.titoli.fascicolo, etichettaSemestre(null), corsiDellaClasse(registro, classe.id).map((c) => c.id)),
+    ...comuni(
+      registro,
+      t.titoli.fascicolo,
+      etichettaSemestre(null),
+      corsiDellaClasse(registro, classe.id).map((c) => c.id),
+    ),
     classe: classe.nome,
     // Il fascicolo è della classe: materia e corso esistono vuoti perché la
     // testata li nomina, e un valore assente sembrerebbe dimenticato.
@@ -863,6 +955,174 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
       formattaData(blocco.al),
       String(blocco.righe.length),
     ]),
+  }
+
+  // Parete di ritratti della classe
+  const attivi = ordinaAllievi(allieviAttivi(classe))
+  dati.gallerie = {
+    allievi: {
+      celle: attivi.map((a) => ({
+        immagine: a.foto ?? '',
+        titolo: nomeCompleto(a),
+        sotto: a.azienda ?? '',
+      })),
+    },
+  }
+
+  // Richieste di documenti della classe
+  const richieste = (registro.consegne ?? []).filter((c) => {
+    const co = registro.corsi.find((x) => x.id === c.corsoId)
+    return co?.classeId === classe.id && c.documento
+  })
+  dati.tabelle.richiesteDocumenti = {
+    ...colonne((c) => [c.documento, c.categoria, c.scadenza, c.consegnati, c.firme]),
+    pesi: [5, 3, 2, 2, 2],
+    righe: richieste.map((r) => {
+      const dest = r.a === 'classe' ? classe.allievi : classe.allievi.filter((a) => r.allieviIds.includes(a.id))
+      const consegnati = `${r.fatte.length}/${dest.length}`
+      const firme = r.firmeRichieste ? (r.fileFirme ? '✓' : '—') : '—'
+      return [
+        r.testo,
+        r.documento ? t.categoria(r.documento) : '',
+        r.scadenza ? formattaData(r.scadenza) : '',
+        consegnati,
+        firme,
+      ]
+    }),
+  }
+
+  // Comunicazioni del fascicolo
+  dati.tabelle.comunicazioni = {
+    ...colonne((c) => [c.data, c.titolo, c.aChi, c.stato]),
+    pesi: [2, 5, 4, 3],
+    righe: (fascicolo?.comunicazioni ?? []).map((com) => {
+      const data = com.creataIl ? formattaData(giornoDi(com.creataIl) ?? com.creataIl.slice(0, 10)) : ''
+      const stato = com.inviataIl
+        ? formattaData(giornoDi(com.inviataIl) ?? com.inviataIl.slice(0, 10))
+        : com.errore ? t.erroreInvio : t.bozza
+      return [data, com.oggetto, com.destinatari.join(', '), stato]
+    }),
+  }
+
+  // Dettaglio pratiche assenze per allievo
+  dati.tabelle.dettaglioAssenze = {
+    ...colonne((c) => [c.periodo, c.pif, c.tipo, c.firme, c.stato]),
+    pesi: [3, 4, 2, 2, 3],
+    righe: (fascicolo?.assenze ?? []).flatMap((blocco) =>
+      blocco.righe.map((riga) => {
+        const allievo = classe.allievi.find((a) => a.id === riga.allievoId)
+        const firmati = riga.fogli.filter((f) => f.firmato).length
+        const tot = riga.fogli.length
+        const stato = riga.invio?.inviatoIl
+          ? formattaData(giornoDi(riga.invio.inviatoIl) ?? riga.invio.inviatoIl.slice(0, 10))
+          : riga.invio?.errore ? t.erroreInvio : t.daInviare
+        return [
+          blocco.etichetta,
+          allievo ? nomeCompleto(allievo) : riga.allievoId,
+          riga.fogli.map((f) => f.tipo).join(', ') || '—',
+          tot > 0 ? `${firmati}/${tot}` : '—',
+          stato,
+        ]
+      }),
+    ),
+  }
+
+  // Pendenze del fascicolo e della classe
+  const righePendenze: string[][] = []
+
+  // Documenti da raccogliere non ancora completati o con firme mancanti
+  for (const r of richieste) {
+    const dest = r.a === 'classe' ? classe.allievi : classe.allievi.filter((a) => r.allieviIds.includes(a.id))
+    const chiusi = r.fatte.length >= dest.length && (!r.firmeRichieste || r.fileFirme)
+    if (!chiusi) {
+      righePendenze.push([
+        t.pendenzeTipo.documento,
+        r.testo,
+        t.laClasse,
+        r.scadenza ? formattaData(r.scadenza) : '',
+        `${r.fatte.length}/${dest.length}`,
+      ])
+    }
+  }
+
+  // Pratiche assenze da completare o inviare
+  for (const blocco of fascicolo?.assenze ?? []) {
+    for (const riga of blocco.righe) {
+      const firmati = riga.fogli.filter((f) => f.firmato).length
+      const tot = riga.fogli.length
+      const inviata = Boolean(riga.invio?.inviatoIl)
+      if (!inviata || (tot > 0 && firmati < tot)) {
+        const allievo = classe.allievi.find((a) => a.id === riga.allievoId)
+        righePendenze.push([
+          t.pendenzeTipo.documento,
+          blocco.etichetta,
+          allievo ? nomeCompleto(allievo) : riga.allievoId,
+          '',
+          inviata ? `${firmati}/${tot}` : t.daInviare,
+        ])
+      }
+    }
+  }
+
+  // Comunicazioni non ancora inviate o con errore
+  for (const com of fascicolo?.comunicazioni ?? []) {
+    if (!com.inviataIl || com.errore) {
+      righePendenze.push([
+        t.pendenzeTipo.comunicazione,
+        com.oggetto,
+        com.destinatari.join(', '),
+        com.creataIl ? formattaData(giornoDi(com.creataIl) ?? com.creataIl.slice(0, 10)) : '',
+        com.errore ? t.erroreInvio : t.bozza,
+      ])
+    }
+  }
+
+  // Consegne aperte delle materie della classe
+  const corsiClasse = corsiDellaClasse(registro, classe.id)
+  const consegneClasse = (registro.consegne ?? []).filter((c) =>
+    corsiClasse.some((co) => co.id === c.corsoId),
+  )
+  for (const c of consegneClasse) {
+    const tot = c.a === 'classe' ? classe.allievi.length : (c.a === 'docente' ? 1 : c.allieviIds.length)
+    if (c.fatte.length < tot) {
+      righePendenze.push([
+        t.pendenzeTipo.consegna,
+        c.testo,
+        c.a === 'docente' ? t.docente : t.laClasse,
+        c.scadenza ? formattaData(c.scadenza) : '',
+        `${c.fatte.length}/${tot}`,
+      ])
+    }
+  }
+
+  dati.tabelle.pendenze = {
+    ...colonne((c) => [c.tipo, c.titolo, c.pif, c.data, c.stato]),
+    pesi: [3, 5, 4, 2, 2],
+    righe: righePendenze,
+  }
+
+  // Controlli e spunte delle materie della classe
+  const righeCheck: string[][] = []
+  for (const c of corsiClasse) {
+    const chk = registro.check?.find((k) => k.corsoId === c.id)
+    if (!chk) continue
+    for (const col of chk.colonne) {
+      for (const allievo of classe.allievi) {
+        const spunta = chk.spunte.find((s) => s.allievoId === allievo.id && s.colonnaId === col.id)
+        righeCheck.push([
+          c.titolo,
+          col.titolo,
+          nomeCompleto(allievo),
+          spunta?.data ? formattaData(spunta.data) : '',
+          spunta ? '✓' : '—',
+        ])
+      }
+    }
+  }
+  dati.tabelle.check = {
+    ...colonne((c) => [c.corso, c.titolo, c.pif, c.data, c.stato]),
+    pesi: [3, 4, 4, 2, 1],
+    righe: righeCheck,
   }
 
   return dati
@@ -1094,7 +1354,8 @@ export function datiAllievo (
   // un'assenza di mezza mattina da una di tutto il giorno.
   const ore = corsi
     .flatMap((suo) => registroDelCorso(registro, suo.id))
-    .filter((l) => l.stato !== 'annullata' && nelPeriodo(l.data))
+    // Su carta solo le ore confermate svolte: una pianificata non è ancora avvenuta.
+    .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data))
     .sort((a, b) => a.data.localeCompare(b.data))
 
   // Colonne dell'ora più lunga del periodo: le caselle che non esistono
@@ -1123,13 +1384,67 @@ export function datiAllievo (
   // La legenda delle sigle, come nel verbale.
   legenda(dati)
 
+  // Il diario delle lezioni con argomenti/tematiche, presenze e compiti per l'allievo
+  const L = lessico()
+  dati.tabelle.diario = {
+    ...colonne((c) => [c.data, c.corso, c.argomenti, c.presenze, c.compiti, c.nota]),
+    pesi: [2, 3, 6, 3, 4, 3],
+    righe: ore.map((lezione) => {
+      const presenza = lezione.presenze.find((p) => p.allievoId === allievo.id)
+      let testoPresenza = '—'
+      if (presenza && presenza.stati.length > 0) {
+        const assenti = presenza.stati.filter((s) => s === 'assente').length
+        const presenti = presenza.stati.filter((s) => s === 'presente').length
+        const esonerati = presenza.stati.filter((s) => s === 'esonerato').length
+        if (assenti === presenza.stati.length) {
+          testoPresenza = L.presenze.assente
+        } else if (presenti === presenza.stati.length) {
+          testoPresenza = presenza.minuti
+            ? `${L.presenze.ritardo} (${presenza.minuti}’)`
+            : L.presenze.presente
+        } else if (esonerati === presenza.stati.length) {
+          testoPresenza = L.presenze.esonerato
+        } else if (presenza.stati.some((s) => s === 'ritardo')) {
+          testoPresenza = presenza.minuti
+            ? `${L.presenze.ritardo} (${presenza.minuti}’)`
+            : L.presenze.ritardo
+        } else {
+          testoPresenza = `${presenti}/${presenza.stati.length} UD`
+        }
+      }
+
+      const compiti = (registro.consegne ?? [])
+        .filter(
+          (c) =>
+            c.corsoId === lezione.corsoId &&
+            (c.a === 'classe' || (c.a === 'allievi' && c.allieviIds.includes(allievo.id))) &&
+            (c.dataLezioneId === lezione.id ||
+              c.scadenzaLezioneId === lezione.id ||
+              c.data === lezione.data),
+        )
+        .map((c) => c.testo)
+        .join('; ')
+
+      const nota = [presenza?.nota, lezione.consuntivo, lezione.materiali].filter(Boolean).join(' — ')
+
+      return [
+        formattaData(lezione.data),
+        registro.corsi.find((c) => c.id === lezione.corsoId)?.titolo ?? '',
+        lezione.argomenti || '—',
+        testoPresenza,
+        compiti,
+        nota,
+      ]
+    }),
+  }
+
   // Osservazioni delle ore e note accanto ai voti, insieme in ordine di data.
   const titoloCorso = (corsoId: string) =>
     registro.corsi.find((c) => c.id === corsoId)?.titolo ?? ''
 
   const daLezioni = corsi
     .flatMap((suo) => registroDelCorso(registro, suo.id))
-    .filter((l) => nelPeriodo(l.data))
+    .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data))
     .flatMap((lezione) =>
       lezione.osservazioni
         .filter((osservazione) => osservazione.allievoId === allievo.id)
@@ -1163,7 +1478,9 @@ export function datiAllievo (
     ...colonne((c) => [c.data, c.corso, c.aspetto, c.comeEAndata, c.annotazione]),
     pesi: [2, 4, 3, 3, 6],
     righe: celleDiAllievo(
-      corsi.flatMap((suo) => registroDelCorso(registro, suo.id)).filter((l) => nelPeriodo(l.data)),
+      corsi
+        .flatMap((suo) => registroDelCorso(registro, suo.id))
+        .filter((l) => l.stato === 'svolta' && nelPeriodo(l.data)),
       allievo.id,
     )
       .reverse()
@@ -1176,12 +1493,452 @@ export function datiAllievo (
       ]),
   }
 
+  // La lista di controllo (check) per questo allievo
+  const righeCheck: string[][] = []
+  for (const c of corsi) {
+    const chk = registro.check?.find((k) => k.corsoId === c.id)
+    if (!chk) continue
+    for (const col of chk.colonne) {
+      const spunta = chk.spunte.find((s) => s.allievoId === allievo.id && s.colonnaId === col.id)
+      righeCheck.push([
+        c.titolo,
+        col.titolo,
+        spunta ? formattaData(spunta.data) : '—',
+        spunta ? '✓' : '—',
+      ])
+    }
+  }
+  dati.tabelle.check = {
+    ...colonne((c) => [c.corso, c.titolo, c.data, c.stato]),
+    pesi: [4, 6, 2, 2],
+    righe: righeCheck,
+  }
+
+  // Le consegne e compiti assegnati a questo allievo
+  const consegneAllievo = (registro.consegne ?? []).filter(
+    (c) =>
+      corsi.some((suo) => suo.id === c.corsoId) &&
+      (c.a === 'classe' || (c.a === 'allievi' && c.allieviIds.includes(allievo.id))),
+  )
+  dati.tabelle.consegne = {
+    ...colonne((c) => [c.corso, c.tipo, c.cheCosa, c.perQuando, c.stato]),
+    pesi: [3, 2, 5, 2, 2],
+    righe: consegneAllievo.map((consegna) => {
+      const corsoTitolo = registro.corsi.find((co) => co.id === consegna.corsoId)?.titolo ?? ''
+      const spunta = consegna.fatte.find((f) => f.chi === allievo.id)
+      const stato = spunta
+        ? (spunta.fattaIl ? `✓ ${formattaData(giornoDi(spunta.fattaIl) ?? spunta.fattaIl.slice(0, 10))}` : '✓')
+        : '—'
+      return [
+        corsoTitolo,
+        t.tipoConsegna(consegna.tipo),
+        consegna.testo,
+        consegna.scadenza ? formattaData(consegna.scadenza) : '',
+        stato,
+      ]
+    }),
+  }
+
+  // I recuperi dell'allievo nelle materie della scheda
+  const recuperiAllievo = registro.valutazioni
+    .filter((v) => corsi.some((c) => c.id === v.corsoId) && nelPeriodo(v.data))
+    .flatMap((m) => {
+      const riga = rigaDelRecupero(m, allievo.id)
+      if (!riga) return []
+      const voto = m.voti.find((v) => v.allievoId === allievo.id)
+      const rec = recuperiDelMomento(registro, m, classe, oggi())
+        .find((r) => r.allievo.id === allievo.id)
+      return [[
+        registro.corsi.find((c) => c.id === m.corsoId)?.titolo ?? '',
+        m.titolo,
+        riga.previstoIl ? formattaData(riga.previstoIl) : '',
+        voto?.valore !== null && voto?.valore !== undefined ? String(voto.valore) : '',
+        riga.riconsegnataIl ? formattaData(riga.riconsegnataIl) : '',
+        t.statiRecupero[rec?.stato ?? 'da-fissare'],
+      ]]
+    })
+  dati.tabelle.recuperi = {
+    ...colonne((c) => [c.corso, c.prova, c.siRifaIl, c.voto, c.riconsegnata, c.stato]),
+    pesi: [4, 5, 2, 1, 2, 3],
+    righe: recuperiAllievo,
+  }
+
+  // Documenti e comunicazioni del docente di classe (quando la scheda è generale per allievo)
+  const fascicolo = classe.docenteDiClasse
+    ? registro.fascicoli.find((f) => f.classeId === classe.id)
+    : null
+  const documentiAllievo = (!corso && fascicolo)
+    ? (fascicolo.documenti ?? []).filter((d) => !d.allievoId || d.allievoId === allievo.id)
+    : []
+  dati.tabelle.documenti = {
+    ...colonne((c) => [c.documento, c.categoria, c.raccoltoIl]),
+    pesi: [6, 4, 3],
+    righe: documentiAllievo.map((documento) => [
+      documento.titolo,
+      t.categoria(documento.categoria),
+      documento.aggiuntoIl
+        ? formattaData(giornoDi(documento.aggiuntoIl) ?? documento.aggiuntoIl.slice(0, 10))
+        : '',
+    ]),
+  }
+
+  const comunicazioniAllievo = (!corso && fascicolo)
+    ? (fascicolo.comunicazioni ?? []).filter(
+        (com) =>
+          com.destinatari.includes(allievo.email ?? '') ||
+          com.destinatari.includes(allievo.emailTutore ?? '') ||
+          com.destinatari.includes(allievo.emailDatore ?? '') ||
+          com.destinatari.some((dest) => dest.includes(allievo.cognome)),
+      )
+    : []
+  dati.tabelle.comunicazioni = {
+    ...colonne((c) => [c.data, c.titolo, c.aChi, c.stato]),
+    pesi: [2, 5, 4, 3],
+    righe: comunicazioniAllievo.map((com) => {
+      const data = com.creataIl ? formattaData(giornoDi(com.creataIl) ?? com.creataIl.slice(0, 10)) : ''
+      const stato = com.inviataIl
+        ? formattaData(giornoDi(com.inviataIl) ?? com.inviataIl.slice(0, 10))
+        : com.errore ? t.erroreInvio : t.bozza
+      return [data, com.oggetto, com.destinatari.join(', '), stato]
+    }),
+  }
+
   // Un corso solo: il nome è già in testata.
   if (corso) {
-    for (const nome of ['medie', 'prove', 'presenze', 'annotazioni', 'comportamento']) {
-      dati.tabelle[nome] = senzaColonnaCorso(dati.tabelle[nome])
+    for (const nome of [
+      'medie',
+      'prove',
+      'presenze',
+      'diario',
+      'annotazioni',
+      'comportamento',
+      'check',
+      'consegne',
+      'recuperi',
+    ]) {
+      if (dati.tabelle[nome]) {
+        dati.tabelle[nome] = senzaColonnaCorso(dati.tabelle[nome])
+      }
     }
   }
 
+  return dati
+}
+
+/**
+ * Il diario cumulativo delle lezioni di un corso nel periodo scelto:
+ * argomenti, compiti, assenze e note lezione per lezione.
+ */
+export function datiDiario (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+): DatiRapporto {
+  const t = testi()
+  const dati = vuoto()
+  const classe = classeDelCorsoId(registro, corso.id)
+  const lezioni = registroDelCorso(registro, corso.id)
+    // Solo le ore confermate svolte: il diario racconta quel che è stato fatto.
+    .filter((l) => l.stato === 'svolta' && (!semestre || nelSemestre(semestre, l.data)))
+    .sort(confrontaLezioni)
+
+  // I totali come a schermo; le righe del diario sono le sole svolte (sopra).
+  const { matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  const totali = matrice.classe
+
+  dati.valori = {
+    ...comuni(registro, t.titoli.diario, etichettaSemestre(semestre), [corso.id]),
+    classe: classe?.nome ?? '',
+    materia: materiaDelCorso(registro, corso)?.nome ?? '',
+    corso: corso.titolo,
+    quanti: String(lezioni.length),
+    udSvolte: String(matrice.ud),
+    presenzaMedia: percento(totali.presenza),
+  }
+
+  const { minutiUd } = registro.impostazioni
+  dati.tabelle.diario = {
+    ...colonne((c) => [
+      c.numero, c.data, c.ora, c.durata, c.argomenti, c.compiti, c.presenze, c.nota,
+    ]),
+    pesi: [1, 2, 1, 1, 5, 4, 3, 3],
+    righe: lezioni.map((lezione, i) => {
+      const ud = contaUd(lezione, minutiUd)
+      const consegne = (registro.consegne ?? [])
+        .filter(
+          (c) =>
+            c.corsoId === corso.id &&
+            (c.dataLezioneId === lezione.id ||
+              c.scadenzaLezioneId === lezione.id ||
+              c.data === lezione.data),
+        )
+        .map((c) => c.testo)
+        .join('; ')
+
+      const assenti = (classe?.allievi ?? []).filter((a) => {
+        const p = lezione.presenze.find((pr) => pr.allievoId === a.id)
+        return p && p.stati.some((s) => s === 'assente')
+      })
+      const testoPresenze = assenti.length === 0
+        ? t.tuttiPresenti
+        : `${assenti.length} ${t.assentiN(assenti.length)}: ${assenti.map((a) => a.cognome).join(', ')}`
+
+      const nota = [lezione.consuntivo, lezione.materiali].filter(Boolean).join(' — ')
+
+      return [
+        String(i + 1),
+        formattaData(lezione.data),
+        inizioLezione(lezione) ?? '',
+        formattaUd(ud),
+        lezione.argomenti ?? '',
+        consegne,
+        testoPresenze,
+        nota,
+      ]
+    }),
+  }
+
+  return dati
+}
+
+/**
+ * La scheda completa del corso: un unico documento che raccoglie
+ * presenze, valutazioni, diario delle lezioni, piani lezione, pendenze e check.
+ */
+export function datiCorso (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+): DatiRapporto {
+  const t = testi()
+  const dati = vuoto()
+  const classe = classeDelCorsoId(registro, corso.id)
+  // Solo le ore confermate svolte, come nelle parti che la scheda raccoglie.
+  const lezioni = registroDelCorso(registro, corso.id)
+    .filter((l) => l.stato === 'svolta' && (!semestre || nelSemestre(semestre, l.data)))
+    .sort(confrontaLezioni)
+
+  const dp = datiPresenze(registro, corso, semestre)
+  const dv = datiValutazioni(registro, corso, semestre)
+  const dd = datiDiario(registro, corso, semestre)
+
+  const momenti = registro.valutazioni
+    .filter((v) => v.corsoId === corso.id)
+    .filter((v) => !semestre || (v.data >= semestre.inizio && v.data <= semestre.fine))
+
+  const medieStudenti = (classe?.allievi ?? [])
+    .map((a) => mediaAllievo(momenti, a.id).media)
+    .filter((m): m is number => m !== null)
+  const mediaClasse = medieStudenti.length > 0
+    ? (medieStudenti.reduce((s, m) => s + m, 0) / medieStudenti.length).toFixed(2)
+    : '—'
+
+  dati.valori = {
+    ...dp.valori,
+    ...dv.valori,
+    ...dd.valori,
+    ...comuni(registro, t.titoli.corso, etichettaSemestre(semestre), [corso.id]),
+    media: mediaClasse,
+  }
+
+  dati.elenchi = {
+    ...dp.elenchi,
+  }
+
+  dati.tabelle.presenze = dp.tabelle.presenze
+  dati.tabelle.orario = dp.tabelle.orario
+  dati.tabelle.sospensioni = dp.tabelle.sospensioni
+  dati.tabelle.voti = dv.tabelle.voti
+  dati.tabelle.diario = dd.tabelle.diario
+
+  // Osservazioni di tutte le lezioni del corso per le persone in formazione
+  const osservazioniLezioni: string[][] = []
+  for (const lezione of lezioni) {
+    for (const oss of (lezione.osservazioni ?? [])) {
+      const allievo = classe?.allievi.find((a) => a.id === oss.allievoId)
+      osservazioniLezioni.push([
+        formattaData(lezione.data),
+        inizioLezione(lezione) ?? '',
+        allievo ? nomeCompleto(allievo) : t.tuttaLaClasse,
+        t.tipoOsservazione(oss.tipo),
+        oss.testo,
+      ])
+    }
+  }
+  dati.tabelle.osservazioni = {
+    ...colonne((c) => [c.data, c.ora, c.pif, c.tipo, c.annotazione]),
+    pesi: [2, 1, 4, 3, 6],
+    righe: osservazioniLezioni,
+  }
+
+  // Giudizi +/- della matrice del comportamento per ogni lezione e persona in formazione
+  const giudiziLezioni: string[][] = []
+  for (const lezione of lezioni) {
+    for (const cella of (lezione.matrice ?? [])) {
+      const allievo = classe?.allievi.find((a) => a.id === cella.allievoId)
+      const segno = cella.segno === 'positivo'
+        ? `+ (${nomeSegnoScritto(cella.segno)})`
+        : cella.segno === 'negativo'
+          ? `- (${nomeSegnoScritto(cella.segno)})`
+          : (nomeSegnoScritto(cella.segno) ?? '')
+      giudiziLezioni.push([
+        formattaData(lezione.data),
+        allievo ? nomeCompleto(allievo) : '',
+        nomeAspetto(registro, cella.aspetto),
+        segno,
+        cella.nota ?? '',
+      ])
+    }
+  }
+  dati.tabelle.comportamento = {
+    ...colonne((c) => [c.data, c.pif, c.aspetto, c.comeEAndata, c.annotazione]),
+    pesi: [2, 4, 4, 3, 5],
+    righe: giudiziLezioni,
+  }
+
+  // Tutti i piani lezione del corso
+  const pianiCorso = registro.piani.filter(
+    (p) => p.corsoId === corso.id || lezioni.some((l) => l.pianoId === p.id),
+  )
+  dati.tabelle.piani = {
+    ...colonne((c) => [c.titolo, c.ud, c.obiettivi, c.prerequisiti, c.stato]),
+    pesi: [5, 2, 5, 4, 3],
+    righe: pianiCorso.map((p) => {
+      const lezioniConPiano = lezioni.filter((l) => l.pianoId === p.id)
+      const durata = formattaDurata(
+        minutiDiAttivita(
+          p.attivita.reduce((s, a) => s + (a.durataUd || 0), 0),
+          registro.impostazioni.minutiUd,
+        ),
+      )
+      const stato = lezioniConPiano.length > 0
+        ? lezioniConPiano.map((l) => formattaData(l.data)).join(', ')
+        : t.bozza
+      return [
+        nomeDelPiano(registro, p),
+        durata,
+        p.obiettivi.join('; ') || '—',
+        p.prerequisiti || '—',
+        stato,
+      ]
+    }),
+  }
+
+  // Scaletta dettagliata di tutte le attività dei piani del corso
+  const attivitaTuttiIPiani: string[][] = []
+  for (const piano of pianiCorso) {
+    for (const [i, attivita] of piano.attivita.entries()) {
+      attivitaTuttiIPiani.push([
+        nomeDelPiano(registro, piano),
+        String(i + 1),
+        [attivita.titolo || parole().senzaTitolo, attivita.descrizione].filter(Boolean).join(' — '),
+        t.tipoAttivita(attivita.tipo),
+        formattaDurata(minutiDiAttivita(attivita.durataUd, registro.impostazioni.minutiUd)),
+        attivita.raggruppamento ? t.raggruppamento(attivita.raggruppamento) : '',
+        attivita.valutazione
+          ? `${t.tipoValutazione(attivita.valutazione.tipo)}${attivita.valutazione.peso !== 1 ? ` · ${t.pesoDi(attivita.valutazione.peso)}` : ''}`
+          : '',
+      ])
+    }
+  }
+  dati.tabelle.scaletta = {
+    ...colonne((c) => [c.titolo, c.numero, c.attivita, c.tipo, c.durata, c.come, c.prova]),
+    pesi: [4, 1, 5, 2, 2, 2, 2],
+    righe: attivitaTuttiIPiani,
+  }
+
+  // Pendenze del corso: recuperi aperti, verifiche da ridare, consegne aperte
+  const righePendenze: string[][] = []
+
+  const recuperi = momenti.flatMap((m) => recuperiDelMomento(registro, m, classe, oggi()))
+  const aperti = recuperi.filter((r) => r.stato !== 'fatto' || !r.riconsegnataIl)
+  for (const r of aperti) {
+    righePendenze.push([
+      t.pendenzeTipo.recupero,
+      r.momento.titolo,
+      nomeCompleto(r.allievo),
+      r.previstoIl ? formattaData(r.previstoIl) : '',
+      t.statiRecupero[r.stato],
+    ])
+  }
+
+  const daRiconsegnare = momenti.filter((m) => !resiUnoPerUno(m, classe))
+  for (const m of daRiconsegnare) {
+    righePendenze.push([
+      t.pendenzeTipo.momento,
+      m.titolo,
+      t.tuttaLaClasse,
+      formattaData(m.data),
+      t.daRiconsegnare,
+    ])
+  }
+
+  const consegneCorso = (registro.consegne ?? []).filter((c) => c.corsoId === corso.id)
+  for (const c of consegneCorso) {
+    const tot = c.a === 'classe' ? (classe?.allievi.length ?? 0) : (c.a === 'docente' ? 1 : c.allieviIds.length)
+    if (c.fatte.length < tot) {
+      righePendenze.push([
+        t.pendenzeTipo.consegna,
+        c.testo,
+        c.a === 'docente' ? t.docente : t.tuttaLaClasse,
+        c.scadenza ? formattaData(c.scadenza) : '',
+        `${c.fatte.length}/${tot}`,
+      ])
+    }
+  }
+
+  dati.tabelle.pendenze = {
+    ...colonne((c) => [c.tipo, c.titolo, c.pif, c.data, c.stato]),
+    pesi: [3, 5, 4, 2, 2],
+    righe: righePendenze,
+  }
+
+  // Check del corso
+  if (dv.tabelle.check && dv.tabelle.check.righe && dv.tabelle.check.righe.length > 0) {
+    dati.tabelle.check = dv.tabelle.check
+  } else {
+    dati.tabelle.check = { ...colonne((c) => [c.pif]), righe: [] }
+  }
+
+  return dati
+}
+
+/**
+ * La scheda del corso ristretta alle ore tenute come supplente: le stesse
+ * parti, ma contano solo le lezioni segnate `supplenza` e quel che nasce da
+ * loro (prove fatte in quelle ore, consegne date o raccolte lì, piani usati).
+ * Si restringe il registro invece di riscrivere la scheda, così le due non
+ * possono raccontare in due modi diversi.
+ */
+export function datiSupplenze (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+): DatiRapporto {
+  const sue = new Set(
+    registro.lezioni.filter((l) => l.corsoId === corso.id && l.supplenza === true).map((l) => l.id),
+  )
+  const delCorso = (corsoId: string | null) => corsoId === corso.id
+  const ristretto: Registro = {
+    ...registro,
+    lezioni: registro.lezioni.filter((l) => !delCorso(l.corsoId) || sue.has(l.id)),
+    valutazioni: registro.valutazioni.filter(
+      (v) => !delCorso(v.corsoId) || (v.lezioneId !== null && sue.has(v.lezioneId)),
+    ),
+    consegne: (registro.consegne ?? []).filter(
+      (c) =>
+        !delCorso(c.corsoId) ||
+        (c.dataLezioneId !== null && sue.has(c.dataLezioneId)) ||
+        (c.scadenzaLezioneId !== null && sue.has(c.scadenzaLezioneId)),
+    ),
+    // Un piano del corso resta solo se una supplenza l'ha usato.
+    piani: registro.piani.filter(
+      (p) =>
+        !delCorso(p.corsoId) ||
+        registro.lezioni.some((l) => sue.has(l.id) && l.pianoId === p.id),
+    ),
+  }
+  const dati = datiCorso(ristretto, corso, semestre)
+  dati.valori.titolo = testi().titoli.supplenze
   return dati
 }

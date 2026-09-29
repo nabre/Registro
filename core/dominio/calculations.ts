@@ -523,7 +523,11 @@ export function limita (valore: number, minimo: number, massimo: number): number
  * tratta da insufficiente.
  */
 export function arrotondaCentesimo (valore: number): number {
-  return Math.round(valore * 100) / 100
+  // Il miliardesimo recupera il mezzo perso dalla virgola mobile (4,475 * 100
+  // fa 447,49999999999994), come `percento()`. Sul valore assoluto, perché un
+  // negativo si arrotondi come il suo positivo; `|| 0` evita il meno zero.
+  const arrotondato = Math.round(Math.abs(valore) * 100 + 1e-9) / 100
+  return valore < 0 ? -arrotondato || 0 : arrotondato
 }
 
 export function votoValido (valore: number, scala: Scala): boolean {
@@ -690,7 +694,10 @@ export function votiDellaScala (scala: Scala): string[] {
   // Un passo storto (zero, negativo, più grande della scala) torna al mezzo
   // punto invece di produrre un elenco infinito.
   const passo = scala.passo > 0 && scala.passo <= scala.max - scala.min ? scala.passo : 0.5
-  const quanti = Math.round((scala.max - scala.min) / passo)
+  // Per difetto: un passo che non divide la scala (1–6 a 0,3) si ferma prima
+  // del massimo invece di sforarlo. Il miliardesimo tiene i passi che la
+  // dividono ma che la virgola mobile fa cadere appena sotto.
+  const quanti = Math.floor((scala.max - scala.min) / passo + 1e-9)
 
   const voti: string[] = []
   for (let i = 0; i <= quanti; i += 1) {
@@ -753,18 +760,42 @@ export function nomePiano (piano: PianoLezione, contesto: ContestoNomePiano = {}
   return `${corso} · ${lezioneDelPiano(piano, contesto)}`
 }
 
+/** Minuti minimi consentiti per un'attività della scaletta. */
+export const MINUTI_MINIMI_ATTIVITA = 5
+
+/** Il passo di durata in minuti delle attività della scaletta (multipli di 5 minuti). */
+export const PASSO_MINUTI_ATTIVITA = 5
+
 /**
- * Quanti minuti dura una tappa. La durata è salvata in UD (così un piano
- * riempie l'ora anche dove le UD durano cinquanta minuti) ma si scrive in
- * minuti; il cambio usa l'UD dell'ora vera, o quella delle impostazioni.
+ * Arrotonda una durata in minuti al multiplo di 5 più vicino, con un minimo di 5 minuti.
+ */
+export function arrotondaMinutiAttivita (minuti: number): number {
+  if (!Number.isFinite(minuti) || minuti <= 0) return MINUTI_MINIMI_ATTIVITA
+  const arrotondati = Math.round(minuti / PASSO_MINUTI_ATTIVITA) * PASSO_MINUTI_ATTIVITA
+  return Math.max(MINUTI_MINIMI_ATTIVITA, arrotondati)
+}
+
+/**
+ * Quanti minuti dura una tappa o una quota di tempo. La durata è salvata in UD
+ * (così un piano riempie l'ora anche dove le UD durano cinquanta minuti) ma si
+ * scrive in minuti; il cambio usa l'UD dell'ora vera, o quella delle impostazioni.
  */
 export function minutiDiAttivita (durataUd: number, minutiPerUd: number): number {
   return Math.max(1, Math.round(durataUd * minutiPerUd))
 }
 
-/** Il contrario: i minuti scritti a mano tornano unità didattiche. */
+/**
+ * La durata in minuti di una specifica attività della scaletta, garantita come
+ * multiplo di 5 minuti e con una durata minima di 5 minuti.
+ */
+export function minutiAttivita (attivita: Attivita, minutiPerUd: number): number {
+  return arrotondaMinutiAttivita(minutiDiAttivita(attivita.durataUd, minutiPerUd))
+}
+
+/** Il contrario: i minuti della scaletta (multipli di 5 min, min 5) tornano unità didattiche. */
 export function udDaMinutiAttivita (minuti: number, minutiPerUd: number): number {
-  return Math.max(1, minuti) / minutiPerUd
+  const perUd = minutiPerUd > 0 ? minutiPerUd : 50
+  return arrotondaMinutiAttivita(minuti) / perUd
 }
 
 /** Somma delle durate delle attività di un piano, in unità didattiche. */
@@ -783,7 +814,8 @@ export function minutiDiScarto (
   minutiUd: number,
 ): number {
   const posata = scalettaSulleUd(piano.attivita, lezione, minutiUd)
-  return Math.round(posata.scostamento * posata.minutiPerUd)
+  const minutiAttivitaTotali = posata.posti.reduce((somma, p) => somma + (p.a - p.da), 0)
+  return minutiAttivitaTotali - posata.minutiLezione
 }
 
 interface ScostamentoPiano {
@@ -941,8 +973,8 @@ export function scalettaSulleUd (
   let cursore = 0
   const posti = attivita.map((voce): PostoInScaletta => {
     const da = cursore
-    // Almeno un minuto: un'attività lunga zero non si vedrebbe.
-    const a = cursore + Math.max(1, Math.round(voce.durataUd * minutiPerUd))
+    // Ogni attività dura multipli di 5 minuti, con un minimo di 5 minuti.
+    const a = cursore + minutiAttivita(voce, minutiPerUd)
     cursore = a
     const ud = udDelMinuto(da)
     // Conta l'ultimo minuto occupato, non il primo libero.
@@ -1003,8 +1035,9 @@ export function scalettaSulleUd (
     corrente.occupati += occupati[i]
   })
 
-  // Il totale in UD, l'unità della scaletta.
-  const durataPiano = attivita.reduce((somma, v) => somma + (v.durataUd || 0), 0)
+  // Il totale in UD, coerente con le durate arrotondate delle attività.
+  const minutiTotali = posti.reduce((somma, p) => somma + (p.a - p.da), 0)
+  const durataPiano = minutiPerUd > 0 ? minutiTotali / minutiPerUd : 0
   return {
     posti,
     ud: unita.map((u, i) => ({

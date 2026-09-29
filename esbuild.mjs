@@ -12,12 +12,13 @@
 //   node esbuild.mjs                  costruisce una volta
 //   node esbuild.mjs --produzione     minifica e lascia fuori le mappe
 //   node esbuild.mjs --test           i bundle di `node --test`
+//   node esbuild.mjs --test --copertura  gli stessi, con le mappe per `tools/copertura.mjs`
 //   node esbuild.mjs --ui             i bundle delle prove Python di `tests/ui/`
 //
 // Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazione`.
 
 import { createHash } from 'node:crypto'
-import { cpSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import * as esbuild from 'esbuild'
@@ -85,13 +86,20 @@ function uuidDiElectronBuilder (nome) {
  * legge da una cartella per misurare le lettere, e nel pacchetto `node_modules` non c'è.
  */
 function copiaCaratteriPdf (dove) {
-  mkdirSync(dove, { recursive: true })
-  cpSync('node_modules/pdfjs-dist/standard_fonts', dove, { recursive: true })
+  try {
+    mkdirSync(dove, { recursive: true })
+    cpSync('resources/pdf-fonts', dove, { recursive: true })
+  } catch (errore) {
+    if (!existsSync(dove)) throw errore
+  }
 }
 
 const test = process.argv.includes('--test')
 const ui = process.argv.includes('--ui')
 const produzione = process.argv.includes('--produzione')
+// Le mappe inline servono solo a riportare la copertura sui `.ts`: senza, i
+// bundle di prova restano leggeri come sempre.
+const mappeDiProva = process.argv.includes('--copertura') ? 'inline' : false
 
 /** Il modulo `apparato` risolto nel file nostro. */
 const aliasApparato = { apparato: './desktop/apparato/platform.ts' }
@@ -234,16 +242,23 @@ const CON_FINTO = { electron: './tests/helpers/fake-electron.mjs' }
 /** Il finto e in più `apparato`, per chi passa dallo shim come l'applicazione. */
 const CON_FINTO_E_APPARATO = { ...aliasApparato, ...CON_FINTO }
 
+/**
+ * `Temporal` nei bundle di prova, che girano in Node o in Chromium senza:
+ * vedi `tests/helpers/temporal.mjs`. Solo qui, mai in `applicazione`.
+ */
+const conTemporal = { inject: ['tests/helpers/temporal.mjs'] }
+
 /** Un bundle di prova per Node: ESM, senza mappe, `node18`; `extra` di solito è l'alias del finto. */
 function provaNode (entrata, uscita, extra = {}) {
   return {
     ...comune,
+    ...conTemporal,
     entryPoints: [entrata],
     outfile: uscita,
     format: 'esm',
     platform: 'node',
     target: 'node18',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
     ...extra,
   }
 }
@@ -252,11 +267,12 @@ function provaNode (entrata, uscita, extra = {}) {
 function provaNeutra (entrata, uscita) {
   return {
     ...comune,
+    ...conTemporal,
     entryPoints: [entrata],
     outfile: uscita,
     format: 'esm',
     platform: 'neutral',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
   }
 }
 
@@ -284,11 +300,12 @@ function provaDeiCataloghi () {
   ]
   return {
     ...comune,
+    ...conTemporal,
     stdin: { contents: righe.join('\n'), resolveDir: '.', sourcefile: 'cataloghi.ts', loader: 'ts' },
     outfile: 'dist-tests/i18n.mjs',
     format: 'esm',
     platform: 'neutral',
-    sourcemap: false,
+    sourcemap: mappeDiProva,
   }
 }
 
@@ -329,7 +346,7 @@ const prove = [
     alias: CON_FINTO_E_APPARATO,
   }),
   // Il trasloco del nome: cartella dei dati da «Registro docenti» a
-  // «Regiclass» e percorsi scritti dentro. Solo `node:`.
+  // «Regiklass» e percorsi scritti dentro. Solo `node:`.
   provaNode('core/dati/formerName.ts', 'dist-tests/formerName.mjs'),
   // Le sezioni della pagina Impostazioni, senza DOM: un'impostazione che non
   // finisce in nessuna sezione esiste e non si vede.
@@ -376,13 +393,14 @@ const prove = [
 ]
 
 /**
- * I bundle delle prove `tests/ui/*.py`, costruiti da `tools/uiTests.mjs`: IIFE
- * per Chromium, più il manifesto che `themeChoice.py` legge da Node. In CI
+ * I bundle delle prove `tests/interfaccia/*.spec.ts`, costruiti da `tools/uiTests.mjs`: IIFE
+ * per Chromium, più il manifesto che `themeChoice.spec.ts` legge da Node. In CI
  * girano senza `pretest`, quindi qui c'è tutto quel che leggono.
  */
 const interfaccia = [
   {
     ...comune,
+    ...conTemporal,
     sourcemap: false,
     entryPoints: ['tests/helpers/uiStartup.ts'],
     outfile: 'dist-tests/ui.js',
@@ -391,6 +409,7 @@ const interfaccia = [
   },
   {
     ...comune,
+    ...conTemporal,
     sourcemap: false,
     entryPoints: ['desktop/shell/pages/settings/settings.ts'],
     outfile: 'dist-tests/native-settings.js',

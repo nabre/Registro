@@ -15,6 +15,10 @@ const it = {
     `${tolti === 1 ? 'Un momento sganciato eliminato' : `${tolti} momenti sganciati eliminati`}` +
     `${voti > 0 ? `, con ${plurale(voti, 'voto', 'voti')}` : ''}.`,
   fuoriScala: (min: number, max: number) => `Voto fuori dalla scala ${min}–${max}.`,
+  scalaStretta: (min: number, max: number) =>
+    `Alcuni voti già dati cadono fuori dalla scala ${min}–${max}: correggili prima di cambiarla.`,
+  altraClasse:
+    'Il momento ha già voti, recuperi o prove: non si può spostare su un corso di un’altra classe.',
   nonSvolta: 'La prova non si è ancora svolta: non c’è niente da riconsegnare.',
   recuperoPrima: 'Il recupero non può essere prima della prova che recupera.',
   recuperoNonRifatto: 'La prova di recupero non si può riconsegnare prima di averla rifatta.',
@@ -25,6 +29,9 @@ const it = {
   serveChi: `Serve ${il(PIF)} a cui appartiene la prova.`,
   senzaClasse: 'La classe del momento di valutazione non esiste.',
   pifFuoriClasse: frase(PIF, 'trovato', { nega: true, coda: 'nella classe' }),
+  lezioneAltroCorso: 'La lezione collegata appartiene a un altro corso.',
+  pianoAltroCorso: 'Il piano collegato appartiene a un altro corso.',
+  pianoDiversoDaLezione: 'Il momento indica un piano diverso da quello della lezione.',
   /** Il titolo del dialogo che chiede il PDF di una persona. */
   provaDi: (recupero: boolean, nome: string) => `${recupero ? 'Recupero' : 'Prova'} di ${nome}`,
 }
@@ -39,6 +46,11 @@ export const testi = catalogo(it, {
       `${plurale(tolti, 'losgelöste Leistungsbeurteilung', 'losgelöste Leistungsbeurteilungen')}` +
       ` gelöscht${voti > 0 ? `, mit ${plurale(voti, 'Note', 'Noten')}` : ''}.`,
     fuoriScala: (min, max) => `Note ausserhalb der Skala ${min}–${max}.`,
+    scalaStretta: (min, max) =>
+      `Einige erteilte Noten liegen ausserhalb der Skala ${min}–${max}: Korrigiere sie zuerst.`,
+    altraClasse:
+      'Die Bewertung hat schon Noten, Nachprüfungen oder Prüfungen: ' +
+      'Sie lässt sich nicht in einen Kurs einer anderen Klasse verschieben.',
     nonSvolta: 'Die Prüfung hat noch nicht stattgefunden: Es gibt nichts zurückzugeben.',
     recuperoPrima: 'Die Nachprüfung kann nicht vor der Prüfung liegen, die sie nachholt.',
     recuperoNonRifatto:
@@ -50,6 +62,10 @@ export const testi = catalogo(it, {
     serveChi: 'Es braucht die lernende Person, der die Prüfung gehört.',
     senzaClasse: 'Die Klasse der Leistungsbeurteilung existiert nicht.',
     pifFuoriClasse: 'Lernende Person in der Klasse nicht gefunden.',
+    lezioneAltroCorso: 'Die verknüpfte Stunde gehört zu einem anderen Kurs.',
+    pianoAltroCorso: 'Der verknüpfte Unterrichtsplan gehört zu einem anderen Kurs.',
+    pianoDiversoDaLezione:
+      'Die Leistungsbeurteilung verweist auf einen anderen Unterrichtsplan als ihre Stunde.',
     provaDi: (recupero, nome) => `${recupero ? 'Nachprüfung' : 'Prüfung'} von ${nome}`,
   },
   fr: {
@@ -61,6 +77,11 @@ export const testi = catalogo(it, {
       `${plurale(tolti, 'évaluation détachée supprimée', 'évaluations détachées supprimées')}` +
       `${voti > 0 ? `, avec ${plurale(voti, 'note', 'notes')}` : ''}.`,
     fuoriScala: (min, max) => `Note hors du barème ${min}–${max}.`,
+    scalaStretta: (min, max) =>
+      `Certaines notes déjà données sortent du barème ${min}–${max} : corrige-les d’abord.`,
+    altraClasse:
+      'L’évaluation a déjà des notes, des rattrapages ou des épreuves : ' +
+      'on ne peut pas la déplacer vers un cours d’une autre classe.',
     nonSvolta: 'L’épreuve n’a pas encore eu lieu : il n’y a rien à rendre.',
     recuperoPrima: 'Le rattrapage ne peut pas précéder l’épreuve qu’il rattrape.',
     recuperoNonRifatto:
@@ -72,6 +93,10 @@ export const testi = catalogo(it, {
     serveChi: 'Il faut la personne en formation à qui appartient l’épreuve.',
     senzaClasse: 'La classe de l’évaluation n’existe pas.',
     pifFuoriClasse: 'Personne en formation introuvable dans la classe.',
+    lezioneAltroCorso: 'La leçon associée appartient à un autre cours.',
+    pianoAltroCorso: 'Le plan de leçon associé appartient à un autre cours.',
+    pianoDiversoDaLezione:
+      'L’évaluation renvoie à un autre plan de leçon que celui de sa leçon.',
     provaDi: (recupero, nome) => `${recupero ? 'Rattrapage' : 'Épreuve'} de ${nome}`,
   },
   en: {
@@ -83,6 +108,11 @@ export const testi = catalogo(it, {
       `${plurale(tolti, 'detached assessment', 'detached assessments')} deleted` +
       `${voti > 0 ? `, with ${plurale(voti, 'grade', 'grades')}` : ''}.`,
     fuoriScala: (min, max) => `Grade outside the scale ${min}–${max}.`,
+    scalaStretta: (min, max) =>
+      `Some grades already given fall outside the scale ${min}–${max}: correct them first.`,
+    altraClasse:
+      'The assessment already has grades, make-ups or tests: ' +
+      'it can’t be moved to a course of another class.',
     nonSvolta: 'The test hasn’t taken place yet: there’s nothing to hand back.',
     recuperoPrima: 'The resit can’t be before the test it makes up for.',
     recuperoNonRifatto: 'The resit can’t be handed back before it has been sat.',
@@ -92,6 +122,10 @@ export const testi = catalogo(it, {
     serveChi: 'The learner the test belongs to is needed.',
     senzaClasse: 'The assessment’s class doesn’t exist.',
     pifFuoriClasse: 'Learner not found in the class.',
+    lezioneAltroCorso: 'The linked lesson belongs to another course.',
+    pianoAltroCorso: 'The linked lesson plan belongs to another course.',
+    pianoDiversoDaLezione:
+      'The assessment refers to a different lesson plan from its lesson’s.',
     provaDi: (recupero, nome) => `${nome}’s ${recupero ? 'resit' : 'test'}`,
   },
 })

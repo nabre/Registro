@@ -279,25 +279,29 @@ describe('il todo secondo il ruolo', () => {
     assert.equal(algebra.conti.segnalazioni.aperti, 0)
   })
 
-  it('nel contesto docente di classe esclude le consegne dovute dal docente', () => {
+  it('nel contesto docente di classe tiene anche le consegne dovute dal docente', () => {
+    // Il todo del corso le esclude: se le escludesse anche questo, una
+    // consegna di classe dovuta dal docente non comparirebbe da nessuna parte.
     const { registro, prima, corsi } = registroBase()
     prima.docenteDiClasse = true
     registro.consegne = [
-      consegnaArretrata('cor-1', 'Dagli allievi', { a: 'classe' }),
-      consegnaArretrata('cor-1', 'Dal docente', { a: 'docente' }),
+      consegnaArretrata('cor-1', 'Dagli allievi', { a: 'classe', docenteDiClasse: true }),
+      consegnaArretrata('cor-1', 'Dal docente', { a: 'docente', docenteDiClasse: true }),
     ]
 
     const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
+    const corso = todoDelCorso(registro, prima, corsi[0], OGGI)
 
     assert.deepEqual(todo.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Dagli allievi'])
-    assert.equal(todo.conti.svolgeDocente.aperti, 0)
-    assert.equal(todo.conti.consegnaDocente.aperti, 0)
+    assert.deepEqual(todo.consegne.svolgeDocente.arretrate.map((c) => c.testo), ['Dal docente'])
+    assert.equal(todo.conti.svolgeDocente.aperti, 1)
     assert.equal(todo.conti.valutazioni.aperti, 0)
+    assert.equal(corso.conti.svolgeDocente.aperti, 0)
   })
 
   it('senza ruolo di docente di classe restituisce un todo vuoto', () => {
     const { registro, prima, corsi } = registroBase()
-    registro.consegne = [consegnaArretrata('cor-1', 'Dagli allievi')]
+    registro.consegne = [consegnaArretrata('cor-1', 'Dagli allievi', { docenteDiClasse: true })]
 
     const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
 
@@ -312,16 +316,33 @@ describe('il todo secondo il ruolo', () => {
     const { registro, prima, corsi } = registroBase()
     prima.docenteDiClasse = true
     registro.consegne = [
-      consegnaArretrata('cor-1', 'Scaduta della classe'),
-      creaConsegna('cor-1', 'Senza scadenza', OGGI),
-      consegnaArretrata('cor-1', 'Scaduta del docente', { a: 'docente' }),
+      consegnaArretrata('cor-1', 'Scaduta della classe', { docenteDiClasse: true }),
+      creaConsegna('cor-1', 'Senza scadenza', OGGI, null, true),
+      consegnaArretrata('cor-1', 'Scaduta del docente', { a: 'docente', docenteDiClasse: true }),
     ]
 
     const todo = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
 
     assert.equal(todo.conti.svolgeClasse.aperti, 2)
     assert.equal(todo.conti.svolgeClasse.urgenti, 1)
-    assert.equal(todo.aperti, 2)
-    assert.equal(todo.urgenti, 1)
+    assert.equal(todo.conti.svolgeDocente.aperti, 1)
+    assert.equal(todo.aperti, 3)
+    assert.equal(todo.urgenti, 2)
+  })
+
+  it('distingue le consegne di corso da quelle del docente di classe', () => {
+    const { registro, prima, corsi } = registroBase()
+    prima.docenteDiClasse = true
+    const corso = corsi[0]
+    registro.consegne = [
+      consegnaArretrata('cor-1', 'Compito di matematica', { docenteDiClasse: false }),
+      consegnaArretrata('cor-1', 'Autorizzazione uscita', { docenteDiClasse: true }),
+    ]
+
+    const todoCorso = todoDelCorso(registro, prima, corso, OGGI)
+    const todoClasse = todoDelDocenteDiClasse(registro, prima, corsi, OGGI)
+
+    assert.deepEqual(todoCorso.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Compito di matematica'])
+    assert.deepEqual(todoClasse.consegne.svolgeClasse.arretrate.map((c) => c.testo), ['Autorizzazione uscita'])
   })
 })

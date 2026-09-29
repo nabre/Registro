@@ -49,6 +49,14 @@ const it = {
   chiFirma: 'Chi firma',
   chiFirmaAiuto:
     'Uno solo, qualunque sia la carta: sta dentro il documento dell’anno e viaggia con lui.',
+  docenteAppellativo: 'Titolo o appellativo',
+  docenteAppellativoSegnaposto: 'Prof., Prof.ssa, Ing.…',
+  docenteAppellativoAiuto:
+    'Opzionale: compare nei modelli di stampa che usano {{docente.appellativo}} o {{docente.completo}}.',
+  docenteNomeSegnaposto: 'Mario',
+  docenteNomeAiuto: 'Il nome proprio del docente.',
+  docenteCognomeSegnaposto: 'Rossi',
+  docenteCognomeAiuto: 'Il cognome del docente.',
   docenteSegnaposto: 'Nome e cognome',
   docenteAiuto:
     'In fondo a sinistra di ogni pagina, su tutte le carte, e nella firma di serie delle e-mail.',
@@ -112,6 +120,14 @@ export const testi = catalogo(it, {
     chiFirma: 'Wer unterschreibt',
     chiFirmaAiuto:
       'Nur eine Person, egal welches Briefpapier: steht im Jahresdokument und reist mit ihm.',
+    docenteAppellativo: 'Titel oder Anrede',
+    docenteAppellativoSegnaposto: 'Prof., Dr., Ing.…',
+    docenteAppellativoAiuto:
+      'Optional: erscheint in Druckvorlagen, die {{docente.appellativo}} oder {{docente.completo}} verwenden.',
+    docenteNomeSegnaposto: 'Hans',
+    docenteNomeAiuto: 'Der Vorname der Lehrperson.',
+    docenteCognomeSegnaposto: 'Muster',
+    docenteCognomeAiuto: 'Der Nachname der Lehrperson.',
     docenteSegnaposto: 'Vorname und Nachname',
     docenteAiuto:
       'Unten links auf jeder Seite, auf allen Briefpapieren, und in der Standardsignatur der ' +
@@ -178,6 +194,14 @@ export const testi = catalogo(it, {
     chiFirmaAiuto:
       'Une seule personne, quel que soit le papier : elle est dans le document de l’année et ' +
       'voyage avec lui.',
+    docenteAppellativo: 'Titre ou appellation',
+    docenteAppellativoSegnaposto: 'Prof., Dre, Ing.…',
+    docenteAppellativoAiuto:
+      'Facultatif : apparaît dans les modèles d’impression utilisant {{docente.appellativo}} ou {{docente.completo}}.',
+    docenteNomeSegnaposto: 'Jean',
+    docenteNomeAiuto: 'Le prénom de l’enseignant.',
+    docenteCognomeSegnaposto: 'Dupont',
+    docenteCognomeAiuto: 'Le nom de famille de l’enseignant.',
     docenteSegnaposto: 'Prénom et nom',
     docenteAiuto:
       'En bas à gauche de chaque page, sur tous les papiers, et dans la signature standard des ' +
@@ -238,6 +262,14 @@ export const testi = catalogo(it, {
     chiFirmaAiuto:
       'Just one, whatever the letterhead: it lives inside the year’s document and travels ' +
       'with it.',
+    docenteAppellativo: 'Title or salutation',
+    docenteAppellativoSegnaposto: 'Prof., Dr., Eng.…',
+    docenteAppellativoAiuto:
+      'Optional: appears in print templates using {{docente.appellativo}} or {{docente.completo}}.',
+    docenteNomeSegnaposto: 'John',
+    docenteNomeAiuto: 'The teacher’s first name.',
+    docenteCognomeSegnaposto: 'Doe',
+    docenteCognomeAiuto: 'The teacher’s last name.',
     docenteSegnaposto: 'First and last name',
     docenteAiuto:
       'Bottom left of every page, on all letterheads, and in the standard email signature.',

@@ -6,6 +6,12 @@ import { catalogo, numero } from '../i18n/index.js'
 import { ordinalePausa } from './breaks.js'
 import { FASCIA, PERSONE, PIF, del, un } from './lexicon.js'
 
+/** «La seconda», «L’ottava», «L’11ª»: davanti a vocale l'articolo si elide. */
+function LaPausa (indice: number): string {
+  const ordinale = ordinalePausa(indice)
+  return /^(?:[aeiou]|8|11(?!\d))/i.test(ordinale) ? `L’${ordinale}` : `La ${ordinale}`
+}
+
 /** «la seconda pausa», in francese: tante quante le pause ammesse, poi in cifre. */
 function ordinaleFr (indice: number): string {
   const parole = [
@@ -55,9 +61,9 @@ const it = {
   primaPausa: 'La prima pausa non ha un orario valido: usare HH:MM.',
   troppePause: (quante: number) => `Al massimo ${quante} pause in una giornata.`,
   durataPausa: (indice: number, minimo: number, massimo: number) =>
-    `La ${ordinalePausa(indice)} pausa dura fra ${minimo} e ${massimo} minuti interi.`,
+    `${LaPausa(indice)} pausa dura fra ${minimo} e ${massimo} minuti interi.`,
   distanzaPausa: (indice: number, minimo: number, massimo: number) =>
-    `La ${ordinalePausa(indice)} pausa cade fra ${minimo} e ${massimo} ` +
+    `${LaPausa(indice)} pausa cade fra ${minimo} e ${massimo} ` +
     'unità didattiche intere dopo la precedente.',
   mezzanotte: 'L’ultima pausa finirebbe dopo mezzanotte.',
 

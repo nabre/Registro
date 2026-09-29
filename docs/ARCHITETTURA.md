@@ -1,4 +1,4 @@
-# Architettura di Regiclass
+# Architettura di Regiklass
 
 Com'è fatto e che cosa succede quando. Dove stanno i dati e come si costruisce:
 [GUIDA](GUIDA.md). Il perché: [DECISIONI](DECISIONI.md). Il lavoro aperto:
@@ -32,14 +32,14 @@ I conteggi verificati (azioni, procedure, viste, impostazioni, entità) stanno i
 flowchart TB
   docente["Docente<br/>un solo utente, sulla sua macchina"]
 
-  registro["<b>Regiclass</b><br/>app Electron su Windows<br/>un documento .regi per anno"]
+  registro["<b>Regiklass</b><br/>app Electron su Windows<br/>un documento .regi per anno"]
 
   nominatim["Nominatim / OpenStreetMap<br/>nominatim.openstreetmap.org"]
   tiles["Tile OpenStreetMap<br/>tile.openstreetmap.org"]
   exchange["Exchange Online<br/>smtp.office365.com:587 STARTTLS"]
   entra["Microsoft Entra ID<br/>login.microsoftonline.com"]
   hugging["Hugging Face<br/>huggingface.co — solo per scaricare i modelli"]
-  github["GitHub<br/>release di Regiclass e di llama.cpp"]
+  github["GitHub<br/>release di Regiklass e di llama.cpp"]
   ics["Calendario ICS della scuola<br/>l'indirizzo che il docente ha scritto"]
   voicebox["voicebox<br/>127.0.0.1 — su questo computer"]
   disco["Filesystem e OneDrive<br/>cartella del docente"]
@@ -208,7 +208,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   ([store.ts](../core/dati/store.ts)), PDF ([pdf.ts](../core/dati/pdf.ts),
   [reportsPdf.ts](../core/dati/reportsPdf.ts)), posta
   ([mail.ts](../core/dati/mail.ts), [exchange.ts](../core/dati/exchange.ts),
-  [oauth.ts](../core/dati/oauth.ts)), OCR ([ocr.ts](../core/dati/ocr.ts)),
+  [oauth.ts](../core/dati/oauth.ts)), OneDrive ([oneDriveLocale.ts](../core/dati/oneDriveLocale.ts),
+  [microsoft.ts](../core/dati/microsoft.ts), [onedrive.ts](../core/dati/onedrive.ts)), OCR ([ocr.ts](../core/dati/ocr.ts)),
   geocodifica ([geocoding.ts](../core/dati/geocoding.ts)), modelli, dettatura.
 - **`core/dominio/`** — le regole della scuola: modello
   ([models.ts](../core/dominio/models.ts)), date e UD
@@ -220,7 +221,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   oggetto `satisfies Parte`, e un'azione senza gestore non compila. `Contesto`
   ([context.ts](../core/azioni/context.ts)) è la porta verso lo stato:
   `modifica(op, collezioni)`, `suVoce` (timbra `aggiornatoIl`), `nelFascicolo`,
-  `elimina`.
+  `elimina`. Oggi `op` cambia lo stato vivo dopo `ricordaPrima`; `Archivio.modifica`
+  invece passa `op` su una bozza immer e ricava le collezioni dalle patch (ADR-50).
 - **`contract/`** — il contratto davanti ai gestori: protocollo, schemi e procedure
   (ADR-27–29, [API](API.md)).
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
@@ -231,6 +233,11 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   cursore e scorrimenti ripristinati per chiave (`data-fuoco`,
   `data-scorrimento`); modali e palette fuori dal ciclo. `stato.registro` è
   sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
+  Dove si guarda è un `Posto` e ci si sposta con `vai` (ADR-47); il posto si
+  ricorda per documento (`memoria.ts`). Ogni aggiornamento resta nel suo
+  riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture
+  rifanno solo la loro isola (`isole.ts`, `risorse.ts`), i nodi pesanti
+  `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
 - **`cli/`** — la riga di comando autonoma: `regi`, disinstallazione, esportazioni
   senza interfaccia grafica.
 
@@ -463,6 +470,7 @@ La tabella di che cosa esce, verso dove e quando sta nella
 |---|---|
 | Geocodifica ([core/dati/geocoding.ts](../core/dati/geocoding.ts)) | solo la riga d'indirizzo scomposta, mai nomi; 1 richiesta ogni 1100 ms, User-Agent dichiarato, paesi `ch,it,de,fr,at`, al più 60 indirizzi per volta, cache per indirizzo (ADR-03) |
 | Posta ([core/dati/exchange.ts](../core/dati/exchange.ts), [core/dati/oauth.ts](../core/dati/oauth.ts)) | STARTTLS obbligatorio, `AUTH XOAUTH2`, destinatari solo in `RCPT TO`; OAuth con PKCE S256 su loopback, `state` verificato, scope `SMTP.Send offline_access` (Graph scartato: troppo ampio); scoperta del tenant |
+| OneDrive ([core/dati/microsoft.ts](../core/dati/microsoft.ts), [core/dati/onedrive.ts](../core/dati/onedrive.ts)) | senza rete per gli account sincronizzati sul computer (letti dal disco, solo dentro le loro cartelle); per gli altri lo stesso accesso PKCE della posta, ma scope `Files.Read.All User.Read offline_access` e un gettone di rinnovo per account nel portachiavi; solo lettura; il gettone va solo a `graph.microsoft.com` (lo scarico segue un rimando già firmato, senza gettone); `onedrive.*` `perAssistente: false` (ADR-49) |
 | Modelli ([core/dati/huggingFace.ts](../core/dati/huggingFace.ts) → [core/dati/gguf.ts](../core/dati/gguf.ts)) | in entrata; nessuna chiave; i depositi con condizioni da accettare non si scaricano |
 | `llama-mtmd-cli` ([core/dati/kit.ts](../core/dati/kit.ts), [core/dati/visionKit.ts](../core/dati/visionKit.ts)) | un eseguibile che partirà: versione fissata, SHA-256 prima del nome definitivo, estratti solo l'eseguibile e le sue `.dll`; solo se `modelli.scaricoAutomatico` |
 | Aggiornamenti ([desktop/apparato/updates.ts](../desktop/apparato/updates.ts)) | SHA-512 di `latest.yml` verificato da `electron-updater` e di nuovo prima di lanciare l'installatore ([os/windows/aggiornamento.ps1](../os/windows/aggiornamento.ps1)); solo l'installato su Windows; `ORE_FRA_I_CONTROLLI` |
@@ -471,7 +479,7 @@ La tabella di che cosa esce, verso dove e quando sta nella
 | Dettatura ([core/dati/dictation.ts](../core/dati/dictation.ts) → [core/dati/voicebox.ts](../core/dati/voicebox.ts)) | solo loopback, ricontrollato a ogni lettura ([core/dominio/loopback.ts](../core/dominio/loopback.ts)); `redirect: 'manual'`; intoccabile dal condotto; un `POST /transcribe` per pausa ([ui/pannello/assistant/voice.ts](../ui/pannello/assistant/voice.ts)), 120 s; WAV mai sul disco del registro (ADR-35) |
 | Modello locale ([core/dati/llm.ts](../core/dati/llm.ts)) | non esce: `.gguf` in processo (ADR-25) |
 
-`openExternal` è ristretto a `http`, `https`, `mailto`, `tel`
+`openExternal` è ristretto a `http`, `https`, `mailto`, `tel`, `callto`, `skype`, `msteams`
 ([desktop/apparato/commands.ts](../desktop/apparato/commands.ts)); i file locali si
 aprono per percorso (ADR-22).
 
@@ -514,11 +522,12 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   strati (§ 4).
 - electron-builder: `node_modules` escluso tranne `node-llama-cpp`
   (`asarUnpack` con `pdf.worker.mjs`); `nsis` per utente e `portable`;
-  `fileAssociations` per `.regi` con MIME `application/x-regiclass`. La firma la
+  `fileAssociations` per `.regi` con MIME `application/x-regiklass`. La firma la
   chiede `rilascio.yml` (GUIDA § «La firma del codice»).
 - Prove: `node:test`. Finti: [tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs)
   (`app`, `BrowserWindow`, `ipcMain` con `simulaDallaPagina()`, due schermi,
   `safeStorage`, `nativeTheme`; stato su `globalThis.__bancoElectron`) e
   [tests/helpers/fake-node-llama.mjs](../tests/helpers/fake-node-llama.mjs)
-  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia in Python +
-  Playwright (`tests/ui/*.py`, `npm run ui-tests`).
+  (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia con
+  @playwright/test (`tests/interfaccia/*.spec.ts`, `npm run ui-tests`), una con
+  Electron vero.

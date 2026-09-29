@@ -25,9 +25,9 @@ import { avviso, campo, pastiglia, pulsante, riga, sezioneModulo } from '../comp
 import { icona } from '../components/icons.js'
 import { apriModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
+import { gestisci, h, rimpiazza } from '../dom.js'
 import { ancorataAIcs, aulaDaIcs } from '../externalCalendar.js'
-import { aggiorna, lezionePerId, nomeDiPiano, pianiPerCorso, stato } from '../state.js'
+import { lezionePerId, nomeDiPiano, pianiPerCorso, stato, vai } from '../state.js'
 
 import {
   baseViva,
@@ -280,14 +280,14 @@ function editorSlot (
     }
     sincronizzatori.push(sincronizza)
 
-    inizio.addEventListener('change', () => {
+    gestisci(inizio, 'change', () => {
       if (!inizio.value) return sincronizza()
       // Spostando l’ora del primo slot si sposta la lezione intera: gli altri
       // sono attaccati e vengono dietro, senza allungarsi.
       incatena(inizio.value)
     })
 
-    durata.addEventListener('change', () => {
+    gestisci(durata, 'change', () => {
       const scritto = Number(durata.value)
       const minuti = pausa
         ? Math.max(5, Math.round(scritto) || 5)
@@ -467,7 +467,7 @@ function editorSlot (
   return contenitore
 }
 
-export interface OpzioniModuloLezione {
+interface OpzioniModuloLezione {
   lezione?: Lezione
   data?: string
   classeId?: string
@@ -577,6 +577,15 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
             larghezza: 'quarto',
           }),
         ),
+        riga(
+          campo({
+            nome: 'supplenza',
+            tipo: 'checkbox',
+            etichetta: t.supplenza,
+            valore: base.supplenza === true,
+            aiuto: t.aiutoSupplenza,
+          }),
+        ),
         sezioneModulo(
           t.orario,
           // Ancorata: le fasce del calendario ferme, le altre modificabili (`editorSlot`).
@@ -620,6 +629,9 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
         stato: testo(valori.stato) as Lezione['stato'],
         pianoId: testo(valori.pianoId) || null,
       }
+      // Solo quando è vera, come la scrive la normalizzazione.
+      if (valori.supplenza) lezione.supplenza = true
+      else delete lezione.supplenza
       // Cambiare piano dopo che si è già segnato l'avanzamento lascerebbe
       // spunte su attività di un altro piano.
       if (lezione.pianoId !== viva.pianoId) lezione.avanzamento = []
@@ -654,7 +666,9 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
               contesto,
               azione: { tipo: 'lezione.duplica', lezioneId: base.id, data: base.data },
               fatto: t.duplicata,
-              poi: (idCreato) => aggiorna({ vista: 'lezione', lezioneId: idCreato }),
+              poi: (idCreato) => {
+                vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: idCreato } })
+              },
             }),
             // Ancorata a eventi ICS: niente «Elimina». Vedi `ancorataAIcs`.
             ancorata
@@ -664,7 +678,9 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
                   chiedi: { genere: 'lezione', id: base.id },
                   azione: { tipo: 'lezione.elimina', lezioneId: base.id },
                   fatto: t.eliminata,
-                  poi: () => aggiorna({ vista: 'calendario', lezioneId: null }),
+                  poi: () => {
+                    vai({ pagina: 'pagina.calendario' }, { contesto: { lezioneId: null } })
+                  },
                 }),
           ]
         : null,

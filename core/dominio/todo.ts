@@ -292,12 +292,22 @@ export function todoDelCorso (
   giorno: Iso,
 ): TodoClasse {
   return limitaFamiglie(
-    todoDellaClasse(registro, classe, [corso], giorno),
+    todoDellaClasse(
+      registro,
+      classe,
+      [corso],
+      giorno,
+      (consegna) => !consegna.docenteDiClasse,
+    ),
     new Set(['valutazioni', ...FAMIGLIE_CONSEGNA]),
   )
 }
 
-/** Lavoro del docente di classe: pratiche e consegne dovute da classe/allievi. */
+/**
+ * Lavoro del docente di classe: pratiche e tutte le consegne di classe, anche
+ * quelle dovute dal docente. `todoDelCorso` le esclude: fuori di qui non
+ * comparirebbero da nessuna parte.
+ */
 export function todoDelDocenteDiClasse (
   registro: Registro,
   classe: Classe,
@@ -309,12 +319,12 @@ export function todoDelDocenteDiClasse (
     classe,
     corsi,
     giorno,
-    (consegna) => consegna.a !== 'docente',
+    (consegna) => Boolean(consegna.docenteDiClasse),
   )
   return limitaFamiglie(
     base,
     classe.docenteDiClasse
-      ? new Set(['assenze', 'segnalazioni', 'consegnaClasse', 'svolgeClasse'])
+      ? new Set(['assenze', 'segnalazioni', ...FAMIGLIE_CONSEGNA])
       : new Set(),
   )
 }

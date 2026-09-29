@@ -62,12 +62,13 @@ const it = {
           'l’ultima.',
       },
       {
-        termine: 'Le quattro tipologie',
+        termine: 'Le sei tipologie',
         testo:
-          'Assenze da far firmare, assenze oltre la soglia e le consegne che la classe o i ' +
-          'singoli allievi devono consegnare o svolgere. Le consegne stanno in mucchi per ' +
-          'scadenza: rimaste indietro, oggi, entro la settimana, più avanti. Valutazioni e ' +
-          'lavori propri del docente non compaiono qui.',
+          'Assenze da far firmare, assenze oltre la soglia e le consegne della classe, divise ' +
+          'per chi le deve fare: quel che la classe o i singoli allievi devono consegnare o ' +
+          'svolgere, e quel che tocca al docente consegnare o svolgere per quella classe. Le ' +
+          'consegne stanno in mucchi per scadenza: rimaste indietro, oggi, entro la settimana, ' +
+          'più avanti. Le valutazioni non compaiono qui.',
       },
       {
         termine: 'Nuova pendenza',
@@ -79,7 +80,7 @@ const it = {
       {
         termine: 'Che cosa è «in ritardo»',
         testo:
-          'Una consegna dovuta dalla classe con la scadenza passata, una richiesta di firma ' +
+          'Una consegna con la scadenza passata, chiunque la debba, una richiesta di firma ' +
           'ancora da spedire o un caso oltre la soglia con gli appelli completi.',
       },
       {
@@ -563,7 +564,7 @@ const it = {
       {
         termine: 'Spedire dal registro',
         testo:
-          'In Impostazioni › **Comunicazioni**: **Collega la casella** chiede l’indirizzo e apre ' +
+          'In Impostazioni › **Comunicazioni**: **Collega la casella** chiede l’account e apre ' +
           'il browser sulla pagina di accesso Microsoft, **Prova il collegamento** controlla senza ' +
           'mandare niente. Poi si accende «Spedisci senza bozza», sotto «Quando parte», che di ' +
           'suo è spento.',
@@ -647,12 +648,13 @@ export const testi = catalogo(it, {
             'angehakten Klasse und verschwindet mit der letzten.',
         },
         {
-          termine: 'Die vier Arten',
+          termine: 'Die sechs Arten',
           testo:
-            `${TIPOLOGIE_DE.assenze}, ${TIPOLOGIE_DE.segnalazioni} und die Aufträge, welche die ` +
-            'Klasse oder einzelne Lernende abgeben oder erledigen müssen. Die Aufträge liegen ' +
-            'nach Frist in Stapeln: überfällig, heute, bis Ende Woche, später. Beurteilungen und ' +
-            'eigene Arbeiten der Lehrperson erscheinen hier nicht.',
+            `${TIPOLOGIE_DE.assenze}, ${TIPOLOGIE_DE.segnalazioni} und die Aufträge der Klasse, ` +
+            'getrennt danach, wer sie erledigen muss: was die Klasse oder einzelne Lernende ' +
+            'abgeben oder erledigen müssen, und was die Lehrperson für diese Klasse ausgeben ' +
+            'oder erledigen muss. Die Aufträge liegen nach Frist in Stapeln: überfällig, heute, ' +
+            'bis Ende Woche, später. Beurteilungen erscheinen hier nicht.',
         },
         {
           termine: 'Neue Pendenz',
@@ -664,7 +666,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Was «überfällig» ist',
           testo:
-            'Ein fälliger Auftrag der Klasse, eine noch nicht verschickte Unterschriftsanfrage ' +
+            'Ein fälliger Auftrag, wer auch immer ihn schuldet, eine noch nicht verschickte Unterschriftsanfrage ' +
             'oder ein Fall über der Schwelle mit vollständigen Präsenzkontrollen.',
         },
         {
@@ -1201,8 +1203,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Aus dem Klassenbuch verschicken',
           testo:
-            'Unter Einstellungen › **Kommunikation**: **Postfach verbinden** fragt nach der ' +
-            'Adresse und öffnet den Browser auf der Anmeldeseite von Microsoft, **Verbindung ' +
+            'Unter Einstellungen › **Kommunikation**: **Postfach verbinden** fragt nach dem ' +
+            'Konto und öffnet den Browser auf der Anmeldeseite von Microsoft, **Verbindung ' +
             'testen** prüft, ohne etwas zu schicken. Dann schaltet man «Ohne Entwurf senden» ' +
             'ein, unter «Wann es verschickt wird», das von sich aus ausgeschaltet ist.',
         },
@@ -1288,12 +1290,13 @@ export const testi = catalogo(it, {
             'et disparaît avec la dernière.',
         },
         {
-          termine: 'Les quatre types',
+          termine: 'Les six types',
           testo:
-            'Absences à faire signer, absences au-delà du seuil et devoirs que la classe ou des ' +
-            'élèves doivent rendre ou effectuer. Les devoirs sont groupés par échéance : en ' +
-            'retard, aujourd’hui, d’ici la fin de la semaine, plus tard. Les évaluations et le ' +
-            'travail propre de l’enseignant n’apparaissent pas ici.',
+            'Absences à faire signer, absences au-delà du seuil et devoirs de la classe, répartis ' +
+            'selon qui doit les faire : ce que la classe ou des élèves doivent rendre ou effectuer, ' +
+            'et ce que l’enseignant doit remettre ou faire pour cette classe. Les devoirs sont ' +
+            'groupés par échéance : en retard, aujourd’hui, d’ici la fin de la semaine, plus ' +
+            'tard. Les évaluations n’apparaissent pas ici.',
         },
         {
           termine: 'Nouvelle tâche en suspens',
@@ -1305,7 +1308,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Ce qui est « en retard »',
           testo:
-            'Un devoir dû par la classe dont l’échéance est passée, une demande de signature ' +
+            'Un devoir dont l’échéance est passée, quel qu’en soit le responsable, une demande de signature ' +
             'encore à envoyer ou un cas au-delà du seuil avec les appels complets.',
         },
         {
@@ -1816,7 +1819,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Envoyer depuis le registre',
           testo:
-            'Dans Paramètres › **Communications** : **Connecter la boîte** demande l’adresse et ' +
+            'Dans Paramètres › **Communications** : **Connecter la boîte** demande le compte et ' +
             'ouvre le navigateur sur la page de connexion Microsoft, **Tester la connexion** ' +
             'vérifie sans rien envoyer. Puis on active « Envoyer sans brouillon », sous « Quand ' +
             'ça part », qui est désactivé par défaut.',
@@ -1900,12 +1903,13 @@ export const testi = catalogo(it, {
             'last.',
         },
         {
-          termine: 'The four types',
+          termine: 'The six types',
           testo:
-            'Absences to get signed, absences over the threshold, and assignments the class or ' +
-            'individual students must hand in or complete. Assignments sit in deadline groups: ' +
-            'overdue, today, within the week, later. Assessments and the teacher’s own work do ' +
-            'not appear here.',
+            'Absences to get signed, absences over the threshold, and the class’s assignments, ' +
+            'split by who has to do them: what the class or individual students must hand in or ' +
+            'complete, and what the teacher has to hand out or do for that class. Assignments ' +
+            'sit in deadline groups: overdue, today, within the week, later. Assessments do not ' +
+            'appear here.',
         },
         {
           termine: 'New pending item',
@@ -1917,7 +1921,7 @@ export const testi = catalogo(it, {
         {
           termine: 'What counts as “overdue”',
           testo:
-            'An assignment owed by the class and past its deadline, a signature request still ' +
+            'An assignment past its deadline, whoever owes it, a signature request still ' +
             'to send, or a case over the threshold with complete attendance.',
         },
         {
@@ -2409,7 +2413,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Sending from the register',
           testo:
-            'In Settings › **Communications**: **Connect the mailbox** asks for the address and opens ' +
+            'In Settings › **Communications**: **Connect the mailbox** asks for the account and opens ' +
             'the browser on the Microsoft sign-in page, **Test the connection** checks without ' +
             'sending anything. Then turn on “Send without a draft”, under “When it goes out”, ' +
             'which is off by default.',

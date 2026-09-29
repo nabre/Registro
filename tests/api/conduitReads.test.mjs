@@ -6,7 +6,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro12-modifiche-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-modifiche-')
 
 let api
 let archivio
@@ -31,10 +31,10 @@ before(async () => {
   })
 
   registra(
-    lenta('giro12.lentaFallisce', () => { throw new Error('rete giù') }),
-    lenta('giro12.lentaRiesce', () => ({})),
+    lenta('prova.entaFallisce', () => { throw new Error('rete giù') }),
+    lenta('prova.entaRiesce', () => ({})),
     definisci({
-      nome: 'giro12.scrive',
+      nome: 'prova.crive',
       versione: 1,
       genere: 'scrittura',
       titolo: 'Una scrittura vera, che muove la revisione',
@@ -70,7 +70,7 @@ async function conScritturaInMezzo (nome, minuti) {
     const lettura = api.chiama(archivio, nome, {})
     await new Promise((risolvi) => setTimeout(risolvi, 10))
     const prima = archivio.revisione
-    const scrittura = await api.chiama(archivio, 'giro12.scrive', { minuti })
+    const scrittura = await api.chiama(archivio, 'prova.crive', { minuti })
     assert.equal(scrittura.ok, true, JSON.stringify(scrittura))
     assert.equal(archivio.revisione, prima + 1, 'la scrittura non ha scritto: la prova non prova')
     sblocca()
@@ -84,14 +84,14 @@ async function conScritturaInMezzo (nome, minuti) {
 
 describe('una lettura non conta le scritture degli altri', () => {
   it('fallita, riporta zero modifiche nella busta e nel giornale', async () => {
-    const { esito, voce } = await conScritturaInMezzo('giro12.lentaFallisce', 21)
+    const { esito, voce } = await conScritturaInMezzo('prova.entaFallisce', 21)
     assert.equal(esito.ok, false)
     assert.equal(esito.modifiche, 0, 'una lettura fallita dice «non ritentare»')
     assert.equal(voce?.modifiche, 0)
   })
 
   it('riuscita, riporta zero modifiche nel giornale', async () => {
-    const { esito, voce } = await conScritturaInMezzo('giro12.lentaRiesce', 22)
+    const { esito, voce } = await conScritturaInMezzo('prova.entaRiesce', 22)
     assert.equal(esito.ok, true)
     assert.equal(voce?.modifiche, 0)
   })

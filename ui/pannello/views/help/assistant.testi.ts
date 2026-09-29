@@ -497,7 +497,9 @@ const it = {
           'Fuori dall’assistente, il registro parla con la rete in altri punti. La mappa manda ' +
           'gli indirizzi dell’anagrafica a OpenStreetMap per collocarli, e ne scarica le carte ' +
           'della zona guardata. La posta passa dall’accesso Microsoft quando colleghi la casella, ' +
-          'e spedisce i messaggi solo con «Spedisci senza bozza» acceso. Il calendario ' +
+          'e spedisce i messaggi solo con «Spedisci senza bozza» acceso. OneDrive si legge da ' +
+          'Microsoft Graph solo per gli account che colleghi, quando sfogli o cerchi i ' +
+          'documenti. Il calendario ' +
           'ICS della scuola si scarica dal link che hai scritto, senza mandare dati del registro. ' +
           'Gli aggiornamenti chiedono a GitHub l’ultima versione e, se c’è, ne scaricano da lì ' +
           'l’installatore. La prima volta che legge una ' +
@@ -1044,7 +1046,9 @@ export const testi = catalogo(it, {
             'Netz. Die Karte schickt die Adressen aus den Personalien an OpenStreetMap, um sie ' +
             'zu verorten, und lädt die Karten des betrachteten Gebiets herunter. Die E-Mail ' +
             'läuft über die Microsoft-Anmeldung, wenn du das Postfach verbindest, und verschickt ' +
-            'Nachrichten nur, wenn «Ohne Entwurf senden» eingeschaltet ist. Der ICS-Kalender ' +
+            'Nachrichten nur, wenn «Ohne Entwurf senden» eingeschaltet ist. OneDrive wird über ' +
+            'Microsoft Graph nur für die Konten gelesen, die du verbindest, wenn du Dokumente ' +
+            'durchsuchst oder suchst. Der ICS-Kalender ' +
             'der Schule wird vom Link heruntergeladen, den du eingetragen hast, ohne Daten des ' +
             'Klassenbuchs zu senden. Die Aktualisierungen fragen GitHub nach der neuesten ' +
             'Version und laden, falls es eine gibt, das Installationsprogramm von dort ' +
@@ -1584,7 +1588,9 @@ export const testi = catalogo(it, {
             'carte envoie les adresses des données personnelles à OpenStreetMap pour les ' +
             'situer, et télécharge les fonds de carte de la zone regardée. Le courrier passe ' +
             'par la connexion Microsoft quand tu connectes la boîte, et n’envoie les messages ' +
-            'qu’avec « Envoyer sans brouillon » activé. Le calendrier ICS de l’école se ' +
+            'qu’avec « Envoyer sans brouillon » activé. OneDrive se lit par Microsoft Graph ' +
+            'seulement pour les comptes que tu connectes, quand tu parcours ou cherches les ' +
+            'documents. Le calendrier ICS de l’école se ' +
             'télécharge depuis le lien que tu as saisi, sans envoyer de données du registre. ' +
             'Les mises à jour demandent à GitHub la dernière version et, s’il y en a une, en ' +
             'téléchargent l’installateur depuis là. La première fois qu’il lit un scan, le ' +
@@ -2116,7 +2122,9 @@ export const testi = catalogo(it, {
             'sends the addresses from the personal details to OpenStreetMap to place them, and ' +
             'downloads the map tiles of the area being viewed. Mail goes through the Microsoft ' +
             'sign-in when you connect the mailbox, and sends messages only with “Send without a ' +
-            'draft” turned on. The school’s ICS calendar is downloaded from the link you ' +
+            'draft” turned on. OneDrive is read through Microsoft Graph only for the accounts ' +
+            'you connect, when you browse or look for documents. The school’s ICS calendar is ' +
+            'downloaded from the link you ' +
             'entered, without sending any register data. Updates ask GitHub for the latest ' +
             'version and, if there is one, download the installer from there. The first time ' +
             'it reads a scan, the register downloads the llama.cpp program from GitHub, if ' +

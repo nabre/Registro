@@ -5,6 +5,12 @@
 // la casella resta mirabile per archiviare in un'altra colonna.
 // Le pagine scelte stanno nello stato e non nel DOM perché la vista si
 // ridisegna a ogni battito. Le miniature le fa `components/thumbnails.ts`.
+//
+// Lo sfoglio è un'isola (`isole.ts`): scegliere una pagina, cambiare lo zoom o
+// una pagina letta dalla coda rifanno lui solo. I riquadri sono telaio
+// (`data-telaio`): restano gli stessi elementi fra un disegno e l'altro,
+// perché Chromium annulla il trascinamento di un elemento tolto dal documento;
+// le fotografie sono nodi tenuti (`data-tieni`) e non si ridecodificano.
 
 import { etichettaFoglio } from '../../../core/dominio/absences.js'
 import { nomeCompleto } from '../../../core/dominio/calculations.js'
@@ -28,9 +34,10 @@ import {
   miniaturaPronta,
 } from '../components/thumbnails.js'
 import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { azione } from '../bridge.js'
-import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, stato, uriDato } from '../state.js'
+import { isola, ridisegnaIsola } from '../isole.js'
+import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, ricorda, stato, uriDato } from '../state.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { parole } from '../../../core/dominio/words.testi.js'
@@ -47,6 +54,19 @@ export const TIPO_PAGINE = 'application/x-registro-pagine'
 export interface PagineTrascinate {
   smistamentoId: string
   pagine: number[]
+}
+
+/**
+ * L'isola di quel che mostra la lettura delle scansioni (`stato.lavoro`): la
+ * coda, i gesti sul PDF, i riquadri in lettura. `main.ts` rifà lei sola a ogni
+ * pagina letta, invece della pagina intera.
+ */
+export const ISOLA_LETTURA = 'coda-lettura'
+
+/** L'isola dello sfoglio di un PDF: testata con la scelta, e le pagine. */
+function isolaSfoglio (smistamentoId: string): string {
+  // testo-fisso: la chiave di un'isola
+  return `sfoglio:${smistamentoId}`
 }
 
 /** La classe che il corpo della pagina porta mentre delle pagine sono in volo. */
@@ -114,9 +134,15 @@ function pagineScelte (smistamentoId: string): number[] {
   return scelta && scelta.smistamentoId === smistamentoId ? scelta.pagine : []
 }
 
+/**
+ * Cambia la scelta e rifà solo lo sfoglio. Diretta e non da `aggiorna`, come
+ * `inverti` di `people.ts`: la scelta si vede solo qui, non si ricorda, e un
+ * clic su una pagina non deve rifare la pagina intera.
+ */
 function scegli (smistamentoId: string, pagine: number[]): void {
   const ordinate = [...new Set(pagine)].sort((x, y) => x - y)
-  aggiorna({ pagineScelte: ordinate.length > 0 ? { smistamentoId, pagine: ordinate } : null })
+  stato.pagineScelte = ordinate.length > 0 ? { smistamentoId, pagine: ordinate } : null
+  ridisegnaIsola(isolaSfoglio(smistamentoId))
 }
 
 /** Il clic su una pagina: semplice sceglie questa, Ctrl aggiunge o toglie, Shift prende il tratto. */
@@ -309,27 +335,41 @@ function fotografia (
     )
   }
 
-  const mostra = (immagine: string | null, nitida: boolean) => {
+  /**
+   * Mette la fotografia in `dove`: `posto` al disegno, il posto vivo quando la
+   * fotografia arriva più tardi (un ridisegno può averne tenuto un altro).
+   */
+  const mostra = (dove: HTMLElement, immagine: string | null, nitida: boolean) => {
     if (!immagine) {
       if (!nitida) return
       // Disegno fallito: lo si dice. La pagina resta trascinabile.
-      posto.replaceChildren(
+      dove.replaceChildren(
         h('span', { class: 'pagina-sfoglio__attesa' }, t.pagina(pagina)),
         h('span', { class: 'testo-quieto pagina-sfoglio__nota' }, t.nonDisegnabile),
       )
       return
     }
+    // Un nodo tenuto per PDF e pagina: il ridisegno rimette l'`<img>` di prima
+    // (`dom.ts`, `parcheggia`) e non ridecodifica la fotografia; se la
+    // fotografia cambia (quella nitida dopo la provvisoria) cambia solo `src`.
+    const foto = dove.querySelector('img') ?? h('img', {
+      // testo-fisso: la chiave del nodo tenuto
+      dataset: { tieni: `${chiave}|${pagina}` },
+      attr: { alt: t.pagina(pagina), draggable: 'false' },
+    })
+    if (foto.getAttribute('src') !== immagine) foto.setAttribute('src', immagine)
+    for (const figlio of Array.from(dove.childNodes)) {
+      if (figlio !== foto) dove.removeChild(figlio)
+    }
+    if (foto.parentNode !== dove) dove.appendChild(foto)
     const sopra = segno()
-    posto.replaceChildren(
-      h('img', { attr: { src: immagine, alt: t.pagina(pagina), draggable: 'false' } }),
-    )
-    if (sopra instanceof Node) posto.appendChild(sopra)
+    if (sopra instanceof Node) dove.appendChild(sopra)
   }
 
   // Quella giusta c'è già: si mette e basta.
   const esatta = miniaturaAllaMisura(chiave, pagina, larghezza)
   if (esatta) {
-    mostra(esatta, true)
+    mostra(posto, esatta, true)
     return posto
   }
 
@@ -337,7 +377,7 @@ function fotografia (
   // l'immagine dell'host, sgranate) e si chiede comunque quella giusta.
   const ripiego = miniaturaPronta(chiave, pagina, larghezza) ?? ripiegoScritto
   if (ripiego) {
-    mostra(ripiego, false)
+    mostra(posto, ripiego, false)
   } else {
     posto.appendChild(h('span', { class: 'pagina-sfoglio__attesa' }, String(pagina)))
     posto.appendChild(h('span', { class: 'testo-quieto pagina-sfoglio__nota' }, t.disegnando))
@@ -345,11 +385,11 @@ function fotografia (
 
   // Una vedetta sola per tutte le pagine, non una per riquadro: vedi
   // `guardaQuando`.
-  guardaQuando(posto, () => {
+  guardaQuando(posto, `${chiave}|${pagina}|${larghezza}`, (vivo) => {
     // Un ridisegno può aver già sostituito il riquadro: lo si riempie solo se è
     // ancora in pagina; la fotografia resta in memoria per il riquadro nuovo.
     void miniatura(indirizzo, chiave, pagina, larghezza).then((immagine) => {
-      if (posto.isConnected) mostra(immagine, true)
+      if (vivo.isConnected) mostra(vivo, immagine, true)
     })
   })
   return posto
@@ -358,35 +398,56 @@ function fotografia (
 /**
  * Un solo `IntersectionObserver` per tutti i riquadri: quando una pagina entra
  * in vista si esegue il suo compito e la si smette di guardare.
+ *
+ * Il compito si lega a una chiave (`data-guarda`), non al nodo del disegno: un
+ * ridisegno può tenere nel documento il riquadro di prima e scartare quello
+ * appena costruito, che non entrerebbe mai in vista. Si guardano i nodi che
+ * sono nel documento a disegno finito, e il compito riceve quello vivo.
  */
-const daGuardare = new WeakMap<Element, () => void>()
+const daGuardare = new Map<string, (vivo: HTMLElement) => void>()
 let vedetta: IntersectionObserver | null = null
+let guardiaProgrammata = false
 
-function guardaQuando (elemento: Element, compito: () => void): void {
-  vedetta ??= new IntersectionObserver(
-    (voci) => {
-      for (const voce of voci) {
-        if (!voce.isIntersecting) continue
-        const suo = daGuardare.get(voce.target)
-        daGuardare.delete(voce.target)
-        vedetta?.unobserve(voce.target)
-        suo?.()
-      }
-    },
-    { rootMargin: ANTICIPO },
-  )
-  daGuardare.set(elemento, compito)
-  vedetta.observe(elemento)
+function guardaQuando (
+  elemento: HTMLElement,
+  chiave: string,
+  compito: (vivo: HTMLElement) => void,
+): void {
+  elemento.dataset.guarda = chiave
+  daGuardare.set(chiave, compito)
+  if (guardiaProgrammata) return
+  guardiaProgrammata = true
+  // Dopo il disegno che sta costruendo il riquadro, quando è nel documento.
+  queueMicrotask(() => {
+    guardiaProgrammata = false
+    vedetta ??= new IntersectionObserver(
+      (voci) => {
+        for (const voce of voci) {
+          if (!voce.isIntersecting) continue
+          const vivo = voce.target as HTMLElement
+          const suo = daGuardare.get(vivo.dataset.guarda ?? '')
+          daGuardare.delete(vivo.dataset.guarda ?? '')
+          vedetta?.unobserve(vivo)
+          suo?.(vivo)
+        }
+      },
+      { rootMargin: ANTICIPO },
+    )
+    for (const vivo of document.querySelectorAll<HTMLElement>('[data-guarda]')) {
+      if (daGuardare.has(vivo.dataset.guarda ?? '')) vedetta.observe(vivo)
+    }
+  })
 }
 
 /**
  * Lascia andare tutto quel che si stava guardando, all'inizio di ogni disegno.
  * `IntersectionObserver` trattiene i nodi osservati anche quando il ridisegno
  * li toglie dal documento; senza questo si accumulano. I riquadri ancora in
- * pagina si riguardano subito dopo; `daGuardare` è una mappa debole.
+ * pagina si riguardano subito dopo.
  */
 function smettiDiGuardare (): void {
   vedetta?.disconnect()
+  daGuardare.clear()
 }
 
 /**
@@ -472,24 +533,39 @@ function spiegaPagina (
   return righe.join('\n')
 }
 
+/** Quel che lo sfoglio sa, calcolato una volta per disegno e letto da ogni riquadro. */
+interface ContestoSfoglio {
+  indirizzo: string
+  chiave: string
+  scelte: number[]
+  archiviate: Map<number, string>
+  proposte: Map<number, string>
+  anteprime: Map<number, string>
+  nomi: Map<number, NomeLetto>
+  lette: Map<number, PaginaSmistamento>
+  lettura: Map<number, 'in-coda' | 'in-corso'>
+  richieste: Consegna[]
+  allievi: Allievo[]
+  zoom: number
+}
+
+/**
+ * L'ultimo disegno dello sfoglio. I riquadri sono telaio e tengono gli
+ * ascoltatori del primo disegno: clic, menu e trascinamento leggono da qui il
+ * PDF e il contesto di adesso, non quelli di quando il riquadro è nato.
+ */
+let ultimo: { smistamento: Smistamento, contesto: ContestoSfoglio } | null = null
+
+/** L'ultimo disegno, se è ancora quello di questo PDF. */
+function disegnoDi (smistamentoId: string): typeof ultimo {
+  return ultimo?.smistamento.id === smistamentoId ? ultimo : null
+}
+
 /** Una pagina nello sfoglio: la sua fotografia, il suo numero, e quel che se ne sa. */
 function riquadroPagina (
   smistamento: Smistamento,
   pagina: number,
-  contesto: {
-    indirizzo: string
-    chiave: string
-    scelte: number[]
-    archiviate: Map<number, string>
-    proposte: Map<number, string>
-    anteprime: Map<number, string>
-    nomi: Map<number, NomeLetto>
-    lette: Map<number, PaginaSmistamento>
-    lettura: Map<number, 'in-coda' | 'in-corso'>
-    richieste: Consegna[]
-    allievi: Allievo[]
-    zoom: number
-  },
+  contesto: ContestoSfoglio,
 ): HTMLElement {
   const quel = {
     archiviata: contesto.archiviate.get(pagina),
@@ -500,6 +576,7 @@ function riquadroPagina (
   }
   const { archiviata, lettura } = quel
   const presa = contesto.scelte.includes(pagina)
+  const smistamentoId = smistamento.id
 
   const riquadro = h(
     'li',
@@ -510,6 +587,11 @@ function riquadroPagina (
         archiviata && 'pagina-sfoglio--archiviata',
         lettura === 'in-corso' && 'pagina-sfoglio--in-lettura',
       ],
+      // Tenuto fra un disegno e l'altro: la scelta e la lettura cambiano solo
+      // classi e attributi. Archiviata o no sono due riquadri diversi, perché
+      // l'archiviata non ha gli ascoltatori del gesto.
+      // testo-fisso: la chiave del telaio
+      dataset: { telaio: `pagina:${pagina}${archiviata ? ':archiviata' : ''}` },
       attr: {
         role: 'option',
         'aria-selected': String(presa),
@@ -535,36 +617,40 @@ function riquadroPagina (
     lettura === 'in-corso' ? h('div', { class: 'barra-lavoro' }, h('span', null)) : null,
   )
 
-  riquadro.addEventListener('contextmenu', (evento: MouseEvent) =>
-    menuDellaPagina(evento, smistamento, pagina, contesto),
-  )
+  gestisci(riquadro, 'contextmenu', (evento) => {
+    const adesso = disegnoDi(smistamentoId)
+    if (adesso) menuDellaPagina(evento, adesso.smistamento, pagina, adesso.contesto)
+  })
 
   if (archiviata) return riquadro
 
-  riquadro.addEventListener('click', (evento) =>
-    alClic(smistamento, pagina, evento, contesto.archiviate),
-  )
-  riquadro.addEventListener('dragstart', (evento: DragEvent) => {
+  gestisci(riquadro, 'click', (evento) => {
+    const adesso = disegnoDi(smistamentoId)
+    if (adesso) alClic(adesso.smistamento, pagina, evento, adesso.contesto.archiviate)
+  })
+  gestisci(riquadro, 'dragstart', (evento) => {
     // Trascinare una pagina fuori dalla scelta porta solo quella, come in ogni elenco.
     // La scelta non si aggiorna qui: ridisegnerebbe la vista togliendo l'elemento
     // appena preso, e Chromium annullerebbe il trascinamento.
-    const scelte = pagineScelte(smistamento.id)
+    const scelte = pagineScelte(smistamentoId)
     const scelteInVolo = scelte.includes(pagina) ? scelte : [pagina]
     inVolo = scelteInVolo
-    inVoloDa = smistamento.id
+    inVoloDa = smistamentoId
     atterrate = false
     rinunciato = false
 
-    const carico: PagineTrascinate = { smistamentoId: smistamento.id, pagine: scelteInVolo }
+    const carico: PagineTrascinate = { smistamentoId, pagine: scelteInVolo }
     evento.dataTransfer?.setData(TIPO_PAGINE, JSON.stringify(carico))
     // Sotto il puntatore va la pagina che si porta, non il riquadro.
-    fantasma(evento, riquadro, scelteInVolo.length)
+    // Il riquadro vivo: dopo un ridisegno `riquadro` può essere quello scartato.
+    fantasma(evento, evento.currentTarget as HTMLElement, scelteInVolo.length)
     // Anche in `text/plain`: rilasciate in un campo di testo, lasciano una frase leggibile.
-    evento.dataTransfer?.setData('text/plain', `${smistamento.nome}: ${dicePagine(scelteInVolo)}`)
+    const nome = disegnoDi(smistamentoId)?.smistamento.nome ?? smistamento.nome
+    evento.dataTransfer?.setData('text/plain', `${nome}: ${dicePagine(scelteInVolo)}`)
     if (evento.dataTransfer) evento.dataTransfer.effectAllowed = 'copy'
     document.body.classList.add(CORPO_IN_VOLO)
   })
-  riquadro.addEventListener('dragend', () => document.body.classList.remove(CORPO_IN_VOLO))
+  gestisci(riquadro, 'dragend', () => document.body.classList.remove(CORPO_IN_VOLO))
   return riquadro
 }
 
@@ -776,10 +862,10 @@ function colonneDi (misura: number): string {
 
 /**
  * Il cursore che ingrandisce le pagine. Mentre lo si trascina cambia solo la
- * griglia (le fotografie si allargano sgranate); la misura va nello stato al
- * rilascio, che ridisegna le pagine nitide.
+ * griglia (le fotografie si allargano sgranate); al rilascio la misura va
+ * nello stato e si ricorda, e si rifà lo sfoglio con le pagine nitide.
  */
-function cursoreZoom (griglia: HTMLElement): Figlio {
+function cursoreZoom (smistamentoId: string): Figlio {
   const indice = Math.max(0, MISURE_SFOGLIO.indexOf(misuraZoom()))
   const t = testi()
 
@@ -796,12 +882,20 @@ function cursoreZoom (griglia: HTMLElement): Figlio {
       'aria-label': t.misura,
     },
     oninput: (evento: Event) => {
-      const misura = MISURE_SFOGLIO[Number((evento.currentTarget as HTMLInputElement).value)]
-      if (misura) griglia.style.gridTemplateColumns = colonneDi(misura)
+      const campo = evento.currentTarget as HTMLInputElement
+      const misura = MISURE_SFOGLIO[Number(campo.value)]
+      // La griglia si cerca in pagina: è telaio, quindi non quella di questo disegno.
+      const griglia = campo.closest('.sfoglio')?.querySelector<HTMLElement>('.sfoglio__pagine')
+      if (misura && griglia) griglia.style.gridTemplateColumns = colonneDi(misura)
     },
     onchange: (evento: Event) => {
       const misura = MISURE_SFOGLIO[Number((evento.currentTarget as HTMLInputElement).value)]
-      if (misura) aggiorna({ zoomSfoglio: misura })
+      if (!misura || misura === stato.zoomSfoglio) return
+      // Diretto e non da `aggiorna`, come la scelta: cambia solo lo sfoglio. È una
+      // preferenza, quindi `ricorda`.
+      stato.zoomSfoglio = misura
+      ricorda()
+      ridisegnaIsola(isolaSfoglio(smistamentoId))
     },
   })
 
@@ -813,11 +907,8 @@ function cursoreZoom (griglia: HTMLElement): Figlio {
   )
 }
 
-/**
- * Lo sfoglio: la testata con la scelta, e sotto le pagine. Le archiviate restano
- * al loro posto, spente, così la pagina 7 del PDF è la settima dell'elenco.
- */
-export function sfoglioSmistamento (opzioni: {
+/** Quel che serve per disegnare lo sfoglio di un PDF. */
+interface OpzioniSfoglio {
   smistamento: Smistamento
   allievi: Allievo[]
   richieste: Consegna[]
@@ -825,9 +916,26 @@ export function sfoglioSmistamento (opzioni: {
   chiave: string
   /**
    * La coda di lettura, disegnata dal chiamante: questo modulo non sa di OCR.
+   * Una funzione e non un nodo: l'isola la ridisegna ogni volta.
    */
-  coda?: Figlio
-}): Figlio {
+  coda?: () => Figlio
+}
+
+/**
+ * Lo sfoglio: la testata con la scelta, e sotto le pagine. Le archiviate restano
+ * al loro posto, spente, così la pagina 7 del PDF è la settima dell'elenco.
+ * È un'isola: scelta e zoom rifanno lei sola. `display: contents` perché il
+ * contenitore dell'isola non si metta fra lo sfoglio e la colonna della cornice.
+ */
+export function sfoglioSmistamento (opzioni: OpzioniSfoglio): HTMLElement {
+  return isola(isolaSfoglio(opzioni.smistamento.id), () => disegnaSfoglio(opzioni), {
+    style: 'display: contents',
+    // testo-fisso: la chiave del telaio
+    dataset: { telaio: 'isola-sfoglio' },
+  })
+}
+
+function disegnaSfoglio (opzioni: OpzioniSfoglio): HTMLElement {
   const { smistamento, allievi, richieste, indirizzo, chiave } = opzioni
   // L'indirizzo dei caratteri standard arriva con lo stato, quindi può mancare al
   // primo disegno: lo si ridice a ogni ridisegno.
@@ -837,7 +945,7 @@ export function sfoglioSmistamento (opzioni: {
   const scelte = pagineScelte(smistamento.id)
   const zoom = misuraZoom()
   const suggerite = proposte(smistamento, allievi)
-  const contesto = {
+  const contesto: ContestoSfoglio = {
     indirizzo,
     chiave,
     scelte,
@@ -851,6 +959,7 @@ export function sfoglioSmistamento (opzioni: {
     allievi,
     zoom,
   }
+  ultimo = { smistamento, contesto }
 
   // Le pagine archiviate escono dall'elenco; l'interruttore le rimette in fila
   // per riprendere quella finita sulla riga sbagliata.
@@ -866,9 +975,10 @@ export function sfoglioSmistamento (opzioni: {
       class: 'sfoglio__pagine',
       style: { gridTemplateColumns: colonneDi(zoom) },
       // Lo scorrimento resta dov'era fra un ridisegno e l'altro; la chiave porta l'id
-      // del PDF, così un altro PDF riparte dall'alto.
-      // testo-fisso: la chiave dello scorrimento
-      dataset: { scorrimento: `sfoglio:${smistamento.id}` },
+      // del PDF, così un altro PDF riparte dall'alto. Telaio: la scatola che scorre
+      // resta la stessa, e con lei i riquadri.
+      // testo-fisso: la chiave dello scorrimento e del telaio
+      dataset: { scorrimento: `sfoglio:${smistamento.id}`, telaio: 'pagine' },
       attr: { role: 'listbox', 'aria-multiselectable': 'true' },
     },
     ...pagine,
@@ -877,7 +987,8 @@ export function sfoglioSmistamento (opzioni: {
 
   return h(
     'div',
-    { class: 'sfoglio' },
+    // testo-fisso: la chiave del telaio
+    { class: 'sfoglio', dataset: { telaio: 'sfoglio' } },
     h(
       'div',
       { class: 'sfoglio__testa' },
@@ -911,13 +1022,13 @@ export function sfoglioSmistamento (opzioni: {
             simbolo: 'chiudi',
             variante: 'fantasma',
             titolo: t.lasciaTitolo,
-            al: () => aggiorna({ pagineScelte: null }),
+            al: () => scegli(smistamento.id, []),
           })
         : null,
       interruttoreArchiviate(contesto.archiviate.size),
-      cursoreZoom(griglia),
+      cursoreZoom(smistamento.id),
     ),
-    opzioni.coda ?? null,
+    opzioni.coda?.() ?? null,
     pagine.length === 0
       ? h(
           'p',

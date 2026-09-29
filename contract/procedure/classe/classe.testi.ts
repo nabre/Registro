@@ -16,6 +16,7 @@ const it = {
         allievoId: 'Di chi è il foglio',
         genere: 'Che cosa racconta il foglio',
         firmato: 'Vero è quello tornato indietro con la firma sopra',
+        file: 'Percorso del file del foglio sul disco; se omesso apre il dialogo',
       },
       apri: { titolo: 'Apre un foglio di assenze nel programma del sistema' },
       togli: {
@@ -28,6 +29,7 @@ const it = {
     invia: {
       titolo: 'Prepara e manda le richieste di firma: una e-mail per persona',
       allieviIds: 'Vuoto vuol dire: tutti quelli pronti e non ancora spediti',
+      conferma: 'Se true, non chiede conferma prima di spedire direttamente',
     },
     salva: {
       titolo: 'Crea o aggiorna un periodo di assenze da far firmare',
@@ -40,7 +42,10 @@ const it = {
   },
   comunicazioni: {
     elimina: { titolo: 'Butta via una comunicazione dal fascicolo' },
-    invia: { titolo: 'Manda la comunicazione ai destinatari, in copia nascosta' },
+    invia: {
+      titolo: 'Manda la comunicazione ai destinatari, in copia nascosta',
+      conferma: 'Se true, non chiede conferma prima di spedire direttamente',
+    },
     salva: { titolo: 'Salva la bozza di una comunicazione alla classe' },
     spunta: {
       titolo: 'Segna la comunicazione come spedita, o la riporta a bozza',
@@ -119,6 +124,7 @@ export const testi = catalogo(it, {
           allievoId: 'Wem das Blatt gehört',
           genere: 'Wovon das Blatt berichtet',
           firmato: 'Wahr: das Blatt, das mit der Unterschrift darauf zurückgekommen ist',
+          file: 'Pfad der Abwesenheitsblatt-Datei auf der Festplatte; wenn weggelassen, wird der Dialog geöffnet',
         },
         apri: { titolo: 'Öffnet ein Absenzenblatt im Programm des Systems' },
         togli: {
@@ -133,6 +139,7 @@ export const testi = catalogo(it, {
       invia: {
         titolo: 'Bereitet die Unterschriftsanfragen vor und verschickt sie: eine E-Mail pro Person',
         allieviIds: 'Leer heisst: alle, die bereit und noch nicht verschickt sind',
+        conferma: 'Wenn true, wird vor dem direkten Senden keine Bestätigung verlangt',
       },
       salva: {
         titolo: 'Erstellt oder aktualisiert einen Absenzenzeitraum zum Unterschreiben',
@@ -147,7 +154,10 @@ export const testi = catalogo(it, {
     },
     comunicazioni: {
       elimina: { titolo: 'Löscht eine Mitteilung aus dem Klassendossier' },
-      invia: { titolo: 'Schickt die Mitteilung an die Empfänger, in Blindkopie' },
+      invia: {
+        titolo: 'Schickt die Mitteilung an die Empfänger, in Blindkopie',
+        conferma: 'Wenn true, wird vor dem direkten Senden keine Bestätigung verlangt',
+      },
       salva: { titolo: 'Speichert den Entwurf einer Mitteilung an die Klasse' },
       spunta: {
         titolo: 'Markiert die Mitteilung als verschickt oder setzt sie auf Entwurf zurück',
@@ -231,6 +241,7 @@ export const testi = catalogo(it, {
           allievoId: 'À qui appartient la feuille',
           genere: 'Ce que raconte la feuille',
           firmato: 'Vrai, c’est celle qui est revenue avec la signature',
+          file: 'Chemin du fichier de la feuille d’absences sur le disque ; si omis, ouvre la boîte de dialogue',
         },
         apri: { titolo: 'Ouvre une feuille d’absences dans le programme du système' },
         togli: {
@@ -245,6 +256,7 @@ export const testi = catalogo(it, {
       invia: {
         titolo: 'Prépare et envoie les demandes de signature : un e-mail par personne',
         allieviIds: 'Vide veut dire : toutes celles qui sont prêtes et pas encore envoyées',
+        conferma: 'Si vrai, ne demande pas de confirmation avant l’envoi direct',
       },
       salva: {
         titolo: 'Crée ou met à jour une période d’absences à faire signer',
@@ -257,7 +269,10 @@ export const testi = catalogo(it, {
     },
     comunicazioni: {
       elimina: { titolo: 'Supprime une communication du dossier de classe' },
-      invia: { titolo: 'Envoie la communication aux destinataires, en copie cachée' },
+      invia: {
+        titolo: 'Envoie la communication aux destinataires, en copie cachée',
+        conferma: 'Si vrai, ne demande pas de confirmation avant l’envoi direct',
+      },
       salva: { titolo: 'Enregistre le brouillon d’une communication à la classe' },
       spunta: {
         titolo: 'Marque la communication comme envoyée, ou la remet en brouillon',
@@ -339,6 +354,7 @@ export const testi = catalogo(it, {
           allievoId: 'Whose sheet it is',
           genere: 'What the sheet is about',
           firmato: 'True is the one that came back with the signature on it',
+          file: 'Path of the absence sheet file on disk; if omitted opens the dialog',
         },
         apri: { titolo: 'Opens an absence sheet in the system’s program' },
         togli: {
@@ -351,6 +367,7 @@ export const testi = catalogo(it, {
       invia: {
         titolo: 'Prepares and sends the signature requests: one email per person',
         allieviIds: 'Empty means: all those ready and not yet sent',
+        conferma: 'If true, does not ask for confirmation before sending directly',
       },
       salva: {
         titolo: 'Creates or updates a period of absences to be signed',
@@ -363,7 +380,10 @@ export const testi = catalogo(it, {
     },
     comunicazioni: {
       elimina: { titolo: 'Deletes a message from the class file' },
-      invia: { titolo: 'Sends the message to the recipients, in blind copy' },
+      invia: {
+        titolo: 'Sends the message to the recipients, in blind copy',
+        conferma: 'If true, does not ask for confirmation before sending directly',
+      },
       salva: { titolo: 'Saves the draft of a message to the class' },
       spunta: {
         titolo: 'Marks the message as sent, or puts it back to draft',

@@ -137,4 +137,15 @@ describe('lo ZIP del registro', () => {
     // Il valore di riferimento di «123456789», la prova standard del CRC-32.
     assert.equal(crc32(testo('123456789')), 0xcbf43926)
   })
+
+  it('accetta una coda nello spazio morto, ma la rifiuta con codaInFondo', () => {
+    const archivio = scriviZip([{ nome: 'classi.json', dati: testo('[1,2,3]') }])
+    const spazzatura = Buffer.concat([archivio, Buffer.from('corpo parziale')])
+
+    const recuperato = apriZip(spazzatura)
+    assert.equal(recuperato.voci.length, 1)
+    assert.equal(recuperato.voci[0].nome, 'classi.json')
+
+    assert.throws(() => apriZip(spazzatura, { codaInFondo: true }), /manca la coda/)
+  })
 })

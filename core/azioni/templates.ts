@@ -2,12 +2,15 @@
 // l'anteprima (in base64, mai scritta). Del documento è solo la carta
 // intestata: il logo passa dalle azioni in fondo, il resto da `impostazioni.salva`.
 
+import * as apparato from 'apparato'
+
 import { CATALOGO_MODELLI, genereDiProva, linguaDelModello, modelloDelGenere, titoloModello, voceModello } from '../dominio/templateCatalog.js'
 import { nomeCompleto } from '../dominio/calculations.js'
 import { documentoPiano, type GenereRapporto } from '../dominio/locations.js'
 import { classeDelCorsoId, corsiDellaClasse } from '../dominio/courses.js'
 import {
   datiAllievo,
+  datiCorso,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
@@ -75,11 +78,20 @@ export async function provaModello (
     : nome
   const inLingua = linguaDelModello(nome) ?? undefined
 
-  const pronto = impaginazioneDi(modelloDaUsare, prova.dati, registro.impostazioni.intestazione, inLingua)
+  const pronto = impaginazioneDi(
+    modelloDaUsare,
+    prova.dati,
+    registro.impostazioni.intestazione,
+    inLingua,
+  )
   if (!pronto) return { ok: false, errore: testi().modelloAssente(nome) }
 
   try {
-    const byte = await componiPdf(pronto.impaginazione, pronto.dati, immaginiDelDocumento(pronto.carta))
+    const byte = await componiPdf(
+      pronto.impaginazione,
+      pronto.dati,
+      immaginiDelDocumento(pronto.carta),
+    )
     return { ok: true, dati: { pdf: Buffer.from(byte).toString('base64'), di: prova.di } }
   } catch (errore) {
     return { ok: false, errore: testi().anteprimaFallita(motivoSicuro(errore)) }
@@ -109,6 +121,11 @@ function datiDiProva (
   if (genere === 'piano') {
     const piano = registro.piani[0] ?? null
     return piano ? { dati: datiPiano(registro, piano), di: documentoPiano(registro, piano) } : null
+  }
+
+  if (genere === 'corso') {
+    if (!corso) return null
+    return { dati: datiCorso(registro, corso, null), di: corso.titolo }
   }
 
   if (genere === 'valutazioni' || genere === 'presenze') {
@@ -212,7 +229,10 @@ export async function portaDentroLaVecchiaCartella (contesto: Contesto): Promise
   const prima = intestazione.carte[0]
   let logo: string | undefined
   if (vecchia.logo) {
-    const esito = await archiviaCopia(percorsoLogo(prima.id, vecchia.logo.estensione), vecchia.logo.uri)
+    const esito = await archiviaCopia(
+      percorsoLogo(prima.id, vecchia.logo.estensione),
+      vecchia.logo.uri,
+    )
     if (!('errore' in esito)) logo = esito.relativo
   }
 
@@ -227,7 +247,11 @@ export async function portaDentroLaVecchiaCartella (contesto: Contesto): Promise
             sede: vecchia.sede,
             ...(logo ? { logo } : {}),
             ...(vecchia.logo?.altezza
-              ? { altezzaLogo: normalizzaIntestazione({ carte: [{ altezzaLogo: vecchia.logo.altezza }] }).carte[0].altezzaLogo }
+              ? {
+                  altezzaLogo: normalizzaIntestazione({
+                    carte: [{ altezzaLogo: vecchia.logo.altezza }],
+                  }).carte[0].altezzaLogo,
+                }
               : {}),
           }),
       docente: vecchia.docente,
@@ -262,11 +286,19 @@ export const modelli = {
     if (!contesto.registro.impostazioni.intestazione.carte.some((c) => c.id === azione.cartaId)) {
       return rifiutaCon('non-trovato', t.cartaNonTrovata)
     }
-    const scelto = await scegliUnFile({
-      titolo: t.titoloSceltaLogo,
-      tasto: t.tastoSceltaLogo,
-      filtri: { [parole().immagini]: FORMATI_LOGO },
-    })
+    let scelto: { nome: string, uri: apparato.Uri, estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'logo.png'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: t.titoloSceltaLogo,
+        tasto: t.tastoSceltaLogo,
+        filtri: { [parole().immagini]: FORMATI_LOGO },
+      })
+    }
     if (!scelto) return fatto
 
     const formato = scelto.estensione.replace('.', '').toLowerCase()
@@ -276,7 +308,9 @@ export const modelli = {
     // Durante il dialogo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
 
-    const carta = contesto.registro.impostazioni.intestazione.carte.find((c) => c.id === azione.cartaId)
+    const carta = contesto.registro.impostazioni.intestazione.carte.find(
+      (c) => c.id === azione.cartaId,
+    )
     // Tolta mentre si sceglieva il file.
     if (!carta) return rifiutaCon('non-trovato', t.cartaNonTrovata)
     const vecchio = carta.logo ?? null
@@ -298,7 +332,9 @@ export const modelli = {
 
   /** Toglie il logo da una carta e il suo file dal documento. */
   'intestazione.togliLogo': async (contesto, azione) => {
-    const carta = contesto.registro.impostazioni.intestazione.carte.find((c) => c.id === azione.cartaId)
+    const carta = contesto.registro.impostazioni.intestazione.carte.find(
+      (c) => c.id === azione.cartaId,
+    )
     if (!carta) return rifiutaCon('non-trovato', testi().cartaNonTrovata)
     const vecchio = carta.logo
     if (!vecchio) return invariato

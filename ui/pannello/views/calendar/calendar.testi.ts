@@ -23,6 +23,8 @@ function ordinaleEn (numero: string): string {
 }
 
 const it = {
+  /** Il suggerimento del segno sulle ore di supplenza. */
+  supplenza: 'Supplenza: ora tenuta al posto di un altro docente',
   // Le settimane
   settimana: (numero: number) => `Settimana ${numero}`,
   /** Minuscola, dentro un suggerimento: «settimana 12», «settimana A». */
@@ -99,6 +101,7 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
+    supplenza: 'Stellvertretung: Stunde an Stelle einer anderen Lehrperson',
     settimana: (numero) => `Woche ${numero}`,
     settimanaMinuscola: (quale) => `Woche ${quale}`,
     sigla: 'KW',
@@ -157,6 +160,7 @@ export const testi = catalogo(it, {
     tiraFine: 'Ziehen, um früher oder später aufzuhören',
   },
   fr: {
+    supplenza: 'Remplacement : leçon donnée à la place d’un autre enseignant',
     settimana: (numero) => `Semaine ${numero}`,
     settimanaMinuscola: (quale) => `semaine ${quale}`,
     sigla: 'sem.',
@@ -215,6 +219,7 @@ export const testi = catalogo(it, {
     tiraFine: 'Tirer pour finir plus tôt ou plus tard',
   },
   en: {
+    supplenza: 'Substitution: lesson taught in place of another teacher',
     settimana: (numero) => `Week ${numero}`,
     settimanaMinuscola: (quale) => `week ${quale}`,
     sigla: 'wk',

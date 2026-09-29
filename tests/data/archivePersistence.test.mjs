@@ -17,7 +17,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro7-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-')
 
 after(() => smonta(radice))
 
@@ -283,6 +283,33 @@ describe('i reperti medi dello stesso giro', () => {
     assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
     assert.throws(() => riaperto.testo(rotte[0]), /controllo non torna/)
     assert.match(riaperto.testo('classi.json'), /II B/)
+  })
+
+  it('registro.json con il blocco rovinato entra in illeggibili e alla modifica si mette da parte', async () => {
+    const file = await annoScritto({ 'classi.json': '[{"id":"c1","annoId":"a9","nome":"I A"}]' })
+    const byte = readFileSync(file.fsPath)
+    const nome = Buffer.from('registro.json')
+    const dove = byte.lastIndexOf(nome) - 46
+    assert.equal(byte.readUInt32LE(dove), 0x02014b50)
+    byte.writeUInt32LE(byte.readUInt32LE(dove + 16) ^ 0xffffffff, dove + 16)
+    writeFileSync(file.fsPath, byte)
+
+    const archivio = new Archivio()
+    const errori = []
+    archivio.allErrore((messaggio) => errori.push(messaggio))
+    await archivio.apri(file)
+    assert.ok(errori.length > 0)
+
+    archivio.modifica((registro) => {
+      registro.impostazioni.minutiUd = 50
+    }, ['registro'])
+    await archivio.salva()
+    await archivio.chiudi()
+    archivio.dispose()
+
+    const riaperto = await Pacchetto.apri(file)
+    const rotte = riaperto.nomi().filter((n) => n.startsWith('registro.rotto-'))
+    assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
   })
 
   it('lo storico a gradini tiene le ultime dieci, una per giorno del mese e una per settimana oltre', async () => {

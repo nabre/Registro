@@ -45,7 +45,7 @@ const it = {
   senzaFile: (etichetta: string) => `«${etichetta}» non ha un file.`,
   fuoriDallAnno: (etichetta: string) => `Il file di «${etichetta}» non è più dentro l’anno.`,
   nonApribile: (etichetta: string) =>
-    `Il file di «${etichetta}» c'è, ma non si è potuto aprire da qui.`,
+    `Il file di «${etichetta}» c’è, ma non si è potuto aprire da qui.`,
   /** Il tasto del dialogo che sceglie un file da allegare. */
   allega: 'Allega',
   copiaNonRiuscita: (errore: string) => `Copia non riuscita: ${errore}`,

@@ -111,7 +111,12 @@ export function riassumiInvii (
   return conMessaggio(`${quanti}.`)
 }
 
-/** L'upsert per id: sostituisce se c'è, aggiunge in fondo se no, e riordina se serve. */
+/**
+ * L'upsert per id: sostituisce se c'è, aggiunge in fondo se no, e riordina se
+ * serve. Sulla bozza `findIndex` e `sort` non fanno una bozza di ogni voce
+ * (`enableArrayMethods` in `bozza.ts`), e le patch di un riordino le accorcia
+ * `compatta`: resta leggero anche su migliaia di lezioni.
+ */
 export function riponi<T extends { id: string }> (
   elenco: T[],
   voce: T,
@@ -120,7 +125,14 @@ export function riponi<T extends { id: string }> (
   const indice = elenco.findIndex((x) => x.id === voce.id)
   if (indice >= 0) elenco[indice] = voce
   else elenco.push(voce)
-  if (ordina) elenco.sort(ordina)
+  // Già in ordine (un'ora corretta senza cambiarle il giorno): `sort` non
+  // sposterebbe niente, e sulla bozza costa quanto rifare la lista.
+  if (ordina && !inOrdine(elenco, ordina)) elenco.sort(ordina)
+}
+
+/** Vero se nessuna voce viene prima della precedente. Legge la lista senza farne bozze. */
+function inOrdine<T> (elenco: T[], ordina: (a: T, b: T) => number): boolean {
+  return elenco.every((voce, i, voci) => i === 0 || ordina(voci[i - 1], voce) <= 0)
 }
 
 /** Il fascicolo di una classe dentro una modifica, creato alla prima scrittura. */
@@ -256,9 +268,10 @@ export function consegnaConClasse (
 // ------------------------------------------------------------------ contesto
 
 /**
- * Un cambiamento del registro. Tornare `false` (solo `false`) vuol dire «non
- * l'ho trovato»: serve ai gestori che aspettano un dialogo, durante il quale
- * la voce può sparire.
+ * Un cambiamento del registro, fatto sulla bozza di `Archivio.modificaSe`: gli
+ * oggetti si prendono da `r`, non da `contesto.registro`, e non si portano
+ * fuori. Tornare `false` (solo `false`) vuol dire «non l'ho trovato»: serve ai
+ * gestori che aspettano un dialogo, durante il quale la voce può sparire.
  */
 type Cambiamento = (r: Registro) => void | boolean
 
@@ -330,16 +343,11 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
 
   const modifica = (op: Cambiamento, collezioni: Collezione[], mancante?: string): EsitoAzione => {
     if (!ancoraQui()) return documentoCambiato()
-    // L'ordine conta. Il divieto dell'anno in chiusura prima di toccare lo
-    // stato; la copia per l'annulla prima di `op`, che cambia lo stato vivo;
-    // `Archivio.modifica` solo se `op` riesce, perché alza la revisione e non
-    // torna indietro (qui rende ufficiale quel che `op` ha già fatto).
-    archivio.vietaSeInChiusura()
-    archivio.ricordaPrima(collezioni)
-    if (op(archivio.registro) === false) {
+    // `op` lavora sulla bozza: se torna `false` la bozza si butta, e la
+    // revisione resta quella.
+    if (!archivio.modificaSe(op, collezioni)) {
       return rifiutaCon('non-trovato', mancante ?? testi().nonCePiu)
     }
-    archivio.modifica(() => undefined, collezioni)
     // La scrittura stessa può cambiare l'anno corrente: le successive restano buone.
     anno = archivio.registro.annoCorrenteId
     return fatto
@@ -357,11 +365,15 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
     suVoce: (collezione, id, op, altre = [], mancante) => {
       const raccolta = archivio.registro[collezione] as Array<{ id: string }>
       const sparita = testi().vociSparite[collezione]
-      if (!raccolta.some((v) => v.id === id)) return rifiutaCon('non-trovato', sparita)
+      const indice = raccolta.findIndex((v) => v.id === id)
+      if (indice < 0) return rifiutaCon('non-trovato', sparita)
       // Distingue la voce sparita dal `false` di `op`, per scegliere la frase.
       let dentro = false
       const esito = modifica((r) => {
-        const voce = (r[collezione] as Array<{ id: string }>).find((v) => v.id === id)
+        // Per indice: la bozza parte dallo stato appena guardato, e scorrerla
+        // voce per voce farebbe una bozza di ognuna.
+        const lista = r[collezione] as Array<{ id: string }>
+        const voce = lista[indice]?.id === id ? lista[indice] : lista.find((v) => v.id === id)
         // Sparita durante l'attesa di un gestore.
         if (!voce) return false
         if (op(voce as Registro[typeof collezione][number], r) === false) {
@@ -401,6 +413,10 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
           documenti: piani.flatMap((p) => p.file.documenti),
         },
       }
+      // I file escono prima di `modifica`: i suoi divieti si guardano qui, o un
+      // documento in chiusura perderebbe i file e terrebbe le righe.
+      if (!ancoraQui()) return documentoCambiato()
+      archivio.vietaSeInChiusura()
       // Con file portati da qualcuno il gesto non si annulla: la storia tiene
       // le collezioni, non i file. I fogli stampati non contano: si rifanno.
       const { risorse, allegati, documenti } = piano.file

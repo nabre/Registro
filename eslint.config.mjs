@@ -30,6 +30,9 @@ const FUORI = [
   'dist-tests/',
   'node_modules/',
   'pacchetti/',
+  // La copia di lavoro e il rapporto di `npm run mutanti`.
+  '.stryker-tmp/',
+  'reports/mutation/',
   'icons/',
   'core/dati/defaultTemplates.ts',
   // Lo stesso per il calendario ufficiale: `npm run calendario` lo scrive dal JSON.

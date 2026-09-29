@@ -55,6 +55,9 @@ describe('le forme semplici', () => {
     assert.equal(problemi(sigla, 'MATEM').length, 1)
     assert.equal(problemi(sigla, 'mat').length, 1)
     assert.equal(problemi(sigla, 3).length, 1)
+    // Un problema per campo, il primo: `'m'` è corto, e basta dire quello.
+    assert.equal(problemi(sigla, 'm').length, 1)
+    assert.match(problemi(sigla, 'm')[0].message, /2/)
   })
 
   it('un numero è finito, e NaN e Infinito non lo sono', () => {
@@ -210,6 +213,24 @@ describe('le forme composte', () => {
     assert.deepEqual(percorsi(severo, { a: 'x', b: 'scartato' }), ['b'])
     assert.deepEqual(accettato(severo, { a: 'x' }), { a: 'x' })
     assert.equal(schemaJson(severo.forma).additionalProperties, false)
+  })
+
+  it('un campo obbligatorio che manca dice il suo rifiuto, non «chiave mancante»', () => {
+    // Sotto c'è valibot (ADR-50): la chiave assente deve arrivare allo schema del
+    // campo, o il messaggio sarebbe quello inglese della libreria.
+    const forma = oggetto({ nome: testo(), voto: numero() })
+    const trovati = problemi(forma, {})
+    assert.deepEqual(trovati.map((p) => p.path), [['nome'], ['voto']])
+    assert.equal(trovati[0].message, problemi(testo(), undefined)[0].message)
+    // Un array non è un oggetto, anche se `typeof` dice di sì.
+    assert.equal(problemi(forma, []).length, 1)
+    assert.equal(problemi(forma, [])[0].path, undefined)
+  })
+
+  it('«severo» rifiuta ogni chiave di troppo, non solo la prima', () => {
+    const severo = oggetto({ a: testo() }, { severo: true })
+    assert.deepEqual(percorsi(severo, { a: 1, b: 'x', c: 'y' }), ['a', 'b', 'c'])
+    assert.match(problemi(severo, { a: 'x', riconsegnata: 1 })[0].message, /riconsegnata/)
   })
 
   it('qualunque vuole comunque un valore: «può mancare» lo dice opzionale', () => {

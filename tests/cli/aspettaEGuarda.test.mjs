@@ -2,61 +2,34 @@
 
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { after, describe, it } from 'node:test'
-
-const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
+import { CLI, accessoFinto, lanciatore, nomeDelCondotto } from '../helpers/cli.mjs'
 
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-cli-aspetta-guarda-'))
 
 after(() => rmSync(radice, { recursive: true, force: true }))
 
-function lancia (argomenti, ambiente = {}) {
-  return new Promise((risolvi, rifiuta) => {
-    const figlio = spawn(process.execPath, [CLI, ...argomenti], {
-      env: {
-        ...process.env,
-        APPDATA: radice,
-        XDG_CONFIG_HOME: radice,
-        REGISTRO_COMANDO: 'registro',
-        ...ambiente,
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let uscita = ''
-    let errore = ''
-    figlio.stdout.on('data', (pezzo) => { uscita += pezzo })
-    figlio.stderr.on('data', (pezzo) => { errore += pezzo })
-    figlio.on('error', rifiuta)
-    figlio.on('close', (codice) => risolvi({ codice, uscita, errore }))
-  })
-}
-
-function nomeDelCondotto (etichetta) {
-  const nome = `registro-ag-${etichetta}-${randomBytes(6).toString('hex')}`
-  return process.platform === 'win32'
-    ? `\\\\.\\pipe\\${nome}`
-    : percorso.join(radice, `${nome}.sock`)
-}
+const lancia = lanciatore(radice)
 
 describe('il comando aspetta e l’opzione --aspetta', () => {
   it('il comando aspetta ritenta finché il condotto non si accende e torna 0', async () => {
-    const dove = nomeDelCondotto('aspetta')
+    const dove = nomeDelCondotto(radice, 'ag-aspetta')
+    const accesso = accessoFinto(radice)
 
     let server = null
     const timer = setTimeout(() => {
       server = createServer((presa) => {
         presa.on('data', (pezzo) => {
           const riga = pezzo.toString('utf8')
+          if (accesso.risponde(presa, riga)) return
           if (riga.includes('$versione')) {
             presa.write(`${JSON.stringify({
               jsonrpc: '2.0',
-              id: 1,
+              id: JSON.parse(riga.trim()).id,
               result: { api: 1, applicazione: '1.0.0', permessi: { lettura: true, scrittura: true } },
             })}\n`)
           }
@@ -66,7 +39,7 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
     }, 200)
 
     try {
-      const { codice, uscita, errore } = await lancia(['aspetta'], { REGISTRO_CONDOTTO: dove })
+      const { codice, uscita, errore } = await lancia(['aspetta'], { REGISTRO_CONDOTTO: dove, ...accesso.ambiente })
       assert.equal(codice, 0, errore)
       assert.match(uscita, /pronto|risponde/i)
     } finally {
@@ -76,13 +49,15 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
   })
 
   it('l’opzione --aspetta su un altro comando attende prima di eseguire', async () => {
-    const dove = nomeDelCondotto('opzione-aspetta')
+    const dove = nomeDelCondotto(radice, 'ag-opzione-aspetta')
+    const accesso = accessoFinto(radice)
 
     let server = null
     const timer = setTimeout(() => {
       server = createServer((presa) => {
         presa.on('data', (pezzo) => {
           const riga = pezzo.toString('utf8')
+          if (accesso.risponde(presa, riga)) return
           if (riga.includes('$versione')) {
             presa.write(`${JSON.stringify({
               jsonrpc: '2.0',
@@ -96,7 +71,7 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
     }, 150)
 
     try {
-      const { codice, errore } = await lancia(['stato', '--aspetta'], { REGISTRO_CONDOTTO: dove })
+      const { codice, errore } = await lancia(['stato', '--aspetta'], { REGISTRO_CONDOTTO: dove, ...accesso.ambiente })
       assert.equal(codice, 0, errore)
     } finally {
       clearTimeout(timer)
@@ -107,10 +82,12 @@ describe('il comando aspetta e l’opzione --aspetta', () => {
 
 describe('il comando guarda', () => {
   it('riceve lo streaming del giornale dal condotto', async () => {
-    const dove = nomeDelCondotto('guarda')
+    const dove = nomeDelCondotto(radice, 'ag-guarda')
+    const accesso = accessoFinto(radice)
 
     const server = createServer((presa) => {
       presa.on('data', (pezzo) => {
+        if (accesso.risponde(presa, pezzo.toString('utf8'))) return
         const req = JSON.parse(pezzo.toString('utf8').trim())
         if (req.method === '$guarda') {
           presa.write(`${JSON.stringify({ jsonrpc: '2.0', id: req.id, result: { ok: true } })}\n`)
@@ -129,7 +106,7 @@ describe('il comando guarda', () => {
 
     try {
       const figlio = spawn(process.execPath, [CLI, 'guarda'], {
-        env: { ...process.env, REGISTRO_CONDOTTO: dove },
+        env: { ...process.env, REGISTRO_CONDOTTO: dove, ...accesso.ambiente },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 

@@ -47,20 +47,25 @@ import {
   corsiDellAnnoAperto,
   corsiNelSemestre,
   stato,
+  vai,
 } from './state.js'
 
 /**
  * I comandi partiti e non ancora tornati, per id. Fuori dal DOM perché la barra
  * si ridisegna mentre il comando è in volo, e il pulsante che rinasce deve
  * nascere spento (se no un secondo clic lo rilancia).
+ * Esportata per le prove di regressione.
  */
-const comandiInVolo = new Map<
+export const comandiInVolo = new Map<
   string,
   { bottone: HTMLButtonElement; spento: boolean } | null
 >()
 
-/** Il pulsante appena nato di un comando in volo: spento, con la sua rotella. */
-function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
+/**
+ * Il pulsante appena nato di un comando in volo: spento, con la sua rotella.
+ * Esportata per le prove di regressione.
+ */
+export function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
   if (!comandiInVolo.has(id)) return
   comandiInVolo.set(id, { bottone, spento: bottone.disabled })
   bottone.disabled = true
@@ -68,8 +73,11 @@ function rinasceInVolo (id: string, bottone: HTMLButtonElement): void {
   bottone.setAttribute('aria-busy', 'true')
 }
 
-/** Esegue il comando dal suo pulsante, e se parla con l'host lo tiene in volo. */
-function eseguiDalPulsante (
+/**
+ * Esegue il comando dal suo pulsante, e se parla con l'host lo tiene in volo.
+ * Esportata per le prove di regressione.
+ */
+export function eseguiDalPulsante (
   comando: ComandoUI,
   bottone: HTMLButtonElement,
 ): void {
@@ -89,13 +97,17 @@ function eseguiDalPulsante (
   void conAttesa(bottone, esito).then(torna, torna)
 }
 
-/** Un comando compatto: icona e nome affiancati, motivo del no nel titolo. */
-function pulsanteComando (comando: ComandoUI): HTMLElement {
+/**
+ * Un comando compatto: icona e nome affiancati, motivo del no nel titolo.
+ * Esportata per le prove di regressione.
+ */
+export function pulsanteComando (comando: ComandoUI): HTMLElement {
   const impedito = impedimentoDi(comando)
   const aiuto = aiutoDi(comando)
   const titolo = titoloDi(comando)
   const acceso = comando.acceso?.() ?? false
   // Il motivo del no vince sull'aiuto; la scorciatoia in coda, come altrove.
+  // Sul pulsante non si scrive: lo affollerebbe, e la dicono il titolo e il menu.
   const spiegazione = [
     impedito ?? aiuto,
     comando.scorciatoia && `(${comando.scorciatoia})`,
@@ -122,17 +134,12 @@ function pulsanteComando (comando: ComandoUI): HTMLElement {
         // Un comando con stato è un interruttore: `aria-pressed` lo annuncia attivo.
         'aria-pressed': comando.acceso ? String(acceso) : null,
       },
-      onclick: () => eseguiDalPulsante(comando, bottone),
+      // Il pulsante vivo: dopo un ridisegno `bottone` può essere quello scartato.
+      onclick: (evento: MouseEvent) =>
+        eseguiDalPulsante(comando, evento.currentTarget as HTMLButtonElement),
     },
     icona(comando.simbolo),
     h('span', { class: 'comando__testo' }, titolo),
-    comando.scorciatoia
-      ? h(
-          'kbd',
-          { class: 'comando__scorciatoia', attr: { 'aria-hidden': 'true' } },
-          comando.scorciatoia,
-        )
-      : null,
   )
   rinasceInVolo(comando.id, bottone)
   return bottone
@@ -433,15 +440,15 @@ function pulsanteTendina (opzioni: {
         // ridisegno: il menu sopravvive al ridisegno, il pulsante no.
         'aria-expanded': String(tendinaAperta(fuoco)),
       },
-      onclick: () => opzioni.apri(bottone),
+      onclick: (evento: MouseEvent) => opzioni.apri(evento.currentTarget as HTMLButtonElement),
       onkeydown: (evento: KeyboardEvent) => {
         // Freccia giù apre soltanto: con il menu aperto non lo richiude.
         if (
           evento.key === 'ArrowDown' &&
-          bottone.getAttribute('aria-expanded') !== 'true'
+          (evento.currentTarget as HTMLButtonElement).getAttribute('aria-expanded') !== 'true'
         ) {
           evento.preventDefault()
-          opzioni.apri(bottone)
+          opzioni.apri(evento.currentTarget as HTMLButtonElement)
         }
       },
     },
@@ -569,7 +576,7 @@ function sceltaClasseDellaPagina (): Figlio {
     etichetta: t.classe,
     titolo: t.classePaginaTitolo,
     valore: corrente.id,
-    al: (valore) => aggiorna({ classeId: valore }),
+    al: (valore) => vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: valore } }),
     figli: classi.map((classe) =>
       h(
         'option',
@@ -748,7 +755,9 @@ function interruttore (id: string, simbolo: NomeIcona, accesa: boolean): Figlio 
         'aria-label': titoloDi(comando),
         'aria-pressed': String(accesa),
       },
-      onclick: () => eseguiDalPulsante(comando, bottone),
+      // Il pulsante vivo: dopo un ridisegno `bottone` può essere quello scartato.
+      onclick: (evento: MouseEvent) =>
+        eseguiDalPulsante(comando, evento.currentTarget as HTMLButtonElement),
     },
     icona(simbolo, 'icona--minuta'),
     h('span', null, titoloDi(comando)),
@@ -855,7 +864,7 @@ export function barraComandi (): Figlio {
 
   return h(
     'div',
-    { class: 'barra-comandi' },
+    { class: 'barra-comandi', dataset: { telaio: 'barra-comandi' } },
     rigaNavigazione(nascoste, gruppi.length > 0),
     gruppi.length === 0
       ? null

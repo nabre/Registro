@@ -20,7 +20,6 @@ const it = {
   // --------------------------------------------------------------- le tessere
   tessere: 'Il giorno in cifre',
   oreDiOggi: 'Lezioni di oggi',
-  oreDellaGiornata: 'Lezioni della prossima giornata',
   nessunaOraOggi: 'Nessuna in calendario',
   prossimaAlle: (ora: string) => `La prossima alle ${ora}`,
   inCorsoFinoAlle: (ora: string) => `In corso fino alle ${ora}`,
@@ -54,7 +53,6 @@ const it = {
   prossima: 'Prossima',
   apriLOra: (classe: string, inizio: string) =>
     `Apri la lezione di ${classe} delle ${inizio}`,
-  apriCalendarioData: (data: string) => `Apri il calendario a ${data}`,
   /** Le fasi di un'ora, dette su una pastiglia (vedi `faseDellOra`). */
   fasi: {
     'in-corso': 'In corso',
@@ -93,7 +91,6 @@ const it = {
 
   // -------------------------------------------------------------- compleanni
   compleanni: 'Compleanni di oggi',
-  compleanniDellaGiornata: 'Compleanni della giornata',
 }
 
 export const testi = catalogo(it, {
@@ -109,7 +106,6 @@ export const testi = catalogo(it, {
     prossimaGiornata: (data) => `Nächster Unterrichtstag: ${data}.`,
     tessere: 'Der Tag in Zahlen',
     oreDiOggi: 'Stunden heute',
-    oreDellaGiornata: 'Stunden am nächsten Unterrichtstag',
     nessunaOraOggi: 'Keine im Kalender',
     prossimaAlle: (ora) => `Die nächste um ${ora}`,
     inCorsoFinoAlle: (ora) => `Läuft bis ${ora}`,
@@ -139,7 +135,6 @@ export const testi = catalogo(it, {
     prossima: 'Als Nächstes',
     apriLOra: (classe, inizio) =>
       `Die Stunde der ${classe} um ${inizio} öffnen`,
-    apriCalendarioData: (data) => `Kalender am ${data} öffnen`,
     fasi: {
       'in-corso': 'Läuft',
       'da-chiudere': 'Abzuschliessen',
@@ -170,7 +165,6 @@ export const testi = catalogo(it, {
       giorni === 0 ? 'heute' : giorni === 1 ? 'morgen' : `in ${giorni} Tagen`,
     apriValutazione: (titolo) => `Beurteilung «${titolo}» öffnen`,
     compleanni: 'Geburtstage heute',
-    compleanniDellaGiornata: 'Geburtstage am Unterrichtstag',
   },
   fr: {
     titolo: 'Tableau de bord',
@@ -180,7 +174,6 @@ export const testi = catalogo(it, {
     prossimaGiornata: (data) => `Prochaine journée de cours : ${data}.`,
     tessere: 'La journée en chiffres',
     oreDiOggi: 'Leçons du jour',
-    oreDellaGiornata: 'Leçons de la prochaine journée',
     nessunaOraOggi: 'Aucune au calendrier',
     prossimaAlle: (ora) => `La prochaine à ${ora}`,
     inCorsoFinoAlle: (ora) => `En cours jusqu’à ${ora}`,
@@ -208,7 +201,6 @@ export const testi = catalogo(it, {
     adesso: 'Maintenant',
     prossima: 'Ensuite',
     apriLOra: (classe, inizio) => `Ouvrir la leçon de ${classe} à ${inizio}`,
-    apriCalendarioData: (data) => `Ouvrir le calendrier au ${data}`,
     fasi: {
       'in-corso': 'En cours',
       'da-chiudere': 'À clôturer',
@@ -243,7 +235,6 @@ export const testi = catalogo(it, {
           : `dans ${giorni} jours`,
     apriValutazione: (titolo) => `Ouvrir l’évaluation « ${titolo} »`,
     compleanni: 'Anniversaires du jour',
-    compleanniDellaGiornata: 'Anniversaires de la journée',
   },
   en: {
     titolo: 'Dashboard',
@@ -257,7 +248,6 @@ export const testi = catalogo(it, {
     prossimaGiornata: (data) => `Next teaching day: ${data}.`,
     tessere: 'The day in numbers',
     oreDiOggi: 'Lessons today',
-    oreDellaGiornata: 'Lessons on the next teaching day',
     nessunaOraOggi: 'None in the calendar',
     prossimaAlle: (ora) => `Next at ${ora}`,
     inCorsoFinoAlle: (ora) => `In progress until ${ora}`,
@@ -284,7 +274,6 @@ export const testi = catalogo(it, {
     adesso: 'Now',
     prossima: 'Next',
     apriLOra: (classe, inizio) => `Open the ${classe} lesson at ${inizio}`,
-    apriCalendarioData: (data) => `Open calendar for ${data}`,
     fasi: {
       'in-corso': 'In progress',
       'da-chiudere': 'To close',
@@ -315,6 +304,5 @@ export const testi = catalogo(it, {
       giorni === 0 ? 'today' : giorni === 1 ? 'tomorrow' : `in ${giorni} days`,
     apriValutazione: (titolo) => `Open the assessment “${titolo}”`,
     compleanni: 'Birthdays today',
-    compleanniDellaGiornata: 'Birthdays on that day',
   },
 })

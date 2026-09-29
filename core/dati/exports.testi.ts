@@ -36,7 +36,7 @@ const it = {
     `assenti ${assenti} · parziali ${parziali} · ` +
     `ritardi ${ritardi} · ` +
     `${udAssenza} UD di assenza su ${udTotali}`,
-  appelloIncompleto: (caselle: number) => `> Appello incompleto: ${caselle} caselle non impostate.`,
+  appelloIncompleto: (caselle: number) => `> Appello incompleto: ${plurale(caselle, 'casella non impostata', 'caselle non impostate')}.`,
   minuti: (minuti: number) => ` (${minuti} min)`,
   /** Una UD nel dettaglio di chi non c'era tutta l'ora: «UD2 08:45 assente». */
   ud: (numero: number) => `UD${numero}`,

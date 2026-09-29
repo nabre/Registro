@@ -52,13 +52,14 @@ import { tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
 import { moduloBloccoAssenze, moduloImportaAssenze } from '../forms.js'
 import { azione } from '../bridge.js'
-import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto } from '../state.js'
+import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto, vai } from '../state.js'
 
 import { corniceFoglio, inventario, pannelloArchivio, scorri } from './archive.js'
 import { accettaPagineAssenze } from './pageDrop.js'
 import {
   caricaPdf,
   codaLettura,
+  codaLetturaInIsola,
   comandiDelPdf,
   pdfDaDividere,
   pdfInAttesa,
@@ -700,7 +701,7 @@ export function schedaAssenze (classe: Classe) {
             pdfDaDividere(classe, VETRINA_ASSENZE),
             // La coda di lettura compare qui solo quando nessun PDF è aperto: altrimenti
             // sta fra le pagine.
-            indice >= 0 ? null : codaLettura(),
+            indice >= 0 ? null : codaLetturaInIsola(),
             scelto && conto
               ? h(
                   'div',
@@ -788,14 +789,15 @@ function rigaRichiesta (richiesta: RichiestaFirma): HTMLElement {
         {
           class: 'richiesta__allievo',
           attr: { type: 'button', title: t.apriPeriodoDellaClasse },
-          onclick: () =>
-            aggiorna({
-              vista: 'docenteClasse',
-              schedaDocente: 'assenze',
-              classeId: richiesta.classeId,
-              filtroClasseId: richiesta.classeId,
-              bloccoAssenzeId: richiesta.bloccoId,
-            }),
+          onclick: () => {
+            vai(
+              { pagina: 'pagina.classe.assenze', soggetto: { tipo: 'classe', id: richiesta.classeId } },
+              {
+                contesto: { filtroClasseId: richiesta.classeId },
+                altro: { bloccoAssenzeId: richiesta.bloccoId },
+              },
+            )
+          },
         },
         nomeCompleto(richiesta.allievo),
       ),
@@ -917,19 +919,19 @@ function rigaSegnalazione (segnalazione: SegnalazioneAssenza): Figlio {
         simbolo: 'utente',
         variante: 'sottile',
         titolo: t.apriSchedaAiuto,
-        al: () =>
-          aggiorna({
-            vista: 'allievo',
-            classeId: segnalazione.classeId,
-            allievoId: segnalazione.allievoId,
-          }),
+        al: () => {
+          vai(
+            { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: segnalazione.allievoId } },
+            { contesto: { classeId: segnalazione.classeId } },
+          )
+        },
       }),
       pulsante({
         testo: t.apriCorso,
         simbolo: 'libro',
         variante: 'fantasma',
         titolo: t.apriCorsoAiuto,
-        al: () => aggiorna({ vista: 'corsi', corsoId: segnalazione.corsoId }),
+        al: () => { vai({ pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: segnalazione.corsoId } }) },
       }),
     ],
   })

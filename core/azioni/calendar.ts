@@ -15,7 +15,7 @@ import { nuovoIdCalendarioEsterno } from '../dominio/identifiers.js'
 import type { Lezione, Registro, SorgenteCalendario } from '../dominio/models.js'
 import { nomeDaOrigine, normalizzaCalendario } from '../dominio/normalization.js'
 import { validaLezione, validaSlot } from '../dominio/validation.js'
-import { copiaDallOrigine, eliminaCopia } from '../dati/calendar.js'
+import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '../dati/calendar.js'
 import {
   conMessaggio,
   documentoCambiato,
@@ -112,6 +112,39 @@ export const calendario = {
     }, ['registro'], t.nonCePiu)
     if (!scritto.ok) return scritto
     return conMessaggio(t.aggiornato(scelto.nome))
+  },
+
+  /**
+   * Riscarica tutti i calendari collegati con un indirizzo di rete (un file
+   * sul disco si rilegge da sé). Uno che non si legge tiene la copia di prima
+   * e non ferma gli altri. Una scrittura sola per tutti.
+   */
+  'calendario.aggiornaTutti': async (contesto) => {
+    const t = testi()
+    const inRete = (contesto.registro.impostazioni.calendario?.calendari ?? [])
+      .filter((c) => sorgenteInRete(c.origine))
+    if (inRete.length === 0) return conMessaggio(t.nessunoInRete)
+    const copiati = new Map<string, string>()
+    const guasti: string[] = []
+    for (const scelto of inRete) {
+      try {
+        copiati.set(scelto.id, await copiaDallOrigine(scelto))
+      } catch (guasto) {
+        guasti.push(`${scelto.nome}: ${motivoDi(guasto)}`)
+      }
+    }
+    if (!contesto.ancoraQui()) return documentoCambiato()
+    if (copiati.size > 0) {
+      const scritto = contesto.modifica((r) => {
+        for (const suo of r.impostazioni.calendario?.calendari ?? []) {
+          const quando = copiati.get(suo.id)
+          if (quando) suo.copiatoIl = quando
+        }
+      }, ['registro'])
+      if (!scritto.ok) return scritto
+    }
+    if (guasti.length > 0) return conMessaggio(t.aggiornatiInParte(copiati.size, guasti), 'avviso')
+    return conMessaggio(t.aggiornatiTutti(copiati.size))
   },
 
   'calendario.modifica': async (contesto, azione) => {
@@ -237,8 +270,8 @@ export const calendario = {
         if (voce.aula !== undefined) lezione.aula = voce.aula
         lezione.aggiornataIl = quando
       }
-      for (const lezione of r.lezioni) {
-        if (!annullate.has(lezione.id)) continue
+      // `filter` e non un giro sulla bozza: scorrerla farebbe una bozza di ogni lezione.
+      for (const lezione of r.lezioni.filter((l) => annullate.has(l.id))) {
         lezione.stato = 'annullata'
         lezione.aggiornataIl = quando
       }

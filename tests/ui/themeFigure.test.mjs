@@ -1,5 +1,5 @@
 // Le miniature del tema hanno i colori veri del tema. In fondo a
-// `src/ui/styles/theme.css` due blocchi `[data-tema-figura]` ridefiniscono i
+// `ui/pannello/styles/theme.css` due blocchi `[data-tema-figura]` ridefiniscono i
 // token per le miniature (una media query non si accende in un contenitore
 // solo): sono copie per valore, e qui si tengono uguali alle tavolozze.
 //

@@ -148,7 +148,7 @@ export function percorsoAiutanteAggiornamento (): string {
 let lavoro: Uri | null = null
 
 /** La cartella su cui il registro lavora, o `null` se non è ancora stata scelta. */
-export function cartellaLavoro (): Uri | null {
+function cartellaLavoro (): Uri | null {
   if (lavoro) return lavoro
   const scritta = getConfiguration().get<string>(CHIAVE_CARTELLA, '')
   if (!scritta) return null

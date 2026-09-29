@@ -21,7 +21,7 @@ function allegatoDi (
   return momento.allegati.find((a) => a.ruolo === ruolo && a.allievoId === allievoId) ?? null
 }
 
-export async function allega (
+async function allega (
   momento: MomentoValutazione,
   ruolo: RuoloAllegato,
   allievoId: string | null = null,

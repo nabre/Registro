@@ -114,12 +114,34 @@
 
 .settimana__giorno-numero { font-size: 1.15em; font-weight: 600; }
 
+/*
+ * Oggi: intestazione e colonna fanno una striscia sola, dalla barretta in cima
+ * all'ultima ora. Stessa tinta di fondo, filetti d'accento ai lati; il numero
+ * è un cerchio pieno, il nome prende l'accento. La barretta è un'ombra interna,
+ * così non sposta di un pixel il testo rispetto agli altri giorni. Due classi:
+ * oggi vince sul fondo spento di `giorno--festivo` anche di sabato.
+ */
+.settimana__giorno.settimana__giorno--oggi {
+  background: var(--velo-oggi);
+  border-left-color: var(--filo-oggi);
+  box-shadow: inset 0 3px 0 var(--accento), inset -1px 0 0 var(--filo-oggi);
+}
+
+.settimana__giorno.settimana__giorno--oggi .settimana__giorno-nome {
+  color: var(--accento);
+  font-weight: 700;
+}
+
 .settimana__giorno--oggi .settimana__giorno-numero {
+  display: grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  border-radius: 50%;
   color: var(--su-tinta);
   background: var(--accento);
-  border-radius: var(--raggio-pastiglia);
-  min-width: 24px;
-  text-align: center;
+  font-size: 1.05em;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--accento) 45%, transparent);
 }
 
 /* La stessa prima colonna dell'intestazione, in `rem` tutte e due: è la
@@ -167,7 +189,11 @@
   border-left: 1px solid var(--bordo-tenue);
 }
 
-.settimana__colonna--oggi { background: color-mix(in srgb, var(--accento) 5%, transparent); }
+.settimana__colonna.settimana__colonna--oggi {
+  background: var(--velo-oggi);
+  border-left-color: var(--filo-oggi);
+  box-shadow: inset -1px 0 0 var(--filo-oggi);
+}
 
 .settimana__riga-ora {
   position: absolute;
@@ -326,6 +352,17 @@
 
 .evento-ics--collegato:hover { filter: brightness(1.12); }
 
+/* Il segno delle ore di supplenza, prima del collegamento ICS. */
+.blocco__supplenza {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-left: auto;
+  color: var(--accento);
+}
+
+.blocco__supplenza + .segno-ics { margin-left: 2px; }
+
 .segno-ics {
   display: inline-flex;
   align-items: center;
@@ -383,6 +420,8 @@
 .blocco__classe { font-weight: 600; }
 /* In una colonna stretta si tronca prima la materia: ora e classe sono quel che si cerca. */
 .blocco__materia { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Sotto la classe, nei blocchi abbastanza alti: una riga sua, con i puntini. */
+.blocco__materia--riga { font-size: 0.82em; }
 /* L'aula su una riga sua, sotto classe e materia, con i puntini. */
 .blocco__aula {
   font-size: 0.85em;
@@ -848,12 +887,14 @@
 }
 
 .striscia-settimane__voce {
-  flex: 1 0 2.1rem;
+  /* Strette: si vede più anno senza scorrere; il numero a due cifre ci sta. */
+  flex: 1 0 1.6rem;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 3px 2px;
+  gap: 0;
+  padding: 2px 1px;
   border: 1px solid var(--bordo-tenue);
   border-radius: var(--raggio);
   background: var(--sfondo);

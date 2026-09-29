@@ -10,9 +10,10 @@ guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
 | [ARCHITETTURA.md](ARCHITETTURA.md) | come funziona, e che cosa succede quando | si tocca un confine fra strati o un flusso |
 | [MODELLO-DATI.md](MODELLO-DATI.md) | che forma hanno i dati e quali regole li tengono in piedi | si aggiunge un campo, si legge un `.regi` a mano |
 | [CATALOGO.md](CATALOGO.md) | tutto quel che l'applicazione sa fare, voce per voce | «esiste già un'azione per questo?» |
-| [API.md](API.md) | il contratto: le 207 procedure, il canale delle domande, il condotto, la riga di comando, l'assistente | si scrive una procedura o uno script, si tocca l'assistente |
+| [API.md](API.md) | il contratto: le 217 procedure, il canale delle domande, il condotto, la riga di comando, l'assistente | si scrive una procedura o uno script, si tocca l'assistente |
 | [DECISIONI.md](DECISIONI.md) | perché è così, e che cosa non si può rompere | si sta per cambiare qualcosa di strutturale |
 | [CANTIERE.md](CANTIERE.md) | il lavoro aperto, per area | si riprende in mano il lavoro |
+| [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) | inventario di ogni impostazione, doppioni, gerarchia e controlli proposti, fasi | si mette mano alle pagine Impostazioni |
 
 ## Da dove cominciare
 
@@ -29,8 +30,8 @@ guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
 ## Come si tiene in vita
 
 1. **I conteggi si verificano, non si ricordano.** Contati a macchina:
-   169 azioni, 207 procedure (169 scritture e 38 letture), 95 comandi
-   dell'interfaccia, 19 destinazioni, 19 viste, 31 impostazioni macchina,
+   176 azioni, 217 procedure (176 scritture e 41 letture), 95 comandi
+   dell'interfaccia, 19 destinazioni, 19 viste, 32 impostazioni macchina,
    55 entità. `npm run procedures` stampa procedure e aree leggendo il testo;
    `tests/api/coverage.test.mjs` tiene il numero delle azioni;
    `tests/counts.test.mjs` confronta con il codice le cifre scritte qui, in

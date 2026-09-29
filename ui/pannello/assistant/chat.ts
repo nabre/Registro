@@ -20,7 +20,7 @@ import type {
 import { pulsante, statoVuoto } from '../components/base.js'
 import { suggerimento } from '../components/hint.js'
 import { icona } from '../components/icons.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import {
   conversa,
   detta,
@@ -34,8 +34,9 @@ import { apriMicrofono, FREQUENZA, type Presa } from './voice.js'
 import { testi } from './chat.testi.js'
 
 /**
- * Come si ridisegna l'ospite: il pannello rifà il guscio, la finestra staccata
- * sé stessa. Chiamare `aggiorna()` legherebbe questo file allo stato del pannello.
+ * Come si ridisegna l'ospite: il pannello rifà la sola isola del riquadro, la
+ * finestra staccata sé stessa. Chiamare `aggiorna()` legherebbe questo file
+ * allo stato del pannello.
  */
 let ridisegna: () => void = () => undefined
 
@@ -250,7 +251,7 @@ function chiudiGiro (): void {
  * più attrezzi (né cambi di pagina) e la domanda esce dalla coda del motore
  * (`panels/conversation.ts`). Il turno resta scritto come «fermato».
  */
-export function ferma (): void {
+function ferma (): void {
   filo?.ferma()
   chiudiGiro()
   const ultimo = conversazione.at(-1)
@@ -522,7 +523,7 @@ function scrittoio (ambiente: Ambiente): Figlio {
       placeholder: testi().segnaposto,
       'aria-label': testi().etichettaCampo,
     },
-    // Il campo si ricrea a ogni ridisegno del guscio (OCR, filo di lavoro, host):
+    // Il campo si ricrea a ogni ridisegno del riquadro o del guscio (OCR, host):
     // la chiave di fuoco permette a `ricordaFuoco` di rimettere il cursore dov'era.
     dataset: { fuoco: 'assistente-domanda' },
     disabled: inCorso,
@@ -532,16 +533,20 @@ function scrittoio (ambiente: Ambiente): Figlio {
     fuocoAllaCasella = false
     // Dopo che l'ospite ha attaccato il nodo.
     queueMicrotask(() => {
-      casella.focus()
-      casella.setSelectionRange(casella.value.length, casella.value.length)
+      // Quella nel documento: un ridisegno che riusa il campo di prima lascia fuori questa.
+      const viva = casella.isConnected
+        ? casella
+        : document.querySelector<HTMLTextAreaElement>('[data-fuoco="assistente-domanda"]')
+      viva?.focus()
+      viva?.setSelectionRange(viva.value.length, viva.value.length)
     })
   }
-  casella.addEventListener('input', () => {
+  gestisci(casella, 'input', (evento) => {
     // Nessun ridisegno a ogni tasto: la bozza si tiene qui e torna nel campo al
     // giro dopo.
-    bozza = casella.value
+    bozza = (evento.currentTarget as HTMLTextAreaElement).value
   })
-  casella.addEventListener('keydown', (evento) => {
+  gestisci(casella, 'keydown', (evento) => {
     // Esc a microfono aperto: si smette senza scrivere niente (premuto per
     // sbaglio, o un nome detto a voce alta).
     if (evento.key === 'Escape' && voce === 'ascolta') {
@@ -553,7 +558,7 @@ function scrittoio (ambiente: Ambiente): Figlio {
     }
     if (evento.key !== 'Enter' || evento.shiftKey) return
     evento.preventDefault()
-    bozza = casella.value
+    bozza = (evento.currentTarget as HTMLTextAreaElement).value
     manda(ambiente)
   })
 
@@ -812,9 +817,11 @@ export function corpoAssistente (ambiente: Ambiente): Figlio {
     )
   }
 
+  // Telaio fino al filo: chi ospita con `aggiornaElemento` tiene la scatola
+  // che scorre fra un ridisegno e l'altro (vedi `pannelloAssistente`).
   return h(
     'div',
-    { class: 'assistente' },
+    { class: 'assistente', dataset: { telaio: 'assistente-corpo' } },
     conversazione.length === 0
       ? statoVuoto({
           simbolo: 'bot',
@@ -830,7 +837,7 @@ export function corpoAssistente (ambiente: Ambiente): Figlio {
             // Lo scorrimento resta al ridisegno (`ricordaScorrimenti` in `dom.ts`), e
             // `segueFondo` tiene in fondo chi era in fondo mentre la risposta arriva a
             // pezzi; chi è risalito a rileggere resta dov'è.
-            dataset: { scorrimento: 'assistente', segueFondo: '' },
+            dataset: { telaio: 'assistente-filo', scorrimento: 'assistente', segueFondo: '' },
           },
           ...conversazione.map((turno, indice) =>
             bolla(turno, indice === conversazione.length - 1),

@@ -19,7 +19,8 @@ import { sintesiIncassata } from '../../components/filters.js'
 import { nomeSegno, segnoFermo } from '../../components/marks.js'
 import { h, type Figlio } from '../../dom.js'
 import { casellaDelCheck, comeSpuntata } from '../check.js'
-import { aggiorna, nomeMateria, stato, valutazioniDi } from '../../state.js'
+import { nomeMateria, stato, vai, valutazioniDi } from '../../state.js'
+import { apriLezione } from '../../pages.js'
 import { tabella } from '../../components/table.js'
 import { presenzeDelCorso, giornateStorte, temaPresenze } from './attendance.js'
 import { riquadroTema, nienteQui } from './common.js'
@@ -29,7 +30,7 @@ import { testi } from './themes.testi.js'
  * I voti di una materia: la nota e i momenti da cui viene. La media si calcola
  * dentro il corso, mai fra corsi diversi.
  */
-function temaVoti (allievo: Allievo, classe: Classe, momenti: MomentoValutazione[]): Figlio {
+function temaVoti (allievo: Allievo, momenti: MomentoValutazione[]): Figlio {
   const { media, conteggio } = mediaAllievo(momenti, allievo.id)
   const nota = notaFineSemestre(
     media,
@@ -73,15 +74,13 @@ function temaVoti (allievo: Allievo, classe: Classe, momenti: MomentoValutazione
                 collegamento({
                   testo: formattaData(momento.data),
                   classe: 'diario__quando',
-                  al: () =>
-                    // Anche il corso: la pagina dei voti tiene la prova scelta solo se è del suo
-                    // corso, altrimenti ne aprirebbe un'altra.
-                    aggiorna({
-                      vista: 'valutazioni',
-                      valutazioneId: momento.id,
-                      corsoId: momento.corsoId,
-                      filtroClasseId: classe.id,
-                    }),
+                  // Il corso e la classe li porta la prova stessa (`completa` in `posto.ts`).
+                  al: () => {
+                    vai({
+                      pagina: 'pagina.corso.valutazioni',
+                      soggetto: { tipo: 'valutazione', id: momento.id },
+                    })
+                  },
                 }),
                 h('span', { class: 'diario__cosa' }, momento.titolo),
                 momento.peso !== 1
@@ -167,6 +166,9 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
           null,
           tabella({
             classi: { telaio: 'matrice__telaio', tabella: 'matrice' },
+            // Un ridisegno non riporta la matrice a sinistra.
+            // testo-fisso: chiave di scorrimento
+            scorrimento: `osservato:${allievo.id}`,
             etichetta: t.aspettiOraPerOra,
             intestazione: [
               h('th', { class: 'matrice__chi', attr: { scope: 'col' } }, t.giorno),
@@ -189,7 +191,7 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
                     // Il giorno porta all'ora.
                     collegamento({
                       testo: formattaData(lezione.data, 'giorno'),
-                      al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id }),
+                      al: () => apriLezione(lezione.id),
                     }),
                   ),
                   ...aspetti.map((aspetto) => h('td', null, casella(lezione, aspetto))),
@@ -231,7 +233,7 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
                     collegamento({
                       testo: formattaData(lezione.data, 'giorno'),
                       classe: 'diario__quando',
-                      al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id }),
+                      al: () => apriLezione(lezione.id),
                     }),
                     segnoFermo(cella.segno),
                     h('span', { class: 'testo-quieto' }, nomeAspetto(cella.aspetto)),
@@ -269,7 +271,7 @@ function temaOsservazioni (allievo: Allievo, lezioni: Lezione[]): Figlio {
               collegamento({
                 testo: formattaData(lezione.data, 'giorno'),
                 classe: 'diario__quando',
-                al: () => aggiorna({ vista: 'lezione', lezioneId: lezione.id }),
+                al: () => apriLezione(lezione.id),
               }),
               pastiglia(
                 t.tipoOsservazione(osservazione.tipo),
@@ -332,7 +334,6 @@ function temaCheck (allievo: Allievo, corso: Corso): Figlio {
  */
 function boxMateria (
   allievo: Allievo,
-  classe: Classe,
   corso: Corso,
   lezioni: Lezione[],
   momenti: MomentoValutazione[],
@@ -361,7 +362,7 @@ function boxMateria (
       'div',
       { class: 'box-materia__temi' },
       temaPresenze(riga, storte),
-      temaVoti(allievo, classe, momenti),
+      temaVoti(allievo, momenti),
       temaOsservato(allievo, lezioni),
       temaOsservazioni(allievo, lezioni),
       temaCheck(allievo, corso),
@@ -383,7 +384,6 @@ export function boxDelleMaterie (
   const box = corsi.map((corso) =>
     boxMateria(
       allievo,
-      classe,
       corso,
       lezioni.filter((l) => l.corsoId === corso.id),
       valutazioni

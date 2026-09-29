@@ -188,6 +188,9 @@ export type GenereRapporto =
   | 'allievo'
   | 'momento'
   | 'foto-classe'
+  | 'diario'
+  | 'corso'
+  | 'supplenze'
 
 /** Le parti di cui è fatto il posto di un documento: le cartelle e il nome. */
 export interface Collocazione {
@@ -279,6 +282,8 @@ interface Posto extends Collocazione {
 export interface ContestoRapporto {
   corsoId?: string | null
   semestreId?: string | null
+  /** Se la scheda è per il docente di classe (tutte le materie). */
+  docenteDiClasse?: boolean
   /** Il giorno che finisce nel nome dei documenti datati: di norma oggi. */
   giorno?: Iso
 }
@@ -328,14 +333,27 @@ function collocazioneBase (
     }
   }
 
-  // Valutazioni e presenze hanno il periodo nel nome, se no il secondo semestre
+  // Valutazioni, presenze, diario, scheda corso e supplenze hanno il periodo nel nome, se no il secondo semestre
   // coprirebbe il primo.
-  if (genere === 'valutazioni' || genere === 'presenze') {
+  if (
+    genere === 'valutazioni' ||
+    genere === 'presenze' ||
+    genere === 'diario' ||
+    genere === 'corso' ||
+    genere === 'supplenze'
+  ) {
     const corso = registro.corsi.find((c) => c.id === id) ?? null
     if (!corso) return null
     return {
       ...diUnCorso(registro, corso),
-      documento: testi().documenti[genere === 'presenze' ? 'presenze' : 'valutazioni'],
+      documento:
+        genere === 'corso'
+          ? testi().documenti.corso
+          : genere === 'supplenze'
+            ? testi().documenti.supplenze
+            : genere === 'diario'
+              ? testi().documenti.diario
+              : testi().documenti[genere === 'presenze' ? 'presenze' : 'valutazioni'],
       chi: null,
       allievo: null,
       dettaglio: etichettaPeriodo(registro, corso.classeId, contesto.semestreId ?? null),
@@ -402,6 +420,18 @@ function collocazioneBase (
   const classe = registro.classi.find((c) => c.allievi.some((a) => a.id === id)) ?? null
   const allievo = classe?.allievi.find((a) => a.id === id) ?? null
   if (!classe || !allievo) return null
+  if (contesto.docenteDiClasse) {
+    return {
+      classeId: classe.id,
+      classe: classe.nome,
+      ambito: null,
+      documento: testi().documenti.schedaDocenteClasse,
+      chi: nomeCompleto(allievo),
+      allievo: nomeCompleto(allievo),
+      dettaglio: etichettaPeriodo(registro, classe.id, contesto.semestreId ?? null),
+      datato: false,
+    }
+  }
   // Il corso lo dice chi chiede; se la classe ne ha uno solo, è quello; se no
   // la scheda è di tutta la classe.
   const suoi = corsiDellaClasse(registro, classe.id)
@@ -548,7 +578,13 @@ function contestiPossibili (
     return [null, ...(anno?.semestri ?? []).map((s) => s.id)]
   }
 
-  if (genere === 'presenze' || genere === 'valutazioni') {
+  if (
+    genere === 'presenze' ||
+    genere === 'valutazioni' ||
+    genere === 'diario' ||
+    genere === 'corso' ||
+    genere === 'supplenze'
+  ) {
     const corso = registro.corsi.find((c) => c.id === id) ?? null
     return periodiDi(corso?.classeId ?? null).map((semestreId) => ({ semestreId }))
   }
@@ -556,15 +592,21 @@ function contestiPossibili (
   if (genere === 'allievo') {
     const classe = registro.classi.find((c) => c.allievi.some((a) => a.id === id)) ?? null
     if (!classe) return [{}]
+    if (dentro.docenteDiClasse) {
+      return periodiDi(classe.id).map((semestreId) => ({ docenteDiClasse: true, semestreId }))
+    }
     // Il corso: una scheda chiesta da una materia sta nella sua cartella,
     // quella chiesta dalla classe nella cartella della classe. Solo il corso
     // indicato: eliminando una materia se ne vanno solo le sue schede.
     const corsi: Array<string | null> = dentro.corsoId
       ? [dentro.corsoId]
       : [null, ...corsiDellaClasse(registro, classe.id).map((c) => c.id)]
-    return corsi.flatMap((corsoId) =>
-      periodiDi(classe.id).map((semestreId) => ({ corsoId, semestreId })),
-    )
+    return [
+      ...corsi.flatMap((corsoId) =>
+        periodiDi(classe.id).map((semestreId) => ({ corsoId, semestreId })),
+      ),
+      ...periodiDi(classe.id).map((semestreId) => ({ docenteDiClasse: true, semestreId })),
+    ]
   }
 
   return [{}]

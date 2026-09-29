@@ -18,6 +18,7 @@ import {
   datiMomento,
   datiValutazioni,
   datiPresenze,
+  datiSupplenze,
   normalizzaRegistro,
   lessico,
 } from '../../dist-tests/domain.mjs'
@@ -997,5 +998,33 @@ describe('la matrice del comportamento sui fogli stampati', () => {
 
     classe.allievi[0].attivo = false
     assert.equal(scheda().valori.stato, 'ritirato')
+  })
+})
+
+describe('la scheda delle supplenze', () => {
+  it('racconta solo le ore segnate come supplenza, con il suo titolo', () => {
+    const mia = ora('2026-10-06', [{ allievoId: 'al-1', stati: ['presente', 'presente'] }])
+    const supplita = ora('2026-10-13', [{ allievoId: 'al-1', stati: ['assente', 'assente'] }])
+    supplita.supplenza = true
+    supplita.argomenti = 'Le proporzioni'
+    const registro = registroCon([mia, supplita])
+
+    const dati = datiSupplenze(registro, corso(registro), null)
+
+    assert.equal(dati.valori.titolo, 'Supplenze nel corso')
+    assert.equal(dati.valori.quanti, '1', 'una sola ora nel diario')
+    assert.deepEqual(dati.tabelle.diario.righe.map((riga) => riga[4]), ['Le proporzioni'])
+    assert.equal(dati.valori.presenzaMedia, '0%', 'le presenze sono quelle della supplenza')
+  })
+
+  it('la lezione rilegge la supplenza, e non la scrive quando è falsa', () => {
+    const vera = ora('2026-10-06', [])
+    vera.supplenza = true
+    const falsa = ora('2026-10-13', [])
+    falsa.supplenza = false
+    const registro = registroCon([vera, falsa])
+
+    assert.equal(registro.lezioni[0].supplenza, true)
+    assert.equal('supplenza' in registro.lezioni[1], false)
   })
 })

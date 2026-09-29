@@ -46,7 +46,7 @@ export function mostraAvvio (): void {
     // a metà avvio. Lo chiude solo `chiudiAvvio`, che distrugge.
     closable: false,
     // testo-fisso: il marchio non si traduce
-    title: 'Regiclass',
+    title: 'Regiklass',
     show: false,
     backgroundColor: coloreSfondo(),
     ...icona(),

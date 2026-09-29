@@ -20,7 +20,7 @@ import { pulsante } from './components/base.js'
 import { icona } from './components/icons.js'
 import {
   h,
-  rimpiazza,
+  aggiornaElemento,
   ricordaFuoco,
   ricordaScorrimenti,
   ripristinaFuoco,
@@ -49,7 +49,8 @@ function disegna (): void {
     // Fuoco e scorrimento non stanno da nessuna parte: si salvano e si rimettono.
     const fuoco = ricordaFuoco()
     const scorrimenti = ricordaScorrimenti()
-    rimpiazza(radice, finestra())
+    // Il filo è un nodo di telaio (ADR-48): ricrearlo perderebbe scorrimento e fondo.
+    aggiornaElemento(radice, finestra())
     ripristinaFuoco(fuoco)
     ripristinaScorrimenti(scorrimenti)
   })

@@ -7,7 +7,7 @@
 import * as apparato from 'apparato'
 
 import { estensioneDi, nomeSicuro } from '../dominio/text.js'
-import { ESTENSIONE, nomeDelPacchetto, èPacchetto } from './package.js'
+import { ESTENSIONE, nomeDelPacchetto } from './package.js'
 
 export { estensioneDi, nomeSicuro }
 
@@ -32,7 +32,7 @@ export type NomeCollezione = keyof typeof NOMI
 /** La sottocartella dei JSON nella disposizione su disco: la legge solo la migrazione. */
 export const DATI = 'dati'
 
-export { ESTENSIONE, nomeDelPacchetto, èPacchetto }
+export { ESTENSIONE, nomeDelPacchetto }
 
 /** L'ultimo pezzo di un Uri: il nome del file come lo si vede nel gestore. */
 export function nomeDelFileUri (uri: { path: string }, ripiego = 'documento.pdf'): string {

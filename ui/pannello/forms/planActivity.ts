@@ -4,6 +4,10 @@
 // e i moduli che lo aprono, stanno in `plan.ts`.
 
 import {
+  MINUTI_MINIMI_ATTIVITA,
+  PASSO_MINUTI_ATTIVITA,
+  arrotondaMinutiAttivita,
+  minutiAttivita,
   minutiDiAttivita,
   scalettaSulleUd,
   udDaMinutiAttivita,
@@ -14,8 +18,9 @@ import {
   riassuntoParametri,
   valoreParametro,
 } from '../../../core/dominio/activities.js'
+import { checkDelCorso } from '../../../core/dominio/check.js'
 import { coloreDiVoce, testoDiVoce, vociConValore } from '../../../core/dominio/lists.js'
-import { formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
+import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
 import { creaAttivita } from '../../../core/dominio/factories.js'
 import type {
   Attivita,
@@ -199,6 +204,80 @@ function campiParametri (voce: Attivita, alCambio: () => void): Figlio[] {
   })
 }
 
+/**
+ * Selettore calibrato della durata della tappa:
+ * - Scelte rapide in multipli di 5 minuti (5, 10, 15, 20, 25, 30, 45, 60 min).
+ * - Passo di decremento (-5 min) e incremento (+5 min).
+ * - Aiuto esplicito sulla calibrazione a blocchi di 5 minuti (minimo 5 minuti).
+ */
+function campiDurata (
+  voce: Attivita,
+  perUd: number,
+  alCambio: () => void,
+): Figlio[] {
+  const t = testi()
+  const minutiAttuali = minutiAttivita(voce, perUd)
+  const SCELTE_MINUTI = [5, 10, 15, 20, 25, 30, 45, 60]
+
+  const impostaMinuti = (nuoviMinuti: number) => {
+    const arrotondati = arrotondaMinutiAttivita(nuoviMinuti)
+    voce.durataUd = udDaMinutiAttivita(arrotondati, perUd)
+    alCambio()
+  }
+
+  const pulsantiRapidi = SCELTE_MINUTI.map((m) =>
+    h(
+      'button',
+      {
+        class: [
+          'selettore-durata__chip',
+          minutiAttuali === m && 'selettore-durata__chip--attivo',
+        ],
+        type: 'button',
+        onclick: () => impostaMinuti(m),
+      },
+      t.minutiBreve(m),
+    ),
+  )
+
+  const meno = h(
+    'button',
+    {
+      class: 'selettore-durata__chip',
+      type: 'button',
+      disabled: minutiAttuali <= MINUTI_MINIMI_ATTIVITA,
+      onclick: () => impostaMinuti(minutiAttuali - PASSO_MINUTI_ATTIVITA),
+    },
+    t.diminuisciMinuti(PASSO_MINUTI_ATTIVITA),
+  )
+
+  const piu = h(
+    'button',
+    {
+      class: 'selettore-durata__chip',
+      type: 'button',
+      onclick: () => impostaMinuti(minutiAttuali + PASSO_MINUTI_ATTIVITA),
+    },
+    t.aumentaMinuti(PASSO_MINUTI_ATTIVITA),
+  )
+
+  return [
+    h(
+      'div',
+      { class: 'durata-tappa' },
+      h(
+        'div',
+        { class: 'selettore-durata' },
+        ...pulsantiRapidi,
+        h('span', { class: 'selettore-durata__separatore' }),
+        meno,
+        piu,
+      ),
+      h('div', { class: 'durata-tappa__aiuto' }, t.aiutoMultipliCinque),
+    ),
+  ]
+}
+
 /** Come si svolge la tappa (descrizione, raggruppamento, materiali): vale per ogni tipo. */
 function campiSvolgimento (voce: Attivita, alCambio: () => void): Figlio[] {
   const t = testi()
@@ -322,6 +401,128 @@ function campiValutazione (voce: Attivita, alCambio: () => void): Figlio[] {
 }
 
 /**
+ * La pendenza (consegna del corso) da evadere durante questa tappa.
+ */
+function campiPendenze (
+  voce: Attivita,
+  corsoId: string | null,
+  alCambio: () => void,
+): Figlio[] {
+  const t = testi()
+  const consegnaId = typeof voce.parametri?.consegnaId === 'string' ? voce.parametri.consegnaId : ''
+  const attiva = Boolean(consegnaId)
+
+  const consegne = corsoId
+    ? stato.registro.consegne.filter((c) => c.corsoId === corsoId)
+    : stato.registro.consegne
+
+  const interruttore = spuntaTappa(
+    t.dedicataAPendenze,
+    attiva,
+    (accesa) => {
+      const attuali = { ...(voce.parametri ?? {}) }
+      if (accesa) {
+        attuali.consegnaId = consegne[0]?.id ?? 'tutte'
+      } else {
+        delete attuali.consegnaId
+      }
+      voce.parametri = Object.keys(attuali).length > 0 ? attuali : undefined
+      alCambio()
+    },
+    t.aiutoPendenze,
+  )
+
+  if (!attiva) return [interruttore]
+
+  const voci = [
+    { valore: 'tutte', testo: t.tutteLePendenze },
+    ...consegne.map((c) => ({
+      valore: c.id,
+      testo: `${c.testo}${c.scadenza ? ` (${formattaData(c.scadenza, 'giorno')})` : ''}`,
+    })),
+  ]
+
+  return [
+    interruttore,
+    campoTappa(
+      t.qualePendenza,
+      tendina({
+        voci,
+        valore: consegnaId || 'tutte',
+        al: (scelta) => {
+          const attuali = { ...(voce.parametri ?? {}) }
+          attuali.consegnaId = scelta
+          voce.parametri = attuali
+          alCambio()
+        },
+      }),
+      t.aiutoQualePendenza,
+    ),
+  ]
+}
+
+/**
+ * La colonna del check del corso da verificare durante questa tappa.
+ */
+function campiCheck (
+  voce: Attivita,
+  corsoId: string | null,
+  alCambio: () => void,
+): Figlio[] {
+  const t = testi()
+  const checkColonnaId =
+    typeof voce.parametri?.checkColonnaId === 'string' ? voce.parametri.checkColonnaId : ''
+  const attiva = Boolean(checkColonnaId)
+
+  const check = corsoId ? checkDelCorso(stato.registro, corsoId) : null
+  const colonne = check?.colonne ?? []
+
+  const interruttore = spuntaTappa(
+    t.dedicataACheck,
+    attiva,
+    (accesa) => {
+      const attuali = { ...(voce.parametri ?? {}) }
+      if (accesa) {
+        attuali.checkColonnaId = colonne[0]?.id ?? 'tutte'
+      } else {
+        delete attuali.checkColonnaId
+      }
+      voce.parametri = Object.keys(attuali).length > 0 ? attuali : undefined
+      alCambio()
+    },
+    t.aiutoCheck,
+  )
+
+  if (!attiva) return [interruttore]
+
+  const voci = [
+    { valore: 'tutte', testo: t.tuttoIlCheck },
+    ...colonne.map((c) => ({
+      valore: c.id,
+      testo: c.titolo,
+    })),
+  ]
+
+  return [
+    interruttore,
+    campoTappa(
+      t.qualeColonnaCheck,
+      tendina({
+        voci,
+        valore: checkColonnaId || 'tutte',
+        al: (scelta) => {
+          const attuali = { ...(voce.parametri ?? {}) }
+          attuali.checkColonnaId = scelta
+          voce.parametri = attuali
+          alCambio()
+        },
+      }),
+      t.aiutoQualeColonnaCheck,
+    ),
+  ]
+}
+
+/**
  * Che cosa serve alla scaletta per allegare file mentre la si scrive. L'editor
  * lavora su una copia, ma i file li copia l'host e deve sapere di quale piano
  * sono: prima di allegare il piano si salva (`prima`), e dopo la copia locale
@@ -354,7 +555,9 @@ export function editorAttivita (
    * funzione perché il corso può cambiare a modulo aperto.
    */
   docenteDiClasse: () => boolean = () => false,
+  corsoId?: string | null,
 ): HTMLElement {
+  const idCorso = corsoId ?? lezione?.corsoId ?? null
   let attivita = iniziali.map((a) => ({ ...a }))
   const contenitore = h('div', { class: 'attivita-editor' })
   /**
@@ -440,6 +643,29 @@ export function editorAttivita (
       if (voce.risorse.length > 0) {
         pezzi.push(pastiglia(String(voce.risorse.length), 'quiete', 'allegato'))
       }
+      if (voce.parametri?.consegnaId) {
+        const cId = String(voce.parametri.consegnaId)
+        const c = stato.registro.consegne.find((x) => x.id === cId)
+        pezzi.push(
+          pastiglia(
+            c ? c.testo : t.pendenze,
+            'attenzione',
+            'allegato',
+          ),
+        )
+      }
+      if (voce.parametri?.checkColonnaId) {
+        const kId = String(voce.parametri.checkColonnaId)
+        const check = idCorso ? checkDelCorso(stato.registro, idCorso) : null
+        const col = check?.colonne.find((x) => x.id === kId)
+        pezzi.push(
+          pastiglia(
+            col ? col.titolo : t.check,
+            'informativo',
+            'check',
+          ),
+        )
+      }
 
       // La descrizione prima e in chiaro: è quel che si rilegge scorrendo.
       const detto = [
@@ -474,7 +700,7 @@ export function editorAttivita (
 
       // Quanto si prende questa tappa del suo gruppo di UD (o, senza ora sotto,
       // dell'intera scaletta): è il filo colorato in fondo alla riga.
-      const minuti = minutiDiAttivita(voce.durataUd, perUd)
+      const minuti = minutiAttivita(voce, perUd)
       const suoBlocco = sulleUd?.blocchi[posto(indice)?.blocco ?? -1] ?? null
       const riferimento = suoBlocco ? suoBlocco.capienza : minutiDiAttivita(totale, perUd)
       const quota = riferimento > 0 ? Math.min(100, (minuti / riferimento) * 100) : 0
@@ -555,22 +781,57 @@ export function editorAttivita (
         h(
           'div',
           { class: 'attivita-riga__durata' },
+          h(
+            'button',
+            {
+              class: 'attivita-riga__passo',
+              type: 'button',
+              disabled: minuti <= MINUTI_MINIMI_ATTIVITA,
+              attr: {
+                title: t.diminuisciMinuti(PASSO_MINUTI_ATTIVITA),
+                'aria-label': t.diminuisciMinuti(PASSO_MINUTI_ATTIVITA),
+              },
+              onclick: () => {
+                voce.durataUd = udDaMinutiAttivita(minuti - PASSO_MINUTI_ATTIVITA, perUd)
+                disegna()
+                allaModifica(attivita)
+              },
+            },
+            '−',
+          ),
           h('input', {
-            class: 'campo__controllo campo__controllo--numero',
+            class: 'campo__controllo campo__controllo--numero attivita-riga__durata-input',
             type: 'number',
-            value: String(minutiDiAttivita(voce.durataUd, perUd)),
-            // Qualunque numero di minuti, senza passo: un passo fisso impedirebbe di
-            // salvare quel che non ci cade sopra.
-            attr: { min: 1, step: 'any', 'aria-label': t.durataInMinuti },
+            value: String(minuti),
+            attr: {
+              min: MINUTI_MINIMI_ATTIVITA,
+              step: PASSO_MINUTI_ATTIVITA,
+              'aria-label': t.durataInMinuti,
+            },
             onchange: (evento: Event) => {
-              voce.durataUd = udDaMinutiAttivita(
-                numero((evento.target as HTMLInputElement).value, perUd / 2),
-                perUd,
-              )
+              const val = numero((evento.target as HTMLInputElement).value, minuti)
+              voce.durataUd = udDaMinutiAttivita(val, perUd)
               disegna()
               allaModifica(attivita)
             },
           }),
+          h(
+            'button',
+            {
+              class: 'attivita-riga__passo',
+              type: 'button',
+              attr: {
+                title: t.aumentaMinuti(PASSO_MINUTI_ATTIVITA),
+                'aria-label': t.aumentaMinuti(PASSO_MINUTI_ATTIVITA),
+              },
+              onclick: () => {
+                voce.durataUd = udDaMinutiAttivita(minuti + PASSO_MINUTI_ATTIVITA, perUd)
+                disegna()
+                allaModifica(attivita)
+              },
+            },
+            '+',
+          ),
           h('span', { class: 'attivita-riga__unita' }, t.min),
         ),
         // L'ora dell'orologio, intervalli compresi; la colonna c'è solo con un'ora sotto.
@@ -618,6 +879,13 @@ export function editorAttivita (
               'div',
               { class: 'attivita-riga__dettagli' },
               gruppoTappa(
+                t.durataTappa,
+                campiDurata(voce, perUd, () => {
+                  disegna()
+                  allaModifica(attivita)
+                }),
+              ),
+              gruppoTappa(
                 t.svolgimento,
                 campiSvolgimento(voce, () => {
                   disegna()
@@ -636,6 +904,22 @@ export function editorAttivita (
                   allaModifica(attivita)
                 }),
                 voce.valutazione ? 'gruppo-tappa--prova' : undefined,
+              ),
+              gruppoTappa(
+                t.pendenze,
+                campiPendenze(voce, idCorso, () => {
+                  disegna()
+                  allaModifica(attivita)
+                }),
+                voce.parametri?.consegnaId ? 'gruppo-tappa--pendenza' : undefined,
+              ),
+              gruppoTappa(
+                t.check,
+                campiCheck(voce, idCorso, () => {
+                  disegna()
+                  allaModifica(attivita)
+                }),
+                voce.parametri?.checkColonnaId ? 'gruppo-tappa--check' : undefined,
               ),
               // Il materiale della tappa sta con la tappa, non in un elenco del piano.
               gestore

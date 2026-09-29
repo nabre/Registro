@@ -6,7 +6,7 @@ import { fraseCompleanno, type Compleanno } from '../../../../core/dominio/birth
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
 import { icona } from '../../components/icons.js'
 import { h, type Figlio } from '../../dom.js'
-import { aggiorna, classeDiLezione } from '../../state.js'
+import { classeDiLezione, vai } from '../../state.js'
 import { testi } from './calendar.testi.js'
 
 // ------------------------------------------------------------------ compleanni
@@ -43,11 +43,10 @@ export function qualcunoInAula (compleanni: Compleanno[], classi: Set<string>): 
 
 /** Dove porta un compleanno: alla scheda di chi li compie. */
 function apriFesteggiato (compleanno: Compleanno): void {
-  aggiorna({
-    vista: 'allievo',
-    classeId: compleanno.classeId,
-    allievoId: compleanno.allievoId,
-  })
+  vai(
+    { pagina: 'pagina.allievo', soggetto: { tipo: 'allievo', id: compleanno.allievoId } },
+    { contesto: { classeId: compleanno.classeId } },
+  )
 }
 
 /**

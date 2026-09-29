@@ -152,6 +152,8 @@ export function installaScorciatoie (opzioni: {
     if (evento.button !== 3 && evento.button !== 4) return
     evento.preventDefault()
     if (coperta()) return
+    // Il tasto laterale non toglie il fuoco al campo: lo si consegna come per Ctrl+1…9.
+    consegnaIlCampo()
     if (evento.button === 3) indietro()
     else avanti()
   })

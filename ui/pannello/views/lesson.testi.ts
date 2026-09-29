@@ -44,6 +44,9 @@ const it = {
   ritardi: 'ritardi',
   durata: 'durata',
   conPause: 'con pause',
+  schedaValutazioni: 'Valutazioni',
+  schedaPendenze: 'Pendenze',
+  schedaCheck: 'Check',
 }
 
 export const testi = catalogo(it, {
@@ -84,6 +87,9 @@ export const testi = catalogo(it, {
     ritardi: 'Verspätungen',
     durata: 'Dauer',
     conPause: 'mit Pausen',
+    schedaValutazioni: 'Beurteilungen',
+    schedaPendenze: 'Pendenzen',
+    schedaCheck: 'Check',
   },
   fr: {
     osservazioniAiuto:
@@ -122,6 +128,9 @@ export const testi = catalogo(it, {
     ritardi: 'retards',
     durata: 'durée',
     conPause: 'avec pauses',
+    schedaValutazioni: 'Évaluations',
+    schedaPendenze: 'Tâches',
+    schedaCheck: 'Check',
   },
   en: {
     osservazioniAiuto:
@@ -159,5 +168,8 @@ export const testi = catalogo(it, {
     ritardi: 'late',
     durata: 'duration',
     conPause: 'with breaks',
+    schedaValutazioni: 'Assessments',
+    schedaPendenze: 'Pending items',
+    schedaCheck: 'Check',
   },
 })

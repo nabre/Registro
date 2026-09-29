@@ -33,6 +33,7 @@ import {
 } from './ics.js'
 import { inModifica, maniglie, scegli, sceltaLezione } from './editor.js'
 import { menuLezione } from './menus.js'
+import { testi } from './calendar.testi.js'
 
 /**
  * Il suggerimento di un'ora della settimana: quale ora è, dove, e il suo
@@ -47,6 +48,7 @@ function dettagliDellaLezione (lezione: Lezione, inizio: string, fine: string): 
   ]
 
   righe.push(etichettaNumero(lezione))
+  if (lezione.supplenza) righe.push(testi().supplenza)
 
   return righe.filter((riga) => riga.length > 0).join('\n')
 }
@@ -140,12 +142,24 @@ export function bloccoLezione (
       { class: 'blocco__testata' },
       h('span', { class: 'blocco__ora' }, inizio),
       h('span', { class: 'blocco__classe' }, nomeClasseDiLezione(lezione)),
-      // La materia accanto alla classe: la stessa classe può avere due materie.
-      nomeMateriaDiLezione(lezione)
+      // La stessa classe può avere due materie: la materia sta su una riga sua
+      // sotto la classe; accanto solo nei blocchi bassi, dove una riga in più non entra.
+      altezza < 46 && nomeMateriaDiLezione(lezione)
         ? h('span', { class: 'blocco__materia' }, nomeMateriaDiLezione(lezione))
+        : null,
+      // In testata e non nel piede: si deve vedere anche nei blocchi bassi.
+      lezione.supplenza
+        ? h(
+            'span',
+            { class: 'blocco__supplenza', attr: { title: testi().supplenza } },
+            icona('scambio', 'icona--minuta'),
+          )
         : null,
       segnoCollegamento(eventiDellaLezione(lezione.id)),
     ),
+    altezza >= 46 && nomeMateriaDiLezione(lezione)
+      ? h('span', { class: 'blocco__materia blocco__materia--riga' }, nomeMateriaDiLezione(lezione))
+      : null,
     // L'aula su una riga sua, sotto classe e materia; nei blocchi bassi resta
     // solo nel suggerimento.
     altezza >= 46 && lezione.aula

@@ -23,13 +23,12 @@ const it = {
   annullata: 'Lezione annullata.',
 
   // Il piano
-  assegnaPiano: 'Assegna un piano lezione',
   apriPiano: 'Apri il piano della lezione',
-  cambiaPiano: 'Cambia piano',
-  togliPiano: 'Togli il piano',
-  togliereTitolo: 'Togliere il piano?',
-  togliereTesto: 'Le spunte già messe sulle attività se ne vanno con lui.',
-  pianoTolto: 'Piano tolto dalla lezione.',
+
+  // La supplenza
+  supplenza: 'Supplenza',
+  segnataSupplenza: 'Lezione segnata come supplenza.',
+  nonPiuSupplenza: 'La lezione non è più una supplenza.',
 
   // L'orario, in modifica
   nonSiIcs:
@@ -74,14 +73,10 @@ export const testi = catalogo(it, {
       'verloren.',
     annullata: 'Stunde als ausgefallen markiert.',
 
-    assegnaPiano: 'Unterrichtsplan zuweisen',
     apriPiano: 'Unterrichtsplan öffnen',
-    cambiaPiano: 'Plan wechseln',
-    togliPiano: 'Plan entfernen',
-    togliereTitolo: 'Plan entfernen?',
-    togliereTesto:
-      'Die Häkchen, die schon bei den Aktivitäten gesetzt sind, verschwinden mit ihm.',
-    pianoTolto: 'Plan von der Stunde entfernt.',
+    supplenza: 'Stellvertretung',
+    segnataSupplenza: 'Stunde als Stellvertretung markiert.',
+    nonPiuSupplenza: 'Die Stunde ist keine Stellvertretung mehr.',
 
     nonSiIcs:
       'Geht nicht: Die Zeit aus dem ICS-Kalender lässt sich nicht kürzen, und der Tag lässt sich ' +
@@ -122,13 +117,10 @@ export const testi = catalogo(it, {
       'pas perdues.',
     annullata: 'Leçon annulée.',
 
-    assegnaPiano: 'Attribuer un plan de leçon',
     apriPiano: 'Ouvrir le plan de la leçon',
-    cambiaPiano: 'Changer de plan',
-    togliPiano: 'Retirer le plan',
-    togliereTitolo: 'Retirer le plan ?',
-    togliereTesto: 'Les coches déjà mises sur les activités partent avec lui.',
-    pianoTolto: 'Plan retiré de la leçon.',
+    supplenza: 'Remplacement',
+    segnataSupplenza: 'Leçon marquée comme remplacement.',
+    nonPiuSupplenza: 'La leçon n’est plus un remplacement.',
 
     nonSiIcs:
       'Impossible : l’heure du calendrier ICS ne se raccourcit pas, et on ne sort pas du jour.',
@@ -166,13 +158,10 @@ export const testi = catalogo(it, {
       'It stays in the register, marked as not held. Data already entered isn’t lost.',
     annullata: 'Lesson cancelled.',
 
-    assegnaPiano: 'Assign a lesson plan',
     apriPiano: 'Open the lesson plan',
-    cambiaPiano: 'Change plan',
-    togliPiano: 'Remove the plan',
-    togliereTitolo: 'Remove the plan?',
-    togliereTesto: 'The ticks already placed on the activities go with it.',
-    pianoTolto: 'Plan removed from the lesson.',
+    supplenza: 'Substitution',
+    segnataSupplenza: 'Lesson marked as a substitution.',
+    nonPiuSupplenza: 'The lesson is no longer a substitution.',
 
     nonSiIcs:
       'Not possible: the ICS calendar time can’t be shortened or moved off the day.',

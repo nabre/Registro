@@ -5,7 +5,20 @@ import * as apparato from 'apparato'
 
 import { nomeCompleto } from '../dominio/calculations.js'
 import { lezioniDaOrario, lezioniNeiGiorniChiusi } from '../dominio/timetable.js'
-import { annoAllineato, conLetteraSettimana } from '../dominio/years.js'
+import {
+  allineaSemestri,
+  annoAllineato,
+  conLetteraSettimana,
+  motivoSettimanaRifiutata,
+} from '../dominio/years.js'
+import {
+  annoUfficiale,
+  bozzaSincronizzata,
+  calendarioDi,
+  calendarioUfficialePerCantone,
+  marcatoreDi,
+  motivoCalendarioToccato,
+} from '../dominio/schoolCalendar.js'
 import type {
   AnnoScolastico,
   Attivita,
@@ -45,12 +58,53 @@ import {
   rifiuta,
   riponi,
   scegliUnFile,
+  type Contesto,
+  type EsitoAzione,
   type Parte,
 } from './context.js'
 import { parole } from '../dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './register.testi.js'
 import { istanteAdesso } from '../dominio/dates.js'
+
+/**
+ * Perché l'anno così non si scrive, se segue il calendario ufficiale e ne
+ * tocca le voci; `null` se si può (`motivoCalendarioToccato`).
+ */
+function calendarioToccato (prima: AnnoScolastico | null, dopo: AnnoScolastico): string | null {
+  const marcatore = dopo.calendarioUfficiale ?? prima?.calendarioUfficiale
+  const calendario = marcatore ? calendarioDi(marcatore) : null
+  return motivoCalendarioToccato(calendario, prima, dopo)
+}
+
+/**
+ * Riscrive l'anno aperto al posto di `prima`. Nelle chiusure nuove le lezioni
+ * intatte se ne vanno nello stesso gesto; quelle con dati restano e lo si
+ * dice (`lezioniNeiGiorniChiusi`). `detto` si antepone al racconto.
+ */
+function riscriviAnno (
+  contesto: Contesto,
+  prima: AnnoScolastico | null,
+  anno: AnnoScolastico,
+  detto = '',
+): EsitoAzione {
+  const { intatte, conDati } = lezioniNeiGiorniChiusi(contesto.registro, prima, anno)
+  const via = new Set(intatte.map((l) => l.id))
+  const scritto = contesto.modifica((r) => {
+    const cartella = r.anni.find((a) => a.id === anno.id)?.cartella
+    riponi(r.anni, { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
+    if (via.size > 0) r.lezioni = r.lezioni.filter((l) => !via.has(l.id))
+  }, via.size > 0 ? ['registro', 'lezioni'] : ['registro'])
+  if (!scritto.ok || (via.size === 0 && conDati.length === 0 && !detto)) return scritto
+  const t = testi()
+  const tolte = via.size > 0 ? t.tolteInChiusura(via.size) : ''
+  const restano = conDati.length > 0 ? t.restanoInChiusura(conDati.length) : ''
+  return conMessaggio(
+    `${detto} ${tolte}${restano}`.trim(),
+    conDati.length > 0 ? 'avviso' : 'info',
+    scritto,
+  )
+}
 
 /** I formati di ritratto che `@cantoo/pdf-lib` sa incorporare nei PDF. */
 const FORMATI_RITRATTO = ['png', 'jpg', 'jpeg']
@@ -164,9 +218,13 @@ export const registro = {
         ...semestre,
         etichetta: azione.etichetteSemestri?.[indice]?.trim() || semestre.etichetta,
       })),
+      ...(azione.calendarioUfficiale ? { calendarioUfficiale: azione.calendarioUfficiale } : {}),
     }
     const esito = validaAnno(anno)
     if (!esito.valido) return { ok: false, errori: esito.errori }
+    // Un anno che nasce collegato nasce con le date e le chiusure ufficiali.
+    const toccato = calendarioToccato(null, anno)
+    if (toccato) return rifiuta(toccato)
 
     const dove = percorsoProvvisorio(anno.etichetta)
     if (!dove) return rifiuta(testi().senzaCartella)
@@ -183,27 +241,69 @@ export const registro = {
     if (!esito.valido) return { ok: false, errori: esito.errori }
     // Si scrive solo l'anno aperto.
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
-    // Nelle chiusure nuove le lezioni intatte se ne vanno nello stesso gesto;
-    // quelle con dati restano e lo si dice (`lezioniNeiGiorniChiusi`).
     const prima = contesto.registro.anni.find((a) => a.id === anno.id) ?? null
-    const { intatte, conDati } = lezioniNeiGiorniChiusi(contesto.registro, prima, anno)
-    const via = new Set(intatte.map((l) => l.id))
-    const scritto = contesto.modifica((r) => {
-      const cartella = r.anni.find((a) => a.id === anno.id)?.cartella
-      riponi(r.anni, { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
-      if (via.size > 0) r.lezioni = r.lezioni.filter((l) => !via.has(l.id))
-    }, via.size > 0 ? ['registro', 'lezioni'] : ['registro'])
-    if (!scritto.ok || (via.size === 0 && conDati.length === 0)) return scritto
+    // Le voci del calendario ufficiale che l'anno segue non si cambiano qui.
+    const toccato = calendarioToccato(prima, anno)
+    if (toccato) return rifiuta(toccato)
+    return riscriviAnno(contesto, prima, anno)
+  },
+
+  /**
+   * Collega l'anno aperto al calendario ufficiale, o lo riallinea se lo è già:
+   * date, chiusure ufficiali con i loro nomi, e il marcatore che le blocca. Le
+   * chiusure proprie restano; quelle scritte a mano che coincidono con una
+   * voce diventano collegate. Staccare toglie solo il marcatore.
+   */
+  'anno.calendario': (contesto, azione) => {
+    const prima = contesto.registro.anni.find((a) => a.id === azione.annoId)
+    if (!prima || prima.id !== contesto.registro.annoCorrenteId) {
+      return rifiuta(comuni().nonTrovato.anno)
+    }
     const t = testi()
-    const tolte = via.size > 0 ? t.tolteInChiusura(via.size) : ''
-    const restano = conDati.length > 0 ? t.restanoInChiusura(conDati.length) : ''
-    return conMessaggio(`${tolte}${restano}`.trim(), conDati.length > 0 ? 'avviso' : 'info', scritto)
+    if (!azione.collega) {
+      if (!prima.calendarioUfficiale) return fatto
+      const { calendarioUfficiale: _via, ...staccato } = prima
+      return riscriviAnno(contesto, prima, staccato, t.annoStaccato)
+    }
+
+    const marcatore = prima.calendarioUfficiale
+    const calendario = marcatore ? calendarioDi(marcatore) : calendarioUfficialePerCantone()
+    const ufficiale = calendario
+      ? marcatore
+        ? calendario.anni.find((a) => a.annoScolastico === marcatore.annoScolastico) ?? null
+        : annoUfficiale(calendario, prima.inizio)
+      : null
+    if (!calendario || !ufficiale) return rifiuta(t.calendarioAssente(prima.etichetta))
+
+    const bozza = bozzaSincronizzata(calendario, ufficiale, prima)
+    // Inizio e fine si spostano coi semestri: il confine resta dov'è.
+    const semestri = allineaSemestri(prima.semestri).map((semestre, indice, tutti) => ({
+      ...semestre,
+      inizio: indice === 0 ? bozza.inizio : semestre.inizio,
+      fine: indice === tutti.length - 1 ? bozza.fine : semestre.fine,
+    }))
+    const anno = annoAllineato({
+      ...prima,
+      semestri,
+      sospensioni: bozza.sospensioni,
+      calendarioUfficiale: marcatoreDi(calendario, ufficiale),
+    })
+    const esito = validaAnno(anno)
+    if (!esito.valido) return { ok: false, errori: esito.errori }
+    return riscriviAnno(
+      contesto,
+      prima,
+      anno,
+      t.annoCollegato(calendario.cantoneNome, ufficiale.annoScolastico),
+    )
   },
 
   /** La lettera di una settimana (A, B o niente), senza riscrivere il resto dell'anno come `anno.salva`. */
   'anno.settimana': (contesto, azione) => {
     const anno = contesto.registro.anni.find((a) => a.id === azione.annoId)
     if (!anno) return rifiuta(comuni().nonTrovato.anno)
+    const motivo = motivoSettimanaRifiutata(anno, azione.giorno, azione.lettera)
+    if (motivo) return rifiuta(motivo)
     const aggiornato = conLetteraSettimana(anno, azione.giorno, azione.lettera)
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
     return contesto.modifica((r) => {
@@ -273,6 +373,11 @@ export const registro = {
           lista.corsoId = dove
         }
       }
+      // Le regole del calendario che nominavano il doppione.
+      for (const regola of r.impostazioni.calendario?.regole ?? []) {
+        const dove = regola.corsoId ? superstiti.get(regola.corsoId) : undefined
+        if (dove) regola.corsoId = dove
+      }
       r.corsi = r.corsi.filter((c) => !superstiti.has(c.id))
       r.materie = r.materie.filter((m) => m.id !== azione.daId)
 
@@ -307,7 +412,22 @@ export const registro = {
   'corso.salva': (contesto, azione) => {
     const esito = validaCorso(azione.corso, contesto.registro.corsi)
     if (!esito.valido) return { ok: false, errori: esito.errori }
-    const nuovo = !contesto.registro.corsi.some((c) => c.id === azione.corso.id)
+    const esistente = contesto.registro.corsi.find((c) => c.id === azione.corso.id)
+    // Classe e materia sono il corso: cambiarle sposterebbe lezioni, voti e
+    // consegne su un'altra classe. Il modulo le blocca; qui si rifiuta.
+    if (esistente && (esistente.classeId !== azione.corso.classeId ||
+      esistente.materiaId !== azione.corso.materiaId)) {
+      return rifiuta(testi().classeMateriaFisse)
+    }
+    const nuovo = !esistente
+    if (nuovo) {
+      if (!contesto.registro.classi.some((c) => c.id === azione.corso.classeId)) {
+        return rifiuta(comuni().nonTrovato.classe)
+      }
+      if (!contesto.registro.materie.some((m) => m.id === azione.corso.materiaId)) {
+        return rifiuta(comuni().nonTrovato.materia)
+      }
+    }
     const corso = { ...azione.corso, aggiornatoIl: istanteAdesso() }
     contesto.modifica((r) => {
       riponi(r.corsi, corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
@@ -381,6 +501,25 @@ export const registro = {
     return nuova ? { ok: true, creato: { id: classe.id } } : fatto
   },
 
+  'classe.modifica': (contesto, azione) => {
+    if (azione.nome !== undefined) {
+      const nome = azione.nome.trim()
+      if (!nome) return rifiuta(testi().nomeObbligatorio)
+      const duplicato = contesto.registro.classi.find(
+        (c) => c.id !== azione.classeId && c.nome.toLowerCase() === nome.toLowerCase(),
+      )
+      if (duplicato) return rifiuta(testi().nomeGiaUsato(nome))
+    }
+    return contesto.suVoce('classi', azione.classeId, (classe) => {
+      if (azione.nome !== undefined) classe.nome = azione.nome.trim()
+      if (azione.colore !== undefined) classe.colore = azione.colore
+      if (azione.note !== undefined) classe.note = azione.note
+      if (azione.docenteDiClasse !== undefined) classe.docenteDiClasse = azione.docenteDiClasse
+      if (azione.archiviata !== undefined) classe.archiviata = azione.archiviata
+      classe.aggiornataIl = istanteAdesso()
+    })
+  },
+
   // Con la classe se ne vanno corsi, ore, voti e fascicolo.
   'classe.elimina': (contesto, azione) => {
     return contesto.elimina({ genere: 'classe', id: azione.classeId })
@@ -404,11 +543,19 @@ export const registro = {
     const t = testi()
     if (!classe || !allievo) return rifiuta(comuni().nonTrovato.pif)
 
-    const scelto = await scegliUnFile({
-      titolo: t.fotoDi(nomeCompleto(allievo)),
-      tasto: t.usaFoto,
-      filtri: { [parole().immagini]: FORMATI_RITRATTO },
-    })
+    let scelto: { nome: string; uri: apparato.Uri; estensione: string } | null = null
+    if (azione.file) {
+      const uri = apparato.Uri.file(azione.file)
+      const nome = uri.path.split('/').pop() ?? 'foto'
+      const estensione = nome.includes('.') ? `.${nome.split('.').pop()}` : ''
+      scelto = { nome, uri, estensione }
+    } else {
+      scelto = await scegliUnFile({
+        titolo: t.fotoDi(nomeCompleto(allievo)),
+        tasto: t.usaFoto,
+        filtri: { [parole().immagini]: FORMATI_RITRATTO },
+      })
+    }
     // Dialogo chiuso senza scegliere: non è un errore, non si dice niente.
     if (!scelto) return fatto
 

@@ -4,7 +4,7 @@
 
 import { oggi, sommaGiorni, sommaMesi } from '../../core/dominio/dates.js'
 import type { Iso } from '../../core/dominio/models.js'
-import { aggiorna, classeDelCorsoId, stato, type ModoCalendario } from './state.js'
+import { aggiorna, postoCorrente, ridisegna, stato, vai, type ModoCalendario } from './state.js'
 
 /** Quante settimane si disegnano di slancio, prima e dopo il giorno scelto. */
 export const SETTIMANE_ATTORNO = 8
@@ -72,7 +72,12 @@ export function vaiAOggi (): void {
   // Solo se il disegno che segue è una settimana: acceso nel mese, aspetterebbe
   // e farebbe saltare la prima settimana aperta dopo.
   finestraSettimana.versoAdesso = stato.modoCalendario === 'settimana'
-  aggiorna({ vista: 'calendario', data: oggi() })
+  // Già nel calendario resta l'ora scelta: cambia solo il giorno.
+  const qui = postoCorrente()
+  vai(qui.pagina === 'pagina.calendario' ? qui : { pagina: 'pagina.calendario' }, { giorno: oggi() })
+  // La striscia ricentrata non sta nello stato: già su oggi, `aggiorna` non
+  // ridisegnerebbe.
+  ridisegna()
 }
 
 /** Come si guarda il calendario: settimana, mese, anno, agenda. */
@@ -80,6 +85,8 @@ export function scegliModoCalendario (modo: ModoCalendario): void {
   // Passando al mese la striscia si riporta sul giorno scelto.
   if (modo === 'mese') ricentraMese()
   aggiorna({ modoCalendario: modo })
+  // Idem se si era già nel mese: la striscia va riportata sul giorno.
+  if (modo === 'mese') ridisegna()
 }
 
 /**
@@ -88,10 +95,10 @@ export function scegliModoCalendario (modo: ModoCalendario): void {
  * La classe segue il corso; un corso senza classe lascia il filtro com'era.
  */
 export function apriMomento (momento: { id: string, corsoId: string }): void {
-  aggiorna({
-    vista: 'valutazioni',
-    valutazioneId: momento.id,
-    corsoId: momento.corsoId,
-    filtroClasseId: classeDelCorsoId(momento.corsoId)?.id ?? stato.filtroClasseId,
-  })
+  // La classe la mette `completa` dal corso della prova; il corso anche qui,
+  // per il ripiego se la prova non c'è più.
+  vai(
+    { pagina: 'pagina.corso.valutazioni', soggetto: { tipo: 'valutazione', id: momento.id } },
+    { contesto: { corsoId: momento.corsoId } },
+  )
 }

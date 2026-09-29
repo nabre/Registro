@@ -2,8 +2,21 @@
 // piede), scritto una volta: chi costruisce una tabella scrive solo le celle.
 
 import { h, type Figlio } from '../dom.js'
+import { isolaVirtuale } from './virtuale.js'
 
-interface OpzioniTabella {
+/** Quel che sta dentro la tabella: le celle e gli attributi suoi. */
+interface Parti {
+  /** Le celle dell'intestazione: i `<th>` della riga in cima. */
+  intestazione: Figlio[]
+  /** Le righe del corpo, già costruite. */
+  righe: Figlio
+  /** Le celle del piede — i totali, le medie — se ce n'è uno. */
+  piede?: Figlio[]
+  /** Attributi in più della `<table>`: `aria-colcount` di una tabella a finestra. */
+  attr?: Record<string, string | number | undefined>
+}
+
+interface Telaio {
   /**
    * La variante senza prefisso (`voti` → `tabella--voti`): il foglio di stile ci
    * appende colonne ferme e minimi. Più d'una per le tabelle che ne sommano due
@@ -20,12 +33,13 @@ interface OpzioniTabella {
    * `dom.ts`): una spunta non la riporta in cima, cambiare matrice sì.
    */
   scorrimento?: string
-  /** Le celle dell'intestazione: i `<th>` della riga in cima. */
-  intestazione: Figlio[]
-  /** Le righe del corpo, già costruite. */
-  righe: Figlio
-  /** Le celle del piede — i totali, le medie — se ce n'è uno. */
-  piede?: Figlio[]
+  /**
+   * La chiave di telaio del contenitore (`data-telaio`, vedi `aggiornaElemento`
+   * in `dom.ts`): se tutta la catena dalla radice è telaio, il contenitore resta
+   * lo stesso nodo fra due disegni e un clic non ferma né riporta indietro lo
+   * scorrimento. Senza catena non fa niente.
+   */
+  telaio?: string
   /**
    * Classi proprie al posto di `tabella-contenitore` e `tabella`, per le matrici
    * col loro foglio di stile (appello, check, corsi); allora `variante` e
@@ -37,28 +51,51 @@ interface OpzioniTabella {
 }
 
 /**
+ * Le parti già fatte, o chieste a ogni disegno quando la tabella è a finestra
+ * (`components/virtuale.ts`): allora la tabella sta in un'isola, e lo
+ * scorrimento rifà lei sola, con le parti di quel momento.
+ */
+type OpzioniTabella = Telaio & (Parti | { virtuale: { chiave: string, parti: () => Parti } })
+
+/**
  * Il contenitore scorre e la tabella no: la barra di scorrimento sta intorno,
  * così l'intestazione appiccicata in cima non scivola via con le righe.
  */
 export function tabella (opzioni: OpzioniTabella): HTMLElement {
   const varianti = typeof opzioni.variante === 'string' ? [opzioni.variante] : opzioni.variante ?? []
+  const disegna = (parti: Parti): HTMLElement => h(
+    'table',
+    {
+      class: opzioni.classi?.tabella ?? ['tabella', ...varianti.map((nome) => `tabella--${nome}`)], // testo-fisso: classe CSS
+      attr: { 'aria-label': opzioni.etichetta, ...parti.attr },
+    },
+    h('thead', null, h('tr', null, ...parti.intestazione)),
+    h('tbody', null, parti.righe),
+    parti.piede ? h('tfoot', null, h('tr', null, ...parti.piede)) : null,
+  )
 
   return h(
     'div',
     {
       class: opzioni.classi?.telaio ??
         ['tabella-contenitore', opzioni.griglia && 'tabella-contenitore--griglia'],
-      ...(opzioni.scorrimento ? { dataset: { scorrimento: opzioni.scorrimento } } : {}),
+      dataset: { scorrimento: opzioni.scorrimento, telaio: opzioni.telaio },
     },
-    h(
-      'table',
-      {
-        class: opzioni.classi?.tabella ?? ['tabella', ...varianti.map((nome) => `tabella--${nome}`)], // testo-fisso: classe CSS
-        attr: { 'aria-label': opzioni.etichetta },
-      },
-      h('thead', null, h('tr', null, ...opzioni.intestazione)),
-      h('tbody', null, opzioni.righe),
-      opzioni.piede ? h('tfoot', null, h('tr', null, ...opzioni.piede)) : null,
-    ),
+    'virtuale' in opzioni
+      ? isolaVirtuale(opzioni.virtuale.chiave, () => disegna(opzioni.virtuale.parti()))
+      : disegna(opzioni),
   )
+}
+
+/**
+ * Porta la catena di telaio dentro una scheda di `base.ts`: la sezione e il suo
+ * corpo diventano anelli, così la tabella che ci sta dentro può restare lo
+ * stesso nodo. Sul telaio non si mettono ascoltatori legati allo stato: restano
+ * quelli del primo disegno.
+ */
+export function inTelaio<T extends HTMLElement> (nodo: T, chiave: string): T {
+  nodo.dataset.telaio = chiave
+  const corpo = Array.from(nodo.children).find((figlio) => figlio.classList.contains('scheda__corpo'))
+  if (corpo instanceof HTMLElement) corpo.dataset.telaio = `${chiave}:corpo`
+  return nodo
 }

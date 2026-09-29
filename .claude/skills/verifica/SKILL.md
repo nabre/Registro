@@ -1,7 +1,7 @@
 ---
 name: verifica
 description: >
-  Il rituale di verifica di Regiclass: i tre controlli d'obbligo
+  Il rituale di verifica di Regiklass: i tre controlli d'obbligo
   (`npx tsc --noEmit`, `npx eslint .`, `npm test`) e gli otto controlli statici
   fatti in casa (`layers`, `census`, `collections`, `forms`, `buttons`,
   `procedures`, `docs`, `i18n`) — che cosa guarda ognuno, come si legge la sua uscita, che cosa
@@ -48,8 +48,8 @@ gira dentro `npm test`.
 
 | Comando | Guarda | Esce rosso quando |
 | --- | --- | --- |
-| `npm run layers` | ogni `import` contro i confini di `docs/ARCHITETTURA.md` (e ADR-42 in `docs/DECISIONI.md`) | un import attraversa un confine, o nasce un ciclo |
-| `npm run census` | gli export che nessuno consuma | — mai: **stampa e basta**, si legge |
+| `npm run layers` | ogni `import` contro i confini di `docs/ARCHITETTURA.md` (e ADR-42 in `docs/DECISIONI.md`), più tre regole di testo | un import attraversa un confine, nasce un ciclo, uno specificatore ha un segmento `...`, una regola del dominio è ricopiata, un gestore rientra in `chiama()` |
+| `npm run census` | gli export che nessuno consuma | un export «da eliminare» (mai usato), o zero file letti; i «da rendere interni» si leggono e basta |
 | `npm run collections` | che ogni `modifica()` di `core/azioni/` e `core/dati/` dichiari i JSON che riscrive | una collezione toccata non è dichiarata |
 | `npm run forms` | che ogni `campo({nome})` sia raccolto da `alSalva` | un nome dichiarato e mai raccolto |
 | `npm run buttons` | i comandi disegnati senza `al` | un pulsante che non fa niente |
@@ -123,6 +123,17 @@ Quando un confine viene violato o nasce un ciclo, `npm run layers` esce con codi
   monte, usare un pattern di registrazione/inversione di dipendenza, oppure
   ritardare la lettura del valore all'interno di una funzione anziché a livello di
   modulo.
+- **Segmento `...`** in uno specificatore (`'.../../core'`), in qualunque file di
+  codice, prove e attrezzi compresi: Windows lo legge come `.`, POSIX no.
+  *Come si risolve:* `./` o `../`.
+- **Regola riscritta a mano**: soglia di assenza, estremi dell'anno, nome
+  composto, allievi attivi, UD di un'ora ricopiati invece di chiamare
+  `oltreSoglia`, `estremiAnno`, `nomeCompleto`, `allieviAttivi`, `contaUd`.
+  *Come si risolve:* si chiama quella del dominio, o la si estrae; un caso che
+  dice un'altra cosa va fra gli `esenti` di `UNA_VOLTA`, col motivo.
+- **Gestore che rientra in `chiama()`** sotto `core/azioni/` o
+  `contract/procedure/`: la fila delle scritture è una sola e si fermerebbe fino
+  al tetto. *Come si risolve:* si chiama la funzione, non la procedura.
 
 ### Come si leggono le uscite «da guardare a mano»
 
@@ -197,6 +208,40 @@ npx tsc --noEmit && npx eslint . && npm test && npm run layers && npm run collec
 In PowerShell `&&` non esiste: si usa il Bash tool, oppure si separano con `;`
 e si guarda ogni uscita.
 
+## La prova del fumo
+
+- `npm run fumo` (`tools/fumo.mjs`): Electron vero sul campione, parla dal
+  condotto e chiude; guasto = avvio, condotto o uscita rotti. Lavoro `fumo`
+  della CI.
+
+## La copertura, quando serve
+
+```sh
+npm run copertura   # rapporto, non soglia: niente la rende rossa
+```
+
+`tools/copertura.mjs` ricostruisce `dist-tests/` con le mappe inline
+(`node esbuild.mjs --test --copertura`), esegue le prove con
+`NODE_V8_COVERAGE`, riporta i conteggi sui sorgenti dei cinque strati e alla
+fine ricostruisce i bundle senza mappe, così `npm test` resta com'era. Scrive
+`copertura/riassunto.txt` (per cartella) e `copertura/lcov.info` (per file),
+fuori da git. Il riporto è fatto in casa: la copertura nativa di Node unisce
+male lo stesso `.ts` in più bundle, e `c8` su questi bundle dava righe al 100%.
+
+Come si legge:
+
+- **righe** è gonfiato: ogni riga eseguita al caricamento conta, e i cataloghi
+  `*.testi.ts` e i dati di modulo sono quasi tutti righe così. Guardare
+  **funzioni** e **rami**;
+- un file che nessuna prova carica non compare: non vale zero, manca;
+- le prove che usano `importaSorgente` contano perché lo script mette
+  `REGISTRO_COPERTURA=1`: il modulo va su disco con la mappa invece che in un
+  `data:`. A variabile spenta `tests/helpers/sorgente.mjs` fa come sempre;
+- `ui/pannello` ha funzioni basse perché le viste si provano in
+  `tests/interfaccia/`, su Chromium, che il rapporto non vede;
+- mentre gira, `dist-tests/` ha le mappe: un `npm test` lanciato in parallelo
+  passa lo stesso, ma una ricostruzione altrui a metà corsa falsa il rapporto.
+
 ## La CI in locale, prima di spingere
 
 ```sh
@@ -206,7 +251,7 @@ npm run ci -- --solo verifica # solo i controlli; --solo interfaccia per le prov
 
 `tools/ci.mjs` legge **lo stesso** `verifica.yml` che GitHub esegue e ne lancia
 i passi `run:` di una riga, con i loro nomi, fermandosi al primo rosso. Salta
-`npm ci` e le installazioni a più righe (Python, Chromium). Un passo aggiunto al
+`npm ci` e le installazioni a più righe (Chromium). Un passo aggiunto al
 workflow si esegue anche qui senza toccare niente.
 
 Due cose che la forma breve qui sopra non vede e la CI sì:
@@ -215,6 +260,8 @@ Due cose che la forma breve qui sopra non vede e la CI sì:
   Node esce con 1, e la CI è rossa. Si legge anche `# cancelled`;
 - **le prove dell'interfaccia** (`npm run ui-tests`): leggono i testi e i nomi
   accessibili dei pulsanti. I bundle che caricano li costruisce una volta
-  `node esbuild.mjs --ui`, lanciato da `tools/uiTests.mjs`: una prova Python
-  lanciata a mano vuole prima quel comando. Cambiare l'etichetta di una voce di menu rompe una
-  prova Python che nessun `tsc` vede.
+  `node esbuild.mjs --ui`, lanciato da `tools/uiTests.mjs`: una prova lanciata
+  a mano con `npx playwright test -c tests/interfaccia/playwright.config.ts`
+  vuole prima quel comando (e `node esbuild.mjs` per quella che accende
+  Electron). Cambiare l'etichetta di una voce di menu rompe una prova il cui
+  testo `tsc` non legge: il codice nella pagina è una stringa.

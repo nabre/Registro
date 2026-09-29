@@ -1,6 +1,6 @@
 import { consegne } from '../../../core/azioni/assignments.js'
 import { inoltra, scrittura } from '../../core.js'
-import { elenco, identificatore, oggetto, opzionale } from '../../schemas.js'
+import { booleano, elenco, identificatore, oggetto, opzionale } from '../../schemas.js'
 import { esigiConsegna } from './common.js'
 import { testi } from './consegne.testi.js'
 
@@ -19,6 +19,7 @@ export const procedura = scrittura({
     // Assente = tutti quelli che aspettano e hanno un documento pronto. Il
     // protocollo non ammette `null`.
     allieviIds: opzionale(elenco(identificatore(), { aiuto: () => t().allieviIds })),
+    conferma: opzionale(booleano({ aiuto: () => t().conferma })),
   }),
   esegui: (ambito, ingresso) => {
     // Che si consegni e non si raccolga, e che ci sia qualcosa da spedire, lo dice

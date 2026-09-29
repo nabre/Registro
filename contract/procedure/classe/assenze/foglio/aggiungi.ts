@@ -1,6 +1,6 @@
 import { docenteClasse } from '../../../../../core/azioni/classTeacher.js'
 import { inoltra, scrittura } from '../../../../core.js'
-import { booleano, identificatore, oggetto, scelta } from '../../../../schemas.js'
+import { booleano, identificatore, oggetto, opzionale, scelta, testo } from '../../../../schemas.js'
 import { esigiAllievo, esigiBlocco, GENERI_RAPPORTO } from '../../common.js'
 import { testi } from '../../classe.testi.js'
 
@@ -19,6 +19,7 @@ export const procedura = scrittura({
     allievoId: identificatore({ aiuto: () => t().allievoId }),
     genere: scelta(GENERI_RAPPORTO, { aiuto: () => t().genere }),
     firmato: booleano({ aiuto: () => t().firmato }),
+    file: opzionale(testo({ aiuto: () => t().file })),
   }),
   esegui: (ambito, ingresso) => {
     esigiBlocco(ambito, ingresso.classeId, ingresso.bloccoId)

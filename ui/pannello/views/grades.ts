@@ -13,10 +13,11 @@ import { assenteAllOra, rigaDelRecupero } from '../../../core/dominio/retakes.js
 import { collegamento, pastiglia } from '../components/base.js'
 import { } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
-import { h } from '../dom.js'
+import { gestisci, h } from '../dom.js'
 import { azione } from '../bridge.js'
-import { aggiorna, stato } from '../state.js'
+import { postoCorrente, stato, vai } from '../state.js'
 import { tabella } from '../components/table.js'
+import { finestra, stileVuoto, type Finestra } from '../components/virtuale.js'
 import { cellaNome } from '../components/avatar.js'
 import { testi } from './grades.testi.js'
 
@@ -44,6 +45,19 @@ export function lampeggiaErrore (elemento: HTMLElement): void {
   elemento.classList.add('cella-voto--errata')
   setTimeout(() => elemento.classList.remove('cella-voto--errata'), 800)
 }
+
+/**
+ * La larghezza di una colonna di prova disegnata, finché non la si è misurata:
+ * quella della `th` (`.tabella__momento`, 5.75rem) con i suoi margini.
+ */
+const LARGHEZZA_COLONNA = 92
+
+/**
+ * Da quante prove in su la griglia si disegna a finestra: con quaranta righe,
+ * trenta colonne intere costano già più di un fotogramma lungo
+ * (`tests/interfaccia/misure.spec.ts`).
+ */
+const SOGLIA_COLONNE = 20
 
 /** Un numero diverso per ogni elenco: gli id devono restare unici nella pagina. */
 let contatoreElenchi = 0
@@ -82,8 +96,13 @@ function campoVoto (tabella: HTMLElement, riga: number, colonna: number): HTMLIn
  * il campo c'era: chi chiama deve saperlo prima di togliere il fuoco da quello
  * di partenza.
  */
-function spostaFuoco (tabella: HTMLElement, riga: number, colonna: number): boolean {
-  const bersaglio = campoVoto(tabella, riga, colonna)
+function spostaFuoco (tabella: HTMLElement, riga: number, colonna: number, vista?: Finestra | null): boolean {
+  let bersaglio = campoVoto(tabella, riga, colonna)
+  // Una colonna fuori dalla finestra non c'è ancora: la si disegna, poi la si cerca.
+  if (!bersaglio && vista?.attiva && tabella.querySelector(`input[data-riga="${riga}"]`) &&
+    vista.portaInVista(colonna)) {
+    bersaglio = campoVoto(tabella, riga, colonna)
+  }
   if (!bersaglio) return false
   bersaglio.focus()
   bersaglio.select()
@@ -106,6 +125,28 @@ interface OpzioniGriglia {
    * mostra una prova sola, perché lì non sono un bilancio.
    */
   medie?: boolean
+}
+
+/**
+ * Sceglie un momento, o nessuno, senza lasciare la pagina: in quella delle
+ * valutazioni diventa quel che si guarda; altrove (l'ora, i recuperi) resta
+ * nel contesto e la griglia lo evidenzia.
+ */
+export function scegliMomento (valutazioneId: string | null): void {
+  const qui = postoCorrente()
+  if (qui.pagina !== 'pagina.corso.valutazioni') {
+    vai(qui, { contesto: { valutazioneId }, elementoChiesto: false })
+    return
+  }
+  const corsoId = stato.contesto.corsoId
+  vai(
+    valutazioneId
+      ? { pagina: qui.pagina, soggetto: { tipo: 'valutazione', id: valutazioneId } }
+      : corsoId
+        ? { pagina: qui.pagina, soggetto: { tipo: 'corso', id: corsoId } }
+        : { pagina: qui.pagina },
+    { contesto: { valutazioneId }, elementoChiesto: valutazioneId !== null },
+  )
 }
 
 export function grigliaVoti (
@@ -135,45 +176,94 @@ export function grigliaVoti (
   const passoNota = stato.registro.impostazioni.passoFineSemestre
   const t = testi()
   const L = lessico()
+  // testo-fisso: chiave della memoria di scorrimento, non si legge
+  const chiaveScorrimento = `voti:${stato.corsoId ?? ''}:${stato.semestreId ?? ''}`
+  const medieDi = new Map(allievi.map((allievo) => [allievo.id, mediaAllievo(momenti, allievo.id).media]))
+  // Le colonne a finestra (`components/virtuale.ts`): con duecento prove la
+  // griglia intera costava secondi a ogni voto scritto.
+  const colonneFisse = medie ? 3 : 1
+  /** L'ultima finestra disegnata: la tastiera ci porta le colonne non ancora in vista. */
+  let vista: Finestra | null = null
 
-  // Con memoria di scorrimento: ogni voto scritto ridisegna la tabella.
-  const contenitore = tabella({
-    variante: 'voti',
-    griglia: true,
-    // testo-fisso: chiave della memoria di scorrimento, non si legge
-    scorrimento: `voti:${stato.corsoId ?? ''}:${stato.semestreId ?? ''}`,
-    intestazione: [
-      h('th', { class: 'tabella__nome' }, Uno(L.pif)),
-      ...momenti.map((momento) =>
-        h(
-          'th',
-          { class: ['tabella__momento', stato.valutazioneId === momento.id && 'tabella__momento--scelto'] },
-          collegamento({
-            titolo: t.titoloMomento(momento.titolo, formattaData(momento.data), momento.peso),
-            al: () => aggiorna({ valutazioneId: momento.id }),
-            testo: [
-              h('span', { class: 'tabella__momento-titolo' }, momento.titolo),
-              h(
-                'small',
-                null,
-                `${formattaData(momento.data, 'corto')}${momento.peso !== 1 ? ` ×${momento.peso}` : ''}`,
-              ),
-            ],
-          }),
-        ),
-      ),
-      // Due colonne: la media è il conto, la nota è quel che va in pagella.
-      medie ? h('th', { class: 'tabella__media' }, Uno(L.media)) : null,
-      medie ? h('th', { class: 'tabella__media' }, corto(L.nota)) : null,
-    ],
-    righe: [
-      ...allievi.map((allievo, indiceRiga) => {
-        const media = mediaAllievo(momenti, allievo.id).media
+  /** Il vuoto al posto delle colonne saltate; il primo dell'intestazione dice dove comincia la finestra. */
+  const vuoto = (tag: 'th' | 'td', px: number, segno?: Record<string, string>) =>
+    h(tag, { class: 'tabella__vuoto', style: stileVuoto(px, true), dataset: segno, attr: { 'aria-hidden': 'true' } })
+
+  /** Le celle delle prove in una riga, con i vuoti al posto di quelle fuori vista. */
+  const colonne = (
+    f: Finestra,
+    cella: (momento: MomentoValutazione, indice: number) => HTMLElement,
+    tag: 'th' | 'td',
+    primo = false,
+  ): HTMLElement[] =>
+    f.pezzi.map((pezzo, n) => pezzo.indice === undefined
+      ? vuoto(tag, pezzo.vuoto, primo && n === 0 ? f.inizio : undefined)
+      : cella(momenti[pezzo.indice], pezzo.indice))
+
+  /** `aria-colindex` di una colonna di prova, solo se la tabella è a finestra. */
+  const posto = (f: Finestra, indice: number) => f.attiva ? indice + 2 : undefined
+
+  const parti = () => {
+    const f = finestra({
+      chiave: `${chiaveScorrimento}:${medie ? 'medie' : 'prove'}`,
+      conto: momenti.length,
+      orizzontale: true,
+      // La larghezza di una colonna di prova disegnata: una casella e la «R».
+      stima: () => LARGHEZZA_COLONNA,
+      chiaveDi: (indice) => momenti[indice].id,
+      // Una colonna sono quaranta caselle: la finestra conviene presto, e ai
+      // lati basta poco.
+      soglia: SOGLIA_COLONNE,
+      oltre: 2,
+    })
+    vista = f
+    // Un elenco di voti per colonna, non per casella: con quaranta righe
+    // sarebbero quaranta copie uguali.
+    const liste = new Map(f.pezzi.flatMap((pezzo) => pezzo.indice === undefined
+      ? []
+      : [[pezzo.indice, elencoVoti(momenti[pezzo.indice].scala, [SIGLA_ASSENTE])] as const]))
+    const ultima = { 'aria-colindex': f.attiva ? momenti.length + 2 : undefined }
+
+    return {
+      attr: { 'aria-colcount': f.attiva ? momenti.length + colonneFisse : undefined },
+      intestazione: [
+        h('th', { class: 'tabella__nome', attr: { 'aria-colindex': f.attiva ? 1 : undefined } }, Uno(L.pif)),
+        ...colonne(f, (momento, indice) =>
+          h(
+            'th',
+            {
+              class: ['tabella__momento', stato.valutazioneId === momento.id && 'tabella__momento--scelto'],
+              dataset: f.testata(indice),
+              attr: { 'aria-colindex': posto(f, indice) },
+            },
+            collegamento({
+              titolo: t.titoloMomento(momento.titolo, formattaData(momento.data), momento.peso),
+              al: () => scegliMomento(momento.id),
+              testo: [
+                h('span', { class: 'tabella__momento-titolo' }, momento.titolo),
+                h(
+                  'small',
+                  null,
+                  `${formattaData(momento.data, 'corto')}${momento.peso !== 1 ? ` ×${momento.peso}` : ''}`,
+                ),
+              ],
+            }),
+            liste.get(indice)?.elemento,
+          ), 'th', true),
+        // Due colonne: la media è il conto, la nota è quel che va in pagella.
+        medie ? h('th', { class: 'tabella__media', attr: ultima }, Uno(L.media)) : null,
+        medie
+          ? h('th', { class: 'tabella__media', attr: { 'aria-colindex': f.attiva ? momenti.length + 3 : undefined } }, corto(L.nota))
+          : null,
+      ],
+      righe: allievi.map((allievo, indiceRiga) => {
+        const media = medieDi.get(allievo.id) ?? null
         return h(
           'tr',
           null,
-          h('td', { class: 'tabella__nome' }, cellaNome(allievo, nomeCompleto(allievo))),
-          ...momenti.map((momento, indiceColonna) => {
+          h('td', { class: 'tabella__nome', attr: { 'aria-colindex': f.attiva ? 1 : undefined } },
+            cellaNome(allievo, nomeCompleto(allievo))),
+          ...colonne(f, (momento, indiceColonna) => {
             const voto = momento.voti.find((v) => v.allievoId === allievo.id)
             const mostrato = voto?.assente
               ? SIGLA_ASSENTE
@@ -187,12 +277,15 @@ export function grigliaVoti (
               typeof voto?.valore === 'number' && !voto.assente && voto.valore < momento.scala.sufficienza
             // La riga nella tabella dei recuperi: il voto non è della giornata della prova.
             const recupero = rigaDelRecupero(momento, allievo.id)
-            const lista = elencoVoti(momento.scala, [SIGLA_ASSENTE])
 
             return h(
               'td',
               // Il posto della «R» resta anche senza lettera, per tenere incolonnate le cifre.
-              { class: 'tabella__cella tabella__cella--voto' },
+              {
+                class: 'tabella__cella tabella__cella--voto',
+                dataset: f.voce(indiceColonna),
+                attr: { 'aria-colindex': posto(f, indiceColonna) },
+              },
               // I tre pezzi in un contenitore e non sulla cella: una `td` in flex smette di
               // essere una cella di tabella.
               h(
@@ -218,7 +311,7 @@ export function grigliaVoti (
                     'aria-label': `${nomeCompleto(allievo)} — ${momento.titolo}`,
                     title: mancava ? t.assenteAllAppello : voto?.nota ?? '',
                     inputmode: 'decimal',
-                    list: lista.id,
+                    list: liste.get(indiceColonna)?.id,
                   },
                   onchange: async (evento: Event) => {
                     const elemento = evento.target as HTMLInputElement
@@ -244,7 +337,6 @@ export function grigliaVoti (
                     }
                   },
                 }),
-                lista.elemento,
                 // La «R» accanto alla casella e non dentro, dove andrebbe cancellata; il posto
                 // resta anche senza lettera.
                 h(
@@ -271,11 +363,11 @@ export function grigliaVoti (
                 ),
               ),
             )
-          }),
+          }, 'td'),
           medie
             ? h(
                 'td',
-                { class: 'tabella__media' },
+                { class: 'tabella__media', attr: ultima },
                 media === null
                   ? h('span', { class: 'testo-quieto' }, '—')
                   : h('span', { class: 'testo-quieto' }, formattaVoto(media)),
@@ -284,7 +376,7 @@ export function grigliaVoti (
           medie
             ? h(
                 'td',
-                { class: 'tabella__media' },
+                { class: 'tabella__media', attr: { 'aria-colindex': f.attiva ? momenti.length + 3 : undefined } },
                 (() => {
                   if (scaleMescolate) {
                     return h(
@@ -307,31 +399,56 @@ export function grigliaVoti (
             : null,
         )
       }),
-    ],
-    piede: [
-      h('td', { class: 'tabella__nome' }, t.mediaDellaClasse),
-      ...momenti.map((momento) => {
-        const media = mediaMomento(momento)
-        return h(
-          'td',
-          { class: 'tabella__cella tabella__cella--totale' },
-          media === null ? '—' : formattaVoto(media),
-        )
-      }),
-      // Due celle vuote in coda (media e nota): il piede ha la media di ogni prova,
-      // non di ogni allievo.
-      medie ? h('td', { class: 'tabella__media' }, '') : null,
-      medie ? h('td', { class: 'tabella__media' }, '') : null,
-    ],
-  })
-  const corpo = contenitore.querySelector('table')!
+      piede: [
+        h('td', { class: 'tabella__nome' }, t.mediaDellaClasse),
+        ...colonne(f, (momento, indice) => {
+          const media = mediaMomento(momento)
+          return h(
+            'td',
+            { class: 'tabella__cella tabella__cella--totale', dataset: f.voce(indice) },
+            media === null ? '—' : formattaVoto(media),
+          )
+        }, 'td'),
+        // Due celle vuote in coda (media e nota): il piede ha la media di ogni prova,
+        // non di ogni allievo.
+        medie ? h('td', { class: 'tabella__media' }, '') : null,
+        medie ? h('td', { class: 'tabella__media' }, '') : null,
+      ],
+    }
+  }
 
-  // La navigazione da foglio di calcolo.
-  corpo.addEventListener('keydown', (evento: KeyboardEvent) => {
+  // Con memoria di scorrimento: ogni voto scritto ridisegna la tabella.
+  const contenitore = tabella({
+    variante: 'voti',
+    griglia: true,
+    scorrimento: chiaveScorrimento,
+    // Dove la catena di telaio arriva fin qui (la pagina delle valutazioni),
+    // un voto scritto non ferma lo scorrimento in corsa.
+    telaio: 'voti',
+    virtuale: { chiave: `${chiaveScorrimento}:${medie ? 'medie' : 'prove'}`, parti },
+  })
+
+  // La navigazione da foglio di calcolo. Sul contenitore e non sulla tabella:
+  // la tabella sta nell'isola della finestra, che lo scorrimento rifà.
+  gestisci(contenitore, 'keydown', (evento) => {
+    // Il contenitore vivo: dopo un ridisegno `contenitore` può essere quello scartato.
+    const griglia = evento.currentTarget as HTMLElement
     const bersaglio = evento.target as HTMLInputElement
     if (!bersaglio.dataset.riga) return
     const riga = Number(bersaglio.dataset.riga)
     const colonna = Number(bersaglio.dataset.colonna)
+
+    // Tab e Maiusc+Tab da una casella all'altra, solo con la finestra: le
+    // colonne non disegnate il browser non le conosce. A un capo della
+    // griglia Tab esce come sempre.
+    if (evento.key === 'Tab' && vista?.attiva) {
+      const avanti = !evento.shiftKey
+      const [dopoRiga, dopoColonna] = avanti
+        ? colonna + 1 < momenti.length ? [riga, colonna + 1] : [riga + 1, 0]
+        : colonna > 0 ? [riga, colonna - 1] : [riga - 1, momenti.length - 1]
+      if (spostaFuoco(griglia, dopoRiga, dopoColonna, vista)) evento.preventDefault()
+      return
+    }
 
     const passi: Record<string, [number, number]> = {
       ArrowUp: [-1, 0],
@@ -352,8 +469,8 @@ export function grigliaVoti (
 
     // Il bersaglio si cerca prima di lasciare questo campo, o Invio sull'ultima
     // riga perderebbe il fuoco. A fine colonna si passa in cima a quella dopo.
-    if (!spostaFuoco(corpo, riga + passo[0], colonna + passo[1]) && passo[0] > 0) {
-      spostaFuoco(corpo, 0, colonna + passo[1] + 1)
+    if (!spostaFuoco(griglia, riga + passo[0], colonna + passo[1], vista) && passo[0] > 0) {
+      spostaFuoco(griglia, 0, colonna + passo[1] + 1, vista)
     }
     // Il `blur` sempre, anche senza dove andare: `preventDefault` ha tolto a Invio
     // il suo effetto, e senza `change` un ridisegno perderebbe la cifra.

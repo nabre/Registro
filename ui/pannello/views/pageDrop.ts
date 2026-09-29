@@ -5,6 +5,7 @@
 
 import { dicePagine } from '../../../core/dominio/sorting.js'
 import type { Consegna, TipoRapporto } from '../../../core/dominio/models.js'
+import { gestisci } from '../dom.js'
 import { notifica } from '../components/notifications.js'
 import { azione } from '../bridge.js'
 import { aggiorna, stato } from '../state.js'
@@ -88,41 +89,46 @@ export function accettaPagineSullaRiga (riga: HTMLElement, destinazione: Destina
   }
 
   /** La casella che prenderà davvero le pagine: si accende con la riga. */
-  const casella = (consegna: Consegna | null): HTMLElement | null =>
+  const casella = (viva: HTMLElement, consegna: Consegna | null): HTMLElement | null =>
     consegna
-      ? riga.querySelector<HTMLElement>(`[data-consegna="${CSS.escape(consegna.id)}"]`)
+      ? viva.querySelector<HTMLElement>(`[data-consegna="${CSS.escape(consegna.id)}"]`)
       : null
 
-  const acceso = (attivo: boolean, consegna: Consegna | null) => {
-    riga.classList.toggle(RIGA_BERSAGLIO, attivo)
-    casella(consegna)?.classList.toggle(CASELLA_BERSAGLIO, attivo)
+  /**
+   * Accende la riga che ha ricevuto l'evento: dopo un ridisegno `riga` può
+   * essere quella scartata, e nel documento restare la gemella di prima.
+   */
+  const acceso = (evento: Event, attivo: boolean, consegna: Consegna | null) => {
+    const viva = evento.currentTarget as HTMLElement
+    viva.classList.toggle(RIGA_BERSAGLIO, attivo)
+    casella(viva, consegna)?.classList.toggle(CASELLA_BERSAGLIO, attivo)
   }
 
-  riga.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(riga, 'dragover', (evento) => {
     if (!portaPagine(evento)) return
     const consegna = dove()
     // Senza colonna non si prende: resta il cursore del divieto.
     if (!consegna) return
     evento.preventDefault()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    acceso(true, consegna)
+    acceso(evento, true, consegna)
   })
   // Si spegne solo quando il puntatore esce davvero dalla riga: `dragleave`
   // scatta anche entrando in un figlio. `relatedTarget` è più solido di un
   // contatore, che perdendo un'uscita resterebbe sbilanciato.
-  riga.addEventListener('dragleave', (evento: DragEvent) => {
+  gestisci(riga, 'dragleave', (evento) => {
     const verso = evento.relatedTarget
-    if (verso instanceof Node && riga.contains(verso)) return
-    acceso(false, dove())
+    if (verso instanceof Node && (evento.currentTarget as HTMLElement).contains(verso)) return
+    acceso(evento, false, dove())
   })
-  riga.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(riga, 'drop', (evento) => {
     const pagine = carico(evento)
     if (!pagine) return
     const consegna = dove()
     if (!consegna) return
     evento.preventDefault()
     evento.stopPropagation()
-    acceso(false, consegna)
+    acceso(evento, false, consegna)
     segnaAtterrate()
     document.body.classList.remove(CORPO_IN_VOLO)
 
@@ -159,23 +165,25 @@ export function accettaPagineFirme (
   elemento: HTMLElement,
   destinazione: { consegnaId: string, etichetta: string },
 ): void {
-  const acceso = (attivo: boolean) => elemento.classList.toggle(CASELLA_BERSAGLIO, attivo)
+  // La casella che ha ricevuto l'evento, non `elemento`: vedi `accettaPagineSullaRiga`.
+  const acceso = (evento: Event, attivo: boolean) =>
+    (evento.currentTarget as HTMLElement).classList.toggle(CASELLA_BERSAGLIO, attivo)
 
-  elemento.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(elemento, 'dragover', (evento) => {
     if (!portaPagine(evento)) return
     evento.preventDefault()
     evento.stopPropagation()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    acceso(true)
-    spegniRiga(elemento)
+    acceso(evento, true)
+    spegniRiga(evento.currentTarget as HTMLElement)
   })
-  elemento.addEventListener('dragleave', () => acceso(false))
-  elemento.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(elemento, 'dragleave', (evento) => acceso(evento, false))
+  gestisci(elemento, 'drop', (evento) => {
     const pagine = carico(evento)
     if (!pagine) return
     evento.preventDefault()
     evento.stopPropagation()
-    acceso(false)
+    acceso(evento, false)
     segnaAtterrate()
     document.body.classList.remove(CORPO_IN_VOLO)
 
@@ -222,22 +230,24 @@ export function accettaPagineAssenze (
     etichetta: string
   },
 ): void {
-  const acceso = (attivo: boolean) => elemento.classList.toggle(CASELLA_BERSAGLIO, attivo)
+  // La casella che ha ricevuto l'evento, non `elemento`: vedi `accettaPagineSullaRiga`.
+  const acceso = (evento: Event, attivo: boolean) =>
+    (evento.currentTarget as HTMLElement).classList.toggle(CASELLA_BERSAGLIO, attivo)
 
-  elemento.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(elemento, 'dragover', (evento) => {
     if (!portaPagine(evento)) return
     evento.preventDefault()
     evento.stopPropagation()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    acceso(true)
+    acceso(evento, true)
   })
-  elemento.addEventListener('dragleave', () => acceso(false))
-  elemento.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(elemento, 'dragleave', (evento) => acceso(evento, false))
+  gestisci(elemento, 'drop', (evento) => {
     const pagine = carico(evento)
     if (!pagine) return
     evento.preventDefault()
     evento.stopPropagation()
-    acceso(false)
+    acceso(evento, false)
     segnaAtterrate()
     document.body.classList.remove(CORPO_IN_VOLO)
 
@@ -266,25 +276,27 @@ export function accettaPagine (
   elemento: HTMLElement,
   destinazione: { consegnaId: string, allievoId: string, etichetta: string },
 ): void {
-  const acceso = (attivo: boolean) => elemento.classList.toggle(CASELLA_BERSAGLIO, attivo)
+  // La casella che ha ricevuto l'evento, non `elemento`: vedi `accettaPagineSullaRiga`.
+  const acceso = (evento: Event, attivo: boolean) =>
+    (evento.currentTarget as HTMLElement).classList.toggle(CASELLA_BERSAGLIO, attivo)
 
-  elemento.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(elemento, 'dragover', (evento) => {
     if (!portaPagine(evento)) return
     evento.preventDefault()
     evento.stopPropagation()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'copy'
-    acceso(true)
+    acceso(evento, true)
     // Sotto il puntatore c'è una casella: la riga che la contiene si spegne, con
     // la casella che aveva acceso.
-    spegniRiga(elemento)
+    spegniRiga(evento.currentTarget as HTMLElement)
   })
-  elemento.addEventListener('dragleave', () => acceso(false))
-  elemento.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(elemento, 'dragleave', (evento) => acceso(evento, false))
+  gestisci(elemento, 'drop', (evento) => {
     const pagine = carico(evento)
     if (!pagine) return
     evento.preventDefault()
     evento.stopPropagation()
-    acceso(false)
+    acceso(evento, false)
     segnaAtterrate()
     document.body.classList.remove(CORPO_IN_VOLO)
 

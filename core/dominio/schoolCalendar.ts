@@ -6,11 +6,16 @@
 // giornate sue); un anno nuovo prende tutto (`bozzaDaAnnoUfficiale`). Una pausa
 // importata ha un id derivato dal calendario (`idCollegato`), così si riconosce
 // anche se le date ufficiali cambiano.
+//
+// Un anno può anche seguire il calendario (`AnnoScolastico.calendarioUfficiale`,
+// ADR-51): allora inizio, fine e chiusure collegate sono del calendario, e
+// `motivoCalendarioToccato` rifiuta chi le cambia a mano.
 
-import type { Iso, Sospensione } from './models.js'
+import type { AnnoScolastico, CalendarioDellAnno, Iso, Sospensione } from './models.js'
 import { etichettaAnno } from './dates.js'
 import { normalizzaTesto } from './text.js'
 import { testi } from './schoolCalendar.testi.js'
+import { CALENDARI_UFFICIALI as CALENDARI } from '../dati/schoolCalendars.js'
 export { calendarioUfficialePerCantone, cantoniUfficialiDisponibili, CALENDARI_UFFICIALI } from '../dati/schoolCalendars.js'
 
 /** Che genere di chiusura dice il calendario. */
@@ -271,4 +276,156 @@ export function bozzaDaAnnoUfficiale (
   const confronto = vociUfficiali(calendario, pulita)
   if (!confronto) return pulita
   return applicaVoci(calendario, pulita, confronto.voci.map((voce) => voce.chiave))
+}
+
+/**
+ * L'anno sincronizzato con un anno del calendario: date ufficiali, ogni
+ * chiusura collegata con nome e date del calendario, e le chiusure proprie
+ * come sono. Una chiusura con l'id di quest'anno che il calendario non ha più
+ * se ne va: nel calendario di oggi non c'è.
+ */
+export function bozzaSincronizzata (
+  calendario: CalendarioUfficiale,
+  anno: AnnoUfficiale,
+  bozza: BozzaAnno,
+): BozzaAnno {
+  const unita = bozzaDaAnnoUfficiale(calendario, anno, bozza)
+  const ufficiali = new Map(chiusureUfficiali(calendario, anno).map((s) => [s.id, s]))
+  const prefisso = prefissoCollegato(marcatoreDi(calendario, anno))
+  return {
+    ...unita,
+    sospensioni: unita.sospensioni
+      .filter((s) => !s.id.startsWith(prefisso) || ufficiali.has(s.id))
+      .map((s) => ({ ...(ufficiali.get(s.id) ?? s) })),
+  }
+}
+
+/** Il marcatore che un anno sincronizzato con `anno` si porta dietro. */
+export function marcatoreDi (
+  calendario: CalendarioUfficiale,
+  anno: AnnoUfficiale,
+): CalendarioDellAnno {
+  return { cantone: calendario.cantone.toUpperCase(), annoScolastico: anno.annoScolastico }
+}
+
+/** Il prefisso degli id collegati a quell'anno del calendario: `sos-ti-2026-2027-`. */
+export function prefissoCollegato (marcatore: CalendarioDellAnno): string {
+  // testo-fisso: prefisso d'identificatore, come `idCollegato`
+  return `sos-${marcatore.cantone.toLowerCase()}-${marcatore.annoScolastico.replace('/', '-')}-`
+}
+
+/**
+ * Vero se la chiusura viene dal calendario che l'anno segue: marcatore
+ * presente e id collegato a quell'anno. Senza marcatore niente è collegato,
+ * anche un id importato: è una chiusura come le altre.
+ */
+export function èCollegata (
+  anno: Pick<AnnoScolastico, 'calendarioUfficiale'>,
+  sospensione: Pick<Sospensione, 'id'>,
+): boolean {
+  const marcatore = anno.calendarioUfficiale
+  return marcatore !== undefined && sospensione.id.startsWith(prefissoCollegato(marcatore))
+}
+
+/** Stesso calendario e stesso anno, o tutti e due assenti. */
+function stessoCalendario (
+  a: CalendarioDellAnno | undefined,
+  b: CalendarioDellAnno | undefined,
+): boolean {
+  if (!a || !b) return !a && !b
+  return a.cantone.toUpperCase() === b.cantone.toUpperCase() &&
+    a.annoScolastico === b.annoScolastico
+}
+
+/** Il calendario di un marcatore, fra quelli che il registro porta con sé. */
+export function calendarioDi (marcatore: CalendarioDellAnno): CalendarioUfficiale | null {
+  const cantone = marcatore.cantone.toUpperCase()
+  return CALENDARI.find((c) => c.cantone.toUpperCase() === cantone) ?? null
+}
+
+/** L'anno del calendario che un marcatore nomina, se il calendario ce l'ha. */
+function annoDelMarcatore (
+  calendario: CalendarioUfficiale | null,
+  marcatore: CalendarioDellAnno,
+): AnnoUfficiale | null {
+  if (!calendario) return null
+  if (calendario.cantone.toUpperCase() !== marcatore.cantone.toUpperCase()) return null
+  return calendario.anni.find((a) => a.annoScolastico === marcatore.annoScolastico) ?? null
+}
+
+/** Nome e date uguali: l'id si confronta a parte. */
+function stessaChiusura (a: Sospensione, b: Sospensione): boolean {
+  return a.etichetta === b.etichetta && a.dal === b.dal && a.al === b.al
+}
+
+/**
+ * Perché un anno che segue il calendario ufficiale non si può salvare così;
+ * `null` se si può. `prima` è l'anno com'è nel documento, `null` per uno che
+ * nasce. Il calendario è quello del marcatore (`calendarioDi`).
+ *
+ * Con il marcatore restano del calendario inizio, fine e le chiusure
+ * collegate: si lasciano come sono o si portano ai valori ufficiali, non
+ * altro. Il resto — chiusure proprie, confine e nomi dei semestri, note,
+ * settimane — è libero. Il marcatore stesso non si mette né si toglie
+ * salvando l'anno: lo fa `anno.calendario`, che sincronizza nello stesso gesto.
+ */
+export function motivoCalendarioToccato (
+  calendario: CalendarioUfficiale | null,
+  prima: AnnoScolastico | null,
+  dopo: AnnoScolastico,
+): string | null {
+  const t = testi()
+  if (prima && !stessoCalendario(prima.calendarioUfficiale, dopo.calendarioUfficiale)) {
+    return t.marcatoreToccato
+  }
+  const marcatore = dopo.calendarioUfficiale
+  if (!marcatore) return null
+
+  const anno = annoDelMarcatore(calendario, marcatore)
+  // Un anno che nasce collegato deve poterlo essere; uno già collegato a un
+  // calendario che questo registro non ha tiene almeno quel che aveva.
+  if (!anno && !prima) return t.calendarioSconosciuto(marcatore.cantone, marcatore.annoScolastico)
+  const ufficiali = new Map(
+    anno && calendario ? chiusureUfficiali(calendario, anno).map((s) => [s.id, s]) : [],
+  )
+
+  const data = (quale: 'inizio' | 'fine', ufficiale: Iso | null | undefined): string | null => {
+    if (dopo[quale] === ufficiale) return null
+    if (prima && dopo[quale] === prima[quale]) return null
+    return t.dataBloccata(quale === 'inizio' ? t.inizioLezioni : t.fineLezioni)
+  }
+  const date = data('inizio', anno?.inizioAnno) ?? data('fine', anno?.fineAnno)
+  if (date) return date
+
+  const collegate = dopo.sospensioni.filter((s) => èCollegata(dopo, s))
+  const dopoPerId = new Map(collegate.map((s) => [s.id, s]))
+  const primaPerId = new Map(
+    (prima?.sospensioni ?? []).filter((s) => èCollegata(dopo, s)).map((s) => [s.id, s]),
+  )
+
+  // Chi c'era resta, com'era o com'è nel calendario. Una chiusura che il
+  // calendario di oggi non ha più può andarsene.
+  for (const vecchia of primaPerId.values()) {
+    const nuova = dopoPerId.get(vecchia.id)
+    const ufficiale = ufficiali.get(vecchia.id)
+    if (!nuova) {
+      if (ufficiale || !anno) return t.chiusuraBloccata(vecchia.etichetta)
+      continue
+    }
+    if (!stessaChiusura(nuova, vecchia) && !(ufficiale && stessaChiusura(nuova, ufficiale))) {
+      return t.chiusuraBloccata(vecchia.etichetta)
+    }
+  }
+  // Chi arriva è una chiusura del calendario, tale e quale.
+  for (const nuova of collegate) {
+    if (primaPerId.has(nuova.id)) continue
+    const ufficiale = ufficiali.get(nuova.id)
+    if (!ufficiale || !stessaChiusura(nuova, ufficiale)) return t.chiusuraInventata(nuova.etichetta)
+  }
+  // Un anno che nasce collegato le ha tutte.
+  if (!prima) {
+    const mancante = [...ufficiali.values()].find((s) => !dopoPerId.has(s.id))
+    if (mancante) return t.chiusuraMancante(mancante.etichetta)
+  }
+  return null
 }

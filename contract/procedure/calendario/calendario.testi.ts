@@ -34,6 +34,9 @@ const it = {
     titolo: 'Riscarica un calendario ICS e ne aggiorna la copia nel documento',
     calendarioId: 'Il calendario da rileggere',
   },
+  aggiornaTutti: {
+    titolo: 'Riscarica tutti i calendari ICS collegati con un indirizzo e ne aggiorna le copie',
+  },
   aggiungi: {
     titolo: 'Aggiunge un calendario ICS al documento, da un indirizzo o da un file',
     origine:
@@ -133,6 +136,9 @@ export const testi = catalogo(it, {
     aggiorna: {
       titolo: 'Lädt einen ICS-Kalender neu herunter und aktualisiert seine Kopie im Dokument',
       calendarioId: 'Der Kalender, der neu gelesen wird',
+    },
+    aggiornaTutti: {
+      titolo: 'Lädt alle über eine Adresse verknüpften ICS-Kalender neu und aktualisiert ihre Kopien',
     },
     aggiungi: {
       titolo: 'Fügt dem Dokument einen ICS-Kalender hinzu, von einer Adresse oder aus einer Datei',
@@ -246,6 +252,9 @@ export const testi = catalogo(it, {
       titolo: 'Retélécharge un calendrier ICS et met à jour sa copie dans le document',
       calendarioId: 'Le calendrier à relire',
     },
+    aggiornaTutti: {
+      titolo: 'Retélécharge tous les calendriers ICS reliés par une adresse et met à jour leurs copies',
+    },
     aggiungi: {
       titolo: 'Ajoute un calendrier ICS au document, depuis une adresse ou un fichier',
       origine:
@@ -348,6 +357,9 @@ export const testi = catalogo(it, {
     aggiorna: {
       titolo: 'Downloads an ICS calendar again and updates its copy in the document',
       calendarioId: 'The calendar to read again',
+    },
+    aggiornaTutti: {
+      titolo: 'Downloads again every ICS calendar linked by an address and updates their copies',
     },
     aggiungi: {
       titolo: 'Adds an ICS calendar to the document, from an address or a file',

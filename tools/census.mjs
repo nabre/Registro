@@ -6,12 +6,23 @@
  * Complementare a `noUnusedLocals` (dentro un file) e da usare prima: tolto
  * l'`export` di troppo, `tsc` dice che cosa è diventato irraggiungibile.
  *
- * Uso: `npm run census`
+ * Due letture, perché sbagliano in versi opposti. Quella di qui cerca il nome
+ * nudo ovunque: un omonimo in un altro file (una proprietà, un commento)
+ * basta a salvare un export morto. Quella di knip (`knip.config.ts`) segue gli
+ * import: non si fa ingannare dagli omonimi, ma non vede dentro gli ingressi
+ * (un `export *` di `core/dominio/index.ts`, che le prove leggono tutto, per lei
+ * è pubblico) né le prove Python. Le due liste si stampano insieme, con la
+ * stessa diagnosi.
+ *
+ * Uso: `npm run census`             esce rosso per un export mai usato (qui)
+ *      `npm run census -- --severo` anche per quel che trova knip
+ *      `npm run census -- --senza-knip`  solo la lettura di qui
  */
+import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { daRadice, fileSotto } from './common.mjs'
+import { RADICE, daRadice, fileSotto } from './common.mjs'
 
 /** Cartelle di codice: tutto quel che può nominare un simbolo va guardato. */
 const CARTELLE = ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools']
@@ -19,12 +30,14 @@ const CARTELLE = ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools']
 /** File sciolti fuori dalle cartelle di codice che però importano il resto. */
 const SCIOLTI = ['esbuild.mjs']
 
-const radice = process.cwd()
+const radice = RADICE
 
 /** Tutte le forme in cui qui dentro si scrive codice: un export si nomina da ognuna. */
 const ESTENSIONI = ['.ts', '.mts', '.mjs', '.cjs']
 
-const percorsi = CARTELLE.filter((c) => existsSync(join(radice, c))).flatMap((c) => fileSotto(join(radice, c), ESTENSIONI))
+const percorsi = CARTELLE
+  .filter((c) => existsSync(join(radice, c)))
+  .flatMap((c) => fileSotto(join(radice, c), ESTENSIONI))
   .concat(SCIOLTI.map((f) => join(radice, f)).filter(existsSync))
 
 const relativo = (percorso) => daRadice(percorso, radice)
@@ -98,7 +111,91 @@ for (const rilievo of rilievi) {
   console.log(`- \`${rilievo.nome}\` — ${rilievo.diagnosi}`)
 }
 
+/**
+ * I reperti di knip, o `null` se non ha risposto (non installato, configurazione
+ * rotta): il censimento di qui vale anche da solo, e lo dice.
+ */
+function repertiKnip () {
+  // Per percorso: gli `exports` di knip non espongono `bin/`.
+  const eseguibile = join(radice, 'node_modules', 'knip', 'bin', 'knip.js')
+  if (!existsSync(eseguibile)) return null
+  const esito = spawnSync(
+    process.execPath,
+    [eseguibile, '--no-progress', '--reporter', 'json', '--include', 'exports,types,duplicates,files'],
+    { cwd: radice, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+  )
+  // 0 pulito, 1 con reperti; ogni altro codice è knip che non è arrivato in fondo.
+  if (esito.status !== 0 && esito.status !== 1) return null
+  try {
+    return JSON.parse(esito.stdout).issues
+  } catch {
+    return null
+  }
+}
+
+const severo = process.argv.includes('--severo')
+const knip = process.argv.includes('--senza-knip') ? undefined : repertiKnip()
+
+/** Quel che knip trova e il censimento di qui no, con la stessa diagnosi. */
+const soloKnip = []
+const fileMorti = []
+const doppi = []
+const giàQui = new Set(rilievi.map((r) => `${r.percorso}:${r.nome}`))
+for (const voce of knip ?? []) {
+  for (const { name } of voce.files) fileMorti.push(name)
+  for (const gruppo of voce.duplicates) doppi.push(`${voce.file}: ${gruppo.map((d) => d.name).join(' = ')}`)
+  for (const [chiave, genere] of [['exports', 'valore'], ['types', 'tipo']]) {
+    for (const { name, line } of voce[chiave]) {
+      if (giàQui.has(`${voce.file}:${name}`)) continue
+      const sorgente = testo.get(voce.file) ?? ''
+      const usi = quanteVolte(sorgente, name)
+      // Una riga `export { … }` o `export type { … }` che nomina e basta: il
+      // codice sta in un altro modulo, e togliere la riesportazione non lo tocca.
+      const riga = sorgente.split(/\r?\n/)[line - 1] ?? ''
+      const riesportato = /^export\s+(?:type\s+)?\{/.test(riga.trim()) && usi <= 2
+      soloKnip.push({
+        percorso: voce.file,
+        nome: name,
+        riga: line,
+        genere,
+        diagnosi: riesportato ? 'riesportato e basta' : usi <= 1 ? 'mai usato' : `interno (${usi} citazioni)`,
+      })
+    }
+  }
+}
+soloKnip.sort((a, b) => a.percorso.localeCompare(b.percorso) || a.riga - b.riga)
+
+if (knip === null) {
+  console.log('\n# knip non ha risposto (`npm run knip` dice perché): qui sopra c\'è solo la lettura per nome.')
+} else if (knip) {
+  const quanti = (diagnosi) => soloKnip.filter((r) => r.diagnosi === diagnosi).length
+  console.log(`\n# Secondo knip, in più: ${soloKnip.length} export, ${fileMorti.length} file, ${doppi.length} doppi`)
+  console.log(`# Da eliminare: ${quanti('mai usato')} — riesportati e basta: ${quanti('riesportato e basta')}`)
+  corrente = ''
+  for (const rilievo of soloKnip) {
+    if (rilievo.percorso !== corrente) {
+      corrente = rilievo.percorso
+      console.log(`\n## ${corrente}`)
+    }
+    const genere = rilievo.genere === 'tipo' ? ' (tipo)' : ''
+    console.log(`- \`${rilievo.nome}\`${genere}, riga ${rilievo.riga} — ${rilievo.diagnosi}`)
+  }
+  if (fileMorti.length) {
+    console.log('\n## File che nessuno importa')
+    for (const file of fileMorti) console.log(`- ${file}`)
+  }
+  if (doppi.length) {
+    console.log('\n## Lo stesso export con due nomi')
+    for (const doppio of doppi) console.log(`- ${doppio}`)
+  }
+}
+
 // Fa fallire solo quel che nessuno chiama, cioè codice morto. Quel che è solo
 // «interno» è un consiglio: certi tipi restano esportati apposta perché
 // compaiono nella firma di una funzione esportata (il motivo è nel sorgente).
-process.exitCode = mai.length ? 1 : 0
+// Quel che trova solo knip ferma con `--severo`: finché la lista di D6 non è
+// smaltita, è da leggere, non un guasto.
+// Zero file letti è una radice sbagliata, non un progetto senza codice morto.
+if (percorsi.length === 0) console.log('Nessun file letto: la radice del progetto è sbagliata?')
+const knipRosso = severo && (soloKnip.length > 0 || fileMorti.length > 0 || doppi.length > 0)
+process.exitCode = mai.length || percorsi.length === 0 || knipRosso ? 1 : 0

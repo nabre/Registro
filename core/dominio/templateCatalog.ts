@@ -59,6 +59,8 @@ export const CATALOGO_MODELLI: readonly VoceCatalogo[] = [
   voce('momento-valutazione', 'rapporto', 'momento'),
   voce('fascicolo-classe', 'rapporto', 'fascicolo'),
   voce('foto-classe', 'rapporto', 'foto-classe'),
+  voce('diario-corso', 'rapporto', 'diario'),
+  voce('scheda-corso', 'rapporto', 'corso'),
   voce('_firma.html', 'posta', null),
 ]
 

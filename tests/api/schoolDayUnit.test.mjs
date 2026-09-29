@@ -37,7 +37,7 @@ before(async () => {
     r.classi.push(classe)
     r.materie.push(materia)
     r.corsi.push(corso)
-  }, ['classi', 'corsi'])
+  }, ['registro', 'classi', 'corsi'])
 })
 
 after(() => smonta(radice, archivio))

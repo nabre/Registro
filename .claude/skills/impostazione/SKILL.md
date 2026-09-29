@@ -2,7 +2,7 @@
 name: impostazione
 description: >
   Come si aggiunge, si cambia e si toglie un'impostazione di
-  Regiclass, toccando ogni punto che la riguarda: la dichiarazione in
+  Regiklass, toccando ogni punto che la riguarda: la dichiarazione in
   `contract/manifesto.ts` (tipo, predefinito, descrizione, `scelte`, `formato`,
   `minimo`/`massimo`, `dipendeDa`, `avanzata`), la dogana di
   `valoreConMotivo`, la sezione in cui compare, le due superfici che la

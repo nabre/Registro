@@ -121,7 +121,7 @@ const RAFFIGURAZIONI: Readonly<
  * Il nome e la frase di una scelta, dal suo aiuto: il manifesto scrive «Nome:
  * frase», e sotto la figura il nome sta già in grassetto.
  */
-export function nomeEAiuto (valore: string, aiuto: string): { nome: string, aiuto: string } {
+function nomeEAiuto (valore: string, aiuto: string): { nome: string, aiuto: string } {
   // Lo spazio prima dei due punti (il francese lo mette) non fa parte del nome.
   const due = /^([^:]{1,24}?)\s*:\s+(.+)$/s.exec(aiuto)
   // Un aiuto di una parola sola è già il nome: sotto niente.

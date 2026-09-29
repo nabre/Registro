@@ -14,7 +14,7 @@ import { after, afterEach, before, beforeEach, describe, it } from 'node:test'
 import { bancoLlama as banco } from '../helpers/fake-node-llama.mjs'
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-giro13-assistente-'))
+const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-assistente-ferma-'))
 const MODELLI = percorso.join(radice, 'modelli')
 process.env.REGISTRO_USERDATA = percorso.join(radice, 'userData')
 

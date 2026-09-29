@@ -2,15 +2,25 @@
 // `net.fetch` passa da `globalThis.__reteTasselli`, che la prova sostituisce
 // (un PNG, un proxy che risponde HTML, nessuna rete).
 
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+// Senza `REGISTRO_USERDATA` una cartella tutta di questo processo, tolta
+// all'uscita: un nome fisso sarebbe condiviso fra prove parallele.
+let propria = null
+
 export const app = {
   getPath () {
-    const cartella = process.env.REGISTRO_USERDATA || join(tmpdir(), 'registro-prove-tasselli')
-    mkdirSync(cartella, { recursive: true })
-    return cartella
+    if (process.env.REGISTRO_USERDATA) {
+      mkdirSync(process.env.REGISTRO_USERDATA, { recursive: true })
+      return process.env.REGISTRO_USERDATA
+    }
+    if (!propria) {
+      propria = mkdtempSync(join(tmpdir(), 'registro-prove-tasselli-'))
+      process.once('exit', () => rmSync(propria, { recursive: true, force: true }))
+    }
+    return propria
   },
 }
 

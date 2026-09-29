@@ -8,7 +8,8 @@ import { letteraSettimana } from '../../../../core/dominio/years.js'
 import type { Iso, LetteraSettimana, Lezione, Semestre } from '../../../../core/dominio/models.js'
 import { sospensioneDi } from '../../../../core/dominio/timetable.js'
 import { h, type Figlio } from '../../dom.js'
-import { aggiorna, annoCorrente, stato } from '../../state.js'
+import { apriLezione as apriLezioneDaId } from '../../pages.js'
+import { annoCorrente, stato } from '../../state.js'
 import { testi } from './calendar.testi.js'
 
 /** Il nome della sospensione che copre un giorno, o stringa vuota. */
@@ -16,8 +17,9 @@ export function chiusura (data: string): string {
   return sospensioneDi(annoCorrente(), data)?.etichetta ?? ''
 }
 
+/** Apre l'ora nel Registro del suo corso: giorno e corso li porta lei (`vai`). */
 export function apriLezione (lezione: Lezione): void {
-  aggiorna({ vista: 'lezione', lezioneId: lezione.id, data: lezione.data })
+  apriLezioneDaId(lezione.id)
 }
 
 /** Sabato e domenica: giorni veri, ma non giorni di scuola. */

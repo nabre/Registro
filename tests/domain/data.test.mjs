@@ -10,6 +10,10 @@ import {
   LIMITI_UD,
   creaAnno,
   creaAnnoCorrente,
+  creaCheck,
+  creaConsegna,
+  creaCorso,
+  creaMateria,
   creaRicorrenza,
   creaLezione,
   creaSlot,
@@ -40,14 +44,17 @@ import {
   creaValutazione,
   mediaAllievo,
   normalizzaImpostazioni,
+  normalizzaIntestazione,
   normalizzaValutazione,
+  valoriComuni,
   notaFineSemestre,
   validaValutazione,
   prossimaLezione,
 } from '../../dist-tests/domain.mjs'
+import { ore, scuolaMinima } from '../helpers/register.mjs'
 
 describe('quel che si legge da un file scritto a mano', () => {
-  it('un voto che non è un numero resta vuoto, non diventa zero', () => {
+  it('un voto con la virgola vale come col punto, non diventa zero', () => {
     // «4,5» con la virgola italiana è 4.5, non NaN o 0.
     const registro = normalizzaRegistro({
       valutazioni: [
@@ -67,7 +74,7 @@ describe('quel che si legge da un file scritto a mano', () => {
 
     assert.deepEqual(
       registro.valutazioni[0].voti.map((v) => v.valore),
-      [null, 4.5, 5],
+      [4.5, 4.5, 5],
     )
   })
 
@@ -267,6 +274,21 @@ describe('anni scolastici', () => {
     const esito = validaAnno({ etichetta: 'x', inizio: '2026-06-30', fine: '2025-09-01', semestri: [] })
     assert.equal(esito.valido, false)
   })
+
+  it('tiene il calendario ufficiale che l’anno segue, e raddrizza quello storto', () => {
+    const anno = (calendarioUfficiale) =>
+      normalizzaRegistro({ anni: [{ inizio: '2026-08-31', fine: '2027-06-16', calendarioUfficiale }] }).anni[0]
+    assert.deepEqual(anno({ cantone: 'TI', annoScolastico: '2026/2027' }).calendarioUfficiale,
+      { cantone: 'TI', annoScolastico: '2026/2027' })
+    // Sigla minuscola e trattino al posto della barra si raddrizzano.
+    assert.deepEqual(anno({ cantone: ' ti ', annoScolastico: '2026-2027' }).calendarioUfficiale,
+      { cantone: 'TI', annoScolastico: '2026/2027' })
+    // Storto vale assente: l'anno è scritto a mano.
+    for (const storto of [undefined, 'TI', { cantone: '' , annoScolastico: '2026/2027' },
+      { cantone: 'TI', annoScolastico: '2026/2028' }, { cantone: 'TI', annoScolastico: 'prossimo' }]) {
+      assert.equal('calendarioUfficiale' in anno(storto), false, JSON.stringify(storto))
+    }
+  })
 })
 
 describe('validazione', () => {
@@ -465,6 +487,91 @@ describe('normalizzazione di quel che si trova su disco', () => {
     const problemi = riferimentiRotti(registro)
     assert.equal(problemi.length, 1)
     assert.match(problemi[0], /non iscritte/)
+  })
+})
+
+describe('riferimentiRotti: rimandi ad altri corsi e persone estranee', () => {
+  /** La scuola minima con un'ora e una verifica del corso, e un'ora di Storia della stessa classe. */
+  function conAltroCorso () {
+    const base = scuolaMinima()
+    const { registro, classe, corso } = base
+    const [lezione] = ore(registro, corso, ['2026-09-14'])
+    const momento = creaValutazione(corso.id, 'Verifica', registro.impostazioni.scala, '2026-10-05')
+    registro.valutazioni.push(momento)
+    const materia = creaMateria('Storia')
+    registro.materie.push(materia)
+    const altro = creaCorso(classe.id, materia.id, 'Storia')
+    registro.corsi.push(altro)
+    const [oraAltrui] = ore(registro, altro, ['2026-09-15'])
+    return { ...base, lezione, momento, oraAltrui }
+  }
+
+  it('segnala una consegna legata a un’ora di un altro corso', () => {
+    const { registro, corso, oraAltrui } = conAltroCorso()
+    assert.deepEqual(riferimentiRotti(registro), [])
+    registro.consegne.push(creaConsegna(corso.id, 'Esercizi', oraAltrui.data, oraAltrui.id))
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala una spunta del check in un’ora di un altro corso', () => {
+    const { registro, corso, rossi, oraAltrui } = conAltroCorso()
+    const lista = creaCheck(corso.id)
+    lista.spunte.push({
+      allievoId: rossi.id, colonnaId: 'col-1', lezioneId: oraAltrui.id, data: oraAltrui.data,
+      fattaIl: '2026-09-15T08:30:00.000Z',
+    })
+    registro.check.push(lista)
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala appello, recuperi e prove di persone che non sono nella classe', () => {
+    const { registro, lezione, momento } = conAltroCorso()
+    assert.deepEqual(riferimentiRotti(registro), [])
+    lezione.presenze = [{ allievoId: 'all-sparito', stati: ['assente'] }]
+    assert.equal(riferimentiRotti(registro).length, 1)
+    lezione.presenze = []
+    momento.recuperi = [{ allievoId: 'all-sparito', previstoIl: null }]
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala documenti di consegna intestati a persone estranee', () => {
+    const { registro, corso, oraAltrui } = conAltroCorso()
+    const consegna = creaConsegna(corso.id, 'Esercizi', oraAltrui.data)
+    consegna.documenti = [{ allievoId: 'all-sparito', file: 'es.pdf', nome: 'es.pdf', aggiuntoIl: '2026-09-14T08:00:00.000Z' }]
+    registro.consegne.push(consegna)
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala fascicoli con documenti o assenze di persone estranee', () => {
+    const { registro, classe } = conAltroCorso()
+    registro.fascicoli.push({
+      id: 'fsc-1',
+      classeId: classe.id,
+      recapiti: [],
+      documenti: [{ id: 'doc-1', allievoId: 'all-sparito', titolo: 'Certificato', categoria: 'certificato', file: 'c.pdf', nome: 'c.pdf', aggiuntoIl: '2026-09-14T08:00:00.000Z' }],
+      comunicazioni: [],
+      assenze: [],
+      creatoIl: '2026-09-14T08:00:00.000Z',
+      aggiornatoIl: '2026-09-14T08:00:00.000Z',
+    })
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala smistamenti con assegnate o blocchi di persone estranee', () => {
+    const { registro, classe } = conAltroCorso()
+    registro.smistamenti.push({
+      id: 'smi-1',
+      consegnaId: null,
+      classeId: classe.id,
+      file: 'scan.pdf',
+      nome: 'scan.pdf',
+      pagine: 2,
+      letture: [],
+      assegnate: [{ allievoId: 'all-sparito', da: 1, a: 1 }],
+      blocchi: [],
+      arrivatoIl: '2026-09-14T08:00:00.000Z',
+    })
+    assert.equal(riferimentiRotti(registro).length, 1)
   })
 })
 
@@ -949,5 +1056,77 @@ describe('la nota di fine semestre', () => {
     assert.equal(normalizzaImpostazioni({ passoFineSemestre: 99 }).passoFineSemestre, 10)
     // Scritto a mano, in italiano.
     assert.equal(normalizzaImpostazioni({ passoFineSemestre: '0,5' }).passoFineSemestre, 0.5)
+  })
+})
+
+describe('dati strutturati del docente e integrazione documenti', () => {
+  it('normalizza i dati anagrafici del docente e compone docente se vuoto', () => {
+    const intestazione = normalizzaIntestazione({
+      docenteAppellativo: '  Prof.  ',
+      docenteNome: ' Mario ',
+      docenteCognome: ' Rossi ',
+    })
+    assert.equal(intestazione.docenteAppellativo, 'Prof.')
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+    assert.equal(intestazione.docente, 'Prof. Mario Rossi')
+  })
+
+  it('mantiene piena retrocompatibilità con docente stringa se i campi strutturati mancano', () => {
+    const intestazione = normalizzaIntestazione({
+      docente: 'Docente Storico',
+    })
+    assert.equal(intestazione.docente, 'Docente Storico')
+    assert.equal(intestazione.docenteAppellativo, undefined)
+    assert.equal(intestazione.docenteNome, undefined)
+    assert.equal(intestazione.docenteCognome, undefined)
+  })
+
+  it('preserva docente se già valorizzato anche in presenza di nome o cognome', () => {
+    const intestazione = normalizzaIntestazione({
+      docente: 'Firma Speciale',
+      docenteNome: 'Mario',
+      docenteCognome: 'Rossi',
+    })
+    assert.equal(intestazione.docente, 'Firma Speciale')
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+  })
+
+  it('espone i segnaposto docente, docente.appellativo, docente.nome, docente.cognome, docente.completo', () => {
+    const reg = normalizzaRegistro({
+      impostazioni: {
+        intestazione: {
+          carte: [{ id: 'car-1', sede: 'Scuola', corsi: [] }],
+          docenteAppellativo: 'Prof.ssa',
+          docenteNome: 'Maria',
+          docenteCognome: 'Bianchi',
+          docente: 'Prof.ssa Maria Bianchi',
+        },
+      },
+    })
+    const dati = valoriComuni(reg, 'Titolo', 'Semestre 1', [])
+    assert.equal(dati.docente, 'Prof.ssa Maria Bianchi')
+    assert.equal(dati['docente.appellativo'], 'Prof.ssa')
+    assert.equal(dati['docente.nome'], 'Maria')
+    assert.equal(dati['docente.cognome'], 'Bianchi')
+    assert.equal(dati['docente.completo'], 'Prof.ssa Maria Bianchi')
+  })
+
+  it('docente.completo ripiega su docente quando i campi strutturati non sono valorizzati', () => {
+    const reg = normalizzaRegistro({
+      impostazioni: {
+        intestazione: {
+          carte: [{ id: 'car-1', sede: 'Scuola', corsi: [] }],
+          docente: 'Mario Rossi',
+        },
+      },
+    })
+    const dati = valoriComuni(reg, 'Titolo', 'Semestre 1', [])
+    assert.equal(dati.docente, 'Mario Rossi')
+    assert.equal(dati['docente.appellativo'], '')
+    assert.equal(dati['docente.nome'], '')
+    assert.equal(dati['docente.cognome'], '')
+    assert.equal(dati['docente.completo'], 'Mario Rossi')
   })
 })

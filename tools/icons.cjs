@@ -238,7 +238,7 @@ function disegnoFascia (
   ${spirale(cx, cy, segno)}
   ${conNome
     ? `<g fill="${TRATTO}" font-family="${CARATTERE}" text-anchor="middle">
-    <text x="${cx}" y="232" font-size="22" font-weight="600" letter-spacing="-0.2">Regiclass</text>
+    <text x="${cx}" y="232" font-size="22" font-weight="600" letter-spacing="-0.2">Regiklass</text>
   </g>`
     : ''}
 </svg>`

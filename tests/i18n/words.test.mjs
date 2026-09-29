@@ -65,6 +65,7 @@ const OMONIMI = {
   'ui/pannello/views/student/registry.testi.ts › testi.nomeAzienda': 'il nome di un’azienda, non il nome di battesimo',
   'ui/pannello/forms/subject.testi.ts › testi.nome': 'il nome di una materia, non il nome di battesimo',
   'ui/pannello/views/classes.testi.ts › testi.nomeClasse': 'il nome di una classe, non il nome di battesimo',
+  'contract/procedure/onedrive/onedrive.testi.ts › testi.elenco.presentazione.nome': 'il nome di un file, non il nome di battesimo',
   'ui/pannello/forms/classTeacher.testi.ts › testi.recapito.indirizzo': 'l’indirizzo e-mail, non quello di casa',
   'ui/pannello/views/help/behind.testi.ts › testi.salvataggio.scritte.modifica': 'una modifica, il nome (Änderung)',
   'ui/pannello/views/help/behind.testi.ts › testi.salvataggio.scritte.copia': 'una copia, il nome (Kopie)',

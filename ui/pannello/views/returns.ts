@@ -274,6 +274,8 @@ function tabellaRiconsegneAllievi (
 
   return tabella({
     variante: 'riconsegne',
+    // testo-fisso: chiave di scorrimento
+    scorrimento: `riconsegne:${momento.id}:${soloDaFare ? 'da-fare' : 'tutte'}`,
     intestazione: [
       h('th', null, Uno(L.pif)),
       h('th', { class: 'tabella__numero' }, Uno(L.voto)),

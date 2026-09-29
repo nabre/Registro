@@ -35,6 +35,7 @@ const it = {
   assegnaPrima: 'Assegna la prima',
 
   // La scheda delle cose chiuse.
+  coseAperte: (quante: number) => plurale(quante, 'pendenza aperta', 'pendenze aperte'),
   fatto: 'Fatto',
   coseChiuse: (quante: number) => plurale(quante, 'cosa chiusa', 'cose chiuse'),
   fattoAiuto: 'quel che non chiede più niente',
@@ -68,11 +69,12 @@ export const testi = catalogo(it, {
     vuotoTestoTutte:
       'Alle Aufträge, Beurteilungen und Prüfungen sind erledigt: keine offenen Arbeiten.',
     vuotoTestoCorsi: 'Alle Prüfungen und Aufträge der Kurse sind erledigt: keine offenen Arbeiten.',
-    vuotoTestoDocenteClasse: 'Keine offenen Aufgaben für die Klassen mit Klassenlehrerfunktion.',
+    vuotoTestoDocenteClasse: 'Keine offenen Aufgaben für die Klassen mit Funktion als Klassenlehrperson.',
     nessunCorsoConLavoro: 'Keine offenen Pendenzen in den Unterrichtskursen.',
     nessunaClasseConLavoro: 'Keine offenen Pendenzen bei den Aufgaben als Klassenlehrperson.',
     nessunaPendenzaTesto: 'In diesem Kontext gibt es keine offenen Pendenzen.',
     assegnaPrima: 'Ersten Auftrag erteilen',
+    coseAperte: (quante) => plurale(quante, 'offene Pendenz', 'offene Pendenzen'),
     fatto: 'Erledigt',
     coseChiuse: (quante) => plurale(quante, 'erledigte Sache', 'erledigte Sachen'),
     fattoAiuto: 'was nichts mehr verlangt',
@@ -109,6 +111,7 @@ export const testi = catalogo(it, {
     nessunaClasseConLavoro: 'Aucune tâche en suspens pour le maître de classe.',
     nessunaPendenzaTesto: 'Il n’y a aucune tâche en suspens dans ce contexte.',
     assegnaPrima: 'Donner le premier devoir',
+    coseAperte: (quante) => plurale(quante, 'tâche en suspens', 'tâches en suspens'),
     fatto: 'Terminé',
     coseChiuse: (quante) => plurale(quante, 'élément clos', 'éléments clos'),
     fattoAiuto: 'ce qui ne demande plus rien',
@@ -145,6 +148,7 @@ export const testi = catalogo(it, {
     nessunaClasseConLavoro: 'No open pending items in class teacher duties.',
     nessunaPendenzaTesto: 'There are no open pending items in this context.',
     assegnaPrima: 'Set the first assignment',
+    coseAperte: (quante) => plurale(quante, 'pending item', 'pending items'),
     fatto: 'Done',
     coseChiuse: (quante) => plurale(quante, 'closed item', 'closed items'),
     fattoAiuto: 'nothing more to do here',

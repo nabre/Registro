@@ -15,7 +15,7 @@ import { testi } from './llm.testi.js'
 // ----------------------------------------------------- che cosa si può dire
 
 /** Chi ha detto una battuta. La traduzione in `system`/`user`/… la fa il motore. */
-export type Ruolo = 'sistema' | 'utente' | 'assistente'
+type Ruolo = 'sistema' | 'utente' | 'assistente'
 
 /**
  * Un attrezzo che il modello ha chiesto di usare. `argomenti` è `unknown`
@@ -53,7 +53,7 @@ export interface Domanda {
  * Una procedura aperta mentre il modello lavora: la risposta arriva tutta alla
  * fine, e questi passi mostrano che la macchina non è ferma.
  */
-export interface Passo {
+interface Passo {
   /** La procedura che il modello ha chiesto, come l'ha chiamata lui. */
   attrezzo: string
   /**

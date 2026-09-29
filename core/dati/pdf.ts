@@ -223,7 +223,8 @@ export async function estraiElenco (
   // Nessuna pagina valida è un errore, non un PDF vuoto da archiviare.
   if (scelte.size === 0) throw new Error(testi().nessunaPagina)
 
-  const fetta = await PDFDocument.create()
+  // Senza date automatiche: la stessa fetta rifatta dà gli stessi byte.
+  const fetta = await PDFDocument.create({ updateMetadata: false })
   const indici = [...scelte].sort((x, y) => x - y).map((numero) => numero - 1)
   for (const pagina of await fetta.copyPages(origine, indici)) fetta.addPage(pagina)
   return fetta.save()
@@ -237,7 +238,8 @@ export async function estraiElenco (
 export async function unisciPdf (
   fogli: ReadonlyArray<Uint8Array>,
 ): Promise<{ pdf: Uint8Array, uniti: number, protetti: number }> {
-  const unito = await PDFDocument.create()
+  // Senza date automatiche: la stessa composizione rifatta dà gli stessi byte.
+  const unito = await PDFDocument.create({ updateMetadata: false })
   let uniti = 0
   let protetti = 0
   for (const foglio of fogli) {

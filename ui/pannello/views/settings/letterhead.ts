@@ -15,10 +15,10 @@ import { campo, pulsante, scheda } from '../../components/base.js'
 import { menuSotto, type ElementoMenu } from '../../components/menu.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, corsiDellAnnoAperto, stato, uriDato } from '../../state.js'
-import { salvaImpostazioni } from './document.js'
+import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '../../state.js'
+// salvataggio intestazione gestito con azione diretta per preservare campi docente
 import {
   codificaCorsi,
   daTrascinare,
@@ -63,9 +63,58 @@ function nomeCarta (carta: CartaIntestata, indice: number): string {
   return carta.sede.trim() || testi().cartaN(indice + 1)
 }
 
+/**
+ * Salva l'intestazione completa (carte, docente strutturato e firma per le stampe).
+ * Sincronizza il nome visualizzato quando si modificano i dati anagrafici.
+ */
+function salvaIntestazione (modifiche: {
+  carte?: CartaIntestata[]
+  docente?: string
+  docenteAppellativo?: string
+  docenteNome?: string
+  docenteCognome?: string
+}): Promise<void> {
+  const attuale = stato.registro.impostazioni.intestazione
+  const carte = modifiche.carte ?? attuale.carte
+  const appellativo = modifiche.docenteAppellativo !== undefined
+    ? modifiche.docenteAppellativo.trim()
+    : (attuale.docenteAppellativo ?? '')
+  const nome = modifiche.docenteNome !== undefined
+    ? modifiche.docenteNome.trim()
+    : (attuale.docenteNome ?? '')
+  const cognome = modifiche.docenteCognome !== undefined
+    ? modifiche.docenteCognome.trim()
+    : (attuale.docenteCognome ?? '')
+
+  let docente = modifiche.docente !== undefined ? modifiche.docente.trim() : attuale.docente
+  const toccoAnagrafica = modifiche.docenteAppellativo !== undefined ||
+    modifiche.docenteNome !== undefined ||
+    modifiche.docenteCognome !== undefined
+  if (modifiche.docente === undefined && toccoAnagrafica) {
+    const composto = [appellativo, nome, cognome].filter(Boolean).join(' ')
+    if (composto) {
+      docente = composto
+    }
+  }
+
+  const { intestazione: _intestazione, ...resto } = stato.registro.impostazioni
+  const intestazione = {
+    carte: carte.map(({ id, sede, altezzaLogo, corsi }) => ({
+      id, sede, altezzaLogo, corsi: [...corsi],
+    })),
+    docente,
+    ...(appellativo ? { docenteAppellativo: appellativo } : {}),
+    ...(nome ? { docenteNome: nome } : {}),
+    ...(cognome ? { docenteCognome: cognome } : {}),
+    ...(attuale.firma && attuale.firma.trim() !== '' ? { firma: attuale.firma } : {}),
+  }
+
+  return azione({ tipo: 'impostazioni.salva', impostazioni: { ...resto, intestazione } }).then(() => undefined)
+}
+
 /** Salva la matrice intera: l'host la completa e tiene i loghi per id. */
 function salvaCarte (carte: CartaIntestata[]): Promise<void> {
-  return salvaImpostazioni({ intestazione: { carte } })
+  return salvaIntestazione({ carte })
 }
 
 /** Cambia un campo di una carta, lasciando le altre com'erano. */
@@ -152,23 +201,27 @@ function rendiBersaglio (zona: HTMLElement, cartaId: string): void {
     inViaggio !== null && inViaggio.da !== cartaId &&
     Boolean(evento.dataTransfer?.types.includes(TIPO_CORSI))
 
-  zona.addEventListener('dragenter', (evento: DragEvent) => {
+  // La zona viva dall'evento: un ridisegno può aver tenuto la vecchia al posto
+  // di `zona`. Il conto riparte con i gestori di ogni disegno, come riparte il
+  // bordo acceso che il disegno toglie.
+  const vivo = (evento: Event): HTMLElement => evento.currentTarget as HTMLElement
+  gestisci(zona, 'dragenter', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     dentro += 1
-    zona.classList.add('carta-intestata__corsi--sopra')
+    vivo(evento).classList.add('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('dragover', (evento: DragEvent) => {
+  gestisci(zona, 'dragover', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     if (evento.dataTransfer) evento.dataTransfer.dropEffect = 'move'
-    zona.classList.add('carta-intestata__corsi--sopra')
+    vivo(evento).classList.add('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('dragleave', () => {
+  gestisci(zona, 'dragleave', (evento) => {
     dentro = Math.max(0, dentro - 1)
-    if (dentro === 0) zona.classList.remove('carta-intestata__corsi--sopra')
+    if (dentro === 0) vivo(evento).classList.remove('carta-intestata__corsi--sopra')
   })
-  zona.addEventListener('drop', (evento: DragEvent) => {
+  gestisci(zona, 'drop', (evento) => {
     if (!valido(evento)) return
     evento.preventDefault()
     dentro = 0
@@ -329,19 +382,20 @@ async function scegliLogo (cartaId: string): Promise<void> {
   const risposta = await azione({ tipo: 'intestazione.logo', cartaId })
   if (!risposta.ok) return
   versioniLogo.set(cartaId, (versioniLogo.get(cartaId) ?? 0) + 1)
-  aggiorna({})
+  ridisegna()
 }
 
 /** Toglie il logo di una carta: i suoi fogli escono con la sola scritta in cima. */
 async function togliLogo (cartaId: string): Promise<void> {
   const risposta = await azione({ tipo: 'intestazione.togliLogo', cartaId })
-  if (risposta.ok) aggiorna({})
+  if (risposta.ok) ridisegna()
 }
 
 /** Il logo com'è adesso, con i gesti per cambiarlo accanto. */
 function riquadroLogo (carta: CartaIntestata): Figlio {
   const indirizzo = uriDato(carta.logo)
   const versione = versioniLogo.get(carta.id) ?? 0
+  const sorgente = versione > 0 ? `${indirizzo}?v=${versione}` : indirizzo
   const t = testi()
   return h(
     'div',
@@ -353,8 +407,11 @@ function riquadroLogo (carta: CartaIntestata): Figlio {
       carta.logo && indirizzo
         ? h('img', {
             class: 'intestazione__miniatura',
+            // Tenuta fra un disegno e l'altro finché il file è lo stesso: una
+            // miniatura ricreata lampeggia a ogni gesto nella pagina.
+            dataset: { tieni: sorgente ?? '' },
             attr: {
-              src: versione > 0 ? `${indirizzo}?v=${versione}` : indirizzo,
+              src: sorgente,
               alt: t.logoAlt,
             },
           })
@@ -510,13 +567,40 @@ export function vistaIntestazione (): Figlio[] {
         'div',
         { class: 'modulo' },
         campo({
+          nome: 'intestazioneDocenteAppellativo',
+          etichetta: t.docenteAppellativo,
+          valore: intestazione.docenteAppellativo ?? '',
+          segnaposto: t.docenteAppellativoSegnaposto,
+          aiuto: t.docenteAppellativoAiuto,
+          larghezza: 'quarto',
+          al: (valore) => void salvaIntestazione({ docenteAppellativo: valore }),
+        }),
+        campo({
+          nome: 'intestazioneDocenteNome',
+          etichetta: parole().nome,
+          valore: intestazione.docenteNome ?? '',
+          segnaposto: t.docenteNomeSegnaposto,
+          aiuto: t.docenteNomeAiuto,
+          larghezza: 'terzo',
+          al: (valore) => void salvaIntestazione({ docenteNome: valore }),
+        }),
+        campo({
+          nome: 'intestazioneDocenteCognome',
+          etichetta: parole().cognome,
+          valore: intestazione.docenteCognome ?? '',
+          segnaposto: t.docenteCognomeSegnaposto,
+          aiuto: t.docenteCognomeAiuto,
+          larghezza: 'terzo',
+          al: (valore) => void salvaIntestazione({ docenteCognome: valore }),
+        }),
+        campo({
           nome: 'intestazioneDocente',
           etichetta: Uno(lessico().docente),
           valore: intestazione.docente,
           segnaposto: t.docenteSegnaposto,
           aiuto: t.docenteAiuto,
-          larghezza: 'meta',
-          al: (valore) => void salvaImpostazioni({ intestazione: { docente: valore.trim() } }),
+          larghezza: 'piena',
+          al: (valore) => void salvaIntestazione({ docente: valore }),
         }),
       ),
     }),

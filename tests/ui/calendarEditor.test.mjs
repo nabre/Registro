@@ -152,6 +152,7 @@ function applica (comando) {
 }
 
 const bundle = await build({
+  inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
   entryPoints: [fileURLToPath(new URL('../../ui/pannello/views/calendar/editor.ts', import.meta.url))],
   bundle: true,
   write: false,

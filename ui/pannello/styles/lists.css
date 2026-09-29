@@ -37,6 +37,11 @@
   gap: 2px;
 }
 
+/* A finestra (`components/virtuale.ts`) lo stacco sta dentro la voce: la misura
+   presa da una voce disegnata vale anche per quelle al posto del vuoto. */
+.elenco-laterale__voci--finestra { gap: 0; }
+.elenco-laterale__voci--finestra > li { padding-bottom: 2px; }
+
 .voce-laterale {
   display: flex;
   align-items: center;
@@ -61,7 +66,13 @@
 .voce-laterale--spenta { opacity: 0.75; }
 
 .voce-laterale__testo { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.voce-laterale__testo small { color: var(--testo-quieto); font-size: var(--corpo-piccolo); }
+.voce-laterale__testo small {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .voce-laterale__testo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /*

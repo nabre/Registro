@@ -15,9 +15,9 @@ interface Gruppo {
 
 const it = {
   disinstalla: 'Disinstalla',
-  domanda: 'Disinstallare Regiclass?',
+  domanda: 'Disinstallare Regiklass?',
   cosaSeNeVa: (cartella: string) =>
-    "Si tolgono dal computer le impostazioni, gli account, l'elenco dei registri recenti, i modelli " +
+    'Si tolgono dal computer le impostazioni, gli account, l’elenco dei registri recenti, i modelli ' +
     `scaricati, il comando «regi» e tutto quel che il registro ha salvato per sé in «${cartella}».`,
   documentiRestano: 'I documenti degli anni scolastici — i file .regi — restano dove sono.',
   chiederàCosaTenere: 'Il disinstallatore chiederà se tenere i modelli, gli account e le impostazioni.',
@@ -31,7 +31,7 @@ const it = {
     },
     account: {
       domanda: 'Togliere anche gli account?',
-      dettaglio: "Password della posta e collegamento con l'account Microsoft.",
+      dettaglio: 'Password della posta e collegamento con l’account Microsoft.',
     },
     impostazioni: {
       domanda: 'Togliere anche le impostazioni?',
@@ -46,7 +46,7 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     disinstalla: 'Deinstallieren',
-    domanda: 'Regiclass deinstallieren?',
+    domanda: 'Regiklass deinstallieren?',
     cosaSeNeVa: (cartella) =>
       'Vom Computer entfernt werden die Einstellungen, die Konten, die Liste der zuletzt ' +
       'geöffneten Klassenbücher, die heruntergeladenen Modelle, der Befehl «regi» und alles, ' +
@@ -79,7 +79,7 @@ export const testi = catalogo(it, {
   },
   fr: {
     disinstalla: 'Désinstaller',
-    domanda: 'Désinstaller Regiclass ?',
+    domanda: 'Désinstaller Regiklass ?',
     cosaSeNeVa: (cartella) =>
       'Sont retirés de l’ordinateur les paramètres, les comptes, la liste des registres récents, ' +
       'les modèles téléchargés, la commande « regi » et tout ce que le registre a enregistré ' +
@@ -113,7 +113,7 @@ export const testi = catalogo(it, {
   },
   en: {
     disinstalla: 'Uninstall',
-    domanda: 'Uninstall Regiclass?',
+    domanda: 'Uninstall Regiklass?',
     cosaSeNeVa: (cartella) =>
       'This removes from the computer the settings, the accounts, the list of recent registers, ' +
       'the downloaded models, the “regi” command and everything the register saved for itself ' +

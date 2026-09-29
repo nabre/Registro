@@ -38,6 +38,7 @@ import {
 } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './sorting.testi.js'
+import { vista } from './view.js'
 import { istanteAdesso } from '../dominio/dates.js'
 
 /**
@@ -206,6 +207,21 @@ export const smistamento = {
     return fatto
   },
 
+  /** Assorbe un singolo PDF rimasto nella cartella in-arrivo del disco. */
+  'smistamento.cassetta.assorbi': async (contesto, azione) => {
+    const uri = apparato.Uri.file(azione.percorso)
+    const smistatore = smistatoreDi(contesto.archivio)
+    const esito = await smistatore.smistaFile(uri)
+    if (esito.errore) return rifiuta(esito.errore)
+    if (esito.inQuarantena > 0) {
+      return conMessaggio(testi().assegnatiEDaSistemare(esito.assegnate, esito.inQuarantena), 'avviso')
+    }
+    if (esito.assegnate > 0) {
+      return conMessaggio(testi().assegnati(esito.assegnate), 'info')
+    }
+    return fatto
+  },
+
   /** Le pagine trascinate su una casella della matrice: come l'assegnazione a mano, ma per elenco. */
   'smistamento.assegnaPagine': async (contesto, azione) => {
     // La consegna deve riguardare la persona: anche qui, non solo nella matrice.
@@ -246,6 +262,7 @@ export const smistamento = {
     if (proposte.length === 0) return rifiuta(testi().nessunaProposta)
 
     const guai: string[] = []
+    let archiviate = 0
     for (const proposta of proposte) {
       const esito = await assegnaPagine(
         contesto.archivio,
@@ -255,10 +272,14 @@ export const smistamento = {
         proposta.da,
         proposta.a,
       )
-      if (!esito.ok && esito.errore) guai.push(esito.errore)
+      if (esito.ok) archiviate += 1
+      else if (esito.errore) guai.push(esito.errore)
     }
     await chiudiSeFinito(contesto.archivio, smistamento.id)
-    return guai.length > 0 ? rifiuta(...guai) : fatto
+    // Come `smistamento.carica`: quel che è archiviato è scritto, e un rifiuto lo nasconderebbe.
+    if (guai.length > 0 && archiviate === 0) return rifiuta(...guai)
+    if (guai.length > 0) return conMessaggio(guai.join(' '), 'avviso')
+    return fatto
   },
 
   /** Butta le pagine scelte, a intervalli per non rifare la bozza a ogni pagina. */
@@ -567,14 +588,10 @@ export const smistamento = {
   },
 
   /**
-   * Apre le impostazioni dell'OCR nella finestra nativa: sono della macchina,
-   * non dell'anno, e il filtro lo legge solo lei.
+   * Porta il pannello su «Modelli linguistici», come la barra di stato: la
+   * lettura si accende dove si sceglie il suo modello. La finestra nativa il
+   * modello lo mostra soltanto, e sarebbe un vicolo cieco.
    */
-  'smistamento.impostazioni': async (_contesto, _azione) => {
-    await apparato.comandi.esegui(
-      'registroDocenti.impostazioniFinestra',
-      'registroDocenti.ocr',
-    )
-    return fatto
-  },
+  'smistamento.impostazioni': (contesto, _azione) =>
+    vista['vista.apri'](contesto, { tipo: 'vista.apri', vista: 'modelliLinguistici' }),
 } satisfies Parte

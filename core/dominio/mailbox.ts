@@ -50,3 +50,28 @@ export function descriviCasella (casella: Casella): string {
   if (stessoIndirizzo(casella.accesso, casella.mittente)) return casella.mittente
   return testi().conAccesso(casella.mittente, casella.accesso)
 }
+
+/**
+ * Gli indirizzi da cui un account può scrivere, nell'ordine in cui proporli:
+ * il principale (`SMTP:` maiuscolo fra i `proxyAddresses`, o il primo detto da
+ * Microsoft), poi gli altri detti, poi gli alias `smtp:`, e per ultimo il nome
+ * di accesso, che nelle scuole è spesso una sigla. Doppioni e non-indirizzi via.
+ */
+export function indirizziDellAccount (
+  detti: ReadonlyArray<string | undefined | null>,
+  proxy: readonly string[] = [],
+  accesso = '',
+): string[] {
+  const principale = proxy.find((voce) => voce.startsWith('SMTP:'))?.slice(5)
+  const alias = proxy
+    .filter((voce) => /^smtp:/.test(voce))
+    .map((voce) => voce.slice(5))
+  const visti: string[] = []
+  for (const voce of [principale, ...detti, ...alias, accesso]) {
+    const pulito = (voce ?? '').trim()
+    if (!sembraIndirizzo(pulito)) continue
+    if (visti.some((gia) => stessoIndirizzo(gia, pulito))) continue
+    visti.push(pulito)
+  }
+  return visti
+}

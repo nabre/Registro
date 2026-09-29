@@ -22,6 +22,8 @@ const it = {
   voceNonJson: (nome: string, dove: string, motivo: string) =>
     `${nome} dentro ${dove} non è un JSON valido ` +
     `(${motivo}): il documento resta com’è.`,
+  /** Il motivo di `voceNonJson` quando il JSON si legge ma non è un oggetto. */
+  nonOggetto: 'non è un oggetto JSON',
   collezioneNonJson: (nome: string, motivo: string) =>
     `${nome} non è un JSON valido (${motivo}): ` +
     'resta com’è, e alla prima modifica viene messo da parte con un altro nome.',
@@ -44,6 +46,7 @@ const it = {
   nonSalvatoIn: (dove: string, motivo: string) =>
     `Non riesco a salvare l’anno in ${dove}: ${motivo}`,
   inChiusura: 'L’anno si sta chiudendo: la modifica non è stata fatta.',
+  superato: 'Il documento è stato aggiornato da un registro più recente: qui si può solo leggere. Aggiorna il programma per modificarlo.',
   salvataggioFallito: (motivo: string) => `Salvataggio dell’anno non riuscito: ${motivo}`,
   messaDaParte: (nome: string, altrove: string) =>
     `${nome} non si leggeva: la copia è dentro l’anno con il nome ${altrove}, ` +
@@ -67,6 +70,7 @@ export const testi = catalogo(it, {
       `aktualisiert — ${racconto}. Die Kopie im alten Zustand liegt unter «${copia}».`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} in ${dove} ist kein gültiges JSON (${motivo}): Das Dokument bleibt, wie es ist.`,
+    nonOggetto: 'kein JSON-Objekt',
     collezioneNonJson: (nome, motivo) =>
       `${nome} ist kein gültiges JSON (${motivo}): Es bleibt, wie es ist, und bei der ` +
       'ersten Änderung wird es unter einem anderen Namen beiseitegelegt.',
@@ -88,6 +92,7 @@ export const testi = catalogo(it, {
     nonSalvatoIn: (dove, motivo) =>
       `Das Schuljahr lässt sich nicht in ${dove} speichern: ${motivo}`,
     inChiusura: 'Das Schuljahr wird gerade geschlossen: Die Änderung wurde nicht ausgeführt.',
+    superato: 'Das Dokument wurde von einem neueren Register aktualisiert: Hier kann es nur gelesen werden. Aktualisiere das Programm, um es zu ändern.',
     salvataggioFallito: (motivo) => `Speichern des Schuljahrs nicht gelungen: ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} war nicht lesbar: Die Kopie liegt im Schuljahr unter dem Namen ${altrove}, ` +
@@ -108,6 +113,7 @@ export const testi = catalogo(it, {
       `${racconto}. La copie telle qu’elle était se trouve dans « ${copia} ».`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} dans ${dove} n’est pas un JSON valide (${motivo}) : le document reste tel quel.`,
+    nonOggetto: 'pas un objet JSON',
     collezioneNonJson: (nome, motivo) =>
       `${nome} n’est pas un JSON valide (${motivo}) : il reste tel quel, et à la première ` +
       'modification il est mis de côté sous un autre nom.',
@@ -128,6 +134,7 @@ export const testi = catalogo(it, {
       `Impossible de créer le document de l’année ${etichetta} : ${motivo}`,
     nonSalvatoIn: (dove, motivo) => `Impossible d’enregistrer l’année dans ${dove} : ${motivo}`,
     inChiusura: 'L’année est en train de se fermer : la modification n’a pas été faite.',
+    superato: 'Le document a été mis à jour par un registre plus récent : ici, il ne peut qu’être lu. Mets à jour le programme pour le modifier.',
     salvataggioFallito: (motivo) => `Échec de l’enregistrement de l’année : ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} était illisible : la copie se trouve dans l’année sous le nom ${altrove}, ` +
@@ -148,6 +155,7 @@ export const testi = catalogo(it, {
       `${racconto}. The copy as it was is in “${copia}”.`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} in ${dove} isn’t valid JSON (${motivo}): the document stays as it is.`,
+    nonOggetto: 'not a JSON object',
     collezioneNonJson: (nome, motivo) =>
       `${nome} isn’t valid JSON (${motivo}): it stays as it is, and at the first change it ` +
       'is put aside under another name.',
@@ -166,6 +174,7 @@ export const testi = catalogo(it, {
       `I can’t create the document for the year ${etichetta}: ${motivo}`,
     nonSalvatoIn: (dove, motivo) => `I can’t save the year in ${dove}: ${motivo}`,
     inChiusura: 'The year is closing: the change wasn’t made.',
+    superato: 'The document was updated by a newer register: here it can only be read. Update the program to change it.',
     salvataggioFallito: (motivo) => `Saving the year failed: ${motivo}`,
     messaDaParte: (nome, altrove) =>
       `${nome} couldn’t be read: the copy is inside the year under the name ${altrove}, ` +

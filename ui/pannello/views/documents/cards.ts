@@ -1,34 +1,26 @@
 // I riquadri della pagina Documenti: che cosa un corso sa stampare.
-// Uno per famiglia di fogli (corso, prove, piani, ore, persone, composizioni),
+// Uno per famiglia di fogli (corso, docente di classe, allievi, composizioni),
 // tutti con `schedaDiFogli` e `rigaFoglio`; cambia solo da dove si prendono
 // gli oggetti.
 
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../../core/dominio/calculations.js'
 import { fraIFascicoli, pdfDi } from '../../../../core/dominio/compositions.js'
-import { classeDelCorsoId, numeriDelleLezioni, registroDelCorso } from '../../../../core/dominio/courses.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import { Molti, Uno, corto, quanti } from '../../../../core/dominio/lexicon.js'
+import { classeDelCorsoId, registroDelCorso } from '../../../../core/dominio/courses.js'
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
-import { minuscolo } from '../../../../core/i18n/index.js'
-import type { Corso, Lezione } from '../../../../core/dominio/models.js'
-import { pastiglia, pulsante, quieto } from '../../components/base.js'
+import type { Corso } from '../../../../core/dominio/models.js'
+import { pastiglia, quieto } from '../../components/base.js'
 import { conferma } from '../../components/modal.js'
-import { tabella } from '../../components/table.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import {
   aggiorna,
   nelSemestreScelto,
-  nomeDiPiano,
   nomeSemestreScelto,
-  pianiPerCorso,
-  pianoPerId,
   stato,
 } from '../../state.js'
 
 import {
-  cellaFoglio,
   conto,
   fileEsportato,
   foglio,
@@ -42,8 +34,7 @@ import { testi } from './cards.testi.js'
 export function delCorso (corso: Corso): HTMLElement {
   const semestreId = stato.semestreId
   const contesto = { corsoId: corso.id, semestreId }
-  const presenze = foglio('presenze', corso.id, contesto)
-  const valutazioni = foglio('valutazioni', corso.id, contesto)
+  const schedaCorso = foglio('corso', corso.id, contesto)
   // Il CSV accanto al PDF: lo stesso dato in due forme.
   const presenzeCsv = foglio('presenze', corso.id, contesto, 'csv')
   const valutazioniCsv = foglio('valutazioni', corso.id, contesto, 'csv')
@@ -56,16 +47,10 @@ export function delCorso (corso: Corso): HTMLElement {
       'ul',
       { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-corso-${corso.id}` } },
       rigaFoglio({
-        etichetta: nome(t.presenze),
-        foglio: presenze,
-        nome: t.nomePresenze,
-        rifai: { tipo: 'rapporto.genera', genere: 'presenze', id: corso.id, semestreId },
-      }),
-      rigaFoglio({
-        etichetta: nome(t.valutazioni),
-        foglio: valutazioni,
-        nome: t.nomeValutazioni,
-        rifai: { tipo: 'rapporto.genera', genere: 'valutazioni', id: corso.id, semestreId },
+        etichetta: nome(t.schedaCorso),
+        foglio: schedaCorso,
+        nome: t.nomeSchedaCorso,
+        rifai: { tipo: 'rapporto.genera', genere: 'corso', id: corso.id, semestreId },
       }),
       rigaFoglio({
         etichetta: nome(t.presenzeCsv),
@@ -83,72 +68,40 @@ export function delCorso (corso: Corso): HTMLElement {
   })
 }
 
-/** Una scheda per prova, con il grafico della distribuzione. */
-export function prove (corso: Corso): HTMLElement {
-  // Dalla più recente, come i verbali.
-  const momenti = nelSemestreScelto(
-    stato.registro.valutazioni.filter((momento) => momento.corsoId === corso.id),
-  )
-    .slice()
-    .sort((a, b) => b.data.localeCompare(a.data))
+/**
+ * I fogli del docente come persona, non del corso: per ora le ore tenute al
+ * posto di un collega, raccolte nella scheda del corso ristretta a loro.
+ * Contano le sole svolte, come nella scheda.
+ */
+export function delDocente (corso: Corso): HTMLElement {
+  const semestreId = stato.semestreId
+  const supplenze = nelSemestreScelto(registroDelCorso(stato.registro, corso.id))
+    .filter((l) => l.supplenza === true && l.stato === 'svolta')
   const t = testi()
-  const L = lessico()
+
   return schedaDiFogli({
-    titolo: Molti(L.prova),
-    sottotitolo: conto(`${quanti(momenti.length, L.prova)} · ${nomeSemestreScelto()}`),
+    titolo: t.supplenze,
+    sottotitolo: conto(t.oreDiSupplenza(supplenze.length, nomeSemestreScelto())),
+    aiuto: t.supplenzeAiuto,
     contenuto: () =>
-      momenti.length === 0
-        ? quieto(t.nessunaProva)
+      supplenze.length === 0
+        ? quieto(t.nessunaSupplenza)
         : h(
             'ul',
-            { class: 'documenti__elenco', attr: { 'data-scorrimento': `documenti-prove-${corso.id}` } },
-            momenti.map((momento) => {
-              const votati = momento.voti.filter((v) => v.valore !== null).length
-              return rigaFoglio({
-                etichetta: nome(`${formattaData(momento.data, 'corto')} · ${momento.titolo}`),
-                // Quanti voti ci sono: una prova senza voti stampa un grafico vuoto.
-                segni:
-                  votati === 0
-                    ? pastiglia(t.nessunVoto, 'quiete')
-                    : h('span', { class: 'testo-quieto' }, String(votati)),
-                foglio: foglio('momento', momento.id, { corsoId: corso.id }),
-                nome: t.schedaDiProva(momento.titolo),
-                rifai: { tipo: 'rapporto.genera', genere: 'momento', id: momento.id },
-              })
+            { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-docente-${corso.id}` } },
+            rigaFoglio({
+              etichetta: nome(t.schedaSupplenze),
+              foglio: foglio('supplenze', corso.id, { corsoId: corso.id, semestreId }),
+              nome: t.nomeSchedaSupplenze,
+              rifai: { tipo: 'rapporto.genera', genere: 'supplenze', id: corso.id, semestreId },
             }),
           ),
   })
 }
 
-/** Un piano per foglio: la scaletta che si porta in aula stampata. */
-export function piani (corso: Corso): HTMLElement {
-  const suoi = pianiPerCorso(corso.id)
-  const t = testi()
-
-  return schedaDiFogli({
-    titolo: Molti(lessico().pianoLezione),
-    sottotitolo: conto(t.pianiConto(suoi.length)),
-    contenuto: () =>
-      suoi.length === 0
-        ? quieto(t.nessunPiano)
-        : h(
-            'ul',
-            { class: 'documenti__elenco', attr: { 'data-scorrimento': `documenti-piani-${corso.id}` } },
-            suoi.map((piano) =>
-              rigaFoglio({
-                etichetta: nome(nomeDiPiano(piano)),
-                foglio: foglio('piano', piano.id, { corsoId: corso.id }),
-                nome: nomeDiPiano(piano),
-                rifai: { tipo: 'rapporto.genera', genere: 'piano', id: piano.id },
-              }),
-            ),
-          ),
-  })
-}
-
 /**
- * Il fascicolo della classe (recapiti, documenti raccolti, periodi di assenza):
- * scheda a sé perché non è di una materia, e il periodo scelto lo taglierebbe.
+ * Il fascicolo della classe (recapiti, documenti raccolti, periodi di assenza, pendenze, controlli):
+ * documento unico del docente di classe.
  */
 export function dellaClasse (corso: Corso): Figlio {
   const classe = classeDelCorsoId(stato.registro, corso.id)
@@ -157,7 +110,7 @@ export function dellaClasse (corso: Corso): Figlio {
   const t = testi()
 
   return schedaDiFogli({
-    titolo: t.dellaClasse,
+    titolo: t.schedaDocenteClasse,
     sottotitolo: conto(classe.nome),
     aiuto: t.dellaClasseAiuto,
     contenuto: () => h(
@@ -167,7 +120,7 @@ export function dellaClasse (corso: Corso): Figlio {
         etichetta: h(
           'span',
           { class: 'documenti__nome', title: t.fascicoloContiene },
-          corto(lessico().fascicolo),
+          t.schedaDocenteClasse,
         ),
         foglio: suo,
         nome: t.nomeFascicolo,
@@ -293,126 +246,7 @@ function rigaSenzaElenco (percorso: string): Figlio {
   })
 }
 
-// ----------------------------------------------------------- delle lezioni
-
-/**
- * Le lezioni come matrice: una riga per data, una colonna per documento (piano
- * prima dell'ora, verbale dopo), ognuna con i suoi gesti. Dalla più recente.
- * Le ore non svolte restano, in grigio e con i pulsanti spenti.
- */
-export function matriceLezioni (corso: Corso): Figlio {
-  // Il numero è quello di registro, calendario e piani: riparte a ogni semestre
-  // e le annullate non ne hanno. Si conta su tutte le ore del corso prima di
-  // scegliere il periodo, poi si rovescia l'elenco.
-  const tutte = registroDelCorso(stato.registro, corso.id)
-  const numeri = numeriDelleLezioni(stato.registro, tutte)
-  const ore = nelSemestreScelto(tutte)
-    .map((lezione) => ({ lezione, numero: numeri.get(lezione.id) ?? null }))
-    .reverse()
-  const t = testi()
-  const L = lessico()
-
-  return schedaDiFogli({
-    titolo: Molti(L.lezione),
-    sottotitolo: conto(`${t.ore(ore.length)} · ${nomeSemestreScelto()}`),
-    contenuto: () =>
-      ore.length === 0
-        ? quieto(t.nessunaOra)
-        : tabella({
-            variante: 'lezioni',
-            intestazione: [
-              h('th', null, t.numero),
-              h('th', null, parole().data),
-              h('th', null, t.verbale),
-              h('th', null, Uno(L.pianoLezione)),
-            ],
-            righe: ore.map(({ lezione, numero }) => rigaOra(corso, lezione, numero)),
-          }),
-  })
-}
-
-/** Un numero, una data e i due documenti di quell'ora. */
-function rigaOra (corso: Corso, lezione: Lezione, numero: number | null): HTMLElement {
-  const conclusa = lezione.stato === 'svolta'
-  const t = testi()
-  // Il motivo per cui il verbale adesso non si fa; il piano si stampa prima dell'ora.
-  const bloccato = conclusa
-    ? null
-    : lezione.stato === 'annullata'
-      ? t.annullata
-      : t.nonConclusa
-  const piano = lezione.pianoId ? pianoPerId(lezione.pianoId) : null
-
-  return h(
-    'tr',
-    { class: conclusa ? undefined : 'tabella__riga--spenta' },
-    h('td', { class: 'documenti__numero' }, numero === null ? '—' : String(numero)),
-    h(
-      'td',
-      { class: 'documenti__quando' },
-      nome(formattaData(lezione.data)),
-      conclusa
-        ? null
-        : pastiglia(
-            minuscolo(lessico().statiLezione[lezione.stato]),
-            lezione.stato === 'annullata' ? 'negativo' : 'quiete',
-          ),
-    ),
-    cellaFoglio({
-      foglio: foglio('lezione', lezione.id, { corsoId: corso.id }),
-      nome: t.nomeVerbale(formattaData(lezione.data)),
-      rifai: { tipo: 'rapporto.genera', genere: 'lezione', id: lezione.id },
-      bloccato,
-      // Lo stesso verbale in Markdown: il PDF si consegna, il testo si corregge.
-      altro: pulsante({
-        simbolo: 'matita',
-        variante: 'fantasma',
-        titolo: bloccato ?? t.verbaleInTesto,
-        disabilitato: Boolean(bloccato),
-        al: () => azione({ tipo: 'esporta.lezione', lezioneId: lezione.id }),
-      }),
-    }),
-    piano
-      ? cellaFoglio({
-          foglio: foglio('piano', piano.id, { corsoId: corso.id }),
-          nome: nomeDiPiano(piano),
-          rifai: { tipo: 'rapporto.genera', genere: 'piano', id: piano.id },
-        })
-      : h(
-          'td',
-          { class: 'documenti__cella' },
-          h('span', { class: 'testo-quieto' }, t.nessunPianoCella),
-        ),
-  )
-}
-
 // ----------------------------------------------------------- degli allievi
-
-/**
- * La parete di ritratti: una faccia e un nome per ogni persona. Sta con le
- * persone in pagina, ma il file resta sotto la materia. Porta nel nome il giorno
- * in cui è stata fatta, perché la classe cambia.
- */
-export function fotoDellaClasse (corso: Corso): HTMLElement {
-  const suo = foglio('foto-classe', corso.id, { corsoId: corso.id })
-  const t = testi()
-
-  return schedaDiFogli({
-    titolo: t.foto,
-    sottotitolo: conto(''),
-    aiuto: t.fotoAiuto,
-    contenuto: () => h(
-      'ul',
-      { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-foto-classe-${corso.id}` } },
-      rigaFoglio({
-        etichetta: nome(Molti(lessico().pif)),
-        foglio: suo,
-        nome: t.nomeFoto,
-        rifai: { tipo: 'rapporto.genera', genere: 'foto-classe', id: corso.id },
-      }),
-    ),
-  })
-}
 
 export function schedeAllievo (corso: Corso): HTMLElement {
   const classe = classeDelCorsoId(stato.registro, corso.id)
@@ -428,23 +262,49 @@ export function schedeAllievo (corso: Corso): HTMLElement {
         : h(
             'ul',
             { class: 'documenti__elenco documenti__elenco--lungo', attr: { 'data-scorrimento': `documenti-schede-allievo-${corso.id}` } },
-            allievi.map((allievo) =>
-              rigaFoglio({
-                etichetta: nome(nomeCompleto(allievo)),
-                foglio: foglio('allievo', allievo.id, {
-                  corsoId: corso.id,
-                  semestreId: stato.semestreId,
+            allievi.flatMap((allievo) => {
+              const righe = [
+                rigaFoglio({
+                  etichetta: nome(`${nomeCompleto(allievo)} · ${t.dettaglioCorso}`),
+                  foglio: foglio('allievo', allievo.id, {
+                    corsoId: corso.id,
+                    semestreId: stato.semestreId,
+                    docenteDiClasse: false,
+                  }),
+                  nome: t.schedaDiPersonaCorso(nomeCompleto(allievo)),
+                  rifai: {
+                    tipo: 'rapporto.genera',
+                    genere: 'allievo',
+                    id: allievo.id,
+                    corsoId: corso.id,
+                    semestreId: stato.semestreId,
+                    docenteDiClasse: false,
+                  },
                 }),
-                nome: t.schedaDiPersona(nomeCompleto(allievo)),
-                rifai: {
-                  tipo: 'rapporto.genera',
-                  genere: 'allievo',
-                  id: allievo.id,
-                  corsoId: corso.id,
-                  semestreId: stato.semestreId,
-                },
-              }),
-            ),
+              ]
+              if (classe?.docenteDiClasse) {
+                righe.push(
+                  rigaFoglio({
+                    etichetta: nome(`${nomeCompleto(allievo)} · ${t.dettaglioDocenteClasse}`),
+                    foglio: foglio('allievo', allievo.id, {
+                      corsoId: null,
+                      semestreId: stato.semestreId,
+                      docenteDiClasse: true,
+                    }),
+                    nome: t.schedaDiPersonaClasse(nomeCompleto(allievo)),
+                    rifai: {
+                      tipo: 'rapporto.genera',
+                      genere: 'allievo',
+                      id: allievo.id,
+                      corsoId: null,
+                      semestreId: stato.semestreId,
+                      docenteDiClasse: true,
+                    },
+                  }),
+                )
+              }
+              return righe
+            }),
           ),
   })
 }

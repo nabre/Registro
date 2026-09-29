@@ -288,7 +288,8 @@ export function udPrevisteDelCorso (
   const dal = semestre?.inizio ?? anno?.inizio
   const al = semestre?.fine ?? anno?.fine
   if (!dal || !al) return 0
-  return udPrevisteDaOrario(anno, corso, dal, al, registro.impostazioni.minutiUd, registro.lezioni)
+  const { minutiUd, pause } = registro.impostazioni
+  return udPrevisteDaOrario(anno, corso, dal, al, minutiUd, registro.lezioni, pause)
 }
 
 /** La matrice delle presenze di un corso in un periodo, con quel che l'ha fatta. */

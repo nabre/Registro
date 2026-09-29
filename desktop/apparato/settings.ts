@@ -7,6 +7,7 @@ import { depositoJson } from './jsonStore.js'
 import * as percorso from 'node:path'
 
 import {
+  CHIAVI_DEL_COLLEGAMENTO,
   CHIAVI_DISMESSE,
   IMPOSTAZIONI as VOCI_IMPOSTAZIONI,
   predefinitiImpostazioni,
@@ -14,8 +15,9 @@ import {
   sospesa,
   type VoceImpostazione,
 } from '../../contract/manifesto.js'
-import { perchéNonLocale } from '.../../../core/dominio/loopback.js'
-import { sembraIndirizzo } from '.../../../core/dominio/mailbox.js'
+import { perchéNonLocale } from '../../core/dominio/loopback.js'
+import { nomeDiModello } from '../../core/dati/ggufName.js'
+import { sembraIndirizzo } from '../../core/dominio/mailbox.js'
 import type { VoceProgramma } from '../../contract/protocollo.js'
 import { EventEmitter } from '../../core/apparato/events.js'
 import { testi } from './settings.testi.js'
@@ -257,6 +259,7 @@ export function vociImpostazioni (): VoceProgramma[] {
       // Riempita subito sotto, quando tutte le altre si conoscono.
       sospesa: false,
       avanzata: Boolean(voce.avanzata),
+      delCollegamento: CHIAVI_DEL_COLLEGAMENTO.includes(chiave),
     }
   })
 
@@ -347,8 +350,10 @@ function percorsoStorto (voce: VoceImpostazione, valore: string): string | null 
     case 'eseguibile':
       if (!percorso.isAbsolute(valore)) return t.programmaIntero
       return /\.exe$/i.test(valore) ? null : t.soloExe
+    // Il nome nudo di un file della cartella dei modelli, come lo scrive la
+    // pagina «Modelli linguistici»: un percorso lo ignorerebbe `modelloNellaCartella`.
     case 'modello':
-      return percorso.isAbsolute(valore) ? null : t.fileIntero
+      return nomeDiModello(valore) ? null : t.soloNomeModello
     case 'file': {
       if (!percorso.isAbsolute(valore)) return t.fileIntero
       const estensioni = voce.estensioni ?? []

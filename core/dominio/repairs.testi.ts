@@ -10,7 +10,7 @@ const it = {
     `Rinomina ${plurale(n, 'numero', 'numeri')} secondo quel che ` +
     'sono davvero: un 079 è un cellulare, un 091 no.',
   materiaSparita: (materia: string, corsi: number) =>
-    `Rimette la materia «${materia}», che non c'è più nel registro ma è ancora usata da ` +
+    `Rimette la materia «${materia}», che non c’è più nel registro ma è ancora usata da ` +
     `${plurale(corsi, 'corso', 'corsi')}.`,
   pianoStaccato: (n: number) =>
     `Stacca il piano da ${plurale(n, 'lezione', 'lezioni')}: ` +

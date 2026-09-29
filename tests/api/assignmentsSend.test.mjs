@@ -13,7 +13,7 @@ import { after, before, describe, it } from 'node:test'
 import { cartelleDiProva } from '../helpers/archivio.mjs'
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-const { radice, lavoro, dati } = cartelleDiProva('registro-giro12-invio-')
+const { radice, lavoro, dati } = cartelleDiProva('registro-invio-consegne-')
 
 /** La posta finta: tutto parte, e dopo il primo messaggio si cambia documento. */
 const POSTA_FINTA = `
@@ -21,11 +21,11 @@ export async function puoSpedire () { return true }
 export async function confermaInvio () { return true }
 export function nomeBozza () { return 'bozza' }
 export async function bozzeDiGruppo (messaggi, _classe, dopoOgni) {
-  const giro = globalThis.__giro12Invio
+  const invio = globalThis.__invioConsegne
   for (let indice = 0; indice < messaggi.length; indice++) {
-    giro.partiti += 1
+    invio.partiti += 1
     dopoOgni?.(indice, true)
-    if (indice === 0) giro.dopoIlPrimo()
+    if (indice === 0) invio.dopoIlPrimo()
   }
   return { ok: true, spediti: true, dove: 'il server della posta', falliti: [] }
 }
@@ -39,13 +39,13 @@ export async function contenutoDi () { return new Uint8Array([37, 80, 68, 70]) }
 
 /** Al gestore delle consegne, e solo a lui, la posta e il deposito finti. */
 const finti = {
-  name: 'giro12-finti',
+  name: 'posta-e-deposito-finti',
   setup (costruzione) {
     costruzione.onResolve({ filter: /^\.\.\/dati\/(mail|store)\.js$/ }, (args) => {
       if (!args.importer.replaceAll('\\', '/').endsWith('core/azioni/assignments.ts')) return undefined
-      return { path: args.path.includes('mail') ? 'posta' : 'deposito', namespace: 'giro12' }
+      return { path: args.path.includes('mail') ? 'posta' : 'deposito', namespace: 'finti' }
     })
-    costruzione.onLoad({ filter: /.*/, namespace: 'giro12' }, (args) => ({
+    costruzione.onLoad({ filter: /.*/, namespace: 'finti' }, (args) => ({
       contents: args.path === 'posta' ? POSTA_FINTA : DEPOSITO_FINTO,
       loader: 'js',
     }))
@@ -112,14 +112,14 @@ before(async () => {
 
 after(() => {
   archivio?.dispose()
-  delete globalThis.__giro12Invio
+  delete globalThis.__invioConsegne
   rmSync(radice, { recursive: true, force: true })
 })
 
 describe('consegna.distribuisci con l’invio diretto', () => {
   it('chi è già partito resta segnato anche se il giro si interrompe', async () => {
     const annoVero = archivio.registro.annoCorrenteId
-    globalThis.__giro12Invio = {
+    globalThis.__invioConsegne = {
       partiti: 0,
       // Un altro anno aperto a metà giro: da qui il gestore non scrive più qui.
       dopoIlPrimo: () => { archivio.registro.annoCorrenteId = 'ann-un-altro' },
@@ -131,7 +131,7 @@ describe('consegna.distribuisci con l’invio diretto', () => {
     )
     archivio.registro.annoCorrenteId = annoVero
 
-    assert.equal(globalThis.__giro12Invio.partiti, 3)
+    assert.equal(globalThis.__invioConsegne.partiti, 3)
     // Il cambio di documento si dice: le spunte che mancano si mettono a mano.
     assert.equal(esito.ok, false, JSON.stringify(esito))
     const viva = archivio.registro.consegne.find((c) => c.id === consegna.id)

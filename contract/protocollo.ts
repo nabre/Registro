@@ -8,6 +8,7 @@
 import type {
   AnnoScolastico,
   BloccoAssenze,
+  CalendarioDellAnno,
   Classe,
   ColonnaCheck,
   Comunicazione,
@@ -41,6 +42,7 @@ import type {
 } from '../core/dominio/models.js'
 import type { Composizione } from '../core/dominio/compositions.js'
 import type { AllineamentoDaCalendario, LezioneDaCalendario } from '../core/dominio/calendar.js'
+import type { AccountMicrosoft } from '../core/dominio/onedrive.js'
 import type {
   ContenutoProiezione,
   ImpostazioniProiezione,
@@ -91,8 +93,19 @@ export type Azione =
     sospensioni?: Sospensione[]
     /** I nomi dei due semestri, se scritti nel modulo. */
     etichetteSemestri?: [string, string]
+    /**
+     * L'anno del calendario ufficiale che l'anno segue: date e chiusure devono
+     * essere quelle (`motivoCalendarioToccato`).
+     */
+    calendarioUfficiale?: CalendarioDellAnno
   }
   | { tipo: 'anno.salva'; anno: AnnoScolastico }
+  /**
+   * Collega l'anno al calendario ufficiale del suo anno scolastico (date e
+   * chiusure ufficiali, e il marcatore che le blocca), lo riallinea se è già
+   * collegato, o lo stacca: via il marcatore, date e chiusure restano.
+   */
+  | { tipo: 'anno.calendario'; annoId: string; collega: boolean }
   /**
    * Dice se la settimana di `giorno` è A, B o nessuna delle due. Azione a sé e non
    * `anno.salva`: rimandare l'anno intero farebbe sovrascrivere le vacanze fra due
@@ -118,6 +131,11 @@ export type Azione =
   | { tipo: 'calendario.aggiungi'; origine: string; nome?: string }
   /** Rilegge l'origine di un calendario e ne rifà la copia nel documento. */
   | { tipo: 'calendario.aggiorna'; calendarioId: string }
+  /**
+   * Riscarica tutti i calendari collegati con un indirizzo di rete; quelli che
+   * non si leggono tengono la copia di prima. Lo fa anche l'avvio.
+   */
+  | { tipo: 'calendario.aggiornaTutti' }
   /** Rinomina un calendario o ne cambia l'origine; un'origine illeggibile non cambia niente. */
   | { tipo: 'calendario.modifica'; calendarioId: string; nome?: string; origine?: string }
   /** Toglie un calendario dal documento, con la sua copia. Le regole restano. */
@@ -139,6 +157,15 @@ export type Azione =
   }
   | { tipo: 'piano.perLezione'; lezioneId: string; daPianoId?: string | null }
   | { tipo: 'classe.salva'; classe: Classe }
+  | {
+    tipo: 'classe.modifica'
+    classeId: string
+    nome?: string
+    colore?: string
+    note?: string
+    docenteDiClasse?: boolean
+    archiviata?: boolean
+  }
   | { tipo: 'classe.elimina'; classeId: string }
   | { tipo: 'classe.duplica'; classeId: string; annoId: string; nome: string }
   /**
@@ -178,7 +205,7 @@ export type Azione =
    * Il ritratto di un allievo: il dialogo di sistema sceglie il file e l'host ne
    * tiene una copia in `foto/`.
    */
-  | { tipo: 'allievo.foto.imposta'; classeId: string; allievoId: string }
+  | { tipo: 'allievo.foto.imposta'; classeId: string; allievoId: string; file?: string }
   | { tipo: 'allievo.foto.togli'; classeId: string; allievoId: string }
   | { tipo: 'lezione.salva'; lezione: Lezione }
   /**
@@ -235,6 +262,7 @@ export type Azione =
     genere: TipoRisorsa
     titolo?: string
     url?: string
+    file?: string
   }
   | { tipo: 'risorsa.salva'; pianoId: string; attivitaId: string | null; risorsa: Risorsa }
   /** Sposta la risorsa a un'altra tappa o al piano, senza perdere il file. */
@@ -300,7 +328,7 @@ export type Azione =
    * Spunta consegnando un file, archiviato nella cartella dei dati. Annullando
    * la scelta la consegna resta da fare.
    */
-  | { tipo: 'consegna.raccogli'; consegnaId: string; chi: string }
+  | { tipo: 'consegna.raccogli'; consegnaId: string; chi: string; file?: string }
   /** Apre il file con cui qualcuno ha spuntato. */
   | { tipo: 'consegna.file.apri'; consegnaId: string; chi: string }
   // ------------------------------------------------- distribuire un documento
@@ -308,7 +336,7 @@ export type Azione =
    * Il documento pronto per qualcuno, prima di consegnarlo. `allievoId` nullo =
    * lo stesso per tutti. Averlo non è averlo consegnato: quello è un gesto a parte.
    */
-  | { tipo: 'consegna.documento.allega'; consegnaId: string; allievoId: string | null }
+  | { tipo: 'consegna.documento.allega'; consegnaId: string; allievoId: string | null; file?: string }
   | { tipo: 'consegna.documento.apri'; consegnaId: string; allievoId: string | null }
   | { tipo: 'consegna.documento.togli'; consegnaId: string; allievoId: string | null }
   /** Consegnato a mano: solo la spunta. */
@@ -318,12 +346,12 @@ export type Azione =
    * `allieviIds` parte per tutti quelli in attesa con documento pronto; chi non
    * ha un indirizzo resta indietro e viene nominato.
    */
-  | { tipo: 'consegna.distribuisci'; consegnaId: string; allieviIds?: string[] }
+  | { tipo: 'consegna.distribuisci'; consegnaId: string; allieviIds?: string[]; conferma?: boolean }
   /**
    * Il foglio firme della consegna: uno per tutta la richiesta, ha senso solo
    * quando è il docente a consegnare.
    */
-  | { tipo: 'consegna.firme.aggiungi'; consegnaId: string }
+  | { tipo: 'consegna.firme.aggiungi'; consegnaId: string; file?: string }
   | { tipo: 'consegna.firme.apri'; consegnaId: string }
   | { tipo: 'consegna.firme.togli'; consegnaId: string }
   /** Toglie il file e la spunta: il documento torna atteso. */
@@ -389,6 +417,14 @@ export type Azione =
     nome: string
     contenuto: string
     divisione: Divisione
+  }
+  /**
+   * Assorbe un PDF rimasto nella cartella `in-arrivo/` del disco nel documento corrente.
+   * L'originale va nel cestino solo se è entrato nel documento.
+   */
+  | {
+    tipo: 'smistamento.cassetta.assorbi'
+    percorso: string
   }
   /** Rimette in coda la lettura delle pagine scelte (nome letto male o mancante). */
   | { tipo: 'smistamento.leggiPagine'; smistamentoId: string; pagine: number[] }
@@ -461,7 +497,7 @@ export type Azione =
   | { tipo: 'recapito.elimina'; classeId: string; recapitoId: string }
   | { tipo: 'comunicazione.salva'; classeId: string; comunicazione: Comunicazione }
   | { tipo: 'comunicazione.elimina'; classeId: string; comunicazioneId: string }
-  | { tipo: 'comunicazione.invia'; classeId: string; comunicazioneId: string }
+  | { tipo: 'comunicazione.invia'; classeId: string; comunicazioneId: string; conferma?: boolean }
   /** Spunta «spedita» data a mano dopo l'invio dal programma di posta; `false` torna bozza. */
   | { tipo: 'comunicazione.spunta'; classeId: string; comunicazioneId: string; spedita: boolean }
   // ---------------------------------------------------------------- assenze
@@ -478,6 +514,7 @@ export type Azione =
     allievoId: string
     genere: TipoRapporto
     firmato: boolean
+    file?: string
   }
   | {
     tipo: 'assenze.foglio.apri'
@@ -511,14 +548,14 @@ export type Azione =
    * Richiesta di firma: una mail per allievo all'azienda, con i fogli vergini.
    * `allieviIds` vuoto = tutti i pronti non ancora spediti.
    */
-  | { tipo: 'assenze.invia'; classeId: string; bloccoId: string; allieviIds: string[] }
+  | { tipo: 'assenze.invia'; classeId: string; bloccoId: string; allieviIds: string[]; conferma?: boolean }
   /** La spunta sulla richiesta di un allievo: partita, o tornata da mandare. */
   | { tipo: 'assenze.spunta'; classeId: string; bloccoId: string; allievoId: string; spedita: boolean }
   /**
    * Con `ruolo: 'recupero'` l'allievo è facoltativo: senza è il testo della
    * prova, con è il compito rifatto. `recupero-soluzione` non ha allievo.
    */
-  | { tipo: 'allegato.aggiungi'; valutazioneId: string; ruolo: RuoloAllegato; allievoId?: string | null }
+  | { tipo: 'allegato.aggiungi'; valutazioneId: string; ruolo: RuoloAllegato; allievoId?: string | null; file?: string }
   | { tipo: 'allegato.apri'; valutazioneId: string; allegatoId: string }
   | { tipo: 'allegato.elimina'; valutazioneId: string; allegatoId: string }
   /**
@@ -527,7 +564,7 @@ export type Azione =
    */
   | { tipo: 'impostazioni.salva'; impostazioni: ImpostazioniDaSalvare }
   /** Sceglie il logo della carta intestata e lo porta dentro il documento. */
-  | { tipo: 'intestazione.logo'; cartaId: string }
+  | { tipo: 'intestazione.logo'; cartaId: string; file?: string }
   /** Toglie il logo dalla carta intestata. */
   | { tipo: 'intestazione.togliLogo'; cartaId: string }
   /**
@@ -558,18 +595,23 @@ export type Azione =
         | 'allievo'
         | 'momento'
         | 'foto-classe'
+        | 'diario'
+        | 'corso'
+        | 'supplenze'
     /**
-     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze),
+     * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso, supplenze),
      * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova).
      */
     id: string
     /**
      * Solo per la scheda dell'allievo: il corso di cui parla, perché una media fra
-     * due materie non ha senso. Vuoto solo se la classe non ha corsi.
+     * due materie non ha senso. Vuoto se la scheda è per il docente di classe.
      */
     corsoId?: string | null
     /** Solo per valutazioni e scheda dell'allievo: il periodo da guardare. */
     semestreId?: string | null
+    /** Scheda allievo dal punto di vista del docente di classe (tutte le materie). */
+    docenteDiClasse?: boolean
   }
   /**
    * Tutti i fogli di un corso in un colpo: presenze, griglia dei voti, una scheda
@@ -654,6 +696,19 @@ export type Azione =
   | { tipo: 'posta.collega' }
   /** Toglie dal portachiavi le credenziali della casella: si torna alle bozze. */
   | { tipo: 'posta.scollega' }
+  /**
+   * Collega un account Microsoft per leggere il suo OneDrive: l'indirizzo (dato,
+   * o chiesto dall'host con la casella della posta già scritta) e l'accesso dal
+   * browser. Il gettone resta nel portachiavi dell'host, mai nel webview.
+   */
+  | { tipo: 'microsoft.aggiungi'; indirizzo?: string }
+  /** Scollega un account Microsoft: toglie il suo gettone dal portachiavi. */
+  | { tipo: 'microsoft.togli'; indirizzo: string }
+  /**
+   * Apre un documento `.regi` trovato su OneDrive: il file sincronizzato sul
+   * computer se c'è, altrimenti una copia scaricata dove si sceglie.
+   */
+  | { tipo: 'onedrive.apri'; account: string; drive: string; id: string }
   | { tipo: 'sistema.messaggio'; livello: 'info' | 'avviso' | 'errore'; testo: string }
   // ------------------------------------------------------------------- mappa
   /**
@@ -1310,6 +1365,11 @@ export interface VoceProgramma {
   sospesa: boolean
   /** Voce rara: sta in fondo alla sezione, in un gruppo che si apre. */
   avanzata: boolean
+  /**
+   * La scrive «Collega la casella» (`CHIAVI_DEL_COLLEGAMENTO`): si mostra in
+   * sola lettura e non si ritira, in tutte e due le superfici.
+   */
+  delCollegamento: boolean
 }
 
 /**
@@ -1356,6 +1416,8 @@ export interface MessaggioStato {
     exchange: boolean
     /** Il server a cui si consegna, per la scheda che lo dice. */
     server: string
+    /** La porta del server (STARTTLS). */
+    porta: number
     invioDiretto: boolean
     /** L'indirizzo da cui si scrive: quello che le famiglie vedono in «Da». */
     mittente: string
@@ -1364,7 +1426,17 @@ export interface MessaggioStato {
      * sigla): scambiati, fanno rifiutare l'invio.
      */
     accesso: string
+    /**
+     * Gli indirizzi da cui l'account collegato può scrivere, detti da Microsoft
+     * all'accesso: il mittente si sceglie fra questi. Vuoto se non è collegato.
+     */
+    indirizzi: string[]
   }
+  /**
+   * Gli account Microsoft: quelli collegati per OneDrive, e la casella della
+   * posta anche se non lo è ancora. Nessun gettone: solo chi e che cosa.
+   */
+  microsoft: { account: AccountMicrosoft[] }
   /** Quanti gesti si possono annullare e ripristinare: accendono ↶ ↷ e il suggerimento. */
   storia: { annulla: number; ripristina: number }
   documenti: {

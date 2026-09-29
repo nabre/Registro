@@ -899,7 +899,10 @@ export async function componiPdf (
   dati: DatiRapporto,
   carica?: CaricaImmagine,
 ): Promise<Uint8Array> {
-  const pdf = await PDFDocument.create()
+  // Senza le date di creazione e modifica che pdf-lib scrive da sé: lo stesso
+  // rapporto rifatto dà gli stessi byte, `riscrivi` lo riconosce uguale e il
+  // lettore aperto non si ricarica (ADR-48).
+  const pdf = await PDFDocument.create({ updateMetadata: false })
   const normale = await pdf.embedFont(StandardFonts.Helvetica)
   const grassetto = await pdf.embedFont(StandardFonts.HelveticaBold)
 
@@ -966,9 +969,9 @@ export async function componiPdf (
 
   pdf.setTitle(sanifica(riempi(modello.titolo, dati.valori)))
   // testo-fisso: il marchio, uguale in tutte le lingue
-  pdf.setProducer('Regiclass')
+  pdf.setProducer('Regiklass')
   // testo-fisso: il marchio, uguale in tutte le lingue
-  pdf.setCreator('Regiclass')
+  pdf.setCreator('Regiklass')
 
   corpo.forEach((blocco, i) => {
     // Prima di un capitolo si guarda se ci sta.

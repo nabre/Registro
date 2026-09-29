@@ -12,7 +12,7 @@ const SERVIZIO = 'https://nominatim.openstreetmap.org/search'
 
 /** Chi sta chiamando: Nominatim rifiuta le richieste anonime. */
 // testo-fisso: l'intestazione `user-agent` per il gestore del servizio, non la legge chi insegna
-const CHI_CHIAMA = 'Regiclass/1.0 (+https://github.com/nabre/Registro)'
+const CHI_CHIAMA = 'Regiklass/1.0 (+https://github.com/nabre/Registro)'
 
 /** Una richiesta al secondo, il limite di Nominatim, con un po' di margine. */
 const PAUSA_MS = 1100

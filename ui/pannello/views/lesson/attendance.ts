@@ -23,8 +23,8 @@ import { conferma } from '../../components/modal.js'
 import { h } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import type { Risposta } from '../../../../contract/protocollo.js'
-import { aggiorna, classeDiLezione, stato as statoPannello } from '../../state.js'
-import { tabella } from '../../components/table.js'
+import { classeDiLezione, stato as statoPannello, vai } from '../../state.js'
+import { inTelaio, tabella } from '../../components/table.js'
 import { testi } from './attendance.testi.js'
 
 /**
@@ -73,7 +73,11 @@ function menuStati (
   )
 }
 
-function pulsanteStato (opzioni: {
+/**
+ * Esportata per le prove di regressione: verifica che la chiusura del DOM
+ * tenga traccia dello stato in volo nei clic a raffica.
+ */
+export function pulsanteStato (opzioni: {
   stato: StatoPresenza | null
   titolo: string
   fuoco: string
@@ -103,13 +107,18 @@ function pulsanteStato (opzioni: {
   // casella non gira. Il marchio si azzera al tocco dopo.
   let attesa: number | null = null
   let clicSpeso = false
+  /**
+   * Il pulsante che si sta premendo, preso dall'evento: dopo un ridisegno
+   * `bottone` può essere quello scartato.
+   */
+  let premuto: HTMLElement | null = null
 
   const fermaAttesa = (): void => {
     if (attesa !== null) {
       clearTimeout(attesa)
       attesa = null
     }
-    bottone.classList.remove('stato-presenza--premuto')
+    ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
   }
 
   const bottone = h(
@@ -145,11 +154,12 @@ function pulsanteStato (opzioni: {
         clicSpeso = false
         if (evento.button !== 0) return
         fermaAttesa()
-        bottone.classList.add('stato-presenza--premuto')
+        premuto = evento.currentTarget as HTMLElement
+        premuto.classList.add('stato-presenza--premuto')
         attesa = window.setTimeout(() => {
           attesa = null
           clicSpeso = true
-          bottone.classList.remove('stato-presenza--premuto')
+          ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
           menuStati(evento, inVolo ?? stato, manda)
         }, PRESSIONE_LUNGA)
       },
@@ -292,7 +302,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
   }
 
   const nonImpostato = minuscolo(L.presenze['non-impostato'])
-  return scheda({
+  return inTelaio(scheda({
     titolo: t.appello,
     sottotitolo,
     azioni: [
@@ -336,11 +346,16 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
             azione: pulsante({
               testo: t.vaiAllaClasse,
               variante: 'primario',
-              al: () => aggiorna({ vista: 'classi', classeId: classe.id }),
+              al: () => { vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classe.id } }) },
             }),
           })
         : tabella({
             classi: { telaio: 'appello__telaio', tabella: 'appello' },
+            // Stesso nodo fra due clic, se la catena regge; se no almeno lo
+            // scorrimento si rimette: a ogni presenza segnata non si torna a sinistra.
+            telaio: 'appello',
+            // testo-fisso: una chiave, non un testo
+            scorrimento: `appello:${lezione.id}`,
             intestazione: [
               h('th', { class: 'appello__nome', attr: { scope: 'col' } }, Uno(L.pif)),
               ...ud.map((unita) => {
@@ -378,7 +393,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
             ],
             righe: allievi.map(rigaAllievo),
           }),
-  })
+  }), 'appello')
 }
 
 /**

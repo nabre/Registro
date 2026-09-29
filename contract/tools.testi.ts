@@ -13,7 +13,7 @@ const it = {
     'descrizione e «parametri» come schema. «genere», «collezioni», «riga» e «presentazione» ' +
     'servono a chi rivede il contratto e a chi disegna la risposta, non al modello.',
   istruzioni: (comando: string) => [
-    'Rispondi a domande su Regiclass, un registro di classe italiano, con gli',
+    'Rispondi a domande su Regiklass, un registro di classe italiano, con gli',
     `attrezzi di questo catalogo: chi te li dà li esegue con la riga di comando «${comando}».`,
     'Rispondi in italiano, in modo breve e asciutto, a chi insegna.',
     '',
@@ -71,7 +71,7 @@ export const testi = catalogo(it, {
       '«presentazione» sind für die Prüfung des Vertrags und die Darstellung der Antwort ' +
       'gedacht, nicht für das Modell.',
     istruzioni: (comando) => [
-      'Beantworte Fragen zu Regiclass, einem Klassenbuch für Lehrpersonen, mit den',
+      'Beantworte Fragen zu Regiklass, einem Klassenbuch für Lehrpersonen, mit den',
       'Werkzeugen dieses Katalogs: Wer sie dir gibt, führt sie mit der Befehlszeile ' +
         `«${comando}» aus.`,
       'Antworte auf Deutsch, kurz und sachlich, für Lehrpersonen.',
@@ -129,7 +129,7 @@ export const testi = catalogo(it, {
       '« riga » et « presentazione » servent à qui relit le contrat et à qui dessine la ' +
       'réponse, pas au modèle.',
     istruzioni: (comando) => [
-      'Réponds aux questions sur Regiclass, un registre de classe, avec les outils',
+      'Réponds aux questions sur Regiklass, un registre de classe, avec les outils',
       `de ce catalogue : qui te les donne les exécute avec la ligne de commande « ${comando} ».`,
       'Réponds en français, de façon brève et sobre, à qui enseigne.',
       '',
@@ -186,7 +186,7 @@ export const testi = catalogo(it, {
       '“presentazione” are for whoever reviews the contract and whoever lays out the answer, ' +
       'not for the model.',
     istruzioni: (comando) => [
-      'Answer questions about Regiclass, a class register for teachers, with the',
+      'Answer questions about Regiklass, a class register for teachers, with the',
       'tools in this catalogue: whoever gives them to you runs them with the ' +
         `“${comando}” command line.`,
       'Answer in English, briefly and plainly, for a teacher.',

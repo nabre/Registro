@@ -34,15 +34,21 @@ export function annoInUso (registro: Registro): AnnoScolastico | null {
 export function allineaSemestri (semestri: Semestre[]): Semestre[] {
   const ordinati = [...semestri].sort((a, b) => a.inizio.localeCompare(b.inizio))
 
-  return ordinati.map((semestre, indice) => {
-    const inizio = indice === 0 ? semestre.inizio : sommaGiorni(ordinati[indice - 1].fine, 1)
-    return {
+  const allineati: Semestre[] = []
+  for (const semestre of ordinati) {
+    // Il successivo parte dalla fine già raddrizzata, non da quella letta:
+    // altrimenti un primo semestre al contrario farebbe cominciare il secondo
+    // prima del primo, e riallineare cambierebbe ancora (non sarebbe un punto fermo).
+    const precedente = allineati.at(-1)
+    const inizio = precedente ? sommaGiorni(precedente.fine, 1) : semestre.inizio
+    allineati.push({
       ...semestre,
-      numero: (indice + 1) as Semestre['numero'],
+      numero: (allineati.length + 1) as Semestre['numero'],
       inizio,
       fine: semestre.fine >= inizio ? semestre.fine : inizio,
-    }
-  })
+    })
+  }
+  return allineati
 }
 
 /** Da quando a quando va l'anno: gli estremi dei suoi semestri. */
@@ -274,6 +280,27 @@ export function letteraSettimana (
 ): LetteraSettimana | null {
   if (!anno?.settimane) return null
   return anno.settimane[inizioSettimana(giorno)] ?? null
+}
+
+/**
+ * Perché un tipo di settimana non si può scrivere su quel giorno, o `null` se
+ * si può. Si chiede prima di `conLetteraSettimana`, che una voce storta la
+ * scarta in silenzio: chi l'ha chiesta deve saperlo. Togliere (`null`) va
+ * sempre bene, anche una voce rimasta fuori dall'anno; metterla su un giorno
+ * fuori dall'anno no: nessuna vista ne mostrerebbe la settimana.
+ */
+export function motivoSettimanaRifiutata (
+  anno: AnnoScolastico,
+  giorno: Iso,
+  lettera: unknown,
+): string | null {
+  if (lettera === null) return null
+  if (!letteraValida(lettera)) return testi().letteraNonValida
+  const estremi = estremiAnno(anno)
+  if (!isoValida(giorno) || !estremi || giorno < estremi.inizio || giorno > estremi.fine) {
+    return testi().giornoFuoriAnno(giorno)
+  }
+  return null
 }
 
 /**
