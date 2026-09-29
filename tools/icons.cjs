@@ -29,6 +29,12 @@
 //                                                       applicazioni, collegamenti,
 //                                                       vassoio su Windows e Linux
 //   icons/icon.png            512                       notifiche
+//   icons/installatore.ico    16…256, l'icona col       il file dell'installatore
+//                             distintivo della freccia  (`nsis.installerIcon`)
+//   icons/portabile.ico       16…256, l'icona col       il file del portabile
+//                             distintivo della borsa    (`tools/pacchetto.mjs`)
+//   icons/disinstallatore.ico 16…256, l'icona col       il disinstallatore
+//                             distintivo del cestino    (`nsis.uninstallerIcon`)
 //   icons/icon.icns           16…1024                   applicazione su macOS
 //   icons/png/NxN.png         16…1024, una per misura   applicazione su Linux
 //   icons/trayTemplate(@2x)   16 e 32, nero             barra dei menu di macOS,
@@ -82,6 +88,10 @@ const FONDO_BASSO = '#2f6108'
 const TRATTO = '#ffffff'
 /** Il mese di oggi: `--attenzione` del tema scuro, che sul verde si stacca. */
 const ORA = '#ff9a4d'
+/** I distintivi: l'arancio di `ORA` e un marrone di cuoio, scuri perché il bianco sopra si legga. */
+const DISTINTIVO_INSTALLATORE = '#d4601a'
+const DISTINTIVO_PORTABILE = '#7a4a22'
+const DISTINTIVO_DISINSTALLATORE = '#b3261e'
 
 /**
  * Le misure del `.ico`. Windows prende la più vicina senza ridimensionare bene:
@@ -126,6 +136,38 @@ function disegno (misura) {
   const nome = misura <= ULTIMA_PICCOLA ? 'registro-app-piccola.svg' : 'registro-app.svg'
   return aMisura(sorgente(nome), misura)
 }
+
+/**
+ * L'icona del programma con un distintivo in basso a destra: un tondo
+ * cerchiato di bianco e dentro un simbolo bianco. Chi scarica distingue così
+ * installatore e portabile dal programma già installato, e l'uno dall'altro;
+ * chi disinstalla riconosce il disinstallatore.
+ */
+function conDistintivo (misura, colore, simbolo) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${misura}" height="${misura}">
+  ${aMisura(disegno(misura), 32)}
+  <circle cx="24" cy="24" r="7.6" fill="${TRATTO}"/>
+  <circle cx="24" cy="24" r="6.3" fill="${colore}"/>
+  ${simbolo}
+</svg>`
+}
+
+/** L'installatore: una freccia che scende, nel tondo arancio. */
+const disegnoInstallatore = (misura) => conDistintivo(misura, DISTINTIVO_INSTALLATORE,
+  `<path d="M24 19.9V27M21 24.1L24 27.1L27 24.1" fill="none" stroke="${TRATTO}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>`)
+
+/** Il portabile: una piccola borsa col manico, nel tondo marrone del cuoio. */
+const disegnoPortabile = (misura) => conDistintivo(misura, DISTINTIVO_PORTABILE,
+  `<path d="M22.2 22.3V21.3Q22.2 20.1 23.4 20.1H24.6Q25.8 20.1 25.8 21.3V22.3" fill="none" stroke="${TRATTO}" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M21.1 21.9H26.9Q27.6 21.9 27.7 22.6L28.3 26.8Q28.4 27.8 27.4 27.8H20.6Q19.6 27.8 19.7 26.8L20.3 22.6Q20.4 21.9 21.1 21.9Z" fill="${TRATTO}"/>
+  <path d="M20.3 23.6Q24 25.4 27.7 23.6" fill="none" stroke="${DISTINTIVO_PORTABILE}" stroke-width="0.6"/>
+  <rect x="23.3" y="24" width="1.4" height="1.3" rx="0.3" fill="${DISTINTIVO_PORTABILE}"/>`)
+
+/** Il disinstallatore: un cestino col coperchio, nel tondo rosso. */
+const disegnoDisinstallatore = (misura) => conDistintivo(misura, DISTINTIVO_DISINSTALLATORE,
+  `<path d="M20.9 21.1H27.1M23 21V20.3Q23 19.8 23.5 19.8H24.5Q25 19.8 25 20.3V21" fill="none" stroke="${TRATTO}" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M21.6 22.2H26.4L25.9 27.3Q25.8 28 25.1 28H22.9Q22.2 28 22.1 27.3Z" fill="${TRATTO}"/>
+  <path d="M23.3 23.4V26.6M24.7 23.4V26.6" fill="none" stroke="${DISTINTIVO_DISINSTALLATORE}" stroke-width="0.6" stroke-linecap="round"/>`)
 
 /** Il segno senza fondo, nel colore chiesto. */
 function segno (misura, colore) {
@@ -401,6 +443,19 @@ void app.whenReady().then(async () => {
   scrivi('icon.ico', componiIco(immagini))
   scrivi('icon.png', await png(MISURA_PNG))
 
+  const distinti = [
+    ['installatore.ico', disegnoInstallatore],
+    ['portabile.ico', disegnoPortabile],
+    ['disinstallatore.ico', disegnoDisinstallatore],
+  ]
+  for (const [nome, disegna] of distinti) {
+    const varianti = []
+    for (const misura of MISURE) {
+      varianti.push({ misura, byte: await rendi(finestra, disegna(misura), misura) })
+    }
+    scrivi(nome, componiIco(varianti))
+  }
+
   mkdirSync(percorso.join(cartella, 'png'), { recursive: true })
   for (const misura of MISURE_PNG) scrivi(`png/${misura}x${misura}.png`, await png(misura))
 
@@ -432,7 +487,8 @@ void app.whenReady().then(async () => {
 
   finestra.destroy()
   console.log(
-    `icons/icon.ico (${MISURE.join(', ')}), icons/icon.png (${MISURA_PNG}), icons/icon.icns, ` +
+    `icons/icon.ico (${MISURE.join(', ')}), icons/icon.png (${MISURA_PNG}), ` +
+    'icons/installatore.ico, icons/portabile.ico, icons/disinstallatore.ico, icons/icon.icns, ' +
     `icons/png/ (${MISURE_PNG.join(', ')}), icons/trayTemplate(@2x).png, ` +
     'icons/installerSidebar.bmp, icons/installerHeader.bmp e resources/registro-fascia.svg',
   )

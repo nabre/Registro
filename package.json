@@ -56,7 +56,7 @@
     "fumo": "node tools/fumo.mjs",
     "ui-tests": "node tools/uiTests.mjs",
     "ci": "node tools/ci.mjs",
-    "package": "node tools/schoolCalendar.mjs && node esbuild.mjs --produzione && electron-builder --config electron-builder.json",
+    "package": "node tools/schoolCalendar.mjs && node esbuild.mjs --produzione && node tools/pacchetto.mjs --config electron-builder.json",
     "icons": "electron tools/icons.cjs",
     "templates": "node tools/templates.mjs",
     "calendario": "node tools/schoolCalendar.mjs",

@@ -149,6 +149,11 @@
     "language": "1040",
     // Le immagini della procedura le prende electron-builder da `icons/`
     // (`tools/icons.cjs`).
+    // Installatore e disinstallatore hanno l'icona del programma col loro
+    // distintivo, freccia e cestino (`tools/icons.cjs`). Quella del portabile non
+    // ha una chiave qui: la posa `tools/pacchetto.mjs`.
+    "installerIcon": "icons/installatore.ico",
+    "uninstallerIcon": "icons/disinstallatore.ico",
     // Per utente: installare in `Programmi` chiede l'amministratore.
     "perMachine": false,
     "shortcutName": "Regiklass",
@@ -166,6 +171,8 @@
 
   // Il portabile tiene i dati in «Regiklass - dati» accanto all'eseguibile
   // (`desktop/shell/system/portable.ts`); si disinstalla col menu o buttando i due.
+  // L'icona del file, la borsa, la mette `tools/pacchetto.mjs`: si costruisce
+  // con `node tools/pacchetto.mjs`, non con `electron-builder` diretto.
   "portable": {
     "artifactName": "${name}-${version}-portabile.${ext}"
   },

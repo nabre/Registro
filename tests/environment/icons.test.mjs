@@ -104,6 +104,29 @@ describe('il .ico', () => {
   })
 })
 
+describe('le icone dei file scaricati', () => {
+  const config = configurazione()
+
+  it('installatore, disinstallatore e portabile hanno il loro .ico, con le misure dell’icona', () => {
+    const icone = [config.nsis.installerIcon, config.nsis.uninstallerIcon, 'icons/portabile.ico']
+    for (const icona of icone) {
+      assert.ok(existsSync(file(icona)), `${icona} non c’è: npm run icons`)
+      const misure = vociIco(readFileSync(file(icona))).map((voce) => voce.dichiarata)
+      for (const misura of [16, 32, 48, 256]) assert.ok(misure.includes(misura), `${icona}: manca la ${misura}`)
+    }
+  })
+
+  it('il portabile si costruisce sempre da tools/pacchetto.mjs, che ne posa l’icona', () => {
+    // electron-builder diretto darebbe al portabile l'icona del programma.
+    assert.match(readFileSync(file('tools/pacchetto.mjs'), 'utf8'), /icons\/portabile\.ico/)
+    const lanci = [
+      JSON.parse(readFileSync(file('package.json'), 'utf8')).scripts.package,
+      readFileSync(file('.github/workflows/rilascio.yml'), 'utf8'),
+    ].join('\n')
+    assert.doesNotMatch(lanci, /electron-builder --config/)
+  })
+})
+
 describe('l’identità del portabile', () => {
   it('chi la registra e chi la toglie la chiamano allo stesso modo', () => {
     // Scritta in `HKCU\Software\Classes\AppUserModelId` da una parte e tolta da

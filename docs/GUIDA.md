@@ -197,8 +197,9 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 
 - `npm run package`: aggiorna il calendario scolastico (`npm run calendario`:
   Python con `pdftotext` o `pdfplumber`, e la rete; senza, resta quello che
-  c'è), compila e lancia electron-builder (`electron-builder.json`): installer
-  per utente senza diritti di amministratore, e portabile.
+  c'è), compila e lancia electron-builder (`electron-builder.json`) attraverso
+  `tools/pacchetto.mjs`, che dà al portabile l'icona della borsa: installer per
+  utente senza diritti di amministratore, e portabile.
 - Prima di alzare la versione di una release si compatta `VERSIONE_DATI`: i
   passi nati dopo l'ultima release diventano uno solo (skill `formato`
   § «Compattare prima di una release»).

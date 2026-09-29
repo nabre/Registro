@@ -210,7 +210,7 @@ jobs:
       - name: Applicazione
         shell: bash
         run: |
-          npx electron-builder --config electron-builder.json --win nsis --publish never
+          node tools/pacchetto.mjs --config electron-builder.json --win nsis --publish never
           test -f pacchetti/win-unpacked/resources/app-update.yml
           rm -f pacchetti/*.exe pacchetti/*.blockmap
           find pacchetti -maxdepth 1 -name '*.yml' ! -name builder-debug.yml -delete
@@ -264,8 +264,9 @@ jobs:
       # `--prepackaged`: electron-builder non rifà l'applicazione, prende quella
       # di `win-unpacked/` così com'è — firmata — e ci costruisce intorno i due
       # bersagli di `win.target`, con `latest.yml` e la `.blockmap`.
+      # `tools/pacchetto.mjs` è electron-builder con la borsa per il portabile.
       - name: Installatore e portabile
-        run: npx electron-builder --config electron-builder.json --win --prepackaged pacchetti/win-unpacked --publish never
+        run: node tools/pacchetto.mjs --config electron-builder.json --win --prepackaged pacchetti/win-unpacked --publish never
 
       - name: Metadati degli installatori
         shell: pwsh
