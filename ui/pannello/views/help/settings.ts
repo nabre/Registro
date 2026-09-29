@@ -162,7 +162,7 @@ function paginaImpostazioni (): string {
     testo(46, 139, s.aggiornamenti, { forte: true }),
     tastinoADestra(518, 126, 90, s.ripristina, i.ripristina),
     testo(46, 163, s.scaricaSubito, { corpo: 'piccolo', forte: true }),
-    pastiglia(46, 170, s.modificata, 'attenzione'),
+    pastiglia(46, 170, s.modificata, 'quieto'),
     tastinoADestra(558, 169, 50, s.ritira, i.ritira),
     righe(46, 200, 250, 1),
     bollino(22, 51, 1),

@@ -400,9 +400,31 @@ describe('lezione.salva e il cambio di corso', () => {
     assert.equal(esito.codice, 'non-trovato', JSON.stringify(esito))
     assert.equal(lezionePerId(lezione.id), undefined)
   })
+
+  it('rifiuta un piano assegnato a un altro corso', async () => {
+    const pianoAltro = api.creaPiano('Piano altro corso')
+    pianoAltro.corsoId = corsoAltraClasse.id
+    archivio.modifica((r) => { r.piani.push(pianoAltro) }, ['piani'])
+    const ora = oraCon([])
+    const esito = await esegui({
+      tipo: 'lezione.salva',
+      lezione: { ...lezionePerId(ora.id), pianoId: pianoAltro.id },
+    })
+    assert.equal(esito.ok, false)
+  })
 })
 
 describe('corso.salva e materia.unisci', () => {
+  it('un corso nuovo esige classe e materia esistenti', async () => {
+    const corsoInvalido1 = api.creaCorso('cls-mai', storia.id, 'Invalido 1')
+    const esito1 = await esegui({ tipo: 'corso.salva', corso: corsoInvalido1 })
+    assert.equal(esito1.ok, false)
+
+    const corsoInvalido2 = api.creaCorso(classe.id, 'mat-mai', 'Invalido 2')
+    const esito2 = await esegui({ tipo: 'corso.salva', corso: corsoInvalido2 })
+    assert.equal(esito2.ok, false)
+  })
+
   it('classe e materia di un corso esistente non cambiano', async () => {
     const vivo = archivio.registro.corsi.find((c) => c.id === corsoStessaClasse.id)
     const esito = await esegui({ tipo: 'corso.salva', corso: { ...vivo, classeId: corsoAltraClasse.classeId } })

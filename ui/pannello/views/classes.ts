@@ -492,6 +492,7 @@ export function vistaClassi (): Figlio {
       classe
         ? h(
             'div',
+            // testo-fisso: chiave di telaio
             { class: 'colonna', dataset: { telaio: `classe:${classe.id}` } },
             dettagliClasse(classe),
             scheda({

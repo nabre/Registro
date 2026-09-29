@@ -48,7 +48,7 @@ function citatiComeStringa (): string[] {
   const citati = new Set<string>()
   for (const file of dove) {
     for (const [, percorso] of readFileSync(file, 'utf8').matchAll(PERCORSO)) {
-      if (existsSync(percorso) && !percorso.endsWith('.test.mjs')) citati.add(percorso)
+      if (existsSync(percorso) && !percorso.endsWith('.test.mjs') && !percorso.endsWith('.spec.ts')) citati.add(percorso)
     }
   }
   return [...citati].filter((percorso) => !giàVisti.has(percorso)).sort()
@@ -97,6 +97,9 @@ export default {
     // per rifare le mappe dei blocchi dopo la firma. Dichiararla a parte
     // potrebbe portarne una seconda copia, diversa da quella che ha impacchettato.
     'app-builder-lib',
+    // Il plugin di knip la deduce da `"testRunner": "command"` di
+    // `stryker.config.json`, ma arriva già con `@stryker-mutator/core`.
+    '@stryker-mutator/command-runner',
   ],
   ignoreBinaries: [
     // Del sistema, fuori da Windows: `tools/fumo.mjs` cerca il registro rimasto acceso.

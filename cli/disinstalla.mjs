@@ -306,7 +306,10 @@ $risposta = [UIntPtr]::Zero
 
 function puliziaDiWindows (dati, eseguibile, portabile) {
   const windows = process.env.SystemRoot
-  if (!windows) return Promise.resolve()
+  // Le prove non toccano il registro di sistema di chi le lancia. Non possono
+  // togliere `SystemRoot`: senza, Node su Windows non inizializza il
+  // generatore casuale e il processo muore all'avvio.
+  if (!windows || process.env.REGISTRO_SENZA_PULIZIA_WINDOWS) return Promise.resolve()
   return new Promise((risolvi) => {
     execFile(join(windows, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), [
       '-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand',

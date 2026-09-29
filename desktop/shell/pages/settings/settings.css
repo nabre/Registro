@@ -60,6 +60,17 @@ h2 {
   padding: var(--spazio-5) 0;
 }
 
+/* Le voci rare in fondo al loro gruppo, chiuse come nel pannello. */
+.avanzate {
+  margin-top: var(--spazio-2);
+}
+
+.avanzate__titolo {
+  padding: var(--spazio-2) 0;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
 /* -------------------------------------------------------------- la voce */
 
 .voce {
@@ -156,11 +167,6 @@ h2 {
   border-radius: var(--raggio-pastiglia);
   border: 1px solid var(--bordo-tenue);
   color: var(--testo-quieto);
-}
-
-.voce__pastiglia--scritta {
-  border-color: var(--attenzione, var(--bordo));
-  color: var(--attenzione, var(--testo));
 }
 
 /* Sospesa: il padre è spento e questa non conta. Resta visibile perché la guida la nomina. */

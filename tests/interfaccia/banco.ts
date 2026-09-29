@@ -141,7 +141,7 @@ export async function riquadro (
   return misura
 }
 
-export interface OpzioniPannello extends BrowserContextOptions {
+interface OpzioniPannello extends BrowserContextOptions {
   larghezza?: number
   altezza?: number
   html?: string

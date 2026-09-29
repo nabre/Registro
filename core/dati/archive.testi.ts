@@ -22,6 +22,8 @@ const it = {
   voceNonJson: (nome: string, dove: string, motivo: string) =>
     `${nome} dentro ${dove} non è un JSON valido ` +
     `(${motivo}): il documento resta com’è.`,
+  /** Il motivo di `voceNonJson` quando il JSON si legge ma non è un oggetto. */
+  nonOggetto: 'non è un oggetto JSON',
   collezioneNonJson: (nome: string, motivo: string) =>
     `${nome} non è un JSON valido (${motivo}): ` +
     'resta com’è, e alla prima modifica viene messo da parte con un altro nome.',
@@ -68,6 +70,7 @@ export const testi = catalogo(it, {
       `aktualisiert — ${racconto}. Die Kopie im alten Zustand liegt unter «${copia}».`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} in ${dove} ist kein gültiges JSON (${motivo}): Das Dokument bleibt, wie es ist.`,
+    nonOggetto: 'kein JSON-Objekt',
     collezioneNonJson: (nome, motivo) =>
       `${nome} ist kein gültiges JSON (${motivo}): Es bleibt, wie es ist, und bei der ` +
       'ersten Änderung wird es unter einem anderen Namen beiseitegelegt.',
@@ -110,6 +113,7 @@ export const testi = catalogo(it, {
       `${racconto}. La copie telle qu’elle était se trouve dans « ${copia} ».`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} dans ${dove} n’est pas un JSON valide (${motivo}) : le document reste tel quel.`,
+    nonOggetto: 'pas un objet JSON',
     collezioneNonJson: (nome, motivo) =>
       `${nome} n’est pas un JSON valide (${motivo}) : il reste tel quel, et à la première ` +
       'modification il est mis de côté sous un autre nom.',
@@ -151,6 +155,7 @@ export const testi = catalogo(it, {
       `${racconto}. The copy as it was is in “${copia}”.`,
     voceNonJson: (nome, dove, motivo) =>
       `${nome} in ${dove} isn’t valid JSON (${motivo}): the document stays as it is.`,
+    nonOggetto: 'not a JSON object',
     collezioneNonJson: (nome, motivo) =>
       `${nome} isn’t valid JSON (${motivo}): it stays as it is, and at the first change it ` +
       'is put aside under another name.',

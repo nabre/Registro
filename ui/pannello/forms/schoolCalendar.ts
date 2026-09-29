@@ -67,7 +67,7 @@ function stato (voce: VoceUfficiale): HTMLElement {
 }
 
 /** «Ticino 2026/2027»: il calendario che un anno segue, per le pastiglie. */
-export function fonteCalendario (marcatore: CalendarioDellAnno): string {
+function fonteCalendario (marcatore: CalendarioDellAnno): string {
   const nome = calendarioDi(marcatore)?.cantoneNome ?? marcatore.cantone
   return testi().fonte(nome, marcatore.annoScolastico)
 }
@@ -138,7 +138,7 @@ export async function riallineaAlCalendario (anno: AnnoScolastico): Promise<bool
 }
 
 /** Stacca l'anno dal calendario, dopo averlo chiesto: date e chiusure restano. */
-export async function staccaDalCalendario (anno: AnnoScolastico): Promise<boolean> {
+async function staccaDalCalendario (anno: AnnoScolastico): Promise<boolean> {
   const t = testi()
   const sicuro = await conferma({
     titolo: t.staccaTitolo,

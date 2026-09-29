@@ -64,7 +64,6 @@ import {
   vociDi,
 } from './paths.js'
 
-export { classeDellaConsegna }
 
 /** Il carattere con cui si separa la classe dalla consegna nel nome di cartella. */
 const SEPARATORE = ' — '

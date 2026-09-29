@@ -38,6 +38,7 @@ import {
 } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './sorting.testi.js'
+import { vista } from './view.js'
 import { istanteAdesso } from '../dominio/dates.js'
 
 /**
@@ -587,14 +588,10 @@ export const smistamento = {
   },
 
   /**
-   * Apre le impostazioni dell'OCR nella finestra nativa: sono della macchina,
-   * non dell'anno, e il filtro lo legge solo lei.
+   * Porta il pannello su «Modelli linguistici», come la barra di stato: la
+   * lettura si accende dove si sceglie il suo modello. La finestra nativa il
+   * modello lo mostra soltanto, e sarebbe un vicolo cieco.
    */
-  'smistamento.impostazioni': async (_contesto, _azione) => {
-    await apparato.comandi.esegui(
-      'registroDocenti.impostazioniFinestra',
-      'registroDocenti.ocr',
-    )
-    return fatto
-  },
+  'smistamento.impostazioni': (contesto, _azione) =>
+    vista['vista.apri'](contesto, { tipo: 'vista.apri', vista: 'modelliLinguistici' }),
 } satisfies Parte

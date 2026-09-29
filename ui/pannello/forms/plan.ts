@@ -127,7 +127,7 @@ function statiDelPiano (base: PianoLezione): Array<{ testo: string, blocca: bool
 }
 
 /** I campi di un piano, staccati dalla finestra che li contiene. */
-export interface EditorPiano {
+interface EditorPiano {
   /** Il corpo dei campi: si appende a una modale o dentro una pagina. */
   corpo: HTMLElement
   /** Il piano com'è adesso nei campi, pronto da mandare al registro. */

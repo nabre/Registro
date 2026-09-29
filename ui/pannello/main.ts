@@ -363,9 +363,14 @@ ascolta((messaggio) => {
  * disegno; all'arrivo dei dati parte a blocco finito (`ricevoStato`), con gli
  * id già convalidati sul documento nuovo.
  */
+let ultimaMira: string | null = null
 iscriviti(() => {
   if (!stato.caricato) return
-  void invia({ tipo: 'proiezione.mira', mira: miraProiezione() })
+  const mira = miraProiezione()
+  const chiave = `${mira.lezioneId}|${mira.corsoId}|${mira.classeId}|${mira.semestreId}|${mira.data}`
+  if (chiave === ultimaMira) return
+  ultimaMira = chiave
+  void invia({ tipo: 'proiezione.mira', mira })
     .catch((errore: unknown) => console.warn('[proiezione.mira]', errore))
 })
 

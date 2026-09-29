@@ -82,6 +82,16 @@ function rifaiIsola (chiave: string): boolean {
 }
 
 /**
+ * Rifà l'isola adesso, non al prossimo fotogramma: per chi deve trovarci un
+ * nodo subito dopo (la tastiera che porta il fuoco su una voce non ancora
+ * disegnata). Mai dal disegno, come `ridisegnaIsola`.
+ */
+export function rifaiIsolaAdesso (chiave: string): boolean {
+  inAttesa.delete(chiave)
+  return rifaiIsola(chiave)
+}
+
+/**
  * Rifà l'isola al prossimo fotogramma. Mai dal disegno: un'isola che chiede di
  * ridisegnarsi mentre si disegna girerebbe a vuoto.
  */

@@ -29,6 +29,9 @@ const it = {
   serveChi: `Serve ${il(PIF)} a cui appartiene la prova.`,
   senzaClasse: 'La classe del momento di valutazione non esiste.',
   pifFuoriClasse: frase(PIF, 'trovato', { nega: true, coda: 'nella classe' }),
+  lezioneAltroCorso: 'La lezione collegata appartiene a un altro corso.',
+  pianoAltroCorso: 'Il piano collegato appartiene a un altro corso.',
+  pianoDiversoDaLezione: 'Il momento indica un piano diverso da quello della lezione.',
   /** Il titolo del dialogo che chiede il PDF di una persona. */
   provaDi: (recupero: boolean, nome: string) => `${recupero ? 'Recupero' : 'Prova'} di ${nome}`,
 }
@@ -59,6 +62,10 @@ export const testi = catalogo(it, {
     serveChi: 'Es braucht die lernende Person, der die Prüfung gehört.',
     senzaClasse: 'Die Klasse der Leistungsbeurteilung existiert nicht.',
     pifFuoriClasse: 'Lernende Person in der Klasse nicht gefunden.',
+    lezioneAltroCorso: 'Die verknüpfte Stunde gehört zu einem anderen Kurs.',
+    pianoAltroCorso: 'Der verknüpfte Unterrichtsplan gehört zu einem anderen Kurs.',
+    pianoDiversoDaLezione:
+      'Die Leistungsbeurteilung verweist auf einen anderen Unterrichtsplan als ihre Stunde.',
     provaDi: (recupero, nome) => `${recupero ? 'Nachprüfung' : 'Prüfung'} von ${nome}`,
   },
   fr: {
@@ -86,6 +93,10 @@ export const testi = catalogo(it, {
     serveChi: 'Il faut la personne en formation à qui appartient l’épreuve.',
     senzaClasse: 'La classe de l’évaluation n’existe pas.',
     pifFuoriClasse: 'Personne en formation introuvable dans la classe.',
+    lezioneAltroCorso: 'La leçon associée appartient à un autre cours.',
+    pianoAltroCorso: 'Le plan de leçon associé appartient à un autre cours.',
+    pianoDiversoDaLezione:
+      'L’évaluation renvoie à un autre plan de leçon que celui de sa leçon.',
     provaDi: (recupero, nome) => `${recupero ? 'Rattrapage' : 'Épreuve'} de ${nome}`,
   },
   en: {
@@ -111,6 +122,10 @@ export const testi = catalogo(it, {
     serveChi: 'The learner the test belongs to is needed.',
     senzaClasse: 'The assessment’s class doesn’t exist.',
     pifFuoriClasse: 'Learner not found in the class.',
+    lezioneAltroCorso: 'The linked lesson belongs to another course.',
+    pianoAltroCorso: 'The linked lesson plan belongs to another course.',
+    pianoDiversoDaLezione:
+      'The assessment refers to a different lesson plan from its lesson’s.',
     provaDi: (recupero, nome) => `${nome}’s ${recupero ? 'resit' : 'test'}`,
   },
 })

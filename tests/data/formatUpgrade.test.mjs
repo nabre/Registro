@@ -155,4 +155,23 @@ describe('i documenti campione del formato', () => {
     })
     await archivio.chiudi()
   })
+
+  it('se la copia di sicurezza fallisce, il documento vecchio non viene toccato', async () => {
+    const vecchio = campioni().find((c) => c.versione < VERSIONE_DATI)
+    if (!vecchio) return
+    const file = copiaDel(vecchio)
+    const originale = readFileSync(file)
+
+    const cartellaAnno = percorso.join(percorso.dirname(file), '2026-2027')
+    writeFileSync(cartellaAnno, 'blocco-cartella')
+
+    const { archivio, avvisi, errori } = await apri(file)
+    assert.equal(errori.length, 1, JSON.stringify(errori))
+    assert.deepEqual(avvisi, [])
+
+    await archivio.salva()
+    await archivio.chiudi()
+
+    assert.deepEqual(readFileSync(file), originale)
+  })
 })

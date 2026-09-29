@@ -245,10 +245,13 @@ interface StatoUI {
     /** Vero quando la casella è collegata: si spedisce dal server. */
     exchange: boolean;
     server: string;
+    porta: number;
     invioDiretto: boolean;
     mittente: string;
     /** Il nome con cui si entra, quando è diverso dall'indirizzo. */
     accesso: string;
+    /** Gli indirizzi dell'account collegato, fra cui si sceglie il mittente. */
+    indirizzi: string[];
   };
   /**
    * Gli account Microsoft collegati per OneDrive, e la casella della posta.
@@ -471,9 +474,11 @@ export const stato: StatoUI = {
   posta: {
     exchange: false,
     server: '',
+    porta: 0,
     invioDiretto: false,
     mittente: '',
     accesso: '',
+    indirizzi: [],
   },
   microsoft: { account: [] },
   lavoro: { corrente: null, fatte: 0, totale: 0, coda: [] },

@@ -61,9 +61,6 @@ export function alberoProcedure (
   return radice
 }
 
-/** Alias per `alberoProcedure`. */
-export const router = alberoProcedure
-
 /** Type guard per distinguere una foglia `ProceduraQualunque` da un sottoalbero. */
 function isProcedura (nodo: unknown): nodo is ProceduraQualunque {
   return (

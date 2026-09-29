@@ -25,7 +25,6 @@ export {
   foglie,
   linkDiretto,
   registraTutte,
-  router,
   TUTTE,
 } from '../../contract/registro.js'
 // Il catalogo per il modello, che una prova confronta col file su disco.

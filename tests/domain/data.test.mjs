@@ -533,6 +533,46 @@ describe('riferimentiRotti: rimandi ad altri corsi e persone estranee', () => {
     momento.recuperi = [{ allievoId: 'all-sparito', previstoIl: null }]
     assert.equal(riferimentiRotti(registro).length, 1)
   })
+
+  it('segnala documenti di consegna intestati a persone estranee', () => {
+    const { registro, corso, oraAltrui } = conAltroCorso()
+    const consegna = creaConsegna(corso.id, 'Esercizi', oraAltrui.data)
+    consegna.documenti = [{ allievoId: 'all-sparito', file: 'es.pdf', nome: 'es.pdf', aggiuntoIl: '2026-09-14T08:00:00.000Z' }]
+    registro.consegne.push(consegna)
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala fascicoli con documenti o assenze di persone estranee', () => {
+    const { registro, classe } = conAltroCorso()
+    registro.fascicoli.push({
+      id: 'fsc-1',
+      classeId: classe.id,
+      recapiti: [],
+      documenti: [{ id: 'doc-1', allievoId: 'all-sparito', titolo: 'Certificato', categoria: 'certificato', file: 'c.pdf', nome: 'c.pdf', aggiuntoIl: '2026-09-14T08:00:00.000Z' }],
+      comunicazioni: [],
+      assenze: [],
+      creatoIl: '2026-09-14T08:00:00.000Z',
+      aggiornatoIl: '2026-09-14T08:00:00.000Z',
+    })
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
+
+  it('segnala smistamenti con assegnate o blocchi di persone estranee', () => {
+    const { registro, classe } = conAltroCorso()
+    registro.smistamenti.push({
+      id: 'smi-1',
+      consegnaId: null,
+      classeId: classe.id,
+      file: 'scan.pdf',
+      nome: 'scan.pdf',
+      pagine: 2,
+      letture: [],
+      assegnate: [{ allievoId: 'all-sparito', da: 1, a: 1 }],
+      blocchi: [],
+      arrivatoIl: '2026-09-14T08:00:00.000Z',
+    })
+    assert.equal(riferimentiRotti(registro).length, 1)
+  })
 })
 
 describe('appello di un file di prima', () => {

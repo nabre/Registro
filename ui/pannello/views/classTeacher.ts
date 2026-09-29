@@ -26,7 +26,7 @@ import {
 } from '../../../core/dominio/todo.js'
 import { smistamentiDellaClasse } from '../../../core/dominio/sorting.js'
 import { CHI_INSEGNA } from '../../../core/dominio/models.js'
-import type { Allievo, Classe, Comunicazione, Consegna } from '../../../core/dominio/models.js'
+import type { Allievo, Classe, Comunicazione, Consegna, Iso } from '../../../core/dominio/models.js'
 import {
   collegamento,
   conAttesa,
@@ -44,6 +44,7 @@ import { menuContestuale } from '../components/menu.js'
 import { conferma } from '../components/modal.js'
 import { h } from '../dom.js'
 import { tabella } from '../components/table.js'
+import { finestra, stileVuoto, type Finestra } from '../components/virtuale.js'
 import { cellaNome } from '../components/avatar.js'
 import { moduloComunicazione, moduloConsegna, moduloRecapito } from '../forms.js'
 import { azione } from '../bridge.js'
@@ -115,6 +116,12 @@ function destinatariCon (consegna: Consegna, allievoId: string): string[] {
   return partenza.includes(allievoId) ? [...partenza] : [...partenza, allievoId]
 }
 
+/**
+ * La larghezza di una colonna della matrice, finché non la si è misurata: il
+ * titolo della richiesta (`.tabella__richiesta`) e i tre segni della casella.
+ */
+const LARGHEZZA_RICHIESTA = 122
+
 /** Il giorno di oggi, per dire se un termine è passato. */
 function scaduta (consegna: Consegna): boolean {
   const termine = scadenzaConsegna(stato.registro, consegna)
@@ -126,7 +133,7 @@ function scaduta (consegna: Consegna): boolean {
  * fatti indipendenti: a sinistra il gesto (portato / consegnato), a destra il
  * file (la scansione o la copia da consegnare).
  */
-function cellaDocumento (consegna: Consegna, allievo: Allievo) {
+function cellaDocumento (consegna: Consegna, allievo: Allievo, giornoDiOggi: Iso) {
   const tocca = consegna.a === 'classe' || consegna.allieviIds.includes(allievo.id)
   const t = testi()
 
@@ -169,7 +176,7 @@ function cellaDocumento (consegna: Consegna, allievo: Allievo) {
   // Il clic segue la regola del check (`gestoDelClic`): vuota si spunta,
   // spuntata oggi si toglie, spuntata un altro giorno col clic non si tocca. Il
   // giorno è quello di `fattaIl`; un istante illeggibile vale «un altro giorno».
-  const alClic = gestoDelClic(spunta ? (giornoDi(spunta.fattaIl) ?? '') : null, oggi())
+  const alClic = gestoDelClic(spunta ? (giornoDi(spunta.fattaIl) ?? '') : null, giornoDiOggi)
   const cambia = (bottone: HTMLButtonElement, fai: boolean): void =>
     void conAttesa(
       bottone,
@@ -376,119 +383,176 @@ function cellaFirme (consegna: Consegna) {
  * le chiede. Prende pagine come le righe delle persone; dove il PDF non è
  * agganciato a una richiesta con firme, lo dice il cursore prima del rilascio.
  */
-function rigaFirme (raccolte: Consegna[]) {
+function rigaFirme (colonne: Colonne) {
   const riga = h(
     'tr',
     { class: 'tabella__riga-firme' },
-    h('td', { class: 'tabella__nome' }, testi().firmeDiConsegna),
-    ...raccolte.map((consegna) => cellaFirme(consegna)),
-    h('td', { class: 'tabella__media' }, h('span', { class: 'testo-quieto' }, '—')),
+    h('td', { class: 'tabella__nome', attr: colonne.primaCella }, testi().firmeDiConsegna),
+    ...colonne.celle((consegna) => cellaFirme(consegna), 'td'),
+    h('td', { class: 'tabella__media', attr: colonne.ultimaCella }, h('span', { class: 'testo-quieto' }, '—')),
   )
   accettaPagineSullaRiga(riga, { tipo: 'firme' })
   return riga
 }
 
 /**
+ * Le colonne delle richieste in una riga della matrice, a finestra
+ * (`components/virtuale.ts`): le celle di quelle in vista, un vuoto al posto
+ * delle altre, e gli indici di colonna per chi legge con la voce.
+ */
+interface Colonne {
+  celle: (cella: (consegna: Consegna) => HTMLElement, tag: 'th' | 'td', intestazione?: boolean) => HTMLElement[]
+  primaCella: Record<string, number | undefined>
+  ultimaCella: Record<string, number | undefined>
+}
+
+function colonneDi (f: Finestra, raccolte: Consegna[]): Colonne {
+  return {
+    celle: (cella, tag, intestazione = false) => f.pezzi.map((pezzo, n) => {
+      if (pezzo.indice === undefined) {
+        return h(tag, {
+          class: 'tabella__vuoto',
+          style: stileVuoto(pezzo.vuoto, true),
+          dataset: intestazione && n === 0 ? f.inizio : undefined,
+          attr: { 'aria-hidden': 'true' },
+        })
+      }
+      const nodo = cella(raccolte[pezzo.indice])
+      Object.assign(nodo.dataset, intestazione ? f.testata(pezzo.indice) : f.voce(pezzo.indice))
+      if (f.attiva) nodo.setAttribute('aria-colindex', String(pezzo.indice + 2))
+      return nodo
+    }),
+    primaCella: { 'aria-colindex': f.attiva ? 1 : undefined },
+    ultimaCella: { 'aria-colindex': f.attiva ? raccolte.length + 2 : undefined },
+  }
+}
+
+/** Da quante richieste in su la matrice si disegna a finestra: come i voti, una colonna è una classe intera. */
+const SOGLIA_RICHIESTE = 20
+
+/**
  * La matrice: allievi in riga, documenti chiesti in colonna. Le colonne sono
  * consegne come le altre, lette in questa forma quando si spunta un foglio.
+ * Con molte richieste si disegnano solo le colonne in vista: lo scorrimento
+ * rifà l'isola della tabella, non la pagina.
  */
 function tabellaDocumenti (classe: Classe, raccolte: Consegna[], allievi: Allievo[]) {
   const t = testi()
   const L = lessico()
-  return tabella({
-    variante: 'documenti',
-    griglia: true,
-    // testo-fisso: la chiave con cui si ricorda lo scorrimento, non si legge
-    scorrimento: `documenti-classe:${classe.id}`,
-    intestazione: [
-      h('th', { class: 'tabella__nome' }, Uno(L.pif)),
-      ...raccolte.map((consegna) => {
-        const avanzamento = avanzamentoConsegna(consegna, classe)
-        const termine = scadenzaConsegna(stato.registro, consegna)
-        return h(
-          'th',
-          { class: 'tabella__richiesta' },
-          collegamento({
-            titolo:
+  // testo-fisso: la chiave con cui si ricorda lo scorrimento, non si legge
+  const scorrimento = `documenti-classe:${classe.id}`
+  const conFirme = raccolte.some((c) => c.verso === 'consegno' && c.firmeRichieste)
+  const parti = () => {
+    const f = finestra({
+      chiave: scorrimento,
+      conto: raccolte.length,
+      orizzontale: true,
+      stima: () => LARGHEZZA_RICHIESTA,
+      chiaveDi: (indice) => raccolte[indice].id,
+      soglia: SOGLIA_RICHIESTE,
+      oltre: 2,
+    })
+    const colonne = colonneDi(f, raccolte)
+    // Una volta per disegno, non per casella: chiedere la data all'orologio
+    // costa, e mille caselle la chiederebbero mille volte.
+    const giornoDiOggi = oggi()
+    return {
+      attr: { 'aria-colcount': f.attiva ? raccolte.length + 2 : undefined },
+      intestazione: [
+        h('th', { class: 'tabella__nome', attr: colonne.primaCella }, Uno(L.pif)),
+        ...colonne.celle((consegna) => {
+          const avanzamento = avanzamentoConsegna(consegna, classe)
+          const termine = scadenzaConsegna(stato.registro, consegna)
+          return h(
+            'th',
+            { class: 'tabella__richiesta' },
+            collegamento({
+              titolo:
               `${consegna.testo} — ${consegna.documento ?? L.documento.singolare}` +
               (termine ? t.entro(formattaData(termine)) : '') +
               `\n${t.apriLaConsegna}`,
-            al: () => moduloConsegna({ consegna }),
-            testo: [
-              h('span', { class: 'tabella__richiesta-titolo' }, consegna.testo),
-              h(
-                'small',
-                { class: scaduta(consegna) && !avanzamento.completa ? 'testo-negativo' : undefined },
-                `${avanzamento.fatte}/${avanzamento.destinatari.length}` +
+              al: () => moduloConsegna({ consegna }),
+              testo: [
+                h('span', { class: 'tabella__richiesta-titolo' }, consegna.testo),
+                h(
+                  'small',
+                  { class: scaduta(consegna) && !avanzamento.completa ? 'testo-negativo' : undefined },
+                  `${avanzamento.fatte}/${avanzamento.destinatari.length}` +
                   (termine ? ` · ${formattaData(termine, 'corto')}` : ''),
-              ),
-            ],
-          }),
-          // La spedizione sta in testa alla colonna: manda un messaggio con il documento
-          // a ciascuno di chi aspetta ancora.
-          siConsegna(consegna) &&
+                ),
+              ],
+            }),
+            // La spedizione sta in testa alla colonna: manda un messaggio con il documento
+            // a ciascuno di chi aspetta ancora.
+            siConsegna(consegna) &&
           consegna.modoConsegna === 'email' &&
           daConsegnareA(consegna, classe).length > 0
-            ? pulsante({
-                testo: t.preparaInvioN(daConsegnareA(consegna, classe).length),
-                simbolo: 'posta',
-                variante: 'sottile',
-                classe: 'tabella__spedisci',
-                titolo: t.preparaPerOgnuno,
-                al: async () => {
-                  const quanti = daConsegnareA(consegna, classe).length
-                  const sicuro = await conferma({
-                    titolo: t.preparareLeBozze(quanti),
-                    testo: t.bozzeATesta,
-                    testoConferma: t.prepara,
-                  })
-                  if (!sicuro) return
-                  await azione({ tipo: 'consegna.distribuisci', consegnaId: consegna.id })
-                },
-              })
-            : null,
-        )
-      }),
-      h('th', { class: 'tabella__media' }, t.suoi),
-    ],
-    righe: [
+              ? pulsante({
+                  testo: t.preparaInvioN(daConsegnareA(consegna, classe).length),
+                  simbolo: 'posta',
+                  variante: 'sottile',
+                  classe: 'tabella__spedisci',
+                  titolo: t.preparaPerOgnuno,
+                  al: async () => {
+                    const quanti = daConsegnareA(consegna, classe).length
+                    const sicuro = await conferma({
+                      titolo: t.preparareLeBozze(quanti),
+                      testo: t.bozzeATesta,
+                      testoConferma: t.prepara,
+                    })
+                    if (!sicuro) return
+                    await azione({ tipo: 'consegna.distribuisci', consegnaId: consegna.id })
+                  },
+                })
+              : null,
+          )
+        }, 'th', true),
+        h('th', { class: 'tabella__media', attr: colonne.ultimaCella }, t.suoi),
+      ],
+      righe: [
       // Le firme di consegna stanno in cima, prima dei nomi: riguardano tutta la
       // colonna. Le colonne che non le chiedono restano vuote.
-      raccolte.some((c) => c.verso === 'consegno' && c.firmeRichieste)
-        ? rigaFirme(raccolte)
-        : null,
-      ...allievi.map((allievo) => {
-        const suoi = raccolte.filter(
-          (c) => c.a === 'classe' || c.allieviIds.includes(allievo.id),
-        )
-        const portati = suoi.filter((c) => haFatto(c, allievo.id)).length
-        const riga = h(
-          'tr',
-          null,
-          h('th', { class: 'tabella__nome', attr: { scope: 'row' } }, cellaNome(allievo, nomeCompleto(allievo))),
-          ...raccolte.map((consegna) => cellaDocumento(consegna, allievo)),
-          h(
-            'td',
-            { class: 'tabella__media' },
-            suoi.length === 0
-              ? h('span', { class: 'testo-quieto' }, '—')
-              : pastiglia(
-                  `${portati}/${suoi.length}`,
-                  portati === suoi.length ? 'positivo' : 'attenzione',
-                ),
-          ),
-        )
+        conFirme ? rigaFirme(colonne) : null,
+        ...allievi.map((allievo) => {
+          const suoi = raccolte.filter(
+            (c) => c.a === 'classe' || c.allieviIds.includes(allievo.id),
+          )
+          const portati = suoi.filter((c) => haFatto(c, allievo.id)).length
+          const riga = h(
+            'tr',
+            null,
+            h('th', { class: 'tabella__nome', attr: { scope: 'row', ...colonne.primaCella } },
+              cellaNome(allievo, nomeCompleto(allievo))),
+            ...colonne.celle((consegna) => cellaDocumento(consegna, allievo, giornoDiOggi), 'td'),
+            h(
+              'td',
+              { class: 'tabella__media', attr: colonne.ultimaCella },
+              suoi.length === 0
+                ? h('span', { class: 'testo-quieto' }, '—')
+                : pastiglia(
+                    `${portati}/${suoi.length}`,
+                    portati === suoi.length ? 'positivo' : 'attenzione',
+                  ),
+            ),
+          )
 
-        // Tutta la riga prende le pagine quando il PDF sa già il suo documento; la
-        // casella resta per archiviare in un'altra colonna.
-        accettaPagineSullaRiga(riga, {
-          tipo: 'persona',
-          allievoId: allievo.id,
-          chi: nomeCompleto(allievo),
-        })
-        return riga
-      }),
-    ],
+          // Tutta la riga prende le pagine quando il PDF sa già il suo documento; la
+          // casella resta per archiviare in un'altra colonna.
+          accettaPagineSullaRiga(riga, {
+            tipo: 'persona',
+            allievoId: allievo.id,
+            chi: nomeCompleto(allievo),
+          })
+          return riga
+        }),
+      ],
+    }
+  }
+  return tabella({
+    variante: 'documenti',
+    griglia: true,
+    scorrimento,
+    virtuale: { chiave: scorrimento, parti },
   })
 }
 

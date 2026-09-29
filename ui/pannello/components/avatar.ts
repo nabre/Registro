@@ -34,7 +34,7 @@ function prima (parola: string | undefined): string {
  * Le iniziali, nome poi cognome. Senza cognome, prima e ultima parola del nome
  * intero: «Maria De Santis» è «MS».
  */
-export function iniziali (persona: Persona): string {
+function iniziali (persona: Persona): string {
   if (persona.cognome !== undefined) return prima(persona.nome) + prima(persona.cognome)
   const parole = persona.nome.trim().split(/\s+/).filter(Boolean)
   if (parole.length <= 1) return prima(parole[0])

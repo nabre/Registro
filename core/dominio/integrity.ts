@@ -22,6 +22,15 @@ export function riferimentiRotti (registro: Registro): string[] {
   const corsi = new Map(registro.corsi.map((c) => [c.id, c]))
   const piani = new Map(registro.piani.map((p) => [p.id, p]))
   const lezioni = new Map(registro.lezioni.map((l) => [l.id, l]))
+  const consegne = new Map(registro.consegne.map((c) => [c.id, c]))
+  const tuttiAllievi = new Set(registro.classi.flatMap((c) => c.allievi.map((a) => a.id)))
+
+  const classeDellaConsegna = (consegnaId: string | null | undefined): string | undefined => {
+    if (!consegnaId) return undefined
+    const c = consegne.get(consegnaId)
+    if (!c) return undefined
+    return corsi.get(c.corsoId)?.classeId
+  }
 
   const iscrittiDellaClasse = new Map(
     registro.classi.map((c) => [c.id, new Set(c.allievi.map((a) => a.id))]),
@@ -150,8 +159,18 @@ export function riferimentiRotti (registro: Registro): string[] {
   }
 
   for (const fascicolo of registro.fascicoli) {
-    if (!classi.has(fascicolo.classeId)) {
+    const classe = classi.get(fascicolo.classeId)
+    if (!classe) {
       problemi.push(t.fascicoloSenzaClasse)
+      continue
+    }
+    const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
+    const estranei = new Set([
+      ...fascicolo.documenti.map((d) => d.allievoId).filter((id): id is string => Boolean(id)),
+      ...fascicolo.assenze.flatMap((b) => b.righe.map((r) => r.allievoId)),
+    ].filter((id) => !iscritti.has(id))).size
+    if (estranei > 0) {
+      problemi.push(t.fascicoloEstranei(estranei, classe.nome))
     }
   }
 
@@ -176,12 +195,13 @@ export function riferimentiRotti (registro: Registro): string[] {
     const classe = classi.get(corso.classeId)
     if (!classe) continue
     const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
-    const estranei = [
+    const estranei = new Set([
       ...consegna.allieviIds,
       ...consegna.fatte.map((f) => f.chi).filter((chi) => chi !== CHI_INSEGNA),
-    ].filter((id) => !iscritti.has(id))
-    if (estranei.length > 0) {
-      problemi.push(t.consegnaEstranei(consegna.testo, estranei.length, classe.nome))
+      ...(consegna.documenti ?? []).map((d) => d.allievoId),
+    ].filter((id) => !iscritti.has(id))).size
+    if (estranei > 0) {
+      problemi.push(t.consegnaEstranei(consegna.testo, estranei, classe.nome))
     }
   }
 
@@ -212,6 +232,26 @@ export function riferimentiRotti (registro: Registro): string[] {
     ).size
     if (estranei > 0) {
       problemi.push(t.spunteEstranee(corso.titolo, estranei, classe.nome))
+    }
+  }
+
+  for (const smistamento of registro.smistamenti) {
+    const defaultClasseId = classeDellaConsegna(smistamento.consegnaId) ?? smistamento.classeId ?? undefined
+    const classe = defaultClasseId ? classi.get(defaultClasseId) : undefined
+    const estranei = new Set([
+      ...smistamento.assegnate.filter((a) => !a.firme).map((a) => {
+        const cId = a.assenze?.classeId ?? classeDellaConsegna(a.consegnaId) ?? defaultClasseId
+        const iscritti = cId ? iscrittiDellaClasse.get(cId) : undefined
+        return iscritti ? (iscritti.has(a.allievoId) ? null : a.allievoId) : (tuttiAllievi.has(a.allievoId) ? null : a.allievoId)
+      }),
+      ...smistamento.blocchi.map((b) => {
+        if (!b.allievoId) return null
+        const iscritti = defaultClasseId ? iscrittiDellaClasse.get(defaultClasseId) : undefined
+        return iscritti ? (iscritti.has(b.allievoId) ? null : b.allievoId) : (tuttiAllievi.has(b.allievoId) ? null : b.allievoId)
+      }),
+    ].filter((id): id is string => id !== null)).size
+    if (estranei > 0) {
+      problemi.push(t.smistamentoEstranei(smistamento.nome, estranei, classe?.nome ?? ''))
     }
   }
 

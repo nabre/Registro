@@ -40,6 +40,12 @@ const it = {
   valutazionePianoDiverso: (titolo: string) =>
     `Valutazione «${titolo}»: cita un piano diverso da quello della sua lezione.`,
   fascicoloSenzaClasse: 'Un fascicolo punta a una classe che non esiste più.',
+  fascicoloEstranei: (n: number, classe: string) =>
+    `Il fascicolo di ${classe} cita ${quanti(n, PIF)} non iscritte alla classe.`,
+  smistamentoEstranei: (nome: string, n: number, classe: string) =>
+    classe
+      ? `Lo smistamento «${nome}» cita ${quanti(n, PIF)} non iscritte a ${classe}.`
+      : `Lo smistamento «${nome}» cita ${quanti(n, PIF)} non iscritte.`,
   consegnaSenzaCorso: (testo: string) =>
     `La consegna «${testo}» non appartiene più a nessun corso.`,
   consegnaLezioneSparita: (testo: string) =>
@@ -106,6 +112,12 @@ export const testi = catalogo(it, {
       `Leistungsbeurteilung «${titolo}»: Sie verweist auf einen anderen Unterrichtsplan ` +
       'als ihre Stunde.',
     fascicoloSenzaClasse: 'Ein Klassendossier verweist auf eine Klasse, die es nicht mehr gibt.',
+    fascicoloEstranei: (n, classe) =>
+      `Das Klassendossier von ${classe} nennt ${plurale(n, 'Lernende', 'Lernende')}, die nicht in der Klasse eingeschrieben sind.`,
+    smistamentoEstranei: (nome, n, classe) =>
+      classe
+        ? `Die Zuordnung «${nome}» nennt ${plurale(n, 'Lernende', 'Lernende')}, die nicht in ${classe} eingeschrieben sind.`
+        : `Die Zuordnung «${nome}» nennt ${plurale(n, 'Lernende', 'Lernende')}, die nicht eingeschrieben sind.`,
     consegnaSenzaCorso: (testo) => `Der Auftrag «${testo}» gehört zu keinem Kurs mehr.`,
     consegnaLezioneSparita: (testo) =>
       `Der Auftrag «${testo}»: Die Stunde, mit der er verknüpft ist, ` +
@@ -163,6 +175,12 @@ export const testi = catalogo(it, {
     valutazionePianoDiverso: (titolo) =>
       `Évaluation « ${titolo} » : elle renvoie à un autre plan de leçon que celui de sa leçon.`,
     fascicoloSenzaClasse: 'Un dossier de classe renvoie à une classe qui n’existe plus.',
+    fascicoloEstranei: (n, classe) =>
+      `Le dossier de classe de ${classe} mentionne ${nonInscrites(n)} en ${classe}.`,
+    smistamentoEstranei: (nome, n, classe) =>
+      classe
+        ? `Le tri « ${nome} » mentionne ${nonInscrites(n)} en ${classe}.`
+        : `Le tri « ${nome} » mentionne ${nonInscrites(n)}.`,
     consegnaSenzaCorso: (testo) => `Le devoir « ${testo} » n’appartient plus à aucun cours.`,
     consegnaLezioneSparita: (testo) =>
       `Le devoir « ${testo} » : la leçon à laquelle il est lié n’existe plus.`,
@@ -221,6 +239,12 @@ export const testi = catalogo(it, {
     valutazionePianoDiverso: (titolo) =>
       `Assessment “${titolo}”: it refers to a different lesson plan from its lesson’s.`,
     fascicoloSenzaClasse: 'A class file points to a class that no longer exists.',
+    fascicoloEstranei: (n, classe) =>
+      `The class file for ${classe} mentions ${plurale(n, 'learner', 'learners')} not enrolled in the class.`,
+    smistamentoEstranei: (nome, n, classe) =>
+      classe
+        ? `The sorting batch “${nome}” mentions ${plurale(n, 'learner', 'learners')} not enrolled in ${classe}.`
+        : `The sorting batch “${nome}” mentions ${plurale(n, 'learner', 'learners')} not enrolled.`,
     consegnaSenzaCorso: (testo) => `The assignment “${testo}” no longer belongs to any course.`,
     consegnaLezioneSparita: (testo) =>
       `The assignment “${testo}”: the lesson it’s linked to no longer exists.`,

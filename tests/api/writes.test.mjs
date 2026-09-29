@@ -105,6 +105,23 @@ after(() => smonta(radice, archivio))
 
 // ------------------------------------------- il canale delle domande, la regola
 
+describe('le scritture delle azioni lasciano patch, dentro le collezioni dichiarate', () => {
+  // `sorvegliaScritture` (helpers/archivio.mjs) sta su ogni archivio delle
+  // prove: qui si vede che ferma davvero i due errori che deve vedere.
+  it('una riuscita senza patch si ferma', () => {
+    assert.throws(() => archivio.modificaSe(() => undefined, ['classi']), /senza patch/)
+  })
+
+  it('una collezione toccata e non dichiarata si ferma', () => {
+    const revisione = archivio.revisione
+    assert.throws(
+      () => archivio.modificaSe((r) => { r.impostazioni.sogliaAssenza += 1 }, ['classi']),
+      /non dichiarate: registro/,
+    )
+    assert.equal(archivio.revisione, revisione, 'niente è stato scritto')
+  })
+})
+
 describe('rispondiDomanda, letto dal sorgente', () => {
   it('cerca la procedura per nome e guarda il suo genere', () => {
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -379,6 +396,25 @@ describe('le carte intestate stanno nel documento, e ogni corso ne ha una', () =
     assert.equal(intestazione.carte[0].altezzaLogo, 18)
     assert.equal(intestazione.carte[0].logo, LOGO)
     assert.deepEqual(intestazione.carte[1].corsi, [uno])
+  })
+
+  it('un salvataggio senza le parti del nome non le cancella, se il nome non cambia', async () => {
+    const carteAdesso = carte().map(({ id, sede, altezzaLogo, corsi }) => ({ id, sede, altezzaLogo, corsi }))
+    const salva = (intestazione) => api.chiama(archivio, 'impostazioni.salva', {
+      impostazioni: { ...senzaIntestazione(), intestazione: { carte: carteAdesso, ...intestazione } },
+    })
+    await salva({ docente: 'Prof. Mario Rossi', docenteAppellativo: 'Prof.', docenteNome: 'Mario', docenteCognome: 'Rossi' })
+    // Come la scala dei voti: rimanda il nome completo e basta.
+    assert.equal((await salva({ docente: 'Prof. Mario Rossi' })).ok, true)
+    let intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docenteNome, 'Mario')
+    assert.equal(intestazione.docenteCognome, 'Rossi')
+    assert.equal(intestazione.docenteAppellativo, 'Prof.')
+    // Il nome scritto a mano diverso: le parti vecchie non valgono più.
+    assert.equal((await salva({ docente: 'Anna Bianchi' })).ok, true)
+    intestazione = archivio.registro.impostazioni.intestazione
+    assert.equal(intestazione.docente, 'Anna Bianchi')
+    assert.equal(intestazione.docenteNome, undefined)
   })
 
   it('un corso che la pagina non manda finisce sulla prima carta', async () => {

@@ -303,11 +303,15 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
   ([`desktop/apparato/settings.ts`](../desktop/apparato/settings.ts)).
 - Formati: `cartella`/`eseguibile`/`file` si scelgono con «Sfoglia…»
   (`programma.sfoglia`); `modello` solo dalla riga «Chi risponde» dei Modelli
-  linguistici (`CHIAVI_IN_SCHEDA`); `indirizzoLocale` solo `http` di questo
-  computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)). Le voci
-  `avanzata` stanno in «Programmi già installati».
+  linguistici (`CHIAVI_IN_SCHEDA`), altrove in sola lettura, e la dogana vuole il
+  nome nudo di un `.gguf` (`nomeDiModello`,
+  [`core/dati/ggufName.ts`](../core/dati/ggufName.ts)); `indirizzoLocale` solo
+  `http` di questo computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)).
+  Le voci `avanzata` stanno in «Avanzate (n)», chiuse in fondo alla sezione (e al
+  gruppo nella finestra nativa).
 - Dal condotto non si toccano `registroDocenti.api.*`, `ocr.programma`,
-  `dettatura.indirizzo` (API § 7).
+  `ocr.modello`, `ocr.proiettore`, `assistente.modello`, `dettatura.indirizzo`
+  (API § 7).
 - Il procedimento per aggiungerne una: skill `impostazione`.
 - Le impostazioni del documento, campo per campo: MODELLO-DATI § 3.44.
 
@@ -324,7 +328,7 @@ Aggiornamenti, Condotto e riga di comando.
 | `vassoio.attivo` | bool; `true` | icona accanto all'orologio (al prossimo avvio) |
 | `vassoio.chiusuraNelVassoio` | bool; `true` | chiudendo resta nel vassoio; dipende da `vassoio.attivo` |
 | `avvio.conWindows` | bool; `false` | avvio con il computer, senza finestre (solo installato) |
-| `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro |
+| `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro; dipende da `vassoio.attivo` |
 | `promemoria.attivo` | bool; `true` | notifica prima di una lezione |
 | `promemoria.anticipoMinuti` | 0–120; `5` | quanto prima; dipende da `promemoria.attivo` |
 | `proiezione.schermoIntero` | bool; `false` | proiezione a schermo intero |
@@ -340,7 +344,7 @@ Aggiornamenti, Condotto e riga di comando.
 | `ocr.programma` | eseguibile, avanzata; `''` | un `llama-mtmd-cli.exe` proprio |
 | `assistente.attivo` | bool; `false` | l'assistente; richiede `assistente.modello` |
 | `assistente.modello` | modello; `''` | il `.gguf` che risponde |
-| `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox |
+| `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox; dipende da `assistente.attivo` |
 | `dettatura.taglia` | `turbo` \| `large` \| `medium` \| `small` \| `base`; `turbo` | modello Whisper di voicebox |
 | `dettatura.indirizzo` | indirizzoLocale, avanzata; `http://127.0.0.1:17493` | dove sta voicebox (ADR-35) |
 | `aggiornamenti.controlloAutomatico` | bool; `false` | controllo all'avvio e ogni sei ore |
@@ -353,7 +357,7 @@ Aggiornamenti, Condotto e riga di comando.
 - `CHIAVI_DISMESSE`: le chiavi tolte che `ritiraChiaviDismesse()` cancella da un
   `impostazioni.json` vecchio (attese diventate costanti, vecchia dettatura
   whisper.cpp, agenda sul desktop, `aperturaAutomatica`,
-  `recapiti.outlook`…). `ritiraCorredoWhisper()`
+  `recapiti.outlook`, la vecchia posta a mano `posta.server`/`porta`/…). `ritiraCorredoWhisper()`
   ([`core/dati/dictation.ts`](../core/dati/dictation.ts)) cancella la vecchia
   cartella della dettatura.
 - Stato, non opzioni (fuori dal manifesto): `registroDocenti.ultimoDocumento`,
@@ -654,6 +658,14 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
 - Invio diretto: Exchange Online, OAuth PKCE (`core/dati/oauth.ts`,
   `core/dati/exchange.ts`); `registroDocenti.azzeraPosta` ripulisce portachiavi,
   memoria e impostazioni.
+- «Collega la casella» chiede solo l'account; il mittente si sceglie fra gli
+  indirizzi dell'account (`email`/`upn` del gettone con `openid email profile`,
+  alias da `User.Read` se il tenant lo concede; `indirizziDellAccount`,
+  `core/dominio/mailbox.ts`), conservati nel portachiavi e spinti in
+  `MessaggioStato.posta.indirizzi`. `posta.utente` e `posta.mittente` non sono
+  campi: li mostra la scheda Posta (`CHIAVI_DEL_COLLEGAMENTO`, in
+  `contract/manifesto.ts`), fuori da «modificate» e da «Ripristina»; la finestra
+  nativa li legge da `VoceProgramma.delCollegamento`, in sola lettura e senza «Ritira».
 
 ### 11.3 Geocodifica
 

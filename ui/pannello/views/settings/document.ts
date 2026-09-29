@@ -106,11 +106,19 @@ function intestazioneDaSalvare (
   const carte = modifiche.carte ?? attuale.carte
   const docente = modifiche.docente ?? attuale.docente
   const firma = modifiche.firma ?? attuale.firma
+  // Le parti del nome si rimandano sempre: l'host sostituisce l'intestazione
+  // intera, e senza di loro un ritocco della scala dei voti le cancellerebbe.
+  const appellativo = modifiche.docenteAppellativo ?? attuale.docenteAppellativo
+  const nome = modifiche.docenteNome ?? attuale.docenteNome
+  const cognome = modifiche.docenteCognome ?? attuale.docenteCognome
   return {
     carte: carte.map(({ id, sede, altezzaLogo, corsi }) => ({
       id, sede, altezzaLogo, corsi: [...corsi],
     })),
     docente,
+    ...(appellativo ? { docenteAppellativo: appellativo } : {}),
+    ...(nome ? { docenteNome: nome } : {}),
+    ...(cognome ? { docenteCognome: cognome } : {}),
     // Una firma vuota vuol dire «quella di serie»: si manda senza, e l'host usa la sua.
     ...(firma && firma.trim() !== '' ? { firma } : {}),
   }

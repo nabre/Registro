@@ -328,7 +328,7 @@ export function èCollegata (
 }
 
 /** Stesso calendario e stesso anno, o tutti e due assenti. */
-export function stessoCalendario (
+function stessoCalendario (
   a: CalendarioDellAnno | undefined,
   b: CalendarioDellAnno | undefined,
 ): boolean {
@@ -344,7 +344,7 @@ export function calendarioDi (marcatore: CalendarioDellAnno): CalendarioUfficial
 }
 
 /** L'anno del calendario che un marcatore nomina, se il calendario ce l'ha. */
-export function annoDelMarcatore (
+function annoDelMarcatore (
   calendario: CalendarioUfficiale | null,
   marcatore: CalendarioDellAnno,
 ): AnnoUfficiale | null {

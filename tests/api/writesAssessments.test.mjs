@@ -217,6 +217,22 @@ describe('valutazione.salva, dalla strada del pannello', () => {
     assert.equal(api1.codice, 'non-trovato', JSON.stringify(api1))
   })
 
+  it('rifiuta lezione o piano di un altro corso', async () => {
+    const scala = archivio.registro.impostazioni.scala
+    const oraAltra = api.creaLezione(corsoAltraClasse.id, '2026-10-06', '08:20', 45)
+    const pianoAltro = api.creaPiano('Piano altro corso')
+    pianoAltro.corsoId = corsoAltraClasse.id
+    archivio.modifica((r) => {
+      r.lezioni.push(oraAltra)
+      r.piani.push(pianoAltro)
+    }, ['lezioni', 'piani'])
+    const nuovo = () => api.creaValutazione(corso.id, 'Prova', scala, '2026-10-07')
+    const conOraAltra = await salva({ ...nuovo(), lezioneId: oraAltra.id })
+    assert.equal(conOraAltra.ok, false)
+    const conPianoAltro = await salva({ ...nuovo(), pianoId: pianoAltro.id })
+    assert.equal(conPianoAltro.ok, false)
+  })
+
   it('un momento con voti non passa a un corso di un’altra classe', async () => {
     const m = momento({ voti: [{ allievoId: rossi.id, valore: 5, assente: false }] })
     const esito = await salva({ ...momentoVivo(m.id), corsoId: corsoAltraClasse.id })

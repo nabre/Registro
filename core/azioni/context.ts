@@ -6,7 +6,6 @@ import * as apparato from 'apparato'
 
 import { apriConIlSistema } from '../dati/opening.js'
 import type { Archivio } from '../dati/archive.js'
-import { vociDi } from '../dati/bozza.js'
 import { deposito, percorsoVero } from '../dati/store.js'
 import { estensioneDi, nomeDelFileUri } from '../dati/paths.js'
 import { classeDellaConsegna, fascicoloDellaClasse } from '../dominio/courses.js'
@@ -112,46 +111,28 @@ export function riassumiInvii (
   return conMessaggio(`${quanti}.`)
 }
 
-/** L'upsert per id: sostituisce se c'è, aggiunge in fondo se no. */
-export function riponi<T extends { id: string }> (elenco: T[], voce: T): void {
-  // Si cerca fuori dalla bozza: scorrerla farebbe una bozza di ogni voce.
-  const indice = vociDi(elenco).findIndex((x) => x.id === voce.id)
+/**
+ * L'upsert per id: sostituisce se c'è, aggiunge in fondo se no, e riordina se
+ * serve. Sulla bozza `findIndex` e `sort` non fanno una bozza di ogni voce
+ * (`enableArrayMethods` in `bozza.ts`), e le patch di un riordino le accorcia
+ * `compatta`: resta leggero anche su migliaia di lezioni.
+ */
+export function riponi<T extends { id: string }> (
+  elenco: T[],
+  voce: T,
+  ordina?: (a: T, b: T) => number,
+): void {
+  const indice = elenco.findIndex((x) => x.id === voce.id)
   if (indice >= 0) elenco[indice] = voce
   else elenco.push(voce)
+  // Già in ordine (un'ora corretta senza cambiarle il giorno): `sort` non
+  // sposterebbe niente, e sulla bozza costa quanto rifare la lista.
+  if (ordina && !inOrdine(elenco, ordina)) elenco.sort(ordina)
 }
 
-/** Le liste in cima al registro. */
-type ListaDelRegistro = {
-  [K in keyof Registro]: Registro[K] extends unknown[] ? K : never
-}[keyof Registro]
-
-/** `riponi` in una lista in cima al registro tenuta in ordine: la voce va dove la mette `sort`. */
-export function riponiInOrdine<K extends ListaDelRegistro> (
-  r: Registro,
-  chiave: K,
-  voce: Registro[K][number] & { id: string },
-  ordina: (a: Registro[K][number], b: Registro[K][number]) => number,
-): void {
-  riponi(r[chiave] as Array<{ id: string }>, voce)
-  ordinaInBozza(r, chiave, ordina)
-}
-
-/**
- * Ordina una lista in cima al registro come `r[chiave].sort(ordina)`, senza
- * scorrerla nella bozza, dove ogni voce letta diventa una bozza: si ordinano le
- * voci com'è adesso (`vociDi`) e, se l'ordine cambia, la lista si rimette
- * intera. Le patch di quella lista rimessa le accorcia la bozza (`compatta`).
- */
-export function ordinaInBozza<K extends ListaDelRegistro> (
-  r: Registro,
-  chiave: K,
-  ordina: (a: Registro[K][number], b: Registro[K][number]) => number,
-): void {
-  const voci = vociDi(r[chiave] as Array<Registro[K][number]>)
-  // Ordinare i posti e non le voci dà lo stesso ordine: il `sort` è stabile.
-  const posti = voci.map((_, i) => i).sort((i, j) => ordina(voci[i], voci[j]))
-  if (posti.every((da, a) => da === a)) return
-  ;(r as unknown as Record<K, unknown[]>)[chiave] = posti.map((i) => voci[i])
+/** Vero se nessuna voce viene prima della precedente. Legge la lista senza farne bozze. */
+function inOrdine<T> (elenco: T[], ordina: (a: T, b: T) => number): boolean {
+  return elenco.every((voce, i, voci) => i === 0 || ordina(voci[i - 1], voce) <= 0)
 }
 
 /** Il fascicolo di una classe dentro una modifica, creato alla prima scrittura. */

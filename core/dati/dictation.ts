@@ -44,7 +44,7 @@ const MOTORI = { voicebox: VOICEBOX } as const
 
 /** Le taglie di Whisper che voicebox conosce: le stesse `scelte` del manifesto. */
 const TAGLIE = ['base', 'small', 'medium', 'large', 'turbo'] as const
-export type Taglia = (typeof TAGLIE)[number]
+type Taglia = (typeof TAGLIE)[number]
 
 /** Un indirizzo, una taglia, una lingua e un'attesa: quel che serve per trascrivere. */
 export interface Collegamento {
@@ -104,7 +104,7 @@ export function dettaturaAccesa (): boolean {
 // --------------------------------------------------------------- se si può
 
 /** Perché adesso non si può dettare, o `pronto` se si può. */
-export interface Prontezza {
+interface Prontezza {
   pronto: boolean
   motivo: string
 }

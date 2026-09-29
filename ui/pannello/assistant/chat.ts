@@ -251,7 +251,7 @@ function chiudiGiro (): void {
  * più attrezzi (né cambi di pagina) e la domanda esce dalla coda del motore
  * (`panels/conversation.ts`). Il turno resta scritto come «fermato».
  */
-export function ferma (): void {
+function ferma (): void {
   filo?.ferma()
   chiudiGiro()
   const ultimo = conversazione.at(-1)

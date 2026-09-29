@@ -16,12 +16,10 @@ import type { Lezione, Registro, SorgenteCalendario } from '../dominio/models.js
 import { nomeDaOrigine, normalizzaCalendario } from '../dominio/normalization.js'
 import { validaLezione, validaSlot } from '../dominio/validation.js'
 import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '../dati/calendar.js'
-import { vociDi } from '../dati/bozza.js'
 import {
   conMessaggio,
   documentoCambiato,
   fatto,
-  ordinaInBozza,
   rifiuta,
   rifiutaCon,
   scegliUnFile,
@@ -265,26 +263,20 @@ export const calendario = {
     const scritto = contesto.modifica((r) => {
       if (impostazione) r.impostazioni.calendario = impostazione
       else if (impostazione === undefined) delete r.impostazioni.calendario
-      // Le lezioni si cercano fuori dalla bozza, e ci si entra solo per quelle
-      // da cambiare: scorrere la bozza farebbe una bozza di ognuna.
-      const voci = vociDi(r.lezioni)
       for (const voce of azione.allinea) {
-        const indice = voci.findIndex((l) => l.id === voce.lezioneId)
-        const lezione = indice >= 0 ? r.lezioni[indice] : undefined
+        const lezione = r.lezioni.find((l) => l.id === voce.lezioneId)
         if (!lezione) continue
         if (voce.fasce) lezione.slot = slotDaFasce(voce.fasce, slotOrdinati(lezione.slot))
         if (voce.aula !== undefined) lezione.aula = voce.aula
         lezione.aggiornataIl = quando
       }
-      for (const [indice, voce] of voci.entries()) {
-        if (!annullate.has(voce.id)) continue
-        const lezione = r.lezioni[indice]
-        if (!lezione) continue
+      // `filter` e non un giro sulla bozza: scorrerla farebbe una bozza di ogni lezione.
+      for (const lezione of r.lezioni.filter((l) => annullate.has(l.id))) {
         lezione.stato = 'annullata'
         lezione.aggiornataIl = quando
       }
       r.lezioni.push(...nuove)
-      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
+      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
     }, ['registro', 'lezioni'])
     if (!scritto.ok) return scritto
 

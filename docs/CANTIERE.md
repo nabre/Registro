@@ -5,8 +5,8 @@ cancella (la storia sta in git); una decisione presa migra in
 [DECISIONI.md](DECISIONI.md).
 
 **Regola del file:** una voce si chiude quando il lavoro è **fatto e
-verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
-`npm test` verde (skill `verifica`). Non prima.
+verificato** — `npm run ci -- --solo verifica` verde (tipi, stile, prove e
+controlli statici; skill `verifica`). Non prima.
 
 ## 1. Regole di lavoro
 
@@ -25,7 +25,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 | D11 | `core/` diventa puro invertendo `apparato`, non riscrivendo (ARCHITETTURA § 3). |
 | D12 | `core/` importa da `contract/` solo tipi. |
 | D13 | Le regole degli strati le verifica `npm run layers`. |
-| D14–D16 | I nomi dicono il ruolo, non un prodotto (`apparato`, non `vscode`): ADR-02. |
+| D14 | I nomi dicono il ruolo, non un prodotto (`apparato`, non `vscode`): ADR-02. |
 
 ## 2. Lavoro aperto
 
@@ -37,36 +37,51 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
       non toccate. Proposta: riaprire dal disco e riapplicare solo le
       collezioni pendenti; conflitto sulla stessa collezione → copia accanto e
       avviso. Decisione strutturale (ADR-19): da scrivere in DECISIONI prima.
-- [ ] `core/dati/archive.ts` `portaAlFormato`: se la copia in
-      `versioni-precedenti` fallisce, `collezioniMigrate` si scrivono lo stesso
-      e l'intestazione resta alla versione vecchia; non accodarle senza copia.
-- [ ] `core/dati/zip.ts` `inizioCoda` accetta una coda vecchia nello spazio
-      morto di un file scritto a metà: in ricarica pretendere la coda in fondo.
-- [ ] `registro.json` illeggibile non entra in `illeggibili`: niente
-      `mettiDaParte`, e una modifica la riscrive con `anno:null`.
+
+
+### Impostazioni
+
+- [ ] Riordino delle pagine Impostazioni secondo [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md):
+      fase 0 (guasti G1–G8) fatta; restano contratto dei controlli, gerarchia
+      ad aree, doppioni (piano § 7). Decisioni aperte in § 8 del piano.
 
 ### Librerie (ADR-50)
 
-- [ ] Passo 1 — fast-check, knip, dependency-cruiser, licenze: in CI.
-- [ ] Passo 2 — immer in `modifica` e nella storia, collezioni ricavate dalle patch.
 - [ ] Togliere il percorso classico di `aggiornaElemento` (`MORFOSI` spento)
       dopo un uso vero del morph senza guasti (D6); allora portare
-      `tests/ui/isole` e `riquadriLocali` su Chromium o ritirarle.
+      `tests/ui/isole.test.mjs` e `riquadriLocali.test.mjs` su Chromium o ritirarle.
 - [ ] Temporal fuori da `dates.ts`: `core/dominio/calendarIcs.ts` (fuso con
       `Intl.formatToParts` + `Date.UTC` → `ZonedDateTime`),
       `timetable.ts:163-178` (ciclo su `Date` in UTC), `factories.ts:160`;
       `aIso` non riempie gli anni sotto il 1000. Togliere il `declare global`
       di `dates.ts` quando TypeScript porta `Temporal`.
-- [ ] Passo 5 — @tanstack/virtual-core dove una misura lo chiede (voti, archivio, persone).
+- [ ] Verificare nel Chromium di Electron il crollo di Chromium 153 quando il
+      morph sposta un `th` con `moveBefore` (oggi evitato: `data-chiave` solo
+      sull'elemento col fuoco, `components/virtuale.ts`).
+- [ ] Un ridisegno delle pagine voti o archivio con 40 allievi costa 80–130 ms
+      anche con tabelle corte: è il morph della pagina intera (ADR-06), non la
+      tabella. `pendenzeDellaBarra` ricalcola tutto a ogni ridisegno (~12 ms
+      con 200 prove). `oggi()` costa ~20 µs col polyfill: `grades.ts` e altre
+      viste lo chiamano per cella.
+- [ ] Le regole della bozza immer (ADR-50) si controllano solo in esecuzione
+      (`controllaVivo`, `controllaSenzaBozze`, prove): valutare regole ESLint.
+      Fuori dal passo del pannello, lezione nuova, sposta e duplica sono
+      2–2,5× più lente (cicli O(N) di immer, ≤ 22 ms su 20000 lezioni): uno
+      script fisso in `tools/` per rendere confrontabili le misure.
 - [ ] Nell'app vera il pannello scambia `stato`/`proiezione.mira` ogni ~680 ms
       senza fine: capire se è voluto.
 
-### Coerenza dei dati
+### Strati
 
-- [ ] `integrity.ts` non controlla ancora allievoId in `consegne.documenti`,
-      smistamenti e fascicoli. `lezione.salva` non verifica che
-      `lezioneId`/`pianoId` dei momenti siano dello stesso corso; `corsi.salva`
-      senza `esigiClasse`/`esigiMateria` per i corsi nuovi.
+- [ ] Otto deroghe dichiarate in `tools/layers.mjs` (`DEROGHE`), da togliere
+      una per una: `contract/` → `desktop/azioni/projection.ts` (cinque: la
+      proiezione va chiesta dall'apparato); `core/azioni/system.ts` →
+      `desktop/apparato/settings.ts` (impostazioni dichiarate in `core/` o
+      passate dall'apparato); `core/dominio/schoolCalendar.ts` →
+      `core/dati/schoolCalendars.ts` e `ui/pannello/forms/schoolCalendar.ts` →
+      `core/dati/schoolCalendarTicino.ts` (i calendari generati sono dati puri:
+      indice nel dominio).
+
 
 ### Sicurezza
 
@@ -86,14 +101,13 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 - [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
-- [ ] Mutation testing (Stryker, tap-runner, via `npx`): `deletions.ts` 87%,
-      `calculations.ts:330-735` 97,7%. Sopravvissuti: piano eliminato senza
-      prova che dichiari `lezioni` (~:755); guardie `n > 0` delle perdite
-      (~:343-413: una perdita a zero non deve comparire); `calculations.ts`
-      ~:344 (lezione senza appello nei dati di prova). Config da rifare fuori
-      dal repo; non usare giunzioni su `node_modules` rimosse ricorsivamente.
-- [ ] In locale gira Node 22.18, il progetto chiede Node 24: `npm ci` e le
-      prove vanno ripetute con la versione giusta.
+- [ ] Mutanti sopravvissuti (misura di prima, `deletions.ts` 87%,
+      `calculations.ts:330-735` 97,7%): piano eliminato senza prova che
+      dichiari `lezioni` (~:755); guardie `n > 0` delle perdite (~:343-413: una
+      perdita a zero non deve comparire); `calculations.ts` ~:344 (lezione
+      senza appello nei dati di prova). Rimisurare con `npm run mutanti`.
+- [ ] In locale gira Node 26.7, il progetto e la CI chiedono Node 24: `npm ci`
+      e le prove vanno ripetute con la versione giusta.
 
 ### Modelli e assistente
 
@@ -102,7 +116,7 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Rilascio, firma, nome
 
-- [ ] SignPath (D-9, differito): domanda come Regiklass (progetto `regiklass`); 2FA; app GitHub;
+- [ ] SignPath (differito): domanda come Regiklass (progetto `regiklass`); 2FA; app GitHub;
       configurazioni `eseguibile` e `installatori`; politica
       `release-signing`; segreto e variabile su GitHub (GUIDA § «La firma del
       codice»).
@@ -115,9 +129,4 @@ verificato** — `npx tsc --noEmit` pulito, `npx eslint .` senza errori,
 
 ### Da provare a mano
 
-- [ ] OneDrive dal pannello con gli account sincronizzati su questo PC: sfoglia,
-      «Trova tutti i .regi», apertura (anche di un file solo nel cloud). La
-      lettura da disco è provata a mano su `vxg140@edu.ti.ch`; Graph è negato
-      dal tenant `edu.ti.ch` (consenso dell'amministratore), `sharedWithMe` è in
-      dismissione da parte di Microsoft.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.

@@ -1365,6 +1365,11 @@ export interface VoceProgramma {
   sospesa: boolean
   /** Voce rara: sta in fondo alla sezione, in un gruppo che si apre. */
   avanzata: boolean
+  /**
+   * La scrive «Collega la casella» (`CHIAVI_DEL_COLLEGAMENTO`): si mostra in
+   * sola lettura e non si ritira, in tutte e due le superfici.
+   */
+  delCollegamento: boolean
 }
 
 /**
@@ -1411,6 +1416,8 @@ export interface MessaggioStato {
     exchange: boolean
     /** Il server a cui si consegna, per la scheda che lo dice. */
     server: string
+    /** La porta del server (STARTTLS). */
+    porta: number
     invioDiretto: boolean
     /** L'indirizzo da cui si scrive: quello che le famiglie vedono in «Da». */
     mittente: string
@@ -1419,6 +1426,11 @@ export interface MessaggioStato {
      * sigla): scambiati, fanno rifiutare l'invio.
      */
     accesso: string
+    /**
+     * Gli indirizzi da cui l'account collegato può scrivere, detti da Microsoft
+     * all'accesso: il mittente si sceglie fra questi. Vuoto se non è collegato.
+     */
+    indirizzi: string[]
   }
   /**
    * Gli account Microsoft: quelli collegati per OneDrive, e la casella della

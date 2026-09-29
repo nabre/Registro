@@ -8,12 +8,12 @@ import type { Origine, Risultato } from './contract.js'
 import type { Link } from './link.js'
 import type { AlberoProcedure } from './router.ts'
 
-export type OpzioniChiamata = {
+type OpzioniChiamata = {
   origine?: Origine
   tracciato?: string
 }
 
-export type FunzioneChiamabile<I = unknown, U = unknown> = (
+type FunzioneChiamabile<I = unknown, U = unknown> = (
   ingresso?: I,
   opzioni?: OpzioniChiamata,
 ) => Promise<Risultato<U>>

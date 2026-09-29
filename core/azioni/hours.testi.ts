@@ -17,6 +17,7 @@ const it = {
   tolteInChiusura: (n: number) => `${plurale(n, 'ora tolta', 'ore tolte')} dai giorni di chiusura.`,
   fuoriClasse: 'Quella persona non è in questa classe.',
   osservazioneVuota: 'L’osservazione è vuota.',
+  pianoAltroCorso: 'Il piano assegnato appartiene a un altro corso.',
 }
 
 export const testi = catalogo(it, {
@@ -36,6 +37,7 @@ export const testi = catalogo(it, {
       `${plurale(n, 'Stunde', 'Stunden')} von den schulfreien Tagen entfernt.`,
     fuoriClasse: 'Diese Person ist nicht in dieser Klasse.',
     osservazioneVuota: 'Die Beobachtung ist leer.',
+    pianoAltroCorso: 'Der zugewiesene Unterrichtsplan gehört zu einem anderen Kurs.',
   },
   fr: {
     altraClasse:
@@ -53,6 +55,7 @@ export const testi = catalogo(it, {
       `${plurale(n, 'leçon retirée', 'leçons retirées')} des jours de fermeture.`,
     fuoriClasse: 'Cette personne n’est pas dans cette classe.',
     osservazioneVuota: 'L’observation est vide.',
+    pianoAltroCorso: 'Le plan de leçon attribué appartient à un autre cours.',
   },
   en: {
     altraClasse:
@@ -68,5 +71,6 @@ export const testi = catalogo(it, {
     tolteInChiusura: (n) => `${plurale(n, 'lesson', 'lessons')} removed from closure days.`,
     fuoriClasse: 'That person isn’t in this class.',
     osservazioneVuota: 'The observation is empty.',
+    pianoAltroCorso: 'The assigned lesson plan belongs to another course.',
   },
 })

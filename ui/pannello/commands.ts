@@ -1389,7 +1389,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
 // -------------------------------------------------------------- le raccolte
 
 /** Se il comando vive in quel posto. */
-export function vive (comando: ComandoUI, posto: Posto): boolean {
+function vive (comando: ComandoUI, posto: Posto): boolean {
   return comando.dove.includes(posto) &&
     (posto !== 'docenteClasse' || !comando.schedaDocente || comando.schedaDocente === stato.schedaDocente) &&
     (comando.soloSe?.() ?? true)

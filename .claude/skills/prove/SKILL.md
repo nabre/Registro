@@ -202,7 +202,7 @@ richiedono giudizio.
 
 **Quando.** Il file legge codice come testo (`readFileSync` su `.ts`,
 `tests/helpers/sorgente.mjs` usato per cercare stringhe, espressioni regolari
-sul codice). Esempio: `tests/onlyOnce.test.mjs`, che vieta di ricomporre a
+sul codice). Esempio: la vecchia prova `onlyOnce`, che vietava di ricomporre a
 mano `nomeCompleto`, la soglia d'assenza, `allieviAttivi`, `contaUd`.
 
 **Come.** Ogni divieto diventa una voce `no-restricted-syntax` (selettore AST)
@@ -266,7 +266,7 @@ migrazioni dei documenti vecchi, normalizzazione, date e UD
 
 **Come.**
 
-- Un generatore (`fc.Arbitrary`) per il dato, in `tests/helpers/arbitrari.mjs`,
+- Un generatore (`fc.Arbitrary`) per il dato, in `tests/helpers/proprieta.mjs`,
   riusabile. Genera dati **validi per il dominio** (date ISO vere, stati
   d'appello ammessi, UD positive), non stringhe a caso.
 - Una proprietà per regola. Seme fisso in CI (`seed` letto da una variabile

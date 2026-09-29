@@ -7,8 +7,7 @@ import { geocodifica } from '../dati/geocoding.js'
 import { istanteAdesso } from '../dominio/dates.js'
 import { indirizziDaRisolvere, rubricaDi } from '../dominio/map.js'
 import type { Classe, Coordinata } from '../dominio/models.js'
-import { vociDi } from '../dati/bozza.js'
-import { conMessaggio, ordinaInBozza, rifiuta, rifiutaCon, type Parte } from './context.js'
+import { conMessaggio, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './map.testi.js'
 
@@ -73,10 +72,10 @@ export const mappa = {
       // Una scrittura per indirizzo, così un giro interrotto tiene quel che ha
       // trovato. Rifiutata: il documento è cambiato, il giro finisce.
       const scritto = contesto.modifica((r) => {
-        const indice = vociDi(r.coordinate).findIndex((c) => c.chiave === nuova.chiave)
+        const indice = r.coordinate.findIndex((c) => c.chiave === nuova.chiave)
         if (indice >= 0) r.coordinate[indice] = nuova
         else r.coordinate.push(nuova)
-        ordinaInBozza(r, 'coordinate', (a, b) => a.chiave.localeCompare(b.chiave, 'it'))
+        r.coordinate.sort((a, b) => a.chiave.localeCompare(b.chiave, 'it'))
       }, ['coordinate'])
       if (!scritto.ok) {
         cambiato = true

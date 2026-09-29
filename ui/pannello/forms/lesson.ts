@@ -467,7 +467,7 @@ function editorSlot (
   return contenitore
 }
 
-export interface OpzioniModuloLezione {
+interface OpzioniModuloLezione {
   lezione?: Lezione
   data?: string
   classeId?: string

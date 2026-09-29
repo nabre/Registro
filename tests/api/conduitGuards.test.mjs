@@ -104,6 +104,7 @@ describe('le chiavi che il condotto non tocca', () => {
       'registroDocenti.modelli.cartella',
       'registroDocenti.ocr.modello',
       'registroDocenti.ocr.proiettore',
+      'registroDocenti.assistente.modello',
     ]) {
       const busta = await chiedi('programma.salva', { chiave, valore: 'C:\\altrove\\x.exe' })
       assert.equal(busta.error?.data?.codice, 'non-permesso', `${chiave}: ${JSON.stringify(busta)}`)
@@ -129,5 +130,20 @@ describe('le chiavi che il condotto non tocca', () => {
     })
     assert.equal(busta.error, undefined, JSON.stringify(busta))
     assert.equal(busta.result.ok, true)
+  })
+})
+
+describe('«Lettura spenta» in Da smistare', () => {
+  it('porta il pannello su Modelli linguistici, dove il modello si sceglie', async () => {
+    // Prima apriva la finestra nativa, dove il modello si legge soltanto.
+    const chieste = []
+    api.registraNavigatore((navigazione) => chieste.push(navigazione))
+    try {
+      const busta = await chiedi('smistamento.lettura.impostazioni', {})
+      assert.equal(busta.error, undefined, JSON.stringify(busta))
+      assert.deepEqual(chieste, [{ tipo: 'naviga', vista: 'modelliLinguistici' }])
+    } finally {
+      api.registraNavigatore(null)
+    }
   })
 })

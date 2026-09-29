@@ -40,7 +40,7 @@ import {
 import { campoCorso } from './course.js'
 import { testi } from './assignment.testi.js'
 
-export interface OpzioniModuloConsegna {
+interface OpzioniModuloConsegna {
   consegna?: Consegna
   /** L'ora da cui si sta assegnando: dà corso, data e proposta di termine. */
   lezione?: Lezione

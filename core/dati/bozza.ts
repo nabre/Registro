@@ -5,12 +5,28 @@
 // l'operazione lo cambiava direttamente, e chi ne tiene uno in mano (un
 // gestore che aspetta un dialogo, lo smistatore) continua a vedere quello vero.
 
-import { Immer, enablePatches, isDraft, type Patch } from 'immer'
+import { Immer, current, enableArrayMethods, enablePatches, isDraft, type Draft, type Patch } from 'immer'
 
 import type { Registro } from '../dominio/models.js'
 import type { NomeCollezione } from './paths.js'
 
 enablePatches()
+// Senza, `find`, `filter`, `some` o `sort` su una lista della bozza fanno una
+// bozza di ogni voce che toccano: su migliaia di lezioni costa decine di volte
+// la stessa cosa sullo stato. Con, girano sulle voci com'è adesso e fanno bozza
+// solo di quelle che tornano. Le funzioni passate vedono quindi le voci non
+// ancora toccate così come sono nello stato: vanno solo lette, e confrontate
+// per id, non per identità con oggetti presi fuori dall'operazione.
+// Due limiti di immer 11 con questo modo, che le prove di `storia.test.mjs`
+// e `controllaVivo` fanno vedere:
+// - dopo `sort`, `reverse` o `splice` una lista non si rilegge nella stessa
+//   operazione: una voce spostata in un posto già scritto (`push`,
+//   `lista[i] = …`) torna quella dello stato e non una bozza, e cambiarla
+//   cambierebbe lo stato vivo. Il riordino va per ultimo, come in `riponi`;
+// - un oggetto nuovo con dentro pezzi della bozza, messo in una lista che poi
+//   si riordina, porta nello stato bozze chiuse: i pezzi si prendono con
+//   `comeAdesso` (`controllaSenzaBozze` in `archive.ts`).
+enableArrayMethods()
 
 /**
  * Un immer tutto nostro, così le impostazioni non toccano altri che usassero la
@@ -62,6 +78,7 @@ function collezioneDi (patch: Patch): NomeCollezione {
   const collezione = typeof chiave === 'string' ? COLLEZIONE_DI[chiave as keyof Registro] : undefined
   // Le operazioni lavorano dentro il registro, mai sulla radice o su una chiave
   // che il modello non conosce: se succede, la patch non ha un posto su disco.
+  // testo-fisso: diagnostica interna di sviluppo
   if (!collezione) throw new Error(`patch fuori dalle collezioni: /${patch.path.join('/')}`)
   return collezione
 }
@@ -110,27 +127,57 @@ function compatta (
   patch: Patch[],
   inverse: Patch[],
 ): { nuovo: Registro; patch: Patch[]; inverse: Patch[] } {
+  patch = togliSuperate(patch)
+  inverse = togliSuperate(inverse)
   const quante = new Map<string, number>()
   const profonde = new Set<string>()
+  const intere = new Set<string>()
   for (const una of patch) {
     const chiave = String(una.path[0])
     quante.set(chiave, (quante.get(chiave) ?? 0) + 1)
     if (una.path.length > 2) profonde.add(chiave)
+    if (una.path.length === 1) intere.add(chiave)
   }
   const prima = stato as unknown as Record<string, unknown>
   const dopo = nuovo as unknown as Record<string, unknown>
   for (const [chiave, numero] of quante) {
-    // Due patch (una tolta e una messa) sono già il meglio.
-    if (numero <= 2 || profonde.has(chiave)) continue
+    // Due patch (una tolta e una messa) sono già il meglio; non una lista
+    // rimessa intera (`r.lezioni = r.lezioni.filter(…)`), che pesa quanto tutte le sue voci.
+    if ((numero <= 2 && !intere.has(chiave)) || profonde.has(chiave)) continue
     const vecchia = prima[chiave]
     const nuova = dopo[chiave]
     if (!Array.isArray(vecchia) || !Array.isArray(nuova)) continue
     const corte = differenzaDiLista(chiave, vecchia, nuova)
-    if (corte.avanti.length >= numero) continue
+    if (corte.avanti.length >= numero && !intere.has(chiave)) continue
     patch = [...patch.filter((una) => una.path[0] !== chiave), ...corte.avanti]
     inverse = [...inverse.filter((una) => una.path[0] !== chiave), ...corte.indietro]
   }
   return { nuovo, patch, inverse }
+}
+
+/**
+ * Toglie le patch dentro una voce che una patch dopo sostituisce o toglie
+ * intera. Immer le manda per una voce spostata e poi cambiata (`splice`, poi
+ * `lista[0].nome = …`): prima quella dentro, al posto dove la voce arriva, poi
+ * quella che ce la mette. Riportata in posto, la prima cambierebbe la voce che
+ * quel posto aveva prima: un oggetto che esce dalla lista, ma che la storia e
+ * chi lo tiene vedrebbero cambiato.
+ */
+function togliSuperate (patch: Patch[]): Patch[] {
+  // Senza patch dentro una voce (le più: un riordino, una voce rimessa) non c'è niente da togliere.
+  if (!patch.some((una) => una.path.length > 2)) return patch
+  const chiaveDi = (percorso: Patch['path']) => percorso.map(String).join('\u0000')
+  const ultima = new Map<string, number>()
+  patch.forEach((una, i) => {
+    if (una.op !== 'add') ultima.set(chiaveDi(una.path), i)
+  })
+  return patch.filter((una, i) => {
+    for (let fin = 1; fin < una.path.length; fin++) {
+      const dove = ultima.get(chiaveDi(una.path.slice(0, fin)))
+      if (dove !== undefined && dove > i) return false
+    }
+    return true
+  })
 }
 
 /**
@@ -209,22 +256,12 @@ export function sostituisciLeToccate (
   for (const chiave of chiavi) vivo[chiave] = fonte[chiave]
 }
 
-/** Dove immer tiene lo stato di una bozza: `Symbol.for`, lo stesso in ogni versione. */
-const STATO_BOZZA = Symbol.for('immer-state')
-
 /**
- * Le voci di una lista com'è adesso nella bozza, senza farne bozze: le voci non
- * toccate così come sono nello stato, quelle cambiate come bozze. Serve a chi
- * scorre o riordina una lista lunga dentro l'operazione: letta dalla bozza, ogni
- * voce diventa una bozza a sua volta, e costa molto di più. Va solo letta.
- * Immer non la dà in pubblico: si legge il suo stato, e se un domani non si
- * legge più si torna la lista stessa, cioè la via lenta.
+ * Un pezzo della bozza com'è adesso, fuori dalla bozza: per metterlo in un
+ * oggetto nuovo, o tenerlo dopo l'operazione. Quel che non è una bozza torna com'è.
  */
-export function vociDi<T> (elenco: T[]): readonly T[] {
-  if (!isDraft(elenco)) return elenco
-  const stato = (elenco as unknown as Record<symbol, { copy_?: unknown; base_?: unknown } | undefined>)[STATO_BOZZA]
-  const voci = stato?.copy_ ?? stato?.base_
-  return Array.isArray(voci) ? voci as T[] : elenco
+export function comeAdesso<T> (valore: T): T {
+  return isDraft(valore) ? current(valore as Draft<T>) : valore
 }
 
 /** Applica delle patch su una bozza: per l'annulla, dentro `inBozza`. */
@@ -245,6 +282,7 @@ export function applicaInPosto (stato: Registro, patch: readonly Patch[]): void 
     let dove = stato as unknown as Record<string | number, unknown>
     for (const passo of path.slice(0, -1)) dove = dove[passo] as Record<string | number, unknown>
     const ultima = path[path.length - 1]
+    // testo-fisso: diagnostica interna di sviluppo
     if (ultima === undefined) throw new Error('patch sulla radice del registro')
     if (Array.isArray(dove) && ultima !== 'length') {
       const indice = Number(ultima)

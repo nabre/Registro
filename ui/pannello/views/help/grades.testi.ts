@@ -80,6 +80,15 @@ const it = {
           'sua scala.',
       },
       {
+        termine: 'Con molte prove',
+        testo:
+          'Oltre le venti prove la griglia disegna solo le colonne in vista, e le altre ' +
+          'compaiono scorrendo: resta svelta anche con un anno intero. Frecce, Invio e Tab ' +
+          'arrivano anche alle colonne non ancora in vista. La ricerca del programma di pagina ' +
+          '(Ctrl+F) non le trova: si scorre, o si sceglie il periodo. Lo stesso vale per la ' +
+          'matrice dell’archivio del docente di classe con molte richieste.',
+      },
+      {
         termine: 'Che cosa si batte in una casella',
         testo:
           'Un numero, anche con la virgola; `X` per l’assenza, la stessa sigla dell’appello ' +
@@ -736,6 +745,15 @@ export const testi = catalogo(it, {
             'Man bewegt sich mit den Pfeiltasten, tippt die Note ein, und Enter geht eine Zeile ' +
             'nach unten; am Ende der Spalte geht es oben in der nächsten weiter. Jedes Feld hat ' +
             'auch eine Auswahlliste mit den Noten seiner Skala.',
+        },
+        {
+          termine: 'Mit vielen Prüfungen',
+          testo:
+            'Ab zwanzig Prüfungen zeichnet das Raster nur die sichtbaren Spalten, die übrigen ' +
+            'erscheinen beim Scrollen: So bleibt es auch mit einem ganzen Jahr schnell. Pfeile, ' +
+            'Enter und Tab erreichen auch Spalten, die noch nicht sichtbar sind. Die Seitensuche ' +
+            '(Strg+F) findet sie nicht: Man scrollt oder wählt den Zeitraum. Dasselbe gilt für die ' +
+            'Matrix im Archiv der Klassenlehrperson mit vielen Anfragen.',
         },
         {
           termine: 'Was man in ein Feld tippt',
@@ -1447,6 +1465,16 @@ export const testi = catalogo(it, {
             'notes de son barème.',
         },
         {
+          termine: 'Avec beaucoup d’épreuves',
+          testo:
+            'Au-delà de vingt épreuves, la grille ne dessine que les colonnes visibles, les ' +
+            'autres apparaissent en faisant défiler : elle reste rapide même avec une année ' +
+            'entière. Les flèches, Entrée et Tab atteignent aussi les colonnes pas encore ' +
+            'visibles. La recherche dans la page (Ctrl+F) ne les trouve pas : on fait défiler, ou ' +
+            'on choisit la période. Il en va de même pour la matrice de l’archive du maître de ' +
+            'classe avec beaucoup de demandes.',
+        },
+        {
           termine: 'Ce qu’on tape dans une case',
           testo:
             'Un nombre, même avec la virgule ; `X` pour l’absence, la même lettre qu’à l’appel ' +
@@ -2137,6 +2165,15 @@ export const testi = catalogo(it, {
             'You move with the arrow keys, type the grade and Enter moves down; at the bottom of ' +
             'the column it starts again at the top of the next. Every box also has a drop-down ' +
             'with the grades on its scale.',
+        },
+        {
+          termine: 'With many tests',
+          testo:
+            'Beyond twenty tests the grid draws only the columns in view, and the others appear ' +
+            'as you scroll: it stays quick even with a whole year. Arrow keys, Enter and Tab also ' +
+            'reach columns not yet in view. Find in page (Ctrl+F) does not find them: scroll, or ' +
+            'choose the period. The same goes for the class teacher’s archive matrix with many ' +
+            'requests.',
         },
         {
           termine: 'What you type in a box',

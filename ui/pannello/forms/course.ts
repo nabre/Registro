@@ -47,7 +47,7 @@ import { testi } from './course.testi.js'
  * materia si creano da qui. Su un corso esistente classe e materia non si
  * toccano: porterebbero lezioni e voti addosso a un'altra classe.
  */
-export interface OpzioniModuloCorso {
+interface OpzioniModuloCorso {
   corso?: Corso
   /** La classe da proporre a un corso nuovo. */
   classeId?: string

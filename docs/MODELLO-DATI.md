@@ -1116,14 +1116,16 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | `smistamenti` | `smistamenti.json` | `Smistamento[]` |
 | `coordinate` | `coordinate.json` | `Coordinata[]`; si riscrive solo con «Trova gli indirizzi» |
 
-Chi modifica dichiara le collezioni toccate e si riscrivono solo quelle
-(anche `eliminazione()` le restituisce). Quando l'operazione di
-`Archivio.modifica` lavora sulla bozza di immer (ADR-50,
-[bozza.ts](../core/dati/bozza.ts)) le collezioni si ricavano dalle patch, e la
-dichiarazione resta come controllo: una toccata e non dichiarata lancia con
-`REGISTRO_SVILUPPO=1`, altrove si scrive con un avviso. L'annulla tiene le patch
-inverse di quelle collezioni, e la copia intera di quelle cambiate fuori dalla
-bozza ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
+Ogni scrittura passa da `Archivio.modifica` (o `modificaSe`, che rinuncia se
+l'operazione torna `false`: la strada di `contesto.modifica`). L'operazione
+lavora sulla bozza di immer (ADR-50, [bozza.ts](../core/dati/bozza.ts)): le
+collezioni da riscrivere si ricavano dalle patch, e si riscrivono solo quelle.
+Chi scrive le dichiara lo stesso (anche `eliminazione()` le restituisce), come
+controllo: una toccata e non dichiarata lancia con `REGISTRO_SVILUPPO=1` e nelle
+prove, altrove si scrive con un avviso. Le patch si riportano sullo stato in
+posto; quelle di una lista riordinata o con una voce in mezzo si accorciano a
+quel che cambia. L'annulla tiene le patch inverse
+([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
 
 ### 8.2 `VERSIONE_DATI = 5`

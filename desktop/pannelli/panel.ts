@@ -18,6 +18,7 @@ import { ocrAttivo } from '../../core/dati/ocr.js'
 import { collegatoNoto, conto as contoExchange } from '../../core/dati/exchange.js'
 import { invioDiretto, mittente as mittentePosta } from '../../core/dati/mail.js'
 import { accountMicrosoft, cambiAccount } from '../../core/dati/microsoft.js'
+import { indirizziPosta } from '../../core/dati/oauth.js'
 import { smistatoreDi } from '../../core/dati/sorter.js'
 import { riferimentiRotti } from '../../core/dominio/integrity.js'
 import { ErroreVersionePiuRecente, versionePiuRecente } from '../../core/dominio/upgrades.js'
@@ -486,9 +487,11 @@ export class PannelloRegistro {
       posta: {
         exchange: collegatoNoto(),
         server: contoExchange().server,
+        porta: contoExchange().porta,
         invioDiretto: invioDiretto(),
         mittente: mittentePosta(),
         accesso: contoExchange().utente,
+        indirizzi: [...indirizziPosta()],
       },
       microsoft: { account: accountMicrosoft() },
     })

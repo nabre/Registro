@@ -140,7 +140,7 @@ export function corpoDelMessaggio (
  */
 
 /** Un allegato già in base64, come lo si legge da disco. */
-export interface AllegatoPosta {
+interface AllegatoPosta {
   nome: string
   tipo: string
   /** Il file stesso, in base64: è così che viaggia, dovunque vada. */

@@ -32,10 +32,6 @@ import { vista } from '../core/azioni/view.js'
 import { azioniSottoContratto, gestoriDelleProcedure } from './bridge.js'
 import type { Origine } from './contract.js'
 
-// Definita in `actions/reports.ts` perché `api/core.ts` la chiama, e da qui
-// l'import sarebbe circolare (attraverso il ponte).
-export { rigeneraDopoScrittura }
-
 const GESTORI: Mappa = {
   ...registro,
   ...calendario,

@@ -4,6 +4,7 @@
 import { basename } from 'node:path'
 import * as apparato from 'apparato'
 
+import { comeAdesso } from '../dati/bozza.js'
 import { contenutoDi, deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '../dati/filing.js'
 import { firmaPosta } from '../dati/templates.js'
@@ -152,25 +153,28 @@ export const consegne = {
     }
     const consegna = { ...azione.consegna, aggiornataIl: istanteAdesso() }
     const scritto = contesto.modifica((r) => {
-      const viva = r.consegne.find((c) => c.id === consegna.id)
+      // Una copia per scrittura, con i pezzi com'è adesso e non la bozza: la
+      // bozza si chiude con l'operazione, e `consegna` resta a chi chiama.
+      const salvata = { ...consegna }
+      const viva = comeAdesso(r.consegne.find((c) => c.id === consegna.id))
       if (viva) {
-        consegna.fatte = viva.fatte
-        consegna.documenti = viva.documenti
+        salvata.fatte = viva.fatte
+        salvata.documenti = viva.documenti
         // Anche i fogli «per tutti» e firme, che hanno azioni loro.
-        consegna.fileTutti = viva.fileTutti
-        consegna.nomeTutti = viva.nomeTutti
-        consegna.fileFirme = viva.fileFirme
-        consegna.nomeFirme = viva.nomeFirme
+        salvata.fileTutti = viva.fileTutti
+        salvata.nomeTutti = viva.nomeTutti
+        salvata.fileFirme = viva.fileFirme
+        salvata.nomeFirme = viva.nomeFirme
       } else {
-        delete consegna.fileTutti
-        delete consegna.nomeTutti
-        delete consegna.fileFirme
-        delete consegna.nomeFirme
+        delete salvata.fileTutti
+        delete salvata.nomeTutti
+        delete salvata.fileFirme
+        delete salvata.nomeFirme
         // Un documento è il suo file: senza, la riga non dice niente.
-        consegna.documenti = []
-        consegna.fatte = consegna.fatte.map(({ file: _file, nome: _nome, ...spunta }) => spunta)
+        salvata.documenti = []
+        salvata.fatte = salvata.fatte.map(({ file: _file, nome: _nome, ...spunta }) => spunta)
       }
-      riponi(r.consegne, consegna)
+      riponi(r.consegne, salvata)
     }, ['consegne'])
     if (!scritto.ok) return scritto
     return nuova ? { ok: true, creato: { id: consegna.id } } : fatto

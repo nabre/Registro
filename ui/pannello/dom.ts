@@ -414,6 +414,7 @@ function rimetti (tenuti: Tenuto[]): void {
 /** La chiave di telaio o di scorrimento con cui un elemento resta nel documento. */
 function chiaveDiTelaio (elemento: HTMLElement): string | undefined {
   if (elemento.dataset.telaio !== undefined) return elemento.dataset.telaio
+  // testo-fisso: chiave interna di telaio
   if (elemento.dataset.scorrimento !== undefined) return `scorrimento:${elemento.dataset.scorrimento}`
   return undefined
 }
@@ -506,17 +507,25 @@ const PREFISSO_ID = 'regi-morfosi:'
 
 /**
  * La chiave con cui un nodo resta: `data-tieni` (con il tag), telaio,
- * scorrimento, isola. Per `idiomorph` diventa un `id` di passaggio: due nodi
+ * scorrimento, isola, e `data-chiave`: la voce di un elenco disegnato a
+ * finestra (`components/virtuale.ts`), che scorrendo cambia posto fra i
+ * fratelli e, presa per posizione, diventerebbe la voce accanto. Per `idiomorph` diventa un `id` di passaggio: due nodi
  * con chiavi diverse non si confondono mai, due con la stessa si ritrovano
  * anche se si sono spostati.
  */
 function chiaveDiMorfosi (elemento: HTMLElement): string | undefined {
-  const { tieni, telaio, scorrimento, isola } = elemento.dataset
+  const { tieni, telaio, scorrimento, isola, chiave } = elemento.dataset
   const parti: string[] = []
+  // testo-fisso: prefissi interni per chiavi idiomorph
   if (tieni !== undefined) parti.push(`tieni:${elemento.tagName}|${tieni}`)
+  // testo-fisso: prefissi interni per chiavi idiomorph
   if (telaio !== undefined) parti.push(`telaio:${telaio}`)
+  // testo-fisso: prefissi interni per chiavi idiomorph
   if (scorrimento !== undefined) parti.push(`scorrimento:${scorrimento}`)
+  // testo-fisso: prefissi interni per chiavi idiomorph
   if (isola !== undefined) parti.push(`isola:${isola}`)
+  // testo-fisso: prefissi interni per chiavi idiomorph
+  if (chiave !== undefined) parti.push(`chiave:${chiave}`)
   return parti.length > 0 ? parti.join('|') : undefined
 }
 
@@ -528,7 +537,7 @@ function chiaveDiMorfosi (elemento: HTMLElement): string | undefined {
 function segnaChiavi (radice: ParentNode, conLaRadice: boolean): void {
   const visti = new Map<string, number>()
   const nodi = Array.from(radice.querySelectorAll<HTMLElement>(
-    '[data-tieni], [data-telaio], [data-scorrimento], [data-isola]',
+    '[data-tieni], [data-telaio], [data-scorrimento], [data-isola], [data-chiave]',
   ))
   // La radice dell'albero nuovo non è fra i risultati del suo `querySelectorAll`.
   if (conLaRadice && radice instanceof HTMLElement) nodi.unshift(radice)

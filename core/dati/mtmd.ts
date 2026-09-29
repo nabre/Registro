@@ -28,7 +28,7 @@ const DA_DOVE = 'github.com/ggml-org/llama.cpp'
  * difesa è `shell: false` con gli argomenti a vettore. Non verifica che sia
  * davvero llama-mtmd-cli.
  */
-export function programmaValido (scritto: string): string {
+function programmaValido (scritto: string): string {
   const pulito = senzaVirgolette(scritto)
   if (pulito === '' || !percorso.isAbsolute(pulito)) return ''
   if (process.platform === 'win32' && percorso.extname(pulito).toLowerCase() !== '.exe') return ''

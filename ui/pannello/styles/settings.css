@@ -167,13 +167,6 @@
 
 .voce-opzione:first-child { border-top: none; padding-top: 0; }
 
-/* Decisa a mano: una riga di colore sul fianco, distingue dal predefinito senza leggere la pastiglia. */
-.voce-opzione--scritta {
-  border-left: 3px solid color-mix(in srgb, var(--attenzione) 60%, transparent);
-  padding-left: var(--spazio-3);
-  margin-left: calc(var(--spazio-3) * -1);
-}
-
 /* Sospesa: il padre da cui dipende è spento. Si smorza tutta la riga (un nome
    pieno sopra un campo morto sembrerebbe un guasto), ma il testo resta leggibile. */
 .voce-opzione--sospesa { opacity: 0.55; }
@@ -445,6 +438,33 @@
 
 /* Vuoto finché nessuno ha premuto: altrimenti lascerebbe un buco. */
 .posta-esito:empty { display: none; }
+
+/* I parametri della casella: nome a sinistra, valore a destra; si leggono, non
+   si scrivono. Su uno schermo stretto il valore va sotto il nome. */
+.posta-parametri {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: var(--spazio-2) var(--spazio-4);
+  margin: 0;
+}
+
+.posta-parametri dt { color: var(--testo-quieto); }
+.posta-parametri dd { margin: 0; overflow-wrap: anywhere; }
+/* Il nome sta già nella colonna a sinistra: l'etichetta del menu resta solo per
+   chi legge con il lettore di schermo. */
+.posta-parametri dd .campo__etichetta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 34rem) {
+  .posta-parametri { grid-template-columns: 1fr; gap: 0; }
+  .posta-parametri dd { margin-bottom: var(--spazio-2); }
+}
 
 /* ---------------------------------------------------- account Microsoft */
 

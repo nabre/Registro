@@ -65,6 +65,7 @@ export async function archivioDiProva ({
     confine === undefined ? creaAnno(dal, al) : creaAnno(dal, al, undefined, confine),
     Uri.file(percorso.join(dati, file)),
   )
+  sorvegliaScritture(archivio)
   if (deposito) api.registraDeposito(archivio.deposito)
   if (pdfAutomatici !== undefined) {
     archivio.modifica((r) => { r.impostazioni.pdfAutomatici = pdfAutomatici }, ['registro'])
@@ -78,4 +79,29 @@ export async function archivioDiProva ({
 export function smonta (radice, ...aperti) {
   for (const cosa of aperti) cosa?.dispose()
   rmSync(radice, { recursive: true, force: true })
+}
+
+/**
+ * Ogni scrittura di un'azione (`modificaSe`, la strada di `contesto.modifica`)
+ * che va a buon fine lascia patch, e le collezioni che ne escono sono fra le
+ * dichiarate. Una riuscita senza patch vuol dire un gestore che ha cambiato un
+ * oggetto fuori dalla bozza, o che doveva tornare `invariato`. Le dichiarate le
+ * controlla già l'archivio (`controllaDichiarate`, severo nelle prove): qui si
+ * ripete per dirlo con il nome delle collezioni.
+ */
+function sorvegliaScritture (archivio) {
+  const modificaSe = archivio.modificaSe.bind(archivio)
+  let ultime = null
+  archivio.alleDifferenze((d) => { ultime = d })
+  archivio.modificaSe = (op, collezioni) => {
+    ultime = null
+    const fatto = modificaSe(op, collezioni)
+    if (!fatto) return fatto
+    if (ultime === null || ultime.patch.length === 0) {
+      throw new Error(`scrittura riuscita senza patch (dichiarate: ${collezioni.join(', ')})`)
+    }
+    const fuori = ultime.collezioni.filter((c) => !collezioni.includes(c))
+    if (fuori.length > 0) throw new Error(`toccate e non dichiarate: ${fuori.join(', ')}`)
+    return fatto
+  }
 }

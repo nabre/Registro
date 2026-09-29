@@ -394,10 +394,10 @@ export class Archivio implements apparato.Smaltitore {
     // Solo un documento aperto davvero è l'anno in uso: altrimenti si
     // accetterebbero modifiche senza dove scriverle.
     impostaDocumento(this.pacchetto ? file : null)
-    const intestazione = this.leggiIntestazione(this.pacchetto)
     // Quel che si sapeva del documento di prima non vale per questo.
     this.ultimiTesti.clear()
     this.illeggibili.clear()
+    const intestazione = this.leggiIntestazione(this.pacchetto)
 
     const grezzo = {} as FilePersistito
     for (const collezione of COLLEZIONI) {
@@ -420,7 +420,10 @@ export class Archivio implements apparato.Smaltitore {
 
     // Quel che la lettura ha migrato va fissato su disco: gli id nati nella
     // migrazione (es. dei corsi) cambierebbero a ogni caricamento.
-    const migrate = this.collezioniMigrate(grezzo)
+    // Se il formato vecchio chiedeva una copia e questa non è riuscita, non si
+    // accoda niente: il documento non va toccato senza copia di sicurezza.
+    const puòSalvare = formato.passi.length === 0 || copia !== null
+    const migrate = puòSalvare ? this.collezioniMigrate(grezzo) : []
     if (migrate.length > 0) {
       for (const collezione of migrate) this.scritturePendenti.add(collezione)
       this.programmaSalvataggio()
@@ -511,11 +514,21 @@ export class Archivio implements apparato.Smaltitore {
     try {
       // Anche l'apertura nel `try`: un blocco col CRC sbagliato vale come JSON rotto.
       const testo = pacchetto.testo(nome)?.trim()
-      if (!testo) return null
+      if (!testo) {
+        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        return null
+      }
       // `unknown` e non `any`: obbliga a controllare prima di usare.
       const letto: unknown = JSON.parse(testo)
-      return letto && typeof letto === 'object' ? (letto as Record<string, unknown>) : null
+      if (letto && typeof letto === 'object' && !Array.isArray(letto)) {
+        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        return letto as Record<string, unknown>
+      }
+      if (nome === NOMI.registro) this.illeggibili.add('registro')
+      this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, testi().nonOggetto))
+      return null
     } catch (errore) {
+      if (nome === NOMI.registro) this.illeggibili.add('registro')
       this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, motivoDi(errore)))
       return null
     }
@@ -571,7 +584,7 @@ export class Archivio implements apparato.Smaltitore {
 
     let pacchetto: Pacchetto
     try {
-      pacchetto = await Pacchetto.apri(file)
+      pacchetto = await Pacchetto.apri(file, { codaInFondo: opzioni?.giàNostro })
     } catch (errore) {
       if (errore instanceof ErroreVersionePiuRecente && opzioni?.giàNostro) this.superato = true
       this.emettitoreErrori.fire(
@@ -926,11 +939,14 @@ export class Archivio implements apparato.Smaltitore {
     })
     if (vivo !== null) controllaVivo(vivo, this.stato)
     if (rinuncia) return false
+    if (vivo !== null) controllaSenzaBozze(patch)
     const toccate = patch.length > 0 ? [...perCollezione(patch).keys()] : []
     if (toccate.length > 0) {
       controllaDichiarate(toccate, collezioni)
-      applicaInPosto(this.stato, patch)
+      // Prima la copia per la storia: riportare le patch in posto cambia gli
+      // oggetti vivi, e fra quelli ci sono i valori delle inverse.
       this.storia.ricordaPatch(toccate, () => perCollezione(copiaDelle(inverse)))
+      applicaInPosto(this.stato, patch)
     }
     this.storia.cambiate(toccate)
     this.modifiche += 1
@@ -1296,7 +1312,25 @@ function dichiarazioneSevera (): boolean {
  */
 function controllaVivo (prima: string, stato: Registro): void {
   if (JSON.stringify(stato) === prima) return
+  // testo-fisso: diagnostica interna di sviluppo
   throw new Error('modifica: lo stato vivo è cambiato fuori dalla bozza')
+}
+
+/**
+ * Nelle patch non dev'esserci un pezzo della bozza: un oggetto nuovo fatto
+ * con pezzi presi dalla bozza (`{ ...voce, voti: bozza.voti }`) può uscirne
+ * con dentro bozze che immer ha già chiuso, e nello stato vivo farebbero
+ * lanciare ogni lettura dopo. Chi li vuole li prende con `comeAdesso`. Si
+ * guarda solo dove la dichiarazione è severa: costa un JSON delle patch.
+ */
+function controllaSenzaBozze (patch: readonly Patch[]): void {
+  try {
+    JSON.stringify(patch)
+  } catch (errore) {
+    const dove = patch.map((una) => `/${una.path.join('/')}`).join(', ')
+    // testo-fisso: diagnostica interna di sviluppo
+    throw new Error(`modifica: una bozza chiusa è finita nelle patch (${dove})`, { cause: errore })
+  }
 }
 
 /**
@@ -1312,6 +1346,7 @@ function controllaDichiarate (
 ): void {
   const mancanti = toccate.filter((collezione) => !dichiarate.includes(collezione))
   if (mancanti.length === 0) return
+  // testo-fisso: diagnostica interna di sviluppo
   const frase = `modifica: toccate ma non dichiarate: ${mancanti.join(', ')} (dichiarate: ${dichiarate.join(', ') || 'nessuna'})`
   if (dichiarazioneSevera()) throw new Error(frase)
   console.warn(frase)

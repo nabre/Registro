@@ -5,6 +5,7 @@
 // Gli esempi scelti a mano stanno in `tests/data/history.test.mjs`.
 //
 // L'archivio si apre senza documento: la storia non ha bisogno del disco.
+// `PROPRIETA_ESECUZIONI=2000` le prova più a fondo.
 
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -66,6 +67,8 @@ const scrittura = fc.oneof(
   fc.record({ tipo: fc.constant('filtraClassi'), nome: testo }),
   fc.record({ tipo: fc.constant('lezione'), argomento: testo }),
   fc.record({ tipo: fc.constant('ordinaLezioni') }),
+  fc.record({ tipo: fc.constant('ordinaClassi') }),
+  fc.record({ tipo: fc.constant('classeInOrdine'), nome: testo }),
   fc.record({ tipo: fc.constant('soglia'), valore: fc.integer({ min: 0, max: 100 }) }),
   fc.record({ tipo: fc.constant('materia'), nome: testo }),
   fc.record({ tipo: fc.constant('coordinata'), indirizzo: testo }),
@@ -85,10 +88,28 @@ function applica (r, s) {
     case 'filtraClassi': r.classi = r.classi.filter((c) => c.nome !== s.nome); break
     case 'lezione': r.lezioni.push({ id: id('lez'), argomento: s.argomento }); break
     case 'ordinaLezioni': r.lezioni.sort((a, b) => b.argomento.localeCompare(a.argomento)); break
+    // Riordinare dopo aver cambiato una voce: le patch si accorciano (`compatta`).
+    case 'ordinaClassi': r.classi.sort((a, b) => a.nome.localeCompare(b.nome)); break
+    case 'classeInOrdine':
+      r.classi.push({ id: id('cls'), nome: s.nome, allievi: [] })
+      r.classi.sort((a, b) => a.nome.localeCompare(b.nome))
+      break
     case 'soglia': r.impostazioni.sogliaAssenza = s.valore; break
     case 'materia': r.materie.push({ id: id('mat'), nome: s.nome }); break
     case 'coordinata': r.coordinate.push({ indirizzo: s.indirizzo }); break
     case 'niente': break
+  }
+}
+
+/**
+ * Le scritture di un'operazione, fino alla prima che riordina una lista: dopo
+ * `sort` o `splice` la lista non si rilegge nella stessa operazione (vedi
+ * `enableArrayMethods` in `core/dati/bozza.ts`), e i gestori non lo fanno.
+ */
+function applicaTutte (r, scritture) {
+  for (const s of scritture) {
+    applica(r, s)
+    if (['togliClasse', 'ordinaLezioni', 'ordinaClassi', 'classeInOrdine'].includes(s.tipo)) return
   }
 }
 
@@ -107,7 +128,7 @@ describe('storia: proprietà', () => {
         const prima = collezioni(archivio.registro)
         const oggetti = { ...archivio.registro }
         ricevute.length = 0
-        archivio.modifica((r) => { for (const s of scritture) applica(r, s) })
+        archivio.modifica((r) => applicaTutte(r, scritture))
         const dopo = collezioni(archivio.registro)
         assert.equal(ricevute.length, 1)
         const [{ collezioni: toccate, patch }] = ricevute
@@ -134,13 +155,13 @@ describe('storia: proprietà', () => {
       try {
         // Un gesto prima, perché l'annulla non parta sempre dal registro vuoto.
         await archivio.inUnPasso(async () => {
-          for (const una of preparazione) archivio.modifica((r) => { for (const s of una) applica(r, s) })
+          for (const una of preparazione) archivio.modifica((r) => applicaTutte(r, una))
         })
         const prima = collezioni(archivio.registro)
         const conti = archivio.contiStoria
         await archivio.inUnPasso(async () => {
           for (const una of scritture) {
-            archivio.modifica((r) => { for (const s of una) applica(r, s) })
+            archivio.modifica((r) => applicaTutte(r, una))
             // Un'attesa vera fra le scritture: il passo segue il gesto oltre gli `await`.
             await Promise.resolve()
           }
@@ -175,7 +196,7 @@ describe('storia: proprietà', () => {
         await archivio.inUnPasso(async () => {
           scritture.forEach((una, i) => {
             archivio.modificaSe((r) => {
-              for (const s of una) applica(r, s)
+              applicaTutte(r, una)
               return !rinuncia[i]
             })
           })

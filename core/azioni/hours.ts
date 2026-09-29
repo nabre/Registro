@@ -12,7 +12,7 @@ import { classeDellaLezione, corsoPerId } from '../dominio/courses.js'
 import type { Lezione, Presenza, Registro, StatoPresenza } from '../dominio/models.js'
 import { validaLezione } from '../dominio/validation.js'
 import { aggiornaDopoChiusura } from './reports.js'
-import { conMessaggio, fatto, ordinaInBozza, rifiuta, riponi, riponiInOrdine, type Parte } from './context.js'
+import { conMessaggio, fatto, rifiuta, riponi, type Parte } from './context.js'
 import { lezioniInChiusura } from '../dominio/timetable.js'
 import { annoInUso } from '../dominio/years.js'
 import { testi as comuni } from './context.testi.js'
@@ -120,6 +120,13 @@ export const ore = {
     const fuori = slotFuoriDallePause(lezione.slot, contesto.registro.impostazioni)
     const ridisposta = fuori !== lezione.slot
     lezione.slot = fuori
+    if (lezione.pianoId) {
+      const piano = contesto.registro.piani.find((p) => p.id === lezione.pianoId)
+      if (!piano) return rifiuta(comuni().nonTrovato.piano)
+      if (piano.corsoId && piano.corsoId !== lezione.corsoId) {
+        return rifiuta(testi().pianoAltroCorso)
+      }
+    }
     // Cambio di classe: rifiutato se l'ora ha dati di persone, altrimenti
     // l'appello muto si butta e si rifà sulla classe nuova.
     if (prima && prima.corsoId !== lezione.corsoId &&
@@ -135,7 +142,7 @@ export const ore = {
       lezione.presenze = []
     }
     contesto.modifica((r) => {
-      riponiInOrdine(r, 'lezioni', lezione, (a, b) => a.data.localeCompare(b.data))
+      riponi(r.lezioni, lezione, (a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     const scritta = nuova ? { ok: true as const, creato: { id: lezione.id } } : fatto
     if (!ridisposta) return scritta
@@ -166,7 +173,7 @@ export const ore = {
     }
     contesto.modifica((r) => {
       r.lezioni.push(copia)
-      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
+      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     return { ok: true, creato: { id: copia.id } }
   },
@@ -198,7 +205,7 @@ export const ore = {
       if (azione.inizio) {
         lezione.slot = slotSullePause(lezione.slot, r.impostazioni, azione.inizio)
       }
-      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
+      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
     })
   },
 

@@ -9,7 +9,7 @@ import * as http from 'node:http'
 
 import * as apparato from 'apparato'
 
-import { dominioDi, type Casella } from '../dominio/mailbox.js'
+import { dominioDi, indirizziDellAccount } from '../dominio/mailbox.js'
 import { parole } from '../dominio/words.testi.js'
 import { lingua } from '../i18n/index.js'
 import { testi } from './oauth.testi.js'
@@ -17,8 +17,17 @@ import { testi } from './oauth.testi.js'
 /**
  * I permessi chiesti: `SMTP.Send`, il più stretto per spedire, e
  * `offline_access` per il gettone di rinnovo (senza, si rientra ogni ora).
+ * `openid email profile` non danno accesso a niente: fanno tornare chi è
+ * entrato, con l'indirizzo di posta, per proporre il mittente.
  */
-const PERMESSI = 'https://outlook.office.com/SMTP.Send offline_access'
+const PERMESSI = 'https://outlook.office.com/SMTP.Send offline_access openid email profile'
+
+/**
+ * Per gli alias, se il tenant lo concede: `User.Read` legge i
+ * `proxyAddresses` del proprio profilo. Si chiede col gettone di rinnovo,
+ * senza browser; negato, restano gli indirizzi detti all'accesso.
+ */
+const PERMESSI_PROFILO = 'https://graph.microsoft.com/User.Read'
 
 /** Dove si va a chiedere, quando non si sa ancora di che tenant si tratta. */
 const COMUNE = 'organizations'
@@ -32,7 +41,16 @@ type ServizioMicrosoft = 'posta' | 'onedrive'
  */
 const CHIAVE_RINNOVO = 'registroDocenti.posta.rinnovo'
 
+/**
+ * Gli indirizzi da cui l'account collegato può scrivere, letti all'accesso.
+ * Non sono segreti, ma stanno col gettone: valgono finché vale lui.
+ */
+const CHIAVE_INDIRIZZI = 'registroDocenti.posta.indirizzi'
+
 let portachiavi: apparato.DepositoSegreti | null = null
+
+/** Gli indirizzi dell'account collegato, in memoria per la scheda della posta. */
+let indirizziNoti: string[] = []
 
 /**
  * Riceve il portachiavi all'avvio e guarda subito se c'è un gettone di rinnovo,
@@ -41,6 +59,23 @@ let portachiavi: apparato.DepositoSegreti | null = null
 export function registraPortachiaviOauth (segreti: apparato.DepositoSegreti): void {
   portachiavi = segreti
   void rinnovoSalvato()
+  void segreti.get(CHIAVE_INDIRIZZI).then((scritto) => {
+    indirizziNoti = leggiIndirizzi(scritto)
+  })
+}
+
+function leggiIndirizzi (scritto: string | undefined): string[] {
+  try {
+    const letto: unknown = JSON.parse(scritto ?? '[]')
+    return Array.isArray(letto) ? letto.filter((voce): voce is string => typeof voce === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+/** Gli indirizzi da cui l'account collegato può scrivere, detti da Microsoft all'accesso. */
+export function indirizziPosta (): readonly string[] {
+  return indirizziNoti
 }
 
 /** L'ultimo gettone d'accesso, solo in memoria, riusato finché vale. */
@@ -84,9 +119,11 @@ export async function dimenticaOauth (): Promise<void> {
   inTasca = null
 }
 
-/** Azzera tutto: gettone di rinnovo, gettone d'accesso e tenant scoperti. */
+/** Azzera tutto: gettoni, indirizzi letti e tenant scoperti. */
 export async function azzeraOauth (): Promise<void> {
   await dimenticaOauth()
+  await portachiavi?.delete(CHIAVE_INDIRIZZI)
+  indirizziNoti = []
   tenantConosciuti.clear()
 }
 
@@ -137,6 +174,8 @@ const ATTESA_MS = 15_000
 export interface Gettoni {
   access_token?: string
   refresh_token?: string
+  /** Con `openid`: chi è entrato, firmato da Microsoft. */
+  id_token?: string
   expires_in?: number
   error?: string
   error_description?: string
@@ -156,16 +195,79 @@ async function aMicrosoft (tenant: string, dove: string, corpo: URLSearchParams)
 interface EsitoOauth {
   ok: boolean
   errore?: string
+  /** Da che indirizzi l'account può scrivere, il principale per primo. */
+  indirizzi?: string[]
 }
 
-/** Collega la casella con l'account Microsoft, dal browser. */
-export async function collegaConOauth (suo: Casella): Promise<EsitoOauth> {
+/**
+ * Collega la casella con l'account Microsoft, dal browser, e dice da quali
+ * indirizzi l'account può scrivere: quelli che Microsoft mette nel gettone,
+ * e gli alias del profilo se il tenant lascia leggerlo.
+ */
+export async function collegaConOauth (accesso: string): Promise<EsitoOauth> {
   if (!portachiavi) return { ok: false, errore: testi().senzaPortachiavi }
 
   // Il nome di accesso, non l'indirizzo: è quello che Microsoft conosce.
-  const esito = await accediDalBrowser(await tenantDi(suo.accesso), suo.accesso, PERMESSI, 'posta')
+  const tenant = await tenantDi(accesso)
+  const esito = await accediDalBrowser(tenant, accesso, PERMESSI, 'posta')
   if (!esito.ok) return { ok: false, errore: esito.errore }
-  return await tieni(esito.gettoni)
+  const tenuto = await tieni(esito.gettoni)
+  if (!tenuto.ok) return tenuto
+
+  const chi = {
+    ...rivendicazioni(esito.gettoni.access_token),
+    ...rivendicazioni(esito.gettoni.id_token),
+  }
+  const profilo = await profiloDaGraph(tenant, esito.gettoni.refresh_token ?? '')
+  const indirizzi = indirizziDellAccount(
+    [profilo.mail, chi.email, chi.upn, chi.preferred_username, chi.unique_name],
+    profilo.proxyAddresses ?? [],
+    accesso,
+  )
+  indirizziNoti = indirizzi
+  await portachiavi.store(CHIAVE_INDIRIZZI, JSON.stringify(indirizzi))
+  return { ok: true, indirizzi }
+}
+
+/**
+ * Le rivendicazioni di un gettone JWT, senza verificarne la firma: arriva
+ * direttamente dalla pagina dei gettoni di Microsoft, e serve solo a proporre
+ * un indirizzo, non a decidere chi entra.
+ */
+function rivendicazioni (jwt: string | undefined): Record<string, string | undefined> {
+  const corpo = jwt?.split('.')[1]
+  if (!corpo) return {}
+  try {
+    const letto: unknown = JSON.parse(Buffer.from(corpo, 'base64url').toString('utf8'))
+    if (!letto || typeof letto !== 'object') return {}
+    return Object.fromEntries(
+      Object.entries(letto).filter(([, valore]) => typeof valore === 'string'),
+    )
+  } catch {
+    return {}
+  }
+}
+
+/**
+ * Indirizzo principale e alias dal proprio profilo, con `User.Read`. Qualsiasi
+ * rifiuto (consenso negato, rete) dà un profilo vuoto: gli alias sono un di più.
+ */
+async function profiloDaGraph (
+  tenant: string,
+  rinnovo: string,
+): Promise<{ mail?: string, proxyAddresses?: string[] }> {
+  try {
+    const gettoni = await rinnovaConMicrosoft(tenant, rinnovo, PERMESSI_PROFILO)
+    if (!gettoni.access_token) return {}
+    const risposta = await fetch('https://graph.microsoft.com/v1.0/me?$select=mail,proxyAddresses', {
+      headers: { authorization: `Bearer ${gettoni.access_token}` },
+      signal: AbortSignal.timeout(ATTESA_MS),
+    })
+    if (!risposta.ok) return {}
+    return (await risposta.json()) as { mail?: string, proxyAddresses?: string[] }
+  } catch {
+    return {}
+  }
 }
 
 /**

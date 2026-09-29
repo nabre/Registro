@@ -30,7 +30,11 @@ const it = {
   nonArrivateTesto:
     'Questa sezione ha delle impostazioni, ma non sono ancora state lette. Succede per un '
     + 'istante all’apertura; se resta così, il registro non sta rispondendo.',
-  giaInstallati: (quanti: number) => `Programmi già installati (${quanti})`,
+  avanzate: (quante: number) => `Avanzate (${quante})`,
+  // Un modello si sceglie dove lo si scarica, non battendone il nome.
+  nessunModello: 'nessuno',
+  scegliModello: 'Scegli in Modelli linguistici',
+  scegliModelloAiuto: 'Il file si sceglie fra quelli scaricati, nella sezione Modelli linguistici',
   ripristinaQuante: (quante: number) => `Ripristina (${quante})`,
   ripristinaAiuto: 'Ritira i valori decisi a mano in questa sezione',
   ripristinare: (sezione: string) => `Ripristinare «${sezione}»?`,
@@ -72,7 +76,10 @@ export const testi = catalogo(it, {
     nonArrivateTesto:
       'Dieser Abschnitt hat Einstellungen, aber sie sind noch nicht gelesen. Das passiert beim '
       + 'Öffnen für einen Augenblick; bleibt es so, antwortet das Klassenbuch nicht.',
-    giaInstallati: (quanti) => `Bereits installierte Programme (${quanti})`,
+    avanzate: (quante) => `Erweitert (${quante})`,
+    nessunModello: 'keines',
+    scegliModello: 'In Sprachmodelle wählen',
+    scegliModelloAiuto: 'Die Datei wählt man unter den heruntergeladenen, im Bereich Sprachmodelle',
     ripristinaQuante: (quante) => `Zurücksetzen (${quante})`,
     ripristinaAiuto: 'Nimmt die von Hand festgelegten Werte in diesem Abschnitt zurück',
     ripristinare: (sezione) => `«${sezione}» zurücksetzen?`,
@@ -112,7 +119,10 @@ export const testi = catalogo(it, {
     nonArrivateTesto:
       'Cette section a des paramètres, mais ils n’ont pas encore été lus. Cela arrive un instant '
       + 'à l’ouverture ; si cela dure, le registre ne répond pas.',
-    giaInstallati: (quanti) => `Programmes déjà installés (${quanti})`,
+    avanzate: (quante) => `Avancé (${quante})`,
+    nessunModello: 'aucun',
+    scegliModello: 'Choisir dans Modèles de langage',
+    scegliModelloAiuto: 'Le fichier se choisit parmi ceux téléchargés, dans la section Modèles de langage',
     ripristinaQuante: (quante) => `Réinitialiser (${quante})`,
     ripristinaAiuto: 'Retire les valeurs choisies à la main dans cette section',
     ripristinare: (sezione) => `Réinitialiser « ${sezione} » ?`,
@@ -152,7 +162,10 @@ export const testi = catalogo(it, {
     nonArrivateTesto:
       'This section has settings, but they have not been read yet. It happens for a moment on '
       + 'opening; if it stays like this, the register is not responding.',
-    giaInstallati: (quanti) => `Programs already installed (${quanti})`,
+    avanzate: (quante) => `Advanced (${quante})`,
+    nessunModello: 'none',
+    scegliModello: 'Choose in Language models',
+    scegliModelloAiuto: 'The file is chosen among the downloaded ones, in the Language models section',
     ripristinaQuante: (quante) => `Reset (${quante})`,
     ripristinaAiuto: 'Withdraws the values set by hand in this section',
     ripristinare: (sezione) => `Reset “${sezione}”?`,

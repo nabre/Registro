@@ -48,7 +48,6 @@ import { validaAnno, validaCorso, validaMateria, validaClasse } from '../dominio
 import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '../dati/filing.js'
 import { percorsoCopiaCalendario, scriviCopia } from '../dati/calendar.js'
 import { contenutoDi } from '../dati/store.js'
-import { vociDi } from '../dati/bozza.js'
 import { percorsoLogo, portaDentroLaVecchiaCartella } from './templates.js'
 import { percorsoProvvisorio } from '../dati/paths.js'
 import {
@@ -56,10 +55,8 @@ import {
   conMessaggio,
   documentoCambiato,
   fatto,
-  ordinaInBozza,
   rifiuta,
   riponi,
-  riponiInOrdine,
   scegliUnFile,
   type Contesto,
   type EsitoAzione,
@@ -95,8 +92,8 @@ function riscriviAnno (
   const via = new Set(intatte.map((l) => l.id))
   const scritto = contesto.modifica((r) => {
     const cartella = r.anni.find((a) => a.id === anno.id)?.cartella
-    riponiInOrdine(r, 'anni', { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
-    if (via.size > 0) r.lezioni = vociDi(r.lezioni).filter((l) => !via.has(l.id))
+    riponi(r.anni, { ...anno, cartella }, (a, b) => a.inizio.localeCompare(b.inizio))
+    if (via.size > 0) r.lezioni = r.lezioni.filter((l) => !via.has(l.id))
   }, via.size > 0 ? ['registro', 'lezioni'] : ['registro'])
   if (!scritto.ok || (via.size === 0 && conDati.length === 0 && !detto)) return scritto
   const t = testi()
@@ -310,7 +307,7 @@ export const registro = {
     const aggiornato = conLetteraSettimana(anno, azione.giorno, azione.lettera)
     if (anno.id !== contesto.registro.annoCorrenteId) return rifiuta(comuni().nonTrovato.anno)
     return contesto.modifica((r) => {
-      riponiInOrdine(r, 'anni', aggiornato, (a, b) => a.inizio.localeCompare(b.inizio))
+      riponi(r.anni, aggiornato, (a, b) => a.inizio.localeCompare(b.inizio))
     }, ['registro'])
   },
 
@@ -318,7 +315,7 @@ export const registro = {
     const esito = validaMateria(azione.materia, contesto.registro.materie)
     if (!esito.valido) return { ok: false, errori: esito.errori }
     const salvato = contesto.modifica((r) => {
-      riponiInOrdine(r, 'materie', azione.materia, (a, b) => confrontaNomi(a.nome, b.nome))
+      riponi(r.materie, azione.materia, (a, b) => confrontaNomi(a.nome, b.nome))
     }, ['registro'])
     if (!salvato.ok) return salvato
     return { ok: true, creato: { id: azione.materia.id } }
@@ -407,7 +404,7 @@ export const registro = {
     )
     contesto.modifica((r) => {
       r.corsi.push(corso)
-      ordinaInBozza(r, 'corsi', (x, y) => confrontaNomi(x.titolo, y.titolo))
+      r.corsi.sort((x, y) => confrontaNomi(x.titolo, y.titolo))
     }, ['corsi'])
     return { ok: true, creato: { id: corso.id } }
   },
@@ -423,9 +420,17 @@ export const registro = {
       return rifiuta(testi().classeMateriaFisse)
     }
     const nuovo = !esistente
+    if (nuovo) {
+      if (!contesto.registro.classi.some((c) => c.id === azione.corso.classeId)) {
+        return rifiuta(comuni().nonTrovato.classe)
+      }
+      if (!contesto.registro.materie.some((m) => m.id === azione.corso.materiaId)) {
+        return rifiuta(comuni().nonTrovato.materia)
+      }
+    }
     const corso = { ...azione.corso, aggiornatoIl: istanteAdesso() }
     contesto.modifica((r) => {
-      riponiInOrdine(r, 'corsi', corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
+      riponi(r.corsi, corso, (x, y) => confrontaNomi(x.titolo, y.titolo))
     }, ['corsi'])
     return nuovo ? { ok: true, creato: { id: corso.id } } : fatto
   },
@@ -466,7 +471,7 @@ export const registro = {
 
     const scritto = contesto.modifica((r) => {
       r.lezioni.push(...nuove)
-      ordinaInBozza(r, 'lezioni', (a, b) => a.data.localeCompare(b.data))
+      r.lezioni.sort((a, b) => a.data.localeCompare(b.data))
     }, ['lezioni'])
     if (!scritto.ok) return scritto
 

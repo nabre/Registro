@@ -3,6 +3,7 @@
 
 import * as apparato from 'apparato'
 
+import { comeAdesso } from '../dati/bozza.js'
 import { deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '../dati/filing.js'
 import { arrotondaVoto, nomeCompleto, votoValido } from '../dominio/calculations.js'
@@ -20,7 +21,7 @@ import {
   documentoCambiato,
   fatto,
   rifiuta,
-  riponiInOrdine,
+  riponi,
   scegliUnFile,
   type Parte,
 } from './context.js'
@@ -97,11 +98,22 @@ export const valutazioni = {
     const chiesto = azione.valutazione
     // Rimandi a cose che non ci sono: il momento finirebbe sganciato da subito.
     if (!corsoPerId(registro, chiesto.corsoId)) return rifiuta(comuni().nonTrovato.corso)
-    if (chiesto.lezioneId && !registro.lezioni.some((l) => l.id === chiesto.lezioneId)) {
+    const lezione = chiesto.lezioneId ? registro.lezioni.find((l) => l.id === chiesto.lezioneId) : null
+    if (chiesto.lezioneId && !lezione) {
       return rifiuta(comuni().nonTrovato.lezione)
     }
-    if (chiesto.pianoId && !registro.piani.some((p) => p.id === chiesto.pianoId)) {
+    if (lezione && lezione.corsoId !== chiesto.corsoId) {
+      return rifiuta(testi().lezioneAltroCorso)
+    }
+    const piano = chiesto.pianoId ? registro.piani.find((p) => p.id === chiesto.pianoId) : null
+    if (chiesto.pianoId && !piano) {
       return rifiuta(comuni().nonTrovato.piano)
+    }
+    if (piano && piano.corsoId && piano.corsoId !== chiesto.corsoId) {
+      return rifiuta(testi().pianoAltroCorso)
+    }
+    if (piano && lezione?.pianoId && piano.id !== lezione.pianoId) {
+      return rifiuta(testi().pianoDiversoDaLezione)
     }
     const vivo = registro.valutazioni.find((v) => v.id === chiesto.id)
     if (vivo) {
@@ -116,18 +128,20 @@ export const valutazioni = {
     const nuova = !vivo
     const momento = { ...chiesto, aggiornatoIl: istanteAdesso() }
     const scritto = contesto.modifica((r) => {
-      const viva = r.valutazioni.find((v) => v.id === momento.id)
-      if (viva) {
-        // I voti si riportano sul passo della scala nuova, come `voto.imposta`.
-        momento.voti = viva.voti.map((v) =>
-          v.valore === null ? v : { ...v, valore: arrotondaVoto(v.valore, momento.scala) },
-        )
-        momento.recuperi = viva.recuperi
-        momento.allegati = viva.allegati
-      } else {
-        momento.allegati = []
-      }
-      riponiInOrdine(r, 'valutazioni', momento, (a, b) => a.data.localeCompare(b.data))
+      // Com'è adesso e non la bozza: i suoi pezzi vanno in un oggetto nuovo.
+      const viva = comeAdesso(r.valutazioni.find((v) => v.id === momento.id))
+      const salvato = viva
+        ? {
+            ...momento,
+            // I voti si riportano sul passo della scala nuova, come `voto.imposta`.
+            voti: viva.voti.map((v) =>
+              v.valore === null ? v : { ...v, valore: arrotondaVoto(v.valore, momento.scala) },
+            ),
+            recuperi: viva.recuperi,
+            allegati: viva.allegati,
+          }
+        : { ...momento, allegati: [] }
+      riponi(r.valutazioni, salvato, (a, b) => a.data.localeCompare(b.data))
     }, ['valutazioni'])
     if (!scritto.ok) return scritto
     return nuova ? { ok: true, creato: { id: momento.id } } : fatto

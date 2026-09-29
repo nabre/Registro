@@ -816,10 +816,12 @@ tr:hover .cella-documento__modifica,
 
 /*
  * Qui la scheda non taglia: `overflow: hidden` fermerebbe la testata `sticky`
- * della matrice sulla scheda invece che sul riquadro che scorre. La cornice
- * la dà già il contenitore della tabella.
+ * della matrice sulla scheda invece che sul riquadro che scorre, e senza foglio
+ * aperto nasconderebbe le colonne oltre la pagina, senza modo di arrivarci:
+ * allora scorre di lato la pagina. La cornice la dà già il contenitore della
+ * tabella.
  */
-.archivio--con-foglio .archivio__barra .scheda {
+.archivio__barra .scheda {
   overflow: visible;
 }
 
