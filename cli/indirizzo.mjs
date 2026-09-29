@@ -2,12 +2,39 @@
 // Solo moduli `node:`, nessuna compilazione.
 
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readFileSync, unlinkSync } from 'node:fs'
 import { tmpdir, userInfo } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
 import { cartellaUtente } from './common.mjs'
+
+/**
+ * Pulisce i file rimasti da un arresto brutale se il processo del registro non è più attivo.
+ */
+function processoCondottoAttivo (cartella) {
+  try {
+    const filePid = join(cartella, 'condotto.pid')
+    const letto = readFileSync(filePid, 'utf8').trim()
+    const pid = parseInt(letto, 10)
+    if (Number.isInteger(pid) && pid > 0) {
+      try {
+        process.kill(pid, 0)
+        return true
+      } catch {
+        // Il processo è morto (ESRCH) o appartiene ad un altro utente (EPERM).
+        // Arresto brutale: ripuliamo i file residui per non tentare connessioni stantie.
+        for (const f of ['condotto.segreto', 'condotto.pid', 'condotto.chiave']) {
+          try { unlinkSync(join(cartella, f)) } catch {}
+        }
+        return false
+      }
+    }
+  } catch {
+    // Se condotto.pid non c'è, procediamo regolarmente.
+  }
+  return true
+}
 
 /**
  * Dove ascolta il condotto: le regole di `conduit.ts`, ripetute perché qui non
@@ -30,6 +57,7 @@ export function indirizzo () {
     const corsa = process.env.XDG_RUNTIME_DIR
     return join(corsa && corsa !== '' ? corsa : tmpdir(), `regiklass-${impronta}.sock`)
   }
+  if (!processoCondottoAttivo(cartella)) return null
   const segreto = segretoDelCondotto(cartella)
   return segreto ? `\\\\.\\pipe\\regiklass-${impronta}-${segreto}` : null
 }

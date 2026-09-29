@@ -57,6 +57,8 @@ export interface Collegamento {
   lingua: string
   attesaMs: number
   durataMassimaMs: number
+  /** Token di autenticazione opzionale per proteggere la porta locale. */
+  token?: string
 }
 
 // ------------------------------------------------------------ le impostazioni
@@ -80,6 +82,7 @@ const ATTESA_SECONDI = 120
 export function collegamentoDettatura (): Collegamento {
   const configurazione = apparato.impostazioni.leggi('registroDocenti')
   const taglia = configurazione.get<string>('dettatura.taglia', 'turbo')
+  const token = configurazione.get<string>('dettatura.token', '') || process.env.VOICEBOX_TOKEN || ''
   return {
     motore: MOTORI.voicebox,
     attivo: configurazione.get<boolean>('dettatura.attivo', false),
@@ -93,6 +96,7 @@ export function collegamentoDettatura (): Collegamento {
     lingua: lingua(),
     attesaMs: ATTESA_SECONDI * 1000,
     durataMassimaMs: DURATA_MASSIMA_SECONDI * 1000,
+    ...(token ? { token } : {}),
   }
 }
 

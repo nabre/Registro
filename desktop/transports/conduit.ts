@@ -181,6 +181,7 @@ export function indirizzoCondotto (): string {
  * nostro. Fuori da Windows non serve.
  */
 const FILE_SEGRETO = 'condotto.segreto'
+const FILE_PID = 'condotto.pid'
 
 /** La forma del segreto: quel che non la ha non si usa, si rifà. */
 const FORMA_SEGRETO = /^[0-9a-f]{32}$/
@@ -206,11 +207,13 @@ function leggiSegreto (cartella: string): string | null {
 function segretoDelCondotto (cartella: string): string {
   const nuovo = randomBytes(16).toString('hex')
   const file = join(cartella, FILE_SEGRETO)
+  const filePid = join(cartella, FILE_PID)
   const provvisorio = `${file}.${process.pid}.nuovo`
   try {
     mkdirSync(cartella, { recursive: true })
     writeFileSync(provvisorio, nuovo, { mode: 0o600, flag: 'w' })
     renameSync(provvisorio, file)
+    try { writeFileSync(filePid, String(process.pid), { mode: 0o600, flag: 'w' }) } catch {}
   } catch {
     try { unlinkSync(provvisorio) } catch { /* non c'era */ }
     // Scrittura fallita: meglio il segreto vecchio, che la riga di comando trova
@@ -222,6 +225,7 @@ function segretoDelCondotto (cartella: string): string {
 
 /** Toglie il segreto, se è ancora quello scritto da questa accensione. */
 function togliSegreto (cartella: string, segreto: string): void {
+  try { unlinkSync(join(cartella, FILE_PID)) } catch { /* già via */ }
   if (leggiSegreto(cartella) !== segreto) return
   try { unlinkSync(join(cartella, FILE_SEGRETO)) } catch { /* già via */ }
 }

@@ -143,7 +143,7 @@ export function preferenzeComuni (): { defaultFontSize: number } {
 
 /**
  * Preferenze comuni più il ponte del preload, con la pagina isolata da Node.
- * `sandbox: false` perché il preload è un bundle CommonJS che usa `require`.
+ * `sandbox: true`: il preload è un bundle che usa solo le API Electron esposte dal contesto isolato.
  */
 export function preferenzeConPonte (): WebPreferences {
   return {
@@ -151,6 +151,6 @@ export function preferenzeConPonte (): WebPreferences {
     preload: percorsoPreload(),
     contextIsolation: true,
     nodeIntegration: false,
-    sandbox: false,
+    sandbox: true,
   }
 }

@@ -7,6 +7,7 @@
 // da `nomeSicuro`. I proiettori `mmproj` sono `.gguf` a parte, accanto ai pesi.
 
 import * as apparato from 'apparato'
+import { createHash } from 'node:crypto'
 import {
   existsSync,
   mkdirSync,
@@ -19,6 +20,7 @@ import {
   rmSync,
   statSync,
   writeFileSync,
+  createReadStream,
 } from 'node:fs'
 import { copyFile } from 'node:fs/promises'
 import * as percorso from 'node:path'
@@ -26,6 +28,7 @@ import * as percorso from 'node:path'
 import { nomeSicuro, senzaVirgolette } from '../dominio/text.js'
 import { cartellaApplicazione } from './appData.js'
 import { ESTENSIONE, nomeDiModello } from './ggufName.js'
+import { improntaConsigliata } from './modelliConsigliati.js'
 import { modulo } from './nodeLlama.js'
 import { testi } from './gguf.testi.js'
 
@@ -256,6 +259,17 @@ function primiByte (file: string): string {
 /** Se quel file è un GGUF davvero, e non soltanto di nome. */
 function èGguf (file: string): boolean {
   return primiByte(file) === MAGIA
+}
+
+/** Calcola l’impronta SHA-256 del file per la verifica dei modelli consigliati. */
+function calcolaImpronta (file: string): Promise<string> {
+  return new Promise((risolvi, rifiuta) => {
+    const hash = createHash('sha256')
+    const flusso = createReadStream(file)
+    flusso.on('data', (pezzo) => hash.update(pezzo))
+    flusso.on('error', rifiuta)
+    flusso.on('end', () => risolvi(hash.digest('hex')))
+  })
 }
 
 /** Perché quel file non si può prendere, come frase da mostrare, o `''` se si può. */
@@ -555,13 +569,24 @@ async function scaricaCome (
 
   const scritto = percorso.basename(file)
   // La guardia dei quattro byte anche qui: un proxy o un deposito può servire
-  // una pagina HTML con esito 200. Non c'è impronta da confrontare per un
-  // catalogo aperto come Hugging Face.
+  // una pagina HTML con esito 200.
   if (!èGguf(file)) {
     rmSync(file, { force: true })
     dimenticaSorgente(scritto)
     throw new Error(testi().nonModello(scritto))
   }
+
+  // Verifica dell'impronta fissata per i modelli del catalogo consigliato
+  const attesa = scarico.sorgente?.deposito ? improntaConsigliata(scarico.sorgente.deposito) : undefined
+  if (attesa) {
+    const trovata = await calcolaImpronta(file)
+    if (trovata.toLowerCase() !== attesa.toLowerCase()) {
+      rmSync(file, { force: true })
+      dimenticaSorgente(scritto)
+      throw new Error(testi().impronta(scritto))
+    }
+  }
+
   // Arrivato in fondo: il biglietto non serve più.
   dimenticaSorgente(scritto)
   try {

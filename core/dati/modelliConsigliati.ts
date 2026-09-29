@@ -20,6 +20,8 @@ export interface VoceCatalogo {
   taglio: string
   /** Una riga: che cosa sa fare, e che macchina vuole. */
   nota: string
+  /** L’impronta SHA-256 fissata per il modello consigliato, se certificata. */
+  impronta?: string
 }
 
 /** Una voce consigliata, con il titolo e la nota letti nella lingua di adesso. */
@@ -28,6 +30,7 @@ function consigliato (
   quale: keyof ReturnType<typeof testi>['consigliati'],
   perChe: PerChe,
   taglio: string,
+  impronta?: string,
 ): VoceCatalogo {
   return {
     deposito,
@@ -39,6 +42,7 @@ function consigliato (
     get nota () {
       return testi().consigliati[quale].nota
     },
+    ...(impronta ? { impronta } : {}),
   }
 }
 
@@ -54,3 +58,12 @@ export const CATALOGO: readonly VoceCatalogo[] = [
   consigliato('ggml-org/Qwen2.5-VL-7B-Instruct-GGUF', 'qwenVl', 'ocr', 'Q4_K_M'),
   consigliato('ggml-org/SmolVLM-500M-Instruct-GGUF', 'smolVlm', 'ocr', 'Q8_0'),
 ]
+
+/**
+ * L’impronta fissata (SHA-256) per un modello consigliato, se certificata.
+ */
+export function improntaConsigliata (deposito: string): string | undefined {
+  const pulito = deposito.toLowerCase().trim()
+  const trovato = CATALOGO.find((voce) => voce.deposito.toLowerCase() === pulito)
+  return trovato?.impronta
+}

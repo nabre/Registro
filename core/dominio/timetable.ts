@@ -8,10 +8,9 @@ import { inizioLezione, lezioniSovrapposte, unitaDidattiche } from './calculatio
 import {
   giorniBrevi,
   siglaUd,
-  aIso,
-  daIso,
   giornoSettimana,
   nelPeriodo,
+  sommaGiorni,
   udDaMinuti,
 } from './dates.js'
 import { fineNellaGiornata, lezioneNellaGiornata, oraFuoriDallePause } from './breaks.js'
@@ -160,13 +159,11 @@ export function dateDellOrario (
   if (inizio > fine) return []
 
   const esito: Array<{ data: Iso; ricorrenza: Ricorrenza }> = []
-  const cursore = daIso(inizio)
-  const ultimo = daIso(fine).getTime()
   // Si scorrono i giorni uno a uno: niente aritmetica che sbagli sull'ora legale.
+  let data = inizio
   let passi = 0
-  while (cursore.getTime() <= ultimo && passi < 1200) {
+  while (data <= fine && passi < 1200) {
     passi += 1
-    const data = aIso(cursore)
     if (!sospeso(anno, data)) {
       const giorno = giornoSettimana(data)
       for (const ricorrenza of corso.orario) {
@@ -175,7 +172,7 @@ export function dateDellOrario (
         }
       }
     }
-    cursore.setUTCDate(cursore.getUTCDate() + 1)
+    data = sommaGiorni(data, 1)
   }
   return esito
 }

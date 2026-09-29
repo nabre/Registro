@@ -18,7 +18,9 @@ import { pathToFileURL } from 'node:url'
 
 import { fileDellaChiave, leggiChiave, presentati } from './accesso.mjs'
 import { cartellaUtente } from './common.mjs'
+import { indirizzo } from './indirizzo.mjs'
 import { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
+import { verificaProprietarioPipe } from './proprietarioPipe.mjs'
 import { testi } from './testi.mjs'
 
 import { comandoElenco } from './comandi/elenco.mjs'
@@ -225,6 +227,13 @@ async function principale () {
   if (presentazione.esito !== 'riconosciuto') {
     condotto.chiudi()
     if (presentazione.esito === 'muto') return muto()
+    if (process.platform === 'win32' && presentazione.esito === 'impostore') {
+      const dove = indirizzo()
+      if (dove && !verificaProprietarioPipe(dove)) {
+        scriviErrore(t.impostore)
+        return USCITA_MUTO
+      }
+    }
     scriviErrore(presentazione.esito === 'rifiutato' ? t.chiaveRifiutata : t.impostore)
     return USCITA_MUTO
   }

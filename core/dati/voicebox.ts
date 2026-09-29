@@ -156,15 +156,29 @@ export const VOICEBOX: MotoreVoce = {
   risponde: async (collegamento: Collegamento) => {
     // `/health` e non `/`: la radice serve la pagina web di voicebox.
     try {
+      const intestazioni: Record<string, string> = {}
+      if (collegamento.token) intestazioni.Authorization = `Bearer ${collegamento.token}`
       const risposta = await fetch(`${collegamento.indirizzo}/health`, {
+        headers: intestazioni,
         redirect: 'manual',
         signal: AbortSignal.timeout(ATTESA_PROVA_MS),
       })
-      // Corpo scartato perché non resti una connessione aperta.
-      await risposta.body?.cancel()
-      return risposta.ok
-        ? ''
-        : testi().nonPronto(collegamento.indirizzo, risposta.status)
+      if (!risposta.ok) {
+        await risposta.body?.cancel()
+        return testi().nonPronto(collegamento.indirizzo, risposta.status)
+      }
+      // Verifica del corpo di /health per evitare che un servizio estraneo
+      // occupi la porta e risponda un 200 generico.
+      try {
+        const corpo = (await risposta.json()) as { status?: unknown, ok?: unknown }
+        const stato = typeof corpo?.status === 'string' ? corpo.status.toLowerCase() : ''
+        if (stato !== 'healthy' && stato !== 'ok' && corpo?.ok !== true) {
+          return testi().nonPronto(collegamento.indirizzo, risposta.status)
+        }
+      } catch {
+        return testi().nonPronto(collegamento.indirizzo, risposta.status)
+      }
+      return ''
     } catch {
       return testi().nonRisponde(collegamento.indirizzo)
     }
@@ -179,10 +193,13 @@ export const VOICEBOX: MotoreVoce = {
       modulo.append('language', collegamento.lingua)
       modulo.append('model', collegamento.taglia)
 
+      const intestazioni: Record<string, string> = {}
+      if (collegamento.token) intestazioni.Authorization = `Bearer ${collegamento.token}`
       let risposta: Response
       try {
         risposta = await fetch(`${collegamento.indirizzo}/transcribe`, {
           method: 'POST',
+          headers: intestazioni,
           body: modulo,
           redirect: 'manual',
           signal: attesa.segnale,

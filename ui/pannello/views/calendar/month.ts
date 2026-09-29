@@ -11,7 +11,6 @@ import {
   giornoDelMese,
   giornoSettimana,
   inizioSettimana,
-  oggi,
   settimanaDi,
   settimanaIso,
   sommaGiorni,
@@ -185,7 +184,7 @@ export function vistaMese (): HTMLElement {
           'mese__cella',
           // Nella striscia ogni cella è un giorno vero: il confine lo segna il primo del mese.
           primoDelSuoMese && 'mese__cella--apre-mese',
-          data === oggi() && 'mese__cella--oggi',
+          data === stato.adessoData && 'mese__cella--oggi',
           festivo(data) && 'giorno--festivo',
           apreQui(data) && 'giorno--apre-semestre',
           chiudeQui(data) && 'giorno--chiude-semestre',
@@ -197,7 +196,7 @@ export function vistaMese (): HTMLElement {
           role: 'group',
           tabindex: '0',
           'aria-label': formattaData(data, 'lungo'),
-          'aria-current': data === oggi() ? 'date' : null,
+          'aria-current': data === stato.adessoData ? 'date' : null,
           'aria-keyshortcuts': 'Enter Space F2', // testo-fisso: nomi dei tasti per i lettori di schermo
         },
         // Il corso filtrato arriva anche da qui, come negli altri punti in cui si

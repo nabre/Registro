@@ -8,7 +8,6 @@ import {
   giornoDelMese,
   giornoSettimana,
   minutiDaOra,
-  oggi,
   oraDaMinuti,
   settimanaDi,
   settimanaIso,
@@ -168,7 +167,7 @@ export function vistaSettimana (): HTMLElement {
           {
             class: [
               'settimana__giorno',
-              data === oggi() && 'settimana__giorno--oggi',
+              data === stato.adessoData && 'settimana__giorno--oggi',
               festivo(data) && 'giorno--festivo',
               chiusura(data) && 'giorno--chiuso',
               apreQui(data) && 'giorno--apre-semestre',
@@ -237,7 +236,7 @@ export function vistaSettimana (): HTMLElement {
               class: [
                 'settimana__colonna',
                 eventiEsterni(data).length > 0 && 'settimana__colonna--ics',
-                data === oggi() && 'settimana__colonna--oggi',
+                data === stato.adessoData && 'settimana__colonna--oggi',
                 festivo(data) && 'giorno--festivo',
                 apreQui(data) && 'giorno--apre-semestre',
                 chiudeQui(data) && 'giorno--chiude-semestre',

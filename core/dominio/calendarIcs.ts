@@ -187,53 +187,56 @@ function eventiGrezzi (testo: string): EventoGrezzo[] {
 
 // ------------------------------------------------------------------ fusi orari
 
-const formattatori = new Map<string, Intl.DateTimeFormat | null>()
+const fusiValidi = new Map<string, boolean>()
 
-/** Il formattatore di un fuso, o null se il nome non è un fuso IANA. */
-function formattatore (fuso: string): Intl.DateTimeFormat | null {
-  if (!formattatori.has(fuso)) {
+/** Vero se il nome è un fuso IANA riconosciuto. */
+function fusoValido (fuso: string): boolean {
+  if (!fusiValidi.has(fuso)) {
     try {
-      formattatori.set(fuso, new Intl.DateTimeFormat('en-US', {
-        timeZone: fuso,
-        hourCycle: 'h23',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }))
+      Temporal.Now.instant().toZonedDateTimeISO(fuso)
+      fusiValidi.set(fuso, true)
     } catch {
-      formattatori.set(fuso, null)
+      fusiValidi.set(fuso, false)
     }
   }
-  return formattatori.get(fuso) ?? null
+  return fusiValidi.get(fuso) ?? false
 }
 
 /** Che ora segna l'orologio di quel fuso in quell'istante. */
 function muroDa (istante: number, fuso: string): Muro {
-  const f = formattatore(fuso)
-  if (!f) return istante
-  const parti: Record<string, number> = {}
-  for (const parte of f.formatToParts(new Date(istante))) {
-    if (parte.type !== 'literal') parti[parte.type] = Number(parte.value)
+  try {
+    const zdt = Temporal.Instant.fromEpochMilliseconds(istante).toZonedDateTimeISO(fuso)
+    return Date.UTC(zdt.year, zdt.month - 1, zdt.day, zdt.hour, zdt.minute, zdt.second)
+  } catch {
+    return istante
   }
-  return Date.UTC(parti.year, parti.month - 1, parti.day, parti.hour, parti.minute, parti.second)
 }
 
-/**
- * L'istante in cui l'orologio di quel fuso segna quell'ora. Due passate: il
- * primo tentativo può cadere dall'altra parte del cambio d'ora.
- */
+/** L'istante in cui l'orologio di quel fuso segna quell'ora. */
 function istanteDa (muro: Muro, fuso: string): number {
-  const primo = muro - (muroDa(muro, fuso) - muro)
-  const scarto = muroDa(primo, fuso) - primo
-  return muro - scarto
+  try {
+    const d = new Date(muro)
+    return Temporal.ZonedDateTime.from({
+      year: d.getUTCFullYear(),
+      month: d.getUTCMonth() + 1,
+      day: d.getUTCDate(),
+      hour: d.getUTCHours(),
+      minute: d.getUTCMinutes(),
+      second: d.getUTCSeconds(),
+      timeZone: fuso,
+    }).epochMilliseconds
+  } catch {
+    return muro
+  }
 }
 
 /** Il fuso di chi usa il programma, come lo dice il sistema. */
 function fusoLocale (): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  try {
+    return Temporal.Now.timeZoneId() || 'UTC'
+  } catch {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  }
 }
 
 /** Un valore di data ICS, con il fuso in cui va letto. */
@@ -255,7 +258,7 @@ function leggiMomento (valore: string, parametri: Record<string, string>): Momen
   if (Number.isNaN(muro)) return null
   // Un TZID non IANA (Outlook: «W. Europe Standard Time») si legge come l'ora
   // di chi insegna, che sta quasi sempre nello stesso fuso della scuola.
-  const tz = parametri.TZID && formattatore(parametri.TZID) ? parametri.TZID : ''
+  const tz = parametri.TZID && fusoValido(parametri.TZID) ? parametri.TZID : ''
   return { muro, fuso: z ? 'UTC' : tz, giornata }
 }
 

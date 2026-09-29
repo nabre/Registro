@@ -297,7 +297,7 @@ export function finestra (opzioni: OpzioniFinestra): Finestra {
   // diventerebbe la casella accanto, con quel che vi si sta scrivendo. Le altre
   // si rimodellano per posizione: con la chiave `idiomorph` le sposterebbe
   // con `moveBefore`, e spostare così la `th` di una tabella fa cadere
-  // Chromium 153 (`tests/interfaccia/finestra.spec.ts`, in fondo a destra).
+  // Chromium 152 (Electron) e 153 (`tests/interfaccia/finestra.spec.ts`, in fondo a destra).
   const voce = (indice: number): Record<string, string> => ({
     virtuale: chiave,
     virtualeIndice: String(indice),

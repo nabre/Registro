@@ -52,6 +52,7 @@
     "test:cli": "node --test \"tests/cli/**/*.test.mjs\"",
     "copertura": "node tools/copertura.mjs",
     "mutanti": "node tools/mutanti.mjs",
+    "misura:immer": "node tools/misuraImmer.mjs",
     "fumo": "node tools/fumo.mjs",
     "ui-tests": "node tools/uiTests.mjs",
     "ci": "node tools/ci.mjs",

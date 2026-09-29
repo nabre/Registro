@@ -37,11 +37,43 @@ declare global {
     interface PlainTime {
       toString (opzioni?: { smallestUnit?: 'minute' }): string
     }
+    interface Instant {
+      readonly epochMilliseconds: number
+      toZonedDateTimeISO (timeZone: string): ZonedDateTime
+    }
+    interface ZonedDateTime {
+      readonly year: number
+      readonly month: number
+      readonly day: number
+      readonly hour: number
+      readonly minute: number
+      readonly second: number
+      readonly millisecond: number
+      readonly epochMilliseconds: number
+      readonly timeZoneId: string
+    }
     const PlainDate: { from (valore: string): PlainDate }
+    const Instant: {
+      fromEpochMilliseconds (epochMilliseconds: number): Instant
+    }
+    const ZonedDateTime: {
+      from (valore: {
+        year: number
+        month: number
+        day: number
+        hour?: number
+        minute?: number
+        second?: number
+        millisecond?: number
+        timeZone: string
+      }): ZonedDateTime
+    }
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Now {
       function plainDateISO (): PlainDate
       function plainTimeISO (): PlainTime
+      function instant (): Instant
+      function timeZoneId (): string
     }
   }
 }
@@ -96,7 +128,7 @@ function due (n: number): string {
 }
 
 export function aIso (data: Date): Iso {
-  return `${data.getUTCFullYear()}-${due(data.getUTCMonth() + 1)}-${due(data.getUTCDate())}`
+  return `${String(data.getUTCFullYear()).padStart(4, '0')}-${due(data.getUTCMonth() + 1)}-${due(data.getUTCDate())}`
 }
 
 export function daIso (iso: Iso): Date {

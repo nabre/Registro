@@ -7,7 +7,6 @@ import { testi } from './factories.testi.js'
 import {
   LIMITI_UD,
   udArrotondate,
-  daIso,
   etichettaAnno,
   istanteAdesso,
   oggi,
@@ -157,7 +156,8 @@ export function creaAnno (
 ): AnnoScolastico {
   // Il confine deve cadere dentro l'anno, se no fine gennaio; per un anno che
   // nemmeno quella attraversa, `semestriFra` taglia a metà.
-  const gennaio = `${daIso(inizio).getUTCFullYear() + 1}-01-31`
+  const anno = Number(inizio.slice(0, 4)) + 1
+  const gennaio = `${String(anno).padStart(4, '0')}-01-31`
   const dentro = (data: Iso) => data > inizio && data < fine
   const confine = confineScelto && dentro(confineScelto) ? confineScelto : gennaio
 

@@ -785,13 +785,21 @@ export class Archivio implements apparato.Smaltitore {
     this.emettitoreErrori.fire(t.modifichePerse(`${pacchetto.nome}${ESTENSIONE}`))
   }
 
+  /**
+   * La chiave per memorizzare i timbri di scrittura: su Windows senza badare
+   * alle maiuscole del percorso, perché chokidar e `realpath` possono variare.
+   */
+  private chiaveScrittura (file: apparato.Uri): string {
+    return process.platform === 'win32' ? file.fsPath.toLowerCase() : file.toString()
+  }
+
   /** Scrive il documento aperto, se c'è qualcosa da scrivere (`Pacchetto.salva`). */
   private async scriviPacchetto (): Promise<void> {
     if (!this.pacchetto) return
-    const file = percorsoPacchetto()
-    if (file) this.ultimeScritture.set(file.toString(), Date.now())
+    const file = this.pacchetto.file
+    this.ultimeScritture.set(this.chiaveScrittura(file), Date.now())
     await this.pacchetto.salva()
-    if (file) this.ultimeScritture.set(file.toString(), Date.now())
+    this.ultimeScritture.set(this.chiaveScrittura(file), Date.now())
     this.salvataggiFalliti = 0
     this.fermaRiprova()
     // Il timbro qui, dove passano tutte le strade di salvataggio.
@@ -839,9 +847,9 @@ export class Archivio implements apparato.Smaltitore {
         )}
 `,
       )
-      this.ultimeScritture.set(file.toString(), Date.now())
+      this.ultimeScritture.set(this.chiaveScrittura(file), Date.now())
       await nuovo.salva({ forza: true })
-      this.ultimeScritture.set(file.toString(), Date.now())
+      this.ultimeScritture.set(this.chiaveScrittura(file), Date.now())
     } catch (errore) {
       this.emettitoreErrori.fire(
         testi().annoNonCreato(anno.etichetta, motivoDi(errore)),
@@ -1236,7 +1244,7 @@ export class Archivio implements apparato.Smaltitore {
 
     const ricarica = (uri: apparato.Uri) => {
       void (async () => {
-        const quando = this.ultimeScritture.get(uri.toString()) ?? 0
+        const quando = this.ultimeScritture.get(this.chiaveScrittura(uri)) ?? 0
         if (Date.now() - quando < FINESTRA_ECO_MS) {
           try {
             if (this.pacchetto && (await this.pacchetto.sulDiscoÈQuello())) return

@@ -12,7 +12,6 @@ import {
   formattaData,
   formattaDurata,
   inizioSettimana,
-  oggi,
   settimanaIso,
   sommaGiorni,
 } from '../../../../core/dominio/dates.js'
@@ -217,7 +216,7 @@ function giornoAgenda (
       dataset: { agendaGiorno: data },
       class: [
         'agenda__giorno',
-        data === oggi() && 'agenda__giorno--oggi',
+        data === stato.adessoData && 'agenda__giorno--oggi',
         vuoto && 'agenda__giorno--vuoto',
         (festivo(data) || chiusura(data)) && 'agenda__giorno--libero',
       ],
@@ -226,7 +225,7 @@ function giornoAgenda (
       'header',
       { class: 'agenda__testata' },
       h('span', { class: 'agenda__data' }, formattaData(data, 'lungo')),
-      data === oggi() ? pastiglia(t.oggi, 'informativo') : null,
+      data === stato.adessoData ? pastiglia(t.oggi, 'informativo') : null,
       chiusura(data) ? pastiglia(chiusura(data), 'quiete') : null,
     ),
     // I compleanni fra la testata e le ore: sono del giorno, non di un'ora.

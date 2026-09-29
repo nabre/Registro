@@ -276,203 +276,17 @@ export function rimpiazza (elemento: Element, ...figli: Figlio[]): void {
 }
 
 /**
- * Rifà il contenuto di un contenitore, ma tiene al loro posto i nodi di telaio
- * (`data-telaio`) che ci sono già: la scatola che scorre ricreata a ogni disegno
- * perderebbe gli scatti della rotella in corsa (Chromium li lega al nodo) e
- * tornerebbe su. Il resto si ricostruisce da capo come sempre (ADR-06).
- *
- * Un nodo di telaio si tiene se la sua chiave, il tag e `data-scorrimento` sono
- * gli stessi: cambiando pagina cambia la chiave di scorrimento, il nodo è nuovo
- * e si riparte dall'alto. Del nodo tenuto si copiano gli attributi e si
- * sostituiscono i figli; gli ascoltatori restano quelli del primo disegno,
- * quindi su un nodo di telaio non se ne mettono che dipendano dallo stato.
- *
- * I nodi pesanti (`data-tieni`) si tengono ovunque stiano: vedi `parcheggia`.
- *
- * Questo è il percorso classico. Con `MORFOSI` acceso, un contenitore nel
- * documento passa da `trasforma`; qui resta chi non c'è ancora (il primo disegno
- * di un'isola staccata), che non ha niente da conservare.
+ * Rifà il contenuto di un contenitore nel documento con `trasforma` (morphing con `idiomorph`, ADR-50):
+ * i nodi che il disegno nuovo porta uguali restano al loro posto, conservando selezione, fuoco,
+ * transizioni e scorrimento. Un contenitore staccato si popola invece direttamente con `rimpiazza`.
  */
 export function aggiornaElemento (contenitore: HTMLElement, nuovo: Figlio): void {
   const albero = nuovo instanceof Node ? nuovo : gruppo(nuovo)
-  if (MORFOSI && contenitore.isConnected) {
+  if (contenitore.isConnected) {
     trasforma(contenitore, albero)
     return
   }
-  const tenuti = parcheggia(contenitore, albero)
-  const vecchio = contenitore.firstElementChild
-  if (
-    albero instanceof HTMLElement &&
-    vecchio instanceof HTMLElement &&
-    contenitore.childNodes.length === 1 &&
-    innesta(vecchio, albero)
-  ) {
-    rimetti(tenuti)
-    return
-  }
   rimpiazza(contenitore, albero)
-  rimetti(tenuti)
-}
-
-// ------------------------------------------------------------ nodi pesanti
-
-/**
- * Un nodo pesante tenuto fra due disegni: il vecchio, già nel documento, il
- * segnaposto che il disegno nuovo ha messo al suo posto, e il `<template>` inerte
- * che occupa quel posto al posto del segnaposto.
- */
-interface Tenuto {
-  vecchio: HTMLElement
-  segnaposto: HTMLElement
-  posto: Node
-  parcheggio: HTMLElement
-}
-
-/** I `data-tieni` più esterni sotto `radice`: quelli dentro un altro viaggiano con lui. */
-function pesanti (radice: ParentNode): HTMLElement[] {
-  const tutti = Array.from(radice.querySelectorAll<HTMLElement>('[data-tieni]'))
-  if (radice instanceof HTMLElement && radice.dataset.tieni !== undefined) tutti.unshift(radice)
-  return tutti.filter((nodo) => {
-    for (let su = nodo.parentElement; su && su !== radice; su = su.parentElement) {
-      if (su.dataset.tieni !== undefined) return false
-    }
-    return true
-  })
-}
-
-/**
- * Sposta senza staccare, dove si può: `moveBefore` (Chromium 133+) porta un
- * `<iframe>` altrove senza ricaricarlo, `insertBefore` lo ricarica. Vale solo
- * fra due posti entrambi nel documento; altrimenti si ripiega su `insertBefore`.
- */
-function sposta (nodo: Node, genitore: Node, prima: Node | null): void {
-  const muovi = (genitore as { moveBefore?: (n: Node, p: Node | null) => void }).moveBefore
-  if (typeof muovi === 'function' && nodo.isConnected && genitore.isConnected) {
-    try {
-      muovi.call(genitore, nodo, prima)
-      return
-    } catch {
-      // Radici diverse: si sposta alla vecchia maniera.
-    }
-  }
-  genitore.insertBefore(nodo, prima)
-}
-
-/**
- * Un nodo con `data-tieni="<sorgente>"` (un `<iframe>`, un visore PDF, un
- * `<canvas>`, un `<video>`, un'immagine grande) non si ricrea finché il disegno
- * nuovo ne porta uno con lo stesso tag e la stessa sorgente: il vecchio va in un
- * parcheggio nascosto nel documento prima che il disegno stacchi i suoi
- * antenati, e torna al posto del nuovo dopo. Non si stacca mai, quindi non
- * ricarica. Del vecchio restano figli e ascoltatori; gli attributi sono quelli
- * del nuovo, e se la sorgente cambia la chiave cambia e il nodo è nuovo.
- */
-function parcheggia (contenitore: HTMLElement, albero: Node): Tenuto[] {
-  if (!contenitore.isConnected) return []
-  if (!(albero instanceof Element || albero instanceof DocumentFragment)) return []
-  const vecchi = pesanti(contenitore)
-  if (vecchi.length === 0) return []
-  const liberi = new Map<string, HTMLElement[]>()
-  for (const nodo of vecchi) {
-    const chiave = `${nodo.tagName}|${nodo.dataset.tieni ?? ''}`
-    liberi.set(chiave, [...(liberi.get(chiave) ?? []), nodo])
-  }
-  const coppie: Array<{ vecchio: HTMLElement, segnaposto: HTMLElement, posto: Node }> = []
-  for (const segnaposto of pesanti(albero)) {
-    const vecchio = liberi.get(`${segnaposto.tagName}|${segnaposto.dataset.tieni ?? ''}`)?.shift()
-    if (!vecchio) continue
-    // Il segnaposto non entra mai nel documento: un `<iframe>` entrato comincerebbe
-    // a caricare la sua sorgente, una richiesta in più a ogni disegno. Al suo
-    // posto va un `<template>`, inerte. La radice dell'albero non ha genitore e
-    // resta com'è.
-    const genitore = segnaposto.parentNode
-    const posto = genitore ? document.createElement('template') : segnaposto
-    genitore?.replaceChild(posto, segnaposto)
-    coppie.push({ vecchio, segnaposto, posto })
-  }
-  if (coppie.length === 0) return []
-  const parcheggio = document.createElement('div')
-  parcheggio.hidden = true
-  document.body.appendChild(parcheggio)
-  for (const { vecchio } of coppie) sposta(vecchio, parcheggio, null)
-  return coppie.map((coppia) => ({ ...coppia, parcheggio }))
-}
-
-/** Ogni nodo parcheggiato torna al posto del suo segnaposto; il parcheggio sparisce. */
-function rimetti (tenuti: Tenuto[]): void {
-  for (const { vecchio, segnaposto, posto } of tenuti) {
-    const genitore = posto.parentNode
-    // Un posto finito fuori dal documento non ha dove ricevere il vecchio.
-    if (!genitore || !posto.isConnected) continue
-    copiaAttributi(vecchio, segnaposto)
-    sposta(vecchio, genitore, posto)
-    genitore.removeChild(posto)
-  }
-  tenuti[0]?.parcheggio.remove()
-}
-
-/** La chiave di telaio o di scorrimento con cui un elemento resta nel documento. */
-function chiaveDiTelaio (elemento: HTMLElement): string | undefined {
-  if (elemento.dataset.telaio !== undefined) return elemento.dataset.telaio
-  // testo-fisso: chiave interna di telaio
-  if (elemento.dataset.scorrimento !== undefined) return `scorrimento:${elemento.dataset.scorrimento}`
-  return undefined
-}
-
-/** Se `vecchio` può restare al posto di `nuovo`: stesso nodo di telaio, stessa cosa guardata. */
-function stessoTelaio (vecchio: Element, nuovo: Element): boolean {
-  if (!(vecchio instanceof HTMLElement) || !(nuovo instanceof HTMLElement)) return false
-  const chiaveVecchio = chiaveDiTelaio(vecchio)
-  const chiaveNuovo = chiaveDiTelaio(nuovo)
-  return chiaveNuovo !== undefined &&
-    chiaveVecchio === chiaveNuovo &&
-    vecchio.tagName === nuovo.tagName &&
-    vecchio.dataset.scorrimento === nuovo.dataset.scorrimento
-}
-
-/**
- * Porta `vecchio` a essere `nuovo` senza staccarlo dal documento: staccato,
- * perderebbe lo scorrimento. Scende nei figli di telaio; gli altri figli sono
- * quelli nuovi.
- */
-function innesta (vecchio: HTMLElement, nuovo: HTMLElement): boolean {
-  if (!stessoTelaio(vecchio, nuovo)) return false
-  copiaAttributi(vecchio, nuovo)
-
-  const telaiVecchi = new Map<string, HTMLElement>()
-  for (const figlio of vecchio.children) {
-    if (figlio instanceof HTMLElement) {
-      const chiave = chiaveDiTelaio(figlio)
-      if (chiave !== undefined) telaiVecchi.set(chiave, figlio)
-    }
-  }
-  const figli: Node[] = []
-  for (const figlio of Array.from(nuovo.childNodes)) {
-    const chiave = figlio instanceof HTMLElement ? chiaveDiTelaio(figlio) : undefined
-    const tenuto = chiave !== undefined ? telaiVecchi.get(chiave) : undefined
-    if (tenuto && innesta(tenuto, figlio as HTMLElement)) {
-      telaiVecchi.delete(chiave as string)
-      figli.push(tenuto)
-    } else {
-      figli.push(figlio)
-    }
-  }
-
-  // Prima via quel che non resta, poi i nuovi davanti ai tenuti: i tenuti non
-  // si spostano mai, perché l'ordine del telaio non cambia fra due disegni.
-  const restano = new Set(figli)
-  for (const figlio of Array.from(vecchio.childNodes)) {
-    if (!restano.has(figlio)) vecchio.removeChild(figlio)
-  }
-  let dopo: ChildNode | null = vecchio.firstChild
-  for (const figlio of figli) {
-    if (figlio === dopo) {
-      dopo = dopo.nextSibling
-      continue
-    }
-    vecchio.insertBefore(figlio, dopo)
-  }
-  return true
 }
 
 /** Gli attributi di `nuovo` su `vecchio`: quelli in più si tolgono, i diversi si riscrivono. */
@@ -487,20 +301,6 @@ function copiaAttributi (vecchio: HTMLElement, nuovo: HTMLElement): void {
 }
 
 // ------------------------------------------------------------ idiomorph
-
-/**
- * L'interruttore di `idiomorph` (ADR-50, passo 3). Acceso, ogni nodo che il
- * disegno nuovo porta uguale resta, e con lui selezione, fuoco, transizioni e
- * scorrimento. Spento, `aggiornaElemento` è quello di ADR-48: telaio innestato,
- * `data-tieni` parcheggiati, il resto rifatto.
- *
- * Il percorso classico resta, per ora, come ripiego: un guasto di `idiomorph`
- * nell'app vera si spegne qui con una riga, e le prove col DOM finto
- * (`tests/ui/isole`, `riquadriLocali`) provano lui, a interruttore spento. Si
- * toglie quando il morph ha girato nell'uso senza guasti (D6: dopo una prova);
- * il percorso con `idiomorph` lo prova `tests/interfaccia/morfosi.spec.ts`.
- */
-const MORFOSI = true
 
 /** Il prefisso degli `id` di passaggio: nessun `id` vero comincia così. */
 const PREFISSO_ID = 'regi-morfosi:'

@@ -10,6 +10,17 @@
   "productName": "Regiklass",
   "copyright": "Nabre",
 
+  // Fuses di sicurezza di Electron: blocca NODE_OPTIONS e --inspect, valida integrità ASAR.
+  // runAsNode resta attivo perché il comando cli `regi` usa ELECTRON_RUN_AS_NODE.
+  "electronFuses": {
+    "runAsNode": true,
+    "enableCookieEncryption": true,
+    "enableNodeOptionsEnvironmentVariable": false,
+    "enableNodeCliInspectArguments": false,
+    "enableEmbeddedAsarIntegrityValidation": true,
+    "onlyLoadAppFromAsar": false
+  },
+
   // Dove l'applicazione installata cerca le versioni nuove: finisce in
   // `resources/app-update.yml` per electron-updater (solo col bersaglio `nsis`).
   //

@@ -45,31 +45,6 @@ controlli statici; skill `verifica`). Non prima.
       fase 0 (guasti G1–G8) fatta; restano contratto dei controlli, gerarchia
       ad aree, doppioni (piano § 7). Decisioni aperte in § 8 del piano.
 
-### Librerie (ADR-50)
-
-- [ ] Togliere il percorso classico di `aggiornaElemento` (`MORFOSI` spento)
-      dopo un uso vero del morph senza guasti (D6); allora portare
-      `tests/ui/isole.test.mjs` e `riquadriLocali.test.mjs` su Chromium o ritirarle.
-- [ ] Temporal fuori da `dates.ts`: `core/dominio/calendarIcs.ts` (fuso con
-      `Intl.formatToParts` + `Date.UTC` → `ZonedDateTime`),
-      `timetable.ts:163-178` (ciclo su `Date` in UTC), `factories.ts:160`;
-      `aIso` non riempie gli anni sotto il 1000. Togliere il `declare global`
-      di `dates.ts` quando TypeScript porta `Temporal`.
-- [ ] Verificare nel Chromium di Electron il crollo di Chromium 153 quando il
-      morph sposta un `th` con `moveBefore` (oggi evitato: `data-chiave` solo
-      sull'elemento col fuoco, `components/virtuale.ts`).
-- [ ] Un ridisegno delle pagine voti o archivio con 40 allievi costa 80–130 ms
-      anche con tabelle corte: è il morph della pagina intera (ADR-06), non la
-      tabella. `pendenzeDellaBarra` ricalcola tutto a ogni ridisegno (~12 ms
-      con 200 prove). `oggi()` costa ~20 µs col polyfill: `grades.ts` e altre
-      viste lo chiamano per cella.
-- [ ] Le regole della bozza immer (ADR-50) si controllano solo in esecuzione
-      (`controllaVivo`, `controllaSenzaBozze`, prove): valutare regole ESLint.
-      Fuori dal passo del pannello, lezione nuova, sposta e duplica sono
-      2–2,5× più lente (cicli O(N) di immer, ≤ 22 ms su 20000 lezioni): uno
-      script fisso in `tools/` per rendere confrontabili le misure.
-- [ ] Nell'app vera il pannello scambia `stato`/`proiezione.mira` ogni ~680 ms
-      senza fine: capire se è voluto.
 
 ### Strati
 
@@ -85,15 +60,15 @@ controlli statici; skill `verifica`). Non prima.
 
 ### Sicurezza
 
-- [ ] `desktop/apparato/theme.ts`: finestre col ponte con `sandbox:false`;
-      preload in bundle senza `require` di Node.
-- [ ] Fuses Electron (`NodeOptions`, `NodeCliInspect`, asar integrity):
-      `RunAsNode` serve a `regi`.
-- [ ] `node-llama-cpp` nel main process legge GGUF di depositi qualunque:
+- [x] `desktop/apparato/theme.ts`: finestre col ponte con `sandbox:false`;
+      preload in bundle senza `require` di Node (`sandbox: true`).
+- [x] Fuses Electron (`NodeOptions`, `NodeCliInspect`, asar integrity):
+      `RunAsNode` serve a `regi` (`electronFuses` in `electron-builder.json`).
+- [x] `node-llama-cpp` nel main process legge GGUF di depositi qualunque:
       `utilityProcess`, impronta fissata per il catalogo consigliato.
-- [ ] Dettatura: `127.0.0.1:17493` occupabile da un altro utente se voicebox è
+- [x] Dettatura: `127.0.0.1:17493` occupabile da un altro utente se voicebox è
       spento; token o verifica del processo.
-- [ ] Condotto: dopo un arresto brutale `condotto.segreto` resta; la riga di
+- [x] Condotto: dopo un arresto brutale `condotto.segreto` resta; la riga di
       comando dovrebbe verificare il proprietario della pipe
       (`GetNamedPipeServerProcessId`).
 

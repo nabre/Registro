@@ -11,6 +11,7 @@ import {
 } from './assistant/parts.js'
 import type { MessaggioStato } from '../../contract/protocollo.js'
 import type {
+  Classe,
   Corso,
   Fascicolo,
   Iso,
@@ -1621,21 +1622,38 @@ interface Conto { aperti: number; urgenti: number }
  * registro e giorno: sono il conto pesante (tutte le classi), e non dipendono
  * dalla pagina guardata. Cambiando pagina si rilegge da qui.
  */
+function contoDelCorso (corso: Corso): Conto {
+  return derivato('pendenzeDelCorso', `${corso.id}|${stato.adessoData}`, () => {
+    const classe = classePerId(corso.classeId)
+    if (!classe) return NIENTE
+    const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
+    return { aperti: todo.aperti, urgenti: todo.urgenti }
+  })
+}
+
+function contoDellaClasse (classe: Classe): Conto {
+  return derivato('pendenzeDellaClasse', `${classe.id}|${stato.adessoData}`, () => {
+    const todo = todoDelDocenteDiClasse(
+      stato.registro, classe, corsiDi(classe.id), stato.adessoData,
+    )
+    return { aperti: todo.aperti, urgenti: todo.urgenti }
+  })
+}
+
+/**
+ * Le pendenze di ogni corso e di ogni classe di cui si è docente, una volta per
+ * registro e giorno: sono il conto pesante (tutte le classi), e non dipendono
+ * dalla pagina guardata. Cambiando pagina si rilegge da qui.
+ */
 function pendenzeDellAnno (): { corsi: Map<string, Conto>; classi: Map<string, Conto> } {
   return derivato('pendenzeDellAnno', stato.adessoData, () => {
     const corsi = new Map<string, Conto>()
     for (const corso of corsiDellAnnoAperto()) {
-      const classe = classePerId(corso.classeId)
-      if (!classe) continue
-      const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
-      corsi.set(corso.id, { aperti: todo.aperti, urgenti: todo.urgenti })
+      corsi.set(corso.id, contoDelCorso(corso))
     }
     const classi = new Map<string, Conto>()
     for (const classe of classiDiCuiSonoDocente()) {
-      const todo = todoDelDocenteDiClasse(
-        stato.registro, classe, corsiDi(classe.id), stato.adessoData,
-      )
-      classi.set(classe.id, { aperti: todo.aperti, urgenti: todo.urgenti })
+      classi.set(classe.id, contoDellaClasse(classe))
     }
     return { corsi, classi }
   })
@@ -1661,51 +1679,51 @@ const NIENTE: Conto = { aperti: 0, urgenti: 0 }
  * `pendenzeDellAnno`, una volta per giorno.
  */
 export function pendenzeDellaBarra (): Conto {
-  const { corsi, classi } = pendenzeDellAnno()
-  if (corsi.size === 0 && classi.size === 0) return NIENTE
-
-  // Un corso fuori dall'anno aperto (di una classe archiviata) si conta a parte.
-  const delCorso = (corso: Corso): Conto => {
-    const conto = corsi.get(corso.id)
-    if (conto) return conto
-    return derivato('pendenzeDelCorso', `${corso.id}|${stato.adessoData}`, () => {
-      const classe = classePerId(corso.classeId)
-      if (!classe) return NIENTE
-      const todo = todoDelCorso(stato.registro, classe, corso, stato.adessoData)
-      return { aperti: todo.aperti, urgenti: todo.urgenti }
-    })
-  }
-
-  // 1. Vista todo: il filtro considerato è la scheda attiva
-  if (stato.vista === 'todo') {
-    const scheda = stato.schedaTodo || 'tutte'
-    if (scheda.startsWith('corso:')) return corsi.get(scheda.slice(6)) ?? NIENTE
-    if (scheda === 'corsi') return somma(corsi.values())
-    if (scheda.startsWith('classe:')) return classi.get(scheda.slice(7)) ?? NIENTE
-    if (scheda === 'classi') return somma(classi.values())
-  }
-
-  // 2. Vista legata a un corso
+  // 1. Vista legata a un corso
   const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'documenti']
   const eCorso =
     visteCorso.includes(stato.vista) ||
     (stato.vista === 'check' && stato.ambitoCheck === 'corso')
   if (eCorso) {
     const corso = corsoAperto()
-    if (corso && classePerId(corso.classeId)) return delCorso(corso)
+    if (corso && classePerId(corso.classeId)) return contoDelCorso(corso)
   }
 
-  // 3. Vista legata alla docenza di classe
+  // 2. Vista legata alla docenza di classe
   const eClasse =
     stato.vista === 'docenteClasse' ||
     (stato.vista === 'check' && stato.ambitoCheck === 'classe')
-  if (eClasse && classi.size > 0) {
-    const conto = (stato.classeId ? classi.get(stato.classeId) : undefined) ??
-      classi.values().next().value
-    if (conto) return conto
+  if (eClasse) {
+    const docenze = classiDiCuiSonoDocente()
+    if (docenze.length > 0) {
+      const classe = (stato.classeId ? classePerId(stato.classeId) : undefined) ?? docenze[0]
+      if (classe) return contoDellaClasse(classe)
+    }
+  }
+
+  // 3. Vista todo: il filtro considerato è la scheda attiva
+  if (stato.vista === 'todo') {
+    const scheda = stato.schedaTodo || 'tutte'
+    if (scheda.startsWith('corso:')) {
+      const corso = corsoPerId(scheda.slice(6))
+      return corso ? contoDelCorso(corso) : NIENTE
+    }
+    if (scheda.startsWith('classe:')) {
+      const classe = classePerId(scheda.slice(7))
+      return classe ? contoDellaClasse(classe) : NIENTE
+    }
   }
 
   // 4. Tutte le pendenze dell'anno
+  const { corsi, classi } = pendenzeDellAnno()
+  if (corsi.size === 0 && classi.size === 0) return NIENTE
+
+  if (stato.vista === 'todo') {
+    const scheda = stato.schedaTodo || 'tutte'
+    if (scheda === 'corsi') return somma(corsi.values())
+    if (scheda === 'classi') return somma(classi.values())
+  }
+
   return somma([...corsi.values(), ...classi.values()])
 }
 

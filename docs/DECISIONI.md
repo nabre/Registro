@@ -731,7 +731,7 @@ documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgent
 cambia se cambia ciò che il nodo mostra.
 
 **Dove.** `ui/pannello/dom.ts`, `ui/pannello/isole.ts`, `ui/pannello/risorse.ts`,
-`ui/pannello/orologio.ts`, `ui/pannello/shell.ts`, `tests/ui/isole.test.mjs`.
+`ui/pannello/orologio.ts`, `ui/pannello/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
 
 ### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
 
@@ -839,10 +839,9 @@ Come sono entrate:
   `MORFOSI`. Le chiavi di telaio, `data-tieni`, scorrimento e isola diventano
   `id` provvisori; un `data-tieni` ritrovato prende solo gli attributi; i nodi
   nuovi entrano originali, non come copie; un nodo riusato riceve i gestori del
-  disegno nuovo. `MORFOSI` è acceso. Il percorso classico di ADR-48 resta
-  come ripiego a un interruttore, provato col DOM finto (`percorsoClassico`);
-  il morph si prova su Chromium (`tests/interfaccia/morfosi.spec.ts`). Il
-  ripiego si toglie dopo un uso vero senza guasti (D6).
+  disegno nuovo. Il percorso classico di ADR-48 è stato ritirato dopo un uso senza
+  guasti (D6), e il morph e le isole si provano su Chromium
+  (`tests/interfaccia/morfosi.spec.ts`).
 - **valibot** (passo 4): solo in `main.cjs`. `@valibot/to-json-schema` non è
   adottato (ADR-28).
 - **Temporal** (passo 4): in `dates.ts`, con i tipi dichiarati a mano finché

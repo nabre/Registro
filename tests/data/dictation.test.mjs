@@ -81,7 +81,7 @@ async function voiceboxFinto () {
       })
       if (richiesta.url === '/health') {
         risposta.writeHead(finto.salute, { 'content-type': 'application/json' })
-        risposta.end(JSON.stringify({ status: 'healthy' }))
+        risposta.end(finto.saluteCorpo !== undefined ? finto.saluteCorpo : JSON.stringify({ status: 'healthy' }))
         return
       }
       const { stato, corpo: detto, dove } = finto.risposta
@@ -194,6 +194,19 @@ describe('se voicebox c’è', () => {
       scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
       assert.deepEqual(await prontezzaDettatura(collegamentoDettatura()), { pronto: true, motivo: '' })
       assert.equal(finto.arrivate[0].via, '/health')
+    } finally {
+      await finto.chiudi()
+    }
+  })
+
+  it('un servizio estraneo che risponde 200 ma non è voicebox non viene accettato', async () => {
+    const finto = await voiceboxFinto()
+    finto.saluteCorpo = '<html>non sono voicebox</html>'
+    try {
+      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
+      const stato = await prontezzaDettatura(collegamentoDettatura())
+      assert.equal(stato.pronto, false)
+      assert.match(stato.motivo, /non è pronto/)
     } finally {
       await finto.chiudi()
     }

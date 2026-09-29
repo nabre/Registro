@@ -36,6 +36,8 @@ export interface VoceCatalogo {
   taglio: string
   /** Una riga: che cosa sa fare, e che macchina vuole. */
   nota: string
+  /** L’impronta SHA-256 fissata per il modello consigliato, se certificata. */
+  impronta?: string
 }
 
 /** Una voce consigliata, con il titolo e la nota letti nella lingua di adesso. */
@@ -44,6 +46,7 @@ function consigliato (
   quale: keyof ReturnType<typeof testi>['consigliati'],
   perChe: PerChe,
   taglio: string,
+  impronta?: string,
 ): VoceCatalogo {
   return {
     deposito,
@@ -55,6 +58,7 @@ function consigliato (
     get nota () {
       return testi().consigliati[quale].nota
     },
+    ...(impronta ? { impronta } : {}),
   }
 }
 
@@ -70,9 +74,10 @@ export const CATALOGO: readonly VoceCatalogo[] = [
 /** Genera il sorgente TypeScript partendo dai dati del JSON. */
 export function componiFile (dati = JSON.parse(readFileSync(FILE_JSON, 'utf8'))) {
   const righe = dati.map((voce) => {
-    return `  consigliato('${voce.deposito}', '${voce.chiave}', '${voce.perChe}', '${voce.taglio}'),`
+    const improntaArg = voce.impronta ? `, '${voce.impronta}'` : ''
+    return `  consigliato('${voce.deposito}', '${voce.chiave}', '${voce.perChe}', '${voce.taglio}'${improntaArg}),`
   }).join('\n')
-  return `${TESTATA}${righe}\n]\n`
+  return `${TESTATA}${righe}\n]\n\n/**\n * L’impronta fissata (SHA-256) per un modello consigliato, se certificata.\n */\nexport function improntaConsigliata (deposito: string): string | undefined {\n  const pulito = deposito.toLowerCase().trim()\n  const trovato = CATALOGO.find((voce) => voce.deposito.toLowerCase() === pulito)\n  return trovato?.impronta\n}\n`
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {

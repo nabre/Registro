@@ -14,7 +14,7 @@ import {
   riepilogoDelCheck,
   spuntaDelCheck,
 } from '../../../core/dominio/check.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
+import { formattaData } from '../../../core/dominio/dates.js'
 import type {
   Allievo,
   Check,
@@ -62,14 +62,14 @@ interface Quando {
  * pagina durante l'ora si lega alla lezione e ne segue gli spostamenti.
  */
 function lezioneDiOggi (corsoId: string): Lezione | null {
-  const adesso = oggi()
+  const adesso = stato.adessoData
   return lezioniDiCorso(corsoId).find((l) => l.data === adesso && l.stato !== 'annullata') ?? null
 }
 
 /** Il quando di una spunta data dalla pagina: l'ora di oggi, o oggi e basta. */
 function quandoDallaPagina (corsoId: string): Quando {
   const lezione = lezioneDiOggi(corsoId)
-  return lezione ? { lezioneId: lezione.id } : { data: oggi() }
+  return lezione ? { lezioneId: lezione.id } : { data: stato.adessoData }
 }
 
 /** Il quando di un clic: l'ora aperta se si è dentro un'ora, se no la pagina. */
@@ -232,7 +232,7 @@ function vociCasella (casella: Casella): ElementoMenu[] {
       })
     }
     // Dentro l'ora di oggi resta solo «in questa lezione», che segue l'ora.
-    if (!lezione || lezione.data !== oggi()) {
+    if (!lezione || lezione.data !== stato.adessoData) {
       voci.push({
         testo: t.spuntaOggi,
         simbolo: lezione ? 'calendario' : 'spunta',
@@ -333,7 +333,7 @@ function casellaCheck (casella: Casella): HTMLElement {
   const chi = `${nomeCompleto(allievo)} · ${colonna.titolo}`
   const lunga = data ? formattaData(data, 'lungo') : ''
   // Il giorno di cui si parla: quello dell'ora aperta, o oggi nella pagina.
-  const contesto = lezione ? lezione.data : oggi()
+  const contesto = lezione ? lezione.data : stato.adessoData
   const qui = Boolean(lezione && data === lezione.data)
   const altrove = Boolean(lezione && fatta && !qui)
   const alClic = gestoDelClic(fatta ? data : null, contesto)

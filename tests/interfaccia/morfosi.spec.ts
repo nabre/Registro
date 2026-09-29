@@ -1,6 +1,4 @@
-// Il percorso con `idiomorph` di `aggiornaElemento` (ADR-50, passo 3), su
-// Chromium: il DOM finto di `tests/ui/isole.test.mjs` e
-// `riquadriLocali.test.mjs` prova solo il percorso classico.
+// Il morph di `aggiornaElemento` (ADR-50) su Chromium.
 //
 // Qui si prova che, a ogni ridisegno:
 //
@@ -13,37 +11,24 @@
 // - una scatola che scorre resta dov'era anche senza la catena di telaio e
 //   senza `ripristinaScorrimenti`: il nodo è lo stesso;
 // - il campo in cui si scrive tiene fuoco, selezione e quel che c'è scritto,
-//   anche quando il disegno nuovo porta un valore vecchio.
-//
-// `dom.ts` si impacchetta qui con `MORFOSI` acceso comunque: la prova dice il
-// percorso che prova, qualunque sia l'interruttore.
-
-import { readFile } from 'node:fs/promises'
+//   anche quando il disegno nuovo porta un valore vecchio;
+// - `ridisegnaIsola` rifà solo l'isola, preservando i nodi esterni e i nodi pesanti.
 
 import { expect, test, type Page } from '@playwright/test'
-import { build, type Plugin } from 'esbuild'
+import { build } from 'esbuild'
 
 import { RADICE } from './banco'
-
-/** Accende `MORFOSI` nel sorgente di `dom.ts`; un interruttore sparito ferma la prova. */
-const morfosiAccesa: Plugin = {
-  name: 'morfosi-accesa',
-  setup (b) {
-    b.onLoad({ filter: /[\\/]ui[\\/]pannello[\\/]dom\.ts$/ }, async (a) => {
-      const sorgente = await readFile(a.path, 'utf8')
-      const interruttore = /^const MORFOSI = (true|false)$/m
-      if (!interruttore.test(sorgente)) throw new Error('dom.ts: manca «const MORFOSI = …»')
-      return { contents: sorgente.replace(interruttore, 'const MORFOSI = true'), loader: 'ts' }
-    })
-  },
-}
 
 let codice = ''
 
 test.beforeAll(async () => {
   const uscita = await build({
     stdin: {
-      contents: "import * as dom from './ui/pannello/dom.ts'\n;(window as any).dom = dom",
+      contents: [
+        "import * as dom from './ui/pannello/dom.ts'",
+        "import { isola, ridisegnaIsola } from './ui/pannello/isole.ts'",
+        ';(window as any).dom = { ...dom, isola, ridisegnaIsola }',
+      ].join('\n'),
       resolveDir: RADICE,
       loader: 'ts',
     },
@@ -52,15 +37,16 @@ test.beforeAll(async () => {
     format: 'iife',
     platform: 'browser',
     logLevel: 'silent',
-    plugins: [morfosiAccesa],
   })
   codice = uscita.outputFiles[0].text
 })
 
-/** Le funzioni di `dom.ts` che le prove chiamano nella pagina. */
+/** Le funzioni di `dom.ts` e `isole.ts` che le prove chiamano nella pagina. */
 interface Dom {
   h: (tag: string, attributi?: Record<string, unknown> | null, ...figli: unknown[]) => HTMLElement
   aggiornaElemento: (contenitore: HTMLElement, nuovo: unknown) => void
+  isola: (chiave: string, disegna: () => unknown, attributi?: Record<string, unknown>) => HTMLElement
+  ridisegnaIsola: (chiave: string) => void
 }
 
 /** Una pagina con solo `#radice` e `window.dom`; gli errori della pagina si raccolgono. */
@@ -238,3 +224,73 @@ test('fuoco_e_selezione_restano_nel_campo', async ({ page }) => {
   await expect(campo).toHaveValue('ciao Z')
   expect(errori).toEqual([])
 })
+
+test('ridisegna_isola_rifa_solo_isola', async ({ page }) => {
+  const errori = await pagina(page)
+  const esito = await page.evaluate(async () => {
+    const { h, aggiornaElemento, isola, ridisegnaIsola } = (window as unknown as { dom: Dom }).dom
+    const radice = document.getElementById('radice') as HTMLElement
+    let conto = 1
+    let disegni = 0
+    const pagina = () => h(
+      'main',
+      null,
+      h('p', { class: 'fuori' }, 'titolo'),
+      isola('conto', () => {
+        disegni += 1
+        return h('span', null, String(conto))
+      }),
+    )
+    aggiornaElemento(radice, pagina())
+    const fuori = radice.querySelector('.fuori') as HTMLElement
+    const contenitore = radice.querySelector('[data-isola="conto"]') as HTMLElement
+    const vecchioFiglio = contenitore.firstElementChild
+
+    conto = 2
+    ridisegnaIsola('conto')
+    ridisegnaIsola('conto')
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+
+    return {
+      disegni,
+      stessoFuori: radice.querySelector('.fuori') === fuori,
+      stessoContenitore: radice.querySelector('[data-isola="conto"]') === contenitore,
+      testo: contenitore.textContent,
+      figlioMorfato: contenitore.firstElementChild === vecchioFiglio,
+    }
+  })
+  expect(esito).toEqual({
+    disegni: 2,
+    stessoFuori: true,
+    stessoContenitore: true,
+    testo: '2',
+    figlioMorfato: true,
+  })
+  expect(errori).toEqual([])
+})
+
+test('isola_data_tieni_sopravvive_al_ridisegno', async ({ page }) => {
+  const errori = await pagina(page)
+  const esito = await page.evaluate(async () => {
+    const { h, aggiornaElemento, isola, ridisegnaIsola } = (window as unknown as { dom: Dom }).dom
+    const radice = document.getElementById('radice') as HTMLElement
+    let versione = 1
+    const anteprima = () => [
+      h('p', null, `versione ${versione}`),
+      h('canvas', { dataset: { tieni: 'anteprima:1' } }),
+    ]
+    aggiornaElemento(radice, h('div', null, isola('anteprima', anteprima)))
+    const tela = radice.querySelector('canvas') as HTMLCanvasElement
+    versione = 2
+    ridisegnaIsola('anteprima')
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+    return {
+      stessaTela: radice.querySelector('canvas') === tela,
+      testo: radice.textContent,
+    }
+  })
+  expect(esito.stessaTela).toBe(true)
+  expect(esito.testo).toContain('versione 2')
+  expect(errori).toEqual([])
+})
+

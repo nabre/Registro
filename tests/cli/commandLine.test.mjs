@@ -10,7 +10,7 @@
 //      risponde lo schema e rimanda quel che ha ricevuto.
 
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
@@ -126,6 +126,25 @@ describe('l’indirizzo del condotto', () => {
     assert.equal(codice, 0, errore)
     const busta = JSON.parse(uscita)
     assert.deepEqual(busta.result.permessi, { lettura: true, scrittura: false })
+  })
+
+  it('dopo un arresto brutale con PID morto i residui vengono ripuliti', async () => {
+    const sporca = mkdtempSync(percorso.join(radice, 'brutale-'))
+    const cartellaDati = percorso.join(sporca, 'Regiklass')
+    mkdirSync(cartellaDati, { recursive: true })
+    const segreto = '0123456789abcdef0123456789abcdef'
+    const chiave = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+    // PID sicuramente non esistente
+    writeFileSync(percorso.join(cartellaDati, 'condotto.pid'), '99999999', 'utf8')
+    writeFileSync(percorso.join(cartellaDati, 'condotto.segreto'), segreto, 'utf8')
+    writeFileSync(percorso.join(cartellaDati, 'condotto.chiave'), chiave, 'utf8')
+
+    const { codice, errore } = await lancia(['stato'], { APPDATA: sporca })
+    assert.equal(codice, 2, errore)
+    assert.match(errore, /non risponde/)
+    assert.equal(existsSync(percorso.join(cartellaDati, 'condotto.segreto')), false)
+    assert.equal(existsSync(percorso.join(cartellaDati, 'condotto.pid')), false)
+    assert.equal(existsSync(percorso.join(cartellaDati, 'condotto.chiave')), false)
   })
 })
 
