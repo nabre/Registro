@@ -9,7 +9,7 @@
 Lezioni, appello, piani lezione, valutazioni e rapporti in PDF —
 in un file per anno scolastico, accanto al resto del tuo materiale.
 
-[![Verifica](https://github.com/nabre/Registro/actions/workflows/verifica.yml/badge.svg)](https://github.com/nabre/Registro/actions/workflows/verifica.yml)
+[![Verifica](https://github.com/nabre/Registro/actions/workflows/rilascio.yml/badge.svg?branch=main&event=push)](https://github.com/nabre/Registro/actions/workflows/rilascio.yml?query=branch%3Amain+event%3Apush)
 [![Ultima versione](https://img.shields.io/github/v/release/nabre/Registro?label=versione&color=3d7a0c)](https://github.com/nabre/Registro/releases/latest)
 [![Download](https://img.shields.io/github/downloads/nabre/Registro/total?label=download&color=3d7a0c)](https://github.com/nabre/Registro/releases)
 [![Licenza MIT](https://img.shields.io/badge/licenza-MIT-3d7a0c)](LICENSE)

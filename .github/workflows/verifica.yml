@@ -19,7 +19,8 @@ on:
   # Non parte da sé: la chiama `rilascio.yml` come primo passo di ogni giro —
   # push su `main` o pull request. Averla anche qui su `push` la faceva girare
   # due volte sullo stesso commit, e una versione nuova esce comunque solo se
-  # questa, sullo stesso commit, è verde.
+  # questa, sullo stesso commit, è verde. Per lo stesso motivo il badge del
+  # README legge `rilascio.yml`: GitHub conta le chiamate come giri del chiamante.
   workflow_call:
   # Per rilanciarla a mano, da sola, su un ramo qualunque.
   workflow_dispatch:
