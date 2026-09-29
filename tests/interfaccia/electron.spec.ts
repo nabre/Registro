@@ -40,6 +40,9 @@ test('il registro si accende sul campione e mostra il pannello', async () => {
     cartellaLavoro: lavoro,
     // Nessuna rete all'avvio (ADR-45), e nessun condotto: qui si guarda la finestra.
     'registroDocenti.aggiornamenti.controlloAutomatico': false,
+    // La lingua del sistema varia da macchina a macchina (il runner di CI è in
+    // inglese): la prova cerca le etichette italiane.
+    'registroDocenti.aspetto.lingua': 'it',
   }, null, 2))
 
   const ambiente: Record<string, string> = {}
