@@ -1126,7 +1126,7 @@ prove, altrove si scrive con un avviso. Le patch si riportano sullo stato in
 posto; quelle di una lista riordinata o con una voce in mezzo si accorciano a
 quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
-`archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
+`archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
 ### 8.2 `VERSIONE_DATI = 3`
 

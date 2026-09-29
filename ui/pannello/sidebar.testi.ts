@@ -10,6 +10,8 @@ const it = {
   registro: 'Registro',
   spazioDocente: 'Spazio docente',
   principale: 'Navigazione principale',
+  cambiaCorso: 'Cambia corso',
+  cambiaClasse: 'Cambia classe',
   // «Ctrl» come nella barra dei comandi («Ctrl+E» in ogni lingua): un nome solo
   // per lo stesso tasto.
   scorciatoia: (numero: number) => `Ctrl+${numero}`,
@@ -23,6 +25,8 @@ export const testi = catalogo(it, {
     registro: 'Klassenbuch',
     spazioDocente: 'Bereich der Lehrperson',
     principale: 'Hauptnavigation',
+    cambiaCorso: 'Kurs wechseln',
+    cambiaClasse: 'Klasse wechseln',
     scorciatoia: (numero) => `Ctrl+${numero}`,
   },
   fr: {
@@ -32,6 +36,8 @@ export const testi = catalogo(it, {
     registro: 'Registre',
     spazioDocente: 'Espace enseignant',
     principale: 'Navigation principale',
+    cambiaCorso: 'Changer de cours',
+    cambiaClasse: 'Changer de classe',
     scorciatoia: (numero) => `Ctrl+${numero}`,
   },
   en: {
@@ -41,6 +47,8 @@ export const testi = catalogo(it, {
     registro: 'Register',
     spazioDocente: 'Teacher’s space',
     principale: 'Main navigation',
+    cambiaCorso: 'Change course',
+    cambiaClasse: 'Change class',
     scorciatoia: (numero) => `Ctrl+${numero}`,
   },
 })

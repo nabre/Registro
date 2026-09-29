@@ -79,9 +79,10 @@
   --dentro-comando: 5px 10px;
   --dentro-campo: 5px 8px;
   --dentro-cella: 6px 10px;
-  /* La barra comandi, fitta per stare su una riga. Vale quanto `--dentro-campo`
-     ma è un token distinto: se i campi prendono aria, la barra non li segue. */
-  --dentro-comando-fitto: 5px 8px;
+  /* La piastrella della barra comandi (icona sopra, nome sotto), fitta per
+     stare su una riga. Un poco più d'aria sopra che sotto: la riga del nome
+     ha già l'interlinea sotto le lettere. */
+  --dentro-comando-fitto: 4px 6px 3px;
   /* Un comando solo icona: il riempimento porta la presa ad almeno 32px. */
   --dentro-nudo: 7px;
   /* Il margine di una scheda, di lato e in fondo: una scheda bianca chiede più

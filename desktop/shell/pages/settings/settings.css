@@ -15,7 +15,8 @@
 /* La testata resta in vista mentre si scorre: il filtro serve quando l'elenco è lungo. */
 header {
   position: sticky;
-  top: 0;
+  /* Sotto la barra del titolo, se la finestra ne ha una propria. */
+  top: var(--cornice-alta);
   z-index: 1;
   display: flex;
   flex-direction: column;

@@ -1,0 +1,131 @@
+/*
+ * La barra del titolo delle finestre del guscio, disegnata da `titleBar.ts`.
+ *
+ * Il modello è la barra del pannello (`ui/pannello/styles/title-bar.css`): stessa
+ * altezza, fondo, filo, logo e segno di sviluppo, perché ogni finestra del
+ * registro abbia la stessa testata. Quel foglio non si importa: porta anche le
+ * regole di ricerca, filetto e percorso, che qui urterebbero le classi delle
+ * pagine (il filetto del benvenuto).
+ *
+ * `--cornice-alta` deve valere quanto `ALTEZZA_BARRA_TITOLO` in
+ * `desktop/apparato/theme.ts`, che la dichiara a Electron: altrimenti i pulsanti
+ * di sistema non stanno in mezzo. Vale zero senza barra propria (splash, foglio
+ * modale di macOS): le pagine la usano per far posto, e senza barra non si sposta niente.
+ *
+ * La barra è `position: fixed` e il corpo le lascia il posto in alto: così
+ * non entra nell'impaginazione delle pagine (le due colonne del benvenuto, il
+ * corpo che scorre nel dialogo) e l'altezza misurata del dialogo la comprende.
+ */
+
+:root {
+  --cornice-alta: 0px;
+  /* Lo spazio dei tre semafori di macOS, come nel pannello. */
+  --semafori-larghi: 78px;
+}
+
+:root[data-cornice] {
+  --cornice-alta: 40px;
+}
+
+:root[data-cornice] body {
+  padding-top: var(--cornice-alta);
+}
+
+.barra-titolo {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  height: var(--cornice-alta);
+  /* Da dove finisce quel che il sistema prende a sinistra a dove comincia
+     quel che prende a destra: `env(titlebar-area-*)` c'è su Windows e Linux. */
+  padding-left: env(titlebar-area-x, 0px);
+  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%));
+  background: var(--sfondo-alto);
+  border-bottom: 1px solid var(--bordo-tenue);
+  /* Tutta la barra sposta la finestra e il doppio clic la ingrandisce. Non c'è
+     niente da premere; se un giorno ci sarà, se ne toglie con `no-drag`. */
+  -webkit-app-region: drag;
+  user-select: none;
+  /* Quanto prendono i lati: il titolo sta nel mezzo meno due volte questo. */
+  --barra-titolo-riserva: max(
+    calc(env(titlebar-area-x, 0px) + 3.75rem + 3rem),
+    calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 8px)
+  );
+}
+
+.barra-titolo button,
+.barra-titolo a,
+.barra-titolo input,
+.barra-titolo select { -webkit-app-region: no-drag; }
+
+/* Il logo, nello stesso punto del pannello: in mezzo alla colonna delle icone. */
+.barra-titolo__marchio {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 3.75rem;
+  height: 100%;
+  /* Con il segno di sviluppo accanto il logo non tocca il bordo. */
+  padding: 0 8px;
+}
+
+.barra-titolo__marchio-segno {
+  width: 20px;
+  height: 20px;
+  -webkit-user-drag: none;
+}
+
+/* Solo da sorgenti: arancio con `npm run dev`, blu con `npm run start`. */
+.barra-titolo__sviluppo {
+  --tinta: var(--attenzione);
+  --su-velo: var(--su-velo-attenzione);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tinta) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tinta) 38%, transparent);
+  color: var(--su-velo);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.barra-titolo__sviluppo--start {
+  --tinta: var(--informativo);
+  --su-velo: var(--su-velo-informativo);
+}
+
+/* Il titolo della finestra, in mezzo davvero come il documento nel pannello. */
+.barra-titolo__nome {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 2 * var(--barra-titolo-riserva));
+  overflow: hidden;
+  color: var(--testo);
+  font-size: .92em;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/*
+ * macOS: i semafori stanno a sinistra dentro la barra, e `env(titlebar-area-x)`
+ * là non esiste. Niente logo, come nel pannello: sembrerebbe un quarto semaforo.
+ */
+:root[data-sistema="darwin"] .barra-titolo { padding-left: var(--semafori-larghi); }
+:root[data-sistema="darwin"] .barra-titolo__marchio { display: none; }
+:root[data-sistema="darwin"] .barra-titolo {
+  --barra-titolo-riserva: calc(var(--semafori-larghi) + 8px);
+}

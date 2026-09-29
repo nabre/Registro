@@ -1,5 +1,4 @@
 import { archiviPresenti, esportazioniPresenti } from '../../../core/dati/filing.js'
-import { composizioniPresenti } from '../../../core/dati/compositions.js'
 import { CATALOGO_MODELLI, fileDelModello, type RuoloModello } from '../../../core/dominio/templateCatalog.js'
 import { definisci } from '../../contract.js'
 import { elenco, nullabile, numero, oggetto, scelta, testo, vuoto } from '../../schemas.js'
@@ -12,7 +11,7 @@ const p = () => t().presentazione
 const RUOLI = ['comune', 'rapporto', 'posta', 'immagine'] as const satisfies readonly RuoloModello[]
 
 /**
- * Che cosa c'è su disco: esportazioni, archivio, fascicoli. È quel che il
+ * Che cosa c'è su disco: esportazioni e archivio. È quel che il
  * pannello riceve in `MessaggioStato`, per chi il registro non ce l'ha (riga di
  * comando, condotto). Niente contenuti: nomi, misure, revisioni; la revisione
  * dice a un'anteprima che il foglio è cambiato anche a parità di nome e misura.
@@ -41,9 +40,10 @@ function modelliDelProgramma () {
 
 export const procedura = definisci({
   // Versione 2: i modelli non stanno su disco, quindi niente `misura`, `suDisco`,
-  // `haDiSerie`, `modificato`, `arretrato`.
+  // `haDiSerie`, `modificato`, `arretrato`. Versione 3: niente `composizioni`,
+  // tolte dal programma.
   nome: 'documenti.inventario',
-  versione: 2,
+  versione: 3,
   genere: 'lettura',
   titolo: () => t().titolo,
   idempotente: true,
@@ -53,13 +53,6 @@ export const procedura = definisci({
   uscita: oggetto({
     esportazioni: elenco(DOCUMENTO, { aiuto: () => t().esportazioni }),
     archivio: elenco(DOCUMENTO, { aiuto: () => t().archivio }),
-    composizioni: elenco(oggetto({
-      id: testo(),
-      nome: testo(),
-      percorsi: elenco(testo(), { aiuto: () => t().percorsi }),
-      creataIl: testo(),
-      aggiornataIl: testo(),
-    })),
     modelli: elenco(oggetto({
       nome: testo({ aiuto: '`_base`, `verbale-lezione`, `_firma.html`' }),
       file: testo({ aiuto: () => t().fileModello }),
@@ -93,16 +86,6 @@ export const procedura = definisci({
       },
       {
         tipo: 'tabella',
-        da: 'composizioni',
-        titolo: () => p().fascicoli,
-        colonne: [
-          { campo: 'nome', testo: () => p().fascicolo },
-          { campo: 'percorsi', testo: () => p().fogli, formato: 'elenco' },
-          { campo: 'aggiornataIl', testo: () => p().aggiornato },
-        ],
-      },
-      {
-        tipo: 'tabella',
         da: 'modelli',
         titolo: () => p().modelliDelProgramma,
         colonne: [
@@ -116,7 +99,6 @@ export const procedura = definisci({
   esegui: () => ({
     esportazioni: esportazioniPresenti(),
     archivio: archiviPresenti(),
-    composizioni: composizioniPresenti(),
     modelli: modelliDelProgramma(),
   }),
 })

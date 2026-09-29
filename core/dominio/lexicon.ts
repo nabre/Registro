@@ -524,8 +524,8 @@ export const TIPI_OSSERVAZIONE: Readonly<Record<TipoOsservazione, string>> = {
 
 /** Gli stati di un'ora di lezione. */
 export const STATI_LEZIONE: Readonly<Record<StatoLezione, string>> = {
-  pianificata: 'Pianificata',
-  svolta: 'Svolta',
+  pianificata: 'Modificabile',
+  svolta: 'Conclusa',
   annullata: 'Annullata',
 }
 

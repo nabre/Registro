@@ -5,6 +5,8 @@
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
 import '../../../../core/i18n/page.js'
+// La barra del titolo, se la finestra ne ha una propria.
+import '../shared/titleBar.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { LINGUE, NOMI_DELLE_LINGUE, lingua } from '../../../../core/i18n/index.js'
 import { figuraLingua } from '../../../../core/i18n/flags.js'

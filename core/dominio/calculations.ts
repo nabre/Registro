@@ -2,10 +2,12 @@
 // memoria, senza disco né `apparato`: si provano con `node --test`.
 
 import {
+  adesso,
   durataMinuti,
   formattaData,
   giornoDi,
   minutiDaOra,
+  oggi,
   oraDaMinuti,
   sommaMinuti,
 } from './dates.js'
@@ -221,6 +223,16 @@ export function fineLezione (lezione: Lezione): string | null {
   )
 }
 
+/**
+ * Vero quando l'ora è finita: il suo giorno è passato, o è oggi e l'ultima
+ * fascia è chiusa. Solo allora la si può dire conclusa.
+ */
+export function lezioneFinita (lezione: Lezione, giorno: Iso = oggi(), ora: Ora = adesso()): boolean {
+  if (lezione.data !== giorno) return lezione.data < giorno
+  const fine = fineLezione(lezione)
+  return fine !== null && fine <= ora
+}
+
 /** Minuti di effettiva lezione: le pause non contano. */
 export function minutiEffettivi (lezione: Lezione): number {
   return lezione.slot
@@ -308,6 +320,15 @@ export function unitaDidattiche (lezione: Lezione, minutiUd: number): UnitaDidat
     }
   }
   return esito
+}
+
+/**
+ * Se in quell'UD si può arrivare in ritardo: solo all'inizio della lezione o
+ * alla ripresa dopo una pausa. Chi entra a lezione avviata ha le UD perse
+ * `assente` e da lì è presente.
+ */
+export function ammetteRitardo (unita: UnitaDidattica): boolean {
+  return unita.indice === 0 || unita.dopoUnaPausa
 }
 
 /**

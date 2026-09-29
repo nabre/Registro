@@ -9,13 +9,11 @@ export { deposito, percorsoVero, registraDeposito } from '../../core/dati/store.
 export { Pacchetto } from '../../core/dati/package.js'
 export { archivia, archiviaCopia, archiviPresenti, migraArchivio, pulisciCopiaOrfana, riscrivi } from '../../core/dati/filing.js'
 // I fascicoli composti: si creano e si buttano passando dal deposito.
-export { composizioni } from '../../core/azioni/compositions.js'
 // Lo smistamento: un PDF si posa nel deposito e la sua riga nell'archivio. Il
 // worker di pdfjs lo dichiara la prova, come l'avvio.
 export { smistamento } from '../../core/azioni/sorting.js'
 export { impostaCaratteri, impostaWorker } from '../../core/dati/pdf.js'
 export { smistatoreDi } from '../../core/dati/sorter.js'
 export { esportazioni } from '../../core/azioni/exports.js'
-export { ricettePresenti } from '../../core/dati/compositions.js'
 export { Uri } from '../../core/apparato/uri.js'
 export { firmaPosta } from '../../core/dati/templates.js'

@@ -638,16 +638,15 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     assert.equal(stacca.dettaglio, 'lezioni')
   })
 
-  it('documenti.inventario risponde con i quattro elenchi, e i modelli sono quelli del programma', async () => {
+  it('documenti.inventario risponde con i tre elenchi, e i modelli sono quelli del programma', async () => {
     const esito = await api.chiama(archivio, 'documenti.inventario', {})
     assert.equal(esito.ok, true, JSON.stringify(esito))
-    for (const campo of ['esportazioni', 'archivio', 'composizioni', 'modelli']) {
+    for (const campo of ['esportazioni', 'archivio', 'modelli']) {
       assert.ok(Array.isArray(esito.dati[campo]), `${campo} non è un elenco`)
     }
-    // Su un anno appena nato le prime tre sono vuote.
+    // Su un anno appena nato le prime due sono vuote.
     assert.deepEqual(esito.dati.esportazioni, [])
     assert.deepEqual(esito.dati.archivio, [])
-    assert.deepEqual(esito.dati.composizioni, [])
     // `modelli` è il catalogo, sempre intero.
     const nomi = esito.dati.modelli.map((voce) => voce.nome)
     assert.ok(nomi.includes('_base'), nomi.join(', '))

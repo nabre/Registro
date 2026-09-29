@@ -5,11 +5,8 @@
 import * as apparato from 'apparato'
 
 import { ESPORTAZIONI } from '../dominio/locations.js'
-import { fraIFascicoli, pdfDi } from '../dominio/compositions.js'
-import { ricettePresenti } from '../dati/compositions.js'
 import { deposito, percorsoVero } from '../dati/store.js'
 import { apriConIlSistema } from '../dati/opening.js'
-import { buttaIlFascicolo } from './compositions.js'
 import { conMessaggio, rifiuta, type Parte } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './exports.testi.js'
@@ -49,18 +46,12 @@ export const esportazioni = {
     return { ok: true, invariato: true }
   },
 
-  /** Butta via un documento esportato; il PDF di un fascicolo se ne va con la sua ricetta. */
+  /** Butta via un documento esportato. */
   'esportazione.elimina': (_contesto, azione) => {
     const t = testi()
     if (!fraLeEsportazioni(azione.percorso)) return rifiuta(t.nonEsportato)
     const dove = deposito()
     if (!dove) return rifiuta(comuni().nessunAnno)
-
-    // Il PDF di un fascicolo va tolto con la sua ricetta, o una delle due resta orfana.
-    if (fraIFascicoli(azione.percorso)) {
-      const ricetta = ricettePresenti().find((r) => pdfDi(r.composizione) === azione.percorso)
-      if (ricetta) return buttaIlFascicolo(ricetta)
-    }
 
     if (!dove.elimina(azione.percorso)) return rifiuta(t.sparito)
     // La voce resta nel documento finché non lo si compatta: si può recuperare dallo storico.

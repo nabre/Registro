@@ -66,7 +66,7 @@ Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).
     archivio/                    quel che si carica: per materia, classe, documento
     esportazioni/                quel che si stampa: si rifà
     quarantena/                  PDF di classe con pagine non ancora assegnate
-    composizioni/  intestazione/  calendari/  …
+    intestazione/  calendari/  …
   .2026-2027.regi.serratura      chi lo sta usando
   2026-2027/
     bozze/                       messaggi .eml da rileggere

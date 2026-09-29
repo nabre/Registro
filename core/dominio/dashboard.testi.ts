@@ -4,20 +4,20 @@ import { catalogo } from '../i18n/index.js'
 
 const it = {
   senzaAppello: 'senza appello',
-  nonSegnataSvolta: 'non segnata svolta',
+  nonSegnataSvolta: 'non conclusa',
 }
 
 export const testi = catalogo(it, {
   de: {
     senzaAppello: 'ohne Präsenzkontrolle',
-    nonSegnataSvolta: 'nicht als gehalten markiert',
+    nonSegnataSvolta: 'nicht abgeschlossen',
   },
   fr: {
     senzaAppello: 'sans appel',
-    nonSegnataSvolta: 'pas marquée comme donnée',
+    nonSegnataSvolta: 'pas terminée',
   },
   en: {
     senzaAppello: 'no attendance taken',
-    nonSegnataSvolta: 'not marked as held',
+    nonSegnataSvolta: 'not completed',
   },
 })

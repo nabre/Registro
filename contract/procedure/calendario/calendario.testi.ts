@@ -49,7 +49,7 @@ const it = {
     regole:
       'Le regole di abbinamento, tutte: sostituiscono quelle salvate. Senza, restano come sono',
     automatico:
-      'Vero dal giro che allinea da solo: ogni lezione si ricontrolla (pianificata, ' +
+      'Vero dal giro che allinea da solo: ogni lezione si ricontrolla (modificabile, ' +
       'senza appello né testi, senza scontri) e una che non passa si rifiuta',
     crea: 'Le lezioni nuove, come le propone «calendario.confronta»',
     fasce: 'Le fasce nuove; se mancano l’orario non cambia',
@@ -156,7 +156,7 @@ export const testi = catalogo(it, {
         'sind',
       automatico:
         'Wahr beim Durchgang, der selbst abgleicht: Jede Stunde wird neu geprüft ' +
-        '(geplant, ohne Präsenzkontrolle und Texte, ohne Überschneidungen), und eine, die nicht ' +
+        '(bearbeitbar, ohne Präsenzkontrolle und Texte, ohne Überschneidungen), und eine, die nicht ' +
         'besteht, wird abgelehnt',
       crea: 'Die neuen Stunden, wie sie «calendario.confronta» vorschlägt',
       fasce: 'Die neuen Zeitfenster; fehlen sie, ändert sich die Zeit nicht',
@@ -269,7 +269,7 @@ export const testi = catalogo(it, {
         'Les règles d’association, toutes : elles remplacent celles enregistrées. Sans : elles ' +
         'restent telles quelles',
       automatico:
-        'Vrai pour le passage qui aligne tout seul : chaque leçon est revérifiée (prévue, sans ' +
+        'Vrai pour le passage qui aligne tout seul : chaque leçon est revérifiée (modifiable, sans ' +
         'appel ni textes, sans conflits) et une leçon qui ne passe pas est refusée',
       crea: 'Les nouvelles leçons, telles que les propose « calendario.confronta »',
       fasce: 'Les nouvelles plages ; si elles manquent, l’horaire ne change pas',
@@ -375,7 +375,7 @@ export const testi = catalogo(it, {
         'as ' +
         'they are',
       automatico:
-        'True from the round that aligns by itself: every lesson is checked again (planned, no ' +
+        'True from the round that aligns by itself: every lesson is checked again (editable, no ' +
         'attendance or texts, no clashes) and one that does not pass is refused',
       crea: 'The new lessons, as “calendario.confronta” proposes them',
       fasce: 'The new time slots; if missing, the times do not change',

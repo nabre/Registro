@@ -145,8 +145,12 @@ before(async () => {
   await api.chiama(archivio, 'ore.appello.riga', {
     lezioneId: primeOre[0].id, allievoId: rossi.id, stato: 'assente',
   })
+  // Il ritardo va solo sulla prima UD: la riga intera non lo accetta.
   await api.chiama(archivio, 'ore.appello.riga', {
-    lezioneId: primeOre[1].id, allievoId: rossi.id, stato: 'ritardo',
+    lezioneId: primeOre[1].id, allievoId: rossi.id, stato: 'presente',
+  })
+  await api.chiama(archivio, 'ore.appello.casella', {
+    lezioneId: primeOre[1].id, allievoId: rossi.id, ud: 0, stato: 'ritardo',
   })
   await api.chiama(archivio, 'ore.appello.riga', {
     lezioneId: primeOre[2].id, allievoId: rossi.id, stato: 'presente',

@@ -6,6 +6,8 @@
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
 import '../../../../core/i18n/page.js'
+// La barra del titolo, se la finestra ne ha una propria.
+import '../shared/titleBar.js'
 import type { ParametriDialogo, RispostaDialogo } from '../../../apparato/dialogs.js'
 import { allEsc, ascolta, elemento, manda, perId } from '../shared/page.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
@@ -22,6 +24,9 @@ const radice = perId('radice')
 const parametri = JSON.parse(
   decodeURIComponent(new URLSearchParams(location.search).get('p') ?? '%7B%7D'),
 ) as ParametriDialogo
+// Il titolo della finestra e della sua barra: `title` della finestra lo
+// sostituirebbe il `<title>` della pagina.
+if (parametri.titolo) document.title = parametri.titolo
 
 function rispondi (risposta: RispostaDialogo): void {
   manda(risposta)

@@ -17,7 +17,7 @@ const it = {
     soloDelCorso: 'Solo le ore di questo corso',
     soloDellaClasse: 'Solo le ore di questa classe',
     corsoComeSiLegge: 'Come si legge: «I MEC A — Matematica»',
-    statiLezione: 'Pianificata, svolta o annullata',
+    statiLezione: 'Modificabile («pianificata»), conclusa («svolta») o annullata',
   },
   appello: {
     campi: {
@@ -190,7 +190,7 @@ const it = {
     inizio: 'Senza, il giorno cambia e le fasce restano dov’erano',
   },
   stato: {
-    titolo: 'Pianificata, svolta o annullata',
+    titolo: 'Modificabile («pianificata»), conclusa («svolta») o annullata',
   },
   testi: {
     titolo: 'Argomenti, materiali e consuntivo dell’ora, un campo alla volta',
@@ -210,7 +210,7 @@ export const testi = catalogo(it, {
       soloDelCorso: 'Nur die Stunden dieses Kurses',
       soloDellaClasse: 'Nur die Stunden dieser Klasse',
       corsoComeSiLegge: 'Wie man ihn liest: «I MEC A — Matematica»',
-      statiLezione: 'Geplant, gehalten oder ausgefallen',
+      statiLezione: 'Bearbeitbar («pianificata»), abgeschlossen («svolta») oder ausgefallen («annullata»)',
     },
     appello: {
       campi: {
@@ -397,7 +397,7 @@ export const testi = catalogo(it, {
       inizio: 'Ohne ändert sich der Tag, und die Zeitfenster bleiben, wo sie waren',
     },
     stato: {
-      titolo: 'Geplant, gehalten oder ausgefallen',
+      titolo: 'Bearbeitbar («pianificata»), abgeschlossen («svolta») oder ausgefallen («annullata»)',
     },
     testi: {
       titolo: 'Themen, Materialien und Rückblick der Stunde, ein Feld nach dem anderen',
@@ -417,7 +417,7 @@ export const testi = catalogo(it, {
       soloDelCorso: 'Seulement les leçons de ce cours',
       soloDellaClasse: 'Seulement les leçons de cette classe',
       corsoComeSiLegge: 'Comment il se lit : « I MEC A — Matematica »',
-      statiLezione: 'Prévue, donnée ou annulée',
+      statiLezione: 'Modifiable (« pianificata »), terminée (« svolta ») ou annulée (« annullata »)',
     },
     appello: {
       campi: {
@@ -599,7 +599,7 @@ export const testi = catalogo(it, {
       inizio: 'Sans, le jour change et les plages restent où elles étaient',
     },
     stato: {
-      titolo: 'Prévue, donnée ou annulée',
+      titolo: 'Modifiable (« pianificata »), terminée (« svolta ») ou annulée (« annullata »)',
     },
     testi: {
       titolo: 'Sujets, matériel et bilan de la leçon, un champ à la fois',
@@ -617,7 +617,7 @@ export const testi = catalogo(it, {
       soloDelCorso: 'Only the lessons of this course',
       soloDellaClasse: 'Only the lessons of this class',
       corsoComeSiLegge: 'How it reads: “I MEC A — Matematica”',
-      statiLezione: 'Planned, held or cancelled',
+      statiLezione: 'Editable (“pianificata”), completed (“svolta”) or cancelled (“annullata”)',
     },
     appello: {
       campi: {
@@ -790,7 +790,7 @@ export const testi = catalogo(it, {
       inizio: 'Without it, the day changes and the time slots stay where they were',
     },
     stato: {
-      titolo: 'Planned, held or cancelled',
+      titolo: 'Editable (“pianificata”), completed (“svolta”) or cancelled (“annullata”)',
     },
     testi: {
       titolo: 'Topics, materials and review of the lesson, one field at a time',

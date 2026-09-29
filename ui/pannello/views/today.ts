@@ -51,7 +51,6 @@ import {
   oreDellaProssimaGiornataDashboard,
   oreDiOggiDashboard,
   pendenzeDellaBarra,
-  statisticheDashboard,
   stato,
   titoloDiLezione,
 } from '../state.js'
@@ -201,190 +200,6 @@ function tessere (oreOggi: readonly OraDiOggi[]): HTMLElement {
       al: () => vaiAllaPagina('pagina.daSmistare'),
     }),
   )
-}
-
-// -------------------------------------------------- statistiche del periodo
-
-function barraProgresso (
-  percentuale: number,
-  tono: TonoPastiglia = 'informativo',
-  etichetta?: string,
-): HTMLElement {
-  const valore = Math.max(0, Math.min(100, percentuale))
-  return h(
-    'div',
-    {
-      class: ['oggi-progresso', `oggi-progresso--${tono}`], // testo-fisso: classe CSS
-      attr: {
-        role: 'progressbar',
-        'aria-valuenow': String(valore),
-        'aria-valuemin': '0',
-        'aria-valuemax': '100',
-        ...(etichetta ? { 'aria-label': etichetta } : {}),
-      },
-    },
-    h('div', {
-      class: 'oggi-progresso__riempimento',
-      style: { width: `${valore}%` },
-    }),
-  )
-}
-
-function schedaStatistiche (): HTMLElement {
-  const t = testi()
-  const stats = statisticheDashboard()
-
-  return scheda({
-    classe: 'oggi-scheda oggi-scheda--statistiche',
-    titolo: t.statistichePeriodo,
-    contenuto: h(
-      'div',
-      { class: 'oggi-statistiche-griglia' },
-      h(
-        'button',
-        {
-          class: 'oggi-statistica-tessera',
-          type: 'button',
-          // testo-fisso: chiave di fuoco, non si legge
-          dataset: { fuoco: 'oggi-stat-avanzamento' },
-          attr: {
-            title: t.avanzamentoLezioni,
-            'aria-label': `${t.avanzamentoLezioni}: ${t.lezioniSvolteDettaglio(
-              stats.lezioniSvolte,
-              stats.lezioniTotali,
-              stats.percentualeSvolte,
-            )}`,
-          },
-          onclick: () => {
-            vaiAllaPagina('pagina.calendario')
-            vaiAOggi()
-          },
-        },
-        h(
-          'div',
-          { class: 'oggi-statistica-tessera__testa' },
-          h('span', { class: 'oggi-statistica-tessera__icona' }, icona('calendario')),
-          h('span', { class: 'oggi-statistica-tessera__titolo' }, t.avanzamentoLezioni),
-          h('span', { class: 'oggi-statistica-tessera__percentuale' }, `${stats.percentualeSvolte}%`),
-        ),
-        barraProgresso(stats.percentualeSvolte, 'informativo', t.avanzamentoLezioni),
-        h(
-          'span',
-          { class: 'oggi-statistica-tessera__dettaglio' },
-          t.lezioniSvolteDettaglio(
-            stats.lezioniSvolte,
-            stats.lezioniTotali,
-            stats.percentualeSvolte,
-          ),
-        ),
-      ),
-      h(
-        'button',
-        {
-          class: 'oggi-statistica-tessera',
-          type: 'button',
-          // testo-fisso: chiave di fuoco, non si legge
-          dataset: { fuoco: 'oggi-stat-piani' },
-          attr: {
-            title: t.coperturaPiani,
-            'aria-label': `${t.coperturaPiani}: ${t.pianiCopertiDettaglio(
-              stats.lezioniCoperte,
-              stats.lezioniTotali,
-              stats.percentualeCoperte,
-            )}`,
-          },
-          onclick: () => vaiAllaPagina('pagina.corso.piani'),
-        },
-        h(
-          'div',
-          { class: 'oggi-statistica-tessera__testa' },
-          h('span', { class: 'oggi-statistica-tessera__icona' }, icona('documento')),
-          h('span', { class: 'oggi-statistica-tessera__titolo' }, t.coperturaPiani),
-          h('span', { class: 'oggi-statistica-tessera__percentuale' }, `${stats.percentualeCoperte}%`),
-        ),
-        barraProgresso(stats.percentualeCoperte, 'positivo', t.coperturaPiani),
-        h(
-          'span',
-          { class: 'oggi-statistica-tessera__dettaglio' },
-          t.pianiCopertiDettaglio(
-            stats.lezioniCoperte,
-            stats.lezioniTotali,
-            stats.percentualeCoperte,
-          ),
-        ),
-      ),
-      h(
-        'button',
-        {
-          class: 'oggi-statistica-tessera',
-          type: 'button',
-          // testo-fisso: chiave di fuoco, non si legge
-          dataset: { fuoco: 'oggi-stat-presenze' },
-          attr: {
-            title: t.presenzeMedie,
-            'aria-label': `${t.presenzeMedie}: ${stats.tassoPresenzaMedio !== null ? t.presenzeDettaglio(stats.tassoPresenzaMedio) : t.nessunDatoPresenze}`,
-          },
-          onclick: () => vaiAllaPagina('pagina.classe.assenze'),
-        },
-        h(
-          'div',
-          { class: 'oggi-statistica-tessera__testa' },
-          h('span', { class: 'oggi-statistica-tessera__icona' }, icona('persone')),
-          h('span', { class: 'oggi-statistica-tessera__titolo' }, t.presenzeMedie),
-          h(
-            'span',
-            { class: 'oggi-statistica-tessera__percentuale' },
-            stats.tassoPresenzaMedio !== null ? `${stats.tassoPresenzaMedio}%` : '—',
-          ),
-        ),
-        barraProgresso(stats.tassoPresenzaMedio ?? 0, 'informativo', t.presenzeMedie),
-        h(
-          'span',
-          { class: 'oggi-statistica-tessera__dettaglio' },
-          stats.tassoPresenzaMedio !== null
-            ? t.presenzeDettaglio(stats.tassoPresenzaMedio)
-            : t.nessunDatoPresenze,
-        ),
-      ),
-      h(
-        'button',
-        {
-          class: 'oggi-statistica-tessera',
-          type: 'button',
-          // testo-fisso: chiave di fuoco, non si legge
-          dataset: { fuoco: 'oggi-stat-valutazioni' },
-          attr: {
-            title: t.valutazioniPeriodo,
-            'aria-label': `${t.valutazioniPeriodo}: ${t.valutazioniDettaglio(stats.valutazioniSvolte, stats.valutazioniTotali)}`,
-          },
-          onclick: () => vaiAllaPagina('pagina.corso.valutazioni'),
-        },
-        h(
-          'div',
-          { class: 'oggi-statistica-tessera__testa' },
-          h('span', { class: 'oggi-statistica-tessera__icona' }, icona('valutazioni')),
-          h('span', { class: 'oggi-statistica-tessera__titolo' }, t.valutazioniPeriodo),
-          h(
-            'span',
-            { class: 'oggi-statistica-tessera__percentuale' },
-            `${stats.valutazioniSvolte}/${stats.valutazioniTotali}`,
-          ),
-        ),
-        barraProgresso(
-          stats.valutazioniTotali > 0
-            ? Math.round((stats.valutazioniSvolte / stats.valutazioniTotali) * 100)
-            : 0,
-          'attenzione',
-          t.valutazioniPeriodo,
-        ),
-        h(
-          'span',
-          { class: 'oggi-statistica-tessera__dettaglio' },
-          t.valutazioniDettaglio(stats.valutazioniSvolte, stats.valutazioniTotali),
-        ),
-      ),
-    ),
-  })
 }
 
 // ------------------------------------------------------------ le ore di oggi
@@ -736,7 +551,6 @@ export function vistaOggi (): Figlio {
       h('p', { class: 'testata__sottotitolo' }, sottotitolo),
     ),
     isola(ISOLA_TESSERE, () => tessere(oreDiOggiDashboard()), IN_LINEA),
-    schedaStatistiche(),
     h(
       'div',
       { class: 'oggi-griglia' },

@@ -29,7 +29,6 @@ import { testi } from './documents.testi.js'
 import { anteprima } from './documents/preview.js'
 import { azzeraRighe } from './documents/sheets.js'
 import {
-  composizioni,
   dellaClasse,
   delCorso,
   delDocente,
@@ -39,17 +38,10 @@ import {
 /** I riquadri della scheda aperta, in una griglia sola: una colonna nella barra, due se c'è spazio. */
 function schedeDelCorso (corso: Corso): Figlio {
   // Le schede: corso, docente di classe, persona in formazione, docente.
-  // Le composizioni in fondo a tutte: non appartengono a nessuna.
-  if (stato.schedaDocumenti === 'classe') {
-    return [dellaClasse(corso), composizioni()]
-  }
-  if (stato.schedaDocumenti === 'allievi') {
-    return [schedeAllievo(corso), composizioni()]
-  }
-  if (stato.schedaDocumenti === 'docente') {
-    return [delDocente(corso), composizioni()]
-  }
-  return [delCorso(corso), composizioni()]
+  if (stato.schedaDocumenti === 'classe') return dellaClasse(corso)
+  if (stato.schedaDocumenti === 'allievi') return schedeAllievo(corso)
+  if (stato.schedaDocumenti === 'docente') return delDocente(corso)
+  return delCorso(corso)
 }
 
 export function vistaDocumenti (): Figlio {

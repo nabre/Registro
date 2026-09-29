@@ -16,6 +16,7 @@ import { creaCheck } from '../dominio/factories.js'
 import { nuovoIdColonnaCheck } from '../dominio/identifiers.js'
 import type { Check, Registro } from '../dominio/models.js'
 import {
+  aOraAperta,
   invariato,
   rifiuta,
   rifiutaCon,
@@ -104,7 +105,7 @@ export const check = {
    * Spunta o toglie una casella. Da un'ora vale quella lezione (la data la
    * segue), altrimenti il giorno scelto o oggi. La lezione dev'essere del corso.
    */
-  'check.spunta': (contesto, azione) => {
+  'check.spunta': aOraAperta((contesto, azione) => {
     const registro = contesto.registro
     const trovata = casella(registro, azione)
     if ('errore' in trovata) return trovata.errore
@@ -122,7 +123,7 @@ export const check = {
     const adesso = istanteAdesso()
     return scriviSulCheck(contesto, azione.corsoId, trovata.check, (c) =>
       applicaSpunta(c, azione.allievoId, azione.colonnaId, quando, adesso))
-  },
+  }),
 
   /** Il giorno scelto a mano: la casella resta spuntata, e smette di seguire una lezione. */
   'check.data': (contesto, azione) => {
@@ -134,7 +135,7 @@ export const check = {
   },
 
   /** La spunta passa all'ora nominata, che dev'essere del corso. */
-  'check.lezione': (contesto, azione) => {
+  'check.lezione': aOraAperta((contesto, azione) => {
     const registro = contesto.registro
     const trovata = casella(registro, azione)
     if ('errore' in trovata) return trovata.errore
@@ -146,5 +147,5 @@ export const check = {
     const adesso = istanteAdesso()
     return scriviSulCheck(contesto, azione.corsoId, trovata.check, (c) =>
       applicaLezione(c, azione.allievoId, azione.colonnaId, lezione, adesso))
-  },
+  }),
 } satisfies Parte

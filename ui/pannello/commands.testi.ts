@@ -30,14 +30,12 @@ const it = {
     elenco: 'Elenco',
     famiglie: 'Famiglie',
     classe: 'Classe',
-    gestione: 'Gestione',
     schermo: 'Lo schermo',
     sulloSchermo: 'Sullo schermo',
     comeSiVede: 'Come si vede',
     calendarioProiettato: 'Calendario proiettato',
     documentiDi: 'Documenti di',
     genera: 'Genera',
-    composizioni: 'Composizioni',
     chiLiRifa: 'Chi li rifà',
     posta: 'Posta',
   },
@@ -61,20 +59,26 @@ const it = {
   statiOra: {
     pianificata:
       'La lezione torna fra quelle da fare: quel che è già scritto resta',
-    svolta: 'La lezione è svolta: esce dalle pendenze e conta nel monte ore',
+    svolta:
+      'La lezione è conclusa: esce dalle pendenze, conta nel monte ore e il suo contenuto ' +
+      'è in sola lettura. Solo a lezione finita',
     annullata:
-      'Resta nel registro, segnata come non svolta: i dati inseriti non si perdono',
+      'Solo per una lezione ancora vuota: resta nel registro, fuori dai conti',
   } satisfies Record<StatoLezione, string>,
   /** La notifica dopo il cambio di stato. */
   segnata: {
-    pianificata: 'Lezione pianificata.',
-    svolta: 'Lezione segnata come svolta.',
+    pianificata: 'Lezione di nuovo modificabile.',
+    svolta: 'Lezione conclusa.',
     annullata: 'Lezione annullata.',
   } satisfies Record<StatoLezione, string>,
   annullareTitolo: 'Annullare la lezione?',
-  annullareTesto:
-    'Resta nel registro, segnata come non svolta. I dati già inseriti non si perdono.',
+  annullareTesto: 'Resta nel registro, senza numero e fuori dai conti.',
+  annullareConPiano:
+    'Resta nel registro, senza numero e fuori dai conti. Il piano assegnato viene tolto ' +
+    'dalla lezione; resta fra i piani del corso.',
   annullareConferma: 'Annulla la lezione',
+  nonAnnullabile: 'La lezione è già compilata: non si può annullare.',
+  nonFinita: 'La lezione non è ancora finita: si conclude quando il suo orario è passato.',
 
   // File.
   nuovoAnnoAiuto:
@@ -145,8 +149,7 @@ const it = {
   settimanaDopo: 'La settimana dopo',
   modificaAiuto:
     'Le lezioni in mano: nel calendario tira sul vuoto per crearne una, tira le maniglie per ' +
-    'allungarla, frecce per spostarla, Ctrl+D per copiarla, Canc per eliminarla, Esc per uscire; ' +
-    'nella pagina di una lezione apre «Modifica la lezione»',
+    'allungarla, frecce per spostarla, Ctrl+D per copiarla, Canc per eliminarla, Esc per uscire',
   calendarioIcs: 'Calendario ICS',
   calendarioIcsAiuto:
     'Mostra, tratteggiati accanto alle lezioni, gli eventi del calendario ICS del documento',
@@ -174,10 +177,6 @@ const it = {
   nuovoCorso: 'Nuovo corso',
   nuovoCorsoAiuto: 'Una materia a una classe, con il suo orario',
 
-  // L'ora aperta.
-  modificaOra: 'Modifica la lezione',
-  modificaOraAiuto: 'Giorno, orario, aula e pause di questa lezione',
-  accendiModifica: 'Accendi «Modifica» (Ctrl+E) per cambiare la lezione.',
 
   // Il piano aperto.
   vaiAlRegistro: 'Vai al registro',
@@ -245,10 +244,8 @@ const it = {
     'questa classe. Le pagine già archiviate restano dove sono.',
   ocrSpento: 'La lettura automatica delle scansioni è spenta',
   nessunPdf: 'Non c’è nessun PDF da dividere',
-  documentoPersonale: 'Documento personale',
   nuovoPeriodo: 'Nuovo periodo',
   nuovoRecapito: 'Nuovo recapito',
-  elencoClasse: 'Elenco della classe',
 
   // La proiezione.
   spegniSchermo: 'Spegni lo schermo',
@@ -278,17 +275,8 @@ const it = {
   aggiornaTutto: 'Aggiorna tutto',
   aggiornaTuttoAiuto: (semestre: string) =>
     'Tutto quel che il corso sa stampare: presenze, voti, una scheda per ogni ' +
-    `${PIF.singolare} e per ogni prova, il verbale di ogni ora svolta, i piani, le facce ` +
+    `${PIF.singolare} e per ogni prova, il verbale di ogni ora conclusa, i piani, le facce ` +
     `e il fascicolo di classe, nel ${semestre}`,
-  combinaScelti: (quanti: number) => `Combina i ${quanti} scelti`,
-  combinaDocumenti: 'Combina i documenti scelti',
-  combinaAiuto:
-    'Un PDF solo con dentro, in fila, i documenti spuntati: chiede come chiamarlo',
-  almenoDue:
-    'Spunta almeno due documenti nelle righe: la composizione li mette in fila in un PDF solo.',
-  togliSpunte: 'Togli le spunte',
-  togliSpunteAiuto: 'Nessun documento scelto: si riparte da zero',
-  nessunoSpuntato: 'Non c’è nessun documento spuntato.',
 
   // La posta.
   collegaPosta: 'Collega la posta',
@@ -324,14 +312,12 @@ export const testi = catalogo(it, {
       elenco: 'Liste',
       famiglie: 'Familien',
       classe: 'Klasse',
-      gestione: 'Verwaltung',
       schermo: 'Der Bildschirm',
       sulloSchermo: 'Auf dem Bildschirm',
       comeSiVede: 'Darstellung',
       calendarioProiettato: 'Projizierter Kalender',
       documentiDi: 'Dokumente zu',
       genera: 'Erstellen',
-      composizioni: 'Zusammenstellungen',
       chiLiRifa: 'Wer sie neu erstellt',
       posta: 'E-Mail',
     },
@@ -353,21 +339,24 @@ export const testi = catalogo(it, {
       pianificata:
         'Die Stunde kommt zurück zu den offenen: Was schon eingetragen ist, bleibt',
       svolta:
-        'Die Stunde ist gehalten: Sie verlässt die Pendenzen und zählt zum Stundentotal',
+        'Die Stunde ist abgeschlossen: Sie verlässt die Pendenzen, zählt zum Stundentotal und ihr ' +
+        'Inhalt ist nur noch lesbar. Erst wenn die Stunde vorbei ist',
       annullata:
-        'Bleibt im Klassenbuch, als nicht gehalten markiert: Die eingetragenen Daten gehen ' +
-        'nicht verloren',
+        'Nur für eine noch leere Stunde: Sie bleibt im Klassenbuch, ausserhalb der Zählungen',
     },
     segnata: {
-      pianificata: 'Stunde wieder geplant.',
-      svolta: 'Stunde als gehalten markiert.',
+      pianificata: 'Stunde wieder bearbeitbar.',
+      svolta: 'Stunde abgeschlossen.',
       annullata: 'Stunde ausgefallen.',
     },
     annullareTitolo: 'Stunde ausfallen lassen?',
-    annullareTesto:
-      'Sie bleibt im Klassenbuch, als nicht gehalten markiert. Die eingetragenen Daten gehen ' +
-      'nicht verloren.',
+    annullareTesto: 'Sie bleibt im Klassenbuch, ohne Nummer und ausserhalb der Zählungen.',
+    annullareConPiano:
+      'Sie bleibt im Klassenbuch, ohne Nummer und ausserhalb der Zählungen. Der zugewiesene ' +
+      'Unterrichtsplan wird von der Stunde entfernt; er bleibt bei den Plänen des Kurses.',
     annullareConferma: 'Stunde ausfallen lassen',
+    nonAnnullabile: 'Die Stunde ist schon ausgefüllt: Sie kann nicht ausfallen.',
+    nonFinita: 'Die Stunde ist noch nicht vorbei: Man schliesst sie ab, wenn ihre Zeit vorüber ist.',
     nuovoAnnoAiuto:
       'Ein neues Schuljahr in einem eigenen Dokument: Es öffnet sich sofort, und du speicherst ' +
       'es unter einem Namen, wann du willst',
@@ -434,7 +423,7 @@ export const testi = catalogo(it, {
     modificaAiuto:
       'Die Stunden in der Hand: Im Kalender ins Leere ziehen, um eine zu erstellen, an den ' +
       'Griffen ziehen, um sie zu verlängern, Pfeiltasten zum Verschieben, Ctrl+D zum Kopieren, ' +
-      'Entf zum Löschen, Esc zum Beenden; auf der Seite einer Stunde öffnet es «Stunde bearbeiten»',
+      'Entf zum Löschen, Esc zum Beenden',
     calendarioIcs: 'ICS-Kalender',
     calendarioIcsAiuto:
       'Zeigt gestrichelt neben den Stunden die Termine aus dem ICS-Kalender des Dokuments',
@@ -461,10 +450,6 @@ export const testi = catalogo(it, {
       'Etwas, das man ausgibt und das zurückkommen muss: eine Aufgabe, ein Dokument',
     nuovoCorso: 'Neuer Kurs',
     nuovoCorsoAiuto: 'Ein Fach für eine Klasse, mit seinem Stundenplan',
-    modificaOra: 'Stunde bearbeiten',
-    modificaOraAiuto: 'Tag, Zeit, Zimmer und Pausen dieser Stunde',
-    accendiModifica:
-      'Schalte «Bearbeiten» (Ctrl+E) ein, um die Stunde zu ändern.',
     vaiAlRegistro: 'Zum Klassenbuch',
     vaiAlRegistroAiuto:
       'Öffnet das Klassenbuch der Stunde, die diesen Ablauf verwendet',
@@ -526,10 +511,8 @@ export const testi = catalogo(it, {
       'die Warteschlange. Schon archivierte Seiten bleiben, wo sie sind.',
     ocrSpento: 'Das automatische Lesen der Scans ist ausgeschaltet',
     nessunPdf: 'Es gibt kein PDF zum Aufteilen',
-    documentoPersonale: 'Persönliches Dokument',
     nuovoPeriodo: 'Neuer Zeitraum',
     nuovoRecapito: 'Neue Kontaktadresse',
-    elencoClasse: 'Klassenliste',
     spegniSchermo: 'Bildschirm ausschalten',
     proietta: 'Projizieren',
     spegniSchermoAiuto: 'Schliesst das Fenster auf dem Projektor',
@@ -557,18 +540,8 @@ export const testi = catalogo(it, {
     aggiornaTutto: 'Alles aktualisieren',
     aggiornaTuttoAiuto: (semestre) =>
       'Alles, was der Kurs drucken kann: Präsenzen, Noten, ein Blatt pro lernende Person und ' +
-      'pro Prüfung, das Protokoll jeder gehaltenen Stunde, die Pläne, die Fotoliste und das ' +
+      'pro Prüfung, das Protokoll jeder abgeschlossenen Stunde, die Pläne, die Fotoliste und das ' +
       `Klassendossier (${semestre})`,
-    combinaScelti: (quanti) => `Die ${quanti} ausgewählten zusammenstellen`,
-    combinaDocumenti: 'Ausgewählte Dokumente zusammenstellen',
-    combinaAiuto:
-      'Ein einziges PDF mit den abgehakten Dokumenten der Reihe nach: Es fragt nach einem Namen',
-    almenoDue:
-      'Hake in den Zeilen mindestens zwei Dokumente ab: Die Zusammenstellung reiht sie in einem ' +
-      'einzigen PDF auf.',
-    togliSpunte: 'Häkchen entfernen',
-    togliSpunteAiuto: 'Kein Dokument ausgewählt: Man beginnt von vorn',
-    nessunoSpuntato: 'Es ist kein Dokument abgehakt.',
     collegaPosta: 'E-Mail verbinden',
     collegaPostaAiuto:
       'Fragt nach der Adresse und meldet dich im Browser an: Das Token bleibt im Schlüsselbund',
@@ -601,14 +574,12 @@ export const testi = catalogo(it, {
       elenco: 'Liste',
       famiglie: 'Familles',
       classe: 'Classe',
-      gestione: 'Gestion',
       schermo: 'L’écran',
       sulloSchermo: 'À l’écran',
       comeSiVede: 'Présentation',
       calendarioProiettato: 'Calendrier projeté',
       documentiDi: 'Documents par',
       genera: 'Générer',
-      composizioni: 'Compilations',
       chiLiRifa: 'Qui les refait',
       posta: 'Courrier',
     },
@@ -630,20 +601,24 @@ export const testi = catalogo(it, {
       pianificata:
         'La leçon revient parmi celles à faire : ce qui est déjà écrit reste',
       svolta:
-        'La leçon est donnée : elle sort des tâches en suspens et compte dans le total des heures',
+        'La leçon est terminée : elle sort des tâches en suspens, compte dans le total des heures ' +
+        'et son contenu est en lecture seule. Seulement une fois la leçon finie',
       annullata:
-        'Reste dans le registre, marquée comme non donnée : les données saisies ne se perdent pas',
+        'Seulement pour une leçon encore vide : elle reste dans le registre, hors des comptes',
     },
     segnata: {
-      pianificata: 'Leçon replanifiée.',
-      svolta: 'Leçon marquée comme donnée.',
+      pianificata: 'Leçon de nouveau modifiable.',
+      svolta: 'Leçon terminée.',
       annullata: 'Leçon annulée.',
     },
     annullareTitolo: 'Annuler la leçon ?',
-    annullareTesto:
-      'Elle reste dans le registre, marquée comme non donnée. Les données déjà saisies ne se ' +
-      'perdent pas.',
+    annullareTesto: 'Elle reste dans le registre, sans numéro et hors des comptes.',
+    annullareConPiano:
+      'Elle reste dans le registre, sans numéro et hors des comptes. Le plan de leçon ' +
+      'attribué est retiré de la leçon ; il reste parmi les plans du cours.',
     annullareConferma: 'Annuler la leçon',
+    nonAnnullabile: 'La leçon est déjà remplie : elle ne peut pas être annulée.',
+    nonFinita: 'La leçon n’est pas encore finie : on la termine quand son horaire est passé.',
     nuovoAnnoAiuto:
       'Une nouvelle année, dans son propre document : elle s’ouvre tout de suite, et tu ' +
       'l’enregistres sous un nom quand tu veux',
@@ -708,7 +683,7 @@ export const testi = catalogo(it, {
     modificaAiuto:
       'Les leçons en main : dans le calendrier, tire sur le vide pour en créer une, tire les ' +
       'poignées pour l’allonger, flèches pour la déplacer, Ctrl+D pour la copier, Suppr pour la ' +
-      'supprimer, Échap pour sortir ; dans la page d’une leçon, ouvre « Modifier la leçon »',
+      'supprimer, Échap pour sortir',
     calendarioIcs: 'Calendrier ICS',
     calendarioIcsAiuto:
       'Montre, en pointillé à côté des leçons, les événements du calendrier ICS du document',
@@ -736,9 +711,6 @@ export const testi = catalogo(it, {
       'Quelque chose qu’on donne et qui doit revenir : un devoir, un document',
     nuovoCorso: 'Nouveau cours',
     nuovoCorsoAiuto: 'Une branche pour une classe, avec son horaire',
-    modificaOra: 'Modifier la leçon',
-    modificaOraAiuto: 'Jour, horaire, salle et pauses de cette leçon',
-    accendiModifica: 'Active « Modifier » (Ctrl+E) pour changer la leçon.',
     vaiAlRegistro: 'Aller au registre',
     vaiAlRegistroAiuto:
       'Ouvre le registre de la leçon qui utilise ce déroulement',
@@ -799,10 +771,8 @@ export const testi = catalogo(it, {
       'cette classe. Les pages déjà archivées restent où elles sont.',
     ocrSpento: 'La lecture automatique des scans est désactivée',
     nessunPdf: 'Il n’y a aucun PDF à diviser',
-    documentoPersonale: 'Document personnel',
     nuovoPeriodo: 'Nouvelle période',
     nuovoRecapito: 'Nouvelle adresse de contact',
-    elencoClasse: 'Liste de la classe',
     spegniSchermo: 'Éteindre l’écran',
     proietta: 'Projeter',
     spegniSchermoAiuto: 'Ferme la fenêtre qui est sur le projecteur',
@@ -831,18 +801,8 @@ export const testi = catalogo(it, {
     aggiornaTutto: 'Tout mettre à jour',
     aggiornaTuttoAiuto: (semestre) =>
       'Tout ce que le cours sait imprimer : présences, notes, une fiche par personne en ' +
-      'formation et par épreuve, le procès-verbal de chaque leçon donnée, les plans, le ' +
+      'formation et par épreuve, le procès-verbal de chaque leçon terminée, les plans, le ' +
       `trombinoscope et le dossier de classe (${semestre})`,
-    combinaScelti: (quanti) => `Combiner les ${quanti} choisis`,
-    combinaDocumenti: 'Combiner les documents choisis',
-    combinaAiuto:
-      'Un seul PDF avec, à la suite, les documents cochés : il demande un nom',
-    almenoDue:
-      'Coche au moins deux documents dans les lignes : la compilation les met à la suite dans ' +
-      'un seul PDF.',
-    togliSpunte: 'Retirer les coches',
-    togliSpunteAiuto: 'Aucun document choisi : on repart de zéro',
-    nessunoSpuntato: 'Aucun document n’est coché.',
     collegaPosta: 'Connecter le courrier',
     collegaPostaAiuto:
       'Demande l’adresse et fait se connecter depuis le navigateur : le jeton reste dans le ' +
@@ -875,14 +835,12 @@ export const testi = catalogo(it, {
       elenco: 'List',
       famiglie: 'Families',
       classe: 'Class',
-      gestione: 'Management',
       schermo: 'The screen',
       sulloSchermo: 'On screen',
       comeSiVede: 'Display',
       calendarioProiettato: 'Projected calendar',
       documentiDi: 'Documents by',
       genera: 'Generate',
-      composizioni: 'Compilations',
       chiLiRifa: 'Who remakes them',
       posta: 'Mail',
     },
@@ -902,19 +860,24 @@ export const testi = catalogo(it, {
       pianificata:
         'The lesson goes back among those to do: what is already written stays',
       svolta:
-        'The lesson is held: it leaves the pending items and counts towards the hours taught',
+        'The lesson is completed: it leaves the pending items, counts towards the hours taught ' +
+        'and its content becomes read-only. Only once the lesson is over',
       annullata:
-        'Stays in the register, marked as not held: the data entered is not lost',
+        'Only for a lesson still empty: it stays in the register, out of the counts',
     },
     segnata: {
-      pianificata: 'Lesson planned again.',
-      svolta: 'Lesson marked as held.',
+      pianificata: 'Lesson editable again.',
+      svolta: 'Lesson completed.',
       annullata: 'Lesson cancelled.',
     },
     annullareTitolo: 'Cancel the lesson?',
-    annullareTesto:
-      'It stays in the register, marked as not held. The data already entered is not lost.',
+    annullareTesto: 'It stays in the register, without a number and out of the counts.',
+    annullareConPiano:
+      'It stays in the register, without a number and out of the counts. The assigned ' +
+      'lesson plan is removed from the lesson; it stays among the course’s plans.',
     annullareConferma: 'Cancel the lesson',
+    nonAnnullabile: 'The lesson has already been filled in: it can’t be cancelled.',
+    nonFinita: 'The lesson isn’t over yet: it can be completed once its time has passed.',
     nuovoAnnoAiuto:
       'A new year, in a document of its own: it opens straight away, and you save it under a ' +
       'name whenever you like',
@@ -977,8 +940,7 @@ export const testi = catalogo(it, {
     settimanaDopo: 'The next week',
     modificaAiuto:
       'Lessons in hand: in the calendar drag on an empty spot to create one, drag the handles ' +
-      'to lengthen it, arrows to move it, Ctrl+D to copy it, Del to delete it, Esc to leave; ' +
-      'on a lesson’s page it opens “Edit the lesson”',
+      'to lengthen it, arrows to move it, Ctrl+D to copy it, Del to delete it, Esc to leave',
     calendarioIcs: 'ICS calendar',
     calendarioIcsAiuto:
       'Shows the events of the document’s ICS calendar, dashed, next to the lessons',
@@ -1005,9 +967,6 @@ export const testi = catalogo(it, {
       'Something handed out that has to come back: a task, a document',
     nuovoCorso: 'New course',
     nuovoCorsoAiuto: 'A subject for a class, with its timetable',
-    modificaOra: 'Edit the lesson',
-    modificaOraAiuto: 'Day, time, room and breaks of this lesson',
-    accendiModifica: 'Turn on “Edit” (Ctrl+E) to change the lesson.',
     vaiAlRegistro: 'Go to the register',
     vaiAlRegistroAiuto:
       'Opens the register of the lesson that uses this outline',
@@ -1064,10 +1023,8 @@ export const testi = catalogo(it, {
       'Pages already filed stay where they are.',
     ocrSpento: 'Automatic reading of scans is off',
     nessunPdf: 'There is no PDF to split',
-    documentoPersonale: 'Personal document',
     nuovoPeriodo: 'New period',
     nuovoRecapito: 'New contact address',
-    elencoClasse: 'Class list',
     spegniSchermo: 'Turn off the screen',
     proietta: 'Project',
     spegniSchermoAiuto: 'Closes the window on the projector',
@@ -1092,18 +1049,8 @@ export const testi = catalogo(it, {
     aggiornaTutto: 'Update everything',
     aggiornaTuttoAiuto: (semestre) =>
       'Everything the course can print: attendance, grades, one sheet per learner and per ' +
-      'test, the lesson record of each lesson held, the plans, the photo sheet and the class file ' +
+      'test, the lesson record of each completed lesson, the plans, the photo sheet and the class file ' +
       `(${semestre})`,
-    combinaScelti: (quanti) => `Combine the ${quanti} chosen`,
-    combinaDocumenti: 'Combine the chosen documents',
-    combinaAiuto:
-      'A single PDF with the ticked documents in a row: it asks what to call it',
-    almenoDue:
-      'Tick at least two documents in the rows: the compilation puts them in a row in a single ' +
-      'PDF.',
-    togliSpunte: 'Clear the ticks',
-    togliSpunteAiuto: 'No document chosen: start again from scratch',
-    nessunoSpuntato: 'No document is ticked.',
     collegaPosta: 'Connect mail',
     collegaPostaAiuto:
       'Asks for the address and signs in from the browser: the token stays in the keychain',

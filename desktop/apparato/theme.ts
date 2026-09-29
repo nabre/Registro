@@ -1,9 +1,10 @@
 // Tema chiaro/scuro per tutta l'applicazione: l'impostazione va in
 // `nativeTheme.themeSource`, e ogni finestra segue con `prefers-color-scheme`.
 // Qui resta quel che il CSS non raggiunge: il fondo prima della pagina, la fascia
-// dei pulsanti di sistema e la dimensione del testo di Windows.
+// dei pulsanti di sistema, la barra dei menu delle finestre di servizio e la
+// dimensione del testo di Windows.
 
-import { BrowserWindow, nativeTheme, type WebPreferences } from 'electron'
+import { BrowserWindow, nativeTheme, type BrowserWindowConstructorOptions, type WebPreferences } from 'electron'
 import { execFileSync } from 'node:child_process'
 
 import { percorsoPreload } from './context.js'
@@ -25,7 +26,10 @@ const SFONDO_SCURO = '#141416'
 const BARRA_CHIARA = { fondo: '#f3f3f4', segni: '#5b5b62' }
 const BARRA_SCURA = { fondo: '#1b1b1e', segni: '#a1a1a9' }
 
-/** Altezza in pixel della barra del titolo; uguale in `src/ui/styles/title-bar.css`. */
+/**
+ * Altezza in pixel della barra del titolo; uguale in `ui/pannello/styles/title-bar.css`
+ * e in `desktop/shell/pages/shared/title-bar.css`.
+ */
 export const ALTEZZA_BARRA_TITOLO = 40
 
 /** Se in questo momento l'applicazione è scura. */
@@ -50,9 +54,87 @@ export function fasciaDelTema (): { color: string, symbolColor: string, height: 
   return { color: colori.fondo, symbolColor: colori.segni, height: ALTEZZA_BARRA_TITOLO }
 }
 
-/** Segna che questa finestra ha la fascia. */
+/** Segna che questa finestra ha la fascia; su macOS non c'è, ci sono i semafori. */
 export function ricordaFascia (finestra: BrowserWindow): void {
-  conFascia.add(finestra)
+  if (process.platform !== 'darwin') conFascia.add(finestra)
+}
+
+// ------------------------------------------------------ la barra del titolo propria
+
+/**
+ * Le opzioni di una finestra che si disegna da sé la barra del titolo: il
+ * pannello e le finestre del guscio (benvenuto, impostazioni, dialoghi,
+ * lettore), perché abbiano tutte la stessa testata. Dopo la costruzione va
+ * chiamata `ricordaFascia`, che al cambio di tema ne ricolora i pulsanti.
+ *
+ * macOS: i semafori restano del sistema, posati dentro la barra; la pagina
+ * lascia loro lo spazio a sinistra (`data-sistema`).
+ *
+ * Windows e Linux: la barra di sistema sparisce e i pulsanti arrivano come
+ * `titleBarOverlay`, nei colori del tema; la pagina ne conosce l'ingombro da
+ * `env(titlebar-area-*)`. I bordi restano del sistema: ridimensionare funziona
+ * come prima. Su Linux la fascia la disegna Electron stesso: un gestore di
+ * finestre che impone la sua cornice (alcuni compositori Wayland) ci mette
+ * sopra la propria barra, e la nostra resta sotto come una testata: brutta ma
+ * usabile, e nessun pulsante si perde.
+ */
+export function cornicePropria (): BrowserWindowConstructorOptions {
+  if (process.platform === 'darwin') {
+    return {
+      titleBarStyle: 'hiddenInset',
+      trafficLightPosition: { x: 14, y: (ALTEZZA_BARRA_TITOLO - 16) / 2 },
+    }
+  }
+  return {
+    titleBarStyle: 'hidden',
+    titleBarOverlay: fasciaDelTema(),
+    autoHideMenuBar: true,
+  }
+}
+
+/** Da dove parte il programma se non è installato: `dev` con `npm run dev`, `start` con `npm run start`. */
+export function modoSviluppo (): 'dev' | 'start' | null {
+  if (process.env.REGISTRO_SVILUPPO === '1') return 'dev'
+  return process.defaultApp ? 'start' : null
+}
+
+/**
+ * La query che dice a una pagina del guscio di disegnarsi la barra
+ * (`desktop/shell/pages/shared/titleBar.ts`): il sistema, perché su macOS i
+ * semafori stanno a sinistra, e il modo di sviluppo, per il segno accanto al
+ * logo come nel pannello.
+ */
+export function segniDellaCornice (): string {
+  const segni = new URLSearchParams({ cornice: process.platform })
+  const modo = modoSviluppo()
+  if (modo) segni.set('sviluppo', modo)
+  return segni.toString()
+}
+
+// ------------------------------------------------------------ la barra dei menu
+
+/**
+ * Le finestre senza barra dei menu: dialoghi, benvenuto, impostazioni, lettore.
+ * Su Windows e Linux `Menu.setApplicationMenu` rimette il menu a ogni finestra
+ * aperta, e ogni finestra nuova nasce col menu dell'applicazione (all'avvio
+ * quello predefinito di Electron): qui si ricorda chi va ripulita.
+ */
+const senzaMenu = new WeakSet<BrowserWindow>()
+
+/**
+ * Toglie la barra dei menu a una finestra di servizio. Su macOS il menu è
+ * dell'applicazione, non della finestra, e resta: porta copia e incolla.
+ */
+export function togliMenu (finestra: BrowserWindow): void {
+  senzaMenu.add(finestra)
+  finestra.removeMenu()
+}
+
+/** Da chiamare dopo ogni `Menu.setApplicationMenu`, che il menu lo rimette. */
+export function ritogliMenu (): void {
+  for (const finestra of BrowserWindow.getAllWindows()) {
+    if (!finestra.isDestroyed() && senzaMenu.has(finestra)) finestra.removeMenu()
+  }
 }
 
 /** L'impostazione, ridotta a quel che Electron capisce. */

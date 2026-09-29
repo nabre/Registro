@@ -92,9 +92,9 @@ describe('la CSP delle pagine native', () => {
         .map((nome) => percorso.join(PAGINE_NATIVE, voce.name, nome)),
     )
 
-  it('ci sono le quattro pagine del guscio', () => {
+  it('ci sono le cinque pagine del guscio', () => {
     assert.deepEqual(pagine.map((file) => percorso.basename(file)).sort(), [
-      'dialog.html', 'settings.html', 'splash.html', 'welcome.html',
+      'dialog.html', 'reader.html', 'settings.html', 'splash.html', 'welcome.html',
     ])
   })
 

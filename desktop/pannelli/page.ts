@@ -76,9 +76,14 @@ export function paginaHtml (pagina: Pagina): string {
   ].join('; ')
 
   // `data-sistema` serve al CSS della barra del titolo: su macOS i semafori
-  // stanno a sinistra e `env(titlebar-area-*)` non esiste.
+  // stanno a sinistra e `env(titlebar-area-*)` non esiste. `data-sviluppo` dice
+  // da dove parte il programma, se non è installato: `dev` con `npm run dev`
+  // (`tools/dev.mjs`), `start` con `npm run start` (`electron .`, che accende
+  // `process.defaultApp`). Accanto al logo compare il tag relativo.
+  const modo = process.env.REGISTRO_SVILUPPO === '1' ? 'dev' : process.defaultApp ? 'start' : null
+  const sviluppo = modo ? ` data-sviluppo="${modo}"` : ''
   return `<!DOCTYPE html>
-<html lang="it" data-sistema="${process.platform}">
+<html lang="it" data-sistema="${process.platform}"${sviluppo}>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="${csp}">

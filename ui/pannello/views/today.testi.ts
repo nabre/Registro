@@ -57,28 +57,13 @@ const it = {
   fasi: {
     'in-corso': 'In corso',
     'da-chiudere': 'Da chiudere',
-    svolta: 'Svolta',
+    svolta: 'Conclusa',
     'da-preparare': 'Da preparare',
     futura: 'In programma',
     annullata: 'Annullata',
   },
   /** Il nome dell'elenco per l'assistente: «12 ore di oggi». */
   oreDiOggiMinuscolo: 'lezioni di oggi',
-
-  // -------------------------------------------------- statistiche del periodo
-  statistichePeriodo: 'Panoramica del periodo',
-  avanzamentoLezioni: 'Avanzamento didattico',
-  lezioniSvolteDettaglio: (svolte: number, totali: number, perc: number) =>
-    `${svolte} di ${totali} svolte (${perc}%)`,
-  coperturaPiani: 'Copertura della scaletta',
-  pianiCopertiDettaglio: (coperte: number, totali: number, perc: number) =>
-    `${coperte} di ${totali} con piano (${perc}%)`,
-  presenzeMedie: 'Presenze medie',
-  presenzeDettaglio: (perc: number) => `${perc}% presenti registrati`,
-  nessunDatoPresenze: 'Nessun appello registrato',
-  valutazioniPeriodo: 'Valutazioni del periodo',
-  valutazioniDettaglio: (svolte: number, totali: number) =>
-    `${svolte} di ${totali} prove svolte`,
 
   // ------------------------------------------------------ prossime valutazioni
   prossimeValutazioni: 'Prossime valutazioni',
@@ -138,25 +123,12 @@ export const testi = catalogo(it, {
     fasi: {
       'in-corso': 'Läuft',
       'da-chiudere': 'Abzuschliessen',
-      svolta: 'Gehalten',
+      svolta: 'Abgeschlossen',
       'da-preparare': 'Vorzubereiten',
       futura: 'Geplant',
       annullata: 'Ausgefallen',
     },
     oreDiOggiMinuscolo: 'Stunden von heute',
-    statistichePeriodo: 'Übersicht der Periode',
-    avanzamentoLezioni: 'Unterrichtsfortschritt',
-    lezioniSvolteDettaglio: (svolte, totali, perc) =>
-      `${svolte} von ${totali} gehalten (${perc}%)`,
-    coperturaPiani: 'Abdeckung Unterrichtsplanung',
-    pianiCopertiDettaglio: (coperte, totali, perc) =>
-      `${coperte} von ${totali} mit Lektionsplan (${perc}%)`,
-    presenzeMedie: 'Durchschnittliche Anwesenheit',
-    presenzeDettaglio: (perc) => `${perc}% Anwesenheit im Appell`,
-    nessunDatoPresenze: 'Noch keine Daten',
-    valutazioniPeriodo: 'Beurteilungen der Periode',
-    valutazioniDettaglio: (svolte, totali) =>
-      `${svolte} von ${totali} Prüfungen durchgeführt`,
     prossimeValutazioni: 'Nächste Beurteilungen',
     nessunaValutazione: 'Keine Beurteilung in Sicht',
     nessunaValutazioneTesto:
@@ -204,25 +176,12 @@ export const testi = catalogo(it, {
     fasi: {
       'in-corso': 'En cours',
       'da-chiudere': 'À clôturer',
-      svolta: 'Donnée',
+      svolta: 'Terminée',
       'da-preparare': 'À préparer',
       futura: 'Prévue',
       annullata: 'Annulée',
     },
     oreDiOggiMinuscolo: 'leçons du jour',
-    statistichePeriodo: 'Aperçu de la période',
-    avanzamentoLezioni: 'Progression pédagogique',
-    lezioniSvolteDettaglio: (svolte, totali, perc) =>
-      `${svolte} sur ${totali} données (${perc} %)`,
-    coperturaPiani: 'Couverture des plans de cours',
-    pianiCopertiDettaglio: (coperte, totali, perc) =>
-      `${coperte} sur ${totali} avec plan (${perc} %)`,
-    presenzeMedie: 'Présence moyenne',
-    presenzeDettaglio: (perc) => `${perc} % de présence à l’appel`,
-    nessunDatoPresenze: 'Aucune donnée pour l’instant',
-    valutazioniPeriodo: 'Évaluations de la période',
-    valutazioniDettaglio: (svolte, totali) =>
-      `${svolte} sur ${totali} évaluations passées`,
     prossimeValutazioni: 'Prochaines évaluations',
     nessunaValutazione: 'Aucune évaluation en vue',
     nessunaValutazioneTesto:
@@ -277,25 +236,12 @@ export const testi = catalogo(it, {
     fasi: {
       'in-corso': 'In progress',
       'da-chiudere': 'To close',
-      svolta: 'Held',
+      svolta: 'Completed',
       'da-preparare': 'To prepare',
       futura: 'Planned',
       annullata: 'Cancelled',
     },
     oreDiOggiMinuscolo: 'lessons today',
-    statistichePeriodo: 'Term overview',
-    avanzamentoLezioni: 'Teaching progress',
-    lezioniSvolteDettaglio: (svolte, totali, perc) =>
-      `${svolte} of ${totali} held (${perc}%)`,
-    coperturaPiani: 'Lesson plan coverage',
-    pianiCopertiDettaglio: (coperte, totali, perc) =>
-      `${coperte} of ${totali} planned (${perc}%)`,
-    presenzeMedie: 'Average attendance',
-    presenzeDettaglio: (perc) => `${perc}% roll-call attendance`,
-    nessunDatoPresenze: 'No attendance records yet',
-    valutazioniPeriodo: 'Assessments in term',
-    valutazioniDettaglio: (svolte, totali) =>
-      `${svolte} of ${totali} completed`,
     prossimeValutazioni: 'Upcoming assessments',
     nessunaValutazione: 'No assessments coming up',
     nessunaValutazioneTesto:

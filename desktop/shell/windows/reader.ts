@@ -1,7 +1,8 @@
 // Il lettore dei documenti: un PDF del registro in una finestra
 // dell'applicazione, col lettore di Chromium (pagine, zoom, ricerca, stampa).
-// Basta una finestra con i plugin accesi e l'indirizzo `registro://` del file,
-// che il protocollo materializza dal documento d'anno.
+// Il PDF sta in una cornice della pagina `desktop/shell/pages/reader/`, che
+// sopra ci mette la barra del titolo come le altre finestre; l'indirizzo
+// `registro://` del file lo materializza il protocollo dal documento d'anno.
 //
 // Una finestra per documento: riaprendo lo stesso si torna a quella.
 
@@ -9,7 +10,14 @@ import { BrowserWindow } from 'electron'
 
 import { icona } from '../../apparato/context.js'
 import { postoDi, ricordaPosto } from '../../apparato/placement.js'
-import { coloreSfondo, preferenzeComuni } from '../../apparato/theme.js'
+import {
+  coloreSfondo,
+  cornicePropria,
+  preferenzeComuni,
+  ricordaFascia,
+  segniDellaCornice,
+  togliMenu,
+} from '../../apparato/theme.js'
 import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
 import { mostraComunque } from '../../apparato/showAnyway.js'
 import { Uri } from '../../../core/apparato/uri.js'
@@ -23,6 +31,14 @@ const aperte = new Map<string, BrowserWindow>()
  */
 function indirizzoDi (file: Uri): string {
   return Uri.parse('registro://dati').with({ path: file.path }).toString()
+}
+
+/** La pagina del lettore, con il file e il nome da mostrare nella query. */
+function paginaDi (file: Uri, titolo: string): string {
+  const segni = new URLSearchParams(segniDellaCornice())
+  segni.set('file', indirizzoDi(file))
+  segni.set('titolo', titolo)
+  return `registro://app/dist/reader.html?${segni.toString()}`
 }
 
 /** Mostra un documento in una finestra; `titolo` è il nome del documento, non il percorso. */
@@ -44,19 +60,23 @@ export function mostraDocumento (file: Uri, titolo: string): void {
     show: false,
     backgroundColor: coloreSfondo(),
     ...icona(),
-    // Qui si legge soltanto: niente menu.
-    autoHideMenuBar: true,
+    // La barra del titolo la disegna la pagina, come nel pannello.
+    ...cornicePropria(),
     webPreferences: {
       ...preferenzeComuni(),
       // I plugin accendono il lettore di PDF di Chromium.
       plugins: true,
-      // Niente preload né Node: qui non gira codice nostro.
+      // Niente preload né Node: la pagina disegna la barra e poco altro, non
+      // parla col main process.
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
     },
   })
   aperte.set(chiave, nata)
+  ricordaFascia(nata)
+  // Qui si legge soltanto: niente menu.
+  togliMenu(nata)
   // Il lettore apre i collegamenti del PDF, che arriva da fuori.
   chiudiLeVieDiFuga(nata)
   ricordaPosto('lettore', nata)
@@ -69,7 +89,7 @@ export function mostraDocumento (file: Uri, titolo: string): void {
     if (aperte.get(chiave) === nata) aperte.delete(chiave)
   })
 
-  void nata.loadURL(indirizzoDi(file))
+  void nata.loadURL(paginaDi(file, titolo))
 }
 
 /** Chiude i lettori aperti, quando i loro file non valgono più (cambio d'anno). */

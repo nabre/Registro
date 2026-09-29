@@ -176,9 +176,34 @@ export function attivitaConPendenza (attivita: Attivita): string | null {
   return typeof c === 'string' && c.trim() ? c.trim() : null
 }
 
-/** L'identificatore della colonna check legata a questa tappa, o null se non c'è. */
-export function attivitaConCheck (attivita: Attivita): string | null {
+/**
+ * Le colonne del check che questa tappa verifica, in ordine; `['tutte']` per
+ * il check intero, vuoto se la tappa non ne verifica. Una tappa sola può
+ * verificarne più d'una: i parametri sono scalari, quindi gli id stanno in
+ * `checkColonnaId` separati da virgole (un identificatore non ne contiene).
+ */
+export function colonneCheckDi (attivita: Attivita): string[] {
   const c = attivita.parametri?.checkColonnaId
-  return typeof c === 'string' && c.trim() ? c.trim() : null
+  if (typeof c !== 'string') return []
+  const ids = [...new Set(c.split(',').map((id) => id.trim()).filter(Boolean))]
+  return ids.includes('tutte') ? ['tutte'] : ids
+}
+
+/** Vero se la tappa verifica già questa colonna, da sola o col check intero. */
+export function verificaColonna (attivita: Attivita, colonnaId: string): boolean {
+  const colonne = colonneCheckDi(attivita)
+  return colonne.includes('tutte') || colonne.includes(colonnaId)
+}
+
+/** La tappa che verifica anche questa colonna del check, accanto a quelle che già verificava. */
+export function conColonnaCheck (attivita: Attivita, colonnaId: string): Attivita {
+  if (verificaColonna(attivita, colonnaId)) return attivita
+  return {
+    ...attivita,
+    parametri: {
+      ...attivita.parametri,
+      checkColonnaId: [...colonneCheckDi(attivita), colonnaId].join(','),
+    },
+  }
 }
 

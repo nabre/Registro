@@ -61,7 +61,7 @@ import { ascolta as ascoltaInterfaccia } from '../apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
-import { installaMenu } from './windows/menu.js'
+import { installaMenu, nienteMenuPredefinito } from './windows/menu.js'
 import { disinstalla } from './system/uninstall.js'
 import { allaRichiestaDelBenvenuto, quandoNonRestanoFinestre } from './lifecycle.js'
 import { assicuraSentinella, chiudiSentinella, èSentinella, finestreUtenti } from './sentinel.js'
@@ -156,6 +156,9 @@ async function avvia (): Promise<void> {
   if (!existsSync(preload)) {
     throw new Error(testi().preloadMancante(preload))
   }
+
+  // Prima della prima finestra, sentinella compresa.
+  nienteMenuPredefinito()
 
   // Finestra sentinella per intercettare query-session-end anche a solo vassoio.
   assicuraSentinella()

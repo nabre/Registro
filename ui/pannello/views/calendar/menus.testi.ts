@@ -10,16 +10,20 @@ const it = {
   tastoCanc: 'Canc',
 
   // Lo stato dell'ora
-  riportaPianificata: 'Riporta a pianificata',
-  riportataPianificata: 'Lezione riportata a pianificata.',
-  segnaSvolta: 'Segna come svolta',
-  segnataSvolta: 'Lezione segnata come svolta.',
+  riportaPianificata: 'Riporta a modificabile',
+  riportataPianificata: 'Lezione di nuovo modificabile.',
+  segnaSvolta: 'Concludi la lezione',
+  segnataSvolta: 'Lezione conclusa.',
   nonPiuAnnullata: 'Non è più annullata',
   ripristinata: 'Lezione ripristinata.',
   annulla: 'Annulla la lezione',
   annullareTitolo: 'Annullare la lezione?',
-  annullareTesto:
-    'Resta nel registro, segnata come non svolta. I dati già inseriti non si perdono.',
+  annullareTesto: 'Resta nel registro, senza numero e fuori dai conti.',
+  annullareConPiano:
+    'Resta nel registro, senza numero e fuori dai conti. Il piano assegnato viene tolto ' +
+    'dalla lezione; resta fra i piani del corso.',
+  nonAnnullabile: 'La lezione è già compilata: non si può annullare.',
+  nonFinita: 'La lezione non è ancora finita: si conclude quando il suo orario è passato.',
   annullata: 'Lezione annullata.',
 
   // Il piano
@@ -60,17 +64,20 @@ export const testi = catalogo(it, {
     tastoInvio: 'Enter',
     tastoCanc: 'Entf',
 
-    riportaPianificata: 'Auf geplant zurücksetzen',
-    riportataPianificata: 'Stunde wieder auf geplant gesetzt.',
-    segnaSvolta: 'Als gehalten markieren',
-    segnataSvolta: 'Stunde als gehalten markiert.',
+    riportaPianificata: 'Wieder bearbeitbar machen',
+    riportataPianificata: 'Stunde wieder bearbeitbar.',
+    segnaSvolta: 'Stunde abschliessen',
+    segnataSvolta: 'Stunde abgeschlossen.',
     nonPiuAnnullata: 'Nicht mehr ausgefallen',
     ripristinata: 'Stunde wiederhergestellt.',
     annulla: 'Als ausgefallen markieren',
     annullareTitolo: 'Stunde als ausgefallen markieren?',
-    annullareTesto:
-      'Sie bleibt im Klassenbuch, als nicht gehalten markiert. Bereits erfasste Daten gehen nicht ' +
-      'verloren.',
+    annullareTesto: 'Sie bleibt im Klassenbuch, ohne Nummer und ausserhalb der Zählungen.',
+    annullareConPiano:
+      'Sie bleibt im Klassenbuch, ohne Nummer und ausserhalb der Zählungen. Der zugewiesene ' +
+      'Unterrichtsplan wird von der Stunde entfernt; er bleibt bei den Plänen des Kurses.',
+    nonAnnullabile: 'Die Stunde ist schon ausgefüllt: Sie kann nicht ausfallen.',
+    nonFinita: 'Die Stunde ist noch nicht vorbei: Man schliesst sie ab, wenn ihre Zeit vorüber ist.',
     annullata: 'Stunde als ausgefallen markiert.',
 
     apriPiano: 'Unterrichtsplan öffnen',
@@ -104,17 +111,20 @@ export const testi = catalogo(it, {
     tastoInvio: 'Entrée',
     tastoCanc: 'Suppr',
 
-    riportaPianificata: 'Remettre en prévue',
-    riportataPianificata: 'Leçon remise en prévue.',
-    segnaSvolta: 'Marquer comme donnée',
-    segnataSvolta: 'Leçon marquée comme donnée.',
+    riportaPianificata: 'Remettre en modifiable',
+    riportataPianificata: 'Leçon de nouveau modifiable.',
+    segnaSvolta: 'Terminer la leçon',
+    segnataSvolta: 'Leçon terminée.',
     nonPiuAnnullata: 'N’est plus annulée',
     ripristinata: 'Leçon rétablie.',
     annulla: 'Annuler la leçon',
     annullareTitolo: 'Annuler la leçon ?',
-    annullareTesto:
-      'Elle reste dans le registre, marquée comme non donnée. Les données déjà saisies ne sont ' +
-      'pas perdues.',
+    annullareTesto: 'Elle reste dans le registre, sans numéro et hors des comptes.',
+    annullareConPiano:
+      'Elle reste dans le registre, sans numéro et hors des comptes. Le plan de leçon ' +
+      'attribué est retiré de la leçon ; il reste parmi les plans du cours.',
+    nonAnnullabile: 'La leçon est déjà remplie : elle ne peut pas être annulée.',
+    nonFinita: 'La leçon n’est pas encore finie : on la termine quand son horaire est passé.',
     annullata: 'Leçon annulée.',
 
     apriPiano: 'Ouvrir le plan de la leçon',
@@ -146,16 +156,20 @@ export const testi = catalogo(it, {
     tastoInvio: 'Enter',
     tastoCanc: 'Del',
 
-    riportaPianificata: 'Set back to planned',
-    riportataPianificata: 'Lesson set back to planned.',
-    segnaSvolta: 'Mark as held',
-    segnataSvolta: 'Lesson marked as held.',
+    riportaPianificata: 'Make editable again',
+    riportataPianificata: 'Lesson editable again.',
+    segnaSvolta: 'Complete the lesson',
+    segnataSvolta: 'Lesson completed.',
     nonPiuAnnullata: 'No longer cancelled',
     ripristinata: 'Lesson restored.',
     annulla: 'Cancel the lesson',
     annullareTitolo: 'Cancel the lesson?',
-    annullareTesto:
-      'It stays in the register, marked as not held. Data already entered isn’t lost.',
+    annullareTesto: 'It stays in the register, without a number and out of the counts.',
+    annullareConPiano:
+      'It stays in the register, without a number and out of the counts. The assigned ' +
+      'lesson plan is removed from the lesson; it stays among the course’s plans.',
+    nonAnnullabile: 'The lesson has already been filled in: it can’t be cancelled.',
+    nonFinita: 'The lesson isn’t over yet: it can be completed once its time has passed.',
     annullata: 'Lesson cancelled.',
 
     apriPiano: 'Open the lesson plan',

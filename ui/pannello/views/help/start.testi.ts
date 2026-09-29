@@ -36,7 +36,7 @@ const it = {
       inClassi: 'in Classi',
       ora: 'L’ora',
       calendario: 'calendario',
-      svolta: 'Svolta',
+      svolta: 'Conclusa',
       aFineOra: 'a fine ora',
       pendenze: PENDENZE,
       agenda: 'Agenda',
@@ -100,11 +100,12 @@ const it = {
           'scaletta e valutazioni, **Annotazioni** per argomenti e osservazioni.',
       },
       {
-        termine: 'Segna la lezione svolta',
+        termine: 'Concludi la lezione',
         testo:
-          'Finita la lezione, **Svolta** nella riga delle azioni: la lezione conta fra le lezioni ' +
-          'svolte. Un’ora passata senza appello o non segnata resta un buco, e la barra in ' +
-          'fondo continua a proporla.',
+          'Finita la lezione, **Conclusa** nella riga delle azioni: la lezione conta fra le lezioni ' +
+          'svolte e diventa di sola lettura. Prima che finisca non si può concludere. Un’ora ' +
+          'passata senza appello o non conclusa resta un buco, e la barra in fondo continua a ' +
+          'proporla.',
       },
       {
         termine: 'Guarda che cosa resta',
@@ -291,6 +292,14 @@ const it = {
           'dentro le Impostazioni.',
       },
       {
+        termine: 'Cambiare corso o classe dal titolo',
+        testo:
+          'Il titolo del Registro va su due righe, «Registro — DIC4a» e sotto la materia; ' +
+          'quello del Docente di classe porta la classe sotto. Con più corsi, o più classi, ' +
+          'il titolo è un pulsante: apre la tendina con i corsi raccolti per classe, o le ' +
+          'classi, e quello in uso spuntato.',
+      },
+      {
         termine: 'Stringerla alle icone',
         testo:
           'Il pulsante in cima alla barra, accanto a «Registro», la riduce alle sole icone e ' +
@@ -334,7 +343,7 @@ const it = {
         termine: 'La riga delle azioni',
         testo:
           'Soltanto quel che si può fare nella pagina aperta: nel calendario **Oggi** e, con ' +
-          '**Modifica** accesa, **Nuova lezione**; nella lezione **Pianificata**, **Svolta** e ' +
+          '**Modifica** accesa, **Nuova lezione**; nella lezione **Modificabile**, **Conclusa** e ' +
           '**Annullata**. Il ' +
           'comando più usato è in evidenza, un interruttore acceso si vede premuto. La ' +
           'freccia in fondo alla riga delle scelte la nasconde, come `Ctrl+B`. La guida e le ' +
@@ -345,8 +354,7 @@ const it = {
         termine: 'Modifica, Proietta e Assistente',
         testo:
           'In fondo alla riga delle scelte, da ogni pagina. **Modifica** (`Ctrl+E`) prende in ' +
-          'mano le lezioni: nel calendario si disegnano, si stirano e si spostano; nella pagina di ' +
-          'una lezione apre «Modifica la lezione». **Proietta** accende lo schermo per la classe e ' +
+          'mano le lezioni: nel calendario si disegnano, si stirano e si spostano. **Proietta** accende lo schermo per la classe e ' +
           'diventa **Spegni lo schermo**; acceso, compare **Proiezione**, che mette nella riga ' +
           'delle azioni i comandi dello schermo. **Assistente** c’è solo se è acceso nelle ' +
           'impostazioni.',
@@ -748,8 +756,7 @@ const it = {
         tasti: 'Ctrl+E',
         testo:
           'Da qualunque pagina, come l’interruttore **Modifica**: nel calendario le lezioni si ' +
-          'disegnano, si stirano e si spostano; nella pagina di un’ora si apre «Modifica ' +
-          'l’ora». Di nuovo `Ctrl+E`, o `Esc` nel calendario, ed esce.',
+          'disegnano, si stirano e si spostano. Di nuovo `Ctrl+E`, o `Esc` nel calendario, ed esce.',
       },
       {
         termine: 'Oggi',
@@ -905,7 +912,7 @@ export const testi = catalogo(it, {
         inClassi: 'in Klassen',
         ora: 'Die Stunde',
         calendario: 'Kalender',
-        svolta: 'Gehalten',
+        svolta: 'Abgeschlossen',
         aFineOra: 'am Schluss',
         pendenze: Molti(DE.pendenza),
         agenda: 'Agenda',
@@ -973,11 +980,12 @@ export const testi = catalogo(it, {
             'Beobachtungen.',
         },
         {
-          termine: 'Die Stunde als gehalten markieren',
+          termine: 'Die Stunde abschliessen',
           testo:
-            'Nach dem Unterricht **Gehalten** in der Aktionsleiste: Die Stunde zählt zu den ' +
-            'gehaltenen Stunden. Eine vergangene Stunde ohne Präsenzkontrolle oder ohne ' +
-            'Markierung bleibt eine Lücke, und die Leiste unten schlägt sie weiter vor.',
+            'Nach dem Unterricht **Abgeschlossen** in der Aktionsleiste: Die Stunde zählt zu den ' +
+            'gehaltenen Stunden und wird schreibgeschützt. Vor ihrem Ende lässt sie sich nicht ' +
+            'abschliessen. Eine vergangene Stunde ohne Präsenzkontrolle oder nicht ' +
+            'abgeschlossen bleibt eine Lücke, und die Leiste unten schlägt sie weiter vor.',
         },
         {
           termine: 'Schauen, was noch offen ist',
@@ -1174,6 +1182,14 @@ export const testi = catalogo(it, {
             'Einstellungen.',
         },
         {
+          termine: 'Kurs oder Klasse im Titel wechseln',
+          testo:
+            'Der Titel des Klassenbuchs steht auf zwei Zeilen, «Klassenbuch — DIC4a» und ' +
+            'darunter das Fach; der der Klassenlehrperson trägt die Klasse darunter. Bei ' +
+            'mehreren Kursen oder Klassen ist der Titel eine Schaltfläche: Er öffnet die ' +
+            'Auswahl mit den Kursen nach Klasse, oder den Klassen, der aktuelle abgehakt.',
+        },
+        {
           termine: 'Auf die Symbole verkleinern',
           testo:
             'Die Schaltfläche oben in der Leiste, neben «Klassenbuch», verkleinert sie auf die ' +
@@ -1220,8 +1236,8 @@ export const testi = catalogo(it, {
           termine: 'Die Aktionsleiste',
           testo:
             'Nur, was man auf der offenen Seite tun kann: im Kalender **Heute** und, mit ' +
-            'eingeschaltetem **Bearbeiten**, **Neue Stunde**; in der Stunde **Geplant**, ' +
-            '**Gehalten** und **Ausgefallen**. Der meistgebrauchte Befehl ist hervorgehoben, ' +
+            'eingeschaltetem **Bearbeiten**, **Neue Stunde**; in der Stunde **Bearbeitbar**, ' +
+            '**Abgeschlossen** und **Ausgefallen**. Der meistgebrauchte Befehl ist hervorgehoben, ' +
             'ein eingeschalteter Schalter sieht gedrückt aus. Der Pfeil am Ende der ' +
             'Auswahlzeile blendet die Leiste aus, wie `Ctrl+B`. Hilfe und Einstellungen haben ' +
             'weder diese Leiste noch die Auswahlzeile, solange der Bildschirm für die Klasse ' +
@@ -1232,7 +1248,7 @@ export const testi = catalogo(it, {
           testo:
             'Am Ende der Auswahlzeile, auf jeder Seite. **Bearbeiten** (`Ctrl+E`) nimmt die ' +
             'Stunden in die Hand: Im Kalender zeichnet man sie, zieht sie länger und ' +
-            'verschiebt sie; auf der Seite einer Stunde öffnet es «Stunde bearbeiten». ' +
+            'verschiebt sie. ' +
             '**Projizieren** schaltet den Bildschirm für die Klasse ein und wird zu ' +
             '**Bildschirm ausschalten**; ist er an, erscheint **Projektion**, die die Befehle ' +
             'des Bildschirms in die Aktionsleiste bringt. **Assistent** gibt es nur, wenn er in ' +
@@ -1647,8 +1663,7 @@ export const testi = catalogo(it, {
           tasti: 'Ctrl+E',
           testo:
             'Von jeder Seite, wie der Schalter **Bearbeiten**: Im Kalender zeichnet man die ' +
-            'Stunden, zieht sie länger und verschiebt sie; auf der Seite einer Stunde öffnet ' +
-            'sich «Stunde bearbeiten». Noch einmal `Ctrl+E`, oder `Esc` im Kalender, und man ' +
+            'Stunden, zieht sie länger und verschiebt sie. Noch einmal `Ctrl+E`, oder `Esc` im Kalender, und man ' +
             'ist wieder draussen.',
         },
         {
@@ -1805,7 +1820,7 @@ export const testi = catalogo(it, {
         inClassi: 'dans Classes',
         ora: 'La leçon',
         calendario: 'calendrier',
-        svolta: 'Donnée',
+        svolta: 'Terminée',
         aFineOra: 'fin du cours',
         pendenze: 'En suspens',
         agenda: 'Agenda',
@@ -1873,11 +1888,12 @@ export const testi = catalogo(it, {
             '**Annotations** pour les sujets et les observations.',
         },
         {
-          termine: 'Marquer la leçon comme donnée',
+          termine: 'Terminer la leçon',
           testo:
-            'Une fois le cours terminé, **Donnée** dans la barre d’actions : la leçon compte ' +
-            'parmi les leçons données. Une leçon passée sans appel ou non marquée reste un ' +
-            'trou, et la barre du bas continue à la proposer.',
+            'Une fois le cours fini, **Terminée** dans la barre d’actions : la leçon compte ' +
+            'parmi les leçons données et passe en lecture seule. Avant sa fin, on ne peut pas la ' +
+            'terminer. Une leçon passée sans appel ou non terminée reste un trou, et la barre du ' +
+            'bas continue à la proposer.',
         },
         {
           termine: 'Voir ce qui reste',
@@ -2070,6 +2086,14 @@ export const testi = catalogo(it, {
             'langage se trouvent dans les Paramètres.',
         },
         {
+          termine: 'Changer de cours ou de classe depuis le titre',
+          testo:
+            'Le titre du Registre tient sur deux lignes, « Registre — DIC4a » et la matière ' +
+            'dessous ; celui du maître de classe porte la classe dessous. Avec plusieurs cours ' +
+            'ou classes, le titre est un bouton : il ouvre la liste des cours rangés par ' +
+            'classe, ou des classes, celui en usage coché.',
+        },
+        {
           termine: 'La réduire aux icônes',
           testo:
             'Le bouton en haut de la barre, à côté de « Registre », la réduit aux seules icônes ' +
@@ -2117,7 +2141,7 @@ export const testi = catalogo(it, {
           testo:
             'Uniquement ce qu’on peut faire dans la page ouverte : dans le calendrier ' +
             '**Aujourd’hui** et, avec **Modifier** activé, **Nouvelle leçon** ; dans la leçon ' +
-            '**Prévue**, **Donnée** et **Annulée**. La commande la plus utilisée est mise en ' +
+            '**Modifiable**, **Terminée** et **Annulée**. La commande la plus utilisée est mise en ' +
             'avant, un interrupteur activé paraît enfoncé. La flèche au bout de la ligne des ' +
             'choix la masque, comme `Ctrl+B`. L’aide et les paramètres n’ont ni cette barre ni ' +
             'celle des choix, tant que l’écran pour la classe est éteint : leurs gestes sont ' +
@@ -2128,7 +2152,7 @@ export const testi = catalogo(it, {
           testo:
             'Au bout de la ligne des choix, depuis chaque page. **Modifier** (`Ctrl+E`) prend ' +
             'les leçons en main : dans le calendrier, on les dessine, on les étire et on les ' +
-            'déplace ; dans la page d’une leçon, il ouvre « Modifier la leçon ». **Projeter** ' +
+            'déplace. **Projeter** ' +
             'allume l’écran pour la classe et devient **Éteindre l’écran** ; allumé, ' +
             '**Projection** apparaît et met dans la barre d’actions les commandes de l’écran. ' +
             '**Assistant** n’est là que s’il est activé dans les paramètres.',
@@ -2535,8 +2559,7 @@ export const testi = catalogo(it, {
           tasti: 'Ctrl+E',
           testo:
             'Depuis n’importe quelle page, comme l’interrupteur **Modifier** : dans le ' +
-            'calendrier, on dessine, étire et déplace les leçons ; dans la page d’une leçon ' +
-            's’ouvre « Modifier la leçon ». À nouveau `Ctrl+E`, ou `Échap` dans le calendrier, ' +
+            'calendrier, on dessine, étire et déplace les leçons. À nouveau `Ctrl+E`, ou `Échap` dans le calendrier, ' +
             'et on en sort.',
         },
         {
@@ -2694,7 +2717,7 @@ export const testi = catalogo(it, {
         inClassi: 'in Classes',
         ora: 'The lesson',
         calendario: 'calendar',
-        svolta: 'Held',
+        svolta: 'Completed',
         aFineOra: 'at the end',
         pendenze: 'Pending',
         agenda: 'Planner',
@@ -2758,11 +2781,12 @@ export const testi = catalogo(it, {
             'for topics and observations.',
         },
         {
-          termine: 'Mark the lesson as held',
+          termine: 'Complete the lesson',
           testo:
-            'Once the lesson is over, **Held** in the action bar: the lesson counts among the ' +
-            'lessons held. A past lesson with no attendance taken or not marked stays a gap, ' +
-            'and the bar at the bottom keeps suggesting it.',
+            'Once the lesson is over, **Completed** in the action bar: the lesson counts among the ' +
+            'lessons held and becomes read-only. Before it ends it can’t be completed. A past ' +
+            'lesson with no attendance taken or not completed stays a gap, and the bar at the ' +
+            'bottom keeps suggesting it.',
         },
         {
           termine: 'See what is left',
@@ -2949,6 +2973,14 @@ export const testi = catalogo(it, {
             'item. The letterhead and the language models are inside the Settings.',
         },
         {
+          termine: 'Changing course or class from the title',
+          testo:
+            'The Register title sits on two lines, “Register — DIC4a” with the subject below; ' +
+            'the class teacher’s title carries the class below. With several courses or ' +
+            'classes the title is a button: it opens the list of courses grouped by class, or ' +
+            'of classes, with the one in use ticked.',
+        },
+        {
           termine: 'Shrinking it to icons',
           testo:
             'The button at the top of the bar, next to “Register”, shrinks it to icons only ' +
@@ -2993,7 +3025,7 @@ export const testi = catalogo(it, {
           termine: 'The action bar',
           testo:
             'Only what can be done on the open page: in the calendar **Today** and, with ' +
-            '**Edit** on, **New lesson**; in the lesson **Planned**, **Held** and ' +
+            '**Edit** on, **New lesson**; in the lesson **Editable**, **Completed** and ' +
             '**Cancelled**. The most used command stands out, a switch that is on looks ' +
             'pressed. The arrow at the end of the choices row hides it, like `Ctrl+B`. The ' +
             'guide and the settings have neither this bar nor the choices row, as long as the ' +
@@ -3003,8 +3035,7 @@ export const testi = catalogo(it, {
           termine: 'Edit, Project and Assistant',
           testo:
             'At the end of the choices row, from every page. **Edit** (`Ctrl+E`) takes the ' +
-            'lessons in hand: in the calendar you draw, stretch and move them; on a lesson’s ' +
-            'page it opens “Edit the lesson”. **Project** turns on the class screen and ' +
+            'lessons in hand: in the calendar you draw, stretch and move them. **Project** turns on the class screen and ' +
             'becomes **Turn off the screen**; once on, **Projection** appears, which puts the ' +
             'screen’s commands in the action bar. **Assistant** is there only if it is turned ' +
             'on in the settings.',
@@ -3406,7 +3437,7 @@ export const testi = catalogo(it, {
           tasti: 'Ctrl+E',
           testo:
             'From any page, like the **Edit** switch: in the calendar lessons are drawn, ' +
-            'stretched and moved; on a lesson’s page “Edit the lesson” opens. `Ctrl+E` again, ' +
+            'stretched and moved. `Ctrl+E` again, ' +
             'or `Esc` in the calendar, and you are out.',
         },
         {

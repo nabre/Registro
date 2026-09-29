@@ -77,7 +77,7 @@ const it: TestiManifesto = {
       etichetta: 'Icona accanto all’orologio',
       descrizione:
         'Tiene un’icona del registro accanto all’orologio. Il suo menu elenca i corsi dell’anno e, ' +
-        'dentro ognuno, le ore divise fra svolte, da chiudere, in corso e in programma: porta ' +
+        'dentro ognuno, le ore divise fra concluse, da chiudere, in corso e in programma: porta ' +
         'sull’ora con un clic. Da lì passa anche l’uscita dall’applicazione. Ha effetto al ' +
         'prossimo avvio: l’icona decide anche che cosa fa la X delle finestre, e cambiarla a metà ' +
         'sessione cambierebbe quel gesto sotto le mani.',
@@ -380,7 +380,7 @@ export const testi = catalogo(it, {
         etichetta: 'Symbol neben der Uhr',
         descrizione:
           'Zeigt ein Symbol des Klassenbuchs neben der Uhr. Sein Menü listet die Kurse des Jahres und ' +
-          'in jedem die Stunden, aufgeteilt in gehalten, abzuschliessen, laufend und geplant: ein ' +
+          'in jedem die Stunden, aufgeteilt in abgeschlossen, abzuschliessen, laufend und geplant: ein ' +
           'Klick führt zur Stunde. Dort wird das Programm auch beendet. Wirkt beim nächsten Start: ' +
           'das Symbol bestimmt auch, was das X der Fenster tut, und es mitten in der Sitzung zu ' +
           'ändern, würde diese Geste unter den Händen verändern.',
@@ -686,7 +686,7 @@ export const testi = catalogo(it, {
         etichetta: 'Icône près de l’horloge',
         descrizione:
           'Garde une icône du registre près de l’horloge. Son menu liste les cours de l’année et, ' +
-          'dans chacun, les leçons réparties entre données, à clore, en cours et prévues : un clic ' +
+          'dans chacun, les leçons réparties entre terminées, à clore, en cours et prévues : un clic ' +
           'mène à la leçon. C’est aussi par là qu’on quitte l’application. Prend effet au prochain ' +
           'démarrage : l’icône décide aussi de ce que fait le X des fenêtres, et la changer en ' +
           'cours de session changerait ce geste sous les doigts.',
@@ -997,7 +997,7 @@ export const testi = catalogo(it, {
         etichetta: 'Icon next to the clock',
         descrizione:
           'Keeps a register icon next to the clock. Its menu lists the year’s courses and, inside ' +
-          'each one, the lessons split into held, to close, in progress and scheduled: one click ' +
+          'each one, the lessons split into completed, to close, in progress and scheduled: one click ' +
           'takes you to the lesson. It is also where you quit the application. Takes effect at the ' +
           'next start: the icon also decides what the windows’ X does, and changing it mid-session ' +
           'would change that gesture under your hands.',

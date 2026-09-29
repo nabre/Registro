@@ -17,6 +17,7 @@ import { formattaData, formattaDurata } from '../../../core/dominio/dates.js'
 import { numeriDelleLezioni } from '../../../core/dominio/courses.js'
 import type { Lezione, Osservazione } from '../../../core/dominio/models.js'
 import {
+  avviso,
   campo,
   datoSintetico,
   pastiglia,
@@ -48,7 +49,6 @@ import {
   lezionePerId,
   lezioniDiCorso,
   stato,
-  titoloDiLezione,
   vai,
   type SchedaLezione,
   type SchedaStrumentiLezione,
@@ -196,18 +196,15 @@ function pannelloContenuti (lezione: Lezione): HTMLElement {
 
 /**
  * Come una lezione si legge nella tendina: numero d'ordine (le annullate non
- * contano), giorno della settimana, data e ora.
+ * contano), giorno della settimana, data e ora. Niente titolo del piano: la
+ * tendina sceglie un'ora, non un argomento.
  */
 function etichettaLezione (altra: Lezione, numero: number | null): string {
   const inizio = inizioLezione(altra)
-  const titolo = titoloDiLezione(altra)
   const segno = altra.stato === 'svolta' ? '✓ ' : altra.stato === 'annullata' ? '× ' : ''
   const ordine = numero === null ? '' : `${numero}. `
   const giorno = formattaData(altra.data, 'giorno')
-  return (
-    `${segno}${ordine}${giorno} ${formattaData(altra.data)}` +
-    `${inizio ? ` · ${inizio}` : ''}${titolo ? ` · ${titolo}` : ''}`
-  )
+  return `${segno}${ordine}${giorno} ${formattaData(altra.data)}${inizio ? ` · ${inizio}` : ''}`
 }
 
 /**
@@ -271,6 +268,45 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
       'span',
       { class: 'navigatore-registro__conta' },
       posizione >= 0 ? t.posizione(posizione + 1, sorelle.length) : t.lezioni(sorelle.length),
+    ),
+  )
+}
+
+// ------------------------------------------------------------------ ora svolta
+
+/**
+ * Il contenuto delle schede di un'ora svolta, in sola lettura: un `fieldset`
+ * spento disattiva ogni controllo dentro, tastiera compresa. È solo cortesia:
+ * le azioni rifiutano comunque (`aOraAperta`).
+ */
+function aOraSvolta (lezione: Lezione, chiave: string, ...figli: Figlio[]): Figlio[] {
+  if (lezione.stato !== 'svolta') return figli
+  return [
+    h(
+      'fieldset',
+      // testo-fisso: una chiave, non un testo
+      { class: 'lezione-chiusa', dataset: { telaio: `chiusa:${chiave}` }, attr: { disabled: true } },
+      ...figli,
+    ),
+  ]
+}
+
+/** L'avviso in testa a un'ora svolta, con il gesto per riaprirla. */
+function avvisoOraSvolta (lezione: Lezione): Figlio {
+  if (lezione.stato !== 'svolta') return null
+  const t = testi()
+  return avviso(
+    h(
+      'span',
+      { class: 'lezione-chiusa__avviso' },
+      t.chiusa,
+      pulsante({
+        testo: t.riapri,
+        titolo: t.riapriTitolo,
+        simbolo: 'calendario',
+        variante: 'sottile',
+        al: () => azione({ tipo: 'lezione.stato', lezioneId: lezione.id, stato: 'pianificata' }),
+      }),
     ),
   )
 }
@@ -353,7 +389,8 @@ function pannelloStrumentiLezione (lezione: Lezione): HTMLElement {
     // testo-fisso: una chiave, non un testo
     { class: 'strumenti-lezione', dataset: { telaio: `strumenti:${strumenti}` } },
     selettoreStrumenti,
-    pannelloCorrente,
+    // Le linguette restano vive: si guarda anche un'ora chiusa.
+    ...aOraSvolta(lezione, 'strumenti', pannelloCorrente),
   )
 }
 
@@ -443,6 +480,7 @@ export function vistaLezione (): Figlio {
       ),
     }),
     navigatoreRegistro(lezione),
+    avvisoOraSvolta(lezione),
     // Tre schede per tre momenti: amministrazione mentre la classe entra, lezione
     // durante, annotazioni (con lo svolgimento) dopo.
     // I nomi delle linguette vengono da `tabs.ts`, che li dà anche al percorso
@@ -451,19 +489,25 @@ export function vistaLezione (): Figlio {
       aggiorna({ schedaLezione: scelta }),
     ),
     stato.schedaLezione === 'amministrazione'
-      ? colonne('amministrazione', [pannelloAppello(lezione)], [
+      ? colonne('amministrazione', aOraSvolta(lezione, 'appello', pannelloAppello(lezione)), aOraSvolta(
+          lezione,
+          'consegne',
           pannelloConsegne(lezione),
           // Il check sotto le consegne: si spunta nello stesso momento, persona per persona.
           pannelloCheckDellOra(lezione),
           // Le prove da ridare accanto alle consegne da ritirare: stesso momento.
           pannelloRiconsegneDellOra(lezione),
-        ])
+        ))
       : null,
     stato.schedaLezione === 'lezione'
-      ? colonne('lezione', [pannelloPiano(lezione)], [pannelloStrumentiLezione(lezione)])
+      ? colonne('lezione', aOraSvolta(lezione, 'piano', pannelloPiano(lezione)), [pannelloStrumentiLezione(lezione)])
       : null,
     stato.schedaLezione === 'annotazioni'
-      ? colonne('annotazioni', [pannelloContenuti(lezione)], [pannelloOsservazioni(lezione)])
+      ? colonne(
+          'annotazioni',
+          aOraSvolta(lezione, 'svolgimento', pannelloContenuti(lezione)),
+          aOraSvolta(lezione, 'osservazioni', pannelloOsservazioni(lezione)),
+        )
       : null,
   )
 }

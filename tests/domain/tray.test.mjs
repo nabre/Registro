@@ -63,11 +63,11 @@ describe('il menu del vassoio', () => {
     const albero = alberoVassoio(registro, OGGI, '12:00')
     const suo = corsoDi(albero, corso.id)
 
-    assert.equal(mucchio(suo, 'svolte').titolo, 'Svolte (2)')
+    assert.equal(mucchio(suo, 'svolte').titolo, 'Concluse (2)')
     assert.equal(mucchio(suo, 'da-chiudere').titolo, 'Da chiudere (1)')
     assert.equal(mucchio(suo, 'prossime').titolo, 'Prossime (1)')
     assert.equal(mucchio(suo, 'in-corso'), undefined, 'un mucchio vuoto non occupa una riga')
-    assert.equal(suo.riepilogo, '1 da chiudere · 1 in programma · 2 svolte')
+    assert.equal(suo.riepilogo, '1 da chiudere · 1 in programma · 2 concluse')
   })
 
   it('dice perché un’ora è da chiudere, e non solo che lo è', () => {
@@ -84,10 +84,10 @@ describe('il menu del vassoio', () => {
       [senzaAppello.id, senzaSpunta.id],
       'in ordine di calendario: il buco più vecchio è quello che si sta dimenticando',
     )
-    assert.match(righe[0].etichetta, /senza appello, non segnata svolta/)
+    assert.match(righe[0].etichetta, /senza appello, non conclusa/)
     assert.match(
       righe[1].etichetta,
-      /non segnata svolta/,
+      /non conclusa/,
       'l’appello c’è: quel che manca è solo la spunta, e va detto',
     )
     assert.doesNotMatch(righe[1].etichetta, /senza appello/)
@@ -204,7 +204,7 @@ describe('il menu del vassoio', () => {
 
     const svolte = mucchio(corsoDi(alberoVassoio(registro, OGGI), corso.id), 'svolte')
 
-    assert.equal(svolte.titolo, 'Svolte (8)', 'il titolo dice quante sono, non quante se ne vedono')
+    assert.equal(svolte.titolo, 'Concluse (8)', 'il titolo dice quante sono, non quante se ne vedono')
     assert.equal(svolte.ore.length, 5)
     assert.equal(svolte.altre, 3)
     assert.match(

@@ -51,6 +51,9 @@ const it = {
 
   versione: (frase: string, versione: string) =>
     `${frase} (Questa è la ${versione}.)\nApri gli aggiornamenti`,
+  numeroVersione: (versione: string) => `v${versione}`,
+  versioneInUso: (frase: string, versione: string) =>
+    `Regiklass ${versione}. ${frase}\nPremi per controllare se c’è una versione nuova`,
 
   // Gli interruttori dei modelli.
   assistente: 'Assistente',
@@ -116,6 +119,9 @@ export const testi = catalogo(it, {
       'Öffne die E-Mail-Einstellungen',
     versione: (frase, versione) =>
       `${frase} (Dies ist die ${versione}.)\nÖffne die Aktualisierungen`,
+    numeroVersione: (versione) => `v${versione}`,
+    versioneInUso: (frase, versione) =>
+      `Regiklass ${versione}. ${frase}\nKlicken, um nach einer neuen Version zu suchen`,
     assistente: 'Assistent',
     letturaScansioni: 'Scans lesen',
     spentoBloccato: (nome, perche) =>
@@ -174,6 +180,9 @@ export const testi = catalogo(it, {
       'Ouvre les paramètres du courrier',
     versione: (frase, versione) =>
       `${frase} (Tu as la ${versione}.)\nOuvre les mises à jour`,
+    numeroVersione: (versione) => `v${versione}`,
+    versioneInUso: (frase, versione) =>
+      `Regiklass ${versione}. ${frase}\nClique pour chercher une nouvelle version`,
     assistente: 'Assistant',
     letturaScansioni: 'Lecture des scans',
     spentoBloccato: (nome, perche) =>
@@ -229,6 +238,9 @@ export const testi = catalogo(it, {
       'Open the mail settings',
     versione: (frase, versione) =>
       `${frase} (This is ${versione}.)\nOpen the updates`,
+    numeroVersione: (versione) => `v${versione}`,
+    versioneInUso: (frase, versione) =>
+      `Regiklass ${versione}. ${frase}\nClick to check for a new version`,
     assistente: 'Assistant',
     letturaScansioni: 'Reading scans',
     spentoBloccato: (nome, perche) =>

@@ -4,9 +4,11 @@
 // per capire subito se le attività stanno nell'ora.
 
 import {
-  attivitaConCheck,
   attivitaConPendenza,
   attivitaValutata,
+  colonneCheckDi,
+  conColonnaCheck,
+  verificaColonna,
 } from '../../../core/dominio/activities.js'
 import {
   avanzamentoConsegna,
@@ -39,7 +41,7 @@ function durataInMinuti (ud: number): string {
 }
 import { lezioniDellAnno } from '../../../core/dominio/courses.js'
 import { numeriDelleLezioni } from '../../../core/dominio/courses.js'
-import type { Consegna, Corso, Lezione, MomentoValutazione, PianoLezione } from '../../../core/dominio/models.js'
+import type { Attivita, Consegna, Corso, Lezione, MomentoValutazione, PianoLezione } from '../../../core/dominio/models.js'
 import { corrispondeAlla, pezziDiRicerca } from '../../../core/dominio/text.js'
 import { Molti, quanti } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
@@ -744,22 +746,39 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
     }
   }
 
+  // Il check si verifica in un momento solo dell'ora: se la scaletta ha già una
+  // tappa che ne verifica una colonna, le altre si legano a quella invece di
+  // aggiungere una tappa per colonna.
+  const tappaDelCheck = piano.attivita.find((a) => colonneCheckDi(a).length > 0) ?? null
+  const titoloDelCheck = (colonne: string[]): string =>
+    t.verificaCheck(
+      colonne.map((id) => colonneCheck.find((c) => c.id === id)?.titolo ?? id).join(', '),
+    )
+
   const inserisciAttivitaCheck = async (
     colonnaId: string,
     colonnaTitolo: string,
   ): Promise<void> => {
-    const nuova = creaAttivita(t.verificaCheck(colonnaTitolo), udDaMinutiAttivita(5, perUd))
-    nuova.tipo = 'verifica'
-    nuova.parametri = { checkColonnaId: colonnaId }
+    let attivita: Attivita[]
+    let avviso: string
+    if (tappaDelCheck) {
+      const legata = conColonnaCheck(tappaDelCheck, colonnaId)
+      // Il titolo scritto dal programma segue le colonne; uno scritto a mano resta.
+      if (tappaDelCheck.titolo === titoloDelCheck(colonneCheckDi(tappaDelCheck))) {
+        legata.titolo = titoloDelCheck(colonneCheckDi(legata))
+      }
+      attivita = piano.attivita.map((a) => (a.id === tappaDelCheck.id ? legata : a))
+      avviso = t.legataAllaTappa(colonnaTitolo, legata.titolo)
+    } else {
+      const nuova = creaAttivita(t.verificaCheck(colonnaTitolo), udDaMinutiAttivita(5, perUd))
+      nuova.tipo = 'verifica'
+      nuova.parametri = { checkColonnaId: colonnaId }
+      attivita = [...piano.attivita, nuova]
+      avviso = t.inseritaInScaletta(colonnaTitolo)
+    }
     scordaEditorDelPiano()
-    const aggiornato: PianoLezione = {
-      ...piano,
-      attivita: [...piano.attivita, nuova],
-    }
-    const risposta = await invia({ tipo: 'piano.salva', piano: aggiornato })
-    if (risposta.ok) {
-      notifica(t.inseritaInScaletta(colonnaTitolo), 'successo')
-    }
+    const risposta = await invia({ tipo: 'piano.salva', piano: { ...piano, attivita } })
+    if (risposta.ok) notifica(avviso, 'successo')
   }
 
   const sezioni: Figlio[] = []
@@ -817,10 +836,7 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
           'ul',
           { class: 'elenco-collegamenti' },
           ...colonneCheck.map((col) => {
-            const giaCollegata = piano.attivita.some((a) => {
-              const k = attivitaConCheck(a)
-              return k === col.id || k === 'tutte'
-            })
+            const giaCollegata = piano.attivita.some((a) => verificaColonna(a, col.id))
             return h(
               'li',
               { class: 'elenco-collegamenti__voce strumenti-piano__riga' },
@@ -833,9 +849,10 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
               giaCollegata
                 ? pastiglia(t.giaInScaletta, 'positivo')
                 : pulsante({
-                    testo: t.inserisciNellaScaletta,
-                    simbolo: 'piu',
+                    testo: tappaDelCheck ? t.legaAllaTappa : t.inserisciNellaScaletta,
+                    simbolo: tappaDelCheck ? 'collegamento' : 'piu',
                     variante: 'sottile',
+                    titolo: tappaDelCheck ? t.legaAllaTappaTitolo(tappaDelCheck.titolo) : undefined,
                     al: () => {
                       void inserisciAttivitaCheck(col.id, col.titolo)
                     },

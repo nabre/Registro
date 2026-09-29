@@ -48,8 +48,15 @@ function nomeDelDocumento (percorso: string): string {
  * di schermo, perché il nome lo dice il titolo della finestra.
  */
 function marchio (): Figlio {
+  // L'host segna la pagina quando gira da sorgenti (`npm run dev` o `npm run
+  // start`): così non si scambia la finestra di prova con il registro installato.
+  const modo = document.documentElement.dataset.sviluppo
   return h('span', { class: 'barra-titolo__marchio', attr: { 'aria-hidden': 'true' } },
-    logo('barra-titolo__marchio-segno'))
+    logo('barra-titolo__marchio-segno'),
+    modo === 'dev' || modo === 'start'
+      // testo-fisso: segno di sviluppo, uguale in ogni lingua
+      ? h('span', { class: ['barra-titolo__sviluppo', `barra-titolo__sviluppo--${modo}`] }, modo.toUpperCase())
+      : null)
 }
 
 /**

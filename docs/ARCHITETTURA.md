@@ -97,7 +97,7 @@ flowchart TB
   lettore["<b>Lettore PDF</b><br/>nessun preload"]
   dialogo["<b>Dialogo</b><br/>parametri in query string"]
 
-  documento[("<b>anno.regi</b><br/>ZIP: JSON, .storico/, archivio/,<br/>esportazioni/, quarantena/, composizioni/")]
+  documento[("<b>anno.regi</b><br/>ZIP: JSON, .storico/, archivio/,<br/>esportazioni/, quarantena/")]
   userdata[("<b>userData</b><br/>impostazioni.json, segreti.json,<br/>finestre.json, documenti.json,<br/>interfaccia/, materializzati/, tasselli/")]
 
   main <-->|"registro:messaggio — Richiesta/Risposta, Domanda/Riscontro"| pannello

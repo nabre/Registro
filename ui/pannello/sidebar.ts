@@ -2,8 +2,20 @@
 import { assistenteAperto } from './assistant.js'
 import { h, type Figlio } from './dom.js'
 import { icona } from './components/icons.js'
-import { gruppiDiPagine, vaiA, type Pagina } from './pages.js'
-import { aggiorna, ridisegna, stato } from './state.js'
+import { alternaMenuSotto, type ElementoMenu } from './components/menu.js'
+import { classeDelFascicolo, corsoDelContesto, scegliClasseDelFascicolo, scegliCorso } from './context.js'
+import { gruppiDiPagine, vaiA, type GruppoDiPagine, type Pagina } from './pages.js'
+import {
+  aggiorna,
+  classiDiCuiSonoDocente,
+  corsiDellAnnoAperto,
+  nomeClasse,
+  nomeMateria,
+  ridisegna,
+  stato,
+  vai,
+} from './state.js'
+import type { Posto } from './posto.js'
 import { testi } from './sidebar.testi.js'
 
 const stretta = window.matchMedia('(max-width: 64em)')
@@ -29,6 +41,102 @@ function imposta (aperta: boolean, restituisciFuoco = false): void {
   if (restituisciFuoco) requestAnimationFrame(() => {
     document.querySelector<HTMLElement>('[data-fuoco="apri-navigazione"]')?.focus()
   })
+}
+
+/**
+ * Il titolo di un gruppo che sceglie di che cosa sono le pagine (il corso del
+ * Registro, la classe del docente di classe): una tendina del programma, non
+ * un `select`, con la voce in uso spuntata.
+ */
+function titoloCheSceglie (
+  righe: string[],
+  azione: string,
+  fuoco: string,
+  voci: () => ElementoMenu[],
+): HTMLElement {
+  return h(
+    'button',
+    {
+      type: 'button',
+      class: 'sidebar__titolo-scelta',
+      dataset: { fuoco },
+      attr: { 'aria-haspopup': 'menu', 'aria-label': `${azione}: ${righe.join(' · ')}` },
+      onclick: (evento: MouseEvent) => {
+        alternaMenuSotto(evento.currentTarget as HTMLElement, voci())
+      },
+    },
+    h('span', { class: 'sidebar__titolo-righe' },
+      ...righe.map((riga) => h('span', { class: 'sidebar__titolo-riga' }, riga))),
+    icona('giu', 'sidebar__titolo-freccia'),
+  )
+}
+
+/**
+ * Le classi con il fascicolo: quelle di cui si è docente di classe. Da una
+ * pagina del gruppo la pagina resta e mostra la classe nuova; da fuori si apre
+ * la prima pagina del gruppo, già sulla classe: `scegliClasseDelFascicolo`
+ * appenderebbe la classe a una pagina che non è sua.
+ */
+function vociDelleClassi (gruppo: GruppoDiPagine): ElementoMenu[] {
+  const attuale = classeDelFascicolo()?.id
+  return classiDiCuiSonoDocente().map((classe) => ({
+    testo: classe.nome,
+    simbolo: 'classi' as const,
+    accesa: classe.id === attuale,
+    al: () => {
+      if (gruppo.attivo) {
+        scegliClasseDelFascicolo(classe.id)
+        return
+      }
+      entraNelGruppo(gruppo, { tipo: 'classe', id: classe.id },
+        { classeId: classe.id, filtroClasseId: classe.id })
+    },
+  }))
+}
+
+/**
+ * Apre la prima pagina del gruppo sul soggetto scelto, contesto compreso: un
+ * passo solo, una voce sola nella storia.
+ */
+function entraNelGruppo (
+  gruppo: GruppoDiPagine,
+  soggetto: NonNullable<Posto['soggetto']>,
+  contesto: NonNullable<Parameters<typeof vai>[1]>['contesto'],
+): void {
+  const pagina = gruppo.pagine[0]
+  if (!pagina) return
+  vai({ pagina: pagina.id, soggetto }, { contesto })
+  chiudiSidebarMobile()
+}
+
+/**
+ * I corsi dell'anno per il menu del titolo: un titoletto per classe, le
+ * materie sotto. Da una pagina del Registro `scegliCorso` la sposta sul corso;
+ * da fuori si apre la prima pagina del Registro sul corso scelto (restando
+ * dov'è, una pagina di classe tornerebbe alle Classi).
+ */
+function vociDeiCorsi (gruppo: GruppoDiPagine): ElementoMenu[] {
+  const attuale = corsoDelContesto()?.id
+  const perClasse = new Map<string, ElementoMenu[]>()
+  for (const corso of corsiDellAnnoAperto()) {
+    const classe = nomeClasse(corso.classeId)
+    const voci = perClasse.get(classe) ?? []
+    voci.push({
+      testo: nomeMateria(corso.materiaId) || corso.titolo,
+      simbolo: 'libro',
+      accesa: corso.id === attuale,
+      al: () => {
+        if (gruppo.attivo) {
+          scegliCorso(corso.id)
+          return
+        }
+        entraNelGruppo(gruppo, { tipo: 'corso', id: corso.id },
+          { corsoId: corso.id, filtroClasseId: corso.classeId, classeId: corso.classeId })
+      },
+    })
+    perClasse.set(classe, voci)
+  }
+  return [...perClasse].flatMap(([classe, voci]) => [{ titolo: classe }, ...voci])
 }
 
 /** Chiude il cassetto stretto senza cambiare la scelta della sidebar desktop. */
@@ -102,9 +210,16 @@ export function sidebar (): HTMLElement {
     // La classe del gruppo manda «sistema» (Impostazioni, Guida) in fondo alla
     // colonna (`sidebar.css`).
     ...gruppiDiPagine().map((gruppo) => h('section', { class: ['sidebar__gruppo', `sidebar__gruppo--${gruppo.gruppo}`] },
-      // Il titolo lungo («Registro — DIC4a · Matematica») dice di quale corso sono
-      // le pagine; se non ci sta si accorcia, intero nel suggerimento.
-      h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } }, gruppo.titolo),
+      // Il titolo lungo («Registro — DIC4a», a capo «Matematica») dice di quale
+      // corso sono le pagine; una riga che non ci sta si accorcia, intera nel suggerimento.
+      h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } },
+        gruppo.gruppo === 'registro' && corsiDellAnnoAperto().length > 1
+          // testo-fisso: chiave di fuoco
+          ? titoloCheSceglie(gruppo.righe, testi().cambiaCorso, 'sidebar-corso', () => vociDeiCorsi(gruppo))
+          : gruppo.gruppo === 'classe' && classiDiCuiSonoDocente().length > 1
+            // testo-fisso: chiave di fuoco
+            ? titoloCheSceglie(gruppo.righe, testi().cambiaClasse, 'sidebar-classe', () => vociDelleClassi(gruppo))
+            : gruppo.righe.map((riga) => h('span', { class: 'sidebar__titolo-riga' }, riga))),
       ...gruppo.pagine.map((pagina) => {
         const conto = pagina.conto?.() ?? 0
         return h('button', {

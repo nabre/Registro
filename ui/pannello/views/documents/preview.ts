@@ -150,8 +150,7 @@ function cornice (aperto: DaGuardare): Figlio {
             simbolo: 'cestino',
             variante: 'fantasma',
             titolo: t.buttaDallaCartella(suo.nome),
-            // Si butta come dalla riga di partenza: una composizione va via con la sua ricetta.
-            al: () => suo.butta?.() ?? buttaVia(aperto.percorso, suo.nome),
+            al: () => buttaVia(aperto.percorso, suo.nome),
           })
         : null,
       // Fuori di qui: un CSV nel foglio di calcolo, un PDF in una finestra sua del lettore.

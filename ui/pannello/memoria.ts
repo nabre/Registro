@@ -71,7 +71,6 @@ interface PreferenzeDocumento {
   bloccoAssenzeId: string | null
   schedaTodo: string
   classiApertePersone: string[]
-  documentiScelti: string[]
   ricerca: string
 }
 
@@ -114,10 +113,8 @@ export const MASSIMO_DOCUMENTI = 20
 /** Il limite di `desktop/apparato/uiState.ts`: oltre, il file non si scrive. */
 export const LIMITE_CARATTERI = 256000
 
-const MASSIMO_SCELTI = 200
 const MASSIMO_CLASSI_APERTE = 100
 const MASSIMO_ID = 200
-const MASSIMO_PERCORSO = 500
 const MASSIMO_RICERCA = 200
 const MASSIMO_CONTESTO_ASSISTENTE = 2000
 
@@ -252,7 +249,6 @@ function preferenzeDa (
         ? grezzo.schedaTodo
         : undefined,
     classiApertePersone: elenco(grezzo.classiApertePersone, MASSIMO_CLASSI_APERTE, MASSIMO_ID),
-    documentiScelti: elenco(grezzo.documentiScelti, MASSIMO_SCELTI, MASSIMO_PERCORSO),
     ricerca: typeof ricerca === 'string' ? ricerca.slice(0, MASSIMO_RICERCA) : undefined,
   })
   // Assente e `null` dicono cose diverse: si copia solo una scelta vera.
@@ -413,7 +409,7 @@ export function serializza (memoria: Memoria): string {
   }
   const ultima = chiavi[0]
   if (testo.length >= LIMITE_CARATTERI && ultima !== undefined) {
-    documenti[ultima] = { ...documenti[ultima], documentiScelti: [], classiApertePersone: [] }
+    documenti[ultima] = { ...documenti[ultima], classiApertePersone: [] }
     testo = JSON.stringify({ ...memoria, documenti })
   }
   // I limiti di lettura tengono la voce e le globali ben sotto: qui non si arriva.

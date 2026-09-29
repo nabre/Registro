@@ -4,7 +4,6 @@
 
 import * as apparato from 'apparato'
 
-import { aggiornaComposizioni } from './compositions.js'
 import { scriviGenerato } from '../dati/exports.js'
 import {
   collocazioneDi,
@@ -778,15 +777,13 @@ export const rapporti = {
 
     const intestazione = registro.impostazioni.intestazione
     const esito = await scriviTutti([...unaVolta.values()], ancora, intestazione)
-    // Fermato a metà: niente fascicoli, e si dice quanti fogli erano usciti.
+    // Fermato a metà: si dice quanti fogli erano usciti.
     if (esito.interrotto) {
       return rifiutaCon(
         'conflitto',
         esito.scritti > 0 ? `${t.giroInterrotto} ${t.giaScritti(esito.scritti)}` : t.giroInterrotto,
       )
     }
-    // Le composizioni dopo i fogli, così contengono quelli appena scritti.
-    const fascicoli = await aggiornaComposizioni()
     const dove = scelti.length === 1 ? t.diCorso(scelti[0].titolo) : t.diCorsi(scelti.length)
     // Zero scritti con errori è un fallimento, non un avviso.
     if (esito.scritti === 0 && esito.errori.length > 0) {
@@ -798,6 +795,6 @@ export const rapporti = {
         'avviso',
       )
     }
-    return conMessaggio(t.scrittiTutti(esito.scritti, dove, fascicoli), 'info')
+    return conMessaggio(t.scrittiTutti(esito.scritti, dove), 'info')
   },
 } satisfies Parte

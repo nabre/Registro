@@ -37,6 +37,12 @@ const it = {
   corsoAgendaTitolo:
     'Restringe il calendario a un corso. Non cambia il corso del registro.',
   tuttiICorsi: 'Tutti i corsi',
+  oraPassata: 'Passata',
+  oraPassataTitolo: 'L’orario della lezione è finito: la si può concludere',
+  oraInCorso: 'In corso',
+  oraInCorsoTitolo: 'La lezione è in corso: si conclude quando finisce',
+  oraFutura: 'Da venire',
+  oraFuturaTitolo: 'La lezione non è ancora cominciata',
   anno: 'Anno',
   annoTitolo: 'L’anno scolastico in uso',
   periodoTitolo:
@@ -83,6 +89,12 @@ export const testi = catalogo(it, {
     corsoAgendaTitolo:
       'Beschränkt den Kalender auf einen Kurs. Ändert nicht den Kurs des Klassenbuchs.',
     tuttiICorsi: 'Alle Kurse',
+    oraPassata: 'Vorbei',
+    oraPassataTitolo: 'Die Zeit der Stunde ist vorüber: Man kann sie abschliessen',
+    oraInCorso: 'Läuft',
+    oraInCorsoTitolo: 'Die Stunde läuft: Man schliesst sie ab, wenn sie vorbei ist',
+    oraFutura: 'Kommt noch',
+    oraFuturaTitolo: 'Die Stunde hat noch nicht begonnen',
     anno: 'Schuljahr',
     annoTitolo: 'Das laufende Schuljahr',
     periodoTitolo:
@@ -124,6 +136,12 @@ export const testi = catalogo(it, {
     corsoAgendaTitolo:
       'Limite le calendrier à un cours. Ne change pas le cours du registre.',
     tuttiICorsi: 'Tous les cours',
+    oraPassata: 'Passée',
+    oraPassataTitolo: 'L’horaire de la leçon est fini : on peut la terminer',
+    oraInCorso: 'En cours',
+    oraInCorsoTitolo: 'La leçon est en cours : on la termine quand elle finit',
+    oraFutura: 'À venir',
+    oraFuturaTitolo: 'La leçon n’a pas encore commencé',
     anno: 'Année',
     annoTitolo: 'L’année scolaire en cours',
     periodoTitolo:
@@ -165,6 +183,12 @@ export const testi = catalogo(it, {
     corsoAgendaTitolo:
       'Narrows the calendar to one course. It does not change the register’s course.',
     tuttiICorsi: 'All courses',
+    oraPassata: 'Over',
+    oraPassataTitolo: 'The lesson’s time is over: it can be completed',
+    oraInCorso: 'In progress',
+    oraInCorsoTitolo: 'The lesson is in progress: it is completed when it ends',
+    oraFutura: 'Upcoming',
+    oraFuturaTitolo: 'The lesson hasn’t started yet',
     anno: 'Year',
     annoTitolo: 'The school year in use',
     periodoTitolo:

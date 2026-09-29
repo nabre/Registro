@@ -3,9 +3,10 @@
 // `templates/`.
 //
 // Le colonne hanno anche un nome di serie, quello italiano, che `reportData.ts`
-// mette nelle `chiavi`: i modelli le scelgono con quello in ogni lingua. I
-// valori salvati nel documento (stato di un'ora, tipo di attività) escono come
-// sono in italiano, col nome del lessico nelle altre lingue.
+// mette nelle `chiavi`: i modelli le scelgono con quello in ogni lingua. Lo
+// stato di un'ora esce col nome del lessico in ogni lingua («Conclusa», non la
+// chiave `svolta` salvata); gli altri valori salvati (tipo di attività) escono
+// come sono in italiano, col nome del lessico nelle altre lingue.
 
 import { catalogo } from '../i18n/index.js'
 import { PERSONE, PIF, corto, del } from './lexicon.js'
@@ -189,7 +190,7 @@ const it = {
     'due. «Appello fatto su» è la quota ' +
     'di presenza sulle sole UD in cui l’appello è stato fatto, e dice quanto i primi due ' +
     'numeri sono affidabili.',
-  statoLezione: (stato: StatoLezione): string => stato,
+  statoLezione: (stato: StatoLezione): string => lessico.in('it').statiLezione[stato] ?? stato,
   /** A che punto è una tappa della scaletta, come lo scrive il documento. */
   statiAttivita: {
     'da-fare': 'da-fare',

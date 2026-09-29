@@ -57,7 +57,7 @@ Teams, voicebox, GitHub, Hugging Face, Whisper) invariati.
 | unità didattica (UD) | Lektion (Lekt.) | période (pér.) | period (per.) |
 | appello | Präsenzkontrolle | appel | attendance |
 | presente / assente / in ritardo / esonerato | anwesend / abwesend / verspätet / dispensiert | présent / absent / en retard / dispensé | present / absent / late / excused |
-| pianificata / svolta / annullata | geplant / gehalten / ausgefallen | prévue / donnée / annulée | planned / held / cancelled |
+| modificabile / conclusa / annullata (stato lezione) | bearbeitbar / abgeschlossen / ausgefallen | modifiable / terminée / annulée | editable / completed / cancelled |
 | verbale | Protokoll | procès-verbal | lesson record |
 | svolgimento | Durchführung | mise en œuvre | delivery |
 | piano lezione | Unterrichtsplan | plan de leçon | lesson plan |
@@ -90,7 +90,6 @@ Teams, voicebox, GitHub, Hugging Face, Whisper) invariati.
 | --- | --- | --- | --- |
 | documento | Dokument | document | document |
 | fascicolo di classe | Klassendossier | dossier de classe | class file |
-| composizione | Zusammenstellung | compilation | compilation |
 | archivio documentale | Dokumentenarchiv | archive des documents | document archive |
 | smistamento / Da smistare | Zuordnung / Zuzuordnen | tri / À trier | sorting / To sort |
 | pendenza | Pendenz | tâche en suspens | pending item |

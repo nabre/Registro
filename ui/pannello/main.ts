@@ -235,7 +235,6 @@ function ricevoStato (messaggio: MessaggioStato): void {
       storia: messaggio.storia,
       esportati: messaggio.esportati,
       archiviati: messaggio.archiviati,
-      composizioni: messaggio.composizioni,
       ocrAttivo: messaggio.ocrAttivo,
       programma: messaggio.programma,
       posta: messaggio.posta,

@@ -5,6 +5,7 @@
 import {
   SIGLE_PRESENZA,
   allieviAttivi,
+  ammetteRitardo,
   nomeCompleto,
   ordinaAllievi,
   riepilogaPresenze,
@@ -38,10 +39,22 @@ const SIGLE = new Map(STATI.map((v) => [v.valore, v.sigla]))
 // Le parole dell'appello nella lingua della pagina: le sigle restano quelle.
 const NOMI = new Map(STATI.map((v) => [v.valore, lessico().presenze[v.valore]]))
 
-/** Lo stato dopo questo, girando in tondo. */
-function prossimoStato (stato: StatoPresenza): StatoPresenza {
+/** Gli stati che una casella offre: senza ritardo dove non si può arrivare tardi. */
+function statiDi (conRitardo: boolean): typeof STATI {
+  return conRitardo ? STATI : STATI.filter((v) => v.valore !== 'ritardo')
+}
+
+/** Lo stato dopo questo, girando in tondo fra quelli offerti. */
+function prossimoStato (stato: StatoPresenza, conRitardo = true): StatoPresenza {
+  const giro = statiDi(conRitardo)
   const posto = STATI.findIndex((v) => v.valore === stato)
-  return STATI[(posto + 1) % STATI.length].valore
+  // Il seguente nel giro completo che la casella offre: da una «R» già scritta
+  // dove non va si prosegue come se ci fosse.
+  for (let passo = 1; passo <= STATI.length; passo++) {
+    const candidato = STATI[(posto + passo) % STATI.length]
+    if (giro.includes(candidato)) return candidato.valore
+  }
+  return 'non-impostato'
 }
 
 /** Lo stato di un gruppo di caselle se è uno solo; nullo se sono mescolate. */
@@ -61,11 +74,12 @@ const PRESSIONE_LUNGA = 450
 function menuStati (
   evento: MouseEvent,
   attuale: StatoPresenza | null,
+  conRitardo: boolean,
   al: (stato: StatoPresenza) => void,
 ): void {
   menuContestuale(
     evento,
-    STATI.map((v) => ({
+    statiDi(conRitardo).map((v) => ({
       testo: `${v.sigla} — ${NOMI.get(v.valore) ?? v.nome}`,
       simbolo: v.valore === attuale ? ('spunta' as const) : undefined,
       al: () => al(v.valore),
@@ -82,9 +96,11 @@ export function pulsanteStato (opzioni: {
   titolo: string
   fuoco: string
   classe?: string
+  /** Falso dove non si può arrivare in ritardo: il giro e il menu saltano «R». */
+  conRitardo?: boolean
   al: (prossimo: StatoPresenza) => Promise<Risposta>
 }): HTMLElement {
-  const { stato, titolo, fuoco, classe, al } = opzioni
+  const { stato, titolo, fuoco, classe, conRitardo = true, al } = opzioni
 
   /**
    * Lo stato che questa casella ha mandato e non ha ancora visto tornare.
@@ -136,7 +152,7 @@ export function pulsanteStato (opzioni: {
         title: testi().suggerimento(
           titolo,
           (stato ? NOMI.get(stato) : undefined) ?? testi().misto,
-          minuscolo(NOMI.get(prossimoStato(stato ?? 'non-impostato')) ?? ''),
+          minuscolo(NOMI.get(prossimoStato(stato ?? 'non-impostato', conRitardo)) ?? ''),
         ),
         'aria-label': titolo,
         'aria-haspopup': 'menu',
@@ -148,7 +164,7 @@ export function pulsanteStato (opzioni: {
           clicSpeso = false
           return
         }
-        manda(prossimoStato(inVolo ?? stato ?? 'non-impostato'))
+        manda(prossimoStato(inVolo ?? stato ?? 'non-impostato', conRitardo))
       },
       onpointerdown: (evento: PointerEvent) => {
         clicSpeso = false
@@ -160,7 +176,7 @@ export function pulsanteStato (opzioni: {
           attesa = null
           clicSpeso = true
           ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
-          menuStati(evento, inVolo ?? stato, manda)
+          menuStati(evento, inVolo ?? stato, conRitardo, manda)
         }, PRESSIONE_LUNGA)
       },
       onpointerup: fermaAttesa,
@@ -170,7 +186,7 @@ export function pulsanteStato (opzioni: {
       oncontextmenu: (evento: MouseEvent) => {
         fermaAttesa()
         clicSpeso = true
-        menuStati(evento, inVolo ?? stato, manda)
+        menuStati(evento, inVolo ?? stato, conRitardo, manda)
       },
     },
     stato ? SIGLE.get(stato) ?? '?' : '·',
@@ -231,6 +247,8 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
           // testo-fisso: chiave di fuoco
           fuoco: `riga-${allievo.id}`,
           classe: 'stato-presenza--riga',
+          // Una riga copre tutta l'ora: il ritardo va solo sulla sua UD.
+          conRitardo: ud.every(ammetteRitardo),
           al: (stato) =>
             azione({ tipo: 'presenze.riga', lezioneId: lezione.id, allievoId: allievo.id, stato }),
         }),
@@ -245,6 +263,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
             titolo: t.cella(nomeCompleto(allievo), unita.indice + 1, unita.inizio, unita.fine),
             // testo-fisso: chiave di fuoco
             fuoco: `ud-${allievo.id}-${unita.indice}`,
+            conRitardo: ammetteRitardo(unita),
             al: (stato) =>
               azione({
                 tipo: 'presenze.ud',
@@ -378,6 +397,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
                     // testo-fisso: chiave di fuoco
                     fuoco: `colonna-${unita.indice}`,
                     classe: 'stato-presenza--colonna',
+                    conRitardo: ammetteRitardo(unita),
                     al: (stato) =>
                       azione({
                         tipo: 'presenze.colonna',

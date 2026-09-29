@@ -35,12 +35,11 @@ const it = {
       check: 'Check',
       pianiLezione: 'Piani lezione',
       documenti: 'Documenti',
-      pianificata: 'Pianificata',
-      svolta: 'Svolta',
+      pianificata: 'Modificabile',
+      svolta: 'Conclusa',
       annullata: 'Annullata',
-      modificaOra: 'Modifica la lezione',
       testata: 'giovedì 14.11 · 08:20–10:00 · aula 12',
-      statoPianificata: 'pianificata',
+      statoPianificata: 'modificabile',
       presenti: 'presenti 18/20',
       ritardi: 'ritardi 1 · 1h 30',
       navigatore: '✓ 12. gio 14.11 · 08:20 · Frazioni',
@@ -54,9 +53,9 @@ const it = {
       oraDaFare: 'la lezione da fare',
       daCompilare: 'Da compilare',
       passataNonChiusa: 'passata, non chiusa',
-      chiusa: 'chiusa',
+      chiusa: 'sola lettura',
       oraPassa: 'la lezione passa',
-      svoltaPrima: 'Svolta anche prima che finisca',
+      riapri: 'Riapri',
       restaNonConta: 'resta, non conta',
       conConferma: 'con conferma',
       nellaBarra: '«da compilare» nella barra in fondo',
@@ -69,7 +68,7 @@ const it = {
           'La pagina di una lezione. Il corso non si sceglie qui: è quello della tendina **Corso** ' +
           'in cima, uguale per le cinque pagine del Registro.',
         legenda: [
-          'La riga delle azioni: i tre stati della lezione e **Modifica la lezione**.',
+          'La riga delle azioni: i tre stati della lezione.',
           'La testata: classe, giorno, orario, aula, e i conti dell’appello.',
           'Il navigatore: lezione prima, lezione dopo, e la tendina di tutte le lezioni del corso.',
           'Le tre schede, una per momento della lezione.',
@@ -80,15 +79,17 @@ const it = {
       {
         didascalia:
           'Il ciclo di una lezione. I buchi li decide l’orologio, non lo stato: una lezione passata ' +
-          'senza appello resta da compilare anche se è segnata svolta.',
+          'senza appello resta da compilare anche se è conclusa.',
         legenda: [
-          '**Pianificata**: la lezione prevista. Il suo pulsante ce la riporta da svolta o ' +
-            'annullata, senza perdere niente.',
-          'Passata senza appello, o senza **Svolta**: la barra in fondo propone per primo il ' +
+          '**Modificabile**: la lezione da fare, che si scrive e si corregge. **Riapri** ce la ' +
+            'riporta da conclusa, il suo pulsante da annullata, senza perdere niente.',
+          'Passata senza appello, o non **Conclusa**: la barra in fondo propone per primo il ' +
             'buco più vecchio.',
-          `**Svolta** chiude la lezione: esce dalle ${CARTE.pendenza.plurale}, e da lì il verbale ` +
-            'si può fare.',
-          '**Annullata**: resta nel registro, ma senza numero, fuori dai conti e dai buchi.',
+          `**Conclusa** chiude la lezione quando è finita: esce dalle ${CARTE.pendenza.plurale}, ` +
+            'diventa di sola lettura, e da lì il verbale si può fare.',
+          '**Annullata**: resta nel registro, ma senza numero, fuori dai conti e dai buchi. ' +
+            'Solo una lezione ancora vuota si annulla; il piano assegnato si stacca, dopo una ' +
+            'domanda.',
         ],
       },
     ],
@@ -105,7 +106,7 @@ const it = {
         termine: 'Le lezioni del corso',
         testo:
           'Le frecce passano alla lezione prima e a quella dopo dello stesso corso, la tendina salta ' +
-          'a una qualunque: «✓ 12. gio 14.11 · 08:20». **✓** è svolta, **×** annullata, e le ' +
+          'a una qualunque: «✓ 12. gio 14.11 · 08:20». **✓** è conclusa, **×** annullata, e le ' +
           'annullate non hanno numero. Accanto, «12 di 38».',
       },
       {
@@ -118,17 +119,28 @@ const it = {
       {
         termine: 'Stato della lezione',
         testo:
-          '**Pianificata**, **Svolta** e **Annullata** stanno nella riga delle azioni: quello ' +
-          'acceso è in vigore, e si preme quello dove si vuole portare la lezione. **Svolta** resta ' +
-          'in evidenza finché non la si preme; **Annullata** chiede conferma.',
+          '**Modificabile**, **Conclusa** e **Annullata** stanno nella riga delle azioni: quello ' +
+          'acceso è in vigore, e si preme quello dove si vuole portare la lezione. **Conclusa** si ' +
+          'accende solo a lezione finita — un giorno passato, o oggi dopo la sua ultima fascia — e ' +
+          'resta in evidenza finché non la si preme. **Annullata** vale solo per una lezione ancora ' +
+          'vuota e chiede conferma. In alto, nella barra dei comandi, una pastiglia dice il ' +
+          'tempo della lezione: **Passata**, **In corso** o **Da venire**.',
       },
       {
-        termine: 'Modifica la lezione',
+        termine: 'Lezione conclusa, in sola lettura',
         testo:
-          'Nella riga delle azioni, con **Modifica** accesa (in alto, accanto a **Proietta**, ' +
-          'o Ctrl+E): corso, data, aula, stato, orario e scaletta. In fondo **Duplica** — la ' +
-          'copia va poi spostata di data — ed **Elimina**. Spenta, la lezione si legge e si fa ' +
-          'l’appello, ma giorno e orario non si toccano per sbaglio.',
+          'Una lezione **Conclusa** non si modifica più dalle sue schede: appello, consegne, ' +
+          'check, piano, valutazioni, svolgimento e osservazioni restano da leggere. Anche ' +
+          'riga di comando e assistente trovano la porta chiusa. **Riapri**, nell’avviso in ' +
+          'testa, la rimette a **Modificabile** per correggerla; poi la si conclude di nuovo.',
+      },
+      {
+        termine: 'Giorno, orario, aula',
+        testo:
+          'Dalla pagina della lezione non si cambiano. Si cambiano nel calendario, con ' +
+          '**Modifica** accesa (in alto, accanto a **Proietta**, o Ctrl+E): un clic sulla ' +
+          'lezione apre il suo modulo — corso, data, aula, stato, orario e scaletta; in fondo ' +
+          '**Duplica** ed **Elimina**.',
       },
       {
         termine: 'Fasce e pause',
@@ -152,7 +164,7 @@ const it = {
         testo:
           'Agganciata a un evento della scuola ha corso, data e la fascia dell’evento spenti — ' +
           'l’aula anche, se l’evento la scrive — e niente Elimina; accanto si aggiungono fasce e ' +
-          'pause. **Sincronizza da ICS**, in fondo a **Modifica la lezione** o col tasto destro ' +
+          'pause. **Sincronizza da ICS**, in fondo al modulo della lezione o col tasto destro ' +
           'sulla lezione nel calendario, riporta orario, aula e stato a quel che dice il calendario.',
       },
       {
@@ -213,24 +225,24 @@ const it = {
         termine: 'Verbale',
         testo:
           'Il PDF della lezione — presenze, scaletta, argomenti, consegne, osservazioni — si fa dalla ' +
-          'pagina **Documenti**, scheda Lezioni. Solo per una lezione **Svolta**: prima uscirebbe ' +
+          'pagina **Documenti**, scheda Lezioni. Solo per una lezione **Conclusa**: prima uscirebbe ' +
           'senza appello e senza consuntivo.',
       },
       {
         termine: 'Supplenza',
         testo:
           'Un’ora tenuta al posto di un altro docente: con **Modifica** accesa, dal calendario si ' +
-          'apre la lezione e si spunta **Supplenza**. Le ore così segnate, se **Svolte**, finiscono ' +
+          'apre la lezione e si spunta **Supplenza**. Le ore così segnate, se **Concluse**, finiscono ' +
           'nella pagina **Documenti**, scheda Docente: la scheda del corso con quelle sole. Il suo ' +
           'PDF si rifà da sé con gli altri documenti del corso, anche quando si cambia una supplenza.',
       },
     ],
     note: [
-      'Segnare **Svolta** rifà il verbale di quella lezione e i PDF del corso — presenze, voti, ' +
+      'Concludere una lezione rifà il verbale di quella lezione e i PDF del corso — presenze, voti, ' +
         'schede — a ' +
         'meno che il rifacimento automatico non sia spento. Non aspetta: l’avviso arriva ' +
         'quando i file sono pronti.',
-      '**Svolta** non fa l’appello al posto di nessuno: su un’ora senza appello mette le ' +
+      '**Conclusa** non fa l’appello al posto di nessuno: su un’ora senza appello mette le ' +
         'righe, tutte **-**. L’ora resta «senza appello» finché non si segna almeno una casella.',
     ],
   },
@@ -250,7 +262,7 @@ const it = {
     figure: [
       {
         didascalia:
-          'Chi entra alla terza UD ha le prime due **X** e la terza **R**. Una riga tutta ' +
+          'Chi entra dopo la pausa ha le prime due **X** e la terza **R**. Una riga tutta ' +
           '**-** è appello ancora da fare; **·** su un pulsante vuol dire caselle diverse sotto.',
         legenda: [
           'Il pulsante di riga: lo stesso stato su tutta l’ora di una persona.',
@@ -275,7 +287,9 @@ const it = {
         testo:
           'Ogni casella nasce **-**, non detta. Un clic la porta avanti: **P** presente, **X** ' +
           'assente, **R** in ritardo, **E** esonerato, e di nuovo **-**. Premuta a lungo, o con ' +
-          'il tasto destro, apre il menu con tutti gli stati.',
+          'il tasto destro, apre il menu con tutti gli stati. La **R** c’è solo nella prima ' +
+          'UD della lezione e nella prima dopo una pausa: lì si arriva in ritardo; il ' +
+          'pulsante di riga non la offre.',
       },
       {
         termine: 'Una riga, una colonna',
@@ -320,7 +334,7 @@ const it = {
     ],
     note: [
       'A dire quali ore contano è l’appello, non lo stato: un’ora con l’appello fatto entra ' +
-        'nelle percentuali anche se nessuno l’ha segnata svolta. Restano fuori le annullate e ' +
+        'nelle percentuali anche se nessuno l’ha conclusa. Restano fuori le annullate e ' +
         'le caselle ancora **-**.',
       'In aula: **Tutti presenti**, poi un clic su chi manca. Chi arriva dopo si corregge ' +
         'dalla sua riga, casella per casella.',
@@ -720,6 +734,8 @@ const it = {
           'colonna del check. Sotto l’editor, **Pendenze e Check del corso** elenca le consegne ' +
           'ancora aperte e le colonne del check: **Inserisci nella scaletta** aggiunge in fondo ' +
           'una tappa di 5 minuti per evaderle, e «già in scaletta» segna quelle che l’hanno. ' +
+          'Se la scaletta ha già una tappa che verifica il check, un’altra colonna non ne ' +
+          'aggiunge una nuova: **Lega alla tappa del check** la verifica in quella. ' +
           'Nel registro della lezione le colonne **Pendenze** e **Check** della scaletta aprono ' +
           'quel che la tappa deve evadere.',
       },
@@ -777,12 +793,11 @@ export const testi = catalogo(it, {
         check: 'Check',
         pianiLezione: Molti(DE.pianoLezione),
         documenti: 'Dokumente',
-        pianificata: 'Geplant',
-        svolta: 'Gehalten',
+        pianificata: 'Bearbeitbar',
+        svolta: 'Abgeschlossen',
         annullata: 'Ausgefallen',
-        modificaOra: 'Stunde bearbeiten',
         testata: 'Donnerstag 14.11. · 08:20–10:00 · Zimmer 12',
-        statoPianificata: 'geplant',
+        statoPianificata: 'bearbeitbar',
         presenti: 'anwesend 18/20',
         ritardi: 'verspätet 1 · 1h 30',
         navigatore: '✓ 12. Do 14.11. · 08:20 · Brüche',
@@ -796,9 +811,9 @@ export const testi = catalogo(it, {
         oraDaFare: 'die kommende Stunde',
         daCompilare: 'Auszufüllen',
         passataNonChiusa: 'vorbei, nicht erledigt',
-        chiusa: 'abgeschlossen',
+        chiusa: 'schreibgeschützt',
         oraPassa: 'Zeit vergeht',
-        svoltaPrima: 'Gehalten auch vor dem Ende',
+        riapri: 'Wieder öffnen',
         restaNonConta: 'bleibt, zählt nicht',
         conConferma: 'mit Bestätigung',
         nellaBarra: '«auszufüllen» in der Leiste unten',
@@ -811,7 +826,7 @@ export const testi = catalogo(it, {
             'Die Seite einer Stunde. Den Kurs wählt man nicht hier: Es ist der aus der ' +
             'Auswahlliste **Kurs** oben, derselbe für die fünf Seiten des Klassenbuchs.',
           legenda: [
-            'Die Aktionsleiste: die drei Status der Stunde und **Stunde bearbeiten**.',
+            'Die Aktionsleiste: die drei Status der Stunde.',
             'Der Kopf: Klasse, Tag, Zeit, Zimmer und die Zahlen der Präsenzkontrolle.',
             'Der Navigator: Stunde davor, Stunde danach und die Auswahlliste aller Stunden des ' +
               'Kurses.',
@@ -823,17 +838,19 @@ export const testi = catalogo(it, {
         {
           didascalia:
             'Der Lauf einer Stunde. Über Lücken entscheidet die Uhr, nicht der Status: Eine ' +
-            'vergangene Stunde ohne Präsenzkontrolle bleibt auszufüllen, auch wenn sie als ' +
-            'gehalten markiert ist.',
+            'vergangene Stunde ohne Präsenzkontrolle bleibt auszufüllen, auch wenn sie ' +
+            'abgeschlossen ist.',
           legenda: [
-            '**Geplant**: die vorgesehene Stunde. Ihre Schaltfläche holt sie von gehalten oder ' +
-              'ausgefallen zurück, ohne etwas zu verlieren.',
-            'Vorbei ohne Präsenzkontrolle oder ohne **Gehalten**: Die Leiste unten schlägt ' +
+            '**Bearbeitbar**: die Stunde, die man schreibt und korrigiert. **Wieder öffnen** holt ' +
+              'sie von abgeschlossen zurück, ihre Schaltfläche von ausgefallen, ohne etwas zu verlieren.',
+            'Vorbei ohne Präsenzkontrolle oder nicht **Abgeschlossen**: Die Leiste unten schlägt ' +
               'zuerst die älteste Lücke vor.',
-            `**Gehalten** schliesst die Stunde ab: Sie verlässt die ${DE.pendenza.plurale}, ` +
-              'und von da an lässt sich das Protokoll erstellen.',
+            '**Abgeschlossen** schliesst die Stunde ab, wenn sie vorbei ist: Sie verlässt die ' +
+              `${DE.pendenza.plurale}, wird schreibgeschützt, und von da an lässt sich das ` +
+              'Protokoll erstellen.',
             '**Ausgefallen**: bleibt im Klassenbuch, aber ohne Nummer, ausserhalb der ' +
-              'Zählungen und der Lücken.',
+              'Zählungen und der Lücken. Nur eine noch leere Stunde fällt aus; der zugewiesene ' +
+              'Plan wird nach einer Rückfrage entfernt.',
           ],
         },
       ],
@@ -851,7 +868,7 @@ export const testi = catalogo(it, {
           termine: 'Die Stunden des Kurses',
           testo:
             'Die Pfeile gehen zur Stunde davor und danach desselben Kurses, die Auswahlliste ' +
-            'springt zu einer beliebigen: «✓ 12. Do 14.11. · 08:20». **✓** heisst gehalten, ' +
+            'springt zu einer beliebigen: «✓ 12. Do 14.11. · 08:20». **✓** heisst abgeschlossen, ' +
             '**×** ausgefallen, und ausgefallene haben keine Nummer. Daneben «12 von 38».',
         },
         {
@@ -864,19 +881,30 @@ export const testi = catalogo(it, {
         {
           termine: 'Status der Stunde',
           testo:
-            '**Geplant**, **Gehalten** und **Ausgefallen** stehen in der Aktionsleiste: Der ' +
+            '**Bearbeitbar**, **Abgeschlossen** und **Ausgefallen** stehen in der Aktionsleiste: Der ' +
             'eingeschaltete gilt, und man drückt den, zu dem man die Stunde bringen will. ' +
-            '**Gehalten** bleibt hervorgehoben, bis man es drückt; **Ausgefallen** fragt nach ' +
-            'einer Bestätigung.',
+            '**Abgeschlossen** geht erst, wenn die Stunde vorbei ist — ein vergangener Tag oder ' +
+            'heute nach ihrem letzten Zeitfenster —, und bleibt hervorgehoben, bis man es drückt. ' +
+            '**Ausgefallen** gilt nur für eine noch leere Stunde und fragt nach einer Bestätigung. ' +
+            'Oben in der Befehlsleiste sagt ein Abzeichen, wo die Stunde zeitlich steht: ' +
+            '**Vorbei**, **Läuft** oder **Kommt noch**.',
         },
         {
-          termine: 'Stunde bearbeiten',
+          termine: 'Abgeschlossene Stunde, schreibgeschützt',
           testo:
-            'In der Aktionsleiste, bei eingeschaltetem **Bearbeiten** (oben, neben ' +
-            '**Projizieren**, oder Ctrl+E): Kurs, Datum, Zimmer, Status, Zeit und Ablauf. Unten ' +
-            '**Duplizieren** — die Kopie muss man danach auf ein anderes Datum legen — und ' +
-            '**Löschen**. Ausgeschaltet liest man die Stunde und macht die Präsenzkontrolle, ' +
-            'aber Tag und Zeit ändert man nicht aus Versehen.',
+            'Eine **Abgeschlossene** Stunde lässt sich in ihren Registern nicht mehr ändern: ' +
+            'Präsenzkontrolle, Aufträge, Checks, Plan, Bewertungen, Verlauf und Beobachtungen ' +
+            'bleiben zum Lesen. Auch Kommandozeile und Assistent finden die Tür zu. ' +
+            '**Wieder öffnen** im Hinweis oben setzt sie auf **Bearbeitbar** zurück, um sie zu ' +
+            'korrigieren; danach schliesst man sie wieder ab.',
+        },
+        {
+          termine: 'Tag, Zeit, Zimmer',
+          testo:
+            'Auf der Seite der Stunde ändert man sie nicht. Man ändert sie im Kalender, bei ' +
+            'eingeschaltetem **Bearbeiten** (oben, neben **Projizieren**, oder Ctrl+E): Ein ' +
+            'Klick auf die Stunde öffnet ihr Formular — Kurs, Datum, Zimmer, Status, Zeit und ' +
+            'Ablauf; unten **Duplizieren** und **Löschen**.',
         },
         {
           termine: 'Zeitfenster und Pausen',
@@ -903,7 +931,7 @@ export const testi = catalogo(it, {
             'An einen Termin der Schule gebunden, sind Kurs, Datum und das Zeitfenster des ' +
             'Termins gesperrt — auch das Zimmer, wenn der Termin es angibt — und Löschen gibt ' +
             'es nicht; daneben lassen sich Zeitfenster und Pausen hinzufügen. **Aus ICS ' +
-            'synchronisieren**, unten in **Stunde bearbeiten** oder mit der rechten Maustaste ' +
+            'synchronisieren**, unten im Formular der Stunde oder mit der rechten Maustaste ' +
             'auf der Stunde im Kalender, setzt Zeit, Zimmer und Status auf das zurück, was der ' +
             'Kalender sagt.',
         },
@@ -968,7 +996,7 @@ export const testi = catalogo(it, {
           testo:
             'Das PDF der Stunde — Präsenzen, Ablauf, Themen, Aufträge, Beobachtungen — erstellt ' +
             'man auf der Seite **Dokumente**, Reiter Stunden. Nur für eine Stunde, ' +
-            'die **Gehalten** ist: Vorher käme es ohne Präsenzkontrolle und ohne Rückblick ' +
+            'die **Abgeschlossen** ist: Vorher käme es ohne Präsenzkontrolle und ohne Rückblick ' +
             'heraus.',
         },
         {
@@ -976,16 +1004,16 @@ export const testi = catalogo(it, {
           testo:
             'Eine Stunde an Stelle einer anderen Lehrperson: Mit eingeschaltetem **Bearbeiten** ' +
             'öffnet man die Stunde im Kalender und hakt **Stellvertretung** an. So markierte ' +
-            'Stunden, wenn **Gehalten**, landen auf der Seite **Dokumente**, Reiter Lehrperson: ' +
+            'Stunden, wenn **Abgeschlossen**, landen auf der Seite **Dokumente**, Reiter Lehrperson: ' +
             'das Kursblatt nur mit diesen. Sein PDF wird mit den anderen Dokumenten des Kurses von ' +
             'selbst neu erstellt, auch wenn man eine Stellvertretung ändert.',
         },
       ],
       note: [
-        '**Gehalten** zu markieren erstellt das Protokoll dieser Stunde und die PDF des Kurses ' +
+        'Eine Stunde abzuschliessen erstellt das Protokoll dieser Stunde und die PDF des Kurses ' +
           '— Präsenzen, Noten, Blätter — neu, sofern das automatische Neuerstellen nicht ' +
           'ausgeschaltet ist. Es wartet nicht: Die Meldung kommt, wenn die Dateien bereit sind.',
-        '**Gehalten** macht niemandem die Präsenzkontrolle: Auf einer Stunde ohne ' +
+        '**Abgeschlossen** macht niemandem die Präsenzkontrolle: Auf einer Stunde ohne ' +
           'Präsenzkontrolle legt es die Zeilen an, alle **-**. Die Stunde bleibt «ohne ' +
           'Präsenzkontrolle», bis mindestens ein Feld gesetzt ist.',
       ],
@@ -1008,7 +1036,7 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'Wer zur dritten Lektion kommt, hat bei den ersten beiden **X** und bei der dritten ' +
+            'Wer nach der Pause kommt, hat bei den ersten beiden **X** und bei der dritten ' +
             '**R**. Eine Zeile nur mit **-** ist eine noch offene Präsenzkontrolle; **·** auf ' +
             'einer Schaltfläche heisst, dass die Felder darunter verschieden sind.',
           legenda: [
@@ -1036,7 +1064,9 @@ export const testi = catalogo(it, {
           testo:
             'Jedes Feld beginnt mit **-**, nicht erfasst. Ein Klick bringt es weiter: **P** ' +
             'anwesend, **X** abwesend, **R** verspätet, **E** dispensiert, und wieder **-**. ' +
-            'Lange gedrückt oder mit der rechten Maustaste öffnet es das Menü mit allen Status.',
+            'Lange gedrückt oder mit der rechten Maustaste öffnet es das Menü mit allen Status. ' +
+            'Das **R** gibt es nur in der ersten Lektion der Stunde und in der ersten nach einer ' +
+            'Pause: Nur dort kommt man zu spät; die Zeilentaste bietet es nicht an.',
         },
         {
           termine: 'Eine Zeile, eine Spalte',
@@ -1083,8 +1113,8 @@ export const testi = catalogo(it, {
       ],
       note: [
         'Welche Stunden zählen, sagt die Präsenzkontrolle, nicht der Status: Eine Stunde mit ' +
-          'erledigter Präsenzkontrolle geht in die Prozente ein, auch wenn niemand sie als ' +
-          'gehalten markiert hat. Draussen bleiben die ausgefallenen und die Felder, die noch ' +
+          'erledigter Präsenzkontrolle geht in die Prozente ein, auch wenn niemand sie ' +
+          'abgeschlossen hat. Draussen bleiben die ausgefallenen und die Felder, die noch ' +
           '**-** sind.',
         'Im Zimmer: **Alle anwesend**, dann ein Klick auf die, die fehlen. Wer später kommt, ' +
           'wird in seiner Zeile korrigiert, Feld für Feld.',
@@ -1508,6 +1538,8 @@ export const testi = catalogo(it, {
             '**Pendenzen und Checks des Kurses** die offenen Aufträge und die Spalten des ' +
             'Checks auf: **In Ablauf einfügen** fügt am Ende eine Etappe von 5 Minuten hinzu, ' +
             'um sie zu erledigen, und «bereits im Ablauf» markiert die, die schon eine haben. ' +
+            'Hat der Ablauf schon eine Etappe, die den Check prüft, fügt eine weitere Spalte ' +
+            'keine neue hinzu: **Mit Check-Etappe verknüpfen** prüft sie in jener. ' +
             'Auf der Seite der Stunde öffnen die Spalten **Pendenzen** und **Check** des ' +
             'Ablaufs, was die Etappe erledigen soll.',
         },
@@ -1568,12 +1600,11 @@ export const testi = catalogo(it, {
         check: 'Check',
         pianiLezione: 'Plans de leçon',
         documenti: 'Documents',
-        pianificata: 'Prévue',
-        svolta: 'Donnée',
+        pianificata: 'Modifiable',
+        svolta: 'Terminée',
         annullata: 'Annulée',
-        modificaOra: 'Modifier la leçon',
         testata: 'jeudi 14.11 · 08:20–10:00 · salle 12',
-        statoPianificata: 'prévue',
+        statoPianificata: 'modifiable',
         presenti: 'présents 18/20',
         ritardi: 'retards 1 · 1h 30',
         navigatore: '✓ 12. jeu 14.11 · 08:20 · Fractions',
@@ -1587,9 +1618,9 @@ export const testi = catalogo(it, {
         oraDaFare: 'la leçon à venir',
         daCompilare: 'À remplir',
         passataNonChiusa: 'passée, pas close',
-        chiusa: 'close',
+        chiusa: 'lecture seule',
         oraPassa: 'l’heure passe',
-        svoltaPrima: 'Donnée même avant la fin',
+        riapri: 'Rouvrir',
         restaNonConta: 'reste, ne compte pas',
         conConferma: 'avec confirmation',
         nellaBarra: '« à remplir » dans la barre du bas',
@@ -1602,7 +1633,7 @@ export const testi = catalogo(it, {
             'La page d’une leçon. Le cours ne se choisit pas ici : c’est celui de la liste ' +
             '**Cours** en haut, le même pour les cinq pages du Registre.',
           legenda: [
-            'La barre d’actions : les trois états de la leçon et **Modifier la leçon**.',
+            'La barre d’actions : les trois états de la leçon.',
             'L’en-tête : classe, jour, horaire, salle, et les comptes de l’appel.',
             'Le navigateur : leçon précédente, leçon suivante, et la liste de toutes les leçons ' +
               'du cours.',
@@ -1614,16 +1645,17 @@ export const testi = catalogo(it, {
         {
           didascalia:
             'Le cycle d’une leçon. Les trous, c’est l’horloge qui les décide, pas l’état : une ' +
-            'leçon passée sans appel reste à remplir même si elle est marquée donnée.',
+            'leçon passée sans appel reste à remplir même si elle est terminée.',
           legenda: [
-            '**Prévue** : la leçon prévue. Son bouton l’y ramène depuis donnée ou annulée, ' +
-              'sans rien perdre.',
-            'Passée sans appel, ou sans **Donnée** : la barre du bas propose d’abord le trou le ' +
+            '**Modifiable** : la leçon à faire, qu’on écrit et qu’on corrige. **Rouvrir** l’y ' +
+              'ramène depuis terminée, son bouton depuis annulée, sans rien perdre.',
+            'Passée sans appel, ou pas **Terminée** : la barre du bas propose d’abord le trou le ' +
               'plus ancien.',
-            `**Donnée** ferme la leçon : elle sort des ${FR.pendenza.plurale}, et dès lors le ` +
-              'procès-verbal peut se faire.',
+            `**Terminée** ferme la leçon une fois finie : elle sort des ${FR.pendenza.plurale}, ` +
+              'passe en lecture seule, et dès lors le procès-verbal peut se faire.',
             '**Annulée** : reste dans le registre, mais sans numéro, hors des comptes et des ' +
-              'trous.',
+              'trous. Seule une leçon encore vide s’annule ; le plan attribué est retiré, après ' +
+              'une question.',
           ],
         },
       ],
@@ -1641,7 +1673,7 @@ export const testi = catalogo(it, {
           termine: 'Les leçons du cours',
           testo:
             'Les flèches passent à la leçon précédente et à la suivante du même cours, la liste ' +
-            'saute à n’importe laquelle : « ✓ 12. jeu 14.11 · 08:20 ». **✓** veut dire donnée, ' +
+            'saute à n’importe laquelle : « ✓ 12. jeu 14.11 · 08:20 ». **✓** veut dire terminée, ' +
             '**×** annulée, et les annulées n’ont pas de numéro. À côté, « 12 sur 38 ».',
         },
         {
@@ -1654,19 +1686,29 @@ export const testi = catalogo(it, {
         {
           termine: 'État de la leçon',
           testo:
-            '**Prévue**, **Donnée** et **Annulée** sont dans la barre d’actions : celui qui est ' +
+            '**Modifiable**, **Terminée** et **Annulée** sont dans la barre d’actions : celui qui est ' +
             'allumé est en vigueur, et on appuie sur celui où l’on veut amener la leçon. ' +
-            '**Donnée** reste mis en avant tant qu’on ne l’a pas pressé ; **Annulée** demande ' +
-            'une confirmation.',
+            '**Terminée** ne s’active qu’une fois la leçon finie — un jour passé, ou aujourd’hui ' +
+            'après sa dernière plage — et reste mis en avant tant qu’on ne l’a pas pressé. ' +
+            '**Annulée** ne vaut que pour une leçon encore vide et demande une confirmation. ' +
+            'En haut, dans la barre de commandes, une pastille dit où en est la leçon : ' +
+            '**Passée**, **En cours** ou **À venir**.',
         },
         {
-          termine: 'Modifier la leçon',
+          termine: 'Leçon terminée, en lecture seule',
           testo:
-            'Dans la barre d’actions, avec **Modifier** activé (en haut, à côté de ' +
-            '**Projeter**, ou Ctrl+E) : cours, date, salle, état, horaire et déroulement. En ' +
-            'bas, **Dupliquer** — la copie doit ensuite être déplacée à une autre date — et ' +
-            '**Supprimer**. Désactivé, on lit la leçon et on fait l’appel, mais le jour et ' +
-            'l’horaire ne se touchent pas par erreur.',
+            'Une leçon **Terminée** ne se modifie plus depuis ses onglets : appel, devoirs, ' +
+            'checks, plan, évaluations, déroulement et observations restent à lire. La ligne ' +
+            'de commande et l’assistant trouvent aussi porte close. **Rouvrir**, dans l’avis en ' +
+            'haut, la remet à **Modifiable** pour la corriger ; ensuite on la termine de nouveau.',
+        },
+        {
+          termine: 'Jour, horaire, salle',
+          testo:
+            'Ils ne se changent pas depuis la page de la leçon, mais dans le calendrier, avec ' +
+            '**Modifier** activé (en haut, à côté de **Projeter**, ou Ctrl+E) : un clic sur la ' +
+            'leçon ouvre son formulaire — cours, date, salle, état, horaire et déroulement ; en ' +
+            'bas, **Dupliquer** et **Supprimer**.',
         },
         {
           termine: 'Plages et pauses',
@@ -1693,7 +1735,7 @@ export const testi = catalogo(it, {
             'Ancrée à un événement de l’école, elle a le cours, la date et la plage de ' +
             'l’événement désactivés — la salle aussi, si l’événement l’indique — et pas de ' +
             'Supprimer ; à côté, on ajoute des plages et des pauses. **Synchroniser depuis ' +
-            'ICS**, en bas de **Modifier la leçon** ou au clic droit sur la leçon dans le ' +
+            'ICS**, en bas du formulaire de la leçon ou au clic droit sur la leçon dans le ' +
             'calendrier, ramène l’horaire, la salle et l’état à ce que dit le calendrier.',
         },
         {
@@ -1755,23 +1797,23 @@ export const testi = catalogo(it, {
           testo:
             'Le PDF de la leçon — présences, déroulement, sujets, devoirs, observations — se ' +
             'fait depuis la page **Documents**, onglet Leçons. Seulement pour une leçon ' +
-            '**Donnée** : avant, il sortirait sans appel et sans bilan.',
+            '**Terminée** : avant, il sortirait sans appel et sans bilan.',
         },
         {
           termine: 'Remplacement',
           testo:
             'Une leçon donnée à la place d’un autre enseignant : avec **Modifier** activé, on ' +
             'ouvre la leçon depuis le calendrier et on coche **Remplacement**. Les leçons ainsi ' +
-            'marquées, si **Données**, arrivent dans la page **Documents**, onglet Enseignant : ' +
+            'marquées, si **Terminées**, arrivent dans la page **Documents**, onglet Enseignant : ' +
             'la fiche du cours avec elles seules. Son PDF se refait tout seul avec les autres ' +
             'documents du cours, même quand on modifie un remplacement.',
         },
       ],
       note: [
-        'Marquer **Donnée** refait le procès-verbal de cette leçon et les PDF du cours — ' +
+        'Terminer une leçon refait le procès-verbal de cette leçon et les PDF du cours — ' +
           'présences, notes, fiches —, à moins que la régénération automatique ne soit ' +
           'désactivée. Il n’attend pas : l’avis arrive quand les fichiers sont prêts.',
-        '**Donnée** ne fait l’appel à la place de personne : sur une leçon sans appel, il met ' +
+        '**Terminée** ne fait l’appel à la place de personne : sur une leçon sans appel, il met ' +
           'les lignes, toutes à **-**. La leçon reste « sans appel » tant qu’on n’a pas ' +
           'marqué au moins une case.',
       ],
@@ -1794,7 +1836,7 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'Qui arrive à la troisième période a **X** aux deux premières et **R** à la ' +
+            'Qui arrive après la pause a **X** aux deux premières périodes et **R** à la ' +
             'troisième. Une ligne tout en **-**, c’est un appel encore à faire ; **·** sur un ' +
             'bouton veut dire que les cases dessous sont différentes.',
           legenda: [
@@ -1821,7 +1863,9 @@ export const testi = catalogo(it, {
           testo:
             'Chaque case naît **-**, non saisie. Un clic la fait avancer : **P** présent, **X** ' +
             'absent, **R** en retard, **E** dispensé, et de nouveau **-**. En appui long, ou au ' +
-            'clic droit, elle ouvre le menu avec tous les états.',
+            'clic droit, elle ouvre le menu avec tous les états. Le **R** n’existe qu’à la ' +
+            'première période de la leçon et à la première après une pause : c’est là qu’on ' +
+            'arrive en retard ; le bouton de ligne ne le propose pas.',
         },
         {
           termine: 'Une ligne, une colonne',
@@ -1868,7 +1912,7 @@ export const testi = catalogo(it, {
       ],
       note: [
         'Ce qui dit quelles leçons comptent, c’est l’appel, pas l’état : une leçon avec ' +
-          'l’appel fait entre dans les pourcentages même si personne ne l’a marquée donnée. ' +
+          'l’appel fait entre dans les pourcentages même si personne ne l’a terminée. ' +
           'Restent dehors les annulées et les cases encore à **-**.',
         'En classe : **Tous présents**, puis un clic sur qui manque. Qui arrive plus tard se ' +
           'corrige depuis sa ligne, case par case.',
@@ -2288,7 +2332,9 @@ export const testi = catalogo(it, {
             'à une colonne du check. Sous l’éditeur, **Tâches en suspens et checks du cours** ' +
             'liste les devoirs encore ouverts et les colonnes du check : **Insérer dans le ' +
             'déroulement** ajoute à la fin une étape de 5 minutes pour les traiter, et « déjà ' +
-            'dans le déroulement » signale ceux qui l’ont. Depuis la leçon, les colonnes ' +
+            'dans le déroulement » signale ceux qui l’ont. Si le déroulement a déjà une étape ' +
+            'qui vérifie le check, une autre colonne n’en ajoute pas de nouvelle : **Lier à ' +
+            'l’étape du check** la vérifie dans celle-là. Depuis la leçon, les colonnes ' +
             '**Tâches en suspens** et **Check** du déroulement ouvrent ce que l’étape doit ' +
             'traiter.',
         },
@@ -2346,12 +2392,11 @@ export const testi = catalogo(it, {
         check: 'Check',
         pianiLezione: 'Lesson plans',
         documenti: 'Documents',
-        pianificata: 'Planned',
-        svolta: 'Held',
+        pianificata: 'Editable',
+        svolta: 'Completed',
         annullata: 'Cancelled',
-        modificaOra: 'Edit the lesson',
         testata: 'Thursday 14.11 · 08:20–10:00 · room 12',
-        statoPianificata: 'planned',
+        statoPianificata: 'editable',
         presenti: 'present 18/20',
         ritardi: 'late 1 · 1h 30',
         navigatore: '✓ 12. Thu 14.11 · 08:20 · Fractions',
@@ -2365,9 +2410,9 @@ export const testi = catalogo(it, {
         oraDaFare: 'the lesson to come',
         daCompilare: 'To fill in',
         passataNonChiusa: 'past, not closed',
-        chiusa: 'closed',
+        chiusa: 'read-only',
         oraPassa: 'time passes',
-        svoltaPrima: 'Held even before it ends',
+        riapri: 'Reopen',
         restaNonConta: 'stays, doesn’t count',
         conConferma: 'with confirmation',
         nellaBarra: '“to fill in” in the bottom bar',
@@ -2380,7 +2425,7 @@ export const testi = catalogo(it, {
             'The page of a lesson. The course is not chosen here: it is the one in the ' +
             '**Course** drop-down at the top, the same for all five Register pages.',
           legenda: [
-            'The action bar: the lesson’s three states and **Edit the lesson**.',
+            'The action bar: the lesson’s three states.',
             'The header: class, day, time, room, and the attendance counts.',
             'The navigator: previous lesson, next lesson, and the drop-down of all the ' +
               'course’s lessons.',
@@ -2392,16 +2437,17 @@ export const testi = catalogo(it, {
         {
           didascalia:
             'A lesson’s cycle. Gaps are decided by the clock, not the state: a past lesson ' +
-            'without attendance stays to be filled in even if it is marked as held.',
+            'without attendance stays to be filled in even if it is completed.',
           legenda: [
-            '**Planned**: the scheduled lesson. Its button brings it back from held or ' +
-              'cancelled, without losing anything.',
-            'Past without attendance, or without **Held**: the bottom bar suggests the oldest ' +
+            '**Editable**: the lesson to do, which you write and correct. **Reopen** brings it ' +
+              'back from completed, its button from cancelled, without losing anything.',
+            'Past without attendance, or not **Completed**: the bottom bar suggests the oldest ' +
               'gap first.',
-            `**Held** closes the lesson: it leaves the ${EN.pendenza.plurale}, and from then ` +
-              'on the lesson record can be made.',
+            `**Completed** closes the lesson once it is over: it leaves the ${EN.pendenza.plurale}, ` +
+              'becomes read-only, and from then on the lesson record can be made.',
             '**Cancelled**: stays in the register, but with no number, out of the counts and ' +
-              'the gaps.',
+              'the gaps. Only a lesson still empty can be cancelled; the assigned plan is ' +
+              'removed, after a question.',
           ],
         },
       ],
@@ -2419,7 +2465,7 @@ export const testi = catalogo(it, {
           termine: 'The course’s lessons',
           testo:
             'The arrows go to the previous and next lesson of the same course, the drop-down ' +
-            'jumps to any of them: “✓ 12. Thu 14.11 · 08:20”. **✓** means held, **×** ' +
+            'jumps to any of them: “✓ 12. Thu 14.11 · 08:20”. **✓** means completed, **×** ' +
             'cancelled, and cancelled lessons have no number. Next to it, “12 of 38”.',
         },
         {
@@ -2432,17 +2478,28 @@ export const testi = catalogo(it, {
         {
           termine: 'State of the lesson',
           testo:
-            '**Planned**, **Held** and **Cancelled** are in the action bar: the one lit up is ' +
-            'in force, and you press the one you want to take the lesson to. **Held** stays ' +
-            'highlighted until you press it; **Cancelled** asks for confirmation.',
+            '**Editable**, **Completed** and **Cancelled** are in the action bar: the one lit up is ' +
+            'in force, and you press the one you want to take the lesson to. **Completed** only ' +
+            'works once the lesson is over — a past day, or today after its last time slot — and ' +
+            'stays highlighted until you press it. **Cancelled** is only for a lesson still empty ' +
+            'and asks for confirmation. At the top, in the command bar, a badge tells where the ' +
+            'lesson stands in time: **Over**, **In progress** or **Upcoming**.',
         },
         {
-          termine: 'Edit the lesson',
+          termine: 'Completed lesson, read-only',
           testo:
-            'In the action bar, with **Edit** on (at the top, next to **Project**, or Ctrl+E): ' +
-            'course, date, room, state, time and outline. At the bottom **Duplicate** — the ' +
-            'copy then needs moving to another date — and **Delete**. With it off, you read ' +
-            'the lesson and take attendance, but day and time cannot be changed by mistake.',
+            'A **Completed** lesson can no longer be changed from its tabs: attendance, assignments, ' +
+            'checks, plan, assessments, record and observations stay readable. The command ' +
+            'line and the assistant find the door shut too. **Reopen**, in the notice at the ' +
+            'top, sets it back to **Editable** to correct it; then you complete it again.',
+        },
+        {
+          termine: 'Day, time, room',
+          testo:
+            'They are not changed from the lesson’s page, but in the calendar, with **Edit** on ' +
+            '(at the top, next to **Project**, or Ctrl+E): a click on the lesson opens its ' +
+            'form — course, date, room, state, time and outline; at the bottom **Duplicate** ' +
+            'and **Delete**.',
         },
         {
           termine: 'Slots and breaks',
@@ -2467,7 +2524,7 @@ export const testi = catalogo(it, {
           testo:
             'Tied to a school event, it has course, date and the event’s slot locked — the ' +
             'room too, if the event gives one — and no Delete; alongside, slots and breaks can ' +
-            'be added. **Sync from ICS**, at the bottom of **Edit the lesson** or by ' +
+            'be added. **Sync from ICS**, at the bottom of the lesson’s form or by ' +
             'right-clicking the lesson in the calendar, brings time, room and state back to ' +
             'what the calendar says.',
         },
@@ -2530,22 +2587,22 @@ export const testi = catalogo(it, {
           testo:
             'The lesson’s PDF — attendance, outline, topics, assignments, observations — is ' +
             'made from the **Documents** page, Lessons tab. Only for a lesson that is ' +
-            '**Held**: before that it would come out without attendance and without a review.',
+            '**Completed**: before that it would come out without attendance and without a review.',
         },
         {
           termine: 'Substitution',
           testo:
             'A lesson taught in place of another teacher: with **Edit** on, open the lesson from ' +
-            'the calendar and tick **Substitution**. Lessons marked this way, once **Held**, end ' +
+            'the calendar and tick **Substitution**. Lessons marked this way, once **Completed**, end ' +
             'up on the **Documents** page, Teacher tab: the course sheet with those alone. Its PDF ' +
             'is remade on its own with the other course documents, also when a substitution changes.',
         },
       ],
       note: [
-        'Marking **Held** remakes that lesson’s record and the course PDFs — attendance, ' +
+        'Completing a lesson remakes that lesson’s record and the course PDFs — attendance, ' +
           'grades, sheets — unless automatic remaking is turned off. It does not wait: the ' +
           'notice arrives when the files are ready.',
-        '**Held** does not take attendance for anyone: on a lesson without attendance it ' +
+        '**Completed** does not take attendance for anyone: on a lesson without attendance it ' +
           'adds the rows, all **-**. The lesson stays “without attendance” until at least one ' +
           'cell is marked.',
       ],
@@ -2568,7 +2625,7 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'Someone arriving for the third period has **X** in the first two and **R** in the ' +
+            'Someone arriving after the break has **X** in the first two periods and **R** in the ' +
             'third. A row of all **-** is attendance still to be taken; **·** on a button means ' +
             'the cells below differ.',
           legenda: [
@@ -2594,7 +2651,9 @@ export const testi = catalogo(it, {
           testo:
             'Every cell starts as **-**, not set. A click moves it on: **P** present, **X** ' +
             'absent, **R** late, **E** excused, and back to **-**. Pressed and held, or with the ' +
-            'right button, it opens the menu with every state.',
+            'right button, it opens the menu with every state. **R** exists only in the first ' +
+            'period of the lesson and the first after a break: that is where someone arrives ' +
+            'late; the row button doesn’t offer it.',
         },
         {
           termine: 'A row, a column',
@@ -2640,7 +2699,7 @@ export const testi = catalogo(it, {
       ],
       note: [
         'What decides which lessons count is attendance, not the state: a lesson with ' +
-          'attendance taken goes into the percentages even if nobody marked it as held. ' +
+          'attendance taken goes into the percentages even if nobody completed it. ' +
           'Cancelled lessons and cells still at **-** stay out.',
         'In class: **All present**, then a click on whoever is missing. Someone arriving ' +
           'later is corrected from their row, cell by cell.',
@@ -3044,7 +3103,9 @@ export const testi = catalogo(it, {
             'check** to a column of the check. Below the editor, **Pending items and checks of ' +
             'the course** lists the submissions still open and the check’s columns: **Insert ' +
             'into plan** adds a 5-minute step at the end to clear them, and “already in plan” ' +
-            'marks those that have one. In the lesson, the outline’s **Pending items** and ' +
+            'marks those that have one. If the outline already has a step that checks the ' +
+            'check, another column adds no new one: **Link to check step** checks it in that ' +
+            'step. In the lesson, the outline’s **Pending items** and ' +
             '**Check** columns open what the step is meant to clear.',
         },
         {

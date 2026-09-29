@@ -1072,7 +1072,7 @@
           },
           "automatico": {
             "type": "boolean",
-            "description": "Vero dal giro che allinea da solo: ogni lezione si ricontrolla (pianificata, senza appello né testi, senza scontri) e una che non passa si rifiuta"
+            "description": "Vero dal giro che allinea da solo: ogni lezione si ricontrolla (modificabile, senza appello né testi, senza scontri) e una che non passa si rifiuta"
           },
           "crea": {
             "type": "array",
@@ -2928,83 +2928,6 @@
       }
     },
     {
-      "nome": "composizioni.aggiorna",
-      "funzione": "composizioni_aggiorna",
-      "genere": "scrittura",
-      "titolo": "Rifà il PDF di un fascicolo con i fogli che ci sono adesso",
-      "idempotente": true,
-      "riga": "regi chiama composizioni.aggiorna --id <testo>",
-      "parametri": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "La composizione da rifare",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "id"
-        ],
-        "additionalProperties": true
-      }
-    },
-    {
-      "nome": "composizioni.crea",
-      "funzione": "composizioni_crea",
-      "genere": "scrittura",
-      "titolo": "Mette i documenti scelti in un PDF solo, sotto un nome",
-      "idempotente": true,
-      "riga": "regi chiama composizioni.crea --nome <testo> --percorsi <elenco>",
-      "parametri": {
-        "type": "object",
-        "properties": {
-          "nome": {
-            "type": "string",
-            "description": "È anche il nome del file che ne esce",
-            "minLength": 1
-          },
-          "percorsi": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "description": "I documenti da combinare, nell’ordine in cui vanno in fila"
-          }
-        },
-        "required": [
-          "nome",
-          "percorsi"
-        ],
-        "additionalProperties": true
-      }
-    },
-    {
-      "nome": "composizioni.elimina",
-      "funzione": "composizioni_elimina",
-      "genere": "scrittura",
-      "titolo": "Butta via un fascicolo: la ricetta e il suo PDF",
-      "idempotente": true,
-      "riga": "regi chiama composizioni.elimina --id <testo>",
-      "parametri": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "id"
-        ],
-        "additionalProperties": true
-      }
-    },
-    {
       "nome": "consegne.consegnato",
       "funzione": "consegne_consegnato",
       "genere": "scrittura",
@@ -4024,7 +3947,7 @@
       "nome": "documenti.inventario",
       "funzione": "documenti_inventario",
       "genere": "lettura",
-      "titolo": "Che cosa c’è scritto nel documento d’anno — fogli e fascicoli — e con quali modelli escono",
+      "titolo": "Che cosa c’è scritto nel documento d’anno, e con quali modelli escono i fogli",
       "idempotente": true,
       "riga": "regi chiama documenti.inventario",
       "parametri": {
@@ -4070,26 +3993,6 @@
                 "campo": "misura",
                 "testo": "Misura",
                 "formato": "byte"
-              }
-            ]
-          },
-          {
-            "tipo": "tabella",
-            "da": "composizioni",
-            "titolo": "Fascicoli",
-            "colonne": [
-              {
-                "campo": "nome",
-                "testo": "Fascicolo"
-              },
-              {
-                "campo": "percorsi",
-                "testo": "Fogli",
-                "formato": "elenco"
-              },
-              {
-                "campo": "aggiornataIl",
-                "testo": "Aggiornato"
               }
             ]
           },
@@ -6989,7 +6892,7 @@
       "nome": "ore.stato",
       "funzione": "ore_stato",
       "genere": "scrittura",
-      "titolo": "Pianificata, svolta o annullata",
+      "titolo": "Modificabile («pianificata»), conclusa («svolta») o annullata",
       "idempotente": true,
       "collezioni": [
         "lezioni"

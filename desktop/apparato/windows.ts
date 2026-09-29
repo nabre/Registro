@@ -17,7 +17,7 @@ import { dentro, icona, radiceApp } from './context.js'
 import { postoDi, ricordaPosto } from './placement.js'
 import { apriConsole } from './dev.js'
 import { EventEmitter, type Event } from '../../core/apparato/events.js'
-import { ALTEZZA_BARRA_TITOLO, coloreSfondo, fasciaDelTema, preferenzeConPonte, ricordaFascia } from './theme.js'
+import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, togliMenu } from './theme.js'
 import { chiudiLeVieDiFuga } from './navigation.js'
 import { Uri } from '../../core/apparato/uri.js'
 import { CANALE, CANALE_INTERFACCIA } from './channels.js'
@@ -262,27 +262,22 @@ class FinestraPannello implements WebviewPanel {
   }
 }
 
-/** L'unico pannello che disegna la propria barra del titolo; gli altri hanno la cornice di sistema. */
+/**
+ * Il pannello del registro disegna la propria barra del titolo, come le
+ * finestre del guscio (benvenuto, impostazioni, dialoghi, lettore: le opzioni
+ * sono le stesse, `cornicePropria` in `theme.ts`). Gli altri pannelli no: lo
+ * schermo della classe mostra solo la lezione, e l'assistente tiene la cornice
+ * di sistema.
+ */
 const CON_BARRA_PROPRIA = 'registroDocenti.pannello'
 
 /**
- * Le opzioni della cornice. Su macOS si posizionano i semafori; su Windows e
- * Linux i pulsanti arrivano come `titleBarOverlay`, e `autoHideMenuBar` nasconde
- * la barra dei menu (Alt e gli acceleratori funzionano ancora).
+ * Le opzioni della cornice. Senza barra propria, il menu nascosto come nel
+ * pannello: Alt lo mostra, gli acceleratori valgono.
  */
 function cornice (tipo: string): Record<string, unknown> {
-  if (tipo !== CON_BARRA_PROPRIA) return {}
-  if (process.platform === 'darwin') {
-    return {
-      titleBarStyle: 'hiddenInset',
-      trafficLightPosition: { x: 14, y: (ALTEZZA_BARRA_TITOLO - 16) / 2 },
-    }
-  }
-  return {
-    titleBarStyle: 'hidden',
-    titleBarOverlay: fasciaDelTema(),
-    autoHideMenuBar: true,
-  }
+  if (tipo !== CON_BARRA_PROPRIA) return { autoHideMenuBar: true }
+  return { ...cornicePropria() }
 }
 
 export function createWebviewPanel (
@@ -313,9 +308,11 @@ export function createWebviewPanel (
   })
   // Niente navigazione né finestre figlie: vedi `navigation.ts`.
   chiudiLeVieDiFuga(finestra)
+  // Lo schermo della classe non mostra comandi, nemmeno con Alt.
+  if (tipo.endsWith('proiezione')) togliMenu(finestra)
 
   // Perché `theme.ts` ne aggiorni la fascia al cambio di tema.
-  if (tipo === CON_BARRA_PROPRIA && process.platform !== 'darwin') ricordaFascia(finestra)
+  if (tipo === CON_BARRA_PROPRIA) ricordaFascia(finestra)
 
   const idStato = finestra.webContents.id
   tipiFinestre.set(idStato, tipo)

@@ -250,10 +250,9 @@ export async function scriviGenerato (
   relativo: string,
   contenuto: Uint8Array | string,
   precedenti: readonly string[] = [],
-  opzioni: { doppioni?: boolean } = {},
 ): Promise<apparato.Uri | null> {
   const byte = typeof contenuto === 'string' ? new TextEncoder().encode(contenuto) : contenuto
-  const esito = await riscrivi(relativo, byte, precedenti, opzioni)
+  const esito = await riscrivi(relativo, byte, precedenti)
   if ('errore' in esito) return null
   // Un file vero, perché chi lo ha chiesto lo vuole aprire.
   return uriArchivio(esito.relativo)

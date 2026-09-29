@@ -102,6 +102,9 @@ export const Menu = {
   },
   setApplicationMenu (menu) {
     banco.menu = menu ? menu.modello : null
+    banco.menuDellApp = menu
+    // Come su Windows e Linux: il menu va a ogni finestra aperta.
+    for (const finestra of BrowserWindow.getAllWindows()) finestra.setMenu(menu)
   },
 }
 
@@ -249,6 +252,11 @@ const banco = (globalThis.__bancoElectron ??= {
   vassoi: [],
   /** Il modello passato a `Menu.setApplicationMenu`, o `null` finché non c'è. */
   menu: null,
+  /**
+   * Il menu che una finestra nuova riceve: all'inizio quello predefinito di
+   * Electron, poi l'ultimo di `Menu.setApplicationMenu` (anche `null`).
+   */
+  menuDellApp: 'predefinito',
   /** I messaggi mostrati, e il bottone che la prova sceglie. */
   messaggi: [],
   rispostaAiMessaggi: 0,
@@ -305,6 +313,8 @@ export class BrowserWindow extends Emettitore {
     this.sfondo = opzioni.backgroundColor ?? null
     /** Gli indirizzi caricati, in ordine. */
     this.caricati = []
+    /** Se ha la barra dei menu: nasce con quello dell'applicazione, se c'è. */
+    this.conMenu = banco.menuDellApp !== null
     finestreCostruite.push(this)
   }
 
@@ -406,8 +416,21 @@ export class BrowserWindow extends Emettitore {
     this.titolo = titolo
   }
 
+  setMenu (menu) {
+    this.conMenu = menu !== null
+  }
+
+  removeMenu () {
+    this.conMenu = false
+  }
+
   setBackgroundColor (colore) {
     this.sfondo = colore
+  }
+
+  /** La fascia dei pulsanti di sistema, che il tema ricolora quando gira. */
+  setTitleBarOverlay (fascia) {
+    this.fascia = fascia
   }
 
   setBounds (riquadro) {

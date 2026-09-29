@@ -9,6 +9,7 @@ import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../cont
 import { barra, pastiglia, pulsante, scheda } from '../../components/base.js'
 import type { NomeIcona } from '../../components/icons.js'
 import { conferma } from '../../components/modal.js'
+import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { ascolta, azione, chiedi } from '../../bridge.js'
 import { isola, isolaPresente, ridisegnaIsola } from '../../isole.js'
@@ -22,6 +23,8 @@ import { testi } from './updates.testi.js'
 
 let ultimo: StatoAggiornamenti | null = null
 let avviato = false
+/** Un controllo chiesto dalla barra in fondo: il suo esito si dice in una notifica. */
+let esitoAtteso = false
 
 /** La scheda in testa alla sezione, un'isola: lo scarico la rifà da sola. */
 const ISOLA = 'aggiornamenti'
@@ -62,8 +65,35 @@ export function avviaAggiornamenti (): void {
     const prima = ultimo
     ultimo = messaggio.stato
     mostra(prima)
+    diciLEsito()
   })
   void leggi()
+}
+
+/**
+ * Controlla subito se c'è una versione nuova: il clic sulla versione nella
+ * barra in fondo. Dove il programma non si aggiorna da sé il gesto è aprire le
+ * release, e si fa quello; durante un controllo non si rilancia niente.
+ */
+export async function controllaDallaBarra (): Promise<void> {
+  const gesto = ultimo?.racconto.gesto
+  if (!ultimo || !gesto || gesto.spento) return
+  if (gesto.tipo !== 'aggiornamenti.controlla') {
+    await esegui(gesto, ultimo.nuova?.versione ?? '')
+    return
+  }
+  esitoAtteso = true
+  const risposta = await azione({ tipo: gesto.tipo })
+  // Un rifiuto lo notifica già `azione`.
+  if (!risposta.ok) esitoAtteso = false
+}
+
+/** Chiuso il controllo chiesto dalla barra, la frase del racconto in una notifica. */
+function diciLEsito (): void {
+  if (!esitoAtteso || !ultimo || ultimo.fase === 'controllo' || ultimo.fase === 'fermo') return
+  esitoAtteso = false
+  const { frase, tono } = ultimo.racconto
+  notifica(frase, tono === 'positivo' ? 'successo' : tono === 'attenzione' ? 'avviso' : 'info')
 }
 
 async function leggi (): Promise<void> {

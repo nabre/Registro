@@ -48,7 +48,7 @@
 }
 
 /* Lo stato della macchina non si accorcia: «senza rete» tagliato a metà non si capisce. */
-.barra-stato__gruppo--coda > .barra-stato__blocco:last-child { flex: none; }
+.barra-stato__gruppo--coda > .barra-stato__blocco:not(:first-child) { flex: none; }
 
 /*
  * Un blocco: le voci che rispondono alla stessa domanda, vicine; fra un blocco
@@ -68,6 +68,23 @@
   margin-left: var(--stacco);
   padding-left: var(--stacco);
   border-left: 1px solid var(--bordo-tenue);
+}
+
+/*
+ * La versione è una nota a margine, non una domanda: niente filo né stacco
+ * davanti, voce stretta e testo piccolo e quieto.
+ */
+.barra-stato__blocco:not(:empty) + .barra-stato__blocco.barra-stato__blocco--versione {
+  margin-left: var(--vicino);
+  padding-left: 0;
+  border-left: none;
+}
+
+.barra-stato__blocco--versione .barra-stato__voce {
+  gap: 2px;
+  padding: var(--respiro-y) var(--vicino);
+  font-size: 0.9em;
+  color: var(--testo-quieto);
 }
 
 /* -------------------------------------------------------------------- la voce */
@@ -237,6 +254,13 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.barra-stato__gruppo--coda .barra-stato__blocco--versione .barra-stato__testo {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
 }
 
 /* Un interruttore spento si vede spento: l'icona sbiadisce. */

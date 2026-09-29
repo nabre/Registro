@@ -40,7 +40,6 @@ import type {
   TipoRapporto,
   TipoRisorsa,
 } from '../core/dominio/models.js'
-import type { Composizione } from '../core/dominio/compositions.js'
 import type { AllineamentoDaCalendario, LezioneDaCalendario } from '../core/dominio/calendar.js'
 import type { AccountMicrosoft } from '../core/dominio/onedrive.js'
 import type {
@@ -633,15 +632,6 @@ export type Azione =
   | { tipo: 'esportazione.mostra'; percorso: string; titolo?: string }
   /** Butta via un documento esportato: sotto `esportazioni/` tutto si può rifare. */
   | { tipo: 'esportazione.elimina'; percorso: string }
-  /**
-   * Un fascicolo nuovo: i documenti spuntati, in fila, sotto un nome (quello del
-   * PDF che ne esce). L'ordine è quello dei percorsi e resta nella ricetta.
-   */
-  | { tipo: 'composizione.crea'; nome: string; percorsi: string[] }
-  /** Rifà il PDF di un fascicolo con i fogli presenti adesso nella cartella. */
-  | { tipo: 'composizione.aggiorna'; id: string }
-  /** Butta via un fascicolo: la ricetta e il PDF. I fogli restano dove sono. */
-  | { tipo: 'composizione.elimina'; id: string }
   /**
    * Butta via i momenti di valutazione non nati da una tappa del piano. Gli id
    * sono espliciti perché dentro ci sono dei voti.
@@ -1460,8 +1450,6 @@ export interface MessaggioStato {
    * presenza, misura e revisione di ogni foglio.
    */
   archiviati: DocumentoEsportato[]
-  /** I fascicoli composti dell'anno, con la loro ricetta e l'ultimo rifacimento. */
-  composizioni: Composizione[]
 }
 
 /** Un documento che sta nella cartella delle esportazioni. */

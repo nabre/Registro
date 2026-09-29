@@ -106,7 +106,11 @@ before(async () => {
 
   // Bianchi: un ritardo. Si conta per ora e non per UD, e si spezza anche lui
   // fra i periodi.
-  await segna(settembreOtto, bianchi, 'ritardo')
+  // Il ritardo va solo sulla prima UD: la riga intera non lo accetta.
+  await segna(settembreOtto, bianchi, 'presente')
+  await api.chiama(archivio, 'ore.appello.casella', {
+    lezioneId: settembreOtto.id, allievoId: bianchi.id, ud: 0, stato: 'ritardo',
+  })
 
   // Una prova nel primo e due nel secondo: la media d'anno pesa ogni prova una
   // volta, la media delle medie ogni semestre.

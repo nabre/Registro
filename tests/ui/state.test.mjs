@@ -77,7 +77,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     prima.aggiorna({ sidebarDesktop: false, modoCalendario: 'mese', ricerca: 'Rossi' })
     prima.vai({ pagina: 'pagina.classe.assenze' })
     prima.aggiorna({ data: '2026-10-02', filtroCorsoAgendaId: corsoB.id, semestreId: null })
-    prima.aggiorna({ documentiScelti: ['esportazioni/a.pdf', 'esportazioni/b.pdf'] })
+    prima.aggiorna({ classiApertePersone: [a.id, b.id] })
     assert.equal(disco.salvato.v, 2)
 
     const seconda = apri()
@@ -101,10 +101,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     assert.deepEqual(posto(seconda), {
       pagina: 'pagina.classe.assenze', soggetto: { tipo: 'classe', id: a.id },
     })
-    assert.deepEqual(
-      Array.from(seconda.stato.documentiScelti),
-      ['esportazioni/a.pdf', 'esportazioni/b.pdf'],
-    )
+    assert.deepEqual(Array.from(seconda.stato.classiApertePersone), [a.id, b.id])
     assert.notEqual(b.id, a.id)
   })
 

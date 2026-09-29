@@ -4,6 +4,8 @@
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
 import '../../../../core/i18n/page.js'
+// La barra del titolo, se la finestra ne ha una propria.
+import '../shared/titleBar.js'
 import type { DocumentoNoto } from '../../../apparato/documents.js'
 import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocollo.js'
 import type { RichiestaBenvenuto } from '../../windows/welcome.js'

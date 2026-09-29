@@ -15,6 +15,7 @@ import type { Allegato, MomentoValutazione, Registro } from '../dominio/models.j
 import { lessico } from '../dominio/lexicon.testi.js'
 import { validaValutazione } from '../dominio/validation.js'
 import {
+  aOraAperta,
   apriFile,
   cestina,
   conMessaggio,
@@ -50,7 +51,7 @@ function conDatiDiPersone (momento: MomentoValutazione): boolean {
 
 export const valutazioni = {
   /** Il momento di valutazione di una tappa del piano; se c'è già, torna quello. */
-  'valutazione.daAttivita': (contesto, azione) => {
+  'valutazione.daAttivita': aOraAperta((contesto, azione) => {
     const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
     if (!lezione) return rifiuta(comuni().nonTrovato.lezione)
     const piano = contesto.registro.piani.find((p) => p.id === lezione.pianoId)
@@ -82,7 +83,7 @@ export const valutazioni = {
     }, ['valutazioni'])
     if (!salvato.ok) return salvato
     return { ok: true, creato: { id: momento.id } }
-  },
+  }),
 
   /**
    * Il momento intero: titolo, data, tipo, peso, scala, descrizione.

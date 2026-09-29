@@ -168,6 +168,109 @@ describe('ore.appello.riga', () => {
   })
 })
 
+describe('il ritardo nell’appello', () => {
+  // In ritardo si arriva all'inizio della lezione o alla ripresa dopo una
+  // pausa: chi entra a lezione avviata ha le UD perse assenti, poi è presente.
+  it('va sulla prima UD e sulla prima dopo una pausa, non altrove', async () => {
+    const inizio = await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: terza.id, allievoId: rossi.id, ud: 0, stato: 'ritardo',
+    })
+    assert.equal(inizio.ok, true, JSON.stringify(inizio))
+
+    const revisione = archivio.revisione
+    const aMeta = await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: terza.id, allievoId: rossi.id, ud: 1, stato: 'ritardo',
+    })
+    assert.equal(aMeta.ok, false)
+    assert.equal(aMeta.codice, 'rifiutato')
+    const colonna = await api.chiama(archivio, 'ore.appello.colonna', {
+      lezioneId: terza.id, ud: 1, stato: 'ritardo',
+    })
+    assert.equal(colonna.ok, false)
+    assert.equal(archivio.revisione, revisione)
+
+    // Nella seconda ora la seconda UD apre il secondo slot: lì si può.
+    const ripresa = await api.chiama(archivio, 'ore.appello.colonna', {
+      lezioneId: seconda.id, ud: 1, stato: 'ritardo',
+    })
+    assert.equal(ripresa.ok, true, JSON.stringify(ripresa))
+    await api.chiama(archivio, 'ore.appello.colonna', {
+      lezioneId: seconda.id, ud: 1, stato: 'non-impostato',
+    })
+    await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: terza.id, allievoId: rossi.id, ud: 0, stato: 'non-impostato',
+    })
+  })
+
+  it('una riga o tutta la classe su un’ora di più UD non lo accettano', async () => {
+    for (const [nome, ingresso] of [
+      ['ore.appello.riga', { lezioneId: terza.id, allievoId: rossi.id, stato: 'ritardo' }],
+      ['ore.appello.tutti', { lezioneId: terza.id, stato: 'ritardo' }],
+    ]) {
+      const esito = await api.chiama(archivio, nome, ingresso)
+      assert.equal(esito.ok, false, nome)
+      assert.equal(esito.codice, 'rifiutato', nome)
+    }
+  })
+})
+
+describe('un’ora svolta', () => {
+  // Svolta, l'ora non si tocca più da nessuna sponda; rimessa a pianificata
+  // torna scrivibile. Un'ora d'agosto: passata, e fuori dai conti di settembre.
+  it('rifiuta le scritture del suo contenuto finché non la si riapre', async () => {
+    const agosto = api.creaLezione(corso.id, '2026-08-25', '08:20', 90)
+    archivio.modifica((r) => { r.lezioni.push(agosto) }, ['lezioni'])
+    const svolta = await api.chiama(archivio, 'ore.stato', { lezioneId: agosto.id, stato: 'svolta' })
+    assert.equal(svolta.ok, true, JSON.stringify(svolta))
+
+    const revisione = archivio.revisione
+    for (const [nome, ingresso] of [
+      ['ore.appello.riga', { lezioneId: agosto.id, allievoId: rossi.id, stato: 'assente' }],
+      ['ore.appello.campi', { lezioneId: agosto.id, allievoId: rossi.id, nota: 'tardi' }],
+      ['ore.testi', { lezioneId: agosto.id, argomenti: 'frazioni' }],
+      ['ore.comportamento.cella', {
+        lezioneId: agosto.id, allievoId: rossi.id, aspetto: 'attenzione', nota: 'distratta',
+      }],
+    ]) {
+      const esito = await api.chiama(archivio, nome, ingresso)
+      assert.equal(esito.ok, false, nome)
+      assert.equal(esito.codice, 'rifiutato', nome)
+    }
+    assert.equal(archivio.revisione, revisione)
+
+    await api.chiama(archivio, 'ore.stato', { lezioneId: agosto.id, stato: 'pianificata' })
+    const riaperta = await api.chiama(archivio, 'ore.testi', { lezioneId: agosto.id, argomenti: 'frazioni' })
+    assert.equal(riaperta.ok, true, JSON.stringify(riaperta))
+    assert.equal(oraDi(agosto).argomenti, 'frazioni')
+  })
+})
+
+describe('annullare un’ora', () => {
+  // Si annulla solo un'ora vuota; il piano da solo non basta a impedirlo, ma si stacca.
+  it('rifiuta un’ora compilata e stacca il piano da una vuota', async () => {
+    const piena = api.creaLezione(corso.id, '2026-10-13', '08:20', 90)
+    const vuota = api.creaLezione(corso.id, '2026-10-20', '08:20', 90)
+    piena.argomenti = 'equazioni'
+    const piano = api.creaPiano(corso.id)
+    archivio.modifica((r) => {
+      r.lezioni.push(piena, vuota)
+      r.piani.push(piano)
+      vuota.pianoId = piano.id
+    }, ['lezioni', 'piani'])
+
+    const rifiutata = await api.chiama(archivio, 'ore.stato', { lezioneId: piena.id, stato: 'annullata' })
+    assert.equal(rifiutata.ok, false)
+    assert.equal(rifiutata.codice, 'rifiutato')
+    assert.equal(oraDi(piena).stato, 'pianificata')
+
+    const annullata = await api.chiama(archivio, 'ore.stato', { lezioneId: vuota.id, stato: 'annullata' })
+    assert.equal(annullata.ok, true, JSON.stringify(annullata))
+    assert.equal(oraDi(vuota).stato, 'annullata')
+    assert.equal(oraDi(vuota).pianoId, null)
+    assert.ok(archivio.registro.piani.some((p) => p.id === piano.id), 'il piano resta nel corso')
+  })
+})
+
 describe('ore.appello.campi', () => {
   it('i minuti stanno dentro un intervallo che ha senso', async () => {
     for (const minuti of [-1, 601, 12.5]) {
@@ -183,8 +286,8 @@ describe('ore.appello.campi', () => {
   it('un campo lasciato fuori non cancella quel che c’era', async () => {
     // Chiave assente e valore nullo sono cose diverse: si scrive la nota senza
     // toccare i minuti, e viceversa.
-    await api.chiama(archivio, 'ore.appello.riga', {
-      lezioneId: prima.id, allievoId: bianchi.id, stato: 'ritardo',
+    await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: prima.id, allievoId: bianchi.id, ud: 0, stato: 'ritardo',
     })
     await api.chiama(archivio, 'ore.appello.campi', {
       lezioneId: prima.id, allievoId: bianchi.id, minuti: 12, nota: 'bus in ritardo',

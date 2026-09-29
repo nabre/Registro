@@ -35,8 +35,8 @@ test('palette_fuori_posto', async ({ browser }) => {
   await page.locator('body').press('Control+k')
   const campo = page.locator('.palette__campo')
   await expect(campo).toBeFocused()
-  await campo.fill('svolta')
-  const riga = page.locator('.palette__voce').filter({ hasText: 'Svolta' }).first()
+  await campo.fill('conclusa')
+  const riga = page.locator('.palette__voce').filter({ hasText: 'Conclusa' }).first()
   // La riga c'è ancora («dov'era quella cosa?»), ma spenta e con il perché.
   await expect(riga).toHaveClass(/palette__voce--impedita/)
   await campo.press('Enter')
@@ -44,13 +44,16 @@ test('palette_fuori_posto', async ({ browser }) => {
   const partite = await valuta<number>(
     page, "richieste.filter(m => m.azione?.tipo === 'lezione.stato').length",
   )
-  expect(partite, 'Svolta partita da una pagina che non mostra l’ora').toBe(0)
+  expect(partite, 'Conclusa partita da una pagina che non mostra l’ora').toBe(0)
   await expect(page.locator('.notifica--avviso')).toHaveCount(1)
   // Nella sua pagina invece risponde, come prima.
-  await valuta(page, "prova.vai({ pagina: 'pagina.corso.registro' })")
+  // Su un'ora finita: «Conclusa» si accende solo passato il suo orario.
+  const finita = await valuta<string>(page, 'prova.stato.registro.lezioni.find(l => ' +
+    "l.data < prova.stato.adessoData && l.stato === 'pianificata').id")
+  await valuta(page, `prova.apriLezione('${finita}')`)
   await valuta(page, FRAME)
   await page.locator('body').press('Control+k')
-  await page.locator('.palette__campo').fill('svolta')
+  await page.locator('.palette__campo').fill('conclusa')
   await page.locator('.palette__campo').press('Enter')
   await attendi(page, "richieste.some(m => m.azione?.tipo === 'lezione.stato')")
   expect(errori).toEqual([])

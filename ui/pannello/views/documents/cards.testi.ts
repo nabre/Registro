@@ -38,31 +38,6 @@ const it = {
   fascicoloContiene: `${Molti(PIF)}, documenti e periodi di assenze`,
   nomeFascicolo: 'il fascicolo della classe',
 
-  // Le composizioni
-  composizioni: 'Composizioni',
-  quanteComposizioni: (quante: number) =>
-    plurale(quante, 'composizione', 'composizioni'),
-  conOrfani: (quante: string, orfani: number) =>
-    `${quante} · ${orfani} senza elenco`,
-  inUnPdf: (quante: string) => `${quante} · più documenti in un PDF solo`,
-  mancanti: (dentro: number, tutti: number) =>
-    `${dentro} dei ${tutti} documenti sono ancora nella cartella: rifacendolo ` +
-    `adesso ne resterebbero fuori ${tutti - dentro}`,
-  tuttiDentro: (tutti: number) => `${tutti} documenti dentro`,
-  nomeComposizione: (nome: string) => `la composizione «${nome}»`,
-  buttareTitolo: (nome: string) => `Buttare via «${nome}»?`,
-  buttareComposizione:
-    'Vanno via il PDF e l’elenco di che cosa ci sta dentro. I documenti che lo ' +
-    'compongono restano dove sono, uno per uno.',
-  senzaElenco: 'senza elenco',
-  nomePdf: (nome: string) => `il PDF «${nome}»`,
-  orfanoBloccato:
-    'Questo PDF non ha più l’elenco di che cosa ci sta dentro: non si può rifare, ' +
-    'si guarda e si butta via.',
-  buttareOrfano:
-    'Va via il PDF. Non si può rifare — l’elenco di che cosa ci stava dentro non c’è ' +
-    'più — ma i documenti che lo componevano sono ancora nella cartella, uno per uno.',
-
   // Le lezioni
   ore: (quante: number) => plurale(quante, 'lezione', 'lezioni'),
   nessunaOra: 'Nessuna lezione nel periodo scelto.',
@@ -131,29 +106,6 @@ export const testi = catalogo(it, {
     fascicoloContiene: 'Lernende, Dokumente und Absenzenzeiträume',
     nomeFascicolo: 'das Klassendossier',
 
-    composizioni: 'Zusammenstellungen',
-    quanteComposizioni: (quante) =>
-      plurale(quante, 'Zusammenstellung', 'Zusammenstellungen'),
-    conOrfani: (quante, orfani) => `${quante} · ${orfani} ohne Liste`,
-    inUnPdf: (quante) => `${quante} · mehrere Dokumente in einem einzigen PDF`,
-    mancanti: (dentro, tutti) =>
-      `${dentro} von ${tutti} Dokumenten sind noch im Ordner: Wenn man es jetzt neu erstellt, ` +
-      `blieben ${tutti - dentro} draussen`,
-    tuttiDentro: (tutti) => `${tutti} Dokumente darin`,
-    nomeComposizione: (nome) => `die Zusammenstellung «${nome}»`,
-    buttareTitolo: (nome) => `«${nome}» wegwerfen?`,
-    buttareComposizione:
-      'Das PDF und die Liste dessen, was darin steckt, werden entfernt. Die Dokumente, aus ' +
-      'denen es besteht, bleiben einzeln, wo sie sind.',
-    senzaElenco: 'ohne Liste',
-    nomePdf: (nome) => `das PDF «${nome}»`,
-    orfanoBloccato:
-      'Dieses PDF hat die Liste seines Inhalts nicht mehr: Es lässt sich nicht neu erstellen, ' +
-      'nur ansehen und wegwerfen.',
-    buttareOrfano:
-      'Das PDF wird entfernt. Neu erstellen lässt es sich nicht — die Liste seines Inhalts gibt ' +
-      'es nicht mehr —, aber die Dokumente, aus denen es bestand, sind noch einzeln im Ordner.',
-
     ore: (quante) => plurale(quante, 'Stunde', 'Stunden'),
     nessunaOra: 'Keine Stunde im gewählten Zeitraum.',
     numero: 'Nr.',
@@ -218,29 +170,6 @@ export const testi = catalogo(it, {
       'Personnes en formation, documents et périodes d’absences',
     nomeFascicolo: 'le dossier de classe',
 
-    composizioni: 'Compilations',
-    quanteComposizioni: (quante) =>
-      plurale(quante, 'compilation', 'compilations'),
-    conOrfani: (quante, orfani) => `${quante} · ${orfani} sans liste`,
-    inUnPdf: (quante) => `${quante} · plusieurs documents dans un seul PDF`,
-    mancanti: (dentro, tutti) =>
-      `${dentro} des ${tutti} documents sont encore dans le dossier : en le refaisant ` +
-      `maintenant, ${tutti - dentro} resteraient dehors`,
-    tuttiDentro: (tutti) => `${tutti} documents dedans`,
-    nomeComposizione: (nome) => `la compilation « ${nome} »`,
-    buttareTitolo: (nome) => `Jeter « ${nome} » ?`,
-    buttareComposizione:
-      'Le PDF et la liste de ce qu’il contient s’en vont. Les documents qui le composent ' +
-      'restent où ils sont, un par un.',
-    senzaElenco: 'sans liste',
-    nomePdf: (nome) => `le PDF « ${nome} »`,
-    orfanoBloccato:
-      'Ce PDF n’a plus la liste de ce qu’il contient : on ne peut pas le refaire, on le ' +
-      'regarde et on le jette.',
-    buttareOrfano:
-      'Le PDF s’en va. On ne peut pas le refaire — la liste de ce qu’il contenait n’existe ' +
-      'plus — mais les documents qui le composaient sont encore dans le dossier, un par un.',
-
     ore: (quante) => plurale(quante, 'leçon', 'leçons'),
     nessunaOra: 'Aucune leçon dans la période choisie.',
     numero: 'N°',
@@ -304,29 +233,6 @@ export const testi = catalogo(it, {
     dellaClasseAiuto: 'applies to all subjects, and to the whole year',
     fascicoloContiene: 'Learners, documents and absence periods',
     nomeFascicolo: 'the class file',
-
-    composizioni: 'Compilations',
-    quanteComposizioni: (quante) =>
-      plurale(quante, 'compilation', 'compilations'),
-    conOrfani: (quante, orfani) => `${quante} · ${orfani} without a list`,
-    inUnPdf: (quante) => `${quante} · several documents in a single PDF`,
-    mancanti: (dentro, tutti) =>
-      `${dentro} of the ${tutti} documents are still in the folder: remaking it now would ` +
-      `leave ${tutti - dentro} out`,
-    tuttiDentro: (tutti) => `${tutti} documents inside`,
-    nomeComposizione: (nome) => `the compilation “${nome}”`,
-    buttareTitolo: (nome) => `Throw away “${nome}”?`,
-    buttareComposizione:
-      'The PDF and the list of what’s inside it go. The documents that make it up stay where ' +
-      'they are, one by one.',
-    senzaElenco: 'no list',
-    nomePdf: (nome) => `the PDF “${nome}”`,
-    orfanoBloccato:
-      'This PDF no longer has the list of what’s inside it: it can’t be remade, only viewed ' +
-      'and thrown away.',
-    buttareOrfano:
-      'The PDF goes. It can’t be remade — the list of what was inside is gone — but the ' +
-      'documents that made it up are still in the folder, one by one.',
 
     ore: (quante) => plurale(quante, 'lesson', 'lessons'),
     nessunaOra: 'No lessons in the chosen period.',

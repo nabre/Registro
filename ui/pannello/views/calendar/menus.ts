@@ -3,7 +3,8 @@
 // Su un'ora — lo stato, il piano e, in modifica, l'orario — e sul vuoto di un
 // giorno. Settimana, mese e agenda aprono gli stessi menu.
 
-import { fineLezione, inizioLezione } from '../../../../core/dominio/calculations.js'
+import { fineLezione, inizioLezione, lezioneFinita } from '../../../../core/dominio/calculations.js'
+import { lezioneCompilata } from '../../../../core/dominio/courses.js'
 import { formattaData, oraDaMinuti, sommaGiorni } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
 import type { NomeIcona } from '../../components/icons.js'
@@ -101,6 +102,7 @@ function vociStato (lezione: Lezione): ElementoMenu[] {
       : {
           testo: t.segnaSvolta,
           simbolo: 'spunta',
+          ...(lezioneFinita(lezione, stato.adessoData, stato.adessoOra) ? {} : { disabilitato: true, titolo: t.nonFinita }),
           al: () => void cambiaStato('svolta', t.segnataSvolta),
         },
     lezione.stato === 'annullata'
@@ -112,11 +114,16 @@ function vociStato (lezione: Lezione): ElementoMenu[] {
       : {
           testo: t.annulla,
           simbolo: 'chiudi',
+          // Si annulla solo un'ora vuota: quella compilata è successa.
+          ...(lezioneCompilata(stato.registro, lezione)
+            ? { disabilitato: true, titolo: t.nonAnnullabile }
+            : {}),
           al: async () => {
-            // Annullare non è eliminare: la lezione resta, segnata come non svolta. Lo si dice.
+            // Annullare non è eliminare: la lezione resta, fuori dai conti. Lo si
+            // dice, e si dice che il piano si stacca.
             const sicuro = await conferma({
               titolo: t.annullareTitolo,
-              testo: t.annullareTesto,
+              testo: lezione.pianoId ? t.annullareConPiano : t.annullareTesto,
               testoConferma: t.annulla,
             })
             if (sicuro) await cambiaStato('annullata', t.annullata)

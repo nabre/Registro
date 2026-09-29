@@ -17,6 +17,7 @@ import {
   inBlocco,
   lezioneDiRiferimentoDiCorso,
   nomeClasse,
+  nomeMateria,
   pendenzeDellaBarra,
   stato,
   vai,
@@ -295,6 +296,22 @@ export const PAGINE: readonly Pagina[] = [
 ]
 
 /**
+ * Il titolo del gruppo a righe: il registro manda a capo la materia, il
+ * docente di classe la classe.
+ */
+function righeDelGruppo (gruppo: GruppoPagina): string[] {
+  if (gruppo === 'classe') {
+    const classe = classeDelFascicolo()
+    return classe ? [t.gruppi.classe, nomeClasse(classe.id)] : [titoloDelGruppo(gruppo)]
+  }
+  const corso = gruppo === 'registro' ? corsoDelContesto() : null
+  const materia = corso ? nomeMateria(corso.materiaId) : ''
+  if (!corso || !materia) return [titoloDelGruppo(gruppo)]
+  const classe = nomeClasse(corso.classeId)
+  return classe ? [t.registroDi(classe), materia] : [titoloDelGruppo(gruppo)]
+}
+
+/**
  * Il titolo del gruppo con dentro il corso o la classe: le pagine sotto sono
  * di quello.
  */
@@ -363,10 +380,15 @@ export function pagineVisibili (): Pagina[] {
 }
 
 /** Un gruppo di destinazioni: una scheda della barra, con dentro le sue pagine. */
-interface GruppoDiPagine {
+export interface GruppoDiPagine {
   gruppo: GruppoPagina;
   /** Il nome lungo, con dentro il corso o la classe: sta in cima alla tendina. */
   titolo: string;
+  /**
+   * Lo stesso titolo per la barra laterale, a righe: la materia va a capo sotto
+   * «Registro — classe», perché in una colonna stretta si leggano tutte e due.
+   */
+  righe: string[];
   /** Il nome corto, che sta scritto sulla scheda. */
   nome: string;
   simbolo: NomeIcona;
@@ -383,6 +405,7 @@ export function gruppiDiPagine (): GruppoDiPagine[] {
       return {
         gruppo,
         titolo: titoloDelGruppo(gruppo),
+        righe: righeDelGruppo(gruppo),
         nome: nomeDelGruppo(gruppo),
         simbolo: simboloDelGruppo(gruppo),
         attivo: attiva?.gruppo === gruppo,

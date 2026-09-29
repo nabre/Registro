@@ -22,7 +22,14 @@ import { icona } from '../../apparato/context.js'
 import { openExternal } from '../../apparato/commands.js'
 import { CANALE } from '../../apparato/channels.js'
 import { postoDi, ricordaPosto } from '../../apparato/placement.js'
-import { coloreSfondo, preferenzeConPonte } from '../../apparato/theme.js'
+import {
+  coloreSfondo,
+  cornicePropria,
+  preferenzeConPonte,
+  ricordaFascia,
+  segniDellaCornice,
+  togliMenu,
+} from '../../apparato/theme.js'
 import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
 import { mostraComunque } from '../../apparato/showAnyway.js'
 import {
@@ -263,11 +270,14 @@ export function mostraBenvenuto (azioni: Azioni): Promise<Scelta | null> {
     show: false,
     backgroundColor: coloreSfondo(),
     ...icona(),
-    // Nessun menu: senza anno i comandi del registro non hanno su che lavorare.
-    autoHideMenuBar: true,
+    // La barra del titolo la disegna la pagina, come nel pannello.
+    ...cornicePropria(),
     webPreferences: preferenzeConPonte(),
   })
   finestra = nata
+  ricordaFascia(nata)
+  // Nessun menu: senza anno i comandi del registro non hanno su che lavorare.
+  togliMenu(nata)
   chiudiLeVieDiFuga(nata)
   ricordaPosto('benvenuto', nata)
 
@@ -305,6 +315,6 @@ export function mostraBenvenuto (azioni: Azioni): Promise<Scelta | null> {
     risolvi?.(null)
   })
 
-  void nata.loadURL('registro://app/dist/welcome.html')
+  void nata.loadURL(`registro://app/dist/welcome.html?${segniDellaCornice()}`)
   return attesa
 }

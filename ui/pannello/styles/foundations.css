@@ -49,6 +49,20 @@ body {
   /* Cifre tabulari: le colonne di voti e ore si incolonnano da sole. */
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  /* Un programma, non una pagina web: trascinando non si seleziona il testo.
+     Quel che si può selezionare è elencato subito sotto. */
+  user-select: none;
+}
+
+/*
+ * Quel che si scrive si seleziona, e il testo di un guasto si copia: è quel
+ * che chi chiede aiuto incolla. Come nelle pagine native (`shared/base.css`).
+ */
+input,
+textarea,
+[contenteditable]:not([contenteditable="false"]),
+.notifica--errore .notifica__testo {
+  user-select: text;
 }
 
 body.con-modale {
@@ -174,7 +188,6 @@ body.con-modale {
 .tabella-contenitore--griglia,
 .documenti__barra,
 .documenti__elenco,
-.composizione__ordine,
 .settimana__scorrevole,
 .mese__scorrevole,
 .agenda,

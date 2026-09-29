@@ -128,17 +128,6 @@ describe('rifare una stampa in un’altra lingua', () => {
     assert.equal(deposito().esiste(inglese), false)
     assert.equal(deposito().esiste(altraOra), true)
   })
-
-  it('un fascicolo composto no: il suo nome l’ha scelto qualcuno', async () => {
-    const { deposito, riscrivi } = moduli
-    const cartella = `esportazioni/docente-di-classe/${CLASSE}/classe`
-    const suo = `${cartella}/${CLASSE}_Protokolle.pdf`
-    deposito().scrivi(suo, pdf(suo))
-
-    await riscrivi(`${cartella}/${CLASSE}_Verbali.pdf`, pdf('fascicolo'), [], { doppioni: false })
-
-    assert.equal(deposito().esiste(suo), true)
-  })
 })
 
 describe('la migrazione della cartella unica, con stampe fatte in altre lingue', () => {

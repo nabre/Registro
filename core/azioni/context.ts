@@ -447,6 +447,20 @@ export type Gestore<T extends Azione['tipo']> = (
 export type Mappa = { [T in Azione['tipo']]: Gestore<T> }
 
 /**
+ * Un gestore che scrive dentro un'ora: su un'ora svolta rifiuta, da qualunque
+ * sponda arrivi (pannello, riga di comando, assistente). Per correggerla la si
+ * rimette a «pianificata». Un'azione senza `lezioneId` passa.
+ */
+export function aOraAperta<T extends Azione['tipo']> (gestore: Gestore<T>): Gestore<T> {
+  return (contesto, azione) => {
+    const lezioneId = (azione as { lezioneId?: string | null }).lezioneId
+    const ora = lezioneId ? contesto.registro.lezioni.find((l) => l.id === lezioneId) : undefined
+    if (ora?.stato === 'svolta') return rifiuta(testi().oraSvolta)
+    return gestore(contesto, azione)
+  }
+}
+
+/**
  * Il pezzo di mappa di un file. Si usa con `satisfies`, così le chiavi restano
  * quelle scritte e `azione` arriva ristretta al suo tipo.
  */

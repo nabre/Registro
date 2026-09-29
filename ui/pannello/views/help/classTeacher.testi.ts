@@ -84,12 +84,6 @@ const it = {
           'ancora da spedire o un caso oltre la soglia con gli appelli completi.',
       },
       {
-        termine: 'Elenco della classe',
-        testo:
-          'Nella riga delle azioni di tutte e quattro le pagine: porta in **Classi**, su questa ' +
-          'classe, dove si aggiungono e si tolgono le persone.',
-      },
-      {
         termine: 'Il fascicolo in PDF',
         testo:
           `${Molti(PIF)} con i recapiti, documenti raccolti, periodi di assenze: il PDF da ` +
@@ -154,7 +148,7 @@ const it = {
           'consegno io». Ne nasce una colonna. Senza un corso nella classe il comando è spento.',
       },
       {
-        termine: 'Documento personale',
+        termine: 'Documenti personali',
         testo:
           'Una raccolta «A me»: la circolare, il modulo da tenere pronto. Non è una colonna: sta ' +
           'sopra la matrice, in **Documenti personali**, «atteso» o «raccolto». Un clic sul nome ' +
@@ -457,7 +451,7 @@ const it = {
         legenda: [
           'Un corso alla volta, sul semestre in cui cade oggi; le ore annullate non contano.',
           'La soglia della scuola, in percento: 20 finché non la si cambia, 0 la spegne.',
-          'Il caso «preme» solo se l’appello c’è su tutte le ore segnate svolte.',
+          'Il caso «preme» solo se l’appello c’è su tutte le ore concluse.',
         ],
       },
     ],
@@ -670,12 +664,6 @@ export const testi = catalogo(it, {
             'oder ein Fall über der Schwelle mit vollständigen Präsenzkontrollen.',
         },
         {
-          termine: 'Klassenliste',
-          testo:
-            'In der Aktionsleiste aller vier Seiten: führt zu **Klassen**, auf diese Klasse, wo ' +
-            'man Personen hinzufügt und entfernt.',
-        },
-        {
           termine: 'Das Klassendossier als PDF',
           testo:
             `${Molti(DE.pif)} mit Kontaktangaben, gesammelte Dokumente, Absenzenzeiträume: das ` +
@@ -745,7 +733,7 @@ export const testi = catalogo(it, {
             'Daraus entsteht eine Spalte. Ohne Kurs in der Klasse ist der Befehl ausgeschaltet.',
         },
         {
-          termine: 'Persönliches Dokument',
+          termine: 'Persönliche Dokumente',
           testo:
             'Eine Sammlung «Für mich»: das Rundschreiben, das Formular, das man bereithalten ' +
             'will. Es ist keine Spalte: Es steht über der Matrix, unter **Persönliche ' +
@@ -1086,7 +1074,7 @@ export const testi = catalogo(it, {
               'zählen nicht.',
             'Die Schwelle der Schule, in Prozent: 20, solange man sie nicht ändert, 0 schaltet ' +
               'sie aus.',
-            'Der Fall «drängt» nur, wenn es bei allen als gehalten markierten Stunden eine ' +
+            'Der Fall «drängt» nur, wenn es bei allen abgeschlossenen Stunden eine ' +
               'Präsenzkontrolle gibt.',
           ],
         },
@@ -1312,12 +1300,6 @@ export const testi = catalogo(it, {
             'encore à envoyer ou un cas au-delà du seuil avec les appels complets.',
         },
         {
-          termine: 'Liste de la classe',
-          testo:
-            'Dans la barre d’actions des quatre pages : mène à **Classes**, sur cette classe, où ' +
-            'l’on ajoute et retire les personnes.',
-        },
-        {
           termine: 'Le dossier de classe en PDF',
           testo:
             `${Molti(FR.pif)} avec leurs coordonnées, documents collectés, périodes ` +
@@ -1387,7 +1369,7 @@ export const testi = catalogo(it, {
             'en naît une colonne. Sans cours dans la classe, la commande est éteinte.',
         },
         {
-          termine: 'Document personnel',
+          termine: 'Documents personnels',
           testo:
             'Une collecte « Pour moi » : la circulaire, le formulaire à garder prêt. Ce n’est ' +
             'pas une colonne : elle est au-dessus de la matrice, dans **Documents personnels**, ' +
@@ -1704,8 +1686,8 @@ export const testi = catalogo(it, {
             'Un cours à la fois, sur le semestre où tombe aujourd’hui ; les leçons annulées ne ' +
               'comptent pas.',
             'Le seuil de l’école, en pour cent : 20 tant qu’on ne le change pas, 0 le désactive.',
-            'Le cas « presse » seulement si l’appel existe pour toutes les leçons marquées ' +
-              'données.',
+            'Le cas « presse » seulement si l’appel existe pour toutes les leçons ' +
+              'terminées.',
           ],
         },
       ],
@@ -1925,12 +1907,6 @@ export const testi = catalogo(it, {
             'to send, or a case over the threshold with complete attendance.',
         },
         {
-          termine: 'Class list',
-          testo:
-            'In the action bar of all four pages: takes you to **Classes**, on this class, where ' +
-            'people are added and removed.',
-        },
-        {
           termine: 'The class file as a PDF',
           testo:
             `${Molti(EN.pif)} with their contact details, documents collected, absence periods: ` +
@@ -1997,7 +1973,7 @@ export const testi = catalogo(it, {
             'in the class the command is off.',
         },
         {
-          termine: 'Personal document',
+          termine: 'Personal documents',
           testo:
             'A “Me” collection: the circular, the form to keep ready. It isn’t a column: it sits ' +
             'above the grid, in **Personal documents**, “expected” or “collected”. A click on ' +
@@ -2305,7 +2281,7 @@ export const testi = catalogo(it, {
             'One course at a time, over the semester today falls in; cancelled lessons don’t ' +
               'count.',
             'The school’s threshold, as a percentage: 20 until you change it, 0 turns it off.',
-            'The case is “pressing” only if attendance was taken for every lesson marked held.',
+            'The case is “pressing” only if attendance was taken for every completed lesson.',
           ],
         },
       ],

@@ -38,7 +38,7 @@ const LATERALI = [
 ]
 
 /**
- * I tre stati dell'ora e «Modifica l'ora», di fila: ogni pulsante parte dove
+ * I tre stati dell'ora, di fila: ogni pulsante parte dove
  * l'aveva messo l'italiano, o subito dopo quello prima se in un'altra lingua
  * è più lungo.
  */
@@ -49,7 +49,6 @@ function statiDellOra (): string {
     [150, s.pianificata, 'informativo'],
     [236, s.svolta, 'positivo'],
     [292, s.annullata, 'quieto'],
-    [366, s.modificaOra, 'neutro'],
   ] as const).map(([x, nome, tono]) => {
     const dove = Math.max(x, fine + 6.5)
     fine = dove + larghezzaTesto(nome, 'piccolo') + 14
@@ -119,9 +118,9 @@ const CICLO_ORA = disegno(
   }),
   freccia([[163, 60], [242, 60]], { etichetta: T.lezione.scritte.oraPassa }),
   freccia([[398, 60], [477, 60]], { tono: 'positivo', etichetta: T.lezione.scritte.svolta }),
-  freccia([[85, 34], [85, 18], [555, 18], [555, 34]], {
+  freccia([[555, 34], [555, 18], [85, 18], [85, 34]], {
     tratteggio: true,
-    etichetta: T.lezione.scritte.svoltaPrima,
+    etichetta: T.lezione.scritte.riapri,
   }),
   riquadro(10, 128, 150, 44, {
     tono: 'negativo',

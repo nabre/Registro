@@ -39,10 +39,10 @@ describe('aggiorna confronta prima di avvisare', () => {
 
   it('lo stesso oggetto non è un cambio; uno nuovo sì', () => {
     const { interfaccia, conti } = apri()
-    const scelti = interfaccia.stato.documentiScelti
-    interfaccia.aggiorna({ documentiScelti: scelti })
+    const aperte = interfaccia.stato.classiApertePersone
+    interfaccia.aggiorna({ classiApertePersone: aperte })
     assert.equal(conti.avvisi, 0)
-    interfaccia.aggiorna({ documentiScelti: [...scelti] })
+    interfaccia.aggiorna({ classiApertePersone: [...aperte] })
     assert.equal(conti.avvisi, 1)
   })
 

@@ -6,14 +6,16 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
-  attivitaConCheck,
   attivitaConPendenza,
   attivitaValutata,
+  colonneCheckDi,
+  conColonnaCheck,
   creaAttivita,
   normalizzaPiano,
   parametriDi,
   riassuntoParametri,
   valoreParametro,
+  verificaColonna,
 } from '../../dist-tests/domain.mjs'
 
 function attivita (tipo, parametri) {
@@ -165,9 +167,23 @@ describe('collegamenti a pendenze e check', () => {
     assert.equal(attivitaConPendenza(attivita('compito', undefined)), null)
   })
 
-  it('estrae l’identificatore della colonna check se presente', () => {
-    assert.equal(attivitaConCheck(attivita('verifica', { checkColonnaId: 'col-1' })), 'col-1')
-    assert.equal(attivitaConCheck(attivita('verifica', { checkColonnaId: '' })), null)
-    assert.equal(attivitaConCheck(attivita('verifica', undefined)), null)
+  it('estrae le colonne check se presenti', () => {
+    assert.deepEqual(colonneCheckDi(attivita('verifica', { checkColonnaId: 'col-1' })), ['col-1'])
+    assert.deepEqual(colonneCheckDi(attivita('verifica', { checkColonnaId: 'col-1, col-2,col-1' })), ['col-1', 'col-2'])
+    assert.deepEqual(colonneCheckDi(attivita('verifica', { checkColonnaId: 'col-1,tutte' })), ['tutte'])
+    assert.deepEqual(colonneCheckDi(attivita('verifica', { checkColonnaId: '' })), [])
+    assert.deepEqual(colonneCheckDi(attivita('verifica', undefined)), [])
+  })
+
+  it('lega un’altra colonna alla tappa che già verifica il check', () => {
+    const una = attivita('verifica', { checkColonnaId: 'col-1', gruppi: 3 })
+    const due = conColonnaCheck(una, 'col-2')
+    assert.deepEqual(colonneCheckDi(due), ['col-1', 'col-2'])
+    assert.equal(due.parametri.gruppi, 3, 'gli altri parametri restano')
+    assert.equal(conColonnaCheck(due, 'col-1'), due, 'una colonna già legata non si ripete')
+    const intera = attivita('verifica', { checkColonnaId: 'tutte' })
+    assert.equal(conColonnaCheck(intera, 'col-3'), intera, 'il check intero la comprende già')
+    assert.ok(verificaColonna(intera, 'col-3'))
+    assert.ok(!verificaColonna(una, 'col-2'))
   })
 })

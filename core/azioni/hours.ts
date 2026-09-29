@@ -2,17 +2,29 @@
 
 import {
   allieviAttivi,
+  ammetteRitardo,
   contaUd,
+  lezioneFinita,
   ordinaAllievi,
   statiAllineati,
+  unitaDidattiche,
 } from '../dominio/calculations.js'
 import { slotFuoriDallePause, slotSullePause } from '../dominio/breaks.js'
 import { creaPresenza, duplicaLezione } from '../dominio/factories.js'
-import { classeDellaLezione, corsoPerId } from '../dominio/courses.js'
+import { classeDellaLezione, corsoPerId, lezioneCompilata } from '../dominio/courses.js'
 import type { Lezione, Presenza, Registro, StatoPresenza } from '../dominio/models.js'
 import { validaLezione } from '../dominio/validation.js'
 import { aggiornaDopoChiusura } from './reports.js'
-import { conMessaggio, fatto, rifiuta, riponi, type Parte } from './context.js'
+import {
+  conMessaggio,
+  fatto,
+  rifiuta,
+  riponi,
+  aOraAperta,
+  type Contesto,
+  type EsitoAzione,
+  type Parte,
+} from './context.js'
 import { lezioniInChiusura } from '../dominio/timetable.js'
 import { annoInUso } from '../dominio/years.js'
 import { testi as comuni } from './context.testi.js'
@@ -64,6 +76,31 @@ function appelloScritto (
       ? presenza.minuti
       : undefined,
   }))
+}
+
+/**
+ * Scrive una parte dell'appello, rifiutando un ritardo che cadrebbe su un'UD
+ * dove non si può arrivare in ritardo (`ammetteRitardo`): per questo una riga
+ * di più UD non accetta mai il ritardo.
+ */
+function scriviAppello (
+  contesto: Contesto,
+  lezioneId: string,
+  stato: StatoPresenza,
+  dove: (allievoId: string, ud: number) => boolean,
+): EsitoAzione {
+  const ora = contesto.registro.lezioni.find((l) => l.id === lezioneId)
+  if (ora && stato === 'ritardo') {
+    const vietate = unitaDidattiche(ora, contesto.registro.impostazioni.minutiUd)
+      .filter((unita) => !ammetteRitardo(unita))
+    const toccate = appelloCompleto(contesto.registro, ora)
+    if (toccate.some((p) => vietate.some((unita) => dove(p.allievoId, unita.indice)))) {
+      return rifiuta(testi().ritardoFuoriPosto)
+    }
+  }
+  return contesto.suVoce('lezioni', lezioneId, (lezione, r) => {
+    lezione.presenze = appelloScritto(r, lezione, stato, dove)
+  })
 }
 
 /**
@@ -120,6 +157,18 @@ export const ore = {
     const fuori = slotFuoriDallePause(lezione.slot, contesto.registro.impostazioni)
     const ridisposta = fuori !== lezione.slot
     lezione.slot = fuori
+    if (lezione.stato === 'svolta' && prima?.stato !== 'svolta' && !lezioneFinita(lezione)) {
+      return rifiuta(testi().nonFinita)
+    }
+    // Annullarla dal modulo vale come dal pulsante: niente se è compilata, e il
+    // piano si stacca.
+    if (lezione.stato === 'annullata' && prima?.stato !== 'annullata') {
+      if (prima && lezioneCompilata(contesto.registro, prima)) {
+        return rifiuta(testi().annullataCompilata)
+      }
+      lezione.pianoId = null
+      lezione.avanzamento = []
+    }
     if (lezione.pianoId) {
       const piano = contesto.registro.piani.find((p) => p.id === lezione.pianoId)
       if (!piano) return rifiuta(comuni().nonTrovato.piano)
@@ -179,8 +228,22 @@ export const ore = {
   },
 
   'lezione.stato': (contesto, azione) => {
+    const prima = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
+    // Conclusa si dice di un'ora il cui tempo è passato.
+    if (prima && azione.stato === 'svolta' && prima.stato !== 'svolta' && !lezioneFinita(prima)) {
+      return rifiuta(testi().nonFinita)
+    }
+    if (prima && azione.stato === 'annullata' && prima.stato !== 'annullata' &&
+      lezioneCompilata(contesto.registro, prima)) {
+      return rifiuta(testi().annullataCompilata)
+    }
     const esito = contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
       lezione.stato = azione.stato
+      // Annullata, l'ora non tiene il piano: lo stacca (resta fra i piani del corso).
+      if (azione.stato === 'annullata') {
+        lezione.pianoId = null
+        lezione.avanzamento = []
+      }
       // Svolta senza appello: nascono le righe, mute, da riempire.
       if (azione.stato === 'svolta' && lezione.presenze.length === 0) {
         lezione.presenze = appelloCompleto(r, lezione, [])
@@ -210,50 +273,33 @@ export const ore = {
   },
 
   /** I testi dell'ora: si scrivono solo i campi presenti, per non sovrascrivere gli altri. */
-  'lezione.testi': (contesto, azione) => {
+  'lezione.testi': aOraAperta((contesto, azione) => {
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       if (azione.argomenti !== undefined) lezione.argomenti = azione.argomenti
       if (azione.materiali !== undefined) lezione.materiali = azione.materiali
       if (azione.consuntivo !== undefined) lezione.consuntivo = azione.consuntivo
     })
-  },
+  }),
 
-  'presenze.ud': (contesto, azione) => {
-    return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
-      lezione.presenze = appelloScritto(
-        r,
-        lezione,
-        azione.stato,
-        (allievoId, ud) => allievoId === azione.allievoId && ud === azione.ud,
-      )
-    })
-  },
+  'presenze.ud': aOraAperta((contesto, azione) =>
+    scriviAppello(
+      contesto,
+      azione.lezioneId,
+      azione.stato,
+      (allievoId, ud) => allievoId === azione.allievoId && ud === azione.ud,
+    )),
 
-  'presenze.riga': (contesto, azione) => {
-    return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
-      lezione.presenze = appelloScritto(
-        r,
-        lezione,
-        azione.stato,
-        (allievoId) => allievoId === azione.allievoId,
-      )
-    })
-  },
+  'presenze.riga': aOraAperta((contesto, azione) =>
+    scriviAppello(contesto, azione.lezioneId, azione.stato, (allievoId) => allievoId === azione.allievoId)),
 
-  'presenze.colonna': (contesto, azione) => {
-    return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
-      lezione.presenze = appelloScritto(r, lezione, azione.stato, (_id, ud) => ud === azione.ud)
-    })
-  },
+  'presenze.colonna': aOraAperta((contesto, azione) =>
+    scriviAppello(contesto, azione.lezioneId, azione.stato, (_id, ud) => ud === azione.ud)),
 
-  'presenze.tutti': (contesto, azione) => {
-    return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
-      lezione.presenze = appelloScritto(r, lezione, azione.stato, () => true)
-    })
-  },
+  'presenze.tutti': aOraAperta((contesto, azione) =>
+    scriviAppello(contesto, azione.lezioneId, azione.stato, () => true)),
 
   /** Minuti di ritardo e nota di una riga sola: tocca solo quella, le altre restano intatte. */
-  'presenze.campi': (contesto, azione) => {
+  'presenze.campi': aOraAperta((contesto, azione) => {
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       let presenza = lezione.presenze.find((p) => p.allievoId === azione.allievoId)
       if (!presenza) {
@@ -264,13 +310,13 @@ export const ore = {
       if (azione.minuti !== undefined) presenza.minuti = azione.minuti
       if (azione.nota !== undefined) presenza.nota = azione.nota
     })
-  },
+  }),
 
   /**
    * Una casella della matrice: segno, nota o tutti e due; quel che manca resta
    * com'era. Una casella senza segno né nota si toglie.
    */
-  'osservazione.cella': (contesto, azione) => {
+  'osservazione.cella': aOraAperta((contesto, azione) => {
     // Solo persone di questa classe: una casella altrui nessuna schermata la mostra.
     const ora = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
     const classe = ora ? classeDellaLezione(contesto.registro, ora) : null
@@ -300,18 +346,18 @@ export const ore = {
         },
       ]
     })
-  },
+  }),
 
-  'osservazione.salva': (contesto, azione) => {
+  'osservazione.salva': aOraAperta((contesto, azione) => {
     if (!azione.osservazione.testo.trim()) return rifiuta(testi().osservazioneVuota)
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       riponi(lezione.osservazioni, azione.osservazione)
     })
-  },
+  }),
 
-  'osservazione.elimina': (contesto, azione) => {
+  'osservazione.elimina': aOraAperta((contesto, azione) => {
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       lezione.osservazioni = lezione.osservazioni.filter((o) => o.id !== azione.osservazioneId)
     })
-  },
+  }),
 } satisfies Parte

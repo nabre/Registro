@@ -38,10 +38,9 @@ const it = {
   scrittiConErrori: (scritti: number, dove: string, falliti: number, primo: string) =>
     `${plurale(scritti, 'documento', 'documenti')}${dove} ` +
     `${perNumero(scritti, 'scritto', 'scritti')}, ${falliti} no. ${primo}`,
-  scrittiTutti: (scritti: number, dove: string, fascicoli: number) =>
+  scrittiTutti: (scritti: number, dove: string) =>
     `${plurale(scritti, 'documento', 'documenti')}${dove} ` +
-    `${perNumero(scritti, 'scritto', 'scritti')} nella cartella dei dati` +
-    `${fascicoli > 0 ? `, e ${plurale(fascicoli, 'fascicolo rifatto', 'fascicoli rifatti')}` : ''}.`,
+    `${perNumero(scritti, 'scritto', 'scritti')} nella cartella dei dati.`,
 }
 
 export const testi = catalogo(it, {
@@ -74,9 +73,8 @@ export const testi = catalogo(it, {
     nessunoScritto: (dove, primo) => `Kein Dokument${dove} geschrieben. ${primo}`,
     scrittiConErrori: (scritti, dove, falliti, primo) =>
       `${plurale(scritti, 'Dokument', 'Dokumente')}${dove} geschrieben, ${falliti} nicht. ${primo}`,
-    scrittiTutti: (scritti, dove, fascicoli) =>
-      `${plurale(scritti, 'Dokument', 'Dokumente')}${dove} in den Datenordner geschrieben` +
-      `${fascicoli > 0 ? `, und ${plurale(fascicoli, 'Dossier', 'Dossiers')} neu erstellt` : ''}.`,
+    scrittiTutti: (scritti, dove) =>
+      `${plurale(scritti, 'Dokument', 'Dokumente')}${dove} in den Datenordner geschrieben.`,
   },
   fr: {
     giroInterrotto: 'Un autre document a été ouvert entre-temps : série interrompue.',
@@ -108,9 +106,8 @@ export const testi = catalogo(it, {
     nessunoScritto: (dove, primo) => `Aucun document${dove} écrit. ${primo}`,
     scrittiConErrori: (scritti, dove, falliti, primo) =>
       `${plurale(scritti, 'document', 'documents')}${dove} ${perNumero(scritti, 'écrit', 'écrits')}, ${falliti} non. ${primo}`,
-    scrittiTutti: (scritti, dove, fascicoli) =>
-      `${plurale(scritti, 'document', 'documents')}${dove} ${perNumero(scritti, 'écrit', 'écrits')} dans le dossier des données` +
-      `${fascicoli > 0 ? `, et ${plurale(fascicoli, 'dossier refait', 'dossiers refaits')}` : ''}.`,
+    scrittiTutti: (scritti, dove) =>
+      `${plurale(scritti, 'document', 'documents')}${dove} ${perNumero(scritti, 'écrit', 'écrits')} dans le dossier des données.`,
   },
   en: {
     giroInterrotto: 'A different document is now open: run stopped.',
@@ -141,8 +138,7 @@ export const testi = catalogo(it, {
     nessunoScritto: (dove, primo) => `No document${dove} written. ${primo}`,
     scrittiConErrori: (scritti, dove, falliti, primo) =>
       `${plurale(scritti, 'document', 'documents')}${dove} written, ${falliti} not. ${primo}`,
-    scrittiTutti: (scritti, dove, fascicoli) =>
-      `${plurale(scritti, 'document', 'documents')}${dove} written to the data folder` +
-      `${fascicoli > 0 ? `, and ${plurale(fascicoli, 'class file', 'class files')} redone` : ''}.`,
+    scrittiTutti: (scritti, dove) =>
+      `${plurale(scritti, 'document', 'documents')}${dove} written to the data folder.`,
   },
 })

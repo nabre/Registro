@@ -161,7 +161,8 @@ const it = {
           'sceglie il modello in testa a Impostazioni › Programma › **Modelli linguistici**, e ' +
           'l’interruttore ' +
           'torna com’era. Vale anche per chi scrive da riga di comando o dall’API: senza modello ' +
-          'l’accensione viene rifiutata, e togliendo il modello l’interruttore si spegne.',
+          'l’accensione viene rifiutata, e togliendo il modello l’interruttore si spegne. ' +
+          'Senza modello l’icona dell’assistente non compare nella barra in fondo.',
       },
       {
         termine: 'Avanzate',
@@ -819,8 +820,9 @@ const it = {
           'Il filetto: c’è solo quando è uscita una versione nuova. La notizia in due parole — ' +
             'un clic porta qui —, il gesto che ha senso adesso, e la ✕ che lo nasconde fino alla ' +
             'notizia successiva. Durante lo scarico un filo lungo il bordo dice a che punto è.',
-          'La voce della barra in fondo, anche lei solo con una versione nuova: un clic porta ' +
-            'qui.',
+          'La versione in fondo a destra nella barra, sempre scritta: un clic controlla subito ' +
+            'e l’esito compare in un avviso. Con una versione nuova prende il colore della ' +
+            'notizia e un clic porta qui.',
           'Il benvenuto, senza aprire un anno: accanto alla versione la pastiglia e il gesto. ' +
             'Quando c’è una versione nuova anche lui ha il filetto, in cima.',
         ],
@@ -1060,7 +1062,8 @@ export const testi = catalogo(it, {
             'wählt das Modell oben unter Einstellungen › Programm › **Sprachmodelle**, und der ' +
             'Schalter ist wieder wie vorher. Das gilt auch über die Befehlszeile oder die API: ' +
             'Ohne Modell wird das Einschalten abgelehnt, und wird das Modell entfernt, schaltet ' +
-            'sich der Schalter aus.',
+            'sich der Schalter aus. Ohne Modell erscheint das Symbol des Assistenten nicht in ' +
+            'der Leiste unten.',
         },
         {
           termine: 'Erweitert',
@@ -1761,8 +1764,9 @@ export const testi = catalogo(it, {
               'Neuigkeit in zwei Worten — ein Klick führt hierher —, der Schritt, der jetzt Sinn ' +
               'ergibt, und das ✕, das ihn bis zur nächsten Neuigkeit ausblendet. Während des ' +
               'Downloads zeigt ein Faden am Rand, wie weit er ist.',
-            'Der Eintrag in der Leiste unten, ebenfalls nur bei einer neuen Version: Ein Klick ' +
-              'führt hierher.',
+            'Die Version unten rechts in der Leiste, immer sichtbar: Ein Klick sucht sofort, ' +
+              'und das Ergebnis erscheint als Hinweis. Bei einer neuen Version nimmt sie die ' +
+              'Farbe der Neuigkeit an, und ein Klick führt hierher.',
             'Der Willkommensbildschirm, ohne ein Schuljahr zu öffnen: neben der Version das ' +
               'Etikett und der Schritt. Gibt es eine neue Version, hat auch er oben den Hinweis.',
           ],
@@ -2006,7 +2010,8 @@ export const testi = catalogo(it, {
             'le modèle en haut de Paramètres › Programme › **Modèles de langage**, et ' +
             'l’interrupteur revient comme il était. Cela vaut aussi depuis la ligne de commande ' +
             'ou l’API : sans modèle, l’activation est refusée, et en retirant le modèle ' +
-            'l’interrupteur se désactive.',
+            'l’interrupteur se désactive. Sans modèle, l’icône de l’assistant n’apparaît pas dans ' +
+            'la barre du bas.',
         },
         {
           termine: 'Avancé',
@@ -2708,8 +2713,9 @@ export const testi = catalogo(it, {
               'en deux mots — un clic mène ici —, le geste qui a du sens maintenant, et la ✕ ' +
               'qui le masque jusqu’à la nouvelle suivante. Pendant le téléchargement, un fil le ' +
               'long du bord dit où il en est.',
-            'L’entrée de la barre du bas, elle aussi seulement avec une nouvelle version : un ' +
-              'clic mène ici.',
+            'La version en bas à droite dans la barre, toujours écrite : un clic vérifie tout ' +
+              'de suite et le résultat s’affiche dans un avis. Avec une nouvelle version elle ' +
+              'prend la couleur de la nouvelle et un clic mène ici.',
             'L’écran d’accueil, sans ouvrir d’année : à côté de la version, la pastille et le ' +
               'geste. Quand il y a une nouvelle version, il a lui aussi le bandeau, en haut.',
           ],
@@ -2949,7 +2955,8 @@ export const testi = catalogo(it, {
             'the box stays off, with “won’t start” and what is missing next to it. Choose the ' +
             'model at the top of Settings › Program › **Language models**, and the switch goes ' +
             'back to how it was. The same holds from the command line or the API: without a ' +
-            'model, turning it on is refused, and removing the model turns the switch off.',
+            'model, turning it on is refused, and removing the model turns the switch off. ' +
+            'Without a model, the assistant’s icon doesn’t appear in the bar at the bottom.',
         },
         {
           termine: 'Advanced',
@@ -3618,7 +3625,9 @@ export const testi = catalogo(it, {
               'click leads here —, the step that makes sense now, and the ✕ that hides it until ' +
               'the next news. While downloading, a thread along the edge shows how far it has ' +
               'got.',
-            'The item in the bottom bar, also only with a new version: a click leads here.',
+            'The version at the bottom right of the bar, always written: a click checks right ' +
+              'away and the result appears in a notice. With a new version it takes the colour ' +
+              'of the news and a click leads here.',
             'The welcome screen, without opening a year: next to the version, the badge and the ' +
               'step. When there is a new version it has the strip too, at the top.',
           ],

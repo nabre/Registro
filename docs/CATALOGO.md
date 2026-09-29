@@ -205,7 +205,6 @@ ancorate all'ICS ferme.
 | `registro.nuovoCorso` | `corsi` | Nuovo corso | `moduloCorso()` |
 | `registro.nuovaClasse` | `classi`, `corsi` | Nuova classe | `moduloClasse()` |
 | `lezione.stato.pianificata`, `.svolta` ★, `.annullata` ◐ | `lezione` | stato dell'ora | `lezione.stato`; annullare chiede conferma |
-| `lezione.modifica` | `lezione` | Modifica la lezione | `moduloLezione({lezione})` |
 | `piano.vaiAlRegistro` ★ | `piani` | Vai al registro | apre la prima ora del piano |
 | `piano.duplica` | `piani` | Duplica | `piano.duplica` |
 | `piano.elimina` | `piani` | Elimina | `chiediEliminazione` → `piano.elimina` |
@@ -230,11 +229,9 @@ ancorate all'ICS ferme.
 | `docente.documento` ★ | `documenti` | Chiedi un documento | `moduloConsegna({documento:true})` |
 | `docente.caricaPdf` ★ | `documenti` | Carica dei PDF | `caricaPdf()` → `smistamento.carica` |
 | `docente.rileggiScansioni` | `documenti` | Rileggi le scansioni | `smistamento.rileggiAttive` |
-| `docente.personale` | `documenti` | Documento personale | `moduloConsegna({a:'docente', documento:true})` |
 | `docente.assenze` ★ | `assenze` | Nuovo periodo | `moduloBloccoAssenze()` |
 | `docente.comunicazione` ★ | `messaggistica` | Nuova comunicazione | `moduloComunicazione()` |
 | `docente.recapito` | `messaggistica` | Nuovo recapito | `moduloRecapito()` |
-| `docente.elenco` | tutte | Elenco della classe | va a `classi` |
 
 ### 3.5 Proiezione (`dove: schermo`)
 
@@ -253,9 +250,7 @@ ancorate all'ICS ferme.
 |---|---|---|
 | `documenti.scheda.corso`, `.lezioni`, `.allievi` ◐ | Corso, Lezioni, Persone | `schedaDocumenti` |
 | `documenti.aggiornaTutto` ★ | Aggiorna tutto | `rapporto.completo` |
-| `documenti.combina` | Combina i documenti scelti | `moduloComposizione()` (≥ 2) |
-| `documenti.svuotaScelta` | Togli le spunte | locale |
-| `documenti.rifare.mai`, `.chiusura`, `.sempre` ◐ | Solo a mano, Quando si chiude un'ora, A ogni modifica | `impostazioni.salva` con `pdfAutomatici`: l'unico comando della barra che scrive un'impostazione del documento |
+| `documenti.rifare.mai`, `.chiusura`, `.sempre` ◐ | Solo a mano, Chiusura lezione, A ogni modifica | `impostazioni.salva` con `pdfAutomatici`: l'unico comando della barra che scrive un'impostazione del documento |
 
 ## 4. Comandi del programma
 
@@ -387,7 +382,6 @@ lo tiene `tests/api/coverage.test.mjs`.
 | [`check.ts`](../core/azioni/check.ts) | `check.colonne`, `check.spunta`, `check.data`, `check.lezione` |
 | [`documents.ts`](../core/azioni/documents.ts) | `stato.salva`, `documento.apri`, `documento.chiudi`, `documento.preferito`, `documento.dimentica` |
 | [`exports.ts`](../core/azioni/exports.ts) | `esportazione.apri`, `.mostra`, `.elimina` → `esportazioni.*` |
-| [`compositions.ts`](../core/azioni/compositions.ts) | `composizione.crea`, `.aggiorna`, `.elimina` → `composizioni.*` |
 | [`reports.ts`](../core/azioni/reports.ts) | `rapporto.genera`, `rapporto.completo` → `rapporti.*` |
 | [`llm.ts`](../core/azioni/llm.ts) | `llm.scarica`, `llm.annulla`, `llm.importa`, `llm.elimina`, `llm.scegli` |
 | [`updates.ts`](../core/azioni/updates.ts) | `aggiornamenti.controlla`, `aggiornamenti.scarica`, `aggiornamenti.installa` |
@@ -469,7 +463,7 @@ contatore di `id`.
   `ocrAttivo`, `posta` (`exchange`, `server`, `invioDiretto`, `mittente`,
   `accesso`), `documenti` (`corrente`, `elenco` con `preferito`, `mancante`),
   `esportati` e `archiviati` (`{ percorso, misura, revisione }`),
-  `composizioni`, `storia` (i due conti di annulla/ripristina).
+  `storia` (i due conti di annulla/ripristina).
 - **`MessaggioNavigazione`**: `vista`, `elementoId?` (il contesto si risale da
   sé), `data?`, `nuovo?` (apre il modulo di creazione; mai dall'assistente),
   `importa?`.
@@ -606,7 +600,6 @@ modulo aperto con gli errori o chiude, notifica e chiama `dopo(idCreato)`.
 | `moduloAnno` (con calendario ufficiale e «Importa da un altro registro»), `moduloPause` | `anno.crea`, `anno.salva` |
 | `moduloBloccoAssenze`, `moduloImportaAssenze` | `assenze.salva`, `assenze.elimina`, `assenze.importa` |
 | `moduloClasse`, `moduloAllievo`, `moduloImportaAllievi`, `moduloNuovaPersona` | `classe.salva`, `corso.crea`, `classe.elimina`, `allievo.elimina`, `allievo.foto.*`, `allievi.importa` |
-| `moduloComposizione` | `composizione.crea` |
 | `moduloConsegna` | `consegna.salva`, `consegna.elimina` |
 | `moduloCorso` | `corso.*`, `orario.imposta`, `orario.genera` |
 | `moduloRecapito`, `moduloComunicazione` | `recapito.*`, `comunicazione.*` |
@@ -638,7 +631,6 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
 | Formato | Azione | Dove |
 |---|---|---|
 | PDF | `rapporto.genera`, `rapporto.completo`, rigenerazione automatica | `esportazioni/…` (§ 9.1) |
-| PDF composto | `composizione.crea`, `composizione.aggiorna` | `esportazioni/…` + ricetta JSON nel documento (2–200 PDF) |
 | PDF di prova | lettura `modelli.prova` | in memoria |
 | CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF, stesso nome ([`core/dati/exports.ts`](../core/dati/exports.ts)) |
 | Markdown | `esporta.lezione` | accanto al verbale |

@@ -139,6 +139,28 @@ export function corsoDellaLezione (registro: Registro, lezione: Lezione): Corso 
   return corsoPerId(registro, lezione.corsoId)
 }
 
+/**
+ * Vero se nell'ora è stato scritto qualcosa: appello detto, minuti o note,
+ * comportamento, osservazioni, testi, tappe del piano spuntate, e momenti,
+ * consegne date o spunte del check che la citano. Un'ora così non si annulla:
+ * il piano assegnato da solo non conta, lo si stacca.
+ */
+export function lezioneCompilata (registro: Registro, lezione: Lezione): boolean {
+  const id = lezione.id
+  return (
+    lezione.presenze.some((p) =>
+      p.stati.some((s) => s !== 'non-impostato') || p.minuti !== undefined || Boolean(p.nota),
+    ) ||
+    (lezione.matrice ?? []).length > 0 ||
+    lezione.osservazioni.length > 0 ||
+    [lezione.argomenti, lezione.materiali, lezione.consuntivo].some((t) => Boolean(t?.trim())) ||
+    lezione.avanzamento.some((a) => a.stato !== 'da-fare' || Boolean(a.nota?.trim())) ||
+    registro.valutazioni.some((v) => v.lezioneId === id) ||
+    registro.consegne.some((c) => c.dataLezioneId === id) ||
+    registro.check.some((lista) => lista.spunte.some((s) => s.lezioneId === id))
+  )
+}
+
 export function classeDellaLezione (registro: Registro, lezione: Lezione): Classe | null {
   return classeDelCorso(registro, corsoDellaLezione(registro, lezione))
 }

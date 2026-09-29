@@ -17,7 +17,15 @@ import {
   vociImpostazioni,
 } from '../../apparato/settings.js'
 import { postoDi, ricordaPosto } from '../../apparato/placement.js'
-import { coloreSfondo, preferenzeConPonte } from '../../apparato/theme.js'
+import {
+  coloreSfondo,
+  cornicePropria,
+  preferenzeConPonte,
+  ricordaFascia,
+  ritogliMenu,
+  segniDellaCornice,
+  togliMenu,
+} from '../../apparato/theme.js'
 import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
 import { mostraComunque } from '../../apparato/showAnyway.js'
 import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '../../../contract/manifesto.js'
@@ -228,6 +236,18 @@ let seguiDocumenti = false
 function ridisegnaMenu (): void {
   if (!azioniCorrenti) return
   Menu.setApplicationMenu(Menu.buildFromTemplate(modelloDelMenu(azioniCorrenti)))
+  // Su Windows e Linux il menu torna anche sulle finestre di servizio.
+  ritogliMenu()
+}
+
+/**
+ * Da chiamare prima di ogni finestra: fino a `installaMenu` Electron darebbe a
+ * ogni finestra il suo menu predefinito (File, Edit, View, Window, Help), in
+ * inglese e con comandi non nostri. Su macOS lo si lascia: là il menu è
+ * dell'applicazione e porta copia e incolla anche nei dialoghi.
+ */
+export function nienteMenuPredefinito (): void {
+  if (process.platform !== 'darwin' && !azioniCorrenti) Menu.setApplicationMenu(null)
 }
 
 export function installaMenu (azioni: Azioni): void {
@@ -384,11 +404,14 @@ function apriImpostazioni (filtro = ''): void {
     show: false,
     backgroundColor: coloreSfondo(),
     ...icona(),
-    // Qui il menu non ha niente da invocare.
-    autoHideMenuBar: true,
+    // La barra del titolo la disegna la pagina, come nel pannello.
+    ...cornicePropria(),
     webPreferences: preferenzeConPonte(),
   })
   finestra = nata
+  ricordaFascia(nata)
+  // Qui il menu non ha niente da invocare.
+  togliMenu(nata)
   chiudiLeVieDiFuga(nata)
   ricordaPosto('impostazioni', nata)
 
@@ -421,5 +444,5 @@ function apriImpostazioni (filtro = ''): void {
     if (finestra === nata) finestra = null
   })
 
-  void nata.loadURL('registro://app/dist/settings.html')
+  void nata.loadURL(`registro://app/dist/settings.html?${segniDellaCornice()}`)
 }

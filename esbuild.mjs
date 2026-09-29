@@ -3,7 +3,8 @@
 //   main.cjs, preload.cjs              main process e ponte delle pagine
 //   panel.js, projection.js, assistant.js  il registro, lo schermo per la
 //                                      classe, l'assistente staccato
-//   dialog, settings, welcome, splash  le pagine native (.html/.css/.js)
+//   dialog, settings, welcome,         le pagine native (.html/.css/.js)
+//   splash, reader
 //   pdf.worker.mjs                     il worker di pdfjs
 //
 // Il modulo `apparato` è `desktop/apparato/platform.ts`, risolto da un alias: il
@@ -127,7 +128,7 @@ const urlDelModulo = {
 }
 
 /** Le pagine native: una cartella ciascuna in `desktop/shell/pages/`, con lo stesso nome dei file. */
-const PAGINE_NATIVE = ['dialog', 'settings', 'welcome', 'splash']
+const PAGINE_NATIVE = ['dialog', 'settings', 'welcome', 'splash', 'reader']
 
 /** `{ dialog: 'desktop/shell/pages/dialog/dialog.ts', … }`: le chiavi sono i nomi in `dist/`. */
 function filePagine (estensione) {

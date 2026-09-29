@@ -300,13 +300,11 @@ function figuraDocumenti (): Schema {
     [s.lezioni, 'quieto'],
     [s.persone, 'quieto'],
     [s.aggiornaTutto, 'neutro'],
-    [s.combina, 'neutro'],
   ])
-  /** Una riga di foglio: casella, nome, punto, lente, frecce, cestino. */
-  const riga = (y: number, spuntata: boolean, pronto: boolean): string =>
+  /** Una riga di foglio: nome, punto, lente, frecce, cestino. */
+  const riga = (y: number, pronto: boolean): string =>
     disegno(
-      riquadro(154, y, 9, 9, { tono: spuntata ? 'accento' : 'neutro', raggio: 2 }),
-      righe(170, y + 3, 76, 1),
+      righe(154, y + 3, 92, 1),
       pallino(266, y + 4.5, pronto ? 'positivo' : 'neutro', 8, pronto),
       simbolo('lente', 280, y - 2, 13, pronto ? 'neutro' : 'quieto'),
       simbolo(pronto ? 'ricarica' : 'esporta', 299, y - 2, 13),
@@ -325,15 +323,15 @@ function figuraDocumenti (): Schema {
       riquadro(146, 78, 202, 100),
       testo(154, 94, s.delCorso, { forte: true }),
       testo(340, 94, s.dueDiQuattro, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
-      riga(124, true, true),
-      riga(142, false, true),
-      riga(160, false, false),
+      riga(124, true),
+      riga(142, true),
+      riga(160, false),
       riquadro(146, 186, 202, 80),
       testo(154, 202, s.prove, { forte: true }),
       testo(340, 202, s.treDiTre, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
-      riga(214, true, true),
-      riga(232, true, true),
-      riga(250, false, true),
+      riga(214, true),
+      riga(232, true),
+      riga(250, true),
       // A destra il foglio aperto, con i suoi gesti in testa.
       testo(366, 90, s.foglio, { forte: true }),
       // Il conto finisce prima delle frecce: più lungo, si sposta a sinistra.
@@ -351,10 +349,9 @@ function figuraDocumenti (): Schema {
       righe(450, 162, 86, 7),
       bollino(azioni.centri[1], 66, 1),
       bollino(azioni.centri[3], 66, 2),
-      bollino(158, 108, 3),
-      bollino(266, 108, 4),
-      bollino(305, 108, 5),
-      bollino(620, 100, 6),
+      bollino(266, 108, 3),
+      bollino(305, 108, 4),
+      bollino(620, 100, 5),
     ),
   }
 }

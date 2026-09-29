@@ -12,9 +12,9 @@ const it = {
       'resta com’era finché non lo si chiede.',
   },
   chiusura: {
-    nome: 'Quando si chiude un’ora',
+    nome: 'Chiusura lezione',
     spiegazione:
-      'Segnando un’ora come svolta si rifanno il suo verbale e i documenti del corso: è il ' +
+      'Concludendo un’ora si rifanno il suo verbale e i documenti del corso: è il ' +
       'momento in cui i dati di quell’ora sono completi.',
   },
   sempre: {
@@ -34,9 +34,9 @@ export const testi = catalogo(it, {
         'liegt, bleibt, wie es war, bis du es verlangst.',
     },
     chiusura: {
-      nome: 'Wenn eine Stunde abgeschlossen wird',
+      nome: 'Abschluss der Stunde',
       spiegazione:
-        'Wird eine Stunde als gehalten markiert, werden ihr Protokoll und die ' +
+        'Wird eine Stunde abgeschlossen, werden ihr Protokoll und die ' +
         'Dokumente des Kurses neu erstellt: Dann sind ihre Daten vollständig.',
     },
     sempre: {
@@ -55,9 +55,9 @@ export const testi = catalogo(it, {
         'dossier reste tel quel tant que tu ne le demandes pas.',
     },
     chiusura: {
-      nome: 'Quand une leçon est clôturée',
+      nome: 'Clôture de la leçon',
       spiegazione:
-        'Quand tu marques une leçon comme donnée, son procès-verbal et les documents du cours ' +
+        'Quand tu termines une leçon, son procès-verbal et les documents du cours ' +
         'sont refaits : c’est le moment où les données de cette leçon sont complètes.',
     },
     sempre: {
@@ -75,9 +75,9 @@ export const testi = catalogo(it, {
         'was until you ask.',
     },
     chiusura: {
-      nome: 'When a lesson is closed',
+      nome: 'Lesson closing',
       spiegazione:
-        'Marking a lesson as held remakes its lesson record and the course documents: that’s when the ' +
+        'Completing a lesson remakes its lesson record and the course documents: that’s when the ' +
         'lesson’s data is complete.',
     },
     sempre: {

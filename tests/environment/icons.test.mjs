@@ -165,6 +165,7 @@ describe('i vettori che le pagine leggono da resources/', () => {
     ['ui/pannello/components/logo.ts', 'resources/registro-app-piccola.svg'],
     ['desktop/shell/pages/splash/splash.html', 'resources/registro-app.svg'],
     ['desktop/shell/pages/welcome/welcome.html', 'resources/registro-fascia.svg'],
+    ['desktop/shell/pages/shared/titleBar.ts', 'resources/registro-app-piccola.svg'],
   ]
   for (const [chi, cosa] of letti) {
     it(`${chi} legge ${cosa}, e il file c'è`, () => {

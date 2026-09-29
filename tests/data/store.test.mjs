@@ -132,13 +132,13 @@ describe('il deposito', () => {
 
   it('buttando via un file butta via anche la sua copia', async () => {
     const { deposito: d } = await deposito()
-    d.scrivi('esportazioni/composizioni/Consiglio.pdf', finoPdf(64))
-    const dove = await d.materializza('esportazioni/composizioni/Consiglio.pdf')
+    d.scrivi('esportazioni/docente/Consiglio.pdf', finoPdf(64))
+    const dove = await d.materializza('esportazioni/docente/Consiglio.pdf')
     assert.ok(existsSync(dove.fsPath))
 
-    assert.equal(d.elimina('esportazioni/composizioni/Consiglio.pdf'), true)
+    assert.equal(d.elimina('esportazioni/docente/Consiglio.pdf'), true)
     // La copia se ne va per conto suo: si aspetta la coda delle copie.
-    await d.smaterializza('esportazioni/composizioni/Consiglio.pdf')
+    await d.smaterializza('esportazioni/docente/Consiglio.pdf')
     assert.equal(
       existsSync(dove.fsPath),
       false,

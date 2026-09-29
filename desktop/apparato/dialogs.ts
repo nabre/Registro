@@ -9,7 +9,7 @@
 import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron'
 
 import { icona } from './context.js'
-import { coloreSfondo, preferenzeConPonte } from './theme.js'
+import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, segniDellaCornice, togliMenu } from './theme.js'
 import { chiudiLeVieDiFuga } from './navigation.js'
 import { mostraComunque } from './showAnyway.js'
 import { CANALE } from './channels.js'
@@ -546,9 +546,10 @@ function ascolta (): void {
 }
 
 /** Indirizzo della pagina del dialogo, in `dist/` (dove la copia esbuild). */
-function indirizzo (parametri: ParametriDialogo): string {
+function indirizzo (parametri: ParametriDialogo, conBarra: boolean): string {
   // Parametri nella query: la pagina li ha già al primo disegno.
-  return `registro://app/dist/dialog.html?p=${encodeURIComponent(JSON.stringify(parametri))}`
+  const base = `registro://app/dist/dialog.html?p=${encodeURIComponent(JSON.stringify(parametri))}`
+  return conBarra ? `${base}&${segniDellaCornice()}` : base
 }
 
 /**
@@ -562,6 +563,9 @@ function chiedi (
 ): Promise<EsitoDialogo> {
   ascolta()
   const padre = finestraPadre()
+  // Su macOS un dialogo modale è un foglio appeso sotto la barra del padre,
+  // senza semafori né titolo: lì la barra propria sarebbe una striscia vuota.
+  const conBarra = process.platform !== 'darwin' || padre === undefined
   const finestra = new BrowserWindow({
     width: larghezza,
     height: 200,
@@ -576,8 +580,14 @@ function chiedi (
     title: parametri.titolo,
     backgroundColor: coloreSfondo(),
     ...icona(),
+    // La barra del titolo la disegna la pagina, come nel pannello.
+    ...(conBarra ? cornicePropria() : {}),
     webPreferences: preferenzeConPonte(),
   })
+  if (conBarra) ricordaFascia(finestra)
+  // Una domanda non ha comandi da offrire: niente barra dei menu, nemmeno
+  // quella predefinita di Electron quando il messaggio arriva all'avvio.
+  togliMenu(finestra)
   chiudiLeVieDiFuga(finestra)
   const contenuti = finestra.webContents.id
   diDialogo.add(contenuti)
@@ -666,7 +676,7 @@ function chiedi (
     finestra.webContents.on('did-fail-load', () => finisci({ dialogo: 'nonCaricata' }))
     finestra.webContents.on('did-finish-load', () => mostraComunque(finestra))
 
-    void finestra.loadURL(indirizzo(parametri))
+    void finestra.loadURL(indirizzo(parametri, conBarra))
   })
 }
 

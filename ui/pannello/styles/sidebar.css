@@ -55,9 +55,22 @@
 /* Il titolo del gruppo in minuscolo: porta il nome del corso, che in maiuscolo
    cambierebbe. Una riga sola, l'intero nel suggerimento. */
 .sidebar__titolo {
+  display: flex; flex-direction: column;
   margin: 0 10px 2px; font-size: .76em; font-weight: 600; color: var(--testo-quieto);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.sidebar__titolo-riga { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Il titolo del Registro è anche la scelta del corso: sembra un titolo, e al
+   passaggio si vede che si preme. */
+.sidebar__titolo-scelta {
+  display: flex; align-items: center; gap: 6px; width: calc(100% + 12px);
+  margin: -3px -6px; padding: 3px 6px; border: 0; border-radius: 6px;
+  background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  transition: background-color var(--durata-svelta) var(--curva);
+}
+.sidebar__titolo-scelta:hover { background: var(--sfondo-alto-2); color: var(--testo); }
+.sidebar__titolo-scelta:focus-visible { outline: 2px solid var(--accento); outline-offset: 1px; }
+.sidebar__titolo-righe { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.sidebar__titolo-freccia { flex: none; width: 12px; height: 12px; }
 .sidebar__pagina {
   display: flex; align-items: center; gap: 10px; width: 100%; min-height: 30px;
   /* 8 e non `--raggio`: la voce è una pillola larga quanto la colonna. */

@@ -63,10 +63,42 @@
  */
 .barra-titolo__marchio {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: var(--sidebar-stretta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: var(--sidebar-stretta);
   height: 100%;
+}
+
+/*
+ * Solo da sorgenti: la finestra di prova si distingue a colpo d'occhio. Una
+ * pastiglia sul velo della propria tinta, col testo scurito che regge l'AA:
+ * arancio per `npm run dev` (ricarica, strumenti accesi), blu per `npm run
+ * start` (la build com'è, ma non installata).
+ */
+.barra-titolo__sviluppo {
+  --tinta: var(--attenzione);
+  --su-velo: var(--su-velo-attenzione);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  /* A destra meno: la spaziatura delle lettere lascia già aria dopo l'ultima. */
+  padding: 0 5px 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tinta) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tinta) 38%, transparent);
+  color: var(--su-velo);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.barra-titolo__sviluppo--start {
+  --tinta: var(--informativo);
+  --su-velo: var(--su-velo-informativo);
 }
 
 /* Il logo a colori a 20 pixel, la misura della variante piccola. Il colore serve solo al segno di ripiego. */

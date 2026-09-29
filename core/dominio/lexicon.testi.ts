@@ -172,8 +172,8 @@ export const lessico = catalogo(it, {
       colloquio: 'Gespräch',
     },
     statiLezione: {
-      pianificata: 'Geplant',
-      svolta: 'Gehalten',
+      pianificata: 'Bearbeitbar',
+      svolta: 'Abgeschlossen',
       annullata: 'Ausgefallen',
     },
     tipiConsegna: {
@@ -312,8 +312,8 @@ export const lessico = catalogo(it, {
       colloquio: 'Entretien',
     },
     statiLezione: {
-      pianificata: 'Prévue',
-      svolta: 'Donnée',
+      pianificata: 'Modifiable',
+      svolta: 'Terminée',
       annullata: 'Annulée',
     },
     tipiConsegna: {
@@ -449,8 +449,8 @@ export const lessico = catalogo(it, {
       colloquio: 'Meeting',
     },
     statiLezione: {
-      pianificata: 'Planned',
-      svolta: 'Held',
+      pianificata: 'Editable',
+      svolta: 'Completed',
       annullata: 'Cancelled',
     },
     tipiConsegna: {

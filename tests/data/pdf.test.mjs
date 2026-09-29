@@ -16,7 +16,6 @@ import {
   testoConPosizioni,
   immaginePagina,
   impostaWorker,
-  unisciPdf,
 } from '../../dist-tests/pdf.mjs'
 import { pagelle } from '../helpers/smistamento.mjs'
 
@@ -160,54 +159,6 @@ describe('ritagliare delle pagine sparse', () => {
   it('senza nemmeno una pagina buona si rifiuta invece di dare un PDF vuoto', async () => {
     const byte = await pagelle(['Rossi Mario'])
     await assert.rejects(() => estraiElenco(byte, [7, 0, -1]))
-  })
-})
-
-describe('unire dei PDF in un fascicolo', () => {
-  it('mette le pagine in fila, nell’ordine in cui gli si danno', async () => {
-    const primo = await pagelle(['Rossi Mario'])
-    const secondo = await pagelle(['Bianchi Luca', 'Verdi Anna'])
-
-    const { pdf, uniti } = await unisciPdf([primo, secondo])
-    assert.equal(uniti, 2)
-    assert.equal(await contaPagine(pdf), 3)
-    const testo = await testoPagine(pdf)
-    assert.ok(testo[0].includes('Rossi Mario'))
-    assert.ok(testo[1].includes('Bianchi Luca'))
-    assert.ok(testo[2].includes('Verdi Anna'))
-  })
-
-  it('un foglio illeggibile salta, lo dice nel conto, e gli altri si uniscono', async () => {
-    const buono = await pagelle(['Rossi Mario'])
-    const rotto = new Uint8Array([1, 2, 3, 4])
-
-    const { pdf, uniti } = await unisciPdf([rotto, buono, rotto])
-    // Due su tre rimasti fuori: l'azione lo dice a chi consegna.
-    assert.equal(uniti, 1)
-    assert.equal(await contaPagine(pdf), 1)
-    assert.ok((await testoPagine(pdf))[0].includes('Rossi Mario'))
-  })
-
-  it('un PDF protetto da password resta fuori invece di entrare illeggibile', async () => {
-    // Basta il marchio `/Encrypt` nel trailer: è su quello che `unisciPdf` decide.
-    const buono = await pagelle(['Rossi Mario'])
-    const cifrato = await pagelle(['Bianchi Luca'])
-    const documento = await PDFDocument.load(cifrato)
-    documento.context.trailerInfo.Encrypt = documento.context.obj({ Filter: 'Standard', V: 1, R: 2 })
-    const protettoByte = await documento.save()
-
-    const { pdf, uniti, protetti } = await unisciPdf([buono, protettoByte])
-    assert.equal(protetti, 1, 'il PDF cifrato è entrato nel fascicolo')
-    assert.equal(uniti, 1)
-    assert.equal(await contaPagine(pdf), 1)
-  })
-
-  it('gli originali restano interi', async () => {
-    const primo = await pagelle(['Rossi Mario'])
-    const secondo = await pagelle(['Bianchi Luca'])
-    await unisciPdf([primo, secondo])
-    assert.equal(await contaPagine(primo), 1)
-    assert.equal(await contaPagine(secondo), 1)
   })
 })
 

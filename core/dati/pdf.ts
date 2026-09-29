@@ -1,5 +1,5 @@
-// Il minimo di PDF per il registro: contare pagine, leggere il testo, ritagliare
-// e unire, estrarre l'immagine di una scansione per l'OCR. `@cantoo/pdf-lib`
+// Il minimo di PDF per il registro: contare pagine, leggere il testo, ritagliare,
+// estrarre l'immagine di una scansione per l'OCR. `@cantoo/pdf-lib`
 // scrive, `pdfjs-dist` legge. pdfjs svuota il buffer che riceve (qui gli si passa
 // sempre una copia) e vuole il worker anche in Node: senza `impostaWorker` fallisce.
 
@@ -228,42 +228,6 @@ export async function estraiElenco (
   const indici = [...scelte].sort((x, y) => x - y).map((numero) => numero - 1)
   for (const pagina of await fetta.copyPages(origine, indici)) fetta.addPage(pagina)
   return fetta.save()
-}
-
-/**
- * Un PDF solo con, in fila, le pagine di tutti quelli dati (il fascicolo).
- * Un file illeggibile salta e gli altri si uniscono; tornano quanti sono entrati
- * e quanti erano cifrati, perché chi consegna sappia che ne manca qualcuno.
- */
-export async function unisciPdf (
-  fogli: ReadonlyArray<Uint8Array>,
-): Promise<{ pdf: Uint8Array, uniti: number, protetti: number }> {
-  // Senza date automatiche: la stessa composizione rifatta dà gli stessi byte.
-  const unito = await PDFDocument.create({ updateMetadata: false })
-  let uniti = 0
-  let protetti = 0
-  for (const foglio of fogli) {
-    try {
-      const origine = await PDFDocument.load(foglio, { ignoreEncryption: true })
-
-      // Leggere la struttura non è decifrare: copiate, le pagine cifrate
-      // uscirebbero illeggibili. Saltano, e il conto lo dice.
-      if (origine.isEncrypted) {
-        protetti += 1
-        continue
-      }
-
-      const indici = origine.getPageIndices()
-      // Zero pagine: conta come rimasto fuori.
-      if (indici.length === 0) continue
-
-      for (const pagina of await unito.copyPages(origine, indici)) unito.addPage(pagina)
-      uniti += 1
-    } catch {
-      // Un foglio illeggibile salta, e il conto che torna lo dice.
-    }
-  }
-  return { pdf: await unito.save(), uniti, protetti }
 }
 
 // ------------------------------------------------------------------ immagini

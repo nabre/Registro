@@ -9,7 +9,6 @@ const it = {
   buttareTesto:
     'Va via solo il file nella cartella delle esportazioni: i dati restano nel ' +
     'registro, e il documento si rifà quando serve.',
-  metti: (nome: string) => `Metti ${nome} nella composizione da guardare unita`,
   /** Di quando è la copia nella cartella, per i fogli che portano il giorno nel nome. */
   del: (giorno: string) => `del ${giorno}`,
   nellaCartella: (quando: string) => `nella cartella, ${quando}`,
@@ -23,8 +22,6 @@ const it = {
   rifa: (nome: string) => `Rifà ${nome} e mostra il foglio qui accanto`,
   fa: (nome: string) => `Fa ${nome} e mostra il foglio qui accanto`,
   buttaDallaCartella: (nome: string) => `Butta via ${nome} dalla cartella`,
-  togliTutte: 'Togli la spunta a tutti i fogli di questa scheda',
-  spuntaTutti: (quanti: number) => `Spunta i ${quanti} fogli di questa scheda`,
   pronti: (pronti: number, tutti: number) => `${pronti} di ${tutti} nella cartella`,
 }
 
@@ -34,8 +31,6 @@ export const testi = catalogo(it, {
     buttareTesto:
       'Entfernt wird nur die Datei im Ordner der Exporte: Die Daten bleiben im Klassenbuch, ' +
       'und das Dokument lässt sich bei Bedarf neu erstellen.',
-    metti: (nome) =>
-      `${conMaiuscola(nome)} in die Zusammenstellung aufnehmen, die man vereint ansieht`,
     del: (giorno) => `vom ${giorno}`,
     nellaCartella: (quando) => `im Ordner, ${quando}`,
     daFare: 'noch zu erstellen',
@@ -49,8 +44,6 @@ export const testi = catalogo(it, {
     rifa: (nome) => `Erstellt ${nome} neu und zeigt das Blatt daneben`,
     fa: (nome) => `Erstellt ${nome} und zeigt das Blatt daneben`,
     buttaDallaCartella: (nome) => `Wirft ${nome} aus dem Ordner`,
-    togliTutte: 'Häkchen bei allen Blättern dieses Reiters entfernen',
-    spuntaTutti: (quanti) => `Die ${quanti} Blätter dieses Reiters abhaken`,
     pronti: (pronti, tutti) => `${pronti} von ${tutti} im Ordner`,
   },
   fr: {
@@ -58,7 +51,6 @@ export const testi = catalogo(it, {
     buttareTesto:
       'Seul le fichier du dossier des exportations s’en va : les données restent dans le ' +
       'registre, et le document se refait quand il le faut.',
-    metti: (nome) => `Mettre ${nome} dans la compilation à regarder d’un seul tenant`,
     del: (giorno) => `du ${giorno}`,
     nellaCartella: (quando) => `dans le dossier, ${quando}`,
     daFare: 'à faire',
@@ -72,8 +64,6 @@ export const testi = catalogo(it, {
     rifa: (nome) => `Refait ${nome} et montre la feuille à côté`,
     fa: (nome) => `Crée ${nome} et montre la feuille à côté`,
     buttaDallaCartella: (nome) => `Jette ${nome} hors du dossier`,
-    togliTutte: 'Décocher toutes les feuilles de cette rubrique',
-    spuntaTutti: (quanti) => `Cocher les ${quanti} feuilles de cette rubrique`,
     pronti: (pronti, tutti) => `${pronti} sur ${tutti} dans le dossier`,
   },
   en: {
@@ -81,7 +71,6 @@ export const testi = catalogo(it, {
     buttareTesto:
       'Only the file in the exports folder goes: the data stays in the register, and the ' +
       'document can be remade when needed.',
-    metti: (nome) => `Put ${nome} in the compilation to view as one`,
     del: (giorno) => `from ${giorno}`,
     nellaCartella: (quando) => `in the folder, ${quando}`,
     daFare: 'to do',
@@ -94,8 +83,6 @@ export const testi = catalogo(it, {
     rifa: (nome) => `Remakes ${nome} and shows the sheet alongside`,
     fa: (nome) => `Makes ${nome} and shows the sheet alongside`,
     buttaDallaCartella: (nome) => `Throws ${nome} out of the folder`,
-    togliTutte: 'Untick all the sheets in this section',
-    spuntaTutti: (quanti) => `Tick the ${quanti} sheets in this section`,
     pronti: (pronti, tutti) => `${pronti} of ${tutti} in the folder`,
   },
 })

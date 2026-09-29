@@ -1,7 +1,7 @@
 // I mattoni della pagina Documenti: un foglio, la sua riga, i suoi gesti.
-// Trovare il file nella cartella, aprirlo, rifarlo, buttarlo, spuntarlo; e il
-// registro delle righe disegnate, da cui vengono il conto in testa alle schede,
-// la casella «tutti» e l'ordine dell'anteprima. `cards.ts` dichiara solo nome,
+// Trovare il file nella cartella, aprirlo, rifarlo, buttarlo; e il registro
+// delle righe disegnate, da cui vengono il conto in testa alle schede e
+// l'ordine dell'anteprima. `cards.ts` dichiara solo nome,
 // foglio e azione che lo rifà.
 
 import {
@@ -17,7 +17,7 @@ import { conferma } from '../../components/modal.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import type { Azione } from '../../../../contract/protocollo.js'
-import { aggiorna, sceltiPresenti, stato } from '../../state.js'
+import { aggiorna, stato } from '../../state.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './sheets.testi.js'
 
@@ -47,7 +47,7 @@ export function fileEsportato (percorso: string): Foglio {
 
 /**
  * Una riga appena disegnata: il suo foglio e i suoi gesti. Unica fonte per il
- * conto delle schede, la casella «tutti» e l'ordine dell'anteprima.
+ * conto delle schede e l'ordine dell'anteprima.
  */
 export interface Riga {
   foglio: Foglio
@@ -57,11 +57,6 @@ export interface Riga {
   rifai: Azione | null
   /** Perché adesso non si può rifare, o `null` se si può. */
   bloccato: string | null
-  /**
-   * Come si butta via quando togliere il file non basta (una composizione perde
-   * anche la sua ricetta); serve anche al cestino in testa alla cornice.
-   */
-  butta: (() => Promise<void> | void) | null
 }
 
 /** Le righe disegnate in questo giro, in ordine; si svuota a ogni ridisegno. */
@@ -84,42 +79,6 @@ export function apribili (righe: Riga[] = disegnate): Riga[] {
 function guardabile (percorso: string): boolean {
   return percorso.endsWith('.pdf') || percorso.endsWith('.csv')
 }
-
-/**
- * Quelli che si possono mettere in una composizione: solo i PDF. La casella
- * «tutti» e il Maiusc+clic leggono questo, altrimenti spunterebbero fogli che
- * l'host scarta in silenzio.
- */
-function combinabili (righe: Riga[] = disegnate): Riga[] {
-  return apribili(righe).filter((riga) => riga.foglio.trovato?.endsWith('.pdf'))
-}
-
-/**
- * I documenti spuntati nell'ordine della pagina, non in quello dei clic: chi
- * consegna si aspetta l'ordine che vede. Le spunte di altre schede, di cui qui
- * non si conosce la riga, vanno in coda nell'ordine di scelta; la modale
- * mostra l'elenco intero prima di comporre.
- */
-export function sceltiInOrdine (): Array<{ percorso: string, nome: string }> {
-  const scelti = sceltiPresenti()
-  const inPagina = new Map<string, string>()
-  for (const riga of apribili()) {
-    const percorso = riga.foglio.trovato as string
-    if (!inPagina.has(percorso) && scelti.includes(percorso)) inPagina.set(percorso, riga.nome)
-  }
-  return [
-    ...[...inPagina].map(([percorso, nome]) => ({ percorso, nome })),
-    ...scelti
-      .filter((percorso) => !inPagina.has(percorso))
-      .map((percorso) => ({ percorso, nome: nomeDelFile(percorso) })),
-  ]
-}
-
-/** Come si chiama un foglio di cui si ha solo il percorso: il nome del file. */
-function nomeDelFile (percorso: string): string {
-  return (percorso.split('/').pop() ?? percorso).replace(/\.pdf$/i, '')
-}
-
 
 /**
  * Cerca nella cartella il documento di un rapporto. Di norma per nome esatto;
@@ -191,10 +150,7 @@ export async function rifaiEGuarda (comando: Azione): Promise<void> {
  */
 interface Gesti {
   foglio: Foglio
-  /**
-   * L'azione che rifà il documento. Manca per i PDF sotto
-   * `esportazioni/composizioni/` senza il loro elenco: si guardano e si buttano.
-   */
+  /** L'azione che rifà il documento; senza, il foglio si guarda e si butta soltanto. */
   rifai?: Azione
   /** Come si chiama il foglio quando lo si nomina: nei titoli e nella domanda. */
   nome: string
@@ -205,11 +161,6 @@ interface Gesti {
   bloccato?: string | null
   /** Un gesto in più che vale solo per questo documento, in coda agli altri. */
   altro?: Figlio
-  /**
-   * Come si butta via quando non basta togliere il file: una composizione è PDF
-   * più ricetta, e vanno tolti insieme.
-   */
-  butta?: () => Promise<void> | void
 }
 
 /**
@@ -230,68 +181,6 @@ export async function buttaVia (percorso: string | null, nome: string): Promise<
   if (risposta.ok && stato.anteprima === percorso) aggiorna({ anteprima: null })
 }
 
-// ------------------------------------------------------------- la scelta
-
-/**
- * L'ultimo documento spuntato, per la scelta a intervallo con Maiusc. Fuori
- * dallo stato perché non si vede, ma sopravvive ai ridisegni.
- */
-let ultimaScelta: string | null = null
-
-function scelto (percorso: string | null): boolean {
-  return percorso !== null && stato.documentiScelti.includes(percorso)
-}
-
-/** Spunta o toglie la spunta a un documento. */
-function alterna (percorso: string): void {
-  const scelti = scelto(percorso)
-    ? stato.documentiScelti.filter((p) => p !== percorso)
-    : [...stato.documentiScelti, percorso]
-  ultimaScelta = scelti.includes(percorso) ? percorso : null
-  aggiorna({ documentiScelti: scelti })
-}
-
-/**
- * Spunta tutto fra l'ultimo scelto e questo, nell'ordine della pagina; senza un
- * ultimo scelto vale come una spunta normale.
- */
-function scegliFino (percorso: string): void {
-  const elenco = combinabili()
-  const da = ultimaScelta ? elenco.findIndex((r) => r.foglio.trovato === ultimaScelta) : -1
-  const a = elenco.findIndex((r) => r.foglio.trovato === percorso)
-  if (da < 0 || a < 0) {
-    alterna(percorso)
-    return
-  }
-  const dentro = elenco
-    .slice(Math.min(da, a), Math.max(da, a) + 1)
-    .map((r) => r.foglio.trovato as string)
-  ultimaScelta = percorso
-  aggiorna({ documentiScelti: [...new Set([...stato.documentiScelti, ...dentro])] })
-}
-
-/**
- * La casella con cui un documento entra in una composizione (anche Ctrl per
- * una riga, Maiusc per un intervallo). Senza niente da scegliere resta il posto
- * vuoto, per tenere incolonnate le caselle.
- */
-function spunta (foglio: Foglio, nome: string): Figlio {
-  const percorso = foglio.trovato
-  if (!percorso || !percorso.endsWith('.pdf')) {
-    return h('span', { class: 'documenti__spunta documenti__spunta--vuota' })
-  }
-  return h('input', {
-    class: 'documenti__spunta',
-    type: 'checkbox',
-    checked: scelto(percorso),
-    attr: { title: testi().metti(nome) },
-    // La spunta ridisegna la pagina (conta anche «Combina» nella riga delle
-    // azioni): la chiave di fuoco lascia il cursore sulla casella appena premuta.
-    dataset: { fuoco: `documenti-spunta:${percorso}` }, // testo-fisso: chiave di fuoco, non si legge
-    onchange: () => alterna(percorso),
-  })
-}
-
 /** Vero quando il file di questa riga è quello aperto nella cornice. */
 function aperto (foglio: Foglio): boolean {
   return foglio.trovato !== null && foglio.trovato === stato.anteprima
@@ -307,7 +196,6 @@ function annuncia (opzioni: Gesti): void {
     nome: opzioni.nome,
     rifai: opzioni.rifai ?? null,
     bloccato: opzioni.bloccato ?? null,
-    butta: opzioni.butta ?? null,
   })
 }
 
@@ -368,8 +256,8 @@ function gestiFoglio (opzioni: Gesti): Figlio[] {
       // offrire in ogni riga.
       classe: 'pulsante--minuto documenti__gesto-raro',
       titolo: t.buttaDallaCartella(opzioni.nome),
-      disabilitato: !trovato && !opzioni.butta,
-      al: () => opzioni.butta?.() ?? buttaVia(trovato, opzioni.nome),
+      disabilitato: !trovato,
+      al: () => buttaVia(trovato, opzioni.nome),
     }),
     opzioni.altro ?? null,
   ]
@@ -385,17 +273,6 @@ function alClicSullaRiga (opzioni: Gesti): (evento: MouseEvent) => void {
     if (!percorso) return
     const dentro = evento.target as HTMLElement | null
     if (dentro?.closest('button') || dentro?.closest('input')) return
-    // Ctrl spunta, Maiusc spunta fino a qui, come negli elenchi di file.
-    if (evento.shiftKey && percorso.endsWith('.pdf')) {
-      // Toglie la selezione di testo che il Maiusc porta con sé.
-      document.getSelection()?.removeAllRanges()
-      scegliFino(percorso)
-      return
-    }
-    if ((evento.ctrlKey || evento.metaKey) && percorso.endsWith('.pdf')) {
-      alterna(percorso)
-      return
-    }
     void guarda(percorso)
   }
 }
@@ -430,13 +307,11 @@ export function rigaFoglio (
         'documenti__riga',
         Boolean(suo) && 'documenti__riga--apribile',
         aperto(opzioni.foglio) && 'documenti__riga--aperta',
-        scelto(suo) && 'documenti__riga--scelta',
       ],
       // La riga aperta è quella corrente dell'elenco, per tastiera e lettori di schermo.
       attr: { 'aria-current': aperto(opzioni.foglio) ? 'true' : null },
       onclick: alClicSullaRiga(opzioni),
     },
-    spunta(opzioni.foglio, opzioni.nome),
     etichetta,
     opzioni.segni ?? null,
     ...gesti,
@@ -480,39 +355,7 @@ export function schedaDiFogli (opzioni: {
     titolo: opzioni.titolo,
     sottotitolo: opzioni.sottotitolo?.(suoi),
     aiuto: opzioni.aiuto,
-    azioni: casellaDiScheda(suoi),
     contenuto,
-  })
-}
-
-/**
- * La casella «tutti» in testa a una scheda, incolonnata con quelle delle righe.
- * Combinare le spunte è invece un comando della pagina: le spunte attraversano
- * le tre schede.
- */
-function casellaDiScheda (suoi: Riga[]): Figlio {
-  const percorsi = combinabili(suoi).map((riga) => riga.foglio.trovato as string)
-  if (percorsi.length === 0) return null
-  const quanti = percorsi.filter((percorso) => scelto(percorso)).length
-  const tutti = quanti === percorsi.length
-
-  return h('input', {
-    class: 'documenti__spunta',
-    type: 'checkbox',
-    checked: tutti,
-    // A metà strada la casella è indeterminata: né «nessuno» né «tutti».
-    indeterminate: quanti > 0 && !tutti,
-    attr: {
-      title: tutti ? testi().togliTutte : testi().spuntaTutti(percorsi.length),
-    },
-    onchange: () => {
-      ultimaScelta = null
-      aggiorna({
-        documentiScelti: tutti
-          ? stato.documentiScelti.filter((p) => !percorsi.includes(p))
-          : [...new Set([...stato.documentiScelti, ...percorsi])],
-      })
-    },
   })
 }
 

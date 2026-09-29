@@ -61,7 +61,7 @@ const it = {
         termine: 'Le lezioni di oggi',
         testo:
           'In ordine di calendario: inizio e fine, classe e materia, argomento e aula. La ' +
-          'pastiglia dice la fase — **In corso**, **Da chiudere**, **Svolta**, **Da ' +
+          'pastiglia dice la fase — **In corso**, **Da chiudere**, **Conclusa**, **Da ' +
           'preparare**, **In programma**, **Annullata**. La lezione in corso porta la scritta ' +
           '«Adesso»; fra una lezione e l’altra è la prossima ad accendersi, con «Prossima». Un clic ' +
           'apre la lezione.',
@@ -113,8 +113,8 @@ const it = {
       mer: 'mer 16',
       gio: 'gio 17',
       ven: 'ven 18',
-      svolta: 'svolta',
-      pianificata: 'pianificata',
+      svolta: 'conclusa',
+      pianificata: 'modificabile',
       inCorso: 'in corso',
       annullata: 'annullata',
     },
@@ -129,7 +129,7 @@ const it = {
           'Tutte le settimane dell’anno, anche le vuote: numero, lettera A/B, quante ore. La ' +
             'freccia in cima a destra la ripiega, e il registro se lo ricorda.',
           'I giorni: vacanze spente, confini di semestre, la torta dei compleanni.',
-          'Una lezione: tratteggiata se pianificata, piena se svolta, sbiadita e barrata se annullata.',
+          'Una lezione: tratteggiata se modificabile, piena se conclusa, sbiadita e barrata se annullata.',
           'La riga di adesso, nella colonna di oggi: si muove da sola.',
           'Le ore: dalla prima all’ultima della giornata scelta nelle Impostazioni, a ore piene — ' +
             'o, con le pause della giornata, sui confini delle UD —, alla stessa altezza in tutto ' +
@@ -222,7 +222,7 @@ const it = {
         testo:
           'Le ore in elenco, una riga ciascuna, divise per settimana: tutto l’anno, e aprendola ' +
           'si porta sul giorno scelto. Ogni riga dice orario, classe, materia e durata; a ora ' +
-          'svolta, anche i presenti.',
+          'conclusa, anche i presenti.',
       },
       {
         termine: 'Oggi e le frecce',
@@ -299,7 +299,7 @@ const it = {
       copia: 'mentre si lascia: copia',
       apriLezione: 'Apri la lezione',
       modifica: 'Modifica…',
-      segnaSvolta: 'Segna come svolta',
+      segnaSvolta: 'Concludi la lezione',
       annullaLezione: 'Annulla la lezione',
       supplenza: 'Supplenza',
       copiaSettimana: 'Copia alla settimana prossima',
@@ -363,7 +363,7 @@ const it = {
       {
         termine: 'Il tasto destro su una lezione',
         testo:
-          'Sempre: **Apri la lezione**, **Segna come svolta** (o **Riporta a pianificata**), ' +
+          'Sempre: **Apri la lezione**, **Concludi la lezione** (o **Riporta a modificabile**), ' +
           '**Annulla la lezione** (o **Non è più annullata**), **Supplenza** (con la spunta ' +
           'quando lo è) e **Apri il piano della lezione**, che lo genera se l’ora non ne ha uno. In modifica il tasto destro sceglie l’ora e aggiunge ' +
           'quel che tocca l’orario: **Modifica…** (F2), nella settimana **Allunga** e ' +
@@ -391,7 +391,7 @@ const it = {
         termine: 'Lezione da compilare',
         testo:
           'Nella riga delle azioni apre il buco più vecchio — una lezione passata senza appello, o ' +
-          'non segnata svolta —; quando non ce ne sono si chiama **Prossima lezione**. Tiene conto ' +
+          'non conclusa —; quando non ce ne sono si chiama **Prossima lezione**. Tiene conto ' +
           'del corso nel filtro e del periodo scelto.',
       },
     ],
@@ -587,7 +587,7 @@ const it = {
         termine: 'Applica le spunte',
         testo:
           'Cambia solo quel che è spuntato, tutto insieme. Allineando, appello, piano e testi ' +
-          'restano; le ore già svolte partono senza spunta. Annullare segna annullata, non ' +
+          'restano; le ore già concluse partono senza spunta. Annullare segna annullata, non ' +
           'cancella.',
       },
       {
@@ -914,7 +914,7 @@ export const testi = catalogo(it, {
           termine: 'Die Stunden von heute',
           testo:
             'In der Reihenfolge des Kalenders: Beginn und Ende, Klasse und Fach, Thema und ' +
-            'Zimmer. Die Plakette zeigt den Stand — **Läuft**, **Abzuschliessen**, **Gehalten**, ' +
+            'Zimmer. Die Plakette zeigt den Stand — **Läuft**, **Abzuschliessen**, **Abgeschlossen**, ' +
             '**Vorzubereiten**, **Geplant**, **Ausgefallen**. Die laufende Stunde trägt «Jetzt»; ' +
             'zwischen zwei Stunden ist die nächste hervorgehoben, mit «Als Nächstes». Ein Klick ' +
             'öffnet die Stunde.',
@@ -967,8 +967,8 @@ export const testi = catalogo(it, {
         mer: 'Mi 16',
         gio: 'Do 17',
         ven: 'Fr 18',
-        svolta: 'gehalten',
-        pianificata: 'geplant',
+        svolta: 'abgeschlossen',
+        pianificata: 'bearbeitbar',
         inCorso: 'läuft',
         annullata: 'ausgefallen',
       },
@@ -984,7 +984,7 @@ export const testi = catalogo(it, {
               'Stunden. Der Pfeil oben rechts klappt den Streifen ein, und das Klassenbuch ' +
               'merkt es sich.',
             'Die Tage: Ferien ausgegraut, Semestergrenzen, die Torte der Geburtstage.',
-            'Eine Stunde: gestrichelt, wenn geplant, voll, wenn gehalten, blass und ' +
+            'Eine Stunde: gestrichelt, wenn bearbeitbar, voll, wenn abgeschlossen, blass und ' +
               'durchgestrichen, wenn ausgefallen.',
             'Die Linie von jetzt, in der Spalte von heute: Sie bewegt sich von selbst.',
             'Die Stunden: von der ersten bis zur letzten des Tages, wie in den Einstellungen ' +
@@ -1084,7 +1084,7 @@ export const testi = catalogo(it, {
           testo:
             'Die Stunden als Liste, eine Zeile pro Stunde, nach Woche geteilt: das ganze ' +
             'Schuljahr, und beim Öffnen springt sie zum gewählten Tag. Jede Zeile nennt Zeit, ' +
-            'Klasse, Fach und Dauer; bei gehaltener Stunde auch die Anwesenden.',
+            'Klasse, Fach und Dauer; bei abgeschlossener Stunde auch die Anwesenden.',
         },
         {
           termine: 'Heute und die Pfeile',
@@ -1164,7 +1164,7 @@ export const testi = catalogo(it, {
         copia: 'beim Loslassen: Kopie',
         apriLezione: 'Stunde öffnen',
         modifica: 'Bearbeiten…',
-        segnaSvolta: 'Als gehalten markieren',
+        segnaSvolta: 'Stunde abschliessen',
         annullaLezione: 'Als ausgefallen markieren',
         supplenza: 'Stellvertretung',
         copiaSettimana: 'In die nächste Woche kopieren',
@@ -1233,8 +1233,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Die rechte Maustaste auf einer Stunde',
           testo:
-            'Immer: **Stunde öffnen**, **Als gehalten markieren** (oder **Auf geplant ' +
-            'zurücksetzen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**), ' +
+            'Immer: **Stunde öffnen**, **Stunde abschliessen** (oder **Wieder bearbeitbar ' +
+            'machen**), **Als ausgefallen markieren** (oder **Nicht mehr ausgefallen**), ' +
             '**Stellvertretung** (mit Häkchen, wenn sie es ist) und **Unterrichtsplan öffnen**, ' +
             'das einen erzeugt, wenn die Stunde keinen hat. Beim Bearbeiten ' +
             'wählt die rechte Maustaste die Stunde und fügt hinzu, was den Stundenplan ' +
@@ -1266,7 +1266,7 @@ export const testi = catalogo(it, {
           termine: 'Auszufüllende Stunde',
           testo:
             'In der Aktionsleiste öffnet sie die älteste Lücke — eine vergangene Stunde ohne ' +
-            'Präsenzkontrolle oder nicht als gehalten markiert —; gibt es keine, heisst sie ' +
+            'Präsenzkontrolle oder nicht abgeschlossen —; gibt es keine, heisst sie ' +
             '**Nächste Stunde**. Sie berücksichtigt den Kurs im Filter und den gewählten ' +
             'Zeitraum.',
         },
@@ -1473,7 +1473,7 @@ export const testi = catalogo(it, {
           termine: 'Die Häkchen anwenden',
           testo:
             'Ändert nur, was abgehakt ist, alles auf einmal. Beim Angleichen bleiben ' +
-            'Präsenzkontrolle, Plan und Texte; schon gehaltene Stunden sind nicht abgehakt. ' +
+            'Präsenzkontrolle, Plan und Texte; schon abgeschlossene Stunden sind nicht abgehakt. ' +
             'Absagen markiert als ausgefallen, es löscht nicht.',
         },
         {
@@ -1808,7 +1808,7 @@ export const testi = catalogo(it, {
           termine: 'Les leçons d’aujourd’hui',
           testo:
             'Dans l’ordre du calendrier : début et fin, classe et branche, sujet et salle. La ' +
-            'pastille dit où en est la leçon — **En cours**, **À clôturer**, **Donnée**, ' +
+            'pastille dit où en est la leçon — **En cours**, **À clôturer**, **Terminée**, ' +
             '**À préparer**, **Prévue**, **Annulée**. La leçon en cours porte « Maintenant » ; ' +
             'entre deux leçons, c’est la prochaine qui s’allume, avec « Ensuite ». Un clic ouvre ' +
             'la leçon.',
@@ -1861,8 +1861,8 @@ export const testi = catalogo(it, {
         mer: 'mer 16',
         gio: 'jeu 17',
         ven: 'ven 18',
-        svolta: 'donnée',
-        pianificata: 'prévue',
+        svolta: 'terminée',
+        pianificata: 'modifiable',
         inCorso: 'en cours',
         annullata: 'annulée',
       },
@@ -1877,7 +1877,7 @@ export const testi = catalogo(it, {
             'Toutes les semaines de l’année, même les vides : numéro, lettre A/B, combien de ' +
               'leçons. La flèche en haut à droite la replie, et le registre s’en souvient.',
             'Les jours : vacances grisées, limites de semestre, le gâteau des anniversaires.',
-            'Une leçon : en pointillé si prévue, pleine si donnée, pâle et barrée si annulée.',
+            'Une leçon : en pointillé si modifiable, pleine si terminée, pâle et barrée si annulée.',
             'La ligne de maintenant, dans la colonne d’aujourd’hui : elle bouge toute seule.',
             'Les heures : de la première à la dernière de la journée choisie dans les ' +
               'Paramètres, à l’heure pleine — ou, avec les pauses de la journée, aux limites ' +
@@ -1972,7 +1972,7 @@ export const testi = catalogo(it, {
           testo:
             'Les leçons en liste, une ligne chacune, divisées par semaine : toute l’année, et en ' +
             'l’ouvrant on arrive sur le jour choisi. Chaque ligne indique l’horaire, la classe, ' +
-            'la branche et la durée ; pour une leçon donnée, aussi les présents.',
+            'la branche et la durée ; pour une leçon terminée, aussi les présents.',
         },
         {
           termine: 'Aujourd’hui et les flèches',
@@ -2052,7 +2052,7 @@ export const testi = catalogo(it, {
         copia: 'en relâchant : copie',
         apriLezione: 'Ouvrir la leçon',
         modifica: 'Modifier…',
-        segnaSvolta: 'Marquer comme donnée',
+        segnaSvolta: 'Terminer la leçon',
         annullaLezione: 'Annuler la leçon',
         supplenza: 'Remplacement',
         copiaSettimana: 'Copier à la semaine suivante',
@@ -2119,8 +2119,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Le clic droit sur une leçon',
           testo:
-            'Toujours : **Ouvrir la leçon**, **Marquer comme donnée** (ou **Remettre en ' +
-            'prévue**), **Annuler la leçon** (ou **N’est plus annulée**), **Remplacement** ' +
+            'Toujours : **Ouvrir la leçon**, **Terminer la leçon** (ou **Remettre en ' +
+            'modifiable**), **Annuler la leçon** (ou **N’est plus annulée**), **Remplacement** ' +
             '(coché quand c’en est un) et **Ouvrir le plan de la leçon**, qui en génère un si la leçon n’en a pas. En modification, le clic droit choisit ' +
             'la leçon et ajoute ce qui touche l’horaire : **Modifier…** (F2), dans la semaine ' +
             '**Allonger d’une période** et **Raccourcir d’une période**, **Au jour précédent** ' +
@@ -2148,7 +2148,7 @@ export const testi = catalogo(it, {
           termine: 'Leçon à remplir',
           testo:
             'Dans la barre d’actions, elle ouvre le trou le plus ancien — une leçon passée sans ' +
-            'appel, ou pas marquée donnée — ; quand il n’y en a pas, elle s’appelle ' +
+            'appel, ou pas terminée — ; quand il n’y en a pas, elle s’appelle ' +
             '**Prochaine leçon**. Elle tient compte du cours du filtre et de la période choisie.',
         },
       ],
@@ -2353,7 +2353,7 @@ export const testi = catalogo(it, {
           termine: 'Appliquer les coches',
           testo:
             'Ne change que ce qui est coché, tout ensemble. En alignant, l’appel, le plan et les ' +
-            'textes restent ; les leçons déjà données partent sans coche. Annuler marque ' +
+            'textes restent ; les leçons déjà terminées partent sans coche. Annuler marque ' +
             'annulée, n’efface pas.',
         },
         {
@@ -2685,7 +2685,7 @@ export const testi = catalogo(it, {
           termine: 'Today’s lessons',
           testo:
             'In calendar order: start and end, class and subject, topic and room. The badge ' +
-            'shows the stage — **In progress**, **To close**, **Held**, **To prepare**, ' +
+            'shows the stage — **In progress**, **To close**, **Completed**, **To prepare**, ' +
             '**Planned**, **Cancelled**. The lesson in progress is marked “Now”; between lessons ' +
             'the next one lights up, marked “Next”. A click opens the lesson.',
         },
@@ -2735,8 +2735,8 @@ export const testi = catalogo(it, {
         mer: 'Wed 16',
         gio: 'Thu 17',
         ven: 'Fri 18',
-        svolta: 'held',
-        pianificata: 'planned',
+        svolta: 'completed',
+        pianificata: 'editable',
         inCorso: 'in progress',
         annullata: 'cancelled',
       },
@@ -2751,7 +2751,7 @@ export const testi = catalogo(it, {
             'All the weeks of the year, empty ones too: number, letter A/B, how many lessons. ' +
               'The arrow at the top right folds it away, and the register remembers.',
             'The days: holidays greyed out, semester boundaries, the birthday cake.',
-            'A lesson: dashed if planned, solid if held, faded and struck through if cancelled.',
+            'A lesson: dashed if editable, solid if completed, faded and struck through if cancelled.',
             'The line for now, in today’s column: it moves on its own.',
             'The hours: from the first to the last of the day chosen in Settings, on the hour — ' +
               'or, with the day’s breaks, on the period boundaries —, at the same height all ' +
@@ -2844,7 +2844,7 @@ export const testi = catalogo(it, {
           testo:
             'The lessons as a list, one row each, split by week: the whole year, and opening it ' +
             'takes you to the chosen day. Each row gives time, class, subject and length; once ' +
-            'the lesson is held, the learners present too.',
+            'the lesson is completed, the learners present too.',
         },
         {
           termine: 'Today and the arrows',
@@ -2923,7 +2923,7 @@ export const testi = catalogo(it, {
         copia: 'while dropping: copy',
         apriLezione: 'Open the lesson',
         modifica: 'Edit…',
-        segnaSvolta: 'Mark as held',
+        segnaSvolta: 'Complete the lesson',
         annullaLezione: 'Cancel the lesson',
         supplenza: 'Substitution',
         copiaSettimana: 'Copy to next week',
@@ -2989,7 +2989,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Right-click on a lesson',
           testo:
-            'Always: **Open the lesson**, **Mark as held** (or **Set back to planned**), ' +
+            'Always: **Open the lesson**, **Complete the lesson** (or **Make editable again**), ' +
             '**Cancel the lesson** (or **No longer cancelled**), **Substitution** (ticked when ' +
             'it is one) and **Open the lesson plan**, which generates one if the lesson has none. While editing, right-click selects the lesson and adds ' +
             'what concerns the timetable: **Edit…** (F2), in the week **Lengthen by one ' +
@@ -3018,7 +3018,7 @@ export const testi = catalogo(it, {
           termine: 'Lesson to fill in',
           testo:
             'In the action bar it opens the oldest gap — a past lesson without attendance, or ' +
-            'not marked as held —; when there are none it is called **Next lesson**. It takes ' +
+            'not completed —; when there are none it is called **Next lesson**. It takes ' +
             'the course in the filter and the chosen period into account.',
         },
       ],
@@ -3215,7 +3215,7 @@ export const testi = catalogo(it, {
           termine: 'Apply the ticks',
           testo:
             'Changes only what is ticked, all at once. When aligning, attendance, plan and ' +
-            'texts stay; lessons already held start unticked. Cancelling marks as cancelled, it ' +
+            'texts stay; lessons already completed start unticked. Cancelling marks as cancelled, it ' +
             'does not delete.',
         },
         {

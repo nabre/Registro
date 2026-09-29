@@ -14,6 +14,8 @@
 
 import { MODI_PDF } from '../../core/dominio/automation.js'
 import { checkDelCorso } from '../../core/dominio/check.js'
+import { lezioneFinita } from '../../core/dominio/calculations.js'
+import { lezioneCompilata } from '../../core/dominio/courses.js'
 import { lessico } from '../../core/dominio/lexicon.testi.js'
 import { parole } from '../../core/dominio/words.testi.js'
 import { titoloComando } from '../../contract/manifesto.js'
@@ -39,7 +41,6 @@ import {
   moduloNuovaPersona,
   chiediEliminazione,
   moduloAnno,
-  moduloComposizione,
   moduloBloccoAssenze,
   moduloClasse,
   moduloColonnaCheck,
@@ -81,14 +82,12 @@ import {
   corsiDi,
   nomeSemestreScelto,
   oraDaFare,
-  sceltiPresenti,
   stato,
   vai,
   type SchedaDocente,
   type Vista,
 } from './state.js'
 // L'ordine dei fogli spuntati è quello a schermo, non quello dei clic.
-import { sceltiInOrdine } from './views/documents/sheets.js'
 import { caricaPdf, pdfInAttesa, rileggiScansioni } from './views/sorting.js'
 // La mappa tiene la sua inquadratura in una variabile di modulo (vedi `views/map.ts`).
 import { indirizziInAttesa, inquadraTutto } from './views/map.js'
@@ -625,10 +624,9 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     acceso: () => stato.modoCalendario === modo.valore,
     al: () => scegliModoCalendario(modo.valore),
   })),
-  // La modifica è un modo del registro, non di una pagina. Nel calendario la
-  // griglia prende in mano le ore (`views/calendar/editor.ts`); nella pagina di
-  // un'ora sblocca giorno, orario e aula. Per questo sta nella barra accanto a
-  // «Proietta» (`commandBar.ts`): si vede e si spegne da ovunque.
+  // La modifica è un modo del registro, non di una pagina: nel calendario la
+  // griglia prende in mano le ore (`views/calendar/editor.ts`). Per questo sta
+  // nella barra accanto a «Proietta» (`commandBar.ts`): si vede e si spegne da ovunque.
   {
     id: 'calendario.editor',
     titolo: P.modifica,
@@ -786,9 +784,26 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     gruppo: G.statoDellOra,
     aiuto: STATI_ORA[valore].aiuto,
     // «Svolta» chiude l'ora: finché non è fatto si vede più degli altri.
-    primario: () => valore === 'svolta' && statoLezione() !== null && statoLezione() !== 'svolta',
+    primario: () => {
+      const lezione = lezioneDelContesto()
+      return valore === 'svolta' && lezione !== null && lezione.stato !== 'svolta' &&
+        lezioneFinita(lezione, stato.adessoData, stato.adessoOra)
+    },
     acceso: () => statoLezione() === valore,
-    impedimento: senzaLezione,
+    impedimento: () => {
+      const lezione = lezioneDelContesto()
+      if (!lezione) return senzaLezione()
+      // Si conclude solo un'ora il cui tempo è passato.
+      if (valore === 'svolta' && lezione.stato !== 'svolta' && !lezioneFinita(lezione, stato.adessoData, stato.adessoOra)) {
+        return t.nonFinita
+      }
+      // Si annulla solo un'ora vuota: quella compilata è successa.
+      if (valore === 'annullata' && lezione.stato !== 'annullata' &&
+        lezioneCompilata(stato.registro, lezione)) {
+        return t.nonAnnullabile
+      }
+      return null
+    },
     al: async () => {
       const lezione = lezioneDelContesto()
       // Premere lo stato in cui l'ora è già non fa niente.
@@ -796,7 +811,8 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       if (valore === 'annullata') {
         const sicuro = await conferma({
           titolo: t.annullareTitolo,
-          testo: t.annullareTesto,
+          // Il piano da solo non impedisce di annullare, ma si stacca: lo si dice.
+          testo: lezione.pianoId ? t.annullareConPiano : t.annullareTesto,
           testoConferma: t.annullareConferma,
         })
         if (!sicuro) return
@@ -804,20 +820,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       await segnaLezione(lezione, valore)
     },
   })),
-  {
-    id: 'lezione.modifica',
-    titolo: t.modificaOra,
-    simbolo: 'matita',
-    dove: ['lezione'],
-    gruppo: G.ora,
-    aiuto: t.modificaOraAiuto,
-    // Solo con «Modifica» accesa, come nel calendario: fuori l'ora si legge.
-    impedimento: () => senzaLezione() ?? (stato.editorCalendario ? null : t.accendiModifica),
-    al: () => {
-      const lezione = lezioneDelContesto()
-      if (lezione) moduloLezione({ lezione })
-    },
-  },
   // ------------------------------------------------------- il piano aperto
   //
   // I gesti che si fanno a un piano. Lavorano su quello che la pagina mostra:
@@ -1119,21 +1121,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     },
   },
   {
-    id: 'docente.personale', titolo: t.documentoPersonale, simbolo: 'documento',
-    dove: ['docenteClasse'], schedaDocente: 'documenti', gruppo: G.classe,
-    primario: false,
-    impedimento: () => {
-      const classe = classeDelFascicolo()
-      if (!classe) return t.selezionaClasse
-      return corsiDi(classe.id).length ? null : t.primaUnCorso
-    },
-    al: () => {
-      const classe = classeDelFascicolo()
-      const corso = classe && corsiDi(classe.id)[0]
-      if (corso) moduloConsegna({ corsoId: corso.id, a: 'docente', documento: true })
-    },
-  },
-  {
     id: 'docente.assenze', titolo: t.nuovoPeriodo, simbolo: 'piu',
     dove: ['docenteClasse'], schedaDocente: 'assenze', gruppo: G.classe,
     primario: true,
@@ -1170,15 +1157,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     al: () => {
       const classe = classeDelFascicolo()
       if (classe) moduloRecapito(classe)
-    },
-  },
-  {
-    id: 'docente.elenco', titolo: t.elencoClasse, simbolo: 'classi',
-    dove: ['docenteClasse'], gruppo: G.gestione,
-    impedimento: () => classeDelFascicolo() ? null : t.selezionaClasse,
-    al: () => {
-      const classe = classeDelFascicolo()
-      if (classe) vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classe.id } })
     },
   },
 
@@ -1298,33 +1276,6 @@ export const COMANDI_UI: readonly ComandoUI[] = [
         corsoId: corsoDelContesto()?.id ?? null,
         semestreId: stato.semestreId,
       }),
-  },
-  // ------------------------------------------------------ le composizioni
-  //
-  // Combina i fogli spuntati in un PDF che resta nella cartella con l'elenco di
-  // che cosa contiene, così si può rifare uguale. Sta nella riga delle azioni
-  // perché le spunte attraversano le tre schede.
-  {
-    id: 'documenti.combina',
-    titolo: () =>
-      sceltiPresenti().length > 0 ? t.combinaScelti(sceltiPresenti().length) : t.combinaDocumenti,
-    simbolo: 'duplica',
-    dove: ['documenti'],
-    gruppo: G.composizioni,
-    aiuto: t.combinaAiuto,
-    primario: () => sceltiPresenti().length >= 2,
-    impedimento: () => senzaCorso() ?? (sceltiPresenti().length >= 2 ? null : t.almenoDue),
-    al: () => moduloComposizione(sceltiInOrdine()),
-  },
-  {
-    id: 'documenti.svuotaScelta',
-    titolo: t.togliSpunte,
-    simbolo: 'chiudi',
-    dove: ['documenti'],
-    gruppo: G.composizioni,
-    aiuto: t.togliSpunteAiuto,
-    impedimento: () => (stato.documentiScelti.length > 0 ? null : t.nessunoSpuntato),
-    al: () => aggiorna({ documentiScelti: [] }),
   },
   // Chi rifà i documenti: tre interruttori, acceso quello in vigore.
   ...MODI_PDF.map((modo) => ({

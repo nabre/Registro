@@ -60,12 +60,11 @@ import { registroVuoto } from '../../core/dominio/factories.js'
 import {
   faseDellOra,
   indiceDiagnosi,
-  oraCoperta,
   oraDaCompilare,
   raggruppaOre,
   type FaseOra,
 } from '../../core/dominio/dashboard.js'
-import { confrontaLezioni, riepilogaPresenze } from '../../core/dominio/calculations.js'
+import { confrontaLezioni } from '../../core/dominio/calculations.js'
 import { todoDelCorso, todoDelDocenteDiClasse } from '../../core/dominio/todo.js'
 import { annoInUso } from '../../core/dominio/years.js'
 import {
@@ -226,11 +225,6 @@ interface StatoUI {
   esportati: MessaggioStato['esportati'];
   /** Che cosa c'è sotto `archivio/`: i documenti raccolti dalla classe. */
   archiviati: MessaggioStato['archiviati'];
-  /**
-   * I fascicoli composti dell'anno: quel che la pagina Documenti elenca nel
-   * riquadro «Fascicoli», con il loro PDF accanto.
-   */
-  composizioni: MessaggioStato['composizioni'];
   /** Se la lettura automatica delle scansioni è accesa nelle impostazioni. */
   ocrAttivo: boolean;
   /**
@@ -339,12 +333,6 @@ interface StatoUI {
    * sulla riga sbagliata.
    */
   mostraArchiviate: boolean;
-  /**
-   * I documenti spuntati nella pagina Documenti (percorsi sotto `esportazioni/`),
-   * da combinare in un fascicolo. Valgono per tutte e tre le schede; si svuotano
-   * cambiando corso o periodo.
-   */
-  documentiScelti: string[];
   modoCalendario: ModoCalendario;
   /**
    * Se il calendario mostra anche gli eventi ICS del documento (tratteggiati, non
@@ -469,7 +457,6 @@ export const stato: StatoUI = {
   documenti: { corrente: null, elenco: [] },
   esportati: [],
   archiviati: [],
-  composizioni: [],
   ocrAttivo: false,
   programma: [],
   posta: {
@@ -512,7 +499,6 @@ export const stato: StatoUI = {
   sfoglioArchivio: 'pagine',
   zoomSfoglio: globali.zoomSfoglio ?? ZOOM_PREDEFINITO,
   mostraArchiviate: false,
-  documentiScelti: primaVoce?.documentiScelti ?? [],
   modoCalendario: globali.modoCalendario ?? 'settimana',
   mostraCalendarioEsterno: globali.mostraCalendarioEsterno ?? true,
   editorCalendario: false,
@@ -598,7 +584,6 @@ function voceDiAdesso (): VoceDocumento {
     bloccoAssenzeId: stato.bloccoAssenzeId,
     schedaTodo: stato.schedaTodo,
     classiApertePersone: stato.classiApertePersone,
-    documentiScelti: stato.documentiScelti,
     ricerca: stato.ricerca,
   }
   // Un semestre mai scelto non si scrive: riaprendo va ancora allineato a oggi.
@@ -674,7 +659,6 @@ function caricaVoce (voce: VoceDocumento | null): void {
     bloccoAssenzeId: voce?.bloccoAssenzeId ?? null,
     schedaTodo: voce?.schedaTodo ?? 'tutte',
     classiApertePersone: voce?.classiApertePersone ?? [],
-    documentiScelti: voce?.documentiScelti ?? [],
     ricerca: voce?.ricerca ?? '',
   } satisfies Partial<StatoUI>)
   semestreDaAllineare = voce?.semestreId === undefined
@@ -800,8 +784,7 @@ function applica (modifiche: Partial<StatoUI>): void {
   }
   // L'anteprima segue corso e periodo, salvo quando è lei a cambiare.
   if (modifiche.anteprima === undefined && cambiaContesto(modifiche)) {
-    // Con l'anteprima se ne vanno le spunte, che erano fogli di quel contesto.
-    modifiche = { ...modifiche, anteprima: null, documentiScelti: [] }
+    modifiche = { ...modifiche, anteprima: null }
   }
   // Un semestre scelto per nome spegne l'allineamento automatico, che altrimenti
   // lo sovrascriverebbe all'arrivo dei dati (una prova di novembre aperta in gennaio).
@@ -1339,16 +1322,6 @@ export function pianiPerCorso (corsoId: string | null) {
 }
 
 /**
- * I documenti spuntati che esistono ancora nella cartella: sono quelli da
- * contare, perché una spunta sopravvive al file buttato o rinominato.
- */
-export function sceltiPresenti (): string[] {
-  return stato.documentiScelti.filter((percorso) =>
-    stato.esportati.some((e) => e.percorso === percorso),
-  )
-}
-
-/**
  * L'indirizzo con cui il webview carica un file della cartella dei dati. Ogni
  * pezzo del percorso va codificato (spazi, accenti, parentesi).
  */
@@ -1838,88 +1811,6 @@ function oreDellaDashboard (): Array<{
   )
 }
 void oreDellaDashboard
-
-interface StatisticheDashboard {
-  lezioniTotali: number;
-  lezioniSvolte: number;
-  lezioniFuture: number;
-  lezioniAnnullate: number;
-  percentualeSvolte: number;
-  lezioniCoperte: number;
-  percentualeCoperte: number;
-  tassoPresenzaMedio: number | null;
-  valutazioniTotali: number;
-  valutazioniSvolte: number;
-  valutazioniFuture: number;
-}
-
-/** Statistiche didattiche del periodo scelto per la Dashboard. */
-export function statisticheDashboard (): StatisticheDashboard {
-  return derivato(
-    'statisticheDashboard',
-    [stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
-    () => {
-      const lezioni = nelSemestreScelto(
-        lezioniDellAnno(stato.registro, annoCorrente()?.id ?? null),
-      )
-      const indice = indiceDiagnosi(stato.registro)
-      let svolte = 0
-      let annullate = 0
-      let future = 0
-      let coperte = 0
-      let presentiTot = 0
-      let udAppelloTot = 0
-
-      for (const l of lezioni) {
-        if (l.stato === 'annullata') {
-          annullate++
-          continue
-        }
-        const fase = faseDellOra(stato.registro, l, stato.adessoData, stato.adessoOra, indice)
-        if (fase === 'svolta' || l.stato === 'svolta') {
-          svolte++
-        } else if (fase === 'futura' || fase === 'da-preparare') {
-          future++
-        }
-
-        if (oraCoperta(stato.registro, l, indice)) {
-          coperte++
-        }
-
-        const rep = riepilogaPresenze(l.presenze)
-        if (rep.udTotali > 0) {
-          udAppelloTot += rep.udTotali
-          presentiTot += rep.presenti
-        }
-      }
-
-      const attive = lezioni.length - annullate
-      const percSvolte = attive > 0 ? Math.round((svolte / attive) * 100) : 0
-      const percCoperte = attive > 0 ? Math.round((coperte / attive) * 100) : 0
-      const tassoPresenza = udAppelloTot > 0 ? Math.round((presentiTot / udAppelloTot) * 100) : null
-
-      const corsi = new Set(corsiDellAnnoAperto().map((c) => c.id))
-      const valutazioni = nelSemestreScelto(stato.registro.valutazioni)
-        .filter((v) => corsi.has(v.corsoId))
-      const valPassate = valutazioni.filter((v) => v.data < stato.adessoData).length
-      const valFuture = valutazioni.filter((v) => v.data >= stato.adessoData).length
-
-      return {
-        lezioniTotali: lezioni.length,
-        lezioniSvolte: svolte,
-        lezioniFuture: future,
-        lezioniAnnullate: annullate,
-        percentualeSvolte: percSvolte,
-        lezioniCoperte: coperte,
-        percentualeCoperte: percCoperte,
-        tassoPresenzaMedio: tassoPresenza,
-        valutazioniTotali: valutazioni.length,
-        valutazioniSvolte: valPassate,
-        valutazioniFuture: valFuture,
-      }
-    },
-  )
-}
 
 /** Buchi della Dashboard nel periodo scelto, senza il filtro corso del calendario. */
 export function oreDaChiudereDashboard (): Lezione[] {

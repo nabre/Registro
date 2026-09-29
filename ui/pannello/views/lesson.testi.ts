@@ -37,6 +37,9 @@ const it = {
 
   // La testata
   classeEliminata: 'Classe eliminata',
+  chiusa: 'Lezione conclusa: le schede sono in sola lettura.',
+  riapri: 'Riapri',
+  riapriTitolo: 'Rimette la lezione a «Modificabile», per correggerne il contenuto',
   aula: (aula: string) => ` · aula ${aula}`,
   presenti: 'presenti',
   assenti: 'assenti',
@@ -80,6 +83,9 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Zum Kalender',
 
     classeEliminata: 'Gelöschte Klasse',
+    chiusa: 'Stunde abgeschlossen: Die Register sind schreibgeschützt.',
+    riapri: 'Wieder öffnen',
+    riapriTitolo: 'Setzt die Stunde wieder auf «Bearbeitbar», um ihren Inhalt zu korrigieren',
     aula: (aula) => ` · Zimmer ${aula}`,
     presenti: 'anwesend',
     assenti: 'abwesend',
@@ -121,6 +127,9 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Aller au calendrier',
 
     classeEliminata: 'Classe supprimée',
+    chiusa: 'Leçon terminée : les onglets sont en lecture seule.',
+    riapri: 'Rouvrir',
+    riapriTitolo: 'Remet la leçon à « Modifiable », pour en corriger le contenu',
     aula: (aula) => ` · salle ${aula}`,
     presenti: 'présents',
     assenti: 'absents',
@@ -161,6 +170,9 @@ export const testi = catalogo(it, {
     vaiAlCalendario: 'Go to the calendar',
 
     classeEliminata: 'Deleted class',
+    chiusa: 'Lesson completed: the tabs are read-only.',
+    riapri: 'Reopen',
+    riapriTitolo: 'Sets the lesson back to “Editable”, to correct its content',
     aula: (aula) => ` · room ${aula}`,
     presenti: 'present',
     assenti: 'absent',

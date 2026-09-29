@@ -15,7 +15,6 @@ import { procedureAvanzamento } from './procedure/avanzamento/index.js'
 import { procedureCalendario } from './procedure/calendario/index.js'
 import { procedureClasse } from './procedure/classe/index.js'
 import { procedureClassi } from './procedure/classi/index.js'
-import { procedureComposizioni } from './procedure/composizioni/index.js'
 import { procedureConsegne } from './procedure/consegne/index.js'
 import { procedureCorsi } from './procedure/corsi/index.js'
 import { procedureCorso } from './procedure/corso/index.js'
@@ -61,7 +60,6 @@ export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
   ...procedureCheck,
   ...procedureClasse,
   ...procedureClassi,
-  ...procedureComposizioni,
   ...procedureConsegne,
   ...procedureCorsi,
   ...procedureCorso,

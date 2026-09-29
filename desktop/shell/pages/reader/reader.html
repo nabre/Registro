@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Il lettore dei documenti: un PDF del registro, col lettore di Chromium, sotto
+  la barra del titolo delle finestre del guscio. Prima la finestra caricava il
+  PDF da solo, e la barra poteva essere solo quella di sistema.
+
+  Il file e il suo nome arrivano nella query (`shell/windows/reader.ts`); la
+  cornice li riceve da `reader.ts`. La CSP lascia entrare nella cornice solo
+  `registro:`: un collegamento del PDF verso fuori non ci si apre.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:; img-src registro:; frame-src registro:;">
+<title>Regiklass</title> <!-- testo-fisso: il marchio non si traduce -->
+<link rel="stylesheet" href="registro://app/dist/reader.css">
+</head>
+<body>
+<iframe id="documento"></iframe>
+<script src="registro://app/dist/reader.js"></script>
+</body>
+</html>

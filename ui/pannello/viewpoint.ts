@@ -43,7 +43,6 @@ import {
   oreDiOggi,
   nomeSemestreScelto,
   pianoPerId,
-  sceltiPresenti,
   semestreScelto,
   stato,
   toccaIlSemestreScelto,
@@ -295,11 +294,6 @@ function filtri (): VoceContesto[] {
     if (stato.mostraArchiviate) {
       accesi.push(voce(C.pagineArchiviate, t.mostrate, null))
     }
-  }
-  // Solo le spunte che aprono ancora un file (`sceltiPresenti`).
-  const scelti = stato.vista === 'documenti' ? sceltiPresenti().length : 0
-  if (scelti > 0) {
-    accesi.push(voce(C.documentiSpuntati, `${scelti}`, null))
   }
   return accesi
 }

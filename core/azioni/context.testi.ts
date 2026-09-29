@@ -31,6 +31,9 @@ const it = {
     EEXIST: 'il file c’è già',
   } as Record<string, string>,
   erroreImprevisto: 'errore imprevisto',
+  oraSvolta:
+    'La lezione è conclusa: il suo contenuto non si modifica più. ' +
+    'Per correggerlo rimettila a «Modificabile».',
   erroreDiSistema: (codice: string) => `errore di sistema ${codice}`,
 
   // ----------------------------------------------------------- giro di invii
@@ -106,6 +109,9 @@ export const testi = catalogo(it, {
       EEXIST: 'die Datei gibt es schon',
     },
     erroreImprevisto: 'unerwarteter Fehler',
+    oraSvolta:
+      'Die Stunde ist abgeschlossen: Ihr Inhalt lässt sich nicht mehr ändern. ' +
+      'Um ihn zu korrigieren, setze sie wieder auf «Bearbeitbar».',
     erroreDiSistema: (codice) => `Systemfehler ${codice}`,
     nientePartito: (falliti) => `Es wurde nichts verschickt. ${falliti.join(' · ')}`,
     nonATutti: (inParte) => ` Nicht an alle Adressen: ${inParte.join(' · ')}`,
@@ -169,6 +175,9 @@ export const testi = catalogo(it, {
       EEXIST: 'le fichier existe déjà',
     },
     erroreImprevisto: 'erreur inattendue',
+    oraSvolta:
+      'La leçon est terminée : son contenu ne se modifie plus. ' +
+      'Pour le corriger, remets-la à « Modifiable ».',
     erroreDiSistema: (codice) => `erreur système ${codice}`,
     nientePartito: (falliti) => `Rien n’est parti. ${falliti.join(' · ')}`,
     nonATutti: (inParte) => ` Pas à toutes les adresses : ${inParte.join(' · ')}`,
@@ -234,6 +243,9 @@ export const testi = catalogo(it, {
       EEXIST: 'the file already exists',
     },
     erroreImprevisto: 'unexpected error',
+    oraSvolta:
+      'The lesson is completed: its content can no longer be changed. ' +
+      'To correct it, set it back to “Editable”.',
     erroreDiSistema: (codice) => `system error ${codice}`,
     nientePartito: (falliti) => `Nothing was sent. ${falliti.join(' · ')}`,
     nonATutti: (inParte) => ` Not to every address: ${inParte.join(' · ')}`,

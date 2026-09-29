@@ -68,6 +68,22 @@ describe('la chiusura di pulsanteStato dell’appello', () => {
     await new Promise((r) => setTimeout(r, 0))
   })
 
+  it('dove non si arriva in ritardo il giro salta la R', () => {
+    const chiamate = []
+    const bottone = pulsanteStato({
+      stato: 'assente',
+      titolo: 'Mario Rossi',
+      fuoco: 'allievo-1',
+      conRitardo: false,
+      al: async (prossimo) => {
+        chiamate.push(prossimo)
+        return { ok: true }
+      },
+    })
+    scatena(bottone, 'click')
+    assert.deepEqual(chiamate, ['esonerato'])
+  })
+
   it('se l’azione fallisce, inVolo torna null e il clic successivo riparte dallo stato originale', async () => {
     const chiamate = []
     let risolviConErrore

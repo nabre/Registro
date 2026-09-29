@@ -58,20 +58,6 @@ controlli statici; skill `verifica`). Non prima.
       indice nel dominio).
 
 
-### Sicurezza
-
-- [x] `desktop/apparato/theme.ts`: finestre col ponte con `sandbox:false`;
-      preload in bundle senza `require` di Node (`sandbox: true`).
-- [x] Fuses Electron (`NodeOptions`, `NodeCliInspect`, asar integrity):
-      `RunAsNode` serve a `regi` (`electronFuses` in `electron-builder.json`).
-- [x] `node-llama-cpp` nel main process legge GGUF di depositi qualunque:
-      `utilityProcess`, impronta fissata per il catalogo consigliato.
-- [x] Dettatura: `127.0.0.1:17493` occupabile da un altro utente se voicebox è
-      spento; token o verifica del processo.
-- [x] Condotto: dopo un arresto brutale `condotto.segreto` resta; la riga di
-      comando dovrebbe verificare il proprietario della pipe
-      (`GetNamedPipeServerProcessId`).
-
 ### Prove
 
 - [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
@@ -102,6 +88,31 @@ controlli statici; skill `verifica`). Non prima.
       `simple-git`, `@simple-git/args-pathspec`, `@simple-git/argv-parser`,
       `lazy-val`. L'avviso MIT va portato nel pacchetto per altra via.
 
+### Ora conclusa
+
+Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
+«Modificabile». Rinominare le chiavi vorrebbe un passo di formato (skill
+`formato`).
+
+- [ ] `lezione.salva` (`ore.salva`, modulo della lezione nel calendario) riscrive
+      l'ora intera anche se conclusa: `aOraAperta` non la copre perché serve a
+      orario e aula. Decidere se tenere il contenuto di prima su un'ora conclusa.
+      Consegne, riconsegne e voti non portano `lezioneId`: bloccati solo nel
+      pannello.
+
 ### Da provare a mano
 
+- [ ] Barra del titolo propria su benvenuto, impostazioni, dialoghi (anche
+      «versione più recente» all'avvio), lettore PDF: logo, titolo, trascinare,
+      doppio clic, pulsanti di sistema; cambio tema chiaro/scuro a finestra
+      aperta; Windows, macOS (semafori, dialogo modale come foglio senza
+      barra), Linux X11 e Wayland; `[DEV]` con `npm run dev`.
+- [ ] Nessun menu predefinito di Electron: finestra «versione più recente»
+      all'avvio, dialoghi, benvenuto, impostazioni, lettore, proiezione (anche
+      premendo Alt); su macOS copia/incolla funzionano.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.
+- [ ] Ora conclusa in sola lettura (`aOraAperta`): nel pannello avviso con
+      **Riapri**, schede spente senza hover né fumetti, linguette degli
+      strumenti vive.
+- [ ] «Conclusa» spenta prima della fine dell'ora; «Annullata» spenta su
+      un'ora compilata, domanda sul piano su una vuota con piano.

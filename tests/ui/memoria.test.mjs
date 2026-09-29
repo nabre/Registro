@@ -127,7 +127,8 @@ describe('la memoria del pannello', () => {
     assert.equal(stella.bloccoAssenzeId, 'blocco-1')
     assert.equal(stella.schedaTodo, 'tutte')
     assert.deepEqual([...stella.classiApertePersone], ['classe-1'])
-    assert.deepEqual([...stella.documentiScelti], ['esportazioni/a.pdf'])
+    // Le spunte della pagina Documenti non ci sono più: un file di prima le porta, e si ignorano.
+    assert.ok(!('documentiScelti' in stella))
     assert.equal(stella.ricerca, 'Rossi')
     // Senza `postoDaVecchi` i campi di posizione restano grezzi.
     assert.equal(stella.posto, null)
@@ -184,7 +185,7 @@ describe('la memoria del pannello', () => {
     assert.ok(!('giorno' in stella))
     assert.equal(stella.contesto.corsoId, null)
     assert.ok(!('classiApertePersone' in stella))
-    assert.deepEqual([...stella.documentiScelti], ['ok.pdf'])
+    assert.ok(!('documentiScelti' in stella))
     assert.ok(!('semestreId' in stella))
   })
 
@@ -270,24 +271,22 @@ describe('la memoria del pannello', () => {
         bloccoAssenzeId: crypto.randomUUID(),
         schedaTodo: 'tutte',
         classiApertePersone: Array.from({ length: 30 }, () => crypto.randomUUID()),
-        documentiScelti: Array.from({ length: 500 }, (_, i) =>
-          `esportazioni/2026-2027/classe ${n}/allievo ${i} - scheda di valutazione del semestre.pdf`),
         ricerca: 'x'.repeat(5000),
       }, new Date(quando(n)))
     }
     const testo = serializza(memoria)
     assert.ok(testo.length < LIMITE_CARATTERI, `${testo.length}`)
     const riletta = leggiMemoria(testo)
-    // Il più recente c'è sempre, con le sue scelte (tagliate a 200).
+    // Il più recente c'è sempre, con le sue scelte.
     const ultimo = Object.entries(riletta.documenti).find(([k]) => k.includes('anno-19'))
     assert.ok(ultimo)
-    assert.equal(ultimo[1].documentiScelti.length, 200)
+    assert.equal(ultimo[1].classiApertePersone.length, 30)
   })
 
   it('una sola voce enorme non fa superare il limite', () => {
     const memoria = conVoce(leggiMemoria(null), 'c:/a.regi', {
       ...voce(1),
-      documentiScelti: Array.from({ length: 200 }, (_, i) => `${i}-${'p'.repeat(2000)}`),
+      classiApertePersone: Array.from({ length: 200 }, (_, i) => `${i}-${'p'.repeat(2000)}`),
     }, new Date(quando(1)))
     const testo = serializza(memoria)
     assert.ok(testo.length < LIMITE_CARATTERI, `${testo.length}`)

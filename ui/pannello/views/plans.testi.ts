@@ -68,6 +68,9 @@ const it = {
   ritiroConsegna: (titolo: string) => `Ritiro: ${titolo}`,
   verificaCheck: (titolo: string) => `Check: ${titolo}`,
   inseritaInScaletta: (titolo: string) => `Attività «${titolo}» inserita nella scaletta.`,
+  legaAllaTappa: 'Lega alla tappa del check',
+  legaAllaTappaTitolo: (tappa: string) => `Verifica anche questa colonna nella tappa «${tappa}»`,
+  legataAllaTappa: (colonna: string, tappa: string) => `«${colonna}» si verifica nella tappa «${tappa}».`,
 }
 
 export const testi = catalogo(it, {
@@ -127,6 +130,9 @@ export const testi = catalogo(it, {
     ritiroConsegna: (titolo) => `Einsammeln: ${titolo}`,
     verificaCheck: (titolo) => `Check: ${titolo}`,
     inseritaInScaletta: (titolo) => `Aktivität «${titolo}» in den Ablauf eingefügt.`,
+    legaAllaTappa: 'Mit Check-Etappe verknüpfen',
+    legaAllaTappaTitolo: (tappa) => `Diese Spalte auch in der Etappe «${tappa}» prüfen`,
+    legataAllaTappa: (colonna, tappa) => `«${colonna}» wird in der Etappe «${tappa}» geprüft.`,
   },
   fr: {
     fuoriSemestri: 'Hors des semestres',
@@ -189,6 +195,9 @@ export const testi = catalogo(it, {
     ritiroConsegna: (titolo) => `Rendu : ${titolo}`,
     verificaCheck: (titolo) => `Check : ${titolo}`,
     inseritaInScaletta: (titolo) => `Activité « ${titolo} » insérée dans le déroulement.`,
+    legaAllaTappa: 'Lier à l’étape du check',
+    legaAllaTappaTitolo: (tappa) => `Vérifier aussi cette colonne à l’étape « ${tappa} »`,
+    legataAllaTappa: (colonna, tappa) => `« ${colonna} » se vérifie à l’étape « ${tappa} ».`,
   },
   en: {
     fuoriSemestri: 'Outside the semesters',
@@ -250,5 +259,8 @@ export const testi = catalogo(it, {
     ritiroConsegna: (titolo) => `Collect: ${titolo}`,
     verificaCheck: (titolo) => `Check: ${titolo}`,
     inseritaInScaletta: (titolo) => `Activity "${titolo}" added to plan.`,
+    legaAllaTappa: 'Link to check step',
+    legaAllaTappaTitolo: (tappa) => `Also check this column in the step "${tappa}"`,
+    legataAllaTappa: (colonna, tappa) => `"${colonna}" is checked in the step "${tappa}".`,
   },
 })

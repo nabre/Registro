@@ -1045,3 +1045,31 @@
   font-weight: 700;
 }
 
+
+/* Ora svolta: il fieldset spento non deve disegnare niente, solo spegnere i
+   controlli; i figli restano nella colonna come prima. */
+.lezione-chiusa {
+  display: contents;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* Dentro un'ora conclusa i controlli spenti non rispondono al puntatore:
+   niente hover né pressione che li animi, niente fumetti o `title` che si
+   aprano. Senza transizioni, nemmeno il ridisegno li fa muovere. */
+.lezione-chiusa :disabled {
+  pointer-events: none;
+  cursor: default;
+  transition: none;
+  animation: none;
+}
+
+.lezione-chiusa__avviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}

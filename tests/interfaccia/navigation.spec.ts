@@ -4,13 +4,23 @@
 // `node esbuild.mjs --ui` e poi
 // `npx playwright test -c tests/interfaccia/playwright.config.ts navigation`.
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import {
-  FOTOGRAMMA, attendi, attendiRisposte, pannello, riquadro, schermata, valuta, valutaSu,
+  FOTOGRAMMA, attendi, pannello, riquadro, schermata, valuta, valutaSu,
 } from './banco'
 
 interface Anno { corsi: { id: string }[] }
+
+/**
+ * Una scelta della barra dei comandi è un pulsante con la tendina del
+ * programma: la si apre e si preme la riga del valore (`data-voce`; «tutti»
+ * per la voce vuota).
+ */
+async function scegli (page: Page, scelta: Locator, valore: string): Promise<void> {
+  await scelta.click()
+  await page.locator(`.menu__voce[data-voce="${valore || 'tutti'}"]`).click()
+}
 
 test('navigation', async ({ browser }) => {
   const { page, errori } = await pannello(browser)
@@ -129,11 +139,11 @@ test('navigation', async ({ browser }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   // La scelta del corso nel registro cambia davvero la lezione aperta.
   await valuta(page, "prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.corso.registro'))")
-  const select = page.locator('[data-fuoco="barra-comandi-corso"]')
-  await select.selectOption(await valuta<string>(page, 'prova.stato.registro.corsi[1].id'))
+  const sceltaCorso = page.locator('[data-fuoco="barra-comandi-corso"]')
+  await scegli(page, sceltaCorso, await valuta<string>(page, 'prova.stato.registro.corsi[1].id'))
   await attendi(page, 'prova.stato.registro.lezioni.find(l=>l.id===prova.stato.lezioneId)' +
     '.corsoId===prova.stato.corsoId')
-  await expect(select).toHaveValue(await valuta<string>(page, 'prova.stato.corsoId'))
+  await expect(sceltaCorso).toHaveAttribute('data-valore', await valuta<string>(page, 'prova.stato.corsoId'))
   // La tendina del corso sta nella barra, non nel registro della lezione; i
   // gesti dell'ora sono comandi della pagina, non pulsanti in testata.
   expect(await valuta(page, "document.querySelectorAll('.navigatore-registro select').length"))
@@ -141,9 +151,11 @@ test('navigation', async ({ browser }) => {
   expect(await valuta(page,
     "document.querySelectorAll('.vista--lezione .testata button').length")).toBe(0)
   for (const id of ['lezione.stato.pianificata', 'lezione.stato.svolta',
-    'lezione.stato.annullata', 'lezione.modifica']) {
+    'lezione.stato.annullata']) {
     await expect(page.locator(`[data-fuoco="comando-${id}"]`)).toHaveCount(1)
   }
+  // Giorno, orario e aula si cambiano dal calendario, non dalla pagina dell'ora.
+  await expect(page.locator('[data-fuoco="comando-lezione.modifica"]')).toHaveCount(0)
   // Le esportazioni stanno tutte in Documenti: nessun comando le porta altrove.
   expect(await valuta(page,
     String.raw`prova.COMANDI_UI.filter(c=>/^(corso\.esporta|corso\.verbale|lezione\.calendario|corso\.nuovaOra)/.test(c.id))` +
@@ -258,7 +270,7 @@ test('navigation', async ({ browser }) => {
     .toBe(0)
   const corsoRegistro = await valuta<string>(page, 'prova.stato.corsoId')
   const altro = await valuta<string>(page, 'prova.stato.registro.corsi[1].id')
-  await filtroAgenda.selectOption(altro)
+  await scegli(page, filtroAgenda, altro)
   await valuta(page, FOTOGRAMMA)
   expect(await valuta(page, 'prova.stato.filtroCorsoAgendaId')).toBe(altro)
   expect(await valuta(page, 'prova.stato.corsoId')).toBe(corsoRegistro)
@@ -268,32 +280,30 @@ test('navigation', async ({ browser }) => {
   await valuta(page, 'prova.scegliCorso(prova.stato.registro.corsi[0].id)')
   await valuta(page, FOTOGRAMMA)
   expect(await valuta(page, 'prova.stato.filtroCorsoAgendaId')).toBe(altro)
-  await filtroAgenda.selectOption('')
+  await scegli(page, filtroAgenda, '')
   await valuta(page, FOTOGRAMMA)
   expect(await valuta(page, 'prova.stato.filtroCorsoAgendaId')).toBeNull()
-  // Un filtro puntato su un corso che nel documento aperto non c'è lascia la
-  // tendina in bianco: se il browser accendesse «Tutti i corsi», riscegliere
-  // quella voce non farebbe partire nessun `change`. Fra un anno e l'altro il
+  // Un filtro puntato su un corso che nel documento aperto non c'è non
+  // accende un corso a caso. Fra un anno e l'altro il
   // filtro non passa più (è ricordato per documento: A tiene il suo, B parte
   // da nessuno, tornando in A si ritrova; vedi il cambio di documento in
   // fondo): qui lo si mette a mano.
   await expect(page.locator('[data-fuoco="barra-stato-corso"]')).toHaveCount(0)
   const tendina = page.locator('[data-fuoco="barra-comandi-corso-agenda"]')
   await expect(tendina).toHaveCount(1)
-  expect(await valutaSu(tendina, '(e) => e.options[0].textContent')).toBe('Tutti i corsi')
+  await expect(tendina.locator('.barra-comandi__scelta-valore')).toHaveText('Tutti i corsi')
   await valuta(page, "prova.aggiorna({filtroCorsoAgendaId:'corso-di-un-altro-anno'})")
   await valuta(page, FOTOGRAMMA)
-  expect(await valutaSu(tendina, '(e) => e.selectedIndex')).toBe(-1)
-  expect(await valutaSu(tendina, '(e) => e.options[0].selected')).toBe(false)
-  expect(await tendina.inputValue()).toBe('')
-  // Un corso che c'è si accende: `h` applica il `value` dopo aver appeso le
-  // option.
+  // Un corso che non c'è non si scrive come se ci fosse: o il filtro si spegne
+  // («Tutti i corsi»), o la scelta resta in bianco.
+  await expect(tendina.locator('.barra-comandi__scelta-valore')).toHaveText(
+    await valuta<string | null>(page, 'prova.stato.filtroCorsoAgendaId') === null ? 'Tutti i corsi' : '—')
   await valuta(page, 'prova.aggiorna({filtroCorsoAgendaId:prova.stato.registro.corsi[1].id})')
   await valuta(page, FOTOGRAMMA)
-  expect(await tendina.inputValue()).toBe(await valuta(page, 'prova.stato.filtroCorsoAgendaId'))
+  await expect(tendina).toHaveAttribute('data-valore', await valuta<string>(page, 'prova.stato.filtroCorsoAgendaId'))
   await valuta(page, 'prova.aggiorna({filtroCorsoAgendaId:null})')
   await valuta(page, FOTOGRAMMA)
-  expect(await valutaSu(tendina, '(e) => e.selectedIndex')).toBe(0)
+  await expect(tendina.locator('.barra-comandi__scelta-valore')).toHaveText('Tutti i corsi')
   await schermata(page, 'calendario-compatto.png')
   // Pendenze: i tre filtri sono comandi della pagina, e l'acceso si legge sul
   // pulsante.
@@ -496,8 +506,6 @@ test('navigation', async ({ browser }) => {
       ' && (!c.schedaDocente || c.schedaDocente === scheda)).length',
       schede[destinazione])
     await expect(page.locator('[data-fuoco^="comando-docente."]')).toHaveCount(attesi)
-    await expect(page.locator('#azioni-pagina')
-      .getByRole('button', { name: 'Elenco della classe', exact: true })).toBeVisible()
     await expect(page.locator('[data-fuoco="comando-classe.nuovoAllievo"]')).toHaveCount(0)
     await expect(page.locator('[data-fuoco="comando-classe.incollaElenco"]')).toHaveCount(0)
     await expect(page.locator('.docente-classe > .selettore')).toHaveCount(0)
@@ -662,107 +670,11 @@ test('navigation', async ({ browser }) => {
     "prova.vai({pagina:'pagina.classe.pendenze'},{altro:{registro:r}})}")
   await expect(page.locator('[data-fuoco="comando-docente.pendenza"]')).toBeDisabled()
   await valuta(page, 'registro=>prova.aggiorna({registro})', registroPrima)
-  // Il fascicolo: senza spunte il comando è spento, con due chiede il nome e
-  // manda i percorsi nell'ordine della pagina.
-  await valuta(page, `()=>{
-      const r = structuredClone(prova.stato.registro);
-      const c = r.corsi[0];
-      const cl = r.classi.find(k => k.id === c.classeId);
-      if (cl && cl.allievi.length < 2) {
-        cl.allievi.push({ ...cl.allievi[0], id: 'alv-secondo', cognome: 'Zeta', nome: 'Secondo' });
-      }
+  // La pagina Documenti del primo corso.
+  await valuta(page, `()=>{const c=prova.stato.registro.corsi[0];
       prova.vai({pagina:'pagina.corso.documenti',soggetto:{tipo:'corso',id:c.id}},
         {contesto:{filtroClasseId:c.classeId},
-         altro:{registro:r,schedaDocumenti:'allievi',documentiScelti:[],anteprima:null}});
-    }`)
-  const combina = page.locator('[data-fuoco="comando-documenti.combina"]')
-  await expect(combina).toBeDisabled()
-  // Le caselle delle righe, cliccate davvero: sono l'unico modo di accendere
-  // «Combina».
-  const percorsi = await valuta<string[]>(page, `()=>{const r=prova.stato.registro, c=r.corsi[0];
-      const cl=r.classi.find(k=>k.id===c.classeId);
-      const allievi=(cl?.allievi??[]).slice(0, 2);
-      return allievi.map(a=>{const d=prova.collocazioneDi(r,'allievo',a.id,{corsoId:c.id,semestreId:null});
-        return d?prova.percorsoDi(d):null}).filter(Boolean)}`)
-  expect(percorsi.length, JSON.stringify(percorsi)).toBe(2)
-  await valuta(page,
-    'p=>prova.aggiorna({esportati:p.map(percorso=>({percorso,misura:10,revisione:0}))})',
-    percorsi)
-  const caselle = page.locator('.documenti__spunta:not(.documenti__spunta--vuota)')
-  // La prima casella è quella in testa alla scheda, che le spunta tutte.
-  await expect(caselle).toHaveCount(3)
-  // Spuntate dal basso: l'ordine nel fascicolo è quello della pagina, non quello
-  // dei clic.
-  await caselle.nth(2).click()
-  await expect(combina).toBeDisabled()
-  await caselle.nth(1).click()
-  await expect(combina).toBeEnabled()
-  expect(await valuta(page, 'prova.stato.documentiScelti')).toEqual([percorsi[1], percorsi[0]])
-  await combina.click()
-  // La modale mostra l'elenco in quell'ordine, prima di comporre.
-  expect(await page.locator('.composizione__ordine li').count()).toBe(2)
-  expect((await page.locator('.composizione__ordine li').first().innerText()).trim())
-    .not.toBe('')
-  await page.getByRole('textbox', { name: 'Nome della composizione' }).fill('Ordine di pagina')
-  await page.locator('.modale').getByRole('button', { name: 'Combina', exact: true }).click()
-  await attendi(page, "richieste.some(m=>m.azione?.tipo==='composizione.crea'" +
-    " && m.azione.nome==='Ordine di pagina')")
-  await attendiRisposte(page)
-  expect(await valuta(page, "richieste.find(m=>m.azione?.tipo==='composizione.crea'" +
-    " && m.azione.nome==='Ordine di pagina').azione.percorsi")).toEqual(percorsi)
-  // E la casella in testa toglie tutto in un gesto solo.
-  await valuta(page, 'p=>prova.aggiorna({documentiScelti:p})', percorsi)
-  await caselle.nth(0).click()
-  expect(await valuta(page, 'prova.stato.documentiScelti')).toEqual([])
-  await expect(combina).toBeDisabled()
-  await valuta(page, 'registro=>prova.aggiorna({registro,documentiScelti:[],esportati:[]})',
-    registroPrima)
-  // Le spunte valgono per quel che sta nella cartella: un percorso buttato via non
-  // conta. Questi due non sono righe disegnate, e restano nell'ordine di scelta.
-  await valuta(page, "prova.aggiorna({documentiScelti:['esportazioni/b.pdf','esportazioni/a.pdf']," +
-    " esportati:[{percorso:'esportazioni/a.pdf',misura:10,revisione:0}," +
-    " {percorso:'esportazioni/b.pdf',misura:10,revisione:0}]})")
-  await expect(combina).toBeEnabled()
-  await expect(page.locator('[data-fuoco="comando-documenti.svuotaScelta"]')).toBeEnabled()
-  await combina.click()
-  await page.getByRole('textbox', { name: 'Nome della composizione' }).fill('Consiglio di classe')
-  await page.locator('.modale').getByRole('button', { name: 'Combina', exact: true }).click()
-  expect(await valuta(page, "richieste.some(m=>m.azione?.tipo==='composizione.crea'" +
-    " && m.azione.nome==='Consiglio di classe'" +
-    " && m.azione.percorsi[0]==='esportazioni/b.pdf')")).toBeTruthy()
-  await schermata(page, 'documenti-fascicolo.png')
-  // Il riquadro dei fascicoli compare solo quando ce n'è uno, e la riga offre di
-  // rifarlo.
-  await valuta(page, "prova.aggiorna({documentiScelti:[],composizioni:[{id:'fas-1'," +
-    "nome:'Consiglio di classe'," +
-    "percorsi:['esportazioni/a.pdf','esportazioni/b.pdf'],creataIl:'',aggiornataIl:''}]})")
-  await expect(page.getByRole('heading', { name: 'Composizioni', exact: true })).toBeVisible()
-  // Il PDF non c'è ancora: il pulsante dice «Fa», non «Rifà».
-  await page.getByTitle('Fa la composizione «Consiglio di classe» e mostra il foglio qui accanto')
-    .click()
-  expect(await valuta(page, "richieste.some(m=>m.azione?.tipo==='composizione.aggiorna' && " +
-    "m.azione.id==='fas-1')")).toBeTruthy()
-  // Il cestino del fascicolo chiede conferma e butta ricetta e PDF con
-  // `composizione.elimina`: un'eliminazione qualunque lascerebbe la ricetta a
-  // nominare un file che non c'è. Il gesto compare col puntatore sopra la riga.
-  await valuta(page, 'pdf=>prova.aggiorna({esportati:[{percorso:pdf,misura:1234,revisione:0}]})',
-    'esportazioni/composizioni/Consiglio di classe.pdf')
-  const rigaComposizione = page.locator('.documenti__riga')
-    .filter({ hasText: 'Consiglio di classe' }).first()
-  await rigaComposizione.hover()
-  await page.getByTitle('Butta via la composizione «Consiglio di classe» dalla cartella').click()
-  await page.locator('.modale').getByRole('button', { name: 'Butta via', exact: true }).click()
-  await attendi(page, "richieste.some(m=>m.azione?.tipo==='composizione.elimina' && " +
-    "m.azione.id==='fas-1')")
-  await attendiRisposte(page)
-  expect(await valuta(page, "richieste.some(m=>m.azione?.tipo==='esportazione.elimina')"))
-    .toBeFalsy()
-  // La riga se ne va subito, senza aspettare lo stato dall'host: altrimenti si
-  // leggerebbe «non ha funzionato».
-  await expect(page.getByRole('heading', { name: 'Composizioni', exact: true })).toHaveCount(0)
-  expect(await valuta(page, 'prova.stato.composizioni')).toEqual([])
-  await valuta(page, 'prova.aggiorna({esportati:[]})')
-  await expect(page.getByRole('heading', { name: 'Composizioni', exact: true })).toHaveCount(0)
+         altro:{schedaDocumenti:'corso',esportati:[],anteprima:null}})}`)
   // Un CSV si guarda nella cornice come tabella: la prima riga del file (il
   // titolo dell'esportazione) va sopra, i numeri a destra.
   const corpo = ['\ufeffDIC4a — Presenze', '', 'Persona;UD;Assenze %',
@@ -784,28 +696,7 @@ test('navigation', async ({ browser }) => {
     .toHaveText(['Bianchi; Anna', '24', '0%'])
   await expect(tabella.locator('tbody tr').first().locator('td').nth(1))
     .toHaveClass('tabella__numero')
-  // Un CSV non va in una composizione: niente casella, e quella in testa non lo
-  // spunta.
-  expect(await valuta(page, "()=>[...document.querySelectorAll('.documenti__spunta:not(" +
-    ".documenti__spunta--vuota)')].length")).toBe(0)
   await valuta(page, 'prova.aggiorna({anteprima:null,esportati:[],radiceDati:null})')
-  // Un PDF in esportazioni/composizioni senza elenco compare lo stesso (se no non
-  // si potrebbe togliere), dice che cos'è, e il pulsante per rifarlo è spento.
-  await valuta(page,
-    'pdf=>prova.aggiorna({composizioni:[],esportati:[{percorso:pdf,misura:999,revisione:0}]})',
-    'esportazioni/composizioni/Vecchio pacchetto.pdf')
-  await expect(page.getByRole('heading', { name: 'Composizioni', exact: true })).toBeVisible()
-  const orfano = page.locator('.documenti__riga').filter({ hasText: 'Vecchio pacchetto' }).first()
-  await expect(orfano.getByText('senza elenco')).toBeVisible()
-  await expect(orfano.getByTitle('Questo PDF non ha più l’elenco di che cosa ci sta dentro: ' +
-    'non si può rifare, si guarda e si butta via.')).toBeDisabled()
-  await orfano.hover()
-  await page.getByTitle('Butta via il PDF «Vecchio pacchetto» dalla cartella').click()
-  await page.locator('.modale').getByRole('button', { name: 'Butta via', exact: true }).click()
-  await attendi(page, "richieste.some(m=>m.azione?.tipo==='esportazione.elimina'" +
-    " && m.azione.percorso==='esportazioni/composizioni/Vecchio pacchetto.pdf')")
-  await attendiRisposte(page)
-  await expect(page.getByRole('heading', { name: 'Composizioni', exact: true })).toHaveCount(0)
   // La casella «Cerca su Hugging Face» si scrive mentre la pagina si ridisegna
   // (quattro volte al secondo durante uno scarico): `data-fuoco` tiene il fuoco
   // e le lettere. Il vecchio indirizzo porta alle impostazioni del programma.
@@ -845,7 +736,7 @@ test('navigation', async ({ browser }) => {
   const ARRIVA = `([percorso, registro]) => window.dispatchEvent(new MessageEvent('message', { data: {
       tipo: 'stato', registro, avvisi: [], radiceDati: null, radiceApp: null,
       documenti: { corrente: percorso, elenco: [] }, storia: { annulla: 0, ripristina: 0 },
-      esportati: [], archiviati: [], composizioni: [], ocrAttivo: false, programma: [],
+      esportati: [], archiviati: [], ocrAttivo: false, programma: [],
       posta: prova.stato.posta } }))`
   const annoA = await valuta<Anno>(page, 'prova.annoDiProva()')
   const annoB = await valuta<Anno>(page, 'prova.annoDiProva()')

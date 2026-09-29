@@ -7,7 +7,6 @@ import type { Archivio } from '../core/dati/archive.js'
 import type { Azione } from './protocollo.js'
 import { assistente } from '../core/azioni/assistant.js'
 import { calendario } from '../core/azioni/calendar.js'
-import { composizioni } from '../core/azioni/compositions.js'
 import { consegne } from '../core/azioni/assignments.js'
 import { check } from '../core/azioni/check.js'
 import { contestoDi, type EsitoAzione, type Gestore, type Mappa } from '../core/azioni/context.js'
@@ -42,7 +41,6 @@ const GESTORI: Mappa = {
   ...valutazioni,
   ...consegne,
   ...check,
-  ...composizioni,
   ...docenteClasse,
   ...smistamento,
   ...rapporti,

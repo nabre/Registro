@@ -108,7 +108,7 @@ test('modifiche vecchie', async ({ browser }) => {
   const ARRIVA = `([percorso, registro]) => window.dispatchEvent(new MessageEvent('message', { data: {
       tipo: 'stato', registro, avvisi: [], radiceDati: null, radiceApp: null,
       documenti: { corrente: percorso, elenco: [] }, storia: { annulla: 0, ripristina: 0 },
-      esportati: [], archiviati: [], composizioni: [], ocrAttivo: false, programma: [],
+      esportati: [], archiviati: [], ocrAttivo: false, programma: [],
       posta: prova.stato.posta } }))`
   const annoA = await valuta<Anno>(page, 'prova.annoDiProva()')
   const annoB = await valuta<Anno>(page, 'prova.annoDiProva()')

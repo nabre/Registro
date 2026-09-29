@@ -228,7 +228,7 @@ contract/procedure/
   file nel suo indice, ogni cartella fino a `contract/registro.ts`, nessuna azione
   inesistente, `resources/tools.json` aggiornato.
 
-### Le quarantadue aree
+### Le quarantuno aree
 
 L'area è il primo segmento del nome.
 
@@ -247,7 +247,7 @@ L'area è il primo segmento del nome.
 | `anni` · `materie` · `classi` · `persone` · `orario` | l'ossatura |
 | `calendario` | calendari ICS: gestirli, leggerli, confrontarli, applicare la revisione (crea, allinea, annulla, non cancella) |
 | `stato` · `documento` · `documenti` | stato del registro, documenti d'anno |
-| `rapporti` · `esportazioni` · `composizioni` · `esporta` | i fogli che escono |
+| `rapporti` · `esportazioni` · `esporta` | i fogli che escono |
 | `proiezione` | la finestra davanti alla classe |
 | `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
@@ -277,7 +277,7 @@ tipi interni.
 | `ore.appello.leggi` | `lezioneId` | giorno, UD, per persona: stati per UD, minuti di ritardo, nota, cognome e nome |
 | `modelli.leggi` | `nome` | `testo` del modello e `nomi` (quel che il rapporto sa riempire) |
 | `modelli.prova` | `nome` | `pdf` in base64 con la carta intestata del documento; non tocca il disco |
-| `documenti.inventario` | — | che cosa è scritto nel documento: esportazioni, archivio, composizioni (nomi, misure, revisioni, nessun contenuto), modelli del programma |
+| `documenti.inventario` | — | che cosa è scritto nel documento: esportazioni, archivio (nomi, misure, revisioni, nessun contenuto), modelli del programma |
 | `registro.integrita` | — | `riferimentiRotti` e `riparazioni` possibili; applicarle è `manutenzione.ripara` |
 | `llm.modelli` | — | cartella dei modelli, `.gguf` con peso e natura (modello, proiettore, `incompiuto`), `sorgente` degli scarichi a metà, e per ogni uso chi risponde e se è pronto |
 | `llm.catalogo` | `cerca?` | modelli consigliati e depositi trovati su Hugging Face |

@@ -57,14 +57,21 @@ describe('zip: scritto e riletto', () => {
 
   it('la data di una voce torna al secondo pari, e prima del 1980 si porta al 1980', () => {
     const data = fc.date({ min: new Date('1970-01-01T00:00:00Z'), max: new Date('2100-12-31T00:00:00Z'), noInvalidDate: true })
-    verifica(fc.property(data, (quando) => {
+    /** L'orologio locale come numero: lo ZIP porta quello, senza fuso né ora legale. */
+    const orologio = (quando) => Date.UTC(quando.getFullYear(), quando.getMonth(), quando.getDate(),
+      quando.getHours(), quando.getMinutes(), quando.getSeconds(), quando.getMilliseconds())
+    const torna = (quando) => {
       const [letta] = leggiZip(scriviZip([{ nome: 'a.json', dati: new Uint8Array([1]), modificata: quando }]))
-      // Lo ZIP porta l'ora locale: il confronto si fa sull'orologio locale.
       const attesa = new Date(quando)
       if (attesa.getFullYear() < 1980) attesa.setFullYear(1980)
-      const scarto = attesa.getTime() - letta.modificata.getTime()
+      // Nell'ora che torna indietro a fine ottobre le 02:30 sono due istanti:
+      // lo ZIP non li distingue, e si rilegge il primo. Conta l'orologio.
+      const scarto = orologio(attesa) - orologio(letta.modificata)
       assert.ok(scarto >= 0 && scarto < 2000, `scritta ${attesa.toISOString()}, letta ${letta.modificata.toISOString()}`)
-    }))
+    }
+    // Seme 61: le 02:00 CET del 26.10.2008, fallite a Zurigo prima di confrontare l'orologio.
+    torna(new Date('2008-10-26T01:00:00Z'))
+    verifica(fc.property(data, torna))
   })
 
   it('un byte rovinato dà ErroreZip, o voci con i dati giusti', () => {

@@ -1,3 +1,5 @@
+import { inizioLezione, lezioneFinita } from '../../core/dominio/calculations.js'
+import type { Corso } from '../../core/dominio/models.js'
 import { confrontaNomi } from '../../core/dominio/text.js'
 import { interruttoreAssistente } from './assistant.js'
 // Navbar: File, destinazioni e contesto; sotto, azioni compatte della pagina.
@@ -27,6 +29,7 @@ import {
   classeDelFascicolo,
   classeDellaPaginaClassi,
   corsoDelContesto,
+  lezioneDelContesto,
   nomeDelCorso,
   scegliClasseDelFascicolo,
   scegliCorso,
@@ -46,6 +49,8 @@ import {
   classiDiCuiSonoDocente,
   corsiDellAnnoAperto,
   corsiNelSemestre,
+  nomeClasse,
+  nomeMateria,
   stato,
   vai,
 } from './state.js'
@@ -98,7 +103,7 @@ export function eseguiDalPulsante (
 }
 
 /**
- * Un comando compatto: icona e nome affiancati, motivo del no nel titolo.
+ * Un comando compatto: icona sopra e nome sotto, motivo del no nel titolo.
  * Esportata per le prove di regressione.
  */
 export function pulsanteComando (comando: ComandoUI): HTMLElement {
@@ -460,9 +465,20 @@ function pulsanteTendina (opzioni: {
 
 // ------------------------------------------------------------- i controlli
 
+/** Una voce di una scelta della barra; `gruppo` le raccoglie sotto un titoletto. */
+interface VoceScelta {
+  valore: string;
+  testo: string;
+  gruppo?: string;
+  /** Il nome sul pulsante quando la voce è scelta: fuori dal menu il titoletto non c'è più. */
+  intero?: string;
+}
+
 /**
- * Una scelta della barra (corso, anno, semestre): cambia che cosa le pagine
- * mostrano, quindi non è un comando e non sta nella palette.
+ * Una scelta della barra (periodo, classe, corso): cambia che cosa le pagine
+ * mostrano, quindi non è un comando e non sta nella palette. Un pulsante con
+ * nome e valore che apre la tendina del programma, come il titolo del Registro
+ * nella barra laterale: più leggibile di un `select`, e con i titoletti.
  */
 function scelta (opzioni: {
   /** Il nome con cui ritrovare il fuoco dopo il ridisegno: vedi `ricordaFuoco`. */
@@ -471,26 +487,49 @@ function scelta (opzioni: {
   titolo: string;
   valore: string;
   al: (valore: string) => void;
-  figli: Figlio[];
+  voci: VoceScelta[];
 }): HTMLElement {
+  const scelta = opzioni.voci.find((voce) => voce.valore === opzioni.valore)
+  const mostrato = scelta?.intero ?? scelta?.testo
+  const voci = (): ElementoMenu[] => {
+    const elementi: ElementoMenu[] = []
+    let gruppo: string | undefined
+    for (const voce of opzioni.voci) {
+      if (voce.gruppo !== undefined && voce.gruppo !== gruppo) elementi.push({ titolo: voce.gruppo })
+      gruppo = voce.gruppo
+      elementi.push({
+        testo: voce.testo,
+        accesa: voce.valore === opzioni.valore,
+        // La riga si ritrova per valore, anche quella vuota («tutti»).
+        // testo-fisso: chiave della riga, non si legge
+        chiave: voce.valore || 'tutti',
+        rientro: voce.gruppo !== undefined,
+        al: () => opzioni.al(voce.valore),
+      })
+    }
+    return elementi
+  }
   return h(
-    'label',
-    { class: 'barra-comandi__scelta', attr: { title: opzioni.titolo } },
-    h('span', { class: 'barra-comandi__scelta-nome' }, opzioni.etichetta),
-    h(
-      'select',
-      {
-        class: 'campo__controllo campo__controllo--selezione',
-        // Cambiare corso rifà la finestra, tendina compresa: la chiave di fuoco
-        // permette un secondo cambio senza ricliccare.
-        // testo-fisso: chiave di fuoco, non si legge
-        dataset: { fuoco: `barra-comandi-${opzioni.nome}` },
-        value: opzioni.valore,
-        onchange: (evento: Event) =>
-          opzioni.al((evento.target as HTMLSelectElement).value),
+    'button',
+    {
+      type: 'button',
+      class: 'barra-comandi__scelta barra-comandi__scelta--tendina',
+      // Cambiare corso rifà la finestra, pulsante compreso: la chiave di fuoco
+      // permette un secondo cambio senza ricliccare.
+      // testo-fisso: chiave di fuoco, non si legge
+      dataset: { fuoco: `barra-comandi-${opzioni.nome}`, valore: opzioni.valore },
+      attr: {
+        title: opzioni.titolo,
+        'aria-haspopup': 'menu',
+        'aria-label': `${opzioni.etichetta}: ${mostrato ?? ''}`,
       },
-      ...opzioni.figli,
-    ),
+      onclick: (evento: MouseEvent) =>
+        alternaMenuSotto(evento.currentTarget as HTMLElement, voci()),
+    },
+    h('span', { class: 'barra-comandi__scelta-nome' }, opzioni.etichetta),
+    // Un valore che non c'è fra le voci (un filtro di un altro anno) resta in bianco.
+    h('strong', { class: 'barra-comandi__scelta-valore' }, mostrato ?? '—'),
+    icona('giu', 'barra-comandi__scelta-freccia'),
   )
 }
 
@@ -519,17 +558,21 @@ function sceltaCorso (): Figlio {
     titolo: t.corsoTitolo,
     valore: corrente?.id ?? '',
     al: scegliCorso,
-    figli: corsi
+    // Per classe, la materia sotto: come nella barra laterale.
+    voci: corsi
       .map((corso) => ({ corso, nome: nomeDelCorso(corso) }))
       .sort((a, b) => confrontaNomi(a.nome, b.nome))
-      .map(({ corso, nome }) =>
-        h(
-          'option',
-          { value: corso.id, selected: corso.id === corrente?.id },
-          nome,
-        ),
-      ),
+      .map(({ corso, nome }) => voceDiCorso(corso, nome)),
   })
+}
+
+/** Un corso fra le voci: la materia sotto il titoletto della sua classe; scelto, classe e materia. */
+function voceDiCorso (corso: Corso, nome: string): VoceScelta {
+  const materia = nomeMateria(corso.materiaId)
+  const classe = nomeClasse(corso.classeId)
+  return materia && classe
+    ? { valore: corso.id, testo: materia, gruppo: classe, intero: nome }
+    : { valore: corso.id, testo: nome }
 }
 
 /**
@@ -551,13 +594,7 @@ function sceltaClasse (): Figlio {
     titolo: t.classeFascicoloTitolo,
     valore: corrente?.id ?? '',
     al: scegliClasseDelFascicolo,
-    figli: classi.map((classe) =>
-      h(
-        'option',
-        { value: classe.id, selected: classe.id === corrente?.id },
-        classe.nome,
-      ),
-    ),
+    voci: classi.map((classe) => ({ valore: classe.id, testo: classe.nome })),
   })
 }
 
@@ -577,13 +614,10 @@ function sceltaClasseDellaPagina (): Figlio {
     titolo: t.classePaginaTitolo,
     valore: corrente.id,
     al: (valore) => vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: valore } }),
-    figli: classi.map((classe) =>
-      h(
-        'option',
-        { value: classe.id, selected: classe.id === corrente.id },
-        classe.archiviata ? t.archiviata(classe.nome) : classe.nome,
-      ),
-    ),
+    voci: classi.map((classe) => ({
+      valore: classe.id,
+      testo: classe.archiviata ? t.archiviata(classe.nome) : classe.nome,
+    })),
   })
 }
 
@@ -606,83 +640,55 @@ function filtriAgenda (): Figlio[] {
       titolo: t.corsoAgendaTitolo,
       valore: stato.filtroCorsoAgendaId ?? '',
       al: (valore) => aggiorna({ filtroCorsoAgendaId: valore || null }),
-      figli: [
-        h(
-          'option',
-          { value: '', selected: stato.filtroCorsoAgendaId === null },
-          t.tuttiICorsi,
-        ),
-        ...corsi.map((corso) =>
-          h(
-            'option',
-            {
-              value: corso.id,
-              selected: corso.id === stato.filtroCorsoAgendaId,
-            },
-            nomeDelCorso(corso),
-          ),
-        ),
+      voci: [
+        { valore: '', testo: t.tuttiICorsi },
+        ...corsi
+          .map((corso) => ({ corso, nome: nomeDelCorso(corso) }))
+          .sort((a, b) => confrontaNomi(a.nome, b.nome))
+          .map(({ corso, nome }) => voceDiCorso(corso, nome)),
       ],
     }),
   ]
 }
 
 /**
- * L'anno in uso e il periodo dei conti. L'anno si mostra anche quando è uno
- * solo: dice di quale anno è quel che si guarda.
+ * L'anno in uso: si mostra anche quando è uno solo, e anche nella Dashboard,
+ * perché dice di quale anno è quel che si guarda. Non si sceglie qui: è il
+ * documento aperto, e si cambia aprendone un altro (menu «File», voce dell'anno
+ * nella barra di stato, dialogo di apertura).
  */
 function sceltaAnno (): Figlio {
   const anno = annoCorrente()
   if (!anno) return null
   const t = testi()
-
   return h(
     'div',
-    { class: 'barra-comandi__scelte' },
-    // L'anno non si sceglie qui: è il documento aperto, e si cambia aprendone un
-    // altro (menu «File», voce dell'anno nella barra di stato, dialogo di apertura).
-    stato.vista === 'oggi'
-      ? null
-      : h(
-          'div',
-          { class: 'barra-comandi__scelta barra-comandi__scelta--ferma' },
-          h('span', { class: 'barra-comandi__etichetta' }, t.anno),
-          h('strong', { title: t.annoTitolo }, anno.etichetta),
-        ),
-    anno.semestri.length > 0
-      ? scelta({
-          nome: 'periodo',
-          etichetta: parole().periodo,
-          titolo: t.periodoTitolo,
-          valore: stato.semestreId ?? '',
-          al: (valore) => aggiorna({ semestreId: valore || null }),
-          figli: [
-            ...anno.semestri.map((semestre) =>
-              h(
-                'option',
-                {
-                  value: semestre.id,
-                  selected: semestre.id === stato.semestreId,
-                },
-                semestre.etichetta,
-              ),
-            ),
-            h(
-              'option',
-              { value: '', selected: stato.semestreId === null },
-              t.annoIntero,
-            ),
-          ],
-        })
-      : null,
-    // Dopo il periodo, le tendine di una pagina sola: mappa e pagina Classi.
-    sceltaClasseMappa(),
-    sceltaClasseDellaPagina(),
+    { class: 'barra-comandi__scelta barra-comandi__scelta--ferma' },
+    h('span', { class: 'barra-comandi__etichetta' }, t.anno),
+    h('strong', { title: t.annoTitolo }, anno.etichetta),
   )
 }
 
+/** Il periodo dei conti: un semestre o l'anno intero. */
+function sceltaPeriodo (): Figlio {
+  const anno = annoCorrente()
+  if (!anno || anno.semestri.length === 0) return null
+  const t = testi()
+  return scelta({
+    nome: 'periodo',
+    etichetta: parole().periodo,
+    titolo: t.periodoTitolo,
+    valore: stato.semestreId ?? '',
+    al: (valore) => aggiorna({ semestreId: valore || null }),
+    voci: [
+      ...anno.semestri.map((semestre) => ({ valore: semestre.id, testo: semestre.etichetta })),
+      { valore: '', testo: t.annoIntero },
+    ],
+  })
+}
+
 /**
- * La classe della mappa: accanto a «Periodo», e solo sulla mappa. Scrive in
+ * La classe della mappa: al posto della classe, e solo sulla mappa. Scrive in
  * un campo suo (`classeMappaId`): restringere i punti non restringe le
  * pagine di corso, che hanno il loro filtro.
  */
@@ -697,21 +703,38 @@ function sceltaClasseMappa (): Figlio {
     titolo: t.classeMappaTitolo,
     valore: stato.classeMappaId ?? '',
     al: (valore) => aggiorna({ classeMappaId: valore || null }),
-    figli: [
-      h(
-        'option',
-        { value: '', selected: stato.classeMappaId === null },
-        t.tutteLeClassi,
-      ),
-      ...classi.map((classe) =>
-        h(
-          'option',
-          { value: classe.id, selected: classe.id === stato.classeMappaId },
-          classe.nome,
-        ),
-      ),
+    voci: [
+      { valore: '', testo: t.tutteLeClassi },
+      ...classi.map((classe) => ({ valore: classe.id, testo: classe.nome })),
     ],
   })
+}
+
+/**
+ * Nella pagina di una lezione, a che punto è il suo tempo: passata (la si
+ * può concludere), in corso o da venire. Non si preme: si legge.
+ */
+function tempoDellOra (): Figlio {
+  if (stato.vista !== 'lezione') return null
+  const lezione = lezioneDelContesto()
+  if (!lezione) return null
+  const t = testi()
+  // L'orologio del pannello, come il resto della pagina.
+  const giorno = stato.adessoData
+  const ora = stato.adessoOra
+  const inizio = inizioLezione(lezione)
+  const [testo, titolo, tono] = lezioneFinita(lezione, giorno, ora)
+    ? [t.oraPassata, t.oraPassataTitolo, 'passata']
+    : lezione.data === giorno && inizio !== null && inizio <= ora
+      ? [t.oraInCorso, t.oraInCorsoTitolo, 'in-corso']
+      : [t.oraFutura, t.oraFuturaTitolo, 'futura']
+  return h(
+    'span',
+    // testo-fisso: classe CSS
+    { class: ['barra-comandi__tempo', `barra-comandi__tempo--${tono}`], attr: { title: titolo } },
+    icona(tono === 'passata' ? 'spunta' : 'orologio', 'icona--minuta'),
+    h('span', null, testo),
+  )
 }
 
 /**
@@ -799,12 +822,18 @@ function rigaNavigazione (nascoste: boolean, conAzioni: boolean): Figlio {
     h(
       'div',
       { class: 'barra-comandi__contesto' },
-      sceltaCorso(),
-      sceltaClasse(),
-      ...filtriAgenda(),
+      // Sempre nello stesso ordine: anno, periodo, classe, corso. Un filtro che
+      // la pagina non prevede manca, e il seguente prende il suo posto.
       sceltaAnno(),
+      sceltaPeriodo(),
+      sceltaClasse(),
+      sceltaClasseMappa(),
+      sceltaClasseDellaPagina(),
+      sceltaCorso(),
+      ...filtriAgenda(),
     ),
     schedaProiezione(),
+    tempoDellOra(),
     h('span', { class: 'barra-comandi__spazio' }),
     interruttoreModifica(),
     interruttoreProiezione(),

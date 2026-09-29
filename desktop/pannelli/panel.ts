@@ -5,7 +5,6 @@ import * as apparato from 'apparato'
 import { alCambioDocumenti, documentiNoti } from '../apparato/documents.js'
 import { vociImpostazioni } from '../apparato/settings.js'
 import { archiviPresenti, esportazioniPresenti } from '../../core/dati/filing.js'
-import { composizioniPresenti } from '../../core/dati/compositions.js'
 import { ESTENSIONE, percorsoPacchetto, èProvvisorio } from '../../core/dati/paths.js'
 
 import { azioneValida, esegui } from '../../contract/centralino.js'
@@ -478,7 +477,6 @@ export class PannelloRegistro {
       documenti: { corrente, provvisorio: èProvvisorio(), elenco: documentiNoti(corrente) },
       esportati: esportazioniPresenti(),
       archiviati: archiviPresenti(),
-      composizioni: composizioniPresenti(),
       avvisi: this.calcolaAvvisi(),
       radiceDati: cartella ? this.pannello.webview.asWebviewUri(cartella).toString() : null,
       radiceApp: this.pannello.webview.asWebviewUri(this.contesto.extensionUri).toString(),

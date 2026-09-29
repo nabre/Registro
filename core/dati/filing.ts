@@ -166,28 +166,24 @@ async function percorsoLibero (
 /**
  * Riscrive un documento generato al percorso esatto: un rapporto è una
  * fotografia di adesso. Toglie (nel cestino) i doppioni numerati e la stessa
- * stampa in un'altra lingua. `doppioni: false` spegne queste pulizie per i
- * fascicoli, dove «Schede (2)» è un nome scelto, non una ristampa.
+ * stampa in un'altra lingua.
  */
 export async function riscrivi (
   relativo: string,
   byte: Uint8Array,
   precedenti: readonly string[] = [],
-  { doppioni = true }: { doppioni?: boolean } = {},
 ): Promise<EsitoArchivio> {
   const dove = deposito()
   if (!dove) return { errore: testi().nessunAnno }
   dove.scrivi(relativo, byte)
-  if (doppioni) {
-    togliDoppioni(relativo)
-    togliAltreLingue(relativo)
-  }
+  togliDoppioni(relativo)
+  togliAltreLingue(relativo)
   // Solo dopo aver scritto la nuova copia: i vecchi nomi sono dello stesso PDF.
   for (const precedente of precedenti) {
     if (precedente === relativo || !precedente.startsWith(`${ESPORTAZIONI}/`)) continue
     if (cartellaDelPercorso(precedente) !== cartellaDelPercorso(relativo)) continue
     dove.elimina(precedente)
-    if (doppioni) togliDoppioni(precedente)
+    togliDoppioni(precedente)
   }
   return { relativo }
 }

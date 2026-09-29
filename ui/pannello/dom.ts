@@ -390,7 +390,8 @@ function conNodiVeri<T> (fai: () => T): T {
  *   attributi nuovi e basta. Il nodo nuovo non entra mai nel documento, quindi
  *   un `<iframe>` non carica di nuovo, e `idiomorph` sposta con `moveBefore`;
  * - un nodo riusato prende i gestori del disegno nuovo (`passaGestori`);
- * - il campo che ha il fuoco tiene quel che c'è scritto.
+ * - il campo che ha il fuoco tiene quel che c'è scritto; un altro elemento
+ *   col fuoco (un pulsante) prende attributi e figli nuovi.
  */
 function trasforma (contenitore: HTMLElement, albero: Node): void {
   // Il contenitore non si segna: resta com'è, cambia solo dentro.
@@ -416,6 +417,15 @@ function trasforma (contenitore: HTMLElement, albero: Node): void {
             return false
           }
           passaGestori(vecchio, nuovo)
+          // Col fuoco `idiomorph` (`ignoreActiveValue`) non tocca i figli: giusto
+          // per un campo in cui si scrive, sbagliato per un pulsante, che dopo la
+          // scelta da una tendina terrebbe il testo di prima. Lo si rifà qui.
+          if (vecchio === document.activeElement && vecchio instanceof HTMLElement &&
+            nuovo instanceof HTMLElement && !campoDaScrivere(vecchio)) {
+            copiaAttributi(vecchio, nuovo)
+            vecchio.replaceChildren(...Array.from(nuovo.childNodes))
+            return false
+          }
           // Proprietà senza attributo: `idiomorph` non la vede.
           if (vecchio instanceof HTMLInputElement && nuovo instanceof HTMLInputElement) {
             vecchio.indeterminate = nuovo.indeterminate
@@ -458,6 +468,12 @@ function rimpiazzaSenzaChiave (vecchio: Node, nuovo: Node): boolean {
   nuovo.parentNode?.replaceChild(document.createComment(''), nuovo)
   genitore.insertBefore(nuovo, vecchio)
   return true
+}
+
+/** Un elemento in cui si scrive o si sceglie: col fuoco tiene il suo valore. */
+function campoDaScrivere (elemento: HTMLElement): boolean {
+  return elemento instanceof HTMLInputElement || elemento instanceof HTMLTextAreaElement ||
+    elemento instanceof HTMLSelectElement || elemento.isContentEditable
 }
 
 /** SVG inline: `h` non va bene, gli elementi SVG vogliono il loro namespace. */

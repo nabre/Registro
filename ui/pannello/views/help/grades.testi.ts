@@ -440,13 +440,12 @@ const it = {
   rapporti: {
     titolo: 'Documenti',
     sommario:
-      'Quel che esce dal registro e va in mano ad altri: si fa, si guarda e si combina da qui.',
+      'Quel che esce dal registro e va in mano ad altri: si fa e si guarda da qui.',
     scritte: {
       corso: 'Corso',
       lezioni: 'Lezioni',
       persone: Molti(PIF),
       aggiornaTutto: 'Aggiorna tutto',
-      combina: 'Combina i 3 scelti',
       delCorso: 'Del corso',
       dueDiQuattro: '2 di 4',
       prove: 'Prove',
@@ -459,8 +458,8 @@ const it = {
       alMassimo: 'al massimo 60 s',
       rifatti: 'rifatti',
       quali: 'presenze, voti, schede, prove',
-      quandoSiChiude: 'Quando si chiude un’ora',
-      svolta: 'Svolta',
+      quandoSiChiude: 'Chiusura lezione',
+      svolta: 'Conclusa',
       siChiude: 'l’ora si chiude',
       suoVerbale: 'il suo verbale, e gli stessi',
       soloAMano: 'Solo a mano',
@@ -474,7 +473,6 @@ const it = {
         legenda: [
           'Le tre **schede**: di che cosa si guardano i fogli — del corso, delle ore, delle persone.',
           '**Aggiorna tutto**: rifà in un colpo tutti i fogli del corso.',
-          'La **casella** di ogni foglio: i fogli spuntati si combinano in un PDF solo.',
           'Il **punto**: pieno se il file è nella cartella, vuoto se è da fare.',
           '**Lente**, **frecce**, **cestino**: guardarlo, farlo o rifarlo, buttarlo via.',
           'L’**anteprima**: «3 di 12» e le due frecce scorrono i fogli della scheda.',
@@ -521,14 +519,14 @@ const it = {
         termine: 'Aggiorna tutto',
         testo:
           'Fa tutto quel che il corso sa stampare nel periodo: presenze, voti, una scheda per ' +
-          'persona e per prova, il verbale di ogni ora svolta, ogni piano, la foto della classe ' +
-          'e — per le classi di cui si è docente — il fascicolo; poi rifà le composizioni. Non ' +
-          'apre niente: il messaggio dice quanti fogli.',
+          'persona e per prova, il verbale di ogni ora conclusa, ogni piano, la foto della classe ' +
+          'e — per le classi di cui si è docente — il fascicolo. Non apre niente: il messaggio ' +
+          'dice quanti fogli.',
       },
       {
         termine: 'Chi li rifà',
         testo:
-          'Tre pulsanti nella riga delle azioni: **Solo a mano**, **Quando si chiude un’ora**, ' +
+          'Tre pulsanti nella riga delle azioni: **Solo a mano**, **Chiusura lezione**, ' +
           '**A ogni modifica** (di serie). Quello acceso è la regola in vigore, e viaggia con ' +
           'il documento d’anno.',
       },
@@ -548,21 +546,6 @@ const it = {
           'tabella, e il pulsante in testa li apre nel programma del sistema.',
       },
       {
-        termine: 'Più fogli in un PDF solo',
-        testo:
-          'Ogni PDF già nella cartella ha una casella, e quella in testa al riquadro li spunta ' +
-          'tutti; `Ctrl`+clic spunta una riga, `Maiusc`+clic fino a lì. Con almeno due spuntati, ' +
-          '**Combina i N scelti** chiede un nome e li mette in fila nell’ordine della pagina; ' +
-          'quelli spuntati in altre schede vanno in coda. **Togli le spunte** riparte da zero.',
-      },
-      {
-        termine: 'Una composizione si aggiorna',
-        testo:
-          'Il registro si ricorda di che cosa è fatta: nel riquadro **Composizioni** le frecce ' +
-          'la ricompongono con i fogli come sono adesso nella cartella. Se ne manca qualcuno, ' +
-          'il conto lo dice — «18/20» — e rifarla adesso lo lascerebbe fuori.',
-      },
-      {
         termine: 'Qui non si esce',
         testo:
           'I nomi nelle righe non portano a nessun’altra pagina: una riga apre il suo foglio e ' +
@@ -575,9 +558,7 @@ const it = {
         'fermino: venti caselle dell’appello rifanno i fogli una volta sola.',
       'Prima di consegnare: **Aggiorna tutto**, poi **Guarda il primo** e le frecce ' +
         'dell’anteprima. Si controllano i fogli uno dopo l’altro, senza cercare le righe.',
-      'Il cestino butta via solo il file, che si rifà quando serve. Una composizione ' +
-        'buttata via perde anche l’elenco di che cosa conteneva, e non si può più rifare: i ' +
-        'suoi fogli restano, uno per uno.',
+      'Il cestino butta via solo il file, che si rifà quando serve.',
     ],
   },
   fogli: {
@@ -1136,14 +1117,13 @@ export const testi = catalogo(it, {
     rapporti: {
       titolo: 'Dokumente',
       sommario:
-        'Was aus dem Klassenbuch hinausgeht und anderen in die Hand kommt: Man erstellt es, ' +
-        'sieht es an und stellt es hier zusammen.',
+        'Was aus dem Klassenbuch hinausgeht und anderen in die Hand kommt: Man erstellt es ' +
+        'und sieht es hier an.',
       scritte: {
         corso: 'Kurs',
         lezioni: 'Stunden',
         persone: Molti(DE.pif),
         aggiornaTutto: 'Alles aktualisieren',
-        combina: 'Die 3 zusammenstellen',
         delCorso: 'Zum Kurs',
         dueDiQuattro: '2 von 4',
         prove: 'Prüfungen',
@@ -1157,7 +1137,7 @@ export const testi = catalogo(it, {
         rifatti: 'neu erstellt',
         quali: 'Präsenz, Noten, Blätter, Tests',
         quandoSiChiude: AUT_DE.chiusura.nome,
-        svolta: 'Gehalten',
+        svolta: 'Abgeschlossen',
         siChiude: 'Stunde abgeschlossen',
         suoVerbale: 'ihr Protokoll und dieselben',
         soloAMano: AUT_DE.mai.nome,
@@ -1172,8 +1152,6 @@ export const testi = catalogo(it, {
             'Die drei **Reiter**: wovon man die Blätter ansieht — vom Kurs, von den Stunden, von ' +
               'den Personen.',
             '**Alles aktualisieren**: erstellt alle Blätter des Kurses auf einen Schlag neu.',
-            'Das **Kästchen** jedes Blatts: Die angehakten Blätter werden zu einem einzigen PDF ' +
-              'zusammengestellt.',
             'Der **Punkt**: voll, wenn die Datei im Ordner liegt, leer, wenn sie noch zu ' +
               'erstellen ist.',
             '**Lupe**, **Pfeile**, **Papierkorb**: ansehen, erstellen oder neu erstellen, ' +
@@ -1226,10 +1204,9 @@ export const testi = catalogo(it, {
           termine: 'Alles aktualisieren',
           testo:
             'Erstellt alles, was der Kurs im Zeitraum drucken kann: Präsenzen, Noten, ein Blatt ' +
-            'pro Person und pro Prüfung, das Protokoll jeder gehaltenen Stunde, jeden Plan, das ' +
+            'pro Person und pro Prüfung, das Protokoll jeder abgeschlossenen Stunde, jeden Plan, das ' +
             'Klassenfoto und — für die Klassen, in denen man Klassenlehrperson ist — das ' +
-            'Klassendossier; dann stellt es die Zusammenstellungen neu zusammen. Es öffnet ' +
-            'nichts: Die Meldung sagt, wie viele Blätter.',
+            'Klassendossier. Es öffnet nichts: Die Meldung sagt, wie viele Blätter.',
         },
         {
           termine: 'Wer sie neu erstellt',
@@ -1257,23 +1234,6 @@ export const testi = catalogo(it, {
             'Systems.',
         },
         {
-          termine: 'Mehrere Blätter in einem PDF',
-          testo:
-            'Jedes PDF, das schon im Ordner liegt, hat ein Kästchen, und das Kästchen oben im ' +
-            'Feld hakt alle an; `Ctrl`+Klick hakt eine Zeile an, `Umschalt`+Klick bis dorthin. ' +
-            'Mit mindestens zwei angehakten fragt **Die N ausgewählten zusammenstellen** nach einem ' +
-            'Namen und reiht sie in der Reihenfolge der Seite auf; die in anderen Reitern ' +
-            'angehakten kommen ans Ende. **Häkchen entfernen** beginnt von vorn.',
-        },
-        {
-          termine: 'Eine Zusammenstellung wird aktualisiert',
-          testo:
-            'Das Klassenbuch merkt sich, woraus sie besteht: Im Feld **Zusammenstellungen** ' +
-            'stellen die Pfeile sie mit den Blättern neu zusammen, wie sie jetzt im Ordner ' +
-            'liegen. Fehlt eines, sagt es die Zählung — «18/20» —, und wer sie jetzt neu ' +
-            'erstellt, lässt es weg.',
-        },
-        {
           termine: 'Hier geht man nicht weg',
           testo:
             'Die Namen in den Zeilen führen auf keine andere Seite: Eine Zeile öffnet ihr Blatt, ' +
@@ -1289,9 +1249,7 @@ export const testi = catalogo(it, {
         'Vor dem Abgeben: **Alles aktualisieren**, dann **Das erste ansehen** und die Pfeile ' +
           'der Vorschau. So prüft man die Blätter eins nach dem anderen, ohne die Zeilen zu ' +
           'suchen.',
-        'Der Papierkorb wirft nur die Datei weg, die man bei Bedarf neu erstellt. Eine ' +
-          'weggeworfene Zusammenstellung verliert auch die Liste dessen, was sie enthielt, und ' +
-          'lässt sich nicht mehr neu erstellen: Ihre Blätter bleiben, jedes für sich.',
+        'Der Papierkorb wirft nur die Datei weg, die man bei Bedarf neu erstellt.',
       ],
     },
     fogli: {
@@ -1845,14 +1803,13 @@ export const testi = catalogo(it, {
     rapporti: {
       titolo: 'Documents',
       sommario:
-        'Ce qui sort du registre et passe dans d’autres mains : on le fait, on le regarde et on ' +
-        'le combine d’ici.',
+        'Ce qui sort du registre et passe dans d’autres mains : on le fait et on le regarde ' +
+        'd’ici.',
       scritte: {
         corso: 'Cours',
         lezioni: 'Leçons',
         persone: Molti(FR.pif),
         aggiornaTutto: 'Tout mettre à jour',
-        combina: 'Combiner les 3',
         delCorso: 'Du cours',
         dueDiQuattro: '2 sur 4',
         prove: 'Épreuves',
@@ -1866,7 +1823,7 @@ export const testi = catalogo(it, {
         rifatti: 'refaits',
         quali: 'présences, notes, fiches, tests',
         quandoSiChiude: AUT_FR.chiusura.nome,
-        svolta: 'Donnée',
+        svolta: 'Terminée',
         siChiude: 'la leçon se clôt',
         suoVerbale: 'son procès-verbal, et les mêmes',
         soloAMano: AUT_FR.mai.nome,
@@ -1881,7 +1838,6 @@ export const testi = catalogo(it, {
             'Les trois **onglets** : de quoi on regarde les feuilles — du cours, des leçons, des ' +
               'personnes.',
             '**Tout mettre à jour** : refait d’un coup toutes les feuilles du cours.',
-            'La **case** de chaque feuille : les feuilles cochées se combinent en un seul PDF.',
             'Le **point** : plein si le fichier est dans le dossier, vide s’il est à faire.',
             '**Loupe**, **flèches**, **corbeille** : la regarder, la faire ou la refaire, la ' +
               'jeter.',
@@ -1931,10 +1887,9 @@ export const testi = catalogo(it, {
           termine: 'Tout mettre à jour',
           testo:
             'Fait tout ce que le cours sait imprimer dans la période : présences, notes, une ' +
-            'fiche par personne et par épreuve, le procès-verbal de chaque leçon donnée, chaque ' +
+            'fiche par personne et par épreuve, le procès-verbal de chaque leçon terminée, chaque ' +
             'plan, la photo de classe et — pour les classes dont on est maître de classe — le ' +
-            'dossier de classe ; puis il refait les compilations. Il n’ouvre rien : le message ' +
-            'dit combien de feuilles.',
+            'dossier de classe. Il n’ouvre rien : le message dit combien de feuilles.',
         },
         {
           termine: 'Qui les refait',
@@ -1960,23 +1915,6 @@ export const testi = catalogo(it, {
             'comme un tableau, et le bouton en tête les ouvre dans le programme du système.',
         },
         {
-          termine: 'Plusieurs feuilles en un seul PDF',
-          testo:
-            'Chaque PDF déjà dans le dossier a une case, et celle en tête du cadre les coche ' +
-            'toutes ; `Ctrl`+clic coche une ligne, `Maj`+clic jusque-là. Avec au moins deux ' +
-            'cochés, **Combiner les N choisis** demande un nom et les met à la suite dans ' +
-            'l’ordre de la page ; ceux cochés dans d’autres onglets vont à la fin. **Retirer ' +
-            'les coches** repart de zéro.',
-        },
-        {
-          termine: 'Une compilation se met à jour',
-          testo:
-            'Le registre se souvient de quoi elle est faite : dans le cadre **Compilations**, ' +
-            'les flèches la recomposent avec les feuilles telles qu’elles sont maintenant dans ' +
-            'le dossier. S’il en manque une, le compte le dit — « 18/20 » — et la refaire ' +
-            'maintenant la laisserait de côté.',
-        },
-        {
           termine: 'Ici, on ne sort pas',
           testo:
             'Les noms dans les lignes ne mènent à aucune autre page : une ligne ouvre sa ' +
@@ -1994,9 +1932,7 @@ export const testi = catalogo(it, {
         'Avant de remettre : **Tout mettre à jour**, puis **Regarder le premier** et les flèches ' +
           'de ' +
           'l’aperçu. On contrôle les feuilles l’une après l’autre, sans chercher les lignes.',
-        'La corbeille ne jette que le fichier, qu’on refait au besoin. Une compilation jetée ' +
-          'perd aussi la liste de ce qu’elle contenait, et ne peut plus être refaite : ses ' +
-          'feuilles restent, une par une.',
+        'La corbeille ne jette que le fichier, qu’on refait au besoin.',
       ],
     },
     fogli: {
@@ -2537,14 +2473,13 @@ export const testi = catalogo(it, {
     rapporti: {
       titolo: 'Documents',
       sommario:
-        'What leaves the register and goes into other hands: you make it, check it and combine ' +
-        'it from here.',
+        'What leaves the register and goes into other hands: you make it and check it from ' +
+        'here.',
       scritte: {
         corso: 'Course',
         lezioni: 'Lessons',
         persone: Molti(EN.pif),
         aggiornaTutto: 'Update everything',
-        combina: 'Combine the 3 chosen',
         delCorso: 'For the course',
         dueDiQuattro: '2 of 4',
         prove: 'Tests',
@@ -2558,7 +2493,7 @@ export const testi = catalogo(it, {
         rifatti: 'remade',
         quali: 'attendance, grades, sheets, tests',
         quandoSiChiude: AUT_EN.chiusura.nome,
-        svolta: 'Held',
+        svolta: 'Completed',
         siChiude: 'the lesson closes',
         suoVerbale: 'its record, and the same ones',
         soloAMano: AUT_EN.mai.nome,
@@ -2573,7 +2508,6 @@ export const testi = catalogo(it, {
             'The three **tabs**: what the sheets are about — the course, the lessons, the ' +
               'people.',
             '**Update everything**: remakes all the course’s sheets in one go.',
-            'Each sheet’s **tick box**: ticked sheets are combined into a single PDF.',
             'The **dot**: filled if the file is in the folder, hollow if it’s still to be made.',
             '**Magnifier**, **arrows**, **bin**: view it, make or remake it, throw it away.',
             'The **preview**: “3 of 12” and the two arrows scroll through the tab’s sheets.',
@@ -2622,9 +2556,9 @@ export const testi = catalogo(it, {
           termine: 'Update everything',
           testo:
             'Makes everything the course can print for the period: attendance, grades, a sheet ' +
-            'per person and per test, the record of every lesson held, every plan, the class ' +
-            'photo and — for classes you’re class teacher of — the class file; then it rebuilds ' +
-            'the compilations. It opens nothing: the message says how many sheets.',
+            'per person and per test, the record of every completed lesson, every plan, the class ' +
+            'photo and — for classes you’re class teacher of — the class file. It opens nothing: ' +
+            'the message says how many sheets.',
         },
         {
           termine: 'Who remakes them',
@@ -2653,22 +2587,6 @@ export const testi = catalogo(it, {
             'the button at the top opens them in the system’s program.',
         },
         {
-          termine: 'Several sheets in one PDF',
-          testo:
-            'Every PDF already in the folder has a tick box, and the one at the top of the box ' +
-            'ticks them all; `Ctrl`+click ticks one row, `Shift`+click everything up to it. With ' +
-            'at least two ticked, **Combine the N chosen** asks for a name and puts them in the ' +
-            'page’s order; those ticked in other tabs go at the end. **Clear the ticks** starts ' +
-            'again from scratch.',
-        },
-        {
-          termine: 'A compilation can be updated',
-          testo:
-            'The register remembers what it’s made of: in the **Compilations** box the arrows ' +
-            'rebuild it with the sheets as they are now in the folder. If one is missing, the ' +
-            'count says so — “18/20” — and rebuilding it now would leave it out.',
-        },
-        {
           termine: 'You don’t leave from here',
           testo:
             'The names in the rows don’t lead to any other page: a row opens its sheet and ' +
@@ -2682,9 +2600,7 @@ export const testi = catalogo(it, {
           'stop: twenty attendance boxes remake the sheets only once.',
         'Before handing in: **Update everything**, then **View the first** and the preview’s arrows. ' +
           'You check the sheets one after another, without hunting for the rows.',
-        'The bin only throws away the file, which is remade when needed. A compilation thrown ' +
-          'away also loses the list of what it contained, and can’t be rebuilt: its sheets ' +
-          'stay, one by one.',
+        'The bin only throws away the file, which is remade when needed.',
       ],
     },
     fogli: {

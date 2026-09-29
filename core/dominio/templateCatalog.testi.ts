@@ -63,7 +63,7 @@ const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
     },
     'verbale-lezione': {
       titolo: 'Verbale della lezione',
-      aiuto: 'Il foglio di un’ora svolta: appello, consuntivo, osservazioni',
+      aiuto: 'Il foglio di un’ora conclusa: appello, consuntivo, osservazioni',
     },
     'piano-lezione': {
       titolo: 'Piano lezione',
@@ -95,7 +95,7 @@ const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
     },
     'diario-corso': {
       titolo: 'Diario del corso',
-      aiuto: 'Tutte le lezioni svolte del corso in un unico foglio cronologico con argomenti, compiti e assenze',
+      aiuto: 'Tutte le lezioni concluse del corso in un unico foglio cronologico con argomenti, compiti e assenze',
     },
     'scheda-corso': {
       titolo: 'Scheda del corso',
@@ -141,7 +141,7 @@ export const testi = catalogo(it, {
       },
       'verbale-lezione': {
         titolo: 'Unterrichtsprotokoll',
-        aiuto: 'Das Blatt einer gehaltenen Stunde: Präsenzkontrolle, Rückblick, Beobachtungen',
+        aiuto: 'Das Blatt einer abgeschlossenen Stunde: Präsenzkontrolle, Rückblick, Beobachtungen',
       },
       'piano-lezione': {
         titolo: 'Unterrichtsplan',
@@ -173,7 +173,7 @@ export const testi = catalogo(it, {
       },
       'diario-corso': {
         titolo: 'Kurstagebuch',
-        aiuto: 'Alle gehaltenen Lektionen des Kurses auf einem einzigen chronologischen Blatt mit Themen, Aufgaben und Absenzen',
+        aiuto: 'Alle abgeschlossenen Stunden des Kurses auf einem einzigen chronologischen Blatt mit Themen, Aufgaben und Absenzen',
       },
       'scheda-corso': {
         titolo: 'Kursblatt',
@@ -217,7 +217,7 @@ export const testi = catalogo(it, {
       },
       'verbale-lezione': {
         titolo: 'Procès-verbal de la leçon',
-        aiuto: 'La feuille d’une leçon donnée : appel, bilan, observations',
+        aiuto: 'La feuille d’une leçon terminée : appel, bilan, observations',
       },
       'piano-lezione': {
         titolo: 'Plan de leçon',
@@ -249,7 +249,7 @@ export const testi = catalogo(it, {
       },
       'diario-corso': {
         titolo: 'Journal du cours',
-        aiuto: 'Toutes les leçons données du cours sur une seule feuille chronologique avec sujets, devoirs et absences',
+        aiuto: 'Toutes les leçons terminées du cours sur une seule feuille chronologique avec sujets, devoirs et absences',
       },
       'scheda-corso': {
         titolo: 'Fiche du cours',
@@ -293,7 +293,7 @@ export const testi = catalogo(it, {
       },
       'verbale-lezione': {
         titolo: 'Lesson record',
-        aiuto: 'The sheet of a lesson that was held: attendance, review, observations',
+        aiuto: 'The sheet of a completed lesson: attendance, review, observations',
       },
       'piano-lezione': {
         titolo: 'Lesson plan',
@@ -325,7 +325,7 @@ export const testi = catalogo(it, {
       },
       'diario-corso': {
         titolo: 'Course journal',
-        aiuto: 'All held lessons of the course on a single chronological sheet with topics, tasks and absences',
+        aiuto: 'All completed lessons of the course on a single chronological sheet with topics, tasks and absences',
       },
       'scheda-corso': {
         titolo: 'Course sheet',

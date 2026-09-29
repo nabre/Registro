@@ -1,14 +1,15 @@
 // La barra in fondo: che cosa manca e com'è messa la macchina. A sinistra quel
 // che chiede qualcosa (l'ora da compilare, le pendenze), come pulsanti; a destra
 // lo stato della macchina con le sole icone (assistente, lettura delle
-// scansioni, aggiornamenti, rete, posta, anno), frase intera nel titolo. Una
+// scansioni, rete, posta, anno), frase intera nel titolo, e per ultima la
+// versione, scritta. Una
 // voce che non ha niente da dire non compare: una barra sempre uguale smette
 // di essere letta.
 
 import { formattaData } from '../../core/dominio/dates.js'
 import { icona, type NomeIcona } from './components/icons.js'
 import { tendinaAperta } from './components/menu.js'
-import { statoDegliAggiornamenti } from './views/settings/updates.js'
+import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
@@ -28,7 +29,8 @@ import { testi } from './statusBar.testi.js'
 type Tono = 'quiete' | 'informativo' | 'positivo' | 'attenzione' | 'negativo'
 
 interface Voce {
-  simbolo: NomeIcona
+  /** Senza, la voce è solo testo: la versione quando non ha niente da dire. */
+  simbolo?: NomeIcona
   testo: string
   /** Quel che si legge fermandosi sopra: la riga lunga che nella barra non ci sta. */
   titolo: string
@@ -43,7 +45,7 @@ interface Voce {
 
 function voce (v: Voce): HTMLElement {
   const dentro: Figlio[] = [
-    icona(v.simbolo, 'icona--minuta'),
+    v.simbolo ? icona(v.simbolo, 'icona--minuta') : null,
     h('span', { class: 'barra-stato__testo' }, v.testo),
     v.fuoco ? icona('giu', 'icona--minuta barra-stato__freccia') : null,
   ]
@@ -207,19 +209,37 @@ function vociDellaPosta (): Figlio[] {
 }
 
 /**
- * La versione nuova, quando c'è (disponibile, in arrivo, pronta); negli altri
- * casi tace. Le parole sono quelle del racconto (`environment/updates.ts`).
+ * La versione che gira, ultima a destra e sempre scritta. Premuta, controlla
+ * se ce n'è una nuova; quando c'è (disponibile, in arrivo, pronta) prende
+ * l'icona del tono e porta alla sezione. Le parole sono quelle del racconto
+ * (`environment/updates.ts`).
  */
-function vociDellAggiornamento (): Figlio[] {
+function vociDellaVersione (): Figlio[] {
   const s = statoDegliAggiornamenti()
-  if (!s?.racconto.notizia) return []
-  const { breve, frase, tono } = s.racconto
+  if (!s) return []
+  const t = testi()
+  const scritta = t.numeroVersione(s.versione)
+
+  // Senza notizia il clic controlla subito; mentre controlla, l'icona lo dice.
+  if (!s.racconto.notizia) {
+    const inCorso = s.fase === 'controllo'
+    return [
+      voce({
+        ...(inCorso ? { simbolo: 'ricarica' as const } : {}),
+        testo: scritta,
+        titolo: inCorso ? s.racconto.frase : t.versioneInUso(s.racconto.frase, s.versione),
+        tono: inCorso ? 'informativo' : 'quiete',
+        al: () => { void controllaDallaBarra() },
+      }),
+    ]
+  }
+  const { frase, tono } = s.racconto
 
   return [
     voce({
       simbolo: 'ricarica',
-      testo: breve,
-      titolo: testi().versione(frase, s.versione),
+      testo: scritta,
+      titolo: t.versione(frase, s.versione),
       // Il tono è quello del racconto: una versione nuova non è un guasto.
       tono,
       al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.aggiornamenti' }) },
@@ -247,13 +267,16 @@ async function scriviNelProgramma (chiave: string, valore: boolean): Promise<voi
  *   acceso         — verde; il clic spegne.
  *   spento         — sbiadito; il clic accende.
  *   senza modello  — sbiadito e spento per forza; il clic porta a «Modelli
- *                    linguistici», dove si rimedia.
+ *                    linguistici», dove si rimedia. Con `soloConModello`
+ *                    (l'assistente) la voce invece non c'è: senza modello
+ *                    agganciato non c'è niente da accendere.
  */
 function interruttoreDelModello (opzioni: {
   simbolo: NomeIcona
   nome: string
   chiaveAttivo: string
   chiaveModello: string
+  soloConModello?: boolean
 }): Figlio {
   const interruttore = stato.programma.find((v) => v.chiave === opzioni.chiaveAttivo)
   // Prima che arrivino le impostazioni, niente: uno «spento» non ancora vero no.
@@ -263,6 +286,7 @@ function interruttoreDelModello (opzioni: {
   const bloccata = interruttore.bloccata
   const file = stato.programma.find((v) => v.chiave === opzioni.chiaveModello)?.valore
   const modello = typeof file === 'string' && file.trim() !== '' ? nomeDelModello(file) : null
+  if (opzioni.soloConModello && !modello) return null
 
   const t = testi()
   const titolo = bloccata !== null
@@ -294,6 +318,7 @@ function vociDeiModelli (): Figlio[] {
       nome: t.assistente,
       chiaveAttivo: 'registroDocenti.assistente.attivo',
       chiaveModello: 'registroDocenti.assistente.modello',
+      soloConModello: true,
     }),
     interruttoreDelModello({
       simbolo: 'documento',
@@ -331,9 +356,9 @@ export function barraStato (): Figlio {
       attr: { role: 'contentinfo', 'aria-label': testi().statoDelRegistro },
       dataset: { telaio: 'barra-stato' },
     },
-    // Tre blocchi separati da un filo, uno per domanda: che cosa mi tocca, che
-    // cosa è acceso, com'è messa la macchina. Un blocco vuoto sparisce con il
-    // suo filo.
+    // Blocchi separati da un filo, uno per domanda: che cosa mi tocca, che cosa
+    // è acceso, com'è messa la macchina, quale versione gira. Un blocco vuoto
+    // sparisce con il suo filo.
     h(
       'div',
       { class: 'barra-stato__gruppo' },
@@ -343,7 +368,8 @@ export function barraStato (): Figlio {
       'div',
       { class: 'barra-stato__gruppo barra-stato__gruppo--coda' },
       h('div', { class: 'barra-stato__blocco' }, vociDeiModelli()),
-      h('div', { class: 'barra-stato__blocco' }, vociDellAggiornamento(), vociDellaPosta(), vociDellAnno()),
+      h('div', { class: 'barra-stato__blocco' }, vociDellaPosta(), vociDellAnno()),
+      h('div', { class: 'barra-stato__blocco barra-stato__blocco--versione' }, vociDellaVersione()),
     ),
   )
 }

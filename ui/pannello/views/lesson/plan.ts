@@ -9,16 +9,16 @@ import {
   scalettaSulleUd,
 } from '../../../../core/dominio/calculations.js'
 import {
-  attivitaConCheck,
   attivitaConPendenza,
   attivitaValutata,
+  colonneCheckDi,
   nomeTipoAttivita,
   riassuntoParametri,
 } from '../../../../core/dominio/activities.js'
 import { avanzamentoConsegna } from '../../../../core/dominio/assignments.js'
 import { allieviDelCheck, checkDelCorso } from '../../../../core/dominio/check.js'
 import { formattaDurata } from '../../../../core/dominio/dates.js'
-import type { Attivita, Lezione, Risorsa, StatoAttivita } from '../../../../core/dominio/models.js'
+import type { Attivita, ColonnaCheck, Lezione, Risorsa, StatoAttivita } from '../../../../core/dominio/models.js'
 import {
   barra,
   collegamento,
@@ -126,12 +126,19 @@ function pulsantePendenza (lezione: Lezione, attivita: Attivita): Figlio {
   })
 }
 
+/** Le colonne del check del corso che la tappa verifica e che ci sono ancora. */
+function colonneDelCheck (lezione: Lezione, attivita: Attivita): ColonnaCheck[] {
+  const ids = colonneCheckDi(attivita)
+  const colonne = checkDelCorso(stato.registro, lezione.corsoId)?.colonne ?? []
+  return colonne.filter((c) => ids.includes(c.id))
+}
+
 function pulsanteCheck (lezione: Lezione, attivita: Attivita): Figlio {
-  const colonnaId = attivitaConCheck(attivita)
-  if (!colonnaId) return null
+  const colonneIds = colonneCheckDi(attivita)
+  if (colonneIds.length === 0) return null
   const t = testi()
 
-  if (colonnaId === 'tutte') {
+  if (colonneIds.includes('tutte')) {
     return pulsante({
       testo: t.check,
       simbolo: 'check',
@@ -142,21 +149,24 @@ function pulsanteCheck (lezione: Lezione, attivita: Attivita): Figlio {
   }
 
   const check = checkDelCorso(stato.registro, lezione.corsoId)
-  const colonna = check?.colonne.find((c) => c.id === colonnaId)
-  if (!colonna) return null
+  const colonne = colonneDelCheck(lezione, attivita)
+  if (colonne.length === 0) return null
 
+  // Più colonne nella stessa tappa: si contano le spunte di tutte insieme.
   const allievi = allieviDelCheck(stato.registro, lezione.corsoId)
+  const attese = allievi.length * colonne.length
   const fatte =
     check?.spunte.filter(
-      (s) => s.colonnaId === colonnaId && allievi.some((a) => a.id === s.allievoId),
+      (s) =>
+        colonne.some((c) => c.id === s.colonnaId) && allievi.some((a) => a.id === s.allievoId),
     ).length ?? 0
-  const completato = fatte >= allievi.length && allievi.length > 0
+  const completato = fatte >= attese && attese > 0
 
   return pulsante({
-    testo: `${fatte}/${allievi.length}`,
+    testo: `${fatte}/${attese}`,
     simbolo: 'check',
     variante: completato ? 'fantasma' : 'sottile',
-    titolo: t.apriCheck(colonna.titolo),
+    titolo: t.apriCheck(colonne.map((c) => c.titolo).join(', ')),
     al: () => {
       aggiorna({ schedaStrumentiLezione: 'check' })
     },
@@ -345,7 +355,7 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
                 { class: 'scaletta__prova' },
                 attivitaValutata(attivita) ? pulsanteValutazione(lezione, attivita) : null,
                 attivitaConPendenza(attivita) ? pulsantePendenza(lezione, attivita) : null,
-                attivitaConCheck(attivita) ? pulsanteCheck(lezione, attivita) : null,
+                pulsanteCheck(lezione, attivita),
               ),
               h(
                 'span',
@@ -377,7 +387,7 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
               riassuntoParametri(attivita, stato.registro.impostazioni) ||
               attivita.risorse.length > 0 ||
               attivitaConPendenza(attivita) ||
-              attivitaConCheck(attivita)
+              colonneCheckDi(attivita).length > 0
                 ? h(
                     'div',
                     { class: 'scaletta__estesa' },
@@ -406,21 +416,13 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
                             : null
                         })()
                       : null,
-                    attivitaConCheck(attivita) && attivitaConCheck(attivita) !== 'tutte'
-                      ? (() => {
-                          const kId = attivitaConCheck(attivita)
-                          const k = checkDelCorso(stato.registro, lezione.corsoId)?.colonne.find(
-                            (x) => x.id === kId,
-                          )
-                          return k
-                            ? h(
-                                'p',
-                                { class: 'scaletta__parametri testo-quieto' },
-                                icona('check', 'icona--minuta'),
-                                ` ${k.titolo}`,
-                              )
-                            : null
-                        })()
+                    colonneDelCheck(lezione, attivita).length > 0
+                      ? h(
+                          'p',
+                          { class: 'scaletta__parametri testo-quieto' },
+                          icona('check', 'icona--minuta'),
+                          ` ${colonneDelCheck(lezione, attivita).map((k) => k.titolo).join(', ')}`,
+                        )
                       : null,
                     risorseDaAula(piano.id, attivita.id, attivita.risorse),
                   )

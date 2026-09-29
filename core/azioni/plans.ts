@@ -11,6 +11,7 @@ import { classeDelCorso, corsoPerId } from '../dominio/courses.js'
 import type { Attivita, PianoLezione, Registro, Risorsa } from '../dominio/models.js'
 import { validaRisorsa, validaPiano } from '../dominio/validation.js'
 import {
+  aOraAperta,
   apriFile,
   cestina,
   conMessaggio,
@@ -119,7 +120,7 @@ export const piani = {
    * Il piano di una lezione, legato al corso dell'ora: copiato da un altro, o
    * generato con obiettivi e scaletta calibrati sulle UD dell'ora.
    */
-  'piano.perLezione': async (contesto, azione) => {
+  'piano.perLezione': aOraAperta(async (contesto, azione) => {
     const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
     const t = testi()
     if (!lezione) return rifiuta(comuni().nonTrovato.lezione)
@@ -170,7 +171,7 @@ export const piani = {
       'info',
       { creato: { id: piano.id } },
     )
-  },
+  }),
 
   'piano.duplica': async (contesto, azione) => {
     const origine = contesto.registro.piani.find((p) => p.id === azione.pianoId)
@@ -185,7 +186,7 @@ export const piani = {
     return { ok: true, creato: { id: copia.id } }
   },
 
-  'piano.assegna': (contesto, azione) => {
+  'piano.assegna': aOraAperta((contesto, azione) => {
     const piano = azione.pianoId
       ? contesto.registro.piani.find((p) => p.id === azione.pianoId)
       : null
@@ -203,7 +204,7 @@ export const piani = {
       // Cambiare piano azzera l'avanzamento, riferito alle attività del vecchio.
       lezione.avanzamento = []
     })
-  },
+  }),
 
   /**
    * Aggiunge una risorsa al piano o a una sua attività: un collegamento, o un
@@ -354,7 +355,7 @@ export const piani = {
     return apriFile(risorsa.file, risorsa.titolo)
   },
 
-  'avanzamento.imposta': (contesto, azione) => {
+  'avanzamento.imposta': aOraAperta((contesto, azione) => {
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
       const voce = lezione.avanzamento.find((a) => a.attivitaId === azione.attivitaId)
       if (voce) {
@@ -371,5 +372,5 @@ export const piani = {
         })
       }
     })
-  },
+  }),
 } satisfies Parte

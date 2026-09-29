@@ -67,7 +67,7 @@ const it = {
   aiutoDaAllineare:
     'La lezione c’è, ma a un’altra ora o in un’altra aula: si porta a quel che dice il ' +
     'calendario. Appello, piano e testi restano.',
-  svolteSenzaSpunta: 'Le lezioni già svolte partono senza spunta.',
+  svolteSenzaSpunta: 'Le lezioni già concluse partono senza spunta.',
   daAnnullare: 'Da annullare',
   aiutoDaAnnullare:
     'Il calendario le dà annullate: si segnano annullate, non si cancellano.',
@@ -147,7 +147,7 @@ export const testi = catalogo(it, {
       'Die Stunde existiert, aber zu einer anderen Zeit oder in einem anderen Zimmer: ' +
       'Sie wird an den Kalender angepasst. Präsenzkontrolle, Plan und Texte bleiben.',
     svolteSenzaSpunta:
-      'Bereits gehaltene Stunden sind zu Beginn nicht angehakt.',
+      'Bereits abgeschlossene Stunden sind zu Beginn nicht angehakt.',
     daAnnullare: 'Abzusagen',
     aiutoDaAnnullare:
       'Der Kalender führt sie als abgesagt: Sie werden als ausgefallen markiert, nicht gelöscht.',
@@ -225,7 +225,7 @@ export const testi = catalogo(it, {
     aiutoDaAllineare:
       'La leçon existe, mais à une autre heure ou dans une autre salle : elle est alignée sur ' +
       'le calendrier. L’appel, le plan et les textes restent.',
-    svolteSenzaSpunta: 'Les leçons déjà données ne sont pas cochées au départ.',
+    svolteSenzaSpunta: 'Les leçons déjà terminées ne sont pas cochées au départ.',
     daAnnullare: 'À annuler',
     aiutoDaAnnullare:
       'Le calendrier les indique comme annulées : elles sont marquées annulées, pas supprimées.',
@@ -296,7 +296,7 @@ export const testi = catalogo(it, {
     aiutoDaAllineare:
       'The lesson is there, but at another time or in another room: it’s brought in line with ' +
       'the calendar. Attendance, plan and texts stay.',
-    svolteSenzaSpunta: 'Lessons already held start unticked.',
+    svolteSenzaSpunta: 'Lessons already completed start unticked.',
     daAnnullare: 'To cancel',
     aiutoDaAnnullare:
       'The calendar has them as cancelled: they’re marked cancelled, not deleted.',

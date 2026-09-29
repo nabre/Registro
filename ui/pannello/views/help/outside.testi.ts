@@ -27,11 +27,11 @@ const it = {
       apri: 'Apri il registro',
       vaiAOggi: 'Vai a oggi',
       esci: 'Esci dal registro',
-      riepilogo: '2 da chiudere · 12 svolte',
+      riepilogo: '2 da chiudere · 12 concluse',
       daChiudere: 'Da chiudere (2)',
       ieri: '⚠ ieri · 08:20–09:05 · senza appello',
-      lunedi: '⚠ lun 19 · 08:20–09:05 · non segnata svolta',
-      svolte: 'Svolte (12)',
+      lunedi: '⚠ lun 19 · 08:20–09:05 · non conclusa',
+      svolte: 'Concluse (12)',
       venerdi: '✓ ven 16 · 08:20–09:05 · 2 assenti',
       altre: 'e altre 7…',
       apriCorso: 'Apri il corso',
@@ -63,7 +63,7 @@ const it = {
         termine: 'Le lezioni di un corso',
         testo:
           'Il sottomenu divide le lezioni in **In corso**, **Da chiudere**, **Prossime**, ' +
-          '**Svolte**, **Annullate**; oltre le prime righe dice «e altre N…», e per vederle ' +
+          '**Concluse**, **Annullate**; oltre le prime righe dice «e altre N…», e per vederle ' +
           'tutte c’è **Apri il corso**. Un clic su un’ora apre la sua pagina **Lezione**.',
       },
       {
@@ -72,14 +72,14 @@ const it = {
           '▶ l’ora che si sta facendo, ⚠ un registro rimasto aperto, ✓ un’ora a posto, ○ ' +
           'un’ora futura senza piano o con la scaletta corta, · una futura preparata, × una ' +
           'annullata. Il segno davanti al corso è quello della sua ora più urgente: fra ' +
-          'dodici ore svolte e un buco, dal primo livello si vede il buco.',
+          'dodici ore concluse e un buco, dal primo livello si vede il buco.',
       },
       {
         termine: 'Il motivo accanto alla lezione',
         testo:
-          '«senza appello» o «non segnata svolta» per un’ora da chiudere, «senza piano» o ' +
+          '«senza appello» o «non conclusa» per un’ora da chiudere, «senza piano» o ' +
           '«scaletta corta» per una da preparare, «2 assenti» o «tutti presenti» per una ' +
-          'svolta, e «verifica» quando c’è una prova. Così si sceglie quale ora aprire ' +
+          'conclusa, e «verifica» quando c’è una prova. Così si sceglie quale ora aprire ' +
           'senza aprirle tutte.',
       },
       {
@@ -456,11 +456,11 @@ export const testi = catalogo(it, {
         apri: 'Klassenbuch öffnen',
         vaiAOggi: 'Zu heute',
         esci: 'Klassenbuch beenden',
-        riepilogo: '2 abzuschliessen · 12 gehalten',
+        riepilogo: '2 abzuschliessen · 12 abgeschlossen',
         daChiudere: 'Abzuschliessen (2)',
         ieri: '⚠ gestern · 08:20–09:05 · ohne Präsenzkontrolle',
-        lunedi: '⚠ Mo 19 · 08:20–09:05 · nicht als gehalten markiert',
-        svolte: 'Gehalten (12)',
+        lunedi: '⚠ Mo 19 · 08:20–09:05 · nicht abgeschlossen',
+        svolte: 'Abgeschlossen (12)',
         venerdi: '✓ Fr 16 · 08:20–09:05 · 2 abwesend',
         altre: 'und 7 weitere…',
         apriCorso: 'Kurs öffnen',
@@ -494,7 +494,7 @@ export const testi = catalogo(it, {
           termine: 'Die Stunden eines Kurses',
           testo:
             'Das Untermenü teilt die Stunden in **Laufend**, **Abzuschliessen**, **Nächste**, ' +
-            '**Gehalten**, **Ausgefallen**; nach den ersten Zeilen steht «und N weitere…», und ' +
+            '**Abgeschlossen**, **Ausgefallen**; nach den ersten Zeilen steht «und N weitere…», und ' +
             'um alle zu sehen, gibt es **Kurs öffnen**. Ein Klick auf eine Stunde öffnet ihre ' +
             `Seite **${Uno(DE.lezione)}**.`,
         },
@@ -504,15 +504,15 @@ export const testi = catalogo(it, {
             '▶ die Stunde, die gerade läuft, ⚠ ein offen gebliebener Eintrag, ✓ eine erledigte ' +
             'Stunde, ○ eine künftige Stunde ohne Plan oder mit zu kurzem Ablauf, · eine ' +
             'vorbereitete künftige, × eine ausgefallene. Das Zeichen vor dem Kurs ist das seiner ' +
-            'dringendsten Stunde: Zwischen zwölf gehaltenen Stunden und einer Lücke sieht man ' +
+            'dringendsten Stunde: Zwischen zwölf abgeschlossenen Stunden und einer Lücke sieht man ' +
             'auf der ersten Ebene die Lücke.',
         },
         {
           termine: 'Der Grund neben der Stunde',
           testo:
-            '«ohne Präsenzkontrolle» oder «nicht als gehalten markiert» bei einer ' +
+            '«ohne Präsenzkontrolle» oder «nicht abgeschlossen» bei einer ' +
             'abzuschliessenden Stunde, «ohne Plan» oder «Ablauf zu kurz» bei einer ' +
-            'vorzubereitenden, «2 abwesend» oder «alle anwesend» bei einer gehaltenen, und ' +
+            'vorzubereitenden, «2 abwesend» oder «alle anwesend» bei einer abgeschlossenen, und ' +
             '«Prüfung», wenn eine Prüfung ansteht. So wählt man, welche Stunde man öffnet, ohne ' +
             'alle zu öffnen.',
         },
@@ -909,11 +909,11 @@ export const testi = catalogo(it, {
         apri: 'Ouvrir le registre',
         vaiAOggi: 'Aller à aujourd’hui',
         esci: 'Quitter le registre',
-        riepilogo: '2 à clôturer · 12 données',
+        riepilogo: '2 à clôturer · 12 terminées',
         daChiudere: 'À clôturer (2)',
         ieri: '⚠ hier · 08:20–09:05 · sans appel',
-        lunedi: '⚠ lun 19 · 08:20–09:05 · pas marquée donnée',
-        svolte: 'Données (12)',
+        lunedi: '⚠ lun 19 · 08:20–09:05 · pas terminée',
+        svolte: 'Terminées (12)',
         venerdi: '✓ ven 16 · 08:20–09:05 · 2 absents',
         altre: 'et 7 autres…',
         apriCorso: 'Ouvrir le cours',
@@ -946,7 +946,7 @@ export const testi = catalogo(it, {
           termine: 'Les leçons d’un cours',
           testo:
             'Le sous-menu répartit les leçons en **En cours**, **À clôturer**, **Prochaines**, ' +
-            '**Données**, **Annulées** ; après les premières lignes il dit « et N autres… », et ' +
+            '**Terminées**, **Annulées** ; après les premières lignes il dit « et N autres… », et ' +
             'pour les voir toutes il y a **Ouvrir le cours**. Un clic sur une leçon ouvre sa page ' +
             `**${Uno(FR.lezione)}**.`,
         },
@@ -956,14 +956,14 @@ export const testi = catalogo(it, {
             '▶ la leçon en train de se faire, ⚠ un registre resté ouvert, ✓ une leçon en ordre, ' +
             '○ une leçon future sans plan ou avec un déroulement trop court, · une future ' +
             'préparée, × une annulée. Le signe devant le cours est celui de sa leçon la plus ' +
-            'urgente : entre douze leçons données et un trou, au premier niveau on voit le trou.',
+            'urgente : entre douze leçons terminées et un trou, au premier niveau on voit le trou.',
         },
         {
           termine: 'La raison à côté de la leçon',
           testo:
-            '« sans appel » ou « pas marquée donnée » pour une leçon à clôturer, « sans plan » ' +
+            '« sans appel » ou « pas terminée » pour une leçon à clôturer, « sans plan » ' +
             'ou « déroulement trop court » pour une leçon à préparer, « 2 absents » ou « tous ' +
-            'présents » pour une leçon donnée, et « épreuve » quand il y a une épreuve. Ainsi on ' +
+            'présents » pour une leçon terminée, et « épreuve » quand il y a une épreuve. Ainsi on ' +
             'choisit quelle leçon ouvrir sans les ouvrir toutes.',
         },
         {
@@ -1346,11 +1346,11 @@ export const testi = catalogo(it, {
         apri: 'Open the register',
         vaiAOggi: 'Go to today',
         esci: 'Quit the register',
-        riepilogo: '2 to close · 12 held',
+        riepilogo: '2 to close · 12 completed',
         daChiudere: 'To close (2)',
         ieri: '⚠ yesterday · 08:20–09:05 · no attendance',
-        lunedi: '⚠ Mon 19 · 08:20–09:05 · not marked held',
-        svolte: 'Held (12)',
+        lunedi: '⚠ Mon 19 · 08:20–09:05 · not completed',
+        svolte: 'Completed (12)',
         venerdi: '✓ Fri 16 · 08:20–09:05 · 2 absent',
         altre: 'and 7 more…',
         apriCorso: 'Open the course',
@@ -1383,7 +1383,7 @@ export const testi = catalogo(it, {
           termine: 'A course’s lessons',
           testo:
             'The submenu splits the lessons into **In progress**, **To close**, **Coming up**, ' +
-            '**Held**, **Cancelled**; after the first rows it says “and N more…”, and to see ' +
+            '**Completed**, **Cancelled**; after the first rows it says “and N more…”, and to see ' +
             'them all there is **Open the course**. A click on a lesson opens its ' +
             `**${Uno(EN.lezione)}** page.`,
         },
@@ -1393,13 +1393,13 @@ export const testi = catalogo(it, {
             '▶ the lesson happening now, ⚠ a record left open, ✓ a lesson in order, ○ a future ' +
             'lesson with no plan or a short outline, · a prepared future one, × a cancelled ' +
             'one. The sign in front of the course is that of its most urgent lesson: between ' +
-            'twelve held lessons and one gap, the first level shows the gap.',
+            'twelve completed lessons and one gap, the first level shows the gap.',
         },
         {
           termine: 'The reason next to the lesson',
           testo:
-            '“no attendance” or “not marked held” for a lesson to close, “no plan” or “outline ' +
-            'too short” for one to prepare, “2 absent” or “all present” for a held one, and ' +
+            '“no attendance” or “not completed” for a lesson to close, “no plan” or “outline ' +
+            'too short” for one to prepare, “2 absent” or “all present” for a completed one, and ' +
             '“test” when there is a test. That way you choose which lesson to open without ' +
             'opening them all.',
         },

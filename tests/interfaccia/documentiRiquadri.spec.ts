@@ -7,8 +7,8 @@
 //   dell'anteprima è lo stesso `<iframe>` e il suo `src` non cambia: il PDF non
 //   ricarica e non torna a pagina uno;
 // - un foglio riscritto davvero (revisione nuova) ricarica;
-// - la barra dei riquadri è telaio: una spunta o un ridisegno non la ricreano,
-//   quindi il gesto di scorrimento in corsa non si perde; la spunta tiene il fuoco.
+// - la barra dei riquadri è telaio: un ridisegno non la ricrea, quindi il gesto
+//   di scorrimento in corsa non si perde.
 
 import { expect, test } from '@playwright/test'
 
@@ -28,7 +28,7 @@ const PREPARA = `() => {
   ]
   prova.vaiA(prova.PAGINE.find((p) => p.id === 'pagina.corso.documenti'))
   prova.aggiorna({ schedaDocumenti: 'corso', semestreId: null, esportati,
-    documentiScelti: [], anteprima: pdf, radiceDati: 'https://esempio.invalido/dati' })
+    anteprima: pdf, radiceDati: 'https://esempio.invalido/dati' })
   return pdf
 }`
 
@@ -93,26 +93,5 @@ test('cornice_tenuta', async ({ browser }) => {
   dopo = await valuta<Telaio>(page, STESSO_TELAIO)
   expect(dopo.src, JSON.stringify(dopo)).not.toBe(src)
   expect(dopo.quanti, JSON.stringify(dopo)).toBe(1)
-  expect(errori).toEqual([])
-})
-
-test('spunta_senza_perdere_la_barra', async ({ browser }) => {
-  const { page, errori } = await pannello(browser)
-  await valuta(page, PREPARA)
-  await valuta(page, FRAME)
-  await valuta(page, SEGNA)
-  const spunta = page.locator('.documenti__riga .documenti__spunta:not(.documenti__spunta--vuota)').first()
-  await spunta.focus()
-  await page.keyboard.press('Space')
-  await valuta(page, FRAME)
-  expect(await valuta<unknown[]>(page, 'prova.stato.documentiScelti')).toHaveLength(1)
-  expect(await valuta(page, STESSA_BARRA), 'una spunta ha ricreato la barra dei riquadri').toBeTruthy()
-  expect((await valuta<Telaio>(page, STESSO_TELAIO)).stesso, 'una spunta ha ricaricato l\'anteprima')
-    .toBeTruthy()
-  // Il fuoco resta sulla casella appena premuta: si spunta di fila da tastiera.
-  expect(
-    await valuta(page, "() => document.activeElement?.classList.contains('documenti__spunta')"),
-    await valuta<string>(page, '() => document.activeElement?.outerHTML'),
-  ).toBeTruthy()
   expect(errori).toEqual([])
 })
