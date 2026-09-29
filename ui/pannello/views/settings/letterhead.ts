@@ -8,8 +8,6 @@
 // sue. Le regole senza DOM stanno in `letterheadCourses.ts`, dove si provano.
 
 import { cartaVuota, spostaCorsi, togliCarta } from '../../../../core/dominio/letterhead.js'
-import { Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { ALTEZZA_LOGO, type CartaIntestata } from '../../../../core/dominio/models.js'
 import { campo, pulsante, scheda } from '../../components/base.js'
 import { menuSotto, type ElementoMenu } from '../../components/menu.js'
@@ -69,7 +67,6 @@ function nomeCarta (carta: CartaIntestata, indice: number): string {
  */
 function salvaIntestazione (modifiche: {
   carte?: CartaIntestata[]
-  docente?: string
   docenteAppellativo?: string
   docenteNome?: string
   docenteCognome?: string
@@ -86,15 +83,12 @@ function salvaIntestazione (modifiche: {
     ? modifiche.docenteCognome.trim()
     : (attuale.docenteCognome ?? '')
 
-  let docente = modifiche.docente !== undefined ? modifiche.docente.trim() : attuale.docente
+  let docente = attuale.docente
   const toccoAnagrafica = modifiche.docenteAppellativo !== undefined ||
     modifiche.docenteNome !== undefined ||
     modifiche.docenteCognome !== undefined
-  if (modifiche.docente === undefined && toccoAnagrafica) {
-    const composto = [appellativo, nome, cognome].filter(Boolean).join(' ')
-    if (composto) {
-      docente = composto
-    }
+  if (toccoAnagrafica) {
+    docente = [appellativo, nome, cognome].filter(Boolean).join(' ')
   }
 
   const { intestazione: _intestazione, ...resto } = stato.registro.impostazioni
@@ -592,15 +586,6 @@ export function vistaIntestazione (): Figlio[] {
           aiuto: t.docenteCognomeAiuto,
           larghezza: 'terzo',
           al: (valore) => void salvaIntestazione({ docenteCognome: valore }),
-        }),
-        campo({
-          nome: 'intestazioneDocente',
-          etichetta: Uno(lessico().docente),
-          valore: intestazione.docente,
-          segnaposto: t.docenteSegnaposto,
-          aiuto: t.docenteAiuto,
-          larghezza: 'piena',
-          al: (valore) => void salvaIntestazione({ docente: valore }),
         }),
       ),
     }),

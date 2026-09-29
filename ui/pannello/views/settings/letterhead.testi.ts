@@ -57,9 +57,6 @@ const it = {
   docenteNomeAiuto: 'Il nome proprio del docente.',
   docenteCognomeSegnaposto: 'Rossi',
   docenteCognomeAiuto: 'Il cognome del docente.',
-  docenteSegnaposto: 'Nome e cognome',
-  docenteAiuto:
-    'In fondo a sinistra di ogni pagina, su tutte le carte, e nella firma di serie delle e-mail.',
   carte: 'Carte intestate',
   carteAiuto:
     'Ogni corso stampa su una carta e su una sola: si sposta trascinandolo da una carta ' +
@@ -128,10 +125,6 @@ export const testi = catalogo(it, {
     docenteNomeAiuto: 'Der Vorname der Lehrperson.',
     docenteCognomeSegnaposto: 'Muster',
     docenteCognomeAiuto: 'Der Nachname der Lehrperson.',
-    docenteSegnaposto: 'Vorname und Nachname',
-    docenteAiuto:
-      'Unten links auf jeder Seite, auf allen Briefpapieren, und in der Standardsignatur der ' +
-      'E-Mails.',
     carte: 'Briefpapiere',
     carteAiuto:
       'Jeder Kurs druckt auf genau einem Briefpapier: Man verschiebt ihn, indem man ihn von ' +
@@ -202,10 +195,6 @@ export const testi = catalogo(it, {
     docenteNomeAiuto: 'Le prénom de l’enseignant.',
     docenteCognomeSegnaposto: 'Dupont',
     docenteCognomeAiuto: 'Le nom de famille de l’enseignant.',
-    docenteSegnaposto: 'Prénom et nom',
-    docenteAiuto:
-      'En bas à gauche de chaque page, sur tous les papiers, et dans la signature standard des ' +
-      'e-mails.',
     carte: 'Papiers à en-tête',
     carteAiuto:
       'Chaque cours s’imprime sur un seul papier : on le déplace en le glissant d’un papier à ' +
@@ -270,9 +259,6 @@ export const testi = catalogo(it, {
     docenteNomeAiuto: 'The teacher’s first name.',
     docenteCognomeSegnaposto: 'Doe',
     docenteCognomeAiuto: 'The teacher’s last name.',
-    docenteSegnaposto: 'First and last name',
-    docenteAiuto:
-      'Bottom left of every page, on all letterheads, and in the standard email signature.',
     carte: 'Letterheads',
     carteAiuto:
       'Each course prints on one letterhead and only one: you move it by dragging it from one ' +

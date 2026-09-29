@@ -37,6 +37,11 @@ export interface Riferimenti {
   pianoId?: string | null
   classeId?: string | null
   allievoId?: string | null
+  /**
+   * Il giorno, quando lo si sa già senza cercarlo: quello di prima per una
+   * voce spostata o tolta, che nel registro di adesso non c'è più.
+   */
+  giorno?: string | null
 }
 
 /**
@@ -44,8 +49,8 @@ export interface Riferimenti {
  * stretto: il corso; il corso di lezione, valutazione o piano; tutti i corsi
  * di una classe o di un allievo (un cognome sta su ogni foglio).
  *
- * Un id che non si trova dà niente, non «tutti»: per un'eliminazione è
- * l'azione a dover dire il corso.
+ * Un id che non si trova dà niente, non «tutti»: di una voce eliminata o
+ * spostata il corso di prima lo dice `riferimentiSpostati`.
  */
 export function corsiDaRifare (registro: Registro, riferimenti: Riferimenti): string[] {
   const unico = (id: string | null | undefined): string[] =>
@@ -83,6 +88,7 @@ export function corsiDaRifare (registro: Registro, riferimenti: Riferimenti): st
  * chi chiama usa oggi.
  */
 export function giornoDaRifare (registro: Registro, riferimenti: Riferimenti): string | null {
+  if (riferimenti.giorno) return riferimenti.giorno
   if (riferimenti.lezioneId) {
     const lezione = registro.lezioni.find((l) => l.id === riferimenti.lezioneId)
     if (lezione) return lezione.data
@@ -167,6 +173,85 @@ export function riferimentiCambiati (prima: Registro, dopo: Registro): Riferimen
   conCorso(prima.valutazioni, dopo.valutazioni, (v) => ({ valutazioneId: v.id }))
   conCorso(prima.piani, dopo.piani, (p) => ({ pianoId: p.id }))
   conCorso(prima.consegne, dopo.consegne, (c) => ({ corsoId: c.corsoId }))
+
+  return [...trovati.values()]
+}
+
+/** Dove sta una voce che finisce nei fogli di un corso: il corso e il giorno. */
+interface Posto {
+  corsoId: string | null
+  giorno: string | null
+}
+
+/**
+ * Dove stava tutto prima di una scrittura: ogni voce che finisce nei fogli di
+ * un corso, e la classe di ogni persona. Il registro si cambia in posto, e
+ * dopo la scrittura una lezione spostata o tolta non dice più da dove veniva.
+ */
+export interface Impronta {
+  voci: ReadonlyMap<string, Posto>
+  allievi: ReadonlyMap<string, string>
+}
+
+/** Le voci con un corso, ognuna sotto la sua raccolta: gli id non si mescolano. */
+function postiDi (registro: Registro): Map<string, Posto> {
+  const posti = new Map<string, Posto>()
+  for (const l of registro.lezioni) posti.set(`lezioni:${l.id}`, { corsoId: l.corsoId, giorno: l.data }) // testo-fisso: chiave interna
+  for (const v of registro.valutazioni) posti.set(`valutazioni:${v.id}`, { corsoId: v.corsoId, giorno: v.data }) // testo-fisso: chiave interna
+  for (const p of registro.piani) posti.set(`piani:${p.id}`, { corsoId: p.corsoId, giorno: null }) // testo-fisso: chiave interna
+  for (const c of registro.consegne ?? []) posti.set(`consegne:${c.id}`, { corsoId: c.corsoId, giorno: c.data }) // testo-fisso: chiave interna
+  return posti
+}
+
+/** La classe di ogni persona. */
+function classiDegliAllievi (registro: Registro): Map<string, string> {
+  const classi = new Map<string, string>()
+  for (const classe of registro.classi) {
+    for (const allievo of classe.allievi) classi.set(allievo.id, classe.id)
+  }
+  return classi
+}
+
+/** Fotografa il registro prima di una scrittura, per `riferimentiSpostati`. */
+export function improntaDi (registro: Registro): Impronta {
+  return { voci: postiDi(registro), allievi: classiDegliAllievi(registro) }
+}
+
+/**
+ * I due capi di ogni spostamento fra l'impronta e il registro di adesso: una
+ * voce passata a un altro corso o a un altro giorno tocca i fogli di dove
+ * stava e di dove sta (il semestre lo sceglie il giorno); una tolta quelli di
+ * dove stava, una nuova quelli di dove sta. Una persona cambiata di classe
+ * tocca le due classi, una tolta quella dove stava.
+ */
+export function riferimentiSpostati (prima: Impronta, registro: Registro): Riferimenti[] {
+  const trovati = new Map<string, Riferimenti>()
+  const aggiungi = (riferimenti: Riferimenti): void => {
+    trovati.set(JSON.stringify(riferimenti), riferimenti)
+  }
+
+  const adesso = postiDi(registro)
+  for (const [chiave, vecchio] of prima.voci) {
+    const nuovo = adesso.get(chiave)
+    if (nuovo && nuovo.corsoId === vecchio.corsoId && nuovo.giorno === vecchio.giorno) continue
+    if (vecchio.corsoId) aggiungi({ corsoId: vecchio.corsoId, giorno: vecchio.giorno })
+    if (nuovo?.corsoId) aggiungi({ corsoId: nuovo.corsoId, giorno: nuovo.giorno })
+  }
+  // Le voci nuove: una copia può nascere in un altro giorno o corso di quello
+  // che l'azione nomina.
+  for (const [chiave, nuovo] of adesso) {
+    if (!prima.voci.has(chiave) && nuovo.corsoId) {
+      aggiungi({ corsoId: nuovo.corsoId, giorno: nuovo.giorno })
+    }
+  }
+
+  const classi = classiDegliAllievi(registro)
+  for (const [allievoId, vecchia] of prima.allievi) {
+    const nuova = classi.get(allievoId)
+    if (nuova === vecchia) continue
+    aggiungi({ classeId: vecchia })
+    if (nuova) aggiungi({ classeId: nuova })
+  }
 
   return [...trovati.values()]
 }

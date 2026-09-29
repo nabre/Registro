@@ -80,5 +80,7 @@ Apri la skill pertinente prima di intervenire:
   vivo, rendilo interno; cancellalo solo dopo una prova.
 - Non aggiornare i conteggi documentali a memoria: usa i controlli e i test che
   li derivano dal codice.
+- Chiesta una release nuova, prima di alzare `package.json` compatta
+  `VERSIONE_DATI`: skill `formato` § «Compattare prima di una release».
 - Una voce di `docs/CANTIERE.md` si rimuove soltanto quando il lavoro è fatto e
   la verifica richiesta è verde.

@@ -199,6 +199,9 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
   Python con `pdftotext` o `pdfplumber`, e la rete; senza, resta quello che
   c'è), compila e lancia electron-builder (`electron-builder.json`): installer
   per utente senza diritti di amministratore, e portabile.
+- Prima di alzare la versione di una release si compatta `VERSIONE_DATI`: i
+  passi nati dopo l'ultima release diventano uno solo (skill `formato`
+  § «Compattare prima di una release»).
 - La versione sta solo in `package.json`. Quando cambia su `main`,
   `.github/workflows/rilascio.yml` verifica, impacchetta, firma, crea il tag
   `vX.Y.Z` e pubblica la release (bozza finché i file e `latest.yml` non sono

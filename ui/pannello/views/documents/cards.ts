@@ -77,6 +77,7 @@ export function delDocente (corso: Corso): HTMLElement {
   const semestreId = stato.semestreId
   const supplenze = nelSemestreScelto(registroDelCorso(stato.registro, corso.id))
     .filter((l) => l.supplenza === true && l.stato === 'svolta')
+  const suo = foglio('supplenze', corso.id, { corsoId: corso.id, semestreId })
   const t = testi()
 
   return schedaDiFogli({
@@ -84,14 +85,15 @@ export function delDocente (corso: Corso): HTMLElement {
     sottotitolo: conto(t.oreDiSupplenza(supplenze.length, nomeSemestreScelto())),
     aiuto: t.supplenzeAiuto,
     contenuto: () =>
-      supplenze.length === 0
+      // Un foglio rimasto senza supplenze resta in vista: si rifà o si butta da qui.
+      supplenze.length === 0 && !suo.trovato
         ? quieto(t.nessunaSupplenza)
         : h(
             'ul',
             { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-docente-${corso.id}` } },
             rigaFoglio({
               etichetta: nome(t.schedaSupplenze),
-              foglio: foglio('supplenze', corso.id, { corsoId: corso.id, semestreId }),
+              foglio: suo,
               nome: t.nomeSchedaSupplenze,
               rifai: { tipo: 'rapporto.genera', genere: 'supplenze', id: corso.id, semestreId },
             }),

@@ -86,6 +86,31 @@ non il suffisso `.regi`; anche il `FORMATO` del manifesto
    il campo nella tabella della sua entità, e `docs/CATALOGO.md` se è
    un'impostazione del documento. Poi il rituale della skill `verifica`.
 
+## Compattare prima di una release
+
+Fra una release e l'altra il numero sale a ogni campo nuovo, e i passi si
+accumulano. Solo i numeri **già pubblicati** contano, però: sono quelli scritti
+sui dischi di chi insegna. Quando si chiede una release nuova, prima di alzare
+`package.json`:
+
+1. **Il numero rilasciato.** `git show v<ultima>:core/dominio/models.ts` e si
+   legge `VERSIONE_DATI` (R). Quello di oggi è N. Se N ≤ R + 1 non c'è niente
+   da compattare.
+2. **Il numero nuovo** è R + 1: mai meno. Tornare a R farebbe aprire i
+   documenti nuovi al registro rilasciato, che li mangerebbe.
+3. **Il passo.** In `PASSI_DEL_FORMATO` i passi da R + 2 a N si fondono nel
+   passo R + 1; i `porta`, se ci sono, si concatenano nell'ordine di prima
+   dentro uno solo. In `upgrades.testi.ts` la frase di R + 1 riunisce quelle
+   tolte, in tutte e quattro le lingue.
+4. **I campioni.** Si tolgono con `git rm` quelli da R + 1 a N — non sono mai
+   stati su un disco vero — e `npm run sample` fissa il nuovo `v<R+1>.regi`.
+   È l'unica volta in cui un campione si toglie: quelli fino a R restano.
+5. **L'impronta.** `AGGIORNA_IMPRONTA=1 npm test`: il numero scende, e la
+   prova «un numero dato non si riprende» lo accetta solo con l'impronta
+   riscritta.
+6. **I documenti.** `docs/MODELLO-DATI.md` §8.2 con il numero e il capitolo
+   compattato; poi il rituale della skill `verifica`.
+
 ## Che cosa vede chi apre un documento vecchio
 
 - Una finestra, una volta: «X.regi è stato scritto da un registro più

@@ -22,7 +22,7 @@ import { modelli } from '../core/azioni/templates.js'
 import { ore } from '../core/azioni/hours.js'
 import { piani } from '../core/azioni/plans.js'
 import { proiezione } from '../desktop/azioni/projection.js'
-import { rapporti, rigeneraDopoScrittura } from '../core/azioni/reports.js'
+import { primaDiScrivere, rapporti, rigeneraDopoScrittura } from '../core/azioni/reports.js'
 import { registro } from '../core/azioni/register.js'
 import { sistema } from '../core/azioni/system.js'
 import { smistamento } from '../core/azioni/sorting.js'
@@ -84,6 +84,7 @@ export async function esegui (
   // non correla chiave e valore da sé.
   const gestore = GESTORI[azione.tipo] as Gestore<Azione['tipo']>
   const prima = archivio.revisione
+  const impronta = passaDaChiama(azione.tipo) ? null : primaDiScrivere(archivio)
   const esito = await gestore(contestoDi(archivio, origine), azione)
 
   // Registro cambiato → documenti stampati da rigenerare; una regola sola, qui e
@@ -91,7 +92,7 @@ export async function esegui (
   // riuscite (esportare, aprire, stampare) non scrivono. Quelle sotto contratto
   // l'hanno già fatto in `chiama()`.
   if (esito.ok && archivio.revisione !== prima && !passaDaChiama(azione.tipo)) {
-    rigeneraDopoScrittura(archivio, azione)
+    rigeneraDopoScrittura(archivio, azione, impronta)
   }
   return esito
 }

@@ -7,7 +7,7 @@ import type { NomeCollezione } from '../dati/paths.js'
 import type { EsitoStoria } from '../dati/history.js'
 import { riferimentiCambiati } from '../dominio/automation.js'
 import { conMessaggio, rifiutaCon, type EsitoAzione, type Parte } from './context.js'
-import { rigeneraDopoScrittura } from './reports.js'
+import { primaDiScrivere, rigeneraDopoScrittura } from './reports.js'
 import { testi } from './history.testi.js'
 
 /** L'esito della storia in un esito d'azione, con le parole giuste per il verso. */
@@ -33,11 +33,14 @@ function esitoDi (
  */
 function torna (archivio: Archivio, verso: 'annulla' | 'ripristina'): EsitoAzione {
   const prima = { ...archivio.registro }
+  // Annullare uno spostamento è a sua volta uno spostamento: due capi.
+  const impronta = primaDiScrivere(archivio)
   const esito = verso === 'annulla' ? archivio.annulla() : archivio.ripristina()
   if (esito.ok) {
     for (const riferimenti of riferimentiCambiati(prima, archivio.registro)) {
       rigeneraDopoScrittura(archivio, { ...riferimenti })
     }
+    if (impronta) rigeneraDopoScrittura(archivio, {}, impronta)
   }
   return esitoDi(esito, verso)
 }

@@ -221,7 +221,8 @@ const it = {
         testo:
           'Un’ora tenuta al posto di un altro docente: con **Modifica** accesa, dal calendario si ' +
           'apre la lezione e si spunta **Supplenza**. Le ore così segnate, se **Svolte**, finiscono ' +
-          'nella pagina **Documenti**, scheda Docente: la scheda del corso con quelle sole.',
+          'nella pagina **Documenti**, scheda Docente: la scheda del corso con quelle sole. Il suo ' +
+          'PDF si rifà da sé con gli altri documenti del corso, anche quando si cambia una supplenza.',
       },
     ],
     note: [
@@ -976,7 +977,8 @@ export const testi = catalogo(it, {
             'Eine Stunde an Stelle einer anderen Lehrperson: Mit eingeschaltetem **Bearbeiten** ' +
             'öffnet man die Stunde im Kalender und hakt **Stellvertretung** an. So markierte ' +
             'Stunden, wenn **Gehalten**, landen auf der Seite **Dokumente**, Reiter Lehrperson: ' +
-            'das Kursblatt nur mit diesen.',
+            'das Kursblatt nur mit diesen. Sein PDF wird mit den anderen Dokumenten des Kurses von ' +
+            'selbst neu erstellt, auch wenn man eine Stellvertretung ändert.',
         },
       ],
       note: [
@@ -1761,7 +1763,8 @@ export const testi = catalogo(it, {
             'Une leçon donnée à la place d’un autre enseignant : avec **Modifier** activé, on ' +
             'ouvre la leçon depuis le calendrier et on coche **Remplacement**. Les leçons ainsi ' +
             'marquées, si **Données**, arrivent dans la page **Documents**, onglet Enseignant : ' +
-            'la fiche du cours avec elles seules.',
+            'la fiche du cours avec elles seules. Son PDF se refait tout seul avec les autres ' +
+            'documents du cours, même quand on modifie un remplacement.',
         },
       ],
       note: [
@@ -2534,7 +2537,8 @@ export const testi = catalogo(it, {
           testo:
             'A lesson taught in place of another teacher: with **Edit** on, open the lesson from ' +
             'the calendar and tick **Substitution**. Lessons marked this way, once **Held**, end ' +
-            'up on the **Documents** page, Teacher tab: the course sheet with those alone.',
+            'up on the **Documents** page, Teacher tab: the course sheet with those alone. Its PDF ' +
+            'is remade on its own with the other course documents, also when a substitution changes.',
         },
       ],
       note: [

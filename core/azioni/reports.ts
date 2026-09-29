@@ -20,7 +20,7 @@ import type { Lingua } from '../i18n/index.js'
 import { CHIAVE_CARTA } from '../dominio/reportData.js'
 import { NOME_LOGO, conIntestazione } from '../dominio/reports.js'
 import { componiPdf } from '../dati/reportsPdf.js'
-import { contenutoDi } from '../dati/store.js'
+import { contenutoDi, deposito } from '../dati/store.js'
 import {
   datiAllievo,
   datiCorso,
@@ -45,7 +45,14 @@ import { formattaData, nelSemestre, oggi, semestreDi } from '../dominio/dates.js
 import type { Archivio } from '../dati/archive.js'
 import type { Corso, Lezione, Registro, Semestre } from '../dominio/models.js'
 import type { Blocchi, DatiRapporto, Modello } from '../dominio/reports.js'
-import { corsiDaRifare, giornoDaRifare, type Riferimenti } from '../dominio/automation.js'
+import {
+  corsiDaRifare,
+  giornoDaRifare,
+  improntaDi,
+  riferimentiSpostati,
+  type Impronta,
+  type Riferimenti,
+} from '../dominio/automation.js'
 import type { Azione } from '../../contract/protocollo.js'
 import { conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi } from './reports.testi.js'
@@ -165,8 +172,8 @@ async function scriviRapporto (
 }
 
 /**
- * I fogli di un corso che invecchiano con i dati (presenze, voti, schede di
- * allievi e prove): quelli che l'automazione rifà. Si scrivono, non si aprono.
+ * I fogli di un corso che invecchiano con i dati (presenze, voti, supplenze,
+ * schede di allievi e prove): quelli che l'automazione rifà. Si scrivono, non si aprono.
  */
 function documentiDelCorso (
   registro: Registro,
@@ -195,6 +202,7 @@ function documentiDelCorso (
       modello: 'diario-corso',
       dati: datiDiario(registro, corso, semestre),
     }),
+    supplenzeDelCorso(registro, corso, semestre),
     // Anche chi si è ritirato: la sua scheda deve mostrare il ritiro.
     ...ordinaAllievi(classe.allievi).map((allievo) =>
       conPosto(registro, 'allievo', allievo.id, dove, {
@@ -212,6 +220,31 @@ function documentiDelCorso (
         }),
       ),
   ].filter((preparato): preparato is Preparato => preparato !== null)
+}
+
+/**
+ * La scheda delle ore tenute come supplente, se ce n'è motivo: almeno una
+ * supplenza svolta nel periodo, come chiede la pagina Documenti per mostrarla.
+ * Senza più supplenze si rifà solo quella già nella cartella: tolta l'ultima,
+ * racconterebbe ancora ore che non lo sono più.
+ */
+function supplenzeDelCorso (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+): Preparato | null {
+  const preparato = conPosto(
+    registro,
+    'supplenze',
+    corso.id,
+    { corsoId: corso.id, semestreId: semestre?.id ?? null },
+    { modello: 'scheda-corso', dati: datiSupplenze(registro, corso, semestre) },
+  )
+  if (!preparato) return null
+  const svolte = registroDelCorso(registro, corso.id).some(
+    (l) => l.supplenza === true && l.stato === 'svolta' && nelSemestre(semestre, l.data),
+  )
+  return svolte || deposito()?.esiste(percorsoDi(preparato.dove)) ? preparato : null
 }
 
 /**
@@ -523,35 +556,60 @@ function programmaRigenerazione (
  */
 function riferimentiDi (azione: Azione | Record<string, unknown>): Riferimenti {
   const dati = azione as unknown as Record<string, unknown>
-  const id = (nome: string) => (typeof dati[nome] === 'string' ? (dati[nome]) : null)
+  const id = (nome: string, da: Record<string, unknown> = dati) =>
+    (typeof da[nome] === 'string' ? (da[nome]) : null)
+  // Chi salva un oggetto intero (`ore.salva`, `valutazioni.salva`…) porta l'id
+  // dentro l'oggetto, non accanto: senza guardarci, modificare un'ora dal suo
+  // modulo non rifarebbe i fogli del corso.
+  const dentro = (nome: string, campo = 'id') => {
+    const oggetto = dati[nome]
+    return oggetto !== null && typeof oggetto === 'object'
+      ? id(campo, oggetto as Record<string, unknown>)
+      : null
+  }
   return {
-    corsoId: id('corsoId'),
-    lezioneId: id('lezioneId'),
-    valutazioneId: id('valutazioneId'),
-    pianoId: id('pianoId'),
-    classeId: id('classeId'),
+    corsoId: id('corsoId') ?? dentro('corso') ?? dentro('consegna', 'corsoId'),
+    lezioneId: id('lezioneId') ?? dentro('lezione'),
+    valutazioneId: id('valutazioneId') ?? dentro('valutazione'),
+    pianoId: id('pianoId') ?? dentro('piano'),
+    classeId: id('classeId') ?? dentro('classe'),
     allievoId: id('allievoId'),
   }
 }
 
 /**
+ * Dove stava tutto prima di una scrittura, se poi i fogli si rifaranno: si
+ * prende subito prima di scrivere e si passa a `rigeneraDopoScrittura`. Con
+ * i PDF non automatici non serve, e non si paga.
+ */
+export function primaDiScrivere (archivio: Archivio): Impronta | null {
+  const registro = archivio.registro
+  return registro.impostazioni.pdfAutomatici === 'sempre' ? improntaDi(registro) : null
+}
+
+/**
  * Mette in attesa i documenti che una scrittura riuscita ha reso vecchi.
  * Fuori da `esegui` perché valga anche per `chiama()` (assistente, condotto);
- * `dati` è l'azione o l'ingresso di una procedura. Idempotente: le coppie in
- * attesa sono chiavi.
+ * `dati` è l'azione o l'ingresso di una procedura. Con l'impronta di prima
+ * (`primaDiScrivere`) anche i due capi di ogni spostamento: un'ora passata a
+ * un altro corso o semestre invecchia i fogli di dove stava, non solo di dove
+ * sta. Idempotente: le coppie in attesa sono chiavi.
  */
 export function rigeneraDopoScrittura (
   archivio: Archivio,
   dati: Azione | Record<string, unknown>,
+  prima: Impronta | null = null,
 ): void {
   const registro = archivio.registro
-  const riferimenti = riferimentiDi(dati)
-  // Il giorno della modifica decide il periodo dei fogli da rifare.
-  programmaRigenerazione(
-    archivio,
-    corsiDaRifare(registro, riferimenti),
-    giornoDaRifare(registro, riferimenti),
-  )
+  const tutti = [riferimentiDi(dati), ...(prima ? riferimentiSpostati(prima, registro) : [])]
+  for (const riferimenti of tutti) {
+    // Il giorno della modifica decide il periodo dei fogli da rifare.
+    programmaRigenerazione(
+      archivio,
+      corsiDaRifare(registro, riferimenti),
+      giornoDaRifare(registro, riferimenti),
+    )
+  }
 }
 
 /** Quante coppie aspettano di avere i fogli rifatti. Per le prove. */

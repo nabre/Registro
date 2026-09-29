@@ -362,7 +362,9 @@ sequenceDiagram
   participant PDF as core/dati/reportsPdf.ts
   participant DOC as esportazioni nel .regi
 
+  N->>AU: improntaDi prima di scrivere (con pdfAutomatici sempre)
   N->>N: scrittura riuscita, revisione cambiata
+  N->>AU: riferimentiSpostati: corso e giorno di prima e di adesso
   N->>AU: corsiDaRifare con corsoId, lezioneId, classeId, allievoId
   N->>AU: giornoDaRifare
   N->>R: rigeneraDopoScrittura

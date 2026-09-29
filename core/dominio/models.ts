@@ -1358,9 +1358,11 @@ export interface Registro {
  * Ogni campo nuovo su disco vuole questo numero più alto, il suo passo e il
  * campione in `tests/samples/formato/` (`npm run sample`): lo controllano
  * `migrationVersion.test.mjs`, `upgrades.test.mjs`, `formatUpgrade.test.mjs`.
- * Vedi la skill `formato`.
+ * Fra due release i passi non pubblicati si compattano in uno solo: conta
+ * soltanto il numero che una release ha già scritto su disco. Vedi la skill
+ * `formato`.
  */
-export const VERSIONE_DATI = 5
+export const VERSIONE_DATI = 3
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

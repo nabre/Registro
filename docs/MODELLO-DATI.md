@@ -1128,16 +1128,17 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`, `composizioni/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 5`
+### 8.2 `VERSIONE_DATI = 3`
 
 La versione dello schema JSON (`registro.json.versione`).
 
 La prima forma pubblica comprende già l'intero modello descritto in questo
 documento. Le versioni successive introducono estensioni progressive con passi
-del formato (v2 per `allievo.iscrittoIl`, v3 per `consegna.docenteDiClasse`, v4
-per i dati strutturati del docente `docenteAppellativo`, `docenteNome`, `docenteCognome`,
-v5 per `anno.calendarioUfficiale` e `lezione.supplenza`, senza `porta`: assente vuol dire
-anno scritto a mano e lezione non di supplenza).
+del formato: v2 (release 1.0.0) per `allievo.iscrittoIl`; v3 (release 1.1.0) per
+`consegna.docenteDiClasse`, i dati strutturati del docente
+(`docenteAppellativo`, `docenteNome`, `docenteCognome`),
+`anno.calendarioUfficiale` e `lezione.supplenza`, senza `porta`: assente vuol
+dire anno scritto a mano e lezione non di supplenza.
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento
@@ -1150,6 +1151,9 @@ anno scritto a mano e lezione non di supplenza).
   `tests/samples/formato/` (`npm run sample`, mai riscritti); prove
   `tests/domain/upgrades.test.mjs` e
   `tests/data/formatUpgrade.test.mjs`. Procedimento: skill `formato`.
+- Fra due release i passi si compattano: resta un passo per ogni numero già
+  pubblicato, più uno solo per quel che la release nuova aggiunge (skill
+  `formato` § «Compattare prima di una release»).
 - Sotto, `normalizzaRegistro()` ripara ogni forma a ogni caricamento;
   `Archivio.collezioniMigrate()` riscrive quel che è cambiato.
 - Migrazioni una tantum dentro la normalizzazione: `allievo.geo`/`geoDatore` →

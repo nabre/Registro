@@ -9,6 +9,8 @@ import {
   IMPOSTAZIONI_PREDEFINITE,
   corsiDaRifare,
   giornoDaRifare,
+  improntaDi,
+  riferimentiSpostati,
   creaAllievo,
   creaAnno,
   creaLezione,
@@ -122,6 +124,58 @@ describe('di quale giorno parla una modifica', () => {
     assert.equal(giornoDaRifare(registro, { allievoId: 'al-1' }), null)
     assert.equal(giornoDaRifare(registro, { lezioneId: 'sparita' }), null)
     assert.equal(giornoDaRifare(registro, {}), null)
+  })
+})
+
+describe('i due capi di uno spostamento', () => {
+  it('senza spostamenti non c’è niente da aggiungere', () => {
+    const registro = registroCon()
+    const prima = improntaDi(registro)
+    // Il consuntivo cambia i fogli del corso, ma quelli li dice già l'azione.
+    registro.lezioni[0].consuntivo = 'Ripasso'
+    assert.deepEqual(riferimentiSpostati(prima, registro), [])
+  })
+
+  it('un’ora passata a un altro corso tocca il corso di prima e quello di adesso', () => {
+    const registro = registroCon()
+    const prima = improntaDi(registro)
+    registro.lezioni[0].corsoId = 'cor-3'
+    assert.deepEqual(riferimentiSpostati(prima, registro), [
+      { corsoId: 'cor-1', giorno: '2026-10-06' },
+      { corsoId: 'cor-3', giorno: '2026-10-06' },
+    ])
+  })
+
+  it('un’ora spostata di semestre porta il giorno di prima e quello di adesso', () => {
+    const registro = registroCon()
+    const prima = improntaDi(registro)
+    registro.lezioni[0].data = '2027-03-02'
+    const trovati = riferimentiSpostati(prima, registro)
+    assert.deepEqual(trovati, [
+      { corsoId: 'cor-1', giorno: '2026-10-06' },
+      { corsoId: 'cor-1', giorno: '2027-03-02' },
+    ])
+    // Il giorno detto vince su quello che la lezione ha adesso.
+    assert.equal(giornoDaRifare(registro, trovati[0]), '2026-10-06')
+  })
+
+  it('una voce tolta tocca dove stava, una nuova dove sta', () => {
+    const registro = registroCon()
+    const prima = improntaDi(registro)
+    registro.valutazioni = []
+    registro.lezioni.push({ ...creaLezione('cor-3', '2027-02-09', '08:00', 45), id: 'lez-2' })
+    assert.deepEqual(riferimentiSpostati(prima, registro), [
+      { corsoId: 'cor-2', giorno: '2026-10-20' },
+      { corsoId: 'cor-3', giorno: '2027-02-09' },
+    ])
+  })
+
+  it('una persona cambiata di classe tocca le due classi', () => {
+    const registro = registroCon()
+    const prima = improntaDi(registro)
+    const [rossi] = registro.classi[0].allievi.splice(0, 1)
+    registro.classi[1].allievi.push(rossi)
+    assert.deepEqual(riferimentiSpostati(prima, registro), [{ classeId: 'cl-1' }, { classeId: 'cl-2' }])
   })
 })
 

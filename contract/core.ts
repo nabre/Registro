@@ -9,7 +9,7 @@
 import type { Archivio } from '../core/dati/archive.js'
 import type { Azione } from './protocollo.js'
 import { contestoDi, type EsitoAzione, type Gestore, type Parte } from '../core/azioni/context.js'
-import { rigeneraDopoScrittura } from '../core/azioni/reports.js'
+import { primaDiScrivere, rigeneraDopoScrittura } from '../core/azioni/reports.js'
 import { identificatore } from '../core/dominio/identifiers.js'
 import {
   ErroreApi,
@@ -286,6 +286,8 @@ export async function chiama<U = unknown> (
     // `ambito.contesto.origine` coincidono per ogni trasporto.
     const ambito: Ambito = { contesto: contestoDi(archivio, origine), tracciato, origine }
 
+    // Dove stava tutto: una scrittura che sposta un'ora invecchia due corsi.
+    const impronta = p.genere === 'scrittura' ? primaDiScrivere(archivio) : null
     let dati: unknown
     try {
       dati = await (p.esegui as (a: Ambito, i: unknown) => unknown)(ambito, controllo.value)
@@ -318,7 +320,7 @@ export async function chiama<U = unknown> (
     // I documenti seguono i dati da qualunque trasporto arrivi la scrittura. Si
     // guarda la revisione, non l'esito: senza modifiche nessun foglio è vecchio.
     if (p.genere === 'scrittura' && archivio.revisione !== prima) {
-      rigeneraDopoScrittura(archivio, controllo.value as Record<string, unknown>)
+      rigeneraDopoScrittura(archivio, controllo.value as Record<string, unknown>, impronta)
     }
     return {
       ok: true, api: VERSIONE_API, procedura: nome, versione: p.versione, tracciato,

@@ -45,25 +45,13 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return testi().passi[2]
     },
   },
+  // Dopo la 1.0.0 (formato 2): le pendenze del docente di classe, i dati
+  // strutturati del docente, il calendario ufficiale dell'anno e la lezione di
+  // supplenza. Tutti campi nuovi con il loro predefinito: niente da portare.
   {
     a: 3,
     get cambia () {
       return testi().passi[3]
-    },
-  },
-  {
-    a: 4,
-    get cambia () {
-      return testi().passi[4]
-    },
-  },
-  // L'anno ricorda da quale calendario ufficiale prende date e chiusure. Nei
-  // documenti di prima non c'è: assente vuol dire anno scritto a mano. Nello
-  // stesso passo la lezione può dirsi supplenza; assente vuol dire no.
-  {
-    a: 5,
-    get cambia () {
-      return testi().passi[5]
     },
   },
 ]

@@ -375,9 +375,12 @@ su tutte le UD delle ore svolte nel periodo (vero se non ce n'è nessuna).
 **Decisione.** Dopo una scrittura riuscita che cambia la revisione, `chiama()`
 lancia `rigeneraDopoScrittura` (`pdfAutomatici: 'sempre'`): vale per pannello,
 condotto e assistente. `esegui()` la tiene solo per le azioni senza procedura.
+Ogni spostamento ha due capi: un'impronta presa prima di scrivere
+(`primaDiScrivere`) fa rifare anche corso e semestre di dove una voce stava,
+e la classe di prima di una persona.
 
 **Dove.** `contract/core.ts`, `contract/centralino.ts`, `core/azioni/reports.ts`,
-`tests/api/regeneration.test.mjs`.
+`core/dominio/automation.ts`, `tests/api/regeneration.test.mjs`.
 
 ### ADR-32 — Il contesto del modello resta caldo
 

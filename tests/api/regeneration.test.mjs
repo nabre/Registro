@@ -14,6 +14,7 @@ let api
 let archivio
 let lezione
 let rossi
+let fisica
 
 before(async () => {
   ;({ api, archivio } = await archivioDiProva({ lavoro, dati }))
@@ -30,12 +31,14 @@ before(async () => {
   const matematica = creaMateria('Matematica')
   const corso = creaCorso(classe.id, matematica.id, 'I MEC A — Matematica')
   lezione = creaLezione(corso.id, '2026-09-08', '08:20', 90)
+  const materiaFisica = creaMateria('Fisica')
+  fisica = creaCorso(classe.id, materiaFisica.id, 'I MEC A — Fisica')
 
   archivio.modifica((r) => {
     r.impostazioni.pdfAutomatici = 'sempre'
     r.classi.push(classe)
-    r.materie.push(matematica)
-    r.corsi.push(corso)
+    r.materie.push(matematica, materiaFisica)
+    r.corsi.push(corso, fisica)
     r.lezioni.push(lezione)
   }, ['classi', 'corsi', 'lezioni', 'registro'])
 })
@@ -60,5 +63,31 @@ describe('la rigenerazione dei PDF dopo una scrittura che non passa dal pannello
     )
     assert.ok(esito.ok, JSON.stringify(esito))
     assert.equal(api.rigenerazioniInAttesa(), 1)
+  })
+
+  it('un’ora salvata intera (l’id sta dentro la lezione) mette il corso in attesa', async () => {
+    await api.fermaRapporti()
+    assert.equal(api.rigenerazioniInAttesa(), 0)
+
+    const esito = await api.chiama(
+      archivio,
+      'ore.salva',
+      { lezione: { ...lezione, supplenza: true } },
+      { origine: 'condotto' },
+    )
+    assert.ok(esito.ok, JSON.stringify(esito))
+    assert.equal(api.rigenerazioniInAttesa(), 1)
+  })
+
+  it('un’ora passata a un altro corso mette in attesa anche quello di prima', async () => {
+    await api.fermaRapporti()
+    const esito = await api.chiama(
+      archivio,
+      'ore.salva',
+      { lezione: { ...lezione, corsoId: fisica.id } },
+      { origine: 'condotto' },
+    )
+    assert.ok(esito.ok, JSON.stringify(esito))
+    assert.equal(api.rigenerazioniInAttesa(), 2)
   })
 })
