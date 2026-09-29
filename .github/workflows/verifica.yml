@@ -116,7 +116,7 @@ jobs:
       # chiave cambia con il lockfile, e `playwright install` scarica comunque
       # la revisione giusta se quella ripresa è vecchia.
       - name: Cache di Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~\AppData\Local\ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
