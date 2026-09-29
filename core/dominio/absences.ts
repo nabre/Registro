@@ -9,7 +9,7 @@ import { nomeCompleto } from './calculations.js'
 import { scriviIndirizzo } from './addresses.js'
 import { nomeFileArchivio, percorsoArchivio } from './locations.js'
 import { fascicoloDellaClasse } from './courses.js'
-import { formattaData, istanteAdesso, periodoNelNome } from './dates.js'
+import { formattaData, istanteAdesso, nomeSemestre, periodoNelNome } from './dates.js'
 import type {
   Allievo,
   BloccoAssenze,
@@ -289,7 +289,8 @@ export function raggiungibile (allievo: Allievo): boolean {
  * dai semestri non ne ha: valgono le date.
  */
 export function etichettaPeriodo (semestri: Semestre[], dal: Iso, al: Iso): string {
-  return semestri.find((s) => dal >= s.inizio && al <= s.fine)?.etichetta ?? ''
+  const semestre = semestri.find((s) => dal >= s.inizio && al <= s.fine)
+  return semestre ? nomeSemestre(semestre) : ''
 }
 
 /**

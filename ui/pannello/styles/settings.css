@@ -868,3 +868,67 @@ button.onedrive__nome:hover span { text-decoration: underline; }
 
 /* Il conto di una regola: vuoto finché gli eventi non sono letti. */
 .ics-regola__conto:empty { display: none; }
+
+/* ------------------------------------------------------- i calendari ufficiali
+
+   Una scheda per cantone. Gli anni sono voci di un selettore e se ne guarda
+   uno per volta: in testa le date delle lezioni, sotto le chiusure e il PDF.
+   Classi proprie: `calendario-ufficiale` è del modulo dell'anno (year.css). */
+.calendari-ufficiali__corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spazio-3);
+}
+
+/* Molti anni vanno a capo invece di allargare la scheda. */
+.calendari-ufficiali__corpo > .selettore { flex-wrap: wrap; max-width: 100%; }
+
+.calendari-ufficiali__anno {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  align-self: stretch;
+}
+
+.calendari-ufficiali__testa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2) var(--spazio-4);
+}
+
+.calendari-ufficiali__date {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2) var(--spazio-5);
+  margin: 0;
+}
+
+.calendari-ufficiali__date dt {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.calendari-ufficiali__date dd { margin: 0; font-weight: 600; }
+
+/* Un elenco da scorrere con l'occhio: righe basse, il tipo in secondo piano. */
+.tabella--calendario-ufficiale th,
+.tabella--calendario-ufficiale td { padding-block: 6px; }
+.tabella--calendario-ufficiale td { font-variant-numeric: tabular-nums; }
+.tabella--calendario-ufficiale td:nth-child(2) { color: var(--testo-quieto); }
+.tabella--calendario-ufficiale td:nth-child(n + 3) { white-space: nowrap; }
+
+.calendari-ufficiali__fonte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  margin: 0;
+  font-size: var(--corpo-piccolo);
+}
+
+.calendari-ufficiali__etichetta { color: var(--testo-quieto); }
+
+/* Il nome del file è lungo e senza spazi: va a capo dove serve. */
+.calendari-ufficiali__pdf { overflow-wrap: anywhere; }

@@ -6,7 +6,7 @@ Chiude #
 
 ## Verifiche
 
-- [ ] `npx tsc --noEmit`, `npx eslint .` e `npm test` sono verdi
+- [ ] `npm run typecheck`, `npx eslint .` e `npm test` sono verdi
 - [ ] I controlli d'architettura sono verdi (`layers`, `census`, `collections`, `forms`, `buttons`, `procedures`)
 - [ ] La documentazione in `docs/` è aggiornata, se cambia qualcosa che si vede o un contratto
 - [ ] Nessun dato di persone reali nel codice, nelle prove o negli screenshot

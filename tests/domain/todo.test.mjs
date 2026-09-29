@@ -176,7 +176,7 @@ describe('il todo di una classe', () => {
     corsi[0].orario = [{ giorno: 3, inizio: '08:00', durataMin: 90 }]
     const anno = registro.anni[0]
     anno.semestri = [
-      { id: 'sem-1', numero: 1, etichetta: '1° sem', inizio: '2026-09-01', fine: '2026-09-30' },
+      { id: 'sem-1', numero: 1, inizio: '2026-09-01', fine: '2026-09-30' },
     ]
     // Cinque mercoledì nel periodo, dieci UD previste: ne perde sei.
     for (const data of ['2026-09-02', '2026-09-09', '2026-09-16']) {

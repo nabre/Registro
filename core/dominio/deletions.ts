@@ -1,7 +1,8 @@
 // Che cosa si porta via un'eliminazione.
 //
-// Si può cancellare tutto, ma prima si dice per intero che cosa sparisce
-// («12 lezioni con l'appello, 5 momenti con 60 voti»). L'eliminazione è
+// Si può cancellare tutto quel che non è occupato (`occupazione`), ma prima
+// si dice per intero che cosa sparisce («12 lezioni con l'appello, 5 momenti
+// con 60 voti»). L'eliminazione è
 // completa per costruzione: si porta dietro quel che resterebbe a puntare nel
 // vuoto, e quel che può vivere staccato (un piano, un recupero) resta.
 //
@@ -9,7 +10,13 @@
 // domanda, all'extension host per applicarla.
 
 import { nomeCompleto } from './calculations.js'
-import { classeDelCorsoId, corsiDellaClasse, fascicoloDellaClasse, nomeDelPiano } from './courses.js'
+import {
+  classeDelCorsoId,
+  corsiDellaClasse,
+  corsiDellaMateria,
+  fascicoloDellaClasse,
+  nomeDelPiano,
+} from './courses.js'
 import {
   percorsiDiUnDocumento,
   percorsiInAltreLingue,
@@ -211,6 +218,28 @@ function fotoDaTogliere (registro: Registro, vanno: Set<string>): string[] {
     }
   }
   return loro.filter((foto) => !restano.has(foto))
+}
+
+/**
+ * Perché una cosa, per ora, non si elimina: altro la usa, e portarselo dietro
+ * con un cestino sarebbe sproporzionato. È l'eccezione ad ADR-24, decisa qui
+ * una volta per tutti: il pannello spegne il cestino e ne mostra il motivo, il
+ * gestore rifiuta chi prova lo stesso (riga di comando, condotto). `invece` è
+ * la mossa che libera la cosa o che non perde niente.
+ */
+export interface Occupazione {
+  motivo: string
+  invece: string | null
+}
+
+/** Chi occupa il bersaglio, o `null` se è libero (o non c'è già più). */
+export function occupazione (registro: Registro, bersaglio: Bersaglio): Occupazione | null {
+  const t = testi()
+  if (bersaglio.genere === 'materia') {
+    const corsi = corsiDellaMateria(registro, bersaglio.id).length
+    return corsi > 0 ? { motivo: t.materiaOccupata(corsi), invece: t.unireMateria } : null
+  }
+  return null
 }
 
 /**

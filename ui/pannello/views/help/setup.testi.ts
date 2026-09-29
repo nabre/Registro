@@ -165,8 +165,9 @@ const it = {
       'Le percentuali della tabella sono sulle UD che l’orario prevede nel periodo, non su ' +
         'quelle già a calendario: è lo stesso conto del rapporto da consegnare, così il ' +
         'numero vero non si scopre al momento di stampare.',
-      'Eliminare un corso — o la sua materia — porta via le sue lezioni e le sue ' +
-        'valutazioni. La domanda di conferma elenca che cosa se ne va e che cosa resta staccato.',
+      'Eliminare un corso porta via le sue lezioni e le sue valutazioni; una materia con ' +
+        'corsi non si elimina, si unisce. La domanda di conferma elenca che cosa se ne va e ' +
+        'che cosa resta staccato.',
     ],
   },
   orario: {
@@ -664,8 +665,9 @@ export const testi = catalogo(it, {
         'Die Prozente der Tabelle beziehen sich auf die Lektionen, die der Stundenplan im ' +
           'Zeitraum vorsieht, nicht auf die schon eingetragenen: Es ist dieselbe Rechnung wie ' +
           'im abzugebenden Bericht, so erlebt man beim Drucken keine Überraschung.',
-        'Wer einen Kurs löscht — oder sein Fach —, löscht seine Stunden und seine ' +
-          'Beurteilungen mit. Die Rückfrage zählt auf, was verschwindet und was losgelöst ' +
+        'Wer einen Kurs löscht, löscht seine Stunden und seine Beurteilungen mit; ein Fach ' +
+          'mit Kursen wird nicht gelöscht, sondern zusammengeführt. Die Rückfrage zählt auf, ' +
+          'was verschwindet und was losgelöst ' +
           'zurückbleibt.',
       ],
     },
@@ -1186,7 +1188,8 @@ export const testi = catalogo(it, {
         'Les pourcentages du tableau portent sur les périodes que l’horaire prévoit dans la ' +
           'période, pas sur celles déjà au calendrier : c’est le même calcul que le rapport à ' +
           'rendre, ainsi le vrai chiffre ne se découvre pas au moment d’imprimer.',
-        'Supprimer un cours — ou sa branche — emporte ses leçons et ses évaluations. La ' +
+        'Supprimer un cours emporte ses leçons et ses évaluations ; une branche avec des ' +
+          'cours ne se supprime pas, elle se fusionne. La ' +
           'demande de confirmation énumère ce qui s’en va et ce qui reste détaché.',
       ],
     },
@@ -1696,7 +1699,8 @@ export const testi = catalogo(it, {
         'The table’s percentages are over the periods the timetable plans in the period, not ' +
           'over those already on the calendar: it is the same count as the report to hand in, ' +
           'so the real figure is not discovered at printing time.',
-        'Deleting a course — or its subject — takes its lessons and assessments with it. The ' +
+        'Deleting a course takes its lessons and assessments with it; a subject with courses ' +
+          'is not deleted, it is merged. The ' +
           'confirmation question lists what goes and what is left detached.',
       ],
     },

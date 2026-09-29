@@ -90,8 +90,6 @@ export type Azione =
     confine?: Iso
     /** Le pause dichiarate nel modulo di creazione: nascono con l'anno. */
     sospensioni?: Sospensione[]
-    /** I nomi dei due semestri, se scritti nel modulo. */
-    etichetteSemestri?: [string, string]
     /**
      * L'anno del calendario ufficiale che l'anno segue: date e chiusure devono
      * essere quelle (`motivoCalendarioToccato`).
@@ -1345,6 +1343,12 @@ export interface VoceProgramma {
    * perché le superfici sono due.
    */
   bloccata: string | null
+  /**
+   * Acceso ma non in grado di lavorare adesso (programma che manca, file del
+   * modello sparito), con il motivo; `null` se va, se è spento o se la voce non
+   * accende un modello. Lo dice `prontezza()` di `core/dati/llm.ts`.
+   */
+  nonPronta: string | null
   /** La chiave che deve essere accesa perché questa conti, per dirlo a schermo. */
   dipendeDa: string | null
   /**

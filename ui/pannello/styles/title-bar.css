@@ -65,10 +65,13 @@
   flex: none;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
   min-width: var(--sidebar-stretta);
   height: 100%;
+  /* Il logo sta sempre in mezzo alla colonna delle icone: il segno di sviluppo
+     gli va accanto e allunga il marchio a destra, senza spostarlo. */
+  padding: 0 8px 0 calc((var(--sidebar-stretta) - 20px) / 2);
+  box-sizing: border-box;
 }
 
 /*
@@ -103,9 +106,14 @@
 
 /* Il logo a colori a 20 pixel, la misura della variante piccola. Il colore serve solo al segno di ripiego. */
 .barra-titolo__marchio-segno {
+  /* Blocco e misura fissa: un'immagine in linea siede sulla linea di base e
+     sposta la barra di qualche pixel. */
+  display: block;
+  flex: none;
   width: 20px;
   height: 20px;
   color: var(--accento);
+  -webkit-user-drag: none;
 }
 
 /* La barra si trascina, quel che dentro si preme no: altrimenti un clic su «File» sposterebbe la finestra. */

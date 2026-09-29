@@ -7,7 +7,7 @@ import {
   nomePeriodo,
   SEGNAPOSTO_ASSENZE,
 } from '../../../core/dominio/absences.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
+import { formattaData, nomeSemestre, oggi } from '../../../core/dominio/dates.js'
 import { creaBloccoAssenze } from '../../../core/dominio/factories.js'
 import type { BloccoAssenze, Classe } from '../../../core/dominio/models.js'
 import { validaBloccoAssenze } from '../../../core/dominio/validation.js'
@@ -51,7 +51,7 @@ export function moduloBloccoAssenze (classe: Classe, blocco?: BloccoAssenze): vo
       semestre?.inizio ?? anno?.inizio ?? oggi(),
       semestre?.fine ?? anno?.fine ?? oggi(),
       fascicolo,
-      semestre?.etichetta ?? '',
+      semestre ? nomeSemestre(semestre) : '',
     )
 
   const leggi = (

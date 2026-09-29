@@ -12,8 +12,11 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 
-import { catalogoJson } from '../dist-tests/api.mjs'
 import { RADICE } from './common.mjs'
+
+// Import dinamico: il bundle `dist-tests/` è generato, e `tsc -p tsconfig.js.json`
+// non deve seguirlo né pretendere che esista già.
+const { catalogoJson } = await import(new URL('../dist-tests/api.mjs', import.meta.url).href)
 
 const PERCORSO = join(RADICE, 'resources', 'tools.json')
 

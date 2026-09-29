@@ -26,7 +26,7 @@ import { gestisci, h, rimpiazza } from '../dom.js'
 import { invia } from '../bridge.js'
 import { annoCorrente, classePerId, corsiDi, iscriviti, stato } from '../state.js'
 import { corsiDellAnno } from '../../../core/dominio/courses.js'
-import { eliminazione, type Bersaglio } from '../../../core/dominio/deletions.js'
+import { eliminazione, occupazione, type Bersaglio } from '../../../core/dominio/deletions.js'
 
 import { testi } from './common.testi.js'
 
@@ -113,13 +113,32 @@ export async function salva (
 }
 
 /**
+ * Il cestino di un bersaglio, da stendere su un pulsante o una voce di menu:
+ * spento e col motivo se qualcosa lo occupa, acceso col suo titolo se no. Chi
+ * sia occupato lo decide il dominio (`occupazione`), lo stesso che poi rifiuta.
+ */
+export function cestinoPer (
+  bersaglio: Bersaglio,
+  titolo?: string,
+): { disabilitato: boolean, titolo: string | undefined } {
+  const occupato = occupazione(stato.registro, bersaglio)
+  return occupato ? { disabilitato: true, titolo: occupato.motivo } : { disabilitato: false, titolo }
+}
+
+/**
  * La domanda prima di eliminare, con quel che l'eliminazione si porta via
  * davvero («12 lezioni con l'appello, 5 momenti con 60 voti»): il registro non
- * rifiuta di cancellare, avvisa. L'elenco lo calcola il dominio, lo stesso che
- * poi esegue.
+ * rifiuta di cancellare quel che è libero, avvisa. L'elenco lo calcola il
+ * dominio, lo stesso che poi esegue.
  */
 export async function chiediEliminazione (bersaglio: Bersaglio): Promise<boolean> {
   const t = testi()
+  // Un cestino acceso da una fotografia vecchia: nel frattempo la cosa si è occupata.
+  const occupato = occupazione(stato.registro, bersaglio)
+  if (occupato) {
+    notifica(occupato.motivo, 'avviso')
+    return false
+  }
   const piano = eliminazione(stato.registro, bersaglio)
   if (!piano) {
     notifica(t.nienteDaEliminare, 'avviso')
@@ -163,6 +182,7 @@ export function tastoElimina (opzioni: {
     testo: opzioni.etichetta ?? parole().elimina,
     simbolo: 'cestino',
     variante: 'pericolo',
+    ...('genere' in opzioni.chiedi ? cestinoPer(opzioni.chiedi) : {}),
     al: async () => {
       const sicuro =
         'genere' in opzioni.chiedi

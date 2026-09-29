@@ -45,8 +45,8 @@ function registro () {
       {
         id: 'ann-1', etichetta: '2026/2027', inizio: '2026-09-01', fine: '2027-06-30',
         semestri: [
-          { id: 'sem-1', numero: 1, etichetta: '1°', inizio: '2026-09-01', fine: '2027-01-31' },
-          { id: 'sem-2', numero: 2, etichetta: '2°', inizio: '2027-02-01', fine: '2027-06-30' },
+          { id: 'sem-1', numero: 1, inizio: '2026-09-01', fine: '2027-01-31' },
+          { id: 'sem-2', numero: 2, inizio: '2027-02-01', fine: '2027-06-30' },
         ],
         sospensioni: [],
       },

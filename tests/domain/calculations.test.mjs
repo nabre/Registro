@@ -1099,7 +1099,7 @@ describe('le percentuali', () => {
     return base
   }
   const PERIODO = {
-    id: 'sem-prova', numero: 1, etichetta: 'periodo di prova',
+    id: 'sem-prova', numero: 1,
     inizio: '2026-09-15', fine: '2026-10-06',
   }
 

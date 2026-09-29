@@ -27,6 +27,7 @@ import {
   type SchemaOpzionale,
 } from '../../schemas.js'
 import { testi } from './common.testi.js'
+import { nomeSemestre } from '../../../core/dominio/dates.js'
 
 // ------------------------------------------------------------------ il periodo
 
@@ -149,7 +150,7 @@ export function periodiDa (
       periodi: [{
         semestreId: suo.id,
         numero: suo.numero,
-        etichetta: suo.etichetta,
+        etichetta: nomeSemestre(suo),
         dal: inizio,
         al: fine,
       }],
@@ -161,7 +162,7 @@ export function periodiDa (
     .map((s) => ({
       semestreId: s.id,
       numero: s.numero,
-      etichetta: s.etichetta,
+      etichetta: nomeSemestre(s),
       dal: maggiore(s.inizio, dal),
       al: minore(s.fine, al),
     }))

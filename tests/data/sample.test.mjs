@@ -1,4 +1,4 @@
-// Il documento campione del repo, `tests/samples/2026-2027.regi`, scritto una
+// Il documento campione del repo, `tests/samples/anno_esempio.regi`, scritto una
 // volta e lasciato lì: è l'unica prova che guarda indietro, perché le altre
 // scrivono e rileggono con lo stesso codice. Un anno impacchettato a settembre
 // si apre ancora a giugno col registro aggiornato.
@@ -20,14 +20,14 @@ const CAMPIONE = percorso.join(
   percorso.dirname(fileURLToPath(import.meta.url)),
   '..',
   'samples',
-  '2026-2027.regi',
+  'anno_esempio.regi',
 )
 
 describe('il documento campione', () => {
   it('si apre, e porta il nome del suo anno', async () => {
     const pacchetto = await Pacchetto.apri(Uri.file(CAMPIONE))
 
-    assert.equal(pacchetto.nome, '2026-2027')
+    assert.equal(pacchetto.nome, 'anno_esempio')
     // Aperto e non toccato: non deve risultare da salvare.
     assert.equal(pacchetto.sporco, false)
     assert.equal(pacchetto.bloccato, false)

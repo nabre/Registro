@@ -117,7 +117,7 @@ async function impacchettati () {
     const esito = await esbuild.build({
       ...configurazione, write: false, metafile: true, logLevel: 'silent',
     })
-    for (const ingresso of Object.keys(esito.metafile.inputs)) {
+    for (const ingresso of Object.keys(esito.metafile?.inputs ?? {})) {
       if (ingresso.includes('node_modules/')) nomi.add(pacchettoDi(ingresso))
     }
   }

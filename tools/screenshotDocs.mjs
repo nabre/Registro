@@ -38,8 +38,8 @@ const DATASET_JS = `
     inizio: '2026-08-31',
     fine: '2027-06-30',
     semestri: [
-      { id: 'sem-1', numero: 1, etichetta: '1° semestre', inizio: '2026-08-31', fine: '2027-01-29' },
-      { id: 'sem-2', numero: 2, etichetta: '2° semestre', inizio: '2027-02-01', fine: '2027-06-30' },
+      { id: 'sem-1', numero: 1, inizio: '2026-08-31', fine: '2027-01-29' },
+      { id: 'sem-2', numero: 2, inizio: '2027-02-01', fine: '2027-06-30' },
     ],
     sospensioni: [
       { id: 'autunno', etichetta: 'Vacanze autunnali', inizio: '2026-10-31', fine: '2026-11-08' },
@@ -189,7 +189,8 @@ const DATASET_JS = `
     const lezMer1015 = {
       id: \`lez-\${lezId++}\`, corsoId: 'cor-1', data: mer,
       slot: [{ id: \`s-\${lezId}\`, inizio: '10:15', fine: '11:00', tipo: 'lezione' }],
-      stato: (mer <= '2026-10-14') ? 'svolta' : 'pianificata',
+      // L'ora in corso resta aperta: una conclusa è in sola lettura.
+      stato: (mer < '2026-10-14') ? 'svolta' : 'pianificata',
       pianoId: 'piano-1', avanzamento: [], presenze: [], osservazioni: []
     };
     if (mer < '2026-10-14') {
@@ -465,7 +466,10 @@ const DATA_FISSA = `
   window.Date = MockDate;
 `
 
-const DOCUMENTI = 'documenti: { corrente: "C:/scuola/2026-2027.regi", provvisorio: false, elenco: [] }'
+// Il logo si carica da `radiceApp`: in Electron è `registro://app`, che qui non
+// esiste. Un'origine http finta, servita dal repository in `creaPagina`.
+const RADICE_APP = 'http://regiklass.app'
+const DOCUMENTI = `documenti: { corrente: "C:/scuola/anno_esempio.regi", provvisorio: false, elenco: [] }, radiceApp: "${RADICE_APP}"`
 
 const GESTO_CALENDARIO = `() => {
   const reg = window.__REGISTRO_DOCS__;
@@ -544,6 +548,7 @@ const GESTO_PENDENZE = `() => {
   prova.vaiA(prova.PAGINE.find(p => p.id === 'pagina.pendenze'));
 }`
 
+/** @type {{ file: string, schema: 'light' | 'dark', gesto: string }[]} */
 const SCATTI = [
   { file: 'calendario.png', schema: 'light', gesto: GESTO_CALENDARIO },
   { file: 'calendario-scuro.png', schema: 'dark', gesto: GESTO_CALENDARIO },
@@ -562,6 +567,8 @@ function cartellaDaArgomenti (argv) {
 
 async function creaPagina (contesto) {
   const pagina = await contesto.newPage()
+  await pagina.route(`${RADICE_APP}/**`, (via) =>
+    via.fulfill({ path: join(RADICE, new URL(via.request().url()).pathname.slice(1)) }))
   await pagina.addInitScript(DATA_FISSA)
   await pagina.setContent('<html lang="it"><head><title>Regiklass</title></head><body class="app"><div id="radice"></div></body></html>')
   await pagina.addScriptTag({ content: PONTE })

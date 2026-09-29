@@ -250,12 +250,14 @@ export function nelPeriodo (iso: Iso, da: Iso, a: Iso): boolean {
   return iso >= da && iso <= a
 }
 
-/**
- * Il numero di un semestre come si scrive, «1°», «2°»: dalla cifra
- * nell'etichetta scritta dal docente, altrimenti dal campo `numero`.
- */
-export function numeroSemestre (semestre: Semestre): string {
-  return `${semestre.etichetta.trim().match(/^(\d)/)?.[1] ?? semestre.numero}°`
+/** Il nome di un semestre: «1° semestre», nella lingua del registro. */
+export function nomeSemestre (semestre: Pick<Semestre, 'numero'>): string {
+  return testi().semestre(semestre.numero)
+}
+
+/** Il diminutivo di un semestre, dove c'è poco posto: «1° sem.». */
+export function nomeSemestreBreve (semestre: Pick<Semestre, 'numero'>): string {
+  return testi().semestreBreve(semestre.numero)
 }
 
 export function semestreDi (anno: AnnoScolastico, iso: Iso): Semestre | null {
@@ -272,7 +274,7 @@ export function nelSemestre (semestre: Semestre | null, iso: Iso): boolean {
 
 /** Come si chiama un periodo nelle testate: il semestre, o l'anno intero. */
 export function etichettaSemestre (semestre: Semestre | null | undefined): string {
-  return semestre?.etichetta ?? testi().annoIntero
+  return semestre ? nomeSemestre(semestre) : testi().annoIntero
 }
 
 // ------------------------------------------------------------------ ore

@@ -816,6 +816,19 @@ describe('il check segue il corso quando le materie si fondono e le classi si co
     assert.deepEqual(lista.spunte.map((s) => s.data).sort(), ['2026-09-10', '2026-09-11'])
   })
 
+  it('materie.elimina rifiuta la materia che un corso usa, e toglie quella libera', async () => {
+    const occupata = await api.chiama(archivio, 'materie.elimina', { materiaId: a.id })
+    assert.equal(occupata.ok, false, 'una materia con corsi se n’è andata')
+    assert.ok(archivio.registro.materie.some((m) => m.id === a.id))
+    assert.ok(archivio.registro.corsi.some((c) => c.id === corsoA.id), 'il corso è sparito col rifiuto')
+
+    const libera = api.creaMateria('Latino')
+    archivio.modifica((r) => { r.materie.push(libera) }, ['registro'])
+    const tolta = await api.chiama(archivio, 'materie.elimina', { materiaId: libera.id })
+    assert.equal(tolta.ok, true, JSON.stringify(tolta))
+    assert.ok(!archivio.registro.materie.some((m) => m.id === libera.id))
+  })
+
   it('classi.duplica copia le colonne con id nuovi, e nessuna spunta', async () => {
     const esito = await api.chiama(archivio, 'classi.duplica', {
       classeId: classe.id, annoId: classe.annoId, nome: 'II INF E',

@@ -1,17 +1,7 @@
 // Il calendario: l'anno scolastico intero su una pagina, come il foglio che la
 // sede stampa: mesi in colonna, giorni in riga, vacanze e semestri a colpo d'occhio.
 
-import {
-  formattaData,
-  formattaMese,
-  giornoDelMese,
-  giornoSettimana,
-  inizialiGiorno,
-  primoDelMese,
-  settimanaIso,
-  sommaMesi,
-  ultimoDelMese,
-} from '../../../../core/dominio/dates.js'
+import { formattaData, formattaMese, giornoDelMese, giornoSettimana, inizialiGiorno, nomeSemestre, primoDelMese, settimanaIso, sommaMesi, ultimoDelMese } from '../../../../core/dominio/dates.js'
 import { allineaSemestri, confineAnno } from '../../../../core/dominio/years.js'
 import type { Compleanno } from '../../../../core/dominio/birthdays.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
@@ -72,15 +62,11 @@ export function vistaAnno (): HTMLElement {
   // semestri in fila (`allineaSemestri`), come il confine, e non dall'ordine di
   // `anno.semestri`; un mese fuori dalla scuola (agosto) resta senza semestre.
   const confine = confineAnno(anno)
-  const inFila = allineaSemestri(anno.semestri)
-  const t = testi()
+  const [primo, secondo] = allineaSemestri(anno.semestri)
   const gruppi: GruppoAnno[] = confine
     ? [
-        { titolo: inFila[0]?.etichetta ?? t.primoSemestre, mesi: mesi.filter((m) => m <= confine) },
-        {
-          titolo: inFila[1]?.etichetta ?? t.secondoSemestre,
-          mesi: mesi.filter((m) => m > confine),
-        },
+        { titolo: nomeSemestre(primo ?? { numero: 1 }), mesi: mesi.filter((m) => m <= confine) },
+        { titolo: nomeSemestre(secondo ?? { numero: 2 }), mesi: mesi.filter((m) => m > confine) },
       ].filter((gruppo) => gruppo.mesi.length > 0)
     : [{ titolo: anno.etichetta, mesi }]
 
@@ -224,8 +210,8 @@ function cellaAnno (
           corsi.length > 0
             ? delGiorno.map((l) => nomeClasseDiLezione(l)).filter((v, i, tutti) => tutti.indexOf(v) === i).join(', ')
             : null,
-          chiude ? t.finisceIl(chiude.etichetta) : null,
-          apre ? t.cominciaIl(apre.etichetta) : null,
+          chiude ? t.finisceIl(nomeSemestre(chiude)) : null,
+          apre ? t.cominciaIl(nomeSemestre(apre)) : null,
           compleanni.length > 0 ? dettiCompleanni(compleanni) : null,
         ]
           .filter(Boolean)

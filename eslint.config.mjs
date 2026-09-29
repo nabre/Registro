@@ -1,19 +1,12 @@
 // Che cosa si può scrivere, e dove. `npm run lint`.
 //
 // Tre parti: la forma (l'aspetto del codice), la sostanza (guasti veri:
-// promesse non aspettate, `any` che si propagano, `catch` che ingoiano) e gli
-// strati (chi può importare che cosa). Gli strati, dall'interno in fuori:
+// promesse non aspettate, `any` che si propagano, `catch` che ingoiano) e i
+// confini che si vedono dentro un file solo: chi può nominare Node ed Electron.
 //
-//   src/domain/       le regole della scuola. Non importa niente (né Node, né
-//                     Electron, né l'`apparato`): si prova con `node --test`.
-//   src/data/         il disco e la rete: archivio, PDF, posta, ZIP.
-//   src/actions/      i comandi del registro, fra dominio e dati.
-//   src/ui/           le pagine, in una webview: DOM senza Node. `node:fs`
-//                     passa la costruzione e scoppia a pagina aperta.
-//   src/apparato/  l'`apparato`: con `desktop/shell/`, l'unico posto che nomina `electron`.
-//   shell/            il main process: system/, protocol/, windows/, pages/.
-//
-// Le frecce vanno solo verso l'interno; ogni messaggio dice il perché.
+// Le frecce fra le cartelle (`core/dominio/` puro, `core/i18n/` sotto a tutti,
+// `cli/` autonoma) le guarda `npm run layers`, che tiene anche le deroghe
+// dichiarate: qui non si ripetono. Ogni messaggio dice il perché.
 
 import js from '@eslint/js'
 import stilistica from '@stylistic/eslint-plugin'
@@ -138,7 +131,7 @@ export default tseslint.config(
 
   // --------------------------------------------------------- tutto il TypeScript
   {
-    files: ['core/**/*.ts', 'src/**/*.ts', 'ui/**/*.ts', 'contract/**/*.ts', 'desktop/**/*.ts', 'desktop/shell/**/*.ts', 'tests/**/*.ts'],
+    files: ['core/**/*.ts', 'ui/**/*.ts', 'contract/**/*.ts', 'desktop/**/*.ts', 'tests/**/*.ts'],
     extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],
     plugins: { '@stylistic': stilistica },
     languageOptions: {
@@ -151,59 +144,11 @@ export default tseslint.config(
     rules: { ...FORMA, ...SOSTANZA, ...SOSTANZA_TIPATA },
   },
 
-  // ------------------------------------------------- src/domain: non importa niente
-  //
-  // Lo strato che sa di scuola e non di computer.
-  {
-    files: ['src/domain/**/*.ts'],
-    rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [
-          {
-            group: ['node:*', 'electron', 'apparato'],
-            message:
-              'src/domain/ non importa niente da fuori di sé: né Node, né Electron, né l’apparato.',
-          },
-          {
-            // Fuori dalla cartella, solo src/i18n/: è puro come il dominio.
-            regex: String.raw`^\.\./(?!i18n/)`,
-            message:
-              'src/domain/ non importa niente da fuori di sé, tranne il dispositivo multilingua ' +
-              '(src/i18n/), che è puro come lui: è quel che permette di provarlo ' +
-              'con `node --test` in due secondi, senza Electron e senza un disco. Quel che ' +
-              'serve dal mondo si riceve come argomento — lo passa src/actions/ o src/data/.',
-          },
-        ],
-      }],
-    },
-  },
-
-  // ------------------------------------- src/i18n: le lingue, sotto a tutti
-  //
-  // Lo importano tutti, quindi non importa nessuno. I testi stanno accanto al
-  // codice, nei file `.testi.ts`.
-  {
-    files: ['src/i18n/**/*.ts'],
-    rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [
-          {
-            group: ['node:*', 'electron', 'apparato', '../*'],
-            message:
-              'src/i18n/ sta sotto a tutti gli strati — dominio, pagine, main process — e per ' +
-              'questo non importa niente da fuori di sé. I testi stanno accanto al codice che li ' +
-              'usa, nei file `.testi.ts`.',
-          },
-        ],
-      }],
-    },
-  },
-
   // ------------------------------------------- ui: il DOM, e non Node
   //
   // Una webview senza Node: importarlo passa la costruzione e scoppia a pagina aperta.
   {
-    files: ['ui/**/*.ts', 'src/ui/**/*.ts'],
+    files: ['ui/**/*.ts'],
     languageOptions: { globals: globali.browser },
     rules: {
       'no-restricted-imports': ['error', {
@@ -222,7 +167,7 @@ export default tseslint.config(
 
   // ------------------------------- shell/pages: le pagine native, nel browser
   //
-  // Gli script delle pagine native girano in una finestra come `src/ui/`. Dal
+  // Gli script delle pagine native girano in una finestra come `ui/`. Dal
   // main process importano solo tipi, che esbuild cancella: un import di valore
   // trascinerebbe nel bundle Electron e mezzo registro.
   {
@@ -239,15 +184,15 @@ export default tseslint.config(
               'Le pagine native girano in una finestra: Node ed Electron non ci sono.',
           },
           {
-            // Fuori da shell/pages/ solo src/i18n/ (puro) e le parole di tutti
-            // (src/domain/words.testi.ts, che importa solo src/i18n/), perché
+            // Fuori da shell/pages/ solo core/i18n/ (puro) e le parole di tutti
+            // (core/dominio/words.testi.ts, che importa solo core/i18n/), perché
             // «Annulla» ed «Esci» dicano lo stesso del pannello.
             regex: String.raw`^(\.\./){2,}(?!(?:\.\./)*core/i18n/|(?:\.\./)*core/dominio/words\.testi\.js$)`,
             allowTypeImports: true,
             message:
               'Le pagine native girano in una finestra: da fuori di shell/pages/ si importano ' +
-              'solo tipi (`import type`), il dispositivo multilingua (src/i18n/), che è puro, e ' +
-              'le parole di tutti (src/domain/words.testi.ts). ' +
+              'solo tipi (`import type`), il dispositivo multilingua (core/i18n/), che è puro, e ' +
+              'le parole di tutti (core/dominio/words.testi.ts). ' +
               'Il codice condiviso fra le pagine sta in shell/pages/shared/.',
           },
         ],
@@ -255,20 +200,20 @@ export default tseslint.config(
     },
   },
 
-  // -------------------------------- src/data, src/actions, src/panels: via il guscio
+  // ------------------------- core/dati, core/azioni, desktop/pannelli: via il guscio
   //
   // Electron si nomina solo in `desktop/apparato/` e `desktop/shell/`: le prove
   // sostituiscono un finto Electron su quel confine.
   {
-    files: ['core/dati/**/*.ts', 'core/azioni/**/*.ts', 'src/data/**/*.ts', 'src/actions/**/*.ts', 'desktop/pannelli/**/*.ts'],
+    files: ['core/dati/**/*.ts', 'core/azioni/**/*.ts', 'desktop/pannelli/**/*.ts'],
     rules: {
       'no-restricted-imports': ['error', {
         paths: [
           {
             name: 'electron',
             message:
-              'Electron si nomina solo in src/apparato/ e shell/. Di qui si passa dall’apparato ' +
-              '(src/apparato/platform.ts): è il confine su cui le prove ' +
+              'Electron si nomina solo in desktop/apparato/ e desktop/shell/. Di qui si passa ' +
+              'dall’apparato (core/apparato/platform.ts): è il confine su cui le prove ' +
               'sostituiscono un finto Electron al vero.',
           },
         ],
@@ -289,8 +234,9 @@ export default tseslint.config(
 
   // ------------------------------------------------- gli script: JavaScript e Node
   //
-  // Costruzione, modo sviluppo, generatori, script delle skill: senza tipi.
-  // `cli/` è JavaScript apposta: la riga di comando non si compila e non ha
+  // Costruzione, modo sviluppo, generatori, script delle skill: senza le regole
+  // tipate. I tipi di `cli/` e `tools/` li controlla `tsc -p tsconfig.js.json`
+  // (in `npm run typecheck`), dal JSDoc. `cli/` è JavaScript apposta: la riga di comando non si compila e non ha
   // dipendenze, così funziona anche quando la costruzione no.
   {
     files: ['*.mjs', 'tools/**/*.mjs', 'tests/**/*.mjs', 'cli/**/*.mjs', '.claude/**/*.mjs'],

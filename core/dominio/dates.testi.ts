@@ -1,4 +1,4 @@
-// Giorni, mesi e anno intero. Scritti a mano e non presi da `Intl` perché
+// Giorni, mesi, semestri e anno intero. Scritti a mano e non presi da `Intl` perché
 // servono abbreviazioni senza punto per caselle di tre lettere («lun», «Mo»,
 // «lu») e iniziali di una lettera per il calendario annuale.
 
@@ -14,6 +14,9 @@ const it = {
   inizialiGiorno: ['L', 'M', 'M', 'G', 'V', 'S', 'D'],
   /** Come si chiama il periodo quando non c'è un semestre: l'anno intero. */
   annoIntero: 'anno intero',
+  /** Il nome di un semestre, «1° semestre», e il suo diminutivo, «1° sem.». */
+  semestre: (numero: number) => `${numero}° semestre`,
+  semestreBreve: (numero: number) => `${numero}° sem.`,
   /** La sigla dell'unità didattica dopo un numero: «1¼ UD». */
   ud: 'UD',
   /** La data per intero: «lunedì 7 settembre 2026». */
@@ -31,6 +34,8 @@ export const testi = catalogo(it, {
     ],
     inizialiGiorno: ['M', 'D', 'M', 'D', 'F', 'S', 'S'],
     annoIntero: 'ganzes Jahr',
+    semestre: (numero) => `${numero}. Semester`,
+    semestreBreve: (numero) => `${numero}. Sem.`,
     ud: 'Lekt.',
     dataLunga: (giorno, numero, mese, anno) => `${giorno}, ${numero}. ${mese} ${anno}`,
   },
@@ -43,6 +48,8 @@ export const testi = catalogo(it, {
     ],
     inizialiGiorno: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
     annoIntero: 'année entière',
+    semestre: (numero) => `${numero}${numero === 1 ? 'er' : 'e'} semestre`,
+    semestreBreve: (numero) => `${numero}${numero === 1 ? 'er' : 'e'} sem.`,
     ud: 'pér.',
     dataLunga: (giorno, numero, mese, anno) => `${giorno} ${numero} ${mese} ${anno}`,
   },
@@ -55,6 +62,8 @@ export const testi = catalogo(it, {
     ],
     inizialiGiorno: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
     annoIntero: 'whole year',
+    semestre: (numero) => `Semester ${numero}`,
+    semestreBreve: (numero) => `Sem. ${numero}`,
     ud: 'per.',
     dataLunga: (giorno, numero, mese, anno) => `${giorno} ${numero} ${mese} ${anno}`,
   },

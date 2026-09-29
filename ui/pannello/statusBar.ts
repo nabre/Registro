@@ -11,7 +11,6 @@ import { icona, type NomeIcona } from './components/icons.js'
 import { tendinaAperta } from './components/menu.js'
 import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'
 import { h, type Figlio } from './dom.js'
-import { azione } from './bridge.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
 import { isola } from './isole.js'
 import { apriLezione } from './pages.js'
@@ -254,24 +253,20 @@ function nomeDelModello (percorso: string): string {
   return (percorso.split(/[\\/]/).pop() ?? percorso).replace(/\.gguf$/i, '')
 }
 
-async function scriviNelProgramma (chiave: string, valore: boolean): Promise<void> {
-  // Un rifiuto lo dice già `azione`.
-  await azione({ tipo: 'programma.salva', chiave, valore })
-}
-
 /**
- * Un interruttore per un modello locale (assistente o lettura delle
- * scansioni). Il blocco lo decide l'host (`VoceProgramma.bloccata`, da
- * `richiede` nel manifesto):
+ * Lo stato di un modello locale (assistente o lettura delle scansioni), da
+ * leggere: non è un interruttore, si accende e si spegne nelle impostazioni.
+ * Il clic porta sempre a «Modelli linguistici».
  *
- *   acceso         — verde; il clic spegne.
- *   spento         — sbiadito; il clic accende.
- *   senza modello  — sbiadito e spento per forza; il clic porta a «Modelli
- *                    linguistici», dove si rimedia. Con `soloConModello`
- *                    (l'assistente) la voce invece non c'è: senza modello
- *                    agganciato non c'è niente da accendere.
+ *   acceso         — verde.
+ *   spento         — sbiadito.
+ *   senza modello  — sbiadito, «non si accende» (`VoceProgramma.bloccata`, da
+ *                    `richiede` nel manifesto). Con `soloConModello`
+ *                    (l'assistente) la voce invece non c'è.
+ *   non pronto     — acceso ma non può lavorare (programma o file che mancano,
+ *                    `VoceProgramma.nonPronta`): arancione, il motivo nel titolo.
  */
-function interruttoreDelModello (opzioni: {
+function statoDelModello (opzioni: {
   simbolo: NomeIcona
   nome: string
   chiaveAttivo: string
@@ -289,11 +284,20 @@ function interruttoreDelModello (opzioni: {
   if (opzioni.soloConModello && !modello) return null
 
   const t = testi()
+  const nonPronta = acceso && bloccata === null ? interruttore.nonPronta : null
+  const apri = () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' }) }
+  if (nonPronta) {
+    return voce({
+      simbolo: opzioni.simbolo,
+      testo: t.voceNonPronta(opzioni.nome),
+      titolo: t.nonPronto(opzioni.nome, nonPronta),
+      tono: 'attenzione',
+      al: apri,
+    })
+  }
   const titolo = bloccata !== null
     ? t.spentoBloccato(opzioni.nome, bloccata)
-    : t.statoModello(opzioni.nome, acceso) +
-      (modello ? t.modello(modello) : '') +
-      (acceso ? t.premiPerSpegnere : t.premiPerAccendere)
+    : t.statoModello(opzioni.nome, acceso) + (modello ? t.modello(modello) : '') + t.apriModelli
 
   return voce({
     simbolo: opzioni.simbolo,
@@ -302,25 +306,21 @@ function interruttoreDelModello (opzioni: {
     testo: t.voceModello(opzioni.nome, bloccata !== null, acceso),
     titolo,
     tono: acceso ? 'positivo' : 'quiete',
-    acceso,
-    al: () => {
-      if (bloccata !== null) vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
-      else void scriviNelProgramma(opzioni.chiaveAttivo, !acceso)
-    },
+    al: apri,
   })
 }
 
 function vociDeiModelli (): Figlio[] {
   const t = testi()
   return [
-    interruttoreDelModello({
+    statoDelModello({
       simbolo: 'bot',
       nome: t.assistente,
       chiaveAttivo: 'registroDocenti.assistente.attivo',
       chiaveModello: 'registroDocenti.assistente.modello',
       soloConModello: true,
     }),
-    interruttoreDelModello({
+    statoDelModello({
       simbolo: 'documento',
       nome: t.letturaScansioni,
       chiaveAttivo: 'registroDocenti.ocr.attivo',

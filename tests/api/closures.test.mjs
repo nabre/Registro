@@ -61,7 +61,7 @@ describe('una chiusura nuova, salvando l’anno', () => {
   it('un’ora messa a mano in una vacanza già dichiarata non la tocca', async () => {
     const recupero = ora('2026-12-30', '10:00')
     const anno = structuredClone(archivio.registro.anni[0])
-    anno.semestri[0].etichetta = 'Primo semestre'
+    anno.note = 'Sede di Trevano'
     const esito = await api.chiama(archivio, 'anni.salva', { anno })
     assert.equal(esito.ok, true)
     assert.equal(esiste(recupero.id), true)

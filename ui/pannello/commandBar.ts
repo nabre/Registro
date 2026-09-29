@@ -54,6 +54,7 @@ import {
   stato,
   vai,
 } from './state.js'
+import { nomeSemestre } from '../../core/dominio/dates.js'
 
 /**
  * I comandi partiti e non ancora tornati, per id. Fuori dal DOM perché la barra
@@ -681,7 +682,7 @@ function sceltaPeriodo (): Figlio {
     valore: stato.semestreId ?? '',
     al: (valore) => aggiorna({ semestreId: valore || null }),
     voci: [
-      ...anno.semestri.map((semestre) => ({ valore: semestre.id, testo: semestre.etichetta })),
+      ...anno.semestri.map((semestre) => ({ valore: semestre.id, testo: nomeSemestre(semestre) })),
       { valore: '', testo: t.annoIntero },
     ],
   })

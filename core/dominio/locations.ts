@@ -548,19 +548,23 @@ export function percorsiInAltreLingue (
 
 /**
  * La stessa collocazione in ognuna delle lingue: cambiano il nome del
- * documento e la parola «anno intero»; il resto l'ha scritto il docente.
+ * documento e il periodo (semestre o «anno intero»); il resto l'ha scritto il
+ * docente.
  */
 function nelleLingue (dove: Collocazione): Collocazione[] {
   const qui: Record<string, string> = testi().documenti
   const chiave = Object.keys(qui).find((k) => qui[k] === dove.documento)
   const scheda = dove.documento === lessico().documentoSchede
   const intero = dove.dettaglio === testiDate().annoIntero
+  const semestre = [1, 2].find((numero) => dove.dettaglio === testiDate().semestre(numero))
   return LINGUE.map((lingua) => {
     const documenti: Record<string, string> = testi.in(lingua).documenti
     const documento = chiave
       ? documenti[chiave]
       : scheda ? lessico.in(lingua).documentoSchede : dove.documento
-    const dettaglio = intero ? testiDate.in(lingua).annoIntero : dove.dettaglio
+    const dettaglio = intero
+      ? testiDate.in(lingua).annoIntero
+      : semestre ? testiDate.in(lingua).semestre(semestre) : dove.dettaglio
     return { ...dove, documento, dettaglio }
   })
 }

@@ -9,12 +9,8 @@ export const procedura = scrittura({
   titolo: () => testi().elimina.titolo,
   azione: 'materia.elimina',
   idempotente: true,
-  // Un'eliminazione a catena: `eliminazione()` toglie i corsi della materia e con
-  // loro ore, voti, consegne e check.
-  collezioni: [
-    'registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'smistamenti',
-    'fascicoli',
-  ],
+  // Una materia usata da un corso si rifiuta (`occupazione`): se ne va da sola.
+  collezioni: ['registro'],
   ingresso: oggetto({ materiaId: identificatore() }),
   esegui: (ambito, ingresso) => {
     esigiMateria(ambito, ingresso.materiaId)

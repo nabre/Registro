@@ -310,7 +310,7 @@ function puliziaDiWindows (dati, eseguibile, portabile) {
   // togliere `SystemRoot`: senza, Node su Windows non inizializza il
   // generatore casuale e il processo muore all'avvio.
   if (!windows || process.env.REGISTRO_SENZA_PULIZIA_WINDOWS) return Promise.resolve()
-  return new Promise((risolvi) => {
+  return /** @type {Promise<void>} */ (new Promise((risolvi) => {
     execFile(join(windows, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), [
       '-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand',
       Buffer.from(SCRIPT_REGISTRO, 'utf16le').toString('base64'),
@@ -330,7 +330,7 @@ function puliziaDiWindows (dati, eseguibile, portabile) {
       if (errore) console.warn('Registro di Windows non ripulito:', errore.message)
       risolvi()
     })
-  })
+  }))
 }
 
 // ------------------------------------------------------------------- il giro

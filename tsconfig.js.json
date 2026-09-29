@@ -1,0 +1,21 @@
+{
+  // Il JavaScript che non si compila: `cli/` e `tools/` girano come sono
+  // scritti, e `tsc` li legge per trovare quel che un `.ts` non lascerebbe
+  // passare. I tipi si dicono in JSDoc (`@param`, `@typedef`, `@type`).
+  //
+  // `noImplicitAny` spento: un parametro senza JSDoc è ammesso, altrimenti ogni
+  // funzione dovrebbe dichiarare tutto. `strictNullChecks` acceso: un `null`
+  // dimenticato è il guasto che vale la pena prendere.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "lib": ["ES2024"],
+    "types": ["node"],
+    "paths": {}
+  },
+  "include": ["cli", "tools"]
+}

@@ -226,15 +226,6 @@
             },
             "description": "Le pause dichiarate nel modulo: nascono con l’anno, non dopo"
           },
-          "etichetteSemestri": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 2,
-            "maxItems": 2,
-            "description": "I nomi dei due semestri, nell’ordine"
-          },
           "calendarioUfficiale": {
             "type": "object",
             "description": "L’anno del calendario scolastico ufficiale che l’anno segue: date e chiusure devono essere le sue, e poi non si cambiano a mano",
@@ -5315,18 +5306,10 @@
       "nome": "materie.elimina",
       "funzione": "materie_elimina",
       "genere": "scrittura",
-      "titolo": "Toglie una materia e i corsi che la insegnavano",
+      "titolo": "Toglie una materia che nessun corso usa",
       "idempotente": true,
       "collezioni": [
-        "registro",
-        "corsi",
-        "lezioni",
-        "piani",
-        "valutazioni",
-        "consegne",
-        "check",
-        "smistamenti",
-        "fascicoli"
+        "registro"
       ],
       "riga": "regi chiama materie.elimina --materiaId <testo>",
       "parametri": {

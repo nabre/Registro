@@ -2,7 +2,7 @@
 // chiusure, confini dei semestri, lettera della settimana, giorni visibili),
 // così settimana, mese, anno e striscia dicono la stessa cosa.
 
-import { giornoSettimana, numeroSemestre, sommaGiorni } from '../../../../core/dominio/dates.js'
+import { giornoSettimana, nomeSemestre, nomeSemestreBreve, sommaGiorni } from '../../../../core/dominio/dates.js'
 import { testoDiVoce } from '../../../../core/dominio/lists.js'
 import { letteraSettimana } from '../../../../core/dominio/years.js'
 import type { Iso, LetteraSettimana, Lezione, Semestre } from '../../../../core/dominio/models.js'
@@ -67,10 +67,10 @@ function segnoSemestre (data: Iso, classe = 'segno-semestre'): Figlio {
   const t = testi()
   const voci = [
     chiude
-      ? { testo: t.fineBreve(numeroSemestre(chiude)), lungo: t.finisceIl(chiude.etichetta) }
+      ? { testo: t.fineBreve(nomeSemestreBreve(chiude)), lungo: t.finisceIl(nomeSemestre(chiude)) }
       : null,
     apre
-      ? { testo: t.inizioBreve(numeroSemestre(apre)), lungo: t.cominciaIl(apre.etichetta) }
+      ? { testo: t.inizioBreve(nomeSemestreBreve(apre)), lungo: t.cominciaIl(nomeSemestre(apre)) }
       : null,
   ].filter((v): v is { testo: string, lungo: string } => v !== null)
 

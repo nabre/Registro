@@ -10,7 +10,7 @@ import { deposito, percorsoVero } from '../dati/store.js'
 import { estensioneDi, nomeDelFileUri } from '../dati/paths.js'
 import { classeDellaConsegna, fascicoloDellaClasse } from '../dominio/courses.js'
 import { istanteAdesso } from '../dominio/dates.js'
-import { eliminazione, type Bersaglio, type FileDaTogliere } from '../dominio/deletions.js'
+import { eliminazione, occupazione, type Bersaglio, type FileDaTogliere } from '../dominio/deletions.js'
 import { creaFascicolo } from '../dominio/factories.js'
 import type { Classe, Collezione, Consegna, Fascicolo, Registro } from '../dominio/models.js'
 import type { Codice, Origine } from '../../contract/contract.js'
@@ -402,6 +402,12 @@ export function contestoDi (archivio: Archivio, origine?: Origine): Contesto {
 
   async function eliminaInsieme (bersagli: readonly Bersaglio[]): Promise<EsitoAzione> {
     {
+      // Il cestino spento del pannello non basta: le scritture arrivano anche
+      // dalla riga di comando e dal condotto.
+      for (const bersaglio of bersagli) {
+        const occupato = occupazione(archivio.registro, bersaglio)
+        if (occupato) return rifiuta(occupato.motivo)
+      }
       const piani = bersagli
         .map((bersaglio) => eliminazione(archivio.registro, bersaglio))
         .filter((piano) => piano !== null)

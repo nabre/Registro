@@ -105,6 +105,7 @@ const mappeDiProva = process.argv.includes('--copertura') ? 'inline' : false
 /** Il modulo `apparato` risolto nel file nostro. */
 const aliasApparato = { apparato: './desktop/apparato/platform.ts' }
 
+/** @type {import('esbuild').BuildOptions} */
 const comune = {
   bundle: true,
   minify: produzione,
@@ -141,6 +142,8 @@ function filePagine (estensione) {
  * I bundle dell'applicazione. `ricarica` dice a `tools/dev.mjs` che cosa fare
  * quando il bundle cambia: `riavvia` rilancia Electron (main process),
  * `aggiorna` ricarica solo le pagine. Non è una chiave di esbuild.
+ *
+ * @type {(import('esbuild').BuildOptions & { ricarica: 'riavvia' | 'aggiorna' })[]}
  */
 export const applicazione = [
   // Il main process.

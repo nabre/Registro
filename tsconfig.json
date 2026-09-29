@@ -22,5 +22,5 @@
   },
   // `tests/` per gli aiuti in TypeScript (`tests/helpers/*.ts`), che costruiscono
   // i registri finti delle prove. I `.mjs` delle prove non entrano.
-  "include": ["core", "src", "shell", "tests", "ui", "contract", "desktop"]
+  "include": ["core", "tests", "ui", "contract", "desktop"]
 }

@@ -16,7 +16,7 @@ import { _electron as electron, expect, test, type Page } from '@playwright/test
 
 import { RADICE } from './banco'
 
-const CAMPIONE = join(RADICE, 'tests', 'samples', '2026-2027.regi')
+const CAMPIONE = join(RADICE, 'tests', 'samples', 'anno_esempio.regi')
 const PRINCIPALE = join(RADICE, 'dist', 'main.cjs')
 
 /** Il nome della cartella dei dati sotto `APPDATA`, come in `tools/fumo.mjs`. */
@@ -34,7 +34,7 @@ test('il registro si accende sul campione e mostra il pannello', async () => {
   for (const cartella of [userData, lavoro, temporanei]) mkdirSync(cartella, { recursive: true })
 
   // Una copia: il registro può riscrivere il documento che apre, il campione no.
-  const documento = join(lavoro, '2026-2027.regi')
+  const documento = join(lavoro, 'anno_esempio.regi')
   copyFileSync(CAMPIONE, documento)
   writeFileSync(join(userData, 'impostazioni.json'), JSON.stringify({
     cartellaLavoro: lavoro,
@@ -90,7 +90,7 @@ test('il registro si accende sul campione e mostra il pannello', async () => {
     // titolo della sua finestra, senza ponte finto.
     const titoli = await app.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows().map((finestra) => finestra.getTitle()))
-    expect(titoli).toContain(`2026-2027 — ${NOME_APPLICAZIONE}`)
+    expect(titoli).toContain(`anno_esempio — ${NOME_APPLICAZIONE}`)
     expect(errori).toEqual([])
   } finally {
     await app.close()

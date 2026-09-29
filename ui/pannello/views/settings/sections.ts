@@ -83,6 +83,13 @@ export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = [
     prefissi: ['registroDocenti.api'],
     avvertenza: T.avvertenzaCondotto,
   },
+  {
+    id: 'calendari',
+    // Nessuna chiave: i calendari ufficiali vengono con il programma e si
+    // guardano soltanto (`views/settings/officialCalendars.ts`).
+    ...T.programma.calendari,
+    prefissi: [],
+  },
 ]
 
 /**
@@ -135,6 +142,8 @@ export const GRUPPI_SEZIONI: readonly GruppoSezioni[] = [
       { ambito: 'documento', id: 'anno' },
       { ambito: 'documento', id: 'calendario' },
       { ambito: 'documento', id: 'ics' },
+      // Del programma, ma accanto all'anno: è quel che un anno nuovo importa.
+      { ambito: 'programma', id: 'calendari' },
     ],
   },
   {

@@ -71,9 +71,6 @@ const it = {
     'Vuota: vale quella ricavata dal nome, che si legge qui in trasparenza',
   nomeMateria: 'Nome della materia',
   unisci: 'Unisci a un’altra materia…',
-  nonSiElimina: (corsi: number) =>
-    `Non si elimina: ${plurale(corsi, 'corso la usa', 'corsi la usano')}. ` +
-    'Togli prima i corsi, o uniscila a un’altra materia (tasto destro).',
   eliminaMateria: 'Elimina la materia',
   nuovaMateria: 'Una materia nuova: scrivi il nome e premi Invio.',
 
@@ -156,9 +153,6 @@ export const testi = catalogo(it, {
       'Leer: Es gilt das aus dem Namen abgeleitete Kürzel, das hier blass zu sehen ist',
     nomeMateria: 'Name des Fachs',
     unisci: 'Mit einem anderen Fach zusammenführen…',
-    nonSiElimina: (corsi) =>
-      `Nicht löschbar: ${plurale(corsi, 'Kurs verwendet es', 'Kurse verwenden es')}. ` +
-      'Entferne zuerst die Kurse oder führe es mit einem anderen Fach zusammen (Rechtsklick).',
     eliminaMateria: 'Fach löschen',
     nuovaMateria: 'Ein neues Fach: Namen eingeben und Enter drücken.',
     apriIlCorso: (dove) => `Kurs eröffnen: ${dove}`,
@@ -238,9 +232,6 @@ export const testi = catalogo(it, {
       'Vide : c’est le sigle tiré du nom qui s’applique, visible ici en transparence',
     nomeMateria: 'Nom de la branche',
     unisci: 'Fusionner avec une autre branche…',
-    nonSiElimina: (corsi) =>
-      `Impossible à supprimer : ${plurale(corsi, 'cours l’utilise', 'cours l’utilisent')}. ` +
-      'Retire d’abord les cours, ou fusionne-la avec une autre branche (clic droit).',
     eliminaMateria: 'Supprimer la branche',
     nuovaMateria: 'Une nouvelle branche : écris le nom et appuie sur Entrée.',
     apriIlCorso: (dove) => `Ouvrir le cours : ${dove}`,
@@ -314,9 +305,6 @@ export const testi = catalogo(it, {
       'Empty: the one derived from the name applies, shown here faintly',
     nomeMateria: 'Subject name',
     unisci: 'Merge with another subject…',
-    nonSiElimina: (corsi) =>
-      `Can’t be deleted: ${plurale(corsi, 'course uses it', 'courses use it')}. ` +
-      'Remove the courses first, or merge it with another subject (right-click).',
     eliminaMateria: 'Delete the subject',
     nuovaMateria: 'A new subject: type the name and press Enter.',
     apriIlCorso: (dove) => `Start the course: ${dove}`,

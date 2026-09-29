@@ -8,13 +8,7 @@ import {
   minutiEffettivi,
   riepilogaPresenze,
 } from '../../../../core/dominio/calculations.js'
-import {
-  formattaData,
-  formattaDurata,
-  inizioSettimana,
-  settimanaIso,
-  sommaGiorni,
-} from '../../../../core/dominio/dates.js'
+import { formattaData, formattaDurata, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
 import type { Compleanno } from '../../../../core/dominio/birthdays.js'
 import type { EventoCalendario } from '../../../../core/dominio/calendarIcs.js'
 import type { Iso, Lezione } from '../../../../core/dominio/models.js'
@@ -184,7 +178,7 @@ export function vistaAgenda (): HTMLElement {
             ? h(
                 'div',
                 { class: 'mese__semestre' },
-                h('span', null, t.cominciaSemestre(cambio.etichetta)),
+                h('span', null, t.cominciaSemestre(nomeSemestre(cambio))),
                 h('span', { class: 'mese__semestre-data' }, formattaData(cambio.inizio, 'giorno')),
               )
             : null,

@@ -443,6 +443,7 @@ void app.whenReady().then(async () => {
   scrivi('icon.ico', componiIco(immagini))
   scrivi('icon.png', await png(MISURA_PNG))
 
+  /** @type {[string, (misura: number) => string][]} */
   const distinti = [
     ['installatore.ico', disegnoInstallatore],
     ['portabile.ico', disegnoPortabile],
@@ -468,6 +469,7 @@ void app.whenReady().then(async () => {
   scrivi('trayTemplate.png', await rendi(finestra, segno(16, '#000000'), 16))
   scrivi('trayTemplate@2x.png', await rendi(finestra, segno(32, '#000000'), 32))
 
+  /** @type {[string, string, { larga: number, alta: number }][]} */
   const procedura = [
     ['installerSidebar.bmp', disegnoFascia(), FASCIA],
     ['installerHeader.bmp', disegnoTestata(), TESTATA],

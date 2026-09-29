@@ -7,7 +7,6 @@ const it = {
   crea: {
     titolo: 'Crea il documento di un anno scolastico nuovo',
     etichettaPausa: 'Come si chiama la pausa: «Vacanze di Natale»',
-    etichetteSemestri: 'I nomi dei due semestri, nell’ordine',
     inizio: 'Il primo giorno dell’anno',
     fine: 'L’ultimo',
     etichetta: 'Come lo si chiama parlando: «2025/2026»',
@@ -44,7 +43,6 @@ export const testi = catalogo(it, {
     crea: {
       titolo: 'Erstellt das Dokument eines neuen Schuljahres',
       etichettaPausa: 'Wie die Pause heisst: «Weihnachtsferien»',
-      etichetteSemestri: 'Die Namen der beiden Semester, in ihrer Reihenfolge',
       inizio: 'Der erste Tag des Jahres',
       fine: 'Der letzte',
       etichetta: 'Wie man es im Gespräch nennt: «2025/2026»',
@@ -81,7 +79,6 @@ export const testi = catalogo(it, {
     crea: {
       titolo: 'Crée le document d’une nouvelle année scolaire',
       etichettaPausa: 'Comment s’appelle la pause : « Vacances de Noël »',
-      etichetteSemestri: 'Les noms des deux semestres, dans l’ordre',
       inizio: 'Le premier jour de l’année',
       fine: 'Le dernier',
       etichetta: 'Comment on l’appelle en parlant : « 2025/2026 »',
@@ -118,7 +115,6 @@ export const testi = catalogo(it, {
     crea: {
       titolo: 'Creates the document for a new school year',
       etichettaPausa: 'What the break is called: “Christmas holidays”',
-      etichetteSemestri: 'The names of the two semesters, in order',
       inizio: 'The first day of the year',
       fine: 'The last one',
       etichetta: 'What it is called in conversation: “2025/2026”',

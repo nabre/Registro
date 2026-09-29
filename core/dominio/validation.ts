@@ -5,14 +5,7 @@
 // uguali): `normalization.ts` le prende da qui, mai il contrario.
 
 import { intervalloAnno } from './years.js'
-import {
-  LIMITI_UD,
-  durataMinuti,
-  formattaData,
-  isoValida,
-  oraValida,
-  sommaGiorni,
-} from './dates.js'
+import { durataMinuti, formattaData, isoValida, LIMITI_UD, nomeSemestre, oraValida, sommaGiorni } from './dates.js'
 import { emailValida, normalizzaTesto } from './text.js'
 import { slotInConflitto } from './calculations.js'
 import { SCALA_PREDEFINITA } from './factories.js'
@@ -68,9 +61,9 @@ export function validaAnno (anno: Partial<AnnoScolastico>): Esito {
   }
   for (const semestre of semestri) {
     if (!isoValida(semestre.inizio) || !isoValida(semestre.fine)) {
-      errori.push(t.dateSemestre(semestre.etichetta))
+      errori.push(t.dateSemestre(nomeSemestre(semestre)))
     } else if (semestre.inizio >= semestre.fine) {
-      errori.push(t.semestreAlRovescio(semestre.etichetta))
+      errori.push(t.semestreAlRovescio(nomeSemestre(semestre)))
     }
   }
   // Contiguità in ordine di data, non di elenco.
@@ -78,7 +71,7 @@ export function validaAnno (anno: Partial<AnnoScolastico>): Esito {
   for (let i = 1; i < inFila.length; i += 1) {
     if (!isoValida(inFila[i].inizio) || !isoValida(inFila[i - 1].fine)) continue
     if (inFila[i].inizio !== sommaGiorni(inFila[i - 1].fine, 1)) {
-      errori.push(t.semestriStaccati(inFila[i].etichetta, inFila[i - 1].etichetta))
+      errori.push(t.semestriStaccati(nomeSemestre(inFila[i]), nomeSemestre(inFila[i - 1])))
     }
   }
 

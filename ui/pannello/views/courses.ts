@@ -14,7 +14,7 @@ import {
 } from '../../../core/dominio/calculations.js'
 import { oltreSoglia, percentoAssenza } from '../../../core/dominio/alerts.js'
 import { checkDelCorso, riepilogoDelCheck } from '../../../core/dominio/check.js'
-import { corsiDellaMateria, siglaMateria } from '../../../core/dominio/courses.js'
+import { siglaMateria } from '../../../core/dominio/courses.js'
 import { creaMateria } from '../../../core/dominio/factories.js'
 import { validaMateria } from '../../../core/dominio/validation.js'
 import { notifica } from '../components/notifications.js'
@@ -50,6 +50,7 @@ import { inTelaio, tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
 import { grigliaCheck } from './check.js'
 import {
+  cestinoPer,
   chiediEliminazione,
   moduloAnno,
   moduloClasse,
@@ -517,11 +518,11 @@ async function scriviMateria (materia: Materia, campo?: HTMLInputElement): Promi
 }
 
 /**
- * Elimina la materia se nessun corso di nessun anno la usa; altrimenti c'è
- * «unisci», e il cestino è spento.
+ * Elimina la materia se è libera; altrimenti c'è «unisci», e il cestino è
+ * spento (`cestinoPer`).
  */
 async function eliminaMateria (materia: Materia): Promise<void> {
-  if (corsiDellaMateria(stato.registro, materia.id).length > 0) return
+  if (cestinoPer({ genere: 'materia', id: materia.id }).disabilitato) return
   await azione({ tipo: 'materia.elimina', materiaId: materia.id })
 }
 
@@ -583,7 +584,6 @@ function campiMateria (
  * tasto destro la unisce a un'altra.
  */
 function testaMateria (materia: Materia, quante: number): HTMLElement {
-  const corsi = corsiDellaMateria(stato.registro, materia.id).length
   const t = testi()
   const menu = (evento: MouseEvent) => {
     if ((evento.target as HTMLElement).closest('input')) return
@@ -618,8 +618,7 @@ function testaMateria (materia: Materia, quante: number): HTMLElement {
       pulsante({
         simbolo: 'cestino',
         variante: 'fantasma',
-        titolo: corsi > 0 ? t.nonSiElimina(corsi) : t.eliminaMateria,
-        disabilitato: corsi > 0,
+        ...cestinoPer({ genere: 'materia', id: materia.id }, t.eliminaMateria),
         al: () => eliminaMateria(materia),
       }),
     ),

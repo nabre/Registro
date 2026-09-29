@@ -14,6 +14,7 @@ import { registraAvanzamentoScarico } from '../../core/azioni/llm.js'
 import { chiama, procedura } from '../../contract/core.js'
 import type { Archivio } from '../../core/dati/archive.js'
 import { ocrAttivo } from '../../core/dati/ocr.js'
+import { collegamento, prontezza, type Uso } from '../../core/dati/llm.js'
 import { collegatoNoto, conto as contoExchange } from '../../core/dati/exchange.js'
 import { invioDiretto, mittente as mittentePosta } from '../../core/dati/mail.js'
 import { accountMicrosoft, cambiAccount } from '../../core/dati/microsoft.js'
@@ -33,6 +34,7 @@ import type {
   MessaggioVersoWebview,
   Richiesta,
   SeguiConversazione,
+  VoceProgramma,
 } from '../../contract/protocollo.js'
 import type { Registro } from '../../core/dominio/models.js'
 import { alCambioLingua, lingua } from '../../core/i18n/index.js'
@@ -481,7 +483,7 @@ export class PannelloRegistro {
       radiceDati: cartella ? this.pannello.webview.asWebviewUri(cartella).toString() : null,
       radiceApp: this.pannello.webview.asWebviewUri(this.contesto.extensionUri).toString(),
       ocrAttivo: ocrAttivo(),
-      programma: vociImpostazioni(),
+      programma: conProntezza(vociImpostazioni()),
       posta: {
         exchange: collegatoNoto(),
         server: contoExchange().server,
@@ -519,4 +521,24 @@ export class PannelloRegistro {
     PannelloProiezione.chiudi()
     while (this.smaltibili.length > 0) this.smaltibili.pop()?.dispose()
   }
+}
+
+/** Gli interruttori che accendono un modello locale, e per quale uso. */
+const INTERRUTTORI_DEI_MODELLI: Readonly<Record<string, Uso>> = {
+  'registroDocenti.assistente.attivo': 'assistente',
+  'registroDocenti.ocr.attivo': 'ocr',
+}
+
+/**
+ * Le voci con il perché un modello acceso non può lavorare adesso
+ * (`prontezza()`: programma, file del modello o del proiettore): la barra di
+ * stato lo dice invece di un verde che poi fallisce dopo minuti.
+ */
+function conProntezza (voci: VoceProgramma[]): VoceProgramma[] {
+  return voci.map((voce) => {
+    const uso = INTERRUTTORI_DEI_MODELLI[voce.chiave]
+    if (!uso || voce.valore !== true || voce.bloccata !== null) return voce
+    const { pronto, motivo } = prontezza(collegamento(uso))
+    return pronto ? voce : { ...voce, nonPronta: motivo }
+  })
 }

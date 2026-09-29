@@ -63,8 +63,12 @@ const it = {
   statoModello: (nome: string, acceso: boolean) =>
     `${nome}: ${acceso ? 'acceso' : 'spento'}.\n`,
   modello: (nome: string) => `Modello: ${nome}.\n`,
-  premiPerSpegnere: 'Premi per spegnere',
-  premiPerAccendere: 'Premi per accendere',
+  apriModelli: 'Premi per aprire i modelli linguistici',
+  nonPronto: (nome: string, perche: string) =>
+    `${nome}: acceso, ma adesso non può lavorare.
+${perche}
+Apri i modelli linguistici`,
+  voceNonPronta: (nome: string) => `${nome} non pronta`,
   voceModello: (nome: string, bloccato: boolean, acceso: boolean) =>
     `${nome} ${bloccato ? 'non si accende' : acceso ? 'acceso' : 'spento'}`,
 
@@ -128,8 +132,12 @@ export const testi = catalogo(it, {
       `${nome}: aus.\n${perche}\nÖffne die Sprachmodelle`,
     statoModello: (nome, acceso) => `${nome}: ${acceso ? 'an' : 'aus'}.\n`,
     modello: (nome) => `Modell: ${nome}.\n`,
-    premiPerSpegnere: 'Klicken zum Ausschalten',
-    premiPerAccendere: 'Klicken zum Einschalten',
+    apriModelli: 'Klicken, um die Sprachmodelle zu öffnen',
+    nonPronto: (nome, perche) =>
+      `${nome}: an, kann aber gerade nicht arbeiten.
+${perche}
+Öffne die Sprachmodelle`,
+    voceNonPronta: (nome) => `${nome} nicht bereit`,
     voceModello: (nome, bloccato, acceso) =>
       `${nome} ${bloccato ? 'startet nicht' : acceso ? 'an' : 'aus'}`,
     annoTitolo: (anno) =>
@@ -190,8 +198,12 @@ export const testi = catalogo(it, {
     statoModello: (nome, acceso) =>
       `${nome} : ${acceso ? 'activé' : 'désactivé'}.\n`,
     modello: (nome) => `Modèle : ${nome}.\n`,
-    premiPerSpegnere: 'Clique pour désactiver',
-    premiPerAccendere: 'Clique pour activer',
+    apriModelli: 'Clique pour ouvrir les modèles de langage',
+    nonPronto: (nome, perche) =>
+      `${nome} : activé, mais ne peut pas travailler maintenant.
+${perche}
+Ouvre les modèles de langage`,
+    voceNonPronta: (nome) => `${nome} pas prête`,
     voceModello: (nome, bloccato, acceso) =>
       `${nome} ${bloccato ? 'ne démarre pas' : acceso ? 'activé' : 'désactivé'}`,
     annoTitolo: (anno) =>
@@ -247,8 +259,12 @@ export const testi = catalogo(it, {
       `${nome}: off.\n${perche}\nOpen the language models`,
     statoModello: (nome, acceso) => `${nome}: ${acceso ? 'on' : 'off'}.\n`,
     modello: (nome) => `Model: ${nome}.\n`,
-    premiPerSpegnere: 'Click to turn off',
-    premiPerAccendere: 'Click to turn on',
+    apriModelli: 'Click to open the language models',
+    nonPronto: (nome, perche) =>
+      `${nome}: on, but it can’t work right now.
+${perche}
+Open the language models`,
+    voceNonPronta: (nome) => `${nome} not ready`,
     voceModello: (nome, bloccato, acceso) =>
       `${nome} ${bloccato ? 'won’t start' : acceso ? 'on' : 'off'}`,
     annoTitolo: (anno) =>

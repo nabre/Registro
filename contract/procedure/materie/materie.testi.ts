@@ -5,7 +5,7 @@ import { catalogo } from '../../../core/i18n/index.js'
 
 const it = {
   elimina: {
-    titolo: 'Toglie una materia e i corsi che la insegnavano',
+    titolo: 'Toglie una materia che nessun corso usa',
   },
   salva: {
     titolo: 'Scrive una materia, nuova o già esistente',
@@ -20,7 +20,7 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     elimina: {
-      titolo: 'Entfernt ein Fach und die Kurse, in denen es unterrichtet wurde',
+      titolo: 'Entfernt ein Fach, das kein Kurs verwendet',
     },
     salva: {
       titolo: 'Schreibt ein Fach, neu oder bereits vorhanden',
@@ -34,7 +34,7 @@ export const testi = catalogo(it, {
   },
   fr: {
     elimina: {
-      titolo: 'Retire une branche et les cours qui l’enseignaient',
+      titolo: 'Retire une branche qu’aucun cours n’utilise',
     },
     salva: {
       titolo: 'Écrit une branche, nouvelle ou déjà existante',
@@ -47,7 +47,7 @@ export const testi = catalogo(it, {
   },
   en: {
     elimina: {
-      titolo: 'Removes a subject and the courses that taught it',
+      titolo: 'Removes a subject that no course uses',
     },
     salva: {
       titolo: 'Writes a subject, new or already existing',

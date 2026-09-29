@@ -1,6 +1,6 @@
 // Rigenera il documento campione: `npm run sample`.
 //
-// `tests/samples/2026-2027.regi` è un anno finto (una classe, tre persone in
+// `tests/samples/anno_esempio.regi` è un anno finto (una classe, tre persone in
 // formazione, un corso, tre ore, una verifica) scritto dall'archivio vero. Si
 // guarda dentro rinominandolo `.zip`, e `tests/data/sample.test.mjs` lo riapre
 // per accorgersi che il formato ha reso illeggibili i documenti già scritti.
@@ -20,7 +20,7 @@ import * as percorso from 'node:path'
 
 import { RADICE } from './common.mjs'
 
-const DESTINAZIONE = percorso.join(RADICE, 'tests', 'samples', '2026-2027.regi')
+const DESTINAZIONE = percorso.join(RADICE, 'tests', 'samples', 'anno_esempio.regi')
 const STORIA = percorso.join(RADICE, 'tests', 'samples', 'formato')
 
 /**
@@ -48,7 +48,7 @@ const d = await import(bundle('domain.mjs'))
 const archivio = new Archivio(Uri.file(process.env.REGISTRO_USERDATA))
 await archivio.apri(null)
 
-const documento = percorso.join(banco, 'lavoro', 'registro', '2026-2027.regi')
+const documento = percorso.join(banco, 'lavoro', 'registro', 'anno_esempio.regi')
 // L'anno segue il calendario ufficiale (dal formato 5): le sue chiusure,
 // collegate, più una propria. Le date restano quelle di sempre, come in un anno
 // collegato prima che il calendario le correggesse: le prove le cercano così.

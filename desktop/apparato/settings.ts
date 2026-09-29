@@ -255,6 +255,9 @@ export function vociImpostazioni (): VoceProgramma[] {
       valore: valore === true && manca !== null ? false : valore,
       scritta: scritto !== undefined,
       bloccata: manca !== null ? voce.richiede?.motivo ?? null : null,
+      // La riempie chi manda le voci al pannello (`pannelli/panel.ts`): qui niente
+      // motori, che la finestra nativa e le prove non caricano.
+      nonPronta: null,
       dipendeDa: voce.dipendeDa ?? null,
       // Riempita subito sotto, quando tutte le altre si conoscono.
       sospesa: false,

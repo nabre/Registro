@@ -78,7 +78,7 @@ async function scarica (primo, cartella) {
 
 /** Python, con il nome che ha su questa macchina. */
 function python () {
-  for (const nome of [process.env.PYTHON, 'python3', 'python'].filter(Boolean)) {
+  for (const nome of /** @type {string[]} */ ([process.env.PYTHON, 'python3', 'python'].filter(Boolean))) {
     try {
       execFileSync(nome, ['--version'], { stdio: 'ignore' })
       return nome

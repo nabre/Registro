@@ -175,7 +175,7 @@ rilievi.sort((x, y) => x.percorso.localeCompare(y.percorso) || x.riga - y.riga)
 if (process.argv.includes('--grafico')) {
   const { output } = await format(risultato, { outputType: 'archi', includeOnly: '^(core|contract|desktop|ui|cli)/' })
   mkdirSync(join(RADICE, 'copertura'), { recursive: true })
-  writeFileSync(join(RADICE, 'copertura', 'strati.dot'), output)
+  writeFileSync(join(RADICE, 'copertura', 'strati.dot'), /** @type {string} */ (output))
   console.log('Grafico delle cartelle in copertura/strati.dot (dot -Tsvg copertura/strati.dot).\n')
 }
 

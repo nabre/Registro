@@ -179,7 +179,7 @@ de «…», en “…”. Apostrofo tipografico ’ dove l'italiano lo usa.
 ```sh
 npm run i18n                          # riepilogo per file: quanto resta
 npm run i18n -- --elenco ui/pannello/views # ogni reperto, con riga
-npx tsc --noEmit && npx eslint <file> && npm test
+npm run typecheck && npx eslint <file> && npm test
 ```
 
 `tests/i18n/catalogs.test.mjs` trova da sé ogni `*.testi.ts` (esbuild li

@@ -3,7 +3,8 @@
 
 import { allineaSemestri, annoAllineato } from '../../../core/dominio/years.js'
 import {
-  differenzaGiorni, etichettaAnno, formattaData, oggi, primoAnnoScolastico, sommaGiorni,
+  differenzaGiorni, etichettaAnno, formattaData, nomeSemestre, oggi, primoAnnoScolastico,
+  sommaGiorni,
 } from '../../../core/dominio/dates.js'
 import { creaSospensione } from '../../../core/dominio/factories.js'
 import type {
@@ -334,7 +335,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
   // li legge per confrontarli, e importando li riscrive.
   const campoInizio = campo({
     nome: 'inizio',
-    etichetta: t.cominciaIl,
+    etichetta: t.inizioDi(nomeSemestre({ numero: 1 })),
     tipo: 'date',
     valore: primo?.inizio ?? iniziale?.inizio ?? `${annoBase}-09-01`,
     richiesto: true,
@@ -346,7 +347,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
   })
   const campoFine = campo({
     nome: 'fine',
-    etichetta: t.finisceIl,
+    etichetta: t.fineDi(nomeSemestre({ numero: 2 })),
     tipo: 'date',
     valore: secondo?.fine ?? iniziale?.fine ?? `${annoBase + 1}-06-30`,
     richiesto: true,
@@ -443,16 +444,10 @@ export function moduloAnno (anno?: AnnoScolastico): void {
             aiuto: t.aiutoSemestri,
           },
           riga(
-            campo({
-              nome: 'primoEtichetta',
-              etichetta: t.nomePrimo,
-              valore: primo?.etichetta ?? t.primoSemestre,
-              larghezza: 'meta',
-            }),
             campoInizio,
             campo({
               nome: 'confine',
-              etichetta: t.finisceIl,
+              etichetta: t.fineDi(nomeSemestre({ numero: 1 })),
               tipo: 'date',
               valore: primo?.fine ?? `${annoBase + 1}-01-31`,
               richiesto: true,
@@ -460,15 +455,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
               larghezza: 'quarto',
             }),
           ),
-          riga(
-            campo({
-              nome: 'secondoEtichetta',
-              etichetta: t.nomeSecondo,
-              valore: secondo?.etichetta ?? t.secondoSemestre,
-              larghezza: 'meta',
-            }),
-            campoFine,
-          ),
+          riga(campoFine),
         ),
         sezioneModulo(
           {
@@ -527,7 +514,6 @@ export function moduloAnno (anno?: AnnoScolastico): void {
             etichetta: testo(valori.etichetta),
             confine,
             sospensioni: [...pause].sort((a, b) => a.dal.localeCompare(b.dal)),
-            etichetteSemestri: [testo(valori.primoEtichetta), testo(valori.secondoEtichetta)],
             ...(segue ? { calendarioUfficiale: segue } : {}),
           },
           t.annoCreato,
@@ -551,18 +537,8 @@ export function moduloAnno (anno?: AnnoScolastico): void {
         etichetta: testo(valori.etichetta),
         sospensioni: [...pause].sort((a, b) => a.dal.localeCompare(b.dal)),
         semestri: [
-          {
-            ...primoAttuale,
-            etichetta: testo(valori.primoEtichetta) || primoAttuale.etichetta,
-            inizio,
-            fine: confine,
-          },
-          {
-            ...secondoAttuale,
-            etichetta: testo(valori.secondoEtichetta) || secondoAttuale.etichetta,
-            inizio: sommaGiorni(confine, 1),
-            fine,
-          },
+          { ...primoAttuale, inizio, fine: confine },
+          { ...secondoAttuale, inizio: sommaGiorni(confine, 1), fine },
         ],
       })
       await salva(contesto, { tipo: 'anno.salva', anno: aggiornato }, t.annoAggiornato)

@@ -23,8 +23,8 @@ import {
 /** Due semestri scritti a mano, per provare che cosa se ne ricava. */
 function semestri (primoInizio, primoFine, secondoInizio, secondoFine) {
   return [
-    { id: 's1', numero: 1, etichetta: '1° semestre', inizio: primoInizio, fine: primoFine },
-    { id: 's2', numero: 2, etichetta: '2° semestre', inizio: secondoInizio, fine: secondoFine },
+    { id: 's1', numero: 1, inizio: primoInizio, fine: primoFine },
+    { id: 's2', numero: 2, inizio: secondoInizio, fine: secondoFine },
   ]
 }
 
@@ -78,8 +78,8 @@ describe('i semestri sono attigui', () => {
 
   it('li rimette in ordine e li rinumera', () => {
     const scambiati = [
-      { id: 's2', numero: 1, etichetta: 'secondo', inizio: '2027-02-01', fine: '2027-06-30' },
-      { id: 's1', numero: 2, etichetta: 'primo', inizio: '2026-09-01', fine: '2027-01-31' },
+      { id: 's2', numero: 1, inizio: '2027-02-01', fine: '2027-06-30' },
+      { id: 's1', numero: 2, inizio: '2026-09-01', fine: '2027-01-31' },
     ]
 
     const messi = allineaSemestri(scambiati)
@@ -175,8 +175,8 @@ describe('le pause dell’anno', () => {
     inizio: '2026-09-01',
     fine: '2027-06-30',
     semestri: [
-      { id: 's1', numero: 1, etichetta: '1° semestre', inizio: '2026-09-01', fine: '2027-01-31' },
-      { id: 's2', numero: 2, etichetta: '2° semestre', inizio: '2027-02-01', fine: '2027-06-30' },
+      { id: 's1', numero: 1, inizio: '2026-09-01', fine: '2027-01-31' },
+      { id: 's2', numero: 2, inizio: '2027-02-01', fine: '2027-06-30' },
     ],
   }
 

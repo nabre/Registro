@@ -6,14 +6,7 @@
 // `editor`.
 
 import { minutiEffettivi, contaUd } from '../../../core/dominio/calculations.js'
-import {
-  formattaData,
-  formattaDurata,
-  formattaMese,
-  giornoSettimana,
-  settimanaDi,
-  settimanaIso,
-} from '../../../core/dominio/dates.js'
+import { formattaData, formattaDurata, formattaMese, giornoSettimana, nomeSemestre, settimanaDi, settimanaIso } from '../../../core/dominio/dates.js'
 import { avviso, datoSintetico, pulsante, testataVista } from '../components/base.js'
 import { conferma } from '../components/modal.js'
 import { azione } from '../bridge.js'
@@ -106,7 +99,7 @@ export function vistaCalendario (): Figlio {
             settimanaIso(stato.data),
           )
   // Nell'anno il semestre non si aggiunge: ci sono tutti e due.
-  const conSemestre = semestre && modo !== 'anno' ? `${dove} · ${semestre.etichetta}` : dove
+  const conSemestre = semestre && modo !== 'anno' ? `${dove} · ${nomeSemestre(semestre)}` : dove
   // Un calendario ICS che non si legge si dice qui, o la corsia vuota ingannerebbe.
   const guasto = modo === 'anno' ? null : guastoCalendarioEsterno()
   const sottotitolo = guasto ? t.guastoIcs(conSemestre, guasto) : conSemestre

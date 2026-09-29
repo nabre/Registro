@@ -11,7 +11,7 @@ export {
   sincronizzaDaIcs,
 } from './forms/icsEvent.js'
 export { moduloAllievo, moduloClasse, moduloImportaAllievi, moduloNuovaPersona } from './forms/class.js'
-export { chiediEliminazione } from './forms/common.js'
+export { cestinoPer, chiediEliminazione } from './forms/common.js'
 export { moduloConsegna } from './forms/assignment.js'
 export { moduloCorso } from './forms/course.js'
 export { moduloComunicazione, moduloRecapito } from './forms/classTeacher.js'

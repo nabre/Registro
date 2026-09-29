@@ -32,12 +32,14 @@ const dice = (testo) => console.log(`[${orologio()}] ${testo}`)
 
 // --------------------------------------------------------------------- Electron
 
+/** @type {import('node:child_process').ChildProcess | null} */
 let processo = null
 let uscitaVoluta = false
 
 function avviaElectron () {
   uscitaVoluta = false
-  processo = spawn(elettrone, [AVVIO], {
+  // `electron` importato da Node è il percorso dell'eseguibile, non il modulo.
+  processo = spawn(/** @type {string} */ (/** @type {unknown} */ (elettrone)), [AVVIO], {
     stdio: 'inherit',
     env: {
       ...process.env,

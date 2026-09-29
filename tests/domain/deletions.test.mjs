@@ -23,6 +23,7 @@ import {
   creaRisorsa,
   creaValutazione,
   eliminazione,
+  occupazione,
   registroVuoto,
   riferimentiRotti,
   lessico,
@@ -1078,6 +1079,17 @@ describe('eliminazioni: che cosa si dice togliendo il resto', () => {
     assert.equal(esito.nome, 'la materia «Matematica»')
     assert.deepEqual(esito.perdite, conFogli(esito, ['1 corso']))
     assert.match(esito.invece, /Unirla/)
+  })
+
+  it('la materia usata da un corso è occupata, e dice di unirla', () => {
+    const { registro, corso } = scenaDiDue()
+    const occupata = occupazione(registro, { genere: 'materia', id: corso.materiaId })
+    assert.match(occupata.motivo, /1 corso la usa/)
+    assert.match(occupata.invece, /Unirla/)
+    const libera = creaMateria('Storia')
+    registro.materie.push(libera)
+    assert.equal(occupazione(registro, { genere: 'materia', id: libera.id }), null)
+    assert.equal(occupazione(registro, { genere: 'corso', id: corso.id }), null)
   })
 
   it('la classe dice allievi, foto, corsi, PDF in attesa e fascicolo', () => {

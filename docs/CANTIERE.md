@@ -102,6 +102,25 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### Da provare a mano
 
+- [ ] Semestri senza nome scrivibile: modulo anno (nuovo e modifica) con sole
+      date «1° semestre: inizio/fine», «2° semestre: fine»; tendina Periodo,
+      calendario anno/mese/settimana («fine 1° sem.»), piani, impostazioni anno
+      nelle quattro lingue; documento vecchio con nomi propri li perde senza
+      errori.
+- [ ] Impostazioni › Anno e orario › Calendari ufficiali: si apre, selettore
+      con tutti gli anni (clic e frecce), di serie quello in corso con
+      pastiglia, scelta tenuta nei ridisegni, tabella chiusure compatta chiaro/scuro e su
+      colonna stretta; clic sul PDF apre il browser di sistema, non una
+      finestra Electron vuota; titoli, tipi e guida tradotti in de/fr/en (nomi
+      chiusure e fonte restano in italiano: sono dati); Guida › «Calendari
+      ufficiali» porta a Impostazioni.
+- [ ] Logo in alto a sinistra (pannello e finestre native): in mezzo alla
+      colonna delle icone con navigazione larga e stretta, fermo con `npm run
+      dev`/`start` (segno DEV/START accanto), nessun lampo ai ridisegni, nessuna
+      immagine rotta all'avvio.
+- [ ] Barra di stato, lettura delle scansioni accesa senza `llama-mtmd-cli` o
+      con il file del modello/proiettore spostato: «non pronta» arancione, il
+      titolo dice il motivo, il clic apre Impostazioni › Modelli linguistici.
 - [ ] Barra del titolo propria su benvenuto, impostazioni, dialoghi (anche
       «versione più recente» all'avvio), lettore PDF: logo, titolo, trascinare,
       doppio clic, pulsanti di sistema; cambio tema chiaro/scuro a finestra
@@ -111,6 +130,10 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       all'avvio, dialoghi, benvenuto, impostazioni, lettore, proiezione (anche
       premendo Alt); su macOS copia/incolla funzionano.
 - [ ] «Disinstalla…» su macOS, AppImage, portabile, Windows installato.
+- [ ] Prima release con il lavoro `linux` di `rilascio.yml`: nella release
+      AppImage, `.deb` e `.rpm`; l'AppImage si apre, `.deb` su Ubuntu e `.rpm`
+      su Fedora si installano con voce nel menu, icona e doppio clic su un
+      `.regi`; assistente con llama.cpp Vulkan o CPU.
 - [ ] Ora conclusa in sola lettura (`aOraAperta`): nel pannello avviso con
       **Riapri**, schede spente senza hover né fumetti, linguette degli
       strumenti vive.

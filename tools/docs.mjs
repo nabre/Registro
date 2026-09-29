@@ -22,6 +22,7 @@ import { RADICE, daRadice, fileSotto, piano } from './common.mjs'
 // ---------------------------------------------------------------- le deroghe
 
 /** Documenti di cui si controllano gli script ma non i percorsi citati. */
+/** @type {Set<string>} */
 const SENZA_PERCORSI = new Set([])
 
 /**
@@ -90,6 +91,7 @@ function inDeroga (file, percorso) {
 
 // ------------------------------------------------------------------ la lettura
 
+/** @type {string[]} */
 const rilievi = []
 let citazioni = 0
 

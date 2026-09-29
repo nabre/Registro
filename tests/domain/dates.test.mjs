@@ -163,8 +163,8 @@ describe('anno scolastico', () => {
       inizio: '2025-09-01',
       fine: '2026-06-30',
       semestri: [
-        { id: 's1', numero: 1, etichetta: '1°', inizio: '2025-09-01', fine: '2026-01-31' },
-        { id: 's2', numero: 2, etichetta: '2°', inizio: '2026-02-01', fine: '2026-06-30' },
+        { id: 's1', numero: 1, inizio: '2025-09-01', fine: '2026-01-31' },
+        { id: 's2', numero: 2, inizio: '2026-02-01', fine: '2026-06-30' },
       ],
     }
     assert.equal(semestreDi(anno, '2025-11-10').id, 's1')

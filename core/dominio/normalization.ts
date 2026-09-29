@@ -8,7 +8,7 @@
 // può fare. Le regole condivise con le convalide si importano da
 // `validation.ts`, mai il contrario.
 
-import { annoAllineato, etichettaSemestreNuovo, ordinaSettimane } from './years.js'
+import { annoAllineato, ordinaSettimane } from './years.js'
 import {
   LIMITI_UD,
   etichettaAnno,
@@ -239,8 +239,9 @@ function normalizzaSemestri (grezzo: unknown, inizioAnno: string, fineAnno: stri
     const dati = oggetto(v)
     return {
       id: testo(dati.id) || nuovoIdSemestre(),
+      // Un'etichetta scritta da un registro di prima si lascia cadere: il nome
+      // lo dà il numero.
       numero: indice === 0 ? 1 : 2,
-      etichetta: testo(dati.etichetta) || etichettaSemestreNuovo(indice + 1),
       inizio: unaData(dati.inizio, inizioAnno),
       fine: unaData(dati.fine, fineAnno),
     }

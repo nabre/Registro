@@ -2,7 +2,7 @@
 name: verifica
 description: >
   Il rituale di verifica di Regiklass: i tre controlli d'obbligo
-  (`npx tsc --noEmit`, `npx eslint .`, `npm test`) e gli otto controlli statici
+  (`npm run typecheck`, `npx eslint .`, `npm test`) e gli otto controlli statici
   fatti in casa (`layers`, `census`, `collections`, `forms`, `buttons`,
   `procedures`, `docs`, `i18n`) — che cosa guarda ognuno, come si legge la sua uscita, che cosa
   è un guasto e che cosa è solo «da guardare a mano», e in che ordine si
@@ -25,7 +25,7 @@ Windows e `node-llama-cpp` porta binari nativi montati per percorso.
 ## I tre d'obbligo
 
 ```sh
-npx tsc --noEmit     # i tipi. Nessuna uscita = verde
+npm run typecheck    # i tipi: il TypeScript e, in JSDoc, cli/ e tools/ (tsconfig.js.json)
 npx eslint .         # lo stile. 0 errori; gli avvisi si contano, non fermano
 npm test             # le prove. `pretest` ricostruisce `dist-tests/` da sé
 ```
@@ -193,7 +193,7 @@ L'ordine conta, perché il sospetto più comune è il più economico da escluder
    `resources/tools.json` (`npm run tools`),
    `core/dati/defaultTemplates.ts` (`npm run templates`),
    `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
-   `tests/samples/2026-2027.regi` (`npm run sample`).
+   `tests/samples/anno_esempio.regi` (`npm run sample`).
    Se il diff li tocca senza che nessuno li abbia rigenerati, il difetto è a
    monte.
 
@@ -202,7 +202,7 @@ L'ordine conta, perché il sospetto più comune è il più economico da escluder
 Prima di dire «fatto», questa riga, e si legge la fine di ognuna:
 
 ```sh
-npx tsc --noEmit && npx eslint . && npm test && npm run layers && npm run collections && npm run forms && npm run buttons && npm run procedures && npm run docs && npm run i18n -- --severo && npm run census
+npm run typecheck && npx eslint . && npm test && npm run layers && npm run collections && npm run forms && npm run buttons && npm run procedures && npm run docs && npm run i18n -- --severo && npm run census
 ```
 
 In PowerShell `&&` non esiste: si usa il Bash tool, oppure si separano con `;`

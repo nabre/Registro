@@ -32,7 +32,7 @@ const ATTESA_CONDOTTO_MS = 60_000
 /** Quanto può metterci il processo a uscire dopo `programma.esci`. */
 const ATTESA_USCITA_MS = 20_000
 
-const CAMPIONE = join(RADICE, 'tests', 'samples', '2026-2027.regi')
+const CAMPIONE = join(RADICE, 'tests', 'samples', 'anno_esempio.regi')
 
 /** Il nome della cartella dei dati sotto `APPDATA`, come in `cli/common.mjs`. */
 const NOME_APPLICAZIONE = 'Regiklass'
@@ -152,7 +152,7 @@ async function prova () {
   const temporanei = join(radice, 'temp')
   for (const cartella of [userData, lavoro, temporanei]) mkdirSync(cartella, { recursive: true })
 
-  const documento = join(lavoro, '2026-2027.regi')
+  const documento = join(lavoro, 'anno_esempio.regi')
   copyFileSync(CAMPIONE, documento)
   writeFileSync(join(userData, 'impostazioni.json'), JSON.stringify({
     cartellaLavoro: lavoro,
@@ -173,6 +173,7 @@ async function prova () {
 
   // `APPDATA` anche qui: `cli/indirizzo.mjs` ricava l'indirizzo della pipe dalla
   // cartella dei dati, e deve trovare quella del registro acceso.
+  /** @type {NodeJS.ProcessEnv} */
   const ambienteFiglio = {
     ...process.env,
     APPDATA: appData,

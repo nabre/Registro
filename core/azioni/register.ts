@@ -210,14 +210,10 @@ export const registro = {
   // `modifica`: crearlo vuol dire aprirlo.
   'anno.crea': async (contesto, azione) => {
     const nato = creaAnno(azione.inizio, azione.fine, azione.etichetta, azione.confine)
-    // `creaAnno` fa l'ossatura; pause e nomi dei semestri arrivano dal modulo.
+    // `creaAnno` fa l'ossatura; le pause arrivano dal modulo.
     const anno: AnnoScolastico = {
       ...nato,
       sospensioni: azione.sospensioni ?? [],
-      semestri: nato.semestri.map((semestre, indice) => ({
-        ...semestre,
-        etichetta: azione.etichetteSemestri?.[indice]?.trim() || semestre.etichetta,
-      })),
       ...(azione.calendarioUfficiale ? { calendarioUfficiale: azione.calendarioUfficiale } : {}),
     }
     const esito = validaAnno(anno)
@@ -321,7 +317,7 @@ export const registro = {
     return { ok: true, creato: { id: azione.materia.id } }
   },
 
-  // I corsi della materia se ne vanno con lei; i piani restano, senza materia.
+  // Solo una materia che nessun corso usa: altrimenti si unisce (`occupazione`).
   'materia.elimina': (contesto, azione) => {
     return contesto.elimina({ genere: 'materia', id: azione.materiaId })
   },

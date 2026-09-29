@@ -40,7 +40,7 @@ describe('il posto dei documenti del corso', () => {
       collocazioneDi(registro, 'presenze', corso.id, { semestreId: secondo.id }),
     )
 
-    assert.match(uno, new RegExp(`_Presenze_${primo.etichetta}\\.pdf$`))
+    assert.match(uno, /_Presenze_1° semestre\.pdf$/)
     assert.notEqual(uno, due, 'il secondo semestre non copre il primo')
   })
 

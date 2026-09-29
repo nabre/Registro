@@ -226,8 +226,8 @@ describe('il testo della richiesta', () => {
 
   it('il nome del periodo lo dicono le date, non un campo', () => {
     const semestri = [
-      { id: 's1', etichetta: '1° semestre', inizio: '2025-09-01', fine: '2026-01-31' },
-      { id: 's2', etichetta: '2° semestre', inizio: '2026-02-01', fine: '2026-06-30' },
+      { id: 's1', numero: 1, inizio: '2025-09-01', fine: '2026-01-31' },
+      { id: 's2', numero: 2, inizio: '2026-02-01', fine: '2026-06-30' },
     ]
 
     // Un periodo che sta dentro un semestre ne prende il nome, anche quando ne

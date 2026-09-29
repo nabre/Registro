@@ -4,24 +4,6 @@
 import { catalogo } from '../../../../core/i18n/index.js'
 import { plurale } from '../../../../core/dominio/text.js'
 
-/** «1°» → «1.», come si scrive un ordinale in tedesco. */
-function ordinaleDe (numero: string): string {
-  return numero.replace('°', '.')
-}
-
-/** «1°» → «1er», «2°» → «2e». */
-function ordinaleFr (numero: string): string {
-  const cifra = numero.replace('°', '')
-  return cifra === '1' ? '1er' : `${cifra}e`
-}
-
-/** «1°» → «1st», «2°» → «2nd». */
-function ordinaleEn (numero: string): string {
-  const cifra = numero.replace('°', '')
-  const coda: Readonly<Record<string, string>> = { 1: 'st', 2: 'nd', 3: 'rd' }
-  return `${cifra}${coda[cifra] ?? 'th'}`
-}
-
 const it = {
   /** Il suggerimento del segno sulle ore di supplenza. */
   supplenza: 'Supplenza: ora tenuta al posto di un altro docente',
@@ -44,10 +26,9 @@ const it = {
   cominciaIl: (etichetta: string) => `comincia il ${etichetta}`,
   finisceIl: (etichetta: string) => `finisce il ${etichetta}`,
   /** Nella cella, dove c'è posto per poco: il numero è «1°», «2°». */
-  fineBreve: (numero: string) => `fine ${numero}`,
-  inizioBreve: (numero: string) => `inizio ${numero}`,
-  primoSemestre: '1° semestre',
-  secondoSemestre: '2° semestre',
+  /** Il confine di semestre nella casella, con il diminutivo: «fine 1° sem.». */
+  fineBreve: (semestre: string) => `fine ${semestre}`,
+  inizioBreve: (semestre: string) => `inizio ${semestre}`,
 
   // L'agenda
   vuotoTitolo: 'Nessuna lezione nell’anno',
@@ -116,10 +97,8 @@ export const testi = catalogo(it, {
     cominciaSemestre: (etichetta) => `${etichetta} beginnt`,
     cominciaIl: (etichetta) => `${etichetta} beginnt`,
     finisceIl: (etichetta) => `${etichetta} endet`,
-    fineBreve: (numero) => `Ende ${ordinaleDe(numero)}`,
-    inizioBreve: (numero) => `Beginn ${ordinaleDe(numero)}`,
-    primoSemestre: '1. Semester',
-    secondoSemestre: '2. Semester',
+    fineBreve: (semestre) => `Ende ${semestre}`,
+    inizioBreve: (semestre) => `Beginn ${semestre}`,
 
     vuotoTitolo: 'Keine Stunden in diesem Jahr',
     vuotoTesto:
@@ -175,10 +154,8 @@ export const testi = catalogo(it, {
     cominciaSemestre: (etichetta) => `Début du ${etichetta}`,
     cominciaIl: (etichetta) => `début du ${etichetta}`,
     finisceIl: (etichetta) => `fin du ${etichetta}`,
-    fineBreve: (numero) => `fin ${ordinaleFr(numero)}`,
-    inizioBreve: (numero) => `début ${ordinaleFr(numero)}`,
-    primoSemestre: '1er semestre',
-    secondoSemestre: '2e semestre',
+    fineBreve: (semestre) => `fin ${semestre}`,
+    inizioBreve: (semestre) => `début ${semestre}`,
 
     vuotoTitolo: 'Aucune leçon dans l’année',
     vuotoTesto: 'Les leçons s’ajoutent une par une : il n’y a pas de récurrences à configurer.',
@@ -234,10 +211,8 @@ export const testi = catalogo(it, {
     cominciaSemestre: (etichetta) => `${etichetta} begins`,
     cominciaIl: (etichetta) => `${etichetta} begins`,
     finisceIl: (etichetta) => `${etichetta} ends`,
-    fineBreve: (numero) => `end ${ordinaleEn(numero)}`,
-    inizioBreve: (numero) => `start ${ordinaleEn(numero)}`,
-    primoSemestre: '1st semester',
-    secondoSemestre: '2nd semester',
+    fineBreve: (semestre) => `end ${semestre}`,
+    inizioBreve: (semestre) => `start ${semestre}`,
 
     vuotoTitolo: 'No lessons this year',
     vuotoTesto: 'Lessons are added one by one: there are no recurrences to set up.',

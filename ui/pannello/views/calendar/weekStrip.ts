@@ -4,15 +4,7 @@
 
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { quanti } from '../../../../core/dominio/lexicon.js'
-import {
-  formattaData,
-  giornoSettimana,
-  inizioSettimana,
-  oggi,
-  settimanaDi,
-  settimanaIso,
-  sommaGiorni,
-} from '../../../../core/dominio/dates.js'
+import { formattaData, giornoSettimana, inizioSettimana, nomeSemestre, oggi, settimanaDi, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
 import type { Iso } from '../../../../core/dominio/models.js'
 import { icona } from '../../components/icons.js'
 import { gestisci, h, type Figlio } from '../../dom.js'
@@ -109,7 +101,7 @@ export function strisciaSettimane (): Figlio {
                 lunedi === diOggi ? t.questaSettimana : null,
                 conta > 0 ? quanti(conta, lessico().lezione) : t.nessunaLezione,
                 lettera ? t.settimanaMinuscola(lettera) : null,
-                chiude ? t.finisceIl(chiude.etichetta) : null,
+                chiude ? t.finisceIl(nomeSemestre(chiude)) : null,
               ]
                 .filter(Boolean)
                 .join(' · '),

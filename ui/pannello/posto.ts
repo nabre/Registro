@@ -65,10 +65,11 @@ interface Soggetto {
 // Le sezioni delle impostazioni stanno qui e non in `state.ts`, che le
 // importa: il posto non deve dipendere dallo stato.
 /** Le sezioni delle impostazioni del programma, nell'ordine in cui si aprono. */
-export type SchedaProgramma = 'aspetto' | 'posta' | 'account' | 'modelli' | 'aggiornamenti' | 'condotto'
+export type SchedaProgramma =
+  | 'aspetto' | 'posta' | 'account' | 'modelli' | 'aggiornamenti' | 'condotto' | 'calendari'
 
 export const SCHEDE_PROGRAMMA: readonly SchedaProgramma[] = [
-  'aspetto', 'posta', 'account', 'modelli', 'aggiornamenti', 'condotto',
+  'aspetto', 'posta', 'account', 'modelli', 'aggiornamenti', 'condotto', 'calendari',
 ]
 
 /** Le sezioni delle impostazioni del documento d'anno. */

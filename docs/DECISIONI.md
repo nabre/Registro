@@ -259,14 +259,17 @@ Il come: skill `impostazione`; il riordino: [PIANO-IMPOSTAZIONI.md](PIANO-IMPOST
 
 **Dove.** `core/dominio/tray.ts`, `desktop/widget/tray.ts`, `desktop/apparato/tray.ts`.
 
-### ADR-24 — Eliminare è sempre permesso
+### ADR-24 — Eliminare è permesso, se non è occupato
 
 **Decisione.** Ogni entità si elimina. `eliminazione(registro, bersaglio)` è
 pura e descrive prima tutto quel che sparisce; `applica(registro)` esegue dopo
 la conferma: il messaggio e l'effetto sono lo stesso calcolo. Quel che sa
 vivere staccato resta (piani di un corso eliminato → `corsoId = null`). Dove
 c'è un'alternativa non distruttiva (archiviare, unire) si offre accanto. I
-file vanno nel cestino di sistema.
+file vanno nel cestino di sistema. Eccezione: quel che è occupato
+(`occupazione(registro, bersaglio)`, oggi una materia usata da un corso) non si
+elimina; il pannello spegne il cestino col motivo (`cestinoPer`), il gestore
+rifiuta anche riga di comando e condotto.
 
 **Vincoli.** Ogni tipo eliminabile ha la sua voce di cascata in
 `core/dominio/deletions.ts`; `core/dominio/repairs.ts` ripara a posteriori, mai in
@@ -900,8 +903,8 @@ dove viene; il marcatore sull'anno basta a dire «queste le decide il cantone».
 guardia sta nel gestore e non solo nell'interfaccia perché le scritture arrivano
 anche dalla riga di comando e dal condotto.
 
-**Vincoli.** Restano libere le chiusure proprie, il confine e i nomi dei semestri,
-le note, le settimane. Una chiusura collegata che il calendario di questa
+**Vincoli.** Restano libere le chiusure proprie, il confine, le note, le
+settimane (i nomi dei semestri non si scrivono: li dà il numero). Una chiusura collegata che il calendario di questa
 versione non ha più può andarsene; una che ha si porta ai valori ufficiali o si
 lascia com'era. Un marcatore di un calendario che il registro non conosce non
 blocca l'apertura: tiene quel che c'era.

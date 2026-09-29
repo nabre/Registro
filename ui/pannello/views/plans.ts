@@ -24,7 +24,7 @@ import {
   udDaMinutiAttivita,
 } from '../../../core/dominio/calculations.js'
 import { indiceDiagnosi, oraCoperta } from '../../../core/dominio/dashboard.js'
-import { formattaData, formattaDurata } from '../../../core/dominio/dates.js'
+import { formattaData, formattaDurata, nomeSemestre } from '../../../core/dominio/dates.js'
 import { creaAttivita } from '../../../core/dominio/factories.js'
 
 /**
@@ -152,7 +152,7 @@ function semestriDelCorso (corso: Corso | null): GruppoSemestre[] {
 
   const semestri = [...(anno?.semestri ?? [])].sort((a, b) => a.numero - b.numero)
   const gruppi: GruppoSemestre[] = semestri.map((semestre) => ({
-    etichetta: semestre.etichetta,
+    etichetta: nomeSemestre(semestre),
     lezioni: lezioni.filter((l) => l.data >= semestre.inizio && l.data <= semestre.fine),
   }))
 

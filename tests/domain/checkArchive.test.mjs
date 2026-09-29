@@ -26,7 +26,7 @@ const CAMPIONE = percorso.join(
   percorso.dirname(fileURLToPath(import.meta.url)),
   '..',
   'samples',
-  '2026-2027.regi',
+  'anno_esempio.regi',
 )
 
 let api

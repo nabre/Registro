@@ -48,7 +48,6 @@ import {
   inizioSettimana,
   minutiDaOra,
   oggi,
-  numeroSemestre,
   oraDaMinuti,
   primoDelMese,
   settimanaDi,
@@ -752,7 +751,7 @@ function confineDi (anno: AnnoScolastico | null, data: Iso): string | null {
   const chiude = anno?.semestri.find((s) => s.fine === data) ?? null
   const t = testi()
   // La cifra sola: l'ordinale lo scrive ogni lingua a modo suo.
-  const cifra = (semestre: Semestre): string => numeroSemestre(semestre).replace(/°$/, '')
+  const cifra = (semestre: Semestre): string => String(semestre.numero)
   const voci = [
     chiude ? t.fineSemestre(cifra(chiude)) : null,
     apre ? t.inizioSemestre(cifra(apre)) : null,

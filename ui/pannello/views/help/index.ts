@@ -12,6 +12,7 @@ import { SEZIONI_DOCENTE } from './classTeacher.js'
 import { SEZIONI_VALUTAZIONI } from './grades.js'
 import { SEZIONI_LEZIONE } from './lesson.js'
 import { SEZIONI_FUORI } from './outside.js'
+import { SEZIONI_CALENDARI_UFFICIALI } from './officialCalendars.js'
 import { SEZIONI_PERSONE } from './people.js'
 import { SEZIONI_IMPOSTAZIONI } from './settings.js'
 import { SEZIONI_IMPIANTO } from './setup.js'
@@ -29,6 +30,7 @@ export const GUIDA: readonly SezioneGuida[] = [
   ...SEZIONI_DOCENTE,
   ...SEZIONI_PERSONE,
   ...SEZIONI_IMPOSTAZIONI,
+  ...SEZIONI_CALENDARI_UFFICIALI,
   ...SEZIONI_IMPIANTO,
   ...SEZIONI_ASSISTENTE,
   ...SEZIONI_FUORI,

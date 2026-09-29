@@ -15,6 +15,9 @@ const it = {
   nelCestino: 'Va nel cestino del sistema: si può ancora ripescare da lì.',
   nomeMateria: (nome: string) => `la materia «${nome}»`,
   unireMateria: 'Unirla a un’altra materia le rimette insieme senza perdere niente.',
+  materiaOccupata: (corsi: number) =>
+    `Non si elimina: ${plurale(corsi, 'corso la usa', 'corsi la usano')}. ` +
+    'Togli prima i corsi, o uniscila a un’altra materia.',
   nomeClasse: (nome: string) => `la classe ${nome}`,
   archiviareClasse: 'Archiviarla la toglie dagli elenchi e conserva tutto lo storico.',
   nomeCorso: (titolo: string) => `il corso «${titolo}»`,
@@ -97,6 +100,9 @@ export const testi = catalogo(it, {
     nomeMateria: (nome) => `Fach «${nome}»`,
     unireMateria:
       'Mit einem anderen Fach zusammenführen vereint beide, ohne dass etwas verloren geht.',
+    materiaOccupata: (corsi) =>
+      `Nicht löschbar: ${plurale(corsi, 'Kurs verwendet es', 'Kurse verwenden es')}. ` +
+      'Entferne zuerst die Kurse oder führe es mit einem anderen Fach zusammen.',
     nomeClasse: (nome) => `Klasse ${nome}`,
     archiviareClasse: 'Archivieren nimmt sie aus den Listen und bewahrt den ganzen Verlauf auf.',
     nomeCorso: (titolo) => `Kurs «${titolo}»`,
@@ -179,6 +185,9 @@ export const testi = catalogo(it, {
     nelCestino: 'Elle va dans la corbeille du système : on peut encore l’y récupérer.',
     nomeMateria: (nome) => `la branche « ${nome} »`,
     unireMateria: 'La fusionner avec une autre branche les réunit sans rien perdre.',
+    materiaOccupata: (corsi) =>
+      `Impossible à supprimer : ${plurale(corsi, 'cours l’utilise', 'cours l’utilisent')}. ` +
+      'Retire d’abord les cours, ou fusionne-la avec une autre branche.',
     nomeClasse: (nome) => `la classe ${nome}`,
     archiviareClasse: 'L’archiver la retire des listes et conserve tout l’historique.',
     nomeCorso: (titolo) => `le cours « ${titolo} »`,
@@ -259,6 +268,9 @@ export const testi = catalogo(it, {
     nelCestino: 'It goes to the system recycle bin: you can still get it back from there.',
     nomeMateria: (nome) => `the subject “${nome}”`,
     unireMateria: 'Merging it with another subject brings them together without losing anything.',
+    materiaOccupata: (corsi) =>
+      `Can’t be deleted: ${plurale(corsi, 'course uses it', 'courses use it')}. ` +
+      'Remove the courses first, or merge it with another subject.',
     nomeClasse: (nome) => `class ${nome}`,
     archiviareClasse: 'Archiving it takes it off the lists and keeps its whole history.',
     nomeCorso: (titolo) => `the course “${titolo}”`,

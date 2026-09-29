@@ -66,7 +66,7 @@ Il lavoro in corso e le scelte ancora aperte sono in [CANTIERE](docs/CANTIERE.md
 La CI esegue questi controlli a ogni push, e una PR entra solo se passano tutti:
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
 npx eslint .
 npm test
 npm run layers && npm run census && npm run collections

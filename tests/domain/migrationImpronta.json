@@ -12,7 +12,6 @@
     "anni[].inizio",
     "anni[].note",
     "anni[].semestri",
-    "anni[].semestri[].etichetta",
     "anni[].semestri[].fine",
     "anni[].semestri[].id",
     "anni[].semestri[].inizio",

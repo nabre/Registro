@@ -85,7 +85,11 @@
     // li ammette (GUIDA, § «La firma del codice»).
     "!node_modules/@node-llama-cpp/win-arm64{,/**/*}",
     "!node_modules/@node-llama-cpp/win-x64-cuda{,/**/*}",
-    "!node_modules/@node-llama-cpp/win-x64-cuda-ext{,/**/*}"
+    "!node_modules/@node-llama-cpp/win-x64-cuda-ext{,/**/*}",
+    // Su Linux lo stesso criterio, anche senza firma: i CUDA restano fuori
+    // per la licenza e per il peso, Vulkan copre le schede NVIDIA.
+    "!node_modules/@node-llama-cpp/linux-x64-cuda{,/**/*}",
+    "!node_modules/@node-llama-cpp/linux-x64-cuda-ext{,/**/*}"
   ],
 
   // pdfjs carica il worker con un `import()` di un URL `file:`, che non passa
@@ -203,6 +207,11 @@
     "maintainer": "Michel Brenna",
     // Una misura per file: ognuno prende la sua invece di rimpicciolire la 512.
     "icon": "icons/png"
+  },
+
+  // Col nome del pacchetto come gli altri file della release, non con `productName`.
+  "appImage": {
+    "artifactName": "${name}-${version}-${arch}.${ext}"
   },
 
   // `afterRemove` qui e non in `linux`, dove lo schema di electron-builder lo rifiuta.

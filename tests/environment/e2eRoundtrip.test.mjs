@@ -38,7 +38,7 @@ describe('ciclo end-to-end pagina -> preload -> main -> disco', () => {
     const { Archivio, PannelloRegistro, Uri, leggiZip, finestreCostruite, ipcMain } = m
 
     // 1. Predisponiamo una copia di lavoro del documento .regi campione
-    const fileCampione = percorso.resolve('tests/samples/2026-2027.regi')
+    const fileCampione = percorso.resolve('tests/samples/anno_esempio.regi')
     const fileDestinazione = percorso.join(radice, '2026-2027-e2e.regi')
     copyFileSync(fileCampione, fileDestinazione)
 

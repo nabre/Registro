@@ -205,7 +205,7 @@ function togliDoppioni (relativo: string): void {
 
 /**
  * La stessa stampa in un'altra lingua: nel cestino. Stessa cartella e nome
- * identico tolte le parole tradotte (documento, «anno intero»).
+ * identico tolte le parole tradotte (documento, semestre, «anno intero»).
  */
 function togliAltreLingue (relativo: string): void {
   const dove = deposito()
@@ -229,7 +229,11 @@ function paroleDelleStampe (): Map<string, string> {
     for (const [cosa, parola] of Object.entries(lingua.documenti)) segna(cosa, parola)
   }
   for (const parola of nomiDelleSchede(DOCUMENTO_SCHEDE_PRIMA)) segna('schede', parola)
-  for (const lingua of date.tutte()) segna('annoIntero', lingua.annoIntero)
+  for (const lingua of date.tutte()) {
+    segna('annoIntero', lingua.annoIntero)
+    segna('primoSemestre', lingua.semestre(1))
+    segna('secondoSemestre', lingua.semestre(2))
+  }
   return parole
 }
 

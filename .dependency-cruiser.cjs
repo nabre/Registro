@@ -60,7 +60,7 @@ module.exports = {
       comment: 'Un webview non può toccare la persistenza né l’ospite.',
       severity: 'error',
       from: { path: '^ui/' },
-      to: { path: '^core/(dati|azioni|apparato|data|actions|platform)/' },
+      to: { path: '^core/(dati|azioni|apparato)/' },
     },
     {
       // Così parte anche a costruzione rotta (vedi `cli/registro.mjs`).
@@ -68,7 +68,7 @@ module.exports = {
       comment: 'cli non importa niente dal progetto fuori da sé.',
       severity: 'error',
       from: { path: '^cli/' },
-      to: { path: '^(core|contract|desktop|ui|tools|tests|src|shell)/' },
+      to: { path: '^(core|contract|desktop|ui|tools|tests)/' },
     },
 
     // ------------------------------------------------------ core/dominio puro

@@ -76,6 +76,9 @@
 }
 
 .barra-titolo__marchio-segno {
+  /* Blocco: in linea siederebbe sulla linea di base, qualche pixel più su. */
+  display: block;
+  flex: none;
   width: 20px;
   height: 20px;
   -webkit-user-drag: none;

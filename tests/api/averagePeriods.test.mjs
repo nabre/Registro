@@ -149,7 +149,7 @@ describe('persone.medie raggruppa per periodo', () => {
     assert.equal(esito.dati.periodi.length, 2)
     assert.deepEqual(esito.dati.periodi.map((p) => p.semestreId), [primo.id, secondo.id])
     assert.deepEqual(esito.dati.periodi.map((p) => p.numero), [1, 2])
-    assert.equal(esito.dati.periodi[0].etichetta, primo.etichetta)
+    assert.equal(esito.dati.periodi[0].etichetta, '1° semestre')
     assert.equal(esito.dati.periodi[0].dal, DAL)
     assert.equal(esito.dati.periodi[0].al, FINE_PRIMO)
     assert.equal(esito.dati.periodi[1].dal, INIZIO_SECONDO)

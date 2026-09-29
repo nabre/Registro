@@ -19,7 +19,7 @@ import {
 import { sintesiIncassata } from '../../components/filters.js'
 import { notifica } from '../../components/notifications.js'
 import { h } from '../../dom.js'
-import { chiediEliminazione, moduloMateria, moduloUnisciMaterie } from '../../forms.js'
+import { cestinoPer, chiediEliminazione, moduloMateria, moduloUnisciMaterie } from '../../forms.js'
 import { azione } from '../../bridge.js'
 import { apriOneDrive } from '../../forms/oneDrive.js'
 import { stato } from '../../state.js'
@@ -266,7 +266,7 @@ export function schedaValutazione (): HTMLElement {
 
 /**
  * Le materie e i corsi che ne derivano. Ogni riga dice che cosa le sta appeso;
- * si rinomina, si unisce a un'altra, si elimina sapendo che cosa se ne va.
+ * si rinomina, si unisce a un'altra, e si elimina solo se nessun corso la usa.
  */
 export function schedaMaterie (): HTMLElement {
   const registro = stato.registro
@@ -335,7 +335,7 @@ export function schedaMaterie (): HTMLElement {
                   pulsante({
                     simbolo: 'cestino',
                     variante: 'fantasma',
-                    titolo: t.eliminaMateria,
+                    ...cestinoPer({ genere: 'materia', id: materia.id }, t.eliminaMateria),
                     al: async () => {
                       if (!(await chiediEliminazione({ genere: 'materia', id: materia.id }))) return
                       const risposta = await azione({ tipo: 'materia.elimina', materiaId: materia.id })

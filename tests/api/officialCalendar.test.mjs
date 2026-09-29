@@ -94,7 +94,7 @@ describe('anni.salva su un anno collegato', () => {
     assert.ok(anno().calendarioUfficiale)
   })
 
-  it('accetta una chiusura propria, il confine e i nomi dei semestri', async () => {
+  it('accetta una chiusura propria e il confine; il nome di un semestre non passa', async () => {
     const a = anno()
     a.sospensioni.push({ id: 'sos-ponte', etichetta: 'Ponte', dal: '2027-05-07', al: '2027-05-07' })
     a.sospensioni = a.sospensioni.filter((s) => s.id !== 'sos-istituto')
@@ -107,7 +107,7 @@ describe('anni.salva su un anno collegato', () => {
     assert.ok(dopo.sospensioni.some((s) => s.id === 'sos-ponte'))
     assert.equal(dopo.sospensioni.some((s) => s.id === 'sos-istituto'), false)
     assert.equal(dopo.semestri[0].fine, '2027-01-24')
-    assert.equal(dopo.semestri[1].etichetta, 'Primavera')
+    assert.equal('etichetta' in dopo.semestri[1], false)
   })
 })
 

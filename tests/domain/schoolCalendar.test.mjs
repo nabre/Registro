@@ -279,12 +279,12 @@ describe('un anno che segue il calendario ufficiale', () => {
     assert.match(motivoCalendarioToccato(ticino, prima, inventata), /Ponte/)
   })
 
-  it('lascia libere le chiusure proprie, il confine, i nomi dei semestri, le note, le settimane', () => {
+  it('lascia libere le chiusure proprie, il confine, le note, le settimane', () => {
     const prima = collegato()
     const dopo = structuredClone(prima)
     dopo.sospensioni = dopo.sospensioni.filter((s) => s.id !== 'sos-propria')
     dopo.sospensioni.push({ id: 'sos-ponte', etichetta: 'Ponte', dal: '2027-05-07', al: '2027-05-07' })
-    dopo.semestri = [{ id: 's1', numero: 1, etichetta: 'Autunno', inizio: prima.inizio, fine: '2027-01-31' }]
+    dopo.semestri = [{ id: 's1', numero: 1, inizio: prima.inizio, fine: '2027-01-31' }]
     dopo.note = 'Sede di Trevano'
     dopo.settimane = { '2026-09-07': 'A' }
     assert.equal(motivoCalendarioToccato(ticino, prima, dopo), null)

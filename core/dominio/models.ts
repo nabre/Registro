@@ -23,12 +23,13 @@ export type Istante = string
 
 /**
  * Un semestre, due per anno: la scansione di valutazioni e medie. Nessuno lo
- * cita per id: il semestre di una data si trova dagli estremi.
+ * cita per id: il semestre di una data si trova dagli estremi. Il nome non si
+ * scrive: lo dà `numero` nella lingua del registro (`nomeSemestre`), così due
+ * docenti sullo stesso anno leggono la stessa parola.
  */
 export interface Semestre {
   id: string
   numero: 1 | 2
-  etichetta: string
   inizio: Iso
   fine: Iso
 }

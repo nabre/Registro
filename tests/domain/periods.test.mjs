@@ -1,5 +1,5 @@
 // Il periodo su cui si conta: il semestre scelto o l'anno intero. Regole in un
-// posto solo: dentro il semestre o tutto l'anno, l'etichetta del semestre o
+// posto solo: dentro il semestre o tutto l'anno, il nome del semestre o
 // «anno intero», da agosto l'anno che comincia.
 
 import assert from 'node:assert/strict'
@@ -16,7 +16,7 @@ import {
 } from '../../dist-tests/domain.mjs'
 import { scuolaMinima } from '../helpers/register.mjs'
 
-const SEMESTRE = { id: 's1', numero: 1, etichetta: '1° semestre', inizio: '2026-09-01', fine: '2027-01-31' }
+const SEMESTRE = { id: 's1', numero: 1, inizio: '2026-09-01', fine: '2027-01-31' }
 
 describe('il semestre', () => {
   it('contiene i suoi estremi, e senza semestre c’è tutto', () => {

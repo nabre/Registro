@@ -162,7 +162,10 @@ const it = {
           'l’interruttore ' +
           'torna com’era. Vale anche per chi scrive da riga di comando o dall’API: senza modello ' +
           'l’accensione viene rifiutata, e togliendo il modello l’interruttore si spegne. ' +
-          'Senza modello l’icona dell’assistente non compare nella barra in fondo.',
+          'Senza modello l’icona dell’assistente non compare nella barra in fondo. Acceso ma senza ' +
+          'qualcosa che serve (il programma, il file del modello o del proiettore), in fondo ' +
+          'dice «non pronta» in arancione. Le icone in fondo non accendono né spengono: dicono ' +
+          'com’è messo il modello, e un clic porta ai **Modelli linguistici**.',
       },
       {
         termine: 'Avanzate',
@@ -398,7 +401,7 @@ const it = {
         termine: 'Anno scolastico',
         testo:
           'La scheda dell’anno con **Modifica** — lo stesso di «Modifica l’anno», che si trova ' +
-          'anche con `Ctrl+K` —: nome, date e nomi dei due semestri, e accanto a ciascuno quante ' +
+          'anche con `Ctrl+K` —: nome e date dei due semestri, e accanto a ciascuno quante ' +
           'valutazioni ci cadono. Sotto, **Apri un anno…** e **Nuovo anno**; senza anno, ' +
           '**Crea l’anno scolastico**.',
       },
@@ -550,8 +553,8 @@ const it = {
         termine: 'Materie',
         testo:
           '**Nuova materia**, con sigla e colore; accanto a ognuna, quante classi, corsi e ' +
-          'piani ci stanno appesi. Due materie nate dalla stessa cosa si uniscono; eliminarne ' +
-          'una chiede prima conferma, e dice che cosa se ne va insieme.',
+          'piani ci stanno appesi. Due materie nate dalla stessa cosa si uniscono; il cestino ' +
+          'si accende solo per una materia che nessun corso usa.',
       },
       {
         termine: 'Liste',
@@ -1063,7 +1066,10 @@ export const testi = catalogo(it, {
             'Schalter ist wieder wie vorher. Das gilt auch über die Befehlszeile oder die API: ' +
             'Ohne Modell wird das Einschalten abgelehnt, und wird das Modell entfernt, schaltet ' +
             'sich der Schalter aus. Ohne Modell erscheint das Symbol des Assistenten nicht in ' +
-            'der Leiste unten.',
+            'der Leiste unten. Eingeschaltet, aber ohne etwas Nötiges (das Programm, die Datei des ' +
+            'Modells oder des Projektors), steht unten orange «nicht bereit», und ein Klick führt ' +
+            'zu den **Sprachmodellen**. Die Symbole unten schalten nichts ein oder aus: Sie zeigen, ' +
+            'wie es um das Modell steht.',
         },
         {
           termine: 'Erweitert',
@@ -1306,7 +1312,7 @@ export const testi = catalogo(it, {
           termine: 'Schuljahr',
           testo:
             'Die Karte des Schuljahrs mit **Bearbeiten** — dasselbe wie «Schuljahr bearbeiten», ' +
-            'das man auch mit `Ctrl+K` findet —: Name, Daten und Namen der beiden Semester, und ' +
+            'das man auch mit `Ctrl+K` findet —: Name und Daten der beiden Semester, und ' +
             'neben jedem, wie viele Beurteilungen hineinfallen. Darunter **Schuljahr öffnen…** ' +
             'und **Neues Jahr**; ohne Schuljahr **Schuljahr erstellen**.',
         },
@@ -1475,8 +1481,8 @@ export const testi = catalogo(it, {
           testo:
             '**Neues Fach**, mit Kürzel und Farbe; neben jedem, wie viele Klassen, Kurse und ' +
             'Pläne daran hängen. Zwei Fächer, die aus derselben Sache entstanden sind, lassen ' +
-            'sich zusammenführen; eines zu löschen verlangt zuerst eine Bestätigung und sagt, ' +
-            'was mit ihm verschwindet.',
+            'sich zusammenführen; der Papierkorb ist nur bei einem Fach aktiv, das kein Kurs ' +
+            'verwendet.',
         },
         {
           termine: 'Listen',
@@ -2011,7 +2017,10 @@ export const testi = catalogo(it, {
             'l’interrupteur revient comme il était. Cela vaut aussi depuis la ligne de commande ' +
             'ou l’API : sans modèle, l’activation est refusée, et en retirant le modèle ' +
             'l’interrupteur se désactive. Sans modèle, l’icône de l’assistant n’apparaît pas dans ' +
-            'la barre du bas.',
+            'la barre du bas. Activé mais sans quelque chose de nécessaire (le programme, le fichier ' +
+            'du modèle ou du projecteur), en bas s’affiche « pas prête » en orange, et un clic ' +
+            'mène aux **Modèles de langage**. Les icônes du bas n’activent ni ne désactivent rien : ' +
+            'elles disent où en est le modèle.',
         },
         {
           termine: 'Avancé',
@@ -2259,7 +2268,7 @@ export const testi = catalogo(it, {
           termine: 'Année scolaire',
           testo:
             'La carte de l’année avec **Modifier** — la même chose que « Modifier l’année », qui ' +
-            'se trouve aussi avec `Ctrl+K` — : nom, dates et noms des deux semestres, et à côté ' +
+            'se trouve aussi avec `Ctrl+K` — : nom et dates des deux semestres, et à côté ' +
             'de chacun, combien d’évaluations y tombent. Dessous, **Ouvrir une année…** et ' +
             '**Nouvelle année** ; sans année, **Créer l’année scolaire**.',
         },
@@ -2425,8 +2434,8 @@ export const testi = catalogo(it, {
           testo:
             '**Nouvelle branche**, avec sigle et couleur ; à côté de chacune, combien de classes, ' +
             'de cours et de plans y sont rattachés. Deux branches nées de la même chose se ' +
-            'fusionnent ; en supprimer une demande d’abord confirmation, et dit ce qui part avec ' +
-            'elle.',
+            'fusionnent ; la corbeille ne s’allume que pour une branche qu’aucun cours ' +
+            'n’utilise.',
         },
         {
           termine: 'Listes',
@@ -2956,7 +2965,10 @@ export const testi = catalogo(it, {
             'model at the top of Settings › Program › **Language models**, and the switch goes ' +
             'back to how it was. The same holds from the command line or the API: without a ' +
             'model, turning it on is refused, and removing the model turns the switch off. ' +
-            'Without a model, the assistant’s icon doesn’t appear in the bar at the bottom.',
+            'Without a model, the assistant’s icon doesn’t appear in the bar at the bottom. On but ' +
+            'missing something it needs (the program, the model or projector file), the bottom ' +
+            'bar says “not ready” in orange, and a click leads to the **Language models**. The icons ' +
+            'at the bottom don’t turn anything on or off: they show how the model stands.',
         },
         {
           termine: 'Advanced',
@@ -3196,7 +3208,7 @@ export const testi = catalogo(it, {
           termine: 'School year',
           testo:
             'The year card with **Edit** — the same as “Edit the year”, which you also find ' +
-            'with `Ctrl+K` —: name, dates and names of the two semesters, and next to each one ' +
+            'with `Ctrl+K` —: name and dates of the two semesters, and next to each one ' +
             'how many assessments fall into it. Below, **Open a year…** and **New year**; with ' +
             'no year, **Create the school year**.',
         },
@@ -3352,8 +3364,8 @@ export const testi = catalogo(it, {
           termine: 'Subjects',
           testo:
             '**New subject**, with code and colour; next to each one, how many classes, courses ' +
-            'and plans hang on it. Two subjects born from the same thing can be merged; deleting ' +
-            'one asks for confirmation first, and says what goes with it.',
+            'and plans hang on it. Two subjects born from the same thing can be merged; the bin ' +
+            'lights up only for a subject that no course uses.',
         },
         {
           termine: 'Lists',

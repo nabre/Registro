@@ -14,6 +14,7 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 [![Download](https://img.shields.io/github/downloads/nabre/Registro/total?label=download&color=3d7a0c)](https://github.com/nabre/Registro/releases)
 [![Licenza MIT](https://img.shields.io/badge/licenza-MIT-3d7a0c)](LICENSE)
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-3d7a0c?logo=windows)
+![Linux](https://img.shields.io/badge/Linux-AppImage%20%7C%20deb%20%7C%20rpm-3d7a0c?logo=linux&logoColor=white)
 ![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 
@@ -67,7 +68,7 @@ situazione di famiglia. **Regiklass** tiene tutto sulla tua macchina:
 
 | | |
 | --- | --- |
-| 📅 **Calendario e orario** | Dall'orario settimanale nascono le lezioni sul calendario, vacanze e semestri compresi, con la durata dell'unità didattica e le pause della tua scuola: le ore si fermano alla ricreazione e riprendono dopo. Ogni ora ha appello, osservazioni e consuntivo. |
+| 📅 **Calendario e orario** | Dall'orario settimanale nascono le lezioni sul calendario, vacanze e semestri compresi, con la durata dell'unità didattica e le pause della tua scuola: le ore si fermano alla ricreazione e riprendono dopo. Ogni ora ha appello, osservazioni e consuntivo. Il calendario scolastico ufficiale del Ticino, con le chiusure e il PDF da cui viene, si consulta nelle impostazioni. |
 | 👥 **Classi e persone in formazione** | Classi, materie e corsi. Assenze e ritardi si contano per semestre o per anno. |
 | 🗂️ **Piani lezione** | Si organizzano per tappe, con attività e risorse, e si duplicano da un corso all'altro. |
 | 📝 **Valutazioni** | Ogni momento di valutazione sta dentro la lezione in cui si svolge, con voti, recuperi e medie. La griglia si esporta in CSV. |
@@ -91,6 +92,8 @@ Scarica l'ultima versione dalla pagina delle
 | --- | --- |
 | `regiklass-x.y.z-installer.exe` | Installazione per utente, senza diritti di amministratore. |
 | `regiklass-x.y.z-portabile.exe` | Nessuna installazione: i dati restano in una cartella accanto all'eseguibile. |
+| `regiklass-x.y.z-x86_64.AppImage` | Linux, qualunque distribuzione: si rende eseguibile e si apre. |
+| `regiklass_x.y.z_amd64.deb` · `regiklass-x.y.z.x86_64.rpm` | Linux, installato col gestore dei pacchetti (Debian e Ubuntu, Fedora e openSUSE). |
 
 Al primo avvio il registro propone di creare un anno: lo si sceglie fra
 quelli del calendario scolastico ufficiale, con vacanze e festivi già dentro,
@@ -117,6 +120,7 @@ dell'ultima versione.
 La versione portabile non si aggiorna da sé: si scarica quella nuova dalle
 release e la si mette al posto della vecchia, e i dati accanto all'eseguibile
 restano dove sono.
+Lo stesso vale su Linux: la versione nuova si scarica dalle release.
 
 Un anno scritto da una versione precedente del registro si apre lo stesso: il
 registro lo porta al formato di oggi, e prima ne mette da parte una copia
@@ -165,7 +169,7 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 | `npm run calendario` | Il calendario scolastico ticinese, riletto dai PDF del DECS |
 | `npm run tools` · `templates` · `sample` | Gli artefatti generati: il catalogo per l'assistente, i modelli dei fogli, i documenti campione |
 | `npm run icons` | Le icone e le immagini dell'installatore, ricavate dal segno in `resources/` |
-| `npm run package` | Calendario, poi installer e portabile in `pacchetti/` |
+| `npm run package` | Calendario, poi i pacchetti del sistema corrente in `pacchetti/`: installer e portabile su Windows, AppImage, `.deb` e `.rpm` su Linux |
 
 ### Com'è fatto
 
@@ -197,7 +201,8 @@ Gli strati e i loro confini sono controllati a macchina a ogni push
 
 La versione si scrive in un posto solo, `package.json`. Quando cambia su
 `main`, [rilascio.yml](.github/workflows/rilascio.yml) rifà tutte le
-verifiche, impacchetta, fa firmare gli eseguibili da SignPath, crea il tag
+verifiche, impacchetta per Windows e per Linux, fa firmare gli eseguibili
+per Windows da SignPath, crea il tag
 `vX.Y.Z` e pubblica la release con `latest.yml` per l'aggiornamento
 automatico. Il giro della firma è raccontato nella
 [GUIDA](docs/GUIDA.md#la-firma-del-codice).

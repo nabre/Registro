@@ -206,7 +206,7 @@ function riporta () {
         const righe = registra(conti, g.file).righe
         righe.set(g.riga, Math.max(righe.get(g.riga) ?? 0, conteggi[i]))
       })
-      for (const [chi, punti] of [['funzioni', funzioni], ['rami', rami]]) {
+      for (const [chi, punti] of /** @type {const} */ ([['funzioni', funzioni], ['rami', rami]])) {
         const volte = conteggiNeiPunti(functions, punti)
         punti.forEach((punto, i) => {
           const g = segmentoIn(s, punto)

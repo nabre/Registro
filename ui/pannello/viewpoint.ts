@@ -7,7 +7,7 @@
 // `nomeDelPosto()` e `porzioneAttiva()`, mai riscritti qui.
 
 import { estremiAnno } from '../../core/dominio/years.js'
-import { grigliaMese, oggi, settimanaDi } from '../../core/dominio/dates.js'
+import { grigliaMese, nomeSemestre, oggi, settimanaDi } from '../../core/dominio/dates.js'
 import type { Classe, Iso } from '../../core/dominio/models.js'
 import type {
   ContestoAssistente,
@@ -128,7 +128,7 @@ function voce (
 function periodo (): PeriodoContesto {
   const semestre = semestreScelto()
   if (semestre) {
-    return { etichetta: semestre.etichetta, dal: semestre.inizio, al: semestre.fine }
+    return { etichetta: nomeSemestre(semestre), dal: semestre.inizio, al: semestre.fine }
   }
   const anno = annoCorrente()
   const estremi = estremiAnno(anno)
@@ -177,7 +177,7 @@ function scelte (): VoceContesto[] {
     semestre?.id ?? null,
     // Le stesse voci della tendina, «Anno intero» compreso: è una scelta vera.
     [
-      ...(anno?.semestri ?? []).map((s) => ({ valore: s.etichetta, id: s.id })),
+      ...(anno?.semestri ?? []).map((s) => ({ valore: nomeSemestre(s), id: s.id })),
       { valore: t.annoIntero, id: null },
     ],
     C.annoScolastico,

@@ -58,7 +58,7 @@ una non si fa, per quanto sia grande.
 - **Un tipo di intervento per commit.** «Prove API generate dal manifesto» è un
   commit; «snapshot dei rapporti» è un altro. Mai mescolati con cambiamenti al
   codice di produzione o spostamenti di cartelle (D5).
-- **I campioni non si rigenerano per comodità.** `tests/samples/2026-2027.regi`
+- **I campioni non si rigenerano per comodità.** `tests/samples/anno_esempio.regi`
   si rigenera solo con `npm run sample`; `tests/samples/formato/` si fissa solo
   quando il formato cambia apposta (ADR-17, ADR-37). Mai in questo lavoro.
 
@@ -91,7 +91,7 @@ Esegui il rituale della skill `verifica` e **salva i numeri** in
 `tmp/prove-partenza.md` (fuori dal commit):
 
 ```sh
-npx tsc --noEmit
+npm run typecheck
 npx eslint .
 npm test 2>&1 | tee tmp/prove-partenza.log      # # tests, # pass, # fail, durata
 ```
@@ -288,7 +288,7 @@ controllano decine di campi uno per uno: `tests/domain/reportData.test.mjs`,
 
 **Come.**
 
-- Dati d'ingresso: il campione `tests/samples/2026-2027.regi` o un registro
+- Dati d'ingresso: il campione `tests/samples/anno_esempio.regi` o un registro
   costruito dagli aiuti. Nessun dato che dipenda dall'orologio: fissa la data
   corrente.
 - Uno snapshot per **genere di rapporto e caso significativo** (semestre,

@@ -31,9 +31,20 @@ const PREPARAZIONE = new Set(['npm ci'])
  * YAML: legge la forma di questo file (`jobs:`, lavori a due spazi, `- name:` e
  * `run:` sotto `steps:`). Quel che non riconosce lo salta dicendolo.
  */
+/**
+ * @typedef {{ nome: string, comando: string | null }} Passo
+ * @typedef {{ nome: string, passi: Passo[] }} Lavoro
+ */
+
+/**
+ * @param {string} testo
+ * @returns {Lavoro[]}
+ */
 function lavoriDel (testo) {
+  /** @type {Lavoro[]} */
   const lavori = []
   let dentroJobs = false
+  /** @type {Lavoro | null} */
   let lavoro = null
   let nome = null
   for (const grezza of testo.split(/\r?\n/)) {

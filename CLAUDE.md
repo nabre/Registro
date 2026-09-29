@@ -20,7 +20,7 @@ codice, i nomi di dominio, i commenti e la documentazione sono in italiano.
 | `npm ci` | Installa esattamente le dipendenze del lockfile; richiede Node.js 24. |
 | `npm run dev` | Avvia Electron con build in ascolto e ricarica. |
 | `npm run build` | Compila una volta in `dist/`. |
-| `npm run typecheck` | Controlla TypeScript senza emettere file. |
+| `npm run typecheck` | Controlla i tipi del TypeScript e, via JSDoc, di `cli/` e `tools/`. |
 | `npm run lint` | Esegue ESLint; i warning `max-len` non sono errori. |
 | `npm test` | Ricostruisce `dist-tests/` ed esegue i test `node:test`. |
 | `npm run ui-tests` | Esegue i test UI; richiede `npx playwright install chromium`. |
@@ -72,7 +72,7 @@ Apri la skill pertinente prima di intervenire:
   `ui/pannello/views/help/`; `tests/ui/help.test.mjs` ne controlla la coerenza.
 - Non modificare a mano `resources/tools.json`,
   `core/dati/defaultTemplates.ts`, `core/dati/schoolCalendarTicino.ts`,
-  `core/dati/modelliConsigliati.ts` o `tests/samples/2026-2027.regi`:
+  `core/dati/modelliConsigliati.ts` o `tests/samples/anno_esempio.regi`:
   rigenerali con gli script indicati in `docs/GUIDA.md`.
 - Una lettura non deve scrivere né creare file. Le scritture dichiarano le
   collezioni toccate e passano da `contesto.modifica`.

@@ -170,8 +170,8 @@ const it = {
       {
         termine: 'L’anno e i suoi semestri',
         testo:
-          'I due semestri nascono con l’anno, tagliati a fine gennaio. Date e semestri si ' +
-          'cambiano in **Impostazioni** › **Anno scolastico**, o con **Modifica l’anno** da ' +
+          'I due semestri nascono con l’anno, tagliati a fine gennaio; il nome lo dà il numero. ' +
+          'Le date si cambiano in **Impostazioni** › **Anno scolastico**, o con **Modifica l’anno** da ' +
           '`Ctrl+K`; le vacanze da **Vacanze e sospensioni**. ' +
           'La tendina **Periodo** ferma i conti — medie, assenze, lezioni — a un semestre o ' +
           'all’«Anno intero».',
@@ -1053,8 +1053,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Das Schuljahr und seine Semester',
           testo:
-            'Die beiden Semester entstehen mit dem Schuljahr, getrennt Ende Januar. Daten und ' +
-            'Semester ändert man unter **Einstellungen** › **Schuljahr** oder mit **Schuljahr ' +
+            'Die beiden Semester entstehen mit dem Schuljahr, getrennt Ende Januar; den Namen ' +
+            'gibt die Nummer. Die Daten ändert man unter **Einstellungen** › **Schuljahr** oder mit **Schuljahr ' +
             'bearbeiten** über `Ctrl+K`; die Ferien unter **Ferien und Unterbrüche**. Die ' +
             'Auswahl **Zeitraum** begrenzt die Zählungen — Durchschnitte, Absenzen, Stunden — ' +
             'auf ein Semester oder auf «Ganzes Jahr».',
@@ -1960,8 +1960,8 @@ export const testi = catalogo(it, {
         {
           termine: 'L’année et ses semestres',
           testo:
-            'Les deux semestres naissent avec l’année, coupés à fin janvier. Dates et semestres ' +
-            'se changent dans **Paramètres** › **Année scolaire**, ou avec **Modifier ' +
+            'Les deux semestres naissent avec l’année, coupés à fin janvier ; leur nom vient du ' +
+            'numéro. Les dates se changent dans **Paramètres** › **Année scolaire**, ou avec **Modifier ' +
             'l’année** depuis `Ctrl+K` ; les vacances depuis **Vacances et interruptions**. ' +
             'La liste **Période** arrête les calculs — moyennes, absences, leçons — à un ' +
             'semestre ou à l’« Année entière ».',
@@ -2851,8 +2851,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The year and its semesters',
           testo:
-            'The two semesters are created with the year, split at the end of January. Dates ' +
-            'and semesters are changed in **Settings** › **School year**, or with **Edit the ' +
+            'The two semesters are created with the year, split at the end of January; the ' +
+            'number gives the name. Dates are changed in **Settings** › **School year**, or with **Edit the ' +
             'year** from `Ctrl+K`; the holidays from **Holidays and breaks**. The **Period** ' +
             'drop-down limits the counts — averages, absences, lessons — to one semester or to ' +
             'the “Whole year”.',

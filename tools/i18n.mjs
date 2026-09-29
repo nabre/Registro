@@ -201,7 +201,7 @@ function posizioneDiCodice (nodo) {
         ? nomeDellaChiamata(su)
         : { nome: null, oggetto: null }
       if (oggetto && OGGETTI_DI_CODICE.has(oggetto)) return true
-      if (nome && CHIAMATE_DI_CODICE.has(nome) && su.arguments.some((a) => contiene(a, nodo))) {
+      if (nome && CHIAMATE_DI_CODICE.has(nome) && su.arguments?.some((a) => contiene(a, nodo))) {
         // Il primo argomento di `get` e di `has` è una chiave; gli altri no.
         return true
       }
@@ -229,7 +229,7 @@ function importatiDaCataloghi (sorgente) {
   const lessico = new Set()
   for (const istruzione of sorgente.statements) {
     if (!ts.isImportDeclaration(istruzione) || !istruzione.importClause) continue
-    const da = istruzione.moduleSpecifier.text
+    const da = /** @type {import('typescript').StringLiteral} */ (istruzione.moduleSpecifier).text
     const legami = istruzione.importClause.namedBindings
     if (!legami || !ts.isNamedImports(legami)) continue
     for (const voce of legami.elements) {
@@ -250,7 +250,7 @@ function esamina (percorso) {
   const sorgente = ts.createSourceFile(percorso, testo, ts.ScriptTarget.Latest, true)
   const { nomi, lessico } = importatiDaCataloghi(sorgente)
   // Le pagine scelgono la lingua prima di caricare il resto: vedi la testa del file.
-  const diPagina = relativo.startsWith('ui/') || relativo.startsWith('src/ui/') || relativo.startsWith('desktop/shell/pages/')
+  const diPagina = relativo.startsWith('ui/') || relativo.startsWith('desktop/shell/pages/')
   const reperti = []
   const riga = (nodo) => sorgente.getLineAndCharacterOfPosition(nodo.getStart(sorgente)).line + 1
 

@@ -8,7 +8,7 @@ body:
         Grazie della segnalazione.
 
         ⚠️ **Non allegare file `.regi` e non incollare nomi, voti o assenze di persone reali.**
-        Se serve un esempio, usa `tests/samples/2026-2027.regi` o descrivi la situazione a parole.
+        Se serve un esempio, usa `tests/samples/anno_esempio.regi` o descrivi la situazione a parole.
 
   - type: input
     id: versione

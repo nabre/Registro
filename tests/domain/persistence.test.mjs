@@ -91,7 +91,7 @@ describe('scrivere e rileggere non cambia niente', () => {
           inizio: '2026-09-01',
           fine: '2027-06-30',
           semestri: [
-            { id: 'sem-1', etichetta: '1° semestre', inizio: '2026-09-01', fine: '2027-01-31' },
+            { id: 'sem-1', numero: 1, inizio: '2026-09-01', fine: '2027-01-31' },
           ],
         },
       ],

@@ -41,8 +41,10 @@ export function allineaSemestri (semestri: Semestre[]): Semestre[] {
     // prima del primo, e riallineare cambierebbe ancora (non sarebbe un punto fermo).
     const precedente = allineati.at(-1)
     const inizio = precedente ? sommaGiorni(precedente.fine, 1) : semestre.inizio
+    // Solo i campi del semestre: un nome scritto da chi chiama l'API non passa,
+    // il nome lo dà il numero.
     allineati.push({
-      ...semestre,
+      id: semestre.id,
       numero: (allineati.length + 1) as Semestre['numero'],
       inizio,
       fine: semestre.fine >= inizio ? semestre.fine : inizio,
@@ -88,11 +90,6 @@ export function confineAnno (anno: AnnoScolastico): Iso | null {
   return allineati.length > 1 ? allineati[0].fine : null
 }
 
-/** Il nome di serie di un semestre: «1° semestre», «2° semestre». */
-export function etichettaSemestreNuovo (numero: number): string {
-  return testi().semestre(numero)
-}
-
 /**
  * I due semestri di un anno da `inizio` a `fine`, spezzati al confine. Un
  * confine fuori dall'intervallo ricade a metà periodo: sbagliato ma visibile.
@@ -103,7 +100,6 @@ export function semestriFra (
   confine: Iso,
   identificatore: () => string,
 ): Semestre[] {
-  const etichette = [etichettaSemestreNuovo(1), etichettaSemestreNuovo(2)]
   const dentro = confine > inizio && confine < fine
   // Una data non ISO dà `NaN`, e `toISOString()` su `NaN` lancia `RangeError`:
   // se gli estremi non si leggono si taglia sull'inizio.
@@ -115,14 +111,8 @@ export function semestriFra (
       : inizio
 
   return [
-    { id: identificatore(), numero: 1, etichetta: etichette[0], inizio, fine: meta },
-    {
-      id: identificatore(),
-      numero: 2,
-      etichetta: etichette[1],
-      inizio: sommaGiorni(meta, 1),
-      fine,
-    },
+    { id: identificatore(), numero: 1, inizio, fine: meta },
+    { id: identificatore(), numero: 2, inizio: sommaGiorni(meta, 1), fine },
   ]
 }
 

@@ -5,13 +5,7 @@
 
 import { vociDiLista } from '../../../../core/dominio/lists.js'
 import { conLetteraSettimana, letteraSettimana } from '../../../../core/dominio/years.js'
-import {
-  differenzaGiorni,
-  formattaData,
-  inizioSettimana,
-  settimanaIso,
-  sommaGiorni,
-} from '../../../../core/dominio/dates.js'
+import { differenzaGiorni, formattaData, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
 import type { AnnoScolastico, Iso } from '../../../../core/dominio/models.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { sospensioneDi } from '../../../../core/dominio/timetable.js'
@@ -128,7 +122,7 @@ export function schedaAnnoAperto (): HTMLElement {
           h(
             'div',
             { class: 'anno__semestre' },
-            h('span', { class: 'anno__semestre-nome' }, semestre.etichetta),
+            h('span', { class: 'anno__semestre-nome' }, nomeSemestre(semestre)),
             h(
               'span',
               { class: 'anno__semestre-periodo' },

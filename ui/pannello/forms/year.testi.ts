@@ -29,19 +29,16 @@ const it = {
   sottotitoloPause:
     'valgono per tutte le classi dell’anno, e la generazione dell’orario li salta',
   pauseAggiornate: 'Pause aggiornate.',
-  cominciaIl: 'Comincia il',
-  finisceIl: 'Finisce il',
+  /** Le date di un semestre nel modulo: «1° semestre: inizio». */
+  inizioDi: (semestre: string) => `${semestre}: inizio`,
+  fineDi: (semestre: string) => `${semestre}: fine`,
   anno: (etichetta: string) => `Anno ${etichetta}`,
   etichetta: 'Etichetta',
   semestri: 'Semestri',
   aiutoSemestri:
     'L’anno va da quando comincia il primo semestre a quando finisce il secondo: ' +
     'le sue date si ricavano da queste.',
-  nomePrimo: 'Nome del 1° semestre',
-  primoSemestre: '1° semestre',
   aiutoConfine: 'Il 2° semestre comincia il giorno dopo.',
-  nomeSecondo: 'Nome del 2° semestre',
-  secondoSemestre: '2° semestre',
   calendarioUfficiale: 'Calendario ufficiale',
   aiutoUfficialeAnno:
     'Inizio e fine delle lezioni, vacanze e festivi pubblicati dal cantone: si ' +
@@ -94,19 +91,15 @@ export const testi = catalogo(it, {
       'gelten für alle Klassen des Schuljahrs, und beim Erzeugen der Stunden aus dem ' +
       'Stundenplan werden sie übersprungen',
     pauseAggiornate: 'Unterbrüche aktualisiert.',
-    cominciaIl: 'Beginnt am',
-    finisceIl: 'Endet am',
+    inizioDi: (semestre) => `${semestre}: Beginn`,
+    fineDi: (semestre) => `${semestre}: Ende`,
     anno: (etichetta) => `Schuljahr ${etichetta}`,
     etichetta: 'Bezeichnung',
     semestri: 'Semester',
     aiutoSemestri:
       'Das Schuljahr reicht vom Beginn des ersten bis zum Ende des zweiten Semesters: ' +
       'Seine Daten ergeben sich aus diesen.',
-    nomePrimo: 'Name des 1. Semesters',
-    primoSemestre: '1. Semester',
     aiutoConfine: 'Das 2. Semester beginnt am Tag danach.',
-    nomeSecondo: 'Name des 2. Semesters',
-    secondoSemestre: '2. Semester',
     calendarioUfficiale: 'Offizieller Schulkalender',
     aiutoUfficialeAnno:
       'Unterrichtsbeginn und -ende, Ferien und Feiertage, wie der Kanton sie veröffentlicht: ' +
@@ -159,19 +152,15 @@ export const testi = catalogo(it, {
       'valent pour toutes les classes de l’année, et la génération des leçons depuis ' +
       'l’horaire les saute',
     pauseAggiornate: 'Interruptions mises à jour.',
-    cominciaIl: 'Commence le',
-    finisceIl: 'Se termine le',
+    inizioDi: (semestre) => `${semestre} : début`,
+    fineDi: (semestre) => `${semestre} : fin`,
     anno: (etichetta) => `Année ${etichetta}`,
     etichetta: 'Libellé',
     semestri: 'Semestres',
     aiutoSemestri:
       'L’année va du début du premier semestre à la fin du second : ses dates découlent ' +
       'de celles-ci.',
-    nomePrimo: 'Nom du 1er semestre',
-    primoSemestre: '1er semestre',
     aiutoConfine: 'Le 2e semestre commence le lendemain.',
-    nomeSecondo: 'Nom du 2e semestre',
-    secondoSemestre: '2e semestre',
     calendarioUfficiale: 'Calendrier officiel',
     aiutoUfficialeAnno:
       'Début et fin des cours, vacances et jours fériés publiés par le canton : tu choisis ' +
@@ -224,19 +213,15 @@ export const testi = catalogo(it, {
       'they apply to every class in the year, and generating lessons from the timetable ' +
       'skips them',
     pauseAggiornate: 'Breaks updated.',
-    cominciaIl: 'Starts on',
-    finisceIl: 'Ends on',
+    inizioDi: (semestre) => `${semestre}: start`,
+    fineDi: (semestre) => `${semestre}: end`,
     anno: (etichetta) => `School year ${etichetta}`,
     etichetta: 'Label',
     semestri: 'Semesters',
     aiutoSemestri:
       'The year runs from the start of the first semester to the end of the second: its ' +
       'dates come from these.',
-    nomePrimo: 'Name of the 1st semester',
-    primoSemestre: '1st semester',
     aiutoConfine: 'The 2nd semester starts the day after.',
-    nomeSecondo: 'Name of the 2nd semester',
-    secondoSemestre: '2nd semester',
     calendarioUfficiale: 'Official calendar',
     aiutoUfficialeAnno:
       'Start and end of lessons, holidays and public holidays published by the canton: ' +

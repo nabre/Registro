@@ -110,7 +110,7 @@ Le impostazioni del documento (materie, scala, giornata di scuola, calendario,
 carte intestate) viaggiano nel `.regi` (ADR-21). Elenco delle chiavi:
 [CATALOGO](CATALOGO.md) § 5.
 
-**Campioni.** `tests/samples/2026-2027.regi` (dati inventati; si rinomina in
+**Campioni.** `tests/samples/anno_esempio.regi` (dati inventati; si rinomina in
 `.zip` per guardarci dentro) lo riapre `tests/data/sample.test.mjs`.
 `tests/samples/formato/` ha un documento per versione del formato, riaperti da
 `tests/data/formatUpgrade.test.mjs`. `npm run sample` rigenera il campione e
@@ -138,14 +138,14 @@ Node.js 24.
 npm run dev          # esbuild in ascolto, applicazione avviata, ricarica
 npm run build        # una compilazione in dist/
 npm start            # compila e lancia
-npm run typecheck    # tsc --noEmit
+npm run typecheck    # tsc: il TypeScript, poi cli/ e tools/ in JSDoc
 npm run lint         # eslint .
 npm test             # le prove, con node --test
 npm run copertura    # copertura delle prove per cartella, in copertura/
 npm run mutanti -- --file <sorgente.ts> --prove "<prove>"  # StrykerJS su un file, skill prove
 npm run fumo         # Electron vero sul campione, via condotto
 npm run ui-tests     # prove dell'interfaccia su Chromium e Electron (@playwright/test)
-npm run package      # installer e portabile in pacchetti/
+npm run package      # pacchetti del sistema corrente in pacchetti/
 npm run clean        # butta bundle e cache
 ```
 
@@ -190,7 +190,7 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `core/dati/defaultTemplates.ts` (`npm run templates`),
 `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
 `core/dati/modelliConsigliati.ts` (`npm run modelli-consigliati`),
-`tests/samples/2026-2027.regi` (`npm run sample`), le icone di `icons/`
+`tests/samples/anno_esempio.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 
 ## Pacchetto e aggiornamenti
@@ -199,14 +199,17 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
   Python con `pdftotext` o `pdfplumber`, e la rete; senza, resta quello che
   c'è), compila e lancia electron-builder (`electron-builder.json`) attraverso
   `tools/pacchetto.mjs`, che dà al portabile l'icona della borsa: installer per
-  utente senza diritti di amministratore, e portabile.
+  utente senza diritti di amministratore, e portabile. Costruisce per il
+  sistema su cui gira; su Linux (`--linux`) escono AppImage, `.deb` e `.rpm`,
+  che per l'`.rpm` vuole `rpmbuild`.
 - Prima di alzare la versione di una release si compatta `VERSIONE_DATI`: i
   passi nati dopo l'ultima release diventano uno solo (skill `formato`
   § «Compattare prima di una release»).
 - La versione sta solo in `package.json`. Quando cambia su `main`,
   `.github/workflows/rilascio.yml` verifica, impacchetta, firma, crea il tag
   `vX.Y.Z` e pubblica la release (bozza finché i file e `latest.yml` non sono
-  caricati).
+  caricati). I pacchetti per Linux li fa il lavoro `linux`, su Ubuntu e senza
+  firma, accanto a `pacchetti`; li carica nella bozza `pubblica`.
 - Aggiornamenti con `electron-updater` (`desktop/apparato/updates.ts`): mezzo
   minuto dopo l'avvio e poi ogni sei ore; di serie scarica e installa alla
   chiusura. Lo stato è già detto a parole (`racconta`) per tutte le superfici.

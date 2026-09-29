@@ -6,8 +6,8 @@
 # La versione si scrive in un posto solo — `package.json`, vedi la testa di
 # `electron-builder.json` — e questo file è quel che la trasforma in qualcosa
 # che un registro installato possa scaricare: il tag `v<versione>`, la release
-# con l'installer, il portabile e `latest.yml`, che è il file che
-# electron-updater legge per sapere se c'è di meglio di quel che ha.
+# con l'installer, il portabile, i pacchetti per Linux e `latest.yml`, che è il
+# file che electron-updater legge per sapere se c'è di meglio di quel che ha.
 #
 # «La versione è cambiata» si decide guardando i tag e non il diff: se il tag
 # `v<versione>` non esiste ancora, la versione è nuova. Così un push qualunque
@@ -19,7 +19,8 @@
 #
 # L'ordine dei lavori è il punto:
 #
-#   verifica → versione → pacchetti → pubblica
+#   verifica → versione → pacchetti (Windows) ┐
+#                        → linux              ┴→ pubblica
 #
 # La verifica sta in testa e gira sempre, anche quando non c'è niente da
 # rilasciare: è la stessa di `verifica.yml`, che da sola non parte più.
@@ -343,8 +344,48 @@ jobs:
           printf '%s\n' "${file[@]}"
           gh release upload "$TAG" "${file[@]}" --clobber
 
+  # I pacchetti per Linux: AppImage, `.deb` e `.rpm`, per x64. Girano accanto a
+  # `pacchetti` e non passano dalla firma, che SignPath fa solo per Windows.
+  # Non caricano nella bozza, che nasce in `pacchetti` e potrebbe non esserci
+  # ancora: lasciano un artefatto, e lo carica `pubblica`.
+  #
+  # Come per Windows, nel pacchetto entra il calendario del commit.
+  linux:
+    needs: versione
+    if: needs.versione.outputs.nuova == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # electron-builder costruisce l'`.rpm` con `rpmbuild`, che Ubuntu non ha.
+      - run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: node esbuild.mjs --produzione
+
+      - run: node tools/pacchetto.mjs --config electron-builder.json --linux --publish never
+
+      # `latest-linux.yml` accompagna l'AppImage come `latest.yml` l'installatore.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pacchetti-linux
+          path: |
+            pacchetti/*.AppImage
+            pacchetti/*.deb
+            pacchetti/*.rpm
+            pacchetti/latest-linux.yml
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
   pubblica:
-    needs: [versione, pacchetti]
+    needs: [versione, pacchetti, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -352,6 +393,13 @@ jobs:
       TAG: ${{ needs.versione.outputs.tag }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: pacchetti-linux
+          path: pacchetti-linux
+
+      - run: gh release upload "$TAG" pacchetti-linux/* --repo "$GITHUB_REPOSITORY" --clobber
+
       # Qui nasce il tag, sul commit indicato alla creazione della bozza.
       # `--latest` solo per le versioni vere: un'anteprima non deve diventare
       # quel che GitHub mostra come ultima release.

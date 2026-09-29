@@ -175,7 +175,7 @@ describe('la soglia di assenza, esatta', () => {
       base.registro.lezioni.push(lezione)
     }
     base.registro.impostazioni.sogliaAssenza = 33
-    const periodo = { id: 'p', numero: 1, etichetta: 'prova', inizio: '2026-09-15', fine: '2026-09-29' }
+    const periodo = { id: 'p', numero: 1, inizio: '2026-09-15', fine: '2026-09-29' }
 
     const [segnalazione] = segnalazioniDelCorso(base.registro, base.corso, periodo)
 

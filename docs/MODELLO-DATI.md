@@ -232,10 +232,12 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 |---|---|---|
 | `id` | `string` | nessuna entità lo cita |
 | `numero` | `1 \| 2` | riassegnato per posizione |
-| `etichetta` | `string` | `'1° semestre'` |
 | `inizio`, `fine` | `Iso` | |
 
 Non esiste un `semestreId` in nessuna entità: il semestre si ricava dalla data.
+Il nome non si scrive: `nomeSemestre` («1° semestre») e `nomeSemestreBreve`
+(«1° sem.») lo ricavano da `numero` nella lingua del registro. Un'`etichetta`
+scritta da un registro di prima si lascia cadere alla lettura.
 
 ### 3.4 `Sospensione`
 
@@ -1034,7 +1036,7 @@ export function oltreSoglia (soglia: number, quota: number | null): boolean {
 |---|---|---|---|
 | `Classe.annoId` → anno | ✅ | cascata da `anno` | — |
 | `Corso.classeId` → classe | ✅ | cascata da `classe` | — |
-| `Corso.materiaId` → materia | ✅ + un corso per coppia | cascata da `materia` | ricrea la materia con lo stesso id |
+| `Corso.materiaId` → materia | ✅ + un corso per coppia | materia occupata: non si elimina (`occupazione`) | ricrea la materia con lo stesso id |
 | `PianoLezione.corsoId` → corso | ✅ | → `null` | → `null` |
 | `Lezione.corsoId` → corso | ✅ + data nell'anno | cascata da `corso` | solo avviso |
 | `Lezione.pianoId` → piano | ✅ + stesso corso | → `null`, `avanzamento = []` | → `null` |
@@ -1059,7 +1061,8 @@ export function oltreSoglia (soglia: number, quota: number | null): boolean {
 - **`riferimentiRotti`** (`core/dominio/integrity.ts`): diagnosi in frasi, non
   blocca.
 - **`deletions.ts`**: `eliminazione(registro, bersaglio)` pura (`perdite`,
-  `staccati`, `file`, `collezioni`, `invece`) + `applica` (ADR-24).
+  `staccati`, `file`, `collezioni`, `invece`) + `applica` (ADR-24);
+  `occupazione(registro, bersaglio)` dice chi impedisce l'eliminazione.
 - **`orphans.ts`**: diagnosi dei momenti scollegati dalla tappa; decide una
   persona.
 - **`repairs.ts`**: `riparazioni(registro)`, proposte idempotenti che non
