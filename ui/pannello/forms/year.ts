@@ -1,5 +1,8 @@
 // L'anno scolastico e le sue interruzioni: semestri, vacanze, giorni di
-// sospensione.
+// sospensione. Le chiusure di un anno che c'è già hanno un posto solo, la
+// scheda Chiusure con il suo modulo (`moduloPause`): il modulo dell'anno tiene
+// date e semestri. Un anno che nasce le porta con sé, dal calendario ufficiale
+// o scritte qui.
 
 import { allineaSemestri, annoAllineato } from '../../../core/dominio/years.js'
 import {
@@ -16,7 +19,7 @@ import { apriModale, type ContestoModale } from '../components/modal.js'
 import { suggerimento } from '../components/hint.js'
 import { h, rimpiazza } from '../dom.js'
 
-import { stato } from '../state.js'
+import { stato, vai } from '../state.js'
 import { leggiData, salva, scriviData, testo } from './common.js'
 import { moduloImportaRegistro } from './registerImport.js'
 import {
@@ -341,6 +344,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
     richiesto: true,
     larghezza: 'quarto',
     al: () => {
+      seguiDate()
       ufficiale.ridisegna()
       scelta?.ridisegna()
     },
@@ -358,6 +362,39 @@ export function moduloAnno (anno?: AnnoScolastico): void {
     },
   })
   const date = () => ({ inizio: leggiData(campoInizio), fine: leggiData(campoFine) })
+
+  // Il confine fra i semestri, con sotto da quando parte il secondo: si vede
+  // mentre si sceglie, invece di doverlo contare.
+  const secondoDal = h('small', { class: 'campo__aiuto anno__secondo-dal' })
+  const campoConfine = campo({
+    nome: 'confine',
+    etichetta: t.fineDi(nomeSemestre({ numero: 1 })),
+    tipo: 'date',
+    valore: primo?.fine ?? `${annoBase + 1}-01-31`,
+    richiesto: true,
+    aiuto: t.aiutoConfine,
+    larghezza: 'quarto',
+    al: () => diciSecondo(),
+  })
+  campoConfine.append(secondoDal)
+  const diciSecondo = (): void => {
+    const confine = leggiData(campoConfine)
+    secondoDal.textContent = confine ? t.secondoDal(formattaData(sommaGiorni(confine, 1), 'lungo')) : ''
+  }
+  diciSecondo()
+
+  // Un anno che nasce prende l'etichetta dalle date, finché non la si scrive a mano.
+  let etichettaDalleDate = anno ? null : `${annoBase}/${annoBase + 1}`
+  const seguiDate = (): void => {
+    if (etichettaDalleDate === null) return
+    const campoEtichetta = campoInizio.closest('form')?.querySelector<HTMLInputElement>('input[name="etichetta"]')
+    if (!campoEtichetta || campoEtichetta.value !== etichettaDalleDate) {
+      etichettaDalleDate = null
+      return
+    }
+    etichettaDalleDate = etichettaAnno(leggiData(campoInizio))
+    campoEtichetta.value = etichettaDalleDate
+  }
   const bozza = () => ({ ...date(), sospensioni: pause })
   const contenitorePause = h('div')
   const disegnaPause = () => {
@@ -383,8 +420,9 @@ export function moduloAnno (anno?: AnnoScolastico): void {
       const modulo = ufficiale.elemento.closest('form')
       const etichetta = modulo?.querySelector<HTMLInputElement>('input[name="etichetta"]')
       if (etichetta) etichetta.value = etichettaAnno(nuovo.inizio)
-      const confine = modulo?.querySelector('input[name="confine"]')?.closest<HTMLElement>('.campo')
-      if (confine) scriviData(confine, `${primo + 1}-01-31`)
+      if (etichettaDalleDate !== null) etichettaDalleDate = etichettaAnno(nuovo.inizio)
+      scriviData(campoConfine, `${primo + 1}-01-31`)
+      diciSecondo()
     }
     pause = nuovo.sospensioni
     disegnaPause()
@@ -443,18 +481,7 @@ export function moduloAnno (anno?: AnnoScolastico): void {
             testo: t.semestri,
             aiuto: t.aiutoSemestri,
           },
-          riga(
-            campoInizio,
-            campo({
-              nome: 'confine',
-              etichetta: t.fineDi(nomeSemestre({ numero: 1 })),
-              tipo: 'date',
-              valore: primo?.fine ?? `${annoBase + 1}-01-31`,
-              richiesto: true,
-              aiuto: t.aiutoConfine,
-              larghezza: 'quarto',
-            }),
-          ),
+          riga(campoInizio, campoConfine),
           riga(campoFine),
         ),
         sezioneModulo(
@@ -464,13 +491,29 @@ export function moduloAnno (anno?: AnnoScolastico): void {
           },
           ufficiale.elemento,
         ),
-        sezioneModulo(
-          {
-            testo: t.pause,
-            aiuto: t.aiutoPause,
-          },
-          contenitorePause,
-        ),
+        // Le chiusure di un anno che c'è già si cambiano nella loro scheda.
+        anno
+          ? h(
+              'div',
+              { class: 'opzioni__rimando' },
+              h('p', { class: 'opzioni__rimando-testo' }, t.chiusureAltrove),
+              pulsante({
+                testo: t.apriChiusure,
+                simbolo: 'calendario',
+                variante: 'sottile',
+                al: () => {
+                  modale?.chiudi()
+                  vai({ pagina: 'pagina.impostazioni', scheda: 'calendario#chiusure' })
+                },
+              }),
+            )
+          : sezioneModulo(
+              {
+                testo: t.pause,
+                aiuto: t.aiutoPause,
+              },
+              contenitorePause,
+            ),
         // Solo per un anno che nasce: materie e impostazioni vengono da quello aperto;
         // classi, corsi e piani li porta questa finestra, aperta appena l'anno è nato
         // (accesa se c'è un registro da cui portarli).

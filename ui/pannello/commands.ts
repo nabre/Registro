@@ -30,7 +30,7 @@ import {
   type BloccoProiezione,
   type ImpostazioniProiezione,
 } from '../../core/dominio/projection.js'
-import type { Lezione, StatoLezione } from '../../core/dominio/models.js'
+import type { Lezione, QuandoRifarePdf, StatoLezione } from '../../core/dominio/models.js'
 import { riparazioni } from '../../core/dominio/repairs.js'
 import { testi } from './commands.testi.js'
 import type { NomeIcona } from './components/icons.js'
@@ -64,6 +64,7 @@ import { moduloCalendariIcs } from './views/settings/icsCalendar.js'
 import { chiediImportaClasse } from './views/classes.js'
 import { azione } from './bridge.js'
 import { apriOneDrive } from './forms/oneDrive.js'
+import { apriInformazioniDocumento } from './forms/documentInfo.js'
 import {
   classeDelContesto,
   classeDelFascicolo,
@@ -73,7 +74,6 @@ import {
   senzaClasse,
   senzaCorso,
   senzaLezione,
-  senzaPosta,
 } from './context.js'
 import {
   aggiorna,
@@ -267,6 +267,13 @@ const ICONE_VISTA: Record<'settimana' | 'mese' | 'anno' | 'agenda', NomeIcona> =
   agenda: 'agenda',
 }
 
+/** L'icona di ogni modo di rifare i PDF: dice chi li rifà, non che si rifanno. */
+const ICONE_MODO_PDF: Record<QuandoRifarePdf, NomeIcona> = {
+  mai: 'mano',
+  chiusura: 'bandiera',
+  sempre: 'fulmine',
+}
+
 /**
  * Il comando che mette una scheda sullo schermo grande (`apriBlocco`). I blocchi
  * riservati (voti, documenti, appello) lo dicono nell'aiuto: parlano di singole persone.
@@ -432,6 +439,17 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     gruppo: G.documento,
     aiuto: t.cartellaAiuto,
     al: () => azione({ tipo: 'sistema.apriCartella' }),
+  },
+  {
+    // Quel che stava in Impostazioni › «Questo file»: un file non è
+    // un'impostazione (`docs/PIANO-IMPOSTAZIONI.md` § 3.1).
+    id: 'file.informazioni',
+    titolo: t.informazioni,
+    simbolo: 'informazione',
+    dove: ['app'],
+    gruppo: G.documento,
+    aiuto: t.informazioniAiuto,
+    al: () => apriInformazioniDocumento(),
   },
   {
     id: 'file.modificaAnno',
@@ -681,7 +699,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
   },
   // Le ore che il calendario della scuola ha e il registro no, più le spostate.
   // Solo con «Calendario ICS» acceso; il primo calendario si aggiunge da
-  // Impostazioni › Anno e orario › Calendari ICS.
+  // Impostazioni › Calendario › Calendari esterni.
   {
     id: 'registro.confrontaCalendario',
     titolo: t.confronta,
@@ -827,7 +845,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
   {
     id: 'piano.vaiAlRegistro',
     titolo: t.vaiAlRegistro,
-    simbolo: 'agenda',
+    simbolo: 'lezione',
     dove: ['piani'],
     gruppo: G.piano,
     aiuto: t.vaiAlRegistroAiuto,
@@ -1281,7 +1299,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
   ...MODI_PDF.map((modo) => ({
     id: `documenti.rifare.${modo.valore}`,
     titolo: modo.nome,
-    simbolo: 'ricarica',
+    simbolo: ICONE_MODO_PDF[modo.valore],
     dove: ['documenti'] as Ambito,
     gruppo: G.chiLiRifa,
     aiuto: modo.spiegazione,
@@ -1293,47 +1311,17 @@ export const COMANDI_UI: readonly ComandoUI[] = [
       }),
   })),
 
+  // Collegare, provare, scollegare e azzerare la casella stanno in un posto
+  // solo, Utente › Account, per capacità: da qui ci si va.
   {
-    id: 'file.collegaPosta',
-    titolo: t.collegaPosta,
-    simbolo: 'collegamento',
-    dove: ['app'],
-    fuoriMenu: true,
-    gruppo: G.posta,
-    aiuto: t.collegaPostaAiuto,
-    al: () => azione({ tipo: 'posta.collega' }),
-  },
-  {
-    id: 'file.provaPosta',
-    titolo: t.provaPosta,
+    id: 'file.accountPosta',
+    titolo: t.accountPosta,
     simbolo: 'posta',
     dove: ['app'],
     fuoriMenu: true,
     gruppo: G.posta,
-    aiuto: t.provaPostaAiuto,
-    impedimento: senzaPosta,
-    al: () => azione({ tipo: 'posta.prova' }),
-  },
-  {
-    id: 'file.provaInvioPosta',
-    titolo: t.provaInvio,
-    simbolo: 'posta',
-    dove: ['app'],
-    fuoriMenu: true,
-    gruppo: G.posta,
-    aiuto: t.provaInvioAiuto,
-    impedimento: senzaPosta,
-    al: () => azione({ tipo: 'posta.invioProva' }),
-  },
-  {
-    id: 'file.scollegaPosta',
-    titolo: t.scollegaPosta,
-    simbolo: 'chiudi',
-    dove: ['app'],
-    fuoriMenu: true,
-    gruppo: G.posta,
-    impedimento: senzaPosta,
-    al: () => azione({ tipo: 'posta.scollega' }),
+    aiuto: t.accountPostaAiuto,
+    al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'utente#account' }) },
   },
 ]
 

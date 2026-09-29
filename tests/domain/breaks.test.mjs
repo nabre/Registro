@@ -10,9 +10,11 @@ import { describe, it } from 'node:test'
 import {
   contaUd,
   creaLezione,
+  fineConUd,
   fineSullaGriglia,
   inizioLezione,
   invadeLePause,
+  inizioConUd,
   inizioSullaGriglia,
   lezioneNellaGiornata,
   lezioniDaOrario,
@@ -30,6 +32,7 @@ import {
   slotStiratiAncoratiSullePause,
   slotStiratiSullePause,
   slotSuAltraUd,
+  udAiCapi,
   validaPause,
   validaSlot,
 } from '../../dist-tests/domain.mjs'
@@ -479,5 +482,36 @@ describe('un’ora riscritta su un’UD di un’altra lunghezza', () => {
   it('un’ora che uscirebbe dal giorno resta com’era', () => {
     const tarda = creaLezione('c', '2025-09-01', '22:30', 2 * 45)
     assert.equal(slotSuAltraUd(tarda.slot, 45, { minutiUd: 120 }), null)
+  })
+})
+
+describe('le UD ai capi della giornata', () => {
+  it('si contano dalla prima pausa e dall’ultima, frazionarie fuori griglia', () => {
+    assert.deepEqual(udAiCapi(GIORNATA, '08:00', '12:55', '00:00'), { prima: 2, dopo: 2 })
+    assert.deepEqual(udAiCapi(GIORNATA, '08:15', '12:40', '00:00'), { prima: 75 / 45, dopo: 75 / 45 })
+  })
+
+  it('aggiungere o togliere un’UD sposta il capo sulla griglia', () => {
+    assert.equal(inizioConUd(GIORNATA, 3, '00:00'), '07:15')
+    assert.equal(inizioConUd(GIORNATA, 1, '00:00'), '08:45')
+    assert.equal(fineConUd(GIORNATA, 1, '00:00'), '12:10')
+  })
+
+  it('fra un capo e la sua pausa resta almeno un’UD', () => {
+    assert.equal(inizioConUd(GIORNATA, 0, '00:00'), null)
+    assert.equal(fineConUd(GIORNATA, 0, '00:00'), null)
+    assert.equal(fineConUd(SENZA_PAUSE, 0, '09:30'), null)
+  })
+
+  it('senza pause l’ora di riferimento fa da pausa di zero minuti', () => {
+    assert.deepEqual(udAiCapi(SENZA_PAUSE, '08:00', '11:00', '09:30'), { prima: 2, dopo: 2 })
+    assert.equal(inizioConUd(SENZA_PAUSE, 1, '09:30'), '08:45')
+    assert.equal(fineConUd(SENZA_PAUSE, 3, '09:30'), '11:45')
+  })
+
+  it('un capo che uscirebbe dal giorno non c’è', () => {
+    assert.equal(inizioConUd(GIORNATA, 13, '00:00'), null)
+    assert.equal(fineConUd(SENZA_PAUSE, 4, '21:00'), null)
+    assert.equal(inizioConUd(GIORNATA, -1, '00:00'), null)
   })
 })

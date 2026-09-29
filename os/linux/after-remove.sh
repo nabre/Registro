@@ -59,6 +59,18 @@ getent passwd | while IFS=: read -r _nome _x _uid _gid _info casa _shell; do
       rm -f "$ponte"
     fi
   done
+  # Il tipo `.regi` con la nostra icona (`desktop/shell/system/fileAssociation.ts`),
+  # se non lo tiene vivo un'AppImage dello stesso utente, che ha la voce sua.
+  # L'indice si rifà da root: poi torna all'utente.
+  condivisi="$casa/.local/share"
+  tipo="$condivisi/mime/packages/regiklass.xml"
+  if [ -f "$tipo" ] && [ ! -f "$condivisi/applications/ch.nabre.regiklass.desktop" ]; then
+    rm -f "$tipo" "$condivisi/icons/hicolor/512x512/mimetypes/application-x-regiklass.png"
+    if hash update-mime-database 2>/dev/null; then
+      update-mime-database "$condivisi/mime" >/dev/null 2>&1 || true
+      chown -R "$_uid:$_gid" "$condivisi/mime" 2>/dev/null || true
+    fi
+  fi
   for profilo in "$casa/.profile" "$casa/.zprofile"; do
     [ -f "$profilo" ] || continue
     sed -i -e '/^# >>> Regiklass: regi >>>$/,/^# <<< Regiklass: regi <<<$/d' \

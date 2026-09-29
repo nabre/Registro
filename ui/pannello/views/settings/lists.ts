@@ -1,8 +1,10 @@
 // Le liste di sistema: che cosa c'è dentro i menu a tendina del registro.
 // Impostazioni del documento: sono parole della scuola e viaggiano con il `.regi`.
-// Si rinomina (o ritinge) una voce, la si sposta, e solo nelle liste a testo
-// libero se ne aggiunge o toglie: nelle liste chiuse un valore inventato non
-// farebbe niente (vedi `domain/lists.ts`). Si salva a ogni gesto.
+// Si rinomina (o ritinge) una voce, la si sposta trascinandola dalla presa (o
+// con ↑ ↓ sulla presa), e solo nelle liste a testo libero se ne aggiunge o
+// toglie: nelle liste chiuse un valore inventato non farebbe niente (vedi
+// `domain/lists.ts`). Si salva a ogni gesto: uno spostamento è un salvataggio,
+// da dove parte a dove arriva.
 
 import {
   CHIAVI_LISTA,
@@ -21,6 +23,7 @@ import { icona } from '../../components/icons.js'
 import { suggerimento } from '../../components/hint.js'
 import { gestisci, h, type Figlio } from '../../dom.js'
 import { conferma } from '../../components/modal.js'
+import { presaDiRiga, riordinatore, spostaVoce } from '../../forms/common.js'
 import { isola, ridisegnaIsola } from '../../isole.js'
 import { stato } from '../../state.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
@@ -116,6 +119,24 @@ function campoColore (
   })
 }
 
+/** Come si riordinano le righe di una lista: lo dà `riordinatore`. */
+type Riordina = ReturnType<typeof riordinatore>
+
+/**
+ * Porta la voce che sta in `da` in `a` e salva, in un gesto solo. Le voci sono
+ * quelle di adesso: `da` e `a` vengono dal disegno, e si ritrovano per valore.
+ */
+function spostaNellaLista (chiave: ChiaveLista, voci: VoceLista[], da: number, a: number): void {
+  const attuali = vociAttuali(chiave)
+  const partita = voci[da]
+  const arrivo = voci[a]
+  if (!partita || !arrivo) return
+  const daOra = attuali.findIndex((v) => v.valore === partita.valore)
+  const aOra = attuali.findIndex((v) => v.valore === arrivo.valore)
+  if (daOra < 0 || aOra < 0 || daOra === aOra) return
+  void salvaLista(chiave, spostaVoce(attuali, daOra, aOra))
+}
+
 /** La riga di una voce: si sposta, si rinomina, e — se la lista è aperta — si toglie. */
 function rigaVoce (
   chiave: ChiaveLista,
@@ -123,6 +144,7 @@ function rigaVoce (
   indice: number,
   aperta: boolean,
   colori: boolean,
+  riordina: Riordina,
 ): HTMLElement {
   const voce = voci[indice]
   const usi = quanteVolte(chiave, voce.valore)
@@ -132,15 +154,6 @@ function rigaVoce (
   // può essere già scivolato.
   const cambia = (cambio: (v: VoceLista) => VoceLista): Promise<void> =>
     salvaLista(chiave, vociAttuali(chiave).map((v) => (v.valore === voce.valore ? cambio(v) : v)))
-
-  const sposta = (verso: number): Promise<void> | undefined => {
-    const copia = [...vociAttuali(chiave)]
-    const da = copia.findIndex((v) => v.valore === voce.valore)
-    const destinazione = da + verso
-    if (da < 0 || destinazione < 0 || destinazione >= copia.length) return
-    ;[copia[da], copia[destinazione]] = [copia[destinazione], copia[da]]
-    return salvaLista(chiave, copia)
-  }
 
   const togli = async (): Promise<void> => {
     // Si conta di nuovo: fra il ridisegno e il clic può essere stata scelta.
@@ -157,27 +170,18 @@ function rigaVoce (
     await salvaLista(chiave, vociAttuali(chiave).filter((v) => v.valore !== voce.valore))
   }
 
-  return h(
+  // La presa: si trascina, o ↑ ↓ quando ha il fuoco. Salvare rifà la pagina:
+  // la chiave di fuoco segue la voce, così il fuoco resta sulla sua presa.
+  const presa = presaDiRiga()
+  presa.title = t.presaAiuto(voce.testo)
+  presa.setAttribute('aria-label', t.presaAiuto(voce.testo))
+  // testo-fisso: la chiave di fuoco, non si legge
+  presa.dataset.fuoco = `lista-${chiave}-${voce.valore}-presa`
+
+  const riga = h(
     'li',
     { class: 'voce-lista' },
-    h(
-      'div',
-      { class: 'voce-lista__ordine' },
-      pulsante({
-        simbolo: 'su',
-        variante: 'fantasma',
-        titolo: t.su,
-        disabilitato: indice === 0,
-        al: () => sposta(-1),
-      }),
-      pulsante({
-        simbolo: 'giu',
-        variante: 'fantasma',
-        titolo: t.giu,
-        disabilitato: indice === voci.length - 1,
-        al: () => sposta(1),
-      }),
-    ),
+    h('div', { class: 'voce-lista__ordine' }, presa),
     h('input', {
       class: 'campo__controllo voce-lista__testo',
       type: 'text',
@@ -221,6 +225,8 @@ function rigaVoce (
         })
       : h('span', { class: 'voce-lista__vuota', attr: { 'aria-hidden': 'true' } }),
   )
+  riordina(riga, presa, indice)
+  return riga
 }
 
 /**
@@ -350,6 +356,13 @@ let listaScelta: ChiaveLista = CHIAVI_LISTA[0]
 /** Linguette e lista aperta: cambiando linguetta si rifanno loro sole. */
 const ISOLA = 'liste-sistema'
 
+/**
+ * I tipi di settimana stanno con le settimane che marcano (Calendario ›
+ * Settimane): le linguette della Didattica mostrano le altre liste.
+ */
+const LISTA_DELLE_SETTIMANE: ChiaveLista = 'tipoSettimana'
+const LISTE_DELLA_DIDATTICA = CHIAVI_LISTA.filter((chiave) => chiave !== LISTA_DELLE_SETTIMANE)
+
 /** Una lista intera: il suo nome, dove si vede, e le voci. */
 function bloccoLista (chiave: ChiaveLista): HTMLElement {
   const definizione = definizioneLista(chiave)
@@ -357,6 +370,18 @@ function bloccoLista (chiave: ChiaveLista): HTMLElement {
   const cambiata = listaCambiata(stato.registro.impostazioni, chiave)
   const colori = listaConColore(chiave)
   const t = testi()
+
+  // L'elenco nasce prima delle righe: il riordinatore vuole il contenitore, le
+  // righe vogliono il riordinatore.
+  const elenco = h('ul', {
+    class: ['lista-sistema__voci', colori && 'lista-sistema__voci--con-colore'],
+  })
+  const riordina = riordinatore(elenco, (da, a) => spostaNellaLista(chiave, voci, da, a))
+  elenco.append(
+    intestazioneVoci(colori),
+    ...voci.map((_, indice) => rigaVoce(chiave, voci, indice, definizione.aperta, colori, riordina)),
+  )
+  if (definizione.aperta) elenco.append(aggiuntaVoce(chiave, colori))
 
   return h(
     'section',
@@ -395,13 +420,7 @@ function bloccoLista (chiave: ChiaveLista): HTMLElement {
           h('span', null, t.vincolo(colori)),
         ),
     // La colonna del colore solo nelle liste che lo dichiarano.
-    h(
-      'ul',
-      { class: ['lista-sistema__voci', colori && 'lista-sistema__voci--con-colore'] },
-      intestazioneVoci(colori),
-      ...voci.map((_, indice) => rigaVoce(chiave, voci, indice, definizione.aperta, colori)),
-      definizione.aperta ? aggiuntaVoce(chiave, colori) : null,
-    ),
+    elenco,
   )
 }
 
@@ -413,7 +432,7 @@ function linguetteListe (): HTMLElement {
     { class: 'liste-schede' },
     selettore<ChiaveLista>(
       listaScelta,
-      CHIAVI_LISTA.map((chiave) => ({
+      LISTE_DELLA_DIDATTICA.map((chiave) => ({
         valore: chiave,
         testo:
           `${definizioneLista(chiave).etichetta} · ${vociDiLista(impostazioni, chiave).length}` +
@@ -427,6 +446,11 @@ function linguetteListe (): HTMLElement {
       testi().listaDaModificare,
     ),
   )
+}
+
+/** La lista dei tipi di settimana da sola, sotto la griglia delle settimane. */
+export function listaTipiSettimana (): HTMLElement {
+  return h('div', { class: 'liste-sistema' }, bloccoLista(LISTA_DELLE_SETTIMANE))
 }
 
 /** La scheda intera: una lista alla volta, scelta da una fila di linguette. */

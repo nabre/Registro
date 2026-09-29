@@ -52,7 +52,7 @@ const it = {
   messaggisticaAiuto: 'Recapiti e comunicazioni alle famiglie',
   impostazioni: 'Impostazioni',
   impostazioniAiuto:
-    'Materie, scala dei voti, intestazione dei fogli, posta, modelli linguistici',
+    'Giornata e chiusure, scala dei voti, carta intestata, posta, modelli linguistici',
   guida: 'Guida',
   guidaAiuto: 'Come si usa il registro, in una pagina',
 
@@ -118,7 +118,7 @@ export const testi = catalogo(it, {
     messaggisticaAiuto: 'Kontaktadressen und Mitteilungen an die Familien',
     impostazioni: 'Einstellungen',
     impostazioniAiuto:
-      'Fächer, Notenskala, Briefkopf der Blätter, E-Mail, Sprachmodelle',
+      'Schultag und Schliessungen, Notenskala, Briefpapier, E-Mail, Sprachmodelle',
     guida: 'Hilfe',
     guidaAiuto: 'Wie man das Klassenbuch benutzt, auf einer Seite',
     gruppi: {
@@ -179,7 +179,7 @@ export const testi = catalogo(it, {
     messaggisticaAiuto: 'Adresses de contact et communications aux familles',
     impostazioni: 'Paramètres',
     impostazioniAiuto:
-      'Branches, barème, en-tête des feuilles, courrier, modèles de langage',
+      'Journée et fermetures, barème, papier à en-tête, courrier, modèles de langage',
     guida: 'Aide',
     guidaAiuto: 'Comment utiliser le registre, en une page',
     gruppi: {
@@ -239,7 +239,7 @@ export const testi = catalogo(it, {
     messaggisticaAiuto: 'Contact addresses and messages to families',
     impostazioni: 'Settings',
     impostazioniAiuto:
-      'Subjects, grading scale, letterhead, mail, language models',
+      'School day and closures, grading scale, letterheads, mail, language models',
     guida: 'Help',
     guidaAiuto: 'How to use the register, on one page',
     gruppi: {

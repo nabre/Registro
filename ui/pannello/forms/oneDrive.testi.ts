@@ -35,7 +35,7 @@ const it = {
     'Nessun account con OneDrive. Se usi il client di OneDrive, accedi lì e l’account ' +
     'compare da solo; altrimenti collegane uno nel browser, come la posta.',
   collega: 'Collega un account',
-  impostazioni: 'Account Microsoft',
+  impostazioni: 'Account',
 }
 
 export const testi = catalogo(it, {
@@ -72,7 +72,7 @@ export const testi = catalogo(it, {
       'Kein Konto mit OneDrive. Wenn du den OneDrive-Client nutzt, meldest du dich dort an und ' +
       'das Konto erscheint von selbst; sonst verbinde eines im Browser, wie die E-Mail.',
     collega: 'Konto verbinden',
-    impostazioni: 'Microsoft-Konten',
+    impostazioni: 'Konten',
   },
   fr: {
     titolo: 'Ouvrir depuis OneDrive',
@@ -107,7 +107,7 @@ export const testi = catalogo(it, {
       'Aucun compte avec OneDrive. Si tu utilises le client OneDrive, connecte-toi là et le ' +
       'compte apparaît tout seul ; sinon connectes-en un dans le navigateur, comme les e-mails.',
     collega: 'Connecter un compte',
-    impostazioni: 'Comptes Microsoft',
+    impostazioni: 'Comptes',
   },
   en: {
     titolo: 'Open from OneDrive',
@@ -142,6 +142,6 @@ export const testi = catalogo(it, {
       'No account with OneDrive. If you use the OneDrive client, sign in there and the account ' +
       'appears by itself; otherwise connect one in the browser, as for email.',
     collega: 'Connect an account',
-    impostazioni: 'Microsoft accounts',
+    impostazioni: 'Accounts',
   },
 })

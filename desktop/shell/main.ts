@@ -45,6 +45,7 @@ import { aggiornamentoInCorso, concludiAggiornamento } from '../apparato/updateI
 import { ESTENSIONE, èPacchetto } from '../../core/dati/package.js'
 import { èProvvisorio, percorsoPacchetto } from '../../core/dati/paths.js'
 import {
+  alDocumentoApertoOChiuso,
   apriRegistro,
   avvia as avviaRegistro,
   chiudiDocumentoAperto,
@@ -57,7 +58,7 @@ import { ascolta as ascoltaInterfaccia } from '../apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
-import { installaMenu, nienteMenuPredefinito } from './windows/menu.js'
+import { installaMenu, nienteMenuPredefinito, ridisegnaMenu } from './windows/menu.js'
 import { disinstalla } from './system/uninstall.js'
 import { allaRichiestaDelBenvenuto, quandoNonRestanoFinestre } from './lifecycle.js'
 import { assicuraSentinella, chiudiSentinella, èSentinella, finestreUtenti } from './sentinel.js'
@@ -340,7 +341,11 @@ async function avvia (): Promise<void> {
       apriDocumento: (cammino?: string) =>
         cammino ? usaDocumento(Uri.file(percorso.resolve(cammino))) : chiediDocumento(),
       disinstalla,
+      // Lo stesso criterio di `registroDocenti.benvenuto`, qui sopra.
+      documentoAperto: () => percorsoPacchetto() !== null,
     })
+    // Le voci «senza documento» vanno e vengono con l'anno aperto.
+    alDocumentoApertoOChiuso(ridisegnaMenu)
     // Crearlo richiede l'archivio, che esiste solo dopo `avviaRegistro`. Nasce in
     // una cartella provvisoria; posto e nome si scelgono al «salva con nome»
     // (vedi `data/paths.ts`).

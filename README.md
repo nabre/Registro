@@ -15,6 +15,7 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 [![Licenza MIT](https://img.shields.io/badge/licenza-MIT-3d7a0c)](LICENSE)
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-3d7a0c?logo=windows)
 ![Linux](https://img.shields.io/badge/Linux-AppImage%20%7C%20deb%20%7C%20rpm-3d7a0c?logo=linux&logoColor=white)
+![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-3d7a0c?logo=apple&logoColor=white)
 ![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 
@@ -94,6 +95,7 @@ Scarica l'ultima versione dalla pagina delle
 | `regiklass-x.y.z-portabile.exe` | Nessuna installazione: i dati restano in una cartella accanto all'eseguibile. |
 | `regiklass-x.y.z-x86_64.AppImage` | Linux, qualunque distribuzione: si rende eseguibile e si apre. |
 | `regiklass_x.y.z_amd64.deb` · `regiklass-x.y.z.x86_64.rpm` | Linux, installato col gestore dei pacchetti (Debian e Ubuntu, Fedora e openSUSE). |
+| `regiklass-x.y.z-arm64.dmg` · `regiklass-x.y.z-x64.dmg` | macOS su Apple Silicon (M1 e successivi) o su Intel: si apre e si trascina Regiklass in Applicazioni, da dove si aggiorna da sé. |
 
 Al primo avvio il registro propone di creare un anno: lo si sceglie fra
 quelli del calendario scolastico ufficiale, con vacanze e festivi già dentro,
@@ -103,6 +105,8 @@ da uno di loro. Classi e corsi nuovi si aggiungono poi dai loro moduli.
 > [!NOTE]
 > Gli eseguibili non sono ancora firmati: al primo avvio Windows SmartScreen
 > può mostrare un avviso. Scegli **Ulteriori informazioni → Esegui comunque**.
+> Su macOS la prima apertura viene bloccata: in **Impostazioni di sistema →
+> Privacy e sicurezza** scegli **Apri comunque**.
 > La firma gratuita di SignPath Foundation è in preparazione: vedi
 > [Code signing policy](#code-signing-policy).
 
@@ -169,7 +173,7 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 | `npm run calendario` | Il calendario scolastico ticinese, riletto dai PDF del DECS |
 | `npm run tools` · `templates` · `sample` | Gli artefatti generati: il catalogo per l'assistente, i modelli dei fogli, i documenti campione |
 | `npm run icons` | Le icone e le immagini dell'installatore, ricavate dal segno in `resources/` |
-| `npm run package` | Calendario, poi i pacchetti del sistema corrente in `pacchetti/`: installer e portabile su Windows, AppImage, `.deb` e `.rpm` su Linux |
+| `npm run package` | Calendario, poi i pacchetti del sistema corrente in `pacchetti/`: installer e portabile su Windows, AppImage, `.deb` e `.rpm` su Linux, `.dmg` su macOS |
 
 ### Com'è fatto
 

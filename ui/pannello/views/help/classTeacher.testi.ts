@@ -558,16 +558,16 @@ const it = {
       {
         termine: 'Spedire dal registro',
         testo:
-          'In Impostazioni › **Comunicazioni**: **Collega la casella** chiede l’account e apre ' +
-          'il browser sulla pagina di accesso Microsoft, **Prova il collegamento** controlla senza ' +
-          'mandare niente. Poi si accende «Spedisci senza bozza», sotto «Quando parte», che di ' +
-          'suo è spento.',
+          'In Impostazioni › Utente › **Account**: **Collega la casella** chiede l’account e ' +
+          'apre il browser sulla pagina di accesso Microsoft, **Prova il collegamento** controlla ' +
+          'senza mandare niente. Poi, in Utente › **Posta**, si accende «Spedisci senza bozza», ' +
+          'sotto «Quando parte», che di suo è spento.',
       },
       {
         termine: 'La firma',
         testo:
           'Non si scrive nel testo. Nella bozza la mette il programma di posta; quando spedisce ' +
-          'il registro, va quella scritta in Impostazioni › **Comunicazioni**.',
+          'il registro, va quella scritta in Impostazioni › Utente › **Posta**.',
       },
       {
         termine: 'Recapiti',
@@ -1191,16 +1191,17 @@ export const testi = catalogo(it, {
         {
           termine: 'Aus dem Klassenbuch verschicken',
           testo:
-            'Unter Einstellungen › **Kommunikation**: **Postfach verbinden** fragt nach dem ' +
+            'Unter Einstellungen › Benutzer › **Konten**: **Postfach verbinden** fragt nach dem ' +
             'Konto und öffnet den Browser auf der Anmeldeseite von Microsoft, **Verbindung ' +
-            'testen** prüft, ohne etwas zu schicken. Dann schaltet man «Ohne Entwurf senden» ' +
-            'ein, unter «Wann es verschickt wird», das von sich aus ausgeschaltet ist.',
+            'testen** prüft, ohne etwas zu schicken. Dann schaltet man unter Benutzer › ' +
+            '**Post** «Ohne Entwurf senden» ein, unter «Wann es verschickt wird», das von sich ' +
+            'aus ausgeschaltet ist.',
         },
         {
           termine: 'Die Signatur',
           testo:
             'Sie gehört nicht in den Text. Im Entwurf setzt sie das Mailprogramm; wenn das ' +
-            'Klassenbuch verschickt, kommt die unter Einstellungen › **Kommunikation** ' +
+            'Klassenbuch verschickt, kommt die unter Einstellungen › Benutzer › **Post** ' +
             'geschriebene.',
         },
         {
@@ -1801,17 +1802,18 @@ export const testi = catalogo(it, {
         {
           termine: 'Envoyer depuis le registre',
           testo:
-            'Dans Paramètres › **Communications** : **Connecter la boîte** demande le compte et ' +
-            'ouvre le navigateur sur la page de connexion Microsoft, **Tester la connexion** ' +
-            'vérifie sans rien envoyer. Puis on active « Envoyer sans brouillon », sous « Quand ' +
-            'ça part », qui est désactivé par défaut.',
+            'Dans Paramètres › Utilisateur › **Comptes** : **Connecter la boîte** demande le ' +
+            'compte et ouvre le navigateur sur la page de connexion Microsoft, **Tester la ' +
+            'connexion** vérifie sans rien envoyer. Puis, dans Utilisateur › **Messagerie**, on ' +
+            'active « Envoyer sans brouillon », sous « Quand ça part », qui est désactivé par ' +
+            'défaut.',
         },
         {
           termine: 'La signature',
           testo:
             'Elle ne s’écrit pas dans le texte. Dans le brouillon, c’est le programme de ' +
             'messagerie qui la met ; quand le registre envoie, c’est celle écrite dans ' +
-            'Paramètres › **Communications**.',
+            'Paramètres › Utilisateur › **Messagerie**.',
         },
         {
           termine: 'Adresses de contact',
@@ -2389,16 +2391,16 @@ export const testi = catalogo(it, {
         {
           termine: 'Sending from the register',
           testo:
-            'In Settings › **Communications**: **Connect the mailbox** asks for the account and opens ' +
-            'the browser on the Microsoft sign-in page, **Test the connection** checks without ' +
-            'sending anything. Then turn on “Send without a draft”, under “When it goes out”, ' +
-            'which is off by default.',
+            'In Settings › User › **Accounts**: **Connect the mailbox** asks for the account and ' +
+            'opens the browser on the Microsoft sign-in page, **Test the connection** checks ' +
+            'without sending anything. Then, in User › **Mail**, turn on “Send without a draft”, ' +
+            'under “When it goes out”, which is off by default.',
         },
         {
           termine: 'The signature',
           testo:
             'It isn’t written in the text. In the draft your email program adds it; when the ' +
-            'register sends, the one written in Settings › **Communications** is used.',
+            'register sends, the one written in Settings › User › **Mail** is used.',
         },
         {
           termine: 'Contact addresses',

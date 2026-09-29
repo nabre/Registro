@@ -186,7 +186,7 @@ export function vistaDaSmistare (): Figlio {
     }),
     tutti.length === 0
       ? statoVuoto({
-          simbolo: 'documento',
+          simbolo: 'vassoio',
           titolo: t.niente,
           testo: t.nienteTesto,
           azione: pulsante({

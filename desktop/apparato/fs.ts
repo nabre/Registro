@@ -207,27 +207,56 @@ export const filesystem = {
 }
 
 /**
- * Scrive un file dall'offset `da` in poi, lasciando intatto il resto: serve
- * alla scrittura incrementale del documento d'anno, che riscrive solo la coda.
- * Il `fsync` porta i dati sul disco prima della coda che li nomina.
+ * Accoda `pezzi` in fila dalla fine del file, se misura ancora `misura` byte e
+ * finisce con `fine`; altrimenti non scrive e torna falso. Serve alla
+ * scrittura incrementale del documento d'anno, che riscrive solo la coda.
+ * Controllo e scritture passano da un handle solo: se un altro processo
+ * sostituisce il file nel frattempo, si scrive nel vecchio e il nuovo resta
+ * intero (con due aperture la coda finiva nel nuovo, a offset altrui). Un
+ * `fsync` dopo ogni pezzo porta i corpi sul disco prima della coda che li nomina.
  */
-export async function scriviDa (
+export async function accodaSe (
   uri: Uri,
-  da: number,
-  contenuto: Uint8Array,
-): Promise<void> {
+  misura: number,
+  fine: Uint8Array,
+  pezzi: Uint8Array[],
+): Promise<boolean> {
   let file: fs.FileHandle | null = null
   try {
     // `r+` e non `a`, che ignorerebbe l'offset. Con pazienza: è il documento
     // d'anno, e OneDrive lo tiene aperto un attimo dopo ogni scrittura.
-    file = await conPazienza(() => fs.open(uri.fsPath, 'r+'))
-    await file.write(contenuto, 0, contenuto.length, da)
-    await file.sync()
+    try {
+      file = await conPazienza(() => fs.open(uri.fsPath, 'r+'))
+    } catch (errore) {
+      const codice = (errore as NodeJS.ErrnoException | null)?.code
+      if (codice === 'ENOENT' || codice === 'ENOTDIR') return false
+      throw errore
+    }
+    if (!(await finisceGiàAperto(file, misura, fine))) return false
+    let da = misura
+    for (const pezzo of pezzi) {
+      await file.write(pezzo, 0, pezzo.length, da)
+      await file.sync()
+      da += pezzo.length
+    }
+    return true
   } catch (errore) {
     throw tradotto(errore, uri)
   } finally {
     await file?.close()
   }
+}
+
+async function finisceGiàAperto (
+  file: fs.FileHandle,
+  misura: number,
+  fine: Uint8Array,
+): Promise<boolean> {
+  const { size } = await file.stat()
+  if (size !== misura || fine.length > size) return false
+  const letto = Buffer.alloc(fine.length)
+  const { bytesRead } = await file.read(letto, 0, fine.length, size - fine.length)
+  return bytesRead === fine.length && letto.equals(fine)
 }
 
 /**
@@ -245,11 +274,7 @@ export async function finisceCon (uri: Uri, misura: number, fine: Uint8Array): P
       if (codice === 'ENOENT' || codice === 'ENOTDIR') return false
       throw errore
     }
-    const { size } = await file.stat()
-    if (size !== misura || fine.length > size) return false
-    const letto = Buffer.alloc(fine.length)
-    const { bytesRead } = await file.read(letto, 0, fine.length, size - fine.length)
-    return bytesRead === fine.length && letto.equals(fine)
+    return await finisceGiàAperto(file, misura, fine)
   } catch (errore) {
     throw tradotto(errore, uri)
   } finally {

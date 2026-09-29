@@ -185,16 +185,48 @@ export default tseslint.config(
               'Le pagine native girano in una finestra: Node ed Electron non ci sono.',
           },
           {
-            // Fuori da shell/pages/ solo core/i18n/ (puro) e le parole di tutti
+            // Fuori da shell/pages/ solo core/i18n/ (puro), le parole di tutti
             // (core/dominio/words.testi.ts, che importa solo core/i18n/), perché
-            // «Annulla» ed «Esci» dicano lo stesso del pannello.
-            regex: String.raw`^(\.\./){2,}(?!(?:\.\./)*core/i18n/|(?:\.\./)*core/dominio/words\.testi\.js$)`,
+            // «Annulla» ed «Esci» dicano lo stesso del pannello, e i controlli
+            // delle impostazioni (core/controlli/, ADR-52), disegnati una volta.
+            regex: String.raw`^(\.\./){2,}(?!(?:\.\./)*core/i18n/|(?:\.\./)*core/controlli/|(?:\.\./)*core/dominio/words\.testi\.js$)`,
             allowTypeImports: true,
             message:
               'Le pagine native girano in una finestra: da fuori di shell/pages/ si importano ' +
-              'solo tipi (`import type`), il dispositivo multilingua (core/i18n/), che è puro, e ' +
-              'le parole di tutti (core/dominio/words.testi.ts). ' +
+              'solo tipi (`import type`), il dispositivo multilingua (core/i18n/), che è puro, ' +
+              'le parole di tutti (core/dominio/words.testi.ts) e i controlli delle ' +
+              'impostazioni (core/controlli/). ' +
               'Il codice condiviso fra le pagine sta in shell/pages/shared/.',
+          },
+        ],
+      }],
+    },
+  },
+
+  // ------------------------------- core/controlli: il DOM dei controlli, e basta
+  //
+  // I controlli delle impostazioni girano nel pannello e nella finestra nativa
+  // (ADR-52): DOM passato come argomento, niente Node, niente Electron, niente
+  // ponte. Da fuori della cartella solo core/i18n/, le parole di tutti e i
+  // tipi di contract/.
+  {
+    files: ['core/controlli/**/*.ts'],
+    languageOptions: { globals: globali.browser },
+    rules: {
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: ['node:*', 'electron', 'apparato'],
+            message: 'core/controlli/ disegna nel DOM di una pagina: Node, Electron e l’apparato non ci sono.',
+          },
+          {
+            regex: String.raw`^\.\./(?!i18n/|dominio/words\.testi\.js$)`,
+            allowTypeImports: true,
+            message:
+              'core/controlli/ importa solo core/i18n/, le parole di tutti ' +
+              '(core/dominio/words.testi.ts) e tipi (`import type`) da contract/: il valore esce ' +
+              'da `quandoCambia`, e ogni superficie lo manda per la sua strada (ADR-52).',
           },
         ],
       }],

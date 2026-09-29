@@ -399,7 +399,7 @@ const PIANO_IN_AULA = disegno(
       sotto: T.piani.scritte.scalettaProva,
       simbolo: 'piano',
     },
-    { etichetta: T.piani.scritte.ora, sotto: T.piani.scritte.assegnaUnPiano, simbolo: 'agenda' },
+    { etichetta: T.piani.scritte.ora, sotto: T.piani.scritte.assegnaUnPiano, simbolo: 'lezione' },
     {
       etichetta: T.piani.scritte.inAula,
       sotto: '·  ✓  ~  ×',
@@ -433,7 +433,7 @@ export const SEZIONI_LEZIONE: SezioneGuida[] = [
   sezione({
     id: 'lezione',
     parte: 'registro',
-    simbolo: 'agenda',
+    simbolo: 'lezione',
     vista: 'lezione',
     figure: [
       { vista: '0 0 640 250', disegno: PAGINA_LEZIONE },

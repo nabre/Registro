@@ -915,6 +915,60 @@ blocca l'apertura: tiene quel che c'era.
 `ui/pannello/forms/schoolCalendar.ts`, `ui/pannello/views/settings/year.ts`,
 `desktop/avvio.ts`, `tests/api/officialCalendar.test.mjs`.
 
+### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa
+
+**Decisione.** Come si disegna una voce lo dice il manifesto: `controllo`
+(`segmenti`, `tendina`, `cursore`), `passo` (1 se assente: numeri interi),
+`unita`, `scelteDinamiche` con `sceltaLibera`. `vociImpostazioni()` li mette in
+`VoceProgramma`; `null` vuol dire «segui il tipo». Il codice DOM che ne fa un
+controllo sta in una cartella nuova, `core/controlli/…` (nasce in fase 2): un
+`controllo(voce, quandoCambia, documento)`
+e i suoi pezzi (segmentato, tendina, numero con unità, cursore, interruttore,
+percorso, figure di tema e lingua). Ci arrivano tutte e due le superfici per
+import: il pannello (`ui/`) e la finestra nativa, che è già un bundle esbuild
+(`desktop/shell/pages/settings/settings.ts` → `dist/settings.js`). Niente
+script generato.
+
+Regole della cartella, come `core/i18n/flags.ts`: elementi costruiti uno a
+uno, `documento: Document` come argomento, testi in `textContent`, mai
+`innerHTML`. Importa solo `core/i18n/`, le parole di tutti
+(`core/dominio/words.testi.ts`, «Sfoglia…», come le pagine native) e tipi da
+`contract/`. Niente ponte, IPC, Node, Electron: il valore esce da
+`quandoCambia`, e ogni superficie lo manda per la sua strada; se torna una
+promessa con l'esito (`null` salvato, un testo il motivo della dogana) il
+controllo lo dice sotto il campo. I gestori si attaccano con `ascolta` (di
+serie `addEventListener`, nel pannello `gestisci`, che regge i ridisegni) e
+prendono il nodo da `currentTarget`. Un foglio `controlli.css`, classi
+`controllo-*`, importato dai due fogli; le schede con la figura restano in
+`figure-choice.css`; i colori dalle variabili che le due pagine hanno già.
+La finestra nativa prende da `core/controlli/aree.ts` anche i nomi di aree e
+sezioni del pannello, che da `ui/` non vede.
+
+**Perché.** Due disegni divergono: la nativa mostrava modificabile quel che il
+pannello leggeva soltanto (G5), le figure del tema erano copiate a mano, il
+pannello ammetteva decimali sui minuti (`passo: 'any'`). La nativa importa già
+da `core/i18n/` (bandiere, parole di tutti). Gli altri posti non vanno: `ui/`
+non lo vede `desktop/`; `desktop/shell/pages/shared/` non lo vede `ui/`;
+`contract/` è contratto e gira nel main process. Uno script generato è un passo
+di costruzione in più e un file da tenere allineato.
+
+**Vincoli.** La dogana resta `valoreConMotivo`: un controllo non rifiuta niente
+da sé, mostra il `motivo` che torna. Il `passo` è dogana (`numeroStorto`), non
+solo `step`. La regola di `eslint.config.mjs` per `desktop/shell/pages/**`
+ammette la cartella, e un blocco `core/controlli/**` la tiene lontana da Node,
+Electron e apparato; `.dependency-cruiser.cjs` la tiene sopra `core/i18n/`, le
+parole di tutti e i tipi di `contract/` (`controlli-leggeri`); la matrice di
+`docs/ARCHITETTURA.md` e della skill `architettura` la nomina fra gli import di
+`ui/`. Il nome di una scelta è quel che l'aiuto del manifesto mette prima di
+«:» (o di « — »): un aiuto senza nome davanti fa da nome intero, e un
+segmentato con nomi lunghi diventa tendina.
+
+**Dove.** `contract/manifesto.ts` (`Controllo`, `FonteScelte`), `contract/protocollo.ts`
+(`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
+`numeroStorto`), `core/controlli/controllo.ts`, `core/controlli/aree.ts`,
+`core/controlli/controlli.css`, `ui/pannello/views/settings/program.ts`,
+`desktop/shell/pages/settings/settings.ts`, `tests/ui/controlli.test.mjs`.
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.
@@ -972,3 +1026,4 @@ Quelli che non stanno già in un ADR, più i più gravi, in una riga:
 | Dominio senza Electron né DOM | ADR-02 |
 | Con `calendarioUfficiale` date e chiusure collegate si cambiano solo con `anno.calendario` | ADR-51 |
 | Ogni libreria dietro un contratto nostro, nessuna in `cli/` | ADR-50 |
+| Controlli delle impostazioni disegnati una volta, in `core/controlli/…`, per pannello e nativa | ADR-52 |

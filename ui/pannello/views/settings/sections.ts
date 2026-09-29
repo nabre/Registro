@@ -1,243 +1,172 @@
-// Come le impostazioni del programma si dividono in sezioni.
-// Senza DOM, così si prova: un'impostazione del manifesto finita in nessuna
-// sezione non comparirebbe da nessuna parte. Per questo una sezione
+// Come le impostazioni si dividono in aree e sezioni, e che cosa si trova
+// cercandole. Senza DOM, così si prova: un'impostazione del manifesto finita
+// in nessuna sezione non comparirebbe da nessuna parte. Per questo una sezione
 // *raccoglie* quel che nessun'altra nomina.
+//
+// Quali sezioni stanno in quale area lo dice `posto.ts` (`SEZIONI_DELLE_AREE`),
+// che ne fa gli indirizzi; qui si attaccano nomi, ambiti e chiavi.
 
 import { Maiuscola } from '../../../../core/dominio/lexicon.js'
+import { corrispondeAlla, pezziDiRicerca } from '../../../../core/dominio/text.js'
+import {
+  DIVISIONI,
+  avvertenzaCondotto,
+  divisioneDi,
+  gruppoDi,
+  nomeSezione,
+  sottoPrefisso,
+  titoloArea as titoloDellArea,
+  titoloGruppo,
+  type SezioneDiProgramma,
+} from '../../../../core/controlli/aree.js'
 import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifesto.js'
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import type { NomeIcona } from '../../components/icons.js'
-import type { SchedaDocumento, SchedaProgramma } from '../../state.js'
+import {
+  AREE_IMPOSTAZIONI,
+  SEZIONI_DELLE_AREE,
+  areaDellaSezione,
+  type AreaImpostazioni,
+  type Scheda,
+  type SezioneImpostazioni,
+} from '../../posto.js'
 import { testi } from './sections.testi.js'
+
+export { sottoPrefisso }
 
 // La pagina sceglie la lingua prima di caricare il resto e si ricarica quando
 // cambia: le costanti del modulo nascono già nella lingua giusta.
 const T = testi()
 
-export interface SezioneProgramma {
-  id: SchedaProgramma
+/** Dove sta un blocco di impostazioni: nel file dell'anno, o su questo computer. */
+export type AmbitoBlocco = 'anno' | 'computer'
+
+/** Un'area: una scheda della testata, una pagina che scorre. */
+export interface Area {
+  id: AreaImpostazioni
+  titolo: string
+  simbolo: NomeIcona
+}
+
+const SIMBOLI: Readonly<Record<AreaImpostazioni, NomeIcona>> = {
+  calendario: 'calendario',
+  didattica: 'valutazioni',
+  utente: 'utente',
+  programma: 'impostazioni',
+}
+
+export const AREE: readonly Area[] = AREE_IMPOSTAZIONI.map((id) => ({
+  id,
+  titolo: titoloDellArea(id),
+  simbolo: SIMBOLI[id],
+}))
+
+/**
+ * Di chi sono i blocchi di una sezione, nell'ordine in cui compaiono. Una
+ * sezione con due ambiti porta la pastiglia su ogni blocco.
+ */
+const AMBITI: Readonly<Record<SezioneImpostazioni, readonly AmbitoBlocco[]>> = {
+  anno: ['anno'],
+  // Il catalogo dei calendari ufficiali viene con il programma.
+  chiusure: ['anno', 'computer'],
+  settimane: ['anno'],
+  giornata: ['anno'],
+  ics: ['anno'],
+  valutazione: ['anno'],
+  liste: ['anno'],
+  chiSei: ['anno'],
+  stampa: ['anno'],
+  account: ['computer'],
+  // La casella e i recapiti sono del computer, la firma dell'anno.
+  posta: ['computer', 'anno'],
+  aspetto: ['computer'],
+  avvio: ['computer'],
+  modelli: ['computer'],
+  aggiornamenti: ['computer'],
+  condotto: ['computer'],
+}
+
+/** Una sezione, con la sua area e quel che serve per trovarla. */
+export interface Sezione {
+  id: SezioneImpostazioni
+  area: AreaImpostazioni
   titolo: string
   sottotitolo: string
-  /** Le chiavi che raccoglie, per prefisso. */
+  /** Parole in più che la trovano cercando: i campi del documento non sono nel manifesto. */
+  parole: string
+  ambiti: readonly AmbitoBlocco[]
+}
+
+/** Se una sezione disegna chiavi del manifesto: allora nome e riassunto vengono da `aree.ts`. */
+function diProgramma (id: SezioneImpostazioni): id is SezioneDiProgramma {
+  return DIVISIONI.some((divisione) => divisione.id === id)
+}
+
+/** Nome, riassunto e parole di una sezione, da chi li sa. */
+function testiDi (id: SezioneImpostazioni): { titolo: string, sottotitolo: string, parole: string } {
+  return diProgramma(id) ? { ...nomeSezione(id), parole: T.parole[id] } : T.sezioni[id]
+}
+
+/** Tutte le sezioni, area per area, nell'ordine in cui scorrono. */
+export const SEZIONI: readonly Sezione[] = AREE_IMPOSTAZIONI.flatMap((area) =>
+  SEZIONI_DELLE_AREE[area].map((id): Sezione => ({
+    id,
+    area,
+    ...testiDi(id),
+    ambiti: AMBITI[id],
+  })),
+)
+
+/** Le sezioni di un'area, in ordine. */
+export function sezioniDellArea (area: AreaImpostazioni): Sezione[] {
+  return SEZIONI.filter((sezione) => sezione.area === area)
+}
+
+/** Una sezione per id; una che non c'è più ricade sulla prima. */
+export function sezioneDi (id: string): Sezione {
+  return SEZIONI.find((sezione) => sezione.id === id) ?? SEZIONI[0]
+}
+
+/** Il nome di un'area. */
+export function titoloArea (area: AreaImpostazioni): string {
+  return titoloDellArea(area)
+}
+
+/** Il nome di un ambito, per la pastiglia, e il suo perché. */
+export function nomeAmbito (ambito: AmbitoBlocco): { nome: string, aiuto: string } {
+  return { nome: T.ambiti[ambito], aiuto: T.ambitiAiuto[ambito] }
+}
+
+export interface SezioneProgramma {
+  id: SezioneDiProgramma
+  titolo: string
+  sottotitolo: string
+  /** Le chiavi che raccoglie, per prefisso (vedi `divisioneDi`). */
   prefissi: readonly string[]
   /**
    * Quel che va letto prima di toccare queste voci, quando concedono qualcosa ad
    * altri (il condotto apre i dati a ogni programma dello stesso utente).
    */
   avvertenza?: string
-  /** La rete — «Generale»: raccoglie anche quel che nessuna sezione ha nominato. */
+  /** La rete — «Aspetto»: raccoglie anche quel che nessuna sezione ha nominato. */
   raccoglie?: boolean
 }
 
-export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = [
-  {
-    id: 'aspetto',
-    // Tema, avvio, icona, promemoria e proiezione insieme: si regolano una volta.
-    ...T.programma.aspetto,
-    prefissi: [
-      'registroDocenti.aspetto',
-      'registroDocenti.avvio',
-      'registroDocenti.vassoio',
-      'registroDocenti.promemoria',
-      'registroDocenti.proiezione',
-    ],
-    // È anche la rete: una chiave di un gruppo non previsto finisce qui e si
-    // può regolare subito.
-    raccoglie: true,
-  },
-  {
-    id: 'posta',
-    // Posta di classe e contatti con una persona sola stanno insieme, divisi dai
-    // titoli di gruppo; l'id resta quello della posta, a cui portano i rimandi.
-    ...T.programma.posta,
-    prefissi: ['registroDocenti.posta', 'registroDocenti.recapiti'],
-  },
-  {
-    id: 'account',
-    // Nessuna chiave: gli account stanno nel portachiavi, e la sezione è la
-    // sua scheda (`views/settings/microsoft.ts`).
-    ...T.programma.account,
-    prefissi: [],
-  },
-  {
-    id: 'modelli',
-    // File, catalogo e «chi risponde» in testa, gli interruttori sotto.
-    ...T.programma.modelli,
-    prefissi: [
-      'registroDocenti.modelli',
-      'registroDocenti.ocr',
-      'registroDocenti.assistente',
-      'registroDocenti.dettatura',
-    ],
-  },
-  {
-    id: 'aggiornamenti',
-    ...T.programma.aggiornamenti,
-    prefissi: ['registroDocenti.aggiornamenti'],
-  },
-  {
-    id: 'condotto',
-    // Le voci che concedono ad altri programmi dello stesso utente di leggere i
-    // dati e mandare posta a nome del docente: mai fra gli avanzi.
-    ...T.programma.condotto,
-    prefissi: ['registroDocenti.api'],
-    avvertenza: T.avvertenzaCondotto,
-  },
-  {
-    id: 'calendari',
-    // Nessuna chiave: i calendari ufficiali vengono con il programma e si
-    // guardano soltanto (`views/settings/officialCalendars.ts`).
-    ...T.programma.calendari,
-    prefissi: [],
-  },
-]
-
 /**
- * Le sezioni delle impostazioni del documento d'anno: solo i nomi. Il disegno
- * lo attacca `views/settings.ts`; qui stanno a parte perché li legge anche la
- * veduta dell'assistente, senza tirarsi dietro la pagina.
+ * Le sezioni che disegnano chiavi del manifesto, con i prefissi che prendono:
+ * le stesse della finestra nativa, prese dallo stesso elenco (`aree.ts`).
  */
-interface SezioneDocumento {
-  id: SchedaDocumento
-  titolo: string
-  sottotitolo: string
-}
+export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = DIVISIONI.map((divisione) => ({
+  id: divisione.id,
+  ...nomeSezione(divisione.id),
+  prefissi: divisione.prefissi,
+  ...(divisione.avvertenza ? { avvertenza: avvertenzaCondotto() } : {}),
+  ...(divisione.raccoglie ? { raccoglie: true } : {}),
+}))
 
-export const SEZIONI_DOCUMENTO: readonly SezioneDocumento[] = [
-  { id: 'anno', ...T.documento.anno },
-  { id: 'calendario', ...T.documento.calendario },
-  // I calendari esterni hanno una scheda loro (link, file, regole di riconoscimento).
-  { id: 'ics', ...T.documento.ics },
-  { id: 'valutazione', ...T.documento.valutazione },
-  { id: 'materie', ...T.documento.materie },
-  { id: 'liste', ...T.documento.liste },
-  // La carta intestata sta nel documento e viaggia con lui.
-  { id: 'intestazione', ...T.documento.intestazione },
-  { id: 'file', ...T.documento.file },
-]
-
-/** Di chi è una sezione: dell'anno aperto, o di questo computer. */
-type AmbitoSezione = 'documento' | 'programma'
-
-/** Un gruppo tematico della colonna delle impostazioni. */
-export interface GruppoSezioni {
-  /** Un nome stabile: fa l'id del pulsante nella riga delle azioni. */
-  id: string
-  titolo: string
-  simbolo: NomeIcona
-  voci: ReadonlyArray<{ ambito: AmbitoSezione, id: string }>
-}
-
-/**
- * La colonna delle impostazioni, per argomento; di chi è ogni sezione (anno o
- * computer) lo dice una pastiglia accanto al nome. Ogni sezione compare una
- * volta sola: lo controlla la prova.
- */
-export const GRUPPI_SEZIONI: readonly GruppoSezioni[] = [
-  {
-    id: 'anno',
-    titolo: T.gruppi.anno,
-    simbolo: 'calendario',
-    voci: [
-      { ambito: 'documento', id: 'anno' },
-      { ambito: 'documento', id: 'calendario' },
-      { ambito: 'documento', id: 'ics' },
-      // Del programma, ma accanto all'anno: è quel che un anno nuovo importa.
-      { ambito: 'programma', id: 'calendari' },
-    ],
-  },
-  {
-    id: 'didattica',
-    titolo: T.gruppi.didattica,
-    simbolo: 'valutazioni',
-    voci: [
-      { ambito: 'documento', id: 'materie' },
-      { ambito: 'documento', id: 'valutazione' },
-    ],
-  },
-  // Le liste in un gruppo loro, accanto alla didattica: i tipi di settimana sono
-  // anche dell'orario.
-  {
-    id: 'liste',
-    titolo: T.gruppi.liste,
-    simbolo: 'agenda',
-    voci: [{ ambito: 'documento', id: 'liste' }],
-  },
-  {
-    id: 'stampa',
-    titolo: T.gruppi.stampa,
-    simbolo: 'documento',
-    voci: [
-      { ambito: 'documento', id: 'intestazione' },
-      { ambito: 'documento', id: 'file' },
-    ],
-  },
-  {
-    id: 'comunicazioni',
-    // Lo stesso testo della sua sezione: un gruppo di una sezione sola ne porta il nome.
-    titolo: T.programma.posta.titolo,
-    simbolo: 'posta',
-    voci: [{ ambito: 'programma', id: 'posta' }],
-  },
-  {
-    id: 'account',
-    titolo: T.programma.account.titolo,
-    simbolo: 'collegamento',
-    voci: [{ ambito: 'programma', id: 'account' }],
-  },
-  {
-    id: 'programma',
-    titolo: T.gruppi.programma,
-    simbolo: 'impostazioni',
-    voci: [
-      { ambito: 'programma', id: 'aspetto' },
-      { ambito: 'programma', id: 'aggiornamenti' },
-      // Modelli linguistici e condotto stanno con il resto del programma.
-      { ambito: 'programma', id: 'modelli' },
-      { ambito: 'programma', id: 'condotto' },
-    ],
-  },
-]
-
-/** La sezione aperta, con il suo gruppo: quel che dicono la fascia, il percorso e la veduta. */
-export interface SezioneAperta {
-  ambito: AmbitoSezione
-  id: string
-  titolo: string
-  gruppo: GruppoSezioni
-}
-
-/**
- * Quale sezione è aperta, dallo stato della pagina. Riceve i tre campi e non lo
- * stato intero: questo file non importa niente. Una scheda sconosciuta ricade
- * sulla prima del suo ambito.
- */
-export function sezioneAperta (
-  ambito: AmbitoSezione,
-  schedaDocumento: string,
-  schedaProgramma: string,
-): SezioneAperta {
-  const sezione = ambito === 'programma'
-    ? SEZIONI_PROGRAMMA.find((s) => s.id === schedaProgramma) ?? SEZIONI_PROGRAMMA[0]
-    : SEZIONI_DOCUMENTO.find((s) => s.id === schedaDocumento) ?? SEZIONI_DOCUMENTO[0]
-  return {
-    ambito,
-    id: sezione.id,
-    titolo: sezione.titolo,
-    gruppo: gruppoDellaSezione(ambito, sezione.id),
-  }
-}
-
-/**
- * Il gruppo in cui sta una sezione, quello acceso nella riga delle azioni. Una
- * sezione senza gruppo (la prova lo vieta) ricade sul primo.
- */
-export function gruppoDellaSezione (ambito: AmbitoSezione, id: string): GruppoSezioni {
-  return (
-    GRUPPI_SEZIONI.find((gruppo) =>
-      gruppo.voci.some((voce) => voce.ambito === ambito && voce.id === id),
-    ) ?? GRUPPI_SEZIONI[0]
-  )
+/** La sezione delle chiavi con quell'id, se ne disegna. */
+export function sezioneProgramma (id: SezioneImpostazioni): SezioneProgramma | undefined {
+  return SEZIONI_PROGRAMMA.find((sezione) => sezione.id === id)
 }
 
 /**
@@ -248,17 +177,26 @@ export function gruppoDellaSezione (ambito: AmbitoSezione, id: string): GruppoSe
  */
 export const CHIAVI_IN_SCHEDA: Readonly<Record<string, readonly string[]>> = {
   // La casella si mostra nella scheda Posta, non si scrive a mano: l'account si
-  // collega dal browser, e il mittente si sceglie fra gli indirizzi dell'account.
+  // collega in Utente › Account, e il mittente si sceglie fra gli indirizzi
+  // dell'account.
   posta: [
     'registroDocenti.posta.invioDiretto',
     'registroDocenti.posta.utente',
     'registroDocenti.posta.mittente',
   ],
-  // Il modello si sceglie nella riga «Chi risponde» in testa alla sezione.
+  // Tutte nelle righe d'uso (Assistente, Scansioni, Dettatura) e in «Sul
+  // computer»: interruttore, modello e stato stanno insieme, una volta sola.
   modelli: [
+    'registroDocenti.modelli.cartella',
+    'registroDocenti.ocr.attivo',
     'registroDocenti.ocr.modello',
     'registroDocenti.ocr.proiettore',
+    'registroDocenti.ocr.lettore',
+    'registroDocenti.assistente.attivo',
     'registroDocenti.assistente.modello',
+    'registroDocenti.dettatura.attivo',
+    'registroDocenti.dettatura.taglia',
+    'registroDocenti.dettatura.porta',
   ],
 }
 
@@ -267,34 +205,22 @@ function disegnataDallaScheda (chiave: string, sezione: SezioneProgramma): boole
   return (CHIAVI_IN_SCHEDA[sezione.id] ?? []).includes(chiave)
 }
 
-/** Se una chiave appartiene a un elenco di prefissi: esatta, o puntata sotto. */
-export function sottoPrefisso (chiave: string, prefissi: readonly string[]): boolean {
-  return prefissi.some((prefisso) => chiave === prefisso || chiave.startsWith(`${prefisso}.`))
-}
-
 /**
- * Le voci di una sezione, nell'ordine del manifesto. Chi raccoglie prende anche
- * quelle che nessun'altra sezione nomina.
+ * Le voci dell'elenco di una sezione, nell'ordine del manifesto: quelle che
+ * `divisioneDi` le assegna (il prefisso più lungo; chi raccoglie prende quel
+ * che nessun'altra nomina), meno quelle della scheda dedicata.
  */
 export function vociDiSezione (
   voci: readonly VoceProgramma[],
   sezione: SezioneProgramma,
 ): VoceProgramma[] {
-  const nominati = SEZIONI_PROGRAMMA.filter((altra) => !altra.raccoglie).flatMap((altra) => [
-    ...altra.prefissi,
-  ])
-  return voci.filter(
-    (voce) =>
-      !disegnataDallaScheda(voce.chiave, sezione) &&
-      (sezione.raccoglie
-        ? sottoPrefisso(voce.chiave, sezione.prefissi) || !sottoPrefisso(voce.chiave, nominati)
-        : sottoPrefisso(voce.chiave, sezione.prefissi)),
-  )
+  return voci.filter((voce) =>
+    !disegnataDallaScheda(voce.chiave, sezione) && divisioneDi(voce.chiave).id === sezione.id)
 }
 
 /**
  * Tutte le voci che la sezione mostra, elenco e scheda dedicata insieme: serve
- * a chi conta («Ripristina (3)», il numero nella colonna), che altrimenti
+ * a chi conta («Ripristina (3)», il numero sull’area), che altrimenti
  * salterebbe le voci della scheda. È la stessa unione della prova di copertura.
  */
 export function vociMostrateDaSezione (
@@ -310,24 +236,11 @@ export function vociMostrateDaSezione (
   ]
 }
 
-/**
- * I titoli dei gruppi di chiavi dove il nome della chiave non basta (molte voci
- * si chiamano «Attivo»). Un gruppo che non è qui prende il nome dal suo ultimo
- * pezzo.
- */
-const TITOLI_GRUPPI: Readonly<Record<string, string>> = T.titoliGruppi
-
 export interface GruppoVoci {
   /** `registroDocenti.posta`, o la chiave stessa quando non ha gruppo. */
   prefisso: string
   titolo: string
   voci: VoceProgramma[]
-}
-
-/** Il gruppo di una chiave: `registroDocenti.posta.mittente` → `registroDocenti.posta`. */
-function gruppoDi (chiave: string): string {
-  const pezzi = chiave.split('.')
-  return pezzi.length > 2 ? pezzi.slice(0, -1).join('.') : chiave
 }
 
 /**
@@ -361,7 +274,7 @@ function raggruppa (voci: readonly VoceProgramma[]): GruppoVoci[] {
     }
     gruppi.push({
       prefisso,
-      titolo: TITOLI_GRUPPI[prefisso] ?? nomeVoce(prefisso),
+      titolo: titoloGruppo(prefisso) ?? nomeVoce(prefisso),
       voci: [voce],
     })
   }
@@ -378,4 +291,115 @@ export function nomeVoce (chiave: string): string {
   const ultimo = chiave.split('.').pop() ?? chiave
   const parole = ultimo.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase()
   return Maiuscola(parole)
+}
+
+// ------------------------------------------------------------------ cercare
+
+/** Quel che si trova cercando: una voce del programma, o una sezione intera. */
+export interface Trovata {
+  /** Dove porta: l'area e la voce su cui arrivare. */
+  scheda: Scheda
+  titolo: string
+  area: AreaImpostazioni
+  sezione: SezioneImpostazioni
+  /** L'ambito, quando è uno solo. */
+  ambito: AmbitoBlocco | null
+  /** La voce del programma trovata; assente per una sezione. */
+  voce?: VoceProgramma
+}
+
+/**
+ * Le impostazioni che rispondono a quel che si è scritto, dei due ambiti: le
+ * voci del programma (nome, chiave, descrizione, gruppo) e le sezioni (nome,
+ * riassunto, campi noti). La stessa sorgente per il filtro della pagina e per
+ * Ctrl+K. Vuoto se non si è scritto niente.
+ */
+export function cercaImpostazioni (voci: readonly VoceProgramma[], cercato: string): Trovata[] {
+  const pezzi = pezziDiRicerca(cercato)
+  if (pezzi.length === 0) return []
+  const sezioni = SEZIONI
+    .filter((sezione) => corrispondeAlla(
+      `${sezione.titolo} ${sezione.sottotitolo} ${sezione.parole} ${titoloDellArea(sezione.area)}`,
+      pezzi,
+    ))
+    .map((sezione): Trovata => ({
+      scheda: `${sezione.area}#${sezione.id}`,
+      titolo: sezione.titolo,
+      area: sezione.area,
+      sezione: sezione.id,
+      ambito: sezione.ambiti.length === 1 ? sezione.ambiti[0] : null,
+    }))
+  const chiavi = SEZIONI_PROGRAMMA.flatMap((sezione) => {
+    const area = areaDellaSezione(sezione.id) ?? 'programma'
+    const promosse = CHIAVI_IN_SCHEDA[sezione.id] ?? []
+    return vociMostrateDaSezione(voci, sezione)
+      .filter((voce) => corrispondeAlla(
+        `${voce.chiave} ${nomeVoce(voce.chiave)} ${voce.descrizione} ` +
+          `${titoloGruppo(gruppoDi(voce.chiave)) ?? ''}`,
+        pezzi,
+      ))
+      .map((voce): Trovata => ({
+        // Una voce disegnata da una scheda non ha una riga sua: si arriva alla sezione.
+        scheda: `${area}#${promosse.includes(voce.chiave) ? sezione.id : voce.chiave}`,
+        titolo: nomeVoce(voce.chiave),
+        area,
+        sezione: sezione.id,
+        ambito: 'computer',
+        voce,
+      }))
+  })
+  // Prima le voci, che si cambiano sul posto; poi le sezioni, che portano altrove.
+  return [...chiavi, ...sezioni]
+}
+
+// ------------------------------------------------------------------ contare
+
+/** Quante impostazioni di un'area sono state decise a mano, schede dedicate comprese. */
+export function scritteNellArea (voci: readonly VoceProgramma[], area: AreaImpostazioni): number {
+  return SEZIONI_PROGRAMMA
+    .filter((sezione) => areaDellaSezione(sezione.id) === area)
+    .reduce((somma, sezione) =>
+      somma + vociMostrateDaSezione(voci, sezione).filter((voce) => voce.scritta).length, 0)
+}
+
+/**
+ * Le voci che «Ripristina» di un'area riporta al predefinito: solo quelle
+ * decise a mano negli elenchi delle sue sezioni. Mai quelle delle schede
+ * dedicate (un modello scelto, la cartella dei modelli: si cambiano lì, dove
+ * se ne vede l'effetto) e mai quelle del collegamento, che staccherebbero la
+ * casella dal suo gettone.
+ */
+export function daRipristinare (voci: readonly VoceProgramma[], area: AreaImpostazioni): VoceProgramma[] {
+  return SEZIONI_PROGRAMMA
+    .filter((sezione) => areaDellaSezione(sezione.id) === area)
+    .flatMap((sezione) => vociDiSezione(voci, sezione))
+    .filter((voce) => voce.scritta && !CHIAVI_DEL_COLLEGAMENTO.includes(voce.chiave))
+}
+
+/**
+ * Che cosa, in un'area, chiede attenzione: un uso acceso senza il suo modello,
+ * l'invio diretto senza casella. Solo dati che il pannello ha già; vuoto se
+ * è tutto a posto.
+ */
+export function daSistemare (
+  area: AreaImpostazioni,
+  voci: readonly VoceProgramma[],
+  posta: { invioDiretto: boolean, exchange: boolean },
+): string[] {
+  const motivi: string[] = []
+  if (area === 'utente' && posta.invioDiretto && !posta.exchange) motivi.push(T.invioSenzaCasella)
+  const valore = (chiave: string) => voci.find((voce) => voce.chiave === chiave)?.valore
+  for (const sezione of SEZIONI_PROGRAMMA) {
+    if (areaDellaSezione(sezione.id) !== area) continue
+    // Anche le voci delle schede: gli interruttori degli usi stanno nelle righe d'uso.
+    for (const voce of vociMostrateDaSezione(voci, sezione)) {
+      // Un gruppo con un interruttore `attivo` e un `modello`: acceso senza modello non serve.
+      if (!voce.chiave.endsWith('.attivo') || voce.valore !== true || voce.sospesa) continue
+      const gruppo = gruppoDi(voce.chiave)
+      const modello = valore(`${gruppo}.modello`)
+      if (modello === undefined || String(modello).trim() !== '') continue
+      motivi.push(T.accesoSenzaModello(titoloGruppo(gruppo) ?? nomeVoce(gruppo)))
+    }
+  }
+  return motivi
 }

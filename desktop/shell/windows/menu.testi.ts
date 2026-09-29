@@ -23,7 +23,11 @@ const it = {
   apriRecente: 'Apri un anno recente',
   /** In coda a un anno recente il cui file adesso non c'è. */
   nonDisponibile: 'non disponibile',
-  impostazioniDelProgramma: 'Impostazioni del programma…',
+  /**
+   * La finestra nativa: serve quando il pannello non c'è o non ha un documento.
+   * Con un documento aperto le impostazioni sono in «Vai a › Impostazioni».
+   */
+  impostazioniDelProgramma: 'Impostazioni senza documento aperto…',
   disinstalla: 'Disinstalla…',
 
   // «Modifica» e «Visualizza»: ruoli di Electron, con il nome del registro
@@ -58,7 +62,7 @@ export const testi = catalogo(it, {
     apri: 'Öffnen…',
     apriRecente: 'Zuletzt geöffnetes Schuljahr',
     nonDisponibile: 'nicht verfügbar',
-    impostazioniDelProgramma: 'Programmeinstellungen…',
+    impostazioniDelProgramma: 'Einstellungen ohne offenes Dokument…',
     disinstalla: 'Deinstallieren…',
     modifica: 'Bearbeiten',
     annullaGesto: 'Rückgängig',
@@ -87,7 +91,7 @@ export const testi = catalogo(it, {
     apri: 'Ouvrir…',
     apriRecente: 'Ouvrir une année récente',
     nonDisponibile: 'indisponible',
-    impostazioniDelProgramma: 'Paramètres du programme…',
+    impostazioniDelProgramma: 'Paramètres sans document ouvert…',
     disinstalla: 'Désinstaller…',
     modifica: 'Édition',
     annullaGesto: 'Annuler',
@@ -116,7 +120,7 @@ export const testi = catalogo(it, {
     apri: 'Open…',
     apriRecente: 'Open a recent year',
     nonDisponibile: 'not available',
-    impostazioniDelProgramma: 'Program settings…',
+    impostazioniDelProgramma: 'Settings without an open document…',
     disinstalla: 'Uninstall…',
     modifica: 'Edit',
     annullaGesto: 'Undo',

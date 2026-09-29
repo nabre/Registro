@@ -181,7 +181,7 @@ function figuraClassi (): string {
 }
 
 /**
- * La sezione «Intestazione» delle impostazioni: chi firma, due carte con i
+ * Le sezioni «Chi sei» e «Carta e stampa» delle impostazioni: chi firma, due carte con i
  * loro corsi, un corso che passa dall'una all'altra, e il foglio che ne esce.
  */
 function figuraIntestazione (): string {

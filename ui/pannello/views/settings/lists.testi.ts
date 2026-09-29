@@ -9,8 +9,7 @@ const it = {
     'Le voci aggiunte o rinominate spariscono e torna l’elenco di partenza. ' +
     'Quel che è già stato segnato con le voci di adesso non cambia.',
   rimetti: 'Rimetti',
-  su: 'Su',
-  giu: 'Giù',
+  presaAiuto: (voce: string) => `Sposta «${voce}»: trascina, o ↑ ↓`,
   comeSiLegge: 'Come si legge questa voce',
   coloreDi: (voce: string) => `Colore di «${voce}»`,
   valoreSalvato: 'Il valore salvato nel file',
@@ -58,8 +57,7 @@ export const testi = catalogo(it, {
       'Hinzugefügte oder umbenannte Einträge verschwinden, und die ursprüngliche Liste kehrt ' +
       'zurück. Was schon mit den jetzigen Einträgen erfasst wurde, ändert sich nicht.',
     rimetti: 'Wiederherstellen',
-    su: 'Nach oben',
-    giu: 'Nach unten',
+    presaAiuto: (voce) => `«${voce}» verschieben: ziehen, oder ↑ ↓`,
     comeSiLegge: 'Wie dieser Eintrag heisst',
     coloreDi: (voce) => `Farbe von «${voce}»`,
     valoreSalvato: 'Der in der Datei gespeicherte Wert',
@@ -107,8 +105,7 @@ export const testi = catalogo(it, {
       'Les entrées ajoutées ou renommées disparaissent et la liste de départ revient. Ce qui ' +
       'a déjà été noté avec les entrées actuelles ne change pas.',
     rimetti: 'Remettre',
-    su: 'Monter',
-    giu: 'Descendre',
+    presaAiuto: (voce) => `Déplacer « ${voce} » : glisser, ou ↑ ↓`,
     comeSiLegge: 'Comment se lit cette entrée',
     coloreDi: (voce) => `Couleur de « ${voce} »`,
     valoreSalvato: 'La valeur enregistrée dans le fichier',
@@ -155,8 +152,7 @@ export const testi = catalogo(it, {
       'Added or renamed entries disappear and the original list comes back. What has already ' +
       'been recorded with the current entries does not change.',
     rimetti: 'Restore',
-    su: 'Up',
-    giu: 'Down',
+    presaAiuto: (voce) => `Move “${voce}”: drag, or ↑ ↓`,
     comeSiLegge: 'How this entry reads',
     coloreDi: (voce) => `Colour of “${voce}”`,
     valoreSalvato: 'The value saved in the file',

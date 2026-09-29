@@ -34,7 +34,9 @@ export type IdComando =
   | 'registroDocenti.nuovoAnno'
   | 'registroDocenti.ricarica'
   | 'registroDocenti.salvaConNome'
+  | 'registroDocenti.informazioniDocumento'
   | 'registroDocenti.chiudiDocumento'
+  | 'registroDocenti.account'
   | 'registroDocenti.provaPosta'
   | 'registroDocenti.provaInvioPosta'
   | 'registroDocenti.collegaPosta'
@@ -55,6 +57,7 @@ export const COMANDI: readonly Comando[] = [
   comando('registroDocenti.apri', 'registro', 'CommandOrControl+Alt+R'),
   comando('registroDocenti.ricarica', 'registro'),
   comando('registroDocenti.salvaConNome', 'registro'),
+  comando('registroDocenti.informazioniDocumento', 'registro'),
   comando('registroDocenti.chiudiDocumento', 'registro'),
   comando('registroDocenti.oggi', 'vaiA', 'CommandOrControl+Alt+T'),
   comando('registroDocenti.impostazioni', 'vaiA', 'CommandOrControl+,'),
@@ -66,6 +69,9 @@ export const COMANDI: readonly Comando[] = [
   comando('registroDocenti.nuovaValutazione', 'nuovo'),
   comando('registroDocenti.nuovoAnno', 'nuovo'),
   comando('registroDocenti.proietta', 'schermo'),
+  // Con un documento aperto il menu mostra solo questa: gli altri gesti della
+  // posta stanno nella sezione del pannello (`menu.ts`, `SOLO_CON_DOCUMENTO`).
+  comando('registroDocenti.account', 'posta'),
   comando('registroDocenti.collegaPosta', 'posta'),
   comando('registroDocenti.provaPosta', 'posta'),
   comando('registroDocenti.provaInvioPosta', 'posta'),
@@ -89,16 +95,30 @@ export interface Scelta {
  * - `cartella`, `eseguibile`, `file`: un percorso intero, scelto con il dialogo
  *   (per `file` fra le `estensioni`); il campo è in sola lettura con «Sfoglia…»;
  * - `modello`: un file della cartella dei modelli, scelto solo nella sezione
- *   «Modelli linguistici»;
+ *   «Assistente e modelli»;
  * - `indirizzoLocale`: un indirizzo `http` di questo computer e di nessun altro
  *   (regola in `domain/loopback.ts`).
  */
 export type Formato = 'email' | 'cartella' | 'eseguibile' | 'file' | 'modello' | 'indirizzoLocale'
 
+/**
+ * Come si disegna una voce, quando non basta il tipo (§ 3.5 di
+ * `docs/PIANO-IMPOSTAZIONI.md`): `segmenti` per poche scelte brevi, `tendina`
+ * per molte o per un elenco che cambia, `cursore` per un intervallo piccolo e
+ * continuo. Assente, chi disegna segue il tipo. È un disegno, non una dogana.
+ */
+export type Controllo = 'segmenti' | 'tendina' | 'cursore'
+
+/**
+ * Da dove vengono le scelte che non si sanno prima: `indirizziPosta`, gli
+ * indirizzi da cui l'account collegato può scrivere (`core/dati/oauth.ts`).
+ */
+export type FonteScelte = 'indirizziPosta'
+
 export interface VoceImpostazione {
   readonly tipo: 'string' | 'number' | 'boolean'
   readonly predefinito: string | number | boolean
-  /** Il nome della voce come lo legge chi insegna («Minuti di anticipo»). */
+  /** Il nome della voce come lo legge chi insegna («Avviso prima della lezione»). */
   readonly etichetta?: string
   /** Il testo discorsivo sotto il campo. */
   readonly descrizione: string
@@ -115,8 +135,30 @@ export interface VoceImpostazione {
   /** Gli estremi di un numero: dogana come `scelte`; i `Math.max` a valle restano come rete. */
   readonly minimo?: number
   readonly massimo?: number
+  /**
+   * Di quanto si muove un numero, contato dal `minimo` (o da zero). Assente
+   * vale 1: un numero è intero se non si dichiara altro. Dogana anche lui.
+   */
+  readonly passo?: number
+  /** L'unità scritta accanto a un numero («min»), nella lingua di adesso. */
+  readonly unita?: string
+  /** Come si disegna: vedi `Controllo`. */
+  readonly controllo?: Controllo
+  /** Le scelte che si sanno solo sul momento: vedi `FonteScelte`. */
+  readonly scelteDinamiche?: FonteScelte
+  /**
+   * Se si può scrivere anche un valore fuori elenco: con `scelteDinamiche`, un
+   * indirizzo che l'elenco non ha; con `scelte`, un valore che passi il
+   * `formato` (le scelte sono allora i valori con un nome, come «nessuno»).
+   */
+  readonly sceltaLibera?: boolean
   /** Voce di rara modifica: in fondo alla sua sezione, in un gruppo che si apre. */
   readonly avanzata?: boolean
+  /**
+   * Il registro la legge solo partendo: cambiata, vale dal prossimo avvio. Le
+   * due superfici lo dicono accanto al nome, non solo nella descrizione.
+   */
+  readonly alProssimoAvvio?: boolean
   /**
    * La chiave booleana che deve essere accesa perché questa conti. Col padre
    * spento la figlia si mostra disabilitata e non spuntata; il valore scritto
@@ -139,12 +181,38 @@ interface Requisito {
 }
 
 /** Un'impostazione come si dichiara, senza testi: quelli stanno in `manifest.testi.ts`. */
-type Dichiarazione = Omit<VoceImpostazione, 'etichetta' | 'descrizione' | 'scelte' | 'richiede'> & {
+type Dichiarazione = Omit<VoceImpostazione, 'etichetta' | 'descrizione' | 'scelte' | 'richiede' | 'unita'> & {
   /** I soli valori accettati, se sono pochi e noti. L'aiuto di ognuno sta nel catalogo. */
   readonly scelte?: readonly (string | number)[]
   /** Le chiavi senza le quali l'interruttore non si accende. Il perché sta nel catalogo. */
   readonly richiede?: readonly string[]
 }
+
+/** Quanto concede il condotto: niente, leggere, leggere e scrivere. */
+const ACCESSI_DEL_CONDOTTO = ['spento', 'lettura', 'letturaScrittura'] as const
+
+/** Il promemoria spento, fra le scelte di `promemoria.avviso`. */
+const NESSUN_AVVISO = 'nessuno'
+/** Quanti minuti prima può arrivare il promemoria. Zero: all'ora esatta. */
+const MINUTI_DI_AVVISO = [0, 2, 5, 10, 15] as const
+/** Il promemoria quando nessuno ha scelto, e quando il file dice una cosa che non è una scelta. */
+const AVVISO_PREDEFINITO = 5
+
+/**
+ * I minuti di anticipo del promemoria, o `null` se è spento. Un valore scritto
+ * a mano che non è una scelta vale il predefinito: è la rete, non la dogana.
+ */
+export function minutiDiAvviso (valore: unknown): number | null {
+  if (valore === NESSUN_AVVISO) return null
+  return MINUTI_DI_AVVISO.find((scelta) => String(scelta) === valore) ?? AVVISO_PREDEFINITO
+}
+
+/** «Programma di lettura»: lo scarica il registro. */
+const LETTORE_DEL_REGISTRO = ''
+/** «Programma di lettura»: non scaricare. */
+const NESSUN_LETTORE = 'nessuno'
+/** Dove voicebox risponde quando lo si apre da sé. */
+const PORTA_DI_VOICEBOX = 17493
 
 const DICHIARAZIONI = {
   // ------------------------------------------------------------ generale
@@ -165,6 +233,7 @@ const DICHIARAZIONI = {
   'registroDocenti.vassoio.attivo': {
     tipo: 'boolean',
     predefinito: true,
+    alProssimoAvvio: true,
   },
   'registroDocenti.vassoio.chiusuraNelVassoio': {
     tipo: 'boolean',
@@ -182,22 +251,22 @@ const DICHIARAZIONI = {
     // `desktop/avvio.ts` la ignora già.
     dipendeDa: 'registroDocenti.vassoio.attivo',
   },
+  // Sta nella sezione «Avanzate» del Programma (`core/controlli/aree.ts`), che
+  // è già di rara modifica: niente `avanzata`.
   'registroDocenti.avvio.integrazioneSistema': {
     tipo: 'boolean',
     predefinito: true,
-    avanzata: true,
+    // Associazione dei .regi, `regi` nel PATH, identità delle notifiche: si
+    // registrano all'avvio (`desktop/shell/main.ts`).
+    alProssimoAvvio: true,
   },
-  'registroDocenti.promemoria.attivo': {
-    tipo: 'boolean',
-    predefinito: true,
-  },
-  'registroDocenti.promemoria.anticipoMinuti': {
-    tipo: 'number',
-    predefinito: 5,
-    dipendeDa: 'registroDocenti.promemoria.attivo',
-    minimo: 0,
-    // Oltre due ore non è più il promemoria di quella lezione.
-    massimo: 120,
+  // Una scelta sola al posto di interruttore più minuti (`MIGRAZIONI`): i minuti
+  // sono testo perché stanno in un elenco con «nessuno».
+  'registroDocenti.promemoria.avviso': {
+    tipo: 'string',
+    predefinito: String(AVVISO_PREDEFINITO),
+    scelte: [NESSUN_AVVISO, ...MINUTI_DI_AVVISO.map(String)],
+    controllo: 'tendina',
   },
   'registroDocenti.proiezione.schermoIntero': {
     tipo: 'boolean',
@@ -212,6 +281,8 @@ const DICHIARAZIONI = {
     // Lo scrive «Collega la casella» e si cambia dal menu della scheda Posta;
     // non è un campo in nessuna delle due superfici (`CHIAVI_DEL_COLLEGAMENTO`).
     avanzata: true,
+    scelteDinamiche: 'indirizziPosta',
+    sceltaLibera: false,
   },
   'registroDocenti.posta.utente': {
     tipo: 'string',
@@ -229,11 +300,13 @@ const DICHIARAZIONI = {
     tipo: 'string',
     predefinito: 'tel',
     scelte: ['tel', 'msteams', 'skype', 'callto', 'nessuno'],
+    controllo: 'tendina',
   },
   'registroDocenti.recapiti.posta': {
     tipo: 'string',
     predefinito: 'sistema',
     scelte: ['sistema', 'outlook', 'outlookWeb', 'nessuno'],
+    controllo: 'segmenti',
   },
 
   // ---------------------------------------------------------- i modelli locali
@@ -241,10 +314,6 @@ const DICHIARAZIONI = {
     tipo: 'string',
     predefinito: '',
     formato: 'cartella',
-  },
-  'registroDocenti.modelli.scaricoAutomatico': {
-    tipo: 'boolean',
-    predefinito: true,
   },
   'registroDocenti.ocr.attivo': {
     tipo: 'boolean',
@@ -263,12 +332,16 @@ const DICHIARAZIONI = {
     predefinito: '',
     formato: 'modello',
   },
-  'registroDocenti.ocr.programma': {
+  // Chi porta «llama-mtmd-cli»: vuoto lo scarica il registro, `nessuno` non si
+  // scarica, un percorso è «questo .exe». Una voce sola al posto di interruttore
+  // più percorso (`MIGRAZIONI`); senza `dipendeDa`: il programma si prepara
+  // anche prima di accendere la lettura.
+  'registroDocenti.ocr.lettore': {
     tipo: 'string',
-    predefinito: '',
+    predefinito: LETTORE_DEL_REGISTRO,
     formato: 'eseguibile',
-    avanzata: true,
-    dipendeDa: 'registroDocenti.ocr.attivo',
+    scelte: [LETTORE_DEL_REGISTRO, NESSUN_LETTORE],
+    sceltaLibera: true,
   },
   'registroDocenti.assistente.attivo': {
     tipo: 'boolean',
@@ -293,11 +366,16 @@ const DICHIARAZIONI = {
     predefinito: 'turbo',
     dipendeDa: 'registroDocenti.dettatura.attivo',
     scelte: ['turbo', 'large', 'medium', 'small', 'base'],
+    // Cinque, ma nomi di una parola: la misura sta nell'aiuto.
+    controllo: 'segmenti',
   },
-  'registroDocenti.dettatura.indirizzo': {
-    tipo: 'string',
-    predefinito: 'http://127.0.0.1:17493',
-    formato: 'indirizzoLocale',
+  // Solo la porta: l'host è fisso, `127.0.0.1`, perché la voce non esca di qui
+  // (`core/dati/dictation.ts`). Prima era un indirizzo intero (`MIGRAZIONI`).
+  'registroDocenti.dettatura.porta': {
+    tipo: 'number',
+    predefinito: PORTA_DI_VOICEBOX,
+    minimo: 1,
+    massimo: 65535,
     avanzata: true,
     dipendeDa: 'registroDocenti.dettatura.attivo',
   },
@@ -317,19 +395,13 @@ const DICHIARAZIONI = {
   },
 
   // ------------------------------------------------------------- il condotto
-  'registroDocenti.api.condotto': {
-    tipo: 'boolean',
-    predefinito: false,
-  },
-  'registroDocenti.api.lettura': {
-    tipo: 'boolean',
-    predefinito: true,
-    dipendeDa: 'registroDocenti.api.condotto',
-  },
-  'registroDocenti.api.scrittura': {
-    tipo: 'boolean',
-    predefinito: false,
-    dipendeDa: 'registroDocenti.api.condotto',
+  // Tre stati utili, una scelta: «solo scrittura» non c'è, perché chi scrive
+  // vuole anche sapere che cosa ha scritto. Prima erano tre interruttori (`MIGRAZIONI`).
+  'registroDocenti.api.accesso': {
+    tipo: 'string',
+    predefinito: 'spento',
+    scelte: ACCESSI_DEL_CONDOTTO,
+    controllo: 'tendina',
   },
 } satisfies Record<string, Dichiarazione>
 
@@ -344,6 +416,7 @@ function voce (chiave: ChiaveImpostazione, dichiarata: Dichiarazione): VoceImpos
   }
   pigro('etichetta', () => testi().impostazioni[chiave].etichetta)
   pigro('descrizione', () => testi().impostazioni[chiave].descrizione)
+  pigro('unita', () => testi().impostazioni[chiave].unita)
   if (scelte) {
     pigro('scelte', () => scelte.map((valore): Scelta => ({ valore, aiuto: aiutoDellaScelta(chiave, valore) })))
   }
@@ -415,13 +488,99 @@ export const CHIAVI_DISMESSE: readonly string[] = [
   'registroDocenti.posta.autenticazione',
   'registroDocenti.posta.clientId',
   'registroDocenti.posta.tenant',
+  // Accorpate in una scelta sola: il valore passa prima da `MIGRAZIONI`.
+  'registroDocenti.api.condotto',
+  'registroDocenti.api.lettura',
+  'registroDocenti.api.scrittura',
+  'registroDocenti.promemoria.attivo',
+  'registroDocenti.promemoria.anticipoMinuti',
+  'registroDocenti.modelli.scaricoAutomatico',
+  'registroDocenti.ocr.programma',
+  'registroDocenti.dettatura.indirizzo',
+]
+
+/**
+ * Una chiave nuova ricavata da chiavi dismesse. `ricava` riceve il valore
+ * scritto di una vecchia (`undefined` se non c'è) e torna quello nuovo, o
+ * `undefined` per lasciare il predefinito.
+ */
+interface Migrazione {
+  readonly nuova: ChiaveImpostazione
+  readonly vecchie: readonly string[]
+  readonly ricava: (vecchia: (chiave: string) => unknown) => string | number | undefined
+}
+
+/**
+ * Le chiavi accorpate, lette da un `impostazioni.json` di prima. Le applica chi
+ * legge il file (`desktop/apparato/settings.ts`), solo se la nuova non c'è; le
+ * vecchie stanno in `CHIAVI_DISMESSE` e se ne vanno all'avvio.
+ */
+export const MIGRAZIONI: readonly Migrazione[] = [
+  {
+    nuova: 'registroDocenti.api.accesso',
+    vecchie: ['registroDocenti.api.condotto', 'registroDocenti.api.lettura', 'registroDocenti.api.scrittura'],
+    ricava: (vecchia) => {
+      if (vecchia('registroDocenti.api.condotto') !== true) return undefined
+      // I predefiniti di allora: lettura accesa, scrittura spenta.
+      const lettura = (vecchia('registroDocenti.api.lettura') ?? true) === true
+      const scrittura = vecchia('registroDocenti.api.scrittura') === true
+      // Scrittura senza lettura non ha più una scelta: la più prudente non
+      // concede la lettura che era negata, e la scrittura si riprende a mano.
+      if (!lettura) return undefined
+      return scrittura ? 'letturaScrittura' : 'lettura'
+    },
+  },
+  {
+    nuova: 'registroDocenti.promemoria.avviso',
+    vecchie: ['registroDocenti.promemoria.attivo', 'registroDocenti.promemoria.anticipoMinuti'],
+    ricava: (vecchia) => {
+      if (vecchia('registroDocenti.promemoria.attivo') === false) return NESSUN_AVVISO
+      const scritti = vecchia('registroDocenti.promemoria.anticipoMinuti')
+      if (typeof scritti !== 'number' || !Number.isFinite(scritti)) return undefined
+      // La scelta più vicina; a pari distanza la più anticipata.
+      let vicina: number = MINUTI_DI_AVVISO[0]
+      for (const scelta of MINUTI_DI_AVVISO) {
+        if (Math.abs(scelta - scritti) <= Math.abs(vicina - scritti)) vicina = scelta
+      }
+      return String(vicina)
+    },
+  },
+  {
+    nuova: 'registroDocenti.ocr.lettore',
+    vecchie: ['registroDocenti.modelli.scaricoAutomatico', 'registroDocenti.ocr.programma'],
+    ricava: (vecchia) => {
+      // Un programma scritto a mano vinceva sullo scaricato: resta «questo .exe».
+      const scritto = vecchia('registroDocenti.ocr.programma')
+      if (typeof scritto === 'string' && scritto.trim() !== '') return scritto.trim()
+      return vecchia('registroDocenti.modelli.scaricoAutomatico') === false ? NESSUN_LETTORE : undefined
+    },
+  },
+  {
+    nuova: 'registroDocenti.dettatura.porta',
+    vecchie: ['registroDocenti.dettatura.indirizzo'],
+    ricava: (vecchia) => {
+      const scritto = vecchia('registroDocenti.dettatura.indirizzo')
+      if (typeof scritto !== 'string') return undefined
+      // Solo un indirizzo di questo computer: uno di fuori il registro non lo
+      // usava (lo rifiutava), e la porta di un altro host non vale qui.
+      let letto: URL
+      try {
+        letto = new URL(scritto.trim())
+      } catch {
+        return undefined
+      }
+      if (!['127.0.0.1', 'localhost', '[::1]'].includes(letto.hostname)) return undefined
+      const porta = Number(letto.port || (letto.protocol === 'https:' ? 443 : 80))
+      return Number.isInteger(porta) && porta >= 1 && porta <= 65535 ? porta : undefined
+    },
+  },
 ]
 
 /**
  * Le chiavi che scrive «Collega la casella», non una scelta fatta a mano: si
  * mostrano come parametri del collegamento e si cambiano nel registro, in
- * Comunicazioni. Non contano fra le modificate, il filtro non le offre come
- * campi, e né «Ripristina» né «Ritira» le toccano: ritirarle staccherebbe la
+ * Utente › Posta. Non contano fra le modificate, il filtro non le offre come
+ * campi, e «Ripristina» non le tocca: ritirarle staccherebbe la
  * casella dal suo gettone. Le leggono tutte e due le superfici
  * (`VoceProgramma.delCollegamento`).
  */

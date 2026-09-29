@@ -12,6 +12,8 @@ const it = {
   comandi: 'Comandi',
   /** Il titolo del gruppo delle pagine. */
   pagine: 'Pagine',
+  /** Il titolo del gruppo delle impostazioni trovate. */
+  impostazioni: 'Impostazioni',
   niente: 'Niente con questo nome.',
   /** Il conto in testa a un gruppo tagliato: «5 di 12». */
   diTanti: (mostrati: number, tutti: number) => `${mostrati} di ${tutti}`,
@@ -32,6 +34,7 @@ export const testi = catalogo(it, {
     risultati: 'Ergebnisse',
     comandi: 'Befehle',
     pagine: 'Seiten',
+    impostazioni: 'Einstellungen',
     niente: 'Nichts mit diesem Namen.',
     diTanti: (mostrati, tutti) => `${mostrati} von ${tutti}`,
     schedaDelCorso: 'Kursblatt',
@@ -47,6 +50,7 @@ export const testi = catalogo(it, {
     risultati: 'Résultats',
     comandi: 'Commandes',
     pagine: 'Pages',
+    impostazioni: 'Paramètres',
     niente: 'Rien avec ce nom.',
     diTanti: (mostrati, tutti) => `${mostrati} sur ${tutti}`,
     schedaDelCorso: 'Fiche du cours',
@@ -62,6 +66,7 @@ export const testi = catalogo(it, {
     risultati: 'Results',
     comandi: 'Commands',
     pagine: 'Pages',
+    impostazioni: 'Settings',
     niente: 'Nothing by that name.',
     diTanti: (mostrati, tutti) => `${mostrati} of ${tutti}`,
     schedaDelCorso: 'Course sheet',

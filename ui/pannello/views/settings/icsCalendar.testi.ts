@@ -53,6 +53,7 @@ const it = {
   nonSiLegge: 'non si legge: non abbina niente',
   togliRegola: (testo: string) => `Togli la regola «${testo}»`,
   regolaTolta: (testo: string) => `Regola «${testo}» tolta.`,
+  regolaRimessa: (testo: string) => `Regola «${testo}» rimessa.`,
   regolaNuova: 'Regola nuova: il testo da riconoscere',
   regolaNuovaSegnaposto:
     'Il testo nel titolo o nel luogo dell’evento, per esempio «DIC4a CP»',
@@ -152,6 +153,7 @@ export const testi = catalogo(it, {
     nonSiLegge: 'nicht lesbar: trifft nichts',
     togliRegola: (testo) => `Regel «${testo}» entfernen`,
     regolaTolta: (testo) => `Regel «${testo}» entfernt.`,
+    regolaRimessa: (testo) => `Regel «${testo}» wiederhergestellt.`,
     regolaNuova: 'Neue Regel: der zu erkennende Text',
     regolaNuovaSegnaposto: 'Der Text im Titel oder im Ort des Termins, zum Beispiel «DIC4a CP»',
     lezioneDi: 'ist eine Stunde von',
@@ -253,6 +255,7 @@ export const testi = catalogo(it, {
     nonSiLegge: 'illisible : ne correspond à rien',
     togliRegola: (testo) => `Retirer la règle « ${testo} »`,
     regolaTolta: (testo) => `Règle « ${testo} » retirée.`,
+    regolaRimessa: (testo) => `Règle « ${testo} » remise.`,
     regolaNuova: 'Nouvelle règle : le texte à reconnaître',
     regolaNuovaSegnaposto:
       'Le texte dans le titre ou le lieu de l’événement, par exemple « DIC4a CP »',
@@ -353,6 +356,7 @@ export const testi = catalogo(it, {
     nonSiLegge: 'unreadable: matches nothing',
     togliRegola: (testo) => `Remove the rule “${testo}”`,
     regolaTolta: (testo) => `Rule “${testo}” removed.`,
+    regolaRimessa: (testo) => `Rule “${testo}” put back.`,
     regolaNuova: 'New rule: the text to recognise',
     regolaNuovaSegnaposto: 'The text in the title or location of the event, for example “DIC4a CP”',
     lezioneDi: 'is a lesson of',

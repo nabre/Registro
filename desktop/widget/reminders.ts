@@ -18,6 +18,7 @@ import {
 import { alberoProcedure } from '../../contract/router.js'
 import { chiamante, type ChiamanteNodo } from '../../contract/chiamante.js'
 import { linkDiretto } from '../../contract/link.js'
+import { minutiDiAvviso } from '../../contract/manifesto.js'
 
 /** Ogni quanto si guarda l'orologio. */
 const BATTITO = 30_000
@@ -26,11 +27,8 @@ const BATTITO = 30_000
 const RITARDO_MASSIMO = 15
 
 function impostazioni () {
-  const conf = apparato.impostazioni.leggi('registroDocenti.promemoria')
-  return {
-    attivo: conf.get<boolean>('attivo', true),
-    anticipo: Math.max(0, conf.get<number>('anticipoMinuti', 5)),
-  }
+  const minuti = minutiDiAvviso(apparato.impostazioni.leggi('registroDocenti.promemoria').get<string>('avviso'))
+  return { attivo: minuti !== null, anticipo: Math.max(0, minuti ?? 0) }
 }
 
 /** Avvolge un battito di `setInterval`: un'eccezione finisce in console invece di restare non catturata. */

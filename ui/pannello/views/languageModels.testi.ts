@@ -20,8 +20,25 @@ const it = {
   spento: 'spento',
   chiRisponde: 'Chi risponde',
   chiRispondeAiuto:
-    'Due mestieri diversi: conversare vuole un modello che sappia chiamare gli strumenti, ' +
-    'leggere una scansione vuole un modello che sappia guardare.',
+    'Tre mestieri diversi: conversare vuole un modello che sappia chiamare gli strumenti, ' +
+    'leggere una scansione un modello che sappia guardare, dettare un programma che capisca ' +
+    'la voce. Ognuno si accende e si sceglie qui, e solo qui.',
+  proiettorePer: (uso: string) => `Proiettore (mmproj) per ${minuscolo(uso)}`,
+  nessunProiettore: '— nessun proiettore —',
+  lettoreRegistro: 'Lo scarica il registro',
+  lettoreEseguibile: 'Questo .exe',
+  lettoreNessuno: 'Non scaricare',
+  lettoreNonScelto: 'Nessun programma scelto: finché non se ne sceglie uno, vale la scelta di prima.',
+  dettatura: 'Dettatura',
+  dettaturaAiuto:
+    'Scrive nella casella dell’assistente quel che si dice al microfono. La voce la riconosce ' +
+    'voicebox, un programma a parte, su questo computer.',
+  statoAcceso: 'acceso',
+  dettaturaNota: 'Mentre si detta, voicebox deve essere aperto su questo computer.',
+  scaricaModelli: 'Scarica modelli',
+  scaricaModelliAiuto:
+    'I consigliati e la ricerca su Hugging Face. Quel che scende finisce nella cartella qui ' +
+    'sopra, e si sceglie nelle righe in testa.',
   assistente: 'Assistente',
   assistenteAiuto: 'Risponde alle domande sul registro leggendo i dati veri.',
   lettura: 'Lettura delle scansioni',
@@ -40,10 +57,6 @@ const it = {
   riparte: (deposito: string) => `Riparte da dov’era: ${deposito}`,
   butta: 'Butta',
   proiettore: 'proiettore',
-  usaloPerScansioni: 'Usalo per le scansioni',
-  usaloPerScansioniAiuto: 'Diventa il proiettore del modello che legge le scansioni',
-  allAssistente: 'All’assistente',
-  alleScansioni: 'Alle scansioni',
   togli: (nome: string) => `Togli ${nome}`,
   sulComputer: 'Sul computer',
   quantiFile: (quanti: number) => quanti === 1 ? 'Un file' : `${quanti} file`,
@@ -115,8 +128,25 @@ export const testi = catalogo(it, {
     spento: 'aus',
     chiRisponde: 'Wer antwortet',
     chiRispondeAiuto:
-      'Zwei verschiedene Aufgaben: Zum Gespräch braucht es ein Modell, das Werkzeuge aufrufen ' +
-      'kann, zum Lesen eines Scans ein Modell, das sehen kann.',
+      'Drei verschiedene Aufgaben: Zum Gespräch braucht es ein Modell, das Werkzeuge aufrufen ' +
+      'kann, zum Lesen eines Scans ein Modell, das sehen kann, zum Diktieren ein Programm, das ' +
+      'die Stimme versteht. Jede wird hier eingeschaltet und gewählt, und nur hier.',
+    proiettorePer: (uso) => `Projektor (mmproj) für «${uso}»`,
+    nessunProiettore: '— kein Projektor —',
+    lettoreRegistro: 'Vom Klassenbuch',
+    lettoreEseguibile: 'Diese .exe',
+    lettoreNessuno: 'Nicht herunterladen',
+    lettoreNonScelto: 'Kein Programm gewählt: bis eines gewählt ist, gilt die bisherige Wahl.',
+    dettatura: 'Diktat',
+    dettaturaAiuto:
+      'Schreibt ins Feld des Assistenten, was man ins Mikrofon sagt. Die Stimme erkennt ' +
+      'voicebox, ein eigenes Programm, auf diesem Computer.',
+    statoAcceso: 'ein',
+    dettaturaNota: 'Während man diktiert, muss voicebox auf diesem Computer geöffnet sein.',
+    scaricaModelli: 'Modelle herunterladen',
+    scaricaModelliAiuto:
+      'Die empfohlenen und die Suche auf Hugging Face. Was herunterkommt, landet im Ordner ' +
+      'oben und wird in den Zeilen zuoberst gewählt.',
     assistente: 'Assistent',
     assistenteAiuto: 'Beantwortet Fragen zum Klassenbuch anhand der echten Daten.',
     lettura: 'Lesen der Scans',
@@ -134,10 +164,6 @@ export const testi = catalogo(it, {
     riparte: (deposito) => `Macht dort weiter, wo er war: ${deposito}`,
     butta: 'Wegwerfen',
     proiettore: 'Projektor',
-    usaloPerScansioni: 'Für die Scans verwenden',
-    usaloPerScansioniAiuto: 'Wird zum Projektor des Modells, das die Scans liest',
-    allAssistente: 'Dem Assistenten',
-    alleScansioni: 'Den Scans',
     togli: (nome) => `${nome} entfernen`,
     sulComputer: 'Auf dem Computer',
     quantiFile: (quanti) => quanti === 1 ? 'Eine Datei' : `${quanti} Dateien`,
@@ -202,8 +228,25 @@ export const testi = catalogo(it, {
     spento: 'désactivé',
     chiRisponde: 'Qui répond',
     chiRispondeAiuto:
-      'Deux métiers différents : converser demande un modèle qui sache appeler des outils, ' +
-      'lire un scan un modèle qui sache regarder.',
+      'Trois métiers différents : converser demande un modèle qui sache appeler les outils, ' +
+      'lire un scan un modèle qui sache regarder, dicter un programme qui comprenne la voix. ' +
+      'Chacun s’active et se choisit ici, et seulement ici.',
+    proiettorePer: (uso) => `Projecteur (mmproj) pour ${minuscolo(uso)}`,
+    nessunProiettore: '— aucun projecteur —',
+    lettoreRegistro: 'Par le registre',
+    lettoreEseguibile: 'Ce .exe',
+    lettoreNessuno: 'Ne pas télécharger',
+    lettoreNonScelto: 'Aucun programme choisi : tant qu’on n’en choisit pas, le choix précédent vaut.',
+    dettatura: 'Dictée',
+    dettaturaAiuto:
+      'Écrit dans la case de l’assistant ce qu’on dit au micro. La voix est reconnue par ' +
+      'voicebox, un programme à part, sur cet ordinateur.',
+    statoAcceso: 'activé',
+    dettaturaNota: 'Pendant la dictée, voicebox doit être ouvert sur cet ordinateur.',
+    scaricaModelli: 'Télécharger des modèles',
+    scaricaModelliAiuto:
+      'Les recommandés et la recherche sur Hugging Face. Ce qui descend va dans le dossier ' +
+      'ci-dessus, et se choisit dans les lignes en tête.',
     assistente: 'Assistant',
     assistenteAiuto: 'Répond aux questions sur le registre en lisant les vraies données.',
     lettura: 'Lecture des scans',
@@ -221,10 +264,6 @@ export const testi = catalogo(it, {
     riparte: (deposito) => `Repart d’où il en était : ${deposito}`,
     butta: 'Jeter',
     proiettore: 'projecteur',
-    usaloPerScansioni: 'L’utiliser pour les scans',
-    usaloPerScansioniAiuto: 'Devient le projecteur du modèle qui lit les scans',
-    allAssistente: 'À l’assistant',
-    alleScansioni: 'Aux scans',
     togli: (nome) => `Retirer ${nome}`,
     sulComputer: 'Sur l’ordinateur',
     quantiFile: (quanti) => quanti === 1 ? 'Un fichier' : `${quanti} fichiers`,
@@ -289,8 +328,25 @@ export const testi = catalogo(it, {
     spento: 'off',
     chiRisponde: 'Who answers',
     chiRispondeAiuto:
-      'Two different jobs: conversing needs a model that can call tools, reading a scan needs ' +
-      'a model that can see.',
+      'Three different jobs: conversing needs a model that can call tools, reading a scan a ' +
+      'model that can look, dictating a program that understands speech. Each is turned on ' +
+      'and chosen here, and only here.',
+    proiettorePer: (uso) => `Projector (mmproj) for ${minuscolo(uso)}`,
+    nessunProiettore: '— no projector —',
+    lettoreRegistro: 'By the register',
+    lettoreEseguibile: 'This .exe',
+    lettoreNessuno: 'Do not download',
+    lettoreNonScelto: 'No program chosen: until one is chosen, the previous choice applies.',
+    dettatura: 'Dictation',
+    dettaturaAiuto:
+      'Writes into the assistant’s box what you say into the microphone. Speech is recognised ' +
+      'by voicebox, a separate program, on this computer.',
+    statoAcceso: 'on',
+    dettaturaNota: 'While dictating, voicebox must be open on this computer.',
+    scaricaModelli: 'Download models',
+    scaricaModelliAiuto:
+      'The recommended ones and the search on Hugging Face. What comes down goes into the ' +
+      'folder above, and is chosen in the rows at the top.',
     assistente: 'Assistant',
     assistenteAiuto: 'Answers questions about the register by reading the real data.',
     lettura: 'Scan reading',
@@ -307,10 +363,6 @@ export const testi = catalogo(it, {
     riparte: (deposito) => `Carries on from where it was: ${deposito}`,
     butta: 'Throw away',
     proiettore: 'projector',
-    usaloPerScansioni: 'Use it for scans',
-    usaloPerScansioniAiuto: 'Becomes the projector of the model that reads scans',
-    allAssistente: 'To the assistant',
-    alleScansioni: 'To scans',
     togli: (nome) => `Remove ${nome}`,
     sulComputer: 'On this computer',
     quantiFile: (quanti) => quanti === 1 ? 'One file' : `${quanti} files`,

@@ -448,13 +448,12 @@ messaggio, UTF-8. Mai TCP.
 
 ### Sicurezza
 
-> **Il condotto è spento.** Lo accende `registroDocenti.api.condotto`,
-> predefinita `false`; spento non apre niente.
+> **Il condotto è spento.** Lo accende `registroDocenti.api.accesso`,
+> predefinita `spento`; spento non apre niente.
 >
-> **Che cosa si possa fare, acceso, lo dicono altre due voci.**
-> `registroDocenti.api.lettura` (predefinita `true`) e
-> `registroDocenti.api.scrittura` (predefinita `false`). Il confine passa sul
-> `genere` di ogni procedura: una scrittura senza permesso torna
+> **Che cosa si possa fare, acceso, lo dice la stessa voce.** `lettura` concede
+> le letture, `letturaScrittura` anche le scritture; «solo scrittura» non c'è.
+> Il confine passa sul `genere` di ogni procedura: una scrittura senza permesso torna
 > `non-permesso` prima della convalida, senza toccare registro né giornale. Il
 > limite è del condotto: i pannelli passano da `chiama` senza queste voci.
 >

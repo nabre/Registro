@@ -1,4 +1,4 @@
-// La giornata di scuola: Impostazioni › Anno e orario › Calendario.
+// La giornata di scuola: Impostazioni › Calendario › Giornata.
 //
 // Quattro schede in fila, numerate nell'ordine in cui le misure si concatenano:
 // l'unità didattica, le pause, l'inizio e la fine, i giorni. Qui si prova che:
@@ -9,9 +9,12 @@
 //   documento, non i quarantacinque minuti di fabbrica;
 // - sotto la terza scheda la giornata è disegnata: le UD numerate, le pause, e
 //   i minuti che non fanno un'UD segnati come avanzo;
+// - − e + aggiungono o tolgono un'UD prima della prima pausa e dopo l'ultima,
+//   e senza pause compare l'ora di riferimento da cui contarle;
 // - «Porta alle …» manda l'orario sulla griglia con `impostazioni.salva`;
-// - cambiare l'UD con ore sul calendario chiede conferma, e annullando il
-//   campo torna com'era senza mandare niente;
+// - l'UD si sceglie da una tendina (45, 50, 60, 90, «Altro…»); cambiarla con
+//   ore sul calendario chiede conferma, e annullando la tendina torna com'era
+//   senza mandare niente;
 // - con un'ora che ha l'appello il campo dell'UD è spento, e si dice perché.
 //
 // Le fotografie vanno in `dist-tests/schermate/`, o nella cartella di `SCATTI`.
@@ -76,10 +79,22 @@ test('giornata', async ({ browser }) => {
       continue
     }
 
+    // − e + ai capi: fuori griglia il primo gesto ci porta sopra. Dalle 7:30
+    // alla ricreazione stanno due UD e un avanzo; dopo l'ultima pausa due.
+    await expect(page.locator('.contatore-ud__valore')).toHaveText(['2', '2'])
+    await page.getByRole('button', { name: 'UD prima della prima pausa: una in meno' }).click()
+    await valuta(page, FRAME)
+    let fatte = await salvate(page)
+    expect(fatte.some((i) => i.oraInizioGiornata === '08:00'), JSON.stringify(fatte)).toBeTruthy()
+    await page.getByRole('button', { name: 'UD dopo l’ultima pausa: una in più' }).click()
+    await valuta(page, FRAME)
+    fatte = await salvate(page)
+    expect(fatte.some((i) => i.oraFineGiornata === '13:40'), JSON.stringify(fatte)).toBeTruthy()
+
     // «Porta alle …»: l'inizio sulle partenze, la fine dove un'UD finisce.
     await page.locator('button', { hasText: 'Porta alle 07:15' }).click()
     await valuta(page, FRAME)
-    let fatte = await salvate(page)
+    fatte = await salvate(page)
     expect(fatte.some((i) => i.oraInizioGiornata === '07:15'), JSON.stringify(fatte)).toBeTruthy()
     await page.locator('button', { hasText: 'Porta alle 12:55' }).click()
     await valuta(page, FRAME)
@@ -89,9 +104,10 @@ test('giornata', async ({ browser }) => {
     // Con le ore sul calendario il cambio dell'UD chiede conferma; annullando
     // non parte niente e il campo torna com'era.
     const prima = (await salvate(page)).length
-    const campo = page.locator('input[name="minutiUd"]')
-    await campo.fill('50')
-    await campo.press('Tab')
+    const campo = page.locator('select[name="minutiUd"]')
+    expect(await campo.locator('option').allInnerTexts())
+      .toEqual(['45 min', '50 min', '60 min', '90 min', 'Altro…'])
+    await campo.selectOption('50')
     const modale = page.locator('.modale')
     await expect(modale).toContainText('Unità didattica da 50 minuti?')
     await expect(modale).toContainText('tengono le loro UD')
@@ -102,12 +118,20 @@ test('giornata', async ({ browser }) => {
     await expect(campo).toHaveValue('45')
 
     // Confermando, parte il salvataggio con la durata nuova.
-    await campo.fill('50')
-    await campo.press('Tab')
+    await campo.selectOption('50')
     await page.locator('.modale').getByRole('button', { name: 'Cambia' }).click()
     await valuta(page, FRAME)
     fatte = await salvate(page)
     expect(fatte.some((i) => i.minutiUd === 50), JSON.stringify(fatte)).toBeTruthy()
+
+    // Senza pause, l'ora di riferimento fa da pausa di zero minuti.
+    await valuta(page, `()=>{
+      delete prova.stato.registro.impostazioni.pause
+      prova.ridisegna()
+    }`)
+    await valuta(page, FRAME)
+    await expect(page.locator('input[name="riferimentoGiornata"]')).toHaveCount(1)
+    await expect(page.getByRole('group', { name: 'UD dopo l’ora di riferimento' })).toHaveCount(1)
 
     // Un'ora con l'appello fissa l'UD: il campo si spegne, e lo si dice.
     await valuta(page, `()=>{
@@ -115,7 +139,7 @@ test('giornata', async ({ browser }) => {
       prova.ridisegna()
     }`)
     await valuta(page, FRAME)
-    await expect(page.locator('input[name="minutiUd"]')).toBeDisabled()
+    await expect(page.locator('select[name="minutiUd"]')).toBeDisabled()
     await expect(page.locator('.giornata-passi'))
       .toContainText('Fissata: 1 lezione ha già l’appello')
 

@@ -1,0 +1,29 @@
+/*
+ * Le impostazioni dell'anno disegnate con i controlli condivisi
+ * (`components/voceAnno.ts`, `core/controlli/`): quel che le righe del
+ * programma non hanno. Le righe stesse vestono come quelle (`settings.css`).
+ */
+
+/* Lo stato di una sezione, in cima: come si legge adesso quel che sotto si sceglie. */
+.impostazioni-anno__stato {
+  margin: 0;
+  color: var(--testo);
+}
+
+/* Che cosa ha fatto l'ultimo clic sulla griglia delle settimane: discreto, e vuoto non occupa. */
+.settimane-ab__esito {
+  margin: var(--spazio-2) 0 0;
+  min-height: 0;
+  color: var(--testo-quieto);
+  font-size: 0.84em;
+}
+.settimane-ab__esito:empty { display: none; }
+
+/* Da quando parte il secondo semestre, sotto il confine. */
+.anno__secondo-dal { display: block; }
+
+/* «Rendi predefinita» sta dove la prima carta ha la sua pastiglia. */
+.carta-intestata__rendi { flex: none; }
+
+/* «Annulla» nella notifica, prima della crocetta. */
+.notifica__annulla { flex: none; }

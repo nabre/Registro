@@ -197,7 +197,7 @@ test('corse', async ({ browser }) => {
   const prima = await valuta<number[]>(page, '[...prova.stato.registro.impostazioni.giorniVisibili]')
   await valuta(page, 'richieste.length = 0; trattieni = true')
   await valuta(page, `() => {
-      const voci = document.querySelectorAll('.scelta-giorni__voce')
+      const voci = document.querySelectorAll('[data-chiave="giorniVisibili"] .controllo-segmenti__voce')
       voci[5].click()
       const mandate = richieste.at(-1).azione.impostazioni
       const r = prova.stato.registro

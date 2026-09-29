@@ -89,6 +89,17 @@ module.exports = {
       to: { pathNot: '^core/i18n/' },
     },
 
+    {
+      // Il DOM dei controlli delle impostazioni, per il pannello e per la
+      // finestra nativa (ADR-52): sopra il dispositivo multilingua e le parole
+      // di tutti, e dal contratto solo i tipi (`core-valore-da-contract`).
+      name: 'controlli-leggeri',
+      comment: 'core/controlli importa solo core/i18n, le parole di tutti e tipi da contract.',
+      severity: 'error',
+      from: { path: '^core/controlli/' },
+      to: { pathNot: String.raw`^(core/(controlli|i18n)/|core/dominio/words\.testi\.ts$|contract/)` },
+    },
+
     // ------------------------------------------------------ da guardare a mano
     {
       // Non fa fallire: `tsc` e esbuild lo dicono meglio. Ma un import che non

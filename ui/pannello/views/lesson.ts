@@ -242,7 +242,7 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
   return h(
     'div',
     { class: 'navigatore-registro' },
-    icona('agenda', 'navigatore-registro__simbolo'),
+    icona('lezione', 'navigatore-registro__simbolo'),
     pulsante({
       simbolo: 'sinistra',
       variante: 'fantasma',
@@ -404,14 +404,14 @@ export function vistaLezione (): Figlio {
     // c'è, altrimenti il calendario.
     const riferimento = lezioneDiRiferimento()
     return statoVuoto({
-      simbolo: 'agenda',
+      simbolo: 'lezione',
       titolo: t.vuotoTitolo,
       testo: t.vuotoTesto,
       azione: riferimento
         ? pulsante({
             testo: t.apriUltima,
             variante: 'primario',
-            simbolo: 'agenda',
+            simbolo: 'lezione',
             al: () => apriLezione(riferimento),
           })
         : pulsante({

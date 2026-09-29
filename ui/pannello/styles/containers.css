@@ -79,9 +79,6 @@
   min-width: 0;
 }
 
-/* Campi e descrizioni: una colonna sola, larga quanto si legge. */
-.colonna--impostazioni { max-width: 62rem; }
-
 /* ------------------------------------------------------- titoli di mucchio
  *
  * Il terzo livello degli elenchi di lavoro, sotto classe e tipologia: «Rimaste

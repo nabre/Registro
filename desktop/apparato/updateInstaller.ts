@@ -194,7 +194,7 @@ function togli (cammino: string): void {
 }
 
 /** Lo SHA-512 di un file, in base64 come lo scrive `latest.yml`. */
-function impronta (file: string): Promise<string> {
+export function impronta (file: string): Promise<string> {
   return new Promise((risolvi, rifiuta) => {
     const hash = createHash('sha512')
     createReadStream(file)

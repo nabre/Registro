@@ -1,15 +1,14 @@
-/* La pagina Impostazioni: la fascia delle sezioni e le righe delle opzioni.
+/* La pagina Impostazioni: la testata con le aree, l'indice delle sezioni, le
+ * sezioni una sotto l'altra e le righe delle opzioni.
  *
- * Le sezioni del gruppo aperto stanno in fila sopra il titolo, attaccate in
- * cima mentre si scorre: sono la mappa della pagina. */
+ * La testata resta attaccata in cima mentre si scorre; l'indice le sta sotto,
+ * attaccato anche lui. Quanto è alta la testata lo misura `settings.ts`
+ * (`--impostazioni-fascia-alto`): le ancore si fermano sotto di lei. */
 
-/* La pagina prende tutta la larghezza: ogni riga ha una descrizione lunga
-   accanto, e i 62rem di `colonna--impostazioni` lascerebbero mezza finestra vuota. */
-.vista--impostazioni .colonna--impostazioni {
-  max-width: none;
-}
+/* I controlli delle voci, uguali nella finestra nativa (ADR-52). */
+@import '../../../core/controlli/controlli.css';
 
-/* ------------------------------------------------------- fascia delle sezioni */
+/* ------------------------------------------------------------ la testata */
 
 /* Attaccata in cima quando si scorre, come la ricerca della guida: i margini
    laterali negativi la portano da bordo a bordo della scatola che scorre, il
@@ -30,15 +29,15 @@
   background: var(--sfondo);
 }
 
-.impostazioni__gruppi,
-.impostazioni__sezioni {
+.impostazioni__aree {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spazio-1);
 }
 
-/* I gruppi: pulsanti con icona, acceso quello aperto. */
-.gruppo-voce {
+/* Le aree: schede con icona, accesa quella aperta. */
+.area-voce {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--spazio-2);
@@ -51,68 +50,232 @@
   font-weight: 600;
   cursor: pointer;
 }
-.gruppo-voce:hover { background: var(--sfondo-alto); color: var(--testo); }
-.gruppo-voce--attivo {
+.area-voce:hover { background: var(--sfondo-alto); color: var(--testo); }
+.area-voce--attiva {
   background: color-mix(in srgb, var(--accento) 14%, transparent);
   border-color: color-mix(in srgb, var(--accento) 45%, transparent);
   color: var(--testo);
 }
-.gruppo-voce--attivo .icona { color: var(--accento); }
+.area-voce--attiva .icona { color: var(--accento); }
 
-/* La sezione che si salva nel file dell'anno porta la pastiglia; le altre no. */
-.sezione-voce__ambito {
-  margin-left: auto;
-  padding: 0 6px;
-  border-radius: var(--raggio-pastiglia);
-  border: 1px solid color-mix(in srgb, var(--accento) 35%, transparent);
-  color: var(--accento);
-  font-size: 0.72em;
-  font-weight: 400;
-}
-
-.sezione-voce {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--spazio-1) var(--spazio-3);
-  border: 1px solid transparent;
-  border-radius: var(--raggio);
-  background: transparent;
-  color: var(--testo);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.sezione-voce:hover { background: var(--sfondo-alto); }
-
-.sezione-voce--attiva {
-  background: var(--sfondo-alto);
-  border-color: color-mix(in srgb, var(--accento) 45%, transparent);
-}
-
-.sezione-voce__titolo {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
-  font-weight: 600;
-}
-
-.sezione-voce--attiva .sezione-voce__titolo { color: var(--accento); }
-
-/* Quante impostazioni della sezione sono state decise a mano: un numero piccolo e tondo. */
-.sezione-voce__segno {
+/* Quante impostazioni dell'area sono state decise a mano: un numero piccolo e
+   tondo, in tono neutro. Cambiare un'impostazione è normale, non un avviso. */
+.area-voce__segno {
   min-width: 1.35rem;
   padding: 0 4px;
   border-radius: var(--raggio-pastiglia);
-  background: color-mix(in srgb, var(--attenzione) 22%, transparent);
-  color: var(--attenzione);
+  background: var(--sfondo-alto);
+  border: 1px solid var(--bordo-tenue);
+  color: var(--testo-quieto);
   font-size: 0.78em;
   font-weight: 600;
   text-align: center;
 }
 
+/* Il punto: lì qualcosa chiede attenzione (il perché sta nel titolo). */
+.area-voce__punto {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--attenzione);
+  flex: none;
+}
 
+/* Il filtro e «Ripristina» dell’area, sulla stessa riga; su stretto vanno a capo. */
+.impostazioni__strumenti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2) var(--spazio-4);
+}
+
+.impostazioni__strumenti .opzioni__cerca {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+
+/* ---------------------------------------------------- l'indice e la pagina */
+
+/* L'isola del corpo non aggiunge niente: il `gap` lo dà la vista. */
+.impostazioni__isola { min-width: 0; }
+
+.impostazioni__corpo {
+  display: grid;
+  grid-template-columns: clamp(11rem, 16vw, 14rem) minmax(0, 1fr);
+  gap: var(--spazio-5);
+  align-items: start;
+}
+
+/* Filtrando l'indice non c'è: i risultati prendono tutta la riga. */
+.impostazioni__corpo--risultati { grid-template-columns: minmax(0, 1fr); }
+
+.impostazioni__indice {
+  position: sticky;
+  top: calc(var(--impostazioni-fascia-alto, 6rem) - var(--margine-pagina) + var(--spazio-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+/* La tendina è dello schermo stretto; largo, l'elenco. */
+.impostazioni__indice-tendina { display: none; }
+
+.impostazioni__indice-voci {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.impostazioni__indice-voce {
+  display: block;
+  width: 100%;
+  padding: 4px var(--spazio-2);
+  border: 0;
+  border-radius: var(--raggio);
+  background: none;
+  color: var(--testo-quieto);
+  font: inherit;
+  font-size: 0.92em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.impostazioni__indice-voce:hover,
+.impostazioni__indice-voce:focus-visible {
+  background: var(--velo-sfiorato);
+  color: var(--testo);
+}
+
+/* La sezione che si sta guardando: l'indice la segue mentre si scorre. Il
+   testo pieno e il filetto d'accento: l'accento sul velo non basta al contrasto. */
+.impostazioni__indice-voce--qui,
+.impostazioni__indice-voce--qui:hover {
+  background: var(--velo-scelto);
+  color: var(--testo);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accento);
+}
+
+.impostazioni__pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-6);
+  min-width: 0;
+}
+
+/* Una sezione: la testata, poi i blocchi. Si ferma sotto la testata appiccicata. */
+.impostazioni__sezione {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--spazio-3));
+}
+
+.impostazioni__sezione-testa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-1) var(--spazio-3);
+  padding-bottom: var(--spazio-2);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.impostazioni__sezione-titolo { margin: 0; font-size: 1.2em; }
+
+.impostazioni__sezione-sotto {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+}
+
+.impostazioni__blocco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-3);
+  scroll-margin-top: calc(var(--impostazioni-fascia-alto, 6rem) + var(--spazio-3));
+}
+
+.impostazioni__blocco-ambito { display: flex; }
+
+/* Dove sta un blocco: nel file dell'anno (accento) o su questo computer. */
+.ambito {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border-radius: var(--raggio-pastiglia);
+  border: 1px solid var(--bordo);
+  color: var(--testo-quieto);
+  font-size: 0.78em;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.ambito--anno {
+  border-color: color-mix(in srgb, var(--accento) 35%, transparent);
+  color: var(--accento);
+}
+
+/* Una voce raggiunta da un indirizzo si accende un attimo, così l'occhio sa
+   dove posarsi. Con meno movimento è più breve. */
+@keyframes impostazioni-lampo {
+  0%, 30% { background-color: var(--velo-scelto); box-shadow: 0 0 0 6px var(--velo-scelto); }
+  100% { background-color: transparent; box-shadow: 0 0 0 6px transparent; }
+}
+
+.impostazioni--lampo {
+  animation: impostazioni-lampo 1.6s ease-out;
+  border-radius: var(--raggio);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impostazioni--lampo { animation-duration: 0.8s; }
+}
+
+/* Stretto: l'indice diventa una tendina in cima, attaccata sotto la testata. */
+@media (max-width: 60em) {
+  .impostazioni__corpo { grid-template-columns: minmax(0, 1fr); }
+  .impostazioni__indice { z-index: 1; background: var(--sfondo); padding-block: var(--spazio-1); }
+  .impostazioni__indice-tendina { display: block; }
+  .impostazioni__indice-voci { display: none; }
+}
+
+/* ------------------------------------------------------- i risultati */
+
+/* Una sezione trovata: nome e riassunto, la pastiglia, il gesto per andarci. */
+.risultato-impostazioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2) var(--spazio-3);
+  padding: var(--spazio-3) 0;
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.risultato-impostazioni:first-child { border-top: none; padding-top: 0; }
+
+.risultato-impostazioni__testo {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.risultato-impostazioni__testo small { color: var(--testo-quieto); }
+
+/* Una voce trovata: la sua sezione in piccolo, sopra la riga che si cambia sul posto. */
+.risultato-impostazioni__voce {
+  padding-top: var(--spazio-2);
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.risultato-impostazioni__voce:first-child { border-top: none; padding-top: 0; }
+
+.risultato-impostazioni__voce > .voce-opzione { border-top: none; padding-top: var(--spazio-1); }
 
 /* --------------------------------------------------------- gruppi di opzioni */
 
@@ -167,9 +330,16 @@
 
 .voce-opzione:first-child { border-top: none; padding-top: 0; }
 
-/* Sospesa: il padre da cui dipende è spento. Si smorza tutta la riga (un nome
-   pieno sopra un campo morto sembrerebbe un guasto), ma il testo resta leggibile. */
-.voce-opzione--sospesa { opacity: 0.55; }
+/* Sospesa: il padre da cui dipende è spento. Si smorza il controllo, che è
+   spento (`controlli.css`); nome e pastiglia restano da leggere, con il
+   contrasto pieno: dicono perché. */
+
+/* Una figlia (`dipendeDa`) rientra sotto il padre: si legge che conta solo con lui acceso. */
+.voce-opzione--figlia {
+  margin-left: var(--spazio-4);
+  padding-left: var(--spazio-3);
+  border-left: 2px solid var(--bordo-tenue);
+}
 
 .voce-opzione__testata {
   display: flex;
@@ -180,47 +350,12 @@
 
 .voce-opzione__nome { font-weight: 600; }
 
-.voce-opzione__chiave {
-  color: var(--testo-quieto);
-  font-family: var(--carattere-mono);
-  font-size: 0.78em;
-}
-
-/* Il ritiro in fondo alla riga: è il gesto raro. */
-.voce-opzione__testata > button:last-child { margin-left: auto; }
+/* «Al prossimo avvio»: la sua spiegazione sta nel `title`. */
+.voce-opzione__avvio { display: inline-flex; }
 
 .voce-opzione__campo { max-width: 28rem; }
 /* Le schede con la figura vogliono più posto di una tendina. */
 .voce-opzione__campo:has(.scelta-figurata) { max-width: 42rem; }
-.voce-opzione__campo .campo { margin: 0; }
-
-/* Un percorso o un modello: si legge, e si sceglie con il pulsante accanto. */
-.campo-percorso {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
-  min-width: 0;
-}
-.campo-percorso__valore {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: var(--spazio-2) var(--spazio-3);
-  border: 1px solid var(--bordo);
-  border-radius: var(--raggio);
-  background: var(--sfondo-alto);
-  font-family: var(--carattere-mono);
-  font-size: 0.88em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  direction: rtl;
-  text-align: left;
-}
-.campo-percorso__valore--vuoto {
-  color: var(--testo-quieto);
-  font-family: inherit;
-  direction: ltr;
-}
 
 .voce-opzione__aiuto {
   margin: 0;
@@ -230,24 +365,7 @@
   max-width: 48rem;
 }
 
-/* ------------------------------------------------------------- anni in elenco */
-
-.anno-riga {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-3);
-  flex-wrap: wrap;
-  padding: var(--spazio-2) var(--spazio-3);
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio);
-  background: var(--sfondo);
-}
-
-.anno-riga--corrente { border-color: color-mix(in srgb, var(--accento) 50%, transparent); }
-
-.anno-riga__nome { display: flex; align-items: center; gap: var(--spazio-2); min-width: 10rem; }
-.anno-riga__periodo, .anno-riga__misure { color: var(--testo-quieto); font-size: 0.9em; }
-.anno-riga__azioni { margin-left: auto; display: flex; gap: var(--spazio-1); align-items: center; }
+/* ------------------------------------------------------------- anno aperto */
 
 .anno-aperto { display: flex; flex-direction: column; gap: var(--spazio-3); }
 
@@ -331,6 +449,20 @@
 
 /* Il gesto sotto un campo: «Porta alle 7:45». */
 .campo__sotto { margin-top: var(--spazio-1); }
+
+/* Le UD a un capo della giornata: − il numero +. */
+.contatore-ud {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.contatore-ud__valore {
+  min-width: 2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
 
 /* La giornata disegnata: una fascia sola, i tratti larghi quanto durano. */
 .giornata-linea {
@@ -728,12 +860,9 @@ button.onedrive__nome:hover span { text-decoration: underline; }
 
 /* ------------------------------------------------------------ il filtro
 
-   Le sezioni servono a sfogliare, il filtro a cercare chi conosce il nome
-   («anticipo», «mittente», una chiave letta in un errore). Sta sopra l'elenco
-   perché è l'elenco che filtra. */
-.opzioni__cerca {
-  margin-bottom: var(--spazio-4);
-}
+   Le aree servono a sfogliare, il filtro a cercare chi conosce il nome
+   («anticipo», «mittente», una chiave letta in un errore). Sta nella testata:
+   cerca in tutte e quattro le aree. */
 
 /* Larga quanto una riga di testo: ci si scrivono poche parole. */
 .opzioni__cerca .campo__controllo {

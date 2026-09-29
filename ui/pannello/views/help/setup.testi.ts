@@ -142,7 +142,8 @@ const it = {
       {
         termine: 'Le materie',
         testo:
-          'Stanno in Impostazioni › Didattica › **Materie**: nome, sigla (`MAT`), colore. ' +
+          'Stanno nella pagina **Corsi**, una riga della matrice per materia: nome, sigla ' +
+          '(`MAT`), colore. ' +
           'Scrivendo un nome che somiglia a uno che c’è, il modulo chiede se è la stessa materia ' +
           'scritta due volte.',
       },
@@ -211,14 +212,14 @@ const it = {
         termine: 'Una fascia',
         testo:
           'Giorno, ora d’inizio, durata in UD e aula. Quanto dura un’UD lo dice il documento, in ' +
-          'Impostazioni › Anno e orario › **Calendario**: di serie 45 minuti. Accanto si legge ' +
+          'Impostazioni › Calendario › **Giornata**: di serie 45 minuti. Accanto si legge ' +
           'a che ora finisce, pause della giornata comprese; in fondo le UD della settimana.',
       },
       {
         termine: 'Aggiungi una fascia',
         testo:
           'Ne mette una in coda all’ultimo giorno, attaccata. La prima di tutte prende ora e ' +
-          'durata proposte da Impostazioni › Anno e orario › **Calendario**.',
+          'durata proposte da Impostazioni › Calendario › **Giornata**.',
       },
       {
         termine: 'Ripeti questa fascia in un altro giorno',
@@ -393,7 +394,7 @@ const it = {
   intestazione: {
     titolo: 'Intestazione dei fogli',
     sommario:
-      'Impostazioni › Documenti e stampa › **Intestazione**: chi firma e le **carte ' +
+      'Impostazioni › Utente › **Chi sei** e **Carta e stampa**: chi firma e le **carte ' +
       'intestate** — la scuola e il logo in cima ai fogli —, con i corsi che stampano su ' +
       'ognuna. Stanno dentro il documento dell’anno.',
     scritte: {
@@ -492,8 +493,8 @@ const it = {
       {
         termine: 'La firma delle e-mail',
         testo:
-          'Sta anche lei nel documento, ma si scrive in Impostazioni › **Comunicazioni**, con ' +
-          'la posta. Lasciata vuota vale quella di serie: chi firma e la scuola della prima ' +
+          'Sta anche lei nel documento, ma si scrive in Impostazioni › Utente › **Posta**, in ' +
+          'fondo. Lasciata vuota vale quella di serie: chi firma e la scuola della prima ' +
           'carta.',
       },
     ],
@@ -642,8 +643,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Fächer',
           testo:
-            'Sie stehen unter Einstellungen › Unterricht › **Fächer**: Name, Kürzel (`MAT`), ' +
-            'Farbe. Wer einen Namen schreibt, der einem vorhandenen ähnelt, wird gefragt, ob es ' +
+            'Sie stehen auf der Seite **Kurse**, eine Zeile der Matrix pro Fach: Name, Kürzel ' +
+            '(`MAT`), Farbe. Wer einen Namen schreibt, der einem vorhandenen ähnelt, wird gefragt, ob es ' +
             'dasselbe Fach ist, zweimal geschrieben.',
         },
         {
@@ -717,15 +718,15 @@ export const testi = catalogo(it, {
           termine: 'Ein Zeitfenster',
           testo:
             'Tag, Anfangszeit, Dauer in Lektionen und Zimmer. Wie lange eine Lektion dauert, ' +
-            'sagt das Dokument, unter Einstellungen › Schuljahr und Stundenplan › ' +
-            '**Kalender**: standardmässig 45 Minuten. Daneben liest man, wann es endet, Pausen ' +
+            'sagt das Dokument, unter Einstellungen › Kalender › ' +
+            '**Schultag**: standardmässig 45 Minuten. Daneben liest man, wann es endet, Pausen ' +
             'des Tages eingerechnet; unten die Lektionen der Woche.',
         },
         {
           termine: 'Zeitfenster hinzufügen',
           testo:
             'Hängt eines ans Ende des letzten Tages an. Das allererste nimmt Zeit und Dauer, die ' +
-            'Einstellungen › Schuljahr und Stundenplan › **Kalender** vorschlägt.',
+            'Einstellungen › Kalender › **Schultag** vorschlägt.',
         },
         {
           termine: 'Dieses Zeitfenster an einem anderen Tag wiederholen',
@@ -912,7 +913,8 @@ export const testi = catalogo(it, {
     intestazione: {
       titolo: 'Briefkopf der Blätter',
       sommario:
-        'Einstellungen › Dokumente und Druck › **Briefkopf**: wer unterschreibt und die ' +
+        'Einstellungen › Benutzer › **Wer du bist** und **Briefpapier und Druck**: wer ' +
+        'unterschreibt und die ' +
         '**Briefpapiere** — die Schule und das Logo oben auf den Blättern —, mit den Kursen, ' +
         'die auf jedes drucken. Sie liegen im Dokument des Schuljahrs.',
       scritte: {
@@ -1016,8 +1018,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Signatur der E-Mails',
           testo:
-            'Auch sie liegt im Dokument, aber man schreibt sie unter Einstellungen › ' +
-            '**Kommunikation**, bei der E-Mail. Bleibt sie leer, gilt die Standardsignatur: ' +
+            'Auch sie liegt im Dokument, aber man schreibt sie unter Einstellungen › Benutzer › ' +
+            '**Post**, ganz unten. Bleibt sie leer, gilt die Standardsignatur: ' +
             'die Unterschrift und die Schule des ersten Briefpapiers.',
         },
       ],
@@ -1165,8 +1167,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Les branches',
           testo:
-            'Elles sont dans Paramètres › Enseignement › **Branches** : nom, sigle (`MAT`), ' +
-            'couleur. En écrivant un nom qui ressemble à un nom existant, le formulaire demande ' +
+            'Elles sont dans la page **Cours**, une ligne de la matrice par branche : nom, sigle ' +
+            '(`MAT`), couleur. En écrivant un nom qui ressemble à un nom existant, le formulaire demande ' +
             's’il s’agit de la même branche écrite deux fois.',
         },
         {
@@ -1236,7 +1238,7 @@ export const testi = catalogo(it, {
           termine: 'Une plage',
           testo:
             'Jour, heure de début, durée en périodes et salle. La durée d’une période, c’est le ' +
-            'document qui la dit, dans Paramètres › Année et horaire › **Calendrier** : 45 ' +
+            'document qui la dit, dans Paramètres › Calendrier › **Journée** : 45 ' +
             'minutes par défaut. À côté, on lit à quelle heure elle finit, pauses de la journée ' +
             'comprises ; en bas, les périodes de la semaine.',
         },
@@ -1244,7 +1246,7 @@ export const testi = catalogo(it, {
           termine: 'Ajouter une plage',
           testo:
             'En ajoute une à la suite du dernier jour, accolée. La toute première prend l’heure ' +
-            'et la durée proposées par Paramètres › Année et horaire › **Calendrier**.',
+            'et la durée proposées par Paramètres › Calendrier › **Journée**.',
         },
         {
           termine: 'Répéter cette plage un autre jour',
@@ -1433,7 +1435,8 @@ export const testi = catalogo(it, {
     intestazione: {
       titolo: 'En-tête des feuilles',
       sommario:
-        'Paramètres › Documents et impression › **En-tête** : le signataire et les **papiers ' +
+        'Paramètres › Utilisateur › **Qui tu es** et **Papier et impression** : le ' +
+        'signataire et les **papiers ' +
         'à en-tête** — l’école et le logo en haut des feuilles —, avec les cours qui ' +
         'impriment sur chacun. Ils sont dans le document de l’année.',
       scritte: {
@@ -1535,8 +1538,8 @@ export const testi = catalogo(it, {
         {
           termine: 'La signature des e-mails',
           testo:
-            'Elle aussi est dans le document, mais elle s’écrit dans Paramètres › ' +
-            '**Communications**, avec le courrier. Laissée vide, c’est celle par défaut : le ' +
+            'Elle aussi est dans le document, mais elle s’écrit dans Paramètres › Utilisateur › ' +
+            '**Messagerie**, tout en bas. Laissée vide, c’est celle par défaut : le ' +
             'signataire et l’école du premier papier.',
         },
       ],
@@ -1676,7 +1679,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The subjects',
           testo:
-            'They are in Settings › Teaching › **Subjects**: name, code (`MAT`), colour. Typing ' +
+            'They are on the **Courses** page, one row of the grid per subject: name, code ' +
+            '(`MAT`), colour. Typing ' +
             'a name that looks like an existing one, the form asks whether it is the same ' +
             'subject written twice.',
         },
@@ -1745,7 +1749,7 @@ export const testi = catalogo(it, {
           termine: 'A slot',
           testo:
             'Day, start time, length in periods and room. How long a period lasts is set by ' +
-            'the document, in Settings › Year and timetable › **Calendar**: 45 minutes by ' +
+            'the document, in Settings › Calendar › **School day**: 45 minutes by ' +
             'default. Alongside you read when it ends, the day’s breaks included; at the ' +
             'bottom, the week’s periods.',
         },
@@ -1753,7 +1757,7 @@ export const testi = catalogo(it, {
           termine: 'Add a slot',
           testo:
             'Adds one at the end of the last day, attached. The very first takes the time and ' +
-            'length suggested by Settings › Year and timetable › **Calendar**.',
+            'length suggested by Settings › Calendar › **School day**.',
         },
         {
           termine: 'Repeat this slot on another day',
@@ -1933,7 +1937,8 @@ export const testi = catalogo(it, {
     intestazione: {
       titolo: 'Letterhead',
       sommario:
-        'Settings › Documents and printing › **Letterhead**: who signs and the ' +
+        'Settings › User › **Who you are** and **Letterheads and printing**: who signs and ' +
+        'the ' +
         '**letterheads** — the school and the logo at the top of the sheets —, with the ' +
         'courses that print on each. They live inside the year’s document.',
       scritte: {
@@ -2036,8 +2041,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The email signature',
           testo:
-            'It is in the document too, but it is written in Settings › **Communications**, with the ' +
-            'mail. Left empty, the default applies: who signs and the school of the first ' +
+            'It is in the document too, but it is written in Settings › User › **Mail**, at the ' +
+            'bottom. Left empty, the default applies: who signs and the school of the first ' +
             'letterhead.',
         },
       ],

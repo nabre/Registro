@@ -1,6 +1,6 @@
 # Piano: pagine impostazioni
 
-Stato: **proposta**, da approvare. Fonte: giro di sciame 2026-09-28, quattro
+Stato: **approvato** 2026-09-29 (§ 8 chiuso). In lavorazione per fasi (§ 7). Fonte: giro di sciame 2026-09-28, quattro
 esplorazioni parallele (programma, documento, navigazione e doppioni, controlli).
 Ogni riga cita il posto nel codice; i dettagli di lettura stanno nel codice, non
 qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
@@ -33,38 +33,48 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 
 ## 3. Sistema proposto
 
-### 3.1 Gerarchia: 3 livelli
+### 3.1 Gerarchia: 4 aree, 3 livelli
 
-1. **Area** — colonna a sinistra (su stretto: tendina in cima). Per compito del docente.
-2. **Pagina dell'area** — sempre nello stesso ordine: *Stato e gesti* → *Scelte* → *Avanzate* (chiuso).
-3. **Gruppo di voci** — titolo h3.
+1. **Area** — quattro schede fisse in testata: Calendario · Didattica · Utente · Programma. Coprono tutto; niente raccoglitore visibile.
+2. **Sezione** — indice a sinistra dell'area. L'area è **una pagina sola che scorre**; l'indice segue lo scorrimento (scroll-spy) e un clic salta, senza ridisegnare. Su stretto: indice a tendina in cima.
+3. **Gruppo di voci** — titolo h3. Dentro ogni sezione: *Stato e gesti* → *Scelte* → *Avanzate* (chiuso).
 
 Regole:
-- Niente area con una sezione sola che serve solo a passare oltre; niente sezione senza impostazioni.
+- Niente sezione senza impostazioni.
 - L'ambito **non è un livello**: pastiglia su ogni blocco, sempre, nei due sensi: «Questo anno» / «Questo computer».
 - Azioni di file (apri, nuovo anno, mostra cartella, ricarica, OneDrive) fuori: menu File, Ctrl+K, dialogo «Informazioni documento».
+- Ogni voce ha un indirizzo `impostazioni/<area>#<voce>`: rimandi, filtro e Ctrl+K arrivano sul controllo e lo accendono.
+- Punto di stato sulla scheda dell'area se lì qualcosa chiede attenzione (account scollegato, assistente acceso senza modello).
 
-### 3.2 Aree
+### 3.2 Aree e sezioni
 
-| Area | Contenuto | Ambito |
-|---|---|---|
-| **Anno e giornata** | date e semestri, chiusure (con calendario ufficiale), tipi di settimana **con la loro lista**, giornata (UD, pause, orari, giorni), calendari ICS | anno |
-| **Valutare** | scala (min, max, sufficienza, passo), arrotondamento fine semestre, soglia assenze; rimando a Corsi per le materie | anno |
-| **Stampa** | chi firma (un blocco strutturato con anteprima), carte intestate, PDF automatici | anno |
-| **Liste** | le 8 liste restanti (senza tipi di settimana) | anno |
-| **Comunicare** | mittente, invio diretto, firma e-mail (pastiglia anno), recapiti telefono/mail | misto, pastiglia per blocco |
-| **Account** | un elenco per account; per ognuno le capacità **Posta** e **OneDrive** con il loro stato e un solo «Collega»; Azzera | computer |
-| **Assistente e modelli** | tre righe d'uso (Assistente, Scansioni, Dettatura): interruttore + modello + stato; «Sul computer» con cartella; catalogo in sottopagina «Scarica modelli» | computer |
-| **Programma** | lingua, tema, avvio e icona, promemoria, proiezione, aggiornamenti; Avanzate: integrazione di sistema, condotto con avvertenza | computer |
+| Area | Sezione | Contenuto | Ambito |
+|---|---|---|---|
+| **Calendario** | Anno | etichetta, date, semestri | anno |
+| | Chiusure | vacanze e sospensioni; calendario ufficiale (scelta e catalogo) | anno (catalogo: computer) |
+| | Settimane | griglia A/B **con la lista dei tipi** | anno |
+| | Giornata | UD, pause, orari, giorni visibili | anno |
+| | Calendari esterni | ICS: calendari e regole | anno |
+| **Didattica** | Valutazione | scala, arrotondamento fine semestre, soglia assenze | anno |
+| | Liste | le 8 liste restanti | anno |
+| **Utente** | Chi sei | appellativo, nome, cognome, anteprima | anno |
+| | Carta e stampa | carte intestate, PDF automatici | anno |
+| | Account | un elenco per account; capacità **Posta** e **OneDrive** con stato e un solo «Collega»; Azzera | computer |
+| | Posta | mittente, invio diretto, firma e-mail, recapiti telefono/mail | misto, pastiglia per blocco |
+| **Programma** | Aspetto | lingua, tema | computer |
+| | Avvio e promemoria | avvio, icona accanto all'orologio, promemoria, proiezione | computer |
+| | Assistente e modelli | righe d'uso Assistente, Scansioni, Dettatura (interruttore + modello + stato); «Sul computer» con cartella; catalogo in sottopagina «Scarica modelli» | computer |
+| | Aggiornamenti | versione, controllo, scarico, installazione | computer |
+| | Avanzate | integrazione di sistema, condotto con avvertenza | computer |
 
-Fuori: «Questo file» → dialogo «Informazioni documento» (File, Ctrl+K); elenco anni e nuovo anno → File; Materie → pagina Corsi.
-Area di partenza: l'ultima aperta (oggi sempre «Anno scolastico»).
+Fuori: «Questo file» → dialogo «Informazioni documento» (File, Ctrl+K); elenco anni e nuovo anno → File.
+Senza documento aperto (finestra nativa): solo Utente › Account/Posta e Programma; Calendario e Didattica dicono «apri un anno».
+Area di partenza: l'ultima aperta, alla sezione dove si era.
 
-### 3.3 Modi di vista
+### 3.3 Una vista sola
 
-- **Sintesi** (di serie): nome, controllo, «i». Niente chiave tecnica, niente pastiglia «predefinito».
-- **Dettagli** (interruttore in testata, ricordato): mostra avanzate, chiave in piccolo, «modificata · prima: …», Ritira.
-- Numero delle modificate sull'area, tono neutro (oggi `--attenzione`, `settings.css:104`).
+- Solo sintesi (deciso 2026-09-29): nome, controllo, «i». Niente modo Dettagli, niente chiave tecnica, niente «modificata · prima», niente Ritira per voce, niente pastiglia «predefinito».
+- Numero delle modificate sull'area, tono neutro.
 - «Ripristina» per area: conta e tocca solo le voci dell'elenco, mai quelle promosse nelle schede, mai quelle del collegamento.
 
 ### 3.4 Filtro unico
@@ -108,26 +118,26 @@ Legenda stato: ✅ ok · ⚠️ da cambiare · 🔁 doppione · 🔗 catena da r
 | `promemoria.attivo` | interruttore | 🔗 con anticipo | fondere: tendina «Nessun avviso / all'ora / 2 / 5 / 10 / 15 min prima» | Programma |
 | `promemoria.anticipoMinuti` | numero `passo:any` | ⚠️ decimali ammessi, unità in etichetta | assorbito dalla tendina sopra (o numero intero con «min») | Programma |
 | `proiezione.schermoIntero` | interruttore | ✅ | invariato | Programma |
-| `posta.mittente` | scheda Posta: tendina indirizzi | ✅ pannello · ⚠️ nativa (G5) | `scelteDinamiche: indirizziPosta` in tutte e due | Comunicare |
-| `posta.utente` | scheda Posta: sola lettura | ✅ pannello · ⚠️ nativa (G5) | sola lettura ovunque | Account |
-| `posta.invioDiretto` | interruttore in scheda | ⚠️ acceso senza casella: non dice che non ha effetto | pastiglia «senza effetto: casella non collegata» | Comunicare |
-| `recapiti.telefono` | tendina, frasi intere | ⚠️ opzioni = frasi; nativa valore grezzo | segmentato/tendina a nomi corti + disponibilità | Comunicare |
-| `recapiti.posta` | tendina, frasi intere | ⚠️ idem (Outlook non installato non detto) | idem | Comunicare |
-| `modelli.cartella` | percorso in fondo + testo «Stanno in…» | 🔁 due posti; Svuota = Ritira | nella scheda «Sul computer», un solo gesto | Assistente e modelli |
-| `modelli.scaricoAutomatico` | interruttore | 🔁🔗 vale solo per il programma OCR; con `ocr.programma` | fondere in «Programma di lettura»: lo scarica il registro / questo .exe / non scaricare | Assistente e modelli |
-| `ocr.attivo` | interruttore in fondo + barra di stato | 🔁 lontano dal suo modello | nella riga d'uso «Scansioni» | Assistente e modelli |
-| `ocr.modello` | tendina + pulsanti di riga + testo nel filtro | 🔁 G1 G2 | solo la tendina della riga d'uso | Assistente e modelli |
-| `ocr.proiettore` | solo pulsante di riga | ⚠️ G1 G2, nessuna tendina | tendina mmproj nella riga «Scansioni» | Assistente e modelli |
-| `ocr.programma` | percorso avanzato, sospeso | 🔗 non si prepara prima del modello | assorbito da «Programma di lettura» | Assistente e modelli |
-| `assistente.attivo` | interruttore in fondo + barra | 🔁 | nella riga d'uso «Assistente» | Assistente e modelli |
-| `assistente.modello` | tendina + pulsanti + filtro | 🔁 G1 G2 G6 | solo tendina della riga d'uso | Assistente e modelli |
-| `dettatura.attivo` | interruttore | 🔗 G7 | riga d'uso «Dettatura», `dipendeDa assistente.attivo` | Assistente e modelli |
-| `dettatura.taglia` | tendina frasi | ⚠️ | segmentato a nomi corti (turbo…base) + misura nell'aiuto | Assistente e modelli |
-| `dettatura.indirizzo` | testo libero, avanzato | ⚠️ URL intero a mano; nativa salva mentre si scrive | numero «Porta» 1–65535, host fisso `127.0.0.1` | Assistente e modelli › Avanzate |
+| `posta.mittente` | scheda Posta: tendina indirizzi | ✅ pannello · ⚠️ nativa (G5) | `scelteDinamiche: indirizziPosta` in tutte e due | Utente |
+| `posta.utente` | scheda Posta: sola lettura | ✅ pannello · ⚠️ nativa (G5) | sola lettura ovunque | Utente |
+| `posta.invioDiretto` | interruttore in scheda | ⚠️ acceso senza casella: non dice che non ha effetto | pastiglia «senza effetto: casella non collegata» | Utente |
+| `recapiti.telefono` | tendina, frasi intere | ⚠️ opzioni = frasi; nativa valore grezzo | segmentato/tendina a nomi corti + disponibilità | Utente |
+| `recapiti.posta` | tendina, frasi intere | ⚠️ idem (Outlook non installato non detto) | idem | Utente |
+| `modelli.cartella` | percorso in fondo + testo «Stanno in…» | 🔁 due posti; Svuota = Ritira | nella scheda «Sul computer», un solo gesto | Programma |
+| `modelli.scaricoAutomatico` | interruttore | 🔁🔗 vale solo per il programma OCR; con `ocr.programma` | fondere in «Programma di lettura»: lo scarica il registro / questo .exe / non scaricare | Programma |
+| `ocr.attivo` | interruttore in fondo + barra di stato | 🔁 lontano dal suo modello | nella riga d'uso «Scansioni» | Programma |
+| `ocr.modello` | tendina + pulsanti di riga + testo nel filtro | 🔁 G1 G2 | solo la tendina della riga d'uso | Programma |
+| `ocr.proiettore` | solo pulsante di riga | ⚠️ G1 G2, nessuna tendina | tendina mmproj nella riga «Scansioni» | Programma |
+| `ocr.programma` | percorso avanzato, sospeso | 🔗 non si prepara prima del modello | assorbito da «Programma di lettura» | Programma |
+| `assistente.attivo` | interruttore in fondo + barra | 🔁 | nella riga d'uso «Assistente» | Programma |
+| `assistente.modello` | tendina + pulsanti + filtro | 🔁 G1 G2 G6 | solo tendina della riga d'uso | Programma |
+| `dettatura.attivo` | interruttore | 🔗 G7 | riga d'uso «Dettatura», `dipendeDa assistente.attivo` | Programma |
+| `dettatura.taglia` | tendina frasi | ⚠️ | segmentato a nomi corti (turbo…base) + misura nell'aiuto | Programma |
+| `dettatura.indirizzo` | testo libero, avanzato | ⚠️ URL intero a mano; nativa salva mentre si scrive | numero «Porta» 1–65535, host fisso `127.0.0.1` | Programma |
 | `aggiornamenti.controlloAutomatico` | interruttore | ✅ | invariato | Programma |
 | `aggiornamenti.scaricoAutomatico` | interruttore | ✅ | invariato | Programma |
 | `aggiornamenti.installaAllaChiusura` | interruttore | ✅ | invariato | Programma |
-| `api.condotto` | interruttore | 🔗 3 interruttori per 3 stati utili | tendina «Spento / Solo lettura / Lettura e scrittura»; vecchie chiavi in `CHIAVI_DISMESSE` con migrazione | Programma › Avanzate |
+| `api.condotto` | interruttore | 🔗 3 interruttori per 3 stati utili | tendina «Spento / Solo lettura / Lettura e scrittura»; vecchie chiavi in `CHIAVI_DISMESSE` con migrazione | Programma |
 | `api.lettura` | interruttore figlio | 🔗 | assorbita | — |
 | `api.scrittura` | interruttore figlio | 🔗 | assorbita | — |
 
@@ -137,56 +147,56 @@ Da sapere: nessuna chiave morta (tutte lette). Lette ma non dichiarate: `assiste
 
 | Campo | Oggi | Stato | Proposta | Area |
 |---|---|---|---|---|
-| `anno.etichetta` | testo nel modale | ⚠️ segue le date | precompilata dalle date, modificabile | Anno e giornata |
-| `semestri[].inizio/fine`, confine | date nel modale | ✅ (2° semestre non anticipato a vista) | anteprima «2° sem. dal …»; bloccate se dal calendario ufficiale | Anno e giornata |
-| `semestri[].etichetta` | testo | ✅ | invariato | Anno e giornata |
-| `sospensioni[]` | 3 posti (modale anno, modale pause, cestino) | 🔁 nome «Pause» nel modale = pause della giornata | un posto (scheda Chiusure); chiamate «Chiusure»; ufficiali bloccate (lavoro in corso) | Anno e giornata |
-| `calendarioUfficiale` | assente | ⚠️ | marcatore + guardia (lavoro in corso, formato v5) | Anno e giornata |
-| `settimane` | griglia A/B | ⚠️ «Alterna» senza conferma, clic senza riscontro | conferma su Alterna; lista dei tipi qui | Anno e giornata |
-| `note` | mai esposto | ⚠️ campo morto | esporre (testo) o togliere | Anno e giornata |
-| `minutiUd` | numero | ⚠️ | tendina 45/50/60/90 + «altro» | Anno e giornata |
-| `durataSlotPredefinita` | numero in UD | ✅ | numero con «UD» | Anno e giornata |
-| `pause.prima.inizio` | ora | ✅ | invariato | Anno e giornata |
-| `pause.*.durataMin`, `seguenti[].dopoUd` | numero | ⚠️ unità in etichetta | numero con unità | Anno e giornata |
-| pause aggiungi/togli | pulsanti | ⚠️ cestino senza conferma, ridispone le ore | «Annulla» nella notifica | Anno e giornata |
-| `durataPausaPredefinita` | numero | ✅ | con «min» | Anno e giornata |
-| `oraInizio/FineGiornata` | ora | ✅ | invariato | Anno e giornata |
-| `giorniVisibili` | pulsanti a interruttore | ✅ (unico segmentato multiplo) | componente segmentato generico | Anno e giornata |
-| `calendario.calendari[]` | testo nome/origine | ⚠️ origine file a mano | «Sfoglia…» accanto | Anno e giornata |
-| `calendario.regole[]` | testo + tendina corso | ⚠️ tolta singola senza conferma | Annulla in notifica | Anno e giornata |
-| `scala.min/max` | numero senza limiti | ⚠️ | numero con limiti | Valutare |
-| `scala.sufficienza` | numero | ⚠️ nessun legame con la scala | cursore fra min e max | Valutare |
-| `scala.passo` | numero | ⚠️ 4 valori sensati | segmentato 0.1/0.25/0.5/1 | Valutare |
-| `passoFineSemestre` | numero 0–10 | ⚠️ | segmentato 0/0.25/0.5/1 | Valutare |
-| `sogliaAssenza` | numero, unità nel formato | ⚠️ | numero con «%» | Valutare |
+| `anno.etichetta` | testo nel modale | ⚠️ segue le date | precompilata dalle date, modificabile | Calendario |
+| `semestri[].inizio/fine`, confine | date nel modale | ✅ (2° semestre non anticipato a vista) | anteprima «2° sem. dal …»; bloccate se dal calendario ufficiale | Calendario |
+| `semestri[].etichetta` | testo | ✅ | invariato | Calendario |
+| `sospensioni[]` | 3 posti (modale anno, modale pause, cestino) | 🔁 nome «Pause» nel modale = pause della giornata | un posto (scheda Chiusure); chiamate «Chiusure»; ufficiali bloccate (lavoro in corso) | Calendario |
+| `calendarioUfficiale` | assente | ⚠️ | marcatore + guardia (lavoro in corso, formato v5) | Calendario |
+| `settimane` | griglia A/B | ⚠️ «Alterna» senza conferma, clic senza riscontro | conferma su Alterna; lista dei tipi qui | Calendario |
+| `note` | mai esposto | ⚠️ campo morto | esporre (testo) o togliere | Calendario |
+| `minutiUd` | numero | ⚠️ | tendina 45/50/60/90 + «altro» | Calendario |
+| `durataSlotPredefinita` | numero in UD | ✅ | numero con «UD» | Calendario |
+| `pause.prima.inizio` | ora | ✅ | invariato | Calendario |
+| `pause.*.durataMin`, `seguenti[].dopoUd` | numero | ⚠️ unità in etichetta | numero con unità | Calendario |
+| pause aggiungi/togli | pulsanti | ⚠️ cestino senza conferma, ridispone le ore | «Annulla» nella notifica | Calendario |
+| `durataPausaPredefinita` | numero | ✅ | con «min» | Calendario |
+| `oraInizio/FineGiornata` | ora | ✅ | invariato | Calendario |
+| `giorniVisibili` | pulsanti a interruttore | ✅ (unico segmentato multiplo) | componente segmentato generico | Calendario |
+| `calendario.calendari[]` | testo nome/origine | ⚠️ origine file a mano | «Sfoglia…» accanto | Calendario |
+| `calendario.regole[]` | testo + tendina corso | ⚠️ tolta singola senza conferma | Annulla in notifica | Calendario |
+| `scala.min/max` | numero senza limiti | ⚠️ | numero con limiti | Didattica |
+| `scala.sufficienza` | numero | ⚠️ nessun legame con la scala | cursore fra min e max | Didattica |
+| `scala.passo` | numero | ⚠️ 4 valori sensati | segmentato 0.1/0.25/0.5/1 | Didattica |
+| `passoFineSemestre` | numero 0–10 | ⚠️ | segmentato 0/0.25/0.5/1 | Didattica |
+| `sogliaAssenza` | numero, unità nel formato | ⚠️ | numero con «%» | Didattica |
 | materie (collezione) | elenco + modale | 🔁 anche in Corsi | rimando a Corsi | Corsi |
-| `liste.*` (9 liste) | elenco modificabile | ⚠️ riordino solo a pulsanti, un salvataggio per passo | trascinamento + tastiera (`riordinatore`) | Liste (tipi di settimana → Anno) |
-| `intestazione.docente` + `docenteAppellativo/Nome/Cognome` | 4 testi | 🔁 due fonti di verità (G0 corretto) | blocco strutturato: appellativo (tendina modificabile), nome, cognome, anteprima; `docente` calcolato | Stampa |
-| `carte[].sede` | testo | ✅ | invariato | Stampa |
-| `carte[].logo` | pulsanti | ⚠️ Togli senza conferma | Annulla in notifica | Stampa |
-| `carte[].altezzaLogo` | numero (mm) | ⚠️ correzione silenziosa | cursore 6–40 mm | Stampa |
-| `carte[].corsi` | trascina/menu | ✅ | invariato | Stampa |
-| carte: predefinita | la prima, non riordinabile | ⚠️ | «Rendi predefinita» | Stampa |
-| `firma` (HTML) | editor in Comunicazioni | ✅ posto (è posta) · ⚠️ sottotitolo Intestazione promette «mail» | resta in Comunicare con pastiglia «Questo anno»; correggere sottotitolo | Comunicare |
-| `pdfAutomatici` | **solo** Ctrl+K | ⚠️ assente dalla pagina | segmentato «Mai / Alla chiusura / Sempre» | Stampa |
+| `liste.*` (9 liste) | elenco modificabile | ⚠️ riordino solo a pulsanti, un salvataggio per passo | trascinamento + tastiera (`riordinatore`) | Didattica (tipi di settimana → Calendario) |
+| `intestazione.docente` + `docenteAppellativo/Nome/Cognome` | 4 testi | 🔁 due fonti di verità (G0 corretto) | blocco strutturato: appellativo (tendina modificabile), nome, cognome, anteprima; `docente` calcolato | Utente |
+| `carte[].sede` | testo | ✅ | invariato | Utente |
+| `carte[].logo` | pulsanti | ⚠️ Togli senza conferma | Annulla in notifica | Utente |
+| `carte[].altezzaLogo` | numero (mm) | ⚠️ correzione silenziosa | cursore 6–40 mm | Utente |
+| `carte[].corsi` | trascina/menu | ✅ | invariato | Utente |
+| carte: predefinita | la prima, non riordinabile | ⚠️ | «Rendi predefinita» | Utente |
+| `firma` (HTML) | editor in Comunicazioni | ✅ posto (è posta) · ⚠️ sottotitolo Intestazione promette «mail» | Utente › Posta, con pastiglia «Questo anno»; correggere sottotitolo | Utente |
+| `pdfAutomatici` | **solo** Ctrl+K | ⚠️ assente dalla pagina | segmentato «Mai / Alla chiusura / Sempre» | Utente |
 
 ## 6. Doppioni da togliere
 
-| Cosa | Posti oggi | Posto che resta | Gli altri |
-|---|---|---|---|
-| Modello `.gguf` per uso | tendina, pulsanti di riga, filtro, nativa | tendina della riga d'uso | pulsanti di riga via (o «Usa» che apre la riga); filtro e nativa: sola lettura con rimando |
-| Interruttore assistente/OCR | elenco in fondo, barra di stato | riga d'uso | barra di stato resta scorciatoia |
-| Cartella modelli | testo in alto, campo in fondo | scheda «Sul computer» | — |
-| Programma OCR | `modelli.scaricoAutomatico` + `ocr.programma` | «Programma di lettura» | chiavi fuse |
-| Posta: collega/prova/scollega | scheda, Ctrl+K, menu nativo | area Account (capacità Posta) | Ctrl+K e menu portano lì; «Azzera» anche nella pagina |
-| Account per posta vs OneDrive | due sezioni, due «Collega» | area Account, capacità per account | — |
-| OneDrive apri | Account, Questo file, Ctrl+K | File/Ctrl+K | Account rimanda |
-| Materie | Impostazioni, Corsi | Corsi | rimando |
-| Tipi di settimana | Liste, Anno | Anno › Settimane | — |
-| Chiusure | modale anno, modale pause, scheda | scheda Chiusure | modale anno solo date e semestri |
-| Anno apri/nuovo | impostazioni, File | File | — |
-| «Impostazioni» nel menu | Vai a › Impostazioni, Registro › Impostazioni del programma… | pannello; nativa solo senza documento | voce rinominata «…senza documento aperto» |
-| Figure tema/lingua | pannello, copia nativa | un disegno condiviso | — |
+| Cosa | Posti oggi | Posto che resta | Gli altri | Fatto |
+|---|---|---|---|---|
+| Modello `.gguf` per uso | tendina, pulsanti di riga, filtro, nativa | tendina della riga d'uso | pulsanti di riga via (o «Usa» che apre la riga); filtro e nativa: sola lettura con rimando | ✅ |
+| Interruttore assistente/OCR | elenco in fondo, barra di stato | riga d'uso | barra di stato resta scorciatoia | ✅ |
+| Cartella modelli | testo in alto, campo in fondo | scheda «Sul computer» | — | ✅ |
+| Programma OCR | `modelli.scaricoAutomatico` + `ocr.programma` | «Programma di lettura» | chiavi fuse | ✅ |
+| Posta: collega/prova/scollega | scheda, Ctrl+K, menu nativo | area Account (capacità Posta) | Ctrl+K e menu portano lì; «Azzera» anche nella pagina | ✅ |
+| Account per posta vs OneDrive | due sezioni, due «Collega» | area Account, capacità per account | — | ✅ |
+| OneDrive apri | Account, Questo file, Ctrl+K | File/Ctrl+K | Account rimanda | ✅ |
+| Materie | Impostazioni, Corsi | Corsi | rimando | ✅ |
+| Tipi di settimana | Liste, Anno | Calendario › Settimane | — | ✅ |
+| Chiusure | modale anno, modale pause, scheda | scheda Chiusure | modale anno solo date e semestri | ✅ |
+| Anno apri/nuovo | impostazioni, File | File | — | ✅ |
+| «Impostazioni» nel menu | Vai a › Impostazioni, Registro › Impostazioni del programma… | pannello; nativa solo senza documento | voce rinominata «…senza documento aperto» | ✅ |
+| Figure tema/lingua | pannello, copia nativa | un disegno condiviso | — | ✅ |
 
 ## 7. Fasi e sciami
 
@@ -194,21 +204,21 @@ Ogni fase: perimetri di file disgiunti, verifica `npm run ci -- --solo verifica`
 
 | Fase | Contenuto | Perimetri paralleli |
 |---|---|---|
-| **0 Guasti** | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifesto.ts` + `desktop/transports/conduit.ts` (G6–G8) |
-| **1 Contratto dei controlli** | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
-| **2 Controlli** | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
-| **3 Gerarchia** | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli, filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`posto.ts` · B: palette · C: stili |
-| **4 Aree** | Anno e giornata · Valutare · Stampa · Liste · Comunicare+Account · Assistente e modelli · Programma | uno per area (file separati per scheda) |
-| **5 Fuori** | «Informazioni documento», Materie in Corsi, anni in File, nativa come scialuppa | A: File/menu · B: Corsi · C: nativa |
-| **6 Guida e documenti** | `help/settings*`, CATALOGO, skill `impostazione` (superata: sezioni, nativa, `pagina`) | uno |
+| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifesto.ts` + `desktop/transports/conduit.ts` (G6–G8) |
+| **1 Contratto dei controlli** ✅ | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
+| **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
+| **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`posto.ts` · B: palette · C: stili |
+| **4 Aree** ✅ | Calendario · Didattica · Utente · Programma | uno per area (file separati per sezione) |
+| **5 Fuori** ✅ (voce nel menu nativo: cantiere) | «Informazioni documento», Materie in Corsi, anni in File, nativa come scialuppa | A: File/menu · B: Corsi · C: nativa |
+| **6 Guida e documenti** ✅ | `help/settings*`, CATALOGO, skill `impostazione` (superata: sezioni, nativa, `pagina`) | uno |
 
 Migrazioni necessarie: condotto (3 chiavi → 1), promemoria (2 → 1, facoltativo), programma OCR (2 → 1), dettatura indirizzo → porta. Tutte programma (`impostazioni.json`), non documento: `CHIAVI_DISMESSE` + lettura del vecchio valore al primo avvio.
 
 ## 8. Da decidere
 
-1. Le 8 aree del § 3.2: vanno bene così?
-2. Condotto a tendina: «Solo scrittura» (oggi possibile) si toglie?
-3. Promemoria: tendina unica (via l'interruttore) o numero intero con unità?
-4. Account unico per posta e OneDrive: si tiene la separazione dei gettoni (serve: permessi diversi), ma un'area sola?
-5. Materie: solo in Corsi?
-6. Codice DOM condiviso fra pannello e nativa (in `core/`): sì o doppia implementazione?
+1. ~~Aree~~: **deciso** 2026-09-29 — quattro: Calendario, Didattica, Utente, Programma (§ 3.2).
+2. ~~Condotto~~: **deciso** — tendina «Spento / Solo lettura / Lettura e scrittura»; «solo scrittura» sparisce.
+3. ~~Promemoria~~: **deciso** — tendina unica, via l'interruttore.
+4. ~~Account unico~~: **deciso** — Utente › Account, gettoni separati per capacità.
+5. ~~Materie~~: **deciso** — solo in Corsi; nessuna sezione in Didattica (2026-09-29).
+6. ~~DOM condiviso~~: **deciso** — un disegno solo dei controlli per pannello e nativa; ADR in fase 1.

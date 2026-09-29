@@ -13,7 +13,9 @@
  *      rotta (vedi `cli/registro.mjs`).
  *   4. `core/dominio/` non importa niente da fuori di sé tranne `core/i18n/`,
  *      che a sua volta non importa niente.
- *   5. Nessun ciclo fra import di valore.
+ *   5. `core/controlli/` (il DOM dei controlli delle impostazioni, ADR-52)
+ *      importa solo `core/i18n/`, le parole di tutti e tipi da `contract`.
+ *   6. Nessun ciclo fra import di valore.
  *
  * Qui restano le tre regole che si vedono solo nel testo, e che un grafo di
  * import non sa dire: nessuno specificatore con un segmento `...`; le regole

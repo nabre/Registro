@@ -1,41 +1,23 @@
-// La posta: i gesti, i parametri della casella e l'interruttore dell'invio diretto.
-// Collegare una casella è un giro di autorizzazione con Microsoft, con il
-// risultato nel portachiavi del sistema: per questo i gesti stanno qui. La
-// casella non si scrive a mano: l'account lo chiede «Collega la casella», e il
-// mittente si sceglie fra gli indirizzi che Microsoft dice dell'account. La
-// scheda mostra i parametri com'è adesso e `invioDiretto` accanto alla riga che
-// ne spiega l'effetto (`CHIAVI_IN_SCHEDA` in `sections.ts` toglie le tre
-// chiavi dall'elenco sotto).
+// Utente › Posta: com'è la casella, da chi partono le mail, e se partono da
+// sé. Collegare, provare, scollegare e azzerare stanno in Utente › Account, per
+// capacità (`microsoft.ts`): qui si dice com'è e si rimanda là. La casella non
+// si scrive a mano: il mittente si sceglie fra gli indirizzi che Microsoft dice
+// dell'account. La scheda mostra `invioDiretto` accanto alla riga che ne spiega
+// l'effetto (`CHIAVI_IN_SCHEDA` in `sections.ts` toglie le tre chiavi
+// dall'elenco sotto).
 
-import { avviso, campo, pastiglia, pulsante, scheda } from '../../components/base.js'
+import { campo, pastiglia, pulsante, scheda } from '../../components/base.js'
 import { apriModale } from '../../components/modal.js'
 import { h, type Figlio } from '../../dom.js'
-import type { Messaggio, VoceProgramma } from '../../../../contract/protocollo.js'
+import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import { azione } from '../../bridge.js'
-import { stato } from '../../state.js'
+import { stato, vai } from '../../state.js'
 import { salvaImpostazioni } from './document.js'
 import { campoFirma } from './signature.js'
 import { vociProgramma } from './program.js'
 import { CHIAVI_IN_SCHEDA } from './sections.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './mail.testi.js'
-import { testi as testiPagina } from '../settings.testi.js'
-
-/** Scrive sotto le azioni com'è andata e lo lascia lì, da rileggere mentre si corregge. */
-function mostraEsito (dove: HTMLElement, detto: Messaggio | undefined): void {
-  dove.replaceChildren(
-    detto
-      ? avviso(
-          detto.testo,
-          detto.livello === 'errore'
-            ? 'negativo'
-            : detto.livello === 'avviso'
-              ? 'attenzione'
-              : 'informativo',
-        )
-      : avviso(testi().nessunaRisposta, 'attenzione'),
-  )
-}
 
 /** Dove finisce davvero una comunicazione adesso: dipende dal collegamento e dall'invio diretto. */
 function doveFinisce (posta: typeof stato.posta): string {
@@ -44,7 +26,7 @@ function doveFinisce (posta: typeof stato.posta): string {
     : testi().esconoComeEml
 }
 
-/** Se si è collegati: la pastiglia, e cosa fare se non lo si è. */
+/** Se si è collegati: la pastiglia, e dove si collega se non lo si è. */
 function statoCasella (posta: typeof stato.posta): HTMLElement {
   const t = testi()
   return h(
@@ -53,7 +35,14 @@ function statoCasella (posta: typeof stato.posta): HTMLElement {
     posta.exchange
       ? pastiglia(t.collegata, 'positivo', 'collegamento')
       : pastiglia(t.daCollegare, 'quiete', 'collegamento'),
-    posta.exchange ? null : t.premiCollega,
+    posta.exchange ? null : t.collegaInAccount,
+    pulsante({
+      testo: t.vaiAdAccount,
+      simbolo: 'destra',
+      variante: posta.exchange ? 'fantasma' : 'sottile',
+      titolo: t.vaiAdAccountAiuto,
+      al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'utente#account' }) },
+    }),
   )
 }
 
@@ -104,8 +93,12 @@ function parametriCasella (posta: typeof stato.posta): HTMLElement {
   )
 }
 
-/** La riga promossa, presa dalle stesse voci che disegna l'elenco di sotto. */
-function scelteDellaPosta (): Figlio {
+/**
+ * La riga promossa, presa dalle stesse voci che disegna l'elenco di sotto.
+ * Accesa senza casella non fa niente: lo dice una pastiglia accanto, invece di
+ * lasciarlo scoprire alla prima comunicazione rimasta bozza.
+ */
+function scelteDellaPosta (posta: typeof stato.posta): Figlio {
   const voci = new Map(stato.programma.map((voce: VoceProgramma) => [voce.chiave, voce]))
   // Solo l'interruttore: account e mittente li mostra `parametriCasella`.
   const trovate = (CHIAVI_IN_SCHEDA.posta ?? [])
@@ -113,90 +106,29 @@ function scelteDellaPosta (): Figlio {
     .map((chiave) => voci.get(chiave))
     .filter((voce): voce is VoceProgramma => Boolean(voce))
   if (trovate.length === 0) return null
+  const senzaEffetto = posta.invioDiretto && !posta.exchange
   return h(
     'section',
     { class: 'gruppo-opzioni' },
     h('h4', { class: 'gruppo-opzioni__titolo' }, testi().quandoParte),
     h('div', { class: 'voci-opzioni' }, ...trovate.map((voce) => vociProgramma(voce))),
+    senzaEffetto ? h('p', { class: 'posta-stato' }, pastiglia(testi().senzaEffetto, 'attenzione')) : null,
   )
 }
 
-/** La posta: a che punto è il collegamento, e dove vanno le comunicazioni. */
+/** La posta: a che punto è la casella, da chi partono le mail, e se partono da sé. */
 export function schedaPosta (): HTMLElement {
   const posta = stato.posta
-
-  // L'esito delle prove resta qui sotto, da rileggere mentre si corregge.
-  const esito = h('div', { class: 'posta-esito' })
-  /**
-   * Il riquadro vivo, cercato al clic: dopo un ridisegno `esito` può essere
-   * quello scartato, e l'esito finirebbe fuori dalla pagina.
-   */
-  const esitoVivo = (evento: Event): HTMLElement =>
-    (evento.currentTarget as HTMLElement).closest('.scheda')
-      ?.querySelector<HTMLElement>('.posta-esito') ?? esito
   const t = testi()
-
   return scheda({
     titolo: t.posta,
     sottotitolo: doveFinisce(posta),
-    azioni: [
-      pulsante({
-        testo: posta.exchange ? t.ricollega : t.collega,
-        simbolo: 'collegamento',
-        variante: posta.exchange ? 'sottile' : 'primario',
-        titolo: t.collegaAiuto,
-        al: async (evento) => {
-          const dove = esitoVivo(evento)
-          const risposta = await azione({ tipo: 'posta.collega' })
-          mostraEsito(dove, risposta.messaggio)
-        },
-      }),
-      pulsante({
-        testo: t.prova,
-        simbolo: 'posta',
-        variante: 'sottile',
-        titolo: t.provaAiuto,
-        al: async (evento) => {
-          const dove = esitoVivo(evento)
-          const risposta = await azione({ tipo: 'posta.prova' })
-          mostraEsito(dove, risposta.messaggio)
-        },
-      }),
-      // La prova d'invio accanto a quella d'accesso: sono due permessi diversi.
-      ...(posta.exchange
-        ? [
-            pulsante({
-              testo: t.mandaProva,
-              simbolo: 'posta',
-              variante: 'sottile',
-              titolo: t.mandaProvaAiuto,
-              al: async (evento) => {
-                const dove = esitoVivo(evento)
-                const risposta = await azione({ tipo: 'posta.invioProva' })
-                mostraEsito(dove, risposta.messaggio)
-              },
-            }),
-            pulsante({
-              testo: t.scollega,
-              simbolo: 'chiudi',
-              variante: 'fantasma',
-              titolo: t.scollegaAiuto,
-              al: async (evento) => {
-                const dove = esitoVivo(evento)
-                const risposta = await azione({ tipo: 'posta.scollega' })
-                mostraEsito(dove, risposta.messaggio)
-              },
-            }),
-          ]
-        : []),
-    ],
     contenuto: h(
       'div',
       { class: 'posta-corpo' },
       statoCasella(posta),
       parametriCasella(posta),
-      esito,
-      scelteDellaPosta(),
+      scelteDellaPosta(posta),
     ),
   })
 }
@@ -257,14 +189,6 @@ export function schedaFirma (): HTMLElement {
   return scheda({
     titolo: t.firma,
     aiuto: t.firmaAiuto,
-    azioni: h(
-      'span',
-      {
-        class: 'sezione-voce__ambito',
-        attr: { title: testiPagina().fileAiuto },
-      },
-      testiPagina().file,
-    ),
     contenuto: [
       campoFirma({
         firma: stato.registro.impostazioni.intestazione.firma ?? '',

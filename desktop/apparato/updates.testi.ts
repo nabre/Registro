@@ -11,8 +11,12 @@ const it = {
     'pagina delle release e la si mette al posto di questa — i dati accanto all’eseguibile ' +
     'restano dove sono.',
   altroSistema:
-    'Su questo sistema il registro non si aggiorna da sé: le release portano l’aggiornamento ' +
-    'automatico solo per Windows. La versione nuova si scarica dalla pagina delle release.',
+    'Questa copia non viene da un pacchetto che sa aggiornarsi (AppImage, .deb o .rpm): ' +
+    'non si aggiorna da sé. La versione nuova si scarica dalla pagina delle release.',
+  macFuoriPosto:
+    'Il registro gira dall’immagine disco o da una cartella in cui non può scrivere: per ' +
+    'aggiornarsi da sé va trascinato in Applicazioni. Intanto la versione nuova si scarica ' +
+    'dalla pagina delle release.',
   aManoBreve: 'aggiornamento a mano',
   nonSiAggiorna: 'Questo registro non si aggiorna da sé.',
   apriLeRelease: 'Apri le release',
@@ -57,6 +61,9 @@ const it = {
   installazioneFrase: (nuova: string) =>
     `Preparo l’installazione della ${nuova}: fra un momento il registro si chiude e ` +
     'una finestra mostra l’aggiornamento.',
+  installazioneFraseSenzaFinestra: (nuova: string) =>
+    `Preparo l’installazione della ${nuova}: fra un momento il registro si chiude, si ` +
+    'aggiorna e, se l’hai chiesto, si riapre. Il sistema può chiedere la password.',
 
   fermoBreve: 'non ancora controllato',
   fermoDaSé: 'Non si è ancora controllato: succede da sé poco dopo l’avvio.',
@@ -82,9 +89,13 @@ export const testi = catalogo(it, {
       'Seite der Releases herunter und legt sie an die Stelle dieser — die Daten neben der ' +
       'Programmdatei bleiben, wo sie sind.',
     altroSistema:
-      'Auf diesem System aktualisiert sich das Klassenbuch nicht selbst: Die Releases bringen die ' +
-      'automatische Aktualisierung nur für Windows. Die neue Version lädt man von der Seite der ' +
-      'Releases herunter.',
+      'Diese Kopie stammt nicht aus einem Paket, das sich aktualisieren kann (AppImage, .deb ' +
+      'oder .rpm): Sie aktualisiert sich nicht selbst. Die neue Version lädt man von der Seite ' +
+      'der Releases herunter.',
+    macFuoriPosto:
+      'Das Klassenbuch läuft vom Disk-Image oder aus einem Ordner, in den es nicht schreiben ' +
+      'kann: Damit es sich selbst aktualisiert, zieht man es in «Programme». Bis dahin lädt man ' +
+      'die neue Version von der Seite der Releases herunter.',
     aManoBreve: 'Aktualisierung von Hand',
     nonSiAggiorna: 'Dieses Klassenbuch aktualisiert sich nicht selbst.',
     apriLeRelease: 'Releases öffnen',
@@ -118,6 +129,10 @@ export const testi = catalogo(it, {
     installazioneFrase: (nuova) =>
       `Ich bereite die Installation von ${nuova} vor: Gleich schliesst sich das Klassenbuch, und ` +
       'ein Fenster zeigt die Aktualisierung.',
+    installazioneFraseSenzaFinestra: (nuova) =>
+      `Ich bereite die Installation von ${nuova} vor: Gleich schliesst sich das Klassenbuch, ` +
+      'aktualisiert sich und öffnet sich wieder, wenn du es verlangt hast. Das System kann ' +
+      'nach dem Passwort fragen.',
     fermoBreve: 'noch nicht geprüft',
     fermoDaSé: 'Noch nicht geprüft: Das geschieht von selbst kurz nach dem Start.',
     fermoSpento: 'Die automatische Prüfung ist ausgeschaltet: Geprüft wird mit «Jetzt prüfen».',
@@ -142,9 +157,13 @@ export const testi = catalogo(it, {
       'nouvelle depuis la page des versions publiées et on la met à la place de celle-ci — les ' +
       'données à côté de l’exécutable restent où elles sont.',
     altroSistema:
-      'Sur ce système, le registre ne se met pas à jour tout seul : les versions publiées ' +
-      'n’apportent la mise à jour automatique que pour Windows. La nouvelle version se télécharge ' +
-      'depuis la page des versions publiées.',
+      'Cette copie ne vient pas d’un paquet qui sait se mettre à jour (AppImage, .deb ou ' +
+      '.rpm) : elle ne se met pas à jour toute seule. La nouvelle version se télécharge depuis ' +
+      'la page des versions publiées.',
+    macFuoriPosto:
+      'Le registre tourne depuis l’image disque ou depuis un dossier où il ne peut pas écrire : ' +
+      'pour se mettre à jour tout seul, il faut le glisser dans Applications. En attendant, la ' +
+      'nouvelle version se télécharge depuis la page des versions publiées.',
     aManoBreve: 'mise à jour manuelle',
     nonSiAggiorna: 'Ce registre ne se met pas à jour tout seul.',
     apriLeRelease: 'Ouvrir les versions publiées',
@@ -178,6 +197,9 @@ export const testi = catalogo(it, {
     installazioneFrase: (nuova) =>
       `Je prépare l’installation de la ${nuova} : dans un instant, le registre se ferme et une ` +
       'fenêtre montre la mise à jour.',
+    installazioneFraseSenzaFinestra: (nuova) =>
+      `Je prépare l’installation de la ${nuova} : dans un instant, le registre se ferme, se ` +
+      'met à jour et, si tu l’as demandé, se rouvre. Le système peut demander le mot de passe.',
     fermoBreve: 'pas encore vérifié',
     fermoDaSé: 'Pas encore vérifié : cela se fait tout seul peu après le démarrage.',
     fermoSpento:
@@ -201,8 +223,12 @@ export const testi = catalogo(it, {
       'releases page and put it in place of this one — the data next to the program file stays ' +
       'where it is.',
     altroSistema:
-      'On this system the register doesn’t update itself: the releases bring automatic updates ' +
-      'for Windows only. Download the new version from the releases page.',
+      'This copy doesn’t come from a package that can update itself (AppImage, .deb or .rpm): ' +
+      'it doesn’t update itself. Download the new version from the releases page.',
+    macFuoriPosto:
+      'The register is running from the disk image or from a folder it can’t write to: to ' +
+      'update itself it has to be dragged into Applications. Meanwhile, download the new ' +
+      'version from the releases page.',
     aManoBreve: 'manual update',
     nonSiAggiorna: 'This register doesn’t update itself.',
     apriLeRelease: 'Open the releases',
@@ -235,6 +261,9 @@ export const testi = catalogo(it, {
     installazioneFrase: (nuova) =>
       `Getting ready to install ${nuova}: in a moment the register closes and a window shows ` +
       'the update.',
+    installazioneFraseSenzaFinestra: (nuova) =>
+      `Getting ready to install ${nuova}: in a moment the register closes, updates and, if ` +
+      'you asked for it, opens again. The system may ask for the password.',
     fermoBreve: 'not checked yet',
     fermoDaSé: 'Not checked yet: it happens by itself shortly after start-up.',
     fermoSpento: 'Automatic checking is off: check by pressing “Check now”.',

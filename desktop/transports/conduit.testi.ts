@@ -7,9 +7,13 @@ import { catalogo } from '../../core/i18n/index.js'
 /** Il permesso che manca, come lo scrive l'impostazione che lo concede. */
 type Permesso = 'lettura' | 'scrittura'
 
+/** La scelta di `registroDocenti.api.accesso` che concede il permesso: la si scrive così com'è. */
+const sceltaPer = (che: Permesso): string => (che === 'lettura' ? 'lettura' : 'letturaScrittura')
+
 const it = {
   nonConcede: (che: Permesso) => `Il condotto non concede la ${che}.`,
-  siConcede: (che: Permesso) => `Si concede con l’impostazione «registroDocenti.api.${che}».`,
+  siConcede: (che: Permesso) =>
+    `Si concede con l’impostazione «registroDocenti.api.accesso» su «${sceltaPer(che)}».`,
   permessiIntoccabili: 'I permessi del condotto non si cambiano dal condotto.',
   programmiIntoccabili: 'I programmi che il registro fa partire non si cambiano dal condotto.',
   voceIntoccabile: 'Dove il registro manda la voce della dettatura non si cambia dal condotto.',
@@ -66,7 +70,8 @@ export const testi = catalogo(it, {
   de: {
     nonConcede: (che) =>
       `Der Kanal erlaubt ${che === 'lettura' ? 'das Lesen' : 'das Schreiben'} nicht.`,
-    siConcede: (che) => `Erlaubt wird es mit der Einstellung «registroDocenti.api.${che}».`,
+    siConcede: (che) =>
+      `Erlaubt wird es mit der Einstellung «registroDocenti.api.accesso» auf «${sceltaPer(che)}».`,
     permessiIntoccabili: 'Die Berechtigungen des Kanals lassen sich nicht über den Kanal ändern.',
     programmiIntoccabili:
       'Die Programme, die das Klassenbuch startet, lassen sich nicht über den Kanal ändern.',
@@ -126,7 +131,8 @@ export const testi = catalogo(it, {
   fr: {
     nonConcede: (che) =>
       `Le canal n’autorise pas ${che === 'lettura' ? 'la lecture' : 'l’écriture'}.`,
-    siConcede: (che) => `On l’autorise avec le paramètre « registroDocenti.api.${che} ».`,
+    siConcede: (che) =>
+      `On l’autorise avec le paramètre « registroDocenti.api.accesso » sur « ${sceltaPer(che)} ».`,
     permessiIntoccabili: 'Les autorisations du canal ne se changent pas depuis le canal.',
     programmiIntoccabili:
       'Les programmes que le registre lance ne se changent pas depuis le canal.',
@@ -184,7 +190,8 @@ export const testi = catalogo(it, {
   en: {
     nonConcede: (che) =>
       `The pipe does not allow ${che === 'lettura' ? 'reading' : 'writing'}.`,
-    siConcede: (che) => `It is allowed with the “registroDocenti.api.${che}” setting.`,
+    siConcede: (che) =>
+      `It is allowed with the “registroDocenti.api.accesso” setting on “${sceltaPer(che)}”.`,
     permessiIntoccabili: 'The pipe’s permissions cannot be changed from the pipe.',
     programmiIntoccabili: 'The programs the register starts cannot be changed from the pipe.',
     voceIntoccabile:

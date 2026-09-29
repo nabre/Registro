@@ -17,32 +17,69 @@
 .modelli-llm__usi {
   display: flex;
   flex-direction: column;
-  gap: var(--spazio-3);
+  gap: var(--spazio-4);
 }
 
+/* Una riga d'uso: nome, interruttore, modelli, programma, stato, uno sotto l'altro. */
 .modelli-llm__uso {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem auto;
+  display: flex;
+  flex-direction: column;
   gap: var(--spazio-2);
-  align-items: center;
+  padding-top: var(--spazio-3);
+  border-top: 1px solid var(--bordo-tenue);
 }
 
-/* Il motivo è una frase intera: sta sotto, su tutta la riga, e non accanto alla tendina. */
+.modelli-llm__uso:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.modelli-llm__uso-titolo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+/* Le tendine dei file: il modello e, per le scansioni, il suo proiettore. */
+.modelli-llm__campi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2) var(--spazio-4);
+}
+
+.modelli-llm__campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  flex: 0 1 22rem;
+  min-width: 0;
+  font-size: var(--corpo-piccolo);
+  color: var(--testo-quieto);
+}
+
+.modelli-llm__lettore,
+.modelli-llm__percorso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.modelli-llm__percorso code {
+  overflow-wrap: anywhere;
+}
+
+/* Il motivo è una frase intera: sta sotto, su tutta la riga. */
 .modelli-llm__uso .modelli-llm__motivo {
-  grid-column: 1 / -1;
   margin: 0;
   color: var(--testo-quieto);
   font-size: var(--corpo-piccolo);
 }
 
-.modelli-llm__uso-testi h4 {
-  margin: 0;
-}
-
-@media (max-width: 56.25rem) {
-  .modelli-llm__uso {
-    grid-template-columns: minmax(0, 1fr);
-  }
+/* «Scarica modelli»: chiuso come le avanzate, con le sue schede dentro. */
+.modelli-llm__scarichi {
+  margin-top: var(--spazio-3);
 }
 
 /* --------------------------------------------------------------- le righe */

@@ -135,7 +135,7 @@ Le dipendenze del codice devono seguire rigorosamente la direzione consentita ("
 | **`core/`** | `core/` | `core/`, `contract/` | `contract/` (valori), `desktop/`, `ui/`, `cli/`, `electron` (diretto) |
 | **`contract/`** | `contract/`, `core/` | `contract/`, `core/` | `desktop/`, `ui/`, `cli/`, `electron` |
 | **`desktop/`** | `desktop/`, `contract/`, `core/` | `desktop/`, `contract/`, `core/` | `ui/`, `cli/` |
-| **`ui/`** | `ui/`, `contract/`, `core/dominio/`, `core/i18n/` | `ui/`, `contract/`, `core/` | `desktop/`, `cli/`, `node:*`, `electron`, `core/dati/`, `core/azioni/`, `core/apparato/` |
+| **`ui/`** | `ui/`, `contract/`, `core/dominio/`, `core/i18n/`, `core/controlli/` | `ui/`, `contract/`, `core/` | `desktop/`, `cli/`, `node:*`, `electron`, `core/dati/`, `core/azioni/`, `core/apparato/` |
 | **`cli/`** | `cli/` | `cli/` | `core/`, `contract/`, `desktop/`, `ui/` (autonomia assoluta) |
 
 ### L'eccezione contrattuale di `core/`: SOLO tipi (`import type`)
@@ -163,7 +163,11 @@ Sebbene `ui/` possa importare da `core/`, la protezione `VIETATI_A_UI` in `tools
 - `core/azioni/`: la webview non può mutare direttamente lo stato in memoria, deve passare da una `Richiesta` IPC;
 - `core/apparato/`: la webview non può interagire con l'host se non tramite il ponte.
 
-Alla webview è concesso importare solo funzioni pure di calcolo da `core/dominio/` e stringhe da `core/i18n/`.
+Alla webview è concesso importare solo funzioni pure di calcolo da `core/dominio/`, stringhe da `core/i18n/` e i controlli delle impostazioni da `core/controlli/`.
+
+### `core/controlli/`: il DOM condiviso dei controlli (ADR-52)
+
+I controlli delle impostazioni del programma (`controllo()` in `core/controlli/controllo.ts`, le aree in `core/controlli/aree.ts`, il foglio `core/controlli/controlli.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
 
 ---
 
@@ -236,7 +240,8 @@ Il linter verifica le restrizioni a livello di singolo file prima e durante lo s
 - **`core/dominio/**/*.ts`**: vieta `node:*`, `electron`, `apparato` e percorsi relativi risalenti (`../*`). Il dominio deve rimanere intoccato da runtime esterni.
 - **`ui/**/*.ts`**: vieta `node:*` ed `electron`. Previene errori catastrofici in produzione causati da bundle browser che referenziano API native Node inesistenti nella webview.
 - **`core/dati/**/*.ts`, `core/azioni/**/*.ts`, `desktop/pannelli/**/*.ts`**: vieta l'importazione diretta di `electron`, imponendo il passaggio tramite l'astrazione `apparato` (`core/apparato/platform.ts` / `desktop/apparato/platform.ts`).
-- **`desktop/shell/pages/**/*.ts`**: forza l'uso di `allowTypeImports: true` verso il main process, impedendo che codice di Electron finisca nei bundle delle finestre secondarie.
+- **`desktop/shell/pages/**/*.ts`**: forza l'uso di `allowTypeImports: true` verso il main process, impedendo che codice di Electron finisca nei bundle delle finestre secondarie; da fuori di `shell/pages/` passano come valori solo `core/i18n/`, `core/controlli/` e le parole di tutti.
+- **`core/controlli/**/*.ts`**: vieta `node:*`, `electron`, `apparato` e, da fuori della cartella, tutto tranne `core/i18n/`, `core/dominio/words.testi.ts` e i tipi di `contract/`.
 
 ### 3. La coerenza della documentazione: `npm run docs` (`tools/docs.mjs`)
 Ogni volta che si documentano percorsi o script in questa skill o in `docs/`:

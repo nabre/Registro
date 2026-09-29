@@ -9,6 +9,7 @@ import * as apparato from 'apparato'
 import { modelloNellaCartella } from './gguf.js'
 import { LLAMA_CPP } from './llamaCpp.js'
 import { MTMD } from './mtmd.js'
+import { programmaIndicato } from './visionKit.js'
 import { testi as testiMtmd } from './mtmd.testi.js'
 import { testi } from './llm.testi.js'
 
@@ -107,7 +108,8 @@ export interface Motore {
 
 /**
  * Chi si serve di un modello. Il nome è il prefisso delle chiavi nel manifesto
- * (`<uso>.attivo`, `<uso>.modello`, e `.proiettore`/`.programma` se servono):
+ * (`<uso>.attivo`, `<uso>.modello`, e `.proiettore` se serve; il programma
+ * esterno dell'OCR è `ocr.lettore`, «Programma di lettura»):
  * un uso nuovo vuole una riga qui, una in `PREDEFINITI` e quelle chiavi.
  */
 export type Uso = 'ocr' | 'assistente'
@@ -180,7 +182,8 @@ export function collegamento (uso: Uso, segnale?: AbortSignal): Collegamento {
     modelloChiesto: chiesto,
     proiettore: modelloNellaCartella(proiettoreChiesto),
     proiettoreChiesto,
-    programma: configurazione.get<string>(`${uso}.programma`, '').trim(),
+    // Solo l'OCR ha un programma esterno; l'assistente gira dentro il registro.
+    programma: uso === 'ocr' ? programmaIndicato() : '',
     attesaMs: PREDEFINITI[uso].attesaSecondi * 1000,
     ...(segnale ? { segnale } : {}),
   }
@@ -196,7 +199,7 @@ export interface Prontezza {
 
 /**
  * Se c'è tutto per chiedere, da sapere prima di mandare. Il motivo è una frase
- * leggibile che dice dove si rimedia (la sezione «Modelli linguistici»).
+ * leggibile che dice dove si rimedia (la sezione «Assistente e modelli»).
  * Sincrona: guarda solo file e impostazioni.
  */
 export function prontezza (collegamento: Collegamento): Prontezza {

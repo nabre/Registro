@@ -77,6 +77,7 @@ import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
 import { battiMinuto } from './orologio.js'
 import {
   CAMPI_CONTESTO,
+  areaDellaSezione,
   chiaveDelPosto,
   completa,
   derivaVista,
@@ -85,9 +86,9 @@ import {
   type Completato,
   type Contesto,
   type Posto,
+  type AreaImpostazioni,
   type Scheda,
-  type SchedaDocumento,
-  type SchedaProgramma,
+  type SezioneImpostazioni,
 } from './posto.js'
 import {
   chiaveDocumento,
@@ -103,6 +104,7 @@ import {
   voceDel,
   type Globali,
   type Memoria,
+  type Segnalibro,
   type VoceDocumento,
 } from './memoria.js'
 import { confrontaNomi } from '../../core/dominio/text.js'
@@ -112,8 +114,8 @@ import { testi } from './state.testi.js'
 /** L'elenco delle sezioni sta nel protocollo: lo legge anche l'host. */
 export type { Vista } from '../../contract/protocollo.js'
 
-// Le sezioni delle impostazioni stanno col posto (`posto.ts`), di cui fanno parte.
-export type { SchedaDocumento, SchedaProgramma } from './posto.js'
+// Aree e sezioni delle impostazioni stanno col posto (`posto.ts`), di cui fanno parte.
+export type { AreaImpostazioni, SezioneImpostazioni } from './posto.js'
 
 /**
  * La regola del giorno dentro l'anno sta in `posto.ts`, che la usa per l'ora
@@ -173,12 +175,6 @@ export type SchedaDocumenti = (typeof SCHEDE_DOCUMENTI)[number]
  * accesa in tutte: è il punto da cui si leggono le distanze.
  */
 export type SchedaMappa = (typeof SCHEDE_MAPPA)[number]
-
-/**
- * Di chi sono le impostazioni che si guardano: del documento (viaggiano col
- * `.regi`) o del programma (restano su questa macchina, per tutti gli anni).
- */
-type AmbitoImpostazioni = 'programma' | 'documento'
 
 /**
  * Gli scalini dello zoom delle pagine nello sfoglio, in pixel: abbastanza
@@ -294,12 +290,18 @@ interface StatoUI {
   ambitoCheck: AmbitoCheck;
   /** Quale scheda della pagina Documenti si sta guardando. */
   schedaDocumenti: SchedaDocumenti;
-  /** Di chi sono le impostazioni aperte: del programma o del documento. */
-  ambitoImpostazioni: AmbitoImpostazioni;
-  /** Quale sezione delle impostazioni del programma. */
-  schedaProgramma: SchedaProgramma;
-  /** Quale sezione delle impostazioni del documento. */
-  schedaDocumento: SchedaDocumento;
+  /** L'area delle impostazioni aperta: la dice il posto. */
+  areaImpostazioni: AreaImpostazioni;
+  /**
+   * La sezione delle impostazioni che si sta guardando. La segue lo
+   * scorrimento, senza ridisegnare: la pagina la scrive e la ricorda da sé.
+   */
+  sezioneImpostazioni: SezioneImpostazioni;
+  /**
+   * Dove si era arrivati a leggere nelle pagine con un indice. Lo segue lo
+   * scorrimento, senza ridisegnare: vedi `segnalibro.ts`.
+   */
+  segnalibri: Record<string, Segnalibro>;
   /**
    * Il documento esportato nell'anteprima (percorso sotto `esportazioni/`), o
    * `null`. Non si ricorda; si svuota quando il file non c'è più.
@@ -487,11 +489,10 @@ export const stato: StatoUI = {
   schedaDocente: derivatiIniziali.schedaDocente ?? 'todo',
   ambitoCheck: derivatiIniziali.ambitoCheck ?? 'corso',
   schedaDocumenti: globali.schedaDocumenti ?? 'corso',
-  ambitoImpostazioni: derivatiIniziali.ambitoImpostazioni ?? 'documento',
-  schedaProgramma: derivatiIniziali.schedaProgramma ??
-    globali.ultimaSchedaImpostazioni?.programma ?? 'aspetto',
-  schedaDocumento: derivatiIniziali.schedaDocumento ??
-    globali.ultimaSchedaImpostazioni?.documento ?? 'anno',
+  areaImpostazioni: derivatiIniziali.areaImpostazioni ??
+    areaDellaSezione(globali.sezioneImpostazioni ?? 'anno') ?? 'calendario',
+  sezioneImpostazioni: globali.sezioneImpostazioni ?? 'anno',
+  segnalibri: globali.segnalibri ?? {},
   anteprima: null,
   anteprimaArchivio: null,
   anteprimaAssenze: null,
@@ -606,10 +607,8 @@ function globaliDiAdesso (): Partial<Globali> {
     assistenteAperto: stato.assistenteAperto,
     contestoAssistente: { ...daRicordare(stato.contestoAssistente) },
     azioniNascoste: stato.azioniNascoste,
-    ultimaSchedaImpostazioni: {
-      programma: stato.schedaProgramma,
-      documento: stato.schedaDocumento,
-    },
+    sezioneImpostazioni: stato.sezioneImpostazioni,
+    segnalibri: stato.segnalibri,
   }
 }
 
@@ -809,9 +808,7 @@ type CampoDelPosto =
   | 'vista'
   | 'ambitoCheck'
   | 'schedaDocente'
-  | 'ambitoImpostazioni'
-  | 'schedaProgramma'
-  | 'schedaDocumento'
+  | 'areaImpostazioni'
   | typeof CAMPI_CONTESTO[number]
 
 /** Lo stato che si cambia senza muoversi: tutto meno il posto e i suoi derivati. */
@@ -865,12 +862,10 @@ export function postoCorrente (): Posto {
   return stato.posto
 }
 
-/** La sezione da cui si riaprono le impostazioni: l'ultima guardata nel suo ambito. */
+/** Da dove si riaprono le impostazioni: l'ultima sezione guardata, nella sua area. */
 function schedaRicordata (): Scheda {
-  // testo-fisso: l'id di una sezione
-  if (stato.ambitoImpostazioni === 'programma') return `programma.${stato.schedaProgramma}`
-  // testo-fisso: l'id di una sezione
-  return `documento.${stato.schedaDocumento}`
+  const sezione = stato.sezioneImpostazioni
+  return `${areaDellaSezione(sezione) ?? 'calendario'}#${sezione}`
 }
 
 function stessoContesto (a: Contesto, b: Contesto): boolean {

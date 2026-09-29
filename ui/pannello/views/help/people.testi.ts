@@ -220,7 +220,7 @@ const it = {
       {
         termine: 'Con che programma',
         testo:
-          'Lo dice **Impostazioni** › Comunicazioni: per le chiamate quello ' +
+          'Lo dice **Impostazioni** › Utente › Posta: per le chiamate quello ' +
           'di sistema, Teams o Skype; per la posta quello di sistema, Outlook o Outlook sul ' +
           'web. Con «nessuno» resta solo il tasto che copia.',
       },
@@ -756,7 +756,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Mit welchem Programm',
           testo:
-            'Das sagt **Einstellungen** › Kommunikation: für Anrufe das des Systems, Teams oder ' +
+            'Das sagt **Einstellungen** › Benutzer › Post: für Anrufe das des Systems, Teams oder ' +
             'Skype; für die Post das des Systems, Outlook oder Outlook im Web. Mit «Keines» ' +
             'bleibt nur die Taste zum Kopieren.',
         },
@@ -1304,7 +1304,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Avec quel programme',
           testo:
-            'C’est **Paramètres** › Communications qui le dit : pour les appels celui du ' +
+            'C’est **Paramètres** › Utilisateur › Messagerie qui le dit : pour les appels celui du ' +
             'système, Teams ou Skype ; pour le courrier celui du système, Outlook ou Outlook sur ' +
             'le web. Avec « Aucun », il ne reste que le bouton qui copie.',
         },
@@ -1844,7 +1844,7 @@ export const testi = catalogo(it, {
         {
           termine: 'With which program',
           testo:
-            '**Settings** › Communications says so: for calls the system one, Teams or Skype; for ' +
+            '**Settings** › User › Mail says so: for calls the system one, Teams or Skype; for ' +
             'email the system one, Outlook or Outlook on the web. With “None” only the copy ' +
             'button is left.',
         },

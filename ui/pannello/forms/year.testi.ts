@@ -16,19 +16,19 @@ const it = {
   fuoriDallAnno: 'fuori dall’anno',
   giorni: (n: number) => plurale(n, 'giorno', 'giorni'),
   comeSiChiama: 'Come si chiama',
-  togliPausa: 'Togli la pausa',
-  nessunaPausa: 'Nessuna pausa.',
+  togliPausa: 'Togli la chiusura',
+  nessunaPausa: 'Nessuna chiusura.',
   suggerimentoPause:
     'Vacanze e giorni di chiusura si dichiarano qui, e la generazione ' +
     'dell’orario li salta.',
-  pause: 'Pause',
+  pause: 'Chiusure',
   quanto: 'Quanto',
-  aggiungiPausa: 'Aggiungi pausa',
+  aggiungiPausa: 'Aggiungi una chiusura',
   aggiungeTipica: (nome: string) => `Aggiunge «${nome}» nel periodo in cui cade di solito`,
   giorniSenzaLezione: (anno: string) => `Giorni senza lezione · ${anno}`,
   sottotitoloPause:
     'valgono per tutte le classi dell’anno, e la generazione dell’orario li salta',
-  pauseAggiornate: 'Pause aggiornate.',
+  pauseAggiornate: 'Chiusure aggiornate.',
   /** Le date di un semestre nel modulo: «1° semestre: inizio». */
   inizioDi: (semestre: string) => `${semestre}: inizio`,
   fineDi: (semestre: string) => `${semestre}: fine`,
@@ -39,6 +39,10 @@ const it = {
     'L’anno va da quando comincia il primo semestre a quando finisce il secondo: ' +
     'le sue date si ricavano da queste.',
   aiutoConfine: 'Il 2° semestre comincia il giorno dopo.',
+  secondoDal: (data: string) => `2° semestre dal ${data}`,
+  chiusureAltrove:
+    'Vacanze e giorni di chiusura hanno un posto solo: Impostazioni › Calendario › Chiusure.',
+  apriChiusure: 'Apri le chiusure',
   calendarioUfficiale: 'Calendario ufficiale',
   aiutoUfficialeAnno:
     'Inizio e fine delle lezioni, vacanze e festivi pubblicati dal cantone: si ' +
@@ -77,20 +81,20 @@ export const testi = catalogo(it, {
     fuoriDallAnno: 'ausserhalb des Schuljahrs',
     giorni: (n) => plurale(n, 'Tag', 'Tage'),
     comeSiChiama: 'Wie er heisst',
-    togliPausa: 'Unterbruch entfernen',
-    nessunaPausa: 'Keine Unterbrüche.',
+    togliPausa: 'Schliessung entfernen',
+    nessunaPausa: 'Keine Schliessungen.',
     suggerimentoPause:
       'Ferien und Schliessungstage trägst du hier ein, und beim Erzeugen der Stunden ' +
       'aus dem Stundenplan werden sie übersprungen.',
-    pause: 'Unterbrüche',
+    pause: 'Schliessungen',
     quanto: 'Dauer',
-    aggiungiPausa: 'Unterbruch hinzufügen',
+    aggiungiPausa: 'Schliessung hinzufügen',
     aggiungeTipica: (nome) => `Fügt «${nome}» zur üblichen Zeit im Jahr hinzu`,
     giorniSenzaLezione: (anno) => `Tage ohne Unterricht · ${anno}`,
     sottotitoloPause:
       'gelten für alle Klassen des Schuljahrs, und beim Erzeugen der Stunden aus dem ' +
       'Stundenplan werden sie übersprungen',
-    pauseAggiornate: 'Unterbrüche aktualisiert.',
+    pauseAggiornate: 'Schliessungen aktualisiert.',
     inizioDi: (semestre) => `${semestre}: Beginn`,
     fineDi: (semestre) => `${semestre}: Ende`,
     anno: (etichetta) => `Schuljahr ${etichetta}`,
@@ -100,6 +104,11 @@ export const testi = catalogo(it, {
       'Das Schuljahr reicht vom Beginn des ersten bis zum Ende des zweiten Semesters: ' +
       'Seine Daten ergeben sich aus diesen.',
     aiutoConfine: 'Das 2. Semester beginnt am Tag danach.',
+    secondoDal: (data) => `2. Semester ab ${data}`,
+    chiusureAltrove:
+      'Ferien und Schliessungstage haben einen einzigen Ort: Einstellungen › Kalender › ' +
+      'Schliessungen.',
+    apriChiusure: 'Schliessungen öffnen',
     calendarioUfficiale: 'Offizieller Schulkalender',
     aiutoUfficialeAnno:
       'Unterrichtsbeginn und -ende, Ferien und Feiertage, wie der Kanton sie veröffentlicht: ' +
@@ -138,20 +147,20 @@ export const testi = catalogo(it, {
     fuoriDallAnno: 'hors de l’année',
     giorni: (n) => plurale(n, 'jour', 'jours'),
     comeSiChiama: 'Son nom',
-    togliPausa: 'Retirer l’interruption',
-    nessunaPausa: 'Aucune interruption.',
+    togliPausa: 'Retirer la fermeture',
+    nessunaPausa: 'Aucune fermeture.',
     suggerimentoPause:
       'Les vacances et les jours de fermeture se déclarent ici, et la génération des ' +
       'leçons depuis l’horaire les saute.',
-    pause: 'Interruptions',
+    pause: 'Fermetures',
     quanto: 'Durée',
-    aggiungiPausa: 'Ajouter une interruption',
+    aggiungiPausa: 'Ajouter une fermeture',
     aggiungeTipica: (nome) => `Ajoute « ${nome} » à la période où elle tombe d’habitude`,
     giorniSenzaLezione: (anno) => `Jours sans cours · ${anno}`,
     sottotitoloPause:
       'valent pour toutes les classes de l’année, et la génération des leçons depuis ' +
       'l’horaire les saute',
-    pauseAggiornate: 'Interruptions mises à jour.',
+    pauseAggiornate: 'Fermetures mises à jour.',
     inizioDi: (semestre) => `${semestre} : début`,
     fineDi: (semestre) => `${semestre} : fin`,
     anno: (etichetta) => `Année ${etichetta}`,
@@ -161,6 +170,11 @@ export const testi = catalogo(it, {
       'L’année va du début du premier semestre à la fin du second : ses dates découlent ' +
       'de celles-ci.',
     aiutoConfine: 'Le 2e semestre commence le lendemain.',
+    secondoDal: (data) => `2e semestre dès le ${data}`,
+    chiusureAltrove:
+      'Les vacances et les jours de fermeture ont une seule place : Paramètres › Calendrier › ' +
+      'Fermetures.',
+    apriChiusure: 'Ouvrir les fermetures',
     calendarioUfficiale: 'Calendrier officiel',
     aiutoUfficialeAnno:
       'Début et fin des cours, vacances et jours fériés publiés par le canton : tu choisis ' +
@@ -199,20 +213,20 @@ export const testi = catalogo(it, {
     fuoriDallAnno: 'outside the year',
     giorni: (n) => plurale(n, 'day', 'days'),
     comeSiChiama: 'What it’s called',
-    togliPausa: 'Remove the break',
-    nessunaPausa: 'No breaks.',
+    togliPausa: 'Remove the closure',
+    nessunaPausa: 'No closures.',
     suggerimentoPause:
       'Holidays and closure days are set here, and generating lessons from the timetable ' +
       'skips them.',
-    pause: 'Breaks',
+    pause: 'Closures',
     quanto: 'How long',
-    aggiungiPausa: 'Add a break',
+    aggiungiPausa: 'Add a closure',
     aggiungeTipica: (nome) => `Adds “${nome}” at the time of year it usually falls`,
     giorniSenzaLezione: (anno) => `Days without lessons · ${anno}`,
     sottotitoloPause:
       'they apply to every class in the year, and generating lessons from the timetable ' +
       'skips them',
-    pauseAggiornate: 'Breaks updated.',
+    pauseAggiornate: 'Closures updated.',
     inizioDi: (semestre) => `${semestre}: start`,
     fineDi: (semestre) => `${semestre}: end`,
     anno: (etichetta) => `School year ${etichetta}`,
@@ -222,6 +236,9 @@ export const testi = catalogo(it, {
       'The year runs from the start of the first semester to the end of the second: its ' +
       'dates come from these.',
     aiutoConfine: 'The 2nd semester starts the day after.',
+    secondoDal: (data) => `2nd semester from ${data}`,
+    chiusureAltrove: 'Holidays and closure days have one place only: Settings › Calendar › Closures.',
+    apriChiusure: 'Open the closures',
     calendarioUfficiale: 'Official calendar',
     aiutoUfficialeAnno:
       'Start and end of lessons, holidays and public holidays published by the canton: ' +

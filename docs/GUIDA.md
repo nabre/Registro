@@ -107,7 +107,8 @@ l'installato, `Regiklass - dati` accanto all'eseguibile per il portabile
 | cartella dei modelli | `.gguf` e programma delle scansioni |
 
 Le impostazioni del documento (materie, scala, giornata di scuola, calendario,
-carte intestate) viaggiano nel `.regi` (ADR-21). Elenco delle chiavi:
+carte intestate) viaggiano nel `.regi` (ADR-21). Campo per campo:
+[MODELLO-DATI](MODELLO-DATI.md) § 3.44; le regole delle due famiglie:
 [CATALOGO](CATALOGO.md) § 5.
 
 **Campioni.** `tests/samples/anno_esempio.regi` (dati inventati; si rinomina in
@@ -212,13 +213,20 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
   `.github/workflows/rilascio.yml` verifica, impacchetta, firma, crea il tag
   `vX.Y.Z` e pubblica la release (bozza finché i file e `latest.yml` non sono
   caricati). I pacchetti per Linux li fa il lavoro `linux`, su Ubuntu e senza
-  firma, accanto a `pacchetti`; li carica nella bozza `pubblica`.
+  firma, accanto a `pacchetti`; quelli per macOS (`.dmg` e `.zip`, arm64 e
+  x64 su due macchine, firma ad-hoc, niente notarizzazione) il lavoro `mac`.
+  Li carica nella bozza `pubblica`, che fonde i due `latest-mac.yml`.
 - Aggiornamenti con `electron-updater` (`desktop/apparato/updates.ts`): mezzo
   minuto dopo l'avvio e poi ogni sei ore; di serie scarica e installa alla
   chiusura. Lo stato è già detto a parole (`racconta`) per tutte le superfici.
-  L'installazione la conduce `os/windows/aggiornamento.ps1`
-  (`desktop/apparato/updateInstaller.ts`). Si aggiorna da sé solo l'installato
-  su Windows; portabile e altri sistemi mandano alla pagina delle release.
+  Su Windows l'installazione la conduce `os/windows/aggiornamento.ps1`
+  (`desktop/apparato/updateInstaller.ts`); su Linux electron-updater stesso
+  (AppImage sostituito, `.deb` e `.rpm` con la password di sistema); su macOS
+  `desktop/apparato/updateMac.ts` scarica lo `.zip` e
+  `os/macos/aggiornamento.sh` scambia il pacchetto all'uscita, perché
+  Squirrel.Mac rifiuta la firma ad-hoc. Portabile, `.app` fuori da una
+  cartella scrivibile e Linux senza pacchetto mandano alla pagina delle
+  release.
 
 ## La firma del codice
 
@@ -289,10 +297,9 @@ firma si saltano. All'ammissione:
 
 ## Il condotto, e il registro da terminale
 
-- `registroDocenti.api.condotto` acceso: JSON-RPC su pipe nominata (Windows) o
-  socket Unix, mai su una porta di rete. `registroDocenti.api.lettura` accesa
-  di serie, `registroDocenti.api.scrittura` spenta; una scrittura senza
-  permesso torna `non-permesso`.
+- `registroDocenti.api.accesso` su `lettura` o `letturaScrittura`: JSON-RPC su
+  pipe nominata (Windows) o socket Unix, mai su una porta di rete. Con
+  `lettura` una scrittura torna `non-permesso`.
 - `regi`: l'installato scrive a ogni avvio un ponte in una cartella nel PATH
   dell'utente (`desktop/shell/system/commandLine.ts`) che lancia `cli/registro.mjs`
   con l'eseguibile del registro e `ELECTRON_RUN_AS_NODE`. Il portabile no. Dal
@@ -323,7 +330,7 @@ nessun'altra (per chi usa: la guida in-app, «Che cosa esce dal computer»).
 | Geocodifica | `nominatim.openstreetmap.org` | indirizzi (via, NAP, località), una richiesta al secondo, `User-Agent` dichiarato | solo con «Trova gli indirizzi» (`core/dati/geocoding.ts`) |
 | Carte della mappa | `tile.openstreetmap.org` | coordinate dei tasselli (la zona, non i nomi) | guardando la mappa o il riquadro «Dove sta» di un allievo; cache in `tasselli/` (`desktop/shell/protocol/tiles.ts`) |
 | Posta | `login.microsoftonline.com`, `smtp.office365.com` | accesso alla casella e messaggi con allegati | collegando la casella, e spedendo con «Spedisci senza bozza» (spento di serie) (`core/dati/oauth.ts`, `core/dati/exchange.ts`) |
-| OneDrive | `login.microsoftonline.com`, `graph.microsoft.com` | accesso all'account; nomi di cartelle e file letti, e lo scarico di un `.regi` non sincronizzato | collegando un account in «Account Microsoft», sfogliando, cercando o aprendo da OneDrive (`core/dati/microsoft.ts`, `core/dati/onedrive.ts`) |
+| OneDrive | `login.microsoftonline.com`, `graph.microsoft.com` | accesso all'account; nomi di cartelle e file letti, e lo scarico di un `.regi` non sincronizzato | collegando un account in Impostazioni › Utente › Account, sfogliando, cercando o aprendo da OneDrive (`core/dati/microsoft.ts`, `core/dati/onedrive.ts`) |
 | Calendario della scuola | l'indirizzo ICS scritto dal docente | una GET, senza dati | aggiungendo, aggiornando o confrontando un calendario (`core/dati/calendar.ts`) |
 | Aggiornamenti | release di GitHub | «qual è l'ultima versione», poi lo scarico | all'avvio e ogni sei ore, se acceso |
 | Modelli | `huggingface.co` | parole cercate, depositi e file da scaricare | cercando o scaricando (`core/dati/huggingFace.ts`) |

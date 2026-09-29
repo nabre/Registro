@@ -26,7 +26,7 @@ const it = {
     testo: 'Testo',
     aiutoFirma:
       'La firma non va scritta qui: nella bozza aperta nel programma di posta la mette ' +
-      'lui; quando spedisce il registro, in fondo va quella di Impostazioni › Comunicazioni.',
+      'lui; quando spedisce il registro, in fondo va quella di Impostazioni › Utente › Posta.',
     destinatari: 'Destinatari',
     aiutoDestinatari: 'Gli indirizzi vanno in copia nascosta: nessuno vede la lista degli altri.',
     spedita: (giorno: string, n: number) => `Spedita il ${giorno} a ${plurale(n, 'indirizzo', 'indirizzi')}.`,
@@ -76,7 +76,7 @@ export const testi = catalogo(it, {
       aiutoFirma:
         'Die Signatur gehört nicht hierher: Im Entwurf, der sich im Mailprogramm öffnet, ' +
         'setzt dieses sie selbst ein; versendet das Klassenbuch, kommt unten die aus ' +
-        'Einstellungen › Kommunikation hin.',
+        'Einstellungen › Benutzer › Post hin.',
       destinatari: 'Empfänger',
       aiutoDestinatari:
         'Die Adressen kommen ins Bcc: Niemand sieht, an wen die Mitteilung sonst geht.',
@@ -125,7 +125,7 @@ export const testi = catalogo(it, {
       aiutoFirma:
         'N’écris pas la signature ici : dans le brouillon ouvert dans le logiciel de ' +
         'messagerie, c’est lui qui l’ajoute ; quand c’est le registre qui envoie, celle de ' +
-        'Paramètres › Communications est mise à la fin.',
+        'Paramètres › Utilisateur › Messagerie est mise à la fin.',
       destinatari: 'Destinataires',
       aiutoDestinatari:
         'Les adresses sont mises en copie cachée : personne ne voit la liste des autres.',
@@ -174,7 +174,7 @@ export const testi = catalogo(it, {
       testo: 'Text',
       aiutoFirma:
         'Don’t write the signature here: in the draft opened in your email program, the ' +
-        'program adds it; when the register sends, the one from Settings › Communications goes at ' +
+        'program adds it; when the register sends, the one from Settings › User › Mail goes at ' +
         'the bottom.',
       destinatari: 'Recipients',
       aiutoDestinatari: 'Addresses go in Bcc: nobody sees who else it went to.',

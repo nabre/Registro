@@ -9,6 +9,8 @@
 /* Le schede con la figura (il tema) usano lo stesso foglio del pannello: solo
    token e misure, che questa pagina ha da `base.css`. */
 @import '../../../../ui/pannello/styles/figure-choice.css';
+/* I controlli delle voci, gli stessi del pannello (ADR-52). */
+@import '../../../../core/controlli/controlli.css';
 
 /* ------------------------------------------------------------- il telaio */
 
@@ -53,8 +55,39 @@ main {
   padding: var(--spazio-1) var(--spazio-5) var(--spazio-6);
 }
 
-h2 {
+/* Le aree e le sezioni con i nomi del pannello: l'area è il titolo grande, la
+   sezione quello sotto, il gruppo di chiavi il più piccolo. */
+.area__titolo {
   margin: var(--spazio-5) 0 var(--spazio-1);
+}
+
+.area__senza-anno,
+.sezione__sottotitolo {
+  margin: 0 0 var(--spazio-2);
+  color: var(--testo-quieto);
+}
+
+.sezione__titolo {
+  margin: var(--spazio-4) 0 0;
+  font-size: 1.02em;
+}
+
+.sezione__avvertenza {
+  margin: var(--spazio-2) 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid color-mix(in srgb, var(--attenzione) 45%, transparent);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  max-width: 68ch;
+}
+
+.gruppo__titolo {
+  margin: var(--spazio-3) 0 0;
+  font-size: 0.84em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--testo-quieto);
 }
 
 .vuoto {
@@ -90,21 +123,6 @@ h2 {
   font-weight: 600;
 }
 
-.voce__chiave {
-  font-family: var(--carattere-mono);
-  font-size: 0.84em;
-  color: var(--testo-quieto);
-}
-
-/* «Ritira il valore»: solo sulle impostazioni scritte dal docente, discreto. */
-.voce__ritira {
-  min-width: 0;
-  margin-left: auto;
-  padding: 1px 9px;
-  font-size: 0.84em;
-  background: transparent;
-  border-radius: var(--raggio-pastiglia);
-}
 
 /* La «i» accanto al nome, come quella del pannello (`src/ui/styles/hint.css`).
    Area premibile dei pulsanti nudi; le regole di `button` del foglio comune
@@ -147,21 +165,7 @@ h2 {
   color: var(--testo-quieto);
 }
 
-.voce__campo {
-  margin-top: var(--spazio-2);
-}
-
-/* Un percorso: il campo in sola lettura e «Sfoglia…» sulla stessa riga. */
-.voce__campo:has(.voce__sfoglia) {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
-}
-.voce__campo:has(.voce__sfoglia) > label { flex: 1 1 auto; min-width: 0; }
-.voce__campo:has(.voce__sfoglia) input { width: 100%; }
-.voce__sfoglia { flex: none; }
-
-/* Da che cosa viene il valore: la stessa pastiglia, con le stesse parole, della pagina del registro. */
+/* Perché non si tocca, o da quando vale: la stessa pastiglia, con le stesse parole, della pagina del registro. */
 .voce__pastiglia {
   padding: 1px 8px;
   font-size: 0.78em;
@@ -170,15 +174,19 @@ h2 {
   color: var(--testo-quieto);
 }
 
-/* Sospesa: il padre è spento e questa non conta. Resta visibile perché la guida la nomina. */
-.voce--sospesa .voce__nome,
-.voce--sospesa .voce__aiuto {
-  opacity: 0.6;
+/* Sospesa: il padre è spento e questa non conta. Si smorza il controllo, che
+   è spento (`controlli.css`); nome e spiegazione restano da leggere, con il
+   contrasto pieno, come nel pannello. */
+
+/* Una figlia (`dipendeDa`) rientra sotto il padre, come nel pannello. */
+.voce--figlia {
+  margin-left: var(--spazio-4);
+  padding-left: var(--spazio-3);
+  border-left: 2px solid var(--bordo-tenue);
 }
 
-.voce__errore {
-  margin: var(--spazio-1) 0 0;
-  color: var(--negativo);
+.voce > .controllo {
+  margin-top: var(--spazio-2);
 }
 
 /* ------------------------------------------------------------- i campi */
@@ -193,11 +201,4 @@ select {
 
 input[type='number'] {
   max-width: 10rem;
-}
-
-.spunta {
-  display: flex;
-  gap: var(--spazio-2);
-  align-items: center;
-  cursor: pointer;
 }

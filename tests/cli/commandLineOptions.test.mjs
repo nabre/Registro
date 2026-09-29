@@ -42,9 +42,6 @@ describe('con la sola scrittura', () => {
       percorso.join(cartellaUtente, 'impostazioni.json'),
       JSON.stringify({
         cartellaLavoro: lavoro,
-        'registroDocenti.api.condotto': true,
-        'registroDocenti.api.lettura': false,
-        'registroDocenti.api.scrittura': true,
       }),
     )
     api = await import('../../dist-tests/api.mjs')
@@ -73,7 +70,8 @@ describe('con la sola scrittura', () => {
         return { revisione: ambito.contesto.archivio.revisione }
       },
     }))
-    condotto = await avviaCondotto(archivio, { cartellaUtente })
+    // «Solo scrittura» non si sceglie più nelle impostazioni: lo scavalco delle prove.
+    condotto = await avviaCondotto(archivio, { cartellaUtente, permessi: { lettura: false, scrittura: true } })
   })
 
   const suCondotto = () => ({ REGISTRO_CONDOTTO: api.indirizzoCondotto() })

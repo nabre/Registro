@@ -1,11 +1,13 @@
-// I modelli del linguaggio: quelli che ci sono, quelli che si possono avere.
-// I modelli sono file `.gguf`: si scaricano (consigliati o cercati su Hugging
-// Face), si trascinano nella pagina o si scelgono con il dialogo di sistema.
-// Conversare e leggere scansioni sono due righe separate: chi conversa deve
-// chiamare gli attrezzi, chi legge deve saper guardare. Lo scarico mostra
-// avanzamento e arresto; l'avanzamento lo spinge l'host (`MessaggioScarico`).
+// Assistente e modelli, nelle impostazioni del Programma. In testa tre righe
+// d'uso — Assistente, Scansioni, Dettatura —, ognuna con il suo interruttore,
+// il modello che la fa lavorare e com'è adesso: è l'unico posto in cui un
+// modello si sceglie. Sotto, «Sul computer»: la cartella e i file `.gguf` che
+// ci sono; poi «Scarica modelli», chiuso, con i consigliati e la ricerca su
+// Hugging Face; in fondo le avanzate. Chi conversa deve chiamare gli attrezzi,
+// chi legge deve saper guardare: per questo le righe sono separate. Lo scarico
+// mostra avanzamento e arresto; l'avanzamento lo spinge l'host (`MessaggioScarico`).
 
-import type { UsoModello } from '../../../contract/protocollo.js'
+import type { UsoModello, VoceProgramma } from '../../../contract/protocollo.js'
 import {
   avviso,
   barra,
@@ -13,6 +15,7 @@ import {
   pulsante,
   quantoMisura,
   scheda,
+  selettore,
   statoVuoto,
 } from '../components/base.js'
 import { suggerimento } from '../components/hint.js'
@@ -23,6 +26,7 @@ import { isola, isolaPresente, ridisegnaIsola } from '../isole.js'
 import { azione, ascolta, chiedi } from '../bridge.js'
 import { iscriviti, ridisegna, stato } from '../state.js'
 import { parole } from '../../../core/dominio/words.testi.js'
+import { disegnaAvanzate, vociProgramma } from './settings/program.js'
 import { testi } from './languageModels.testi.js'
 
 // ------------------------------------------------------------------ memoria
@@ -109,6 +113,15 @@ let chiesto = false
 
 /** Se si è già in ascolto dell'avanzamento. Una volta per vita del pannello. */
 let inAscolto = false
+
+/**
+ * Se si sta scegliendo «Questo .exe» per il programma di lettura, prima che il
+ * dialogo abbia dato un percorso: finché non c'è, vale la scelta di prima.
+ */
+let versoEseguibile = false
+
+/** Se «Scarica modelli» è aperto: il ridisegno lo ricreerebbe chiuso. */
+let scarichiAperti: boolean | null = null
 
 /**
  * Perché l'elenco non si è letto: senza, una lettura fallita lascerebbe la
@@ -299,44 +312,220 @@ function ascoltaScarico (): void {
 
 // --------------------------------------------------------------- i pezzi
 
-/** La riga di un uso: quale modello risponde, e che cosa manca. */
-function rigaUso (
-  uso: UsoModello,
-  titolo: string,
-  spiegazione: string,
-  stato: StatoUso,
-  modelli: ModelloLocale[],
-): Figlio {
-  // Un proiettore è metà di un modello, non si sceglie in tendina.
-  const scegliibili = modelli.filter((m) => !m.proiettore)
-  const t = testi()
-  const tendina = h('select', {
-    class: 'campo__controllo campo__controllo--selezione',
-    attr: { 'aria-label': t.modelloPer(titolo) },
-    onchange: (evento: Event) => {
-      void scegli(uso, (evento.target as HTMLSelectElement).value)
-    },
-  },
-  h('option', { value: '' }, t.nessuno),
-  ...scegliibili.map((m) =>
-    h('option', { value: m.nome, attr: { selected: m.nome === stato.modello ? '' : null } }, m.nome),
-  ),
-  )
-  tendina.value = stato.modello
+/** Una voce del programma per chiave, come l'ha mandata l'host. */
+function voceDi (chiave: string): VoceProgramma | undefined {
+  return stato.programma.find((voce) => voce.chiave === chiave)
+}
 
-  return h(
-    'div',
-    { class: 'modelli-llm__uso' },
+/** La riga di un'impostazione dentro una riga d'uso: la stessa dell'elenco, con la sua ancora. */
+function voceQui (chiave: string): Figlio {
+  const voce = voceDi(chiave)
+  return voce ? vociProgramma(voce) : null
+}
+
+/** Una tendina di file `.gguf`, con «nessuno» in testa. */
+function tendinaModelli (
+  etichetta: string,
+  scelto: string,
+  nomi: readonly string[],
+  vuoto: string,
+  al: (nome: string) => void,
+  fuoco: string,
+): HTMLElement {
+  // Un file scelto che non c'è più resta in elenco: sparirebbe senza dirlo.
+  const tutti = scelto && !nomi.includes(scelto) ? [...nomi, scelto] : nomi
+  const tendina = h(
+    'select',
+    {
+      class: 'campo__controllo campo__controllo--selezione',
+      dataset: { fuoco },
+      attr: { 'aria-label': etichetta },
+      onchange: (evento: Event) => al((evento.target as HTMLSelectElement).value),
+    },
+    h('option', { value: '' }, vuoto),
+    ...tutti.map((nome) =>
+      h('option', { value: nome, attr: { selected: nome === scelto ? '' : null } }, nome)),
+  )
+  tendina.value = scelto
+  return h('label', { class: 'modelli-llm__campo' }, h('span', null, etichetta), tendina)
+}
+
+/** Com'è un uso adesso: pronto, o che cosa manca e dove si rimedia. */
+function statoDellUso (uso: StatoUso): Figlio[] {
+  const t = testi()
+  return [
     h(
       'div',
-      { class: 'modelli-llm__uso-testi' },
-      h('h4', null, titolo, suggerimento(spiegazione, { etichetta: titolo })),
+      { class: 'modelli-llm__stato' },
+      uso.pronto
+        ? pastiglia(t.statoPronto, 'positivo', 'spunta')
+        : pastiglia(uso.attivo ? t.mancaQualcosa : t.spento, 'neutro'),
     ),
-    tendina,
-    stato.pronto
-      ? pastiglia(t.statoPronto, 'positivo', 'spunta')
-      : pastiglia(stato.attivo ? t.mancaQualcosa : t.spento, 'neutro'),
-    stato.pronto ? null : h('p', { class: 'modelli-llm__motivo' }, stato.motivo),
+    uso.pronto || !uso.motivo ? null : h('p', { class: 'modelli-llm__motivo' }, uso.motivo),
+  ]
+}
+
+/** La testata di una riga d'uso: il nome, e dietro la «i» a che cosa serve. */
+function testataUso (titolo: string, spiegazione: string): HTMLElement {
+  return h('h4', { class: 'modelli-llm__uso-titolo' }, titolo, suggerimento(spiegazione, { etichetta: titolo }))
+}
+
+/**
+ * La riga dell'assistente: l'interruttore, il modello che conversa, e com'è.
+ * `data-voce` porta qui chi cerca `assistente.modello`.
+ */
+function rigaAssistente (uso: StatoUso, modelli: ModelloLocale[]): HTMLElement {
+  const t = testi()
+  return h(
+    'section',
+    { class: 'modelli-llm__uso', dataset: { voce: 'assistente' } },
+    testataUso(t.assistente, t.assistenteAiuto),
+    voceQui('registroDocenti.assistente.attivo'),
+    h(
+      'div',
+      { class: 'modelli-llm__campi', dataset: { voce: 'registroDocenti.assistente.modello' } },
+      tendinaModelli(
+        t.modelloPer(t.assistente),
+        uso.modello,
+        modelli.filter((m) => !m.proiettore).map((m) => m.nome),
+        t.nessuno,
+        (nome) => void scegli('assistente', nome),
+        'modello-assistente', // testo-fisso: chiave di fuoco, non si legge
+      ),
+    ),
+    ...statoDellUso(uso),
+  )
+}
+
+/**
+ * Il programma che fa leggere le scansioni: lo scarica il registro, questo
+ * `.exe`, o niente. «Questo .exe» mostra il percorso e «Sfoglia…»; finché il
+ * dialogo non dà un file vale la scelta di prima.
+ */
+function sceltaLettore (): Figlio {
+  const voce = voceDi('registroDocenti.ocr.lettore')
+  if (!voce) return null
+  const t = testi()
+  const scritto = String(voce.valore)
+  type Modo = 'registro' | 'eseguibile' | 'nessuno'
+  const salvato: Modo = scritto === '' ? 'registro' : scritto === 'nessuno' ? 'nessuno' : 'eseguibile'
+  const modo: Modo = versoEseguibile ? 'eseguibile' : salvato
+  const sfoglia = (): Promise<unknown> =>
+    azione({ tipo: 'programma.sfoglia', chiave: voce.chiave }).then(() => {
+      // Scelto o annullato, il campo torna a dire quel che è scritto.
+      versoEseguibile = false
+      rifai()
+    })
+  return h(
+    'div',
+    { class: 'modelli-llm__lettore', dataset: { voce: voce.chiave } },
+    h(
+      'span',
+      { class: 'voce-opzione__nome' },
+      voce.etichetta,
+      suggerimento(voce.descrizione, { etichetta: voce.etichetta }),
+    ),
+    selettore<Modo>(
+      modo,
+      [
+        { valore: 'registro', testo: t.lettoreRegistro },
+        { valore: 'eseguibile', testo: t.lettoreEseguibile },
+        { valore: 'nessuno', testo: t.lettoreNessuno },
+      ],
+      (scelto) => {
+        versoEseguibile = scelto === 'eseguibile' && salvato !== 'eseguibile'
+        if (scelto === 'eseguibile') {
+          rifai()
+          return
+        }
+        void azione({
+          tipo: 'programma.salva',
+          chiave: voce.chiave,
+          valore: scelto === 'nessuno' ? 'nessuno' : '',
+        })
+      },
+      voce.etichetta,
+    ),
+    modo === 'eseguibile'
+      ? h(
+          'div',
+          { class: 'modelli-llm__percorso' },
+          h(
+            'code',
+            { class: ['modelli-llm__nome', salvato !== 'eseguibile' && 'testo-quieto'] },
+            salvato === 'eseguibile' ? scritto : t.lettoreNonScelto,
+          ),
+          pulsante({ testo: parole().sfoglia, simbolo: 'cartella', variante: 'sottile', al: sfoglia }),
+        )
+      : null,
+  )
+}
+
+/**
+ * La riga delle scansioni: l'interruttore, il modello che guarda con il suo
+ * proiettore (`mmproj`), il programma che li fa girare, e com'è.
+ */
+function rigaScansioni (uso: StatoUso, modelli: ModelloLocale[]): HTMLElement {
+  const t = testi()
+  return h(
+    'section',
+    { class: 'modelli-llm__uso', dataset: { voce: 'scansioni' } },
+    testataUso(t.lettura, t.letturaAiuto),
+    voceQui('registroDocenti.ocr.attivo'),
+    h(
+      'div',
+      { class: 'modelli-llm__campi' },
+      h(
+        'div',
+        { dataset: { voce: 'registroDocenti.ocr.modello' } },
+        tendinaModelli(
+          t.modelloPer(t.lettura),
+          uso.modello,
+          modelli.filter((m) => !m.proiettore).map((m) => m.nome),
+          t.nessuno,
+          (nome) => void scegli('ocr', nome),
+          'modello-ocr', // testo-fisso: chiave di fuoco, non si legge
+        ),
+      ),
+      h(
+        'div',
+        { dataset: { voce: 'registroDocenti.ocr.proiettore' } },
+        tendinaModelli(
+          t.proiettorePer(t.lettura),
+          uso.proiettore ?? '',
+          modelli.filter((m) => m.proiettore).map((m) => m.nome),
+          t.nessunProiettore,
+          (nome) => void scegli('ocr', uso.modello, nome),
+          'proiettore-ocr', // testo-fisso: chiave di fuoco, non si legge
+        ),
+      ),
+    ),
+    sceltaLettore(),
+    ...statoDellUso(uso),
+  )
+}
+
+/**
+ * La riga della dettatura: l'interruttore e il modello della voce, che
+ * voicebox tiene per conto suo (niente `.gguf` qui). Com'è lo sa solo voicebox
+ * quando si detta: qui si dice acceso o spento, e che cosa serve.
+ */
+function rigaDettatura (): HTMLElement {
+  const t = testi()
+  const acceso = voceDi('registroDocenti.dettatura.attivo')
+  const vale = acceso?.valore === true && !acceso.sospesa
+  return h(
+    'section',
+    { class: 'modelli-llm__uso', dataset: { voce: 'dettatura' } },
+    testataUso(t.dettatura, t.dettaturaAiuto),
+    voceQui('registroDocenti.dettatura.attivo'),
+    voceQui('registroDocenti.dettatura.taglia'),
+    h(
+      'div',
+      { class: 'modelli-llm__stato' },
+      pastiglia(vale ? t.statoAcceso : t.spento, vale ? 'informativo' : 'neutro'),
+    ),
+    vale ? h('p', { class: 'modelli-llm__motivo' }, t.dettaturaNota) : null,
   )
 }
 
@@ -404,21 +593,10 @@ function rigaModello (modello: ModelloLocale): Figlio {
       h('span', { class: 'modelli-llm__peso' }, quantoMisura(modello.byte)),
       modello.proiettore ? pastiglia(t.proiettore, 'informativo') : null,
     ),
+    // Si sceglie nelle righe d'uso, in testa: qui solo quanto pesa e il cestino.
     h(
       'div',
       { class: 'modelli-llm__riga-azioni' },
-      modello.proiettore
-        ? pulsante({
-            testo: t.usaloPerScansioni,
-            titolo: t.usaloPerScansioniAiuto,
-            al: () => scegli('ocr', dati?.ocr.modello ?? '', modello.nome),
-          })
-        : h(
-            'div',
-            { class: 'modelli-llm__riga-azioni' },
-            pulsante({ testo: t.allAssistente, al: () => scegli('assistente', modello.nome) }),
-            pulsante({ testo: t.alleScansioni, al: () => scegli('ocr', modello.nome) }),
-          ),
       pulsante({
         simbolo: 'cestino',
         variante: 'pericolo',
@@ -718,23 +896,54 @@ iscriviti(() => {
 })
 
 /**
- * Se la sezione dei modelli è in vista: le impostazioni del programma su
- * «Modelli linguistici».
+ * Se la sezione dei modelli è in pagina: le impostazioni sull'area Programma,
+ * dove scorre con le altre.
  */
 export function modelliInVista (): boolean {
-  return stato.vista === 'impostazioni' &&
-    stato.ambitoImpostazioni === 'programma' &&
-    stato.schedaProgramma === 'modelli'
+  return stato.vista === 'impostazioni' && stato.areaImpostazioni === 'programma'
 }
 
 /**
- * I modelli dentro la sezione delle impostazioni: quali ci sono, chi risponde
- * con quale, i consigliati e la ricerca. Le voci della sezione seguono sotto.
+ * Assistente e modelli dentro la sezione delle impostazioni: le righe d'uso,
+ * i file sul computer, gli scarichi e le avanzate.
  */
 export function contenutoModelliLinguistici (): Figlio[] {
   // In un'isola con la classe della colonna che la ospita: stessi spazi, e il
   // vuoto resta figlio di una `.colonna` (il suo riquadro tratteggiato).
   return [isola(ISOLA_MODELLI, modelli, { class: 'colonna' })]
+}
+
+/** «Scarica modelli»: i consigliati, il deposito aperto e la ricerca, in un gruppo che si apre. */
+function scaricaModelli (locali: number): HTMLElement {
+  const t = testi()
+  // Aperto da sé la prima volta se non c'è ancora niente, o se si stava guardando un deposito.
+  const aprilo = scarichiAperti ?? (locali === 0 || aperto !== null || cercato !== '')
+  return h(
+    'details',
+    {
+      class: 'gruppo-opzioni gruppo-opzioni--avanzate modelli-llm__scarichi',
+      dataset: { voce: 'scaricaModelli' },
+      open: aprilo,
+      ontoggle: (evento: Event) => {
+        scarichiAperti = (evento.currentTarget as HTMLDetailsElement).open
+      },
+    },
+    h('summary', { class: 'gruppo-opzioni__titolo' }, t.scaricaModelli),
+    h('p', { class: 'modelli-llm__nota' }, t.scaricaModelliAiuto),
+    scheda({
+      titolo: t.consigliati,
+      aiuto: t.consigliatiAiuto,
+      contenuto: catalogo
+        ? h(
+            'ul',
+            { class: 'modelli-llm__elenco' },
+            ...catalogo.consigliati.map((voce) => rigaConsigliata(voce)),
+          )
+        : h('p', { class: 'modelli-llm__nota' }, t.leggendoCatalogo),
+    }),
+    riquadroDeposito(),
+    riquadroRicerca(),
+  )
 }
 
 function modelli (): Figlio {
@@ -756,10 +965,13 @@ function modelli (): Figlio {
   // I modelli usabili e gli scarichi interrotti si contano a parte.
   const locali = dati.modelli.filter((modello) => !modello.incompiuto)
   const aMeta = dati.modelli.filter((modello) => modello.incompiuto)
+  const cartella = voceDi('registroDocenti.modelli.cartella')
+  const avanzate = stato.programma.filter((voce) => voce.chiave === 'registroDocenti.dettatura.porta')
 
   return h(
     'div',
     { class: 'modelli-llm' },
+    // Lo stato e i gesti: lo scarico in corso, poi i tre usi.
     isola(ISOLA_SCARICHI, rigaScarico),
     scheda({
       titolo: t.chiRisponde,
@@ -767,10 +979,12 @@ function modelli (): Figlio {
       contenuto: h(
         'div',
         { class: 'modelli-llm__usi' },
-        rigaUso('assistente', t.assistente, t.assistenteAiuto, dati.assistente, locali),
-        rigaUso('ocr', t.lettura, t.letturaAiuto, dati.ocr, locali),
+        rigaAssistente(dati.assistente, locali),
+        rigaScansioni(dati.ocr, locali),
+        rigaDettatura(),
       ),
     }),
+    // La cartella una volta sola: il campo, e dove stanno davvero quando la decide il registro.
     scheda({
       titolo: t.sulComputer,
       sottotitolo: t.quantiFile(locali.length),
@@ -783,7 +997,10 @@ function modelli (): Figlio {
       contenuto: h(
         'div',
         null,
-        h('p', { class: 'modelli-llm__cartella' }, t.stannoIn(dati.cartella)),
+        cartella ? vociProgramma(cartella) : null,
+        cartella && String(cartella.valore) === ''
+          ? h('p', { class: 'modelli-llm__cartella' }, t.stannoIn(dati.cartella))
+          : null,
         aMeta.length > 0
           ? h('ul', { class: 'modelli-llm__elenco' }, ...aMeta.map((m) => rigaModello(m)))
           : null,
@@ -797,18 +1014,7 @@ function modelli (): Figlio {
         zonaTrascinamento(),
       ),
     }),
-    scheda({
-      titolo: t.consigliati,
-      aiuto: t.consigliatiAiuto,
-      contenuto: catalogo
-        ? h(
-            'ul',
-            { class: 'modelli-llm__elenco' },
-            ...catalogo.consigliati.map((voce) => rigaConsigliata(voce)),
-          )
-        : h('p', { class: 'modelli-llm__nota' }, t.leggendoCatalogo),
-    }),
-    riquadroDeposito(),
-    riquadroRicerca(),
+    scaricaModelli(locali.length),
+    disegnaAvanzate({ id: 'modelli' }, avanzate),
   )
 }

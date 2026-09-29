@@ -39,7 +39,7 @@ const it = {
     'girargli la richiesta così com’è — «consenso amministratore per l’applicazione ' +
     `${client} (Microsoft Graph Command Line Tools) sui permessi delegati Files.Read.All e ` +
     'User.Read di Microsoft Graph». Non serve per i documenti che il client di OneDrive ' +
-    'sincronizza su questo computer: quell’account compare già in Account Microsoft, e si ' +
+    'sincronizza su questo computer: quell’account compare già in Impostazioni › Utente › Account, e si ' +
     'sfoglia senza accesso.',
   clientSconosciuto: (client: string) =>
     `Microsoft non riconosce l’applicazione ${client}: se l’ha ritirata, il registro va ` +
@@ -95,7 +95,7 @@ export const testi = catalogo(it, {
       `Anwendung ${client} (Microsoft Graph Command Line Tools) für die delegierten ` +
       'Berechtigungen Files.Read.All und User.Read von Microsoft Graph». Für Dokumente, die der ' +
       'OneDrive-Client auf diesem Computer synchronisiert, braucht es sie nicht: Dieses Konto ' +
-      'steht schon unter Microsoft-Konten und lässt sich ohne Anmeldung durchsuchen.',
+      'steht schon unter Einstellungen › Benutzer › Konten und lässt sich ohne Anmeldung durchsuchen.',
     clientSconosciuto: (client) =>
       `Microsoft erkennt die Anwendung ${client} nicht: Falls sie zurückgezogen wurde, muss ` +
       'das Klassenbuch aktualisiert werden.',
@@ -145,7 +145,7 @@ export const testi = catalogo(it, {
       `pour l’application ${client} (Microsoft Graph Command Line Tools) sur les ` +
       'autorisations déléguées Files.Read.All et User.Read de Microsoft Graph ». Ce n’est pas ' +
       'nécessaire pour les documents que le client OneDrive synchronise sur cet ordinateur : ce ' +
-      'compte figure déjà dans Comptes Microsoft et se parcourt sans connexion.',
+      'compte figure déjà dans Paramètres › Utilisateur › Comptes et se parcourt sans connexion.',
     clientSconosciuto: (client) =>
       `Microsoft ne reconnaît pas l’application ${client} : si elle a été retirée, le ` +
       'registre doit être mis à jour.',
@@ -194,7 +194,7 @@ export const testi = catalogo(it, {
       `application ${client} (Microsoft Graph Command Line Tools) on the delegated ` +
       'permissions Files.Read.All and User.Read of Microsoft Graph”. It is not needed for the ' +
       'documents the OneDrive client syncs on this computer: that account already appears in ' +
-      'Microsoft accounts and can be browsed without signing in.',
+      'Settings › User › Accounts and can be browsed without signing in.',
     clientSconosciuto: (client) =>
       `Microsoft doesn’t recognise the application ${client}: if it has been withdrawn, the ` +
       'register needs updating.',

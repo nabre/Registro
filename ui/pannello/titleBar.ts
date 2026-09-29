@@ -186,7 +186,7 @@ function filettoAggiornamenti (): Figlio {
         class: 'filetto__testo',
         type: 'button',
         attr: { title: testi().apriAggiornamenti(frase) },
-        onclick: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.aggiornamenti' }) },
+        onclick: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma#aggiornamenti' }) },
       },
       breve,
     ),

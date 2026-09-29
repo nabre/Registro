@@ -191,7 +191,7 @@ function tessere (oreOggi: readonly OraDiOggi[]): HTMLElement {
     }),
     tessera({
       chiave: 'da-smistare',
-      simbolo: 'documento',
+      simbolo: 'vassoio',
       tono: daSmistare > 0 ? 'attenzione' : 'quiete',
       valore: daSmistare,
       etichetta: tp.daSmistare,

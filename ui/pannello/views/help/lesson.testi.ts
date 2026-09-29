@@ -147,7 +147,7 @@ const it = {
         testo:
           `**${Uno(FASCIA)} di lezione** aggiunge in coda un tratto in UD, lungo quanto una ` +
           'lezione nuova; **Pausa** uno in minuti, lungo quanto una pausa nuova. Le due misure e ' +
-          'la durata dell’UD stanno in Impostazioni › Anno e orario › **Calendario**. I tratti ' +
+          'la durata dell’UD stanno in Impostazioni › Calendario › **Giornata**. I tratti ' +
           'stanno attaccati: si scrive solo l’inizio del primo, la fine la calcola il registro. ' +
           'Si riordinano con la presa; il cestino è **Togli la fascia**.',
       },
@@ -551,7 +551,7 @@ const it = {
         termine: 'La matrice del comportamento',
         testo:
           'Un clic gira la casella: vuota, **Molto bene**, **Da migliorare**, vuota. Le colonne ' +
-          'sono gli «Aspetti osservati in classe» di **Impostazioni** › Liste: di ' +
+          'sono gli «Aspetti osservati in classe» di **Impostazioni** › Didattica › Liste: di ' +
           'fabbrica partecipazione, collaborazione, rispetto delle regole, impegno, autonomia.',
       },
       {
@@ -770,7 +770,7 @@ const it = {
     note: [
       'Le durate si scrivono in minuti ma si tengono in UD: lo stesso piano riusato in un ' +
         'anno dove le UD sono da cinquanta riempie comunque l’ora. La durata dell’UD la dice ' +
-        'il documento, in Impostazioni › Anno e orario › **Calendario**.',
+        'il documento, in Impostazioni › Calendario › **Giornata**.',
       'Una scaletta usata da più ore cambia in tutte: per cambiarne una sola si duplica. ' +
         'Assegnare un altro piano a un’ora ne azzera le spunte; togliere una tappa toglie la ' +
         'sua. **Elimina** butta anche i file del piano.',
@@ -912,7 +912,7 @@ export const testi = catalogo(it, {
             '**Zeitfenster für Unterricht** hängt einen Abschnitt in Lektionen an, so lang wie ' +
             'eine neue Stunde; **Pause** einen in Minuten, so lang wie eine neue ' +
             'Pause. Die beiden Längen und die Dauer der Lektion stehen unter Einstellungen › ' +
-            'Schuljahr und Stundenplan › **Kalender**. Die Abschnitte hängen aneinander: Man ' +
+            'Kalender › **Schultag**. Die Abschnitte hängen aneinander: Man ' +
             'schreibt nur den Beginn des ersten, das Ende rechnet das Klassenbuch. Man ordnet ' +
             'sie mit dem Griff um; der Papierkorb ist **Zeitfenster entfernen**.',
         },
@@ -1346,7 +1346,7 @@ export const testi = catalogo(it, {
           testo:
             'Ein Klick dreht das Feld weiter: leer, **Sehr gut**, **Zu verbessern**, leer. Die ' +
             'Spalten sind die Liste «Beobachtete Aspekte im Unterricht» unter **Einstellungen** › ' +
-            'Listen: ab Werk Beteiligung, Zusammenarbeit, Einhalten der Regeln, Einsatz, ' +
+            'Unterricht › Listen: ab Werk Beteiligung, Zusammenarbeit, Einhalten der Regeln, Einsatz, ' +
             'Selbstständigkeit.',
         },
         {
@@ -1577,8 +1577,8 @@ export const testi = catalogo(it, {
       note: [
         'Dauern schreibt man in Minuten, gespeichert werden sie in Lektionen: Derselbe Plan, ' +
           'wiederverwendet in einem Jahr mit Lektionen zu fünfzig Minuten, füllt die Stunde ' +
-          'trotzdem. Die Dauer der Lektion sagt das Dokument, unter Einstellungen › Schuljahr ' +
-          'und Stundenplan › **Kalender**.',
+          'trotzdem. Die Dauer der Lektion sagt das Dokument, unter Einstellungen › Kalender ' +
+          '› **Schultag**.',
         'Ein Ablauf, den mehrere Stunden verwenden, ändert sich in allen: Um nur einen zu ' +
           'ändern, dupliziert man. Einer Stunde einen anderen Plan zuzuweisen, setzt ihre ' +
           'Häkchen zurück; eine Etappe zu entfernen, entfernt ihres. **Löschen** wirft auch ' +
@@ -1715,8 +1715,8 @@ export const testi = catalogo(it, {
           testo:
             '**Plage de cours** ajoute à la fin un tronçon en périodes, aussi long qu’une ' +
             'nouvelle leçon ; **Pause** un tronçon en minutes, aussi long qu’une nouvelle ' +
-            'pause. Les deux longueurs et la durée de la période sont dans Paramètres › Année ' +
-            'et horaire › **Calendrier**. Les tronçons se suivent : on n’écrit que le début du ' +
+            'pause. Les deux longueurs et la durée de la période sont dans Paramètres › ' +
+            'Calendrier › **Journée**. Les tronçons se suivent : on n’écrit que le début du ' +
             'premier, la fin, c’est le registre qui la calcule. On les réordonne avec la ' +
             'poignée ; la corbeille, c’est **Retirer la plage**.',
         },
@@ -2142,7 +2142,7 @@ export const testi = catalogo(it, {
           termine: 'La matrice du comportement',
           testo:
             'Un clic fait tourner la case : vide, **Très bien**, **À améliorer**, vide. Les ' +
-            'colonnes sont les « Aspects observés en classe » de **Paramètres** › Listes : ' +
+            'colonnes sont les « Aspects observés en classe » de **Paramètres** › Enseignement › Listes : ' +
             'par défaut participation, collaboration, respect des règles, effort, autonomie.',
         },
         {
@@ -2370,8 +2370,8 @@ export const testi = catalogo(it, {
       note: [
         'Les durées s’écrivent en minutes mais se gardent en périodes : le même plan réutilisé ' +
           'une année où les périodes durent cinquante minutes remplit quand même la leçon. La ' +
-          'durée de la période, c’est le document qui la dit, dans Paramètres › Année et ' +
-          'horaire › **Calendrier**.',
+          'durée de la période, c’est le document qui la dit, dans Paramètres › Calendrier ' +
+          '› **Journée**.',
         'Un déroulement utilisé par plusieurs leçons change dans toutes : pour n’en changer ' +
           'qu’une, on duplique. Attribuer un autre plan à une leçon remet ses coches à zéro ; ' +
           'retirer une étape retire la sienne. **Supprimer** jette aussi les fichiers du plan.',
@@ -2506,7 +2506,7 @@ export const testi = catalogo(it, {
           testo:
             '**Teaching slot** adds a stretch in periods at the end, as long as a new lesson; ' +
             '**Break** one in minutes, as long as a new break. Both lengths and the length of ' +
-            'a period are in Settings › Year and timetable › **Calendar**. The stretches are ' +
+            'a period are in Settings › Calendar › **School day**. The stretches are ' +
             'joined together: you only write the start of the first, the register works out ' +
             'the end. They are reordered with the handle; the bin is **Remove the slot**.',
         },
@@ -2917,7 +2917,7 @@ export const testi = catalogo(it, {
           termine: 'The behaviour matrix',
           testo:
             'A click turns the cell: empty, **Very good**, **Needs work**, empty. The columns ' +
-            'are the “Aspects observed in class” in **Settings** › Lists: out of the box ' +
+            'are the “Aspects observed in class” in **Settings** › Teaching › Lists: out of the box ' +
             'participation, collaboration, respect for the rules, effort, independence.',
         },
         {
@@ -3139,7 +3139,7 @@ export const testi = catalogo(it, {
       note: [
         'Lengths are written in minutes but kept in periods: the same plan reused in a year ' +
           'with fifty-minute periods still fills the lesson. The length of a period is set by ' +
-          'the document, in Settings › Year and timetable › **Calendar**.',
+          'the document, in Settings › Calendar › **School day**.',
         'An outline used by several lessons changes in all of them: to change just one, ' +
           'duplicate it. Assigning another plan to a lesson resets its ticks; removing a step ' +
           'removes its tick. **Delete** throws away the plan’s files too.',

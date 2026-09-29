@@ -134,6 +134,18 @@ export function apriRegistro (navigazione?: MessaggioNavigazione): void {
   apriPannello?.(navigazione)
 }
 
+/** Chi vuole sapere quando si passa da un anno aperto a nessuno, o viceversa. */
+const seguonoIlDocumento = new Set<() => void>()
+
+/**
+ * Il menu nativo cambia voci con o senza documento (`desktop/shell/windows/menu.ts`),
+ * e il guscio non vede l'archivio: si iscrive qui. Torna la disiscrizione.
+ */
+export function alDocumentoApertoOChiuso (ascolta: () => void): () => void {
+  seguonoIlDocumento.add(ascolta)
+  return () => { seguonoIlDocumento.delete(ascolta) }
+}
+
 /** Oltre questa soglia una chiamata finisce nel giornale anche se è riuscita. */
 const LENTA_MS = 2000
 
@@ -204,6 +216,11 @@ export async function avvia (
       // Anno chiuso o recente che non si apre: si ricontrolla l'elenco prima
       // che il benvenuto lo mostri.
       void verificaDocumenti()
+    }
+    // Solo il passaggio fra «un anno aperto» e «nessuno»: questo evento scatta
+    // a ogni voto, e il menu nativo si ricostruisce intero.
+    if ((corrente === null) !== (ultimoDocumento === null)) {
+      for (const ascolta of seguonoIlDocumento) ascolta()
     }
     ultimoDocumento = corrente
   }))
@@ -404,6 +421,16 @@ export async function avvia (
 
   // Per un anno appena creato è dove sceglie nome e posto.
   comando('registroDocenti.salvaConNome', () => salvaAnnoConNome())
+  // Il dialogo si apre sopra la pagina che si guarda: la vista qui non conta
+  // (`MessaggioNavigazione.dialogo`), e il menu nativo non la saprebbe.
+  comando('registroDocenti.informazioniDocumento', () =>
+    apri({ tipo: 'naviga', vista: 'oggi', dialogo: 'informazioniDocumento' }),
+  )
+  // Con un documento aperto i gesti della posta stanno nella sezione Account
+  // del pannello; i comandi singoli restano per quando il pannello non c'è.
+  comando('registroDocenti.account', () =>
+    apri({ tipo: 'naviga', vista: 'impostazioni', impostazioni: 'utente#account' }),
+  )
 
   // Il pannello riceve lo stato nuovo da `alCambiamento`.
   comando('registroDocenti.ricarica', async () => {

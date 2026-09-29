@@ -6,8 +6,9 @@
 # La versione si scrive in un posto solo — `package.json`, vedi la testa di
 # `electron-builder.json` — e questo file è quel che la trasforma in qualcosa
 # che un registro installato possa scaricare: il tag `v<versione>`, la release
-# con l'installer, il portabile, i pacchetti per Linux e `latest.yml`, che è il
-# file che electron-updater legge per sapere se c'è di meglio di quel che ha.
+# con l'installer, il portabile, i pacchetti per Linux e per macOS, e i
+# `latest.yml`, `latest-linux.yml` e `latest-mac.yml` che electron-updater
+# legge per sapere se c'è di meglio di quel che ha.
 #
 # «La versione è cambiata» si decide guardando i tag e non il diff: se il tag
 # `v<versione>` non esiste ancora, la versione è nuova. Così un push qualunque
@@ -20,7 +21,8 @@
 # L'ordine dei lavori è il punto:
 #
 #   verifica → versione → pacchetti (Windows) ┐
-#                        → linux              ┴→ pubblica
+#                        → linux              ┼→ pubblica
+#                        → mac                ┘
 #
 # La verifica sta in testa e gira sempre, anche quando non c'è niente da
 # rilasciare: è la stessa di `verifica.yml`, che da sola non parte più.
@@ -371,7 +373,8 @@ jobs:
 
       - run: node tools/pacchetto.mjs --config electron-builder.json --linux --publish never
 
-      # `latest-linux.yml` accompagna l'AppImage come `latest.yml` l'installatore.
+      # `latest-linux.yml` (o `beta-linux.yml`) accompagna i pacchetti come
+      # `latest.yml` l'installatore: ci stanno AppImage, `.deb` e `.rpm`.
       - uses: actions/upload-artifact@v7
         with:
           name: pacchetti-linux
@@ -379,13 +382,65 @@ jobs:
             pacchetti/*.AppImage
             pacchetti/*.deb
             pacchetti/*.rpm
-            pacchetti/latest-linux.yml
+            pacchetti/*-linux.yml
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  # I pacchetti per macOS, come `linux`: accanto a `pacchetti`, un artefatto che
+  # carica `pubblica`. Due giri, uno per architettura, ognuno sulla sua
+  # macchina: `npm ci` installa i binari di llama.cpp della macchina che lo
+  # esegue, e un pacchetto dell'altra architettura non li avrebbe.
+  #
+  # Ogni giro fa il `.dmg` per chi installa e lo `.zip` per chi si aggiorna, con
+  # il suo `latest-mac.yml`; i due `.yml` li fonde `pubblica`.
+  #
+  # Niente firma Apple né notarizzazione: la firma è ad-hoc (`mac.identity` in
+  # `electron-builder.json`), e la prima apertura chiede il permesso a
+  # Gatekeeper. Per lo stesso motivo l'aggiornamento non passa da Squirrel.Mac:
+  # vedi `desktop/apparato/updateMac.ts`.
+  mac:
+    needs: versione
+    if: needs.versione.outputs.nuova == 'true'
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-latest
+          - arch: x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    env:
+      # Non cercare certificati nel portachiavi del runner: la firma è ad-hoc.
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - run: node esbuild.mjs --produzione
+
+      - run: node tools/pacchetto.mjs --config electron-builder.json --mac --${{ matrix.arch }} --publish never
+
+      # `latest-mac.yml`, o `beta-mac.yml` per un'anteprima.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pacchetti-mac-${{ matrix.arch }}
+          path: |
+            pacchetti/*.dmg
+            pacchetti/*.zip
+            pacchetti/*-mac.yml
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
 
   pubblica:
-    needs: [versione, pacchetti, linux]
+    needs: [versione, pacchetti, linux, mac]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -398,7 +453,23 @@ jobs:
           name: pacchetti-linux
           path: pacchetti-linux
 
-      - run: gh release upload "$TAG" pacchetti-linux/* --repo "$GITHUB_REPOSITORY" --clobber
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: pacchetti-mac-*
+          path: pacchetti-mac
+
+      # Un `*-mac.yml` solo, con gli archivi delle due architetture: ognuno
+      # sceglie il suo per nome (`arm64`). `*+` di `yq` accoda le liste.
+      - name: Aggiornamento per macOS
+        run: |
+          mkdir -p mac
+          mv pacchetti-mac/*/*.dmg pacchetti-mac/*/*.zip mac/
+          for nome in $(ls pacchetti-mac/*/*-mac.yml | xargs -n1 basename | sort -u); do
+            yq eval-all '. as $voce ireduce ({}; . *+ $voce)' pacchetti-mac/*/"$nome" > "mac/$nome"
+            cat "mac/$nome"
+          done
+
+      - run: gh release upload "$TAG" pacchetti-linux/* mac/* --repo "$GITHUB_REPOSITORY" --clobber
 
       # Qui nasce il tag, sul commit indicato alla creazione della bozza.
       # `--latest` solo per le versioni vere: un'anteprima non deve diventare

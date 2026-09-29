@@ -2,12 +2,12 @@
 // Le stesse di `contract/manifesto.ts` e della finestra nativa, raggruppate per
 // argomento, con il nome a parole e il valore accanto al suo perché. La
 // divisione in sezioni sta in `sections.ts`, senza DOM, e si prova.
-// «Ritira» e non «cancella»: si smette di decidere e torna il predefinito.
+// «Ripristina» riporta al predefinito le voci di un'area, dagli elenchi soltanto.
 
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
+import { controllo, type Esito, type Valore } from '../../../../core/controlli/controllo.js'
 import {
   avviso,
-  campo,
   pastiglia,
   pulsante,
   scheda,
@@ -17,25 +17,31 @@ import { suggerimento } from '../../components/hint.js'
 import type { NomeIcona } from '../../components/icons.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { azione } from '../../bridge.js'
+import { gestisci, h, type Figlio } from '../../dom.js'
+import { azione, invia } from '../../bridge.js'
+import type { AreaImpostazioni } from '../../posto.js'
 import { stato, vai } from '../../state.js'
-import { sceltaConFigure } from './figures.js'
 import {
   avanzateDiSezione,
+  daRipristinare,
   gruppiDiSezione,
   nomeVoce,
+  titoloArea,
   vociMostrateDaSezione,
   type GruppoVoci,
   type SezioneProgramma,
 } from './sections.js'
 import { testi } from './program.testi.js'
 
-async function scrivi (chiave: string, valore: string | number | boolean): Promise<void> {
-  const risposta = await azione({ tipo: 'programma.salva', chiave, valore })
-  if (!risposta.ok) return
-  // Nessuna notifica di successo: il valore nuovo torna con lo stato.
+/**
+ * Scrive un valore e dice com'è andata, per la riga sotto il campo: `null`
+ * salvato, o il motivo della dogana. Con `invia` e non `azione`: il rifiuto si
+ * legge accanto al campo, non in una notifica. Il valore nuovo torna con lo stato.
+ */
+async function scrivi (chiave: string, valore: Valore): Promise<Esito> {
+  const risposta = await invia({ tipo: 'programma.salva', chiave, valore })
+  if (risposta.ok) return null
+  return risposta.errori?.join(' ') || undefined
 }
 
 async function ritira (chiave: string): Promise<void> {
@@ -44,168 +50,23 @@ async function ritira (chiave: string): Promise<void> {
   notifica(testi().tornaAlPredefinito(nomeVoce(chiave)), 'info')
 }
 
-/** Il titolo di una scelta, prima dei due punti nell'aiuto: `Chiaro: sempre...` -> `Chiaro`. */
-function etichettaScelta (aiuto: string): string {
-  const duePunti = aiuto.indexOf(':')
-  return duePunti >= 0 ? aiuto.slice(0, duePunti).trim() : aiuto
-}
-
-/** Come si scrive un valore quando lo si mostra fuori dal campo. */
-function comeSiLegge (voce: VoceProgramma, valore: string | number | boolean): string {
-  const t = testi()
-  if (voce.tipo === 'boolean') return valore ? t.acceso : t.spento
-  if (String(valore) === '') return parole().vuoto
-  const scelta = voce.scelte?.find((candidata) => candidata.valore === valore)
-  if (scelta?.aiuto) return etichettaScelta(scelta.aiuto)
-  return scelta ? String(scelta.valore) : String(valore)
-}
-
 /**
- * Il controllo giusto per il tipo dichiarato nel manifesto. Una voce sospesa si
- * mostra spenta qualunque cosa dica il file: il valore scritto resta e torna
- * quando il padre si riaccende, ma una casella spuntata sotto un interruttore
- * spento direbbe concesso quel che non lo è.
+ * Il controllo di una voce, lo stesso della finestra nativa (`core/controlli/`).
+ * I gestori passano dalla delega del pannello (`gestisci`): un nodo che il
+ * ridisegno riusa prende quelli del disegno nuovo.
  */
-function controllo (voce: VoceProgramma, spenta: boolean, aiModelli: () => void): Figlio {
-  if (voce.tipo === 'boolean') {
-    const acceso = Boolean(voce.valore) && !spenta
-    return campo({
-      nome: voce.chiave,
-      tipo: 'checkbox',
-      etichetta: acceso ? testi().Acceso : testi().Spento,
-      valore: acceso,
-      disabilitato: spenta,
-      al: (valore) => void scrivi(voce.chiave, valore === 'true'),
-    })
-  }
-
-  // Le scelte che si capiscono guardandole (il tema) a schede con figura; le
-  // altre a tendina.
-  const figurata = sceltaConFigure(voce, spenta, (valore) => void scrivi(voce.chiave, valore))
-  if (figurata) return figurata
-
-  if (voce.scelte) {
-    return campo({
-      nome: voce.chiave,
-      tipo: 'select',
-      valore: String(voce.valore),
-      disabilitato: spenta,
-      // L'aiuto di una scelta sta nella sua etichetta, visibile mentre si sceglie.
-      opzioni: voce.scelte.map((scelta) => ({
-        valore: String(scelta.valore),
-        testo: scelta.aiuto,
-      })),
-      al: (valore) => {
-        const scelta = voce.scelte?.find((candidata) => String(candidata.valore) === String(valore))
-        if (scelta) void scrivi(voce.chiave, scelta.valore)
-      },
-    })
-  }
-
-  if (voce.tipo === 'number') {
-    return campo({
-      nome: voce.chiave,
-      tipo: 'number',
-      valore: Number(voce.valore),
-      passo: 'any',
-      // Gli estremi del manifesto arrivano al campo; il controllo vero resta
-      // dall'altra parte (`valoreConMotivo`).
-      min: voce.minimo ?? undefined,
-      max: voce.massimo ?? undefined,
-      disabilitato: spenta,
-      al: (valore) => {
-        const numero = Number(valore)
-        if (String(valore).trim() === '' || !Number.isFinite(numero)) return
-        void scrivi(voce.chiave, numero)
-      },
-    })
-  }
-
-  if (voce.formato === 'cartella' || voce.formato === 'eseguibile' || voce.formato === 'file') {
-    return campoPercorso(voce, spenta)
-  }
-
-  if (voce.formato === 'modello') return campoModello(voce, aiModelli)
-
-  return campo({
-    nome: voce.chiave,
-    tipo: voce.formato === 'email' ? 'email' : 'text',
-    valore: String(voce.valore ?? ''),
-    disabilitato: spenta,
-    al: (valore) => void scrivi(voce.chiave, String(valore)),
+function campoDi (voce: VoceProgramma, aiModelli: () => void): Figlio {
+  return controllo(voce, (valore) => scrivi(voce.chiave, valore), document, {
+    ascolta: gestisci,
+    sfoglia: () => void sfoglia(voce.chiave),
+    svuota: () => void ritira(voce.chiave),
+    aiModelli,
   })
-}
-
-/**
- * Un percorso: si mostra e si sceglie con il dialogo del sistema, non si batte.
- * Vuoto vuol dire «ci pensa il registro», e lo si dice.
- */
-function campoPercorso (voce: VoceProgramma, spenta: boolean): Figlio {
-  const t = testi()
-  const scritto = String(voce.valore ?? '')
-  return h(
-    'div',
-    { class: 'campo-percorso' },
-    h(
-      'span',
-      {
-        class: ['campo-percorso__valore', scritto === '' && 'campo-percorso__valore--vuoto'],
-        attr: { title: scritto || null },
-      },
-      scritto || t.ciPensaIlRegistro,
-    ),
-    pulsante({
-      testo: parole().sfoglia,
-      simbolo: 'cartella',
-      variante: 'sottile',
-      disabilitato: spenta,
-      titolo: t.sceglieConDialogo(voce.formato === 'cartella'),
-      al: () => void sfoglia(voce.chiave),
-    }),
-    scritto !== ''
-      ? pulsante({
-          testo: t.svuota,
-          variante: 'fantasma',
-          disabilitato: spenta,
-          titolo: t.svuotaAiuto,
-          al: () => void ritira(voce.chiave),
-        })
-      : null,
-  )
-}
-
-/**
- * Un modello: il nome del file si legge e basta. Si sceglie fra quelli
- * scaricati, nella sezione dei modelli: battuto a mano sarebbe un nome che la
- * cartella forse non ha.
- */
-function campoModello (voce: VoceProgramma, aiModelli: () => void): Figlio {
-  const t = testi()
-  const scritto = String(voce.valore ?? '').trim()
-  return h(
-    'div',
-    { class: 'campo-percorso' },
-    h(
-      'span',
-      {
-        class: ['campo-percorso__valore', scritto === '' && 'campo-percorso__valore--vuoto'],
-        attr: { title: scritto || null },
-      },
-      scritto || t.nessunModello,
-    ),
-    pulsante({
-      testo: t.scegliModello,
-      simbolo: 'bot',
-      variante: 'sottile',
-      titolo: t.scegliModelloAiuto,
-      al: aiModelli,
-    }),
-  )
 }
 
 /** Il rimando di serie alla sezione dei modelli; chi ha un filtro aperto passa il suo. */
 function apriModelli (): void {
-  vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
+  vai({ pagina: 'pagina.impostazioni', scheda: 'programma#modelli' })
 }
 
 async function sfoglia (chiave: string): Promise<void> {
@@ -213,9 +74,9 @@ async function sfoglia (chiave: string): Promise<void> {
 }
 
 /**
- * Una riga di impostazione: che cos'è, com'è adesso, e da dove viene il valore.
- * La chiave resta scritta in piccolo: è quella dei messaggi d'errore e della guida.
- * `aiModelli` porta alla sezione dei modelli: il filtro passa il suo, che si svuota.
+ * Una riga di impostazione: che cos'è, com'è adesso, e perché non si tocca
+ * quando non si tocca. `aiModelli` porta alla sezione dei modelli: il filtro
+ * passa il suo, che si svuota.
  */
 export function vociProgramma (
   voce: VoceProgramma,
@@ -231,8 +92,10 @@ export function vociProgramma (
     'div',
     {
       // Una voce decisa a mano non si evidenzia: cambiare un'impostazione è
-      // normale, non un avviso. Lo dice la pastiglia, con il tono delle altre.
-      class: ['voce-opzione', spenta && 'voce-opzione--sospesa'],
+      // normale, non un avviso. Una figlia (`dipendeDa`) sta rientrata sotto il padre.
+      class: ['voce-opzione', spenta && 'voce-opzione--sospesa', voce.dipendeDa && 'voce-opzione--figlia'],
+      // L'ancora dell'indirizzo `programma#<chiave>`: il filtro e Ctrl+K arrivano qui.
+      dataset: { voce: voce.chiave },
     },
     h(
       'div',
@@ -252,32 +115,18 @@ export function vociProgramma (
         ? pastiglia(t.sospesa(nomeVoce(voce.dipendeDa ?? '')), 'quiete')
         : null,
       bloccata && !spenta ? pastiglia(t.nonSiAccende, 'attenzione') : null,
-      // Modificata: si dice anche il predefinito, per decidere se ritirarla.
-      voce.scritta
-        ? pastiglia(t.modificata(comeSiLegge(voce, voce.predefinito)), 'quiete')
-        : pastiglia(t.predefinito(comeSiLegge(voce, voce.valore)), 'quiete'),
-      h('code', { class: 'voce-opzione__chiave' }, voce.chiave),
-      voce.scritta
-        ? pulsante({
-            testo: t.ritira,
-            simbolo: 'ricarica',
-            variante: 'fantasma',
-            titolo: t.ritiraAiuto(comeSiLegge(voce, voce.predefinito)),
-            al: () => void ritira(voce.chiave),
-          })
+      // Il registro la legge solo partendo: detto qui, non soltanto nella «i».
+      voce.alProssimoAvvio
+        ? h(
+            'span',
+            { class: 'voce-opzione__avvio', attr: { title: t.alProssimoAvvioAiuto } },
+            pastiglia(t.alProssimoAvvio, 'quiete', 'ricarica'),
+          )
         : null,
     ),
-    h('div', { class: 'voce-opzione__campo' }, controllo(voce, spenta || bloccata !== null, aiModelli)),
+    h('div', { class: 'voce-opzione__campo' }, campoDi(voce, aiModelli)),
     bloccata && !spenta ? h('p', { class: 'voce-opzione__aiuto' }, bloccata) : null,
   )
-}
-
-/**
- * Le voci che una sezione mostra, elenco e scheda dedicata insieme: chi chiama
- * conta o ritira, e le chiavi della scheda vanno comprese.
- */
-export function vociDellaSezione (sezione: SezioneProgramma): VoceProgramma[] {
-  return vociMostrateDaSezione(stato.programma, sezione)
 }
 
 /**
@@ -291,14 +140,9 @@ function disegnaGruppo (gruppo: GruppoVoci): HTMLElement {
   return h(
     'section',
     { class: 'gruppo-opzioni' },
-    titoloUtile ? h('h4', { class: 'gruppo-opzioni__titolo' }, gruppo.titolo) : null,
+    titoloUtile ? h('h3', { class: 'gruppo-opzioni__titolo' }, gruppo.titolo) : null,
     h('div', { class: 'voci-opzioni' }, ...gruppo.voci.map((voce) => vociProgramma(voce))),
   )
-}
-
-/** Quante voci di una sezione sono state decise a mano. */
-function quanteScritte (voci: VoceProgramma[]): number {
-  return voci.filter((voce) => voce.scritta).length
 }
 
 /**
@@ -327,15 +171,14 @@ function vuotoDi (
   return { simbolo: 'impostazioni', titolo: t.nonArrivate, testo: t.nonArrivateTesto }
 }
 
-function disegnaAvanzate (sezione: SezioneProgramma, voci: VoceProgramma[]): Figlio {
+/** Il gruppo delle voci rare, in fondo: chiuso, si apre a mano. */
+export function disegnaAvanzate (sezione: { id: string }, voci: VoceProgramma[]): Figlio {
   if (voci.length === 0) return null
-  const scritte = quanteScritte(voci)
   return h(
     'details',
     {
       class: 'gruppo-opzioni gruppo-opzioni--avanzate',
-      // Aperto da sé quando qualcosa lì dentro è stato deciso a mano.
-      open: avanzateAperte.has(sezione.id) || scritte > 0,
+      open: avanzateAperte.has(sezione.id),
       ontoggle: (evento: Event) => {
         const suo = evento.currentTarget as HTMLDetailsElement
         if (suo.open) avanzateAperte.add(sezione.id)
@@ -352,40 +195,14 @@ function disegnaAvanzate (sezione: SezioneProgramma, voci: VoceProgramma[]): Fig
 }
 
 /**
- * Una sezione intera, con il gesto che la riporta com'era. «Ripristina» chiede
- * prima e dice quante voci tocca.
+ * Le voci di una sezione: prima l'avvertenza, se concedono qualcosa ad altri,
+ * poi i gruppi, poi le avanzate chiuse. Senza titolo: nome e riassunto li dice
+ * già la testata della sezione.
  */
 export function schedaProgramma (sezione: SezioneProgramma): HTMLElement {
-  const voci = vociDellaSezione(sezione)
-  const scritte = quanteScritte(voci)
-  const t = testi()
-
+  const voci = vociMostrateDaSezione(stato.programma, sezione)
   return scheda({
-    titolo: sezione.titolo,
-    // Dietro la «i»: lo stesso riassunto sta già sotto il nome nella colonna di sinistra.
-    aiuto: sezione.sottotitolo,
     classe: 'scheda--opzioni',
-    azioni:
-      scritte > 0
-        ? pulsante({
-            testo: t.ripristinaQuante(scritte),
-            simbolo: 'ricarica',
-            variante: 'sottile',
-            titolo: t.ripristinaAiuto,
-            al: async () => {
-              const sicuro = await conferma({
-                titolo: t.ripristinare(sezione.titolo),
-                testo: t.tornano(scritte),
-                testoConferma: t.ripristina,
-              })
-              if (!sicuro) return
-              for (const voce of voci.filter((candidata) => candidata.scritta)) {
-                await azione({ tipo: 'programma.azzera', chiave: voce.chiave })
-              }
-              notifica(t.ripristinata(sezione.titolo), 'info')
-            },
-          })
-        : null,
     contenuto: h(
       'div',
       null,
@@ -405,8 +222,32 @@ export function schedaProgramma (sezione: SezioneProgramma): HTMLElement {
   })
 }
 
-/** Dove finiscono questi valori (ambito «Programma»): sta dietro la «i» accanto al titolo. */
-export function dovVannoLeOpzioni (): HTMLElement {
+/**
+ * «Ripristina» di un'area: dice quante voci tocca, chiede, e le riporta al
+ * predefinito. Solo quelle degli elenchi (`daRipristinare`); niente se non ce
+ * n'è nessuna decisa a mano.
+ */
+export function ripristinaArea (area: AreaImpostazioni): HTMLElement | null {
+  const voci = daRipristinare(stato.programma, area)
+  if (voci.length === 0) return null
   const t = testi()
-  return h('span', null, h('strong', null, t.restanoQui), t.restanoQuiTesto)
+  const nome = titoloArea(area)
+  return pulsante({
+    testo: t.ripristinaQuante(voci.length),
+    simbolo: 'ricarica',
+    variante: 'sottile',
+    titolo: t.ripristinaAiuto,
+    al: async () => {
+      const sicuro = await conferma({
+        titolo: t.ripristinare(nome),
+        testo: t.tornano(voci.length),
+        testoConferma: t.ripristina,
+      })
+      if (!sicuro) return
+      for (const voce of voci) {
+        await azione({ tipo: 'programma.azzera', chiave: voce.chiave })
+      }
+      notifica(t.ripristinata(nome), 'info')
+    },
+  })
 }

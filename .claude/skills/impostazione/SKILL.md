@@ -3,11 +3,13 @@ name: impostazione
 description: >
   Come si aggiunge, si cambia e si toglie un'impostazione di
   Regiklass, toccando ogni punto che la riguarda: la dichiarazione in
-  `contract/manifesto.ts` (tipo, predefinito, descrizione, `scelte`, `formato`,
-  `minimo`/`massimo`, `dipendeDa`, `avanzata`), la dogana di
-  `valoreConMotivo`, la sezione in cui compare, le due superfici che la
-  mostrano — la pagina del pannello e la finestra nativa — e le prove che
-  impediscono a una chiave di sparire in silenzio. Da usare ogni volta che si
+  `contract/manifesto.ts` (tipo, predefinito, `scelte`, `formato`,
+  `minimo`/`massimo`/`passo`, `controllo`, `unita`, `dipendeDa`, `richiede`,
+  `avanzata`, `alProssimoAvvio`) con i testi in `manifesto.testi.ts`, la dogana
+  di `valoreConMotivo`, le chiavi dismesse e migrate, l'area e la sezione in
+  cui compare (`core/controlli/aree.ts`), le due superfici che la mostrano con
+  gli stessi controlli — la pagina del pannello e la finestra nativa — e le
+  prove che impediscono a una chiave di sparire in silenzio. Da usare ogni volta che si
   parla di impostazioni, preferenze, opzioni, `impostazioni.json`,
   `registroDocenti.*`, di «rendere configurabile» qualcosa, di una casella da
   aggiungere alle impostazioni, o si tocca la divisione fra impostazioni del
@@ -36,21 +38,19 @@ e si normalizzano in `core/dominio/validation.ts`.
 
 ## Il manifesto è l'unico elenco
 
-`contract/manifesto.ts` è la sola verità: chiave, tipo, predefinito, descrizione,
-dogana. Da lì nascono i valori predefiniti, la pagina del pannello e la finestra
+`contract/manifesto.ts` è la sola verità: chiave, tipo, predefinito, disegno,
+dogana. Etichetta, descrizione, unità e aiuto di ogni scelta stanno in
+`contract/manifesto.testi.ts`, nelle quattro lingue (skill `testi`). Da lì nascono i valori predefiniti, la pagina del pannello e la finestra
 nativa. **Non si scrive mai una chiave a mano in `impostazioni.json`**, e non si
 ricopia mai un predefinito altrove: due elenchi da tenere allineati divergono in
 pochi mesi, e la divergenza si scopre dal comportamento.
 
 ```ts
-'registroDocenti.promemoria.anticipoMinuti': {
-  tipo: 'number',
-  predefinito: 5,
-  minimo: 0,
-  massimo: 120,
-  descrizione:
-    'Quanti minuti prima dell’inizio arriva l’avviso. Cinque è il tempo di prendere il ' +
-    'computer e salire una rampa di scale; zero lo fa arrivare all’ora esatta.',
+'registroDocenti.promemoria.avviso': {
+  tipo: 'string',
+  predefinito: '5',
+  scelte: ['nessuno', '0', '2', '5', '10', '15'],
+  controllo: 'tendina',
 },
 ```
 
@@ -64,20 +64,34 @@ la forma in cui il registro le chiede:
 | --- | --- | --- |
 | `tipo` | sempre | `'string'`, `'number'`, `'boolean'` |
 | `predefinito` | sempre | il valore quando nessuno ha scelto |
-| `descrizione` | sempre | discorsiva, non un'etichetta di tre parole: chi apre le impostazioni non sa già che cosa cerca |
-| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `ui/pannello/views/settings/figures.ts` (oggi il tema). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
+| `etichetta`, `descrizione` | sempre, in `manifesto.testi.ts` | il nome della riga, e sotto una frase discorsiva: chi apre le impostazioni non sa già che cosa cerca |
+| `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.ts` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
 | `formato: 'email'` | il valore è un indirizzo | dogana vera, non un `type="email"`: vale anche da riga di comando |
 | `minimo` / `massimo` | fuori da un intervallo il numero non vuol dire niente | dogana; diventano gli attributi `min`/`max` dei campi |
+| `passo` | il numero non è intero, o salta | dogana anche lui; assente vale 1 |
+| `unita` | un numero ha un'unità («min») | scritta accanto al campo, dal catalogo |
+| `controllo` | il tipo non basta a dire il disegno | `segmenti` (poche scelte brevi), `tendina`, `cursore`; è un disegno, non una dogana (ADR-52) |
+| `scelteDinamiche` | le scelte si sanno solo sul momento | oggi `indirizziPosta`, gli indirizzi dell'account collegato |
+| `sceltaLibera` | si può scrivere anche fuori elenco | con `scelte`, le scelte con un nome passano così e il resto passa dal `formato` (`ocr.lettore`) |
+| `richiede` | un interruttore senza un altro valore non ha senso | la dogana rifiuta l'accensione con `motivo`, `get` risponde spento (l'assistente senza modello) |
 | `dipendeDa` | la voce conta solo se un'altra è accesa | la figlia si disabilita e **si mostra spenta** finché il padre è spento; il valore scritto resta e torna riaccendendo il padre |
-| `avanzata` | percorsi di eseguibili, attese massime | in fondo alla sezione, in un gruppo che si apre da sé se qualcosa lì dentro è stato deciso a mano |
+| `avanzata` | voci di rara modifica | in fondo alla sezione, in «Avanzate (n)», chiuso; si apre solo a mano |
+| `alProssimoAvvio` | il registro la legge solo partendo | pastiglia «al prossimo avvio» accanto al nome, in tutte e due le superfici |
 
 **Non c'è un'uscita** dalla garanzia «ogni chiave compare da qualche parte»:
 tutte le chiavi del manifesto arrivano a tutte e due le superfici. C'era un
 campo `nascosta`, per lo stato che l'agenda sul desktop si scriveva addosso
 (posizione, misura, linguetta); se n'è andato con lei. Uno stato che il
 programma scrive da sé non è un'impostazione: va in `userData/interfaccia/`
-(`desktop/apparato/uiState.ts`), non nel manifesto. Una chiave tolta va in
-`CHIAVI_DISMESSE`, che la ripulisce dai file vecchi.
+(`desktop/apparato/uiState.ts`), non nel manifesto.
+
+Togliere o accorpare: la chiave vecchia va in `CHIAVI_DISMESSE`, che
+`ritiraChiaviDismesse` toglie dal file all'avvio. Se il suo valore deve
+sopravvivere in una chiave nuova, una voce in `MIGRAZIONI` (`nuova`,
+`vecchie`, `ricava`): chi legge il file la applica solo se la nuova non c'è
+(esempi: `api.accesso` da tre interruttori, `promemoria.avviso` da interruttore
+più minuti). `CHIAVI_DEL_COLLEGAMENTO` sono quelle che scrive «Collega la
+casella»: si mostrano, non si scrivono a mano, e «Ripristina» non le tocca.
 
 ## La dogana
 
@@ -98,48 +112,66 @@ valore; la rete impedisce che un file modificato a mano faccia danni.
 
 ## Dove compare
 
-`ui/pannello/views/settings/sections.ts` divide le chiavi in sezioni **per
-prefisso**. Cinque sezioni, e la prima — «Generale» — `raccoglie: true`: quel
-che nessuna ha nominato finisce lì. È la regola che rende impossibile il guasto peggiore — una
-chiave aggiunta al manifesto e finita in nessuna sezione esisterebbe, si
-potrebbe cambiare da riga di comando, e non si vedrebbe da nessuna parte.
+Quattro aree — Calendario, Didattica, Utente, Programma — ognuna una pagina che
+scorre per sezioni. Calendario e Didattica sono tutte dell'anno (campi del
+`.regi`); le chiavi del manifesto stanno in Utente › Posta e nelle cinque
+sezioni del Programma. Elenco e nomi in `core/controlli/aree.ts` e
+`aree.testi.ts`, uguali per le due superfici; le sezioni dell'anno e le parole
+di ricerca le aggiunge il pannello (`ui/pannello/views/settings/sections.ts`,
+`sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/pannello/posto.ts`).
 
-Una sezione può portare anche:
-- `pagina` — il rimando alla pagina dove quel che regola si fa davvero (le tre
-  sezioni che nominano un `.gguf` rimandano a «Modelli linguistici»: qui si dice
-  *quale* modello lavora, il file si scarica di là);
-- `avvertenza` — quel che va letto **prima** di spuntare, quando spuntare
-  concede qualcosa a qualcun altro. Una sola sezione ce l'ha, ed è il condotto.
+`DIVISIONI` dà a ogni sezione con chiavi i suoi `prefissi`; `divisioneDi`
+sceglie il prefisso **più lungo** (così `avvio.integrazioneSistema` va nelle
+Avanzate senza portarsi dietro il gruppo `avvio`). Aspetto ha
+`raccoglie: true`: una chiave che nessuno nomina finisce lì, e si vede comunque —
+il guasto peggiore sarebbe una chiave che si cambia da riga di comando e non si
+vede da nessuna parte. `avvertenza: true` (solo le Avanzate, il condotto): il
+testo da leggere prima di concedere qualcosa ad altri programmi. `titoliGruppi`
+dà il titolo ai gruppi di chiavi che si chiamano tutte «Attivo».
 
-Aggiungendo una chiave con un prefisso nuovo: o le si dà una sezione, o finisce
-nel raccoglitore. Va bene tutte e due, ma va **deciso**, non subìto.
+`CHIAVI_IN_SCHEDA` (in `sections.ts`) sono le chiavi che una scheda dedicata
+disegna da sé — la casella in Posta, le righe d'uso in Assistente e modelli —
+e che l'elenco generico salta; «Ripristina» (per area, `daRipristinare`) tocca
+solo le voci degli elenchi. Non c'è più «Ritira» né un pannello «Dettagli».
+
+Una chiave con prefisso nuovo: o le si dà una divisione, o va nel raccoglitore.
+Va bene tutte e due, ma va **deciso**, non subìto. Spostare una sezione cambia
+gli indirizzi (`area#sezione`): quelli di prima si riportano in
+`SCHEDE_DI_PRIMA` di `posto.ts`.
 
 ## Le due superfici
 
 | | Pagina del pannello | Finestra nativa |
 | --- | --- | --- |
-| Dove | `ui/pannello/views/settings*` | `desktop/shell/pages/settings/settings.html` + `desktop/shell/windows/menu.ts` |
-| Quando serve | quasi sempre | quando **non c'è nessun documento aperto**, e il pannello non esiste |
-| Che cosa può importare | tutto | **niente**: è HTML con script inline |
+| Dove | `ui/pannello/views/settings*` | `desktop/shell/pages/settings/settings.ts`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
+| Quando serve | quasi sempre | la scialuppa: nessun documento aperto, il pannello non c'è (menu Registro › «Impostazioni senza documento aperto…») |
+| Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
-Ne consegue la regola che governa ogni aggiunta: **quel che le due devono sapere
-si calcola in `vociImpostazioni()`** (in `desktop/apparato/settings.ts`) e viaggia
-come campo di `VoceProgramma`, dentro `contract/protocollo.ts`. È l'unico punto da cui
-tutte e due prendono l'elenco, quindi è l'unico in cui il conto non può
-divergere. `sospesa` — la regola di `dipendeDa` — sta lì per questo: prima la
-sapeva solo il pannello, e la finestra nativa mostrava spuntata una concessione
-che il condotto non concedeva.
+I controlli sono **gli stessi** (ADR-52): `core/controlli/controllo.ts` sceglie il
+disegno dalla `VoceProgramma`, `campo.ts` fa lo stesso per i campi dell'anno.
+`core/controlli/` importa solo `core/i18n`, le parole comuni e i tipi di
+`contract/` (`npm run layers`).
+
+Quel che le due devono sapere si calcola in `vociImpostazioni()`
+(`desktop/apparato/settings.ts`) e viaggia come campo di `VoceProgramma`
+(`contract/protocollo.ts`): `sospesa` (la regola di `dipendeDa`),
+`delCollegamento`, `alProssimoAvvio`, il disegno. Un punto solo, un conto solo.
 
 ## Le prove
 
-Tre file, e ognuno sorveglia una cosa diversa:
+Ognuna sorveglia una cosa diversa:
 
-- `tests/environment/settings.test.mjs` — la **dogana**: un indirizzo che non è
-  un indirizzo non entra, un numero fuori dagli estremi non entra, una chiave
-  inventata non entra, e ogni chiave del manifesto arriva alle superfici.
+- `tests/environment/settings.test.mjs` — la **dogana** (indirizzo, estremi,
+  passo, chiave inventata, `richiede`), le voci che arrivano alle superfici, e
+  le chiavi vecchie che diventano la scelta nuova (`MIGRAZIONI`).
 - `tests/ui/settingsSections.test.mjs` — che **ogni chiave compaia in
-  una sezione e in una sola**, senza eccezioni.
+  una sezione e in una sola**, le aree, la ricerca, il punto sulla scheda.
+- `tests/ui/controlli.test.mjs` — che ogni voce del manifesto prenda il suo
+  disegno, e le aree della finestra nativa.
 - `tests/environment/menu.test.mjs` — che la finestra nativa riceva ogni voce.
+- `tests/ui/posto.test.mjs` — gli indirizzi di prima (`SCHEDE_DI_PRIMA`).
+- `tests/interfaccia/settingsKeyboard.spec.ts`, `impostazioniAnno.spec.ts` — la
+  pagina vera, da tastiera e senza anno.
 
 Sono le tre cose di questa zona che possono rompersi in silenzio. Una chiave
 nuova senza prova non è un rischio teorico: è la prova che fallisce, ed è così
@@ -147,18 +179,20 @@ che si scopre di aver dimenticato la sezione.
 
 ## Il giro completo, per una chiave nuova
 
-1. Dichiararla in `contract/manifesto.ts`, con la descrizione discorsiva e le dogane
-   che le servono.
-2. Deciderne la sezione in `ui/pannello/views/settings/sections.ts` — o lasciarla al
-   raccoglitore, sapendo di averlo deciso.
+1. Dichiararla in `contract/manifesto.ts`, con le dogane e il disegno che le
+   servono, e i testi in `manifesto.testi.ts` nelle quattro lingue.
+2. Deciderne la sezione: un prefisso in `DIVISIONI` (`core/controlli/aree.ts`) —
+   o lasciarla al raccoglitore, sapendo di averlo deciso. Un gruppo nuovo vuole
+   il suo titolo in `titoliGruppi`.
 3. Leggerla dove serve:
    `apparato.impostazioni.leggi('registroDocenti.x').get('y', ripiego)`.
 4. Se cambiarla deve avere effetto **subito**, iscriversi a
    `onDidChangeConfiguration` e guardare `affectsConfiguration`. Se invece ha
-   effetto al riavvio, **dirlo nella descrizione** — `vassoio.attivo` lo fa.
+   effetto al riavvio, `alProssimoAvvio: true` — `vassoio.attivo` lo fa.
 5. `npm test`, e il rituale della skill `verifica`.
-6. `docs/CATALOGO.md` porta l'elenco completo delle chiavi. Non si rigenera da
-   sé — si aggiorna a mano, con i conteggi **contati a macchina sul sorgente**,
-   mai ricordati. La `docs/GUIDA.md` invece non le elenca apposta: c'era una tabella
-   scritta a mano, ed elencava diciotto chiavi di cui due non esistevano più e
-   undici non c'erano mai entrate.
+6. Una voce visibile vuole la sua riga nella guida
+   (`ui/pannello/views/help/settings.testi.ts`), con il percorso scritto
+   «Impostazioni › Area › Sezione» come i titoli dei cataloghi.
+7. Nessun documento elenca le chiavi: `docs/CATALOGO.md` § 5 dice le regole,
+   non l'elenco. Un elenco scritto a mano, in passato, ne aveva due che non
+   esistevano più e undici mai entrate.

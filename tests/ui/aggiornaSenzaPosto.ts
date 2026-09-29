@@ -19,5 +19,5 @@ void ({ posto: { pagina: 'pagina.oggi' } } satisfies Modifiche)
 void ({ corsoId: 'cor-a' } satisfies Modifiche)
 // @ts-expect-error una scheda che fa pagina è un posto
 void ({ schedaDocente: 'assenze' } satisfies Modifiche)
-// @ts-expect-error anche la sezione delle impostazioni
-void ({ schedaProgramma: 'account' } satisfies Modifiche)
+// @ts-expect-error anche l'area delle impostazioni
+void ({ areaImpostazioni: 'utente' } satisfies Modifiche)

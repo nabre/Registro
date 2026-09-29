@@ -13,7 +13,7 @@ const it = {
       {
         termine: 'Dove si guardano',
         testo:
-          'Impostazioni › Anno e orario › **Calendari ufficiali**: una scheda per cantone, e in ' +
+          'Impostazioni › Calendario › **Chiusure**, in fondo i **Calendari ufficiali**: una scheda per cantone, e in ' +
           'cima gli anni che porta. Un clic, o le frecce, mostra un altro anno; di serie c’è ' +
           'quello in corso, con la pastiglia **Anno in corso**. Qui non si cambia niente: né il ' +
           'documento né il calendario.',
@@ -48,7 +48,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Wo man sie ansieht',
           testo:
-            'Einstellungen › Schuljahr und Stundenplan › **Offizielle Kalender**: eine Karte pro ' +
+            'Einstellungen › Kalender › **Schliessungen**, unten die **Offiziellen Kalender**: eine Karte pro ' +
             'Kanton, oben die Schuljahre, die er enthält. Ein Klick oder die Pfeiltasten zeigen ' +
             'ein anderes Schuljahr; zuerst steht das laufende da, mit dem Etikett **Laufendes ' +
             'Schuljahr**. Hier ändert sich nichts: weder das Dokument noch der Kalender.',
@@ -82,7 +82,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Où les regarder',
           testo:
-            'Paramètres › Année et horaire › **Calendriers officiels** : une fiche par canton, ' +
+            'Paramètres › Calendrier › **Fermetures**, en bas les **Calendriers officiels** : une fiche par canton, ' +
             'avec en haut les années qu’il contient. Un clic, ou les flèches, affiche une autre ' +
             'année ; par défaut c’est celle en cours, avec la pastille **Année en cours**. Ici ' +
             'rien ne change : ni le document ni le calendrier.',
@@ -116,7 +116,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Where to look',
           testo:
-            'Settings › Year and timetable › **Official calendars**: one card per canton, with ' +
+            'Settings › Calendar › **Closures**, at the bottom the **Official calendars**: one card per canton, with ' +
             'the years it holds along the top. A click, or the arrow keys, shows another year; ' +
             'the current one comes first, with the **Current year** badge. Nothing changes ' +
             'here: neither the document nor the calendar.',

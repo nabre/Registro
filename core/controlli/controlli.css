@@ -1,0 +1,204 @@
+/*
+ * I controlli delle impostazioni (`controllo.ts`), uguali nel pannello e nella
+ * finestra nativa: tutti e due i fogli importano questo. Solo token e misure
+ * che le due pagine hanno già (`theme.css`, `metrics.css`); le schede con la
+ * figura stanno in `ui/pannello/styles/figure-choice.css`.
+ *
+ * Le pagine native vestono `button` e `input` per tag (`shared/base.css`):
+ * dove serve un aspetto proprio, le regole qui sotto lo tolgono per classe.
+ */
+
+.controllo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+
+/* Una frase sotto il campo: la scelta di adesso, o dove si cambia quel che qui si legge. */
+.controllo__descrizione,
+.controllo__nota {
+  margin: 0;
+  max-width: 48rem;
+  color: var(--testo-quieto);
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+
+/* «Salvato», discreto; il rifiuto della dogana resta e si legge. */
+.controllo__esito {
+  margin: 0;
+  min-height: 0;
+  color: var(--testo-quieto);
+  font-size: 0.84em;
+}
+.controllo__esito:empty { display: none; }
+.controllo__esito--rifiuto { color: var(--negativo); }
+
+/* ------------------------------------------------------------ il segmentato */
+
+.controllo-segmenti {
+  display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  border: 1px solid var(--bordo-forte);
+  border-radius: var(--raggio);
+  background: var(--campo-sfondo);
+  overflow: hidden;
+}
+
+.controllo-segmenti__voce {
+  min-width: 0;
+  min-height: var(--altezza-controllo);
+  margin: 0;
+  padding: 0 var(--spazio-3);
+  border: none;
+  border-left: 1px solid var(--bordo-tenue);
+  border-radius: 0;
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
+  cursor: pointer;
+}
+.controllo-segmenti__voce:first-child { border-left: none; }
+.controllo-segmenti__voce:hover:not([aria-disabled='true']) { background: var(--velo-sfiorato); }
+.controllo-segmenti__voce[aria-checked='true'] {
+  background: var(--velo-scelto);
+  color: var(--testo);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accento);
+}
+.controllo-segmenti__voce:focus-visible { outline-offset: -2px; }
+.controllo-segmenti--spenta { opacity: 0.55; }
+.controllo-segmenti--spenta .controllo-segmenti__voce { cursor: default; }
+
+/* ---------------------------------------------------------- l'interruttore */
+
+.controllo-interruttore {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--bersaglio-compatto);
+  margin: 0;
+  padding: 0 2px;
+  border: none;
+  border-radius: var(--raggio-pastiglia);
+  background: transparent;
+  cursor: pointer;
+}
+.controllo-interruttore:hover:not(:disabled) { background: transparent; }
+
+.controllo-interruttore__traccia {
+  position: relative;
+  display: inline-block;
+  width: 2.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--bordo-forte);
+  border-radius: var(--raggio-pastiglia);
+  background: var(--campo-sfondo);
+  transition: background var(--durata-svelta, 120ms) ease;
+}
+
+.controllo-interruttore__pomello {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.25rem - 6px);
+  height: calc(1.25rem - 6px);
+  border-radius: 50%;
+  background: var(--testo-quieto);
+  transition: transform var(--durata-svelta, 120ms) ease;
+}
+
+.controllo-interruttore[aria-checked='true'] .controllo-interruttore__traccia {
+  border-color: var(--accento);
+  background: var(--accento);
+}
+.controllo-interruttore[aria-checked='true'] .controllo-interruttore__pomello {
+  background: var(--su-tinta);
+  transform: translateX(1rem);
+}
+.controllo-interruttore:disabled { opacity: 0.55; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .controllo-interruttore__traccia,
+  .controllo-interruttore__pomello { transition: none; }
+}
+
+/* ---------------------------------------------------- numero e cursore */
+
+.controllo-numero,
+.controllo-cursore {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+/* In `rem`: il campo tiene cifre e cresce con il carattere. */
+.controllo-numero__campo { width: 6rem; max-width: 6rem; }
+.controllo-numero__unita { color: var(--testo-quieto); }
+
+.controllo-cursore__campo { width: 14rem; accent-color: var(--accento); }
+.controllo-cursore__valore { min-width: 4rem; font-variant-numeric: tabular-nums; }
+
+/* In `rem`, come gli altri campi di testo. */
+.controllo-tendina,
+.controllo-testo { max-width: 28rem; }
+
+/* --------------------------------------------- percorso, modello, collegamento */
+
+/* Si legge, e si sceglie con il pulsante accanto. */
+.controllo-percorso {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  max-width: 36rem;
+  min-width: 0;
+}
+
+.controllo-percorso__valore {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--spazio-2) var(--spazio-3);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--sfondo-alto);
+  font-family: var(--carattere-mono);
+  font-size: 0.88em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* La fine del percorso è quel che conta: si taglia davanti. */
+  direction: rtl;
+  text-align: left;
+  user-select: text;
+}
+
+.controllo-percorso__valore--vuoto {
+  color: var(--testo-quieto);
+  font-family: inherit;
+  direction: ltr;
+}
+
+.controllo__pulsante { flex: none; }
+
+/* ------------------------------------------- i campi del documento (`campo.ts`) */
+
+/* Il segmentato che ne accende più d'uno: lo stesso vestito, `aria-pressed` al posto di `aria-checked`. */
+.controllo-segmenti__voce[aria-pressed='true'] {
+  background: var(--velo-scelto);
+  color: var(--testo);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accento);
+}
+
+/* La tendina con «Altro…»: il numero libero le sta accanto. */
+.controllo-altro__riga {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+.controllo-altro[hidden] { display: none; }

@@ -49,7 +49,7 @@ import {
   valutazionePerId,
 } from './state.js'
 import { nonElencate, secondoLeParti } from './assistant/parts.js'
-import { sezioneAperta } from './views/settings/sections.js'
+import { sezioneDi } from './views/settings/sections.js'
 // La ricerca delle persone vive in una variabile di `views/people.ts`: da fuori
 // è l'unico modo di sapere che l'elenco è ristretto.
 import { oreDelCorso } from './views/lesson.js'
@@ -145,8 +145,7 @@ function periodo (): PeriodoContesto {
  */
 function sezione (): string | null {
   if (stato.vista !== 'impostazioni') return null
-  const { ambitoImpostazioni, schedaDocumento, schedaProgramma } = stato
-  return sezioneAperta(ambitoImpostazioni, schedaDocumento, schedaProgramma).titolo
+  return sezioneDi(stato.sezioneImpostazioni).titolo
 }
 
 /**

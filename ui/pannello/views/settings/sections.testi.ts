@@ -1,383 +1,327 @@
-// I testi delle sezioni delle impostazioni: nomi, fascia in cima, gruppi
-// tematici e titoli dei gruppi di chiavi. Etichette e descrizioni delle
-// singole impostazioni vengono dal manifesto (`contract/manifesto.testi.ts`).
+// I testi delle impostazioni per sezione che solo il pannello dice: nomi e
+// riassunti delle sezioni dell'anno e dell'account, le parole che il filtro e
+// Ctrl+K cercano, le pastiglie d'ambito. Aree, sezioni con chiavi, titoli dei
+// gruppi e avvertenza del condotto stanno in `core/controlli/aree.testi.ts`,
+// comuni con la finestra nativa; etichette e descrizioni delle singole
+// impostazioni nel manifesto (`contract/manifesto.testi.ts`).
 
 import { catalogo } from '../../../../core/i18n/index.js'
+import type { SezioneDiProgramma } from '../../../../core/controlli/aree.js'
+import type { SezioneImpostazioni } from '../../posto.js'
 
-/** Una sezione: il nome e il riassunto che si legge passandoci sopra. */
-interface Nome {
+/**
+ * Una sezione: il nome, il riassunto sotto il titolo, e le parole in più che
+ * la trovano cercando (i campi del documento non sono nel manifesto).
+ */
+interface Sezione {
   titolo: string
   sottotitolo: string
+  parole: string
 }
 
 const it = {
-  programma: {
-    aspetto: {
-      titolo: 'Generale',
-      sottotitolo: 'lingua, tema, avvio, icona accanto all’orologio, promemoria, proiezione',
+  sezioni: {
+    anno: {
+      titolo: 'Anno',
+      sottotitolo: 'l’etichetta, le date, i semestri',
+      parole: 'anno scolastico semestre inizio fine',
     },
-    // È anche il nome del gruppo che la contiene: la prova vuole che coincidano.
-    posta: {
-      titolo: 'Comunicazioni',
-      sottotitolo:
-        'la casella da cui partono le mail, quando si spediscono, la firma, e con che cosa si ' +
-        'chiama o si scrive a una persona',
+    chiusure: {
+      titolo: 'Chiusure',
+      sottotitolo: 'vacanze e sospensioni; i calendari ufficiali da cui vengono',
+      parole: 'vacanze ferie sospensioni festivi calendario ufficiale cantone PDF',
     },
-    // Anche questo è il nome del suo gruppo.
-    account: {
-      titolo: 'Account Microsoft',
-      sottotitolo: 'gli account con cui il registro cerca i documenti su OneDrive',
+    settimane: {
+      titolo: 'Settimane',
+      sottotitolo: 'le settimane A e B, e la lista dei loro tipi',
+      parole: 'settimana A B alterna tipi di settimana',
     },
-    modelli: {
-      titolo: 'Modelli linguistici',
-      sottotitolo: 'i modelli sulla tua macchina: assistente, scansioni, dettatura',
-    },
-    aggiornamenti: {
-      titolo: 'Aggiornamenti',
-      sottotitolo: 'la versione, e quando arriva quella nuova',
-    },
-    condotto: {
-      titolo: 'Condotto e riga di comando',
-      sottotitolo: 'se altri programmi possono parlare con il registro',
-    },
-    calendari: {
-      titolo: 'Calendari ufficiali',
-      sottotitolo: 'i calendari scolastici che il registro conosce, con il PDF da cui vengono',
-    },
-  } satisfies Record<string, Nome>,
-  avvertenzaCondotto:
-    'Qui si concede a **programmi che non sono il registro** di guardarci dentro. Acceso il '
-    + 'condotto, ogni programma che gira con il tuo stesso accesso può usarlo senza chiedertelo: '
-    + 'non c’è una password e non c’è una domanda. Accendilo per il tempo che serve a quello '
-    + 'script, e spegnilo quando hai finito.',
-  documento: {
-    anno: { titolo: 'Anno scolastico', sottotitolo: 'semestri, chiusure, settimane A e B' },
-    calendario: {
-      titolo: 'Calendario',
+    giornata: {
+      titolo: 'Giornata',
       sottotitolo:
         'l’unità didattica, le pause, l’inizio e la fine della giornata, i giorni mostrati',
+      parole: 'UD unità didattica durata pause ricreazione pranzo orario giorni mostrati griglia',
     },
     ics: {
-      titolo: 'Calendari ICS',
+      titolo: 'Calendari esterni',
       sottotitolo:
         'l’orario della scuola da un link o da un file, e come riconoscere le lezioni',
+      parole: 'ICS link file orario scuola regole riconoscere lezioni corso',
     },
     valutazione: {
       titolo: 'Valutazione',
       sottotitolo: 'la scala dei voti, l’arrotondamento di fine semestre, la soglia di assenza',
+      parole: 'scala voti voto minimo massimo sufficienza passo arrotondamento assenze soglia',
     },
-    materie: { titolo: 'Materie', sottotitolo: 'che cosa si insegna, e in quali corsi finisce' },
     liste: {
       titolo: 'Liste',
       sottotitolo: 'le voci dei menu a tendina: tipi di attività, di prova, supporti',
+      parole: 'liste menu tendina tipi attività prova raggruppamento supporto correzione gruppi',
     },
-    intestazione: {
-      titolo: 'Intestazione',
-      sottotitolo: 'sede, nome, logo e firma che vanno su fogli e mail',
+    chiSei: {
+      titolo: 'Chi sei',
+      sottotitolo: 'appellativo, nome e cognome che firmano i fogli',
+      parole: 'docente nome cognome appellativo firma intestazione',
     },
-    file: {
-      titolo: 'Questo file',
-      sottotitolo:
-        'dov’è il documento aperto, che cosa contiene, i riferimenti che non tornano',
+    stampa: {
+      titolo: 'Carta e stampa',
+      sottotitolo: 'le carte intestate e quando si rifanno i PDF',
+      parole: 'carta intestata carte intestazione sede logo stampa PDF',
     },
-  } satisfies Record<string, Nome>,
-  gruppi: {
-    anno: 'Anno e orario',
-    didattica: 'Didattica',
-    liste: 'Liste',
-    stampa: 'Documenti e stampa',
-    programma: 'Programma',
+    account: {
+      titolo: 'Account',
+      sottotitolo: 'gli account Microsoft collegati: la posta, e i documenti su OneDrive',
+      parole: 'account Microsoft OneDrive posta casella collega scollega prova azzera',
+    },
+  } satisfies Record<Exclude<SezioneImpostazioni, SezioneDiProgramma>, Sezione>,
+  /** Le parole in più che trovano le sezioni con chiavi; nomi e riassunti stanno in `aree.testi.ts`. */
+  parole: {
+    posta: 'posta mail e-mail casella mittente firma invio diretto recapiti telefono',
+    aspetto: 'lingua tema chiaro scuro',
+    avvio: 'avvio Windows icona orologio vassoio promemoria proiezione schermo',
+    modelli: 'assistente modelli linguistici scansioni lettura dettatura cartella',
+    aggiornamenti: 'aggiornamenti versione scarica installa',
+    condotto: 'condotto riga di comando API script avanzate integrazione sistema operativo associazione PATH',
+  } satisfies Record<SezioneDiProgramma, string>,
+  /** La pastiglia d'ambito di ogni blocco, e il suo perché. */
+  ambiti: {
+    anno: 'Questo anno',
+    computer: 'Questo computer',
   },
-  /** I titoli dei gruppi di chiavi dentro una sezione, per prefisso. */
-  titoliGruppi: {
-    'registroDocenti.aspetto': 'Lingua e tema',
-    'registroDocenti.vassoio': 'Icona accanto all’orologio',
-    'registroDocenti.avvio': 'Avvio',
-    'registroDocenti.promemoria': 'Promemoria delle lezioni',
-    'registroDocenti.proiezione': 'Proiezione per la classe',
-    'registroDocenti.posta': 'Casella di posta',
-    'registroDocenti.recapiti': 'Chiamate e mail dall’anagrafica',
-    'registroDocenti.modelli': 'Cartella e scarichi',
-    'registroDocenti.ocr': 'Lettura delle scansioni',
-    'registroDocenti.assistente': 'Assistente',
-    'registroDocenti.dettatura': 'Dettatura',
-    'registroDocenti.aggiornamenti': 'Versioni nuove',
-    'registroDocenti.api': 'Concessioni del condotto',
+  ambitiAiuto: {
+    anno: 'Si salva dentro il file dell’anno e viaggia con lui',
+    computer: 'Resta su questo computer e vale per tutti gli anni',
   },
+  // Il punto sulla scheda dell'area: che cosa chiede attenzione.
+  accesoSenzaModello: (nome: string) => `«${nome}» è acceso, ma senza un modello`,
+  invioSenzaCasella: 'L’invio diretto è acceso, ma la casella di posta non è collegata',
 }
 
 export const testi = catalogo(it, {
   de: {
-    programma: {
-      aspetto: {
-        titolo: 'Allgemein',
-        sottotitolo: 'Sprache, Design, Start, Symbol neben der Uhr, Erinnerungen, Projektion',
+    sezioni: {
+      anno: {
+        titolo: 'Jahr',
+        sottotitolo: 'die Bezeichnung, die Daten, die Semester',
+        parole: 'Schuljahr Semester Beginn Ende',
       },
-      posta: {
-        titolo: 'Kommunikation',
+      chiusure: {
+        titolo: 'Schliessungen',
         sottotitolo:
-          'das Postfach, aus dem die Mails verschickt werden, wann sie verschickt werden, die ' +
-          'Signatur, und womit man eine Person anruft oder ihr schreibt',
+          'Ferien und unterrichtsfreie Tage; die offiziellen Kalender, aus denen sie stammen',
+        parole: 'Ferien Feiertage Schliessungen offizieller Kalender Kanton PDF',
       },
-      account: {
-        titolo: 'Microsoft-Konten',
-        sottotitolo: 'die Konten, mit denen das Klassenbuch Dokumente auf OneDrive sucht',
+      settimane: {
+        titolo: 'Wochen',
+        sottotitolo: 'die A- und B-Wochen, und die Liste ihrer Typen',
+        parole: 'Woche A B abwechseln Wochentypen',
       },
-      modelli: {
-        titolo: 'Sprachmodelle',
-        sottotitolo: 'die Modelle auf deinem Computer: Assistent, Scans, Diktat',
-      },
-      aggiornamenti: {
-        titolo: 'Aktualisierungen',
-        sottotitolo: 'die Version, und wann die neue kommt',
-      },
-      condotto: {
-        titolo: 'Kanal und Befehlszeile',
-        sottotitolo: 'ob andere Programme mit dem Klassenbuch sprechen dürfen',
-      },
-      calendari: {
-        titolo: 'Offizielle Kalender',
-        sottotitolo: 'die Schulkalender, die das Klassenbuch kennt, mit dem PDF, aus dem sie stammen',
-      },
-    },
-    avvertenzaCondotto:
-      'Hier erlaubst du **Programmen, die nicht das Klassenbuch sind**, hineinzuschauen. Ist der '
-      + 'Kanal eingeschaltet, kann jedes Programm, das mit deinem Zugang läuft, ihn benutzen, ohne '
-      + 'dich zu fragen: Es gibt kein Passwort und keine Rückfrage. Schalte ihn so lange ein, wie '
-      + 'das Skript ihn braucht, und schalte ihn aus, wenn du fertig bist.',
-    documento: {
-      anno: { titolo: 'Schuljahr', sottotitolo: 'Semester, Schliessungen, A- und B-Wochen' },
-      calendario: {
-        titolo: 'Kalender',
+      giornata: {
+        titolo: 'Schultag',
         sottotitolo: 'die Lektion, die Pausen, Beginn und Ende des Tages, die angezeigten Tage',
+        parole: 'Lektion Dauer Pausen Mittag Stundenplan angezeigte Tage Raster',
       },
       ics: {
-        titolo: 'ICS-Kalender',
+        titolo: 'Externe Kalender',
         sottotitolo:
           'der Stundenplan der Schule aus einem Link oder einer Datei, und wie man die ' +
           'Stunden erkennt',
+        parole: 'ICS Link Datei Stundenplan Schule Regeln erkennen Stunden Kurs',
       },
       valutazione: {
         titolo: 'Beurteilung',
         sottotitolo: 'die Notenskala, die Rundung am Semesterende, die Absenzengrenze',
+        parole: 'Notenskala Note Minimum Maximum genügend Schritt Rundung Absenzen Grenze',
       },
-      materie: { titolo: 'Fächer', sottotitolo: 'was unterrichtet wird, und in welchen Kursen' },
       liste: {
         titolo: 'Listen',
-        sottotitolo: 'die Einträge der Auswahlmenüs: Arten von Aktivitäten, Prüfungen, Hilfsmittel',
-      },
-      intestazione: {
-        titolo: 'Briefkopf',
-        sottotitolo: 'Schule, Name, Logo und Unterschrift auf Blättern und Mails',
-      },
-      file: {
-        titolo: 'Diese Datei',
         sottotitolo:
-          'wo das offene Dokument liegt, was es enthält, die Verweise, die nicht aufgehen',
+          'die Einträge der Auswahlmenüs: Arten von Aktivitäten, Prüfungen, Hilfsmittel',
+        parole: 'Listen Auswahlmenü Aktivitäten Prüfung Gruppierung Hilfsmittel Korrektur Gruppen',
       },
-    },
-    gruppi: {
-      anno: 'Schuljahr und Stundenplan',
-      didattica: 'Unterricht',
-      liste: 'Listen',
-      stampa: 'Dokumente und Druck',
-      programma: 'Programm',
-    },
-    titoliGruppi: {
-      'registroDocenti.aspetto': 'Sprache und Design',
-      'registroDocenti.vassoio': 'Symbol neben der Uhr',
-      'registroDocenti.avvio': 'Start',
-      'registroDocenti.promemoria': 'Erinnerungen an die Stunden',
-      'registroDocenti.proiezione': 'Projektion für die Klasse',
-      'registroDocenti.posta': 'Postfach',
-      'registroDocenti.recapiti': 'Anrufe und Mails aus den Personalien',
-      'registroDocenti.modelli': 'Ordner und Downloads',
-      'registroDocenti.ocr': 'Lesen der Scans',
-      'registroDocenti.assistente': 'Assistent',
-      'registroDocenti.dettatura': 'Diktat',
-      'registroDocenti.aggiornamenti': 'Neue Versionen',
-      'registroDocenti.api': 'Freigaben des Kanals',
-    },
-  },
-  fr: {
-    programma: {
-      aspetto: {
-        titolo: 'Général',
-        sottotitolo: 'langue, thème, démarrage, icône près de l’horloge, rappels, projection',
+      chiSei: {
+        titolo: 'Wer du bist',
+        sottotitolo: 'Anrede, Vorname und Nachname, die die Blätter unterschreiben',
+        parole: 'Lehrperson Vorname Nachname Anrede Unterschrift Briefkopf',
       },
-      posta: {
-        titolo: 'Communications',
-        sottotitolo:
-          'la boîte d’où partent les e-mails, quand ils partent, la signature, et avec quoi on ' +
-          'appelle une personne ou on lui écrit',
+      stampa: {
+        titolo: 'Briefpapier und Druck',
+        sottotitolo: 'das Briefpapier, und wann die PDFs neu entstehen',
+        parole: 'Briefpapier Briefkopf Schule Logo Druck PDF',
       },
       account: {
-        titolo: 'Comptes Microsoft',
-        sottotitolo: 'les comptes avec lesquels le registre cherche les documents sur OneDrive',
-      },
-      modelli: {
-        titolo: 'Modèles de langage',
-        sottotitolo: 'les modèles sur ta machine : assistant, scans, dictée',
-      },
-      aggiornamenti: {
-        titolo: 'Mises à jour',
-        sottotitolo: 'la version, et quand arrive la nouvelle',
-      },
-      condotto: {
-        titolo: 'Canal et ligne de commande',
-        sottotitolo: 'si d’autres programmes peuvent parler avec le registre',
-      },
-      calendari: {
-        titolo: 'Calendriers officiels',
-        sottotitolo: 'les calendriers scolaires que le registre connaît, avec le PDF d’où ils viennent',
+        titolo: 'Konten',
+        sottotitolo:
+          'die verbundenen Microsoft-Konten: die Post, und die Dokumente auf OneDrive',
+        parole: 'Konto Microsoft OneDrive Post Postfach verbinden trennen testen zurücksetzen',
       },
     },
-    avvertenzaCondotto:
-      'Ici, tu permets à **des programmes qui ne sont pas le registre** de regarder dedans. Le '
-      + 'canal allumé, tout programme qui tourne avec ton accès peut l’utiliser sans te le '
-      + 'demander : il n’y a ni mot de passe ni question. Allume-le le temps dont ce script a '
-      + 'besoin, et éteins-le quand tu as fini.',
-    documento: {
-      anno: { titolo: 'Année scolaire', sottotitolo: 'semestres, fermetures, semaines A et B' },
-      calendario: {
-        titolo: 'Calendrier',
-        sottotitolo: 'la période, les pauses, le début et la fin de la journée, les jours affichés',
+    parole: {
+      posta: 'Post Mail E-Mail Postfach Absender Signatur Direktversand Kontakt Telefon',
+      aspetto: 'Sprache Design hell dunkel',
+      avvio: 'Start Windows Symbol Uhr Infobereich Erinnerungen Projektion Bildschirm',
+      modelli: 'Assistent Sprachmodelle Scans Lesen Diktat Ordner',
+      aggiornamenti: 'Aktualisierungen Version herunterladen installieren',
+      condotto: 'Kanal Befehlszeile API Skript erweitert Einbindung Betriebssystem Verknüpfung PATH',
+    },
+    ambiti: {
+      anno: 'Dieses Jahr',
+      computer: 'Dieser Computer',
+    },
+    ambitiAiuto: {
+      anno: 'Wird in der Datei des Jahres gespeichert und reist mit ihr',
+      computer: 'Bleibt auf diesem Computer und gilt für alle Jahre',
+    },
+    accesoSenzaModello: (nome) => `«${nome}» ist eingeschaltet, aber ohne Modell`,
+    invioSenzaCasella: 'Der Direktversand ist eingeschaltet, aber das Postfach ist nicht verbunden',
+  },
+  fr: {
+    sezioni: {
+      anno: {
+        titolo: 'Année',
+        sottotitolo: 'le libellé, les dates, les semestres',
+        parole: 'année scolaire semestre début fin',
+      },
+      chiusure: {
+        titolo: 'Fermetures',
+        sottotitolo: 'vacances et suspensions ; les calendriers officiels d’où elles viennent',
+        parole: 'vacances congés fermetures jours fériés calendrier officiel canton PDF',
+      },
+      settimane: {
+        titolo: 'Semaines',
+        sottotitolo: 'les semaines A et B, et la liste de leurs types',
+        parole: 'semaine A B alterner types de semaine',
+      },
+      giornata: {
+        titolo: 'Journée',
+        sottotitolo:
+          'la période, les pauses, le début et la fin de la journée, les jours affichés',
+        parole: 'période durée pauses récréation midi horaire jours affichés grille',
       },
       ics: {
-        titolo: 'Calendriers ICS',
+        titolo: 'Calendriers externes',
         sottotitolo:
           'l’horaire de l’école depuis un lien ou un fichier, et comment reconnaître les leçons',
+        parole: 'ICS lien fichier horaire école règles reconnaître leçons cours',
       },
       valutazione: {
         titolo: 'Évaluation',
         sottotitolo: 'le barème, l’arrondi de fin de semestre, le seuil d’absence',
+        parole: 'barème note minimum maximum suffisance pas arrondi absences seuil',
       },
-      materie: { titolo: 'Branches', sottotitolo: 'ce qu’on enseigne, et dans quels cours' },
       liste: {
         titolo: 'Listes',
-        sottotitolo: 'les entrées des menus déroulants : types d’activité, d’épreuve, supports',
-      },
-      intestazione: {
-        titolo: 'En-tête',
-        sottotitolo: 'école, nom, logo et signature qui figurent sur les feuilles et les e-mails',
-      },
-      file: {
-        titolo: 'Ce fichier',
         sottotitolo:
-          'où se trouve le document ouvert, ce qu’il contient, les références qui ne collent pas',
+          'les entrées des menus déroulants : types d’activité, d’épreuve, supports',
+        parole:
+          'listes menu déroulant types activité épreuve regroupement support correction groupes',
       },
-    },
-    gruppi: {
-      anno: 'Année et horaire',
-      didattica: 'Enseignement',
-      liste: 'Listes',
-      stampa: 'Documents et impression',
-      programma: 'Programme',
-    },
-    titoliGruppi: {
-      'registroDocenti.aspetto': 'Langue et thème',
-      'registroDocenti.vassoio': 'Icône près de l’horloge',
-      'registroDocenti.avvio': 'Démarrage',
-      'registroDocenti.promemoria': 'Rappels des leçons',
-      'registroDocenti.proiezione': 'Projection pour la classe',
-      'registroDocenti.posta': 'Boîte aux lettres',
-      'registroDocenti.recapiti': 'Appels et e-mails depuis les données personnelles',
-      'registroDocenti.modelli': 'Dossier et téléchargements',
-      'registroDocenti.ocr': 'Lecture des scans',
-      'registroDocenti.assistente': 'Assistant',
-      'registroDocenti.dettatura': 'Dictée',
-      'registroDocenti.aggiornamenti': 'Nouvelles versions',
-      'registroDocenti.api': 'Autorisations du canal',
-    },
-  },
-  en: {
-    programma: {
-      aspetto: {
-        titolo: 'General',
-        sottotitolo: 'language, theme, startup, icon next to the clock, reminders, projection',
+      chiSei: {
+        titolo: 'Qui tu es',
+        sottotitolo: 'titre, prénom et nom qui signent les feuilles',
+        parole: 'enseignant prénom nom titre signature en-tête',
       },
-      posta: {
-        titolo: 'Communications',
-        sottotitolo:
-          'the mailbox emails are sent from, when they go out, the signature, and what you use ' +
-          'to call or write to someone',
+      stampa: {
+        titolo: 'Papier et impression',
+        sottotitolo: 'le papier à en-tête, et quand les PDF sont refaits',
+        parole: 'papier à en-tête école logo impression PDF',
       },
       account: {
-        titolo: 'Microsoft accounts',
-        sottotitolo: 'the accounts the register uses to look for documents on OneDrive',
-      },
-      modelli: {
-        titolo: 'Language models',
-        sottotitolo: 'the models on your computer: assistant, scans, dictation',
-      },
-      aggiornamenti: {
-        titolo: 'Updates',
-        sottotitolo: 'the version, and when the new one arrives',
-      },
-      condotto: {
-        titolo: 'Pipe and command line',
-        sottotitolo: 'whether other programs may talk to the register',
-      },
-      calendari: {
-        titolo: 'Official calendars',
-        sottotitolo: 'the school calendars the register knows, with the PDF they come from',
+        titolo: 'Comptes',
+        sottotitolo:
+          'les comptes Microsoft connectés : la messagerie, et les documents sur OneDrive',
+        parole: 'compte Microsoft OneDrive messagerie boîte connecter déconnecter tester réinitialiser',
       },
     },
-    avvertenzaCondotto:
-      'Here you let **programs that are not the register** look inside. With the pipe on, any '
-      + 'program running under your account can use it without asking you: there is no password '
-      + 'and no question. Turn it on for as long as that script needs it, and turn it off when '
-      + 'you are done.',
-    documento: {
-      anno: { titolo: 'School year', sottotitolo: 'semesters, closures, A and B weeks' },
-      calendario: {
-        titolo: 'Calendar',
+    parole: {
+      posta: 'messagerie courrier e-mail boîte expéditeur signature envoi direct coordonnées téléphone',
+      aspetto: 'langue thème clair sombre',
+      avvio: 'démarrage Windows icône horloge zone de notification rappels projection écran',
+      modelli: 'assistant modèles de langage scans lecture dictée dossier',
+      aggiornamenti: 'mises à jour version télécharger installer',
+      condotto: 'canal ligne de commande API script avancé intégration système d’exploitation association PATH',
+    },
+    ambiti: {
+      anno: 'Cette année',
+      computer: 'Cet ordinateur',
+    },
+    ambitiAiuto: {
+      anno: 'S’enregistre dans le fichier de l’année et voyage avec lui',
+      computer: 'Reste sur cet ordinateur et vaut pour toutes les années',
+    },
+    accesoSenzaModello: (nome) => `« ${nome} » est allumé, mais sans modèle`,
+    invioSenzaCasella: 'L’envoi direct est allumé, mais la boîte aux lettres n’est pas connectée',
+  },
+  en: {
+    sezioni: {
+      anno: {
+        titolo: 'Year',
+        sottotitolo: 'the label, the dates, the semesters',
+        parole: 'school year semester start end',
+      },
+      chiusure: {
+        titolo: 'Closures',
+        sottotitolo: 'holidays and suspensions; the official calendars they come from',
+        parole: 'holidays closures bank holidays official calendar canton PDF',
+      },
+      settimane: {
+        titolo: 'Weeks',
+        sottotitolo: 'the A and B weeks, and the list of their types',
+        parole: 'week A B alternate week types',
+      },
+      giornata: {
+        titolo: 'School day',
         sottotitolo: 'the period, the breaks, the start and end of the day, the days shown',
+        parole: 'period length breaks lunch timetable days shown grid',
       },
       ics: {
-        titolo: 'ICS calendars',
+        titolo: 'External calendars',
         sottotitolo: 'the school timetable from a link or a file, and how to recognise lessons',
+        parole: 'ICS link file timetable school rules recognise lessons course',
       },
       valutazione: {
         titolo: 'Assessment',
         sottotitolo: 'the grading scale, end-of-semester rounding, the absence threshold',
+        parole: 'grading scale grade minimum maximum pass mark step rounding absences threshold',
       },
-      materie: { titolo: 'Subjects', sottotitolo: 'what is taught, and in which courses' },
       liste: {
         titolo: 'Lists',
         sottotitolo: 'the entries of the drop-down menus: types of activity, of test, materials',
+        parole: 'lists drop-down menu types activity test grouping materials marking groups',
       },
-      intestazione: {
-        titolo: 'Letterhead',
-        sottotitolo: 'school, name, logo and signature that go on sheets and emails',
+      chiSei: {
+        titolo: 'Who you are',
+        sottotitolo: 'title, first name and surname that sign the sheets',
+        parole: 'teacher first name surname title signature letterhead',
       },
-      file: {
-        titolo: 'This file',
-        sottotitolo:
-          'where the open document is, what it contains, the references that don’t add up',
+      stampa: {
+        titolo: 'Letterheads and printing',
+        sottotitolo: 'the letterheads, and when the PDFs are remade',
+        parole: 'letterhead school logo printing PDF',
+      },
+      account: {
+        titolo: 'Accounts',
+        sottotitolo: 'the connected Microsoft accounts: mail, and the documents on OneDrive',
+        parole: 'account Microsoft OneDrive mail mailbox connect disconnect test reset',
       },
     },
-    gruppi: {
-      anno: 'Year and timetable',
-      didattica: 'Teaching',
-      liste: 'Lists',
-      stampa: 'Documents and printing',
-      programma: 'Program',
+    parole: {
+      posta: 'mail email mailbox sender signature direct sending contact phone',
+      aspetto: 'language theme light dark',
+      avvio: 'startup Windows icon clock tray reminders projection screen',
+      modelli: 'assistant language models scans reading dictation folder',
+      aggiornamenti: 'updates version download install',
+      condotto: 'pipe command line API script advanced integration operating system association PATH',
     },
-    titoliGruppi: {
-      'registroDocenti.aspetto': 'Language and theme',
-      'registroDocenti.vassoio': 'Icon next to the clock',
-      'registroDocenti.avvio': 'Startup',
-      'registroDocenti.promemoria': 'Lesson reminders',
-      'registroDocenti.proiezione': 'Projection for the class',
-      'registroDocenti.posta': 'Mailbox',
-      'registroDocenti.recapiti': 'Calls and emails from the personal details',
-      'registroDocenti.modelli': 'Folder and downloads',
-      'registroDocenti.ocr': 'Scan reading',
-      'registroDocenti.assistente': 'Assistant',
-      'registroDocenti.dettatura': 'Dictation',
-      'registroDocenti.aggiornamenti': 'New versions',
-      'registroDocenti.api': 'Pipe permissions',
+    ambiti: {
+      anno: 'This year',
+      computer: 'This computer',
     },
+    ambitiAiuto: {
+      anno: 'Saved inside the year’s file, and travels with it',
+      computer: 'Stays on this computer and applies to every year',
+    },
+    accesoSenzaModello: (nome) => `“${nome}” is on, but without a model`,
+    invioSenzaCasella: 'Direct sending is on, but the mailbox is not connected',
   },
 })

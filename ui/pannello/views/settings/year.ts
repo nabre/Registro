@@ -1,4 +1,5 @@
-// L'anno scolastico: quello aperto, quelli che ci sono, e quel che li descrive.
+// L'anno scolastico aperto e quel che lo descrive. Aprirne un altro o crearne
+// uno nuovo sta nel menu «File»: un file non è un'impostazione.
 // L'anno aperto ha tre schede (anno, chiusure, settimane). I semestri non si
 // modificano da qui ma nel modulo dell'anno, che li tratta insieme: due
 // semestri sovrapposti o con un buco romperebbero le medie di fine periodo.
@@ -6,18 +7,18 @@
 import { vociDiLista } from '../../../../core/dominio/lists.js'
 import { conLetteraSettimana, letteraSettimana } from '../../../../core/dominio/years.js'
 import { differenzaGiorni, formattaData, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
-import type { AnnoScolastico, Iso } from '../../../../core/dominio/models.js'
+import type { AnnoScolastico, Iso, Sospensione } from '../../../../core/dominio/models.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { sospensioneDi } from '../../../../core/dominio/timetable.js'
 import {
   avviso,
   collegamento,
   conAttesa,
-  pastiglia,
   pulsante,
   scheda,
   statoVuoto,
 } from '../../components/base.js'
+import { notificaAnnullabile } from '../../components/annullabile.js'
 import { COME_SI_PARTE, eseguiOAvvisa } from '../../components/filters.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
@@ -180,91 +181,38 @@ function avvisoCalendarioUfficiale (anno: AnnoScolastico): HTMLElement | null {
   )
 }
 
-// ---------------------------------------------------------- gli altri anni
-
-/**
- * L'anno aperto, e come aprirne un altro: gli altri li elencano i recenti e il
- * dialogo di apertura del sistema. Un anno si elimina dal gestore di file.
- */
-export function schedaElencoAnni (): HTMLElement {
-  const corrente = annoCorrente()
-  const t = testi()
-
-  return scheda({
-    titolo: t.lAnnoAperto,
-    aiuto: t.lAnnoApertoAiuto,
-    azioni: h(
-      'div',
-      { class: 'scheda__azioni' },
-      pulsante({
-        testo: t.apriAnno,
-        simbolo: 'cartella',
-        variante: 'sottile',
-        al: () => void azione({ tipo: 'documento.apri' }),
-      }),
-      pulsante({
-        testo: t.nuovoAnno,
-        simbolo: 'piu',
-        variante: 'primario',
-        al: () => moduloAnno(),
-      }),
-    ),
-    contenuto: !corrente
-      ? statoVuoto({
-          simbolo: 'calendario',
-          titolo: t.nessunAnno,
-          testo: t.siComincia(COME_SI_PARTE),
-          azione: pulsante({
-            testo: t.creaAnno,
-            variante: 'primario',
-            simbolo: 'piu',
-            al: () => moduloAnno(),
-          }),
-        })
-      : h(
-          'ul',
-          { class: 'elenco-anni' },
-          h(
-            'li',
-            { class: 'anno-riga anno-riga--corrente' },
-            h(
-              'div',
-              { class: 'anno-riga__nome' },
-              h('strong', null, corrente.etichetta),
-              pastiglia(t.aperto, 'positivo', 'spunta'),
-              pastigliaCalendario(corrente),
-            ),
-            h(
-              'span',
-              { class: 'anno-riga__periodo' },
-              `${formattaData(corrente.inizio)} → ${formattaData(corrente.fine)}`,
-            ),
-            h(
-              'span',
-              { class: 'anno-riga__misure' },
-              t.misure(corrente.semestri.length, corrente.sospensioni.length),
-            ),
-            h(
-              'span',
-              { class: 'anno-riga__azioni' },
-              pulsante({
-                simbolo: 'matita',
-                variante: 'fantasma',
-                titolo: t.modificaDate,
-                al: () => moduloAnno(corrente),
-              }),
-            ),
-          ),
-        ),
-  })
-}
-
 // ------------------------------------------------------------- le chiusure
 
 /**
+ * Toglie una chiusura senza chiedere: le lezioni già sul calendario restano
+ * dove sono, e niente si perde. La notifica ha «Annulla», che la rimette.
+ */
+async function togliChiusura (annoId: string, sospensione: Sospensione): Promise<void> {
+  const vivo = annoVivo(annoId)
+  if (!vivo) return
+  const risposta = await azione({
+    tipo: 'anno.salva',
+    anno: { ...vivo, sospensioni: vivo.sospensioni.filter((altra) => altra.id !== sospensione.id) },
+  })
+  if (!risposta.ok) return
+  notificaAnnullabile(testi().tolta(sospensione.etichetta), async () => {
+    const adesso = annoVivo(annoId)
+    if (!adesso || adesso.sospensioni.some((altra) => altra.id === sospensione.id)) return
+    await salvaAnno(
+      {
+        ...adesso,
+        sospensioni: [...adesso.sospensioni, sospensione].sort((a, b) => a.dal.localeCompare(b.dal)),
+      },
+      testi().rimessa(sospensione.etichetta),
+    )
+  })
+}
+
+/**
  * I giorni senza lezione dell'anno aperto: la generazione dell'orario li
- * salta. Ogni riga si toglie col suo cestino; il modulo delle pause serve per
- * metterle e sistemarle insieme.
+ * salta. È il posto solo delle chiusure: ogni riga si toglie col suo cestino
+ * (con «Annulla» nella notifica); il modulo delle chiusure serve per metterle e
+ * sistemarle insieme.
  */
 export function schedaChiusure (): HTMLElement {
   const anno = annoCorrente()
@@ -346,27 +294,8 @@ export function schedaChiusure (): HTMLElement {
                   ufficiale ? null : pulsante({
                     simbolo: 'cestino',
                     variante: 'fantasma',
-                    titolo: t.togliChiusura,
-                    al: async () => {
-                      const sicuro = await conferma({
-                        titolo: t.togliere(sospensione.etichetta),
-                        testo: t.togliereTesto,
-                        testoConferma: parole().togli,
-                        pericolo: true,
-                      })
-                      if (!sicuro) return
-                      const vivo = annoVivo(anno.id)
-                      if (!vivo) return
-                      await salvaAnno(
-                        {
-                          ...vivo,
-                          sospensioni: vivo.sospensioni.filter(
-                            (altra) => altra.id !== sospensione.id,
-                          ),
-                        },
-                        t.tolta(sospensione.etichetta),
-                      )
-                    },
+                    titolo: t.togliChiusura(sospensione.etichetta),
+                    al: () => togliChiusura(anno.id, sospensione),
                   }),
                 ),
               )
@@ -379,7 +308,7 @@ export function schedaChiusure (): HTMLElement {
 
 /**
  * I tipi delle settimane dell'anno aperto, una casella per settimana: A e B, o
- * le voci della lista «Tipi di settimana» (Impostazioni › Liste). Si mettono
+ * le voci della lista «Tipi di settimana», che le sta sotto. Si mettono
  * tutte insieme qui. «Alterna» riempie l'anno dalla prima settimana marcata
  * girando sulla lista e saltando le chiusure; «Pulisci» toglie tutto.
  */
@@ -404,15 +333,32 @@ export function schedaSettimane (): HTMLElement {
   // I tipi nell'ordine della lista, che è anche l'ordine di «Alterna».
   const tipi = vociDiLista(stato.registro.impostazioni, 'tipoSettimana')
 
-  /** Riempie l'anno alternando dalla prima marcata in poi, saltando le chiusure. */
+  /**
+   * Riempie l'anno alternando dalla prima marcata in poi, saltando le chiusure.
+   * Chiede prima: riscrive il tipo di ogni settimana da lì in avanti, anche
+   * quelle segnate a mano.
+   */
   const alterna = async () => {
+    const primaVista = annoVivo(anno.id)
+    if (!primaVista || tipi.length === 0) return
+    const inizioGiro = lunediDellAnno(primaVista).find((giorno) => letteraSettimana(primaVista, giorno)) ??
+      lunediDellAnno(primaVista)[0]
+    if (!inizioGiro) return
+    const sicuro = await conferma({
+      titolo: t.alternareTitolo,
+      testo: t.alternareTesto(
+        formattaData(inizioGiro, 'lungo'),
+        tipi.map((tipo) => tipo.testo).join(', '),
+      ),
+      testoConferma: t.alterna,
+    })
+    if (!sicuro) return
     const vivo = annoVivo(anno.id)
     if (!vivo) return
     const settimane = lunediDellAnno(vivo)
     const prima = settimane.find((giorno) => letteraSettimana(vivo, giorno))
     const partenza = prima ?? settimane[0]
     if (!partenza) return
-    if (tipi.length === 0) return
     // Si riparte dal tipo della prima settimana marcata, se è nella lista;
     // altrimenti dal primo della lista.
     let indice = Math.max(0, tipi.findIndex((t) => t.valore === letteraSettimana(vivo, partenza)))
@@ -472,73 +418,88 @@ export function schedaSettimane (): HTMLElement {
           ]
         : []),
     ],
-    contenuto: h(
-      'div',
-      { class: 'settimane-ab' },
-      ...lunedi.map((giorno) => {
-        const lettera = letteraSettimana(anno, giorno)
-        const sospesa = sospensioneDi(anno, giorno)
-        return h(
-          'div',
-          {
-            class: ['settimana-ab', sospesa && 'settimana-ab--sospesa'],
-            attr: {
-              title: [
-                t.settimanaDal(settimanaIso(giorno), formattaData(giorno)),
-                sospesa ? sospesa.etichetta : null,
-              ]
-                .filter(Boolean)
-                .join(' · '),
-            },
-          },
-          h('span', { class: 'settimana-ab__numero' }, String(settimanaIso(giorno))),
-          h(
+    contenuto: [
+      h(
+        'div',
+        { class: 'settimane-ab' },
+        ...lunedi.map((giorno) => {
+          const lettera = letteraSettimana(anno, giorno)
+          const sospesa = sospensioneDi(anno, giorno)
+          return h(
             'div',
-            { class: 'settimana-ab__lettere' },
-            // Un pulsante per tipo della lista, più quello della settimana se il suo tipo
-            // è stato tolto dalla lista: si vede, segnato, e cliccandolo lo si toglie.
-            ...[
-              ...tipi,
-              ...(lettera && !tipi.some((t) => t.valore === lettera)
-                ? [{ valore: lettera, testo: lettera, fuoriLista: true }]
-                : []),
-            ].map((quale) =>
-              h(
-                'button',
-                {
-                  class: [
-                    'settimana-ab__lettera',
-                    lettera === quale.valore && 'settimana-ab__lettera--scelta',
-                    'fuoriLista' in quale && 'settimana-ab__lettera--fuori-lista',
-                  ],
-                  type: 'button',
-                  attr: {
-                    // Ricliccando quello già messo si toglie: «nessun tipo» non ha un pulsante suo.
-                    title:
-                      'fuoriLista' in quale
-                        ? t.fuoriLista(quale.valore)
-                        : lettera === quale.valore
-                          ? t.togliSettimana(quale.testo)
-                          : t.segnaSettimana(quale.testo),
-                    'aria-pressed': lettera === quale.valore ? 'true' : 'false',
+            {
+              class: ['settimana-ab', sospesa && 'settimana-ab--sospesa'],
+              attr: {
+                title: [
+                  t.settimanaDal(settimanaIso(giorno), formattaData(giorno)),
+                  sospesa ? sospesa.etichetta : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · '),
+              },
+            },
+            h('span', { class: 'settimana-ab__numero' }, String(settimanaIso(giorno))),
+            h(
+              'div',
+              { class: 'settimana-ab__lettere' },
+              // Un pulsante per tipo della lista, più quello della settimana se il suo tipo
+              // è stato tolto dalla lista: si vede, segnato, e cliccandolo lo si toglie.
+              ...[
+                ...tipi,
+                ...(lettera && !tipi.some((t) => t.valore === lettera)
+                  ? [{ valore: lettera, testo: lettera, fuoriLista: true }]
+                  : []),
+              ].map((quale) =>
+                h(
+                  'button',
+                  {
+                    class: [
+                      'settimana-ab__lettera',
+                      lettera === quale.valore && 'settimana-ab__lettera--scelta',
+                      'fuoriLista' in quale && 'settimana-ab__lettera--fuori-lista',
+                    ],
+                    type: 'button',
+                    attr: {
+                      // Ricliccando quello già messo si toglie: «nessun tipo» non ha un pulsante suo.
+                      title:
+                        'fuoriLista' in quale
+                          ? t.fuoriLista(quale.valore)
+                          : lettera === quale.valore
+                            ? t.togliSettimana(quale.testo)
+                            : t.segnaSettimana(quale.testo),
+                      'aria-pressed': lettera === quale.valore ? 'true' : 'false',
+                    },
+                    onclick: (evento: MouseEvent) => {
+                      const bottone = evento.currentTarget as HTMLButtonElement
+                      // La riga di stato viva, sotto la griglia: il ridisegno la tiene.
+                      const riga = bottone.closest('.scheda')?.querySelector('.settimane-ab__esito')
+                      const nuova = lettera === quale.valore ? null : quale.valore
+                      void conAttesa(
+                        bottone,
+                        eseguiOAvvisa({ tipo: 'anno.settimana', annoId: anno.id, giorno, lettera: nuova }),
+                      ).then((risposta) => {
+                        if (!risposta.ok || !riga) return
+                        riga.textContent = nuova === null
+                          ? t.settimanaSenzaTipo(settimanaIso(giorno))
+                          : t.settimanaSegnata(settimanaIso(giorno), quale.testo)
+                      })
+                    },
                   },
-                  onclick: (evento: MouseEvent) =>
-                    void conAttesa(
-                      evento.currentTarget as HTMLButtonElement,
-                      eseguiOAvvisa({
-                        tipo: 'anno.settimana',
-                        annoId: anno.id,
-                        giorno,
-                        lettera: lettera === quale.valore ? null : quale.valore,
-                      }),
-                    ),
-                },
-                quale.testo,
+                  quale.testo,
+                ),
               ),
             ),
-          ),
-        )
+          )
+        }),
+      ),
+      // Che cosa ha fatto l'ultimo clic, detto piano: il pulsante acceso da solo si vede poco.
+      h('p', {
+        class: 'settimane-ab__esito',
+        attr: { role: 'status' },
+        // testo-fisso: la chiave con cui il ridisegno ritrova la riga
+        dataset: { tieni: 'settimane-esito' },
       }),
-    ),
+    ],
   })
 }
+

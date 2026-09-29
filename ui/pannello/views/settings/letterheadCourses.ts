@@ -1,4 +1,4 @@
-// I corsi di una carta intestata, per la sezione Intestazione, senza DOM:
+// I corsi di una carta intestata, per la sezione Carta e stampa, senza DOM:
 // ordine, raggruppamento per classe, selezione con Ctrl e Maiuscolo, quali
 // corsi partono trascinando. Stanno qui per essere provati; il disegno è in
 // `letterhead.ts`.

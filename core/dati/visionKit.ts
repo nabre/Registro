@@ -7,7 +7,9 @@
 // Solo Windows x64, archivio senza scheda video (`bin-win-cpu-x64`): è l'unico
 // binario che va dappertutto; chi vuole la GPU scrive il suo percorso a mano.
 
-import { cartellaDi, nellaCartella, scarica, scaricoAutomatico as acceso } from './kit.js'
+import * as apparato from 'apparato'
+
+import { cartellaDi, nellaCartella, scarica } from './kit.js'
 import type { Pacco } from './kit.js'
 import { testi } from './mtmd.testi.js'
 
@@ -67,9 +69,26 @@ export function siScarica (): boolean {
   return process.platform === 'win32' && process.arch === 'x64'
 }
 
-/** Se lo deve fare: l'interruttore, che si spegne. */
+/**
+ * «Programma di lettura» (`registroDocenti.ocr.lettore`): vuoto lo scarica il
+ * registro, `nessuno` non si scarica, altrimenti è il percorso di un `.exe`.
+ * Le scelte le dice il manifesto, che da qui non si importa.
+ */
+const NON_SCARICARE = 'nessuno'
+
+function lettore (): string {
+  return (apparato.impostazioni.leggi('registroDocenti').get<string>('ocr.lettore', '') ?? '').trim()
+}
+
+/** Il programma indicato a mano, «questo .exe»; vuoto se lo porta il registro o nessuno. */
+export function programmaIndicato (): string {
+  const scelto = lettore()
+  return scelto === NON_SCARICARE ? '' : scelto
+}
+
+/** Se lo deve fare: solo con «lo scarica il registro». */
 function scaricoAutomatico (): boolean {
-  return acceso()
+  return lettore() === ''
 }
 
 /**

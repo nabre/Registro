@@ -46,92 +46,80 @@ function largoBottone (largo: number, nome: string): number {
   return Math.max(largo, larghezzaTesto(nome, 'piccolo') + 4)
 }
 
-/**
- * Pulsanti di fila che finiscono in `fine`, stretti a destra: ognuno largo
- * quanto l'italiano, o quanto il suo nome in un'altra lingua; un nome più
- * lungo spinge i vicini a sinistra.
- */
-function filaDaDestra (
-  fine: number,
-  y: number,
-  pulsanti: readonly { nome: string, largo: number, primario?: boolean }[],
-): string {
-  let cursore = fine
-  const pezzi: string[] = []
-  for (const { nome, largo, primario } of [...pulsanti].reverse()) {
-    const l = largoBottone(largo, nome)
-    cursore -= l
-    pezzi.unshift(bottone(cursore, y, l, nome, primario))
-    cursore -= 6
-  }
-  return disegno(...pezzi)
+/** Un interruttore dello schema, acceso o spento, con il pomello dalla sua parte. */
+function interruttore (x: number, y: number, acceso: boolean): string {
+  const tono = acceso ? 'accento' : 'quieto'
+  return disegno(
+    riquadro(x, y, 24, 14, { tono, raggio: 7 }),
+    riquadro(acceso ? x + 12 : x + 2, y + 2, 10, 10, { tono, raggio: 5 }),
+  )
 }
 
-// ------------------------- la sezione «Modelli linguistici» delle impostazioni
+// ------------------------- la sezione «Assistente e modelli» delle impostazioni
 
-const PAGINA_MODELLI = zoneTelaio(10, 10, 620, 300).area
+const PAGINA_MODELLI = zoneTelaio(10, 10, 620, 320).area
 
-/** La figura della sezione dei modelli: chi risponde, i file, i consigliati, la ricerca. */
+/**
+ * La figura della sezione dei modelli: chi risponde, con un interruttore e
+ * una tendina per uso; la cartella e i file; i due gruppi chiusi in fondo.
+ */
 function figuraModelli (): string {
   const s = T.modelliLinguistici.scritte
   const x = PAGINA_MODELLI.x
-  // I due pulsanti accanto al file: se un nome si allunga, il cestino scivola a destra.
-  const assistente = largoBottone(92, s.allAssistente)
-  const scansioni = largoBottone(88, s.alleScansioni)
-  const cestino = x + 236 + assistente + 6 + scansioni + 6
-  // Il nome del consigliato e il suo mestiere: la pastiglia gli sta dopo.
-  const mestiere = Math.max(x + 140, x + 22 + larghezzaTesto(s.qwen, 'piccolo') - 6)
-  // La casella della ricerca comincia dopo il titolo, e finisce dove finiva.
-  const casella = Math.max(x + 180, x + 22 + larghezzaTesto(s.cercaSu) + 8)
+  /** Una riga d'uso: l'interruttore, il nome, la tendina del modello, lo stato. */
+  const uso = (y: number, nome: string, modello: string, stato: string, acceso: boolean): string =>
+    disegno(
+      interruttore(x + 22, y - 11, acceso),
+      testo(x + 54, y, nome, { corpo: 'piccolo' }),
+      riquadro(x + 150, y - 13, 180, 18, { tono: 'quieto', raggio: 4 }),
+      testo(x + 158, y, modello, {
+        corpo: 'piccolo',
+        macchina: modello !== s.nessuno,
+        tono: modello === s.nessuno ? 'quieto' : 'neutro',
+      }),
+      pastiglia(x + 342, y - 13, stato, acceso ? 'positivo' : 'neutro'),
+    )
+  /** Un gruppo chiuso: si apre con un clic sul nome. */
+  const chiuso = (y: number, nome: string): string =>
+    disegno(
+      riquadro(x + 10, y, 470, 24, { tono: 'quieto' }),
+      // testo-fisso: il triangolo del gruppo chiuso, non si legge
+      testo(x + 22, y + 16, '▸', { corpo: 'piccolo', tono: 'quieto' }),
+      testo(x + 36, y + 16, nome, { corpo: 'piccolo', forte: true }),
+    )
   return disegno(
-    telaio(10, 10, 620, 300, {
+    telaio(10, 10, 620, 320, {
       laterali: [s.impostazioni, s.guida],
       scelta: 0,
     }),
-    // Chi risponde: un modello per mestiere, con il suo stato.
-    riquadro(x + 10, 42, 470, 66),
-    testo(x + 22, 60, s.chiRisponde, { forte: true }),
-    testo(x + 22, 80, s.assistente, { corpo: 'piccolo' }),
-    riquadro(x + 140, 68, 180, 18, { tono: 'quieto', raggio: 4 }),
-    testo(x + 148, 81, 'qwen2.5-7b…gguf', { corpo: 'piccolo', macchina: true }),
-    pastiglia(x + 332, 68, s.pronto, 'positivo'),
-    testo(x + 22, 100, s.scansioni, { corpo: 'piccolo' }),
-    riquadro(x + 140, 88, 180, 18, { tono: 'quieto', raggio: 4 }),
-    testo(x + 148, 101, s.nessuno, { corpo: 'piccolo', tono: 'quieto' }),
-    pastiglia(x + 332, 88, s.spento, 'neutro'),
-    // Sul computer: i file, con i gesti di ciascuno.
-    riquadro(x + 10, 116, 470, 86),
-    testo(x + 22, 134, s.sulComputer, { forte: true }),
-    testo(x + 22, 156, 'qwen2.5-7b-q4_k_m.gguf', { corpo: 'piccolo', macchina: true }),
-    testo(x + 180, 156, s.peso, { corpo: 'piccolo', tono: 'quieto' }),
-    bottone(x + 236, 142, assistente, s.allAssistente),
-    bottone(x + 236 + assistente + 6, 142, scansioni, s.alleScansioni),
-    riquadro(cestino, 142, 24, 20, { tono: 'negativo', raggio: 4 }),
-    simbolo('cestino', cestino + 5, 145, 14, 'negativo'),
-    riquadro(x + 22, 170, 446, 24, { tratteggio: true, tono: 'quieto', raggio: 4 }),
-    testo(x + 34, 186, s.trascina, {
+    // Chi risponde: un uso per riga, ognuno acceso e scelto qui.
+    riquadro(x + 10, 40, 470, 88),
+    testo(x + 22, 58, s.chiRisponde, { forte: true }),
+    uso(80, s.assistente, 'qwen2.5-7b…gguf', s.pronto, true),
+    uso(100, s.scansioni, s.nessuno, s.spento, false),
+    // testo-fisso: il nome di un modello di voicebox, non si traduce
+    uso(120, s.dettatura, 'turbo', s.spento, false),
+    // Sul computer: la cartella, i file, e dove trascinarne uno.
+    riquadro(x + 10, 136, 470, 110),
+    testo(x + 22, 154, s.sulComputer, { forte: true }),
+    testo(x + 22, 176, s.cartella, { corpo: 'piccolo' }),
+    riquadro(x + 170, 164, 290, 18, { tono: 'quieto', raggio: 4 }),
+    testo(x + 22, 202, 'qwen2.5-7b-q4_k_m.gguf', { corpo: 'piccolo', macchina: true }),
+    testo(x + 200, 202, s.peso, { corpo: 'piccolo', tono: 'quieto' }),
+    riquadro(x + 436, 188, 24, 20, { tono: 'negativo', raggio: 4 }),
+    simbolo('cestino', x + 441, 191, 14, 'negativo'),
+    riquadro(x + 22, 214, 446, 24, { tratteggio: true, tono: 'quieto', raggio: 4 }),
+    testo(x + 34, 230, s.trascina, {
       corpo: 'piccolo', tono: 'quieto',
     }),
-    bottone(x + 200, 172, largoBottone(96, s.caricaFile), s.caricaFile),
-    // Consigliati: quattro, ognuno con il suo mestiere.
-    riquadro(x + 10, 210, 470, 44),
-    testo(x + 22, 227, s.consigliati, { forte: true }),
-    testo(x + 22, 245, s.qwen, { corpo: 'piccolo' }),
-    pastiglia(mestiere, 233, s.perAssistente, 'informativo'),
-    filaDaDestra(x + 452, 227, [
-      { nome: parole().scarica, largo: 70, primario: true },
-      { nome: s.vediFile, largo: 76 },
-    ]),
-    // Cerca: la sola cosa che esce di qui.
-    riquadro(x + 10, 262, 470, 22 + 12),
-    testo(x + 22, 283, s.cercaSu, { forte: true }),
-    riquadro(casella, 268, x + 366 - casella, 20, { tono: 'quieto', raggio: 4 }),
-    testo(casella + 8, 282, s.esempio, { corpo: 'piccolo', tono: 'quieto' }),
-    bottone(x + 376, 268, largoBottone(76, parole().cerca), parole().cerca),
-    bollino(x + 10, 42, 1),
-    bollino(x + 10, 116, 2),
-    bollino(x + 10, 210, 3),
-    bollino(x + 10, 262, 4),
+    bottone(x + 200, 216, largoBottone(96, s.caricaFile), s.caricaFile),
+    // In fondo, chiusi: gli scarichi e le avanzate.
+    chiuso(254, s.scaricaModelli),
+    chiuso(286, s.avanzate),
+    bollino(x + 10, 40, 1),
+    bollino(x + 10, 136, 2),
+    bollino(x + 10, 254, 3),
+    bollino(x + 10, 286, 4),
   )
 }
 
@@ -289,7 +277,7 @@ export const SEZIONI_ASSISTENTE: SezioneGuida[] = [
     parte: 'programma',
     simbolo: 'bot',
     vista: 'modelliLinguistici',
-    figure: [{ vista: '0 0 640 320', disegno: figuraModelli() }],
+    figure: [{ vista: '0 0 640 340', disegno: figuraModelli() }],
     note: ['consiglio', 'meccanismo'],
     vedi: ['assistente', 'privacy-assistente', 'smistare', 'impostazioni'],
   }, T.modelliLinguistici),

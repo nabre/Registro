@@ -31,7 +31,7 @@ guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
 
 1. **I conteggi si verificano, non si ricordano.** Contati a macchina:
    173 azioni, 214 procedure (173 scritture e 41 letture), 88 comandi
-   dell'interfaccia, 19 destinazioni, 19 viste, 32 impostazioni macchina,
+   dell'interfaccia, 19 destinazioni, 19 viste, 28 impostazioni macchina,
    55 entità. `npm run procedures` stampa procedure e aree leggendo il testo;
    `tests/api/coverage.test.mjs` tiene il numero delle azioni;
    `tests/counts.test.mjs` confronta con il codice le cifre scritte qui, in

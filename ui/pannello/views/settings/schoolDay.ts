@@ -4,12 +4,17 @@
 // ancorano la griglia all'orologio; inizio e fine si scelgono sulla griglia,
 // con la giornata disegnata sotto; i giorni non dipendono da niente.
 // L'UD è `Impostazioni.minutiUd`. Si salva appena si tocca un campo (vedi
-// `settings/document.ts`).
+// `settings/document.ts`); i campi dei controlli condivisi (`campoAnno`) dicono
+// l'esito accanto a sé. In fondo, chiusi, i valori proposti per le cose nuove.
 
 import {
+  MINIMO_UD_AI_CAPI,
+  fineConUd,
   fineSullaGriglia,
+  inizioConUd,
   inizioSullaGriglia,
   scansioneDellaGiornata,
+  udAiCapi,
 } from '../../../../core/dominio/breaks.js'
 import { oreConAppello } from '../../../../core/dominio/calculations.js'
 import {
@@ -19,17 +24,19 @@ import {
   durataMinuti,
   formattaDurata,
   minutiDaUd,
+  sommaMinuti,
   udDaMinuti,
 } from '../../../../core/dominio/dates.js'
-import type { Impostazioni } from '../../../../core/dominio/models.js'
+import type { Impostazioni, Ora } from '../../../../core/dominio/models.js'
 import { avviso, campo, pastiglia, pulsante, riga, scheda } from '../../components/base.js'
-import { suggerimento } from '../../components/hint.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
+import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/voceAnno.js'
+import { comeElenco } from '../../../../core/controlli/campo.js'
 import { h, type Figlio } from '../../dom.js'
 import { stato } from '../../state.js'
 import { schedaPauseGiornata } from './dayBreaks.js'
-import { numeroBattuto, oraBattuta, salvaImpostazioni } from './document.js'
+import { oraBattuta, salvaConEsito, salvaImpostazioni } from './document.js'
 import { testi } from './schoolDay.testi.js'
 
 /** I giorni della settimana con il loro numero ISO: 1 = lunedì. */
@@ -40,6 +47,9 @@ function giorni (): Array<{ numero: number, nome: string, breve: string }> {
 
 /** Quante UD può proporre una lezione nuova: da una a una giornata piena. */
 const UD_PROPOSTE = { minimo: 1, massimo: 8 } as const
+
+/** Le durate dell'UD che le scuole usano; le altre con «Altro…». */
+const DURATE_UD = [45, 50, 60, 90] as const
 
 // ------------------------------------------------------ 1. l'unità didattica
 
@@ -68,60 +78,63 @@ function schedaUnitaDidattica (): HTMLElement {
   const udProposte = udDaMinuti(impostazioni.durataSlotPredefinita, minutiUd)
   const t = testi()
 
+  const durata = voceAnno({
+    nome: t.durataUd,
+    voce: 'minutiUd',
+    controllo: campoAnno(() => ({
+      tipo: 'tendina',
+      chiave: 'minutiUd',
+      nome: t.durataUd,
+      valore: stato.registro.impostazioni.minutiUd,
+      scelte: DURATE_UD.map((minuti) => ({ valore: minuti, nome: t.minuti(minuti) })),
+      altro: t.altro,
+      minimo: LIMITI_UD.minimo,
+      massimo: LIMITI_UD.massimo,
+      unita: t.min,
+      spento: oreConAppello(stato.registro.lezioni) > 0,
+    }), async (valore) => {
+      const scritti = Number(valore)
+      if (scritti === stato.registro.impostazioni.minutiUd) return undefined
+      // «No» alla domanda: il campo torna com'era, senza dire niente.
+      if (!(await confermaNuovaUd(scritti))) return ''
+      return salvaConEsito({ minutiUd: scritti })
+    }),
+    sotto: conAppello > 0 ? avviso(t.fissata(conAppello, minutiUd), 'informativo') : null,
+  })
+
+  // Una proposta per le cose nuove, non una misura della giornata: fra le avanzate.
+  const fasciaNuova = voceAnno({
+    nome: t.fasciaNuova,
+    voce: 'durataSlotPredefinita',
+    controllo: campoAnno(() => ({
+      tipo: 'numero',
+      chiave: 'durataSlotPredefinita',
+      nome: t.fasciaNuova,
+      valore: udDaMinuti(
+        stato.registro.impostazioni.durataSlotPredefinita,
+        stato.registro.impostazioni.minutiUd,
+      ),
+      minimo: UD_PROPOSTE.minimo,
+      massimo: UD_PROPOSTE.massimo,
+      unita: t.unitaUd,
+    }), (valore) => salvaConEsito({
+      durataSlotPredefinita: minutiDaUd(Number(valore), stato.registro.impostazioni.minutiUd),
+    })),
+  })
+
   return scheda({
     titolo: t.udTitolo,
     aiuto: t.udAiuto,
-    contenuto: h(
-      'div',
-      { class: 'modulo' },
-      riga(
-        campo({
-          nome: 'minutiUd',
-          etichetta: t.durataUdMinuti,
-          tipo: 'number',
-          valore: minutiUd,
-          min: LIMITI_UD.minimo,
-          max: LIMITI_UD.massimo,
-          passo: 1,
-          larghezza: 'quarto',
-          disabilitato: conAppello > 0,
-          al: (valore, evento) => {
-            const campoUd = evento.target as HTMLInputElement
-            const scritti = numeroBattuto(valore, t.durataUd)
-            if (scritti === null || scritti === stato.registro.impostazioni.minutiUd) return
-            void confermaNuovaUd(scritti).then((si) => {
-              if (si) void salvaImpostazioni({ minutiUd: scritti })
-              else campoUd.value = String(stato.registro.impostazioni.minutiUd)
-            })
-          },
-        }),
-        campo({
-          nome: 'durataSlotPredefinita',
-          etichetta: t.fasciaNuovaUd,
-          tipo: 'number',
-          valore: udProposte,
-          min: UD_PROPOSTE.minimo,
-          max: UD_PROPOSTE.massimo,
-          passo: 1,
-          larghezza: 'quarto',
-          al: (valore) => {
-            const ud = numeroBattuto(valore, t.fasciaNuova)
-            if (ud === null) return
-            const { minutiUd: attuali } = stato.registro.impostazioni
-            void salvaImpostazioni({ durataSlotPredefinita: minutiDaUd(ud, attuali) })
-          },
-        }),
-      ),
-      h(
+    contenuto: sezioneAnno({
+      stato: h(
         'p',
         { class: 'giornata-riassunto' },
         pastiglia(t.unaUd(formattaDurata(minutiUd)), 'informativo', 'orologio'),
         pastiglia(t.lezioneNuova(udProposte, formattaDurata(udProposte * minutiUd)), 'quiete'),
       ),
-      conAppello > 0
-        ? avviso(t.fissata(conAppello, minutiUd), 'informativo')
-        : null,
-    ),
+      scelte: gruppoAnno(null, durata),
+      avanzate: avanzateAnno('giornata-ud', [fasciaNuova]),
+    }),
   })
 }
 
@@ -157,6 +170,113 @@ function allineaAllaGriglia (ora: string, chiave: EstremoGiornata): Figlio {
     titolo: chiave === 'oraInizioGiornata' ? t.allineaInizio : t.allineaFine,
     al: () => salvaEstremo(chiave, sullaGriglia),
   })
+}
+
+// Senza pause, l'ora da cui si contano le UD ai capi: una pausa di zero
+// minuti. Non è un dato del documento: vive finché il pannello è aperto, e
+// all'inizio sta alla fine delle prime UD ammesse (`MINIMO_UD_AI_CAPI`).
+let riferimentoSenzaPause: Ora | undefined
+
+function riferimento (): Ora {
+  if (riferimentoSenzaPause) return riferimentoSenzaPause
+  const { oraInizioGiornata, minutiUd } = stato.registro.impostazioni
+  return sommaMinuti(oraInizioGiornata, MINIMO_UD_AI_CAPI * minutiUd)
+}
+
+/**
+ * Il capo della giornata con `ud` UD dalla sua ancora, se sta nel giorno e la
+ * giornata non resta vuota.
+ */
+function capoConUd (chiave: EstremoGiornata, ud: number, rif: Ora): Ora | null {
+  const giornata = stato.registro.impostazioni
+  if (chiave === 'oraInizioGiornata') {
+    const ora = inizioConUd(giornata, ud, rif)
+    return ora !== null && ora < giornata.oraFineGiornata ? ora : null
+  }
+  const ora = fineConUd(giornata, ud, rif)
+  return ora !== null && ora > giornata.oraInizioGiornata ? ora : null
+}
+
+/**
+ * Un contatore di UD a un capo della giornata: − e + tolgono e aggiungono
+ * un'UD intera. Fuori griglia il primo gesto porta sulla griglia: − toglie
+ * l'avanzo con l'UD spezzata, + la completa.
+ */
+function contatoreCapo (chiave: EstremoGiornata, etichetta: string, esatte: number, rif: Ora): HTMLElement {
+  const t = testi()
+  const intere = Math.floor(esatte)
+  const meno = capoConUd(chiave, Math.ceil(esatte) - 1, rif)
+  const piu = capoConUd(chiave, intere + 1, rif)
+  return h(
+    'div',
+    { class: ['campo', 'campo--quarto'] },
+    h('span', { class: 'campo__etichetta' }, etichetta),
+    h(
+      'div',
+      { class: 'contatore-ud', attr: { role: 'group', 'aria-label': etichetta } },
+      pulsante({
+        simbolo: 'meno',
+        variante: 'sottile',
+        titolo: t.unaUdInMeno(etichetta),
+        disabilitato: meno === null,
+        al: () => { if (meno !== null) salvaEstremo(chiave, meno) },
+      }),
+      h('output', { class: 'contatore-ud__valore' }, String(intere)),
+      pulsante({
+        simbolo: 'piu',
+        variante: 'sottile',
+        titolo: t.unaUdInPiu(etichetta),
+        disabilitato: piu === null,
+        al: () => { if (piu !== null) salvaEstremo(chiave, piu) },
+      }),
+    ),
+  )
+}
+
+/**
+ * Senza pause, l'ora di riferimento: spostarla sposta la giornata intera,
+ * con le stesse UD intere prima e dopo, come si sposterebbe una pausa.
+ */
+function campoRiferimento (conti: { prima: number, dopo: number }): HTMLElement {
+  const t = testi()
+  return campo({
+    nome: 'riferimentoGiornata',
+    etichetta: t.oraRiferimento,
+    aiuto: t.oraRiferimentoAiuto,
+    tipo: 'time',
+    valore: riferimento(),
+    larghezza: 'quarto',
+    al: (valore, evento) => {
+      const campoOra = evento.target as HTMLInputElement
+      const ora = oraBattuta(valore, t.oraRiferimento)
+      if (ora === null) return
+      const giornata = stato.registro.impostazioni
+      const ud = (esatte: number) => Math.max(MINIMO_UD_AI_CAPI, Math.floor(esatte))
+      const inizio = inizioConUd(giornata, ud(conti.prima), ora)
+      const fine = fineConUd(giornata, ud(conti.dopo), ora)
+      if (inizio === null || fine === null || inizio >= fine) {
+        notifica(t.fuoriDalGiorno, 'avviso')
+        campoOra.value = riferimento()
+        return
+      }
+      riferimentoSenzaPause = ora
+      void salvaImpostazioni({ oraInizioGiornata: inizio, oraFineGiornata: fine })
+    },
+  })
+}
+
+/** I contatori di UD ai due capi, e senza pause l'ora da cui si contano. */
+function capiInUd (): HTMLElement {
+  const giornata = stato.registro.impostazioni
+  const rif = riferimento()
+  const conti = udAiCapi(giornata, giornata.oraInizioGiornata, giornata.oraFineGiornata, rif)
+  const t = testi()
+  const conPause = Boolean(giornata.pause)
+  return riga(
+    conPause ? null : campoRiferimento(conti),
+    contatoreCapo('oraInizioGiornata', conPause ? t.udPrimaPausa : t.udPrimaRiferimento, conti.prima, rif),
+    contatoreCapo('oraFineGiornata', conPause ? t.udDopoPausa : t.udDopoRiferimento, conti.dopo, rif),
+  )
 }
 
 /**
@@ -251,6 +371,7 @@ function schedaOrari (): HTMLElement {
         campoOra('oraInizioGiornata', t.primaOra),
         campoOra('oraFineGiornata', t.ultimaOra),
       ),
+      capiInUd(),
       lineaDellaGiornata(),
     ),
   })
@@ -259,55 +380,27 @@ function schedaOrari (): HTMLElement {
 // ------------------------------------------------------------ 4. i giorni
 
 function schedaGiorni (): HTMLElement {
-  const visibili = stato.registro.impostazioni.giorniVisibili
   const t = testi()
-
   return scheda({
     titolo: t.giorniTitolo,
     aiuto: t.giorniAiuto,
-    contenuto: h(
-      'div',
-      { class: 'campo' },
-      h(
-        'span',
-        { class: 'campo__etichetta' },
-        t.giorniSettimana,
-        suggerimento(t.giorniSettimanaAiuto, { etichetta: t.giorniSettimana }),
-      ),
-      h(
-        'div',
-        { class: 'scelta-giorni' },
-        ...giorni().map((giorno) =>
-          h(
-            'button',
-            {
-              class: [
-                'scelta-giorni__voce',
-                visibili.includes(giorno.numero) && 'scelta-giorni__voce--attiva',
-              ],
-              type: 'button',
-              attr: {
-                'aria-pressed': visibili.includes(giorno.numero),
-                title: giorno.nome,
-              },
-              onclick: () => {
-                // I giorni di adesso, non quelli del disegno: due clic rapidi partono prima
-                // del ridisegno.
-                const attuali = new Set(stato.registro.impostazioni.giorniVisibili)
-                if (attuali.has(giorno.numero)) attuali.delete(giorno.numero)
-                else attuali.add(giorno.numero)
-                if (attuali.size === 0) {
-                  notifica(t.almenoUno, 'avviso')
-                  return
-                }
-                void salvaImpostazioni({ giorniVisibili: [...attuali].sort((a, b) => a - b) })
-              },
-            },
-            giorno.breve,
-          ),
-        ),
-      ),
-    ),
+    contenuto: gruppoAnno(null, voceAnno({
+      nome: t.giorniSettimana,
+      aiuto: t.giorniSettimanaAiuto,
+      voce: 'giorniVisibili',
+      // I giorni che si mandano li leggono i pulsanti vivi (`multipli`): due clic
+      // rapidi partono prima del ridisegno, e il secondo tiene conto del primo.
+      controllo: campoAnno(() => ({
+        tipo: 'multipli',
+        chiave: 'giorniVisibili',
+        nome: t.giorniSettimana,
+        valore: stato.registro.impostazioni.giorniVisibili,
+        scelte: giorni().map((giorno) => ({ valore: giorno.numero, nome: giorno.breve, aiuto: giorno.nome })),
+        almeno: { quante: 1, motivo: t.almenoUno },
+      }), (valore) => salvaConEsito({
+        giorniVisibili: comeElenco(valore).map(Number).sort((a, b) => a - b),
+      })),
+    })),
   })
 }
 

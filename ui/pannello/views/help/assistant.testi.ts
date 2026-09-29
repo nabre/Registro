@@ -16,10 +16,10 @@ const EN = lessico.in('en')
 
 const it = {
   modelliLinguistici: {
-    titolo: 'Modelli linguistici',
+    titolo: 'Assistente e modelli',
     sommario:
-      'I file che fanno rispondere l’assistente e leggere le scansioni: scaricarli, ' +
-      'sceglierli, toglierli.',
+      'Impostazioni › Programma › **Assistente e modelli**: chi risponde per ogni uso, e i ' +
+      'file dei modelli sul computer: scaricarli, sceglierli, toglierli.',
     scritte: {
       impostazioni: 'Impostazioni',
       guida: 'Guida',
@@ -29,30 +29,29 @@ const it = {
       scansioni: 'Scansioni',
       nessuno: '— nessuno —',
       spento: 'spento',
+      dettatura: 'Dettatura',
       sulComputer: 'Sul computer',
+      cartella: 'Cartella dei modelli',
       peso: '4,7 GB',
-      allAssistente: 'All’assistente',
-      alleScansioni: 'Alle scansioni',
       trascina: 'Trascina qui un .gguf, oppure',
       caricaFile: 'Carica un file…',
-      consigliati: 'Consigliati',
-      qwen: 'Qwen 2.5 — 7 miliardi',
-      perAssistente: 'per l’assistente',
-      vediFile: 'Vedi i file',
-      cercaSu: 'Cerca su Hugging Face',
-      esempio: 'qwen, vision, 7b',
+      scaricaModelli: 'Scarica modelli',
+      avanzate: 'Avanzate (1)',
     },
     figure: [
       {
         didascalia:
-          'La sezione dall’alto: in cima chi lavora adesso, sotto i file che ci sono e quelli ' +
-          'che si possono prendere. Mentre un file scende, sopra tutto compare **Sta scendendo**.',
+          'La sezione dall’alto: in cima chi risponde, sotto la cartella e i file che ci sono, ' +
+          'in fondo due gruppi chiusi. Mentre un file scende, sopra tutto compare **Sta ' +
+          'scendendo**.',
         legenda: [
-          '**Chi risponde**: una tendina per mestiere, con «pronto», «manca qualcosa» o ' +
-            '«spento» e il motivo.',
-          '**Sul computer**: i file già presenti, con il peso e i gesti per usarli o toglierli.',
-          '**Consigliati**: quattro modelli provati, due per mestiere.',
-          '**Cerca su Hugging Face**: tutti gli altri modelli pubblici.',
+          '**Chi risponde**: una riga per uso, con l’interruttore, la tendina del modello e lo ' +
+            'stato — «pronto», «manca qualcosa» o «spento» — con il motivo.',
+          '**Sul computer**: la **Cartella dei modelli**, i file con il peso e il cestino, e il ' +
+            'riquadro dove trascinarne uno.',
+          '**Scarica modelli**: i consigliati, i file di un deposito, la ricerca su Hugging ' +
+            'Face. Si apre da sé solo se non c’è ancora nessun modello.',
+          '**Avanzate**: la **Porta di voicebox**. Chiuso, si apre a mano.',
         ],
       },
     ],
@@ -60,22 +59,37 @@ const it = {
       {
         termine: 'A che cosa servono',
         testo:
-          'A due mestieri: l’**assistente**, che risponde alle domande sul registro, e la ' +
-          '**lettura delle scansioni**, che cerca i nomi nei PDF senza testo. Ognuno ha il suo ' +
-          'modello: un file `.gguf`, da mezzo gigabyte a sei.',
+          'A tre usi: l’**assistente**, che risponde alle domande sul registro, la **lettura ' +
+          'delle scansioni**, che cerca i nomi nei PDF senza testo, e la **dettatura**, che ' +
+          'scrive quel che dici. I primi due hanno il loro modello: un file `.gguf`, da mezzo ' +
+          'gigabyte a sei. La dettatura si appoggia a voicebox.',
       },
       {
-        termine: 'Quale modello a quale mestiere',
+        termine: 'Chi risponde',
         testo:
-          'L’assistente vuole un modello che sappia chiamare gli strumenti; le scansioni un ' +
-          'modello che guarda, più il suo proiettore (il file con `mmproj` nel nome). Si ' +
-          'sceglie dalla tendina di **Chi risponde**, oppure con **All’assistente** e **Alle ' +
-          'scansioni** accanto al file; per il proiettore, **Usalo per le scansioni**.',
+          'Tre righe in cima, una per uso, ognuna con il suo interruttore e il suo stato: ' +
+          '«pronto», «manca qualcosa» o «spento», con il motivo. **Assistente**: la tendina ' +
+          'del modello, uno che sappia chiamare gli strumenti. **Lettura delle scansioni**: il ' +
+          'modello che guarda, la tendina del **proiettore (mmproj)** — il file con `mmproj` ' +
+          'nel nome — e il **Programma di lettura**. **Dettatura**: il **Modello della voce**; ' +
+          'accesa, ricorda che voicebox dev’essere aperto. Un modello si sceglie solo da ' +
+          'queste tendine.',
+      },
+      {
+        termine: 'Programma di lettura',
+        testo:
+          'Il programma che fa leggere le scansioni al modello. **Lo scarica il registro**, di ' +
+          'serie: la prima volta che serve prende da sé `llama-mtmd-cli`, in una versione ' +
+          'fissa, e ne controlla l’impronta. **Questo .exe**: una copia tua, per esempio con ' +
+          'l’accelerazione della scheda video; mostra il percorso e **Sfoglia…**, e finché non ' +
+          'scegli un file vale la scelta di prima. **Non scaricare**, su una connessione a ' +
+          'consumo: il registro non prende niente da internet.',
       },
       {
         termine: 'I consigliati',
         testo:
-          'Per l’assistente **Qwen 2.5 — 7 miliardi** (circa 5 GB, vuole 8 GB di memoria ' +
+          'Nel gruppo chiuso **Scarica modelli**, che si apre da sé solo se non c’è ancora ' +
+          'nessun modello. Per l’assistente **Qwen 2.5 — 7 miliardi** (circa 5 GB, vuole 8 GB di memoria ' +
           'libera) o **Qwen 2.5 — 3 miliardi** (2 GB, più rapido ma sbaglia più spesso). Per le ' +
           'scansioni **Qwen 2.5 VL** (6 GB, legge anche la scrittura a mano) o **SmolVLM** ' +
           '(sotto 1 GB, solo stampato).',
@@ -83,9 +97,11 @@ const it = {
       {
         termine: 'Scaricare',
         testo:
-          '**Scarica** prende il taglio consigliato e, arrivato in fondo, lo mette al lavoro ' +
-          'nel suo mestiere, se intanto non ne hai scelto un altro. Per un modello che guarda, ' +
-          'il proiettore si scarica dopo, dall’elenco dei file che si apre sotto.',
+          '**Scarica** prende il taglio consigliato e, arrivato in fondo, lo sceglie per il suo ' +
+          'mestiere, se intanto non ne hai scelto un altro. Non accende l’uso: se era spento, ' +
+          'l’interruttore in **Chi risponde** si gira a mano. Per un modello che guarda, il ' +
+          'proiettore si scarica dopo, dall’elenco dei file che si apre sotto, e si sceglie a ' +
+          'mano nella sua tendina.',
       },
       {
         termine: 'Mentre scende',
@@ -109,7 +125,8 @@ const it = {
       {
         termine: 'Cerca su Hugging Face',
         testo:
-          'Per chi sa che cosa vuole: «qwen», «vision», «7b», poi **Cerca**. **Vedi i file** ' +
+          'In fondo a **Scarica modelli**, per chi sa che cosa vuole: «qwen», «vision», «7b», ' +
+          'poi **Cerca**. **Vedi i file** ' +
           'mostra i tagli di un deposito, con il peso e «consigliato» dove vale. I depositi con ' +
           '«chiede il permesso» da qui non si scaricano.',
       },
@@ -122,10 +139,16 @@ const it = {
       {
         termine: 'Dove stanno',
         testo:
-          'Il percorso si legge nella scheda **Sul computer**, alla riga «Stanno in…»: di serie ' +
-          'accanto alle impostazioni del programma. Per un altro disco, o per modelli già ' +
-          'scaricati altrove, si indica la cartella in Impostazioni › Programma › **Modelli ' +
-          'linguistici**, sotto «Cartella e scarichi»: il registro li vede tutti senza copiarli.',
+          'Un posto solo: il campo **Cartella dei modelli**, in **Sul computer**. Vuoto, ci ' +
+          'pensa il registro, e sotto si legge dove stanno: di serie accanto alle impostazioni ' +
+          'del programma. Per un altro disco, o per modelli già scaricati altrove, si indica ' +
+          'un’altra cartella: il registro li vede tutti senza copiarli.',
+      },
+      {
+        termine: 'Porta di voicebox',
+        testo:
+          'Nel gruppo chiuso **Avanzate**, in fondo: la porta su cui risponde voicebox, da 1 a ' +
+          '65535, di serie 17493. L’host è fisso, 127.0.0.1: la voce non esce dal computer.',
       },
     ],
     note: [
@@ -133,8 +156,8 @@ const it = {
         'senza scheda video o con poca memoria; la scheda video, se c’è, il registro la usa ' +
         'da sé.',
       'Il modello dell’assistente si carica dentro il registro; per le scansioni il ' +
-        'registro fa partire un programma di llama.cpp, che si scarica da sé la prima volta ' +
-        '(una ventina di MB). Nessuno dei due è un servizio da installare.',
+        'registro fa partire un programma di llama.cpp, che di serie si scarica da sé la prima ' +
+        'volta (una ventina di MB). Nessuno dei due è un servizio da installare.',
     ],
   },
   assistente: {
@@ -173,8 +196,8 @@ const it = {
       {
         termine: 'Accenderlo',
         testo:
-          'È spento di serie. Si sceglie un modello in Impostazioni › Programma › **Modelli ' +
-          'linguistici**, e nella stessa sezione si accende **Assistente**. Da quel momento, a destra della riga ' +
+          'È spento di serie. In Impostazioni › Programma › **Assistente e modelli**, nella ' +
+          'riga **Assistente** di **Chi risponde**, si sceglie un modello e si accende. Da quel momento, a destra della riga ' +
           'delle tendine, accanto a **Proietta**, compare il pulsante col robot.',
       },
       {
@@ -245,7 +268,7 @@ const it = {
           'La prima domanda carica il modello, dai cinque ai trenta secondi; poi resta in ' +
           'memoria. Senza scheda video una risposta può chiedere più di un minuto, e più ' +
           'classi tocca più ci mette. Un modello più piccolo, scelto in Impostazioni › ' +
-          'Programma › **Modelli linguistici**, risponde prima.',
+          'Programma › **Assistente e modelli**, risponde prima.',
       },
     ],
     note: [
@@ -373,12 +396,14 @@ const it = {
           'La voce non la riconosce il registro ma **voicebox**, un programma gratuito che si ' +
           'scarica da github.com/jamiepine/voicebox e si installa come gli altri. Mentre si ' +
           'detta dev’essere aperto: il registro lo cerca su http://127.0.0.1:17493, che è ' +
-          'l’indirizzo che voicebox usa da sé.',
+          'l’indirizzo che voicebox usa da sé. Se lo avvii su un’altra porta, la si cambia in ' +
+          '**Porta di voicebox**, nelle **Avanzate** di Assistente e modelli.',
       },
       {
         termine: 'Accenderla',
         testo:
-          'In Impostazioni › Programma › **Modelli linguistici**, sotto «Dettatura». Compare il ' +
+          'In Impostazioni › Programma › **Assistente e modelli**, nella riga **Dettatura** di ' +
+          '**Chi risponde**. Compare il ' +
           'microfono accanto alla casella dell’assistente, nel riquadro e nella finestra staccata.',
       },
       {
@@ -406,7 +431,8 @@ const it = {
       {
         termine: 'Il modello',
         testo:
-          'In Impostazioni › Programma › **Modelli linguistici**, sotto «Dettatura», si sceglie ' +
+          'Nella riga **Dettatura** di Impostazioni › Programma › **Assistente e modelli** si ' +
+          'sceglie ' +
           'la taglia di Whisper: **turbo**, di serie, è il più accurato fra i veloci; **large** è un ' +
           'poco più preciso e lento senza scheda video; **medium** è una via di mezzo per un ' +
           'computer che fatica con turbo; **small** sbaglia i cognomi; **base** è solo per provare.',
@@ -503,8 +529,8 @@ const it = {
           'ICS della scuola si scarica dal link che hai scritto, senza mandare dati del registro. ' +
           'Gli aggiornamenti chiedono a GitHub l’ultima versione e, se c’è, ne scaricano da lì ' +
           'l’installatore. La prima volta che legge una ' +
-          'scansione, il registro scarica da GitHub il programma di llama.cpp, se «Scarica da sé ' +
-          'i programmi che mancano» è acceso.',
+          'scansione, il registro scarica da GitHub il programma di llama.cpp, se il **Programma ' +
+          'di lettura** è «Lo scarica il registro».',
       },
       {
         termine: 'La finestra staccata',
@@ -522,7 +548,7 @@ const it = {
     ],
     note: [
       'Il condotto è un’altra porta. Acceso in Impostazioni › Programma › ' +
-        `**Condotto e riga di comando**, lascia leggere i dati ${dei(PIF)} a ogni programma che gira con il tuo ` +
+        `**Avanzate**, lascia leggere i dati ${dei(PIF)} a ogni programma che gira con il tuo ` +
         'utente, senza chiedere — anche a uno che li manda a un modello in rete. Di serie è ' +
         'spento. Su Windows il suo nome porta un segreto rifatto a ogni accensione: tiene fuori gli ' +
         'altri utenti del computer, non i programmi del tuo.',
@@ -533,10 +559,11 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     modelliLinguistici: {
-      titolo: 'Sprachmodelle',
+      titolo: 'Assistent und Modelle',
       sommario:
-        'Die Dateien, mit denen der Assistent antwortet und die Scans gelesen werden: ' +
-        'herunterladen, auswählen, entfernen.',
+        'Einstellungen › Programm › **Assistent und Modelle**: wer für jede Verwendung ' +
+        'antwortet, und die Dateien der Modelle auf dem Computer: herunterladen, auswählen, ' +
+        'entfernen.',
       scritte: {
         impostazioni: 'Einstellungen',
         guida: 'Hilfe',
@@ -546,32 +573,29 @@ export const testi = catalogo(it, {
         scansioni: 'Scans',
         nessuno: '— keines —',
         spento: 'aus',
+        dettatura: 'Diktat',
         sulComputer: 'Auf dem Computer',
+        cartella: 'Modellordner',
         peso: '4.7 GB',
-        allAssistente: 'Dem Assistenten',
-        alleScansioni: 'Den Scans',
         trascina: 'Ziehe eine .gguf hierher oder',
         caricaFile: 'Datei laden…',
-        consigliati: 'Empfohlen',
-        qwen: 'Qwen 2.5 — 7 Milliarden',
-        perAssistente: 'Assistent',
-        vediFile: 'Dateien ansehen',
-        cercaSu: 'Auf Hugging Face suchen',
-        esempio: 'qwen, vision, 7b',
+        scaricaModelli: 'Modelle herunterladen',
+        avanzate: 'Erweitert (1)',
       },
       figure: [
         {
           didascalia:
-            'Der Bereich von oben: zuoberst, wer gerade arbeitet, darunter die vorhandenen ' +
-            'Dateien und die, die man holen kann. Während eine Datei heruntergeladen wird, ' +
-            'erscheint über allem **Wird heruntergeladen**.',
+            'Der Bereich von oben: zuoberst, wer antwortet, darunter der Ordner und die ' +
+            'vorhandenen Dateien, ganz unten zwei zugeklappte Gruppen. Während eine Datei ' +
+            'heruntergeladen wird, erscheint über allem **Wird heruntergeladen**.',
           legenda: [
-            '**Wer antwortet**: eine Auswahlliste pro Aufgabe, mit «bereit», «es fehlt etwas» ' +
-              'oder «aus» und dem Grund.',
-            '**Auf dem Computer**: die schon vorhandenen Dateien, mit ihrer Grösse und den ' +
-              'Befehlen, um sie zu verwenden oder zu entfernen.',
-            '**Empfohlen**: vier erprobte Modelle, zwei pro Aufgabe.',
-            '**Auf Hugging Face suchen**: alle anderen öffentlichen Modelle.',
+            '**Wer antwortet**: eine Zeile pro Verwendung, mit dem Schalter, der Auswahlliste ' +
+              'des Modells und dem Stand — «bereit», «etwas fehlt» oder «aus» — mit dem Grund.',
+            '**Auf dem Computer**: der **Modellordner**, die Dateien mit ihrer Grösse und dem ' +
+              'Papierkorb, und das Feld, in das man eine hineinzieht.',
+            '**Modelle herunterladen**: die empfohlenen, die Dateien eines Repositorys, die ' +
+              'Suche auf Hugging Face. Klappt nur von selbst auf, wenn noch kein Modell da ist.',
+            '**Erweitert**: der **Port von voicebox**. Zugeklappt, man öffnet es von Hand.',
           ],
         },
       ],
@@ -579,23 +603,40 @@ export const testi = catalogo(it, {
         {
           termine: 'Wozu sie dienen',
           testo:
-            'Für zwei Aufgaben: den **Assistenten**, der Fragen zum Klassenbuch beantwortet, ' +
-            'und das **Lesen der Scans**, das die Namen in PDF ohne Text sucht. Jede hat ihr ' +
-            'eigenes Modell: eine `.gguf`-Datei, von einem halben bis zu sechs Gigabyte.',
+            'Für drei Verwendungen: den **Assistenten**, der Fragen zum Klassenbuch beantwortet, ' +
+            'das **Lesen der Scans**, das die Namen in PDF ohne Text sucht, und das **Diktat**, ' +
+            'das schreibt, was du sagst. Die ersten zwei haben ihr eigenes Modell: eine ' +
+            '`.gguf`-Datei, von einem halben bis zu sechs Gigabyte. Das Diktat stützt sich auf ' +
+            'voicebox.',
         },
         {
-          termine: 'Welches Modell für welche Aufgabe',
+          termine: 'Wer antwortet',
           testo:
-            'Der Assistent braucht ein Modell, das Werkzeuge aufrufen kann; die Scans ein ' +
-            'Modell, das sieht, dazu seinen Projektor (die Datei mit `mmproj` im Namen). Man ' +
-            'wählt in der Auswahlliste von **Wer antwortet** oder mit **Dem Assistenten** und ' +
-            '**Den Scans** neben der Datei; für den Projektor mit **Für die Scans ' +
-            'verwenden**.',
+            'Drei Zeilen zuoberst, eine pro Verwendung, jede mit ihrem Schalter und ihrem ' +
+            'Stand: «bereit», «etwas fehlt» oder «aus», mit dem Grund. **Assistent**: die ' +
+            'Auswahlliste des Modells, eines, das Werkzeuge aufrufen kann. **Lesen der Scans**: ' +
+            'das Modell, das sieht, die Auswahlliste des **Projektors (mmproj)** — die Datei mit ' +
+            '`mmproj` im Namen — und das **Leseprogramm**. **Diktat**: das **Modell für die ' +
+            'Stimme**; eingeschaltet erinnert es daran, dass voicebox offen sein muss. Ein ' +
+            'Modell wählt man nur in diesen Auswahllisten.',
+        },
+        {
+          termine: 'Leseprogramm',
+          testo:
+            'Das Programm, mit dem das Modell die Scans liest. **Vom Klassenbuch**, der ' +
+            'Standard: Beim ersten Bedarf holt es `llama-mtmd-cli` selbst, in einer festen ' +
+            'Version, und prüft den Fingerabdruck. **Diese .exe**: eine eigene Kopie, zum ' +
+            'Beispiel mit der Beschleunigung der Grafikkarte; zeigt den Pfad und ' +
+            '**Durchsuchen…**, und solange du keine Datei wählst, gilt die vorherige Wahl. ' +
+            '**Nicht herunterladen**, bei einer getakteten Verbindung: Das Klassenbuch holt ' +
+            'nichts aus dem Internet.',
         },
         {
           termine: 'Die empfohlenen',
           testo:
-            'Für den Assistenten **Qwen 2.5 — 7 Milliarden** (etwa 5 GB, braucht 8 GB freien ' +
+            'In der zugeklappten Gruppe **Modelle herunterladen**, die nur von selbst ' +
+            'aufklappt, wenn noch kein Modell da ist. Für den Assistenten **Qwen 2.5 — 7 ' +
+            'Milliarden** (etwa 5 GB, braucht 8 GB freien ' +
             'Arbeitsspeicher) oder **Qwen 2.5 — 3 Milliarden** (2 GB, schneller, irrt sich aber ' +
             'öfter). Für die Scans **Qwen 2.5 VL** (6 GB, liest auch Handschrift) oder ' +
             '**SmolVLM** (unter 1 GB, nur Gedrucktes).',
@@ -603,10 +644,12 @@ export const testi = catalogo(it, {
         {
           termine: 'Herunterladen',
           testo:
-            '**Herunterladen** holt die empfohlene Variante und setzt sie am Ende für ihre ' +
-            'Aufgabe ein, sofern du inzwischen keine andere gewählt hast. Bei einem Modell, das ' +
-            'sieht, wird der Projektor danach heruntergeladen, aus der Liste der Dateien, die ' +
-            'sich darunter öffnet.',
+            '**Herunterladen** holt die empfohlene Variante und wählt sie am Ende für ihre ' +
+            'Aufgabe, sofern du inzwischen keine andere gewählt hast. Eingeschaltet wird dabei ' +
+            'nichts: War die Verwendung aus, legt man den Schalter unter **Wer antwortet** von ' +
+            'Hand um. Bei einem Modell, das sieht, wird der Projektor danach heruntergeladen, ' +
+            'aus der Liste der Dateien, die sich darunter öffnet, und von Hand in seiner ' +
+            'Auswahlliste gewählt.',
         },
         {
           termine: 'Während des Herunterladens',
@@ -630,7 +673,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Auf Hugging Face suchen',
           testo:
-            'Für alle, die wissen, was sie wollen: «qwen», «vision», «7b», dann **Suchen**. ' +
+            'Ganz unten in **Modelle herunterladen**, für alle, die wissen, was sie wollen: ' +
+            '«qwen», «vision», «7b», dann **Suchen**. ' +
             '**Dateien ansehen** zeigt die Varianten eines Repositorys, mit der Grösse und ' +
             '«empfohlen», wo es passt. Repositorys mit «verlangt eine Erlaubnis» lassen sich ' +
             'von hier aus nicht herunterladen.',
@@ -645,11 +689,18 @@ export const testi = catalogo(it, {
         {
           termine: 'Wo sie liegen',
           testo:
-            'Den Pfad liest man in der Karte **Auf dem Computer**, in der Zeile «Liegen in…»: ' +
+            'Ein einziger Ort: das Feld **Modellordner** unter **Auf dem Computer**. Leer ' +
+            'kümmert sich das Klassenbuch darum, und darunter steht, wo sie liegen: ' +
             'standardmässig neben den Einstellungen des Programms. Für eine andere Festplatte ' +
-            'oder für Modelle, die schon anderswo heruntergeladen sind, gibt man den Ordner ' +
-            'unter Einstellungen › Programm › **Sprachmodelle** an, unter «Ordner und ' +
-            'Downloads»: Das Klassenbuch sieht sie alle, ohne sie zu kopieren.',
+            'oder für Modelle, die schon anderswo heruntergeladen sind, gibt man einen anderen ' +
+            'Ordner an: Das Klassenbuch sieht sie alle, ohne sie zu kopieren.',
+        },
+        {
+          termine: 'Port von voicebox',
+          testo:
+            'In der zugeklappten Gruppe **Erweitert**, ganz unten: der Port, auf dem voicebox ' +
+            'antwortet, von 1 bis 65535, standardmässig 17493. Der Host ist fest, 127.0.0.1: ' +
+            'Die Stimme verlässt den Computer nicht.',
         },
       ],
       note: [
@@ -657,8 +708,8 @@ export const testi = catalogo(it, {
           'Rechner ohne Grafikkarte oder mit wenig Arbeitsspeicher; eine Grafikkarte, falls ' +
           'vorhanden, nutzt das Klassenbuch von selbst.',
         'Das Modell des Assistenten wird im Klassenbuch selbst geladen; für die Scans startet ' +
-          'das Klassenbuch ein Programm von llama.cpp, das sich beim ersten Mal selbst ' +
-          'herunterlädt (rund zwanzig MB). Keines von beiden ist ein Dienst, den man ' +
+          'das Klassenbuch ein Programm von llama.cpp, das sich standardmässig beim ersten Mal ' +
+          'selbst herunterlädt (rund zwanzig MB). Keines von beiden ist ein Dienst, den man ' +
           'installieren muss.',
       ],
     },
@@ -699,8 +750,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Einschalten',
           testo:
-            'Standardmässig ist er aus. Man wählt ein Modell unter Einstellungen › Programm › ' +
-            '**Sprachmodelle** und schaltet im selben Bereich **Assistent** ein. Von da an ' +
+            'Standardmässig ist er aus. Unter Einstellungen › Programm › **Assistent und ' +
+            'Modelle**, in der Zeile **Assistent** von **Wer antwortet**, wählt man ein Modell ' +
+            'und schaltet ihn ein. Von da an ' +
             'erscheint rechts in der Zeile der Auswahllisten, neben **Projizieren**, die ' +
             'Schaltfläche mit dem Roboter.',
         },
@@ -778,7 +830,7 @@ export const testi = catalogo(it, {
             'Die erste Frage lädt das Modell, fünf bis dreissig Sekunden; danach bleibt es im ' +
             'Arbeitsspeicher. Ohne Grafikkarte kann eine Antwort mehr als eine Minute dauern, ' +
             'und je mehr Klassen sie betrifft, desto länger. Ein kleineres Modell, gewählt ' +
-            'unter Einstellungen › Programm › **Sprachmodelle**, antwortet schneller.',
+            'unter Einstellungen › Programm › **Assistent und Modelle**, antwortet schneller.',
         },
       ],
       note: [
@@ -914,12 +966,15 @@ export const testi = catalogo(it, {
             'Die Stimme erkennt nicht das Klassenbuch, sondern **voicebox**, ein kostenloses ' +
             'Programm, das man von github.com/jamiepine/voicebox herunterlädt und wie andere ' +
             'installiert. Während man diktiert, muss es offen sein: Das Klassenbuch sucht es ' +
-            'unter http://127.0.0.1:17493, der Adresse, die voicebox von selbst verwendet.',
+            'unter http://127.0.0.1:17493, der Adresse, die voicebox von selbst verwendet. ' +
+            'Startest du es auf einem anderen Port, änderst du ihn unter **Port von voicebox**, ' +
+            'in **Erweitert** von Assistent und Modelle.',
         },
         {
           termine: 'Einschalten',
           testo:
-            'Unter Einstellungen › Programm › **Sprachmodelle**, bei «Diktat». Dann erscheint ' +
+            'Unter Einstellungen › Programm › **Assistent und Modelle**, in der Zeile ' +
+            '**Diktat** von **Wer antwortet**. Dann erscheint ' +
             'das Mikrofon neben dem Eingabefeld des Assistenten, im Bereich und im abgelösten ' +
             'Fenster.',
         },
@@ -949,7 +1004,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Das Modell',
           testo:
-            'Unter Einstellungen › Programm › **Sprachmodelle**, bei «Diktat», wählt man die ' +
+            'In der Zeile **Diktat** unter Einstellungen › Programm › **Assistent und Modelle** ' +
+            'wählt man die ' +
             'Grösse von Whisper: **turbo**, der Standard, ist das genaueste der schnellen; ' +
             '**large** ist etwas genauer und ohne Grafikkarte langsam; **medium** ist ein ' +
             'Mittelweg für einen Computer, der mit turbo Mühe hat; **small** macht Fehler bei ' +
@@ -1053,8 +1109,8 @@ export const testi = catalogo(it, {
             'Klassenbuchs zu senden. Die Aktualisierungen fragen GitHub nach der neuesten ' +
             'Version und laden, falls es eine gibt, das Installationsprogramm von dort ' +
             'herunter. Beim ersten Lesen eines Scans lädt das Klassenbuch das Programm von ' +
-            'llama.cpp von GitHub herunter, wenn «Fehlende Programme selbst herunterladen» ' +
-            'eingeschaltet ist.',
+            'llama.cpp von GitHub herunter, wenn das **Leseprogramm** auf «Vom Klassenbuch» ' +
+            'steht.',
         },
         {
           termine: 'Das abgelöste Fenster',
@@ -1071,8 +1127,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'Der Kanal ist eine andere Tür. Unter Einstellungen › Programm › **Kanal und ' +
-          'Befehlszeile** eingeschaltet, lässt er jedes Programm, das unter deinem Benutzer ' +
+        'Der Kanal ist eine andere Tür. Unter Einstellungen › Programm › **Erweitert** ' +
+          'eingeschaltet, lässt er jedes Programm, das unter deinem Benutzer ' +
           `läuft, die Daten der ${DE.pif.plurale} lesen, ohne zu fragen — auch eines, das sie ` +
           'an ein Modell im Netz schickt. Standardmässig ist er aus. Unter Windows trägt sein ' +
           'Name ein Geheimnis, das bei jedem Einschalten neu erzeugt wird: Es hält die anderen ' +
@@ -1082,10 +1138,10 @@ export const testi = catalogo(it, {
   },
   fr: {
     modelliLinguistici: {
-      titolo: 'Modèles de langage',
+      titolo: 'Assistant et modèles',
       sommario:
-        'Les fichiers qui font répondre l’assistant et lire les scans : les télécharger, les ' +
-        'choisir, les retirer.',
+        'Paramètres › Programme › **Assistant et modèles** : qui répond pour chaque usage, et ' +
+        'les fichiers des modèles sur l’ordinateur : les télécharger, les choisir, les retirer.',
       scritte: {
         impostazioni: 'Paramètres',
         guida: 'Aide',
@@ -1095,32 +1151,31 @@ export const testi = catalogo(it, {
         scansioni: 'Scans',
         nessuno: '— aucun —',
         spento: 'désactivé',
+        dettatura: 'Dictée',
         sulComputer: 'Sur l’ordinateur',
+        cartella: 'Dossier des modèles',
         peso: '4,7 Go',
-        allAssistente: 'À l’assistant',
-        alleScansioni: 'Aux scans',
         trascina: 'Glisse ici un .gguf, ou',
         caricaFile: 'Charger un fichier…',
-        consigliati: 'Recommandés',
-        qwen: 'Qwen 2.5 — 7 milliards',
-        perAssistente: 'pour l’assistant',
-        vediFile: 'Voir les fichiers',
-        cercaSu: 'Chercher sur Hugging Face',
-        esempio: 'qwen, vision, 7b',
+        scaricaModelli: 'Télécharger des modèles',
+        avanzate: 'Avancé (1)',
       },
       figure: [
         {
           didascalia:
-            'La section vue d’en haut : en tête qui travaille maintenant, en dessous les ' +
-            'fichiers présents et ceux qu’on peut prendre. Pendant qu’un fichier se télécharge, ' +
-            '**Téléchargement en cours** apparaît au-dessus de tout.',
+            'La section vue d’en haut : en tête qui répond, en dessous le dossier et les ' +
+            'fichiers présents, tout en bas deux groupes repliés. Pendant qu’un fichier se ' +
+            'télécharge, **Téléchargement en cours** apparaît au-dessus de tout.',
           legenda: [
-            '**Qui répond** : une liste déroulante par tâche, avec « prêt », « il manque ' +
-              'quelque chose » ou « désactivé » et la raison.',
-            '**Sur l’ordinateur** : les fichiers déjà présents, avec leur taille et les gestes ' +
-              'pour les utiliser ou les retirer.',
-            '**Recommandés** : quatre modèles éprouvés, deux par tâche.',
-            '**Chercher sur Hugging Face** : tous les autres modèles publics.',
+            '**Qui répond** : une ligne par usage, avec l’interrupteur, la liste déroulante du ' +
+              'modèle et l’état — « prêt », « il manque quelque chose » ou « désactivé » — avec ' +
+              'la raison.',
+            '**Sur l’ordinateur** : le **Dossier des modèles**, les fichiers avec leur taille et ' +
+              'la corbeille, et le cadre où en glisser un.',
+            '**Télécharger des modèles** : les recommandés, les fichiers d’un dépôt, la ' +
+              'recherche sur Hugging Face. Il ne s’ouvre tout seul que s’il n’y a encore aucun ' +
+              'modèle.',
+            '**Avancé** : le **Port de voicebox**. Replié, on l’ouvre à la main.',
           ],
         },
       ],
@@ -1128,22 +1183,39 @@ export const testi = catalogo(it, {
         {
           termine: 'À quoi ils servent',
           testo:
-            'À deux tâches : l’**assistant**, qui répond aux questions sur le registre, et la ' +
-            '**lecture des scans**, qui cherche les noms dans les PDF sans texte. Chacune a son ' +
-            'modèle : un fichier `.gguf`, d’un demi-gigaoctet à six.',
+            'À trois usages : l’**assistant**, qui répond aux questions sur le registre, la ' +
+            '**lecture des scans**, qui cherche les noms dans les PDF sans texte, et la ' +
+            '**dictée**, qui écrit ce que tu dis. Les deux premiers ont leur modèle : un fichier ' +
+            '`.gguf`, d’un demi-gigaoctet à six. La dictée s’appuie sur voicebox.',
         },
         {
-          termine: 'Quel modèle pour quelle tâche',
+          termine: 'Qui répond',
           testo:
-            'L’assistant veut un modèle qui sache appeler des outils ; les scans un modèle qui ' +
-            'voit, plus son projecteur (le fichier avec `mmproj` dans le nom). On choisit dans ' +
-            'la liste de **Qui répond**, ou avec **À l’assistant** et **Aux scans** à côté du ' +
-            'fichier ; pour le projecteur, **L’utiliser pour les scans**.',
+            'Trois lignes en tête, une par usage, chacune avec son interrupteur et son état : ' +
+            '« prêt », « il manque quelque chose » ou « désactivé », avec la raison. ' +
+            '**Assistant** : la liste du modèle, un modèle qui sache appeler des outils. ' +
+            '**Lecture des scans** : le modèle qui voit, la liste du **projecteur (mmproj)** — ' +
+            'le fichier avec `mmproj` dans le nom — et le **Programme de lecture**. **Dictée** : ' +
+            'le **Modèle de la voix** ; activée, elle rappelle que voicebox doit être ouvert. Un ' +
+            'modèle se choisit seulement dans ces listes.',
+        },
+        {
+          termine: 'Programme de lecture',
+          testo:
+            'Le programme qui fait lire les scans au modèle. **Par le registre**, par défaut : ' +
+            'la première fois qu’il en a besoin, il prend lui-même `llama-mtmd-cli`, dans une ' +
+            'version fixe, et en vérifie l’empreinte. **Ce .exe** : une copie à toi, par exemple ' +
+            'avec l’accélération de la carte graphique ; il montre le chemin et **Parcourir…**, ' +
+            'et tant que tu ne choisis pas de fichier, le choix précédent reste valable. **Ne ' +
+            'pas télécharger**, avec une connexion limitée : le registre ne prend rien sur ' +
+            'internet.',
         },
         {
           termine: 'Les recommandés',
           testo:
-            'Pour l’assistant **Qwen 2.5 — 7 milliards** (environ 5 Go, demande 8 Go de mémoire ' +
+            'Dans le groupe replié **Télécharger des modèles**, qui ne s’ouvre tout seul que ' +
+            's’il n’y a encore aucun modèle. Pour l’assistant **Qwen 2.5 — 7 milliards** ' +
+            '(environ 5 Go, demande 8 Go de mémoire ' +
             'libre) ou **Qwen 2.5 — 3 milliards** (2 Go, plus rapide mais se trompe plus ' +
             'souvent). Pour les scans **Qwen 2.5 VL** (6 Go, lit aussi l’écriture manuscrite) ' +
             'ou **SmolVLM** (moins de 1 Go, imprimé seulement).',
@@ -1151,10 +1223,12 @@ export const testi = catalogo(it, {
         {
           termine: 'Télécharger',
           testo:
-            '**Télécharger** prend la variante recommandée et, une fois arrivée au bout, la met ' +
-            'au travail dans sa tâche, si tu n’en as pas choisi une autre entre-temps. Pour un ' +
-            'modèle qui voit, le projecteur se télécharge ensuite, depuis la liste des fichiers ' +
-            'qui s’ouvre en dessous.',
+            '**Télécharger** prend la variante recommandée et, une fois arrivée au bout, la ' +
+            'choisit pour sa tâche, si tu n’en as pas choisi une autre entre-temps. Rien ne ' +
+            's’active pour autant : si l’usage était éteint, on bascule l’interrupteur dans ' +
+            '**Qui répond** à la main. Pour un modèle qui voit, le projecteur se télécharge ' +
+            'ensuite, depuis la liste des fichiers qui s’ouvre en dessous, et se choisit à la ' +
+            'main dans sa liste déroulante.',
         },
         {
           termine: 'Pendant le téléchargement',
@@ -1178,7 +1252,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Chercher sur Hugging Face',
           testo:
-            'Pour qui sait ce qu’il veut : « qwen », « vision », « 7b », puis **Rechercher**. ' +
+            'Tout en bas de **Télécharger des modèles**, pour qui sait ce qu’il veut : « qwen », ' +
+            '« vision », « 7b », puis **Rechercher**. ' +
             '**Voir les fichiers** montre les variantes d’un dépôt, avec la taille et ' +
             '« recommandé » là où ça vaut. Les dépôts marqués « demande une autorisation » ne ' +
             'se téléchargent pas d’ici.',
@@ -1193,11 +1268,18 @@ export const testi = catalogo(it, {
         {
           termine: 'Où ils sont',
           testo:
-            'Le chemin se lit dans la fiche **Sur l’ordinateur**, à la ligne « Ils sont dans… » ' +
-            ': par défaut à côté des paramètres du programme. Pour un autre disque, ou pour des ' +
-            'modèles déjà téléchargés ailleurs, on indique le dossier dans Paramètres › ' +
-            'Programme › **Modèles de langage**, sous « Dossier et téléchargements » : le ' +
-            'registre les voit tous sans les copier.',
+            'Un seul endroit : le champ **Dossier des modèles**, dans **Sur l’ordinateur**. ' +
+            'Vide, le registre s’en occupe, et en dessous on lit où ils sont : par défaut à côté ' +
+            'des paramètres du programme. Pour un autre disque, ou pour des modèles déjà ' +
+            'téléchargés ailleurs, on indique un autre dossier : le registre les voit tous sans ' +
+            'les copier.',
+        },
+        {
+          termine: 'Port de voicebox',
+          testo:
+            'Dans le groupe replié **Avancé**, tout en bas : le port sur lequel voicebox répond, ' +
+            'de 1 à 65535, par défaut 17493. L’hôte est fixe, 127.0.0.1 : la voix ne sort pas ' +
+            'de l’ordinateur.',
         },
       ],
       note: [
@@ -1205,8 +1287,8 @@ export const testi = catalogo(it, {
           'machines sans carte graphique ou avec peu de mémoire ; la carte graphique, s’il y ' +
           'en a une, le registre l’utilise tout seul.',
         'Le modèle de l’assistant se charge à l’intérieur du registre ; pour les scans, le ' +
-          'registre lance un programme de llama.cpp, qui se télécharge tout seul la première ' +
-          'fois (une vingtaine de Mo). Aucun des deux n’est un service à installer.',
+          'registre lance un programme de llama.cpp, qui par défaut se télécharge tout seul la ' +
+          'première fois (une vingtaine de Mo). Aucun des deux n’est un service à installer.',
       ],
     },
     assistente: {
@@ -1245,8 +1327,9 @@ export const testi = catalogo(it, {
         {
           termine: 'L’activer',
           testo:
-            'Il est désactivé par défaut. On choisit un modèle dans Paramètres › Programme › ' +
-            '**Modèles de langage**, et dans la même section on active **Assistant**. Dès lors, ' +
+            'Il est désactivé par défaut. Dans Paramètres › Programme › **Assistant et ' +
+            'modèles**, à la ligne **Assistant** de **Qui répond**, on choisit un modèle et on ' +
+            'l’active. Dès lors, ' +
             'à droite de la ligne des listes déroulantes, à côté de **Projeter**, apparaît le ' +
             'bouton au robot.',
         },
@@ -1322,7 +1405,7 @@ export const testi = catalogo(it, {
             'La première question charge le modèle, de cinq à trente secondes ; ensuite il ' +
             'reste en mémoire. Sans carte graphique, une réponse peut prendre plus d’une ' +
             'minute, et plus elle touche de classes, plus elle est longue. Un modèle plus ' +
-            'petit, choisi dans Paramètres › Programme › **Modèles de langage**, répond plus ' +
+            'petit, choisi dans Paramètres › Programme › **Assistant et modèles**, répond plus ' +
             'vite.',
         },
       ],
@@ -1456,12 +1539,15 @@ export const testi = catalogo(it, {
             'Ce n’est pas le registre qui reconnaît la voix, mais **voicebox**, un programme ' +
             'gratuit qui se télécharge sur github.com/jamiepine/voicebox et s’installe comme ' +
             'les autres. Pendant la dictée, il doit être ouvert : le registre le cherche sur ' +
-            'http://127.0.0.1:17493, l’adresse que voicebox utilise de lui-même.',
+            'http://127.0.0.1:17493, l’adresse que voicebox utilise de lui-même. Si tu le ' +
+            'lances sur un autre port, on le change dans **Port de voicebox**, dans **Avancé** ' +
+            'd’Assistant et modèles.',
         },
         {
           termine: 'L’activer',
           testo:
-            'Dans Paramètres › Programme › **Modèles de langage**, sous « Dictée ». Le micro ' +
+            'Dans Paramètres › Programme › **Assistant et modèles**, à la ligne **Dictée** de ' +
+            '**Qui répond**. Le micro ' +
             'apparaît à côté du champ de l’assistant, dans le panneau et dans la fenêtre ' +
             'détachée.',
         },
@@ -1490,7 +1576,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Le modèle',
           testo:
-            'Dans Paramètres › Programme › **Modèles de langage**, sous « Dictée », on choisit ' +
+            'À la ligne **Dictée** de Paramètres › Programme › **Assistant et modèles**, on ' +
+            'choisit ' +
             'la taille de Whisper : **turbo**, par défaut, est le plus précis des rapides ; ' +
             '**large** est un peu plus précis et lent sans carte graphique ; **medium** est un ' +
             'entre-deux pour un ordinateur qui peine avec turbo ; **small** se trompe sur les ' +
@@ -1594,8 +1681,8 @@ export const testi = catalogo(it, {
             'télécharge depuis le lien que tu as saisi, sans envoyer de données du registre. ' +
             'Les mises à jour demandent à GitHub la dernière version et, s’il y en a une, en ' +
             'téléchargent l’installateur depuis là. La première fois qu’il lit un scan, le ' +
-            'registre télécharge depuis GitHub le programme de llama.cpp, si « Télécharger ' +
-            'automatiquement les programmes manquants » est activé.',
+            'registre télécharge depuis GitHub le programme de llama.cpp, si le **Programme de ' +
+            'lecture** est « Par le registre ».',
         },
         {
           termine: 'La fenêtre détachée',
@@ -1612,8 +1699,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'Le canal est une autre porte. Activé dans Paramètres › Programme › **Canal et ligne ' +
-          'de commande**, il laisse lire les données des ' +
+        'Le canal est une autre porte. Activé dans Paramètres › Programme › **Avancé**, il ' +
+          'laisse lire les données des ' +
           `${FR.pif.plurale} à tout programme qui tourne sous ton utilisateur, sans ` +
           'demander — même à un programme qui les envoie à un modèle en ligne. Par défaut, il ' +
           'est désactivé. Sous Windows, son nom porte un secret refait à chaque activation : ' +
@@ -1624,10 +1711,10 @@ export const testi = catalogo(it, {
   },
   en: {
     modelliLinguistici: {
-      titolo: 'Language models',
+      titolo: 'Assistant and models',
       sommario:
-        'The files that make the assistant answer and the scans get read: downloading them, ' +
-        'choosing them, removing them.',
+        'Settings › Program › **Assistant and models**: who answers for each use, and the ' +
+        'model files on the computer: downloading them, choosing them, removing them.',
       scritte: {
         impostazioni: 'Settings',
         guida: 'Help',
@@ -1637,32 +1724,29 @@ export const testi = catalogo(it, {
         scansioni: 'Scans',
         nessuno: '— none —',
         spento: 'off',
+        dettatura: 'Dictation',
         sulComputer: 'On this computer',
+        cartella: 'Models folder',
         peso: '4.7 GB',
-        allAssistente: 'To the assistant',
-        alleScansioni: 'To scans',
         trascina: 'Drag a .gguf here, or',
         caricaFile: 'Load a file…',
-        consigliati: 'Recommended',
-        qwen: 'Qwen 2.5 — 7 billion',
-        perAssistente: 'for the assistant',
-        vediFile: 'See the files',
-        cercaSu: 'Search Hugging Face',
-        esempio: 'qwen, vision, 7b',
+        scaricaModelli: 'Download models',
+        avanzate: 'Advanced (1)',
       },
       figure: [
         {
           didascalia:
-            'The section from above: at the top who is working now, below the files already ' +
-            'there and those you can fetch. While a file is downloading, **Downloading** ' +
-            'appears above everything.',
+            'The section from above: at the top who answers, below the folder and the files ' +
+            'already there, at the bottom two closed groups. While a file is downloading, ' +
+            '**Downloading** appears above everything.',
           legenda: [
-            '**Who answers**: one drop-down per job, with “ready”, “something missing” or ' +
-              '“off” and the reason.',
-            '**On this computer**: the files already there, with their size and the actions ' +
-              'to use or remove them.',
-            '**Recommended**: four tried and tested models, two per job.',
-            '**Search Hugging Face**: all the other public models.',
+            '**Who answers**: one row per use, with the switch, the model drop-down and the ' +
+              'state — “ready”, “something missing” or “off” — with the reason.',
+            '**On this computer**: the **Models folder**, the files with their size and the ' +
+              'bin, and the box to drag one into.',
+            '**Download models**: the recommended ones, the files of a repository, the Hugging ' +
+              'Face search. It only opens by itself when there is no model yet.',
+            '**Advanced**: the **voicebox port**. Closed; you open it by hand.',
           ],
         },
       ],
@@ -1670,22 +1754,37 @@ export const testi = catalogo(it, {
         {
           termine: 'What they are for',
           testo:
-            'Two jobs: the **assistant**, which answers questions about the register, and ' +
-            '**scan reading**, which looks for the names in PDFs without text. Each has its own ' +
-            'model: a `.gguf` file, from half a gigabyte to six.',
+            'Three uses: the **assistant**, which answers questions about the register, **scan ' +
+            'reading**, which looks for the names in PDFs without text, and **dictation**, ' +
+            'which writes what you say. The first two have their own model: a `.gguf` file, ' +
+            'from half a gigabyte to six. Dictation relies on voicebox.',
         },
         {
-          termine: 'Which model for which job',
+          termine: 'Who answers',
           testo:
-            'The assistant needs a model that can call tools; scans need a model that can see, ' +
-            'plus its projector (the file with `mmproj` in its name). You choose from the ' +
-            '**Who answers** drop-down, or with **To the assistant** and **To scans** next ' +
-            'to the file; for the projector, **Use it for scans**.',
+            'Three rows at the top, one per use, each with its switch and its state: “ready”, ' +
+            '“something missing” or “off”, with the reason. **Assistant**: the model ' +
+            'drop-down, a model that can call tools. **Scan reading**: the model that can ' +
+            'see, the **projector (mmproj)** drop-down — the file with `mmproj` in its name — ' +
+            'and the **Reading program**. **Dictation**: the **Voice model**; when on, it ' +
+            'reminds you that voicebox must be open. A model is chosen only from these ' +
+            'drop-downs.',
+        },
+        {
+          termine: 'Reading program',
+          testo:
+            'The program that lets the model read scans. **By the register**, the default: the ' +
+            'first time it is needed it fetches `llama-mtmd-cli` on its own, in a fixed ' +
+            'version, and checks its fingerprint. **This .exe**: a copy of your own, for ' +
+            'example with graphics card acceleration; it shows the path and **Browse…**, and ' +
+            'until you pick a file the previous choice still applies. **Do not download**, on ' +
+            'a metered connection: the register fetches nothing from the internet.',
         },
         {
           termine: 'The recommended ones',
           testo:
-            'For the assistant **Qwen 2.5 — 7 billion** (about 5 GB, needs 8 GB of free ' +
+            'In the closed group **Download models**, which only opens by itself when there is ' +
+            'no model yet. For the assistant **Qwen 2.5 — 7 billion** (about 5 GB, needs 8 GB of free ' +
             'memory) or **Qwen 2.5 — 3 billion** (2 GB, faster but wrong more often). For ' +
             'scans **Qwen 2.5 VL** (6 GB, reads handwriting too) or **SmolVLM** (under 1 GB, ' +
             'print only).',
@@ -1693,10 +1792,11 @@ export const testi = catalogo(it, {
         {
           termine: 'Downloading',
           testo:
-            '**Download** fetches the recommended variant and, once finished, puts it to work ' +
-            'in its job, unless you have chosen another one in the meantime. For a model that ' +
-            'sees, the projector is downloaded afterwards, from the list of files that opens ' +
-            'below.',
+            '**Download** fetches the recommended variant and, once finished, chooses it for its ' +
+            'job, unless you have chosen another one in the meantime. It switches nothing on: ' +
+            'if the use was off, you turn its switch in **Who answers** by hand. For a model ' +
+            'that sees, the projector is downloaded afterwards, from the list of files that ' +
+            'opens below, and chosen by hand in its drop-down.',
         },
         {
           termine: 'While it downloads',
@@ -1720,7 +1820,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Search Hugging Face',
           testo:
-            'For those who know what they want: “qwen”, “vision”, “7b”, then **Search**. ' +
+            'At the bottom of **Download models**, for those who know what they want: “qwen”, ' +
+            '“vision”, “7b”, then **Search**. ' +
             '**See the files** shows the variants in a repository, with the size and ' +
             '“recommended” where it applies. Repositories marked “requires permission” can’t ' +
             'be downloaded from here.',
@@ -1734,11 +1835,18 @@ export const testi = catalogo(it, {
         {
           termine: 'Where they are kept',
           testo:
-            'The path can be read on the **On this computer** card, on the “Stored in…” row: by ' +
-            'default next to the program settings. For another disk, or for models already ' +
-            'downloaded elsewhere, you set the folder in Settings › Program › **Language ' +
-            'models**, under “Folder and downloads”: the register sees them all without ' +
-            'copying them.',
+            'One place only: the **Models folder** field, in **On this computer**. Left empty, ' +
+            'the register takes care of it, and below you can read where they are: by default ' +
+            'next to the program settings. For another disk, or for models already downloaded ' +
+            'elsewhere, you set another folder: the register sees them all without copying ' +
+            'them.',
+        },
+        {
+          termine: 'voicebox port',
+          testo:
+            'In the closed group **Advanced**, at the bottom: the port voicebox answers on, ' +
+            'from 1 to 65535, 17493 by default. The host is fixed, 127.0.0.1: your voice does ' +
+            'not leave the computer.',
         },
       ],
       note: [
@@ -1746,7 +1854,8 @@ export const testi = catalogo(it, {
           'for machines without a graphics card or with little memory; the graphics card, if ' +
           'there is one, the register uses by itself.',
         'The assistant’s model is loaded inside the register; for scans the register starts a ' +
-          'llama.cpp program, which downloads itself the first time (about twenty MB). ' +
+          'llama.cpp program, which by default downloads itself the first time (about twenty ' +
+          'MB). ' +
           'Neither is a service to install.',
       ],
     },
@@ -1786,8 +1895,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Turning it on',
           testo:
-            'It is off by default. You choose a model in Settings › Program › **Language ' +
-            'models**, and in the same section you turn on **Assistant**. From then on, to the ' +
+            'It is off by default. In Settings › Program › **Assistant and models**, on the ' +
+            '**Assistant** row of **Who answers**, you choose a model and turn it on. From then ' +
+            'on, to the ' +
             'right of the drop-downs row, next to **Project**, the robot button appears.',
         },
         {
@@ -1860,7 +1970,7 @@ export const testi = catalogo(it, {
             'The first question loads the model, from five to thirty seconds; then it stays in ' +
             'memory. Without a graphics card an answer can take more than a minute, and the ' +
             'more classes it touches, the longer it takes. A smaller model, chosen in Settings ' +
-            '› Program › **Language models**, answers sooner.',
+            '› Program › **Assistant and models**, answers sooner.',
         },
       ],
       note: [
@@ -1993,12 +2103,15 @@ export const testi = catalogo(it, {
             'The voice isn’t recognised by the register but by **voicebox**, a free program ' +
             'you download from github.com/jamiepine/voicebox and install like any other. While ' +
             'you dictate it must be open: the register looks for it at ' +
-            'http://127.0.0.1:17493, which is the address voicebox uses by itself.',
+            'http://127.0.0.1:17493, which is the address voicebox uses by itself. If you start ' +
+            'it on another port, you change it in **voicebox port**, under **Advanced** in ' +
+            'Assistant and models.',
         },
         {
           termine: 'Turning it on',
           testo:
-            'In Settings › Program › **Language models**, under “Dictation”. The microphone ' +
+            'In Settings › Program › **Assistant and models**, on the **Dictation** row of ' +
+            '**Who answers**. The microphone ' +
             'appears next to the assistant’s box, in the panel and in the detached window.',
         },
         {
@@ -2025,7 +2138,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The model',
           testo:
-            'In Settings › Program › **Language models**, under “Dictation”, you choose the ' +
+            'On the **Dictation** row of Settings › Program › **Assistant and models** you ' +
+            'choose the ' +
             'size of Whisper: **turbo**, the default, is the most accurate of the fast ones; ' +
             '**large** is a little more precise and slow without a graphics card; **medium** ' +
             'is a middle way for a computer that struggles with turbo; **small** gets surnames ' +
@@ -2128,7 +2242,7 @@ export const testi = catalogo(it, {
             'entered, without sending any register data. Updates ask GitHub for the latest ' +
             'version and, if there is one, download the installer from there. The first time ' +
             'it reads a scan, the register downloads the llama.cpp program from GitHub, if ' +
-            '“Download missing programs automatically” is on.',
+            'the **Reading program** is set to “By the register”.',
         },
         {
           termine: 'The detached window',
@@ -2145,8 +2259,8 @@ export const testi = catalogo(it, {
         },
       ],
       note: [
-        'The pipe is another door. Turned on in Settings › Program › **Pipe and command ' +
-          `line**, it lets every program running under your user read the ${EN.pif.plurale}’ ` +
+        'The pipe is another door. Turned on in Settings › Program › **Advanced**, it ' +
+          `lets every program running under your user read the ${EN.pif.plurale}’ ` +
           'data, without asking — even one that sends it to an online model. By default it is ' +
           'off. On Windows its name carries a secret remade every time it is turned on: it ' +
           'keeps out the computer’s other users, not the programs of your own.',

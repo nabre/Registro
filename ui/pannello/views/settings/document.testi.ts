@@ -1,8 +1,6 @@
 // I testi delle impostazioni del documento d'anno (`settings/document.ts`).
 
 import { catalogo } from '../../../../core/i18n/index.js'
-import { PIF, un } from '../../../../core/dominio/lexicon.js'
-import { plurale } from '../../../../core/dominio/text.js'
 
 const it = {
   // Quel che l'host ha corretto in silenzio, detto dopo il salvataggio.
@@ -21,10 +19,12 @@ const it = {
     altezzaLogo: 'altezza del logo',
   },
   portataA: (etichetta: string, valore: string) => `${etichetta} portata a ${valore}`,
-  serveUnNumero: (etichetta: string) => `«${etichetta}» non è cambiata: serve un numero.`,
   serveUnOrario: (etichetta: string) => `«${etichetta}» non è cambiata: serve un orario.`,
   salvate: 'Impostazioni salvate.',
   salvateCorrette: (scarti: string) => `Impostazioni salvate, corrette: ${scarti}.`,
+  // Accanto al campo, per quelli disegnati con i controlli condivisi.
+  nonSalvata: 'Non salvata: il registro non ha risposto.',
+  corretta: (scarti: string) => `Salvata, corretta: ${scarti}.`,
 
   // La valutazione.
   scala: 'Scala dei voti',
@@ -33,61 +33,31 @@ const it = {
   votoMinimo: 'Voto minimo',
   votoMassimo: 'Voto massimo',
   sufficienza: 'Sufficienza',
+  sufficienzaAiuto: 'Da qui in su un voto è sufficiente. Sta sulla scala, a passi dei voti.',
   passoVoti: 'Passo dei voti',
-  passoVotiFormato: '0.25 = mezzi e quarti',
-  passoFineSemestre: 'Passo della nota di fine semestre',
-  passoFineSemestreFormato: '0.5 = mezzi punti; 0 = non arrotondare',
-  sogliaAssenza: 'Segnala l’assenza oltre il',
-  sogliaAssenzaFormato: 'in percento; 0 = nessuna segnalazione',
-
-  // Le materie.
-  materie: 'Materie',
-  materieAiuto: 'classe + anno + materia fanno il programma a cui appartengono i piani lezione',
-  nuovaMateria: 'Nuova materia',
-  nessunaMateria: 'Nessuna materia',
-  nessunaMateriaTesto:
-    'Finché non ce n’è una, le classi non hanno corsi e le lezioni non sanno di che ' +
-    'cosa parlano.',
-  contiMateria: (classi: number, corsi: number, piani: number) =>
-    `${plurale(classi, 'classe', 'classi')} · ` +
-    `${plurale(corsi, 'corso', 'corsi')} · ${plurale(piani, 'piano', 'piani')}`,
-  modificaMateria: 'Modifica la materia',
-  unisciMateria: 'Unisci questa materia a un’altra',
-  eliminaMateria: 'Elimina la materia',
-  materiaEliminata: (nome: string) => `Materia «${nome}» eliminata.`,
-
-  // Il file.
-  documento: 'Documento e dati',
-  documentoAiuto: 'l’anno aperto è un file solo: dentro ci stanno i dati e i documenti. ',
-  documentoDentro:
-    `Dentro il documento stanno anche i file: le schede di ${un(PIF)}, i rapporti stampati, ` +
-    'le scansioni archiviate. Spostare il file vuol dire spostare l’anno intero.',
-  apriAltro: 'Apri un altro registro…',
-  apriAltroAiuto: 'Sceglie un documento d’anno con il dialogo del sistema',
-  apriDaOneDrive: 'Apri da OneDrive…',
-  apriDaOneDriveAiuto: 'Cerca i documenti .regi nel OneDrive di un account Microsoft collegato',
-  mostraNellaCartella: 'Mostra nella cartella',
-  ricarica: 'Ricarica',
-  ricaricaAiuto: 'Rilegge il documento dal disco: serve se lo ha cambiato qualcun altro',
-  ricaricati: 'Dati ricaricati dal disco.',
-  provvisorio: (nome: string) =>
-    `«${nome}» è un anno nuovo non ancora salvato: sta in una ` +
-    'cartella provvisoria del programma. Salvalo con nome per scegliere come ' +
-    'chiamarlo e dove tenerlo.',
-  salvaConNome: 'Salva l’anno con nome…',
-  nessunDocumento:
-    'Nessun documento aperto: il registro sta lavorando su niente, e quel che si scrive ' +
-    'non ha dove andare.',
-  sintesi: {
-    anni: 'anni',
-    classi: 'classi',
-    lezioni: 'lezioni',
-    piani: 'piani',
-    valutazioni: 'valutazioni',
+  passoVotiAiuto: 'La grana con cui si danno i voti: un voto battuto si arrotonda a questa.',
+  grane: {
+    0.1: 'decimi',
+    0.25: 'mezzi e quarti',
+    0.5: 'mezzi punti',
+    1: 'solo interi',
   },
-  riferimenti: 'Riferimenti che non tornano',
-  eAltri: (quanti: number) => `…e altri ${quanti}.`,
-  tuttiTornano: 'Tutti i riferimenti fra classi, lezioni, piani e valutazioni tornano.',
+  fineSemestre: 'Fine semestre e assenze',
+  passoFineSemestre: 'Passo della nota di fine semestre',
+  passoFineSemestreAiuto:
+    'L’arrotondamento della media nella nota di pagella, di solito più largo di quello dei voti.',
+  graneFine: {
+    0: 'la media com’è, senza arrotondare',
+    0.25: 'a quarti',
+    0.5: 'a mezzi punti',
+    1: 'a punti interi',
+  },
+  sogliaAssenza: 'Segnala l’assenza oltre il',
+  sogliaAssenzaAiuto:
+    'La parte di lezioni perse, corso per corso, oltre cui una persona finisce fra le pendenze. ' +
+    '0 vuol dire mai.',
+  scalaDetta: (min: string, max: string, sufficienza: string, passo: string) =>
+    `Voti da ${min} a ${max}, sufficiente da ${sufficienza}, a passi di ${passo}.`,
 }
 
 export const testi = catalogo(it, {
@@ -107,10 +77,11 @@ export const testi = catalogo(it, {
       altezzaLogo: 'Höhe des Logos',
     },
     portataA: (etichetta, valore) => `${etichetta} auf ${valore} gesetzt`,
-    serveUnNumero: (etichetta) => `«${etichetta}» wurde nicht geändert: Es braucht eine Zahl.`,
     serveUnOrario: (etichetta) => `«${etichetta}» wurde nicht geändert: Es braucht eine Uhrzeit.`,
     salvate: 'Einstellungen gespeichert.',
     salvateCorrette: (scarti) => `Einstellungen gespeichert, korrigiert: ${scarti}.`,
+    nonSalvata: 'Nicht gespeichert: Das Klassenbuch hat nicht geantwortet.',
+    corretta: (scarti) => `Gespeichert, korrigiert: ${scarti}.`,
     scala: 'Notenskala',
     scalaAiuto:
       'vorgeschlagene Werte für eine neue Leistungsbeurteilung; jede Beurteilung kann danach ' +
@@ -118,61 +89,31 @@ export const testi = catalogo(it, {
     votoMinimo: 'Tiefste Note',
     votoMassimo: 'Höchste Note',
     sufficienza: 'Genügend ab',
+    sufficienzaAiuto: 'Ab hier ist eine Note genügend. Sie liegt auf der Skala, im Notenschritt.',
     passoVoti: 'Notenschritt',
-    passoVotiFormato: '0.25 = halbe und Viertelnoten',
-    passoFineSemestre: 'Schritt der Semesternote',
-    passoFineSemestreFormato: '0.5 = halbe Noten; 0 = nicht runden',
-    sogliaAssenza: 'Absenz melden über',
-    sogliaAssenzaFormato: 'in Prozent; 0 = keine Meldung',
-    materie: 'Fächer',
-    materieAiuto:
-      'Klasse + Jahr + Fach ergeben das Programm, zu dem die Unterrichtspläne gehören',
-    nuovaMateria: 'Neues Fach',
-    nessunaMateria: 'Kein Fach',
-    nessunaMateriaTesto:
-      'Solange es keines gibt, haben die Klassen keine Kurse, und die Stunden wissen ' +
-      'nicht, wovon sie handeln.',
-    contiMateria: (classi, corsi, piani) =>
-      `${plurale(classi, 'Klasse', 'Klassen')} · ` +
-      `${plurale(corsi, 'Kurs', 'Kurse')} · ${plurale(piani, 'Plan', 'Pläne')}`,
-    modificaMateria: 'Fach bearbeiten',
-    unisciMateria: 'Dieses Fach mit einem anderen zusammenführen',
-    eliminaMateria: 'Fach löschen',
-    materiaEliminata: (nome) => `Fach «${nome}» gelöscht.`,
-    documento: 'Dokument und Daten',
-    documentoAiuto:
-      'das offene Jahr ist eine einzige Datei: Darin stecken die Daten und die Dokumente. ',
-    documentoDentro:
-      'Im Dokument stecken auch die Dateien: die Blätter der Lernenden, die gedruckten ' +
-      'Berichte, die archivierten Scans. Die Datei verschieben heisst, das ganze Jahr verschieben.',
-    apriAltro: 'Anderes Klassenbuch öffnen…',
-    apriAltroAiuto: 'Wählt ein Jahresdokument im Dialog des Systems',
-    apriDaOneDrive: 'Aus OneDrive öffnen…',
-    apriDaOneDriveAiuto: 'Sucht .regi-Dokumente im OneDrive eines verbundenen Microsoft-Kontos',
-    mostraNellaCartella: 'Im Ordner anzeigen',
-    ricarica: 'Neu laden',
-    ricaricaAiuto:
-      'Liest das Dokument neu von der Festplatte: nötig, wenn jemand anderes es geändert hat',
-    ricaricati: 'Daten von der Festplatte neu geladen.',
-    provvisorio: (nome) =>
-      `«${nome}» ist ein neues, noch nicht gespeichertes Jahr: Es liegt in einem provisorischen ` +
-      'Ordner des Programms. Speichere es unter einem Namen, um zu wählen, wie es heisst und ' +
-      'wo es liegt.',
-    salvaConNome: 'Schuljahr speichern unter…',
-    nessunDocumento:
-      'Kein Dokument offen: Das Klassenbuch arbeitet mit nichts, und was man schreibt, hat ' +
-      'keinen Ort.',
-    sintesi: {
-      anni: 'Jahre',
-      classi: 'Klassen',
-      lezioni: 'Stunden',
-      piani: 'Pläne',
-      valutazioni: 'Beurteilungen',
+    passoVotiAiuto: 'Wie fein Noten gegeben werden: Eine getippte Note wird darauf gerundet.',
+    grane: {
+      0.1: 'Zehntel',
+      0.25: 'Halbe und Viertel',
+      0.5: 'halbe Noten',
+      1: 'nur ganze',
     },
-    riferimenti: 'Verweise, die nicht aufgehen',
-    eAltri: (quanti) => `…und ${quanti} weitere.`,
-    tuttiTornano:
-      'Alle Verweise zwischen Klassen, Stunden, Plänen und Beurteilungen gehen auf.',
+    fineSemestre: 'Semesterende und Absenzen',
+    passoFineSemestre: 'Schritt der Semesternote',
+    passoFineSemestreAiuto:
+      'Die Rundung des Durchschnitts in der Zeugnisnote, meist gröber als die der Noten.',
+    graneFine: {
+      0: 'der Durchschnitt, wie er ist, ungerundet',
+      0.25: 'auf Viertel',
+      0.5: 'auf halbe Noten',
+      1: 'auf ganze Noten',
+    },
+    sogliaAssenza: 'Absenz melden über',
+    sogliaAssenzaAiuto:
+      'Der Anteil verpasster Lektionen, Kurs für Kurs, ab dem eine Person unter den ' +
+      'Pendenzen erscheint. 0 heisst nie.',
+    scalaDetta: (min, max, sufficienza, passo) =>
+      `Noten von ${min} bis ${max}, genügend ab ${sufficienza}, in Schritten von ${passo}.`,
   },
   fr: {
     scostamenti: {
@@ -190,10 +131,11 @@ export const testi = catalogo(it, {
       altezzaLogo: 'hauteur du logo',
     },
     portataA: (etichetta, valore) => `${etichetta} → ${valore}`,
-    serveUnNumero: (etichetta) => `« ${etichetta} » n’a pas changé : il faut un nombre.`,
     serveUnOrario: (etichetta) => `« ${etichetta} » n’a pas changé : il faut une heure.`,
     salvate: 'Paramètres enregistrés.',
     salvateCorrette: (scarti) => `Paramètres enregistrés, avec des corrections : ${scarti}.`,
+    nonSalvata: 'Non enregistré : le registre n’a pas répondu.',
+    corretta: (scarti) => `Enregistré, corrigé : ${scarti}.`,
     scala: 'Barème',
     scalaAiuto:
       'valeurs proposées pour une nouvelle évaluation ; chaque évaluation peut ensuite avoir ' +
@@ -201,62 +143,32 @@ export const testi = catalogo(it, {
     votoMinimo: 'Note minimale',
     votoMassimo: 'Note maximale',
     sufficienza: 'Seuil de suffisance',
+    sufficienzaAiuto:
+      'À partir d’ici une note est suffisante. Elle est sur le barème, au pas des notes.',
     passoVoti: 'Pas des notes',
-    passoVotiFormato: '0.25 = demis et quarts',
-    passoFineSemestre: 'Pas de la note semestrielle',
-    passoFineSemestreFormato: '0.5 = demi-points ; 0 = ne pas arrondir',
-    sogliaAssenza: 'Signaler l’absence au-delà de',
-    sogliaAssenzaFormato: 'en pour cent ; 0 = aucun signalement',
-    materie: 'Branches',
-    materieAiuto:
-      'classe + année + branche forment le programme auquel appartiennent les plans de leçon',
-    nuovaMateria: 'Nouvelle branche',
-    nessunaMateria: 'Aucune branche',
-    nessunaMateriaTesto:
-      'Tant qu’il n’y en a pas, les classes n’ont pas de cours et les leçons ne savent pas de ' +
-      'quoi elles parlent.',
-    contiMateria: (classi, corsi, piani) =>
-      `${plurale(classi, 'classe', 'classes')} · ` +
-      `${plurale(corsi, 'cours', 'cours')} · ${plurale(piani, 'plan', 'plans')}`,
-    modificaMateria: 'Modifier la branche',
-    unisciMateria: 'Fusionner cette branche avec une autre',
-    eliminaMateria: 'Supprimer la branche',
-    materiaEliminata: (nome) => `Branche « ${nome} » supprimée.`,
-    documento: 'Document et données',
-    documentoAiuto:
-      'l’année ouverte est un seul fichier : il contient les données et les documents. ',
-    documentoDentro:
-      'Le document contient aussi les fichiers : les fiches des personnes en formation, les ' +
-      'rapports imprimés, les scans archivés. Déplacer le fichier, c’est déplacer ' +
-      'l’année entière.',
-    apriAltro: 'Ouvrir un autre registre…',
-    apriAltroAiuto: 'Choisit un document d’année avec la boîte de dialogue du système',
-    apriDaOneDrive: 'Ouvrir depuis OneDrive…',
-    apriDaOneDriveAiuto: 'Cherche les documents .regi dans le OneDrive d’un compte Microsoft connecté',
-    mostraNellaCartella: 'Afficher dans le dossier',
-    ricarica: 'Recharger',
-    ricaricaAiuto:
-      'Relit le document depuis le disque : utile si quelqu’un d’autre l’a modifié',
-    ricaricati: 'Données rechargées depuis le disque.',
-    provvisorio: (nome) =>
-      `« ${nome} » est une nouvelle année pas encore enregistrée : elle se trouve dans un ` +
-      'dossier provisoire du programme. Enregistre-la sous un nom pour choisir comment ' +
-      'l’appeler et où la garder.',
-    salvaConNome: 'Enregistrer l’année sous…',
-    nessunDocumento:
-      'Aucun document ouvert : le registre ne travaille sur rien, et ce qu’on écrit n’a nulle ' +
-      'part où aller.',
-    sintesi: {
-      anni: 'années',
-      classi: 'classes',
-      lezioni: 'leçons',
-      piani: 'plans',
-      valutazioni: 'évaluations',
+    passoVotiAiuto: 'La finesse des notes : une note tapée est arrondie à ce pas.',
+    grane: {
+      0.1: 'dixièmes',
+      0.25: 'demis et quarts',
+      0.5: 'demi-points',
+      1: 'entiers seulement',
     },
-    riferimenti: 'Références qui ne collent pas',
-    eAltri: (quanti) => `…et ${quanti} autres.`,
-    tuttiTornano:
-      'Toutes les références entre classes, leçons, plans et évaluations collent.',
+    fineSemestre: 'Fin de semestre et absences',
+    passoFineSemestre: 'Pas de la note semestrielle',
+    passoFineSemestreAiuto:
+      'L’arrondi de la moyenne dans la note du bulletin, en général plus large que celui des notes.',
+    graneFine: {
+      0: 'la moyenne telle quelle, sans arrondi',
+      0.25: 'aux quarts',
+      0.5: 'aux demi-points',
+      1: 'aux points entiers',
+    },
+    sogliaAssenza: 'Signaler l’absence au-delà de',
+    sogliaAssenzaAiuto:
+      'La part de périodes manquées, cours par cours, au-delà de laquelle une personne figure ' +
+      'parmi les tâches en suspens. 0 veut dire jamais.',
+    scalaDetta: (min, max, sufficienza, passo) =>
+      `Notes de ${min} à ${max}, suffisant dès ${sufficienza}, par pas de ${passo}.`,
   },
   en: {
     scostamenti: {
@@ -274,63 +186,40 @@ export const testi = catalogo(it, {
       altezzaLogo: 'logo height',
     },
     portataA: (etichetta, valore) => `${etichetta} set to ${valore}`,
-    serveUnNumero: (etichetta) => `“${etichetta}” was not changed: a number is needed.`,
     serveUnOrario: (etichetta) => `“${etichetta}” was not changed: a time is needed.`,
     salvate: 'Settings saved.',
     salvateCorrette: (scarti) => `Settings saved, corrected: ${scarti}.`,
+    nonSalvata: 'Not saved: the register did not answer.',
+    corretta: (scarti) => `Saved, corrected: ${scarti}.`,
     scala: 'Grading scale',
     scalaAiuto: 'values proposed for a new assessment; each assessment can then have its own',
     votoMinimo: 'Lowest grade',
     votoMassimo: 'Highest grade',
     sufficienza: 'Pass mark',
+    sufficienzaAiuto: 'From here up a grade is a pass. It sits on the scale, in grade steps.',
     passoVoti: 'Grade step',
-    passoVotiFormato: '0.25 = halves and quarters',
-    passoFineSemestre: 'Step of the semester grade',
-    passoFineSemestreFormato: '0.5 = half points; 0 = no rounding',
-    sogliaAssenza: 'Flag absence above',
-    sogliaAssenzaFormato: 'as a percentage; 0 = no flagging',
-    materie: 'Subjects',
-    materieAiuto: 'class + year + subject make the programme the lesson plans belong to',
-    nuovaMateria: 'New subject',
-    nessunaMateria: 'No subjects',
-    nessunaMateriaTesto:
-      'Until there is one, classes have no courses and lessons don’t know what they are about.',
-    contiMateria: (classi, corsi, piani) =>
-      `${plurale(classi, 'class', 'classes')} · ` +
-      `${plurale(corsi, 'course', 'courses')} · ${plurale(piani, 'plan', 'plans')}`,
-    modificaMateria: 'Edit the subject',
-    unisciMateria: 'Merge this subject into another',
-    eliminaMateria: 'Delete the subject',
-    materiaEliminata: (nome) => `Subject “${nome}” deleted.`,
-    documento: 'Document and data',
-    documentoAiuto: 'the open year is a single file: it holds the data and the documents. ',
-    documentoDentro:
-      'The document also holds the files: the learner sheets, the printed reports, the ' +
-      'archived scans. Moving the file means moving the whole year.',
-    apriAltro: 'Open another register…',
-    apriAltroAiuto: 'Chooses a year document with the system dialog',
-    apriDaOneDrive: 'Open from OneDrive…',
-    apriDaOneDriveAiuto: 'Looks for .regi documents in the OneDrive of a connected Microsoft account',
-    mostraNellaCartella: 'Show in folder',
-    ricarica: 'Reload',
-    ricaricaAiuto: 'Reads the document again from disk: useful if someone else has changed it',
-    ricaricati: 'Data reloaded from disk.',
-    provvisorio: (nome) =>
-      `“${nome}” is a new year that has not been saved yet: it sits in a temporary folder of ` +
-      'the program. Save it with a name to choose what to call it and where to keep it.',
-    salvaConNome: 'Save the year as…',
-    nessunDocumento:
-      'No document open: the register is working on nothing, and whatever you write has ' +
-      'nowhere to go.',
-    sintesi: {
-      anni: 'years',
-      classi: 'classes',
-      lezioni: 'lessons',
-      piani: 'plans',
-      valutazioni: 'assessments',
+    passoVotiAiuto: 'How fine grades are given: a typed grade is rounded to this.',
+    grane: {
+      0.1: 'tenths',
+      0.25: 'halves and quarters',
+      0.5: 'half points',
+      1: 'whole only',
     },
-    riferimenti: 'References that don’t add up',
-    eAltri: (quanti) => `…and ${quanti} more.`,
-    tuttiTornano: 'All references between classes, lessons, plans and assessments add up.',
+    fineSemestre: 'Semester end and absences',
+    passoFineSemestre: 'Step of the semester grade',
+    passoFineSemestreAiuto:
+      'The rounding of the average in the report grade, usually coarser than the grades’ own.',
+    graneFine: {
+      0: 'the average as it is, unrounded',
+      0.25: 'to quarters',
+      0.5: 'to half points',
+      1: 'to whole points',
+    },
+    sogliaAssenza: 'Flag absence above',
+    sogliaAssenzaAiuto:
+      'The share of missed periods, course by course, above which a person shows up among the ' +
+      'pending items. 0 means never.',
+    scalaDetta: (min, max, sufficienza, passo) =>
+      `Grades from ${min} to ${max}, a pass from ${sufficienza}, in steps of ${passo}.`,
   },
 })

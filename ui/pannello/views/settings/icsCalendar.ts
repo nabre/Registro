@@ -18,6 +18,7 @@ import type {
 } from '../../../../core/dominio/models.js'
 import { nomeDaOrigine } from '../../../../core/dominio/normalization.js'
 import { campo, pastiglia, pulsante, scheda, statoVuoto } from '../../components/base.js'
+import { notificaAnnullabile } from '../../components/annullabile.js'
 import { suggerimento } from '../../components/hint.js'
 import { apriModale, conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
@@ -379,19 +380,32 @@ function rigaRegola (
     // solo qui si vede.
     rottaGia ? pastiglia(t.nonSiLegge, 'negativo') : null,
     conto.dove,
+    // Niente domanda: una regola si riscrive in un attimo, e la notifica ha «Annulla».
     pulsante({
       simbolo: 'cestino',
       variante: 'fantasma',
       titolo: t.togliRegola(regola.testo),
-      al: () => {
-        const calendario = calendarioOra()
-        void scrivi(
-          { ...calendario, regole: calendario.regole.filter((r) => r.id !== regola.id) },
-          t.regolaTolta(regola.testo),
-        )
-      },
+      al: () => togliRegola(regola),
     }),
   )
+}
+
+/**
+ * Toglie una regola; «Annulla» nella notifica la rimette al suo posto, se nel
+ * frattempo nessuno l'ha rimessa.
+ */
+async function togliRegola (regola: RegolaCalendario): Promise<void> {
+  const prima = calendarioOra()
+  const posto = prima.regole.findIndex((r) => r.id === regola.id)
+  if (posto < 0) return
+  if (!(await scrivi({ ...prima, regole: prima.regole.filter((r) => r.id !== regola.id) }))) return
+  notificaAnnullabile(testi().regolaTolta(regola.testo), async () => {
+    const adesso = calendarioOra()
+    if (adesso.regole.some((r) => r.id === regola.id)) return
+    const regole = [...adesso.regole]
+    regole.splice(Math.min(posto, regole.length), 0, regola)
+    await scrivi({ ...adesso, regole }, testi().regolaRimessa(regola.testo))
+  })
 }
 
 /** La riga in fondo per una regola nuova: testo, corso, «Aggiungi». */
@@ -536,7 +550,7 @@ function gruppoRegole (calendario: CalendarioEsterno): HTMLElement {
   )
 }
 
-/** La scheda «Calendari ICS» nella sezione Calendario del documento. */
+/** La scheda «Calendari ICS» nella sezione Calendari esterni dell'area Calendario. */
 export function schedaCalendarioIcs (): HTMLElement {
   const calendario = calendarioOra()
   const qualcosa = calendario.calendari.length > 0 || calendario.regole.length > 0
@@ -618,7 +632,7 @@ export function moduloCalendariIcs (): void {
           variante: 'sottile',
           al: () => {
             contesto.chiudi()
-            vai({ pagina: 'pagina.impostazioni', scheda: 'documento.ics' })
+            vai({ pagina: 'pagina.impostazioni', scheda: 'calendario#ics' })
           },
         }),
       ),

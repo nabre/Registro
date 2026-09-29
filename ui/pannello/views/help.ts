@@ -11,6 +11,7 @@ import { icona, type NomeIcona } from '../components/icons.js'
 import { andaturaScorrimento, dentroUnCampo, gestisci, h, svg, type Figlio } from '../dom.js'
 import { isola, ridisegnaIsola } from '../isole.js'
 import { postoDaVista } from '../posto.js'
+import { riprendi, seguiScorrimento } from '../segnalibro.js'
 import { iscriviti, stato, vai, type Vista } from '../state.js'
 import { lingua } from '../../../core/i18n/index.js'
 import { parole } from '../../../core/dominio/words.testi.js'
@@ -65,9 +66,23 @@ const ISOLA_GUIDA = 'guida'
 // La provenienza si ricorda osservando lo stato cambiare, da qualunque parte si
 // apra la guida. `vistaDiPrima` è la vista all'ultimo cambio visto.
 let vistaDiPrima: Vista = stato.vista
+
+/**
+ * Se al prossimo disegno si riprende dal punto di lettura: arrivando nella
+ * guida (anche all'avvio del registro), non dopo, né quando si arriva su una
+ * sezione chiesta.
+ */
+let daRiprendere = true
+
+/** Il punto di lettura della guida, nei segnalibri dello stato. */
+const SEGNALIBRO = 'guida'
+
 iscriviti(() => {
   if (stato.vista !== vistaDiPrima) {
-    if (stato.vista === 'guida' && vistaDiPrima !== 'guida') provenienza = vistaDiPrima
+    if (stato.vista === 'guida' && vistaDiPrima !== 'guida') {
+      provenienza = vistaDiPrima
+      daRiprendere = true
+    }
     vistaDiPrima = stato.vista
   }
   // Gli effetti dopo il disegno, mai dal disegno. Il microtask mette il
@@ -273,12 +288,23 @@ function dopoIlDisegno (): void {
     osservate = { colonne, radice: contenitore }
   }
 
+  const riprendere = daRiprendere
+  daRiprendere = false
   if (destinazione) {
     const { sezione, voce } = destinazione
     destinazione = null
     vaiA(sezione, voce, true)
+  } else if (riprendere && !cercato && riprendi(ancore, stato.segnalibri[SEGNALIBRO])) {
+    accendiIndice(stato.segnalibri[SEGNALIBRO].sezione)
   }
 }
+
+// Il punto di lettura segue lo scorrimento della guida intera, non dei risultati
+// di una ricerca.
+seguiScorrimento(
+  () => stato.vista === 'guida' && !cercato ? SEGNALIBRO : null,
+  () => [...document.querySelectorAll<HTMLElement>('.colonne--guida .guida__ancora')],
+)
 
 // ------------------------------------------------------------------ le figure
 

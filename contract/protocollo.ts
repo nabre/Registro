@@ -1333,6 +1333,27 @@ export interface VoceProgramma {
   /** Gli estremi di un numero, quando ce ne sono: diventano `min` e `max` del campo. */
   minimo: number | null
   massimo: number | null
+  /**
+   * Di quanto si muove un numero (`step` del campo), contato dal minimo: 1 se
+   * il manifesto non dice altro, perché un numero è intero. `null` per chi non è
+   * un numero. La dogana lo fa rispettare.
+   */
+  passo: number | null
+  /** L'unità scritta accanto al numero («min»), nella lingua di adesso, o `null`. */
+  unita: string | null
+  /**
+   * Come si disegna (`Controllo` nel manifesto), o `null` se basta il tipo. Un
+   * disegno solo per le due superfici (ADR-52).
+   */
+  controllo: 'segmenti' | 'tendina' | 'cursore' | null
+  /**
+   * Da dove vengono le scelte che si sanno solo sul momento (`FonteScelte`), o
+   * `null`. L'elenco lo porta chi lo conosce: per `indirizziPosta`, lo stato
+   * della posta del pannello.
+   */
+  scelteDinamiche: 'indirizziPosta' | null
+  /** Con `scelteDinamiche`: se si può scrivere anche un valore fuori elenco. */
+  sceltaLibera: boolean
   predefinito: string | number | boolean
   valore: string | number | boolean
   /** Se il valore di adesso è scritto nel file o viene dal predefinito. */
@@ -1359,6 +1380,8 @@ export interface VoceProgramma {
   sospesa: boolean
   /** Voce rara: sta in fondo alla sezione, in un gruppo che si apre. */
   avanzata: boolean
+  /** Cambiata, vale dal prossimo avvio: le due superfici lo dicono accanto al nome. */
+  alProssimoAvvio?: boolean
   /**
    * La scrive «Collega la casella» (`CHIAVI_DEL_COLLEGAMENTO`): si mostra in
    * sola lettura e non si ritira, in tutte e due le superfici.
@@ -1525,6 +1548,17 @@ export interface MessaggioNavigazione {
   nuovo?: boolean
   /** Apre l'importazione da un altro registro, dopo aver creato un anno. */
   importa?: boolean
+  /**
+   * Apre un dialogo sopra la pagina di adesso, che non cambia: `vista` allora
+   * non conta. Dal menu nativo, che non sa quale pagina si stia guardando.
+   */
+  dialogo?: 'informazioniDocumento'
+  /**
+   * Con `vista: 'impostazioni'`, l'indirizzo dentro la pagina: `<area>#<voce>`
+   * (`utente#account`). Stringa e non `Scheda`, che è della pagina: la convalida
+   * la fa chi riceve.
+   */
+  impostazioni?: string
 }
 
 interface MessaggioNotifica {

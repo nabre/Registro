@@ -42,7 +42,7 @@ const it = {
       etichetta: 'Tipi di settimana',
       descrizione:
         'i nomi delle settimane dell’orario a turni — A e B, o altri —: si danno alle ' +
-        'settimane in Anno e orario › Anno scolastico',
+        'settimane in Calendario › Settimane',
     },
   },
   supporto: {
@@ -120,7 +120,7 @@ export const testi = catalogo(it, {
         etichetta: 'Wochentypen',
         descrizione:
           'die Namen der Wochen im wechselnden Stundenplan — A und B oder andere —: vergeben ' +
-          'werden sie unter Schuljahr und Stundenplan › Schuljahr',
+          'werden sie unter Kalender › Wochen',
       },
     },
     supporto: {
@@ -193,7 +193,7 @@ export const testi = catalogo(it, {
         etichetta: 'Types de semaine',
         descrizione:
           'les noms des semaines de l’horaire alterné — A et B, ou d’autres — : on les attribue ' +
-          'aux semaines dans Année et horaire › Année scolaire',
+          'aux semaines dans Calendrier › Semaines',
       },
     },
     supporto: {
@@ -266,7 +266,7 @@ export const testi = catalogo(it, {
         etichetta: 'Week types',
         descrizione:
           'the names of the weeks in a rotating timetable — A and B, or others —: you assign ' +
-          'them to weeks in Year and timetable › School year',
+          'them to weeks in Calendar › Weeks',
       },
     },
     supporto: {

@@ -501,16 +501,13 @@ export class Pacchetto {
 
     const blocchi = await this.blocchi()
     try {
-      if (
+      const accodato =
         this.dimensione > 0 &&
+        this.fine !== null &&
         !opzioni?.compatta &&
         !this.conviene(blocchi) &&
-        (await this.sulDiscoÈQuello())
-      ) {
-        await this.accoda(blocchi)
-      } else {
-        await this.rifai(blocchi)
-      }
+        (await this.accoda(blocchi, this.fine))
+      if (!accodato) await this.rifai(blocchi)
     } catch (errore) {
       // Il documento resta da salvare, o la modifica andrebbe persa.
       this.modificato = true
@@ -541,8 +538,15 @@ export class Pacchetto {
     return apparato.finisceCon(this.file, this.dimensione, this.fine)
   }
 
-  /** La via incrementale: in fondo al file, le voci nuove e poi l'indice. */
-  private async accoda (blocchi: Array<{ voce: Voce | null, pronta: VocePronta }>): Promise<void> {
+  /**
+   * La via incrementale: in fondo al file, le voci nuove e poi l'indice. Falso
+   * se il file sul disco non è più quello lasciato da noi (`sulDiscoÈQuello`):
+   * accodare scriverebbe a offset altrui, e chi chiama rifà per intero.
+   */
+  private async accoda (
+    blocchi: Array<{ voce: Voce | null, pronta: VocePronta }>,
+    fine: Uint8Array,
+  ): Promise<boolean> {
     const restano: VoceCollocata[] = []
     const nuove: VocePronta[] = []
     const daCollocare: Array<Voce | null> = []
@@ -557,10 +561,11 @@ export class Pacchetto {
     }
 
     const { corpiNuovi, coda, da, collocate } = daAccodare(restano, nuove, this.dimensione)
-    // Prima i corpi, poi la coda: due chiamate perché `scriviDa` chiude con un
-    // `sync`, e l'ordine sul disco è garantito.
-    if (corpiNuovi.length > 0) await apparato.scriviDa(this.file, da, corpiNuovi)
-    await apparato.scriviDa(this.file, da + corpiNuovi.length, coda)
+    // Prima i corpi, poi la coda: due pezzi perché `accodaSe` chiude ognuno con
+    // un `sync`, e l'ordine sul disco è garantito. Controllo e scrittura nello
+    // stesso handle: un altro processo che rifà il file nel mezzo non si mischia.
+    const pezzi = corpiNuovi.length > 0 ? [corpiNuovi, coda] : [coda]
+    if (!(await apparato.accodaSe(this.file, da, fine, pezzi))) return false
 
     // Le voci appena scritte hanno un posto: il salvataggio dopo non le riscrive.
     const appena = collocate.slice(restano.length)
@@ -570,6 +575,7 @@ export class Pacchetto {
     this.morto += this.dimensione - restano.reduce((t, v) => t + ingombro(v), 0)
     this.dimensione = da + corpiNuovi.length + coda.length
     this.fine = ultimiByte(coda)
+    return true
   }
 
   /** La via completa: si riscrive tutto, e lo spazio morto sparisce. */

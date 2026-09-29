@@ -159,7 +159,7 @@ async function stacca (): Promise<void> {
  * niente al registro. Da staccato porta davanti la finestra.
  */
 export function interruttoreAssistente (): Figlio {
-  // Spento, il pulsante non c'è: si accende dalla sezione «Assistente» delle impostazioni.
+  // Spento, il pulsante non c'è: si accende dalla sezione «Assistente e modelli» delle impostazioni.
   if (!acceso()) return null
 
   const aperto = assistenteAperto() && !staccato
@@ -473,7 +473,7 @@ function dentroAlRiquadro (): HTMLElement {
           // Quel canale resta per la finestra staccata.
           contesto: () => secondoLeParti(veduta(), stato.contestoAssistente),
           alleImpostazioni: () => {
-            vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
+            vai({ pagina: 'pagina.impostazioni', scheda: 'programma#modelli' })
           },
         }),
   )

@@ -106,8 +106,8 @@ describe('la memoria del pannello', () => {
       assistenteAperto: true,
       contestoAssistente: { v: 1, pagina: true },
       azioniNascoste: true,
-      // `recapiti` è dentro la posta; `modelli` è diventata l'intestazione.
-      ultimaSchedaImpostazioni: { programma: 'posta', documento: 'intestazione' },
+      // L'ambito aperto per ultimo era il programma, e `recapiti` è dentro la posta.
+      sezioneImpostazioni: 'posta',
     })
     const stella = memoria.documenti['*']
     assert.ok(stella)

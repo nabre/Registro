@@ -135,41 +135,46 @@ function giornataDisegnata (x: number, y: number, l: number): string {
   )
 }
 
-/** La pagina delle impostazioni: la fascia dei gruppi, il filtro, una sezione aperta. */
+/**
+ * La pagina delle impostazioni: le aree, il filtro e **Ripristina** in
+ * testata; sotto l'indice delle sezioni e una sezione dell'area, con la sua
+ * pastiglia e una riga com'è: il nome e il controllo.
+ */
 function paginaImpostazioni (): string {
   const s = T.impostazioni.scritte
-  const i = IT.impostazioni.scritte
+  const p = T.impostazioniProgramma.scritte
+  // Ripristina chiude la testata a destra: se il nome è più lungo, il filtro si accorcia.
+  const largoRipristina = larghezzaTesto(s.ripristina, 'piccolo') + 20
+  const ripristina = 610 - largoRipristina
+  const pastigliaAmbito = 200 + larghezzaTesto(s.aspetto)
   return disegno(
-    // La pagina sola, senza la finestra intorno: i sette gruppi non ci starebbero.
+    // La pagina sola, senza la finestra intorno.
     riquadro(10, 8, 620, 220, { tono: 'quieto', raggio: 8 }),
     testo(34, 32, s.titolo, { forte: true }),
-    // La fascia: i gruppi, e sotto le sezioni di quello acceso.
-    fila(
-      34,
-      42,
-      [s.anno, s.didattica, s.liste, s.documenti, s.comunicazioni, s.account, s.programma],
-      'neutro',
-      6,
-    ),
-    fila(34, 66, [s.generale, s.aggiornamentiUno, s.modelli, s.condotto], 'quieto', 1),
-    riquadro(34, 92, 586, 20, { tono: 'neutro', raggio: 4 }),
-    simbolo('lente', 40, 95, 14, 'quieto'),
-    testo(60, 106, s.filtro, {
-      corpo: 'piccolo',
-      tono: 'quieto',
-    }),
-    riquadro(34, 120, 586, 96, { tono: 'neutro' }),
-    testo(46, 139, s.aggiornamenti, { forte: true }),
-    tastinoADestra(518, 126, 90, s.ripristina, i.ripristina),
-    testo(46, 163, s.scaricaSubito, { corpo: 'piccolo', forte: true }),
-    pastiglia(46, 170, s.modificata, 'quieto'),
-    tastinoADestra(558, 169, 50, s.ritira, i.ritira),
-    righe(46, 200, 250, 1),
+    // Le quattro aree, accesa quella aperta.
+    fila(34, 42, [s.calendario, s.didattica, s.utente, s.programma], 'neutro', 3),
+    // Il filtro e, accanto, Ripristina.
+    riquadro(34, 70, ripristina - 42, 20, { tono: 'neutro', raggio: 4 }),
+    simbolo('lente', 40, 73, 14, 'quieto'),
+    testo(60, 84, s.filtro, { corpo: 'piccolo', tono: 'quieto' }),
+    tastino(ripristina, 70, largoRipristina, s.ripristina),
+    // L'indice delle sezioni, con quella che si guarda.
+    riquadro(34, 104, 146, 20, { tono: 'accento', raggio: 4 }),
+    testo(42, 118, s.aspetto, { corpo: 'piccolo', forte: true, tono: 'accento' }),
+    testo(42, 142, s.avvioPromemoria, { corpo: 'piccolo', tono: 'quieto' }),
+    testo(42, 164, s.assistenteModelli, { corpo: 'piccolo', tono: 'quieto' }),
+    testo(42, 186, s.aggiornamenti, { corpo: 'piccolo', tono: 'quieto' }),
+    // La sezione: il nome con la sua pastiglia, poi una riga con il suo controllo.
+    testo(200, 118, s.aspetto, { forte: true }),
+    pastiglia(pastigliaAmbito, 105, s.questoComputer, 'neutro'),
+    testo(200, 156, s.temaVoce, { corpo: 'piccolo', forte: true }),
+    fila(200, 166, [p.sistema, p.chiaro, p.scuro], 'quieto', 0),
+    righe(200, 204, 250, 1),
     bollino(22, 51, 1),
-    bollino(22, 75, 2),
-    bollino(620, 92, 3),
-    bollino(222, 179, 4),
-    bollino(608 - eccesso(s.ripristina, i.ripristina), 126, 5),
+    bollino(22, 108, 2),
+    bollino(ripristina - 24, 70, 3),
+    bollino(ripristina, 70, 4),
+    bollino(pastigliaAmbito, 105, 5),
   )
 }
 
@@ -459,7 +464,7 @@ export const SEZIONI_IMPOSTAZIONI: SezioneGuida[] = [
       },
     ],
     note: ['meccanismo', 'attenzione'],
-    vedi: ['impostazioni-programma', 'docente', 'persone', 'guai'],
+    vedi: ['impostazioni-programma', 'onedrive', 'docente', 'persone', 'guai'],
   }, T.posta),
   sezione({
     id: 'onedrive',

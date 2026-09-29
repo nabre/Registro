@@ -588,7 +588,7 @@ export const smistamento = {
   },
 
   /**
-   * Porta il pannello su «Modelli linguistici», come la barra di stato: la
+   * Porta il pannello su «Assistente e modelli», come la barra di stato: la
    * lettura si accende dove si sceglie il suo modello. La finestra nativa il
    * modello lo mostra soltanto, e sarebbe un vicolo cieco.
    */

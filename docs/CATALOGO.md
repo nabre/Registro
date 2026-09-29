@@ -102,10 +102,10 @@ intestazione ([`ui/pannello/sidebar.ts`](../ui/pannello/sidebar.ts)).
 | `check` | [`views/check.ts`](../ui/pannello/views/check.ts) | la griglia; moduli in [`forms/check.ts`](../ui/pannello/forms/check.ts) |
 | `documenti` | [`views/documents.ts`](../ui/pannello/views/documents.ts) | corso, lezioni, allievi |
 | `mappa` | [`views/map.ts`](../ui/pannello/views/map.ts) | tutti, domicilio, lavoro |
-| `impostazioni` | [`views/settings.ts`](../ui/pannello/views/settings.ts) | sezioni in 5 gruppi (`GRUPPI_SEZIONI`); pastiglia «file» su quelle del documento |
+| `impostazioni` | [`views/settings.ts`](../ui/pannello/views/settings.ts) | quattro aree (Calendario, Didattica, Utente, Programma), una pagina che scorre per area; pastiglia d'ambito su ogni blocco; «Ripristina» per area |
 | `guida` | [`views/help.ts`](../ui/pannello/views/help.ts) | una scheda per vista |
-| `modelli` | — | solo un indirizzo: `aggiorna()` porta a Impostazioni › Intestazione |
-| `modelliLinguistici` | [`views/languageModels.ts`](../ui/pannello/views/languageModels.ts) | solo un indirizzo: la sezione «Modelli linguistici» delle impostazioni |
+| `modelli` | — | solo un indirizzo: Utente › Carta e stampa (`utente#stampa`) |
+| `modelliLinguistici` | [`views/languageModels.ts`](../ui/pannello/views/languageModels.ts) | solo un indirizzo: Programma › Assistente e modelli (`programma#modelli`) |
 
 ### 2.4 File satellite
 
@@ -274,7 +274,9 @@ una parte.
 | `registroDocenti.ricarica` | Ricarica i dati | |
 | `registroDocenti.salvaConNome` | Salva l'anno con nome… | |
 | `registroDocenti.chiudiDocumento` | Chiudi l'anno (implementato in `desktop/shell/main.ts`) | |
-| `registroDocenti.provaPosta`, `provaInvioPosta`, `collegaPosta`, `scollegaPosta`, `azzeraPosta` | posta | |
+| `registroDocenti.informazioniDocumento` | Informazioni documento… (il dialogo del pannello) | |
+| `registroDocenti.account` | Account e posta… (Utente › Account; nel menu solo con un documento aperto) | |
+| `registroDocenti.provaPosta`, `provaInvioPosta`, `collegaPosta`, `scollegaPosta`, `azzeraPosta` | posta (nel menu solo senza documento aperto) | |
 | `registroDocenti.apriCartellaDati` | Apri la cartella dei dati | |
 
 Registrati fuori dal manifesto, come servizi: `registroDocenti.esci`,
@@ -297,35 +299,49 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 - Ogni valore passa dalla dogana `valoreConMotivo(chiave, valore)`
   ([`desktop/apparato/settings.ts`](../desktop/apparato/settings.ts)).
 - Formati: `cartella`/`eseguibile`/`file` si scelgono con «Sfoglia…»
-  (`programma.sfoglia`); `modello` solo dalla riga «Chi risponde» dei Modelli
-  linguistici (`CHIAVI_IN_SCHEDA`), altrove in sola lettura, e la dogana vuole il
-  nome nudo di un `.gguf` (`nomeDiModello`,
+  (`programma.sfoglia`); `modello` solo dalle righe d'uso di Programma ›
+  Assistente e modelli (`CHIAVI_IN_SCHEDA`), altrove in sola lettura, e la
+  dogana vuole il nome nudo di un `.gguf` (`nomeDiModello`,
   [`core/dati/ggufName.ts`](../core/dati/ggufName.ts)); `indirizzoLocale` solo
-  `http` di questo computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)).
+  `http` di questo computer ([`core/dominio/loopback.ts`](../core/dominio/loopback.ts)),
+  oggi senza chiavi. `scelte` con `sceltaLibera`: le scelte con un nome passano
+  così, il resto passa dal `formato` (`ocr.lettore`).
   Le voci `avanzata` stanno in «Avanzate (n)», chiuse in fondo alla sezione (e al
-  gruppo nella finestra nativa).
-- Dal condotto non si toccano `registroDocenti.api.*`, `ocr.programma`,
-  `ocr.modello`, `ocr.proiettore`, `assistente.modello`, `dettatura.indirizzo`
-  (API § 7).
+  gruppo nella finestra nativa); si aprono a mano. `alProssimoAvvio`: pastiglia
+  «al prossimo avvio» in tutte e due le superfici.
+- Come si disegna: `controllo` (`segmenti`/`tendina`/`cursore`), `passo` (1 se
+  non detto: numeri interi, e la dogana lo vuole), `unita`, `scelteDinamiche`
+  con `sceltaLibera`. Dal manifesto a `VoceProgramma`, uguali per le due
+  superfici (ADR-52).
+- Dal condotto non si toccano `registroDocenti.api.*`, `ocr.lettore`,
+  `ocr.modello`, `ocr.proiettore`, `assistente.modello`, `dettatura.porta`
+  (API § 7), né le chiavi di prima che le precedevano.
+- «Ripristina» è per area e tocca solo le voci degli elenchi (`daRipristinare`
+  in [`sections.ts`](../ui/pannello/views/settings/sections.ts)): mai quelle
+  delle schede dedicate (`CHIAVI_IN_SCHEDA`) né quelle del collegamento
+  (`CHIAVI_DEL_COLLEGAMENTO`).
 - Il procedimento per aggiungerne una: skill `impostazione`.
 - Le impostazioni del documento, campo per campo: MODELLO-DATI § 3.44.
 
-### 5.1 Le 31 chiavi del programma
+### 5.1 Le 28 chiavi del programma
 
-Sezioni di `SEZIONI_PROGRAMMA`: Generale, Comunicazioni, Account Microsoft (nessuna
-chiave: gli account stanno nel portachiavi, ADR-49), Modelli linguistici,
-Aggiornamenti, Condotto e riga di comando.
+Sezioni con chiavi (`DIVISIONI` in
+[`core/controlli/aree.ts`](../core/controlli/aree.ts), le stesse per pannello e
+finestra nativa): Utente › Posta; Programma › Aspetto, Avvio e promemoria,
+Assistente e modelli, Aggiornamenti, Avanzate (id `condotto`: integrazione di
+sistema e condotto). Utente › Account non ha chiavi: gli account stanno nel
+portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 | chiave `registroDocenti.…` | tipo, predefinito | che cosa regola |
 |---|---|---|
 | `aspetto.lingua` | `sistema` \| `it` \| `de` \| `fr` \| `en`; `sistema` | lingua (ADR-38) |
 | `aspetto.tema` | `sistema` \| `chiaro` \| `scuro`; `sistema` | tema, via `nativeTheme.themeSource` |
-| `vassoio.attivo` | bool; `true` | icona accanto all'orologio (al prossimo avvio) |
+| `vassoio.attivo` | bool; `true` | icona accanto all'orologio (`alProssimoAvvio`) |
 | `vassoio.chiusuraNelVassoio` | bool; `true` | chiudendo resta nel vassoio; dipende da `vassoio.attivo` |
-| `avvio.conWindows` | bool; `false` | avvio con il computer, senza finestre (solo installato) |
+| `avvio.conWindows` | bool; `false` | avvio con il computer: senza finestre con l'icona, con la finestra senza |
+| `avvio.integrazioneSistema` | bool; `true` | associazione `.regi`, `regi` nel PATH, identità delle notifiche (`alProssimoAvvio`; Programma › Avanzate) |
 | `avvio.soloVassoio` | bool; `false` | parte senza aprire il registro; dipende da `vassoio.attivo` |
-| `promemoria.attivo` | bool; `true` | notifica prima di una lezione |
-| `promemoria.anticipoMinuti` | 0–120; `5` | quanto prima; dipende da `promemoria.attivo` |
+| `promemoria.avviso` | `nessuno` \| `0` \| `2` \| `5` \| `10` \| `15`; `5` | notifica prima di una lezione, minuti di anticipo; `nessuno` la spegne |
 | `proiezione.schermoIntero` | bool; `false` | proiezione a schermo intero |
 | `posta.mittente` | email; `''` | «Da» (vuoto = il nome d'accesso) |
 | `posta.utente` | email; `''` | nome d'accesso (vuoto = il mittente) |
@@ -333,26 +349,28 @@ Aggiornamenti, Condotto e riga di comando.
 | `recapiti.telefono` | `tel` \| `msteams` \| `skype` \| `callto` \| `nessuno`; `tel` | come si compone un numero (`sistema.chiama`) |
 | `recapiti.posta` | `sistema` \| `outlook` \| `outlookWeb` \| `nessuno`; `sistema` | come si apre una mail (`sistema.scrivi`); `outlook` trova `OUTLOOK.EXE` da sé |
 | `modelli.cartella` | cartella; `''` | dove stanno i `.gguf` |
-| `modelli.scaricoAutomatico` | bool; `true` | scarica `llama-mtmd-cli` alla prima scansione |
 | `ocr.attivo` | bool; `false` | lettura delle scansioni; richiede `ocr.modello` e `ocr.proiettore` |
 | `ocr.modello`, `ocr.proiettore` | modello; `''` | nomi di file nella cartella dei modelli (`llm.scegli`) |
-| `ocr.programma` | eseguibile, avanzata; `''` | un `llama-mtmd-cli.exe` proprio |
+| `ocr.lettore` | `''` \| `nessuno` \| un `.exe` (eseguibile, `sceltaLibera`); `''` | «Programma di lettura»: `''` lo scarica il registro, `nessuno` non scarica, un percorso è «questo .exe» |
 | `assistente.attivo` | bool; `false` | l'assistente; richiede `assistente.modello` |
 | `assistente.modello` | modello; `''` | il `.gguf` che risponde |
 | `dettatura.attivo` | bool; `false` | microfono nell'assistente, via voicebox; dipende da `assistente.attivo` |
 | `dettatura.taglia` | `turbo` \| `large` \| `medium` \| `small` \| `base`; `turbo` | modello Whisper di voicebox |
-| `dettatura.indirizzo` | indirizzoLocale, avanzata; `http://127.0.0.1:17493` | dove sta voicebox (ADR-35) |
+| `dettatura.porta` | numero 1–65535, avanzata; `17493` | la porta di voicebox; l'host è fisso, `127.0.0.1` (ADR-35) |
 | `aggiornamenti.controlloAutomatico` | bool; `false` | controllo all'avvio e ogni sei ore |
 | `aggiornamenti.scaricoAutomatico` | bool; `true` | scarica senza chiedere |
 | `aggiornamenti.installaAllaChiusura` | bool; `true` | installa all'uscita |
-| `api.condotto` | bool; `false` | il condotto locale |
-| `api.lettura` | bool; `true` | letture dal condotto; dipende da `api.condotto` |
-| `api.scrittura` | bool; `false` | scritture dal condotto; dipende da `api.condotto` |
+| `api.accesso` | `spento` \| `lettura` \| `letturaScrittura`; `spento` | il condotto locale e quel che concede |
 
 - `CHIAVI_DISMESSE`: le chiavi tolte che `ritiraChiaviDismesse()` cancella da un
   `impostazioni.json` vecchio (attese diventate costanti, vecchia dettatura
   whisper.cpp, agenda sul desktop, `aperturaAutomatica`,
-  `recapiti.outlook`, la vecchia posta a mano `posta.server`/`porta`/…). `ritiraCorredoWhisper()`
+  `recapiti.outlook`, la vecchia posta a mano `posta.server`/`porta`/…). Le chiavi
+  accorpate (`api.condotto`/`lettura`/`scrittura` → `api.accesso`,
+  `promemoria.attivo`/`anticipoMinuti` → `promemoria.avviso`,
+  `modelli.scaricoAutomatico`/`ocr.programma` → `ocr.lettore`,
+  `dettatura.indirizzo` → `dettatura.porta`) passano prima da
+  `MIGRAZIONI`: il file vecchio si legge già come nuovo. `ritiraCorredoWhisper()`
   ([`core/dati/dictation.ts`](../core/dati/dictation.ts)) cancella la vecchia
   cartella della dettatura.
 - Stato, non opzioni (fuori dal manifesto): `registroDocenti.ultimoDocumento`,
@@ -466,7 +484,9 @@ contatore di `id`.
   `storia` (i due conti di annulla/ripristina).
 - **`MessaggioNavigazione`**: `vista`, `elementoId?` (il contesto si risale da
   sé), `data?`, `nuovo?` (apre il modulo di creazione; mai dall'assistente),
-  `importa?`.
+  `importa?`, `dialogo?` (apre un dialogo sopra la pagina di adesso, `vista`
+  ignorata), `impostazioni?` (indirizzo `<area>#<voce>` con `vista:
+  'impostazioni'`).
 - **`MessaggioLavoro`**: `corrente`, `fatte`, `totale`, `coda`.
 - **`MessaggioStatoProiezione.impostazioni`**: `blocchi`, `aperto`, `sospesa`,
   `nomi`, `compatta`, `calendario`. La proiezione non rimanda niente indietro.
@@ -480,7 +500,7 @@ sotto-protocolli con un discriminante di stringa e type guard scritti a mano.
 |---|---|---|
 | Pannello e proiezione | forma `Richiesta`/`Domanda` | [`desktop/apparato/windows.ts`](../desktop/apparato/windows.ts) |
 | Benvenuto | `benvenuto: '…'` | [`desktop/shell/windows/welcome.ts`](../desktop/shell/windows/welcome.ts), [`desktop/shell/pages/welcome/welcome.html`](../desktop/shell/pages/welcome/welcome.html) |
-| Impostazioni | `impostazioni: '…'` | [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts), [`desktop/shell/pages/settings/settings.html`](../desktop/shell/pages/settings/settings.html) |
+| Impostazioni | `impostazioni: '…'` | [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts), [`desktop/shell/pages/settings/settings.ts`](../desktop/shell/pages/settings/settings.ts) |
 | Dialogo | `dialogo: '…'` | [`desktop/apparato/dialogs.ts`](../desktop/apparato/dialogs.ts), [`desktop/shell/pages/dialog/dialog.html`](../desktop/shell/pages/dialog/dialog.html) |
 
 ### 8.1 Benvenuto
@@ -657,7 +677,7 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
   `MessaggioStato.posta.indirizzi`. `posta.utente` e `posta.mittente` non sono
   campi: li mostra la scheda Posta (`CHIAVI_DEL_COLLEGAMENTO`, in
   `contract/manifesto.ts`), fuori da «modificate» e da «Ripristina»; la finestra
-  nativa li legge da `VoceProgramma.delCollegamento`, in sola lettura e senza «Ritira».
+  nativa li legge da `VoceProgramma.delCollegamento`, in sola lettura.
 
 ### 11.3 Geocodifica
 
@@ -672,7 +692,8 @@ nel gestore. Tasselli: `registro://mappa/…` (§ 8.5).
   scaricato da [`core/dati/visionKit.ts`](../core/dati/visionKit.ts) con le
   guardie di [`core/dati/kit.ts`](../core/dati/kit.ts) (indirizzo nel sorgente,
   versione fissa, SHA-256, estrazione stretta) in
-  `cartellaApplicazione()/lettura`, o indicato in `ocr.programma`.
+  `cartellaApplicazione()/lettura` se `ocr.lettore` è vuoto, o indicato in
+  `ocr.lettore` («questo .exe»); `nessuno` non scarica.
 - 180 s per pagina. `smistamento.leggiPagine`, `.leggiTutto`, `.rileggiAttive`
   accodano e tornano subito; lo `Smistatore`
   ([`core/dati/sorter.ts`](../core/dati/sorter.ts)) legge una pagina alla volta e

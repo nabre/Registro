@@ -8,10 +8,7 @@ const it = {
   // ------------------------------------------------------------ dictation.ts
   spenta:
     'La dettatura è spenta: si accende nelle impostazioni del programma, sotto ' +
-    '«Modelli linguistici», alla voce «Dettatura».',
-  nonLocale: (scritto: string) =>
-    `«${scritto}» non è un indirizzo di questo computer, e la voce non esce di qui: nelle ` +
-    'impostazioni, «Dettatura», ci vuole un indirizzo come http://127.0.0.1:17493.',
+    '«Assistente e modelli», alla voce «Dettatura».',
   nienteSentito: 'Non ho sentito niente: prova a parlare più vicino.',
   nonCapito: 'Non sono riuscito a capire quel che è stato detto.',
 
@@ -34,10 +31,7 @@ export const testi = catalogo(it, {
   de: {
     spenta:
       'Das Diktat ist ausgeschaltet: Du schaltest es in den Programmeinstellungen ein, unter ' +
-      '«Sprachmodelle», beim Eintrag «Diktat».',
-    nonLocale: (scritto) =>
-      `«${scritto}» ist keine Adresse dieses Computers, und die Stimme verlässt ihn nicht: In ` +
-      'den Einstellungen, «Diktat», braucht es eine Adresse wie http://127.0.0.1:17493.',
+      '«Assistent und Modelle», beim Eintrag «Diktat».',
     nienteSentito: 'Ich habe nichts gehört: Versuch, näher am Mikrofon zu sprechen.',
     nonCapito: 'Ich konnte nicht verstehen, was gesagt wurde.',
     risposta: (stato) => `Antwort ${stato}`,
@@ -56,10 +50,7 @@ export const testi = catalogo(it, {
   fr: {
     spenta:
       'La dictée est désactivée : active-la dans les paramètres du programme, sous ' +
-      '« Modèles de langage », à la rubrique « Dictée ».',
-    nonLocale: (scritto) =>
-      `« ${scritto} » n’est pas une adresse de cet ordinateur, et la voix ne sort pas d’ici : ` +
-      'dans les paramètres, « Dictée », il faut une adresse comme http://127.0.0.1:17493.',
+      '« Assistant et modèles », à la rubrique « Dictée ».',
     nienteSentito: 'Je n’ai rien entendu : essaie de parler plus près.',
     nonCapito: 'Je n’ai pas réussi à comprendre ce qui a été dit.',
     risposta: (stato) => `réponse ${stato}`,
@@ -78,10 +69,7 @@ export const testi = catalogo(it, {
   en: {
     spenta:
       'Dictation is switched off: switch it on in the program settings, under ' +
-      '“Language models”, in the “Dictation” group.',
-    nonLocale: (scritto) =>
-      `“${scritto}” is not an address on this computer, and the voice does not leave it: in ` +
-      'the settings, “Dictation”, an address like http://127.0.0.1:17493 is needed.',
+      '“Assistant and models”, in the “Dictation” group.',
     nienteSentito: 'I didn’t hear anything: try speaking closer.',
     nonCapito: 'I could not make out what was said.',
     risposta: (stato) => `response ${stato}`,

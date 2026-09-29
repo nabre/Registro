@@ -156,11 +156,9 @@ async function prova () {
   copyFileSync(CAMPIONE, documento)
   writeFileSync(join(userData, 'impostazioni.json'), JSON.stringify({
     cartellaLavoro: lavoro,
-    'registroDocenti.api.condotto': true,
-    'registroDocenti.api.lettura': true,
-    // Solo per `programma.esci`: su Windows non c'è un segnale che faccia
+    // La scrittura solo per `programma.esci`: su Windows non c'è un segnale che faccia
     // passare Electron da `before-quit`, e la chiusura va provata pulita.
-    'registroDocenti.api.scrittura': true,
+    'registroDocenti.api.accesso': 'letturaScrittura',
     // Nessuna finestra: il registro apre il documento e il condotto, e sta nel vassoio.
     'registroDocenti.avvio.soloVassoio': true,
     'registroDocenti.vassoio.attivo': true,

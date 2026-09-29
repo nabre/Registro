@@ -24,11 +24,13 @@ const it = {
   udAiuto:
     'il passo di tutta la giornata: le fasce dell’orario ne sono multipli, le pause dopo la ' +
     'prima si contano in UD, l’appello ha una colonna per UD',
-  durataUdMinuti: 'Durata di un’UD (minuti)',
   durataUd: 'Durata di un’UD',
-  // L'unità nell'etichetta: senza, «2» non dice se sono ore, unità o minuti.
-  fasciaNuovaUd: `${Uno(LEZIONE.fascia)} di una lezione nuova (UD)`,
   fasciaNuova: `${Uno(LEZIONE.fascia)} di una lezione nuova`,
+  // Le unità accanto ai numeri: senza, «2» non dice se sono ore, unità o minuti.
+  min: 'min',
+  unitaUd: 'UD',
+  minuti: (quanti: number) => `${quanti} min`,
+  altro: 'Altro…',
   unaUd: (durata: string) => `1 UD = ${durata}`,
   lezioneNuova: (ud: number, durata: string) => `lezione nuova: ${ud} UD · ${durata}`,
   fissata: (conAppello: number, minuti: number) =>
@@ -53,6 +55,17 @@ const it = {
     'sceglierle sulla griglia, perché le UD cadano intere: sotto si vede com’è la giornata',
   primaOra: 'Prima ora mostrata',
   ultimaOra: 'Ultima ora mostrata',
+  udPrimaPausa: 'UD prima della prima pausa',
+  udDopoPausa: 'UD dopo l’ultima pausa',
+  udPrimaRiferimento: 'UD prima dell’ora di riferimento',
+  udDopoRiferimento: 'UD dopo l’ora di riferimento',
+  unaUdInMeno: (contatore: string) => `${contatore}: una in meno`,
+  unaUdInPiu: (contatore: string) => `${contatore}: una in più`,
+  oraRiferimento: 'Ora di riferimento',
+  oraRiferimentoAiuto:
+    'Senza pause, l’ora da cui si contano le UD prima e dopo: come una pausa di zero ' +
+    'minuti. Spostarla sposta la giornata con le stesse UD.',
+  fuoriDalGiorno: 'Con quest’ora di riferimento la giornata uscirebbe dal giorno.',
   giorniTitolo: 'Giorni mostrati',
   giorniAiuto: 'i giorni che il calendario e la proiezione mostrano: almeno uno',
   giorniSettimana: 'Giorni della settimana',
@@ -79,10 +92,12 @@ export const testi = catalogo(it, {
       'der Takt des ganzen Tages: Die Zeitfenster des Stundenplans sind Vielfache davon, die ' +
       'Pausen nach der ersten zählen in Lektionen, die Präsenzkontrolle hat eine Spalte pro ' +
       'Lektion',
-    durataUdMinuti: 'Dauer einer Lektion (Minuten)',
     durataUd: 'Dauer einer Lektion',
-    fasciaNuovaUd: 'Zeitfenster einer neuen Stunde (Lektionen)',
     fasciaNuova: 'Zeitfenster einer neuen Stunde',
+    min: 'Min.',
+    unitaUd: 'Lekt.',
+    minuti: (quanti) => `${quanti} Min.`,
+    altro: 'Andere…',
     unaUd: (durata) => `1 Lekt. = ${durata}`,
     lezioneNuova: (ud, durata) => `neue Stunde: ${ud} Lekt. · ${durata}`,
     fissata: (conAppello, minuti) =>
@@ -109,6 +124,17 @@ export const testi = catalogo(it, {
       'wie der Tag aussieht',
     primaOra: 'Erste angezeigte Uhrzeit',
     ultimaOra: 'Letzte angezeigte Uhrzeit',
+    udPrimaPausa: 'Lektionen vor der ersten Pause',
+    udDopoPausa: 'Lektionen nach der letzten Pause',
+    udPrimaRiferimento: 'Lektionen vor der Bezugszeit',
+    udDopoRiferimento: 'Lektionen nach der Bezugszeit',
+    unaUdInMeno: (contatore) => `${contatore}: eine weniger`,
+    unaUdInPiu: (contatore) => `${contatore}: eine mehr`,
+    oraRiferimento: 'Bezugszeit',
+    oraRiferimentoAiuto:
+      'Ohne Pausen die Uhrzeit, ab der die Lektionen davor und danach gezählt werden: wie eine ' +
+      'Pause von null Minuten. Wer sie verschiebt, verschiebt den Tag mit denselben Lektionen.',
+    fuoriDalGiorno: 'Mit dieser Bezugszeit würde der Tag über den Kalendertag hinausgehen.',
     giorniTitolo: 'Angezeigte Tage',
     giorniAiuto: 'die Tage, die Kalender und Projektion zeigen: mindestens einer',
     giorniSettimana: 'Wochentage',
@@ -130,10 +156,12 @@ export const testi = catalogo(it, {
     udAiuto:
       'le pas de toute la journée : les plages de l’horaire en sont des multiples, les pauses ' +
       'après la première se comptent en périodes, l’appel a une colonne par période',
-    durataUdMinuti: 'Durée d’une période (minutes)',
     durataUd: 'Durée d’une période',
-    fasciaNuovaUd: 'Plage horaire d’une nouvelle leçon (périodes)',
     fasciaNuova: 'Plage horaire d’une nouvelle leçon',
+    min: 'min',
+    unitaUd: 'pér.',
+    minuti: (quanti) => `${quanti} min`,
+    altro: 'Autre…',
     unaUd: (durata) => `1 pér. = ${durata}`,
     lezioneNuova: (ud, durata) => `nouvelle leçon : ${ud} pér. · ${durata}`,
     fissata: (conAppello, minuti) =>
@@ -161,6 +189,17 @@ export const testi = catalogo(it, {
       'on voit à quoi ressemble la journée',
     primaOra: 'Première heure affichée',
     ultimaOra: 'Dernière heure affichée',
+    udPrimaPausa: 'Périodes avant la première pause',
+    udDopoPausa: 'Périodes après la dernière pause',
+    udPrimaRiferimento: 'Périodes avant l’heure de référence',
+    udDopoRiferimento: 'Périodes après l’heure de référence',
+    unaUdInMeno: (contatore) => `${contatore} : une de moins`,
+    unaUdInPiu: (contatore) => `${contatore} : une de plus`,
+    oraRiferimento: 'Heure de référence',
+    oraRiferimentoAiuto:
+      'Sans pauses, l’heure à partir de laquelle on compte les périodes avant et après : comme ' +
+      'une pause de zéro minute. La déplacer déplace la journée avec les mêmes périodes.',
+    fuoriDalGiorno: 'Avec cette heure de référence, la journée sortirait du jour.',
     giorniTitolo: 'Jours affichés',
     giorniAiuto: 'les jours que montrent le calendrier et la projection : au moins un',
     giorniSettimana: 'Jours de la semaine',
@@ -182,10 +221,12 @@ export const testi = catalogo(it, {
     udAiuto:
       'the step of the whole day: timetable slots are multiples of it, the breaks after the ' +
       'first are counted in periods, attendance has one column per period',
-    durataUdMinuti: 'Length of a period (minutes)',
     durataUd: 'Length of a period',
-    fasciaNuovaUd: 'Time slot of a new lesson (periods)',
     fasciaNuova: 'Time slot of a new lesson',
+    min: 'min',
+    unitaUd: 'per.',
+    minuti: (quanti) => `${quanti} min`,
+    altro: 'Other…',
     unaUd: (durata) => `1 per. = ${durata}`,
     lezioneNuova: (ud, durata) => `new lesson: ${ud} per. · ${durata}`,
     fissata: (conAppello, minuti) =>
@@ -210,6 +251,17 @@ export const testi = catalogo(it, {
       'the grid so that periods fit whole: below you can see what the day looks like',
     primaOra: 'First hour shown',
     ultimaOra: 'Last hour shown',
+    udPrimaPausa: 'Periods before the first break',
+    udDopoPausa: 'Periods after the last break',
+    udPrimaRiferimento: 'Periods before the reference time',
+    udDopoRiferimento: 'Periods after the reference time',
+    unaUdInMeno: (contatore) => `${contatore}: one fewer`,
+    unaUdInPiu: (contatore) => `${contatore}: one more`,
+    oraRiferimento: 'Reference time',
+    oraRiferimentoAiuto:
+      'Without breaks, the time from which periods before and after are counted: like a break ' +
+      'of zero minutes. Moving it moves the day with the same periods.',
+    fuoriDalGiorno: 'With this reference time the day would run outside the day.',
     giorniTitolo: 'Days shown',
     giorniAiuto: 'the days the calendar and the projection show: at least one',
     giorniSettimana: 'Days of the week',

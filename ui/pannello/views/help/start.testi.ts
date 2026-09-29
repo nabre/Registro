@@ -65,8 +65,8 @@ const it = {
           'Si sceglie l’anno fra quelli del calendario ufficiale: date, vacanze e festivi ' +
           'arrivano con lui, e restano collegati al calendario. Se ci sono altri registri, il registro chiede se portarne dentro ' +
           'classi, corsi e impostazioni; poi apre la scheda dell’anno. Dal pannello è lo stesso ' +
-          'modulo: **Nuovo anno** in Impostazioni › Anno e orario › Anno scolastico, o sulla ' +
-          'pagina di un registro vuoto.',
+          'modulo: **Nuovo anno scolastico** nel menu **File** o con `Ctrl+K`, o sulla pagina ' +
+          'di un registro vuoto.',
       },
       {
         termine: 'Classi e corsi',
@@ -171,7 +171,7 @@ const it = {
         termine: 'L’anno e i suoi semestri',
         testo:
           'I due semestri nascono con l’anno, tagliati a fine gennaio; il nome lo dà il numero. ' +
-          'Le date si cambiano in **Impostazioni** › **Anno scolastico**, o con **Modifica l’anno** da ' +
+          'Le date si cambiano in **Impostazioni** › Calendario › **Anno**, o con **Modifica l’anno** da ' +
           '`Ctrl+K`; le vacanze da **Vacanze e sospensioni**. ' +
           'La tendina **Periodo** ferma i conti — medie, assenze, lezioni — a un semestre o ' +
           'all’«Anno intero».',
@@ -405,9 +405,12 @@ const it = {
         testo:
           'Su Windows e Linux la barra dei menu classica è nascosta, e `Alt` la fa comparire. ' +
           'Ha menu suoi — **Registro**, **Vai a**, **Nuovo**, **Schermo**, **Posta**, ' +
-          '**Cartelle**, **Modifica**, **Visualizza** — e sotto **Registro** c’è ' +
-          '**Impostazioni del programma…**: la finestra nativa, per quando la pagina delle ' +
-          'impostazioni non si apre.',
+          '**Cartelle**, **Modifica**, **Visualizza**. Sotto **Registro** c’è ' +
+          '**Informazioni documento…**, lo stesso dialogo del menu **File**. Senza nessun anno ' +
+          'aperto c’è anche **Impostazioni senza documento aperto…**: la finestra nativa, perché ' +
+          'la pagina delle impostazioni non si apre; e **Posta** offre i gesti della casella uno ' +
+          'per uno. Con un anno aperto **Posta** ha solo **Account e posta…**, che porta alla ' +
+          'sezione **Account** delle impostazioni.',
       },
     ],
     note: [
@@ -531,7 +534,8 @@ const it = {
           'modo — dalla barra laterale o dalla ricerca — la guida ricorda da dove ' +
           'si veniva e lo propone in cima, con ' +
           '**Leggi come funziona**; **Apri la pagina**, accanto al titolo di una sezione, ' +
-          'riporta alla pagina vera.',
+          'riporta alla pagina vera. Senza una sezione da mostrare riprende dal punto in cui ' +
+          'eri arrivato a leggere, anche dopo aver chiuso il registro.',
       },
       {
         termine: 'Le figure',
@@ -634,7 +638,7 @@ const it = {
         testo:
           'Due interruttori: «acceso» o «spento», e un clic cambia. Quando manca quel che serve ' +
           '— il modello, per la lettura anche il proiettore — dicono «non si accende», e il ' +
-          'clic porta nei **Modelli linguistici**.',
+          'clic porta ad **Assistente e modelli**.',
       },
       {
         termine: 'La versione nuova',
@@ -942,9 +946,8 @@ export const testi = catalogo(it, {
             'Man wählt das Schuljahr aus dem offiziellen Kalender: Daten, Ferien und Feiertage ' +
             'kommen mit und bleiben mit dem Kalender verknüpft. Gibt es schon andere Klassenbücher, fragt das Klassenbuch, ob es ' +
             'Klassen, Kurse und Einstellungen daraus übernehmen soll; dann öffnet es die Seite ' +
-            'des Schuljahrs. Im Hauptfenster ist es dasselbe Formular: **Neues Jahr** unter ' +
-            'Einstellungen › Schuljahr und Stundenplan › Schuljahr, oder auf der Seite eines ' +
-            'leeren Klassenbuchs.',
+            'des Schuljahrs. Im Hauptfenster ist es dasselbe Formular: **Neues Schuljahr** im ' +
+            'Menü **Datei** oder mit `Ctrl+K`, oder auf der Seite eines leeren Klassenbuchs.',
         },
         {
           termine: 'Klassen und Kurse',
@@ -1054,7 +1057,7 @@ export const testi = catalogo(it, {
           termine: 'Das Schuljahr und seine Semester',
           testo:
             'Die beiden Semester entstehen mit dem Schuljahr, getrennt Ende Januar; den Namen ' +
-            'gibt die Nummer. Die Daten ändert man unter **Einstellungen** › **Schuljahr** oder mit **Schuljahr ' +
+            'gibt die Nummer. Die Daten ändert man unter **Einstellungen** › Kalender › **Jahr** oder mit **Schuljahr ' +
             'bearbeiten** über `Ctrl+K`; die Ferien unter **Ferien und Unterbrüche**. Die ' +
             'Auswahl **Zeitraum** begrenzt die Zählungen — Durchschnitte, Absenzen, Stunden — ' +
             'auf ein Semester oder auf «Ganzes Jahr».',
@@ -1304,9 +1307,13 @@ export const testi = catalogo(it, {
           testo:
             'Unter Windows und Linux ist die klassische Menüleiste ausgeblendet, und `Alt` ' +
             'zeigt sie an. Sie hat eigene Menüs — **Klassenbuch**, **Gehe zu**, **Neu**, ' +
-            '**Bildschirm**, **E-Mail**, **Ordner**, **Bearbeiten**, **Ansicht** — und unter ' +
-            '**Klassenbuch** steht **Programmeinstellungen…**: das native Fenster, für den ' +
-            'Fall, dass sich die Seite der Einstellungen nicht öffnet.',
+            '**Bildschirm**, **E-Mail**, **Ordner**, **Bearbeiten**, **Ansicht**. Unter ' +
+            '**Klassenbuch** steht **Dokumentinformationen…**, derselbe Dialog wie im Menü ' +
+            '**Datei**. Ist kein Schuljahr offen, steht dort auch **Einstellungen ohne offenes ' +
+            'Dokument…**: das native Fenster, weil sich die Seite der Einstellungen nicht öffnet; ' +
+            'und **E-Mail** bietet die Schritte fürs Postfach einzeln an. Mit einem offenen ' +
+            'Schuljahr hat **E-Mail** nur **Konten und E-Mail…**, das zum Abschnitt **Konten** ' +
+            'der Einstellungen führt.',
         },
       ],
       note: [
@@ -1432,7 +1439,9 @@ export const testi = catalogo(it, {
             'Öffnet von jeder Seite aus die Hilfe beim Abschnitt, der sie beschreibt. Anders ' +
             'geöffnet — über die Seitenleiste oder die Suche —, merkt sich die Hilfe, woher man ' +
             'kam, und schlägt es oben vor, mit **So funktioniert es**; **Seite öffnen** neben ' +
-            'dem Titel eines Abschnitts führt zur echten Seite zurück.',
+            'dem Titel eines Abschnitts führt zur echten Seite zurück. Ohne Abschnitt, der zu ' +
+            'zeigen ist, macht sie dort weiter, wo man beim Lesen war, auch nach dem Schliessen ' +
+            'des Klassenbuchs.',
         },
         {
           termine: 'Die Abbildungen',
@@ -1537,7 +1546,7 @@ export const testi = catalogo(it, {
           testo:
             'Zwei Schalter: «an» oder «aus», und ein Klick wechselt. Fehlt, was nötig ist — das ' +
             'Modell, für das Lesen auch der Projektor —, steht da «startet nicht», und der ' +
-            'Klick führt in den Bereich **Sprachmodelle**.',
+            'Klick führt in den Bereich **Assistent und Modelle**.',
         },
         {
           termine: 'Die neue Version',
@@ -1851,7 +1860,7 @@ export const testi = catalogo(it, {
             'fériés viennent avec, et restent liés au calendrier. S’il existe d’autres registres, le registre demande s’il ' +
             'faut en reprendre les classes, les cours et les paramètres ; puis il ouvre la ' +
             'fiche de l’année. Depuis la fenêtre principale, c’est le même formulaire : ' +
-            '**Nouvelle année** dans Paramètres › Année et horaire › Année scolaire, ou sur la ' +
+            '**Nouvelle année scolaire** dans le menu **Fichier** ou avec `Ctrl+K`, ou sur la ' +
             'page d’un registre vide.',
         },
         {
@@ -1961,7 +1970,7 @@ export const testi = catalogo(it, {
           termine: 'L’année et ses semestres',
           testo:
             'Les deux semestres naissent avec l’année, coupés à fin janvier ; leur nom vient du ' +
-            'numéro. Les dates se changent dans **Paramètres** › **Année scolaire**, ou avec **Modifier ' +
+            'numéro. Les dates se changent dans **Paramètres** › Calendrier › **Année**, ou avec **Modifier ' +
             'l’année** depuis `Ctrl+K` ; les vacances depuis **Vacances et interruptions**. ' +
             'La liste **Période** arrête les calculs — moyennes, absences, leçons — à un ' +
             'semestre ou à l’« Année entière ».',
@@ -2206,9 +2215,13 @@ export const testi = catalogo(it, {
           testo:
             'Sous Windows et Linux, la barre de menus classique est masquée, et `Alt` la fait ' +
             'apparaître. Elle a ses propres menus — **Registre**, **Aller à**, **Nouveau**, ' +
-            '**Écran**, **Messagerie**, **Dossiers**, **Édition**, **Affichage** — et sous ' +
-            '**Registre** se trouve **Paramètres du programme…** : la fenêtre native, pour ' +
-            'quand la page des paramètres ne s’ouvre pas.',
+            '**Écran**, **Messagerie**, **Dossiers**, **Édition**, **Affichage**. Sous ' +
+            '**Registre** se trouve **Informations sur le document…**, le même dialogue que ' +
+            'dans le menu **Fichier**. Quand aucune année n’est ouverte, il y a aussi ' +
+            '**Paramètres sans document ouvert…** : la fenêtre native, parce que la page des ' +
+            'paramètres ne s’ouvre pas ; et **Messagerie** propose les gestes de la boîte un par ' +
+            'un. Avec une année ouverte, **Messagerie** n’a que **Comptes et messagerie…**, qui ' +
+            'mène à la section **Comptes** des paramètres.',
         },
       ],
       note: [
@@ -2330,7 +2343,9 @@ export const testi = catalogo(it, {
             'Depuis n’importe quelle page, ouvre l’aide à la section qui la décrit. Ouverte ' +
             'autrement — par la barre latérale ou la recherche —, l’aide se souvient d’où l’on ' +
             'venait et le propose en haut, avec **Lire comment ça marche** ; **Ouvrir la ' +
-            'page**, à côté du titre d’une section, ramène à la vraie page.',
+            'page**, à côté du titre d’une section, ramène à la vraie page. Sans section à ' +
+            'montrer, elle reprend là où on en était dans la lecture, même après avoir fermé le ' +
+            'registre.',
         },
         {
           termine: 'Les figures',
@@ -2435,7 +2450,7 @@ export const testi = catalogo(it, {
           testo:
             'Deux interrupteurs : « activé » ou « désactivé », et un clic change. Quand il ' +
             'manque ce qu’il faut — le modèle, pour la lecture aussi le projecteur —, ils ' +
-            'disent « ne démarre pas », et le clic mène aux **Modèles de langage**.',
+            'disent « ne démarre pas », et le clic mène à **Assistant et modèles**.',
         },
         {
           termine: 'La nouvelle version',
@@ -2746,8 +2761,8 @@ export const testi = catalogo(it, {
             'You choose the year from those in the official calendar: dates, holidays and bank ' +
             'holidays come with it, and stay linked to the calendar. If there are other registers, the register asks whether ' +
             'to bring in their classes, courses and settings; then it opens the year’s page. ' +
-            'From the main window it is the same form: **New year** in Settings › Year and ' +
-            'timetable › School year, or on the page of an empty register.',
+            'From the main window it is the same form: **New school year** in the **File** menu ' +
+            'or with `Ctrl+K`, or on the page of an empty register.',
         },
         {
           termine: 'Classes and courses',
@@ -2852,7 +2867,7 @@ export const testi = catalogo(it, {
           termine: 'The year and its semesters',
           testo:
             'The two semesters are created with the year, split at the end of January; the ' +
-            'number gives the name. Dates are changed in **Settings** › **School year**, or with **Edit the ' +
+            'number gives the name. Dates are changed in **Settings** › Calendar › **Year**, or with **Edit the ' +
             'year** from `Ctrl+K`; the holidays from **Holidays and breaks**. The **Period** ' +
             'drop-down limits the counts — averages, absences, lessons — to one semester or to ' +
             'the “Whole year”.',
@@ -3088,8 +3103,12 @@ export const testi = catalogo(it, {
           testo:
             'On Windows and Linux the classic menu bar is hidden, and `Alt` makes it appear. ' +
             'It has menus of its own — **Register**, **Go to**, **New**, **Screen**, **Mail**, ' +
-            '**Folders**, **Edit**, **View** — and under **Register** there is **Program ' +
-            'settings…**: the native window, for when the settings page will not open.',
+            '**Folders**, **Edit**, **View**. Under **Register** there is **Document ' +
+            'information…**, the same dialogue as in the **File** menu. With no year open there ' +
+            'is also **Settings without an open document…**: the native window, because the ' +
+            'settings page will not open; and **Mail** offers the mailbox steps one by one. With ' +
+            'a year open, **Mail** has only **Accounts and mail…**, which leads to the ' +
+            '**Accounts** section of the settings.',
         },
       ],
       note: [
@@ -3212,7 +3231,8 @@ export const testi = catalogo(it, {
             'From any page it opens the guide at the section that describes it. Opened another ' +
             'way — from the sidebar or the search — the guide remembers where you came from ' +
             'and suggests it at the top, with **Read how it works**; **Open the page**, next to ' +
-            'a section title, takes you back to the real page.',
+            'a section title, takes you back to the real page. With no section to show, it ' +
+            'picks up where you had read to, even after closing the register.',
         },
         {
           termine: 'The figures',
@@ -3315,7 +3335,7 @@ export const testi = catalogo(it, {
           testo:
             'Two switches: “on” or “off”, and a click toggles. When something needed is ' +
             'missing — the model, and for reading also the projector — they say “won’t ' +
-            'start”, and the click leads to the **Language models**.',
+            'start”, and the click leads to **Assistant and models**.',
         },
         {
           termine: 'The new version',

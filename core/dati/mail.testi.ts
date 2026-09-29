@@ -41,7 +41,7 @@ const it = {
     `Quando: ${quando}\n\n` +
     'Se la leggi, il registro sa spedire: la firma qui sotto è quella che le famiglie e le ' +
     'aziende vedranno in fondo a ogni comunicazione. Se manca, o se al posto del testo ci ' +
-    'sono dei tag, la firma va corretta in Impostazioni › Documenti e stampa › Intestazione.',
+    'sono dei tag, la firma va corretta in Impostazioni › Utente › Posta.',
   provaFallita: (motivo: string) => `La prova non è partita. ${motivo}`,
   nessunaSpiegazione: 'Non è arrivata nessuna spiegazione.',
   provaSpedita: (a: string, server: string) =>
@@ -112,7 +112,7 @@ export const testi = catalogo(it, {
       `Zeitpunkt: ${quando}\n\n` +
       'Wenn du das liest, kann das Klassenbuch senden: Die Signatur hier unten ist die, die Familien ' +
       'und Lehrbetriebe unter jeder Mitteilung sehen werden. Fehlt sie, oder stehen statt des ' +
-      'Textes Tags da, muss die Signatur unter Einstellungen › Dokumente und Druck › Briefkopf ' +
+      'Textes Tags da, muss die Signatur unter Einstellungen › Benutzer › Post ' +
       'korrigiert werden.',
     provaFallita: (motivo) => `Der Test wurde nicht gesendet. ${motivo}`,
     nessunaSpiegazione: 'Es kam keine Erklärung.',
@@ -185,7 +185,7 @@ export const testi = catalogo(it, {
       'Si tu le lis, le registre sait envoyer : la signature ci-dessous est celle que les ' +
       'familles et les entreprises verront au bas de chaque communication. Si elle manque, ou si ' +
       'des balises apparaissent à la place du texte, la signature est à corriger dans Paramètres › ' +
-      'Documents et impression › En-tête.',
+      'Utilisateur › Messagerie.',
     provaFallita: (motivo) => `Le test n’est pas parti. ${motivo}`,
     nessunaSpiegazione: 'Aucune explication n’est arrivée.',
     provaSpedita: (a, server) =>
@@ -254,7 +254,7 @@ export const testi = catalogo(it, {
       `When: ${quando}\n\n` +
       'If you are reading this, the register can send: the signature below is the one families ' +
       'and companies will see at the bottom of every message. If it is missing, or if there are ' +
-      'tags instead of text, correct the signature in Settings › Documents and printing › Letterhead.',
+      'tags instead of text, correct the signature in Settings › User › Mail.',
     provaFallita: (motivo) => `The test did not go out. ${motivo}`,
     nessunaSpiegazione: 'No explanation came back.',
     provaSpedita: (a, server) =>

@@ -13,9 +13,9 @@ cartella. Sono file di testo con righe `direttiva: contenuto`, interpretati
 mentre si stampa.
 
 **Di chi usa il registro è soltanto la carta intestata**, e non sta qui: sta
-nel documento dell'anno, e si regola in Impostazioni › Documenti e stampa ›
-Intestazione. Il nome della scuola, il logo della scuola, chi firma, la firma
-delle e-mail. I modelli la chiamano per nome — `{{sede}}`, `{{docente}}`,
+nel documento dell'anno, e si regola in Impostazioni › Utente: Chi sei, Carta e
+stampa, e Posta per la firma delle e-mail. Il nome della scuola, il logo della
+scuola, chi firma, la firma delle e-mail. I modelli la chiamano per nome — `{{sede}}`, `{{docente}}`,
 `immagine: logo.png` — e non contengono i dati di nessuno: un modello di serie
 con dentro un nome vero stamperebbe quel nome sui fogli di chiunque installi il
 registro.

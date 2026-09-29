@@ -113,8 +113,8 @@ const TABELLA = [
   ['mappa', undefined, { pagina: 'pagina.mappa' }],
   ['guida', undefined, { pagina: 'pagina.guida' }],
   ['impostazioni', undefined, { pagina: 'pagina.impostazioni' }],
-  ['modelli', undefined, { pagina: 'pagina.impostazioni', scheda: 'documento.intestazione' }],
-  ['modelliLinguistici', undefined, { pagina: 'pagina.impostazioni', scheda: 'programma.modelli' }],
+  ['modelli', undefined, { pagina: 'pagina.impostazioni', scheda: 'utente#stampa' }],
+  ['modelliLinguistici', undefined, { pagina: 'pagina.impostazioni', scheda: 'programma#modelli' }],
 ]
 
 describe('la tabella vista ⇄ posto', () => {
@@ -131,7 +131,7 @@ describe('la tabella vista ⇄ posto', () => {
   it('ogni pagina ha una vista, e proiettata sui campi vecchi torna sé stessa', () => {
     for (const pagina of Object.keys(VISTA_DELLA_PAGINA)) {
       const posto = pagina === 'pagina.impostazioni'
-        ? { pagina, scheda: 'programma.posta' }
+        ? { pagina, scheda: 'utente' }
         : { pagina }
       const vecchi = derivaVista(posto)
       assert.equal(vecchi.vista, VISTA_DELLA_PAGINA[pagina])
@@ -146,8 +146,8 @@ describe('la tabella vista ⇄ posto', () => {
       { vista: 'docenteClasse', schedaDocente: 'todo' })
     assert.deepEqual(derivaVista({ pagina: 'pagina.classe.assenze' }),
       { vista: 'docenteClasse', schedaDocente: 'assenze' })
-    assert.deepEqual(derivaVista({ pagina: 'pagina.impostazioni', scheda: 'documento.ics' }), {
-      vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'ics',
+    assert.deepEqual(derivaVista({ pagina: 'pagina.impostazioni', scheda: 'calendario#ics' }), {
+      vista: 'impostazioni', areaImpostazioni: 'calendario',
     })
   })
 
@@ -185,17 +185,18 @@ describe('dai campi vecchi', () => {
   })
 
   it('alias e schede sparite delle impostazioni', () => {
+    // Le sezioni di prima delle aree arrivano nell'area dove stanno adesso.
     assert.deepEqual(postoDaVecchi({ vista: 'impostazioni', ambitoImpostazioni: 'programma', schedaProgramma: 'recapiti' }),
-      { pagina: 'pagina.impostazioni', scheda: 'programma.posta' })
+      { pagina: 'pagina.impostazioni', scheda: 'utente#posta' })
     assert.deepEqual(postoDaVecchi({ vista: 'impostazioni', ambitoImpostazioni: 'documento', schedaDocumento: 'modelli' }),
-      { pagina: 'pagina.impostazioni', scheda: 'documento.intestazione' })
+      { pagina: 'pagina.impostazioni', scheda: 'utente#stampa' })
     assert.deepEqual(postoDaVecchi({ vista: 'modelli' }),
-      { pagina: 'pagina.impostazioni', scheda: 'documento.intestazione' })
+      { pagina: 'pagina.impostazioni', scheda: 'utente#stampa' })
     assert.deepEqual(postoDaVecchi({ vista: 'modelliLinguistici', schedaProgramma: 'aspetto' }),
-      { pagina: 'pagina.impostazioni', scheda: 'programma.modelli' })
-    // Niente di valido: i predefiniti dello stato di oggi.
+      { pagina: 'pagina.impostazioni', scheda: 'programma#modelli' })
+    // Niente di valido: i predefiniti dello stato di prima, nel posto di oggi.
     assert.deepEqual(postoDaVecchi({ vista: 'impostazioni', ambitoImpostazioni: 'boh' }),
-      { pagina: 'pagina.impostazioni', scheda: 'documento.anno' })
+      { pagina: 'pagina.impostazioni', scheda: 'calendario#anno' })
   })
 })
 
@@ -241,12 +242,31 @@ describe('completa: il soggetto trovato', () => {
     assert.deepEqual(secondo.posto.soggetto, { tipo: 'lezione', id: 'lez-a3' })
   })
 
-  it('la scheda delle impostazioni si convalida, `recapiti` è la posta', () => {
+  it('l’indirizzo delle impostazioni si convalida, e quelli di prima si traducono', () => {
     const r = registro()
-    assert.equal(completa({ pagina: 'pagina.impostazioni', scheda: 'programma.recapiti' }, NIENTE, r, OGGI).posto.scheda, 'programma.posta')
-    assert.equal(completa({ pagina: 'pagina.impostazioni', scheda: 'documento.boh' }, NIENTE, r, OGGI).posto.scheda, undefined)
+    const scheda = (chiesta) => completa({ pagina: 'pagina.impostazioni', scheda: chiesta }, NIENTE, r, OGGI).posto.scheda
+    // I rimandi di prima delle aree portano ancora al loro posto.
+    assert.equal(scheda('programma.recapiti'), 'utente#posta')
+    assert.equal(scheda('programma.modelli'), 'programma#modelli')
+    assert.equal(scheda('programma.account'), 'utente#account')
+    assert.equal(scheda('documento.calendario'), 'calendario#giornata')
+    assert.equal(scheda('documento.liste'), 'didattica#liste')
+    // «Questo file» e gli anni sono usciti dalle impostazioni: si torna sull'anno.
+    assert.equal(scheda('documento.file'), 'calendario#anno')
+    assert.equal(scheda('calendario#file'), 'calendario#anno')
+    assert.equal(scheda('calendario#anni'), 'calendario#anno')
+    // Le materie stanno solo nei Corsi: chi le cercava qui ritrova la Didattica.
+    assert.equal(scheda('documento.materie'), 'didattica')
+    assert.equal(scheda('didattica#materie'), 'didattica')
+    assert.equal(scheda('documento.boh'), undefined)
+    // Un'area, con o senza voce; una voce è un id o una chiave puntata.
+    assert.equal(scheda('didattica'), 'didattica')
+    assert.equal(scheda('programma#registroDocenti.aspetto.tema'), 'programma#registroDocenti.aspetto.tema')
+    assert.equal(scheda('boh#anno'), undefined)
+    assert.equal(scheda('utente#a|b'), undefined)
+    assert.equal(scheda('utente#a#b'), undefined)
     // Fuori dalle impostazioni la scheda non ha senso.
-    assert.equal(completa({ pagina: 'pagina.oggi', scheda: 'documento.anno' }, NIENTE, r, OGGI).posto.scheda, undefined)
+    assert.equal(completa({ pagina: 'pagina.oggi', scheda: 'calendario#anno' }, NIENTE, r, OGGI).posto.scheda, undefined)
   })
 
   it('una pagina che non esiste torna alla Dashboard', () => {
@@ -403,7 +423,7 @@ describe('chiaveDelPosto', () => {
     assert.equal(chiaveDelPosto(posto), 'pagina.corso.registro|lezione:lez-a1|')
     assert.equal(chiaveDelPosto({ ...posto }), chiaveDelPosto(posto))
     assert.equal(chiaveDelPosto(posto, 'pagina'), 'pagina.corso.registro||')
-    assert.equal(chiaveDelPosto({ pagina: 'pagina.impostazioni', scheda: 'programma.posta' }), 'pagina.impostazioni||programma.posta')
+    assert.equal(chiaveDelPosto({ pagina: 'pagina.impostazioni', scheda: 'utente#posta' }), 'pagina.impostazioni||utente#posta')
   })
 
   it('non confonde due posti diversi', () => {
@@ -416,8 +436,9 @@ describe('chiaveDelPosto', () => {
       { pagina: 'pagina.pendenze', soggetto: { tipo: 'corso', id: 'a' } },
       { pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: 'a|b' } },
       { pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: 'a:b' } },
-      { pagina: 'pagina.impostazioni', scheda: 'programma.posta' },
-      { pagina: 'pagina.impostazioni', scheda: 'documento.anno' },
+      { pagina: 'pagina.impostazioni', scheda: 'utente#posta' },
+      { pagina: 'pagina.impostazioni', scheda: 'utente' },
+      { pagina: 'pagina.impostazioni', scheda: 'calendario#anno' },
     ]
     const chiavi = new Set(posti.map((p) => chiaveDelPosto(p)))
     assert.equal(chiavi.size, posti.length)

@@ -94,14 +94,14 @@ const it = {
         testo:
           '**Esci dal registro** aspetta l’ultimo salvataggio e chiude. Chi preferisce che la X ' +
           'chiuda tutto spegne «La X lascia il registro nell’icona», in Impostazioni › ' +
-          'Programma › **Generale**.',
+          'Programma › **Avvio e promemoria**.',
       },
       {
         termine: 'Partire con il computer',
         testo:
           '«Parti con Windows», nel gruppo «Avvio» di Impostazioni › Programma › ' +
-          '**Generale**, accende il registro all’accesso a Windows senza aprire finestre: resta ' +
-          'l’icona. Vale per il registro installato e per quello portabile, purché il suo file ' +
+          '**Avvio e promemoria**, accende il registro all’accesso a Windows: con l’icona non ' +
+          'apre finestre e resta lì, senza l’icona apre la finestra. Vale per il registro installato e per quello portabile, purché il suo file ' +
           'resti dov’era.',
       },
       {
@@ -121,7 +121,7 @@ const it = {
       'Il menu si rifà ogni mezzo minuto e a ogni modifica del registro: un’ora che ' +
         'comincia passa a «in corso» anche a finestre chiuse. Si rifà solo se è cambiato ' +
         'davvero, per non sfarfallare sotto le dita.',
-      'Spegnere l’icona («Icona accanto all’orologio», in **Generale**) vale dal prossimo ' +
+      'Spegnere l’icona («Icona accanto all’orologio», in **Avvio e promemoria**) vale dal prossimo ' +
         'avvio, e allora la X torna a chiudere il programma: senza icona non resterebbe ' +
         'niente da premere per riaverlo.',
     ],
@@ -148,7 +148,7 @@ const it = {
           'La notifica di un’ora che comincia alle 08:20, con l’anticipo di serie. Premuta, ' +
           'apre il registro su quella lezione.',
         legenda: [
-          'L’anticipo: cinque minuti di serie, da 0 a 120.',
+          'L’anticipo: cinque minuti di serie; si sceglie fra all’ora, 2, 5, 10 e 15 minuti.',
           'Il titolo: la classe, e quanto manca.',
           'Orario, materia, aula, e le consegne ancora aperte per quel corso.',
           'Il recupero: un’ora già cominciata si annuncia ancora per un quarto d’ora.',
@@ -159,8 +159,8 @@ const it = {
       {
         termine: 'Cambiare l’anticipo',
         testo:
-          '«Minuti di anticipo», nel gruppo «Promemoria delle lezioni» di Impostazioni › ' +
-          'Programma › **Generale**: zero fa arrivare l’avviso all’ora esatta.',
+          '«Avviso prima della lezione», nel gruppo «Promemoria delle lezioni» di Impostazioni › ' +
+          'Programma › **Avvio e promemoria**: «All’ora» lo fa arrivare all’ora esatta, «Nessun avviso» lo spegne.',
       },
       {
         termine: 'Che cosa resta aperto',
@@ -180,7 +180,7 @@ const it = {
         termine: 'Spegnerlo',
         testo:
           '«Avviso prima della lezione», nel gruppo «Promemoria delle lezioni» di ' +
-          'Impostazioni › Programma › **Generale**.',
+          'Impostazioni › Programma › **Avvio e promemoria**.',
       },
     ],
     note: [
@@ -247,7 +247,7 @@ const it = {
         termine: 'Accenderla',
         testo:
           '**Proietta**, a destra della riga delle scelte. Con «Proiezione a schermo intero» ' +
-          'acceso in Impostazioni › Programma › **Generale**, il registro la manda da sé sul secondo ' +
+          'acceso in Impostazioni › Programma › **Avvio e promemoria**, il registro la manda da sé sul secondo ' +
           'schermo — in aula, il proiettore — e la allarga; spento, la finestra si apre accanto ' +
           'e la si porta a mano.',
       },
@@ -312,7 +312,7 @@ const it = {
       'Aprire un’altra ora nel registro cambia lo schermo davanti alla classe. È per questo ' +
         'che le schede riservate partono spente.',
       'Il tema chiaro è quello che si legge meglio proiettato: «Tema», in Impostazioni › ' +
-        'Programma › **Generale**.',
+        'Programma › **Aspetto**.',
     ],
   },
   rigaDiComando: {
@@ -340,8 +340,7 @@ const it = {
         legenda: [
           '`regi`: il registro installato lo scrive da sé e lo mette nel PATH dell’utente.',
           'Il condotto: una pipe locale (un socket fuori da Windows), mai una porta di rete.',
-          'Tre interruttori: «Condotto locale», poi «Permetti di leggere» (acceso di suo) e ' +
-            '«Permetti di scrivere» (spento).',
+          'Una scelta: «Condotto locale», spento, in sola lettura o in lettura e scrittura.',
           'Le procedure: le stesse del pannello e dell’assistente, con le stesse regole.',
           'I dati su stdout, gli errori su stderr; uscita 0 fatto, 1 rifiutato o scritto male, ' +
             '2 nessuna risposta.',
@@ -352,7 +351,7 @@ const it = {
       {
         termine: 'Accendere il condotto',
         testo:
-          '«Condotto locale», in Impostazioni › Programma › **Condotto e riga di comando**: ' +
+          '«Condotto locale», in Impostazioni › Programma › **Avanzate**: ' +
           'vale subito, senza riavviare. Il registro deve essere acceso — basta l’icona accanto ' +
           'all’orologio.',
       },
@@ -392,10 +391,9 @@ const it = {
       {
         termine: 'Lettura e scrittura',
         testo:
-          '«Permetti di leggere» lascia guardare presenze, assenze, medie e calendario; ' +
-          '«Permetti di scrivere» lascia segnare appelli, mettere voti e spedire posta. Una ' +
-          'procedura di scrittura ' +
-          'senza permesso torna «non-permesso» e non tocca niente.',
+          '«Solo lettura» lascia guardare presenze, assenze, medie e calendario; «Lettura e ' +
+          'scrittura» lascia anche segnare appelli, mettere voti e spedire posta. Una ' +
+          'procedura di scrittura senza permesso torna «non-permesso» e non tocca niente.',
       },
       {
         termine: 'Dove sta `regi`',
@@ -529,14 +527,15 @@ export const testi = catalogo(it, {
           testo:
             '**Klassenbuch beenden** wartet auf das letzte Speichern und schliesst. Wer möchte, ' +
             'dass das X alles schliesst, schaltet «Das X lässt das Klassenbuch im Symbol» unter ' +
-            'Einstellungen › Programm › **Allgemein** aus.',
+            'Einstellungen › Programm › **Start und Erinnerungen** aus.',
         },
         {
           termine: 'Mit dem Computer starten',
           testo:
             '«Mit Windows starten», in der Gruppe «Start» unter Einstellungen › Programm › ' +
-            '**Allgemein**, startet das Klassenbuch bei der Anmeldung an Windows, ohne Fenster zu ' +
-            'öffnen: Es bleibt das Symbol. Gilt für das installierte und das portable ' +
+            '**Start und Erinnerungen**, startet das Klassenbuch bei der Anmeldung an Windows: ' +
+            'mit dem Symbol ohne Fenster, und es bleibt dort; ohne Symbol öffnet es das Fenster. ' +
+            'Gilt für das installierte und das portable ' +
             'Klassenbuch, solange seine Datei am selben Ort bleibt.',
         },
         {
@@ -559,7 +558,7 @@ export const testi = catalogo(it, {
           'Eine Stunde, die beginnt, wird auch bei geschlossenen Fenstern «laufend». Es baut ' +
           'sich nur neu auf, wenn sich wirklich etwas geändert hat, damit es unter den Fingern ' +
           'nicht flackert.',
-        'Das Symbol auszuschalten («Symbol neben der Uhr», unter **Allgemein**) gilt ab dem ' +
+        'Das Symbol auszuschalten («Symbol neben der Uhr», unter **Start und Erinnerungen**) gilt ab dem ' +
           'nächsten Start, und dann schliesst das X wieder das Programm: Ohne Symbol bliebe ' +
           'nichts, worauf man klicken könnte, um es zurückzuholen.',
       ],
@@ -587,7 +586,7 @@ export const testi = catalogo(it, {
             'Die Benachrichtigung einer Stunde, die um 08:20 beginnt, mit dem ' +
             'Standardvorlauf. Angeklickt öffnet sie das Klassenbuch bei dieser Stunde.',
           legenda: [
-            'Der Vorlauf: standardmässig fünf Minuten, von 0 bis 120.',
+            'Der Vorlauf: standardmässig fünf Minuten; zur Wahl stehen zur Anfangszeit, 2, 5, 10 und 15 Minuten.',
             'Der Titel: die Klasse, und wie lange es noch dauert.',
             'Uhrzeit, Fach, Zimmer, und die noch offenen Aufträge dieses Kurses.',
             'Das Nachholen: Eine schon begonnene Stunde meldet sich noch eine Viertelstunde lang.',
@@ -598,8 +597,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Den Vorlauf ändern',
           testo:
-            '«Minuten im Voraus», in der Gruppe «Erinnerungen an die Stunden» unter Einstellungen ' +
-            '› Programm › **Allgemein**: Null lässt den Hinweis genau zur Anfangszeit kommen.',
+            '«Hinweis vor der Stunde», in der Gruppe «Erinnerungen an die Stunden» unter Einstellungen ' +
+            '› Programm › **Start und Erinnerungen**: «Zur Anfangszeit» lässt ihn genau zur Anfangszeit kommen, ' +
+            '«Kein Hinweis» schaltet ihn aus.',
         },
         {
           termine: 'Was noch offen ist',
@@ -620,7 +620,7 @@ export const testi = catalogo(it, {
           termine: 'Sie ausschalten',
           testo:
             '«Hinweis vor der Stunde», in der Gruppe «Erinnerungen an die Stunden» unter ' +
-            'Einstellungen › Programm › **Allgemein**.',
+            'Einstellungen › Programm › **Start und Erinnerungen**.',
         },
       ],
       note: [
@@ -690,7 +690,7 @@ export const testi = catalogo(it, {
           termine: 'Einschalten',
           testo:
             '**Projizieren**, rechts in der Auswahlzeile. Ist «Projektion im Vollbild» unter ' +
-            'Einstellungen › Programm › **Allgemein** eingeschaltet, schickt das Klassenbuch sie ' +
+            'Einstellungen › Programm › **Start und Erinnerungen** eingeschaltet, schickt das Klassenbuch sie ' +
             'selbst auf den zweiten Bildschirm — im Schulzimmer der Projektor — und macht sie ' +
             'gross; ausgeschaltet öffnet sich das Fenster daneben, und man zieht es von Hand ' +
             'hinüber.',
@@ -760,7 +760,7 @@ export const testi = catalogo(it, {
         'Eine andere Stunde im Klassenbuch zu öffnen, ändert den Bildschirm vor der Klasse. ' +
           'Deshalb starten die vertraulichen Karten ausgeschaltet.',
         'Das helle Design ist projiziert am besten lesbar: «Design», unter Einstellungen › ' +
-          'Programm › **Allgemein**.',
+          'Programm › **Aussehen**.',
       ],
     },
     rigaDiComando: {
@@ -791,8 +791,7 @@ export const testi = catalogo(it, {
               'des Benutzers.',
             'Der Kanal: eine lokale Pipe (ausserhalb von Windows ein Socket), nie ein ' +
               'Netzwerkport.',
-            'Drei Schalter: «Lokaler Kanal», dann «Lesen erlauben» (von sich aus an) und ' +
-              '«Schreiben erlauben» (aus).',
+            'Eine Wahl: «Lokaler Kanal», aus, nur lesen oder lesen und schreiben.',
             'Die Prozeduren: dieselben wie im Fenster und im Assistenten, mit denselben Regeln.',
             'Die Daten auf stdout, die Fehler auf stderr; Exit-Code 0 erledigt, 1 abgelehnt oder ' +
               'falsch geschrieben, 2 keine Antwort.',
@@ -803,7 +802,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Den Kanal einschalten',
           testo:
-            '«Lokaler Kanal», unter Einstellungen › Programm › **Kanal und Befehlszeile**: gilt ' +
+            '«Lokaler Kanal», unter Einstellungen › Programm › **Erweitert**: gilt ' +
             'sofort, ohne Neustart. Das Klassenbuch muss laufen — das Symbol neben der Uhr ' +
             'genügt.',
         },
@@ -844,8 +843,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Lesen und Schreiben',
           testo:
-            '«Lesen erlauben» lässt Anwesenheiten, Absenzen, Durchschnitte und Kalender ' +
-            'ansehen; «Schreiben erlauben» lässt Präsenzkontrollen erfassen, Noten setzen und ' +
+            '«Nur lesen» lässt Anwesenheiten, Absenzen, Durchschnitte und Kalender ansehen; ' +
+            '«Lesen und schreiben» lässt auch Präsenzkontrollen erfassen, Noten setzen und ' +
             'Mails versenden. Eine schreibende Prozedur ohne Berechtigung gibt «non-permesso» ' +
             'zurück und rührt nichts an.',
         },
@@ -978,14 +977,15 @@ export const testi = catalogo(it, {
           testo:
             '**Quitter le registre** attend le dernier enregistrement et ferme. Qui préfère que ' +
             'le X ferme tout désactive « Le X laisse le registre dans l’icône », dans ' +
-            'Paramètres › Programme › **Général**.',
+            'Paramètres › Programme › **Démarrage et rappels**.',
         },
         {
           termine: 'Démarrer avec l’ordinateur',
           testo:
             '« Démarrer avec Windows », dans le groupe « Démarrage » de Paramètres › Programme › ' +
-            '**Général**, démarre le registre à l’ouverture de session Windows sans ouvrir de ' +
-            'fenêtres : il reste l’icône. Vaut pour le registre installé et pour le portable, ' +
+            '**Démarrage et rappels**, démarre le registre à l’ouverture de session Windows : ' +
+            'avec l’icône, sans ouvrir de fenêtres, et il reste là ; sans l’icône, il ouvre la ' +
+            'fenêtre. Vaut pour le registre installé et pour le portable, ' +
             'pourvu que son fichier reste à sa place.',
         },
         {
@@ -1006,7 +1006,7 @@ export const testi = catalogo(it, {
         'Le menu se refait toutes les demi-minutes et à chaque modification du registre : une ' +
           'leçon qui commence passe à « en cours » même fenêtres fermées. Il ne se refait que ' +
           's’il a vraiment changé, pour ne pas clignoter sous les doigts.',
-        'Désactiver l’icône (« Icône près de l’horloge », dans **Général**) vaut dès le ' +
+        'Désactiver l’icône (« Icône près de l’horloge », dans **Démarrage et rappels**) vaut dès le ' +
           'prochain démarrage, et alors le X ferme de nouveau le programme : sans icône, il ne ' +
           'resterait rien sur quoi cliquer pour le retrouver.',
       ],
@@ -1033,7 +1033,7 @@ export const testi = catalogo(it, {
             'La notification d’une leçon qui commence à 08:20, avec l’avance par défaut. Un clic ' +
             'dessus ouvre le registre à cette leçon.',
           legenda: [
-            'L’avance : cinq minutes par défaut, de 0 à 120.',
+            'L’avance : cinq minutes par défaut ; on choisit entre à l’heure, 2, 5, 10 et 15 minutes.',
             'Le titre : la classe, et combien de temps il reste.',
             'Horaire, branche, salle, et les devoirs encore ouverts pour ce cours.',
             'Le rattrapage : une leçon déjà commencée s’annonce encore pendant un quart d’heure.',
@@ -1044,8 +1044,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Changer l’avance',
           testo:
-            '« Minutes d’avance », dans le groupe « Rappels des leçons » de Paramètres › ' +
-            'Programme › **Général** : zéro fait arriver le rappel à l’heure exacte.',
+            '« Rappel avant la leçon », dans le groupe « Rappels des leçons » de Paramètres › ' +
+            'Programme › **Démarrage et rappels** : « À l’heure » le fait arriver à l’heure exacte, ' +
+            '« Aucun rappel » l’éteint.',
         },
         {
           termine: 'Ce qui reste ouvert',
@@ -1066,7 +1067,7 @@ export const testi = catalogo(it, {
           termine: 'Le désactiver',
           testo:
             '« Rappel avant la leçon », dans le groupe « Rappels des leçons » de Paramètres › ' +
-            'Programme › **Général**.',
+            'Programme › **Démarrage et rappels**.',
         },
       ],
       note: [
@@ -1134,7 +1135,7 @@ export const testi = catalogo(it, {
           termine: 'L’allumer',
           testo:
             '**Projeter**, à droite de la ligne des choix. Avec « Projection en plein écran » ' +
-            'activé dans Paramètres › Programme › **Général**, le registre l’envoie tout seul ' +
+            'activé dans Paramètres › Programme › **Démarrage et rappels**, le registre l’envoie tout seul ' +
             'sur le second écran — en classe, le projecteur — et l’agrandit ; désactivé, la ' +
             'fenêtre s’ouvre à côté et on la déplace à la main.',
         },
@@ -1201,7 +1202,7 @@ export const testi = catalogo(it, {
         'Ouvrir une autre leçon dans le registre change l’écran devant la classe. C’est pour ' +
           'cela que les cartes réservées partent éteintes.',
         'Le thème clair est le plus lisible en projection : « Thème », dans Paramètres › ' +
-          'Programme › **Général**.',
+          'Programme › **Apparence**.',
       ],
     },
     rigaDiComando: {
@@ -1230,8 +1231,7 @@ export const testi = catalogo(it, {
             '`regi` : le registre installé l’écrit lui-même et le met dans le PATH de ' +
               'l’utilisateur.',
             'Le canal : une pipe locale (un socket hors de Windows), jamais un port réseau.',
-            'Trois interrupteurs : « Canal local », puis « Autoriser la lecture » (activé de ' +
-              'lui-même) et « Autoriser l’écriture » (désactivé).',
+            'Un choix : « Canal local », désactivé, en lecture seule ou en lecture et écriture.',
             'Les procédures : les mêmes que la fenêtre et l’assistant, avec les mêmes règles.',
             'Les données sur stdout, les erreurs sur stderr ; sortie 0 fait, 1 refusé ou mal ' +
               'écrit, 2 aucune réponse.',
@@ -1242,7 +1242,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Activer le canal',
           testo:
-            '« Canal local », dans Paramètres › Programme › **Canal et ligne de commande** : ' +
+            '« Canal local », dans Paramètres › Programme › **Avancé** : ' +
             'vaut tout de suite, sans redémarrer. Le registre doit être allumé — l’icône près de ' +
             'l’horloge suffit.',
         },
@@ -1283,8 +1283,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Lecture et écriture',
           testo:
-            '« Autoriser la lecture » laisse consulter présences, absences, moyennes et ' +
-            'calendrier ; « Autoriser l’écriture » laisse noter des appels, mettre des notes et ' +
+            '« Lecture seule » laisse consulter présences, absences, moyennes et ' +
+            'calendrier ; « Lecture et écriture » laisse aussi noter des appels, mettre des notes et ' +
             'envoyer du courrier. Une procédure d’écriture sans autorisation renvoie ' +
             '« non-permesso » et ne touche à rien.',
         },
@@ -1415,14 +1415,15 @@ export const testi = catalogo(it, {
           testo:
             '**Quit the register** waits for the last save and closes. If you would rather the X ' +
             'closed everything, turn off “The X leaves the register in the icon”, in Settings › ' +
-            'Program › **General**.',
+            'Program › **Startup and reminders**.',
         },
         {
           termine: 'Starting with the computer',
           testo:
-            '“Start with Windows”, in the “Start-up” group of Settings › Program › **General**, ' +
-            'starts the register when you sign in to Windows without opening any window: the ' +
-            'icon remains. It applies to the installed register and to the portable one, as ' +
+            '“Start with Windows”, in the “Start-up” group of Settings › Program › **Startup and ' +
+            'reminders**, starts the register when you sign in to Windows: with the icon, ' +
+            'without opening any window, and it stays there; without the icon, it opens the ' +
+            'window. It applies to the installed register and to the portable one, as ' +
             'long as its file stays where it was.',
         },
         {
@@ -1443,7 +1444,7 @@ export const testi = catalogo(it, {
         'The menu rebuilds itself every half minute and at every change in the register: a ' +
           'lesson that starts moves to “in progress” even with the windows closed. It rebuilds ' +
           'only if something really changed, so as not to flicker under your fingers.',
-        'Turning the icon off (“Icon next to the clock”, in **General**) takes effect at the ' +
+        'Turning the icon off (“Icon next to the clock”, in **Startup and reminders**) takes effect at the ' +
           'next start, and then the X closes the program again: without the icon there would ' +
           'be nothing left to click to get it back.',
       ],
@@ -1470,7 +1471,7 @@ export const testi = catalogo(it, {
             'The notification of a lesson starting at 08:20, with the default advance. Clicked, ' +
             'it opens the register at that lesson.',
           legenda: [
-            'The advance: five minutes by default, from 0 to 120.',
+            'The advance: five minutes by default; choose between on time, 2, 5, 10 and 15 minutes.',
             'The title: the class, and how long to go.',
             'Time, subject, room, and the assignments still open for that course.',
             'Catching up: a lesson already started is still announced for a quarter of an hour.',
@@ -1481,8 +1482,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Changing the advance',
           testo:
-            '“Minutes in advance”, in the “Lesson reminders” group of Settings › Program › ' +
-            '**General**: zero makes the reminder arrive at the exact time.',
+            '“Reminder before the lesson”, in the “Lesson reminders” group of Settings › Program › ' +
+            '**Startup and reminders**: “On time” makes it arrive at the exact time, “No reminder” turns it off.',
         },
         {
           termine: 'What is still open',
@@ -1502,7 +1503,7 @@ export const testi = catalogo(it, {
           termine: 'Turning it off',
           testo:
             '“Reminder before the lesson”, in the “Lesson reminders” group of Settings › ' +
-            'Program › **General**.',
+            'Program › **Startup and reminders**.',
         },
       ],
       note: [
@@ -1569,7 +1570,7 @@ export const testi = catalogo(it, {
           termine: 'Turning it on',
           testo:
             '**Project**, at the right of the choices row. With “Full-screen projection” on in ' +
-            'Settings › Program › **General**, the register sends it by itself to the second ' +
+            'Settings › Program › **Startup and reminders**, the register sends it by itself to the second ' +
             'screen — in the classroom, the projector — and makes it full size; off, the window ' +
             'opens alongside and you move it by hand.',
         },
@@ -1635,7 +1636,7 @@ export const testi = catalogo(it, {
         'Opening another lesson in the register changes the screen in front of the class. ' +
           'That is why the private cards start off.',
         'The light theme is the easiest to read when projected: “Theme”, in Settings › ' +
-          'Program › **General**.',
+          'Program › **Appearance**.',
       ],
     },
     rigaDiComando: {
@@ -1663,8 +1664,7 @@ export const testi = catalogo(it, {
           legenda: [
             '`regi`: the installed register writes it by itself and puts it in the user’s PATH.',
             'The pipe: a local pipe (a socket outside Windows), never a network port.',
-            'Three switches: “Local pipe”, then “Allow reading” (on of its own) and “Allow ' +
-              'writing” (off).',
+            'One choice: “Local pipe”, off, read only, or read and write.',
             'The procedures: the same as the window’s and the assistant’s, with the same rules.',
             'Data on stdout, errors on stderr; exit 0 done, 1 refused or badly written, 2 no ' +
               'answer.',
@@ -1675,7 +1675,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Turning the pipe on',
           testo:
-            '“Local pipe”, in Settings › Program › **Pipe and command line**: it applies at ' +
+            '“Local pipe”, in Settings › Program › **Advanced**: it applies at ' +
             'once, without restarting. The register must be running — the icon next to the ' +
             'clock is enough.',
         },
@@ -1716,8 +1716,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Reading and writing',
           testo:
-            '“Allow reading” lets you look at attendance, absences, averages and calendar; ' +
-            '“Allow writing” lets you take attendance, enter grades and send mail. A writing ' +
+            '“Read only” lets you look at attendance, absences, averages and calendar; ' +
+            '“Read and write” also lets you take attendance, enter grades and send mail. A writing ' +
             'procedure without permission returns “non-permesso” and touches nothing.',
         },
         {

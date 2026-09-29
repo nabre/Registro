@@ -88,7 +88,7 @@ function vociDelRegistro (): Figlio[] {
   if (!trovata) {
     return [
       voce({
-        simbolo: 'agenda',
+        simbolo: 'lezione',
         testo: t.nessunaOra,
         titolo: t.nessunaOraTitolo,
         tono: 'quiete',
@@ -102,7 +102,7 @@ function vociDelRegistro (): Figlio[] {
 
   return [
     voce({
-      simbolo: manca ? 'avviso' : 'agenda',
+      simbolo: manca ? 'avviso' : 'lezione',
       testo: manca
         ? t.daCompilare(classe, quando(lezione.data))
         : t.prossima(classe, quando(lezione.data), inizio),
@@ -241,7 +241,7 @@ function vociDellaVersione (): Figlio[] {
       titolo: t.versione(frase, s.versione),
       // Il tono è quello del racconto: una versione nuova non è un guasto.
       tono,
-      al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.aggiornamenti' }) },
+      al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma#aggiornamenti' }) },
     }),
   ]
 }
@@ -256,7 +256,7 @@ function nomeDelModello (percorso: string): string {
 /**
  * Lo stato di un modello locale (assistente o lettura delle scansioni), da
  * leggere: non è un interruttore, si accende e si spegne nelle impostazioni.
- * Il clic porta sempre a «Modelli linguistici».
+ * Il clic porta sempre a «Assistente e modelli».
  *
  *   acceso         — verde.
  *   spento         — sbiadito.
@@ -285,7 +285,7 @@ function statoDelModello (opzioni: {
 
   const t = testi()
   const nonPronta = acceso && bloccata === null ? interruttore.nonPronta : null
-  const apri = () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma.modelli' }) }
+  const apri = () => { vai({ pagina: 'pagina.impostazioni', scheda: 'programma#modelli' }) }
   if (nonPronta) {
     return voce({
       simbolo: opzioni.simbolo,

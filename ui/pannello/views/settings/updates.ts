@@ -43,13 +43,9 @@ function mostra (prima: StatoAggiornamenti | null): void {
   }
 }
 
-/** Se la sezione è davanti agli occhi: solo allora vale la pena ridisegnare. */
+/** Se la sezione è in pagina (l'area Programma): solo allora vale la pena ridisegnare. */
 function sottoGliOcchi (): boolean {
-  return (
-    stato.vista === 'impostazioni' &&
-    stato.ambitoImpostazioni === 'programma' &&
-    stato.schedaProgramma === 'aggiornamenti'
-  )
+  return stato.vista === 'impostazioni' && stato.areaImpostazioni === 'programma'
 }
 
 /**

@@ -508,3 +508,62 @@ export function scansioneDellaGiornata (
   }
   return esito
 }
+
+/**
+ * Dove i capi della giornata si attaccano: l'inizio della prima pausa e la
+ * fine dell'ultima. Senza pause è un'ora sola, `riferimento`, come una pausa
+ * di zero minuti.
+ */
+function ancoreDeiCapi (giornata: Giornata, riferimento: Ora): { prima: number, ultima: number } {
+  const lista = intervalli(giornata)
+  if (lista.length === 0) {
+    const minuto = minutiDaOra(riferimento)
+    return { prima: minuto, ultima: minuto }
+  }
+  return { prima: lista[0].inizio, ultima: lista[lista.length - 1].fine }
+}
+
+/**
+ * Quante UD stanno fra l'inizio della giornata e la prima pausa, e fra
+ * l'ultima pausa e la fine. Frazionarie quando un capo è fuori griglia (c'è
+ * un avanzo), mai sotto zero. Senza pause si contano da `riferimento`.
+ */
+export function udAiCapi (
+  giornata: Giornata,
+  inizio: Ora,
+  fine: Ora,
+  riferimento: Ora,
+): { prima: number, dopo: number } {
+  const ancore = ancoreDeiCapi(giornata, riferimento)
+  const { minutiUd } = giornata
+  return {
+    prima: Math.max(0, (ancore.prima - minutiDaOra(inizio)) / minutiUd),
+    dopo: Math.max(0, (minutiDaOra(fine) - ancore.ultima) / minutiUd),
+  }
+}
+
+/**
+ * Almeno un'UD fra un capo della giornata e la pausa più vicina: una
+ * giornata non comincia né finisce con una pausa.
+ */
+export const MINIMO_UD_AI_CAPI = 1
+
+/**
+ * L'inizio della giornata con `ud` UD intere prima della prima pausa (o prima
+ * di `riferimento`, senza pause). `null` sotto `MINIMO_UD_AI_CAPI` o se
+ * cadrebbe prima di mezzanotte.
+ */
+export function inizioConUd (giornata: Giornata, ud: number, riferimento: Ora): Ora | null {
+  const minuto = ancoreDeiCapi(giornata, riferimento).prima - ud * giornata.minutiUd
+  return ud < MINIMO_UD_AI_CAPI || minuto < 0 ? null : oraDaMinuti(minuto)
+}
+
+/**
+ * La fine della giornata con `ud` UD intere dopo l'ultima pausa (o dopo
+ * `riferimento`, senza pause). `null` sotto `MINIMO_UD_AI_CAPI` o se andrebbe
+ * oltre la mezzanotte.
+ */
+export function fineConUd (giornata: Giornata, ud: number, riferimento: Ora): Ora | null {
+  const minuto = ancoreDeiCapi(giornata, riferimento).ultima + ud * giornata.minutiUd
+  return ud < MINIMO_UD_AI_CAPI || minuto >= MEZZANOTTE ? null : oraDaMinuti(minuto)
+}

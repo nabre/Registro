@@ -119,7 +119,7 @@ flowchart TB
 | Proiezione | [desktop/pannelli/projection.ts](../desktop/pannelli/projection.ts) | sì | false | bundle separato, riceve solo i blocchi accesi |
 | Assistente | [desktop/pannelli/assistant.ts](../desktop/pannelli/assistant.ts) | sì | false | non riceve il `Registro` (API § 9) |
 | Benvenuto | [desktop/shell/windows/welcome.ts](../desktop/shell/windows/welcome.ts) | sì | false | elenco degli anni noti |
-| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | serve anche senza anno aperto |
+| Impostazioni | [desktop/shell/windows/menu.ts](../desktop/shell/windows/menu.ts) | sì | false | la scialuppa senza anno aperto: Utente › Posta e Programma; pagina in bundle esbuild ([settings.ts](../desktop/shell/pages/settings/settings.ts)) |
 | Lettore PDF | [desktop/shell/windows/reader.ts](../desktop/shell/windows/reader.ts) | **no** | **true** | muto: lettore di Chromium |
 | Dialogo | [desktop/apparato/dialogs.ts](../desktop/apparato/dialogs.ts) | sì | false | parametri nella query string |
 
@@ -188,6 +188,8 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
 | `core/dominio/**` | `node:*`, `electron`, `apparato`, `../*` |
 | `ui/**` | `node:*`, `electron` (quel che serve passa da `ui/pannello/bridge.ts`) |
 | `core/dati/**`, `core/azioni/**`, `desktop/pannelli/**` | `electron` |
+| `core/controlli/**` | `node:*`, `electron`, `apparato`; da fuori della cartella tutto tranne `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e i tipi di `contract/` (ADR-52) |
+| `desktop/shell/pages/**` | `node:*`, `electron`; da fuori di `shell/pages/` tutto tranne i tipi, `core/i18n/`, `core/controlli/` e le parole di tutti |
 
 **Strato per strato:**
 
@@ -199,7 +201,7 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   i comandi per nome.
 - **`desktop/apparato/`** — l'apparato su Electron: `file`, `finestre`,
   `dialoghi`, `comandi`, `impostazioni`, segreti, `Uri`, `EventEmitter`,
-  `osserva`, più `scriviDa` (scrittura a offset, serve all'accodamento ZIP),
+  `osserva`, più `accodaSe` (accodamento ZIP a file invariato, un handle solo),
   `htmlDellaPagina`, `radiciConcesse`, `percorsoWorkerPdf`. Nelle prove:
   [tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs).
 - **`core/dati/`** — il mondo: documento ([package.ts](../core/dati/package.ts),
@@ -238,6 +240,15 @@ con il perché nel messaggio d'errore; in più `npm run layers`.
   riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture
   rifanno solo la loro isola (`isole.ts`, `risorse.ts`), i nodi pesanti
   `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
+- **`core/controlli/`** — i controlli delle impostazioni del programma, disegnati
+  una volta per il pannello e per la finestra nativa (ADR-52):
+  [controllo.ts](../core/controlli/controllo.ts) sceglie dalla `VoceProgramma`
+  figura, segmentato, tendina, interruttore, numero con unità, cursore,
+  percorso; [campo.ts](../core/controlli/campo.ts) gli stessi disegni per i
+  campi dell'anno; [aree.ts](../core/controlli/aree.ts) le quattro aree, le
+  sezioni con chiavi (`DIVISIONI`, `divisioneDi`) e i loro nomi, comuni al
+  pannello e alla finestra nativa. DOM passato come argomento, niente ponte: il
+  valore esce da `quandoCambia`. Lo importano `ui/` e `desktop/shell/pages/`.
 - **`cli/`** — la riga di comando autonoma: `regi`, disinstallazione, esportazioni
   senza interfaccia grafica.
 
@@ -434,10 +445,12 @@ Formato e collezioni: [MODELLO-DATI](MODELLO-DATI.md) § 8. Qui il meccanismo.
   non ricaricare le proprie scritture. Un file cambiato da fuori si ricarica
   dopo aver scritto quel che era in attesa.
 - **Accodamento** (`accoda`, il caso normale): comprime le voci cambiate, le
-  scrive in coda con `apparato.scriviDa`, poi con una **seconda** chiamata
+  scrive in coda con `apparato.accodaSe`, poi con un **secondo** `fsync`
   riscrive indice e coda ZIP; finché la coda nuova non è intera vale la
-  vecchia. **Riscrittura** (`rifai`, temporaneo + rinomina) solo se il file non
-  c'è, lo spazio morto supera 256 KB e un terzo del file, o accodare costa più di
+  vecchia. Misura e coda del file si controllano nello stesso handle delle
+  scritture: se un altro processo (es. `npm run dev` accanto a `start`) ha rifatto
+  il file, non si accoda. **Riscrittura** (`rifai`, temporaneo + rinomina) solo
+  se il file non c'è o è cambiato altrove, lo spazio morto supera 256 KB e un terzo del file, o accodare costa più di
   metà documento. Non ogni salvataggio passa da temporaneo e rinomina.
 - **Storico**: prima di riscrivere, `Pacchetto.conserva(nome, COPIE_STORICO,
   { aGradini: true })` copia la voce in `.storico/<radice>.<istante>.json` dentro
@@ -524,7 +537,8 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   strati (§ 4).
 - electron-builder: `node_modules` escluso tranne `node-llama-cpp`
   (`asarUnpack` con `pdf.worker.mjs`); `nsis` per utente e `portable`;
-  `fileAssociations` per `.regi` con MIME `application/x-regiklass`. La firma la
+  `fileAssociations` per `.regi` con MIME `application/x-regiklass` (su Linux
+  icona del tipo e voce dell'AppImage le scrive `fileAssociation.ts` per l'utente). La firma la
   chiede `rilascio.yml` (GUIDA § «La firma del codice»).
 - Prove: `node:test`. Finti: [tests/helpers/fake-electron.mjs](../tests/helpers/fake-electron.mjs)
   (`app`, `BrowserWindow`, `ipcMain` con `simulaDallaPagina()`, due schermi,

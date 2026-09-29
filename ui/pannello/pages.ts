@@ -170,7 +170,7 @@ export const PAGINE: readonly Pagina[] = [
     // Guarda tutte le classi, e una parte di quel che mostra una classe non ce l'ha ancora.
     id: 'pagina.daSmistare',
     titolo: t.daSmistare,
-    simbolo: 'documento',
+    simbolo: 'vassoio',
     gruppo: 'agenda',
     aiuto: t.daSmistareAiuto,
     conto: pagineDaSmistareInTutto,
@@ -182,7 +182,7 @@ export const PAGINE: readonly Pagina[] = [
   {
     id: 'pagina.corso.registro',
     titolo: t.lezione,
-    simbolo: 'agenda',
+    simbolo: 'lezione',
     gruppo: 'registro',
     aiuto: t.lezioneAiuto,
     impedimento: senzaCorso,
@@ -257,7 +257,7 @@ export const PAGINE: readonly Pagina[] = [
   {
     id: 'pagina.classe.assenze',
     titolo: t.assenze,
-    simbolo: 'calendario',
+    simbolo: 'assenze',
     gruppo: 'classe',
     aiuto: t.assenzeAiuto,
     attiva: qui('pagina.classe.assenze'),
@@ -341,7 +341,7 @@ function simboloDelGruppo (gruppo: GruppoPagina): NomeIcona {
     case 'agenda':
       return 'calendario'
     case 'registro':
-      return 'agenda'
+      return 'lezione'
     case 'classe':
       return 'classi'
     case 'anno':

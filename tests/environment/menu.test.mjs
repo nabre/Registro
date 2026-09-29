@@ -26,9 +26,20 @@ writeFileSync(
 const { modelloDelMenu, vociImpostazioni } = await import('../../dist-tests/menu.mjs')
 const { COMANDI, IMPOSTAZIONI } = await import('../../dist-tests/manifest.mjs')
 
-/** Il menu costruito con un'azione finta al posto dell'apertura di un anno. */
-function menu () {
-  return modelloDelMenu({ apriDocumento: async () => {} })
+/**
+ * Il menu costruito con un'azione finta al posto dell'apertura di un anno.
+ * Senza `documentoAperto` è quello di quando non c'è un anno aperto.
+ */
+function menu (documentoAperto) {
+  return modelloDelMenu({
+    apriDocumento: async () => {},
+    ...(documentoAperto === undefined ? {} : { documentoAperto: () => documentoAperto }),
+  })
+}
+
+/** Il sottomenu che porta quell'etichetta. */
+function gruppo (modello, etichetta) {
+  return modello.find((voce) => voce.label === etichetta)?.submenu ?? []
 }
 
 /** Tutte le voci di tutti i sottomenu, appiattite. */
@@ -37,23 +48,33 @@ function tutteLeVoci (modello) {
 }
 
 /** I comandi finiti nel menu, nell'ordine in cui ci si trovano. */
-function comandiNelMenu () {
-  return tutteLeVoci(menu())
+function comandiNelMenu (documentoAperto) {
+  return tutteLeVoci(menu(documentoAperto))
     .map((voce) => voce.id)
     .filter((id) => typeof id === 'string' && id.startsWith('registroDocenti.'))
 }
 
 describe('il menu viene dal manifesto', () => {
   it('c’è ogni comando del manifesto, una volta sola', () => {
+    // Alcune voci ci sono solo con un anno aperto, altre solo senza: fra i due
+    // menu, ogni comando almeno una volta, e in ognuno mai due.
     const attesi = COMANDI.map((comando) => comando.id)
-    const trovati = comandiNelMenu()
+    const senza = comandiNelMenu(false)
+    const con = comandiNelMenu(true)
 
-    assert.deepEqual([...trovati].sort(), [...attesi].sort())
-    assert.equal(new Set(trovati).size, trovati.length, 'un comando compare due volte')
+    assert.deepEqual([...new Set([...senza, ...con])].sort(), [...attesi].sort())
+    for (const trovati of [senza, con]) {
+      assert.equal(new Set(trovati).size, trovati.length, 'un comando compare due volte')
+    }
+    // Nessuno scivola in «Altro» perché nascosto male.
+    assert.deepEqual(gruppo(menu(false), 'Altro'), [])
+    assert.deepEqual(gruppo(menu(true), 'Altro'), [])
   })
 
   it('le etichette sono i titoli del manifesto, e ci arrivano intatte', () => {
-    const voci = new Map(tutteLeVoci(menu()).map((voce) => [voce.id, voce.label]))
+    const voci = new Map(
+      [...tutteLeVoci(menu(false)), ...tutteLeVoci(menu(true))].map((voce) => [voce.id, voce.label]),
+    )
 
     for (const comando of COMANDI) assert.equal(voci.get(comando.id), comando.titolo)
     // Un paio nominate: la prova a giro non direbbe se manifesto e menu si sono
@@ -86,10 +107,45 @@ describe('il menu viene dal manifesto', () => {
 
     const etichette = registro.submenu.map((voce) => voce.label)
     assert.ok(etichette.includes('Apri…'))
-    // Le due voci dicono quale impostazione aprono: quella del programma (finestra
-    // nativa) e la pagina del registro.
-    assert.ok(etichette.includes('Impostazioni del programma…'))
+    // Le due voci dicono quale impostazione aprono: la finestra nativa, per
+    // quando non c'è un documento, e la pagina del registro («Vai a»).
+    assert.ok(etichette.includes('Impostazioni senza documento aperto…'))
+    assert.ok(!etichette.includes('Impostazioni del programma…'))
     assert.ok(!etichette.includes('Cambia cartella di lavoro…'))
+  })
+
+  it('«Informazioni documento…» sta nel menu Registro, con o senza anno aperto', () => {
+    for (const aperto of [false, true]) {
+      const voce = gruppo(menu(aperto), 'Registro')
+        .find((v) => v.id === 'registroDocenti.informazioniDocumento')
+      assert.ok(voce, `manca «Informazioni documento…» (documento aperto: ${aperto})`)
+      assert.equal(voce.label, 'Informazioni documento…')
+    }
+  })
+
+  it('la finestra nativa delle impostazioni si offre solo senza un anno aperto', () => {
+    const voce = 'Impostazioni senza documento aperto…'
+    assert.ok(gruppo(menu(false), 'Registro').some((v) => v.label === voce))
+    // Con un anno aperto le impostazioni sono la pagina del pannello: due
+    // superfici sulle stesse chiavi sarebbero una di troppo.
+    assert.ok(!gruppo(menu(true), 'Registro').some((v) => v.label === voce))
+  })
+
+  it('la Posta porta al pannello con un anno aperto, e dà i gesti singoli senza', () => {
+    const singoli = [
+      'registroDocenti.collegaPosta',
+      'registroDocenti.provaPosta',
+      'registroDocenti.provaInvioPosta',
+      'registroDocenti.scollegaPosta',
+      'registroDocenti.azzeraPosta',
+    ]
+    const posta = (aperto) => gruppo(menu(aperto), 'Posta').map((v) => v.id)
+
+    // Senza anno il pannello non c'è: i comandi singoli sono l'unica via.
+    assert.deepEqual(posta(false), singoli)
+    assert.deepEqual(posta(true), ['registroDocenti.account'])
+    const account = gruppo(menu(true), 'Posta')[0]
+    assert.equal(account.label, 'Account e posta…')
   })
 
   it('«Disinstalla…» sta nel menu Registro, e chiama chi la offre', async () => {

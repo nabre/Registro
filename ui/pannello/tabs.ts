@@ -4,7 +4,7 @@
 
 import { NOMI_GENERE } from '../../core/dominio/map.js'
 import type { NomeIcona } from './components/icons.js'
-import { GRUPPI_SEZIONI, sezioneAperta } from './views/settings/sections.js'
+import { AREE } from './views/settings/sections.js'
 import {
   classeDellAllievo,
   stato,
@@ -171,7 +171,7 @@ export function porzioniDellaVista (): Porzione[] {
         { testo: NOMI_GENERE.domicilio, simbolo: 'casa' },
       ]
     case 'impostazioni':
-      return GRUPPI_SEZIONI.map((gruppo) => ({ testo: gruppo.titolo, simbolo: gruppo.simbolo }))
+      return AREE.map((area) => ({ testo: area.titolo, simbolo: area.simbolo }))
     default:
       return []
   }
@@ -207,15 +207,10 @@ export function porzioneAttiva (): Porzione | null {
             testo: NOMI_GENERE[stato.schedaMappa],
             simbolo: stato.schedaMappa === 'lavoro' ? 'azienda' : 'casa',
           }
-    // Delle impostazioni la linguetta è il gruppo; la sezione dentro il gruppo è
-    // l'anello dopo e la dà `sezioneAperta()`.
+    // Delle impostazioni la linguetta è l'area: le sezioni stanno tutte nella sua pagina.
     case 'impostazioni': {
-      const { gruppo } = sezioneAperta(
-        stato.ambitoImpostazioni,
-        stato.schedaDocumento,
-        stato.schedaProgramma,
-      )
-      return { testo: gruppo.titolo, simbolo: gruppo.simbolo }
+      const area = AREE.find((candidata) => candidata.id === stato.areaImpostazioni) ?? AREE[0]
+      return { testo: area.titolo, simbolo: area.simbolo }
     }
     default:
       return null

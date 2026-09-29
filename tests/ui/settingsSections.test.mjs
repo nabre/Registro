@@ -10,15 +10,19 @@ import { describe, it } from 'node:test'
 
 import { IMPOSTAZIONI, sospesa } from '../../dist-tests/manifest.mjs'
 import {
+  AREE,
   CHIAVI_IN_SCHEDA,
-  GRUPPI_SEZIONI,
-  SEZIONI_DOCUMENTO,
+  SEZIONI,
   SEZIONI_PROGRAMMA,
   avanzateDiSezione,
+  cercaImpostazioni,
+  daRipristinare,
+  daSistemare,
   gruppiDiSezione,
-  gruppoDellaSezione,
   nomeVoce,
-  sezioneAperta,
+  scritteNellArea,
+  sezioneDi,
+  sezioniDellArea,
   sottoPrefisso,
   vociDiSezione,
   vociMostrateDaSezione,
@@ -181,43 +185,38 @@ describe('le sezioni delle impostazioni del programma', () => {
   })
 
   it('il nome di una voce è quello scritto nel manifesto', () => {
-    const chiave = 'registroDocenti.promemoria.anticipoMinuti'
+    const chiave = 'registroDocenti.aspetto.tema'
     assert.equal(nomeVoce(chiave), IMPOSTAZIONI[chiave].etichetta)
     // Senza etichetta — una chiave che non è un'impostazione — si ricava a parole.
     assert.equal(nomeVoce('registroDocenti.qualcosaDiNuovo'), 'Qualcosa di nuovo')
   })
 })
 
-// Le concessioni del condotto: l'interruttore generale e, sotto, che cosa si
-// lascia fare. Si prova la regola: chi è sospeso, e quando.
+// Una voce figlia di un'altra: la dettatura sta sotto l'assistente, che la
+// scrive. Si prova la regola: chi è sospeso, e quando.
 describe('le voci che dipendono da un’altra', () => {
-  const CONDOTTO = 'registroDocenti.api.condotto'
-  const LETTURA = 'registroDocenti.api.lettura'
-  const SCRITTURA = 'registroDocenti.api.scrittura'
+  const PADRE = 'registroDocenti.assistente.attivo'
+  const FIGLIA = 'registroDocenti.dettatura.attivo'
 
-  it('lettura e scrittura dichiarano il condotto come padre', () => {
-    assert.equal(IMPOSTAZIONI[LETTURA].dipendeDa, CONDOTTO)
-    assert.equal(IMPOSTAZIONI[SCRITTURA].dipendeDa, CONDOTTO)
-    // L'interruttore generale non dipende da nessuno, o la catena non si
-    // riaccenderebbe.
-    assert.equal(IMPOSTAZIONI[CONDOTTO].dipendeDa ?? null, null)
+  it('la figlia dichiara il padre, e il padre non dipende da lei', () => {
+    assert.equal(IMPOSTAZIONI[FIGLIA].dipendeDa, PADRE)
+    // Un padre che dipendesse dalla figlia non si riaccenderebbe più.
+    assert.notEqual(IMPOSTAZIONI[PADRE].dipendeDa ?? null, FIGLIA)
   })
 
-  it('col condotto spento sono sospese, qualunque cosa dica il file', () => {
-    // La lettura scritta a vero con il condotto spento è sospesa lo stesso: la
-    // pagina non mostra una concessione che il condotto non onora.
-    const voci = con({ [CONDOTTO]: false, [LETTURA]: true, [SCRITTURA]: true })
+  it('col padre spento è sospesa, qualunque cosa dica il file', () => {
+    // La figlia scritta a vero con il padre spento è sospesa lo stesso: la
+    // pagina non mostra acceso quel che il programma non onora.
+    const voci = con({ [PADRE]: false, [FIGLIA]: true })
     const voce = (chiave) => voci.find((v) => v.chiave === chiave)
-    assert.equal(sospesa(voce(LETTURA), voci), true)
-    assert.equal(sospesa(voce(SCRITTURA), voci), true)
-    assert.equal(sospesa(voce(CONDOTTO), voci), false)
+    assert.equal(sospesa(voce(FIGLIA), voci), true)
+    assert.equal(sospesa(voce(PADRE), voci), false)
   })
 
-  it('col condotto acceso tornano libere', () => {
-    const voci = con({ [CONDOTTO]: true, [LETTURA]: false, [SCRITTURA]: false })
+  it('col padre acceso torna libera', () => {
+    const voci = con({ [PADRE]: true, [FIGLIA]: false })
     const voce = (chiave) => voci.find((v) => v.chiave === chiave)
-    assert.equal(sospesa(voce(LETTURA), voci), false)
-    assert.equal(sospesa(voce(SCRITTURA), voci), false)
+    assert.equal(sospesa(voce(FIGLIA), voci), false)
   })
 
   it('una voce senza padre non è mai sospesa', () => {
@@ -233,44 +232,137 @@ describe('le voci che dipendono da un’altra', () => {
   })
 })
 
-describe('i gruppi tematici della colonna', () => {
-  it('ogni sezione, dell’anno e del computer, sta in un gruppo e in uno solo', () => {
-    // Ogni sezione è nominata da un gruppo: la colonna è l'unica strada.
-    const nominate = GRUPPI_SEZIONI.flatMap((gruppo) =>
-      gruppo.voci.map((voce) => `${voce.ambito}:${voce.id}`),
-    )
-    const attese = [
-      ...SEZIONI_DOCUMENTO.map((sezione) => `documento:${sezione.id}`),
-      ...SEZIONI_PROGRAMMA.map((sezione) => `programma:${sezione.id}`),
-    ]
-    assert.deepEqual([...nominate].sort(), [...attese].sort())
-    assert.equal(new Set(nominate).size, nominate.length, 'una sezione in due gruppi')
+describe('le aree e le loro sezioni', () => {
+  it('quattro aree, nell’ordine della testata', () => {
+    assert.deepEqual(AREE.map((area) => area.id), ['calendario', 'didattica', 'utente', 'programma'])
+    for (const area of AREE) assert.ok(area.titolo, `${area.id}: area senza nome`)
   })
 
-  it('ogni gruppo ha un id suo: fa l’id del pulsante nella riga delle azioni', () => {
-    const id = GRUPPI_SEZIONI.map((gruppo) => gruppo.id)
-    assert.equal(new Set(id).size, id.length, 'due gruppi con lo stesso id')
-  })
-
-  it('ogni sezione ritrova il suo gruppo, e l’ambito conta', () => {
-    for (const gruppo of GRUPPI_SEZIONI) {
-      for (const voce of gruppo.voci) {
-        assert.equal(gruppoDellaSezione(voce.ambito, voce.id).id, gruppo.id)
-      }
+  it('ogni sezione sta in un’area e in una sola, e ha un nome', () => {
+    const ids = SEZIONI.map((sezione) => sezione.id)
+    assert.equal(new Set(ids).size, ids.length, 'una sezione in due aree')
+    for (const sezione of SEZIONI) {
+      assert.ok(AREE.some((area) => area.id === sezione.area), `${sezione.id}: area sconosciuta`)
+      assert.deepEqual(
+        AREE.filter((area) => sezioniDellArea(area.id).some((s) => s.id === sezione.id)).map((a) => a.id),
+        [sezione.area],
+        sezione.id,
+      )
+      assert.ok(sezione.titolo && sezione.sottotitolo, `${sezione.id}: senza nome o riassunto`)
     }
-    // L'ambito conta: «modelli» è una sezione del programma, non del documento;
-    // cercata nel documento ricade sul primo gruppo.
-    assert.equal(gruppoDellaSezione('programma', 'modelli').id, 'programma')
-    assert.equal(gruppoDellaSezione('documento', 'modelli').id, GRUPPI_SEZIONI[0].id)
   })
 
-  it('la sezione aperta porta il suo gruppo, e una scheda sconosciuta ricade sulla prima', () => {
-    const qui = sezioneAperta('programma', 'anno', 'posta')
-    assert.equal(qui.id, 'posta')
-    assert.equal(qui.gruppo.id, gruppoDellaSezione('programma', 'posta').id)
+  it('ogni sezione delle chiavi è una sezione di un’area', () => {
+    for (const sezione of SEZIONI_PROGRAMMA) {
+      assert.equal(sezioneDi(sezione.id).id, sezione.id, `«${sezione.id}» non sta in nessuna area`)
+    }
+  })
 
-    const ieri = sezioneAperta('documento', 'non-esiste-piu', 'posta')
-    assert.equal(ieri.id, SEZIONI_DOCUMENTO[0].id)
-    assert.equal(ieri.titolo, SEZIONI_DOCUMENTO[0].titolo)
+  it('le chiavi del computer stanno in sezioni del computer', () => {
+    // La pastiglia d'ambito non deve dire «Questo anno» sopra una chiave di `impostazioni.json`.
+    for (const sezione of SEZIONI_PROGRAMMA) {
+      assert.ok(sezioneDi(sezione.id).ambiti.includes('computer'), sezione.id)
+    }
+  })
+
+  it('una sezione sconosciuta ricade sulla prima', () => {
+    assert.equal(sezioneDi('non-esiste-piu').id, SEZIONI[0].id)
+  })
+
+  it('la Didattica ha Valutazione e Liste: le materie stanno solo nei Corsi', () => {
+    assert.deepEqual(sezioniDellArea('didattica').map((sezione) => sezione.id), ['valutazione', 'liste'])
+    assert.equal(SEZIONI.some((sezione) => sezione.id === 'materie'), false)
+  })
+
+  it('il Programma finisce con le Avanzate: integrazione di sistema e condotto, con l’avvertenza', () => {
+    const programma = sezioniDellArea('programma').map((sezione) => sezione.id)
+    assert.equal(programma.at(-1), 'condotto')
+    const avanzate = SEZIONI_PROGRAMMA.find((sezione) => sezione.id === 'condotto')
+    const sue = vociDiSezione(VOCI, avanzate).map((voce) => voce.chiave)
+    // Il prefisso più lungo vince: la chiave sola si sposta, il suo gruppo resta in Avvio.
+    assert.deepEqual(sue, ['registroDocenti.avvio.integrazioneSistema', 'registroDocenti.api.accesso'])
+    const avvio = SEZIONI_PROGRAMMA.find((sezione) => sezione.id === 'avvio')
+    assert.ok(vociDiSezione(VOCI, avvio).some((voce) => voce.chiave === 'registroDocenti.avvio.conWindows'))
+    assert.ok(avanzate.avvertenza)
+  })
+})
+
+describe('cercare fra le impostazioni', () => {
+  const trovate = (cercato) => cercaImpostazioni(VOCI, cercato)
+  const chiavi = (cercato) => trovate(cercato).filter((t) => t.voce).map((t) => t.voce.chiave)
+
+  it('trova tema e lingua, che Ctrl+K prima non trovava', () => {
+    assert.ok(chiavi('tema').includes('registroDocenti.aspetto.tema'))
+    assert.ok(chiavi('lingua').includes('registroDocenti.aspetto.lingua'))
+  })
+
+  it('una voce porta alla sua riga, nell’area della sua sezione', () => {
+    const [tema] = trovate('tema').filter((t) => t.voce?.chiave === 'registroDocenti.aspetto.tema')
+    assert.equal(tema.area, 'programma')
+    assert.equal(tema.scheda, 'programma#registroDocenti.aspetto.tema')
+    assert.equal(tema.ambito, 'computer')
+  })
+
+  it('una voce disegnata da una scheda porta alla sezione, che non ha una riga sua', () => {
+    const chiave = 'registroDocenti.posta.invioDiretto'
+    const [invio] = trovate(chiave).filter((t) => t.voce?.chiave === chiave)
+    assert.equal(invio.scheda, 'utente#posta')
+  })
+
+  it('trova anche le sezioni dell’anno, per nome e per i campi che contengono', () => {
+    const pause = trovate('pause').filter((t) => !t.voce).map((t) => t.scheda)
+    assert.ok(pause.includes('calendario#giornata'))
+    const [giornata] = trovate('pause').filter((t) => t.scheda === 'calendario#giornata')
+    assert.equal(giornata.ambito, 'anno')
+  })
+
+  it('senza parole non trova niente', () => {
+    assert.deepEqual(trovate('   '), [])
+  })
+})
+
+describe('che cosa dice la scheda di un’area', () => {
+  const AMODELLO = 'registroDocenti.assistente.modello'
+
+  it('conta le voci decise a mano, area per area', () => {
+    const scritte = VOCI.map((voce) =>
+      voce.chiave === 'registroDocenti.aspetto.tema' ? { ...voce, scritta: true } : voce)
+    assert.equal(scritteNellArea(scritte, 'programma'), 1)
+    assert.equal(scritteNellArea(scritte, 'utente'), 0)
+  })
+
+  it('un uso acceso senza modello chiede attenzione nell’area Programma', () => {
+    const voci = con({ 'registroDocenti.assistente.attivo': true, [AMODELLO]: '' })
+    assert.equal(daSistemare('programma', voci, { invioDiretto: false, exchange: false }).length, 1)
+    const conModello = con({ 'registroDocenti.assistente.attivo': true, [AMODELLO]: 'qwen.gguf' })
+    assert.deepEqual(daSistemare('programma', conModello, { invioDiretto: false, exchange: false }), [])
+  })
+
+  it('«Ripristina» di un’area tocca solo le voci degli elenchi decise a mano', () => {
+    const scritte = (chiavi) => VOCI.map((voce) =>
+      chiavi.includes(voce.chiave) ? { ...voce, scritta: true } : voce)
+    const chiavi = (voci, area) => daRipristinare(voci, area).map((voce) => voce.chiave)
+    const voci = scritte([
+      'registroDocenti.aspetto.tema',
+      // Scelte nelle schede: il modello, la cartella dei modelli.
+      'registroDocenti.assistente.modello',
+      'registroDocenti.modelli.cartella',
+      // Del collegamento, e l'interruttore promosso nella scheda Posta.
+      'registroDocenti.posta.mittente',
+      'registroDocenti.posta.utente',
+      'registroDocenti.posta.invioDiretto',
+      'registroDocenti.recapiti.telefono',
+    ])
+    assert.deepEqual(chiavi(voci, 'programma'), ['registroDocenti.aspetto.tema'])
+    assert.deepEqual(chiavi(voci, 'utente'), ['registroDocenti.recapiti.telefono'])
+    assert.deepEqual(chiavi(voci, 'calendario'), [])
+    // Il numero sull'area conta anche le schede: lì si vede che cosa è deciso.
+    assert.equal(scritteNellArea(voci, 'programma'), 3)
+  })
+
+  it('l’invio diretto senza casella chiede attenzione nell’area Utente', () => {
+    assert.equal(daSistemare('utente', VOCI, { invioDiretto: true, exchange: false }).length, 1)
+    assert.deepEqual(daSistemare('utente', VOCI, { invioDiretto: true, exchange: true }), [])
+    assert.deepEqual(daSistemare('calendario', VOCI, { invioDiretto: true, exchange: false }), [])
   })
 })

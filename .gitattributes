@@ -12,3 +12,7 @@
 # a capo sono un fatto fra chi scrive e il proprio editore, e nessuna prova li
 # guarda.
 resources/tools.json text eol=lf
+
+# Gli script di shell li esegue bash su macOS e Linux, dove un ritorno a capo CR in coda
+# alla riga rompe ogni comando: anche questi restano LF.
+*.sh text eol=lf

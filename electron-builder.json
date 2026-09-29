@@ -22,7 +22,9 @@
   },
 
   // Dove l'applicazione installata cerca le versioni nuove: finisce in
-  // `resources/app-update.yml` per electron-updater (solo col bersaglio `nsis`).
+  // `resources/app-update.yml` per electron-updater (su Windows solo col
+  // bersaglio `nsis`; su macOS con `dmg` o `zip`; su Linux con AppImage, `.deb`
+  // e `.rpm`).
   //
   // electron-builder non pubblica mai (`--publish never`): le release le fa
   // `.github/workflows/rilascio.yml` e le carica `gh`, dopo la firma che cambia
@@ -67,6 +69,9 @@
     // La finestra dell'aggiornamento: resta nell'asar, la ricopia nei temporanei
     // `desktop/apparato/updateInstaller.ts`.
     "os/windows/aggiornamento.ps1",
+    // Lo scambio dei pacchetti su macOS, ricopiato allo stesso modo da
+    // `desktop/apparato/updateMac.ts`.
+    "os/macos/aggiornamento.sh",
 
     // Le dipendenze: electron-builder mette quelle di `dependencies` con tutto
     // quel che si tirano dietro. Quel che esbuild impacchetta sta in
@@ -115,6 +120,10 @@
   // MIME nostro, letto solo da Linux: con `application/zip` il registro si
   // proporrebbe per tutti gli archivi. `name` è il ProgID di Windows, lo stesso
   // di `desktop/shell/system/fileAssociation.ts`.
+  //
+  // Su Linux il tipo installato da `.deb`/`.rpm` ha l'icona generica
+  // `x-office-document`, e l'AppImage non ne installa: l'icona nostra, e la
+  // voce dell'AppImage, le scrive per l'utente `fileAssociation.ts`.
   "fileAssociations": [
     {
       "ext": "regi",
@@ -184,12 +193,30 @@
   // macOS non ha disinstallatore: «Disinstalla…» nel menu
   // (`desktop/shell/system/uninstall.ts`) toglie dati e applicazione.
   "mac": {
+    // Il `.dmg` per chi installa; lo `.zip` per chi si aggiorna: solo con lui
+    // nasce `latest-mac.yml`, e `desktop/apparato/updateMac.ts` lo estrae.
     "target": [
-      "dmg"
+      "dmg",
+      "zip"
     ],
+    // Vale per lo `.zip` (il `.dmg` ha il suo): `arm64` nel nome è quel che
+    // guarda l'aggiornamento per scegliere l'archivio della macchina.
+    "artifactName": "${name}-${version}-${arch}-mac.${ext}",
     "category": "public.app-category.education",
     // Dalla 16 alla 1024, per il Retina.
-    "icon": "icons/icon.icns"
+    "icon": "icons/icon.icns",
+    // Un certificato Apple non c'è. Senza firma, su Apple Silicon macOS non
+    // lancia nemmeno l'applicazione: electron-builder, senza certificato, salta
+    // la firma e basta. La firma ad-hoc (`-`) la fa partire, dopo il permesso
+    // di Gatekeeper; e con la firma ad-hoc il runtime rinforzato rifiuterebbe
+    // le librerie di `node-llama-cpp`, che non hanno la stessa squadra.
+    "identity": "-",
+    "hardenedRuntime": false
+  },
+
+  // Col nome del pacchetto come gli altri file della release, non con `productName`.
+  "dmg": {
+    "artifactName": "${name}-${version}-${arch}.${ext}"
   },
 
   "linux": {

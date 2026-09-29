@@ -10,6 +10,7 @@ import {
   CHIAVI_DEL_COLLEGAMENTO,
   CHIAVI_DISMESSE,
   IMPOSTAZIONI as VOCI_IMPOSTAZIONI,
+  MIGRAZIONI,
   predefinitiImpostazioni,
   requisitoMancante,
   sospesa,
@@ -59,9 +60,28 @@ function file (): string {
 const deposito = depositoJson<Record<string, unknown>>(
   file,
   (letto) =>
-    letto !== null && typeof letto === 'object' ? { ...(letto as Record<string, unknown>) } : {},
+    letto !== null && typeof letto === 'object' ? conChiaviAccorpate({ ...(letto as Record<string, unknown>) }) : {},
   () => ({}),
 )
+
+/**
+ * Un file di prima letto come uno di adesso: le chiavi di `MIGRAZIONI` che
+ * mancano si ricavano dalle vecchie, in memoria. Le vecchie restano finché
+ * `ritiraChiaviDismesse` non le toglie, e con loro va su disco la nuova. Qui e
+ * non all'avvio soltanto, perché un file scritto a mano o da una versione
+ * vecchia si legga giusto anche senza riavvio. Un valore uguale al predefinito
+ * non si scrive: non è stato deciso a mano.
+ */
+function conChiaviAccorpate (valori: Record<string, unknown>): Record<string, unknown> {
+  const scritta = (chiave: string): boolean => Object.prototype.hasOwnProperty.call(valori, chiave)
+  for (const migrazione of MIGRAZIONI) {
+    if (scritta(migrazione.nuova) || !migrazione.vecchie.some(scritta)) continue
+    const ricavato = migrazione.ricava((chiave) => valori[chiave])
+    if (ricavato === undefined || ricavato === predefinito(migrazione.nuova)) continue
+    valori[migrazione.nuova] = ricavato
+  }
+  return valori
+}
 
 function caricate (): Record<string, unknown> {
   return deposito.contenuto()
@@ -97,7 +117,9 @@ function scriviChiave (nome: string, valore: unknown): boolean {
 
 /**
  * Toglie dal file, all'avvio e senza annunci, le chiavi di `CHIAVI_DISMESSE`:
- * una chiave omonima futura non deve ritrovarne il valore.
+ * una chiave omonima futura non deve ritrovarne il valore. Quel che le chiavi
+ * accorpate valevano è già passato alla nuova (`conChiaviAccorpate`), e si
+ * scrive con la stessa scrittura.
  */
 export function ritiraChiaviDismesse (): void {
   const valori = caricate()
@@ -142,7 +164,9 @@ interface DialogoPercorso {
 export function dialogoPercorso (chiave: string): DialogoPercorso | null {
   const voce = VOCI_IMPOSTAZIONI[chiave]
   if (!voce || voce.tipo !== 'string') return null
-  const da = String(grezzo(chiave) ?? '')
+  // Una scelta con nome (`ocr.lettore`: «nessuno») non è un posto da cui partire.
+  const scritto = String(grezzo(chiave) ?? '')
+  const da = percorso.isAbsolute(scritto) ? scritto : ''
   const titolo = etichettaDi(chiave)
   switch (voce.formato) {
     case 'cartella':
@@ -250,6 +274,11 @@ export function vociImpostazioni (): VoceProgramma[] {
       scelte: voce.scelte ? voce.scelte.map((scelta) => ({ ...scelta })) : null,
       minimo: voce.minimo ?? null,
       massimo: voce.massimo ?? null,
+      passo: voce.tipo === 'number' ? passoDi(voce) : null,
+      unita: voce.unita ?? null,
+      controllo: voce.controllo ?? null,
+      scelteDinamiche: voce.scelteDinamiche ?? null,
+      sceltaLibera: Boolean(voce.sceltaLibera),
       predefinito: stato?.defaultValue ?? voce.predefinito,
       // Spento se manca quel che richiede, come lo legge il registro.
       valore: valore === true && manca !== null ? false : valore,
@@ -262,6 +291,7 @@ export function vociImpostazioni (): VoceProgramma[] {
       // Riempita subito sotto, quando tutte le altre si conoscono.
       sospesa: false,
       avanzata: Boolean(voce.avanzata),
+      alProssimoAvvio: Boolean(voce.alProssimoAvvio),
       delCollegamento: CHIAVI_DEL_COLLEGAMENTO.includes(chiave),
     }
   })
@@ -294,9 +324,13 @@ function perche (
   const voce: VoceImpostazione | undefined = VOCI_IMPOSTAZIONI[chiave]
   const t = testi()
   if (!voce) return no(t.nonÈUnImpostazione(chiave))
-  if (voce.scelte && !voce.scelte.some((scelta) => scelta.valore === valore)) {
+  const unaScelta = voce.scelte?.some((scelta) => scelta.valore === valore) ?? false
+  if (voce.scelte && !unaScelta && !voce.sceltaLibera) {
     return no(t.nonÈUnaScelta(voce.scelte.map((scelta) => scelta.valore).join(', ')))
   }
+  // Con `sceltaLibera` una scelta nominata passa così com'è: «nessuno» non è un
+  // percorso, e il `formato` vale solo per il resto.
+  if (unaScelta && voce.sceltaLibera) return { valore: valore as string | number, motivo: null }
 
   switch (voce.tipo) {
     case 'boolean': {
@@ -309,14 +343,8 @@ function perche (
     }
 
     case 'number': {
-      if (typeof valore !== 'number' || !Number.isFinite(valore)) return no(t.vuoleUnNumero)
-      if (voce.minimo !== undefined && valore < voce.minimo) {
-        return no(t.sottoIlMinimo(voce.minimo))
-      }
-      if (voce.massimo !== undefined && valore > voce.massimo) {
-        return no(t.sopraIlMassimo(voce.massimo))
-      }
-      return { valore, motivo: null }
+      const storto = numeroStorto(voce, valore)
+      return storto ? no(storto) : { valore: valore as number, motivo: null }
     }
 
     case 'string': {
@@ -340,6 +368,33 @@ function perche (
   }
 }
 
+/** Il passo di un numero: quello dichiarato, o 1 (un intero). */
+function passoDi (voce: Pick<VoceImpostazione, 'passo'>): number {
+  return voce.passo !== undefined && voce.passo > 0 ? voce.passo : 1
+}
+
+/**
+ * Perché un numero non va per la voce, o `null`: tipo, estremi, passo contato
+ * dal minimo. La tolleranza assorbe gli arrotondamenti di un passo decimale
+ * (0,1 + 0,2 non fa 0,3 esatto).
+ */
+export function numeroStorto (
+  voce: Pick<VoceImpostazione, 'minimo' | 'massimo' | 'passo'>,
+  valore: unknown,
+): string | null {
+  const t = testi()
+  if (typeof valore !== 'number' || !Number.isFinite(valore)) return t.vuoleUnNumero
+  if (voce.minimo !== undefined && valore < voce.minimo) return t.sottoIlMinimo(voce.minimo)
+  if (voce.massimo !== undefined && valore > voce.massimo) return t.sopraIlMassimo(voce.massimo)
+  const passo = passoDi(voce)
+  const da = voce.minimo ?? 0
+  const passi = (valore - da) / passo
+  if (Math.abs(passi - Math.round(passi)) > 1e-9) {
+    return passo === 1 && da === Math.trunc(da) ? t.soloIntero : t.fuoriPasso(passo, da)
+  }
+  return null
+}
+
 /**
  * Perché un percorso non va, o `null`. Il vuoto passa («ci pensa il registro»);
  * un relativo no, perché dipenderebbe da dove il registro è stato lanciato.
@@ -354,7 +409,7 @@ function percorsoStorto (voce: VoceImpostazione, valore: string): string | null 
       if (!percorso.isAbsolute(valore)) return t.programmaIntero
       return /\.exe$/i.test(valore) ? null : t.soloExe
     // Il nome nudo di un file della cartella dei modelli, come lo scrive la
-    // pagina «Modelli linguistici»: un percorso lo ignorerebbe `modelloNellaCartella`.
+    // sezione «Assistente e modelli»: un percorso lo ignorerebbe `modelloNellaCartella`.
     case 'modello':
       return nomeDiModello(valore) ? null : t.soloNomeModello
     case 'file': {

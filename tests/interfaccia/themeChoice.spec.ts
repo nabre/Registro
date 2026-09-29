@@ -1,6 +1,6 @@
 // Il tema si sceglie guardandolo: tre schede con la miniatura del registro.
 //
-// Impostazioni › Programma › Generale. Il tema era una tendina con tre frasi;
+// Impostazioni › Programma › Aspetto. Il tema era una tendina con tre frasi;
 // adesso sono tre schede, ognuna con il registro disegnato nel suo tema, e si
 // sceglie con un clic o con le frecce come un gruppo di pulsanti radio. Qui si
 // prova che:

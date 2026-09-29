@@ -1,4 +1,4 @@
-// I corsi delle carte intestate, nella sezione Intestazione: un intervallo
+// I corsi delle carte intestate, nella sezione Carta e stampa: un intervallo
 // preso al contrario, un trascinamento con una selezione dimenticata su
 // un'altra carta, un corso di un altro anno nel conto. A schermo non si
 // vedrebbero, e i fogli uscirebbero con la testata sbagliata.

@@ -5,7 +5,7 @@ import { catalogo } from '../i18n/index.js'
 import { plurale } from '../dominio/text.js'
 
 const it = {
-  voceRecapiti: 'nelle impostazioni, alla voce «Comunicazioni › Chiamate e mail dall’anagrafica»',
+  voceRecapiti: 'in Impostazioni › Utente › Posta, alla voce «Chiamate e mail dall’anagrafica»',
   udBloccata: (minuti: number, conAppello: number) =>
     `L’unità didattica resta di ${minuti} minuti: ` +
     `${plurale(conAppello, 'ora ha', 'ore hanno')} già l’appello, contato in UD di quella durata.`,
@@ -42,7 +42,7 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
-    voceRecapiti: 'in den Einstellungen unter «Anrufe und Mails aus den Personalien»',
+    voceRecapiti: 'unter Einstellungen › Benutzer › Post, bei «Anrufe und Mails aus den Personalien»',
     udBloccata: (minuti, conAppello) =>
       `Die Lektion bleibt bei ${minuti} Minuten: ` +
       `${plurale(conAppello, 'Stunde hat', 'Stunden haben')} schon eine ` +
@@ -81,7 +81,7 @@ export const testi = catalogo(it, {
       `Den Pfad zu OUTLOOK.EXE gibst du ${voce} an.`,
   },
   fr: {
-    voceRecapiti: 'dans les paramètres, sous « Appels et e-mails depuis les données personnelles »',
+    voceRecapiti: 'dans Paramètres › Utilisateur › Messagerie, sous « Appels et e-mails depuis les données personnelles »',
     udBloccata: (minuti, conAppello) =>
       `La période reste de ${minuti} minutes : ` +
       `${plurale(conAppello, 'leçon a', 'leçons ont')} déjà l’appel, ` +
@@ -120,7 +120,7 @@ export const testi = catalogo(it, {
       `d’OUTLOOK.EXE ${voce}.`,
   },
   en: {
-    voceRecapiti: 'in the settings, under “Calls and emails from the personal details”',
+    voceRecapiti: 'in Settings › User › Mail, under “Calls and emails from the personal details”',
     udBloccata: (minuti, conAppello) =>
       `The period stays at ${minuti} minutes: ` +
       `${plurale(conAppello, 'lesson already has', 'lessons already have')} attendance, ` +

@@ -1,7 +1,9 @@
 // Il condotto:
 //
 //   1. con «scrittura sì, lettura no» `$schema` risponde per le scritture (la
-//      riga di comando lo chiede prima di ogni `chiama`);
+//      riga di comando lo chiede prima di ogni `chiama`). Le impostazioni non
+//      lo concedono più (`registroDocenti.api.accesso`): lo scavalco
+//      `permessi` di `avviaCondotto` tiene provato il cancello;
 //   2. la coda piena risponde con l'`id` della richiesta;
 //   3. lo stesso per il tetto dei 16 MiB accodati;
 //   4. un codice d'errore ignoto al contratto esce comunque con un `code`.
@@ -28,9 +30,6 @@ before(async () => {
     dati,
     impostazioni: {
       cartellaLavoro: lavoro,
-      'registroDocenti.api.condotto': true,
-      'registroDocenti.api.lettura': false,
-      'registroDocenti.api.scrittura': true,
     },
     registra: false,
   }))
@@ -70,7 +69,10 @@ before(async () => {
     }),
   )
 
-  condotto = await avviaCondotto(archivio, { cartellaUtente: process.env.REGISTRO_USERDATA })
+  condotto = await avviaCondotto(archivio, {
+    cartellaUtente: process.env.REGISTRO_USERDATA,
+    permessi: { lettura: false, scrittura: true },
+  })
   indirizzo = indirizzoCondotto()
 })
 

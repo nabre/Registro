@@ -180,7 +180,7 @@ const FIGURA_PROMEMORIA = disegno(
     tono: 'accento',
     etichetta: P.lezione,
     sotto: P.paginaDellOra,
-    simbolo: 'agenda',
+    simbolo: 'lezione',
   }),
   freccia([[tacca(0.1), 92], [tacca(0.1), 138]], { tono: 'accento' }),
   riquadro(tacca(0.1), 118, tacca(0.9) - tacca(0.1), 14, {

@@ -8,7 +8,6 @@ import { nomeCompleto } from '../../core/dominio/calculations.js'
 import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from './context.js'
 import { nomeDelGruppo, nomeDelPosto, paginaAttiva } from './pages.js'
 import { porzioneAttiva } from './tabs.js'
-import { sezioneAperta } from './views/settings/sections.js'
 import { h, type Figlio } from './dom.js'
 import { lezionePerId, nomeDiPiano, pianoPerId, stato } from './state.js'
 import { testi } from './breadcrumb.testi.js'
@@ -37,9 +36,8 @@ const ANELLI_SOLO_A_VOCE: ReadonlySet<Ruolo> = new Set<Ruolo>(['mestiere', 'porz
  *     Registro › DIC4a · Matematica › Lezione › lun 14 set 08:20 › Annotazioni
  *      area         su che cosa       pagina       aperto            scheda
  *
- * Nelle impostazioni la scheda è il gruppo e la sezione l'anello dopo:
- *
- *     Il programma › Impostazioni › Documenti e stampa › Intestazione
+ * Nelle impostazioni la scheda è l'area; la sezione no, perché cambia
+ * scorrendo, senza ridisegnare.
  *
  * Non si preme (sta nell'area da cui si trascina la finestra). Gli anelli
  * vuoti si saltano.
@@ -54,7 +52,6 @@ function passiDelPercorso (): Passo[] {
     { ruolo: 'pagina', testo: nomeDelPosto() },
     elementoAperto(),
     porzione ? { ruolo: 'porzione', testo: porzione.testo } : null,
-    sezioneDelleImpostazioni(),
   ]
   return passi.filter((passo): passo is Passo => passo !== null)
 }
@@ -74,21 +71,6 @@ function suCheCosa (): Passo | null {
     return classe ? { ruolo: 'contesto', testo: classe.nome } : null
   }
   return null
-}
-
-/**
- * La sezione aperta nelle impostazioni, salvo quando si chiama come il gruppo
- * (Comunicazioni › Comunicazioni non dice niente).
- */
-function sezioneDelleImpostazioni (): Passo | null {
-  if (stato.vista !== 'impostazioni') return null
-  const { titolo, gruppo } = sezioneAperta(
-    stato.ambitoImpostazioni,
-    stato.schedaDocumento,
-    stato.schedaProgramma,
-  )
-  if (titolo === gruppo.titolo) return null
-  return { ruolo: 'sezione', testo: titolo }
 }
 
 /** Che cosa si è aperto dentro la pagina: l'ora, la persona, la scaletta, la prova. */

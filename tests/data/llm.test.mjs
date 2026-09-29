@@ -363,7 +363,7 @@ describe('che cosa si dice a chi non può chiedere niente', () => {
     const stato = prontezza(collegamento('assistente'))
 
     assert.equal(stato.pronto, false)
-    assert.match(stato.motivo, /Modelli linguistici/)
+    assert.match(stato.motivo, /Assistente e modelli/)
   })
 
   it('il file sparito dalla cartella non si confonde con il modello mai scelto', () => {
@@ -395,7 +395,7 @@ describe('che cosa si dice a chi non può chiedere niente', () => {
       'registroDocenti.ocr.attivo': true,
       'registroDocenti.ocr.modello': 'vede.gguf',
       'registroDocenti.ocr.proiettore': 'mmproj-vede.gguf',
-      'registroDocenti.modelli.scaricoAutomatico': false,
+      'registroDocenti.ocr.lettore': 'nessuno',
     })
 
     // Senza il programma non si legge (la libreria non accetta immagini): spento
@@ -439,7 +439,7 @@ describe('il corredo delle scansioni', () => {
     // copia sua (con l'accelerazione della sua scheda video) la tiene.
     nelCorredo('llama-mtmd-cli.exe')
     const mio = nelCorredo('mio-mtmd.exe')
-    conModello({ 'registroDocenti.ocr.programma': mio })
+    conModello({ 'registroDocenti.ocr.lettore': mio })
     assert.equal(programmaDa(collegamento('ocr')), mio)
   })
 

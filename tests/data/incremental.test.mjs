@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'
 import { after, describe, it } from 'node:test'
 
-import { Uri } from '../../dist-tests/environment.mjs'
+import { Uri, accodaSe } from '../../dist-tests/environment.mjs'
 import { Pacchetto } from '../../dist-tests/package.mjs'
 import { leggiZip } from '../../dist-tests/zip.mjs'
 
@@ -162,5 +162,32 @@ describe('la scrittura incrementale', () => {
     const copie = dentro.copieDi('lezioni')
     assert.equal(copie.length, 1)
     assert.equal(dentro.testo(copie[0]).length, 200 * 1024)
+  })
+})
+
+// Controllo e scrittura nello stesso handle: con due aperture separate, un
+// altro processo (`npm run dev` accanto a `start`) che rifaceva il file nel
+// mezzo si ritrovava la nostra coda in fondo al suo archivio, a offset nostri.
+describe('accodaSe', () => {
+  const byte = (testo) => new TextEncoder().encode(testo)
+
+  it('accoda i pezzi in fila se misura e coda sono quelle attese', async () => {
+    const file = documento()
+    writeFileSync(file.fsPath, 'prima-CODA')
+    assert.equal(await accodaSe(file, 10, byte('CODA'), [byte('+corpi'), byte('+indice')]), true)
+    assert.equal(readFileSync(file.fsPath, 'utf8'), 'prima-CODA+corpi+indice')
+  })
+
+  it('non scrive niente su un file rifatto altrove', async () => {
+    const file = documento()
+    writeFileSync(file.fsPath, 'rifatto-da-altri-CODA')
+    assert.equal(await accodaSe(file, 10, byte('CODA'), [byte('+corpi')]), false)
+    writeFileSync(file.fsPath, 'prima-ALTR')
+    assert.equal(await accodaSe(file, 10, byte('CODA'), [byte('+corpi')]), false)
+    assert.equal(readFileSync(file.fsPath, 'utf8'), 'prima-ALTR')
+  })
+
+  it('un file sparito torna falso', async () => {
+    assert.equal(await accodaSe(documento(), 10, byte('CODA'), [byte('x')]), false)
   })
 })

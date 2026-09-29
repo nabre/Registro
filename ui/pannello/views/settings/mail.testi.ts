@@ -13,6 +13,10 @@ const it = {
     'Premi «Collega la casella»: chiede solo l’account, apre l’accesso nel browser e fa ' +
     'scegliere il mittente fra gli indirizzi dell’account.',
   collegata: 'casella collegata',
+  collegaInAccount: 'Si collega in Utente › Account, insieme ai permessi di OneDrive.',
+  vaiAdAccount: 'Vai ad Account',
+  vaiAdAccountAiuto: 'Collegare, provare, scollegare e azzerare la casella stanno lì',
+  senzaEffetto: 'senza effetto: casella non collegata',
   account: 'Account',
   mittente: 'Mittente («Da»)',
   mittenteAiuto:
@@ -45,7 +49,7 @@ const it = {
     '.eml. L’autorizzazione data al programma si revoca dal profilo Microsoft.',
   firmaDiSerieMancante:
     'Vuota, vale la firma di serie: chi firma e la scuola della prima carta intestata, ' +
-    'in Impostazioni › Intestazione. Adesso mancano tutti e due, e le e-mail partono senza firma.',
+    'in Impostazioni › Utente › Chi sei e Carta e stampa. Adesso mancano tutti e due, e le e-mail partono senza firma.',
   collegamento: 'Collegamento',
   collegaIndirizzo: 'Collega',
   indirizzoSegnaposto: 'www.scuola.ch, nome@scuola.ch',
@@ -73,6 +77,10 @@ export const testi = catalogo(it, {
       'Drücke «Postfach verbinden»: Es fragt nur nach dem Konto, öffnet die Anmeldung im ' +
       'Browser und lässt den Absender unter den Adressen des Kontos wählen.',
     collegata: 'Postfach verbunden',
+    collegaInAccount: 'Verbunden wird es unter Benutzer › Konten, zusammen mit den Berechtigungen für OneDrive.',
+    vaiAdAccount: 'Zu den Konten',
+    vaiAdAccountAiuto: 'Verbinden, testen, trennen und zurücksetzen des Postfachs sind dort',
+    senzaEffetto: 'ohne Wirkung: Postfach nicht verbunden',
     account: 'Konto',
     mittente: 'Absender («Von»)',
     mittenteAiuto:
@@ -108,7 +116,7 @@ export const testi = catalogo(it, {
       'Microsoft-Profil.',
     firmaDiSerieMancante:
       'Leer gilt die Standardsignatur: wer unterschreibt und die Schule des ersten Briefpapiers, ' +
-      'unter Einstellungen › Briefkopf. Im Moment fehlt beides, und die E-Mails gehen ohne ' +
+      'unter Einstellungen › Benutzer › Wer du bist und Briefpapier und Druck. Im Moment fehlt beides, und die E-Mails gehen ohne ' +
       'Signatur hinaus.',
     collegamento: 'Link',
     collegaIndirizzo: 'Verknüpfen',
@@ -135,6 +143,10 @@ export const testi = catalogo(it, {
       'Clique sur « Connecter la boîte » : il demande seulement le compte, ouvre la connexion ' +
       'dans le navigateur et fait choisir l’expéditeur parmi les adresses du compte.',
     collegata: 'boîte connectée',
+    collegaInAccount: 'Elle se connecte dans Utilisateur › Comptes, avec les autorisations de OneDrive.',
+    vaiAdAccount: 'Aller aux comptes',
+    vaiAdAccountAiuto: 'Connecter, tester, déconnecter et réinitialiser la boîte se font là',
+    senzaEffetto: 'sans effet : boîte non connectée',
     account: 'Compte',
     mittente: 'Expéditeur (« De »)',
     mittenteAiuto:
@@ -169,7 +181,7 @@ export const testi = catalogo(it, {
       '.eml. L’autorisation donnée au programme se révoque depuis le profil Microsoft.',
     firmaDiSerieMancante:
       'Vide, c’est la signature standard qui vaut : qui signe et l’école du premier papier à ' +
-      'en-tête, dans Paramètres › En-tête. En ce moment les deux manquent, et les e-mails ' +
+      'en-tête, dans Paramètres › Utilisateur › Qui tu es et Papier et impression. En ce moment les deux manquent, et les e-mails ' +
       'partent sans signature.',
     collegamento: 'Lien',
     collegaIndirizzo: 'Relier',
@@ -194,6 +206,10 @@ export const testi = catalogo(it, {
       'Press “Connect the mailbox”: it asks only for the account, opens the sign-in in the ' +
       'browser and lets you choose the sender among the account’s addresses.',
     collegata: 'mailbox connected',
+    collegaInAccount: 'It is connected in User › Accounts, together with the OneDrive permissions.',
+    vaiAdAccount: 'Go to Accounts',
+    vaiAdAccountAiuto: 'Connecting, testing, disconnecting and resetting the mailbox happen there',
+    senzaEffetto: 'no effect: mailbox not connected',
     account: 'Account',
     mittente: 'Sender (“From”)',
     mittenteAiuto:
@@ -226,7 +242,7 @@ export const testi = catalogo(it, {
       'files. The permission given to the program is revoked from your Microsoft profile.',
     firmaDiSerieMancante:
       'If empty, the standard signature applies: who signs and the school of the first ' +
-      'letterhead, in Settings › Letterhead. Right now both are missing, and emails go out ' +
+      'letterhead, in Settings › User › Who you are and Letterheads and printing. Right now both are missing, and emails go out ' +
       'without a signature.',
     collegamento: 'Link',
     collegaIndirizzo: 'Link',

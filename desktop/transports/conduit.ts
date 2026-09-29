@@ -11,10 +11,10 @@
 // libero perché `regi stato` lo usa per diagnosticare un rifiuto.
 //
 // Sicurezza:
-// - Spento di serie (`registroDocenti.api.condotto`): spento non apre niente.
-//   Sotto, `api.lettura` (predefinita `true`) e `api.scrittura` (predefinita
-//   `false`), decise dal `genere` di ogni procedura. Il limite vale solo qui: i
-//   pannelli passano da `chiama` senza queste impostazioni.
+// - Spento di serie (`registroDocenti.api.accesso`, `spento`): spento non apre
+//   niente. Le altre due scelte concedono `lettura` o `letturaScrittura`,
+//   decise dal `genere` di ogni procedura. Il limite vale solo qui: i pannelli
+//   passano da `chiama` senza questa impostazione.
 // - Su Windows una named pipe con ACL predefinita è raggiungibile da ogni
 //   processo della stessa sessione utente: acceso il condotto, ogni programma
 //   dell'utente può chiamare le procedure (e scrivere, se concesso). Lo stesso
@@ -359,17 +359,14 @@ function permessiOra (): Permessi {
 }
 
 /**
- * I permessi come li dichiarano le impostazioni. `condotto` è l'interruttore
- * generale: spento, le altre due voci non si leggono. È la stessa gerarchia di
- * `dipendeDa` nel manifesto, riscritta qui perché il registro non deve
- * dipendere dall'interfaccia per sapere che cosa concede.
+ * I permessi come li dichiara `registroDocenti.api.accesso`. Un valore che non
+ * è una delle scelte (file scritto a mano) non concede niente.
  */
 function permessiDalleImpostazioni (): Permessi {
-  const sezione = apparato.impostazioni.leggi('registroDocenti.api')
-  if (!sezione.get<boolean>('condotto', false)) return { lettura: false, scrittura: false }
+  const accesso = apparato.impostazioni.leggi('registroDocenti.api').get<string>('accesso', 'spento')
   return {
-    lettura: sezione.get<boolean>('lettura', true),
-    scrittura: sezione.get<boolean>('scrittura', false),
+    lettura: accesso === 'lettura' || accesso === 'letturaScrittura',
+    scrittura: accesso === 'letturaScrittura',
   }
 }
 
@@ -436,16 +433,19 @@ const SCRIVONO_IMPOSTAZIONI = new Set(['programma.salva', 'programma.azzera', 'p
  * Le chiavi del programma che il condotto non cambia, anche con la scrittura:
  *
  *   - i permessi del condotto (`registroDocenti.api.*`), riletti a ogni chiamata:
- *     uno script con la sola scrittura si concederebbe la lettura;
- *   - i percorsi dei programmi che il registro esegue (`ocr.programma`, più
+ *     quel che il condotto concede lo decide chi siede davanti al registro, non
+ *     uno script (oggi chi scrive ha già tutto, ma basterebbe una scelta nuova);
+ *   - i percorsi dei programmi che il registro esegue (`ocr.lettore`, più
  *     chiavi non più usate, tenute sbarrate se tornassero): farebbero eseguire
  *     un programma qualunque;
- *   - `dettatura.indirizzo`: uno script si farebbe mandare la voce di chi detta.
+ *   - `dettatura.porta` (e l'indirizzo di prima): uno script in ascolto su
+ *     un'altra porta si farebbe mandare la voce di chi detta.
  *
  * Confronto senza maiuscole, per non dipendere dalla dogana di `valoreConMotivo`.
  */
 const PREFISSO_PERMESSI = 'registrodocenti.api.'
 const PERCORSI_ESEGUITI = new Set([
+  'registrodocenti.ocr.lettore',
   'registrodocenti.ocr.programma',
   'registrodocenti.ocr.cartella',
   'registrodocenti.dettatura.programma',
@@ -456,7 +456,7 @@ const PERCORSI_ESEGUITI = new Set([
   'registrodocenti.ocr.proiettore',
   'registrodocenti.assistente.modello',
 ])
-const DOVE_VA_LA_VOCE = new Set(['registrodocenti.dettatura.indirizzo'])
+const DOVE_VA_LA_VOCE = new Set(['registrodocenti.dettatura.porta', 'registrodocenti.dettatura.indirizzo'])
 
 /**
  * Il rifiuto per una chiave che il condotto non tocca, o `null` se si passa.
@@ -717,29 +717,28 @@ async function scrivi (presa: Socket, id: unknown, testo: string): Promise<void>
     }))
     return
   }
-  // `write` torna `false` oltre la soglia del buffer: si aspetta il `'drain'`,
-  // così un cliente che non legge rallenta la sua coda invece di far crescere la
-  // memoria del registro.
-  if (presa.write(testo)) return
-  await drenata(presa)
+  await scritta(presa, testo)
 }
 
 /**
- * Aspetta che il buffer si svuoti, o che la presa se ne vada: senza `close` ed
- * `error`, un cliente morto terrebbe appesa la coda e lo spegnimento
- * (`svuota()`) aspetterebbe fino al tetto.
+ * Aspetta che la busta sia passata al sistema, non solo accodata nel buffer:
+ * lo spegnimento distrugge le prese appena le code finiscono, e la risposta di
+ * `programma.esci` andrebbe persa. Così anche un cliente che non legge rallenta
+ * la sua coda invece di far crescere la memoria del registro.
+ *
+ * `close` ed `error` perché un cliente morto non tenga appesa la coda fino al
+ * tetto di `svuota()`.
  */
-function drenata (presa: Socket): Promise<void> {
+function scritta (presa: Socket, testo: string): Promise<void> {
   return new Promise<void>((risolvi) => {
     const basta = (): void => {
-      presa.off('drain', basta)
       presa.off('close', basta)
       presa.off('error', basta)
       risolvi()
     }
-    presa.on('drain', basta)
     presa.on('close', basta)
     presa.on('error', basta)
+    presa.write(testo, basta)
   })
 }
 
@@ -1158,17 +1157,10 @@ export async function avviaCondotto (
   if (!permessi.lettura && !permessi.scrittura) {
     if (!dettoSpento) {
       dettoSpento = true
-      // Due silenzi diversi: generale spento è il caso normale; generale acceso con
-      // tutto negato sembra aperto e non lo è, e va detto.
       console.log(
-        apparato.impostazioni.leggi('registroDocenti.api').get<boolean>('condotto', false)
-          ? '[condotto] acceso ma senza concessioni: «registroDocenti.api.lettura» e ' +
-            '«registroDocenti.api.scrittura» sono tutte e due spente, e un condotto che ' +
-            'rifiuta ogni chiamata non vale un nome riservato. Non apre niente.'
-          : '[condotto] spento. Si accende con «registroDocenti.api.condotto»: da acceso, ogni ' +
-            'programma che gira con questo utente può leggere i dati delle persone in ' +
-            'formazione, e con «registroDocenti.api.scrittura» scrivere nel registro e far ' +
-            'partire posta a nome del docente.',
+        '[condotto] spento. Si accende con «registroDocenti.api.accesso»: con «lettura» ogni ' +
+        'programma che gira con questo utente può leggere i dati delle persone in formazione, ' +
+        'con «letturaScrittura» anche scrivere nel registro e far partire posta a nome del docente.',
       )
     }
     return condottoSpento()

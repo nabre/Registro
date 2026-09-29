@@ -148,7 +148,7 @@ const it = {
         termine: 'Le ore della settimana',
         testo:
           'La griglia va dalla **Prima ora mostrata** all’**Ultima ora mostrata** di ' +
-          'Impostazioni › Anno e orario › Calendario, arrotondate all’ora piena: le 10 stanno ' +
+          'Impostazioni › Calendario › Giornata, arrotondate all’ora piena: le 10 stanno ' +
           'alla stessa altezza in tutto l’anno. Solo una lezione o un evento ICS che ne esce la ' +
           'allarga, e solo per la sua settimana.',
       },
@@ -163,8 +163,8 @@ const it = {
       {
         termine: 'Sabato e domenica',
         testo:
-          'Si accendono e si spengono dai **Giorni mostrati**, in Impostazioni › Anno e ' +
-          'orario › Calendario: valgono per la settimana, il mese e la proiezione.',
+          'Si accendono e si spengono dai **Giorni mostrati**, in Impostazioni › ' +
+          'Calendario › Giornata: valgono per la settimana, il mese e la proiezione.',
       },
       {
         termine: 'Modifica',
@@ -173,7 +173,7 @@ const it = {
           'mese: la griglia smette di ' +
           'aprire le lezioni al clic e le prende in mano. Premendo e tirando sul vuoto si disegna ' +
           'una lezione, a unità didattiche intere; un clic secco la mette lunga quanto la ' +
-          '**Fascia oraria di una lezione nuova** di Impostazioni › Anno e orario › Calendario. ' +
+          '**Fascia oraria di una lezione nuova** di Impostazioni › Calendario › Giornata. ' +
           'Con un corso nel filtro la lezione nasce subito per quel corso; senza, si apre ' +
           'il modulo con giorno, ora e durata già messi. Le maniglie sopra e sotto un blocco lo ' +
           'allungano o lo accorciano. Con la modifica accesa compaiono anche **Nuova lezione** e i ' +
@@ -257,7 +257,7 @@ const it = {
         testo:
           'I giorni di chiusura si spengono in tutte le viste, con il nome nel suggerimento; ' +
           'accanto al numero del giorno un segno dice dove un semestre finisce o comincia. ' +
-          'Tutto si decide in Impostazioni › Anno e orario › **Anno scolastico**.',
+          'Tutto si decide in Impostazioni › Calendario: **Anno**, **Chiusure**, **Settimane**.',
       },
       {
         termine: 'Ore in un giorno di chiusura',
@@ -441,7 +441,7 @@ const it = {
       {
         termine: 'Aggiungere un calendario',
         testo:
-          'Impostazioni › Anno e orario › **Calendari ICS**: si incolla il link da ' +
+          'Impostazioni › Calendario › **Calendari esterni**: si incolla il link da ' +
           'abbonare della sede (`https://…` o `webcal://…`) e **Aggiungi**, oppure **Un file…** ' +
           'per un `.ics` dal disco. Possono essere più d’uno — l’orario di sede, quello dei ' +
           'laboratori — e si aggiungono anche dalla finestra di **Confronta con il calendario**.',
@@ -615,7 +615,7 @@ const it = {
       {
         termine: 'La scheda delle regole',
         testo:
-          'In Impostazioni › Anno e orario › **Calendari ICS**, sotto i calendari, comuni a ' +
+          'In Impostazioni › Calendario › **Calendari esterni**, sotto i calendari, comuni a ' +
           'tutti. Accanto a ' +
           'ognuna quanti eventi decide e quanti ne riconosce, conto che si rifà mentre si ' +
           'scrive. Si segnalano i doppioni, le espressioni che non si leggono e i corsi che non ' +
@@ -858,7 +858,7 @@ const it = {
       'Una casella già piena rifiuta le pagine: il documento di chi ha già consegnato non ' +
         'si sovrascrive.',
       'La lettura delle scansioni gira sulla macchina, con un modello scelto in Impostazioni ' +
-        '› Programma › **Modelli linguistici**, ed è lenta: meglio lanciarla su tutto il ' +
+        '› Programma › **Assistente e modelli**, ed è lenta: meglio lanciarla su tutto il ' +
         'mucchio e intanto fare altro.',
     ],
   },
@@ -1004,7 +1004,7 @@ export const testi = catalogo(it, {
           termine: 'Die Stunden der Woche',
           testo:
             'Das Raster reicht von **Erste angezeigte Uhrzeit** bis **Letzte angezeigte Uhrzeit** ' +
-            'unter Einstellungen › Schuljahr und Stundenplan › Kalender, auf volle Stunden ' +
+            'unter Einstellungen › Kalender › Schultag, auf volle Stunden ' +
             'gerundet: 10 Uhr steht im ganzen Schuljahr auf derselben Höhe. Nur eine ' +
             'Stunde oder ein ICS-Termin, der darüber hinausgeht, vergrössert es, und ' +
             'nur für seine Woche.',
@@ -1021,7 +1021,7 @@ export const testi = catalogo(it, {
           termine: 'Samstag und Sonntag',
           testo:
             'Man blendet sie unter **Angezeigte Tage** ein und aus, in Einstellungen › ' +
-            'Schuljahr und Stundenplan › Kalender: Das gilt für die Woche, den Monat und die ' +
+            'Kalender › Schultag: Das gilt für die Woche, den Monat und die ' +
             'Projektion.',
         },
         {
@@ -1031,8 +1031,8 @@ export const testi = catalogo(it, {
             'Monat: Das Raster öffnet die Stunden beim Klick nicht mehr, sondern nimmt sie in ' +
             'die Hand. Drücken und Ziehen im leeren Bereich zeichnet eine Stunde, in ' +
             'ganzen Lektionen; ein kurzer Klick macht sie so lang wie das **Zeitfenster einer ' +
-            'neuen Stunde** unter Einstellungen › Schuljahr und Stundenplan › ' +
-            'Kalender. Mit einem Kurs im Filter gehört die Stunde sofort zu diesem Kurs; ohne ' +
+            'neuen Stunde** unter Einstellungen › Kalender › ' +
+            'Schultag. Mit einem Kurs im Filter gehört die Stunde sofort zu diesem Kurs; ohne ' +
             'öffnet sich das Formular mit Tag, Zeit und Dauer schon ausgefüllt. Die Griffe oben ' +
             'und unten an einem Block verlängern oder kürzen ihn. Beim Bearbeiten erscheinen ' +
             'auch **Neue Stunde** und die Befehle des ICS-Kalenders, und ein Klick auf einen ' +
@@ -1121,7 +1121,7 @@ export const testi = catalogo(it, {
           testo:
             'Schliesstage sind in allen Ansichten ausgegraut, mit dem Namen im Hinweis; neben ' +
             'der Tageszahl zeigt ein Zeichen, wo ein Semester endet oder beginnt. Festgelegt ' +
-            'wird alles unter Einstellungen › Schuljahr und Stundenplan › **Schuljahr**.',
+            'wird alles unter Einstellungen › Kalender: **Jahr**, **Schliessungen**, **Wochen**.',
         },
         {
           termine: 'Stunden an einem Schliesstag',
@@ -1319,7 +1319,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Einen Kalender hinzufügen',
           testo:
-            'Einstellungen › Schuljahr und Stundenplan › **ICS-Kalender**: Man fügt den ' +
+            'Einstellungen › Kalender › **Externe Kalender**: Man fügt den ' +
             'Abonnement-Link der Schule ein (`https://…` oder `webcal://…`) und klickt ' +
             '**Hinzufügen**, oder **Eine Datei…** für eine `.ics`-Datei von der Festplatte. Es ' +
             'können mehrere sein — der Stundenplan der Schule, der der Labors — und man fügt ' +
@@ -1502,7 +1502,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Der Bereich der Regeln',
           testo:
-            'Unter Einstellungen › Schuljahr und Stundenplan › **ICS-Kalender**, unter den ' +
+            'Unter Einstellungen › Kalender › **Externe Kalender**, unter den ' +
             'Kalendern, für alle gemeinsam. Neben jeder Regel, wie viele Termine sie entscheidet ' +
             'und wie viele sie erkennt, eine Zählung, die sich beim Schreiben erneuert. Gemeldet ' +
             'werden Doppelte, Ausdrücke, die sich nicht lesen lassen, und Kurse, die es nicht ' +
@@ -1753,7 +1753,7 @@ export const testi = catalogo(it, {
         'Ein schon volles Feld nimmt keine Seiten an: Das Dokument von jemandem, der schon ' +
           'abgegeben hat, wird nicht überschrieben.',
         'Das Lesen der Scans läuft auf dem Rechner, mit einem Modell, das unter Einstellungen ' +
-          '› Programm › **Sprachmodelle** gewählt wird, und es ist langsam: Am besten startet ' +
+          '› Programm › **Assistent und Modelle** gewählt wird, und es ist langsam: Am besten startet ' +
           'man es für den ganzen Stapel und macht inzwischen etwas anderes.',
       ],
     },
@@ -1896,7 +1896,7 @@ export const testi = catalogo(it, {
           termine: 'Les heures de la semaine',
           testo:
             'La grille va de **Première heure affichée** à **Dernière heure affichée** dans ' +
-            'Paramètres › Année et horaire › Calendrier, arrondies à l’heure pleine : 10 h est ' +
+            'Paramètres › Calendrier › Journée, arrondies à l’heure pleine : 10 h est ' +
             'à la même hauteur toute l’année. Seule une leçon ou un événement ICS qui en sort ' +
             'l’agrandit, et seulement pour sa semaine.',
         },
@@ -1911,8 +1911,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Samedi et dimanche',
           testo:
-            'On les affiche et on les masque dans **Jours affichés**, sous Paramètres › Année ' +
-            'et horaire › Calendrier : cela vaut pour la semaine, le mois et la projection.',
+            'On les affiche et on les masque dans **Jours affichés**, sous Paramètres › ' +
+            'Calendrier › Journée : cela vaut pour la semaine, le mois et la projection.',
         },
         {
           termine: 'Modifier',
@@ -1921,7 +1921,7 @@ export const testi = catalogo(it, {
             'semaine et le mois : la grille n’ouvre plus les leçons au clic, elle les prend en ' +
             'main. En appuyant et en tirant sur le vide, on dessine une leçon, en périodes ' +
             'entières ; un clic simple lui donne la longueur de la **Plage horaire d’une ' +
-            'nouvelle leçon** définie dans Paramètres › Année et horaire › Calendrier. Avec un ' +
+            'nouvelle leçon** définie dans Paramètres › Calendrier › Journée. Avec un ' +
             'cours dans le filtre, la leçon appartient aussitôt à ce cours ; sans, le ' +
             'formulaire s’ouvre avec le jour, l’heure et la durée déjà remplis. Les poignées ' +
             'en haut et en bas d’un bloc l’allongent ou le raccourcissent. En modification ' +
@@ -2010,7 +2010,8 @@ export const testi = catalogo(it, {
           testo:
             'Les jours de fermeture sont grisés dans toutes les vues, avec le nom dans ' +
             'l’info-bulle ; à côté du numéro du jour, un signe indique où un semestre finit ou ' +
-            'commence. Tout se décide dans Paramètres › Année et horaire › **Année scolaire**.',
+            'commence. Tout se décide dans Paramètres › Calendrier : **Année**, ' +
+            '**Fermetures**, **Semaines**.',
         },
         {
           termine: 'Leçons un jour de fermeture',
@@ -2200,7 +2201,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Ajouter un calendrier',
           testo:
-            'Paramètres › Année et horaire › **Calendriers ICS** : on colle le lien ' +
+            'Paramètres › Calendrier › **Calendriers externes** : on colle le lien ' +
             'd’abonnement de l’école (`https://…` ou `webcal://…`) et **Ajouter**, ou **Un ' +
             'fichier…** pour un `.ics` du disque. Il peut y en avoir plusieurs — l’horaire de ' +
             'l’école, celui des laboratoires — et on les ajoute aussi depuis la fenêtre de ' +
@@ -2382,7 +2383,7 @@ export const testi = catalogo(it, {
         {
           termine: 'La section des règles',
           testo:
-            'Dans Paramètres › Année et horaire › **Calendriers ICS**, sous les calendriers, ' +
+            'Dans Paramètres › Calendrier › **Calendriers externes**, sous les calendriers, ' +
             'communes à tous. À côté de chacune, combien d’événements elle décide et combien ' +
             'elle en reconnaît, un compte qui se refait pendant qu’on écrit. Sont signalés les ' +
             'doublons, les expressions illisibles et les cours qui n’existent plus ; **Tout ' +
@@ -2631,7 +2632,7 @@ export const testi = catalogo(it, {
         'Une case déjà pleine refuse les pages : le document de qui a déjà rendu ne s’écrase ' +
           'pas.',
         'La lecture des scans tourne sur la machine, avec un modèle choisi dans Paramètres › ' +
-          'Programme › **Modèles de langage**, et elle est lente : mieux vaut la lancer sur ' +
+          'Programme › **Assistant et modèles**, et elle est lente : mieux vaut la lancer sur ' +
           'tout le tas et faire autre chose en attendant.',
       ],
     },
@@ -2769,8 +2770,8 @@ export const testi = catalogo(it, {
         {
           termine: 'The hours of the week',
           testo:
-            'The grid runs from **First hour shown** to **Last hour shown** in Settings › Year ' +
-            'and timetable › Calendar, rounded to the full hour: 10 o’clock sits at the same ' +
+            'The grid runs from **First hour shown** to **Last hour shown** in Settings › ' +
+            'Calendar › School day, rounded to the full hour: 10 o’clock sits at the same ' +
             'height all year. Only a lesson or an ICS event that goes beyond it stretches it, ' +
             'and only for its own week.',
         },
@@ -2785,8 +2786,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Saturday and Sunday',
           testo:
-            'They are shown and hidden with **Days shown**, in Settings › Year and timetable › ' +
-            'Calendar: this applies to the week, the month and the projection.',
+            'They are shown and hidden with **Days shown**, in Settings › Calendar › ' +
+            'School day: this applies to the week, the month and the projection.',
         },
         {
           termine: 'Edit',
@@ -2794,8 +2795,8 @@ export const testi = catalogo(it, {
             'At the top, next to **Project** (Ctrl+E); in the calendar it works in the week and ' +
             'the month: the grid stops opening lessons on click and takes them in hand. Pressing ' +
             'and dragging on an empty spot draws a lesson, in whole periods; a single click ' +
-            'makes it as long as the **Time slot of a new lesson** in Settings › Year and ' +
-            'timetable › Calendar. With a course in the filter the lesson belongs to that ' +
+            'makes it as long as the **Time slot of a new lesson** in Settings › ' +
+            'Calendar › School day. With a course in the filter the lesson belongs to that ' +
             'course straight away; without one, the form opens with day, time and length ' +
             'already filled in. The handles above and below a block lengthen or shorten it. ' +
             'While editing, **New lesson** and the ICS calendar commands appear too, and a click ' +
@@ -2880,7 +2881,7 @@ export const testi = catalogo(it, {
           testo:
             'Closure days are greyed out in every view, with the name in the tooltip; next to ' +
             'the day number a mark shows where a semester ends or begins. It is all set in ' +
-            'Settings › Year and timetable › **School year**.',
+            'Settings › Calendar: **Year**, **Closures**, **Weeks**.',
         },
         {
           termine: 'Lessons on a closure day',
@@ -3069,7 +3070,7 @@ export const testi = catalogo(it, {
         {
           termine: 'Adding a calendar',
           testo:
-            'Settings › Year and timetable › **ICS calendars**: paste the school’s subscription ' +
+            'Settings › Calendar › **External calendars**: paste the school’s subscription ' +
             'link (`https://…` or `webcal://…`) and **Add**, or **A file…** for an `.ics` from ' +
             'disk. There can be more than one — the school timetable, the labs’ one — and they ' +
             'can also be added from the **Compare with the calendar** window.',
@@ -3244,7 +3245,7 @@ export const testi = catalogo(it, {
         {
           termine: 'The rules section',
           testo:
-            'In Settings › Year and timetable › **ICS calendars**, under the calendars, shared ' +
+            'In Settings › Calendar › **External calendars**, under the calendars, shared ' +
             'by all. Next to each one, how many events it decides and how many it recognises, a ' +
             'count that updates as you type. Duplicates, expressions that cannot be read and ' +
             'courses that no longer exist are flagged; **Remove all** empties them. From the ' +
@@ -3488,7 +3489,7 @@ export const testi = catalogo(it, {
         'A box that is already full refuses pages: the document of someone who has already ' +
           'handed in is not overwritten.',
         'Reading the scans runs on the machine, with a model chosen in Settings › Program › ' +
-          '**Language models**, and it is slow: better to start it on the whole pile and do ' +
+          '**Assistant and models**, and it is slow: better to start it on the whole pile and do ' +
           'something else meanwhile.',
       ],
     },

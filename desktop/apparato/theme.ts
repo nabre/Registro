@@ -30,7 +30,7 @@ const BARRA_SCURA = { fondo: '#1b1b1e', segni: '#a1a1a9' }
  * Altezza in pixel della barra del titolo; uguale in `ui/pannello/styles/title-bar.css`
  * e in `desktop/shell/pages/shared/title-bar.css`.
  */
-export const ALTEZZA_BARRA_TITOLO = 40
+const ALTEZZA_BARRA_TITOLO = 40
 
 /** Se in questo momento l'applicazione è scura. */
 export function scuro (): boolean {
@@ -49,7 +49,7 @@ export function coloreSfondo (): string {
 const conFascia = new WeakSet<BrowserWindow>()
 
 /** La fascia di sistema nei colori del tema attuale. */
-export function fasciaDelTema (): { color: string, symbolColor: string, height: number } {
+function fasciaDelTema (): { color: string, symbolColor: string, height: number } {
   const colori = scuro() ? BARRA_SCURA : BARRA_CHIARA
   return { color: colori.fondo, symbolColor: colori.segni, height: ALTEZZA_BARRA_TITOLO }
 }
@@ -93,7 +93,7 @@ export function cornicePropria (): BrowserWindowConstructorOptions {
 }
 
 /** Da dove parte il programma se non è installato: `dev` con `npm run dev`, `start` con `npm run start`. */
-export function modoSviluppo (): 'dev' | 'start' | null {
+function modoSviluppo (): 'dev' | 'start' | null {
   if (process.env.REGISTRO_SVILUPPO === '1') return 'dev'
   return process.defaultApp ? 'start' : null
 }

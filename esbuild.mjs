@@ -393,6 +393,8 @@ const prove = [
   provaNode('desktop/apparato/updateInstaller.ts', 'dist-tests/updateInstaller.mjs', {
     alias: CON_FINTO,
   }),
+  // L'aggiornamento su macOS: quale archivio della release tocca a questa macchina.
+  provaNode('desktop/apparato/updateMac.ts', 'dist-tests/updateMac.mjs', { alias: CON_FINTO }),
   // L'icona del vassoio: la traduzione delle voci in menu di Electron. Il
   // contenuto lo decide `src/domain/tray.ts`, provato col dominio.
   provaNode('desktop/apparato/tray.ts', 'dist-tests/tray.mjs', { alias: CON_FINTO }),

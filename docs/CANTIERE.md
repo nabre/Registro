@@ -39,11 +39,34 @@ controlli statici; skill `verifica`). Non prima.
       avviso. Decisione strutturale (ADR-19): da scrivere in DECISIONI prima.
 
 
+### Rilascio e aggiornamenti
+
+- [ ] Aggiornamento su macOS e Linux mai provato dal vero: primo rilascio con
+      lavoro `mac` (arm64 + `macos-15-intel`, `latest-mac.yml` fuso con `yq`)
+      da guardare in Actions; poi a mano, da una versione alla successiva,
+      `.app` in Applicazioni (Apple Silicon e Intel: scarico, scambio di
+      `os/macos/aggiornamento.sh`, riapertura), AppImage, `.deb` e `.rpm`
+      (password di `pkexec`). Il diario del Mac sta in
+      `$TMPDIR/registro-aggiornamento-*/diario.txt`.
+
+
 ### Impostazioni
 
-- [ ] Riordino delle pagine Impostazioni secondo [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md):
-      fase 0 (guasti G1–G8) fatta; restano contratto dei controlli, gerarchia
-      ad aree, doppioni (piano § 7). Decisioni aperte in § 8 del piano.
+Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). Pendenze:
+
+- [ ] Condotto: `schemaDiUnaScritturaConcessa` e il ramo «scrittura senza
+      lettura» di `desktop/transports/conduit.ts` ora solo dallo scavalco
+      `permessi` delle prove: togliere o tenere, dopo una prova.
+- [ ] Rimando nel posto con `#voce`: ogni rimando fa una voce di storia a sé.
+- [ ] CSS orfano: `year.css` `.anno` (già orfana prima).
+- [ ] Azione vera `posta.azzera`: oggi «Azzera» in Utente › Account compone
+      `posta.scollega` + `programma.azzera` e lascia la cache indirizzi/tenant di
+      `azzeraOauth`.
+- [ ] ICS: «Sfoglia…» per l'origine file. Chiede `calendario.modifica` con
+      origine vuota che apre il dialogo: cambio di procedura (contract/,
+      `resources/tools.json`).
+- [ ] `ui/pannello/components/notifications.ts` senza azioni: `annullabile.ts` copia il
+      nodo. Meglio un parametro `azione` nelle notifiche.
 
 
 ### Strati
@@ -60,6 +83,11 @@ controlli statici; skill `verifica`). Non prima.
 
 ### Prove
 
+- [ ] `tests/proprieta/migrazioni.test.mjs` «portato e normalizzato, una seconda
+      normalizzazione non cambia niente» cade a caso: seme `-2101211184`,
+      controesempio `impostazioni.scala.min = {"toString": null}`. Normalizzazione
+      della scala non idempotente su oggetti strani. Riprodurre col seme, correggere
+      in `core/dominio/validation.ts`.
 - [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
 - [ ] Mutanti sopravvissuti (misura di prima, `deletions.ts` 87%,
@@ -107,7 +135,7 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       calendario anno/mese/settimana («fine 1° sem.»), piani, impostazioni anno
       nelle quattro lingue; documento vecchio con nomi propri li perde senza
       errori.
-- [ ] Impostazioni › Anno e orario › Calendari ufficiali: si apre, selettore
+- [ ] Impostazioni › Calendario › Chiusure › Calendari ufficiali: si apre, selettore
       con tutti gli anni (clic e frecce), di serie quello in corso con
       pastiglia, scelta tenuta nei ridisegni, tabella chiusure compatta chiaro/scuro e su
       colonna stretta; clic sul PDF apre il browser di sistema, non una
@@ -120,7 +148,7 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       immagine rotta all'avvio.
 - [ ] Barra di stato, lettura delle scansioni accesa senza `llama-mtmd-cli` o
       con il file del modello/proiettore spostato: «non pronta» arancione, il
-      titolo dice il motivo, il clic apre Impostazioni › Modelli linguistici.
+      titolo dice il motivo, il clic apre Impostazioni › Programma › Assistente e modelli.
 - [ ] Barra del titolo propria su benvenuto, impostazioni, dialoghi (anche
       «versione più recente» all'avvio), lettore PDF: logo, titolo, trascinare,
       doppio clic, pulsanti di sistema; cambio tema chiaro/scuro a finestra

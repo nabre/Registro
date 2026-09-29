@@ -227,7 +227,7 @@ function fotoDaTogliere (registro: Registro, vanno: Set<string>): string[] {
  * gestore rifiuta chi prova lo stesso (riga di comando, condotto). `invece` è
  * la mossa che libera la cosa o che non perde niente.
  */
-export interface Occupazione {
+interface Occupazione {
   motivo: string
   invece: string | null
 }

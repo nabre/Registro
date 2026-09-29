@@ -38,24 +38,44 @@ const it = {
   eliminaCartaAiuto: (nome: string) =>
     `Elimina la carta «${nome}»: i suoi corsi passano alla prima`,
   nomeScuola: 'Nome della scuola',
-  nomeScuolaSegnaposto: 'Scuola professionale…',
   nomeScuolaAiuto: 'In cima a ogni foglio dei corsi di questa carta. Vuoto, la riga sparisce.',
-  altezzaLogo: 'Altezza del logo (mm)',
+  altezzaLogo: 'Altezza del logo',
   altezzaLogoAiuto: (minimo: number, massimo: number, predefinita: number) =>
     `Da ${minimo} a ${massimo} millimetri: la larghezza segue ` +
     `le proporzioni dell’immagine. Di serie ${predefinita}.`,
-  altezzaNonNumero: '«Altezza del logo» non è cambiata: serve un numero.',
   corsiSuQuesta: 'Corsi su questa carta',
   chiFirma: 'Chi firma',
   chiFirmaAiuto:
-    'Uno solo, qualunque sia la carta: sta dentro il documento dell’anno e viaggia con lui.',
+    'Uno solo, qualunque sia la carta: sta dentro il documento dell’anno e viaggia con lui. ' +
+    'La firma delle e-mail di serie usa lo stesso nome; una scritta a mano no.',
+  nonSalvata: 'Non salvata: il registro non ha risposto.',
+  altezzaPortata: (mm: number) => `Salvata a ${mm} mm, dentro i limiti.`,
+  mm: 'mm',
+  rendiPredefinita: 'Rendi predefinita',
+  rendiPredefinitaAiuto:
+    'Rendi predefinita: la porta in cima, e da qui in poi i corsi nuovi vanno su questa ' +
+    'carta. I corsi restano dove sono.',
+  togliereLogo: (carta: string) => `Togliere il logo di «${carta}»?`,
+  togliereLogoTesto:
+    'Il file esce dal documento: per rimetterlo va ricaricato dal disco. I fogli di questa carta ' +
+    'escono con la sola scritta in cima.',
+  siLegge: (intero: string) => `Sui fogli: ${intero}`,
+  nessunNome: 'Sui fogli non c’è ancora un nome.',
+  appellativi: ['Prof.', 'Prof.ssa', 'Dott.', 'Dott.ssa', 'Ing.', 'Arch.', 'Sig.', 'Sig.ra'],
+  stampa: 'I PDF dei corsi',
+  modiPdf: {
+    mai: 'Solo quando lo si chiede, dalla pagina Documenti o con Ctrl+K.',
+    chiusura: 'Concludendo un’ora: il suo verbale e i documenti del corso.',
+    sempre: 'A ogni cambiamento che tocca un corso, poco dopo che si è smesso di scrivere.',
+  },
+  pdfAutomatici: 'Quando si rifanno da sé',
+  pdfAutomaticiAiuto:
+    'Quando il registro rifà da sé i PDF di un corso, perché nella cartella ci sia quel che il ' +
+    'registro sa.',
   docenteAppellativo: 'Titolo o appellativo',
-  docenteAppellativoSegnaposto: 'Prof., Prof.ssa, Ing.…',
   docenteAppellativoAiuto:
     'Opzionale: compare nei modelli di stampa che usano {{docente.appellativo}} o {{docente.completo}}.',
-  docenteNomeSegnaposto: 'Mario',
   docenteNomeAiuto: 'Il nome proprio del docente.',
-  docenteCognomeSegnaposto: 'Rossi',
   docenteCognomeAiuto: 'Il cognome del docente.',
   carte: 'Carte intestate',
   carteAiuto:
@@ -105,25 +125,45 @@ export const testi = catalogo(it, {
     eliminaCartaAiuto: (nome) =>
       `Briefpapier «${nome}» löschen: Seine Kurse wechseln zum ersten`,
     nomeScuola: 'Name der Schule',
-    nomeScuolaSegnaposto: 'Berufsfachschule…',
     nomeScuolaAiuto:
       'Oben auf jedem Blatt der Kurse dieses Briefpapiers. Leer verschwindet die Zeile.',
-    altezzaLogo: 'Höhe des Logos (mm)',
+    altezzaLogo: 'Höhe des Logos',
     altezzaLogoAiuto: (minimo, massimo, predefinita) =>
       `Von ${minimo} bis ${massimo} Millimeter: Die Breite folgt den Proportionen des Bildes. ` +
       `Standard ${predefinita}.`,
-    altezzaNonNumero: '«Höhe des Logos» wurde nicht geändert: Es braucht eine Zahl.',
     corsiSuQuesta: 'Kurse auf diesem Briefpapier',
     chiFirma: 'Wer unterschreibt',
     chiFirmaAiuto:
-      'Nur eine Person, egal welches Briefpapier: steht im Jahresdokument und reist mit ihm.',
+      'Nur eine Person, egal welches Briefpapier: steht im Jahresdokument und reist mit ihm. ' +
+      'Die Standard-Signatur der E-Mails nutzt denselben Namen, eine von Hand geschriebene nicht.',
+    nonSalvata: 'Nicht gespeichert: Das Klassenbuch hat nicht geantwortet.',
+    altezzaPortata: (mm) => `Mit ${mm} mm gespeichert, innerhalb der Grenzen.`,
+    mm: 'mm',
+    rendiPredefinita: 'Zum Standard machen',
+    rendiPredefinitaAiuto:
+      'Zum Standard machen: setzt es an den Anfang, und neue Kurse kommen von jetzt an auf ' +
+      'dieses Briefpapier. Die Kurse bleiben, wo sie sind.',
+    togliereLogo: (carta) => `Logo von «${carta}» entfernen?`,
+    togliereLogoTesto:
+      'Die Datei verlässt das Dokument: Um sie zurückzubekommen, muss man sie neu von der ' +
+      'Festplatte laden. Die Blätter dieses Briefpapiers haben dann nur die Schrift oben.',
+    siLegge: (intero) => `Auf den Blättern: ${intero}`,
+    nessunNome: 'Auf den Blättern steht noch kein Name.',
+    appellativi: ['Prof.', 'Prof.in', 'Dr.', 'Dr.in', 'Herr', 'Frau', 'Dipl.-Ing.', 'Mag.'],
+    stampa: 'Die PDFs der Kurse',
+    modiPdf: {
+      mai: 'Nur auf Wunsch, auf der Seite Dokumente oder mit Ctrl+K.',
+      chiusura: 'Beim Abschliessen einer Stunde: ihr Protokoll und die Dokumente des Kurses.',
+      sempre: 'Bei jeder Änderung an einem Kurs, kurz nachdem man aufgehört hat zu schreiben.',
+    },
+    pdfAutomatici: 'Wann sie sich selbst erneuern',
+    pdfAutomaticiAiuto:
+      'Wann das Klassenbuch die PDFs eines Kurses selbst neu erstellt, damit im Ordner steht, ' +
+      'was das Klassenbuch weiss.',
     docenteAppellativo: 'Titel oder Anrede',
-    docenteAppellativoSegnaposto: 'Prof., Dr., Ing.…',
     docenteAppellativoAiuto:
       'Optional: erscheint in Druckvorlagen, die {{docente.appellativo}} oder {{docente.completo}} verwenden.',
-    docenteNomeSegnaposto: 'Hans',
     docenteNomeAiuto: 'Der Vorname der Lehrperson.',
-    docenteCognomeSegnaposto: 'Muster',
     docenteCognomeAiuto: 'Der Nachname der Lehrperson.',
     carte: 'Briefpapiere',
     carteAiuto:
@@ -174,26 +214,46 @@ export const testi = catalogo(it, {
     eliminaCartaAiuto: (nome) =>
       `Supprimer le papier « ${nome} » : ses cours passent au premier`,
     nomeScuola: 'Nom de l’école',
-    nomeScuolaSegnaposto: 'École professionnelle…',
     nomeScuolaAiuto:
       'En haut de chaque feuille des cours de ce papier. Vide, la ligne disparaît.',
-    altezzaLogo: 'Hauteur du logo (mm)',
+    altezzaLogo: 'Hauteur du logo',
     altezzaLogoAiuto: (minimo, massimo, predefinita) =>
       `De ${minimo} à ${massimo} millimètres : la largeur suit les proportions de l’image. ` +
       `Par défaut ${predefinita}.`,
-    altezzaNonNumero: '« Hauteur du logo » n’a pas changé : il faut un nombre.',
     corsiSuQuesta: 'Cours sur ce papier',
     chiFirma: 'Qui signe',
     chiFirmaAiuto:
       'Une seule personne, quel que soit le papier : elle est dans le document de l’année et ' +
-      'voyage avec lui.',
+      'voyage avec lui. La signature des e-mails par défaut utilise le même nom ; une écrite à ' +
+      'la main, non.',
+    nonSalvata: 'Non enregistré : le registre n’a pas répondu.',
+    altezzaPortata: (mm) => `Enregistré à ${mm} mm, dans les limites.`,
+    mm: 'mm',
+    rendiPredefinita: 'Rendre par défaut',
+    rendiPredefinitaAiuto:
+      'Rendre par défaut : le met en tête, et dès maintenant les nouveaux cours vont sur ce ' +
+      'papier. Les cours restent où ils sont.',
+    togliereLogo: (carta) => `Retirer le logo de « ${carta} » ?`,
+    togliereLogoTesto:
+      'Le fichier quitte le document : pour le remettre, il faut le recharger depuis le disque. ' +
+      'Les feuilles de ce papier sortent avec la seule inscription en haut.',
+    siLegge: (intero) => `Sur les feuilles : ${intero}`,
+    nessunNome: 'Il n’y a encore aucun nom sur les feuilles.',
+    appellativi: ['Prof.', 'Prof.e', 'Dr', 'Dre', 'M.', 'Mme', 'Ing.', 'Me'],
+    stampa: 'Les PDF des cours',
+    modiPdf: {
+      mai: 'Seulement sur demande, depuis la page Documents ou avec Ctrl+K.',
+      chiusura: 'En concluant une leçon : son procès-verbal et les documents du cours.',
+      sempre: 'À chaque changement qui touche un cours, peu après qu’on a fini d’écrire.',
+    },
+    pdfAutomatici: 'Quand ils se refont seuls',
+    pdfAutomaticiAiuto:
+      'Quand le registre refait de lui-même les PDF d’un cours, pour que le dossier contienne ce ' +
+      'que le registre sait.',
     docenteAppellativo: 'Titre ou appellation',
-    docenteAppellativoSegnaposto: 'Prof., Dre, Ing.…',
     docenteAppellativoAiuto:
       'Facultatif : apparaît dans les modèles d’impression utilisant {{docente.appellativo}} ou {{docente.completo}}.',
-    docenteNomeSegnaposto: 'Jean',
     docenteNomeAiuto: 'Le prénom de l’enseignant.',
-    docenteCognomeSegnaposto: 'Dupont',
     docenteCognomeAiuto: 'Le nom de famille de l’enseignant.',
     carte: 'Papiers à en-tête',
     carteAiuto:
@@ -238,26 +298,45 @@ export const testi = catalogo(it, {
     predefinita: 'default — new courses go here',
     eliminaCartaAiuto: (nome) => `Delete the letterhead “${nome}”: its courses move to the first`,
     nomeScuola: 'School name',
-    nomeScuolaSegnaposto: 'Vocational school…',
     nomeScuolaAiuto:
       'At the top of every sheet of the courses on this letterhead. Empty, the line disappears.',
-    altezzaLogo: 'Logo height (mm)',
+    altezzaLogo: 'Logo height',
     altezzaLogoAiuto: (minimo, massimo, predefinita) =>
       `From ${minimo} to ${massimo} millimetres: the width follows the proportions of the ` +
       `image. Default ${predefinita}.`,
-    altezzaNonNumero: '“Logo height” was not changed: a number is needed.',
     corsiSuQuesta: 'Courses on this letterhead',
     chiFirma: 'Who signs',
     chiFirmaAiuto:
       'Just one, whatever the letterhead: it lives inside the year’s document and travels ' +
-      'with it.',
+      'with it. The default email signature uses the same name; one written by hand does not.',
+    nonSalvata: 'Not saved: the register did not answer.',
+    altezzaPortata: (mm) => `Saved at ${mm} mm, within the limits.`,
+    mm: 'mm',
+    rendiPredefinita: 'Make default',
+    rendiPredefinitaAiuto:
+      'Make default: moves it to the top, and from now on new courses go on this letterhead. ' +
+      'Courses stay where they are.',
+    togliereLogo: (carta) => `Remove the logo of “${carta}”?`,
+    togliereLogoTesto:
+      'The file leaves the document: to put it back it has to be loaded again from disk. The ' +
+      'sheets of this letterhead come out with just the heading.',
+    siLegge: (intero) => `On the sheets: ${intero}`,
+    nessunNome: 'There is no name on the sheets yet.',
+    appellativi: ['Prof.', 'Dr', 'Mr', 'Ms', 'Mrs', 'Mx', 'Eng.', 'Rev.'],
+    stampa: 'The courses’ PDFs',
+    modiPdf: {
+      mai: 'Only when asked, from the Documents page or with Ctrl+K.',
+      chiusura: 'When a lesson is concluded: its record and the course’s documents.',
+      sempre: 'On every change that touches a course, shortly after you stop typing.',
+    },
+    pdfAutomatici: 'When they redo themselves',
+    pdfAutomaticiAiuto:
+      'When the register redoes a course’s PDFs by itself, so that the folder holds what the ' +
+      'register knows.',
     docenteAppellativo: 'Title or salutation',
-    docenteAppellativoSegnaposto: 'Prof., Dr., Eng.…',
     docenteAppellativoAiuto:
       'Optional: appears in print templates using {{docente.appellativo}} or {{docente.completo}}.',
-    docenteNomeSegnaposto: 'John',
     docenteNomeAiuto: 'The teacher’s first name.',
-    docenteCognomeSegnaposto: 'Doe',
     docenteCognomeAiuto: 'The teacher’s last name.',
     carte: 'Letterheads',
     carteAiuto:

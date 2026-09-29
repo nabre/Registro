@@ -17,7 +17,7 @@ import {
   withProgress,
 } from './dialogs.js'
 import { createWebviewPanel } from './windows.js'
-import { filesystem, finisceCon, scriviDa } from './fs.js'
+import { accodaSe, filesystem, finisceCon } from './fs.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { createFileSystemWatcher } from './watcher.js'
 import {
@@ -39,7 +39,7 @@ import { diSistema } from './system.js'
 
 const impiantoElectron: Impianto = {
   file: filesystem,
-  scriviDa,
+  accodaSe,
   finisceCon,
   cartelleDiLavoro: cartelleAperte,
   osserva: createFileSystemWatcher,

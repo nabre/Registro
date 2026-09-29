@@ -1,7 +1,8 @@
 // La palette: si scrive il nome di quel che si vuole e si preme Invio. Legge
 // gli stessi elenchi della barra (`COMANDI_UI`, `PAGINE`) e dello stato:
-// pagine, azioni, persone in formazione, corsi, classi («dov'è Rossi?» in un
-// passo). L'ordine dei gruppi è fisso, perché si impari; Invio prende la prima
+// pagine, azioni, impostazioni, persone in formazione, corsi, classi («dov'è
+// Rossi?» in un passo). Le impostazioni vengono dalla stessa ricerca del
+// filtro della pagina (`cercaImpostazioni`). L'ordine dei gruppi è fisso, perché si impari; Invio prende la prima
 // riga che si può fare. Vive fuori dal ridisegno, come modali e menu.
 
 import {
@@ -21,14 +22,22 @@ import { nomeDelCorso } from '../context.js'
 import { h, rifocalizza } from '../dom.js'
 import { EVENTO_MODALE_APERTA } from './modal.js'
 import { pagineVisibili, vaiA, type Pagina } from '../pages.js'
-import { classiDellAnno, corsiDellAnnoAperto, vai } from '../state.js'
+import { classiDellAnno, corsiDellAnnoAperto, stato, vai } from '../state.js'
+import { vaiAllImpostazione } from '../views/settings.js'
+import {
+  AREE,
+  cercaImpostazioni,
+  nomeAmbito,
+  sezioneDi,
+  type Trovata,
+} from '../views/settings/sections.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './palette.testi.js'
 
 /** Le specie di riga, nell'ordine in cui compaiono. */
-type Specie = 'pagine' | 'comandi' | 'persone' | 'corsi' | 'classi'
+type Specie = 'pagine' | 'comandi' | 'impostazioni' | 'persone' | 'corsi' | 'classi'
 
-const ORDINE: readonly Specie[] = ['pagine', 'comandi', 'persone', 'corsi', 'classi']
+const ORDINE: readonly Specie[] = ['pagine', 'comandi', 'impostazioni', 'persone', 'corsi', 'classi']
 
 /**
  * Una riga della palette: una pagina, un'azione, una persona, un corso, una
@@ -73,6 +82,25 @@ function voceDiComando (comando: ComandoUI): Voce {
     scorciatoia: comando.scorciatoia,
     impedito: impedimentoDi(comando),
     al: () => void eseguiComando(comando),
+  }
+}
+
+/**
+ * Un'impostazione trovata: una voce del programma o una sezione, con area,
+ * sezione e ambito sotto il nome. Porta lì e la accende.
+ */
+function voceDiImpostazione (trovata: Trovata): Voce {
+  const area = AREE.find((candidata) => candidata.id === trovata.area) ?? AREE[0]
+  const sezione = sezioneDi(trovata.sezione)
+  const dove = sezione.titolo === trovata.titolo ? area.titolo : `${area.titolo} › ${sezione.titolo}`
+  return {
+    specie: 'impostazioni',
+    titolo: trovata.titolo,
+    simbolo: area.simbolo,
+    sotto: trovata.ambito ? `${dove} · ${nomeAmbito(trovata.ambito).nome}` : dove,
+    aiuto: null,
+    impedito: null,
+    al: () => vaiAllImpostazione(trovata.scheda),
   }
 }
 
@@ -141,6 +169,7 @@ function titoloDellaSpecie (specie: Specie): string {
   switch (specie) {
     case 'pagine': return testi().pagine
     case 'comandi': return testi().comandi
+    case 'impostazioni': return testi().impostazioni
     case 'persone': return Molti(L.pif)
     case 'corsi': return Molti(L.corso)
     case 'classi': return Molti(L.classe)
@@ -153,9 +182,11 @@ function titoloDellaSpecie (specie: Specie): string {
  * Oltre il tetto il titoletto dice «6 di 12».
  */
 const TETTO_A_VUOTO: Record<Specie, number> = {
-  pagine: 6, comandi: 4, persone: 0, corsi: 0, classi: 0,
+  pagine: 6, comandi: 4, impostazioni: 0, persone: 0, corsi: 0, classi: 0,
 }
-const TETTO: Record<Specie, number> = { pagine: 4, comandi: 5, persone: 6, corsi: 3, classi: 3 }
+const TETTO: Record<Specie, number> = {
+  pagine: 4, comandi: 5, impostazioni: 4, persone: 6, corsi: 3, classi: 3,
+}
 
 let apertaOra: (() => void) | null = null
 
@@ -194,13 +225,17 @@ function trovati (cercato: string): GruppoTrovato[] {
   const candidate: Record<Specie, () => Voce[]> = {
     pagine: () => pagineVisibili().map(voceDiPagina),
     comandi: () => COMANDI_UI.map(voceDiComando),
+    // Già scelte dalla ricerca delle impostazioni, che guarda anche chiave e descrizione.
+    impostazioni: () => cercaImpostazioni(stato.programma, cercato).map(voceDiImpostazione),
     persone: () => vociDellePersone(classi),
     corsi: () => vociDeiCorsi(),
     classi: () => vociDelleClassi(classi),
   }
   return ORDINE.flatMap((specie): GruppoTrovato[] => {
     if (tetto[specie] === 0) return []
-    const valide = candidate[specie]().filter((voce) => corrisponde(voce, pezzi))
+    const valide = specie === 'impostazioni'
+      ? candidate[specie]()
+      : candidate[specie]().filter((voce) => corrisponde(voce, pezzi))
     const possibili = valide.filter((voce) => voce.impedito === null)
     const impedite = valide.filter((voce) => voce.impedito !== null)
     const voci = [...possibili, ...impedite].slice(0, tetto[specie])

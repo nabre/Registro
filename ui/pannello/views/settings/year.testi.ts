@@ -25,17 +25,6 @@ const it = {
     'o festivi — che quest’anno non ha così. ',
   rivediImporta: 'Rivedi e importa',
 
-  // Gli altri anni.
-  lAnnoAperto: 'L’anno aperto',
-  lAnnoApertoAiuto: 'ogni anno è un documento a sé: aprirne un altro cambia quel che si vede',
-  apriAnno: 'Apri un anno…',
-  nuovoAnno: 'Nuovo anno',
-  nessunAnno: 'Nessun anno scolastico',
-  siComincia: (comeSiParte: string) => `Si comincia da qui. ${comeSiParte}`,
-  aperto: 'aperto',
-  misure: (semestri: number, chiusure: number) => `${semestri} semestri · ${chiusure} chiusure`,
-  modificaDate: 'Modifica le date',
-
   // Le chiusure.
   giorniSenzaLezione: 'Giorni senza lezione',
   chiusureAiuto: 'vacanze e chiusure: la generazione dell’orario le salta',
@@ -49,12 +38,10 @@ const it = {
   aggiungiVacanze: 'Aggiungi le vacanze',
   giorni: (giorni: number) => `${giorni} giorni`,
   modificaChiusure: 'Modifica le chiusure dell’anno',
-  togliChiusura: 'Togli questa chiusura',
-  togliere: (etichetta: string) => `Togliere «${etichetta}»?`,
-  togliereTesto:
-    'Le lezioni già sul calendario restano dove sono: cambia solo quel che ' +
-    'la generazione dell’orario salterà da qui in avanti.',
+  togliChiusura: (etichetta: string) =>
+    `Togli «${etichetta}»: le lezioni già sul calendario restano dove sono`,
   tolta: (etichetta: string) => `«${etichetta}» tolta.`,
+  rimessa: (etichetta: string) => `«${etichetta}» rimessa.`,
 
   // I tipi di settimana.
   tipiSettimana: 'Tipi di settimana',
@@ -71,7 +58,7 @@ const it = {
   marcate: (messe: number, tutte: number) => `${messe} settimane su ${tutte} marcate`,
   tipiAiuto:
     'serve solo dove l’orario va a turni. I tipi — A e B, o altri — sono la lista ' +
-    '«Tipi di settimana» di Impostazioni › Liste',
+    '«Tipi di settimana», qui sotto',
   alterna: 'Alterna',
   alternaAiuto: (tipi: string) =>
     `Riempie l’anno girando su ${tipi} dalla prima ` +
@@ -82,6 +69,13 @@ const it = {
   fuoriLista: (tipo: string) => `Tipo «${tipo}», non più nella lista: cliccando lo togli`,
   togliSettimana: (tipo: string) => `Settimana ${tipo}: cliccando la togli`,
   segnaSettimana: (tipo: string) => `Segna come settimana ${tipo}`,
+  alternareTitolo: 'Alternare i tipi?',
+  alternareTesto: (dal: string, tipi: string) =>
+    `Dal ${dal} a fine anno ogni settimana prende il suo tipo, girando su ${tipi}: anche ` +
+    'quelle segnate a mano. Le settimane chiuse restano senza. L’orario e le lezioni non si ' +
+    'toccano.',
+  settimanaSegnata: (numero: number, tipo: string) => `Settimana ${numero}: ${tipo}.`,
+  settimanaSenzaTipo: (numero: number) => `Settimana ${numero}: senza tipo.`,
 }
 
 export const testi = catalogo(it, {
@@ -104,18 +98,6 @@ export const testi = catalogo(it, {
       `Der offizielle Schulkalender hat ${plurale(voci, 'Eintrag', 'Einträge')} — Daten, ` +
       'Ferien oder Feiertage —, die dieses Jahr nicht so hat. ',
     rivediImporta: 'Prüfen und importieren',
-    lAnnoAperto: 'Das offene Jahr',
-    lAnnoApertoAiuto:
-      'jedes Jahr ist ein eigenes Dokument: Ein anderes öffnen ändert, was man sieht',
-    apriAnno: 'Jahr öffnen…',
-    nuovoAnno: 'Neues Jahr',
-    nessunAnno: 'Kein Schuljahr',
-    siComincia: (comeSiParte) => `Hier fängt man an. ${comeSiParte}`,
-    aperto: 'offen',
-    misure: (semestri, chiusure) =>
-      `${plurale(semestri, 'Semester', 'Semester')} · ` +
-      `${plurale(chiusure, 'Schliessung', 'Schliessungen')}`,
-    modificaDate: 'Daten bearbeiten',
     giorniSenzaLezione: 'Tage ohne Unterricht',
     chiusureAiuto: 'Ferien und Schliessungen: Das Erzeugen aus dem Stundenplan überspringt sie',
     chiusureSenzaAnno: 'Die Schliessungen gehören zu einem Jahr: Zuerst braucht es eines.',
@@ -128,12 +110,10 @@ export const testi = catalogo(it, {
     aggiungiVacanze: 'Ferien hinzufügen',
     giorni: (giorni) => plurale(giorni, 'Tag', 'Tage'),
     modificaChiusure: 'Schliessungen des Jahres bearbeiten',
-    togliChiusura: 'Diese Schliessung entfernen',
-    togliere: (etichetta) => `«${etichetta}» entfernen?`,
-    togliereTesto:
-      'Die Stunden, die schon im Kalender stehen, bleiben, wo sie sind: Es ändert ' +
-      'sich nur, was das Erzeugen aus dem Stundenplan von jetzt an überspringt.',
+    togliChiusura: (etichetta) =>
+      `«${etichetta}» entfernen: Die Stunden im Kalender bleiben, wo sie sind`,
     tolta: (etichetta) => `«${etichetta}» entfernt.`,
+    rimessa: (etichetta) => `«${etichetta}» wiederhergestellt.`,
     tipiSettimana: 'Wochentypen',
     tipiSenzaAnnoAiuto:
       'nötig, wo der Stundenplan im Wechsel läuft: A und B, oder die Typen der Liste',
@@ -149,7 +129,7 @@ export const testi = catalogo(it, {
     marcate: (messe, tutte) => `${messe} von ${tutte} Wochen markiert`,
     tipiAiuto:
       'nur nötig, wo der Stundenplan im Wechsel läuft. Die Typen — A und B, oder andere — sind ' +
-      'die Liste «Wochentypen» unter Einstellungen › Listen',
+      'die Liste «Wochentypen», gleich darunter',
     alterna: 'Abwechseln',
     alternaAiuto: (tipi) =>
       `Füllt das Jahr, abwechselnd ${tipi}, ab der ersten markierten Woche, ohne die ` +
@@ -160,6 +140,13 @@ export const testi = catalogo(it, {
     fuoriLista: (tipo) => `Typ «${tipo}», nicht mehr in der Liste: Ein Klick entfernt ihn`,
     togliSettimana: (tipo) => `Woche ${tipo}: Ein Klick entfernt sie`,
     segnaSettimana: (tipo) => `Als Woche ${tipo} markieren`,
+    alternareTitolo: 'Typen abwechseln?',
+    alternareTesto: (dal, tipi) =>
+      `Ab ${dal} bis Jahresende bekommt jede Woche ihren Typ, abwechselnd ${tipi}: auch die ` +
+      'von Hand markierten. Geschlossene Wochen bleiben ohne. Stundenplan und Stunden werden ' +
+      'nicht berührt.',
+    settimanaSegnata: (numero, tipo) => `Woche ${numero}: ${tipo}.`,
+    settimanaSenzaTipo: (numero) => `Woche ${numero}: ohne Typ.`,
   },
   fr: {
     annoNonCePiu: 'L’année n’existe plus : elle a été retirée ailleurs.',
@@ -180,18 +167,6 @@ export const testi = catalogo(it, {
       `Le calendrier scolaire officiel a ${plurale(voci, 'entrée', 'entrées')} — dates, ` +
       'vacances ou jours fériés — que cette année n’a pas ainsi. ',
     rivediImporta: 'Revoir et importer',
-    lAnnoAperto: 'L’année ouverte',
-    lAnnoApertoAiuto:
-      'chaque année est un document à part : en ouvrir une autre change ce qu’on voit',
-    apriAnno: 'Ouvrir une année…',
-    nuovoAnno: 'Nouvelle année',
-    nessunAnno: 'Aucune année scolaire',
-    siComincia: (comeSiParte) => `On commence ici. ${comeSiParte}`,
-    aperto: 'ouverte',
-    misure: (semestri, chiusure) =>
-      `${plurale(semestri, 'semestre', 'semestres')} · ` +
-      `${plurale(chiusure, 'fermeture', 'fermetures')}`,
-    modificaDate: 'Modifier les dates',
     giorniSenzaLezione: 'Jours sans cours',
     chiusureAiuto: 'vacances et fermetures : la génération de l’horaire les saute',
     chiusureSenzaAnno: 'Les fermetures appartiennent à une année : il en faut d’abord une.',
@@ -204,12 +179,10 @@ export const testi = catalogo(it, {
     aggiungiVacanze: 'Ajouter les vacances',
     giorni: (giorni) => plurale(giorni, 'jour', 'jours'),
     modificaChiusure: 'Modifier les fermetures de l’année',
-    togliChiusura: 'Retirer cette fermeture',
-    togliere: (etichetta) => `Retirer « ${etichetta} » ?`,
-    togliereTesto:
-      'Les leçons déjà au calendrier restent où elles sont : seul change ce que la génération ' +
-      'de l’horaire sautera à partir de maintenant.',
+    togliChiusura: (etichetta) =>
+      `Retirer « ${etichetta} » : les leçons déjà au calendrier restent où elles sont`,
     tolta: (etichetta) => `« ${etichetta} » retirée.`,
+    rimessa: (etichetta) => `« ${etichetta} » remise.`,
     tipiSettimana: 'Types de semaine',
     tipiSenzaAnnoAiuto:
       'utile là où l’horaire va par alternance : A et B, ou les types de la liste',
@@ -225,7 +198,7 @@ export const testi = catalogo(it, {
     marcate: (messe, tutte) => `${messe} semaines sur ${tutte} marquées`,
     tipiAiuto:
       'utile seulement là où l’horaire va par alternance. Les types — A et B, ou d’autres — ' +
-      'sont la liste « Types de semaine » de Paramètres › Listes',
+      'sont la liste « Types de semaine », juste en dessous',
     alterna: 'Alterner',
     alternaAiuto: (tipi) =>
       `Remplit l’année en alternant ${tipi} depuis la première marquée, en sautant les ` +
@@ -236,6 +209,13 @@ export const testi = catalogo(it, {
     fuoriLista: (tipo) => `Type « ${tipo} », plus dans la liste : un clic le retire`,
     togliSettimana: (tipo) => `Semaine ${tipo} : un clic la retire`,
     segnaSettimana: (tipo) => `Marquer comme semaine ${tipo}`,
+    alternareTitolo: 'Alterner les types ?',
+    alternareTesto: (dal, tipi) =>
+      `Du ${dal} à la fin de l’année, chaque semaine prend son type en alternant ${tipi} : ` +
+      'aussi celles marquées à la main. Les semaines fermées restent sans type. L’horaire et ' +
+      'les leçons ne changent pas.',
+    settimanaSegnata: (numero, tipo) => `Semaine ${numero} : ${tipo}.`,
+    settimanaSenzaTipo: (numero) => `Semaine ${numero} : sans type.`,
   },
   en: {
     annoNonCePiu: 'The year is gone: it was removed elsewhere.',
@@ -256,17 +236,6 @@ export const testi = catalogo(it, {
       `The official school calendar has ${plurale(voci, 'entry', 'entries')} — dates, ` +
       'holidays or public holidays — that this year does not have the same way. ',
     rivediImporta: 'Review and import',
-    lAnnoAperto: 'The open year',
-    lAnnoApertoAiuto: 'each year is a document of its own: opening another changes what you see',
-    apriAnno: 'Open a year…',
-    nuovoAnno: 'New year',
-    nessunAnno: 'No school year',
-    siComincia: (comeSiParte) => `This is where you start. ${comeSiParte}`,
-    aperto: 'open',
-    misure: (semestri, chiusure) =>
-      `${plurale(semestri, 'semester', 'semesters')} · ` +
-      `${plurale(chiusure, 'closure', 'closures')}`,
-    modificaDate: 'Edit the dates',
     giorniSenzaLezione: 'Days without lessons',
     chiusureAiuto: 'holidays and closures: generating from the timetable skips them',
     chiusureSenzaAnno: 'Closures belong to a year: you need one first.',
@@ -279,12 +248,10 @@ export const testi = catalogo(it, {
     aggiungiVacanze: 'Add the holidays',
     giorni: (giorni) => plurale(giorni, 'day', 'days'),
     modificaChiusure: 'Edit the year’s closures',
-    togliChiusura: 'Remove this closure',
-    togliere: (etichetta) => `Remove “${etichetta}”?`,
-    togliereTesto:
-      'Lessons already on the calendar stay where they are: only what generating from the ' +
-      'timetable will skip from now on changes.',
+    togliChiusura: (etichetta) =>
+      `Remove “${etichetta}”: lessons already on the calendar stay where they are`,
     tolta: (etichetta) => `“${etichetta}” removed.`,
+    rimessa: (etichetta) => `“${etichetta}” put back.`,
     tipiSettimana: 'Week types',
     tipiSenzaAnnoAiuto: 'needed where the timetable rotates: A and B, or the types in the list',
     settimaneSenzaAnno: 'Weeks belong to a year: you need one first.',
@@ -299,7 +266,7 @@ export const testi = catalogo(it, {
     marcate: (messe, tutte) => `${messe} of ${tutte} weeks marked`,
     tipiAiuto:
       'only needed where the timetable rotates. The types — A and B, or others — are the ' +
-      '“Week types” list in Settings › Lists',
+      '“Week types” list, just below',
     alterna: 'Rotate',
     alternaAiuto: (tipi) =>
       `Fills the year rotating through ${tipi} from the first marked week, skipping the ` +
@@ -310,5 +277,12 @@ export const testi = catalogo(it, {
     fuoriLista: (tipo) => `Type “${tipo}”, no longer in the list: click to remove it`,
     togliSettimana: (tipo) => `Week ${tipo}: click to remove it`,
     segnaSettimana: (tipo) => `Mark as week ${tipo}`,
+    alternareTitolo: 'Rotate the types?',
+    alternareTesto: (dal, tipi) =>
+      `From ${dal} to the end of the year every week gets its type, rotating through ${tipi}: ` +
+      'the ones marked by hand too. Closed weeks stay without one. The timetable and the ' +
+      'lessons are not touched.',
+    settimanaSegnata: (numero, tipo) => `Week ${numero}: ${tipo}.`,
+    settimanaSenzaTipo: (numero) => `Week ${numero}: no type.`,
   },
 })

@@ -5,11 +5,12 @@ import { assistenteAperto, pannelloAssistente } from './assistant.js'
 import { riparazioni } from '../../core/dominio/repairs.js'
 import { avviso, pulsante } from './components/base.js'
 import { conferma } from './components/modal.js'
+import { apriInformazioniDocumento } from './forms/documentInfo.js'
 import { barraProiezione } from './components/projection.js'
 import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
-import { stato, vai } from './state.js'
+import { stato } from './state.js'
 import { chiaveDelPosto, type PaginaId } from './posto.js'
 import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
@@ -144,8 +145,8 @@ function barraAvvisi (): Figlio {
       pulsante({
         testo: parole().dettagli,
         variante: 'fantasma',
-        // Dritto alla sezione che elenca i riferimenti da sistemare.
-        al: () => { vai({ pagina: 'pagina.impostazioni', scheda: 'documento.file' }) },
+        // Dritto al dialogo che elenca i riferimenti da sistemare.
+        al: () => apriInformazioniDocumento(),
       }),
     ),
     'attenzione',

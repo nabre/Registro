@@ -17,12 +17,12 @@ const it = {
     `llama-mtmd-cli non è riuscito a leggere la pagina: ${messaggio}`,
   senzaProiettore:
     'Il modello che legge le scansioni ha bisogno anche del suo proiettore — il file ' +
-    '«mmproj» —, che si scarica insieme a lui dalla sezione «Modelli linguistici» delle ' +
+    '«mmproj» —, che si scarica insieme a lui dalla sezione «Assistente e modelli» delle ' +
     'impostazioni.',
   senzaProgramma: (daDove: string) =>
     'Per leggere le scansioni serve «llama-mtmd-cli», il programma di llama.cpp per i ' +
     `modelli che guardano: si scarica da ${daDove} e si sceglie nelle impostazioni, ` +
-    'sotto «Modelli linguistici».',
+    'sotto «Assistente e modelli».',
   nienteDaGuardare: 'Non c’è niente da guardare.',
   /** Come si chiama il programma mentre scende: «Non riesco a scaricare …». */
   programma: 'il programma che legge le scansioni',
@@ -40,12 +40,12 @@ export const testi = catalogo(it, {
     nonRiuscito: (messaggio) => `llama-mtmd-cli konnte die Seite nicht lesen: ${messaggio}`,
     senzaProiettore:
       'Das Modell, das die Scans liest, braucht auch seinen Projektor — die Datei ' +
-      '«mmproj» —, der zusammen mit ihm im Bereich «Sprachmodelle» der Einstellungen ' +
+      '«mmproj» —, der zusammen mit ihm im Bereich «Assistent und Modelle» der Einstellungen ' +
       'heruntergeladen wird.',
     senzaProgramma: (daDove) =>
       'Zum Lesen der Scans braucht es «llama-mtmd-cli», das Programm von llama.cpp für ' +
       `Modelle, die sehen: Lade es von ${daDove} herunter und wähle es in den ` +
-      'Einstellungen unter «Sprachmodelle».',
+      'Einstellungen unter «Assistent und Modelle».',
     nienteDaGuardare: 'Es gibt nichts anzuschauen.',
     programma: 'das Programm, das die Scans liest',
   },
@@ -61,12 +61,12 @@ export const testi = catalogo(it, {
     nonRiuscito: (messaggio) => `llama-mtmd-cli n’a pas réussi à lire la page : ${messaggio}`,
     senzaProiettore:
       'Le modèle qui lit les scans a aussi besoin de son projecteur — le fichier ' +
-      '« mmproj » —, qui se télécharge avec lui depuis la section « Modèles de langage » des ' +
+      '« mmproj » —, qui se télécharge avec lui depuis la section « Assistant et modèles » des ' +
       'paramètres.',
     senzaProgramma: (daDove) =>
       'Pour lire les scans, il faut « llama-mtmd-cli », le programme de llama.cpp ' +
       `pour les modèles qui voient : télécharge-le depuis ${daDove} et choisis-le ` +
-      'dans les paramètres, sous « Modèles de langage ».',
+      'dans les paramètres, sous « Assistant et modèles ».',
     nienteDaGuardare: 'Il n’y a rien à regarder.',
     programma: 'le programme qui lit les scans',
   },
@@ -82,10 +82,10 @@ export const testi = catalogo(it, {
     nonRiuscito: (messaggio) => `llama-mtmd-cli could not read the page: ${messaggio}`,
     senzaProiettore:
       'The model that reads scans also needs its projector — the “mmproj” file —, which is ' +
-      'downloaded together with it from the “Language models” section of the settings.',
+      'downloaded together with it from the “Assistant and models” section of the settings.',
     senzaProgramma: (daDove) =>
       'Reading scans needs “llama-mtmd-cli”, the llama.cpp program for models that see: ' +
-      `download it from ${daDove} and choose it in the settings, under “Language models”.`,
+      `download it from ${daDove} and choose it in the settings, under “Assistant and models”.`,
     nienteDaGuardare: 'There is nothing to look at.',
     programma: 'the program that reads scans',
   },

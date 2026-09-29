@@ -62,26 +62,85 @@ interface Soggetto {
   id: string;
 }
 
-// Le sezioni delle impostazioni stanno qui e non in `state.ts`, che le
-// importa: il posto non deve dipendere dallo stato.
-/** Le sezioni delle impostazioni del programma, nell'ordine in cui si aprono. */
-export type SchedaProgramma =
-  | 'aspetto' | 'posta' | 'account' | 'modelli' | 'aggiornamenti' | 'condotto' | 'calendari'
+// Le aree e le sezioni delle impostazioni stanno qui e non in `state.ts`, che
+// le importa: il posto non deve dipendere dallo stato. I nomi a parole e il
+// disegno stanno in `views/settings/sections.ts`.
+/** Le quattro aree delle impostazioni: le schede fisse in testata. */
+export type AreaImpostazioni = 'calendario' | 'didattica' | 'utente' | 'programma'
 
-export const SCHEDE_PROGRAMMA: readonly SchedaProgramma[] = [
-  'aspetto', 'posta', 'account', 'modelli', 'aggiornamenti', 'condotto', 'calendari',
-]
+/**
+ * Le sezioni di ogni area, nell'ordine in cui scorrono. Un id vale in un'area
+ * sola: è anche l'ancora dell'indirizzo (`utente#posta`).
+ */
+export const SEZIONI_DELLE_AREE = {
+  calendario: ['anno', 'chiusure', 'settimane', 'giornata', 'ics'],
+  didattica: ['valutazione', 'liste'],
+  utente: ['chiSei', 'stampa', 'account', 'posta'],
+  programma: ['aspetto', 'avvio', 'modelli', 'aggiornamenti', 'condotto'],
+} as const satisfies Record<AreaImpostazioni, readonly string[]>
 
-/** Le sezioni delle impostazioni del documento d'anno. */
-export type SchedaDocumento =
-  | 'anno' | 'calendario' | 'ics' | 'valutazione' | 'materie' | 'liste' | 'intestazione' | 'file'
+export const AREE_IMPOSTAZIONI = Object.keys(SEZIONI_DELLE_AREE) as AreaImpostazioni[]
 
-export const SCHEDE_DOCUMENTO: readonly SchedaDocumento[] = [
-  'anno', 'calendario', 'ics', 'valutazione', 'materie', 'liste', 'intestazione', 'file',
-]
+/** Una sezione delle impostazioni, di qualunque area. */
+export type SezioneImpostazioni = (typeof SEZIONI_DELLE_AREE)[AreaImpostazioni][number]
 
-/** La sezione delle impostazioni, col suo ambito davanti: vale solo lì. */
-export type Scheda = `programma.${SchedaProgramma}` | `documento.${SchedaDocumento}`
+/**
+ * L'indirizzo dentro le impostazioni: l'area e, dopo `#`, la voce su cui
+ * arrivare — una sezione, la chiave di un'impostazione, un blocco con nome.
+ */
+export type Scheda = AreaImpostazioni | `${AreaImpostazioni}#${string}`
+
+/** L'area in cui sta una sezione, o `undefined` se non è una sezione. */
+export function areaDellaSezione (sezione: string): AreaImpostazioni | undefined {
+  return AREE_IMPOSTAZIONI.find((area) =>
+    (SEZIONI_DELLE_AREE[area] as readonly string[]).includes(sezione))
+}
+
+/** L'area di un indirizzo delle impostazioni. */
+export function areaDellaScheda (scheda: Scheda): AreaImpostazioni {
+  return scheda.split('#')[0] as AreaImpostazioni
+}
+
+/** La voce di un indirizzo delle impostazioni, se ne ha una. */
+export function voceDellaScheda (scheda: Scheda): string | undefined {
+  const voce = scheda.split('#')[1]
+  return voce === undefined || voce === '' ? undefined : voce
+}
+
+/**
+ * Le schede di prima, `ambito.sezione`, e dove stanno adesso: le scrivono i
+ * rimandi di altre pagine, la memoria di una versione precedente e la
+ * storia; anche le voci di un'area che non ci sono più. `recapiti` era già
+ * dentro la posta, i `modelli` del documento erano già la carta intestata.
+ */
+const SCHEDE_DI_PRIMA: Readonly<Record<string, Scheda>> = {
+  'programma.aspetto': 'programma#aspetto',
+  'programma.posta': 'utente#posta',
+  'programma.recapiti': 'utente#posta',
+  'programma.account': 'utente#account',
+  'programma.modelli': 'programma#modelli',
+  'programma.aggiornamenti': 'programma#aggiornamenti',
+  'programma.condotto': 'programma#condotto',
+  // I calendari ufficiali stanno con le chiusure, che ne vengono.
+  'programma.calendari': 'calendario#calendari',
+  'documento.anno': 'calendario#anno',
+  'documento.calendario': 'calendario#giornata',
+  'documento.ics': 'calendario#ics',
+  'documento.valutazione': 'didattica#valutazione',
+  // Le materie si regolano solo nella pagina Corsi: un indirizzo, qui, non
+  // porta a un'altra pagina, e chi le cercava ritrova la sua area.
+  'documento.materie': 'didattica',
+  'didattica#materie': 'didattica',
+  'documento.liste': 'didattica#liste',
+  'documento.intestazione': 'utente#chiSei',
+  'documento.modelli': 'utente#stampa',
+  // «Questo file» e l'elenco degli anni sono usciti dalle impostazioni (il
+  // dialogo «Informazioni documento», il menu «File»): chi li ricorda torna
+  // sull'anno, che è quel che resta lì.
+  'documento.file': 'calendario#anno',
+  'calendario#file': 'calendario#anno',
+  'calendario#anni': 'calendario#anno',
+}
 
 export interface Posto {
   pagina: PaginaId;
@@ -125,9 +184,7 @@ interface CampiVista {
   vista: Vista;
   ambitoCheck?: 'corso' | 'classe';
   schedaDocente?: 'todo' | 'documenti' | 'assenze' | 'messaggistica';
-  ambitoImpostazioni?: 'programma' | 'documento';
-  schedaProgramma?: SchedaProgramma;
-  schedaDocumento?: SchedaDocumento;
+  areaImpostazioni?: AreaImpostazioni;
 }
 
 /**
@@ -139,6 +196,9 @@ interface CampiVecchi {
   paginaId?: unknown;
   ambitoCheck?: unknown;
   schedaDocente?: unknown;
+  /** Quello di oggi: l'area delle impostazioni. */
+  areaImpostazioni?: unknown;
+  // Quelli di prima delle aree.
   ambitoImpostazioni?: unknown;
   schedaProgramma?: unknown;
   schedaDocumento?: unknown;
@@ -224,19 +284,27 @@ function diClasse (pagina: PaginaId): boolean {
   return pagina.startsWith('pagina.classe.')
 }
 
+/** Una voce dopo `#`: un id o una chiave puntata, niente che si confonda con la chiave del posto. */
+const VOCE_VALIDA = /^[A-Za-z0-9_.-]{1,160}$/
+
 /**
- * La scheda, se è ancora una di quelle che esistono. `recapiti` è dentro
- * «Comunicazioni», che ha l'id della posta; i `modelli` del documento sono
- * rimasti la carta intestata.
+ * L'indirizzo, se porta a un'area che esiste; una scheda di prima
+ * (`programma.posta`) si traduce nel suo posto di adesso.
  */
 export function schedaValida (scheda: unknown): Scheda | undefined {
-  if (scheda === 'programma.recapiti') return 'programma.posta'
-  if (scheda === 'documento.modelli') return 'documento.intestazione'
   if (typeof scheda !== 'string') return undefined
-  const [ambito, nome] = scheda.split('.')
-  if (ambito === 'programma' && SCHEDE_PROGRAMMA.includes(nome as SchedaProgramma)) return scheda as Scheda
-  if (ambito === 'documento' && SCHEDE_DOCUMENTO.includes(nome as SchedaDocumento)) return scheda as Scheda
-  return undefined
+  if (Object.hasOwn(SCHEDE_DI_PRIMA, scheda)) return SCHEDE_DI_PRIMA[scheda]
+  const [area, voce, ...resto] = scheda.split('#')
+  if (resto.length > 0 || !AREE_IMPOSTAZIONI.includes(area as AreaImpostazioni)) return undefined
+  if (voce === undefined) return area as AreaImpostazioni
+  return VOCE_VALIDA.test(voce) ? scheda as Scheda : undefined
+}
+
+/** La sezione di prima (`programma`, `recapiti`) nella sezione di adesso. */
+export function sezioneDiPrima (ambito: unknown, nome: unknown): SezioneImpostazioni | undefined {
+  const scheda = schedaValida(`${String(ambito)}.${String(nome)}`)
+  const voce = scheda ? voceDellaScheda(scheda) : undefined
+  return voce !== undefined && areaDellaSezione(voce) ? voce as SezioneImpostazioni : undefined
 }
 
 /**
@@ -269,8 +337,8 @@ export function postoDaVista (vista: Vista, elementoId?: string, registro?: Regi
     case 'guida': return { pagina: 'pagina.guida' }
     case 'impostazioni': return { pagina: 'pagina.impostazioni' }
     // Gli alias stanno solo qui: fuori dalla tabella nessuno li conosce.
-    case 'modelli': return { pagina: 'pagina.impostazioni', scheda: 'documento.intestazione' }
-    case 'modelliLinguistici': return { pagina: 'pagina.impostazioni', scheda: 'programma.modelli' }
+    case 'modelli': return { pagina: 'pagina.impostazioni', scheda: 'utente#stampa' }
+    case 'modelliLinguistici': return { pagina: 'pagina.impostazioni', scheda: 'programma#modelli' }
   }
 }
 
@@ -289,12 +357,7 @@ export function derivaVista (posto: Posto): CampiVista {
       .find(([, pagina]) => pagina === posto.pagina)
     campi.schedaDocente = voce?.[0] as CampiVista['schedaDocente']
   }
-  if (vista === 'impostazioni' && posto.scheda) {
-    const [ambito, nome] = posto.scheda.split('.') as ['programma' | 'documento', string]
-    campi.ambitoImpostazioni = ambito
-    if (ambito === 'programma') campi.schedaProgramma = nome as SchedaProgramma
-    else campi.schedaDocumento = nome as SchedaDocumento
-  }
+  if (vista === 'impostazioni' && posto.scheda) campi.areaImpostazioni = areaDellaScheda(posto.scheda)
   return campi
 }
 
@@ -312,14 +375,16 @@ function id (valore: unknown): string | null {
  */
 export function postoDaVecchi (vecchi: CampiVecchi): Posto {
   const vista = vecchi.vista
-  if (vista === 'modelli') return { pagina: 'pagina.impostazioni', scheda: 'documento.intestazione' }
-  if (vista === 'modelliLinguistici') return { pagina: 'pagina.impostazioni', scheda: 'programma.modelli' }
+  if (vista === 'modelli') return { pagina: 'pagina.impostazioni', scheda: 'utente#stampa' }
+  if (vista === 'modelliLinguistici') return { pagina: 'pagina.impostazioni', scheda: 'programma#modelli' }
   if (vista === 'impostazioni') {
-    // I predefiniti sono quelli con cui lo stato di prima convalidava.
+    const area = schedaValida(vecchi.areaImpostazioni)
+    if (area) return { pagina: 'pagina.impostazioni', scheda: areaDellaScheda(area) }
+    // Prima delle aree: i predefiniti sono quelli con cui lo stato di prima convalidava.
     const ambito = vecchi.ambitoImpostazioni === 'programma' ? 'programma' : 'documento'
     const nome = ambito === 'programma' ? vecchi.schedaProgramma : vecchi.schedaDocumento
     const scheda = schedaValida(`${ambito}.${String(nome)}`) ??
-      (ambito === 'programma' ? 'programma.aspetto' : 'documento.anno')
+      (ambito === 'programma' ? 'programma#aspetto' : 'calendario#anno')
     return { pagina: 'pagina.impostazioni', scheda }
   }
 

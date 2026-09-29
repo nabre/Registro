@@ -172,7 +172,3 @@ export function senzaAnno (): string | null {
 export function senzaLezione (): string | null {
   return lezioneDelContesto() ? null : testi().senzaLezione
 }
-
-export function senzaPosta (): string | null {
-  return stato.posta.exchange ? null : testi().senzaPosta
-}

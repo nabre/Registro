@@ -10,7 +10,7 @@ import type { ChiaveImpostazione, IdComando } from './manifesto.js'
 
 /** Quel che si legge di un'impostazione. */
 interface TestoImpostazione {
-  /** Il nome della voce come lo legge chi insegna («Minuti di anticipo»). */
+  /** Il nome della voce come lo legge chi insegna («Avviso prima della lezione»). */
   readonly etichetta: string
   /** Il testo discorsivo sotto il campo. */
   readonly descrizione: string
@@ -18,6 +18,8 @@ interface TestoImpostazione {
   readonly scelte?: Readonly<Record<string, string>>
   /** Per un interruttore che `richiede` qualcosa: il perché, detto a chi lo preme. */
   readonly motivo?: string
+  /** Per un numero: l'unità scritta accanto al campo («min»). */
+  readonly unita?: string
 }
 
 interface TestiManifesto {
@@ -43,7 +45,9 @@ const it: TestiManifesto = {
     'registroDocenti.nuovoAnno': 'Nuovo anno scolastico',
     'registroDocenti.ricarica': 'Ricarica i dati',
     'registroDocenti.salvaConNome': 'Salva l’anno con nome…',
+    'registroDocenti.informazioniDocumento': 'Informazioni documento…',
     'registroDocenti.chiudiDocumento': 'Chiudi l’anno',
+    'registroDocenti.account': 'Account e posta…',
     'registroDocenti.provaPosta': 'Prova il collegamento della posta',
     'registroDocenti.provaInvioPosta': 'Manda una mail di prova',
     'registroDocenti.collegaPosta': 'Collega la casella di posta',
@@ -92,9 +96,10 @@ const it: TestiManifesto = {
     'registroDocenti.avvio.conWindows': {
       etichetta: 'Parti con Windows',
       descrizione:
-        'Accende il registro insieme al computer, senza aprire nessuna finestra: resta l’icona ' +
-        'accanto all’orologio. Vale per il registro installato e per quello portabile, purché il ' +
-        'suo file resti dov’era.',
+        'Accende il registro insieme al computer. Con l’icona accanto all’orologio parte senza ' +
+        'aprire nessuna finestra e resta lì, pronto; senza l’icona apre la finestra del registro. ' +
+        'Vale per il registro installato e per quello portabile, purché il suo file resti ' +
+        'dov’era.',
     },
     'registroDocenti.avvio.soloVassoio': {
       etichetta: 'Parti senza aprire il registro',
@@ -109,19 +114,21 @@ const it: TestiManifesto = {
         'Registra all’avvio l’associazione dei file .regi, il comando regi nel PATH e ' +
         'l’identità per le notifiche.',
     },
-    'registroDocenti.promemoria.attivo': {
+    'registroDocenti.promemoria.avviso': {
       etichetta: 'Avviso prima della lezione',
+      scelte: {
+        nessuno: 'Nessun avviso: il registro non manda notifiche prima delle lezioni.',
+        '0': 'All’ora: l’avviso arriva quando la lezione comincia.',
+        '2': '2 min prima: il tempo di chiudere quel che si sta facendo.',
+        '5': '5 min prima: il tempo di prendere il computer e salire una rampa di scale.',
+        '10': '10 min prima: per chi cambia edificio.',
+        '15': '15 min prima: il più anticipato.',
+      },
       descrizione:
         'Avvisa con una notifica del sistema poco prima che una lezione cominci, dicendo quale ' +
         'classe e che cosa resta aperto per quel corso. La notifica si preme e apre il registro ' +
         'di quell’ora. Non arriva mentre si sta già guardando il registro, e non arriva due volte ' +
-        'per la stessa ora.',
-    },
-    'registroDocenti.promemoria.anticipoMinuti': {
-      etichetta: 'Minuti di anticipo',
-      descrizione:
-        'Quanti minuti prima dell’inizio arriva l’avviso. Cinque è il tempo di prendere il ' +
-        'computer e salire una rampa di scale; zero lo fa arrivare all’ora esatta.',
+        'per la stessa ora. «Nessun avviso» la spegne.',
     },
     'registroDocenti.proiezione.schermoIntero': {
       etichetta: 'Proiezione a schermo intero',
@@ -157,10 +164,10 @@ const it: TestiManifesto = {
     'registroDocenti.recapiti.telefono': {
       etichetta: 'Chiamate',
       scelte: {
-        tel: 'Il programma di Windows per le chiamate (Collegamento al telefono, Teams, Skype).',
-        msteams: 'Teams, saltando la scelta di Windows.',
-        skype: 'Skype, saltando la scelta di Windows.',
-        callto: 'Il vecchio schema di Skype, per chi ha ancora quello registrato.',
+        tel: 'Windows: il programma di Windows per le chiamate (Collegamento al telefono, Teams, Skype).',
+        msteams: 'Teams: saltando la scelta di Windows.',
+        skype: 'Skype: saltando la scelta di Windows.',
+        callto: 'callto: il vecchio schema di Skype, per chi ha ancora quello registrato.',
         nessuno: 'Nessuno: i numeri restano da leggere e da copiare.',
       },
       descrizione:
@@ -170,9 +177,9 @@ const it: TestiManifesto = {
     'registroDocenti.recapiti.posta': {
       etichetta: 'Mail',
       scelte: {
-        sistema: 'Il programma di posta predefinito di Windows.',
-        outlook: 'Outlook, anche quando il predefinito è un altro programma.',
-        outlookWeb: 'Outlook sul web, nel browser.',
+        sistema: 'Sistema: il programma di posta predefinito di Windows.',
+        outlook: 'Outlook: anche quando il predefinito è un altro programma.',
+        outlookWeb: 'Outlook web: nel browser.',
         nessuno: 'Nessuno: gli indirizzi restano da leggere e da copiare.',
       },
       descrizione:
@@ -190,32 +197,21 @@ const it: TestiManifesto = {
         'gigabyte, o per usare quelli che si hanno già: il registro li vede tutti e non ne copia ' +
         'nessuno.',
     },
-    'registroDocenti.modelli.scaricoAutomatico': {
-      etichetta: 'Scarica da sé i programmi che mancano',
-      descrizione:
-        'La prima volta che serve, il registro si prende da sé il programma che fa leggere le ' +
-        'scansioni — «llama-mtmd-cli», una volta sola — in una cartella sua dentro i dati ' +
-        'dell’applicazione. Non installa niente, controlla l’impronta di quel che scarica e la ' +
-        'versione è fissata nel programma. Spento, il programma si sceglie a mano più sotto: serve ' +
-        'su una connessione a consumo. I modelli del linguaggio non c’entrano: quelli si scaricano ' +
-        'dalla sezione «Modelli linguistici» delle impostazioni. Nemmeno la dettatura: quel che le ' +
-        'serve lo scarica voicebox, per conto suo.',
-    },
     'registroDocenti.ocr.attivo': {
       etichetta: 'Lettura delle scansioni',
       descrizione:
         'Legge con un modello locale le pagine dei PDF che non contengono testo (scansioni), per ' +
         `riconoscere ${il(PIF)}. Vuole un modello che sappia guardare, con il suo proiettore, ` +
-        'scelti dalla sezione «Modelli linguistici» delle impostazioni.',
+        'scelti dalla sezione «Assistente e modelli» delle impostazioni.',
       motivo:
         'La lettura delle scansioni non si accende senza un modello che sappia guardare, con ' +
-        'il suo proiettore: si sceglie dalla sezione «Modelli linguistici» delle impostazioni.',
+        'il suo proiettore: si sceglie dalla sezione «Assistente e modelli» delle impostazioni.',
     },
     'registroDocenti.ocr.modello': {
       etichetta: 'Modello che legge',
       descrizione:
         'Il modello con cui si leggono le scansioni: deve saper guardare le immagini. Si sceglie ' +
-        'dalla sezione «Modelli linguistici» delle impostazioni, che è anche il posto da cui ' +
+        'dalla sezione «Assistente e modelli» delle impostazioni, che è anche il posto da cui ' +
         'si scarica.',
     },
     'registroDocenti.ocr.proiettore': {
@@ -223,15 +219,25 @@ const it: TestiManifesto = {
       descrizione:
         'Il secondo file del modello che guarda — quello con «mmproj» nel nome —, che trasforma ' +
         'l’immagine in qualcosa che il modello sappia leggere. Si sceglie dalla sezione ' +
-        '«Modelli linguistici» delle impostazioni.',
+        '«Assistente e modelli» delle impostazioni.',
     },
-    'registroDocenti.ocr.programma': {
-      etichetta: 'Programma llama-mtmd-cli',
+    'registroDocenti.ocr.lettore': {
+      etichetta: 'Programma di lettura',
+      scelte: {
+        '':
+          'Lo scarica il registro: la prima volta che serve prende da sé «llama-mtmd-cli», una ' +
+          'volta sola, e ne controlla l’impronta.',
+        nessuno:
+          'Non scaricare: il registro non prende niente da internet, e la lettura resta ferma ' +
+          'finché non si indica un programma.',
+      },
       descrizione:
-        'Una copia di «llama-mtmd-cli.exe» che si ha già — compilata, o con l’accelerazione della ' +
-        'propria scheda video —: se c’è vince su quella che scarica il registro. Vuoto, se ne ' +
-        'occupa il registro. Dev’essere un .exe: il registro fa partire esattamente questo ' +
-        'programma e nient’altro.',
+        'Il programma che fa leggere le scansioni al modello: «llama-mtmd-cli» di llama.cpp. Di ' +
+        'serie lo scarica il registro, una volta sola, in una cartella sua dentro i dati ' +
+        'dell’applicazione: non installa niente, controlla l’impronta e la versione è fissata nel ' +
+        'programma. Si sceglie «Questo .exe» per usare una copia che si ha già — compilata, o con ' +
+        'l’accelerazione della propria scheda video —: il registro fa partire esattamente quel ' +
+        'file e nient’altro. «Non scaricare» serve su una connessione a consumo.',
     },
     'registroDocenti.assistente.attivo': {
       etichetta: 'Assistente',
@@ -242,14 +248,14 @@ const it: TestiManifesto = {
         'niente a nessuno, e niente di quel che si chiede esce di qui.',
       motivo:
         'L’assistente non si accende senza un modello: se ne sceglie uno dalla sezione ' +
-        '«Modelli linguistici» delle impostazioni.',
+        '«Assistente e modelli» delle impostazioni.',
     },
     'registroDocenti.assistente.modello': {
       etichetta: 'Modello dell’assistente',
       descrizione:
         'Il modello con cui risponde l’assistente: deve saper chiamare gli strumenti («tool ' +
         'calling»), cosa che sotto i 3 miliardi di parametri diventa inaffidabile. Si sceglie ' +
-        'dalla sezione «Modelli linguistici» delle impostazioni, che ne consiglia due e li ' +
+        'dalla sezione «Assistente e modelli» delle impostazioni, che ne consiglia due e li ' +
         'scarica.',
     },
     'registroDocenti.dettatura.attivo': {
@@ -274,14 +280,13 @@ const it: TestiManifesto = {
         'uno, voicebox lo scarica per conto suo — da qualche centinaio di MB a un paio di GB — e ' +
         'intanto la dettatura risponde «riprova fra poco».',
     },
-    'registroDocenti.dettatura.indirizzo': {
-      etichetta: 'Indirizzo di voicebox',
+    'registroDocenti.dettatura.porta': {
+      etichetta: 'Porta di voicebox',
       descrizione:
-        'Dove il registro trova voicebox. Quello scritto è l’indirizzo che voicebox usa da sé ' +
-        'quando lo si apre: si cambia solo se lo si è avviato su un’altra porta. Dev’essere un ' +
-        'indirizzo di questo computer — 127.0.0.1, localhost o [::1] —, perché è lì che il ' +
-        'registro manda la voce: un indirizzo di un’altra macchina la farebbe uscire di qui, e il ' +
-        'registro non lo accetta.',
+        'La porta su cui voicebox risponde, su questo computer (127.0.0.1): 17493 è quella che ' +
+        'voicebox usa da sé quando lo si apre, e si cambia solo se lo si è avviato su un’altra. ' +
+        'L’indirizzo resta di questo computer apposta: è lì che il registro manda la voce, e così ' +
+        'non esce di qui.',
     },
     'registroDocenti.aggiornamenti.controlloAutomatico': {
       etichetta: 'Cerca versioni nuove',
@@ -302,29 +307,20 @@ const it: TestiManifesto = {
         'Una versione già scaricata si installa da sé la prossima volta che si esce dal registro, ' +
         'e alla riapertura c’è quella nuova. Spento, aspetta che si prema «Riavvia e aggiorna».',
     },
-    'registroDocenti.api.condotto': {
+    'registroDocenti.api.accesso': {
       etichetta: 'Condotto locale',
+      scelte: {
+        spento: 'Spento: niente in ascolto, «regi» e gli script non raggiungono il registro.',
+        lettura: 'Solo lettura: dal condotto si guarda — presenze, assenze, medie, calendario — ma non si cambia niente.',
+        letturaScrittura: 'Lettura e scrittura: si guarda e si scrive — un appello, un voto, una lezione, posta a tuo nome.',
+      },
       descrizione:
         'Fa rispondere il registro anche fuori dalle sue finestre, su un condotto locale — una ' +
         '«named pipe» su Windows — così che il comando «regi» e uno script possano parlargli ' +
-        'senza aprire il pannello. Non apre nessuna porta di rete e non esce dalla macchina. È ' +
-        'l’interruttore generale: spento non c’è niente in ascolto, e le due voci qui sotto non ' +
-        'valgono. Acceso, però, ogni programma che gira con il tuo stesso accesso può usarlo ' +
-        'senza chiedertelo. Accendilo se ti serve davvero, e spegnilo quando hai finito.',
-    },
-    'registroDocenti.api.lettura': {
-      etichetta: 'Permetti di leggere',
-      descrizione:
-        'Lascia che dal condotto si guardi: presenze, assenze, medie, calendario, i dati delle ' +
-        'persone in formazione già calcolati. Da sola non lascia cambiare niente, ma quel che esce ' +
-        'sono dati di persone, e ogni programma che gira con il tuo accesso può chiederli.',
-    },
-    'registroDocenti.api.scrittura': {
-      etichetta: 'Permetti di scrivere',
-      descrizione:
-        'Lascia che dal condotto si scriva: segnare un appello, mettere un voto, creare una ' +
-        'lezione, far partire posta a tuo nome. Quel che uno script scrive per sbaglio resta ' +
-        'scritto: accendila solo per il tempo che serve a quello script.',
+        'senza aprire il pannello. Non apre nessuna porta di rete e non esce dalla macchina. ' +
+        'Acceso, però, ogni programma che gira con il tuo stesso accesso può usarlo senza ' +
+        'chiedertelo, e quel che legge sono dati di persone; quel che uno script scrive per ' +
+        'sbaglio resta scritto. Concedi solo quel che serve, e spegnilo quando hai finito.',
     },
   },
 }
@@ -346,7 +342,9 @@ export const testi = catalogo(it, {
       'registroDocenti.nuovoAnno': 'Neues Schuljahr',
       'registroDocenti.ricarica': 'Daten neu laden',
       'registroDocenti.salvaConNome': 'Schuljahr speichern unter…',
+      'registroDocenti.informazioniDocumento': 'Dokumentinformationen…',
       'registroDocenti.chiudiDocumento': 'Schuljahr schliessen',
+      'registroDocenti.account': 'Konten und E-Mail…',
       'registroDocenti.provaPosta': 'Mailverbindung testen',
       'registroDocenti.provaInvioPosta': 'Test-E-Mail senden',
       'registroDocenti.collegaPosta': 'Postfach verbinden',
@@ -395,9 +393,10 @@ export const testi = catalogo(it, {
       'registroDocenti.avvio.conWindows': {
         etichetta: 'Mit Windows starten',
         descrizione:
-          'Startet das Klassenbuch zusammen mit dem Computer, ohne ein Fenster zu öffnen: es bleibt ' +
-          'das Symbol neben der Uhr. Gilt für die installierte und die portable Version, solange ' +
-          'deren Datei am selben Ort bleibt.',
+          'Startet das Klassenbuch zusammen mit dem Computer. Mit dem Symbol neben der Uhr startet ' +
+          'es ohne Fenster und wartet dort; ohne das Symbol öffnet es das Fenster des Klassenbuchs. ' +
+          'Gilt für die installierte und die portable Version, solange deren Datei am selben Ort ' +
+          'bleibt.',
       },
       'registroDocenti.avvio.soloVassoio': {
         etichetta: 'Starten, ohne das Klassenbuch zu öffnen',
@@ -413,19 +412,22 @@ export const testi = catalogo(it, {
           'Registriert beim Start die Dateizuordnung für .regi, den Befehl regi im PATH und ' +
           'die Identität für Benachrichtigungen.',
       },
-      'registroDocenti.promemoria.attivo': {
+      'registroDocenti.promemoria.avviso': {
         etichetta: 'Hinweis vor der Stunde',
+        scelte: {
+          nessuno: 'Kein Hinweis: das Klassenbuch meldet sich nicht vor den Stunden.',
+          '0': 'Zur Anfangszeit: der Hinweis kommt, wenn die Stunde beginnt.',
+          '2': '2 Min. vorher: Zeit, um abzuschliessen, was man gerade tut.',
+          '5': '5 Min. vorher: Zeit, um den Computer zu nehmen und eine Treppe hinaufzugehen.',
+          '10': '10 Min. vorher: für den Wechsel ins andere Gebäude.',
+          '15': '15 Min. vorher: der früheste.',
+        },
         descrizione:
           'Meldet sich mit einer Systembenachrichtigung kurz bevor eine Stunde beginnt, und sagt, ' +
           'welche Klasse es ist und was für diesen Kurs noch offen ist. Ein Klick auf die ' +
           'Benachrichtigung öffnet das Klassenbuch bei dieser Stunde. Sie kommt nicht, während man ' +
-          'das Klassenbuch schon ansieht, und nicht zweimal für dieselbe Stunde.',
-      },
-      'registroDocenti.promemoria.anticipoMinuti': {
-        etichetta: 'Minuten im Voraus',
-        descrizione:
-          'Wie viele Minuten vor Beginn der Hinweis kommt. Fünf reichen, um den Computer zu nehmen ' +
-          'und eine Treppe hinaufzugehen; null lässt ihn genau zur Anfangszeit kommen.',
+          'das Klassenbuch schon ansieht, und nicht zweimal für dieselbe Stunde. «Kein Hinweis» ' +
+          'schaltet sie aus.',
       },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Projektion im Vollbild',
@@ -463,10 +465,10 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.telefono': {
         etichetta: 'Anrufe',
         scelte: {
-          tel: 'Das Windows-Programm für Anrufe (Smartphone-Link, Teams, Skype).',
-          msteams: 'Teams, ohne die Auswahl von Windows.',
-          skype: 'Skype, ohne die Auswahl von Windows.',
-          callto: 'Das alte Skype-Schema, falls es bei dir noch registriert ist.',
+          tel: 'Windows: das Windows-Programm für Anrufe (Smartphone-Link, Teams, Skype).',
+          msteams: 'Teams: ohne die Auswahl von Windows.',
+          skype: 'Skype: ohne die Auswahl von Windows.',
+          callto: 'callto: das alte Skype-Schema, falls es bei dir noch registriert ist.',
           nessuno: 'Keines: die Nummern bleiben zum Lesen und Kopieren.',
         },
         descrizione:
@@ -476,9 +478,9 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.posta': {
         etichetta: 'E-Mail',
         scelte: {
-          sistema: 'Das Standard-Mailprogramm von Windows.',
-          outlook: 'Outlook, auch wenn ein anderes Programm der Standard ist.',
-          outlookWeb: 'Outlook im Web, im Browser.',
+          sistema: 'System: das Standard-Mailprogramm von Windows.',
+          outlook: 'Outlook: auch wenn ein anderes Programm der Standard ist.',
+          outlookWeb: 'Outlook Web: im Browser.',
           nessuno: 'Keines: die Adressen bleiben zum Lesen und Kopieren.',
         },
         descrizione:
@@ -496,47 +498,47 @@ export const testi = catalogo(it, {
           'weil sie Gigabytes wiegen, oder um vorhandene zu nutzen: das Klassenbuch sieht sie alle ' +
           'und kopiert keine.',
       },
-      'registroDocenti.modelli.scaricoAutomatico': {
-        etichetta: 'Fehlende Programme selbst herunterladen',
-        descrizione:
-          'Beim ersten Bedarf holt sich das Klassenbuch selbst das Programm, das Scans liest — ' +
-          '«llama-mtmd-cli», ein einziges Mal — in einen eigenen Ordner in den Programmdaten. Es ' +
-          'installiert nichts, prüft den Fingerabdruck des Heruntergeladenen, und die Version ist ' +
-          'im Programm festgelegt. Ausgeschaltet wählt man das Programm weiter unten von Hand: ' +
-          'nützlich bei einer getakteten Verbindung. Die Sprachmodelle betrifft das nicht: sie ' +
-          'werden im Bereich «Sprachmodelle» der Einstellungen heruntergeladen. Auch das Diktat ' +
-          'nicht: was es braucht, lädt voicebox selbst herunter.',
-      },
       'registroDocenti.ocr.attivo': {
         etichetta: 'Scans lesen',
         descrizione:
           'Liest mit einem lokalen Modell die PDF-Seiten ohne Text (Scans), um die lernende Person ' +
           'zu erkennen. Braucht ein Modell, das Bilder sehen kann, samt Projektor, ausgewählt im ' +
-          'Bereich «Sprachmodelle» der Einstellungen.',
+          'Bereich «Assistent und Modelle» der Einstellungen.',
         motivo:
           'Das Lesen von Scans lässt sich nicht einschalten ohne ein Modell, das Bilder sehen kann, ' +
-          'samt Projektor: man wählt es im Bereich «Sprachmodelle» der Einstellungen.',
+          'samt Projektor: man wählt es im Bereich «Assistent und Modelle» der Einstellungen.',
       },
       'registroDocenti.ocr.modello': {
         etichetta: 'Modell zum Lesen',
         descrizione:
           'Das Modell, mit dem Scans gelesen werden: es muss Bilder sehen können. Man wählt es im ' +
-          'Bereich «Sprachmodelle» der Einstellungen, von wo es auch heruntergeladen wird.',
+          'Bereich «Assistent und Modelle» der Einstellungen, von wo es auch heruntergeladen wird.',
       },
       'registroDocenti.ocr.proiettore': {
         etichetta: 'Projektor',
         descrizione:
           'Die zweite Datei des Modells, das Bilder sieht — die mit «mmproj» im Namen —, die das Bild in ' +
-          'etwas verwandelt, das das Modell lesen kann. Sie wird im Bereich «Sprachmodelle» der ' +
+          'etwas verwandelt, das das Modell lesen kann. Sie wird im Bereich «Assistent und Modelle» der ' +
           'Einstellungen gewählt.',
       },
-      'registroDocenti.ocr.programma': {
-        etichetta: 'Programm llama-mtmd-cli',
+      'registroDocenti.ocr.lettore': {
+        etichetta: 'Leseprogramm',
+        scelte: {
+          '':
+            'Vom Klassenbuch geladen: beim ersten Bedarf holt es sich «llama-mtmd-cli» selbst, ein ' +
+            'einziges Mal, und prüft den Fingerabdruck.',
+          nessuno:
+            'Nicht herunterladen: das Klassenbuch holt nichts aus dem Internet, und das Lesen bleibt ' +
+            'stehen, bis ein Programm angegeben ist.',
+        },
         descrizione:
-          'Eine bereits vorhandene Kopie von «llama-mtmd-cli.exe» — selbst kompiliert oder mit der ' +
-          'Beschleunigung der eigenen Grafikkarte —: ist sie da, hat sie Vorrang vor der, die das ' +
-          'Klassenbuch herunterlädt. Leer kümmert sich das Klassenbuch darum. Es muss eine .exe ' +
-          'sein: das Klassenbuch startet genau dieses Programm und kein anderes.',
+          'Das Programm, mit dem das Modell die Scans liest: «llama-mtmd-cli» von llama.cpp. ' +
+          'Standardmässig lädt es das Klassenbuch einmal in einen eigenen Ordner in den ' +
+          'Programmdaten: es installiert nichts, prüft den Fingerabdruck, und die Version ist im ' +
+          'Programm festgelegt. «Diese .exe» wählt man, um eine bereits vorhandene Kopie zu ' +
+          'verwenden — selbst kompiliert oder mit der Beschleunigung der eigenen Grafikkarte —: das ' +
+          'Klassenbuch startet genau diese Datei und keine andere. «Nicht herunterladen» dient bei ' +
+          'einer getakteten Verbindung.',
       },
       'registroDocenti.assistente.attivo': {
         etichetta: 'Assistent',
@@ -548,14 +550,14 @@ export const testi = catalogo(it, {
           'diesen Computer.',
         motivo:
           'Der Assistent lässt sich nicht ohne Modell einschalten: man wählt eines im Bereich ' +
-          '«Sprachmodelle» der Einstellungen.',
+          '«Assistent und Modelle» der Einstellungen.',
       },
       'registroDocenti.assistente.modello': {
         etichetta: 'Modell des Assistenten',
         descrizione:
           'Das Modell, mit dem der Assistent antwortet: es muss Werkzeuge aufrufen können («tool ' +
           'calling»), was unter 3 Milliarden Parametern unzuverlässig wird. Man wählt es im Bereich ' +
-          '«Sprachmodelle» der Einstellungen, der zwei empfiehlt und sie herunterlädt.',
+          '«Assistent und Modelle» der Einstellungen, der zwei empfiehlt und sie herunterlädt.',
       },
       'registroDocenti.dettatura.attivo': {
         etichetta: 'Diktat',
@@ -579,14 +581,13 @@ export const testi = catalogo(it, {
           'lädt voicebox es selbst herunter — von einigen hundert MB bis zu ein paar GB — und bis ' +
           'dahin antwortet das Diktat «Versuch es gleich noch einmal».',
       },
-      'registroDocenti.dettatura.indirizzo': {
-        etichetta: 'Adresse von voicebox',
+      'registroDocenti.dettatura.porta': {
+        etichetta: 'Port von voicebox',
         descrizione:
-          'Wo das Klassenbuch voicebox findet. Die eingetragene ist die Adresse, die voicebox von ' +
-          'selbst verwendet: man ändert sie nur, wenn man es auf einem anderen Port gestartet hat. ' +
-          'Es muss eine Adresse dieses Computers sein — 127.0.0.1, localhost oder [::1] —, denn ' +
-          'dorthin schickt das Klassenbuch die Stimme: eine Adresse eines anderen Computers liesse ' +
-          'sie hinaus, und das Klassenbuch nimmt sie nicht an.',
+          'Der Port, auf dem voicebox auf diesem Computer (127.0.0.1) antwortet: 17493 verwendet ' +
+          'voicebox von selbst, wenn man es öffnet; man ändert ihn nur, wenn man es auf einem ' +
+          'anderen gestartet hat. Die Adresse bleibt absichtlich die dieses Computers: dorthin ' +
+          'schickt das Klassenbuch die Stimme, und so verlässt sie ihn nicht.',
       },
       'registroDocenti.aggiornamenti.controlloAutomatico': {
         etichetta: 'Nach neuen Versionen suchen',
@@ -609,30 +610,21 @@ export const testi = catalogo(it, {
           'Klassenbuchs von selbst, und beim Wiederöffnen ist die neue da. Ausgeschaltet wartet sie ' +
           'auf «Neu starten und aktualisieren».',
       },
-      'registroDocenti.api.condotto': {
+      'registroDocenti.api.accesso': {
         etichetta: 'Lokaler Kanal',
+        scelte: {
+          spento: 'Aus: nichts hört zu, «regi» und Skripte erreichen das Klassenbuch nicht.',
+          lettura: 'Nur lesen: über den Kanal sieht man Anwesenheiten, Absenzen, Durchschnitte, Kalender — ändern lässt sich nichts.',
+          letturaScrittura: 'Lesen und schreiben: man sieht und schreibt — eine Präsenzkontrolle, eine Note, eine Stunde, Mails in deinem Namen.',
+        },
         descrizione:
           'Lässt das Klassenbuch auch ausserhalb seiner Fenster antworten, über einen lokalen Kanal — ' +
           'eine «named pipe» unter Windows —, damit der Befehl «regi» und ein Skript mit ihm ' +
           'sprechen können, ohne das Fenster zu öffnen. Er öffnet keinen Netzwerkport und verlässt ' +
-          'den Computer nicht. Er ist der Hauptschalter: ausgeschaltet hört nichts zu, und die zwei ' +
-          'Einträge darunter gelten nicht. Eingeschaltet kann ihn aber jedes Programm, das mit deinem ' +
-          'Zugang läuft, ohne Nachfrage nutzen. Schalte ihn nur ein, wenn du ihn wirklich brauchst, ' +
-          'und schalte ihn wieder aus, wenn du fertig bist.',
-      },
-      'registroDocenti.api.lettura': {
-        etichetta: 'Lesen erlauben',
-        descrizione:
-          'Erlaubt, über den Kanal zu lesen: Anwesenheiten, Absenzen, Durchschnitte, Kalender, die ' +
-          'berechneten Daten der lernenden Personen. Allein erlaubt es keine Änderungen, aber was ' +
-          'herauskommt, sind Personendaten, und jedes Programm mit deinem Zugang kann sie abfragen.',
-      },
-      'registroDocenti.api.scrittura': {
-        etichetta: 'Schreiben erlauben',
-        descrizione:
-          'Erlaubt, über den Kanal zu schreiben: eine Präsenzkontrolle erfassen, eine Note setzen, eine ' +
-          'Stunde anlegen, Mails in deinem Namen versenden. Was ein Skript versehentlich schreibt, ' +
-          'bleibt geschrieben: schalte es nur so lange ein, wie das Skript es braucht.',
+          'den Computer nicht. Eingeschaltet kann ihn aber jedes Programm, das mit deinem Zugang ' +
+          'läuft, ohne Nachfrage nutzen, und was es liest, sind Personendaten; was ein Skript ' +
+          'versehentlich schreibt, bleibt geschrieben. Erlaube nur, was nötig ist, und schalte ihn ' +
+          'aus, wenn du fertig bist.',
       },
     },
   },
@@ -652,7 +644,9 @@ export const testi = catalogo(it, {
       'registroDocenti.nuovoAnno': 'Nouvelle année scolaire',
       'registroDocenti.ricarica': 'Recharger les données',
       'registroDocenti.salvaConNome': 'Enregistrer l’année sous…',
+      'registroDocenti.informazioniDocumento': 'Informations sur le document…',
       'registroDocenti.chiudiDocumento': 'Fermer l’année',
+      'registroDocenti.account': 'Comptes et messagerie…',
       'registroDocenti.provaPosta': 'Tester la connexion de messagerie',
       'registroDocenti.provaInvioPosta': 'Envoyer un e-mail de test',
       'registroDocenti.collegaPosta': 'Connecter la boîte aux lettres',
@@ -701,9 +695,9 @@ export const testi = catalogo(it, {
       'registroDocenti.avvio.conWindows': {
         etichetta: 'Démarrer avec Windows',
         descrizione:
-          'Démarre le registre avec l’ordinateur, sans ouvrir de fenêtre : il reste l’icône près ' +
-          'de l’horloge. Vaut pour le registre installé et pour le portable, pourvu que son fichier ' +
-          'reste à sa place.',
+          'Démarre le registre avec l’ordinateur. Avec l’icône près de l’horloge, il démarre sans ' +
+          'ouvrir de fenêtre et attend là ; sans l’icône, il ouvre la fenêtre du registre. Vaut ' +
+          'pour le registre installé et pour le portable, pourvu que son fichier reste à sa place.',
       },
       'registroDocenti.avvio.soloVassoio': {
         etichetta: 'Démarrer sans ouvrir le registre',
@@ -718,19 +712,21 @@ export const testi = catalogo(it, {
           'Enregistre au démarrage l’association des fichiers .regi, la commande regi dans ' +
           'le PATH et l’identité pour les notifications.',
       },
-      'registroDocenti.promemoria.attivo': {
+      'registroDocenti.promemoria.avviso': {
         etichetta: 'Rappel avant la leçon',
+        scelte: {
+          nessuno: 'Aucun rappel : le registre n’envoie pas de notification avant les leçons.',
+          '0': 'À l’heure : le rappel arrive quand la leçon commence.',
+          '2': '2 min avant : le temps de finir ce qu’on est en train de faire.',
+          '5': '5 min avant : le temps de prendre l’ordinateur et de monter un escalier.',
+          '10': '10 min avant : pour qui change de bâtiment.',
+          '15': '15 min avant : le plus en avance.',
+        },
         descrizione:
           'Avertit par une notification du système peu avant le début d’une leçon, en indiquant ' +
           'la classe et ce qui reste ouvert pour ce cours. Un clic sur la notification ouvre le ' +
           'registre à cette leçon. Elle n’arrive pas pendant qu’on regarde déjà le registre, ni ' +
-          'deux fois pour la même leçon.',
-      },
-      'registroDocenti.promemoria.anticipoMinuti': {
-        etichetta: 'Minutes d’avance',
-        descrizione:
-          'Combien de minutes avant le début arrive le rappel. Cinq, c’est le temps de prendre ' +
-          'l’ordinateur et de monter un escalier ; zéro le fait arriver à l’heure exacte.',
+          'deux fois pour la même leçon. « Aucun rappel » la désactive.',
       },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Projection en plein écran',
@@ -769,10 +765,10 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.telefono': {
         etichetta: 'Appels',
         scelte: {
-          tel: 'Le programme d’appels de Windows (Lien avec le téléphone, Teams, Skype).',
-          msteams: 'Teams, sans passer par le choix de Windows.',
-          skype: 'Skype, sans passer par le choix de Windows.',
-          callto: 'L’ancien schéma de Skype, si tu l’as encore enregistré.',
+          tel: 'Windows : le programme d’appels de Windows (Lien avec le téléphone, Teams, Skype).',
+          msteams: 'Teams : sans passer par le choix de Windows.',
+          skype: 'Skype : sans passer par le choix de Windows.',
+          callto: 'callto : l’ancien schéma de Skype, si tu l’as encore enregistré.',
           nessuno: 'Aucun : les numéros restent à lire et à copier.',
         },
         descrizione:
@@ -783,9 +779,9 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.posta': {
         etichetta: 'E-mail',
         scelte: {
-          sistema: 'Le programme de messagerie par défaut de Windows.',
-          outlook: 'Outlook, même quand un autre programme est celui par défaut.',
-          outlookWeb: 'Outlook sur le web, dans le navigateur.',
+          sistema: 'Système : le programme de messagerie par défaut de Windows.',
+          outlook: 'Outlook : même quand un autre programme est celui par défaut.',
+          outlookWeb: 'Outlook web : dans le navigateur.',
           nessuno: 'Aucun : les adresses restent à lire et à copier.',
         },
         descrizione:
@@ -803,48 +799,47 @@ export const testi = catalogo(it, {
           'gigaoctets, ou pour utiliser ceux qu’on a déjà : le registre les voit tous et n’en ' +
           'copie aucun.',
       },
-      'registroDocenti.modelli.scaricoAutomatico': {
-        etichetta: 'Télécharger automatiquement les programmes manquants',
-        descrizione:
-          'La première fois qu’il en a besoin, le registre télécharge lui-même le programme qui lit ' +
-          'les scans — « llama-mtmd-cli », une seule fois — dans un dossier à lui parmi les données ' +
-          'de l’application. Il n’installe rien, vérifie l’empreinte de ce qu’il télécharge, et la ' +
-          'version est fixée dans le programme. Désactivé, on choisit le programme à la main plus ' +
-          'bas : utile avec une connexion limitée. Les modèles de langage ne sont pas concernés : ' +
-          'ils se téléchargent depuis la section « Modèles de langage » des paramètres. La dictée ' +
-          'non plus : ce qu’il lui faut, voicebox le télécharge de son côté.',
-      },
       'registroDocenti.ocr.attivo': {
         etichetta: 'Lecture des scans',
         descrizione:
           'Lit avec un modèle local les pages des PDF qui ne contiennent pas de texte (scans), pour ' +
           'reconnaître la personne en formation. Demande un modèle qui sait regarder les images, ' +
-          'avec son projecteur, choisis dans la section « Modèles de langage » des paramètres.',
+          'avec son projecteur, choisis dans la section « Assistant et modèles » des paramètres.',
         motivo:
           'La lecture des scans ne s’active pas sans un modèle qui sait regarder les images, avec ' +
-          'son projecteur : on le choisit dans la section « Modèles de langage » des paramètres.',
+          'son projecteur : on le choisit dans la section « Assistant et modèles » des paramètres.',
       },
       'registroDocenti.ocr.modello': {
         etichetta: 'Modèle qui lit',
         descrizione:
           'Le modèle avec lequel on lit les scans : il doit savoir regarder les images. On le ' +
-          'choisit dans la section « Modèles de langage » des paramètres, d’où il se télécharge ' +
+          'choisit dans la section « Assistant et modèles » des paramètres, d’où il se télécharge ' +
           'aussi.',
       },
       'registroDocenti.ocr.proiettore': {
         etichetta: 'Projecteur',
         descrizione:
           'Le second fichier du modèle qui regarde les images — celui avec « mmproj » dans le nom —, qui ' +
-          'transforme l’image en quelque chose que le modèle sait lire. On le choisit dans la section « Modèles de ' +
-          'langage » des paramètres.',
+          'transforme l’image en quelque chose que le modèle sait lire. On le choisit dans la section « Assistant et ' +
+          'modèles » des paramètres.',
       },
-      'registroDocenti.ocr.programma': {
-        etichetta: 'Programme llama-mtmd-cli',
+      'registroDocenti.ocr.lettore': {
+        etichetta: 'Programme de lecture',
+        scelte: {
+          '':
+            'Téléchargé par le registre : la première fois qu’il en a besoin, il prend lui-même « ' +
+            'llama-mtmd-cli », une seule fois, et en vérifie l’empreinte.',
+          nessuno:
+            'Ne pas télécharger : le registre ne prend rien sur internet, et la lecture reste arrêtée ' +
+            'tant qu’aucun programme n’est indiqué.',
+        },
         descrizione:
-          'Une copie de « llama-mtmd-cli.exe » qu’on a déjà — compilée, ou avec l’accélération de ' +
-          'sa propre carte graphique — : si elle est là, elle l’emporte sur celle que télécharge le ' +
-          'registre. Vide, le registre s’en occupe. Ce doit être un .exe : le registre lance ' +
-          'exactement ce programme et rien d’autre.',
+          'Le programme qui fait lire les scans au modèle : « llama-mtmd-cli » de llama.cpp. Par ' +
+          'défaut, le registre le télécharge une seule fois dans un dossier à lui parmi les données ' +
+          'de l’application : il n’installe rien, vérifie l’empreinte, et la version est fixée dans ' +
+          'le programme. On choisit « Ce .exe » pour utiliser une copie qu’on a déjà — compilée, ou ' +
+          'avec l’accélération de sa propre carte graphique — : le registre lance exactement ce ' +
+          'fichier et rien d’autre. « Ne pas télécharger » sert avec une connexion limitée.',
       },
       'registroDocenti.assistente.attivo': {
         etichetta: 'Assistant',
@@ -854,15 +849,15 @@ export const testi = catalogo(it, {
           'lisant le registre. Il peut seulement lire : il n’inscrit rien, ne corrige rien et ' +
           'n’envoie rien à personne, et rien de ce qu’on demande ne sort d’ici.',
         motivo:
-          'L’assistant ne s’active pas sans modèle : on en choisit un dans la section « Modèles de ' +
-          'langage » des paramètres.',
+          'L’assistant ne s’active pas sans modèle : on en choisit un dans la section « Assistant et ' +
+          'modèles » des paramètres.',
       },
       'registroDocenti.assistente.modello': {
         etichetta: 'Modèle de l’assistant',
         descrizione:
           'Le modèle avec lequel répond l’assistant : il doit savoir appeler des outils (« tool ' +
           'calling »), ce qui devient peu fiable en dessous de 3 milliards de paramètres. On le ' +
-          'choisit dans la section « Modèles de langage » des paramètres, qui en recommande deux ' +
+          'choisit dans la section « Assistant et modèles » des paramètres, qui en recommande deux ' +
           'et les télécharge.',
       },
       'registroDocenti.dettatura.attivo': {
@@ -887,14 +882,13 @@ export const testi = catalogo(it, {
           'en choisit un, voicebox le télécharge de son côté — de quelques centaines de Mo à ' +
           'quelques Go — et entre-temps la dictée répond « réessaie dans un instant ».',
       },
-      'registroDocenti.dettatura.indirizzo': {
-        etichetta: 'Adresse de voicebox',
+      'registroDocenti.dettatura.porta': {
+        etichetta: 'Port de voicebox',
         descrizione:
-          'Où le registre trouve voicebox. L’adresse inscrite est celle que voicebox utilise de ' +
-          'lui-même à l’ouverture : on ne la change que si on l’a lancé sur un autre port. Ce doit ' +
-          'être une adresse de cet ordinateur — 127.0.0.1, localhost ou [::1] —, car c’est là que ' +
-          'le registre envoie la voix : l’adresse d’une autre machine la ferait sortir d’ici, et le ' +
-          'registre ne l’accepte pas.',
+          'Le port sur lequel voicebox répond, sur cet ordinateur (127.0.0.1) : 17493 est celui que ' +
+          'voicebox utilise de lui-même à l’ouverture ; on ne le change que si on l’a lancé sur un ' +
+          'autre. L’adresse reste exprès celle de cet ordinateur : c’est là que le registre envoie ' +
+          'la voix, et ainsi elle ne sort pas d’ici.',
       },
       'registroDocenti.aggiornamenti.controlloAutomatico': {
         etichetta: 'Chercher les nouvelles versions',
@@ -918,31 +912,20 @@ export const testi = catalogo(it, {
           'registre, et à la réouverture c’est la nouvelle. Désactivé, elle attend qu’on appuie sur ' +
           '« Redémarrer et mettre à jour ».',
       },
-      'registroDocenti.api.condotto': {
+      'registroDocenti.api.accesso': {
         etichetta: 'Canal local',
+        scelte: {
+          spento: 'Désactivé : rien n’écoute, « regi » et les scripts n’atteignent pas le registre.',
+          lettura: 'Lecture seule : par le canal on consulte présences, absences, moyennes, calendrier — sans rien modifier.',
+          letturaScrittura: 'Lecture et écriture : on consulte et on écrit — un appel, une note, une leçon, des e-mails en ton nom.',
+        },
         descrizione:
           'Fait répondre le registre aussi en dehors de ses fenêtres, sur un canal local — une ' +
           '« named pipe » sous Windows — pour que la commande « regi » et un script puissent lui ' +
           'parler sans ouvrir le panneau. N’ouvre aucun port réseau et ne sort pas de la machine. ' +
-          'C’est l’interrupteur général : désactivé, rien n’écoute, et les deux réglages ci-dessous ' +
-          'ne valent pas. Activé, en revanche, tout programme qui tourne avec ton propre accès peut ' +
-          'l’utiliser sans te le demander. Active-le si tu en as vraiment besoin, et désactive-le ' +
-          'quand tu as terminé.',
-      },
-      'registroDocenti.api.lettura': {
-        etichetta: 'Autoriser la lecture',
-        descrizione:
-          'Permet de consulter par le canal : présences, absences, moyennes, calendrier, les données ' +
-          'déjà calculées des personnes en formation. À lui seul, il ne permet rien de modifier, mais ce ' +
-          'qui sort, ce sont des données personnelles, et tout programme qui tourne avec ton accès ' +
-          'peut les demander.',
-      },
-      'registroDocenti.api.scrittura': {
-        etichetta: 'Autoriser l’écriture',
-        descrizione:
-          'Permet d’écrire par le canal : faire l’appel, mettre une note, créer une leçon, envoyer ' +
-          'des e-mails en ton nom. Ce qu’un script écrit par erreur reste écrit : active-le ' +
-          'seulement le temps dont le script a besoin.',
+          'Activé, en revanche, tout programme qui tourne avec ton propre accès peut l’utiliser ' +
+          'sans te le demander, et ce qu’il lit, ce sont des données personnelles ; ce qu’un script ' +
+          'écrit par erreur reste écrit. N’accorde que ce qui sert, et désactive-le quand tu as terminé.',
       },
     },
   },
@@ -962,7 +945,9 @@ export const testi = catalogo(it, {
       'registroDocenti.nuovoAnno': 'New school year',
       'registroDocenti.ricarica': 'Reload data',
       'registroDocenti.salvaConNome': 'Save the year as…',
+      'registroDocenti.informazioniDocumento': 'Document information…',
       'registroDocenti.chiudiDocumento': 'Close the year',
+      'registroDocenti.account': 'Accounts and mail…',
       'registroDocenti.provaPosta': 'Test the mail connection',
       'registroDocenti.provaInvioPosta': 'Send a test email',
       'registroDocenti.collegaPosta': 'Connect the mailbox',
@@ -1012,9 +997,10 @@ export const testi = catalogo(it, {
       'registroDocenti.avvio.conWindows': {
         etichetta: 'Start with Windows',
         descrizione:
-          'Starts the register together with the computer, without opening any window: the icon ' +
-          'next to the clock remains. Applies to the installed and to the portable register, as ' +
-          'long as its file stays where it was.',
+          'Starts the register together with the computer. With the icon next to the clock it ' +
+          'starts without opening any window and waits there; without the icon it opens the ' +
+          'register window. Applies to the installed and to the portable register, as long as its ' +
+          'file stays where it was.',
       },
       'registroDocenti.avvio.soloVassoio': {
         etichetta: 'Start without opening the register',
@@ -1029,19 +1015,21 @@ export const testi = catalogo(it, {
           'Registers on startup the .regi file association, the regi command in PATH, and ' +
           'the identity for notifications.',
       },
-      'registroDocenti.promemoria.attivo': {
+      'registroDocenti.promemoria.avviso': {
         etichetta: 'Reminder before the lesson',
+        scelte: {
+          nessuno: 'No reminder: the register sends no notification before lessons.',
+          '0': 'On time: the reminder arrives when the lesson begins.',
+          '2': '2 min before: time to finish what you are doing.',
+          '5': '5 min before: time to pick up the computer and climb a flight of stairs.',
+          '10': '10 min before: for changing buildings.',
+          '15': '15 min before: the earliest.',
+        },
         descrizione:
           'Sends a system notification shortly before a lesson begins, saying which class it is and ' +
           'what is still open for that course. Clicking the notification opens the register at ' +
           'that lesson. It does not arrive while you are already looking at the register, and never ' +
-          'twice for the same lesson.',
-      },
-      'registroDocenti.promemoria.anticipoMinuti': {
-        etichetta: 'Minutes in advance',
-        descrizione:
-          'How many minutes before the start the reminder arrives. Five is the time to pick up the ' +
-          'computer and climb a flight of stairs; zero makes it arrive right on time.',
+          'twice for the same lesson. “No reminder” turns it off.',
       },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Full-screen projection',
@@ -1077,10 +1065,10 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.telefono': {
         etichetta: 'Calls',
         scelte: {
-          tel: 'The Windows program for calls (Phone Link, Teams, Skype).',
-          msteams: 'Teams, skipping the Windows choice.',
-          skype: 'Skype, skipping the Windows choice.',
-          callto: 'The old Skype scheme, if you still have it registered.',
+          tel: 'Windows: the Windows program for calls (Phone Link, Teams, Skype).',
+          msteams: 'Teams: skipping the Windows choice.',
+          skype: 'Skype: skipping the Windows choice.',
+          callto: 'callto: the old Skype scheme, if you still have it registered.',
           nessuno: 'None: numbers are just there to read and copy.',
         },
         descrizione:
@@ -1090,9 +1078,9 @@ export const testi = catalogo(it, {
       'registroDocenti.recapiti.posta': {
         etichetta: 'Email',
         scelte: {
-          sistema: 'The default Windows mail program.',
-          outlook: 'Outlook, even when another program is the default.',
-          outlookWeb: 'Outlook on the web, in the browser.',
+          sistema: 'System: the default Windows mail program.',
+          outlook: 'Outlook: even when another program is the default.',
+          outlookWeb: 'Outlook web: in the browser.',
           nessuno: 'None: addresses are just there to read and copy.',
         },
         descrizione:
@@ -1109,46 +1097,45 @@ export const testi = catalogo(it, {
           'another folder to keep them on another disk, because they weigh gigabytes, or to use the ' +
           'ones you already have: the register sees them all and copies none.',
       },
-      'registroDocenti.modelli.scaricoAutomatico': {
-        etichetta: 'Download missing programs automatically',
-        descrizione:
-          'The first time it is needed, the register fetches on its own the program that reads ' +
-          'scans — “llama-mtmd-cli”, once only — into a folder of its own inside the application ' +
-          'data. It installs nothing, checks the fingerprint of what it downloads, and the version ' +
-          'is fixed in the program. Off, you choose the program by hand further down: useful on a ' +
-          'metered connection. Language models are not involved: they are downloaded from the ' +
-          '“Language models” section of the settings. Nor is dictation: what it needs, voicebox ' +
-          'downloads on its own.',
-      },
       'registroDocenti.ocr.attivo': {
         etichetta: 'Reading scans',
         descrizione:
           'Reads with a local model the PDF pages that contain no text (scans), to recognise the ' +
           'learner. Needs a model that can look at images, with its projector, chosen from the ' +
-          '“Language models” section of the settings.',
+          '“Assistant and models” section of the settings.',
         motivo:
           'Reading scans cannot be turned on without a model that can look at images, with its ' +
-          'projector: choose one from the “Language models” section of the settings.',
+          'projector: choose one from the “Assistant and models” section of the settings.',
       },
       'registroDocenti.ocr.modello': {
         etichetta: 'Reading model',
         descrizione:
           'The model used to read scans: it must be able to look at images. Choose it from the ' +
-          '“Language models” section of the settings, which is also where it is downloaded.',
+          '“Assistant and models” section of the settings, which is also where it is downloaded.',
       },
       'registroDocenti.ocr.proiettore': {
         etichetta: 'Projector',
         descrizione:
           'The second file of the model that looks at images — the one with “mmproj” in its name —, which turns ' +
-          'the image into something the model can read. It is selected in the “Language models” section of settings.',
+          'the image into something the model can read. It is selected in the “Assistant and models” section of settings.',
       },
-      'registroDocenti.ocr.programma': {
-        etichetta: 'llama-mtmd-cli program',
+      'registroDocenti.ocr.lettore': {
+        etichetta: 'Reading program',
+        scelte: {
+          '':
+            'Downloaded by the register: the first time it is needed it fetches “llama-mtmd-cli” on ' +
+            'its own, once only, and checks its fingerprint.',
+          nessuno:
+            'Do not download: the register fetches nothing from the internet, and reading stays off ' +
+            'until a program is given.',
+        },
         descrizione:
-          'A copy of “llama-mtmd-cli.exe” you already have — compiled, or with your graphics card’s ' +
-          'acceleration —: if present it wins over the one the register downloads. Empty, the ' +
-          'register takes care of it. It must be an .exe: the register launches exactly this ' +
-          'program and nothing else.',
+          'The program that lets the model read scans: “llama-mtmd-cli” from llama.cpp. By default ' +
+          'the register downloads it once, into a folder of its own inside the application data: it ' +
+          'installs nothing, checks the fingerprint, and the version is fixed in the program. ' +
+          'Choose “This .exe” to use a copy you already have — compiled, or with your graphics ' +
+          'card’s acceleration —: the register launches exactly that file and nothing else. “Do not ' +
+          'download” is for a metered connection.',
       },
       'registroDocenti.assistente.attivo': {
         etichetta: 'Assistant',
@@ -1158,14 +1145,14 @@ export const testi = catalogo(it, {
           'can only read: it records nothing, corrects nothing and sends nothing to anyone, and ' +
           'nothing you ask leaves this computer.',
         motivo:
-          'The assistant cannot be turned on without a model: choose one from the “Language models” ' +
+          'The assistant cannot be turned on without a model: choose one from the “Assistant and models” ' +
           'section of the settings.',
       },
       'registroDocenti.assistente.modello': {
         etichetta: 'Assistant model',
         descrizione:
           'The model the assistant answers with: it must be able to call tools (“tool calling”), ' +
-          'which becomes unreliable below 3 billion parameters. Choose it from the “Language ' +
+          'which becomes unreliable below 3 billion parameters. Choose it from the “Assistant and ' +
           'models” section of the settings, which recommends two and downloads them.',
       },
       'registroDocenti.dettatura.attivo': {
@@ -1190,14 +1177,13 @@ export const testi = catalogo(it, {
           'voicebox downloads it on its own — from a few hundred MB to a couple of GB — and ' +
           'meanwhile dictation answers “try again shortly”.',
       },
-      'registroDocenti.dettatura.indirizzo': {
-        etichetta: 'voicebox address',
+      'registroDocenti.dettatura.porta': {
+        etichetta: 'voicebox port',
         descrizione:
-          'Where the register finds voicebox. The address filled in is the one voicebox uses by ' +
-          'itself when opened: change it only if you started it on another port. It must be an ' +
-          'address of this computer — 127.0.0.1, localhost or [::1] —, because that is where the ' +
-          'register sends your voice: an address of another machine would send it out of here, and ' +
-          'the register does not accept it.',
+          'The port voicebox answers on, on this computer (127.0.0.1): 17493 is the one voicebox ' +
+          'uses by itself when opened; change it only if you started it on another. The address ' +
+          'stays this computer’s on purpose: that is where the register sends your voice, so it ' +
+          'does not leave here.',
       },
       'registroDocenti.aggiornamenti.controlloAutomatico': {
         etichetta: 'Look for new versions',
@@ -1219,29 +1205,20 @@ export const testi = catalogo(it, {
           'when you reopen it the new one is there. Off, it waits for you to press “Restart and ' +
           'update”.',
       },
-      'registroDocenti.api.condotto': {
+      'registroDocenti.api.accesso': {
         etichetta: 'Local pipe',
+        scelte: {
+          spento: 'Off: nothing is listening; “regi” and scripts cannot reach the register.',
+          lettura: 'Read only: the pipe shows attendance, absences, averages, calendar — nothing can be changed.',
+          letturaScrittura: 'Read and write: look and write — attendance, a grade, a lesson, mail in your name.',
+        },
         descrizione:
           'Makes the register answer outside its windows too, on a local pipe — a “named pipe” on ' +
           'Windows — so that the “regi” command and a script can talk to it without opening the ' +
-          'panel. It opens no network port and does not leave the machine. It is the main switch: ' +
-          'off, nothing is listening, and the two items below do not apply. On, however, any ' +
-          'program running with your own access can use it without asking you. Turn it on only if ' +
-          'you really need it, and turn it off when you are done.',
-      },
-      'registroDocenti.api.lettura': {
-        etichetta: 'Allow reading',
-        descrizione:
-          'Lets the pipe be used to look: attendance, absences, averages, calendar, the learners’ ' +
-          'computed data. On its own it lets nothing be changed, but what comes out is personal ' +
-          'data, and any program running with your access can ask for it.',
-      },
-      'registroDocenti.api.scrittura': {
-        etichetta: 'Allow writing',
-        descrizione:
-          'Lets the pipe be used to write: take attendance, enter a grade, create a lesson, send ' +
-          'mail in your name. What a script writes by mistake stays written: turn it on only for ' +
-          'as long as that script needs it.',
+          'panel. It opens no network port and does not leave the machine. On, however, any ' +
+          'program running with your own access can use it without asking you, and what it reads ' +
+          'is personal data; what a script writes by mistake stays written. Grant only what is ' +
+          'needed, and turn it off when you are done.',
       },
     },
   },

@@ -15,7 +15,6 @@ const it = {
   senzaAnno: 'Non c’è ancora un anno scolastico.',
   senzaLezione:
     'Nessuna lezione aperta: si apre dal calendario o dalla pagina Lezione.',
-  senzaPosta: 'La casella di posta non è collegata.',
 }
 
 export const testi = catalogo(it, {
@@ -29,7 +28,6 @@ export const testi = catalogo(it, {
     senzaLezione:
       'Keine Stunde geöffnet: Man öffnet sie im Kalender oder auf der Seite ' +
       'Stunde.',
-    senzaPosta: 'Das E-Mail-Postfach ist nicht verbunden.',
   },
   fr: {
     corso: Uno(lessico.in('fr').corso),
@@ -40,7 +38,6 @@ export const testi = catalogo(it, {
     senzaAnno: 'Il n’y a pas encore d’année scolaire.',
     senzaLezione:
       'Aucune leçon ouverte : elle s’ouvre depuis le calendrier ou la page Leçon.',
-    senzaPosta: 'La boîte de courrier n’est pas connectée.',
   },
   en: {
     corso: Uno(lessico.in('en').corso),
@@ -51,6 +48,5 @@ export const testi = catalogo(it, {
     senzaAnno: 'There is no school year yet.',
     senzaLezione:
       'No lesson open: open one from the calendar or the Lesson page.',
-    senzaPosta: 'The mailbox is not connected.',
   },
 })

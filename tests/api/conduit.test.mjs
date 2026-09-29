@@ -37,9 +37,7 @@ let indirizzo
  */
 const PARTENZA = {
   cartellaLavoro: lavoro,
-  'registroDocenti.api.condotto': true,
-  'registroDocenti.api.lettura': true,
-  'registroDocenti.api.scrittura': true,
+  'registroDocenti.api.accesso': 'letturaScrittura',
 }
 
 before(async () => {
@@ -125,19 +123,18 @@ async function chiedi (richiesta, opzioni) {
   return buste[0]
 }
 
-/** Accende o spegne un'impostazione del condotto, come farebbe la pagina. */
-async function concedi (voce, valore) {
-  await api.impostazioni.leggi('registroDocenti.api').update(voce, valore)
+/** Sceglie quel che il condotto concede, come farebbe la pagina. */
+async function concedi (accesso) {
+  await api.impostazioni.leggi('registroDocenti.api').update('accesso', accesso)
 }
 
-/** Esegue qualcosa con dei permessi diversi, e li rimette com'erano. */
-async function con (permessi, fare) {
-  for (const [voce, valore] of Object.entries(permessi)) await concedi(voce, valore)
+/** Esegue qualcosa con un'altra concessione, e rimette tutto concesso. */
+async function con (accesso, fare) {
+  await concedi(accesso)
   try {
     return await fare()
   } finally {
-    await concedi('lettura', true)
-    await concedi('scrittura', true)
+    await concedi('letturaScrittura')
   }
 }
 
@@ -325,27 +322,29 @@ describe('i quattro metodi riservati', () => {
 
 describe('il cancello dei permessi', () => {
   it('una scrittura con la scrittura negata torna «non-permesso»', async () => {
-    await con({ scrittura: false }, async () => {
+    await con('lettura', async () => {
       const busta = await chiedi({ jsonrpc: '2.0', id: 1, method: 'corsi.crea', params: {} })
       assert.equal(busta.error.data.codice, 'non-permesso')
-      // Il rifiuto nomina l'impostazione da cambiare.
-      assert.ok(busta.error.data.messaggi.some((m) => m.includes('registroDocenti.api.scrittura')))
+      // Il rifiuto nomina l'impostazione da cambiare, e la scelta.
+      assert.ok(busta.error.data.messaggi.some((m) =>
+        m.includes('registroDocenti.api.accesso') && m.includes('letturaScrittura')))
     })
   })
 
   it('il rifiuto arriva prima della convalida, non dopo', async () => {
     // Senza permesso la chiamata non si convalida nemmeno: il messaggio non parla
     // dei campi mancanti.
-    await con({ scrittura: false }, async () => {
+    await con('lettura', async () => {
       const busta = await chiedi({ jsonrpc: '2.0', id: 1, method: 'corsi.crea', params: {} })
       assert.equal(busta.error.data.codice, 'non-permesso')
     })
   })
 
   it('«$elenco», «$schema» e «$attrezzi» vogliono la lettura', async () => {
-    // «Scrittura sì, lettura no» è legittimo: allora i metodi che raccontano il
-    // registro (procedure, schemi, catalogo dell'assistente) restano chiusi.
-    await con({ lettura: false }, async () => {
+    // Senza lettura i metodi che raccontano il registro (procedure, schemi,
+    // catalogo dell'assistente) restano chiusi. «Solo scrittura» non si sceglie
+    // più: la prova con lo scavalco sta in `conduitSchema.test.mjs`.
+    await con('spento', async () => {
       for (const metodo of ['$elenco', '$attrezzi']) {
         const busta = await chiedi({ jsonrpc: '2.0', id: 1, method: metodo })
         assert.equal(busta.error.data.codice, 'non-permesso', `«${metodo}» non deve passare`)
@@ -360,7 +359,7 @@ describe('il cancello dei permessi', () => {
   it('«$versione» risponde anche senza permessi, perché serve a capire il perché', async () => {
     // `$versione` è quel che `regi stato` stampa: resta libero, e i suoi campi sono
     // i meno sensibili.
-    await con({ lettura: false, scrittura: false }, async () => {
+    await con('spento', async () => {
       const busta = await chiedi({ jsonrpc: '2.0', id: 1, method: '$versione' })
       assert.ok(busta.result, 'a $versione si risponde sempre')
       assert.equal(busta.result.permessi.lettura, false)
@@ -374,7 +373,7 @@ describe('il cancello dei permessi', () => {
     const prima = await chiedi({ jsonrpc: '2.0', id: 1, method: 'corsi.elenco', params: {} })
     assert.ok(prima.result, 'con la lettura concessa deve passare')
 
-    await con({ lettura: false }, async () => {
+    await con('spento', async () => {
       const dopo = await chiedi({ jsonrpc: '2.0', id: 2, method: 'corsi.elenco', params: {} })
       assert.equal(dopo.error.data.codice, 'non-permesso')
 
@@ -389,7 +388,7 @@ describe('il cancello dei permessi', () => {
 
   it('una procedura sconosciuta dice che non esiste, non che manca il permesso', async () => {
     // Errori diversi darebbero l'elenco dei nomi validi a chi non ha permessi.
-    await con({ lettura: false, scrittura: false }, async () => {
+    await con('spento', async () => {
       const busta = await chiedi({ jsonrpc: '2.0', id: 1, method: 'corsi.inventati' })
       assert.equal(busta.error.data.codice, 'procedura-sconosciuta')
     })

@@ -12,14 +12,13 @@ import { isoValida } from '../../core/dominio/dates.js'
 import type { Iso } from '../../core/dominio/models.js'
 import {
   CAMPI_CONTESTO,
+  areaDellaSezione,
   paginaValida,
   schedaValida,
-  SCHEDE_DOCUMENTO,
-  SCHEDE_PROGRAMMA,
+  sezioneDiPrima,
   type Contesto,
   type Posto,
-  type SchedaDocumento,
-  type SchedaProgramma,
+  type SezioneImpostazioni,
   type TipoSoggetto,
 } from './posto.js'
 
@@ -57,11 +56,19 @@ export interface Globali {
   /** Grezzo: lo convalida `partiValide` di `assistant/parts.ts`. */
   contestoAssistente: Record<string, unknown>
   azioniNascoste: boolean
-  /** La sezione da cui si riapre ciascun ambito delle impostazioni. */
-  ultimaSchedaImpostazioni: {
-    programma?: SchedaProgramma
-    documento?: SchedaDocumento
-  }
+  /** La sezione delle impostazioni da cui si riapre la pagina, con la sua area. */
+  sezioneImpostazioni: SezioneImpostazioni
+  /**
+   * Dove si era arrivati a leggere nelle pagine con un indice, per pagina
+   * (`guida`, `impostazioni.<area>`): vedi `segnalibro.ts`.
+   */
+  segnalibri: Record<string, Segnalibro>
+}
+
+/** Un punto di lettura: la sezione in cima e di quanto il suo inizio era salito. */
+export interface Segnalibro {
+  sezione: string
+  scarto: number
 }
 
 /** Le scelte con id di un anno, fuori dal posto. */
@@ -117,6 +124,9 @@ const MASSIMO_CLASSI_APERTE = 100
 const MASSIMO_ID = 200
 const MASSIMO_RICERCA = 200
 const MASSIMO_CONTESTO_ASSISTENTE = 2000
+const MASSIMO_SEGNALIBRI = 20
+/** Oltre, lo scarto non è una pagina del registro: si scarta. */
+const MASSIMO_SCARTO = 1_000_000
 
 /** Chi migra il JSON vecchio in un posto; se manca, i campi restano grezzi. */
 interface OpzioniLettura {
@@ -195,18 +205,44 @@ function globaliDa (grezzo: Record<string, unknown>): Partial<Globali> {
         : undefined,
     azioniNascoste: booleano(grezzo.azioniNascoste),
   })
-  // Nel JSON vecchio le sezioni stavano sciolte; `recapiti` è dentro la posta,
-  // `modelli` del documento ne è rimasta l'intestazione.
-  const ultima = oggetto(grezzo.ultimaSchedaImpostazioni) ?? {
-    programma: grezzo.schedaProgramma === 'recapiti' ? 'posta' : grezzo.schedaProgramma,
-    documento: grezzo.schedaDocumento === 'modelli' ? 'intestazione' : grezzo.schedaDocumento,
-  }
-  const schede = copiaDefiniti<Globali['ultimaSchedaImpostazioni']>({}, {
-    programma: ammesso(SCHEDE_PROGRAMMA, ultima.programma),
-    documento: ammesso(SCHEDE_DOCUMENTO, ultima.documento),
-  })
-  if (Object.keys(schede).length > 0) globali.ultimaSchedaImpostazioni = schede
+  const sezione = sezioneImpostazioniDa(grezzo)
+  if (sezione) globali.sezioneImpostazioni = sezione
+  const segnalibri = segnalibriDa(grezzo.segnalibri)
+  if (segnalibri) globali.segnalibri = segnalibri
   return globali
+}
+
+/** I punti di lettura buoni: chiave e sezione corte, scarto intero e sensato. */
+function segnalibriDa (valore: unknown): Record<string, Segnalibro> | undefined {
+  const grezzi = oggetto(valore)
+  if (!grezzi) return undefined
+  const buoni: Record<string, Segnalibro> = {}
+  for (const [chiave, voce] of Object.entries(grezzi).slice(0, MASSIMO_SEGNALIBRI)) {
+    const segno = oggetto(voce)
+    const sezione = id(segno?.sezione)
+    const scarto = segno?.scarto
+    if (!id(chiave) || !sezione) continue
+    if (typeof scarto !== 'number' || !Number.isInteger(scarto) || Math.abs(scarto) > MASSIMO_SCARTO) continue
+    buoni[chiave] = { sezione, scarto }
+  }
+  return buoni
+}
+
+/**
+ * La sezione delle impostazioni da cui si riapre. Prima delle aree se ne
+ * ricordava una per ambito (`ultimaSchedaImpostazioni`), e ancora prima
+ * stavano sciolte con l'ambito accanto: vale quella dell'ambito aperto per
+ * ultimo, o quella del documento, che era il predefinito.
+ */
+function sezioneImpostazioniDa (grezzo: Record<string, unknown>): SezioneImpostazioni | undefined {
+  const adesso = grezzo.sezioneImpostazioni
+  if (typeof adesso === 'string' && areaDellaSezione(adesso)) return adesso as SezioneImpostazioni
+  const ultima = oggetto(grezzo.ultimaSchedaImpostazioni)
+  if (ultima) {
+    return sezioneDiPrima('documento', ultima.documento) ?? sezioneDiPrima('programma', ultima.programma)
+  }
+  const ambito = grezzo.ambitoImpostazioni === 'programma' ? 'programma' : 'documento'
+  return sezioneDiPrima(ambito, ambito === 'programma' ? grezzo.schedaProgramma : grezzo.schedaDocumento)
 }
 
 function contestoDa (grezzo: Record<string, unknown> | null): Contesto {

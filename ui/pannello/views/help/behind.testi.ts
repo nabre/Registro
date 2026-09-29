@@ -120,7 +120,7 @@ const it = {
           'A sinistra quel che viaggia con l’anno, a destra quel che resta sul computer su cui ' +
           'lo si usa.',
         legenda: [
-          'L’anno, le materie e le impostazioni delle sezioni segnate **file**: viaggiano con il ' +
+          'L’anno, le materie e le impostazioni segnate **Questo anno**: viaggiano con il ' +
             'file.',
           'Le scansioni archiviate, gli allegati e i rapporti stampati stanno dentro il file, ' +
             'non accanto.',
@@ -158,9 +158,10 @@ const it = {
       {
         termine: 'Due tipi di impostazioni',
         testo:
-          'Le sezioni delle impostazioni segnate **file** — anno, calendario e calendari ICS, ' +
-          'valutazione, materie, liste, intestazione — stanno nel file e passano con lui a chi ' +
-          'lo riceve. Le altre sono del programma, e restano sul computer.',
+          'Le impostazioni segnate **Questo anno** — le aree Calendario e Didattica, e in Utente ' +
+          'Chi sei, Carta e stampa e la firma della Posta — stanno nel file e passano con lui a ' +
+          'chi lo riceve. Quelle segnate **Questo computer** sono del programma, e restano sul ' +
+          'computer.',
       },
       {
         termine: 'La password della posta',
@@ -172,7 +173,7 @@ const it = {
         termine: 'Trovare il file',
         testo:
           '**Apri la cartella del file**, nel menu **File**, apre la cartella in cui sta. Il ' +
-          'percorso intero è anche in Impostazioni › Documenti e stampa › **Questo file**.',
+          'percorso intero è anche in **Informazioni documento…**, nello stesso menu.',
       },
       {
         termine: 'Guardarci dentro senza il registro',
@@ -379,8 +380,8 @@ const it = {
         termine: 'Cartelle sincronizzate',
         testo:
           'OneDrive e simili vanno bene: il registro scrive solo quel che cambia, e quando il ' +
-          'file arriva cambiato da un altro computer lo rilegge. **Ricarica**, in Impostazioni › ' +
-          'Documenti e stampa › **Questo file** o con `Ctrl+K`, lo rilegge a comando.',
+          'file arriva cambiato da un altro computer lo rilegge. **Ricarica**, in **Informazioni ' +
+          'documento…** (menu **File**) o con `Ctrl+K`, lo rilegge a comando.',
       },
     ],
     note: [
@@ -489,8 +490,7 @@ const it = {
             'piano che non c’è più.',
           '**Ripara** c’è solo se la correzione non perde niente, e prima di farla elenca che ' +
             'cosa cambierà.',
-          '**Dettagli** apre le impostazioni: l’elenco intero sta in Documenti e stampa › ' +
-            '**Questo file**.',
+          '**Dettagli** apre **Informazioni documento**, con l’elenco intero.',
         ],
       },
     ],
@@ -540,8 +540,8 @@ const it = {
         termine: 'Mancano le modifiche dell’altro computer',
         testo:
           'Di solito arrivano da sole quando la sincronizzazione ha finito. Se no, **Ricarica** ' +
-          '— in Impostazioni › Documenti e stampa › **Questo file**, o con `Ctrl+K` — rilegge ' +
-          'il file dal disco.',
+          '— in **Informazioni documento…** (menu **File**), o con `Ctrl+K` — rilegge il file ' +
+          'dal disco.',
       },
       {
         termine: '«Il documento c’è, ma non si è potuto aprire da qui»',
@@ -561,7 +561,7 @@ const it = {
         termine: 'La lettura delle scansioni non parte',
         testo:
           'Il pulsante dice «Lettura spenta»: va accesa «Lettura delle scansioni» in ' +
-          'Impostazioni › Programma › **Modelli linguistici**, con il modello scelto in cima, in ' +
+          'Impostazioni › Programma › **Assistente e modelli**, con il modello scelto in cima, in ' +
           '**Chi risponde**, alla riga «Lettura delle scansioni». Senza, le pagine ' +
           'si assegnano a mano — trascinando, o con il tasto destro.',
       },
@@ -569,8 +569,8 @@ const it = {
         termine: 'La posta non parte',
         testo:
           'Se la barra in fondo dice «senza rete», aspetta la rete. Altrimenti Impostazioni › ' +
-          '**Comunicazioni** ha **Prova il collegamento** e **Manda una prova**: dicono dove si ' +
-          'ferma.',
+          'Utente › **Account** ha **Prova il collegamento** e **Manda una prova**: dicono dove ' +
+          'si ferma.',
       },
     ],
     note: [
@@ -700,8 +700,8 @@ export const testi = catalogo(it, {
             'Links, was mit dem Schuljahr reist, rechts, was auf dem Computer bleibt, auf dem ' +
             'man es benutzt.',
           legenda: [
-            'Das Schuljahr, die Fächer und die Einstellungen der mit **Datei** markierten ' +
-              'Bereiche: Sie reisen mit der Datei.',
+            'Das Schuljahr, die Fächer und die mit **Dieses Jahr** markierten Einstellungen: ' +
+              'Sie reisen mit der Datei.',
             'Die archivierten Scans, die Anhänge und die gedruckten Berichte liegen in der ' +
               'Datei, nicht daneben.',
             'Die früheren Versionen jeder Sammlung: siehe «Kopien und Löschungen».',
@@ -741,10 +741,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Zwei Arten von Einstellungen',
           testo:
-            'Die mit **Datei** markierten Bereiche der Einstellungen — Schuljahr, Kalender und ' +
-            'ICS-Kalender, Beurteilung, Fächer, Listen, Briefkopf — liegen in der Datei und ' +
-            'gehen mit ihr zu dem, der sie bekommt. Die anderen gehören zum Programm und ' +
-            'bleiben auf dem Computer.',
+            'Die mit **Dieses Jahr** markierten Einstellungen — die Bereiche Kalender und ' +
+            'Unterricht, und unter Benutzer Wer du bist, Briefpapier und Druck und die Signatur ' +
+            'der Post — liegen in der Datei und gehen mit ihr zu dem, der sie bekommt. Die mit ' +
+            '**Dieser Computer** markierten gehören zum Programm und bleiben auf dem Computer.',
         },
         {
           termine: 'Das E-Mail-Passwort',
@@ -756,8 +756,7 @@ export const testi = catalogo(it, {
           termine: 'Die Datei finden',
           testo:
             '**Ordner der Datei öffnen** im Menü **Datei** öffnet den Ordner, in dem sie liegt. ' +
-            'Den ganzen Pfad gibt es auch unter Einstellungen › Dokumente und Druck › **Diese ' +
-            'Datei**.',
+            'Den ganzen Pfad gibt es auch unter **Dokumentinformationen…** im selben Menü.',
         },
         {
           termine: 'Ohne das Klassenbuch hineinschauen',
@@ -983,8 +982,8 @@ export const testi = catalogo(it, {
           testo:
             'OneDrive und Ähnliches sind kein Problem: Das Klassenbuch schreibt nur, was sich ' +
             'ändert, und kommt die Datei verändert von einem anderen Computer, liest es sie neu ' +
-            'ein. **Neu laden**, unter Einstellungen › Dokumente und Druck › **Diese Datei** ' +
-            'oder mit `Ctrl+K`, liest sie auf Befehl neu ein.',
+            'ein. **Neu laden**, unter **Dokumentinformationen…** (Menü **Datei**) oder mit ' +
+            '`Ctrl+K`, liest sie auf Befehl neu ein.',
         },
       ],
       note: [
@@ -1099,8 +1098,7 @@ export const testi = catalogo(it, {
               'hat, ein Plan, den es nicht mehr gibt.',
             '**Reparieren** gibt es nur, wenn die Korrektur nichts verliert, und bevor sie ' +
               'ausgeführt wird, zählt sie auf, was sich ändert.',
-            '**Details** öffnet die Einstellungen: Die ganze Liste steht unter Dokumente und ' +
-              'Druck › **Diese Datei**.',
+            '**Details** öffnet **Dokumentinformationen**, mit der ganzen Liste.',
           ],
         },
       ],
@@ -1156,8 +1154,8 @@ export const testi = catalogo(it, {
           termine: 'Die Änderungen des anderen Computers fehlen',
           testo:
             'Meistens kommen sie von selbst, wenn die Synchronisierung fertig ist. Sonst liest ' +
-            '**Neu laden** — unter Einstellungen › Dokumente und Druck › **Diese Datei** oder ' +
-            'mit `Ctrl+K` — die Datei von der Festplatte neu ein.',
+            '**Neu laden** — unter **Dokumentinformationen…** (Menü **Datei**) oder mit ' +
+            '`Ctrl+K` — die Datei von der Festplatte neu ein.',
         },
         {
           termine: '«Das Dokument ist da, liess sich aber von hier aus nicht öffnen»',
@@ -1177,7 +1175,7 @@ export const testi = catalogo(it, {
           termine: 'Das Lesen der Scans startet nicht',
           testo:
             'Die Schaltfläche sagt «Lesen aus»: «Scans lesen» muss unter Einstellungen › ' +
-            'Programm › **Sprachmodelle** eingeschaltet sein, mit dem Modell, das oben unter ' +
+            'Programm › **Assistent und Modelle** eingeschaltet sein, mit dem Modell, das oben unter ' +
             '**Wer antwortet** in der Zeile «Scans lesen» gewählt ist. Ohne werden die Seiten ' +
             'von Hand zugeordnet — durch Ziehen oder mit der rechten Maustaste.',
         },
@@ -1185,7 +1183,7 @@ export const testi = catalogo(it, {
           termine: 'Die E-Mail geht nicht hinaus',
           testo:
             'Sagt die Leiste unten «kein Netz», warte auf das Netz. Sonst gibt es unter ' +
-            'Einstellungen › **Kommunikation** **Verbindung testen** und **Test senden**: Sie ' +
+            'Einstellungen › Benutzer › **Konten** **Verbindung testen** und **Test senden**: Sie ' +
             'sagen, wo es hängt.',
         },
       ],
@@ -1317,7 +1315,7 @@ export const testi = catalogo(it, {
             'À gauche ce qui voyage avec l’année, à droite ce qui reste sur l’ordinateur où on ' +
             'l’utilise.',
           legenda: [
-            'L’année, les branches et les paramètres des sections marquées **fichier** : ils ' +
+            'L’année, les branches et les paramètres marqués **Cette année** : ils ' +
               'voyagent avec le fichier.',
             'Les scans archivés, les pièces jointes et les rapports imprimés sont dans le ' +
               'fichier, pas à côté.',
@@ -1357,10 +1355,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Deux sortes de paramètres',
           testo:
-            'Les sections des paramètres marquées **fichier** — année, calendrier et ' +
-            'calendriers ICS, évaluation, branches, listes, en-tête — sont dans le fichier et ' +
-            'passent avec lui à qui le reçoit. Les autres appartiennent au programme, et ' +
-            'restent sur l’ordinateur.',
+            'Les paramètres marqués **Cette année** — les domaines Calendrier et Enseignement, et ' +
+            'sous Utilisateur Qui tu es, Papier et impression et la signature de la Messagerie — ' +
+            'sont dans le fichier et passent avec lui à qui le reçoit. Ceux marqués **Cet ' +
+            'ordinateur** appartiennent au programme, et restent sur l’ordinateur.',
         },
         {
           termine: 'Le mot de passe du courrier',
@@ -1372,8 +1370,8 @@ export const testi = catalogo(it, {
           termine: 'Trouver le fichier',
           testo:
             '**Ouvrir le dossier du fichier**, dans le menu **Fichier**, ouvre le dossier où il ' +
-            'se trouve. Le chemin complet est aussi dans Paramètres › Documents et impression › ' +
-            '**Ce fichier**.',
+            'se trouve. Le chemin complet est aussi dans **Informations sur le document…**, dans ' +
+            'le même menu.',
         },
         {
           termine: 'Regarder dedans sans le registre',
@@ -1595,7 +1593,7 @@ export const testi = catalogo(it, {
           testo:
             'OneDrive et consorts conviennent : le registre n’écrit que ce qui change, et quand ' +
             'le fichier arrive modifié d’un autre ordinateur, il le relit. **Recharger**, dans ' +
-            'Paramètres › Documents et impression › **Ce fichier** ou avec `Ctrl+K`, le relit ' +
+            '**Informations sur le document…** (menu **Fichier**) ou avec `Ctrl+K`, le relit ' +
             'sur commande.',
         },
       ],
@@ -1707,8 +1705,7 @@ export const testi = catalogo(it, {
               'sa branche, un plan qui n’existe plus.',
             '**Réparer** n’est là que si la correction ne perd rien, et avant de la faire, il ' +
               'énumère ce qui va changer.',
-            '**Détails** ouvre les paramètres : la liste entière est dans Documents et ' +
-              'impression › **Ce fichier**.',
+            '**Détails** ouvre **Informations sur le document**, avec la liste entière.',
           ],
         },
       ],
@@ -1762,7 +1759,7 @@ export const testi = catalogo(it, {
           termine: 'Il manque les modifications de l’autre ordinateur',
           testo:
             'D’habitude, elles arrivent toutes seules quand la synchronisation est finie. Sinon, ' +
-            '**Recharger** — dans Paramètres › Documents et impression › **Ce fichier**, ou ' +
+            '**Recharger** — dans **Informations sur le document…** (menu **Fichier**), ou ' +
             'avec `Ctrl+K` — relit le fichier depuis le disque.',
         },
         {
@@ -1783,7 +1780,7 @@ export const testi = catalogo(it, {
           termine: 'La lecture des scans ne démarre pas',
           testo:
             'Le bouton dit « Lecture désactivée » : il faut activer « Lecture des scans » dans ' +
-            'Paramètres › Programme › **Modèles de langage**, avec le modèle choisi en haut, ' +
+            'Paramètres › Programme › **Assistant et modèles**, avec le modèle choisi en haut, ' +
             'dans **Qui répond**, à la ligne « Lecture des scans ». Sinon, les pages ' +
             's’attribuent à la main — en les glissant, ou avec le clic droit.',
         },
@@ -1791,7 +1788,7 @@ export const testi = catalogo(it, {
           termine: 'Le courrier ne part pas',
           testo:
             'Si la barre du bas dit « hors ligne », attends le réseau. Sinon, Paramètres › ' +
-            '**Communications** a **Tester la connexion** et **Envoyer un test** : ils disent ' +
+            'Utilisateur › **Comptes** a **Tester la connexion** et **Envoyer un test** : ils disent ' +
             'où ça bloque.',
         },
       ],
@@ -1922,7 +1919,7 @@ export const testi = catalogo(it, {
             'On the left what travels with the year, on the right what stays on the computer ' +
             'you use it on.',
           legenda: [
-            'The year, the subjects and the settings of the sections marked **file**: they ' +
+            'The year, the subjects and the settings marked **This year**: they ' +
               'travel with the file.',
             'The archived scans, the attachments and the printed reports are inside the file, ' +
               'not next to it.',
@@ -1960,9 +1957,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Two kinds of settings',
           testo:
-            'The settings sections marked **file** — year, calendar and ICS calendars, ' +
-            'assessment, subjects, lists, letterhead — live in the file and go with it to ' +
-            'whoever receives it. The others belong to the program, and stay on the computer.',
+            'The settings marked **This year** — the Calendar and Teaching areas, and under User ' +
+            'Who you are, Letterheads and printing and the Mail signature — live in the file and ' +
+            'go with it to whoever receives it. Those marked **This computer** belong to the ' +
+            'program, and stay on the computer.',
         },
         {
           termine: 'The mail password',
@@ -1974,7 +1972,7 @@ export const testi = catalogo(it, {
           termine: 'Finding the file',
           testo:
             '**Open the file’s folder**, in the **File** menu, opens the folder it is in. The ' +
-            'full path is also in Settings › Documents and printing › **This file**.',
+            'full path is also in **Document information…**, in the same menu.',
         },
         {
           termine: 'Looking inside without the register',
@@ -2190,7 +2188,7 @@ export const testi = catalogo(it, {
           testo:
             'OneDrive and the like are fine: the register writes only what changes, and when ' +
             'the file arrives changed from another computer it rereads it. **Reload**, in ' +
-            'Settings › Documents and printing › **This file** or with `Ctrl+K`, rereads it on ' +
+            '**Document information…** (**File** menu) or with `Ctrl+K`, rereads it on ' +
             'demand.',
         },
       ],
@@ -2301,8 +2299,7 @@ export const testi = catalogo(it, {
               'subject, a plan that no longer exists.',
             '**Repair** is there only if the fix loses nothing, and before making it, it lists ' +
               'what will change.',
-            '**Details** opens the settings: the full list is in Documents and printing › ' +
-              '**This file**.',
+            '**Details** opens **Document information**, with the full list.',
           ],
         },
       ],
@@ -2352,7 +2349,7 @@ export const testi = catalogo(it, {
           termine: 'The other computer’s changes are missing',
           testo:
             'They usually arrive by themselves when the sync has finished. If not, **Reload** — ' +
-            'in Settings › Documents and printing › **This file**, or with `Ctrl+K` — rereads ' +
+            'in **Document information…** (**File** menu), or with `Ctrl+K` — rereads ' +
             'the file from disk.',
         },
         {
@@ -2373,7 +2370,7 @@ export const testi = catalogo(it, {
           termine: 'Scan reading won’t start',
           testo:
             'The button says “Reading off”: “Reading scans” needs to be switched on in ' +
-            'Settings › Program › **Language models**, with the model chosen at the top, in ' +
+            'Settings › Program › **Assistant and models**, with the model chosen at the top, in ' +
             '**Who answers**, on the “Reading scans” row. Without it, pages are assigned by ' +
             'hand — by dragging, or with the right mouse button.',
         },
@@ -2381,7 +2378,7 @@ export const testi = catalogo(it, {
           termine: 'Mail doesn’t go out',
           testo:
             'If the bar at the bottom says “offline”, wait for the network. Otherwise Settings › ' +
-            '**Communications** has **Test the connection** and **Send a test**: they say where it ' +
+            'User › **Accounts** has **Test the connection** and **Send a test**: they say where it ' +
             'gets stuck.',
         },
       ],

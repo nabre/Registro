@@ -34,6 +34,11 @@ const SOLO_ITALIANO = new RegExp(
   'iu',
 )
 
+// Dati che restano in italiano in ogni lingua, come quelli del docente: la
+// fonte del calendario ufficiale ticinese (`core/dati/schoolCalendarTicino.ts`)
+// è il nome di chi pubblica i PDF, e sta nella pagina Calendario › Chiusure.
+const DATI_ITALIANI = ['Dipartimento dell\'educazione, della cultura e dello sport']
+
 test('lingue', async ({ browser }) => {
   const erroriTotali: string[] = []
 
@@ -52,6 +57,7 @@ test('lingue', async ({ browser }) => {
       await valuta(page, FRAME)
       const testo = await valuta<string>(page, 'document.body.innerText')
       for (let riga of testo.split('\n')) {
+        if (DATI_ITALIANI.some((dato) => riga.includes(dato))) continue
         const trovata = SOLO_ITALIANO.exec(riga)
         if (trovata) {
           riga = riga.trim().slice(0, 100)

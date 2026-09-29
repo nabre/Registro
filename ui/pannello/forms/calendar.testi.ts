@@ -75,7 +75,7 @@ const it = {
   calendario: 'Calendario',
   aiutoCalendario:
     'Si confronta la copia che sta nel documento: per il calendario di oggi si preme ' +
-    '«Aggiorna» nelle impostazioni, sezione Calendari ICS. Lì si rinominano e si tolgono.',
+    '«Aggiorna» in Impostazioni › Calendario › Calendari esterni. Lì si rinominano e si tolgono.',
   confronta: 'Confronta',
   unFile: 'Un file…',
   aiutoUnFile: 'Sceglie un file .ics dal disco e lo aggiunge',
@@ -155,7 +155,7 @@ export const testi = catalogo(it, {
     calendario: 'Kalender',
     aiutoCalendario:
       'Abgeglichen wird die Kopie im Dokument: Für den heutigen Stand des Kalenders drückst du ' +
-      '«Aktualisieren» in den Einstellungen, Bereich ICS-Kalender. Dort werden Kalender auch ' +
+      '«Aktualisieren» unter Einstellungen › Kalender › Externe Kalender. Dort werden Kalender auch ' +
       'umbenannt und entfernt.',
     confronta: 'Abgleichen',
     unFile: 'Eine Datei…',
@@ -233,7 +233,7 @@ export const testi = catalogo(it, {
     calendario: 'Calendrier',
     aiutoCalendario:
       'On compare la copie qui se trouve dans le document : pour le calendrier d’aujourd’hui, ' +
-      'appuie sur « Mettre à jour » dans les paramètres, section Calendriers ICS. C’est là qu’on ' +
+      'appuie sur « Mettre à jour » dans Paramètres › Calendrier › Calendriers externes. C’est là qu’on ' +
       'les renomme et qu’on les retire.',
     confronta: 'Comparer',
     unFile: 'Un fichier…',
@@ -304,7 +304,7 @@ export const testi = catalogo(it, {
     calendario: 'Calendar',
     aiutoCalendario:
       'What’s compared is the copy in the document: for today’s calendar, press “Update” in ' +
-      'the settings, ICS calendars section. That’s also where calendars are renamed and removed.',
+      'Settings › Calendar › External calendars. That’s also where calendars are renamed and removed.',
     confronta: 'Compare',
     unFile: 'A file…',
     aiutoUnFile: 'Picks an .ics file from disk and adds it',

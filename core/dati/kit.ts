@@ -9,7 +9,6 @@
 //   4. dall'archivio si estrae solo quel che serve, con nomi passati per `basename`.
 // Lo scarico va in `nome.parziale`, riprende con `Range:` e racconta l'avanzamento.
 
-import * as apparato from 'apparato'
 import { createHash } from 'node:crypto'
 import {
   createReadStream,
@@ -108,11 +107,6 @@ export function nellaCartella (cartella: string, nome: string): string {
   } catch {
     return ''
   }
-}
-
-/** Se il registro deve scaricare da sé quel che manca: un interruttore per tutti i corredi. */
-export function scaricoAutomatico (): boolean {
-  return apparato.impostazioni.leggi('registroDocenti').get<boolean>('modelli.scaricoAutomatico', true)
 }
 
 // ------------------------------------------------------------- che cosa scende

@@ -1,5 +1,5 @@
-// I modelli sul disco e quale lavora per che cosa: la sezione «Modelli
-// linguistici» delle impostazioni. Torna anche la cartella, per poterla aprire.
+// I modelli sul disco e quale lavora per che cosa: la sezione «Assistente e
+// modelli» delle impostazioni. Torna anche la cartella, per poterla aprire.
 
 import { definisci } from '../../contract.js'
 import { cartellaModelli, modelliLocali } from '../../../core/dati/gguf.js'

@@ -762,7 +762,7 @@ export const SEZIONI_CALENDARIO: SezioneGuida[] = [
     {
       id: 'smistare',
       parte: 'agenda',
-      simbolo: 'documento',
+      simbolo: 'vassoio',
       vista: 'daSmistare',
       figure: [FIGURA_SMISTARE],
       note: ['meccanismo', 'attenzione', 'consiglio'],

@@ -43,7 +43,28 @@ export interface Azioni {
    * prove installano il menu senza.
    */
   disinstalla?: () => Promise<void>
+  /**
+   * Se c'è un anno aperto: alcune voci servono solo senza pannello, altre solo
+   * con. Senza la funzione il menu è quello «senza documento» (le prove).
+   */
+  documentoAperto?: () => boolean
 }
+
+/**
+ * I gesti della posta uno per uno: con un documento aperto stanno nella sezione
+ * Account del pannello, e il menu porta là; senza, il pannello non c'è e
+ * restano l'unica via.
+ */
+const SOLO_SENZA_DOCUMENTO: ReadonlySet<IdComando> = new Set<IdComando>([
+  'registroDocenti.collegaPosta',
+  'registroDocenti.provaPosta',
+  'registroDocenti.provaInvioPosta',
+  'registroDocenti.scollegaPosta',
+  'registroDocenti.azzeraPosta',
+])
+const SOLO_CON_DOCUMENTO: ReadonlySet<IdComando> = new Set<IdComando>([
+  'registroDocenti.account',
+])
 
 /**
  * I gruppi del menu e l'ordine dentro ognuno. Il gruppo di ciascun comando viene
@@ -128,7 +149,7 @@ function vociRecenti (azioni: Azioni): MenuItemConstructorOptions {
 }
 
 /** Le voci che non vengono da un comando del registro. */
-function vociNostre (azioni: Azioni): MenuItemConstructorOptions[] {
+function vociNostre (azioni: Azioni, documentoAperto: boolean): MenuItemConstructorOptions[] {
   const t = testi()
   return [
     { type: 'separator' },
@@ -138,12 +159,13 @@ function vociNostre (azioni: Azioni): MenuItemConstructorOptions[] {
       click: () => conBlur(() => azioni.apriDocumento()),
     },
     vociRecenti(azioni),
-    {
-      // Senza acceleratore: `CommandOrControl+,` è della voce «Impostazioni» di
-      // «Vai a», che apre la pagina del registro. Questa apre la finestra nativa.
-      label: t.impostazioniDelProgramma,
-      click: () => conBlur(() => apriImpostazioni()),
-    },
+    // Senza acceleratore: `CommandOrControl+,` è della voce «Impostazioni» di
+    // «Vai a», che apre la pagina del registro. Questa apre la finestra nativa,
+    // che serve solo quando il pannello non ha un documento: con uno aperto
+    // sarebbero due superfici sulle stesse impostazioni.
+    ...(documentoAperto
+      ? []
+      : [{ label: t.impostazioniDelProgramma, click: () => conBlur(() => apriImpostazioni()) }]),
     ...(azioni.disinstalla
       ? [
           { type: 'separator' as const },
@@ -191,7 +213,12 @@ function menuVisualizza (): MenuItemConstructorOptions {
 
 /** Esportata per le prove: è il modello che si dà a `Menu.buildFromTemplate`. */
 export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
-  const rimasti = new Map(COMANDI.map((comando) => [comando.id, comando]))
+  const aperto = azioni.documentoAperto?.() ?? false
+  const nascosti = aperto ? SOLO_SENZA_DOCUMENTO : SOLO_CON_DOCUMENTO
+  // Tolti prima dei gruppi, o finirebbero sotto «Altro» come orfani.
+  const rimasti = new Map(
+    COMANDI.filter((comando) => !nascosti.has(comando.id)).map((comando) => [comando.id, comando]),
+  )
   const t = testi()
 
   const dalManifesto = GRUPPI.map(({ gruppo, comandi }) => ({
@@ -201,7 +228,7 @@ export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
 
   // Le voci nostre vanno nel gruppo del documento, cercato per nome e non per posizione.
   const registro = dalManifesto.find((menu) => menu.gruppo === 'registro')
-  if (registro) registro.voci.push(...vociNostre(azioni))
+  if (registro) registro.voci.push(...vociNostre(azioni, aperto))
 
   // I comandi del manifesto senza gruppo: meglio in «Altro» che irraggiungibili.
   const orfani = [...rimasti.values()].map(voceDi)
@@ -233,7 +260,8 @@ export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
 let azioniCorrenti: Azioni | null = null
 let seguiDocumenti = false
 
-function ridisegnaMenu (): void {
+/** Da chiamare quando cambia quel che il menu mostra: recenti, lingua, documento aperto o no. */
+export function ridisegnaMenu (): void {
   if (!azioniCorrenti) return
   Menu.setApplicationMenu(Menu.buildFromTemplate(modelloDelMenu(azioniCorrenti)))
   // Su Windows e Linux il menu torna anche sulle finestre di servizio.
@@ -314,8 +342,8 @@ function ascolta (): void {
 
 /**
  * Rimanda alla pagina l'elenco intero con i valori di adesso: un cambio può
- * toccare altre righe (spegnere `api.condotto` sospende `lettura` e
- * `scrittura`), o venire dal pannello. La pagina aggiorna in posto e lascia
+ * toccare altre righe (spegnere `vassoio.attivo` sospende le voci che ne
+ * dipendono), o venire dal pannello. La pagina aggiorna in posto e lascia
  * stare il campo in cui si scrive.
  */
 function annunciaTutto (aperta: BrowserWindow): void {

@@ -14,17 +14,17 @@ const it = {
   },
   /** Dove si accende un uso, per chi legge il motivo e deve rimediare. */
   doveSiAccende: {
-    ocr: 'nelle impostazioni, sotto «Modelli linguistici»',
-    assistente: 'nelle impostazioni, sotto «Modelli linguistici»',
+    ocr: 'nelle impostazioni, sotto «Assistente e modelli»',
+    assistente: 'nelle impostazioni, sotto «Assistente e modelli»',
   },
   senzaModello: (nome: string) =>
-    `${nome} non ha un modello: se ne scarica uno dalla sezione «Modelli ` +
-    'linguistici» delle impostazioni, oppure ci si trascina dentro un file .gguf che si ' +
+    `${nome} non ha un modello: se ne scarica uno dalla sezione «Assistente ` +
+    'e modelli» delle impostazioni, oppure ci si trascina dentro un file .gguf che si ' +
     'ha già.',
   spento: (nome: string, dove: string) => `${nome} è spenta: si accende ${dove}.`,
   modelloSparito: (modello: string) =>
     `Il modello «${modello}» non è più nella cartella dei modelli: lo si ` +
-    'riscarica dalla sezione «Modelli linguistici» delle impostazioni, o se ne sceglie ' +
+    'riscarica dalla sezione «Assistente e modelli» delle impostazioni, o se ne sceglie ' +
     'un altro.',
   nonGenera: (motore: string) => `${motore} non risponde a domande secche.`,
   nonConversa: (motore: string) => `${motore} non sa conversare.`,
@@ -43,7 +43,7 @@ const it = {
   /** Gli esempi di un campo, in coda alla sua descrizione nel catalogo degli attrezzi. */
   esempi: (esempi: string) => `(es. ${esempi})`,
   piuPiccolo:
-    'si rimedia scegliendone uno più piccolo nella sezione «Modelli linguistici» delle ' +
+    'si rimedia scegliendone uno più piccolo nella sezione «Assistente e modelli» delle ' +
     'impostazioni.',
   inCoda: (secondi: number) =>
     `La domanda è rimasta in coda per ${secondi} secondi dietro un’altra, e non è stata ` +
@@ -59,7 +59,7 @@ const it = {
     `Il modello non ha finito di rispondere entro ${secondi} secondi. Può essere che la ` +
     'domanda fosse lunga, oppure che questo modello sia grosso per questa macchina: si ' +
     'rimedia chiedendo meno cose insieme, o scegliendone uno più piccolo nella sezione ' +
-    '«Modelli linguistici» delle impostazioni.',
+    '«Assistente e modelli» delle impostazioni.',
   /** Al modello che chiama un attrezzo oltre il tetto. */
   esauriti:
     'Hai esaurito gli attrezzi per questa domanda. Rispondi adesso con quel che hai ' +
@@ -70,7 +70,7 @@ const it = {
     'Non c’è abbastanza memoria per far ragionare questo modello: gli servono ' +
     `${pavimento} token di contesto e la macchina non li concede, né sulla scheda video ` +
     'né nella memoria di sistema. Si rimedia scegliendo un modello più piccolo nella ' +
-    'sezione «Modelli linguistici» delle impostazioni, oppure chiudendo i programmi che ' +
+    'sezione «Assistente e modelli» delle impostazioni, oppure chiudendo i programmi che ' +
     'stanno occupando la ' +
     'memoria.',
   /** Al posto di un risultato tolto per far posto: lo legge il modello. */
@@ -88,16 +88,16 @@ export const testi = catalogo(it, {
       assistente: 'Der Assistent',
     },
     doveSiAccende: {
-      ocr: 'in den Einstellungen unter «Sprachmodelle»',
-      assistente: 'in den Einstellungen unter «Sprachmodelle»',
+      ocr: 'in den Einstellungen unter «Assistent und Modelle»',
+      assistente: 'in den Einstellungen unter «Assistent und Modelle»',
     },
     senzaModello: (nome) =>
-      `${nome} hat kein Modell: Lade eines im Bereich «Sprachmodelle» der Einstellungen ` +
+      `${nome} hat kein Modell: Lade eines im Bereich «Assistent und Modelle» der Einstellungen ` +
       'herunter oder zieh eine .gguf-Datei hinein, die du schon hast.',
     spento: (nome, dove) => `${nome} ist ausgeschaltet. Einschalten: ${dove}.`,
     modelloSparito: (modello) =>
       `Das Modell «${modello}» ist nicht mehr im Modellordner: Lade es im Bereich ` +
-      '«Sprachmodelle» der Einstellungen erneut herunter oder wähle ein anderes.',
+      '«Assistent und Modelle» der Einstellungen erneut herunter oder wähle ein anderes.',
     nonGenera: (motore) => `${motore} beantwortet keine einzelnen Fragen.`,
     nonConversa: (motore) => `${motore} kann kein Gespräch führen.`,
     nonRisposto: (motore) => `${motore} hat nicht geantwortet.`,
@@ -109,7 +109,7 @@ export const testi = catalogo(it, {
       'gelesen hast, und sag offen, was du nicht herausfinden konntest.',
     esempi: (esempi) => `(z. B. ${esempi})`,
     piuPiccolo:
-      'Abhilfe schafft ein kleineres Modell aus dem Bereich «Sprachmodelle» der Einstellungen.',
+      'Abhilfe schafft ein kleineres Modell aus dem Bereich «Assistent und Modelle» der Einstellungen.',
     inCoda: (secondi) =>
       `Die Frage stand ${secondi} Sekunden lang hinter einer anderen in der Warteschlange und ` +
       'wurde nicht gelesen: Das Modell beantwortet eine Frage nach der anderen. Du kannst sie ' +
@@ -126,7 +126,7 @@ export const testi = catalogo(it, {
       `Das Modell hat nicht innerhalb von ${secondi} Sekunden fertig geantwortet. Vielleicht ` +
       'war die Frage lang, oder dieses Modell ist für diesen Computer zu gross: Abhilfe ' +
       'schafft, weniger Dinge auf einmal zu fragen oder ein kleineres Modell im Bereich ' +
-      '«Sprachmodelle» der Einstellungen zu wählen.',
+      '«Assistent und Modelle» der Einstellungen zu wählen.',
     esauriti:
       'Du hast die Werkzeuge für diese Frage aufgebraucht. Antworte jetzt mit dem, was du ' +
       'gelesen hast, und sag offen, was du nicht herausfinden konntest.',
@@ -136,7 +136,7 @@ export const testi = catalogo(it, {
       'Es gibt nicht genug Speicher, um dieses Modell arbeiten zu lassen: Es braucht ' +
       `${pavimento} Token Kontext, und der Computer stellt sie nicht bereit, weder auf der ` +
       'Grafikkarte noch im Arbeitsspeicher. Abhilfe schafft ein kleineres Modell im Bereich ' +
-      '«Sprachmodelle» der Einstellungen, oder das Schliessen der Programme, die den ' +
+      '«Assistent und Modelle» der Einstellungen, oder das Schliessen der Programme, die den ' +
       'Speicher belegen.',
     tolto: (nome) =>
       `[Das Ergebnis von «${nome}» wurde hier entfernt, um Platz zu schaffen: Der Kontext war ` +
@@ -151,16 +151,16 @@ export const testi = catalogo(it, {
       assistente: 'L’assistant',
     },
     doveSiAccende: {
-      ocr: 'dans les paramètres, sous « Modèles de langage »',
-      assistente: 'dans les paramètres, sous « Modèles de langage »',
+      ocr: 'dans les paramètres, sous « Assistant et modèles »',
+      assistente: 'dans les paramètres, sous « Assistant et modèles »',
     },
     senzaModello: (nome) =>
-      `${nome} n’a pas de modèle : tu peux en télécharger un depuis la section « Modèles de ` +
-      'langage » des paramètres, ou y glisser un fichier .gguf que tu as déjà.',
+      `${nome} n’a pas de modèle : tu peux en télécharger un depuis la section « Assistant et ` +
+      'modèles » des paramètres, ou y glisser un fichier .gguf que tu as déjà.',
     spento: (nome, dove) => `${nome} est à l’arrêt : tu peux l’activer ${dove}.`,
     modelloSparito: (modello) =>
       `Le modèle « ${modello} » n’est plus dans le dossier des modèles : tu peux le ` +
-      'télécharger à nouveau depuis la section « Modèles de langage » des paramètres, ou en ' +
+      'télécharger à nouveau depuis la section « Assistant et modèles » des paramètres, ou en ' +
       'choisir un autre.',
     nonGenera: (motore) => `${motore} ne répond pas aux questions simples.`,
     nonConversa: (motore) => `${motore} ne sait pas converser.`,
@@ -173,7 +173,7 @@ export const testi = catalogo(it, {
       'et dis ouvertement ce que tu n’as pas réussi à savoir.',
     esempi: (esempi) => `(p. ex. ${esempi})`,
     piuPiccolo:
-      'on y remédie en en choisissant un plus petit dans la section « Modèles de langage » ' +
+      'on y remédie en en choisissant un plus petit dans la section « Assistant et modèles » ' +
       'des paramètres.',
     inCoda: (secondi) =>
       `La question est restée ${secondi} secondes en file d’attente derrière une autre, et ` +
@@ -190,7 +190,7 @@ export const testi = catalogo(it, {
       `Le modèle n’a pas fini de répondre en ${secondi} secondes. Peut-être que la question ` +
       'était longue, ou que ce modèle est trop gros pour cette machine : on y remédie en ' +
       'demandant moins de choses à la fois, ou en en choisissant un plus petit dans la ' +
-      'section « Modèles de langage » des paramètres.',
+      'section « Assistant et modèles » des paramètres.',
     esauriti:
       'Tu as épuisé les outils pour cette question. Réponds maintenant avec ce que tu as lu, ' +
       'et dis ouvertement ce que tu n’as pas réussi à savoir.',
@@ -200,7 +200,7 @@ export const testi = catalogo(it, {
       'Il n’y a pas assez de mémoire pour faire raisonner ce modèle : il lui faut ' +
       `${pavimento} jetons de contexte et la machine ne les accorde pas, ni sur la carte ` +
       'graphique ni dans la mémoire système. On y remédie en choisissant un modèle plus ' +
-      'petit dans la section « Modèles de langage » des paramètres, ou en fermant les ' +
+      'petit dans la section « Assistant et modèles » des paramètres, ou en fermant les ' +
       'programmes qui occupent la mémoire.',
     tolto: (nome) =>
       `[Le résultat de « ${nome} » a été retiré d’ici pour faire de la place : le contexte ` +
@@ -215,16 +215,16 @@ export const testi = catalogo(it, {
       assistente: 'The assistant',
     },
     doveSiAccende: {
-      ocr: 'in the settings, under “Language models”',
-      assistente: 'in the settings, under “Language models”',
+      ocr: 'in the settings, under “Assistant and models”',
+      assistente: 'in the settings, under “Assistant and models”',
     },
     senzaModello: (nome) =>
-      `${nome} has no model: download one from the “Language models” section of the ` +
+      `${nome} has no model: download one from the “Assistant and models” section of the ` +
       'settings, or drag in a .gguf file you already have.',
     spento: (nome, dove) => `${nome} is switched off: switch it on ${dove}.`,
     modelloSparito: (modello) =>
       `The model “${modello}” is no longer in the models folder: download it again from the ` +
-      '“Language models” section of the settings, or choose another one.',
+      '“Assistant and models” section of the settings, or choose another one.',
     nonGenera: (motore) => `${motore} does not answer single questions.`,
     nonConversa: (motore) => `${motore} cannot hold a conversation.`,
     nonRisposto: (motore) => `${motore} did not answer.`,
@@ -236,7 +236,7 @@ export const testi = catalogo(it, {
       'say openly what you could not find out.',
     esempi: (esempi) => `(e.g. ${esempi})`,
     piuPiccolo:
-      'the fix is to choose a smaller one in the “Language models” section of the settings.',
+      'the fix is to choose a smaller one in the “Assistant and models” section of the settings.',
     inCoda: (secondi) =>
       `The question waited in the queue for ${secondi} seconds behind another one and was ` +
       'not read: the model answers one question at a time. You can ask it again as soon as ' +
@@ -250,7 +250,7 @@ export const testi = catalogo(it, {
     scaduta: (secondi) =>
       `The model did not finish answering within ${secondi} seconds. The question may have ` +
       'been long, or this model may be too big for this computer: the fix is to ask fewer ' +
-      'things at once, or to choose a smaller one in the “Language models” section of the ' +
+      'things at once, or to choose a smaller one in the “Assistant and models” section of the ' +
       'settings.',
     esauriti:
       'You have used up the tools for this question. Answer now with what you have read, ' +
@@ -261,7 +261,7 @@ export const testi = catalogo(it, {
       'There is not enough memory to run this model: it needs ' +
       `${pavimento} tokens of context and the computer cannot provide them, either on the ` +
       'graphics card or in system memory. The fix is to choose a smaller model in the ' +
-      '“Language models” section of the settings, or to close the programs that are using ' +
+      '“Assistant and models” section of the settings, or to close the programs that are using ' +
       'the memory.',
     tolto: (nome) =>
       `[The result of “${nome}” was removed from here to make room: the context was full. ` +

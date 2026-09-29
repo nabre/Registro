@@ -1,8 +1,8 @@
 // La dettatura: la voce va a voicebox, un'app a parte con Whisper che gira su
 // questo computer, e il testo torna nella casella. Stessa forma di `llm.ts`:
-// un uso con le sue impostazioni e un motore. L'indirizzo passa da
-// `indirizzoLocale` a ogni lettura, perché decide dove va la voce: solo un
-// servizio di questo computer (non si verifica che sia proprio voicebox).
+// un uso con le sue impostazioni e un motore. Dell'indirizzo si sceglie solo
+// la porta: l'host è fisso, `127.0.0.1`, perché decide dove va la voce — solo
+// un servizio di questo computer (non si verifica che sia proprio voicebox).
 // Le registrazioni mute non si mandano: davanti al silenzio Whisper inventa.
 
 import * as apparato from 'apparato'
@@ -10,7 +10,6 @@ import { rm } from 'node:fs/promises'
 
 import { cartellaDi } from './kit.js'
 import { VOICEBOX } from './voicebox.js'
-import { indirizzoLocale } from '../dominio/loopback.js'
 import { lingua } from '../i18n/index.js'
 import { testi } from './dictation.testi.js'
 
@@ -64,7 +63,20 @@ export interface Collegamento {
 // ------------------------------------------------------------ le impostazioni
 
 /** Dove risponde voicebox quando lo si apre dall'app: il predefinito del manifesto. */
-const INDIRIZZO_DI_SERIE = 'http://127.0.0.1:17493'
+const PORTA_DI_SERIE = 17493
+
+/** L'host, fisso: la voce va a questo computer e a nessun altro. */
+const HOST = '127.0.0.1'
+
+/**
+ * La porta scritta, o quella di serie se il file dice una cosa che non è una
+ * porta: è la rete, la dogana sta in `valoreConMotivo`.
+ */
+function portaDi (scritta: unknown): number {
+  return typeof scritta === 'number' && Number.isInteger(scritta) && scritta >= 1 && scritta <= 65535
+    ? scritta
+    : PORTA_DI_SERIE
+}
 
 /** Secondi di voce al massimo, oltre si taglia: protegge dal microfono lasciato acceso. */
 const DURATA_MASSIMA_SECONDI = 60
@@ -86,9 +98,8 @@ export function collegamentoDettatura (): Collegamento {
   return {
     motore: MOTORI.voicebox,
     attivo: configurazione.get<boolean>('dettatura.attivo', false),
-    indirizzo: indirizzoLocale(
-      configurazione.get<string>('dettatura.indirizzo', INDIRIZZO_DI_SERIE) ?? '',
-    ),
+    // testo-fisso: un indirizzo, non si legge
+    indirizzo: `http://${HOST}:${portaDi(configurazione.get<number>('dettatura.porta', PORTA_DI_SERIE))}`,
     // Le `scelte` del manifesto bastano, salvo un file riscritto a mano.
     taglia: (TAGLIE as readonly string[]).includes(taglia ?? '') ? (taglia as Taglia) : 'turbo',
     // Dichiarata e non indovinata (vedi `voicebox.ts`): i codici del registro
@@ -129,15 +140,6 @@ export async function prontezzaDettatura (collegamento: Collegamento): Promise<P
     return {
       pronto: false,
       motivo: testi().spenta,
-    }
-  }
-  if (collegamento.indirizzo === '') {
-    const scritto = String(
-      apparato.impostazioni.leggi('registroDocenti').get<string>('dettatura.indirizzo', '') ?? '',
-    ).trim()
-    return {
-      pronto: false,
-      motivo: testi().nonLocale(scritto),
     }
   }
   if (rispondeva?.indirizzo === collegamento.indirizzo && Date.now() < rispondeva.fino) {

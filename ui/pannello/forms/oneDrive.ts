@@ -238,7 +238,7 @@ export function apriOneDrive (account?: string): void {
           variante: 'sottile',
           al: () => {
             contesto?.chiudi()
-            vaiNelPannello({ pagina: 'pagina.impostazioni', scheda: 'programma.account' })
+            vaiNelPannello({ pagina: 'pagina.impostazioni', scheda: 'utente#account' })
           },
         }),
       ),

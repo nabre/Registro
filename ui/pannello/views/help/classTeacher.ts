@@ -355,7 +355,7 @@ export const SEZIONI_DOCENTE: SezioneGuida[] = [
   sezione({
     id: 'assenze',
     parte: 'docenteClasse',
-    simbolo: 'firma',
+    simbolo: 'assenze',
     vista: 'docenteClasse',
     figure: [{ vista: '0 0 640 204', disegno: figuraAssenze() }],
     note: ['meccanismo', 'consiglio', 'attenzione'],

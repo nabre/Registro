@@ -160,6 +160,11 @@ export function percorsoAiutanteAggiornamento (): string {
   return Uri.joinPath(radiceApp(), 'os', 'windows', 'aggiornamento.ps1').fsPath
 }
 
+/** Lo scambio dei pacchetti `os/macos/aggiornamento.sh`, ricopiato come quello di Windows. */
+export function percorsoAiutanteAggiornamentoMac (): string {
+  return Uri.joinPath(radiceApp(), 'os', 'macos', 'aggiornamento.sh').fsPath
+}
+
 let lavoro: Uri | null = null
 
 /** La cartella su cui il registro lavora, o `null` se non è ancora stata scelta. */

@@ -187,7 +187,7 @@ interface InterfacciaFileSystem {
 
 export interface Impianto {
   file: InterfacciaFileSystem
-  scriviDa? (uri: Uri, da: number, contenuto: Uint8Array): Promise<void>
+  accodaSe? (uri: Uri, misura: number, fine: Uint8Array, pezzi: Uint8Array[]): Promise<boolean>
   finisceCon? (uri: Uri, misura: number, fine: Uint8Array): Promise<boolean>
   cartelleDiLavoro? (): CartellaDiLavoro[] | undefined
   osserva? (glob: string | ModelloRelativo, ascoltatore?: (evento: Uri) => void): Osservatore
@@ -355,17 +355,45 @@ const filePredefinito: InterfacciaFileSystem = {
   },
 }
 
-async function scriviDaPredefinito (uri: Uri, da: number, contenuto: Uint8Array): Promise<void> {
+async function accodaSePredefinito (
+  uri: Uri,
+  misura: number,
+  fine: Uint8Array,
+  pezzi: Uint8Array[],
+): Promise<boolean> {
   let f: fs.FileHandle | null = null
   try {
-    f = await fs.open(uri.fsPath, 'r+')
-    await f.write(contenuto, 0, contenuto.length, da)
-    await f.sync()
+    try {
+      f = await fs.open(uri.fsPath, 'r+')
+    } catch {
+      return false
+    }
+    // Un handle solo per controllo e scritture: vedi `accodaSe` sul desktop.
+    if (!(await finisceGiàAperto(f, misura, fine))) return false
+    let da = misura
+    for (const pezzo of pezzi) {
+      await f.write(pezzo, 0, pezzo.length, da)
+      await f.sync()
+      da += pezzo.length
+    }
+    return true
   } catch (errore) {
     throw tradotto(errore, uri)
   } finally {
     await f?.close()
   }
+}
+
+async function finisceGiàAperto (
+  f: fs.FileHandle,
+  misura: number,
+  fine: Uint8Array,
+): Promise<boolean> {
+  const { size } = await f.stat()
+  if (size !== misura || fine.length > size) return false
+  const letto = Buffer.alloc(fine.length)
+  const { bytesRead } = await f.read(letto, 0, fine.length, size - fine.length)
+  return bytesRead === fine.length && letto.equals(fine)
 }
 
 async function finisceConPredefinito (
@@ -380,11 +408,7 @@ async function finisceConPredefinito (
     } catch {
       return false
     }
-    const { size } = await f.stat()
-    if (size !== misura || fine.length > size) return false
-    const letto = Buffer.alloc(fine.length)
-    const { bytesRead } = await f.read(letto, 0, fine.length, size - fine.length)
-    return bytesRead === fine.length && letto.equals(fine)
+    return await finisceGiàAperto(f, misura, fine)
   } catch {
     return false
   } finally {
@@ -394,7 +418,7 @@ async function finisceConPredefinito (
 
 const impiantoPredefinito: Impianto = {
   file: filePredefinito,
-  scriviDa: scriviDaPredefinito,
+  accodaSe: accodaSePredefinito,
   finisceCon: finisceConPredefinito,
   impostazioni: {
     leggi: () => ({
@@ -429,10 +453,15 @@ export const file: InterfacciaFileSystem = {
   isWritableFileSystem: (schema) => ottieniImpianto().file.isWritableFileSystem(schema),
 }
 
-export function scriviDa (uri: Uri, da: number, contenuto: Uint8Array): Promise<void> {
+export function accodaSe (
+  uri: Uri,
+  misura: number,
+  fine: Uint8Array,
+  pezzi: Uint8Array[],
+): Promise<boolean> {
   const imp = ottieniImpianto()
-  if (imp.scriviDa) return imp.scriviDa(uri, da, contenuto)
-  return scriviDaPredefinito(uri, da, contenuto)
+  if (imp.accodaSe) return imp.accodaSe(uri, misura, fine, pezzi)
+  return accodaSePredefinito(uri, misura, fine, pezzi)
 }
 
 export function finisceCon (uri: Uri, misura: number, fine: Uint8Array): Promise<boolean> {

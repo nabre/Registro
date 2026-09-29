@@ -2,21 +2,26 @@
 // corso stampa su quale carta. Stanno nel `.regi` con le altre impostazioni.
 // Più carte per chi insegna in più sedi; ogni corso sta su una carta sola (lo
 // garantisce `completaCarte` in `domain/letterhead.ts`, riapplicato dall'host);
-// qui si sposta con `spostaCorsi` e `togliCarta`. Chi firma è uno solo. La
-// firma delle e-mail si scrive in Comunicazioni (`mail.ts`).
-// I campi si salvano all'uscita mandando la matrice intera; il logo ha azioni
-// sue. Le regole senza DOM stanno in `letterheadCourses.ts`, dove si provano.
+// qui si sposta con `spostaCorsi` e `togliCarta`. La predefinita è la prima:
+// «Rendi predefinita» la porta in cima. Chi firma è uno solo. La firma delle
+// e-mail si scrive in Utente › Posta (`mail.ts`).
+// I campi si salvano all'uscita mandando la matrice intera, e dicono l'esito
+// accanto a sé (`campoAnno`); il logo ha azioni sue. Le regole senza DOM stanno
+// in `letterheadCourses.ts`, dove si provano.
 
+import type { Esito } from '../../../../core/controlli/controllo.js'
+import { MODI_PDF } from '../../../../core/dominio/automation.js'
 import { cartaVuota, spostaCorsi, togliCarta } from '../../../../core/dominio/letterhead.js'
-import { ALTEZZA_LOGO, type CartaIntestata } from '../../../../core/dominio/models.js'
-import { campo, pulsante, scheda } from '../../components/base.js'
+import { ALTEZZA_LOGO, type CartaIntestata, type QuandoRifarePdf } from '../../../../core/dominio/models.js'
+import { pulsante, scheda } from '../../components/base.js'
+import { campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/voceAnno.js'
 import { menuSotto, type ElementoMenu } from '../../components/menu.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { gestisci, h, type Figlio } from '../../dom.js'
-import { azione } from '../../bridge.js'
+import { azione, invia } from '../../bridge.js'
 import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '../../state.js'
-// salvataggio intestazione gestito con azione diretta per preservare campi docente
+import { salvaConEsito } from './document.js'
 import {
   codificaCorsi,
   daTrascinare,
@@ -61,16 +66,23 @@ function nomeCarta (carta: CartaIntestata, indice: number): string {
   return carta.sede.trim() || testi().cartaN(indice + 1)
 }
 
+/** Chi firma, per intero, dalle sue parti: è quel che finisce sui fogli. */
+function docenteDa (appellativo: string, nome: string, cognome: string): string {
+  return [appellativo, nome, cognome].map((parte) => parte.trim()).filter(Boolean).join(' ')
+}
+
 /**
- * Salva l'intestazione completa (carte, docente strutturato e firma per le stampe).
- * Sincronizza il nome visualizzato quando si modificano i dati anagrafici.
+ * Salva l'intestazione completa (carte, docente strutturato e firma per le
+ * stampe). Il nome intero (`docente`) si rifà dalle parti quando se ne cambia
+ * una: le due fonti non si separano. L'esito lo dice il campo che ha salvato:
+ * `invia` e non `azione`, perché il rifiuto si legga lì.
  */
-function salvaIntestazione (modifiche: {
+async function salvaIntestazione (modifiche: {
   carte?: CartaIntestata[]
   docenteAppellativo?: string
   docenteNome?: string
   docenteCognome?: string
-}): Promise<void> {
+}): Promise<Esito> {
   const attuale = stato.registro.impostazioni.intestazione
   const carte = modifiche.carte ?? attuale.carte
   const appellativo = modifiche.docenteAppellativo !== undefined
@@ -87,9 +99,7 @@ function salvaIntestazione (modifiche: {
   const toccoAnagrafica = modifiche.docenteAppellativo !== undefined ||
     modifiche.docenteNome !== undefined ||
     modifiche.docenteCognome !== undefined
-  if (toccoAnagrafica) {
-    docente = [appellativo, nome, cognome].filter(Boolean).join(' ')
-  }
+  if (toccoAnagrafica) docente = docenteDa(appellativo, nome, cognome)
 
   const { intestazione: _intestazione, ...resto } = stato.registro.impostazioni
   const intestazione = {
@@ -103,22 +113,49 @@ function salvaIntestazione (modifiche: {
     ...(attuale.firma && attuale.firma.trim() !== '' ? { firma: attuale.firma } : {}),
   }
 
-  return azione({ tipo: 'impostazioni.salva', impostazioni: { ...resto, intestazione } }).then(() => undefined)
+  const risposta = await invia({ tipo: 'impostazioni.salva', impostazioni: { ...resto, intestazione } })
+  if (risposta.ok) return null
+  return risposta.errori?.join(' ') || testi().nonSalvata
 }
 
 /** Salva la matrice intera: l'host la completa e tiene i loghi per id. */
-function salvaCarte (carte: CartaIntestata[]): Promise<void> {
+function salvaCarte (carte: CartaIntestata[]): Promise<Esito> {
   return salvaIntestazione({ carte })
 }
 
-/** Cambia un campo di una carta, lasciando le altre com'erano. */
-function cambiaCarta (
+/** Come `salvaCarte`, per un gesto che non ha un campo accanto: il rifiuto va in una notifica. */
+async function salvaCarteDaGesto (carte: CartaIntestata[]): Promise<void> {
+  const esito = await salvaCarte(carte)
+  if (esito) notifica(esito, 'errore')
+}
+
+/**
+ * Cambia un campo di una carta, lasciando le altre com'erano. Se l'host lo
+ * raddrizza (un'altezza fuori dai limiti) lo si dice accanto al campo.
+ */
+async function cambiaCarta (
   cartaId: string,
   modifica: Partial<Pick<CartaIntestata, 'sede' | 'altezzaLogo'>>,
-): void {
+): Promise<Esito> {
   const carte = carteVive().map((carta) =>
     carta.id === cartaId ? { ...carta, ...modifica } : carta)
-  void salvaCarte(carte)
+  const esito = await salvaCarte(carte)
+  if (esito !== null || modifica.altezzaLogo === undefined) return esito
+  const salvata = carteVive().find((carta) => carta.id === cartaId)?.altezzaLogo
+  return salvata === undefined || salvata === modifica.altezzaLogo
+    ? null
+    : testi().altezzaPortata(salvata)
+}
+
+/**
+ * La carta che diventa la predefinita: va in cima, dove l'host cerca quella dei
+ * corsi nuovi. I corsi restano sulle carte dove sono.
+ */
+function rendiPredefinita (cartaId: string): void {
+  const carte = carteVive()
+  const scelta = carte.find((carta) => carta.id === cartaId)
+  if (!scelta || carte[0]?.id === cartaId) return
+  void salvaCarteDaGesto([scelta, ...carte.filter((carta) => carta.id !== cartaId)])
 }
 
 /** Sposta dei corsi su una carta e salva; se sono già tutti lì non parte niente. */
@@ -127,7 +164,7 @@ function sposta (ids: readonly string[], cartaId: string): void {
   const meta = carte.find((carta) => carta.id === cartaId)
   if (!meta || ids.length === 0 || ids.every((id) => meta.corsi.includes(id))) return
   selezione = { scelti: new Set(), ancora: null }
-  void salvaCarte(spostaCorsi(carte, ids, cartaId))
+  void salvaCarteDaGesto(spostaCorsi(carte, ids, cartaId))
 }
 
 // ------------------------------------------------------------- la selezione
@@ -379,14 +416,25 @@ async function scegliLogo (cartaId: string): Promise<void> {
   ridisegna()
 }
 
-/** Toglie il logo di una carta: i suoi fogli escono con la sola scritta in cima. */
-async function togliLogo (cartaId: string): Promise<void> {
+/**
+ * Toglie il logo di una carta: i suoi fogli escono con la sola scritta in cima.
+ * Chiede prima, perché il file se ne va dal documento e non si rimette con un
+ * «Annulla»: va ricaricato dal disco.
+ */
+async function togliLogo (cartaId: string, nome: string): Promise<void> {
+  const t = testi()
+  const sicuro = await conferma({
+    titolo: t.togliereLogo(nome),
+    testo: t.togliereLogoTesto,
+    testoConferma: parole().togli,
+  })
+  if (!sicuro) return
   const risposta = await azione({ tipo: 'intestazione.togliLogo', cartaId })
   if (risposta.ok) ridisegna()
 }
 
 /** Il logo com'è adesso, con i gesti per cambiarlo accanto. */
-function riquadroLogo (carta: CartaIntestata): Figlio {
+function riquadroLogo (carta: CartaIntestata, nome: string): Figlio {
   const indirizzo = uriDato(carta.logo)
   const versione = versioniLogo.get(carta.id) ?? 0
   const sorgente = versione > 0 ? `${indirizzo}?v=${versione}` : indirizzo
@@ -424,7 +472,7 @@ function riquadroLogo (carta: CartaIntestata): Figlio {
               simbolo: 'cestino',
               variante: 'fantasma',
               titolo: t.togliLogoAiuto,
-              al: () => togliLogo(carta.id),
+              al: () => togliLogo(carta.id, nome),
             }),
           ]
         : [
@@ -461,7 +509,7 @@ async function eliminaCarta (cartaId: string): Promise<void> {
     })
     if (!va) return
   }
-  await salvaCarte(togliCarta(carteVive(), cartaId))
+  await salvaCarteDaGesto(togliCarta(carteVive(), cartaId))
 }
 
 /** Una carta intestata: la scuola, il logo, e i corsi che la usano. */
@@ -492,7 +540,14 @@ function schedaCarta (
             },
             t.predefinita,
           )
-        : null,
+        : pulsante({
+            testo: t.rendiPredefinita,
+            simbolo: 'spunta',
+            variante: 'sottile',
+            classe: 'carta-intestata__rendi',
+            titolo: t.rendiPredefinitaAiuto,
+            al: () => rendiPredefinita(carta.id),
+          }),
       quante > 1
         ? pulsante({
             simbolo: 'cestino',
@@ -505,40 +560,33 @@ function schedaCarta (
     ),
     h(
       'div',
-      { class: 'modulo' },
-      campo({
-        // testo-fisso: il nome del campo, non si legge
-        nome: `intestazioneSede-${carta.id}`,
-        etichetta: t.nomeScuola,
-        valore: carta.sede,
-        segnaposto: t.nomeScuolaSegnaposto,
+      { class: 'voci-opzioni' },
+      voceAnno({
+        nome: t.nomeScuola,
         aiuto: t.nomeScuolaAiuto,
-        al: (valore) => cambiaCarta(carta.id, { sede: valore.trim() }),
+        controllo: campoAnno(() => ({
+          tipo: 'testo',
+          // testo-fisso: il nome del campo, non si legge
+          chiave: `intestazioneSede-${carta.id}`,
+          nome: t.nomeScuola,
+          valore: carteVive().find((viva) => viva.id === carta.id)?.sede ?? carta.sede,
+        }), (valore) => cambiaCarta(carta.id, { sede: String(valore).trim() })),
       }),
-      riquadroLogo(carta),
-      campo({
-        // testo-fisso: il nome del campo, non si legge
-        nome: `intestazioneAltezzaLogo-${carta.id}`,
-        etichetta: t.altezzaLogo,
-        tipo: 'number',
-        valore: carta.altezzaLogo,
-        min: ALTEZZA_LOGO.minimo,
-        max: ALTEZZA_LOGO.massimo,
-        passo: 1,
-        aiuto: t.altezzaLogoAiuto(
-          ALTEZZA_LOGO.minimo,
-          ALTEZZA_LOGO.massimo,
-          ALTEZZA_LOGO.predefinita,
-        ),
-        larghezza: 'meta',
-        al: (valore) => {
-          const numero = Number(valore.trim().replace(',', '.'))
-          if (valore.trim() === '' || !Number.isFinite(numero)) {
-            notifica(t.altezzaNonNumero, 'errore')
-            return
-          }
-          cambiaCarta(carta.id, { altezzaLogo: numero })
-        },
+      riquadroLogo(carta, nome),
+      // Un cursore: i limiti si vedono, e un valore fuori non si può battere.
+      voceAnno({
+        nome: t.altezzaLogo,
+        aiuto: t.altezzaLogoAiuto(ALTEZZA_LOGO.minimo, ALTEZZA_LOGO.massimo, ALTEZZA_LOGO.predefinita),
+        controllo: campoAnno(() => ({
+          tipo: 'cursore',
+          // testo-fisso: il nome del campo, non si legge
+          chiave: `intestazioneAltezzaLogo-${carta.id}`,
+          nome: t.altezzaLogo,
+          valore: carteVive().find((viva) => viva.id === carta.id)?.altezzaLogo ?? carta.altezzaLogo,
+          minimo: ALTEZZA_LOGO.minimo,
+          massimo: ALTEZZA_LOGO.massimo,
+          unita: t.mm,
+        }), (valore) => cambiaCarta(carta.id, { altezzaLogo: Number(valore) })),
       }),
     ),
     h('span', { class: 'campo__etichetta' }, t.corsiSuQuesta),
@@ -546,64 +594,108 @@ function schedaCarta (
   )
 }
 
-/** La sezione «Intestazione» delle impostazioni dell'anno. */
-export function vistaIntestazione (): Figlio[] {
+/**
+ * Chi firma i fogli: appellativo, nome e cognome, e sotto come si legge per
+ * intero. Il nome intero lo calcola il registro dalle parti; la firma delle
+ * e-mail di serie lo usa, quella scritta a mano no. Impostazioni › Utente › Chi sei.
+ */
+export function schedaChiFirma (): HTMLElement {
   const intestazione = stato.registro.impostazioni.intestazione
-  const carte = intestazione.carte
+  const t = testi()
+  const vive = () => stato.registro.impostazioni.intestazione
+
+  const parte = (
+    chiave: 'docenteAppellativo' | 'docenteNome' | 'docenteCognome',
+    nome: string,
+    aiuto: string,
+    proposte?: readonly string[],
+  ): HTMLElement => voceAnno({
+    nome,
+    aiuto,
+    // testo-fisso: il nome del campo e l'ancora, non si leggono
+    voce: `intestazione.${chiave}`,
+    controllo: campoAnno(() => ({
+      tipo: 'testo',
+      // testo-fisso: il nome del campo, non si legge
+      chiave: `intestazione.${chiave}`,
+      nome,
+      valore: vive()[chiave] ?? '',
+      // L'appellativo si sceglie fra quelli d'uso, o se ne scrive un altro.
+      scelte: proposte?.map((proposta) => ({ valore: proposta, nome: proposta })),
+    }), (valore) => salvaIntestazione({ [chiave]: String(valore) })),
+  })
+
+  const intero = docenteDa(
+    intestazione.docenteAppellativo ?? '',
+    intestazione.docenteNome ?? '',
+    intestazione.docenteCognome ?? '',
+  ) || intestazione.docente
+
+  return scheda({
+    titolo: t.chiFirma,
+    aiuto: t.chiFirmaAiuto,
+    classe: 'scheda--opzioni',
+    contenuto: sezioneAnno({
+      // Come esce sui fogli, in vista: è quel che si sta decidendo.
+      stato: h(
+        'p',
+        { class: 'voce-opzione__aiuto impostazioni-anno__stato', attr: { 'aria-live': 'polite' } },
+        intero ? t.siLegge(intero) : t.nessunNome,
+      ),
+      scelte: gruppoAnno(
+        null,
+        parte('docenteAppellativo', t.docenteAppellativo, t.docenteAppellativoAiuto, t.appellativi),
+        parte('docenteNome', parole().nome, t.docenteNomeAiuto),
+        parte('docenteCognome', parole().cognome, t.docenteCognomeAiuto),
+      ),
+    }),
+  })
+}
+
+/** Quando il registro rifà da sé i PDF di un corso: prima solo da `Ctrl+K`. */
+function quandoRifarePdf (): HTMLElement {
+  const t = testi()
+  return voceAnno({
+    nome: t.pdfAutomatici,
+    aiuto: t.pdfAutomaticiAiuto,
+    voce: 'pdfAutomatici',
+    controllo: campoAnno(() => ({
+      tipo: 'segmenti',
+      chiave: 'pdfAutomatici',
+      nome: t.pdfAutomatici,
+      valore: stato.registro.impostazioni.pdfAutomatici,
+      // La frase di ogni modo detta da sola: quella di `MODI_PDF` rimanda alla pagina Documenti.
+      scelte: MODI_PDF.map((modo) => ({ valore: modo.valore, nome: modo.nome, aiuto: t.modiPdf[modo.valore] })),
+    }), (valore) => salvaConEsito({ pdfAutomatici: valore as QuandoRifarePdf })),
+  })
+}
+
+/**
+ * Le carte intestate, con i corsi che le usano, e quando si rifanno i PDF:
+ * Impostazioni › Utente › Carta e stampa.
+ */
+export function schedaCarte (): HTMLElement {
+  const carte = stato.registro.impostazioni.intestazione.carte
   const visibili = new Set(corsiDellAnnoAperto().map((corso) => corso.id))
   const t = testi()
 
-  return [
-    scheda({
-      titolo: t.chiFirma,
-      aiuto: t.chiFirmaAiuto,
-      contenuto: h(
-        'div',
-        { class: 'modulo' },
-        campo({
-          nome: 'intestazioneDocenteAppellativo',
-          etichetta: t.docenteAppellativo,
-          valore: intestazione.docenteAppellativo ?? '',
-          segnaposto: t.docenteAppellativoSegnaposto,
-          aiuto: t.docenteAppellativoAiuto,
-          larghezza: 'quarto',
-          al: (valore) => void salvaIntestazione({ docenteAppellativo: valore }),
-        }),
-        campo({
-          nome: 'intestazioneDocenteNome',
-          etichetta: parole().nome,
-          valore: intestazione.docenteNome ?? '',
-          segnaposto: t.docenteNomeSegnaposto,
-          aiuto: t.docenteNomeAiuto,
-          larghezza: 'terzo',
-          al: (valore) => void salvaIntestazione({ docenteNome: valore }),
-        }),
-        campo({
-          nome: 'intestazioneDocenteCognome',
-          etichetta: parole().cognome,
-          valore: intestazione.docenteCognome ?? '',
-          segnaposto: t.docenteCognomeSegnaposto,
-          aiuto: t.docenteCognomeAiuto,
-          larghezza: 'terzo',
-          al: (valore) => void salvaIntestazione({ docenteCognome: valore }),
-        }),
-      ),
+  return scheda({
+    titolo: t.carte,
+    aiuto: t.carteAiuto,
+    azioni: pulsante({
+      testo: t.nuovaCarta,
+      simbolo: 'piu',
+      variante: 'sottile',
+      titolo: t.nuovaCartaAiuto,
+      al: () => salvaCarteDaGesto([...carteVive(), cartaVuota()]),
     }),
-    scheda({
-      titolo: t.carte,
-      aiuto: t.carteAiuto,
-      azioni: pulsante({
-        testo: t.nuovaCarta,
-        simbolo: 'piu',
-        variante: 'sottile',
-        titolo: t.nuovaCartaAiuto,
-        al: () => salvaCarte([...carteVive(), cartaVuota()]),
-      }),
-      contenuto: h(
+    contenuto: sezioneAnno({
+      stato: h(
         'div',
         { class: 'carte-intestate' },
         ...carte.map((carta, indice) => schedaCarta(carta, indice, carte.length, visibili)),
       ),
+      scelte: gruppoAnno(t.stampa, quandoRifarePdf()),
     }),
-  ]
+  })
 }

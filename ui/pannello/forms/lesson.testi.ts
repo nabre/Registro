@@ -22,7 +22,7 @@ const it = {
     titoloPrimo: 'L’ora della lezione: le fasce sotto la seguono.',
     durataInMinuti: 'Durata in minuti',
     pausaDellaGiornata:
-      'È una pausa della giornata: si cambia in Impostazioni › Anno e orario › Calendario.',
+      'È una pausa della giornata: si cambia in Impostazioni › Calendario › Giornata.',
     minuti: 'min',
     quantiMinuti: (n: number) => `${n} min`,
     quanteUd: (n: number) => `${n} UD`,
@@ -38,8 +38,8 @@ const it = {
     seguePause: 'Segue le pause della giornata',
     aiutoSeguePause:
       'Le unità didattiche finiscono prima di una pausa e riprendono dopo; l’inizio si ' +
-      'aggancia alla griglia delle pause. Le pause si dichiarano in Impostazioni › Anno e ' +
-      'orario › Calendario.',
+      'aggancia alla griglia delle pause. Le pause si dichiarano in Impostazioni › Calendario › ' +
+      'Giornata.',
   },
   lezione: {
     /** Il nome del pulsante che accende la modifica, fra le virgolette. */
@@ -104,8 +104,8 @@ export const testi = catalogo(it, {
       titoloPrimo: 'Die Zeit der Stunde: Die Zeitfenster darunter folgen ihr.',
       durataInMinuti: 'Dauer in Minuten',
       pausaDellaGiornata:
-        'Das ist eine Pause des Tages: Sie wird unter Einstellungen › Schuljahr und Stundenplan › ' +
-        'Kalender geändert.',
+        'Das ist eine Pause des Tages: Sie wird unter Einstellungen › Kalender › ' +
+        'Schultag geändert.',
       minuti: 'min',
       quantiMinuti: (n) => `${n} min`,
       quanteUd: (n) => `${n} Lekt.`,
@@ -122,8 +122,8 @@ export const testi = catalogo(it, {
       seguePause: 'Folgt den Pausen des Tages',
       aiutoSeguePause:
         'Die Lektionen enden vor einer Pause und gehen danach weiter; der Beginn rastet im ' +
-        'Raster der Pausen ein. Die Pausen werden unter Einstellungen › Schuljahr und Stundenplan › ' +
-        'Kalender festgelegt.',
+        'Raster der Pausen ein. Die Pausen werden unter Einstellungen › Kalender › ' +
+        'Schultag festgelegt.',
     },
     lezione: {
       accendiModifica: (pulsante) =>
@@ -186,8 +186,8 @@ export const testi = catalogo(it, {
       titoloPrimo: 'L’heure de la leçon : les plages du dessous la suivent.',
       durataInMinuti: 'Durée en minutes',
       pausaDellaGiornata:
-        'C’est une pause de la journée : elle se modifie dans Paramètres › Année et horaire › ' +
-        'Calendrier.',
+        'C’est une pause de la journée : elle se modifie dans Paramètres › Calendrier › ' +
+        'Journée.',
       minuti: 'min',
       quantiMinuti: (n) => `${n} min`,
       quanteUd: (n) => `${n} pér.`,
@@ -205,8 +205,8 @@ export const testi = catalogo(it, {
       seguePause: 'Suit les pauses de la journée',
       aiutoSeguePause:
         'Les périodes s’arrêtent avant une pause et reprennent après ; le début s’aligne sur ' +
-        'la grille des pauses. Les pauses se déclarent dans Paramètres › Année et horaire › ' +
-        'Calendrier.',
+        'la grille des pauses. Les pauses se déclarent dans Paramètres › Calendrier › ' +
+        'Journée.',
     },
     lezione: {
       accendiModifica: (pulsante) => `Active « ${pulsante} » (Ctrl+E) pour changer l’heure.`,
@@ -267,7 +267,7 @@ export const testi = catalogo(it, {
       titoloPrimo: 'The lesson’s time: the slots below follow it.',
       durataInMinuti: 'Length in minutes',
       pausaDellaGiornata:
-        'This is one of the day’s breaks: change it in Settings › Year and timetable › Calendar.',
+        'This is one of the day’s breaks: change it in Settings › Calendar › School day.',
       minuti: 'min',
       quantiMinuti: (n) => `${n} min`,
       quanteUd: (n) => `${n} per.`,
@@ -284,7 +284,7 @@ export const testi = catalogo(it, {
       seguePause: 'Follows the day’s breaks',
       aiutoSeguePause:
         'Periods stop before a break and resume after it; the start snaps to the grid of ' +
-        'breaks. Breaks are set in Settings › Year and timetable › Calendar.',
+        'breaks. Breaks are set in Settings › Calendar › School day.',
     },
     lezione: {
       accendiModifica: (pulsante) => `Turn on “${pulsante}” (Ctrl+E) to change the time.`,

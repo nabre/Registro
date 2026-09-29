@@ -3,7 +3,7 @@
   "productName": "Regiklass",
   "desktopName": "ch.nabre.regiklass.desktop",
   "description": "Registro di classe per docenti: calendario delle lezioni, classi e persone in formazione, piani lezione e momenti di valutazione.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "author": "Michel Brenna",
   "homepage": "https://github.com/nabre/Registro#readme",

@@ -654,8 +654,8 @@ const it = {
         termine: 'L’aspetto dei fogli',
         testo:
           'Il nome della scuola e il logo stanno sulle carte intestate — ogni corso stampa sulla ' +
-          'sua —, chi firma è uno per tutte: si scrivono in Impostazioni › Documenti e stampa › ' +
-          '**Intestazione**, e valgono dalla prossima volta che i fogli si rifanno. ' +
+          'sua —, chi firma è uno per tutte: si scrivono in Impostazioni › Utente › ' +
+          '**Chi sei** e **Carta e stampa**, e valgono dalla prossima volta che i fogli si rifanno. ' +
           'Il resto — misure, sezioni, colonne — lo decidono i modelli, che sono del programma.',
       },
     ],
@@ -1351,7 +1351,7 @@ export const testi = catalogo(it, {
           testo:
             'Der Name der Schule und das Logo stehen auf den Briefköpfen — jeder Kurs druckt auf ' +
             'seinem —, wer unterschreibt, ist einer für alle: Man trägt sie unter Einstellungen ' +
-            '› Dokumente und Druck › **Briefkopf** ein, und sie gelten ab dem nächsten Mal, wenn ' +
+            '› Benutzer › **Wer du bist** und **Briefpapier und Druck** ein, und sie gelten ab dem nächsten Mal, wenn ' +
             'die Blätter neu erstellt werden. Den Rest — Masse, Abschnitte, Spalten — bestimmen ' +
             'die Vorlagen, die zum Programm gehören.',
         },
@@ -2032,7 +2032,7 @@ export const testi = catalogo(it, {
           testo:
             'Le nom de l’école et le logo sont sur les papiers à en-tête — chaque cours imprime ' +
             'sur le sien —, qui signe est un pour tous : ils s’écrivent dans Paramètres › ' +
-            'Documents et impression › **En-tête**, et valent dès la prochaine fois que les ' +
+            'Utilisateur › **Qui tu es** et **Papier et impression**, et valent dès la prochaine fois que les ' +
             'feuilles se refont. Le reste — dimensions, sections, colonnes — ce sont les ' +
             'modèles qui le décident, et ils appartiennent au programme.',
         },
@@ -2700,8 +2700,8 @@ export const testi = catalogo(it, {
           termine: 'What the sheets look like',
           testo:
             'The school name and logo are on the letterheads — each course prints on its own —, ' +
-            'the signatory is one for all: they’re entered in Settings › Documents and ' +
-            'printing › **Letterhead**, and apply from the next time the sheets are remade. The ' +
+            'the signatory is one for all: they’re entered in Settings › User › ' +
+            '**Who you are** and **Letterheads and printing**, and apply from the next time the sheets are remade. The ' +
             'rest — sizes, sections, columns — is decided by the templates, which belong to the ' +
             'program.',
         },

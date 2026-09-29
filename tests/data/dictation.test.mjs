@@ -100,6 +100,11 @@ async function voiceboxFinto () {
   return finto
 }
 
+/** La porta di un indirizzo di questo computer: dell'indirizzo si sceglie solo lei. */
+function porta (indirizzo) {
+  return Number(new URL(indirizzo).port)
+}
+
 /** Un indirizzo di questo computer su cui non ascolta nessuno. */
 async function indirizzoMuto () {
   const server = createServer()
@@ -167,23 +172,15 @@ describe('la guardia sull’indirizzo', () => {
     assert.equal(indirizzoLocale(' http://LOCALHOST:17493/ '), 'http://localhost:17493')
   })
 
-  it('un indirizzo di fuori scritto a mano nel file non fa partire niente', async () => {
-    // La dogana lo rifiuta, ma il file si riscrive anche senza passare di lì: la
-    // guardia sta anche dove si legge.
-    const finto = await voiceboxFinto()
-    try {
-      scritte({
-        'registroDocenti.dettatura.attivo': true,
-        'registroDocenti.dettatura.indirizzo': 'http://192.168.1.10:17493',
-      })
-      assert.equal(collegamentoDettatura().indirizzo, '')
-      const esito = await trascrivi(voce())
-      assert.equal(esito.ok, false)
-      assert.match(esito.motivo, /questo computer/)
-      assert.equal(finto.arrivate.length, 0)
-    } finally {
-      await finto.chiudi()
+  it('dell’indirizzo si sceglie la porta: l’host resta questo computer', () => {
+    // La dogana rifiuta una porta storta, ma il file si riscrive anche senza
+    // passare di lì: la rete sta anche dove si legge, e vale quella di serie.
+    for (const storta of ['http://192.168.1.10:17493', 0, 70000, 17493.5]) {
+      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': storta })
+      assert.equal(collegamentoDettatura().indirizzo, 'http://127.0.0.1:17493', String(storta))
     }
+    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': 9000 })
+    assert.equal(collegamentoDettatura().indirizzo, 'http://127.0.0.1:9000')
   })
 })
 
@@ -191,7 +188,7 @@ describe('se voicebox c’è', () => {
   it('risponde: pronta', async () => {
     const finto = await voiceboxFinto()
     try {
-      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
+      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': porta(finto.indirizzo) })
       assert.deepEqual(await prontezzaDettatura(collegamentoDettatura()), { pronto: true, motivo: '' })
       assert.equal(finto.arrivate[0].via, '/health')
     } finally {
@@ -203,7 +200,7 @@ describe('se voicebox c’è', () => {
     const finto = await voiceboxFinto()
     finto.saluteCorpo = '<html>non sono voicebox</html>'
     try {
-      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
+      scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': porta(finto.indirizzo) })
       const stato = await prontezzaDettatura(collegamentoDettatura())
       assert.equal(stato.pronto, false)
       assert.match(stato.motivo, /non è pronto/)
@@ -214,7 +211,7 @@ describe('se voicebox c’è', () => {
 
   it('non risponde: lo dice con l’indirizzo, e chiede se è avviato', async () => {
     const muto = await indirizzoMuto()
-    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': muto })
+    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': porta(muto) })
     const stato = await prontezzaDettatura(collegamentoDettatura())
     assert.equal(stato.pronto, false)
     assert.ok(stato.motivo.includes(muto), stato.motivo)
@@ -223,7 +220,7 @@ describe('se voicebox c’è', () => {
 
   it('spento, la voce non parte e la riga lo dice', async () => {
     const muto = await indirizzoMuto()
-    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': muto })
+    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': porta(muto) })
     const esito = await trascrivi(voce())
     assert.equal(esito.ok, false)
     assert.match(esito.motivo, /non risponde/)
@@ -244,7 +241,7 @@ describe('la trascrizione', () => {
     finto.risposta = { stato: 200, corpo: { text: ' Metti assente Rossi\n per la prima ora. ', duration: 1 } }
     scritte({
       'registroDocenti.dettatura.attivo': true,
-      'registroDocenti.dettatura.indirizzo': finto.indirizzo,
+      'registroDocenti.dettatura.porta': porta(finto.indirizzo),
       'registroDocenti.dettatura.taglia': 'small',
     })
   })
@@ -345,7 +342,7 @@ describe('il silenzio', () => {
   })
   beforeEach(() => {
     finto.arrivate.length = 0
-    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
+    scritte({ 'registroDocenti.dettatura.attivo': true, 'registroDocenti.dettatura.porta': porta(finto.indirizzo) })
   })
 
   it('non si manda a trascrivere: si risponde che non si è sentito niente', async () => {
@@ -366,7 +363,7 @@ describe('il silenzio', () => {
   })
 
   it('spenta, non si trascrive niente anche se la voce c’è', async () => {
-    scritte({ 'registroDocenti.dettatura.indirizzo': finto.indirizzo })
+    scritte({ 'registroDocenti.dettatura.porta': porta(finto.indirizzo) })
     const esito = await trascrivi(voce())
     assert.equal(esito.ok, false)
     assert.match(esito.motivo, /spenta/i)

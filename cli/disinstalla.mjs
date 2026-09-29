@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Toglie quel che il registro ha lasciato per l'utente che lo lancia: dati,
-// temporanei, comando `regi` e voce nel PATH, associazione `.regi`, avvio
+// temporanei, comando `regi` e voce nel PATH, associazione `.regi` (su Linux
+// anche icona e voce dell'AppImage), avvio
 // automatico, anche col nome precedente (`regdoc`). I documenti
 // del docente restano.
 //
@@ -18,10 +19,10 @@
 //                   [--attendi <pid>] [--togli <file>]
 //                   [--tieni modelli,account,impostazioni]
 
-import { execFile } from 'node:child_process'
+import { execFile, execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, isAbsolute, join } from 'node:path'
 import process from 'node:process'
 import { setTimeout as aspetta } from 'node:timers/promises'
 
@@ -199,6 +200,27 @@ function togliDaMacOS () {
   }
 }
 
+/**
+ * Il tipo `.regi`, le sue icone e la voce dell'AppImage che
+ * `desktop/shell/system/fileAssociation.ts` scrive in `~/.local/share`, poi gli
+ * indici di freedesktop: senza lo strumento restano com'erano.
+ */
+function togliAssociazioneDaLinux () {
+  const xdg = process.env.XDG_DATA_HOME
+  const dati = xdg && isAbsolute(xdg) ? xdg : join(homedir(), '.local', 'share')
+  togli(join(dati, 'mime', 'packages', 'regiklass.xml'))
+  togli(join(dati, 'icons', 'hicolor', '512x512', 'mimetypes', 'application-x-regiklass.png'))
+  togli(join(dati, 'icons', 'hicolor', '512x512', 'apps', `${IDENTITA}.png`))
+  togli(join(dati, 'applications', `${IDENTITA}.desktop`))
+  for (const [comando, cartella] of [['update-mime-database', 'mime'], ['update-desktop-database', 'applications']]) {
+    try {
+      execFileSync(comando, [join(dati, cartella)], { stdio: 'ignore', timeout: 15000 })
+    } catch {
+      // Strumento assente o cartella mai nata: niente da ricostruire.
+    }
+  }
+}
+
 // ------------------------------------------------------------------ il registro di Windows
 
 // I valori passano nell'ambiente, mai interpolati nel PowerShell, come in
@@ -346,6 +368,7 @@ async function disinstalla () {
   else togliComandoDaUnix()
   if (process.platform === 'darwin') togliDaMacOS()
   if (process.platform === 'linux') {
+    togliAssociazioneDaLinux()
     togli(join(homedir(), '.cache', NOME_APPLICAZIONE))
     togli(join(homedir(), '.cache', 'Regiclass'))
     togli(join(homedir(), '.cache', NOME_PRECEDENTE))

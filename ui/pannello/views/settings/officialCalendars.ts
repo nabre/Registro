@@ -172,7 +172,7 @@ function schedaCalendario (calendario: CalendarioUfficiale): HTMLElement {
   })
 }
 
-/** La sezione «Calendari ufficiali»: una scheda per cantone. */
+/** I «Calendari ufficiali», in fondo alla sezione Chiusure: una scheda per cantone. */
 export function schedeCalendariUfficiali (): HTMLElement[] {
   return CALENDARI_UFFICIALI.map(schedaCalendario)
 }

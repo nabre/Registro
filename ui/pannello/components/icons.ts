@@ -26,6 +26,9 @@ const TRACCIATI: Record<string, string> = {
     '<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M9 9.5v11M15 9.5v11"/>',
   mese: '<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9 9.5v11M15 9.5v11"/>',
   agenda: '<path d="M4 6h2M4 12h2M4 18h2M9 6h11M9 12h11M9 18h11"/>',
+  // La lavagna: la pagina dell'ora. Distinta dall'elenco spuntato del piano,
+  // che le sta accanto. Tracciato di Lucide («presentation», licenza ISC).
+  lezione: '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
   // Quattro riquadri di sintesi: la Dashboard raccoglie conti e attività del giorno.
   dashboard:
     '<rect x="3" y="3" width="8" height="8" rx="2"/>' +
@@ -34,6 +37,10 @@ const TRACCIATI: Record<string, string> = {
     '<rect x="13" y="10" width="8" height="11" rx="2"/>',
   classi:
     '<path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/>',
+  // La persona cancellata: chi non c'era. Il calendario, che usava prima, lo
+  // porta già la pagina accanto. Tracciato di Lucide («user-x», licenza ISC).
+  assenze:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
   piano:
     '<path d="M9 5h10M9 12h10M9 19h10"/><path d="M4 5l1.3 1.3L7.5 4M4 12l1.3 1.3L7.5 11M4 19l1.3 1.3L7.5 18"/>',
   valutazioni:
@@ -150,6 +157,20 @@ const TRACCIATI: Record<string, string> = {
   // La bacchetta magica: generazione automatica. Tracciato di Lucide («wand-2», licenza ISC).
   bacchetta:
     '<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4M3 8h4M19 14v4M17 16h4"/>',
+  // I tre modi di rifare i PDF, dal meno al più automatico: la mano (solo a
+  // richiesta), la bandiera d'arrivo (alla chiusura dell'ora), il fulmine (a
+  // ogni modifica). Tracciati di Lucide («hand», «flag», «zap», licenza ISC).
+  mano:
+    '<path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>' +
+    '<path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+  bandiera:
+    '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+  fulmine:
+    '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  // Il vassoio della posta in arrivo: la carta che aspetta di essere smistata,
+  // da distinguere dal documento già archiviato. Tracciato di Lucide («inbox», licenza ISC).
+  vassoio:
+    '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
 }
 
 export type NomeIcona = keyof typeof TRACCIATI

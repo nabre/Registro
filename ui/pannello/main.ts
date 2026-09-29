@@ -30,7 +30,7 @@ import type {
   MessaggioVersoWebview,
 } from '../../contract/protocollo.js'
 import { isolaPresente, ridisegnaIsola } from './isole.js'
-import { chiaveDelPosto, postoDaVista } from './posto.js'
+import { chiaveDelPosto, postoDaVista, schedaValida } from './posto.js'
 import {
   aggiorna,
   allineaSemestre,
@@ -49,6 +49,7 @@ import { chiudiTutte } from './components/modal.js'
 import { scordaEditorDelPiano } from './views/plans.js'
 import { scordaDestinatariMandati } from './views/classTeacher.js'
 import { avviaAggiornamenti } from './views/settings/updates.js'
+import { apriInformazioniDocumento } from './forms/documentInfo.js'
 import {
   moduloClasse,
   moduloCorso,
@@ -154,6 +155,19 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
   // per `installaScorciatoie`, lì il gesto è del modulo.
   if (document.querySelector('.modale')) {
     notifica(testi().finestraAperta, 'avviso')
+    return
+  }
+
+  // Un dialogo dal menu nativo: la pagina resta quella che si guarda.
+  if (messaggio.dialogo === 'informazioniDocumento') {
+    apriInformazioniDocumento()
+    return
+  }
+  // Un indirizzo dentro le impostazioni («Account e posta…»); uno che non porta
+  // da nessuna parte lascia la pagina come la vuole `postoDaVista`.
+  const scheda = messaggio.vista === 'impostazioni' ? schedaValida(messaggio.impostazioni) : undefined
+  if (scheda) {
+    vai({ pagina: 'pagina.impostazioni', scheda })
     return
   }
 

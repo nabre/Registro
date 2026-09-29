@@ -104,6 +104,9 @@ const it = {
   cartella: 'Apri la cartella del file',
   cartellaAiuto:
     'Apre la cartella in cui sta il file aperto, con il file già evidenziato',
+  informazioni: 'Informazioni documento…',
+  informazioniAiuto:
+    'Quale file è aperto, dove sta, che cosa contiene e se i riferimenti tornano',
   modificaAnno: 'Modifica l’anno',
   modificaAnnoAiuto: 'Date, semestri e settimane dell’anno in uso',
   pause: 'Vacanze e sospensioni',
@@ -157,8 +160,8 @@ const it = {
   aggiornaIcsAiuto:
     'Riscarica i calendari ICS collegati con un indirizzo, come a ogni avvio del registro',
   nessunCalendarioIcs:
-    'Nessun calendario ICS nel documento: si aggiunge da Impostazioni › Anno e orario › ' +
-    'Calendari ICS.',
+    'Nessun calendario ICS nel documento: si aggiunge da Impostazioni › Calendario › ' +
+    'Calendari esterni.',
   confronta: 'Confronta con il calendario',
   confrontaAiuto:
     'I calendari ICS del documento: se ne sceglie uno da confrontare, e il registro propone le ' +
@@ -279,15 +282,10 @@ const it = {
     `e il fascicolo di classe, nel ${semestre}`,
 
   // La posta.
-  collegaPosta: 'Collega la posta',
-  collegaPostaAiuto:
-    'Chiede l’indirizzo e fa accedere dal browser: il gettone resta nel portachiavi',
-  provaPosta: 'Prova la posta',
-  provaPostaAiuto: 'Domanda di chi è la casella, senza mandare niente',
-  provaInvio: 'Manda una mail di prova',
-  provaInvioAiuto:
-    'Manda una mail vera all’indirizzo che scrivi: è l’unico modo di provare l’invio',
-  scollegaPosta: 'Scollega la posta',
+  accountPosta: 'Account e posta',
+  accountPostaAiuto:
+    'Collegare, provare, scollegare e azzerare la casella, e OneDrive: in Impostazioni › ' +
+    'Utente › Account',
 }
 
 export const testi = catalogo(it, {
@@ -383,6 +381,9 @@ export const testi = catalogo(it, {
     cartella: 'Ordner der Datei öffnen',
     cartellaAiuto:
       'Öffnet den Ordner der offenen Datei, mit der Datei schon markiert',
+    informazioni: 'Dokumentinformationen…',
+    informazioniAiuto:
+      'Welche Datei offen ist, wo sie liegt, was sie enthält und ob die Verweise aufgehen',
     modificaAnno: 'Schuljahr bearbeiten',
     modificaAnnoAiuto: 'Daten, Semester und Wochen des laufenden Schuljahrs',
     pause: 'Ferien und Unterbrüche',
@@ -431,8 +432,8 @@ export const testi = catalogo(it, {
     aggiornaIcsAiuto:
       'Lädt die über eine Adresse verknüpften ICS-Kalender neu, wie bei jedem Start des Klassenbuchs',
     nessunCalendarioIcs:
-      'Kein ICS-Kalender im Dokument: Er wird unter Einstellungen › Schuljahr und Stundenplan › ' +
-      'ICS-Kalender hinzugefügt.',
+      'Kein ICS-Kalender im Dokument: Er wird unter Einstellungen › Kalender › ' +
+      'Externe Kalender hinzugefügt.',
     confronta: 'Mit dem Kalender abgleichen',
     confrontaAiuto:
       'Die ICS-Kalender des Dokuments: Man wählt einen zum Vergleichen, und das Klassenbuch ' +
@@ -542,16 +543,10 @@ export const testi = catalogo(it, {
       'Alles, was der Kurs drucken kann: Präsenzen, Noten, ein Blatt pro lernende Person und ' +
       'pro Prüfung, das Protokoll jeder abgeschlossenen Stunde, die Pläne, die Fotoliste und das ' +
       `Klassendossier (${semestre})`,
-    collegaPosta: 'E-Mail verbinden',
-    collegaPostaAiuto:
-      'Fragt nach der Adresse und meldet dich im Browser an: Das Token bleibt im Schlüsselbund',
-    provaPosta: 'E-Mail testen',
-    provaPostaAiuto: 'Fragt, wem das Postfach gehört, ohne etwas zu senden',
-    provaInvio: 'Test-E-Mail senden',
-    provaInvioAiuto:
-      'Sendet eine echte E-Mail an die Adresse, die du eingibst: Nur so lässt sich das Senden ' +
-      'testen',
-    scollegaPosta: 'E-Mail trennen',
+    accountPosta: 'Konten und E-Mail',
+    accountPostaAiuto:
+      'Postfach verbinden, testen, trennen und zurücksetzen, und OneDrive: in Einstellungen › ' +
+      'Benutzer › Konten',
   },
   fr: {
     gruppi: {
@@ -644,6 +639,9 @@ export const testi = catalogo(it, {
     cartella: 'Ouvrir le dossier du fichier',
     cartellaAiuto:
       'Ouvre le dossier du fichier ouvert, avec le fichier déjà sélectionné',
+    informazioni: 'Informations sur le document…',
+    informazioniAiuto:
+      'Quel fichier est ouvert, où il se trouve, ce qu’il contient et si les références collent',
     modificaAnno: 'Modifier l’année',
     modificaAnnoAiuto: 'Dates, semestres et semaines de l’année en cours',
     pause: 'Vacances et interruptions',
@@ -691,9 +689,8 @@ export const testi = catalogo(it, {
     aggiornaIcsAiuto:
       'Retélécharge les calendriers ICS reliés par une adresse, comme à chaque démarrage du registre',
     nessunCalendarioIcs:
-      'Aucun calendrier ICS dans le document : il s’ajoute depuis Paramètres › Année et ' +
-      'horaire › ' +
-      'Calendriers ICS.',
+      'Aucun calendrier ICS dans le document : il s’ajoute depuis Paramètres › Calendrier › ' +
+      'Calendriers externes.',
     confronta: 'Comparer avec le calendrier',
     confrontaAiuto:
       'Les calendriers ICS du document : on en choisit un à comparer, et le registre propose les ' +
@@ -803,16 +800,10 @@ export const testi = catalogo(it, {
       'Tout ce que le cours sait imprimer : présences, notes, une fiche par personne en ' +
       'formation et par épreuve, le procès-verbal de chaque leçon terminée, les plans, le ' +
       `trombinoscope et le dossier de classe (${semestre})`,
-    collegaPosta: 'Connecter le courrier',
-    collegaPostaAiuto:
-      'Demande l’adresse et fait se connecter depuis le navigateur : le jeton reste dans le ' +
-      'trousseau',
-    provaPosta: 'Tester le courrier',
-    provaPostaAiuto: 'Demande à qui est la boîte, sans rien envoyer',
-    provaInvio: 'Envoyer un e-mail de test',
-    provaInvioAiuto:
-      'Envoie un vrai e-mail à l’adresse que tu écris : c’est le seul moyen de tester l’envoi',
-    scollegaPosta: 'Déconnecter le courrier',
+    accountPosta: 'Comptes et messagerie',
+    accountPostaAiuto:
+      'Connecter, tester, déconnecter et réinitialiser la boîte, et OneDrive : dans Paramètres › ' +
+      'Utilisateur › Comptes',
   },
   en: {
     gruppi: {
@@ -903,6 +894,9 @@ export const testi = catalogo(it, {
     cartella: 'Open the file’s folder',
     cartellaAiuto:
       'Opens the folder the open file is in, with the file already highlighted',
+    informazioni: 'Document information…',
+    informazioniAiuto:
+      'Which file is open, where it is, what it holds and whether the references add up',
     modificaAnno: 'Edit the year',
     modificaAnnoAiuto: 'Dates, semesters and weeks of the year in use',
     pause: 'Holidays and breaks',
@@ -948,7 +942,7 @@ export const testi = catalogo(it, {
     aggiornaIcsAiuto:
       'Downloads again the ICS calendars linked by an address, as at every start of the register',
     nessunCalendarioIcs:
-      'No ICS calendar in the document: add one from Settings › Year and timetable › ICS ' +
+      'No ICS calendar in the document: add one from Settings › Calendar › External ' +
       'calendars.',
     confronta: 'Compare with the calendar',
     confrontaAiuto:
@@ -1051,14 +1045,9 @@ export const testi = catalogo(it, {
       'Everything the course can print: attendance, grades, one sheet per learner and per ' +
       'test, the lesson record of each completed lesson, the plans, the photo sheet and the class file ' +
       `(${semestre})`,
-    collegaPosta: 'Connect mail',
-    collegaPostaAiuto:
-      'Asks for the address and signs in from the browser: the token stays in the keychain',
-    provaPosta: 'Test mail',
-    provaPostaAiuto: 'Asks whose mailbox it is, without sending anything',
-    provaInvio: 'Send a test email',
-    provaInvioAiuto:
-      'Sends a real email to the address you type: it is the only way to test sending',
-    scollegaPosta: 'Disconnect mail',
+    accountPosta: 'Accounts and mail',
+    accountPostaAiuto:
+      'Connect, test, disconnect and reset the mailbox, and OneDrive: in Settings › User › ' +
+      'Accounts',
   },
 })

@@ -26,7 +26,10 @@ function ordinaleEn (indice: number): string {
 const it = {
   /** Il nome di una pausa con la maiuscola: «Seconda pausa». */
   nomePausa: (indice: number) => `${Maiuscola(ordinalePausa(indice))} pausa`,
-  durataMinuti: 'Durata (minuti)',
+  durata: 'Durata',
+  min: 'min',
+  unitaUd: 'UD',
+  tolta: (indice: number) => `${Maiuscola(ordinalePausa(indice))} pausa tolta.`,
   durataDella: (indice: number) => `Durata ${dellaPausa(indice)} pausa`,
   inizio: 'Inizio',
   inizioPrima: 'Inizio della prima pausa',
@@ -46,15 +49,17 @@ const it = {
   nessunaTesto:
     'Una lezione nuova è un blocco solo, dall’inizio alla fine. Con le pause della ' +
     'scuola, le sue unità didattiche si fermano alla ricreazione e riprendono dopo.',
-  pausaNuovaMinuti: 'Pausa nuova (minuti)',
-  pausaNuovaAiuto: 'quanto dura una pausa appena aggiunta, qui o dentro un’ora: poi si corregge',
+  pausaNuovaAiuto: 'Quanto dura una pausa appena aggiunta, qui o dentro un’ora: poi si corregge.',
   pausaNuova: 'Pausa nuova',
 }
 
 export const testi = catalogo(it, {
   de: {
     nomePausa: (indice) => `${indice + 1}. Pause`,
-    durataMinuti: 'Dauer (Minuten)',
+    durata: 'Dauer',
+    min: 'Min.',
+    unitaUd: 'Lekt.',
+    tolta: (indice) => `${indice + 1}. Pause entfernt.`,
     durataDella: (indice) => `Dauer der ${indice + 1}. Pause`,
     inizio: 'Beginn',
     inizioPrima: 'Beginn der 1. Pause',
@@ -74,15 +79,17 @@ export const testi = catalogo(it, {
     nessunaTesto:
       'Eine neue Stunde ist ein einziges Stück, vom Anfang bis zum Ende. Mit den ' +
       'Pausen der Schule halten ihre Lektionen zur Pause an und gehen danach weiter.',
-    pausaNuovaMinuti: 'Neue Pause (Minuten)',
     pausaNuovaAiuto:
-      'wie lange eine eben hinzugefügte Pause dauert, hier oder in einer Stunde: danach ' +
-      'korrigiert man',
+      'Wie lange eine eben hinzugefügte Pause dauert, hier oder in einer Stunde: danach ' +
+      'korrigiert man.',
     pausaNuova: 'Neue Pause',
   },
   fr: {
     nomePausa: (indice) => `${Maiuscola(ordinaleFr(indice))} pause`,
-    durataMinuti: 'Durée (minutes)',
+    durata: 'Durée',
+    min: 'min',
+    unitaUd: 'pér.',
+    tolta: (indice) => `${Maiuscola(ordinaleFr(indice))} pause retirée.`,
     durataDella: (indice) => `Durée de la ${ordinaleFr(indice)} pause`,
     inizio: 'Début',
     inizioPrima: 'Début de la première pause',
@@ -103,14 +110,16 @@ export const testi = catalogo(it, {
     nessunaTesto:
       'Une nouvelle leçon est un seul bloc, du début à la fin. Avec les pauses de l’école, ses ' +
       'périodes s’arrêtent à la récréation et reprennent après.',
-    pausaNuovaMinuti: 'Nouvelle pause (minutes)',
     pausaNuovaAiuto:
-      'la durée d’une pause qu’on vient d’ajouter, ici ou dans une leçon : on la corrige ensuite',
+      'La durée d’une pause qu’on vient d’ajouter, ici ou dans une leçon : on la corrige ensuite.',
     pausaNuova: 'Nouvelle pause',
   },
   en: {
     nomePausa: (indice) => `${Maiuscola(ordinaleEn(indice))} break`,
-    durataMinuti: 'Length (minutes)',
+    durata: 'Length',
+    min: 'min',
+    unitaUd: 'per.',
+    tolta: (indice) => `${Maiuscola(ordinaleEn(indice))} break removed.`,
     durataDella: (indice) => `Length of the ${ordinaleEn(indice)} break`,
     inizio: 'Start',
     inizioPrima: 'Start of the first break',
@@ -129,9 +138,8 @@ export const testi = catalogo(it, {
     nessunaTesto:
       'A new lesson is a single block, from start to finish. With the school’s breaks, its ' +
       'periods stop at break time and carry on afterwards.',
-    pausaNuovaMinuti: 'New break (minutes)',
     pausaNuovaAiuto:
-      'how long a newly added break lasts, here or inside a lesson: you adjust it afterwards',
+      'How long a newly added break lasts, here or inside a lesson: you adjust it afterwards.',
     pausaNuova: 'New break',
   },
 })

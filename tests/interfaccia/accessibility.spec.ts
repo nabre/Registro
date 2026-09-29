@@ -4,7 +4,7 @@
 // Fallisce solo per violazioni WCAG di impatto `critical` o `serious`; stampa
 // regola, pagina e selettori, senza scaricare codice da CDN.
 
-import { expect, test, type Browser } from '@playwright/test'
+import { expect, test, type Browser, type Page } from '@playwright/test'
 
 import { FRAME, PAGINA_CON_TITOLO, attendi, pannello, valuta } from './banco'
 
@@ -75,4 +75,101 @@ test('axe-core, tutte le pagine, temi chiaro e scuro', async ({ browser }) => {
     await page.close()
   }
   expect(trovate.size, 'Violazioni WCAG critical/serious:\n' + formato(trovate)).toBe(0)
+})
+
+// I controlli delle impostazioni (`core/controlli/`), nel pannello e nella
+// finestra nativa: un disegno per tipo, con le voci di prova. Il pannello ne
+// mostra solo quelle che arrivano con lo stato; qui arrivano tutti i disegni.
+
+/** Una voce del programma come la manda `vociImpostazioni()`. */
+function voce (chiave: string, altro: Record<string, unknown>) {
+  return {
+    chiave, tipo: 'string', etichetta: chiave, descrizione: 'Una descrizione.', formato: null,
+    scelte: null, minimo: null, massimo: null, passo: null, unita: null, controllo: null,
+    scelteDinamiche: null, sceltaLibera: false, predefinito: '', valore: '', scritta: false,
+    bloccata: null, nonPronta: null, dipendeDa: null, sospesa: false, avanzata: false,
+    delCollegamento: false, ...altro,
+  }
+}
+
+const SCELTE = [
+  { valore: 'a', aiuto: 'Prima: la scelta di sempre.' },
+  { valore: 'b', aiuto: 'Seconda: quella di riserva.' },
+]
+const TUTTI_I_CONTROLLI = [
+  voce('registroDocenti.aspetto.tema', {
+    etichetta: 'Tema', predefinito: 'sistema', valore: 'sistema',
+    scelte: [
+      { valore: 'sistema', aiuto: 'Sistema: come Windows.' },
+      { valore: 'chiaro', aiuto: 'Chiaro: sempre.' },
+      { valore: 'scuro', aiuto: 'Scuro: sempre.' },
+    ],
+  }),
+  voce('registroDocenti.prova.segmenti', { etichetta: 'Segmenti', controllo: 'segmenti', scelte: SCELTE, valore: 'a' }),
+  voce('registroDocenti.prova.tendina', { etichetta: 'Tendina', controllo: 'tendina', scelte: SCELTE, valore: 'b' }),
+  voce('registroDocenti.prova.acceso', {
+    etichetta: 'Acceso di prova', tipo: 'boolean', valore: true, alProssimoAvvio: true,
+  }),
+  voce('registroDocenti.prova.figlia', {
+    etichetta: 'Figlia di prova', tipo: 'boolean', valore: true, dipendeDa: 'registroDocenti.prova.acceso',
+    sospesa: true,
+  }),
+  voce('registroDocenti.prova.minuti', {
+    etichetta: 'Minuti', tipo: 'number', valore: 5, passo: 1, minimo: 0, massimo: 60, unita: 'min',
+  }),
+  voce('registroDocenti.prova.altezza', {
+    etichetta: 'Altezza', tipo: 'number', valore: 20, passo: 1, minimo: 6, massimo: 40, unita: 'mm',
+    controllo: 'cursore',
+  }),
+  voce('registroDocenti.prova.cartella', { etichetta: 'Cartella', formato: 'cartella', valore: 'C:\\Dati' }),
+  voce('registroDocenti.prova.indirizzo', { etichetta: 'Indirizzo', valore: 'http://127.0.0.1:1' }),
+]
+
+const NATIVA = '<html lang="it"><head><title>Impostazioni</title></head><body><header>' +
+  '<h1 id="titolo">Impostazioni</h1><input id="cerca" type="text" aria-label="Filtra"></header>' +
+  '<div id="rimando"><button id="apri-pannello" type="button">Apri</button></div>' +
+  '<main id="radice"></main></body></html>'
+
+/**
+ * Le violazioni gravi di axe sulla pagina di adesso, come righe da leggere.
+ */
+async function gravi (page: Page, dove: string): Promise<string[]> {
+  const risultato = await valuta<{ violations: Violazione[] }>(page,
+    'configurazione => axe.run(document, configurazione)',
+    CONFIGURAZIONE)
+  return risultato.violations
+    .filter((violazione) => violazione.impact === 'critical' || violazione.impact === 'serious')
+    .flatMap((violazione) => violazione.nodes.map((nodo) =>
+      `${dove}: ${violazione.id} — ${violazione.help} — ${nodo.target.join(' ')}`))
+}
+
+test('axe-core, i controlli delle impostazioni nel pannello e nella finestra nativa', async ({ browser }) => {
+  const trovate: string[] = []
+  for (const schema of ['light', 'dark'] as const) {
+    const { page, errori } = await prepara(browser, schema)
+    await valuta(page,
+      '(v)=>prova.vai({pagina:"pagina.impostazioni",scheda:"programma#aspetto"},{altro:{programma:v}})',
+      TUTTI_I_CONTROLLI)
+    await valuta(page, FRAME)
+    trovate.push(...await gravi(page, `${schema}/pannello`))
+    // L'area Utente: gli account con le loro capacità, la posta che rimanda.
+    await valuta(page, '()=>prova.vai({pagina:"pagina.impostazioni",scheda:"utente#account"})')
+    await valuta(page, FRAME)
+    trovate.push(...await gravi(page, `${schema}/pannello/utente`))
+    expect(errori, `errori JavaScript (${schema}, pannello)`).toEqual([])
+    await page.close()
+
+    const nativa = await pannello(browser, {
+      html: NATIVA, bundle: 'native-settings', colorScheme: schema, reducedMotion: 'reduce',
+    })
+    await nativa.page.addScriptTag({ path: AXE })
+    await valuta(nativa.page,
+      "(v)=>window.dispatchEvent(new MessageEvent('message',{data:{impostazioni:'schema'," +
+      "titolo:'Impostazioni',voci:v}}))", TUTTI_I_CONTROLLI)
+    await valuta(nativa.page, FRAME)
+    trovate.push(...await gravi(nativa.page, `${schema}/nativa`))
+    expect(nativa.errori, `errori JavaScript (${schema}, nativa)`).toEqual([])
+    await nativa.page.close()
+  }
+  expect(trovate, `Violazioni WCAG critical/serious:\n${trovate.join('\n')}`).toEqual([])
 })

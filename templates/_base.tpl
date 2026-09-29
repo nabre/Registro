@@ -35,8 +35,8 @@ orientamento: verticale
 
 [intestazione]
 # Il logo della sede, in alto a destra. «logo.png» non è un file del
-# programma: è il logo che sta nell'intestazione del documento, scelto in
-# Impostazioni › Documenti e stampa › Intestazione, e l'altezza scritta qui
+# programma: è il logo della carta intestata del corso, scelto in
+# Impostazioni › Utente › Carta e stampa, e l'altezza scritta qui
 # vale solo finché il documento non ne dice un'altra. Senza logo la riga
 # sparisce, e la banda torna com'era. La larghezza viene da sé dalle
 # proporzioni del file: un logo schiacciato su un foglio che va in
@@ -54,9 +54,9 @@ immagine: logo.png | altezza 14 | destra
 # allineano: un titolo a mezz'aria accanto a tre righe è un titolo che sembra
 # appartenere alla riga sbagliata.
 #
-# «{{sede}}» è il nome del reparto o della scuola, dall'intestazione del
-# documento: si scrive una volta in Impostazioni e vale per tutti i rapporti
-# di quel documento. Vuoto, la riga sparisce da sé e ne restano due.
+# «{{sede}}» è il nome del reparto o della scuola, dalla carta intestata del
+# corso: si scrive in Impostazioni › Utente › Carta e stampa e vale per tutti
+# i rapporti dei corsi di quella carta. Vuoto, la riga sparisce da sé e ne restano due.
 #
 # Una cella scritta fra «**» esce in grassetto. Serve al nome del documento:
 # è quel che si cerca per primo su un foglio staccato dagli altri, e in mezzo a

@@ -233,10 +233,9 @@ button.minuto {
  *
  * `body` vieta la selezione, ma un percorso e il testo di un guasto si copiano:
  * è quel che chi chiede aiuto incolla. Le classi sono quelle che il markup
- * porta: `voce__chiave` (chiave di un'impostazione), `voce__sotto` (percorso di
- * un anno recente), `voce__etichetta` (il suo nome), `errore` (un guasto).
+ * porta: `voce__sotto` (percorso di un anno recente), `voce__etichetta` (il suo
+ * nome), `errore` (un guasto).
  */
-.voce__chiave,
 .voce__sotto,
 .voce__etichetta,
 .errore {

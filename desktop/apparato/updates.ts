@@ -1,24 +1,29 @@
-// Gli aggiornamenti del programma via `electron-updater` e il `latest.yml` delle
+// Gli aggiornamenti del programma via `electron-updater` e i `latest*.yml` delle
 // release GitHub: controllo, scarico, installazione, e lo stato raccontato a
 // parole (`racconta`) a pannello e benvenuto.
 //
-// Si aggiorna da sé solo l'installato su Windows; portabile, sviluppo e altri
-// sistemi ricevono il motivo e la pagina delle release. `electron-updater` si
+// Si aggiornano da sé l'installato su Windows, AppImage, `.deb` e `.rpm` su
+// Linux e il pacchetto in una cartella scrivibile su macOS; portabile, sviluppo
+// e il resto ricevono il motivo e la pagina delle release. `electron-updater` si
 // carica con `createRequire` perché esbuild non lo impacchetti e le prove non lo
-// carichino. L'installazione la conduce `updateInstaller.ts`; `autoInstallOnAppQuit`
-// resta spento perché all'uscita decide `installaAllUscita`, dopo l'ultimo
-// salvataggio. Esce solo la richiesta a `github.com`, nessun dato del registro.
+// carichino. L'installazione la conducono `updateInstaller.ts` su Windows,
+// electron-updater su Linux e `updateMac.ts` su macOS, che scarica anche da sé;
+// `autoInstallOnAppQuit` resta spento perché all'uscita decide
+// `installaAllUscita`, dopo l'ultimo salvataggio. Esce solo la richiesta a
+// `github.com`, nessun dato del registro.
 
 import { app } from 'electron'
+import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import * as percorso from 'node:path'
 
-import type { AppUpdater, NsisUpdater, ProgressInfo, UpdateDownloadedEvent, UpdateInfo } from 'electron-updater'
+import type { AppUpdater, BaseUpdater, NsisUpdater, ProgressInfo, UpdateDownloadedEvent, UpdateInfo } from 'electron-updater'
 
 import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } from '../../contract/protocollo.js'
 import { EventEmitter, type Smaltibile } from '../../core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { consegnaAllAiutante } from './updateInstaller.js'
+import { controllaArchivio, installaSuMac, macAggiornabile, scaricaPerMac } from './updateMac.js'
 import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './updates.testi.js'
 import { istante, numero } from '../../core/i18n/index.js'
@@ -48,6 +53,9 @@ let notiziaNascosta: string | undefined
 /** L'installatore scaricato e l'impronta per ricontrollarlo prima del lancio. */
 let scaricato: { file: string, sha512?: string } | null = null
 
+/** La versione trovata dall'ultimo controllo: su macOS la scarica `updateMac.ts`. */
+let trovata: UpdateInfo | null = null
+
 /**
  * A chi è consegnata l'installazione: alla `finestra`, o all'installatore `muto`
  * di electron-updater da lanciare all'uscita (se la finestra non è partita).
@@ -62,8 +70,22 @@ function impostazione<T> (chiave: string, ripiego: T): T {
 function supporto (): { supportato: boolean, motivo?: string } {
   if (!app.isPackaged) return { supportato: false, motivo: testi().inSviluppo }
   if (process.env.PORTABLE_EXECUTABLE_DIR) return { supportato: false, motivo: testi().portabile }
-  if (process.platform !== 'win32') return { supportato: false, motivo: testi().altroSistema }
-  return { supportato: true }
+  if (process.platform === 'win32') return { supportato: true }
+  if (process.platform === 'darwin') {
+    if (macAggiornabile()) return { supportato: true }
+    return { supportato: false, motivo: testi().macFuoriPosto }
+  }
+  if (process.platform === 'linux' && linuxAggiornabile()) return { supportato: true }
+  return { supportato: false, motivo: testi().altroSistema }
+}
+
+/**
+ * Su Linux sanno aggiornarsi l'AppImage (`APPIMAGE` lo mette il suo avvio) e i
+ * pacchetti con `package-type`, che electron-builder scrive per `.deb` e `.rpm`:
+ * da lì electron-updater sceglie come installare.
+ */
+function linuxAggiornabile (): boolean {
+  return Boolean(process.env.APPIMAGE) || existsSync(percorso.join(process.resourcesPath, 'package-type'))
 }
 
 /** Lo stato nudo, creato alla prima domanda. */
@@ -190,7 +212,8 @@ export function racconta (s: Grezzo): RaccontoAggiornamenti {
     case 'installazione':
       return {
         breve: t.installazioneBreve,
-        frase: t.installazioneFrase(nuova),
+        // La finestra che mostra l'aggiornamento c'è solo su Windows.
+        frase: process.platform === 'win32' ? t.installazioneFrase(nuova) : t.installazioneFraseSenzaFinestra(nuova),
         tono: 'informativo',
         notizia: t.pronta(nuova),
       }
@@ -262,14 +285,12 @@ function prendiAggiornatore (): AppUpdater | null {
     passa('aggiornato', { ultimoControllo: new Date().toISOString() })
   })
   autoUpdater.on('update-available', (info: UpdateInfo) => {
+    trovata = info
     passa('disponibile', { nuova: nuovaDa(info), ultimoControllo: new Date().toISOString() })
     if (impostazione('scaricoAutomatico', true)) void scaricaAggiornamento()
   })
   autoUpdater.on('download-progress', (avanzamento: ProgressInfo) => {
-    const adesso = Date.now()
-    if (adesso - ultimoRacconto < RESPIRO_MS) return
-    ultimoRacconto = adesso
-    passa('scarico', { byte: avanzamento.transferred, totale: avanzamento.total })
+    annunciaScarico(avanzamento.transferred, avanzamento.total)
   })
   autoUpdater.on('update-downloaded', (info: UpdateDownloadedEvent) => {
     scaricato = { file: info.downloadedFile, sha512: improntaDichiarata(info) }
@@ -301,6 +322,14 @@ export function controllaAggiornamenti (): void {
   })
 }
 
+/** Lo scarico a che punto è, non più spesso di `RESPIRO_MS`. */
+function annunciaScarico (byte: number, totale: number): void {
+  const adesso = Date.now()
+  if (adesso - ultimoRacconto < RESPIRO_MS) return
+  ultimoRacconto = adesso
+  passa('scarico', { byte, totale })
+}
+
 /** Scarica la versione trovata, se c'è. */
 export async function scaricaAggiornamento (): Promise<void> {
   const suo = prendiAggiornatore()
@@ -309,6 +338,14 @@ export async function scaricaAggiornamento (): Promise<void> {
   if (fase !== 'disponibile') return
   passa('scarico', { byte: 0, totale: 0 })
   try {
+    if (process.platform === 'darwin') {
+      // Lo scarico di electron-updater finirebbe in Squirrel.Mac: vedi `updateMac.ts`.
+      if (!trovata) throw new Error(testi().senzaRelease)
+      const info = trovata
+      scaricato = await scaricaPerMac(info, annunciaScarico)
+      passa('pronto', { nuova: nuovaDa(info), byte: undefined, totale: undefined })
+      return
+    }
     await suo.downloadUpdate()
   } catch (errore) {
     if (adesso().fase === 'scarico') {
@@ -342,6 +379,20 @@ async function consegna (riapri: boolean): Promise<boolean> {
   if (!prendiAggiornatore() || fase !== 'pronto' || !scaricato || !nuova || consegnata) return false
   const file = scaricato
   passa('installazione')
+  if (process.platform !== 'win32') {
+    // Senza finestra: installa `installaAllUscita`. Su macOS l'archivio si
+    // ricontrolla adesso, finché si può ancora tornare a «Scarica».
+    try {
+      if (process.platform === 'darwin') await controllaArchivio(file.file, file.sha512)
+    } catch (errore) {
+      console.warn('Aggiornamenti:', errore)
+      scaricato = null
+      passa('disponibile', { errore: motivoDi(errore) })
+      return false
+    }
+    consegnata = { a: 'muto', riapri }
+    return true
+  }
   try {
     const presa = await consegnaAllAiutante({
       installatore: file.file,
@@ -387,7 +438,8 @@ export function nascondiNotizia (notizia: string): void {
 /**
  * Installazione all'uscita, da `before-quit` dopo l'ultimo salvataggio: lancia
  * l'installatore muto se la finestra non è partita, o con `installaAllaChiusura`
- * installa senza riaprire. Mai mentre Windows si spegne: resterebbe a metà.
+ * installa senza riaprire. Su macOS e Linux c'è solo questa strada. Mai mentre
+ * il sistema si spegne: resterebbe a metà.
  */
 export async function installaAllUscita (sessioneFinita: boolean): Promise<void> {
   const suo = aggiornatore
@@ -398,6 +450,16 @@ export async function installaAllUscita (sessioneFinita: boolean): Promise<void>
     if (!(await consegna(false))) return
   }
   if (consegnata?.a !== 'muto') return
+  if (process.platform === 'darwin') {
+    if (scaricato) installaSuMac(scaricato.file, consegnata.riapri)
+    return
+  }
+  if (process.platform === 'linux') {
+    // AppImage sostituisce il file; `.deb` e `.rpm` chiedono la password al sistema.
+    const linux = suo as BaseUpdater
+    linux.install(true, consegnata.riapri)
+    return
+  }
   // Nella cartella attuale (`/D=` all'installatore).
   const nsis = suo as NsisUpdater
   nsis.installDirectory = percorso.dirname(process.execPath)

@@ -1,27 +1,21 @@
-// Quel che sta dentro il documento d'anno: scala dei voti, materie, file. La
+// Quel che sta dentro il documento d'anno: la scala dei voti. La
 // giornata sta in `settings/schoolDay.ts`, che usa da qui il salvataggio e i
 // lettori dei campi.
 // Queste impostazioni viaggiano con il `.regi`. Si salvano appena si tocca un
-// campo; quel che l'host corregge in silenzio si dice nella notifica.
+// campo. I campi disegnati con i controlli condivisi (`campoAnno`) dicono
+// l'esito accanto a sé (`salvaConEsito`), gli altri in una notifica; quel che
+// l'host corregge in silenzio si dice sempre.
 
+import type { Esito } from '../../../../core/controlli/controllo.js'
+import { numero } from '../../../../core/i18n/index.js'
+import { parole } from '../../../../core/dominio/words.testi.js'
 import type { Impostazioni } from '../../../../core/dominio/models.js'
 import type { ImpostazioniDaSalvare } from '../../../../contract/protocollo.js'
-import {
-  avviso,
-  campo,
-  pastiglia,
-  pulsante,
-  puntoColore,
-  riga,
-  scheda,
-  statoVuoto,
-} from '../../components/base.js'
-import { sintesiIncassata } from '../../components/filters.js'
+import { scheda } from '../../components/base.js'
 import { notifica } from '../../components/notifications.js'
+import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/voceAnno.js'
 import { h } from '../../dom.js'
-import { cestinoPer, chiediEliminazione, moduloMateria, moduloUnisciMaterie } from '../../forms.js'
-import { azione } from '../../bridge.js'
-import { apriOneDrive } from '../../forms/oneDrive.js'
+import { azione, invia } from '../../bridge.js'
 import { stato } from '../../state.js'
 import { testi } from './document.testi.js'
 
@@ -63,21 +57,7 @@ function scostamenti (mandate: ImpostazioniDaSalvare, arrivate: Impostazioni): s
   return esito
 }
 
-/**
- * Il numero battuto in un campo, o `null` se non ce n'è uno: `Number('')` fa
- * zero, e un campo svuotato salverebbe zero.
- */
-export function numeroBattuto (valore: string, etichetta: string): number | null {
-  const pulito = valore.trim().replace(',', '.')
-  const numero = Number(pulito)
-  if (pulito === '' || !Number.isFinite(numero)) {
-    notifica(testi().serveUnNumero(etichetta), 'errore')
-    return null
-  }
-  return numero
-}
-
-/** Come sopra, per i campi orario: vuoto vuol dire «non toccare». */
+/** L’orario battuto in un campo, o `null`: vuoto vuol dire «non toccare». */
 export function oraBattuta (valore: string, etichetta: string): string | null {
   if (valore.trim() === '') {
     notifica(testi().serveUnOrario(etichetta), 'errore')
@@ -124,15 +104,20 @@ function intestazioneDaSalvare (
   }
 }
 
-/** Salva una modifica puntuale delle impostazioni, senza toccare il resto. */
-export async function salvaImpostazioni (modifiche: ModificheImpostazioni): Promise<void> {
+/** Le impostazioni intere da mandare, con la modifica dentro e il resto com'è. */
+function daSalvare (modifiche: ModificheImpostazioni): ImpostazioniDaSalvare {
   const { intestazione: _intestazione, ...resto } = stato.registro.impostazioni
-  const impostazioni: ImpostazioniDaSalvare = {
+  return {
     ...resto,
     ...modifiche,
     scala: { ...stato.registro.impostazioni.scala, ...(modifiche.scala ?? {}) },
     intestazione: intestazioneDaSalvare(modifiche.intestazione),
   }
+}
+
+/** Salva una modifica puntuale delle impostazioni, senza toccare il resto. */
+export async function salvaImpostazioni (modifiche: ModificheImpostazioni): Promise<void> {
+  const impostazioni = daSalvare(modifiche)
   const risposta = await azione({ tipo: 'impostazioni.salva', impostazioni })
   if (!risposta.ok) return
   // Lo stato nuovo è già arrivato: il pannello lo spinge prima di rispondere
@@ -145,21 +130,37 @@ export async function salvaImpostazioni (modifiche: ModificheImpostazioni): Prom
 }
 
 /**
- * Un campo con il suo formato scritto sotto, in vista («0.25 = mezzi e
- * quarti»): serve mentre si batte, non dietro la «i». La casella lo nomina
- * come sua descrizione.
+ * Come `salvaImpostazioni`, per un campo disegnato con i controlli condivisi:
+ * l'esito si dice accanto al campo. `null` salvato; il rifiuto dell'host, o
+ * quel che ha raddrizzato, come motivo — e il campo si rifà con il valore vero.
  */
-let contaFormati = 0
-function conFormato (involucro: HTMLElement, formato: string): HTMLElement {
-  // testo-fisso: un id del DOM, non si legge
-  const id = `impostazioni-formato-${++contaFormati}`
-  involucro.append(h('small', { id, class: 'campo__aiuto' }, formato))
-  involucro.querySelector('input')?.setAttribute('aria-describedby', id)
-  return involucro
+export async function salvaConEsito (modifiche: ModificheImpostazioni): Promise<Esito> {
+  const impostazioni = daSalvare(modifiche)
+  // `invia` e non `azione`: il rifiuto si legge accanto al campo, non in una notifica.
+  const risposta = await invia({ tipo: 'impostazioni.salva', impostazioni })
+  if (!risposta.ok) return risposta.errori?.join(' ') || testi().nonSalvata
+  const scarti = scostamenti(impostazioni, stato.registro.impostazioni)
+  return scarti.length === 0 ? null : testi().corretta(scarti.join(', '))
 }
 
 // ------------------------------------------------------------ la valutazione
 
+/** Un numero della scala come lo si legge: «0,25», non «0.25». */
+function detto (quanto: number): string {
+  return numero(quanto, { maximumFractionDigits: 2 })
+}
+
+/** Le grane dei voti che si usano: decimi, quarti, mezzi, interi. */
+const PASSI_VOTI = [0.1, 0.25, 0.5, 1] as const
+
+/** L'arrotondamento della nota di fine semestre: niente, quarti, mezzi, interi. */
+const PASSI_FINE_SEMESTRE = [0, 0.25, 0.5, 1] as const
+
+/**
+ * La scala dei voti, l'arrotondamento di fine semestre, la soglia di assenza.
+ * In testa la scala detta in una riga; sotto le scelte di tutti i giorni; gli
+ * estremi della scala, che si decidono una volta, fra le avanzate.
+ */
 export function schedaValutazione (): HTMLElement {
   const impostazioni = stato.registro.impostazioni
   const scala = impostazioni.scala
@@ -168,281 +169,112 @@ export function schedaValutazione (): HTMLElement {
   const scalaViva = (): Impostazioni['scala'] => stato.registro.impostazioni.scala
   const t = testi()
 
+  const passoVoti = voceAnno({
+    nome: t.passoVoti,
+    aiuto: t.passoVotiAiuto,
+    voce: 'scalaPasso',
+    controllo: campoAnno(() => ({
+      tipo: 'segmenti',
+      chiave: 'scalaPasso',
+      nome: t.passoVoti,
+      valore: stato.registro.impostazioni.scala.passo,
+      scelte: PASSI_VOTI.map((passo) => ({ valore: passo, nome: detto(passo), aiuto: t.grane[passo] })),
+    }), (valore) => salvaConEsito({ scala: { ...scalaViva(), passo: Number(valore) } })),
+  })
+
+  const sufficienza = voceAnno({
+    nome: t.sufficienza,
+    aiuto: t.sufficienzaAiuto,
+    voce: 'scalaSufficienza',
+    // Sulla scala, a passi dei voti: fuori non avrebbe senso, e l'host lo raddrizzerebbe.
+    controllo: campoAnno(() => {
+      const viva = stato.registro.impostazioni.scala
+      return {
+        tipo: 'cursore',
+        chiave: 'scalaSufficienza',
+        nome: t.sufficienza,
+        valore: viva.sufficienza,
+        minimo: viva.min,
+        massimo: viva.max,
+        passo: viva.passo,
+      }
+    }, (valore) => salvaConEsito({ scala: { ...scalaViva(), sufficienza: Number(valore) } })),
+  })
+
+  // Un passo suo, diverso da quello dei voti: la nota di pagella si arrotonda
+  // (p. es. a mezzi) anche se i voti sono a quarti.
+  const passoFine = voceAnno({
+    nome: t.passoFineSemestre,
+    aiuto: t.passoFineSemestreAiuto,
+    voce: 'passoFineSemestre',
+    controllo: campoAnno(() => ({
+      tipo: 'segmenti',
+      chiave: 'passoFineSemestre',
+      nome: t.passoFineSemestre,
+      valore: stato.registro.impostazioni.passoFineSemestre,
+      scelte: PASSI_FINE_SEMESTRE.map((passo) => ({
+        valore: passo,
+        nome: passo === 0 ? parole().nessuno : detto(passo),
+        aiuto: t.graneFine[passo],
+      })),
+    }), (valore) => salvaConEsito({ passoFineSemestre: Number(valore) })),
+  })
+
+  // La soglia oltre cui un'assenza diventa un caso da segnalare: la decide la scuola.
+  const soglia = voceAnno({
+    nome: t.sogliaAssenza,
+    aiuto: t.sogliaAssenzaAiuto,
+    voce: 'sogliaAssenza',
+    controllo: campoAnno(() => ({
+      tipo: 'numero',
+      chiave: 'sogliaAssenza',
+      nome: t.sogliaAssenza,
+      valore: stato.registro.impostazioni.sogliaAssenza,
+      minimo: 0,
+      massimo: 100,
+      unita: '%',
+    }), (valore) => salvaConEsito({ sogliaAssenza: Number(valore) })),
+  })
+
+  // Gli estremi: il minimo sta sotto il massimo di almeno un passo, e viceversa.
+  const estremo = (quale: 'min' | 'max'): HTMLElement => {
+    const nome = quale === 'min' ? t.votoMinimo : t.votoMassimo
+    // testo-fisso: nomi dei campi, non si leggono
+    const chiave = quale === 'min' ? 'scalaMin' : 'scalaMax'
+    return voceAnno({
+      nome,
+      voce: chiave,
+      controllo: campoAnno(() => {
+        const viva = stato.registro.impostazioni.scala
+        return {
+          tipo: 'numero',
+          chiave,
+          nome,
+          valore: viva[quale],
+          minimo: quale === 'min' ? 0 : viva.min + viva.passo,
+          massimo: quale === 'min' ? viva.max - viva.passo : 100,
+          passo: viva.passo,
+        }
+      }, (valore) => salvaConEsito({ scala: { ...scalaViva(), [quale]: Number(valore) } })),
+    })
+  }
+
   return scheda({
     titolo: t.scala,
     aiuto: t.scalaAiuto,
-    contenuto: h(
-      'div',
-      { class: 'modulo' },
-      riga(
-        campo({
-          nome: 'scalaMin',
-          etichetta: t.votoMinimo,
-          tipo: 'number',
-          valore: scala.min,
-          // Gli estremi di una scala non hanno una grana; il passo dei voti è un altro campo.
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const min = numeroBattuto(valore, t.votoMinimo)
-            if (min !== null) void salvaImpostazioni({ scala: { ...scalaViva(), min } })
-          },
-        }),
-        campo({
-          nome: 'scalaMax',
-          etichetta: t.votoMassimo,
-          tipo: 'number',
-          valore: scala.max,
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const max = numeroBattuto(valore, t.votoMassimo)
-            if (max !== null) void salvaImpostazioni({ scala: { ...scalaViva(), max } })
-          },
-        }),
-        campo({
-          nome: 'scalaSufficienza',
-          etichetta: t.sufficienza,
-          tipo: 'number',
-          valore: scala.sufficienza,
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const sufficienza = numeroBattuto(valore, t.sufficienza)
-            if (sufficienza === null) return
-            void salvaImpostazioni({ scala: { ...scalaViva(), sufficienza } })
-          },
-        }),
-        conFormato(campo({
-          nome: 'scalaPasso',
-          etichetta: t.passoVoti,
-          tipo: 'number',
-          valore: scala.passo,
-          min: 0.01,
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const passo = numeroBattuto(valore, t.passoVoti)
-            if (passo !== null) void salvaImpostazioni({ scala: { ...scalaViva(), passo } })
-          },
-        }), t.passoVotiFormato),
-        // Un passo suo, diverso da quello dei voti: la nota di pagella si arrotonda
-        // (p. es. a mezzi) anche se i voti sono a quarti.
-        conFormato(campo({
-          nome: 'passoFineSemestre',
-          etichetta: t.passoFineSemestre,
-          tipo: 'number',
-          valore: impostazioni.passoFineSemestre,
-          min: 0,
-          max: 10,
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const passo = numeroBattuto(valore, t.passoFineSemestre)
-            if (passo !== null) void salvaImpostazioni({ passoFineSemestre: passo })
-          },
-        }), t.passoFineSemestreFormato),
-        // La soglia oltre cui un'assenza diventa un caso da segnalare: la decide la scuola.
-        conFormato(campo({
-          nome: 'sogliaAssenza',
-          etichetta: t.sogliaAssenza,
-          tipo: 'number',
-          valore: impostazioni.sogliaAssenza,
-          min: 0,
-          max: 100,
-          passo: 'any',
-          larghezza: 'quarto',
-          al: (valore) => {
-            const soglia = numeroBattuto(valore, t.sogliaAssenza)
-            if (soglia !== null) void salvaImpostazioni({ sogliaAssenza: soglia })
-          },
-        }), t.sogliaAssenzaFormato),
+    classe: 'scheda--opzioni',
+    contenuto: sezioneAnno({
+      stato: h(
+        'p',
+        { class: 'voce-opzione__aiuto impostazioni-anno__stato' },
+        t.scalaDetta(detto(scala.min), detto(scala.max), detto(scala.sufficienza), detto(scala.passo)),
       ),
-    ),
-  })
-}
-
-// ---------------------------------------------------------------- le materie
-
-/**
- * Le materie e i corsi che ne derivano. Ogni riga dice che cosa le sta appeso;
- * si rinomina, si unisce a un'altra, e si elimina solo se nessun corso la usa.
- */
-export function schedaMaterie (): HTMLElement {
-  const registro = stato.registro
-  const t = testi()
-
-  return scheda({
-    titolo: t.materie,
-    aiuto: t.materieAiuto,
-    azioni: pulsante({
-      testo: t.nuovaMateria,
-      simbolo: 'piu',
-      variante: 'primario',
-      al: () => moduloMateria(),
+      scelte: [
+        // Il titolo della scheda dice già «Scala dei voti».
+        gruppoAnno(null, passoVoti, sufficienza),
+        gruppoAnno(t.fineSemestre, passoFine, soglia),
+      ],
+      avanzate: avanzateAnno('valutazione', [estremo('min'), estremo('max')]),
     }),
-    contenuto:
-      registro.materie.length === 0
-        ? statoVuoto({
-            simbolo: 'libro',
-            titolo: t.nessunaMateria,
-            testo: t.nessunaMateriaTesto,
-            azione: pulsante({
-              testo: t.nuovaMateria,
-              variante: 'primario',
-              simbolo: 'piu',
-              al: () => moduloMateria(),
-            }),
-          })
-        : h(
-            'ul',
-            { class: 'elenco-materie' },
-            ...registro.materie.map((materia) => {
-              const corsi = registro.corsi.filter((c) => c.materiaId === materia.id)
-              const classi = new Set(corsi.map((c) => c.classeId)).size
-              const suoi = new Set(corsi.map((c) => c.id))
-              const piani = registro.piani.filter((p) => p.corsoId && suoi.has(p.corsoId)).length
-
-              return h(
-                'li',
-                { class: 'materia' },
-                materia.colore ? puntoColore(materia.colore) : null,
-                h('strong', null, materia.nome),
-                materia.sigla ? pastiglia(materia.sigla, 'quiete') : null,
-                h(
-                  'span',
-                  { class: 'testo-quieto' },
-                  t.contiMateria(classi, corsi.length, piani),
-                ),
-                h(
-                  'span',
-                  { class: 'materia__azioni' },
-                  pulsante({
-                    simbolo: 'matita',
-                    variante: 'fantasma',
-                    titolo: t.modificaMateria,
-                    al: () => moduloMateria(materia),
-                  }),
-                  // Due voci nate dalla stessa cosa tornano una, senza perdere i corsi.
-                  registro.materie.length > 1
-                    ? pulsante({
-                        simbolo: 'duplica',
-                        variante: 'fantasma',
-                        titolo: t.unisciMateria,
-                        al: () => moduloUnisciMaterie(materia),
-                      })
-                    : null,
-                  pulsante({
-                    simbolo: 'cestino',
-                    variante: 'fantasma',
-                    ...cestinoPer({ genere: 'materia', id: materia.id }, t.eliminaMateria),
-                    al: async () => {
-                      if (!(await chiediEliminazione({ genere: 'materia', id: materia.id }))) return
-                      const risposta = await azione({ tipo: 'materia.elimina', materiaId: materia.id })
-                      if (!risposta.ok) return
-                      notifica(t.materiaEliminata(materia.nome), 'info')
-                    },
-                  }),
-                ),
-              )
-            }),
-          ),
-  })
-}
-
-// -------------------------------------------------------------------- i file
-
-/** Il nome del file, staccato dal percorso: è quel che si riconosce. */
-function nomeDelFile (percorso: string): string {
-  return percorso.split(/[\\/]/).pop() ?? percorso
-}
-
-/** Il documento aperto e quel che c'è dentro, con il percorso per esteso: dice quale copia è. */
-export function schedaFile (): HTMLElement {
-  const registro = stato.registro
-  const corrente = stato.documenti.corrente
-  const t = testi()
-
-  return scheda({
-    titolo: t.documento,
-    // Com'è fatto il documento dietro la «i»; restano in vista gli avvisi (file
-    // provvisorio, niente documento, riferimenti che non tornano).
-    aiuto: h('span', null, t.documentoAiuto, t.documentoDentro),
-    azioni: [
-      pulsante({
-        testo: t.apriAltro,
-        simbolo: 'cartella',
-        variante: 'sottile',
-        titolo: t.apriAltroAiuto,
-        al: () => azione({ tipo: 'documento.apri' }),
-      }),
-      pulsante({
-        testo: t.apriDaOneDrive,
-        simbolo: 'collegamento',
-        variante: 'sottile',
-        titolo: t.apriDaOneDriveAiuto,
-        al: () => apriOneDrive(),
-      }),
-      pulsante({
-        testo: t.mostraNellaCartella,
-        simbolo: 'cartella',
-        variante: 'sottile',
-        al: () => azione({ tipo: 'sistema.apriCartella' }),
-      }),
-      pulsante({
-        testo: t.ricarica,
-        simbolo: 'ricarica',
-        variante: 'sottile',
-        titolo: t.ricaricaAiuto,
-        al: async () => {
-          const risposta = await azione({ tipo: 'stato.ricarica' })
-          if (!risposta.ok) return
-          notifica(t.ricaricati, 'info')
-        },
-      }),
-    ],
-    contenuto: h(
-      'div',
-      null,
-      corrente && stato.documenti.provvisorio
-        ? h(
-            'div',
-            null,
-            avviso(t.provvisorio(nomeDelFile(corrente)), 'attenzione'),
-            pulsante({
-              testo: t.salvaConNome,
-              simbolo: 'spunta',
-              variante: 'primario',
-              al: () => azione({ tipo: 'stato.salva' }),
-            }),
-          )
-        : corrente
-          ? h(
-              'div',
-              { class: 'documento-aperto' },
-              h('strong', null, nomeDelFile(corrente)),
-              h('code', { class: 'documento-aperto__percorso' }, corrente),
-            )
-          : avviso(t.nessunDocumento, 'attenzione'),
-      sintesiIncassata(
-        { etichetta: t.sintesi.anni, valore: String(registro.anni.length) },
-        { etichetta: t.sintesi.classi, valore: String(registro.classi.length) },
-        { etichetta: t.sintesi.lezioni, valore: String(registro.lezioni.length) },
-        { etichetta: t.sintesi.piani, valore: String(registro.piani.length) },
-        { etichetta: t.sintesi.valutazioni, valore: String(registro.valutazioni.length) },
-      ),
-      stato.avvisi.length > 0
-        ? avviso(
-            h(
-              'div',
-              null,
-              h('strong', null, t.riferimenti),
-              h('ul', null, ...stato.avvisi.slice(0, 8).map((testo) => h('li', null, testo))),
-              stato.avvisi.length > 8 ? h('p', null, t.eAltri(stato.avvisi.length - 8)) : null,
-            ),
-            'attenzione',
-          )
-        : avviso(t.tuttiTornano, 'informativo'),
-    ),
   })
 }
