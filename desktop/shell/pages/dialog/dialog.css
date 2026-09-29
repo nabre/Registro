@@ -13,9 +13,12 @@
  * scorre, altrimenti l'eccedenza sparisce con dentro i pulsanti.
  */
 body {
-  padding: var(--spazio-4);
   max-height: 100vh;
   overflow-y: auto;
+}
+
+main {
+  padding: var(--spazio-4);
 }
 
 h1 {
@@ -39,11 +42,62 @@ h1 {
   margin-top: var(--spazio-3);
 }
 
+/*
+ * I pulsanti stanno in un piede come quello delle modali del pannello
+ * (`.modale__piede` in `windows.css`): fascia a tutta larghezza, filo sopra,
+ * velo quieto. I margini negativi la allargano fino ai bordi della finestra.
+ */
 .tasti {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spazio-2);
+  align-items: center;
   justify-content: flex-end;
-  margin-top: var(--spazio-3);
+  margin: var(--spazio-4) calc(-1 * var(--spazio-4)) calc(-1 * var(--spazio-4));
+  padding: var(--spazio-3) var(--spazio-4);
+  border-top: 1px solid var(--bordo-tenue);
+  background: var(--velo-quieto);
+}
+
+/*
+ * Pulsanti come `.pulsante` del pannello (`controls.css`): foglietto chiaro,
+ * filo tenue, ombra appena, testo su una riga. Un'etichetta lunga non va a
+ * capo dentro il pulsante: se la riga non basta, il gruppo di sinistra scende
+ * sotto (`flex-wrap`), e i pulsanti restano alti uguali.
+ */
+.tasti button {
+  min-width: 5rem;
+  padding: var(--dentro-comando);
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--sfondo-rilievo);
+  border-color: var(--bordo-tenue);
+  box-shadow: var(--ombra-1);
+}
+
+.tasti button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--testo) 5%, var(--sfondo-rilievo));
+  border-color: var(--bordo);
+}
+
+.tasti button[data-ruolo='conferma'] {
+  font-weight: inherit;
+  background: var(--primario);
+  border-color: transparent;
+}
+
+.tasti button[data-ruolo='conferma']:hover:not(:disabled) {
+  background: var(--primario-caldo);
+}
+
+/*
+ * Il fuoco messo dalla pagina sul pulsante predefinito non disegna l'anello
+ * finché non si usa la tastiera: nel pannello la modale si apre dopo un clic e
+ * l'anello non c'è; qui la finestra è nuova e Chromium lo mostrerebbe sempre.
+ * `da-tastiera` lo mette `dialog.ts` al primo tasto.
+ */
+html:not(.da-tastiera) .tasti button:focus-visible {
+  outline: none;
 }
 
 /* I messaggi hanno due gruppi di pulsanti, come le modali del pannello: gesti
@@ -58,14 +112,19 @@ h1 {
   margin-right: auto;
 }
 
+.tasti__destra {
+  margin-left: auto;
+}
+
 /* Il gesto che non si disfa: come `.pulsante--pericolo` nel pannello. */
-button[data-ruolo='pericolo'] {
+.tasti button[data-ruolo='pericolo'] {
   color: var(--negativo);
   background: transparent;
   border-color: color-mix(in srgb, var(--negativo) 55%, transparent);
+  box-shadow: none;
 }
 
-button[data-ruolo='pericolo']:hover:not(:disabled) {
+.tasti button[data-ruolo='pericolo']:hover:not(:disabled) {
   background: color-mix(in srgb, var(--negativo) 15%, transparent);
 }
 
@@ -83,8 +142,8 @@ button[data-ruolo='pericolo']:hover:not(:disabled) {
 
 .messaggio__icona {
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.6;
@@ -104,7 +163,11 @@ button[data-ruolo='pericolo']:hover:not(:disabled) {
 .messaggio__testi {
   flex: 1;
   min-width: 0;
-  padding-top: 3px;
+  padding-top: 1px;
+}
+
+.messaggio h1 {
+  font-size: var(--titolo-scheda);
 }
 
 /* Il testo si copia (chi chiede aiuto lo incolla); un percorso lungo va a capo. */
@@ -129,8 +192,8 @@ button[data-ruolo='pericolo']:hover:not(:disabled) {
   gap: var(--spazio-1) var(--spazio-3);
   margin: var(--spazio-3) 0 0;
   padding: var(--spazio-2) var(--spazio-3);
-  background: var(--campo-sfondo);
-  border: 1px solid var(--bordo);
+  background: var(--sfondo-alto);
+  border: 1px solid var(--bordo-tenue);
   border-radius: var(--raggio);
 }
 
@@ -142,8 +205,4 @@ button[data-ruolo='pericolo']:hover:not(:disabled) {
   margin: 0;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.messaggio + .tasti {
-  margin-top: var(--spazio-4);
 }

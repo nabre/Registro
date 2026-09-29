@@ -229,7 +229,8 @@ export async function chiediMessaggio (voce: Messaggio): Promise<number | null> 
 
   let risposta: EsitoDialogo
   try {
-    risposta = await chiedi(parametri, 480)
+    // Larga come `showInputBox`: tre pulsanti con le etichette su una riga.
+    risposta = await chiedi(parametri, 520)
   } catch (guasto) {
     // Se la finestra non nasce, il messaggio va comunque detto (ripiego sotto).
     console.error('finestra del messaggio non aperta', guasto)

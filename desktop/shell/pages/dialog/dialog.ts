@@ -39,6 +39,11 @@ function dichiaraAltezza (): void {
 // Esc chiude, da qualunque campo.
 allEsc(annulla)
 
+// L'anello del fuoco sui pulsanti compare dal primo tasto (`da-tastiera` in `dialog.css`).
+document.addEventListener('keydown', () => {
+  document.documentElement.classList.add('da-tastiera')
+}, { once: true, capture: true })
+
 function testata (titolo: string): void {
   radice.append(elemento('h1', null, titolo))
 }
