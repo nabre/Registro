@@ -13,7 +13,7 @@ import { gestisciStatoInterfaccia } from './uiState.js'
 
 import { app, BrowserWindow, ipcMain } from 'electron'
 
-import { dentro, icona, radiceApp } from './context.js'
+import { cartellaBundle, dentro, icona, radiceApp } from './context.js'
 import { postoDi, ricordaPosto } from './placement.js'
 import { apriConsole } from './dev.js'
 import { EventEmitter, type Event } from '../../core/apparato/events.js'
@@ -346,11 +346,11 @@ export function htmlDellaPagina (id: string): string | undefined {
 }
 
 /**
- * Le cartelle leggibili dal protocollo: `dist/` e `resources/` sempre, più
+ * Le cartelle leggibili dal protocollo: i bundle e `resources/` sempre, più
  * l'unione delle radici dei pannelli aperti (la richiesta non dice la finestra).
  */
 export function radiciConcesse (): Uri[] {
-  const radici = [Uri.joinPath(radiceApp(), 'dist'), Uri.joinPath(radiceApp(), 'resources')]
+  const radici = [cartellaBundle(), Uri.joinPath(radiceApp(), 'resources')]
   for (const vista of pagine.values()) radici.push(...vista.radici)
   return radici
 }

@@ -6,9 +6,8 @@
 import { BrowserWindow } from 'electron'
 import { watch, type FSWatcher } from 'node:fs'
 
-import { radiceApp } from './context.js'
+import { cartellaBundle } from './context.js'
 import { Smaltitore } from '../../core/apparato/events.js'
-import { Uri } from '../../core/apparato/uri.js'
 
 /** Quanto si aspetta prima di ricaricare, dall'ultimo file scritto. */
 const CALMA = 120
@@ -27,7 +26,7 @@ function inSviluppo (): boolean {
 export function avviaRicaricamento (dopo: () => void = () => {}): Smaltitore {
   if (!inSviluppo()) return new Smaltitore(() => {})
 
-  const cartella = Uri.joinPath(radiceApp(), 'dist').fsPath
+  const cartella = cartellaBundle().fsPath
 
   let attesa: NodeJS.Timeout | null = null
   let vigile: FSWatcher | null = null

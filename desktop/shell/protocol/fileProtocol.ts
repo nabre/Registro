@@ -11,7 +11,7 @@
 import { net, protocol } from 'electron'
 import { pathToFileURL } from 'node:url'
 
-import { dentro, radiceApp } from '../../apparato/context.js'
+import { cartellaBundle, dentro, radiceApp } from '../../apparato/context.js'
 import { deposito } from '../../../core/dati/store.js'
 import { htmlDellaPagina, radiciConcesse } from '../../apparato/windows.js'
 import { Uri } from '../../../core/apparato/uri.js'
@@ -114,6 +114,8 @@ async function serviRichiesta (indirizzo: URL, segmenti: string[]): Promise<Resp
 
     case 'app':
       // Relativo alla radice dell'app; `serviFile` non lascia uscire dalle radici concesse.
+      // `dist` vale per la cartella dei bundle in uso, che in sviluppo è `dist-dev`.
+      if (segmenti[0] === 'dist') return serviFile(Uri.joinPath(cartellaBundle(), ...segmenti.slice(1)))
       return serviFile(Uri.joinPath(radiceApp(), ...segmenti))
 
     case 'dati':

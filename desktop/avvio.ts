@@ -274,13 +274,9 @@ export async function avvia (
   }
 
   // Il worker di pdfjs va dichiarato prima di qualunque lettura di PDF.
-  impostaWorker(
-    pathToFileURL(
-      apparato.Uri.joinPath(contesto.extensionUri, 'dist', 'pdf.worker.mjs').fsPath,
-    ).href,
-  )
+  impostaWorker(pathToFileURL(apparato.percorsoWorkerPdf()).href)
   // I caratteri standard: senza, pdfjs avverte a ogni documento e stima le larghezze.
-  impostaCaratteri(apparato.Uri.joinPath(contesto.extensionUri, 'dist', 'caratteri-pdf').fsPath)
+  impostaCaratteri(apparato.percorsoCaratteriPdf())
   // I file archiviati nella disposizione vecchia si spostano, senza chiedere.
   void migraArchivio(archivio)
     .then(async (spostati) => {

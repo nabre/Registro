@@ -18,17 +18,14 @@ import './system/userData.js'
 import { app, dialog } from 'electron'
 import { existsSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
-import { pathToFileURL } from 'node:url'
 
 import { executeCommand, registerCommand } from '../apparato/commands.js'
 import {
   creaContesto,
   impostaCartellaLavoro,
-  percorsoCaratteriPdf,
   percorsoIcona,
   percorsoIconaFinestra,
   percorsoPreload,
-  percorsoWorkerPdf,
 } from '../apparato/context.js'
 import { getConfiguration, ritiraChiaviDismesse } from '../apparato/settings.js'
 import { showErrorMessage } from '../apparato/dialogs.js'
@@ -46,7 +43,6 @@ import { vassoioAcceso } from '../apparato/tray.js'
 import { alCambioAggiornamenti, avviaAggiornamenti, installaAllUscita } from '../apparato/updates.js'
 import { aggiornamentoInCorso, concludiAggiornamento } from '../apparato/updateInstaller.js'
 import { ESTENSIONE, èPacchetto } from '../../core/dati/package.js'
-import { impostaCaratteri, impostaWorker } from '../../core/dati/pdf.js'
 import { èProvvisorio, percorsoPacchetto } from '../../core/dati/paths.js'
 import {
   apriRegistro,
@@ -338,10 +334,6 @@ async function avvia (): Promise<void> {
     alBenvenuto = documento !== null && percorsoPacchetto() === null
     // Da qui `registroDocenti.*` esiste.
     dichiaraPronto()
-    // `avvia` dichiara il worker di pdfjs dentro `dist/`, che nel pacchetto sta
-    // nell'asar: si ridichiara fuori, prima che si apra un PDF.
-    impostaWorker(pathToFileURL(percorsoWorkerPdf()).href)
-    impostaCaratteri(percorsoCaratteriPdf())
     // Dopo `avvia`, che registra i comandi invocati dal menu. Il percorso si fa
     // assoluto: `Uri.file` di un relativo lo appende alla radice del disco.
     installaMenu({

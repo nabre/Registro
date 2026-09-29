@@ -1,7 +1,7 @@
 // Rimette il registro allo stato di partenza. `npm run clean`. Per quando si
 // sospetta che risponda qualcosa di vecchio invece del codice:
 //
-//   1. i bundle, `dist/` e `dist-tests/`;
+//   1. i bundle, `dist/`, `dist-dev/` e `dist-tests/`;
 //   2. le cache di Chromium nella cartella dell'utente dell'applicazione,
 //      che Chromium rifà da sé;
 //   3. la cartella «Electron», il doppione che nasce lanciando l'applicazione
@@ -20,7 +20,7 @@ import { join } from 'node:path'
 import { RADICE } from './common.mjs'
 
 /** I bundle. Rifatti da `npm run build` e da `npm run dev`. */
-const BUNDLE = ['dist', 'dist-tests']
+const BUNDLE = ['dist', 'dist-dev', 'dist-tests']
 
 /** Le cache che una `BrowserWindow` si crea da sé: toglierle rallenta solo il primo avvio. */
 const CACHE = [
@@ -34,10 +34,11 @@ const CACHE = [
 ]
 
 /**
- * Le cartelle dell'utente da ripulire: la vera (il `productName`, come in
- * `app.getPath('userData')`) e il doppione «Electron», che si toglie intero.
+ * Le cartelle dell'utente da ripulire: le vere (il `productName`, come in
+ * `app.getPath('userData')`, e la sua copia `-dev` di `npm run dev`) e il
+ * doppione «Electron», che si toglie intero.
  */
-const VERA = 'Regiklass'
+const VERE = ['Regiklass', 'Regiklass-dev']
 const DOPPIONE = 'Electron'
 
 function cartellaUtente (nome) {
@@ -80,13 +81,15 @@ console.log('I bundle:')
 let fatto = BUNDLE.map((nome) => togli(join(RADICE, nome), `${nome}/`)).some(Boolean)
 if (!fatto) console.log('  niente da togliere')
 
-console.log(`\nLe cache di Chromium in «${VERA}» (impostazioni e segreti restano):`)
-const utente = cartellaUtente(VERA)
-if (!existsSync(utente)) {
-  console.log('  la cartella non c’è ancora')
-} else {
-  fatto = CACHE.map((nome) => togli(join(utente, nome), nome)).some(Boolean)
-  if (!fatto) console.log('  niente da togliere')
+for (const vera of VERE) {
+  console.log(`\nLe cache di Chromium in «${vera}» (impostazioni e segreti restano):`)
+  const utente = cartellaUtente(vera)
+  if (!existsSync(utente)) {
+    console.log('  la cartella non c’è ancora')
+  } else {
+    fatto = CACHE.map((nome) => togli(join(utente, nome), nome)).some(Boolean)
+    if (!fatto) console.log('  niente da togliere')
+  }
 }
 
 console.log(`\nLa cartella doppione «${DOPPIONE}», se il registro è mai partito su un file:`)

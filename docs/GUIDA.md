@@ -153,6 +153,9 @@ npm run clean        # butta bundle e cache
   cambiati ricaricano le pagine; main process o preload cambiati riavviano
   l'applicazione e riaprono l'anno. Regola: il campo `ricarica` in
   `esbuild.mjs`. Un bundle che non compila lascia quello di prima.
+- `npm run dev` e `npm run start` girano insieme: `dev` costruisce in
+  `dist-dev/` e parte come «Regiklass-dev», con `userData`, impostazioni e
+  istanza unica sue. Lo stesso `.regi` non va aperto in tutte e due.
 - `dist/` = bundle dell'applicazione. `dist-tests/` = gli stessi sorgenti in
   ESM per Node, con `electron` sostituito da `tests/helpers/fake-electron.mjs`
   (li prepara `pretest`).

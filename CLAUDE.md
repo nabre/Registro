@@ -18,7 +18,7 @@ codice, i nomi di dominio, i commenti e la documentazione sono in italiano.
 | Comando | Scopo |
 | --- | --- |
 | `npm ci` | Installa esattamente le dipendenze del lockfile; richiede Node.js 24. |
-| `npm run dev` | Avvia Electron con build in ascolto e ricarica. |
+| `npm run dev` | Avvia Electron («Regiklass-dev», bundle in `dist-dev/`) con build in ascolto e ricarica; convive con `npm run start`. |
 | `npm run build` | Compila una volta in `dist/`. |
 | `npm run typecheck` | Controlla i tipi del TypeScript e, via JSDoc, di `cli/` e `tools/`. |
 | `npm run lint` | Esegue ESLint; i warning `max-len` non sono errori. |

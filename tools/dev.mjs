@@ -8,19 +8,44 @@
 // Una ricarica lascia in piedi archivio, comandi e iscrizioni; un riavvio
 // riporta il registro all'apertura. Che cosa fa scattare cosa lo dice
 // `ricarica` sulle configurazioni di `esbuild.mjs`.
+//
+// Gira accanto a `npm run start` e al registro installato: bundle in
+// `dist-dev/`, nome «Regiklass-dev», quindi `userData`, impostazioni e
+// istanza unica suoi. Lo stesso `.regi` non va aperto in tutti e due.
 
 import { spawn } from 'node:child_process'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as esbuild from 'esbuild'
 import elettrone from 'electron'
 
-import { applicazione } from '../esbuild.mjs'
+import { applicazioneIn, copiaCaratteriPdf } from '../esbuild.mjs'
+
+/** La cartella dei bundle di sviluppo, che `desktop/apparato/context.ts` riconosce. */
+const CARTELLA = 'dist-dev'
+
+const applicazione = applicazioneIn(CARTELLA)
 
 /**
- * Quel che si dà a Electron: la cartella del progetto, non il file di avvio.
- * Con un file Electron non legge `package.json`, l'app si chiama «Electron» e
- * `userData` finisce in `%APPDATA%\Electron`.
+ * Quel che si dà a Electron: la cartella dei bundle, con un `package.json`
+ * suo. Da lì Electron prende nome e versione; il nome dà la cartella di
+ * `userData`. Con un file invece di una cartella non legge `package.json`,
+ * l'app si chiama «Electron» e `userData` finisce in `%APPDATA%\Electron`.
  */
-const AVVIO = '.'
+const AVVIO = CARTELLA
+
+/** Il `package.json` di `dist-dev/`: quello del progetto, col suffisso `-dev`. */
+function scriviPacchetto () {
+  const progetto = JSON.parse(readFileSync('package.json', 'utf8'))
+  const pacchetto = {
+    name: `${progetto.name}-dev`,
+    productName: `${progetto.productName}-dev`,
+    version: progetto.version,
+    main: 'main.cjs',
+  }
+  mkdirSync(CARTELLA, { recursive: true })
+  writeFileSync(`${CARTELLA}/package.json`, `${JSON.stringify(pacchetto, null, 2)}
+`)
+}
 
 /** Quanto si aspetta, dall'ultimo bundle finito, prima di riavviare. */
 const CALMA = 150
@@ -108,7 +133,7 @@ function segnala (configurazione, esito) {
   }
   dice(`${nome} ricostruito`)
 
-  // Le pagine si ricaricano da sole: `dev.ts` guarda `dist/`.
+  // Le pagine si ricaricano da sole: `dev.ts` guarda `dist-dev/`.
   if (configurazione.ricarica !== 'riavvia') return
 
   riavvioInSospeso = true
@@ -163,7 +188,9 @@ for (const segnale of ['SIGINT', 'SIGTERM']) {
 
 // -------------------------------------------------------------------- l'avvio
 
-dice('costruisco i bundle…')
+dice(`costruisco i bundle in ${CARTELLA}/…`)
+scriviPacchetto()
+copiaCaratteriPdf(`${CARTELLA}/pdf-fonts`)
 contesti = await Promise.all(applicazione.map((c) => esbuild.context(conAscolto(c))))
 // L'applicazione la lancia `finitoIlPrimoGiro`, quando ogni bundle è sul disco.
 await Promise.all(contesti.map((c) => c.watch()))

@@ -20,6 +20,7 @@ import tseslint from 'typescript-eslint'
  */
 const FUORI = [
   'dist/',
+  'dist-dev/',
   'dist-tests/',
   'node_modules/',
   'pacchetti/',

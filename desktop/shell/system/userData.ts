@@ -36,6 +36,12 @@ function restaSullaVecchia (vecchia: string): void {
 function traslocaLaCartellaDeiDati (): void {
   // Il portabile ha già scelto la sua.
   if (process.env.REGISTRO_DATI) return
+  // `npm run dev` gira come «Regiklass-dev» (`tools/dev.mjs`): dati suoi, accanto
+  // a quelli veri, e niente da traslocare. `REGISTRO_DATI` per `core/dati/appData.ts`.
+  if (process.env.REGISTRO_SVILUPPO === '1') {
+    process.env.REGISTRO_DATI = app.getPath('userData')
+    return
+  }
   const nuova = app.getPath('userData')
   const cartellaDelSistema = app.getPath('appData')
   // Solo la cartella predefinita: in una scelta a mano (prove,

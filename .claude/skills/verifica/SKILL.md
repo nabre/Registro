@@ -177,7 +177,7 @@ fa lo strumento stesso, contando le citazioni in casa propria.
 
 L'ordine conta, perché il sospetto più comune è il più economico da escludere.
 
-1. **Sono i bundle vecchi?** `npm run clean` rimette `dist/` e
+1. **Sono i bundle vecchi?** `npm run clean` rimette `dist/`, `dist-dev/` e
    `dist-tests/` allo stato di partenza. Succede quando il modo sviluppo è
    morto a metà costruzione.
 2. **È una prova che legge il sorgente?** Alcune prove — `tests/api/coverage.test.mjs`,

@@ -158,7 +158,7 @@ npm run dev        # esbuild in ascolto, app avviata, ricarica a caldo
 | Comando | Che cosa fa |
 | --- | --- |
 | `npm run dev` | Sviluppo: le pagine si ricaricano in un decimo di secondo, il main process si riavvia da sé |
-| `npm start` | Compila e avvia, senza ascolto |
+| `npm start` | Compila e avvia, senza ascolto; può girare insieme a `npm run dev`, che parte come «Regiklass-dev» con dati suoi |
 | `npm test` | Le prove con `node --test` |
 | `npm run typecheck` · `npm run lint` | TypeScript e ESLint |
 | `npm run layers` · `census` · `collections` · `forms` · `buttons` · `procedures` · `docs` | I controlli d'architettura scritti in casa |

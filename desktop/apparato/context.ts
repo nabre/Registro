@@ -10,8 +10,11 @@ import { getConfiguration } from './settings.js'
 import { Segreti, type DepositoSegreti } from './secrets.js'
 import { Uri } from '../../core/apparato/uri.js'
 
-/** La cartella dei bundle; la stessa di `registro://app/dist/…` in `panels/panel.ts`. */
-const CARTELLA_BUNDLE = 'dist'
+/**
+ * Le cartelle dei bundle: `dist/` per `npm run start` e il pacchetto,
+ * `dist-dev/` per `npm run dev`, che la lancia come app a sé (vedi `tools/dev.mjs`).
+ */
+const CARTELLE_BUNDLE = new Set(['dist', 'dist-dev'])
 
 /** La chiave di `impostazioni.json` in cui si ricorda la cartella scelta. */
 const CHIAVE_CARTELLA = 'cartellaLavoro'
@@ -32,17 +35,29 @@ export function dentro (radice: Uri, figlio: Uri): boolean {
 }
 
 let radice: Uri | null = null
+let bundle: Uri | null = null
 
 /**
- * La radice dell'applicazione (`extensionUri`). Se l'app è lanciata sul file
- * `dist/main.cjs` invece che sulla cartella, risale da `dist/` alla radice.
+ * La radice dell'applicazione (`extensionUri`). Se l'app è lanciata su una
+ * cartella dei bundle (`dist/main.cjs`, o `dist-dev/` in sviluppo) invece che
+ * sulla radice, risale di un livello.
  */
 export function radiceApp (): Uri {
   if (radice) return radice
   const cammino = app.getAppPath()
-  const base = percorso.basename(cammino) === CARTELLA_BUNDLE ? percorso.dirname(cammino) : cammino
-  radice = Uri.file(base)
+  const nome = percorso.basename(cammino)
+  radice = Uri.file(CARTELLE_BUNDLE.has(nome) ? percorso.dirname(cammino) : cammino)
+  bundle = Uri.joinPath(radice, CARTELLE_BUNDLE.has(nome) ? nome : 'dist')
   return radice
+}
+
+/**
+ * La cartella dei bundle davvero in uso. Gli indirizzi `registro://app/dist/…`
+ * restano scritti con `dist`: il protocollo li porta qui.
+ */
+export function cartellaBundle (): Uri {
+  radiceApp()
+  return bundle as Uri
 }
 
 /** La versione di `package.json`, per chi non può importare Electron. */
@@ -102,7 +117,7 @@ export function icona (): { icon?: string } {
 
 /** Il bundle del preload. */
 export function percorsoPreload (): string {
-  return Uri.joinPath(radiceApp(), CARTELLA_BUNDLE, 'preload.cjs').fsPath
+  return Uri.joinPath(cartellaBundle(), 'preload.cjs').fsPath
 }
 
 /**
@@ -119,12 +134,12 @@ function fuoriDallAsar (cammino: string): string {
  * nel pacchetto, dà «Setting up fake worker failed».
  */
 export function percorsoWorkerPdf (): string {
-  return fuoriDallAsar(Uri.joinPath(radiceApp(), CARTELLA_BUNDLE, 'pdf.worker.mjs').fsPath)
+  return fuoriDallAsar(Uri.joinPath(cartellaBundle(), 'pdf.worker.mjs').fsPath)
 }
 
 /** I caratteri standard del PDF; restano nell'asar perché pdfjs li legge con `fs`. */
 export function percorsoCaratteriPdf (): string {
-  return Uri.joinPath(radiceApp(), CARTELLA_BUNDLE, 'caratteri-pdf').fsPath
+  return Uri.joinPath(cartellaBundle(), 'pdf-fonts').fsPath
 }
 
 /** La riga di comando `cli/registro.mjs`, fuori dall'asar perché la esegue un altro processo. */

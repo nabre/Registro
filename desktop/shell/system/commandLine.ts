@@ -233,6 +233,9 @@ export function registraComandoRiga (): void {
   if (!integrazioneSistemaAbilitata()) return
   // Il portable gira da una cartella temporanea che cambia a ogni avvio (come in `fileAssociation.ts`).
   if (process.env.PORTABLE_EXECUTABLE_FILE) return
+  // `npm run dev` ha una `userData` sua («Regiklass-dev»): la sua `bin` finirebbe
+  // nel PATH per sempre, e su Unix il ponte sostituirebbe quello dell'installato.
+  if (process.env.REGISTRO_SVILUPPO === '1') return
   // Su macOS l'applicazione aperta dal disco montato, o mai spostata in
   // «Applicazioni», gira da un percorso che il sistema smonta o butta via.
   const eseguibile = app.getPath('exe')

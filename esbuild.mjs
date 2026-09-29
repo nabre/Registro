@@ -1,4 +1,4 @@
-// Costruisce l'applicazione Electron. In `dist/`:
+// Costruisce l'applicazione Electron. In `dist/` (`dist-dev/` per `npm run dev`):
 //
 //   main.cjs, preload.cjs              main process e ponte delle pagine
 //   panel.js, projection.js, assistant.js  il registro, lo schermo per la
@@ -16,7 +16,7 @@
 //   node esbuild.mjs --test --copertura  gli stessi, con le mappe per `tools/copertura.mjs`
 //   node esbuild.mjs --ui             i bundle delle prove Python di `tests/ui/`
 //
-// Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazione`.
+// Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazioneIn`.
 
 import { createHash } from 'node:crypto'
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
@@ -86,7 +86,7 @@ function uuidDiElectronBuilder (nome) {
  * I quattordici caratteri standard del PDF, copiati accanto ai bundle: pdfjs li
  * legge da una cartella per misurare le lettere, e nel pacchetto `node_modules` non c'è.
  */
-function copiaCaratteriPdf (dove) {
+export function copiaCaratteriPdf (dove) {
   try {
     mkdirSync(dove, { recursive: true })
     cpSync('resources/pdf-fonts', dove, { recursive: true })
@@ -139,19 +139,20 @@ function filePagine (estensione) {
 }
 
 /**
- * I bundle dell'applicazione. `ricarica` dice a `tools/dev.mjs` che cosa fare
- * quando il bundle cambia: `riavvia` rilancia Electron (main process),
- * `aggiorna` ricarica solo le pagine. Non è una chiave di esbuild.
+ * I bundle dell'applicazione, in `cartella`. `ricarica` dice a `tools/dev.mjs`
+ * che cosa fare quando il bundle cambia: `riavvia` rilancia Electron (main
+ * process), `aggiorna` ricarica solo le pagine. Non è una chiave di esbuild.
  *
- * @type {(import('esbuild').BuildOptions & { ricarica: 'riavvia' | 'aggiorna' })[]}
+ * @param {string} cartella
+ * @returns {(import('esbuild').BuildOptions & { ricarica: 'riavvia' | 'aggiorna' })[]}
  */
-export const applicazione = [
+export const applicazioneIn = (cartella) => [
   // Il main process.
   {
     ...comune,
     ...urlDelModulo,
     entryPoints: ['desktop/shell/main.ts'],
-    outfile: 'dist/main.cjs',
+    outfile: `${cartella}/main.cjs`,
     format: 'cjs',
     platform: 'node',
     target: 'node18',
@@ -165,7 +166,7 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: ['desktop/shell/preload.ts'],
-    outfile: 'dist/preload.cjs',
+    outfile: `${cartella}/preload.cjs`,
     format: 'cjs',
     platform: 'node',
     target: 'node18',
@@ -179,14 +180,14 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: filePagine('html'),
-    outdir: 'dist',
+    outdir: cartella,
     loader: { '.html': 'copy' },
     ricarica: 'aggiorna',
   },
   {
     ...comune,
     entryPoints: filePagine('ts'),
-    outdir: 'dist',
+    outdir: cartella,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -197,7 +198,7 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: ['ui/pannello/main.ts'],
-    outfile: 'dist/panel.js',
+    outfile: `${cartella}/panel.js`,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -209,7 +210,7 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: ['ui/pannello/projection.ts'],
-    outfile: 'dist/projection.js',
+    outfile: `${cartella}/projection.js`,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -221,7 +222,7 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: ['ui/pannello/assistantWindow.ts'],
-    outfile: 'dist/assistant.js',
+    outfile: `${cartella}/assistant.js`,
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
@@ -232,13 +233,16 @@ export const applicazione = [
   {
     ...comune,
     entryPoints: [WORKER_PDFJS],
-    outfile: 'dist/pdf.worker.mjs',
+    outfile: `${cartella}/pdf.worker.mjs`,
     format: 'esm',
     platform: 'node',
     target: 'node18',
     ricarica: 'riavvia',
   },
 ]
+
+/** I bundle di `npm run build` e del pacchetto. */
+export const applicazione = applicazioneIn('dist')
 
 /** `electron` sostituito dal finto, per i bundle che toccano l'ambiente. */
 const CON_FINTO = { electron: './tests/helpers/fake-electron.mjs' }
@@ -428,7 +432,7 @@ function senzaEtichette (configurazioni) {
   return configurazioni.map(({ ricarica: _ricarica, ...resto }) => resto)
 }
 
-// Costruisce solo lanciato da riga di comando; importato da `tools/dev.mjs` espone `applicazione`.
+// Costruisce solo lanciato da riga di comando; importato da `tools/dev.mjs` espone `applicazioneIn`.
 if (process.argv[1]?.endsWith('esbuild.mjs')) {
   verificaIdentita()
   if (!ui) copiaCaratteriPdf(test ? 'dist-tests/pdf-fonts' : 'dist/pdf-fonts')
