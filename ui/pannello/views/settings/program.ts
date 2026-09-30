@@ -19,7 +19,7 @@ import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { gestisci, h, type Figlio } from '../../dom.js'
 import { azione, invia } from '../../bridge.js'
-import type { AreaImpostazioni } from '../../posto.js'
+import type { AreaImpostazioni } from '../../place.js'
 import { stato, vai } from '../../state.js'
 import {
   avanzateDiSezione,

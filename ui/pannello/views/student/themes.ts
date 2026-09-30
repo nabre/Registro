@@ -74,7 +74,7 @@ function temaVoti (allievo: Allievo, momenti: MomentoValutazione[]): Figlio {
                 collegamento({
                   testo: formattaData(momento.data),
                   classe: 'diario__quando',
-                  // Il corso e la classe li porta la prova stessa (`completa` in `posto.ts`).
+                  // Il corso e la classe li porta la prova stessa (`completa` in `place.ts`).
                   al: () => {
                     vai({
                       pagina: 'pagina.corso.valutazioni',

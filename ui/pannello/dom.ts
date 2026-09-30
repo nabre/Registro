@@ -308,7 +308,7 @@ const PREFISSO_ID = 'regi-morfosi:'
 /**
  * La chiave con cui un nodo resta: `data-tieni` (con il tag), telaio,
  * scorrimento, isola, e `data-chiave`: la voce di un elenco disegnato a
- * finestra (`components/virtuale.ts`), che scorrendo cambia posto fra i
+ * finestra (`components/virtualList.ts`), che scorrendo cambia posto fra i
  * fratelli e, presa per posizione, diventerebbe la voce accanto. Per `idiomorph` diventa un `id` di passaggio: due nodi
  * con chiavi diverse non si confondono mai, due con la stessa si ritrovano
  * anche se si sono spostati.

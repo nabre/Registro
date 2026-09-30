@@ -15,7 +15,7 @@ import {
   stato,
   vai,
 } from './state.js'
-import type { Posto } from './posto.js'
+import type { Posto } from './place.js'
 import { testi } from './sidebar.testi.js'
 
 const stretta = window.matchMedia('(max-width: 64em)')

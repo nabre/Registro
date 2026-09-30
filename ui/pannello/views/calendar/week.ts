@@ -14,7 +14,7 @@ import {
 } from '../../../../core/dominio/dates.js'
 import type { Iso, Lezione, Ora } from '../../../../core/dominio/models.js'
 import { h } from '../../dom.js'
-import { alMinuto } from '../../orologio.js'
+import { alMinuto } from '../../clock.js'
 import { finestraSettimana } from '../../calendarNavigation.js'
 import { eventiEsterni } from '../../externalCalendar.js'
 import { aggiorna, compleanniDi, lezioniInAgenda, stato } from '../../state.js'

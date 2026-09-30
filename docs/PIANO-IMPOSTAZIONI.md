@@ -207,7 +207,7 @@ Ogni fase: perimetri di file disgiunti, verifica `npm run ci -- --solo verifica`
 | **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
 | **1 Contratto dei controlli** ✅ | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
 | **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
-| **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`posto.ts` · B: palette · C: stili |
+| **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`place.ts` · B: palette · C: stili |
 | **4 Aree** ✅ | Calendario · Didattica · Utente · Programma | uno per area (file separati per sezione) |
 | **5 Fuori** ✅ (voce nel menu nativo: cantiere) | «Informazioni documento», Materie in Corsi, anni in File, nativa come scialuppa | A: File/menu · B: Corsi · C: nativa |
 | **6 Guida e documenti** ✅ | `help/settings*`, CATALOGO, skill `impostazione` (superata: sezioni, nativa, `pagina`) | uno |

@@ -43,7 +43,7 @@ const pluginFinti = {
   setup (b) {
     b.onResolve({ filter: /\.js$/ }, (args) => {
       const da = args.importer.replaceAll('\\', '/')
-      if (!da.endsWith('ui/pannello/externalCalendar.ts') && !da.endsWith('ui/pannello/risorse.ts')) return undefined
+      if (!da.endsWith('ui/pannello/externalCalendar.ts') && !da.endsWith('ui/pannello/asyncResources.ts')) return undefined
       const chiave = Object.keys(FINTI).find((k) => args.path.endsWith(`/${k}`))
       return chiave ? { path: chiave, namespace: 'finto' } : undefined
     })

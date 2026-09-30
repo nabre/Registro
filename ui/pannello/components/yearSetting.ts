@@ -10,7 +10,7 @@ import { campo, type SpecCampo, type ValoreCampo } from '../../../core/controlli
 import type { Esito } from '../../../core/controlli/control.js'
 import { gestisci, h, type Figlio } from '../dom.js'
 import { suggerimento } from './hint.js'
-import { testi } from './voceAnno.testi.js'
+import { testi } from './yearSetting.testi.js'
 
 /** Il controllo di un campo dell'anno, disegnato come quelli del programma. */
 export function campoAnno (

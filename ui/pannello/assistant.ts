@@ -40,7 +40,7 @@ import { menuSotto, type ElementoMenu } from './components/menu.js'
 import { icona } from './components/icons.js'
 import { h, type Figlio } from './dom.js'
 import { ascolta, azione } from './bridge.js'
-import { isola, isolaPresente, ridisegnaIsola } from './isole.js'
+import { isola, isolaPresente, ridisegnaIsola } from './islands.js'
 import { veduta } from './viewpoint.js'
 import { aggiorna, ridisegna, stato, vai } from './state.js'
 

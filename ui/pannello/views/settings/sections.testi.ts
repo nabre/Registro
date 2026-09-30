@@ -7,7 +7,7 @@
 
 import { catalogo } from '../../../../core/i18n/index.js'
 import type { SezioneDiProgramma } from '../../../../core/controlli/areas.js'
-import type { SezioneImpostazioni } from '../../posto.js'
+import type { SezioneImpostazioni } from '../../place.js'
 
 /**
  * Una sezione: il nome, il riassunto sotto il titolo, e le parole in più che

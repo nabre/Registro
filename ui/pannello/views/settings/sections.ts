@@ -3,7 +3,7 @@
 // in nessuna sezione non comparirebbe da nessuna parte. Per questo una sezione
 // *raccoglie* quel che nessun'altra nomina.
 //
-// Quali sezioni stanno in quale area lo dice `posto.ts` (`SEZIONI_DELLE_AREE`),
+// Quali sezioni stanno in quale area lo dice `place.ts` (`SEZIONI_DELLE_AREE`),
 // che ne fa gli indirizzi; qui si attaccano nomi, ambiti e chiavi.
 
 import { Maiuscola } from '../../../../core/dominio/lexicon.js'
@@ -29,7 +29,7 @@ import {
   type AreaImpostazioni,
   type Scheda,
   type SezioneImpostazioni,
-} from '../../posto.js'
+} from '../../place.js'
 import { testi } from './sections.testi.js'
 
 export { sottoPrefisso }

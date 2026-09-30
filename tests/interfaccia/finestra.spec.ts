@@ -1,4 +1,4 @@
-// Le tabelle lunghe a finestra (`components/virtuale.ts`, ADR-50 passo 5): si
+// Le tabelle lunghe a finestra (`components/virtualList.ts`, ADR-50 passo 5): si
 // disegna quel che si vede, e il resto deve restare raggiungibile.
 //
 // Qui si prova, con i dati grandi di `prova.datiGrandi`, che:

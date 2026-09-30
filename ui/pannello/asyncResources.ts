@@ -4,12 +4,12 @@
 // la lettura parte subito dopo, in un microtask: `h()` non fa mai partire
 // niente, e cento ridisegni della stessa pagina chiedono una volta sola. A
 // lettura finita si ridisegna (`ridisegna` di `state.ts`), o solo le isole
-// che la mostrano (`isole.ts`), se chi legge le ha dichiarate.
+// che la mostrano (`islands.ts`), se chi legge le ha dichiarate.
 //
 // Per chi deve far partire una lettura all'ingresso in una pagina, prima del
 // disegno, c'è `avvia`, da un iscritto allo stato (`iscriviti`).
 
-import { isolaPresente, ridisegnaIsola } from './isole.js'
+import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { ridisegna } from './state.js'
 
 export type Voce<T> =

@@ -18,7 +18,7 @@ import { pastiglia, pulsante, quieto, statoVuoto, testataVista } from '../compon
 import { statoVuotoAnno } from '../components/filters.js'
 import { icona } from '../components/icons.js'
 import { avatar } from '../components/avatar.js'
-import { finestra, isolaVirtuale, rifaiElenco, stileVuoto } from '../components/virtuale.js'
+import { finestra, isolaVirtuale, rifaiElenco, stileVuoto } from '../components/virtualList.js'
 import { h, type Figlio } from '../dom.js'
 import { moduloAllievo, moduloAnno } from '../forms.js'
 import { annoCorrente, classiVisibili, ricorda, stato, vai } from '../state.js'
@@ -112,7 +112,7 @@ function vocePersona (voce: Voce, scelta: boolean): HTMLElement {
         ],
         type: 'button',
         // Il fuoco torna qui dopo un ridisegno: scorrendo con Tab la finestra
-        // rifà l'elenco sotto il cursore (`components/virtuale.ts`).
+        // rifà l'elenco sotto il cursore (`components/virtualList.ts`).
         // testo-fisso: chiave del fuoco, non si legge
         dataset: { fuoco: `persona-${allievo.id}` },
         // La pagina resta Persone: la scheda accanto è quella dell'allievo del contesto.
@@ -131,7 +131,7 @@ function vocePersona (voce: Voce, scelta: boolean): HTMLElement {
   )
 }
 
-/** La chiave della finestra sull'elenco (`components/virtuale.ts`). */
+/** La chiave della finestra sull'elenco (`components/virtualList.ts`). */
 // testo-fisso: chiave della finestra, non si legge
 const ELENCO = 'persone'
 
@@ -182,7 +182,7 @@ function testataDiClasse (fila: Voce[], aperta: boolean, dataset?: Record<string
 
 /**
  * I nomi raggruppati per classe: l'ordine con cui si legge un registro. Con
- * molte persone si disegnano solo quelle in vista (`components/virtuale.ts`):
+ * molte persone si disegnano solo quelle in vista (`components/virtualList.ts`):
  * la testata della classe della prima resta, appiccicata in cima, e al posto
  * delle altre c'è un vuoto della loro misura. La ricerca lavora sui dati
  * (`filtrate`), non su quel che è disegnato.

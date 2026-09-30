@@ -16,7 +16,7 @@ const {
   MASSIMO_DOCUMENTI,
   serializza,
   voceDel,
-} = await importaSorgente('ui/pannello/memoria.ts')
+} = await importaSorgente('ui/pannello/memory.ts')
 
 /** Un `StatoPersistito` come lo scriveva `ricorda()` prima della versione 2. */
 const VECCHIO = {

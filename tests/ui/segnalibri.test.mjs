@@ -1,7 +1,7 @@
 // I punti di lettura delle pagine con un indice (guida, aree delle
 // impostazioni) nella memoria del pannello: tornano come sono stati scritti,
 // e quel che non è un punto buono si scarta invece di far saltare la pagina.
-// La misura e il ritorno sullo schermo stanno in `ui/pannello/segnalibro.ts`
+// La misura e il ritorno sullo schermo stanno in `ui/pannello/bookmark.ts`
 // e si guardano a mano.
 
 import assert from 'node:assert/strict'
@@ -9,7 +9,7 @@ import { describe, it } from 'node:test'
 
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-const { leggiMemoria, serializza } = await importaSorgente('ui/pannello/memoria.ts')
+const { leggiMemoria, serializza } = await importaSorgente('ui/pannello/memory.ts')
 
 const globaliCon = (segnalibri) =>
   leggiMemoria({ v: 2, globali: { segnalibri }, documenti: {} }).globali.segnalibri

@@ -17,7 +17,7 @@ import { gestisci, h } from '../../dom.js'
 import { azione } from '../../bridge.js'
 import { postoCorrente, stato, vai } from '../../state.js'
 import { tabella } from '../../components/table.js'
-import { finestra, stileVuoto, type Finestra } from '../../components/virtuale.js'
+import { finestra, stileVuoto, type Finestra } from '../../components/virtualList.js'
 import { cellaNome } from '../../components/avatar.js'
 import { testi } from './grades.testi.js'
 
@@ -179,7 +179,7 @@ export function grigliaVoti (
   // testo-fisso: chiave della memoria di scorrimento, non si legge
   const chiaveScorrimento = `voti:${stato.corsoId ?? ''}:${stato.semestreId ?? ''}`
   const medieDi = new Map(allievi.map((allievo) => [allievo.id, mediaAllievo(momenti, allievo.id).media]))
-  // Le colonne a finestra (`components/virtuale.ts`): con duecento prove la
+  // Le colonne a finestra (`components/virtualList.ts`): con duecento prove la
   // griglia intera costava secondi a ogni voto scritto.
   const colonneFisse = medie ? 3 : 1
   /** L'ultima finestra disegnata: la tastiera ci porta le colonne non ancora in vista. */

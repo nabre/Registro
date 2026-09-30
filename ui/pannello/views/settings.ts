@@ -3,7 +3,7 @@
 // sinistra che segue lo scorrimento. Livelli: area › sezione › gruppo.
 // Ogni blocco dice dove sta con una pastiglia, «Questo anno» o «Questo
 // computer»: è l'unica cosa che qui si può sbagliare senza accorgersene.
-// Ogni voce ha un indirizzo, `impostazioni/<area>#<voce>` (`posto.ts`): chi ci
+// Ogni voce ha un indirizzo, `impostazioni/<area>#<voce>` (`place.ts`): chi ci
 // arriva — un rimando, il filtro, Ctrl+K — scorre fin lì e la vede accendersi.
 // La finestra nativa resta per quando non c'è un documento aperto.
 
@@ -11,7 +11,7 @@ import { pulsante, scheda, statoVuoto, testataVista } from '../components/base.j
 import { icona } from '../components/icons.js'
 import { andaturaScorrimento, h, type Figlio } from '../dom.js'
 import { testi } from './settings.testi.js'
-import { isola, ridisegnaIsola } from '../isole.js'
+import { isola, ridisegnaIsola } from '../islands.js'
 import {
   areaDellaScheda,
   chiaveDelPosto,
@@ -19,8 +19,8 @@ import {
   type AreaImpostazioni,
   type Scheda,
   type SezioneImpostazioni,
-} from '../posto.js'
-import { riprendi, seguiScorrimento } from '../segnalibro.js'
+} from '../place.js'
+import { riprendi, seguiScorrimento } from '../bookmark.js'
 import { iscriviti, ricorda, ridisegna, stato, vai } from '../state.js'
 import {
   schedaAnnoAperto,

@@ -18,7 +18,7 @@ import {
   scheda,
   statoVuoto,
 } from '../../components/base.js'
-import { notificaAnnullabile } from '../../components/annullabile.js'
+import { notificaAnnullabile } from '../../components/undoable.js'
 import { COME_SI_PARTE, eseguiOAvvisa } from '../../components/filters.js'
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'

@@ -3,7 +3,7 @@
 // `commands.ts` (che cosa si può fare) senza legarsi l'uno all'altro.
 
 import type { Classe, Corso, Lezione } from '../../core/dominio/models.js'
-import type { Posto } from './posto.js'
+import type { Posto } from './place.js'
 import {
   annoCorrente,
   classePerId,

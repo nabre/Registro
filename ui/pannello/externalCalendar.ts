@@ -30,7 +30,7 @@ import { oggi } from '../../core/dominio/dates.js'
 import type { Iso, Registro } from '../../core/dominio/models.js'
 import { azione, chiedi, invia } from './bridge.js'
 import { notifica } from './components/notifications.js'
-import { risorse } from './risorse.js'
+import { risorse } from './asyncResources.js'
 import { aggiorna, annoCorrente, iscriviti, stato } from './state.js'
 import { testi } from './externalCalendar.testi.js'
 
@@ -48,7 +48,7 @@ interface Letti {
 }
 
 /**
- * Le letture per chiave (`risorse.ts`): vuoto, in volo, pronto, errore. Il
+ * Le letture per chiave (`asyncResources.ts`): vuoto, in volo, pronto, errore. Il
  * disegno legge soltanto (ADR-06: il pannello disegna senza chiedere
  * all'host); una chiave mai letta parte al più in un microtask dopo. Di solito
  * la fa partire prima l'iscritto allo stato, all'ingresso nella vista.

@@ -8,7 +8,7 @@ import { pastiglia, pulsante, quantoMisura } from '../../components/base.js'
 import { corniceDocumento } from '../../components/frame.js'
 import { h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
-import { isola } from '../../isole.js'
+import { isola } from '../../islands.js'
 import { aggiorna, stato, uriDato } from '../../state.js'
 
 import { scorri } from '../archive.js'

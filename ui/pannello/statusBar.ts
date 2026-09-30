@@ -12,7 +12,7 @@ import { tendinaAperta } from './components/menu.js'
 import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'
 import { h, type Figlio } from './dom.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
-import { isola } from './isole.js'
+import { isola } from './islands.js'
 import { apriLezione } from './pages.js'
 import {
   annoCorrente,

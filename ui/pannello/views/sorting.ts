@@ -13,7 +13,7 @@ import { eseguiOAvvisa } from '../components/filters.js'
 import { conferma } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
 import { gestisci, h, type Figlio } from '../dom.js'
-import { isola } from '../isole.js'
+import { isola } from '../islands.js'
 import { classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
 
 import { guardaNellArchivio } from './archive.js'

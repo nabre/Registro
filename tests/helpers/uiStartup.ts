@@ -8,7 +8,7 @@ import {
   stato, aggiorna, ridisegna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai,
   postoCorrente,
 } from '../../ui/pannello/state.js'
-import { postoDaVista } from '../../ui/pannello/posto.js'
+import { postoDaVista } from '../../ui/pannello/place.js'
 import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '../../ui/pannello/pages.js'
 import { scegliCorso } from '../../ui/pannello/context.js'
 import { COMANDI_UI } from '../../ui/pannello/commands.js'

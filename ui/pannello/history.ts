@@ -4,7 +4,7 @@
 // di lì.
 
 import { ricordaScorrimenti } from './dom.js'
-import { chiaveDelPosto, completa, type Completato, type Posto } from './posto.js'
+import { chiaveDelPosto, completa, type Completato, type Posto } from './place.js'
 import {
   aggiorna,
   inBlocco,

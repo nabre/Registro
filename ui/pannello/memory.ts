@@ -20,7 +20,7 @@ import {
   type Posto,
   type SezioneImpostazioni,
   type TipoSoggetto,
-} from './posto.js'
+} from './place.js'
 
 const TIPI_SOGGETTO: readonly TipoSoggetto[] = [
   'corso',
@@ -60,7 +60,7 @@ export interface Globali {
   sezioneImpostazioni: SezioneImpostazioni
   /**
    * Dove si era arrivati a leggere nelle pagine con un indice, per pagina
-   * (`guida`, `impostazioni.<area>`): vedi `segnalibro.ts`.
+   * (`guida`, `impostazioni.<area>`): vedi `bookmark.ts`.
    */
   segnalibri: Record<string, Segnalibro>
 }
@@ -253,7 +253,7 @@ function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
 
 /**
  * Il posto ricordato, se la sua pagina esiste ancora. Pagina e scheda si
- * convalidano qui con le regole di `posto.ts`; che il soggetto ci sia ancora
+ * convalidano qui con le regole di `place.ts`; che il soggetto ci sia ancora
  * nel documento lo decide `completa`, che ha il registro.
  */
 function postoDa (grezzo: unknown): Posto | null {

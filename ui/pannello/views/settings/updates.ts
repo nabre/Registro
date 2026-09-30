@@ -12,7 +12,7 @@ import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { h, type Figlio } from '../../dom.js'
 import { ascolta, azione, chiedi } from '../../bridge.js'
-import { isola, isolaPresente, ridisegnaIsola } from '../../isole.js'
+import { isola, isolaPresente, ridisegnaIsola } from '../../islands.js'
 import { ridisegna, stato } from '../../state.js'
 import { testi } from './updates.testi.js'
 

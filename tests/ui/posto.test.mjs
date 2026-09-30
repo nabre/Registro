@@ -1,4 +1,4 @@
-// Il posto unico (`ui/pannello/posto.ts`): dove si guarda è un valore solo, e
+// Il posto unico (`ui/pannello/place.ts`): dove si guarda è un valore solo, e
 // le regole che oggi stanno sparse (corso aperto, classe del fascicolo, classe
 // della pagina Classi, classe dell'allievo, riconvalida dei ricordati, contesto
 // dell'elemento) valgono qui in un posto solo, senza stato né DOM.
@@ -22,7 +22,7 @@ const {
   derivaVista,
   postoDaVecchi,
   postoDaVista,
-} = await importaSorgente('ui/pannello/posto.ts')
+} = await importaSorgente('ui/pannello/place.ts')
 
 const OGGI = '2026-11-10'
 

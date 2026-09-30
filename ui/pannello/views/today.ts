@@ -31,10 +31,10 @@ import { statoVuotoAnno } from '../components/filters.js'
 import { icona, type NomeIcona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
 import { moduloAnno } from '../forms.js'
-import { isola, isolaPresente, ridisegnaIsola } from '../isole.js'
-import { alMinuto } from '../orologio.js'
+import { isola, isolaPresente, ridisegnaIsola } from '../islands.js'
+import { alMinuto } from '../clock.js'
 import { apriLezione, PAGINE, vaiA } from '../pages.js'
-import type { PaginaId } from '../posto.js'
+import type { PaginaId } from '../place.js'
 import { testi as testiPagine } from '../pages.testi.js'
 import {
   annoCorrente,
@@ -501,7 +501,7 @@ function schedaCompleanni (): HTMLElement | null {
 
 // Il minuto che passa cambia le fasi delle ore di oggi («in corso», «prossima»)
 // e la nota della tessera che le conta: si rifanno solo quei due riquadri, non
-// la pagina (`orologio.ts`). Le chiavi dicono che cosa segna l'ora.
+// la pagina (`clock.ts`). Le chiavi dicono che cosa segna l'ora.
 // testo-fisso: chiave di un'isola, non si legge
 const ISOLA_TESSERE = 'oggi-adesso:tessere'
 // testo-fisso: chiave di un'isola, non si legge

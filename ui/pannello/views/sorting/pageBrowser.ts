@@ -6,7 +6,7 @@
 // Le pagine scelte stanno nello stato e non nel DOM perché la vista si
 // ridisegna a ogni battito. Le miniature le fa `components/thumbnails.ts`.
 //
-// Lo sfoglio è un'isola (`isole.ts`): scegliere una pagina, cambiare lo zoom o
+// Lo sfoglio è un'isola (`islands.ts`): scegliere una pagina, cambiare lo zoom o
 // una pagina letta dalla coda rifanno lui solo. I riquadri sono telaio
 // (`data-telaio`): restano gli stessi elementi fra un disegno e l'altro,
 // perché Chromium annulla il trascinamento di un elemento tolto dal documento;
@@ -36,7 +36,7 @@ import {
 import { notifica } from '../../components/notifications.js'
 import { gestisci, h, type Figlio } from '../../dom.js'
 import { azione } from '../../bridge.js'
-import { isola, ridisegnaIsola } from '../../isole.js'
+import { isola, ridisegnaIsola } from '../../islands.js'
 import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, ricorda, stato, uriDato } from '../../state.js'
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { Uno } from '../../../../core/dominio/lexicon.js'

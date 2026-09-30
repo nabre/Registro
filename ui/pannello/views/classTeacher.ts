@@ -44,7 +44,7 @@ import { menuContestuale } from '../components/menu.js'
 import { conferma } from '../components/modal.js'
 import { h } from '../dom.js'
 import { tabella } from '../components/table.js'
-import { finestra, stileVuoto, type Finestra } from '../components/virtuale.js'
+import { finestra, stileVuoto, type Finestra } from '../components/virtualList.js'
 import { cellaNome } from '../components/avatar.js'
 import { moduloComunicazione, moduloConsegna, moduloRecapito } from '../forms.js'
 import { azione } from '../bridge.js'
@@ -397,7 +397,7 @@ function rigaFirme (colonne: Colonne) {
 
 /**
  * Le colonne delle richieste in una riga della matrice, a finestra
- * (`components/virtuale.ts`): le celle di quelle in vista, un vuoto al posto
+ * (`components/virtualList.ts`): le celle di quelle in vista, un vuoto al posto
  * delle altre, e gli indici di colonna per chi legge con la voce.
  */
 interface Colonne {

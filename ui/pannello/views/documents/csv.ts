@@ -2,12 +2,12 @@
 // saprebbe mostrare, quindi si legge e si disegna. Il testo arriva dallo stesso
 // indirizzo `registro://` dei PDF, e le celle le ricava `leggiCsv`, la stessa
 // grammatica di chi l'ha scritto. Si legge una volta per versione del file,
-// non a ogni ridisegno, e mai dentro il disegno (`risorse.ts`).
+// non a ogni ridisegno, e mai dentro il disegno (`asyncResources.ts`).
 
 import { leggiCsv } from '../../../../core/dominio/csv.js'
 import { tabella } from '../../components/table.js'
 import { h, type Figlio } from '../../dom.js'
-import { risorse } from '../../risorse.js'
+import { risorse } from '../../asyncResources.js'
 import { quieto } from '../../components/base.js'
 import { testi } from './csv.testi.js'
 

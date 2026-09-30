@@ -25,7 +25,7 @@ import {
 } from '@tanstack/virtual-core'
 
 import type { Attributi, Figlio } from '../dom.js'
-import { isola, ridisegnaIsola, rifaiIsolaAdesso } from '../isole.js'
+import { isola, ridisegnaIsola, rifaiIsolaAdesso } from '../islands.js'
 
 /**
  * Da quante voci in su si disegna solo la finestra, se l'elenco non dice

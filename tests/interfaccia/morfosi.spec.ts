@@ -28,7 +28,7 @@ test.beforeAll(async () => {
     stdin: {
       contents: [
         "import * as dom from './ui/pannello/dom.ts'",
-        "import { isola, ridisegnaIsola } from './ui/pannello/isole.ts'",
+        "import { isola, ridisegnaIsola } from './ui/pannello/islands.ts'",
         ';(window as any).dom = { ...dom, isola, ridisegnaIsola }',
       ].join('\n'),
       resolveDir: RADICE,
@@ -43,7 +43,7 @@ test.beforeAll(async () => {
   codice = uscita.outputFiles[0].text
 })
 
-/** Le funzioni di `dom.ts` e `isole.ts` che le prove chiamano nella pagina. */
+/** Le funzioni di `dom.ts` e `islands.ts` che le prove chiamano nella pagina. */
 interface Dom {
   h: (tag: string, attributi?: Record<string, unknown> | null, ...figli: unknown[]) => HTMLElement
   aggiornaElemento: (contenitore: HTMLElement, nuovo: unknown) => void

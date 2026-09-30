@@ -10,7 +10,7 @@
 // Qui la misura e il ritorno; dove ricordarlo lo decide `state.ts`, e le
 // pagine chiamano `seguiScorrimento` e `riprendi`.
 
-import type { Segnalibro } from './memoria.js'
+import type { Segnalibro } from './memory.js'
 import { ricorda, stato } from './state.js'
 
 /** La scatola che scorre, la stessa per tutte le viste. */

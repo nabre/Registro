@@ -2,7 +2,7 @@
 // piede), scritto una volta: chi costruisce una tabella scrive solo le celle.
 
 import { h, type Figlio } from '../dom.js'
-import { isolaVirtuale } from './virtuale.js'
+import { isolaVirtuale } from './virtualList.js'
 
 /** Quel che sta dentro la tabella: le celle e gli attributi suoi. */
 interface Parti {
@@ -52,7 +52,7 @@ interface Telaio {
 
 /**
  * Le parti già fatte, o chieste a ogni disegno quando la tabella è a finestra
- * (`components/virtuale.ts`): allora la tabella sta in un'isola, e lo
+ * (`components/virtualList.ts`): allora la tabella sta in un'isola, e lo
  * scorrimento rifà lei sola, con le parti di quel momento.
  */
 type OpzioniTabella = Telaio & (Parti | { virtuale: { chiave: string, parti: () => Parti } })

@@ -106,13 +106,13 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
   - `ui/pannello/components/` (`components/`): componenti grafici riutilizzabili (pulsanti, schede, modali, tabelle).
   - `ui/pannello/bridge.ts` (`bridge.ts`): il ponte di comunicazione che invia le richieste IPC al main process e gestisce lo stato di ritorno.
   - `ui/pannello/dom.ts` (`dom.ts`): motore di rendering DOM con funzione `h()` e ripristino chirurgico di cursore, fuoco e scorrimento.
-  - **Dove si è (ADR-47):** un `Posto` (`posto.ts`); si naviga solo con `vai(posto)`, `vaiA(pagina)` o `apriLezione(id)`, mai con `aggiorna({vista…})`. Il posto si ricorda per documento (`memoria.ts`).
+  - **Dove si è (ADR-47):** un `Posto` (`place.ts`); si naviga solo con `vai(posto)`, `vaiA(pagina)` o `apriLezione(id)`, mai con `aggiorna({vista…})`. Il posto si ricorda per documento (`memory.ts`).
   - **Ogni aggiornamento resta nel suo riquadro (ADR-48).** Scrivendo una vista:
-    - una lettura asincrona (anteprima, PDF, CSV, miniature, avanzamento) va in un'`isola` (`isole.ts`) e si legge con `risorse.leggi(…, { isola })`: all'arrivo si rifà solo quella;
+    - una lettura asincrona (anteprima, PDF, CSV, miniature, avanzamento) va in un'`isola` (`islands.ts`) e si legge con `risorse.leggi(…, { isola })`: all'arrivo si rifà solo quella;
     - un nodo pesante (`iframe`, visore, `canvas`, mappa, immagine grande) porta `data-tieni="<sorgente>"`;
     - un contenitore che scorre porta `data-scorrimento` e, se la catena dalla radice lo permette, `data-telaio`;
     - niente `chiedi`/`invia`/`aggiorna`/`scrollIntoView` dentro `h()`: si fanno in un gesto o in un iscritto;
-    - ciò che segna l'ora si muove con `alMinuto` (`orologio.ts`), non ridisegnando.
+    - ciò che segna l'ora si muove con `alMinuto` (`clock.ts`), non ridisegnando.
 - **Isolamento stringente**: gira dentro una sandbox Chromium con CSP `default-src 'none'`. Non ha accesso a Node (`node:*`) né a moduli Electron. Non può importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`. Comunica con il sistema esclusivamente tramite messaggi IPC scambiati sul ponte `ui/pannello/bridge.ts`.
 
 ### `cli/`: La linea di comando

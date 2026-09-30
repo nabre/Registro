@@ -1,5 +1,5 @@
-// I testi delle righe delle impostazioni dell'anno (`voceAnno.ts`) e della
-// notifica con «Annulla» (`annullabile.ts`; il nome del pulsante è quello del
+// I testi delle righe delle impostazioni dell'anno (`yearSetting.ts`) e della
+// notifica con «Annulla» (`undoable.ts`; il nome del pulsante è quello del
 // comando che disfa l'ultimo gesto, `commands.testi.ts`).
 
 import { catalogo } from '../../../core/i18n/index.js'

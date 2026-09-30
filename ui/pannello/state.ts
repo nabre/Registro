@@ -2,7 +2,7 @@
 // dei dati dell'host e da qui non si modifica mai (si manda un'azione e si
 // aspetta la copia nuova); il resto — posto, giorno, selezioni, filtri — è
 // stato locale, e la parte da ritrovare riaprendo il pannello si ricorda
-// (`memoria.ts`): le preferenze di forma per tutti, il posto per documento.
+// (`memory.ts`): le preferenze di forma per tutti, il posto per documento.
 
 import {
   daRicordare,
@@ -74,7 +74,7 @@ import {
 } from '../../core/dominio/projection.js'
 import type { Vista } from '../../contract/protocollo.js'
 import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
-import { battiMinuto } from './orologio.js'
+import { battiMinuto } from './clock.js'
 import {
   CAMPI_CONTESTO,
   areaDellaSezione,
@@ -89,7 +89,7 @@ import {
   type AreaImpostazioni,
   type Scheda,
   type SezioneImpostazioni,
-} from './posto.js'
+} from './place.js'
 import {
   chiaveDocumento,
   conVoce,
@@ -106,7 +106,7 @@ import {
   type Memoria,
   type Segnalibro,
   type VoceDocumento,
-} from './memoria.js'
+} from './memory.js'
 import { confrontaNomi } from '../../core/dominio/text.js'
 import { testi as testiCalcoli } from '../../core/dominio/calculations.testi.js'
 import { testi } from './state.testi.js'
@@ -114,14 +114,14 @@ import { testi } from './state.testi.js'
 /** L'elenco delle sezioni sta nel protocollo: lo legge anche l'host. */
 export type { Vista } from '../../contract/protocollo.js'
 
-// Aree e sezioni delle impostazioni stanno col posto (`posto.ts`), di cui fanno parte.
-export type { AreaImpostazioni, SezioneImpostazioni } from './posto.js'
+// Aree e sezioni delle impostazioni stanno col posto (`place.ts`), di cui fanno parte.
+export type { AreaImpostazioni, SezioneImpostazioni } from './place.js'
 
 /**
- * La regola del giorno dentro l'anno sta in `posto.ts`, che la usa per l'ora
+ * La regola del giorno dentro l'anno sta in `place.ts`, che la usa per l'ora
  * aperta; qui la si ripete col nome che le prove del calendario conoscono.
  */
-export { giornoNellAnno as giornoDentroLAnno } from './posto.js'
+export { giornoNellAnno as giornoDentroLAnno } from './place.js'
 
 /** Come si guarda il calendario: la settimana, il mese, l'anno o l'agenda. */
 export type ModoCalendario = (typeof MODI_CALENDARIO)[number]
@@ -257,12 +257,12 @@ interface StatoUI {
    */
   rete: boolean;
   /**
-   * Dove si guarda: la pagina, il suo soggetto, la scheda (`posto.ts`). Lo
+   * Dove si guarda: la pagina, il suo soggetto, la scheda (`place.ts`). Lo
    * scrive solo `vai`; `vista`, ambiti e schede che fanno pagina ne sono la
    * traduzione per le viste, e gli id qui sotto il contesto.
    */
   posto: Posto;
-  /** L'ultimo scelto per ogni tipo: resta cambiando pagina (`Contesto` in `posto.ts`). */
+  /** L'ultimo scelto per ogni tipo: resta cambiando pagina (`Contesto` in `place.ts`). */
   contesto: Contesto;
   vista: Vista;
   /**
@@ -299,7 +299,7 @@ interface StatoUI {
   sezioneImpostazioni: SezioneImpostazioni;
   /**
    * Dove si era arrivati a leggere nelle pagine con un indice. Lo segue lo
-   * scorrimento, senza ridisegnare: vedi `segnalibro.ts`.
+   * scorrimento, senza ridisegnare: vedi `bookmark.ts`.
    */
   segnalibri: Record<string, Segnalibro>;
   /**
@@ -427,7 +427,7 @@ const CONTESTO_VUOTO: Contesto = {
 }
 
 /**
- * Quel che si ricorda (`memoria.ts`), letto una volta dal ponte. Un JSON di
+ * Quel che si ricorda (`memory.ts`), letto una volta dal ponte. Un JSON di
  * una versione precedente si migra qui: il posto lo ricava `postoDaVecchi`, e
  * la sua voce aspetta il primo documento che si apre.
  */
@@ -1379,7 +1379,7 @@ export function avviaRete (): () => void {
 /**
  * Fa battere l'orologio dello stato ogni quindici secondi, e subito quando il
  * pannello torna in primo piano. Si ridisegna solo quando cambia il giorno; il
- * minuto nuovo lo sente chi segna l'ora (`alMinuto` in `orologio.ts`). Il
+ * minuto nuovo lo sente chi segna l'ora (`alMinuto` in `clock.ts`). Il
  * battito più fitto evita che il minuto nuovo si veda in ritardo.
  */
 export function avviaOrologio (): () => void {
@@ -1389,7 +1389,7 @@ export function avviaOrologio (): () => void {
     if (data === stato.adessoData && ora === stato.adessoOra) return
     if (data === stato.adessoData) {
       // Solo il minuto: niente ridisegno, si sposta da sé chi segna l'ora
-      // (`orologio.ts`). Diretto e non da `aggiorna`: le memorie derivate con
+      // (`clock.ts`). Diretto e non da `aggiorna`: le memorie derivate con
       // `adessoOra` nella chiave si ricalcolano al prossimo ridisegno naturale.
       stato.adessoOra = ora
       battiMinuto(ora)

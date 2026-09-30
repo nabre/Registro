@@ -11,7 +11,7 @@
 import { h } from '../dom.js'
 import { notifica } from './notifications.js'
 import { testi as testiComandi } from '../commands.testi.js'
-import { testi } from './voceAnno.testi.js'
+import { testi } from './yearSetting.testi.js'
 
 /** Quanto resta la notifica: il tempo di accorgersi dello sbaglio. */
 const DURATA = 8000

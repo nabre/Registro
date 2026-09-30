@@ -56,7 +56,7 @@ describe('aggiorna confronta prima di avvisare', () => {
 })
 
 // L'orologio: il minuto nuovo non ridisegna, lo sente solo chi segna l'ora
-// (`alMinuto` in `orologio.ts`); il giorno nuovo sì. Stato e orologio nello
+// (`alMinuto` in `clock.ts`); il giorno nuovo sì. Stato e orologio nello
 // stesso pacchetto, perché gli iscritti di `alMinuto` sono quelli che `batti` chiama.
 describe('il battito dell’orologio', async () => {
   const { build } = await import('esbuild')
@@ -66,7 +66,7 @@ describe('il battito dell’orologio', async () => {
   const pacchetto = await build({
     inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
     stdin: {
-      contents: "export * from './state.ts'\nexport { alMinuto } from './orologio.ts'",
+      contents: "export * from './state.ts'\nexport { alMinuto } from './clock.ts'",
       resolveDir: cartella,
       loader: 'ts',
     },

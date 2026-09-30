@@ -118,7 +118,7 @@ scorre per sezioni. Calendario e Didattica sono tutte dell'anno (campi del
 sezioni del Programma. Elenco e nomi in `core/controlli/areas.ts` e
 `areas.testi.ts`, uguali per le due superfici; le sezioni dell'anno e le parole
 di ricerca le aggiunge il pannello (`ui/pannello/views/settings/sections.ts`,
-`sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/pannello/posto.ts`).
+`sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/pannello/place.ts`).
 
 `DIVISIONI` dà a ogni sezione con chiavi i suoi `prefissi`; `divisioneDi`
 sceglie il prefisso **più lungo** (così `avvio.integrazioneSistema` va nelle
@@ -137,7 +137,7 @@ solo le voci degli elenchi. Non c'è più «Ritira» né un pannello «Dettagli�
 Una chiave con prefisso nuovo: o le si dà una divisione, o va nel raccoglitore.
 Va bene tutte e due, ma va **deciso**, non subìto. Spostare una sezione cambia
 gli indirizzi (`area#sezione`): quelli di prima si riportano in
-`SCHEDE_DI_PRIMA` di `posto.ts`.
+`SCHEDE_DI_PRIMA` di `place.ts`.
 
 ## Le due superfici
 

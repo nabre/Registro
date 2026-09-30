@@ -682,7 +682,7 @@ riscarica i calendari ICS che il docente ha collegato con un indirizzo
 ### ADR-47 — Un posto solo per sapere dove si è, ricordato per documento
 
 **Decisione.** Dove si guarda è un valore solo, `Posto = { pagina, soggetto?, scheda? }`
-(`ui/pannello/posto.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
+(`ui/pannello/place.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
 `pagina.classe.pendenze`, senza voce nella barra), `soggetto` l'elemento aperto (corso,
 classe, lezione, allievo, piano, valutazione), `scheda` la sezione delle impostazioni.
 Ci si sposta solo con `vai(posto)` (`state.ts`); un solo risolutore puro, `completa`,
@@ -690,7 +690,7 @@ ricava corso, classe, filtro, giorno e semestre dal soggetto e ripiega in modo
 deterministico quando il soggetto non c'è più. `stato.vista` e gli id di selezione sono
 derivati, scritti solo da `vai`. Una sola chiave, `chiaveDelPosto`, per storia,
 scorrimento ed entrata. Il posto e le scelte che contengono id (giorno, semestre,
-filtri) si ricordano **per documento** (`ui/pannello/memoria.ts`), sotto il percorso
+filtri) si ricordano **per documento** (`ui/pannello/memory.ts`), sotto il percorso
 normalizzato del `.regi`, al più venti documenti; le preferenze dell'interfaccia
 restano globali. La navigazione dell'host (`naviga`, `vista.apri`) passa dalla stessa
 tabella (`postoDaVista`) e dallo stesso `completa`.
@@ -707,7 +707,7 @@ alias (`modelli`, `modelliLinguistici`) si risolvono solo nella tabella. Gli id 
 ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira` e
 `assistente.contesto`, in un passaggio solo. Il JSON vecchio si migra, non si rifiuta.
 
-**Dove.** `ui/pannello/posto.ts`, `ui/pannello/memoria.ts`, `ui/pannello/state.ts`,
+**Dove.** `ui/pannello/place.ts`, `ui/pannello/memory.ts`, `ui/pannello/state.ts`,
 `ui/pannello/history.ts`, `ui/pannello/pages.ts`, `ui/pannello/main.ts`.
 
 ### ADR-48 — Ogni aggiornamento resta nel suo riquadro (modificata da ADR-50)
@@ -717,10 +717,10 @@ telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, conte
 radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
 lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
 un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
-`ui/pannello/isole.ts`, `leggi(…, { isola })` in `risorse.ts`). I nodi pesanti
+`ui/pannello/islands.ts`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
 (`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) portano
 `data-tieni="<sorgente>"` e non si ricreano finché la sorgente non cambia. L'orologio
-muove solo ciò che segna l'ora (`orologio.ts`, `alMinuto`). Nessun ridisegno e
+muove solo ciò che segna l'ora (`clock.ts`, `alMinuto`). Nessun ridisegno e
 nessuna richiesta all'host partono dal disegno.
 
 **Perché.** Rifare tutta la pagina per una lettura arrivata, un avanzamento o il
@@ -736,8 +736,8 @@ disegno: non ne dipenda dallo stato. Un nodo tenuto si sposta solo con `moveBefo
 documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgente:
 cambia se cambia ciò che il nodo mostra.
 
-**Dove.** `ui/pannello/dom.ts`, `ui/pannello/isole.ts`, `ui/pannello/risorse.ts`,
-`ui/pannello/orologio.ts`, `ui/pannello/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
+**Dove.** `ui/pannello/dom.ts`, `ui/pannello/islands.ts`, `ui/pannello/asyncResources.ts`,
+`ui/pannello/clock.ts`, `ui/pannello/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
 
 ### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
 
@@ -856,7 +856,7 @@ Come sono entrate:
   `tests/interfaccia/*.spec.ts`, più `electron.spec.ts` con `_electron.launch`.
   La CI non usa più Python.
 - **@tanstack/virtual-core** (passo 5): solo in
-  `ui/pannello/components/virtuale.ts`, dietro `isola`/`aggiornaElemento`.
+  `ui/pannello/components/virtualList.ts`, dietro `isola`/`aggiornaElemento`.
   Entrata dove `tests/interfaccia/misure.spec.ts` misurava secondi: colonne dei
   voti e dell'archivio (da 20), elenco delle persone (da 60). Si finestrano solo
   le colonne: le righe le limita la classe. Solo l'elemento col fuoco porta

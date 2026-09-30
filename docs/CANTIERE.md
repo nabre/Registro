@@ -65,7 +65,7 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 - [ ] ICS: «Sfoglia…» per l'origine file. Chiede `calendario.modifica` con
       origine vuota che apre il dialogo: cambio di procedura (contract/,
       `resources/tools.json`).
-- [ ] `ui/pannello/components/notifications.ts` senza azioni: `annullabile.ts` copia il
+- [ ] `ui/pannello/components/notifications.ts` senza azioni: `undoable.ts` copia il
       nodo. Meglio un parametro `azione` nelle notifiche.
 
 

@@ -22,7 +22,7 @@ import {
   stato,
   vai,
 } from './state.js'
-import type { PaginaId } from './posto.js'
+import type { PaginaId } from './place.js'
 import { testi } from './pages.testi.js'
 
 // Nomi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).

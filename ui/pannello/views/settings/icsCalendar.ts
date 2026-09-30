@@ -18,7 +18,7 @@ import type {
 } from '../../../../core/dominio/models.js'
 import { nomeDaOrigine } from '../../../../core/dominio/normalization.js'
 import { campo, pastiglia, pulsante, scheda, statoVuoto } from '../../components/base.js'
-import { notificaAnnullabile } from '../../components/annullabile.js'
+import { notificaAnnullabile } from '../../components/undoable.js'
 import { suggerimento } from '../../components/hint.js'
 import { apriModale, conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'

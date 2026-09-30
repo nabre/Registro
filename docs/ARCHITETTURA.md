@@ -237,9 +237,9 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   `data-scorrimento`); modali e palette fuori dal ciclo. `stato.registro` è
   sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
   Dove si guarda è un `Posto` e ci si sposta con `vai` (ADR-47); il posto si
-  ricorda per documento (`memoria.ts`). Ogni aggiornamento resta nel suo
+  ricorda per documento (`memory.ts`). Ogni aggiornamento resta nel suo
   riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture
-  rifanno solo la loro isola (`isole.ts`, `risorse.ts`), i nodi pesanti
+  rifanno solo la loro isola (`islands.ts`, `asyncResources.ts`), i nodi pesanti
   `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
 - **`core/controlli/`** — i controlli delle impostazioni del programma, disegnati
   una volta per il pannello e per la finestra nativa (ADR-52):
@@ -559,5 +559,4 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| 6 | `ui/pannello/styles/impostazioni-anno.css` → ui/pannello/styles/year-settings.css, `ui/pannello/components/annullabile.ts` → ui/pannello/components/undoable.ts, `ui/pannello/components/virtuale.ts` → ui/pannello/components/virtualList.ts, `ui/pannello/components/voceAnno.ts` e `ui/pannello/components/voceAnno.testi.ts` → ui/pannello/components/yearSetting.ts e ui/pannello/components/yearSetting.testi.ts, `ui/pannello/risorse.ts` → ui/pannello/asyncResources.ts, `ui/pannello/segnalibro.ts` → ui/pannello/bookmark.ts, `ui/pannello/orologio.ts` → ui/pannello/clock.ts, `ui/pannello/memoria.ts` → ui/pannello/memory.ts, `ui/pannello/isole.ts` → ui/pannello/islands.ts, `ui/pannello/posto.ts` → ui/pannello/place.ts | ADR-53 |
 | 5 | `contract/protocollo.ts` → contract/protocol.ts | ADR-53 |

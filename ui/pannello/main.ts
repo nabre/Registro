@@ -29,8 +29,8 @@ import type {
   MessaggioStato,
   MessaggioVersoWebview,
 } from '../../contract/protocollo.js'
-import { isolaPresente, ridisegnaIsola } from './isole.js'
-import { chiaveDelPosto, postoDaVista, schedaValida } from './posto.js'
+import { isolaPresente, ridisegnaIsola } from './islands.js'
+import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
 import {
   aggiorna,
   allineaSemestre,

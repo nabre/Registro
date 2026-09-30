@@ -15,7 +15,7 @@ import { corniceDocumento } from '../components/frame.js'
 import { dimentica } from '../components/thumbnails.js'
 import { conferma } from '../components/modal.js'
 import { h, type Figlio } from '../dom.js'
-import { isola } from '../isole.js'
+import { isola } from '../islands.js'
 import { azione } from '../bridge.js'
 import { aggiorna, stato, uriDato } from '../state.js'
 
