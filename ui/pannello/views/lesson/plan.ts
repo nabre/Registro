@@ -16,7 +16,7 @@ import {
   riassuntoParametri,
 } from '../../../../core/dominio/activities.js'
 import { avanzamentoConsegna } from '../../../../core/dominio/assignments.js'
-import { allieviDelCheck, checkDelCorso } from '../../../../core/dominio/check.js'
+import { checkDelCorso, riepilogoDelCheck } from '../../../../core/dominio/check.js'
 import { formattaDurata } from '../../../../core/dominio/dates.js'
 import type { Attivita, ColonnaCheck, Lezione, Risorsa, StatoAttivita } from '../../../../core/dominio/models.js'
 import {
@@ -148,18 +148,16 @@ function pulsanteCheck (lezione: Lezione, attivita: Attivita): Figlio {
     })
   }
 
-  const check = checkDelCorso(stato.registro, lezione.corsoId)
   const colonne = colonneDelCheck(lezione, attivita)
   if (colonne.length === 0) return null
 
-  // Più colonne nella stessa tappa: si contano le spunte di tutte insieme.
-  const allievi = allieviDelCheck(stato.registro, lezione.corsoId)
-  const attese = allievi.length * colonne.length
-  const fatte =
-    check?.spunte.filter(
-      (s) =>
-        colonne.some((c) => c.id === s.colonnaId) && allievi.some((a) => a.id === s.allievoId),
-    ).length ?? 0
+  // Più colonne nella stessa tappa: si contano le spunte di tutte insieme, come
+  // la testata della griglia, solo di chi frequenta (un ritirato non la
+  // lascerebbe mai completa).
+  const riepilogo = riepilogoDelCheck(stato.registro, lezione.corsoId)
+    .filter((r) => colonne.some((c) => c.id === r.colonna.id))
+  const attese = riepilogo.reduce((somma, r) => somma + r.totale, 0)
+  const fatte = riepilogo.reduce((somma, r) => somma + r.fatte, 0)
   const completato = fatte >= attese && attese > 0
 
   return pulsante({

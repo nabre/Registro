@@ -37,7 +37,7 @@ const it = {
   clicPerTogliere: 'Clic per togliere la spunta; tasto destro per cambiare la data.',
   clicFermo: (inLezione: boolean) =>
     `Spuntata ${inLezione ? 'in un altro giorno' : 'in un giorno che non è oggi'}: ` +
-    'il clic non la cambia — tasto destro per cambiarla o toglierla.',
+    'il clic apre il menu per cambiarla o toglierla.',
   daFare: (chi: string) => `${chi}: da fare`,
   spuntataIl: (chi: string, giorno: string, clicToglie: boolean) =>
     `${chi}: spuntata il ${giorno} — ` +
@@ -114,7 +114,7 @@ export const testi = catalogo(it, {
     clicPerTogliere: 'Klick entfernt das Häkchen; Rechtsklick, um das Datum zu ändern.',
     clicFermo: (inLezione) =>
       `${inLezione ? 'An einem anderen Tag abgehakt' : 'Nicht heute abgehakt'}: ` +
-      'Ein Klick ändert daran nichts — Rechtsklick, um es zu ändern oder zu entfernen.',
+      'Ein Klick öffnet das Menü, um es zu ändern oder zu entfernen.',
     daFare: (chi) => `${chi}: offen`,
     spuntataIl: (chi, giorno, clicToglie) =>
       `${chi}: abgehakt am ${giorno} — ` +
@@ -186,7 +186,7 @@ export const testi = catalogo(it, {
     clicPerTogliere: 'Clic pour retirer la coche ; clic droit pour changer la date.',
     clicFermo: (inLezione) =>
       `Cochée ${inLezione ? 'un autre jour' : 'un jour qui n’est pas aujourd’hui'} : ` +
-      'le clic ne la change pas — clic droit pour la changer ou la retirer.',
+      'le clic ouvre le menu pour la changer ou la retirer.',
     daFare: (chi) => `${chi} : à faire`,
     spuntataIl: (chi, giorno, clicToglie) =>
       `${chi} : cochée le ${giorno} — ` +
@@ -257,7 +257,7 @@ export const testi = catalogo(it, {
     clicPerTogliere: 'Click to remove the tick; right-click to change the date.',
     clicFermo: (inLezione) =>
       `Ticked ${inLezione ? 'on another day' : 'on a day other than today'}: ` +
-      'clicking doesn’t change it — right-click to change or remove it.',
+      'clicking opens the menu to change or remove it.',
     daFare: (chi) => `${chi}: to do`,
     spuntataIl: (chi, giorno, clicToglie) =>
       `${chi}: ticked on ${giorno} — ` +

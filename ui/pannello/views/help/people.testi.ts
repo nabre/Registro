@@ -264,8 +264,8 @@ const it = {
         testo:
           'Nelle Materie, ogni materia con un check ha il riquadro **Check**: una casella per ' +
           'colonna, con il giorno e con «in lezione» o «a mano». Il clic spunta una casella ' +
-          'vuota e toglie la spunta data oggi; una spuntata in un altro giorno si cambia solo ' +
-          'dal tasto destro. È la stessa regola delle spunte delle consegne.',
+          'vuota e toglie la spunta data oggi; su una spuntata in un altro giorno il clic, come ' +
+          'il tasto destro, apre il suo menu.',
       },
       {
         termine: 'La scheda in PDF',
@@ -804,8 +804,7 @@ export const testi = catalogo(it, {
             'Bei den Fächern hat jedes Fach mit einem Check das Feld **Check**: ein Kästchen pro ' +
             'Spalte, mit dem Tag und mit «im Unterricht» oder «von Hand». Der Klick hakt ein ' +
             'leeres Kästchen an und entfernt ein heute gesetztes Häkchen; eines von einem ' +
-            'anderen Tag ändert man nur mit der rechten Maustaste. Es ist dieselbe Regel wie bei ' +
-            'den Häkchen der Aufträge.',
+            'anderen Tag öffnet der Klick, wie die rechte Maustaste, sein Menü.',
         },
         {
           termine: 'Das Blatt als PDF',
@@ -1349,9 +1348,8 @@ export const testi = catalogo(it, {
           testo:
             'Dans les Branches, chaque branche avec un check a le cadre **Check** : une case ' +
             'par colonne, avec le jour et avec « en leçon » ou « à la main ». Le clic coche une ' +
-            'case vide et retire une coche mise aujourd’hui ; une case cochée un autre jour ne ' +
-            'se change que par le clic droit. C’est la même règle que pour les coches des ' +
-            'devoirs.',
+            'case vide et retire une coche mise aujourd’hui ; sur une case cochée un autre jour, ' +
+            'le clic, comme le clic droit, ouvre son menu.',
         },
         {
           termine: 'La fiche en PDF',
@@ -1889,8 +1887,8 @@ export const testi = catalogo(it, {
           testo:
             'In Subjects, every subject with a check has the **Check** box: one tick box per ' +
             'column, with the day and with “in the lesson” or “by hand”. A click ticks an empty ' +
-            'box and removes a tick given today; one ticked on another day can only be changed ' +
-            'with a right-click. It’s the same rule as for assignment ticks.',
+            'box and removes a tick given today; on one ticked on another day a click, like a ' +
+            'right-click, opens its menu.',
         },
         {
           termine: 'The sheet as a PDF',

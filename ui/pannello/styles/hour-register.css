@@ -944,6 +944,9 @@
 
 .campo-tappa--sino .campo-tappa__etichetta { font-size: 0.88em; color: var(--testo); }
 
+/* Le colonne del check, una casella per colonna: a tutta riga, sono un elenco. */
+.campo-tappa--colonne { grid-column: 1 / -1; }
+
 /* La tappa che è una prova si vede da lontano: è l'unica da cui escono voti. */
 .gruppo-tappa--prova {
   padding: var(--spazio-1) var(--spazio-2);

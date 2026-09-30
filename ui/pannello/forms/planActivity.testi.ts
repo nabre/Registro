@@ -32,8 +32,8 @@ const it = {
   check: 'Check',
   dedicataACheck: 'Dedica a un check',
   aiutoCheck: 'Permette di riservare tempo per spuntare firme, compiti o materiali',
-  qualeColonnaCheck: 'Colonna del check',
-  aiutoQualeColonnaCheck: 'Scegli quale colonna verificare in questa tappa',
+  qualeColonnaCheck: 'Colonne del check',
+  aiutoQualeColonnaCheck: 'Spunta le colonne da verificare in questa tappa, anche più d’una',
   tuttoIlCheck: 'Tutte le colonne del check',
   materialeDellaTappa: 'Materiale della tappa',
 
@@ -109,8 +109,8 @@ export const testi = catalogo(it, {
     dedicataACheck: 'Für einen Check vorsehen',
     aiutoCheck:
       'Ermöglicht Zeit für das Abhaken von Unterschriften, Aufgaben oder Material einzuplanen',
-    qualeColonnaCheck: 'Spalte des Checks',
-    aiutoQualeColonnaCheck: 'Wähle welche Spalte in dieser Etappe geprüft werden soll',
+    qualeColonnaCheck: 'Spalten des Checks',
+    aiutoQualeColonnaCheck: 'Hake die Spalten an, die in dieser Etappe geprüft werden, auch mehrere',
     tuttoIlCheck: 'Alle Spalten des Checks',
     materialeDellaTappa: 'Material der Etappe',
 
@@ -180,8 +180,8 @@ export const testi = catalogo(it, {
     dedicataACheck: 'Consacrer à un check',
     aiutoCheck:
       'Permet de réserver du temps pour cocher les signatures, devoirs ou matériels',
-    qualeColonnaCheck: 'Colonne du check',
-    aiutoQualeColonnaCheck: 'Choisis quelle colonne vérifier lors de cette étape',
+    qualeColonnaCheck: 'Colonnes du check',
+    aiutoQualeColonnaCheck: 'Coche les colonnes à vérifier lors de cette étape, même plusieurs',
     tuttoIlCheck: 'Toutes les colonnes du check',
     materialeDellaTappa: 'Matériel de l’étape',
 
@@ -248,8 +248,8 @@ export const testi = catalogo(it, {
     dedicataACheck: 'Dedicate to a check',
     aiutoCheck:
       'Allows scheduling time to check signatures, homework or materials',
-    qualeColonnaCheck: 'Check column',
-    aiutoQualeColonnaCheck: 'Choose which column to check in this step',
+    qualeColonnaCheck: 'Check columns',
+    aiutoQualeColonnaCheck: 'Tick the columns to check in this step, even several',
     tuttoIlCheck: 'All columns of the check',
     materialeDellaTappa: 'Step materials',
 

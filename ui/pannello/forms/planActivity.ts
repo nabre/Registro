@@ -463,7 +463,8 @@ function campiPendenze (
 }
 
 /**
- * La colonna del check del corso da verificare durante questa tappa.
+ * Le colonne del check del corso da verificare durante questa tappa: tutte,
+ * oppure quelle spuntate (almeno una).
  */
 function campiCheck (
   voce: Attivita,
@@ -496,40 +497,65 @@ function campiCheck (
 
   if (!attiva) return [interruttore]
 
-  const voci = [
-    { valore: 'tutte', testo: t.tuttoIlCheck },
-    ...colonne.map((c) => ({
-      valore: c.id,
-      testo: c.titolo,
-    })),
-  ]
-  // Più colonne legate dalla pagina dei piani: la combinazione resta una voce
-  // sua, se no la tendina la mostrerebbe come un'altra e al salvataggio la perderebbe.
   const legate = colonneCheckDi(voce)
-  if (legate.length > 1) {
-    voci.push({
-      valore: legate.join(','),
-      testo: legate.map((id) => colonne.find((c) => c.id === id)?.titolo ?? id).join(', '),
-    })
+  const tutte = legate.length === 0 || legate.includes('tutte')
+  const scrivi = (ids: string[]): void => {
+    voce.parametri = { ...(voce.parametri ?? {}), checkColonnaId: ids.join(',') }
+    alCambio()
   }
 
+  // Togliendo «tutte» restano spuntate tutte le colonne, una per una: si parte
+  // da quel che si vedeva e se ne toglie qualcuna.
+  const caselle: HTMLElement[] = [
+    casellaColonna(t.tuttoIlCheck, tutte, colonne.length === 0, (accesa) =>
+      scrivi(accesa ? ['tutte'] : colonne.map((c) => c.id))),
+  ]
+  for (const colonna of colonne) {
+    const legata = tutte || legate.includes(colonna.id)
+    // L'ultima non si toglie: una tappa del check senza colonne si spegne
+    // dall'interruttore.
+    const ultima = !tutte && legata && legate.length === 1
+    caselle.push(casellaColonna(colonna.titolo, legata, tutte || ultima, (accesa) => {
+      // Nell'ordine delle colonne; gli id di colonne sparite restano in coda.
+      const scelte = accesa ? [...legate, colonna.id] : legate.filter((id) => id !== colonna.id)
+      const sparite = scelte.filter((id) => !colonne.some((c) => c.id === id))
+      scrivi(colonne.map((c) => c.id).filter((id) => scelte.includes(id)).concat(sparite))
+    }))
+  }
+
+  const segno = suggerimento(t.aiutoQualeColonnaCheck, { etichetta: t.qualeColonnaCheck })
   return [
     interruttore,
-    campoTappa(
-      t.qualeColonnaCheck,
-      tendina({
-        voci,
-        valore: legate.length > 0 ? legate.join(',') : 'tutte',
-        al: (scelta) => {
-          const attuali = { ...(voce.parametri ?? {}) }
-          attuali.checkColonnaId = scelta
-          voce.parametri = attuali
-          alCambio()
-        },
-      }),
-      t.aiutoQualeColonnaCheck,
+    h(
+      'div',
+      {
+        class: ['campo-tappa', 'campo-tappa--colonne'],
+        attr: { role: 'group', 'aria-label': t.qualeColonnaCheck },
+      },
+      h('span', { class: 'campo-tappa__etichetta' }, t.qualeColonnaCheck, segno),
+      ...caselle,
     ),
   ]
+}
+
+/** Una colonna del check da spuntare nel dettaglio della tappa. */
+function casellaColonna (
+  titolo: string,
+  accesa: boolean,
+  bloccata: boolean,
+  al: (accesa: boolean) => void,
+): HTMLElement {
+  return h(
+    'label',
+    { class: ['campo-tappa', 'campo-tappa--sino'] },
+    h('input', {
+      type: 'checkbox',
+      checked: accesa,
+      disabled: bloccata,
+      onchange: (evento: Event) => al((evento.target as HTMLInputElement).checked),
+    }),
+    h('span', { class: 'campo-tappa__etichetta' }, titolo),
+  )
 }
 
 /**

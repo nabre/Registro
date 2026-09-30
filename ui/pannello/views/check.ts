@@ -33,7 +33,7 @@ import { icona } from '../components/icons.js'
 import { menuContestuale, menuSotto, type ElementoMenu } from '../components/menu.js'
 import { conferma } from '../components/modal.js'
 import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from '../context.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '../forms/check.js'
 import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '../forms.js'
 import { azione } from '../bridge.js'
@@ -58,12 +58,13 @@ interface Quando {
 }
 
 /**
- * L'ora di oggi del corso, se c'è e non è annullata: la spunta data dalla
- * pagina durante l'ora si lega alla lezione e ne segue gli spostamenti.
+ * L'ora di oggi del corso, se c'è ed è ancora aperta: la spunta data dalla
+ * pagina durante l'ora si lega alla lezione e ne segue gli spostamenti. Un'ora
+ * conclusa rifiuta le scritture, e la spunta va a oggi e basta.
  */
 function lezioneDiOggi (corsoId: string): Lezione | null {
   const adesso = stato.adessoData
-  return lezioniDiCorso(corsoId).find((l) => l.data === adesso && l.stato !== 'annullata') ?? null
+  return lezioniDiCorso(corsoId).find((l) => l.data === adesso && l.stato === 'pianificata') ?? null
 }
 
 /** Il quando di una spunta data dalla pagina: l'ora di oggi, o oggi e basta. */
@@ -103,13 +104,13 @@ async function spunta (
   colonnaId: string,
   fatta: boolean,
   quando: Quando | null,
-): Promise<void> {
+): Promise<boolean> {
   const chiave = chiaveCasella(corsoId, allievoId, colonnaId)
   const mio = (numeroDelClic.get(chiave) ?? 0) + 1
   numeroDelClic.set(chiave, mio)
   inVolo.set(chiave, fatta)
   try {
-    await azione({
+    const risposta = await azione({
       tipo: 'check.spunta',
       corsoId,
       allievoId,
@@ -117,6 +118,7 @@ async function spunta (
       fatta,
       ...(fatta && quando ? quando : {}),
     })
+    return risposta.ok
   } finally {
     // Solo se nel frattempo non è partito un clic dopo.
     if (numeroDelClic.get(chiave) === mio) {
@@ -188,7 +190,10 @@ async function spuntaTutti (corsoId: string, colonnaId: string, quando: Quando):
   const classe = classePerId(corsoPerId(corsoId)?.classeId ?? null)
   if (!check || !classe) return
   const mancano = allieviAttivi(classe).filter((a) => !spuntaDelCheck(check, a.id, colonnaId))
-  for (const allievo of mancano) await spunta(corsoId, allievo.id, colonnaId, true, quando)
+  // Al primo rifiuto ci si ferma: gli altri avrebbero lo stesso motivo.
+  for (const allievo of mancano) {
+    if (!await spunta(corsoId, allievo.id, colonnaId, true, quando)) return
+  }
 }
 
 // ------------------------------------------------------------------ i menu
@@ -228,7 +233,7 @@ function vociCasella (casella: Casella): ElementoMenu[] {
       voci.push({
         testo: t.spuntaInLezione,
         simbolo: 'spunta',
-        al: () => spunta(corsoId, allievo.id, colonna.id, true, { lezioneId: lezione.id }),
+        al: async () => { await spunta(corsoId, allievo.id, colonna.id, true, { lezioneId: lezione.id }) },
       })
     }
     // Dentro l'ora di oggi resta solo «in questa lezione», che segue l'ora.
@@ -237,7 +242,7 @@ function vociCasella (casella: Casella): ElementoMenu[] {
         testo: t.spuntaOggi,
         simbolo: lezione ? 'calendario' : 'spunta',
         // «Oggi» vuol dire quel che vuol dire dalla pagina: la lezione di oggi, o oggi.
-        al: () => spunta(corsoId, allievo.id, colonna.id, true, quandoDallaPagina(corsoId)),
+        al: async () => { await spunta(corsoId, allievo.id, colonna.id, true, quandoDallaPagina(corsoId)) },
       })
     }
     voci.push({ testo: t.scegliData, simbolo: 'calendario', al: data })
@@ -261,7 +266,7 @@ function vociCasella (casella: Casella): ElementoMenu[] {
       testo: t.togliSpunta,
       simbolo: 'chiudi',
       pericolo: true,
-      al: () => spunta(corsoId, allievo.id, colonna.id, false, null),
+      al: async () => { await spunta(corsoId, allievo.id, colonna.id, false, null) },
     },
   )
   return voci
@@ -369,14 +374,21 @@ function casellaCheck (casella: Casella): HTMLElement {
         'aria-haspopup': 'menu',
       },
       // Il pulsante non si spegne mai: serve il fuoco, e il menu (anche dal tasto Menu).
-      onclick: () => {
+      onclick: (evento: MouseEvent) => {
         // Quel che è partito e non è tornato conta come già fatto: il secondo clic
         // toglie invece di rispuntare.
         const chiave = chiaveCasella(corsoId, allievo.id, colonna.id)
         const partita = inVolo.get(chiave)
         const dataOra = partita === undefined ? (fatta ? data : null) : partita ? contesto : null
         const esito = gestoDelClic(dataOra, contesto)
-        if (esito === null) return
+        // Spuntata un altro giorno: il clic non la cambia, ma apre il menu, così
+        // non sembra una casella morta. Mai mentre un clic è in volo.
+        if (esito === null) {
+          if (partita === undefined) {
+            apriMenu(evento, evento.currentTarget as HTMLButtonElement, vociCasella(casella))
+          }
+          return
+        }
         void spunta(
           corsoId,
           allievo.id,
@@ -478,7 +490,9 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
   const riga = (allievo: Allievo): HTMLElement =>
     h(
       'tr',
-      { class: [!allievo.attivo && 'check__riga--ritirata'] },
+      // La chiave tiene la riga alla persona: se una riga sparisce (un ritirato
+      // senza più spunte), il fuoco non scivola sulla casella di chi segue.
+      { class: [!allievo.attivo && 'check__riga--ritirata'], dataset: { chiave: allievo.id } },
       h(
         'th',
         { class: 'check__chi', attr: { scope: 'row' } },
@@ -491,7 +505,7 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
       ),
     )
 
-  return tabella({
+  const griglia = tabella({
     classi: { telaio: 'check__telaio', tabella: 'check' },
     // Una spunta non riporta la griglia a sinistra: stesso nodo se la catena
     // di telaio arriva fin qui, se no almeno lo scorrimento ricordato.
@@ -505,6 +519,33 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
     ],
     righe: righe.map(riga),
   })
+  gestisci(griglia, 'keydown', frecceNellaGriglia)
+  return griglia
+}
+
+/**
+ * Le frecce spostano il fuoco fra le caselle, come in una griglia; Tab resta
+ * com'è. Legge la tabella al momento del tasto: sul telaio resta l'ascoltatore
+ * del primo disegno.
+ */
+function frecceNellaGriglia (evento: KeyboardEvent): void {
+  const passi: Record<string, [number, number]> = {
+    ArrowUp: [-1, 0],
+    ArrowDown: [1, 0],
+    ArrowLeft: [0, -1],
+    ArrowRight: [0, 1],
+  }
+  const passo = passi[evento.key]
+  if (!passo || evento.altKey || evento.ctrlKey || evento.metaKey) return
+  const cella = (evento.target as HTMLElement).closest('td')
+  const riga = cella?.parentElement
+  const corpo = riga?.parentElement
+  if (!cella || !(riga instanceof HTMLTableRowElement) || !corpo) return
+  const righe = Array.from(corpo.children) as HTMLTableRowElement[]
+  const dopo = righe[righe.indexOf(riga) + passo[0]]?.cells[cella.cellIndex + passo[1]]
+  const casella = dopo?.querySelector<HTMLButtonElement>('.casella-check')
+  evento.preventDefault()
+  casella?.focus()
 }
 
 // ------------------------------------------------------------------ nell'ora

@@ -3,9 +3,9 @@
 // Tre cose che `node --test` non vede, perché vivono nei clic:
 //
 // - il clic su una casella vuota manda `check.spunta` con il quando giusto — la
-//   lezione di oggi se il corso ce l'ha, altrimenti la data di oggi; su una
-//   spuntata oggi la toglie, su una spuntata in un altro giorno non manda niente
-//   (quella si cambia solo dal tasto destro);
+//   lezione di oggi se il corso ce l'ha ancora aperta, altrimenti la data di
+//   oggi; su una spuntata oggi la toglie, su una spuntata in un altro giorno non
+//   manda niente e apre il menu della casella;
 // - il tasto destro apre il menu della casella, e «Scegli la data…» porta a una
 //   finestra che manda `check.data` con il giorno scritto;
 // - dentro un'ora la stessa griglia spunta in quell'ora, e un corso senza
@@ -67,6 +67,15 @@ test('check', async ({ browser }) => {
   await expect(c2).toHaveAttribute('aria-pressed', 'true')
   await expect(c2).toHaveText('10.09')
   expect(await c2.getAttribute('title')).toContain('data scelta a mano')
+
+  // Le frecce passano da una casella all'altra, senza spuntare.
+  await c1.focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(c2).toBeFocused()
+  await page.keyboard.press('ArrowLeft')
+  await expect(c1).toBeFocused()
+  await page.keyboard.press('ArrowLeft')
+  await expect(c1, 'la freccia fuori dalla griglia ha perso il fuoco').toBeFocused()
 
   // Come docente di classe, il check mostra un riquadro per corso. Due colonne
   // omonime restano in due griglie e ogni clic conserva il corso di origine.
@@ -144,6 +153,25 @@ test('check', async ({ browser }) => {
   expect(spunta.lezioneId, JSON.stringify(spunta)).toBe('lez-oggi')
   await attendiRisposte(page)
 
+  // Conclusa l'ora di oggi, il clic spunta oggi e basta: legata all'ora
+  // conclusa l'host la rifiuterebbe. Prima della correzione partiva con
+  // `lezioneId: 'lez-oggi'`.
+  const STATO_ORA = `(s) => {
+    const r = prova.stato.registro
+    prova.aggiorna({ registro: { ...r,
+      lezioni: r.lezioni.map((l) => l.id === 'lez-oggi' ? { ...l, stato: s } : l) } })
+  }`
+  await valuta(page, STATO_ORA, 'svolta')
+  await valuta(page, FOTOGRAMMA)
+  await valuta(page, 'richieste.length = 0')
+  await c1.click()
+  await attendi(page, "richieste.some(m=>m.azione?.tipo==='check.spunta')")
+  spunta = await valuta<Azione>(page, ULTIMA, 'check.spunta')
+  expect(spunta.data === oggi && !spunta.lezioneId, JSON.stringify(spunta)).toBeTruthy()
+  await attendiRisposte(page)
+  await valuta(page, STATO_ORA, 'pianificata')
+  await valuta(page, FOTOGRAMMA)
+
   // Il tasto destro sulla casella vuota: la data si sceglie a mano.
   await c1.click({ button: 'right' })
   const menu = page.locator('.menu')
@@ -168,12 +196,12 @@ test('check', async ({ browser }) => {
   })
   await expect(finestra).toHaveCount(0)
 
-  // Sulla casella spuntata un altro giorno il clic sinistro non fa niente: si
-  // cambia dal tasto destro, così un clic sbagliato non la toglie.
+  // Sulla casella spuntata un altro giorno il clic sinistro non la cambia, così
+  // un clic sbagliato non la toglie: apre il menu, per non sembrare morta.
   await valuta(page, 'richieste.length = 0')
   await c2.click()
-  // Attesa fissa voluta: prova che NON parte niente, e il niente non ha un evento.
-  await page.waitForTimeout(50)
+  await expect(menu.getByRole('menuitem', { name: 'Togli la spunta' })).toHaveCount(1)
+  await page.keyboard.press('Escape')
   const mandate = await valuta<number>(page,
     "richieste.filter(m=>m.azione?.tipo?.startsWith('check.')).length")
   expect(mandate, 'il clic sinistro su una casella spuntata ha mandato qualcosa').toBe(0)
@@ -366,12 +394,12 @@ test('check', async ({ browser }) => {
   expect(spunta.fatta === true && spunta.colonnaId === 'c1' && spunta.allievoId === allievo,
     JSON.stringify(spunta)).toBeTruthy()
   await attendiRisposte(page)
-  // La spuntata a mano un altro giorno: il clic non manda niente, il tasto
-  // destro offre di toglierla.
+  // La spuntata a mano un altro giorno: il clic non manda niente e apre il menu,
+  // come il tasto destro, che offre di toglierla.
   await valuta(page, 'richieste.length = 0')
   await tema.locator(`[data-fuoco="check-${allievo}-c2"]`).click()
-  // Attesa fissa voluta: prova che NON parte niente.
-  await page.waitForTimeout(50)
+  await expect(menu.getByRole('menuitem', { name: 'Togli la spunta' })).toHaveCount(1)
+  await page.keyboard.press('Escape')
   expect(await valuta(page,
     "richieste.filter(m=>m.azione?.tipo?.startsWith('check.')).length")).toBe(0)
   await tema.locator(`[data-fuoco="check-${allievo}-c2"]`).click({ button: 'right' })

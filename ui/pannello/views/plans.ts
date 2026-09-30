@@ -539,6 +539,9 @@ let inLavorazione: { pianoId: string, corpo: HTMLElement, noti: Set<string> } | 
  */
 let editorCostruiti = 0
 
+/** I legami col check in corso, uno dopo l'altro (`inserisciAttivitaCheck`). */
+let legamiDelCheck: Promise<void> = Promise.resolve()
+
 /**
  * Il piano ridotto a quel che l'editor scrive, per riconoscerlo: senza i timbri
  * dell'host e con le chiavi in ordine, perché l'host può riordinarle.
@@ -749,16 +752,24 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
   // Il check si verifica in un momento solo dell'ora: se la scaletta ha già una
   // tappa che ne verifica una colonna, le altre si legano a quella invece di
   // aggiungere una tappa per colonna.
-  const tappaDelCheck = piano.attivita.find((a) => colonneCheckDi(a).length > 0) ?? null
+  const tappaDelCheckDi = (p: PianoLezione): Attivita | null =>
+    p.attivita.find((a) => colonneCheckDi(a).length > 0) ?? null
+  const tappaDelCheck = tappaDelCheckDi(piano)
   const titoloDelCheck = (colonne: string[]): string =>
     t.verificaCheck(
       colonne.map((id) => colonneCheck.find((c) => c.id === id)?.titolo ?? id).join(', '),
     )
 
-  const inserisciAttivitaCheck = async (
-    colonnaId: string,
-    colonnaTitolo: string,
-  ): Promise<void> => {
+  // In fila, e col piano com'è al proprio turno: due clic su due colonne prima
+  // del ridisegno non si cancellano a vicenda (`piano.salva` scrive il piano intero).
+  const inserisciAttivitaCheck = (colonnaId: string, colonnaTitolo: string): Promise<void> => {
+    legamiDelCheck = legamiDelCheck.then(() => legaAlCheck(colonnaId, colonnaTitolo), () => undefined)
+    return legamiDelCheck
+  }
+
+  const legaAlCheck = async (colonnaId: string, colonnaTitolo: string): Promise<void> => {
+    const attuale = stato.registro.piani.find((p) => p.id === piano.id) ?? piano
+    const tappaDelCheck = tappaDelCheckDi(attuale)
     let attivita: Attivita[]
     let avviso: string
     if (tappaDelCheck) {
@@ -767,17 +778,17 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
       if (tappaDelCheck.titolo === titoloDelCheck(colonneCheckDi(tappaDelCheck))) {
         legata.titolo = titoloDelCheck(colonneCheckDi(legata))
       }
-      attivita = piano.attivita.map((a) => (a.id === tappaDelCheck.id ? legata : a))
+      attivita = attuale.attivita.map((a) => (a.id === tappaDelCheck.id ? legata : a))
       avviso = t.legataAllaTappa(colonnaTitolo, legata.titolo)
     } else {
       const nuova = creaAttivita(t.verificaCheck(colonnaTitolo), udDaMinutiAttivita(5, perUd))
       nuova.tipo = 'verifica'
       nuova.parametri = { checkColonnaId: colonnaId }
-      attivita = [...piano.attivita, nuova]
+      attivita = [...attuale.attivita, nuova]
       avviso = t.inseritaInScaletta(colonnaTitolo)
     }
     scordaEditorDelPiano()
-    const risposta = await invia({ tipo: 'piano.salva', piano: { ...piano, attivita } })
+    const risposta = await invia({ tipo: 'piano.salva', piano: { ...attuale, attivita } })
     if (risposta.ok) notifica(avviso, 'successo')
   }
 
@@ -853,9 +864,7 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
                     simbolo: tappaDelCheck ? 'collegamento' : 'piu',
                     variante: 'sottile',
                     titolo: tappaDelCheck ? t.legaAllaTappaTitolo(tappaDelCheck.titolo) : undefined,
-                    al: () => {
-                      void inserisciAttivitaCheck(col.id, col.titolo)
-                    },
+                    al: () => inserisciAttivitaCheck(col.id, col.titolo),
                   }),
             )
           }),

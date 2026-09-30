@@ -455,13 +455,15 @@ const it = {
           'Un clic su una casella vuota la spunta. Un altro clic la toglie solo se è spuntata ' +
           'nel giorno di cui si parla — oggi nella pagina, il giorno dell’ora dentro un’ora: ' +
           'è il clic sbagliato di un momento fa. Una spuntata in un altro giorno col clic non ' +
-          'cambia: si cambia dal tasto destro. Nella pagina la casella spuntata dice il ' +
-          'giorno, corto: `07.09`; fermandosi sopra si legge per esteso.',
+          'cambia: il clic, come il tasto destro, apre il suo menu. Nella pagina la casella spuntata dice il ' +
+          'giorno, corto: `07.09`; fermandosi sopra si legge per esteso. Le frecce passano da ' +
+          'una casella all’altra.',
       },
       {
         termine: 'Quale giorno',
         testo:
-          'Dalla pagina, se il corso ha lezione oggi, la spunta va in quella lezione; altrimenti ' +
+          'Dalla pagina, se il corso ha lezione oggi e non è conclusa, la spunta va in quella ' +
+          'lezione; altrimenti ' +
           'porta la data di oggi. Dentro un’ora — la scheda **Amministrazione**, sotto le ' +
           'consegne — va sempre nell’ora aperta.',
       },
@@ -494,7 +496,7 @@ const it = {
         testo:
           'La stessa griglia, nella scheda **Amministrazione**. Le caselle spuntate in quest’ora ' +
           'hanno la spunta, e il clic le toglie; quelle di un altro giorno dicono quale, col ' +
-          'bordo tratteggiato, e si cambiano solo dal tasto destro — dove **Assegna alla ' +
+          'bordo tratteggiato, e il clic o il tasto destro aprono il loro menu — dove **Assegna alla ' +
           'lezione corrente** le riporta a quest’ora, e da lì seguono la lezione. Un corso ' +
           'senza colonne mostra solo una riga verso la pagina.',
       },
@@ -731,7 +733,7 @@ const it = {
         testo:
           'Nel dettaglio di una tappa, **Dedica all’evasione di pendenze** la lega a una ' +
           'consegna del corso, o a tutte quelle della lezione, e **Dedica a un check** a una ' +
-          'colonna del check. Sotto l’editor, **Pendenze e Check del corso** elenca le consegne ' +
+          'o più colonne del check, spuntate una per una. Sotto l’editor, **Pendenze e Check del corso** elenca le consegne ' +
           'ancora aperte e le colonne del check: **Inserisci nella scaletta** aggiunge in fondo ' +
           'una tappa di 5 minuti per evaderle, e «già in scaletta» segna quelle che l’hanno. ' +
           'Se la scaletta ha già una tappa che verifica il check, un’altra colonna non ne ' +
@@ -1243,14 +1245,16 @@ export const testi = catalogo(it, {
             'Ein Klick auf ein leeres Feld hakt es ab. Ein weiterer Klick entfernt das Häkchen ' +
             'nur, wenn es am Tag gesetzt wurde, um den es geht — heute auf der Seite, der Tag ' +
             'der Stunde in einer Stunde: Es ist der falsche Klick von eben. Ein an einem ' +
-            'anderen Tag abgehaktes Feld ändert sich beim Klick nicht: Man ändert es mit der ' +
-            'rechten Maustaste. Auf der Seite zeigt das abgehakte Feld den Tag, kurz: `07.09`; ' +
-            'fährt man darüber, liest man ihn ausgeschrieben.',
+            'anderen Tag abgehaktes Feld ändert sich beim Klick nicht: Der Klick öffnet, wie die ' +
+            'rechte Maustaste, sein Menü. Auf der Seite zeigt das abgehakte Feld den Tag, kurz: `07.09`; ' +
+            'fährt man darüber, liest man ihn ausgeschrieben. Die Pfeiltasten springen von Feld ' +
+            'zu Feld.',
         },
         {
           termine: 'Welcher Tag',
           testo:
-            'Auf der Seite kommt das Häkchen, wenn der Kurs heute Unterricht hat, in diese ' +
+            'Auf der Seite kommt das Häkchen, wenn der Kurs heute Unterricht hat und die Stunde ' +
+            'nicht abgeschlossen ist, in diese ' +
             'Stunde; sonst trägt es das heutige Datum. In einer Stunde — im Reiter ' +
             '**Verwaltung**, unter den Aufträgen — kommt es immer in die offene Stunde.',
         },
@@ -1285,7 +1289,7 @@ export const testi = catalogo(it, {
           testo:
             'Dasselbe Raster, im Reiter **Verwaltung**. Die in dieser Stunde abgehakten Felder ' +
             'tragen das Häkchen, und der Klick entfernt es; die von einem anderen Tag sagen ' +
-            'welchen, mit gestricheltem Rand, und ändern sich nur mit der rechten Maustaste — ' +
+            'welchen, mit gestricheltem Rand, und Klick oder rechte Maustaste öffnen ihr Menü — ' +
             'wo **Der aktuellen Stunde zuordnen** sie zu dieser Stunde holt, und von ' +
             'da an folgen sie der Stunde. Ein Kurs ohne Spalten zeigt nur eine Zeile, ' +
             'die zur Seite führt.',
@@ -1534,7 +1538,7 @@ export const testi = catalogo(it, {
           testo:
             'In den Details einer Etappe verknüpft **Für die Erledigung von Pendenzen ' +
             'vorsehen** sie mit einem Auftrag des Kurses, oder mit allen der Stunde, und **Für ' +
-            'einen Check vorsehen** mit einer Spalte des Checks. Unter dem Editor listet ' +
+            'einen Check vorsehen** mit einer oder mehreren angehakten Spalten des Checks. Unter dem Editor listet ' +
             '**Pendenzen und Checks des Kurses** die offenen Aufträge und die Spalten des ' +
             'Checks auf: **In Ablauf einfügen** fügt am Ende eine Etappe von 5 Minuten hinzu, ' +
             'um sie zu erledigen, und «bereits im Ablauf» markiert die, die schon eine haben. ' +
@@ -2041,14 +2045,15 @@ export const testi = catalogo(it, {
             'Un clic sur une case vide la coche. Un autre clic ne la décoche que si elle a été ' +
             'cochée le jour dont il est question — aujourd’hui sur la page, le jour de la leçon ' +
             'dans une leçon : c’est le mauvais clic d’il y a un instant. Une case cochée un ' +
-            'autre jour ne change pas au clic : elle se change au clic droit. Sur la page, la ' +
+            'autre jour ne change pas au clic : le clic, comme le clic droit, ouvre son menu. Sur la page, la ' +
             'case cochée indique le jour, en bref : `07.09` ; en s’arrêtant dessus, on le lit ' +
-            'en entier.',
+            'en entier. Les flèches passent d’une case à l’autre.',
         },
         {
           termine: 'Quel jour',
           testo:
-            'Depuis la page, si le cours a leçon aujourd’hui, la coche va dans cette leçon ; ' +
+            'Depuis la page, si le cours a leçon aujourd’hui et qu’elle n’est pas terminée, la ' +
+            'coche va dans cette leçon ; ' +
             'sinon, elle porte la date du jour. Dans une leçon — l’onglet **Administration**, ' +
             'sous les devoirs —, elle va toujours dans la leçon ouverte.',
         },
@@ -2083,7 +2088,7 @@ export const testi = catalogo(it, {
           testo:
             'La même grille, dans l’onglet **Administration**. Les cases cochées pendant cette ' +
             'leçon ont la coche, et le clic la retire ; celles d’un autre jour disent lequel, ' +
-            'avec la bordure en pointillé, et ne se changent qu’au clic droit — où **Attribuer ' +
+            'avec la bordure en pointillé, et le clic ou le clic droit ouvrent leur menu — où **Attribuer ' +
             'à la leçon en cours** les ramène à cette leçon, et dès lors elles suivent la ' +
             'leçon. Un cours sans colonnes ne montre qu’une ligne vers la page.',
         },
@@ -2329,7 +2334,7 @@ export const testi = catalogo(it, {
           testo:
             'Dans le détail d’une étape, **Consacrer au traitement des tâches en suspens** la ' +
             'lie à un devoir du cours, ou à tous ceux de la leçon, et **Consacrer à un check** ' +
-            'à une colonne du check. Sous l’éditeur, **Tâches en suspens et checks du cours** ' +
+            'à une ou plusieurs colonnes du check, cochées une à une. Sous l’éditeur, **Tâches en suspens et checks du cours** ' +
             'liste les devoirs encore ouverts et les colonnes du check : **Insérer dans le ' +
             'déroulement** ajoute à la fin une étape de 5 minutes pour les traiter, et « déjà ' +
             'dans le déroulement » signale ceux qui l’ont. Si le déroulement a déjà une étape ' +
@@ -2820,13 +2825,15 @@ export const testi = catalogo(it, {
             'A click on an empty cell ticks it. Another click removes the tick only if it was ' +
             'given on the day in question — today on the page, the lesson’s day inside a ' +
             'lesson: it is the wrong click of a moment ago. A cell ticked on another day does ' +
-            'not change on click: it is changed with the right button. On the page the ticked ' +
-            'cell shows the day, short: `07.09`; hovering shows it in full.',
+            'not change on click: a click, like the right button, opens its menu. On the page the ticked ' +
+            'cell shows the day, short: `07.09`; hovering shows it in full. The arrow keys move ' +
+            'from cell to cell.',
         },
         {
           termine: 'Which day',
           testo:
-            'From the page, if the course has a lesson today, the tick goes into that lesson; ' +
+            'From the page, if the course has a lesson today that is not concluded, the tick goes ' +
+            'into that lesson; ' +
             'otherwise it carries today’s date. Inside a lesson — the **Admin** tab, below the ' +
             'assignments — it always goes into the open lesson.',
         },
@@ -2860,7 +2867,7 @@ export const testi = catalogo(it, {
           testo:
             'The same grid, in the **Admin** tab. Cells ticked in this lesson have the tick, ' +
             'and a click removes it; those from another day say which, with a dashed border, ' +
-            'and can only be changed with the right button — where **Assign to the current ' +
+            'and a click or the right button opens their menu — where **Assign to the current ' +
             'lesson** brings them back to this lesson, and from then on they follow the ' +
             'lesson. A course with no columns shows just a row leading to the page.',
         },
@@ -3100,7 +3107,7 @@ export const testi = catalogo(it, {
           testo:
             'In a step’s details, **Dedicate to clearing pending items** links it to a ' +
             'submission of the course, or to all those of the lesson, and **Dedicate to a ' +
-            'check** to a column of the check. Below the editor, **Pending items and checks of ' +
+            'check** to one or more ticked columns of the check. Below the editor, **Pending items and checks of ' +
             'the course** lists the submissions still open and the check’s columns: **Insert ' +
             'into plan** adds a 5-minute step at the end to clear them, and “already in plan” ' +
             'marks those that have one. If the outline already has a step that checks the ' +
