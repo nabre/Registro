@@ -78,7 +78,7 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       eventuali rinomine a lotti.
 - [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
       `huggingFace`, `kit`, `llamaCpp`, `llm`, `modelliConsigliati`, `mtmd`,
-      `nodeLlama`, `visionKit`) in `core/dati/llm/`. ~27 import, più
+      `nodeLlama`, `visionKit`) in core/dati/llm/. ~27 import, più
       `tools/modelliConsigliati.mjs` e le `importaSorgente` delle prove: mappa
       in ARCHITETTURA § 11 prima.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
@@ -90,8 +90,8 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),
       `core/dominio/projection.ts` (il calendario).
-- [ ] ~170 percorsi del vecchio assetto nei commenti (`domain/`, `actions/`,
-      `src/`, file di `ui/` senza `pannello/`), che `npm run docs` non vede perché
+- [ ] ~170 percorsi del vecchio assetto nei commenti (domain/, actions/,
+      src/, file di ui/ senza pannello/), che `npm run docs` non vede perché
       non hanno un prefisso di oggi. I più colpiti: `contract/protocollo.ts`,
       `desktop/transports/assistant.ts`, `core/dominio/models.ts`.
 - [ ] Frecce nelle griglie: `frecceNellaGriglia` (`views/check.ts`) e
