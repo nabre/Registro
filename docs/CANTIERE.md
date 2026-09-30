@@ -71,11 +71,8 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Riordino
 
-- [ ] Regola della lingua dei nomi di file: non scritta. Convivono inglese
-      (`views/check.ts`, `core/dati/sorter.ts`) e italiano
-      (`components/annullabile.ts`, `contract/centralino.ts`). Prima un ADR
-      (per esempio «i moduli nuovi in italiano, gli esistenti restano»), poi
-      eventuali rinomine a lotti.
+- [ ] Nomi dei file in inglese (ADR-53): rinominare gli esistenti a lotti,
+      mappa in ARCHITETTURA § 11.
 - [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
       `huggingFace`, `kit`, `llamaCpp`, `llm`, `modelliConsigliati`, `mtmd`,
       `nodeLlama`, `visionKit`) in core/dati/llm/. ~27 import, più
@@ -176,15 +173,6 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       passare alle differenze.
 - [ ] Ricerca OneDrive fermata dal tetto di 20 s: la modale dice «Sono troppi
       per mostrarli tutti.», imprecisa quando il motivo è il tempo.
-
-### Check
-
-- [ ] Ora conclusa: il check dell'ora è tutto spento, anche **Cambia la
-      data…** e **Togli la spunta** di spunte d'altri giorni, che l'host
-      permette (e la pagina Check pure). Decidere se lasciarli vivi.
-- [ ] Doppio clic su una casella vuota = spunta e subito tolta (voluto e
-      provato in `check.spec.ts`): chi fa doppio clic d'abitudine vede la
-      casella «non prendere». Chiedere prima di cambiarlo.
 
 ### Da provare a mano
 

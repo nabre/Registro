@@ -969,6 +969,23 @@ segmentato con nomi lunghi diventa tendina.
 `core/controlli/controlli.css`, `ui/pannello/views/settings/program.ts`,
 `desktop/shell/pages/settings/settings.ts`, `tests/ui/controlli.test.mjs`.
 
+### ADR-53 — I nomi dei file in inglese
+
+**Decisione.** Il nome di un file sorgente è inglese, in camelCase, come già
+la maggioranza (`views/check.ts`, `core/dati/sorter.ts`). Il codice dentro
+resta italiano: nomi di dominio, funzioni, commenti. Fuori dalla regola: le
+cartelle (i nomi degli strati sono ruoli, ADR-02), il suffisso `.testi.ts`
+(ADR-38), i file di `contract/procedure/` (portano il nome della procedura,
+`area.cosa.verbo`), i comandi di `cli/comandi/` (parole che si digitano),
+`check` (ADR-33). Le prove seguono il loro soggetto.
+
+**Perché.** Convivevano le due lingue senza una regola, e ogni file nuovo
+riapriva la scelta. L'inglese è già la maggioranza: meno file da spostare.
+
+**Vincoli.** I file nuovi nascono in inglese. Gli esistenti si rinominano a
+lotti, ognuno scritto prima in ARCHITETTURA § 11 e fatto con `git mv` in un
+commit che contiene solo il rinomino e i riferimenti che lo seguono (D5).
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.
