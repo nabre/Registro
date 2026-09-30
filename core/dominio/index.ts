@@ -1,5 +1,6 @@
-// Punto d'ingresso del dominio per extension host, webview e test. Non conosce
-// né `apparato` né il DOM, così `node --test` lo esegue così com'è.
+// Punto d'ingresso del dominio per il processo principale, il pannello e le
+// prove. Non conosce né `apparato` né il DOM, così `node --test` lo esegue così
+// com'è.
 
 export * from './models.js'
 // Il lessico esce come spazio di nomi: scorciatoie corte come `il`, `i`, `un`,

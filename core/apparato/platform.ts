@@ -195,7 +195,7 @@ export interface DialogoPercorso {
   da: string
 }
 
-export interface DoganaImpostazioni {
+interface DoganaImpostazioni {
   /** Vero se la chiave è dichiarata nel manifesto. */
   dichiarata: (chiave: string) => boolean
   /** Il valore ammesso per la chiave, o `undefined` con il motivo. */
