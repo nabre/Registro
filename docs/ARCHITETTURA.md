@@ -547,3 +547,17 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
   (stato su `globalThis.__bancoLlama`). Prove dell'interfaccia con
   @playwright/test (`tests/interfaccia/*.spec.ts`, `npm run ui-tests`), una con
   Electron vero.
+
+## 11. Riordini
+
+Un riordino si scrive qui come mappa «da → a» prima dei `git mv` (D5 in
+[CANTIERE](CANTIERE.md)); ogni lotto è un commit che contiene solo lo
+spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
+
+| Lotto | Da → a | Perché |
+| --- | --- | --- |
+| A | `core/dati/schoolCalendarTicino.ts`, `core/dati/schoolCalendars.ts` → `core/dominio/` | dati generati puri: il loro indice sta nel dominio; toglie due deroghe di `tools/layers.mjs` |
+| B | `desktop/azioni/projection.ts` → `core/azioni/projection.ts` con `registraProiettore`, iscritto da `desktop/avvio.ts` come `registraNavigatore` | la proiezione si chiede all'apparato (D11); toglie cinque archi `contract/` → `desktop/` |
+| C | `core/azioni/system.ts` legge le impostazioni dichiarate da `apparato`, non da `desktop/apparato/settings.ts` | D11; toglie l'ultima deroga |
+| D | `ui/pannello/views/{toSort,pageBrowser,pageDrop}.ts` → `ui/pannello/views/sorting/` | tema smistamento, come `views/lesson/` accanto a `lesson.ts` |
+| E | `ui/pannello/views/{grades,retakes,returns}.ts` → `ui/pannello/views/assessments/` | tema valutazioni, stesso schema |
