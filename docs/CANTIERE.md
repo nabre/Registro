@@ -100,6 +100,10 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Prove
 
+- [ ] `tests/interfaccia/misure.spec.ts` (primo disegno dell'archivio
+      40×125) cade a volte col giro intero di `npm run ui-tests` (378 ms contro
+      il tetto di 355): da sola passa. Tetto troppo stretto sotto carico, o
+      prova da isolare dagli altri lavoratori.
 - [ ] `tests/proprieta/migrazioni.test.mjs` «portato e normalizzato, una seconda
       normalizzazione non cambia niente» cade a caso: seme `-2101211184`,
       controesempio `impostazioni.scala.min = {"toString": null}`. Normalizzazione
