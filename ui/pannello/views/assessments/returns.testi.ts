@@ -1,7 +1,7 @@
 // I testi delle riconsegne (`returns.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '../../../../core/i18n/index.js'
+import { plurale } from '../../../../core/dominio/text.js'
 
 const it = {
   // Le pastiglie dello stato.

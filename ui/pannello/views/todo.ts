@@ -35,8 +35,8 @@ import {
 } from '../state.js'
 import { gruppoConsegne } from './assignments.js'
 import { riassuntoClasse, sezioniTodoClasse, simboloFamiglia } from './classTodo.js'
-import { gruppoRecuperi } from './retakes.js'
-import { gruppoRiconsegne } from './returns.js'
+import { gruppoRecuperi } from './assessments/retakes.js'
+import { gruppoRiconsegne } from './assessments/returns.js'
 import { testi } from './todo.testi.js'
 
 // testo-fisso: prefisso identificatore interno scheda corso

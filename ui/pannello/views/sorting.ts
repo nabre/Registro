@@ -17,8 +17,8 @@ import { isola } from '../isole.js'
 import { classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
 
 import { guardaNellArchivio } from './archive.js'
-import { ISOLA_LETTURA } from './pageBrowser.js'
-import { portaPagine } from './pageDrop.js'
+import { ISOLA_LETTURA } from './sorting/pageBrowser.js'
+import { portaPagine } from './sorting/pageDrop.js'
 import { testi } from './sorting.testi.js'
 
 const esegui = eseguiOAvvisa

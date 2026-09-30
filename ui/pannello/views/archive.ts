@@ -19,7 +19,7 @@ import { isola } from '../isole.js'
 import { azione } from '../bridge.js'
 import { aggiorna, stato, uriDato } from '../state.js'
 
-import { ISOLA_LETTURA, sfoglioSmistamento } from './pageBrowser.js'
+import { ISOLA_LETTURA, sfoglioSmistamento } from './sorting/pageBrowser.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './archive.testi.js'
 

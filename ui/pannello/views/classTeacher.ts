@@ -68,7 +68,7 @@ import {
   type RigaArchivio,
 } from './archive.js'
 import { schedaAssenze } from './absences.js'
-import { accettaPagine, accettaPagineFirme, accettaPagineSullaRiga } from './pageDrop.js'
+import { accettaPagine, accettaPagineFirme, accettaPagineSullaRiga } from './sorting/pageDrop.js'
 import { codaLettura, codaLetturaInIsola, comandiDelPdf, pdfDaDividere, rendiBersaglio } from './sorting.js'
 import { riassuntoClasse, sezioniTodoClasse } from './classTodo.js'
 import { testi } from './classTeacher.testi.js'

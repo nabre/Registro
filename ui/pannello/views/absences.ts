@@ -55,7 +55,7 @@ import { azione } from '../bridge.js'
 import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto, vai } from '../state.js'
 
 import { corniceFoglio, inventario, pannelloArchivio, scorri } from './archive.js'
-import { accettaPagineAssenze } from './pageDrop.js'
+import { accettaPagineAssenze } from './sorting/pageDrop.js'
 import {
   caricaPdf,
   codaLettura,

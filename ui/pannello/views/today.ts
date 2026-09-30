@@ -54,7 +54,7 @@ import {
   stato,
   titoloDiLezione,
 } from '../state.js'
-import { pagineDaSmistareInTutto } from './toSort.js'
+import { pagineDaSmistareInTutto } from './sorting/toSort.js'
 import { testi } from './today.testi.js'
 
 /** Un'ora della giornata mostrata, con la fase calcolata dallo stato. */

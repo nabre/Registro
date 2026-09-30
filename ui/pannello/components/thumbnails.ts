@@ -7,7 +7,7 @@
 // carica solo dalla propria. pdfjs lavora sul filo principale se trova il suo
 // gestore in `globalThis.pdfjsWorker`; per questo le miniature si chiedono una
 // alla volta, solo quelle visibili. Chi le mette in pagina e le trascina è
-// `views/pageBrowser.ts`.
+// `views/sorting/pageBrowser.ts`.
 
 /** Il tanto di pdfjs che serve qui, dichiarato a mano come in `data/pdf.ts`. */
 interface ModuloPdfjs {

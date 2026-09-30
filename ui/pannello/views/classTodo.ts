@@ -11,8 +11,8 @@ import { icona, type NomeIcona } from '../components/icons.js'
 import { h, type Figlio } from '../dom.js'
 import { gruppoRichiesteFirma, gruppoSegnalazioni } from './absences.js'
 import { gruppoConsegne } from './assignments.js'
-import { gruppoRecuperi } from './retakes.js'
-import { gruppoRiconsegne, gruppoRiconsegneAllievi } from './returns.js'
+import { gruppoRecuperi } from './assessments/retakes.js'
+import { gruppoRiconsegne, gruppoRiconsegneAllievi } from './assessments/returns.js'
 import { testi } from './classTodo.testi.js'
 
 /** Di che corso è ogni riga si dice sempre: sotto una classe ci sono più materie. */

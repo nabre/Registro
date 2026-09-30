@@ -2,7 +2,7 @@
 // su cui se ne lasciano cadere le pagine (`pageDrop.ts`).
 // `pagine` arriva da `dicePagine` già tradotto e in minuscolo.
 
-import { catalogo, conMaiuscola } from '../../../core/i18n/index.js'
+import { catalogo, conMaiuscola } from '../../../../core/i18n/index.js'
 
 const it = {
   // Di chi è una pagina già archiviata, quando non è di una persona

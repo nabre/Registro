@@ -38,7 +38,7 @@ export function vuoleCopiare (evento: DragEvent | MouseEvent): boolean {
 }
 
 /**
- * La pulizia di fine trascinamento, su `document` (come `views/pageBrowser.ts`):
+ * La pulizia di fine trascinamento, su `document` (come `views/sorting/pageBrowser.ts`):
  * un ridisegno durante il gesto butta via il blocco con il suo `dragend`, e
  * resterebbero `trascinata` e le colonne `.zona-posa` non cliccabili.
  */

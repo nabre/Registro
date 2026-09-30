@@ -90,7 +90,7 @@ intestazione ([`ui/pannello/sidebar.ts`](../ui/pannello/sidebar.ts)).
 | `oggi` | [`views/today.ts`](../ui/pannello/views/today.ts) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
 | `calendario` | [`views/calendar.ts`](../ui/pannello/views/calendar.ts), [`calendar/`](../ui/pannello/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.ts` |
 | `todo` | [`views/todo.ts`](../ui/pannello/views/todo.ts) | delega a `classTodo.ts` |
-| `daSmistare` | [`views/toSort.ts`](../ui/pannello/views/toSort.ts) | — |
+| `daSmistare` | [`views/sorting/toSort.ts`](../ui/pannello/views/sorting/toSort.ts) | — |
 | `lezione` | [`views/lesson.ts`](../ui/pannello/views/lesson.ts), [`lesson/`](../ui/pannello/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi), annotazioni |
 | `classi` | [`views/classes.ts`](../ui/pannello/views/classes.ts) | elenco + anagrafica |
 | `persone` | [`views/people.ts`](../ui/pannello/views/people.ts) | riusa `schedaAllievo()` |
@@ -98,7 +98,7 @@ intestazione ([`ui/pannello/sidebar.ts`](../ui/pannello/sidebar.ts)).
 | `docenteClasse` | [`views/classTeacher.ts`](../ui/pannello/views/classTeacher.ts) | todo, documenti, assenze, messaggistica |
 | `corsi` | [`views/courses.ts`](../ui/pannello/views/courses.ts) | elenco + scheda con matrice |
 | `piani` | [`views/plans.ts`](../ui/pannello/views/plans.ts) | libreria + editor |
-| `valutazioni` | [`views/assessments.ts`](../ui/pannello/views/assessments.ts) | recuperi, riconsegne |
+| `valutazioni` | [`views/assessments.ts`](../ui/pannello/views/assessments.ts), [`assessments/`](../ui/pannello/views/assessments/) | recuperi, riconsegne |
 | `check` | [`views/check.ts`](../ui/pannello/views/check.ts) | la griglia; moduli in [`forms/check.ts`](../ui/pannello/forms/check.ts) |
 | `documenti` | [`views/documents.ts`](../ui/pannello/views/documents.ts) | corso, lezioni, allievi |
 | `mappa` | [`views/map.ts`](../ui/pannello/views/map.ts) | tutti, domicilio, lavoro |
@@ -112,10 +112,10 @@ intestazione ([`ui/pannello/sidebar.ts`](../ui/pannello/sidebar.ts)).
 Pezzi di vista usati da più pagine: [`views/archive.ts`](../ui/pannello/views/archive.ts),
 [`views/absences.ts`](../ui/pannello/views/absences.ts),
 [`views/assignments.ts`](../ui/pannello/views/assignments.ts),
-[`views/retakes.ts`](../ui/pannello/views/retakes.ts),
-[`views/returns.ts`](../ui/pannello/views/returns.ts),
-[`views/pageBrowser.ts`](../ui/pannello/views/pageBrowser.ts),
-[`views/pageDrop.ts`](../ui/pannello/views/pageDrop.ts),
+[`views/assessments/retakes.ts`](../ui/pannello/views/assessments/retakes.ts),
+[`views/assessments/returns.ts`](../ui/pannello/views/assessments/returns.ts),
+[`views/sorting/pageBrowser.ts`](../ui/pannello/views/sorting/pageBrowser.ts),
+[`views/sorting/pageDrop.ts`](../ui/pannello/views/sorting/pageDrop.ts),
 [`views/sorting.ts`](../ui/pannello/views/sorting.ts),
 [`views/classTodo.ts`](../ui/pannello/views/classTodo.ts),
 [`views/documents/`](../ui/pannello/views/documents/) (anteprima, CSV, schede),

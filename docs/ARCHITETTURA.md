@@ -556,7 +556,4 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-| Lotto | Da → a | Perché |
-| --- | --- | --- |
-| D | `ui/pannello/views/{toSort,pageBrowser,pageDrop}.ts` → ui/pannello/views/sorting/ | tema smistamento, come `views/lesson/` accanto a `lesson.ts` |
-| E | `ui/pannello/views/{grades,retakes,returns}.ts` → ui/pannello/views/assessments/ | tema valutazioni, stesso schema |
+Nessun riordino aperto.

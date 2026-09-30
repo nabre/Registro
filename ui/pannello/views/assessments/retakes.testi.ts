@@ -1,7 +1,7 @@
-// I testi dei recuperi (`views/retakes.ts`).
+// I testi dei recuperi (`views/assessments/retakes.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import type { StatoRecupero } from '../../../core/dominio/retakes.js'
+import { catalogo } from '../../../../core/i18n/index.js'
+import type { StatoRecupero } from '../../../../core/dominio/retakes.js'
 
 const it = {
   /** Come si legge lo stato di un recupero, nella sua pastiglia. */

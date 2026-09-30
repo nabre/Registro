@@ -1,7 +1,7 @@
-// I testi della griglia dei voti (`views/grades.ts`); l'avviso «non è un voto»
-// lo usa anche la casella del recupero (`views/retakes.ts`).
+// I testi della griglia dei voti (`views/assessments/grades.ts`); l'avviso «non è un voto»
+// lo usa anche la casella del recupero (`views/assessments/retakes.ts`).
 
-import { catalogo, numero } from '../../../core/i18n/index.js'
+import { catalogo, numero } from '../../../../core/i18n/index.js'
 
 const it = {
   /** Il suggerimento sul titolo di una colonna: il momento, il giorno, il peso. */

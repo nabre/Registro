@@ -9,19 +9,19 @@
 // La stessa tendina sposta i resti di una scansione che attraversa due classi;
 // le pagine già archiviate non si muovono.
 
-import { raccoglieDocumento } from '../../../core/dominio/assignments.js'
-import { formattaData, giornoDi } from '../../../core/dominio/dates.js'
-import type { Classe, Registro, Smistamento } from '../../../core/dominio/models.js'
-import { daSmistarePerClasse, pagineDaSmistare, type MucchioDaSmistare } from '../../../core/dominio/sorting.js'
-import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { icona } from '../components/icons.js'
-import { h, type Figlio } from '../dom.js'
-import { classiDiCuiSonoDocente, stato, vai } from '../state.js'
+import { raccoglieDocumento } from '../../../../core/dominio/assignments.js'
+import { formattaData, giornoDi } from '../../../../core/dominio/dates.js'
+import type { Classe, Registro, Smistamento } from '../../../../core/dominio/models.js'
+import { daSmistarePerClasse, pagineDaSmistare, type MucchioDaSmistare } from '../../../../core/dominio/sorting.js'
+import { pastiglia, pulsante, statoVuoto, testataVista } from '../../components/base.js'
+import { suggerimento } from '../../components/hint.js'
+import { icona } from '../../components/icons.js'
+import { h, type Figlio } from '../../dom.js'
+import { classiDiCuiSonoDocente, stato, vai } from '../../state.js'
 
-import { guardaNellArchivio } from './archive.js'
-import { spostaInClasse } from './sorting.js'
-import { testi } from './sorting.testi.js'
+import { guardaNellArchivio } from '../archive.js'
+import { spostaInClasse } from '../sorting.js'
+import { testi } from '../sorting.testi.js'
 
 let cacheRegistro: Registro | null = null
 let mucchiInMemoria: MucchioDaSmistare[] = []

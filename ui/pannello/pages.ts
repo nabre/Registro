@@ -4,7 +4,7 @@
 
 import type { NomeIcona } from './components/icons.js'
 import { notifica } from './components/notifications.js'
-import { pagineDaSmistareInTutto } from './views/toSort.js'
+import { pagineDaSmistareInTutto } from './views/sorting/toSort.js'
 import {
   classeDelFascicolo,
   corsoDelContesto,
