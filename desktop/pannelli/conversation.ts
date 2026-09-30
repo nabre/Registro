@@ -10,7 +10,7 @@
 
 import { conversa } from '../../desktop/transports/assistant.js'
 import type { Archivio } from '../../core/dati/archive.js'
-import type { Conversazione, MessaggioAssistente } from '../../contract/protocollo.js'
+import type { Conversazione, MessaggioAssistente } from '../../contract/protocol.js'
 
 /** Un evento del giro senza il suo destinatario: l'`id` lo mette chi ascolta. */
 type EventoGiro = Omit<MessaggioAssistente, 'tipo' | 'id'>

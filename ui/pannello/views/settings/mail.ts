@@ -9,7 +9,7 @@
 import { campo, pastiglia, pulsante, scheda } from '../../components/base.js'
 import { apriModale } from '../../components/modal.js'
 import { h, type Figlio } from '../../dom.js'
-import type { VoceProgramma } from '../../../../contract/protocollo.js'
+import type { VoceProgramma } from '../../../../contract/protocol.js'
 import { azione } from '../../bridge.js'
 import { stato, vai } from '../../state.js'
 import { salvaImpostazioni } from './document.js'

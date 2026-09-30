@@ -67,7 +67,7 @@ import {
   puntaProiezione,
 } from './pannelli/projection.js'
 import { avviaVassoio } from './widget/tray.js'
-import type { MessaggioNavigazione } from '../contract/protocollo.js'
+import type { MessaggioNavigazione } from '../contract/protocol.js'
 import { firmaPosta } from '../core/dati/templates.js'
 import { istante } from '../core/i18n/index.js'
 import { parole } from '../core/dominio/words.testi.js'

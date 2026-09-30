@@ -11,10 +11,10 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 | Superficie | Dove è dichiarata | Che cos'è |
 |---|---|---|
 | Destinazioni (pagine) | [`ui/pannello/pages.ts`](../ui/pannello/pages.ts) — `PAGINE` | un posto dove *andare* |
-| Viste | [`contract/protocollo.ts`](../contract/protocollo.ts) — `type Vista`, instradate da [`ui/pannello/shell.ts`](../ui/pannello/shell.ts) | lo schermo disegnato |
+| Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/pannello/shell.ts`](../ui/pannello/shell.ts) | lo schermo disegnato |
 | Comandi dell'interfaccia | [`ui/pannello/commands.ts`](../ui/pannello/commands.ts) — `COMANDI_UI` | una cosa da *fare* nel pannello |
 | Comandi del programma | [`contract/manifest.ts`](../contract/manifest.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
-| Azioni del protocollo | [`contract/protocollo.ts`](../contract/protocollo.ts) — `type Azione` | la scrittura che attraversa il ponte |
+| Azioni del protocollo | [`contract/protocol.ts`](../contract/protocol.ts) — `type Azione` | la scrittura che attraversa il ponte |
 | Procedure | [`contract/procedure/`](../contract/procedure/) | il contratto davanti alle azioni, più le letture (API § 5) |
 
 ```
@@ -378,7 +378,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 ## 6. Azioni del protocollo
 
-Le 168 varianti di `type Azione` ([`contract/protocollo.ts`](../contract/protocollo.ts)),
+Le 168 varianti di `type Azione` ([`contract/protocol.ts`](../contract/protocol.ts)),
 una per gestore in [`core/azioni/`](../core/azioni/); `GESTORI` in
 [`contract/switchboard.ts`](../contract/switchboard.ts) (il compilatore vieta azioni senza
 gestore e viceversa). Ognuna ha una procedura davanti (ADR-27): `azione →
@@ -454,7 +454,7 @@ Le letture (senza azione): API § 5.
 
 ## 7. Messaggi host → pannello
 
-In [`contract/protocollo.ts`](../contract/protocollo.ts); `MessaggioVersoWebview` è la loro
+In [`contract/protocol.ts`](../contract/protocol.ts); `MessaggioVersoWebview` è la loro
 unione. Stesso canale `registro:messaggio`; il pannello li distingue da `tipo`
 ([`ui/pannello/bridge.ts`](../ui/pannello/bridge.ts)). In salita: `Richiesta { id, azione }`
 (in coda) e `Domanda { id, procedura, ingresso? }` (fuori coda); un solo

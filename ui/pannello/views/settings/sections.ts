@@ -20,7 +20,7 @@ import {
   type SezioneDiProgramma,
 } from '../../../../core/controlli/areas.js'
 import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifest.js'
-import type { VoceProgramma } from '../../../../contract/protocollo.js'
+import type { VoceProgramma } from '../../../../contract/protocol.js'
 import type { NomeIcona } from '../../components/icons.js'
 import {
   AREE_IMPOSTAZIONI,

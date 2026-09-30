@@ -3,7 +3,7 @@
 // Il pannello manda la stessa `Azione` e riceve la stessa `Risposta`, ma
 // passando da convalida, codice d'errore e giornale.
 
-import type { Azione } from './protocollo.js'
+import type { Azione } from './protocol.js'
 import type { EsitoAzione, Gestore, Parte } from '../core/azioni/context.js'
 import { registraTutte } from './registry.js'
 import { aEsitoAzione, chiama, procedure } from './core.js'

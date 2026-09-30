@@ -4,7 +4,7 @@
 // un'azione del protocollo resta senza gestore.
 
 import type { Archivio } from '../core/dati/archive.js'
-import type { Azione } from './protocollo.js'
+import type { Azione } from './protocol.js'
 import { assistente } from '../core/azioni/assistant.js'
 import { calendario } from '../core/azioni/calendar.js'
 import { consegne } from '../core/azioni/assignments.js'

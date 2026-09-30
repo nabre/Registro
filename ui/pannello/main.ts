@@ -28,7 +28,7 @@ import type {
   MessaggioNavigazione,
   MessaggioStato,
   MessaggioVersoWebview,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
 import {

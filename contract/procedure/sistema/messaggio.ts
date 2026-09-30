@@ -1,5 +1,5 @@
 import { sistema } from '../../../core/azioni/system.js'
-import type { Messaggio } from '../../protocollo.js'
+import type { Messaggio } from '../../protocol.js'
 import { inoltra, scrittura } from '../../core.js'
 import { oggetto, scelta, testo } from '../../schemas.js'
 import { testi } from './sistema.testi.js'

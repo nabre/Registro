@@ -15,7 +15,7 @@ import { formattaData } from '../core/dominio/dates.js'
 import { detto, minuscolo, numero, type TestoPigro } from '../core/i18n/index.js'
 import { parole } from '../core/dominio/words.testi.js'
 import { testi } from './core.testi.js'
-import type { BloccoRisultato, RisultatoAssistente } from './protocollo.js'
+import type { BloccoRisultato, RisultatoAssistente } from './protocol.js'
 import type { ProceduraQualunque } from './contract.js'
 
 /**

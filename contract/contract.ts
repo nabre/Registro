@@ -9,7 +9,7 @@
 import type { Parole, Termine } from '../core/dominio/lexicon.js'
 import { lessico } from '../core/dominio/lexicon.testi.js'
 import type { Collezione } from '../core/dominio/models.js'
-import type { Messaggio } from './protocollo.js'
+import type { Messaggio } from './protocol.js'
 import type { contestoDi } from '../core/azioni/context.js'
 import type { Presentazione, PresentazioneQualunque } from './presentation.js'
 import type { Schema } from './schemas.js'

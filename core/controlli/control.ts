@@ -15,7 +15,7 @@
 // gestori del disegno nuovo (`gestisci`, ADR-50), e il nodo del disegno vecchio
 // può essere fuori dal documento.
 
-import type { VoceProgramma } from '../../contract/protocollo.js'
+import type { VoceProgramma } from '../../contract/protocol.js'
 import { parole } from '../dominio/words.testi.js'
 import { numero } from '../i18n/index.js'
 import { attributo, elemento, idDi } from './dom.js'

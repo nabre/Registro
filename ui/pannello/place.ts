@@ -6,7 +6,7 @@
 // Classi, classe dell'allievo, riconvalida dei ricordati, contesto
 // dell'elemento) stanno qui con la stessa semantica, col registro per parametro.
 
-import type { Vista } from '../../contract/protocollo.js'
+import type { Vista } from '../../contract/protocol.js'
 import type {
   AnnoScolastico,
   Classe,

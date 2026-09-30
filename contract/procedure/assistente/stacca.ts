@@ -1,5 +1,5 @@
 import { assistente } from '../../../core/azioni/assistant.js'
-import type { BloccoRisultato, RisultatoAssistente, TurnoAssistente } from '../../protocollo.js'
+import type { BloccoRisultato, RisultatoAssistente, TurnoAssistente } from '../../protocol.js'
 import { inoltra, scrittura } from '../../core.js'
 import {
   booleano, elenco, numero, oggetto, opzionale, qualunque, scelta, testo, type Schema,

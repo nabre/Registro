@@ -35,7 +35,7 @@ import type {
   Richiesta,
   SeguiConversazione,
   VoceProgramma,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 import type { Registro } from '../../core/dominio/models.js'
 import { alCambioLingua, lingua } from '../../core/i18n/index.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'

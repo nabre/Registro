@@ -4,7 +4,7 @@
 // divisione in sezioni sta in `sections.ts`, senza DOM, e si prova.
 // «Ripristina» riporta al predefinito le voci di un'area, dagli elenchi soltanto.
 
-import type { VoceProgramma } from '../../../../contract/protocollo.js'
+import type { VoceProgramma } from '../../../../contract/protocol.js'
 import { controllo, type Esito, type Valore } from '../../../../core/controlli/control.js'
 import {
   avviso,

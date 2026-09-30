@@ -28,7 +28,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
                 ▼                                  │
 ┌───────────────────────────────┐                  │
 │           contract/           │                  │
-│ protocollo.ts   manifest.ts   │                  │
+│ protocol.ts     manifest.ts   │                  │
 │ schemas.ts      procedure/    │                  │
 │ switchboard.ts  bridge.ts     │                  │
 │ tools.ts                      │                  │
@@ -79,7 +79,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
 ### `contract/`: La superficie contrattuale
 Rappresenta il contratto esplicito tra il motore applicativo, l'interfaccia utente e l'esterno:
 
-- `contract/protocollo.ts`: Definisce le buste dei messaggi IPC scambiati via canale tra il processo main e il frontend (`Richiesta`, `Risposta`, `Domanda`, `Riscontro`, `Notifica`).
+- `contract/protocol.ts`: Definisce le buste dei messaggi IPC scambiati via canale tra il processo main e il frontend (`Richiesta`, `Risposta`, `Domanda`, `Riscontro`, `Notifica`).
 - `contract/manifest.ts`: Il manifesto delle impostazioni del programma e del documento, con schemi di tipo, valori predefiniti, sezioni di preferenza e definizioni dei comandi.
 - `contract/schemas.ts`: Schemi di validazione dei payload e dei formati di scambio.
 - `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema d'ingresso (`contract/schemas.ts`, valibot sotto `~standard`) rigoroso e registrazione centralizzata.
@@ -148,7 +148,7 @@ Una regola fondamentale del design di Regiklass riguarda la relazione tra `core/
 
 ```ts
 // CORRETTO (import di solo tipo, sparisce alla compilazione):
-import type { Azione, Risposta } from '../contract/protocollo.js'
+import type { Azione, Risposta } from '../contract/protocol.js'
 import { type SchemiRegistro } from '../contract/schemas.js'
 
 // ERRORE GRAVE (import di valore a runtime, intercettato da npm run layers):
@@ -191,7 +191,7 @@ Qual è lo scopo del codice da aggiungere?
 │   └── ➔ contract/procedure/ (contratto esplicito con schema d'ingresso)
 │
 ├── È un protocollo IPC, schema globale di messaggi o definizione delle impostazioni?
-│   └── ➔ contract/ (contract/protocollo.ts, contract/schemas.ts, contract/manifest.ts)
+│   └── ➔ contract/ (contract/protocol.ts, contract/schemas.ts, contract/manifest.ts)
 │
 ├── È una finestra nativa, menu di sistema, scorciatoia OS, tray icon o protocollo registro://?
 │   └── ➔ desktop/shell/ o desktop/widget/ o desktop/apparato/ (main process Electron)

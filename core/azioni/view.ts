@@ -2,7 +2,7 @@
 // `invariato`. Chi sa aprirla (`src/startup.ts`, strato `desktop`) si iscrive
 // all'accensione, perché `core` non importa `desktop` (`tools/layers.mjs`).
 
-import type { MessaggioNavigazione } from '../../contract/protocollo.js'
+import type { MessaggioNavigazione } from '../../contract/protocol.js'
 import { invariato, type Parte } from './context.js'
 import { testi } from './view.testi.js'
 

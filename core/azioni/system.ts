@@ -23,7 +23,7 @@ import {
 import { apriConOutlook } from '../dati/outlook.js'
 import { etichettaSemestre, nelSemestre, oraValida } from '../dominio/dates.js'
 import type { Intestazione, Registro } from '../dominio/models.js'
-import type { ImpostazioniDaSalvare } from '../../contract/protocollo.js'
+import type { ImpostazioniDaSalvare } from '../../contract/protocol.js'
 import { riparazioni } from '../dominio/repairs.js'
 import { conCarteComplete, normalizzaImpostazioni } from '../dominio/normalization.js'
 import { validaMinutiUd, validaPause, validaScala } from '../dominio/validation.js'

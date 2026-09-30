@@ -20,7 +20,7 @@ import type {
   Risposta,
   RisultatoAssistente,
   SeguiConversazione,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 
 declare function acquireVsCodeApi (): {
   postMessage (messaggio: unknown): void

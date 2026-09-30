@@ -7,7 +7,7 @@
 // `actions.ts`.
 
 import type { Archivio } from '../core/dati/archive.js'
-import type { Azione } from './protocollo.js'
+import type { Azione } from './protocol.js'
 import { contestoDi, type EsitoAzione, type Gestore, type Parte } from '../core/azioni/context.js'
 import { primaDiScrivere, rigeneraDopoScrittura } from '../core/azioni/reports.js'
 import { identificatore } from '../core/dominio/identifiers.js'

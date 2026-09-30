@@ -83,7 +83,7 @@ flowchart TB
 | [contract/bridge.ts](../contract/bridge.ts) | l'innesto nel centralino |
 | [desktop/transports/conduit.ts](../desktop/transports/conduit.ts) | il server JSON-RPC locale |
 | [cli/main.mjs](../cli/main.mjs) | la riga di comando |
-| [contract/protocollo.ts](../contract/protocollo.ts) | `Azione`/`Risposta`, `Domanda`/`Riscontro` |
+| [contract/protocol.ts](../contract/protocol.ts) | `Azione`/`Risposta`, `Domanda`/`Riscontro` |
 | [ui/pannello/bridge.ts](../ui/pannello/bridge.ts) | `invia`, `azione`, `chiedi` |
 | [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | coda delle richieste, `rispondiDomanda()` |
 

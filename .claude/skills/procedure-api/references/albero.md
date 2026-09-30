@@ -21,7 +21,7 @@ L'albero dei sorgenti riflette i cinque strati architetturali del progetto (deci
 
 | Strato | File e cartelle | Ruolo rispetto all'API |
 | --- | --- | --- |
-| `contract/` | `contract/contract.ts`, `contract/schemas.ts`, `contract/core.ts`, `contract/tools.ts`, `contract/protocollo.ts`, `contract/switchboard.ts`, `contract/bridge.ts`, `contract/procedure/` | Il contratto davanti al nucleo: tipi, schemi, catalogo, protocollo, centralino e procedure |
+| `contract/` | `contract/contract.ts`, `contract/schemas.ts`, `contract/core.ts`, `contract/tools.ts`, `contract/protocol.ts`, `contract/switchboard.ts`, `contract/bridge.ts`, `contract/procedure/` | Il contratto davanti al nucleo: tipi, schemi, catalogo, protocollo, centralino e procedure |
 | `core/` | `core/azioni/`, `core/dati/`, `core/dominio/` | Il nucleo applicativo: gestori delle azioni (`core/azioni/`), persistenza e archivio (`core/dati/`), regole di dominio pure (`core/dominio/`) |
 | `desktop/` | `desktop/transports/`, `desktop/pannelli/`, `desktop/apparato/`, `desktop/shell/` | L'applicazione Electron: trasporti condotto/assistente (`desktop/transports/`), gestione pannelli (`desktop/pannelli/`), apparato di sistema (`desktop/apparato/`), shell nativa (`desktop/shell/`) |
 | `ui/` | `ui/pannello/` | L'interfaccia utente webview: non conosce le procedure, invia solo `Azione` e `Domanda` |
@@ -35,7 +35,7 @@ L'albero dei sorgenti riflette i cinque strati architetturali del progetto (deci
 | `contract/schemas.ts` | i costruttori di schema, `convalida`, `schemaJson`, `formaInBreve` | quando manca una forma che nessun costruttore sa dire |
 | `contract/core.ts` | `chiama()`, l'elenco, `registra`, `osserva`, `SCRITTURA`, `scrittura`, `inoltra`, `daGestore`, `aEsitoAzione`, `descrivi` | quasi mai |
 | `contract/tools.ts` | `catalogo()`, `catalogoJson()`, `nomeFunzione`, `daNomeFunzione`, le istruzioni per il modello (cfr. `tools/assistantTools.mjs`) | quando cambia la forma del catalogo, non quando cambia una procedura |
-| `contract/protocollo.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | quando si aggiunge o ritira un'azione (cfr. [Il protocollo e i gestori](#il-protocollo-e-i-gestori)) |
+| `contract/protocol.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | quando si aggiunge o ritira un'azione (cfr. [Il protocollo e i gestori](#il-protocollo-e-i-gestori)) |
 | `contract/switchboard.ts` | `GESTORI`, con `...gestoriDelleProcedure()` sparso per ultimo | quando si registra un gestore di azione |
 | `contract/bridge.ts` | il centralino delle `Azione`, smistamento verso le procedure | quando una procedura prende in carico un'azione (cfr. [I trasporti: chi entra nel nucleo](#i-trasporti-chi-entra-nel-nucleo)) |
 | `contract/procedure/` | l'albero di tutti i file di procedura | a ogni procedura nuova, modificata o rimossa (cfr. [Le procedure](#le-procedure)) |
@@ -83,7 +83,7 @@ Solo per le procedure che prendono in carico un'azione, e i moduli di `core/` ch
 
 | File | Che cosa | Attenzione |
 | --- | --- | --- |
-| `contract/protocollo.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | due prove **leggono questo sorgente** e contano le varianti |
+| `contract/protocol.ts` | l'unione `Azione`, e accanto `Domanda`/`Riscontro` | due prove **leggono questo sorgente** e contano le varianti |
 | `core/azioni/<area>.ts` | il gestore vero, dentro `modifica(op, collezioni)` | il lavoro sta qui e ci resta |
 | `contract/switchboard.ts` | `GESTORI`, con `...gestoriDelleProcedure()` sparso per ultimo | le chiavi prese in carico vincono su quelle di prima |
 | `core/azioni/context.ts` | `EsitoAzione`, `Gestore`, `contestoDi` | |

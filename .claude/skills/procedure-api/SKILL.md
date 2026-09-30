@@ -74,7 +74,7 @@ dettaglio di ciascuno sta in [references/albero.md](references/albero.md).
 | `contract/procedure/<segmenti>.ts` | la procedura | sempre |
 | `…/<cartella>/index.ts` | la registra | sempre |
 | `contract/registry.ts` | le aree | area nuova o sparita |
-| `contract/protocollo.ts` | l'unione `Azione` | se prende in carico un'azione |
+| `contract/protocol.ts` | l'unione `Azione` | se prende in carico un'azione |
 | `core/azioni/<area>.ts` | il gestore | idem |
 | `resources/tools.json` | il catalogo per il modello | sempre — `npm run tools` |
 | `tests/api/reads.test.mjs` · `writes.test.mjs` | la prova | sempre |
@@ -142,7 +142,7 @@ E due modi di passare la palla al gestore:
   (`smistamento.pdf.*` e `comeDivisione`).
 
 Se prende in carico un'azione che **non esiste ancora**, prima va dichiarata in
-`contract/protocollo.ts`, poi il gestore in `core/azioni/<area>.ts`, e **poi** il
+`contract/protocol.ts`, poi il gestore in `core/azioni/<area>.ts`, e **poi** il
 conto che legge quel sorgente: `tests/api/coverage.test.mjs` («azioni
 trovate»). Quel numero è scritto a mano apposta: se cambia, è cambiato il
 protocollo, e va visto.
@@ -191,7 +191,7 @@ di solito prova anche altro, e cancellarla sarebbe buttare via una rete insieme
 al ferro vecchio.
 
 Se prendeva in carico un'azione e nessun altro la usa, vanno tolti anche
-l'azione da `contract/protocollo.ts` e il suo gestore in `core/azioni/`, e aggiornati i due conti.
+l'azione da `contract/protocol.ts` e il suo gestore in `core/azioni/`, e aggiornati i due conti.
 
 ## I cancelli
 

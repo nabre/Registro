@@ -52,7 +52,7 @@ import {
   type Impronta,
   type Riferimenti,
 } from '../dominio/automation.js'
-import type { Azione } from '../../contract/protocollo.js'
+import type { Azione } from '../../contract/protocol.js'
 import { conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi } from './reports.testi.js'
 

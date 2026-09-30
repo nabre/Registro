@@ -5,7 +5,7 @@
 // arrivano già scritte nel `racconto` (`environment/updates.ts`), comuni a
 // tutte le superfici; anche il gesto è uno solo: `gesto()`.
 
-import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocollo.js'
+import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocol.js'
 import { barra, pastiglia, pulsante, scheda } from '../../components/base.js'
 import type { NomeIcona } from '../../components/icons.js'
 import { conferma } from '../../components/modal.js'

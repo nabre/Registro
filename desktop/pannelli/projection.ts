@@ -15,7 +15,7 @@ import {
   type ImpostazioniProiezione,
   type MiraProiezione,
 } from '../../core/dominio/projection.js'
-import type { MessaggioProiezione, MessaggioStatoProiezione } from '../../contract/protocollo.js'
+import type { MessaggioProiezione, MessaggioStatoProiezione } from '../../contract/protocol.js'
 import { alCambioLingua } from '../../core/i18n/index.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'
 import { testi } from './panels.testi.js'

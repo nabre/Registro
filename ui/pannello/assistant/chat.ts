@@ -16,7 +16,7 @@ import type {
   GiroDaRiprendere,
   IdVisto,
   RisultatoAssistente,
-} from '../../../contract/protocollo.js'
+} from '../../../contract/protocol.js'
 import { pulsante, statoVuoto } from '../components/base.js'
 import { suggerimento } from '../components/hint.js'
 import { icona } from '../components/icons.js'

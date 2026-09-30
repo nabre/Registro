@@ -1,7 +1,7 @@
 // L'elenco delle pagine del registro, condiviso da `vista.apri` e
 // `assistente.contesto` (vedi `common/register.ts`).
 
-import type { Vista } from '../../protocollo.js'
+import type { Vista } from '../../protocol.js'
 import { esaustivo } from '../../schemas.js'
 
 /**

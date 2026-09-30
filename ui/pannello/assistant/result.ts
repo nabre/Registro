@@ -4,7 +4,7 @@
 // Le tabelle sono quelle di `answer.ts` (`assistente__tabella`).
 
 import { h, type Figlio } from '../dom.js'
-import type { BloccoRisultato, RisultatoAssistente } from '../../../contract/protocollo.js'
+import type { BloccoRisultato, RisultatoAssistente } from '../../../contract/protocol.js'
 import { tabellaAssistente } from './answer.js'
 import { testi } from './chat.testi.js'
 

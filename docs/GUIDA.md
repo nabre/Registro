@@ -29,7 +29,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Lingue e cataloghi | `core/i18n/` (ADR-38) |
 | L'ambiente: finestre, dialoghi, file, impostazioni (`apparato`) | `desktop/apparato/` (ADR-02) |
 | Il guscio Electron: avvio, menu, protocollo, pagine native | `desktop/shell/` |
-| Contratto fra host e pannello | `contract/protocollo.ts` |
+| Contratto fra host e pannello | `contract/protocol.ts` |
 | Azioni | `core/azioni/` |
 | Procedure, condotto, riga di comando | `contract/`, `cli/main.mjs` |
 | Interfaccia del pannello (senza framework, ADR-06) | `ui/pannello/` |

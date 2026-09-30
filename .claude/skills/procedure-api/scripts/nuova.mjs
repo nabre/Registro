@@ -27,7 +27,7 @@ import process from 'node:process'
 
 const PROCEDURE = 'contract/procedure'
 const INDICE = 'contract/registry.ts'
-const PROTOCOLLO = 'contract/protocollo.ts'
+const PROTOCOLLO = 'contract/protocol.ts'
 const AZIONI = 'core/azioni'
 
 // ------------------------------------------------------------- gli argomenti

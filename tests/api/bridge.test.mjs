@@ -23,7 +23,7 @@ let rossi
  * esiste, e `azioneValida` direbbe vero anche per le chiavi appena aggiunte.
  */
 function tipiDelProtocollo () {
-  const file = fileURLToPath(new URL('../../contract/protocollo.ts', import.meta.url))
+  const file = fileURLToPath(new URL('../../contract/protocol.ts', import.meta.url))
   const sorgente = readFileSync(file, 'utf8')
   const trovati = [...sorgente.matchAll(/^\s*\|?\s*(?:\{\s*)?tipo:\s*'([^']+)'/gm)].map((m) => m[1])
   assert.ok(trovati.length > 100, `il protocollo si legge male: ${trovati.length} tipi trovati`)

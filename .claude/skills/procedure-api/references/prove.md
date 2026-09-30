@@ -87,7 +87,7 @@ giusto e non solo ben formato.
 Tre prove non guardano il comportamento ma **il testo dei file**, e vanno capite
 prima di toccarle:
 
-- `coverage.test.mjs` legge l'unione `Azione` da `contract/protocollo.ts`, contando
+- `coverage.test.mjs` legge l'unione `Azione` da `contract/protocol.ts`, contando
   le graffe — le varianti sono scritte in due stili e un'espressione regolare
   sarebbe più fragile di un contatore.
 - `bridge.test.mjs` e `writes.test.mjs` leggono la guardia di

@@ -7,7 +7,7 @@
 // chi legge deve saper guardare: per questo le righe sono separate. Lo scarico
 // mostra avanzamento e arresto; l'avanzamento lo spinge l'host (`MessaggioScarico`).
 
-import type { UsoModello, VoceProgramma } from '../../../contract/protocollo.js'
+import type { UsoModello, VoceProgramma } from '../../../contract/protocol.js'
 import {
   avviso,
   barra,

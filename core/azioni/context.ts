@@ -14,7 +14,7 @@ import { eliminazione, occupazione, type Bersaglio, type FileDaTogliere } from '
 import { creaFascicolo } from '../dominio/factories.js'
 import type { Classe, Collezione, Consegna, Fascicolo, Registro } from '../dominio/models.js'
 import type { Codice, Origine } from '../../contract/contract.js'
-import type { Azione, Messaggio } from '../../contract/protocollo.js'
+import type { Azione, Messaggio } from '../../contract/protocol.js'
 import { parole } from '../dominio/words.testi.js'
 import { testi } from './context.testi.js'
 

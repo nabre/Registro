@@ -557,6 +557,4 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-| Lotto | Da → a | Perché |
-| --- | --- | --- |
-| 5 | `contract/protocollo.ts` → contract/protocol.ts | ADR-53 |
+Nessun riordino aperto.

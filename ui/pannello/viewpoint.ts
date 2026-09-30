@@ -14,7 +14,7 @@ import type {
   ElencoVisibile,
   PeriodoContesto,
   VoceContesto,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 import {
   classeDelContesto,
   classeDelFascicolo,

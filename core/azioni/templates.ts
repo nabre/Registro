@@ -25,7 +25,7 @@ import { normalizzaIntestazione } from '../dominio/normalization.js'
 import { blocchi, paroleDeiModelli, sorgenteModello, vecchiaCartella } from '../dati/templates.js'
 import { archiviaCopia, pulisciCopiaOrfana } from '../dati/filing.js'
 import { componiPdf } from '../dati/reportsPdf.js'
-import type { NomiModello } from '../../contract/protocollo.js'
+import type { NomiModello } from '../../contract/protocol.js'
 import { immaginiDelDocumento, impaginazioneDi } from './reports.js'
 import {
   cestina,

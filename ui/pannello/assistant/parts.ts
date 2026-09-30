@@ -17,7 +17,7 @@ import type {
   ContestoAssistente,
   RiferimentiContesto,
   VoceContesto,
-} from '../../../contract/protocollo.js'
+} from '../../../contract/protocol.js'
 
 /** Che cosa il modello può sapere della pagina che si ha davanti. */
 export interface PartiContesto {

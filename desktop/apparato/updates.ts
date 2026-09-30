@@ -19,7 +19,7 @@ import * as percorso from 'node:path'
 
 import type { AppUpdater, BaseUpdater, NsisUpdater, ProgressInfo, UpdateDownloadedEvent, UpdateInfo } from 'electron-updater'
 
-import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } from '../../contract/protocollo.js'
+import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } from '../../contract/protocol.js'
 import { EventEmitter, type Smaltibile } from '../../core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { consegnaAllAiutante } from './updateInstaller.js'

@@ -154,7 +154,7 @@ disegno dalla `VoceProgramma`, `field.ts` fa lo stesso per i campi dell'anno.
 
 Quel che le due devono sapere si calcola in `vociImpostazioni()`
 (`desktop/apparato/settings.ts`) e viaggia come campo di `VoceProgramma`
-(`contract/protocollo.ts`): `sospesa` (la regola di `dipendeDa`),
+(`contract/protocol.ts`): `sospesa` (la regola di `dipendeDa`),
 `delCollegamento`, `alProssimoAvvio`, il disegno. Un punto solo, un conto solo.
 
 ## Le prove

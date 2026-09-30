@@ -9,7 +9,7 @@ import {
   partiValide,
   type PartiContesto,
 } from './assistant/parts.js'
-import type { MessaggioStato } from '../../contract/protocollo.js'
+import type { MessaggioStato } from '../../contract/protocol.js'
 import type {
   Classe,
   Corso,
@@ -72,7 +72,7 @@ import {
   type ImpostazioniProiezione,
   type MiraProiezione,
 } from '../../core/dominio/projection.js'
-import type { Vista } from '../../contract/protocollo.js'
+import type { Vista } from '../../contract/protocol.js'
 import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
 import { battiMinuto } from './clock.js'
 import {
@@ -112,7 +112,7 @@ import { testi as testiCalcoli } from '../../core/dominio/calculations.testi.js'
 import { testi } from './state.testi.js'
 
 /** L'elenco delle sezioni sta nel protocollo: lo legge anche l'host. */
-export type { Vista } from '../../contract/protocollo.js'
+export type { Vista } from '../../contract/protocol.js'
 
 // Aree e sezioni delle impostazioni stanno col posto (`place.ts`), di cui fanno parte.
 export type { AreaImpostazioni, SezioneImpostazioni } from './place.js'

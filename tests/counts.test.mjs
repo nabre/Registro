@@ -47,7 +47,7 @@ describe('i conteggi che INDICE.md dichiara', () => {
     const destinazioni = (corpo.match(/^\s+id: '/gm) ?? []).length
     // Le viste del protocollo. L'assistente non è una vista: è un riquadro
     // (`ui/assistant.ts`).
-    const viste = varianti(sorgente('contract/protocollo.ts'), 'Vista')
+    const viste = varianti(sorgente('contract/protocol.ts'), 'Vista')
 
     const scritto = /(\d+) destinazioni, (\d+) viste/.exec(indice)
     assert.ok(scritto, 'la frase «N destinazioni, N viste» non c’è più in INDICE.md: la forma è cambiata?')

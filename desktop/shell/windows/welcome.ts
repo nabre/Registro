@@ -41,7 +41,7 @@ import {
   statoAggiornamenti,
 } from '../../apparato/updates.js'
 import { Uri } from '../../../core/apparato/uri.js'
-import type { RaccontoAggiornamenti } from '../../../contract/protocollo.js'
+import type { RaccontoAggiornamenti } from '../../../contract/protocol.js'
 import { ESTENSIONE } from '../../../core/dati/package.js'
 import { testi } from './welcome.testi.js'
 

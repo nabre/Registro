@@ -3,7 +3,7 @@
 // Chi sa comandare lo schermo (`desktop/pannelli/projection.ts`) si iscrive
 // all'accensione, perché `core` non importa `desktop` (`tools/layers.mjs`).
 
-import type { ImpostazioniProiezione, MiraProiezione } from '../../contract/protocollo.js'
+import type { ImpostazioniProiezione, MiraProiezione } from '../../contract/protocol.js'
 import { invariato, type EsitoAzione, type Parte } from './context.js'
 import { testi } from './projection.testi.js'
 

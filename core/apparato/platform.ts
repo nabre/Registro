@@ -6,7 +6,7 @@
 import * as fs from 'node:fs/promises'
 import * as percorso from 'node:path'
 
-import type { StatoAggiornamenti } from '../../contract/protocollo.js'
+import type { StatoAggiornamenti } from '../../contract/protocol.js'
 
 import { Smaltitore, type Event, type Smaltibile } from './events.js'
 import { ViewColumn, AmbitoImpostazione } from './enumerations.js'

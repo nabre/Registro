@@ -26,7 +26,7 @@ import { contestoDelRegistro } from '../../core/azioni/assistant.js'
 import type { Archivio } from '../../core/dati/archive.js'
 import type {
   ContestoAssistente, IdVisto, RisultatoAssistente, VoceContesto,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 import {
   chatta,
   collegamento,

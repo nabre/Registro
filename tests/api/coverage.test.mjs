@@ -2,7 +2,7 @@
 // l'ingresso della procedura, e `oggetto()` **scarta le chiavi che non
 // dichiara**: uno schema a cui manca un campo non rompe niente di visibile, il
 // campo semplicemente non arriva. Il compilatore non lo vede, quindi si
-// confrontano qui l'unione `Azione` di `contract/protocollo.ts` (letta dal sorgente) e
+// confrontano qui l'unione `Azione` di `contract/protocol.ts` (letta dal sorgente) e
 // i campi dello schema.
 
 import assert from 'node:assert/strict'
@@ -15,7 +15,7 @@ import { azioniSottoContratto, procedure, registraTutte } from '../../dist-tests
 registraTutte()
 
 const protocollo = readFileSync(
-  fileURLToPath(new URL('../../contract/protocollo.ts', import.meta.url)),
+  fileURLToPath(new URL('../../contract/protocol.ts', import.meta.url)),
   'utf8',
 )
 
@@ -25,7 +25,7 @@ const protocollo = readFileSync(
  */
 function varianti () {
   const inizio = protocollo.indexOf('export type Azione =')
-  assert.ok(inizio > 0, 'l’unione Azione non si trova in contract/protocollo.ts')
+  assert.ok(inizio > 0, 'l’unione Azione non si trova in contract/protocol.ts')
 
   const trovate = new Map()
   let i = inizio

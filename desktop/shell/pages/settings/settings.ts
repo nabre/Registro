@@ -28,7 +28,7 @@ import {
   type Esito,
   type Valore,
 } from '../../../../core/controlli/control.js'
-import type { VoceProgramma } from '../../../../contract/protocollo.js'
+import type { VoceProgramma } from '../../../../contract/protocol.js'
 import type { RichiestaImpostazioni } from '../../windows/menu.js'
 import { ascolta, elemento, manda, perId, riempi } from '../shared/page.js'
 import { testi } from './settings.testi.js'

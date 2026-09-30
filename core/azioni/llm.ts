@@ -14,7 +14,7 @@ import { elimina as eliminaModello, importaInDisparte, scarica } from '../dati/g
 import { indirizzo } from '../dati/huggingFace.js'
 import { pesiInUso, scaricaPesi } from '../dati/llamaCpp.js'
 import { modelloNellaCartella } from '../dati/gguf.js'
-import type { MessaggioScarico, UsoModello } from '../../contract/protocollo.js'
+import type { MessaggioScarico, UsoModello } from '../../contract/protocol.js'
 import { conMessaggio, invariato, motivoSicuro, rifiuta, scegliFile, type Parte } from './context.js'
 import { testi } from './llm.testi.js'
 

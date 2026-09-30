@@ -25,7 +25,7 @@ import type {
   MessaggioVersoWebview,
   SeguiConversazione,
   TurnoAssistente,
-} from '../../contract/protocollo.js'
+} from '../../contract/protocol.js'
 import {
   fermaGiriDi, riprendiGiro, rispondiConversazione, sospendiGiroInCorso,
 } from './conversation.js'

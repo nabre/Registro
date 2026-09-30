@@ -93,7 +93,7 @@ Ordine di preferenza; il testo libero solo per ultimo.
 6. **File o cartella** — una sola resa: percorso, Sfoglia, verifica (esiste? scrivibile?), Apri.
 7. **Testo libero** — solo nomi propri, indirizzi, URL. Validazione in linea.
 
-Nel manifesto: `controllo?: 'segmenti' | 'tendina' | 'cursore'`, `unita`, `passo`, `figura`, `scelteDinamiche` + `sceltaLibera`, `formato: 'ora' | 'colore'`. Viaggiano in `VoceProgramma` (`contract/protocollo.ts`); un solo `controllo()` per pannello e nativa. Codice DOM condiviso fra le due superfici: serve una decisione (ADR), vedi `core/i18n/flags.ts` come precedente.
+Nel manifesto: `controllo?: 'segmenti' | 'tendina' | 'cursore'`, `unita`, `passo`, `figura`, `scelteDinamiche` + `sceltaLibera`, `formato: 'ora' | 'colore'`. Viaggiano in `VoceProgramma` (`contract/protocol.ts`); un solo `controllo()` per pannello e nativa. Codice DOM condiviso fra le due superfici: serve una decisione (ADR), vedi `core/i18n/flags.ts` come precedente.
 
 ### 3.6 Coerenza di comportamento
 

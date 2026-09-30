@@ -71,8 +71,6 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Riordino
 
-- [ ] Nomi dei file in inglese (ADR-53): rinominare gli esistenti a lotti,
-      mappa in ARCHITETTURA § 11.
 - [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
       `huggingFace`, `kit`, `llamaCpp`, `llm`, `recommendedModels`, `mtmd`,
       `nodeLlama`, `visionKit`) in core/dati/llm/. ~27 import, più
@@ -82,14 +80,14 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       dove molti importano: `core/dominio/normalization.ts` (impostazioni;
       consegne/check/smistamenti), `core/dominio/reportData.ts` (`datiAllievo`,
       `datiFascicolo`), `ui/pannello/state.ts` (le selezioni),
-      `contract/protocollo.ts` (assistente, dettatura, scarico),
+      `contract/protocol.ts` (assistente, dettatura, scarico),
       `ui/pannello/commands.ts` (`COMANDI_UI` per gruppo),
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),
       `core/dominio/projection.ts` (il calendario).
 - [ ] ~170 percorsi del vecchio assetto nei commenti (domain/, actions/,
       src/, file di ui/ senza pannello/), che `npm run docs` non vede perché
-      non hanno un prefisso di oggi. I più colpiti: `contract/protocollo.ts`,
+      non hanno un prefisso di oggi. I più colpiti: `contract/protocol.ts`,
       `desktop/transports/assistant.ts`, `core/dominio/models.ts`.
 - [ ] Frecce nelle griglie: `frecceNellaGriglia` (`views/check.ts`) e
       `spostaFuoco` (`views/assessments/grades.ts`, con finestra virtuale) si

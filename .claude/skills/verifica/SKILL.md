@@ -67,7 +67,7 @@ Il progetto organizza il codice su cinque strati architetturali netti
   gestori delle azioni di scrittura (`core/azioni/`), internazionalizzazione e
   cataloghi (`core/i18n/`), interfaccia astratta dell'apparato (`core/apparato/`).
 - **`contract/`** — il perimetro pubblico e il punto d'incontro fra processi:
-  buste e canali del protocollo (`contract/protocollo.ts`), manifesto di
+  buste e canali del protocollo (`contract/protocol.ts`), manifesto di
   comandi e impostazioni (`contract/manifest.ts`), procedure dell'API
   (`contract/procedure/`), router e centralino (`contract/switchboard.ts`),
   contratto del bridge e schemi di validazione d'ingresso.

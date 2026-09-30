@@ -7,7 +7,7 @@ import '../../../../core/i18n/page.js'
 // La barra del titolo, se la finestra ne ha una propria.
 import '../shared/titleBar.js'
 import type { DocumentoNoto } from '../../../apparato/documents.js'
-import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocollo.js'
+import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocol.js'
 import type { RichiestaBenvenuto } from '../../windows/welcome.js'
 import { allEsc, ascolta, elemento, manda, perId, riempi } from '../shared/page.js'
 import { parole } from '../../../../core/dominio/words.testi.js'

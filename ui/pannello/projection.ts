@@ -25,7 +25,7 @@ import type {
   ValutazioneProiettata,
   VoceCalendario,
 } from '../../core/dominio/projection.js'
-import type { MessaggioProiezione } from '../../contract/protocollo.js'
+import type { MessaggioProiezione } from '../../contract/protocol.js'
 import { quieto } from './components/base.js'
 import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './projection.testi.js'

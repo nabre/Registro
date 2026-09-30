@@ -16,7 +16,7 @@ import process from 'node:process'
 
 const PROCEDURE = 'contract/procedure'
 const INDICE = 'contract/registry.ts'
-const PROTOCOLLO = 'contract/protocollo.ts'
+const PROTOCOLLO = 'contract/protocol.ts'
 const CATALOGO = 'resources/tools.json'
 
 /** I file che in una cartella di procedure non sono procedure. */

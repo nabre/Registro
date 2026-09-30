@@ -618,7 +618,7 @@ di stato. Ogni colonna ha il suo contenitore di scorrimento con una chiave
 `definisci()`. La libreria di convalida sta dietro `~standard` (ADR-28, ADR-50).
 Il salvataggio su disco resta asincrono e coalescente.
 
-**Dove.** `contract/protocollo.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
+**Dove.** `contract/protocol.ts`, `contract/procedure/`, `desktop/pannelli/panel.ts`,
 `docs/API.md`.
 
 ### ADR-44 — Prove d'interfaccia con Playwright Python sincrono (superata da ADR-50)
@@ -963,7 +963,7 @@ parole di tutti e i tipi di `contract/` (`controlli-leggeri`); la matrice di
 «:» (o di « — »): un aiuto senza nome davanti fa da nome intero, e un
 segmentato con nomi lunghi diventa tendina.
 
-**Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocollo.ts`
+**Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocol.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
 `numeroStorto`), `core/controlli/control.ts`, `core/controlli/areas.ts`,
 `core/controlli/controls.css`, `ui/pannello/views/settings/program.ts`,
