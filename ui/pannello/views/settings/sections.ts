@@ -19,7 +19,7 @@ import {
   titoloGruppo,
   type SezioneDiProgramma,
 } from '../../../../core/controlli/areas.js'
-import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifesto.js'
+import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifest.js'
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import type { NomeIcona } from '../../components/icons.js'
 import {

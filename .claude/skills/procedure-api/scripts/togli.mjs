@@ -4,7 +4,7 @@
  * Cancellare il file è la parte facile e non basta: restano la riga
  * nell'indice — che non compila, e va bene — ma anche la cartella vuota con
  * dentro un indice che non indicizza niente, l'area nominata in
- * `contract/registro.ts`, la voce in `resources/tools.json` che continuerebbe a
+ * `contract/registry.ts`, la voce in `resources/tools.json` che continuerebbe a
  * raccontare a un modello un attrezzo che non c'è più, e le prove che la
  * chiamano. Le prime quattro le fa questo; le prove no, perché una prova che
  * cita una procedura tolta di solito prova anche altro, e cancellarla sarebbe
@@ -22,7 +22,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 
 const PROCEDURE = 'contract/procedure'
-const INDICE = 'contract/registro.ts'
+const INDICE = 'contract/registry.ts'
 
 const argomenti = process.argv.slice(2)
 const nome = argomenti.find((a) => !a.startsWith('--'))

@@ -1,6 +1,6 @@
 /**
  * Apre una procedura nuova: il file al posto giusto, le cartelle che mancano,
- * gli indici fino a `contract/registro.ts`.
+ * gli indici fino a `contract/registry.ts`.
  *
  * Fa la parte meccanica — quella in cui si sbaglia per distrazione e non per
  * giudizio — e si ferma prima di quella che richiede di pensare: lo schema
@@ -26,7 +26,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 
 const PROCEDURE = 'contract/procedure'
-const INDICE = 'contract/registro.ts'
+const INDICE = 'contract/registry.ts'
 const PROTOCOLLO = 'contract/protocollo.ts'
 const AZIONI = 'core/azioni'
 

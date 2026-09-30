@@ -108,5 +108,5 @@ export function registraTutte (): void {
 
 export { alberoProcedure, foglie } from './router.js'
 export { linkDiretto } from './link.js'
-export { chiamante, type ChiamanteNodo } from './chiamante.js'
+export { chiamante, type ChiamanteNodo } from './caller.js'
 

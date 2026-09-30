@@ -18,7 +18,7 @@ import { lezioneFinita } from '../../core/dominio/calculations.js'
 import { lezioneCompilata } from '../../core/dominio/courses.js'
 import { lessico } from '../../core/dominio/lexicon.testi.js'
 import { parole } from '../../core/dominio/words.testi.js'
-import { titoloComando } from '../../contract/manifesto.js'
+import { titoloComando } from '../../contract/manifest.js'
 import {
   BLOCCHI,
   NOMI_BLOCCO,
@@ -386,7 +386,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
   {
     // Dopo «Apri»: l'altro modo di servirsi di un anno non aperto, portandone
     // qui quel che vale. Apre una finestra del pannello, quindi non è nel menu
-    // nativo (`contract/manifesto.ts`).
+    // nativo (`contract/manifest.ts`).
     id: 'file.importaRegistro',
     titolo: t.importaRegistro,
     simbolo: 'duplica',

@@ -32,7 +32,7 @@ import {
 } from './schoolCalendar.js'
 
 import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifesto.js'
+import { titoloComando } from '../../../contract/manifest.js'
 import { testi } from './year.testi.js'
 
 /**

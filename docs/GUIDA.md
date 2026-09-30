@@ -24,7 +24,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Messaggi nella finestra del registro | `desktop/apparato/dialogs.ts`, `desktop/shell/pages/dialog/` |
 | La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/pannello/views/settings/schoolDay.ts` |
 | Documenti vecchi portati avanti | `core/dominio/upgrades.ts`, `core/dati/archive.ts` |
-| Comandi e impostazioni dichiarati | `contract/manifesto.ts` |
+| Comandi e impostazioni dichiarati | `contract/manifest.ts` |
 | Termini, articoli, accordi | `core/dominio/lexicon.ts` (ADR-01) |
 | Lingue e cataloghi | `core/i18n/` (ADR-38) |
 | L'ambiente: finestre, dialoghi, file, impostazioni (`apparato`) | `desktop/apparato/` (ADR-02) |

@@ -228,7 +228,7 @@ chiedere «vuoi aprirlo lo stesso?», non impedisce niente.
 ### ADR-21 — Impostazioni del programma e del documento
 
 **Decisione.** Programma: `impostazioni.json` in `userData`, per macchina.
-Documento: `Registro.impostazioni` dentro il `.regi`. `contract/manifesto.ts` è la
+Documento: `Registro.impostazioni` dentro il `.regi`. `contract/manifest.ts` è la
 fonte unica di chiavi, predefiniti e interfaccia.
 
 **Vincoli.** Una chiave nuova si dichiara nel manifesto; ogni chiave arriva a
@@ -240,7 +240,7 @@ due le superfici. Una dipendenza che il programma rispetta si dichiara
 (`dipendeDa`), perché le superfici non mostrino accesa una voce senza effetto.
 Il come: skill `impostazione`; il riordino: [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md).
 
-**Dove.** `contract/manifesto.ts`, `desktop/apparato/settings.ts`.
+**Dove.** `contract/manifest.ts`, `desktop/apparato/settings.ts`.
 
 ### ADR-22 — I file si aprono per percorso, non per URL
 
@@ -306,7 +306,7 @@ massimo un blocco per passata.
 
 **Decisione.** Ogni azione ha una `Procedura` (`contract/contract.ts`) che
 dichiara `azione`; `gestoriDelleProcedure()` (`contract/bridge.ts`) la spande
-sopra `GESTORI` in `contract/centralino.ts`. Il lavoro resta nel gestore. `chiama()`
+sopra `GESTORI` in `contract/switchboard.ts`. Il lavoro resta nel gestore. `chiama()`
 (`contract/core.ts`) è l'unico punto che convalida, esegue, cronometra e scrive
 nel giornale, per tutti i trasporti. Doppia nomenclatura: azione
 (`presenze.riga`) e procedura (`ore.appello.riga`), accostate in CATALOGO § 6.
@@ -382,7 +382,7 @@ Ogni spostamento ha due capi: un'impronta presa prima di scrivere
 (`primaDiScrivere`) fa rifare anche corso e semestre di dove una voce stava,
 e la classe di prima di una persona.
 
-**Dove.** `contract/core.ts`, `contract/centralino.ts`, `core/azioni/reports.ts`,
+**Dove.** `contract/core.ts`, `contract/switchboard.ts`, `core/azioni/reports.ts`,
 `core/dominio/automation.ts`, `tests/api/regeneration.test.mjs`.
 
 ### ADR-32 — Il contesto del modello resta caldo
@@ -648,7 +648,7 @@ acceso o «Controlla adesso». La regola è degli aggiornamenti: l'avvio
 riscarica i calendari ICS che il docente ha collegato con un indirizzo
 (`calendario.aggiornaTutti`), perché è lui ad averli chiesti.
 
-**Dove.** `contract/manifesto.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
+**Dove.** `contract/manifest.ts`, `desktop/apparato/updates.ts`, `docs/CATALOGO.md`,
 `os/windows/installer.nsh`.
 
 ### ADR-46 — Questioni di cantiere: un docente, viste pure, azioni per campo, calcoli canonici
@@ -963,7 +963,7 @@ parole di tutti e i tipi di `contract/` (`controlli-leggeri`); la matrice di
 «:» (o di « — »): un aiuto senza nome davanti fa da nome intero, e un
 segmentato con nomi lunghi diventa tendina.
 
-**Dove.** `contract/manifesto.ts` (`Controllo`, `FonteScelte`), `contract/protocollo.ts`
+**Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocollo.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
 `numeroStorto`), `core/controlli/control.ts`, `core/controlli/areas.ts`,
 `core/controlli/controls.css`, `ui/pannello/views/settings/program.ts`,

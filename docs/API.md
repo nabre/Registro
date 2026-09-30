@@ -36,7 +36,7 @@ flowchart TB
   azioni["Richiesta → Risposta<br/>le scritture, in coda"]
   domande["Domanda → Riscontro<br/>le letture, fuori dalla coda"]
   guardia["rispondiDomanda()<br/>rifiuta chi non è di sola lettura"]
-  bus["contract/centralino.ts<br/>centralino delle Azioni"]
+  bus["contract/switchboard.ts<br/>centralino delle Azioni"]
   ponte["contract/bridge.ts<br/>le azioni prese in carico"]
   condotto["desktop/transports/conduit.ts<br/>named pipe, JSON-RPC 2.0"]
   nucleo["contract/core.ts<br/>convalida, esegue, cronometra, racconta"]
@@ -79,7 +79,7 @@ flowchart TB
 | [contract/core.ts](../contract/core.ts) | `chiama()`, l'elenco, `scrittura()`, `inoltra()`, `daGestore()`, conversione da e verso `EsitoAzione` |
 | [contract/procedure/](../contract/procedure/) | una procedura per file |
 | [contract/tools.ts](../contract/tools.ts) | il catalogo che il modello legge |
-| [contract/registro.ts](../contract/registro.ts) | l'elenco delle aree |
+| [contract/registry.ts](../contract/registry.ts) | l'elenco delle aree |
 | [contract/bridge.ts](../contract/bridge.ts) | l'innesto nel centralino |
 | [desktop/transports/conduit.ts](../desktop/transports/conduit.ts) | il server JSON-RPC locale |
 | [cli/main.mjs](../cli/main.mjs) | la riga di comando |
@@ -225,7 +225,7 @@ contract/procedure/
 - Ogni file esporta `export const procedura`.
 - Gli indici si tengono a mano (un glob registrerebbe i file a metà).
 - `npm run procedures` legge il testo senza compilare: percorso = nome, ogni
-  file nel suo indice, ogni cartella fino a `contract/registro.ts`, nessuna azione
+  file nel suo indice, ogni cartella fino a `contract/registry.ts`, nessuna azione
   inesistente, `resources/tools.json` aggiornato.
 
 ### Le quarantuno aree
@@ -833,7 +833,7 @@ node .claude/skills/procedure-api/scripts/nuova.mjs area.cosa.verbo \
   --azione protocollo.tipo --collezioni lezioni
 ```
 
-Crea file, cartelle e indici fino a `contract/registro.ts`, con dei `DA SCRIVERE`
+Crea file, cartelle e indici fino a `contract/registry.ts`, con dei `DA SCRIVERE`
 che non compilano. Poi:
 
 1. Schema con un `aiuto:` su ogni campo (finisce in JSON Schema, `regi schema`

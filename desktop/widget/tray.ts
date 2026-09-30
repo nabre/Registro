@@ -16,7 +16,7 @@ import type { MessaggioNavigazione } from '../../contract/protocollo.js'
 import { battitoSicuro } from './reminders.js'
 import { alCambioLingua } from '../../core/i18n/index.js'
 import { testi } from './tray.testi.js'
-import { alberoProcedure, chiamante, linkDiretto, type ChiamanteNodo } from '../../contract/registro.js'
+import { alberoProcedure, chiamante, linkDiretto, type ChiamanteNodo } from '../../contract/registry.js'
 
 
 /** Ogni quanto si guarda l'orologio. */

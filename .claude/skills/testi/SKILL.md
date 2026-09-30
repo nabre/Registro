@@ -63,7 +63,7 @@ function vista (): Figlio {
    testi().titolo` in cima a un file si calcola prima che il processo scelga la
    lingua → resta italiano. Lì si legge dentro funzioni; costanti con testo →
    funzioni (`vociGiornoSettimana()`) o getter pigri (`comando()` in
-   `contract/manifesto.ts`). `npm run i18n` lo segnala con `!!` e fa fallire.
+   `contract/manifest.ts`). `npm run i18n` lo segnala con `!!` e fa fallire.
    **Nelle pagine (`ui/pannello/`, `desktop/shell/pages/`) una costante di modulo va bene**:
    `core/i18n/page.ts` è il primo import e sceglie la lingua prima che il resto
    si carichi, e al cambio lingua la pagina si ricarica. Quindi `GUIDA`,

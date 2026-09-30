@@ -58,7 +58,7 @@ before(async () => {
   giro = await importaSorgente(
     [
       "export { rispondiConversazione, fermaGiriDi } from './desktop/pannelli/conversation.js'",
-      "export { registraTutte } from './contract/registro.js'",
+      "export { registraTutte } from './contract/registry.js'",
       "export { registraNavigatore } from './core/azioni/view.js'",
       "export { scaricaPesi } from './core/dati/llamaCpp.js'",
     ].join('\n'),

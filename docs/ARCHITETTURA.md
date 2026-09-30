@@ -150,7 +150,7 @@ flowchart TB
 
   subgraph H["nel processo main"]
     pannelli["<b>desktop/pannelli/</b><br/>panel.ts, projection.ts, assistant.ts, page.ts"]
-    contratto["<b>contract/</b><br/>procedure/, core.ts, centralino.ts"]
+    contratto["<b>contract/</b><br/>procedure/, core.ts, switchboard.ts"]
     azioni["<b>core/azioni/</b><br/>i gestori più context.ts"]
     dati["<b>core/dati/</b><br/>archivio, pacchetto, zip, pdf, posta, ocr, llm"]
     ambiente["<b>desktop/apparato/</b><br/>platform.ts e i suoi moduli"]
@@ -195,7 +195,7 @@ non importa niente da fuori di sé tranne `core/i18n/`.
 **Strato per strato:**
 
 - **`desktop/shell/`** — main process: istanza unica, `open-file` e `second-instance`
-  per il doppio clic, menu dai `COMANDI` di [contract/manifesto.ts](../contract/manifesto.ts),
+  per il doppio clic, menu dai `COMANDI` di [contract/manifest.ts](../contract/manifest.ts),
   vassoio, `registro://`, cache dei tasselli, associazione file in
   `HKCU\Software\Classes` via PowerShell `-EncodedCommand` (percorso in una
   variabile d'ambiente, mai interpolato). Non importa dominio né azioni: chiede
@@ -559,6 +559,5 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| 4 | `contract/chiamante.ts` → contract/caller.ts, `contract/centralino.ts` → contract/switchboard.ts, `contract/registro.ts` → contract/registry.ts, `contract/manifesto.ts` e `contract/manifesto.testi.ts` → contract/manifest.ts e contract/manifest.testi.ts | ADR-53 |
 | 6 | `ui/pannello/styles/impostazioni-anno.css` → ui/pannello/styles/year-settings.css, `ui/pannello/components/annullabile.ts` → ui/pannello/components/undoable.ts, `ui/pannello/components/virtuale.ts` → ui/pannello/components/virtualList.ts, `ui/pannello/components/voceAnno.ts` e `ui/pannello/components/voceAnno.testi.ts` → ui/pannello/components/yearSetting.ts e ui/pannello/components/yearSetting.testi.ts, `ui/pannello/risorse.ts` → ui/pannello/asyncResources.ts, `ui/pannello/segnalibro.ts` → ui/pannello/bookmark.ts, `ui/pannello/orologio.ts` → ui/pannello/clock.ts, `ui/pannello/memoria.ts` → ui/pannello/memory.ts, `ui/pannello/isole.ts` → ui/pannello/islands.ts, `ui/pannello/posto.ts` → ui/pannello/place.ts | ADR-53 |
 | 5 | `contract/protocollo.ts` → contract/protocol.ts | ADR-53 |

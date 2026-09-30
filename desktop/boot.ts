@@ -13,7 +13,7 @@ import { avviaCondotto, condottoDaAprire, type Condotto } from '../desktop/trans
 import { annotaErroreSuDisco } from './apparato/errorLog.js'
 import { avviatoDalSistema } from './apparato/systemStartup.js'
 import { vassoioAcceso } from './apparato/tray.js'
-import { esegui } from '../contract/centralino.js'
+import { esegui } from '../contract/switchboard.js'
 import { fermaRapporti } from '../core/azioni/reports.js'
 import { registraProiettore } from '../core/azioni/projection.js'
 import { registraNavigatore } from '../core/azioni/view.js'
@@ -71,7 +71,7 @@ import type { MessaggioNavigazione } from '../contract/protocollo.js'
 import { firmaPosta } from '../core/dati/templates.js'
 import { istante } from '../core/i18n/index.js'
 import { parole } from '../core/dominio/words.testi.js'
-import { titoloComando } from '../contract/manifesto.js'
+import { titoloComando } from '../contract/manifest.js'
 import { testi } from './boot.testi.js'
 
 /** L'archivio della finestra: serve a `spegni` per l'ultimo salvataggio. */

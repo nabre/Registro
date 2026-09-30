@@ -73,7 +73,7 @@ dettaglio di ciascuno sta in [references/albero.md](references/albero.md).
 | --- | --- | --- |
 | `contract/procedure/<segmenti>.ts` | la procedura | sempre |
 | `…/<cartella>/index.ts` | la registra | sempre |
-| `contract/registro.ts` | le aree | area nuova o sparita |
+| `contract/registry.ts` | le aree | area nuova o sparita |
 | `contract/protocollo.ts` | l'unione `Azione` | se prende in carico un'azione |
 | `core/azioni/<area>.ts` | il gestore | idem |
 | `resources/tools.json` | il catalogo per il modello | sempre — `npm run tools` |
@@ -97,7 +97,7 @@ viene da modificarla per esporre una procedura, ti stai sbagliando.
      --genere scrittura --titolo "Che cosa fa, in una riga" \
      --azione protocollo.tipo --collezioni lezioni
    ```
-   Fa le cartelle, il file e tutti gli indici fino a `contract/registro.ts`. Lascia
+   Fa le cartelle, il file e tutti gli indici fino a `contract/registry.ts`. Lascia
    dei `DA SCRIVERE` che non compilano, apposta.
 3. **Scrivi lo schema dell'ingresso.** Un `aiuto:` su ogni campo: è l'unica
    frase che riceverà chi chiama da fuori, e finisce nel JSON Schema e nel
@@ -185,7 +185,7 @@ node .claude/skills/procedure-api/scripts/togli.mjs area.cosa.verbo
 ```
 
 Toglie il file, la riga nell'indice, le cartelle rimaste vuote con i loro indici,
-l'area da `contract/registro.ts`, e poi **elenca dove il nome compare ancora** —
+l'area da `contract/registry.ts`, e poi **elenca dove il nome compare ancora** —
 prove, docs, README. Quelle non le tocca: una prova che cita una procedura tolta
 di solito prova anche altro, e cancellarla sarebbe buttare via una rete insieme
 al ferro vecchio.

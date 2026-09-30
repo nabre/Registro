@@ -381,7 +381,7 @@ const prove = [
   // Lo scarico dei corredi: la scadenza, la ripresa, l'estrazione.
   provaNode('tests/helpers/kit.ts', 'dist-tests/kit.mjs', { alias: CON_FINTO_E_APPARATO }),
   // Il manifesto: le prove del menu e delle impostazioni confrontano con lui.
-  provaNeutra('contract/manifesto.ts', 'dist-tests/manifest.mjs'),
+  provaNeutra('contract/manifest.ts', 'dist-tests/manifest.mjs'),
   // Dove stanno le finestre, anche con uno schermo staccato fra due sessioni.
   provaNode('desktop/apparato/placement.ts', 'dist-tests/placement.mjs', { alias: CON_FINTO }),
   // Le impostazioni: la dogana (che cosa entra nel file) e l'elenco che le due
@@ -426,7 +426,7 @@ const interfaccia = [
     format: 'iife',
     platform: 'browser',
   },
-  provaNeutra('contract/manifesto.ts', 'dist-tests/manifest.mjs'),
+  provaNeutra('contract/manifest.ts', 'dist-tests/manifest.mjs'),
 ]
 
 /** `ricarica` è nostra e non di esbuild: si toglie prima di consegnargliela. */

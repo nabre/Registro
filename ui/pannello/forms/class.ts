@@ -6,7 +6,7 @@ import { creaAllievo, creaTelefono, COLORI_CLASSE } from '../../../core/dominio/
 import { Maiuscola, Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifesto.js'
+import { titoloComando } from '../../../contract/manifest.js'
 import { nuovoIdClasse } from '../../../core/dominio/identifiers.js'
 import { coordinataDi, indirizzoDi, rubricaDi, scriviCoordinate } from '../../../core/dominio/map.js'
 import type {

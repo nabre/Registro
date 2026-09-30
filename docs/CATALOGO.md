@@ -13,7 +13,7 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 | Destinazioni (pagine) | [`ui/pannello/pages.ts`](../ui/pannello/pages.ts) — `PAGINE` | un posto dove *andare* |
 | Viste | [`contract/protocollo.ts`](../contract/protocollo.ts) — `type Vista`, instradate da [`ui/pannello/shell.ts`](../ui/pannello/shell.ts) | lo schermo disegnato |
 | Comandi dell'interfaccia | [`ui/pannello/commands.ts`](../ui/pannello/commands.ts) — `COMANDI_UI` | una cosa da *fare* nel pannello |
-| Comandi del programma | [`contract/manifesto.ts`](../contract/manifesto.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
+| Comandi del programma | [`contract/manifest.ts`](../contract/manifest.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
 | Azioni del protocollo | [`contract/protocollo.ts`](../contract/protocollo.ts) — `type Azione` | la scrittura che attraversa il ponte |
 | Procedure | [`contract/procedure/`](../contract/procedure/) | il contratto davanti alle azioni, più le letture (API § 5) |
 
@@ -254,7 +254,7 @@ ancorate all'ICS ferme.
 
 ## 4. Comandi del programma
 
-`COMANDI` in [`contract/manifesto.ts`](../contract/manifesto.ts), registrati da
+`COMANDI` in [`contract/manifest.ts`](../contract/manifest.ts), registrati da
 [`desktop/boot.ts`](../desktop/boot.ts) con `apparato.comandi.registra`. Il menu
 nativo li dispone secondo `GRUPPI` di
 [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts) (un comando non nominato
@@ -290,7 +290,7 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 
 | | Programma (macchina) | Documento |
 |---|---|---|
-| Dichiarate in | [`contract/manifesto.ts`](../contract/manifesto.ts) — `IMPOSTAZIONI` | [`core/dominio/models.ts`](../core/dominio/models.ts) — `Impostazioni` |
+| Dichiarate in | [`contract/manifest.ts`](../contract/manifest.ts) — `IMPOSTAZIONI` | [`core/dominio/models.ts`](../core/dominio/models.ts) — `Impostazioni` |
 | Scritte in | `impostazioni.json` in `userData` | il `.regi`, collezione `registro` |
 | Si scrivono con | `programma.salva`, `programma.azzera`, `programma.sfoglia` | `impostazioni.salva` |
 | Arrivano al pannello in | `MessaggioStato.programma` (`VoceProgramma`, con `scritta`) | `MessaggioStato.registro.impostazioni` |
@@ -380,7 +380,7 @@ portachiavi (ADR-49). Una chiave va alla divisione col prefisso più lungo.
 
 Le 168 varianti di `type Azione` ([`contract/protocollo.ts`](../contract/protocollo.ts)),
 una per gestore in [`core/azioni/`](../core/azioni/); `GESTORI` in
-[`contract/centralino.ts`](../contract/centralino.ts) (il compilatore vieta azioni senza
+[`contract/switchboard.ts`](../contract/switchboard.ts) (il compilatore vieta azioni senza
 gestore e viceversa). Ognuna ha una procedura davanti (ADR-27): `azione →
 procedura` quando il nome cambia, altrimenti il nome è lo stesso. Il conteggio
 lo tiene `tests/api/coverage.test.mjs`.
@@ -676,7 +676,7 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
   `core/dominio/mailbox.ts`), conservati nel portachiavi e spinti in
   `MessaggioStato.posta.indirizzi`. `posta.utente` e `posta.mittente` non sono
   campi: li mostra la scheda Posta (`CHIAVI_DEL_COLLEGAMENTO`, in
-  `contract/manifesto.ts`), fuori da «modificate» e da «Ripristina»; la finestra
+  `contract/manifest.ts`), fuori da «modificate» e da «Ripristina»; la finestra
   nativa li legge da `VoceProgramma.delCollegamento`, in sola lettura.
 
 ### 11.3 Geocodifica

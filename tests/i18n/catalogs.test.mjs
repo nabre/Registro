@@ -141,7 +141,7 @@ describe('i formati', () => {
   })
 
   it('un catalogo risponde nella lingua di adesso, e in tutte a richiesta', () => {
-    const { testi } = CATALOGHI.find((c) => c.file === 'contract/manifesto.testi.ts').esporta
+    const { testi } = CATALOGHI.find((c) => c.file === 'contract/manifest.testi.ts').esporta
     assert.equal(testi().comandi['registroDocenti.guida'], 'Guida')
     impostaLingua('de')
     assert.equal(testi().comandi['registroDocenti.guida'], 'Hilfe')
@@ -196,7 +196,7 @@ describe('i cataloghi', () => {
 })
 
 describe('le impostazioni', () => {
-  const { testi } = CATALOGHI.find((c) => c.file === 'contract/manifesto.testi.ts').esporta
+  const { testi } = CATALOGHI.find((c) => c.file === 'contract/manifest.testi.ts').esporta
 
   it('ogni scelta di ogni impostazione ha la sua frase, in ogni lingua', () => {
     const mancanti = []

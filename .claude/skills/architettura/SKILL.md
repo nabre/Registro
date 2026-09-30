@@ -28,9 +28,9 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
                 ▼                                  │
 ┌───────────────────────────────┐                  │
 │           contract/           │                  │
-│ protocollo.ts   manifesto.ts  │                  │
+│ protocollo.ts   manifest.ts   │                  │
 │ schemas.ts      procedure/    │                  │
-│ centralino.ts   bridge.ts     │                  │
+│ switchboard.ts  bridge.ts     │                  │
 │ tools.ts                      │                  │
 └───────────────┬───────────────┘                  │
                 │ (import type da core)            │
@@ -80,10 +80,10 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
 Rappresenta il contratto esplicito tra il motore applicativo, l'interfaccia utente e l'esterno:
 
 - `contract/protocollo.ts`: Definisce le buste dei messaggi IPC scambiati via canale tra il processo main e il frontend (`Richiesta`, `Risposta`, `Domanda`, `Riscontro`, `Notifica`).
-- `contract/manifesto.ts`: Il manifesto delle impostazioni del programma e del documento, con schemi di tipo, valori predefiniti, sezioni di preferenza e definizioni dei comandi.
+- `contract/manifest.ts`: Il manifesto delle impostazioni del programma e del documento, con schemi di tipo, valori predefiniti, sezioni di preferenza e definizioni dei comandi.
 - `contract/schemas.ts`: Schemi di validazione dei payload e dei formati di scambio.
 - `contract/procedure/`: L'insieme delle procedure invocabili dall'esterno (via API JSON-RPC, CLI o assistente LLM), ciascuna dotata di schema d'ingresso (`contract/schemas.ts`, valibot sotto `~standard`) rigoroso e registrazione centralizzata.
-- `contract/centralino.ts`: Il router che smista le chiamate contrattuali e instradamento richieste verso i rispettivi gestori.
+- `contract/switchboard.ts`: Il router che smista le chiamate contrattuali e instradamento richieste verso i rispettivi gestori.
 - `contract/bridge.ts`: Interfaccia astratta di comunicazione IPC lato client/server.
 - `contract/tools.ts`: Definizione e serializzazione degli strumenti esposti all'assistente e ai modelli linguistici.
 
@@ -152,7 +152,7 @@ import type { Azione, Risposta } from '../contract/protocollo.js'
 import { type SchemiRegistro } from '../contract/schemas.js'
 
 // ERRORE GRAVE (import di valore a runtime, intercettato da npm run layers):
-import { COMANDI } from '../contract/manifesto.js'
+import { COMANDI } from '../contract/manifest.js'
 import { inviaMessaggio } from '../contract/bridge.js'
 ```
 
@@ -191,7 +191,7 @@ Qual è lo scopo del codice da aggiungere?
 │   └── ➔ contract/procedure/ (contratto esplicito con schema d'ingresso)
 │
 ├── È un protocollo IPC, schema globale di messaggi o definizione delle impostazioni?
-│   └── ➔ contract/ (contract/protocollo.ts, contract/schemas.ts, contract/manifesto.ts)
+│   └── ➔ contract/ (contract/protocollo.ts, contract/schemas.ts, contract/manifest.ts)
 │
 ├── È una finestra nativa, menu di sistema, scorciatoia OS, tray icon o protocollo registro://?
 │   └── ➔ desktop/shell/ o desktop/widget/ o desktop/apparato/ (main process Electron)

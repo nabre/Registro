@@ -53,7 +53,7 @@ gira dentro `npm test`.
 | `npm run collections` | che ogni `modifica()` di `core/azioni/` e `core/dati/` dichiari i JSON che riscrive | una collezione toccata non è dichiarata |
 | `npm run forms` | che ogni `campo({nome})` sia raccolto da `alSalva` | un nome dichiarato e mai raccolto |
 | `npm run buttons` | i comandi disegnati senza `al` | un pulsante che non fa niente |
-| `npm run procedures` | percorso = nome, file nell'indice, indice registrato | una procedura non arriva a `contract/registro.ts` |
+| `npm run procedures` | percorso = nome, file nell'indice, indice registrato | una procedura non arriva a `contract/registry.ts` |
 | `npm run docs` | che docs e skill citino script e file che esistono | uno script citato o un percorso fra backtick che non c'è |
 | `npm run i18n -- --severo` | testi per chi usa il registro fuori da un catalogo `*.testi.ts`, grammatica italiana fuori dai cataloghi italiani, cataloghi letti a livello di modulo nel main process (ADR-38, skill `testi`) | resta un reperto; senza `--severo` solo per il terzo |
 
@@ -68,8 +68,8 @@ Il progetto organizza il codice su cinque strati architetturali netti
   cataloghi (`core/i18n/`), interfaccia astratta dell'apparato (`core/apparato/`).
 - **`contract/`** — il perimetro pubblico e il punto d'incontro fra processi:
   buste e canali del protocollo (`contract/protocollo.ts`), manifesto di
-  comandi e impostazioni (`contract/manifesto.ts`), procedure dell'API
-  (`contract/procedure/`), router e centralino (`contract/centralino.ts`),
+  comandi e impostazioni (`contract/manifest.ts`), procedure dell'API
+  (`contract/procedure/`), router e centralino (`contract/switchboard.ts`),
   contratto del bridge e schemi di validazione d'ingresso.
 - **`desktop/`** — l'applicazione desktop nativa: processo main e shell
   (`desktop/shell/`), implementazione concreta dell'apparato su Electron
@@ -110,7 +110,7 @@ Quando un confine viene violato o nasce un ciclo, `npm run layers` esce con codi
 
 - **Violazione di confine (`VALORE` o `TIPO`)**: lo strumento stampa il file, la
   riga, la gravità e il confine attraversato (ad es. `ui → core/dati/package.ts` o
-  `core → contract/manifesto.ts`).
+  `core → contract/manifest.ts`).
   *Come si risolve:* se serviva solo un tipo, si trasforma l'import in
   `import type`; se serviva logica o una funzione, la si sposta nello strato
   inferiore comune (`core/dominio/`) o la si espone tramite una procedura di

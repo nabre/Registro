@@ -5,7 +5,7 @@ import { inizioSullaGriglia, lezioneNellaGiornata, slotSullePause } from '../../
 import { Molti, Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifesto.js'
+import { titoloComando } from '../../../contract/manifest.js'
 import {
   allieviAttivi, nomeCompleto, ordinaAllievi, slotIncatenati, slotOrdinati, slotSegnati,
 } from '../../../core/dominio/calculations.js'

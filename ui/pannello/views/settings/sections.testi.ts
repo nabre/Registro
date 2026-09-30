@@ -3,7 +3,7 @@
 // Ctrl+K cercano, le pastiglie d'ambito. Aree, sezioni con chiavi, titoli dei
 // gruppi e avvertenza del condotto stanno in `core/controlli/areas.testi.ts`,
 // comuni con la finestra nativa; etichette e descrizioni delle singole
-// impostazioni nel manifesto (`contract/manifesto.testi.ts`).
+// impostazioni nel manifesto (`contract/manifest.testi.ts`).
 
 import { catalogo } from '../../../../core/i18n/index.js'
 import type { SezioneDiProgramma } from '../../../../core/controlli/areas.js'

@@ -15,7 +15,7 @@ import { daRadice, fileSotto } from './common.mjs'
 import process from 'node:process'
 
 const PROCEDURE = 'contract/procedure'
-const INDICE = 'contract/registro.ts'
+const INDICE = 'contract/registry.ts'
 const PROTOCOLLO = 'contract/protocollo.ts'
 const CATALOGO = 'resources/tools.json'
 

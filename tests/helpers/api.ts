@@ -26,7 +26,7 @@ export {
   linkDiretto,
   registraTutte,
   TUTTE,
-} from '../../contract/registro.js'
+} from '../../contract/registry.js'
 // Il catalogo per il modello, che una prova confronta col file su disco.
 export { catalogo, catalogoJson, daNomeFunzione, nomeFunzione } from '../../contract/tools.js'
 // Il cancello del condotto e il condotto acceso davvero, per
@@ -74,7 +74,7 @@ export { STATI_APPELLO } from '../../contract/procedure/common/rollCall.js'
 export * as schemi from '../../contract/schemas.js'
 
 // Il centralino vero, per le prove del ponte.
-export { esegui, azioneValida } from '../../contract/centralino.js'
+export { esegui, azioneValida } from '../../contract/switchboard.js'
 export { fermaRapporti, rigenerazioniInAttesa } from '../../core/azioni/reports.js'
 
 // Le fabbriche del dominio dallo stesso grafo: il registro scritto è fatto

@@ -1,5 +1,5 @@
 // Il menu dell'applicazione e la finestra delle impostazioni. Tutti e due
-// nascono da `contract/manifesto.ts` (`COMANDI`, `IMPOSTAZIONI`): qui si scrive solo
+// nascono da `contract/manifest.ts` (`COMANDI`, `IMPOSTAZIONI`): qui si scrive solo
 // l'ordine dei gruppi del menu (`GRUPPI`).
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, type MenuItemConstructorOptions } from 'electron'
@@ -28,7 +28,7 @@ import {
 } from '../../apparato/theme.js'
 import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
 import { mostraComunque } from '../../apparato/showAnyway.js'
-import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '../../../contract/manifesto.js'
+import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '../../../contract/manifest.js'
 import { alCambioLingua } from '../../../core/i18n/index.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi, type GruppoDelMenu } from './menu.testi.js'

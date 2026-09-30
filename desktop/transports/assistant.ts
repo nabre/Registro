@@ -37,7 +37,7 @@ import {
   type Collegamento,
 } from '../../core/dati/llm.js'
 import { daNomeFunzione, nomeFunzione, offribile } from '../../contract/tools.js'
-import { registraTutte } from '../../contract/registro.js'
+import { registraTutte } from '../../contract/registry.js'
 import { chiama, procedura, procedure } from '../../contract/core.js'
 import { impagina } from '../../contract/presentation.js'
 import { schemaJson, type Forma } from '../../contract/schemas.js'

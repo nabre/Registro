@@ -27,7 +27,7 @@ const PAROLE = 'core/dominio/words.testi.ts'
 const COPIE_AMMESSE = {
   // I titoli dei comandi sono una tabella intera, uno per `IdComando`: il tipo
   // vuole che non ne manchi nessuno.
-  'contract/manifesto.testi.ts › testi.comandi.registroDocenti.oggi': 'titolo di comando, nella tabella dei comandi',
+  'contract/manifest.testi.ts › testi.comandi.registroDocenti.oggi': 'titolo di comando, nella tabella dei comandi',
 }
 
 /**

@@ -1,6 +1,6 @@
 // I testi del menu e della finestra nativa delle impostazioni: gruppi, voci
 // che non sono comandi, ruoli di Electron, rifiuti senza motivo della dogana.
-// I titoli dei comandi vengono da `contract/manifesto.testi.ts`.
+// I titoli dei comandi vengono da `contract/manifest.testi.ts`.
 
 import { catalogo } from '../../../core/i18n/index.js'
 

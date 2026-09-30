@@ -1,6 +1,6 @@
 // Che cos'è una procedura e che cosa torna quando la si chiama.
 //
-// Una `Procedura` è un'azione del centralino (`contract/centralino.ts`) con in più:
+// Una `Procedura` è un'azione del centralino (`contract/switchboard.ts`) con in più:
 // l'ingresso controllato a tempo d'esecuzione (condotto, riga di comando e
 // pannelli di altre versioni sfuggono al compilatore), un errore con un codice
 // e una versione dichiarata. Dove un gestore esiste già, la procedura gli mette

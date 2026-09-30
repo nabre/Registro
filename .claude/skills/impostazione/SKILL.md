@@ -3,9 +3,9 @@ name: impostazione
 description: >
   Come si aggiunge, si cambia e si toglie un'impostazione di
   Regiklass, toccando ogni punto che la riguarda: la dichiarazione in
-  `contract/manifesto.ts` (tipo, predefinito, `scelte`, `formato`,
+  `contract/manifest.ts` (tipo, predefinito, `scelte`, `formato`,
   `minimo`/`massimo`/`passo`, `controllo`, `unita`, `dipendeDa`, `richiede`,
-  `avanzata`, `alProssimoAvvio`) con i testi in `manifesto.testi.ts`, la dogana
+  `avanzata`, `alProssimoAvvio`) con i testi in `manifest.testi.ts`, la dogana
   di `valoreConMotivo`, le chiavi dismesse e migrate, l'area e la sezione in
   cui compare (`core/controlli/areas.ts`), le due superfici che la mostrano con
   gli stessi controlli — la pagina del pannello e la finestra nativa — e le
@@ -25,7 +25,7 @@ Due famiglie, e confonderle è l'unico errore che qui si paga caro (ADR-21 in
 | --- | --- | --- |
 | Dove finisce | `impostazioni.json` in `userData` | dentro il `.regi` dell'anno |
 | Per chi vale | questa macchina, tutti i documenti | quel documento, ovunque lo si apra |
-| Dichiarata in | `contract/manifesto.ts` → `IMPOSTAZIONI` | il modello dati, `registro.json` |
+| Dichiarata in | `contract/manifest.ts` → `IMPOSTAZIONI` | il modello dati, `registro.json` |
 | Esempi | tema, icona accanto all'orologio, posta, OCR | scala dei voti, griglia oraria, materie |
 
 La domanda che decide: **se il docente aprisse questo file su un altro
@@ -38,9 +38,9 @@ e si normalizzano in `core/dominio/validation.ts`.
 
 ## Il manifesto è l'unico elenco
 
-`contract/manifesto.ts` è la sola verità: chiave, tipo, predefinito, disegno,
+`contract/manifest.ts` è la sola verità: chiave, tipo, predefinito, disegno,
 dogana. Etichetta, descrizione, unità e aiuto di ogni scelta stanno in
-`contract/manifesto.testi.ts`, nelle quattro lingue (skill `testi`). Da lì nascono i valori predefiniti, la pagina del pannello e la finestra
+`contract/manifest.testi.ts`, nelle quattro lingue (skill `testi`). Da lì nascono i valori predefiniti, la pagina del pannello e la finestra
 nativa. **Non si scrive mai una chiave a mano in `impostazioni.json`**, e non si
 ricopia mai un predefinito altrove: due elenchi da tenere allineati divergono in
 pochi mesi, e la divergenza si scopre dal comportamento.
@@ -64,7 +64,7 @@ la forma in cui il registro le chiede:
 | --- | --- | --- |
 | `tipo` | sempre | `'string'`, `'number'`, `'boolean'` |
 | `predefinito` | sempre | il valore quando nessuno ha scelto |
-| `etichetta`, `descrizione` | sempre, in `manifesto.testi.ts` | il nome della riga, e sotto una frase discorsiva: chi apre le impostazioni non sa già che cosa cerca |
+| `etichetta`, `descrizione` | sempre, in `manifest.testi.ts` | il nome della riga, e sotto una frase discorsiva: chi apre le impostazioni non sa già che cosa cerca |
 | `scelte` | le risposte sono poche e note | dogana **e** elenco della tendina — o delle schede con la miniatura, se la chiave ha una raffigurazione in `core/controlli/figure.ts` (oggi tema e lingua). L'`aiuto` di ogni scelta è anche la sua etichetta: va scritto con il nome della scelta davanti |
 | `formato: 'email'` | il valore è un indirizzo | dogana vera, non un `type="email"`: vale anche da riga di comando |
 | `minimo` / `massimo` | fuori da un intervallo il numero non vuol dire niente | dogana; diventano gli attributi `min`/`max` dei campi |
@@ -179,8 +179,8 @@ che si scopre di aver dimenticato la sezione.
 
 ## Il giro completo, per una chiave nuova
 
-1. Dichiararla in `contract/manifesto.ts`, con le dogane e il disegno che le
-   servono, e i testi in `manifesto.testi.ts` nelle quattro lingue.
+1. Dichiararla in `contract/manifest.ts`, con le dogane e il disegno che le
+   servono, e i testi in `manifest.testi.ts` nelle quattro lingue.
 2. Deciderne la sezione: un prefisso in `DIVISIONI` (`core/controlli/areas.ts`) —
    o lasciarla al raccoglitore, sapendo di averlo deciso. Un gruppo nuovo vuole
    il suo titolo in `titoliGruppi`.

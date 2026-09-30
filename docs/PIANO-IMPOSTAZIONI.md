@@ -26,10 +26,10 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 | G2 | Il filtro mostra `ocr.modello`, `ocr.proiettore`, `assistente.modello` come testo libero | `sections.ts` `vociMostrateDaSezione`, `program.ts` `controllo` | **fatto**: sola lettura + «Scegli in Modelli linguistici» (`program.ts` `campoModello`), il filtro si svuota |
 | G3 | «Lettura spenta» in Da smistare apre la finestra nativa, dove il modello non si sceglie: vicolo cieco | `core/azioni/sorting.ts:592` | **fatto**: `vista.apri` su `modelliLinguistici`, prova in `tests/api/conduitGuards.test.mjs` |
 | G4 | Etichetta delle avanzate «Programmi già installati (n)» su ogni sezione | `program.ts:308`, `program.testi.ts:33` | **fatto**: «Avanzate (n)», guida aggiornata |
-| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.ts:420` e `:586` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifesto.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
+| G5 | Nativa: `posta.utente`/`posta.mittente` modificabili e ritirabili; `avanzata` ignorata | `desktop/shell/pages/settings/settings.ts:420` e `:586` | **fatto**: `CHIAVI_DEL_COLLEGAMENTO` in `contract/manifest.ts`, `VoceProgramma.delCollegamento`; avanzate in `<details>` |
 | G6 | `assistente.modello` non bloccato dal condotto (`ocr.modello` sì) | `desktop/transports/conduit.ts:443` | **fatto**, prova in `tests/api/conduitGuards.test.mjs` |
-| G7 | `avvio.soloVassoio` senza `dipendeDa vassoio.attivo`; `dettatura.attivo` senza `dipendeDa assistente.attivo` (il programma le rispetta, la pagina no) | `contract/manifesto.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
-| G8 | Vecchie chiavi posta (`server`, `porta`, `autenticazione`, `clientId`, `tenant`) non in `CHIAVI_DISMESSE` | `contract/manifesto.ts:385`, `core/dati/mail.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
+| G7 | `avvio.soloVassoio` senza `dipendeDa vassoio.attivo`; `dettatura.attivo` senza `dipendeDa assistente.attivo` (il programma le rispetta, la pagina no) | `contract/manifest.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
+| G8 | Vecchie chiavi posta (`server`, `porta`, `autenticazione`, `clientId`, `tenant`) non in `CHIAVI_DISMESSE` | `contract/manifest.ts:385`, `core/dati/mail.ts` | **fatto**, prova in `tests/environment/settings.test.mjs` |
 
 ## 3. Sistema proposto
 
@@ -204,7 +204,7 @@ Ogni fase: perimetri di file disgiunti, verifica `npm run ci -- --solo verifica`
 
 | Fase | Contenuto | Perimetri paralleli |
 |---|---|---|
-| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifesto.ts` + `desktop/transports/conduit.ts` (G6–G8) |
+| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
 | **1 Contratto dei controlli** ✅ | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
 | **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
 | **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`posto.ts` · B: palette · C: stili |

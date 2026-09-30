@@ -6,7 +6,7 @@
 
 import { catalogo } from '../core/i18n/index.js'
 import { PIF, il } from '../core/dominio/lexicon.js'
-import type { ChiaveImpostazione, IdComando } from './manifesto.js'
+import type { ChiaveImpostazione, IdComando } from './manifest.js'
 
 /** Quel che si legge di un'impostazione. */
 interface TestoImpostazione {

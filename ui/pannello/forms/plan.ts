@@ -68,7 +68,7 @@ function scegliPiano (pianoId: string | null): void {
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifesto.js'
+import { titoloComando } from '../../../contract/manifest.js'
 
 import { testi } from './plan.testi.js'
 import { bloccoRisorse } from './resources.js'

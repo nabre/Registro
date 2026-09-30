@@ -1,5 +1,5 @@
 // Le impostazioni del programma: quelle che restano su questa macchina.
-// Le stesse di `contract/manifesto.ts` e della finestra nativa, raggruppate per
+// Le stesse di `contract/manifest.ts` e della finestra nativa, raggruppate per
 // argomento, con il nome a parole e il valore accanto al suo perché. La
 // divisione in sezioni sta in `sections.ts`, senza DOM, e si prova.
 // «Ripristina» riporta al predefinito le voci di un'area, dagli elenchi soltanto.

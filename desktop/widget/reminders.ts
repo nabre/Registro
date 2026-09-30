@@ -16,9 +16,9 @@ import {
   notificheDisponibili,
 } from '../apparato/notifications.js'
 import { alberoProcedure } from '../../contract/router.js'
-import { chiamante, type ChiamanteNodo } from '../../contract/chiamante.js'
+import { chiamante, type ChiamanteNodo } from '../../contract/caller.js'
 import { linkDiretto } from '../../contract/link.js'
-import { minutiDiAvviso } from '../../contract/manifesto.js'
+import { minutiDiAvviso } from '../../contract/manifest.js'
 
 /** Ogni quanto si guarda l'orologio. */
 const BATTITO = 30_000

@@ -1,18 +1,18 @@
-// Il ponte fra il centralino (`contract/centralino.ts`) e le procedure: una procedura
+// Il ponte fra il centralino (`contract/switchboard.ts`) e le procedure: una procedura
 // che dichiara `azione: 'presenze.riga'` prende il posto di quel gestore.
 // Il pannello manda la stessa `Azione` e riceve la stessa `Risposta`, ma
 // passando da convalida, codice d'errore e giornale.
 
 import type { Azione } from './protocollo.js'
 import type { EsitoAzione, Gestore, Parte } from '../core/azioni/context.js'
-import { registraTutte } from './registro.js'
+import { registraTutte } from './registry.js'
 import { aEsitoAzione, chiama, procedure } from './core.js'
 import type { EsitoScrittura, Origine } from './contract.js'
 
 /**
  * I gestori che le procedure prendono in carico, nella forma del centralino.
  *
- * Si sparge dopo gli altri in `contract/centralino.ts`, quindi queste chiavi vincono.
+ * Si sparge dopo gli altri in `contract/switchboard.ts`, quindi queste chiavi vincono.
  * Due procedure sulla stessa azione fermano tutto, come `registra` per i nomi:
  * altrimenti vincerebbe in silenzio l'ultima in ordine alfabetico.
  */

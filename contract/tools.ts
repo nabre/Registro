@@ -15,7 +15,7 @@
 
 import type { ProceduraQualunque } from './contract.js'
 import { VERSIONE_API } from './contract.js'
-import { registraTutte } from './registro.js'
+import { registraTutte } from './registry.js'
 import { procedure } from './core.js'
 import { schemaJson } from './schemas.js'
 import { detto } from '../core/i18n/index.js'

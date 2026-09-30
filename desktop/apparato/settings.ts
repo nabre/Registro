@@ -1,5 +1,5 @@
 // Le impostazioni del programma: `impostazioni.json` in `userData`, chiavi piatte
-// e puntate, predefiniti da `contract/manifesto.ts` (l'unico elenco). Lettura sincrona
+// e puntate, predefiniti da `contract/manifest.ts` (l'unico elenco). Lettura sincrona
 // da memoria, perché `get` si chiama in mezzo ai calcoli.
 
 import { app } from 'electron'
@@ -15,7 +15,7 @@ import {
   requisitoMancante,
   sospesa,
   type VoceImpostazione,
-} from '../../contract/manifesto.js'
+} from '../../contract/manifest.js'
 import { perchéNonLocale } from '../../core/dominio/loopback.js'
 import { nomeDiModello } from '../../core/dati/ggufName.js'
 import { sembraIndirizzo } from '../../core/dominio/mailbox.js'

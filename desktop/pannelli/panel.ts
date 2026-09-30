@@ -7,7 +7,7 @@ import { vociImpostazioni } from '../apparato/settings.js'
 import { archiviPresenti, esportazioniPresenti } from '../../core/dati/filing.js'
 import { ESTENSIONE, percorsoPacchetto, èProvvisorio } from '../../core/dati/paths.js'
 
-import { azioneValida, esegui } from '../../contract/centralino.js'
+import { azioneValida, esegui } from '../../contract/switchboard.js'
 import { registraAvanzamentoScarico } from '../../core/azioni/llm.js'
 // Le procedure le registra già `actions.js` (via `gestoriDelleProcedure()`):
 // qui non si importa l'indice.
