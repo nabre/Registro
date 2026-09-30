@@ -977,7 +977,8 @@ resta italiano: nomi di dominio, funzioni, commenti. Fuori dalla regola: le
 cartelle (i nomi degli strati sono ruoli, ADR-02), il suffisso `.testi.ts`
 (ADR-38), i file di `contract/procedure/` (portano il nome della procedura,
 `area.cosa.verbo`), i comandi di `cli/comandi/` (parole che si digitano),
-`check` (ADR-33). Le prove seguono il loro soggetto.
+`check` (ADR-33), i nomi degli script npm e dei comandi (si digitano), e le
+prove, il cui nome dice il comportamento provato.
 
 **Perché.** Convivevano le due lingue senza una regola, e ogni file nuovo
 riapriva la scelta. L'inglese è già la maggioranza: meno file da spostare.
