@@ -6,7 +6,6 @@ import * as apparato from 'apparato'
 import { collocazioneDi, percorsoDi } from '../dominio/locations.js'
 import { csvPresenze, csvValutazioni, scriviGenerato, testoLezione } from '../dati/exports.js'
 import { percorsoPacchetto } from '../dati/paths.js'
-import { dialogoPercorso, impostazioneDichiarata, valoreConMotivo } from '../../desktop/apparato/settings.js'
 import { collegaAccount, inviaProva, provaCollegamento, scollegaAccount } from '../dati/mail.js'
 import { firmaPosta } from '../dati/templates.js'
 import { classeDelCorsoId, classeDellaLezione } from '../dominio/courses.js'
@@ -181,7 +180,7 @@ export const sistema = {
    * dogana (`valoreConMotivo`); `update` fa scattare l'avviso a chi deve ricaricare.
    */
   'programma.salva': async (_contesto, azione) => {
-    const { valore, motivo } = valoreConMotivo(azione.chiave, azione.valore)
+    const { valore, motivo } = apparato.impostazioni.valoreConMotivo(azione.chiave, azione.valore)
     if (valore === undefined) return rifiuta(motivo ?? testi().nonRiconosciuta(azione.chiave))
     await apparato.impostazioni
       .leggi()
@@ -191,7 +190,7 @@ export const sistema = {
 
   /** Il percorso di una voce scelto con il dialogo del sistema, poi passato dalla dogana. */
   'programma.sfoglia': async (_contesto, azione) => {
-    const dialogo = dialogoPercorso(azione.chiave)
+    const dialogo = apparato.impostazioni.dialogoPercorso(azione.chiave)
     if (!dialogo) return rifiuta(testi().senzaPercorso(azione.chiave))
     const scelti = await apparato.dialoghi.chiediFile({
       title: dialogo.titolo,
@@ -203,7 +202,7 @@ export const sistema = {
     })
     const scelto = scelti?.[0]?.fsPath
     if (!scelto) return fatto
-    const { valore, motivo } = valoreConMotivo(azione.chiave, scelto)
+    const { valore, motivo } = apparato.impostazioni.valoreConMotivo(azione.chiave, scelto)
     if (valore === undefined) return rifiuta(motivo ?? testi().percorsoRifiutato)
     await apparato.impostazioni
       .leggi()
@@ -213,7 +212,7 @@ export const sistema = {
 
   /** Ritira il valore scritto: da lì vale il predefinito del manifesto. */
   'programma.azzera': async (_contesto, azione) => {
-    if (!impostazioneDichiarata(azione.chiave)) {
+    if (!apparato.impostazioni.dichiarata(azione.chiave)) {
       return rifiuta(testi().nonRiconosciuta(azione.chiave))
     }
     await apparato.impostazioni

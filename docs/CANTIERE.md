@@ -69,13 +69,6 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       nodo. Meglio un parametro `azione` nelle notifiche.
 
 
-### Strati
-
-- [ ] Una deroga dichiarata in `tools/layers.mjs` (`DEROGHE`):
-      `core/azioni/system.ts` → `desktop/apparato/settings.ts` (impostazioni
-      passate dall'apparato, lotto C di ARCHITETTURA § 11).
-
-
 ### Prove
 
 - [ ] `tests/proprieta/migrazioni.test.mjs` «portato e normalizzato, una seconda

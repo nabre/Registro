@@ -21,6 +21,7 @@ import { nomeDiModello } from '../../core/dati/ggufName.js'
 import { sembraIndirizzo } from '../../core/dominio/mailbox.js'
 import type { VoceProgramma } from '../../contract/protocollo.js'
 import { EventEmitter } from '../../core/apparato/events.js'
+import type { DialogoPercorso } from '../../core/apparato/platform.js'
 import { testi } from './settings.testi.js'
 
 /** I predefiniti del manifesto, appiattiti una volta sola. */
@@ -148,14 +149,6 @@ function etichettaDi (chiave: string): string {
 }
 
 /** Quel che serve al dialogo di sistema per scegliere il percorso di una voce. */
-interface DialogoPercorso {
-  titolo: string
-  cartella: boolean
-  /** Per nome del filtro, le estensioni senza punto. Vuoto per le cartelle. */
-  filtri: Record<string, string[]>
-  /** Da dove parte il dialogo: il percorso scritto adesso, se c'è. */
-  da: string
-}
 
 /**
  * Il dialogo per una voce che tiene un percorso, o `null`. Unico per pannello

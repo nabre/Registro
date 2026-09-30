@@ -558,6 +558,5 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| C | `core/azioni/system.ts` legge le impostazioni dichiarate da `apparato`, non da `desktop/apparato/settings.ts` | D11; toglie l'ultima deroga |
 | D | `ui/pannello/views/{toSort,pageBrowser,pageDrop}.ts` → ui/pannello/views/sorting/ | tema smistamento, come `views/lesson/` accanto a `lesson.ts` |
 | E | `ui/pannello/views/{grades,retakes,returns}.ts` → ui/pannello/views/assessments/ | tema valutazioni, stesso schema |

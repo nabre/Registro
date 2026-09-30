@@ -41,15 +41,12 @@ import { RADICE, daRadice, fileSotto, piano } from './common.mjs'
  * percorsi. Sono gli import che il controllo scritto a mano non vedeva (una
  * regola rotta lasciava passare ogni `import … from` statico) e che il
  * passaggio a dependency-cruiser ha messo in luce: restano qui, visibili a
- * ogni giro, finché non si spostano.
+ * ogni giro, finché non si spostano. Oggi nessuna: una nuova vuole una
+ * decisione in `docs/DECISIONI.md`.
+ *
+ * @type {{ da: string, a: string, perche: string }[]}
  */
-const DEROGHE = [
-  {
-    da: '^core/azioni/system\\.ts$',
-    a: '^desktop/apparato/settings\\.ts$',
-    perche: 'le impostazioni dichiarate vivono nell’ospite: vanno portate in core/ o passate dall’apparato',
-  },
-]
+const DEROGHE = []
 
 // ------------------------------------------------------------------ il grafo
 

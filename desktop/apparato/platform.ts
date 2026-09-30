@@ -18,7 +18,13 @@ import {
 } from './dialogs.js'
 import { createWebviewPanel } from './windows.js'
 import { accodaSe, filesystem, finisceCon } from './fs.js'
-import { getConfiguration, onDidChangeConfiguration } from './settings.js'
+import {
+  dialogoPercorso,
+  getConfiguration,
+  impostazioneDichiarata,
+  onDidChangeConfiguration,
+  valoreConMotivo,
+} from './settings.js'
 import { createFileSystemWatcher } from './watcher.js'
 import {
   alCambioAggiornamenti,
@@ -46,6 +52,7 @@ const impiantoElectron: Impianto = {
   impostazioni: {
     leggi: getConfiguration,
     alCambio: (ascoltatore) => onDidChangeConfiguration(ascoltatore),
+    dogana: { dichiarata: impostazioneDichiarata, valoreConMotivo, dialogoPercorso },
   },
   finestre: {
     crea: (tipo, titolo, colonna, opzioni) => createWebviewPanel(tipo, titolo, colonna, opzioni),

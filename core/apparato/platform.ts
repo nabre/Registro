@@ -185,6 +185,28 @@ interface InterfacciaFileSystem {
   isWritableFileSystem (schema: string): boolean
 }
 
+/** Come si sceglie il percorso di una voce con il dialogo del sistema. */
+export interface DialogoPercorso {
+  titolo: string
+  cartella: boolean
+  /** Per nome del filtro, le estensioni senza punto. Vuoto per le cartelle. */
+  filtri: Record<string, string[]>
+  /** Da dove parte il dialogo: il percorso scritto adesso, se c'è. */
+  da: string
+}
+
+export interface DoganaImpostazioni {
+  /** Vero se la chiave è dichiarata nel manifesto. */
+  dichiarata: (chiave: string) => boolean
+  /** Il valore ammesso per la chiave, o `undefined` con il motivo. */
+  valoreConMotivo: (
+    chiave: string,
+    valore: unknown,
+  ) => { valore: string | number | boolean | undefined, motivo: string | null }
+  /** Il dialogo per scegliere il percorso della voce, se è un percorso. */
+  dialogoPercorso: (chiave: string) => DialogoPercorso | null
+}
+
 export interface Impianto {
   file: InterfacciaFileSystem
   accodaSe? (uri: Uri, misura: number, fine: Uint8Array, pezzi: Uint8Array[]): Promise<boolean>
@@ -194,6 +216,8 @@ export interface Impianto {
   impostazioni: {
     leggi: (sezione?: string) => Configurazione
     alCambio: (ascoltatore: (cambio: CambioImpostazione) => void) => Smaltibile
+    /** Le regole del manifesto sulle impostazioni del programma: le conosce l'ospite. */
+    dogana?: DoganaImpostazioni
   }
   finestre?: {
     crea: (tipo: string, titolo: string, colonna: any, opzioni?: any) => WebviewPanel
@@ -487,6 +511,14 @@ export const impostazioni = {
   leggi: (sezione?: string): Configurazione => ottieniImpianto().impostazioni.leggi(sezione),
   alCambio: (ascoltatore: (cambio: CambioImpostazione) => void): Smaltibile =>
     ottieniImpianto().impostazioni.alCambio(ascoltatore),
+  // Senza ospite non c'è manifesto da applicare: nessuna chiave passa.
+  dichiarata: (chiave: string): boolean =>
+    ottieniImpianto().impostazioni.dogana?.dichiarata(chiave) ?? false,
+  valoreConMotivo: (chiave: string, valore: unknown) =>
+    ottieniImpianto().impostazioni.dogana?.valoreConMotivo(chiave, valore) ??
+      { valore: undefined, motivo: null },
+  dialogoPercorso: (chiave: string): DialogoPercorso | null =>
+    ottieniImpianto().impostazioni.dogana?.dialogoPercorso(chiave) ?? null,
 }
 
 export const finestre = {
