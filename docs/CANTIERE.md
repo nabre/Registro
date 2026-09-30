@@ -128,7 +128,49 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       Consegne, riconsegne e voti non portano `lezioneId`: bloccati solo nel
       pannello.
 
+### PDF e documenti
+
+- [ ] «Aggiorna tutto» e il rifacimento automatico compongono i PDF con pdf-lib
+      sul thread principale, e «Aggiorna tutto» tiene la fila delle scritture
+      per tutto il giro: le altre scritture escono «occupato» dopo 30 s. Una
+      pausa fra i fogli non basta (ogni foglio già cede); serve la
+      composizione in un utility process o worker. Decisione strutturale.
+- [ ] Ogni foglio automatico si materializza su disco (`scriviGenerato` →
+      `uriArchivio`) anche se nessuno lo apre: I/O e CRC sprecati.
+- [ ] `accorciaNome` taglia a 150 caratteri: su un nome lungo toglie anche il
+      « (2)» della bozza gemella, e due piani finiscono sullo stesso file.
+- [ ] `togliDoppioni` salta le bozze (`finisceConBozza`): un doppione vecchio
+      della prima bozza resta nel documento, indistinguibile dalla gemella.
+
+### Attese e blocchi
+
+- [ ] Accesso Microsoft nel browser: nessun **Annulla** nella notifica
+      d'avanzamento (oggi si ripreme e il nuovo sostituisce il vecchio). Va
+      con l'azione nelle notifiche (§ Impostazioni).
+- [ ] Il filo d'attesa resta acceso per tutta l'attesa del browser (fino a
+      5 min): sembra un blocco. Toglierlo dal conto è scelta di comportamento.
+- [ ] A ogni scrittura il pannello riceve il registro intero e ridisegna
+      (`desktop/pannelli/panel.ts`): profilare su un registro grande prima di
+      passare alle differenze.
+- [ ] Ricerca OneDrive fermata dal tetto di 20 s: la modale dice «Sono troppi
+      per mostrarli tutti.», imprecisa quando il motivo è il tempo.
+
+### Check
+
+- [ ] Ora conclusa: il check dell'ora è tutto spento, anche **Cambia la
+      data…** e **Togli la spunta** di spunte d'altri giorni, che l'host
+      permette (e la pagina Check pure). Decidere se lasciarli vivi.
+- [ ] Doppio clic su una casella vuota = spunta e subito tolta (voluto e
+      provato in `check.spec.ts`): chi fa doppio clic d'abitudine vede la
+      casella «non prendere». Chiedere prima di cambiarlo.
+
 ### Da provare a mano
+
+- [ ] Avvio con il documento aperto su un altro PC (serratura): la domanda
+      «aperto altrove» sta davanti, il riquadro d'avvio si nasconde e torna
+      dopo la risposta; «No» non fa uscire il programma a metà.
+- [ ] PDF aperto in Acrobat, poi dati cambiati: anteprima e lettore mostrano
+      la versione nuova (copia `X (2).pdf`), non la vecchia.
 
 - [ ] Semestri senza nome scrivibile: modulo anno (nuovo e modifica) con sole
       date «1° semestre: inizio/fine», «2° semestre: fine»; tendina Periodo,
