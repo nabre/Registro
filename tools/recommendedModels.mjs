@@ -1,4 +1,4 @@
-// Rigenera `core/dati/modelliConsigliati.ts` da `resources/modelli-consigliati.json`:
+// Rigenera `core/dati/recommendedModels.ts` da `resources/modelli-consigliati.json`:
 // l'elenco dei modelli GGUF consigliati per l'assistente e per le scansioni.
 //
 //   npm run modelli-consigliati
@@ -12,7 +12,7 @@ import { pathToFileURL } from 'node:url'
 import { RADICE } from './common.mjs'
 
 export const FILE_JSON = join(RADICE, 'resources', 'modelli-consigliati.json')
-export const FILE_GENERATO = join(RADICE, 'core', 'dati', 'modelliConsigliati.ts')
+export const FILE_GENERATO = join(RADICE, 'core', 'dati', 'recommendedModels.ts')
 
 const TESTATA = `// I modelli consigliati del registro per l'assistente e per l'OCR.
 //

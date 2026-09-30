@@ -164,7 +164,7 @@
     // (`tools/icons.cjs`).
     // Installatore e disinstallatore hanno l'icona del programma col loro
     // distintivo, freccia e cestino (`tools/icons.cjs`). Quella del portabile non
-    // ha una chiave qui: la posa `tools/pacchetto.mjs`.
+    // ha una chiave qui: la posa `tools/pack.mjs`.
     "installerIcon": "icons/installatore.ico",
     "uninstallerIcon": "icons/disinstallatore.ico",
     // Per utente: installare in `Programmi` chiede l'amministratore.
@@ -184,8 +184,8 @@
 
   // Il portabile tiene i dati in «Regiklass - dati» accanto all'eseguibile
   // (`desktop/shell/system/portable.ts`); si disinstalla col menu o buttando i due.
-  // L'icona del file, la borsa, la mette `tools/pacchetto.mjs`: si costruisce
-  // con `node tools/pacchetto.mjs`, non con `electron-builder` diretto.
+  // L'icona del file, la borsa, la mette `tools/pack.mjs`: si costruisce
+  // con `node tools/pack.mjs`, non con `electron-builder` diretto.
   "portable": {
     "artifactName": "${name}-${version}-portabile.${ext}"
   },

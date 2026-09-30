@@ -157,4 +157,4 @@ jobs:
         run: npm run build
 
       - name: Prova del fumo
-        run: node tools/fumo.mjs --senza-costruire
+        run: node tools/smoke.mjs --senza-costruire

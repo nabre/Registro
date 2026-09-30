@@ -5,7 +5,7 @@
 // - lezione sposta (modifica data e riordino)
 // - lezione duplica (duplicazione e riordino)
 //
-// Uso: node tools/misuraImmer.mjs
+// Uso: node tools/immerBench.mjs
 
 import { tmpdir } from 'node:os'
 import * as percorso from 'node:path'

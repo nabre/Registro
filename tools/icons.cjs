@@ -32,7 +32,7 @@
 //   icons/installatore.ico    16…256, l'icona col       il file dell'installatore
 //                             distintivo della freccia  (`nsis.installerIcon`)
 //   icons/portabile.ico       16…256, l'icona col       il file del portabile
-//                             distintivo della borsa    (`tools/pacchetto.mjs`)
+//                             distintivo della borsa    (`tools/pack.mjs`)
 //   icons/disinstallatore.ico 16…256, l'icona col       il disinstallatore
 //                             distintivo del cestino    (`nsis.uninstallerIcon`)
 //   icons/icon.icns           16…1024                   applicazione su macOS

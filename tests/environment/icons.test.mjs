@@ -116,9 +116,9 @@ describe('le icone dei file scaricati', () => {
     }
   })
 
-  it('il portabile si costruisce sempre da tools/pacchetto.mjs, che ne posa l’icona', () => {
+  it('il portabile si costruisce sempre da tools/pack.mjs, che ne posa l’icona', () => {
     // electron-builder diretto darebbe al portabile l'icona del programma.
-    assert.match(readFileSync(file('tools/pacchetto.mjs'), 'utf8'), /icons\/portabile\.ico/)
+    assert.match(readFileSync(file('tools/pack.mjs'), 'utf8'), /icons\/portabile\.ico/)
     const lanci = [
       JSON.parse(readFileSync(file('package.json'), 'utf8')).scripts.package,
       readFileSync(file('.github/workflows/rilascio.yml'), 'utf8'),

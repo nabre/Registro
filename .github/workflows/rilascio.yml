@@ -213,7 +213,7 @@ jobs:
       - name: Applicazione
         shell: bash
         run: |
-          node tools/pacchetto.mjs --config electron-builder.json --win nsis --publish never
+          node tools/pack.mjs --config electron-builder.json --win nsis --publish never
           test -f pacchetti/win-unpacked/resources/app-update.yml
           rm -f pacchetti/*.exe pacchetti/*.blockmap
           find pacchetti -maxdepth 1 -name '*.yml' ! -name builder-debug.yml -delete
@@ -267,9 +267,9 @@ jobs:
       # `--prepackaged`: electron-builder non rifà l'applicazione, prende quella
       # di `win-unpacked/` così com'è — firmata — e ci costruisce intorno i due
       # bersagli di `win.target`, con `latest.yml` e la `.blockmap`.
-      # `tools/pacchetto.mjs` è electron-builder con la borsa per il portabile.
+      # `tools/pack.mjs` è electron-builder con la borsa per il portabile.
       - name: Installatore e portabile
-        run: node tools/pacchetto.mjs --config electron-builder.json --win --prepackaged pacchetti/win-unpacked --publish never
+        run: node tools/pack.mjs --config electron-builder.json --win --prepackaged pacchetti/win-unpacked --publish never
 
       - name: Metadati degli installatori
         shell: pwsh
@@ -371,7 +371,7 @@ jobs:
 
       - run: node esbuild.mjs --produzione
 
-      - run: node tools/pacchetto.mjs --config electron-builder.json --linux --publish never
+      - run: node tools/pack.mjs --config electron-builder.json --linux --publish never
 
       # `latest-linux.yml` (o `beta-linux.yml`) accompagna i pacchetti come
       # `latest.yml` l'installatore: ci stanno AppImage, `.deb` e `.rpm`.
@@ -425,7 +425,7 @@ jobs:
 
       - run: node esbuild.mjs --produzione
 
-      - run: node tools/pacchetto.mjs --config electron-builder.json --mac --${{ matrix.arch }} --publish never
+      - run: node tools/pack.mjs --config electron-builder.json --mac --${{ matrix.arch }} --publish never
 
       # `latest-mac.yml`, o `beta-mac.yml` per un'anteprima.
       - uses: actions/upload-artifact@v7

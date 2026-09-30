@@ -434,7 +434,7 @@ Da incollare all'agente solo quando serve il primo controllo mirato:
 >    esbuild e le prove non leggano percorsi assoluti della copia originale
 >    (alias `apparato`, `tests/helpers/`, `tests/samples/`): se lo fanno,
 >    riferisci invece di aggirarlo.
-> 5. Aggiungi uno script in `tools/` (per esempio `tools/mutanti.mjs`) e la
+> 5. Aggiungi uno script in `tools/` (per esempio `tools/mutants.mjs`) e la
 >    voce `"mutanti"` in `package.json`, così che si lanci con
 >    `npm run mutanti -- --file core/dominio/calculations.ts --prove
 >    "tests/domain/calculations.test.mjs tests/domain/lateness.test.mjs"`. Lo

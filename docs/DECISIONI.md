@@ -873,9 +873,9 @@ davanti a ogni libreria resta nostro: sostituirla non deve toccare chi la usa.
 Il polyfill di Temporal entra solo nei bundle di prova (`inject` di esbuild,
 `tests/helpers/temporal.mjs`), mai in `dist/`.
 
-**Dove.** `package.json`, `.github/dependabot.yml`, `tools/licenze.mjs`,
+**Dove.** `package.json`, `.github/dependabot.yml`, `tools/licenses.mjs`,
 `.dependency-cruiser.cjs`, `knip.config.ts`, `stryker.config.json`,
-`tools/mutanti.mjs`, `tests/proprieta/`, e i file dei passi 2–5.
+`tools/mutants.mjs`, `tests/proprieta/`, e i file dei passi 2–5.
 
 ### ADR-51 — Un anno può seguire il calendario ufficiale, e allora le sue voci non si toccano
 

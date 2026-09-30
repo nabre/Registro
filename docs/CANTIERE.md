@@ -74,9 +74,9 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 - [ ] Nomi dei file in inglese (ADR-53): rinominare gli esistenti a lotti,
       mappa in ARCHITETTURA § 11.
 - [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
-      `huggingFace`, `kit`, `llamaCpp`, `llm`, `modelliConsigliati`, `mtmd`,
+      `huggingFace`, `kit`, `llamaCpp`, `llm`, `recommendedModels`, `mtmd`,
       `nodeLlama`, `visionKit`) in core/dati/llm/. ~27 import, più
-      `tools/modelliConsigliati.mjs` e le `importaSorgente` delle prove: mappa
+      `tools/recommendedModels.mjs` e le `importaSorgente` delle prove: mappa
       in ARCHITETTURA § 11 prima.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
       dove molti importano: `core/dominio/normalization.ts` (impostazioni;

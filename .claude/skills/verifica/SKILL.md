@@ -210,7 +210,7 @@ e si guarda ogni uscita.
 
 ## La prova del fumo
 
-- `npm run fumo` (`tools/fumo.mjs`): Electron vero sul campione, parla dal
+- `npm run fumo` (`tools/smoke.mjs`): Electron vero sul campione, parla dal
   condotto e chiude; guasto = avvio, condotto o uscita rotti. Lavoro `fumo`
   della CI.
 
@@ -220,7 +220,7 @@ e si guarda ogni uscita.
 npm run copertura   # rapporto, non soglia: niente la rende rossa
 ```
 
-`tools/copertura.mjs` ricostruisce `dist-tests/` con le mappe inline
+`tools/coverage.mjs` ricostruisce `dist-tests/` con le mappe inline
 (`node esbuild.mjs --test --copertura`), esegue le prove con
 `NODE_V8_COVERAGE`, riporta i conteggi sui sorgenti dei cinque strati e alla
 fine ricostruisce i bundle senza mappe, così `npm test` resta com'era. Scrive

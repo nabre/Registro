@@ -1,5 +1,5 @@
 /**
- * La prova del fumo: `node tools/fumo.mjs`. Accende il registro in un Electron
+ * La prova del fumo: `node tools/smoke.mjs`. Accende il registro in un Electron
  * vero — l'unica prova che lo fa: le altre usano `tests/helpers/fake-electron.mjs`
  * — e gli parla dal condotto come farebbe `regi`.
  *

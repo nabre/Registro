@@ -19,7 +19,7 @@ export {
   CATALOGO,
   type PerChe,
   type VoceCatalogo,
-} from './modelliConsigliati.js'
+} from './recommendedModels.js'
 
 // --------------------------------------------------------------- la ricerca
 

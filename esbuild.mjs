@@ -13,7 +13,7 @@
 //   node esbuild.mjs                  costruisce una volta
 //   node esbuild.mjs --produzione     minifica e lascia fuori le mappe
 //   node esbuild.mjs --test           i bundle di `node --test`
-//   node esbuild.mjs --test --copertura  gli stessi, con le mappe per `tools/copertura.mjs`
+//   node esbuild.mjs --test --copertura  gli stessi, con le mappe per `tools/coverage.mjs`
 //   node esbuild.mjs --ui             i bundle delle prove Python di `tests/ui/`
 //
 // Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazioneIn`.

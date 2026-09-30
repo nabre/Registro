@@ -102,7 +102,7 @@ export default {
     '@stryker-mutator/command-runner',
   ],
   ignoreBinaries: [
-    // Del sistema, fuori da Windows: `tools/fumo.mjs` cerca il registro rimasto acceso.
+    // Del sistema, fuori da Windows: `tools/smoke.mjs` cerca il registro rimasto acceso.
     'pgrep',
   ],
 }

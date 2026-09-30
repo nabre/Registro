@@ -5,7 +5,7 @@
 //
 // Vuole `dist/` costruita (`tools/uiTests.mjs` la costruisce) e un display: su
 // Linux senza X servirebbe `xvfb-run`. Lavora in una cartella provvisoria che
-// fa da `userData`, come `tools/fumo.mjs`, e non tocca quella vera.
+// fa da `userData`, come `tools/smoke.mjs`, e non tocca quella vera.
 
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -19,7 +19,7 @@ import { RADICE } from './banco'
 const CAMPIONE = join(RADICE, 'tests', 'samples', 'anno_esempio.regi')
 const PRINCIPALE = join(RADICE, 'dist', 'main.cjs')
 
-/** Il nome della cartella dei dati sotto `APPDATA`, come in `tools/fumo.mjs`. */
+/** Il nome della cartella dei dati sotto `APPDATA`, come in `tools/smoke.mjs`. */
 const NOME_APPLICAZIONE = 'Regiklass'
 
 test('il registro si accende sul campione e mostra il pannello', async () => {

@@ -16,7 +16,7 @@
  * ogni esecuzione. Ricostruire per mutante darebbe gli stessi bundle, e con più
  * processi nella stessa copia li riscriverebbe mentre altri li leggono.
  *
- * `buildCommand` è `node tools/mutanti.mjs --costruisci`, non `node esbuild.mjs
+ * `buildCommand` è `node tools/mutants.mjs --costruisci`, non `node esbuild.mjs
  * --test` e basta: Stryker lo lancia prima di collegare `node_modules` nella
  * copia, ed `esbuild.mjs` prende il worker di pdfjs per percorso da
  * `node_modules/`. Qui il collegamento lo si fa prima, come lo farebbe Stryker

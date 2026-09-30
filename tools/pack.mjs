@@ -1,6 +1,6 @@
 // electron-builder con l'icona del portabile.
 //
-//   node tools/pacchetto.mjs --config electron-builder.json [argomenti di electron-builder]
+//   node tools/pack.mjs --config electron-builder.json [argomenti di electron-builder]
 //
 // Gli argomenti sono quelli di `electron-builder`, letti dal suo stesso parser.
 // La differenza è una sola: il bersaglio `portable` prende sempre l'icona del

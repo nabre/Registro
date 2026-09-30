@@ -165,7 +165,7 @@ npm run clean        # butta bundle e cache
   cataloghi di testo e dal codice di modulo, contano funzioni e rami. Le prove
   con `importaSorgente` entrano grazie a `REGISTRO_COPERTURA=1`. Dettagli in
   `.claude/skills/verifica/SKILL.md`.
-- `npm run fumo` (`tools/fumo.mjs`) accende un Electron vero, le altre prove
+- `npm run fumo` (`tools/smoke.mjs`) accende un Electron vero, le altre prove
   usano quello finto, sul campione in una cartella provvisoria con il condotto
   acceso e il solo vassoio. Chiede `$versione` e `classi.elenco` come `regi`,
   chiude con `programma.esci` e pretende un'uscita pulita entro 20 s, senza
@@ -193,7 +193,7 @@ passi in locale. Come leggerne l'uscita: `.claude/skills/verifica/SKILL.md`.
 File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `core/dati/defaultTemplates.ts` (`npm run templates`),
 `core/dominio/schoolCalendarTicino.ts` (`npm run calendario`),
-`core/dati/modelliConsigliati.ts` (`npm run modelli-consigliati`),
+`core/dati/recommendedModels.ts` (`npm run modelli-consigliati`),
 `tests/samples/anno_esempio.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 
@@ -202,7 +202,7 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 - `npm run package`: aggiorna il calendario scolastico (`npm run calendario`:
   Python con `pdftotext` o `pdfplumber`, e la rete; senza, resta quello che
   c'è), compila e lancia electron-builder (`electron-builder.json`) attraverso
-  `tools/pacchetto.mjs`, che dà al portabile l'icona della borsa: installer per
+  `tools/pack.mjs`, che dà al portabile l'icona della borsa: installer per
   utente senza diritti di amministratore, e portabile. Costruisce per il
   sistema su cui gira; su Linux (`--linux`) escono AppImage, `.deb` e `.rpm`,
   che per l'`.rpm` vuole `rpmbuild`.

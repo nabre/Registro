@@ -8,7 +8,7 @@
 // lì, da nome a testo; `plugins` per sostituire un modulo per un importatore
 // solo; `external` per lasciare fuori un pacchetto.
 //
-// Con `REGISTRO_COPERTURA=1` (lo mette `tools/copertura.mjs`) il modulo va su
+// Con `REGISTRO_COPERTURA=1` (lo mette `tools/coverage.mjs`) il modulo va su
 // disco con la mappa inline: la copertura di Node ignora i `data:` e senza
 // mappa non saprebbe da quale `.ts` viene il codice.
 

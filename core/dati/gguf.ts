@@ -28,7 +28,7 @@ import * as percorso from 'node:path'
 import { nomeSicuro, senzaVirgolette } from '../dominio/text.js'
 import { cartellaApplicazione } from './appData.js'
 import { ESTENSIONE, nomeDiModello } from './ggufName.js'
-import { improntaConsigliata } from './modelliConsigliati.js'
+import { improntaConsigliata } from './recommendedModels.js'
 import { modulo } from './nodeLlama.js'
 import { testi } from './gguf.testi.js'
 

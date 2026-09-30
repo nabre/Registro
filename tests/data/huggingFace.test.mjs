@@ -1,5 +1,5 @@
 // Il catalogo dei modelli consigliati e le interrogazioni a Hugging Face:
-// il file generato `core/dati/modelliConsigliati.ts` corrisponde a
+// il file generato `core/dati/recommendedModels.ts` corrisponde a
 // `resources/modelli-consigliati.json`, ogni voce ha titolo e nota in tutte
 // le quattro lingue del registro, e il catalogo espone i modelli attesi.
 
@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { before, describe, it } from 'node:test'
 
 import { importaSorgente } from '../helpers/sorgente.mjs'
-import { componiFile, FILE_GENERATO, FILE_JSON } from '../../tools/modelliConsigliati.mjs'
+import { componiFile, FILE_GENERATO, FILE_JSON } from '../../tools/recommendedModels.mjs'
 
 const DATI_JSON = JSON.parse(readFileSync(FILE_JSON, 'utf8'))
 const LINGUE = ['it', 'de', 'fr', 'en']
@@ -18,7 +18,7 @@ let testi
 
 before(async () => {
   const m = await importaSorgente([
-    "export { CATALOGO } from './core/dati/modelliConsigliati.ts'",
+    "export { CATALOGO } from './core/dati/recommendedModels.ts'",
     "export { testi } from './core/dati/gguf.testi.ts'",
   ].join('\n'))
   CATALOGO = m.CATALOGO
