@@ -95,6 +95,13 @@ export interface Procedura<I = unknown, U = unknown> {
    * impostazioni del programma). Nel dubbio non la si mette.
    */
   documento?: 'cambia' | 'indipendente'
+  /**
+   * Scrittura che aspetta il mondo di fuori (l'accesso nel browser) e non tocca
+   * il registro: salta la fila di `chiama()`, che altrimenti terrebbe ferme le
+   * altre scritture per minuti. Solo con `collezioni: []` e
+   * `documento: 'indipendente'` (`tests/api/procedures.test.mjs`).
+   */
+  fuoriFila?: true
   /** L'azione del protocollo che questa procedura ha preso in carico, se c'è. */
   azione?: string
   /**
@@ -142,6 +149,7 @@ export interface ProceduraQualunque {
   idempotente: boolean
   collezioni?: readonly Collezione[]
   documento?: 'cambia' | 'indipendente'
+  fuoriFila?: true
   azione?: string
   assistente?: boolean
   perAssistente?: boolean

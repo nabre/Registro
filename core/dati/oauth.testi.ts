@@ -20,6 +20,8 @@ const it = {
   accessoNonAperto: (dettaglio: string) =>
     `Il registro non è riuscito ad aprire l’accesso nel browser. (${dettaglio})`,
   tempoScaduto: 'È passato troppo tempo senza che l’accesso finisse: riprova.',
+  /** Chi aspettava il browser, quando nel frattempo è partito un altro accesso. */
+  interrotto: 'Accesso interrotto: ne è partito un altro.',
   rispostaAltrui: 'La risposta arrivata non è quella della richiesta partita da qui: riprova.',
   codiceScaduto: 'Il codice è scaduto prima che fosse autorizzato: riprova.',
   rifiutata: 'L’autorizzazione è stata rifiutata.',
@@ -72,6 +74,7 @@ export const testi = catalogo(it, {
       `Das Klassenbuch konnte die Anmeldung im Browser nicht öffnen. (${dettaglio})`,
     tempoScaduto: 'Es ist zu viel Zeit vergangen, ohne dass die Anmeldung abgeschlossen wurde: ' +
       'Versuch es noch einmal.',
+    interrotto: 'Anmeldung abgebrochen: Eine neue wurde gestartet.',
     rispostaAltrui:
       'Die eingetroffene Antwort gehört nicht zur Anfrage, die von hier ausging: ' +
       'Versuch es noch einmal.',
@@ -123,6 +126,7 @@ export const testi = catalogo(it, {
     accessoNonAperto: (dettaglio) =>
       `Le registre n’a pas réussi à ouvrir la connexion dans le navigateur. (${dettaglio})`,
     tempoScaduto: 'Trop de temps a passé sans que la connexion aboutisse : réessaie.',
+    interrotto: 'Connexion interrompue : une autre a été lancée.',
     rispostaAltrui:
       'La réponse reçue n’est pas celle de la demande partie d’ici : réessaie.',
     codiceScaduto: 'Le code a expiré avant d’être autorisé : réessaie.',
@@ -173,6 +177,7 @@ export const testi = catalogo(it, {
     accessoNonAperto: (dettaglio) =>
       `The register couldn’t open the sign-in page in the browser. (${dettaglio})`,
     tempoScaduto: 'Too much time passed without the sign-in finishing: try again.',
+    interrotto: 'Sign-in interrupted: another one was started.',
     rispostaAltrui:
       'The response that arrived doesn’t belong to the request sent from here: try again.',
     codiceScaduto: 'The code expired before it was authorised: try again.',

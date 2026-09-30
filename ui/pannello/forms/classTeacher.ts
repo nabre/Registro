@@ -287,13 +287,19 @@ export function moduloComunicazione (classe: Classe, comunicazione?: Comunicazio
                 })
                 if (!sicuro) return
                 contesto.occupato(true)
-                const salvata = await invia({
-                  tipo: 'comunicazione.salva',
-                  classeId: classe.id,
-                  comunicazione: aggiornata,
-                })
-                if (!salvata.ok) {
+                let salvata
+                try {
+                  salvata = await invia({
+                    tipo: 'comunicazione.salva',
+                    classeId: classe.id,
+                    comunicazione: aggiornata,
+                  })
+                } finally {
                   contesto.occupato(false)
+                }
+                // Chiusa mentre salvava: la bozza resta, ma non si spedisce.
+                if (!contesto.aperta()) return
+                if (!salvata.ok) {
                   contesto.mostraErrori(salvata.errori ?? [])
                   return
                 }

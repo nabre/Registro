@@ -192,8 +192,22 @@ export function invia (azione: Azione): Promise<Risposta> {
       mostraMessaggio(risposta)
       risolvi(risposta)
     })
-    api.postMessage(richiesta)
+    try {
+      api.postMessage(richiesta)
+    } catch (guasto) {
+      // Non partita (un valore che non si clona): nessuna risposta arriverà, e
+      // il filo resterebbe acceso per sempre.
+      console.error(`[ponte] ${azione.tipo} non spedita`, guasto)
+      ritira(inAttesa, id)?.({ tipo: 'risposta', id, ok: false, errori: [testi().nonRiuscito] })
+    }
   })
+}
+
+/** Toglie chi aspetta la busta `id` e lo rende, per rispondergli da qui. */
+function ritira<T> (attese: Map<number, T>, id: number): T | undefined {
+  const chi = attese.get(id)
+  attese.delete(id)
+  return chi
 }
 
 /**
@@ -246,7 +260,15 @@ export function chiedi<T> (
         codice: riscontro.codice,
       })
     })
-    api.postMessage(domanda)
+    try {
+      api.postMessage(domanda)
+    } catch (guasto) {
+      // Come in `invia`: senza questo il filo resterebbe acceso.
+      console.error(`[ponte] ? ${procedura} non spedita`, guasto)
+      ritira(domandeInAttesa, id)?.({
+        tipo: 'riscontro', id, ok: false, codice: 'interno', errori: [testi().nonRiuscito],
+      })
+    }
   })
 }
 

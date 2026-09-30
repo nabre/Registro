@@ -40,7 +40,7 @@ import { ripulisciTemporaneiVecchi } from '../core/dati/temporaryFiles.js'
 import { annota, osserva } from '../contract/core.js'
 import { identificatore } from '../core/dominio/identifiers.js'
 import { registraPortachiaviMicrosoft } from '../core/dati/microsoft.js'
-import { registraPortachiaviOauth } from '../core/dati/oauth.js'
+import { interrompiAccesso, registraPortachiaviOauth } from '../core/dati/oauth.js'
 import {
   azzeraPosta,
   collegaAccount,
@@ -830,6 +830,8 @@ export async function spegni (): Promise<void> {
   // La coda dei PDF: quel che aspettava si scarta, quel che scrive si aspetta
   // (un rapporto a metà è un PDF rotto).
   await fermaRapporti()
+  // Un accesso che aspetta il browser non tiene aperta la porta locale.
+  interrompiAccesso()
 
   // I salvataggi sono ritardati di mezzo secondo e `Archivio.dispose` non li
   // aspetta: qui sì, e il guscio trattiene l'uscita.

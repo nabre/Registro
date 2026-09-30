@@ -62,7 +62,25 @@ export function mostraAvvio (): void {
   nata.webContents.on('did-finish-load', () => {
     if (!nata.isDestroyed()) annunciaA(nata)
   })
+  // Una finestra vera che si mostra durante l'avvio (la domanda «aperto
+  // altrove») non deve finire dietro il riquadro: lui si nasconde, e torna se
+  // quella si chiude prima che l'avvio sia finito. Nascosto, non chiuso: zero
+  // finestre farebbero uscire il programma (`window-all-closed`).
+  const altraVisibile = (): boolean =>
+    BrowserWindow.getAllWindows().some((altra) =>
+      altra !== nata && !altra.isDestroyed() && altra.isFocusable() && altra.isVisible())
+  const allaNascita = (_evento: unknown, altra: BrowserWindow): void => {
+    altra.once('show', () => {
+      if (nata.isDestroyed() || !altra.isFocusable()) return
+      nata.hide()
+      altra.once('closed', () => {
+        if (!nata.isDestroyed() && finestra === nata && !altraVisibile()) nata.show()
+      })
+    })
+  }
+  app.on('browser-window-created', allaNascita)
   nata.on('closed', () => {
+    app.off('browser-window-created', allaNascita)
     if (finestra === nata) finestra = null
   })
 

@@ -133,6 +133,10 @@ describe('la copertura del protocollo', () => {
       if (p.genere === 'lettura' && p.azione) {
         storte.push(`${p.nome}: è una lettura e prende in carico un’azione di scrittura`)
       }
+      // Fuori dalla fila solo chi non tocca né il registro né il documento.
+      if (p.fuoriFila && ((p.collezioni ?? []).length > 0 || p.documento !== 'indipendente')) {
+        storte.push(`${p.nome}: salta la fila ma tocca il registro o il documento`)
+      }
     }
     assert.deepEqual(storte, [], storte.join('\n'))
   })

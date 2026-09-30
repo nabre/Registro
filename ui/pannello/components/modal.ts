@@ -18,6 +18,11 @@ export interface ContestoModale {
   /** Blocca i pulsanti mentre un salvataggio è in corso. */
   occupato: (attivo: boolean) => void
   /**
+   * Falso dopo la chiusura: chi aspettava una risposta mentre la finestra si
+   * chiudeva la scarta, senza errori né passi successivi.
+   */
+  aperta: () => boolean
+  /**
    * Un numero diverso per ogni modale aperta, per rendere unici gli id dei
    * campi (`campo()` lo fa già da sé).
    */
@@ -154,12 +159,21 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
   /**
    * Un salvataggio partito e non tornato: `requestSubmit()` spedisce anche col
    * Salva disabilitato, quindi finché è in volo (o `occupato`) il modulo non
-   * rispedisce e Esc non chiude.
+   * rispedisce.
    */
   let inVolo = false
   const impegnata = () => inVolo || modulo.classList.contains('modale--occupata')
-  const rinuncia = () => {
-    if (chiusa || chiedendo || impegnata()) return
+  /**
+   * Esc e «×» chiudono anche da impegnata, senza domande: quel che si era
+   * scritto è già partito, e una risposta che non torna non deve tenere la
+   * finestra aperta per sempre. Il clic fuori no, che parte anche per sbaglio.
+   */
+  const rinuncia = (daFuori = false) => {
+    if (chiusa || chiedendo) return
+    if (impegnata()) {
+      if (!daFuori) chiudi()
+      return
+    }
     if (!sporco || !opzioni.alSalva) {
       chiudi()
       return
@@ -194,7 +208,14 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
     }
   }
 
-  const contesto: ContestoModale = { corpo, chiudi, mostraErrori, occupato: () => undefined, scope }
+  const contesto: ContestoModale = {
+    corpo,
+    chiudi,
+    mostraErrori,
+    occupato: () => undefined,
+    aperta: () => !chiusa,
+    scope,
+  }
 
   const modulo = h('form', {
     class: ['modale', `modale--${opzioni.larghezza ?? 'media'}`], // testo-fisso: classe CSS
@@ -240,6 +261,13 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
       })
     : null
 
+  const pulsanteRinuncia = pulsante({
+    testo: opzioni.testoRinuncia ?? (opzioni.alSalva ? parole().annulla : parole().chiudi),
+    al: chiudi,
+  })
+  // Come la «×»: da occupata si smette di aspettare.
+  pulsanteRinuncia.style.pointerEvents = 'auto'
+
   contesto.occupato = (attivo: boolean) => {
     modulo.classList.toggle('modale--occupata', attivo)
     if (pulsanteSalva) pulsanteSalva.disabled = attivo
@@ -280,7 +308,9 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
           class: 'modale__chiudi',
           type: 'button',
           attr: { 'aria-label': parole().chiudi },
-          onclick: rinuncia,
+          // Cliccabile anche da occupata, che spegne il resto (`windows.css`).
+          style: { pointerEvents: 'auto' },
+          onclick: () => rinuncia(),
         },
         icona('chiudi'),
       ),
@@ -294,10 +324,7 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
       h(
         'div',
         { class: 'modale__piede-destra' },
-        pulsante({
-          testo: opzioni.testoRinuncia ?? (opzioni.alSalva ? parole().annulla : parole().chiudi),
-          al: chiudi,
-        }),
+        pulsanteRinuncia,
         pulsanteSalva,
       ),
     ),
@@ -310,7 +337,7 @@ export function apriModale (opzioni: OpzioniModale): ContestoModale {
     giuSulloStrato = evento.target === strato
   })
   strato.addEventListener('click', (evento) => {
-    if (giuSulloStrato && evento.target === strato) rinuncia()
+    if (giuSulloStrato && evento.target === strato) rinuncia(true)
   })
 
   strato.appendChild(modulo)

@@ -329,8 +329,9 @@ export async function chiama<U = unknown> (
   }
 
   // Le letture saltano la fila: sono sincrone sul registro in memoria.
-  // `tests/api/writes.test.mjs` lo sorveglia sul sorgente del pannello.
-  if (p.genere !== 'scrittura') return esegui()
+  // `tests/api/writes.test.mjs` lo sorveglia sul sorgente del pannello. Anche
+  // chi aspetta il browser senza toccare il registro (`fuoriFila`).
+  if (p.genere !== 'scrittura' || p.fuoriFila) return esegui()
 
   return inFila<Risultato<U>>(
     async () => {

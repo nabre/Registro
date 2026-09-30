@@ -19,6 +19,7 @@ const it = {
   scrive: (procedura: string) =>
     `«${procedura}» scrive: va chiesta come azione, non come domanda.`,
   azioneSconosciuta: (tipo: string) => `Azione sconosciuta: «${tipo}».`,
+  domandaFallita: 'La lettura non è riuscita: riprova.',
 }
 
 export const testi = catalogo(it, {
@@ -33,6 +34,7 @@ export const testi = catalogo(it, {
     scrive: (procedura) =>
       `«${procedura}» schreibt: Das muss als Aktion angefragt werden, nicht als Frage.`,
     azioneSconosciuta: (tipo) => `Unbekannte Aktion: «${tipo}».`,
+    domandaFallita: 'Das Lesen hat nicht geklappt: Versuch es noch einmal.',
   },
   fr: {
     persaNelloSpostamento:
@@ -45,6 +47,7 @@ export const testi = catalogo(it, {
     scrive: (procedura) =>
       `« ${procedura} » écrit : il faut la demander comme action, pas comme question.`,
     azioneSconosciuta: (tipo) => `Action inconnue : « ${tipo} ».`,
+    domandaFallita: 'La lecture n’a pas abouti : réessaie.',
   },
   en: {
     persaNelloSpostamento: 'The question was lost in the move: it needs to be asked again.',
@@ -56,5 +59,6 @@ export const testi = catalogo(it, {
     scrive: (procedura) =>
       `“${procedura}” writes: it must be requested as an action, not as a question.`,
     azioneSconosciuta: (tipo) => `Unknown action: “${tipo}”.`,
+    domandaFallita: 'Reading didn’t work: try again.',
   },
 })

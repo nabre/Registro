@@ -13,6 +13,8 @@ export const procedura = scrittura({
   // torna `invariato` perché l'elenco degli account nel pannello cambia.
   collezioni: [],
   documento: 'indipendente',
+  // L'attesa del browser dura minuti: in fila fermerebbe ogni altra scrittura.
+  fuoriFila: true,
   ingresso: oggetto({
     indirizzo: opzionale(testo({
       aiuto: () => testi().aggiungi.indirizzo,

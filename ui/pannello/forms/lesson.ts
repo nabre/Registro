@@ -656,9 +656,12 @@ export function moduloLezione (opzioni: OpzioniModuloLezione = {}): void {
                   titolo: t.titoloSincronizza,
                   al: async () => {
                     contesto.occupato(true)
-                    const cambiata = await sincronizzaDaIcs(lezionePerId(base.id) ?? base)
-                    contesto.occupato(false)
-                    if (cambiata) contesto.chiudi()
+                    try {
+                      const cambiata = await sincronizzaDaIcs(lezionePerId(base.id) ?? base)
+                      if (cambiata) contesto.chiudi()
+                    } finally {
+                      contesto.occupato(false)
+                    }
                   },
                 })
               : null,

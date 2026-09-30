@@ -773,7 +773,9 @@ const it = {
         testo:
           'In cima alla sezione. Per un account che qui non è sincronizzato: chiede ' +
           'l’indirizzo e apre l’accesso Microsoft nel browser. Molte scuole riservano questo ' +
-          'permesso all’amministratore: allora la pagina lo dice, e resta la strada del client.',
+          'permesso all’amministratore: allora la pagina lo dice, e resta la strada del client. ' +
+          'Chiusa la scheda del browser senza entrare, basta premere di nuovo: il nuovo accesso ' +
+          'sostituisce quello in attesa, che comunque scade da sé dopo cinque minuti.',
       },
       {
         termine: 'Posta',
@@ -1786,7 +1788,9 @@ export const testi = catalogo(it, {
             'Oben im Abschnitt. Für ein Konto, das hier nicht synchronisiert wird: fragt nach ' +
             'der Adresse und öffnet die Microsoft-Anmeldung im Browser. Viele Schulen behalten ' +
             'diese Berechtigung der Administration vor: Dann sagt es die Seite, und es bleibt ' +
-            'der Weg über den Client.',
+            'der Weg über den Client. Hast du den Browser-Tab geschlossen, ohne dich anzumelden, ' +
+            'drück noch einmal: Die neue Anmeldung ersetzt die wartende, die ohnehin nach fünf ' +
+            'Minuten von selbst abläuft.',
         },
         {
           termine: 'E-Mail',
@@ -2808,7 +2812,9 @@ export const testi = catalogo(it, {
             'En haut de la section. Pour un compte qui n’est pas synchronisé ici : demande ' +
             'l’adresse et ouvre la connexion Microsoft dans le navigateur. Beaucoup d’écoles ' +
             'réservent cette autorisation à l’administration : la page le dit alors, et il reste ' +
-            'la voie du client.',
+            'la voie du client. Si tu fermes l’onglet du navigateur sans te connecter, appuie de ' +
+            'nouveau : la nouvelle connexion remplace celle en attente, qui expire de toute façon ' +
+            'd’elle-même après cinq minutes.',
         },
         {
           termine: 'Messagerie',
@@ -3800,7 +3806,9 @@ export const testi = catalogo(it, {
             'At the top of the section. For an account that is not synced here: asks for the ' +
             'address and opens the Microsoft sign-in in the browser. Many schools reserve this ' +
             'permission for the administrator: the page then says so, and the client remains ' +
-            'the way.',
+            'the way. If you close the browser tab without signing in, just press again: the new ' +
+            'sign-in replaces the one still waiting, which expires on its own after five minutes ' +
+            'anyway.',
         },
         {
           termine: 'Mail',

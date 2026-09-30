@@ -195,6 +195,8 @@ async function aMicrosoft (tenant: string, dove: string, corpo: URLSearchParams)
 interface EsitoOauth {
   ok: boolean
   errore?: string
+  /** Fermato da un accesso nuovo: chi l'aveva chiesto non dice niente. */
+  interrotto?: true
   /** Da che indirizzi l'account può scrivere, il principale per primo. */
   indirizzi?: string[]
 }
@@ -210,7 +212,7 @@ export async function collegaConOauth (accesso: string): Promise<EsitoOauth> {
   // Il nome di accesso, non l'indirizzo: è quello che Microsoft conosce.
   const tenant = await tenantDi(accesso)
   const esito = await accediDalBrowser(tenant, accesso, PERMESSI, 'posta')
-  if (!esito.ok) return { ok: false, errore: esito.errore }
+  if (!esito.ok) return { ok: false, errore: esito.errore, ...(esito.interrotto ? { interrotto: true } : {}) }
   const tenuto = await tieni(esito.gettoni)
   if (!tenuto.ok) return tenuto
 
@@ -313,23 +315,45 @@ interface Ritorno {
 }
 
 /**
+ * Quanto si aspetta il ritorno dal browser. Chi ha chiuso la scheda non deve
+ * restare appeso a lungo: l'accesso vero dura un minuto o due.
+ */
+const ATTESA_BROWSER_MS = 5 * 60_000
+
+/** Chiude l'attesa del browser in corso: una sola alla volta. */
+let attesaInCorso: ((esito: Ritorno) => void) | null = null
+
+/**
+ * Interrompe l'accesso che aspetta ancora il browser, se c'è: chi l'aveva
+ * chiesto riceve `interrotto`. Serve a chi ne chiede uno nuovo dopo aver
+ * chiuso la scheda del primo.
+ */
+export function interrompiAccesso (): void {
+  attesaInCorso?.({ error: 'interrotto' })
+}
+
+/**
  * Apre una porta su `127.0.0.1` (scelta dal sistema, `listen(0)`) e aspetta
  * il ritorno da Microsoft. Si chiude solo sulla risposta con il nostro
- * `stato`: le altre ricevono 400 e l'attesa continua. Esportata per le prove.
+ * `stato`: le altre ricevono 400 e l'attesa continua. Una nuova attesa
+ * interrompe la precedente. Esportata per le prove.
  */
 export async function aspettaIlRitorno (
   stato: string,
   quando: (indirizzo: string) => Promise<void>,
 ): Promise<Ritorno> {
+  interrompiAccesso()
   return await new Promise<Ritorno>((poi) => {
     let finito = false
     const chiudi = (esito: Ritorno): void => {
       if (finito) return
       finito = true
+      if (attesaInCorso === chiudi) attesaInCorso = null
       clearTimeout(scadenza)
       server.close()
       poi(esito)
     }
+    attesaInCorso = chiudi
 
     const server = http.createServer((richiesta, risposta) => {
       const letto = new URL(richiesta.url ?? '/', 'http://127.0.0.1')
@@ -357,8 +381,7 @@ export async function aspettaIlRitorno (
       chiudi({ error: 'porta', error_description: guasto.message })
     })
 
-    // Un quarto d'ora per accedere; poi non si resta in ascolto per sempre.
-    const scadenza = setTimeout(() => chiudi({ error: 'scaduto' }), 15 * 60_000)
+    const scadenza = setTimeout(() => chiudi({ error: 'scaduto' }), ATTESA_BROWSER_MS)
 
     server.listen(0, '127.0.0.1', () => {
       const dove = server.address()
@@ -401,7 +424,7 @@ export async function accediDalBrowser (
   indirizzo: string,
   permessi: string,
   servizio: ServizioMicrosoft,
-): Promise<{ ok: true, gettoni: Gettoni } | { ok: false, errore: string }> {
+): Promise<{ ok: true, gettoni: Gettoni } | { ok: false, errore: string, interrotto?: true }> {
   const verificatore = aCaso(48)
   const stato = aCaso(16)
   let rimando = ''
@@ -428,7 +451,7 @@ export async function accediDalBrowser (
           prompt: 'select_account',
         }).toString()
         // `apri` non solleva ma torna falso: senza controllo si resterebbe in
-        // ascolto un quarto d'ora per niente.
+        // ascolto minuti per niente.
         if (!(await apparato.esterno.apri(apparato.Uri.parse(pagina.toString())))) {
           throw new Error(testi().browserNonAperto)
         }
@@ -443,6 +466,9 @@ export async function accediDalBrowser (
   }
   if (ritorno.error === 'scaduto') {
     return { ok: false, errore: testi().tempoScaduto }
+  }
+  if (ritorno.error === 'interrotto') {
+    return { ok: false, errore: testi().interrotto, interrotto: true }
   }
   if (ritorno.error || !ritorno.code) {
     return { ok: false, errore: spiega(ritorno.error, ritorno.error_description, servizio) }

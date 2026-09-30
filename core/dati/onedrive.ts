@@ -226,6 +226,29 @@ async function elencaLocale (
 const MASSIMO_CARTELLE = 20_000
 
 /**
+ * Quanto dura al più una ricerca sul disco: una cartella solo nel cloud si
+ * elenca chiedendo al client, e mille così durano minuti. Quel che si è
+ * trovato si mostra, detto incompleto.
+ */
+const TEMPO_MASSIMO_RICERCA_MS = 20_000
+
+/** Una cartella letta entro `scadenza`, o `null` se il tempo finisce prima. */
+async function leggiEntro (cartella: string, scadenza: number): Promise<Dirent[] | null> {
+  let sveglia: ReturnType<typeof setTimeout> | undefined
+  const tardi = new Promise<null>((risolvi) => {
+    sveglia = setTimeout(() => risolvi(null), Math.max(0, scadenza - Date.now()))
+  })
+  try {
+    return await Promise.race([
+      readdir(cartella, { withFileTypes: true }).catch(() => []),
+      tardi,
+    ])
+  } finally {
+    clearTimeout(sveglia)
+  }
+}
+
+/**
  * I `.regi` delle cartelle sincronizzate, cercati sul disco. Leggere una
  * cartella che è solo nel cloud la fa elencare al client, senza scaricare i
  * file.
@@ -236,14 +259,16 @@ async function cercaLocale (
   const voci: VoceOneDrive[] = []
   // In ampiezza su tutte le radici insieme: col tetto, nessuna resta non vista.
   const daVedere = radici.map((radice) => ({ cartella: radice, radice }))
+  const scadenza = Date.now() + TEMPO_MASSIMO_RICERCA_MS
   let viste = 0
   while (daVedere.length > 0) {
-    if (viste >= MASSIMO_CARTELLE || voci.length >= MASSIMO_TROVATI) {
+    if (viste >= MASSIMO_CARTELLE || voci.length >= MASSIMO_TROVATI || Date.now() >= scadenza) {
       return { voci: ordinaTrovate(voci), troncato: true }
     }
     const { cartella, radice } = daVedere.shift() as { cartella: string, radice: string }
     viste += 1
-    const elementi = await readdir(cartella, { withFileTypes: true }).catch(() => [])
+    const elementi = await leggiEntro(cartella, scadenza)
+    if (!elementi) return { voci: ordinaTrovate(voci), troncato: true }
     for (const elemento of elementi) {
       const voce = await voceLocale(cartella, elemento, radice)
       if (!voce) continue

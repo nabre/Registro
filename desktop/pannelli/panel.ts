@@ -18,7 +18,7 @@ import { collegamento, prontezza, type Uso } from '../../core/dati/llm.js'
 import { collegatoNoto, conto as contoExchange } from '../../core/dati/exchange.js'
 import { invioDiretto, mittente as mittentePosta } from '../../core/dati/mail.js'
 import { accountMicrosoft, cambiAccount } from '../../core/dati/microsoft.js'
-import { indirizziPosta } from '../../core/dati/oauth.js'
+import { indirizziPosta, interrompiAccesso } from '../../core/dati/oauth.js'
 import { smistatoreDi } from '../../core/dati/sorter.js'
 import { riferimentiRotti } from '../../core/dominio/integrity.js'
 import { ErroreVersionePiuRecente, versionePiuRecente } from '../../core/dominio/upgrades.js'
@@ -85,6 +85,16 @@ const CAMPI_SCRITTI: Partial<Record<Richiesta['azione']['tipo'], readonly string
   'check.data': ['data'],
   'programma.salva': ['valore'],
 }
+
+/**
+ * Le azioni che aspettano l'accesso nel browser, anche minuti, e non toccano il
+ * registro: fuori dalla coda, come le domande, perché chi chiude la scheda del
+ * browser non fermi ogni altro gesto. Una nuova interrompe quella che aspetta.
+ */
+const ACCESSI_DAL_BROWSER: ReadonlySet<string> = new Set<Richiesta['azione']['tipo']>([
+  'microsoft.aggiungi',
+  'posta.collega',
+])
 
 /** Oltre questa lunghezza un valore non è un bersaglio ma un testo: non si fonde. */
 const VALORE_MASSIMO = 200
@@ -314,7 +324,19 @@ export class PannelloRegistro {
     // Domanda: fuori dalla coda, per non attendere scritture lunghe. Che non
     // scriva lo garantisce `rispondiDomanda`.
     if (typeof busta.procedura === 'string') {
-      void this.rispondiDomanda(busta as Domanda)
+      const domanda = busta as Domanda
+      void this.rispondiDomanda(domanda).catch((guasto: unknown) => {
+        // `chiama` non lancia, ma quel che le sta intorno sì: senza riscontro
+        // la pagina aspetterebbe per sempre.
+        console.warn(`[PannelloRegistro] Errore nella domanda ${domanda.procedura}:`, guasto)
+        this.invia({
+          tipo: 'riscontro',
+          id: domanda.id,
+          ok: false,
+          codice: 'interno',
+          errori: [testi().domandaFallita],
+        })
+      })
       return
     }
 
@@ -337,6 +359,14 @@ export class PannelloRegistro {
         this.navigazioneInAttesa = null
         setTimeout(() => this.invia(inAttesa), 0)
       }
+    }
+
+    if (ACCESSI_DAL_BROWSER.has(richiesta.azione.tipo)) {
+      // Qui e non in `oauth.ts`: la nuova, nella fila delle scritture di
+      // `chiama()`, aspetterebbe la vecchia senza arrivare a interromperla.
+      interrompiAccesso()
+      void this.eseguiRichiesta(richiesta)
+      return
     }
 
     // In coda, una alla volta; un errore non ferma le successive.

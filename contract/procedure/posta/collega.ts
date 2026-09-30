@@ -13,6 +13,8 @@ export const procedura = scrittura({
   // torna `invariato` perché la pastiglia «casella collegata» deve accendersi.
   collezioni: [],
   documento: 'indipendente',
+  // L'attesa del browser dura minuti: in fila fermerebbe ogni altra scrittura.
+  fuoriFila: true,
   ingresso: vuoto(),
   esegui: inoltra(sistema, 'posta.collega'),
 })

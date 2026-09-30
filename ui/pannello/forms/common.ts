@@ -77,7 +77,8 @@ export function baseViva<T> (
 
 /**
  * Manda l'azione dal modulo aperto: occupato finché torna, errori in cima se
- * non passa. Rende la risposta, o `null` se gli errori sono già mostrati.
+ * non passa. Rende la risposta, o `null` se gli errori sono già mostrati o se
+ * nel frattempo la finestra è stata chiusa (chi chiama non fa altro).
  */
 export async function inviaDalModulo (
   contesto: ContestoModale,
@@ -85,8 +86,13 @@ export async function inviaDalModulo (
   ripiego = testi().nonRiuscito,
 ): Promise<Awaited<ReturnType<typeof invia>> | null> {
   contesto.occupato(true)
-  const risposta = await invia(azione)
-  contesto.occupato(false)
+  let risposta
+  try {
+    risposta = await invia(azione)
+  } finally {
+    contesto.occupato(false)
+  }
+  if (!contesto.aperta()) return null
   if (!risposta.ok) {
     contesto.mostraErrori(risposta.errori ?? [ripiego])
     return null

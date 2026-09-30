@@ -431,6 +431,8 @@ export async function collegaAccount (): Promise<StatoPosta | null> {
   if (!entra) return null
 
   const dato = await collegaConOauth(entra)
+  // Interrotto da un accesso nuovo: parla quello, questo tace.
+  if (!dato.ok && dato.interrotto) return null
   if (!dato.ok) return nonCollegato(dato.errore)
 
   const scrive = await scegliMittente(dato.indirizzi ?? [], prima?.mittente ?? '', entra)

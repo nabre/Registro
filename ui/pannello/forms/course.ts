@@ -271,26 +271,33 @@ export function moduloCorso (opzioni: OpzioniModuloCorso = {}): void {
       // Tre azioni in fila: se una non passa, quel che è fatto resta buono (un corso
       // senza orario è un corso).
       contesto.occupato(true)
-      const creato = await invia({
-        tipo: 'corso.crea',
-        classeId,
-        materiaId,
-        titolo: testo(valori.titolo),
-      })
-      if (!creato.ok || !creato.creato) {
+      let corsoId: string
+      let esitoOrario: Awaited<ReturnType<typeof applicaOrario>>
+      try {
+        const creato = await invia({
+          tipo: 'corso.crea',
+          classeId,
+          materiaId,
+          titolo: testo(valori.titolo),
+        })
+        // Chiusa mentre aspettava: il corso resta com'è, senza i passi dopo.
+        if (!contesto.aperta()) return
+        if (!creato.ok || !creato.creato) {
+          contesto.mostraErrori(creato.errori ?? [t.nonCreato])
+          return
+        }
+        corsoId = creato.creato.id
+        esitoOrario = await applicaOrario(
+          corsoId,
+          orario,
+          Boolean(valori.genera),
+          testo(valori.dal),
+          testo(valori.al),
+        )
+      } finally {
         contesto.occupato(false)
-        contesto.mostraErrori(creato.errori ?? [t.nonCreato])
-        return
       }
-      const corsoId = creato.creato.id
-      const esitoOrario = await applicaOrario(
-        corsoId,
-        orario,
-        Boolean(valori.genera),
-        testo(valori.dal),
-        testo(valori.al),
-      )
-      contesto.occupato(false)
+      if (!contesto.aperta()) return
       contesto.chiudi()
       // «Con le sue ore» solo se le ore sono state messe davvero.
       notifica(

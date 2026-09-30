@@ -202,7 +202,8 @@ export async function aggiungiAccount (dato?: string): Promise<EsitoAccount | nu
 
   const tenant = await tenantDi(indirizzo, RIPIEGO)
   const accesso = await accediDalBrowser(tenant, indirizzo, PERMESSI, 'onedrive')
-  if (!accesso.ok) return { ok: false, testo: t.nonCollegato(accesso.errore) }
+  // Interrotto da un accesso nuovo: parla quello, questo tace.
+  if (!accesso.ok) return accesso.interrotto ? null : { ok: false, testo: t.nonCollegato(accesso.errore) }
 
   let chi: { userPrincipalName?: string, mail?: string, displayName?: string }
   try {
