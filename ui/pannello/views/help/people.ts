@@ -10,13 +10,15 @@ import {
   catena,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTesto,
   pastiglia,
-  riquadro,
+  pastiglieInFila,
   righe,
+  riquadro,
   simbolo,
-  telaio,
   tastino,
+  telaio,
   testo,
   type Tono,
 } from './drawing.js'
@@ -58,27 +60,6 @@ const forte = { corpo: 'piccolo', forte: true } as const
 
 
 
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
-}
-
-/**
- * Pastiglie in fila, ognuna dove l'aveva messa l'italiano o, se quella prima
- * in un'altra lingua è più lunga, subito dopo: `stacco` è lo spazio minimo.
- */
-function pastiglieInFila (
-  y: number,
-  voci: ReadonlyArray<readonly [number, string, Tono]>,
-  stacco: number,
-): string {
-  let fine = -Infinity
-  return disegno(...voci.map(([dove, contenuto, tono]) => {
-    const inizio = Math.max(dove, fine + stacco)
-    fine = inizio + largaPastiglia(contenuto)
-    return pastiglia(inizio, y, contenuto, tono)
-  }))
-}
 
 /**
  * Pulsanti disegnati in fila che finiscono a `fine`: ognuno largo quanto in
@@ -108,7 +89,7 @@ function linguette (x: number, y: number, dopo: readonly [number, number]): stri
     [x, s.anagrafica, 'accento'],
     [dopo[0], s.docente, 'quieto'],
     [dopo[1], s.materie, 'quieto'],
-  ], 4)
+  ], 4).disegno
 }
 
 /**
@@ -290,7 +271,7 @@ function figuraMappa (): string {
       [150, parole().tutti, 'accento'],
       [197, s.lavoro, 'quieto'],
       [303, s.domicilio, 'quieto'],
-    ], 3.5),
+    ], 3.5).disegno,
     riquadro(150, 90, 222, 34, { tratteggio: true, raggio: 4 }),
     testo(158, 104, s.via1, forte),
     testo(158, 117, s.chi1, quieto),

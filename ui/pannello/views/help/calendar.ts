@@ -10,11 +10,13 @@ import {
   catena,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTasto,
   larghezzaTesto,
   pastiglia,
-  riquadro,
+  pastiglieInFila,
   righe,
+  riquadro,
   simbolo,
   tasto,
   telaio,
@@ -163,53 +165,22 @@ function figuraOggi (): Schema {
   }
 }
 
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
-}
-
-/** Una pastiglia di una fila: dove la metteva l'italiano, e almeno `stacco` dopo la precedente. */
-interface PastigliaInFila {
-  x: number;
-  contenuto: string;
-  tono: Tono;
-  stacco?: number;
-}
-
-/**
- * Una fila di pastiglie: ognuna parte dove l'aveva messa l'italiano, e si
- * sposta a destra solo se quella prima, in un'altra lingua, è più lunga.
- * Restituisce anche dove finisce l'ultima.
- */
-function pastiglieInFila (
-  y: number,
-  voci: readonly PastigliaInFila[],
-): { disegno: string; fine: number } {
-  let fine = -Infinity
-  const pezzi = voci.map(({ x, contenuto, tono, stacco = 3 }) => {
-    const dove = Math.max(x, fine + stacco)
-    fine = dove + largaPastiglia(contenuto)
-    return pastiglia(dove, y, contenuto, tono)
-  })
-  return { disegno: disegno(...pezzi), fine }
-}
-
 /** Le cinque colonne della settimana disegnata: da dove partono. */
 const COLONNE = [172, 260, 348, 436, 524]
 
 /** La riga delle azioni del calendario: Oggi, le frecce, le quattro viste e Nuova ora. */
 const AZIONI_CALENDARIO = pastiglieInFila(30, [
-  { x: 142, contenuto: parole().oggi, tono: 'neutro' },
-  { x: 183, contenuto: '‹', tono: 'neutro' },
-  { x: 206, contenuto: '›', tono: 'neutro' },
-  { x: 238, contenuto: parole().settimana, tono: 'accento', stacco: 12 },
-  { x: 309, contenuto: parole().mese, tono: 'neutro' },
-  { x: 350, contenuto: T.calendario.scritte.anno, tono: 'neutro' },
-  { x: 391, contenuto: T.calendario.scritte.agenda, tono: 'neutro' },
+  [142, parole().oggi, 'neutro'],
+  [183, '‹', 'neutro'],
+  [206, '›', 'neutro'],
+  [238, parole().settimana, 'accento', 12],
+  [309, parole().mese, 'neutro'],
+  [350, T.calendario.scritte.anno, 'neutro'],
+  [391, T.calendario.scritte.agenda, 'neutro'],
   // «Modifica» non sta qui: è in alto, accanto a «Proietta», e accesa fa
   // comparire «Nuova ora».
-  { x: 446, contenuto: T.calendario.scritte.nuovaOra, tono: 'accento' },
-])
+  [446, T.calendario.scritte.nuovaOra, 'accento'],
+], 3)
 
 const FIGURA_SETTIMANA: Schema = {
   vista: '0 0 640 300',

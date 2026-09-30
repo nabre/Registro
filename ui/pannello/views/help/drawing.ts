@@ -238,14 +238,41 @@ export function tastino (x: number, y: number, l: number, nome: string, tono: To
   )
 }
 
+/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
+export function largaPastiglia (contenuto: string): number {
+  return larghezzaTesto(contenuto, 'piccolo') + 14
+}
+
 /** Una pastiglia: uno stato, un conto, un'etichetta colorata. `x`, `y` è l'angolo in alto a sinistra. */
 export function pastiglia (x: number, y: number, contenuto: string, tono: Tono = 'accento'): string {
-  const l = larghezzaTesto(contenuto, 'piccolo') + 14
+  const l = largaPastiglia(contenuto)
   return disegno(
     // testo-fisso: markup SVG e classi CSS, non si legge
     `<rect x="${n(x)}" y="${n(y)}" width="${n(l)}" height="18" rx="9" class="gd-pastiglia gd-pastiglia--${tono}"/>`,
     testo(x + l / 2, y + 12.5, contenuto, { corpo: 'piccolo', ancora: 'centro', tono, forte: true }),
   )
+}
+
+/**
+ * Pastiglie in fila, ognuna dove l'aveva messa l'italiano o, se quella prima
+ * in un'altra lingua è più lunga, subito dopo: `stacco` è lo spazio minimo, e
+ * una voce può averne uno suo. Ne dà anche dove comincia ognuna, e dove
+ * finisce l'ultima.
+ */
+export function pastiglieInFila (
+  y: number,
+  voci: ReadonlyArray<readonly [number, string, Tono, number?]>,
+  stacco: number,
+): { disegno: string, x: number[], fine: number } {
+  let fine = -Infinity
+  const x: number[] = []
+  const pezzi = voci.map(([dove, contenuto, tono, suo]) => {
+    const inizio = Math.max(dove, fine + (suo ?? stacco))
+    x.push(inizio)
+    fine = inizio + largaPastiglia(contenuto)
+    return pastiglia(inizio, y, contenuto, tono)
+  })
+  return { disegno: disegno(...pezzi), x, fine }
 }
 
 /** Un tasto della tastiera. `x`, `y` è l'angolo in alto a sinistra; restituisce anche quanto è largo. */

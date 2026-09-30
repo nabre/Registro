@@ -11,14 +11,15 @@ import {
   catena,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTesto,
   pastiglia,
-  riquadro,
+  pastiglieInFila,
   righe,
+  riquadro,
   simbolo,
   telaio,
   testo,
-  type Tono,
 } from './drawing.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import { testi } from './classTeacher.testi.js'
@@ -28,31 +29,6 @@ const T = testi()
 
 // ---------------------------------------------------------------- gli attrezzi
 
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
-}
-
-/**
- * Pastiglie in fila, ognuna dove l'aveva messa l'italiano o, se quella prima
- * in un'altra lingua è più lunga, subito dopo: `stacco` è lo spazio minimo.
- * Ne dà anche dove comincia ognuna, e dove finisce l'ultima.
- */
-function pastiglieInFila (
-  y: number,
-  voci: ReadonlyArray<readonly [number, string, Tono]>,
-  stacco: number,
-): { disegno: string, x: number[], fine: number } {
-  let fine = -Infinity
-  const x: number[] = []
-  const pezzi = voci.map(([dove, contenuto, tono]) => {
-    const inizio = Math.max(dove, fine + stacco)
-    x.push(inizio)
-    fine = inizio + largaPastiglia(contenuto)
-    return pastiglia(inizio, y, contenuto, tono)
-  })
-  return { disegno: disegno(...pezzi), x, fine }
-}
 
 // ------------------------------------------------------------------ le figure
 

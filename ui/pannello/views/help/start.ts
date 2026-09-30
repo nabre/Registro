@@ -9,10 +9,11 @@ import {
   catena,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTesto,
   pastiglia,
-  riquadro,
   righe,
+  riquadro,
   simbolo,
   tasti,
   telaio,
@@ -125,11 +126,6 @@ function titolettoPalette (y: number, nome: string, conto?: string): string {
 /** Un filo orizzontale: separa due righe dello schema. */
 function filo (x: number, y: number, l: number): string {
   return riquadro(x, y, l, 1, { tono: 'quieto', raggio: 0 })
-}
-
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
 }
 
 /**

@@ -14,12 +14,12 @@ import {
   catena,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTasto,
-  larghezzaTesto,
   lineaTempo,
   pastiglia,
-  riquadro,
   righe,
+  riquadro,
   simbolo,
   tasti,
   tasto,
@@ -30,11 +30,6 @@ import {
 import { sezione, type SezioneGuida } from './types.js'
 
 const T = testi()
-
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
-}
 
 // ------------------------------------------------------------------ le figure
 

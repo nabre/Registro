@@ -10,10 +10,11 @@ import {
   bollino,
   disegno,
   freccia,
+  largaPastiglia,
   larghezzaTesto,
   pastiglia,
-  riquadro,
   righe,
+  riquadro,
   simbolo,
   tastino,
   telaio,
@@ -29,11 +30,6 @@ const T = testi()
 
 /** Le pagine del gruppo «L’anno» nella barra laterale, nel loro ordine. */
 const ANNO = [T.classi.titolo, Molti(lessico().pif), T.classi.scritte.mappa, T.corsi.titolo]
-
-/** Quanto è larga una pastiglia con quel testo: come la disegna `pastiglia`. */
-function largaPastiglia (contenuto: string): number {
-  return larghezzaTesto(contenuto, 'piccolo') + 14
-}
 
 /** La pagina Corsi: la scheda del corso e la tabella per persona. */
 function figuraCorsi (): string {
