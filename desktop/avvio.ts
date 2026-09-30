@@ -54,7 +54,7 @@ import type { CalendarioDellAnno, Iso, Sospensione } from '../core/dominio/model
 import {
   anniDaProporre, chiusureUfficiali, marcatoreDi, type AnnoUfficiale,
 } from '../core/dominio/schoolCalendar.js'
-import { CALENDARIO_TICINO } from '../core/dati/schoolCalendarTicino.js'
+import { CALENDARIO_TICINO } from '../core/dominio/schoolCalendarTicino.js'
 import { creaAnnoCorrente } from '../core/dominio/factories.js'
 import { PannelloRegistro } from './pannelli/panel.js'
 import { avviaPromemoria } from './widget/reminders.js'

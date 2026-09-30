@@ -4,9 +4,9 @@
 // Generato da `resources/calendario-scolastico-ticino.json` con
 // `npm run calendario`, a ogni versione: non si scrive a mano. Che i due siano
 // d'accordo lo controlla `npm test`. Il confronto con l'anno del registro sta
-// in `domain/schoolCalendar.ts`.
+// in `schoolCalendar.ts`, accanto.
 
-import type { CalendarioUfficiale } from '../dominio/schoolCalendar.js'
+import type { CalendarioUfficiale } from './schoolCalendar.js'
 
 export const CALENDARIO_TICINO: CalendarioUfficiale = {
   "cantone": "TI",

@@ -35,7 +35,7 @@ const SOLO_ITALIANO = new RegExp(
 )
 
 // Dati che restano in italiano in ogni lingua, come quelli del docente: la
-// fonte del calendario ufficiale ticinese (`core/dati/schoolCalendarTicino.ts`)
+// fonte del calendario ufficiale ticinese (`core/dominio/schoolCalendarTicino.ts`)
 // è il nome di chi pubblica i PDF, e sta nella pagina Calendario › Chiusure.
 const DATI_ITALIANI = ['Dipartimento dell\'educazione, della cultura e dello sport']
 

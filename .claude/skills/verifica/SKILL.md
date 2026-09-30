@@ -192,7 +192,7 @@ L'ordine conta, perché il sospetto più comune è il più economico da escluder
 4. **È un artefatto generato?** Quattro file non si scrivono a mano:
    `resources/tools.json` (`npm run tools`),
    `core/dati/defaultTemplates.ts` (`npm run templates`),
-   `core/dati/schoolCalendarTicino.ts` (`npm run calendario`),
+   `core/dominio/schoolCalendarTicino.ts` (`npm run calendario`),
    `tests/samples/anno_esempio.regi` (`npm run sample`).
    Se il diff li tocca senza che nessuno li abbia rigenerati, il difetto è a
    monte.

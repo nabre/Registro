@@ -9,7 +9,7 @@
 // 2. Il risultato si fonde con `resources/calendario-scolastico-ticino.json`:
 //    gli anni riletti sostituiscono i loro, quelli non più pubblicati restano
 //    (un registro vecchio deve ancora confrontarsi).
-// 3. Dal JSON nasce `core/dati/schoolCalendarTicino.ts`, che viaggia nel
+// 3. Dal JSON nasce `core/dominio/schoolCalendarTicino.ts`, che viaggia nel
 //    pacchetto; `npm test` controlla che i due siano d'accordo.
 //
 // Lo lancia `npm run package`. Senza rete, Python o `pdftotext` avvisa e tiene
@@ -24,7 +24,7 @@ import { pathToFileURL } from 'node:url'
 import { RADICE } from './common.mjs'
 
 export const FILE_JSON = join(RADICE, 'resources', 'calendario-scolastico-ticino.json')
-export const FILE_GENERATO = join(RADICE, 'core', 'dati', 'schoolCalendarTicino.ts')
+export const FILE_GENERATO = join(RADICE, 'core', 'dominio', 'schoolCalendarTicino.ts')
 const SCRIPT = join(RADICE, 'tools', 'calendario', 'estrai_calendario_ticino.py')
 const BASE = 'https://www4.ti.ch/fileadmin/DECS/calendario_scolastico/Calendario_scolastico_'
 
@@ -34,9 +34,9 @@ const TESTATA = `// Il calendario scolastico ufficiale del Cantone Ticino, come 
 // Generato da \`resources/calendario-scolastico-ticino.json\` con
 // \`npm run calendario\`, a ogni versione: non si scrive a mano. Che i due siano
 // d'accordo lo controlla \`npm test\`. Il confronto con l'anno del registro sta
-// in \`domain/schoolCalendar.ts\`.
+// in \`schoolCalendar.ts\`, accanto.
 
-import type { CalendarioUfficiale } from '../dominio/schoolCalendar.js'
+import type { CalendarioUfficiale } from './schoolCalendar.js'
 
 export const CALENDARIO_TICINO: CalendarioUfficiale = `
 

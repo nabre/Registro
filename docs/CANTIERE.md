@@ -71,14 +71,11 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Strati
 
-- [ ] Otto deroghe dichiarate in `tools/layers.mjs` (`DEROGHE`), da togliere
+- [ ] Sei deroghe dichiarate in `tools/layers.mjs` (`DEROGHE`), da togliere
       una per una: `contract/` → `desktop/azioni/projection.ts` (cinque: la
-      proiezione va chiesta dall'apparato); `core/azioni/system.ts` →
-      `desktop/apparato/settings.ts` (impostazioni dichiarate in `core/` o
-      passate dall'apparato); `core/dominio/schoolCalendar.ts` →
-      `core/dati/schoolCalendars.ts` e `ui/pannello/forms/schoolCalendar.ts` →
-      `core/dati/schoolCalendarTicino.ts` (i calendari generati sono dati puri:
-      indice nel dominio).
+      proiezione va chiesta dall'apparato, lotto B di ARCHITETTURA § 11);
+      `core/azioni/system.ts` → `desktop/apparato/settings.ts` (impostazioni
+      passate dall'apparato, lotto C).
 
 
 ### Prove

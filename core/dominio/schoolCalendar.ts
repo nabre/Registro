@@ -1,4 +1,4 @@
-// Il calendario scolastico ufficiale del cantone (`core/dati/schoolCalendarTicino.ts`,
+// Il calendario scolastico ufficiale del cantone (`core/dominio/schoolCalendarTicino.ts`,
 // generato) a confronto con l'anno del registro: voce per voce, che cosa manca,
 // che cosa è cambiato, che cosa è a posto.
 //
@@ -15,8 +15,8 @@ import type { AnnoScolastico, CalendarioDellAnno, Iso, Sospensione } from './mod
 import { etichettaAnno } from './dates.js'
 import { normalizzaTesto } from './text.js'
 import { testi } from './schoolCalendar.testi.js'
-import { CALENDARI_UFFICIALI as CALENDARI } from '../dati/schoolCalendars.js'
-export { calendarioUfficialePerCantone, cantoniUfficialiDisponibili, CALENDARI_UFFICIALI } from '../dati/schoolCalendars.js'
+import { CALENDARI_UFFICIALI as CALENDARI } from './schoolCalendars.js'
+export { calendarioUfficialePerCantone, cantoniUfficialiDisponibili, CALENDARI_UFFICIALI } from './schoolCalendars.js'
 
 /** Che genere di chiusura dice il calendario. */
 type TipoPeriodoUfficiale = 'vacanza' | 'festivo' | 'giorno_di_vacanza'

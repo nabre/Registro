@@ -24,7 +24,7 @@ import type { AnnoScolastico, CalendarioDellAnno } from '../../../core/dominio/m
 import { formattaData, oggi } from '../../../core/dominio/dates.js'
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { CALENDARIO_TICINO } from '../../../core/dati/schoolCalendarTicino.js'
+import { CALENDARIO_TICINO } from '../../../core/dominio/schoolCalendarTicino.js'
 import { pastiglia, pulsante, quieto, tendina } from '../components/base.js'
 import { eseguiOAvvisa } from '../components/filters.js'
 import { conferma } from '../components/modal.js'

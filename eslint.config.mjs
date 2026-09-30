@@ -30,7 +30,7 @@ const FUORI = [
   'icons/',
   'core/dati/defaultTemplates.ts',
   // Lo stesso per il calendario ufficiale: `npm run calendario` lo scrive dal JSON.
-  'core/dati/schoolCalendarTicino.ts',
+  'core/dominio/schoolCalendarTicino.ts',
 ]
 
 /** La forma del codice: la convenzione che il codice segue già. */

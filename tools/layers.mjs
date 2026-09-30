@@ -54,16 +54,6 @@ const DEROGHE = [
     a: '^desktop/azioni/projection\\.ts$',
     perche: 'la proiezione è una capacità dell’ospite: va chiesta dall’apparato, non importata',
   },
-  {
-    da: '^ui/pannello/forms/schoolCalendar\\.ts$',
-    a: '^core/dati/schoolCalendarTicino\\.ts$',
-    perche: 'il calendario ufficiale è un dato generato puro: va letto dal dominio o chiesto al ponte',
-  },
-  {
-    da: '^core/dominio/schoolCalendar\\.ts$',
-    a: '^core/dati/schoolCalendars\\.ts$',
-    perche: 'i calendari ufficiali sono dati puri: il loro indice va nel dominio',
-  },
 ]
 
 // ------------------------------------------------------------------ il grafo

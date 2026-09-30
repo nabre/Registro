@@ -558,7 +558,6 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| A | `core/dati/schoolCalendarTicino.ts`, `core/dati/schoolCalendars.ts` → `core/dominio/` | dati generati puri: il loro indice sta nel dominio; toglie due deroghe di `tools/layers.mjs` |
 | B | `desktop/azioni/projection.ts` → core/azioni/projection.ts con `registraProiettore`, iscritto da `desktop/avvio.ts` come `registraNavigatore` | la proiezione si chiede all'apparato (D11); toglie cinque archi `contract/` → `desktop/` |
 | C | `core/azioni/system.ts` legge le impostazioni dichiarate da `apparato`, non da `desktop/apparato/settings.ts` | D11; toglie l'ultima deroga |
 | D | `ui/pannello/views/{toSort,pageBrowser,pageDrop}.ts` → ui/pannello/views/sorting/ | tema smistamento, come `views/lesson/` accanto a `lesson.ts` |

@@ -3,7 +3,7 @@
 // Attualmente include il Cantone Ticino come predefinito e fornisce
 // le funzioni per selezionare o registrare i calendari ufficiali di altri cantoni.
 
-import type { CalendarioUfficiale } from '../dominio/schoolCalendar.js'
+import type { CalendarioUfficiale } from './schoolCalendar.js'
 import { CALENDARIO_TICINO } from './schoolCalendarTicino.js'
 
 /** L'elenco dei calendari scolastici ufficiali integrati nel registro. */

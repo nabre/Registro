@@ -41,7 +41,7 @@ const FUORI = [
   { prefisso: 'core/dati/templates.ts', perche: 'generato dai modelli' },
   { prefisso: 'core/dati/defaultTemplates.ts', perche: 'generato dai modelli' },
   // Le vacanze del Ticino come le pubblica il Cantone: dati, non parole del registro.
-  { prefisso: 'core/dati/schoolCalendarTicino.ts', perche: 'dati del Cantone, generati' },
+  { prefisso: 'core/dominio/schoolCalendarTicino.ts', perche: 'dati del Cantone, generati' },
   // La riga di comando ha i suoi testi, senza import.
   { prefisso: 'cli/', perche: 'la riga di comando ha i suoi testi' },
 ]
