@@ -75,7 +75,7 @@ Il progetto organizza il codice su cinque strati architetturali netti
   (`desktop/shell/`), implementazione concreta dell'apparato su Electron
   (`desktop/apparato/`), pannelli webview e finestre (`desktop/pannelli/`),
   trasporti (`desktop/transports/`), widget di sistema (`desktop/widget/`),
-  punto d'avvio (`desktop/avvio.ts`).
+  punto d'avvio (`desktop/boot.ts`).
 - **`ui/`** — l'interfaccia utente webview, senza framework: `ui/pannello/` con le
   sue viste (`ui/pannello/views/`), i moduli form (`ui/pannello/forms/`) e i
   componenti (`ui/pannello/components/`).

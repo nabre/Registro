@@ -16,7 +16,7 @@ import { after, before, describe, it } from 'node:test'
 import { cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const AVVIO = readFileSync(
-  fileURLToPath(new URL('../../desktop/avvio.ts', import.meta.url)),
+  fileURLToPath(new URL('../../desktop/boot.ts', import.meta.url)),
   'utf8',
 )
 

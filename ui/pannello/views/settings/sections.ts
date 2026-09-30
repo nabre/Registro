@@ -18,7 +18,7 @@ import {
   titoloArea as titoloDellArea,
   titoloGruppo,
   type SezioneDiProgramma,
-} from '../../../../core/controlli/aree.js'
+} from '../../../../core/controlli/areas.js'
 import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifesto.js'
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import type { NomeIcona } from '../../components/icons.js'
@@ -97,7 +97,7 @@ export interface Sezione {
   ambiti: readonly AmbitoBlocco[]
 }
 
-/** Se una sezione disegna chiavi del manifesto: allora nome e riassunto vengono da `aree.ts`. */
+/** Se una sezione disegna chiavi del manifesto: allora nome e riassunto vengono da `areas.ts`. */
 function diProgramma (id: SezioneImpostazioni): id is SezioneDiProgramma {
   return DIVISIONI.some((divisione) => divisione.id === id)
 }
@@ -154,7 +154,7 @@ export interface SezioneProgramma {
 
 /**
  * Le sezioni che disegnano chiavi del manifesto, con i prefissi che prendono:
- * le stesse della finestra nativa, prese dallo stesso elenco (`aree.ts`).
+ * le stesse della finestra nativa, prese dallo stesso elenco (`areas.ts`).
  */
 export const SEZIONI_PROGRAMMA: readonly SezioneProgramma[] = DIVISIONI.map((divisione) => ({
   id: divisione.id,

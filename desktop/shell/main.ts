@@ -52,7 +52,7 @@ import {
   chiediAnnoNuovo,
   creaPrimoAnno,
   spegni,
-} from '../avvio.js'
+} from '../boot.js'
 import { PannelloProiezione } from '../pannelli/projection.js'
 import { ascolta as ascoltaInterfaccia } from '../apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'

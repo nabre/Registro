@@ -1,10 +1,10 @@
 // Le impostazioni del programma nella finestra nativa: la scialuppa per quando
 // nessun documento è aperto e il pannello non c'è. Riceve le voci
 // (`vociImpostazioni()`: manifesto più stato attuale) e le mostra con i nomi di
-// aree e sezioni del pannello (`core/controlli/aree.ts`): Utente › Posta e
+// aree e sezioni del pannello (`core/controlli/areas.ts`): Utente › Posta e
 // Programma; Calendario e Didattica stanno nel file dell'anno e lo dicono.
 //
-// I controlli sono gli stessi del pannello (`core/controlli/controllo.ts`,
+// I controlli sono gli stessi del pannello (`core/controlli/control.ts`,
 // ADR-52). Scrive per messaggio: la dogana sta in
 // `desktop/shell/windows/menu.ts`, e un rifiuto torna qui con il motivo, che il
 // controllo dice sotto il campo. I testi finiscono in `textContent`.
@@ -20,14 +20,14 @@ import {
   sezioniDellArea,
   titoloArea,
   type Sezione,
-} from '../../../../core/controlli/aree.js'
+} from '../../../../core/controlli/areas.js'
 import {
   controllo,
   diciEsito,
   fuocoDentro,
   type Esito,
   type Valore,
-} from '../../../../core/controlli/controllo.js'
+} from '../../../../core/controlli/control.js'
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
 import type { RichiestaImpostazioni } from '../../windows/menu.js'
 import { ascolta, elemento, manda, perId, riempi } from '../shared/page.js'

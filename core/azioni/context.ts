@@ -114,7 +114,7 @@ export function riassumiInvii (
 /**
  * L'upsert per id: sostituisce se c'è, aggiunge in fondo se no, e riordina se
  * serve. Sulla bozza `findIndex` e `sort` non fanno una bozza di ogni voce
- * (`enableArrayMethods` in `bozza.ts`), e le patch di un riordino le accorcia
+ * (`enableArrayMethods` in `draft.ts`), e le patch di un riordino le accorcia
  * `compatta`: resta leggero anche su migliaia di lezioni.
  */
 export function riponi<T extends { id: string }> (

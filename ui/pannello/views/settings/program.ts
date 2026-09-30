@@ -5,7 +5,7 @@
 // «Ripristina» riporta al predefinito le voci di un'area, dagli elenchi soltanto.
 
 import type { VoceProgramma } from '../../../../contract/protocollo.js'
-import { controllo, type Esito, type Valore } from '../../../../core/controlli/controllo.js'
+import { controllo, type Esito, type Valore } from '../../../../core/controlli/control.js'
 import {
   avviso,
   pastiglia,

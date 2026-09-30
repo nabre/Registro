@@ -1,12 +1,12 @@
 // I testi delle impostazioni per sezione che solo il pannello dice: nomi e
 // riassunti delle sezioni dell'anno e dell'account, le parole che il filtro e
 // Ctrl+K cercano, le pastiglie d'ambito. Aree, sezioni con chiavi, titoli dei
-// gruppi e avvertenza del condotto stanno in `core/controlli/aree.testi.ts`,
+// gruppi e avvertenza del condotto stanno in `core/controlli/areas.testi.ts`,
 // comuni con la finestra nativa; etichette e descrizioni delle singole
 // impostazioni nel manifesto (`contract/manifesto.testi.ts`).
 
 import { catalogo } from '../../../../core/i18n/index.js'
-import type { SezioneDiProgramma } from '../../../../core/controlli/aree.js'
+import type { SezioneDiProgramma } from '../../../../core/controlli/areas.js'
 import type { SezioneImpostazioni } from '../../posto.js'
 
 /**
@@ -74,7 +74,7 @@ const it = {
       parole: 'account Microsoft OneDrive posta casella collega scollega prova azzera',
     },
   } satisfies Record<Exclude<SezioneImpostazioni, SezioneDiProgramma>, Sezione>,
-  /** Le parole in più che trovano le sezioni con chiavi; nomi e riassunti stanno in `aree.testi.ts`. */
+  /** Le parole in più che trovano le sezioni con chiavi; nomi e riassunti stanno in `areas.testi.ts`. */
   parole: {
     posta: 'posta mail e-mail casella mittente firma invio diretto recapiti telefono',
     aspetto: 'lingua tema chiaro scuro',

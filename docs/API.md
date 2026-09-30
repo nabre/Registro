@@ -314,7 +314,7 @@ tipi interni.
   `aggiornamenti.stato`, `classi.altrove`, `registro.sfoglia`,
   `registro.altrove`, `programma.giornale`, `onedrive.*`.
 - OneDrive (`core/dati/onedrive.ts`, `core/dati/microsoft.ts`,
-  `core/dati/oneDriveLocale.ts`): un account che il client di OneDrive
+  `core/dati/oneDriveLocal.ts`): un account che il client di OneDrive
   sincronizza sul computer si legge dal disco, senza accesso (`drive: 'locale'`,
   `id` = percorso, solo dentro le sue cartelle); gli altri a nome di un account
   di `microsoft.aggiungi` (`indirizzo?`; accesso dal browser,
@@ -818,7 +818,7 @@ repository, costruita da [contract/tools.ts](../contract/tools.ts) con
 | Autorizzazione | nessuna: un docente, il suo file |
 | Concorrenza fra macchine | solo la serratura cooperativa |
 | L'assistente non può scrivere | sì, tranne `vista.apri` |
-| Giornale | nome, origine, durata, esito, modifiche; **mai l'ingresso**. Lo ascolta `desktop/avvio.ts` (console: rifiuti e chiamate lente), via `osserva()` |
+| Giornale | nome, origine, durata, esito, modifiche; **mai l'ingresso**. Lo ascolta `desktop/boot.ts` (console: rifiuti e chiamate lente), via `osserva()` |
 
 ## 11. Aggiungere, cambiare, togliere una procedura
 

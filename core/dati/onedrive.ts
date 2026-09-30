@@ -27,7 +27,7 @@ import {
 } from '../dominio/onedrive.js'
 import { parole } from '../dominio/words.testi.js'
 import { leggiDaGraph, rileggiOneDriveLocali, scaricaDaGraph } from './microsoft.js'
-import { cartelleLocaliDi } from './oneDriveLocale.js'
+import { cartelleLocaliDi } from './oneDriveLocal.js'
 import { ESTENSIONE } from './package.js'
 import { testi } from './onedrive.testi.js'
 

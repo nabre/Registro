@@ -3,7 +3,7 @@
 
 import * as apparato from 'apparato'
 
-import { comeAdesso } from '../dati/bozza.js'
+import { comeAdesso } from '../dati/draft.js'
 import { deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '../dati/filing.js'
 import { arrotondaVoto, nomeCompleto, votoValido } from '../dominio/calculations.js'

@@ -20,7 +20,7 @@ import { parole } from '../dominio/words.testi.js'
 import { numero } from '../i18n/index.js'
 import { attributo, elemento, idDi } from './dom.js'
 import { raffigurazioneDi } from './figure.js'
-import { testi } from './controlli.testi.js'
+import { testi } from './controls.testi.js'
 
 export type Valore = VoceProgramma['valore']
 
@@ -38,7 +38,7 @@ type QuandoCambia = (valore: Valore) => Promise<Esito> | void
  */
 export type ValoreCampo = Valore | Array<string | number>
 
-/** Come `QuandoCambia`, per chi disegna anche il segmentato multiplo (`campo.ts`). */
+/** Come `QuandoCambia`, per chi disegna anche il segmentato multiplo (`field.ts`). */
 export type Cambia = (valore: ValoreCampo) => Promise<Esito> | void
 
 /** Come si attacca un gestore: `addEventListener`, o la delega del pannello (`gestisci`). */

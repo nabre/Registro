@@ -4,7 +4,7 @@
 import { basename } from 'node:path'
 import * as apparato from 'apparato'
 
-import { comeAdesso } from '../dati/bozza.js'
+import { comeAdesso } from '../dati/draft.js'
 import { contenutoDi, deposito } from '../dati/store.js'
 import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '../dati/filing.js'
 import { firmaPosta } from '../dati/templates.js'

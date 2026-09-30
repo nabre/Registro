@@ -20,7 +20,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Dove finisce un documento, e con che nome | `core/dominio/locations.ts` |
 | Che cosa entra in un rapporto | `core/dominio/reportData.ts` |
 | Lettura e scrittura dei file | `core/dati/` |
-| Avvio, comandi e pannelli | `desktop/avvio.ts`, `desktop/pannelli/` |
+| Avvio, comandi e pannelli | `desktop/boot.ts`, `desktop/pannelli/` |
 | Messaggi nella finestra del registro | `desktop/apparato/dialogs.ts`, `desktop/shell/pages/dialog/` |
 | La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/pannello/views/settings/schoolDay.ts` |
 | Documenti vecchi portati avanti | `core/dominio/upgrades.ts`, `core/dati/archive.ts` |

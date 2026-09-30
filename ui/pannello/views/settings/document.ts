@@ -6,7 +6,7 @@
 // l'esito accanto a sé (`salvaConEsito`), gli altri in una notifica; quel che
 // l'host corregge in silenzio si dice sempre.
 
-import type { Esito } from '../../../../core/controlli/controllo.js'
+import type { Esito } from '../../../../core/controlli/control.js'
 import { numero } from '../../../../core/i18n/index.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
 import type { Impostazioni } from '../../../../core/dominio/models.js'

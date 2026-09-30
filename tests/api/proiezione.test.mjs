@@ -1,5 +1,5 @@
 // Lo schermo per la classe: le azioni stanno in `core`, e lo schermo lo comanda
-// chi si iscrive all'accensione (`registraProiettore`, da `desktop/avvio.ts`).
+// chi si iscrive all'accensione (`registraProiettore`, da `desktop/boot.ts`).
 // Prima dell'iscrizione si rifiuta invece di far finta di sì; dopo, ogni
 // procedura arriva a chi è iscritto e non tocca il registro.
 

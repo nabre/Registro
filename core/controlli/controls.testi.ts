@@ -1,4 +1,4 @@
-// I testi dei controlli delle impostazioni (`controllo.ts`), uguali nel
+// I testi dei controlli delle impostazioni (`control.ts`), uguali nel
 // pannello e nella finestra nativa. Nomi, descrizioni, scelte e unità delle
 // voci vengono dal manifesto, con la voce.
 

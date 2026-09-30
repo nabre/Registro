@@ -22,7 +22,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
 ┌──────────────────────────────────────────────────────────────────┐
 │                             desktop/                             │
 │     desktop/shell/   desktop/apparato/   desktop/pannelli/       │
-│     desktop/transports/   desktop/widget/   desktop/avvio.ts     │
+│     desktop/transports/   desktop/widget/   desktop/boot.ts      │
 └───────────────┬──────────────────────────────────┬───────────────┘
                 │                                  │
                 ▼                                  │
@@ -95,7 +95,7 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
 - `desktop/pannelli/`: Gestione del ciclo di vita delle webview e coordinamento dei pannelli (`desktop/pannelli/panel.ts` per il pannello principale, `desktop/pannelli/projection.ts` per la finestra proiettore, `desktop/pannelli/assistant.ts` per l'assistente, `desktop/pannelli/page.ts` per la costruzione della pagina HTML e header CSP).
 - `desktop/transports/`: I canali di trasporto dei dati verso l'esterno o sottoprocessi, tra cui il condotto IPC e socket per l'assistente (`desktop/transports/conduit.ts`, `desktop/transports/assistant.ts`).
 - `desktop/widget/`: Componenti dell'area di notifica di Windows, tra cui l'icona nel vassoio di sistema (`desktop/widget/tray.ts`) e le notifiche toast per promemoria (`desktop/widget/reminders.ts`).
-- `desktop/avvio.ts`: Modulo orchestratore che avvia i servizi, apre il documento e coordina l'inizializzazione dell'applicazione desktop.
+- `desktop/boot.ts`: Modulo orchestratore che avvia i servizi, apre il documento e coordina l'inizializzazione dell'applicazione desktop.
 
 ### `ui/`: Il frontend del pannello in webview (`ui/pannello/`)
 È l'interfaccia grafica utente renderizzata all'interno della webview di Chromium. È un'applicazione web autonoma priva di framework pesante:
@@ -167,7 +167,7 @@ Alla webview è concesso importare solo funzioni pure di calcolo da `core/domini
 
 ### `core/controlli/`: il DOM condiviso dei controlli (ADR-52)
 
-I controlli delle impostazioni del programma (`controllo()` in `core/controlli/controllo.ts`, le aree in `core/controlli/aree.ts`, il foglio `core/controlli/controlli.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
+I controlli delle impostazioni del programma (`controllo()` in `core/controlli/control.ts`, le aree in `core/controlli/areas.ts`, il foglio `core/controlli/controls.css`) si disegnano una volta e arrivano per import al pannello (`ui/`) e alla finestra nativa (`desktop/shell/pages/settings/`). Regole, come `core/i18n/flags.ts`: `documento: Document` come argomento, elementi costruiti uno a uno, testo in `textContent`, niente ponte, IPC, Node o Electron; importa solo `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e tipi da `contract/`. Lo fanno rispettare la regola `controlli-leggeri` di `.dependency-cruiser.cjs` e il blocco `core/controlli/**` di `eslint.config.mjs`.
 
 ---
 

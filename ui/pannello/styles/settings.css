@@ -6,7 +6,7 @@
  * (`--impostazioni-fascia-alto`): le ancore si fermano sotto di lei. */
 
 /* I controlli delle voci, uguali nella finestra nativa (ADR-52). */
-@import '../../../core/controlli/controlli.css';
+@import '../../../core/controlli/controls.css';
 
 /* ------------------------------------------------------------ la testata */
 
@@ -331,7 +331,7 @@
 .voce-opzione:first-child { border-top: none; padding-top: 0; }
 
 /* Sospesa: il padre da cui dipende è spento. Si smorza il controllo, che è
-   spento (`controlli.css`); nome e pastiglia restano da leggere, con il
+   spento (`controls.css`); nome e pastiglia restano da leggere, con il
    contrasto pieno: dicono perché. */
 
 /* Una figlia (`dipendeDa`) rientra sotto il padre: si legge che conta solo con lui acceso. */

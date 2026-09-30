@@ -13,7 +13,7 @@ import * as apparato from 'apparato'
 import { sembraIndirizzo, stessoIndirizzo } from '../dominio/mailbox.js'
 import type { AccountMicrosoft } from '../dominio/onedrive.js'
 import { casella } from './mailbox.js'
-import { aggiornaOneDriveLocali, oneDriveLocaliNoti } from './oneDriveLocale.js'
+import { aggiornaOneDriveLocali, oneDriveLocaliNoti } from './oneDriveLocal.js'
 import { accediDalBrowser, rinnovaConMicrosoft, spiega, tenantDi, type Gettoni } from './oauth.js'
 import { testi } from './microsoft.testi.js'
 

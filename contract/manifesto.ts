@@ -248,10 +248,10 @@ const DICHIARAZIONI = {
     tipo: 'boolean',
     predefinito: false,
     // Senza icona accanto all'orologio partire nascosti vorrebbe dire sparire:
-    // `desktop/avvio.ts` la ignora già.
+    // `desktop/boot.ts` la ignora già.
     dipendeDa: 'registroDocenti.vassoio.attivo',
   },
-  // Sta nella sezione «Avanzate» del Programma (`core/controlli/aree.ts`), che
+  // Sta nella sezione «Avanzate» del Programma (`core/controlli/areas.ts`), che
   // è già di rara modifica: niente `avanzata`.
   'registroDocenti.avvio.integrazioneSistema': {
     tipo: 'boolean',

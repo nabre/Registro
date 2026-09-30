@@ -82,7 +82,7 @@ messaggi e canali: [CATALOGO](CATALOGO.md) § 7–8.
 flowchart TB
   subgraph main["Processo main Electron — uno solo"]
     guscio["<b>desktop/shell/</b><br/>main.ts, windows/, protocol/<br/>sa di Electron, con desktop/apparato/"]
-    app["<b>core/</b>, <b>desktop/</b>, <b>contract/</b><br/>avvio.ts, core/azioni/, contract/,<br/>core/dati/, core/dominio/, desktop/pannelli/<br/>parla solo con l'apparato"]
+    app["<b>core/</b>, <b>desktop/</b>, <b>contract/</b><br/>boot.ts, core/azioni/, contract/,<br/>core/dati/, core/dominio/, desktop/pannelli/<br/>parla solo con l'apparato"]
     ambiente["<b>desktop/apparato/</b><br/>l'apparato verso Electron"]
     guscio --- app
     app --- ambiente
@@ -211,7 +211,7 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   ([store.ts](../core/dati/store.ts)), PDF ([pdf.ts](../core/dati/pdf.ts),
   [reportsPdf.ts](../core/dati/reportsPdf.ts)), posta
   ([mail.ts](../core/dati/mail.ts), [exchange.ts](../core/dati/exchange.ts),
-  [oauth.ts](../core/dati/oauth.ts)), OneDrive ([oneDriveLocale.ts](../core/dati/oneDriveLocale.ts),
+  [oauth.ts](../core/dati/oauth.ts)), OneDrive ([oneDriveLocal.ts](../core/dati/oneDriveLocal.ts),
   [microsoft.ts](../core/dati/microsoft.ts), [onedrive.ts](../core/dati/onedrive.ts)), OCR ([ocr.ts](../core/dati/ocr.ts)),
   geocodifica ([geocoding.ts](../core/dati/geocoding.ts)), modelli, dettatura.
 - **`core/dominio/`** — le regole della scuola: modello
@@ -243,10 +243,10 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   `data-tieni` non si ricreano, l'orologio muove solo la riga di adesso.
 - **`core/controlli/`** — i controlli delle impostazioni del programma, disegnati
   una volta per il pannello e per la finestra nativa (ADR-52):
-  [controllo.ts](../core/controlli/controllo.ts) sceglie dalla `VoceProgramma`
+  [control.ts](../core/controlli/control.ts) sceglie dalla `VoceProgramma`
   figura, segmentato, tendina, interruttore, numero con unità, cursore,
-  percorso; [campo.ts](../core/controlli/campo.ts) gli stessi disegni per i
-  campi dell'anno; [aree.ts](../core/controlli/aree.ts) le quattro aree, le
+  percorso; [field.ts](../core/controlli/field.ts) gli stessi disegni per i
+  campi dell'anno; [areas.ts](../core/controlli/areas.ts) le quattro aree, le
   sezioni con chiavi (`DIVISIONI`, `divisioneDi`) e i loro nomi, comuni al
   pannello e alla finestra nativa. DOM passato come argomento, niente ponte: il
   valore esce da `quandoCambia`. Lo importano `ui/` e `desktop/shell/pages/`.
@@ -288,7 +288,7 @@ sequenceDiagram
   participant OS as Windows
   participant P as desktop/shell/main.ts
   participant B as Benvenuto
-  participant A as desktop/avvio.ts avvia
+  participant A as desktop/boot.ts avvia
   participant AR as Archivio
   participant PN as Pannello
 
@@ -329,7 +329,7 @@ sequenceDiagram
   participant PR as desktop/shell/preload.ts
   participant F as desktop/apparato/windows.ts
   participant PA as desktop/pannelli/panel.ts
-  participant AZ as desktop/avvio.ts esegui
+  participant AZ as desktop/boot.ts esegui
   participant API as contract/core.ts
   participant G as core/azioni/hours.ts
   participant C as core/azioni/context.ts
@@ -559,7 +559,6 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| 3 | `core/controlli/controlli.css` → core/controlli/controls.css, `core/controlli/controlli.testi.ts` → core/controlli/controls.testi.ts, `core/controlli/campo.ts` → core/controlli/field.ts, `core/controlli/aree.ts` e `core/controlli/aree.testi.ts` → core/controlli/areas.ts e core/controlli/areas.testi.ts, `core/controlli/controllo.ts` → core/controlli/control.ts, `core/dati/oneDriveLocale.ts` → core/dati/oneDriveLocal.ts, `core/dati/bozza.ts` → core/dati/draft.ts, `desktop/avvio.ts` e `desktop/avvio.testi.ts` → desktop/boot.ts e desktop/boot.testi.ts | ADR-53 |
 | 1b | `cli/testi.mjs` → cli/texts.mjs, `cli/disinstalla.mjs` → cli/uninstall.mjs, `cli/registro.mjs` → cli/main.mjs (il comando `regi` resta) | ADR-53 |
 | 4 | `contract/chiamante.ts` → contract/caller.ts, `contract/centralino.ts` → contract/switchboard.ts, `contract/registro.ts` → contract/registry.ts, `contract/manifesto.ts` e `contract/manifesto.testi.ts` → contract/manifest.ts e contract/manifest.testi.ts | ADR-53 |
 | 6 | `ui/pannello/styles/impostazioni-anno.css` → ui/pannello/styles/year-settings.css, `ui/pannello/components/annullabile.ts` → ui/pannello/components/undoable.ts, `ui/pannello/components/virtuale.ts` → ui/pannello/components/virtualList.ts, `ui/pannello/components/voceAnno.ts` e `ui/pannello/components/voceAnno.testi.ts` → ui/pannello/components/yearSetting.ts e ui/pannello/components/yearSetting.testi.ts, `ui/pannello/risorse.ts` → ui/pannello/asyncResources.ts, `ui/pannello/segnalibro.ts` → ui/pannello/bookmark.ts, `ui/pannello/orologio.ts` → ui/pannello/clock.ts, `ui/pannello/memoria.ts` → ui/pannello/memory.ts, `ui/pannello/isole.ts` → ui/pannello/islands.ts, `ui/pannello/posto.ts` → ui/pannello/place.ts | ADR-53 |

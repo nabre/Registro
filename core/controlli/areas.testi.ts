@@ -5,7 +5,7 @@
 // pannello (`sections.testi.ts`).
 
 import { catalogo } from '../i18n/index.js'
-import type { Area, SezioneDiProgramma } from './aree.js'
+import type { Area, SezioneDiProgramma } from './areas.js'
 
 /** Una sezione: il nome e il riassunto sotto il titolo. */
 interface Sezione {

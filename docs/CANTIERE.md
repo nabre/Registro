@@ -96,7 +96,7 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       somigliano; un aiuto comune in `components/table.ts` se ne arriva una
       terza.
 - [ ] Tasti del gruppo radio ripetuti: `dove()` in
-      `core/controlli/controllo.ts`, `views/settings.ts`, `components/base.ts`.
+      `core/controlli/control.ts`, `views/settings.ts`, `components/base.ts`.
 - [ ] `tools/screenshotDocs.mjs` e `tools/mail-probe.ps1` senza rimandi: una
       riga in GUIDA.
 

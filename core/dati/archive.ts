@@ -33,7 +33,7 @@ import {
   sostituisciLeToccate,
   type Differenze,
   type Patch,
-} from './bozza.js'
+} from './draft.js'
 import {
   ErrorePacchetto,
   ESTENSIONE,
@@ -902,7 +902,7 @@ export class Archivio implements apparato.Smaltitore {
 
   /**
    * Applica una modifica allo stato vivo e programma il salvataggio delle
-   * collezioni toccate. L'operazione lavora su una bozza (`bozza.ts`): le
+   * collezioni toccate. L'operazione lavora su una bozza (`draft.ts`): le
    * collezioni toccate si ricavano dalle sue patch, e `collezioni` resta la
    * dichiarazione di chi scrive, controllata (`controllaDichiarate`). Le patch
    * poi si riportano sullo stato in posto: gli oggetti restano gli stessi.

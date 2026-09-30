@@ -1121,7 +1121,7 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 
 Ogni scrittura passa da `Archivio.modifica` (o `modificaSe`, che rinuncia se
 l'operazione torna `false`: la strada di `contesto.modifica`). L'operazione
-lavora sulla bozza di immer (ADR-50, [bozza.ts](../core/dati/bozza.ts)): le
+lavora sulla bozza di immer (ADR-50, [draft.ts](../core/dati/draft.ts)): le
 collezioni da riscrivere si ricavano dalle patch, e si riscrivono solo quelle.
 Chi scrive le dichiara lo stesso (anche `eliminazione()` le restituisce), come
 controllo: una toccata e non dichiarata lancia con `REGISTRO_SVILUPPO=1` e nelle

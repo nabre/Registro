@@ -104,7 +104,7 @@ function applica (r, s) {
 /**
  * Le scritture di un'operazione, fino alla prima che riordina una lista: dopo
  * `sort` o `splice` la lista non si rilegge nella stessa operazione (vedi
- * `enableArrayMethods` in `core/dati/bozza.ts`), e i gestori non lo fanno.
+ * `enableArrayMethods` in `core/dati/draft.ts`), e i gestori non lo fanno.
  */
 function applicaTutte (r, scritture) {
   for (const s of scritture) {

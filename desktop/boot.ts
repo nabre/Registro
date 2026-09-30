@@ -72,7 +72,7 @@ import { firmaPosta } from '../core/dati/templates.js'
 import { istante } from '../core/i18n/index.js'
 import { parole } from '../core/dominio/words.testi.js'
 import { titoloComando } from '../contract/manifesto.js'
-import { testi } from './avvio.testi.js'
+import { testi } from './boot.testi.js'
 
 /** L'archivio della finestra: serve a `spegni` per l'ultimo salvataggio. */
 let archivioAttivo: Archivio | null = null

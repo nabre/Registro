@@ -17,9 +17,9 @@ import {
   type Disegno,
   type Scelta,
   type ValoreCampo,
-} from './controllo.js'
+} from './control.js'
 
-export type { ValoreCampo } from './controllo.js'
+export type { ValoreCampo } from './control.js'
 
 /** I disegni che si possono chiedere per un campo. */
 type TipoCampo =

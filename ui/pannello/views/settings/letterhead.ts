@@ -9,7 +9,7 @@
 // accanto a sé (`campoAnno`); il logo ha azioni sue. Le regole senza DOM stanno
 // in `letterheadCourses.ts`, dove si provano.
 
-import type { Esito } from '../../../../core/controlli/controllo.js'
+import type { Esito } from '../../../../core/controlli/control.js'
 import { MODI_PDF } from '../../../../core/dominio/automation.js'
 import { cartaVuota, spostaCorsi, togliCarta } from '../../../../core/dominio/letterhead.js'
 import { ALTEZZA_LOGO, type CartaIntestata, type QuandoRifarePdf } from '../../../../core/dominio/models.js'

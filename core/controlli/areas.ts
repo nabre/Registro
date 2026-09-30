@@ -5,7 +5,7 @@
 // come le dice lui. Senza DOM.
 
 import type { VoceProgramma } from '../../contract/protocollo.js'
-import { testi } from './aree.testi.js'
+import { testi } from './areas.testi.js'
 
 /** Le quattro aree, nell'ordine delle schede del pannello. */
 export const AREE = ['calendario', 'didattica', 'utente', 'programma'] as const

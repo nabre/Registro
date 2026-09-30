@@ -5,7 +5,7 @@
 // `aria-valuetext`, l'esito sotto il campo. Girano su un DOM finto, qui sotto:
 // i controlli ricevono il `documento` come argomento, e basta quel che usano.
 //
-// E la divisione in aree e sezioni della finestra nativa (`aree.ts`), che deve
+// E la divisione in aree e sezioni della finestra nativa (`areas.ts`), che deve
 // restare quella del pannello (`sections.ts`) finché il pannello non la prende da lì.
 
 import assert from 'node:assert/strict'
@@ -13,9 +13,9 @@ import { describe, it } from 'node:test'
 
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-const { controllo, diciEsito, nomeEAiuto } = await importaSorgente('core/controlli/controllo.ts')
-const { AREE, sezioniDellArea } = await importaSorgente('core/controlli/aree.ts')
-const { campo } = await importaSorgente('core/controlli/campo.ts')
+const { controllo, diciEsito, nomeEAiuto } = await importaSorgente('core/controlli/control.ts')
+const { AREE, sezioniDellArea } = await importaSorgente('core/controlli/areas.ts')
+const { campo } = await importaSorgente('core/controlli/field.ts')
 const { IMPOSTAZIONI } = await import('../../dist-tests/manifest.mjs')
 const { SEZIONI_PROGRAMMA } = await import('../../dist-tests/settingsSections.mjs')
 

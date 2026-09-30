@@ -32,7 +32,7 @@ import { avviso, campo, pastiglia, pulsante, riga, scheda } from '../../componen
 import { conferma } from '../../components/modal.js'
 import { notifica } from '../../components/notifications.js'
 import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/voceAnno.js'
-import { comeElenco } from '../../../../core/controlli/campo.js'
+import { comeElenco } from '../../../../core/controlli/field.js'
 import { h, type Figlio } from '../../dom.js'
 import { stato } from '../../state.js'
 import { schedaPauseGiornata } from './dayBreaks.js'

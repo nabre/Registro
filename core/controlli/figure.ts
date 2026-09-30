@@ -7,7 +7,7 @@
 import { LINGUE, NOMI_DELLE_LINGUE, lingua } from '../i18n/index.js'
 import { figuraLingua } from '../i18n/flags.js'
 import { elemento } from './dom.js'
-import { testi } from './controlli.testi.js'
+import { testi } from './controls.testi.js'
 
 /** Che cosa mostra una scelta oltre alle sue parole: la figura, e una nota di adesso. */
 interface Raffigurazione {

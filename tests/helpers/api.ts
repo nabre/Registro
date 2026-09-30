@@ -65,7 +65,7 @@ export { registraProiettore } from '../../core/azioni/projection.js'
 // rispondono da un Graph finto (`tests/api/reads.test.mjs`).
 export { registraPortachiaviMicrosoft } from '../../core/dati/microsoft.js'
 // Gli account sincronizzati fissati a mano: il registro di Windows di chi prova non conta.
-export { fissaOneDriveLocali } from '../../core/dati/oneDriveLocale.js'
+export { fissaOneDriveLocali } from '../../core/dati/oneDriveLocal.js'
 export { azioniSottoContratto } from '../../contract/bridge.js'
 export { VERSIONE_API, ErroreApi, errore, definisci } from '../../contract/contract.js'
 export { STATI_LEZIONE } from '../../contract/procedure/ore/common.js'

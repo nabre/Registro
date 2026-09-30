@@ -255,7 +255,7 @@ ancorate all'ICS ferme.
 ## 4. Comandi del programma
 
 `COMANDI` in [`contract/manifesto.ts`](../contract/manifesto.ts), registrati da
-[`desktop/avvio.ts`](../desktop/avvio.ts) con `apparato.comandi.registra`. Il menu
+[`desktop/boot.ts`](../desktop/boot.ts) con `apparato.comandi.registra`. Il menu
 nativo li dispone secondo `GRUPPI` di
 [`desktop/shell/windows/menu.ts`](../desktop/shell/windows/menu.ts) (un comando non nominato
 finisce sotto «Altro»); il vassoio ([`desktop/widget/tray.ts`](../desktop/widget/tray.ts)) ne espone
@@ -326,7 +326,7 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
 ### 5.1 Le 28 chiavi del programma
 
 Sezioni con chiavi (`DIVISIONI` in
-[`core/controlli/aree.ts`](../core/controlli/aree.ts), le stesse per pannello e
+[`core/controlli/areas.ts`](../core/controlli/areas.ts), le stesse per pannello e
 finestra nativa): Utente › Posta; Programma › Aspetto, Avvio e promemoria,
 Assistente e modelli, Aggiornamenti, Avanzate (id `condotto`: integrazione di
 sistema e condotto). Utente › Account non ha chiavi: gli account stanno nel

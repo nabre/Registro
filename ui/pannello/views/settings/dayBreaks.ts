@@ -9,7 +9,7 @@
 
 import { LIMITI_PAUSE, pauseDellaGiornata } from '../../../../core/dominio/breaks.js'
 import { sommaMinuti } from '../../../../core/dominio/dates.js'
-import type { Esito } from '../../../../core/controlli/controllo.js'
+import type { Esito } from '../../../../core/controlli/control.js'
 import type { PausaSeguente, PauseGiornata } from '../../../../core/dominio/models.js'
 import { notificaAnnullabile } from '../../components/annullabile.js'
 import { campo, pastiglia, pulsante, riga, scheda, statoVuoto } from '../../components/base.js'

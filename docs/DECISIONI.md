@@ -745,7 +745,7 @@ cambia se cambia ciò che il nodo mostra.
 gli account che il client di OneDrive sincronizza su questo computer, letti da
 `HKCU\Software\Microsoft\OneDrive\Accounts` (`UserEmail`, `UserFolder`, e le
 librerie sotto `Tenants`), si sfogliano e si cercano sul disco
-(`core/dati/oneDriveLocale.ts`), senza accesso né consenso; l'id di una voce è il
+(`core/dati/oneDriveLocal.ts`), senza accesso né consenso; l'id di una voce è il
 percorso, il drive `locale`, e un percorso fuori da quelle cartelle si rifiuta.
 La seconda, per gli account che qui non sono sincronizzati: Microsoft Graph, a
 nome degli account collegati in Impostazioni › «Account Microsoft». L'accesso è quello
@@ -778,7 +778,7 @@ dall'assistente (`perAssistente: false`). Una copia scaricata non si risincroniz
 lo si dice a chi la apre.
 
 **Dove.** `core/dati/microsoft.ts`, `core/dati/onedrive.ts`, `core/dominio/onedrive.ts`,
-`core/dati/oneDriveLocale.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
+`core/dati/oneDriveLocal.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
 `ui/pannello/views/settings/microsoft.ts`, `ui/pannello/forms/oneDrive.ts`.
 
 ### ADR-50 — Librerie: criteri di adozione, e le prime adottate
@@ -822,7 +822,7 @@ da provare sul pacchetto).
 
 Come sono entrate:
 
-- **immer** (passo 2): `core/dati/bozza.ts` tiene un'istanza `Immer` locale
+- **immer** (passo 2): `core/dati/draft.ts` tiene un'istanza `Immer` locale
   (`autoFreeze` spento, patch attive). `modifica` gira su una bozza, ricava le
   collezioni toccate dalle patch e le applica **in posto**, perché gestori in
   attesa di un dialogo e lo smistatore tengono riferimenti vivi. L'annulla mette
@@ -913,7 +913,7 @@ blocca l'apertura: tiene quel che c'era.
 `core/dominio/normalization.ts`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
 `contract/procedure/anni/calendario.ts`, `ui/pannello/forms/year.ts`,
 `ui/pannello/forms/schoolCalendar.ts`, `ui/pannello/views/settings/year.ts`,
-`desktop/avvio.ts`, `tests/api/officialCalendar.test.mjs`.
+`desktop/boot.ts`, `tests/api/officialCalendar.test.mjs`.
 
 ### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa
 
@@ -938,10 +938,10 @@ uno, `documento: Document` come argomento, testi in `textContent`, mai
 promessa con l'esito (`null` salvato, un testo il motivo della dogana) il
 controllo lo dice sotto il campo. I gestori si attaccano con `ascolta` (di
 serie `addEventListener`, nel pannello `gestisci`, che regge i ridisegni) e
-prendono il nodo da `currentTarget`. Un foglio `controlli.css`, classi
+prendono il nodo da `currentTarget`. Un foglio `controls.css`, classi
 `controllo-*`, importato dai due fogli; le schede con la figura restano in
 `figure-choice.css`; i colori dalle variabili che le due pagine hanno già.
-La finestra nativa prende da `core/controlli/aree.ts` anche i nomi di aree e
+La finestra nativa prende da `core/controlli/areas.ts` anche i nomi di aree e
 sezioni del pannello, che da `ui/` non vede.
 
 **Perché.** Due disegni divergono: la nativa mostrava modificabile quel che il
@@ -965,8 +965,8 @@ segmentato con nomi lunghi diventa tendina.
 
 **Dove.** `contract/manifesto.ts` (`Controllo`, `FonteScelte`), `contract/protocollo.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
-`numeroStorto`), `core/controlli/controllo.ts`, `core/controlli/aree.ts`,
-`core/controlli/controlli.css`, `ui/pannello/views/settings/program.ts`,
+`numeroStorto`), `core/controlli/control.ts`, `core/controlli/areas.ts`,
+`core/controlli/controls.css`, `ui/pannello/views/settings/program.ts`,
 `desktop/shell/pages/settings/settings.ts`, `tests/ui/controlli.test.mjs`.
 
 ### ADR-53 — I nomi dei file in inglese

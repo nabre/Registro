@@ -10,7 +10,7 @@
    token e misure, che questa pagina ha da `base.css`. */
 @import '../../../../ui/pannello/styles/figure-choice.css';
 /* I controlli delle voci, gli stessi del pannello (ADR-52). */
-@import '../../../../core/controlli/controlli.css';
+@import '../../../../core/controlli/controls.css';
 
 /* ------------------------------------------------------------- il telaio */
 
@@ -175,7 +175,7 @@ main {
 }
 
 /* Sospesa: il padre è spento e questa non conta. Si smorza il controllo, che
-   è spento (`controlli.css`); nome e spiegazione restano da leggere, con il
+   è spento (`controls.css`); nome e spiegazione restano da leggere, con il
    contrasto pieno, come nel pannello. */
 
 /* Una figlia (`dipendeDa`) rientra sotto il padre, come nel pannello. */

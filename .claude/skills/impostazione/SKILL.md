@@ -7,7 +7,7 @@ description: >
   `minimo`/`massimo`/`passo`, `controllo`, `unita`, `dipendeDa`, `richiede`,
   `avanzata`, `alProssimoAvvio`) con i testi in `manifesto.testi.ts`, la dogana
   di `valoreConMotivo`, le chiavi dismesse e migrate, l'area e la sezione in
-  cui compare (`core/controlli/aree.ts`), le due superfici che la mostrano con
+  cui compare (`core/controlli/areas.ts`), le due superfici che la mostrano con
   gli stessi controlli — la pagina del pannello e la finestra nativa — e le
   prove che impediscono a una chiave di sparire in silenzio. Da usare ogni volta che si
   parla di impostazioni, preferenze, opzioni, `impostazioni.json`,
@@ -115,8 +115,8 @@ valore; la rete impedisce che un file modificato a mano faccia danni.
 Quattro aree — Calendario, Didattica, Utente, Programma — ognuna una pagina che
 scorre per sezioni. Calendario e Didattica sono tutte dell'anno (campi del
 `.regi`); le chiavi del manifesto stanno in Utente › Posta e nelle cinque
-sezioni del Programma. Elenco e nomi in `core/controlli/aree.ts` e
-`aree.testi.ts`, uguali per le due superfici; le sezioni dell'anno e le parole
+sezioni del Programma. Elenco e nomi in `core/controlli/areas.ts` e
+`areas.testi.ts`, uguali per le due superfici; le sezioni dell'anno e le parole
 di ricerca le aggiunge il pannello (`ui/pannello/views/settings/sections.ts`,
 `sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/pannello/posto.ts`).
 
@@ -147,8 +147,8 @@ gli indirizzi (`area#sezione`): quelli di prima si riportano in
 | Quando serve | quasi sempre | la scialuppa: nessun documento aperto, il pannello non c'è (menu Registro › «Impostazioni senza documento aperto…») |
 | Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
-I controlli sono **gli stessi** (ADR-52): `core/controlli/controllo.ts` sceglie il
-disegno dalla `VoceProgramma`, `campo.ts` fa lo stesso per i campi dell'anno.
+I controlli sono **gli stessi** (ADR-52): `core/controlli/control.ts` sceglie il
+disegno dalla `VoceProgramma`, `field.ts` fa lo stesso per i campi dell'anno.
 `core/controlli/` importa solo `core/i18n`, le parole comuni e i tipi di
 `contract/` (`npm run layers`).
 
@@ -181,7 +181,7 @@ che si scopre di aver dimenticato la sezione.
 
 1. Dichiararla in `contract/manifesto.ts`, con le dogane e il disegno che le
    servono, e i testi in `manifesto.testi.ts` nelle quattro lingue.
-2. Deciderne la sezione: un prefisso in `DIVISIONI` (`core/controlli/aree.ts`) —
+2. Deciderne la sezione: un prefisso in `DIVISIONI` (`core/controlli/areas.ts`) —
    o lasciarla al raccoglitore, sapendo di averlo deciso. Un gruppo nuovo vuole
    il suo titolo in `titoliGruppi`.
 3. Leggerla dove serve:
