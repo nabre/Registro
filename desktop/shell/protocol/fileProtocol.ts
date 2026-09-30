@@ -75,10 +75,11 @@ async function serviFile (file: Uri): Promise<Response> {
   // testo-fisso: risposta del protocollo per chi sviluppa, nessuna pagina la mostra
   if (!concesso(file)) return rifiuta(403, `${file.fsPath} è fuori dalle cartelle concesse`)
   // I file dell'anno stanno nel documento: la copia su disco si scrive alla
-  // prima richiesta, non tutte all'apertura.
-  await deposito()?.materializzaChiesto(file)
+  // prima richiesta, non tutte all'apertura. Con la copia occupata (Windows,
+  // PDF aperto altrove) quella nuova ha un nome numerato: si serve quella.
+  const copia = (await deposito()?.materializzaChiesto(file)) ?? file
   // `net.fetch` consegna il file a pezzi invece che tutto in memoria.
-  return net.fetch(pathToFileURL(file.fsPath).toString())
+  return net.fetch(pathToFileURL(copia.fsPath).toString())
 }
 
 export function registraProtocollo (): void {

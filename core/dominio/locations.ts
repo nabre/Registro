@@ -142,6 +142,10 @@ function distinzione (indice: number): string {
   return indice > 0 ? ` (${indice + 1})` : ''
 }
 
+/** Il nome di un piano che nessuna lezione usa ancora. */
+// testo-fisso: il nome della cartella in `archivio/`, che non cambia con la lingua
+const BOZZA = 'Piano bozza'
+
 /**
  * Il nome, nell'archivio, della cartella di un piano lezione: deve stare
  * fermo, perché i file archiviati lo portano nel loro. Si basa sulle sole date
@@ -168,8 +172,15 @@ export function documentoPiano (registro: Registro, piano: PianoLezione): string
       !registro.lezioni.some((l) => l.pianoId === p.id),
   )
   const numero = distinzione(gemelle.findIndex((p) => p.id === piano.id))
-  // testo-fisso: il nome della cartella in `archivio/`, che non cambia con la lingua
-  return `Piano bozza ${dataNelNome(nato)}${numero}`
+  return `${BOZZA} ${dataNelNome(nato)}${numero}`
+}
+
+/**
+ * Vero se un nome di file, senza estensione, finisce con la prima di più bozze
+ * gemelle possibili: lo stesso nome con « (2)» è la seconda, non un doppione.
+ */
+export function finisceConBozza (radice: string): boolean {
+  return new RegExp(`(^|_)${BOZZA} \\d{6}$`).test(radice)
 }
 
 // --------------------------------------------- i rapporti che il registro fa

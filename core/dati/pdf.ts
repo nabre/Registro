@@ -159,9 +159,9 @@ interface TestoDiPagina {
  */
 export async function testoConPosizioni (byte: Uint8Array): Promise<TestoDiPagina[]> {
   const compito = await apri(byte)
-  const documento = await compito.promise
   const pagine: TestoDiPagina[] = []
   try {
+    const documento = await compito.promise
     for (let n = 1; n <= documento.numPages; n += 1) {
       const pagina = await documento.getPage(n)
       const vista = pagina.getViewport({ scale: 1 })
@@ -260,8 +260,8 @@ export async function immaginePagina (
 ): Promise<Uint8Array | null> {
   const m = await pdfjs()
   const compito = await apri(byte)
-  const documento = await compito.promise
   try {
+    const documento = await compito.promise
     if (numero < 1 || numero > documento.numPages) return null
     const pagina = await documento.getPage(numero)
     const operazioni = await pagina.getOperatorList()

@@ -385,13 +385,25 @@ function fotografia (
 
   // Una vedetta sola per tutte le pagine, non una per riquadro: vedi
   // `guardaQuando`.
-  guardaQuando(posto, `${chiave}|${pagina}|${larghezza}`, (vivo) => {
+  const guardia = `${chiave}|${pagina}|${larghezza}`
+  const compito = (vivo: HTMLElement): void => {
+    // Una pagina già lontana dalla vista quando tocca a lei si salta: scorrendo
+    // in fretta la coda non disegna quel che nessuno guarda più.
+    const vicina = (): boolean => {
+      if (!vivo.isConnected) return false
+      const r = vivo.getBoundingClientRect()
+      return r.bottom > -window.innerHeight && r.top < 2 * window.innerHeight
+    }
     // Un ridisegno può aver già sostituito il riquadro: lo si riempie solo se è
     // ancora in pagina; la fotografia resta in memoria per il riquadro nuovo.
-    void miniatura(indirizzo, chiave, pagina, larghezza).then((immagine) => {
-      if (vivo.isConnected) mostra(vivo, immagine, true)
+    void miniatura(indirizzo, chiave, pagina, larghezza, vicina).then((immagine) => {
+      if (!vivo.isConnected) return
+      // Saltata, non fallita: la si riguarda per quando torna in vista.
+      if (!immagine && !vicina()) guardaQuando(vivo, guardia, compito)
+      else mostra(vivo, immagine, true)
     })
-  })
+  }
+  guardaQuando(posto, guardia, compito)
   return posto
 }
 

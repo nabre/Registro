@@ -95,8 +95,14 @@ const fatte = new Map<string, string>()
 /** Quelle che si stanno disegnando adesso: chi le chiede due volte aspetta la stessa. */
 const inCorso = new Map<string, Promise<string | null>>()
 
+/** Chi aspetta ogni miniatura in corso, e sa dire se gli serve ancora: vedi `miniatura`. */
+const interessati = new Map<string, Array<() => boolean>>()
+
 /** La coda: una pagina alla volta, perché disegnare occupa il filo principale. */
 let coda: Promise<unknown> = Promise.resolve()
+
+/** Oltre questo un lavoro si lascia: un `fetch` o un disegno appeso non ferma la coda. */
+const TETTO_MS = 30_000
 
 /**
  * Quante volte si è chiamato `dimentica()`: un lavoro accodato prima non
@@ -206,14 +212,42 @@ async function fotografia (foglio: PaginaPdf, scalino: number): Promise<string |
 }
 
 /**
+ * Il disegno, o `null` passato `TETTO_MS`. Il documento forse è appeso: si
+ * chiude, e il prossimo lavoro lo riapre invece di aspettare anche lui.
+ */
+async function entroIlTetto (
+  disegno: Promise<string | null>,
+  chiave: string,
+): Promise<string | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const scaduto = new Promise<null>((risolvi) => {
+    timer = setTimeout(() => {
+      if (aperto?.chiave === chiave) {
+        chiudi(aperto.compito)
+        aperto = null
+      }
+      risolvi(null)
+    }, TETTO_MS)
+  })
+  try {
+    return await Promise.race([disegno, scaduto])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/**
  * La fotografia della pagina, dalla memoria se c'è. `null` se non si è potuta
  * disegnare: chi la chiede mostra il numero, e la pagina si trascina lo stesso.
+ * `serve` dice, quando tocca al lavoro, se la pagina interessa ancora (è in
+ * vista): se non serve più a nessuno di chi l'aspetta, non si disegna.
  */
 export function miniatura (
   indirizzo: string,
   chiave: string,
   pagina: number,
   larghezza: number,
+  serve: () => boolean = () => true,
 ): Promise<string | null> {
   const scalino = scalinoPer(larghezza)
   const segno = chiaveDi(chiave, pagina, scalino)
@@ -221,13 +255,17 @@ export function miniatura (
   if (pronta) return Promise.resolve(pronta)
 
   const gia = inCorso.get(segno)
-  if (gia) return gia
+  if (gia) {
+    interessati.get(segno)?.push(serve)
+    return gia
+  }
 
   const mia = generazione
   const lavoro: Promise<string | null> = coda.then(async () => {
     try {
       if (mia !== generazione) return null
-      const immagine = await disegna(indirizzo, chiave, pagina, scalino)
+      if (!(interessati.get(segno) ?? []).some((utile) => utile())) return null
+      const immagine = await entroIlTetto(disegna(indirizzo, chiave, pagina, scalino), chiave)
       if (immagine && mia === generazione) fatte.set(segno, immagine)
       return immagine
     } catch {
@@ -236,10 +274,14 @@ export function miniatura (
     } finally {
       // Solo se è ancora il suo posto: dopo `dimentica()` lo stesso segno può essere
       // di un lavoro nuovo.
-      if (inCorso.get(segno) === lavoro) inCorso.delete(segno)
+      if (inCorso.get(segno) === lavoro) {
+        inCorso.delete(segno)
+        interessati.delete(segno)
+      }
     }
   })
   inCorso.set(segno, lavoro)
+  interessati.set(segno, [serve])
   coda = lavoro
   return lavoro
 }
@@ -280,6 +322,9 @@ export function dimentica (): void {
   generazione += 1
   fatte.clear()
   inCorso.clear()
+  interessati.clear()
+  // I lavori accodati prima escono da soli (`generazione`): i nuovi non li aspettano.
+  coda = Promise.resolve()
   if (precedente) {
     chiudi(precedente.compito)
   }

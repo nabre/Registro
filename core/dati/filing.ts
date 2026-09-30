@@ -64,6 +64,7 @@ import {
   QUARANTENA,
   cartellaDelPercorso,
   documentoPiano,
+  finisceConBozza,
   nomeFileArchivio,
   percorsoArchivio,
 } from '../dominio/locations.js'
@@ -196,6 +197,9 @@ function togliDoppioni (relativo: string): void {
   const punto = nome.lastIndexOf('.')
   const radice = punto > 0 ? nome.slice(0, punto) : nome
   const estensione = punto > 0 ? nome.slice(punto) : ''
+  // Le bozze gemelle si distinguono proprio con « (2)»: toglierle cancellerebbe
+  // il PDF di un altro piano.
+  if (finisceConBozza(radice)) return
   const numerato = new RegExp(`^${scappa(radice)} \\(\\d+\\)${scappa(estensione)}$`)
 
   for (const voce of dove.fileIn(cartellaDelPercorso(relativo))) {

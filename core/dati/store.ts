@@ -179,10 +179,13 @@ export class Deposito {
    */
   async materializza (relativo: string): Promise<apparato.Uri | null> {
     const dentro = dentroIlDocumento(relativo)
-    const contenuto = this.leggi(dentro)
-    if (contenuto === null) return null
+    if (!this.esiste(dentro)) return null
 
     return this.inFila(async () => {
+      // Letto in fila, come il CRC: letto prima, un file riscritto (e salvato)
+      // durante l'attesa darebbe byte vecchi segnati con l'impronta nuova.
+      const contenuto = this.leggi(dentro)
+      if (contenuto === null) return null
       const destinazione = this.percorsoCopia(dentro)
       await this.leggiCopie()
       // Il CRC viene dall'indice dello ZIP: ricalcolarlo costa ~2 ms/MB a ogni
@@ -310,15 +313,16 @@ export class Deposito {
 
   /**
    * Materializza il file dietro un indirizzo `…/materializzati/<anno>/…` chiesto
-   * da una pagina. Torna vero se adesso il file c'è.
+   * da una pagina. Torna dove sta la copia, che con l'originale occupato è un
+   * nome numerato accanto; null se l'indirizzo non è di un file dell'anno.
    */
-  async materializzaChiesto (assoluto: apparato.Uri): Promise<boolean> {
+  async materializzaChiesto (assoluto: apparato.Uri): Promise<apparato.Uri | null> {
     const radice = this.radice()
-    if (!radice) return false
+    if (!radice) return null
     const dentro = radice.path.endsWith('/') ? radice.path : `${radice.path}/`
-    if (!assoluto.path.startsWith(dentro)) return false
+    if (!assoluto.path.startsWith(dentro)) return null
     const relativo = decodeURIComponent(assoluto.path.slice(dentro.length))
-    return (await this.materializza(relativo)) !== null
+    return this.materializza(relativo)
   }
 
   /** Dove finisce la copia di un file: sotto `userData`, con la stessa struttura. */
