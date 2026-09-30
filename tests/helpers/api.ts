@@ -60,6 +60,7 @@ export { impagina, scrivi } from '../../contract/presentation.js'
 // Chi porta il registro su una pagina: senza guscio non c'è nessuno iscritto,
 // e si provano le due risposte.
 export { registraNavigatore } from '../../core/azioni/view.js'
+export { registraProiettore } from '../../core/azioni/projection.js'
 // Gli account Microsoft con un portachiavi finto: le letture di OneDrive
 // rispondono da un Graph finto (`tests/api/reads.test.mjs`).
 export { registraPortachiaviMicrosoft } from '../../core/dati/microsoft.js'

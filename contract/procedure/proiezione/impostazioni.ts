@@ -1,4 +1,4 @@
-import { proiezione } from '../../../desktop/azioni/projection.js'
+import { proiezione } from '../../../core/azioni/projection.js'
 import { BLOCCHI, VISTE_CALENDARIO } from '../../../core/dominio/projection.js'
 import { inoltra, scrittura } from '../../core.js'
 import { booleano, elenco, nullabile, oggetto, scelta } from '../../schemas.js'

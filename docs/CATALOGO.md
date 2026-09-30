@@ -404,7 +404,7 @@ lo tiene `tests/api/coverage.test.mjs`.
 | [`llm.ts`](../core/azioni/llm.ts) | `llm.scarica`, `llm.annulla`, `llm.importa`, `llm.elimina`, `llm.scegli` |
 | [`updates.ts`](../core/azioni/updates.ts) | `aggiornamenti.controlla`, `aggiornamenti.scarica`, `aggiornamenti.installa` |
 | [`templates.ts`](../core/azioni/templates.ts) | `intestazione.logo`, `intestazione.togliLogo` |
-| [`projection.ts`](../desktop/azioni/projection.ts) | `proiezione.apri`, `proiezione.chiudi`, `proiezione.mira`, `proiezione.impostazioni` (nessuna tocca il `Registro`) |
+| [`projection.ts`](../core/azioni/projection.ts) | `proiezione.apri`, `proiezione.chiudi`, `proiezione.mira`, `proiezione.impostazioni` (nessuna tocca il `Registro`) |
 | [`history.ts`](../core/azioni/history.ts) | `storia.annulla`, `storia.ripristina` (con `conflitto` se le collezioni sono cambiate per un'altra strada) |
 | [`assistant.ts`](../core/azioni/assistant.ts) | `assistente.stacca`, `assistente.contesto` |
 | [`view.ts`](../core/azioni/view.ts) | `vista.apri` |

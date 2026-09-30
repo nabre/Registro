@@ -71,11 +71,9 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Strati
 
-- [ ] Sei deroghe dichiarate in `tools/layers.mjs` (`DEROGHE`), da togliere
-      una per una: `contract/` → `desktop/azioni/projection.ts` (cinque: la
-      proiezione va chiesta dall'apparato, lotto B di ARCHITETTURA § 11);
+- [ ] Una deroga dichiarata in `tools/layers.mjs` (`DEROGHE`):
       `core/azioni/system.ts` → `desktop/apparato/settings.ts` (impostazioni
-      passate dall'apparato, lotto C).
+      passate dall'apparato, lotto C di ARCHITETTURA § 11).
 
 
 ### Prove

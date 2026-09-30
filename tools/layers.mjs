@@ -49,11 +49,6 @@ const DEROGHE = [
     a: '^desktop/apparato/settings\\.ts$',
     perche: 'le impostazioni dichiarate vivono nell’ospite: vanno portate in core/ o passate dall’apparato',
   },
-  {
-    da: '^contract/(centralino\\.ts|procedure/proiezione/)',
-    a: '^desktop/azioni/projection\\.ts$',
-    perche: 'la proiezione è una capacità dell’ospite: va chiesta dall’apparato, non importata',
-  },
 ]
 
 // ------------------------------------------------------------------ il grafo

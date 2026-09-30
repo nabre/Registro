@@ -15,6 +15,7 @@ import { avviatoDalSistema } from './apparato/systemStartup.js'
 import { vassoioAcceso } from './apparato/tray.js'
 import { esegui } from '../contract/centralino.js'
 import { fermaRapporti } from '../core/azioni/reports.js'
+import { registraProiettore } from '../core/azioni/projection.js'
 import { registraNavigatore } from '../core/azioni/view.js'
 import { impacchettaAnni, inglobaCartelle, migraAnni } from '../core/dati/years.js'
 import { Archivio } from '../core/dati/archive.js'
@@ -59,7 +60,12 @@ import { creaAnnoCorrente } from '../core/dominio/factories.js'
 import { PannelloRegistro } from './pannelli/panel.js'
 import { avviaPromemoria } from './widget/reminders.js'
 import { avviaAssistente } from './pannelli/assistant.js'
-import { avviaProiezione, PannelloProiezione } from './pannelli/projection.js'
+import {
+  avviaProiezione,
+  impostaProiezione,
+  PannelloProiezione,
+  puntaProiezione,
+} from './pannelli/projection.js'
 import { avviaVassoio } from './widget/tray.js'
 import type { MessaggioNavigazione } from '../contract/protocollo.js'
 import { firmaPosta } from '../core/dati/templates.js'
@@ -346,6 +352,13 @@ export async function avvia (
   // Proiezione e assistente ricevono qui contesto e archivio, una volta sola.
   annuncia(testi().finestre)
   avviaProiezione(contesto, archivio)
+  // Le azioni `proiezione.*` stanno in `core`: lo schermo lo comanda chi si iscrive.
+  registraProiettore({
+    apri: () => PannelloProiezione.apri(),
+    chiudi: () => PannelloProiezione.chiudi(),
+    mira: puntaProiezione,
+    imposta: impostaProiezione,
+  })
   avviaAssistente(contesto, archivio)
 
   const apri = (navigazione?: MessaggioNavigazione) =>
