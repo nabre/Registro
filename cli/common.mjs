@@ -1,4 +1,4 @@
-// Nome dell'applicazione e cartella dei dati, per `registro.mjs` e `disinstalla.mjs`.
+// Nome dell'applicazione e cartella dei dati, per `main.mjs` e `uninstall.mjs`.
 // Non si compila, solo moduli `node:`: gira anche a costruzione rotta e dal
 // disinstallatore di Windows (`app.asar.unpacked/cli/`).
 

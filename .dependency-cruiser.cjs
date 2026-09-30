@@ -63,7 +63,7 @@ module.exports = {
       to: { path: '^core/(dati|azioni|apparato)/' },
     },
     {
-      // Così parte anche a costruzione rotta (vedi `cli/registro.mjs`).
+      // Così parte anche a costruzione rotta (vedi `cli/main.mjs`).
       name: 'cli-autonoma',
       comment: 'cli non importa niente dal progetto fuori da sé.',
       severity: 'error',

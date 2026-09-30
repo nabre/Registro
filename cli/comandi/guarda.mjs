@@ -1,7 +1,7 @@
 // Comando: regi guarda
 // Solo moduli `node:`.
 
-import { testi } from '../testi.mjs'
+import { testi } from '../texts.mjs'
 
 // Le stesse etichette di `LOCALI` in `core/i18n/languages.ts`: la riga di
 // comando non importa il core, e l'ora va scritta come la scrive il registro.

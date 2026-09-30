@@ -79,8 +79,8 @@ Il progetto organizza il codice su cinque strati architetturali netti
 - **`ui/`** — l'interfaccia utente webview, senza framework: `ui/pannello/` con le
   sue viste (`ui/pannello/views/`), i moduli form (`ui/pannello/forms/`) e i
   componenti (`ui/pannello/components/`).
-- **`cli/`** — gli strumenti a riga di comando autonomi: `cli/registro.mjs` e
-  `cli/disinstalla.mjs`.
+- **`cli/`** — gli strumenti a riga di comando autonomi: `cli/main.mjs` e
+  `cli/uninstall.mjs`.
 
 #### Regole dei confini
 

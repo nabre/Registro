@@ -2,7 +2,7 @@
 // Solo moduli `node:`.
 
 import { tabella } from '../table.mjs'
-import { testi } from '../testi.mjs'
+import { testi } from '../texts.mjs'
 
 export async function comandoElenco (condotto, grezzo, opzioni = {}) {
   const t = testi()

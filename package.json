@@ -27,7 +27,7 @@
     "dev": "node tools/dev.mjs",
     "build": "node esbuild.mjs",
     "start": "npm run build && electron .",
-    "regi": "node cli/registro.mjs",
+    "regi": "node cli/main.mjs",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.js.json",
     "lint": "eslint .",
     "clean": "node tools/clean.mjs",

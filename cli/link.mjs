@@ -3,7 +3,7 @@
 
 import net from 'node:net'
 import { indirizzo } from './address.mjs'
-import { testi } from './testi.mjs'
+import { testi } from './texts.mjs'
 
 /** Il rifiuto di `collega` quando l'indirizzo non si conosce. */
 export class CondottoMaiAcceso extends Error {}
@@ -83,7 +83,7 @@ function tentaConnessione (dove) {
 
 /**
  * Gestisce il flusso JSON-RPC su una presa condotto.
- * Esporta `conversazione` per `registro.mjs` e per i test.
+ * Esporta `conversazione` per `main.mjs` e per i test.
  */
 export function conversazione (presa) {
   let resto = ''

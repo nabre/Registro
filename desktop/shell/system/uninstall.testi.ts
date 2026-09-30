@@ -3,7 +3,7 @@
 
 import { catalogo } from '../../../core/i18n/index.js'
 
-/** Le parti della cartella dei dati che si possono tenere: i `GRUPPI` di `cli/disinstalla.mjs`. */
+/** Le parti della cartella dei dati che si possono tenere: i `GRUPPI` di `cli/uninstall.mjs`. */
 export type GruppoDaTenere = 'modelli' | 'account' | 'impostazioni'
 
 interface Gruppo {

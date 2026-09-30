@@ -26,7 +26,7 @@ import * as esbuild from 'esbuild'
 
 /**
  * Ferma la costruzione se l'AppUserModelID diverge fra `electron-builder.json`,
- * `desktop/apparato/notifications.ts` e `cli/disinstalla.mjs`: diverso,
+ * `desktop/apparato/notifications.ts` e `cli/uninstall.mjs`: diverso,
  * l'icona appuntata non riapre il registro e le notifiche si sdoppiano.
  *
  * `nsis.guid` deve restare l'UUID v5 di `IDENTITA_VECCHIA`
@@ -42,7 +42,7 @@ function verificaIdentita () {
     .join('\n')
   const { appId, nsis } = JSON.parse(senzaCommenti)
 
-  for (const file of ['desktop/apparato/notifications.ts', 'cli/disinstalla.mjs']) {
+  for (const file of ['desktop/apparato/notifications.ts', 'cli/uninstall.mjs']) {
     const sorgente = readFileSync(file, 'utf8')
     const dichiarato = /^const IDENTITA = '([^']+)'/m.exec(sorgente)?.[1]
     if (!dichiarato) {

@@ -1,4 +1,4 @@
-// La riga di comando, lanciata come la lancia chi la usa. `cli/registro.mjs`
+// La riga di comando, lanciata come la lancia chi la usa. `cli/main.mjs`
 // non importa niente di `src/`, quindi due cose le sa da sé e possono divergere
 // dal registro:
 //
@@ -52,7 +52,7 @@ before(async () => {
 
   api = await import('../../dist-tests/api.mjs')
   // Importata e non lanciata: da modulo espone `indirizzo`.
-  cli = await import('../../cli/registro.mjs')
+  cli = await import('../../cli/main.mjs')
 })
 
 after(async () => {

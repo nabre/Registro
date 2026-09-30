@@ -15,7 +15,7 @@
 // `--tieni` con i nomi di `GRUPPI` separati da virgole tiene una parte dei dati;
 // senza, si toglie tutto.
 //
-//   disinstalla.mjs [--dati <cartella>] [--eseguibile <file>]
+//   uninstall.mjs [--dati <cartella>] [--eseguibile <file>]
 //                   [--attendi <pid>] [--togli <file>]
 //                   [--tieni modelli,account,impostazioni]
 

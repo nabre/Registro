@@ -2,7 +2,7 @@
 // Solo moduli `node:`.
 
 import { indirizzo } from '../address.mjs'
-import { testi } from '../testi.mjs'
+import { testi } from '../texts.mjs'
 
 export async function comandoStato (condotto, grezzo, opzioni = {}) {
   const t = testi()

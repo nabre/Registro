@@ -110,7 +110,7 @@ describe('il lancio della finestra', () => {
   })
 
   it('le cartelle di lavoro hanno il prefisso che la disinstallazione toglie', () => {
-    const disinstalla = readFileSync(percorso.join(RADICE, 'cli', 'disinstalla.mjs'), 'utf8')
+    const disinstalla = readFileSync(percorso.join(RADICE, 'cli', 'uninstall.mjs'), 'utf8')
     assert.ok(disinstalla.includes(`'${PREFISSO_LAVORO}'`))
   })
 })

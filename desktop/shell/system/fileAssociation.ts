@@ -7,7 +7,7 @@
 // electron-builder gli dà l'icona generica `x-office-document`; l'AppImage non
 // installa niente. Qui si scrive per l'utente, nella sua `~/.local/share` che
 // vale più di quella di sistema: il tipo con l'icona nostra e, per l'AppImage,
-// la voce che la apre. Li toglie `cli/disinstalla.mjs` (e per i pacchetti
+// la voce che la apre. Li toglie `cli/uninstall.mjs` (e per i pacchetti
 // `os/linux/after-remove.sh`). Su macOS basta il `CFBundleDocumentTypes` che
 // scrive electron-builder, con l'icona dell'applicazione.
 import { app } from 'electron'
@@ -141,7 +141,7 @@ const ICONA_DEL_TIPO = 'application-x-regiklass'
 // `app_id`, e la voce con lo stesso nome raccoglie le finestre aperte.
 const VOCE = 'ch.nabre.regiklass'
 // Quel che si scrive, relativo a `~/.local/share`: lo stesso elenco sta in
-// `cli/disinstalla.mjs` e in `os/linux/after-remove.sh`.
+// `cli/uninstall.mjs` e in `os/linux/after-remove.sh`.
 const FILE_DEL_TIPO = join('mime', 'packages', 'regiklass.xml')
 const FILE_ICONA_DEL_TIPO = join('icons', 'hicolor', '512x512', 'mimetypes', `${ICONA_DEL_TIPO}.png`)
 const FILE_ICONA_VOCE = join('icons', 'hicolor', '512x512', 'apps', `${VOCE}.png`)

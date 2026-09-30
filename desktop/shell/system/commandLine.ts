@@ -4,7 +4,7 @@
 // Come `fileAssociation.ts`, l'applicazione si registra da sé all'avvio, per
 // l'utente e senza privilegi: vale in sviluppo, nel portable e su tre sistemi.
 //
-// Il ponte contiene solo i percorsi dell'eseguibile e di `registro.mjs`:
+// Il ponte contiene solo i percorsi dell'eseguibile e di `main.mjs`:
 // con `ELECTRON_RUN_AS_NODE` Electron fa da Node, che non serve installare.
 // Si riscrive a ogni avvio (se diverso), così segue l'applicazione spostata o aggiornata.
 

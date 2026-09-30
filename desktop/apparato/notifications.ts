@@ -21,7 +21,7 @@ const IDENTITA = 'ch.nabre.regiklass'
 
 /**
  * Identità propria del portabile, perché il suo pin non si confonda con quello
- * dell'installato. Stesso nome in `cli/disinstalla.mjs`, che la toglie.
+ * dell'installato. Stesso nome in `cli/uninstall.mjs`, che la toglie.
  */
 const IDENTITA_PORTABILE = `${IDENTITA}.portabile`
 
@@ -109,7 +109,7 @@ function iconaCheResta (cartella: string): string | null {
 
 /**
  * Registra nome e icona di un'identità senza collegamento, nella chiave
- * `HKCU\…\AppUserModelId`. Quella del portabile la toglie `cli/disinstalla.mjs`.
+ * `HKCU\…\AppUserModelId`. Quella del portabile la toglie `cli/uninstall.mjs`.
  */
 function registraSenzaCollegamento (identita: string, nome: string, icona: string): void {
   if (!integrazioneSistemaAbilitata()) return

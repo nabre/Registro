@@ -115,7 +115,7 @@ describe('il registro che chiude fra lo schema e la chiamata', () => {
   let finto
 
   it('una domanda su una presa già chiusa torna null subito, non resta appesa', async () => {
-    const { conversazione } = await import('../../cli/registro.mjs')
+    const { conversazione } = await import('../../cli/main.mjs')
     const presa = new EventEmitter()
     presa.setEncoding = () => undefined
     presa.write = () => true

@@ -25,7 +25,7 @@ L'albero dei sorgenti riflette i cinque strati architetturali del progetto (deci
 | `core/` | `core/azioni/`, `core/dati/`, `core/dominio/` | Il nucleo applicativo: gestori delle azioni (`core/azioni/`), persistenza e archivio (`core/dati/`), regole di dominio pure (`core/dominio/`) |
 | `desktop/` | `desktop/transports/`, `desktop/pannelli/`, `desktop/apparato/`, `desktop/shell/` | L'applicazione Electron: trasporti condotto/assistente (`desktop/transports/`), gestione pannelli (`desktop/pannelli/`), apparato di sistema (`desktop/apparato/`), shell nativa (`desktop/shell/`) |
 | `ui/` | `ui/pannello/` | L'interfaccia utente webview: non conosce le procedure, invia solo `Azione` e `Domanda` |
-| `cli/` | `cli/registro.mjs` | La riga di comando autonoma: cliente esterno del condotto su named pipe, non tocca il nucleo |
+| `cli/` | `cli/main.mjs` | La riga di comando autonoma: cliente esterno del condotto su named pipe, non tocca il nucleo |
 
 ## Il contratto
 
@@ -134,7 +134,7 @@ vecchio, aggiustalo mentre sei lì.
 
 ## Quel che non si tocca mai
 
-- **`cli/registro.mjs`** (strato `cli/`): non ha una copia dell'elenco: chiede tutto al
+- **`cli/main.mjs`** (strato `cli/`): non ha una copia dell'elenco: chiede tutto al
   condotto. Una procedura aggiunta stamattina si chiama da lì stasera senza che
   quel file cambi. Si tocca solo per aggiungere un *comando*, non una procedura.
 - **`tests/helpers/api.ts`** si tocca solo per esportare qualcosa di nuovo verso le

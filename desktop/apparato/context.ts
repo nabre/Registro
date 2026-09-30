@@ -142,14 +142,14 @@ export function percorsoCaratteriPdf (): string {
   return Uri.joinPath(cartellaBundle(), 'pdf-fonts').fsPath
 }
 
-/** La riga di comando `cli/registro.mjs`, fuori dall'asar perché la esegue un altro processo. */
+/** La riga di comando `cli/main.mjs`, fuori dall'asar perché la esegue un altro processo. */
 export function percorsoRigaDiComando (): string {
-  return fuoriDallAsar(Uri.joinPath(radiceApp(), 'cli', 'registro.mjs').fsPath)
+  return fuoriDallAsar(Uri.joinPath(radiceApp(), 'cli', 'main.mjs').fsPath)
 }
 
-/** Lo script di pulizia `cli/disinstalla.mjs`, fuori dall'asar come la riga di comando. */
+/** Lo script di pulizia `cli/uninstall.mjs`, fuori dall'asar come la riga di comando. */
 export function percorsoDisinstallazione (): string {
-  return fuoriDallAsar(Uri.joinPath(radiceApp(), 'cli', 'disinstalla.mjs').fsPath)
+  return fuoriDallAsar(Uri.joinPath(radiceApp(), 'cli', 'uninstall.mjs').fsPath)
 }
 
 /**

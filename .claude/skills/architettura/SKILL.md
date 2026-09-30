@@ -118,8 +118,8 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
 ### `cli/`: La linea di comando
 Fornisce strumenti a riga di comando per operare sul registro e compiere interventi di manutenzione:
 
-- `cli/registro.mjs`: Script CLI principale per ispezionare archivi, verificare lo stato, estrarre dati ed eseguire operazioni automatiche.
-- `cli/disinstalla.mjs`: Script per la disinstallazione pulita e rimozione di chiavi di registro e cache.
+- `cli/main.mjs`: Script CLI principale per ispezionare archivi, verificare lo stato, estrarre dati ed eseguire operazioni automatiche.
+- `cli/uninstall.mjs`: Script per la disinstallazione pulita e rimozione di chiavi di registro e cache.
 - **Indipendenza totale**: scritti in JavaScript standard (Node ESM `.mjs`), senza compilazione TypeScript intermedia. Non importano a runtime moduli applicativi da `core/`, `contract/`, `desktop/` o `ui/`. Questa indipendenza garantisce che la CLI possa partire ed eseguire diagnostica anche quando il progetto non compila o la build è temporaneamente interrotta.
 
 ---

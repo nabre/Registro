@@ -33,7 +33,7 @@ if [ -f "$APPARMOR_PROFILE_DEST" ]; then
 fi
 # ---- Il registro: quel che resta nelle case degli utenti ----
 #
-# Lo stesso elenco di `src/cli/disinstalla.mjs`, che qui non si può chiamare:
+# Lo stesso elenco di `cli/uninstall.mjs`, che qui non si può chiamare:
 # lo script gira da root, a programma già tolto, una volta per la macchina; si
 # passa per ogni utente. I documenti `.regi` non si toccano.
 #

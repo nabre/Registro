@@ -1,7 +1,7 @@
 // Comando: regi aspetta
 // Solo moduli `node:`.
 
-import { testi } from '../testi.mjs'
+import { testi } from '../texts.mjs'
 
 export async function comandoAspetta (condotto, grezzo, opzioni = {}) {
   const t = testi()

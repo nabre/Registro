@@ -31,7 +31,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Il guscio Electron: avvio, menu, protocollo, pagine native | `desktop/shell/` |
 | Contratto fra host e pannello | `contract/protocollo.ts` |
 | Azioni | `core/azioni/` |
-| Procedure, condotto, riga di comando | `contract/`, `cli/registro.mjs` |
+| Procedure, condotto, riga di comando | `contract/`, `cli/main.mjs` |
 | Interfaccia del pannello (senza framework, ADR-06) | `ui/pannello/` |
 | Guida d'uso | `ui/pannello/views/help.ts`, `ui/pannello/views/help/` |
 | Mappa: geometria, geocodifica, tasselli | `core/dominio/map.ts`, `core/dati/geocoding.ts`, `desktop/shell/protocol/tiles.ts` |
@@ -273,7 +273,7 @@ rifà.
 | Costruzione verificabile | runner di GitHub, solo da `main`, solo il commit |
 | Privacy | README › «Code signing policy» › «Privacy»; uscite: § «Che cosa esce dal computer» |
 | Modifiche al sistema annunciate | prima pagina dell'installatore (`os/windows/installer.nsh`) |
-| Disinstallazione | disinstallatore NSIS + `cli/disinstalla.mjs`; nel portabile «Disinstalla…» |
+| Disinstallazione | disinstallatore NSIS + `cli/uninstall.mjs`; nel portabile «Disinstalla…» |
 | MFA su GitHub e SignPath | a mano |
 | Ruoli | README; revisione in `CONTRIBUTING.md` § «Revisione e firma» |
 | «Code signing policy» visibile | titolo e testa del README |
@@ -301,7 +301,7 @@ firma si saltano. All'ammissione:
   pipe nominata (Windows) o socket Unix, mai su una porta di rete. Con
   `lettura` una scrittura torna `non-permesso`.
 - `regi`: l'installato scrive a ogni avvio un ponte in una cartella nel PATH
-  dell'utente (`desktop/shell/system/commandLine.ts`) che lancia `cli/registro.mjs`
+  dell'utente (`desktop/shell/system/commandLine.ts`) che lancia `cli/main.mjs`
   con l'eseguibile del registro e `ELECTRON_RUN_AS_NODE`. Il portabile no. Dal
   repository: `npm run regi -- elenco`.
 - Contratto: [API](API.md) § 7 (condotto) e § 8 (riga di comando).

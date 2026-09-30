@@ -10,7 +10,7 @@
  *   2. `core` può importare da `contract` un tipo, mai un valore: `import type`
  *      sparisce alla compilazione.
  *   3. `cli` non importa niente dal progetto, così parte anche a costruzione
- *      rotta (vedi `cli/registro.mjs`).
+ *      rotta (vedi `cli/main.mjs`).
  *   4. `core/dominio/` non importa niente da fuori di sé tranne `core/i18n/`,
  *      che a sua volta non importa niente.
  *   5. `core/controlli/` (il DOM dei controlli delle impostazioni, ADR-52)

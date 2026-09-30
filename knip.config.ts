@@ -63,7 +63,7 @@ function pagineNative (): string[] {
 }
 
 export default {
-  // `esbuild.mjs`, `cli/registro.mjs` e le prove `node --test` knip li ricava
+  // `esbuild.mjs`, `cli/main.mjs` e le prove `node --test` knip li ricava
   // già da `package.json`: qui c'è quel che non vede.
   entry: [
     // Gli attrezzi si lanciano uno per uno (`npm run <nome>`, `tools/ci.mjs`);
@@ -71,7 +71,7 @@ export default {
     'tools/**/*.{mjs,cjs}',
     '!tools/common.mjs',
     // Lo lancia l'installatore (`electron-builder.json`), non uno script.
-    'cli/disinstalla.mjs',
+    'cli/uninstall.mjs',
     '.claude/**/*.mjs',
     // Le prove dell'interfaccia (`npm run ui-tests`): le lancia Playwright con
     // la sua configurazione, che sta in `tests/interfaccia/` e non alla radice

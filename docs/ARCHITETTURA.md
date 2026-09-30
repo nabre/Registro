@@ -559,7 +559,6 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| 1b | `cli/testi.mjs` → cli/texts.mjs, `cli/disinstalla.mjs` → cli/uninstall.mjs, `cli/registro.mjs` → cli/main.mjs (il comando `regi` resta) | ADR-53 |
 | 4 | `contract/chiamante.ts` → contract/caller.ts, `contract/centralino.ts` → contract/switchboard.ts, `contract/registro.ts` → contract/registry.ts, `contract/manifesto.ts` e `contract/manifesto.testi.ts` → contract/manifest.ts e contract/manifest.testi.ts | ADR-53 |
 | 6 | `ui/pannello/styles/impostazioni-anno.css` → ui/pannello/styles/year-settings.css, `ui/pannello/components/annullabile.ts` → ui/pannello/components/undoable.ts, `ui/pannello/components/virtuale.ts` → ui/pannello/components/virtualList.ts, `ui/pannello/components/voceAnno.ts` e `ui/pannello/components/voceAnno.testi.ts` → ui/pannello/components/yearSetting.ts e ui/pannello/components/yearSetting.testi.ts, `ui/pannello/risorse.ts` → ui/pannello/asyncResources.ts, `ui/pannello/segnalibro.ts` → ui/pannello/bookmark.ts, `ui/pannello/orologio.ts` → ui/pannello/clock.ts, `ui/pannello/memoria.ts` → ui/pannello/memory.ts, `ui/pannello/isole.ts` → ui/pannello/islands.ts, `ui/pannello/posto.ts` → ui/pannello/place.ts | ADR-53 |
 | 5 | `contract/protocollo.ts` → contract/protocol.ts | ADR-53 |

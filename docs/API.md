@@ -82,7 +82,7 @@ flowchart TB
 | [contract/registro.ts](../contract/registro.ts) | l'elenco delle aree |
 | [contract/bridge.ts](../contract/bridge.ts) | l'innesto nel centralino |
 | [desktop/transports/conduit.ts](../desktop/transports/conduit.ts) | il server JSON-RPC locale |
-| [cli/registro.mjs](../cli/registro.mjs) | la riga di comando |
+| [cli/main.mjs](../cli/main.mjs) | la riga di comando |
 | [contract/protocollo.ts](../contract/protocollo.ts) | `Azione`/`Risposta`, `Domanda`/`Riscontro` |
 | [ui/pannello/bridge.ts](../ui/pannello/bridge.ts) | `invia`, `azione`, `chiedi` |
 | [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | coda delle richieste, `rispondiDomanda()` |
@@ -598,7 +598,7 @@ Si decide su `data.codice`, sempre presente.
 ## 8. La riga di comando
 
 ```
-npm run regi -- <comando>            oppure    node cli/registro.mjs <comando>
+npm run regi -- <comando>            oppure    node cli/main.mjs <comando>
 ```
 
 Installato: **`regi`**, dal ponte nel PATH (`desktop/shell/system/commandLine.ts`).

@@ -1,4 +1,4 @@
-// La disinstallazione: `cli/disinstalla.mjs` lanciato come lo lanciano il
+// La disinstallazione: `cli/uninstall.mjs` lanciato come lo lanciano il
 // disinstallatore di Windows e la voce «Disinstalla…». Con `--tieni` restano
 // modelli, account o impostazioni scelti e il resto della cartella dei dati se
 // ne va; senza (disinstallazione silenziosa) se ne va tutto.
@@ -15,7 +15,7 @@ import * as percorso from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { after, describe, it } from 'node:test'
 
-const SCRIPT = fileURLToPath(new URL('../../cli/disinstalla.mjs', import.meta.url))
+const SCRIPT = fileURLToPath(new URL('../../cli/uninstall.mjs', import.meta.url))
 
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-disinstalla-'))
 after(() => rmSync(radice, { recursive: true, force: true }))
@@ -63,7 +63,7 @@ async function disinstalla (casa, dati, ...altri) {
   assert.equal(esito.status, 0, esito.stderr)
 }
 
-describe('disinstalla.mjs --tieni', { concurrency: true }, () => {
+describe('uninstall.mjs --tieni', { concurrency: true }, () => {
   it('senza --tieni toglie la cartella dei dati intera', async () => {
     const { casa, dati } = cartellaUsata()
     await disinstalla(casa, dati)

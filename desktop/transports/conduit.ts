@@ -174,7 +174,7 @@ export function indirizzoCondotto (): string {
  * Su Windows `\\.\pipe\` è unico per la macchina: un altro utente potrebbe
  * occupare per primo il nome, e la riga di comando parlerebbe con la sua pipe.
  * Il segreto (sedici byte casuali) sta nel profilo dell'utente, protetto dalla
- * sua ACL, e lo rilegge anche `cli/registro.mjs`.
+ * sua ACL, e lo rilegge anche `cli/main.mjs`.
  *
  * Il nome della pipe invece è visibile a tutti, segreto compreso: per questo si
  * rifà a ogni accensione, e quel che si legge vale solo finché il nome è già

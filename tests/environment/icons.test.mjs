@@ -134,7 +134,7 @@ describe('l’identità del portabile', () => {
     const suffisso = (testo, davanti) =>
       new RegExp(`${davanti}\`\\$\\{IDENTITA\\}(\\.[a-z]+)\``).exec(testo)?.[1]
     const scrive = suffisso(readFileSync(file('desktop/apparato/notifications.ts'), 'utf8'), 'IDENTITA_PORTABILE = ')
-    const toglie = suffisso(readFileSync(file('cli/disinstalla.mjs'), 'utf8'), 'REGISTRO_AUMID: portabile \\? ')
+    const toglie = suffisso(readFileSync(file('cli/uninstall.mjs'), 'utf8'), 'REGISTRO_AUMID: portabile \\? ')
     assert.ok(scrive, 'notifications.ts non dichiara più l’identità del portabile')
     assert.equal(toglie, scrive)
   })

@@ -4,11 +4,11 @@
 // le procedure senza cambiare. Solo moduli `node:`, niente compilazione: deve
 // funzionare anche a costruzione rotta.
 //
-//   node cli/registro.mjs elenco
-//   node cli/registro.mjs schema ore.appello.casella
-//   node cli/registro.mjs chiama corso.presenze --corsoId cor-...
-//   node cli/registro.mjs aspetta
-//   node cli/registro.mjs guarda
+//   node cli/main.mjs elenco
+//   node cli/main.mjs schema ore.appello.casella
+//   node cli/main.mjs chiama corso.presenze --corsoId cor-...
+//   node cli/main.mjs aspetta
+//   node cli/main.mjs guarda
 //
 // Errori su stderr, dati su stdout, così `regi chiama ... --json | jq` funziona.
 
@@ -21,7 +21,7 @@ import { cartellaUtente } from './common.mjs'
 import { indirizzo } from './address.mjs'
 import { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
 import { verificaProprietarioPipe } from './pipeOwner.mjs'
-import { testi } from './testi.mjs'
+import { testi } from './texts.mjs'
 
 import { comandoElenco } from './comandi/elenco.mjs'
 import { comandoSchema } from './comandi/schema.mjs'
@@ -43,7 +43,7 @@ const COMANDO = process.env.REGISTRO_COMANDO ?? 'regi'
 const USCITA_RIFIUTO = 1
 const USCITA_MUTO = 2
 
-/** I testi nella lingua della riga di comando: vedi `testi.mjs`. */
+/** I testi nella lingua della riga di comando: vedi `texts.mjs`. */
 const t = testi()
 
 const SPENTO = [t.nonRisponde, '', t.comeSiAccende].join('\n')

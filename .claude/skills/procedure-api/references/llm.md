@@ -119,9 +119,9 @@ l'indirizzo sta decidendo di mandarli altrove.
 | aggiunto, cambiato o tolto una procedura | `npm run tools`, e basta |
 | cambiato la forma del catalogo (un campo nuovo in `AttrezzoCatalogo`) | `contract/tools.ts` (e `tools/assistantTools.mjs`), poi `npm run tools`, poi `tests/api/tools.test.mjs` |
 | cambiato le istruzioni per il modello | `istruzioni()` in `contract/tools.ts` — e ricorda che una prova controlla che ci sia ancora scritto che non può scrivere |
-| aggiunto un comando alla riga di comando | `cli/registro.mjs`: l'elenco in `AIUTO`, il controllo dei nomi e lo smistamento |
+| aggiunto un comando alla riga di comando | `cli/main.mjs`: l'elenco in `AIUTO`, il controllo dei nomi e lo smistamento |
 | cambiato come il condotto risponde | `desktop/transports/conduit.ts`, `eseguiMetodo` |
 
-**`cli/registro.mjs` non si tocca per esporre una procedura.** Non ha una
+**`cli/main.mjs` non si tocca per esporre una procedura.** Non ha una
 copia dell'elenco: chiede tutto al condotto. Si tocca solo per aggiungere un
 comando nuovo.

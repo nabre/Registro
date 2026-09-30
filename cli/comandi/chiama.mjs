@@ -1,7 +1,7 @@
 // Comando: regi chiama <procedura> [--campo valore]... [--json '{...}']
 // Solo moduli `node:`.
 
-import { inTutteLeLingue, testi } from '../testi.mjs'
+import { inTutteLeLingue, testi } from '../texts.mjs'
 
 export const SENZA_VALORE = Symbol('senza valore')
 export class ErroreUso extends Error {}

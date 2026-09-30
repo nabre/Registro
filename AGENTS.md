@@ -39,7 +39,7 @@ core/       dominio puro, dati e archivio, azioni applicative, i18n, apparato
 contract/   protocollo, manifesto, procedure API, centralino, bridge, schemi
 desktop/    guscio Electron (shell/), apparato host, pannelli webview, trasporti, widget, avvio
 ui/         interfaccia del pannello webview (ui/pannello/ con views, forms, components)
-cli/        client a riga di comando autonomo (cli/registro.mjs)
+cli/        client a riga di comando autonomo (cli/main.mjs)
 templates/  sorgenti dei rapporti stampabili
 tools/      build, generatori e controlli statici del progetto
 tests/      test API, dominio, ambiente, dati e interfaccia

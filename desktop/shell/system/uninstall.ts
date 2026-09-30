@@ -2,7 +2,7 @@
 // ogni piattaforma (macOS, AppImage e portabile non hanno un disinstallatore
 // che tolga i dati; NSIS e i pacchetti Linux sì, vedi `os/`).
 //
-// Il lavoro lo fa `cli/disinstalla.mjs`, lanciato staccato con l'eseguibile
+// Il lavoro lo fa `cli/uninstall.mjs`, lanciato staccato con l'eseguibile
 // in veste di Node. Riceve il pid e aspetta che il registro sia chiuso: su
 // Windows una cartella con un file aperto non si cancella.
 
@@ -52,7 +52,7 @@ function programmaDaTogliere (): string | null {
 
 /**
  * Le parti della cartella dei dati che si possono tenere: i nomi sono quelli
- * di `GRUPPI` in `cli/disinstalla.mjs`, che sa quali file ci stanno dentro.
+ * di `GRUPPI` in `cli/uninstall.mjs`, che sa quali file ci stanno dentro.
  */
 const GRUPPI: readonly GruppoDaTenere[] = ['modelli', 'account', 'impostazioni']
 
@@ -155,7 +155,7 @@ export async function disinstalla (): Promise<void> {
   const tenuti = await conferma(programma)
   if (!tenuti) return
 
-  // Il disinstallatore di Windows fa tutto, `disinstalla.mjs` compreso.
+  // Il disinstallatore di Windows fa tutto, `uninstall.mjs` compreso.
   const disinstallatore = disinstallatoreDiWindows()
   if (disinstallatore) {
     spawn(disinstallatore, [], { detached: true, stdio: 'ignore' }).unref()

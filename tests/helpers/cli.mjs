@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 
 import { prova } from '../../cli/access.mjs'
 
-export const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
+export const CLI = fileURLToPath(new URL('../../cli/main.mjs', import.meta.url))
 
 /**
  * La funzione che lancia la riga di comando e raccoglie quel che dice.

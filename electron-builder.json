@@ -175,7 +175,7 @@
     // toglierebbe tutto. I `.regi` stanno altrove e non si toccano.
     "deleteAppDataOnUninstall": false,
     // PATH, associazione, avvio automatico e temporanei li toglie
-    // `cli/disinstalla.mjs`. `installer.nsh` include `uninstall.nsh`:
+    // `cli/uninstall.mjs`. `installer.nsh` include `uninstall.nsh`:
     // electron-builder accetta un file solo.
     "include": "os/windows/installer.nsh",
     "warningsAsErrors": false,
