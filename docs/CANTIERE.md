@@ -69,6 +69,40 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       nodo. Meglio un parametro `azione` nelle notifiche.
 
 
+### Riordino
+
+- [ ] Regola della lingua dei nomi di file: non scritta. Convivono inglese
+      (`views/check.ts`, `core/dati/sorter.ts`) e italiano
+      (`components/annullabile.ts`, `contract/centralino.ts`). Prima un ADR
+      (per esempio «i moduli nuovi in italiano, gli esistenti restano»), poi
+      eventuali rinomine a lotti.
+- [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
+      `huggingFace`, `kit`, `llamaCpp`, `llm`, `modelliConsigliati`, `mtmd`,
+      `nodeLlama`, `visionKit`) in `core/dati/llm/`. ~27 import, più
+      `tools/modelliConsigliati.mjs` e le `importaSorgente` delle prove: mappa
+      in ARCHITETTURA § 11 prima.
+- [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
+      dove molti importano: `core/dominio/normalization.ts` (impostazioni;
+      consegne/check/smistamenti), `core/dominio/reportData.ts` (`datiAllievo`,
+      `datiFascicolo`), `ui/pannello/state.ts` (le selezioni),
+      `contract/protocollo.ts` (assistente, dettatura, scarico),
+      `ui/pannello/commands.ts` (`COMANDI_UI` per gruppo),
+      `desktop/transports/conduit.ts` (permessi, metodi),
+      `core/dominio/reports.ts` (misure e tabelle),
+      `core/dominio/projection.ts` (il calendario).
+- [ ] ~170 percorsi del vecchio assetto nei commenti (`domain/`, `actions/`,
+      `src/`, file di `ui/` senza `pannello/`), che `npm run docs` non vede perché
+      non hanno un prefisso di oggi. I più colpiti: `contract/protocollo.ts`,
+      `desktop/transports/assistant.ts`, `core/dominio/models.ts`.
+- [ ] Frecce nelle griglie: `frecceNellaGriglia` (`views/check.ts`) e
+      `spostaFuoco` (`views/assessments/grades.ts`, con finestra virtuale) si
+      somigliano; un aiuto comune in `components/table.ts` se ne arriva una
+      terza.
+- [ ] Tasti del gruppo radio ripetuti: `dove()` in
+      `core/controlli/controllo.ts`, `views/settings.ts`, `components/base.ts`.
+- [ ] `tools/screenshotDocs.mjs` e `tools/mail-probe.ps1` senza rimandi: una
+      riga in GUIDA.
+
 ### Prove
 
 - [ ] `tests/proprieta/migrazioni.test.mjs` «portato e normalizzato, una seconda

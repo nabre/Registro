@@ -38,9 +38,9 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
 ┌──────────────────────────────────────────────────────────────────┐
 │                              core/                               │
 │  core/dominio/ (puro)   core/dati/   core/azioni/                │
-│  core/i18n/             core/apparato/                           │
+│  core/i18n/             core/apparato/   core/controlli/         │
 └───────────────────────────────▲──────────────────────────────────┘
-                                │ (solo core/dominio/ e core/i18n/)
+                                │ (solo core/dominio/, core/i18n/, core/controlli/)
 ┌───────────────────────────────┴──────────────────────────────────┐
 │                              ui/                                 │
 │  ui/pannello/ (views/, forms/, components/, bridge.ts, dom.ts)   │
@@ -158,7 +158,7 @@ import { inviaMessaggio } from '../contract/bridge.js'
 
 ### La barriera di sicurezza di `ui/`
 
-Sebbene `ui/` possa importare da `core/`, la protezione `VIETATI_A_UI` in `tools/layers.mjs` e le regole in `eslint.config.mjs` impediscono categoricamente alla webview di importare:
+Sebbene `ui/` possa importare da `core/`, la regola `ui-persistenza-ospite` di `.dependency-cruiser.cjs` (con `npm run layers`) e le regole in `eslint.config.mjs` impediscono alla webview di importare:
 - `core/dati/`: la webview non può aprire file, creare ZIP né accedere al filesystem;
 - `core/azioni/`: la webview non può mutare direttamente lo stato in memoria, deve passare da una `Richiesta` IPC;
 - `core/apparato/`: la webview non può interagire con l'host se non tramite il ponte.
@@ -223,11 +223,14 @@ Qual è lo scopo del codice da aggiungere?
 La correttezza architettonica del progetto è garantita da due livelli di controllo statico:
 
 ### 1. Il controllo di isolamento: `npm run layers` (`tools/layers.mjs`)
-Lo strumento proprietario `tools/layers.mjs` ispeziona tutti i sorgenti `.ts` e `.mjs` del progetto e applica le seguenti verifiche:
-1. **Verifica dei confini di strato**: mappa ogni file sorgente sulla tabella `STRATI` e verifica ogni istruzione `import` contro la matrice `PERMESSI`.
-2. **Discriminazione tipo vs valore**: controlla se un import importa esclusivamente tipi TypeScript (`soloTipo`). Se un modulo `core/` tenta di importare un valore da `contract/`, lo strumento blocca la build segnalando `VALORE core → contract`.
-3. **Controllo webview (`VIETATI_A_UI`)**: assicura che nessun file in `ui/` tenti di importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`.
-4. **Rilevamento cicli di importazione**: costruisce il grafo diretto degli import di valore tra file e rileva qualsiasi ciclo (`cicli()`). La presenza di anche un solo ciclo di importazione fa fallire il comando, poiché i cicli portano a instabilità e problemi di inizializzazione a livello di modulo.
+`tools/layers.mjs` fa leggere il grafo degli import (`.ts` e `.mjs`) a dependency-cruiser e lo confronta con le regole di `.dependency-cruiser.cjs`, ognuna col suo perché:
+1. **Confini di strato**: `core-verso-fuori`, `contract-verso-fuori`, `desktop-verso-fuori`, `ui-verso-fuori`, `cli-autonoma`.
+2. **Tipo contro valore**: `core-valore-da-contract` — `core/` può prendere da `contract/` solo tipi; un valore esce come `VALORE core → contract`.
+3. **Barriera della webview**: `ui-persistenza-ospite` — niente `core/dati/`, `core/azioni/`, `core/apparato/` da `ui/`.
+4. **Sotto-strati di `core/`**: `dominio-puro`, `i18n-sotto-a-tutti`, `controlli-leggeri`.
+5. **Cicli** fra import di valore (`ciclo`) e import relativi che non trovano il file (`non-risolto`).
+
+Le eccezioni stanno in `DEROGHE` di `tools/layers.mjs`, ognuna col motivo; oggi nessuna.
 
 Quando `npm run layers` fallisce:
 - Individuare la riga segnalata: `file:riga GRAVITÀ strato_sorgente → strato_bersaglio`.
@@ -237,7 +240,7 @@ Quando `npm run layers` fallisce:
 
 ### 2. Le regole ESLint `no-restricted-imports` (`eslint.config.mjs`)
 Il linter verifica le restrizioni a livello di singolo file prima e durante lo sviluppo:
-- **`core/dominio/**/*.ts`**: vieta `node:*`, `electron`, `apparato` e percorsi relativi risalenti (`../*`). Il dominio deve rimanere intoccato da runtime esterni.
+- **`core/dominio/`** non ha un blocco ESLint: la purezza la controlla `dominio-puro` di `.dependency-cruiser.cjs` (niente da fuori di sé, tranne `core/i18n/`).
 - **`ui/**/*.ts`**: vieta `node:*` ed `electron`. Previene errori catastrofici in produzione causati da bundle browser che referenziano API native Node inesistenti nella webview.
 - **`core/dati/**/*.ts`, `core/azioni/**/*.ts`, `desktop/pannelli/**/*.ts`**: vieta l'importazione diretta di `electron`, imponendo il passaggio tramite l'astrazione `apparato` (`core/apparato/platform.ts` / `desktop/apparato/platform.ts`).
 - **`desktop/shell/pages/**/*.ts`**: forza l'uso di `allowTypeImports: true` verso il main process, impedendo che codice di Electron finisca nei bundle delle finestre secondarie; da fuori di `shell/pages/` passano come valori solo `core/i18n/`, `core/controlli/` e le parole di tutti.

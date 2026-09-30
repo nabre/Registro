@@ -181,11 +181,12 @@ flowchart TB
 ```
 
 Regole ESLint `no-restricted-imports` ([eslint.config.mjs](../eslint.config.mjs)),
-con il perché nel messaggio d'errore; in più `npm run layers`.
+con il perché nel messaggio d'errore; in più `npm run layers`, che applica le
+regole di `.dependency-cruiser.cjs` — fra queste `dominio-puro`: `core/dominio/`
+non importa niente da fuori di sé tranne `core/i18n/`.
 
 | Cartella | Vietato importare |
 |---|---|
-| `core/dominio/**` | `node:*`, `electron`, `apparato`, `../*` |
 | `ui/**` | `node:*`, `electron` (quel che serve passa da `ui/pannello/bridge.ts`) |
 | `core/dati/**`, `core/azioni/**`, `desktop/pannelli/**` | `electron` |
 | `core/controlli/**` | `node:*`, `electron`, `apparato`; da fuori della cartella tutto tranne `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e i tipi di `contract/` (ADR-52) |
