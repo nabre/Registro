@@ -1,7 +1,7 @@
 // Comando: regi stato / regi catalogo
 // Solo moduli `node:`.
 
-import { indirizzo } from '../indirizzo.mjs'
+import { indirizzo } from '../address.mjs'
 import { testi } from '../testi.mjs'
 
 export async function comandoStato (condotto, grezzo, opzioni = {}) {

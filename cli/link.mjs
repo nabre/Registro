@@ -2,7 +2,7 @@
 // Solo moduli `node:`, nessuna compilazione.
 
 import net from 'node:net'
-import { indirizzo } from './indirizzo.mjs'
+import { indirizzo } from './address.mjs'
 import { testi } from './testi.mjs'
 
 /** Il rifiuto di `collega` quando l'indirizzo non si conosce. */

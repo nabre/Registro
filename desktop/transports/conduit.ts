@@ -239,7 +239,7 @@ function togliSegreto (cartella: string, segreto: string): void {
  * resta nel file, protetto dall'ACL del profilo (o da `0600`), e sulla presa
  * passano solo prove calcolate con lei (`$accedi`). Si rifà a ogni accensione:
  * una prova raccolta da una pipe impostora vale solo per una chiave già morta.
- * La legge anche `cli/accesso.mjs`.
+ * La legge anche `cli/access.mjs`.
  */
 const FILE_CHIAVE = 'condotto.chiave'
 
@@ -286,7 +286,7 @@ function togliChiave (cartella: string, chiave: Buffer): void {
 /**
  * La prova di conoscere la chiave, per una sfida. L'etichetta separa i due
  * versi: senza, la prova del condotto si potrebbe rimandargli come prova del
- * cliente. Stessa regola in `cli/accesso.mjs`.
+ * cliente. Stessa regola in `cli/access.mjs`.
  */
 function prova (chiave: Buffer, chi: 'cliente' | 'condotto', sfida: string): string {
   return createHmac('sha256', chiave).update(`${chi}\n${sfida}`).digest('hex')

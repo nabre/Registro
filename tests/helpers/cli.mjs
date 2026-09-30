@@ -9,7 +9,7 @@ import { createServer } from 'node:net'
 import * as percorso from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { prova } from '../../cli/accesso.mjs'
+import { prova } from '../../cli/access.mjs'
 
 export const CLI = fileURLToPath(new URL('../../cli/registro.mjs', import.meta.url))
 

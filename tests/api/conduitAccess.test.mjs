@@ -10,7 +10,7 @@ import { createConnection } from 'node:net'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
-import { prova } from '../../cli/accesso.mjs'
+import { prova } from '../../cli/access.mjs'
 import { chiaveDiProva, presaRiconosciuta, rigaDiAccesso } from '../helpers/accesso.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 

@@ -1,7 +1,7 @@
 // Comando: regi schema <procedura>
 // Solo moduli `node:`.
 
-import { tabella } from '../tabella.mjs'
+import { tabella } from '../table.mjs'
 import { testi } from '../testi.mjs'
 
 export async function comandoSchema (condotto, nome, grezzo, opzioni = {}) {

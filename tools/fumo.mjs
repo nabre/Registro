@@ -22,7 +22,7 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
-import { leggiChiave, presentati } from '../cli/accesso.mjs'
+import { leggiChiave, presentati } from '../cli/access.mjs'
 import { collega, conversazione } from '../cli/link.mjs'
 import { RADICE } from './common.mjs'
 
@@ -169,7 +169,7 @@ async function prova () {
   const primaVere = fotografie(vere)
   const primaCampione = impronta(CAMPIONE)
 
-  // `APPDATA` anche qui: `cli/indirizzo.mjs` ricava l'indirizzo della pipe dalla
+  // `APPDATA` anche qui: `cli/address.mjs` ricava l'indirizzo della pipe dalla
   // cartella dei dati, e deve trovare quella del registro acceso.
   /** @type {NodeJS.ProcessEnv} */
   const ambienteFiglio = {

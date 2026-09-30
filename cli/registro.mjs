@@ -16,11 +16,11 @@ import { realpathSync } from 'node:fs'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 
-import { fileDellaChiave, leggiChiave, presentati } from './accesso.mjs'
+import { fileDellaChiave, leggiChiave, presentati } from './access.mjs'
 import { cartellaUtente } from './common.mjs'
-import { indirizzo } from './indirizzo.mjs'
+import { indirizzo } from './address.mjs'
 import { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
-import { verificaProprietarioPipe } from './proprietarioPipe.mjs'
+import { verificaProprietarioPipe } from './pipeOwner.mjs'
 import { testi } from './testi.mjs'
 
 import { comandoElenco } from './comandi/elenco.mjs'
@@ -30,9 +30,9 @@ import { comandoStato, comandoCatalogo } from './comandi/stato.mjs'
 import { comandoGuarda } from './comandi/guarda.mjs'
 import { comandoAspetta } from './comandi/aspetta.mjs'
 
-export { indirizzo } from './indirizzo.mjs'
+export { indirizzo } from './address.mjs'
 export { collega, conversazione, CondottoMaiAcceso } from './link.mjs'
-export { leggiChiave, presentati } from './accesso.mjs'
+export { leggiChiave, presentati } from './access.mjs'
 
 /**
  * Il nome del comando nell'aiuto: lo dichiara il ponte di

@@ -559,7 +559,6 @@ cercherebbe.
 
 | Lotto | Da → a | Perché |
 | --- | --- | --- |
-| 1a | `cli/proprietarioPipe.mjs` → cli/pipeOwner.mjs, `cli/tabella.mjs` → cli/table.mjs, `cli/indirizzo.mjs` → cli/address.mjs, `cli/accesso.mjs` → cli/access.mjs | ADR-53 |
 | 2 | `tools/misuraImmer.mjs` → tools/immerBench.mjs, `tools/licenze.mjs` → tools/licenses.mjs, `tools/modelliConsigliati.mjs` → tools/recommendedModels.mjs, `core/dati/modelliConsigliati.ts` → core/dati/recommendedModels.ts, `tools/copertura.mjs` → tools/coverage.mjs, `tools/mutanti.mjs` → tools/mutants.mjs, `tools/fumo.mjs` → tools/smoke.mjs, `tools/pacchetto.mjs` → tools/pack.mjs | ADR-53 |
 | 3 | `core/controlli/controlli.css` → core/controlli/controls.css, `core/controlli/controlli.testi.ts` → core/controlli/controls.testi.ts, `core/controlli/campo.ts` → core/controlli/field.ts, `core/controlli/aree.ts` e `core/controlli/aree.testi.ts` → core/controlli/areas.ts e core/controlli/areas.testi.ts, `core/controlli/controllo.ts` → core/controlli/control.ts, `core/dati/oneDriveLocale.ts` → core/dati/oneDriveLocal.ts, `core/dati/bozza.ts` → core/dati/draft.ts, `desktop/avvio.ts` e `desktop/avvio.testi.ts` → desktop/boot.ts e desktop/boot.testi.ts | ADR-53 |
 | 1b | `cli/testi.mjs` → cli/texts.mjs, `cli/disinstalla.mjs` → cli/uninstall.mjs, `cli/registro.mjs` → cli/main.mjs (il comando `regi` resta) | ADR-53 |

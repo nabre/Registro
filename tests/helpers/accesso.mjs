@@ -6,7 +6,7 @@ import { randomBytes } from 'node:crypto'
 import { createConnection } from 'node:net'
 import * as percorso from 'node:path'
 
-import { leggiChiave, prova } from '../../cli/accesso.mjs'
+import { leggiChiave, prova } from '../../cli/access.mjs'
 
 /** La chiave che il condotto di prova ha scritto nella sua cartella dei dati. */
 export function chiaveDiProva (cartella = process.env.REGISTRO_USERDATA) {

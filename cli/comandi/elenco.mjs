@@ -1,7 +1,7 @@
 // Comando: regi elenco
 // Solo moduli `node:`.
 
-import { tabella } from '../tabella.mjs'
+import { tabella } from '../table.mjs'
 import { testi } from '../testi.mjs'
 
 export async function comandoElenco (condotto, grezzo, opzioni = {}) {

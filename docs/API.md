@@ -603,7 +603,7 @@ npm run regi -- <comando>            oppure    node cli/registro.mjs <comando>
 
 Installato: **`regi`**, dal ponte nel PATH (`desktop/shell/system/commandLine.ts`).
 Solo moduli `node:`, nessuna copia dell'elenco: si presenta con `$accedi`
-(`cli/accesso.mjs`), poi chiede `$elenco`, `$schema`, `$attrezzi`, `$versione`
+(`cli/access.mjs`), poi chiede `$elenco`, `$schema`, `$attrezzi`, `$versione`
 al condotto.
 
 | Comando | Che cosa fa |
