@@ -2,7 +2,8 @@
 // centralino vero:
 //
 //   - `consegna.salva` non cancella spunte e documenti arrivati nel frattempo,
-//     e non sposta in un'altra classe spunte e documenti;
+//     non sposta in un'altra classe spunte e documenti, e non smette di
+//     raccogliere quando ha fogli raccolti;
 //   - togliere o sostituire un documento libera le fette dello smistamento;
 //   - spunte e «consegnato» solo per chi è della classe, e senza perdere un
 //     file raccolto;
@@ -142,6 +143,55 @@ describe('consegna.salva e il cambio di classe', () => {
     })
     assert.equal(esito.ok, true, JSON.stringify(esito))
     assert.equal(consegnaViva(consegna.id).corsoId, corsoAltra.id)
+  })
+})
+
+describe('consegna.salva e i fogli raccolti', () => {
+  it('con fogli raccolti non smette di raccogliere: uscirebbe dalla matrice', async () => {
+    const consegna = nuovaConsegna('Pagella', { documento: 'altro', verso: 'ricevo' })
+    archivio.modifica((r) => {
+      r.consegne.find((c) => c.id === consegna.id).documenti = [
+        { allievoId: rossi.id, file: 'archivio/pagella.pdf', nome: 'pagella.pdf', aggiuntoIl: '2026-10-02T08:00:00.000Z' },
+      ]
+    }, ['consegne'])
+
+    const esito = await esegui({
+      tipo: 'consegna.salva',
+      consegna: { ...consegnaViva(consegna.id), documento: undefined, verso: undefined },
+    })
+
+    assert.equal(esito.ok, false, JSON.stringify(esito))
+    assert.equal(consegnaViva(consegna.id).documento, 'altro')
+  })
+
+  it('una consegna che il documento l’ha già perso si salva, e lo può riavere', async () => {
+    const consegna = nuovaConsegna('Pagella persa')
+    archivio.modifica((r) => {
+      r.consegne.find((c) => c.id === consegna.id).documenti = [
+        { allievoId: rossi.id, file: 'archivio/persa.pdf', nome: 'persa.pdf', aggiuntoIl: '2026-10-02T08:00:00.000Z' },
+      ]
+    }, ['consegne'])
+
+    const altroTermine = await esegui({
+      tipo: 'consegna.salva', consegna: { ...consegnaViva(consegna.id), scadenza: '2026-10-20' },
+    })
+    assert.equal(altroTermine.ok, true, JSON.stringify(altroTermine))
+
+    const riavuto = await esegui({
+      tipo: 'consegna.salva', consegna: { ...consegnaViva(consegna.id), documento: 'altro', verso: 'ricevo' },
+    })
+    assert.equal(riavuto.ok, true, JSON.stringify(riavuto))
+    assert.equal(consegnaViva(consegna.id).documento, 'altro')
+    assert.deepEqual(consegnaViva(consegna.id).documenti.map((d) => d.file), ['archivio/persa.pdf'])
+  })
+
+  it('senza fogli raccolti si smette di raccogliere', async () => {
+    const consegna = nuovaConsegna('Modulo', { documento: 'modulo' })
+    const esito = await esegui({
+      tipo: 'consegna.salva', consegna: { ...consegnaViva(consegna.id), documento: undefined },
+    })
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(consegnaViva(consegna.id).documento, undefined)
   })
 })
 
