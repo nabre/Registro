@@ -107,8 +107,11 @@ test('frecce nella matrice e nell’appello', async ({ browser }) => {
   await page.keyboard.press('ArrowUp')
   await expect(page.locator('[data-fuoco="riga-al-0"]')).toBeFocused()
 
-  // Nella nota la freccia sposta il cursore, non il fuoco.
-  const nota = page.locator('[data-fuoco="nota-al-0"]')
+  // La nota vuota è un «+»: al clic diventa il campo, dove la freccia sposta
+  // il cursore e non il fuoco.
+  await page.locator('button[data-fuoco="nota-al-0"]').click()
+  const nota = page.locator('input[data-fuoco="nota-al-0"]')
+  await expect(nota).toBeFocused()
   await nota.fill('ab')
   await page.keyboard.press('ArrowLeft')
   await expect(nota).toBeFocused()
@@ -116,6 +119,39 @@ test('frecce nella matrice e nell’appello', async ({ browser }) => {
     .toBe(1)
   await page.keyboard.press('ArrowDown')
   await expect(nota).toBeFocused()
+  // Lasciata vuota, uscendone torna «+».
+  await nota.fill('')
+  await nota.blur()
+  await expect(page.locator('button[data-fuoco="nota-al-0"]')).toHaveCount(1)
+  await expect(nota).toHaveCount(0)
+  expect(errori, 'errori JS').toEqual([])
+  await page.close()
+})
+
+// I minuti di ritardo in apice sulla casella R, uno per UD: «+» finché non sono
+// detti, al clic il campo, e quel che si scrive va a quell'UD.
+test('appello: i minuti di ritardo in apice sulla casella', async ({ browser }) => {
+  const { page, errori } = await pannello(browser)
+  await valuta(page, ORA, 'amministrazione')
+  await valuta(page, `() => {
+    const r = prova.stato.registro
+    const lezioni = r.lezioni.map((l) => l.id !== 'lez-volo' ? l : {
+      ...l, presenze: [{ allievoId: 'al-0', stati: l.presenze[0]?.stati ?? ['ritardo'] }] })
+    prova.aggiorna({ registro: { ...r, lezioni } })
+  }`)
+  await valuta(page, FOTOGRAMMA)
+
+  const apici = page.locator('.appello__apice')
+  await expect(apici, 'un apice solo, sulla R').toHaveCount(1)
+  await apici.first().click()
+  const campo = page.locator('input[data-fuoco="minuti-al-0-0"]')
+  await expect(campo).toBeFocused()
+  await campo.fill('7')
+  await page.keyboard.press('Enter')
+  await attendiRisposte(page)
+  expect(await valuta(page, MANDATE, 'presenze.campi')).toEqual([
+    { tipo: 'presenze.campi', lezioneId: 'lez-volo', allievoId: 'al-0', ud: 0, minuti: 7 },
+  ])
   expect(errori, 'errori JS').toEqual([])
   await page.close()
 })

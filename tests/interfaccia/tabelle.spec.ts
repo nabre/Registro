@@ -33,7 +33,7 @@ const ORA_LUNGA = `() => {
 const RITORNO = `() => {
   const r = prova.stato.registro
   const lezioni = r.lezioni.map((l) => l.id !== 'lez-lunga' ? l : {
-    ...l, presenze: [{ allievoId: 'al-0', stati: Array(20).fill('presente'), minuti: 0, nota: '' }] })
+    ...l, presenze: [{ allievoId: 'al-0', stati: Array(20).fill('presente'), nota: '' }] })
   prova.aggiorna({ registro: { ...r, lezioni } })
 }`
 
