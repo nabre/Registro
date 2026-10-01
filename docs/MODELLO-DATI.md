@@ -946,7 +946,7 @@ Del documento, dell'anno in uso (ADR-21). Chiavi del programma: CATALOGO § 5.
   mette sulla prima quelli senza carta.
 - L'ultima carta non si toglie (`togliCarta`).
 - Quale carta su quale foglio: `comuni()` in
-  [`reportData.ts`](../core/dominio/reportData.ts) (`cartaDelCorso`,
+  [`reportData/common.ts`](../core/dominio/reportData/common.ts) (`cartaDelCorso`,
   `cartaDeiCorsi`).
 
 ### 3.45 `VoceLista`

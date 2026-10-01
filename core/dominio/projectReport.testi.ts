@@ -1,6 +1,6 @@
 // Le parole che i conti mettono nei due rapporti del progetto
 // (`projectReport.ts`): stati, caselle, periodi. Titoli e nomi delle colonne
-// stanno con quelli degli altri rapporti, in `reportData.testi.ts`; le parole
+// stanno con quelli degli altri rapporti, in `reportData/reportData.testi.ts`; le parole
 // dei modelli nei `_testi*.tpl` di `templates/`.
 
 import { catalogo } from '#core/i18n/index.js'

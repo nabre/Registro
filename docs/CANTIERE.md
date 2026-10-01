@@ -114,13 +114,9 @@ Giro di esplorazione del 2026-10-01 (5 dimensioni, sola lettura). I bug veri
 trovati sono stati corretti subito; qui restano i lotti a comportamento
 invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 
-- [ ] Lotto 1, `core/dominio/reportData.ts` (1944) in una cartella
-      `reportData/`: `common` (aiuti 76-175, `nomeAspetto`, soglia), `lesson`
-      (lezione, piano, diario), `assessments` (valutazioni, momento), `classes`
-      (presenze, foto, fascicolo), `student` (allievo), `course` (corso,
-      supplenze). Grafo aciclico; 3 importatori più il barile. Insieme: helper
-      comuni per righe ripetute (pendenze, check, comportamento, scaletta,
-      cella recupero, media e nota, comunicazioni, `dataDiIstante`).
+- [ ] Dati dei rapporti (`core/dominio/reportData/`): helper comuni per
+      righe ripetute (pendenze, check, comportamento, scaletta, cella
+      recupero, media e nota, comunicazioni, `dataDiIstante`).
 - [ ] Normalizzazione (`core/dominio/normalization/`): helper
       `testi()`/`riferimenti()` per `elenco(x).map(testo).filter(Boolean)`
       (gli id in lista oggi non si ripuliscono come `riferimento`: D2,
@@ -192,8 +188,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       `tools/recommendedModels.mjs` e le `importaSorgente` delle prove: mappa
       in ARCHITETTURA § 11 prima.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
-      dove molti importano: `core/dominio/reportData.ts` (`datiAllievo`,
-      `datiFascicolo`), `ui/state.ts` (le selezioni),
+      dove molti importano: `ui/state.ts` (le selezioni),
       `ui/commands.ts` (`COMANDI_UI` per gruppo),
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),

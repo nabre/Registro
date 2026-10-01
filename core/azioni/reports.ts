@@ -1,5 +1,5 @@
 // I rapporti in PDF (verbale, piano, valutazioni, presenze, fascicolo, scheda).
-// Modelli e dati stanno altrove (`data/templates.ts`, `domain/reportData.ts`):
+// Modelli e dati stanno altrove (`core/dati/templates.ts`, `core/dominio/reportData/`):
 // qui il giro comune — trova, componi, scrivi. La rigenerazione automatica sta
 // in `reportsRefresh.ts`.
 
@@ -18,7 +18,7 @@ import {
 import { blocchi, modello, paroleDeiModelli } from '#core/dati/templates.js'
 import type { CartaIntestata, Intestazione } from '#core/dominio/models.js'
 import type { Lingua } from '#core/i18n/index.js'
-import { CHIAVE_CARTA } from '#core/dominio/reportData.js'
+import { CHIAVE_CARTA } from '#core/dominio/reportData/index.js'
 import { NOME_LOGO, conIntestazione } from '#core/dominio/reports.js'
 import { componiPdf } from '#core/dati/reportsPdf.js'
 import { contenutoDi, deposito } from '#core/dati/store.js'
@@ -34,7 +34,7 @@ import {
   datiPresenze,
   datiValutazioni,
   datiDiario,
-} from '#core/dominio/reportData.js'
+} from '#core/dominio/reportData/index.js'
 import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
 import { allieviNominati, progettiDelCorso } from '#core/dominio/projects.js'
 import {

@@ -27,7 +27,7 @@ import type {
   Risorsa,
 } from '#core/dominio/models.js'
 import { righe } from '#core/dominio/csv.js'
-import { testi as paroleDeiRapporti } from '#core/dominio/reportData.testi.js'
+import { testi as paroleDeiRapporti } from '#core/dominio/reportData/reportData.testi.js'
 import { percento } from '#core/dominio/text.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './exports.testi.js'

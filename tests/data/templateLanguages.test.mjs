@@ -160,7 +160,7 @@ const {
   leggiModello,
   paroleDeiModelli,
 } = await importaSorgente([
-  "export * from './core/dominio/reportData.ts'",
+  "export * from './core/dominio/reportData/index.ts'",
   "export { componiCorpo, conBase, leggiBlocchi, leggiModello } from './core/dominio/reports.ts'",
   "export { impostaLingua } from './core/i18n/index.ts'",
   "export { paroleDeiModelli } from './core/dati/templates.ts'",

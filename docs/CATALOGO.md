@@ -555,7 +555,7 @@ CORS solo verso `registro://`; streaming con `net.fetch`.
 ### 9.1 Gli 8 `GenereRapporto`
 
 In [`core/dominio/locations.ts`](../core/dominio/locations.ts); dati da
-[`core/dominio/reportData.ts`](../core/dominio/reportData.ts), PDF da
+[`core/dominio/reportData/`](../core/dominio/reportData/index.ts), PDF da
 [`core/dati/reportsPdf.ts`](../core/dati/reportsPdf.ts).
 
 ```

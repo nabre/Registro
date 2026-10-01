@@ -1,6 +1,6 @@
 // Le parole dei file esportati: CSV di valutazioni e presenze, riassunto di una
 // lezione in markdown. Le caselle comuni ai rapporti («Media», «Data», «ass.»)
-// vengono da `domain/reportData.testi.ts`, così PDF e CSV dicono lo stesso.
+// vengono da `domain/reportData/reportData.testi.ts`, così PDF e CSV dicono lo stesso.
 
 import { catalogo, minuscolo } from '#core/i18n/index.js'
 import { plurale } from '#core/dominio/text.js'

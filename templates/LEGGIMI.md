@@ -292,7 +292,7 @@ fine:
 
 Dentro il giro i nomi si scrivono come fuori — `{{allievo}}`, `tabella: prove` —
 e valgono per la voce di quel giro: chi scrive un modello non deve imparare due
-vocabolari. Quali gruppi un rapporto offre lo dice `reportData.ts`, come per
+vocabolari. Quali gruppi un rapporto offre lo dice `reportData/`, come per
 le tabelle.
 
 ### Un'immagine
@@ -429,7 +429,7 @@ cosa diversa da quella che si compila — mentre le parole si scrivono in
 Quel che non sta qui sono le parole che escono dai conti: i nomi delle colonne,
 le caselle («ass.», «da fissare»), le frasi composte con i dati di una persona
 («Attenzione: assenza del 21%…»). Le scrive il registro, dal catalogo
-`core/dominio/reportData.testi.ts`, già nella lingua in cui si stampa.
+`core/dominio/reportData/reportData.testi.ts`, già nella lingua in cui si stampa.
 
 ### Tradurre un modello
 
@@ -479,7 +479,7 @@ restano come sono stati scritti.
 
 Quelli propri di ogni rapporto — e i nomi degli elenchi, delle tabelle e dei
 gruppi su cui `ripeti:` gira — sono scritti in
-`core/dominio/reportData.ts`, una funzione per rapporto.
+`core/dominio/reportData/`, una funzione per rapporto.
 
 I PDF che ne escono finiscono in `registro/esportazioni/<materia>/<classe>/`,
 divisi in due cartelle: `classe/` per i fogli di tutta la classe,
@@ -496,7 +496,7 @@ ristampare tutto quando si cambia un modello.
 ## Aggiungere un rapporto
 
 Un modello nuovo in questa cartella non basta: il registro deve sapere quali
-dati mettergli dentro. Serve una funzione in `reportData.ts` e una voce in
-`core/azioni/reports.ts`, il suo titolo in `reportData.testi.ts` e le sue
+dati mettergli dentro. Serve una funzione in `reportData/` e una voce in
+`core/azioni/reports.ts`, il suo titolo in `reportData/reportData.testi.ts` e le sue
 parole nei quattro `_testi`. Modificare quelli che ci sono, invece, si fa
 tutto da qui.

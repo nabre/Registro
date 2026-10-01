@@ -20,7 +20,7 @@ import {
   datiPresenze,
   datiSupplenze,
   datiValutazioni,
-} from '#core/dominio/reportData.js'
+} from '#core/dominio/reportData/index.js'
 import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
 import { allieviNominati } from '#core/dominio/projects.js'
 import type { Registro } from '#core/dominio/models.js'

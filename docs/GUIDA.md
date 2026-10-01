@@ -18,7 +18,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Impaginazione dei rapporti | `templates/`, `core/dominio/reports.ts`, `core/dati/reportsPdf.ts` |
 | Modelli: catalogo, controllo, carta intestata | `core/dominio/templateCatalog.ts`, `core/dominio/templateCheck.ts`, `core/azioni/templates.ts`, `core/dati/templates.ts` |
 | Dove finisce un documento, e con che nome | `core/dominio/locations.ts` |
-| Che cosa entra in un rapporto | `core/dominio/reportData.ts` |
+| Che cosa entra in un rapporto | `core/dominio/reportData/` |
 | Lettura e scrittura dei file | `core/dati/` |
 | Avvio, comandi e pannelli | `desktop/boot.ts`, `desktop/pannelli/` |
 | Messaggi nella finestra del registro | `desktop/apparato/dialogs.ts`, `desktop/shell/pages/dialog/` |

@@ -1,5 +1,5 @@
 // I dati dei due rapporti del progetto (ADR-54): quello della classe e quello
-// di una persona sola. Stanno qui e non in `reportData.ts` perché leggono il
+// di una persona sola. Stanno qui e non in `reportData/` perché leggono il
 // progetto da un posto solo, con le letture di `projects.ts`; il giro comune
 // (testata, nomi delle colonne, legenda dell'appello) è quello degli altri
 // rapporti.
@@ -43,11 +43,11 @@ import {
   type PresenzeNelProgetto,
   type QuadroDelProgetto,
 } from './projects.js'
-import { colonne, legenda, valoriComuni } from './reportData.js'
+import { colonne, legenda, valoriComuni } from './reportData/index.js'
 import { percento } from './text.js'
 import type { DatiRapporto } from './reports.js'
 import { parole } from './words.testi.js'
-import { testi as testiRapporti } from './reportData.testi.js'
+import { testi as testiRapporti } from './reportData/reportData.testi.js'
 import { testi } from './projectReport.testi.js'
 
 /** Un rapporto vuoto su cui i costruttori scrivono. */

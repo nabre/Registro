@@ -4,7 +4,7 @@
 
 import * as apparato from 'apparato'
 
-import { datiLezione } from '#core/dominio/reportData.js'
+import { datiLezione } from '#core/dominio/reportData/index.js'
 import { classeDelCorsoId } from '#core/dominio/courses.js'
 import { formattaData, oggi, semestreDi } from '#core/dominio/dates.js'
 import type { Archivio } from '#core/dati/archive.js'

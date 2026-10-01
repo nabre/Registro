@@ -1,6 +1,6 @@
 // Da un modello e dai suoi dati a un PDF. Qui non si sa niente di lezioni o
 // allievi: si disegnano blocchi già risolti (il *che cosa* sta nel modello e in
-// `domain/reportData.ts`). Si impagina in una passata sola dall'alto: se un
+// `domain/reportData/`). Si impagina in una passata sola dall'alto: se un
 // blocco non ci sta si volta pagina, senza ricalcoli all'indietro.
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from '@cantoo/pdf-lib'

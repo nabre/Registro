@@ -2,15 +2,15 @@
 // frasi con un numero. Le parole dei modelli stanno nei `_testi*.tpl` di
 // `templates/`.
 //
-// Le colonne hanno anche un nome di serie, quello italiano, che `reportData.ts`
+// Le colonne hanno anche un nome di serie, quello italiano, che `common.ts`
 // mette nelle `chiavi`: i modelli le scelgono con quello in ogni lingua. Lo
 // stato di un'ora esce col nome del lessico in ogni lingua («Conclusa», non la
 // chiave `svolta` salvata); gli altri valori salvati (tipo di attività) escono
 // come sono in italiano, col nome del lessico nelle altre lingue.
 
 import { catalogo } from '#core/i18n/index.js'
-import { PERSONE, PIF, corto, del } from './lexicon.js'
-import { lessico } from './lexicon.testi.js'
+import { PERSONE, PIF, corto, del } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type {
   CategoriaDocumento,
   Raggruppamento,
@@ -20,9 +20,9 @@ import type {
   TipoConsegna,
   TipoOsservazione,
   TipoValutazione,
-} from './models.js'
-import type { StatoRecupero } from './retakes.js'
-import { plurale } from './text.js'
+} from '#core/dominio/models.js'
+import type { StatoRecupero } from '#core/dominio/retakes.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Il titolo di ogni rapporto: va in testata, e nei metadati del PDF. */

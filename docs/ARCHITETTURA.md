@@ -373,7 +373,7 @@ sequenceDiagram
   participant N as contract/core.ts chiama
   participant AU as core/dominio/automation.ts
   participant R as core/azioni/reportsRefresh.ts
-  participant D as core/dominio/reportData.ts
+  participant D as core/dominio/reportData/
   participant M as core/dati/templates.ts
   participant PDF as core/dati/reportsPdf.ts
   participant DOC as esportazioni nel .regi
@@ -563,6 +563,4 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-| Da | A | Perché |
-| --- | --- | --- |
-| `core/dominio/reportData.ts` | core/dominio/reportData/ (`common`, `lesson`, `assessments`, `classes`, `student`, `course`, `index` che riesporta) | 1944 righe, sei rapporti indipendenti. |
+Nessun riordino aperto.
