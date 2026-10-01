@@ -21,6 +21,7 @@ const it = {
   risultati: 'Documenti del registro trovati',
   trovati: (n: number) => `${n} ${perNumero(n, 'documento trovato', 'documenti trovati')}.`,
   troppi: 'Sono troppi per mostrarli tutti.',
+  tempoScaduto: 'La ricerca durava troppo e si è fermata: ne mostro una parte.',
   indiceMicrosoft:
     'La ricerca usa l’indice di Microsoft: un file appena caricato può mancare, e lo si trova ' +
     'sfogliando le cartelle.',
@@ -58,6 +59,7 @@ export const testi = catalogo(it, {
     risultati: 'Gefundene Dokumente des Klassenbuchs',
     trovati: (n) => `${n} ${perNumero(n, 'Dokument gefunden', 'Dokumente gefunden')}.`,
     troppi: 'Es sind zu viele, um alle anzuzeigen.',
+    tempoScaduto: 'Die Suche dauerte zu lange und wurde angehalten: Hier ist ein Teil davon.',
     indiceMicrosoft:
       'Die Suche nutzt den Index von Microsoft: Eine eben hochgeladene Datei kann fehlen, und ' +
       'man findet sie beim Durchsuchen der Ordner.',
@@ -93,6 +95,7 @@ export const testi = catalogo(it, {
     risultati: 'Documents du registre trouvés',
     trovati: (n) => `${n} ${perNumero(n, 'document trouvé', 'documents trouvés')}.`,
     troppi: 'Il y en a trop pour tous les montrer.',
+    tempoScaduto: 'La recherche prenait trop de temps et s’est arrêtée : en voici une partie.',
     indiceMicrosoft:
       'La recherche utilise l’index de Microsoft : un fichier qui vient d’être déposé peut ' +
       'manquer, et on le trouve en parcourant les dossiers.',
@@ -128,6 +131,7 @@ export const testi = catalogo(it, {
     risultati: 'Register documents found',
     trovati: (n) => `${n} ${perNumero(n, 'document found', 'documents found')}.`,
     troppi: 'There are too many to show them all.',
+    tempoScaduto: 'The search was taking too long and stopped: here are some of them.',
     indiceMicrosoft:
       'The search uses Microsoft’s index: a file just uploaded may be missing, and you find it ' +
       'by browsing the folders.',

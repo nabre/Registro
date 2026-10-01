@@ -155,6 +155,15 @@ export const consegne = {
     ) {
       return rifiuta(testi().altraClasse)
     }
+    // Senza `documento` la consegna esce dalla matrice: i fogli raccolti
+    // resterebbero nell'anno senza più una casella da cui vederli.
+    if (
+      prima?.documento !== undefined &&
+      azione.consegna.documento === undefined &&
+      ((prima.documenti ?? []).length > 0 || prima.fileTutti || prima.fileFirme)
+    ) {
+      return rifiuta(testi().fogliRaccolti)
+    }
     const consegna = { ...azione.consegna, aggiornataIl: istanteAdesso() }
     const scritto = contesto.modifica((r) => {
       // Una copia per scrittura, con i pezzi com'è adesso e non la bozza: la

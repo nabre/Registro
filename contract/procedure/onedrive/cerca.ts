@@ -4,7 +4,7 @@
 
 import { definisci } from '../../contract.js'
 import { cercaRegi } from '../../../core/dati/onedrive.js'
-import { booleano, elenco, oggetto, testo } from '../../schemas.js'
+import { booleano, elenco, nullabile, oggetto, scelta, testo } from '../../schemas.js'
 import { daOneDrive, VOCE } from './common.js'
 import { testi } from './onedrive.testi.js'
 
@@ -25,6 +25,7 @@ export const procedura = definisci({
   uscita: oggetto({
     voci: elenco(VOCE),
     troncato: booleano({ aiuto: () => t().troncato }),
+    motivo: nullabile(scelta(['troppi', 'tempo'], { aiuto: () => t().motivo })),
     locale: booleano({ aiuto: () => testi().voce.locale }),
   }),
   presentazione: {

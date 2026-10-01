@@ -2,12 +2,6 @@
 
 /* ------------------------------------------------------------------ anni */
 
-.anno {
-  padding: var(--spazio-3);
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio-grande);
-  background: var(--sfondo);
-}
 .anno__semestri { display: flex; gap: var(--spazio-3); margin-top: var(--spazio-2); flex-wrap: wrap; }
 
 .anno__semestre {

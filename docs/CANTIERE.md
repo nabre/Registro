@@ -69,6 +69,15 @@ controlli statici; skill `verifica`). Non prima.
       collezione, revisione fuori sequenza → stato intero; interruttore per
       tornare indietro. `misure.spec.ts` deve scendere, `staleEdits` e
       `morfosi` restare verdi.
+- [ ] Indice accodato che non corrisponde ai byte: 1/10, `.regi` su OneDrive,
+      Regiklass installato aperto dal giorno prima e `npm run dev` aperto alle
+      16:37:32, nello stesso istante della copia di conflitto
+      `-NABRELAPTOP-7`. Le code scritte dopo puntano a un layout compattato
+      (offset da 0) mentre i corpi stanno altrove: `apriZip` → «non si trova
+      dove l'indice dice». Corpi tutti integri (CRC), file rifatto
+      cercandoli per nome+CRC. Capire chi accoda su un file cambiato sotto
+      i piedi (file cambiato fuori → rileggere prima di `daAccodare`) e
+      perché la serratura non ha fermato il secondo programma.
 
 
 ### Rilascio e aggiornamenti
@@ -100,7 +109,6 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
       lettura» di `desktop/transports/conduit.ts` ora solo dallo scavalco
       `permessi` delle prove: togliere o tenere, dopo una prova.
 - [ ] Rimando nel posto con `#voce`: ogni rimando fa una voce di storia a sé.
-- [ ] CSS orfano: `year.css` `.anno` (già orfana prima).
 - [ ] Azione vera `posta.azzera`: oggi «Azzera» in Utente › Account compone
       `posta.scollega` + `programma.azzera` e lascia la cache indirizzi/tenant di
       `azzeraOauth`.
@@ -228,20 +236,16 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       terza.
 - [ ] Tasti del gruppo radio ripetuti: `dove()` in
       `core/controlli/control.ts`, `views/settings.ts`, `components/base.ts`.
-- [ ] `tools/screenshotDocs.mjs` e `tools/mail-probe.ps1` senza rimandi: una
-      riga in GUIDA.
+- [ ] `tools/mail-probe.ps1` porta di serie un indirizzo personale e un id di
+      tenant reale: parametri senza valori di serie?
 
 ### Prove
 
-- [ ] `tests/interfaccia/misure.spec.ts` (primo disegno dell'archivio
-      40×125) cade a volte col giro intero di `npm run ui-tests` (378 ms contro
-      il tetto di 355): da sola passa. Tetto troppo stretto sotto carico, o
-      prova da isolare dagli altri lavoratori.
-- [ ] `tests/proprieta/migrazioni.test.mjs` «portato e normalizzato, una seconda
-      normalizzazione non cambia niente» cade a caso: seme `-2101211184`,
-      controesempio `impostazioni.scala.min = {"toString": null}`. Normalizzazione
-      della scala non idempotente su oggetti strani. Riprodurre col seme, correggere
-      in `core/dominio/validation.ts`.
+- [ ] Instabili sotto carico (da sole passano): `tests/api/importClass.test.mjs:230`
+      «il documento d'origine resta com'era» (un `.tmp` atteso manca); «la
+      convalida dell'input › le risposte tornano nell'ordine dei tasti»;
+      `tests/interfaccia/movimento.spec.ts:58` (scorrimento della Guida 404
+      invece di 400); `electron.spec.ts` in timeout con un Regiklass aperto.
 - [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
 - [ ] Mutanti sopravvissuti (misura di prima, `deletions.ts` 87%,
@@ -291,10 +295,9 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       composizione in un utility process o worker. Decisione strutturale.
 - [ ] Ogni foglio automatico si materializza su disco (`scriviGenerato` →
       `uriArchivio`) anche se nessuno lo apre: I/O e CRC sprecati.
-- [ ] `accorciaNome` taglia a 150 caratteri: su un nome lungo toglie anche il
-      « (2)» della bozza gemella, e due piani finiscono sullo stesso file.
-- [ ] `togliDoppioni` salta le bozze (`finisceConBozza`): un doppione vecchio
-      della prima bozza resta nel documento, indistinguibile dalla gemella.
+- [ ] Nel `.regi` restano le esportazioni coi nomi di prima (id nel nome,
+      «1° sem.» e «1° semestre»): su un registro vero 470 voci che nessun dato
+      cita, e percorsi oltre i 260 caratteri che Esplora risorse non estrae.
 
 ### Attese e blocchi
 
@@ -306,10 +309,12 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 - [ ] A ogni scrittura il pannello riceve il registro intero e ridisegna
       (`desktop/pannelli/panel.ts`): profilare su un registro grande prima di
       passare alle differenze.
-- [ ] Ricerca OneDrive fermata dal tetto di 20 s: la modale dice «Sono troppi
-      per mostrarli tutti.», imprecisa quando il motivo è il tempo.
 
 ### Da provare a mano
+
+- [ ] Registro grande su OneDrive con «PDF automatici: sempre»: un caricamento
+      nella matrice dei documenti fa un salvataggio solo a fine giro di PDF
+      (prima uno per foglio: 24 in 36 s, +6,6 MB), e l'azione non resta appesa.
 
 - [ ] Avvio con il documento aperto su un altro PC (serratura): la domanda
       «aperto altrove» sta davanti, il riquadro d'avvio si nasconde e torna

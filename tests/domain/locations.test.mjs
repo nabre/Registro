@@ -231,6 +231,27 @@ describe('il nome di un file archiviato', () => {
     assert.equal(nome, `I MEC A_${'b'.repeat(140)}.pdf`)
   })
 
+  it('un nome lungo tiene il numero che distingue le bozze gemelle', () => {
+    const intestazione = `2026-2027_I MEC A_${'Educazione civica e cittadinanza '.repeat(4)}`
+    const nomi = ['Piano bozza 260901', 'Piano bozza 260901 (2)', 'Piano bozza 260901 (3)']
+      .map((bozza) => nomeFileArchivio(intestazione, null, 'Piani', bozza, '.pdf'))
+
+    assert.equal(new Set(nomi).size, 3, nomi.join('\n'))
+    assert.match(nomi[1], /_Piano bozza 260901 \(2\)\.pdf$/)
+    for (const nome of nomi) assert.ok(Array.from(nome.slice(0, -'.pdf'.length)).length <= 150, nome)
+  })
+
+  it('accorciato, un documento datato si riconosce ancora dalla radice', () => {
+    const { registro, classe } = scuolaMinima()
+    classe.nome = `I MEC A ${'sezione serale per adulti lavoratori '.repeat(4)}`
+    const ieri = collocazioneDi(registro, 'fascicolo', classe.id, { giorno: '2026-09-11' })
+    const oggi = collocazioneDi(registro, 'fascicolo', classe.id, { giorno: '2026-09-12' })
+
+    assert.notEqual(percorsoDi(ieri), percorsoDi(oggi))
+    assert.ok(percorsoDi(ieri).startsWith(radiceDi(oggi)), radiceDi(oggi))
+    assert.ok(percorsoDi(oggi).startsWith(radiceDi(oggi)), radiceDi(oggi))
+  })
+
   it('i nomi corti restano quelli di prima', () => {
     const nome = nomeFileArchivio('I MEC A', 'Rossi Maria', 'Verifica', null, 'PDF')
     assert.equal(nome, 'I MEC A_Verifica_Rossi Maria.pdf')

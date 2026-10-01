@@ -173,8 +173,11 @@ function riferimento (valore: unknown): string | null {
 function numero (valore: unknown, predefinito: number): number {
   // La virgola vale come punto: chi corregge i file a mano scrive «1,5».
   if (typeof valore === 'number') return Number.isFinite(valore) ? valore : predefinito
+  // Solo il testo si legge: un oggetto o un elenco convertito lancerebbe
+  // (`{ "toString": null }`) o darebbe un numero a caso (`["3"]`).
+  if (typeof valore !== 'string') return predefinito
   // Il vuoto non è zero (`Number('')` fa 0): resta il valore di ripiego.
-  const scritto = String(valore ?? '').trim().replace(',', '.')
+  const scritto = valore.trim().replace(',', '.')
   if (scritto === '') return predefinito
   const n = Number(scritto)
   return Number.isFinite(n) ? n : predefinito

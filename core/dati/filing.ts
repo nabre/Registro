@@ -167,17 +167,19 @@ async function percorsoLibero (
 /**
  * Riscrive un documento generato al percorso esatto: un rapporto è una
  * fotografia di adesso. Toglie (nel cestino) i doppioni numerati e la stessa
- * stampa in un'altra lingua.
+ * stampa in un'altra lingua. `gemelle`: i PDF delle bozze gemelle vive, che
+ * portano « (N)» come i doppioni e restano.
  */
 export async function riscrivi (
   relativo: string,
   byte: Uint8Array,
   precedenti: readonly string[] = [],
+  gemelle: readonly string[] | null = null,
 ): Promise<EsitoArchivio> {
   const dove = deposito()
   if (!dove) return { errore: testi().nessunAnno }
   dove.scrivi(relativo, byte)
-  togliDoppioni(relativo)
+  togliDoppioni(relativo, gemelle)
   togliAltreLingue(relativo)
   // Solo dopo aver scritto la nuova copia: i vecchi nomi sono dello stesso PDF.
   for (const precedente of precedenti) {
@@ -190,20 +192,20 @@ export async function riscrivi (
 }
 
 /** I «(2)», «(3)» dello stesso documento nella stessa cartella: nel cestino. */
-function togliDoppioni (relativo: string): void {
+function togliDoppioni (relativo: string, gemelle: readonly string[] | null = null): void {
   const dove = deposito()
   if (!dove) return
   const nome = relativo.split('/').pop() ?? ''
   const punto = nome.lastIndexOf('.')
   const radice = punto > 0 ? nome.slice(0, punto) : nome
   const estensione = punto > 0 ? nome.slice(punto) : ''
-  // Le bozze gemelle si distinguono proprio con « (2)»: toglierle cancellerebbe
-  // il PDF di un altro piano.
-  if (finisceConBozza(radice)) return
+  // Le bozze gemelle si distinguono proprio con « (2)»: senza sapere quali sono
+  // vive, toglierle cancellerebbe il PDF di un altro piano.
+  if (finisceConBozza(radice) && !gemelle) return
   const numerato = new RegExp(`^${scappa(radice)} \\(\\d+\\)${scappa(estensione)}$`)
 
   for (const voce of dove.fileIn(cartellaDelPercorso(relativo))) {
-    if (numerato.test(voce.split('/').pop() ?? '')) dove.elimina(voce)
+    if (numerato.test(voce.split('/').pop() ?? '') && !gemelle?.includes(voce)) dove.elimina(voce)
   }
 }
 

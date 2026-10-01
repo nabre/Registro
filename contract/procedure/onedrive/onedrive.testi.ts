@@ -40,7 +40,8 @@ const it = {
   },
   cerca: {
     titolo: 'I documenti del registro su OneDrive, dal più recente: sincronizzati sul computer, o propri e condivisi',
-    troncato: 'Vero se Microsoft ne ha trovati più di quanti se ne mostrano',
+    troncato: 'Vero se la ricerca si è fermata prima di guardare dappertutto',
+    motivo: 'Perché si è fermata: troppi trovati, o tempo scaduto; null se non si è fermata',
     presentazione: 'Documenti del registro su OneDrive',
   },
   apri: {
@@ -90,7 +91,8 @@ export const testi = catalogo(it, {
     },
     cerca: {
       titolo: 'Die Dokumente des Klassenbuchs auf OneDrive, die neusten zuerst: auf dem Computer synchronisiert, oder eigene und geteilte',
-      troncato: 'Wahr, wenn Microsoft mehr gefunden hat, als angezeigt werden',
+      troncato: 'Wahr, wenn die Suche anhielt, bevor sie überall gesucht hatte',
+      motivo: 'Warum sie anhielt: troppi bei zu vielen Treffern, tempo bei Zeitablauf; sonst null',
       presentazione: 'Dokumente des Klassenbuchs auf OneDrive',
     },
     apri: {
@@ -140,7 +142,8 @@ export const testi = catalogo(it, {
       titolo:
         'Les documents du registre sur OneDrive, du plus récent au plus ancien : synchronisés ' +
         'sur l’ordinateur, ou les siens et les partagés',
-      troncato: 'Vrai si Microsoft en a trouvé plus qu’il n’en est montré',
+      troncato: 'Vrai si la recherche s’est arrêtée avant d’avoir tout parcouru',
+      motivo: 'Pourquoi elle s’est arrêtée : troppi (trop de résultats), tempo (délai) ou null',
       presentazione: 'Documents du registre sur OneDrive',
     },
     apri: {
@@ -188,7 +191,8 @@ export const testi = catalogo(it, {
     },
     cerca: {
       titolo: 'The register documents on OneDrive, most recent first: synced on the computer, or own and shared',
-      troncato: 'True if Microsoft found more than are shown',
+      troncato: 'True if the search stopped before looking everywhere',
+      motivo: 'Why it stopped: troppi (too many found), tempo (out of time), or null',
       presentazione: 'Register documents on OneDrive',
     },
     apri: {

@@ -108,7 +108,7 @@ export function nomeFileArchivio (
     (pezzo): pezzo is string => Boolean(pezzo && pezzo.trim()),
   )
   const punto = estensione.startsWith('.') ? estensione : `.${estensione}`
-  return `${accorciaNome(nomeSicuro(pezzi.join('_')))}${punto.toLowerCase()}`
+  return `${accorciaNome(pezzi)}${punto.toLowerCase()}`
 }
 
 /**
@@ -117,14 +117,31 @@ export function nomeFileArchivio (
  */
 const NOME_FILE_MASSIMO = 150
 
-/** Il nome tagliato a `NOME_FILE_MASSIMO`, senza punti né spazi in coda: Windows non li tiene. */
-function accorciaNome (nome: string): string {
+/**
+ * I pezzi giunti in un nome lungo al più `NOME_FILE_MASSIMO`, senza punti né
+ * spazi in coda: Windows non li tiene. Si accorciano i pezzi più lunghi, testo
+ * libero (un titolo, il nome di un file): quelli corti distinguono (una data,
+ * «Piano bozza 260901 (2)») e un taglio in coda li perderebbe.
+ */
+function accorciaNome (pezzi: readonly string[]): string {
+  const nome = nomeSicuro(pezzi.join('_'))
   // Per caratteri e non per unità UTF-16: un'emoji tagliata a metà non è un
   // nome scrivibile.
-  const caratteri = Array.from(nome)
-  if (caratteri.length <= NOME_FILE_MASSIMO) return nome
+  if (Array.from(nome).length <= NOME_FILE_MASSIMO) return nome
+
+  const caratteri = pezzi.map((pezzo) => Array.from(nomeSicuro(pezzo, '')))
+  const posto = NOME_FILE_MASSIMO - (pezzi.length - 1)
+  const occupato = (tetto: number) =>
+    caratteri.reduce((somma, pezzo) => somma + Math.min(pezzo.length, tetto), 0)
+  // Il tetto più alto per pezzo che fa stare tutto: con quattro pezzi non
+  // scende sotto i 36 caratteri.
+  let tetto = posto
+  while (tetto > 0 && occupato(tetto) > posto) tetto -= 1
+  const accorciati = caratteri
+    .map((pezzo) => pezzo.slice(0, tetto).join('').replace(/[. ]+$/, ''))
+    .filter(Boolean)
   // testo-fisso: un nome sul disco, come il ripiego di `nomeSicuro`
-  return caratteri.slice(0, NOME_FILE_MASSIMO).join('').replace(/[. ]+$/, '') || 'senza nome'
+  return accorciati.join('_').replace(/[. ]+$/, '') || 'senza nome'
 }
 
 /** La cartella che contiene un percorso d'archivio: serve per portarsela via intera. */
@@ -166,13 +183,34 @@ export function documentoPiano (registro: Registro, piano: PianoLezione): string
   // testo-fisso: il nome della cartella in `archivio/`, che non cambia con la lingua
   if (!nato) return 'Piano in preparazione'
   // Due bozze dello stesso corso e giorno: la seconda prende un numero.
-  const gemelle = registro.piani.filter(
+  const numero = distinzione(gemelleDi(registro, piano, nato).findIndex((p) => p.id === piano.id))
+  return `${BOZZA} ${dataNelNome(nato)}${numero}`
+}
+
+/** Le bozze dello stesso corso nate lo stesso giorno, piano compreso. */
+function gemelleDi (registro: Registro, piano: PianoLezione, nato: string): PianoLezione[] {
+  return registro.piani.filter(
     (p) => p.corsoId === piano.corsoId &&
       giornoDi(p.creatoIl) === nato &&
       !registro.lezioni.some((l) => l.pianoId === p.id),
   )
-  const numero = distinzione(gemelle.findIndex((p) => p.id === piano.id))
-  return `${BOZZA} ${dataNelNome(nato)}${numero}`
+}
+
+/**
+ * I percorsi dei PDF di tutte le bozze gemelle di un piano, per chi riscrive
+ * la prima: i suoi « (N)» che non stanno qui sono doppioni vecchi. Null fuori
+ * dalle bozze.
+ */
+export function bozzeGemelle (
+  registro: Registro, pianoId: string, contesto: ContestoRapporto = {},
+): string[] | null {
+  const piano = registro.piani.find((p) => p.id === pianoId)
+  const nato = piano ? giornoDi(piano.creatoIl) : null
+  if (!piano || !nato || registro.lezioni.some((l) => l.pianoId === piano.id)) return null
+  return gemelleDi(registro, piano, nato).flatMap((gemella) => {
+    const dove = collocazioneDi(registro, 'piano', gemella.id, contesto)
+    return dove ? [percorsoDi(dove)] : []
+  })
 }
 
 /**
@@ -265,19 +303,22 @@ export function percorsoDi (collocazione: Collocazione, estensione = 'pdf'): str
  * riconoscono le copie di un documento datato, qualunque giorno portino.
  */
 export function radiceDi (collocazione: Collocazione): string {
-  // Il punto dell'estensione entra e subito esce: la giuntura dei pezzi la sa
-  // solo `nomeFileArchivio`.
+  // Il nome intero, poi senza la coda: la giuntura dei pezzi la sa solo
+  // `nomeFileArchivio`, e un nome lungo si accorcia secondo il posto che il
+  // dettaglio lascia. Le date nel nome sono lunghe uguali: ogni giorno taglia
+  // la radice allo stesso punto.
   const nome = nomeFileArchivio(
     intestazione(collocazione),
     collocazione.chi,
     collocazione.documento,
-    null,
+    collocazione.dettaglio,
     '.',
   )
+  const coda = collocazione.dettaglio ? `_${nomeSicuro(collocazione.dettaglio)}.` : '.'
   return percorsoEsportazione(
     collocazione.classe,
     collocazione.ambito,
-    nome.slice(0, -1),
+    nome.endsWith(coda) ? nome.slice(0, -coda.length) : nome.slice(0, -1),
     collocazione.allievo,
   )
 }

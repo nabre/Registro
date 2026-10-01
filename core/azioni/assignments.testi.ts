@@ -13,6 +13,9 @@ const it = {
   documentoRaccolto:
     'Quella consegna ha un documento raccolto: togli prima il documento, ' +
     'altrimenti se ne andrebbe con la spunta.',
+  fogliRaccolti:
+    'Questa consegna ha già fogli raccolti: toglili prima dalla matrice dei documenti, ' +
+    'altrimenti resterebbero nell’anno senza più vedersi.',
   raccogli: 'Raccogli',
   perTuttiTitolo: (testo: string) => `${testo} — lo stesso per tutti`,
   /** Le code del nome del file archiviato, quando non è di una persona. */
@@ -45,6 +48,9 @@ export const testi = catalogo(it, {
     documentoRaccolto:
       'Zu diesem Auftrag wurde ein Dokument eingesammelt: Entferne zuerst das Dokument, ' +
       'sonst würde es mit dem Häkchen verschwinden.',
+    fogliRaccolti:
+      'Zu diesem Auftrag wurden schon Blätter eingesammelt: Entferne sie zuerst aus der ' +
+      'Dokumentenmatrix, sonst blieben sie im Schuljahr, ohne dass man sie noch sieht.',
     raccogli: 'Einsammeln',
     perTuttiTitolo: (testo) => `${testo} — dasselbe für alle`,
     fileMio: 'meins',
@@ -74,6 +80,9 @@ export const testi = catalogo(it, {
     documentoRaccolto:
       'Ce devoir a un document recueilli : retire d’abord le document, ' +
       'sinon il disparaîtrait avec la coche.',
+    fogliRaccolti:
+      'Ce devoir a déjà des feuilles recueillies : retire-les d’abord de la matrice des ' +
+      'documents, sinon elles resteraient dans l’année sans qu’on les voie.',
     raccogli: 'Recueillir',
     perTuttiTitolo: (testo) => `${testo} — le même pour tous`,
     fileMio: 'le mien',
@@ -104,6 +113,9 @@ export const testi = catalogo(it, {
     documentoRaccolto:
       'That assignment has a collected document: remove the document first, ' +
       'otherwise it would disappear along with the tick.',
+    fogliRaccolti:
+      'This assignment already has collected sheets: remove them from the documents matrix ' +
+      'first, otherwise they would stay in the year with no way to see them.',
     raccogli: 'Collect',
     perTuttiTitolo: (testo) => `${testo} — the same for everyone`,
     fileMio: 'mine',
