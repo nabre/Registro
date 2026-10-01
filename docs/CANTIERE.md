@@ -121,8 +121,6 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       `testi()`/`riferimenti()` per `elenco(x).map(testo).filter(Boolean)`
       (gli id in lista oggi non si ripuliscono come `riferimento`: D2,
       cambia il comportamento).
-- [ ] Lotto 4, `ui/commands.ts` (1391) e il suo catalogo in una
-      cartella per sezioni; `commands.ts` concatena nello stesso ordine.
 - [ ] Rapporti per genere in una tabella sola (modello, entità, `dati*`) letta
       da `rapporto.genera`, anteprima dei modelli, pacchetto del corso e
       prove: oggi 4 copie, una era rotta (anteprima del diario).
@@ -189,7 +187,6 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       in ARCHITETTURA § 11 prima.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
       dove molti importano: `ui/state.ts` (le selezioni),
-      `ui/commands.ts` (`COMANDI_UI` per gruppo),
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),
       `core/dominio/projection.ts` (il calendario).
