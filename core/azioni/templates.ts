@@ -25,7 +25,7 @@ import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.j
 import { allieviNominati } from '#core/dominio/projects.js'
 import type { Registro } from '#core/dominio/models.js'
 import { NOME_LOGO, type DatiRapporto } from '#core/dominio/reports.js'
-import { normalizzaIntestazione } from '#core/dominio/normalization.js'
+import { normalizzaIntestazione } from '#core/dominio/normalization/index.js'
 import { blocchi, paroleDeiModelli, sorgenteModello, vecchiaCartella } from '#core/dati/templates.js'
 import { archiviaCopia, pulisciCopiaOrfana } from '#core/dati/filing.js'
 import { componiPdf } from '#core/dati/reportsPdf.js'

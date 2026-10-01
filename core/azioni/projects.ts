@@ -13,7 +13,7 @@ import { allieviAttivi } from '#core/dominio/calculations.js'
 import { istanteAdesso, oggi } from '#core/dominio/dates.js'
 import { nuovoIdCompitoProgetto, nuovoIdGiudizioProgetto } from '#core/dominio/identifiers.js'
 import type { Allievo, FaseProgetto, Iso, Lezione, Progetto, Registro } from '#core/dominio/models.js'
-import { normalizzaProgetto } from '#core/dominio/normalization.js'
+import { normalizzaProgetto } from '#core/dominio/normalization/index.js'
 import {
   cellaVuota,
   celleDi,

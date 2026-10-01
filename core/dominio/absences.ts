@@ -29,10 +29,10 @@ import { lessico } from './lexicon.testi.js'
 import { testi } from './absences.testi.js'
 import { aggiungiIndirizzo, compilaModello, confrontaNomi, emailValida, nomeSicuro } from './text.js'
 
-import { TIPI_RAPPORTO } from './normalization.js'
+import { TIPI_RAPPORTO } from './models.js'
 import { valoriDi } from './objects.js'
 
-export { TIPI_RAPPORTO } from './normalization.js'
+export { TIPI_RAPPORTO } from './models.js'
 
 /** Come si chiama un foglio nelle etichette: 'assenze firmate', 'ritardi'. */
 export function etichettaFoglio (tipo: TipoRapporto, firmato: boolean): string {

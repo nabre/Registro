@@ -2,7 +2,7 @@
 // arriva da moduli e procedure. `valida…` non tocca il dato: produce messaggi.
 //
 // Qui anche le regole condivise con la lettura dei file (indirizzo web, materie
-// uguali): `normalization.ts` le prende da qui, mai il contrario.
+// uguali): `normalization/` le prende da qui, mai il contrario.
 
 import { intervalloAnno } from './years.js'
 import { durataMinuti, formattaData, isoValida, LIMITI_UD, nomeSemestre, oraValida, sommaGiorni } from './dates.js'

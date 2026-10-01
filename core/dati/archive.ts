@@ -13,7 +13,7 @@ import { registroVuoto } from '#core/dominio/factories.js'
 import { ESPORTAZIONI } from '#core/dominio/locations.js'
 import type { AnnoScolastico, Impostazioni, Materia, Registro } from '#core/dominio/models.js'
 import { VERSIONE_DATI } from '#core/dominio/models.js'
-import { normalizzaRegistro } from '#core/dominio/normalization.js'
+import { normalizzaRegistro } from '#core/dominio/normalization/index.js'
 import {
   ErroreVersionePiuRecente,
   aggiornaFormato,

@@ -566,4 +566,3 @@ cercherebbe.
 | Da | A | Perché |
 | --- | --- | --- |
 | `core/dominio/reportData.ts` | core/dominio/reportData/ (`common`, `lesson`, `assessments`, `classes`, `student`, `course`, `index` che riesporta) | 1944 righe, sei rapporti indipendenti. |
-| `core/dominio/normalization.ts` | core/dominio/normalization/ (`readers`, `settings`, `deliveries`, `check`, `sorting`, `index`); `TIPI_RAPPORTO` in `core/dominio/models.ts` | 2135 righe; `TIPI_RAPPORTO` prima, o nasce un ciclo. |

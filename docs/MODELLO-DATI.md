@@ -9,7 +9,7 @@ Sorgenti:
 
 - [`core/dominio/models.ts`](../core/dominio/models.ts) — le forme
 - [`core/dominio/validation.ts`](../core/dominio/validation.ts) — `valida*`
-- [`core/dominio/normalization.ts`](../core/dominio/normalization.ts) — `normalizza*`
+- [`core/dominio/normalization/`](../core/dominio/normalization/index.ts) — `normalizza*`
 - [`core/dominio/integrity.ts`](../core/dominio/integrity.ts) — `riferimentiRotti`
 - [`core/dominio/factories.ts`](../core/dominio/factories.ts) — `crea*` e predefiniti
 - [`core/dominio/persistence.ts`](../core/dominio/persistence.ts) — collezione → testo
@@ -1374,7 +1374,7 @@ interface Termine {
 | `DocumentoAllievo` | `Consegna.documenti` |
 | `InizioCompito`, `ProrogaCompito`, `FattoCompito` | `CompitoProgetto.inizi`, `.proroghe`, `.fatti` |
 
-Normalizzatori esportati da `normalization.ts`: `normalizzaRegistro`,
+Normalizzatori esportati da `normalization/index.ts`: `normalizzaRegistro`,
 `normalizzaPiano`, `normalizzaValutazione`, `normalizzaImpostazioni`,
 `normalizzaPause`, `normalizzaIntestazione`, `normalizzaCalendario`,
 `normalizzaConsegna`, `normalizzaCheck`, `normalizzaProgetto`. Gli altri si raggiungono da

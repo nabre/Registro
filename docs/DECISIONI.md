@@ -575,7 +575,7 @@ SignPath rifiuta la firma.
 **Vincoli.** Un documento v1 passa a v2 solo dopo la copia in
 `versioni-precedenti/` (ADR-37). Niente cifratura opaca nel `.regi`.
 
-**Dove.** `core/dominio/models.ts`, `core/dominio/upgrades.ts`, `core/dominio/normalization.ts`,
+**Dove.** `core/dominio/models.ts`, `core/dominio/upgrades.ts`, `core/dominio/normalization/`,
 `core/dominio/calculations.ts`, `core/azioni/assessments.ts`, `core/azioni/register.ts`,
 `core/azioni/sorting.ts`, `core/azioni/assignments.ts`, `core/azioni/classTeacher.ts`.
 
@@ -910,7 +910,7 @@ lascia com'era. Un marcatore di un calendario che il registro non conosce non
 blocca l'apertura: tiene quel che c'era.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/schoolCalendar.ts`,
-`core/dominio/normalization.ts`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
+`core/dominio/normalization/`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
 `contract/procedure/anni/calendario.ts`, `ui/forms/year.ts`,
 `ui/forms/schoolCalendar.ts`, `ui/views/settings/year.ts`,
 `desktop/boot.ts`, `tests/api/officialCalendar.test.mjs`.

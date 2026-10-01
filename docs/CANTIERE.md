@@ -121,12 +121,10 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       supplenze). Grafo aciclico; 3 importatori più il barile. Insieme: helper
       comuni per righe ripetute (pendenze, check, comportamento, scaletta,
       cella recupero, media e nota, comunicazioni, `dataDiIstante`).
-- [ ] Lotto 2, `core/dominio/normalization.ts` (2135) in una cartella:
-      `readers`, `settings` (1102-1343), `deliveries` (consegne + migrazione
-      compiti/documenti), `check`, `sorting`. `TIPI_RAPPORTO` prima in
-      `models.ts` (altrimenti ciclo). Helper `testi()`/`riferimenti()` per
-      `elenco(x).map(testo).filter(Boolean)` (gli id in lista oggi non si
-      ripuliscono come `riferimento`).
+- [ ] Normalizzazione (`core/dominio/normalization/`): helper
+      `testi()`/`riferimenti()` per `elenco(x).map(testo).filter(Boolean)`
+      (gli id in lista oggi non si ripuliscono come `riferimento`: D2,
+      cambia il comportamento).
 - [ ] Lotto 4, `ui/commands.ts` (1391) e il suo catalogo in una
       cartella per sezioni; `commands.ts` concatena nello stesso ordine.
 - [ ] Rapporti per genere in una tabella sola (modello, entità, `dati*`) letta
@@ -176,7 +174,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       mano al cambio di documento (`main.ts`: `scordaEditorDelPiano`…).
       Censirli con `census` o una regola ESLint.
 - [ ] La normalizzazione scrive testi nella lingua di chi apre
-      (`core/dominio/normalization.ts`, `titolo: testo(dati.titolo,
+      (`core/dominio/normalization/readers.ts`, `titolo: testo(dati.titolo,
       Uno(lessico().corso))`): un predefinito per lingua non va nel documento.
 - [ ] Codice del renderer in un solo strato: `desktop/shell/pages/` → una
       cartella nuova sotto `ui/` (benvenuto, avvio, lettore, impostazioni, dialogo,
@@ -194,10 +192,8 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       `tools/recommendedModels.mjs` e le `importaSorgente` delle prove: mappa
       in ARCHITETTURA § 11 prima.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
-      dove molti importano: `core/dominio/normalization.ts` (impostazioni;
-      consegne/check/smistamenti), `core/dominio/reportData.ts` (`datiAllievo`,
+      dove molti importano: `core/dominio/reportData.ts` (`datiAllievo`,
       `datiFascicolo`), `ui/state.ts` (le selezioni),
-      `contract/protocol.ts` (assistente, dettatura, scarico),
       `ui/commands.ts` (`COMANDI_UI` per gruppo),
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),
@@ -217,6 +213,11 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 
 ### Prove
 
+- [ ] `tests/proprieta/storia.test.mjs` «annullare un gesto rimette lo stato
+      di prima…» cade di rado: `PROPRIETA_SEME=153678895
+      PROPRIETA_ESECUZIONI=4000` lo riproduce (anche prima dei lotti). Dopo
+      annulla/ripristina manca un allievo dal nome vuoto aggiunto dopo
+      `rinomina` a `" "` e `filtraClassi`. Capire se è la storia o la prova.
 - [ ] Instabili sotto carico (da sole passano): `tests/api/importClass.test.mjs:230`
       «il documento d'origine resta com'era» (un `.tmp` atteso manca); «la
       convalida dell'input › le risposte tornano nell'ordine dei tasti»;

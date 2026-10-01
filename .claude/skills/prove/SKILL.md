@@ -164,7 +164,7 @@ Riporta la copertura di partenza per file sorgente: sarà il pavimento.
 1. si sta per togliere o fondere una **prova protetta**;
 2. si sta per togliere più di un terzo dei casi che provano un file sorgente
    critico (`core/dominio/calculations.ts`, `courseMatrix.ts`, `alerts.ts`,
-   `normalization.ts`, `core/dati/zip.ts`, `core/dati/package.ts`).
+   `normalization/`, `core/dati/zip.ts`, `core/dati/package.ts`).
 
 Mai su tutta la suite, mai in CI, mai come misura di routine.
 

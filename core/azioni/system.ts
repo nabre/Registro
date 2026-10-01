@@ -25,7 +25,7 @@ import { etichettaSemestre, nelSemestre, oraValida } from '#core/dominio/dates.j
 import type { Intestazione, Registro } from '#core/dominio/models.js'
 import type { ImpostazioniDaSalvare } from '#contract/protocol.js'
 import { riparazioni } from '#core/dominio/repairs.js'
-import { conCarteComplete, normalizzaImpostazioni } from '#core/dominio/normalization.js'
+import { conCarteComplete, normalizzaImpostazioni } from '#core/dominio/normalization/index.js'
 import { validaMinutiUd, validaPause, validaScala } from '#core/dominio/validation.js'
 import { slotFuoriDallePause, slotSuAltraUd } from '#core/dominio/breaks.js'
 import { cestina, conMessaggio, fatto, lanciaComando, rifiuta, rifiutaCon, type Parte } from './context.js'

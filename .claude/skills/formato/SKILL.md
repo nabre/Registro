@@ -45,7 +45,7 @@ non il suffisso `.regi`; anche il `FORMATO` del manifesto
 
 1. **Il modello.** Il campo in `core/dominio/models.ts`, con il commento che
    dice che cosa vuol dire e perché sta nel documento.
-2. **La lettura.** La normalizzazione in `core/dominio/normalization.ts` gli dà
+2. **La lettura.** La normalizzazione in `core/dominio/normalization/` gli dà
    il valore di serie quando manca e raddrizza quel che non torna: è la rete
    per i file scritti a mano e per quelli vecchi.
 3. **Il numero.** `VERSIONE_DATI` sale di uno, e nel commento sopra di lui

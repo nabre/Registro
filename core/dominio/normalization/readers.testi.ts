@@ -1,4 +1,4 @@
-// I nomi che la normalizzazione (`normalization.ts`) dà a quel che arriva dal
+// I nomi che la normalizzazione (`readers.ts`) dà a quel che arriva dal
 // disco senza nome, quando il lessico non li ha. Finiscono nel documento nella
 // lingua del momento.
 

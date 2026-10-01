@@ -346,6 +346,9 @@ export interface Fascicolo {
  */
 export type TipoRapporto = 'assenze' | 'ritardi'
 
+/** I due fogli di un periodo, nell'ordine in cui si guardano. */
+export const TIPI_RAPPORTO: readonly TipoRapporto[] = ['assenze', 'ritardi']
+
 /**
  * Un PDF di un periodo, per un allievo. `firmato` distingue il foglio che parte
  * (vergine) da quello che torna con la firma: due file, tenuti tutti e due.

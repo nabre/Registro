@@ -16,7 +16,7 @@ import type {
   RegolaCalendario,
   SorgenteCalendario,
 } from '#core/dominio/models.js'
-import { nomeDaOrigine } from '#core/dominio/normalization.js'
+import { nomeDaOrigine } from '#core/dominio/normalization/index.js'
 import { campo, pastiglia, pulsante, scheda, statoVuoto } from '#ui/components/base.js'
 import { notificaAnnullabile } from '#ui/components/undoable.js'
 import { suggerimento } from '#ui/components/hint.js'

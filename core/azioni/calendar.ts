@@ -13,7 +13,7 @@ import { oggi, istanteAdesso } from '#core/dominio/dates.js'
 import { creaLezione } from '#core/dominio/factories.js'
 import { nuovoIdCalendarioEsterno } from '#core/dominio/identifiers.js'
 import type { Lezione, Registro, SorgenteCalendario } from '#core/dominio/models.js'
-import { nomeDaOrigine, normalizzaCalendario } from '#core/dominio/normalization.js'
+import { nomeDaOrigine, normalizzaCalendario } from '#core/dominio/normalization/index.js'
 import { validaLezione, validaSlot } from '#core/dominio/validation.js'
 import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '#core/dati/calendar.js'
 import {

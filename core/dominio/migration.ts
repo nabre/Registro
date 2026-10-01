@@ -1,6 +1,6 @@
 // La migrazione dei documenti dalla versione 1 alla 2.
 //
-// Separata da `normalization.ts`: quella sa com'è un registro buono, questa
+// Separata da `normalization/`: quella sa com'è un registro buono, questa
 // com'era uno della versione 1. `normalizzaRegistro` le passa materie, classi
 // grezze e fabbriche invece di farle importare, per evitare un ciclo di import.
 
@@ -11,7 +11,7 @@ import { nomeNormalizzato } from './validation.js'
 
 /**
  * Le normalizzazioni con cui la migrazione fa nascere quel che manca. Sono
- * quelle di `normalization.ts`: una materia o un corso creati qui devono essere
+ * quelle di `normalization/readers.ts`: una materia o un corso creati qui devono essere
  * identici a quelli letti da disco.
  */
 interface Fabbriche {

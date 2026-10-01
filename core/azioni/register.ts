@@ -44,7 +44,7 @@ import {
   leggiElencoAllievi,
 } from '#core/dominio/importing.js'
 import { confrontaNomi, normalizzaTesto } from '#core/dominio/text.js'
-import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '#core/dominio/normalization.js'
+import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '#core/dominio/normalization/index.js'
 import { validaAnno, validaCorso, validaMateria, validaClasse } from '#core/dominio/validation.js'
 import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '#core/dati/filing.js'
 import { percorsoCopiaCalendario, scriviCopia } from '#core/dati/calendar.js'
