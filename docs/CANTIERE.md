@@ -162,11 +162,6 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       composizione in un utility process o worker. Decisione strutturale.
 - [ ] Ogni foglio automatico si materializza su disco (`scriviGenerato` →
       `uriArchivio`) anche se nessuno lo apre: I/O e CRC sprecati.
-- [ ] `togliDoppioni` salta le bozze (`core/dati/filing.ts:202`,
-      `finisceConBozza`): un doppione vecchio della prima bozza resta nel
-      documento, indistinguibile dalla gemella. Correzione senza cambio di nomi:
-      `riscrivi` riceve i percorsi delle gemelle vive (`scriviGenerato`,
-      `core/azioni/reports.ts` ~167) e toglie gli altri « (N)».
 - [ ] Nel `.regi` restano le esportazioni coi nomi di prima (id nel nome,
       «1° sem.» e «1° semestre»): su un registro vero 470 voci che nessun dato
       cita, e percorsi oltre i 260 caratteri che Esplora risorse non estrae.

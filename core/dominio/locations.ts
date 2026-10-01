@@ -183,13 +183,34 @@ export function documentoPiano (registro: Registro, piano: PianoLezione): string
   // testo-fisso: il nome della cartella in `archivio/`, che non cambia con la lingua
   if (!nato) return 'Piano in preparazione'
   // Due bozze dello stesso corso e giorno: la seconda prende un numero.
-  const gemelle = registro.piani.filter(
+  const numero = distinzione(gemelleDi(registro, piano, nato).findIndex((p) => p.id === piano.id))
+  return `${BOZZA} ${dataNelNome(nato)}${numero}`
+}
+
+/** Le bozze dello stesso corso nate lo stesso giorno, piano compreso. */
+function gemelleDi (registro: Registro, piano: PianoLezione, nato: string): PianoLezione[] {
+  return registro.piani.filter(
     (p) => p.corsoId === piano.corsoId &&
       giornoDi(p.creatoIl) === nato &&
       !registro.lezioni.some((l) => l.pianoId === p.id),
   )
-  const numero = distinzione(gemelle.findIndex((p) => p.id === piano.id))
-  return `${BOZZA} ${dataNelNome(nato)}${numero}`
+}
+
+/**
+ * I percorsi dei PDF di tutte le bozze gemelle di un piano, per chi riscrive
+ * la prima: i suoi « (N)» che non stanno qui sono doppioni vecchi. Null fuori
+ * dalle bozze.
+ */
+export function bozzeGemelle (
+  registro: Registro, pianoId: string, contesto: ContestoRapporto = {},
+): string[] | null {
+  const piano = registro.piani.find((p) => p.id === pianoId)
+  const nato = piano ? giornoDi(piano.creatoIl) : null
+  if (!piano || !nato || registro.lezioni.some((l) => l.pianoId === piano.id)) return null
+  return gemelleDi(registro, piano, nato).flatMap((gemella) => {
+    const dove = collocazioneDi(registro, 'piano', gemella.id, contesto)
+    return dove ? [percorsoDi(dove)] : []
+  })
 }
 
 /**

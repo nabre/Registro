@@ -9,6 +9,7 @@ import {
   collocazioneDi,
   percorsoDi,
   precedentiDi,
+  bozzeGemelle,
   type Collocazione,
   type ContestoRapporto,
   type GenereRapporto,
@@ -62,6 +63,8 @@ interface Preparato {
   dati: DatiRapporto
   /** Il posto lo decide il dominio, lo stesso che legge la pagina Documenti. */
   dove: Collocazione
+  /** Di un piano in bozza: i PDF delle gemelle vive (`bozzeGemelle`). */
+  gemelle?: string[] | null
 }
 
 /**
@@ -164,7 +167,7 @@ async function scriviRapporto (
   // Dopo la composizione (l'attesa lunga, dove il documento può cambiare):
   // fra questa riga e `scriviGenerato` non ci sono attese.
   if (!ancora()) return { errore: t.giroInterrotto, interrotto: true }
-  if (!(await scriviGenerato(relativo, byte, precedentiDi(preparato.dove)))) {
+  if (!(await scriviGenerato(relativo, byte, precedentiDi(preparato.dove), preparato.gemelle))) {
     return { errore: t.senzaCartella }
   }
   return { relativo }
@@ -312,7 +315,8 @@ function conPosto (
   resto: Omit<Preparato, 'dove'>,
 ): Preparato | null {
   const dove = collocazioneDi(registro, genere, id, contesto)
-  return dove ? { ...resto, dove } : null
+  if (!dove) return null
+  return genere === 'piano' ? { ...resto, dove, gemelle: bozzeGemelle(registro, id, contesto) } : { ...resto, dove }
 }
 
 /** Il semestre scelto dentro l'anno di una classe, o l'anno intero. */
@@ -745,7 +749,10 @@ export const rapporti = {
     if (!pezzi || !dove) return rifiuta(t.rapportoSconosciuto)
 
     const intestazione = registro.impostazioni.intestazione
-    const esito = await scriviRapporto({ ...pezzi, dove }, ancora, intestazione)
+    const gemelle = azione.genere === 'piano'
+      ? bozzeGemelle(registro, azione.id, { corsoId: azione.corsoId ?? null })
+      : null
+    const esito = await scriviRapporto({ ...pezzi, dove, gemelle }, ancora, intestazione)
     if ('errore' in esito && esito.interrotto) return rifiutaCon('conflitto', esito.errore)
     if ('errore' in esito) return rifiuta(esito.errore)
 

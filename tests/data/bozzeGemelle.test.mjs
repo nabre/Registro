@@ -84,6 +84,24 @@ describe('le bozze gemelle', () => {
     )
   })
 
+  it('con le gemelle vive, il « (3)» di una bozza che non c’è più se ne va', async () => {
+    const { bozzeGemelle, collocazioneDi, percorsoDi } = dominio
+    const { deposito, riscrivi } = moduli
+    const registro = archivio.registro
+    const [prima, seconda] = registro.piani
+    const dellaPrima = percorsoDi(collocazioneDi(registro, 'piano', prima.id))
+    const dellaSeconda = percorsoDi(collocazioneDi(registro, 'piano', seconda.id))
+    const vecchio = dellaPrima.replace(/\.pdf$/, ' (3).pdf')
+    deposito().scrivi(vecchio, pdf('terza, tolta'))
+
+    const gemelle = bozzeGemelle(registro, prima.id)
+    assert.deepEqual(gemelle, [dellaPrima, dellaSeconda])
+    await riscrivi(dellaPrima, pdf('prima'), [], gemelle)
+
+    assert.equal(deposito().esiste(dellaSeconda), true, 'la gemella viva resta')
+    assert.equal(deposito().esiste(vecchio), false, 'il doppione vecchio resta nel documento')
+  })
+
   it('un doppione vero accanto a un foglio qualunque se ne va ancora', async () => {
     const { deposito, riscrivi } = moduli
     const cartella = 'esportazioni/Matematica/DIC4a/classe'
