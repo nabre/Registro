@@ -37,7 +37,7 @@
 }
 
 /*
- * Le linguette dei documenti delle persone: «Corso» e una per progetto. I
+ * Le linguette dei documenti del corso e delle persone: «Corso» e una per progetto. I
  * titoli dei progetti possono essere tanti e lunghi: vanno a capo invece di
  * allargare la barra; un titolo troppo lungo si tronca, ma si legge intero
  * ai lettori di schermo.
@@ -60,6 +60,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Sotto il rapporto di classe di un progetto: i rapporti individuali, contati e rimandati. */
+.documenti__rimando {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  margin: var(--spazio-2) 0 0;
 }
 
 /*

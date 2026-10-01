@@ -16,15 +16,19 @@ const it: { progetti: TestiSezione } = {
         testo:
           'A sinistra i progetti del corso, con lo stato (**Bozza**, **In corso**, **Concluso**), ' +
           'il periodo e quanto se n’è fatto. **Nuovo progetto** ne crea uno; **Modifica** cambia ' +
-          'titolo, stato, descrizione, obiettivi (uno per riga) e collegamenti.',
+          'titolo, stato, descrizione, obiettivi (uno per riga) e collegamenti. A destra testata, ' +
+          'criteri e compiti restano sempre in vista; sotto, tre linguette: **Fasi**, **Matrice** ' +
+          'ed **Esiti** (giudizi, valutazioni e presenze). Le frecce passano da una all’altra, e ' +
+          'ogni progetto riapre quella che hai lasciato.',
       },
       {
         termine: 'Le fasi',
         testo:
           'Un progetto si divide in fasi; ce n’è sempre almeno una. **Fasi** le aggiunge, le ' +
           'rinomina, le mette in fila e le toglie: le attività di una fase tolta passano a ' +
-          'quella prima. Per ogni fase la pagina mostra il periodo, quanto se n’è fatto, le attività ' +
-          'dei piani nelle loro lezioni e le prove nate lì.',
+          'quella prima. Ogni fase si apre e si chiude con un clic sul titolo: chiusa mostra numero, ' +
+          'titolo, periodo e quanto se n’è fatto; aperta anche le attività dei piani nelle loro ' +
+          'lezioni, col loro stato, e le prove nate lì. Di serie è aperta la fase in cui cade oggi.',
       },
       {
         termine: 'Il periodo',
@@ -131,15 +135,21 @@ export const testi = catalogo(it, {
           testo:
             'Links die Projekte des Kurses mit Status (**Entwurf**, **Laufend**, ' +
             '**Abgeschlossen**), Zeitraum und Fortschritt. **Neues Projekt** erstellt eines; ' +
-            '**Bearbeiten** ändert Titel, Status, Beschreibung, Ziele (eines pro Zeile) und Links.',
+            '**Bearbeiten** ändert Titel, Status, Beschreibung, Ziele (eines pro Zeile) und Links. ' +
+            'Rechts bleiben Kopf, Kriterien und Aufgaben immer sichtbar; darunter drei Reiter: ' +
+            '**Phasen**, **Raster** und **Ergebnisse** (Einschätzungen, Beurteilungen und ' +
+            'Anwesenheit). Die Pfeiltasten wechseln den Reiter, und jedes Projekt öffnet wieder ' +
+            'den, den du verlassen hast.',
         },
         {
           termine: 'Die Phasen',
           testo:
             'Ein Projekt teilt sich in Phasen; es gibt immer mindestens eine. **Phasen** fügt sie ' +
             'hinzu, benennt sie um, ordnet und entfernt sie: Die Aktivitäten einer entfernten ' +
-            'Phase gehen zur vorherigen. Für jede Phase zeigt die Seite Zeitraum, Fortschritt, die ' +
-            'Aktivitäten der Pläne in ihren Stunden und die dort entstandenen Prüfungen.',
+            'Phase gehen zur vorherigen. Jede Phase öffnet und schliesst sich mit einem Klick auf ' +
+            'den Titel: geschlossen zeigt sie Nummer, Titel, Zeitraum und Fortschritt; offen auch ' +
+            'die Aktivitäten der Pläne in ihren Stunden, mit ihrem Stand, und die dort entstandenen ' +
+            'Prüfungen. Zu Beginn ist die Phase offen, in die der heutige Tag fällt.',
         },
         {
           termine: 'Der Zeitraum',
@@ -246,15 +256,20 @@ export const testi = catalogo(it, {
           testo:
             'À gauche les projets du cours, avec l’état (**Brouillon**, **En cours**, **Terminé**), ' +
             'la période et l’avancement. **Nouveau projet** en crée un ; **Modifier** change ' +
-            'titre, état, description, objectifs (un par ligne) et liens.',
+            'titre, état, description, objectifs (un par ligne) et liens. À droite, l’en-tête, ' +
+            'les critères et les tâches restent toujours visibles ; dessous, trois onglets : ' +
+            '**Phases**, **Grille** et **Résultats** (appréciations, évaluations et présences). ' +
+            'Les flèches passent de l’un à l’autre, et chaque projet rouvre celui que vous avez quitté.',
         },
         {
           termine: 'Les phases',
           testo:
             'Un projet se divise en phases ; il y en a toujours au moins une. **Phases** les ' +
             'ajoute, les renomme, les ordonne et les retire : les activités d’une phase retirée ' +
-            'passent à la précédente. Pour chaque phase, la page montre la période, l’avancement, ' +
-            'les activités des plans dans leurs périodes et les épreuves nées là.',
+            'passent à la précédente. Chaque phase s’ouvre et se ferme d’un clic sur son titre : ' +
+            'fermée, elle montre numéro, titre, période et avancement ; ouverte, aussi les ' +
+            'activités des plans dans leurs périodes, avec leur état, et les épreuves nées là. Au ' +
+            'départ, la phase où tombe aujourd’hui est ouverte.',
         },
         {
           termine: 'La période',
@@ -362,15 +377,20 @@ export const testi = catalogo(it, {
           testo:
             'On the left the course’s projects, with their status (**Draft**, **In progress**, ' +
             '**Finished**), the period and the progress. **New project** creates one; **Edit** ' +
-            'changes title, status, description, objectives (one per line) and links.',
+            'changes title, status, description, objectives (one per line) and links. On the right ' +
+            'the header, criteria and tasks always stay in view; below them, three tabs: ' +
+            '**Phases**, **Grid** and **Results** (comments, assessments and attendance). The ' +
+            'arrow keys move between them, and each project reopens the one you left.',
         },
         {
           termine: 'Phases',
           testo:
             'A project is divided into phases; there is always at least one. **Phases** adds, ' +
             'renames, orders and removes them: the activities of a removed phase move to the ' +
-            'previous one. For each phase the page shows the period, the progress, the plan activities ' +
-            'in their lessons and the tests that came from them.',
+            'previous one. Each phase opens and closes with a click on its title: closed it shows ' +
+            'number, title, period and progress; open, also the plan activities in their lessons, ' +
+            'with their state, and the tests that came from them. At first the phase that today ' +
+            'falls in is open.',
         },
         {
           termine: 'The period',

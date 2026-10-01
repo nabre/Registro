@@ -94,6 +94,7 @@ import {
   chiaveDocumento,
   conVoce,
   leggiMemoria,
+  LINGUETTE_PROGETTO,
   MODI_CALENDARIO,
   SCHEDE_DOCUMENTI,
   SCHEDE_LEZIONE,
@@ -175,6 +176,9 @@ export type SchedaDocumenti = (typeof SCHEDE_DOCUMENTI)[number]
  * accesa in tutte: è il punto da cui si leggono le distanze.
  */
 export type SchedaMappa = (typeof SCHEDE_MAPPA)[number]
+
+/** Le linguette della colonna destra nella pagina Progetti. */
+export type LinguettaProgetto = (typeof LINGUETTE_PROGETTO)[number]
 
 /**
  * Gli scalini dello zoom delle pagine nello sfoglio, in pixel: abbastanza
@@ -374,6 +378,11 @@ interface StatoUI {
    */
   compitiScelti: Record<string, string>;
   /**
+   * La linguetta aperta a destra nella pagina Progetti, per progetto: fasi,
+   * matrice o esiti (giudizi, valutazioni, presenze).
+   */
+  linguetteProgetti: Record<string, LinguettaProgetto>;
+  /**
    * La linguetta aperta fra i documenti delle persone in formazione, per corso
    * (id del corso → `'corso'` o id del progetto): la pagina Documenti torna su
    * «Corso» se il progetto non c'è più.
@@ -524,6 +533,7 @@ export const stato: StatoUI = {
   ...contestoIniziale,
   classiApertePersone: primaVoce?.classiApertePersone ?? [],
   compitiScelti: primaVoce?.compitiScelti ?? {},
+  linguetteProgetti: primaVoce?.linguetteProgetti ?? {},
   linguetteDocumenti: primaVoce?.linguetteDocumenti ?? {},
   classeMappaId: primaVoce?.classeMappaId ?? null,
   filtroCorsoAgendaId: primaVoce?.filtroCorsoAgendaId ?? null,
@@ -602,6 +612,7 @@ function voceDiAdesso (): VoceDocumento {
     schedaTodo: stato.schedaTodo,
     classiApertePersone: stato.classiApertePersone,
     compitiScelti: stato.compitiScelti,
+    linguetteProgetti: stato.linguetteProgetti,
     linguetteDocumenti: stato.linguetteDocumenti,
     ricerca: stato.ricerca,
   }
@@ -677,6 +688,7 @@ function caricaVoce (voce: VoceDocumento | null): void {
     schedaTodo: voce?.schedaTodo ?? 'tutte',
     classiApertePersone: voce?.classiApertePersone ?? [],
     compitiScelti: voce?.compitiScelti ?? {},
+    linguetteProgetti: voce?.linguetteProgetti ?? {},
     linguetteDocumenti: voce?.linguetteDocumenti ?? {},
     ricerca: voce?.ricerca ?? '',
   } satisfies Partial<StatoUI>)

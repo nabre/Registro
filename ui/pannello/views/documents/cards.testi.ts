@@ -3,7 +3,8 @@
 // frasi di `sheets.ts`: si scrivono con il loro articolo.
 
 import { catalogo } from '../../../../core/i18n/index.js'
-import { PIF, Molti, quanti } from '../../../../core/dominio/lexicon.js'
+import { PIF, Molti, Uno, quanti } from '../../../../core/dominio/lexicon.js'
+import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { plurale } from '../../../../core/dominio/text.js'
 
 const it = {
@@ -23,8 +24,12 @@ const it = {
   nomeValutazioniCsv: 'i voti per il foglio di calcolo',
   diario: 'Diario',
   nomeDiario: 'il diario cumulativo delle lezioni',
-  progetto: (titolo: string) => `Progetto: ${titolo}`,
   nomeProgetto: (titolo: string) => `il rapporto del progetto «${titolo}»`,
+  tuttoIlProgetto: 'Di tutta la classe insieme · tutto il progetto',
+  rapportoDiClasse: 'Rapporto di classe',
+  individualiPronti: (pronti: number, tutti: number) =>
+    `Rapporti individuali: ${pronti} di ${tutti} nella cartella`,
+  vediIndividuali: `Vedi in «${Uno(PIF)}»`,
   progettoDi: (nome: string, titolo: string) => `il rapporto di ${nome} nel progetto «${titolo}»`,
 
   // Le prove e i piani
@@ -77,8 +82,8 @@ const it = {
   dettaglioDocenteClasse: 'Docente di classe',
   schedaDiPersonaCorso: (nome: string) => `la scheda del corso di ${nome}`,
   schedaDiPersonaClasse: (nome: string) => `la scheda del docente di classe per ${nome}`,
-  // Le linguette dei documenti delle persone: «Corso» e una per progetto.
-  linguetteAllievi: 'Corso o progetto',
+  // Le linguette dei documenti del corso e delle persone: «Corso» e una per progetto.
+  linguette: 'Corso o progetto',
   progettoConto: (persone: number) =>
     `${quanti(persone, PIF)} · un rapporto ciascuna · tutto il progetto`,
 }
@@ -100,8 +105,12 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'die Noten für die Tabellenkalkulation',
     diario: 'Kurstagebuch',
     nomeDiario: 'das kumulative Kurstagebuch',
-    progetto: (titolo) => `Projekt: ${titolo}`,
     nomeProgetto: (titolo) => `den Bericht zum Projekt «${titolo}»`,
+    tuttoIlProgetto: 'Für die ganze Klasse zusammen · ganzes Projekt',
+    rapportoDiClasse: 'Klassenbericht',
+    individualiPronti: (pronti, tutti) =>
+      `Einzelberichte: ${pronti} von ${tutti} im Ordner`,
+    vediIndividuali: `Unter «${Uno(lessico.in('de').pif)}» ansehen`,
     progettoDi: (nome, titolo) => `den Bericht von ${nome} im Projekt «${titolo}»`,
 
     nessunaProva: 'Keine Prüfung im gewählten Zeitraum.',
@@ -150,7 +159,7 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Klassenlehrperson',
     schedaDiPersonaCorso: (nome) => `das Kursblatt von ${nome}`,
     schedaDiPersonaClasse: (nome) => `das Klassenlehrperson-Blatt für ${nome}`,
-    linguetteAllievi: 'Kurs oder Projekt',
+    linguette: 'Kurs oder Projekt',
     progettoConto: (persone) =>
       `${persone} Lernende · ein Bericht pro Person · das ganze Projekt`,
   },
@@ -170,8 +179,12 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'les notes pour le tableur',
     diario: 'Journal',
     nomeDiario: 'le journal cumulatif des leçons',
-    progetto: (titolo) => `Projet : ${titolo}`,
     nomeProgetto: (titolo) => `le rapport du projet « ${titolo} »`,
+    tuttoIlProgetto: 'Pour toute la classe ensemble · tout le projet',
+    rapportoDiClasse: 'Rapport de classe',
+    individualiPronti: (pronti, tutti) =>
+      `Rapports individuels : ${pronti} sur ${tutti} dans le dossier`,
+    vediIndividuali: `Voir dans « ${Uno(lessico.in('fr').pif)} »`,
     progettoDi: (nome, titolo) => `le rapport de ${nome} dans le projet « ${titolo} »`,
 
     nessunaProva: 'Aucune épreuve dans la période choisie.',
@@ -220,7 +233,7 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Maître de classe',
     schedaDiPersonaCorso: (nome) => `la fiche de cours de ${nome}`,
     schedaDiPersonaClasse: (nome) => `la fiche du maître de classe pour ${nome}`,
-    linguetteAllievi: 'Cours ou projet',
+    linguette: 'Cours ou projet',
     progettoConto: (persone) =>
       `${plurale(persone, 'personne en formation', 'personnes en formation')} · un rapport ` +
       'chacune · tout le projet',
@@ -241,8 +254,12 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'the grades for the spreadsheet',
     diario: 'Journal',
     nomeDiario: 'the cumulative lesson journal',
-    progetto: (titolo) => `Project: ${titolo}`,
     nomeProgetto: (titolo) => `the report of the project “${titolo}”`,
+    tuttoIlProgetto: 'For the whole class together · whole project',
+    rapportoDiClasse: 'Class report',
+    individualiPronti: (pronti, tutti) =>
+      `Individual reports: ${pronti} of ${tutti} in the folder`,
+    vediIndividuali: `See in “${Uno(lessico.in('en').pif)}”`,
     progettoDi: (nome, titolo) => `the report of ${nome} in the project “${titolo}”`,
 
     nessunaProva: 'No tests in the chosen period.',
@@ -290,7 +307,7 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Class teacher',
     schedaDiPersonaCorso: (nome) => `the course sheet for ${nome}`,
     schedaDiPersonaClasse: (nome) => `the class teacher sheet for ${nome}`,
-    linguetteAllievi: 'Course or project',
+    linguette: 'Course or project',
     progettoConto: (persone) =>
       `${plurale(persone, 'learner', 'learners')} · one report each · the whole project`,
   },

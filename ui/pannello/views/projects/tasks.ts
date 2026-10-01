@@ -432,7 +432,11 @@ function conScelta (progettoId: string, compitoId: string): Record<string, strin
   return scelte
 }
 
-function nuovoCompito (progetto: Progetto): void {
+/**
+ * Il modulo di un compito nuovo; salvato, la sua linguetta si apre. Lo usa
+ * anche il comando della barra.
+ */
+export function nuovoCompito (progetto: Progetto): void {
   nuoviAttesi.set(progetto.id, new Set(progetto.compiti.map((c) => c.id)))
   moduloCompito({ progetto })
 }

@@ -42,6 +42,9 @@ const it = {
     'vengono dalle lezioni e dal loro consuntivo.',
   faseSenzaOre: 'nessuna lezione',
   faseVuota: 'Nessuna attività di un piano è in questa fase.',
+  parti: 'Parti del progetto',
+  esiti: 'Esiti',
+  esitiAiuto: 'Giudizi, valutazioni e presenze del progetto',
   statiAttivita: { 'da-fare': 'da fare', svolta: 'svolta', parziale: 'in parte', saltata: 'saltata' },
   valutazioniDelProgetto: 'Valutazioni del progetto',
   valutazioniAiuto:
@@ -103,6 +106,9 @@ export const testi = catalogo(it, {
       'Fortschritt kommen aus den Stunden und ihrem Rückblick.',
     faseSenzaOre: 'keine Stunde',
     faseVuota: 'Keine Aktivität eines Plans ist in dieser Phase.',
+    parti: 'Teile des Projekts',
+    esiti: 'Ergebnisse',
+    esitiAiuto: 'Einschätzungen, Beurteilungen und Anwesenheit im Projekt',
     statiAttivita: { 'da-fare': 'offen', svolta: 'durchgeführt', parziale: 'teilweise', saltata: 'ausgelassen' },
     valutazioniDelProgetto: 'Beurteilungen des Projekts',
     valutazioniAiuto:
@@ -162,6 +168,9 @@ export const testi = catalogo(it, {
       'avancement viennent des périodes et de leur bilan.',
     faseSenzaOre: 'aucune période',
     faseVuota: 'Aucune activité d’un plan n’est dans cette phase.',
+    parti: 'Parties du projet',
+    esiti: 'Résultats',
+    esitiAiuto: 'Appréciations, évaluations et présences du projet',
     statiAttivita: { 'da-fare': 'à faire', svolta: 'faite', parziale: 'en partie', saltata: 'sautée' },
     valutazioniDelProgetto: 'Évaluations du projet',
     valutazioniAiuto:
@@ -220,6 +229,9 @@ export const testi = catalogo(it, {
       'from the lessons and their review.',
     faseSenzaOre: 'no lessons',
     faseVuota: 'No plan activity is in this phase.',
+    parti: 'Parts of the project',
+    esiti: 'Results',
+    esitiAiuto: 'Comments, assessments and attendance of the project',
     statiAttivita: { 'da-fare': 'to do', svolta: 'done', parziale: 'partly', saltata: 'skipped' },
     valutazioniDelProgetto: 'Assessments of the project',
     valutazioniAiuto:

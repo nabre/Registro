@@ -98,7 +98,8 @@ import { apriLezione } from './pages.js'
 // se ne sceglie uno, ma un piano a schermo c'è lo stesso.
 import { pianoMostrato, primaOraDelPiano, scordaEditorDelPiano } from './views/plans.js'
 import { apriProgetto, progettoMostrato } from './views/projects.js'
-import { moduloCompito, moduloCriteri, moduloFasi, moduloLivelli, moduloProgetto } from './forms/project.js'
+import { nuovoCompito } from './views/projects/tasks.js'
+import { moduloCriteri, moduloFasi, moduloLivelli, moduloProgetto } from './forms/project.js'
 // L'editor del calendario scrive a tasti fermi: vedi `eseguiComando`.
 import { esci as esciDallEditor, scriviInAttesa, spostamentoInAttesa } from './views/calendar/editor.js'
 
@@ -998,7 +999,7 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
       const progetto = progettoMostrato()
-      if (progetto) moduloCompito({ progetto })
+      if (progetto) nuovoCompito(progetto)
     },
   },
   {

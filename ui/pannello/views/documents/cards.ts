@@ -8,7 +8,7 @@ import { classeDelCorsoId, registroDelCorso } from '../../../../core/dominio/cou
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { progettiDelCorso } from '../../../../core/dominio/projects.js'
 import type { Allievo, Classe, Corso, Progetto } from '../../../../core/dominio/models.js'
-import { quieto, selettore } from '../../components/base.js'
+import { pulsante, quieto, selettore } from '../../components/base.js'
 import { h, type Figlio } from '../../dom.js'
 import {
   aggiorna,
@@ -26,50 +26,94 @@ import {
 } from './sheets.js'
 import { testi } from './cards.testi.js'
 
-/** I documenti che riguardano il corso intero: quelli che si consegnano. */
+/**
+ * I documenti che riguardano il corso intero: quelli che si consegnano. Con
+ * dei progetti nel corso stanno in linguette, come quelli delle persone e con
+ * la stessa scelta: «Corso» con i fogli del corso, poi una per progetto con il
+ * suo rapporto di classe.
+ */
 export function delCorso (corso: Corso): HTMLElement {
-  const semestreId = stato.semestreId
-  const contesto = { corsoId: corso.id, semestreId }
-  const schedaCorso = foglio('corso', corso.id, contesto)
-  // Il CSV accanto al PDF: lo stesso dato in due forme.
-  const presenzeCsv = foglio('presenze', corso.id, contesto, 'csv')
-  const valutazioniCsv = foglio('valutazioni', corso.id, contesto, 'csv')
+  const progetti = progettiDelCorso(stato.registro, corso.id)
+  const aperta = linguettaAperta(corso, progetti)
+  const progetto = progetti.find((p) => p.id === aperta) ?? null
   const t = testi()
 
   return schedaDiFogli({
     titolo: t.delCorso,
-    sottotitolo: conto(t.tuttaLaClasse(nomeSemestreScelto())),
-    contenuto: () => h(
-      'ul',
-      { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-corso-${corso.id}` } },
-      rigaFoglio({
-        etichetta: nome(t.schedaCorso),
-        foglio: schedaCorso,
-        nome: t.nomeSchedaCorso,
-        rifai: { tipo: 'rapporto.genera', genere: 'corso', id: corso.id, semestreId },
-      }),
-      rigaFoglio({
-        etichetta: nome(t.presenzeCsv),
-        foglio: presenzeCsv,
-        nome: t.nomePresenzeCsv,
-        rifai: { tipo: 'esporta.presenze', corsoId: corso.id, semestreId },
-      }),
-      rigaFoglio({
-        etichetta: nome(t.valutazioniCsv),
-        foglio: valutazioniCsv,
-        nome: t.nomeValutazioniCsv,
-        rifai: { tipo: 'esporta.valutazioni', corsoId: corso.id, semestreId },
-      }),
-      // Un rapporto per progetto del corso: non ha periodo, vale per tutto il progetto.
-      progettiDelCorso(stato.registro, corso.id).map((progetto) =>
-        rigaFoglio({
-          etichetta: nome(t.progetto(progetto.titolo)),
-          foglio: foglio('progetto-classe', progetto.id),
-          nome: t.nomeProgetto(progetto.titolo),
-          rifai: { tipo: 'rapporto.genera', genere: 'progetto-classe', id: progetto.id },
-        })),
-    ),
+    sottotitolo: conto(progetto ? t.tuttoIlProgetto : t.tuttaLaClasse(nomeSemestreScelto())),
+    contenuto: () => [
+      linguette(corso, progetti, aperta),
+      progetto ? fogliDelProgetto(corso, progetto) : fogliDelCorso(corso),
+    ],
   })
+}
+
+/** I fogli del corso come gruppo: la scheda in PDF e, accanto, lo stesso dato in CSV. */
+function fogliDelCorso (corso: Corso): HTMLElement {
+  const semestreId = stato.semestreId
+  const contesto = { corsoId: corso.id, semestreId }
+  const t = testi()
+  return h(
+    'ul',
+    { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-corso-${corso.id}` } },
+    rigaFoglio({
+      etichetta: nome(t.schedaCorso),
+      foglio: foglio('corso', corso.id, contesto),
+      nome: t.nomeSchedaCorso,
+      rifai: { tipo: 'rapporto.genera', genere: 'corso', id: corso.id, semestreId },
+    }),
+    rigaFoglio({
+      etichetta: nome(t.presenzeCsv),
+      foglio: foglio('presenze', corso.id, contesto, 'csv'),
+      nome: t.nomePresenzeCsv,
+      rifai: { tipo: 'esporta.presenze', corsoId: corso.id, semestreId },
+    }),
+    rigaFoglio({
+      etichetta: nome(t.valutazioniCsv),
+      foglio: foglio('valutazioni', corso.id, contesto, 'csv'),
+      nome: t.nomeValutazioniCsv,
+      rifai: { tipo: 'esporta.valutazioni', corsoId: corso.id, semestreId },
+    }),
+  )
+}
+
+/**
+ * Il rapporto di classe di un progetto, senza periodo: vale per tutto il
+ * progetto. Sotto, quanti rapporti individuali sono già fatti, con il rimando
+ * alla scheda delle persone, che li elenca: qui non sono righe, così il conto
+ * in testa e le frecce dell'anteprima restano su quel che si vede.
+ */
+function fogliDelProgetto (corso: Corso, progetto: Progetto): Figlio[] {
+  const t = testi()
+  const classe = classeDelCorsoId(stato.registro, corso.id)
+  const allievi = classe ? allieviAttivi(classe) : []
+  const pronti = allievi
+    .filter((a) => foglio('progetto-allievo', progetto.id, { allievoId: a.id }).trovato)
+    .length
+  return [
+    h(
+      'ul',
+      { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-corso-${corso.id}-${progetto.id}` } },
+      rigaFoglio({
+        etichetta: nome(t.rapportoDiClasse),
+        foglio: foglio('progetto-classe', progetto.id),
+        nome: t.nomeProgetto(progetto.titolo),
+        rifai: { tipo: 'rapporto.genera', genere: 'progetto-classe', id: progetto.id },
+      }),
+    ),
+    allievi.length === 0
+      ? null
+      : h(
+          'p',
+          { class: 'documenti__rimando' },
+          h('span', { class: 'testo-quieto' }, t.individualiPronti(pronti, allievi.length)),
+          pulsante({
+            testo: t.vediIndividuali,
+            variante: 'sottile',
+            al: () => aggiorna({ schedaDocumenti: 'allievi' }),
+          }),
+        ),
+  ]
 }
 
 /**
@@ -139,12 +183,33 @@ export function dellaClasse (corso: Corso): Figlio {
 // ----------------------------------------------------------- degli allievi
 
 /**
- * La linguetta aperta fra i documenti delle persone di un corso: quella
- * ricordata, se il suo progetto c'è ancora; altrimenti «Corso».
+ * La linguetta aperta fra i documenti di un corso, la stessa in «Del corso» e
+ * fra quelli delle persone: quella ricordata, se il suo progetto c'è ancora;
+ * altrimenti «Corso».
  */
-function linguettaAllievi (corso: Corso, progetti: readonly Progetto[]): string {
+function linguettaAperta (corso: Corso, progetti: readonly Progetto[]): string {
   const ricordata = stato.linguetteDocumenti[corso.id]
   return ricordata && progetti.some((p) => p.id === ricordata) ? ricordata : 'corso'
+}
+
+/** «Corso» e una linguetta per progetto; senza progetti niente. */
+function linguette (corso: Corso, progetti: readonly Progetto[], aperta: string): Figlio {
+  if (progetti.length === 0) return null
+  const t = testi()
+  return h(
+    'div',
+    { class: 'documenti__linguette' },
+    selettore(
+      aperta,
+      [
+        { valore: 'corso', testo: t.dettaglioCorso },
+        ...progetti.map((p) => ({ valore: p.id, testo: p.titolo, simbolo: 'progetto' as const })),
+      ],
+      (scelta) =>
+        aggiorna({ linguetteDocumenti: { ...stato.linguetteDocumenti, [corso.id]: scelta } }),
+      t.linguette,
+    ),
+  )
 }
 
 /**
@@ -157,26 +222,9 @@ export function schedeAllievo (corso: Corso): HTMLElement {
   const classe = classeDelCorsoId(stato.registro, corso.id)
   const allievi = classe ? ordinaAllievi(allieviAttivi(classe)) : []
   const progetti = progettiDelCorso(stato.registro, corso.id)
-  const aperta = linguettaAllievi(corso, progetti)
+  const aperta = linguettaAperta(corso, progetti)
   const progetto = progetti.find((p) => p.id === aperta) ?? null
   const t = testi()
-
-  const linguette = progetti.length > 0
-    ? h(
-        'div',
-        { class: 'documenti__linguette' },
-        selettore(
-          aperta,
-          [
-            { valore: 'corso', testo: t.dettaglioCorso },
-            ...progetti.map((p) => ({ valore: p.id, testo: p.titolo, simbolo: 'progetto' as const })),
-          ],
-          (scelta) =>
-            aggiorna({ linguetteDocumenti: { ...stato.linguetteDocumenti, [corso.id]: scelta } }),
-          t.linguetteAllievi,
-        ),
-      )
-    : null
 
   return schedaDiFogli({
     titolo: lessico().documentoSchede,
@@ -184,7 +232,7 @@ export function schedeAllievo (corso: Corso): HTMLElement {
       ? t.progettoConto(allievi.length)
       : t.schedeConto(allievi.length, nomeSemestreScelto())),
     contenuto: () => [
-      linguette,
+      linguette(corso, progetti, aperta),
       allievi.length === 0
         ? quieto(t.nessunaPersona)
         : h(

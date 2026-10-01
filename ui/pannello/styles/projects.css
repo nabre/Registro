@@ -52,6 +52,54 @@
   background: var(--negativo);
 }
 
+/* Sotto le schede sempre in vista, le linguette e la scheda (o le schede) della scelta. */
+.progetto-linguette { display: flex; flex-direction: column; gap: var(--spazio-3); min-width: 0; }
+
+.progetto-linguette__gruppo { flex-wrap: wrap; align-self: flex-start; max-width: 100%; }
+
+/* Le fasi ripiegate: la testata è un pulsante, sotto la barra, aperta il corpo. */
+.fasi-progetto { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
+.fase-progetto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+  padding-bottom: var(--spazio-2);
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.fase-progetto:last-child { padding-bottom: 0; border-bottom: none; }
+
+.fase-progetto__titolo { margin: 0; font-size: 1em; }
+
+.fase-progetto__interruttore {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  width: 100%;
+  padding: var(--spazio-1) 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fase-progetto__interruttore:hover .fase-progetto__nome { text-decoration: underline; }
+
+.fase-progetto__nome { font-weight: 600; }
+
+.fase-progetto__freccia {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--testo-quieto);
+}
+
+.fase-progetto__corpo { display: flex; flex-direction: column; gap: var(--spazio-2); }
+
 .compito-progetto { display: flex; flex-direction: column; gap: var(--spazio-2); min-width: 0; }
 
 .compito-progetto__testata {
@@ -60,8 +108,6 @@
   align-items: center;
   gap: var(--spazio-2);
 }
-
-.compito-progetto__titolo { margin: 0; font-size: 1em; }
 
 /* La descrizione sta nella riga dei dettagli: due righe al più, intera nel titolo. */
 .compito-progetto__descrizione {

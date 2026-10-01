@@ -4,12 +4,16 @@
 // Il ponte di prova risponde «fatto» a ogni azione e non riscrive il registro:
 // qui si guarda che cosa parte a ogni gesto.
 //
-// - nella pagina: i compiti stanno a linguette, la scelta si ricorda per
+// - nella pagina: testata, criteri e compiti in vista, sotto le linguette
+//   Fasi, Matrice ed Esiti, ricordate per progetto; le fasi si aprono e si
+//   chiudono, di serie è aperta quella di oggi;
+// - i compiti stanno a linguette, la scelta si ricorda per
 //   progetto e le frecce la cambiano; il clic sull'inizio comincia oggi (senza data, solo per chi
 //   non aveva cominciato), il clic sulla casella della matrice sale al primo
 //   livello, i criteri si aggiungono tenendo l'id, e togliere un criterio con
 //   delle caselle chiede prima e conferma con `scartaCelle`; compito e
-//   progetto nuovi partono dalle loro finestre;
+//   progetto nuovi partono dalle loro finestre, e il compito nuovo del comando
+//   della barra apre la sua linguetta quando l'host lo rimanda;
 // - nell'ora: la scheda Progetto lega inizio e casella alla lezione, e un'ora
 //   conclusa spegne i controlli; la scheda c'è solo se il piano dell'ora nomina
 //   un progetto, e con due progetti ha una linguetta per progetto;
@@ -67,14 +71,44 @@ test('progetti', async ({ browser }) => {
   // griglia del solo compito aperto, una riga per persona.
   const vista = page.locator('.vista--progetti')
   await expect(vista.locator('.elenco-laterale')).toContainText('Giornale di classe')
+  // Sotto le schede in vista, le linguette del progetto: si parte dalle fasi.
+  const parti = vista.getByRole('tablist', { name: 'Parti del progetto' })
+  await expect(parti.getByRole('tab')).toHaveCount(3)
+  await expect(parti.getByRole('tab', { name: 'Fasi' })).toHaveAttribute('aria-selected', 'true')
   await expect(vista.locator('.fase-progetto')).toHaveCount(2)
+  // Le fasi ripiegate: aperta quella di oggi, con le sue attività; l'altra dice solo testata.
+  const fase1 = vista.locator('[data-fuoco="fase:prg-prova:f1"]')
+  const fase2 = vista.locator('[data-fuoco="fase:prg-prova:f2"]')
+  await expect(fase1).toHaveAttribute('aria-expanded', 'true')
+  await expect(fase2).toHaveAttribute('aria-expanded', 'false')
+  await expect(vista.locator('.fase-progetto__corpo')).toHaveCount(1)
+  await expect(vista.locator('.fase-progetto__corpo')).toContainText('Intervista')
+  await fase2.click()
+  await expect(fase2).toHaveAttribute('aria-expanded', 'true')
+  await expect(fase1).toHaveAttribute('aria-expanded', 'true')
+  await fase1.click()
+  await expect(fase1).toHaveAttribute('aria-expanded', 'false')
+  await expect(vista.locator('.fase-progetto__corpo')).toHaveCount(1)
+  await expect(fase1).toBeFocused()
+  // Matrice ed Esiti: le frecce scelgono, il fuoco segue, la scelta si ricorda per progetto.
+  await parti.getByRole('tab', { name: 'Matrice' }).click()
+  await expect(vista.locator('.fase-progetto')).toHaveCount(0)
+  expect(await valuta(page, "prova.stato.linguetteProgetti['prg-prova']")).toBe('matrice')
+  await page.keyboard.press('ArrowRight')
+  await expect(parti.getByRole('tab', { name: 'Esiti' })).toHaveAttribute('aria-selected', 'true')
+  await expect(parti.getByRole('tab', { name: 'Esiti' })).toBeFocused()
+  await expect(vista.getByRole('tabpanel').filter({ hasText: 'Valutazioni del progetto' })).toHaveCount(1)
+  await page.keyboard.press('ArrowLeft')
+  await expect(parti.getByRole('tab', { name: 'Matrice' })).toHaveAttribute('aria-selected', 'true')
+  // Testata, criteri e compiti restano dove sono qualunque sia la linguetta.
+  await expect(vista.getByRole('button', { name: 'Criteri', exact: true })).toHaveCount(1)
   const linguette = vista.getByRole('tablist', { name: 'Compiti' })
   await expect(linguette.getByRole('tab')).toHaveCount(2)
   await expect(linguette.getByRole('tab', { name: /Scaletta/ })).toHaveAttribute('aria-selected', 'true')
   // Il secondo è oltre la fine per chi non l'ha finito: il pallino lo dice da spento.
   await expect(linguette.getByRole('tab', { name: /Intervista/ }).locator('.linguetta-compito__allarme')).toHaveCount(1)
   await expect(vista.locator('.compito-progetto')).toHaveCount(1)
-  await expect(vista.getByRole('tabpanel')).toHaveCount(1)
+  await expect(vista.locator('.compiti-progetto').getByRole('tabpanel')).toHaveCount(1)
 
   // Scegliere una linguetta non scrive niente: cambia la griglia e si ricorda per progetto.
   await valuta(page, 'richieste.length = 0')
@@ -157,8 +191,11 @@ test('progetti', async ({ browser }) => {
   })
   await attendiRisposte(page)
 
-  // Un compito nuovo.
-  await vista.getByRole('button', { name: 'Nuovo compito' }).first().click()
+  // Dopo tanti ridisegni la linguetta scelta è ancora la matrice.
+  await expect(parti.getByRole('tab', { name: 'Matrice' })).toHaveAttribute('aria-selected', 'true')
+
+  // Un compito nuovo, dal comando della barra.
+  await page.locator('[data-fuoco="comando-progetto.nuovoCompito"]').click()
   finestra = page.locator('form.modale')
   await finestra.locator('input[name="titolo"]').fill('Prima stesura')
   await valuta(page, 'richieste.length = 0')
@@ -168,6 +205,18 @@ test('progetti', async ({ browser }) => {
   expect(compito.compito.titolo).toBe('Prima stesura')
   expect(compito.compito.id).toBeUndefined()
   await expect(finestra).toHaveCount(0)
+  // L'host lo rimanda: la sua linguetta si apre.
+  await valuta(page, `() => {
+    const r = prova.stato.registro
+    const nuovo = { id: 'cmp3', titolo: 'Prima stesura', fine: null, fineLezioneId: null,
+      inizi: [], proroghe: [], fatti: [] }
+    prova.aggiorna({ registro: { ...r, progetti: r.progetti.map((p) =>
+      p.id === 'prg-prova' ? { ...p, compiti: [...p.compiti, nuovo] } : p) } })
+  }`)
+  await valuta(page, FOTOGRAMMA)
+  await expect(linguette.getByRole('tab', { name: /Prima stesura/ })).toHaveAttribute('aria-selected', 'true')
+  expect(await valuta(page, "prova.stato.compitiScelti['prg-prova']")).toBe('cmp3')
+  await attendiRisposte(page)
 
   // Un progetto nuovo, dall'elenco.
   await vista.locator('.elenco-laterale').getByRole('button', { name: 'Nuovo progetto' }).click()
@@ -183,7 +232,7 @@ test('progetti', async ({ browser }) => {
 
   // Nell'ora: la scheda Progetto lega l'inizio e la casella alla lezione.
   await valuta(page, `() => {
-    prova.aggiorna({ schedaLezione: 'progetto' })
+    prova.aggiorna({ schedaLezione: 'progetto', compitiScelti: {} })
     prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: 'lez-prg' } })
   }`)
   await valuta(page, FOTOGRAMMA)
@@ -191,7 +240,7 @@ test('progetti', async ({ browser }) => {
   await expect(ora.locator('.compito-progetto')).toHaveCount(1)
   // Un progetto solo nel piano: niente linguette dei progetti, quelle dei compiti sì.
   await expect(ora.getByRole('radiogroup', { name: 'Progetti' })).toHaveCount(0)
-  await expect(ora.getByRole('tablist', { name: 'Compiti' }).getByRole('tab')).toHaveCount(2)
+  await expect(ora.getByRole('tablist', { name: 'Compiti' }).getByRole('tab')).toHaveCount(3)
   await valuta(page, 'richieste.length = 0')
   await ora.locator(`[data-fuoco="inizio-cmp1-${allievo}"]`).click()
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.compito.inizia')")

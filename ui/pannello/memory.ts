@@ -40,6 +40,8 @@ export const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as cons
 export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni', 'docente'] as const
 export const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const
 export const MODI_CALENDARIO = ['settimana', 'mese', 'anno', 'agenda'] as const
+/** Le linguette della colonna destra di un progetto, nella pagina Progetti. */
+export const LINGUETTE_PROGETTO = ['fasi', 'matrice', 'esiti'] as const
 
 /** Le preferenze di forma: valgono per ogni documento. */
 export interface Globali {
@@ -81,6 +83,8 @@ interface PreferenzeDocumento {
   classiApertePersone: string[]
   /** Il compito aperto a linguette, per progetto: id del progetto → id del compito. */
   compitiScelti: Record<string, string>
+  /** La linguetta aperta a destra nella pagina Progetti, per progetto. */
+  linguetteProgetti: Record<string, (typeof LINGUETTE_PROGETTO)[number]>
   /** La linguetta aperta fra i documenti delle persone, per corso: `'corso'` o id del progetto. */
   linguetteDocumenti: Record<string, string>
   ricerca: string
@@ -127,6 +131,7 @@ export const LIMITE_CARATTERI = 256000
 
 const MASSIMO_CLASSI_APERTE = 100
 const MASSIMO_COMPITI_SCELTI = 100
+const MASSIMO_LINGUETTE_PROGETTI = 100
 const MASSIMO_LINGUETTE_DOCUMENTI = 100
 const MASSIMO_ID = 200
 const MASSIMO_RICERCA = 200
@@ -192,6 +197,18 @@ function coppie (valore: unknown, massimo: number): Record<string, string> | und
     const scelto = id(voce)
     // `__proto__` da `JSON.parse` è una chiave vera: assegnata, cambierebbe il prototipo.
     if (id(chiave) && chiave !== '__proto__' && scelto) buone[chiave] = scelto
+  }
+  return buone
+}
+
+/** Le linguette dei progetti: coppie buone con una linguetta che c'è ancora. */
+function linguetteDa (valore: unknown): PreferenzeDocumento['linguetteProgetti'] | undefined {
+  const tutte = coppie(valore, MASSIMO_LINGUETTE_PROGETTI)
+  if (!tutte) return undefined
+  const buone: PreferenzeDocumento['linguetteProgetti'] = {}
+  for (const [progetto, linguetta] of Object.entries(tutte)) {
+    const nota = ammesso(LINGUETTE_PROGETTO, linguetta)
+    if (nota) buone[progetto] = nota
   }
   return buone
 }
@@ -306,6 +323,7 @@ function preferenzeDa (
         : undefined,
     classiApertePersone: elenco(grezzo.classiApertePersone, MASSIMO_CLASSI_APERTE, MASSIMO_ID),
     compitiScelti: coppie(grezzo.compitiScelti, MASSIMO_COMPITI_SCELTI),
+    linguetteProgetti: linguetteDa(grezzo.linguetteProgetti),
     linguetteDocumenti: coppie(grezzo.linguetteDocumenti, MASSIMO_LINGUETTE_DOCUMENTI),
     ricerca: typeof ricerca === 'string' ? ricerca.slice(0, MASSIMO_RICERCA) : undefined,
   })

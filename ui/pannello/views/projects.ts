@@ -1,7 +1,8 @@
 // I progetti del corso (ADR-54): l'elenco a sinistra, il progetto aperto a
-// destra. Si sviluppano qui testata, criteri e livelli, compiti con inizio e
-// proroga per persona, la matrice a livelli giorno per giorno e i giudizi; le
-// lezioni e le valutazioni del progetto si ricavano da piani e momenti.
+// destra. Testata, criteri e livelli, compiti con inizio e proroga per persona
+// restano in vista; sotto, a linguette, le fasi, la matrice a livelli giorno
+// per giorno e gli esiti (giudizi, valutazioni, presenze). Le lezioni e le
+// valutazioni del progetto si ricavano da piani e momenti.
 
 import { confrontaLezioni, nomeCompleto } from '../../../core/dominio/calculations.js'
 import { formattaData } from '../../../core/dominio/dates.js'
@@ -40,7 +41,7 @@ import { menuSotto, type ElementoMenu } from '../components/menu.js'
 import { inTelaio } from '../components/table.js'
 import { azione } from '../bridge.js'
 import { corsoDelContesto, nomeDelCorso } from '../context.js'
-import { h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '../dom.js'
 import { moduloAnno } from '../forms.js'
 import {
   allieviDelProgetto,
@@ -56,12 +57,14 @@ import {
 } from '../forms/project.js'
 import { apriLezione } from '../pages.js'
 import {
+  aggiorna,
   annoCorrente,
   lezioniDiCorso,
   progettoPerId,
   ridisegna,
   stato,
   vai,
+  type LinguettaProgetto,
 } from '../state.js'
 import { giudiziDelProgetto } from './projects/judgements.js'
 import { legendaLivelli, matriceProgetto, progressioneAllievo, type QuandoMatrice } from './projects/matrix.js'
@@ -366,59 +369,104 @@ const TONI_AVANZAMENTO: Record<StatoAttivita, TonoPastiglia> = {
 }
 
 /**
- * Le fasi del progetto, una sotto l'altra: periodo, quanto se n'è fatto, le
- * attività dei piani nelle ore (col loro stato) e le prove nate lì. Tutto si
- * ricava dal quadro del progetto: niente si scrive qui, tranne le fasi stesse.
+ * Le fasi aperte, per progetto: fuori dallo stato, durano quanto il pannello.
+ * Un progetto mai toccato apre la fase in cui cade oggi.
+ */
+const fasiAperte = new Map<string, Set<string>>()
+
+function faseAperta (progetto: Progetto, voce: QuadroDellaFase): boolean {
+  const aperte = fasiAperte.get(progetto.id)
+  if (aperte) return aperte.has(voce.fase.id)
+  const periodo = voce.periodo
+  return periodo !== null && periodo.inizio <= stato.adessoData && stato.adessoData <= periodo.fine
+}
+
+function invertiFase (progetto: Progetto, quadro: QuadroDelProgetto, voce: QuadroDellaFase): void {
+  const aperte = fasiAperte.get(progetto.id) ??
+    new Set(quadro.fasi.filter((v) => faseAperta(progetto, v)).map((v) => v.fase.id))
+  if (aperte.has(voce.fase.id)) aperte.delete(voce.fase.id)
+  else aperte.add(voce.fase.id)
+  fasiAperte.set(progetto.id, aperte)
+  ridisegna()
+}
+
+/**
+ * Le fasi del progetto, una sotto l'altra e ripiegate: chiuse dicono numero,
+ * titolo, periodo e quanto se n'è fatto; aperte le attività dei piani nelle
+ * ore (col loro stato) e le prove nate lì. Tutto si ricava dal quadro del
+ * progetto: niente si scrive qui, tranne le fasi stesse.
  */
 function schedaFasi (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement {
   const t = testi()
   const lezioni = new Map(stato.registro.lezioni.map((l) => [l.id, l]))
   const fase = (voce: QuadroDellaFase): HTMLElement => {
+    const aperta = faseAperta(progetto, voce)
+    // testo-fisso: id del DOM, non si legge
+    const idCorpo = `fase-corpo-${progetto.id}-${voce.fase.id}`
     // Le attività di un'ora insieme: l'ora una volta, con le sue tappe accanto.
     const perOra = new Map<string, AttivitaNellOra[]>()
     for (const a of voce.attivita) perOra.set(a.lezioneId, [...(perOra.get(a.lezioneId) ?? []), a])
+    const corpo = voce.attivita.length === 0
+      ? quieto(t.faseVuota)
+      : h(
+          'ul',
+          { class: 'lezioni-progetto' },
+          ...[...perOra].map(([lezioneId, attivita]) => {
+            const lezione = lezioni.get(lezioneId)
+            return h(
+              'li',
+              { class: 'lezioni-progetto__voce' },
+              lezione
+                ? collegamento({
+                    testo: etichettaOraMostrata(lezione),
+                    al: () => apriLezione(lezione.id),
+                  })
+                : h('span', null, formattaData(attivita[0].data)),
+              ...attivita.map((a) => pastiglia(
+                `${a.titolo || parole().senzaTitolo} · ${t.statiAttivita[a.stato]}`,
+                TONI_AVANZAMENTO[a.stato],
+                'piano',
+              )),
+            )
+          }),
+        )
     return h(
       'section',
-      { class: 'fase-progetto' },
+      { class: ['fase-progetto', aperta && 'fase-progetto--aperta'] },
       h(
-        'header',
-        { class: 'compito-progetto__testata' },
-        h('h4', { class: 'compito-progetto__titolo' }, `${voce.numero}. ${voce.fase.titolo}`),
-        h('span', { class: 'testo-quieto' }, voce.periodo ? periodoScritto(voce.periodo) : t.faseSenzaOre),
+        'h4',
+        { class: 'fase-progetto__titolo' },
+        h(
+          'button',
+          {
+            class: 'fase-progetto__interruttore',
+            type: 'button',
+            attr: { 'aria-expanded': String(aperta), 'aria-controls': aperta ? idCorpo : undefined },
+            // testo-fisso: chiave di fuoco, non si legge
+            dataset: { fuoco: `fase:${progetto.id}:${voce.fase.id}` },
+            onclick: () => invertiFase(progetto, quadro, voce),
+          },
+          icona(aperta ? 'giu' : 'destra', 'fase-progetto__freccia'),
+          h('span', { class: 'fase-progetto__nome' }, `${voce.numero}. ${voce.fase.titolo}`),
+          h('span', { class: 'testo-quieto' }, voce.periodo ? periodoScritto(voce.periodo) : t.faseSenzaOre),
+        ),
       ),
       voce.attivita.length > 0
         ? barra(voce.quota, voce.quota >= 1 ? 'positivo' : 'informativo', t.avanzamentoDi(voce.fase.titolo))
         : null,
-      voce.attivita.length === 0
-        ? quieto(t.faseVuota)
-        : h(
-            'ul',
-            { class: 'lezioni-progetto' },
-            ...[...perOra].map(([lezioneId, attivita]) => {
-              const lezione = lezioni.get(lezioneId)
-              return h(
-                'li',
-                { class: 'lezioni-progetto__voce' },
-                lezione
-                  ? collegamento({
-                      testo: etichettaOraMostrata(lezione),
-                      al: () => apriLezione(lezione.id),
-                    })
-                  : h('span', null, formattaData(attivita[0].data)),
-                ...attivita.map((a) => pastiglia(
-                  `${a.titolo || parole().senzaTitolo} · ${t.statiAttivita[a.stato]}`,
-                  TONI_AVANZAMENTO[a.stato],
-                  'piano',
-                )),
-              )
-            }),
-          ),
-      voce.momenti.length > 0
+      aperta
         ? h(
-            'p',
-            { class: 'testo-quieto' },
-            icona('valutazioni', 'icona--minuta'),
-            ` ${voce.momenti.map((m) => m.titolo).join(', ')}`,
+            'div',
+            { class: 'fase-progetto__corpo', id: idCorpo },
+            corpo,
+            voce.momenti.length > 0
+              ? h(
+                  'p',
+                  { class: 'testo-quieto' },
+                  icona('valutazioni', 'icona--minuta'),
+                  ` ${voce.momenti.map((m) => m.titolo).join(', ')}`,
+                )
+              : null,
           )
         : null,
     )
@@ -435,7 +483,7 @@ function schedaFasi (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement
       variante: 'sottile',
       al: () => moduloFasi(progetto.id),
     }),
-    contenuto: h('div', { class: 'compiti-progetto' }, ...quadro.fasi.map(fase)),
+    contenuto: h('div', { class: 'fasi-progetto' }, ...quadro.fasi.map(fase)),
   })
 }
 
@@ -531,6 +579,105 @@ function schedaValutazioni (progetto: Progetto): HTMLElement {
   })
 }
 
+// testo-fisso: prefisso di id del DOM, non si legge
+const idLinguettaProgetto = (linguetta: LinguettaProgetto): string => `progetto-linguetta-${linguetta}`
+// testo-fisso: id del DOM, non si legge
+const ID_PANNELLO_PROGETTO = 'progetto-pannello'
+
+/** La linguetta ricordata del progetto; mai scelta, le fasi. */
+function linguettaAperta (progetto: Progetto): LinguettaProgetto {
+  return stato.linguetteProgetti[progetto.id] ?? 'fasi'
+}
+
+/** Le scelte con questa in fondo: la memoria tiene le ultime. */
+function conLinguetta (
+  progettoId: string,
+  linguetta: LinguettaProgetto,
+): Record<string, LinguettaProgetto> {
+  const scelte = { ...stato.linguetteProgetti }
+  delete scelte[progettoId]
+  scelte[progettoId] = linguetta
+  return scelte
+}
+
+/**
+ * Sotto testata, criteri e compiti, sempre in vista, il resto a linguette:
+ * fasi, matrice ed esiti (giudizi, valutazioni, presenze). Come quelle dei
+ * compiti: le frecce, Inizio e Fine scelgono e il fuoco segue.
+ */
+function linguetteDelProgetto (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement {
+  const t = testi()
+  const aperta = linguettaAperta(progetto)
+  const voci: Array<{ valore: LinguettaProgetto, testo: string, titolo?: string }> = [
+    { valore: 'fasi', testo: t.fasi },
+    { valore: 'matrice', testo: t.matrice },
+    { valore: 'esiti', testo: t.esiti, titolo: t.esitiAiuto },
+  ]
+  const scegli = (linguetta: LinguettaProgetto): void => {
+    if (linguetta !== aperta) aggiorna({ linguetteProgetti: conLinguetta(progetto.id, linguetta) })
+  }
+  const gruppo = h(
+    'div',
+    { class: ['selettore', 'progetto-linguette__gruppo'], attr: { role: 'tablist', 'aria-label': t.parti } },
+    ...voci.map((voce) => {
+      const accesa = voce.valore === aperta
+      return h(
+        'button',
+        {
+          class: ['selettore__voce', accesa && 'selettore__voce--attiva'],
+          type: 'button',
+          id: idLinguettaProgetto(voce.valore),
+          attr: {
+            role: 'tab',
+            'aria-selected': String(accesa),
+            'aria-controls': accesa ? ID_PANNELLO_PROGETTO : undefined,
+            tabindex: accesa ? 0 : -1,
+            title: voce.titolo,
+          },
+          // testo-fisso: chiave di fuoco, non si legge
+          dataset: { fuoco: `progetto-linguetta:${voce.valore}` },
+          onclick: () => scegli(voce.valore),
+        },
+        voce.testo,
+      )
+    }),
+  )
+  gestisci(gruppo, 'keydown', (evento) => {
+    const dove = voci.findIndex((v) => v.valore === aperta)
+    const tasto = evento.key
+    const indice = tasto === 'ArrowRight' || tasto === 'ArrowDown'
+      ? (dove + 1) % voci.length
+      : tasto === 'ArrowLeft' || tasto === 'ArrowUp'
+        ? (dove - 1 + voci.length) % voci.length
+        : tasto === 'Home' ? 0 : tasto === 'End' ? voci.length - 1 : -1
+    if (indice < 0) return
+    evento.preventDefault()
+    // Il fuoco passa prima alla linguetta nuova, così il ridisegno lo ritrova lì.
+    const linguette = (evento.currentTarget as HTMLElement).children
+    ;(linguette[indice] as HTMLElement | undefined)?.focus()
+    scegli(voci[indice].valore)
+  })
+  const contenuto: Figlio[] = aperta === 'fasi'
+    ? [schedaFasi(progetto, quadro)]
+    : aperta === 'matrice'
+      ? [schedaMatrice(progetto)]
+      : [schedaGiudizi(progetto), schedaValutazioni(progetto), schedaPresenze(progetto, quadro)]
+  return h(
+    'div',
+    { class: 'progetto-linguette' },
+    gruppo,
+    h(
+      'div',
+      {
+        class: 'colonna',
+        id: ID_PANNELLO_PROGETTO,
+        attr: { role: 'tabpanel', 'aria-labelledby': idLinguettaProgetto(aperta) },
+      },
+      ...contenuto,
+    ),
+  )
+}
+
 function dettaglio (progetto: Progetto): HTMLElement {
   const quadro = quadroDelProgetto(stato.registro, progetto)
   return h(
@@ -539,11 +686,7 @@ function dettaglio (progetto: Progetto): HTMLElement {
     schedaTestata(progetto),
     schedaCriteri(progetto),
     schedaCompiti(progetto),
-    schedaMatrice(progetto),
-    schedaGiudizi(progetto),
-    schedaFasi(progetto, quadro),
-    schedaPresenze(progetto, quadro),
-    schedaValutazioni(progetto),
+    linguetteDelProgetto(progetto, quadro),
   )
 }
 

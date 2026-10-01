@@ -29,17 +29,6 @@ controlli statici; skill `verifica`). Non prima.
 
 ## 2. Lavoro aperto
 
-### Progetti (ADR-54)
-
-- [ ] Pagina Progetti, colonna destra a linguette («Fasi», «Matrice»,
-      «Giudizi · Valutazioni · Presenze»; testata, criteri e compiti sempre in
-      vista) e fasi ripiegabili: proposta, da decidere con l'utente.
-- [ ] Il comando «Nuovo compito» della barra (`ui/pannello/commands.ts`) crea
-      il compito ma non apre la sua linguetta: passare da `nuovoCompito()` di
-      `views/projects/tasks.ts`.
-- [ ] Documenti › «Del corso»: le righe «Progetto: …» a linguette come gli
-      Allievi (`linguetteDocumenti[corso.id]` condivisa), se l'utente lo vuole.
-
 ### Archivio e sincronizzazione
 
 - [ ] Due PC sullo stesso `.regi`: con il file cambiato fuori, `salva` fa

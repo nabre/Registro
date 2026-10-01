@@ -1,12 +1,14 @@
-// Pagina Documenti, scheda delle persone in formazione: con dei progetti nel
-// corso i documenti stanno in linguette, «Corso» e una per progetto.
+// Pagina Documenti, schede delle persone in formazione e «Del corso»: con dei
+// progetti nel corso i documenti stanno in linguette, «Corso» e una per progetto.
 //
 // Si fissa che:
 //
 // - «Corso» ha le schede di ognuno e non più le righe dei progetti;
 // - la linguetta di un progetto ha una riga per persona, col suo rapporto;
 // - la scelta si ricorda per corso, regge un ridisegno, si cambia con le frecce;
-// - un progetto che sparisce riporta su «Corso», e senza progetti non c'è selettore.
+// - un progetto che sparisce riporta su «Corso», e senza progetti non c'è selettore;
+// - «Del corso» ha le stesse linguette e la stessa scelta: «Corso» con i fogli
+//   del corso, un progetto col suo rapporto di classe e il conto degli individuali.
 //
 // Esecuzione: `node esbuild.mjs --ui` e poi
 // `npx playwright test -c tests/interfaccia/playwright.config.ts documentsProjects`.
@@ -81,11 +83,42 @@ test('documentsProjects', async ({ browser }) => {
   await expect(voci).toHaveText(['Corso', 'Giornale di classe'])
   await expect(gruppo.getByRole('radio', { name: 'Corso' })).toHaveAttribute('aria-checked', 'true')
 
-  // Senza progetti niente linguette: solo le schede del corso.
+  // «Del corso»: le stesse linguette; «Corso» coi soli fogli del corso.
+  await valuta(page, "() => prova.aggiorna({ schedaDocumenti: 'corso' })")
+  await valuta(page, FRAME)
+  const delCorso = page.locator('.documenti--corso')
+  const gruppoCorso = delCorso.getByRole('radiogroup', { name: 'Corso o progetto' })
+  const righeCorso = delCorso.locator('.documenti__elenco .documenti__riga')
+  await expect(gruppoCorso.getByRole('radio')).toHaveText(['Corso', 'Giornale di classe'])
+  await expect(gruppoCorso.getByRole('radio', { name: 'Corso' })).toHaveAttribute('aria-checked', 'true')
+  await expect(righeCorso).toHaveCount(3)
+  await expect(delCorso).not.toContainText('Progetto:')
+
+  // Un progetto: il rapporto di classe solo, nel conto; gli individuali contati a parte.
+  await gruppoCorso.getByRole('radio', { name: 'Giornale di classe' }).click()
+  await valuta(page, FRAME)
+  expect(await valuta(page, `() => prova.stato.linguetteDocumenti['${corsoId}']`)).toBe('prg-a')
+  await expect(righeCorso).toHaveCount(1)
+  await expect(righeCorso).toContainText('Rapporto di classe')
+  await expect(delCorso.locator('.scheda__sottotitolo')).toContainText('0 di 1 nella cartella')
+  const rimando = delCorso.locator('.documenti__rimando')
+  await expect(rimando).toContainText(`1 di ${persone} nella cartella`)
+
+  // Il rimando porta alle persone, sulla stessa linguetta.
+  await rimando.getByRole('button').click()
+  await valuta(page, FRAME)
+  expect(await valuta(page, '() => prova.stato.schedaDocumenti')).toBe('allievi')
+  await expect(gruppo.getByRole('radio', { name: 'Giornale di classe' })).toHaveAttribute('aria-checked', 'true')
+
+  // Senza progetti niente linguette: solo le schede del corso, e in «Del corso» i suoi fogli.
   await valuta(page, '() => prova.aggiorna({ registro: { ...prova.stato.registro, progetti: [] } })')
   await valuta(page, FRAME)
   await expect(gruppo).toHaveCount(0)
   await expect(elenco.locator('.documenti__riga').first()).toContainText('· Corso')
+  await valuta(page, "() => prova.aggiorna({ schedaDocumenti: 'corso' })")
+  await valuta(page, FRAME)
+  await expect(gruppoCorso).toHaveCount(0)
+  await expect(righeCorso).toHaveCount(3)
 
   expect(errori).toEqual([])
 })

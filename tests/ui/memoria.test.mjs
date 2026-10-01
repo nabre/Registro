@@ -202,6 +202,17 @@ describe('la memoria del pannello', () => {
     assert.equal(tenute.at(-1), 'prg-149')
   })
 
+  it('la linguetta di un progetto: solo quelle che ci sono, le ultime se troppe', () => {
+    const grezze = JSON.parse('{"prg-1":"matrice","__proto__":"fasi","prg-2":"giudizi","prg-3":"esiti","prg-4":7}')
+    const stella = leggiMemoria({ ...VECCHIO, linguetteProgetti: grezze }).documenti['*']
+    assert.deepEqual({ ...stella.linguetteProgetti }, { 'prg-1': 'matrice', 'prg-3': 'esiti' })
+    assert.ok(!('linguetteProgetti' in leggiMemoria({ ...VECCHIO, linguetteProgetti: 'fasi' }).documenti['*']))
+    const molte = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`prg-${i}`, 'fasi']))
+    const tenute = Object.keys(leggiMemoria({ ...VECCHIO, linguetteProgetti: molte }).documenti['*'].linguetteProgetti)
+    assert.equal(tenute.length, 100)
+    assert.equal(tenute.at(-1), 'prg-149')
+  })
+
   it('JSON rotto e forme strane danno una memoria vuota', () => {
     for (const strano of [null, undefined, '{rotto', 'null', 42, [], [1, 2], true, '']) {
       const memoria = leggiMemoria(strano)

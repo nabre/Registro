@@ -1,8 +1,10 @@
 // Tutto quel che il registro sa stampare, in una pagina sola, per chi deve
 // consegnare.
 // Le schede: Corso (i fogli della classe come gruppo), Lezioni (matrice data ×
-// documento: piano prima dell'ora, verbale dopo), Allievi (una scheda a testa;
-// con dei progetti, a linguette: «Corso» e una per progetto), Docente (le supplenze tenute nel corso). Ogni riga dice se il foglio c'è, si rifà, si butta e si
+// documento: piano prima dell'ora, verbale dopo), Allievi (una scheda a testa),
+// Docente (le supplenze tenute nel corso). Con dei progetti, «Del corso» e
+// Allievi stanno a linguette, «Corso» e una per progetto, con una scelta sola
+// per tutte e due. Ogni riga dice se il foglio c'è, si rifà, si butta e si
 // guarda nella cornice accanto, che mostra il file vero. Rifare un foglio lo
 // apre nella cornice. In testa alla cornice posizione, frecce e gesti del foglio.
 // La pagina non porta altrove: premere una riga apre il suo documento.
