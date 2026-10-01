@@ -197,6 +197,15 @@ File generati, non scritti a mano: `resources/tools.json` (`npm run tools`),
 `tests/samples/anno_esempio.regi` (`npm run sample`), le icone di `icons/`
 (`npm run icons`, dai disegni in `resources/`).
 
+Strumenti a mano, senza script npm:
+
+- `node tools/screenshotDocs.mjs` (dopo `node esbuild.mjs --ui`): rifà le
+  immagini di `docs/immagini/` su un registro sintetico; `--cartella <dir>`
+  scrive altrove, per confrontare.
+- `tools/mail-probe.ps1` (PowerShell): sonda della posta, prova le vie con cui
+  il registro entra in una casella Microsoft 365 e se la consegna SMTP è
+  accesa, senza spedire niente.
+
 ## Pacchetto e aggiornamenti
 
 - `npm run package`: aggiorna il calendario scolastico (`npm run calendario`:
