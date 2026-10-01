@@ -613,7 +613,10 @@ const it = {
         termine: PENDENZE,
         testo:
           'Quante cose restano aperte in tutte le classi: le stesse della pagina a cui porta ' +
-          'il clic. Fermandosi sopra si legge quante sono in ritardo.',
+          'il clic. Fermandosi sopra si legge quante sono in ritardo. Nelle pagine del ' +
+          'registro il numero è quello del corso aperto e, se della sua classe sei docente di ' +
+          'classe, accanto compare «2 di classe», quelle del fascicolo; il clic apre le ' +
+          `${CARTE.pendenza.plurale} sulla scheda di quel corso o di quella classe.`,
       },
       {
         termine: 'Corso e periodo',
@@ -1523,7 +1526,10 @@ export const testi = catalogo(it, {
           termine: Molti(DE.pendenza),
           testo:
             'Wie viel in allen Klassen offen ist: dasselbe wie auf der Seite, zu der der Klick ' +
-            'führt. Wer mit der Maus darauf verweilt, liest, wie viel davon überfällig ist.',
+            'führt. Wer mit der Maus darauf verweilt, liest, wie viel davon überfällig ist. ' +
+            'Auf den Seiten des Klassenbuchs ist es die Zahl des offenen Kurses; bist du ' +
+            'Klassenlehrperson seiner Klasse, steht daneben «2 der Klasse», die des Dossiers. ' +
+            'Der Klick öffnet die Pendenzen auf der Registerkarte dieses Kurses oder dieser Klasse.',
         },
         {
           termine: 'Kurs und Zeitraum',
@@ -2431,7 +2437,10 @@ export const testi = catalogo(it, {
           termine: Molti(FR.pendenza),
           testo:
             'Combien de choses restent ouvertes dans toutes les classes : les mêmes que sur la ' +
-            'page où mène le clic. En s’arrêtant dessus, on lit combien sont en retard.',
+            'page où mène le clic. En s’arrêtant dessus, on lit combien sont en retard. Dans ' +
+            'les pages du registre, c’est le nombre du cours ouvert ; si tu es maître de classe ' +
+            'de sa classe, « 2 de classe » apparaît à côté, celles du dossier. Le clic ouvre ' +
+            'les tâches en suspens sur l’onglet de ce cours ou de cette classe.',
         },
         {
           termine: 'Cours et période',
@@ -3319,7 +3328,10 @@ export const testi = catalogo(it, {
           termine: Molti(EN.pendenza),
           testo:
             'How many things are still open in all the classes: the same as on the page the ' +
-            'click leads to. Hovering over it shows how many are overdue.',
+            'click leads to. Hovering over it shows how many are overdue. On the pages of the ' +
+            'register it is the number of the open course; if you are the class teacher of its ' +
+            'class, «2 for the class» appears next to it, those of the class file. The click ' +
+            'opens the pending items on the tab of that course or class.',
         },
         {
           termine: 'Course and period',

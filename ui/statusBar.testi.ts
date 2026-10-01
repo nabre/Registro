@@ -29,6 +29,11 @@ const it = {
   pendenzeInRitardo: (urgenti: number, aperte: number) =>
     `${urgenti} in ritardo su ${aperte}.\nApri le ${CARTE.pendenza.plurale}`,
   pendenzeTitolo: `Quel che resta da chiudere.\nApri le ${CARTE.pendenza.plurale}`,
+  /** Il numero del fascicolo di classe, accanto a quello del corso. */
+  pendenzeDiClasse: (aperte: number) => `${aperte} di classe`,
+  /** La prima riga del titolo, sopra «in ritardo» o «quel che resta». */
+  pendenzeDelCorso: (corso: string) => `Corso ${corso}.\n`,
+  pendenzeDellaClasse: (classe: string) => `Docente di classe, ${classe}.\n`,
 
   legge: (numero: number, totale: number) => `legge ${numero} di ${totale}`,
   staLeggendo: (che: string) => `Sta leggendo ${che}`,
@@ -103,6 +108,9 @@ export const testi = catalogo(it, {
     pendenzeInRitardo: (urgenti, aperte) =>
       `${urgenti} von ${aperte} überfällig.\nÖffne die ${lessico().pendenza.plurale}`,
     pendenzeTitolo: 'Was noch abzuschliessen ist.\nÖffne die Pendenzen',
+    pendenzeDiClasse: (aperte) => `${aperte} der Klasse`,
+    pendenzeDelCorso: (corso) => `Kurs ${corso}.\n`,
+    pendenzeDellaClasse: (classe) => `Klassenlehrperson, ${classe}.\n`,
     legge: (numero, totale) => `liest ${numero} von ${totale}`,
     staLeggendo: (che) => `Liest ${che}`,
     staLeggendoTutto: 'Liest die Scans der wartenden PDFs',
@@ -171,6 +179,9 @@ ${perche}
     pendenzeInRitardo: (urgenti, aperte) =>
       `${urgenti} en retard sur ${aperte}.\nOuvre les ${lessico().pendenza.plurale}`,
     pendenzeTitolo: 'Ce qui reste à fermer.\nOuvre les tâches en suspens',
+    pendenzeDiClasse: (aperte) => `${aperte} de classe`,
+    pendenzeDelCorso: (corso) => `Cours ${corso}.\n`,
+    pendenzeDellaClasse: (classe) => `Maître de classe, ${classe}.\n`,
     legge: (numero, totale) => `lit ${numero} sur ${totale}`,
     staLeggendo: (che) => `Lecture de ${che}`,
     staLeggendoTutto: 'Lecture des scans des PDF en attente',
@@ -237,6 +248,9 @@ Ouvre les modèles de langage`,
     pendenzeInRitardo: (urgenti, aperte) =>
       `${urgenti} of ${aperte} overdue.\nOpen the ${lessico().pendenza.plurale}`,
     pendenzeTitolo: 'What is still to be closed.\nOpen the pending items',
+    pendenzeDiClasse: (aperte) => `${aperte} for the class`,
+    pendenzeDelCorso: (corso) => `Course ${corso}.\n`,
+    pendenzeDellaClasse: (classe) => `Class teacher, ${classe}.\n`,
     legge: (numero, totale) => `reading ${numero} of ${totale}`,
     staLeggendo: (che) => `Reading ${che}`,
     staLeggendoTutto: 'Reading the scans of the waiting PDFs',

@@ -1713,7 +1713,7 @@ function somma (conti: Iterable<Conto>): Conto {
 const NIENTE: Conto = { aperti: 0, urgenti: 0 }
 
 /**
- * Le pendenze che la barra conta: il totale di tutte le pendenze aperte
+ * Le pendenze che la barra laterale conta: il totale di tutte le pendenze aperte
  * per il filtro considerato (scheda todo attiva, corso o classe aperta, oppure
  * anno intero). Qui si sceglie soltanto quali conti sommare: i conti li fa
  * `pendenzeDellAnno`, una volta per giorno.
@@ -1765,6 +1765,29 @@ export function pendenzeDellaBarra (): Conto {
   }
 
   return somma([...corsi.values(), ...classi.values()])
+}
+
+/**
+ * Un numero della barra di stato. Con il corso o la classe, il clic apre le
+ * pendenze su quella scheda; senza, come la voce della barra laterale.
+ */
+export interface PendenzeDellaVoce extends Conto {
+  corso?: Corso;
+  classe?: Classe;
+}
+
+/**
+ * I numeri della barra di stato. Nelle pagine del registro (`corso`, dal
+ * gruppo di `pages.ts`) le pendenze di quel corso e, se della sua classe si è
+ * docente di classe, accanto quelle del fascicolo: sono due liste diverse, e
+ * sommate non direbbero più dove guardare. Fuori, il conto della barra laterale.
+ */
+export function pendenzeDellaBarraDiStato (corso: Corso | null): PendenzeDellaVoce[] {
+  const classe = corso ? classePerId(corso.classeId) : undefined
+  if (!corso || !classe) return [pendenzeDellaBarra()]
+  const voci: PendenzeDellaVoce[] = [{ ...contoDelCorso(corso), corso }]
+  if (classe.docenteDiClasse) voci.push({ ...contoDellaClasse(classe), classe })
+  return voci
 }
 
 /** Oggi se ci sono lezioni; altrimenti la prossima giornata del periodo scelto. */

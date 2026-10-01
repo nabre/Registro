@@ -14,13 +14,15 @@ import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/u
 import { h, type Figlio } from './dom.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
 import { isola } from './islands.js'
-import { apriLezione } from './pages.js'
+import { corsoDelContesto } from './context.js'
+import { apriLezione, paginaAttiva } from './pages.js'
 import {
   annoCorrente,
   nomeClasseDiLezione,
   nomeCorso,
   oreDaChiudereBarra,
-  pendenzeDellaBarra,
+  pendenzeDellaBarraDiStato,
+  type PendenzeDellaVoce,
   prossimaOra,
   stato,
   vai,
@@ -146,23 +148,11 @@ function vociDelRegistro (): Figlio[] {
 
 function vociDelLavoro (): Figlio[] {
   const voci: Figlio[] = []
-  const t = testi()
 
-  // Le stesse della pagina a cui porta il clic: vedi `pendenzeDellaBarra`.
-  const riepilogo = pendenzeDellaBarra()
-  if (riepilogo.aperti > 0) {
-    voci.push(
-      voce({
-        simbolo: 'spunta',
-        testo: t.pendenze(riepilogo.aperti),
-        titolo:
-          riepilogo.urgenti > 0
-            ? t.pendenzeInRitardo(riepilogo.urgenti, riepilogo.aperti)
-            : t.pendenzeTitolo,
-        tono: riepilogo.urgenti > 0 ? 'attenzione' : 'quiete',
-        al: () => { vai({ pagina: 'pagina.pendenze' }) },
-      }),
-    )
+  // Le stesse della pagina a cui porta il clic: vedi `pendenzeDellaBarraDiStato`.
+  const nelRegistro = paginaAttiva()?.gruppo === 'registro'
+  for (const conto of pendenzeDellaBarraDiStato(nelRegistro ? corsoDelContesto() : null)) {
+    if (conto.aperti > 0) voci.push(voceDellePendenze(conto))
   }
 
   // La lettura delle scansioni, in un'isola sua: avanza a ogni pagina letta e
@@ -171,6 +161,44 @@ function vociDelLavoro (): Figlio[] {
   voci.push(isola('barra-stato', voceDellaLettura, { style: 'display: contents' }))
 
   return voci
+}
+
+// testo-fisso: identificatore interno della scheda corso di `views/todo.ts`
+const schedaDelCorso = (id: string) => `corso:${id}`
+// testo-fisso: identificatore interno della scheda classe di `views/todo.ts`
+const schedaDellaClasse = (id: string) => `classe:${id}`
+
+/**
+ * Un numero di pendenze: del corso, del fascicolo di classe o quello della
+ * barra laterale. Il clic apre le pendenze sulla scheda dello stesso conto.
+ */
+function voceDellePendenze (conto: PendenzeDellaVoce): HTMLElement {
+  const t = testi()
+  const { corso, classe } = conto
+  const ritardo = conto.urgenti > 0
+    ? t.pendenzeInRitardo(conto.urgenti, conto.aperti)
+    : t.pendenzeTitolo
+  const di = corso
+    ? t.pendenzeDelCorso(nomeCorso(corso.id))
+    : classe ? t.pendenzeDellaClasse(classe.nome) : ''
+  return voce({
+    simbolo: classe ? 'classi' : 'spunta',
+    testo: classe ? t.pendenzeDiClasse(conto.aperti) : t.pendenze(conto.aperti),
+    titolo: di + ritardo,
+    tono: conto.urgenti > 0 ? 'attenzione' : 'quiete',
+    al: () => {
+      if (corso) {
+        vai({ pagina: 'pagina.pendenze' }, {
+          contesto: { corsoId: corso.id },
+          altro: { schedaTodo: schedaDelCorso(corso.id) },
+        })
+      } else if (classe) {
+        vai({ pagina: 'pagina.pendenze' }, { altro: { schedaTodo: schedaDellaClasse(classe.id) } })
+      } else {
+        vai({ pagina: 'pagina.pendenze' })
+      }
+    },
+  })
 }
 
 /** «legge 3/12»: solo mentre la lettura delle scansioni lavora. */
