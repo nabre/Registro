@@ -202,7 +202,7 @@ const it = {
           'Senza piano c’è **Assegna un piano**: i piani del corso, ciascuno con i minuti in più ' +
           'o in meno rispetto all’ora, e **Nuovo piano per questa lezione**. Con il piano, la ' +
           'matita **Modifica la scaletta** apre il piano nella sua pagina, con quest’ora accanto. ' +
-          'In aula le tappe si leggono come un elenco, senza riquadri.',
+          'Il piano sta sulla pagina, senza riquadro attorno: i riquadri sono le sue tappe.',
       },
       {
         termine: 'Le prove della lezione',
@@ -996,8 +996,8 @@ export const testi = catalogo(it, {
             'Ohne Plan gibt es **Plan zuweisen**: die Pläne des Kurses, jeder mit den Minuten ' +
             'mehr oder weniger im Vergleich zur Stunde, und **Neuer Plan für diese ' +
             'Stunde**. Mit Plan öffnet der Stift **Ablauf bearbeiten** den Plan auf seiner ' +
-            'Seite, mit dieser Stunde daneben. Im Zimmer liest man die Etappen als Liste, ohne ' +
-            'Kästen.',
+            'Seite, mit dieser Stunde daneben. Der Plan steht ohne Rahmen auf der Seite: die ' +
+            'Kästen sind seine Etappen.',
         },
         {
           termine: 'Die Prüfungen der Stunde',
@@ -1828,8 +1828,8 @@ export const testi = catalogo(it, {
             'Sans plan, il y a **Attribuer un plan** : les plans du cours, chacun avec les ' +
             'minutes en plus ou en moins par rapport à la leçon, et **Nouveau plan pour cette ' +
             'leçon**. Avec un plan, le crayon **Modifier le déroulement** ouvre le plan sur sa ' +
-            'page, avec cette leçon à côté. En classe, les étapes se lisent comme une liste, ' +
-            'sans cadres.',
+            'page, avec cette leçon à côté. Le plan est posé sur la page, sans cadre autour : ' +
+            'les cadres sont ses étapes.',
         },
         {
           termine: 'Les épreuves de la leçon',
@@ -2640,7 +2640,7 @@ export const testi = catalogo(it, {
             'Without a plan there is **Assign a plan**: the course’s plans, each with the ' +
             'minutes over or under compared with the lesson, and **New plan for this lesson**. ' +
             'With a plan, the pencil **Edit the outline** opens the plan on its page, with this ' +
-            'lesson alongside. In class the steps read as a list, without boxes.',
+            'lesson alongside. The plan sits on the page without a frame: the boxes are its steps.',
         },
         {
           termine: 'The lesson’s tests',

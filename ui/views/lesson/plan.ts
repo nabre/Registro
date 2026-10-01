@@ -215,6 +215,8 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
 
   return scheda({
     titolo: Uno(L.pianoLezione),
+    // Senza riquadro: il piano sta sulla pagina, le sue tappe sono i riquadri.
+    classe: 'scheda--nuda',
     // Il sottotitolo dice quanto pesa la scaletta, non il nome del piano.
     sottotitolo:
       `${quanti(piano.attivita.length, L.attivita)} · ` +

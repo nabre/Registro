@@ -413,18 +413,6 @@
 .scaletta__voce--parziale { border-left: 3px solid var(--attenzione); }
 .scaletta__voce--saltata { border-left: 3px solid var(--negativo); opacity: 0.6; }
 
-/*
- * In aula le tappe non sono riquadri: righe divise da un filo, e il piano si
- * legge come un elenco. Resta la barra a sinistra di che cosa si è fatto.
- */
-.scaletta--aula { gap: 0; }
-.scaletta--aula .scaletta__voce { border-width: 0 0 1px; border-radius: 0; background: none; }
-.scaletta--aula .scaletta__voce--intestazione,
-.scaletta--aula .scaletta__voce:last-child { border-bottom-width: 0; }
-.scaletta--aula .scaletta__voce--svolta,
-.scaletta--aula .scaletta__voce--parziale,
-.scaletta--aula .scaletta__voce--saltata { border-left-width: 3px; }
-
 .scaletta__numero {
   width: 20px;
   height: 20px;
