@@ -44,10 +44,9 @@ function senzaSchedeDaScorrere (): string | null {
 
 /**
  * Apre una scheda sullo schermo grande, accendendola se era spenta; ricliccata
- * quella aperta, la spegne. La regola la usano sia i comandi sia la fascia
- * della proiezione, che legge di qui.
+ * quella aperta, la spegne. La usano i comandi delle schede proiettate.
  */
-export function apriBlocco (blocco: BloccoProiezione): Promise<unknown> {
+function apriBlocco (blocco: BloccoProiezione): Promise<unknown> {
   const attuali = proiettata()
   const acceso = attuali.blocchi.includes(blocco)
 

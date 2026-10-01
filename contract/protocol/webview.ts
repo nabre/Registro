@@ -350,6 +350,8 @@ export interface MessaggioProiezione {
   contenuto: ContenutoProiezione
   /** La cartella dei dati vista dal webview: serve alle immagini delle risorse. */
   radiceDati: string | null
+  /** La versione del programma, scritta piccola nella pausa. */
+  versione: string
 }
 
 /**

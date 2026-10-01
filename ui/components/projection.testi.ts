@@ -1,5 +1,5 @@
-// I testi della fascia della proiezione (`projection.ts`): che cosa sta
-// vedendo la classe, detto a chi ha davanti il registro.
+// I testi della proiezione nella barra dei comandi (`projection.ts`): che cosa
+// sta vedendo la classe, detto a chi ha davanti il registro.
 
 import { catalogo, minuscolo } from '#core/i18n/index.js'
 

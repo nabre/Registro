@@ -243,6 +243,8 @@ function figuraProiezione (): string {
       tono: 'positivo',
       forte: true,
     }),
+    // La riga dei comandi dello schermo, nella tinta dell'icona «Proiezione».
+    riquadro(AREA_PR.x + 2, AREA_PR.y + 34, AREA_PR.l - 4, 64, { tono: 'positivo', raggio: 3 }),
     testo(AREA_PR.x + 8, AREA_PR.y + 48, s.inProiezione, { corpo: 'piccolo', forte: true }),
     pastiglia(scaletta, AREA_PR.y + 56, s.scaletta, 'accento'),
     pastiglia(argomenti, AREA_PR.y + 56, s.argomenti, 'neutro'),

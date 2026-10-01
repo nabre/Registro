@@ -32,9 +32,6 @@ import { COMANDI_PROGETTO } from './commands/projects.js'
 import { COMANDI_PROIEZIONE } from './commands/projection.js'
 import { COMANDI_REGISTRO } from './commands/register.js'
 
-// La regola dello schermo la legge anche la fascia della proiezione.
-export { apriBlocco } from './commands/projection.js'
-
 // -------------------------------------------------------------- un comando
 
 // Testi letti una volta: la pagina si ricarica quando cambia lingua (`core/i18n/page.ts`).

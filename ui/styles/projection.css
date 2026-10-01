@@ -1025,3 +1025,57 @@ body {
   opacity: 0.7;
   font-size: 0.9em;
 }
+
+/* ------------------------------------------------------------------- pausa */
+
+/*
+ * In pausa lo schermo diventa un orologio: l'ora grande e sottile, la data
+ * sotto, il nome del programma piccolo in fondo. Niente che chieda attenzione.
+ */
+.attesa--pausa {
+  gap: var(--spazio-1);
+}
+
+.pausa__ora {
+  font-size: 5.5em;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--testo);
+}
+
+.pausa__data {
+  font-size: 1.1em;
+  color: var(--testo-quieto);
+  margin-bottom: var(--spazio-4);
+}
+
+.attesa--pausa .attesa__titolo {
+  font-size: 1.4em;
+}
+
+.pausa__marchio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spazio-1);
+  padding-bottom: var(--spazio-3);
+  color: var(--testo-quieto);
+  font-size: var(--dimensione-minuta);
+  opacity: 0.6;
+}
+
+.pausa__logo {
+  width: 1.6em;
+  height: 1.6em;
+}
+
+.pausa__nome {
+  font-weight: 600;
+}
+
+.pausa__motto::before {
+  content: '·';
+  margin-right: var(--spazio-1);
+}

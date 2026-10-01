@@ -26,6 +26,7 @@ import {
   type ElementoMenu,
 } from './components/menu.js'
 import { notifica } from './components/notifications.js'
+import { avvisoRiservato, segnaBlocco, statoDelloSchermo } from './components/projection.js'
 import {
   classeDelFascicolo,
   classeDellaPaginaClassi,
@@ -385,6 +386,10 @@ function menuDelProgramma (bottone: HTMLElement): void {
 function schedaProiezione (): Figlio {
   if (!stato.proiezione.aperta) return null
   const scelta = stato.schedaComandi === 'schermo'
+  // Anche dalla riga della pagina si deve capire com'è lo schermo: in pausa
+  // l'icona lo dice, e coi dati riservati in vista la scheda prende l'avviso.
+  const sospesa = stato.proiezione.impostazioni.sospesa
+  const avviso = avvisoRiservato(stato.proiezione.impostazioni)
 
   return h(
     'button',
@@ -393,16 +398,18 @@ function schedaProiezione (): Figlio {
         'barra-comandi__tendina',
         'barra-comandi__scheda--schermo',
         scelta && 'barra-comandi__scheda--attiva',
+        sospesa && 'barra-comandi__scheda--sospesa',
+        avviso && 'barra-comandi__scheda--riservata',
       ],
       type: 'button',
       dataset: { fuoco: 'scheda-proiezione' },
       attr: {
-        title: testi().comandiSchermo,
+        title: [testi().comandiSchermo, avviso].filter(Boolean).join('\n'),
         'aria-pressed': String(scelta),
       },
       onclick: () => aggiorna({ schedaComandi: scelta ? 'pagina' : 'schermo' }),
     },
-    icona('schermo', 'icona--minuta'),
+    icona(sospesa ? 'pausa' : 'schermo', 'icona--minuta'),
     h('span', { class: 'barra-comandi__tendina-testo' }, testi().proiezione),
   )
 }
@@ -833,6 +840,13 @@ function riquadro (gruppo: {
   titolo: string;
   comandi: ComandoUI[];
 }): HTMLElement {
+  // Le schede della proiezione hanno uno stato in più dei comandi: lo aggiunge
+  // `segnaBlocco`, che agli altri pulsanti non fa niente.
+  const pulsante = (comando: ComandoUI): HTMLElement => {
+    const bottone = pulsanteComando(comando)
+    segnaBlocco(bottone, comando)
+    return bottone
+  }
   return h(
     'div',
     {
@@ -842,7 +856,7 @@ function riquadro (gruppo: {
     h(
       'div',
       { class: 'barra-comandi__comandi' },
-      ...gruppo.comandi.map(pulsanteComando),
+      ...gruppo.comandi.map(pulsante),
     ),
   )
 }
@@ -903,6 +917,7 @@ function rigaNavigazione (nascoste: boolean, conAzioni: boolean): Figlio {
 function rigaAzioni (
   gruppi: Array<{ titolo: string; comandi: ComandoUI[] }>,
   di: string,
+  schermo: boolean,
 ): Figlio {
   return h(
     'div',
@@ -912,6 +927,9 @@ function rigaAzioni (
       class: 'barra-comandi__corpo',
       attr: { role: 'region', 'aria-label': testi().azioniDi(di) },
     },
+    // Davanti ai comandi dello schermo, com'è lo schermo: la classe lo guarda
+    // alle spalle di chi ha il registro davanti.
+    schermo ? statoDelloSchermo() : null,
     ...gruppi.map(riquadro),
   )
 }
@@ -930,10 +948,15 @@ export function barraComandi (): Figlio {
 
   return h(
     'div',
-    { class: 'barra-comandi', dataset: { telaio: 'barra-comandi' } },
+    {
+      // A scheda «Proiezione» scelta la barra prende la tinta della sua icona:
+      // si vede a colpo d'occhio che i comandi sono dello schermo, non della pagina.
+      class: ['barra-comandi', schermo && 'barra-comandi--schermo'],
+      dataset: { telaio: 'barra-comandi' },
+    },
     rigaNavigazione(nascoste, gruppi.length > 0),
     gruppi.length === 0
       ? null
-      : rigaAzioni(gruppi, schermo ? testi().proiezione : nomeDelPosto()),
+      : rigaAzioni(gruppi, schermo ? testi().proiezione : nomeDelPosto(), schermo),
   )
 }

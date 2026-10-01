@@ -6,7 +6,6 @@ import { riparazioni } from '#core/dominio/repairs.js'
 import { avviso, pulsante } from './components/base.js'
 import { conferma } from './components/modal.js'
 import { apriInformazioniDocumento } from './forms/documentInfo.js'
-import { barraProiezione } from './components/projection.js'
 import { notifica } from './components/notifications.js'
 import { h, type Figlio } from './dom.js'
 import { azione } from './bridge.js'
@@ -233,7 +232,6 @@ export function guscio (): Figlio {
       'main',
       // Tenuto anche lui finché si guarda la stessa cosa: è la scatola che scorre.
       { class: 'contenuto', dataset: { telaio: 'contenuto', scorrimento: chiaveDellaPagina() } },
-      barraProiezione(),
       barraAvvisi(),
       vistaNelTelaio(),
     ),

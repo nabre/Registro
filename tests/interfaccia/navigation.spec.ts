@@ -359,16 +359,18 @@ test('navigation', async ({ browser }) => {
     'proiezione.calendario.mese']) {
     await expect(page.locator(`[data-fuoco="comando-${id}"]`)).toHaveCount(1)
   }
-  // La fascia non ripete i comandi: restano le sole linguette a tre stati.
-  expect(await valuta(page, "document.querySelectorAll('.barra-proiezione button').length"))
-    .toBe(await valuta(page,
-      "document.querySelectorAll('.barra-proiezione .blocco-proiettato').length"))
+  // Niente fascia sopra la pagina: com'è lo schermo lo dice la barra dei
+  // comandi, tinta come l'icona, col suo stato in testa alla riga.
+  await expect(page.locator('.barra-proiezione')).toHaveCount(0)
+  await expect(page.locator('.barra-comandi--schermo')).toHaveCount(1)
+  await expect(page.locator('.barra-comandi--schermo .stato-schermo')).toHaveCount(1)
   // Cambiando pagina la riga torna ai comandi della pagina, e la scheda resta.
   await valuta(page, "prova.vaiA(prova.PAGINE.find(p=>p.id==='pagina.calendario'))")
   await valuta(page, FOTOGRAMMA)
   expect(await valuta(page, 'prova.stato.schedaComandi')).toBe('pagina')
   await expect(page.locator('[data-fuoco="comando-proiezione.nomi"]')).toHaveCount(0)
   await expect(page.locator('[data-fuoco="comando-calendario.avanti"]')).toHaveCount(1)
+  await expect(page.locator('.barra-comandi--schermo')).toHaveCount(0)
   await expect(page.locator('[data-fuoco="scheda-proiezione"]')).toBeVisible()
   await page.locator('[data-fuoco="scheda-proiezione"]').click()
   await valuta(page, FOTOGRAMMA)
@@ -382,7 +384,7 @@ test('navigation', async ({ browser }) => {
   // Spegnendo, la scheda se ne va con lo schermo e la riga torna alla pagina.
   await proiezione(false)
   await expect(page.locator('[data-fuoco="scheda-proiezione"]')).toHaveCount(0)
-  await expect(page.locator('.barra-proiezione')).toHaveCount(0)
+  await expect(page.locator('.barra-comandi--schermo')).toHaveCount(0)
   expect(await valuta(page, 'prova.stato.schedaComandi')).toBe('pagina')
   await expect(page.locator('[data-fuoco="comando-calendario.avanti"]')).toHaveCount(1)
   // Le pagine del docente di classe non si spengono mai, e da un corso di una

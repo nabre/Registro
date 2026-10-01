@@ -230,8 +230,10 @@ const it = {
         legenda: [
           '**Proietta** apre lo schermo; acceso, il pulsante dice **Spegni lo schermo** e ' +
             'porta un punto verde.',
-          '**Proiezione** mette nella riga delle azioni i comandi dello schermo.',
-          'La fascia: spenta, accesa in coda, in vista. Un clic la mette in vista.',
+          '**Proiezione** mette nella riga delle azioni i comandi dello schermo, e la barra ' +
+            'prende il verde della sua icona. In testa: in proiezione o in pausa.',
+          'Le schede: spenta, accesa in coda (bordo tratteggiato), in vista. Un clic la ' +
+            'mette in vista.',
           'Parte solo la scheda in vista: il resto non esce dal registro.',
           'Con almeno due schede accese, in cima i loro nomi: la classe sa dove si è.',
         ],
@@ -282,7 +284,7 @@ const it = {
         termine: 'I nomi',
         testo:
           'Di serie il pulsante dice **Senza nomi**; premuto diventa **Nomi visibili**. Con una ' +
-          'scheda riservata in vista, la fascia lo scrive: «Sullo schermo: valutazioni, con i ' +
+          'scheda riservata in vista, la barra dei comandi lo scrive: «Sullo schermo: valutazioni, con i ' +
           'nomi.»',
       },
       {
@@ -302,7 +304,8 @@ const it = {
         termine: 'Pausa',
         testo:
           'Spegne il contenuto lasciando la finestra dov’è: serve quando si passa a scrivere ' +
-          'qualcosa che non deve essere letto. **Riprendi** ritrova tutto com’era.',
+          'qualcosa che non deve essere letto. Intanto lo schermo mostra l’ora e la data. ' +
+          '**Riprendi** ritrova tutto com’era.',
       },
     ],
     note: [
@@ -671,9 +674,10 @@ export const testi = catalogo(it, {
           legenda: [
             '**Projizieren** öffnet den Bildschirm; ist er an, heisst die Schaltfläche ' +
               '**Bildschirm ausschalten** und trägt einen grünen Punkt.',
-            '**Projektion** bringt die Befehle des Bildschirms in die Aktionsleiste.',
-            'Das Band: aus, eingeschaltet in der Warteschlange, sichtbar. Ein Klick macht es ' +
-              'sichtbar.',
+            '**Projektion** bringt die Befehle des Bildschirms in die Aktionsleiste, und die ' +
+              'Leiste nimmt das Grün ihres Symbols an. Vorne: projiziert oder pausiert.',
+            'Die Karten: aus, eingeschaltet in der Warteschlange (gestrichelter Rand), sichtbar. ' +
+              'Ein Klick macht sie sichtbar.',
             'Nur die sichtbare Karte geht hinaus: Der Rest verlässt das Klassenbuch nicht.',
             'Mit mindestens zwei eingeschalteten Karten oben ihre Namen: Die Klasse weiss, wo ' +
               'man ist.',
@@ -728,7 +732,7 @@ export const testi = catalogo(it, {
           termine: 'Die Namen',
           testo:
             'Standardmässig heisst die Schaltfläche **Ohne Namen**; gedrückt wird sie zu ' +
-            '**Namen sichtbar**. Ist eine vertrauliche Karte sichtbar, schreibt es das Band: ' +
+            '**Namen sichtbar**. Ist eine vertrauliche Karte sichtbar, schreibt es die Befehlsleiste: ' +
             '«Auf dem Bildschirm: Beurteilungen, mit Namen.»',
         },
         {
@@ -748,8 +752,8 @@ export const testi = catalogo(it, {
           termine: 'Pause',
           testo:
             'Blendet den Inhalt aus und lässt das Fenster, wo es ist: nützlich, wenn man etwas ' +
-            'schreibt, das nicht gelesen werden soll. **Fortsetzen** stellt alles wieder her, ' +
-            'wie es war.',
+            'schreibt, das nicht gelesen werden soll. Inzwischen zeigt der Bildschirm Uhrzeit ' +
+            'und Datum. **Fortsetzen** stellt alles wieder her, wie es war.',
         },
       ],
       note: [
@@ -1117,8 +1121,10 @@ export const testi = catalogo(it, {
           legenda: [
             '**Projeter** ouvre l’écran ; allumé, le bouton dit **Éteindre l’écran** et porte ' +
               'un point vert.',
-            '**Projection** met dans la barre d’actions les commandes de l’écran.',
-            'Le bandeau : éteinte, allumée en attente, en vue. Un clic la met en vue.',
+            '**Projection** met dans la barre d’actions les commandes de l’écran, et la barre ' +
+              'prend le vert de son icône. En tête : en projection ou en pause.',
+            'Les cartes : éteinte, allumée en attente (bord en pointillé), en vue. Un clic la ' +
+              'met en vue.',
             'Seule la carte en vue part : le reste ne sort pas du registre.',
             'Avec au moins deux cartes allumées, leurs noms en haut : la classe sait où l’on en ' +
               'est.',
@@ -1172,7 +1178,7 @@ export const testi = catalogo(it, {
           termine: 'Les noms',
           testo:
             'Par défaut le bouton dit **Sans noms** ; enfoncé, il devient **Noms visibles**. Avec ' +
-            'une carte réservée en vue, le bandeau l’écrit : « À l’écran : évaluations, avec les ' +
+            'une carte réservée en vue, la barre de commandes l’écrit : « À l’écran : évaluations, avec les ' +
             'noms. »',
         },
         {
@@ -1192,7 +1198,8 @@ export const testi = catalogo(it, {
           termine: 'Pause',
           testo:
             'Éteint le contenu en laissant la fenêtre où elle est : utile quand on passe à écrire ' +
-            'quelque chose qui ne doit pas être lu. **Reprendre** retrouve tout comme c’était.',
+            'quelque chose qui ne doit pas être lu. Pendant ce temps, l’écran montre l’heure et ' +
+            'la date. **Reprendre** retrouve tout comme c’était.',
         },
       ],
       note: [
@@ -1553,8 +1560,9 @@ export const testi = catalogo(it, {
           legenda: [
             '**Project** opens the screen; once on, the button says **Turn off the screen** and ' +
               'carries a green dot.',
-            '**Projection** puts the screen’s controls in the action bar.',
-            'The band: off, on and queued, on show. A click puts it on show.',
+            '**Projection** puts the screen’s controls in the action bar, and the bar takes on ' +
+              'the green of its icon. First: projecting or paused.',
+            'The cards: off, on and queued (dashed border), on show. A click puts one on show.',
             'Only the card on show goes out: the rest does not leave the register.',
             'With at least two cards on, their names at the top: the class knows where you are.',
           ],
@@ -1606,7 +1614,7 @@ export const testi = catalogo(it, {
           termine: 'The names',
           testo:
             'By default the button says **No names**; pressed, it becomes **Names ' +
-            'shown**. With a private card on show, the band says so: “On screen: assessments, ' +
+            'shown**. With a private card on show, the command bar says so: “On screen: assessments, ' +
             'with names.”',
         },
         {
@@ -1626,7 +1634,8 @@ export const testi = catalogo(it, {
           termine: 'Pause',
           testo:
             'Blanks the content and leaves the window where it is: useful when you go on to ' +
-            'write something that must not be read. **Resume** brings everything back as it was.',
+            'write something that must not be read. Meanwhile the screen shows the time and ' +
+            'date. **Resume** brings everything back as it was.',
         },
       ],
       note: [

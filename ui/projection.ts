@@ -27,6 +27,7 @@ import type {
 } from '#core/dominio/projection.js'
 import type { MessaggioProiezione } from '#contract/protocol.js'
 import { quieto } from './components/base.js'
+import { adesso, formattaData, oggi } from '#core/dominio/dates.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './projection.testi.js'
 
@@ -40,6 +41,13 @@ const radice = document.getElementById('radice')
 
 let contenuto: ContenutoProiezione | null = null
 let radiceDati: string | null = null
+let versione = ''
+
+/**
+ * Il logo, dalla radice dell'applicazione (`registro:` è nella CSP). Non
+ * `components/logo.ts`: legge lo stato del pannello, che qui non entra.
+ */
+const LOGO = 'registro://app/resources/registro-app.svg'
 
 /** L'indirizzo di un file della cartella dei dati: ogni pezzo va codificato. */
 function uriDato (relativo: string | undefined): string | null {
@@ -687,17 +695,71 @@ function telaioDelBlocco (blocco: HTMLElement, dati: ContenutoProiezione): void 
   blocco.dataset.scorrimento = `${quale ?? ''}|${dati.intestazione.data ?? ''}|${dati.intestazione.orario ?? ''}`
 }
 
+/**
+ * Lo schermo in pausa: l'ora grande, che la classe guarda volentieri mentre
+ * aspetta, e in fondo, piccolo, il nome del programma.
+ */
+function pausa (): HTMLElement {
+  const t = testi()
+  const ora = adesso()
+  const marchio = h('img', {
+    class: 'pausa__logo',
+    // Tenuto fra un minuto e l'altro: ricreato, lampeggerebbe.
+    dataset: { tieni: LOGO },
+    attr: { src: LOGO, alt: '', width: 28, height: 28, draggable: 'false', 'aria-hidden': 'true' },
+  })
+  // Un file che non arriva non lascia l'immagine rotta: resta il nome.
+  marchio.addEventListener('error', () => { marchio.style.visibility = 'hidden' }, { once: true })
+
+  return h(
+    'div',
+    { class: 'foglio foglio--sospesa' },
+    h(
+      'div',
+      { class: 'attesa attesa--pausa' },
+      h('time', { class: 'pausa__ora', attr: { datetime: ora } }, ora),
+      h('div', { class: 'pausa__data' }, formattaData(oggi(), 'lungo')),
+      h('div', { class: 'attesa__titolo' }, t.pausa),
+      h('div', { class: 'attesa__sotto' }, t.riprende),
+    ),
+    h(
+      'footer',
+      { class: 'pausa__marchio' },
+      marchio,
+      h('span', { class: 'pausa__nome' }, versione ? `${t.programma} ${versione}` : t.programma),
+      h('span', { class: 'pausa__motto' }, t.motto),
+    ),
+  )
+}
+
+/**
+ * L'orologio della pausa: batte al minuto nuovo finché lo schermo è sospeso,
+ * e si ferma appena riprende. Uno solo: lo regola ogni messaggio.
+ */
+let orologio: ReturnType<typeof setTimeout> | null = null
+
+function regolaOrologio (): void {
+  if (contenuto?.sospesa !== true) {
+    if (orologio !== null) clearTimeout(orologio)
+    orologio = null
+    return
+  }
+  if (orologio !== null) return
+  // Al cambio del minuto, non fra sessanta secondi: l'ora non resta indietro.
+  // I fusi spostano di minuti interi, il resto della divisione vale ovunque.
+  const attesa = 60_000 - (Date.now() % 60_000) + 50
+  orologio = setTimeout(() => {
+    orologio = null
+    disegna()
+    regolaOrologio()
+  }, attesa)
+}
+
 function pagina (): Figlio {
   const t = testi()
   if (!contenuto) return segnaposto(t.registro, t.inAttesa)
 
-  if (contenuto.sospesa) {
-    return h(
-      'div',
-      { class: 'foglio foglio--sospesa' },
-      segnaposto(t.pausa, t.riprende),
-    )
-  }
+  if (contenuto.sospesa) return pausa()
 
   // Uno solo: dal messaggio arriva un blocco solo, e riempie lo schermo.
   const aperto =
@@ -750,6 +812,8 @@ window.addEventListener('message', (evento: MessageEvent<MessaggioProiezione>) =
   ultimoDisegnato = firma
   contenuto = messaggio.contenuto
   radiceDati = messaggio.radiceDati
+  versione = messaggio.versione
+  regolaOrologio()
   disegna()
 })
 

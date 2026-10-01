@@ -166,6 +166,7 @@ export class PannelloProiezione {
         tipo: 'proiezione',
         contenuto: contenutoProiezione(this.archivio.registro, mira, impostazioni),
         radiceDati: cartella ? this.pannello.webview.asWebviewUri(cartella).toString() : null,
+        versione: apparato.versioneApplicazione(),
       }
       void this.pannello.webview.postMessage(messaggio)
     })
