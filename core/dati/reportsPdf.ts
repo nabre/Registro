@@ -278,9 +278,15 @@ function filiVerticali (penna: Penna, misure: number[], base: number, altezzaRig
 }
 
 /**
- * Una tabella a griglia chiusa, con l'intestazione ripetuta a ogni pagina.
+ * Colonne, corpo e altezza di riga di una tabella: le stesse per chi la
+ * disegna e per chi decide se ci sta, così la misura non è una stima.
  */
-function tabella (penna: Penna, dati: Tabella): void {
+function misuraTabella (penna: Penna, dati: Tabella): {
+  misure: number[]
+  corpo: number
+  altezzaRiga: number
+  larghezza: number
+} {
   const larghezza = larghezzaUtile(penna)
   // Larghezze e corpo li decide il dominio misurando con il font; il corpo può
   // scendere perché una tabella larga ci stia senza troncare i nomi.
@@ -291,7 +297,14 @@ function tabella (penna: Penna, dati: Tabella): void {
     (testo, misura, grassetto) =>
       (grassetto ? penna.grassetto : penna.normale).widthOfTextAtSize(sanifica(testo), misura),
   )
-  const altezzaRiga = corpo * penna.stile.interlinea
+  return { misure, corpo, altezzaRiga: corpo * penna.stile.interlinea, larghezza }
+}
+
+/**
+ * Una tabella a griglia chiusa, con l'intestazione ripetuta a ogni pagina.
+ */
+function tabella (penna: Penna, dati: Tabella): void {
+  const { misure, corpo, altezzaRiga, larghezza } = misuraTabella(penna, dati)
   const piede = piedeRiga(corpo)
 
   const filoOrizzontale = (y: number) => {
@@ -381,26 +394,37 @@ function tabella (penna: Penna, dati: Tabella): void {
  * esatto, impilato se si ripete, con il segno della media. La sufficienza la
  * dice il colore dei punti.
  */
-function grafico (penna: Penna, dati: Grafico): void {
-  const larghezza = larghezzaUtile(penna)
-  const RAGGIO = 3.1
-  const PASSO = RAGGIO * 2 + 1.6
-  const PIEDE = penna.corpi.piccolo * 2.4
+const RAGGIO = 3.1
+const PASSO = RAGGIO * 2 + 1.6
 
+/** Le quote di una distribuzione a punti: le usa il disegno e chi la misura. */
+function misuraGrafico (penna: Penna, dati: Grafico): {
+  alto: number
+  piede: number
+  riga: number
+  totale: number
+} {
   const alta = Math.max(...dati.punti.map((p) => p.quanti), 1)
-  const segni = dati.segni ?? []
   // Una riga di etichetta per segno: due segni sullo stesso valore si coprirebbero.
-  const RIGA = penna.corpi.piccolo * 1.35
+  const riga = penna.corpi.piccolo * 1.35
+  const piede = penna.corpi.piccolo * 2.4
   // Altezza minima: con pile basse la riga della media non si vedrebbe.
   const alto = Math.max(alta, 4) * PASSO + 6
-  const altezza = alto + segni.length * RIGA
+  const totale = alto + (dati.segni?.length ?? 0) * riga + piede + 6
+  return { alto, piede, riga, totale }
+}
+
+function grafico (penna: Penna, dati: Grafico): void {
+  const larghezza = larghezzaUtile(penna)
+  const { alto, piede: PIEDE, riga: RIGA, totale } = misuraGrafico(penna, dati)
+  const segni = dati.segni ?? []
 
   const campo = dati.a - dati.da
   const dove = (valore: number) =>
     penna.sinistra + (campo > 0 ? ((valore - dati.da) / campo) * larghezza : larghezza / 2)
 
   // Tutto sulla stessa pagina.
-  spazio(penna, altezza + PIEDE + 6)
+  spazio(penna, totale)
   const base = penna.y + PIEDE
 
   // I segni verticali per primi: passano dietro ai punti, non sopra.
@@ -565,12 +589,19 @@ function campi (penna: Penna, valore: string): void {
  * Un avviso da non saltare: testo in grassetto a capo da sé, dentro un bordo
  * marcato. Nero, perché le stampanti spesso sono in bianco e nero.
  */
+function misuraAvviso (penna: Penna, valore: string): { righe: string[], alta: number } {
+  const corpo = penna.corpi.testo
+  const righe = aCapo(valore, penna.grassetto, corpo, larghezzaUtile(penna) - RESPIRO_AVVISO * 2 - 4)
+  return { righe, alta: RESPIRO_AVVISO * 2 + righe.length * corpo * 1.35 }
+}
+
+const RESPIRO_AVVISO = 7
+
 function avviso (penna: Penna, valore: string): void {
   const corpo = penna.corpi.testo
-  const respiro = 7
+  const respiro = RESPIRO_AVVISO
   const larghezza = larghezzaUtile(penna)
-  const righe = aCapo(valore, penna.grassetto, corpo, larghezza - respiro * 2 - 4)
-  const alta = respiro * 2 + righe.length * corpo * 1.35
+  const { righe, alta } = misuraAvviso(penna, valore)
 
   spazio(penna, alta)
   penna.pagina.drawRectangle({
@@ -596,6 +627,11 @@ function avviso (penna: Penna, valore: string): void {
  * Un riquadro in evidenza per il numero che conta (la nota di fine semestre):
  * etichetta piccola, valore grande. Più coppie stanno affiancate a colonne uguali.
  */
+/** L'altezza del bordo di un riquadro: etichetta piccola, valore grande, il respiro. */
+function altaRiquadro (penna: Penna): number {
+  return 8 + penna.corpi.piccolo * 1.5 + penna.corpi.titolo + 8
+}
+
 function riquadro (penna: Penna, valore: string): void {
   const voci = leggiCampi(valore)
   if (voci.length === 0) return
@@ -604,7 +640,7 @@ function riquadro (penna: Penna, valore: string): void {
   const etichetta = penna.corpi.piccolo
   const grande = penna.corpi.titolo
   const respiro = 8
-  const alta = respiro + etichetta * 1.5 + grande + respiro
+  const alta = altaRiquadro(penna)
 
   spazio(penna, alta + 6)
   penna.pagina.drawRectangle({
@@ -679,18 +715,29 @@ async function incorpora (
  * Un'immagine nel corpo. Con `accanto` occupa solo un fianco e quel che segue
  * si scrive nella colonna che resta (il ritratto accanto ai recapiti).
  */
-function immagine (penna: Penna, valore: string): void {
+function misuraImmagine (penna: Penna, valore: string): {
+  chiesta: ImmagineModello
+  incorporata: PDFImage
+  altaVera: number
+  largaVera: number
+} | null {
   const chiesta = leggiImmagine(valore)
   const incorporata = chiesta ? penna.immagini.get(chiesta.file) : undefined
-  if (!chiesta || !incorporata) return
+  if (!chiesta || !incorporata) return null
 
   const alta = chiesta.altezza * MM
   const larga = incorporata.width * (alta / incorporata.height)
   const utile = larghezzaUtile(penna)
   // Più larga del foglio: si rimpicciolisce tenendo le proporzioni.
   const scala = larga > utile ? utile / larga : 1
-  const altaVera = alta * scala
-  const largaVera = larga * scala
+  return { chiesta, incorporata, altaVera: alta * scala, largaVera: larga * scala }
+}
+
+function immagine (penna: Penna, valore: string): void {
+  const misurata = misuraImmagine(penna, valore)
+  if (!misurata) return
+  const { chiesta, incorporata, altaVera, largaVera } = misurata
+  const utile = larghezzaUtile(penna)
 
   if (chiesta.accanto) {
     // Intera su questa pagina, o sulla prossima.
@@ -724,6 +771,12 @@ function immagine (penna: Penna, valore: string): void {
  * della stessa altezza, foto in proporzione; chi non ha foto tiene la casella
  * con il posto segnato, così i nomi non si spostano.
  */
+/** Quanto è alta una riga di facce: la foto, il nome, la riga piccola, lo stacco. */
+function altaRigaGalleria (penna: Penna, valore: string): number {
+  const corpo = penna.corpi.piccolo
+  return leggiRichiestaGalleria(valore).altezza * MM + corpo * 1.5 + corpo * 0.9 * 1.4 + 6
+}
+
 function galleria (penna: Penna, chiesta: Galleria, valore: string): void {
   const { colonne, altezza } = leggiRichiestaGalleria(valore)
   const utile = larghezzaUtile(penna)
@@ -732,7 +785,7 @@ function galleria (penna: Penna, chiesta: Galleria, valore: string): void {
   const corpo = penna.corpi.piccolo
   const corpoSotto = corpo * 0.9
   // Sopra la foto uno stacco, sotto il nome e — quando c'è — la riga piccola.
-  const altaRiga = altaFoto + corpo * 1.5 + corpoSotto * 1.4 + 6
+  const altaRiga = altaRigaGalleria(penna, valore)
 
   for (let i = 0; i < chiesta.celle.length; i += colonne) {
     const riga = chiesta.celle.slice(i, i + colonne)
@@ -974,8 +1027,8 @@ export async function componiPdf (
   pdf.setCreator('Regiklass')
 
   corpo.forEach((blocco, i) => {
-    // Prima di un capitolo si guarda se ci sta.
-    if (blocco.tipo === 'sezione') compatta(penna, corpo, i, dati)
+    // Prima di un'intestazione si guarda se ci sta con quel che la segue.
+    if (INTESTAZIONI.has(blocco.tipo)) compatta(penna, corpo, i, dati)
     disegna(penna, blocco, dati)
   })
 
@@ -995,35 +1048,64 @@ const DA_SE = new Set<TipoBlocco>(['spazio', 'filo', 'pagina-nuova'])
 const SCRITTI = new Set<TipoBlocco>(['paragrafo', 'testo', 'campi', 'elenco'])
 
 /**
+ * Le intestazioni: stanno attaccate a quel che le segue, e non chiudono mai
+ * una pagina da sole.
+ */
+const INTESTAZIONI = new Set<TipoBlocco>(['titolo', 'sottotitolo', 'sezione'])
+
+/**
+ * I blocchi che non si spezzano finché stanno in una pagina: se non entrano
+ * nello spazio rimasto vanno interi alla pagina dopo. Più lunghi di una pagina
+ * si spezzano lo stesso (la tabella ripete l'intestazione, la parete va a
+ * righe di facce). Paragrafi ed elenchi scorrono a righe e a voci.
+ */
+const INDIVISIBILI = new Set<TipoBlocco>([
+  'tabella', 'grafico', 'galleria', 'riquadro', 'avviso', 'immagine', 'testo', 'campi',
+])
+
+/**
  * L'aria fra un blocco e il precedente: dipende dalla coppia, quindi sta qui e
  * non nei disegnatori. `spazio:`, `filo:` e la sezione portano già il loro stacco.
  */
-function stacco (penna: Penna, prossimo: TipoBlocco): void {
-  const prima = penna.ultimo
-  if (!prima) return
-  if (DA_SE.has(prossimo) || prossimo === 'sezione') return
-  if (DA_SE.has(prima)) return
+function quantoStacco (prima: TipoBlocco | null, prossimo: TipoBlocco): number {
+  if (!prima) return 0
+  if (DA_SE.has(prossimo) || prossimo === 'sezione') return 0
+  if (DA_SE.has(prima)) return 0
 
   // Dopo una sezione si comincia vicino, per non staccare il titolo dal contenuto.
-  if (prima === 'sezione') {
-    if (PIENI.has(prossimo)) spazio(penna, 4)
-    return
-  }
+  if (prima === 'sezione') return PIENI.has(prossimo) ? 4 : 0
 
   // Un'area contro qualcosa d'altro: aria da tutte e due le parti.
-  if (PIENI.has(prossimo) || PIENI.has(prima)) {
-    spazio(penna, 9)
-    return
-  }
+  if (PIENI.has(prossimo) || PIENI.has(prima)) return 9
 
   // Due blocchi di testo: un filo d'aria. Non fra due `campi:`, che fanno una lista.
   if (SCRITTI.has(prossimo) && SCRITTI.has(prima) && !(prima === 'campi' && prossimo === 'campi')) {
-    spazio(penna, 5)
+    return 5
   }
+  return 0
 }
 
-/** Stima dello spazio di un blocco: basta a decidere se un capitolo ci sta. */
-function altezzaStimata (penna: Penna, blocco: Blocco, dati: DatiRapporto): number {
+function stacco (penna: Penna, prossimo: TipoBlocco): void {
+  const quanto = quantoStacco(penna.ultimo, prossimo)
+  if (quanto > 0) spazio(penna, quanto)
+}
+
+/** L'altezza scrivibile di una pagina intera, fra le due bande. */
+function paginaUtile (penna: Penna): number {
+  return penna.altezza - penna.alto - penna.basso
+}
+
+/** Quanto è alta una voce d'elenco, con le sue righe a capo. */
+function altaVoce (penna: Penna, voce: string): number {
+  const testo = penna.corpi.testo
+  return aCapo(voce, penna.normale, testo, larghezzaUtile(penna) - 12).length * testo * 1.4
+}
+
+/**
+ * Lo spazio che un blocco occupa disegnato, misurato con le stesse funzioni
+ * che lo disegnano: decide se un blocco o un capitolo ci sta.
+ */
+function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): number {
   const testo = penna.corpi.testo
   switch (blocco.tipo) {
     case 'titolo':
@@ -1040,57 +1122,33 @@ function altezzaStimata (penna: Penna, blocco: Blocco, dati: DatiRapporto): numb
       const { voci, colonne } = leggiRichiestaCampi(blocco.valore)
       return Math.ceil(voci.length / colonne) * testo * 1.5
     }
-    case 'elenco': {
-      const voci = blocco.elenco ?? dati.elenchi[blocco.valore] ?? []
-      return voci.reduce(
-        (somma, voce) =>
-          somma +
-          aCapo(voce, penna.normale, testo, larghezzaUtile(penna) - 12).length * testo * 1.4,
-        0,
-      )
-    }
+    case 'elenco':
+      return (blocco.elenco ?? dati.elenchi[blocco.valore] ?? [])
+        .reduce((somma, voce) => somma + altaVoce(penna, voce), 0)
     case 'tabella': {
       const tavola = blocco.tabella ?? dati.tabelle[blocco.valore]
       if (!tavola) return 0
-      const { corpo } = misureTabella(tavola, larghezzaUtile(penna), penna.stile, (t, m, g) =>
-        (g ? penna.grassetto : penna.normale).widthOfTextAtSize(sanifica(t), m),
-      )
-      const righe = 1 + tavola.righe.length + (tavola.totale ? 1 : 0)
-      return righe * corpo * penna.stile.interlinea
+      const { altezzaRiga } = misuraTabella(penna, tavola)
+      return (1 + tavola.righe.length + (tavola.totale ? 1 : 0)) * altezzaRiga
     }
     case 'grafico': {
       const disegno = blocco.grafico ?? dati.grafici[blocco.valore]
-      if (!disegno) return 0
-      const alta = Math.max(...disegno.punti.map((p) => p.quanti), 1)
-      const alto = Math.max(alta, 4) * (3.1 * 2 + 1.6) + 6
-      return alto + (disegno.segni?.length ?? 0) * penna.corpi.piccolo * 1.35 +
-        penna.corpi.piccolo * 2.4 + 6
+      return disegno ? misuraGrafico(penna, disegno).totale : 0
     }
     case 'avviso':
-      return (
-        14 +
-        aCapo(blocco.valore, penna.grassetto, testo, larghezzaUtile(penna) - 18).length *
-          testo *
-          1.35
-      )
+      return misuraAvviso(penna, blocco.valore).alta
     case 'riquadro':
-      return leggiCampi(blocco.valore).length === 0
-        ? 0
-        : 8 + penna.corpi.piccolo * 1.5 + penna.corpi.titolo + 8 + 6
+      return leggiCampi(blocco.valore).length === 0 ? 0 : altaRiquadro(penna) + 6
     case 'galleria': {
       const parete = blocco.galleria ?? dati.gallerie?.[leggiRichiestaGalleria(blocco.valore).nome]
       if (!parete) return 0
-      const { colonne, altezza } = leggiRichiestaGalleria(blocco.valore)
-      const corpo = penna.corpi.piccolo
-      return (
-        Math.ceil(parete.celle.length / colonne) *
-        (altezza * MM + corpo * 1.5 + corpo * 0.9 * 1.4 + 6)
-      )
+      const { colonne } = leggiRichiestaGalleria(blocco.valore)
+      return Math.ceil(parete.celle.length / colonne) * altaRigaGalleria(penna, blocco.valore)
     }
     case 'immagine': {
-      const chiesta = leggiImmagine(blocco.valore)
+      const misurata = misuraImmagine(penna, blocco.valore)
       // Affiancata: occupa il fianco, non scende.
-      return !chiesta || chiesta.accanto ? 0 : chiesta.altezza * MM + 6
+      return !misurata || misurata.chiesta.accanto ? 0 : misurata.altaVera + 6
     }
     case 'spazio':
       return Number(blocco.valore) > 0 ? Number(blocco.valore) : 8
@@ -1102,32 +1160,87 @@ function altezzaStimata (penna: Penna, blocco: Blocco, dati: DatiRapporto): numb
 }
 
 /**
- * Un capitolo che non ci sta si porta alla pagina dopo, se lì ci starebbe; uno
- * troppo lungo comincia qui, purché sotto il titolo restino un po' di righe.
+ * Il pezzo minimo con cui un blocco può cominciare in fondo a una pagina: un
+ * indivisibile che sta in una pagina tutto, uno più lungo l'intestazione e due
+ * righe, un paragrafo due righe, un elenco la sua prima voce.
+ */
+function attacco (penna: Penna, blocco: Blocco, dati: DatiRapporto): number {
+  const intero = altezzaBlocco(penna, blocco, dati)
+  if (INDIVISIBILI.has(blocco.tipo) && intero <= paginaUtile(penna)) return intero
+  switch (blocco.tipo) {
+    case 'tabella': {
+      const tavola = blocco.tabella ?? dati.tabelle[blocco.valore]
+      return tavola ? Math.min(intero, misuraTabella(penna, tavola).altezzaRiga * 3) : 0
+    }
+    case 'galleria':
+      return Math.min(intero, altaRigaGalleria(penna, blocco.valore))
+    case 'paragrafo':
+      return Math.min(intero, penna.corpi.testo * 1.35 * 2)
+    case 'elenco': {
+      const prima = (blocco.elenco ?? dati.elenchi[blocco.valore] ?? [])[0]
+      return prima === undefined ? 0 : altaVoce(penna, prima)
+    }
+    default:
+      return intero
+  }
+}
+
+/**
+ * Prima di un blocco di contenuto: se non ci sta e tutto intero starebbe in
+ * una pagina, va alla pagina dopo; se è più lungo di una pagina comincia qui,
+ * purché ci stia il suo attacco. In cima a una pagina non c'è niente da fare.
+ */
+function tieniInsieme (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
+  if (penna.ultimo === null || INTESTAZIONI.has(blocco.tipo) || DA_SE.has(blocco.tipo)) return
+  const intero = altezzaBlocco(penna, blocco, dati)
+  const restano = penna.y - penna.basso - quantoStacco(penna.ultimo, blocco.tipo)
+  if (intero <= restano) return
+  const sposta = INDIVISIBILI.has(blocco.tipo) && intero <= paginaUtile(penna)
+  if (sposta || attacco(penna, blocco, dati) > restano) nuovaPagina(penna)
+}
+
+/**
+ * Prima di un'intestazione. Le intestazioni di fila e l'attacco di quel che
+ * le segue stanno sulla stessa pagina: un titolo non chiude mai un foglio da
+ * solo. Un capitolo corto che non ci sta tutto si porta intero alla pagina
+ * dopo; uno lungo comincia qui.
  */
 function compatta (penna: Penna, corpo: Blocco[], dove: number, dati: DatiRapporto): void {
-  let serve = altezzaStimata(penna, corpo[dove], dati)
-  for (let i = dove + 1; i < corpo.length; i += 1) {
-    const tipo = corpo[i].tipo
-    if (tipo === 'sezione' || tipo === 'titolo' || tipo === 'pagina-nuova') break
-    serve += altezzaStimata(penna, corpo[i], dati) + 9
-  }
-
+  if (penna.ultimo === null) return
   const restano = penna.y - penna.basso
-  const intera = penna.altezza - penna.alto - penna.basso
-  if (serve <= restano) return
 
-  // Corto: si sposta intero. Lungo: si spezzerebbe comunque.
-  if (serve <= intera * 0.55) {
+  let serve = 0
+  let prima: TipoBlocco | null = penna.ultimo
+  let i = dove
+  for (; i < corpo.length && INTESTAZIONI.has(corpo[i].tipo); i += 1) {
+    serve += quantoStacco(prima, corpo[i].tipo) + altezzaBlocco(penna, corpo[i], dati)
+    prima = corpo[i].tipo
+  }
+  const primo = corpo[i]
+  if (primo && !DA_SE.has(primo.tipo)) {
+    serve += quantoStacco(prima, primo.tipo) + attacco(penna, primo, dati)
+  }
+  if (serve > restano) {
     nuovaPagina(penna)
     return
   }
 
-  // Ma non subito sotto il titolo: servono alcune righe, o si volta pagina.
-  if (restano < penna.corpi.sezione * 2.2 + penna.corpi.testo * 6) nuovaPagina(penna)
+  if (corpo[dove].tipo !== 'sezione') return
+  // Il capitolo intero, fino alla prossima intestazione o al salto pagina.
+  let capitolo = 0
+  prima = penna.ultimo
+  for (let j = dove; j < corpo.length; j += 1) {
+    const tipo = corpo[j].tipo
+    if (j > dove && (INTESTAZIONI.has(tipo) || tipo === 'pagina-nuova')) break
+    capitolo += quantoStacco(prima, tipo) + altezzaBlocco(penna, corpo[j], dati)
+    prima = tipo
+  }
+  // Corto: si sposta intero. Lungo: si spezzerebbe comunque.
+  if (capitolo > restano && capitolo <= paginaUtile(penna) * 0.55) nuovaPagina(penna)
 }
 
 function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
+  tieniInsieme(penna, blocco, dati)
   stacco(penna, blocco.tipo)
   penna.ultimo = blocco.tipo
 
@@ -1176,6 +1289,9 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
       // Prima l'elenco già risolto: dentro un `ripeti:` il nome non basta più.
       for (const voce of blocco.elenco ?? dati.elenchi[blocco.valore] ?? []) {
         const righe = aCapo(voce, penna.normale, penna.corpi.testo, larghezzaUtile(penna) - 12)
+        // Una voce non si spezza fra due pagine, se in una ci sta.
+        const alta = righe.length * penna.corpi.testo * 1.4
+        if (alta > penna.y - penna.basso && alta <= paginaUtile(penna)) nuovaPagina(penna)
         righe.forEach((riga, i) => {
           spazio(penna, penna.corpi.testo * 1.4)
           if (i === 0) scrivi(penna, '•', { corpo: penna.corpi.testo })

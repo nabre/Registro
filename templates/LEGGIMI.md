@@ -117,8 +117,18 @@ che sopravvivono a qualunque fotocopia. Il grigio resta ai fili e ai fondi.
 **Un capitolo non comincia in fondo alla pagina.** Prima di ogni `sezione:` si
 misura quanto occupa quel che le sta sotto: se è corto e non ci sta, si volta
 pagina e comincia in cima; se è lungo — una tabella di trenta righe non sta in
-nessuna pagina — comincia qui e continua di là, ma mai con meno di quattro righe
-sotto il suo titolo.
+nessuna pagina — comincia qui e continua di là. Un titolo, un sottotitolo o una
+sezione non chiudono mai un foglio da soli: vanno con l'inizio di quel che li
+segue.
+
+**Un blocco che sta in una pagina non si spezza fra due.** Tabelle, grafici,
+immagini, riquadri, avvisi, pareti di ritratti, righe e campi: se non entrano
+nello spazio che resta ma in una pagina intera sì, vanno interi alla pagina
+dopo. Solo quel che è più lungo di una pagina si spezza — la tabella ripetendo
+in cima a ogni foglio la sua intestazione, e mai lasciando in fondo
+l'intestazione con meno di due righe sotto. Paragrafi ed elenchi scorrono a
+righe, ma una voce d'elenco resta intera. Le altezze non si stimano: si
+misurano con le stesse funzioni che disegnano.
 
 ### Le misure del foglio
 

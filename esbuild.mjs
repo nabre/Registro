@@ -330,6 +330,8 @@ const prove = [
   // Il lettore di PDF: fuori dal dominio (librerie e node:zlib), ma si prova senza applicazione.
   provaNode('core/dati/pdf.ts', 'dist-tests/pdf.mjs'),
   provaNode(WORKER_PDFJS, 'dist-tests/pdf.worker.mjs'),
+  // L'impaginazione dei rapporti: dove cade un salto pagina si guarda sul PDF vero.
+  provaNode('core/dati/reportsPdf.ts', 'dist-tests/reportsPdf.mjs'),
   // L'archivio ZIP: byte dentro e fuori, senza alias.
   provaNode('core/dati/zip.ts', 'dist-tests/zip.mjs'),
   // Il documento dell'anno, su file veri in una cartella temporanea: passa dallo shim.
