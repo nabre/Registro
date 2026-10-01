@@ -184,9 +184,9 @@ jobs:
         run: |
           python -m pip install pdfplumber
           node tools/schoolCalendar.mjs
-          git diff --quiet -- resources/calendario-scolastico-ticino.json core/dati/schoolCalendarTicino.ts ||
+          git diff --quiet -- resources/calendario-scolastico-ticino.json core/dominio/schoolCalendarTicino.ts ||
             echo "::warning::Il calendario del DECS è cambiato: il pacchetto usa quello del repository. Lanciare npm run calendario e committare."
-          git checkout -- resources/calendario-scolastico-ticino.json core/dati/schoolCalendarTicino.ts
+          git checkout -- resources/calendario-scolastico-ticino.json core/dominio/schoolCalendarTicino.ts
 
       # È `npm run package` spezzato in quattro, perché la firma va messa in
       # due punti che electron-builder da solo non lascia raggiungere:
