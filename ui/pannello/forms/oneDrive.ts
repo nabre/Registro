@@ -76,10 +76,13 @@ export function apriOneDrive (account?: string): void {
     contesto?.occupato(true)
 
     if (veduta.genere === 'ricerca') {
-      const esito = await chiedi<{ voci: VoceOneDrive[], troncato: boolean, locale: boolean }>(
-        'onedrive.cerca',
-        { account: scelto },
-      )
+      const esito = await chiedi<{
+        voci: VoceOneDrive[]
+        troncato: boolean
+        /** Perché si è fermata; un host più vecchio non lo manda. */
+        motivo?: 'troppi' | 'tempo' | null
+        locale: boolean
+      }>('onedrive.cerca', { account: scelto })
       if (mio !== giro) return
       contesto?.occupato(false)
       if (!esito.ok || !esito.dati) return guasto(esito.errori)
@@ -87,7 +90,7 @@ export function apriOneDrive (account?: string): void {
       disegnaVoci(esito.dati.voci, true)
       piede.textContent = [
         t.trovati(esito.dati.voci.length),
-        esito.dati.troncato ? t.troppi : '',
+        esito.dati.troncato ? (esito.dati.motivo === 'tempo' ? t.tempoScaduto : t.troppi) : '',
         // Solo Graph si appoggia all'indice di Microsoft; il disco si legge com'è.
         esito.dati.locale ? t.dalComputer : t.indiceMicrosoft,
       ].filter(Boolean).join(' ')

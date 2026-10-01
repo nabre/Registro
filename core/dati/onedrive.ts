@@ -42,6 +42,19 @@ const MASSIMO_VOCI = 5000
 /** Oltre tanti risultati la ricerca si ferma: sono già più documenti di quanti se ne aprano. */
 const MASSIMO_TROVATI = 500
 
+/**
+ * Perché una ricerca si è fermata prima di guardare tutto: troppe voci (o
+ * cartelle), o il tempo finito. `null` se ha guardato tutto.
+ */
+type Fermata = 'troppi' | 'tempo' | null
+
+/** Quel che torna una ricerca: le voci, e se e perché è incompleta. */
+interface Trovate {
+  voci: VoceOneDrive[]
+  troncato: boolean
+  motivo: Fermata
+}
+
 /** Una pagina di Graph: le voci, e dove sta la successiva. */
 interface Pagina {
   value?: ElementoGraph[]
@@ -253,22 +266,22 @@ async function leggiEntro (cartella: string, scadenza: number): Promise<Dirent[]
  * cartella che è solo nel cloud la fa elencare al client, senza scaricare i
  * file.
  */
-async function cercaLocale (
-  radici: readonly string[],
-): Promise<{ voci: VoceOneDrive[], troncato: boolean }> {
+async function cercaLocale (radici: readonly string[]): Promise<Trovate> {
   const voci: VoceOneDrive[] = []
+  const fermata = (motivo: Fermata): Trovate =>
+    ({ voci: ordinaTrovate(voci), troncato: motivo !== null, motivo })
   // In ampiezza su tutte le radici insieme: col tetto, nessuna resta non vista.
   const daVedere = radici.map((radice) => ({ cartella: radice, radice }))
   const scadenza = Date.now() + TEMPO_MASSIMO_RICERCA_MS
   let viste = 0
   while (daVedere.length > 0) {
-    if (viste >= MASSIMO_CARTELLE || voci.length >= MASSIMO_TROVATI || Date.now() >= scadenza) {
-      return { voci: ordinaTrovate(voci), troncato: true }
-    }
+    // Prima il tempo: se scadono insieme, quel che si è notato è l'attesa.
+    if (Date.now() >= scadenza) return fermata('tempo')
+    if (viste >= MASSIMO_CARTELLE || voci.length >= MASSIMO_TROVATI) return fermata('troppi')
     const { cartella, radice } = daVedere.shift() as { cartella: string, radice: string }
     viste += 1
     const elementi = await leggiEntro(cartella, scadenza)
-    if (!elementi) return { voci: ordinaTrovate(voci), troncato: true }
+    if (!elementi) return fermata('tempo')
     for (const elemento of elementi) {
       const voce = await voceLocale(cartella, elemento, radice)
       if (!voce) continue
@@ -276,7 +289,7 @@ async function cercaLocale (
       else voci.push(voce)
     }
   }
-  return { voci: ordinaTrovate(voci), troncato: false }
+  return fermata(null)
 }
 
 function ordinaTrovate (voci: VoceOneDrive[]): VoceOneDrive[] {
@@ -347,7 +360,7 @@ async function elencaDaGraph (
  */
 export async function cercaRegi (
   account: string,
-): Promise<{ voci: VoceOneDrive[], troncato: boolean, locale: boolean }> {
+): Promise<Trovate & { locale: boolean }> {
   const radici = await radiciLocali(account)
   if (radici.length > 0) return { ...(await cercaLocale(radici)), locale: true }
   return { ...(await cercaDaGraph(account)), locale: false }
@@ -357,9 +370,7 @@ export async function cercaRegi (
  * Si appoggia all'indice di Microsoft, che per un file appena caricato può
  * arrivare in ritardo: per quello resta la navigazione a mano.
  */
-async function cercaDaGraph (
-  account: string,
-): Promise<{ voci: VoceOneDrive[], troncato: boolean }> {
+async function cercaDaGraph (account: string): Promise<Trovate> {
   const proprio = await driveDi(account)
   const [propri, condivisi] = await Promise.all([
     tutteLePagine(account, `/me/drive/root/search(q='.regi')?$select=${CAMPI}&$top=200`, MASSIMO_TROVATI),
@@ -379,7 +390,8 @@ async function cercaDaGraph (
     voci.push(voce)
   }
   voci.sort((a, b) => b.modificato.localeCompare(a.modificato))
-  return { voci, troncato: propri.troncato || condivisi.troncato }
+  const troncato = propri.troncato || condivisi.troncato
+  return { voci, troncato, motivo: troncato ? 'troppi' : null }
 }
 
 // ------------------------------------------------------------------ aprire
