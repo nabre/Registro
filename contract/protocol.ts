@@ -30,7 +30,6 @@ import type {
   PianoLezione,
   Progetto,
   Recapito,
-  Registro,
   Ricorrenza,
   Risorsa,
   RuoloAllegato,
@@ -42,12 +41,11 @@ import type {
   TipoRisorsa,
 } from '#core/dominio/models.js'
 import type { AllineamentoDaCalendario, LezioneDaCalendario } from '#core/dominio/calendar.js'
-import type { AccountMicrosoft } from '#core/dominio/onedrive.js'
 import type {
-  ContenutoProiezione,
   ImpostazioniProiezione,
   MiraProiezione,
 } from '#core/dominio/projection.js'
+import type { ContestoAssistente, GiroAssistente, TurnoAssistente } from './protocol/assistant.js'
 
 export type {
   BloccoProiezione,
@@ -55,6 +53,44 @@ export type {
   ImpostazioniProiezione,
   MiraProiezione,
 } from '#core/dominio/projection.js'
+
+// Qui restano le azioni, le buste di richiesta e risposta e le viste, che
+// prove e strumenti leggono dal sorgente di questo file. L'assistente con la
+// dettatura e i messaggi spinti alla webview stanno a parte; si riesportano
+// perché nessun importatore debba sapere dove.
+export type {
+  BloccoRisultato,
+  ContestoAssistente,
+  Conversazione,
+  Dettatura,
+  ElencoVisibile,
+  GiroAssistente,
+  GiroDaRiprendere,
+  IdVisto,
+  MessaggioAssistente,
+  MessaggioDettatura,
+  MessaggioStatoAssistente,
+  PeriodoContesto,
+  RiferimentiContesto,
+  RisultatoAssistente,
+  SeguiConversazione,
+  TurnoAssistente,
+  VoceContesto,
+} from './protocol/assistant.js'
+export type {
+  DocumentoRecente,
+  FaseAggiornamenti,
+  MessaggioAggiornamenti,
+  MessaggioNavigazione,
+  MessaggioProiezione,
+  MessaggioScarico,
+  MessaggioStato,
+  MessaggioStatoProiezione,
+  MessaggioVersoWebview,
+  RaccontoAggiornamenti,
+  StatoAggiornamenti,
+  VoceProgramma,
+} from './protocol/webview.js'
 
 /** Una classe di un altro registro da importare: le persone con le foto, i corsi con l'orario. */
 interface ClasseDaImportare {
@@ -884,40 +920,6 @@ export type Azione =
  */
 export type UsoModello = 'assistente' | 'ocr'
 
-/**
- * Un turno della conversazione come si vede a schermo, con procedure e guasti.
- * Diverso da `Conversazione.storia`, che è quel che si manda al modello.
- * Viaggia solo quando l'assistente passa fra riquadro e finestra.
- */
-export interface TurnoAssistente {
-  ruolo: 'utente' | 'assistente'
-  testo: string
-  /**
-   * Le procedure aperte per questa risposta; `messaggio` è il motivo di un
-   * fallimento, come in `MessaggioAssistente.attrezzo`.
-   */
-  attrezzi?: Array<{ nome: string, ok: boolean, codice?: string, messaggio?: string }>
-  /**
-   * Gli id incontrati leggendo per questo turno. Stanno nel turno così spariscono
-   * con la conversazione quando la si svuota.
-   */
-  visti?: IdVisto[]
-  /**
-   * Quel che le procedure hanno letto, già impaginato (`api/presentation.ts`):
-   * viaggia con il turno così le tabelle seguono la conversazione staccata.
-   */
-  risultati?: RisultatoAssistente[]
-  /** Il servizio non ha risposto: si disegna in un altro modo. */
-  guasto?: boolean
-  /**
-   * Chi ha chiesto ha premuto «Ferma»: non è un guasto. Resta comunque fuori
-   * dalla storia mandata al modello.
-   */
-  fermato?: boolean
-  /** Il modello ha finito le chiamate concesse: la nota sotto la risposta lo dice. */
-  esaurito?: boolean
-}
-
 /** Una richiesta con il suo numero d'ordine: la risposta lo riporta identico. */
 export interface Richiesta {
   id: number
@@ -951,419 +953,6 @@ export interface Riscontro {
   errori?: string[]
   /** Il codice dell'API: `non-trovato`, `rifiutato`, `ingresso-non-valido`… */
   codice?: string
-}
-
-/**
- * Una scelta in una tendina: l'etichetta a schermo, con cui chi chiede ne
- * parla, e l'id che gli attrezzi vogliono.
- */
-export interface VoceContesto {
-  /** Come si chiama il campo nella barra: «Corso», «Classe», «Semestre». */
-  campo: string
-  /**
-   * Il campo da cui questo dipende («Corso» dentro «Classe»): dice al modello la
-   * gerarchia della barra. Assente per le voci indipendenti.
-   */
-  dentro?: string
-  /** Il valore come si legge a schermo: «DIC4a · Matematica», «Tutti i corsi». */
-  valore: string
-  /** L'id da passare agli attrezzi, quando quel valore ne ha uno. */
-  id: string | null
-  /**
-   * Le altre voci della tendina, ammesse dalla scelta di sopra: così «e la
-   * terza?» si risolve senza una seconda lettura. Assente se non c'è scelta.
-   */
-  opzioni?: Array<{ valore: string, id: string | null }>
-}
-
-/**
- * Gli id su cui la pagina è puntata. Tutti presenti: `null` vuol dire «qui non
- * c'è», così il modello non deve indovinare.
- */
-export interface RiferimentiContesto {
-  annoId: string | null
-  semestreId: string | null
-  corsoId: string | null
-  classeId: string | null
-  lezioneId: string | null
-  allievoId: string | null
-  pianoId: string | null
-  valutazioneId: string | null
-}
-
-/**
- * Il periodo dei conti, già in date: gli attrezzi vogliono `dal` e `al`, non un
- * `semestreId`. `null` tutti e due quando non c'è ancora un anno.
- */
-export interface PeriodoContesto {
-  /** Come si legge nella tendina: «2° semestre», «Anno intero». */
-  etichetta: string
-  /** Il primo giorno che conta, da passare come `dal`. */
-  dal: Iso | null
-  /** L'ultimo giorno che conta, da passare come `al`. */
-  al: Iso | null
-}
-
-/**
- * Quel che l'elenco della pagina mostra adesso, filtrato, con gli id
- * nell'ordine a schermo («il terzo della lista»). `troncato` dice se l'elenco
- * è parziale, perché il modello non risponda sicuro su una parte.
- */
-export interface ElencoVisibile {
-  /** Di che cosa è l'elenco: «corsi», «persone in formazione», «ore». */
-  cosa: string
-  /** Quanti ne mostra la pagina in tutto, anche oltre quelli che si mandano. */
-  quanti: number
-  /** Gli id di quelli mostrati, nell'ordine in cui si vedono. */
-  ids: string[]
-  /** Vero se la pagina ne mostra più di quanti se ne sono mandati. */
-  troncato: boolean
-}
-
-/**
- * Di che cosa si sta parlando, dedotto da dove si guarda: pagina, scheda,
- * tendine, filtri. Viaggia con `assistente.contesto` e l'host tiene l'ultimo.
- */
-export interface ContestoAssistente {
-  /**
-   * La pagina aperta, con il nome del codice. `null` quando «la pagina che
-   * guardo» è spento; il resto del contesto è indipendente (`ui/assistant/parts.ts`).
-   */
-  vista: Vista | null
-  /** Come si chiama nella barra laterale: «Lezione». `null` come sopra. */
-  pagina: string | null
-  /** La scheda aperta dentro la pagina, quando ne ha: «Appello». */
-  scheda: string | null
-  /**
-   * La sezione dentro la scheda, per le pagine a due livelli (le impostazioni:
-   * scheda programma/documento, poi la sezione).
-   */
-  sezione: string | null
-  /** Le scelte fatte nelle tendine in cima, come si leggono. */
-  scelte: VoceContesto[]
-  /** Quel che la pagina sta restringendo: vale anche per quel che si chiede. */
-  filtri: VoceContesto[]
-  riferimenti: RiferimentiContesto
-  /**
-   * Il periodo dei conti, in date. `null` quando chi chiede l'ha spento: vuol
-   * dire «rispondi senza restringere».
-   */
-  periodo: PeriodoContesto | null
-  /** Il giorno che la pagina sta mostrando. */
-  data: Iso
-  /** Oggi, che non è per forza il giorno mostrato. */
-  oggi: Iso
-  /** La ricerca battuta nella pagina, quando ce n'è una. */
-  ricerca: string | null
-  visibili: ElencoVisibile | null
-}
-
-/**
- * Una conversazione con l'assistente: una domanda in linguaggio naturale, a cui
- * il modello locale risponde leggendo il registro. Non è un'`Azione` (non
- * scrive) né una `Domanda` (le procedure le sceglie il modello, e
- * `api/transports/assistant.ts` concede solo le letture). Fuori dalla coda
- * delle scritture perché dura secondi. `storia` la tiene la pagina, così
- * cancellarla la fa sparire davvero.
- */
-export interface Conversazione {
-  id: number
-  /** I turni già detti, il più recente per ultimo. Le istruzioni le mette l'host. */
-  storia: Array<{ ruolo: 'utente' | 'assistente', testo: string }>
-  /**
-   * Gli id già incontrati nei turni: `storia` ha solo ruolo e testo, quindi si
-   * mandano accanto. Vedi `IdVisto`.
-   */
-  visti?: IdVisto[]
-  /**
-   * Il contesto nel momento dell'Invio, dentro la busta: la domanda salta la
-   * coda, e `assistente.contesto` accodato dietro un lavoro lungo sarebbe
-   * vecchio. `undefined`: la finestra staccata non sa comporlo e vale l'ultimo
-   * mandato dal pannello; `null`: contesto spento.
-   */
-  contesto?: ContestoAssistente | null
-  /**
-   * «Ferma» il giro con questo `id`: stessa busta perché è il canale già aperto
-   * verso l'host; `storia` c'è, vuota. Vedi `panels/conversation.ts`.
-   */
-  ferma?: true
-}
-
-/**
- * Una domanda in corso mentre l'assistente cambia finestra. Il giro vive
- * nell'host; la finestra che se ne va dice quanti eventi ha già ricevuto, così
- * la nuova riprende senza doppioni né buchi.
- */
-export interface GiroAssistente {
-  /** Quanti eventi di questo giro la finestra che consegna ha già ricevuto. */
-  visti: number
-  /**
-   * L'id della busta con cui questa pagina ha chiesto: dice quale giro sospendere
-   * quando ce ne sono due insieme. Opzionale: senza, si prende il più recente
-   * della pagina che consegna.
-   */
-  busta?: number
-}
-
-/** Lo stesso giro, come l'host lo restituisce: con il numero per riprenderlo. */
-export interface GiroDaRiprendere extends GiroAssistente {
-  /** Il numero con cui l'host lo tiene da parte: torna nella busta «segui». */
-  id: number
-}
-
-/**
- * La finestra arrivata riprende la domanda in volo, senza rimandarla al
- * modello.
- */
-export interface SeguiConversazione {
-  /** Il giro che l'host tiene da parte: `GiroDaRiprendere.id`. */
-  segui: number
-  /** L'id su cui questa finestra vuole sentirsi rispondere. */
-  id: number
-  /** Da quale evento in poi: i precedenti li ha già visti chi ha consegnato. */
-  da: number
-}
-
-/**
- * Come sta l'assistente, per tutte e due le finestre: il pannello guarda
- * `staccato`, la finestra staccata `acceso` e `modello` (non ha il `Registro`).
- * `storia` c'è solo subito dopo uno spostamento.
- */
-export interface MessaggioStatoAssistente {
-  tipo: 'assistente.stato'
-  acceso: boolean
-  modello: string
-  staccato: boolean
-  /**
-   * Se il microfono si può accendere (interruttore della dettatura). Viaggia qui
-   * perché la finestra staccata non riceve le impostazioni; il riquadro lo legge
-   * da qui lo stesso, per avere una fonte sola.
-   */
-  dettatura: boolean
-  storia?: TurnoAssistente[]
-  /** Quel che era battuto nel campo e non ancora mandato, per non ribatterlo dopo lo spostamento. */
-  bozza?: string
-  /**
-   * La domanda in volo durante lo spostamento, solo nel messaggio subito dopo:
-   * chi lo riceve manda una `SeguiConversazione` e continua ad ascoltare il giro.
-   */
-  giro?: GiroDaRiprendere
-  /**
-   * La finestra ha consegnato con «Riattacca»: il riquadro si riapre. Serve
-   * perché `staccato: false` da solo non distingue il rientro dalla chiusura con
-   * la crocetta, e una conversazione vuota è comunque una conversazione.
-   */
-  rientro?: boolean
-}
-
-/**
- * Come procede una conversazione: più eventi per domanda. Mentre si aspetta
- * conta `'attrezzo'`, che mostra le procedure aperte. Il testo arriva intero
- * (lo streaming resta spento con gli attrezzi in tavola: i `tool_calls`
- * spezzati confondono i modelli piccoli); `'pezzo'` è pronto per quando si
- * accenderà.
- */
-export interface MessaggioAssistente {
-  tipo: 'assistente'
-  id: number
-  evento: 'attrezzo' | 'risultato' | 'limite' | 'pezzo' | 'fine' | 'guasto'
-  /**
-   * Su `'limite'`: quante letture erano fatte quando il motore ha finito le
-   * chiamate concesse; la pagina lo dice sotto la risposta.
-   */
-  chiamate?: number
-  /** Su `'fine'`: vero se il motore ha finito le chiamate prima della risposta. */
-  esaurito?: boolean
-  /**
-   * Su `'attrezzo'`: la procedura aperta e com'è andata. `messaggio` è il motivo
-   * leggibile di un fallimento, da mostrare accanto (non in un `title`).
-   */
-  attrezzo?: { nome: string, ok: boolean, codice?: string, messaggio?: string }
-  /** Su `'risultato'`: quel che quella procedura ha letto, già impaginato. */
-  risultato?: RisultatoAssistente
-  /**
-   * Su `'fine'`: gli id incontrati, già uniti a quelli entrati; la pagina li
-   * tiene nel turno e li rimanda con la domanda dopo. Vedi `IdVisto`.
-   */
-  visti?: IdVisto[]
-  /** Su `'pezzo'` e su `'fine'`: quel che il modello ha risposto. */
-  testo?: string
-  /** Su `'guasto'`: le frasi da mostrare, già tradotte. */
-  errori?: string[]
-}
-
-/**
- * Un id incontrato leggendo, con il suo nome. Mai le cifre: un id è stabile,
- * una quota di assenza cambia all'appello dopo, e una cifra ricordata sarebbe
- * plausibile e sbagliata.
- */
-export interface IdVisto {
-  id: string
-  /** Come si legge: «Bernasconi Elia», «DIC4a — Matematica». */
-  nome: string
-  /** Di che cosa è l'id: «allievo», «classe», «corso». */
-  cosa: string
-}
-
-/**
- * Quel che una lettura ha letto, pronto da impaginare: i dati arrivano interi
- * alla pagina senza passare dal modello, che scrive solo introduzione e
- * commento. La forma la dichiara la procedura (`presentazione` in
- * `api/contract.ts`) e la costruisce `api/presentation.ts`.
- */
-export interface RisultatoAssistente {
-  /** La procedura che l'ha letto: `corso.presenze`. */
-  procedura: string
-  /** Come si intitola quel che si vede: «Presenze del corso». */
-  titolo: string
-  /** I blocchi, nell'ordine in cui si leggono. */
-  blocchi: BloccoRisultato[]
-}
-
-export type BloccoRisultato =
-  /** Poche cose con il loro nome: il periodo, la classe, quante UD. */
-  | { tipo: 'valori', titolo?: string, voci: Array<{ etichetta: string, valore: string }> }
-  /** Una tabella, già impaginata: le colonne sanno da che parte stanno. */
-  | {
-    tipo: 'tabella'
-    titolo?: string
-    colonne: Array<{ testo: string, allinea: 'sinistra' | 'destra' }>
-    righe: string[][]
-    /** Quante righe ci sono in tutto: `righe` può essere più corta. */
-    quante: number
-    /** Vero se se ne mostrano meno di quante ce ne sono. */
-    troncata: boolean
-  }
-  /**
-   * Un elenco di frasi (rotture dell'integrità, fogli di un fascicolo).
-   * `quante` e `troncata` come nella tabella, perché un elenco tagliato senza
-   * dirlo sembra completo. Opzionali: senza, l'elenco non dichiara niente.
-   */
-  | { tipo: 'elenco', titolo?: string, voci: string[], quante?: number, troncata?: boolean }
-
-/**
- * Quel che si è detto al microfono, da trascrivere. Non nomina una procedura e
- * non tocca l'archivio: la prende `panels/transcription.ts`, che parla con
- * voicebox. I campioni sono PCM 16 bit, 16 kHz, mono, già il formato di
- * Whisper; il WAV lo scrive chi li consegna. Fuori dalla coda delle scritture.
- */
-export interface Dettatura {
-  id: number
-  campioni: Int16Array
-  /** Sempre 16000: viaggia lo stesso, così chi riceve non lo suppone. */
-  frequenza: number
-}
-
-/**
- * L'esito della trascrizione, uno per dettatura. `motivo` è la riga da mostrare
- * sotto la casella («non ho sentito niente»), non un codice.
- */
-export interface MessaggioDettatura {
-  tipo: 'dettatura'
-  id: number
-  ok: boolean
-  testo?: string
-  motivo?: string
-}
-
-/**
- * Avanzamento dello scarico di un modello, spesso. `byte` e `totale` invece di
- * una percentuale per poter scrivere «1,2 GB di 4,7 GB»; `totale` è zero finché
- * il sito non lo dichiara. L'ultimo porta `finito`, con `nome` o `motivo`.
- */
-export interface MessaggioScarico {
-  tipo: 'scarico'
-  /** Il file che sta scendendo, come si chiama nel deposito. */
-  file: string
-  byte: number
-  totale: number
-  finito?: boolean
-  /** Il nome con cui è finito nella cartella, quando è andata. */
-  nome?: string
-  /** Perché non è arrivato, in una frase che si legge. */
-  motivo?: string
-  /**
-   * I file in coda, in ordine. Viaggia in ogni messaggio perché barra e coda
-   * devono restare coerenti anche con messaggi in disordine.
-   */
-  coda: string[]
-}
-
-/**
- * Fase degli aggiornamenti, una alla volta. `errore` non blocca: il controllo
- * dopo riparte. `installazione` dura pochi secondi, poi il registro esce e
- * racconta la finestra dell'aggiornamento.
- */
-export type FaseAggiornamenti =
-  | 'fermo'
-  | 'controllo'
-  | 'aggiornato'
-  | 'disponibile'
-  | 'scarico'
-  | 'pronto'
-  | 'installazione'
-  | 'errore'
-
-export interface StatoAggiornamenti {
-  /** La versione che gira adesso. */
-  versione: string
-  /**
-   * Se questo registro si può aggiornare da sé: no nel portabile, in sviluppo e
-   * fuori da Windows. Allora `motivo` lo dice e resta `pagina`.
-   */
-  supportato: boolean
-  motivo?: string
-  fase: FaseAggiornamenti
-  /** La versione trovata, quando ce n'è una più nuova. */
-  nuova?: { versione: string, data?: string, note?: string }
-  /** Lo scarico in corso: `byte` di `totale`. */
-  byte?: number
-  totale?: number
-  /** Quando si è controllato l'ultima volta, in ISO. */
-  ultimoControllo?: string
-  /** Perché l'ultimo tentativo non è andato, in una frase che si legge. */
-  errore?: string
-  /** Dove stanno le release: il ripiego quando da sé non si può. */
-  pagina: string
-  /** Lo stato detto a parole, uguale per tutte le superfici che lo mostrano. */
-  racconto: RaccontoAggiornamenti
-  /** La notizia chiusa con la ✕, ricordata per non rimostrarla finché non cambia. */
-  notiziaNascosta?: string
-}
-
-/**
- * Lo stato degli aggiornamenti a parole, scritto dall'host
- * (`environment/updates.ts`) perché le superfici che lo mostrano sono quattro,
- * in strati che non si importano a vicenda.
- */
-export interface RaccontoAggiornamenti {
-  /** Due o tre parole («c’è la 1.7.0»), per pastiglie e barre. */
-  breve: string
-  /** Una frase intera: la riga della sezione, il suggerimento sopra la voce. */
-  frase: string
-  /** Il colore, fra i toni del tema. */
-  tono: 'quiete' | 'informativo' | 'positivo' | 'attenzione' | 'negativo'
-  /** Il gesto sensato adesso, se c'è. `pagina` apre le release nel browser. */
-  gesto?: {
-    tipo: 'aggiornamenti.controlla' | 'aggiornamenti.scarica' | 'aggiornamenti.installa' | 'pagina'
-    testo: string
-    /** Visibile ma spento: il controllo in corso. */
-    spento?: boolean
-  }
-  /** Quanto è sceso, fra 0 e 1, mentre si scarica e il totale è noto. */
-  quota?: number
-  /**
-   * Presente quando c'è una notizia (versione trovata, in arrivo, pronta): solo
-   * allora barra e filetto parlano. È una chiave: cambia quando la notizia cambia,
-   * non mentre lo scarico avanza; chiudere il filetto chiude quella chiave.
-   */
-  notizia?: string
-}
-
-/** Lo stato degli aggiornamenti, spinto dall'host a ogni cambio (lo scarico dura minuti). */
-export interface MessaggioAggiornamenti {
-  tipo: 'aggiornamenti'
-  stato: StatoAggiornamenti
 }
 
 export interface Risposta {
@@ -1417,83 +1006,6 @@ export interface Messaggio {
 }
 
 /**
- * Un'impostazione del programma come la vede la pagina: manifesto più stato.
- * `scritta` distingue «vale il predefinito» da «l'ho deciso io».
- */
-export interface VoceProgramma {
-  /** `registroDocenti.vassoio.attivo`: è anche la chiave con cui si scrive. */
-  chiave: string
-  tipo: 'string' | 'number' | 'boolean'
-  /** Il nome da leggere: `etichetta` nel manifesto, o ricavato dalla chiave. */
-  etichetta: string
-  descrizione: string
-  /**
-   * Che cosa tiene una voce di testo (vedi `Formato` nel manifesto). Un percorso
-   * si mostra in sola lettura con «Sfoglia…», un modello rimanda a «Modelli
-   * linguistici». Per `indirizzoLocale` la regola la fa rispettare la dogana.
-   */
-  formato: 'email' | 'cartella' | 'eseguibile' | 'file' | 'modello' | 'indirizzoLocale' | null
-  scelte: Array<{ valore: string | number, aiuto: string }> | null
-  /** Gli estremi di un numero, quando ce ne sono: diventano `min` e `max` del campo. */
-  minimo: number | null
-  massimo: number | null
-  /**
-   * Di quanto si muove un numero (`step` del campo), contato dal minimo: 1 se
-   * il manifesto non dice altro, perché un numero è intero. `null` per chi non è
-   * un numero. La dogana lo fa rispettare.
-   */
-  passo: number | null
-  /** L'unità scritta accanto al numero («min»), nella lingua di adesso, o `null`. */
-  unita: string | null
-  /**
-   * Come si disegna (`Controllo` nel manifesto), o `null` se basta il tipo. Un
-   * disegno solo per le due superfici (ADR-52).
-   */
-  controllo: 'segmenti' | 'tendina' | 'cursore' | null
-  /**
-   * Da dove vengono le scelte che si sanno solo sul momento (`FonteScelte`), o
-   * `null`. L'elenco lo porta chi lo conosce: per `indirizziPosta`, lo stato
-   * della posta del pannello.
-   */
-  scelteDinamiche: 'indirizziPosta' | null
-  /** Con `scelteDinamiche`: se si può scrivere anche un valore fuori elenco. */
-  sceltaLibera: boolean
-  predefinito: string | number | boolean
-  valore: string | number | boolean
-  /** Se il valore di adesso è scritto nel file o viene dal predefinito. */
-  scritta: boolean
-  /**
-   * Perché questo interruttore non si può accendere adesso, o `null`. Se manca
-   * quel che `richiede`, `valore` è già spento. Calcolata da `vociImpostazioni()`
-   * perché le superfici sono due.
-   */
-  bloccata: string | null
-  /**
-   * Acceso ma non in grado di lavorare adesso (programma che manca, file del
-   * modello sparito), con il motivo; `null` se va, se è spento o se la voce non
-   * accende un modello. Lo dice `prontezza()` di `core/dati/llm.ts`.
-   */
-  nonPronta: string | null
-  /** La chiave che deve essere accesa perché questa conti, per dirlo a schermo. */
-  dipendeDa: string | null
-  /**
-   * Se il padre è spento e questa voce non conta. Calcolata da
-   * `vociImpostazioni()` e non da chi disegna, così pannello e finestra nativa
-   * dicono lo stesso.
-   */
-  sospesa: boolean
-  /** Voce rara: sta in fondo alla sezione, in un gruppo che si apre. */
-  avanzata: boolean
-  /** Cambiata, vale dal prossimo avvio: le due superfici lo dicono accanto al nome. */
-  alProssimoAvvio?: boolean
-  /**
-   * La scrive «Collega la casella» (`CHIAVI_DEL_COLLEGAMENTO`): si mostra in
-   * sola lettura e non si ritira, in tutte e due le superfici.
-   */
-  delCollegamento: boolean
-}
-
-/**
  * Le impostazioni del documento da salvare, senza logo (ha le sue azioni) e
  * senza `vecchiaCartellaVista` (la scrive solo il registro). Senza intestazione
  * quella salvata resta.
@@ -1502,118 +1014,6 @@ export type ImpostazioniDaSalvare = Omit<Impostazioni, 'intestazione'> & {
   intestazione?: Omit<Intestazione, 'carte' | 'vecchiaCartellaVista'> & {
     carte: Array<Omit<CartaIntestata, 'logo'>>
   }
-}
-
-export interface MessaggioStato {
-  tipo: 'stato'
-  registro: Registro
-  /**
-   * Le impostazioni del programma, che il webview non legge da sé: arrivano con
-   * lo stato, rifatto quando cambiano.
-   */
-  programma: VoceProgramma[]
-  avvisi: string[]
-  /**
-   * La cartella dei dati vista dal webview, per le immagini: la sandbox carica
-   * solo l'indirizzo `registro://` concesso a quella cartella.
-   */
-  radiceDati: string | null
-  /**
-   * La radice dell'applicazione come indirizzo caricabile: dice a pdfjs dove
-   * sono i caratteri standard del PDF, senza cui le miniature usano un ripiego.
-   */
-  radiceApp: string | null
-  /**
-   * Se la lettura automatica delle scansioni è accesa: senza saperlo il webview
-   * offrirebbe una lettura spenta; così la quarantena propone di accenderla.
-   */
-  ocrAttivo: boolean
-  /**
-   * Com'è messa la posta, per la scheda che lo dice: quel che si sa senza
-   * chiedere al server. Se il server risponde lo dice `posta.prova`.
-   */
-  posta: {
-    /** Vero quando la casella è collegata (indirizzo scritto, password nel portachiavi). */
-    exchange: boolean
-    /** Il server a cui si consegna, per la scheda che lo dice. */
-    server: string
-    /** La porta del server (STARTTLS). */
-    porta: number
-    invioDiretto: boolean
-    /** L'indirizzo da cui si scrive: quello che le famiglie vedono in «Da». */
-    mittente: string
-    /**
-     * Il nome d'accesso, quando è diverso dall'indirizzo (nelle scuole spesso una
-     * sigla): scambiati, fanno rifiutare l'invio.
-     */
-    accesso: string
-    /**
-     * Gli indirizzi da cui l'account collegato può scrivere, detti da Microsoft
-     * all'accesso: il mittente si sceglie fra questi. Vuoto se non è collegato.
-     */
-    indirizzi: string[]
-  }
-  /**
-   * Gli account Microsoft: quelli collegati per OneDrive, e la casella della
-   * posta anche se non lo è ancora. Nessun gettone: solo chi e che cosa.
-   */
-  microsoft: { account: AccountMicrosoft[] }
-  /** Quanti gesti si possono annullare e ripristinare: accendono ↶ ↷ e il suggerimento. */
-  storia: { annulla: number; ripristina: number }
-  documenti: {
-    /** Il percorso del documento in uso, o `null` se non ce n'è ancora uno. */
-    corrente: string | null
-    /**
-     * Anno appena creato e non ancora salvato con nome, in una cartella
-     * provvisoria. Vedi `data/paths.ts`.
-     */
-    provvisorio?: boolean
-    elenco: DocumentoRecente[]
-  }
-  /**
-   * L'inventario di `esportazioni/`, per la pagina Documenti: dice quali fogli
-   * ci sono e quali mancano. Arriva con lo stato, che si rispinge a ogni rapporto
-   * scritto.
-   */
-  esportati: DocumentoEsportato[]
-  /**
-   * L'inventario di `archivio/`, per l'anteprima dell'archivio documentale:
-   * presenza, misura e revisione di ogni foglio.
-   */
-  archiviati: DocumentoEsportato[]
-}
-
-/** Un documento che sta nella cartella delle esportazioni. */
-interface DocumentoEsportato {
-  /** Il percorso relativo alla cartella dei dati, `esportazioni/` compreso. */
-  percorso: string
-  /** Quanto misura, in byte: zero byte è un foglio da rifare. */
-  misura: number
-  /**
-   * Quante volte è stato riscritto da quando l'anno è aperto. Serve all'anteprima:
-   * il lettore di PDF tiene in cache lo stesso percorso, e la misura può restare
-   * uguale.
-   */
-  revisione: number
-}
-
-/** Un anno che si è aperto, o che si tiene da parte. */
-export interface DocumentoRecente {
-  percorso: string
-  /** Il nome dell'anno senza estensione: `2026-2027`. */
-  nome: string
-  /** L'anno scolastico scritto nel file («2026/27»), o `null` se mai aperto. */
-  etichetta: string | null
-  /** La cartella che lo contiene: distingue due anni con lo stesso nome. */
-  cartella: string
-  preferito: boolean
-  /** Vero se ora sul disco non c'è (una chiavetta staccata). */
-  mancante: boolean
-  /**
-   * Vero se è l'anno aperto adesso. Lo calcola l'host: confrontare percorsi è
-   * una regola del sistema operativo che il pannello, senza `path`, non sa fare.
-   */
-  aperto: boolean
 }
 
 /**
@@ -1642,81 +1042,3 @@ export type Vista =
   | 'mappa'
   | 'impostazioni'
   | 'guida'
-
-/** Un comando della palette che chiede al webview di aprirsi su qualcosa. */
-export interface MessaggioNavigazione {
-  tipo: 'naviga'
-  vista: Vista
-  elementoId?: string
-  data?: Iso
-  /** Apre direttamente il modulo di creazione della vista di destinazione. */
-  nuovo?: boolean
-  /** Apre l'importazione da un altro registro, dopo aver creato un anno. */
-  importa?: boolean
-  /**
-   * Apre un dialogo sopra la pagina di adesso, che non cambia: `vista` allora
-   * non conta. Dal menu nativo, che non sa quale pagina si stia guardando.
-   */
-  dialogo?: 'informazioniDocumento'
-  /**
-   * Con `vista: 'impostazioni'`, l'indirizzo dentro la pagina: `<area>#<voce>`
-   * (`utente#account`). Stringa e non `Scheda`, che è della pagina: la convalida
-   * la fa chi riceve.
-   */
-  impostazioni?: string
-}
-
-interface MessaggioNotifica {
-  tipo: 'notifica'
-  livello: 'info' | 'avviso' | 'errore'
-  testo: string
-}
-
-/**
- * A che punto è la lettura delle scansioni. Messaggio a sé perché cambia a ogni
- * pagina: spingere il registro intero ridisegnerebbe tutto il pannello.
- */
-interface MessaggioLavoro {
-  tipo: 'lavoro'
-  corrente: { smistamentoId: string, pagina: number, etichetta: string } | null
-  /** Pagine già lette in questa infornata, e quante erano. */
-  fatte: number
-  totale: number
-  coda: Array<{ smistamentoId: string, pagina: number, etichetta: string }>
-}
-
-/**
- * Quel che va sullo schermo grande, già filtrato dall'host: il webview della
- * proiezione riceve solo i blocchi accesi.
- */
-export interface MessaggioProiezione {
-  tipo: 'proiezione'
-  contenuto: ContenutoProiezione
-  /** La cartella dei dati vista dal webview: serve alle immagini delle risorse. */
-  radiceDati: string | null
-}
-
-/**
- * Com'è la proiezione, detto al pannello del docente, che ne disegna i comandi:
- * lo schermo grande non ne ha.
- */
-export interface MessaggioStatoProiezione {
-  tipo: 'proiezione.stato'
-  aperta: boolean
-  impostazioni: ImpostazioniProiezione
-}
-
-export type MessaggioVersoWebview =
-  | MessaggioStato
-  | MessaggioNavigazione
-  | MessaggioNotifica
-  | MessaggioLavoro
-  | MessaggioProiezione
-  | MessaggioStatoProiezione
-  | MessaggioAssistente
-  | MessaggioStatoAssistente
-  | MessaggioDettatura
-  | MessaggioScarico
-  | MessaggioAggiornamenti
-  | Risposta
-  | Riscontro
