@@ -14,7 +14,6 @@ const it = {
   nessunPiano: 'Nessun piano assegnato',
   nessunPianoTesto: 'Il piano è la scaletta delle attività: si prepara una volta e si riusa.',
   assegna: 'Assegna un piano',
-  cambia: 'Cambia',
   modificaScaletta: 'Modifica la scaletta',
   svolto: (percento: number) => `${percento}% svolto`,
   piano: (durata: string) => `piano ${durata}`,
@@ -52,7 +51,6 @@ export const testi = catalogo(it, {
       'Der Plan ist der Ablauf der Aktivitäten: Man bereitet ihn einmal vor und verwendet ' +
       'ihn wieder.',
     assegna: 'Plan zuweisen',
-    cambia: 'Wechseln',
     modificaScaletta: 'Ablauf bearbeiten',
     svolto: (percento) => `${percento}% erledigt`,
     piano: (durata) => `Plan ${durata}`,
@@ -84,7 +82,6 @@ export const testi = catalogo(it, {
     nessunPianoTesto:
       'Le plan est le déroulement des activités : on le prépare une fois et on le réutilise.',
     assegna: 'Attribuer un plan',
-    cambia: 'Changer',
     modificaScaletta: 'Modifier le déroulement',
     svolto: (percento) => `${percento} % fait`,
     piano: (durata) => `plan ${durata}`,
@@ -115,7 +112,6 @@ export const testi = catalogo(it, {
     nessunPiano: 'No plan assigned',
     nessunPianoTesto: 'The plan is the outline of activities: you prepare it once and reuse it.',
     assegna: 'Assign a plan',
-    cambia: 'Change',
     modificaScaletta: 'Edit the outline',
     svolto: (percento) => `${percento}% done`,
     piano: (durata) => `plan ${durata}`,

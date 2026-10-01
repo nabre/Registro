@@ -88,17 +88,17 @@
 }
 
 .appello__apice {
-  min-width: 14px;
-  height: 14px;
+  min-width: 15px;
+  height: 15px;
   padding: 0 3px;
   border: 1px solid var(--attenzione);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--sfondo);
   color: var(--attenzione);
   font: inherit;
-  font-size: 0.68em;
+  font-size: 0.72em;
   font-weight: 700;
-  line-height: 12px;
+  line-height: 13px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -413,6 +413,18 @@
 .scaletta__voce--parziale { border-left: 3px solid var(--attenzione); }
 .scaletta__voce--saltata { border-left: 3px solid var(--negativo); opacity: 0.6; }
 
+/*
+ * In aula le tappe non sono riquadri: righe divise da un filo, e il piano si
+ * legge come un elenco. Resta la barra a sinistra di che cosa si è fatto.
+ */
+.scaletta--aula { gap: 0; }
+.scaletta--aula .scaletta__voce { border-width: 0 0 1px; border-radius: 0; background: none; }
+.scaletta--aula .scaletta__voce--intestazione,
+.scaletta--aula .scaletta__voce:last-child { border-bottom-width: 0; }
+.scaletta--aula .scaletta__voce--svolta,
+.scaletta--aula .scaletta__voce--parziale,
+.scaletta--aula .scaletta__voce--saltata { border-left-width: 3px; }
+
 .scaletta__numero {
   width: 20px;
   height: 20px;
@@ -591,27 +603,41 @@
 }
 
 /*
- * Il navigatore delle ore: una riga di controlli attaccata alla testata, non
- * un riquadro.
+ * La testata della lezione: il titolo è il navigatore delle ore del corso
+ * (freccia, tendina, freccia), in riga con classe, giorno e orario; il conto
+ * delle ore in fondo. Niente riquadri: è la prima riga che si legge.
  */
+.testata--lezione { align-items: center; }
+
+.testata--lezione .testata__classe { color: var(--testo); font-weight: 600; }
+
 .navigatore-registro {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spazio-1);
-  /* Nessun margine sotto: lo stacca il `gap` della `.vista`, e in un flex un margine si somma. */
-  padding: var(--spazio-1) 0;
-  flex-wrap: wrap;
+  gap: 2px;
 }
 
-.navigatore-registro__simbolo {
-  color: var(--testo-quieto);
-  flex: none;
+/*
+ * La tendina si legge come un titolo, larga quanto la sua voce: il riquadro
+ * del campo si vede solo sotto il mouse o col fuoco. `select.` davanti per
+ * vincere su `select.campo__controllo--selezione`, che ne tiene la freccia.
+ */
+select.navigatore-registro__lezione {
+  width: auto;
+  field-sizing: content;
+  max-width: 100%;
+  min-height: 0;
+  padding: 2px 30px 2px 8px;
+  border-color: transparent;
+  background-color: transparent;
+  font: inherit;
+  cursor: pointer;
 }
 
-/* La tendina delle ore prende lo spazio che avanza; quella del corso è nella barra in cima. */
-.navigatore-registro__lezione {
-  flex: 1 1 22rem;
-  min-width: 10rem;
+select.navigatore-registro__lezione:hover,
+select.navigatore-registro__lezione:focus-visible {
+  border-color: var(--bordo);
+  background-color: var(--sfondo-alto-2);
 }
 
 .navigatore-registro__conta {

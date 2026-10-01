@@ -39,16 +39,12 @@ const it = {
       svolta: 'Conclusa',
       annullata: 'Annullata',
       testata: 'giovedì 14.11 · 08:20–10:00 · aula 12',
-      statoPianificata: 'modificabile',
-      presenti: 'presenti 18/20',
-      ritardi: 'ritardi 1 · 1h 30',
-      navigatore: '✓ 12. gio 14.11 · 08:20 · Frazioni',
+      navigatore: '✓ 12. gio 14.11 · 08:20',
       posizione: '12 di 38',
       amministrazione: 'Amministrazione',
       schedaLezione: 'Lezione',
       annotazioni: 'Annotazioni',
       appello: 'Appello',
-      consegne: 'Consegne',
       proveDaRiconsegnare: 'Prove da riconsegnare',
       oraDaFare: 'la lezione da fare',
       daCompilare: 'Da compilare',
@@ -69,11 +65,12 @@ const it = {
           'in cima, uguale per le cinque pagine del Registro.',
         legenda: [
           'La riga delle azioni: i tre stati della lezione.',
-          'La testata: classe, giorno, orario, aula, e i conti dell’appello.',
-          'Il navigatore: lezione prima, lezione dopo, e la tendina di tutte le lezioni del corso.',
+          'Il titolo è la lezione, in una tendina: le frecce passano a quella prima e a quella ' +
+            'dopo, la tendina a una qualunque del corso; in fondo, quante sono.',
+          'Con il titolo, in piccolo: classe, giorno, orario e aula.',
           'Le tre schede, una per momento della lezione.',
           'Le due colonne della scheda scelta: in Amministrazione l’appello a sinistra; ' +
-            'consegne, check e prove da ridare a destra.',
+            `${CARTE.pendenza.plurale}, check e prove da ridare a destra.`,
         ],
       },
       {
@@ -105,16 +102,17 @@ const it = {
       {
         termine: 'Le lezioni del corso',
         testo:
-          'Le frecce passano alla lezione prima e a quella dopo dello stesso corso, la tendina salta ' +
-          'a una qualunque: «✓ 12. gio 14.11 · 08:20». **✓** è conclusa, **×** annullata, e le ' +
-          'annullate non hanno numero. Accanto, «12 di 38».',
+          'Il titolo della pagina è la lezione aperta, in una tendina: le frecce ai lati passano ' +
+          'alla lezione prima e a quella dopo dello stesso corso, la tendina salta a una ' +
+          'qualunque: «✓ 12. gio 14.11 · 08:20». **✓** è conclusa, **×** annullata, e le ' +
+          'annullate non hanno numero. In fondo alla riga, «12 di 38».',
       },
       {
         termine: 'La testata',
         testo:
-          'Classe, giorno, orario e aula; poi lo stato e i conti dell’appello: presenti, ' +
-          'assenti, **da fare** (le caselle ancora vuote), ritardi, durata — e «con pause» ' +
-          'quando la lezione ne ha.',
+          'Accanto al titolo, classe, giorno, orario e aula. Lo stato della lezione si legge ' +
+          'nella riga delle azioni, i conti dell’appello — presenti, caselle da fare, UD di ' +
+          'assenza — nel sottotitolo della scheda Appello.',
       },
       {
         termine: 'Stato della lezione',
@@ -170,17 +168,17 @@ const it = {
       {
         termine: 'Le tre schede',
         testo:
-          '**Amministrazione** mentre la classe entra: appello, consegne, check, prove da ' +
+          `**Amministrazione** mentre la classe entra: appello, ${CARTE.pendenza.plurale}, check, prove da ` +
           'ridare. ' +
           '**Lezione** durante: la scaletta e le valutazioni. **Annotazioni** a classe uscita: ' +
           'lo svolgimento e le osservazioni. Le frecce ← → girano fra le tre.',
       },
       {
-        termine: 'Consegne',
+        termine: Molti(CARTE.pendenza),
         testo:
-          'Nella scheda Amministrazione, accanto all’appello: quel che si è dato da fare e non ' +
-          'è ancora tornato, e **Nuova consegna**. Come si danno e si spuntano sta nella ' +
-          'sezione Consegne.',
+          `Nella scheda Amministrazione, accanto all’appello, il riquadro **${Molti(CARTE.pendenza)}**: ` +
+          'quel che si è dato da fare e non è ancora tornato, e **Nuova consegna**. Come si ' +
+          'danno e si spuntano sta nella sezione Consegne.',
       },
       {
         termine: 'Prove da riconsegnare',
@@ -199,12 +197,12 @@ const it = {
           'aprono con un clic.',
       },
       {
-        termine: 'Assegnare o cambiare il piano',
+        termine: 'Assegnare il piano',
         testo:
           'Senza piano c’è **Assegna un piano**: i piani del corso, ciascuno con i minuti in più ' +
-          'o in meno rispetto all’ora, e **Nuovo piano per questa lezione**. Con il piano, ' +
-          '**Cambia** e la matita **Modifica la scaletta**, che apre il piano nella sua pagina, con ' +
-          'quest’ora accanto.',
+          'o in meno rispetto all’ora, e **Nuovo piano per questa lezione**. Con il piano, la ' +
+          'matita **Modifica la scaletta** apre il piano nella sua pagina, con quest’ora accanto. ' +
+          'In aula le tappe si leggono come un elenco, senza riquadri.',
       },
       {
         termine: 'Le prove della lezione',
@@ -825,16 +823,12 @@ export const testi = catalogo(it, {
         svolta: 'Abgeschlossen',
         annullata: 'Ausgefallen',
         testata: 'Donnerstag 14.11. · 08:20–10:00 · Zimmer 12',
-        statoPianificata: 'bearbeitbar',
-        presenti: 'anwesend 18/20',
-        ritardi: 'verspätet 1 · 1h 30',
-        navigatore: '✓ 12. Do 14.11. · 08:20 · Brüche',
+        navigatore: '✓ 12. Do 14.11. · 08:20',
         posizione: '12 von 38',
         amministrazione: 'Verwaltung',
         schedaLezione: 'Unterricht',
         annotazioni: 'Notizen',
         appello: 'Präsenzkontrolle',
-        consegne: Molti(DE.consegna),
         proveDaRiconsegnare: 'Zurückzugebende Prüfungen',
         oraDaFare: 'die kommende Stunde',
         daCompilare: 'Auszufüllen',
@@ -855,12 +849,12 @@ export const testi = catalogo(it, {
             'Auswahlliste **Kurs** oben, derselbe für die fünf Seiten des Klassenbuchs.',
           legenda: [
             'Die Aktionsleiste: die drei Status der Stunde.',
-            'Der Kopf: Klasse, Tag, Zeit, Zimmer und die Zahlen der Präsenzkontrolle.',
-            'Der Navigator: Stunde davor, Stunde danach und die Auswahlliste aller Stunden des ' +
-              'Kurses.',
+            'Der Titel ist die Stunde, in einer Auswahlliste: Die Pfeile gehen zur Stunde davor ' +
+              'und danach, die Liste zu jeder Stunde des Kurses; am Ende, wie viele es sind.',
+            'Mit dem Titel, klein: Klasse, Tag, Zeit und Zimmer.',
             'Die drei Reiter, einer für jeden Moment der Stunde.',
             'Die zwei Spalten des gewählten Reiters: unter Verwaltung links die ' +
-              'Präsenzkontrolle; rechts Aufträge, Check und zurückzugebende Prüfungen.',
+              `Präsenzkontrolle; rechts ${DE.pendenza.plurale}, Check und zurückzugebende Prüfungen.`,
           ],
         },
         {
@@ -895,16 +889,17 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Stunden des Kurses',
           testo:
-            'Die Pfeile gehen zur Stunde davor und danach desselben Kurses, die Auswahlliste ' +
-            'springt zu einer beliebigen: «✓ 12. Do 14.11. · 08:20». **✓** heisst abgeschlossen, ' +
-            '**×** ausgefallen, und ausgefallene haben keine Nummer. Daneben «12 von 38».',
+            'Der Titel der Seite ist die offene Stunde, in einer Auswahlliste: Die Pfeile daneben ' +
+            'gehen zur Stunde davor und danach desselben Kurses, die Liste springt zu einer ' +
+            'beliebigen: «✓ 12. Do 14.11. · 08:20». **✓** heisst abgeschlossen, **×** ' +
+            'ausgefallen, und ausgefallene haben keine Nummer. Am Ende der Zeile «12 von 38».',
         },
         {
           termine: 'Der Kopf',
           testo:
-            'Klasse, Tag, Zeit und Zimmer; dann der Status und die Zahlen der ' +
-            'Präsenzkontrolle: anwesend, abwesend, **offen** (die noch leeren Felder), ' +
-            'Verspätungen, Dauer — und «mit Pausen», wenn die Stunde welche hat.',
+            'Neben dem Titel Klasse, Tag, Zeit und Zimmer. Den Status der Stunde zeigt die ' +
+            'Aktionsleiste, die Zahlen der Präsenzkontrolle — anwesend, offene Felder, ' +
+            'Lektionen Absenz — der Untertitel des Bereichs Präsenzkontrolle.',
         },
         {
           termine: 'Status der Stunde',
@@ -966,17 +961,17 @@ export const testi = catalogo(it, {
         {
           termine: 'Die drei Reiter',
           testo:
-            '**Verwaltung**, während die Klasse hereinkommt: Präsenzkontrolle, Aufträge, ' +
+            `**Verwaltung**, während die Klasse hereinkommt: Präsenzkontrolle, ${DE.pendenza.plurale}, ` +
             'Check, zurückzugebende Prüfungen. **Unterricht** währenddessen: der Ablauf und die ' +
             'Beurteilungen. **Notizen**, wenn die Klasse gegangen ist: die Durchführung und die ' +
             'Beobachtungen. Die Pfeile ← → wechseln zwischen den dreien.',
         },
         {
-          termine: 'Aufträge',
+          termine: Molti(DE.pendenza),
           testo:
-            'Im Reiter Verwaltung, neben der Präsenzkontrolle: was aufgegeben wurde und noch ' +
-            'nicht zurückgekommen ist, und **Neuer Auftrag**. Wie man sie erteilt und abhakt, ' +
-            'steht im Abschnitt Aufträge.',
+            `Im Reiter Verwaltung, neben der Präsenzkontrolle, der Bereich **${Molti(DE.pendenza)}**: ` +
+            'was aufgegeben wurde und noch nicht zurückgekommen ist, und **Neuer Auftrag**. Wie ' +
+            'man sie erteilt und abhakt, steht im Abschnitt Aufträge.',
         },
         {
           termine: 'Zurückzugebende Prüfungen',
@@ -996,12 +991,13 @@ export const testi = catalogo(it, {
             'eigene Zeile. Die Ressourcen öffnen sich mit einem Klick.',
         },
         {
-          termine: 'Den Plan zuweisen oder wechseln',
+          termine: 'Den Plan zuweisen',
           testo:
             'Ohne Plan gibt es **Plan zuweisen**: die Pläne des Kurses, jeder mit den Minuten ' +
             'mehr oder weniger im Vergleich zur Stunde, und **Neuer Plan für diese ' +
-            'Stunde**. Mit Plan **Wechseln** und der Stift **Ablauf bearbeiten**, ' +
-            'der den Plan auf seiner Seite öffnet, mit dieser Stunde daneben.',
+            'Stunde**. Mit Plan öffnet der Stift **Ablauf bearbeiten** den Plan auf seiner ' +
+            'Seite, mit dieser Stunde daneben. Im Zimmer liest man die Etappen als Liste, ohne ' +
+            'Kästen.',
         },
         {
           termine: 'Die Prüfungen der Stunde',
@@ -1664,16 +1660,12 @@ export const testi = catalogo(it, {
         svolta: 'Terminée',
         annullata: 'Annulée',
         testata: 'jeudi 14.11 · 08:20–10:00 · salle 12',
-        statoPianificata: 'modifiable',
-        presenti: 'présents 18/20',
-        ritardi: 'retards 1 · 1h 30',
-        navigatore: '✓ 12. jeu 14.11 · 08:20 · Fractions',
+        navigatore: '✓ 12. jeu 14.11 · 08:20',
         posizione: '12 sur 38',
         amministrazione: 'Administration',
         schedaLezione: 'Leçon',
         annotazioni: 'Annotations',
         appello: 'Appel',
-        consegne: 'Devoirs',
         proveDaRiconsegnare: 'Épreuves à rendre',
         oraDaFare: 'la leçon à venir',
         daCompilare: 'À remplir',
@@ -1694,12 +1686,12 @@ export const testi = catalogo(it, {
             '**Cours** en haut, le même pour les cinq pages du Registre.',
           legenda: [
             'La barre d’actions : les trois états de la leçon.',
-            'L’en-tête : classe, jour, horaire, salle, et les comptes de l’appel.',
-            'Le navigateur : leçon précédente, leçon suivante, et la liste de toutes les leçons ' +
-              'du cours.',
+            'Le titre est la leçon, dans une liste : les flèches passent à la précédente et à la ' +
+              'suivante, la liste à n’importe quelle leçon du cours ; au bout, combien il y en a.',
+            'Avec le titre, en petit : classe, jour, horaire et salle.',
             'Les trois onglets, un par moment de la leçon.',
             'Les deux colonnes de l’onglet choisi : dans Administration, l’appel à gauche ; ' +
-              'devoirs, check et épreuves à rendre à droite.',
+              `${FR.pendenza.plurale}, check et épreuves à rendre à droite.`,
           ],
         },
         {
@@ -1732,16 +1724,17 @@ export const testi = catalogo(it, {
         {
           termine: 'Les leçons du cours',
           testo:
-            'Les flèches passent à la leçon précédente et à la suivante du même cours, la liste ' +
-            'saute à n’importe laquelle : « ✓ 12. jeu 14.11 · 08:20 ». **✓** veut dire terminée, ' +
-            '**×** annulée, et les annulées n’ont pas de numéro. À côté, « 12 sur 38 ».',
+            'Le titre de la page est la leçon ouverte, dans une liste : les flèches à côté ' +
+            'passent à la leçon précédente et à la suivante du même cours, la liste saute à ' +
+            'n’importe laquelle : « ✓ 12. jeu 14.11 · 08:20 ». **✓** veut dire terminée, **×** ' +
+            'annulée, et les annulées n’ont pas de numéro. Au bout de la ligne, « 12 sur 38 ».',
         },
         {
           termine: 'L’en-tête',
           testo:
-            'Classe, jour, horaire et salle ; puis l’état et les comptes de l’appel : présents, ' +
-            'absents, **à faire** (les cases encore vides), retards, durée — et « avec pauses » ' +
-            'quand la leçon en a.',
+            'À côté du titre, classe, jour, horaire et salle. L’état de la leçon se lit dans la ' +
+            'barre d’actions, les comptes de l’appel — présents, cases à faire, périodes ' +
+            'd’absence — dans le sous-titre du bloc Appel.',
         },
         {
           termine: 'État de la leçon',
@@ -1801,17 +1794,17 @@ export const testi = catalogo(it, {
         {
           termine: 'Les trois onglets',
           testo:
-            '**Administration** pendant que la classe entre : appel, devoirs, check, épreuves ' +
+            `**Administration** pendant que la classe entre : appel, ${FR.pendenza.plurale}, check, épreuves ` +
             'à rendre. **Leçon** pendant le cours : le déroulement et les évaluations. ' +
             '**Annotations** une fois la classe sortie : la mise en œuvre et les observations. ' +
             'Les flèches ← → passent de l’un à l’autre.',
         },
         {
-          termine: 'Devoirs',
+          termine: Molti(FR.pendenza),
           testo:
-            'Dans l’onglet Administration, à côté de l’appel : ce qui a été donné et n’est pas ' +
-            'encore revenu, et **Nouveau devoir**. Comment on les donne et on les coche est ' +
-            'dans la section Devoirs.',
+            `Dans l’onglet Administration, à côté de l’appel, le bloc **${Molti(FR.pendenza)}** : ` +
+            'ce qui a été donné et n’est pas encore revenu, et **Nouveau devoir**. Comment on ' +
+            'les donne et on les coche est dans la section Devoirs.',
         },
         {
           termine: 'Épreuves à rendre',
@@ -1830,12 +1823,13 @@ export const testi = catalogo(it, {
             'Les ressources s’ouvrent d’un clic.',
         },
         {
-          termine: 'Attribuer ou changer le plan',
+          termine: 'Attribuer le plan',
           testo:
             'Sans plan, il y a **Attribuer un plan** : les plans du cours, chacun avec les ' +
             'minutes en plus ou en moins par rapport à la leçon, et **Nouveau plan pour cette ' +
-            'leçon**. Avec un plan, **Changer** et le crayon **Modifier le déroulement**, qui ' +
-            'ouvre le plan sur sa page, avec cette leçon à côté.',
+            'leçon**. Avec un plan, le crayon **Modifier le déroulement** ouvre le plan sur sa ' +
+            'page, avec cette leçon à côté. En classe, les étapes se lisent comme une liste, ' +
+            'sans cadres.',
         },
         {
           termine: 'Les épreuves de la leçon',
@@ -2480,16 +2474,12 @@ export const testi = catalogo(it, {
         svolta: 'Completed',
         annullata: 'Cancelled',
         testata: 'Thursday 14.11 · 08:20–10:00 · room 12',
-        statoPianificata: 'editable',
-        presenti: 'present 18/20',
-        ritardi: 'late 1 · 1h 30',
-        navigatore: '✓ 12. Thu 14.11 · 08:20 · Fractions',
+        navigatore: '✓ 12. Thu 14.11 · 08:20',
         posizione: '12 of 38',
         amministrazione: 'Admin',
         schedaLezione: 'Lesson',
         annotazioni: 'Notes',
         appello: 'Attendance',
-        consegne: 'Assignments',
         proveDaRiconsegnare: 'Tests to hand back',
         oraDaFare: 'the lesson to come',
         daCompilare: 'To fill in',
@@ -2510,12 +2500,12 @@ export const testi = catalogo(it, {
             '**Course** drop-down at the top, the same for all five Register pages.',
           legenda: [
             'The action bar: the lesson’s three states.',
-            'The header: class, day, time, room, and the attendance counts.',
-            'The navigator: previous lesson, next lesson, and the drop-down of all the ' +
-              'course’s lessons.',
+            'The title is the lesson, in a drop-down: the arrows go to the previous and next ' +
+              'one, the drop-down to any lesson of the course; at the end, how many there are.',
+            'With the title, in small: class, day, time and room.',
             'The three tabs, one for each moment of the lesson.',
             'The two columns of the chosen tab: in Admin, attendance on the left; ' +
-              'assignments, check and tests to hand back on the right.',
+              `${EN.pendenza.plurale}, check and tests to hand back on the right.`,
           ],
         },
         {
@@ -2548,16 +2538,17 @@ export const testi = catalogo(it, {
         {
           termine: 'The course’s lessons',
           testo:
-            'The arrows go to the previous and next lesson of the same course, the drop-down ' +
-            'jumps to any of them: “✓ 12. Thu 14.11 · 08:20”. **✓** means completed, **×** ' +
-            'cancelled, and cancelled lessons have no number. Next to it, “12 of 38”.',
+            'The page title is the open lesson, in a drop-down: the arrows beside it go to the ' +
+            'previous and next lesson of the same course, the drop-down jumps to any of them: ' +
+            '“✓ 12. Thu 14.11 · 08:20”. **✓** means completed, **×** cancelled, and cancelled ' +
+            'lessons have no number. At the end of the row, “12 of 38”.',
         },
         {
           termine: 'The header',
           testo:
-            'Class, day, time and room; then the state and the attendance counts: present, ' +
-            'absent, **to do** (the cells still empty), late, length — and “with breaks” when ' +
-            'the lesson has any.',
+            'Next to the title, class, day, time and room. The lesson’s state shows in the ' +
+            'action bar, the attendance counts — present, cells to do, periods of absence — in ' +
+            'the subtitle of the Attendance box.',
         },
         {
           termine: 'State of the lesson',
@@ -2615,17 +2606,17 @@ export const testi = catalogo(it, {
         {
           termine: 'The three tabs',
           testo:
-            '**Admin** while the class comes in: attendance, assignments, check, tests to hand ' +
+            `**Admin** while the class comes in: attendance, ${EN.pendenza.plurale}, check, tests to hand ` +
             'back. **Lesson** during it: the outline and the assessments. **Notes** once the ' +
             'class has left: the delivery and the observations. The ← → arrows move ' +
             'between the three.',
         },
         {
-          termine: 'Assignments',
+          termine: Molti(EN.pendenza),
           testo:
-            'In the Admin tab, next to attendance: what has been set and has not come back ' +
-            'yet, and **New assignment**. How they are set and ticked off is in the ' +
-            'Assignments section.',
+            `In the Admin tab, next to attendance, the **${Molti(EN.pendenza)}** box: what has ` +
+            'been set and has not come back yet, and **New assignment**. How they are set and ' +
+            'ticked off is in the Assignments section.',
         },
         {
           termine: 'Tests to hand back',
@@ -2644,12 +2635,12 @@ export const testi = catalogo(it, {
             'open with a click.',
         },
         {
-          termine: 'Assigning or changing the plan',
+          termine: 'Assigning the plan',
           testo:
             'Without a plan there is **Assign a plan**: the course’s plans, each with the ' +
             'minutes over or under compared with the lesson, and **New plan for this lesson**. ' +
-            'With a plan, **Change** and the pencil **Edit the outline**, which opens ' +
-            'the plan on its page, with this lesson alongside.',
+            'With a plan, the pencil **Edit the outline** opens the plan on its page, with this ' +
+            'lesson alongside. In class the steps read as a list, without boxes.',
         },
         {
           termine: 'The lesson’s tests',

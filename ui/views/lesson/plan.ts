@@ -221,12 +221,6 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
       formattaDurata(minutiDiAttivita(confronto.durataPiano, posata.minutiPerUd)),
     azioni: [
       pulsante({
-        testo: t.cambia,
-        variante: 'sottile',
-        simbolo: 'piano',
-        al: () => moduloAssegnaPiano(lezione),
-      }),
-      pulsante({
         simbolo: 'matita',
         variante: 'fantasma',
         // Si modifica nella pagina del piano, con quest'ora accanto: lì c'è

@@ -65,36 +65,32 @@ const PAGINA_LEZIONE = disegno(
   // La riga delle azioni.
   riquadro(142, 30, 450, 22, { tono: 'quieto' }),
   statiDellOra(),
-  // La testata compatta.
-  testo(142, 74, 'I MEC A', { corpo: 'titolo', forte: true }),
-  testo(142, 88, T.lezione.scritte.testata, { corpo: 'piccolo', tono: 'quieto' }),
-  pastiglia(356, 62, T.lezione.scritte.statoPianificata, 'informativo'),
-  testo(452, 74, T.lezione.scritte.presenti, { corpo: 'piccolo' }),
-  testo(452, 88, T.lezione.scritte.ritardi, { corpo: 'piccolo', tono: 'quieto' }),
-  // Il navigatore delle ore del corso.
-  riquadro(142, 96, 450, 22, { tono: 'neutro' }),
-  simbolo('sinistra', 148, 99, 16),
-  riquadro(168, 99, 250, 16, { tono: 'quieto', raggio: 4 }),
-  testo(176, 111, T.lezione.scritte.navigatore, { corpo: 'piccolo' }),
-  simbolo('destra', 422, 99, 16),
-  testo(448, 111, T.lezione.scritte.posizione, { corpo: 'piccolo', tono: 'quieto' }),
+  // La testata: il titolo è la tendina delle lezioni, fra le due frecce, e
+  // in fondo quante sono; sotto, in piccolo, classe, giorno e orario.
+  simbolo('sinistra', 142, 64, 16),
+  riquadro(162, 61, 236, 22, { tono: 'quieto', raggio: 4 }),
+  testo(170, 77, T.lezione.scritte.navigatore, { forte: true }),
+  simbolo('destra', 402, 64, 16),
+  testo(592, 77, T.lezione.scritte.posizione, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
+  testo(142, 106, 'I MEC A', { corpo: 'piccolo', forte: true }),
+  testo(190, 106, T.lezione.scritte.testata, { corpo: 'piccolo', tono: 'quieto' }),
   // Le tre schede.
   riquadro(142, 126, 120, 20, { tono: 'accento', etichetta: T.lezione.scritte.amministrazione }),
   riquadro(266, 126, 80, 20, { etichetta: T.lezione.scritte.schedaLezione }),
   riquadro(350, 126, 100, 20, { etichetta: T.lezione.scritte.annotazioni }),
-  // Le due colonne della scheda scelta: l'appello; consegne, check e prove.
+  // Le due colonne della scheda scelta: l'appello; pendenze, check e prove.
   riquadro(142, 154, 236, 70, { tono: 'neutro' }),
   testo(152, 170, T.lezione.scritte.appello, { forte: true }),
   righe(152, 182, 210, 4, 10),
-  riquadro(390, 154, 202, 20, { etichetta: T.lezione.scritte.consegne, aSinistra: true }),
+  riquadro(390, 154, 202, 20, { etichetta: T.lezione.scritte.pendenze, aSinistra: true }),
   riquadro(390, 179, 202, 20, { etichetta: T.lezione.scritte.check, aSinistra: true }),
   riquadro(390, 204, 202, 20, {
     etichetta: T.lezione.scritte.proveDaRiconsegnare,
     aSinistra: true,
   }),
   bollino(612, 41, 1),
-  bollino(612, 80, 2),
-  bollino(612, 107, 3),
+  bollino(612, 72, 2),
+  bollino(612, 102, 3),
   bollino(612, 136, 4),
   bollino(612, 189, 5),
 )

@@ -144,12 +144,13 @@ test('navigation', async ({ browser }) => {
   await attendi(page, 'prova.stato.registro.lezioni.find(l=>l.id===prova.stato.lezioneId)' +
     '.corsoId===prova.stato.corsoId')
   await expect(sceltaCorso).toHaveAttribute('data-valore', await valuta<string>(page, 'prova.stato.corsoId'))
-  // La tendina del corso sta nella barra, non nel registro della lezione; i
-  // gesti dell'ora sono comandi della pagina, non pulsanti in testata.
-  expect(await valuta(page, "document.querySelectorAll('.navigatore-registro select').length"))
+  // La tendina del corso sta nella barra, non nel registro della lezione; la
+  // tendina delle ore è il titolo. I gesti dell'ora sono comandi della pagina:
+  // in testata ci sono solo le frecce del navigatore.
+  expect(await valuta(page, "document.querySelectorAll('.vista--lezione .testata__titolo.navigatore-registro select').length"))
     .toBe(1)
   expect(await valuta(page,
-    "document.querySelectorAll('.vista--lezione .testata button').length")).toBe(0)
+    "document.querySelectorAll('.vista--lezione .testata button:not(.navigatore-registro button)').length")).toBe(0)
   for (const id of ['lezione.stato.pianificata', 'lezione.stato.svolta',
     'lezione.stato.annullata']) {
     await expect(page.locator(`[data-fuoco="comando-${id}"]`)).toHaveCount(1)

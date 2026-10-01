@@ -546,7 +546,7 @@ export function pannelloConsegne (lezione: Lezione): HTMLElement {
       : t.sottotitolo
 
   return scheda({
-    titolo: Molti(lessico().consegna),
+    titolo: Molti(lessico().pendenza),
     sottotitolo,
     classe: 'scheda--consegne',
     azioni: pulsante({

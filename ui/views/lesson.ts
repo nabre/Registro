@@ -4,22 +4,18 @@
 import {
   fineLezione,
   inizioLezione,
-  minutiEffettivi,
-  minutiTotali,
   nomeCompleto,
-  riepilogaPresenze,
 } from '#core/dominio/calculations.js'
 import { Molti } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { minuscolo } from '#core/i18n/index.js'
-import { formattaData, formattaDurata } from '#core/dominio/dates.js'
+import { formattaData } from '#core/dominio/dates.js'
 import { numeriDelleLezioni } from '#core/dominio/courses.js'
 import type { Lezione, Osservazione } from '#core/dominio/models.js'
 import {
   avviso,
   campo,
-  datoSintetico,
   pastiglia,
   pulsante,
   quieto,
@@ -27,10 +23,8 @@ import {
   selettore,
   statoVuoto,
   tendina,
-  testataVista,
   type TonoPastiglia,
 } from '#ui/components/base.js'
-import { icona } from '#ui/components/icons.js'
 import { inTelaio } from '#ui/components/table.js'
 import { dataDiLezione } from '#ui/components/lessonDate.js'
 import { h, type Figlio } from '#ui/dom.js'
@@ -225,13 +219,15 @@ export function oreDelCorso (lezione: Lezione): Array<{ id: string, etichetta: s
 }
 
 /**
- * Il navigatore del registro: l'ora, dentro il corso scelto in cima. Il corso
- * si sceglie solo dalla barra in cima.
+ * La testata della lezione: il titolo è il navigatore delle ore del corso
+ * (prima, tendina, dopo), in riga con la classe, il giorno e l'orario. Il
+ * corso si sceglie solo dalla barra in cima.
  */
-function navigatoreRegistro (lezione: Lezione): Figlio {
+function testataLezione (lezione: Lezione): HTMLElement {
   const sorelle = lezioniDiCorso(lezione.corsoId)
   const posizione = sorelle.findIndex((l) => l.id === lezione.id)
   const ore = oreDelCorso(lezione)
+  const classe = classeDiLezione(lezione)
   const t = testi()
 
   // L'ora precedente e successiva dello stesso corso.
@@ -241,30 +237,43 @@ function navigatoreRegistro (lezione: Lezione): Figlio {
   }
 
   return h(
-    'div',
-    { class: 'navigatore-registro' },
-    icona('lezione', 'navigatore-registro__simbolo'),
-    pulsante({
-      simbolo: 'sinistra',
-      variante: 'fantasma',
-      titolo: t.precedente,
-      disabilitato: posizione <= 0,
-      al: () => vaiA(posizione - 1),
-    }),
-    tendina({
-      voci: ore.map((ora) => ({ valore: ora.id, testo: ora.etichetta })),
-      valore: lezione.id,
-      etichetta: t.lezioneDelCorso,
-      classe: 'navigatore-registro__lezione',
-      al: (scelto) => apriLezione(scelto),
-    }),
-    pulsante({
-      simbolo: 'destra',
-      variante: 'fantasma',
-      titolo: t.successiva,
-      disabilitato: posizione < 0 || posizione >= sorelle.length - 1,
-      al: () => vaiA(posizione + 1),
-    }),
+    'header',
+    { class: 'testata testata--compatta testata--lezione' },
+    h(
+      'h2',
+      { class: 'testata__titolo navigatore-registro' },
+      pulsante({
+        simbolo: 'sinistra',
+        variante: 'fantasma',
+        titolo: t.precedente,
+        disabilitato: posizione <= 0,
+        al: () => vaiA(posizione - 1),
+      }),
+      tendina({
+        voci: ore.map((ora) => ({ valore: ora.id, testo: ora.etichetta })),
+        valore: lezione.id,
+        etichetta: t.lezioneDelCorso,
+        classe: 'navigatore-registro__lezione',
+        al: (scelto) => apriLezione(scelto),
+      }),
+      pulsante({
+        simbolo: 'destra',
+        variante: 'fantasma',
+        titolo: t.successiva,
+        disabilitato: posizione < 0 || posizione >= sorelle.length - 1,
+        al: () => vaiA(posizione + 1),
+      }),
+    ),
+    h(
+      'p',
+      { class: 'testata__sottotitolo' },
+      h('strong', { class: 'testata__classe' }, classe?.nome ?? t.classeEliminata),
+      ' · ',
+      dataDiLezione(lezione.data),
+      ` · ${inizioLezione(lezione) ?? ''}–${fineLezione(lezione) ?? ''}` +
+        (lezione.aula ? t.aula(lezione.aula) : ''),
+    ),
+    h('span', { class: 'testata__spazio' }),
     h(
       'span',
       { class: 'navigatore-registro__conta' },
@@ -346,7 +355,7 @@ function pannelloStrumentiLezione (lezione: Lezione): HTMLElement {
     },
     {
       id: 'pendenze',
-      etichetta: t.schedaPendenze,
+      etichetta: Molti(lessico().pendenza),
       conto: quanteConsegne > 0 ? quanteConsegne : undefined,
     },
     {
@@ -423,9 +432,6 @@ export function vistaLezione (): Figlio {
     })
   }
 
-  const classe = classeDiLezione(lezione)
-  const riepilogo = riepilogaPresenze(lezione.presenze)
-  const stati = lessico().statiLezione
   // La linguetta scelta, se quest'ora ce l'ha: Progetto c'è solo con un progetto nel piano.
   const aperta = schedaLezioneAperta(lezione)
 
@@ -444,46 +450,7 @@ export function vistaLezione (): Figlio {
   return h(
     'div',
     { class: 'vista vista--lezione', dataset: { telaio: 'lezione' } },
-    testataVista({
-      // Compatta: classe, giorno e numeri dell'ora su una riga, per lasciare in vista
-      // l'appello e le consegne.
-      compatta: true,
-      // Il titolo è la classe; di che cosa parla l'ora lo dice il piano sotto.
-      titolo: classe?.nome ?? t.classeEliminata,
-      sottotitolo: [
-        dataDiLezione(lezione.data),
-        ` · ${inizioLezione(lezione) ?? ''}–${fineLezione(lezione) ?? ''}` +
-          (lezione.aula ? t.aula(lezione.aula) : ''),
-      ],
-      // Niente pulsanti qui: i gesti sull'ora stanno nella riga delle azioni.
-      contorno: h(
-        'div',
-        { class: 'sintesi' },
-        h(
-          'div',
-          { class: 'sintesi__stato' },
-          lezione.stato === 'svolta'
-            ? pastiglia(minuscolo(stati.svolta), 'positivo', 'spunta')
-            : lezione.stato === 'annullata'
-              ? pastiglia(minuscolo(stati.annullata), 'negativo', 'chiudi')
-              : pastiglia(minuscolo(stati.pianificata), 'informativo', 'orologio'),
-        ),
-        datoSintetico(
-          t.presenti,
-          `${riepilogo.presenti}/${riepilogo.totale - riepilogo.senzaAppello}`,
-        ),
-        datoSintetico(t.assenti, String(riepilogo.assenti + riepilogo.parziali)),
-        riepilogo.udSenzaAppello > 0
-          ? datoSintetico(t.daFare, String(riepilogo.udSenzaAppello), 'attenzione')
-          : null,
-        datoSintetico(t.ritardi, String(riepilogo.ritardi)),
-        datoSintetico(t.durata, formattaDurata(minutiEffettivi(lezione))),
-        minutiTotali(lezione) !== minutiEffettivi(lezione)
-          ? datoSintetico(t.conPause, formattaDurata(minutiTotali(lezione)))
-          : null,
-      ),
-    }),
-    navigatoreRegistro(lezione),
+    testataLezione(lezione),
     avvisoOraSvolta(lezione),
     // Quattro schede: amministrazione mentre la classe entra, lezione durante,
     // progetto (compiti, matrice, giudizi) solo se il piano dell'ora lavora a
