@@ -113,6 +113,7 @@ dettaglio-assenze: Absenzen und Unterschriften
 diario-lezioni: Unterrichtstagebuch
 piani-lezione: Lektionspläne
 pendenze: Pendenzen des Kurses
+quadro-per-persona: Übersicht pro Person
 criteri: Beurteilungskriterien
 scala-livelli: Niveauskala
 lezioni-del-progetto: Lektionen des Projekts

@@ -113,6 +113,7 @@ dettaglio-assenze: Absences and signatures detail
 diario-lezioni: Lesson journal
 piani-lezione: Lesson plans
 pendenze: Course pending tasks
+quadro-per-persona: Overview per person
 criteri: Assessment criteria
 scala-livelli: Level scale
 lezioni-del-progetto: Project lessons

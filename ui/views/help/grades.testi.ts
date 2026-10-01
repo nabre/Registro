@@ -647,6 +647,16 @@ const it = {
           'bozze in fondo, e ognuno ha la sua scaletta sotto la sua data.',
       },
       {
+        termine: 'La scheda del corso',
+        testo:
+          'Tutto il corso nel periodo, in un foglio solo. In testa il **Quadro per persona**: ' +
+          'una riga a testa con media e nota, % assenza e ritardi, consegne fatte su quelle ' +
+          'date, check spuntati, recuperi aperti e i segni **+** e **−** della matrice. Poi ' +
+          'presenze, voti con il loro andamento, diario, osservazioni, i piani lezione in ' +
+          'ordine di data, **Consegne e compiti** — anche quelle già chiuse, con quanti le ' +
+          'hanno fatte — e le pendenze.',
+      },
+      {
         termine: 'Foto della classe e fascicolo',
         testo:
           'La **Foto della classe** è una faccia e un nome per persona, da portare in aula. Il ' +
@@ -1352,6 +1362,16 @@ export const testi = catalogo(it, {
             'seinem Datum.',
         },
         {
+          termine: 'Das Kursblatt',
+          testo:
+            'Der ganze Kurs im Zeitraum auf einem Blatt. Oben die **Übersicht pro Person**: eine ' +
+            'Zeile pro Person mit Durchschnitt und Note, % Abwesenheit und Verspätungen, ' +
+            'erledigten von den erteilten Aufträgen, abgehakten Checks, offenen Nachprüfungen und ' +
+            'den Zeichen **+** und **−** der Matrix. Dann Anwesenheit, Noten mit ihrem Verlauf, ' +
+            'Tagebuch, Beobachtungen, die Unterrichtspläne nach Datum, **Aufgaben und Abgaben** — ' +
+            'auch die erledigten, mit wie vielen sie gemacht haben — und die Pendenzen.',
+        },
+        {
           termine: 'Klassenfoto und Klassendossier',
           testo:
             'Das **Klassenfoto** ist ein Gesicht und ein Name pro Person, zum Mitnehmen ins ' +
@@ -2042,6 +2062,16 @@ export const testi = catalogo(it, {
             'la date de la leçon, les brouillons à la fin, et chacun a son déroulement sous sa date.',
         },
         {
+          termine: 'La fiche du cours',
+          testo:
+            'Tout le cours de la période sur une seule feuille. En tête la **Vue par personne** : ' +
+            'une ligne par personne avec moyenne et note, % d’absence et retards, devoirs faits ' +
+            'sur ceux donnés, contrôles cochés, rattrapages ouverts et les signes **+** et **−** ' +
+            'de la matrice. Puis présences, notes avec leur évolution, journal, observations, ' +
+            'les plans de leçon par date, **Devoirs et travaux** — aussi ceux déjà clos, avec ' +
+            'combien les ont faits — et ce qui reste en suspens.',
+        },
+        {
           termine: 'Photos de la classe et dossier de classe',
           testo:
             'Les **Photos de la classe**, c’est un visage et un nom par personne, à emporter en ' +
@@ -2719,6 +2749,16 @@ export const testi = catalogo(it, {
             'objectives, prerequisites, outline, materials, notes, headed by the dates of every ' +
             'lesson that uses it. In the **course sheet** the plans follow the lesson date, drafts ' +
             'last, and each has its outline under its date.',
+        },
+        {
+          termine: 'The course sheet',
+          testo:
+            'The whole course for the period on one sheet. At the top the **Overview per ' +
+            'person**: one row each with average and grade, % absence and late arrivals, ' +
+            'assignments done out of those set, ticked checks, open resits and the matrix ' +
+            '**+** and **−** marks. Then attendance, grades with their trend, diary, ' +
+            'observations, the lesson plans by date, **Assignments and tasks** — closed ones too, ' +
+            'with how many did them — and the pending tasks.',
         },
         {
           termine: 'Class photos and class file',

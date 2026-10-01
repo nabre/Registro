@@ -1243,3 +1243,31 @@ describe('l’andamento dei voti', () => {
     assert.equal(andamento.linee.find((l) => l.tipo === 'media').valore, 4.5)
   })
 })
+
+describe('il quadro per persona e le consegne della scheda del corso', () => {
+  it('mette in fila per ognuno media, assenza, consegne fatte e segni della matrice', () => {
+    const lezione = ora('2026-10-06', [
+      { allievoId: 'al-1', stati: ['presente', 'presente'] },
+      { allievoId: 'al-2', stati: ['assente', 'assente'] },
+    ])
+    lezione.matrice = [
+      { allievoId: 'al-1', aspetto: 'partecipazione', segno: 'positivo' },
+      { allievoId: 'al-1', aspetto: 'puntualita', segno: 'negativo' },
+    ]
+    const registro = registroCon([lezione])
+    registro.consegne = [{
+      ...creaConsegna('cor-1', 'Esercizi 4–7', lezione.data, lezione.id),
+      fatte: [{ chi: 'al-1', fattaIl: '2026-10-07T08:00:00.000Z' }],
+    }]
+    const dati = datiCorso(registro, corso(registro), null)
+
+    const rossi = dati.tabelle.quadro.righe.find((r) => r[0] === 'Rossi Anna')
+    const bianchi = dati.tabelle.quadro.righe.find((r) => r[0] === 'Bianchi Luca')
+    assert.equal(rossi[5], '1/1')
+    assert.equal(bianchi[5], '0/1')
+    assert.equal(rossi[8], '+1 / -1')
+    assert.equal(bianchi[8], '')
+    // Le consegne chiuse restano nella loro tabella: le pendenze dicono le aperte.
+    assert.deepEqual(dati.tabelle.consegne.righe, [['06.10.2026', 'Esercizi 4–7', 'tutta la classe', '', '1/2']])
+  })
+})

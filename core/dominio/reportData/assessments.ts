@@ -405,7 +405,7 @@ export function andamentoAllievo (
  * dal voto più basso al più alto, e la media del corso. Si vede se le prove
  * vanno meglio o peggio, e quanto la classe è stretta o sparpagliata.
  */
-export function andamentoCorso (
+function andamentoCorso (
   registro: Registro,
   momenti: MomentoValutazione[],
   media: number | null,
@@ -438,7 +438,7 @@ export function andamentoCorso (
  * La media del corso: la media delle medie di chi ha almeno un voto, come la
  * riga in fondo alla griglia. Nulla senza voti.
  */
-export function mediaDelCorso (
+function mediaDelCorso (
   momenti: MomentoValutazione[],
   allievi: readonly { id: string }[],
 ): number | null {

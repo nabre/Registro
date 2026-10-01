@@ -1,16 +1,27 @@
 // La scheda completa del corso e quella ristretta alle supplenze.
 
 import {
+  allieviAttivi,
   confrontaLezioni,
+  formattaVoto,
   inizioLezione,
   mediaAllievo,
   minutiDiAttivita,
   nomeCompleto,
+  notaFineSemestre,
 } from '#core/dominio/calculations.js'
+import { matriceDelCorsoNelPeriodo } from '#core/dominio/courseMatrix.js'
+import { percento } from '#core/dominio/text.js'
 import { classeDelCorsoId, nomeDelPiano, registroDelCorso } from '#core/dominio/courses.js'
 import { nomeSegnoScritto } from '#core/dominio/observations.js'
 import { recuperiDelMomento } from '#core/dominio/retakes.js'
-import { avanzamentoConsegna, dataConsegna, scadenzaConsegna } from '#core/dominio/assignments.js'
+import {
+  avanzamentoConsegna,
+  dataConsegna,
+  destinatariConsegna,
+  haFatto,
+  scadenzaConsegna,
+} from '#core/dominio/assignments.js'
 import {
   etichettaSemestre,
   formattaData,
@@ -18,8 +29,16 @@ import {
   nelSemestre,
   oggi,
 } from '#core/dominio/dates.js'
-import type { Attivita, Corso, Lezione, Registro, Semestre } from '#core/dominio/models.js'
-import type { DatiRapporto } from '#core/dominio/reports.js'
+import type {
+  Attivita,
+  Consegna,
+  Corso,
+  Lezione,
+  MomentoValutazione,
+  Registro,
+  Semestre,
+} from '#core/dominio/models.js'
+import type { DatiRapporto, Tabella } from '#core/dominio/reports.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './reportData.testi.js'
 import { aChiConsegna, perQuando, vuoto, colonne, comuni, nomeAspetto } from './common.js'
@@ -265,7 +284,94 @@ export function datiCorso (
     dati.tabelle.check = { ...colonne((c) => [c.pif]), righe: [] }
   }
 
+  // Le consegne del periodo, aperte e chiuse, in ordine di data: le pendenze
+  // dicono solo quelle aperte, e in conferenza si chiede anche quante sono
+  // state date e quanto sono state fatte.
+  const consegneDelPeriodo = consegneCorso
+    .filter((c) => !semestre || nelSemestre(semestre, dataConsegna(registro, c)))
+    .sort((a, b) => dataConsegna(registro, a).localeCompare(dataConsegna(registro, b)))
+  dati.tabelle.consegne = {
+    ...colonne((c) => [c.data, c.cheCosa, c.aChi, c.perQuando, c.avanzamento]),
+    pesi: [2, 7, 4, 2, 2],
+    righe: consegneDelPeriodo.map((c) => {
+      const { fatte, destinatari } = avanzamentoConsegna(c, classe)
+      return [
+        formattaData(dataConsegna(registro, c)),
+        c.testo,
+        aChiConsegna(c, nomiCorso),
+        perQuando(registro, c),
+        destinatari.length === 0 ? '—' : `${fatte}/${destinatari.length}`,
+      ]
+    }),
+  }
+
+  dati.tabelle.quadro = quadroPerPersona(registro, corso, semestre, {
+    momenti,
+    lezioni,
+    consegne: consegneDelPeriodo,
+    recuperiAperti: aperti,
+  })
+
   return dati
+}
+
+/**
+ * Il quadro per persona: una riga a testa con quel che il registro sa di lei
+ * nel corso — media e nota, assenza e ritardi, consegne fatte, check spuntati,
+ * recuperi aperti, segni della matrice. Sono numeri che stanno sparsi in sei
+ * sezioni; messi in fila si vede chi ha bisogno di che cosa.
+ */
+function quadroPerPersona (
+  registro: Registro,
+  corso: Corso,
+  semestre: Semestre | null,
+  da: {
+    momenti: MomentoValutazione[]
+    lezioni: Lezione[]
+    consegne: Consegna[]
+    recuperiAperti: ReturnType<typeof recuperiDelMomento>
+  },
+): Tabella {
+  const classe = classeDelCorsoId(registro, corso.id)
+  // Le presenze dalla stessa matrice della tabella delle presenze.
+  const { matrice } = matriceDelCorsoNelPeriodo(registro, corso, semestre)
+  const presenze = new Map(matrice.righe.map((riga) => [riga.allievo.id, riga]))
+  const check = registro.check?.find((k) => k.corsoId === corso.id)
+  const colonneCheck = check?.colonne ?? []
+  return {
+    ...colonne((c) => [
+      c.pif, c.media, c.notaSemestre, c.percAssenza, c.ritardi, c.consegneFatte, c.checkFatti,
+      c.recuperiAperti, c.comeEAndata,
+    ]),
+    pesi: [5, 2, 2, 2, 2, 2, 2, 2, 2],
+    righe: (classe ? allieviAttivi(classe) : []).map((allievo) => {
+      const media = mediaAllievo(da.momenti, allievo.id).media
+      const nota = notaFineSemestre(
+        media,
+        registro.impostazioni.scala,
+        registro.impostazioni.passoFineSemestre,
+      )
+      const suoi = da.consegne.filter((c) => destinatariConsegna(c, classe).includes(allievo.id))
+      const fatte = suoi.filter((c) => haFatto(c, allievo.id)).length
+      const spuntati = colonneCheck.filter((col) =>
+        check?.spunte.some((s) => s.allievoId === allievo.id && s.colonnaId === col.id)).length
+      const segni = da.lezioni.flatMap((l) => (l.matrice ?? []).filter((m) => m.allievoId === allievo.id))
+      const piu = segni.filter((m) => m.segno === 'positivo').length
+      const meno = segni.filter((m) => m.segno === 'negativo').length
+      const riga = presenze.get(allievo.id)
+      return [
+        nomeCompleto(allievo),
+        media === null ? '' : media.toFixed(2),
+        nota === null ? '' : formattaVoto(nota),
+        percento(riga?.assenza),
+        String(riga?.ritardi ?? 0),
+        suoi.length === 0 ? '' : `${fatte}/${suoi.length}`,
+        colonneCheck.length === 0 ? '' : `${spuntati}/${colonneCheck.length}`,
+        String(da.recuperiAperti.filter((r) => r.allievo.id === allievo.id).length || ''),
+        piu + meno === 0 ? '' : `+${piu} / -${meno}`,
+      ]
+    }),
+  }
 }
 
 /**

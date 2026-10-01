@@ -120,6 +120,10 @@ const it = {
     fatti: 'Fatti',
     fase: 'Fase',
     avanzamento: 'Avanzamento',
+    /** Nel quadro per persona: consegne fatte su quelle date. */
+    consegneFatte: 'Consegne',
+    checkFatti: 'Check',
+    recuperiAperti: 'Recuperi aperti',
   },
   pendenzeTipo: {
     recupero: 'Recupero',
@@ -326,6 +330,9 @@ export const testi = catalogo(it, {
       fatti: 'Erledigt',
       fase: 'Phase',
       avanzamento: 'Fortschritt',
+      consegneFatte: 'Aufträge',
+      checkFatti: 'Checkliste',
+      recuperiAperti: 'Offene Nachprüfungen',
     },
     pendenzeTipo: {
       recupero: 'Nachprüfung',
@@ -508,6 +515,9 @@ export const testi = catalogo(it, {
       fatti: 'Faits',
       fase: 'Phase',
       avanzamento: 'Avancement',
+      consegneFatte: 'Devoirs',
+      checkFatti: 'Contrôle',
+      recuperiAperti: 'Rattrapages ouverts',
     },
     pendenzeTipo: {
       recupero: 'Rattrapage',
@@ -690,6 +700,9 @@ export const testi = catalogo(it, {
       fatti: 'Done',
       fase: 'Phase',
       avanzamento: 'Progress',
+      consegneFatte: 'Assignments',
+      checkFatti: 'Checklist',
+      recuperiAperti: 'Open resits',
     },
     pendenzeTipo: {
       recupero: 'Retake',

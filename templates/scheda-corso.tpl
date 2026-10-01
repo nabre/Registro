@@ -12,6 +12,13 @@ usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{materia}} · {{p
 campi: {{frase.lezioni-a-calendario}}={{quanti}}; {{frase.ud-previste}}={{ud}}; {{frase.ud-a-calendario}}={{udTenute}}
 campi: {{frase.assenza-di-classe}}={{assenza}}; {{frase.presenza-di-classe}}={{presenza}}; {{frase.media-di-classe}}={{media}}
 
+# Una riga a testa con i numeri che altrimenti stanno sparsi in sei sezioni:
+# media e nota, assenza e ritardi, consegne fatte, check, recuperi aperti, i
+# segni della matrice. Si legge per primo in conferenza: dice chi ha bisogno
+# di che cosa, e le sezioni sotto dicono perché.
+sezione: {{frase.quadro-per-persona}}
+tabella: quadro
+
 sezione: {{frase.presenze}}
 tabella: presenze
 paragrafo: {{frase.nota-presenze}}
@@ -53,6 +60,11 @@ ripeti: piani
 sottosezione: {{intestazionePiano}}
 tabella: scaletta
 fine:
+
+# Tutte le consegne del periodo, anche quelle chiuse: le pendenze dicono
+# solo le aperte.
+sezione: {{frase.consegne}}
+tabella: consegne
 
 sezione: {{frase.pendenze}}
 tabella: pendenze

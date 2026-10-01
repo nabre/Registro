@@ -116,6 +116,7 @@ dettaglio-assenze: Détail des absences et signatures
 diario-lezioni: Journal des leçons
 piani-lezione: Plans de leçon
 pendenze: En suspens du cours
+quadro-per-persona: Vue par personne
 criteri: Critères d'évaluation
 scala-livelli: Échelle des niveaux
 lezioni-del-progetto: Leçons du projet

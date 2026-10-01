@@ -135,6 +135,7 @@ dettaglio-assenze: Dettaglio assenze e firme
 diario-lezioni: Diario delle lezioni
 piani-lezione: Piani di lezione
 pendenze: Pendenze del corso
+quadro-per-persona: Quadro per persona
 criteri: Criteri di valutazione
 scala-livelli: Scala dei livelli
 lezioni-del-progetto: Lezioni del progetto
