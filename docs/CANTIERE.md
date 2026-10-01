@@ -242,8 +242,6 @@ Verificati a mano i primi otto.
       persone): stato spento non annunciato.
 - [ ] `desktop/apparato/settings.ts` `leggi`: lettura senza `valoreConMotivo`;
       un `null` a mano fa cadere l'assistente.
-- [ ] `desktop/pannelli/panel.ts:505`: tutto il registro a ogni gesto;
-      `alleDifferenze` (archive.ts:206) non lo usa nessuno. Misurare prima.
 - [ ] `core/dati/store.ts` `materializza`: decomprime prima del CRC; leggere
       dopo il confronto, dentro la fila. `voce.bytes` mai liberati.
 - [ ] `contract/switchboard.ts` `azioneValida`: `Object.hasOwn`.
