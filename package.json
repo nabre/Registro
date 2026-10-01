@@ -92,7 +92,7 @@
     "pdfjs-dist": "^6.3.289",
     "temporal-polyfill": "^1.0.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.70.1"
+    "typescript-eslint": "^8.71.0"
   },
   "dependencies": {
     "@tanstack/virtual-core": "^3.17.11",
