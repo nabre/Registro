@@ -117,6 +117,43 @@ describe('il passo 4: le note dei piani nei prerequisiti', () => {
   })
 })
 
+describe('il passo 5: i minuti di ritardo per UD', () => {
+  // Solo il passo vero, da un documento del formato 4.
+  const porta = (presenze) =>
+    aggiornaFormato({ registro: {}, lezioni: [{ id: 'l1', presenze }] }, 4).dati.lezioni[0].presenze
+
+  it('i minuti vanno sulla prima UD in ritardo, le altre a zero', () => {
+    const [presenza] = porta([
+      { allievoId: 'a', stati: ['assente', 'ritardo', 'ritardo'], minuti: 12, nota: 'bus' },
+    ])
+    assert.deepEqual(presenza, {
+      allievoId: 'a', stati: ['assente', 'ritardo', 'ritardo'], ritardi: [0, 12, 0], nota: 'bus',
+    })
+  })
+
+  it('lo stato unico di prima vale per tutta l’ora', () => {
+    const [presenza] = porta([{ allievoId: 'a', stato: 'ritardo', minuti: 5 }])
+    assert.deepEqual(presenza.ritardi, [5])
+  })
+
+  it('minuti senza un ritardo non dicevano niente: se ne vanno', () => {
+    const presenze = porta([
+      { allievoId: 'a', stati: ['presente'], minuti: 3 },
+      { allievoId: 'b', stati: ['presente'] },
+    ])
+    assert.deepEqual(presenze, [
+      { allievoId: 'a', stati: ['presente'] },
+      { allievoId: 'b', stati: ['presente'] },
+    ])
+  })
+
+  it('un documento senza lezioni, o con voci strane, passa senza danno', () => {
+    assert.equal(aggiornaFormato({ registro: {} }, 4).dati.lezioni, undefined)
+    const strane = aggiornaFormato({ registro: {}, lezioni: [null, { id: 'l1' }, { presenze: [7] }] }, 4)
+    assert.deepEqual(strane.dati.lezioni, [null, { id: 'l1' }, { presenze: [7] }])
+  })
+})
+
 describe('un anno da un registro più recente', () => {
   it('la frase che lo rifiuta si riconosce da chi la mostra', () => {
     for (const cosa of ['dati', 'formato']) {

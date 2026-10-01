@@ -9,6 +9,7 @@ import {
   formattaVoto,
   mediaAllievo,
   minutiDiAttivita,
+  minutiRitardoOra,
   nomeCompleto,
   ordinaAllievi,
   siglaPresenza,
@@ -532,7 +533,7 @@ export function datiProgettoAllievo (
         formattaData(lezione.data),
         fasiDi(registro, attivita),
         ud.map((_, i) => siglaPresenza(statoUd(presenza, i))).join(' '),
-        presenza?.minuti ? String(presenza.minuti) : '',
+        minutiRitardoOra(presenza) ? String(minutiRitardoOra(presenza)) : '',
         presenza?.nota ?? '',
       ]
     }),

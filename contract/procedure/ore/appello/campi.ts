@@ -18,6 +18,7 @@ export const procedura = scrittura({
   ingresso: oggetto({
     lezioneId: identificatore(),
     allievoId: identificatore(),
+    ud: opzionale(numero({ intero: true, minimo: 0, massimo: 32, aiuto: () => t().ud })),
     minuti: opzionale(numero({
       intero: true, minimo: 0, massimo: MINUTI_MASSIMI,
       aiuto: () => t().minuti,

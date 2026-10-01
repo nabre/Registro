@@ -1,4 +1,4 @@
-import { contaUd, fineLezione, inizioLezione } from '#core/dominio/calculations.js'
+import { contaUd, fineLezione, inizioLezione, minutiRitardoOra } from '#core/dominio/calculations.js'
 import {
   classeDellaLezione,
   corsoDellaLezione,
@@ -54,7 +54,8 @@ export const procedura = definisci({
       cognome: testo(),
       nome: testo(),
       stati: elenco(scelta(STATI_APPELLO)),
-      minuti: opzionale(numero({ intero: true })),
+      minuti: opzionale(numero({ intero: true, aiuto: () => t().minutiOra })),
+      ritardi: opzionale(elenco(numero({ intero: true }), { aiuto: () => t().ritardi })),
       nota: opzionale(testo()),
     })),
   }),
@@ -119,7 +120,9 @@ export const procedura = definisci({
           cognome: allievo?.cognome ?? t().nonPiuInClasse,
           nome: allievo?.nome ?? '',
           stati: presenza.stati,
-          ...(presenza.minuti === undefined ? {} : { minuti: presenza.minuti }),
+          ...(presenza.ritardi === undefined
+            ? {}
+            : { minuti: minutiRitardoOra(presenza), ritardi: presenza.ritardi }),
           ...(presenza.nota === undefined ? {} : { nota: presenza.nota }),
         }
       }),

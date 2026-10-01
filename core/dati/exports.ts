@@ -14,6 +14,7 @@ import {
   riepilogaPresenze,
   segnato,
   unitaDidattiche,
+  minutiRitardoOra,
 } from '#core/dominio/calculations.js'
 import type { MatriceCorso } from '#core/dominio/courseMatrix.js'
 import { etichettaSemestre, formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
@@ -166,7 +167,8 @@ export function testoLezione (
   if (irregolari.length > 0) {
     parti.push('')
     for (const presenza of irregolari) {
-      const minuti = presenza.minuti ? t.minuti(presenza.minuti) : ''
+      const ritardo = minutiRitardoOra(presenza)
+      const minuti = ritardo ? t.minuti(ritardo) : ''
       const nota = presenza.nota ? ` — ${presenza.nota}` : ''
       const dettaglio = presenza.stati
         .map((stato, i) => `${t.ud(i + 1)} ${ud[i] ? `${ud[i].inizio} ` : ''}${t.statoPresenza(stato)}`)

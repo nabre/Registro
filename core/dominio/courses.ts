@@ -167,7 +167,7 @@ export function lezioneCompilata (registro: Registro, lezione: Lezione): boolean
   const id = lezione.id
   return (
     lezione.presenze.some((p) =>
-      p.stati.some((s) => s !== 'non-impostato') || p.minuti !== undefined || Boolean(p.nota),
+      p.stati.some((s) => s !== 'non-impostato') || p.ritardi !== undefined || Boolean(p.nota),
     ) ||
     (lezione.matrice ?? []).length > 0 ||
     lezione.osservazioni.length > 0 ||

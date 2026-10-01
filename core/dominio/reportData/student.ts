@@ -8,6 +8,7 @@ import {
   nomeCompleto,
   siglaPresenza,
   statoUd,
+  minutiRitardoOra,
 } from '#core/dominio/calculations.js'
 import { corsiDellaClasse, materiaDelCorso, registroDelCorso } from '#core/dominio/courses.js'
 import { LINGUA_PREDEFINITA } from '#core/i18n/index.js'
@@ -273,7 +274,7 @@ export function datiAllievo (
         formattaData(lezione.data),
         registro.corsi.find((c) => c.id === lezione.corsoId)?.titolo ?? '',
         ...perUd((i) => (i < sue ? siglaPresenza(statoUd(presenza, i)) : '')),
-        presenza?.minuti ? String(presenza.minuti) : '',
+        minutiRitardoOra(presenza) ? String(minutiRitardoOra(presenza)) : '',
         presenza?.nota ?? '',
       ]
     }),
@@ -297,14 +298,14 @@ export function datiAllievo (
         if (assenti === presenza.stati.length) {
           testoPresenza = L.presenze.assente
         } else if (presenti === presenza.stati.length) {
-          testoPresenza = presenza.minuti
-            ? `${L.presenze.ritardo} (${presenza.minuti}’)`
+          testoPresenza = minutiRitardoOra(presenza)
+            ? `${L.presenze.ritardo} (${minutiRitardoOra(presenza)}’)`
             : L.presenze.presente
         } else if (esonerati === presenza.stati.length) {
           testoPresenza = L.presenze.esonerato
         } else if (presenza.stati.some((s) => s === 'ritardo')) {
-          testoPresenza = presenza.minuti
-            ? `${L.presenze.ritardo} (${presenza.minuti}’)`
+          testoPresenza = minutiRitardoOra(presenza)
+            ? `${L.presenze.ritardo} (${minutiRitardoOra(presenza)}’)`
             : L.presenze.ritardo
         } else {
           testoPresenza = `${presenti}/${presenza.stati.length} UD`

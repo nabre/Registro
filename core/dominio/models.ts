@@ -461,8 +461,12 @@ export type StatoPresenza =
 export interface Presenza {
   allievoId: string
   stati: StatoPresenza[]
-  /** Minuti di ritardo, quando ce n'è uno. */
-  minuti?: number
+  /**
+   * Minuti di ritardo per UD, allineati a `stati`: in un'ora si può arrivare
+   * tardi più volte (dopo la pausa, da un'altra lezione). Zero dove non sono
+   * stati detti; assente se l'ora non ha ritardi con minuti.
+   */
+  ritardi?: number[]
   nota?: string
 }
 
@@ -1525,8 +1529,11 @@ export interface Registro {
  *
  * 3 → 4: i progetti dei corsi (`progetti.json`) e il `progettoId` su tappe
  * dei piani e momenti di valutazione.
+ *
+ * 4 → 5: i minuti di ritardo passano da uno per allievo e ora (`minuti`) a
+ * uno per UD (`ritardi`), perché in un'ora i ritardi possono essere più d'uno.
  */
-export const VERSIONE_DATI = 4
+export const VERSIONE_DATI = 5
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

@@ -405,6 +405,16 @@ export function statiAllineati (presenza: Presenza | undefined, quante: number):
   return Array.from({ length: quante }, (_, i) => statoUd(presenza, i))
 }
 
+/** I minuti di ritardo di un'UD: zero se non sono stati detti. */
+export function minutiRitardoUd (presenza: Presenza | undefined, ud: number): number {
+  return presenza?.ritardi?.[ud] ?? 0
+}
+
+/** I minuti di ritardo di un allievo in tutta l'ora: la somma delle UD. */
+export function minutiRitardoOra (presenza: Presenza | undefined): number {
+  return (presenza?.ritardi ?? []).reduce((somma, minuti) => somma + minuti, 0)
+}
+
 /**
  * Un'ora riassunta in uno stato solo (blocco nel calendario, riga nell'albero,
  * diario). Vince il caso peggiore che non sia una scusa: assente, poi ritardo.

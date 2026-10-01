@@ -5822,9 +5822,15 @@
             "minLength": 1,
             "maxLength": 64
           },
+          "ud": {
+            "type": "integer",
+            "description": "L’unità didattica in ritardo dei minuti, contata da zero. Lasciata fuori, la prima in ritardo",
+            "minimum": 0,
+            "maximum": 32
+          },
           "minuti": {
             "type": "integer",
-            "description": "Minuti di ritardo. Lasciato fuori, resta quel che c’era",
+            "description": "Minuti di ritardo dell’unità didattica, che dev’essere in ritardo. Lasciato fuori, resta quel che c’era",
             "minimum": 0,
             "maximum": 600
           },

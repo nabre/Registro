@@ -292,14 +292,35 @@ describe('ore.appello.campi', () => {
     await api.chiama(archivio, 'ore.appello.campi', {
       lezioneId: prima.id, allievoId: bianchi.id, minuti: 12, nota: 'bus in ritardo',
     })
-    assert.equal(rigaDi(prima, bianchi.id).minuti, 12)
+    assert.deepEqual(rigaDi(prima, bianchi.id).ritardi, [12, 0])
 
     const esito = await api.chiama(archivio, 'ore.appello.campi', {
       lezioneId: prima.id, allievoId: bianchi.id, nota: 'giustificato',
     })
     assert.equal(esito.ok, true)
-    assert.equal(rigaDi(prima, bianchi.id).minuti, 12, 'i minuti sono spariti con la nota')
+    assert.deepEqual(rigaDi(prima, bianchi.id).ritardi, [12, 0], 'i minuti sono spariti con la nota')
     assert.equal(rigaDi(prima, bianchi.id).nota, 'giustificato')
+  })
+
+  it('i minuti stanno sull’UD in ritardo, e se ne vanno col ritardo', async () => {
+    await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: prima.id, allievoId: rossi.id, ud: 0, stato: 'ritardo',
+    })
+    const altrove = await api.chiama(archivio, 'ore.appello.campi', {
+      lezioneId: prima.id, allievoId: rossi.id, ud: 1, minuti: 5,
+    })
+    assert.equal(altrove.ok, false)
+    assert.equal(altrove.codice, 'rifiutato')
+
+    await api.chiama(archivio, 'ore.appello.campi', {
+      lezioneId: prima.id, allievoId: rossi.id, ud: 0, minuti: 5,
+    })
+    assert.deepEqual(rigaDi(prima, rossi.id).ritardi, [5, 0])
+
+    await api.chiama(archivio, 'ore.appello.casella', {
+      lezioneId: prima.id, allievoId: rossi.id, ud: 0, stato: 'presente',
+    })
+    assert.equal(rigaDi(prima, rossi.id).ritardi, undefined)
   })
 })
 

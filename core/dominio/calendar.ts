@@ -590,7 +590,7 @@ export function collegataPerCerto (
  */
 function giaToccata (lezione: Lezione): boolean {
   return lezione.presenze.some((p) =>
-    p.stati.some(deciso) || p.minuti !== undefined || Boolean(p.nota?.trim())) ||
+    p.stati.some(deciso) || p.ritardi !== undefined || Boolean(p.nota?.trim())) ||
     lezione.osservazioni.length > 0 ||
     (lezione.matrice?.length ?? 0) > 0 ||
     Boolean(lezione.argomenti?.trim()) ||

@@ -117,7 +117,7 @@ describe('scrivere e rileggere non cambia niente', () => {
             // Un appello pieno, uno muto, un ritardo di zero minuti.
             { allievoId: conRecapiti.id, stati: ['presente', 'presente'], nota: '' },
             { allievoId: ritirato.id, stati: [] },
-            { allievoId: spoglio.id, stati: ['ritardo', 'presente'], minuti: 0, nota: 'in bus' },
+            { allievoId: spoglio.id, stati: ['ritardo', 'presente'], ritardi: [0, 0], nota: 'in bus' },
           ],
           osservazioni: [],
           avanzamento: [],

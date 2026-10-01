@@ -67,16 +67,22 @@ function appelloScritto (
   stato: StatoPresenza,
   dove: (allievoId: string, ud: number) => boolean,
 ): Presenza[] {
-  return appelloCompleto(registro, lezione).map((presenza) => ({
-    ...presenza,
-    stati: presenza.stati.map((attuale, ud) =>
+  return appelloCompleto(registro, lezione).map((presenza) => {
+    const stati = presenza.stati.map((attuale, ud) =>
       dove(presenza.allievoId, ud) ? stato : attuale,
-    ),
-    // I minuti valgono solo con un ritardo.
-    minuti: presenza.stati.some((s, ud) => (dove(presenza.allievoId, ud) ? stato : s) === 'ritardo')
-      ? presenza.minuti
-      : undefined,
-  }))
+    )
+    return { ...presenza, stati, ritardi: ritardiValidi(stati, presenza.ritardi) }
+  })
+}
+
+/**
+ * I minuti di ritardo che restano con questi stati: valgono solo sulle UD in
+ * ritardo. Senza nessun minuto rimasto l'elenco se ne va.
+ */
+function ritardiValidi (stati: StatoPresenza[], ritardi: number[] | undefined): number[] | undefined {
+  if (!ritardi) return undefined
+  const validi = stati.map((s, ud) => (s === 'ritardo' ? ritardi[ud] ?? 0 : 0))
+  return validi.some((minuti) => minuti > 0) ? validi : undefined
 }
 
 /**
@@ -125,7 +131,7 @@ function conDatiDiPersone (lezione: Lezione): boolean {
     lezione.osservazioni.some((o) => Boolean(o.allievoId)) ||
     lezione.presenze.some(
       (p) =>
-        p.stati.some((s) => s !== 'non-impostato') || p.minuti !== undefined || Boolean(p.nota),
+        p.stati.some((s) => s !== 'non-impostato') || p.ritardi !== undefined || Boolean(p.nota),
     )
   )
 }
@@ -300,8 +306,18 @@ export const ore = {
   'presenze.tutti': aOraAperta((contesto, azione) =>
     scriviAppello(contesto, azione.lezioneId, azione.stato, () => true)),
 
-  /** Minuti di ritardo e nota di una riga sola: tocca solo quella, le altre restano intatte. */
+  /**
+   * Minuti di ritardo di un'UD e nota di una riga sola: tocca solo quella, le
+   * altre restano intatte. Senza `ud` i minuti vanno sulla prima UD in ritardo.
+   */
   'presenze.campi': aOraAperta((contesto, azione) => {
+    const ora = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
+    const esistente = ora?.presenze.find((p) => p.allievoId === azione.allievoId)
+    const ud = azione.ud ?? esistente?.stati.indexOf('ritardo') ?? -1
+    // I minuti stanno solo su un'UD in ritardo: altrove nessuna schermata li mostra.
+    if (azione.minuti !== undefined && esistente?.stati[ud] !== 'ritardo') {
+      return rifiuta(testi().minutiSenzaRitardo)
+    }
     return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
       let presenza = lezione.presenze.find((p) => p.allievoId === azione.allievoId)
       if (!presenza) {
@@ -309,7 +325,11 @@ export const ore = {
         presenza = creaPresenza(azione.allievoId, quante)
         lezione.presenze.push(presenza)
       }
-      if (azione.minuti !== undefined) presenza.minuti = azione.minuti
+      if (azione.minuti !== undefined) {
+        const ritardi = presenza.stati.map((_, i) => presenza.ritardi?.[i] ?? 0)
+        ritardi[ud] = azione.minuti
+        presenza.ritardi = ritardiValidi(presenza.stati, ritardi)
+      }
       if (azione.nota !== undefined) presenza.nota = azione.nota
     })
   }),

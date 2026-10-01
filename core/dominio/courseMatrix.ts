@@ -9,6 +9,7 @@ import {
   contaUd,
   deciso,
   mediaAllievo,
+  minutiRitardoOra,
   notaFineSemestre,
   ordinaAllievi,
   statoUd,
@@ -215,7 +216,7 @@ export function matriceCorso (
       else if (mancate > 0) assenzeParziali += 1
       if (tardi) {
         ritardi += 1
-        minutiRitardo += presenza?.minuti ?? 0
+        minutiRitardo += minutiRitardoOra(presenza)
       }
     }
 

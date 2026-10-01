@@ -68,7 +68,47 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return { ...dati, piani: dati.piani.map(noteNeiPrerequisiti) }
     },
   },
+  // I minuti di ritardo per UD: in un'ora si può arrivare tardi più volte. Il
+  // numero unico di prima va sulla prima UD in ritardo; senza nessuna non
+  // diceva niente (l'appello lo toglieva già) e se ne va.
+  {
+    a: 5,
+    get cambia () {
+      return testi().passi[5]
+    },
+    porta: (dati) => {
+      if (!Array.isArray(dati.lezioni)) return dati
+      return { ...dati, lezioni: dati.lezioni.map(ritardiPerUd) }
+    },
+  },
 ]
+
+/** Un oggetto letto dal disco, o nullo se non lo è. */
+function voce (valore: unknown): Record<string, unknown> | null {
+  return valore && typeof valore === 'object' && !Array.isArray(valore)
+    ? valore as Record<string, unknown>
+    : null
+}
+
+/** Una lezione con i `minuti` di ogni presenza portati sulla sua prima UD in ritardo. */
+function ritardiPerUd (lezione: unknown): unknown {
+  const dati = voce(lezione)
+  if (!dati || !Array.isArray(dati.presenze)) return lezione
+  return {
+    ...dati,
+    presenze: dati.presenze.map((grezza: unknown) => {
+      const presenza = voce(grezza)
+      if (!presenza || !('minuti' in presenza)) return grezza
+      const { minuti, ...resto } = presenza
+      // Prima ancora degli stati per UD c'era uno stato solo, per tutta l'ora.
+      const stati: unknown[] = Array.isArray(resto.stati) ? resto.stati : [resto.stato]
+      const prima = stati.indexOf('ritardo')
+      if (prima < 0 || typeof minuti !== 'number' || !Number.isFinite(minuti)) return resto
+      const ritardi = stati.map((_, i) => (i === prima ? Math.max(0, minuti) : 0))
+      return { ...resto, ritardi }
+    }),
+  }
+}
 
 /**
  * Le note di un piano accodate ai prerequisiti, dopo una riga vuota. Un piano

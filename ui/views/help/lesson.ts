@@ -160,7 +160,8 @@ function casella (x: number, y: number, sigla: string): string {
 /** Le colonne delle UD: la pausa stacca la seconda dalla terza. */
 const COLONNE_UD = [160, 204, 262, 306]
 
-function rigaAppello (y: number, nome: string, riga: string, sigle: string[]): string {
+/** Una riga dell'appello; la nota è un campo solo dove è scritta, se no un «+». */
+function rigaAppello (y: number, nome: string, riga: string, sigle: string[], nota?: string): string {
   return disegno(
     riquadro(10, y, 24, 22, {
       tono: TONI_SIGLA[riga] ?? 'neutro',
@@ -170,7 +171,13 @@ function rigaAppello (y: number, nome: string, riga: string, sigle: string[]): s
     }),
     testo(42, y + 15, nome),
     ...sigle.map((sigla, i) => casella(COLONNE_UD[i], y, sigla)),
-    riquadro(400, y, 150, 22, { tono: 'quieto', raggio: 4 }),
+    nota
+      ? disegno(
+          riquadro(360, y, 150, 22, { tono: 'quieto', raggio: 4 }),
+          testo(368, y + 15, nota, { corpo: 'piccolo', tono: 'quieto' }),
+        )
+      // testo-fisso: il segno del pulsante, uguale in ogni lingua
+      : riquadro(360, y + 2, 18, 18, { tratteggio: true, raggio: 4, etichetta: '+' }),
   )
 }
 
@@ -188,22 +195,22 @@ const MATRICE_APPELLO = disegno(
     ),
   ),
   riquadro(245, 36, 12, 116, { tono: 'quieto', tratteggio: true, raggio: 3 }),
-  testo(374, 52, T.appello.scritte.min, { corpo: 'piccolo', tono: 'quieto', ancora: 'centro' }),
-  testo(408, 52, T.appello.scritte.nota, { corpo: 'piccolo', tono: 'quieto' }),
+  testo(360, 52, T.appello.scritte.nota, { corpo: 'piccolo', tono: 'quieto' }),
   // testo-fisso: nomi di persona d'esempio, uguali in ogni lingua
   rigaAppello(66, 'Bianchi Luca', 'P', ['P', 'P', 'P', 'P']),
   // testo-fisso: nomi di persona d'esempio, uguali in ogni lingua
-  rigaAppello(98, 'Rossi Anna', '·', ['X', 'X', 'R', 'P']),
-  riquadro(356, 98, 36, 22, { etichetta: '10', raggio: 4 }),
-  testo(408, 113, T.appello.scritte.trenoInRitardo, { corpo: 'piccolo', tono: 'quieto' }),
+  rigaAppello(98, 'Rossi Anna', '·', ['X', 'X', 'R', 'P'], T.appello.scritte.trenoInRitardo),
+  // I minuti in apice sulla R: uno per UD.
+  // testo-fisso: un numero d'esempio con il segno dei minuti
+  riquadro(286, 90, 26, 14, { tono: 'attenzione', raggio: 7, etichetta: '10′' }),
   // testo-fisso: nomi di persona d'esempio, uguali in ogni lingua
   rigaAppello(130, 'Verdi Marco', '-', ['-', '-', '-', '-']),
   bollino(22, 170, 1),
   bollino(150, 20, 2),
   bollino(178, 170, 3),
   bollino(251, 170, 4),
-  bollino(374, 170, 5),
-  bollino(475, 170, 6),
+  bollino(299, 170, 5),
+  bollino(435, 170, 6),
   // Il giro del clic.
   catena(10, 192, [
     { etichetta: '-' },

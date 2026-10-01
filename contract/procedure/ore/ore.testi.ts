@@ -21,7 +21,8 @@ const it = {
   appello: {
     campi: {
       titolo: 'I minuti di ritardo e la nota di una riga dell’appello',
-      minuti: 'Minuti di ritardo. Lasciato fuori, resta quel che c’era',
+      ud: 'L’unità didattica in ritardo dei minuti, contata da zero. Lasciata fuori, la prima in ritardo',
+      minuti: 'Minuti di ritardo dell’unità didattica, che dev’essere in ritardo. Lasciato fuori, resta quel che c’era',
     },
     casella: {
       titolo: 'Segna una casella dell’appello: una persona, un’unità didattica',
@@ -38,6 +39,8 @@ const it = {
       inizio: 'L’ora in cui comincia: «08:10»',
       fine: 'L’ora in cui finisce',
       nonPiuInClasse: '(non più in classe)',
+      minutiOra: 'Minuti di ritardo in tutta l’ora, sommando le unità didattiche',
+      ritardi: 'Minuti di ritardo per unità didattica, nell’ordine degli stati; 0 dove non detti',
       presentazione: {
         titolo: 'L’appello dell’ora',
         oraDi: 'Ora di',
@@ -211,7 +214,8 @@ export const testi = catalogo(it, {
     appello: {
       campi: {
         titolo: 'Die Verspätungsminuten und die Notiz einer Zeile der Präsenzkontrolle',
-        minuti: 'Verspätung in Minuten. Weggelassen, bleibt, was schon da war',
+        ud: 'Die verspätete Lektion der Minuten, ab null gezählt. Weggelassen, die erste verspätete',
+        minuti: 'Verspätung in Minuten für die Lektion, die als verspätet markiert sein muss. Weggelassen, bleibt, was schon da war',
       },
       casella: {
         titolo: 'Markiert ein Feld der Präsenzkontrolle: eine Person, eine Lektion',
@@ -230,6 +234,8 @@ export const testi = catalogo(it, {
         inizio: 'Die Uhrzeit, zu der sie beginnt: «08:10»',
         fine: 'Die Uhrzeit, zu der sie endet',
         nonPiuInClasse: '(nicht mehr in der Klasse)',
+        minutiOra: 'Verspätungsminuten der ganzen Stunde, über alle Lektionen summiert',
+        ritardi: 'Verspätungsminuten pro Lektion, in der Reihenfolge der Status; 0, wo nicht erfasst',
         presentazione: {
           titolo: 'Die Präsenzkontrolle der Stunde',
           oraDi: 'Stunde',
@@ -414,7 +420,8 @@ export const testi = catalogo(it, {
     appello: {
       campi: {
         titolo: 'Les minutes de retard et la remarque d’une ligne de l’appel',
-        minuti: 'Minutes de retard. Omis, ce qui était là reste',
+        ud: 'La période en retard des minutes, comptée à partir de zéro. Omise, la première en retard',
+        minuti: 'Minutes de retard de la période, qui doit être en retard. Omis, ce qui était là reste',
       },
       casella: {
         titolo: 'Marque une case de l’appel : une personne, une période',
@@ -432,6 +439,8 @@ export const testi = catalogo(it, {
         inizio: 'L’heure à laquelle elle commence : « 08:10 »',
         fine: 'L’heure à laquelle elle se termine',
         nonPiuInClasse: '(n’est plus dans la classe)',
+        minutiOra: 'Minutes de retard de toute la leçon, en additionnant les périodes',
+        ritardi: 'Minutes de retard par période, dans l’ordre des états ; 0 là où rien n’est noté',
         presentazione: {
           titolo: 'L’appel de la leçon',
           oraDi: 'Leçon',
@@ -611,7 +620,8 @@ export const testi = catalogo(it, {
     appello: {
       campi: {
         titolo: 'The minutes late and the note on one attendance row',
-        minuti: 'Minutes late. Left out, what was there stays',
+        ud: 'The late period the minutes belong to, counted from zero. Left out, the first late one',
+        minuti: 'Minutes late for the period, which must be marked late. Left out, what was there stays',
       },
       casella: {
         titolo: 'Marks one attendance box: one person, one period',
@@ -628,6 +638,8 @@ export const testi = catalogo(it, {
         inizio: 'The time it starts: “08:10”',
         fine: 'The time it ends',
         nonPiuInClasse: '(no longer in the class)',
+        minutiOra: 'Minutes late over the whole lesson, adding up the periods',
+        ritardi: 'Minutes late per period, in the order of the states; 0 where not recorded',
         presentazione: {
           titolo: 'Attendance for the lesson',
           oraDi: 'Lesson',

@@ -17,7 +17,7 @@
 }
 
 .appello th,
-.appello td { padding: 3px 4px; text-align: center; vertical-align: middle; }
+.appello td { padding: 1px 3px; text-align: center; vertical-align: middle; }
 
 .appello thead th {
   position: sticky;
@@ -60,7 +60,7 @@
 }
 
 /* La testata di una colonna: quale UD, a che ora comincia, e il suo pulsante. */
-.appello__cella { width: 34px; }
+.appello__cella { width: 30px; }
 .appello thead .appello__cella { display: table-cell; }
 .appello__ud { display: block; font-size: 0.9em; }
 .appello__ora {
@@ -73,9 +73,68 @@
 /* Dove c'era una pausa le colonne si staccano. */
 .appello__cella--stacco { border-left: 2px solid var(--bordo); }
 
-.appello__minuti { width: 62px; }
-.appello__nota { min-width: 7.5rem; text-align: left !important; }
-.appello__nota .campo__controllo { width: 100%; }
+/*
+ * La casella con i suoi minuti di ritardo in apice, in alto a destra come un
+ * esponente: una per UD, perché in un'ora i ritardi possono essere più d'uno.
+ */
+.appello__casella { position: relative; display: inline-block; }
+
+.appello__apice,
+.appello__apice-campo {
+  position: absolute;
+  top: -6px;
+  left: calc(100% - 8px);
+  z-index: 1;
+}
+
+.appello__apice {
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border: 1px solid var(--attenzione);
+  border-radius: 7px;
+  background: var(--sfondo);
+  color: var(--attenzione);
+  font: inherit;
+  font-size: 0.68em;
+  font-weight: 700;
+  line-height: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.appello__apice .icona { width: 8px; height: 8px; vertical-align: 0; }
+.appello__apice--detto { background: var(--attenzione); color: var(--su-tinta); }
+.appello__apice:hover { filter: brightness(0.95); }
+
+/* Il campo aperto al posto dell'apice: stretto, sopra le caselle accanto. */
+.appello__apice-campo.campo__controllo--minuti {
+  width: 3.5rem;
+  min-height: 0;
+  height: 22px;
+  padding: 0 4px;
+  z-index: 2;
+}
+
+/* La nota: un «+» finché è vuota, il campo quando c'è. */
+.appello__nota { text-align: left !important; }
+.appello__nota .campo__controllo { width: 100%; min-width: 9rem; min-height: 0; height: 24px; }
+
+.appello__aggiungi-nota {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px dashed var(--bordo);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.appello__aggiungi-nota:hover { background: var(--sfondo-alto-2); color: var(--testo); }
+.appello__aggiungi-nota .icona { width: 12px; height: 12px; }
 
 /*
  * Il pulsante dell'appello: uno per casella, ogni clic passa allo stato dopo.
@@ -85,8 +144,8 @@
  * hanno il bordo marcato: comandano più caselle.
  */
 .stato-presenza {
-  width: 26px;
-  height: 24px;
+  width: 24px;
+  height: 22px;
   border: 1px solid var(--bordo-tenue);
   border-radius: 4px;
   background: transparent;

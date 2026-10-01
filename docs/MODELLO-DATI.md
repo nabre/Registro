@@ -497,7 +497,7 @@ non parte.
 |---|---|---|
 | `allievoId` | `string` | |
 | `stati` | `StatoPresenza[]` | **una voce per UD** |
-| `minuti?` | `number` | ritardo; `0` ≠ assente |
+| `ritardi?` | `number[]` | minuti di ritardo **per UD**, allineati a `stati`; solo sulle UD in `ritardo`, assente se nessuna ha minuti (formato 5) |
 | `nota?` | `string` | |
 
 - `stati.length === contaUd(lezione)`: allungando, le caselle nuove sono
@@ -1239,7 +1239,7 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 4`
+### 8.2 `VERSIONE_DATI = 5`
 
 La versione dello schema JSON (`registro.json.versione`).
 
@@ -1254,7 +1254,10 @@ dire anno scritto a mano e lezione non di supplenza; v4 per la collezione
 e `progettoId` su `MomentoValutazione` (ADR-54): un documento vecchio non ha
 progetti, e tappe e momenti non ne citano. Nello stesso passo il piano perde
 `note`: il `porta` le accoda a `prerequisiti`, dopo una riga vuota e con
-l'etichetta «Note:» nella lingua del registro.
+l'etichetta «Note:» nella lingua del registro. v5 porta i minuti di ritardo
+da uno per presenza (`minuti`) a uno per UD (`Presenza.ritardi`), perché in
+un'ora si può arrivare tardi più volte: il `porta` mette il numero vecchio
+sulla prima UD in ritardo, e lo lascia cadere dove non c'era ritardo.
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento
@@ -1312,7 +1315,7 @@ function senzaVuoti (this: unknown, _chiave: string, valore: unknown): unknown {
 ```
 
 - Si tolgono solo `''` e `[]`, che la normalizzazione ricostruisce. `false`, `0`
-  e `null` restano (`attivo: false`, `minuti: 0`, voto `null`).
+  e `null` restano (`attivo: false`, `ritardi: [0]`, voto `null`).
 - Mai dentro un array (diventerebbe `null`).
 - **Invariante**: `testoCollezione ∘ normalizzaRegistro ≡ identità`, provata da
   `tests/domain/persistence.test.mjs` sul registro intero.

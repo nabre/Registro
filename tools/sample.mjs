@@ -86,6 +86,14 @@ const conImpostazioni = (impostazioni) => ({
 lezioni[0].consuntivo = 'Fatti gli esercizi 1–8. Restano da riprendere le potenze di dieci.'
 lezioni[0].stato = 'svolta'
 
+// L'appello della prima ora, con un ritardo e i suoi minuti per UD (dal formato 5).
+const [primo, secondo, terzo] = classe.allievi
+lezioni[0].presenze = [
+  { allievoId: primo.id, stati: ['presente'] },
+  { allievoId: secondo.id, stati: ['ritardo'], ritardi: [7], nota: 'Treno in ritardo' },
+  { allievoId: terzo.id, stati: ['assente'] },
+]
+
 const valutazione = d.creaValutazione(corso.id, 'Verifica 1 — unità di misura')
 valutazione.data = '2026-09-21'
 

@@ -297,8 +297,18 @@ export type Azione =
   /** Tutta una colonna: l'unità didattica in cui la classe non c'era. */
   | { tipo: 'presenze.colonna'; lezioneId: string; ud: number; stato: StatoPresenza }
   | { tipo: 'presenze.tutti'; lezioneId: string; stato: StatoPresenza }
-  /** Minuti di ritardo e nota di una riga; caselle e righe altrui restano com'erano. */
-  | { tipo: 'presenze.campi'; lezioneId: string; allievoId: string; minuti?: number; nota?: string }
+  /**
+   * Minuti di ritardo di un'UD (`ud`, se no la prima in ritardo) e nota di una
+   * riga; caselle e righe altrui restano com'erano.
+   */
+  | {
+    tipo: 'presenze.campi'
+    lezioneId: string
+    allievoId: string
+    ud?: number
+    minuti?: number
+    nota?: string
+  }
   /**
    * Una casella del comportamento (persona × aspetto), per la stessa ragione
    * dell'appello. Un campo omesso resta; `segno: null` toglie il segno e lascia

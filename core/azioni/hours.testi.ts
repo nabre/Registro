@@ -25,6 +25,7 @@ const it = {
   ritardoFuoriPosto:
     'Il ritardo si segna solo nella prima UD della lezione o nella prima dopo una pausa: ' +
     'chi entra a lezione avviata ha le UD perse assenti e poi è presente.',
+  minutiSenzaRitardo: 'I minuti di ritardo vanno su un’UD segnata in ritardo.',
 }
 
 export const testi = catalogo(it, {
@@ -52,6 +53,7 @@ export const testi = catalogo(it, {
     ritardoFuoriPosto:
       'Eine Verspätung gibt es nur in der ersten Lektion der Stunde oder in der ersten nach einer Pause: ' +
       'Wer später dazukommt, ist in den verpassten Lektionen abwesend und danach anwesend.',
+    minutiSenzaRitardo: 'Verspätungsminuten gehören zu einer Lektion, die als verspätet markiert ist.',
   },
   fr: {
     altraClasse:
@@ -77,6 +79,7 @@ export const testi = catalogo(it, {
     ritardoFuoriPosto:
       'Le retard ne se note qu’à la première période de la leçon ou à la première après une pause : ' +
       'qui arrive en cours de leçon est absent aux périodes manquées, puis présent.',
+    minutiSenzaRitardo: 'Les minutes de retard vont sur une période marquée en retard.',
   },
   en: {
     altraClasse:
@@ -100,5 +103,6 @@ export const testi = catalogo(it, {
     ritardoFuoriPosto:
       'Lateness can only be marked in the first period of the lesson or the first after a break: ' +
       'someone arriving mid-lesson is absent for the missed periods, then present.',
+    minutiSenzaRitardo: 'Late minutes go on a period marked as late.',
   },
 })

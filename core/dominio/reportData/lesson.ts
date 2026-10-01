@@ -10,6 +10,7 @@ import {
   siglaPresenza,
   statoUd,
   unitaDidattiche,
+  minutiRitardoOra,
 } from '#core/dominio/calculations.js'
 import { classeDelCorsoId, materiaDelCorso, registroDelCorso } from '#core/dominio/courses.js'
 import { percento } from '#core/dominio/text.js'
@@ -124,7 +125,7 @@ export function datiLezione (
       return [
         nomeCompleto(allievo),
         ...ud.map((_, i) => siglaPresenza(statoUd(presenza, i))),
-        presenza?.minuti ? String(presenza.minuti) : '',
+        minutiRitardoOra(presenza) ? String(minutiRitardoOra(presenza)) : '',
         presenza?.nota ?? '',
       ]
     }),

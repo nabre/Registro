@@ -6,6 +6,7 @@ import {
   SIGLE_PRESENZA,
   allieviAttivi,
   ammetteRitardo,
+  minutiRitardoUd,
   nomeCompleto,
   ordinaAllievi,
   riepilogaPresenze,
@@ -16,8 +17,9 @@ import {
 import { Uno, corto } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { minuscolo } from '#core/i18n/index.js'
-import type { Allievo, Lezione, Presenza, StatoPresenza } from '#core/dominio/models.js'
+import type { Allievo, Lezione, StatoPresenza } from '#core/dominio/models.js'
 import { pulsante, scheda, statoVuoto } from '#ui/components/base.js'
+import { icona } from '#ui/components/icons.js'
 import { eseguiOAvvisa } from '#ui/components/filters.js'
 import { frecceNellaGriglia } from '#ui/components/gridArrows.js'
 import { statoInVolo } from '#ui/components/inFlight.js'
@@ -231,12 +233,15 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
     t.presenti(riepilogo.presenti, riepilogo.totale - riepilogo.senzaAppello, ud.length) +
     (riepilogo.udAssenza > 0 ? t.udAssenza(riepilogo.udAssenza) : '')
 
-  /** Una riga di allievo: il nome, il pulsante di riga, e una casella per UD. */
+  /**
+   * Una riga di allievo: il nome, il pulsante di riga, una casella per UD con
+   * i minuti di ritardo in apice, e la nota.
+   */
   const rigaAllievo = (allievo: Allievo): HTMLElement => {
     const presenza = perId.get(allievo.id)
     const stati = statiDi(allievo.id)
-    const inRitardo = stati.some((st) => st === 'ritardo')
     const storta = stati.some(segnato)
+    const nome = nomeCompleto(allievo)
 
     return h(
       'tr',
@@ -246,7 +251,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
         { class: 'appello__nome', attr: { scope: 'row' } },
         pulsanteStato({
           stato: statoUniforme(stati),
-          titolo: t.tuttaLOra(nomeCompleto(allievo)),
+          titolo: t.tuttaLOra(nome),
           // testo-fisso: chiave di fuoco
           fuoco: `riga-${allievo.id}`,
           chiave: `${lezione.id}|riga-${allievo.id}`,
@@ -256,70 +261,56 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
           al: (stato) =>
             azione({ tipo: 'presenze.riga', lezioneId: lezione.id, allievoId: allievo.id, stato }),
         }),
-        h('span', { class: 'appello__cognome' }, nomeCompleto(allievo)),
+        h('span', { class: 'appello__cognome' }, nome),
       ),
       ...ud.map((unita) =>
         h(
           'td',
           { class: ['appello__cella', unita.dopoUnaPausa && 'appello__cella--stacco'] },
-          pulsanteStato({
-            stato: stati[unita.indice],
-            titolo: t.cella(nomeCompleto(allievo), unita.indice + 1, unita.inizio, unita.fine),
-            // testo-fisso: chiave di fuoco
-            fuoco: `ud-${allievo.id}-${unita.indice}`,
-            chiave: `${lezione.id}|ud-${allievo.id}-${unita.indice}`,
-            conRitardo: ammetteRitardo(unita),
-            al: (stato) =>
-              azione({
-                tipo: 'presenze.ud',
-                lezioneId: lezione.id,
-                allievoId: allievo.id,
-                ud: unita.indice,
-                stato,
-              }),
-          }),
+          h(
+            'span',
+            { class: 'appello__casella' },
+            pulsanteStato({
+              stato: stati[unita.indice],
+              titolo: t.cella(nome, unita.indice + 1, unita.inizio, unita.fine),
+              // testo-fisso: chiave di fuoco
+              fuoco: `ud-${allievo.id}-${unita.indice}`,
+              chiave: `${lezione.id}|ud-${allievo.id}-${unita.indice}`,
+              conRitardo: ammetteRitardo(unita),
+              al: (stato) =>
+                azione({
+                  tipo: 'presenze.ud',
+                  lezioneId: lezione.id,
+                  allievoId: allievo.id,
+                  ud: unita.indice,
+                  stato,
+                }),
+            }),
+            // I minuti solo dove c'è un ritardo: uno per UD, perché in un'ora
+            // si può arrivare tardi più d'una volta.
+            stati[unita.indice] === 'ritardo'
+              ? apiceMinuti({
+                  minuti: minutiRitardoUd(presenza, unita.indice),
+                  titolo: t.minutiRitardo(nome, unita.indice + 1),
+                  // testo-fisso: chiave di fuoco
+                  fuoco: `minuti-${allievo.id}-${unita.indice}`,
+                  al: (minuti) =>
+                    void scriviRiga(lezione, allievo.id, { ud: unita.indice, minuti }),
+                })
+              : null,
+          ),
         ),
       ),
       h(
         'td',
-        { class: 'appello__minuti' },
-        // I minuti solo dove c'è un ritardo.
-        inRitardo
-          ? h('input', {
-              class: 'campo__controllo campo__controllo--minuti',
-              type: 'number',
-              value: String(presenza?.minuti ?? 0),
-              // testo-fisso: chiave di fuoco
-              dataset: { fuoco: `minuti-${allievo.id}` },
-              // Senza passo: con un passo il browser rifiuterebbe i sette minuti.
-              attr: {
-                min: 0,
-                max: 240,
-                step: 'any',
-                'aria-label': t.minutiRitardo(nomeCompleto(allievo)),
-              },
-              onchange: (evento: Event) =>
-                void scriviRiga(lezione, allievo.id, {
-                  minuti: Number((evento.target as HTMLInputElement).value),
-                }),
-            })
-          : null,
-      ),
-      h(
-        'td',
         { class: 'appello__nota' },
-        h('input', {
-          class: 'campo__controllo',
-          type: 'text',
-          value: presenza?.nota ?? '',
-          placeholder: t.nota,
+        campoNota({
+          nota: presenza?.nota ?? '',
+          titolo: t.notaSu(nome),
+          segnaposto: t.nota,
           // testo-fisso: chiave di fuoco
-          dataset: { fuoco: `nota-${allievo.id}` },
-          attr: { 'aria-label': t.notaSu(nomeCompleto(allievo)) },
-          onchange: (evento: Event) =>
-            void scriviRiga(lezione, allievo.id, {
-              nota: (evento.target as HTMLInputElement).value,
-            }),
+          fuoco: `nota-${allievo.id}`,
+          al: (nota) => void scriviRiga(lezione, allievo.id, { nota }),
         }),
       ),
     )
@@ -414,7 +405,6 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
                   }),
                 )
               }),
-              h('th', { class: 'appello__minuti', attr: { scope: 'col' } }, t.minuti),
               h('th', { class: 'appello__nota', attr: { scope: 'col' } }, t.nota),
             ],
             righe: allievi.map(rigaAllievo),
@@ -432,6 +422,113 @@ function conLeFrecce (griglia: HTMLElement): HTMLElement {
 }
 
 /**
+ * Un campo che sta chiuso dietro un pulsante e si apre al clic, preso il
+ * fuoco. Uscendone si richiude se `chiudi` lo dice: la tabella resta stretta
+ * finché non c'è niente da scrivere.
+ */
+function apribile (
+  chiuso: HTMLElement,
+  apri: () => HTMLInputElement,
+  chiudi: (campo: HTMLInputElement) => boolean,
+): HTMLElement {
+  chiuso.addEventListener('click', () => {
+    const campo = apri()
+    campo.addEventListener('blur', () => {
+      if (campo.isConnected && chiudi(campo)) campo.replaceWith(chiuso)
+    })
+    campo.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Enter') campo.blur()
+      if (evento.key === 'Escape') campo.replaceWith(chiuso)
+    })
+    chiuso.replaceWith(campo)
+    campo.focus()
+    campo.select()
+  })
+  return chiuso
+}
+
+/**
+ * I minuti di ritardo di una casella, in apice sul suo pulsante: «+» finché
+ * non sono detti, poi il numero. Al clic diventa il campo; uscendo si torna
+ * all'apice, e il ridisegno porta il numero nuovo.
+ */
+function apiceMinuti (opzioni: {
+  minuti: number
+  titolo: string
+  fuoco: string
+  al: (minuti: number) => void
+}): HTMLElement {
+  const { minuti, titolo, fuoco, al } = opzioni
+  const apice = h(
+    'button',
+    {
+      class: ['appello__apice', minuti > 0 && 'appello__apice--detto'],
+      type: 'button',
+      dataset: { fuoco },
+      attr: { title: titolo, 'aria-label': titolo },
+    },
+    // testo-fisso: i minuti con il loro segno
+    minuti > 0 ? `${minuti}′` : icona('piu'),
+  )
+  return apribile(
+    apice,
+    () =>
+      h('input', {
+        class: 'campo__controllo campo__controllo--minuti appello__apice-campo',
+        type: 'number',
+        value: minuti > 0 ? String(minuti) : '',
+        dataset: { fuoco },
+        // Senza passo: con un passo il browser rifiuterebbe i sette minuti.
+        attr: { min: 0, max: 600, step: 'any', 'aria-label': titolo },
+        onchange: (evento: Event) => {
+          const scritti = Number((evento.target as HTMLInputElement).value)
+          al(Number.isFinite(scritti) ? Math.max(0, Math.round(scritti)) : 0)
+        },
+      }),
+    () => true,
+  )
+}
+
+/**
+ * La nota di una riga: un «+» finché è vuota, il campo quando c'è. Aperto e
+ * lasciato vuoto, al primo clic fuori torna «+».
+ */
+function campoNota (opzioni: {
+  nota: string
+  titolo: string
+  segnaposto: string
+  fuoco: string
+  al: (nota: string) => void
+}): HTMLElement {
+  const { nota, titolo, segnaposto, fuoco, al } = opzioni
+  const campo = (): HTMLInputElement =>
+    h('input', {
+      class: 'campo__controllo',
+      type: 'text',
+      value: nota,
+      placeholder: segnaposto,
+      dataset: { fuoco },
+      attr: { 'aria-label': titolo },
+      onchange: (evento: Event) => al((evento.target as HTMLInputElement).value),
+    })
+  if (nota) return campo()
+  return apribile(
+    h(
+      'button',
+      {
+        class: 'appello__aggiungi-nota',
+        type: 'button',
+        dataset: { fuoco },
+        attr: { title: titolo, 'aria-label': titolo },
+      },
+      icona('piu'),
+    ),
+    campo,
+    (aperto) => !aperto.value.trim(),
+  )
+}
+
+/**
  * Minuti e nota di una riga, mandati da soli: rimandare tutta
  * `presenze.imposta` con gli allievi attivi cancellerebbe l'appello di chi si
  * è ritirato.
@@ -439,7 +536,7 @@ function conLeFrecce (griglia: HTMLElement): HTMLElement {
 async function scriviRiga (
   lezione: Lezione,
   allievoId: string,
-  campi: Partial<Pick<Presenza, 'minuti' | 'nota'>>,
+  campi: { ud?: number; minuti?: number; nota?: string },
 ): Promise<void> {
   await azione({ tipo: 'presenze.campi', lezioneId: lezione.id, allievoId, ...campi })
 }

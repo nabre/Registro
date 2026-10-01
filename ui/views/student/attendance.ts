@@ -12,6 +12,7 @@ import {
   segnato,
   statiAllineati,
   statoDellOra,
+  minutiRitardoOra,
 } from '#core/dominio/calculations.js'
 import {
   matriceCorso,
@@ -484,7 +485,9 @@ function elencoGiornate (voci: GiornataStorta[]): Figlio {
         perse > 0
           ? h('span', { class: 'testo-quieto diario__cosa' }, t.udPerse(perse, stati.length))
           : h('span', { class: 'diario__cosa' }),
-        presenza.minuti ? h('span', { class: 'testo-quieto' }, t.minuti(presenza.minuti)) : null,
+        minutiRitardoOra(presenza)
+          ? h('span', { class: 'testo-quieto' }, t.minuti(minutiRitardoOra(presenza)))
+          : null,
         presenza.nota ? h('span', { class: 'diario__nota' }, presenza.nota) : null,
       )
     }),

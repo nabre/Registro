@@ -674,7 +674,10 @@ function normalizzaPresenza (grezzo: unknown, quante: number): Presenza {
   return {
     allievoId: testo(dati.allievoId),
     stati,
-    minuti: dati.minuti === undefined ? undefined : numero(dati.minuti, 0),
+    // Allineati agli stati: un minuto oltre l'ultima UD non è di nessuna.
+    ritardi: Array.isArray(dati.ritardi)
+      ? stati.map((_, i) => Math.max(0, numero((dati.ritardi as unknown[])[i], 0)))
+      : undefined,
     nota: testo(dati.nota),
   }
 }

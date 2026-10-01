@@ -164,7 +164,7 @@ describe('presenze', () => {
     { allievoId: 'a', stati: ['presente', 'presente'] },
     { allievoId: 'b', stati: ['assente', 'assente'] },
     { allievoId: 'c', stati: ['assente', 'presente'] },
-    { allievoId: 'd', stati: ['ritardo', 'presente'], minuti: 10 },
+    { allievoId: 'd', stati: ['ritardo', 'presente'], ritardi: [10, 0] },
     { allievoId: 'e', stati: ['esonerato', 'esonerato'] },
   ]
 
@@ -338,7 +338,7 @@ describe('presenze', () => {
     const lezioni = ['2025-09-15', '2025-09-22'].map((data) => {
       const lezione = creaLezione('cor1', data, '08:00', 45)
       lezione.stato = 'svolta'
-      lezione.presenze = [{ allievoId: 'x', stati: ['ritardo'], minuti: 10 }]
+      lezione.presenze = [{ allievoId: 'x', stati: ['ritardo'], ritardi: [10] }]
       return lezione
     })
     const riga = quadro(lezioni)

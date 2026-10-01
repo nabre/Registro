@@ -21,6 +21,7 @@ import {
   siglaPresenza,
   statiAllineati,
   unitaDidattiche,
+  minutiRitardoOra,
 } from './calculations.js'
 import { nomeTipoAttivita } from './activities.js'
 import {
@@ -1157,7 +1158,7 @@ function appelloDi (registro: Registro, fuoco: Fuoco): AppelloProiettato | null 
       allievoId: allievo.id,
       nome: nomeCompleto(allievo),
       sigle: stati.map(siglaPresenza),
-      minuti: presenza?.minuti ?? null,
+      minuti: presenza?.ritardi ? minutiRitardoOra(presenza) : null,
       // «Presente» qui vuol dire presente almeno per una parte dell'ora.
       presente: stati.some((s) => s === 'presente' || s === 'ritardo'),
     }

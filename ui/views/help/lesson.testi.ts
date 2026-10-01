@@ -252,7 +252,6 @@ const it = {
     sommario: `Chi c’era, ${UD.singolare} per ${UD.singolare}, e che cosa ne esce nei conti.`,
     scritte: {
       ud: corto(UD),
-      min: 'min',
       nota: 'nota',
       trenoInRitardo: 'treno in ritardo',
       daCapo: 'e da capo',
@@ -270,8 +269,9 @@ const it = {
           'Il pulsante di colonna: lo stesso stato a tutta la classe, in quella UD.',
           `Una casella per ${UD.singolare}, con l’ora d’inizio in testa.`,
           'La pausa non è una colonna: stacca le UD che separa.',
-          'I minuti di ritardo: la casella c’è solo nelle righe con una **R**.',
-          'Una nota per persona, per quest’ora.',
+          'I minuti di ritardo, in apice sulla **R**: uno per UD, perché in un’ora si può ' +
+            'arrivare tardi più volte.',
+          'Una nota per persona, per quest’ora: un **+** finché è vuota.',
         ],
       },
     ],
@@ -309,8 +309,11 @@ const it = {
       {
         termine: 'Ritardi e note',
         testo:
-          'Nelle righe con una **R** compare il campo dei minuti; tolta l’ultima **R**, i minuti ' +
-          'se ne vanno con lei. Ogni riga ha anche una nota breve, per quest’ora.',
+          'Su ogni casella **R** compare in apice un **+**: un clic apre il campo dei minuti di ' +
+          'quell’UD, e scritti il **+** diventa «10′». I minuti sono per UD: chi arriva tardi a ' +
+          'inizio lezione e di nuovo dopo la pausa ha due ritardi, ciascuno con i suoi. Tolta ' +
+          'una **R**, i suoi minuti se ne vanno con lei. La nota della riga è un **+**: un clic ' +
+          'apre il campo, e lasciato vuoto si richiude al primo clic fuori.',
       },
       {
         termine: 'Quanto manca',
@@ -1050,7 +1053,6 @@ export const testi = catalogo(it, {
         'was daraus in den Zählungen wird.',
       scritte: {
         ud: corto(DE.unitaDidattica),
-        min: 'Min.',
         nota: 'Notiz',
         trenoInRitardo: 'Zug verspätet',
         daCapo: 'und von vorn',
@@ -1070,8 +1072,9 @@ export const testi = catalogo(it, {
               'Lektion.',
             `Ein Feld pro ${DE.unitaDidattica.singolare}, mit der Anfangszeit oben.`,
             'Die Pause ist keine Spalte: Sie trennt die Lektionen, zwischen denen sie liegt.',
-            'Die Minuten Verspätung: Das Feld gibt es nur in Zeilen mit einem **R**.',
-            'Eine Notiz pro Person, für diese Stunde.',
+            'Die Minuten Verspätung, hochgestellt am **R**: eine Angabe pro Lektion, weil man ' +
+              'in einer Stunde mehrmals zu spät kommen kann.',
+            'Eine Notiz pro Person, für diese Stunde: ein **+**, solange sie leer ist.',
           ],
         },
       ],
@@ -1112,8 +1115,12 @@ export const testi = catalogo(it, {
         {
           termine: 'Verspätungen und Notizen',
           testo:
-            'In Zeilen mit einem **R** erscheint das Feld für die Minuten; ist das letzte **R** ' +
-            'weg, gehen die Minuten mit. Jede Zeile hat auch eine kurze Notiz, für diese Stunde.',
+            'Auf jedem Feld mit **R** erscheint hochgestellt ein **+**: Ein Klick öffnet das Feld ' +
+            'für die Minuten dieser Lektion, und danach zeigt es «10′». Die Minuten gelten pro ' +
+            'Lektion: Wer zu Beginn und nach der Pause wieder zu spät kommt, hat zwei ' +
+            'Verspätungen, jede mit ihren Minuten. Ist ein **R** weg, gehen seine Minuten mit. ' +
+            'Die Notiz der Zeile ist ein **+**: Ein Klick öffnet das Feld, und leer gelassen ' +
+            'schliesst es sich beim nächsten Klick daneben.',
         },
         {
           termine: 'Wie viel fehlt',
@@ -1878,7 +1885,6 @@ export const testi = catalogo(it, {
         'ce qui en sort dans les comptes.',
       scritte: {
         ud: corto(FR.unitaDidattica),
-        min: 'min',
         nota: 'note',
         trenoInRitardo: 'train en retard',
         daCapo: 'et on recommence',
@@ -1897,8 +1903,9 @@ export const testi = catalogo(it, {
             'Le bouton de colonne : le même état pour toute la classe, dans cette période.',
             `Une case par ${FR.unitaDidattica.singolare}, avec l’heure de début en tête.`,
             'La pause n’est pas une colonne : elle écarte les périodes qu’elle sépare.',
-            'Les minutes de retard : la case n’existe que dans les lignes avec un **R**.',
-            'Une note par personne, pour cette leçon.',
+            'Les minutes de retard, en exposant sur le **R** : une par période, car on peut ' +
+              'arriver en retard plusieurs fois dans une leçon.',
+            'Une note par personne, pour cette leçon : un **+** tant qu’elle est vide.',
           ],
         },
       ],
@@ -1937,9 +1944,12 @@ export const testi = catalogo(it, {
         {
           termine: 'Retards et notes',
           testo:
-            'Dans les lignes avec un **R** apparaît le champ des minutes ; une fois le dernier ' +
-            '**R** retiré, les minutes s’en vont avec lui. Chaque ligne a aussi une courte ' +
-            'note, pour cette leçon.',
+            'Sur chaque case **R** apparaît en exposant un **+** : un clic ouvre le champ des ' +
+            'minutes de cette période, et une fois écrites le **+** devient « 10′ ». Les minutes ' +
+            'sont par période : qui arrive en retard en début de leçon puis après la pause a deux ' +
+            'retards, chacun avec les siennes. Un **R** retiré emporte ses minutes. La note de la ' +
+            'ligne est un **+** : un clic ouvre le champ, et laissé vide il se referme au premier ' +
+            'clic à côté.',
         },
         {
           termine: 'Ce qui manque',
@@ -2688,7 +2698,6 @@ export const testi = catalogo(it, {
         'what comes of it in the counts.',
       scritte: {
         ud: corto(EN.unitaDidattica),
-        min: 'min',
         nota: 'note',
         trenoInRitardo: 'train delayed',
         daCapo: 'and round again',
@@ -2707,8 +2716,9 @@ export const testi = catalogo(it, {
             'The column button: the same state for the whole class, in that period.',
             `One cell per ${EN.unitaDidattica.singolare}, with the start time at the top.`,
             'The break is not a column: it separates the periods either side of it.',
-            'Minutes late: the cell is only there in rows with an **R**.',
-            'One note per person, for this lesson.',
+            'Minutes late, as a superscript on the **R**: one per period, since a student can ' +
+              'be late more than once in a lesson.',
+            'One note per person, for this lesson: a **+** while it is empty.',
           ],
         },
       ],
@@ -2746,8 +2756,11 @@ export const testi = catalogo(it, {
         {
           termine: 'Late arrivals and notes',
           testo:
-            'In rows with an **R** the minutes field appears; once the last **R** is removed, ' +
-            'the minutes go with it. Each row also has a short note, for this lesson.',
+            'Every **R** cell shows a superscript **+**: a click opens the minutes field for that ' +
+            'period, and once filled the **+** becomes “10′”. Minutes are per period: someone late ' +
+            'at the start and again after the break has two late arrivals, each with its own. ' +
+            'Removing an **R** takes its minutes with it. The row’s note is a **+**: a click opens ' +
+            'the field, and left empty it closes again at the first click outside.',
         },
         {
           termine: 'How much is left',

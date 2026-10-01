@@ -1,5 +1,5 @@
 {
-  "versione": 4,
+  "versione": 5,
   "campi": [
     "anni",
     "anni[].calendarioUfficiale",
@@ -282,8 +282,8 @@
     "lezioni[].pianoId",
     "lezioni[].presenze",
     "lezioni[].presenze[].allievoId",
-    "lezioni[].presenze[].minuti",
     "lezioni[].presenze[].nota",
+    "lezioni[].presenze[].ritardi",
     "lezioni[].presenze[].stati",
     "lezioni[].slot",
     "lezioni[].slot[].etichetta",

@@ -7,7 +7,7 @@
 // Invariante: si toglie solo quel che la normalizzazione rimette identico —
 // stringa vuota (`testo()`) ed elenco vuoto (`elenco()`). `false`, `0` e `null`
 // restano: `attivo` mancante nasce `true`, un voto `null` non è un voto
-// assente, `minuti: 0` è un dato. Lo prova `tests/domain/persistence.test.mjs`
+// assente, un ritardo di `0` minuti è un dato. Lo prova `tests/domain/persistence.test.mjs`
 // sul registro intero.
 
 /**
