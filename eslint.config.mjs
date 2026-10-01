@@ -27,6 +27,8 @@ const FUORI = [
   // La copia di lavoro e il rapporto di `npm run mutanti`.
   '.stryker-tmp/',
   'reports/mutation/',
+  // Le copie di lavoro degli agenti: ognuna si controlla da sé.
+  '.claude/worktrees/',
   'icons/',
   'core/dati/defaultTemplates.ts',
   // Lo stesso per il calendario ufficiale: `npm run calendario` lo scrive dal JSON.
