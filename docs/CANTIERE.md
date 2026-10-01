@@ -257,6 +257,15 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### PDF e documenti
 
+- [ ] Visualizzazioni proposte e non fatte: barre della % di assenza per
+      persona con la soglia; presenze per mese; andamento dei segni +/−;
+      avanzamento del check per colonna; livelli dei progetti nel tempo;
+      andamento con più corsi (una linea per corso).
+- [ ] Scheda del corso: il quadro per persona conta i ritardi (matrice), non
+      i minuti per UD; i segni escono «+1 / -1» col trattino ASCII. Le date
+      dei piani contano anche le ore pianificate. Scritte delle colonne
+      nuove da rivedere a vista.
+
 - [ ] «Aggiorna tutto» e il rifacimento automatico compongono i PDF con pdf-lib
       sul thread principale, e «Aggiorna tutto» tiene la fila delle scritture
       per tutto il giro: le altre scritture escono «occupato» dopo 30 s. Una
@@ -281,6 +290,13 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### Da provare a mano
 
+- [ ] Con un anno aperto, «Crea un nuovo anno…» (benvenuto o vassoio) apre
+      il modulo «Nuovo anno scolastico» del pannello: il ramo
+      `dialogo: 'nuovoAnno'` di `ui/main.ts` non ha una prova automatica.
+- [ ] Proiezione in pausa (ora, data, marchio, versione): nessuna prova la
+      disegna.
+- [ ] Barra di stato: la scritta corta del secondo tag («2 di classe», de «der
+      Klasse», fr «de classe», en «for the class») è da confermare.
 - [ ] Registro grande su OneDrive con «PDF automatici: sempre»: un caricamento
       nella matrice dei documenti fa un salvataggio solo a fine giro di PDF
       (prima uno per foglio: 24 in 36 s, +6,6 MB), e l'azione non resta appesa.
