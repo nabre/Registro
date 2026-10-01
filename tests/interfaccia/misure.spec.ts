@@ -16,9 +16,10 @@
 // stia sotto la soglia. Un confronto sulla stessa macchina regge anche su una
 // CI più lenta; se cade, una tabella è tornata a disegnarsi intera.
 //
-// Ogni misura si ripete e si tiene la mediana: la prima volta paga anche la
-// compilazione del codice, e un solo campione è rumore. `MISURE=1` stampa i
-// numeri.
+// Ogni misura si ripete, a turno fra tabella lunga e corta, e si tiene il
+// campione più rapido: il carico delle altre prove e la prima compilazione del
+// codice aggiungono tempo, non ne tolgono, quindi il minimo è il costo del
+// disegno e la mediana no. `MISURE=1` stampa i numeri.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 
@@ -27,12 +28,13 @@ import { FRAME, pannello, valuta } from './banco'
 const PRIMO_DISEGNO_MS = 200
 const RIDISEGNO_MS = 50
 /**
- * Quanto la tabella lunga può costare più della corta. Largo perché le prove
- * girano in parallelo e la macchina è condivisa: una tabella tornata a
- * disegnarsi intera costa dieci volte tanto, non due.
+ * Quanto la tabella lunga può costare più della corta. A finestra la lunga
+ * costa già fino a due volte tanto (primo disegno dell'archivio, ridisegno
+ * delle persone, misurati sotto il carico delle altre prove); una tabella
+ * tornata a disegnarsi intera costa dieci volte tanto, non tre.
  */
-const MARGINE = 2
-const RIPETIZIONI = 5
+const MARGINE = 3
+const RIPETIZIONI = 7
 
 interface Misura { ms: number, lungo: number }
 
@@ -69,21 +71,35 @@ async function misura (page: Page): Promise<Misura> {
   })
 }
 
-function mediana (valori: number[]): number {
-  const ordinati = [...valori].sort((a, b) => a - b)
-  return ordinati[Math.floor(ordinati.length / 2)]
+/** Un campione: `prepara`, poi il gesto misurato. */
+async function campione (page: Page, prepara: string, gesto: string): Promise<Misura> {
+  await valuta(page, prepara)
+  await valuta(page, FRAME)
+  await valuta(page, `() => { window.__gesto = ${gesto} }`)
+  return await misura(page)
 }
 
-/** Ripete `prepara` + gesto misurato e torna le mediane. */
-async function ripeti (page: Page, prepara: string, gesto: string): Promise<Misura> {
-  const campioni: Misura[] = []
+/** Il campione più rapido, e il compito lungo più corto. */
+function migliore (campioni: Misura[]): Misura {
+  return { ms: Math.min(...campioni.map((c) => c.ms)), lungo: Math.min(...campioni.map((c) => c.lungo)) }
+}
+
+/**
+ * Ripete il gesto sulla tabella lunga e sulla corta a turno e torna i
+ * campioni migliori. A turno e non una serie dopo l'altra: sotto il carico delle altre
+ * prove la macchina cambia passo da un secondo all'altro, e due serie misurate
+ * in momenti diversi confronterebbero il carico invece delle tabelle.
+ */
+async function aTurno (
+  lunga: Page, corta: Page, prepara: string, gesti: { lunga: string, corta: string },
+): Promise<{ lunga: Misura, corta: Misura }> {
+  const l: Misura[] = []
+  const c: Misura[] = []
   for (let n = 0; n < RIPETIZIONI; n += 1) {
-    await valuta(page, prepara)
-    await valuta(page, FRAME)
-    await valuta(page, `() => { window.__gesto = ${gesto} }`)
-    campioni.push(await misura(page))
+    l.push(await campione(lunga, prepara, gesti.lunga))
+    c.push(await campione(corta, prepara, gesti.corta))
   }
-  return { ms: mediana(campioni.map((c) => c.ms)), lungo: mediana(campioni.map((c) => c.lungo)) }
+  return { lunga: migliore(l), corta: migliore(c) }
 }
 
 interface Caso {
@@ -97,22 +113,23 @@ interface Caso {
   controlla: (page: Page) => Promise<void>
 }
 
-/** Primo disegno e ridisegno di un caso, in una pagina sua. */
-async function misuraCaso (browser: Browser, caso: Caso): Promise<{ primo: Misura, ridisegno: Misura }> {
-  const { page, errori } = await pannello(browser)
-  await valuta(page, caso.dati)
-  const primo = await ripeti(page, "() => prova.vai({ pagina: 'pagina.oggi' })", caso.vai)
-  await caso.controlla(page)
-  const ridisegno = await ripeti(page, '() => {}', caso.ritorno)
-  expect(errori).toEqual([])
-  await page.close()
-  return { primo, ridisegno }
-}
-
-/** Confronta la tabella lunga con la corta sulla stessa pagina. */
+/** Confronta la tabella lunga con la corta sulla stessa pagina, ciascuna in una scheda sua. */
 async function confronta (browser: Browser, nome: string, lunga: Caso, corta: Caso): Promise<void> {
-  const l = await misuraCaso(browser, lunga)
-  const c = await misuraCaso(browser, corta)
+  const pl = await pannello(browser)
+  const pc = await pannello(browser)
+  await valuta(pl.page, lunga.dati)
+  await valuta(pc.page, corta.dati)
+  const primo = await aTurno(pl.page, pc.page, "() => prova.vai({ pagina: 'pagina.oggi' })",
+    { lunga: lunga.vai, corta: corta.vai })
+  await lunga.controlla(pl.page)
+  await corta.controlla(pc.page)
+  const ridisegno = await aTurno(pl.page, pc.page, '() => {}', { lunga: lunga.ritorno, corta: corta.ritorno })
+  expect(pl.errori).toEqual([])
+  expect(pc.errori).toEqual([])
+  await pl.page.close()
+  await pc.page.close()
+  const l = { primo: primo.lunga, ridisegno: ridisegno.lunga }
+  const c = { primo: primo.corta, ridisegno: ridisegno.corta }
   if (process.env.MISURE) {
     const f = (m: Misura) => `${m.ms.toFixed(0)} ms (compito lungo ${m.lungo.toFixed(0)})`
     process.stdout.write(`${nome}: primo disegno ${f(l.primo)}, ridisegno ${f(l.ridisegno)}; ` +
