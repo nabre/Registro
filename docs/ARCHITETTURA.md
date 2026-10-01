@@ -563,4 +563,6 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-Nessun riordino aperto.
+| Da | A | Perché |
+| --- | --- | --- |
+| `ui/pannello/` | ui/ | `ui/` non ha altro: un livello in meno in ogni percorso (`#ui/…`, ADR-55). |
