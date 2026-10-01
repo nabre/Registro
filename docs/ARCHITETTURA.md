@@ -563,4 +563,6 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-Nessun riordino aperto.
+| Da | A | Perché |
+| --- | --- | --- |
+| `ui/commands.ts` (`COMANDI_UI`) e `ui/commands.testi.ts` | ui/commands/ (una sezione per file, con i suoi testi); `ui/commands.ts` concatena nello stesso ordine | 1491 + 1101 righe, un elenco solo. |
