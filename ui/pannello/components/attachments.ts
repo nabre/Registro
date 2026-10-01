@@ -2,14 +2,14 @@
 // sostituzione, cestino), usati da più viste. Una prova di recupero è un
 // momento a sé, con i suoi posti come gli altri.
 
-import type { Allegato, MomentoValutazione, RuoloAllegato } from '../../../core/dominio/models.js'
+import type { Allegato, MomentoValutazione, RuoloAllegato } from '#core/dominio/models.js'
 import { conAttesa, pulsante } from './base.js'
 import { icona } from './icons.js'
 import { conferma } from './modal.js'
 import { notifica } from './notifications.js'
-import { h } from '../dom.js'
-import { azione } from '../bridge.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './attachments.testi.js'
 
 /** Il PDF di un ruolo, per un allievo. */

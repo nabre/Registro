@@ -4,18 +4,18 @@
 // (prove diverse mescolate), una tabella dentro la prova (pochi nomi, stesse
 // colonne).
 
-import { Molti, Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import type { Lezione, MomentoValutazione } from '../../../../core/dominio/models.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Lezione, MomentoValutazione } from '#core/dominio/models.js'
 import {
   type Recupero,
   type StatoRecupero,
   recuperiDelMomento,
   recuperiDellaLezione,
-} from '../../../../core/dominio/retakes.js'
-import { postoAllegato } from '../../components/attachments.js'
+} from '#core/dominio/retakes.js'
+import { postoAllegato } from '#ui/pannello/components/attachments.js'
 import {
   controlloData,
   dataInLinea,
@@ -23,24 +23,24 @@ import {
   pulsante,
   scheda,
   titoloGruppo,
-} from '../../components/base.js'
-import { eseguiOAvvisa } from '../../components/filters.js'
-import { h, type Figlio } from '../../dom.js'
-import { apriMomento } from '../../calendarNavigation.js'
-import { corsoPendenza, pendenza } from '../../components/pending.js'
-import { inTelaio, tabella } from '../../components/table.js'
-import { cellaNome } from '../../components/avatar.js'
-import { moduloRecupero } from '../../forms.js'
-import { notifica } from '../../components/notifications.js'
-import { azione } from '../../bridge.js'
+} from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { apriMomento } from '#ui/pannello/calendarNavigation.js'
+import { corsoPendenza, pendenza } from '#ui/pannello/components/pending.js'
+import { inTelaio, tabella } from '#ui/pannello/components/table.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
+import { moduloRecupero } from '#ui/pannello/forms.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   classeDiLezione,
   classeDiMomento,
   nomeCorso,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import { SIGLA_ASSENTE, elencoVoti, grigliaVoti, lampeggiaErrore, leggiCasella } from './grades.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as testiVoti } from './grades.testi.js'
 import { testi } from './retakes.testi.js'
 

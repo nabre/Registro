@@ -3,11 +3,11 @@
 // scrivendo. Il modulo è un vero `<form>`: Invio salva, Escape annulla, e gli
 // errori tornano in cima al corpo.
 
-import { fuocoIniziale, h, rifocalizza, rimpiazza, type Figlio } from '../dom.js'
+import { fuocoIniziale, h, rifocalizza, rimpiazza, type Figlio } from '#ui/pannello/dom.js'
 import { avviso, pulsante, valoriModulo } from './base.js'
 import { suggerimento } from './hint.js'
 import { icona } from './icons.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './modal.testi.js'
 
 export interface ContestoModale {

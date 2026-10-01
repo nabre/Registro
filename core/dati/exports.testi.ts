@@ -2,11 +2,11 @@
 // lezione in markdown. Le caselle comuni ai rapporti («Media», «Data», «ass.»)
 // vengono da `domain/reportData.testi.ts`, così PDF e CSV dicono lo stesso.
 
-import { catalogo, minuscolo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
-import { PIF, corto } from '../dominio/lexicon.js'
-import { lessico } from '../dominio/lexicon.testi.js'
-import type { StatoPresenza } from '../dominio/models.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
+import { PIF, corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { StatoPresenza } from '#core/dominio/models.js'
 
 const it = {
   /** Le colonne del quadro delle presenze, nell'ordine in cui escono. */

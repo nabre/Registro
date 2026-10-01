@@ -3,7 +3,7 @@
 // le modali: nasce al clic, sta dove l'ha chiamato il puntatore e se ne va al
 // primo gesto che non lo riguarda.
 
-import { h, rifocalizza, type Figlio } from '../dom.js'
+import { h, rifocalizza, type Figlio } from '#ui/pannello/dom.js'
 import { dentroIBordi } from './hint.js'
 import { icona, type NomeIcona } from './icons.js'
 

@@ -1,7 +1,7 @@
 // I testi del navigatore dei piani (`plansNavigator.ts`): le frecce, l'ora di
 // adesso e l'elenco di tutte le ore del corso con il loro stato.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   etichetta: 'Lezioni del corso',

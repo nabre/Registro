@@ -1,10 +1,10 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import type { Recapito } from '../../../../core/dominio/models.js'
-import { validaRecapito } from '../../../../core/dominio/validation.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { entita, identificatore, oggetto } from '../../../schemas.js'
-import { esigiClasse } from '../../common/register.js'
-import { testi } from '../classe.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import type { Recapito } from '#core/dominio/models.js'
+import { validaRecapito } from '#core/dominio/validation.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, identificatore, oggetto } from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
+import { testi } from '#contract/procedure/classe/classe.testi.js'
 
 const t = () => testi().recapiti.salva
 

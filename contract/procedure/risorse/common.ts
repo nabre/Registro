@@ -1,7 +1,7 @@
 // Guardie delle procedure di `risorse`.
 
-import type { PianoLezione } from '../../../core/dominio/models.js'
-import { errore } from '../../contract.js'
+import type { PianoLezione } from '#core/dominio/models.js'
+import { errore } from '#contract/contract.js'
 
 /**
  * La tappa della scaletta, quando se ne nomina una. `attivitaId` nullo vuol dire

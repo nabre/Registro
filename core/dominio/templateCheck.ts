@@ -9,7 +9,7 @@
 // I nomi noti sono facoltativi: un elenco vuoto salta quel controllo. La
 // pagina passa i nomi veri chiesti all'host; una prova guarda solo la forma.
 
-import { LINGUE } from '../i18n/index.js'
+import { LINGUE } from '#core/i18n/index.js'
 import { chiaveValore, DIRETTIVE, FORMATI, NOME_LOGO, type TipoBlocco } from './reports.js'
 import { fileDeiTesti } from './templateCatalog.js'
 import { testi, type GenereNome } from './templateCheck.testi.js'

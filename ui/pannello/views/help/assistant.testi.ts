@@ -5,9 +5,9 @@
 // (`corso.presenze`) non si traducono. Assistente e dettatura usano la lingua
 // del registro (`lingua: lingua()` in `data/dictation.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { Molti, PIF, Uno, dei, i } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { Molti, PIF, Uno, dei, i } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

@@ -3,7 +3,7 @@
 // date. Porta la classe comune `pendenza` (la forma) e quella della famiglia,
 // es. `recupero` (colori e differenze); lo stesso per i pezzi dentro.
 
-import { h, type Figlio } from '../dom.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 
 /** Quel che serve per disegnare una pendenza. */
 interface OpzioniPendenza {

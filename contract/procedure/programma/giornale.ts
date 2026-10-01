@@ -1,6 +1,6 @@
-import { definisci } from '../../contract.js'
-import { ultimeVociGiornale } from '../../core.js'
-import { booleano, elenco, numero, oggetto, opzionale, testo } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { ultimeVociGiornale } from '#contract/core.js'
+import { booleano, elenco, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
 import { testi } from './programma.testi.js'
 
 const t = () => testi().giornale

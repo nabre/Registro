@@ -1,10 +1,10 @@
-import { ore } from '../../../core/azioni/hours.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Lezione } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
+import { ore } from '#core/azioni/hours.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Lezione } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './ore.testi.js'
 
 const t = () => testi().salva

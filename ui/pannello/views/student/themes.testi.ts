@@ -1,9 +1,9 @@
 // I testi della scheda personale, parte materie (`student/themes.ts`).
 
-import { catalogo, minuscolo } from '../../../../core/i18n/index.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import type { TipoOsservazione } from '../../../../core/dominio/models.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { TipoOsservazione } from '#core/dominio/models.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   valutazioni: 'Valutazioni',

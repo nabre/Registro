@@ -2,7 +2,7 @@
 // casella, mail di prova. Le impostazioni si citano con la chiave
 // (`registroDocenti.posta.*`), i comandi con il nome del menu in quella lingua.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   invioAcceso: 'L’invio diretto è acceso: le comunicazioni partono da qui.',

@@ -6,7 +6,7 @@
 // si prova: un modello aggiunto a `templates/` e non qui resterebbe senza
 // titolo né anteprima.
 
-import { LINGUA_PREDEFINITA, type Lingua } from '../i18n/index.js'
+import { LINGUA_PREDEFINITA, type Lingua } from '#core/i18n/index.js'
 import type { GenereRapporto } from './locations.js'
 import { testi } from './templateCatalog.testi.js'
 

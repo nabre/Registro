@@ -5,12 +5,12 @@
 // `environment/dialogs.ts`). Le etichette sono dati del docente: `textContent`.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../../../core/i18n/page.js'
+import '#core/i18n/page.js'
 // La barra del titolo, se la finestra ne ha una propria.
-import '../shared/titleBar.js'
-import type { ParametriDialogo, RispostaDialogo } from '../../../apparato/dialogs.js'
-import { allEsc, ascolta, elemento, manda, perId } from '../shared/page.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import '#desktop/shell/pages/shared/titleBar.js'
+import type { ParametriDialogo, RispostaDialogo } from '#desktop/apparato/dialogs.js'
+import { allEsc, ascolta, elemento, manda, perId } from '#desktop/shell/pages/shared/page.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './dialog.testi.js'
 
 import './dialog.css'

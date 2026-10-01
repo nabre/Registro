@@ -1,7 +1,7 @@
 // I testi della pagina del calendario (`calendar.ts`).
 
-import { catalogo, perNumero } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: 'Calendario',

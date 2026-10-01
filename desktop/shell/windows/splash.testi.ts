@@ -1,7 +1,7 @@
 // Il testo del riquadro d'avvio che il main process conosce: la fase di
 // partenza, prima che qualcuno ne annunci un'altra.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   avvio: 'Avvio del registro…',

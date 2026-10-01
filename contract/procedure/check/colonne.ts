@@ -1,7 +1,7 @@
-import { check } from '../../../core/azioni/check.js'
-import { inoltra, scrittura } from '../../core.js'
-import { elenco, identificatore, oggetto, testo } from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
+import { check } from '#core/azioni/check.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { elenco, identificatore, oggetto, testo } from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './check.testi.js'
 
 const t = () => testi().colonne

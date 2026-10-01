@@ -17,15 +17,15 @@
 // Riquadri e anteprima dipendono dai mattoni (`sheets.ts`), non viceversa;
 // solo questo file li conosce tutti.
 
-import type { Corso } from '../../../core/dominio/models.js'
-import { statoVuoto, testataVista } from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { corsoDelContesto } from '../context.js'
-import { h, type Figlio } from '../dom.js'
-import { moduloAnno } from '../forms.js'
-import { annoCorrente, corsiDellAnnoAperto, nomeSemestreScelto, stato } from '../state.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+import type { Corso } from '#core/dominio/models.js'
+import { statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { corsoDelContesto } from '#ui/pannello/context.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAnno } from '#ui/pannello/forms.js'
+import { annoCorrente, corsiDellAnnoAperto, nomeSemestreScelto, stato } from '#ui/pannello/state.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { testi } from './documents.testi.js'
 
 import { anteprima } from './documents/preview.js'

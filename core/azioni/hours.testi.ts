@@ -1,8 +1,8 @@
 // I testi di `hours.ts`: le ore del calendario, spostate, tolte, duplicate, e
 // le osservazioni scritte dentro.
 
-import { catalogo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   altraClasse:

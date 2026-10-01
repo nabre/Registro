@@ -1,6 +1,6 @@
-import { calendario } from '../../../core/azioni/calendar.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
+import { calendario } from '#core/azioni/calendar.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
 import { testi } from './calendario.testi.js'
 
 const t = () => testi().togli

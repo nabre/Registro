@@ -6,8 +6,8 @@
 // Quali sezioni stanno in quale area lo dice `place.ts` (`SEZIONI_DELLE_AREE`),
 // che ne fa gli indirizzi; qui si attaccano nomi, ambiti e chiavi.
 
-import { Maiuscola } from '../../../../core/dominio/lexicon.js'
-import { corrispondeAlla, pezziDiRicerca } from '../../../../core/dominio/text.js'
+import { Maiuscola } from '#core/dominio/lexicon.js'
+import { corrispondeAlla, pezziDiRicerca } from '#core/dominio/text.js'
 import {
   DIVISIONI,
   avvertenzaCondotto,
@@ -18,10 +18,10 @@ import {
   titoloArea as titoloDellArea,
   titoloGruppo,
   type SezioneDiProgramma,
-} from '../../../../core/controlli/areas.js'
-import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '../../../../contract/manifest.js'
-import type { VoceProgramma } from '../../../../contract/protocol.js'
-import type { NomeIcona } from '../../components/icons.js'
+} from '#core/controlli/areas.js'
+import { CHIAVI_DEL_COLLEGAMENTO, IMPOSTAZIONI } from '#contract/manifest.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
 import {
   AREE_IMPOSTAZIONI,
   SEZIONI_DELLE_AREE,
@@ -29,7 +29,7 @@ import {
   type AreaImpostazioni,
   type Scheda,
   type SezioneImpostazioni,
-} from '../../place.js'
+} from '#ui/pannello/place.js'
 import { testi } from './sections.testi.js'
 
 export { sottoPrefisso }

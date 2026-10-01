@@ -3,7 +3,7 @@
 // niente indietro e non ha comandi; il codice del registro non entra, solo `dom.ts`.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../core/i18n/page.js'
+import '#core/i18n/page.js'
 import './styles/projection.css'
 
 import { graficoNote } from './components/notes.js'
@@ -24,10 +24,10 @@ import type {
   TappaProiettata,
   ValutazioneProiettata,
   VoceCalendario,
-} from '../../core/dominio/projection.js'
-import type { MessaggioProiezione } from '../../contract/protocol.js'
+} from '#core/dominio/projection.js'
+import type { MessaggioProiezione } from '#contract/protocol.js'
 import { quieto } from './components/base.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './projection.testi.js'
 
 declare function acquireVsCodeApi (): { postMessage (messaggio: unknown): void }

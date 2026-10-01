@@ -3,7 +3,7 @@
 // tolto, attrezzi esauriti): questi seguono la lingua della risposta, vedi
 // `api/transports/assistant.testi.ts`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ llm.ts

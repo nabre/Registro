@@ -17,7 +17,7 @@
 // Dopo il taglio tutto è uguale: riconoscimento, regole su chi ha già
 // consegnato o è fuori elenco, conferma a mano.
 
-import { elenco } from '../i18n/index.js'
+import { elenco } from '#core/i18n/index.js'
 import { contieneParola, normalizzaTesto } from './text.js'
 import { testi } from './sorting.testi.js'
 import type {

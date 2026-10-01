@@ -1,9 +1,9 @@
 // I testi del contesto (`context.ts`): il nome di ripiego di un corso e i
 // motivi per cui un comando o una pagina adesso non si possono usare.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { SCUOLA, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { SCUOLA, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   /** Il nome di un corso che non ha né classe né materia né titolo. */

@@ -1,9 +1,9 @@
 // Guardie, elenchi di valori e pezzi di schema delle procedure di `smistamento`.
 
-import type { Divisione, Smistamento } from '../../../core/dominio/models.js'
-import { errore, type Ambito } from '../../contract.js'
-import { elenco, numero, oggetto, opzionale, scelta } from '../../schemas.js'
-import type { TestoPigro } from '../../../core/i18n/index.js'
+import type { Divisione, Smistamento } from '#core/dominio/models.js'
+import { errore, type Ambito } from '#contract/contract.js'
+import { elenco, numero, oggetto, opzionale, scelta } from '#contract/schemas.js'
+import type { TestoPigro } from '#core/i18n/index.js'
 import { testi } from './smistamento.testi.js'
 
 const t = () => testi().comune

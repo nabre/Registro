@@ -1,9 +1,9 @@
-import { registro } from '../../../core/azioni/register.js'
-import { motivoSettimanaRifiutata } from '../../../core/dominio/years.js'
-import { errore } from '../../contract.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, iso, nullabile, oggetto, testo } from '../../schemas.js'
-import { esigiAnno } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { motivoSettimanaRifiutata } from '#core/dominio/years.js'
+import { errore } from '#contract/contract.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, iso, nullabile, oggetto, testo } from '#contract/schemas.js'
+import { esigiAnno } from '#contract/procedure/common/register.js'
 import { testi } from './anni.testi.js'
 
 const t = () => testi().settimana

@@ -1,7 +1,7 @@
 // I testi dei calcoli (`calculations.ts`): le didascalie del grafico dei voti
 // di una prova e il nome che un piano lezione si guadagna da sé.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { PIF } from './lexicon.js'
 import { plurale } from './text.js'
 

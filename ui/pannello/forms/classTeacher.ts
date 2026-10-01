@@ -2,20 +2,20 @@
 // famiglie. I destinatari si scelgono per gruppi e gli indirizzi si ricavano
 // all'invio, così una mail corretta vale anche per le bozze già scritte.
 
-import { destinatariComunicazione, fileDellaConsegna } from '../../../core/dominio/communications.js'
-import { consegneDocumento } from '../../../core/dominio/assignments.js'
-import { formattaData, giornoDi } from '../../../core/dominio/dates.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { creaComunicazione, creaRecapito } from '../../../core/dominio/factories.js'
-import type { Classe, Comunicazione, Recapito } from '../../../core/dominio/models.js'
-import { validaComunicazione, validaRecapito } from '../../../core/dominio/validation.js'
-import { campo, pulsante, riga, sezioneModulo, valoriModulo } from '../components/base.js'
-import { apriModale, conferma } from '../components/modal.js'
-import { gestisci, h } from '../dom.js'
-import { invia } from '../bridge.js'
-import { corsiDi, fascicoloDi, stato } from '../state.js'
+import { destinatariComunicazione, fileDellaConsegna } from '#core/dominio/communications.js'
+import { consegneDocumento } from '#core/dominio/assignments.js'
+import { formattaData, giornoDi } from '#core/dominio/dates.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { creaComunicazione, creaRecapito } from '#core/dominio/factories.js'
+import type { Classe, Comunicazione, Recapito } from '#core/dominio/models.js'
+import { validaComunicazione, validaRecapito } from '#core/dominio/validation.js'
+import { campo, pulsante, riga, sezioneModulo, valoriModulo } from '#ui/pannello/components/base.js'
+import { apriModale, conferma } from '#ui/pannello/components/modal.js'
+import { gestisci, h } from '#ui/pannello/dom.js'
+import { invia } from '#ui/pannello/bridge.js'
+import { corsiDi, fascicoloDi, stato } from '#ui/pannello/state.js'
 
 import {
   campiRecapiti,

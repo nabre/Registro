@@ -7,16 +7,16 @@
 //
 // Il giorno viene dal dominio: una spunta data dentro un'ora ne segue la data.
 
-import { allieviAttivi, nomeCompleto } from '../../../core/dominio/calculations.js'
+import { allieviAttivi, nomeCompleto } from '#core/dominio/calculations.js'
 import {
   allieviDelCheck,
   checkDelCorso,
   dataSpunta,
   fatteDellaColonna,
   spuntaDelCheck,
-} from '../../../core/dominio/check.js'
-import { classeDelCorso, materiaDelCorso, titoloCorso } from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/check.js'
+import { classeDelCorso, materiaDelCorso, titoloCorso } from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -26,9 +26,9 @@ import {
   numero,
   oggetto,
   testo,
-} from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './check.testi.js'
 
 const t = () => testi().leggi

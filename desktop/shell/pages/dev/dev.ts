@@ -4,18 +4,18 @@
 // arriva lo stato nuovo, e la pagina si ridisegna da quello.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../../../core/i18n/page.js'
+import '#core/i18n/page.js'
 // La barra del titolo, se la finestra ne ha una propria.
-import '../shared/titleBar.js'
+import '#desktop/shell/pages/shared/titleBar.js'
 import type {
   Collegamento,
   FinestraSviluppo,
   RichiestaSviluppo,
   StatoSviluppo,
-} from '../../windows/devTools.js'
-import type { PosizioneConsole, TipoFinestra } from '../../../apparato/dev.js'
-import { ascolta, elemento, manda, perId, riempi } from '../shared/page.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+} from '#desktop/shell/windows/devTools.js'
+import type { PosizioneConsole, TipoFinestra } from '#desktop/apparato/dev.js'
+import { ascolta, elemento, manda, perId, riempi } from '#desktop/shell/pages/shared/page.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './dev.testi.js'
 
 import './dev.css'

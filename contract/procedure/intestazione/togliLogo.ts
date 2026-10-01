@@ -1,6 +1,6 @@
-import { modelli } from '../../../core/azioni/templates.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
+import { modelli } from '#core/azioni/templates.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
 import { testi } from './intestazione.testi.js'
 
 /**

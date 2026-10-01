@@ -15,8 +15,8 @@ import {
   inizioSullaGriglia,
   scansioneDellaGiornata,
   udAiCapi,
-} from '../../../../core/dominio/breaks.js'
-import { oreConAppello } from '../../../../core/dominio/calculations.js'
+} from '#core/dominio/breaks.js'
+import { oreConAppello } from '#core/dominio/calculations.js'
 import {
   giorniBrevi,
   giorniLunghi,
@@ -26,15 +26,15 @@ import {
   minutiDaUd,
   sommaMinuti,
   udDaMinuti,
-} from '../../../../core/dominio/dates.js'
-import type { Impostazioni, Ora } from '../../../../core/dominio/models.js'
-import { avviso, campo, pastiglia, pulsante, riga, scheda } from '../../components/base.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/yearSetting.js'
-import { comeElenco } from '../../../../core/controlli/field.js'
-import { h, type Figlio } from '../../dom.js'
-import { stato } from '../../state.js'
+} from '#core/dominio/dates.js'
+import type { Impostazioni, Ora } from '#core/dominio/models.js'
+import { avviso, campo, pastiglia, pulsante, riga, scheda } from '#ui/pannello/components/base.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '#ui/pannello/components/yearSetting.js'
+import { comeElenco } from '#core/controlli/field.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 import { schedaPauseGiornata } from './dayBreaks.js'
 import { oraBattuta, salvaConEsito, salvaImpostazioni } from './document.js'
 import { testi } from './schoolDay.testi.js'

@@ -5,7 +5,7 @@
 // - `ipc`: pannello e proiezione
 // - `socket`: riga di comando e script (`conduit.ts`)
 
-import type { Archivio } from '../core/dati/archive.js'
+import type { Archivio } from '#core/dati/archive.js'
 import type { Origine, Risultato } from './contract.js'
 import { VERSIONE_API } from './contract.js'
 import { chiama, descrivi, procedura, procedure } from './core.js'

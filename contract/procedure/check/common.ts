@@ -3,10 +3,10 @@
 // un'altra classe, lezione di un altro corso: mai, e dice quale campo è di
 // troppo).
 
-import { checkDelCorso } from '../../../core/dominio/check.js'
-import type { Allievo, Check, ColonnaCheck, Corso, Lezione } from '../../../core/dominio/models.js'
-import { errore, ErroreApi, type Ambito } from '../../contract.js'
-import { esigiCorso } from '../common/register.js'
+import { checkDelCorso } from '#core/dominio/check.js'
+import type { Allievo, Check, ColonnaCheck, Corso, Lezione } from '#core/dominio/models.js'
+import { errore, ErroreApi, type Ambito } from '#contract/contract.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './check.testi.js'
 
 const t = () => testi().comune

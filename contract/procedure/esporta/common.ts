@@ -1,6 +1,6 @@
 // Pezzi di schema delle procedure di `esporta`.
 
-import { identificatore, nullabile, type Schema } from '../../schemas.js'
+import { identificatore, nullabile, type Schema } from '#contract/schemas.js'
 import { testi } from './esporta.testi.js'
 
 /**

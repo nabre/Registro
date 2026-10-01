@@ -1,9 +1,9 @@
-import { classeDelFascicolo } from '../context.js'
+import { classeDelFascicolo } from '#ui/pannello/context.js'
 // Il pannello del docente di classe: documenti, recapiti, comunicazioni.
 // Compare solo sulle classi segnate «sono docente di classe».
 
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { destinatariComunicazione, fileDellaConsegna } from '../../../core/dominio/communications.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { destinatariComunicazione, fileDellaConsegna } from '#core/dominio/communications.js'
 import {
   avanzamentoConsegna,
   consegneDocumento,
@@ -13,20 +13,20 @@ import {
   scadenzaConsegna,
   siConsegna,
   spuntaDi,
-} from '../../../core/dominio/assignments.js'
-import { Molti, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { gestoDelClic } from '../../../core/dominio/check.js'
-import { formattaData, giornoDi, oggi } from '../../../core/dominio/dates.js'
+} from '#core/dominio/assignments.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { gestoDelClic } from '#core/dominio/check.js'
+import { formattaData, giornoDi, oggi } from '#core/dominio/dates.js'
 import {
   FAMIGLIE_CONSEGNA,
   nomeFamiglia,
   todoDelDocenteDiClasse,
   type FamigliaTodo,
-} from '../../../core/dominio/todo.js'
-import { smistamentiDellaClasse } from '../../../core/dominio/sorting.js'
-import { CHI_INSEGNA } from '../../../core/dominio/models.js'
-import type { Allievo, Classe, Comunicazione, Consegna, Iso } from '../../../core/dominio/models.js'
+} from '#core/dominio/todo.js'
+import { smistamentiDellaClasse } from '#core/dominio/sorting.js'
+import { CHI_INSEGNA } from '#core/dominio/models.js'
+import type { Allievo, Classe, Comunicazione, Consegna, Iso } from '#core/dominio/models.js'
 import {
   collegamento,
   conAttesa,
@@ -36,18 +36,18 @@ import {
   scheda,
   statoVuoto,
   testataVista,
-} from '../components/base.js'
-import { sintesiIncassata } from '../components/filters.js'
-import { recapitoPremibile } from '../components/contacts.js'
-import { icona } from '../components/icons.js'
-import { menuContestuale } from '../components/menu.js'
-import { conferma } from '../components/modal.js'
-import { h } from '../dom.js'
-import { tabella } from '../components/table.js'
-import { finestra, stileVuoto, type Finestra } from '../components/virtualList.js'
-import { cellaNome } from '../components/avatar.js'
-import { moduloComunicazione, moduloConsegna, moduloRecapito } from '../forms.js'
-import { azione } from '../bridge.js'
+} from '#ui/pannello/components/base.js'
+import { sintesiIncassata } from '#ui/pannello/components/filters.js'
+import { recapitoPremibile } from '#ui/pannello/components/contacts.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { menuContestuale } from '#ui/pannello/components/menu.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { finestra, stileVuoto, type Finestra } from '#ui/pannello/components/virtualList.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
+import { moduloComunicazione, moduloConsegna, moduloRecapito } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   classiDiCuiSonoDocente,
   corsiDi,
@@ -57,7 +57,7 @@ import {
   nomeSemestreScelto,
   stato,
   vai,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import {
   aperto,
   corniceArchivio,

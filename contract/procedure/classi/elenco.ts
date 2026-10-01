@@ -1,14 +1,14 @@
 // Le classi dell'anno, come le elenca la pagina Classi: accetta il `classeId`
 // che il contesto manda a ogni domanda.
 
-import { allieviAttivi } from '../../../core/dominio/calculations.js'
-import { corsiDellaClasse, materiaDelCorso } from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
-import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { CAMPI_CERCA, filtroTesto, ricerca } from '../common/filters.js'
-import { esigiAnno } from '../common/register.js'
+import { allieviAttivi } from '#core/dominio/calculations.js'
+import { corsiDellaClasse, materiaDelCorso } from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
+import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { CAMPI_CERCA, filtroTesto, ricerca } from '#contract/procedure/common/filters.js'
+import { esigiAnno } from '#contract/procedure/common/register.js'
 import { testi } from './classi.testi.js'
-import { confrontaNomi } from '../../../core/dominio/text.js'
+import { confrontaNomi } from '#core/dominio/text.js'
 
 const t = () => testi().elenco
 const c = () => testi().comune

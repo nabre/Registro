@@ -26,13 +26,13 @@
 
 import * as apparato from 'apparato'
 
-import { nomeCompleto } from '../dominio/calculations.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
 import { deposito } from './store.js'
-import { classeDelCorsoId, corsiDellaClasse, materiaDelCorso } from '../dominio/courses.js'
-import { testi as date } from '../dominio/dates.testi.js'
-import { DOCUMENTO_SCHEDE_PRIMA } from '../dominio/lexicon.js'
-import { nomiDelleSchede } from '../dominio/lexicon.testi.js'
-import { testi as percorsi } from '../dominio/locations.testi.js'
+import { classeDelCorsoId, corsiDellaClasse, materiaDelCorso } from '#core/dominio/courses.js'
+import { testi as date } from '#core/dominio/dates.testi.js'
+import { DOCUMENTO_SCHEDE_PRIMA } from '#core/dominio/lexicon.js'
+import { nomiDelleSchede } from '#core/dominio/lexicon.testi.js'
+import { testi as percorsi } from '#core/dominio/locations.testi.js'
 import type {
   Allievo,
   Attivita,
@@ -41,7 +41,7 @@ import type {
   PianoLezione,
   Registro,
   Risorsa,
-} from '../dominio/models.js'
+} from '#core/dominio/models.js'
 import type { Archivio } from './archive.js'
 import {
   cartellaAnno,
@@ -67,7 +67,7 @@ import {
   finisceConBozza,
   nomeFileArchivio,
   percorsoArchivio,
-} from '../dominio/locations.js'
+} from '#core/dominio/locations.js'
 import { testi } from './filing.testi.js'
 
 // `nomeFileArchivio` si riesporta per chi archivia.

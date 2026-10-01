@@ -13,7 +13,7 @@
 import { app } from 'electron'
 import { basename, dirname, join, resolve } from 'node:path'
 
-import { traslocaDati } from '../../../core/dati/formerName.js'
+import { traslocaDati } from '#core/dati/formerName.js'
 
 function stessoPosto (uno: string, altro: string): boolean {
   const a = resolve(uno)

@@ -1,8 +1,8 @@
 // I testi di `calendar.ts`: i calendari del documento, e quel che si scrive
 // dopo averli confrontati con il registro.
 
-import { catalogo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   nonCePiu: 'Quel calendario non c’è più nel documento.',

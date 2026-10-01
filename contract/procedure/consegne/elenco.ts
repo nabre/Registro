@@ -5,17 +5,17 @@
 // resto. `arretrateDaAlmeno` e `scadeEntro` tagliano sui giorni, e ogni riga
 // porta i suoi: «arretrata» da sola non distingue un giorno da due mesi.
 
-import { nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
+import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
 import {
   avanzamentoConsegna,
   dataConsegna,
   raccoglieDocumento,
   scadenzaConsegna,
   statoConsegna,
-} from '../../../core/dominio/assignments.js'
-import { classeDelCorsoId, corsiDellAnno, materiaDelCorso } from '../../../core/dominio/courses.js'
-import { differenzaGiorni, oggi as giornoDiOggi } from '../../../core/dominio/dates.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/assignments.js'
+import { classeDelCorsoId, corsiDellAnno, materiaDelCorso } from '#core/dominio/courses.js'
+import { differenzaGiorni, oggi as giornoDiOggi } from '#core/dominio/dates.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -27,7 +27,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_PAGINA,
@@ -37,8 +37,8 @@ import {
   pagina,
   ricerca,
   taglia,
-} from '../common/filters.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './consegne.testi.js'
 
 const t = () => testi().elenco

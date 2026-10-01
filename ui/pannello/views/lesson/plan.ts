@@ -7,18 +7,18 @@ import {
   minutiAttivita,
   minutiDiAttivita,
   scalettaSulleUd,
-} from '../../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   attivitaConPendenza,
   attivitaValutata,
   colonneCheckDi,
   nomeTipoAttivita,
   riassuntoParametri,
-} from '../../../../core/dominio/activities.js'
-import { avanzamentoConsegna } from '../../../../core/dominio/assignments.js'
-import { checkDelCorso, riepilogoDelCheck } from '../../../../core/dominio/check.js'
-import { formattaDurata } from '../../../../core/dominio/dates.js'
-import type { Attivita, ColonnaCheck, Lezione, Risorsa, StatoAttivita } from '../../../../core/dominio/models.js'
+} from '#core/dominio/activities.js'
+import { avanzamentoConsegna } from '#core/dominio/assignments.js'
+import { checkDelCorso, riepilogoDelCheck } from '#core/dominio/check.js'
+import { formattaDurata } from '#core/dominio/dates.js'
+import type { Attivita, ColonnaCheck, Lezione, Risorsa, StatoAttivita } from '#core/dominio/models.js'
 import {
   barra,
   collegamento,
@@ -26,17 +26,17 @@ import {
   pulsante,
   scheda,
   statoVuoto,
-} from '../../components/base.js'
-import { icona } from '../../components/icons.js'
-import { h, type Figlio } from '../../dom.js'
-import { moduloAssegnaPiano } from '../../forms.js'
-import { azione } from '../../bridge.js'
-import { aggiorna, classeDelCorsoId, pianoPerId, stato, uriDato, vai } from '../../state.js'
-import { moduloSpunta } from '../assignments.js'
+} from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAssegnaPiano } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { aggiorna, classeDelCorsoId, pianoPerId, stato, uriDato, vai } from '#ui/pannello/state.js'
+import { moduloSpunta } from '#ui/pannello/views/assignments.js'
 import { pulsanteValutazione } from './assessments.js'
-import { Molti, Uno, quanti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { Molti, Uno, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { apriProgettoDellOra } from './project.js'
 import { testi } from './plan.testi.js'
 

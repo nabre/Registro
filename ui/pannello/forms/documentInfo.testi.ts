@@ -1,7 +1,7 @@
 // I testi del dialogo «Informazioni documento» (`documentInfo.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF, un } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, un } from '#core/dominio/lexicon.js'
 
 const it = {
   titolo: 'Informazioni documento',

@@ -4,7 +4,7 @@
 // Senza preload (`shell/windows/reader.ts`): la pagina non parla col main
 // process, e per questo non usa `shared/page.ts`.
 
-import '../shared/titleBar.js'
+import '#desktop/shell/pages/shared/titleBar.js'
 
 import './reader.css'
 

@@ -1,7 +1,7 @@
 // I testi della posta nelle impostazioni (`settings/mail.ts`). Nomi e
 // descrizioni delle voci vengono dal manifesto.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nessunaRisposta: 'Non è arrivata nessuna risposta.',

@@ -3,9 +3,9 @@
 // (`TestiSezione`, testa di `types.ts`); struttura in `outside.ts`. I nomi
 // delle impostazioni sono le etichette di `manifest.testi.ts`, lettera per lettera.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { CARTE, PIF, Uno, quanti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { CARTE, PIF, Uno, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

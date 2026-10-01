@@ -5,7 +5,7 @@
 
 import { app } from 'electron'
 
-import { Smaltitore } from '../../core/apparato/events.js'
+import { Smaltitore } from '#core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 
 const CHIAVE = 'registroDocenti.avvio.conWindows'

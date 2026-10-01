@@ -2,7 +2,7 @@
 // scorciatoie e il riassunto di ogni parte. I nomi delle tendine li scrive
 // `ui/viewpoint.ts`.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   parti: {

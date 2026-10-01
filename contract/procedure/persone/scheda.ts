@@ -11,18 +11,18 @@
 // `corsi`, le cifre per periodo con gli stessi nomi del totale. `udPreviste` si
 // ricalcola per periodo e le quote non si mediano.
 
-import { allieviAttivi, ordinaAllievi } from '../../../core/dominio/calculations.js'
+import { allieviAttivi, ordinaAllievi } from '#core/dominio/calculations.js'
 import {
   annoDellaClasse,
   corsiDellaClasse,
   materiaDelCorso,
   registroDelCorso,
-} from '../../../core/dominio/courses.js'
-import { scriviIndirizzo } from '../../../core/dominio/addresses.js'
-import { matriceCorso } from '../../../core/dominio/courseMatrix.js'
-import { udPrevisteDaOrario } from '../../../core/dominio/timetable.js'
-import { definisci } from '../../contract.js'
-import { booleano, elenco, identificatore, nullabile, numero, oggetto, testo } from '../../schemas.js'
+} from '#core/dominio/courses.js'
+import { scriviIndirizzo } from '#core/dominio/addresses.js'
+import { matriceCorso } from '#core/dominio/courseMatrix.js'
+import { udPrevisteDaOrario } from '#core/dominio/timetable.js'
+import { definisci } from '#contract/contract.js'
+import { booleano, elenco, identificatore, nullabile, numero, oggetto, testo } from '#contract/schemas.js'
 import {
   nellaZona,
   nelPeriodo,
@@ -31,9 +31,9 @@ import {
   periodoScelto,
   SCHEDA_PERIODO,
   zona,
-} from '../common/filters.js'
-import { esigiPersona } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { esigiPersona } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as t } from './scheda.testi.js'
 
 const p = () => t().presentazione

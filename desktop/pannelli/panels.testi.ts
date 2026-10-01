@@ -2,7 +2,7 @@
 // proiezione) e frasi di rifiuto di domande o azioni. «Regiklass» è il marchio,
 // uguale in ogni lingua.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ assistant.ts

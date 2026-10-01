@@ -8,7 +8,7 @@
 //
 // Elenco a mano: un file non nominato qui non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as daFare } from './daFare.js'
 import { procedureSmistamentoAssenze } from './assenze/index.js'
 import { procedureSmistamentoBozza } from './bozza/index.js'

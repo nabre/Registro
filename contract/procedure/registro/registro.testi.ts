@@ -1,7 +1,7 @@
 // I testi delle procedure di `registro`. Si leggono al momento dell'uso
 // (`titolo: () => t().titolo`), mai al caricamento.
 
-import { catalogo, numero } from '../../../core/i18n/index.js'
+import { catalogo, numero } from '#core/i18n/index.js'
 
 const it = {
   altrove: {

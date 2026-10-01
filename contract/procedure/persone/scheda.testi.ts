@@ -1,7 +1,7 @@
 // I testi di `persone.scheda`. Si leggono al momento dell'uso
 // (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   titolo: 'La scheda di una persona in formazione: anagrafica, corsi, presenze, per semestre',

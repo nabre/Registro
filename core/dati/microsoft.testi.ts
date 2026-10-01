@@ -1,7 +1,7 @@
 // I testi di `microsoft.ts`: collegare e togliere un account per OneDrive, e i
 // rifiuti di Microsoft Graph detti in quel che c'è da fare.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaPortachiavi: 'Il portachiavi del sistema non è disponibile.',

@@ -1,7 +1,7 @@
 // Il testo del ponte di `regi`: la riga di commento che lo apre, per chi lo
 // trova e lo apre in un editor.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   avvertenza: 'Scritto dal registro a ogni avvio: quel che si cambia qui si perde.',

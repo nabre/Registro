@@ -14,10 +14,10 @@ import {
   allieviAttivi,
   mediaAllievo,
   ordinaAllievi,
-} from '../../../core/dominio/calculations.js'
-import { corsiDellaClasse, materiaDelCorso } from '../../../core/dominio/courses.js'
-import type { Allievo, Classe, MomentoValutazione } from '../../../core/dominio/models.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/calculations.js'
+import { corsiDellaClasse, materiaDelCorso } from '#core/dominio/courses.js'
+import type { Allievo, Classe, MomentoValutazione } from '#core/dominio/models.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -28,7 +28,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_ESCLUSI,
@@ -51,11 +51,11 @@ import {
   rigaPersona,
   SCHEDA_PERIODO,
   taglia,
-} from '../common/filters.js'
+} from '#contract/procedure/common/filters.js'
 import {
   esigiClasse, esigiCorso, esigiCorsoDiClasse, esigiPersona,
-} from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as t } from './medie.testi.js'
 
 /** Come si ordina l'elenco: la prima riga è quella che si guarda. */

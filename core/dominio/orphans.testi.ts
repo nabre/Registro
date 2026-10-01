@@ -1,7 +1,7 @@
 // I testi di `orphans.ts`: perché un momento di valutazione non è agganciato a
 // nessuna tappa.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   'senza-piano': 'non viene da nessun piano lezione',

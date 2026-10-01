@@ -1,8 +1,8 @@
-import { consegne } from '../../../core/azioni/assignments.js'
-import type { Consegna } from '../../../core/dominio/models.js'
-import { validaConsegna } from '../../../core/dominio/validation.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
+import { consegne } from '#core/azioni/assignments.js'
+import type { Consegna } from '#core/dominio/models.js'
+import { validaConsegna } from '#core/dominio/validation.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
 import { testi } from './consegne.testi.js'
 
 const t = () => testi().salva

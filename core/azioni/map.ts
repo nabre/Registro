@@ -3,10 +3,10 @@
 // si passa dall'host e si scrive in `coordinate`, con chiave l'indirizzo. Una
 // domanda per indirizzo, non per persona: stessa ditta, stesso punto.
 
-import { geocodifica } from '../dati/geocoding.js'
-import { istanteAdesso } from '../dominio/dates.js'
-import { indirizziDaRisolvere, rubricaDi } from '../dominio/map.js'
-import type { Classe, Coordinata } from '../dominio/models.js'
+import { geocodifica } from '#core/dati/geocoding.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
+import { indirizziDaRisolvere, rubricaDi } from '#core/dominio/map.js'
+import type { Classe, Coordinata } from '#core/dominio/models.js'
 import { conMessaggio, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './map.testi.js'

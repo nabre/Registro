@@ -3,9 +3,9 @@
 // `scrittura`: chiudere il registro non si concede alla sola lettura, né al
 // modello dell'assistente (non dichiara `assistente`).
 
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './programma.testi.js'
 
 export const procedura = scrittura({

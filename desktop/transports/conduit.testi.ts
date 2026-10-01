@@ -2,7 +2,7 @@
 // guasto di avvio. Chiavi d'impostazione, campi della busta e nomi dei metodi
 // restano uguali in ogni lingua.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Il permesso che manca, come lo scrive l'impostazione che lo concede. */
 type Permesso = 'lettura' | 'scrittura'

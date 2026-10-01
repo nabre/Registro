@@ -1,8 +1,8 @@
 // I testi di `forms/assignment.ts`: il modulo di una consegna — che cosa, a
 // chi, con quale documento, entro quando.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF, accorda, ai, i } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, accorda, ai, i } from '#core/dominio/lexicon.js'
 
 const it = {
   serveCorso: 'Serve prima un corso a cui agganciare la consegna.',

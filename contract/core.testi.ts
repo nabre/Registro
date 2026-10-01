@@ -3,8 +3,8 @@
 // Si leggono al momento dell'uso: letti al caricamento resterebbero nella
 // lingua di prima.
 
-import { catalogo } from '../core/i18n/index.js'
-import { Uno, accorda, frase, type Parole, type Termine } from '../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { Uno, accorda, frase, type Parole, type Termine } from '#core/dominio/lexicon.js'
 
 const it = {
   /**

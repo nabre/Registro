@@ -10,9 +10,9 @@
 // controllo dice sotto il campo. I testi finiscono in `textContent`.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../../../core/i18n/page.js'
+import '#core/i18n/page.js'
 // La barra del titolo, se la finestra ne ha una propria.
-import '../shared/titleBar.js'
+import '#desktop/shell/pages/shared/titleBar.js'
 import {
   AREE,
   AREE_DELL_ANNO,
@@ -20,17 +20,17 @@ import {
   sezioniDellArea,
   titoloArea,
   type Sezione,
-} from '../../../../core/controlli/areas.js'
+} from '#core/controlli/areas.js'
 import {
   controllo,
   diciEsito,
   fuocoDentro,
   type Esito,
   type Valore,
-} from '../../../../core/controlli/control.js'
-import type { VoceProgramma } from '../../../../contract/protocol.js'
-import type { RichiestaImpostazioni } from '../../windows/menu.js'
-import { ascolta, elemento, manda, perId, riempi } from '../shared/page.js'
+} from '#core/controlli/control.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import type { RichiestaImpostazioni } from '#desktop/shell/windows/menu.js'
+import { ascolta, elemento, manda, perId, riempi } from '#desktop/shell/pages/shared/page.js'
 import { testi } from './settings.testi.js'
 
 import './settings.css'

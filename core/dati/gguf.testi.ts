@@ -2,7 +2,7 @@
 // i modelli che il registro consiglia (`huggingFace.ts`), e gli scarichi dei
 // corredi con le loro guardie (`kit.ts`).
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Come si presenta una voce del catalogo consigliato. */
 interface Consigliato {

@@ -2,9 +2,9 @@
 // le voci corte («da compilare», «senza rete», «casella collegata»): cambiandone
 // una va cambiata anche là, in tutte le lingue.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { CARTE, quanti } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { CARTE, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   /** «oggi», detto a voce: sta dentro la voce dell'ora. */

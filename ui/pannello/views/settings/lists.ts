@@ -16,17 +16,17 @@ import {
   listaConColore,
   vociDiLista,
   type VoceLista,
-} from '../../../../core/dominio/lists.js'
-import { normalizzaTesto } from '../../../../core/dominio/text.js'
-import { pastiglia, pulsante, scheda, selettore } from '../../components/base.js'
-import { icona } from '../../components/icons.js'
-import { suggerimento } from '../../components/hint.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { conferma } from '../../components/modal.js'
-import { presaDiRiga, riordinatore, spostaVoce } from '../../forms/common.js'
-import { isola, ridisegnaIsola } from '../../islands.js'
-import { stato } from '../../state.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+} from '#core/dominio/lists.js'
+import { normalizzaTesto } from '#core/dominio/text.js'
+import { pastiglia, pulsante, scheda, selettore } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { presaDiRiga, riordinatore, spostaVoce } from '#ui/pannello/forms/common.js'
+import { isola, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { stato } from '#ui/pannello/state.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { salvaImpostazioni } from './document.js'
 import { testi } from './lists.testi.js'
 

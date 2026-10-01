@@ -3,8 +3,8 @@
 // Discreto: niente cornici né icone; solo l'ultimo anello in testo pieno. Due
 // anelli si dicono solo a voce (`ANELLI_SOLO_A_VOCE`).
 
-import { formattaData } from '../../core/dominio/dates.js'
-import { nomeCompleto } from '../../core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
 import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from './context.js'
 import { nomeDelGruppo, nomeDelPosto, paginaAttiva } from './pages.js'
 import { porzioneAttiva } from './tabs.js'

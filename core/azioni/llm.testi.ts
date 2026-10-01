@@ -1,7 +1,7 @@
 // I testi delle azioni sui modelli (`llm.ts`) e dell'assistente staccato in
 // una finestra sua (`assistant.ts`).
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ assistant.ts

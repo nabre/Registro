@@ -1,7 +1,7 @@
 // I testi di `context.ts` e le frasi comuni a tutte le azioni (voce sparita,
 // file, invii, guasti di sistema), scritte una volta sola perché restino uguali.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CARTE,
   LEZIONE,
@@ -11,7 +11,7 @@ import {
   accorda,
   frase,
   type Termine,
-} from '../dominio/lexicon.js'
+} from '#core/dominio/lexicon.js'
 
 /** «Corso non trovato: forse è già sparito.», accordato al genere del termine. */
 function sparita (termine: Termine): string {

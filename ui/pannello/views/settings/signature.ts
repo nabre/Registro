@@ -7,8 +7,8 @@
 // Il campo non si ricostruisce: nasce una volta e il ridisegno lo rimette al
 // suo posto, con il cursore, per non perdere quel che si sta scrivendo.
 
-import { pulsante } from '../../components/base.js'
-import { gestisci, h } from '../../dom.js'
+import { pulsante } from '#ui/pannello/components/base.js'
+import { gestisci, h } from '#ui/pannello/dom.js'
 import { testi } from './signature.testi.js'
 
 // ------------------------------------------------------------------ la pulizia

@@ -18,14 +18,14 @@ import {
   TIPI_RAPPORTO,
   vergini,
   type RichiestaFirma,
-} from '../../../core/dominio/absences.js'
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import type { SegnalazioneAssenza } from '../../../core/dominio/alerts.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { elenco } from '../../../core/i18n/index.js'
-import { formattaData, giornoDi } from '../../../core/dominio/dates.js'
+} from '#core/dominio/absences.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import type { SegnalazioneAssenza } from '#core/dominio/alerts.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { elenco } from '#core/i18n/index.js'
+import { formattaData, giornoDi } from '#core/dominio/dates.js'
 import type {
   Allievo,
   BloccoAssenze,
@@ -33,7 +33,7 @@ import type {
   Istante,
   Smistamento,
   TipoRapporto,
-} from '../../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   conAttesa,
   pastiglia,
@@ -41,18 +41,18 @@ import {
   scheda,
   statoVuoto,
   titoloGruppo,
-} from '../components/base.js'
-import { sintesiIncassata } from '../components/filters.js'
-import { icona } from '../components/icons.js'
-import { dimentica } from '../components/thumbnails.js'
-import { conferma } from '../components/modal.js'
-import { h, type Figlio } from '../dom.js'
-import { pendenza } from '../components/pending.js'
-import { tabella } from '../components/table.js'
-import { cellaNome } from '../components/avatar.js'
-import { moduloBloccoAssenze, moduloImportaAssenze } from '../forms.js'
-import { azione } from '../bridge.js'
-import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto, vai } from '../state.js'
+} from '#ui/pannello/components/base.js'
+import { sintesiIncassata } from '#ui/pannello/components/filters.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { dimentica } from '#ui/pannello/components/thumbnails.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { pendenza } from '#ui/pannello/components/pending.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
+import { moduloBloccoAssenze, moduloImportaAssenze } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { aggiorna, fascicoloDi, stato, toccaIlSemestreScelto, vai } from '#ui/pannello/state.js'
 
 import { corniceFoglio, inventario, pannelloArchivio, scorri } from './archive.js'
 import { accettaPagineAssenze } from './sorting/pageDrop.js'

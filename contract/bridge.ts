@@ -4,7 +4,7 @@
 // passando da convalida, codice d'errore e giornale.
 
 import type { Azione } from './protocol.js'
-import type { EsitoAzione, Gestore, Parte } from '../core/azioni/context.js'
+import type { EsitoAzione, Gestore, Parte } from '#core/azioni/context.js'
 import { registraTutte } from './registry.js'
 import { aEsitoAzione, chiama, procedure } from './core.js'
 import type { EsitoScrittura, Origine } from './contract.js'

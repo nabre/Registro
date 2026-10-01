@@ -1,8 +1,8 @@
 // Il calendario: la settimana, la vista di lavoro. La griglia delle ore com'è
 // davvero, pause comprese, con la fascia oraria e il salto all'ora di adesso.
 
-import { inizioSullaGriglia, lineeDellaGiornata } from '../../../../core/dominio/breaks.js'
-import { fineLezione, inizioLezione, lezioniDelGiorno } from '../../../../core/dominio/calculations.js'
+import { inizioSullaGriglia, lineeDellaGiornata } from '#core/dominio/breaks.js'
+import { fineLezione, inizioLezione, lezioniDelGiorno } from '#core/dominio/calculations.js'
 import {
   giorniBrevi,
   giornoDelMese,
@@ -11,13 +11,13 @@ import {
   oraDaMinuti,
   settimanaDi,
   settimanaIso,
-} from '../../../../core/dominio/dates.js'
-import type { Iso, Lezione, Ora } from '../../../../core/dominio/models.js'
-import { h } from '../../dom.js'
-import { alMinuto } from '../../clock.js'
-import { finestraSettimana } from '../../calendarNavigation.js'
-import { eventiEsterni } from '../../externalCalendar.js'
-import { aggiorna, compleanniDi, lezioniInAgenda, stato } from '../../state.js'
+} from '#core/dominio/dates.js'
+import type { Iso, Lezione, Ora } from '#core/dominio/models.js'
+import { h } from '#ui/pannello/dom.js'
+import { alMinuto } from '#ui/pannello/clock.js'
+import { finestraSettimana } from '#ui/pannello/calendarNavigation.js'
+import { eventiEsterni } from '#ui/pannello/externalCalendar.js'
+import { aggiorna, compleanniDi, lezioniInAgenda, stato } from '#ui/pannello/state.js'
 import {
   apreQui,
   chiudeQui,

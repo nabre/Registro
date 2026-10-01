@@ -2,7 +2,7 @@
 // gesti di stile seguono la lingua (G, C, S; F, K, U); le scorciatoie restano
 // Ctrl+B, Ctrl+I, Ctrl+U, decise dal campo.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Un gesto della barra: quel che c'è scritto sul pulsante e quel che dice il suo titolo. */
 interface Gesto {

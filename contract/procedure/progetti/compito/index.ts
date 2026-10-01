@@ -5,7 +5,7 @@
 // nominato qui non si registra, e questo è il punto in cui ci si accorge che
 // manca.
 
-import type { ProceduraQualunque } from '../../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as elimina } from './elimina.js'
 import { procedura as fatto } from './fatto.js'
 import { procedura as fattoTutti } from './fattoTutti.js'

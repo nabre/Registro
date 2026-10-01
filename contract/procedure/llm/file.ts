@@ -2,9 +2,9 @@
 // quantizzazioni (`Q4_K_M`, `Q8_0`, `F16`), da scegliere per nome. Si chiedono
 // al sito perché i nomi cambiano a ogni ripubblicazione.
 
-import { definisci } from '../../contract.js'
-import { fileConsigliato, fileDelDeposito, proiettoreDi } from '../../../core/dati/huggingFace.js'
-import { booleano, elenco, numero, oggetto, testo } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { fileConsigliato, fileDelDeposito, proiettoreDi } from '#core/dati/huggingFace.js'
+import { booleano, elenco, numero, oggetto, testo } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().file

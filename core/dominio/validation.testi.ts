@@ -2,7 +2,7 @@
 // nella risposta di una procedura. Un'etichetta scritta da chi insegna entra
 // così com'è; quando manca, ogni lingua ha la sua parola di ripiego.
 
-import { catalogo, numero } from '../i18n/index.js'
+import { catalogo, numero } from '#core/i18n/index.js'
 import { ordinalePausa } from './breaks.js'
 import { FASCIA, PERSONE, PIF, del, un } from './lexicon.js'
 

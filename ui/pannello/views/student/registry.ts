@@ -2,14 +2,14 @@
 // Chi è, dove sta, come lo si raggiunge; documenti da riscuotere e rapporti
 // delle assenze da far firmare.
 
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { consegneDocumento, haFatto } from '../../../../core/dominio/assignments.js'
-import { faseRiga, nomePeriodo, rapportiDetti, rigaDi, vergini } from '../../../../core/dominio/absences.js'
-import { Maiuscola, Molti, Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { anniCompiuti } from '../../../../core/dominio/birthdays.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { consegneDocumento, haFatto } from '#core/dominio/assignments.js'
+import { faseRiga, nomePeriodo, rapportiDetti, rigaDi, vergini } from '#core/dominio/absences.js'
+import { Maiuscola, Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { anniCompiuti } from '#core/dominio/birthdays.js'
+import { formattaData } from '#core/dominio/dates.js'
 import {
   condivisioni,
   coordinataDi,
@@ -21,20 +21,20 @@ import {
   segniDiAllievo,
   SEDE,
   type SegnoMappa,
-} from '../../../../core/dominio/map.js'
-import type { Allievo, Classe, ContattoTelefonico } from '../../../../core/dominio/models.js'
-import { CONTATTI, telefoniDi } from '../../../../core/dominio/phones.js'
-import { scriviIndirizzo } from '../../../../core/dominio/addresses.js'
-import { pastiglia, pulsante, scheda, statoVuoto } from '../../components/base.js'
-import { recapitoPremibile, type GenereRecapito } from '../../components/contacts.js'
-import { notifica } from '../../components/notifications.js'
-import { riquadroMappa, type Riquadro } from '../../components/map.js'
-import { icona, type NomeIcona } from '../../components/icons.js'
-import { h, type Figlio } from '../../dom.js'
-import { moduloAllievo } from '../../forms.js'
-import { mostraSullaMappa } from '../map.js'
-import { azione } from '../../bridge.js'
-import { corsiDi, fascicoloDi, stato, uriDato, vai } from '../../state.js'
+} from '#core/dominio/map.js'
+import type { Allievo, Classe, ContattoTelefonico } from '#core/dominio/models.js'
+import { CONTATTI, telefoniDi } from '#core/dominio/phones.js'
+import { scriviIndirizzo } from '#core/dominio/addresses.js'
+import { pastiglia, pulsante, scheda, statoVuoto } from '#ui/pannello/components/base.js'
+import { recapitoPremibile, type GenereRecapito } from '#ui/pannello/components/contacts.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { riquadroMappa, type Riquadro } from '#ui/pannello/components/map.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAllievo } from '#ui/pannello/forms.js'
+import { mostraSullaMappa } from '#ui/pannello/views/map.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { corsiDi, fascicoloDi, stato, uriDato, vai } from '#ui/pannello/state.js'
 import { FASI } from './attendance.js'
 import { testi } from './registry.testi.js'
 

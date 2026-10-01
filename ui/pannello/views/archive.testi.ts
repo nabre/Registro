@@ -1,7 +1,7 @@
 // I testi dell'archivio documentale (`archive.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 /** Le frecce per una specie di voce: il passo dopo, quello prima, e i due capi. */
 interface Frecce {

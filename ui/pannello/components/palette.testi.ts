@@ -1,7 +1,7 @@
 // I testi della palette di Ctrl+K (`palette.ts`). I nomi dei gruppi persone,
 // corsi e classi sono termini del registro: li dà `lessico()`.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** La riga piccola sotto il nome di una pagina. */

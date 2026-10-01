@@ -13,14 +13,14 @@ import {
   inizioLezione,
   nomeCompleto,
   statiAllineati,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   corsiDellaClasse,
   materiaDelCorso,
   registroDelCorso,
-} from '../../../core/dominio/courses.js'
-import type { Lezione } from '../../../core/dominio/models.js'
-import { definisci, errore } from '../../contract.js'
+} from '#core/dominio/courses.js'
+import type { Lezione } from '#core/dominio/models.js'
+import { definisci, errore } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -31,7 +31,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_PAGINA,
@@ -42,9 +42,9 @@ import {
   ricerca,
   risolviPeriodo,
   taglia,
-} from '../common/filters.js'
-import { esigiCorso, esigiPersona } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { esigiCorso, esigiPersona } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './argomenti.testi.js'
 
 const p = () => testi().presentazione

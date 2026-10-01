@@ -4,7 +4,7 @@
 // un nodo pesante (`data-tieni`): `dom.ts` lo sposta senza staccarlo finché la
 // chiave è la stessa, e lo rifà solo quando la chiave cambia.
 
-import { h } from '../dom.js'
+import { h } from '#ui/pannello/dom.js'
 import { testi } from './frame.testi.js'
 
 /**

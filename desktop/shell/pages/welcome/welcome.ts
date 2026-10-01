@@ -3,16 +3,16 @@
 // gesti, che esegue `desktop/shell/windows/welcome.ts`.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../../../core/i18n/page.js'
+import '#core/i18n/page.js'
 // La barra del titolo, se la finestra ne ha una propria.
-import '../shared/titleBar.js'
-import type { DocumentoNoto } from '../../../apparato/documents.js'
-import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocol.js'
-import type { RichiestaBenvenuto } from '../../windows/welcome.js'
-import { allEsc, ascolta, elemento, manda, perId, riempi } from '../shared/page.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { LINGUE, NOMI_DELLE_LINGUE, SCELTA_SISTEMA, lingua, èLingua } from '../../../../core/i18n/index.js'
-import { bandiera } from '../../../../core/i18n/flags.js'
+import '#desktop/shell/pages/shared/titleBar.js'
+import type { DocumentoNoto } from '#desktop/apparato/documents.js'
+import type { RaccontoAggiornamenti, StatoAggiornamenti } from '#contract/protocol.js'
+import type { RichiestaBenvenuto } from '#desktop/shell/windows/welcome.js'
+import { allEsc, ascolta, elemento, manda, perId, riempi } from '#desktop/shell/pages/shared/page.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { LINGUE, NOMI_DELLE_LINGUE, SCELTA_SISTEMA, lingua, èLingua } from '#core/i18n/index.js'
+import { bandiera } from '#core/i18n/flags.js'
 import { testi } from './welcome.testi.js'
 
 import './welcome.css'

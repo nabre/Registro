@@ -2,16 +2,16 @@
 // una riga per scriverne uno al volo; sotto l'elenco, dal più recente. Dentro
 // un'ora il giudizio nuovo si lega a lei e l'elenco mostra quelli dell'ora.
 
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import type { GiudizioProgetto, Lezione, Progetto } from '../../../../core/dominio/models.js'
-import { giornoDellaVoce } from '../../../../core/dominio/projects.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { pulsante, quieto, tendina } from '../../components/base.js'
-import { azione } from '../../bridge.js'
-import { h } from '../../dom.js'
-import { allieviDelProgetto, attiviDelProgetto, moduloGiudizio } from '../../forms/project.js'
-import { stato } from '../../state.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { GiudizioProgetto, Lezione, Progetto } from '#core/dominio/models.js'
+import { giornoDellaVoce } from '#core/dominio/projects.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { pulsante, quieto, tendina } from '#ui/pannello/components/base.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { h } from '#ui/pannello/dom.js'
+import { allieviDelProgetto, attiviDelProgetto, moduloGiudizio } from '#ui/pannello/forms/project.js'
+import { stato } from '#ui/pannello/state.js'
 import { testi } from './judgements.testi.js'
 
 /** Per chi si scrive il prossimo giudizio, per progetto: resta fra un ridisegno e l'altro. */

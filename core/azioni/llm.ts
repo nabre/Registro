@@ -10,11 +10,11 @@
 
 import * as apparato from 'apparato'
 
-import { elimina as eliminaModello, importaInDisparte, scarica } from '../dati/gguf.js'
-import { indirizzo } from '../dati/huggingFace.js'
-import { pesiInUso, scaricaPesi } from '../dati/llamaCpp.js'
-import { modelloNellaCartella } from '../dati/gguf.js'
-import type { MessaggioScarico, UsoModello } from '../../contract/protocol.js'
+import { elimina as eliminaModello, importaInDisparte, scarica } from '#core/dati/gguf.js'
+import { indirizzo } from '#core/dati/huggingFace.js'
+import { pesiInUso, scaricaPesi } from '#core/dati/llamaCpp.js'
+import { modelloNellaCartella } from '#core/dati/gguf.js'
+import type { MessaggioScarico, UsoModello } from '#contract/protocol.js'
 import { conMessaggio, invariato, motivoSicuro, rifiuta, scegliFile, type Parte } from './context.js'
 import { testi } from './llm.testi.js'
 

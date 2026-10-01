@@ -1,24 +1,24 @@
 // L'editor delle fasce fisse di un corso: prende un elenco di ricorrenze e ne
 // rende uno modificato, senza dipendere da nessuna finestra.
 
-import { fineNellaGiornata } from '../../../core/dominio/breaks.js'
+import { fineNellaGiornata } from '#core/dominio/breaks.js'
 import {
   formattaDurata,
   minutiDaUd,
   minutiInUd,
   siglaUd,
   udDaMinuti,
-} from '../../../core/dominio/dates.js'
-import { creaRicorrenza } from '../../../core/dominio/factories.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Giornata, Ricorrenza } from '../../../core/dominio/models.js'
-import { ricorrenzeIncatenate } from '../../../core/dominio/timetable.js'
-import { pastiglia, pulsante, tendina } from '../components/base.js'
-import { gestisci, h, rimpiazza } from '../dom.js'
-import { stato } from '../state.js'
+} from '#core/dominio/dates.js'
+import { creaRicorrenza } from '#core/dominio/factories.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Giornata, Ricorrenza } from '#core/dominio/models.js'
+import { ricorrenzeIncatenate } from '#core/dominio/timetable.js'
+import { pastiglia, pulsante, tendina } from '#ui/pannello/components/base.js'
+import { gestisci, h, rimpiazza } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 import { vociGiornoSettimana, fuocoSullaPresa, presaDiRiga, riordinatore, spostaVoce } from './common.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './timetable.testi.js'
 
 /**

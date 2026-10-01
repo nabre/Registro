@@ -5,12 +5,12 @@
 
 import * as apparato from 'apparato'
 
-import { cartellaDellAnno, fetteDellAnno } from '../dominio/years.js'
-import { creaAnnoCorrente } from '../dominio/factories.js'
-import type { Registro } from '../dominio/models.js'
-import { VERSIONE_DATI } from '../dominio/models.js'
-import { nomeSicuro } from '../dominio/text.js'
-import { normalizzaRegistro } from '../dominio/normalization.js'
+import { cartellaDellAnno, fetteDellAnno } from '#core/dominio/years.js'
+import { creaAnnoCorrente } from '#core/dominio/factories.js'
+import type { Registro } from '#core/dominio/models.js'
+import { VERSIONE_DATI } from '#core/dominio/models.js'
+import { nomeSicuro } from '#core/dominio/text.js'
+import { normalizzaRegistro } from '#core/dominio/normalization.js'
 import type { Archivio } from './archive.js'
 import { type Deposito, deposito } from './store.js'
 import { DATI, Pacchetto, STORICO } from './package.js'

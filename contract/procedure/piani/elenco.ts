@@ -6,13 +6,13 @@ import {
   lezioneDelPianoNelRegistro,
   nomeDelPiano,
   pianiDelCorso,
-} from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
-import { elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { CAMPI_CERCA, CAMPI_PAGINA, filtroTesto, pagina, ricerca, taglia } from '../common/filters.js'
-import { esigiClasse, esigiCorso } from '../common/register.js'
-import { corto } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+} from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
+import { elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { CAMPI_CERCA, CAMPI_PAGINA, filtroTesto, pagina, ricerca, taglia } from '#contract/procedure/common/filters.js'
+import { esigiClasse, esigiCorso } from '#contract/procedure/common/register.js'
+import { corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { testi } from './piani.testi.js'
 
 const t = () => testi().elenco

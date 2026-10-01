@@ -3,7 +3,7 @@
 // suo catalogo (`periodo(() => t().oreDelCorso)`). Si leggono al momento
 // dell'uso: gli schemi si compongono una volta sola, al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   rimedioAnno: 'Un anno alla volta: quello aperto lo dice «registro.riassunto».',

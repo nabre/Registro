@@ -10,11 +10,11 @@ import {
   applicaData,
   applicaLezione,
   applicaSpunta,
-} from '../dominio/check.js'
-import { oggi, istanteAdesso } from '../dominio/dates.js'
-import { creaCheck } from '../dominio/factories.js'
-import { nuovoIdColonnaCheck } from '../dominio/identifiers.js'
-import type { Check, Registro } from '../dominio/models.js'
+} from '#core/dominio/check.js'
+import { oggi, istanteAdesso } from '#core/dominio/dates.js'
+import { creaCheck } from '#core/dominio/factories.js'
+import { nuovoIdColonnaCheck } from '#core/dominio/identifiers.js'
+import type { Check, Registro } from '#core/dominio/models.js'
 import {
   aOraAperta,
   invariato,

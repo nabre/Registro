@@ -2,8 +2,8 @@
 // fasce con le sue pause, il legame con il calendario ICS — e quello di
 // un'osservazione.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { FASCIA, Uno } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { FASCIA, Uno } from '#core/dominio/lexicon.js'
 
 const it = {
   editor: {

@@ -2,9 +2,9 @@
 // arriva con lo stato degli aggiornamenti (da fuori, `aggiornamenti.stato`).
 // Idempotente: un secondo controllo durante il primo non fa niente.
 
-import { aggiornamenti } from '../../../core/azioni/updates.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { aggiornamenti } from '#core/azioni/updates.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './aggiornamenti.testi.js'
 
 export const procedura = scrittura({

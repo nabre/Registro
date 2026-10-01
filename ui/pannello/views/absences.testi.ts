@@ -1,8 +1,8 @@
 // I testi delle assenze da far firmare: la matrice dei periodi, la cornice dei
 // fogli, le richieste di firma e le segnalazioni oltre soglia nel todo.
 
-import { catalogo, numero, perNumero } from '../../../core/i18n/index.js'
-import { etichettaFoglio } from '../../../core/dominio/absences.js'
+import { catalogo, numero, perNumero } from '#core/i18n/index.js'
+import { etichettaFoglio } from '#core/dominio/absences.js'
 import {
   PERSONE,
   PIF,
@@ -11,10 +11,10 @@ import {
   dei,
   del,
   quanti,
-} from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { TipoRapporto } from '../../../core/dominio/models.js'
-import { plurale } from '../../../core/dominio/text.js'
+} from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { TipoRapporto } from '#core/dominio/models.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   colonne: {

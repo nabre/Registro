@@ -6,10 +6,10 @@
 
 import * as apparato from 'apparato'
 
-import { corsiDellaClasse, materiaDelCorso } from '../../../core/dominio/courses.js'
-import { confrontaNomi } from '../../../core/dominio/text.js'
-import { definisci, errore } from '../../contract.js'
-import { elenco, identificatore, numero, oggetto, testo } from '../../schemas.js'
+import { corsiDellaClasse, materiaDelCorso } from '#core/dominio/courses.js'
+import { confrontaNomi } from '#core/dominio/text.js'
+import { definisci, errore } from '#contract/contract.js'
+import { elenco, identificatore, numero, oggetto, testo } from '#contract/schemas.js'
 import { testi } from './classi.testi.js'
 
 const t = () => testi().altrove

@@ -2,7 +2,7 @@
 // è stato portato a un formato nuovo. Il nome arriva con l'estensione; il motivo
 // è quello del sistema, non tradotto, perché chi aiuta a distanza lo chiede così.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Come si nomina il documento quando il suo nome non c'è. */

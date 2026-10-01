@@ -1,7 +1,7 @@
 // I testi degli aggiornamenti (pastiglia, frase, gesto, motivi di fallimento),
 // per `updates.ts` e `updateInstaller.ts`.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // Quando da sé non si può

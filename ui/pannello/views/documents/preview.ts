@@ -4,14 +4,14 @@
 // Il lettore è un nodo tenuto (`components/frame.ts`): un ridisegno non lo
 // ricarica finché il file è lo stesso.
 
-import { pastiglia, pulsante, quantoMisura } from '../../components/base.js'
-import { corniceDocumento } from '../../components/frame.js'
-import { h, type Figlio } from '../../dom.js'
-import { azione } from '../../bridge.js'
-import { isola } from '../../islands.js'
-import { aggiorna, stato, uriDato } from '../../state.js'
+import { pastiglia, pulsante, quantoMisura } from '#ui/pannello/components/base.js'
+import { corniceDocumento } from '#ui/pannello/components/frame.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { isola } from '#ui/pannello/islands.js'
+import { aggiorna, stato, uriDato } from '#ui/pannello/state.js'
 
-import { scorri } from '../archive.js'
+import { scorri } from '#ui/pannello/views/archive.js'
 import { anteprimaCsv } from './csv.js'
 import {
   apribili,
@@ -21,7 +21,7 @@ import {
   rifaiEGuarda,
   type Riga,
 } from './sheets.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './preview.testi.js'
 
 /** La chiave dell'isola dell'anteprima: una sola nella pagina. */

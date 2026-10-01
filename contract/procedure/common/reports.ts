@@ -1,7 +1,7 @@
 // Le guardie dei rapporti che più aree condividono (vedi `common/register.ts`).
 
-import type { GenereRapporto } from '../../../core/dominio/locations.js'
-import { esaustivo } from '../../schemas.js'
+import type { GenereRapporto } from '#core/dominio/locations.js'
+import { esaustivo } from '#contract/schemas.js'
 
 /**
  * I generi di rapporto. Scritti qui perché lo schema li vuole in

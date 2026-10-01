@@ -1,7 +1,7 @@
 // I testi del riquadro d'avvio: la fase di partenza, finché il main process
 // non ne annuncia una, e la versione sotto.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   avvio: 'Avvio del registro…',

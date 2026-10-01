@@ -1,6 +1,6 @@
 // I testi del check (`check.ts`).
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
 
 const it = {
   // La domanda prima di togliere una colonna.

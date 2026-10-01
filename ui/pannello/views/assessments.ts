@@ -9,19 +9,19 @@ import {
   formattaVoto,
   nomeCompleto,
   ordinaAllievi,
-} from '../../../core/dominio/calculations.js'
-import { corsiDellAnno } from '../../../core/dominio/courses.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import { motivoOrfano, valutazioniOrfane } from '../../../core/dominio/orphans.js'
+} from '#core/dominio/calculations.js'
+import { corsiDellAnno } from '#core/dominio/courses.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { motivoOrfano, valutazioniOrfane } from '#core/dominio/orphans.js'
 // L'assenza all'ora sta nel dominio: la leggono anche i recuperi.
 import type {
   Allievo,
   Corso,
   MomentoValutazione,
-} from '../../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   avviso,
   barra,
@@ -31,20 +31,20 @@ import {
   scheda,
   statoVuoto,
   testataVista,
-} from '../components/base.js'
-import { postoAllegato } from '../components/attachments.js'
-import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '../components/filters.js'
-import { corsoDelContesto } from '../context.js'
-import { conferma } from '../components/modal.js'
-import { graficoNote } from '../components/notes.js'
-import { notifica } from '../components/notifications.js'
-import { h, type Figlio } from '../dom.js'
-import { chiediEliminazione, moduloAnno, moduloValutazione } from '../forms.js'
+} from '#ui/pannello/components/base.js'
+import { postoAllegato } from '#ui/pannello/components/attachments.js'
+import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { corsoDelContesto } from '#ui/pannello/context.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { graficoNote } from '#ui/pannello/components/notes.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { chiediEliminazione, moduloAnno, moduloValutazione } from '#ui/pannello/forms.js'
 import { grigliaVoti, scegliMomento, SIGLA_ASSENTE } from './assessments/grades.js'
 import { pannelloRecuperi } from './assessments/retakes.js'
 import { pannelloRiconsegna } from './assessments/returns.js'
 import { testi } from './assessments.testi.js'
-import { azione } from '../bridge.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   annoCorrente,
   classeDiMomento,
@@ -55,8 +55,8 @@ import {
   nomeSemestreScelto,
   nelSemestreScelto,
   vai,
-} from '../state.js'
-import { apriLezione } from '../pages.js'
+} from '#ui/pannello/state.js'
+import { apriLezione } from '#ui/pannello/pages.js'
 
 /**
  * I momenti di un corso nel semestre scelto dalla barra (quello in cui cade la

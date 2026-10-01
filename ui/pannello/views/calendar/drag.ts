@@ -3,16 +3,16 @@
 // prossima» del menu) e tiene l'unico stato fra un evento e l'altro: la lezione
 // in viaggio.
 
-import { inizioSullaGriglia, slotSullePause } from '../../../../core/dominio/breaks.js'
-import { lezioniSovrapposte } from '../../../../core/dominio/calculations.js'
-import { lezioniDellAnno } from '../../../../core/dominio/courses.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { gestisci, h } from '../../dom.js'
-import { ancorataAIcs } from '../../externalCalendar.js'
-import { notifica } from '../../components/notifications.js'
-import { azione } from '../../bridge.js'
-import { annoCorrente, nomeClasseDiLezione, stato } from '../../state.js'
+import { inizioSullaGriglia, slotSullePause } from '#core/dominio/breaks.js'
+import { lezioniSovrapposte } from '#core/dominio/calculations.js'
+import { lezioniDellAnno } from '#core/dominio/courses.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { gestisci, h } from '#ui/pannello/dom.js'
+import { ancorataAIcs } from '#ui/pannello/externalCalendar.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { annoCorrente, nomeClasseDiLezione, stato } from '#ui/pannello/state.js'
 import { testi } from './calendar.testi.js'
 
 // ------------------------------------------------------------------ trascinamento

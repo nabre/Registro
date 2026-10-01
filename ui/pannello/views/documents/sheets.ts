@@ -10,15 +10,15 @@ import {
   radiceDi,
   type ContestoRapporto,
   type GenereRapporto,
-} from '../../../../core/dominio/locations.js'
-import { dataDalNome, formattaData } from '../../../../core/dominio/dates.js'
-import { pulsante, quantoMisura, scheda } from '../../components/base.js'
-import { conferma } from '../../components/modal.js'
-import { h, type Figlio } from '../../dom.js'
-import { azione } from '../../bridge.js'
-import type { Azione } from '../../../../contract/protocol.js'
-import { aggiorna, stato } from '../../state.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+} from '#core/dominio/locations.js'
+import { dataDalNome, formattaData } from '#core/dominio/dates.js'
+import { pulsante, quantoMisura, scheda } from '#ui/pannello/components/base.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
+import type { Azione } from '#contract/protocol.js'
+import { aggiorna, stato } from '#ui/pannello/state.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './sheets.testi.js'
 
 /**

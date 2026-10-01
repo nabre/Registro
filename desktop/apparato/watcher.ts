@@ -8,8 +8,8 @@
 import { realpath } from 'node:fs/promises'
 import * as percorsi from 'node:path'
 import { dentro } from './context.js'
-import { Smaltitore, EventEmitter, type Event } from '../../core/apparato/events.js'
-import { ModelloRelativo, Uri } from '../../core/apparato/uri.js'
+import { Smaltitore, EventEmitter, type Event } from '#core/apparato/events.js'
+import { ModelloRelativo, Uri } from '#core/apparato/uri.js'
 
 export interface Osservatore extends Smaltitore {
   onDidCreate: Event<Uri>

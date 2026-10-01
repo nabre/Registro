@@ -5,7 +5,7 @@
 
 import * as apparato from 'apparato'
 
-import type { StatoAggiornamenti } from '../../contract/protocol.js'
+import type { StatoAggiornamenti } from '#contract/protocol.js'
 import { invariato, rifiuta, type Parte } from './context.js'
 import { testi } from './updates.testi.js'
 

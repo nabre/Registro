@@ -15,10 +15,10 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 
 import { cartellaBundle, dentro, icona, radiceApp } from './context.js'
 import { postoDi, ricordaPosto } from './placement.js'
-import { EventEmitter, type Event } from '../../core/apparato/events.js'
+import { EventEmitter, type Event } from '#core/apparato/events.js'
 import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, togliMenu } from './theme.js'
 import { chiudiLeVieDiFuga } from './navigation.js'
-import { Uri } from '../../core/apparato/uri.js'
+import { Uri } from '#core/apparato/uri.js'
 import { CANALE, CANALE_INTERFACCIA } from './channels.js'
 
 interface OpzioniWebview {

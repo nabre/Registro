@@ -1,8 +1,8 @@
 // I testi dei calendari ICS e delle loro regole (`settings/icsCalendar.ts`),
 // nella scheda delle impostazioni e nella finestra di «Confronta con il calendario».
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   esempioOrigine: 'https://… oppure webcal://… oppure C:\\…\\orario.ics',

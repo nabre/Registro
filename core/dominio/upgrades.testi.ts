@@ -3,7 +3,7 @@
 // riconosce quella frase in ogni lingua: nome del file, `cosa` e i due numeri
 // devono comparire tutti, una volta sola.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Che cosa cambia, per numero di versione a cui porta il passo. */

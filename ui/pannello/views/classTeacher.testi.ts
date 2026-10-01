@@ -1,9 +1,9 @@
 // I testi del pannello del docente di classe (`classTeacher.ts`).
 
-import { catalogo, minuscolo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import type { StatoComunicazione } from '../../../core/dominio/models.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import type { StatoComunicazione } from '#core/dominio/models.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // La matrice dei documenti, casella per casella.

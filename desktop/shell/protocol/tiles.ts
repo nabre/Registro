@@ -11,7 +11,7 @@ import { app, net } from 'electron'
 import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
-import { ZOOM_MASSIMO } from '../../../core/dominio/map.js'
+import { ZOOM_MASSIMO } from '#core/dominio/map.js'
 
 /** Il server di OpenStreetMap: chiede un `User-Agent` vero e nessuno scarico di massa. */
 const SERVIZIO = 'https://tile.openstreetmap.org'

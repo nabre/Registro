@@ -1,9 +1,9 @@
 // Guardie, elenchi di valori e pezzi di schema delle procedure di `consegne`.
 
-import { CHI_INSEGNA, type Consegna } from '../../../core/dominio/models.js'
-import type { TestoPigro } from '../../../core/i18n/index.js'
-import { errore, type Ambito } from '../../contract.js'
-import { identificatore, nullabile, testo } from '../../schemas.js'
+import { CHI_INSEGNA, type Consegna } from '#core/dominio/models.js'
+import type { TestoPigro } from '#core/i18n/index.js'
+import { errore, type Ambito } from '#contract/contract.js'
+import { identificatore, nullabile, testo } from '#contract/schemas.js'
 import { testi } from './consegne.testi.js'
 
 /** La consegna, o il motivo per cui non c'è. */

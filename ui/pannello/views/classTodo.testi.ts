@@ -1,7 +1,7 @@
 // I testi del lavoro aperto di una classe (`classTodo.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   inRitardo: (quante: number) => `${quante} in ritardo`,

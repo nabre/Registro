@@ -1,7 +1,7 @@
 // Le procedure di `aggiornamenti`. Elenco a mano: un file non nominato qui
 // non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as controlla } from './controlla.js'
 import { procedura as installa } from './installa.js'
 import { procedura as nascondiNotizia } from './nascondiNotizia.js'

@@ -1,7 +1,7 @@
 // I testi di `forms/course.ts`: la finestra del corso — una materia a una
 // classe — con le sue ore fisse, e il campo «Corso» degli altri moduli.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // La classe e la materia

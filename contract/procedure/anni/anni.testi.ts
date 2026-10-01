@@ -1,7 +1,7 @@
 // I testi delle procedure di `anni`. Si leggono al momento dell'uso
 // (`titolo: () => t().titolo`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   crea: {

@@ -1,6 +1,6 @@
 // I testi della pagina Classi (`classes.ts`).
-import { catalogo } from '../../../core/i18n/index.js'
-import { PERSONE, PIF, del } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PERSONE, PIF, del } from '#core/dominio/lexicon.js'
 
 const it = {
   // La tabella delle persone.

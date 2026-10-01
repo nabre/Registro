@@ -4,19 +4,19 @@
 import { basename } from 'node:path'
 import * as apparato from 'apparato'
 
-import { comeAdesso } from '../dati/draft.js'
-import { contenutoDi, deposito } from '../dati/store.js'
-import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '../dati/filing.js'
-import { firmaPosta } from '../dati/templates.js'
+import { comeAdesso } from '#core/dati/draft.js'
+import { contenutoDi, deposito } from '#core/dati/store.js'
+import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '#core/dati/filing.js'
+import { firmaPosta } from '#core/dati/templates.js'
 import {
   bozzeDiGruppo,
   confermaInvio,
   nomeBozza,
   puoSpedire,
   type MessaggioPosta,
-} from '../dati/mail.js'
-import { nomeCompleto } from '../dominio/calculations.js'
-import { CHI_INSEGNA, type Collezione, type Consegna, type Registro } from '../dominio/models.js'
+} from '#core/dati/mail.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { CHI_INSEGNA, type Collezione, type Consegna, type Registro } from '#core/dominio/models.js'
 import {
   daConsegnareA,
   destinatariConsegna,
@@ -24,11 +24,11 @@ import {
   scadenzaConsegna,
   siConsegna,
   testoConsegna,
-} from '../dominio/assignments.js'
-import { classeDellaConsegna, corsoPerId } from '../dominio/courses.js'
-import { oggi, periodoNelNome, istanteAdesso } from '../dominio/dates.js'
-import { corpoConsegna } from '../dominio/factories.js'
-import { validaConsegna } from '../dominio/validation.js'
+} from '#core/dominio/assignments.js'
+import { classeDellaConsegna, corsoPerId } from '#core/dominio/courses.js'
+import { oggi, periodoNelNome, istanteAdesso } from '#core/dominio/dates.js'
+import { corpoConsegna } from '#core/dominio/factories.js'
+import { validaConsegna } from '#core/dominio/validation.js'
 import type { Contesto } from './context.js'
 import {
   apriFile,

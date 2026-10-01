@@ -1,8 +1,8 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
-import { chiRiguarda, esigiConsegna } from '../common.js'
-import { testi } from '../consegne.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { chiRiguarda, esigiConsegna } from '#contract/procedure/consegne/common.js'
+import { testi } from '#contract/procedure/consegne/consegne.testi.js'
 
 const t = () => testi().file.togli
 

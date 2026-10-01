@@ -13,18 +13,18 @@ import {
   rigaDi,
   scriviFoglioAssenze,
   trovaBloccoAssenze,
-} from '../dominio/absences.js'
-import { nomeCompleto } from '../dominio/calculations.js'
+} from '#core/dominio/absences.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
 import {
   avanzamentoConsegna,
   destinatariConsegna,
   consegneDocumento,
-} from '../dominio/assignments.js'
-import { classeDellaConsegna } from '../dominio/courses.js'
-import { QUARANTENA } from '../dominio/locations.js'
-import { istanteNelNome, istanteAdesso } from '../dominio/dates.js'
-import { creaSmistamento } from '../dominio/factories.js'
-import { nuovoIdBlocco } from '../dominio/identifiers.js'
+} from '#core/dominio/assignments.js'
+import { classeDellaConsegna } from '#core/dominio/courses.js'
+import { QUARANTENA } from '#core/dominio/locations.js'
+import { istanteNelNome, istanteAdesso } from '#core/dominio/dates.js'
+import { creaSmistamento } from '#core/dominio/factories.js'
+import { nuovoIdBlocco } from '#core/dominio/identifiers.js'
 import type {
   Allievo,
   Classe,
@@ -33,7 +33,7 @@ import type {
   Registro,
   Smistamento,
   TipoRapporto,
-} from '../dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   bozzaSmistamento,
   divisioneDi,
@@ -43,8 +43,8 @@ import {
   normalizzaPerRicerca,
   riconosci,
   riquadroDelNome,
-} from '../dominio/sorting.js'
-import { siConsegna } from '../dominio/assignments.js'
+} from '#core/dominio/sorting.js'
+import { siConsegna } from '#core/dominio/assignments.js'
 import { archivia, nomeFileArchivio, percorsoConsegna } from './filing.js'
 import type { Archivio } from './archive.js'
 import { testi } from './sorter.testi.js'

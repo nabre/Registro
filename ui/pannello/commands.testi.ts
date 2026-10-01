@@ -2,11 +2,11 @@
 // motivi per cui non si possono fare. La guida cita i nomi dei pulsanti fra
 // virgolette: cambiandone uno va cambiato anche là, in tutte le lingue.
 
-import { catalogo, minuscolo } from '../../core/i18n/index.js'
-import { PIF } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
-import { plurale } from '../../core/dominio/text.js'
-import type { StatoLezione } from '../../core/dominio/models.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { plurale } from '#core/dominio/text.js'
+import type { StatoLezione } from '#core/dominio/models.js'
 
 const it = {
   /** I riquadri della riga delle azioni, e i gruppi del menu e della palette. */

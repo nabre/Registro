@@ -6,7 +6,7 @@
 
 import * as apparato from 'apparato'
 
-import { nomeSicuro } from '../dominio/text.js'
+import { nomeSicuro } from '#core/dominio/text.js'
 import { esisteFile, fileAllegato } from './paths.js'
 import type { Pacchetto } from './package.js'
 import { crc32 } from './zip.js'

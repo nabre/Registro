@@ -2,13 +2,13 @@
 
 import * as apparato from 'apparato'
 
-import { archivia, archiviaCopia, percorsoRisorsaPiano, pulisciCopiaOrfana, rinominaArchivio } from '../dati/filing.js'
-import { contenutoDi } from '../dati/store.js'
-import { istanteAdesso } from '../dominio/dates.js'
-import { creaRisorsa, duplicaPiano } from '../dominio/factories.js'
-import { faseDellAttivita } from '../dominio/projects.js'
-import type { Attivita, PianoLezione, Registro, Risorsa } from '../dominio/models.js'
-import { validaRisorsa, validaPiano } from '../dominio/validation.js'
+import { archivia, archiviaCopia, percorsoRisorsaPiano, pulisciCopiaOrfana, rinominaArchivio } from '#core/dati/filing.js'
+import { contenutoDi } from '#core/dati/store.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
+import { creaRisorsa, duplicaPiano } from '#core/dominio/factories.js'
+import { faseDellAttivita } from '#core/dominio/projects.js'
+import type { Attivita, PianoLezione, Registro, Risorsa } from '#core/dominio/models.js'
+import { validaRisorsa, validaPiano } from '#core/dominio/validation.js'
 import {
   aOraAperta,
   apriFile,
@@ -22,7 +22,7 @@ import {
   scegliUnFile,
   type Parte,
 } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './plans.testi.js'
 import { testi as testiProgetti } from './projects.testi.js'

@@ -1,9 +1,9 @@
 // Una cartella di OneDrive: le sottocartelle e i documenti `.regi`. Gli altri
 // file si contano soltanto: al registro non servono.
 
-import { definisci } from '../../contract.js'
-import { elencaCartella } from '../../../core/dati/onedrive.js'
-import { booleano, elenco, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { elencaCartella } from '#core/dati/onedrive.js'
+import { booleano, elenco, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
 import { daOneDrive, VOCE } from './common.js'
 import { testi } from './onedrive.testi.js'
 

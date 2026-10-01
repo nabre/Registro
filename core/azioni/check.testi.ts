@@ -1,7 +1,7 @@
 // I testi di `check.ts`: quel che si dice quando una casella del check non si
 // può spuntare.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaLista: 'Il corso non ha una lista di controllo.',

@@ -2,7 +2,7 @@
 // Quel che dice delle ore e dei corsi sta in `domain/tray.testi.ts`; il marchio
 // «Regiklass» non si traduce.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** La seconda riga del suggerimento, sotto il marchio, quando non c'è un anno. */

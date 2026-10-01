@@ -1,7 +1,7 @@
 // I testi della fascia della proiezione (`projection.ts`): che cosa sta
 // vedendo la classe, detto a chi ha davanti il registro.
 
-import { catalogo, minuscolo } from '../../../core/i18n/index.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
 
 const it = {
   inVista: (nome: string) => `${nome}: è quel che la classe sta vedendo. Cliccando lo si toglie.`,

@@ -3,7 +3,7 @@
 // scorrimento dov'erano.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../core/i18n/page.js'
+import '#core/i18n/page.js'
 import './styles.css'
 
 import { comandoPerId, eseguiComando } from './commands.js'
@@ -23,12 +23,12 @@ import { guscio, mostraFiloDiLavoro } from './shell.js'
 import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
 import { ascolta, invia, iscrivitiAttesa } from './bridge.js'
-import { oggi } from '../../core/dominio/dates.js'
+import { oggi } from '#core/dominio/dates.js'
 import type {
   MessaggioNavigazione,
   MessaggioStato,
   MessaggioVersoWebview,
-} from '../../contract/protocol.js'
+} from '#contract/protocol.js'
 import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
 import {

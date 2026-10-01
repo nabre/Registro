@@ -4,7 +4,7 @@
  * esegue: lo legge `tsc`, che fallisce se un `@ts-expect-error` qui sotto
  * smette di trovare il suo errore.
  */
-import type { aggiorna } from '../../ui/pannello/state.js'
+import type { aggiorna } from '#ui/pannello/state.js'
 
 type Modifiche = Parameters<typeof aggiorna>[0]
 

@@ -1,6 +1,6 @@
 // I testi di `loopback.ts`: perché un indirizzo della dettatura non è di questo computer.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   vuoto: 'Ci vuole un indirizzo, per esempio http://127.0.0.1:17493.',

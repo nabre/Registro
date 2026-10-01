@@ -9,15 +9,15 @@
 // di una persona esce dal registro, e un difetto si vedrebbe solo nel prompt.
 // Vedi `tests/ui/contextParts.test.mjs`.
 
-import { formattaData } from '../../../core/dominio/dates.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './parts.testi.js'
-import { testi as testiVeduta } from '../viewpoint.testi.js'
+import { testi as testiVeduta } from '#ui/pannello/viewpoint.testi.js'
 import type {
   ContestoAssistente,
   RiferimentiContesto,
   VoceContesto,
-} from '../../../contract/protocol.js'
+} from '#contract/protocol.js'
 
 /** Che cosa il modello può sapere della pagina che si ha davanti. */
 export interface PartiContesto {

@@ -7,9 +7,9 @@ import { app, ipcMain } from 'electron'
 
 import { CANALE_LINGUA } from './channels.js'
 import { ricaricaFinestre } from './dev.js'
-import { Smaltitore } from '../../core/apparato/events.js'
+import { Smaltitore } from '#core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration, valoreConMotivo } from './settings.js'
-import { impostaLingua, lingua, risolviLingua, SCELTA_SISTEMA } from '../../core/i18n/index.js'
+import { impostaLingua, lingua, risolviLingua, SCELTA_SISTEMA } from '#core/i18n/index.js'
 
 const CHIAVE = 'registroDocenti.aspetto.lingua'
 

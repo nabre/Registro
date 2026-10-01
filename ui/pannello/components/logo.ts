@@ -4,8 +4,8 @@
 // dell'applicazione (`radiceApp`, permessa dalla CSP; prima che lo stato
 // arrivi, `registro://app`).
 
-import { h } from '../dom.js'
-import { stato } from '../state.js'
+import { h } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 
 /** Il file del logo, relativo alla radice dell'applicazione. */
 const LOGO = 'resources/registro-app-piccola.svg'

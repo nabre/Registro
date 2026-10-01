@@ -1,7 +1,7 @@
 // I testi che il main process manda al benvenuto: l'invito sopra l'elenco e la
 // versione in fondo. Il resto della pagina ha il suo catalogo, accanto a lei.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** `estensione` è quella dei documenti, punto compreso: «.regi». */

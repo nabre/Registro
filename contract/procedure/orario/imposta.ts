@@ -1,9 +1,9 @@
-import { registro } from '../../../core/azioni/register.js'
-import { validaRicorrenza } from '../../../core/dominio/validation.js'
-import { errore } from '../../contract.js'
-import { inoltra, scrittura } from '../../core.js'
-import { elenco, identificatore, iso, numero, oggetto, opzionale, ora, testo } from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { validaRicorrenza } from '#core/dominio/validation.js'
+import { errore } from '#contract/contract.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { elenco, identificatore, iso, numero, oggetto, opzionale, ora, testo } from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './orario.testi.js'
 
 const t = () => testi().imposta

@@ -6,7 +6,7 @@
 
 import * as apparato from 'apparato'
 
-import { estensioneDi, nomeSicuro } from '../dominio/text.js'
+import { estensioneDi, nomeSicuro } from '#core/dominio/text.js'
 import { DATI, ESTENSIONE, nomeDelPacchetto } from './package.js'
 
 export { estensioneDi, nomeSicuro }

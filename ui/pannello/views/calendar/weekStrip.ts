@@ -2,14 +2,14 @@
 // aperta, con il numero di lezioni, il confine di semestre e, con l'ICS acceso,
 // dove qualcosa non torna.
 
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { quanti } from '../../../../core/dominio/lexicon.js'
-import { formattaData, giornoSettimana, inizioSettimana, nomeSemestre, oggi, settimanaDi, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
-import type { Iso } from '../../../../core/dominio/models.js'
-import { icona } from '../../components/icons.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { anomalieCalendario, icsInVista } from '../../externalCalendar.js'
-import { aggiorna, annoCorrente, lezioniInAgenda, stato } from '../../state.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { quanti } from '#core/dominio/lexicon.js'
+import { formattaData, giornoSettimana, inizioSettimana, nomeSemestre, oggi, settimanaDi, settimanaIso, sommaGiorni } from '#core/dominio/dates.js'
+import type { Iso } from '#core/dominio/models.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { anomalieCalendario, icsInVista } from '#ui/pannello/externalCalendar.js'
+import { aggiorna, annoCorrente, lezioniInAgenda, stato } from '#ui/pannello/state.js'
 import { chiusura, festivo, chiudeSemestreDiMezzo, giorniVisibili, letteraDi } from './common.js'
 import { SEGNI_ICS, segniAnomalie } from './ics.js'
 import { testi } from './calendar.testi.js'

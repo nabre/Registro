@@ -16,9 +16,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, isAbsolute, join } from 'node:path'
 
-import { percorsoIcona } from '../../apparato/context.js'
-import { integrazioneSistemaAbilitata } from '../../apparato/settings.js'
-import { alCambioLingua } from '../../../core/i18n/index.js'
+import { percorsoIcona } from '#desktop/apparato/context.js'
+import { integrazioneSistemaAbilitata } from '#desktop/apparato/settings.js'
+import { alCambioLingua } from '#core/i18n/index.js'
 import { testi } from './fileAssociation.testi.js'
 
 // Percorso e parole mostrate da Esplora file (nome del tipo, voce che apre)

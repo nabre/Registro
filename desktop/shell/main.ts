@@ -19,31 +19,31 @@ import { app, dialog } from 'electron'
 import { existsSync, statSync } from 'node:fs'
 import * as percorso from 'node:path'
 
-import { executeCommand, registerCommand } from '../apparato/commands.js'
+import { executeCommand, registerCommand } from '#desktop/apparato/commands.js'
 import {
   creaContesto,
   impostaCartellaLavoro,
   percorsoIcona,
   percorsoIconaFinestra,
   percorsoPreload,
-} from '../apparato/context.js'
-import { getConfiguration, ritiraChiaviDismesse } from '../apparato/settings.js'
-import { showErrorMessage } from '../apparato/dialogs.js'
-import { avvisa, dichiaraIdentita, notificheDisponibili } from '../apparato/notifications.js'
+} from '#desktop/apparato/context.js'
+import { getConfiguration, ritiraChiaviDismesse } from '#desktop/apparato/settings.js'
+import { showErrorMessage } from '#desktop/apparato/dialogs.js'
+import { avvisa, dichiaraIdentita, notificheDisponibili } from '#desktop/apparato/notifications.js'
 import {
   applicaAvvioConWindows,
   avviatoDalSistema,
   osservaAvvioConWindows,
-} from '../apparato/systemStartup.js'
-import { avviaRicaricamento, codiceDUscita } from '../apparato/dev.js'
-import { applicaTema, osservaTema } from '../apparato/theme.js'
-import { applicaLingua, osservaLingua, rispondiLingua } from '../apparato/language.js'
-import { Uri } from '../../core/apparato/uri.js'
-import { vassoioAcceso } from '../apparato/tray.js'
-import { alCambioAggiornamenti, avviaAggiornamenti, installaAllUscita } from '../apparato/updates.js'
-import { aggiornamentoInCorso, concludiAggiornamento } from '../apparato/updateInstaller.js'
-import { ESTENSIONE, èPacchetto } from '../../core/dati/package.js'
-import { èProvvisorio, percorsoPacchetto } from '../../core/dati/paths.js'
+} from '#desktop/apparato/systemStartup.js'
+import { avviaRicaricamento, codiceDUscita } from '#desktop/apparato/dev.js'
+import { applicaTema, osservaTema } from '#desktop/apparato/theme.js'
+import { applicaLingua, osservaLingua, rispondiLingua } from '#desktop/apparato/language.js'
+import { Uri } from '#core/apparato/uri.js'
+import { vassoioAcceso } from '#desktop/apparato/tray.js'
+import { alCambioAggiornamenti, avviaAggiornamenti, installaAllUscita } from '#desktop/apparato/updates.js'
+import { aggiornamentoInCorso, concludiAggiornamento } from '#desktop/apparato/updateInstaller.js'
+import { ESTENSIONE, èPacchetto } from '#core/dati/package.js'
+import { èProvvisorio, percorsoPacchetto } from '#core/dati/paths.js'
 import {
   alDocumentoApertoOChiuso,
   apriRegistro,
@@ -52,9 +52,9 @@ import {
   chiediAnnoNuovo,
   creaPrimoAnno,
   spegni,
-} from '../boot.js'
-import { PannelloProiezione } from '../pannelli/projection.js'
-import { ascolta as ascoltaInterfaccia } from '../apparato/windows.js'
+} from '#desktop/boot.js'
+import { PannelloProiezione } from '#desktop/pannelli/projection.js'
+import { ascolta as ascoltaInterfaccia } from '#desktop/apparato/windows.js'
 import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windows/welcome.js'
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
@@ -67,7 +67,7 @@ import { registraFileDelProgramma } from './system/fileAssociation.js'
 import { registraComandoRiga } from './system/commandLine.js'
 import { regolaPermessi } from './protocol/permissions.js'
 import { privilegiaSchema, registraProtocollo } from './protocol/fileProtocol.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './main.testi.js'
 
 // Su Windows un nome nudo (`reg`, `rundll32`) si cerca prima nella cartella

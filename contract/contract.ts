@@ -6,14 +6,14 @@
 // e una versione dichiarata. Dove un gestore esiste già, la procedura gli mette
 // davanti il contratto e gli passa il lavoro (`daAzione` in `core.ts`).
 
-import type { Parole, Termine } from '../core/dominio/lexicon.js'
-import { lessico } from '../core/dominio/lexicon.testi.js'
-import type { Collezione } from '../core/dominio/models.js'
+import type { Parole, Termine } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Collezione } from '#core/dominio/models.js'
 import type { Messaggio } from './protocol.js'
-import type { contestoDi } from '../core/azioni/context.js'
+import type { contestoDi } from '#core/azioni/context.js'
 import type { Presentazione, PresentazioneQualunque } from './presentation.js'
 import type { Schema } from './schemas.js'
-import type { TestoPigro } from '../core/i18n/index.js'
+import type { TestoPigro } from '#core/i18n/index.js'
 import { testi } from './core.testi.js'
 
 /**

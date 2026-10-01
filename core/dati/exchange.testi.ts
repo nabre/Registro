@@ -2,7 +2,7 @@
 // tenant, comandi PowerShell) restano quelli che si cercano; le impostazioni si
 // citano con la chiave `registroDocenti.posta.*`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   serverMuto: 'Il server non risponde.',

@@ -1,7 +1,7 @@
 // I testi dei `.regi` per Esplora file: il nome del tipo di file, che si
 // legge nella colonna «Tipo» e nelle proprietà, e la voce che li apre.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   tipoDiFile: 'Anno scolastico Regiklass',

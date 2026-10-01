@@ -5,10 +5,10 @@
 
 import * as apparato from 'apparato'
 
-import type { SorgenteCalendario } from '../dominio/models.js'
-import { testoDaByteIcs } from '../dominio/calendarIcs.js'
+import type { SorgenteCalendario } from '#core/dominio/models.js'
+import { testoDaByteIcs } from '#core/dominio/calendarIcs.js'
 import { deposito } from './store.js'
-import { istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
 import { testi } from './calendar.testi.js'
 
 /** Un calendario d'istituto sta sotto il megabyte; oltre dieci è un'altra cosa. */

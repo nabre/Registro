@@ -12,7 +12,7 @@
 
 import * as v from 'valibot'
 
-import { detto, type TestoPigro } from '../core/i18n/index.js'
+import { detto, type TestoPigro } from '#core/i18n/index.js'
 import { testi } from './schemas.testi.js'
 
 // ------------------------------------------------------------------ contratto

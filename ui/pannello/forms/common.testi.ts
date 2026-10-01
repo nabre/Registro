@@ -1,7 +1,7 @@
 // I testi di `forms/common.ts`: quel che ogni modulo dice allo stesso modo —
 // la guardia dell'anno, gli errori di ripiego, la domanda prima di eliminare.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   primaLAnno: 'Prima l’anno scolastico: si apre il modulo per crearlo.',

@@ -1,7 +1,7 @@
 // I testi delle liste dei menu a tendina (`settings/lists.ts`). Nomi delle
 // liste e dove compaiono stanno in `domain/lists.testi.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   rimettereTitolo: (lista: string) => `Rimettere le voci di fabbrica in «${lista}»?`,

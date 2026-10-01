@@ -1,7 +1,7 @@
 // I testi della scheda degli aggiornamenti (`settings/updates.ts`). Frase,
 // pastiglia e gesto arrivano già scritti dall'host (`environment/updates.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   installare: (versione: string) => `Installare la versione ${versione}?`,

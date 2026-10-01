@@ -1,9 +1,9 @@
-import { assistente } from '../../../core/azioni/assistant.js'
-import type { BloccoRisultato, RisultatoAssistente, TurnoAssistente } from '../../protocol.js'
-import { inoltra, scrittura } from '../../core.js'
+import { assistente } from '#core/azioni/assistant.js'
+import type { BloccoRisultato, RisultatoAssistente, TurnoAssistente } from '#contract/protocol.js'
+import { inoltra, scrittura } from '#contract/core.js'
 import {
   booleano, elenco, numero, oggetto, opzionale, qualunque, scelta, testo, type Schema,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import { testi } from './assistente.testi.js'
 
 const t = () => testi().stacca

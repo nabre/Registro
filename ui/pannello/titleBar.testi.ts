@@ -1,8 +1,8 @@
 // I testi della barra del titolo (`titleBar.ts`): il nome del documento al
 // centro, i passi della storia e il filetto degli aggiornamenti.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { plurale } from '../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   nonSalvatoTitolo: (percorso: string) =>

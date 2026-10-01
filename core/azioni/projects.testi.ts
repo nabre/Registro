@@ -1,6 +1,6 @@
 // I testi di `projects.ts`: i rifiuti delle azioni sul progetto.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   compitoSparito: 'Quel compito non c’è più nel progetto.',

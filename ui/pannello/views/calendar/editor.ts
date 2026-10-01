@@ -15,30 +15,30 @@ import {
   inizioLezione,
   lezioniSovrapposte,
   slotOrdinati,
-} from '../../../../core/dominio/calculations.js'
-import { lezioniDellAnno } from '../../../../core/dominio/courses.js'
+} from '#core/dominio/calculations.js'
+import { lezioniDellAnno } from '#core/dominio/courses.js'
 import {
   formattaData,
   minutiDaOra,
   oraDaMinuti,
   sommaGiorni,
   sommaMinuti,
-} from '../../../../core/dominio/dates.js'
-import { eliminazione } from '../../../../core/dominio/deletions.js'
+} from '#core/dominio/dates.js'
+import { eliminazione } from '#core/dominio/deletions.js'
 import {
   inizioSullaGriglia,
   lezioneNellaGiornata,
   slotStiratiAncoratiSullePause,
   slotStiratiSullePause,
-} from '../../../../core/dominio/breaks.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { azione } from '../../bridge.js'
-import { notifica } from '../../components/notifications.js'
-import { dentroUnCampo, h } from '../../dom.js'
-import { ancorataAIcs } from '../../externalCalendar.js'
-import { chiediEliminazione, moduloLezione } from '../../forms.js'
-import { opzioniCorsi } from '../../forms/common.js'
-import { aggiorna, annoCorrente, nomeClasseDiLezione, stato } from '../../state.js'
+} from '#core/dominio/breaks.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { dentroUnCampo, h } from '#ui/pannello/dom.js'
+import { ancorataAIcs } from '#ui/pannello/externalCalendar.js'
+import { chiediEliminazione, moduloLezione } from '#ui/pannello/forms.js'
+import { opzioniCorsi } from '#ui/pannello/forms/common.js'
+import { aggiorna, annoCorrente, nomeClasseDiLezione, stato } from '#ui/pannello/state.js'
 import { apriLezione } from './common.js'
 import { AGGANCIO_MINUTI, posa } from './drag.js'
 import { testi } from './calendar.testi.js'

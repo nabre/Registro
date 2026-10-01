@@ -2,7 +2,7 @@
 // `nome` è il foglio detto in una frase, con il suo articolo: lo scrivono i
 // riquadri (`cards.testi.ts`).
 
-import { catalogo, conMaiuscola } from '../../../../core/i18n/index.js'
+import { catalogo, conMaiuscola } from '#core/i18n/index.js'
 
 const it = {
   buttareTitolo: (nome: string) => `Buttare via ${nome}?`,

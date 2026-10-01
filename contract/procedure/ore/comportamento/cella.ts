@@ -1,8 +1,8 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, nullabile, oggetto, opzionale, scelta, testo } from '../../../schemas.js'
-import { esigiLezione, SEGNI } from '../common.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, nullabile, oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
+import { esigiLezione, SEGNI } from '#contract/procedure/ore/common.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().comportamento.cella
 

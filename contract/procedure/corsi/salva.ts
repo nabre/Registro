@@ -1,10 +1,10 @@
-import { registro } from '../../../core/azioni/register.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Corso } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
-import { esigiClasse, esigiMateria } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Corso } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
+import { esigiClasse, esigiMateria } from '#contract/procedure/common/register.js'
 import { testi } from './corsi.testi.js'
 
 /** `validaCorso(corso, altri)` ha bisogno degli altri corsi, come per la materia. */

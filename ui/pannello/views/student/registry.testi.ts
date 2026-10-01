@@ -1,8 +1,8 @@
 // I testi della scheda personale, parte anagrafica (`student/registry.ts`).
 
-import { catalogo, minuscolo } from '../../../../core/i18n/index.js'
-import { PERSONE, del } from '../../../../core/dominio/lexicon.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo, minuscolo } from '#core/i18n/index.js'
+import { PERSONE, del } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   quelliChiesti: 'quelli chiesti a lui',

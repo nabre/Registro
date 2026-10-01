@@ -1,9 +1,9 @@
 // I testi di `sorter.ts`: esito dello smistamento di un PDF e pagine non archiviate.
 // Le frasi in minuscolo seguono `suFile`, che mette davanti il nome del PDF.
 
-import { catalogo } from '../i18n/index.js'
-import { PIF, frase } from '../dominio/lexicon.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, frase } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Una frase su un PDF, con il suo nome davanti. */

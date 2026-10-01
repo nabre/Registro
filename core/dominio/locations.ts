@@ -15,7 +15,7 @@ import { confrontaLezioni, inizioLezione, nomeCompleto } from './calculations.js
 import { classeDelCorsoId, corsiDellaClasse, materiaDelCorso } from './courses.js'
 import { dataNelNome, etichettaSemestre, giornoDi, oggi, oraNelNome } from './dates.js'
 import { testi as testiDate } from './dates.testi.js'
-import { LINGUE } from '../i18n/index.js'
+import { LINGUE } from '#core/i18n/index.js'
 import { DOCUMENTO_SCHEDE_PRIMA } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import { testi } from './locations.testi.js'

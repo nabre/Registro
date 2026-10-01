@@ -1,7 +1,7 @@
 // I testi delle procedure di `sistema`. Si leggono al momento dell'uso, mai al
 // caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   apriCartella: {

@@ -3,7 +3,7 @@
 // «rossi» e «Rossi » non diventino due cose diverse. Importa soltanto il
 // dispositivo multilingua, che è puro.
 
-import { perNumero } from '../i18n/index.js'
+import { perNumero } from '#core/i18n/index.js'
 
 /**
  * Due nomi in ordine, come li metterebbe una persona: `'it'` per gli accenti,

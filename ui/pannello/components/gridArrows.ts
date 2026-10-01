@@ -1,7 +1,7 @@
 // Le frecce in una matrice di caselle (check, appello, comportamento): spostano
 // il fuoco da una casella all'altra, come in una griglia; Tab resta com'è.
 
-import { dentroUnCampo, gestisci } from '../dom.js'
+import { dentroUnCampo, gestisci } from '#ui/pannello/dom.js'
 
 const PASSI: Record<string, [number, number]> = {
   ArrowUp: [-1, 0],

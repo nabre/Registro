@@ -1,7 +1,7 @@
 // I messaggi del controllo dei modelli. Le direttive («riga:», «se:», «[frasi]»,
 // «verticale») sono codice: restano uguali in ogni lingua e le frasi le citano così.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Che cosa un modello chiama per nome, e può non esistere. */
 export type GenereNome = 'frase' | 'tabella' | 'elenco' | 'grafico' | 'galleria' | 'gruppo' | 'blocco'

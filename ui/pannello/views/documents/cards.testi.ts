@@ -2,10 +2,10 @@
 // I nomi dei fogli («il conto delle presenze», «la scheda di …») entrano nelle
 // frasi di `sheets.ts`: si scrivono con il loro articolo.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { PIF, Molti, Uno, quanti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, Molti, Uno, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // Del corso

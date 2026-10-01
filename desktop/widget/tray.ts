@@ -7,16 +7,16 @@
 
 import * as apparato from 'apparato'
 
-import { creaVassoio, SEPARATORE, type Vassoio, type VoceVassoio } from '../apparato/tray.js'
-import type { Archivio } from '../../core/dati/archive.js'
-import { adesso, oggi } from '../../core/dominio/dates.js'
-import { alberoVassoio, type AlberoVassoio, type CorsoVassoio } from '../../core/dominio/tray.js'
-import { alCambioDocumenti, documentiNoti, type DocumentoNoto } from '../apparato/documents.js'
-import type { MessaggioNavigazione } from '../../contract/protocol.js'
+import { creaVassoio, SEPARATORE, type Vassoio, type VoceVassoio } from '#desktop/apparato/tray.js'
+import type { Archivio } from '#core/dati/archive.js'
+import { adesso, oggi } from '#core/dominio/dates.js'
+import { alberoVassoio, type AlberoVassoio, type CorsoVassoio } from '#core/dominio/tray.js'
+import { alCambioDocumenti, documentiNoti, type DocumentoNoto } from '#desktop/apparato/documents.js'
+import type { MessaggioNavigazione } from '#contract/protocol.js'
 import { battitoSicuro } from './reminders.js'
-import { alCambioLingua } from '../../core/i18n/index.js'
+import { alCambioLingua } from '#core/i18n/index.js'
 import { testi } from './tray.testi.js'
-import { alberoProcedure, chiamante, linkDiretto, type ChiamanteNodo } from '../../contract/registry.js'
+import { alberoProcedure, chiamante, linkDiretto, type ChiamanteNodo } from '#contract/registry.js'
 
 
 /** Ogni quanto si guarda l'orologio. */

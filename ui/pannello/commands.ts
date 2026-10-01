@@ -12,13 +12,13 @@
 // Un comando che adesso non si può fare resta spento e dice perché
 // (`impedimento()`). Il contesto viene da `context.ts`, non da chi clicca.
 
-import { MODI_PDF } from '../../core/dominio/automation.js'
-import { checkDelCorso } from '../../core/dominio/check.js'
-import { lezioneFinita } from '../../core/dominio/calculations.js'
-import { lezioneCompilata } from '../../core/dominio/courses.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
-import { parole } from '../../core/dominio/words.testi.js'
-import { titoloComando } from '../../contract/manifest.js'
+import { MODI_PDF } from '#core/dominio/automation.js'
+import { checkDelCorso } from '#core/dominio/check.js'
+import { lezioneFinita } from '#core/dominio/calculations.js'
+import { lezioneCompilata } from '#core/dominio/courses.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
 import {
   BLOCCHI,
   NOMI_BLOCCO,
@@ -29,9 +29,9 @@ import {
   riservato,
   type BloccoProiezione,
   type ImpostazioniProiezione,
-} from '../../core/dominio/projection.js'
-import type { Lezione, QuandoRifarePdf, StatoLezione } from '../../core/dominio/models.js'
-import { riparazioni } from '../../core/dominio/repairs.js'
+} from '#core/dominio/projection.js'
+import type { Lezione, QuandoRifarePdf, StatoLezione } from '#core/dominio/models.js'
+import { riparazioni } from '#core/dominio/repairs.js'
 import { testi } from './commands.testi.js'
 import type { NomeIcona } from './components/icons.js'
 import { conferma } from './components/modal.js'

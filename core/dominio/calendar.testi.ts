@@ -1,7 +1,7 @@
 // I testi di `calendar.ts`: le differenze fra una lezione e il calendario,
 // dette nella riga del confronto.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   annullataNelCalendario: 'annullata nel calendario',

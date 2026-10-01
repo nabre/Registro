@@ -8,9 +8,9 @@
 // si sostituisce con una copia che resta di più, perché il tempo di un
 // «salvato» non basta per decidere di tornare indietro.
 
-import { h } from '../dom.js'
+import { h } from '#ui/pannello/dom.js'
 import { notifica } from './notifications.js'
-import { testi as testiComandi } from '../commands.testi.js'
+import { testi as testiComandi } from '#ui/pannello/commands.testi.js'
 import { testi } from './yearSetting.testi.js'
 
 /** Quanto resta la notifica: il tempo di accorgersi dello sbaglio. */

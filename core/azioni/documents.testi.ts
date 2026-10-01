@@ -1,6 +1,6 @@
 // I testi di `documents.ts`: com'è andato il salvataggio chiesto a mano.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   provvisorio: 'L’anno non è salvato: è ancora provvisorio, e non è stato scelto dove metterlo.',

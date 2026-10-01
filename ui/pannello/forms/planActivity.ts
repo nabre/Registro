@@ -11,42 +11,42 @@ import {
   minutiDiAttivita,
   scalettaSulleUd,
   udDaMinutiAttivita,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   colonneCheckDi,
   nomeTipoAttivita,
   parametriDi,
   riassuntoParametri,
   valoreParametro,
-} from '../../../core/dominio/activities.js'
-import { checkDelCorso } from '../../../core/dominio/check.js'
-import { coloreDiVoce, testoDiVoce, vociConValore } from '../../../core/dominio/lists.js'
-import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
-import { creaAttivita } from '../../../core/dominio/factories.js'
+} from '#core/dominio/activities.js'
+import { checkDelCorso } from '#core/dominio/check.js'
+import { coloreDiVoce, testoDiVoce, vociConValore } from '#core/dominio/lists.js'
+import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
+import { creaAttivita } from '#core/dominio/factories.js'
 import type {
   Attivita,
   Lezione,
   Risorsa,
   TipoValutazione,
-} from '../../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   pastiglia,
   pulsante,
   quieto,
   tendina,
-} from '../components/base.js'
-import { menuSotto } from '../components/menu.js'
-import { sceltaDetta, sceltaProgettoFase, type ProgettoEFase } from '../components/projectPhasePicker.js'
-import { icona } from '../components/icons.js'
-import { legaAlSegno, suggerimento } from '../components/hint.js'
+} from '#ui/pannello/components/base.js'
+import { menuSotto } from '#ui/pannello/components/menu.js'
+import { sceltaDetta, sceltaProgettoFase, type ProgettoEFase } from '#ui/pannello/components/projectPhasePicker.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { legaAlSegno, suggerimento } from '#ui/pannello/components/hint.js'
 import { h, rimpiazza,
   type Figlio,
-} from '../dom.js'
-import { stato } from '../state.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+} from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './planActivity.testi.js'
 import { bloccoRisorse } from './resources.js'
 import { aggiungiFase, moduloProgetto } from './project.js'

@@ -1,8 +1,8 @@
 // I testi della pagina di una lezione (`lesson.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // Le osservazioni

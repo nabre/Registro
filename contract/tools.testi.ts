@@ -4,7 +4,7 @@
 // identificatori e restano uguali in ogni lingua. `resources/tools.json` si
 // scrive in italiano.
 
-import { catalogo } from '../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   comeSiFiltra:

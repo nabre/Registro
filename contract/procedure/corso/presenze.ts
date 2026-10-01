@@ -1,14 +1,14 @@
-import { allieviAttivi, ordinaAllievi } from '../../../core/dominio/calculations.js'
+import { allieviAttivi, ordinaAllievi } from '#core/dominio/calculations.js'
 import {
   annoDellaClasse,
   classeDelCorsoId,
   materiaDelCorso,
   registroDelCorso,
-} from '../../../core/dominio/courses.js'
-import { matriceCorso } from '../../../core/dominio/courseMatrix.js'
-import { udPrevisteDaOrario } from '../../../core/dominio/timetable.js'
-import { definisci, errore } from '../../contract.js'
-import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
+} from '#core/dominio/courses.js'
+import { matriceCorso } from '#core/dominio/courseMatrix.js'
+import { udPrevisteDaOrario } from '#core/dominio/timetable.js'
+import { definisci, errore } from '#contract/contract.js'
+import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
 import {
   CAMPI_ESCLUSI,
   fuori,
@@ -17,9 +17,9 @@ import {
   periodo,
   periodoScelto,
   SCHEDA_PERIODO,
-} from '../common/filters.js'
-import { esigiCorso } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './corso.testi.js'
 
 const t = () => testi().presenze

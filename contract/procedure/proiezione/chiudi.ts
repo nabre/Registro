@@ -1,6 +1,6 @@
-import { proiezione } from '../../../core/azioni/projection.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { proiezione } from '#core/azioni/projection.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './proiezione.testi.js'
 
 export const procedura = scrittura({

@@ -1,6 +1,6 @@
 // I testi delle valutazioni dell'ora (`lesson/assessments.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   creaProva: 'Crea la prova',

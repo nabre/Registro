@@ -1,6 +1,6 @@
-import { sistema } from '../../../core/azioni/system.js'
-import type { QuandoRifarePdf, VoceLista } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
+import { sistema } from '#core/azioni/system.js'
+import type { QuandoRifarePdf, VoceLista } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
 import {
   elenco,
   esaustivo,
@@ -14,7 +14,7 @@ import {
   scelta,
   testo,
   type Schema,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import { testi } from './impostazioni.testi.js'
 
 const t = () => testi().salva

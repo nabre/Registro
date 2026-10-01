@@ -4,10 +4,10 @@
 // con l'interno in coda) resta testo, perché un pulsante finto farebbe credere
 // di aver chiamato.
 
-import { indirizzoScrivibile } from '../../../core/dominio/contacts.js'
-import { numeroComponibile } from '../../../core/dominio/phones.js'
-import { h, type Figlio } from '../dom.js'
-import { azione } from '../bridge.js'
+import { indirizzoScrivibile } from '#core/dominio/contacts.js'
+import { numeroComponibile } from '#core/dominio/phones.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
 import { collegamento } from './base.js'
 import { testi } from './contacts.testi.js'
 

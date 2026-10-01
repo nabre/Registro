@@ -1,6 +1,6 @@
 // I testi dei posti per i PDF di un momento di valutazione (`attachments.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   allegato: 'PDF allegato.',

@@ -1,8 +1,8 @@
 // I testi di `forms/year.ts`: l'anno scolastico, i suoi due semestri e le
 // pause — vacanze e giorni di chiusura — che la generazione dell'orario salta.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Le pause che quasi ogni anno ha: i nomi delle scorciatoie. */

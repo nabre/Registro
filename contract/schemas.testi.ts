@@ -3,7 +3,7 @@
 // Si leggono quando si convalida o si pubblica, mai al caricamento: gli schemi
 // si compongono una volta sola, a livello di modulo.
 
-import { catalogo } from '../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   serveTesto: 'Serve del testo.',

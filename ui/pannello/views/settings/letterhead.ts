@@ -9,18 +9,18 @@
 // accanto a sé (`campoAnno`); il logo ha azioni sue. Le regole senza DOM stanno
 // in `letterheadCourses.ts`, dove si provano.
 
-import type { Esito } from '../../../../core/controlli/control.js'
-import { MODI_PDF } from '../../../../core/dominio/automation.js'
-import { cartaVuota, spostaCorsi, togliCarta } from '../../../../core/dominio/letterhead.js'
-import { ALTEZZA_LOGO, type CartaIntestata, type QuandoRifarePdf } from '../../../../core/dominio/models.js'
-import { pulsante, scheda } from '../../components/base.js'
-import { campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/yearSetting.js'
-import { menuSotto, type ElementoMenu } from '../../components/menu.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { azione, invia } from '../../bridge.js'
-import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '../../state.js'
+import type { Esito } from '#core/controlli/control.js'
+import { MODI_PDF } from '#core/dominio/automation.js'
+import { cartaVuota, spostaCorsi, togliCarta } from '#core/dominio/letterhead.js'
+import { ALTEZZA_LOGO, type CartaIntestata, type QuandoRifarePdf } from '#core/dominio/models.js'
+import { pulsante, scheda } from '#ui/pannello/components/base.js'
+import { campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '#ui/pannello/components/yearSetting.js'
+import { menuSotto, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
+import { corsiDellAnnoAperto, ridisegna, stato, uriDato } from '#ui/pannello/state.js'
 import { salvaConEsito } from './document.js'
 import {
   codificaCorsi,
@@ -34,7 +34,7 @@ import {
   type ModoClic,
   type Selezione,
 } from './letterheadCourses.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './letterhead.testi.js'
 
 /**

@@ -1,6 +1,6 @@
-import { check } from '../../../core/azioni/check.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, identificatore, iso, nullabile, oggetto, opzionale } from '../../schemas.js'
+import { check } from '#core/azioni/check.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, iso, nullabile, oggetto, opzionale } from '#contract/schemas.js'
 import { esigiCasella, esigiLezioneDelCorso } from './common.js'
 import { testi } from './check.testi.js'
 

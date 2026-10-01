@@ -2,10 +2,10 @@
 // documenti, mappa, impostazioni). I loro nomi stanno solo qui: li leggono la
 // vista che le disegna e il percorso che le dice.
 
-import { NOMI_GENERE } from '../../core/dominio/map.js'
+import { NOMI_GENERE } from '#core/dominio/map.js'
 import type { NomeIcona } from './components/icons.js'
 import { AREE } from './views/settings/sections.js'
-import type { Lezione, Progetto } from '../../core/dominio/models.js'
+import type { Lezione, Progetto } from '#core/dominio/models.js'
 import {
   classeDellAllievo,
   lezionePerId,
@@ -17,9 +17,9 @@ import {
   type SchedaLezione,
   type SchedaPersona,
 } from './state.js'
-import { Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './tabs.testi.js'
 
 // Le costanti qui sotto nascono già nella lingua giusta: la pagina sceglie la

@@ -1,7 +1,7 @@
-import { riparazioni } from '../../../core/dominio/repairs.js'
-import { riferimentiRotti } from '../../../core/dominio/integrity.js'
-import { definisci } from '../../contract.js'
-import { elenco, oggetto, testo, vuoto } from '../../schemas.js'
+import { riparazioni } from '#core/dominio/repairs.js'
+import { riferimentiRotti } from '#core/dominio/integrity.js'
+import { definisci } from '#contract/contract.js'
+import { elenco, oggetto, testo, vuoto } from '#contract/schemas.js'
 import { testi } from './registro.testi.js'
 
 const t = () => testi().integrita

@@ -4,11 +4,11 @@
 // grammatica di chi l'ha scritto. Si legge una volta per versione del file,
 // non a ogni ridisegno, e mai dentro il disegno (`asyncResources.ts`).
 
-import { leggiCsv } from '../../../../core/dominio/csv.js'
-import { tabella } from '../../components/table.js'
-import { h, type Figlio } from '../../dom.js'
-import { risorse } from '../../asyncResources.js'
-import { quieto } from '../../components/base.js'
+import { leggiCsv } from '#core/dominio/csv.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { risorse } from '#ui/pannello/asyncResources.js'
+import { quieto } from '#ui/pannello/components/base.js'
 import { testi } from './csv.testi.js'
 
 /** I fogli letti, per versione del file. */

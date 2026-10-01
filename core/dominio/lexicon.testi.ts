@@ -10,7 +10,7 @@
 //
 // Si legge con `lessico()` al momento dell'uso: `Uno(lessico().pif)`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CARTE,
   CATEGORIE_DOCUMENTO,

@@ -1,9 +1,9 @@
 // Tutte le pendenze aperte di una classe.
 // Espone il giudizio di `todoDellaClasse` (assenze da firmare, prove da correggere o riconsegnare, recuperi, consegne).
 
-import { oggi } from '../../../core/dominio/dates.js'
-import { FAMIGLIE_TODO, todoDellaClasse } from '../../../core/dominio/todo.js'
-import { definisci } from '../../contract.js'
+import { oggi } from '#core/dominio/dates.js'
+import { FAMIGLIE_TODO, todoDellaClasse } from '#core/dominio/todo.js'
+import { definisci } from '#contract/contract.js'
 import {
   elenco,
   identificatore,
@@ -12,8 +12,8 @@ import {
   oggetto,
   opzionale,
   testo,
-} from '../../schemas.js'
-import { esigiClasse } from '../common/register.js'
+} from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
 import { testi } from './classe.testi.js'
 
 const t = () => testi().pendenze

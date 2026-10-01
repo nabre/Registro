@@ -6,7 +6,7 @@
 // Il trascinamento sposta solo tasselli e segnaposti, senza ridisegnare la vista;
 // un ridisegno della vista rimette lo stesso riquadro (`nelDisegno`).
 
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import {
   NOMI_GENERE,
   SEDE,
@@ -22,8 +22,8 @@ import {
   type SegnoMappa,
   type StratiMappa,
   type UsoIndirizzo,
-} from '../../../core/dominio/map.js'
-import type { Classe } from '../../../core/dominio/models.js'
+} from '#core/dominio/map.js'
+import type { Classe } from '#core/dominio/models.js'
 import {
   collegamento,
   pastiglia,
@@ -31,13 +31,13 @@ import {
   selettore,
   statoVuoto,
   testataVista,
-} from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { riquadroMappa, type Riquadro } from '../components/map.js'
-import { h, type Figlio } from '../dom.js'
-import { moduloAnno } from '../forms.js'
-import { azione } from '../bridge.js'
+} from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { riquadroMappa, type Riquadro } from '#ui/pannello/components/map.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAnno } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   aggiorna,
   annoCorrente,
@@ -46,7 +46,7 @@ import {
   stato,
   vai,
   type SchedaMappa,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { testi } from './map.testi.js'
 
 /**

@@ -15,7 +15,7 @@ import { app } from 'electron'
 import { accessSync, constants, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { traslocaDati } from '../../../core/dati/formerName.js'
+import { traslocaDati } from '#core/dati/formerName.js'
 
 /** Il nome della cartella dei dati, accanto all'eseguibile portabile. */
 // testo-fisso: nome di una cartella su disco, che deve restare quello in ogni lingua

@@ -1,7 +1,7 @@
 // I testi della matrice del comportamento riletta (`observations.ts`): come si
 // chiamano i due segni, a schermo e sulla carta.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   positivo: 'Molto bene',

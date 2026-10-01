@@ -3,7 +3,7 @@
 // stanno con quelli degli altri rapporti, in `reportData.testi.ts`; le parole
 // dei modelli nei `_testi*.tpl` di `templates/`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import type { StatoProgetto } from './models.js'
 
 /** A che punto è un allievo con un compito: i valori di `statoCompitoPerAllievo`. */

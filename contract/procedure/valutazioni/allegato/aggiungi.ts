@@ -1,9 +1,9 @@
-import { valutazioni } from '../../../../core/azioni/assessments.js'
-import type { RuoloAllegato } from '../../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { esaustivo, identificatore, nullabile, oggetto, opzionale, scelta, testo } from '../../../schemas.js'
-import { esigiMomento } from '../common.js'
-import { testi } from '../valutazioni.testi.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import type { RuoloAllegato } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { esaustivo, identificatore, nullabile, oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
+import { esigiMomento } from '#contract/procedure/valutazioni/common.js'
+import { testi } from '#contract/procedure/valutazioni/valutazioni.testi.js'
 
 const t = () => testi().allegato.aggiungi
 

@@ -1,8 +1,8 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
-import { esigiBlocco } from '../common.js'
-import { testi } from '../classe.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiBlocco } from '#contract/procedure/classe/common.js'
+import { testi } from '#contract/procedure/classe/classe.testi.js'
 
 const t = () => testi().assenze.elimina
 

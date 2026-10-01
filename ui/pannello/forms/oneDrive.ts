@@ -3,15 +3,15 @@
 // un documento lo passa all'host, che sceglie fra la copia sincronizzata e una
 // scaricata (`data/onedrive.ts`).
 
-import { avviso, campo, pulsante, quantoMisura } from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { apriModale, type ContestoModale } from '../components/modal.js'
-import { h } from '../dom.js'
-import { azione, chiedi } from '../bridge.js'
-import { stato, vai as vaiNelPannello } from '../state.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import type { VoceOneDrive } from '../../../core/dominio/onedrive.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { avviso, campo, pulsante, quantoMisura } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { apriModale, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione, chiedi } from '#ui/pannello/bridge.js'
+import { stato, vai as vaiNelPannello } from '#ui/pannello/state.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { VoceOneDrive } from '#core/dominio/onedrive.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './oneDrive.testi.js'
 
 /** Quel che torna da `onedrive.elenco`. */

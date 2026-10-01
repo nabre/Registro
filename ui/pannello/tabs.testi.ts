@@ -2,9 +2,9 @@
 // schede dei documenti, filtri delle pendenze. Li dicono anche il percorso e
 // l'assistente.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { LEZIONE, Molti, PERSONE, PIF, SCUOLA, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { LEZIONE, Molti, PERSONE, PIF, SCUOLA, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   // Le linguette del registro dell'ora.

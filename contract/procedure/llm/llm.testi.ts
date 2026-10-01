@@ -3,7 +3,7 @@
 // lingua: nomi di depositi e file, sigle delle quantizzazioni («Q4_K_M»),
 // «mmproj», «Hugging Face», nomi di procedura e i valori `assistente` e `ocr`.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   annulla: {

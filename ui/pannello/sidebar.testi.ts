@@ -1,7 +1,7 @@
 // I testi della barra laterale (`sidebar.ts`): il marchio in cima e
 // l'interruttore che la riduce alle icone, e la scorciatoia di ogni voce.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   navigazione: 'Navigazione',

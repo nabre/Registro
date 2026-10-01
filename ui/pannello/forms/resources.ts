@@ -3,16 +3,16 @@
 // che cosa mettere al sicuro prima di toccare i file e che cosa fare dopo; il
 // resto è uguale ovunque.
 
-import type { Risorsa } from '../../../core/dominio/models.js'
-import { campo, collegamento, pulsante, quieto } from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { suggerimento } from '../components/hint.js'
-import { apriModale } from '../components/modal.js'
-import { h } from '../dom.js'
-import { notifica } from '../components/notifications.js'
-import { azione } from '../bridge.js'
-import { pianoPerId, uriDato } from '../state.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import type { Risorsa } from '#core/dominio/models.js'
+import { campo, collegamento, pulsante, quieto } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { pianoPerId, uriDato } from '#ui/pannello/state.js'
+import { parole } from '#core/dominio/words.testi.js'
 
 import { inviaDalModulo, salva, tastoElimina, testo } from './common.js'
 import { testi } from './resources.testi.js'

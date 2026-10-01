@@ -7,14 +7,14 @@
 
 import * as apparato from 'apparato'
 
-import { istante } from '../i18n/index.js'
+import { istante } from '#core/i18n/index.js'
 import {
   componiCasella,
   descriviCasella,
   sembraIndirizzo,
   stessoIndirizzo,
-} from '../dominio/mailbox.js'
-import { componiEml, schiacciaNome, type MessaggioPosta } from '../dominio/communications.js'
+} from '#core/dominio/mailbox.js'
+import { componiEml, schiacciaNome, type MessaggioPosta } from '#core/dominio/communications.js'
 import { casella, scriviCasella } from './mailbox.js'
 import { apriConIlSistema } from './opening.js'
 import { nomeFileArchivio } from './filing.js'
@@ -30,11 +30,11 @@ import {
   collegaConOauth,
   dimenticaOauth,
 } from './oauth.js'
-import type { MessaggioFallito } from '../dominio/communications.js'
+import type { MessaggioFallito } from '#core/dominio/communications.js'
 import { cartellaAnno, nomeSicuro } from './paths.js'
 import { testi } from './mail.testi.js'
 
-export type { MessaggioPosta } from '../dominio/communications.js'
+export type { MessaggioPosta } from '#core/dominio/communications.js'
 
 /** L'indirizzo che finisce in «Da» (non una credenziale); vuoto se non è detto. */
 export function mittente (): string {

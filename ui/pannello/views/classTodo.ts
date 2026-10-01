@@ -6,9 +6,9 @@ import {
   nomeFamiglia,
   type FamigliaTodo,
   type TodoClasse,
-} from '../../../core/dominio/todo.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { h, type Figlio } from '../dom.js'
+} from '#core/dominio/todo.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import { gruppoRichiesteFirma, gruppoSegnalazioni } from './absences.js'
 import { gruppoConsegne } from './assignments.js'
 import { gruppoRecuperi } from './assessments/retakes.js'

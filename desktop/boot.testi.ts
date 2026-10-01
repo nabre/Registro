@@ -1,8 +1,8 @@
 // I testi di `startup.ts`: avvio, traslochi, anno occupato, posta, anno nuovo.
 // «Regiklass» in testa agli avvisi è il marchio e non si traduce.
 
-import { catalogo } from '../core/i18n/index.js'
-import { plurale } from '../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 /** Il nome tedesco del Ticino, che dai dati arriva in italiano (come in `ui/forms/schoolCalendar.testi.ts`). */
 const tessin = (cantone: string): string => (cantone === 'Ticino' ? 'Tessin' : cantone)

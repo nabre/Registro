@@ -1,6 +1,6 @@
 // I testi delle impostazioni del documento d'anno (`settings/document.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // Quel che l'host ha corretto in silenzio, detto dopo il salvataggio.

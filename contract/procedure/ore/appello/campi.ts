@@ -1,8 +1,8 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, numero, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiIscritto, esigiLezione } from '../common.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiIscritto, esigiLezione } from '#contract/procedure/ore/common.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().appello.campi
 

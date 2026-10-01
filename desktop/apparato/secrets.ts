@@ -6,7 +6,7 @@ import { safeStorage } from 'electron'
 import { type Deposito, depositoJson } from './jsonStore.js'
 import * as percorso from 'node:path'
 
-import { EventEmitter } from '../../core/apparato/events.js'
+import { EventEmitter } from '#core/apparato/events.js'
 import { testi } from './secrets.testi.js'
 
 export interface CambioSegreti {
@@ -17,7 +17,7 @@ export interface DepositoSegreti {
   get (chiave: string): Promise<string | undefined>
   store (chiave: string, valore: string): Promise<void>
   delete (chiave: string): Promise<void>
-  onDidChange: import('../../core/apparato/events.js').Event<CambioSegreti>
+  onDidChange: import('#core/apparato/events.js').Event<CambioSegreti>
 }
 
 const NOME_FILE = 'segreti.json'

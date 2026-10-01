@@ -4,17 +4,17 @@
 // (come `baseViva`); l'elenco intero fonde quel che si è scritto con quel che è
 // cambiato altrove.
 
-import { nomeCompleto } from '../../../core/dominio/calculations.js'
-import { checkDelCorso, spunteCheCadono } from '../../../core/dominio/check.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Allievo, ColonnaCheck, Iso } from '../../../core/dominio/models.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, pulsante, quieto } from '../components/base.js'
-import { apriModale, conferma } from '../components/modal.js'
-import { h, rimpiazza } from '../dom.js'
-import { stato } from '../state.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { checkDelCorso, spunteCheCadono } from '#core/dominio/check.js'
+import { formattaData, oggi } from '#core/dominio/dates.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Allievo, ColonnaCheck, Iso } from '#core/dominio/models.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, pulsante, quieto } from '#ui/pannello/components/base.js'
+import { apriModale, conferma } from '#ui/pannello/components/modal.js'
+import { h, rimpiazza } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 
 import { fuocoSullaPresa, presaDiRiga, riordinatore, salva, spostaVoce, testo } from './common.js'
 import { testi } from './check.testi.js'

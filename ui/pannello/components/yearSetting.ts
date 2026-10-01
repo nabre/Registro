@@ -6,9 +6,9 @@
 // I controlli passano dalla delega del pannello (`gestisci`): un nodo che il
 // ridisegno riusa prende i gestori del disegno nuovo.
 
-import { campo, type SpecCampo, type ValoreCampo } from '../../../core/controlli/field.js'
-import type { Esito } from '../../../core/controlli/control.js'
-import { gestisci, h, type Figlio } from '../dom.js'
+import { campo, type SpecCampo, type ValoreCampo } from '#core/controlli/field.js'
+import type { Esito } from '#core/controlli/control.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
 import { suggerimento } from './hint.js'
 import { testi } from './yearSetting.testi.js'
 

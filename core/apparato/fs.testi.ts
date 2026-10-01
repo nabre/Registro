@@ -1,6 +1,6 @@
 // Errori dei file. Minuscoli perché finiscono in coda a un altro messaggio.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonTrovato: (dove: string) => `file non trovato: ${dove}`,

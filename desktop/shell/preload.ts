@@ -3,7 +3,7 @@
 
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
-import { CANALE, CANALE_INTERFACCIA, CANALE_LINGUA, haDiscriminanteCanale } from '../apparato/channels.js'
+import { CANALE, CANALE_INTERFACCIA, CANALE_LINGUA, haDiscriminanteCanale } from '#desktop/apparato/channels.js'
 
 // Ripristina le preferenze locali e salva subito ogni modifica, anche prima della chiusura.
 let stato: unknown = ipcRenderer.sendSync(CANALE_INTERFACCIA, 'leggi')

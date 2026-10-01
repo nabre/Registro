@@ -2,7 +2,7 @@
 // svolgimento e osservazioni, piani. Una chiave per sezione (`TestiSezione`,
 // testa di `types.ts`); struttura in `lesson.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CARTE,
   FASCIA,
@@ -13,8 +13,8 @@ import {
   corto,
   del,
   un,
-} from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+} from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

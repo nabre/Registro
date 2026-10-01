@@ -3,19 +3,19 @@
 // tutti con `schedaDiFogli` e `rigaFoglio`; cambia solo da dove si prendono
 // gli oggetti.
 
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../../core/dominio/calculations.js'
-import { classeDelCorsoId, registroDelCorso } from '../../../../core/dominio/courses.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { progettiDelCorso } from '../../../../core/dominio/projects.js'
-import type { Allievo, Classe, Corso, Progetto } from '../../../../core/dominio/models.js'
-import { pulsante, quieto, selettore } from '../../components/base.js'
-import { h, type Figlio } from '../../dom.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { classeDelCorsoId, registroDelCorso } from '#core/dominio/courses.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
+import type { Allievo, Classe, Corso, Progetto } from '#core/dominio/models.js'
+import { pulsante, quieto, selettore } from '#ui/pannello/components/base.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import {
   aggiorna,
   nelSemestreScelto,
   nomeSemestreScelto,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 
 import {
   conto,

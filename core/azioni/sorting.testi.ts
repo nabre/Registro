@@ -1,7 +1,7 @@
 // I testi di `sorting.ts`: lo smistamento dei PDF, le pagine e i ritagli.
 
-import { catalogo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Il nome del ritaglio che si apre nel lettore: «Firme pagine 4-6.pdf». */

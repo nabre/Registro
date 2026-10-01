@@ -8,7 +8,7 @@
 // Nomi di attrezzi e campi («vista_apri», «guardate», corsoId, dal/al) sono
 // identificatori e restano uguali in ogni lingua.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Il prompt di sistema: la prima riga e l'ultima dicono la lingua. */

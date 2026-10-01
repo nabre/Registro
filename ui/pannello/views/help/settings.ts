@@ -22,7 +22,7 @@ import {
   testo,
   type Tono,
 } from './drawing.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './settings.testi.js'
 import { sezione, type SezioneGuida } from './types.js'
 

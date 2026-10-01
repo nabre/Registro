@@ -1,6 +1,6 @@
 // I testi della mappa disegnata (`map.ts`): il suggerimento di un tragitto.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   tragitto: (chi: string, distanza: string) => `${chi}: da casa al posto di lavoro, ${distanza}`,

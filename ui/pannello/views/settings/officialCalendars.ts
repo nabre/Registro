@@ -4,18 +4,18 @@
 // `bozzaDaAnnoUfficiale`, cioè `periodiImportabili`: quel che si vede qui è
 // quel che arriva nel documento.
 
-import { pastiglia, quieto, scheda, selettore } from '../../components/base.js'
-import { tabella } from '../../components/table.js'
-import { h } from '../../dom.js'
-import { etichettaAnno, formattaData, oggi } from '../../../../core/dominio/dates.js'
+import { pastiglia, quieto, scheda, selettore } from '#ui/pannello/components/base.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { h } from '#ui/pannello/dom.js'
+import { etichettaAnno, formattaData, oggi } from '#core/dominio/dates.js'
 import {
   CALENDARI_UFFICIALI,
   periodiImportabili,
   type AnnoUfficiale,
   type CalendarioUfficiale,
-} from '../../../../core/dominio/schoolCalendar.js'
-import { testi as testiCalendario } from '../../../../core/dominio/schoolCalendar.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+} from '#core/dominio/schoolCalendar.js'
+import { testi as testiCalendario } from '#core/dominio/schoolCalendar.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './officialCalendars.testi.js'
 
 /** Il nome del file del PDF, per il collegamento: l'indirizzo intero sta nel titolo. */

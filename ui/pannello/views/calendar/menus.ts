@@ -3,18 +3,18 @@
 // Su un'ora — lo stato, il piano e, in modifica, l'orario — e sul vuoto di un
 // giorno. Settimana, mese e agenda aprono gli stessi menu.
 
-import { fineLezione, inizioLezione, lezioneFinita } from '../../../../core/dominio/calculations.js'
-import { lezioneCompilata } from '../../../../core/dominio/courses.js'
-import { formattaData, oraDaMinuti, sommaGiorni } from '../../../../core/dominio/dates.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import type { NomeIcona } from '../../components/icons.js'
-import { ancorataAIcs } from '../../externalCalendar.js'
-import { moduloLezione, sincronizzaDaIcs } from '../../forms.js'
-import { conferma } from '../../components/modal.js'
-import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
-import { notifica } from '../../components/notifications.js'
-import { azione } from '../../bridge.js'
-import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato, vai } from '../../state.js'
+import { fineLezione, inizioLezione, lezioneFinita } from '#core/dominio/calculations.js'
+import { lezioneCompilata } from '#core/dominio/courses.js'
+import { formattaData, oraDaMinuti, sommaGiorni } from '#core/dominio/dates.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
+import { ancorataAIcs } from '#ui/pannello/externalCalendar.js'
+import { moduloLezione, sincronizzaDaIcs } from '#ui/pannello/forms.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { menuContestuale, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { aggiorna, nomeClasseDiLezione, nomeCorso, pianoPerId, stato, vai } from '#ui/pannello/state.js'
 import { apriLezione } from './common.js'
 import { posa } from './drag.js'
 import {
@@ -29,7 +29,7 @@ import {
   inModifica,
   scegli,
 } from './editor.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './menus.testi.js'
 
 /**

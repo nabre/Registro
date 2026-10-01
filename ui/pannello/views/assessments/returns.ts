@@ -2,10 +2,10 @@
 // I voti si mettono nella griglia; da qui si segna solo che la prova è tornata
 // alla classe, l'unica cosa che il registro non sa dedurre.
 
-import { Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import type { Lezione, MomentoValutazione } from '../../../../core/dominio/models.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Lezione, MomentoValutazione } from '#core/dominio/models.js'
 import {
   GIORNI_PER_RICONSEGNARE,
   type Riconsegna,
@@ -13,12 +13,12 @@ import {
   type StatoRiconsegna,
   riconsegnaDelMomento,
   riconsegneDegliAllievi,
-} from '../../../../core/dominio/returns.js'
-import { formattaVoto, nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { type Recupero, recuperiDelMomento } from '../../../../core/dominio/retakes.js'
+} from '#core/dominio/returns.js'
+import { formattaVoto, nomeCompleto } from '#core/dominio/calculations.js'
+import { type Recupero, recuperiDelMomento } from '#core/dominio/retakes.js'
 import { gruppoRecuperi } from './retakes.js'
 import { grigliaVoti } from './grades.js'
-import { allieviAttivi } from '../../../../core/dominio/calculations.js'
+import { allieviAttivi } from '#core/dominio/calculations.js'
 import {
   controlloData,
   dataInLinea,
@@ -26,19 +26,19 @@ import {
   pulsante,
   scheda,
   titoloGruppo,
-} from '../../components/base.js'
-import { eseguiOAvvisa } from '../../components/filters.js'
-import { h, type Figlio } from '../../dom.js'
-import { apriMomento } from '../../calendarNavigation.js'
-import { corsoPendenza, pendenza } from '../../components/pending.js'
-import { tabella } from '../../components/table.js'
-import { cellaNome } from '../../components/avatar.js'
+} from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { apriMomento } from '#ui/pannello/calendarNavigation.js'
+import { corsoPendenza, pendenza } from '#ui/pannello/components/pending.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
 import {
   classeDiLezione,
   classeDiMomento,
   nomeCorso,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import { testi } from './returns.testi.js'
 
 type Tono = 'negativo' | 'attenzione' | 'informativo' | 'positivo' | 'quiete'

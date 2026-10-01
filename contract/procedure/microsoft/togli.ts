@@ -1,6 +1,6 @@
-import { microsoft } from '../../../core/azioni/microsoft.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, testo } from '../../schemas.js'
+import { microsoft } from '#core/azioni/microsoft.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, testo } from '#contract/schemas.js'
 import { testi } from './microsoft.testi.js'
 
 export const procedura = scrittura({

@@ -1,7 +1,7 @@
 // I testi della pagina delle impostazioni del programma (`settings/program.ts`).
 // Nomi e descrizioni delle voci li scrive il manifesto.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   tornaAlPredefinito: (nome: string) => `${nome}: torna al predefinito.`,

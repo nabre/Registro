@@ -7,7 +7,7 @@
 // sua lettera vuole: in tedesco è un accusativo, «Im Anhang finden Sie den
 // Absenzenbericht».
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { PERSONE } from './lexicon.js'
 import type { TipoRapporto } from './models.js'
 

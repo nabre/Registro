@@ -3,12 +3,12 @@
 // caselle della matrice delle assenze. Lo sfoglio da cui partono, e la memoria
 // del volo in corso, stanno in `pageBrowser.ts`.
 
-import { dicePagine } from '../../../../core/dominio/sorting.js'
-import type { Consegna, TipoRapporto } from '../../../../core/dominio/models.js'
-import { gestisci } from '../../dom.js'
-import { notifica } from '../../components/notifications.js'
-import { azione } from '../../bridge.js'
-import { aggiorna, stato } from '../../state.js'
+import { dicePagine } from '#core/dominio/sorting.js'
+import type { Consegna, TipoRapporto } from '#core/dominio/models.js'
+import { gestisci } from '#ui/pannello/dom.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { aggiorna, stato } from '#ui/pannello/state.js'
 import { testi } from './pageBrowser.testi.js'
 import {
   CASELLA_BERSAGLIO,

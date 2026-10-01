@@ -4,11 +4,11 @@
 // possono passare nell'ingresso: così la finestra di revisione mostra
 // l'effetto di una scelta prima di salvarla.
 
-import { confrontaCalendario } from '../../../core/dominio/calendar.js'
-import { leggiCalendario } from '../../../core/dominio/calendarIcs.js'
-import { annoInUso } from '../../../core/dominio/years.js'
-import { testoDelCalendario } from '../../../core/dati/calendar.js'
-import { definisci, errore } from '../../contract.js'
+import { confrontaCalendario } from '#core/dominio/calendar.js'
+import { leggiCalendario } from '#core/dominio/calendarIcs.js'
+import { annoInUso } from '#core/dominio/years.js'
+import { testoDelCalendario } from '#core/dati/calendar.js'
+import { definisci, errore } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -20,9 +20,9 @@ import {
   opzionale,
   ora,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import { CALENDARIO_ID, calendarioDaLeggere, FASCIA, REGOLA } from './common.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './calendario.testi.js'
 
 const t = () => testi().confronta

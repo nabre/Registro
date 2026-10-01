@@ -1,7 +1,7 @@
 // I testi di `map.ts`: com'è andato un giro di ricerca degli indirizzi.
 
-import { catalogo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   nessunaClasse: 'Non c’è nessuna classe da mettere sulla mappa.',

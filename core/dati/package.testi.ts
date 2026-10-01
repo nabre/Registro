@@ -1,7 +1,7 @@
 // I testi di `package.ts`: perché un documento `.regi` non si apre.
 // Il nome del file, già con l'estensione, sta in testa alla frase.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonDocumento: (file: string) =>

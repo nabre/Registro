@@ -1,7 +1,7 @@
 // L'elenco dei comandi e lo schema delle impostazioni, in un posto solo: menu,
 // finestra delle impostazioni e valori predefiniti nascono tutti da qui.
 
-import { LINGUE, NOMI_DELLE_LINGUE, SCELTA_SISTEMA, conMaiuscola, locale, èLingua, type Lingua } from '../core/i18n/index.js'
+import { LINGUE, NOMI_DELLE_LINGUE, SCELTA_SISTEMA, conMaiuscola, locale, èLingua, type Lingua } from '#core/i18n/index.js'
 import { testi } from './manifest.testi.js'
 
 // ------------------------------------------------------------------ i comandi

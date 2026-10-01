@@ -9,19 +9,19 @@
 // La fine di un compito no: è una scadenza, come quella delle consegne, e può
 // cadere in un'ora qualunque del corso.
 
-import { allieviAttivi } from '../dominio/calculations.js'
-import { istanteAdesso, oggi } from '../dominio/dates.js'
-import { nuovoIdCompitoProgetto, nuovoIdGiudizioProgetto } from '../dominio/identifiers.js'
-import type { Allievo, FaseProgetto, Iso, Lezione, Progetto, Registro } from '../dominio/models.js'
-import { normalizzaProgetto } from '../dominio/normalization.js'
+import { allieviAttivi } from '#core/dominio/calculations.js'
+import { istanteAdesso, oggi } from '#core/dominio/dates.js'
+import { nuovoIdCompitoProgetto, nuovoIdGiudizioProgetto } from '#core/dominio/identifiers.js'
+import type { Allievo, FaseProgetto, Iso, Lezione, Progetto, Registro } from '#core/dominio/models.js'
+import { normalizzaProgetto } from '#core/dominio/normalization.js'
 import {
   cellaVuota,
   celleDi,
   progettoPerId,
   ripulisciMatrice,
-} from '../dominio/projects.js'
-import { normalizzaTesto } from '../dominio/text.js'
-import { validaProgetto } from '../dominio/validation.js'
+} from '#core/dominio/projects.js'
+import { normalizzaTesto } from '#core/dominio/text.js'
+import { validaProgetto } from '#core/dominio/validation.js'
 import {
   aOraAperta,
   cestina,

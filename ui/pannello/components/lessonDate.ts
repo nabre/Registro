@@ -4,9 +4,9 @@
 // stile le disegna in maiuscoletto. Dove non c'è stile — una voce di menu, un
 // `title`, un `aria-label` — si usa `formattaData(iso, 'settimana')`.
 
-import { formattaData, giornoTreLettere } from '../../../core/dominio/dates.js'
-import type { Iso } from '../../../core/dominio/models.js'
-import { h } from '../dom.js'
+import { formattaData, giornoTreLettere } from '#core/dominio/dates.js'
+import type { Iso } from '#core/dominio/models.js'
+import { h } from '#ui/pannello/dom.js'
 
 /**
  * La data di una lezione come nodo. `stile` è quello di `formattaData` per la

@@ -1,7 +1,7 @@
 // I testi di `deletions.ts`: il bersaglio, che cosa se ne va, che cosa resta
 // staccato. Ogni voce è una riga intera della domanda, numero e accordo compresi.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { CARTE, PIF, quanti } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import { plurale } from './text.js'

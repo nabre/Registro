@@ -1,8 +1,8 @@
-import { progetti } from '../../../../core/azioni/projects.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { elenco, identificatore, oggetto } from '../../../schemas.js'
-import { esigiCompito } from '../common.js'
-import { testi } from '../progetti.testi.js'
+import { progetti } from '#core/azioni/projects.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { elenco, identificatore, oggetto } from '#contract/schemas.js'
+import { esigiCompito } from '#contract/procedure/progetti/common.js'
+import { testi } from '#contract/procedure/progetti/progetti.testi.js'
 
 const c = () => testi().comune
 const t = () => testi().compito.togliInizio

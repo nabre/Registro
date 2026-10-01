@@ -8,7 +8,7 @@
 // chiave `svolta` salvata); gli altri valori salvati (tipo di attività) escono
 // come sono in italiano, col nome del lessico nelle altre lingue.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { PERSONE, PIF, corto, del } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import type {

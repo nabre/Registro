@@ -1,6 +1,6 @@
 // I testi di `forms/timetable.ts`: l'editor delle fasce fisse di un corso.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   udASettimana: (ud: number, sigla: string, durata: string) =>

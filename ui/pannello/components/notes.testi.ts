@@ -1,8 +1,8 @@
 // I testi del grafico delle note (`notes.ts`): la riga dei conti sopra l'asse
 // e il suggerimento di ogni punto.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   media: ' media',

@@ -2,7 +2,7 @@
 // (`dictation.ts`), e quel che voicebox risponde quando non trascrive
 // (`voicebox.ts`). «voicebox» è il nome del programma e resta quello.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ dictation.ts

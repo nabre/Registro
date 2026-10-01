@@ -1,9 +1,9 @@
 // I testi della pagina della mappa (`map.ts`): la testata, l'elenco degli
 // indirizzi e il cartellino di un segnaposto.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF, del, quanti } from '../../../core/dominio/lexicon.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, del, quanti } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: 'Mappa',

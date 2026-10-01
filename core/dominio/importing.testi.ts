@@ -1,6 +1,6 @@
 // I testi di `importing.ts`: che cosa ha portato un import e quali classi ha saltato.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { plurale } from './text.js'
 
 const it = {

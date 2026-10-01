@@ -1,6 +1,6 @@
 // I testi dei menu del tasto destro del calendario (`menus.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   sincronizza: 'Sincronizza da ICS',

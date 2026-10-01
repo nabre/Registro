@@ -1,6 +1,6 @@
 // I testi dei recapiti premibili (`contacts.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   chiama: (numero: string) => `Chiama ${numero}`,

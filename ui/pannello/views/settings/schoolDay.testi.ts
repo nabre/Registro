@@ -1,9 +1,9 @@
 // I testi della giornata di scuola (`settings/schoolDay.ts`). Le pause hanno il
 // loro catalogo, `dayBreaks.testi.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { LEZIONE, Maiuscola, Uno } from '../../../../core/dominio/lexicon.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { LEZIONE, Maiuscola, Uno } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   nuovaUdTitolo: (minuti: number) => `Unità didattica da ${minuti} minuti?`,

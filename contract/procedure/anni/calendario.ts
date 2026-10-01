@@ -1,7 +1,7 @@
-import { registro } from '../../../core/azioni/register.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, identificatore, oggetto } from '../../schemas.js'
-import { esigiAnno } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, oggetto } from '#contract/schemas.js'
+import { esigiAnno } from '#contract/procedure/common/register.js'
 import { testi } from './anni.testi.js'
 
 const t = () => testi().calendario

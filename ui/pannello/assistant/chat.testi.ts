@@ -2,7 +2,7 @@
 // lette (`result.ts`) e il microfono (`voice.ts`). «Ferma» sta qui con la riga
 // che lo cita fra virgolette.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // ------------------------------------------------------------ il filo

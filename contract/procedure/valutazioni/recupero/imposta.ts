@@ -1,8 +1,8 @@
-import { valutazioni } from '../../../../core/azioni/assessments.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { booleano, identificatore, iso, nullabile, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiMomento } from '../common.js'
-import { testi } from '../valutazioni.testi.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, iso, nullabile, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiMomento } from '#contract/procedure/valutazioni/common.js'
+import { testi } from '#contract/procedure/valutazioni/valutazioni.testi.js'
 
 const t = () => testi().recupero.imposta
 

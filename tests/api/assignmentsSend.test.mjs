@@ -44,7 +44,7 @@ export async function contenutoDi () { return new Uint8Array([37, 80, 68, 70]) }
 const finti = {
   name: 'posta-e-deposito-finti',
   setup (costruzione) {
-    costruzione.onResolve({ filter: /^\.\.\/dati\/(mail|store)\.js$/ }, (args) => {
+    costruzione.onResolve({ filter: /^#core\/dati\/(mail|store)\.js$/ }, (args) => {
       if (!args.importer.replaceAll('\\', '/').endsWith('core/azioni/assignments.ts')) return undefined
       return { path: args.path.includes('mail') ? 'posta' : 'deposito', namespace: 'finti' }
     })

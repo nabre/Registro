@@ -11,19 +11,19 @@ import {
   colonneCheckDi,
   conColonnaCheck,
   verificaColonna,
-} from '../../../core/dominio/activities.js'
+} from '#core/dominio/activities.js'
 import {
   avanzamentoConsegna,
   consegneDelCorso,
   scadenzaConsegna,
-} from '../../../core/dominio/assignments.js'
-import { checkDelCorso } from '../../../core/dominio/check.js'
-import { confrontaLezioni, udDaMinutiAttivita } from '../../../core/dominio/calculations.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import { creaAttivita, creaPiano } from '../../../core/dominio/factories.js'
-import type { Attivita, Consegna, Corso, Lezione, MomentoValutazione, PianoLezione } from '../../../core/dominio/models.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+} from '#core/dominio/assignments.js'
+import { checkDelCorso } from '#core/dominio/check.js'
+import { confrontaLezioni, udDaMinutiAttivita } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { creaAttivita, creaPiano } from '#core/dominio/factories.js'
+import type { Attivita, Consegna, Corso, Lezione, MomentoValutazione, PianoLezione } from '#core/dominio/models.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { testi } from './plans.testi.js'
 import {
   avviso,
@@ -33,16 +33,16 @@ import {
   scheda,
   statoVuoto,
   testataVista,
-} from '../components/base.js'
-import { notifica } from '../components/notifications.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { corsoDelContesto } from '../context.js'
-import { icona } from '../components/icons.js'
-import { dataDiLezione } from '../components/lessonDate.js'
-import { h, rimpiazza, type Figlio } from '../dom.js'
-import { editorPiano, moduloAnno, moduloAssegnaPiano } from '../forms.js'
-import { azione, invia } from '../bridge.js'
-import { apriMomento } from '../calendarNavigation.js'
+} from '#ui/pannello/components/base.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { corsoDelContesto } from '#ui/pannello/context.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, rimpiazza, type Figlio } from '#ui/pannello/dom.js'
+import { editorPiano, moduloAnno, moduloAssegnaPiano } from '#ui/pannello/forms.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
+import { apriMomento } from '#ui/pannello/calendarNavigation.js'
 import {
   annoCorrente,
   classeDelCorsoId,
@@ -54,8 +54,8 @@ import {
   pianoPerId,
   stato,
   vai,
-} from '../state.js'
-import { apriLezione } from '../pages.js'
+} from '#ui/pannello/state.js'
+import { apriLezione } from '#ui/pannello/pages.js'
 import { navigatorePiani, oreDelCorso, pianiSciolti, pianiSenzaCorso } from './plansNavigator.js'
 
 /**

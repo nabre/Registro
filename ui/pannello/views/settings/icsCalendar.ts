@@ -6,28 +6,28 @@
 // L'origine può contenere un gettone d'accesso: a schermo solo il sito, il link
 // intero solo nel campo per cambiarlo, mai in una notifica.
 
-import { criterioRegola } from '../../../../core/dominio/calendarRules.js'
-import { istante } from '../../../../core/i18n/index.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { nuovoIdRegolaCalendario } from '../../../../core/dominio/identifiers.js'
+import { criterioRegola } from '#core/dominio/calendarRules.js'
+import { istante } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { nuovoIdRegolaCalendario } from '#core/dominio/identifiers.js'
 import type {
   CalendarioEsterno,
   Impostazioni,
   RegolaCalendario,
   SorgenteCalendario,
-} from '../../../../core/dominio/models.js'
-import { nomeDaOrigine } from '../../../../core/dominio/normalization.js'
-import { campo, pastiglia, pulsante, scheda, statoVuoto } from '../../components/base.js'
-import { notificaAnnullabile } from '../../components/undoable.js'
-import { suggerimento } from '../../components/hint.js'
-import { apriModale, conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { azione, invia } from '../../bridge.js'
-import { iscriviti, ridisegna, stato, vai } from '../../state.js'
-import { moduloCalendario } from '../../forms.js'
-import { opzioniCorsi } from '../../forms/common.js'
-import { contiDelleRegole, segnoConteggio } from '../../ruleCounts.js'
+} from '#core/dominio/models.js'
+import { nomeDaOrigine } from '#core/dominio/normalization.js'
+import { campo, pastiglia, pulsante, scheda, statoVuoto } from '#ui/pannello/components/base.js'
+import { notificaAnnullabile } from '#ui/pannello/components/undoable.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { apriModale, conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
+import { iscriviti, ridisegna, stato, vai } from '#ui/pannello/state.js'
+import { moduloCalendario } from '#ui/pannello/forms.js'
+import { opzioniCorsi } from '#ui/pannello/forms/common.js'
+import { contiDelleRegole, segnoConteggio } from '#ui/pannello/ruleCounts.js'
 import { testi } from './icsCalendar.testi.js'
 
 /** Il valore della tendina che dice «non è una lezione». */

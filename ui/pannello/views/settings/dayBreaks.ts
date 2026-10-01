@@ -7,16 +7,16 @@
 // e la notifica ha «Annulla». In fondo, fra le avanzate, la durata proposta
 // per una pausa nuova.
 
-import { LIMITI_PAUSE, pauseDellaGiornata } from '../../../../core/dominio/breaks.js'
-import { sommaMinuti } from '../../../../core/dominio/dates.js'
-import type { Esito } from '../../../../core/controlli/control.js'
-import type { PausaSeguente, PauseGiornata } from '../../../../core/dominio/models.js'
-import { notificaAnnullabile } from '../../components/undoable.js'
-import { campo, pastiglia, pulsante, riga, scheda, statoVuoto } from '../../components/base.js'
-import { notifica } from '../../components/notifications.js'
-import { avanzateAnno, campoAnno, voceAnno } from '../../components/yearSetting.js'
-import { h } from '../../dom.js'
-import { stato } from '../../state.js'
+import { LIMITI_PAUSE, pauseDellaGiornata } from '#core/dominio/breaks.js'
+import { sommaMinuti } from '#core/dominio/dates.js'
+import type { Esito } from '#core/controlli/control.js'
+import type { PausaSeguente, PauseGiornata } from '#core/dominio/models.js'
+import { notificaAnnullabile } from '#ui/pannello/components/undoable.js'
+import { campo, pastiglia, pulsante, riga, scheda, statoVuoto } from '#ui/pannello/components/base.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { avanzateAnno, campoAnno, voceAnno } from '#ui/pannello/components/yearSetting.js'
+import { h } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 import { oraBattuta, salvaConEsito } from './document.js'
 import { testi } from './dayBreaks.testi.js'
 

@@ -11,8 +11,8 @@
 //
 // La distanza è `distanzaKm` del dominio, la stessa dei cartellini della mappa.
 
-import { allieviAttivi, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import type { Coordinate } from '../../../core/dominio/map.js'
+import { allieviAttivi, ordinaAllievi } from '#core/dominio/calculations.js'
+import type { Coordinate } from '#core/dominio/map.js'
 import {
   coordinataDi,
   distanzaKm,
@@ -20,8 +20,8 @@ import {
   rubricaDi,
   scriviCoordinate,
   SEDE,
-} from '../../../core/dominio/map.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/map.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -32,7 +32,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_PAGINA,
@@ -46,8 +46,8 @@ import {
   rigaPersona,
   taglia,
   zona,
-} from '../common/filters.js'
-import { esigiClasse, esigiPersona } from '../common/register.js'
+} from '#contract/procedure/common/filters.js'
+import { esigiClasse, esigiPersona } from '#contract/procedure/common/register.js'
 import { testi } from './mappa.testi.js'
 
 const t = () => testi().elenco

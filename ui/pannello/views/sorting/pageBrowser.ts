@@ -12,35 +12,35 @@
 // perché Chromium annulla il trascinamento di un elemento tolto dal documento;
 // le fotografie sono nodi tenuti (`data-tieni`) e non si ridecodificano.
 
-import { etichettaFoglio } from '../../../../core/dominio/absences.js'
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { dicePagine } from '../../../../core/dominio/sorting.js'
-import { conferma } from '../../components/modal.js'
+import { etichettaFoglio } from '#core/dominio/absences.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { dicePagine } from '#core/dominio/sorting.js'
+import { conferma } from '#ui/pannello/components/modal.js'
 import type {
   Allievo,
   Consegna,
   PaginaSmistamento,
   RiquadroPagina,
   Smistamento,
-} from '../../../../core/dominio/models.js'
-import { campo, pastiglia, pulsante } from '../../components/base.js'
-import { icona } from '../../components/icons.js'
-import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
-import { apriModale } from '../../components/modal.js'
+} from '#core/dominio/models.js'
+import { campo, pastiglia, pulsante } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { menuContestuale, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
 import {
   impostaCaratteri,
   miniatura,
   miniaturaAllaMisura,
   miniaturaPronta,
-} from '../../components/thumbnails.js'
-import { notifica } from '../../components/notifications.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { azione } from '../../bridge.js'
-import { isola, ridisegnaIsola } from '../../islands.js'
-import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, ricorda, stato, uriDato } from '../../state.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { Uno } from '../../../../core/dominio/lexicon.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+} from '#ui/pannello/components/thumbnails.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { isola, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { MISURE_SFOGLIO, ZOOM_PREDEFINITO, aggiorna, ricorda, stato, uriDato } from '#ui/pannello/state.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './pageBrowser.testi.js'
 
 /**

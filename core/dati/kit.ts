@@ -27,7 +27,7 @@ import { pipeline } from 'node:stream/promises'
 
 import { cartellaApplicazione } from './appData.js'
 import { apriZip } from './zip.js'
-import { detto, type TestoPigro } from '../i18n/index.js'
+import { detto, type TestoPigro } from '#core/i18n/index.js'
 import { testi } from './gguf.testi.js'
 
 /** Il suffisso di quel che sta ancora scendendo. */

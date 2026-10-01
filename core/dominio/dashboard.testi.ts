@@ -1,6 +1,6 @@
 // I testi di `dashboard.ts`: perché un'ora passata è rimasta aperta, a parole.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaAppello: 'senza appello',

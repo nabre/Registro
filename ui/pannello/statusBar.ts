@@ -6,8 +6,8 @@
 // voce che non ha niente da dire non compare: una barra sempre uguale smette
 // di essere letta.
 
-import { numeroDellaLezione } from '../../core/dominio/courses.js'
-import { formattaData } from '../../core/dominio/dates.js'
+import { numeroDellaLezione } from '#core/dominio/courses.js'
+import { formattaData } from '#core/dominio/dates.js'
 import { icona, type NomeIcona } from './components/icons.js'
 import { alternaMenuSotto, tendinaAperta } from './components/menu.js'
 import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'

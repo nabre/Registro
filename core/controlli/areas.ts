@@ -4,7 +4,7 @@
 // nativa, che senza documento aperto è l'unica superficie e deve dire le cose
 // come le dice lui. Senza DOM.
 
-import type { VoceProgramma } from '../../contract/protocol.js'
+import type { VoceProgramma } from '#contract/protocol.js'
 import { testi } from './areas.testi.js'
 
 /** Le quattro aree, nell'ordine delle schede del pannello. */

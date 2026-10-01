@@ -13,7 +13,7 @@ import { statSync } from 'node:fs'
 
 import { daSé, programmaScaricato, scaricaCorredo } from './visionKit.js'
 import type { Collegamento, Domanda, Motore } from './llm.js'
-import { senzaVirgolette } from '../dominio/text.js'
+import { senzaVirgolette } from '#core/dominio/text.js'
 import { testi } from './mtmd.testi.js'
 
 /** Dove si prende il programma, per chi non ce l'ha. */

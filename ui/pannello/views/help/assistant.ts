@@ -5,7 +5,7 @@
 // della pagina in `../help.ts`, il vocabolario delle figure in `drawing.ts`.
 // Come si divide una pagina fra i due file sta in testa a `types.ts`.
 
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './assistant.testi.js'
 import {
   bollino,

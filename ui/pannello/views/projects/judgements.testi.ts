@@ -1,6 +1,6 @@
 // I testi di `views/projects/judgements.ts`: i giudizi di un progetto.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   segnaposto: 'Un giudizio al volo: Invio lo aggiunge',

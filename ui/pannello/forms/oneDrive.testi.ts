@@ -1,6 +1,6 @@
 // I testi della finestra che sfoglia OneDrive (`oneDrive.ts`).
 
-import { catalogo, perNumero } from '../../../core/i18n/index.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
 
 const it = {
   titolo: 'Apri da OneDrive',

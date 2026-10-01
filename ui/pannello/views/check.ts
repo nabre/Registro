@@ -5,7 +5,7 @@
 // dell'ora, e sta solo qui; anche la casella singola (`casellaDelCheck`) per la
 // scheda della persona.
 
-import { allieviAttivi, nomeCompleto } from '../../../core/dominio/calculations.js'
+import { allieviAttivi, nomeCompleto } from '#core/dominio/calculations.js'
 import {
   allieviDelCheck,
   checkDelCorso,
@@ -13,8 +13,8 @@ import {
   gestoDelClic,
   riepilogoDelCheck,
   spuntaDelCheck,
-} from '../../../core/dominio/check.js'
-import { formattaData } from '../../../core/dominio/dates.js'
+} from '#core/dominio/check.js'
+import { formattaData } from '#core/dominio/dates.js'
 import type {
   Allievo,
   Check,
@@ -23,22 +23,22 @@ import type {
   Iso,
   Lezione,
   SpuntaCheck,
-} from '../../../core/dominio/models.js'
-import { Molti, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { collegamento, pulsante, scheda, statoVuoto, testataVista } from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { icona } from '../components/icons.js'
-import { frecceNellaGriglia } from '../components/gridArrows.js'
-import { statoInVolo } from '../components/inFlight.js'
-import { menuContestuale, menuSotto, type ElementoMenu } from '../components/menu.js'
-import { conferma } from '../components/modal.js'
-import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from '../context.js'
-import { h, type Figlio } from '../dom.js'
-import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '../forms/check.js'
-import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '../forms.js'
-import { azione } from '../bridge.js'
+} from '#core/dominio/models.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { collegamento, pulsante, scheda, statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { frecceNellaGriglia } from '#ui/pannello/components/gridArrows.js'
+import { statoInVolo } from '#ui/pannello/components/inFlight.js'
+import { menuContestuale, menuSotto, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from '#ui/pannello/context.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '#ui/pannello/forms/check.js'
+import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   annoCorrente,
   classePerId,
@@ -47,8 +47,8 @@ import {
   lezioniDiCorso,
   stato,
   vai,
-} from '../state.js'
-import { inTelaio, tabella } from '../components/table.js'
+} from '#ui/pannello/state.js'
+import { inTelaio, tabella } from '#ui/pannello/components/table.js'
 import { testi } from './check.testi.js'
 
 // ------------------------------------------------------------------ il quando

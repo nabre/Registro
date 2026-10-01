@@ -1,8 +1,8 @@
 // I testi della pagina della guida (`help.ts`). Le sezioni hanno i loro
 // cataloghi in `help/`.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 import type { ParteGuida } from './help/types.js'
 
 const it = {

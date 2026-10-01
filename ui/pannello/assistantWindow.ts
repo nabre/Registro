@@ -5,7 +5,7 @@
 // aperta non porta addosso i dati di nessuno.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../core/i18n/page.js'
+import '#core/i18n/page.js'
 import './styles-assistant.css'
 
 import {

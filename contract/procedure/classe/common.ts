@@ -1,11 +1,11 @@
 // Guardie, elenchi di valori e pezzi di schema delle procedure di `classe`.
 
-import { trovaBloccoAssenze } from '../../../core/dominio/absences.js'
-import { fascicoloDellaClasse } from '../../../core/dominio/courses.js'
-import type { TipoRapporto } from '../../../core/dominio/models.js'
-import { errore, type Ambito } from '../../contract.js'
-import { esaustivo } from '../../schemas.js'
-import { esigiClasse } from '../common/register.js'
+import { trovaBloccoAssenze } from '#core/dominio/absences.js'
+import { fascicoloDellaClasse } from '#core/dominio/courses.js'
+import type { TipoRapporto } from '#core/dominio/models.js'
+import { errore, type Ambito } from '#contract/contract.js'
+import { esaustivo } from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
 
 /**
  * I due rapporti da far firmare: ore mancate ed entrate in ritardo. Scritti qui

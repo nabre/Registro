@@ -1,13 +1,13 @@
 // Un piano lezione per intero: obiettivi, tappe con la loro durata, che cosa
 // portare in aula. `piani.elenco` dice quanti sono; questa ne apre uno.
 
-import { nomeTipoAttivita } from '../../../core/dominio/activities.js'
-import { lezioneDelPianoNelRegistro, nomeDelPiano } from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
-import { booleano, elenco, identificatore, numero, oggetto, testo } from '../../schemas.js'
-import { esigiPiano } from '../common/plans.js'
-import { corto } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+import { nomeTipoAttivita } from '#core/dominio/activities.js'
+import { lezioneDelPianoNelRegistro, nomeDelPiano } from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
+import { booleano, elenco, identificatore, numero, oggetto, testo } from '#contract/schemas.js'
+import { esigiPiano } from '#contract/procedure/common/plans.js'
+import { corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { testi } from './piani.testi.js'
 
 const t = () => testi().leggi

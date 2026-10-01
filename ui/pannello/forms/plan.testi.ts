@@ -1,8 +1,8 @@
 // I testi di `forms/plan.ts`: l'editor di un piano lezione, gli avvisi che dà
 // aprendolo, e la finestra che assegna un piano a una lezione.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // Gli avvisi aprendo la modifica.

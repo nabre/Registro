@@ -6,19 +6,19 @@
 
 import * as apparato from 'apparato'
 
-import type { Archivio } from '../../core/dati/archive.js'
-import { adesso, minutiDaOra, oggi, oraDaMinuti } from '../../core/dominio/dates.js'
-import { oreCheCominciano, promemoriaDellOra } from '../../core/dominio/reminders.js'
+import type { Archivio } from '#core/dati/archive.js'
+import { adesso, minutiDaOra, oggi, oraDaMinuti } from '#core/dominio/dates.js'
+import { oreCheCominciano, promemoriaDellOra } from '#core/dominio/reminders.js'
 import {
   avvisa,
   dichiaraIdentita,
   finestraDavanti,
   notificheDisponibili,
-} from '../apparato/notifications.js'
-import { alberoProcedure } from '../../contract/router.js'
-import { chiamante, type ChiamanteNodo } from '../../contract/caller.js'
-import { linkDiretto } from '../../contract/link.js'
-import { minutiDiAvviso } from '../../contract/manifest.js'
+} from '#desktop/apparato/notifications.js'
+import { alberoProcedure } from '#contract/router.js'
+import { chiamante, type ChiamanteNodo } from '#contract/caller.js'
+import { linkDiretto } from '#contract/link.js'
+import { minutiDiAvviso } from '#contract/manifest.js'
 
 /** Ogni quanto si guarda l'orologio. */
 const BATTITO = 30_000

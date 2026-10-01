@@ -3,10 +3,10 @@
 // corsi partono trascinando. Stanno qui per essere provati; il disegno è in
 // `letterhead.ts`.
 
-import { Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import type { Classe, Corso, Materia } from '../../../../core/dominio/models.js'
-import { confrontaNomi } from '../../../../core/dominio/text.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Classe, Corso, Materia } from '#core/dominio/models.js'
+import { confrontaNomi } from '#core/dominio/text.js'
 import { testi } from './letterhead.testi.js'
 
 /** Un corso come lo mostra la sua pastiglia. */

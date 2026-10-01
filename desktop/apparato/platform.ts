@@ -1,7 +1,7 @@
 // Il modulo `apparato`: il contratto fra il registro e la macchina.
 // `desktop/apparato/platform.ts` impianta le capacità di Electron nell'apparato.
 
-import { impianta, type Impianto, Uri } from '../../core/apparato/platform.js'
+import { impianta, type Impianto, Uri } from '#core/apparato/platform.js'
 
 import { appunti, executeCommand, openExternal, registerCommand } from './commands.js'
 import { cartelleDiLavoro as cartelleAperte } from './context.js'
@@ -108,7 +108,7 @@ const impiantoElectron: Impianto = {
 
 impianta(impiantoElectron)
 
-export * from '../../core/apparato/platform.js'
+export * from '#core/apparato/platform.js'
 
 export { AmbitoImpostazione } from './settings.js'
 export type { CambioImpostazione, Configurazione } from './settings.js'

@@ -191,7 +191,7 @@ export default tseslint.config(
             // (core/dominio/words.testi.ts, che importa solo core/i18n/), perché
             // «Annulla» ed «Esci» dicano lo stesso del pannello, e i controlli
             // delle impostazioni (core/controlli/, ADR-52), disegnati una volta.
-            regex: String.raw`^(\.\./){2,}(?!(?:\.\./)*core/i18n/|(?:\.\./)*core/controlli/|(?:\.\./)*core/dominio/words\.testi\.js$)`,
+            regex: String.raw`^#(?!desktop/shell/pages/|core/i18n/|core/controlli/|core/dominio/words\.testi\.js$)`,
             allowTypeImports: true,
             message:
               'Le pagine native girano in una finestra: da fuori di shell/pages/ si importano ' +
@@ -223,7 +223,7 @@ export default tseslint.config(
             message: 'core/controlli/ disegna nel DOM di una pagina: Node, Electron e l’apparato non ci sono.',
           },
           {
-            regex: String.raw`^\.\./(?!i18n/|dominio/words\.testi\.js$)`,
+            regex: String.raw`^#(?!core/controlli/|core/i18n/|core/dominio/words\.testi\.js$)`,
             allowTypeImports: true,
             message:
               'core/controlli/ importa solo core/i18n/, le parole di tutti ' +

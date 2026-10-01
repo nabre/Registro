@@ -2,7 +2,7 @@
 // riconsegne, documenti, fogli. Una chiave per sezione (`TestiSezione`, testa
 // di `types.ts`); struttura in `grades.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CARTE,
   DOCUMENTO_SCHEDE,
@@ -10,9 +10,9 @@ import {
   PIF,
   Uno,
   VALUTAZIONE,
-} from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { testi as automazione } from '../../../../core/dominio/automation.testi.js'
+} from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { testi as automazione } from '#core/dominio/automation.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

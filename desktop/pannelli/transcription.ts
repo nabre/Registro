@@ -2,8 +2,8 @@
 // riquadro nel registro e la finestra staccata mandano la stessa busta).
 // Non tocca l'archivio: prende voce e torna testo, quindi sta fuori da ogni coda.
 
-import { trascrivi } from '../../core/dati/dictation.js'
-import type { Dettatura, MessaggioDettatura } from '../../contract/protocol.js'
+import { trascrivi } from '#core/dati/dictation.js'
+import type { Dettatura, MessaggioDettatura } from '#contract/protocol.js'
 
 /**
  * Trascrive l'audio del microfono e rimanda la frase. Non solleva mai: ogni

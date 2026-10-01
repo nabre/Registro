@@ -1,7 +1,7 @@
 // I testi del calendario ICS nel pannello (`externalCalendar.ts`): il guasto
 // di lettura e l'avviso dopo l'allineamento delle lezioni.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   guasto: (nome: string, motivo: string) => `«${nome}»: ${motivo}`,

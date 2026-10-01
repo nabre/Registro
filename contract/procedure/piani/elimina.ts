@@ -1,7 +1,7 @@
-import { piani } from '../../../core/azioni/plans.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
-import { esigiPiano } from '../common/plans.js'
+import { piani } from '#core/azioni/plans.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiPiano } from '#contract/procedure/common/plans.js'
 import { testi } from './piani.testi.js'
 
 export const procedura = scrittura({

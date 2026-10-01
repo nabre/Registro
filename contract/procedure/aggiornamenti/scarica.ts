@@ -1,9 +1,9 @@
 // Scarica la versione nuova già trovata, quando lo scarico automatico è spento.
 // Durante o dopo lo scarico non fa niente.
 
-import { aggiornamenti } from '../../../core/azioni/updates.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { aggiornamenti } from '#core/azioni/updates.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './aggiornamenti.testi.js'
 
 export const procedura = scrittura({

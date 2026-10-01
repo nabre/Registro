@@ -1,9 +1,9 @@
-import { registro } from '../../../core/azioni/register.js'
-import type { Materia } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
+import { registro } from '#core/azioni/register.js'
+import type { Materia } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { Uno } from '#core/dominio/lexicon.js'
 import { testi } from './materie.testi.js'
 
 /**

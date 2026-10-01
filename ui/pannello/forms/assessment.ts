@@ -3,20 +3,20 @@
 // piano che dichiara una prova, nella lezione in cui la si è fatta. Qui si
 // corregge quel che ne è uscito.
 
-import { formattaData } from '../../../core/dominio/dates.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { vociConValore } from '../../../core/dominio/lists.js'
-import { MOTIVI_ORFANO, motivoOrfano } from '../../../core/dominio/orphans.js'
-import { progettiDelCorso } from '../../../core/dominio/projects.js'
-import type { MomentoValutazione } from '../../../core/dominio/models.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, riga } from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { icona } from '../components/icons.js'
-import { apriModale } from '../components/modal.js'
-import { h } from '../dom.js'
-import { apriMomento } from '../calendarNavigation.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { vociConValore } from '#core/dominio/lists.js'
+import { MOTIVI_ORFANO, motivoOrfano } from '#core/dominio/orphans.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
+import type { MomentoValutazione } from '#core/dominio/models.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, riga } from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { apriMomento } from '#ui/pannello/calendarNavigation.js'
 import {
   lezionePerId,
   nomeCorso,
@@ -25,7 +25,7 @@ import {
   stato,
   vai,
   valutazionePerId,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 
 import {
   baseViva,

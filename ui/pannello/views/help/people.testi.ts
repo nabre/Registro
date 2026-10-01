@@ -2,9 +2,9 @@
 // Una chiave per sezione (`TestiSezione`, testa di `types.ts`); struttura in
 // `people.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { Molti, PERSONE, PIF, Uno, del } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { Molti, PERSONE, PIF, Uno, del } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

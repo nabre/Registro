@@ -4,9 +4,9 @@
 // Non idempotente: `data/gguf.ts` non sovrascrive un modello esistente (potrebbe
 // essere in uso), quindi due chiamate fanno due file.
 
-import { llm } from '../../../core/azioni/llm.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, opzionale, scelta, testo } from '../../schemas.js'
+import { llm } from '#core/azioni/llm.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().scarica

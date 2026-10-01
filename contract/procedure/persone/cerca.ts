@@ -4,10 +4,10 @@
 // Si cerca a pezzi, come nella pagina: «rossi dic» trova Rossi della DIC4a, non
 // tutti i Rossi più tutta la DIC4a. Vale per nome, classe e azienda insieme.
 
-import { ordinaAllievi } from '../../../core/dominio/calculations.js'
-import type { Allievo } from '../../../core/dominio/models.js'
-import { pezziDiRicerca } from '../../../core/dominio/text.js'
-import { definisci } from '../../contract.js'
+import { ordinaAllievi } from '#core/dominio/calculations.js'
+import type { Allievo } from '#core/dominio/models.js'
+import { pezziDiRicerca } from '#core/dominio/text.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -17,7 +17,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_PAGINA,
   CAMPI_RIGA_PERSONA,
@@ -29,8 +29,8 @@ import {
   rigaPersona,
   taglia,
   zona,
-} from '../common/filters.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as t } from './cerca.testi.js'
 
 const p = () => t().presentazione

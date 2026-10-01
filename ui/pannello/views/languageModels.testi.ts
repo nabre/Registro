@@ -1,7 +1,7 @@
 // I testi della sezione dei modelli linguistici (`languageModels.ts`).
 // I nomi di modelli, depositi e file non si traducono.
 
-import { catalogo, minuscolo, numero } from '../../../core/i18n/index.js'
+import { catalogo, minuscolo, numero } from '#core/i18n/index.js'
 
 const it = {
   elencoNonLetto: 'L’elenco dei modelli non si è letto.',

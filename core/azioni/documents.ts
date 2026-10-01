@@ -4,7 +4,7 @@
 
 import * as apparato from 'apparato'
 
-import { èProvvisorio } from '../dati/paths.js'
+import { èProvvisorio } from '#core/dati/paths.js'
 import { conMessaggio, fatto, invariato, lanciaComando, rifiutaCon, type Parte } from './context.js'
 import { testi } from './documents.testi.js'
 

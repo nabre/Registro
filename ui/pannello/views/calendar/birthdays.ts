@@ -1,12 +1,12 @@
 // Il calendario: i compleanni. Pastiglie, segni e suggerimenti uguali in
 // mese, agenda, settimana e anno.
 
-import { lezioniDelGiorno } from '../../../../core/dominio/calculations.js'
-import { fraseCompleanno, type Compleanno } from '../../../../core/dominio/birthdays.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { icona } from '../../components/icons.js'
-import { h, type Figlio } from '../../dom.js'
-import { classeDiLezione, vai } from '../../state.js'
+import { lezioniDelGiorno } from '#core/dominio/calculations.js'
+import { fraseCompleanno, type Compleanno } from '#core/dominio/birthdays.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { classeDiLezione, vai } from '#ui/pannello/state.js'
 import { testi } from './calendar.testi.js'
 
 // ------------------------------------------------------------------ compleanni

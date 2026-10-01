@@ -4,7 +4,7 @@
 // quelle del registro (`components/table.ts`): stanno in una bolla stretta, con
 // il foglio `styles/assistant.css` che anche la finestra staccata carica.
 
-import { h, type Figlio } from '../dom.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import { blocchi, type Blocco, type Pezzo } from './format.js'
 
 /** I pezzi di una riga: il grassetto e il codice, il resto testo. */

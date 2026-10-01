@@ -2,9 +2,9 @@
 // che cosa c'è in ognuna. La guida cita questi nomi: cambiandone uno va
 // cambiato anche là, in tutte le lingue.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { CARTE, LEZIONE, Molti, PERSONE, PIF, SCUOLA, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { CARTE, LEZIONE, Molti, PERSONE, PIF, SCUOLA, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   nessunaLezione: 'Questo corso non ha ancora nessuna lezione.',

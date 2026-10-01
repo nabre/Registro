@@ -5,7 +5,7 @@
 // allora. I segnaposto fra graffe sono uguali in ogni lingua perché li riempie
 // il codice (`testoAssenze`, `testoConsegna`).
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   corpoAssenze: [

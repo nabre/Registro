@@ -4,9 +4,9 @@
 // Idempotente: fermare quel che è già fermo non è un errore. Il file scaricato
 // a metà si cancella, perché sembrerebbe un modello che non si carica.
 
-import { llm } from '../../../core/azioni/llm.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, opzionale, testo } from '../../schemas.js'
+import { llm } from '#core/azioni/llm.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, opzionale, testo } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().annulla

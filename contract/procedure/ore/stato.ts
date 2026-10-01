@@ -1,6 +1,6 @@
-import { ore } from '../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto, scelta } from '../../schemas.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto, scelta } from '#contract/schemas.js'
 import { esigiLezione, STATI_LEZIONE } from './common.js'
 import { testi } from './ore.testi.js'
 

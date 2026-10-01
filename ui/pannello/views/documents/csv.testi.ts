@@ -1,6 +1,6 @@
 // I testi del CSV guardato nella cornice della pagina Documenti (`csv.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   leggendo: 'Sto leggendo il foglio…',

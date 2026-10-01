@@ -3,24 +3,24 @@
  * accesso ai registri reali. Lo costruisce `node esbuild.mjs --ui` in
  * `dist-tests/ui.js`.
  */
-import '../../ui/pannello/main.js'
+import '#ui/pannello/main.js'
 import {
   stato, aggiorna, ridisegna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai,
   postoCorrente,
-} from '../../ui/pannello/state.js'
-import { postoDaVista } from '../../ui/pannello/place.js'
-import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '../../ui/pannello/pages.js'
-import { scegliCorso } from '../../ui/pannello/context.js'
-import { COMANDI_UI } from '../../ui/pannello/commands.js'
+} from '#ui/pannello/state.js'
+import { postoDaVista } from '#ui/pannello/place.js'
+import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '#ui/pannello/pages.js'
+import { scegliCorso } from '#ui/pannello/context.js'
+import { COMANDI_UI } from '#ui/pannello/commands.js'
 // Le miniature hanno bisogno di una tela vera: `tests/interfaccia/pageBrowser.spec.ts` le
 // chiama a mano per provare apertura e chiusura di un documento.
-import { miniatura, dimentica } from '../../ui/pannello/components/thumbnails.js'
+import { miniatura, dimentica } from '#ui/pannello/components/thumbnails.js'
 // Due pezzi di dominio che le prove leggono invece di ricopiarli: le regole dei
 // nomi dei documenti e l'elenco delle tipologie delle pendenze.
-import { collocazioneDi, percorsoDi } from '../../core/dominio/locations.js'
-import { FAMIGLIE_TODO } from '../../core/dominio/todo.js'
-import type { Classe, Registro } from '../../core/dominio/models.js'
-import { registroVuoto, creaAnno, creaClasse, creaMateria, creaCorso, creaLezione, creaAllievo, creaConsegna, creaPiano, creaAttivita } from '../../core/dominio/factories.js'
+import { collocazioneDi, percorsoDi } from '#core/dominio/locations.js'
+import { FAMIGLIE_TODO } from '#core/dominio/todo.js'
+import type { Classe, Registro } from '#core/dominio/models.js'
+import { registroVuoto, creaAnno, creaClasse, creaMateria, creaCorso, creaLezione, creaAllievo, creaConsegna, creaPiano, creaAttivita } from '#core/dominio/factories.js'
 /**
  * Un anno sintetico con due classi (una col fascicolo), un corso e un'ora
  * ciascuna. Ogni chiamata fa id nuovi: le prove del cambio di documento ne

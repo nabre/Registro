@@ -7,10 +7,10 @@
 // Al modello dell'assistente sì, con `assistente: true` (unica procedura): non
 // tocca l'archivio, come dice `collezioni` vuoto.
 
-import { vista } from '../../../core/azioni/view.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, iso, oggetto, opzionale, scelta } from '../../schemas.js'
-import { VISTE } from '../common/views.js'
+import { vista } from '#core/azioni/view.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, iso, oggetto, opzionale, scelta } from '#contract/schemas.js'
+import { VISTE } from '#contract/procedure/common/views.js'
 import { testi } from './vista.testi.js'
 
 const t = () => testi().apri

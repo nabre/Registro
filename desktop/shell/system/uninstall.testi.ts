@@ -1,7 +1,7 @@
 // I testi della disinstallazione dal menu: la domanda, che cosa se ne va, e le
 // tre domande su che cosa tenere della cartella dei dati.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Le parti della cartella dei dati che si possono tenere: i `GRUPPI` di `cli/uninstall.mjs`. */
 export type GruppoDaTenere = 'modelli' | 'account' | 'impostazioni'

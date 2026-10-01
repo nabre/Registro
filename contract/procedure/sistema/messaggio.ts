@@ -1,7 +1,7 @@
-import { sistema } from '../../../core/azioni/system.js'
-import type { Messaggio } from '../../protocol.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, scelta, testo } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import type { Messaggio } from '#contract/protocol.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, scelta, testo } from '#contract/schemas.js'
 import { testi } from './sistema.testi.js'
 
 const LIVELLI = ['info', 'avviso', 'errore'] as const satisfies ReadonlyArray<Messaggio['livello']>

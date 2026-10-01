@@ -1,6 +1,6 @@
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, testo } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, testo } from '#contract/schemas.js'
 import { testi } from './sistema.testi.js'
 
 export const procedura = scrittura({

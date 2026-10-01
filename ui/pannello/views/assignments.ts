@@ -14,23 +14,23 @@ import {
   senzaDocumento,
   siConsegna,
   spuntaDi,
-} from '../../../core/dominio/assignments.js'
-import { gestoDelClic } from '../../../core/dominio/check.js'
-import { nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { Molti, Uno, quanti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { formattaData, giornoDi, oggi } from '../../../core/dominio/dates.js'
-import { CHI_INSEGNA, type Consegna, type Lezione } from '../../../core/dominio/models.js'
-import { barra, conAttesa, pastiglia, pulsante, scheda, titoloGruppo } from '../components/base.js'
-import { eseguiOAvvisa } from '../components/filters.js'
-import { icona } from '../components/icons.js'
-import { menuContestuale, type ElementoMenu } from '../components/menu.js'
-import { apriModale, conferma } from '../components/modal.js'
-import { h, rimpiazza, type Figlio } from '../dom.js'
-import { corsoPendenza, pendenza } from '../components/pending.js'
-import { moduloConsegna } from '../forms.js'
-import { azione } from '../bridge.js'
+} from '#core/dominio/assignments.js'
+import { gestoDelClic } from '#core/dominio/check.js'
+import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { Molti, Uno, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { formattaData, giornoDi, oggi } from '#core/dominio/dates.js'
+import { CHI_INSEGNA, type Consegna, type Lezione } from '#core/dominio/models.js'
+import { barra, conAttesa, pastiglia, pulsante, scheda, titoloGruppo } from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { menuContestuale, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { apriModale, conferma } from '#ui/pannello/components/modal.js'
+import { h, rimpiazza, type Figlio } from '#ui/pannello/dom.js'
+import { corsoPendenza, pendenza } from '#ui/pannello/components/pending.js'
+import { moduloConsegna } from '#ui/pannello/forms.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   classeDelCorsoId,
   classeDiLezione,
@@ -38,7 +38,7 @@ import {
   iscriviti,
   nomeCorso,
   stato,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { testi } from './assignments.testi.js'
 
 /** Con che icona si riconosce ogni tipo nell'elenco; il nome sta nel catalogo. */

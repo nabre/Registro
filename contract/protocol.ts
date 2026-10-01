@@ -40,21 +40,21 @@ import type {
   StatoPresenza,
   TipoRapporto,
   TipoRisorsa,
-} from '../core/dominio/models.js'
-import type { AllineamentoDaCalendario, LezioneDaCalendario } from '../core/dominio/calendar.js'
-import type { AccountMicrosoft } from '../core/dominio/onedrive.js'
+} from '#core/dominio/models.js'
+import type { AllineamentoDaCalendario, LezioneDaCalendario } from '#core/dominio/calendar.js'
+import type { AccountMicrosoft } from '#core/dominio/onedrive.js'
 import type {
   ContenutoProiezione,
   ImpostazioniProiezione,
   MiraProiezione,
-} from '../core/dominio/projection.js'
+} from '#core/dominio/projection.js'
 
 export type {
   BloccoProiezione,
   ContenutoProiezione,
   ImpostazioniProiezione,
   MiraProiezione,
-} from '../core/dominio/projection.js'
+} from '#core/dominio/projection.js'
 
 /** Una classe di un altro registro da importare: le persone con le foto, i corsi con l'orario. */
 interface ClasseDaImportare {

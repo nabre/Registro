@@ -1037,6 +1037,26 @@ progetto sgancia (`progettoId = null`, e via la fase) attività e momenti, non
 li cancella. Togliere una fase sposta le sue tappe nella fase rimasta che la
 precedeva (o nella prima) e lo dice; non si toglie l'ultima.
 
+### ADR-55 — Gli import risalgono con l'alias dello strato
+
+**Decisione.** Nel TypeScript un import che esce dalla cartella del file si
+scrive dalla radice dello strato: `#core/…`, `#contract/…`, `#desktop/…`,
+`#ui/…`, dal campo `"imports"` di `package.json`. Resta relativo solo `./`
+(lo stesso posto). `cli/` e i `.mjs` di `tests/` e `tools/` restano fuori
+(D10: la riga di comando non importa il progetto).
+
+**Perché.** ~3700 import relativi profondi (`../../../`) rendevano caro ogni
+spostamento: muovere un file cambiava i suoi import e quelli di chi lo cita.
+`"imports"` è lo standard di Node: `tsc` (`Node16`), esbuild,
+dependency-cruiser e knip lo leggono senza configurazione doppia, e
+risolvono `.js` nel `.ts` accanto.
+
+**Vincoli.** `npm run layers` rifiuta un `'../'` nel TypeScript. Le regole che
+guardano il testo dello specificatore (ESLint di `desktop/shell/pages/` e
+`core/controlli/`, i moduli finti delle prove) lo leggono con `#`.
+`apparato` resta un nome nudo: esbuild lo manda a file diversi per
+l'applicazione e per le prove, cosa che `"imports"` non sa fare.
+
 ## Decisioni implicite
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.

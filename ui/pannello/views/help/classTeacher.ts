@@ -21,7 +21,7 @@ import {
   telaio,
   testo,
 } from './drawing.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './classTeacher.testi.js'
 import { sezione, type SezioneGuida } from './types.js'
 

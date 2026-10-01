@@ -1,6 +1,6 @@
 // I testi dei conti delle regole di un calendario ICS (`ruleCounts.ts`).
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nessunEvento: 'nessun evento',

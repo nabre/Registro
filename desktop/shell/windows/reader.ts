@@ -8,8 +8,8 @@
 
 import { BrowserWindow } from 'electron'
 
-import { icona } from '../../apparato/context.js'
-import { postoDi, ricordaPosto } from '../../apparato/placement.js'
+import { icona } from '#desktop/apparato/context.js'
+import { postoDi, ricordaPosto } from '#desktop/apparato/placement.js'
 import {
   coloreSfondo,
   cornicePropria,
@@ -17,10 +17,10 @@ import {
   ricordaFascia,
   segniDellaCornice,
   togliMenu,
-} from '../../apparato/theme.js'
-import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
-import { mostraComunque } from '../../apparato/showAnyway.js'
-import { Uri } from '../../../core/apparato/uri.js'
+} from '#desktop/apparato/theme.js'
+import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { mostraComunque } from '#desktop/apparato/showAnyway.js'
+import { Uri } from '#core/apparato/uri.js'
 
 /** Le finestre aperte, per percorso del documento. */
 const aperte = new Map<string, BrowserWindow>()

@@ -15,23 +15,23 @@ import {
   durataPiano,
   minutiDiAttivita,
   minutiDiScarto,
-} from '../../../core/dominio/calculations.js'
-import { lezioniDellAnno, numeriDelleLezioni } from '../../../core/dominio/courses.js'
+} from '#core/dominio/calculations.js'
+import { lezioniDellAnno, numeriDelleLezioni } from '#core/dominio/courses.js'
 import {
   formattaData,
   formattaDurata,
   nomeSemestre,
-} from '../../../core/dominio/dates.js'
-import { quanti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Corso, Lezione, PianoLezione } from '../../../core/dominio/models.js'
-import { corrispondeAlla, pezziDiRicerca } from '../../../core/dominio/text.js'
-import { pulsante } from '../components/base.js'
-import { dentroIBordi } from '../components/hint.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { dataDiLezione } from '../components/lessonDate.js'
-import { h, rifocalizza, type Figlio } from '../dom.js'
-import { annoCorrente, lezioneDiPiano, pianoPerId, stato } from '../state.js'
+} from '#core/dominio/dates.js'
+import { quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Corso, Lezione, PianoLezione } from '#core/dominio/models.js'
+import { corrispondeAlla, pezziDiRicerca } from '#core/dominio/text.js'
+import { pulsante } from '#ui/pannello/components/base.js'
+import { dentroIBordi } from '#ui/pannello/components/hint.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, rifocalizza, type Figlio } from '#ui/pannello/dom.js'
+import { annoCorrente, lezioneDiPiano, pianoPerId, stato } from '#ui/pannello/state.js'
 import { testi } from './plansNavigator.testi.js'
 
 /** A che punto è un'ora, per chi la prepara. */

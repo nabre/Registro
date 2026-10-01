@@ -1,7 +1,7 @@
 // I testi di `history.ts`: com'è andato un Ctrl+Z, o un Ctrl+Y.
 
-import { catalogo } from '../i18n/index.js'
-import type { NomeCollezione } from '../dati/paths.js'
+import { catalogo } from '#core/i18n/index.js'
+import type { NomeCollezione } from '#core/dati/paths.js'
 
 const it = {
   /** Come si chiama una collezione per chi legge il rifiuto. */

@@ -6,7 +6,7 @@
 // lo taglierebbe) e vive fuori dal ridisegno: finché è aperto, a ogni
 // fotogramma controlla che il segno sia ancora nella pagina e lo segue.
 
-import { gestisci, h, type Figlio } from '../dom.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
 import { icona } from './icons.js'
 import { testi } from './hint.testi.js'
 

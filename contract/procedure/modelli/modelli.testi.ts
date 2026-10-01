@@ -3,7 +3,7 @@
 // (`verbale-lezione`, `_blocchi.tpl`) e parole chiave (`ripeti:`, `usa:`,
 // `estende:`) restano uguali in ogni lingua.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   leggi: {

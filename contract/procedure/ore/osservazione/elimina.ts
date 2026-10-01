@@ -1,8 +1,8 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
-import { esigiLezione } from '../common.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiLezione } from '#contract/procedure/ore/common.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 export const procedura = scrittura({
   nome: 'ore.osservazione.elimina',

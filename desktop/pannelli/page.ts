@@ -6,8 +6,8 @@ import { randomBytes } from 'node:crypto'
 
 import * as apparato from 'apparato'
 
-import { deposito } from '../../core/dati/store.js'
-import { cartellaAnno, cartellaDocumento } from '../../core/dati/paths.js'
+import { deposito } from '#core/dati/store.js'
+import { cartellaAnno, cartellaDocumento } from '#core/dati/paths.js'
 
 /**
  * Radice dei file che una pagina carica: la cartella dell'anno in uso, perché

@@ -1,6 +1,6 @@
 // I testi di `views/projects.ts`: la pagina Progetti del corso.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nuovo: 'Nuovo progetto',

@@ -19,11 +19,11 @@ import {
   documentiNoti,
   impostaPreferito,
   verificaDocumenti,
-} from '../../apparato/documents.js'
-import { icona } from '../../apparato/context.js'
-import { openExternal } from '../../apparato/commands.js'
-import { CANALE } from '../../apparato/channels.js'
-import { postoDi, ricordaPosto } from '../../apparato/placement.js'
+} from '#desktop/apparato/documents.js'
+import { icona } from '#desktop/apparato/context.js'
+import { openExternal } from '#desktop/apparato/commands.js'
+import { CANALE } from '#desktop/apparato/channels.js'
+import { postoDi, ricordaPosto } from '#desktop/apparato/placement.js'
 import {
   coloreSfondo,
   cornicePropria,
@@ -31,10 +31,10 @@ import {
   ricordaFascia,
   segniDellaCornice,
   togliMenu,
-} from '../../apparato/theme.js'
-import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
-import { sceltaLingua, scegliLingua } from '../../apparato/language.js'
-import { mostraComunque } from '../../apparato/showAnyway.js'
+} from '#desktop/apparato/theme.js'
+import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { sceltaLingua, scegliLingua } from '#desktop/apparato/language.js'
+import { mostraComunque } from '#desktop/apparato/showAnyway.js'
 import {
   alCambioAggiornamenti,
   controllaAggiornamenti,
@@ -42,10 +42,10 @@ import {
   nascondiNotizia,
   scaricaAggiornamento,
   statoAggiornamenti,
-} from '../../apparato/updates.js'
-import { Uri } from '../../../core/apparato/uri.js'
-import type { RaccontoAggiornamenti } from '../../../contract/protocol.js'
-import { ESTENSIONE } from '../../../core/dati/package.js'
+} from '#desktop/apparato/updates.js'
+import { Uri } from '#core/apparato/uri.js'
+import type { RaccontoAggiornamenti } from '#contract/protocol.js'
+import { ESTENSIONE } from '#core/dati/package.js'
 import { testi } from './welcome.testi.js'
 
 /** Quel che la pagina manda al main process. */

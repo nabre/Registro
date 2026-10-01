@@ -2,8 +2,8 @@
 // Nomi delle chiusure e descrizione della fonte vengono dal calendario generato
 // così come sono scritti nei PDF: sono dati, non si traducono.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: (cantone: string) => `Calendario ufficiale · ${cantone}`,

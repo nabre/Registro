@@ -4,8 +4,8 @@
 // Il nome del Cantone arriva dai dati, scritto in italiano: le lingue che lo
 // chiamano in un altro modo lo rinominano qui.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 /** Il Ticino come lo si chiama a nord delle Alpi. */
 const tessin = (cantone: string): string => (cantone === 'Ticino' ? 'Tessin' : cantone)

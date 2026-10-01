@@ -19,12 +19,12 @@ import {
   telaio,
   testo,
 } from './drawing.js'
-import { Molti, quanti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { testi as testiPalette } from '../../components/palette.testi.js'
-import { testi as testiPagine } from '../../pages.testi.js'
-import type { NomeIcona } from '../../components/icons.js'
+import { Molti, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { testi as testiPalette } from '#ui/pannello/components/palette.testi.js'
+import { testi as testiPagine } from '#ui/pannello/pages.testi.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
 import { testi } from './start.testi.js'
 import { sezione, type SezioneGuida } from './types.js'
 

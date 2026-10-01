@@ -13,13 +13,13 @@ import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, segniD
 import { chiudiLeVieDiFuga } from './navigation.js'
 import { mostraComunque } from './showAnyway.js'
 import { CANALE } from './channels.js'
-import { Uri } from '../../core/apparato/uri.js'
+import { Uri } from '#core/apparato/uri.js'
 import { eUnPannello } from './windows.js'
 import { executeCommand, openExternal } from './commands.js'
 import { statoAggiornamenti } from './updates.js'
-import { limita } from '../../core/dominio/calculations.js'
-import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '../../core/dominio/upgrades.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { limita } from '#core/dominio/calculations.js'
+import { ErroreVersionePiuRecente, versionePiuRecente, type VersionePiuRecente } from '#core/dominio/upgrades.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './dialogs.testi.js'
 
 // ------------------------------------------------------------------ le forme

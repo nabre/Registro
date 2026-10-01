@@ -4,11 +4,11 @@
 
 import { app, BrowserWindow } from 'electron'
 
-import { icona } from '../../apparato/context.js'
-import { escludiDaiDialoghi } from '../../apparato/dialogs.js'
-import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
-import { coloreSfondo, preferenzeConPonte } from '../../apparato/theme.js'
-import { CANALE } from '../../apparato/channels.js'
+import { icona } from '#desktop/apparato/context.js'
+import { escludiDaiDialoghi } from '#desktop/apparato/dialogs.js'
+import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { coloreSfondo, preferenzeConPonte } from '#desktop/apparato/theme.js'
+import { CANALE } from '#desktop/apparato/channels.js'
 import { testi } from './splash.testi.js'
 
 /** Quanto si aspetta al massimo la finestra che prende il posto del riquadro. */

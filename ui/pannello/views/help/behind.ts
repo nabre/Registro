@@ -7,7 +7,7 @@
 // da `data/archive.ts`, `data/package.ts` ed `environment/documents.ts`: se
 // cambiano là, vanno cambiate nel catalogo in ogni lingua.
 
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './behind.testi.js'
 import {
   bollino,

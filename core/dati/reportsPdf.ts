@@ -25,7 +25,7 @@ import {
   type RigaFissa,
   type Stile,
   type Tabella,
-} from '../dominio/reports.js'
+} from '#core/dominio/reports.js'
 
 /** Un millimetro in punti tipografici: i margini si misurano su un foglio vero. */
 const MM = 2.834645

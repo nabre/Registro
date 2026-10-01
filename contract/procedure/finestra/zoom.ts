@@ -4,9 +4,9 @@
 // scrivere, e ingrandire lo schermo di chi fa lezione non va concesso alla sola
 // lettura né al modello dell'assistente (non dichiara `assistente`).
 
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, scelta } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, scelta } from '#contract/schemas.js'
 import { testi } from './finestra.testi.js'
 
 const t = () => testi().zoom

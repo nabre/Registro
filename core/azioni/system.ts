@@ -3,15 +3,15 @@
 
 import * as apparato from 'apparato'
 
-import { collocazioneDi, percorsoDi } from '../dominio/locations.js'
-import { csvPresenze, csvValutazioni, scriviGenerato, testoLezione } from '../dati/exports.js'
-import { percorsoPacchetto } from '../dati/paths.js'
-import { collegaAccount, inviaProva, provaCollegamento, scollegaAccount } from '../dati/mail.js'
-import { firmaPosta } from '../dati/templates.js'
-import { classeDelCorsoId, classeDellaLezione } from '../dominio/courses.js'
-import { matriceDelCorsoNelPeriodo } from '../dominio/courseMatrix.js'
-import { oreConAppello } from '../dominio/calculations.js'
-import { numeroComponibile } from '../dominio/phones.js'
+import { collocazioneDi, percorsoDi } from '#core/dominio/locations.js'
+import { csvPresenze, csvValutazioni, scriviGenerato, testoLezione } from '#core/dati/exports.js'
+import { percorsoPacchetto } from '#core/dati/paths.js'
+import { collegaAccount, inviaProva, provaCollegamento, scollegaAccount } from '#core/dati/mail.js'
+import { firmaPosta } from '#core/dati/templates.js'
+import { classeDelCorsoId, classeDellaLezione } from '#core/dominio/courses.js'
+import { matriceDelCorsoNelPeriodo } from '#core/dominio/courseMatrix.js'
+import { oreConAppello } from '#core/dominio/calculations.js'
+import { numeroComponibile } from '#core/dominio/phones.js'
 import {
   composizioneOutlookWeb,
   indirizzoChiamata,
@@ -19,17 +19,17 @@ import {
   indirizzoScrivibile,
   modoChiamata,
   modoPosta,
-} from '../dominio/contacts.js'
-import { apriConOutlook } from '../dati/outlook.js'
-import { etichettaSemestre, nelSemestre, oraValida } from '../dominio/dates.js'
-import type { Intestazione, Registro } from '../dominio/models.js'
-import type { ImpostazioniDaSalvare } from '../../contract/protocol.js'
-import { riparazioni } from '../dominio/repairs.js'
-import { conCarteComplete, normalizzaImpostazioni } from '../dominio/normalization.js'
-import { validaMinutiUd, validaPause, validaScala } from '../dominio/validation.js'
-import { slotFuoriDallePause, slotSuAltraUd } from '../dominio/breaks.js'
+} from '#core/dominio/contacts.js'
+import { apriConOutlook } from '#core/dati/outlook.js'
+import { etichettaSemestre, nelSemestre, oraValida } from '#core/dominio/dates.js'
+import type { Intestazione, Registro } from '#core/dominio/models.js'
+import type { ImpostazioniDaSalvare } from '#contract/protocol.js'
+import { riparazioni } from '#core/dominio/repairs.js'
+import { conCarteComplete, normalizzaImpostazioni } from '#core/dominio/normalization.js'
+import { validaMinutiUd, validaPause, validaScala } from '#core/dominio/validation.js'
+import { slotFuoriDallePause, slotSuAltraUd } from '#core/dominio/breaks.js'
 import { cestina, conMessaggio, fatto, lanciaComando, rifiuta, rifiutaCon, type Parte } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './system.testi.js'
 

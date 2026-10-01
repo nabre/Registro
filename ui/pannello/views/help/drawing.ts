@@ -5,7 +5,7 @@
 // Misure in unità del `viewBox`, con larghezza di riferimento 640: a 640 la
 // figura è a grandezza naturale e il corpo 12 si legge come la pagina.
 
-import { tracciatoIcona, type NomeIcona } from '../../components/icons.js'
+import { tracciatoIcona, type NomeIcona } from '#ui/pannello/components/icons.js'
 
 /** I toni: gli stessi nomi dei colori del tema, più `neutro`. */
 export type Tono = 'neutro' | 'accento' | 'quieto' | 'positivo' | 'attenzione' | 'negativo' | 'informativo'

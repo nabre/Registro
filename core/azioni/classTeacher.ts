@@ -6,9 +6,9 @@ import { basename } from 'node:path'
 import * as apparato from 'apparato'
 
 import type { Contesto } from './context.js'
-import { contenutoDi, deposito } from '../dati/store.js'
-import { cartellaAnno } from '../dati/paths.js'
-import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '../dati/filing.js'
+import { contenutoDi, deposito } from '#core/dati/store.js'
+import { cartellaAnno } from '#core/dati/paths.js'
+import { archiviaCopia, nomeFileArchivio, percorsoConsegna, pulisciCopiaOrfana } from '#core/dati/filing.js'
 import {
   allievoDelFile,
   daSpedire,
@@ -23,8 +23,8 @@ import {
   togliFoglioAssenze,
   trovaBloccoAssenze as bloccoAssenze,
   vergini,
-} from '../dominio/absences.js'
-import { firmaPosta } from '../dati/templates.js'
+} from '#core/dominio/absences.js'
+import { firmaPosta } from '#core/dati/templates.js'
 import {
   apriBozzaSingola,
   bozzeDiGruppo,
@@ -32,29 +32,29 @@ import {
   nomeBozza,
   puoSpedire,
   type MessaggioPosta,
-} from '../dati/mail.js'
-import { allieviAttivi, nomeCompleto } from '../dominio/calculations.js'
+} from '#core/dati/mail.js'
+import { allieviAttivi, nomeCompleto } from '#core/dominio/calculations.js'
 import {
   allegatiComunicazione,
   allegatiMancanti,
   fileDellaConsegna,
   destinatariComunicazione,
-} from '../dominio/communications.js'
-import { documentoPer } from '../dominio/assignments.js'
+} from '#core/dominio/communications.js'
+import { documentoPer } from '#core/dominio/assignments.js'
 import { collezioniDocumento, staccaFette } from './assignments.js'
-import { fascicoloDellaClasse } from '../dominio/courses.js'
-import { oggi, periodoNelNome, istanteAdesso } from '../dominio/dates.js'
+import { fascicoloDellaClasse } from '#core/dominio/courses.js'
+import { oggi, periodoNelNome, istanteAdesso } from '#core/dominio/dates.js'
 import type {
   Allievo,
   BloccoAssenze,
   FoglioAssenze,
   TipoRapporto,
-} from '../dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   validaBloccoAssenze,
   validaComunicazione,
   validaRecapito,
-} from '../dominio/validation.js'
+} from '#core/dominio/validation.js'
 import {
   apriFile,
   cestina,
@@ -73,7 +73,7 @@ import {
   type FileScelto,
   type Parte,
 } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './classTeacher.testi.js'
 

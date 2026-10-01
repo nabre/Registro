@@ -16,7 +16,7 @@ import { join } from 'node:path'
 import { cartellaBundle } from './context.js'
 import { depositoJson } from './jsonStore.js'
 import { tipoDelPannello } from './windows.js'
-import { Smaltitore } from '../../core/apparato/events.js'
+import { Smaltitore } from '#core/apparato/events.js'
 
 /** Quanto si aspetta prima di ricaricare, dall'ultimo file scritto. */
 const CALMA = 120

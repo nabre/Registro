@@ -6,15 +6,15 @@
 // legge `context.ts`: sarebbe un anello. I nomi di pagine e linguette vengono da
 // `nomeDelPosto()` e `porzioneAttiva()`, mai riscritti qui.
 
-import { estremiAnno } from '../../core/dominio/years.js'
-import { grigliaMese, nomeSemestre, oggi, settimanaDi } from '../../core/dominio/dates.js'
-import type { Classe, Iso } from '../../core/dominio/models.js'
+import { estremiAnno } from '#core/dominio/years.js'
+import { grigliaMese, nomeSemestre, oggi, settimanaDi } from '#core/dominio/dates.js'
+import type { Classe, Iso } from '#core/dominio/models.js'
 import type {
   ContestoAssistente,
   ElencoVisibile,
   PeriodoContesto,
   VoceContesto,
-} from '../../contract/protocol.js'
+} from '#contract/protocol.js'
 import {
   classeDelContesto,
   classeDelFascicolo,
@@ -55,7 +55,7 @@ import { sezioneDi } from './views/settings/sections.js'
 import { oreDelCorso } from './views/lesson.js'
 import { depositoAperto, modelliInVista, ricercaDeiModelli } from './views/languageModels.js'
 import { personeInElenco, ricercaDellePersone } from './views/people.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './viewpoint.testi.js'
 import { testi as testiOggi } from './views/today.testi.js'
 

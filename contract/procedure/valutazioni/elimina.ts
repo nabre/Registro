@@ -1,6 +1,6 @@
-import { valutazioni } from '../../../core/azioni/assessments.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
 import { esigiMomento } from './common.js'
 import { testi } from './valutazioni.testi.js'
 

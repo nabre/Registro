@@ -2,7 +2,7 @@
 // disco senza nome, quando il lessico non li ha. Finiscono nel documento nella
 // lingua del momento.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   recapito: 'Recapito',

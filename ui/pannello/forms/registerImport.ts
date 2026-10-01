@@ -5,14 +5,14 @@
 // lavoro è dell'host: `registro.altrove` legge senza aprire, `registro.sfoglia`
 // apre il dialogo, `registro.importa` scrive.
 
-import { Molti, quanti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, pulsante, sezioneModulo } from '../components/base.js'
-import { apriModale, type ContestoModale } from '../components/modal.js'
-import { h } from '../dom.js'
-import { chiedi } from '../bridge.js'
-import { stato, vai } from '../state.js'
+import { Molti, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, pulsante, sezioneModulo } from '#ui/pannello/components/base.js'
+import { apriModale, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { chiedi } from '#ui/pannello/bridge.js'
+import { stato, vai } from '#ui/pannello/state.js'
 import { inviaDalModulo } from './common.js'
 import { testi } from './registerImport.testi.js'
 

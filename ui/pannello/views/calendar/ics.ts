@@ -3,29 +3,29 @@
 // loro menu e le divergenze fra registro e calendario. Le viste chiedono qui
 // tutto quel che riguarda l'ICS.
 
-import { fineLezione, inizioLezione } from '../../../../core/dominio/calculations.js'
-import { minutiDaOra } from '../../../../core/dominio/dates.js'
-import { eventiDellaStessaLezione } from '../../../../core/dominio/calendar.js'
-import type { EventoCalendario } from '../../../../core/dominio/calendarIcs.js'
-import { abbina, corsiConfrontabili } from '../../../../core/dominio/calendarRules.js'
-import type { AnomalieSettimana } from '../../../../core/dominio/calendarLinks.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { pastiglia } from '../../components/base.js'
-import { icona } from '../../components/icons.js'
-import { h, type Figlio } from '../../dom.js'
+import { fineLezione, inizioLezione } from '#core/dominio/calculations.js'
+import { minutiDaOra } from '#core/dominio/dates.js'
+import { eventiDellaStessaLezione } from '#core/dominio/calendar.js'
+import type { EventoCalendario } from '#core/dominio/calendarIcs.js'
+import { abbina, corsiConfrontabili } from '#core/dominio/calendarRules.js'
+import type { AnomalieSettimana } from '#core/dominio/calendarLinks.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { pastiglia } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import {
   anomalieCalendario,
   dicituraEvento,
   eventiEsterni,
   icsInVista,
   lezioneDellEvento,
-} from '../../externalCalendar.js'
-import { moduloEventoIcs, moduloLezione } from '../../forms.js'
+} from '#ui/pannello/externalCalendar.js'
+import { moduloEventoIcs, moduloLezione } from '#ui/pannello/forms.js'
 import { inModifica } from './editor.js'
-import { menuContestuale, type ElementoMenu } from '../../components/menu.js'
-import { lezionePerId, nomeClasseDiLezione, coloreDiLezione, ridisegna, stato } from '../../state.js'
+import { menuContestuale, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { lezionePerId, nomeClasseDiLezione, coloreDiLezione, ridisegna, stato } from '#ui/pannello/state.js'
 import { apriLezione } from './common.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './ics.testi.js'
 
 // ------------------------------------------------------------------ calendario ICS

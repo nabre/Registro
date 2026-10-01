@@ -1,7 +1,7 @@
 // La scheda personale: i riquadri comuni ai temi dei box di materia.
 
-import { titoloGruppo } from '../../components/base.js'
-import { h, type Figlio } from '../../dom.js'
+import { titoloGruppo } from '#ui/pannello/components/base.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 
 /**
  * Un riquadro dentro il box di una materia (presenze, voti, osservazioni). Ci

@@ -8,7 +8,7 @@
 // Tutto puro, senza DOM: si prova in Node. Desinenze, parole vuote e sinonimi
 // di ogni lingua stanno in `search.testi.ts`.
 
-import { lingua, type Lingua } from '../../../../core/i18n/index.js'
+import { lingua, type Lingua } from '#core/i18n/index.js'
 import { testi } from './search.testi.js'
 import type { SezioneGuida, VoceGuida } from './types.js'
 

@@ -14,9 +14,9 @@ import {
   riepilogaPresenze,
   segnato,
   unitaDidattiche,
-} from '../dominio/calculations.js'
-import type { MatriceCorso } from '../dominio/courseMatrix.js'
-import { etichettaSemestre, formattaData, formattaDurata, formattaUd } from '../dominio/dates.js'
+} from '#core/dominio/calculations.js'
+import type { MatriceCorso } from '#core/dominio/courseMatrix.js'
+import { etichettaSemestre, formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
 import type {
   Consegna,
   Classe,
@@ -25,11 +25,11 @@ import type {
   MomentoValutazione,
   PianoLezione,
   Risorsa,
-} from '../dominio/models.js'
-import { righe } from '../dominio/csv.js'
-import { testi as paroleDeiRapporti } from '../dominio/reportData.testi.js'
-import { percento } from '../dominio/text.js'
-import { parole } from '../dominio/words.testi.js'
+} from '#core/dominio/models.js'
+import { righe } from '#core/dominio/csv.js'
+import { testi as paroleDeiRapporti } from '#core/dominio/reportData.testi.js'
+import { percento } from '#core/dominio/text.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './exports.testi.js'
 import { riscrivi, uriArchivio } from './filing.js'
 

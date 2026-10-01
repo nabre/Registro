@@ -1,7 +1,7 @@
 // I testi dell'anno scolastico (`years.ts`): i motivi per cui un tipo di
 // settimana non si scrive.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   letteraNonValida:

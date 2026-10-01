@@ -1,9 +1,9 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { booleano, identificatore, oggetto } from '../../../schemas.js'
-import { esigiPersonaDellaClasse } from '../../common/register.js'
-import { esigiBlocco } from '../common.js'
-import { testi } from '../classe.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, oggetto } from '#contract/schemas.js'
+import { esigiPersonaDellaClasse } from '#contract/procedure/common/register.js'
+import { esigiBlocco } from '#contract/procedure/classe/common.js'
+import { testi } from '#contract/procedure/classe/classe.testi.js'
 
 const t = () => testi().assenze.spunta
 

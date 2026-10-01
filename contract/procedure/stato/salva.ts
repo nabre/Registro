@@ -1,6 +1,6 @@
-import { documenti } from '../../../core/azioni/documents.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { documenti } from '#core/azioni/documents.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './stato.testi.js'
 
 const t = () => testi().salva

@@ -8,8 +8,8 @@ import { execFile } from 'node:child_process'
 
 import * as apparato from 'apparato'
 
-import { oneDriveSulComputer, type OneDriveLocale } from '../dominio/onedrive.js'
-import { stessoIndirizzo } from '../dominio/mailbox.js'
+import { oneDriveSulComputer, type OneDriveLocale } from '#core/dominio/onedrive.js'
+import { stessoIndirizzo } from '#core/dominio/mailbox.js'
 
 let noti: OneDriveLocale[] = []
 /** Per le prove: un elenco fisso al posto del registro di Windows. */

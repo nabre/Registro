@@ -2,7 +2,7 @@
 // servono abbreviazioni senza punto per caselle di tre lettere («lun», «Mo»,
 // «lu») e iniziali di una lettera per il calendario annuale.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   giorniBrevi: ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'],

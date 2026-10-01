@@ -1,8 +1,8 @@
-import { smistamento } from '../../../../core/azioni/sorting.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
-import { esigiSmistamento, pagine } from '../common.js'
-import { testi } from '../smistamento.testi.js'
+import { smistamento } from '#core/azioni/sorting.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiSmistamento, pagine } from '#contract/procedure/smistamento/common.js'
+import { testi } from '#contract/procedure/smistamento/smistamento.testi.js'
 
 const t = () => testi().firme.assegna
 

@@ -5,8 +5,8 @@
 // conosce lo stato né il registro, perché il webview della proiezione non ha
 // `state.js`.
 
-import type { Grafico } from '../../../core/dominio/reports.js'
-import { h, type Figlio } from '../dom.js'
+import type { Grafico } from '#core/dominio/reports.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import { testi } from './notes.testi.js'
 
 interface DatiGraficoNote {

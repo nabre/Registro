@@ -34,10 +34,10 @@ import {
   type ImpostazioniSviluppo,
   type PosizioneConsole,
   type TipoFinestra,
-} from '../../apparato/dev.js'
-import { cartellaBundle, icona } from '../../apparato/context.js'
-import { CANALE } from '../../apparato/channels.js'
-import { postoDi, ricordaPosto } from '../../apparato/placement.js'
+} from '#desktop/apparato/dev.js'
+import { cartellaBundle, icona } from '#desktop/apparato/context.js'
+import { CANALE } from '#desktop/apparato/channels.js'
+import { postoDi, ricordaPosto } from '#desktop/apparato/placement.js'
 import {
   coloreSfondo,
   cornicePropria,
@@ -45,13 +45,13 @@ import {
   ricordaFascia,
   segniDellaCornice,
   togliMenu,
-} from '../../apparato/theme.js'
-import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
-import { mostraComunque } from '../../apparato/showAnyway.js'
-import { Smaltitore } from '../../../core/apparato/events.js'
-import { percorsoPacchetto } from '../../../core/dati/paths.js'
-import { testi } from '../pages/dev/dev.testi.js'
-import { èSentinella } from '../sentinel.js'
+} from '#desktop/apparato/theme.js'
+import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { mostraComunque } from '#desktop/apparato/showAnyway.js'
+import { Smaltitore } from '#core/apparato/events.js'
+import { percorsoPacchetto } from '#core/dati/paths.js'
+import { testi } from '#desktop/shell/pages/dev/dev.testi.js'
+import { èSentinella } from '#desktop/shell/sentinel.js'
 
 /** La scorciatoia, mostrata nel menu; la riconosce `èScorciatoia` in ogni pagina. */
 const SCORCIATOIA = 'CommandOrControl+Shift+F12'

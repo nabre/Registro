@@ -6,11 +6,11 @@
 // rigenera PDF: dipende da chi ha chiamato, e lo fanno `panels/panel.ts` e
 // `actions.ts`.
 
-import type { Archivio } from '../core/dati/archive.js'
+import type { Archivio } from '#core/dati/archive.js'
 import type { Azione } from './protocol.js'
-import { contestoDi, type EsitoAzione, type Gestore, type Parte } from '../core/azioni/context.js'
-import { primaDiScrivere, rigeneraDopoScrittura } from '../core/azioni/reports.js'
-import { identificatore } from '../core/dominio/identifiers.js'
+import { contestoDi, type EsitoAzione, type Gestore, type Parte } from '#core/azioni/context.js'
+import { primaDiScrivere, rigeneraDopoScrittura } from '#core/azioni/reports.js'
+import { identificatore } from '#core/dominio/identifiers.js'
 import {
   ErroreApi,
   VERSIONE_API,
@@ -27,7 +27,7 @@ import {
   type VoceGiornaleRegistrata,
 } from './contract.js'
 import { booleano, convalida, numero, oggetto, opzionale, scelta, testo, type Schema } from './schemas.js'
-import { detto } from '../core/i18n/index.js'
+import { detto } from '#core/i18n/index.js'
 import { testi } from './core.testi.js'
 
 // ------------------------------------------------------------------ l'elenco

@@ -3,7 +3,7 @@
 // Funzioni perché gli elenchi hanno lunghezze diverse; tutto scritto «piano»
 // (minuscolo, senza accenti), come lo vede la ricerca.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Come si arriva alla radice di una parola. */
 interface Desinenze {

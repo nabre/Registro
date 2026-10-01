@@ -6,10 +6,10 @@
 // l'id del calendario: due calendari possono avere lo stesso UID. Un calendario
 // che non si legge finisce in `guasti` e non ferma gli altri.
 
-import { leggiCalendario, type EventoCalendario } from '../../../core/dominio/calendarIcs.js'
-import { annoInUso } from '../../../core/dominio/years.js'
-import { testoDelCalendario } from '../../../core/dati/calendar.js'
-import { definisci, errore } from '../../contract.js'
+import { leggiCalendario, type EventoCalendario } from '#core/dominio/calendarIcs.js'
+import { annoInUso } from '#core/dominio/years.js'
+import { testoDelCalendario } from '#core/dati/calendar.js'
+import { definisci, errore } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -21,9 +21,9 @@ import {
   opzionale,
   ora,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import { calendarioDaLeggere } from './common.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './calendario.testi.js'
 
 const t = () => testi().eventi

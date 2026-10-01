@@ -1,7 +1,7 @@
 // I testi di `templates.ts`: anteprima, cartella `templates/` portata dentro, logo.
 // `templates/` è un nome di cartella: resta uguale in tutte le lingue.
 
-import { catalogo, elenco } from '../i18n/index.js'
+import { catalogo, elenco } from '#core/i18n/index.js'
 
 const it = {
   modelloAssente: (nome: string) => `Il modello «${nome}» non c’è.`,

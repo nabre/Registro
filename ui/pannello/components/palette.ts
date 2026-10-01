@@ -12,25 +12,25 @@ import {
   impedimentoDi,
   titoloDi,
   type ComandoUI,
-} from '../commands.js'
-import { allieviAttivi, nomeCompleto } from '../../../core/dominio/calculations.js'
-import { Molti, quanti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Classe } from '../../../core/dominio/models.js'
-import { confrontaNomi, corrispondeAlla, pezziDiRicerca } from '../../../core/dominio/text.js'
-import { nomeDelCorso } from '../context.js'
-import { h, rifocalizza } from '../dom.js'
+} from '#ui/pannello/commands.js'
+import { allieviAttivi, nomeCompleto } from '#core/dominio/calculations.js'
+import { Molti, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Classe } from '#core/dominio/models.js'
+import { confrontaNomi, corrispondeAlla, pezziDiRicerca } from '#core/dominio/text.js'
+import { nomeDelCorso } from '#ui/pannello/context.js'
+import { h, rifocalizza } from '#ui/pannello/dom.js'
 import { EVENTO_MODALE_APERTA } from './modal.js'
-import { pagineVisibili, vaiA, type Pagina } from '../pages.js'
-import { classiDellAnno, corsiDellAnnoAperto, stato, vai } from '../state.js'
-import { vaiAllImpostazione } from '../views/settings.js'
+import { pagineVisibili, vaiA, type Pagina } from '#ui/pannello/pages.js'
+import { classiDellAnno, corsiDellAnnoAperto, stato, vai } from '#ui/pannello/state.js'
+import { vaiAllImpostazione } from '#ui/pannello/views/settings.js'
 import {
   AREE,
   cercaImpostazioni,
   nomeAmbito,
   sezioneDi,
   type Trovata,
-} from '../views/settings/sections.js'
+} from '#ui/pannello/views/settings/sections.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './palette.testi.js'
 

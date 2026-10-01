@@ -1,10 +1,10 @@
-import { smistamento } from '../../../../core/azioni/sorting.js'
-import type { TipoRapporto } from '../../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { booleano, esaustivo, identificatore, oggetto, scelta } from '../../../schemas.js'
-import { esigiClasse } from '../../common/register.js'
-import { esigiSmistamento, pagine } from '../common.js'
-import { testi } from '../smistamento.testi.js'
+import { smistamento } from '#core/azioni/sorting.js'
+import type { TipoRapporto } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, esaustivo, identificatore, oggetto, scelta } from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
+import { esigiSmistamento, pagine } from '#contract/procedure/smistamento/common.js'
+import { testi } from '#contract/procedure/smistamento/smistamento.testi.js'
 
 const t = () => testi().assenze.assegna
 

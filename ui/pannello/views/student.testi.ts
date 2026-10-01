@@ -1,7 +1,7 @@
 // I testi della scheda personale (`student.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF, un } from '../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, un } from '#core/dominio/lexicon.js'
 
 const it = {
   vuota: 'Qui non c’è ancora niente.',

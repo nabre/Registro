@@ -1,7 +1,7 @@
-import { smistamento } from '../../../../core/azioni/sorting.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { elenco, identificatore, oggetto } from '../../../schemas.js'
-import { testi } from '../smistamento.testi.js'
+import { smistamento } from '#core/azioni/sorting.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { elenco, identificatore, oggetto } from '#contract/schemas.js'
+import { testi } from '#contract/procedure/smistamento/smistamento.testi.js'
 
 const t = () => testi().lettura.attive
 

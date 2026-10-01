@@ -7,8 +7,8 @@ import { shell } from 'electron'
 import * as fs from 'node:fs/promises'
 import * as percorso from 'node:path'
 
-import { Uri } from '../../core/apparato/uri.js'
-import { ErroreFile, GenereFile, StatoFile } from '../../core/apparato/platform.js'
+import { Uri } from '#core/apparato/uri.js'
+import { ErroreFile, GenereFile, StatoFile } from '#core/apparato/platform.js'
 
 export { ErroreFile, GenereFile, StatoFile }
 

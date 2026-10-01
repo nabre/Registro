@@ -1,9 +1,9 @@
-import { rapporti } from '../../../core/azioni/reports.js'
-import type { GenereRapporto } from '../../../core/dominio/locations.js'
-import { errore, type Ambito, type NomeTermine } from '../../contract.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, identificatore, nullabile, oggetto, opzionale, scelta } from '../../schemas.js'
-import { GENERI } from '../common/reports.js'
+import { rapporti } from '#core/azioni/reports.js'
+import type { GenereRapporto } from '#core/dominio/locations.js'
+import { errore, type Ambito, type NomeTermine } from '#contract/contract.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, nullabile, oggetto, opzionale, scelta } from '#contract/schemas.js'
+import { GENERI } from '#contract/procedure/common/reports.js'
 import { testi } from './rapporti.testi.js'
 
 const t = () => testi().genera

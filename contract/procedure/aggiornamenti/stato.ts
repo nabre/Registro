@@ -2,10 +2,10 @@
 // che punto è lo scarico. Riempie la sezione «Aggiornamenti» all'apertura; poi
 // gli aggiornamenti li spinge l'host. Non va all'assistente.
 
-import { statoDegliAggiornamenti } from '../../../core/azioni/updates.js'
-import { definisci } from '../../contract.js'
-import { booleano, numero, oggetto, opzionale, scelta, testo, vuoto } from '../../schemas.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { statoDegliAggiornamenti } from '#core/azioni/updates.js'
+import { definisci } from '#contract/contract.js'
+import { booleano, numero, oggetto, opzionale, scelta, testo, vuoto } from '#contract/schemas.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './aggiornamenti.testi.js'
 
 const t = () => testi().stato

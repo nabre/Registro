@@ -5,7 +5,7 @@
 //
 // Elenco a mano: un file non nominato qui non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as cruscotto } from './cruscotto.js'
 import { procedura as duplica } from './duplica.js'
 import { procedura as elenco } from './elenco.js'

@@ -19,16 +19,16 @@ import {
   type AnnoUfficiale,
   type BozzaAnno,
   type VoceUfficiale,
-} from '../../../core/dominio/schoolCalendar.js'
-import type { AnnoScolastico, CalendarioDellAnno } from '../../../core/dominio/models.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { CALENDARIO_TICINO } from '../../../core/dominio/schoolCalendarTicino.js'
-import { pastiglia, pulsante, quieto, tendina } from '../components/base.js'
-import { eseguiOAvvisa } from '../components/filters.js'
-import { conferma } from '../components/modal.js'
-import { h, rimpiazza } from '../dom.js'
+} from '#core/dominio/schoolCalendar.js'
+import type { AnnoScolastico, CalendarioDellAnno } from '#core/dominio/models.js'
+import { formattaData, oggi } from '#core/dominio/dates.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { CALENDARIO_TICINO } from '#core/dominio/schoolCalendarTicino.js'
+import { pastiglia, pulsante, quieto, tendina } from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { h, rimpiazza } from '#ui/pannello/dom.js'
 
 import { testi } from './schoolCalendar.testi.js'
 

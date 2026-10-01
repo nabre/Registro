@@ -1,7 +1,7 @@
 // I testi dell'anteprima della pagina Documenti (`preview.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   fuoriElenco: 'Questo documento non è fra quelli della scheda aperta',

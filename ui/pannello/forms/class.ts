@@ -1,29 +1,29 @@
 // La classe e chi la frequenta: le persone in formazione si aggiungono una per
 // una o si incollano tutte insieme (quel che si fa a settembre).
 
-import { nomeCompleto } from '../../../core/dominio/calculations.js'
-import { creaAllievo, creaTelefono, COLORI_CLASSE } from '../../../core/dominio/factories.js'
-import { Maiuscola, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
-import { nuovoIdClasse } from '../../../core/dominio/identifiers.js'
-import { coordinataDi, indirizzoDi, rubricaDi, scriviCoordinate } from '../../../core/dominio/map.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { creaAllievo, creaTelefono, COLORI_CLASSE } from '#core/dominio/factories.js'
+import { Maiuscola, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
+import { nuovoIdClasse } from '#core/dominio/identifiers.js'
+import { coordinataDi, indirizzoDi, rubricaDi, scriviCoordinate } from '#core/dominio/map.js'
 import type {
   Allievo,
   Classe,
   ContattoTelefonico,
   Telefono,
-} from '../../../core/dominio/models.js'
-import { ETICHETTE, conPrefissoInternazionale } from '../../../core/dominio/phones.js'
-import { INDIRIZZO_VUOTO, type Indirizzo } from '../../../core/dominio/addresses.js'
-import { validaAllievo } from '../../../core/dominio/validation.js'
-import { campo, pulsante, riga, sezioneModulo, tendina } from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { icona } from '../components/icons.js'
-import { apriModale } from '../components/modal.js'
-import { h, rimpiazza, type Figlio } from '../dom.js'
-import { azione } from '../bridge.js'
+} from '#core/dominio/models.js'
+import { ETICHETTE, conPrefissoInternazionale } from '#core/dominio/phones.js'
+import { INDIRIZZO_VUOTO, type Indirizzo } from '#core/dominio/addresses.js'
+import { validaAllievo } from '#core/dominio/validation.js'
+import { campo, pulsante, riga, sezioneModulo, tendina } from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h, rimpiazza, type Figlio } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   classePerId,
   classiDellAnno,
@@ -33,7 +33,7 @@ import {
   stato,
   uriDato,
   vai,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 
 import {
   baseViva,

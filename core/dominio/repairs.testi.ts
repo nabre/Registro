@@ -1,6 +1,6 @@
 // I testi di `repairs.ts`: le riparazioni proposte, spiegate prima di accettarle.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { plurale } from './text.js'
 
 const it = {

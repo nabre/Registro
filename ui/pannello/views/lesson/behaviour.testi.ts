@@ -1,7 +1,7 @@
 // I testi della matrice del comportamento (`lesson/behaviour.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { PIF } from '../../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
 
 const it = {
   /** Il seguito del suggerimento: il segno che il clic mette, già minuscolo. */

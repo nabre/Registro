@@ -1,6 +1,6 @@
-import { leggiModello } from '../../../core/azioni/templates.js'
-import { definisci, errore } from '../../contract.js'
-import { elenco, oggetto, testo } from '../../schemas.js'
+import { leggiModello } from '#core/azioni/templates.js'
+import { definisci, errore } from '#contract/contract.js'
+import { elenco, oggetto, testo } from '#contract/schemas.js'
 import { testi } from './modelli.testi.js'
 
 const t = () => testi().leggi

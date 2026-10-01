@@ -14,7 +14,7 @@ import {
   vai,
   type ModoStoria,
 } from './state.js'
-import type { Iso } from '../../core/dominio/models.js'
+import type { Iso } from '#core/dominio/models.js'
 
 type Scorrimenti = ReturnType<typeof ricordaScorrimenti>
 

@@ -2,10 +2,10 @@
 // traduce l'esito. Non passano da `contesto.modifica` (non sono un passo nuovo,
 // vedi `panels/panel.ts`), quindi rimettono in attesa da sé i PDF dei corsi cambiati.
 
-import type { Archivio } from '../dati/archive.js'
-import type { NomeCollezione } from '../dati/paths.js'
-import type { EsitoStoria } from '../dati/history.js'
-import { riferimentiCambiati } from '../dominio/automation.js'
+import type { Archivio } from '#core/dati/archive.js'
+import type { NomeCollezione } from '#core/dati/paths.js'
+import type { EsitoStoria } from '#core/dati/history.js'
+import { riferimentiCambiati } from '#core/dominio/automation.js'
 import { conMessaggio, rifiutaCon, type EsitoAzione, type Parte } from './context.js'
 import { primaDiScrivere, rigeneraDopoScrittura } from './reports.js'
 import { testi } from './history.testi.js'

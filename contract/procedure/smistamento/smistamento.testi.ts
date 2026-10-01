@@ -2,7 +2,7 @@
 // (`pdf.carica` è `smistamento/pdf/carica.ts`); `comune` è `common.ts`. Si
 // leggono al momento dell'uso (`titolo: () => t().titolo`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   comune: {

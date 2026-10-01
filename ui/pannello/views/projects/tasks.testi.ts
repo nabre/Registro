@@ -1,6 +1,6 @@
 // I testi di `views/projects/tasks.ts`: la griglia dei compiti di un progetto.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   stati: {

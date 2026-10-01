@@ -2,9 +2,9 @@
 // restano finché non li si scaccia: un salvataggio fallito non deve sparire
 // mentre si guarda altrove.
 
-import { h } from '../dom.js'
+import { h } from '#ui/pannello/dom.js'
 import { icona } from './icons.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 
 type LivelloNotifica = 'info' | 'successo' | 'avviso' | 'errore'
 

@@ -5,36 +5,36 @@
 // per compito. La griglia è la stessa nella pagina Progetti e nella scheda
 // Progetto dell'ora; dentro un'ora l'inizio si lega alla lezione.
 
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import type { Allievo, CompitoProgetto, Iso, Lezione, Progetto } from '../../../../core/dominio/models.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Allievo, CompitoProgetto, Iso, Lezione, Progetto } from '#core/dominio/models.js'
 import {
   fineDelCompito,
   fineEffettiva,
   giornoDellaVoce,
   statoCompitoPerAllievo,
-} from '../../../../core/dominio/projects.js'
-import { Molti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import type { Risposta } from '../../../../contract/protocol.js'
-import { pastiglia, pulsante, quieto, type TonoPastiglia } from '../../components/base.js'
-import { frecceNellaGriglia } from '../../components/gridArrows.js'
-import { icona } from '../../components/icons.js'
-import { statoInVolo } from '../../components/inFlight.js'
-import { menuContestuale, menuSotto, type ElementoMenu } from '../../components/menu.js'
-import { conferma } from '../../components/modal.js'
-import { tabella } from '../../components/table.js'
-import { azione } from '../../bridge.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
+} from '#core/dominio/projects.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import type { Risposta } from '#contract/protocol.js'
+import { pastiglia, pulsante, quieto, type TonoPastiglia } from '#ui/pannello/components/base.js'
+import { frecceNellaGriglia } from '#ui/pannello/components/gridArrows.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { statoInVolo } from '#ui/pannello/components/inFlight.js'
+import { menuContestuale, menuSotto, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
 import {
   allieviDelProgetto,
   attiviDelProgetto,
   moduloCompito,
   moduloInizio,
   moduloProroga,
-} from '../../forms/project.js'
-import { aggiorna, ridisegna, stato } from '../../state.js'
+} from '#ui/pannello/forms/project.js'
+import { aggiorna, ridisegna, stato } from '#ui/pannello/state.js'
 import { testi } from './tasks.testi.js'
 
 type StatoCompito = ReturnType<typeof statoCompitoPerAllievo>

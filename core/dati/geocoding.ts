@@ -5,7 +5,7 @@
 // ogni indirizzo chiesto una volta (la risposta resta in `Registro.coordinate`).
 // Gli indirizzi reali spesso non si trovano interi: vedi la cascata in `domandePer`.
 
-import { scomponiIndirizzo } from '../dominio/map.js'
+import { scomponiIndirizzo } from '#core/dominio/map.js'
 import { testi } from './geocoding.testi.js'
 
 const SERVIZIO = 'https://nominatim.openstreetmap.org/search'

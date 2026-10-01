@@ -1,7 +1,7 @@
 // I testi dei modi in cui il registro rifà i PDF di un corso (`automation.ts`):
 // il nome di ogni modo e che cosa promette.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { PIF, un } from './lexicon.js'
 
 const it = {

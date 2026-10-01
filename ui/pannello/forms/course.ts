@@ -1,17 +1,17 @@
 // Il corso (una materia a una classe) con le sue ore fisse: senza orario un
 // corso non produce lezioni.
 
-import { oggi } from '../../../core/dominio/dates.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Corso } from '../../../core/dominio/models.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
-import { campo, pulsante, riga, sezioneModulo, type OpzioniCampo } from '../components/base.js'
-import { apriModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { h } from '../dom.js'
-import { azione, invia } from '../bridge.js'
+import { oggi } from '#core/dominio/dates.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Corso } from '#core/dominio/models.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
+import { campo, pulsante, riga, sezioneModulo, type OpzioniCampo } from '#ui/pannello/components/base.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
 import {
   classePerId,
   classiVisibili,
@@ -20,8 +20,8 @@ import {
   postoCorrente,
   stato,
   vai,
-} from '../state.js'
-import { coloreDelCorso, titoloCorso } from '../../../core/dominio/courses.js'
+} from '#ui/pannello/state.js'
+import { coloreDelCorso, titoloCorso } from '#core/dominio/courses.js'
 
 import { moduloClasse } from './class.js'
 import {

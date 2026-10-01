@@ -4,7 +4,7 @@
 
 import { appendFileSync, existsSync, renameSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import type { VoceGiornale } from '../../contract/contract.js'
+import type { VoceGiornale } from '#contract/contract.js'
 
 const MAX_BYTES = 1024 * 1024 // 1 MiB
 

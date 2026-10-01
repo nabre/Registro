@@ -3,8 +3,8 @@
 // Non manda niente indietro: non c'è niente da chiedere a chi sta aspettando.
 
 // Per prima: la lingua della pagina, prima che qualunque altro modulo si carichi.
-import '../../../../core/i18n/page.js'
-import { ascolta, perId, riempi } from '../shared/page.js'
+import '#core/i18n/page.js'
+import { ascolta, perId, riempi } from '#desktop/shell/pages/shared/page.js'
 import { testi } from './splash.testi.js'
 
 import './splash.css'

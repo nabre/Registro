@@ -2,8 +2,8 @@
 // leggono la vista e `commands.ts` («Oggi», frecce, modalità), senza legare i
 // comandi a una pagina.
 
-import { oggi, sommaGiorni, sommaMesi } from '../../core/dominio/dates.js'
-import type { Iso } from '../../core/dominio/models.js'
+import { oggi, sommaGiorni, sommaMesi } from '#core/dominio/dates.js'
+import type { Iso } from '#core/dominio/models.js'
 import { aggiorna, postoCorrente, ridisegna, stato, vai, type ModoCalendario } from './state.js'
 
 /** Quante settimane si disegnano di slancio, prima e dopo il giorno scelto. */

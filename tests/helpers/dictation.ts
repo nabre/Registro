@@ -9,7 +9,7 @@ export {
   prontezzaDettatura,
   ritiraCorredoWhisper,
   trascrivi,
-} from '../../core/dati/dictation.js'
-export { VOICEBOX, ripulisci, wav } from '../../core/dati/voicebox.js'
-export { indirizzoLocale, perchéNonLocale } from '../../core/dominio/loopback.js'
-export { ricaricaImpostazioni } from '../../desktop/apparato/settings.js'
+} from '#core/dati/dictation.js'
+export { VOICEBOX, ripulisci, wav } from '#core/dati/voicebox.js'
+export { indirizzoLocale, perchéNonLocale } from '#core/dominio/loopback.js'
+export { ricaricaImpostazioni } from '#desktop/apparato/settings.js'

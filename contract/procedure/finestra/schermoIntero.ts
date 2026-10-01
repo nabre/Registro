@@ -4,9 +4,9 @@
 //
 // `scrittura` come `vista.apri`: il genere dice chi può chiamarla da fuori.
 
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './finestra.testi.js'
 
 const t = () => testi().schermoIntero

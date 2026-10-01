@@ -1,6 +1,6 @@
 // I testi di `reminders.ts`: la notifica dell'ora che sta per cominciare.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { CARTE, quanti } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 

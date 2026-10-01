@@ -11,9 +11,9 @@
 // Qui si scrivono i valori come si leggono («12,5%», «4,1 GB», «04.09.2026»)
 // senza calcolare niente di nuovo: i numeri sono quelli della busta.
 
-import { formattaData } from '../core/dominio/dates.js'
-import { detto, minuscolo, numero, type TestoPigro } from '../core/i18n/index.js'
-import { parole } from '../core/dominio/words.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { detto, minuscolo, numero, type TestoPigro } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './core.testi.js'
 import type { BloccoRisultato, RisultatoAssistente } from './protocol.js'
 import type { ProceduraQualunque } from './contract.js'

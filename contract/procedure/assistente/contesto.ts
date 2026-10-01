@@ -9,8 +9,8 @@
 // Lo schema è completo campo per campo: `oggetto()` scarta le chiavi non
 // dichiarate, e un campo mancante sparirebbe in silenzio.
 
-import { assistente } from '../../../core/azioni/assistant.js'
-import { inoltra, scrittura } from '../../core.js'
+import { assistente } from '#core/azioni/assistant.js'
+import { inoltra, scrittura } from '#contract/core.js'
 import {
   booleano,
   elenco,
@@ -22,8 +22,8 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
-import { VISTE } from '../common/views.js'
+} from '#contract/schemas.js'
+import { VISTE } from '#contract/procedure/common/views.js'
 import { testi } from './assistente.testi.js'
 
 const t = () => testi().contesto

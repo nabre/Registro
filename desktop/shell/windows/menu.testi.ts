@@ -2,7 +2,7 @@
 // che non sono comandi, ruoli di Electron, rifiuti senza motivo della dogana.
 // I titoli dei comandi vengono da `contract/manifest.testi.ts`.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** I gruppi del menu, per nome: l'ordine e i comandi dentro stanno in `menu.ts`. */
 export type GruppoDelMenu = 'registro' | 'vaiA' | 'nuovo' | 'schermo' | 'posta' | 'cartelle'

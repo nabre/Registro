@@ -1,6 +1,6 @@
-import { consegne } from '../../../core/azioni/assignments.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, identificatore, oggetto } from '../../schemas.js'
+import { consegne } from '#core/azioni/assignments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, oggetto } from '#contract/schemas.js'
 import { esigiConsegna } from './common.js'
 import { testi } from './consegne.testi.js'
 

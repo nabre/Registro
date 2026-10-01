@@ -15,13 +15,13 @@ import {
   requisitoMancante,
   sospesa,
   type VoceImpostazione,
-} from '../../contract/manifest.js'
-import { perchéNonLocale } from '../../core/dominio/loopback.js'
-import { nomeDiModello } from '../../core/dati/ggufName.js'
-import { sembraIndirizzo } from '../../core/dominio/mailbox.js'
-import type { VoceProgramma } from '../../contract/protocol.js'
-import { EventEmitter } from '../../core/apparato/events.js'
-import type { DialogoPercorso } from '../../core/apparato/platform.js'
+} from '#contract/manifest.js'
+import { perchéNonLocale } from '#core/dominio/loopback.js'
+import { nomeDiModello } from '#core/dati/ggufName.js'
+import { sembraIndirizzo } from '#core/dominio/mailbox.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import { EventEmitter } from '#core/apparato/events.js'
+import type { DialogoPercorso } from '#core/apparato/platform.js'
 import { testi } from './settings.testi.js'
 
 /** I predefiniti del manifesto, appiattiti una volta sola. */

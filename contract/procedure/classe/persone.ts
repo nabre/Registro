@@ -7,13 +7,13 @@
 // L'indirizzo esce come riga da busta e nelle sue caselle, che si filtrano e
 // si raggruppano; con `comune` e `cap` «chi abita a Lugano» è una chiamata sola.
 
-import { nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { scriviIndirizzo } from '../../../core/dominio/addresses.js'
-import { definisci } from '../../contract.js'
-import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { nellaZona, zona } from '../common/filters.js'
-import { esigiClasse } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { scriviIndirizzo } from '#core/dominio/addresses.js'
+import { definisci } from '#contract/contract.js'
+import { booleano, elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { nellaZona, zona } from '#contract/procedure/common/filters.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './classe.testi.js'
 
 const t = () => testi().persone

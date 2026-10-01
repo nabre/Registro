@@ -8,7 +8,7 @@ import * as percorso from 'node:path'
 
 import { getConfiguration } from './settings.js'
 import { Segreti, type DepositoSegreti } from './secrets.js'
-import { Uri } from '../../core/apparato/uri.js'
+import { Uri } from '#core/apparato/uri.js'
 
 /**
  * Le cartelle dei bundle: `dist/` per `npm run start` e il pacchetto,

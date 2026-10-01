@@ -6,13 +6,13 @@ import {
   inizioLezione,
   momentoLezione,
   riepilogaPresenze,
-} from '../../../../core/dominio/calculations.js'
-import { minutiDaOra } from '../../../../core/dominio/dates.js'
-import type { Lezione } from '../../../../core/dominio/models.js'
-import { icona } from '../../components/icons.js'
-import { h } from '../../dom.js'
-import { eventiDellaLezione } from '../../externalCalendar.js'
-import { moduloLezione } from '../../forms.js'
+} from '#core/dominio/calculations.js'
+import { minutiDaOra } from '#core/dominio/dates.js'
+import type { Lezione } from '#core/dominio/models.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { h } from '#ui/pannello/dom.js'
+import { eventiDellaLezione } from '#ui/pannello/externalCalendar.js'
+import { moduloLezione } from '#ui/pannello/forms.js'
 import {
   nomeClasseDiLezione,
   nomeDiLezione,
@@ -21,7 +21,7 @@ import {
   coloreDiLezione,
   titoloDiLezione,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import { apriLezione } from './common.js'
 import { rendiTrascinabile } from './drag.js'
 import {

@@ -1,6 +1,6 @@
 // I testi di `integrity.ts`: i riferimenti rimasti appesi, una frase per rottura.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import { PIF, quanti } from './lexicon.js'
 import { plurale } from './text.js'
 

@@ -2,7 +2,7 @@
 // iniziali delle liste aperte. Le voci delle liste chiuse sono i tipi del
 // lessico; quelle delle aperte, una volta rinominate, vivono nel documento.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   liste: {

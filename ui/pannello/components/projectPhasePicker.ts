@@ -5,19 +5,19 @@
 // compare la ricerca; frecce, Invio ed Esc come in ogni elenco. Vive fuori dal
 // ridisegno, come i menu: nasce al clic e se ne va al primo gesto fuori.
 
-import { formattaData } from '../../../core/dominio/dates.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { FaseProgetto, Progetto } from '../../../core/dominio/models.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { FaseProgetto, Progetto } from '#core/dominio/models.js'
 import {
   faseDellAttivita,
   periodoDellaFase,
   progettiDelCorso,
   type Periodo,
-} from '../../../core/dominio/projects.js'
-import { minuscolo } from '../../../core/i18n/index.js'
-import { h, rifocalizza } from '../dom.js'
-import { stato } from '../state.js'
+} from '#core/dominio/projects.js'
+import { minuscolo } from '#core/i18n/index.js'
+import { h, rifocalizza } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 import { dentroIBordi } from './hint.js'
 import { icona } from './icons.js'
 import { testi } from './projectPhasePicker.testi.js'

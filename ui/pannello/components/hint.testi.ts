@@ -1,7 +1,7 @@
 // I testi dei suggerimenti (`hint.ts`): il nome del segno «i» per chi legge
 // con la voce.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   spiegazione: 'Spiegazione',

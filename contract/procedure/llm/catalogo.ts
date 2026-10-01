@@ -2,9 +2,9 @@
 // stessa forma di riga. Senza `cerca` torna solo il catalogo, come la pagina
 // appena aperta.
 
-import { definisci } from '../../contract.js'
-import { CATALOGO, cerca } from '../../../core/dati/huggingFace.js'
-import { booleano, elenco, numero, oggetto, opzionale, scelta, testo } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { CATALOGO, cerca } from '#core/dati/huggingFace.js'
+import { booleano, elenco, numero, oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().catalogo

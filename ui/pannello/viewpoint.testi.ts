@@ -3,9 +3,9 @@
 // usa come chiave per spegnerli: `campi` è la sola tabella (vedi
 // `ID_DELLA_TENDINA` in `assistant/parts.ts`).
 
-import { catalogo } from '../../core/i18n/index.js'
-import { PIF, SCUOLA, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, SCUOLA, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   /** I nomi delle tendine e dei filtri, come li scrive la barra. */

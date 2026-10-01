@@ -1,9 +1,9 @@
 // I testi di `assessments.ts`: i momenti di valutazione, i voti, i recuperi, le
 // riconsegne e i PDF delle prove.
 
-import { catalogo } from '../i18n/index.js'
-import { PIF, frase, il } from '../dominio/lexicon.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, frase, il } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   tappaSparita: 'Quella tappa non c’è più nel piano.',

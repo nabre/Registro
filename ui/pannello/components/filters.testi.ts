@@ -1,7 +1,7 @@
 // I testi dei pezzi ripetuti in più viste (`filters.ts`): lo stato vuoto di un
 // registro senza anno, e come si parte.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   comeSiParte:

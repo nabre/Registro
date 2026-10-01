@@ -2,7 +2,7 @@
 // sua tappa, e le due finestre che aggiungono un collegamento e modificano una
 // risorsa.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   modificaRisorsa: 'Modifica la risorsa',

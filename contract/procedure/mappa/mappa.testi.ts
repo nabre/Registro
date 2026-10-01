@@ -2,7 +2,7 @@
 // «entroKm») e nomi di procedura restano uguali in ogni lingua. Si leggono al
 // momento dell'uso (`titolo: () => t().titolo`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   elenco: {

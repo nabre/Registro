@@ -30,8 +30,8 @@
 //   - Le scritte di una figura stanno nelle misure dell'italiano: si accorcia
 //     la parola, non si allarga il disegno.
 
-import type { Vista } from '../../../../contract/protocol.js'
-import type { NomeIcona } from '../../components/icons.js'
+import type { Vista } from '#contract/protocol.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
 
 /** Una cosa che si sa fare, e come. */
 export interface VoceGuida {

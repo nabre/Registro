@@ -1,7 +1,7 @@
 // Nome e descrizione di ogni modello dei rapporti. Le chiavi sono i file di
 // `templates/`: un modello del catalogo senza voce qui non compila.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 /** Quel che si legge di un modello nell'elenco. */
 interface TestoModello {

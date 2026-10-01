@@ -1,7 +1,7 @@
 // Il telaio di una tabella (contenitore che scorre, intestazione, corpo,
 // piede), scritto una volta: chi costruisce una tabella scrive solo le celle.
 
-import { h, type Figlio } from '../dom.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import { isolaVirtuale } from './virtualList.js'
 
 /** Quel che sta dentro la tabella: le celle e gli attributi suoi. */

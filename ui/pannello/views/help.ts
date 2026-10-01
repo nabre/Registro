@@ -5,16 +5,16 @@
 // la ricerca capisce sinonimi, plurali e refusi; l'indice segue lo
 // scorrimento; le figure si ingrandiscono e i bollini accendono la legenda.
 
-import { pezzi } from '../assistant/format.js'
-import { pastiglia, pulsante, statoVuoto, testataVista } from '../components/base.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { andaturaScorrimento, dentroUnCampo, gestisci, h, svg, type Figlio } from '../dom.js'
-import { isola, ridisegnaIsola } from '../islands.js'
-import { postoDaVista } from '../place.js'
-import { riprendi, seguiScorrimento } from '../bookmark.js'
-import { iscriviti, stato, vai, type Vista } from '../state.js'
-import { lingua } from '../../../core/i18n/index.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { pezzi } from '#ui/pannello/assistant/format.js'
+import { pastiglia, pulsante, statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { andaturaScorrimento, dentroUnCampo, gestisci, h, svg, type Figlio } from '#ui/pannello/dom.js'
+import { isola, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { postoDaVista } from '#ui/pannello/place.js'
+import { riprendi, seguiScorrimento } from '#ui/pannello/bookmark.js'
+import { iscriviti, stato, vai, type Vista } from '#ui/pannello/state.js'
+import { lingua } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './help.testi.js'
 import {
   GUIDA,

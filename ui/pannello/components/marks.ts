@@ -1,9 +1,9 @@
 // I segni della matrice del comportamento, disegnati allo stesso modo nel
 // registro e nella scheda della persona.
 
-import type { SegnoOsservato } from '../../../core/dominio/models.js'
-import { NOMI_SEGNO, nomeSegnoScritto } from '../../../core/dominio/observations.js'
-import { h } from '../dom.js'
+import type { SegnoOsservato } from '#core/dominio/models.js'
+import { NOMI_SEGNO, nomeSegnoScritto } from '#core/dominio/observations.js'
+import { h } from '#ui/pannello/dom.js'
 import { icona, type NomeIcona } from './icons.js'
 
 /**

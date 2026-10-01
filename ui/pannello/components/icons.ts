@@ -4,7 +4,7 @@
 // Quelle che mancano si prendono da Lucide (https://lucide.dev, licenza ISC),
 // copiando il tracciato e dicendolo accanto.
 
-import { svg } from '../dom.js'
+import { svg } from '#ui/pannello/dom.js'
 
 const TRACCIATI: Record<string, string> = {
   sidebar:

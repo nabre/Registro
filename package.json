@@ -23,6 +23,12 @@
     "valutazioni"
   ],
   "main": "dist/main.cjs",
+  "imports": {
+    "#core/*": "./core/*",
+    "#contract/*": "./contract/*",
+    "#desktop/*": "./desktop/*",
+    "#ui/*": "./ui/*"
+  },
   "scripts": {
     "dev": "node tools/dev.mjs",
     "build": "node esbuild.mjs",

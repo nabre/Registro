@@ -1,7 +1,7 @@
-import { piani } from '../../../core/azioni/plans.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, nullabile, oggetto } from '../../schemas.js'
-import { esigiPiano } from '../common/plans.js'
+import { piani } from '#core/azioni/plans.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, nullabile, oggetto } from '#contract/schemas.js'
+import { esigiPiano } from '#contract/procedure/common/plans.js'
 import { esigiRisorsa, esigiTappa } from './common.js'
 import { testi } from './risorse.testi.js'
 

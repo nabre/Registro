@@ -2,7 +2,7 @@
 // (`titolo: () => t().titolo`), mai al caricamento, o resterebbero nella lingua
 // di prima.
 
-import { catalogo, numero } from '../../../core/i18n/index.js'
+import { catalogo, numero } from '#core/i18n/index.js'
 
 const it = {
   comune: {

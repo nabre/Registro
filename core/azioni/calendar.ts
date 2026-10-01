@@ -6,16 +6,16 @@
 // qui arriva quel che si è spuntato, scritto tutto o niente. Non si cancellano
 // lezioni: una sparita dal calendario resta finché qualcuno non la toglie.
 
-import { fineLezione, inizioLezione, slotOrdinati } from '../dominio/calculations.js'
-import { allineamentoDaSoloAmmesso, slotDaFasce } from '../dominio/calendar.js'
-import { corsoPerId } from '../dominio/courses.js'
-import { oggi, istanteAdesso } from '../dominio/dates.js'
-import { creaLezione } from '../dominio/factories.js'
-import { nuovoIdCalendarioEsterno } from '../dominio/identifiers.js'
-import type { Lezione, Registro, SorgenteCalendario } from '../dominio/models.js'
-import { nomeDaOrigine, normalizzaCalendario } from '../dominio/normalization.js'
-import { validaLezione, validaSlot } from '../dominio/validation.js'
-import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '../dati/calendar.js'
+import { fineLezione, inizioLezione, slotOrdinati } from '#core/dominio/calculations.js'
+import { allineamentoDaSoloAmmesso, slotDaFasce } from '#core/dominio/calendar.js'
+import { corsoPerId } from '#core/dominio/courses.js'
+import { oggi, istanteAdesso } from '#core/dominio/dates.js'
+import { creaLezione } from '#core/dominio/factories.js'
+import { nuovoIdCalendarioEsterno } from '#core/dominio/identifiers.js'
+import type { Lezione, Registro, SorgenteCalendario } from '#core/dominio/models.js'
+import { nomeDaOrigine, normalizzaCalendario } from '#core/dominio/normalization.js'
+import { validaLezione, validaSlot } from '#core/dominio/validation.js'
+import { copiaDallOrigine, eliminaCopia, sorgenteInRete } from '#core/dati/calendar.js'
 import {
   conMessaggio,
   documentoCambiato,
@@ -25,7 +25,7 @@ import {
   scegliUnFile,
   type Parte,
 } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './calendar.testi.js'
 
 /** Il calendario con quell'id nel documento, o `undefined`. */

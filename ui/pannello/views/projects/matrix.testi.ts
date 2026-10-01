@@ -1,6 +1,6 @@
 // I testi di `views/projects/matrix.ts`: la matrice a livelli e la progressione.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaLivello: 'Nessun livello',

@@ -4,22 +4,22 @@
 // date e semestri. Un anno che nasce le porta con sé, dal calendario ufficiale
 // o scritte qui.
 
-import { allineaSemestri, annoAllineato } from '../../../core/dominio/years.js'
+import { allineaSemestri, annoAllineato } from '#core/dominio/years.js'
 import {
   differenzaGiorni, etichettaAnno, formattaData, nomeSemestre, oggi, primoAnnoScolastico,
   sommaGiorni,
-} from '../../../core/dominio/dates.js'
-import { creaSospensione } from '../../../core/dominio/factories.js'
+} from '#core/dominio/dates.js'
+import { creaSospensione } from '#core/dominio/factories.js'
 import type {
   AnnoScolastico, CalendarioDellAnno, Iso, Sospensione,
-} from '../../../core/dominio/models.js'
-import { èCollegata } from '../../../core/dominio/schoolCalendar.js'
-import { campo, pulsante, riga, sezioneModulo } from '../components/base.js'
-import { apriModale, type ContestoModale } from '../components/modal.js'
-import { suggerimento } from '../components/hint.js'
-import { h, rimpiazza } from '../dom.js'
+} from '#core/dominio/models.js'
+import { èCollegata } from '#core/dominio/schoolCalendar.js'
+import { campo, pulsante, riga, sezioneModulo } from '#ui/pannello/components/base.js'
+import { apriModale, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { h, rimpiazza } from '#ui/pannello/dom.js'
 
-import { stato, vai } from '../state.js'
+import { stato, vai } from '#ui/pannello/state.js'
 import { leggiData, salva, scriviData, testo } from './common.js'
 import { moduloImportaRegistro } from './registerImport.js'
 import {
@@ -31,8 +31,8 @@ import {
   sezioneCalendarioUfficiale,
 } from './schoolCalendar.js'
 
-import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
 import { testi } from './year.testi.js'
 
 /**

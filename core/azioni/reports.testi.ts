@@ -2,9 +2,9 @@
 // `dove` («di CP — DIC2», «di 3 corsi») lo compongono `diCorso`/`diCorsi`, e
 // ogni lingua lo inserisce nella sua frase con lo spazio davanti.
 
-import { catalogo, perNumero } from '../i18n/index.js'
-import { PIF, frase } from '../dominio/lexicon.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { PIF, frase } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   giroInterrotto: 'Il documento aperto è cambiato: giro interrotto.',

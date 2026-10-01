@@ -1,6 +1,6 @@
 // Pezzi di schema delle procedure di `documento`.
 
-import { testo, type Schema } from '../../schemas.js'
+import { testo, type Schema } from '#contract/schemas.js'
 import { testi } from './documento.testi.js'
 
 /**

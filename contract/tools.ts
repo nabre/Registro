@@ -18,7 +18,7 @@ import { VERSIONE_API } from './contract.js'
 import { registraTutte } from './registry.js'
 import { procedure } from './core.js'
 import { schemaJson } from './schemas.js'
-import { detto } from '../core/i18n/index.js'
+import { detto } from '#core/i18n/index.js'
 import { presentazioneDetta } from './presentation.js'
 import { testi } from './tools.testi.js'
 

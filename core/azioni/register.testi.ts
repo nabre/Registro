@@ -1,9 +1,9 @@
 // I testi di `register.ts`: anagrafica, orari, foto, import da un altro registro.
 // «File → Salva l’anno con nome…» deve coincidere con `manifest.testi.ts`.
 
-import { catalogo, perNumero } from '../i18n/index.js'
-import { PIF } from '../dominio/lexicon.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 /** Il Ticino come lo si chiama a nord delle Alpi. */
 const tessin = (cantone: string): string => (cantone === 'Ticino' ? 'Tessin' : cantone)

@@ -1,8 +1,8 @@
 // I testi della pagina dei piani lezione (`plans.ts`): la testata e il piano
 // aperto. Il navigatore fra le ore ha i suoi, in `plansNavigator.testi.ts`.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // Il piano aperto

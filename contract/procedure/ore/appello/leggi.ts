@@ -1,13 +1,13 @@
-import { contaUd, fineLezione, inizioLezione } from '../../../../core/dominio/calculations.js'
+import { contaUd, fineLezione, inizioLezione } from '#core/dominio/calculations.js'
 import {
   classeDellaLezione,
   corsoDellaLezione,
   materiaDellaLezione,
-} from '../../../../core/dominio/courses.js'
-import { corto } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { definisci } from '../../../contract.js'
+} from '#core/dominio/courses.js'
+import { corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { definisci } from '#contract/contract.js'
 import {
   elenco,
   identificatore,
@@ -17,10 +17,10 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../../schemas.js'
-import { esigiLezione, STATI_LEZIONE } from '../common.js'
-import { STATI_APPELLO } from '../../common/rollCall.js'
-import { testi } from '../ore.testi.js'
+} from '#contract/schemas.js'
+import { esigiLezione, STATI_LEZIONE } from '#contract/procedure/ore/common.js'
+import { STATI_APPELLO } from '#contract/procedure/common/rollCall.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().appello.leggi
 const p = () => t().presentazione

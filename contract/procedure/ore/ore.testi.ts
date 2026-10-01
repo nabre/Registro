@@ -6,7 +6,7 @@
 // come nel glossario. Esempi fra virgolette, valori ammessi («in-corso») e nomi
 // di procedura («ore.elenco») restano uguali in ogni lingua.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   comune: {

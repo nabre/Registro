@@ -8,20 +8,20 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 
 import * as apparato from 'apparato'
 
-import { annoAllineato, annoInUso } from '../dominio/years.js'
-import { registroVuoto } from '../dominio/factories.js'
-import { ESPORTAZIONI } from '../dominio/locations.js'
-import type { AnnoScolastico, Impostazioni, Materia, Registro } from '../dominio/models.js'
-import { VERSIONE_DATI } from '../dominio/models.js'
-import { normalizzaRegistro } from '../dominio/normalization.js'
+import { annoAllineato, annoInUso } from '#core/dominio/years.js'
+import { registroVuoto } from '#core/dominio/factories.js'
+import { ESPORTAZIONI } from '#core/dominio/locations.js'
+import type { AnnoScolastico, Impostazioni, Materia, Registro } from '#core/dominio/models.js'
+import { VERSIONE_DATI } from '#core/dominio/models.js'
+import { normalizzaRegistro } from '#core/dominio/normalization.js'
 import {
   ErroreVersionePiuRecente,
   aggiornaFormato,
   fraseVersionePiuRecente,
   raccontaAggiornamento,
   type FormatoAggiornato,
-} from '../dominio/upgrades.js'
-import { testoCollezione } from '../dominio/persistence.js'
+} from '#core/dominio/upgrades.js'
+import { testoCollezione } from '#core/dominio/persistence.js'
 import { testi } from './archive.testi.js'
 import { Deposito, dentroIlDocumento } from './store.js'
 import { Storia, type EsitoStoria } from './history.js'

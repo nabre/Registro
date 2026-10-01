@@ -1,6 +1,6 @@
 // I testi di `updates.ts`: perché un gesto sugli aggiornamenti non ha senso adesso.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonSupportato: 'Questo registro non si aggiorna da sé.',

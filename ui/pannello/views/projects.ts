@@ -4,11 +4,11 @@
 // per giorno e gli esiti (giudizi, valutazioni, presenze). Le lezioni e le
 // valutazioni del progetto si ricavano da piani e momenti.
 
-import { confrontaLezioni, nomeCompleto } from '../../../core/dominio/calculations.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import { Molti, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Iso, Lezione, MomentoValutazione, Progetto, StatoAttivita, StatoProgetto } from '../../../core/dominio/models.js'
+import { confrontaLezioni, nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Iso, Lezione, MomentoValutazione, Progetto, StatoAttivita, StatoProgetto } from '#core/dominio/models.js'
 import {
   avanzamentoDelProgetto,
   lezioniDelProgetto,
@@ -19,8 +19,8 @@ import {
   type Periodo,
   type QuadroDelProgetto,
   type QuadroDellaFase,
-} from '../../../core/dominio/projects.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#core/dominio/projects.js'
+import { parole } from '#core/dominio/words.testi.js'
 import {
   barra,
   collegamento,
@@ -34,15 +34,15 @@ import {
   tendina,
   testataVista,
   type TonoPastiglia,
-} from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { icona } from '../components/icons.js'
-import { menuSotto, type ElementoMenu } from '../components/menu.js'
-import { inTelaio } from '../components/table.js'
-import { azione } from '../bridge.js'
-import { corsoDelContesto, nomeDelCorso } from '../context.js'
-import { gestisci, h, type Figlio } from '../dom.js'
-import { moduloAnno } from '../forms.js'
+} from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { menuSotto, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { inTelaio } from '#ui/pannello/components/table.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { corsoDelContesto, nomeDelCorso } from '#ui/pannello/context.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAnno } from '#ui/pannello/forms.js'
 import {
   allieviDelProgetto,
   etichettaOra,
@@ -54,8 +54,8 @@ import {
   moduloProgetto,
   nomeStatoProgetto,
   periodoDetto,
-} from '../forms/project.js'
-import { apriLezione } from '../pages.js'
+} from '#ui/pannello/forms/project.js'
+import { apriLezione } from '#ui/pannello/pages.js'
 import {
   aggiorna,
   annoCorrente,
@@ -65,7 +65,7 @@ import {
   stato,
   vai,
   type LinguettaProgetto,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { giudiziDelProgetto } from './projects/judgements.js'
 import { legendaLivelli, matriceProgetto, progressioneAllievo, type QuandoMatrice } from './projects/matrix.js'
 import { compitiDelProgetto } from './projects/tasks.js'

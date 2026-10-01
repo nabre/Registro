@@ -1,7 +1,7 @@
-import { registro } from '../../../core/azioni/register.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto, testo } from '../../schemas.js'
-import { esigiClasse } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto, testo } from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
 import { testi } from './persone.testi.js'
 
 /**

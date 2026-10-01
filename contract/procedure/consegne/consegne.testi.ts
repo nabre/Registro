@@ -3,7 +3,7 @@
 // stati delle pendenze («aperta», «scade», «arretrata», «completa»). Si leggono
 // al momento dell'uso (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Quel che più procedure delle consegne si dividono (`common.ts`). */

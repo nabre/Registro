@@ -1,8 +1,8 @@
 // Guardie delle procedure di `esportazioni`.
 
-import { esportazioniPresenti } from '../../../core/dati/filing.js'
-import { ESPORTAZIONI } from '../../../core/dominio/locations.js'
-import { errore } from '../../contract.js'
+import { esportazioniPresenti } from '#core/dati/filing.js'
+import { ESPORTAZIONI } from '#core/dominio/locations.js'
+import { errore } from '#contract/contract.js'
 
 /**
  * Quel foglio c'è ancora fra le esportazioni. Un percorso fuori da

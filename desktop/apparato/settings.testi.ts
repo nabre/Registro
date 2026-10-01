@@ -1,7 +1,7 @@
 // I testi della dogana delle impostazioni (perché un valore non si scrive) e i
 // filtri del dialogo che sceglie un percorso.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonÈUnImpostazione: (chiave: string) => `«${chiave}» non è un’impostazione del registro.`,

@@ -1,6 +1,6 @@
 // I testi di `sorting.ts`: le pagine scelte di una scansione, dette a voce.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nessunaPagina: 'nessuna pagina',

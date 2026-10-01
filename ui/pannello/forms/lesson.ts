@@ -1,14 +1,14 @@
 // L'ora: quando si fa, quanto dura, che cosa è successo dentro. L'editor degli
 // slot porta il peso: un'ora ha pause in mezzo, e le parti si spostano insieme.
 
-import { inizioSullaGriglia, lezioneNellaGiornata, slotSullePause } from '../../../core/dominio/breaks.js'
-import { Molti, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
+import { inizioSullaGriglia, lezioneNellaGiornata, slotSullePause } from '#core/dominio/breaks.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
 import {
   allieviAttivi, nomeCompleto, ordinaAllievi, slotIncatenati, slotOrdinati, slotSegnati,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   durataMinuti,
   formattaData,
@@ -18,16 +18,16 @@ import {
   siglaUd,
   sommaMinuti,
   udDaMinuti,
-} from '../../../core/dominio/dates.js'
-import { creaOsservazione, creaSlot } from '../../../core/dominio/factories.js'
-import type { Classe, Giornata, Lezione, Osservazione, Slot } from '../../../core/dominio/models.js'
-import { avviso, campo, pastiglia, pulsante, riga, sezioneModulo } from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { apriModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, rimpiazza } from '../dom.js'
-import { ancorataAIcs, aulaDaIcs } from '../externalCalendar.js'
-import { lezionePerId, nomeDiPiano, pianiPerCorso, stato, vai } from '../state.js'
+} from '#core/dominio/dates.js'
+import { creaOsservazione, creaSlot } from '#core/dominio/factories.js'
+import type { Classe, Giornata, Lezione, Osservazione, Slot } from '#core/dominio/models.js'
+import { avviso, campo, pastiglia, pulsante, riga, sezioneModulo } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, rimpiazza } from '#ui/pannello/dom.js'
+import { ancorataAIcs, aulaDaIcs } from '#ui/pannello/externalCalendar.js'
+import { lezionePerId, nomeDiPiano, pianiPerCorso, stato, vai } from '#ui/pannello/state.js'
 
 import {
   baseViva,

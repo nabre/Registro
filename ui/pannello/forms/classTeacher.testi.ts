@@ -1,8 +1,8 @@
 // I testi di `forms/classTeacher.ts`: i recapiti fissi della classe e le
 // comunicazioni alle famiglie, dalla bozza all'invio.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   recapito: {

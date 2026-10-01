@@ -1,8 +1,8 @@
 // Nasconde una notizia dal filetto degli aggiornamenti per tutte le superfici.
 
-import { aggiornamenti } from '../../../core/azioni/updates.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, testo } from '../../schemas.js'
+import { aggiornamenti } from '#core/azioni/updates.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, testo } from '#contract/schemas.js'
 import { testi } from './aggiornamenti.testi.js'
 
 export const procedura = scrittura({

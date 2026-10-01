@@ -6,16 +6,16 @@ import {
   etichettaPeriodo,
   nomePeriodo,
   SEGNAPOSTO_ASSENZE,
-} from '../../../core/dominio/absences.js'
-import { formattaData, nomeSemestre, oggi } from '../../../core/dominio/dates.js'
-import { creaBloccoAssenze } from '../../../core/dominio/factories.js'
-import type { BloccoAssenze, Classe } from '../../../core/dominio/models.js'
-import { validaBloccoAssenze } from '../../../core/dominio/validation.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, riga, sezioneModulo } from '../components/base.js'
-import { apriModale } from '../components/modal.js'
-import { h } from '../dom.js'
-import { azione } from '../bridge.js'
+} from '#core/dominio/absences.js'
+import { formattaData, nomeSemestre, oggi } from '#core/dominio/dates.js'
+import { creaBloccoAssenze } from '#core/dominio/factories.js'
+import type { BloccoAssenze, Classe } from '#core/dominio/models.js'
+import { validaBloccoAssenze } from '#core/dominio/validation.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, riga, sezioneModulo } from '#ui/pannello/components/base.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
 import {
   aggiorna,
   annoCorrente,
@@ -23,7 +23,7 @@ import {
   semestrePerData,
   stato,
   toccaIlSemestreScelto,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 
 import { campiRecapiti, recapitiScelti, salva, tastoElimina, testo } from './common.js'
 

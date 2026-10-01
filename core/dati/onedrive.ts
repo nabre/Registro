@@ -24,14 +24,14 @@ import {
   voceDaGraph,
   type ElementoGraph,
   type VoceOneDrive,
-} from '../dominio/onedrive.js'
-import { parole } from '../dominio/words.testi.js'
+} from '#core/dominio/onedrive.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { leggiDaGraph, rileggiOneDriveLocali, scaricaDaGraph } from './microsoft.js'
 import { cartelleLocaliDi } from './oneDriveLocal.js'
 import { ESTENSIONE } from './package.js'
 import { testi } from './onedrive.testi.js'
 
-export type { VoceOneDrive } from '../dominio/onedrive.js'
+export type { VoceOneDrive } from '#core/dominio/onedrive.js'
 
 /** I campi che servono di ogni elemento: il resto Graph non lo manda. */
 const CAMPI = 'id,name,size,lastModifiedDateTime,folder,file,package,parentReference,remoteItem'

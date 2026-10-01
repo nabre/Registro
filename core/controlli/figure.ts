@@ -4,8 +4,8 @@
 // manifesto non ne sa niente: una voce con una figura qui si mostra a schede
 // (il foglio è `ui/pannello/styles/figure-choice.css`, caricato da tutte e due).
 
-import { LINGUE, NOMI_DELLE_LINGUE, lingua } from '../i18n/index.js'
-import { figuraLingua } from '../i18n/flags.js'
+import { LINGUE, NOMI_DELLE_LINGUE, lingua } from '#core/i18n/index.js'
+import { figuraLingua } from '#core/i18n/flags.js'
 import { elemento } from './dom.js'
 import { testi } from './controls.testi.js'
 

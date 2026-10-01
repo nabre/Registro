@@ -3,8 +3,8 @@
 // Il conto (`contaRegole`) si rifà solo quando cambiano gli eventi o il testo
 // delle regole: la pagina si ridisegna a ogni spunta.
 
-import { contaRegole, type ConteggioRegola } from '../../core/dominio/calendarRules.js'
-import type { EventoCalendario } from '../../core/dominio/calendarIcs.js'
+import { contaRegole, type ConteggioRegola } from '#core/dominio/calendarRules.js'
+import type { EventoCalendario } from '#core/dominio/calendarIcs.js'
 import { pastiglia } from './components/base.js'
 import { eventiCaricati } from './externalCalendar.js'
 import { testi } from './ruleCounts.testi.js'

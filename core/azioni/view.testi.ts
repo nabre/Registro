@@ -1,6 +1,6 @@
 // I testi di `view.ts`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonAperto: 'Il registro non è aperto: non c’è nessuna pagina da mostrare.',

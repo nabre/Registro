@@ -2,7 +2,7 @@
 // proprio catalogo accanto. Si leggono al momento dell'uso (`titolo: () => …`),
 // mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   elimina: { titolo: 'Toglie una persona dalla classe con presenze, voti e osservazioni' },

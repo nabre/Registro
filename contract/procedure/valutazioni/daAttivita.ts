@@ -1,7 +1,7 @@
-import { valutazioni } from '../../../core/azioni/assessments.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, oggetto } from '../../schemas.js'
-import { esigiLezione } from '../common/plans.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiLezione } from '#contract/procedure/common/plans.js'
 import { testi } from './valutazioni.testi.js'
 
 const t = () => testi().daAttivita

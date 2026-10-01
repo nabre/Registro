@@ -1,6 +1,6 @@
 // Guardie, elenchi di valori e pezzi di schema delle procedure di `valutazioni`.
 
-import { errore, type Ambito } from '../../contract.js'
+import { errore, type Ambito } from '#contract/contract.js'
 import { testi } from './valutazioni.testi.js'
 
 export function esigiMomento (ambito: Ambito, valutazioneId: string) {

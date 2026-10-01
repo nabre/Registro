@@ -1,12 +1,12 @@
 // I testi della pagina dei momenti di valutazione (`views/assessments.ts`).
 
-import { catalogo, numero, perNumero, minuscolo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { TipoValutazione } from '../../../core/dominio/models.js'
-import type { MotivoOrfano } from '../../../core/dominio/orphans.js'
-import { testi as motivi } from '../../../core/dominio/orphans.testi.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo, numero, perNumero, minuscolo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { TipoValutazione } from '#core/dominio/models.js'
+import type { MotivoOrfano } from '#core/dominio/orphans.js'
+import { testi as motivi } from '#core/dominio/orphans.testi.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   documentiAiuto: 'i PDF stanno nella cartella del registro, sotto allegati/',

@@ -1,10 +1,10 @@
 // Guardie, elenchi di valori e pezzi di schema delle procedure di `ore`.
 
-import { contaUd } from '../../../core/dominio/calculations.js'
-import { classeDellaLezione } from '../../../core/dominio/courses.js'
-import type { Lezione, SegnoOsservato, StatoLezione } from '../../../core/dominio/models.js'
-import { errore, type Ambito } from '../../contract.js'
-import { esaustivo } from '../../schemas.js'
+import { contaUd } from '#core/dominio/calculations.js'
+import { classeDellaLezione } from '#core/dominio/courses.js'
+import type { Lezione, SegnoOsservato, StatoLezione } from '#core/dominio/models.js'
+import { errore, type Ambito } from '#contract/contract.js'
+import { esaustivo } from '#contract/schemas.js'
 import { testi } from './ore.testi.js'
 
 // Gli stati dell'appello stanno in `common/rollCall.ts`, perché li usa anche
@@ -17,7 +17,7 @@ export const STATI_LEZIONE = esaustivo<StatoLezione>()([
 export const SEGNI = esaustivo<SegnoOsservato>()(['positivo', 'negativo'] as const)
 
 /** La lezione, o il motivo per cui non c'è: la guardia comune, col suo rimedio. */
-export { esigiLezione } from '../common/plans.js'
+export { esigiLezione } from '#contract/procedure/common/plans.js'
 
 /**
  * Quell'unità didattica esiste in quell'ora. Lo schema si ferma a

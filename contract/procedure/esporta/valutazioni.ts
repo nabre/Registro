@@ -1,8 +1,8 @@
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
 import { testi } from './esporta.testi.js'
-import { identificatore, oggetto } from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { semestreDiEsportazione } from './common.js'
 
 export const procedura = scrittura({

@@ -15,19 +15,19 @@ import {
   ordinaAllievi,
   contaUd,
   statiAllineati,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   annoDellaClasse,
   corsiDellaClasse,
   materiaDelCorso,
   registroDelCorso,
-} from '../../../core/dominio/courses.js'
-import { quotaAssenza } from '../../../core/dominio/courseMatrix.js'
-import type { Allievo, Classe, StatoPresenza } from '../../../core/dominio/models.js'
-import { udPrevisteDaOrario } from '../../../core/dominio/timetable.js'
+} from '#core/dominio/courses.js'
+import { quotaAssenza } from '#core/dominio/courseMatrix.js'
+import type { Allievo, Classe, StatoPresenza } from '#core/dominio/models.js'
+import { udPrevisteDaOrario } from '#core/dominio/timetable.js'
 // Alias: dentro `esegui` c'è già una `const oltreSoglia` (il conto della busta).
-import { oltreSoglia as superaLaSoglia } from '../../../core/dominio/alerts.js'
-import { definisci } from '../../contract.js'
+import { oltreSoglia as superaLaSoglia } from '#core/dominio/alerts.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -38,8 +38,8 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
-import { stati, statiScelti, STATI_APPELLO } from '../common/rollCall.js'
+} from '#contract/schemas.js'
+import { stati, statiScelti, STATI_APPELLO } from '#contract/procedure/common/rollCall.js'
 import {
   CAMPI_CERCA,
   CAMPI_ESCLUSI,
@@ -60,11 +60,11 @@ import {
   rigaPersona,
   SCHEDA_PERIODO,
   taglia,
-} from '../common/filters.js'
+} from '#contract/procedure/common/filters.js'
 import {
   esigiClasse, esigiCorso, esigiCorsoDiClasse, esigiPersona,
-} from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as t } from './assenze.testi.js'
 
 const p = () => t().presentazione

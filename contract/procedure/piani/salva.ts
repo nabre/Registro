@@ -1,10 +1,10 @@
-import { piani } from '../../../core/azioni/plans.js'
-import type { PianoLezione } from '../../../core/dominio/models.js'
-import { validaPiano } from '../../../core/dominio/validation.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
+import { piani } from '#core/azioni/plans.js'
+import type { PianoLezione } from '#core/dominio/models.js'
+import { validaPiano } from '#core/dominio/validation.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { Uno } from '#core/dominio/lexicon.js'
 import { testi } from './piani.testi.js'
 
 const t = () => testi().salva

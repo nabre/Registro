@@ -1,7 +1,7 @@
 // Le guardie dei piani che più aree condividono (vedi `common/register.ts`).
 
-import type { Lezione, PianoLezione } from '../../../core/dominio/models.js'
-import { errore, type Ambito } from '../../contract.js'
+import type { Lezione, PianoLezione } from '#core/dominio/models.js'
+import { errore, type Ambito } from '#contract/contract.js'
 import { testi } from './common.testi.js'
 
 /** Il piano, o il motivo per cui non c'è. Il rimedio dice dove si trovano i piani. */

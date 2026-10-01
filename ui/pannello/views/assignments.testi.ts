@@ -1,9 +1,9 @@
 // I testi delle consegne dentro una lezione (`views/assignments.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import type { TipoConsegna } from '../../../core/dominio/models.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import type { TipoConsegna } from '#core/dominio/models.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Come si chiama ogni tipo nella pastiglia: minuscolo, dentro una riga. */

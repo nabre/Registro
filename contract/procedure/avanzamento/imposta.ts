@@ -1,8 +1,8 @@
-import { piani } from '../../../core/azioni/plans.js'
-import type { StatoAttivita } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
-import { esaustivo, identificatore, oggetto, opzionale, scelta, testo } from '../../schemas.js'
-import { esigiLezione } from '../common/plans.js'
+import { piani } from '#core/azioni/plans.js'
+import type { StatoAttivita } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { esaustivo, identificatore, oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
+import { esigiLezione } from '#contract/procedure/common/plans.js'
 import { testi } from './avanzamento.testi.js'
 
 const t = () => testi().imposta

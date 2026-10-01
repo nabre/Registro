@@ -1,6 +1,6 @@
-import { registro } from '../../../core/azioni/register.js'
-import { inoltra, scrittura } from '../../core.js'
-import { elenco, identificatore, iso, oggetto, opzionale, testo } from '../../schemas.js'
+import { registro } from '#core/azioni/register.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { elenco, identificatore, iso, oggetto, opzionale, testo } from '#contract/schemas.js'
 import { testi } from './anni.testi.js'
 
 const t = () => testi().crea

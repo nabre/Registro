@@ -2,7 +2,7 @@
 // le parole sullo stato di ogni voce. Etichette, descrizioni e scelte arrivano
 // con le voci (`vociImpostazioni()`, dal manifesto).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // Il telaio, in `settings.html`

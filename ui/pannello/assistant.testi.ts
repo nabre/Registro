@@ -3,7 +3,7 @@
 // (`assistantWindow.ts`), il menu del contesto. «Riattacca» sta qui con la
 // frase che lo cita fra virgolette.
 
-import { catalogo, perNumero } from '../../core/i18n/index.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
 
 const it = {
   nessunModello: 'nessun modello',

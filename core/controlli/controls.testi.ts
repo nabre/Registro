@@ -2,7 +2,7 @@
 // pannello e nella finestra nativa. Nomi, descrizioni, scelte e unità delle
 // voci vengono dal manifesto, con la voce.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** La riga discreta sotto il campo, dopo ogni salvataggio andato a buon fine. */

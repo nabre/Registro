@@ -1,6 +1,6 @@
 // I testi della scheda degli account Microsoft (`microsoft.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   titolo: 'Account',

@@ -1,8 +1,8 @@
-import { archiviPresenti, esportazioniPresenti } from '../../../core/dati/filing.js'
-import { CATALOGO_MODELLI, fileDelModello, type RuoloModello } from '../../../core/dominio/templateCatalog.js'
-import { definisci } from '../../contract.js'
-import { elenco, nullabile, numero, oggetto, scelta, testo, vuoto } from '../../schemas.js'
-import { GENERI } from '../common/reports.js'
+import { archiviPresenti, esportazioniPresenti } from '#core/dati/filing.js'
+import { CATALOGO_MODELLI, fileDelModello, type RuoloModello } from '#core/dominio/templateCatalog.js'
+import { definisci } from '#contract/contract.js'
+import { elenco, nullabile, numero, oggetto, scelta, testo, vuoto } from '#contract/schemas.js'
+import { GENERI } from '#contract/procedure/common/reports.js'
 import { testi } from './documenti.testi.js'
 
 const t = () => testi().inventario

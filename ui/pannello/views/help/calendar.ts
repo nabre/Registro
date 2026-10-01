@@ -23,10 +23,10 @@ import {
   testo,
   type Tono,
 } from './drawing.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { testi as testiPagine } from '../../pages.testi.js'
-import { testi as testiOggi } from '../today.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { testi as testiPagine } from '#ui/pannello/pages.testi.js'
+import { testi as testiOggi } from '#ui/pannello/views/today.testi.js'
 import { testi } from './calendar.testi.js'
 import { sezione, type FiguraGuida, type SezioneGuida } from './types.js'
 

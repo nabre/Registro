@@ -12,18 +12,18 @@ import {
   segnato,
   statiAllineati,
   statoDellOra,
-} from '../../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   matriceCorso,
   quotaAssenza,
   quotaPresenza,
   type RigaCorso,
-} from '../../../../core/dominio/courseMatrix.js'
-import { udPrevisteDaOrario } from '../../../../core/dominio/timetable.js'
-import { oltreSoglia } from '../../../../core/dominio/alerts.js'
-import type { FaseAssenze } from '../../../../core/dominio/absences.js'
-import { percento } from '../../../../core/dominio/text.js'
-import { bilancioSegni, celleDiAllievo } from '../../../../core/dominio/observations.js'
+} from '#core/dominio/courseMatrix.js'
+import { udPrevisteDaOrario } from '#core/dominio/timetable.js'
+import { oltreSoglia } from '#core/dominio/alerts.js'
+import type { FaseAssenze } from '#core/dominio/absences.js'
+import { percento } from '#core/dominio/text.js'
+import { bilancioSegni, celleDiAllievo } from '#core/dominio/observations.js'
 import {
   giorniBrevi,
   formattaData,
@@ -31,9 +31,9 @@ import {
   inizioSettimana,
   minutiDaOra,
   siglaUd,
-} from '../../../../core/dominio/dates.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { minuscolo } from '../../../../core/i18n/index.js'
+} from '#core/dominio/dates.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { minuscolo } from '#core/i18n/index.js'
 import type {
   Allievo,
   Corso,
@@ -42,7 +42,7 @@ import type {
   Ora,
   Presenza,
   StatoPresenza,
-} from '../../../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   collegamento,
   pastiglia,
@@ -51,10 +51,10 @@ import {
   titoloGruppo,
   type TonoPastiglia,
   tonoPresenza,
-} from '../../components/base.js'
-import { sintesiIncassata } from '../../components/filters.js'
-import { dataDiLezione } from '../../components/lessonDate.js'
-import { h, type Figlio } from '../../dom.js'
+} from '#ui/pannello/components/base.js'
+import { sintesiIncassata } from '#ui/pannello/components/filters.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import {
   annoCorrente,
   lezioniDiCorso,
@@ -63,9 +63,9 @@ import {
   nomeSemestreScelto,
   semestreScelto,
   stato,
-} from '../../state.js'
-import { apriLezione } from '../../pages.js'
-import { tabella } from '../../components/table.js'
+} from '#ui/pannello/state.js'
+import { apriLezione } from '#ui/pannello/pages.js'
+import { tabella } from '#ui/pannello/components/table.js'
 import { riquadroTema, nienteQui } from './common.js'
 import { testi } from './attendance.testi.js'
 

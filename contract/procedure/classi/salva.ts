@@ -1,10 +1,10 @@
-import { registro } from '../../../core/azioni/register.js'
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Classe } from '../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../core.js'
-import { entita, oggetto } from '../../schemas.js'
-import { esigiAnno } from '../common/register.js'
+import { registro } from '#core/azioni/register.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Classe } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, oggetto } from '#contract/schemas.js'
+import { esigiAnno } from '#contract/procedure/common/register.js'
 import { testi } from './classi.testi.js'
 
 /** `validaClasse(classe, altre)` vuole le altre: due nomi uguali nello stesso anno. */

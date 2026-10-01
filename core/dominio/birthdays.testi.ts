@@ -1,6 +1,6 @@
 // I testi di `birthdays.ts`: il compleanno di una persona, in una riga.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Quando la data di nascita non dice l'anno, o il conto non torna. */

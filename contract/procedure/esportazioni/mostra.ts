@@ -1,6 +1,6 @@
-import { esportazioni } from '../../../core/azioni/exports.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, opzionale, testo } from '../../schemas.js'
+import { esportazioni } from '#core/azioni/exports.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, opzionale, testo } from '#contract/schemas.js'
 import { esigiDocumento } from './common.js'
 import { testi } from './esportazioni.testi.js'
 

@@ -1,6 +1,6 @@
-import { provaModello } from '../../../core/azioni/templates.js'
-import { definisci, errore } from '../../contract.js'
-import { oggetto, testo } from '../../schemas.js'
+import { provaModello } from '#core/azioni/templates.js'
+import { definisci, errore } from '#contract/contract.js'
+import { oggetto, testo } from '#contract/schemas.js'
 import { testi } from './modelli.testi.js'
 
 const t = () => testi().prova

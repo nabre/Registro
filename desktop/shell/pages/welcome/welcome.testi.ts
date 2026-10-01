@@ -2,7 +2,7 @@
 // dell'elenco degli anni. L'invito e la versione li manda il main process
 // (`desktop/shell/windows/welcome.testi.ts`), gli aggiornamenti arrivano già detti.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // Il telaio, in `welcome.html`

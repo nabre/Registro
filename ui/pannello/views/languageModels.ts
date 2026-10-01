@@ -7,7 +7,7 @@
 // chi legge deve saper guardare: per questo le righe sono separate. Lo scarico
 // mostra avanzamento e arresto; l'avanzamento lo spinge l'host (`MessaggioScarico`).
 
-import type { UsoModello, VoceProgramma } from '../../../contract/protocol.js'
+import type { UsoModello, VoceProgramma } from '#contract/protocol.js'
 import {
   avviso,
   barra,
@@ -17,15 +17,15 @@ import {
   scheda,
   selettore,
   statoVuoto,
-} from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { conferma } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, type Figlio } from '../dom.js'
-import { isola, isolaPresente, ridisegnaIsola } from '../islands.js'
-import { azione, ascolta, chiedi } from '../bridge.js'
-import { iscriviti, ridisegna, stato } from '../state.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { isola, isolaPresente, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { azione, ascolta, chiedi } from '#ui/pannello/bridge.js'
+import { iscriviti, ridisegna, stato } from '#ui/pannello/state.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { disegnaAvanzate, vociProgramma } from './settings/program.js'
 import { testi } from './languageModels.testi.js'
 

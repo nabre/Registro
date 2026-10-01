@@ -4,7 +4,7 @@
 //
 // Elenco a mano: un file non nominato qui non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as apriCartella } from './apriCartella.js'
 import { procedura as chiama } from './chiama.js'
 import { procedura as messaggio } from './messaggio.js'

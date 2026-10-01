@@ -1,7 +1,7 @@
-import { smistamento } from '../../../../core/azioni/sorting.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { oggetto, testo } from '../../../schemas.js'
-import { testi } from '../smistamento.testi.js'
+import { smistamento } from '#core/azioni/sorting.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, testo } from '#contract/schemas.js'
+import { testi } from '#contract/procedure/smistamento/smistamento.testi.js'
 
 const t = () => testi().cassetta.assorbi
 

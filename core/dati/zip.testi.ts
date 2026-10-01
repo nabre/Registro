@@ -1,7 +1,7 @@
 // I testi di `zip.ts`: perché un archivio non si scrive o non si apre.
 // Seguono i due punti di «X non si apre: …», quindi iniziano in minuscolo.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   troppeVoci: (quante: number) => `troppe voci per un archivio semplice: ${quante}`,

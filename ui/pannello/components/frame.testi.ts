@@ -1,6 +1,6 @@
 // I testi della cornice dei documenti (`frame.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   anteprima: (titolo: string) => `Anteprima di ${titolo}`,

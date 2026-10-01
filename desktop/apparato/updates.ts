@@ -19,14 +19,14 @@ import * as percorso from 'node:path'
 
 import type { AppUpdater, BaseUpdater, NsisUpdater, ProgressInfo, UpdateDownloadedEvent, UpdateInfo } from 'electron-updater'
 
-import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } from '../../contract/protocol.js'
-import { EventEmitter, type Smaltibile } from '../../core/apparato/events.js'
+import type { FaseAggiornamenti, RaccontoAggiornamenti, StatoAggiornamenti } from '#contract/protocol.js'
+import { EventEmitter, type Smaltibile } from '#core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { consegnaAllAiutante } from './updateInstaller.js'
 import { controllaArchivio, installaSuMac, macAggiornabile, scaricaPerMac } from './updateMac.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './updates.testi.js'
-import { istante, numero } from '../../core/i18n/index.js'
+import { istante, numero } from '#core/i18n/index.js'
 
 /** Dove stanno le release: il ripiego quando da sé non si può. */
 const PAGINA_RELEASE = 'https://github.com/nabre/Registro/releases/latest'

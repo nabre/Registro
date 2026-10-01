@@ -4,7 +4,7 @@
 //
 // Elenco a mano: un file non nominato qui non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as logo } from './logo.js'
 import { procedura as togliLogo } from './togliLogo.js'
 

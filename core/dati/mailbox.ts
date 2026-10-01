@@ -3,9 +3,9 @@
 
 import * as apparato from 'apparato'
 
-import { componiCasella, type Casella } from '../dominio/mailbox.js'
+import { componiCasella, type Casella } from '#core/dominio/mailbox.js'
 
-export type { Casella } from '../dominio/mailbox.js'
+export type { Casella } from '#core/dominio/mailbox.js'
 
 const SEZIONE = 'registroDocenti.posta'
 

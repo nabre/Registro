@@ -1,7 +1,7 @@
-import { rapporti } from '../../../core/azioni/reports.js'
-import { inoltra, scrittura } from '../../core.js'
-import { identificatore, nullabile, oggetto } from '../../schemas.js'
-import { esigiCorso } from '../common/register.js'
+import { rapporti } from '#core/azioni/reports.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, nullabile, oggetto } from '#contract/schemas.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './rapporti.testi.js'
 
 const t = () => testi().completo

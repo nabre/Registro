@@ -5,9 +5,9 @@
 // comuni con la finestra nativa; etichette e descrizioni delle singole
 // impostazioni nel manifesto (`contract/manifest.testi.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import type { SezioneDiProgramma } from '../../../../core/controlli/areas.js'
-import type { SezioneImpostazioni } from '../../place.js'
+import { catalogo } from '#core/i18n/index.js'
+import type { SezioneDiProgramma } from '#core/controlli/areas.js'
+import type { SezioneImpostazioni } from '#ui/pannello/place.js'
 
 /**
  * Una sezione: il nome, il riassunto sotto il titolo, e le parole in più che

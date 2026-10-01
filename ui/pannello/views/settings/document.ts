@@ -6,17 +6,17 @@
 // l'esito accanto a sé (`salvaConEsito`), gli altri in una notifica; quel che
 // l'host corregge in silenzio si dice sempre.
 
-import type { Esito } from '../../../../core/controlli/control.js'
-import { numero } from '../../../../core/i18n/index.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import type { Impostazioni } from '../../../../core/dominio/models.js'
-import type { ImpostazioniDaSalvare } from '../../../../contract/protocol.js'
-import { scheda } from '../../components/base.js'
-import { notifica } from '../../components/notifications.js'
-import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '../../components/yearSetting.js'
-import { h } from '../../dom.js'
-import { azione, invia } from '../../bridge.js'
-import { stato } from '../../state.js'
+import type { Esito } from '#core/controlli/control.js'
+import { numero } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
+import type { Impostazioni } from '#core/dominio/models.js'
+import type { ImpostazioniDaSalvare } from '#contract/protocol.js'
+import { scheda } from '#ui/pannello/components/base.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { avanzateAnno, campoAnno, gruppoAnno, sezioneAnno, voceAnno } from '#ui/pannello/components/yearSetting.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
+import { stato } from '#ui/pannello/state.js'
 import { testi } from './document.testi.js'
 
 /** Le differenze fra quel che si è mandato e quel che l'host ha salvato (normalizza in silenzio). */

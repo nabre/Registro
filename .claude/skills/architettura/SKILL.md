@@ -57,7 +57,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
 
 1. **`core/dominio/` (puro)**:
    - Contiene il modello dei dati scolastici (`core/dominio/models.ts`), il calcolo del calendario e orari (`core/dominio/dates.ts`, `core/dominio/calculations.ts`), la validazione e normalizzazione (`core/dominio/validation.ts`), le regole di cancellazione a cascata, e le migrazioni di schema (`core/dominio/upgrades.ts`).
-   - **Purezza assoluta**: non importa nulla da fuori di sé (zero dipendenze da `node:*`, zero da `electron`, zero dall'`apparato`, zero percorsi relativi `../` verso altri strati, con l'unica eccezione di `core/i18n/` per i testi).
+   - **Purezza assoluta**: non importa nulla da fuori di sé (zero dipendenze da `node:*`, zero da `electron`, zero dall'`apparato`, zero import verso altri strati, con l'unica eccezione di `core/i18n/` per i testi).
    - Segue il pattern: *calcolo puro + applica mutante*.
    - Tutte le sue prove girano all'istante con `npm test` o `node --test` senza finestre né dischi finti.
 2. **`core/dati/` (persistenza e I/O)**:
@@ -229,6 +229,7 @@ La correttezza architettonica del progetto è garantita da due livelli di contro
 3. **Barriera della webview**: `ui-persistenza-ospite` — niente `core/dati/`, `core/azioni/`, `core/apparato/` da `ui/`.
 4. **Sotto-strati di `core/`**: `dominio-puro`, `i18n-sotto-a-tutti`, `controlli-leggeri`.
 5. **Cicli** fra import di valore (`ciclo`) e import relativi che non trovano il file (`non-risolto`).
+6. **Alias degli strati** (ADR-55): nel TypeScript un import che risale si scrive `#core/…`, `#contract/…`, `#desktop/…`, `#ui/…`; un `'../'` è un guasto. `./` resta relativo.
 
 Le eccezioni stanno in `DEROGHE` di `tools/layers.mjs`, ognuna col motivo; oggi nessuna.
 

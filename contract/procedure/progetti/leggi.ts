@@ -4,10 +4,10 @@
 // matrice. Fasi, quota e presenze vengono da `quadroDelProgetto`. Tutto viene dal dominio: le lezioni dai piani, il punto di ognuno
 // da `statoCompitoPerAllievo`, il giorno di una voce dalla sua ora.
 
-import { nomeCompleto } from '../../../core/dominio/calculations.js'
-import { oggi } from '../../../core/dominio/dates.js'
-import { classeDelCorso, materiaDelCorso, titoloCorso } from '../../../core/dominio/courses.js'
-import type { Allievo, Progetto, Registro } from '../../../core/dominio/models.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { oggi } from '#core/dominio/dates.js'
+import { classeDelCorso, materiaDelCorso, titoloCorso } from '#core/dominio/courses.js'
+import type { Allievo, Progetto, Registro } from '#core/dominio/models.js'
 import {
   fineDelCompito,
   fineEffettiva,
@@ -16,8 +16,8 @@ import {
   momentiDelProgetto,
   quadroDelProgetto,
   statoCompitoPerAllievo,
-} from '../../../core/dominio/projects.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/projects.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -28,9 +28,9 @@ import {
   oggetto,
   opzionale,
   testo,
-} from '../../schemas.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { esigiCorso } from '../common/register.js'
+} from '#contract/schemas.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { esigiCorso } from '#contract/procedure/common/register.js'
 import { esigiProgetto } from './common.js'
 import { testi } from './progetti.testi.js'
 

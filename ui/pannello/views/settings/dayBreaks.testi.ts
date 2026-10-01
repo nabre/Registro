@@ -1,9 +1,9 @@
 // I testi delle pause della giornata (`settings/dayBreaks.ts`). Gli ordinali
 // («la seconda pausa») cambiano per lingua, quindi le frasi sono intere qui.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { ordinalePausa } from '../../../../core/dominio/breaks.js'
-import { Maiuscola } from '../../../../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { ordinalePausa } from '#core/dominio/breaks.js'
+import { Maiuscola } from '#core/dominio/lexicon.js'
 
 /** «della seconda», «dell’ottava», «dell’11ª»: davanti a vocale l'articolo si elide. */
 function dellaPausa (indice: number): string {

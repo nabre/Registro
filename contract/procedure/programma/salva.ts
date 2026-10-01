@@ -1,6 +1,6 @@
-import { sistema } from '../../../core/azioni/system.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, qualunque, type Schema } from '../../schemas.js'
+import { sistema } from '#core/azioni/system.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, qualunque, type Schema } from '#contract/schemas.js'
 import { chiaveProgramma } from './common.js'
 import { testi } from './programma.testi.js'
 

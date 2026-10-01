@@ -1,8 +1,8 @@
 // I testi di `forms/subject.ts`: la finestra di una materia e quella che ne
 // unisce due.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   serveUnAltra: 'Serve almeno un’altra materia con cui unirla.',

@@ -1,7 +1,7 @@
 // I testi di `projection.ts`: quel che lo schermo della classe scrive da sé —
 // le schede, le viste del calendario, a chi tocca una consegna, i titoli.
 
-import { catalogo, perNumero } from '../i18n/index.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
 
 const it = {
   /** Le schede in cima allo schermo. */

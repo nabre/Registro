@@ -32,7 +32,7 @@ import { percorsoAiutanteAggiornamento, percorsoIcona } from './context.js'
 import { diSistema } from './system.js'
 import { scuro } from './theme.js'
 import { testi } from './updates.testi.js'
-import { lingua } from '../../core/i18n/index.js'
+import { lingua } from '#core/i18n/index.js'
 
 /** Il prefisso delle cartelle di lavoro della finestra, nella cartella temporanea. */
 export const PREFISSO_LAVORO = 'registro-aggiornamento-'

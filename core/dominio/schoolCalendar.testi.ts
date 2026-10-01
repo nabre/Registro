@@ -2,7 +2,7 @@
 // non vengono dal cantone ma dal registro — dove l'anno comincia e dove finisce
 // — e i rifiuti di chi tocca un anno che segue il calendario ufficiale.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   inizioLezioni: 'Inizio delle lezioni',

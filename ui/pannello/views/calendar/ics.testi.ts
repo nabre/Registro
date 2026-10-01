@@ -1,7 +1,7 @@
 // I testi degli eventi ICS nel calendario (`ics.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   dalCalendario: (inizio: string, fine: string) => `${inizio}–${fine} · dal calendario ICS`,

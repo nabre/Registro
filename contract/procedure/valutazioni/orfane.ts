@@ -1,8 +1,8 @@
-import { valutazioniOrfane } from '../../../core/dominio/orphans.js'
-import { definisci } from '../../contract.js'
-import { elenco, identificatore, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { esigiClasse, esigiCorso } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { valutazioniOrfane } from '#core/dominio/orphans.js'
+import { definisci } from '#contract/contract.js'
+import { elenco, identificatore, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiClasse, esigiCorso } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './valutazioni.testi.js'
 
 const t = () => testi().orfane

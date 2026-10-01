@@ -3,9 +3,9 @@
 // ore del corso, livelli della scala) lo controlla il gestore, che risponde
 // allo stesso modo al pannello.
 
-import { progettoPerId } from '../../../core/dominio/projects.js'
-import type { CompitoProgetto, Progetto } from '../../../core/dominio/models.js'
-import { errore, type Ambito } from '../../contract.js'
+import { progettoPerId } from '#core/dominio/projects.js'
+import type { CompitoProgetto, Progetto } from '#core/dominio/models.js'
+import { errore, type Ambito } from '#contract/contract.js'
 import { testi } from './progetti.testi.js'
 
 export function esigiProgetto (ambito: Ambito, progettoId: string): Progetto {

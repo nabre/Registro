@@ -4,8 +4,8 @@
 // della pagina in `../help.ts`, il vocabolario delle figure in `drawing.ts`.
 // Come si divide una pagina fra i due file sta in testa a `types.ts`.
 
-import { Molti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import {
   bollino,
   disegno,
@@ -20,7 +20,7 @@ import {
   telaio,
   testo,
 } from './drawing.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './setup.testi.js'
 import { sezione, type SezioneGuida } from './types.js'
 

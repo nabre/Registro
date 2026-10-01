@@ -4,12 +4,12 @@
 // modificano da qui ma nel modulo dell'anno, che li tratta insieme: due
 // semestri sovrapposti o con un buco romperebbero le medie di fine periodo.
 
-import { vociDiLista } from '../../../../core/dominio/lists.js'
-import { conLetteraSettimana, letteraSettimana } from '../../../../core/dominio/years.js'
-import { differenzaGiorni, formattaData, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
-import type { AnnoScolastico, Iso, Sospensione } from '../../../../core/dominio/models.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
-import { sospensioneDi } from '../../../../core/dominio/timetable.js'
+import { vociDiLista } from '#core/dominio/lists.js'
+import { conLetteraSettimana, letteraSettimana } from '#core/dominio/years.js'
+import { differenzaGiorni, formattaData, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '#core/dominio/dates.js'
+import type { AnnoScolastico, Iso, Sospensione } from '#core/dominio/models.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { sospensioneDi } from '#core/dominio/timetable.js'
 import {
   avviso,
   collegamento,
@@ -17,14 +17,14 @@ import {
   pulsante,
   scheda,
   statoVuoto,
-} from '../../components/base.js'
-import { notificaAnnullabile } from '../../components/undoable.js'
-import { COME_SI_PARTE, eseguiOAvvisa } from '../../components/filters.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { h } from '../../dom.js'
-import { moduloAnno, moduloPause } from '../../forms.js'
-import { èCollegata } from '../../../../core/dominio/schoolCalendar.js'
+} from '#ui/pannello/components/base.js'
+import { notificaAnnullabile } from '#ui/pannello/components/undoable.js'
+import { COME_SI_PARTE, eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h } from '#ui/pannello/dom.js'
+import { moduloAnno, moduloPause } from '#ui/pannello/forms.js'
+import { èCollegata } from '#core/dominio/schoolCalendar.js'
 import {
   collegaAlCalendario,
   pastigliaCalendario,
@@ -32,10 +32,10 @@ import {
   riallineaAlCalendario,
   vociDaRiallineare,
   vociUfficialiDaImportare,
-} from '../../forms/schoolCalendar.js'
-import { testi as testiCalendario } from '../../forms/schoolCalendar.testi.js'
-import { azione } from '../../bridge.js'
-import { annoCorrente, stato } from '../../state.js'
+} from '#ui/pannello/forms/schoolCalendar.js'
+import { testi as testiCalendario } from '#ui/pannello/forms/schoolCalendar.testi.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { annoCorrente, stato } from '#ui/pannello/state.js'
 import { testi } from './year.testi.js'
 
 /** I lunedì dell'anno, dal primo all'ultimo: è la griglia delle settimane. */

@@ -2,14 +2,14 @@
 // chiusure, confini dei semestri, lettera della settimana, giorni visibili),
 // così settimana, mese, anno e striscia dicono la stessa cosa.
 
-import { giornoSettimana, nomeSemestre, nomeSemestreBreve, sommaGiorni } from '../../../../core/dominio/dates.js'
-import { testoDiVoce } from '../../../../core/dominio/lists.js'
-import { letteraSettimana } from '../../../../core/dominio/years.js'
-import type { Iso, LetteraSettimana, Lezione, Semestre } from '../../../../core/dominio/models.js'
-import { sospensioneDi } from '../../../../core/dominio/timetable.js'
-import { h, type Figlio } from '../../dom.js'
-import { apriLezione as apriLezioneDaId } from '../../pages.js'
-import { annoCorrente, stato } from '../../state.js'
+import { giornoSettimana, nomeSemestre, nomeSemestreBreve, sommaGiorni } from '#core/dominio/dates.js'
+import { testoDiVoce } from '#core/dominio/lists.js'
+import { letteraSettimana } from '#core/dominio/years.js'
+import type { Iso, LetteraSettimana, Lezione, Semestre } from '#core/dominio/models.js'
+import { sospensioneDi } from '#core/dominio/timetable.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { apriLezione as apriLezioneDaId } from '#ui/pannello/pages.js'
+import { annoCorrente, stato } from '#ui/pannello/state.js'
 import { testi } from './calendar.testi.js'
 
 /** Il nome della sospensione che copre un giorno, o stringa vuota. */

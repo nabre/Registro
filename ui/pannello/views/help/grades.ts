@@ -20,7 +20,7 @@ import {
   testo,
   type Tono,
 } from './drawing.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './grades.testi.js'
 import { sezione, type FiguraGuida, type SezioneGuida } from './types.js'
 

@@ -2,9 +2,9 @@
 // regole di `storia.annulla`; un gesto nuovo del pannello dopo l'annullamento
 // cancella quel che c'era da ripristinare.
 
-import { storia } from '../../../core/azioni/history.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { storia } from '#core/azioni/history.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './storia.testi.js'
 
 const t = () => testi().ripristina

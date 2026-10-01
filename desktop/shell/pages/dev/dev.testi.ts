@@ -2,7 +2,7 @@
 // voci del menu «Sviluppo» (`desktop/shell/windows/devTools.ts`). Esistono solo
 // con `npm run dev`, ma passano dal catalogo come ogni parola che si legge.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   // Il menu

@@ -1,8 +1,8 @@
 // I testi di `forms/calendar.ts`: il confronto con un calendario ICS, i mucchi
 // di voci da spuntare, le regole che abbinano gli eventi ai corsi.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: 'Confronto con il calendario',

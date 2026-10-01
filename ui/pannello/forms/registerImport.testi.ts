@@ -1,9 +1,9 @@
 // I testi di `forms/registerImport.ts`: la finestra «Importa da un altro
 // registro», con le caselle dei blocchi e quel che ognuna porterebbe.
 
-import { catalogo, perNumero } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: 'Importa da un altro registro',

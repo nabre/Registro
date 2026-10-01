@@ -1,7 +1,7 @@
 // I testi di `vista.apri`. I nomi delle pagine fra virgolette sono valori del
 // campo e restano uguali.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   apri: {

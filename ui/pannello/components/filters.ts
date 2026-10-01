@@ -1,12 +1,12 @@
 // Pezzi ripetuti in più viste: «manda e avvisa se va storto», lo stato vuoto
 // di un registro senza anno, la fila di numeri in cima a una scheda.
 
-import type { Azione, Risposta } from '../../../contract/protocol.js'
+import type { Azione, Risposta } from '#contract/protocol.js'
 import { datoSintetico, pulsante, statoVuoto, type TonoPastiglia } from './base.js'
 import type { NomeIcona } from './icons.js'
 import { notifica } from './notifications.js'
-import { h } from '../dom.js'
-import { azione } from '../bridge.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
 import { testi } from './filters.testi.js'
 
 /**

@@ -1,14 +1,14 @@
 // Il calendario: l'anno scolastico intero su una pagina, come il foglio che la
 // sede stampa: mesi in colonna, giorni in riga, vacanze e semestri a colpo d'occhio.
 
-import { formattaData, formattaMese, giornoDelMese, giornoSettimana, inizialiGiorno, nomeSemestre, primoDelMese, settimanaIso, sommaMesi, ultimoDelMese } from '../../../../core/dominio/dates.js'
-import { allineaSemestri, confineAnno } from '../../../../core/dominio/years.js'
-import type { Compleanno } from '../../../../core/dominio/birthdays.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { puntoColore } from '../../components/base.js'
-import { icona } from '../../components/icons.js'
-import { sospensioneDi } from '../../../../core/dominio/timetable.js'
-import { h } from '../../dom.js'
+import { formattaData, formattaMese, giornoDelMese, giornoSettimana, inizialiGiorno, nomeSemestre, primoDelMese, settimanaIso, sommaMesi, ultimoDelMese } from '#core/dominio/dates.js'
+import { allineaSemestri, confineAnno } from '#core/dominio/years.js'
+import type { Compleanno } from '#core/dominio/birthdays.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { puntoColore } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { sospensioneDi } from '#core/dominio/timetable.js'
+import { h } from '#ui/pannello/dom.js'
 import {
   aggiorna,
   annoCorrente,
@@ -17,11 +17,11 @@ import {
   nomeClasseDiLezione,
   coloreDiLezione,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import { festivo, apreSemestre, chiudeSemestre, letteraDi } from './common.js'
 import { dettiCompleanni, classiInAula, qualcunoInAula } from './birthdays.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { quanti } from '../../../../core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { quanti } from '#core/dominio/lexicon.js'
 import { testi } from './calendar.testi.js'
 
 // ------------------------------------------------------------------ anno

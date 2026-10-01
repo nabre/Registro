@@ -1,7 +1,7 @@
 // I testi di `forms/project.ts`: le finestre del progetto — testata, criteri,
 // livelli, compiti, proroghe, inizi, giudizi e caselle della matrice.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   stati: { bozza: 'Bozza', 'in-corso': 'In corso', concluso: 'Concluso' },

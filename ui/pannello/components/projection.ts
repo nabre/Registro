@@ -12,10 +12,10 @@ import {
   riservato,
   type BloccoProiezione,
   type ImpostazioniProiezione,
-} from '../../../core/dominio/projection.js'
-import { aiutoDi, apriBlocco, comandoPerId, titoloDi } from '../commands.js'
-import { h, type Figlio } from '../dom.js'
-import { stato } from '../state.js'
+} from '#core/dominio/projection.js'
+import { aiutoDi, apriBlocco, comandoPerId, titoloDi } from '#ui/pannello/commands.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
 import { conAttesa } from './base.js'
 import { icona } from './icons.js'
 import { testi } from './projection.testi.js'

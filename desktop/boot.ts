@@ -9,18 +9,18 @@ import {
   documentiNoti, ricordaEtichetta, segnaDocumentoAperto, verificaDocumenti,
 } from './apparato/documents.js'
 
-import { avviaCondotto, condottoDaAprire, type Condotto } from '../desktop/transports/conduit.js'
+import { avviaCondotto, condottoDaAprire, type Condotto } from '#desktop/transports/conduit.js'
 import { annotaErroreSuDisco } from './apparato/errorLog.js'
 import { avviatoDalSistema } from './apparato/systemStartup.js'
 import { vassoioAcceso } from './apparato/tray.js'
-import { esegui } from '../contract/switchboard.js'
-import { fermaRapporti } from '../core/azioni/reports.js'
-import { registraProiettore } from '../core/azioni/projection.js'
-import { registraNavigatore } from '../core/azioni/view.js'
-import { impacchettaAnni, inglobaCartelle, migraAnni } from '../core/dati/years.js'
-import { Archivio } from '../core/dati/archive.js'
-import { registraDeposito } from '../core/dati/store.js'
-import { migraArchivio } from '../core/dati/filing.js'
+import { esegui } from '#contract/switchboard.js'
+import { fermaRapporti } from '#core/azioni/reports.js'
+import { registraProiettore } from '#core/azioni/projection.js'
+import { registraNavigatore } from '#core/azioni/view.js'
+import { impacchettaAnni, inglobaCartelle, migraAnni } from '#core/dati/years.js'
+import { Archivio } from '#core/dati/archive.js'
+import { registraDeposito } from '#core/dati/store.js'
+import { migraArchivio } from '#core/dati/filing.js'
 import {
   ANNI_NUOVI,
   ESTENSIONE,
@@ -33,30 +33,30 @@ import {
   nomeDelPacchetto,
   percorsoPacchetto,
   èProvvisorio,
-} from '../core/dati/paths.js'
-import { impostaCaratteri, impostaWorker } from '../core/dati/pdf.js'
-import { fermaDettature, ritiraCorredoWhisper } from '../core/dati/dictation.js'
-import { fermaLetture } from '../core/dati/ocr.js'
-import { ripulisciTemporaneiVecchi } from '../core/dati/temporaryFiles.js'
-import { annota, osserva } from '../contract/core.js'
-import { identificatore } from '../core/dominio/identifiers.js'
-import { registraPortachiaviMicrosoft } from '../core/dati/microsoft.js'
-import { interrompiAccesso, registraPortachiaviOauth } from '../core/dati/oauth.js'
+} from '#core/dati/paths.js'
+import { impostaCaratteri, impostaWorker } from '#core/dati/pdf.js'
+import { fermaDettature, ritiraCorredoWhisper } from '#core/dati/dictation.js'
+import { fermaLetture } from '#core/dati/ocr.js'
+import { ripulisciTemporaneiVecchi } from '#core/dati/temporaryFiles.js'
+import { annota, osserva } from '#contract/core.js'
+import { identificatore } from '#core/dominio/identifiers.js'
+import { registraPortachiaviMicrosoft } from '#core/dati/microsoft.js'
+import { interrompiAccesso, registraPortachiaviOauth } from '#core/dati/oauth.js'
 import {
   azzeraPosta,
   collegaAccount,
   inviaProva,
   provaCollegamento,
   scollegaAccount,
-} from '../core/dati/mail.js'
-import { pdfSotto, smistatoreDi, type Smistatore } from '../core/dati/sorter.js'
-import { formattaData, isoValida, oggi } from '../core/dominio/dates.js'
-import type { CalendarioDellAnno, Iso, Sospensione } from '../core/dominio/models.js'
+} from '#core/dati/mail.js'
+import { pdfSotto, smistatoreDi, type Smistatore } from '#core/dati/sorter.js'
+import { formattaData, isoValida, oggi } from '#core/dominio/dates.js'
+import type { CalendarioDellAnno, Iso, Sospensione } from '#core/dominio/models.js'
 import {
   anniDaProporre, chiusureUfficiali, marcatoreDi, type AnnoUfficiale,
-} from '../core/dominio/schoolCalendar.js'
-import { CALENDARIO_TICINO } from '../core/dominio/schoolCalendarTicino.js'
-import { creaAnnoCorrente } from '../core/dominio/factories.js'
+} from '#core/dominio/schoolCalendar.js'
+import { CALENDARIO_TICINO } from '#core/dominio/schoolCalendarTicino.js'
+import { creaAnnoCorrente } from '#core/dominio/factories.js'
 import { PannelloRegistro } from './pannelli/panel.js'
 import { avviaPromemoria } from './widget/reminders.js'
 import { avviaAssistente } from './pannelli/assistant.js'
@@ -67,11 +67,11 @@ import {
   puntaProiezione,
 } from './pannelli/projection.js'
 import { avviaVassoio } from './widget/tray.js'
-import type { MessaggioNavigazione } from '../contract/protocol.js'
-import { firmaPosta } from '../core/dati/templates.js'
-import { istante } from '../core/i18n/index.js'
-import { parole } from '../core/dominio/words.testi.js'
-import { titoloComando } from '../contract/manifest.js'
+import type { MessaggioNavigazione } from '#contract/protocol.js'
+import { firmaPosta } from '#core/dati/templates.js'
+import { istante } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
 import { testi } from './boot.testi.js'
 
 /** L'archivio della finestra: serve a `spegni` per l'ultimo salvataggio. */

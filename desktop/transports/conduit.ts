@@ -45,14 +45,14 @@ import { StringDecoder } from 'node:string_decoder'
 
 import * as apparato from 'apparato'
 
-import type { Archivio } from '../../core/dati/archive.js'
-import { VERSIONE_API, type Codice, type Genere } from '../../contract/contract.js'
-import { catalogo } from '../../contract/tools.js'
-import { registraTutte } from '../../contract/registry.js'
-import { chiama, descrivi, osserva, procedura, procedure } from '../../contract/core.js'
+import type { Archivio } from '#core/dati/archive.js'
+import { VERSIONE_API, type Codice, type Genere } from '#contract/contract.js'
+import { catalogo } from '#contract/tools.js'
+import { registraTutte } from '#contract/registry.js'
+import { chiama, descrivi, osserva, procedura, procedure } from '#contract/core.js'
 import {
   convalida, formaInBreve, oggetto, opzionale, schemaJson, testo, type Forma,
-} from '../../contract/schemas.js'
+} from '#contract/schemas.js'
 import { comeCollegato } from './assistant.js'
 import { testi } from './conduit.testi.js'
 

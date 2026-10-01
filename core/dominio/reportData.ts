@@ -28,7 +28,7 @@ import {
   nomeDelPiano,
   registroDelCorso,
 } from './courses.js'
-import { LINGUA_PREDEFINITA, lingua, minuscolo, type Lingua } from '../i18n/index.js'
+import { LINGUA_PREDEFINITA, lingua, minuscolo, type Lingua } from '#core/i18n/index.js'
 import { Maiuscola } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import { percento } from './text.js'

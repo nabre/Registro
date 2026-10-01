@@ -2,7 +2,7 @@
 // (`titolo: () => t().titolo`), mai al caricamento. «avanti», «indietro» e
 // «azzera» sono valori del campo `verso` e non si traducono.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   schermoIntero: {

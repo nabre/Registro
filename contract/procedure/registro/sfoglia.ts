@@ -1,10 +1,10 @@
 import * as apparato from 'apparato'
 
-import { definisci } from '../../contract.js'
-import { nullabile, oggetto, testo, vuoto } from '../../schemas.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { ESTENSIONE } from '../../../core/dati/package.js'
-import { èProvvisorio, percorsoPacchetto } from '../../../core/dati/paths.js'
+import { definisci } from '#contract/contract.js'
+import { nullabile, oggetto, testo, vuoto } from '#contract/schemas.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { ESTENSIONE } from '#core/dati/package.js'
+import { èProvvisorio, percorsoPacchetto } from '#core/dati/paths.js'
 import { testi } from './registro.testi.js'
 
 const t = () => testi().sfoglia

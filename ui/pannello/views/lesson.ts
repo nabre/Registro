@@ -8,14 +8,14 @@ import {
   minutiTotali,
   nomeCompleto,
   riepilogaPresenze,
-} from '../../../core/dominio/calculations.js'
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { minuscolo } from '../../../core/i18n/index.js'
-import { formattaData, formattaDurata } from '../../../core/dominio/dates.js'
-import { numeriDelleLezioni } from '../../../core/dominio/courses.js'
-import type { Lezione, Osservazione } from '../../../core/dominio/models.js'
+} from '#core/dominio/calculations.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { minuscolo } from '#core/i18n/index.js'
+import { formattaData, formattaDurata } from '#core/dominio/dates.js'
+import { numeriDelleLezioni } from '#core/dominio/courses.js'
+import type { Lezione, Osservazione } from '#core/dominio/models.js'
 import {
   avviso,
   campo,
@@ -29,20 +29,20 @@ import {
   tendina,
   testataVista,
   type TonoPastiglia,
-} from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { inTelaio } from '../components/table.js'
-import { dataDiLezione } from '../components/lessonDate.js'
-import { h, type Figlio } from '../dom.js'
+} from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { inTelaio } from '#ui/pannello/components/table.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
 import { pannelloRiconsegneDellOra } from './assessments/returns.js'
-import { moduloOsservazione } from '../forms.js'
-import { porzioniLezione, schedaLezioneAperta } from '../tabs.js'
-import { apriLezione } from '../pages.js'
-import { azione } from '../bridge.js'
-import { consegneDellaLezione } from '../../../core/dominio/assignments.js'
-import { checkDelCorso } from '../../../core/dominio/check.js'
+import { moduloOsservazione } from '#ui/pannello/forms.js'
+import { porzioniLezione, schedaLezioneAperta } from '#ui/pannello/tabs.js'
+import { apriLezione } from '#ui/pannello/pages.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { consegneDellaLezione } from '#core/dominio/assignments.js'
+import { checkDelCorso } from '#core/dominio/check.js'
 import {
   aggiorna,
   classeDiLezione,
@@ -53,7 +53,7 @@ import {
   vai,
   type SchedaLezione,
   type SchedaStrumentiLezione,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { pannelloAppello } from './lesson/attendance.js'
 import { matriceOsservata, noteDellaMatrice } from './lesson/behaviour.js'
 import { pannelloPiano } from './lesson/plan.js'

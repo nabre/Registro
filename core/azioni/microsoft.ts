@@ -4,8 +4,8 @@
 
 import * as apparato from 'apparato'
 
-import { aggiungiAccount, togliAccount } from '../dati/microsoft.js'
-import { apriDaOneDrive } from '../dati/onedrive.js'
+import { aggiungiAccount, togliAccount } from '#core/dati/microsoft.js'
+import { apriDaOneDrive } from '#core/dati/onedrive.js'
 import { conMessaggio, invariato, motivoSicuro, rifiutaCon, type Parte } from './context.js'
 import { testi } from './microsoft.testi.js'
 

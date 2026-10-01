@@ -1,7 +1,7 @@
 // I testi di `onedrive.ts`: il dialogo di dove scaricare un documento, e il
 // rifiuto di un elemento che non è un documento del registro.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonRegi: (nome: string) => `«${nome}» non è un documento del registro (.regi).`,

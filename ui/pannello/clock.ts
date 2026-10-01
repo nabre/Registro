@@ -6,7 +6,7 @@
 // e si sposta da sé; il resto (un'ora che smette di essere «in corso») si
 // rimette al primo ridisegno che arriva per altre ragioni, o al giorno nuovo.
 
-import type { Ora } from '../../core/dominio/models.js'
+import type { Ora } from '#core/dominio/models.js'
 
 type AlMinuto = (ora: Ora) => void
 

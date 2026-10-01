@@ -1,7 +1,7 @@
 // Il calendario: il mese, come una striscia di settimane senza confini fra un
 // mese e l'altro, che si allunga scorrendo e si ferma ai capi dell'anno scolastico.
 
-import { confrontaLezioni } from '../../../../core/dominio/calculations.js'
+import { confrontaLezioni } from '#core/dominio/calculations.js'
 import {
   giorniBrevi,
   mesi,
@@ -14,18 +14,18 @@ import {
   settimanaDi,
   settimanaIso,
   sommaGiorni,
-} from '../../../../core/dominio/dates.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { gestisci, h } from '../../dom.js'
+} from '#core/dominio/dates.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { gestisci, h } from '#ui/pannello/dom.js'
 import {
   SETTIMANE_ATTORNO,
   SETTIMANE_IN_PIU,
   SOGLIA_ALLUNGA,
   finestraMese,
-} from '../../calendarNavigation.js'
-import { eventiEsterni } from '../../externalCalendar.js'
-import { moduloLezione } from '../../forms.js'
-import { apriLezione } from '../../pages.js'
+} from '#ui/pannello/calendarNavigation.js'
+import { eventiEsterni } from '#ui/pannello/externalCalendar.js'
+import { moduloLezione } from '#ui/pannello/forms.js'
+import { apriLezione } from '#ui/pannello/pages.js'
 import {
   aggiorna,
   annoCorrente,
@@ -33,7 +33,7 @@ import {
   iscriviti,
   lezioniInAgenda,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import {
   apreQui,
   chiudeQui,

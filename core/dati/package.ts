@@ -7,8 +7,8 @@
 
 import * as apparato from 'apparato'
 
-import { GIORNO_MS } from '../dominio/dates.js'
-import { ErroreVersionePiuRecente } from '../dominio/upgrades.js'
+import { GIORNO_MS } from '#core/dominio/dates.js'
+import { ErroreVersionePiuRecente } from '#core/dominio/upgrades.js'
 import {
   CORRENTE,
   DEFINITIVO,

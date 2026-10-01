@@ -1,7 +1,7 @@
 // Le procedure di `check`. Elenco a mano: un file non nominato qui
 // non si registra.
 
-import type { ProceduraQualunque } from '../../contract.js'
+import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as colonne } from './colonne.js'
 import { procedura as data } from './data.js'
 import { procedura as leggi } from './leggi.js'

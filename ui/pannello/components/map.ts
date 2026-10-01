@@ -20,8 +20,8 @@ import {
   type Inquadratura,
   type SegnoMappa,
   type Tragitto,
-} from '../../../core/dominio/map.js'
-import { h, svg, type Figlio } from '../dom.js'
+} from '#core/dominio/map.js'
+import { h, svg, type Figlio } from '#ui/pannello/dom.js'
 import { icona } from './icons.js'
 import { testi } from './map.testi.js'
 

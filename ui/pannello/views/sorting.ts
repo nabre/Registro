@@ -5,16 +5,16 @@
 // leggere le scansioni, confermare in blocco), in testa alla cornice. La
 // lettura delle scansioni è lenta e va in una coda visibile.
 
-import { avanzamentoConsegna, consegneDocumento } from '../../../core/dominio/assignments.js'
-import type { Classe, Consegna, Divisione, Smistamento } from '../../../core/dominio/models.js'
-import { smistamentiDellaClasse } from '../../../core/dominio/sorting.js'
-import { pastiglia, pulsante } from '../components/base.js'
-import { eseguiOAvvisa } from '../components/filters.js'
-import { conferma } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, type Figlio } from '../dom.js'
-import { isola } from '../islands.js'
-import { classiDiCuiSonoDocente, corsiDi, stato } from '../state.js'
+import { avanzamentoConsegna, consegneDocumento } from '#core/dominio/assignments.js'
+import type { Classe, Consegna, Divisione, Smistamento } from '#core/dominio/models.js'
+import { smistamentiDellaClasse } from '#core/dominio/sorting.js'
+import { pastiglia, pulsante } from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { isola } from '#ui/pannello/islands.js'
+import { classiDiCuiSonoDocente, corsiDi, stato } from '#ui/pannello/state.js'
 
 import { guardaNellArchivio } from './archive.js'
 import { ISOLA_LETTURA } from './sorting/pageBrowser.js'

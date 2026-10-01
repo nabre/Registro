@@ -7,9 +7,9 @@
 //
 // Tutte le collezioni: quali tocca il passo si sa solo a runtime.
 
-import { storia } from '../../../core/azioni/history.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { storia } from '#core/azioni/history.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './storia.testi.js'
 
 const t = () => testi().annulla

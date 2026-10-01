@@ -5,8 +5,8 @@ import { icona } from './components/icons.js'
 import { alternaMenuSotto, type ElementoMenu } from './components/menu.js'
 import { classeDelFascicolo, corsoDelContesto, scegliClasseDelFascicolo, scegliCorso } from './context.js'
 import { gruppiDiPagine, vaiA, type GruppoDiPagine, type Pagina } from './pages.js'
-import { raggruppamentoDeiCorsi } from '../../core/dominio/courses.js'
-import { confrontaNomi } from '../../core/dominio/text.js'
+import { raggruppamentoDeiCorsi } from '#core/dominio/courses.js'
+import { confrontaNomi } from '#core/dominio/text.js'
 import {
   aggiorna,
   classePerId,

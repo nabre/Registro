@@ -2,7 +2,7 @@
 // forma di `TestiSezione` (testa di `types.ts`); struttura e schemi stanno in
 // `start.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CARTE,
   Molti,
@@ -11,8 +11,8 @@ import {
   Uno,
   dei,
   quanti,
-} from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+} from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const PENDENZE = Molti(CARTE.pendenza)

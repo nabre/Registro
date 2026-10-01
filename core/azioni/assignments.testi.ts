@@ -1,9 +1,9 @@
 // I testi di `assignments.ts`: consegne, documenti raccolti e distribuiti per posta.
 
-import { catalogo } from '../i18n/index.js'
-import { PIF, quanti } from '../dominio/lexicon.js'
-import { lessico } from '../dominio/lexicon.testi.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   corsoAssente: 'Il corso della consegna non esiste.',

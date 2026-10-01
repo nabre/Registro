@@ -10,7 +10,7 @@ import { rm } from 'node:fs/promises'
 
 import { cartellaDi } from './kit.js'
 import { VOICEBOX } from './voicebox.js'
-import { lingua } from '../i18n/index.js'
+import { lingua } from '#core/i18n/index.js'
 import { testi } from './dictation.testi.js'
 
 // Alla chiusura del registro si fermano le trascrizioni in corso (il segnale

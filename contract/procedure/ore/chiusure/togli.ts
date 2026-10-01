@@ -1,7 +1,7 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { iso, oggetto } from '../../../schemas.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { iso, oggetto } from '#contract/schemas.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().chiusure.togli
 

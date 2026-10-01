@@ -1,6 +1,6 @@
-import { calendario } from '../../../core/azioni/calendar.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, elenco, identificatore, iso, oggetto, opzionale, testo } from '../../schemas.js'
+import { calendario } from '#core/azioni/calendar.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, elenco, identificatore, iso, oggetto, opzionale, testo } from '#contract/schemas.js'
 import { FASCIA, REGOLA } from './common.js'
 import { testi } from './calendario.testi.js'
 

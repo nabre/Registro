@@ -2,7 +2,7 @@
 // cambiano con la lingua. Le cartelle che il registro deve ritrovare (radici,
 // piani in `archivio/`) non stanno qui perché non cambiano mai nome.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   documenti: {

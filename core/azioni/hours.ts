@@ -8,12 +8,12 @@ import {
   ordinaAllievi,
   statiAllineati,
   unitaDidattiche,
-} from '../dominio/calculations.js'
-import { slotFuoriDallePause, slotSullePause } from '../dominio/breaks.js'
-import { creaPresenza, duplicaLezione } from '../dominio/factories.js'
-import { classeDellaLezione, corsoPerId, lezioneCompilata } from '../dominio/courses.js'
-import type { Lezione, Presenza, Registro, StatoPresenza } from '../dominio/models.js'
-import { validaLezione } from '../dominio/validation.js'
+} from '#core/dominio/calculations.js'
+import { slotFuoriDallePause, slotSullePause } from '#core/dominio/breaks.js'
+import { creaPresenza, duplicaLezione } from '#core/dominio/factories.js'
+import { classeDellaLezione, corsoPerId, lezioneCompilata } from '#core/dominio/courses.js'
+import type { Lezione, Presenza, Registro, StatoPresenza } from '#core/dominio/models.js'
+import { validaLezione } from '#core/dominio/validation.js'
 import { aggiornaDopoChiusura } from './reports.js'
 import {
   conMessaggio,
@@ -25,12 +25,12 @@ import {
   type EsitoAzione,
   type Parte,
 } from './context.js'
-import { lezioniInChiusura } from '../dominio/timetable.js'
-import { annoInUso } from '../dominio/years.js'
-import { lezioneNeiProgetti } from '../dominio/projects.js'
+import { lezioniInChiusura } from '#core/dominio/timetable.js'
+import { annoInUso } from '#core/dominio/years.js'
+import { lezioneNeiProgetti } from '#core/dominio/projects.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './hours.testi.js'
-import { istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
 
 /**
  * L'appello completo: una riga per allievo attivo, una casella per UD. Le righe

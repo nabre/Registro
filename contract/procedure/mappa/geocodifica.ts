@@ -1,7 +1,7 @@
-import { mappa } from '../../../core/azioni/map.js'
-import { inoltra, scrittura } from '../../core.js'
-import { booleano, elenco, identificatore, oggetto, opzionale } from '../../schemas.js'
-import { esigiClasse } from '../common/register.js'
+import { mappa } from '#core/azioni/map.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, elenco, identificatore, oggetto, opzionale } from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
 import { testi } from './mappa.testi.js'
 
 const t = () => testi().geocodifica

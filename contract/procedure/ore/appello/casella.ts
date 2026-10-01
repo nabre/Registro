@@ -1,9 +1,9 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, numero, oggetto, scelta } from '../../../schemas.js'
-import { esigiIscritto, esigiLezione, esigiUd } from '../common.js'
-import { STATI_APPELLO } from '../../common/rollCall.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, numero, oggetto, scelta } from '#contract/schemas.js'
+import { esigiIscritto, esigiLezione, esigiUd } from '#contract/procedure/ore/common.js'
+import { STATI_APPELLO } from '#contract/procedure/common/rollCall.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().appello.casella
 

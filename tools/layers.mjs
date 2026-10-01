@@ -172,6 +172,11 @@ if (process.argv.includes('--grafico')) {
  */
 const TRE_PUNTI = /(?:\bfrom\s+|\b(?:import|require)\s*\(\s*|^\s*import\s+)(['"])([^'"]+)\1/gm
 const conTrePunti = []
+/**
+ * Un `'../'` nel TypeScript: si risale con l'alias dello strato (`#core/…`,
+ * ADR-55), così un file spostato non cambia i suoi import. `./` resta.
+ */
+const risalite = []
 for (const percorso of ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'tools', 'shell', 'src']
   .filter(esiste)
   .flatMap((r) => fileSotto(join(RADICE, r), ['.ts', '.mts', '.mjs', '.cjs', '.js']))
@@ -179,9 +184,10 @@ for (const percorso of ['core', 'contract', 'desktop', 'ui', 'cli', 'tests', 'to
   .concat(esiste('esbuild.mjs') ? ['esbuild.mjs'] : [])) {
   const testo = readFileSync(join(RADICE, percorso), 'utf8')
   for (const trovato of testo.matchAll(TRE_PUNTI)) {
-    if (!trovato[2].split('/').includes('...')) continue
+    const risale = percorso.endsWith('.ts') && trovato[2].startsWith('../')
+    if (!risale && !trovato[2].split('/').includes('...')) continue
     const riga = testo.slice(0, trovato.index).split('\n').length
-    conTrePunti.push(`${percorso}:${riga}  '${trovato[2]}'`)
+    ;(risale ? risalite : conTrePunti).push(`${percorso}:${riga}  '${trovato[2]}'`)
   }
 }
 
@@ -300,6 +306,12 @@ if (conTrePunti.length) {
   console.log('\nSu Windows «...» vale «.», su POSIX è una cartella che non c’è: si scrive «./» o «../».')
 }
 
+if (risalite.length) {
+  console.log(`\n# Import che risalgono con «../»: ${risalite.length}\n`)
+  for (const voce of risalite) console.log(voce)
+  console.log('\nSi scrive con l’alias dello strato (`#core/…`, `#ui/…`), come chiede ADR-55.')
+}
+
 if (ricopiate.length) {
   console.log(`\n# Regole riscritte a mano invece di chiamare quella del dominio: ${ricopiate.length}\n`)
   for (const { regola, dove: dov } of ricopiate) console.log(`${dov}  ${regola.nome}: si chiede a ${regola.chiama}`)
@@ -319,5 +331,6 @@ if (pochi) console.log(`Solo ${codiceTs.length} sorgenti .ts: la radice o le car
 
 // Anche un ciclo fa fallire: costa poco toglierlo appena nato. Zero file letti
 // non è un progetto in ordine.
-const guasti = rilievi.length + giri.length + conTrePunti.length + ricopiate.length + rientri.length
+const guasti = rilievi.length + giri.length + conTrePunti.length + risalite.length + ricopiate.length +
+  rientri.length
 process.exitCode = guasti || pochi ? 1 : 0

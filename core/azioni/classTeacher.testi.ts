@@ -1,9 +1,9 @@
 // I testi di `classTeacher.ts`: il foglio delle firme di consegna, le
 // comunicazioni alle famiglie, i fogli delle assenze e le richieste di firma.
 
-import { catalogo } from '../i18n/index.js'
-import { PIF, del } from '../dominio/lexicon.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, del } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   firmeDi: (testo: string) => `Firme di consegna — ${testo}`,

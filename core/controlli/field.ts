@@ -8,8 +8,8 @@
 // promessa che torna dice l'esito sotto il campo. Un testo vuoto vuol dire
 // «rimetti com'era senza dire niente» (una domanda a cui si è risposto no).
 
-import type { VoceProgramma } from '../../contract/protocol.js'
-import { numero } from '../i18n/index.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import { numero } from '#core/i18n/index.js'
 import {
   disegna,
   type Ascolta,

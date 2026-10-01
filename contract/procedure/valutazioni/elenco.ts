@@ -4,10 +4,10 @@
 
 import {
   classeDelCorsoId, corsiDellaClasse, materiaDelCorso,
-} from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
-import { corsoPerId } from '../../../core/dominio/courses.js'
-import type { MomentoValutazione, Voto } from '../../../core/dominio/models.js'
+} from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
+import { corsoPerId } from '#core/dominio/courses.js'
+import type { MomentoValutazione, Voto } from '#core/dominio/models.js'
 import {
   booleano,
   elenco,
@@ -18,7 +18,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_PAGINA,
@@ -31,9 +31,9 @@ import {
   ricerca,
   risolviPeriodo,
   taglia,
-} from '../common/filters.js'
-import { esigiClasse, esigiCorso } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { esigiClasse, esigiCorso } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './valutazioni.testi.js'
 
 const t = () => testi().elenco

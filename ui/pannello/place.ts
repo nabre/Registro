@@ -6,7 +6,7 @@
 // Classi, classe dell'allievo, riconvalida dei ricordati, contesto
 // dell'elemento) stanno qui con la stessa semantica, col registro per parametro.
 
-import type { Vista } from '../../contract/protocol.js'
+import type { Vista } from '#contract/protocol.js'
 import type {
   AnnoScolastico,
   Classe,
@@ -15,11 +15,11 @@ import type {
   Lezione,
   Registro,
   Semestre,
-} from '../../core/dominio/models.js'
-import { corsiDellAnno, registroDelCorso } from '../../core/dominio/courses.js'
-import { isoValida, semestreDi } from '../../core/dominio/dates.js'
-import { confrontaNomi } from '../../core/dominio/text.js'
-import { annoInUso } from '../../core/dominio/years.js'
+} from '#core/dominio/models.js'
+import { corsiDellAnno, registroDelCorso } from '#core/dominio/courses.js'
+import { isoValida, semestreDi } from '#core/dominio/dates.js'
+import { confrontaNomi } from '#core/dominio/text.js'
+import { annoInUso } from '#core/dominio/years.js'
 
 // ------------------------------------------------------------------ tipi
 

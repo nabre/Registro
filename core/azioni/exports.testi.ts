@@ -1,7 +1,7 @@
 // I testi di `exports.ts`: i documenti già esportati. «Aggiorna» si chiama come
 // `parole().aggiorna` in ogni lingua.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonEsportato: 'Non è un documento esportato.',

@@ -4,7 +4,7 @@
 // scrivono uguali. Le sezioni dell'anno e le parole di ricerca stanno nel
 // pannello (`sections.testi.ts`).
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import type { Area, SezioneDiProgramma } from './areas.js'
 
 /** Una sezione: il nome e il riassunto sotto il titolo. */

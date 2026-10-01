@@ -7,20 +7,20 @@ import {
   inizioLezione,
   minutiEffettivi,
   riepilogaPresenze,
-} from '../../../../core/dominio/calculations.js'
-import { formattaData, formattaDurata, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '../../../../core/dominio/dates.js'
-import type { Compleanno } from '../../../../core/dominio/birthdays.js'
-import type { EventoCalendario } from '../../../../core/dominio/calendarIcs.js'
-import type { Iso, Lezione } from '../../../../core/dominio/models.js'
-import { pastiglia, pulsante, puntoColore, statoVuoto } from '../../components/base.js'
-import { h } from '../../dom.js'
+} from '#core/dominio/calculations.js'
+import { formattaData, formattaDurata, inizioSettimana, nomeSemestre, settimanaIso, sommaGiorni } from '#core/dominio/dates.js'
+import type { Compleanno } from '#core/dominio/birthdays.js'
+import type { EventoCalendario } from '#core/dominio/calendarIcs.js'
+import type { Iso, Lezione } from '#core/dominio/models.js'
+import { pastiglia, pulsante, puntoColore, statoVuoto } from '#ui/pannello/components/base.js'
+import { h } from '#ui/pannello/dom.js'
 import {
   eventiDellaLezione,
   eventiEsterni,
   icsInVista,
   lezioneDellEvento,
-} from '../../externalCalendar.js'
-import { moduloLezione } from '../../forms.js'
+} from '#ui/pannello/externalCalendar.js'
+import { moduloLezione } from '#ui/pannello/forms.js'
 import {
   annoCorrente,
   compleanniFra,
@@ -32,7 +32,7 @@ import {
   semestrePerData,
   titoloDiLezione,
   stato,
-} from '../../state.js'
+} from '#ui/pannello/state.js'
 import { chiusura, apriLezione, festivo, letteraDi } from './common.js'
 import {
   ancora,
@@ -45,8 +45,8 @@ import {
 import { classiInAula, chipCompleanno } from './birthdays.js'
 import { menuLezione } from './menus.js'
 import { testi } from './calendar.testi.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import { minuscolo } from '../../../../core/i18n/index.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { minuscolo } from '#core/i18n/index.js'
 
 /**
  * Il giorno su cui l'agenda si è già portata da sé: una volta per giorno di

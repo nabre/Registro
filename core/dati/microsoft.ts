@@ -10,8 +10,8 @@
 
 import * as apparato from 'apparato'
 
-import { sembraIndirizzo, stessoIndirizzo } from '../dominio/mailbox.js'
-import type { AccountMicrosoft } from '../dominio/onedrive.js'
+import { sembraIndirizzo, stessoIndirizzo } from '#core/dominio/mailbox.js'
+import type { AccountMicrosoft } from '#core/dominio/onedrive.js'
 import { casella } from './mailbox.js'
 import { aggiornaOneDriveLocali, oneDriveLocaliNoti } from './oneDriveLocal.js'
 import { accediDalBrowser, rinnovaConMicrosoft, spiega, tenantDi, type Gettoni } from './oauth.js'

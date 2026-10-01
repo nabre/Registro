@@ -1,7 +1,7 @@
 // I testi della pagina delle persone in formazione (`people.ts`).
 
-import { catalogo, perNumero } from '../../../core/i18n/index.js'
-import { PERSONE, PIF, un } from '../../../core/dominio/lexicon.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { PERSONE, PIF, un } from '#core/dominio/lexicon.js'
 
 const it = {
   nessunaCorrispondenza: 'Nessun nome corrisponde a quel che hai scritto.',

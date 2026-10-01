@@ -2,7 +2,7 @@
 // («pronto», «installazione») sono del contratto e restano uguali. Si leggono
 // al momento dell'uso (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   controlla: { titolo: 'Chiede a GitHub se c’è una versione nuova del registro' },

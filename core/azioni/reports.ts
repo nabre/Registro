@@ -4,7 +4,7 @@
 
 import * as apparato from 'apparato'
 
-import { scriviGenerato } from '../dati/exports.js'
+import { scriviGenerato } from '#core/dati/exports.js'
 import {
   ESPORTAZIONI,
   collocazioneDi,
@@ -15,14 +15,14 @@ import {
   type Collocazione,
   type ContestoRapporto,
   type GenereRapporto,
-} from '../dominio/locations.js'
-import { blocchi, modello, paroleDeiModelli } from '../dati/templates.js'
-import type { CartaIntestata, Intestazione } from '../dominio/models.js'
-import type { Lingua } from '../i18n/index.js'
-import { CHIAVE_CARTA } from '../dominio/reportData.js'
-import { NOME_LOGO, conIntestazione } from '../dominio/reports.js'
-import { componiPdf } from '../dati/reportsPdf.js'
-import { contenutoDi, deposito } from '../dati/store.js'
+} from '#core/dominio/locations.js'
+import { blocchi, modello, paroleDeiModelli } from '#core/dati/templates.js'
+import type { CartaIntestata, Intestazione } from '#core/dominio/models.js'
+import type { Lingua } from '#core/i18n/index.js'
+import { CHIAVE_CARTA } from '#core/dominio/reportData.js'
+import { NOME_LOGO, conIntestazione } from '#core/dominio/reports.js'
+import { componiPdf } from '#core/dati/reportsPdf.js'
+import { contenutoDi, deposito } from '#core/dati/store.js'
 import {
   datiAllievo,
   datiCorso,
@@ -35,20 +35,20 @@ import {
   datiPresenze,
   datiValutazioni,
   datiDiario,
-} from '../dominio/reportData.js'
-import { datiProgetto, datiProgettoAllievo } from '../dominio/projectReport.js'
-import { allieviNominati, progettiDelCorso } from '../dominio/projects.js'
+} from '#core/dominio/reportData.js'
+import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
+import { allieviNominati, progettiDelCorso } from '#core/dominio/projects.js'
 import {
   classeDelCorsoId,
   corsiDellaClasse,
   pianiDelCorso,
   registroDelCorso,
-} from '../dominio/courses.js'
-import { ordinaAllievi } from '../dominio/calculations.js'
-import { formattaData, nelSemestre, oggi, semestreDi } from '../dominio/dates.js'
-import type { Archivio } from '../dati/archive.js'
-import type { Corso, Lezione, Registro, Semestre } from '../dominio/models.js'
-import type { Blocchi, DatiRapporto, Modello } from '../dominio/reports.js'
+} from '#core/dominio/courses.js'
+import { ordinaAllievi } from '#core/dominio/calculations.js'
+import { formattaData, nelSemestre, oggi, semestreDi } from '#core/dominio/dates.js'
+import type { Archivio } from '#core/dati/archive.js'
+import type { Corso, Lezione, Registro, Semestre } from '#core/dominio/models.js'
+import type { Blocchi, DatiRapporto, Modello } from '#core/dominio/reports.js'
 import {
   corsiDaRifare,
   giornoDaRifare,
@@ -56,8 +56,8 @@ import {
   riferimentiSpostati,
   type Impronta,
   type Riferimenti,
-} from '../dominio/automation.js'
-import type { Azione } from '../../contract/protocol.js'
+} from '#core/dominio/automation.js'
+import type { Azione } from '#contract/protocol.js'
 import { cestina, conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi } from './reports.testi.js'
 

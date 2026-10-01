@@ -4,8 +4,8 @@
 // «Nome: frase», che le schede di tema e lingua dividono in titolo e testo.
 // Delle lingue qui c'è solo «Sistema»: le altre si chiamano da sé (`manifest.ts`).
 
-import { catalogo } from '../core/i18n/index.js'
-import { PIF, il } from '../core/dominio/lexicon.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, il } from '#core/dominio/lexicon.js'
 import type { ChiaveImpostazione, IdComando } from './manifest.js'
 
 /** Quel che si legge di un'impostazione. */

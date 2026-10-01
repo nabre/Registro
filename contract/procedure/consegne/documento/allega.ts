@@ -1,8 +1,8 @@
-import { consegne } from '../../../../core/azioni/assignments.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiConsegna, perChi } from '../common.js'
-import { testi } from '../consegne.testi.js'
+import { consegne } from '#core/azioni/assignments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiConsegna, perChi } from '#contract/procedure/consegne/common.js'
+import { testi } from '#contract/procedure/consegne/consegne.testi.js'
 
 export const procedura = scrittura({
   nome: 'consegne.documento.allega',

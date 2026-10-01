@@ -1,8 +1,8 @@
 // I testi della pagina Corsi: la matrice classi × materie, la scheda del corso
 // scelto con i suoi numeri e la tabella delle persone.
-import { catalogo } from '../../../core/i18n/index.js'
-import { PIF } from '../../../core/dominio/lexicon.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   // I numeri del corso.

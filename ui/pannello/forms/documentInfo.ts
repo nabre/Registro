@@ -3,13 +3,13 @@
 // OneDrive) stanno nel menu «File» e in Ctrl+K, non qui né nelle impostazioni
 // (`docs/PIANO-IMPOSTAZIONI.md` § 3.1); qui restano i gesti su questo file.
 
-import { avviso, pulsante } from '../components/base.js'
-import { sintesiIncassata } from '../components/filters.js'
-import { apriModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { h } from '../dom.js'
-import { azione } from '../bridge.js'
-import { stato } from '../state.js'
+import { avviso, pulsante } from '#ui/pannello/components/base.js'
+import { sintesiIncassata } from '#ui/pannello/components/filters.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h } from '#ui/pannello/dom.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { stato } from '#ui/pannello/state.js'
 import { testi } from './documentInfo.testi.js'
 
 /** Il nome del file, staccato dal percorso: è quel che si riconosce. */

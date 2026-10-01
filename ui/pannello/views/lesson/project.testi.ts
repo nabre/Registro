@@ -1,6 +1,6 @@
 // I testi di `views/lesson/project.ts`: la scheda Progetto dell'ora.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nessunProgetto: 'Nessun progetto in quest’ora',

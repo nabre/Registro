@@ -1,16 +1,16 @@
 // Le materie: crearle, rinominarle, e rimettere insieme quelle nate due volte
 // dallo stesso nome scritto in due modi.
 
-import { corsiDellaMateria } from '../../../core/dominio/courses.js'
-import { creaMateria } from '../../../core/dominio/factories.js'
-import type { Materia } from '../../../core/dominio/models.js'
-import { materieSimili, validaMateria } from '../../../core/dominio/validation.js'
-import { campo, riga } from '../components/base.js'
-import { apriModale, conferma } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { h, rimpiazza } from '../dom.js'
-import { stato } from '../state.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { corsiDellaMateria } from '#core/dominio/courses.js'
+import { creaMateria } from '#core/dominio/factories.js'
+import type { Materia } from '#core/dominio/models.js'
+import { materieSimili, validaMateria } from '#core/dominio/validation.js'
+import { campo, riga } from '#ui/pannello/components/base.js'
+import { apriModale, conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h, rimpiazza } from '#ui/pannello/dom.js'
+import { stato } from '#ui/pannello/state.js'
+import { parole } from '#core/dominio/words.testi.js'
 
 import { baseViva, salva, tastoElimina, testo } from './common.js'
 import { testi } from './subject.testi.js'

@@ -1,6 +1,6 @@
 // I testi della guida sui progetti del corso. Struttura in `projects.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import type { TestiSezione } from './types.js'
 
 const it: { progetti: TestiSezione } = {

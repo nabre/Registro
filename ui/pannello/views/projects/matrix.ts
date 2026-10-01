@@ -3,8 +3,8 @@
 // vuoto), il tasto destro sceglie il livello o scrive una nota. Ogni giorno ha
 // le sue caselle: la progressione di una persona le mette in fila.
 
-import { nomeCompleto } from '../../../../core/dominio/calculations.js'
-import { formattaData } from '../../../../core/dominio/dates.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
 import type {
   Allievo,
   CellaProgetto,
@@ -12,18 +12,18 @@ import type {
   Iso,
   Lezione,
   Progetto,
-} from '../../../../core/dominio/models.js'
-import { celleDi, giornoDellaVoce, progressione } from '../../../../core/dominio/projects.js'
-import { minuscolo } from '../../../../core/i18n/index.js'
-import { quieto } from '../../components/base.js'
-import { frecceNellaGriglia } from '../../components/gridArrows.js'
-import { statoInVolo } from '../../components/inFlight.js'
-import { menuContestuale, menuSotto, type ElementoMenu } from '../../components/menu.js'
-import { tabella } from '../../components/table.js'
-import { azione } from '../../bridge.js'
-import { h, type Figlio } from '../../dom.js'
-import { allieviDelProgetto, coloreLivello, moduloCella } from '../../forms/project.js'
-import { stato } from '../../state.js'
+} from '#core/dominio/models.js'
+import { celleDi, giornoDellaVoce, progressione } from '#core/dominio/projects.js'
+import { minuscolo } from '#core/i18n/index.js'
+import { quieto } from '#ui/pannello/components/base.js'
+import { frecceNellaGriglia } from '#ui/pannello/components/gridArrows.js'
+import { statoInVolo } from '#ui/pannello/components/inFlight.js'
+import { menuContestuale, menuSotto, type ElementoMenu } from '#ui/pannello/components/menu.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { allieviDelProgetto, coloreLivello, moduloCella } from '#ui/pannello/forms/project.js'
+import { stato } from '#ui/pannello/state.js'
 import { testi } from './matrix.testi.js'
 
 /** Il giorno della matrice: quello di un'ora (e le caselle si legano a lei) o una data. */

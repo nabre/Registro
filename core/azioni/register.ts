@@ -3,14 +3,14 @@
 
 import * as apparato from 'apparato'
 
-import { nomeCompleto } from '../dominio/calculations.js'
-import { lezioniDaOrario, lezioniNeiGiorniChiusi } from '../dominio/timetable.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { lezioniDaOrario, lezioniNeiGiorniChiusi } from '#core/dominio/timetable.js'
 import {
   allineaSemestri,
   annoAllineato,
   conLetteraSettimana,
   motivoSettimanaRifiutata,
-} from '../dominio/years.js'
+} from '#core/dominio/years.js'
 import {
   annoUfficiale,
   bozzaSincronizzata,
@@ -18,7 +18,7 @@ import {
   calendarioUfficialePerCantone,
   marcatoreDi,
   motivoCalendarioToccato,
-} from '../dominio/schoolCalendar.js'
+} from '#core/dominio/schoolCalendar.js'
 import type {
   AnnoScolastico,
   Attivita,
@@ -26,7 +26,7 @@ import type {
   PianoLezione,
   Registro,
   Risorsa,
-} from '../dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   creaAllievo,
   creaAnno,
@@ -34,23 +34,23 @@ import {
   creaCorso,
   duplicaClasse,
   duplicaProgetto,
-} from '../dominio/factories.js'
-import { corsoDi, corsoPerId, titoloCorso } from '../dominio/courses.js'
-import { nuovoIdColonnaCheck, nuovoIdCorso } from '../dominio/identifiers.js'
+} from '#core/dominio/factories.js'
+import { corsoDi, corsoPerId, titoloCorso } from '#core/dominio/courses.js'
+import { nuovoIdColonnaCheck, nuovoIdCorso } from '#core/dominio/identifiers.js'
 import {
   esitoImportRegistro,
   importaClasse,
   importaRegistro,
   leggiElencoAllievi,
-} from '../dominio/importing.js'
-import { confrontaNomi, normalizzaTesto } from '../dominio/text.js'
-import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '../dominio/normalization.js'
-import { validaAnno, validaCorso, validaMateria, validaClasse } from '../dominio/validation.js'
-import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '../dati/filing.js'
-import { percorsoCopiaCalendario, scriviCopia } from '../dati/calendar.js'
-import { contenutoDi } from '../dati/store.js'
+} from '#core/dominio/importing.js'
+import { confrontaNomi, normalizzaTesto } from '#core/dominio/text.js'
+import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '#core/dominio/normalization.js'
+import { validaAnno, validaCorso, validaMateria, validaClasse } from '#core/dominio/validation.js'
+import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '#core/dati/filing.js'
+import { percorsoCopiaCalendario, scriviCopia } from '#core/dati/calendar.js'
+import { contenutoDi } from '#core/dati/store.js'
 import { percorsoLogo, portaDentroLaVecchiaCartella } from './templates.js'
-import { percorsoProvvisorio } from '../dati/paths.js'
+import { percorsoProvvisorio } from '#core/dati/paths.js'
 import {
   cestina,
   conMessaggio,
@@ -63,10 +63,10 @@ import {
   type EsitoAzione,
   type Parte,
 } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './register.testi.js'
-import { istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
 
 /**
  * Perché l'anno così non si scrive, se segue il calendario ufficiale e ne

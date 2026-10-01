@@ -4,7 +4,7 @@
 
 import { BrowserWindow } from 'electron'
 
-import { preferenzeComuni } from '../apparato/theme.js'
+import { preferenzeComuni } from '#desktop/apparato/theme.js'
 
 let finestraSentinella: BrowserWindow | null = null
 

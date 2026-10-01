@@ -6,13 +6,13 @@
 // Regola comune: un filtro si deve poter togliere, e la busta dice su che cosa
 // ha risposto (vedi le letture in `docs/API.md`).
 
-import { annoInUso, estremiAnno } from '../../../core/dominio/years.js'
-import { limita, nomeCompleto } from '../../../core/dominio/calculations.js'
-import { annoDellaClasse } from '../../../core/dominio/courses.js'
-import { corrispondeAlla, normalizzaTesto, pezziDiRicerca } from '../../../core/dominio/text.js'
-import type { Allievo, Classe, Corso, Registro } from '../../../core/dominio/models.js'
-import { detto, type TestoPigro } from '../../../core/i18n/index.js'
-import { errore } from '../../contract.js'
+import { annoInUso, estremiAnno } from '#core/dominio/years.js'
+import { limita, nomeCompleto } from '#core/dominio/calculations.js'
+import { annoDellaClasse } from '#core/dominio/courses.js'
+import { corrispondeAlla, normalizzaTesto, pezziDiRicerca } from '#core/dominio/text.js'
+import type { Allievo, Classe, Corso, Registro } from '#core/dominio/models.js'
+import { detto, type TestoPigro } from '#core/i18n/index.js'
+import { errore } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -25,9 +25,9 @@ import {
   soloDaFuori,
   testo,
   type SchemaOpzionale,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import { testi } from './common.testi.js'
-import { nomeSemestre } from '../../../core/dominio/dates.js'
+import { nomeSemestre } from '#core/dominio/dates.js'
 
 // ------------------------------------------------------------------ il periodo
 
@@ -214,7 +214,7 @@ function minore (uno: string, altro: string): string {
  * Se un giorno cade nel periodo, estremi compresi. È quella del dominio,
  * riesportata accanto al periodo.
  */
-export { nelPeriodo } from '../../../core/dominio/dates.js'
+export { nelPeriodo } from '#core/dominio/dates.js'
 
 // ----------------------------------------------------------------- la ricerca
 

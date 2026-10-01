@@ -9,7 +9,7 @@ import * as percorso from 'node:path'
 
 import * as apparato from 'apparato'
 
-import { argomentiOutlook } from '../dominio/contacts.js'
+import { argomentiOutlook } from '#core/dominio/contacts.js'
 
 /** Dove sta Outlook su macOS. */
 const APPLICAZIONE_MAC = '/Applications/Microsoft Outlook.app'

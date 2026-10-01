@@ -1,8 +1,8 @@
-import { registro } from '../../../../core/azioni/register.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiPersonaDellaClasse } from '../../common/register.js'
-import { testi } from '../persone.testi.js'
+import { registro } from '#core/azioni/register.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiPersonaDellaClasse } from '#contract/procedure/common/register.js'
+import { testi } from '#contract/procedure/persone/persone.testi.js'
 
 /**
  * Non idempotente: apre il dialogo di sistema, e ogni volta si può scegliere

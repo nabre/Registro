@@ -10,14 +10,14 @@
 // compare anche prima di essere collegata, perché è il primo account che si
 // vorrà usare.
 
-import { avviso, pastiglia, pulsante, scheda } from '../../components/base.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
-import type { Messaggio } from '../../../../contract/protocol.js'
-import type { AccountMicrosoft } from '../../../../core/dominio/onedrive.js'
-import { azione } from '../../bridge.js'
-import { stato } from '../../state.js'
+import { avviso, pastiglia, pulsante, scheda } from '#ui/pannello/components/base.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import type { Messaggio } from '#contract/protocol.js'
+import type { AccountMicrosoft } from '#core/dominio/onedrive.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { stato } from '#ui/pannello/state.js'
 import { testi as testiPosta } from './mail.testi.js'
 import { testi } from './microsoft.testi.js'
 

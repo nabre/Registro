@@ -2,7 +2,7 @@
 // guasti del programma (`mtmd.ts`) e il suo nome mentre scende (`visionKit.ts`).
 // La richiesta segue la lingua del registro e chiede di trascrivere, non tradurre.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Quel che si chiede al modello, per ogni pagina. */

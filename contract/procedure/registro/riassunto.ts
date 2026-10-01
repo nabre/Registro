@@ -1,6 +1,6 @@
-import { annoInUso } from '../../../core/dominio/years.js'
-import { definisci } from '../../contract.js'
-import { nullabile, numero, oggetto, testo, vuoto } from '../../schemas.js'
+import { annoInUso } from '#core/dominio/years.js'
+import { definisci } from '#contract/contract.js'
+import { nullabile, numero, oggetto, testo, vuoto } from '#contract/schemas.js'
 import { testi } from './registro.testi.js'
 
 const t = () => testi().riassunto

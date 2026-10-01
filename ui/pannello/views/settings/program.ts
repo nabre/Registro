@@ -4,23 +4,23 @@
 // divisione in sezioni sta in `sections.ts`, senza DOM, e si prova.
 // «Ripristina» riporta al predefinito le voci di un'area, dagli elenchi soltanto.
 
-import type { VoceProgramma } from '../../../../contract/protocol.js'
-import { controllo, type Esito, type Valore } from '../../../../core/controlli/control.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import { controllo, type Esito, type Valore } from '#core/controlli/control.js'
 import {
   avviso,
   pastiglia,
   pulsante,
   scheda,
   statoVuoto,
-} from '../../components/base.js'
-import { suggerimento } from '../../components/hint.js'
-import type { NomeIcona } from '../../components/icons.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { gestisci, h, type Figlio } from '../../dom.js'
-import { azione, invia } from '../../bridge.js'
-import type { AreaImpostazioni } from '../../place.js'
-import { stato, vai } from '../../state.js'
+} from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
+import type { AreaImpostazioni } from '#ui/pannello/place.js'
+import { stato, vai } from '#ui/pannello/state.js'
 import {
   avanzateDiSezione,
   daRipristinare,

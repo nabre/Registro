@@ -1,9 +1,9 @@
 // Quel che le procedure di `onedrive` si dividono: la forma di una voce, e il
 // rifiuto che si dà quando Microsoft non risponde.
 
-import { errore } from '../../contract.js'
-import { motivoSicuro } from '../../../core/azioni/context.js'
-import { elenco, nullabile, numero, oggetto, scelta, testo } from '../../schemas.js'
+import { errore } from '#contract/contract.js'
+import { motivoSicuro } from '#core/azioni/context.js'
+import { elenco, nullabile, numero, oggetto, scelta, testo } from '#contract/schemas.js'
 import { testi } from './onedrive.testi.js'
 
 const t = () => testi().voce

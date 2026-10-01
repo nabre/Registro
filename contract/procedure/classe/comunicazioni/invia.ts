@@ -1,8 +1,8 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { booleano, identificatore, oggetto, opzionale } from '../../../schemas.js'
-import { esigiComunicazione } from '../common.js'
-import { testi } from '../classe.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { booleano, identificatore, oggetto, opzionale } from '#contract/schemas.js'
+import { esigiComunicazione } from '#contract/procedure/classe/common.js'
+import { testi } from '#contract/procedure/classe/classe.testi.js'
 
 export const procedura = scrittura({
   nome: 'classe.comunicazioni.invia',

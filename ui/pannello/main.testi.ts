@@ -1,7 +1,7 @@
 // I testi della pagina principale (`main.ts`): quel che si dice quando un
 // comando del menu nativo non si può eseguire così com'è.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   finestraAperta:

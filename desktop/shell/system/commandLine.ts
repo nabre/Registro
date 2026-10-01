@@ -14,9 +14,9 @@ import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { delimiter, join } from 'node:path'
 
-import { percorsoRigaDiComando } from '../../apparato/context.js'
-import { integrazioneSistemaAbilitata } from '../../apparato/settings.js'
-import { alCambioLingua, lingua } from '../../../core/i18n/index.js'
+import { percorsoRigaDiComando } from '#desktop/apparato/context.js'
+import { integrazioneSistemaAbilitata } from '#desktop/apparato/settings.js'
+import { alCambioLingua, lingua } from '#core/i18n/index.js'
 import { testi } from './commandLine.testi.js'
 
 const NOME = 'regi'

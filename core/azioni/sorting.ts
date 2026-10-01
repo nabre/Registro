@@ -4,16 +4,16 @@
 
 import * as apparato from 'apparato'
 
-import { foglioDi, rigaDi, togliFoglioAssenze, trovaBloccoAssenze } from '../dominio/absences.js'
-import type { Divisione, Smistamento } from '../dominio/models.js'
-import { indiceNomi, intervalliDi, riconosci, riquadroDelNome } from '../dominio/sorting.js'
-import { siConsegna } from '../dominio/assignments.js'
-import { nomeSicuro } from '../dominio/text.js'
-import { apriConIlSistema } from '../dati/opening.js'
-import type { Archivio } from '../dati/archive.js'
-import { deposito } from '../dati/store.js'
-import { estraiElenco, testoConPosizioni } from '../dati/pdf.js'
-import { ocrPronto } from '../dati/ocr.js'
+import { foglioDi, rigaDi, togliFoglioAssenze, trovaBloccoAssenze } from '#core/dominio/absences.js'
+import type { Divisione, Smistamento } from '#core/dominio/models.js'
+import { indiceNomi, intervalliDi, riconosci, riquadroDelNome } from '#core/dominio/sorting.js'
+import { siConsegna } from '#core/dominio/assignments.js'
+import { nomeSicuro } from '#core/dominio/text.js'
+import { apriConIlSistema } from '#core/dati/opening.js'
+import type { Archivio } from '#core/dati/archive.js'
+import { deposito } from '#core/dati/store.js'
+import { estraiElenco, testoConPosizioni } from '#core/dati/pdf.js'
+import { ocrPronto } from '#core/dati/ocr.js'
 import {
   assegnaAssenze,
   assegnaElenco,
@@ -24,7 +24,7 @@ import {
   scartaPagine,
   smistatoreDi,
   togliAnteprime,
-} from '../dati/sorter.js'
+} from '#core/dati/sorter.js'
 import {
   apriFile,
   cestina,
@@ -39,7 +39,7 @@ import {
 import { testi as comuni } from './context.testi.js'
 import { testi } from './sorting.testi.js'
 import { vista } from './view.js'
-import { istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
 
 /**
  * Il nome di un ritaglio aperto nel lettore: il PDF d'origine e le pagine.

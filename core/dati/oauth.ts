@@ -9,9 +9,9 @@ import * as http from 'node:http'
 
 import * as apparato from 'apparato'
 
-import { dominioDi, indirizziDellAccount } from '../dominio/mailbox.js'
-import { parole } from '../dominio/words.testi.js'
-import { lingua } from '../i18n/index.js'
+import { dominioDi, indirizziDellAccount } from '#core/dominio/mailbox.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { lingua } from '#core/i18n/index.js'
 import { testi } from './oauth.testi.js'
 
 /**

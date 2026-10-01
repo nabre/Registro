@@ -1,6 +1,6 @@
 // I file da smistare e dividere nelle consegne della classe.
 
-import { definisci } from '../../contract.js'
+import { definisci } from '#contract/contract.js'
 import {
   elenco,
   identificatore,
@@ -9,8 +9,8 @@ import {
   oggetto,
   opzionale,
   testo,
-} from '../../schemas.js'
-import { esigiClasse } from '../common/register.js'
+} from '#contract/schemas.js'
+import { esigiClasse } from '#contract/procedure/common/register.js'
 import { testi } from './smistamento.testi.js'
 
 const t = () => testi().daFare

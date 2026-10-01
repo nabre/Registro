@@ -1,7 +1,7 @@
 // I testi di `map.ts`: i generi dei punti sulla mappa, i cartellini dei
 // segnaposti e le distanze con il decimale.
 
-import { catalogo, numero } from '../i18n/index.js'
+import { catalogo, numero } from '#core/i18n/index.js'
 
 /** Un decimale, come la lingua lo scrive: «2.3» in tedesco svizzero, «2,3» in francese. */
 const unDecimale = (km: number) =>

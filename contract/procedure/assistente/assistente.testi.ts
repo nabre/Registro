@@ -4,7 +4,7 @@
 // («DIC4a · Matematica», «corso.presenze») restano uguali. Si leggono al
 // momento dell'uso (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   contesto: {

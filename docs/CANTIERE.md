@@ -110,15 +110,6 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 ### Riordino
 
-- [ ] Alias degli import, PRIMA dei lotti sotto (rende economici gli
-      spostamenti): campo `"imports"` di `package.json` (`#core/*`,
-      `#contract/*`, `#desktop/*`, `#ui/*`), standard Node, capito da tsc
-      (`Node16`) ed esbuild senza configurazione doppia. Oggi ~2400 import
-      relativi profondi (963 `../../../`, 430 `../../../../`). Prima una prova:
-      `.js`→`.ts` dietro `#` in tsc ed esbuild, `tools/layers.mjs`, `census`,
-      `collections`, knip, ESLint; `cli/` resta fuori (D10). Poi ADR, codemod
-      in un commit solo ad albero fermo; `apparato` può passare a `#apparato`.
-
 Giro di esplorazione del 2026-10-01 (5 dimensioni, sola lettura). I bug veri
 trovati sono stati corretti subito; qui restano i lotti a comportamento
 invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.

@@ -1,11 +1,11 @@
-import { ore } from '../../../../core/azioni/hours.js'
-import { Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
-import type { Osservazione } from '../../../../core/dominio/models.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { entita, identificatore, oggetto } from '../../../schemas.js'
-import { esigiLezione } from '../common.js'
-import { testi } from '../ore.testi.js'
+import { ore } from '#core/azioni/hours.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Osservazione } from '#core/dominio/models.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { entita, identificatore, oggetto } from '#contract/schemas.js'
+import { esigiLezione } from '#contract/procedure/ore/common.js'
+import { testi } from '#contract/procedure/ore/ore.testi.js'
 
 const t = () => testi().osservazione.salva
 

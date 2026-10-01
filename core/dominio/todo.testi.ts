@@ -1,7 +1,7 @@
 // I testi di `todo.ts`: come si chiamano le tipologie delle pendenze, e la riga
 // che dice che cosa ci sta dentro.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Chi fa che cosa: il titolo di una tipologia. */

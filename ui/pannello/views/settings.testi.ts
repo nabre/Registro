@@ -1,7 +1,7 @@
 // I testi della pagina delle impostazioni (`settings.ts`). I nomi di aree e
 // sezioni stanno in `settings/sections.testi.ts`, le voci nel manifesto.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   titolo: 'Impostazioni',

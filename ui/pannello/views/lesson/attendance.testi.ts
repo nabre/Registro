@@ -1,8 +1,8 @@
 // I testi dell'appello dell'ora (`lesson/attendance.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { PIF } from '../../../../core/dominio/lexicon.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF } from '#core/dominio/lexicon.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   appello: 'Appello',

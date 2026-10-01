@@ -4,9 +4,9 @@
 
 import { BrowserWindow, clipboard, screen, shell } from 'electron'
 
-import { limita } from '../../core/dominio/calculations.js'
-import { Smaltitore } from '../../core/apparato/events.js'
-import { Uri } from '../../core/apparato/uri.js'
+import { limita } from '#core/dominio/calculations.js'
+import { Smaltitore } from '#core/apparato/events.js'
+import { Uri } from '#core/apparato/uri.js'
 
 type Comando = (...argomenti: never[]) => unknown
 

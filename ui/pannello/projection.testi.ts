@@ -3,9 +3,9 @@
 //
 // Si leggono da in fondo all'aula: parole corte, niente frasi da ufficio.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { PIF, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { PIF, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   aula: (aula: string) => `aula ${aula}`,

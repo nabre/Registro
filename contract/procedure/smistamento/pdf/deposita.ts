@@ -1,8 +1,8 @@
-import { smistamento } from '../../../../core/azioni/sorting.js'
-import { daGestore, scrittura } from '../../../core.js'
-import { identificatore, nullabile, oggetto, opzionale, testo } from '../../../schemas.js'
-import { comeDivisione, divisione } from '../common.js'
-import { testi } from '../smistamento.testi.js'
+import { smistamento } from '#core/azioni/sorting.js'
+import { daGestore, scrittura } from '#contract/core.js'
+import { identificatore, nullabile, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { comeDivisione, divisione } from '#contract/procedure/smistamento/common.js'
+import { testi } from '#contract/procedure/smistamento/smistamento.testi.js'
 
 const t = () => testi().pdf.deposita
 

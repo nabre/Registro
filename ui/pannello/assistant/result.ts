@@ -3,8 +3,8 @@
 // modello. Si vede anche se la risposta non arriva, perché il dato letto resta.
 // Le tabelle sono quelle di `answer.ts` (`assistente__tabella`).
 
-import { h, type Figlio } from '../dom.js'
-import type { BloccoRisultato, RisultatoAssistente } from '../../../contract/protocol.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import type { BloccoRisultato, RisultatoAssistente } from '#contract/protocol.js'
 import { tabellaAssistente } from './answer.js'
 import { testi } from './chat.testi.js'
 

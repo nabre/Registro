@@ -1,7 +1,7 @@
 // I testi della guida sui calendari ufficiali (`officialCalendars.ts`), con la
 // forma di `TestiSezione` (testa di `types.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import type { TestiSezione } from './types.js'
 
 const it = {

@@ -11,11 +11,11 @@
 
 import * as apparato from 'apparato'
 
-import { registraFinestraAssistente } from '../../core/azioni/assistant.js'
-import { convalidaTurni } from '../../contract/procedure/assistente/stacca.js'
-import { dettaturaAccesa } from '../../core/dati/dictation.js'
-import { collegamento } from '../../core/dati/llm.js'
-import type { Archivio } from '../../core/dati/archive.js'
+import { registraFinestraAssistente } from '#core/azioni/assistant.js'
+import { convalidaTurni } from '#contract/procedure/assistente/stacca.js'
+import { dettaturaAccesa } from '#core/dati/dictation.js'
+import { collegamento } from '#core/dati/llm.js'
+import type { Archivio } from '#core/dati/archive.js'
 import type {
   Conversazione,
   Dettatura,
@@ -25,13 +25,13 @@ import type {
   MessaggioVersoWebview,
   SeguiConversazione,
   TurnoAssistente,
-} from '../../contract/protocol.js'
+} from '#contract/protocol.js'
 import {
   fermaGiriDi, riprendiGiro, rispondiConversazione, sospendiGiroInCorso,
 } from './conversation.js'
 import { rispondiDettatura } from './transcription.js'
 import { paginaHtml, radiciDellaPagina } from './page.js'
-import { alCambioLingua } from '../../core/i18n/index.js'
+import { alCambioLingua } from '#core/i18n/index.js'
 import { testi } from './panels.testi.js'
 
 /** Contesto e archivio messi da parte all'avvio: chi apre la finestra non li ha. */

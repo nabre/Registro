@@ -25,7 +25,7 @@ import {
 import { copyFile } from 'node:fs/promises'
 import * as percorso from 'node:path'
 
-import { nomeSicuro, senzaVirgolette } from '../dominio/text.js'
+import { nomeSicuro, senzaVirgolette } from '#core/dominio/text.js'
 import { cartellaApplicazione } from './appData.js'
 import { ESTENSIONE, nomeDiModello } from './ggufName.js'
 import { improntaConsigliata } from './recommendedModels.js'

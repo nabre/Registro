@@ -6,7 +6,7 @@
 
 import * as apparato from 'apparato'
 
-import { lingua, type Lingua } from '../i18n/index.js'
+import { lingua, type Lingua } from '#core/i18n/index.js'
 import {
   conBase,
   leggiBlocchi,
@@ -17,10 +17,10 @@ import {
   type Blocchi,
   type Modello,
   type Testi,
-} from '../dominio/reports.js'
-import { fileDeiTesti, fileDelModello, fileDiTesto, nomeFileAmmesso } from '../dominio/templateCatalog.js'
-import type { Intestazione } from '../dominio/models.js'
-import { impronta } from '../dominio/text.js'
+} from '#core/dominio/reports.js'
+import { fileDeiTesti, fileDelModello, fileDiTesto, nomeFileAmmesso } from '#core/dominio/templateCatalog.js'
+import type { Intestazione } from '#core/dominio/models.js'
+import { impronta } from '#core/dominio/text.js'
 import { MODELLI_PREDEFINITI } from './defaultTemplates.js'
 import { esisteFile, radiceDiLavoro } from './paths.js'
 

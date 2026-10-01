@@ -1,9 +1,9 @@
-import { allieviAttivi } from '../../../core/dominio/calculations.js'
-import { classeDelCorsoId, corsiDellAnno, materiaDelCorso } from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
-import { elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { CAMPI_CERCA, filtroTesto, ricerca } from '../common/filters.js'
-import { esigiAnno } from '../common/register.js'
+import { allieviAttivi } from '#core/dominio/calculations.js'
+import { classeDelCorsoId, corsiDellAnno, materiaDelCorso } from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
+import { elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { CAMPI_CERCA, filtroTesto, ricerca } from '#contract/procedure/common/filters.js'
+import { esigiAnno } from '#contract/procedure/common/register.js'
 import { testi } from './corsi.testi.js'
 
 const t = () => testi().elenco

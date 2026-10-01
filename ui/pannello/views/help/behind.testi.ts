@@ -3,7 +3,7 @@
 // testa di `types.ts`); struttura in `behind.ts`. I nomi di file e cartelle
 // (`.storico/`, `versioni-precedenti/`, `2026-2027.regi`) non si traducono.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import type { TestiSezione } from './types.js'
 
 const it = {

@@ -3,13 +3,13 @@
 // anagrafica: che cosa si insegna sta in Corsi, come va un allievo nella sua
 // scheda.
 
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { scriviIndirizzo } from '../../../core/dominio/addresses.js'
-import { Uno, quanti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import type { Classe } from '../../../core/dominio/models.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { scriviIndirizzo } from '#core/dominio/addresses.js'
+import { Uno, quanti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Classe } from '#core/dominio/models.js'
 import {
   campo,
   collegamento,
@@ -18,32 +18,32 @@ import {
   scheda,
   statoVuoto,
   testataVista,
-} from '../components/base.js'
-import { apriModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { recapitoPremibile, type GenereRecapito } from '../components/contacts.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { h, type Figlio } from '../dom.js'
+} from '#ui/pannello/components/base.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { recapitoPremibile, type GenereRecapito } from '#ui/pannello/components/contacts.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
 import {
   chiediEliminazione,
   moduloAllievo,
   moduloAnno,
   moduloClasse,
   moduloImportaAllievi,
-} from '../forms.js'
-import { azione, chiedi } from '../bridge.js'
-import { classeDellaPaginaClassi } from '../context.js'
-import { validaClasse } from '../../../core/dominio/validation.js'
+} from '#ui/pannello/forms.js'
+import { azione, chiedi } from '#ui/pannello/bridge.js'
+import { classeDellaPaginaClassi } from '#ui/pannello/context.js'
+import { validaClasse } from '#core/dominio/validation.js'
 import {
   annoCorrente,
   classePerId,
   materieDiClasse,
   stato,
   vai,
-} from '../state.js'
-import { tabella } from '../components/table.js'
-import { cellaNome } from '../components/avatar.js'
-import { inviaDalModulo } from '../forms/common.js'
+} from '#ui/pannello/state.js'
+import { tabella } from '#ui/pannello/components/table.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
+import { inviaDalModulo } from '#ui/pannello/forms/common.js'
 import { testi } from './classes.testi.js'
 
 function tabellaAllievi (classe: Classe): HTMLElement {

@@ -4,8 +4,8 @@
 // prove) resta il nome. La tinta viene dal nome, non dall'ordine: la stessa
 // persona ha lo stesso colore ovunque.
 
-import { gestisci, h, type Figlio } from '../dom.js'
-import { uriDato } from '../state.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
+import { uriDato } from '#ui/pannello/state.js'
 
 /** Quel che basta per disegnare un tondo: il nome, e se c'è la foto. */
 export interface Persona {

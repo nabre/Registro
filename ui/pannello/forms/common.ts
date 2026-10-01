@@ -2,8 +2,8 @@
 // in cima al modulo, chiedere conferma prima di cancellare, riempire le
 // tendine di classi e corsi, riordinare le righe trascinandole.
 
-import { tipiDiAttivita } from '../../../core/dominio/activities.js'
-import { type VoceLista } from '../../../core/dominio/lists.js'
+import { tipiDiAttivita } from '#core/dominio/activities.js'
+import { type VoceLista } from '#core/dominio/lists.js'
 import type {
   AnnoScolastico,
   CategoriaDocumento,
@@ -13,20 +13,20 @@ import type {
   Lezione,
   Osservazione,
   Ricorrenza,
-} from '../../../core/dominio/models.js'
-import { formattaData, giorniLunghi } from '../../../core/dominio/dates.js'
-import { confrontaNomi } from '../../../core/dominio/text.js'
-import { Maiuscola } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, pulsante, type OpzioneSelezione, type OpzioniCampo } from '../components/base.js'
-import { conferma, type ContestoModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, rimpiazza } from '../dom.js'
-import { invia } from '../bridge.js'
-import { annoCorrente, classePerId, corsiDi, iscriviti, stato } from '../state.js'
-import { corsiDellAnno } from '../../../core/dominio/courses.js'
-import { eliminazione, occupazione, type Bersaglio } from '../../../core/dominio/deletions.js'
+} from '#core/dominio/models.js'
+import { formattaData, giorniLunghi } from '#core/dominio/dates.js'
+import { confrontaNomi } from '#core/dominio/text.js'
+import { Maiuscola } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, pulsante, type OpzioneSelezione, type OpzioniCampo } from '#ui/pannello/components/base.js'
+import { conferma, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, rimpiazza } from '#ui/pannello/dom.js'
+import { invia } from '#ui/pannello/bridge.js'
+import { annoCorrente, classePerId, corsiDi, iscriviti, stato } from '#ui/pannello/state.js'
+import { corsiDellAnno } from '#core/dominio/courses.js'
+import { eliminazione, occupazione, type Bersaglio } from '#core/dominio/deletions.js'
 
 import { testi } from './common.testi.js'
 

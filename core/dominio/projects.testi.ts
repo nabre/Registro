@@ -1,7 +1,7 @@
 // I testi di `projects.ts`: i livelli e la fase con cui nasce un progetto. Si
 // leggono quando il progetto nasce e da lì restano scritti nel documento.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** La scala di serie, dal basso: il testo del livello, per valore. */

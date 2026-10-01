@@ -1,7 +1,7 @@
 // I testi delle procedure di `corsi`. Si leggono al momento dell'uso
 // (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   crea: {

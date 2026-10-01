@@ -2,7 +2,7 @@
 // sono del contratto e restano uguali in ogni lingua. Si leggono al momento
 // dell'uso (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   titolo: 'Le medie per persona, con le soglie di profitto',

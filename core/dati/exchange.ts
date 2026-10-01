@@ -14,7 +14,7 @@ import {
   destinatariBusta,
   type MessaggioFallito,
   type MessaggioPosta,
-} from '../dominio/communications.js'
+} from '#core/dominio/communications.js'
 import { gettoneDaSpedire, oauthNoto } from './oauth.js'
 import { casella } from './mailbox.js'
 import { testi } from './exchange.testi.js'

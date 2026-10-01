@@ -2,26 +2,26 @@
 // stato si contraddirebbero; `mostra` riporta davanti quella che c'è.
 
 import * as apparato from 'apparato'
-import { alCambioDocumenti, documentiNoti } from '../apparato/documents.js'
-import { vociImpostazioni } from '../apparato/settings.js'
-import { archiviPresenti, esportazioniPresenti } from '../../core/dati/filing.js'
-import { ESTENSIONE, percorsoPacchetto, èProvvisorio } from '../../core/dati/paths.js'
+import { alCambioDocumenti, documentiNoti } from '#desktop/apparato/documents.js'
+import { vociImpostazioni } from '#desktop/apparato/settings.js'
+import { archiviPresenti, esportazioniPresenti } from '#core/dati/filing.js'
+import { ESTENSIONE, percorsoPacchetto, èProvvisorio } from '#core/dati/paths.js'
 
-import { azioneValida, esegui } from '../../contract/switchboard.js'
-import { registraAvanzamentoScarico } from '../../core/azioni/llm.js'
+import { azioneValida, esegui } from '#contract/switchboard.js'
+import { registraAvanzamentoScarico } from '#core/azioni/llm.js'
 // Le procedure le registra già `actions.js` (via `gestoriDelleProcedure()`):
 // qui non si importa l'indice.
-import { chiama, procedura } from '../../contract/core.js'
-import type { Archivio } from '../../core/dati/archive.js'
-import { ocrAttivo } from '../../core/dati/ocr.js'
-import { collegamento, prontezza, type Uso } from '../../core/dati/llm.js'
-import { collegatoNoto, conto as contoExchange } from '../../core/dati/exchange.js'
-import { invioDiretto, mittente as mittentePosta } from '../../core/dati/mail.js'
-import { accountMicrosoft, cambiAccount } from '../../core/dati/microsoft.js'
-import { indirizziPosta, interrompiAccesso } from '../../core/dati/oauth.js'
-import { smistatoreDi } from '../../core/dati/sorter.js'
-import { riferimentiRotti } from '../../core/dominio/integrity.js'
-import { ErroreVersionePiuRecente, versionePiuRecente } from '../../core/dominio/upgrades.js'
+import { chiama, procedura } from '#contract/core.js'
+import type { Archivio } from '#core/dati/archive.js'
+import { ocrAttivo } from '#core/dati/ocr.js'
+import { collegamento, prontezza, type Uso } from '#core/dati/llm.js'
+import { collegatoNoto, conto as contoExchange } from '#core/dati/exchange.js'
+import { invioDiretto, mittente as mittentePosta } from '#core/dati/mail.js'
+import { accountMicrosoft, cambiAccount } from '#core/dati/microsoft.js'
+import { indirizziPosta, interrompiAccesso } from '#core/dati/oauth.js'
+import { smistatoreDi } from '#core/dati/sorter.js'
+import { riferimentiRotti } from '#core/dominio/integrity.js'
+import { ErroreVersionePiuRecente, versionePiuRecente } from '#core/dominio/upgrades.js'
 import { allAssistente, PannelloAssistente, seguiGiro, statoAssistente } from './assistant.js'
 import { rispondiConversazione } from './conversation.js'
 import { rispondiDettatura } from './transcription.js'
@@ -35,9 +35,9 @@ import type {
   Richiesta,
   SeguiConversazione,
   VoceProgramma,
-} from '../../contract/protocol.js'
-import type { Registro } from '../../core/dominio/models.js'
-import { alCambioLingua, lingua } from '../../core/i18n/index.js'
+} from '#contract/protocol.js'
+import type { Registro } from '#core/dominio/models.js'
+import { alCambioLingua, lingua } from '#core/i18n/index.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'
 import { testi } from './panels.testi.js'
 

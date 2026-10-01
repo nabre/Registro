@@ -3,11 +3,11 @@
 // `settings.ts`. I nomi delle impostazioni sono le etichette di
 // `manifest.testi.ts`, lettera per lettera.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { LIMITI_PAUSE } from '../../../../core/dominio/breaks.js'
-import { LIMITI_UD } from '../../../../core/dominio/dates.js'
-import { CARTE, FASCIA, Molti, PIF, Uno, un } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { LIMITI_PAUSE } from '#core/dominio/breaks.js'
+import { LIMITI_UD } from '#core/dominio/dates.js'
+import { CARTE, FASCIA, Molti, PIF, Uno, un } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

@@ -4,9 +4,9 @@
 // Il modello vuoto vuol dire «nessuno»: è il modo di disfare una scelta.
 // `prontezza()` dirà poi come rimediare.
 
-import { llm } from '../../../core/azioni/llm.js'
-import { inoltra, scrittura } from '../../core.js'
-import { oggetto, opzionale, scelta, testo } from '../../schemas.js'
+import { llm } from '#core/azioni/llm.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { oggetto, opzionale, scelta, testo } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().scegli

@@ -1,13 +1,13 @@
 // La scheda personale: tutto quel che il registro sa di una persona sola, per
 // il colloquio. Da qui si modifica solo l'anagrafica.
 
-import { nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import type { Allievo, Classe } from '../../../core/dominio/models.js'
-import { pulsante, selettore, statoVuoto, testataVista } from '../components/base.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { h, type Figlio } from '../dom.js'
-import { moduloAllievo } from '../forms.js'
-import { porzionePersona, porzioniPersona } from '../tabs.js'
+import { nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import type { Allievo, Classe } from '#core/dominio/models.js'
+import { pulsante, selettore, statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAllievo } from '#ui/pannello/forms.js'
+import { porzionePersona, porzioniPersona } from '#ui/pannello/tabs.js'
 import {
   aggiorna,
   classeDellAllievo,
@@ -17,7 +17,7 @@ import {
   stato,
   vai,
   type SchedaPersona,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { quadroDelPeriodo } from './student/attendance.js'
 import { boxDelleMaterie } from './student/themes.js'
 import {

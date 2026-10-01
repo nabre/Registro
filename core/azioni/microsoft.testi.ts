@@ -1,6 +1,6 @@
 // I testi di `microsoft.ts`: l'avviso della copia scaricata da OneDrive.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   copiaScaricata: (percorso: string) =>

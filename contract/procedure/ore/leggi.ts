@@ -4,14 +4,14 @@
 
 import {
   contaUd, fineLezione, inizioLezione, minutiEffettivi, nomeCompleto,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   classeDellaLezione,
   materiaDellaLezione,
   nomeDelPiano,
   numeroDellaLezione,
-} from '../../../core/dominio/courses.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/courses.js'
+import { definisci } from '#contract/contract.js'
 import {
   elenco,
   identificatore,
@@ -20,8 +20,8 @@ import {
   oggetto,
   scelta,
   testo,
-} from '../../schemas.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/schemas.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { esigiLezione, STATI_LEZIONE } from './common.js'
 import { testi } from './ore.testi.js'
 

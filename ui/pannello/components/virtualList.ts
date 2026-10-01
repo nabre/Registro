@@ -24,8 +24,8 @@ import {
   type VirtualizerOptions,
 } from '@tanstack/virtual-core'
 
-import type { Attributi, Figlio } from '../dom.js'
-import { isola, ridisegnaIsola, rifaiIsolaAdesso } from '../islands.js'
+import type { Attributi, Figlio } from '#ui/pannello/dom.js'
+import { isola, ridisegnaIsola, rifaiIsolaAdesso } from '#ui/pannello/islands.js'
 
 /**
  * Da quante voci in su si disegna solo la finestra, se l'elenco non dice

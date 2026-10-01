@@ -16,18 +16,18 @@ import type {
   GiroDaRiprendere,
   IdVisto,
   RisultatoAssistente,
-} from '../../../contract/protocol.js'
-import { pulsante, statoVuoto } from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { icona } from '../components/icons.js'
-import { gestisci, h, type Figlio } from '../dom.js'
+} from '#contract/protocol.js'
+import { pulsante, statoVuoto } from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { gestisci, h, type Figlio } from '#ui/pannello/dom.js'
 import {
   conversa,
   detta,
   riprendiConversazione,
   type FiloAperto,
   type FiloAssistente,
-} from '../bridge.js'
+} from '#ui/pannello/bridge.js'
 import { corpoDellaRisposta } from './answer.js'
 import { risultatoLetto } from './result.js'
 import { apriMicrofono, FREQUENZA, type Presa } from './voice.js'

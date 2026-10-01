@@ -1,7 +1,7 @@
 // I testi di `forms/class.ts`: la finestra della classe, quella della persona
 // in formazione — anagrafica, indirizzi, telefoni, foto — e l'incolla-elenco.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 import {
   CONTATTI_TELEFONICI,
   Maiuscola,
@@ -9,8 +9,8 @@ import {
   PIF,
   del,
   frase,
-} from '../../../core/dominio/lexicon.js'
-import type { ContattoTelefonico } from '../../../core/dominio/models.js'
+} from '#core/dominio/lexicon.js'
+import type { ContattoTelefonico } from '#core/dominio/models.js'
 
 const it = {
   classe: {

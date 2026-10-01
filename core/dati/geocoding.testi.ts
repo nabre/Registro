@@ -1,7 +1,7 @@
 // I testi di `geocoding.ts`: perché un indirizzo non è sulla mappa. Si leggono
 // nel cartellino accanto al nome, scritti per chi insegna.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** Il dettaglio fra parentesi di `nonRisponde`: minuscolo, segue la frase. */

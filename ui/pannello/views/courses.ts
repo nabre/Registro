@@ -11,27 +11,27 @@ import {
   nomeCompleto,
   ordinaAllievi,
   prossimaLezione,
-} from '../../../core/dominio/calculations.js'
-import { oltreSoglia, percentoAssenza } from '../../../core/dominio/alerts.js'
-import { checkDelCorso, riepilogoDelCheck } from '../../../core/dominio/check.js'
-import { siglaMateria } from '../../../core/dominio/courses.js'
-import { creaMateria } from '../../../core/dominio/factories.js'
-import { validaMateria } from '../../../core/dominio/validation.js'
-import { notifica } from '../components/notifications.js'
-import { matriceCorso } from '../../../core/dominio/courseMatrix.js'
-import { bilancioSegni, celleDiAllievo } from '../../../core/dominio/observations.js'
-import { descriviRicorrenza } from '../../../core/dominio/timetable.js'
-import { udPrevisteDelCorso } from '../../../core/dominio/courseMatrix.js'
-import { Molti, Uno, corto } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
-import { formattaDurata, udDaMinuti } from '../../../core/dominio/dates.js'
-import { confrontaNomi, percento } from '../../../core/dominio/text.js'
-import type { Classe, Corso, Materia } from '../../../core/dominio/models.js'
-import { azione } from '../bridge.js'
-import { icona } from '../components/icons.js'
-import { menuContestuale } from '../components/menu.js'
+} from '#core/dominio/calculations.js'
+import { oltreSoglia, percentoAssenza } from '#core/dominio/alerts.js'
+import { checkDelCorso, riepilogoDelCheck } from '#core/dominio/check.js'
+import { siglaMateria } from '#core/dominio/courses.js'
+import { creaMateria } from '#core/dominio/factories.js'
+import { validaMateria } from '#core/dominio/validation.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { matriceCorso } from '#core/dominio/courseMatrix.js'
+import { bilancioSegni, celleDiAllievo } from '#core/dominio/observations.js'
+import { descriviRicorrenza } from '#core/dominio/timetable.js'
+import { udPrevisteDelCorso } from '#core/dominio/courseMatrix.js'
+import { Molti, Uno, corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { titoloComando } from '#contract/manifest.js'
+import { formattaDurata, udDaMinuti } from '#core/dominio/dates.js'
+import { confrontaNomi, percento } from '#core/dominio/text.js'
+import type { Classe, Corso, Materia } from '#core/dominio/models.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { menuContestuale } from '#ui/pannello/components/menu.js'
 import {
   collegamento,
   pastiglia,
@@ -42,13 +42,13 @@ import {
   statoVuoto,
   testataVista,
   tonoPresenza,
-} from '../components/base.js'
-import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '../components/filters.js'
-import { corsoDelContesto } from '../context.js'
-import { dataDiLezione } from '../components/lessonDate.js'
-import { h, type Figlio } from '../dom.js'
-import { inTelaio, tabella } from '../components/table.js'
-import { cellaNome } from '../components/avatar.js'
+} from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { corsoDelContesto } from '#ui/pannello/context.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { inTelaio, tabella } from '#ui/pannello/components/table.js'
+import { cellaNome } from '#ui/pannello/components/avatar.js'
 import { grigliaCheck } from './check.js'
 import {
   cestinoPer,
@@ -59,7 +59,7 @@ import {
   moduloLezione,
   moduloMateria,
   moduloUnisciMaterie,
-} from '../forms.js'
+} from '#ui/pannello/forms.js'
 import {
   annoCorrente,
   classePerId,
@@ -73,8 +73,8 @@ import {
   semestreScelto,
   stato,
   vai,
-} from '../state.js'
-import { apriLezione } from '../pages.js'
+} from '#ui/pannello/state.js'
+import { apriLezione } from '#ui/pannello/pages.js'
 import { testi } from './courses.testi.js'
 
 /** Apre un corso nella pagina dei corsi, sotto la matrice. */

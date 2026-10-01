@@ -1,7 +1,7 @@
-import { inizioLezione, lezioneFinita } from '../../core/dominio/calculations.js'
-import { raggruppamentoDeiCorsi, type RaggruppamentoCorsi } from '../../core/dominio/courses.js'
-import type { Corso } from '../../core/dominio/models.js'
-import { confrontaNomi } from '../../core/dominio/text.js'
+import { inizioLezione, lezioneFinita } from '#core/dominio/calculations.js'
+import { raggruppamentoDeiCorsi, type RaggruppamentoCorsi } from '#core/dominio/courses.js'
+import type { Corso } from '#core/dominio/models.js'
+import { confrontaNomi } from '#core/dominio/text.js'
 import { interruttoreAssistente } from './assistant.js'
 // Navbar: File, destinazioni e contesto; sotto, azioni compatte della pagina.
 
@@ -40,7 +40,7 @@ import {
 } from './context.js'
 import { h, type Figlio } from './dom.js'
 import { nomeDelPosto } from './pages.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './commandBar.testi.js'
 import { azione } from './bridge.js'
 import {
@@ -58,7 +58,7 @@ import {
   stato,
   vai,
 } from './state.js'
-import { nomeSemestre } from '../../core/dominio/dates.js'
+import { nomeSemestre } from '#core/dominio/dates.js'
 
 /**
  * I comandi partiti e non ancora tornati, per id. Fuori dal DOM perché la barra

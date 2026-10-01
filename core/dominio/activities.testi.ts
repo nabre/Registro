@@ -2,7 +2,7 @@
 // (`activities.ts`). Le chiavi sono quelle salvate in `attivita.parametri` e
 // non si traducono.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   parametri: {

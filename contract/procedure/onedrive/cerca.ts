@@ -2,9 +2,9 @@
 // sincronizzate sul computer, o altrimenti quelli che Microsoft trova, suoi e
 // condivisi con lui.
 
-import { definisci } from '../../contract.js'
-import { cercaRegi } from '../../../core/dati/onedrive.js'
-import { booleano, elenco, nullabile, oggetto, scelta, testo } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { cercaRegi } from '#core/dati/onedrive.js'
+import { booleano, elenco, nullabile, oggetto, scelta, testo } from '#contract/schemas.js'
 import { daOneDrive, VOCE } from './common.js'
 import { testi } from './onedrive.testi.js'
 

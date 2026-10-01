@@ -8,7 +8,7 @@
 // perché. Le pagine native (`desktop/shell/pages/`) importano questo file: deve
 // importare soltanto `core/i18n/`.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   salva: 'Salva',

@@ -4,10 +4,10 @@
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, type MenuItemConstructorOptions } from 'electron'
 
-import { executeCommand, registerCommand } from '../../apparato/commands.js'
-import { icona } from '../../apparato/context.js'
-import { alCambioDocumenti, documentiNoti } from '../../apparato/documents.js'
-import { CANALE } from '../../apparato/channels.js'
+import { executeCommand, registerCommand } from '#desktop/apparato/commands.js'
+import { icona } from '#desktop/apparato/context.js'
+import { alCambioDocumenti, documentiNoti } from '#desktop/apparato/documents.js'
+import { CANALE } from '#desktop/apparato/channels.js'
 import {
   getConfiguration,
   impostazioneDichiarata,
@@ -15,8 +15,8 @@ import {
   valoreConMotivo,
   dialogoPercorso,
   vociImpostazioni,
-} from '../../apparato/settings.js'
-import { postoDi, ricordaPosto } from '../../apparato/placement.js'
+} from '#desktop/apparato/settings.js'
+import { postoDi, ricordaPosto } from '#desktop/apparato/placement.js'
 import {
   coloreSfondo,
   cornicePropria,
@@ -25,12 +25,12 @@ import {
   ritogliMenu,
   segniDellaCornice,
   togliMenu,
-} from '../../apparato/theme.js'
-import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
-import { mostraComunque } from '../../apparato/showAnyway.js'
-import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '../../../contract/manifest.js'
-import { alCambioLingua } from '../../../core/i18n/index.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#desktop/apparato/theme.js'
+import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { mostraComunque } from '#desktop/apparato/showAnyway.js'
+import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '#contract/manifest.js'
+import { alCambioLingua } from '#core/i18n/index.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi, type GruppoDelMenu } from './menu.testi.js'
 import { menuSviluppo } from './devTools.js'
 

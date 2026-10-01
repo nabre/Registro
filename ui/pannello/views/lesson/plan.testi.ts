@@ -1,7 +1,7 @@
 // I testi della scaletta dell'ora (`lesson/plan.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Come si chiama lo stato di una tappa, per valore. */

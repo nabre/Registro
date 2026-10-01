@@ -1,8 +1,8 @@
 // I testi di `forms/absences.ts`: il periodo di assenze con la sua lettera
 // all'azienda, e l'importazione dei fogli in blocco.
 
-import { catalogo, perNumero } from '../../../core/i18n/index.js'
-import { PERSONE, PIF, Maiuscola, del, il, quanti } from '../../../core/dominio/lexicon.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
+import { PERSONE, PIF, Maiuscola, del, il, quanti } from '#core/dominio/lexicon.js'
 
 const it = {
   modificaPeriodo: 'Modifica periodo',

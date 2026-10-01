@@ -5,7 +5,7 @@
 // `panels/assistant.ts`) invece di essere importata da qui: importare `panels/`
 // chiuderebbe un ciclo api → azioni → pannelli → api.
 
-import type { ContestoAssistente, GiroAssistente, TurnoAssistente } from '../../contract/protocol.js'
+import type { ContestoAssistente, GiroAssistente, TurnoAssistente } from '#contract/protocol.js'
 import { invariato, rifiuta, type Parte } from './context.js'
 import { testi } from './llm.testi.js'
 

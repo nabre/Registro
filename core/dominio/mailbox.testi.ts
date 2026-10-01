@@ -1,6 +1,6 @@
 // I testi di `mailbox.ts`: la casella di posta detta a parole.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   /** L'indirizzo, e fra parentesi il nome di accesso quando è diverso. */

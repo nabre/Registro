@@ -5,22 +5,22 @@
 // matrice, poi i PDF da dividere. La cornice compare solo con un foglio aperto,
 // così la matrice ha tutta la larghezza.
 
-import { nomeCompleto } from '../../../core/dominio/calculations.js'
-import { raccoltiDiClasse } from '../../../core/dominio/assignments.js'
-import { formattaData, giornoDi } from '../../../core/dominio/dates.js'
-import { CHI_INSEGNA } from '../../../core/dominio/models.js'
-import type { Allievo, Consegna, Iso, Smistamento } from '../../../core/dominio/models.js'
-import { pastiglia, pulsante, quantoMisura, statoVuoto } from '../components/base.js'
-import { corniceDocumento } from '../components/frame.js'
-import { dimentica } from '../components/thumbnails.js'
-import { conferma } from '../components/modal.js'
-import { h, type Figlio } from '../dom.js'
-import { isola } from '../islands.js'
-import { azione } from '../bridge.js'
-import { aggiorna, stato, uriDato } from '../state.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { raccoltiDiClasse } from '#core/dominio/assignments.js'
+import { formattaData, giornoDi } from '#core/dominio/dates.js'
+import { CHI_INSEGNA } from '#core/dominio/models.js'
+import type { Allievo, Consegna, Iso, Smistamento } from '#core/dominio/models.js'
+import { pastiglia, pulsante, quantoMisura, statoVuoto } from '#ui/pannello/components/base.js'
+import { corniceDocumento } from '#ui/pannello/components/frame.js'
+import { dimentica } from '#ui/pannello/components/thumbnails.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { isola } from '#ui/pannello/islands.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { aggiorna, stato, uriDato } from '#ui/pannello/state.js'
 
 import { ISOLA_LETTURA, sfoglioSmistamento } from './sorting/pageBrowser.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './archive.testi.js'
 
 /**

@@ -3,9 +3,9 @@
 // chiave per sezione con la forma di `TestiSezione` (testa di `types.ts`);
 // struttura e schemi stanno in `calendar.ts`.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { CARTE, Molti, PIF, Uno } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { CARTE, Molti, PIF, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { TestiSezione } from './types.js'
 
 const DE = lessico.in('de')

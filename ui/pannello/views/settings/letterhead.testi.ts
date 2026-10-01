@@ -1,8 +1,8 @@
 // I testi delle carte intestate (`settings/letterhead.ts`); li usa anche
 // `letterheadCourses.ts`, che nomina i corsi senza DOM.
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   senzaClasse: 'senza classe',

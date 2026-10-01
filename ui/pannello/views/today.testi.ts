@@ -1,8 +1,8 @@
 // I testi della Dashboard (`today.ts`). I nomi delle pagine a cui portano le
 // tessere vengono da `pages.testi.ts`, così coincidono con la barra laterale.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   titolo: 'Dashboard',

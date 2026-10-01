@@ -5,15 +5,15 @@
 // arrivano già scritte nel `racconto` (`environment/updates.ts`), comuni a
 // tutte le superfici; anche il gesto è uno solo: `gesto()`.
 
-import type { RaccontoAggiornamenti, StatoAggiornamenti } from '../../../../contract/protocol.js'
-import { barra, pastiglia, pulsante, scheda } from '../../components/base.js'
-import type { NomeIcona } from '../../components/icons.js'
-import { conferma } from '../../components/modal.js'
-import { notifica } from '../../components/notifications.js'
-import { h, type Figlio } from '../../dom.js'
-import { ascolta, azione, chiedi } from '../../bridge.js'
-import { isola, isolaPresente, ridisegnaIsola } from '../../islands.js'
-import { ridisegna, stato } from '../../state.js'
+import type { RaccontoAggiornamenti, StatoAggiornamenti } from '#contract/protocol.js'
+import { barra, pastiglia, pulsante, scheda } from '#ui/pannello/components/base.js'
+import type { NomeIcona } from '#ui/pannello/components/icons.js'
+import { conferma } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { ascolta, azione, chiedi } from '#ui/pannello/bridge.js'
+import { isola, isolaPresente, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { ridisegna, stato } from '#ui/pannello/state.js'
 import { testi } from './updates.testi.js'
 
 // ------------------------------------------------------------------ memoria

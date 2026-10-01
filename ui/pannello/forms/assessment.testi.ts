@@ -1,7 +1,7 @@
 // I testi di `forms/assessment.ts`: la finestra che corregge un momento di
 // valutazione, e il riquadro che dice da dove viene.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   lezioneDel: (data: string) => `lezione del ${data}`,

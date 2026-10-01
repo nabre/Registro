@@ -1,21 +1,21 @@
 // Le consegne: che cosa si è dato da fare, a chi, entro quando.
 // Versatile per l'insegnamento di una materia o per la docenza di classe.
 
-import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { creaConsegna } from '../../../core/dominio/factories.js'
+import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { formattaData, oggi } from '#core/dominio/dates.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { creaConsegna } from '#core/dominio/factories.js'
 import type {
   CategoriaDocumento,
   VersoDocumento,
   Consegna,
   Lezione,
-} from '../../../core/dominio/models.js'
-import { campo, quieto, riga, sezioneModulo, valoriModulo } from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { apriModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, rimpiazza } from '../dom.js'
+} from '#core/dominio/models.js'
+import { campo, quieto, riga, sezioneModulo, valoriModulo } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, rimpiazza } from '#ui/pannello/dom.js'
 import {
   classeDelCorsoId,
   classePerId,
@@ -25,7 +25,7 @@ import {
   materiaDelCorsoId,
   nomeCorso,
   stato,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 
 import {
   VOCI_CATEGORIA_DOCUMENTO,

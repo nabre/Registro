@@ -9,10 +9,10 @@
 import { app } from 'electron'
 import { stat } from 'node:fs/promises'
 import { depositoJson } from './jsonStore.js'
-import { ESTENSIONE as ESTENSIONE_PACCHETTO } from '../../core/dati/package.js'
+import { ESTENSIONE as ESTENSIONE_PACCHETTO } from '#core/dati/package.js'
 import * as percorso from 'node:path'
 
-import { EventEmitter } from '../../core/apparato/events.js'
+import { EventEmitter } from '#core/apparato/events.js'
 
 const NOME_FILE = 'documenti.json'
 

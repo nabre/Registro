@@ -4,9 +4,9 @@
 
 import * as apparato from 'apparato'
 
-import { ESPORTAZIONI } from '../dominio/locations.js'
-import { deposito, percorsoVero } from '../dati/store.js'
-import { apriConIlSistema } from '../dati/opening.js'
+import { ESPORTAZIONI } from '#core/dominio/locations.js'
+import { deposito, percorsoVero } from '#core/dati/store.js'
+import { apriConIlSistema } from '#core/dati/opening.js'
 import { conMessaggio, rifiuta, type Parte } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './exports.testi.js'

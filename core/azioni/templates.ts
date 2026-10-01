@@ -4,10 +4,10 @@
 
 import * as apparato from 'apparato'
 
-import { CATALOGO_MODELLI, genereDiProva, linguaDelModello, modelloDelGenere, titoloModello, voceModello } from '../dominio/templateCatalog.js'
-import { nomeCompleto } from '../dominio/calculations.js'
-import { documentoPiano, type GenereRapporto } from '../dominio/locations.js'
-import { classeDelCorsoId, corsiDellaClasse } from '../dominio/courses.js'
+import { CATALOGO_MODELLI, genereDiProva, linguaDelModello, modelloDelGenere, titoloModello, voceModello } from '#core/dominio/templateCatalog.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { documentoPiano, type GenereRapporto } from '#core/dominio/locations.js'
+import { classeDelCorsoId, corsiDellaClasse } from '#core/dominio/courses.js'
 import {
   datiAllievo,
   datiCorso,
@@ -20,16 +20,16 @@ import {
   datiPresenze,
   datiSupplenze,
   datiValutazioni,
-} from '../dominio/reportData.js'
-import { datiProgetto, datiProgettoAllievo } from '../dominio/projectReport.js'
-import { allieviNominati } from '../dominio/projects.js'
-import type { Registro } from '../dominio/models.js'
-import { NOME_LOGO, type DatiRapporto } from '../dominio/reports.js'
-import { normalizzaIntestazione } from '../dominio/normalization.js'
-import { blocchi, paroleDeiModelli, sorgenteModello, vecchiaCartella } from '../dati/templates.js'
-import { archiviaCopia, pulisciCopiaOrfana } from '../dati/filing.js'
-import { componiPdf } from '../dati/reportsPdf.js'
-import type { NomiModello } from '../../contract/protocol.js'
+} from '#core/dominio/reportData.js'
+import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
+import { allieviNominati } from '#core/dominio/projects.js'
+import type { Registro } from '#core/dominio/models.js'
+import { NOME_LOGO, type DatiRapporto } from '#core/dominio/reports.js'
+import { normalizzaIntestazione } from '#core/dominio/normalization.js'
+import { blocchi, paroleDeiModelli, sorgenteModello, vecchiaCartella } from '#core/dati/templates.js'
+import { archiviaCopia, pulisciCopiaOrfana } from '#core/dati/filing.js'
+import { componiPdf } from '#core/dati/reportsPdf.js'
+import type { NomiModello } from '#contract/protocol.js'
 import { immaginiDelDocumento, impaginazioneDi } from './reports.js'
 import {
   cestina,
@@ -43,7 +43,7 @@ import {
   type Gestore,
   type Parte,
 } from './context.js'
-import { parole } from '../dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './templates.testi.js'
 
 /** Quel che un gestore ha sottomano: il registro e i modi di scriverlo. */

@@ -2,7 +2,7 @@
 // aggiornamento, il dialogo che apre un anno e il primo «resto accanto
 // all'orologio».
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   avvioFermato: (motivo: string) => `L'avvio si è fermato: ${motivo}`,

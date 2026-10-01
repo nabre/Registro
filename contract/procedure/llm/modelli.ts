@@ -1,10 +1,10 @@
 // I modelli sul disco e quale lavora per che cosa: la sezione «Assistente e
 // modelli» delle impostazioni. Torna anche la cartella, per poterla aprire.
 
-import { definisci } from '../../contract.js'
-import { cartellaModelli, modelliLocali } from '../../../core/dati/gguf.js'
-import { collegamento, prontezza } from '../../../core/dati/llm.js'
-import { booleano, elenco, numero, oggetto, opzionale, scelta, testo, vuoto } from '../../schemas.js'
+import { definisci } from '#contract/contract.js'
+import { cartellaModelli, modelliLocali } from '#core/dati/gguf.js'
+import { collegamento, prontezza } from '#core/dati/llm.js'
+import { booleano, elenco, numero, oggetto, opzionale, scelta, testo, vuoto } from '#contract/schemas.js'
 import { testi } from './llm.testi.js'
 
 const t = () => testi().modelli

@@ -7,7 +7,7 @@
 
 import { Immer, current, enableArrayMethods, enablePatches, isDraft, type Draft, type Patch } from 'immer'
 
-import type { Registro } from '../dominio/models.js'
+import type { Registro } from '#core/dominio/models.js'
 import type { NomeCollezione } from './paths.js'
 
 enablePatches()

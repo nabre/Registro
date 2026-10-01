@@ -2,9 +2,9 @@
 // `persone` (vedi `common/register.ts`): l'elenco dei cinque stati, lo schema
 // per sceglierne alcuni, e «questa casella conta, dati gli stati chiesti?».
 
-import type { StatoPresenza } from '../../../core/dominio/models.js'
-import { detto, type TestoPigro } from '../../../core/i18n/index.js'
-import { elenco, esaustivo, opzionale, scelta } from '../../schemas.js'
+import type { StatoPresenza } from '#core/dominio/models.js'
+import { detto, type TestoPigro } from '#core/i18n/index.js'
+import { elenco, esaustivo, opzionale, scelta } from '#contract/schemas.js'
 import { testi } from './common.testi.js'
 
 /**

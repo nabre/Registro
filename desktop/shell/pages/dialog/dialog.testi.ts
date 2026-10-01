@@ -4,7 +4,7 @@
 // `parole()` (da fuori di `desktop/shell/pages/` prende solo tipi e `core/i18n/`): la
 // scrive qui, con le stesse traduzioni.
 
-import { catalogo } from '../../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   vaBene: 'Va bene',

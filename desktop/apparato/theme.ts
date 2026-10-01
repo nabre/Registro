@@ -8,10 +8,10 @@ import { BrowserWindow, nativeTheme, type BrowserWindowConstructorOptions, type 
 import { execFileSync } from 'node:child_process'
 
 import { percorsoPreload } from './context.js'
-import { Smaltitore } from '../../core/apparato/events.js'
+import { Smaltitore } from '#core/apparato/events.js'
 import { getConfiguration, onDidChangeConfiguration } from './settings.js'
 import { diSistema } from './system.js'
-import { limita } from '../../core/dominio/calculations.js'
+import { limita } from '#core/dominio/calculations.js'
 
 const CHIAVE = 'registroDocenti.aspetto.tema'
 

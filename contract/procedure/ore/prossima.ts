@@ -16,16 +16,16 @@ import {
   minutiEffettivi,
   momentoLezione,
   prossimaLezione,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   classeDellaLezione,
   corsoDellaLezione,
   materiaDellaLezione,
   numeroDellaLezione,
-} from '../../../core/dominio/courses.js'
-import { adesso, differenzaGiorni, oggi } from '../../../core/dominio/dates.js'
-import type { Lezione } from '../../../core/dominio/models.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/courses.js'
+import { adesso, differenzaGiorni, oggi } from '#core/dominio/dates.js'
+import type { Lezione } from '#core/dominio/models.js'
+import { definisci } from '#contract/contract.js'
 import {
   elenco,
   identificatore,
@@ -35,9 +35,9 @@ import {
   oggetto,
   opzionale,
   testo,
-} from '../../schemas.js'
-import { esigiClasse, esigiCorso } from '../common/register.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/schemas.js'
+import { esigiClasse, esigiCorso } from '#contract/procedure/common/register.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './ore.testi.js'
 
 const t = () => testi().prossima

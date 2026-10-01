@@ -2,7 +2,7 @@
 // un corso o una classe mancano. Il nome di un'ora per numero — «3ª lezione» —
 // è quello del dominio (`ennesimaLezione` in `domain/calculations.testi.ts`).
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaCorso: 'senza corso',

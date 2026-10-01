@@ -2,7 +2,7 @@
 // non si traduce e sta nel sorgente. Si contano le lezioni del calendario:
 // «ore» in italiano, `lessico().lezione` nelle altre lingue.
 
-import { catalogo, perNumero } from '../i18n/index.js'
+import { catalogo, perNumero } from '#core/i18n/index.js'
 import { plurale } from './text.js'
 
 const it = {

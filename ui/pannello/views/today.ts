@@ -12,30 +12,30 @@ import {
   giorniBrevi,
   giornoDelMese,
   giornoSettimana,
-} from '../../../core/dominio/dates.js'
-import type { FaseOra } from '../../../core/dominio/dashboard.js'
+} from '#core/dominio/dates.js'
+import type { FaseOra } from '#core/dominio/dashboard.js'
 import type {
   Corso,
   Lezione,
   MomentoValutazione,
-} from '../../../core/dominio/models.js'
-import { istante } from '../../../core/i18n/index.js'
-import { apriMomento, vaiAOggi } from '../calendarNavigation.js'
+} from '#core/dominio/models.js'
+import { istante } from '#core/i18n/index.js'
+import { apriMomento, vaiAOggi } from '#ui/pannello/calendarNavigation.js'
 import {
   pastiglia,
   scheda,
   statoVuoto,
   type TonoPastiglia,
-} from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { h, type Figlio } from '../dom.js'
-import { moduloAnno } from '../forms.js'
-import { isola, isolaPresente, ridisegnaIsola } from '../islands.js'
-import { alMinuto } from '../clock.js'
-import { apriLezione, PAGINE, vaiA } from '../pages.js'
-import type { PaginaId } from '../place.js'
-import { testi as testiPagine } from '../pages.testi.js'
+} from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAnno } from '#ui/pannello/forms.js'
+import { isola, isolaPresente, ridisegnaIsola } from '#ui/pannello/islands.js'
+import { alMinuto } from '#ui/pannello/clock.js'
+import { apriLezione, PAGINE, vaiA } from '#ui/pannello/pages.js'
+import type { PaginaId } from '#ui/pannello/place.js'
+import { testi as testiPagine } from '#ui/pannello/pages.testi.js'
 import {
   annoCorrente,
   coloreDiCorso,
@@ -53,7 +53,7 @@ import {
   pendenzeDellaBarra,
   stato,
   titoloDiLezione,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { pagineDaSmistareInTutto } from './sorting/toSort.js'
 import { testi } from './today.testi.js'
 

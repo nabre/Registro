@@ -3,8 +3,8 @@
 // `valoriModulo` lo legge al salvataggio. Nessuno stato duplicato, nessun
 // ridisegno mentre si scrive.
 
-import { dataDaTesto, formattaData, spostaData } from '../../../core/dominio/dates.js'
-import { gestisci, h, type Attributi, type Figlio } from '../dom.js'
+import { dataDaTesto, formattaData, spostaData } from '#core/dominio/dates.js'
+import { gestisci, h, type Attributi, type Figlio } from '#ui/pannello/dom.js'
 import { legaAlSegno, suggerimento } from './hint.js'
 import { icona, type NomeIcona } from './icons.js'
 import { testi } from './base.testi.js'

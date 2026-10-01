@@ -2,7 +2,7 @@
 // che si è scritto. I pulsanti generici — Salva, Annulla, Chiudi, Conferma —
 // sono quelli di `parole()`.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   lasciareTitolo: 'Lasciare le modifiche?',

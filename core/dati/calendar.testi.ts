@@ -1,7 +1,7 @@
 // I testi di `calendar.ts`: perché un calendario non è arrivato. L'indirizzo
 // non compare mai, perché spesso contiene un gettone.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonRisponde: 'Il calendario non risponde: controllare il collegamento e l’indirizzo.',

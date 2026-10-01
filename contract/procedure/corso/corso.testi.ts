@@ -3,7 +3,7 @@
 // modello piccolo guarda: tradurli con la stessa precisione. Si leggono al
 // momento dell'uso (`titolo: () => …`), mai al caricamento.
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   presenze: {

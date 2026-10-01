@@ -11,10 +11,10 @@
 import { net, protocol } from 'electron'
 import { pathToFileURL } from 'node:url'
 
-import { cartellaBundle, dentro, radiceApp } from '../../apparato/context.js'
-import { deposito } from '../../../core/dati/store.js'
-import { htmlDellaPagina, radiciConcesse } from '../../apparato/windows.js'
-import { Uri } from '../../../core/apparato/uri.js'
+import { cartellaBundle, dentro, radiceApp } from '#desktop/apparato/context.js'
+import { deposito } from '#core/dati/store.js'
+import { htmlDellaPagina, radiciConcesse } from '#desktop/apparato/windows.js'
+import { Uri } from '#core/apparato/uri.js'
 import { leggiCoordinate, tassello } from './tiles.js'
 
 

@@ -1,8 +1,8 @@
 // I testi di `system.ts`: impostazioni, esportazioni, riparazioni, chiamate, posta.
 // `voceRecapiti` nomina la voce delle impostazioni a cui rimandano tre messaggi.
 
-import { catalogo } from '../i18n/index.js'
-import { plurale } from '../dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   voceRecapiti: 'in Impostazioni › Utente › Posta, alla voce «Chiamate e mail dall’anagrafica»',

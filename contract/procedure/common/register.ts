@@ -1,11 +1,11 @@
 // Le guardie del registro che più aree condividono: stanno qui perché nessuna
 // area importi da un'altra con cui non ha a che fare.
 
-import { corsoPerId } from '../../../core/dominio/courses.js'
+import { corsoPerId } from '#core/dominio/courses.js'
 import type {
   Allievo, AnnoScolastico, Classe, Corso, Materia, Registro,
-} from '../../../core/dominio/models.js'
-import { errore, ErroreApi, type Ambito } from '../../contract.js'
+} from '#core/dominio/models.js'
+import { errore, ErroreApi, type Ambito } from '#contract/contract.js'
 import { testi } from './common.testi.js'
 
 /**

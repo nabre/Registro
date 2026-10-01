@@ -1,8 +1,8 @@
-import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiConsegna } from '../common.js'
-import { testi } from '../consegne.testi.js'
+import { docenteClasse } from '#core/azioni/classTeacher.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiConsegna } from '#contract/procedure/consegne/common.js'
+import { testi } from '#contract/procedure/consegne/consegne.testi.js'
 
 const t = () => testi().firme.aggiungi
 

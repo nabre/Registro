@@ -2,9 +2,9 @@
 // chiude tutte le finestre. L'uscita passa da `before-quit`, che aspetta
 // l'ultimo salvataggio.
 
-import { aggiornamenti } from '../../../core/azioni/updates.js'
-import { inoltra, scrittura } from '../../core.js'
-import { vuoto } from '../../schemas.js'
+import { aggiornamenti } from '#core/azioni/updates.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { vuoto } from '#contract/schemas.js'
 import { testi } from './aggiornamenti.testi.js'
 
 export const procedura = scrittura({

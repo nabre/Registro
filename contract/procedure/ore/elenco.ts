@@ -12,15 +12,15 @@ import {
   fineLezione,
   inizioLezione,
   minutiEffettivi,
-} from '../../../core/dominio/calculations.js'
+} from '#core/dominio/calculations.js'
 import {
   classeDellaLezione,
   corsoDellaLezione,
   materiaDellaLezione,
   numeroDellaLezione,
-} from '../../../core/dominio/courses.js'
-import type { Lezione } from '../../../core/dominio/models.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/courses.js'
+import type { Lezione } from '#core/dominio/models.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -31,7 +31,7 @@ import {
   opzionale,
   scelta,
   testo,
-} from '../../schemas.js'
+} from '#contract/schemas.js'
 import {
   CAMPI_CERCA,
   CAMPI_PAGINA,
@@ -44,11 +44,11 @@ import {
   ricerca,
   risolviPeriodo,
   taglia,
-} from '../common/filters.js'
-import { corto } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+} from '#contract/procedure/common/filters.js'
+import { corto } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { STATI_LEZIONE } from './common.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './ore.testi.js'
 
 const t = () => testi().elenco

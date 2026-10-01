@@ -8,8 +8,8 @@
 // qui si legge, si convalida e si scrive il JSON; il ponte con `getState` e
 // `setState` resta a `state.ts`. Vedi `tests/ui/memoria.test.mjs`.
 
-import { isoValida } from '../../core/dominio/dates.js'
-import type { Iso } from '../../core/dominio/models.js'
+import { isoValida } from '#core/dominio/dates.js'
+import type { Iso } from '#core/dominio/models.js'
 import {
   CAMPI_CONTESTO,
   areaDellaSezione,

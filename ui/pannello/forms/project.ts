@@ -4,12 +4,12 @@
 // dal registro al salvataggio (come `baseViva`): compiti, giudizi e matrice
 // hanno azioni loro e l'host li tiene com'erano.
 
-import { allieviAttivi, inizioLezione, nomeCompleto, ordinaAllievi } from '../../../core/dominio/calculations.js'
-import { formattaData, oggi } from '../../../core/dominio/dates.js'
-import { creaProgetto, creaRisorsa } from '../../../core/dominio/factories.js'
-import { identificatore, nuovoIdFaseProgetto } from '../../../core/dominio/identifiers.js'
-import { Molti, Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
+import { allieviAttivi, inizioLezione, nomeCompleto, ordinaAllievi } from '#core/dominio/calculations.js'
+import { formattaData, oggi } from '#core/dominio/dates.js'
+import { creaProgetto, creaRisorsa } from '#core/dominio/factories.js'
+import { identificatore, nuovoIdFaseProgetto } from '#core/dominio/identifiers.js'
+import { Molti, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import type {
   Allievo,
   CompitoProgetto,
@@ -22,15 +22,15 @@ import type {
   Progetto,
   Risorsa,
   StatoProgetto,
-} from '../../../core/dominio/models.js'
-import { allieviNominati, periodoDelProgetto, STATI_PROGETTO } from '../../../core/dominio/projects.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { campo, pulsante, quieto, riga } from '../components/base.js'
-import { apriModale, conferma, type ContestoModale } from '../components/modal.js'
-import { azione } from '../bridge.js'
-import { dataDiLezione } from '../components/lessonDate.js'
-import { h, rimpiazza, type Figlio } from '../dom.js'
-import { classePerId, corsoPerId, lezioniDiCorso, progettoPerId, stato } from '../state.js'
+} from '#core/dominio/models.js'
+import { allieviNominati, periodoDelProgetto, STATI_PROGETTO } from '#core/dominio/projects.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { campo, pulsante, quieto, riga } from '#ui/pannello/components/base.js'
+import { apriModale, conferma, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { dataDiLezione } from '#ui/pannello/components/lessonDate.js'
+import { h, rimpiazza, type Figlio } from '#ui/pannello/dom.js'
+import { classePerId, corsoPerId, lezioniDiCorso, progettoPerId, stato } from '#ui/pannello/state.js'
 
 import {
   baseViva,

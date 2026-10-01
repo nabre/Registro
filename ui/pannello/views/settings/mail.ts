@@ -6,17 +6,17 @@
 // l'effetto (`CHIAVI_IN_SCHEDA` in `sections.ts` toglie le tre chiavi
 // dall'elenco sotto).
 
-import { campo, pastiglia, pulsante, scheda } from '../../components/base.js'
-import { apriModale } from '../../components/modal.js'
-import { h, type Figlio } from '../../dom.js'
-import type { VoceProgramma } from '../../../../contract/protocol.js'
-import { azione } from '../../bridge.js'
-import { stato, vai } from '../../state.js'
+import { campo, pastiglia, pulsante, scheda } from '#ui/pannello/components/base.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import type { VoceProgramma } from '#contract/protocol.js'
+import { azione } from '#ui/pannello/bridge.js'
+import { stato, vai } from '#ui/pannello/state.js'
 import { salvaImpostazioni } from './document.js'
 import { campoFirma } from './signature.js'
 import { vociProgramma } from './program.js'
 import { CHIAVI_IN_SCHEDA } from './sections.js'
-import { parole } from '../../../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './mail.testi.js'
 
 /** Dove finisce davvero una comunicazione adesso: dipende dal collegamento e dall'invio diretto. */

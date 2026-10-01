@@ -2,7 +2,7 @@
 // di un collegamento fallito (che dicono che cosa fare, non la causa). Le voci
 // del portale Microsoft sono scritte come il portale le mostra in quella lingua.
 
-import { catalogo } from '../i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   senzaPortachiavi: 'Il portachiavi del sistema non è disponibile.',

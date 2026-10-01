@@ -6,16 +6,16 @@ import {
   contaUd,
   minutiDiAttivita,
   minutiEffettivi,
-} from '../../../core/dominio/calculations.js'
-import { attivitaValutata } from '../../../core/dominio/activities.js'
-import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
-import { creaPiano } from '../../../core/dominio/factories.js'
+} from '#core/dominio/calculations.js'
+import { attivitaValutata } from '#core/dominio/activities.js'
+import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
+import { creaPiano } from '#core/dominio/factories.js'
 import type {
   Attivita,
   Lezione,
   PianoLezione,
   Risorsa,
-} from '../../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   avviso,
   campo,
@@ -27,11 +27,11 @@ import {
   sezioneModulo,
   statoVuoto,
   valoriModulo,
-} from '../components/base.js'
-import { apriModale, type ContestoModale } from '../components/modal.js'
-import { notifica } from '../components/notifications.js'
-import { gestisci, h, rimpiazza } from '../dom.js'
-import { azione, invia } from '../bridge.js'
+} from '#ui/pannello/components/base.js'
+import { apriModale, type ContestoModale } from '#ui/pannello/components/modal.js'
+import { notifica } from '#ui/pannello/components/notifications.js'
+import { gestisci, h, rimpiazza } from '#ui/pannello/dom.js'
+import { azione, invia } from '#ui/pannello/bridge.js'
 import {
   classeDelCorsoId,
   corsiDi,
@@ -41,7 +41,7 @@ import {
   postoCorrente,
   stato,
   vai,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 
 /**
  * Sceglie un piano, o nessuno, senza lasciare la pagina: in quella dei piani
@@ -64,9 +64,9 @@ function scegliPiano (pianoId: string | null): void {
     { contesto: { pianoId }, elementoChiesto: pianoId !== null },
   )
 }
-import { Uno } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { titoloComando } from '../../../contract/manifest.js'
+import { Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { titoloComando } from '#contract/manifest.js'
 
 import { testi } from './plan.testi.js'
 import { bloccoRisorse } from './resources.js'

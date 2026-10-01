@@ -22,11 +22,11 @@
 // attrezzi escono dagli `Schema` delle procedure (`schemaJson()`, poi
 // `perGriglia`), con i nomi tradotti in `api/tools.ts`.
 
-import { contestoDelRegistro } from '../../core/azioni/assistant.js'
-import type { Archivio } from '../../core/dati/archive.js'
+import { contestoDelRegistro } from '#core/azioni/assistant.js'
+import type { Archivio } from '#core/dati/archive.js'
 import type {
   ContestoAssistente, IdVisto, RisultatoAssistente, VoceContesto,
-} from '../../contract/protocol.js'
+} from '#contract/protocol.js'
 import {
   chatta,
   collegamento,
@@ -35,13 +35,13 @@ import {
   type Battuta,
   type ChiamataAttrezzo,
   type Collegamento,
-} from '../../core/dati/llm.js'
-import { daNomeFunzione, nomeFunzione, offribile } from '../../contract/tools.js'
-import { registraTutte } from '../../contract/registry.js'
-import { chiama, procedura, procedure } from '../../contract/core.js'
-import { impagina } from '../../contract/presentation.js'
-import { schemaJson, type Forma } from '../../contract/schemas.js'
-import { detto } from '../../core/i18n/index.js'
+} from '#core/dati/llm.js'
+import { daNomeFunzione, nomeFunzione, offribile } from '#contract/tools.js'
+import { registraTutte } from '#contract/registry.js'
+import { chiama, procedura, procedure } from '#contract/core.js'
+import { impagina } from '#contract/presentation.js'
+import { schemaJson, type Forma } from '#contract/schemas.js'
+import { detto } from '#core/i18n/index.js'
 import { testi } from './assistant.testi.js'
 
 /**

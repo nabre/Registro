@@ -6,19 +6,19 @@ import {
   distribuzioneAPunti,
   formattaVoto,
   siglaPresenza,
-} from '../../../../core/dominio/calculations.js'
-import type { Attivita, Lezione, MomentoValutazione } from '../../../../core/dominio/models.js'
-import { pulsante, scheda } from '../../components/base.js'
-import { eseguiOAvvisa } from '../../components/filters.js'
-import { h, type Figlio } from '../../dom.js'
-import { bloccoRecuperiDellOra } from '../assessments/retakes.js'
-import { graficoNote } from '../../components/notes.js'
-import { grigliaVoti } from '../assessments/grades.js'
-import { inTelaio } from '../../components/table.js'
-import { classeDiLezione, stato } from '../../state.js'
-import { apriMomento } from '../../calendarNavigation.js'
-import { Molti } from '../../../../core/dominio/lexicon.js'
-import { lessico } from '../../../../core/dominio/lexicon.testi.js'
+} from '#core/dominio/calculations.js'
+import type { Attivita, Lezione, MomentoValutazione } from '#core/dominio/models.js'
+import { pulsante, scheda } from '#ui/pannello/components/base.js'
+import { eseguiOAvvisa } from '#ui/pannello/components/filters.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { bloccoRecuperiDellOra } from '#ui/pannello/views/assessments/retakes.js'
+import { graficoNote } from '#ui/pannello/components/notes.js'
+import { grigliaVoti } from '#ui/pannello/views/assessments/grades.js'
+import { inTelaio } from '#ui/pannello/components/table.js'
+import { classeDiLezione, stato } from '#ui/pannello/state.js'
+import { apriMomento } from '#ui/pannello/calendarNavigation.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 import { testi } from './assessments.testi.js'
 
 /**

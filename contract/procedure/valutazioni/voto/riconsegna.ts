@@ -1,10 +1,10 @@
-import { valutazioni } from '../../../../core/azioni/assessments.js'
-import { errore } from '../../../contract.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, iso, nullabile, oggetto } from '../../../schemas.js'
-import { esigiPersona } from '../../common/register.js'
-import { esigiMomento } from '../common.js'
-import { testi } from '../valutazioni.testi.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import { errore } from '#contract/contract.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, iso, nullabile, oggetto } from '#contract/schemas.js'
+import { esigiPersona } from '#contract/procedure/common/register.js'
+import { esigiMomento } from '#contract/procedure/valutazioni/common.js'
+import { testi } from '#contract/procedure/valutazioni/valutazioni.testi.js'
 
 const t = () => testi().voto.riconsegna
 

@@ -12,22 +12,22 @@
 // certi e lezioni non ancora fatte (il criterio è in `domain/calendar.ts`); il
 // resto, e le ore annullate, restano proposte del confronto.
 
-import type { EventoCalendario } from '../../core/dominio/calendarIcs.js'
-import { abbina, corsiConfrontabili, dicituraDi } from '../../core/dominio/calendarRules.js'
+import type { EventoCalendario } from '#core/dominio/calendarIcs.js'
+import { abbina, corsiConfrontabili, dicituraDi } from '#core/dominio/calendarRules.js'
 import {
   anomaliePerSettimana,
   collegaEventi,
   type AnomalieSettimana,
   type Collegamenti,
-} from '../../core/dominio/calendarLinks.js'
+} from '#core/dominio/calendarLinks.js'
 import {
   allineamentiAutomatici,
   allineamentoAutomatico,
   collegataPerCerto,
   type AllineamentoDaCalendario,
-} from '../../core/dominio/calendar.js'
-import { oggi } from '../../core/dominio/dates.js'
-import type { Iso, Registro } from '../../core/dominio/models.js'
+} from '#core/dominio/calendar.js'
+import { oggi } from '#core/dominio/dates.js'
+import type { Iso, Registro } from '#core/dominio/models.js'
 import { azione, chiedi, invia } from './bridge.js'
 import { notifica } from './components/notifications.js'
 import { risorse } from './asyncResources.js'

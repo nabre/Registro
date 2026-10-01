@@ -9,7 +9,7 @@ import {
   partiValide,
   type PartiContesto,
 } from './assistant/parts.js'
-import type { MessaggioStato } from '../../contract/protocol.js'
+import type { MessaggioStato } from '#contract/protocol.js'
 import type {
   Classe,
   Corso,
@@ -21,7 +21,7 @@ import type {
   PianoLezione,
   Registro,
   Semestre,
-} from '../../core/dominio/models.js'
+} from '#core/dominio/models.js'
 import {
   classeDelCorso,
   classeDelMomento,
@@ -42,12 +42,12 @@ import {
   pianiDelCorso,
   siglaMateria,
   valutazioniDellaClasse,
-} from '../../core/dominio/courses.js'
+} from '#core/dominio/courses.js'
 import {
   compleanniDelGiorno as compleanniDelRegistro,
   compleanniPerGiorno as compleanniDelPeriodo,
   type Compleanno,
-} from '../../core/dominio/birthdays.js'
+} from '#core/dominio/birthdays.js'
 import {
   adesso,
   etichettaSemestre,
@@ -55,24 +55,24 @@ import {
   giornoDi,
   oggi,
   semestreDi,
-} from '../../core/dominio/dates.js'
-import { registroVuoto } from '../../core/dominio/factories.js'
+} from '#core/dominio/dates.js'
+import { registroVuoto } from '#core/dominio/factories.js'
 import {
   faseDellOra,
   indiceDiagnosi,
   oraDaCompilare,
   raggruppaOre,
   type FaseOra,
-} from '../../core/dominio/dashboard.js'
-import { confrontaLezioni, momentoLezione } from '../../core/dominio/calculations.js'
-import { todoDelCorso, todoDelDocenteDiClasse } from '../../core/dominio/todo.js'
-import { annoInUso } from '../../core/dominio/years.js'
+} from '#core/dominio/dashboard.js'
+import { confrontaLezioni, momentoLezione } from '#core/dominio/calculations.js'
+import { todoDelCorso, todoDelDocenteDiClasse } from '#core/dominio/todo.js'
+import { annoInUso } from '#core/dominio/years.js'
 import {
   PROIEZIONE_PREDEFINITA,
   type ImpostazioniProiezione,
   type MiraProiezione,
-} from '../../core/dominio/projection.js'
-import type { Vista } from '../../contract/protocol.js'
+} from '#core/dominio/projection.js'
+import type { Vista } from '#contract/protocol.js'
 import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
 import { battiMinuto } from './clock.js'
 import {
@@ -108,12 +108,12 @@ import {
   type Segnalibro,
   type VoceDocumento,
 } from './memory.js'
-import { confrontaNomi } from '../../core/dominio/text.js'
-import { testi as testiCalcoli } from '../../core/dominio/calculations.testi.js'
+import { confrontaNomi } from '#core/dominio/text.js'
+import { testi as testiCalcoli } from '#core/dominio/calculations.testi.js'
 import { testi } from './state.testi.js'
 
 /** L'elenco delle sezioni sta nel protocollo: lo legge anche l'host. */
-export type { Vista } from '../../contract/protocol.js'
+export type { Vista } from '#contract/protocol.js'
 
 // Aree e sezioni delle impostazioni stanno col posto (`place.ts`), di cui fanno parte.
 export type { AreaImpostazioni, SezioneImpostazioni } from './place.js'

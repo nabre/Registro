@@ -3,8 +3,8 @@
 // «Carica dei PDF» e «Archivio documentale» sono nomi di comandi e pagine: in
 // ogni lingua uguali a come li scrivono i loro cataloghi.
 
-import { catalogo } from '../../../core/i18n/index.js'
-import { plurale } from '../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   pagine: (quante: number) => `${quante} pagine`,

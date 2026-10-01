@@ -2,7 +2,7 @@
 // pagina aperta. File a sé perché lo leggono `pages.ts` (dove si può andare) e
 // `commands.ts` (che cosa si può fare) senza legarsi l'uno all'altro.
 
-import type { Classe, Corso, Lezione } from '../../core/dominio/models.js'
+import type { Classe, Corso, Lezione } from '#core/dominio/models.js'
 import type { Posto } from './place.js'
 import {
   annoCorrente,

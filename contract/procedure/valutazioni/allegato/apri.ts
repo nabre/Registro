@@ -1,8 +1,8 @@
-import { valutazioni } from '../../../../core/azioni/assessments.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, oggetto } from '../../../schemas.js'
-import { esigiAllegato } from '../common.js'
-import { testi } from '../valutazioni.testi.js'
+import { valutazioni } from '#core/azioni/assessments.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, oggetto } from '#contract/schemas.js'
+import { esigiAllegato } from '#contract/procedure/valutazioni/common.js'
+import { testi } from '#contract/procedure/valutazioni/valutazioni.testi.js'
 
 export const procedura = scrittura({
   nome: 'valutazioni.allegato.apri',

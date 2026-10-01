@@ -2,7 +2,7 @@ import { chiudiSidebarMobile, sfondoSidebar, sidebar, sidebarAperta } from './si
 import { assistenteAperto, pannelloAssistente } from './assistant.js'
 // Telaio: navigazione e comandi, contenuto, stato.
 
-import { riparazioni } from '../../core/dominio/repairs.js'
+import { riparazioni } from '#core/dominio/repairs.js'
 import { avviso, pulsante } from './components/base.js'
 import { conferma } from './components/modal.js'
 import { apriInformazioniDocumento } from './forms/documentInfo.js'
@@ -16,7 +16,7 @@ import { barraComandi } from './commandBar.js'
 import { barraStato } from './statusBar.js'
 import { barraTitolo } from './titleBar.js'
 import { testi } from './shell.testi.js'
-import { parole } from '../../core/dominio/words.testi.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { vistaAllievo } from './views/student.js'
 import { vistaCalendario } from './views/calendar.js'
 import { vistaOggi } from './views/today.js'

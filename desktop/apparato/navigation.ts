@@ -6,7 +6,7 @@
 import type { BrowserWindow } from 'electron'
 
 import { openExternal } from './commands.js'
-import { Uri } from '../../core/apparato/uri.js'
+import { Uri } from '#core/apparato/uri.js'
 
 /** Blocca navigazione e finestre figlie; un collegamento in finestra nuova va al browser. */
 export function chiudiLeVieDiFuga (finestra: BrowserWindow): void {

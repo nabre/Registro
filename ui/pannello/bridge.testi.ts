@@ -1,7 +1,7 @@
 // I testi del ponte con l'host (`bridge.ts`): quel che si dice quando una
 // risposta non arriva come doveva.
 
-import { catalogo } from '../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   nonRiuscito: 'Non riuscito.',

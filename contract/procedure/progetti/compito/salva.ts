@@ -1,8 +1,8 @@
-import { progetti } from '../../../../core/azioni/projects.js'
-import { inoltra, scrittura } from '../../../core.js'
-import { identificatore, iso, nullabile, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiProgetto } from '../common.js'
-import { testi } from '../progetti.testi.js'
+import { progetti } from '#core/azioni/projects.js'
+import { inoltra, scrittura } from '#contract/core.js'
+import { identificatore, iso, nullabile, oggetto, opzionale, testo } from '#contract/schemas.js'
+import { esigiProgetto } from '#contract/procedure/progetti/common.js'
+import { testi } from '#contract/procedure/progetti/progetti.testi.js'
 
 const t = () => testi().compito.salva
 

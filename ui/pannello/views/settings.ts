@@ -7,11 +7,11 @@
 // arriva — un rimando, il filtro, Ctrl+K — scorre fin lì e la vede accendersi.
 // La finestra nativa resta per quando non c'è un documento aperto.
 
-import { pulsante, scheda, statoVuoto, testataVista } from '../components/base.js'
-import { icona } from '../components/icons.js'
-import { andaturaScorrimento, h, type Figlio } from '../dom.js'
+import { pulsante, scheda, statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { icona } from '#ui/pannello/components/icons.js'
+import { andaturaScorrimento, h, type Figlio } from '#ui/pannello/dom.js'
 import { testi } from './settings.testi.js'
-import { isola, ridisegnaIsola } from '../islands.js'
+import { isola, ridisegnaIsola } from '#ui/pannello/islands.js'
 import {
   areaDellaScheda,
   chiaveDelPosto,
@@ -19,9 +19,9 @@ import {
   type AreaImpostazioni,
   type Scheda,
   type SezioneImpostazioni,
-} from '../place.js'
-import { riprendi, seguiScorrimento } from '../bookmark.js'
-import { iscriviti, ricorda, ridisegna, stato, vai } from '../state.js'
+} from '#ui/pannello/place.js'
+import { riprendi, seguiScorrimento } from '#ui/pannello/bookmark.js'
+import { iscriviti, ricorda, ridisegna, stato, vai } from '#ui/pannello/state.js'
 import {
   schedaAnnoAperto,
   schedaChiusure,

@@ -1,10 +1,10 @@
 // Le pendenze nell'agenda: raggruppate per corso (insegnamento) o per classe (docente di classe).
 
-import { Molti } from '../../../core/dominio/lexicon.js'
-import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import type { Consegna } from '../../../core/dominio/models.js'
-import type { Recupero } from '../../../core/dominio/retakes.js'
-import type { Riconsegna } from '../../../core/dominio/returns.js'
+import { Molti } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import type { Consegna } from '#core/dominio/models.js'
+import type { Recupero } from '#core/dominio/retakes.js'
+import type { Riconsegna } from '#core/dominio/returns.js'
 import {
   descriviFamiglia,
   FAMIGLIE_CONSEGNA,
@@ -14,14 +14,14 @@ import {
   todoDelDocenteDiClasse,
   type FamigliaTodo,
   type TodoClasse,
-} from '../../../core/dominio/todo.js'
-import { parole } from '../../../core/dominio/words.testi.js'
-import { pastiglia, pulsante, quieto, scheda, statoVuoto, testataVista } from '../components/base.js'
-import { statoVuotoAnno } from '../components/filters.js'
-import { icona, type NomeIcona } from '../components/icons.js'
-import { nomeDelCorso } from '../context.js'
-import { h, type Figlio } from '../dom.js'
-import { moduloAnno, moduloConsegna } from '../forms.js'
+} from '#core/dominio/todo.js'
+import { parole } from '#core/dominio/words.testi.js'
+import { pastiglia, pulsante, quieto, scheda, statoVuoto, testataVista } from '#ui/pannello/components/base.js'
+import { statoVuotoAnno } from '#ui/pannello/components/filters.js'
+import { icona, type NomeIcona } from '#ui/pannello/components/icons.js'
+import { nomeDelCorso } from '#ui/pannello/context.js'
+import { h, type Figlio } from '#ui/pannello/dom.js'
+import { moduloAnno, moduloConsegna } from '#ui/pannello/forms.js'
 import {
   aggiorna,
   annoCorrente,
@@ -32,7 +32,7 @@ import {
   corsiDi,
   stato,
   vai,
-} from '../state.js'
+} from '#ui/pannello/state.js'
 import { gruppoConsegne } from './assignments.js'
 import { riassuntoClasse, sezioniTodoClasse, simboloFamiglia } from './classTodo.js'
 import { gruppoRecuperi } from './assessments/retakes.js'

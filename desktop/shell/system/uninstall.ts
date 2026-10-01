@@ -11,10 +11,10 @@ import { spawn } from 'node:child_process'
 import { existsSync, readdirSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
-import { percorsoDisinstallazione } from '../../apparato/context.js'
-import { chiediMessaggio, type BottoneMessaggio } from '../../apparato/dialogs.js'
-import { togliAvvioConWindows } from '../../apparato/systemStartup.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+import { percorsoDisinstallazione } from '#desktop/apparato/context.js'
+import { chiediMessaggio, type BottoneMessaggio } from '#desktop/apparato/dialogs.js'
+import { togliAvvioConWindows } from '#desktop/apparato/systemStartup.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi, type GruppoDaTenere } from './uninstall.testi.js'
 
 /**

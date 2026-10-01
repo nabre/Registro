@@ -3,17 +3,17 @@
 
 import * as apparato from 'apparato'
 
-import { comeAdesso } from '../dati/draft.js'
-import { deposito } from '../dati/store.js'
-import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '../dati/filing.js'
-import { arrotondaVoto, nomeCompleto, votoValido } from '../dominio/calculations.js'
-import { creaValutazione } from '../dominio/factories.js'
-import { classeDelMomento, corsoPerId } from '../dominio/courses.js'
-import { agganciato } from '../dominio/orphans.js'
-import { nuovoIdAllegato } from '../dominio/identifiers.js'
-import type { Allegato, MomentoValutazione, Registro } from '../dominio/models.js'
-import { lessico } from '../dominio/lexicon.testi.js'
-import { validaValutazione } from '../dominio/validation.js'
+import { comeAdesso } from '#core/dati/draft.js'
+import { deposito } from '#core/dati/store.js'
+import { archiviaCopia, nomeFileArchivio, percorsoValutazione, pulisciCopiaOrfana } from '#core/dati/filing.js'
+import { arrotondaVoto, nomeCompleto, votoValido } from '#core/dominio/calculations.js'
+import { creaValutazione } from '#core/dominio/factories.js'
+import { classeDelMomento, corsoPerId } from '#core/dominio/courses.js'
+import { agganciato } from '#core/dominio/orphans.js'
+import { nuovoIdAllegato } from '#core/dominio/identifiers.js'
+import type { Allegato, MomentoValutazione, Registro } from '#core/dominio/models.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
+import { validaValutazione } from '#core/dominio/validation.js'
 import {
   aOraAperta,
   apriFile,
@@ -30,7 +30,7 @@ import {
 import { testi as comuni } from './context.testi.js'
 import { testi } from './assessments.testi.js'
 import { testi as testiProgetti } from './projects.testi.js'
-import { istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '#core/dominio/dates.js'
 
 /**
  * Vero se la persona non è iscritta alla classe del momento: un voto fuori

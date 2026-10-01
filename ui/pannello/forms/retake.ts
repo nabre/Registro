@@ -2,15 +2,15 @@
 // mette la prossima ora del corso basta di solito; questa finestra serve per un
 // altro giorno o un altro modo, da dire in una nota.
 
-import { nomeCompleto } from '../../../core/dominio/calculations.js'
-import { formattaData } from '../../../core/dominio/dates.js'
-import type { Recupero } from '../../../core/dominio/retakes.js'
-import { postoAllegato } from '../components/attachments.js'
-import { campo, pulsante, riga, valoriModulo } from '../components/base.js'
-import { suggerimento } from '../components/hint.js'
-import { apriModale } from '../components/modal.js'
-import { h, rimpiazza } from '../dom.js'
-import { nomeCorso, valutazionePerId } from '../state.js'
+import { nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData } from '#core/dominio/dates.js'
+import type { Recupero } from '#core/dominio/retakes.js'
+import { postoAllegato } from '#ui/pannello/components/attachments.js'
+import { campo, pulsante, riga, valoriModulo } from '#ui/pannello/components/base.js'
+import { suggerimento } from '#ui/pannello/components/hint.js'
+import { apriModale } from '#ui/pannello/components/modal.js'
+import { h, rimpiazza } from '#ui/pannello/dom.js'
+import { nomeCorso, valutazionePerId } from '#ui/pannello/state.js'
 
 import { salva, testo } from './common.js'
 import { testi } from './retake.testi.js'

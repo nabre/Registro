@@ -5,11 +5,11 @@ import {
   classeDellaLezione,
   corsoDellaLezione,
   materiaDellaLezione,
-} from '../../../core/dominio/courses.js'
-import { adesso, oggi } from '../../../core/dominio/dates.js'
-import { cosaManca, diagnosiLezione, oraDaCompilare } from '../../../core/dominio/dashboard.js'
-import { fineLezione, inizioLezione } from '../../../core/dominio/calculations.js'
-import { definisci } from '../../contract.js'
+} from '#core/dominio/courses.js'
+import { adesso, oggi } from '#core/dominio/dates.js'
+import { cosaManca, diagnosiLezione, oraDaCompilare } from '#core/dominio/dashboard.js'
+import { fineLezione, inizioLezione } from '#core/dominio/calculations.js'
+import { definisci } from '#contract/contract.js'
 import {
   booleano,
   elenco,
@@ -18,8 +18,8 @@ import {
   oggetto,
   opzionale,
   testo,
-} from '../../schemas.js'
-import { parole } from '../../../core/dominio/words.testi.js'
+} from '#contract/schemas.js'
+import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './ore.testi.js'
 
 const t = () => testi().cruscotto

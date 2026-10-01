@@ -1,7 +1,7 @@
-import { documenti } from '../../../core/azioni/documents.js'
-import { inoltra, scrittura } from '../../core.js'
+import { documenti } from '#core/azioni/documents.js'
+import { inoltra, scrittura } from '#contract/core.js'
 import { testi } from './documento.testi.js'
-import { oggetto } from '../../schemas.js'
+import { oggetto } from '#contract/schemas.js'
 import { percorsoDocumento } from './common.js'
 
 export const procedura = scrittura({

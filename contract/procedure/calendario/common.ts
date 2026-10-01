@@ -1,9 +1,9 @@
 // Pezzi comuni delle procedure di `calendario`: la forma di una regola, le
 // fasce di una lezione proposta, e quale calendario leggere.
 
-import type { Registro, SorgenteCalendario } from '../../../core/dominio/models.js'
-import { errore } from '../../contract.js'
-import { booleano, identificatore, nullabile, oggetto, opzionale, ora, scelta, testo } from '../../schemas.js'
+import type { Registro, SorgenteCalendario } from '#core/dominio/models.js'
+import { errore } from '#contract/contract.js'
+import { booleano, identificatore, nullabile, oggetto, opzionale, ora, scelta, testo } from '#contract/schemas.js'
 import { testi } from './calendario.testi.js'
 
 const t = () => testi().comune

@@ -1,6 +1,6 @@
 // I testi del telaio della pagina Documenti (`documents.ts`).
 
-import { catalogo } from '../../../core/i18n/index.js'
+import { catalogo } from '#core/i18n/index.js'
 
 const it = {
   vuotoAnno: 'I documenti escono da un corso, e un corso sta dentro un anno.',

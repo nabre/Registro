@@ -1,8 +1,8 @@
 // I testi delle viste del calendario e delle loro parti comuni. Eventi ICS e
 // menu del tasto destro hanno i loro (`ics.testi.ts`, `menus.testi.ts`).
 
-import { catalogo } from '../../../../core/i18n/index.js'
-import { plurale } from '../../../../core/dominio/text.js'
+import { catalogo } from '#core/i18n/index.js'
+import { plurale } from '#core/dominio/text.js'
 
 const it = {
   /** Il suggerimento del segno sulle ore di supplenza. */

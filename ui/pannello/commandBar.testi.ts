@@ -2,9 +2,9 @@
 // registri recenti e preferiti, le tendine del contesto, la scheda della
 // proiezione e l'interruttore delle azioni.
 
-import { catalogo } from '../../core/i18n/index.js'
-import { SCUOLA, Uno } from '../../core/dominio/lexicon.js'
-import { lessico } from '../../core/dominio/lexicon.testi.js'
+import { catalogo } from '#core/i18n/index.js'
+import { SCUOLA, Uno } from '#core/dominio/lexicon.js'
+import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
   // Il tasto destro su un registro recente.
