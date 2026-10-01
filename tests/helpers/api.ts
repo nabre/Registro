@@ -75,7 +75,7 @@ export * as schemi from '#contract/schemas.js'
 
 // Il centralino vero, per le prove del ponte.
 export { esegui, azioneValida } from '#contract/switchboard.js'
-export { fermaRapporti, rigenerazioniInAttesa } from '#core/azioni/reports.js'
+export { fermaRapporti, rigenerazioniInAttesa } from '#core/azioni/reportsRefresh.js'
 
 // Le fabbriche del dominio dallo stesso grafo: il registro scritto è fatto
 // degli oggetti che l'archivio rilegge.

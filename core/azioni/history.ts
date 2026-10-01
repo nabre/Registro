@@ -7,7 +7,7 @@ import type { NomeCollezione } from '#core/dati/paths.js'
 import type { EsitoStoria } from '#core/dati/history.js'
 import { riferimentiCambiati } from '#core/dominio/automation.js'
 import { conMessaggio, rifiutaCon, type EsitoAzione, type Parte } from './context.js'
-import { primaDiScrivere, rigeneraDopoScrittura } from './reports.js'
+import { primaDiScrivere, rigeneraDopoScrittura } from './reportsRefresh.js'
 import { testi } from './history.testi.js'
 
 /** L'esito della storia in un esito d'azione, con le parole giuste per il verso. */

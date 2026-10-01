@@ -14,7 +14,7 @@ import { creaPresenza, duplicaLezione } from '#core/dominio/factories.js'
 import { classeDellaLezione, corsoPerId, lezioneCompilata } from '#core/dominio/courses.js'
 import type { Lezione, Presenza, Registro, StatoPresenza } from '#core/dominio/models.js'
 import { validaLezione } from '#core/dominio/validation.js'
-import { aggiornaDopoChiusura } from './reports.js'
+import { aggiornaDopoChiusura } from './reportsRefresh.js'
 import {
   conMessaggio,
   fatto,

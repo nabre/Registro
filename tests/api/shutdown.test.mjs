@@ -1,6 +1,6 @@
 // La sequenza di chiusura: che cosa si ferma, che cosa si aspetta, in che
 // ordine. Oltre a condotto e archivio si aspettano la coda del pannello, quella
-// dei PDF (`actions/reports.ts`) e quella dell'OCR: una pagina letta che arriva
+// dei PDF (`core/azioni/reportsRefresh.ts`) e quella dell'OCR: una pagina letta che arriva
 // ad `archivio.modifica` dopo `lasciaPacchetto()` si perde in silenzio.
 //
 // `spegni()` vive in `src/startup.ts`, al confine con Electron: si legge il

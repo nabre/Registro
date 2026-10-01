@@ -372,7 +372,7 @@ sequenceDiagram
   autonumber
   participant N as contract/core.ts chiama
   participant AU as core/dominio/automation.ts
-  participant R as core/azioni/reports.ts
+  participant R as core/azioni/reportsRefresh.ts
   participant D as core/dominio/reportData.ts
   participant M as core/dati/templates.ts
   participant PDF as core/dati/reportsPdf.ts

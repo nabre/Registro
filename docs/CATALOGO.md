@@ -428,7 +428,7 @@ Comportamenti da sapere:
 - **File prima del registro**: le rimozioni cestinano il file e poi tolgono la
   riga; le aggiunte copiano il file e poi scrivono.
 - `lezione.stato` a `svolta` inizializza l'appello vuoto e rifà subito i
-  documenti del corso (`aggiornaDopoChiusura`).
+  documenti del corso (`aggiornaDopoChiusura` in `reportsRefresh.ts`).
 - `lezione.salva` sposta fuori dalle pause le fasce che le invadono;
   `lezione.sposta`/`lezione.duplica` ridispongono sulle pause
   (`slotSullePause`); `impostazioni.salva` ridispone le ore quando cambiano pause

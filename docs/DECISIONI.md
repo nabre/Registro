@@ -382,7 +382,7 @@ Ogni spostamento ha due capi: un'impronta presa prima di scrivere
 (`primaDiScrivere`) fa rifare anche corso e semestre di dove una voce stava,
 e la classe di prima di una persona.
 
-**Dove.** `contract/core.ts`, `contract/switchboard.ts`, `core/azioni/reports.ts`,
+**Dove.** `contract/core.ts`, `contract/switchboard.ts`, `core/azioni/reportsRefresh.ts`,
 `core/dominio/automation.ts`, `tests/api/regeneration.test.mjs`.
 
 ### ADR-32 — Il contesto del modello resta caldo
