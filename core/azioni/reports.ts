@@ -326,28 +326,38 @@ function semestreScelto (
   return anno?.semestri.find((s) => s.id === semestreId) ?? null
 }
 
-/** Scrive una fila di rapporti, uno alla volta (la cartella è sincronizzata). */
-async function scriviTutti (
+/**
+ * Scrive una fila di rapporti, uno alla volta (la cartella è sincronizzata), e
+ * salva il documento una volta sola alla fine: ogni foglio si compone in più
+ * del ritardo del salvataggio, e ne farebbe uno a sé.
+ */
+function scriviTutti (
+  archivio: Archivio,
   da: Preparato[],
   ancora: Ancora,
   intestazione: Intestazione,
 ): Promise<{ scritti: number, errori: string[], interrotto: boolean }> {
-  let scritti = 0
-  const errori: string[] = []
-  for (const preparato of da) {
-    // Un documento cambiato ferma tutta la fila.
-    if (!ancora()) return { scritti, errori: [testi().giroInterrotto, ...errori], interrotto: true }
-    const esito = await scriviRapporto(preparato, ancora, intestazione)
-    if ('errore' in esito && esito.interrotto) {
-      return { scritti, errori: [esito.errore, ...errori], interrotto: true }
+  return archivio.salvaAllaFine(async () => {
+    let scritti = 0
+    const errori: string[] = []
+    for (const preparato of da) {
+      // Un documento cambiato ferma tutta la fila.
+      if (!ancora()) {
+        return { scritti, errori: [testi().giroInterrotto, ...errori], interrotto: true }
+      }
+      const esito = await scriviRapporto(preparato, ancora, intestazione)
+      if ('errore' in esito && esito.interrotto) {
+        return { scritti, errori: [esito.errore, ...errori], interrotto: true }
+      }
+      if ('errore' in esito) errori.push(esito.errore)
+      else scritti += 1
     }
-    if ('errore' in esito) errori.push(esito.errore)
-    else scritti += 1
-  }
-  return { scritti, errori, interrotto: false }
+    return { scritti, errori, interrotto: false }
+  })
 }
 
 async function rapportiDiChiusura (
+  archivio: Archivio,
   registro: Registro,
   lezione: Lezione,
   ancora: Ancora,
@@ -369,7 +379,7 @@ async function rapportiDiChiusura (
     ),
   })
 
-  return scriviTutti([
+  return scriviTutti(archivio, [
     ...(verbale ? [verbale] : []),
     ...documentiDelCorso(registro, corso, semestre),
   ], ancora, registro.impostazioni.intestazione)
@@ -438,7 +448,8 @@ export function aggiornaDopoChiusura (archivio: Archivio, lezione: Lezione): voi
       // L'ora ripresa dal registro di adesso, che può essere stata corretta.
       const suo = ora.lezioni.find((l) => l.id === lezione.id)
       if (!suo) return { scritti: 0, errori: [] }
-      return rapportiDiChiusura(ora, suo, stessoDocumento(archivio, documentoAtteso, annoAtteso))
+      const ancora = stessoDocumento(archivio, documentoAtteso, annoAtteso)
+      return rapportiDiChiusura(archivio, ora, suo, ancora)
     })
     .then((esito) => {
       if (esito.scritti === 0 && esito.errori.length === 0) return
@@ -533,6 +544,7 @@ function programmaRigenerazione (
           return documentiDelCorso(ora, corso, semestre)
         })
         const esito = await scriviTutti(
+          archivio,
           da,
           stessoDocumento(archivio, documentoAtteso, annoAtteso),
           ora.impostazioni.intestazione,
@@ -776,7 +788,7 @@ export const rapporti = {
     for (const preparato of da) unaVolta.set(percorsoDi(preparato.dove), preparato)
 
     const intestazione = registro.impostazioni.intestazione
-    const esito = await scriviTutti([...unaVolta.values()], ancora, intestazione)
+    const esito = await scriviTutti(contesto.archivio, [...unaVolta.values()], ancora, intestazione)
     // Fermato a metà: si dice quanti fogli erano usciti.
     if (esito.interrotto) {
       return rifiutaCon(

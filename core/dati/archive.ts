@@ -4,6 +4,8 @@
 // passano da una coda sola, così una ricarica del watcher non butta via una
 // modifica in attesa.
 
+import { AsyncLocalStorage } from 'node:async_hooks'
+
 import * as apparato from 'apparato'
 
 import { annoAllineato } from '../dominio/years.js'
@@ -77,6 +79,12 @@ const RICARICHE_RIFATTE = 3
  */
 const VERSIONI_PRECEDENTI = 'versioni-precedenti'
 
+/** Un giro aperto da `salvaAllaFine`: se dentro si è depositato qualcosa. */
+interface GiroTrattenuto {
+  aperto: boolean
+  daSalvare: boolean
+}
+
 /** Il contenuto grezzo dei file, prima che la normalizzazione ci metta mano. */
 type FilePersistito = Record<NomeCollezione, unknown>
 
@@ -128,6 +136,12 @@ export class Archivio implements apparato.Smaltitore {
   /** Chiesto prima di aprire un anno che risulta aperto altrove. */
   private seOccupato: SeOccupato | null = null
   private timerSalvataggio: NodeJS.Timeout | null = null
+  /**
+   * Il giro di `salvaAllaFine` in cui gira il lavoro di adesso. Per contesto
+   * asincrono, non per archivio: un gesto dell'utente che arriva intanto non
+   * ci finisce dentro, e il suo file si salva col ritardo di sempre.
+   */
+  private readonly giro = new AsyncLocalStorage<GiroTrattenuto>()
   /** Quando è arrivata la prima modifica non ancora scritta: zero se non ce n'è. */
   private primaModificaNonSalvata = 0
   private timerRicarica: NodeJS.Timeout | null = null
@@ -205,7 +219,7 @@ export class Archivio implements apparato.Smaltitore {
     this.deposito = new Deposito(
       () => this.pacchetto,
       cartellaUtente ?? apparato.Uri.file(process.cwd()),
-      () => this.programmaSalvataggio(),
+      () => this.fileDepositato(),
       // Un file tolto rende il gesto irreversibile, tranne le esportazioni, che
       // dopo un annulla si rifanno dai dati.
       (relativo) => {
@@ -1073,6 +1087,36 @@ export class Archivio implements apparato.Smaltitore {
     }, fra)
   }
 
+  /**
+   * Esegue `lavoro` salvando una volta sola alla fine i file che deposita: un
+   * giro di rapporti ne scrive decine, ognuno più lento del ritardo, e ogni
+   * salvataggio riscrive l'indice del documento. Si trattengono solo i file,
+   * che si rifanno dai dati: le modifiche ai dati si salvano come sempre, entro
+   * il tetto, e portano con sé i file già depositati. Dentro un altro giro
+   * vale quello esterno.
+   */
+  async salvaAllaFine<T> (lavoro: () => Promise<T>): Promise<T> {
+    if (this.giro.getStore()?.aperto) return lavoro()
+    const giro: GiroTrattenuto = { aperto: true, daSalvare: false }
+    try {
+      return await this.giro.run(giro, lavoro)
+    } finally {
+      giro.aperto = false
+      // Chiuso o cambiato il documento intanto, l'ha già scritto chi lo lasciava.
+      if (giro.daSalvare && this.pacchetto?.sporco) this.programmaSalvataggio()
+    }
+  }
+
+  /** Un file entrato nel documento: dentro un giro aspetta la fine del giro. */
+  private fileDepositato (): void {
+    const giro = this.giro.getStore()
+    if (giro?.aperto) {
+      giro.daSalvare = true
+      return
+    }
+    this.programmaSalvataggio()
+  }
+
   /** Scrive subito quel che è in attesa: collezioni toccate e file depositati. */
   salva (): Promise<void> {
     if (this.scritturePendenti.size === 0 && !this.pacchetto?.sporco) return Promise.resolve()
@@ -1287,6 +1331,8 @@ export class Archivio implements apparato.Smaltitore {
     this.emettitoreStoria.dispose()
     this.emettitoreDifferenze.dispose()
     this.storia.smetti()
+    // Come la storia: un `AsyncLocalStorage` acceso pesa su ogni attesa del processo.
+    this.giro.disable()
   }
 }
 
