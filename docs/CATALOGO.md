@@ -12,7 +12,7 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 |---|---|---|
 | Destinazioni (pagine) | [`ui/pages.ts`](../ui/pages.ts) — `PAGINE` | un posto dove *andare* |
 | Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/shell.ts`](../ui/shell.ts) | lo schermo disegnato |
-| Comandi dell'interfaccia | [`ui/commands.ts`](../ui/commands.ts) — `COMANDI_UI` | una cosa da *fare* nel pannello |
+| Comandi dell'interfaccia | [`ui/commands.ts`](../ui/commands.ts) — `COMANDI_UI`, dalle sezioni di [`ui/commands/`](../ui/commands/) | una cosa da *fare* nel pannello |
 | Comandi del programma | [`contract/manifest.ts`](../contract/manifest.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
 | Azioni del protocollo | [`contract/protocol.ts`](../contract/protocol.ts) — `type Azione` | la scrittura che attraversa il ponte |
 | Procedure | [`contract/procedure/`](../contract/procedure/) | il contratto davanti alle azioni, più le letture (API § 5) |
@@ -124,7 +124,8 @@ liste, posta, programma, sezioni).
 
 ## 3. Comandi dell'interfaccia
 
-`COMANDI_UI` in [`ui/commands.ts`](../ui/commands.ts): letterali più
+`COMANDI_UI` in [`ui/commands.ts`](../ui/commands.ts), concatenato dalle sezioni di
+[`ui/commands/`](../ui/commands/) (una per file, con i testi accanto): letterali più
 varianti generate con `.map()`.
 
 ```ts

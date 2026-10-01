@@ -46,7 +46,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Dashboard | `ui/views/today.ts` |
 | Ricerca `Ctrl+K` | `ui/components/palette.ts`, `ui/titleBar.ts` |
 | Indietro/avanti (`Alt+←`/`Alt+→`) | `ui/history.ts` |
-| Comandi e dove compaiono | `ui/commands.ts` |
+| Comandi e dove compaiono | `ui/commands.ts` (tipi e ordine), `ui/commands/` (una sezione per file) |
 
 Il dominio non conosce né Electron né il DOM: `npm test` gira senza finestre.
 Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).

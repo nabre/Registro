@@ -86,7 +86,7 @@ la pagina disegna già il suo pulsante.
 
 **Vincoli.** Disciplina di revisione, nessuna prova.
 
-**Dove.** `ui/commands.ts`, `ui/commandBar.ts`, `ui/sidebar.ts`.
+**Dove.** `ui/commands.ts` (con le sezioni in `ui/commands/`), `ui/commandBar.ts`, `ui/sidebar.ts`.
 
 ### ADR-08 — Il piano lezione appartiene al corso
 
