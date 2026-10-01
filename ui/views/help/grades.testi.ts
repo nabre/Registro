@@ -638,7 +638,9 @@ const it = {
         testo:
           'Il **verbale** di un’ora: appello, obiettivi, scaletta svolta, argomenti, materiali, ' +
           'consegne date, osservazioni, com’è andata, consuntivo. Il **piano lezione**: obiettivi, ' +
-          'prerequisiti, scaletta, materiali, note.',
+          'prerequisiti, scaletta, materiali, note, con in testa le date di tutte le ore che lo ' +
+          'usano. Nella **scheda del corso** i piani vanno in ordine di data della lezione, le ' +
+          'bozze in fondo, e ognuno ha la sua scaletta sotto la sua data.',
       },
       {
         termine: 'Foto della classe e fascicolo',
@@ -1335,7 +1337,10 @@ export const testi = catalogo(it, {
           testo:
             'Das **Protokoll** einer Stunde: Präsenzkontrolle, Ziele, gehaltener Ablauf, Themen, ' +
             'Material, erteilte Aufträge, Beobachtungen, wie es lief, Rückblick. Der ' +
-            `**${Uno(DE.pianoLezione)}**: Ziele, Voraussetzungen, Ablauf, Material, Notizen.`,
+            `**${Uno(DE.pianoLezione)}**: Ziele, Voraussetzungen, Ablauf, Material, Notizen, oben ` +
+            'mit den Daten aller Stunden, die ihn verwenden. Im **Kursblatt** stehen die Pläne ' +
+            'nach Datum der Stunde, die Entwürfe am Schluss, und jeder hat seinen Ablauf unter ' +
+            'seinem Datum.',
         },
         {
           termine: 'Klassenfoto und Klassendossier',
@@ -2019,7 +2024,9 @@ export const testi = catalogo(it, {
           testo:
             'Le **procès-verbal** d’une leçon : appel, objectifs, déroulement effectué, sujets, ' +
             'matériel, devoirs donnés, observations, comment ça s’est passé, bilan. Le **plan de ' +
-            'leçon** : objectifs, prérequis, déroulement, matériel, notes.',
+            'leçon** : objectifs, prérequis, déroulement, matériel, notes, avec en tête les dates ' +
+            'de toutes les leçons qui l’utilisent. Dans la **fiche du cours**, les plans suivent ' +
+            'la date de la leçon, les brouillons à la fin, et chacun a son déroulement sous sa date.',
         },
         {
           termine: 'Photos de la classe et dossier de classe',
@@ -2692,7 +2699,9 @@ export const testi = catalogo(it, {
             'The **lesson record**: attendance, objectives, outline as taught, topics, ' +
             'materials, ' +
             'assignments set, observations, how it went, review. The **lesson plan**: ' +
-            'objectives, prerequisites, outline, materials, notes.',
+            'objectives, prerequisites, outline, materials, notes, headed by the dates of every ' +
+            'lesson that uses it. In the **course sheet** the plans follow the lesson date, drafts ' +
+            'last, and each has its outline under its date.',
         },
         {
           termine: 'Class photos and class file',

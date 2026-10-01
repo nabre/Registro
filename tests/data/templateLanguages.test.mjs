@@ -91,7 +91,7 @@ describe('le parole dei rapporti, lingua per lingua', () => {
 describe('i modelli non scrivono parole', () => {
   // Le direttive che stampano quel che hanno scritto accanto, e le parti di
   // una riga che finiscono sul foglio così come sono.
-  const STAMPANO = new Set(['titolo', 'sottotitolo', 'sezione', 'paragrafo', 'testo', 'avviso', 'riga'])
+  const STAMPANO = new Set(['titolo', 'sottotitolo', 'sezione', 'sottosezione', 'paragrafo', 'testo', 'avviso', 'riga'])
 
   /** Quel che resta di un testo tolti i segnaposto, il grassetto e la punteggiatura. */
   const lettere = (testo) => testo.replace(/\{\{[^}]*\}\}/g, '').replace(/[^\p{L}]/gu, '')

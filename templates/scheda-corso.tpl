@@ -41,9 +41,15 @@ tabella: osservazioni
 sezione: {{frase.com-e-andata}}
 tabella: comportamento
 
+# I piani in ordine di data della lezione, le bozze in fondo: prima il quadro,
+# poi la scaletta di ognuno sotto la sua data. Un piano corto non si spezza fra
+# due pagine.
 sezione: {{frase.piani-lezione}}
 tabella: piani
+ripeti: piani
+sottosezione: {{dataPiano}} · {{piano}}
 tabella: scaletta
+fine:
 
 sezione: {{frase.pendenze}}
 tabella: pendenze

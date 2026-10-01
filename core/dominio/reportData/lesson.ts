@@ -220,9 +220,10 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
   const dati = vuoto()
   const corso = piano.corsoId ? registro.corsi.find((c) => c.id === piano.corsoId) ?? null : null
   const classe = piano.corsoId ? classeDelCorsoId(registro, piano.corsoId) : null
+  // Le ore che lo usano in ordine di data e d'ora; un'ora annullata non lo usa più.
   const usi = registro.lezioni
-    .filter((l) => l.pianoId === piano.id)
-    .sort((a, b) => a.data.localeCompare(b.data))
+    .filter((l) => l.pianoId === piano.id && l.stato !== 'annullata')
+    .sort(confrontaLezioni)
 
   dati.valori = {
     ...comuni(
@@ -235,6 +236,8 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
     materia: materiaDelCorso(registro, corso)?.nome ?? '',
     corso: corso?.titolo ?? '',
     data: usi[0] ? formattaData(usi[0].data) : '',
+    // Tutte, per il piano usato in più ore: il foglio dice quando serve.
+    date: [...new Set(usi.map((l) => formattaData(l.data)))].join(', '),
     durata: formattaDurata(
       minutiDiAttivita(
         piano.attivita.reduce((somma, a) => somma + a.durataUd, 0),

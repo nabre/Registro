@@ -18,6 +18,7 @@ export type TipoBlocco =
   | 'titolo'
   | 'sottotitolo'
   | 'sezione'
+  | 'sottosezione'
   | 'paragrafo'
   | 'testo'
   | 'campi'
@@ -379,6 +380,7 @@ export const DIRETTIVE: TipoBlocco[] = [
   'titolo',
   'sottotitolo',
   'sezione',
+  'sottosezione',
   'paragrafo',
   'testo',
   'campi',
@@ -833,25 +835,10 @@ const GIRI_MASSIMI = 4
  * `se:` e `ripeti:`, poi si pota, una volta per giro.
  */
 export function componiCorpo (modello: Modello, dati: DatiRapporto): Blocco[] {
-  const risolti = espandi(modello.corpo, dati, 0)
-
-  // Una sezione senza niente sotto se ne va: si guarda fino alla sezione dopo.
-  const esito: Blocco[] = []
-  for (let i = 0; i < risolti.length; i += 1) {
-    const blocco = risolti[i]
-    if (blocco.tipo === 'sezione') {
-      let pieno = false
-      for (let j = i + 1; j < risolti.length; j += 1) {
-        if (CONFINI.has(risolti[j].tipo)) break
-        if (!SEPARATORI.has(risolti[j].tipo)) {
-          pieno = true
-          break
-        }
-      }
-      if (!pieno) continue
-    }
-    esito.push(blocco)
-  }
+  // Prima le sottosezioni vuote, poi le sezioni: una sezione che ha sotto
+  // soltanto sottosezioni vuote è vuota anche lei.
+  const risolti = senzaVuote(espandi(modello.corpo, dati, 0), 'sottosezione')
+  const esito = senzaVuote(risolti, 'sezione')
 
   // Fili e spazi in coda via; il salto pagina resta, perché l'ultimo foglio di
   // un rapporto per allievo sia staccabile.
@@ -859,6 +846,31 @@ export function componiCorpo (modello: Modello, dati: DatiRapporto): Blocco[] {
     const ultimo = esito[esito.length - 1].tipo
     if (ultimo !== 'spazio' && ultimo !== 'filo') break
     esito.pop()
+  }
+  return esito
+}
+
+/**
+ * Un'intestazione senza niente sotto se ne va: si guarda fino alla prossima
+ * intestazione del suo livello o di uno più alto.
+ */
+function senzaVuote (risolti: Blocco[], tipo: 'sezione' | 'sottosezione'): Blocco[] {
+  const esito: Blocco[] = []
+  for (let i = 0; i < risolti.length; i += 1) {
+    const blocco = risolti[i]
+    if (blocco.tipo === tipo) {
+      let pieno = false
+      for (let j = i + 1; j < risolti.length; j += 1) {
+        const dopo = risolti[j].tipo
+        if (CONFINI.has(dopo) || (tipo === 'sottosezione' && dopo === 'sottosezione')) break
+        if (!SEPARATORI.has(dopo)) {
+          pieno = true
+          break
+        }
+      }
+      if (!pieno) continue
+    }
+    esito.push(blocco)
   }
   return esito
 }

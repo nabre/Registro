@@ -4,7 +4,9 @@ titolo: {{titolo}}
 estende: _base
 
 [corpo]
-usa: apertura | titolo={{titolo}}; sottotitolo={{data}}
+# Tutte le date delle ore che lo usano, in ordine: un piano rifatto in due
+# classi o due giorni lo dice in testa.
+usa: apertura | titolo={{titolo}}; sottotitolo={{date}}
 campi: {{frase.classe}}={{classe}}; {{frase.materia}}={{materia}}; {{frase.durata}}={{durata}}; {{frase.etichette}}={{etichette}}
 
 sezione: {{frase.obiettivi}}

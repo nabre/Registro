@@ -171,6 +171,7 @@ data prende lo stesso spazio di quella dei nomi, e i nomi escono «Ros...».
 | `titolo:` | il titolo grande in cima |
 | `sottotitolo:` | la riga sotto il titolo, in grigio |
 | `sezione:` | un'intestazione di sezione, con il filo sotto |
+| `sottosezione:` | un'intestazione un gradino sotto, in grassetto e senza filo: il titolo di ogni voce in un `ripeti:` (un piano sotto la sua data) |
 | `paragrafo:` | testo lungo, va a capo da sé |
 | `testo:` | una riga sola, troncata se non ci sta |
 | `campi:` | coppie `Etichetta=valore` separate da `;`; `\| colonne 1` per incolonnarle tutte |

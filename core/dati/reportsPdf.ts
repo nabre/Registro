@@ -1051,7 +1051,7 @@ const SCRITTI = new Set<TipoBlocco>(['paragrafo', 'testo', 'campi', 'elenco'])
  * Le intestazioni: stanno attaccate a quel che le segue, e non chiudono mai
  * una pagina da sole.
  */
-const INTESTAZIONI = new Set<TipoBlocco>(['titolo', 'sottotitolo', 'sezione'])
+const INTESTAZIONI = new Set<TipoBlocco>(['titolo', 'sottotitolo', 'sezione', 'sottosezione'])
 
 /**
  * I blocchi che non si spezzano finché stanno in una pagina: se non entrano
@@ -1069,11 +1069,11 @@ const INDIVISIBILI = new Set<TipoBlocco>([
  */
 function quantoStacco (prima: TipoBlocco | null, prossimo: TipoBlocco): number {
   if (!prima) return 0
-  if (DA_SE.has(prossimo) || prossimo === 'sezione') return 0
+  if (DA_SE.has(prossimo) || prossimo === 'sezione' || prossimo === 'sottosezione') return 0
   if (DA_SE.has(prima)) return 0
 
   // Dopo una sezione si comincia vicino, per non staccare il titolo dal contenuto.
-  if (prima === 'sezione') return PIENI.has(prossimo) ? 4 : 0
+  if (prima === 'sezione' || prima === 'sottosezione') return PIENI.has(prossimo) ? 4 : 0
 
   // Un'area contro qualcosa d'altro: aria da tutte e due le parti.
   if (PIENI.has(prossimo) || PIENI.has(prima)) return 9
@@ -1088,6 +1088,11 @@ function quantoStacco (prima: TipoBlocco | null, prossimo: TipoBlocco): number {
 function stacco (penna: Penna, prossimo: TipoBlocco): void {
   const quanto = quantoStacco(penna.ultimo, prossimo)
   if (quanto > 0) spazio(penna, quanto)
+}
+
+/** Il corpo di una sottosezione: quello del testo, un poco più grande. */
+function corpoSottosezione (penna: Penna): number {
+  return penna.corpi.testo * 1.08
 }
 
 /** L'altezza scrivibile di una pagina intera, fra le due bande. */
@@ -1114,6 +1119,8 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
       return penna.corpi.sottotitolo * 1.5
     case 'sezione':
       return penna.corpi.sezione * 2.2 + 4
+    case 'sottosezione':
+      return corpoSottosezione(penna) * 1.9
     case 'paragrafo':
       return aCapo(blocco.valore, penna.normale, testo, larghezzaUtile(penna)).length * testo * 1.35
     case 'testo':
@@ -1266,6 +1273,16 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
         thickness: 0.6,
         color: FILO,
       })
+      break
+
+    case 'sottosezione':
+      // Un gradino sotto la sezione: grassetto al corpo del testo, senza filo.
+      spazio(penna, corpoSottosezione(penna) * 1.9)
+      scrivi(
+        penna,
+        tronca(blocco.valore, penna.grassetto, corpoSottosezione(penna), larghezzaUtile(penna)),
+        { corpo: corpoSottosezione(penna), font: penna.grassetto },
+      )
       break
 
     case 'paragrafo':

@@ -11,6 +11,7 @@ import {
   creaAllievo,
   creaAnno,
   creaLezione,
+  creaPiano,
   creaRicorrenza,
   datiAllievo,
   creaConsegna,
@@ -1151,5 +1152,32 @@ describe('le consegne e il check sui fogli stampati', () => {
     const [classe] = registro.classi
     const scheda = datiAllievo(registro, classe, classe.allievi[0], null, corso(registro))
     assert.equal(scheda.tabelle.check.righe[0][1], '13.10.2026')
+  })
+})
+
+describe('i piani lezione nella scheda del corso', () => {
+  it('vanno in ordine di data della lezione, e le bozze in fondo nell’ordine di prima', () => {
+    const conObiettivo = (testo) => ({ ...creaPiano('cor-1'), obiettivi: [testo] })
+    const bozza = conObiettivo('bozza')
+    const tardi = conObiettivo('tardi')
+    const presto = conObiettivo('presto')
+    const altraBozza = conObiettivo('altra bozza')
+    const oraPresto = ora('2026-10-06', [])
+    const oraTardi = ora('2026-10-13', [])
+    oraPresto.pianoId = presto.id
+    oraTardi.pianoId = tardi.id
+    // In ordine di ora inverso, per non ereditarlo per caso.
+    const registro = registroCon([oraTardi, oraPresto])
+    registro.piani = [bozza, tardi, presto, altraBozza]
+
+    const dati = datiCorso(registro, corso(registro), null)
+    assert.deepEqual(
+      dati.tabelle.piani.righe.map((r) => [r[0], r[3]]),
+      [['06.10.2026', 'presto'], ['13.10.2026', 'tardi'], ['bozza', 'bozza'], ['bozza', 'altra bozza']],
+    )
+    assert.deepEqual(
+      dati.gruppi.piani.map((g) => g.valori.dataPiano),
+      ['06.10.2026', '13.10.2026', 'bozza', 'bozza'],
+    )
   })
 })

@@ -18,7 +18,7 @@ import {
   nelSemestre,
   oggi,
 } from '#core/dominio/dates.js'
-import type { Corso, Registro, Semestre } from '#core/dominio/models.js'
+import type { Attivita, Corso, Lezione, Registro, Semestre } from '#core/dominio/models.js'
 import type { DatiRapporto } from '#core/dominio/reports.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './reportData.testi.js'
@@ -122,55 +122,83 @@ export function datiCorso (
     righe: giudiziLezioni,
   }
 
-  // Tutti i piani lezione del corso
+  // I piani lezione del corso nell'ordine delle lezioni che li usano: chi
+  // sfoglia la scheda segue il corso giorno per giorno. Contano le ore non
+  // annullate del periodo, anche quelle ancora da fare, che una data ce l'hanno
+  // già. I piani senza lezione (bozze) vanno in fondo, nell'ordine di sempre.
   const pianiCorso = registro.piani.filter(
     (p) => p.corsoId === corso.id || lezioni.some((l) => l.pianoId === p.id),
   )
+  const oreDelPeriodo = registroDelCorso(registro, corso.id)
+    .filter((l) => l.stato !== 'annullata' && (!semestre || nelSemestre(semestre, l.data)))
+  const pianiPerData = pianiCorso
+    .map((piano, i) => ({ piano, i, ore: oreDelPeriodo.filter((l) => l.pianoId === piano.id) }))
+    .sort((a, b) => {
+      const primaA = a.ore[0]
+      const primaB = b.ore[0]
+      if (primaA && primaB) return confrontaLezioni(primaA, primaB) || a.i - b.i
+      if (primaA) return -1
+      if (primaB) return 1
+      return a.i - b.i
+    })
+  /** Le date delle ore di un piano, o «bozza» se nessuna ora lo usa. */
+  const dateDi = (ore: readonly Lezione[]) =>
+    ore.length > 0 ? [...new Set(ore.map((l) => formattaData(l.data)))].join(', ') : t.bozza
+  const tappa = (attivita: Attivita, i: number): string[] => [
+    String(i + 1),
+    [attivita.titolo || parole().senzaTitolo, attivita.descrizione].filter(Boolean).join(' — '),
+    t.tipoAttivita(attivita.tipo),
+    formattaDurata(minutiDiAttivita(attivita.durataUd, registro.impostazioni.minutiUd)),
+    attivita.raggruppamento ? t.raggruppamento(attivita.raggruppamento) : '',
+    attivita.valutazione
+      ? `${t.tipoValutazione(attivita.valutazione.tipo)}${attivita.valutazione.peso !== 1 ? ` · ${t.pesoDi(attivita.valutazione.peso)}` : ''}`
+      : '',
+  ]
+
   dati.tabelle.piani = {
-    ...colonne((c) => [c.titolo, c.ud, c.obiettivi, c.prerequisiti, c.stato]),
-    pesi: [5, 2, 5, 4, 3],
-    righe: pianiCorso.map((p) => {
-      const lezioniConPiano = lezioni.filter((l) => l.pianoId === p.id)
-      const durata = formattaDurata(
+    ...colonne((c) => [c.data, c.titolo, c.ud, c.obiettivi, c.prerequisiti]),
+    pesi: [3, 5, 2, 5, 4],
+    righe: pianiPerData.map(({ piano, ore }) => [
+      dateDi(ore),
+      nomeDelPiano(registro, piano),
+      formattaDurata(
         minutiDiAttivita(
-          p.attivita.reduce((s, a) => s + (a.durataUd || 0), 0),
+          piano.attivita.reduce((s, a) => s + (a.durataUd || 0), 0),
           registro.impostazioni.minutiUd,
         ),
-      )
-      const stato = lezioniConPiano.length > 0
-        ? lezioniConPiano.map((l) => formattaData(l.data)).join(', ')
-        : t.bozza
-      return [
-        nomeDelPiano(registro, p),
-        durata,
-        p.obiettivi.join('; ') || '—',
-        p.prerequisiti || '—',
-        stato,
-      ]
-    }),
+      ),
+      piano.obiettivi.join('; ') || '—',
+      piano.prerequisiti || '—',
+    ]),
   }
 
-  // Scaletta dettagliata di tutte le attività dei piani del corso
-  const attivitaTuttiIPiani: string[][] = []
-  for (const piano of pianiCorso) {
-    for (const [i, attivita] of piano.attivita.entries()) {
-      attivitaTuttiIPiani.push([
-        nomeDelPiano(registro, piano),
-        String(i + 1),
-        [attivita.titolo || parole().senzaTitolo, attivita.descrizione].filter(Boolean).join(' — '),
-        t.tipoAttivita(attivita.tipo),
-        formattaDurata(minutiDiAttivita(attivita.durataUd, registro.impostazioni.minutiUd)),
-        attivita.raggruppamento ? t.raggruppamento(attivita.raggruppamento) : '',
-        attivita.valutazione
-          ? `${t.tipoValutazione(attivita.valutazione.tipo)}${attivita.valutazione.peso !== 1 ? ` · ${t.pesoDi(attivita.valutazione.peso)}` : ''}`
-          : '',
-      ])
-    }
-  }
+  // La scaletta di tutti i piani in una tabella, nello stesso ordine.
   dati.tabelle.scaletta = {
-    ...colonne((c) => [c.titolo, c.numero, c.attivita, c.tipo, c.durata, c.come, c.prova]),
-    pesi: [4, 1, 5, 2, 2, 2, 2],
-    righe: attivitaTuttiIPiani,
+    ...colonne((c) => [c.data, c.titolo, c.numero, c.attivita, c.tipo, c.durata, c.come, c.prova]),
+    pesi: [3, 4, 1, 5, 2, 2, 2, 2],
+    righe: pianiPerData.flatMap(({ piano, ore }) =>
+      piano.attivita.map((attivita, i) => [dateDi(ore), nomeDelPiano(registro, piano), ...tappa(attivita, i)]),
+    ),
+  }
+
+  // E piano per piano, per `ripeti: piani`: la data e il titolo in testa, la
+  // scaletta sotto, così un piano non si legge mescolato al successivo. La
+  // tabella c'è sempre, anche vuota: senza, il giro prenderebbe quella di tutti.
+  dati.gruppi = {
+    piani: pianiPerData.map(({ piano, ore }) => ({
+      valori: {
+        piano: nomeDelPiano(registro, piano),
+        dataPiano: dateDi(ore),
+        obiettiviPiano: piano.obiettivi.join('; '),
+      },
+      tabelle: {
+        scaletta: {
+          ...colonne((c) => [c.numero, c.attivita, c.tipo, c.durata, c.come, c.prova]),
+          pesi: [1, 6, 2, 2, 2, 2],
+          righe: piano.attivita.map(tappa),
+        },
+      },
+    })),
   }
 
   // Pendenze del corso: recuperi aperti, verifiche da ridare, consegne aperte
