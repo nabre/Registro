@@ -52,7 +52,7 @@ const pluginFinti = {
   name: 'finti',
   setup (b) {
     b.onResolve({ filter: /\.js$/ }, (args) => {
-      if (!args.importer.replaceAll('\\', '/').endsWith('ui/pannello/views/calendar/editor.ts')) return undefined
+      if (!args.importer.replaceAll('\\', '/').endsWith('ui/views/calendar/editor.ts')) return undefined
       const chiave = fintoPer(args.path)
       return chiave ? { path: chiave, namespace: 'finto' } : undefined
     })
@@ -153,7 +153,7 @@ function applica (comando) {
 
 const bundle = await build({
   inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
-  entryPoints: [fileURLToPath(new URL('../../ui/pannello/views/calendar/editor.ts', import.meta.url))],
+  entryPoints: [fileURLToPath(new URL('../../ui/views/calendar/editor.ts', import.meta.url))],
   bundle: true,
   write: false,
   platform: 'browser',

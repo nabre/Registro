@@ -21,7 +21,7 @@ qui. Voce aperta in [CANTIERE.md](CANTIERE.md) § «Impostazioni».
 
 | # | Guasto | Dove | Stato |
 |---|---|---|---|
-| G0 | Ogni salvataggio da scala, giornata, liste, firma cancellava appellativo/nome/cognome | `ui/pannello/views/settings/document.ts` `intestazioneDaSalvare`; rete in `core/azioni/system.ts` `partiDelNome` | **fatto**, prova in `tests/api/writes.test.mjs` |
+| G0 | Ogni salvataggio da scala, giornata, liste, firma cancellava appellativo/nome/cognome | `ui/views/settings/document.ts` `intestazioneDaSalvare`; rete in `core/azioni/system.ts` `partiDelNome` | **fatto**, prova in `tests/api/writes.test.mjs` |
 | G1 | Dogana `formato:'modello'` vuole un percorso assoluto, il valore giusto è un nome nudo: rifiuta il giusto, accetta e ignora il sbagliato | `desktop/apparato/settings.ts:350`, `core/dati/gguf.ts:228` | **fatto**: `nomeDiModello` in `core/dati/ggufName.ts`, prova in `tests/environment/settings.test.mjs` |
 | G2 | Il filtro mostra `ocr.modello`, `ocr.proiettore`, `assistente.modello` come testo libero | `sections.ts` `vociMostrateDaSezione`, `program.ts` `controllo` | **fatto**: sola lettura + «Scegli in Modelli linguistici» (`program.ts` `campoModello`), il filtro si svuota |
 | G3 | «Lettura spenta» in Da smistare apre la finestra nativa, dove il modello non si sceglie: vicolo cieco | `core/azioni/sorting.ts:592` | **fatto**: `vista.apri` su `modelliLinguistici`, prova in `tests/api/conduitGuards.test.mjs` |
@@ -204,7 +204,7 @@ Ogni fase: perimetri di file disgiunti, verifica `npm run ci -- --solo verifica`
 
 | Fase | Contenuto | Perimetri paralleli |
 |---|---|---|
-| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/pannello/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
+| **0 Guasti** ✅ | G1–G8 | A: `desktop/apparato/settings.ts` + `core/dati/gguf.ts` (G1) · B: `ui/views/settings/{sections,program}.ts` (G2, G4) · C: `core/azioni/sorting.ts` (G3) · D: `desktop/shell/pages/settings/*` (G5) · E: `contract/manifest.ts` + `desktop/transports/conduit.ts` (G6–G8) |
 | **1 Contratto dei controlli** ✅ | campi manifesto (`controllo`, `unita`, `passo`, `figura`, `scelteDinamiche`, `formato ora/colore`), `VoceProgramma`, `vociImpostazioni()`, dogana; ADR del DOM condiviso | uno solo (contratto) |
 | **2 Controlli** ✅ | segmentato generico (Home/Fine), numero con unità, cursore con `aria-valuetext`, percorso con verifica, switch con nome; `controllo()` unico | A: componenti pannello · B: nativa |
 | **3 Gerarchia** ✅ | aree, pagina Stato/Scelte/Avanzate, pastiglia d'ambito, modi Sintesi/Dettagli (poi tolti: § 3.3), filtro unico + Ctrl+K, Ripristina per area | A: `settings.ts`/`sections.ts`/`place.ts` · B: palette · C: stili |

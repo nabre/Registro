@@ -15,7 +15,7 @@ const {
   eseguiDalPulsante,
   pulsanteComando,
   rinasceInVolo,
-} = await importaSorgente('ui/pannello/commandBar.ts')
+} = await importaSorgente('ui/commandBar.ts')
 
 describe('il ciclo di vita di comandiInVolo', () => {
   it('un comando asincrono registra il volo e blocca il nuovo pulsante rinato nel ridisegno', async () => {

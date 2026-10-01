@@ -149,7 +149,7 @@ flowchart TB
 ```mermaid
 flowchart TB
   subgraph W["dentro la webview — niente Node, niente Electron"]
-    interfaccia["<b>ui/pannello/</b><br/>state.ts, bridge.ts, views/, forms/, components/"]
+    interfaccia["<b>ui/</b><br/>state.ts, bridge.ts, views/, forms/, components/"]
   end
 
   subgraph H["nel processo main"]
@@ -191,7 +191,7 @@ non importa niente da fuori di sé tranne `core/i18n/`.
 
 | Cartella | Vietato importare |
 |---|---|
-| `ui/**` | `node:*`, `electron` (quel che serve passa da `ui/pannello/bridge.ts`) |
+| `ui/**` | `node:*`, `electron` (quel che serve passa da `ui/bridge.ts`) |
 | `core/dati/**`, `core/azioni/**`, `desktop/pannelli/**` | `electron` |
 | `core/controlli/**` | `node:*`, `electron`, `apparato`; da fuori della cartella tutto tranne `core/i18n/`, le parole di tutti (`core/dominio/words.testi.ts`) e i tipi di `contract/` (ADR-52) |
 | `desktop/shell/pages/**` | `node:*`, `electron`; da fuori di `shell/pages/` tutto tranne i tipi, `core/i18n/`, `core/controlli/` e le parole di tutti |
@@ -235,8 +235,8 @@ non importa niente da fuori di sé tranne `core/i18n/`.
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
   con la CSP, `projection.ts` spinge solo i blocchi accesi, `assistant.ts` e
   `conversation.ts` servono l'assistente.
-- **`ui/pannello/`** — il pannello, senza framework: `h()` in
-  [dom.ts](../ui/pannello/dom.ts), ridisegno completo sotto `#radice` con fuoco,
+- **`ui/`** — il pannello, senza framework: `h()` in
+  [dom.ts](../ui/dom.ts), ridisegno completo sotto `#radice` con fuoco,
   cursore e scorrimenti ripristinati per chiave (`data-fuoco`,
   `data-scorrimento`); modali e palette fuori dal ciclo. `stato.registro` è
   sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
@@ -328,8 +328,8 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  participant V as ui/pannello/views/lesson
-  participant PO as ui/pannello/bridge.ts
+  participant V as ui/views/lesson
+  participant PO as ui/bridge.ts
   participant PR as desktop/shell/preload.ts
   participant F as desktop/apparato/windows.ts
   participant PA as desktop/pannelli/panel.ts
@@ -399,7 +399,7 @@ sequenceDiagram
 sequenceDiagram
   autonumber
   participant U as Docente
-  participant V as ui/pannello/views/sorting.ts
+  participant V as ui/views/sorting.ts
   participant AZ as core/azioni/sorting.ts
   participant S as core/dati/sorter.ts
   participant O as core/dati/ocr.ts
@@ -498,7 +498,7 @@ La tabella di che cosa esce, verso dove e quando sta nella
 | Aggiornamenti ([desktop/apparato/updates.ts](../desktop/apparato/updates.ts)) | SHA-512 di `latest.yml` verificato da `electron-updater` e di nuovo prima di lanciare l'installatore ([os/windows/aggiornamento.ps1](../os/windows/aggiornamento.ps1)); solo l'installato su Windows; `ORE_FRA_I_CONTROLLI` |
 | Calendario ICS ([core/dati/calendar.ts](../core/dati/calendar.ts)) | solo dal main; 20 s, 10 MB, 60 s di memoria; l'indirizzo (spesso con un gettone) non compare negli errori; `perAssistente: false` |
 | Tasselli ([desktop/shell/protocol/tiles.ts](../desktop/shell/protocol/tiles.ts)) | dal main, mai dalla pagina; cache in `userData/tasselli/` |
-| Dettatura ([core/dati/dictation.ts](../core/dati/dictation.ts) → [core/dati/voicebox.ts](../core/dati/voicebox.ts)) | solo loopback, ricontrollato a ogni lettura ([core/dominio/loopback.ts](../core/dominio/loopback.ts)); `redirect: 'manual'`; intoccabile dal condotto; un `POST /transcribe` per pausa ([ui/pannello/assistant/voice.ts](../ui/pannello/assistant/voice.ts)), 120 s; WAV mai sul disco del registro (ADR-35) |
+| Dettatura ([core/dati/dictation.ts](../core/dati/dictation.ts) → [core/dati/voicebox.ts](../core/dati/voicebox.ts)) | solo loopback, ricontrollato a ogni lettura ([core/dominio/loopback.ts](../core/dominio/loopback.ts)); `redirect: 'manual'`; intoccabile dal condotto; un `POST /transcribe` per pausa ([ui/assistant/voice.ts](../ui/assistant/voice.ts)), 120 s; WAV mai sul disco del registro (ADR-35) |
 | Modello locale ([core/dati/llm.ts](../core/dati/llm.ts)) | non esce: `.gguf` in processo (ADR-25) |
 
 `openExternal` è ristretto a `http`, `https`, `mailto`, `tel`, `callto`, `skype`, `msteams`
@@ -520,7 +520,7 @@ aprono per percorso (ADR-22).
 - **Serratura cooperativa**: nessun merge. Unica difesa esplicita:
   `assenze.salva` in [core/azioni/classTeacher.ts](../core/azioni/classTeacher.ts)
   tiene le righe dell'host e ignora quelle del client se il blocco esiste già.
-- **Nessun timeout** su `invia()` ([ui/pannello/bridge.ts](../ui/pannello/bridge.ts));
+- **Nessun timeout** su `invia()` ([ui/bridge.ts](../ui/bridge.ts));
   idempotenza dichiarata caso per caso.
 
 ## 10. Build, test, qualità
@@ -530,7 +530,7 @@ Comandi, controlli fatti in casa e CI: [GUIDA](GUIDA.md) § «Sviluppo». In pi�
 - [esbuild.mjs](../esbuild.mjs) esporta `applicazione` e `prove`; flag
   `--produzione`, `--test`, `--ui`. Bundle principali: `desktop/shell/main.ts` e
   `desktop/shell/preload.ts` (cjs; `external: electron, node-llama-cpp`),
-  `ui/pannello/main.ts`, `ui/pannello/projection.ts`, `ui/pannello/assistantWindow.ts` (iife),
+  `ui/main.ts`, `ui/projection.ts`, `ui/assistantWindow.ts` (iife),
   le pagine di `desktop/shell/` copiate in `dist/`, il worker di pdfjs (ESM).
 - `verificaIdentita()` fa fallire la build se l'`appId` di
   [electron-builder.json](../electron-builder.json) e `IDENTITA` di
@@ -563,6 +563,4 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-| Da | A | Perché |
-| --- | --- | --- |
-| `ui/pannello/` | ui/ | `ui/` non ha altro: un livello in meno in ogni percorso (`#ui/…`, ADR-55). |
+Nessun riordino aperto.

@@ -1,6 +1,6 @@
 // Il DOM finto su cui girano le prove dei pulsanti del pannello senza browser:
 // elementi che tengono classi, attributi, figli e ascoltatori, e un `document`
-// e una `window` quanto bastano ai moduli di `ui/pannello/`. Va preparato prima
+// e una `window` quanto bastano ai moduli di `ui/`. Va preparato prima
 // di importare il modulo sotto prova, che legge i globali al caricamento.
 
 /** Installa in `globalThis` il DOM finto. */

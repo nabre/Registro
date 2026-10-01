@@ -1,6 +1,6 @@
 // I nomi delle aree e delle sezioni con chiavi delle impostazioni, i titoli dei
 // gruppi e l'avvertenza del condotto: li leggono il pannello
-// (`ui/pannello/views/settings/sections.ts`) e la finestra nativa, così li
+// (`ui/views/settings/sections.ts`) e la finestra nativa, così li
 // scrivono uguali. Le sezioni dell'anno e le parole di ricerca stanno nel
 // pannello (`sections.testi.ts`).
 

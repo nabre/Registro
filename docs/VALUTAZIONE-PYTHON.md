@@ -44,7 +44,7 @@ ragionevole in Python: strumenti di sviluppo isolati, come già
 
 | Funzione | Dove | Dipende da |
 | --- | --- | --- |
-| Pannello (UI intera) | `ui/pannello/`, `ui/pannello/dom.ts` | Chromium: DOM, `moveBefore`, `Temporal` nativo, CSP |
+| Pannello (UI intera) | `ui/`, `ui/dom.ts` | Chromium: DOM, `moveBefore`, `Temporal` nativo, CSP |
 | Finestre, figlie, proiezione | `desktop/apparato/windows.ts` | `BrowserWindow` |
 | Vassoio, promemoria | `desktop/apparato/tray.ts`, `desktop/widget/tray.ts` | `Tray`, `Menu` |
 | Notifiche | `desktop/apparato/notifications.ts` | `Notification`, AppUserModelID |
@@ -56,7 +56,7 @@ ragionevole in Python: strumenti di sviluppo isolati, come già
 | PDF letti, smistamento | `core/dati/pdf.ts`, `core/dati/sorter.ts` | pdfjs |
 | LLM locali, assistente | `core/dati/llamaCpp.ts`, `core/dati/llm.ts` | node-llama-cpp (binari nativi) |
 | OCR | `core/dati/ocr.ts`, `core/dati/mtmd.ts` | `llama-mtmd-cli` esterno |
-| Dettatura | `core/dati/voicebox.ts`, `ui/pannello/assistant/voice.ts` | voicebox locale via HTTP |
+| Dettatura | `core/dati/voicebox.ts`, `ui/assistant/voice.ts` | voicebox locale via HTTP |
 | Mappa | `desktop/shell/protocol/tiles.ts`, `core/dati/geocoding.ts` | rete dell'host, CSP |
 | Posta, OAuth Microsoft | `core/dati/mail.ts`, `core/dati/oauth.ts` | `node:tls`, browser di sistema, PKCE |
 | OneDrive / Graph | `core/dati/onedrive.ts`, `core/dati/oneDriveLocal.ts` | `fetch`, registro di Windows |
@@ -96,7 +96,7 @@ c'è il lavoro nuovo (disegno di UI); sopra, la traduzione meccanica.
 
 - **Architettura.** pywebview (BSD) apre il pannello di oggi in WebView2
   (Windows), WKWebView (macOS), WebKitGTK o QtWebEngine (Linux). Python fa
-  host, dati, procedure. Il ponte `ui/pannello/bridge.ts` parla con
+  host, dati, procedure. Il ponte `ui/bridge.ts` parla con
   `js_api` di pywebview o con un FastAPI locale.
 - **Librerie.** pywebview; FastAPI + uvicorn (o asyncio puro) per il condotto
   su named pipe; pydantic per gli schemi (genera JSON Schema 2020-12);

@@ -58,7 +58,7 @@ Il lavoro in corso e le scelte ancora aperte sono in [CANTIERE](docs/CANTIERE.md
   divide un lavoro largo in pezzi che non si pestano i piedi, in
   `.claude/skills/sciame/`.
 - **Una funzione che si vede cambia anche la guida.** La guida d'uso sta in
-  `ui/pannello/views/help/`, una sezione per pagina: il nome di un pulsante si scrive
+  `ui/views/help/`, una sezione per pagina: il nome di un pulsante si scrive
   com'è sullo schermo, e `tests/ui/help.test.mjs` controlla che si tenga insieme.
 
 ## Prima di aprire la pull request

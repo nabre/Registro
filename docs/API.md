@@ -84,7 +84,7 @@ flowchart TB
 | [desktop/transports/conduit.ts](../desktop/transports/conduit.ts) | il server JSON-RPC locale |
 | [cli/main.mjs](../cli/main.mjs) | la riga di comando |
 | [contract/protocol.ts](../contract/protocol.ts) | `Azione`/`Risposta`, `Domanda`/`Riscontro` |
-| [ui/pannello/bridge.ts](../ui/pannello/bridge.ts) | `invia`, `azione`, `chiedi` |
+| [ui/bridge.ts](../ui/bridge.ts) | `invia`, `azione`, `chiedi` |
 | [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | coda delle richieste, `rispondiDomanda()` |
 
 ## 3. Una procedura
@@ -423,7 +423,7 @@ interface Riscontro { tipo: 'riscontro'; id: number; ok: boolean;
 
 | Dove | Che cosa fa |
 | --- | --- |
-| `chiedi<T>(procedura, ingresso?, { diFondo })` in [ui/pannello/bridge.ts](../ui/pannello/bridge.ts) | manda e torna `Esito<T>`; `diFondo` non accende l'indicatore di lavoro; non mostra niente da sé |
+| `chiedi<T>(procedura, ingresso?, { diFondo })` in [ui/bridge.ts](../ui/bridge.ts) | manda e torna `Esito<T>`; `diFondo` non accende l'indicatore di lavoro; non mostra niente da sé |
 | `rispondiDomanda()` in [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | la guardia, `chiama()`, il riscontro |
 | `chiama()` in [contract/core.ts](../contract/core.ts) | convalida anche l'uscita |
 
@@ -438,10 +438,10 @@ interface Riscontro { tipo: 'riscontro'; id: number; ok: boolean;
 
   Un nome inesistente passa al nucleo: `procedura-sconosciuta`.
 - Le procedure della proiezione restano scritture: comandano una finestra.
-- Chi lo usa oggi: [ui/pannello/views/languageModels.ts](../ui/pannello/views/languageModels.ts)
-  (`llm.*`), [ui/pannello/views/settings/updates.ts](../ui/pannello/views/settings/updates.ts)
-  (`aggiornamenti.stato`), [ui/pannello/externalCalendar.ts](../ui/pannello/externalCalendar.ts)
-  e [ui/pannello/forms/calendar.ts](../ui/pannello/forms/calendar.ts) (`calendario.*`).
+- Chi lo usa oggi: [ui/views/languageModels.ts](../ui/views/languageModels.ts)
+  (`llm.*`), [ui/views/settings/updates.ts](../ui/views/settings/updates.ts)
+  (`aggiornamenti.stato`), [ui/externalCalendar.ts](../ui/externalCalendar.ts)
+  e [ui/forms/calendar.ts](../ui/forms/calendar.ts) (`calendario.*`).
 
 ## 7. Il condotto
 
@@ -648,7 +648,7 @@ riquadro a destra (pulsante accanto a «Proietta») o, con «Stacca», in una
 finestra sua (`dist/assistente.js`).
 
 ```
-riquadro (ui/pannello/assistant.ts)  ← o →  finestra staccata
+riquadro (ui/assistant.ts)  ← o →  finestra staccata
    ↓  postMessage, busta `Conversazione`
 main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    ├→ core/dati/llm.ts → motore (core/dati/llamaCpp.ts) → il .gguf
@@ -657,7 +657,7 @@ main process (desktop/pannelli/{panel,assistant}.ts → conversation.ts)
    └→ il risultato torna al modello → risposta
 ```
 
-- Il filo dei turni sta in `ui/pannello/assistant/chat.ts`, che non conosce né
+- Il filo dei turni sta in `ui/assistant/chat.ts`, che non conosce né
   riquadro né finestra; il lavoro del main process in
   `desktop/pannelli/conversation.ts`; il trasporto in
   `desktop/transports/assistant.ts`.
@@ -716,7 +716,7 @@ Prima della domanda il modello riceve la **veduta**: pagina, scheda, tendine
 schermo.
 
 ```text
-ui/pannello/viewpoint.ts               compone la veduta all'Invio
+ui/viewpoint.ts               compone la veduta all'Invio
    ↓  dentro la busta della domanda
 desktop/pannelli/conversation.ts        la passa a `conversa`
 desktop/transports/assistant.ts   `descriviContesto()` → nota davanti all'ultima domanda (`componiBattute()`)
@@ -729,7 +729,7 @@ desktop/transports/assistant.ts   `descriviContesto()` → nota davanti all'ulti
   catalogo resta identico (ADR-32).
 - Nomi **e** id; tendine con le altre voci (dodici al più, tagliate attorno
   alla scelta, «… e altre N»); linguette da `porzioniDellaVista()`; ore con
-  l'etichetta di `oreDelCorso()` (`ui/pannello/views/lesson.ts`); il periodo come
+  l'etichetta di `oreDelCorso()` (`ui/views/lesson.ts`); il periodo come
   `{ etichetta, dal, al }`.
 - **Ogni parte si spegne per conto suo** dal menu a imbuto del riquadro, che
   mostra che cosa contiene adesso; anche ogni tendina. Una tendina spenta si
@@ -737,7 +737,7 @@ desktop/transports/assistant.ts   `descriviContesto()` → nota davanti all'ulti
   `pianoId`, `valutazioneId` da una tabella a parte). Un id viaggia solo dove la
   pagina lo mostra. Le spente si ricordano per nome della tendina. «Dove sono»
   spento → `contesto: null`, e l'host butta quella che teneva.
-- La regola sta in [ui/pannello/assistant/parts.ts](../ui/pannello/assistant/parts.ts),
+- La regola sta in [ui/assistant/parts.ts](../ui/assistant/parts.ts),
   senza stato né DOM; prova `tests/ui/contextParts.test.mjs`.
 - Si manda **quel che si vede davvero**: la finestra del calendario mostrata,
   le classi archiviate che la pagina mostra, la ricerca della pagina Persone;
@@ -751,7 +751,7 @@ usaAttrezzo()                    chiama la procedura
    ├→ al modello   JSON
    └→ alla pagina  impagina()    titolo, valori, colonne
           ↓  evento `risultato`, subito
-   ui/pannello/assistant/result.ts    lo disegna sotto la risposta
+   ui/assistant/result.ts    lo disegna sotto la risposta
 ```
 
 - La forma la dichiara la procedura in `presentazione` (`blocchi` di tipo
@@ -763,7 +763,7 @@ usaAttrezzo()                    chiama la procedura
 - Al modello si chiede di introdurre, non di ricopiare: niente tabelle, nomi per
   esteso, mai un id. I risultati stanno **sotto** la bolla e restano anche se la
   risposta non arriva.
-- Il testo del modello: `ui/pannello/assistant/format.ts` lo divide in blocchi
+- Il testo del modello: `ui/assistant/format.ts` lo divide in blocchi
   (paragrafi, elenchi, titoletti, tabelle), `answer.ts` li costruisce;
   **nessun HTML** interpretato. Prova `tests/ui/answerFormat.test.mjs`.
 - Mentre si aspetta si vedono gli attrezzi con il loro nome vero: una risposta

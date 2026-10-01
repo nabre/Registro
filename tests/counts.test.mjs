@@ -40,7 +40,7 @@ describe('i conteggi che INDICE.md dichiara', () => {
   const indice = sorgente('docs/INDICE.md').replace(/\s+/g, ' ')
 
   it('INDICE.md dice quante destinazioni e quante viste', () => {
-    const pagine = sorgente('ui/pannello/pages.ts')
+    const pagine = sorgente('ui/pages.ts')
     const inizio = pagine.indexOf('export const PAGINE')
     assert.ok(inizio >= 0, 'PAGINE non si chiama più così')
     const corpo = pagine.slice(inizio, pagine.indexOf('\n]', inizio))

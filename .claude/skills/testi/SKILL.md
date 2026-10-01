@@ -21,7 +21,7 @@ Windows se nota, altrimenti it). Una lingua per processo, `core/i18n/state.ts`.
 ## Dove sta un testo
 
 **Accanto al codice che lo usa**, in `<file>.testi.ts`:
-`ui/pannello/views/absences.ts` → `ui/pannello/views/absences.testi.ts`. Un catalogo per file sorgente
+`ui/views/absences.ts` → `ui/views/absences.testi.ts`. Un catalogo per file sorgente
 (o per piccolo gruppo di file dello stesso tema). Le quattro lingue nello stesso
 file, una sotto l'altra.
 
@@ -64,7 +64,7 @@ function vista (): Figlio {
    lingua → resta italiano. Lì si legge dentro funzioni; costanti con testo →
    funzioni (`vociGiornoSettimana()`) o getter pigri (`comando()` in
    `contract/manifest.ts`). `npm run i18n` lo segnala con `!!` e fa fallire.
-   **Nelle pagine (`ui/pannello/`, `desktop/shell/pages/`) una costante di modulo va bene**:
+   **Nelle pagine (`ui/`, `desktop/shell/pages/`) una costante di modulo va bene**:
    `core/i18n/page.ts` è il primo import e sceglie la lingua prima che il resto
    si carichi, e al cambio lingua la pagina si ricarica. Quindi `GUIDA`,
    `SEZIONI_PROGRAMMA` & co. restano costanti con lo stesso nome — le prove le
@@ -178,7 +178,7 @@ de «…», en “…”. Apostrofo tipografico ’ dove l'italiano lo usa.
 
 ```sh
 npm run i18n                          # riepilogo per file: quanto resta
-npm run i18n -- --elenco ui/pannello/views # ogni reperto, con riga
+npm run i18n -- --elenco ui/views # ogni reperto, con riga
 npm run typecheck && npx eslint <file> && npm test
 ```
 

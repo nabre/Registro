@@ -119,7 +119,7 @@ function nomeDi (chiave: string): string {
 // ------------------------------------------------------------ la spiegazione
 
 /**
- * Il tracciato della «i», copiato da `ui/pannello/components/icons.ts`: da `ui`
+ * Il tracciato della «i», copiato da `ui/components/icons.ts`: da `ui`
  * questa pagina importa solo tipi (`npm run layers`).
  */
 const TRACCIATO_INFORMAZIONE = [
@@ -144,7 +144,7 @@ function segnoInformazione (): SVGSVGElement {
 
 /**
  * La «i» accanto al nome, che apre e chiude la descrizione sotto il campo (nel
- * pannello è un fumetto, `ui/pannello/components/hint.ts`, che qui non si può
+ * pannello è un fumetto, `ui/components/hint.ts`, che qui non si può
  * importare). Chiusa resta nel DOM (`hidden`): il filtro la trova e il campo la
  * nomina con `aria-describedby`.
  */

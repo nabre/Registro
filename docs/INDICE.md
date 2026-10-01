@@ -2,7 +2,7 @@
 
 Il `README.md` alla radice è la vetrina. **Come si usa** non sta in `docs/`: la
 guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
-`ui/pannello/views/help/`.
+`ui/views/help/`.
 
 | Documento | Risponde a | Quando si apre |
 | --- | --- | --- |

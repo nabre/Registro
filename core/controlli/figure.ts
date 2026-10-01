@@ -2,7 +2,7 @@
 // per la lingua la bandiera (`core/i18n/flags.ts`). Un disegno solo per il
 // pannello e per la finestra nativa, che prima ne teneva una copia a mano. Il
 // manifesto non ne sa niente: una voce con una figura qui si mostra a schede
-// (il foglio è `ui/pannello/styles/figure-choice.css`, caricato da tutte e due).
+// (il foglio è `ui/styles/figure-choice.css`, caricato da tutte e due).
 
 import { LINGUE, NOMI_DELLE_LINGUE, lingua } from '#core/i18n/index.js'
 import { figuraLingua } from '#core/i18n/flags.js'

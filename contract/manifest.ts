@@ -358,7 +358,7 @@ const DICHIARAZIONI = {
     tipo: 'boolean',
     predefinito: false,
     // La voce dettata la scrive l'assistente: spento lui, il microfono non parte
-    // (`ui/pannello/assistant.ts`).
+    // (`ui/assistant.ts`).
     dipendeDa: 'registroDocenti.assistente.attivo',
   },
   'registroDocenti.dettatura.taglia': {

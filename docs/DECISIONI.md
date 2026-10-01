@@ -61,7 +61,7 @@ le uscite di rete: ARCHITETTURA § 8.
 ### ADR-05 — Guida in-app come dati strutturati
 
 **Decisione.** La guida d'uso è una struttura tipizzata, una sezione per
-pagina (`ui/pannello/views/help.ts`, `ui/pannello/views/help/`). È l'unico posto del
+pagina (`ui/views/help.ts`, `ui/views/help/`). È l'unico posto del
 «come si usa»: `docs/` non lo ripete.
 
 **Vincoli.** Una pagina con comandi propri aggiunge la sua voce. Nessuna prova
@@ -69,14 +69,14 @@ lo controlla.
 
 ### ADR-06 — UI senza framework (modificata da ADR-48 e ADR-50)
 
-**Decisione.** DOM vero con `h()` (`ui/pannello/dom.ts`); ogni cambio di stato
+**Decisione.** DOM vero con `h()` (`ui/dom.ts`); ogni cambio di stato
 ridisegna la pagina: telaio stabile e isole (ADR-48), confronto del DOM con
 idiomorph (ADR-50). Le modali stanno fuori dal ciclo di ridisegno.
 
 **Vincoli.** Lo stato applicativo è l'unica fonte di verità: il DOM non tiene
 stato che lo stato non conosca, o il ridisegno lo azzera.
 
-**Dove.** `ui/pannello/dom.ts`, `ui/pannello/forms.ts`, `ui/pannello/components/`.
+**Dove.** `ui/dom.ts`, `ui/forms.ts`, `ui/components/`.
 
 ### ADR-07 — Un comando, una superficie
 
@@ -86,7 +86,7 @@ la pagina disegna già il suo pulsante.
 
 **Vincoli.** Disciplina di revisione, nessuna prova.
 
-**Dove.** `ui/pannello/commands.ts`, `ui/pannello/commandBar.ts`, `ui/pannello/sidebar.ts`.
+**Dove.** `ui/commands.ts`, `ui/commandBar.ts`, `ui/sidebar.ts`.
 
 ### ADR-08 — Il piano lezione appartiene al corso
 
@@ -300,7 +300,7 @@ da solo.
 candidati (0,2) decidono se *proporre*, mai se eseguire. Un allievo riceve al
 massimo un blocco per passata.
 
-**Dove.** `core/dominio/sorting.ts`, `core/dati/sorter.ts`, `ui/pannello/views/sorting.ts`.
+**Dove.** `core/dominio/sorting.ts`, `core/dati/sorter.ts`, `ui/views/sorting.ts`.
 
 ### ADR-27 — Un contratto davanti al centralino
 
@@ -349,7 +349,7 @@ la forma minima e cede al validatore del dominio.
 ### ADR-29 — Un canale per le domande, separato dalle azioni
 
 **Decisione.** `Domanda` / `Riscontro` sullo stesso canale IPC: `chiedi()` in
-`ui/pannello/bridge.ts`, `rispondiDomanda()` in `desktop/pannelli/panel.ts`. Le domande
+`ui/bridge.ts`, `rispondiDomanda()` in `desktop/pannelli/panel.ts`. Le domande
 non entrano nella coda delle scritture. `Riscontro` porta il `codice` dell'API.
 
 **Vincoli.**
@@ -433,7 +433,7 @@ Si regola in Impostazioni › Documenti e stampa › Intestazione. Letture
 riservato (`NOME_LOGO`). Il logo passa da `logoAmmesso` (solo in
 `intestazione/`, PNG o JPEG).
 
-**Dove.** `core/dominio/letterhead.ts`, `ui/pannello/views/settings/letterhead.ts`,
+**Dove.** `core/dominio/letterhead.ts`, `ui/views/settings/letterhead.ts`,
 `core/azioni/templates.ts`, `tests/domain/letterhead.test.mjs`.
 
 ### ADR-35 — La dettatura passa da voicebox, solo in locale
@@ -453,7 +453,7 @@ scarica niente per la voce.
 - il condotto non cambia `dettatura.indirizzo` (`chiaveIntoccabile` in
   `desktop/transports/conduit.ts`).
 
-**Dove.** `core/dati/dictation.ts`, `core/dati/voicebox.ts`, `ui/pannello/assistant/voice.ts`.
+**Dove.** `core/dati/dictation.ts`, `core/dati/voicebox.ts`, `ui/assistant/voice.ts`.
 
 ### ADR-36 — La durata dell'UD sta nel documento, e l'appello la fissa
 
@@ -469,7 +469,7 @@ finirebbero sotto UD diverse. Importando impostazioni da un altro anno, con
 appelli qui resta quella di qui.
 
 **Dove.** `core/dominio/dates.ts`, `core/dominio/breaks.ts`, `core/azioni/system.ts`,
-`ui/pannello/views/settings/schoolDay.ts`.
+`ui/views/settings/schoolDay.ts`.
 
 ### ADR-37 — I documenti vecchi si portano avanti per passi
 
@@ -521,11 +521,11 @@ omonimi da dichiarare). Il come: skill `testi`.
   (ricopiati in `desktop/apparato/theme.ts` e nell'installatore). Carattere di
   sistema.
 - Componenti: titolo di pagina (`testataVista`), tessere KPI, tabelle con
-  intestazione tenue, avatar (`ui/pannello/components/avatar.ts`), stati vuoti,
+  intestazione tenue, avatar (`ui/components/avatar.ts`), stati vuoti,
   segmenti a pillola.
 - Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
   laterale a pillola, ricerca in vista (Ctrl+K) con persone, corsi e classi,
-  indietro/avanti (`ui/pannello/history.ts`), Ctrl+1…9.
+  indietro/avanti (`ui/history.ts`), Ctrl+1…9.
 - Nessuna libreria per l'aspetto; icone mancanti da Lucide (ISC) in `icons.ts`.
 
 **Vincoli.** Un token nuovo va in tutte e due le tavolozze e, se lo usa la
@@ -594,7 +594,7 @@ SignPath rifiuta la firma.
 di stato. Ogni colonna ha il suo contenitore di scorrimento con una chiave
 `data-scorrimento` sua.
 
-**Dove.** `ui/pannello/commandBar.ts`, `ui/pannello/statusBar.ts`,
+**Dove.** `ui/commandBar.ts`, `ui/statusBar.ts`,
 `desktop/apparato/windows.ts`.
 
 ### ADR-43 — API: stato intero, azioni atomiche, JSON Schema, paginazione (modificata da ADR-50)
@@ -657,7 +657,7 @@ riscarica i calendari ICS che il docente ha collegato con un indirizzo
 1. **Un docente per registro:** niente paternità né permessi per scrittura.
    L'identità del docente è strutturata (`appellativo`, `nome`, `cognome`) ed
    entra nei modelli (`templates/`) e nei PDF.
-2. **Le viste non scrivono:** né la pagina dei piani (`ui/pannello/views/plans.ts`)
+2. **Le viste non scrivono:** né la pagina dei piani (`ui/views/plans.ts`)
    né altre creano o assegnano entità disegnando o navigando. Un piano per
    un'ora senza scaletta nasce da un pulsante.
 3. **Azioni per campo:** le scritture si dividono per campo o intento
@@ -676,13 +676,13 @@ riscarica i calendari ICS che il docente ha collegato con un indirizzo
 (ADR-47). `{{docente}}` resta valido nei modelli esistenti.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/calculations.ts`, `core/dominio/timetable.ts`,
-`core/azioni/assignments.ts`, `ui/pannello/views/plans.ts`, `ui/pannello/views/classes.ts`,
+`core/azioni/assignments.ts`, `ui/views/plans.ts`, `ui/views/classes.ts`,
 `templates/`.
 
 ### ADR-47 — Un posto solo per sapere dove si è, ricordato per documento
 
 **Decisione.** Dove si guarda è un valore solo, `Posto = { pagina, soggetto?, scheda? }`
-(`ui/pannello/place.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
+(`ui/place.ts`): `pagina` è l'id stabile di `PAGINE` (più `pagina.allievo` e
 `pagina.classe.pendenze`, senza voce nella barra), `soggetto` l'elemento aperto (corso,
 classe, lezione, allievo, piano, valutazione), `scheda` la sezione delle impostazioni.
 Ci si sposta solo con `vai(posto)` (`state.ts`); un solo risolutore puro, `completa`,
@@ -690,7 +690,7 @@ ricava corso, classe, filtro, giorno e semestre dal soggetto e ripiega in modo
 deterministico quando il soggetto non c'è più. `stato.vista` e gli id di selezione sono
 derivati, scritti solo da `vai`. Una sola chiave, `chiaveDelPosto`, per storia,
 scorrimento ed entrata. Il posto e le scelte che contengono id (giorno, semestre,
-filtri) si ricordano **per documento** (`ui/pannello/memory.ts`), sotto il percorso
+filtri) si ricordano **per documento** (`ui/memory.ts`), sotto il percorso
 normalizzato del `.regi`, al più venti documenti; le preferenze dell'interfaccia
 restano globali. La navigazione dell'host (`naviga`, `vista.apri`) passa dalla stessa
 tabella (`postoDaVista`) e dallo stesso `completa`.
@@ -707,8 +707,8 @@ alias (`modelli`, `modelliLinguistici`) si risolvono solo nella tabella. Gli id 
 ripristina in `ricevoStato`, dopo l'arrivo dei dati e prima di `proiezione.mira` e
 `assistente.contesto`, in un passaggio solo. Il JSON vecchio si migra, non si rifiuta.
 
-**Dove.** `ui/pannello/place.ts`, `ui/pannello/memory.ts`, `ui/pannello/state.ts`,
-`ui/pannello/history.ts`, `ui/pannello/pages.ts`, `ui/pannello/main.ts`.
+**Dove.** `ui/place.ts`, `ui/memory.ts`, `ui/state.ts`,
+`ui/history.ts`, `ui/pages.ts`, `ui/main.ts`.
 
 ### ADR-48 — Ogni aggiornamento resta nel suo riquadro (modificata da ADR-50)
 
@@ -717,7 +717,7 @@ telaio stabile: i nodi `data-telaio` lungo la catena dalla radice (guscio, conte
 radice della vista, contenitori che scorrono) restano e cambiano solo i figli. Una
 lettura asincrona (anteprima, PDF, CSV, miniature, risposta dell'host, avanzamento di
 un'operazione) rifà solo l'**isola** che la mostra (`isola`/`ridisegnaIsola` in
-`ui/pannello/islands.ts`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
+`ui/islands.ts`, `leggi(…, { isola })` in `asyncResources.ts`). I nodi pesanti
 (`<iframe>`, visore PDF, `<canvas>`, mappe, immagini grandi) portano
 `data-tieni="<sorgente>"` e non si ricreano finché la sorgente non cambia. L'orologio
 muove solo ciò che segna l'ora (`clock.ts`, `alMinuto`). Nessun ridisegno e
@@ -736,8 +736,8 @@ disegno: non ne dipenda dallo stato. Un nodo tenuto si sposta solo con `moveBefo
 documento (un iframe staccato si ricarica). La chiave `data-tieni` è la sorgente:
 cambia se cambia ciò che il nodo mostra.
 
-**Dove.** `ui/pannello/dom.ts`, `ui/pannello/islands.ts`, `ui/pannello/asyncResources.ts`,
-`ui/pannello/clock.ts`, `ui/pannello/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
+**Dove.** `ui/dom.ts`, `ui/islands.ts`, `ui/asyncResources.ts`,
+`ui/clock.ts`, `ui/shell.ts`, `tests/interfaccia/morfosi.spec.ts`.
 
 ### ADR-49 — OneDrive letto dalle cartelle sincronizzate, o con Microsoft Graph
 
@@ -779,7 +779,7 @@ lo si dice a chi la apre.
 
 **Dove.** `core/dati/microsoft.ts`, `core/dati/onedrive.ts`, `core/dominio/onedrive.ts`,
 `core/dati/oneDriveLocal.ts`, `core/azioni/microsoft.ts`, `contract/procedure/microsoft/`, `contract/procedure/onedrive/`,
-`ui/pannello/views/settings/microsoft.ts`, `ui/pannello/forms/oneDrive.ts`.
+`ui/views/settings/microsoft.ts`, `ui/forms/oneDrive.ts`.
 
 ### ADR-50 — Librerie: criteri di adozione, e le prime adottate
 
@@ -810,7 +810,7 @@ Adottate, in quest'ordine:
 | 1 | license-checker-rseidelsohn (dev) | `npm run licenze`, in CI | le licenze dell'albero come controllo, non come promemoria |
 | 1 | @stryker-mutator/core (dev) | `npm run mutanti`, mai in CI | controllo mirato delle prove di un file (skill `prove`) |
 | 2 | immer | `core/dati/archive.ts` `modifica`, `core/dati/history.ts` | le collezioni toccate si ricavano dalle patch; l'annulla con le patch inverse |
-| 3 | idiomorph | `ui/pannello/dom.ts` | selezione, fuoco e transizioni conservati da sé. Dopo ADR-48 il guadagno è piccolo e i guasti possibili silenziosi: è entrato dopo i prerequisiti (attributi riflessi, eventi per delega, closure che tengono un nodo rifatte) e dietro l'interruttore `MORFOSI` |
+| 3 | idiomorph | `ui/dom.ts` | selezione, fuoco e transizioni conservati da sé. Dopo ADR-48 il guadagno è piccolo e i guasti possibili silenziosi: è entrato dopo i prerequisiti (attributi riflessi, eventi per delega, closure che tengono un nodo rifatte) e dietro l'interruttore `MORFOSI` |
 | 4 | valibot | dietro `~standard` in `contract/schemas.ts` | schemi senza manutenzione fatta in casa; il nucleo non cambia (Standard Schema) |
 | 4 | Temporal | `core/dominio/dates.ts` e calendario | `PlainDate`/`PlainTime` per date scolastiche senza fuso. Nativo in Electron 44 (processo principale e pagina); `temporal-polyfill` (dev) solo per le prove in Node |
 | 5 | @playwright/test (dev) | `tests/interfaccia/` | l'app vera con `_electron.launch`, in TypeScript; supera ADR-44 |
@@ -856,7 +856,7 @@ Come sono entrate:
   `tests/interfaccia/*.spec.ts`, più `electron.spec.ts` con `_electron.launch`.
   La CI non usa più Python.
 - **@tanstack/virtual-core** (passo 5): solo in
-  `ui/pannello/components/virtualList.ts`, dietro `isola`/`aggiornaElemento`.
+  `ui/components/virtualList.ts`, dietro `isola`/`aggiornaElemento`.
   Entrata dove `tests/interfaccia/misure.spec.ts` misurava secondi: colonne dei
   voti e dell'archivio (da 20), elenco delle persone (da 60). Si finestrano solo
   le colonne: le righe le limita la classe. Solo l'elemento col fuoco porta
@@ -911,8 +911,8 @@ blocca l'apertura: tiene quel che c'era.
 
 **Dove.** `core/dominio/models.ts`, `core/dominio/schoolCalendar.ts`,
 `core/dominio/normalization.ts`, `core/dominio/upgrades.ts`, `core/azioni/register.ts`,
-`contract/procedure/anni/calendario.ts`, `ui/pannello/forms/year.ts`,
-`ui/pannello/forms/schoolCalendar.ts`, `ui/pannello/views/settings/year.ts`,
+`contract/procedure/anni/calendario.ts`, `ui/forms/year.ts`,
+`ui/forms/schoolCalendar.ts`, `ui/views/settings/year.ts`,
 `desktop/boot.ts`, `tests/api/officialCalendar.test.mjs`.
 
 ### ADR-52 — Un disegno solo dei controlli delle impostazioni, per pannello e finestra nativa
@@ -966,7 +966,7 @@ segmentato con nomi lunghi diventa tendina.
 **Dove.** `contract/manifest.ts` (`Controllo`, `FonteScelte`), `contract/protocol.ts`
 (`VoceProgramma`), `desktop/apparato/settings.ts` (`vociImpostazioni`,
 `numeroStorto`), `core/controlli/control.ts`, `core/controlli/areas.ts`,
-`core/controlli/controls.css`, `ui/pannello/views/settings/program.ts`,
+`core/controlli/controls.css`, `ui/views/settings/program.ts`,
 `desktop/shell/pages/settings/settings.ts`, `tests/ui/controlli.test.mjs`.
 
 ### ADR-53 — I nomi dei file in inglese

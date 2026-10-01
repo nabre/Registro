@@ -27,7 +27,7 @@ const BARRA_CHIARA = { fondo: '#f3f3f4', segni: '#5b5b62' }
 const BARRA_SCURA = { fondo: '#1b1b1e', segni: '#a1a1a9' }
 
 /**
- * Altezza in pixel della barra del titolo; uguale in `ui/pannello/styles/title-bar.css`
+ * Altezza in pixel della barra del titolo; uguale in `ui/styles/title-bar.css`
  * e in `desktop/shell/pages/shared/title-bar.css`.
  */
 const ALTEZZA_BARRA_TITOLO = 40

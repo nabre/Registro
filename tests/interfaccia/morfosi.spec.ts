@@ -27,8 +27,8 @@ test.beforeAll(async () => {
   const uscita = await build({
     stdin: {
       contents: [
-        "import * as dom from './ui/pannello/dom.ts'",
-        "import { isola, ridisegnaIsola } from './ui/pannello/islands.ts'",
+        "import * as dom from './ui/dom.ts'",
+        "import { isola, ridisegnaIsola } from './ui/islands.ts'",
         ';(window as any).dom = { ...dom, isola, ridisegnaIsola }',
       ].join('\n'),
       resolveDir: RADICE,

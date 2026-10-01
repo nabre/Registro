@@ -10,9 +10,9 @@ conteggi verificati stanno in [INDICE](INDICE.md).
 
 | Superficie | Dove è dichiarata | Che cos'è |
 |---|---|---|
-| Destinazioni (pagine) | [`ui/pannello/pages.ts`](../ui/pannello/pages.ts) — `PAGINE` | un posto dove *andare* |
-| Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/pannello/shell.ts`](../ui/pannello/shell.ts) | lo schermo disegnato |
-| Comandi dell'interfaccia | [`ui/pannello/commands.ts`](../ui/pannello/commands.ts) — `COMANDI_UI` | una cosa da *fare* nel pannello |
+| Destinazioni (pagine) | [`ui/pages.ts`](../ui/pages.ts) — `PAGINE` | un posto dove *andare* |
+| Viste | [`contract/protocol.ts`](../contract/protocol.ts) — `type Vista`, instradate da [`ui/shell.ts`](../ui/shell.ts) | lo schermo disegnato |
+| Comandi dell'interfaccia | [`ui/commands.ts`](../ui/commands.ts) — `COMANDI_UI` | una cosa da *fare* nel pannello |
 | Comandi del programma | [`contract/manifest.ts`](../contract/manifest.ts) — `COMANDI` | voci del menu nativo, del vassoio, dei promemoria |
 | Azioni del protocollo | [`contract/protocol.ts`](../contract/protocol.ts) — `type Azione` | la scrittura che attraversa il ponte |
 | Procedure | [`contract/procedure/`](../contract/procedure/) | il contratto davanti alle azioni, più le letture (API § 5) |
@@ -78,53 +78,53 @@ solo con almeno una classe di cui si è docente (`sezioneCePer`).
 | `registro` | Registro — *corso* | Lezione, Valutazioni, Check, Piani lezione, Documenti |
 | `classe` | Docente di classe — *classe* | le quattro schede del fascicolo |
 | `anno` | L'anno | Persone, Mappa, Corsi, Classi |
-| `sistema` | Il programma | Impostazioni, Guida (anche nel menu «File», `GRUPPO_DEL_MENU` in [`ui/pannello/commandBar.ts`](../ui/pannello/commandBar.ts)) |
+| `sistema` | Il programma | Impostazioni, Guida (anche nel menu «File», `GRUPPO_DEL_MENU` in [`ui/commandBar.ts`](../ui/commandBar.ts)) |
 
 Ordine: `ORDINE`. L'interruttore della barra laterale sta nella sua
-intestazione ([`ui/pannello/sidebar.ts`](../ui/pannello/sidebar.ts)).
+intestazione ([`ui/sidebar.ts`](../ui/sidebar.ts)).
 
 ### 2.3 Le 19 `Vista`
 
 | `Vista` | file | schede interne |
 |---|---|---|
-| `oggi` | [`views/today.ts`](../ui/pannello/views/today.ts) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
-| `calendario` | [`views/calendar.ts`](../ui/pannello/views/calendar.ts), [`calendar/`](../ui/pannello/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.ts` |
-| `todo` | [`views/todo.ts`](../ui/pannello/views/todo.ts) | delega a `classTodo.ts` |
-| `daSmistare` | [`views/sorting/toSort.ts`](../ui/pannello/views/sorting/toSort.ts) | — |
-| `lezione` | [`views/lesson.ts`](../ui/pannello/views/lesson.ts), [`lesson/`](../ui/pannello/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi), annotazioni |
-| `classi` | [`views/classes.ts`](../ui/pannello/views/classes.ts) | elenco + anagrafica |
-| `persone` | [`views/people.ts`](../ui/pannello/views/people.ts) | riusa `schedaAllievo()` |
-| `allievo` | [`views/student.ts`](../ui/pannello/views/student.ts), [`student/`](../ui/pannello/views/student/) | anagrafica, docenteClasse, materie |
-| `docenteClasse` | [`views/classTeacher.ts`](../ui/pannello/views/classTeacher.ts) | todo, documenti, assenze, messaggistica |
-| `corsi` | [`views/courses.ts`](../ui/pannello/views/courses.ts) | elenco + scheda con matrice |
-| `piani` | [`views/plans.ts`](../ui/pannello/views/plans.ts) | navigatore delle ore ([`plansNavigator.ts`](../ui/pannello/views/plansNavigator.ts)) + editor a tutta larghezza |
-| `valutazioni` | [`views/assessments.ts`](../ui/pannello/views/assessments.ts), [`assessments/`](../ui/pannello/views/assessments/) | recuperi, riconsegne |
-| `check` | [`views/check.ts`](../ui/pannello/views/check.ts) | la griglia; moduli in [`forms/check.ts`](../ui/pannello/forms/check.ts) |
-| `documenti` | [`views/documents.ts`](../ui/pannello/views/documents.ts) | corso, lezioni, allievi |
-| `mappa` | [`views/map.ts`](../ui/pannello/views/map.ts) | tutti, domicilio, lavoro |
-| `impostazioni` | [`views/settings.ts`](../ui/pannello/views/settings.ts) | quattro aree (Calendario, Didattica, Utente, Programma), una pagina che scorre per area; pastiglia d'ambito su ogni blocco; «Ripristina» per area |
-| `guida` | [`views/help.ts`](../ui/pannello/views/help.ts) | una scheda per vista |
+| `oggi` | [`views/today.ts`](../ui/views/today.ts) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
+| `calendario` | [`views/calendar.ts`](../ui/views/calendar.ts), [`calendar/`](../ui/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.ts` |
+| `todo` | [`views/todo.ts`](../ui/views/todo.ts) | delega a `classTodo.ts` |
+| `daSmistare` | [`views/sorting/toSort.ts`](../ui/views/sorting/toSort.ts) | — |
+| `lezione` | [`views/lesson.ts`](../ui/views/lesson.ts), [`lesson/`](../ui/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi), annotazioni |
+| `classi` | [`views/classes.ts`](../ui/views/classes.ts) | elenco + anagrafica |
+| `persone` | [`views/people.ts`](../ui/views/people.ts) | riusa `schedaAllievo()` |
+| `allievo` | [`views/student.ts`](../ui/views/student.ts), [`student/`](../ui/views/student/) | anagrafica, docenteClasse, materie |
+| `docenteClasse` | [`views/classTeacher.ts`](../ui/views/classTeacher.ts) | todo, documenti, assenze, messaggistica |
+| `corsi` | [`views/courses.ts`](../ui/views/courses.ts) | elenco + scheda con matrice |
+| `piani` | [`views/plans.ts`](../ui/views/plans.ts) | navigatore delle ore ([`plansNavigator.ts`](../ui/views/plansNavigator.ts)) + editor a tutta larghezza |
+| `valutazioni` | [`views/assessments.ts`](../ui/views/assessments.ts), [`assessments/`](../ui/views/assessments/) | recuperi, riconsegne |
+| `check` | [`views/check.ts`](../ui/views/check.ts) | la griglia; moduli in [`forms/check.ts`](../ui/forms/check.ts) |
+| `documenti` | [`views/documents.ts`](../ui/views/documents.ts) | corso, lezioni, allievi |
+| `mappa` | [`views/map.ts`](../ui/views/map.ts) | tutti, domicilio, lavoro |
+| `impostazioni` | [`views/settings.ts`](../ui/views/settings.ts) | quattro aree (Calendario, Didattica, Utente, Programma), una pagina che scorre per area; pastiglia d'ambito su ogni blocco; «Ripristina» per area |
+| `guida` | [`views/help.ts`](../ui/views/help.ts) | una scheda per vista |
 | `modelli` | — | solo un indirizzo: Utente › Carta e stampa (`utente#stampa`) |
-| `modelliLinguistici` | [`views/languageModels.ts`](../ui/pannello/views/languageModels.ts) | solo un indirizzo: Programma › Assistente e modelli (`programma#modelli`) |
+| `modelliLinguistici` | [`views/languageModels.ts`](../ui/views/languageModels.ts) | solo un indirizzo: Programma › Assistente e modelli (`programma#modelli`) |
 
 ### 2.4 File satellite
 
-Pezzi di vista usati da più pagine: [`views/archive.ts`](../ui/pannello/views/archive.ts),
-[`views/absences.ts`](../ui/pannello/views/absences.ts),
-[`views/assignments.ts`](../ui/pannello/views/assignments.ts),
-[`views/assessments/retakes.ts`](../ui/pannello/views/assessments/retakes.ts),
-[`views/assessments/returns.ts`](../ui/pannello/views/assessments/returns.ts),
-[`views/sorting/pageBrowser.ts`](../ui/pannello/views/sorting/pageBrowser.ts),
-[`views/sorting/pageDrop.ts`](../ui/pannello/views/sorting/pageDrop.ts),
-[`views/sorting.ts`](../ui/pannello/views/sorting.ts),
-[`views/classTodo.ts`](../ui/pannello/views/classTodo.ts),
-[`views/documents/`](../ui/pannello/views/documents/) (anteprima, CSV, schede),
-[`views/settings/`](../ui/pannello/views/settings/) (anno, documento, giornata,
+Pezzi di vista usati da più pagine: [`views/archive.ts`](../ui/views/archive.ts),
+[`views/absences.ts`](../ui/views/absences.ts),
+[`views/assignments.ts`](../ui/views/assignments.ts),
+[`views/assessments/retakes.ts`](../ui/views/assessments/retakes.ts),
+[`views/assessments/returns.ts`](../ui/views/assessments/returns.ts),
+[`views/sorting/pageBrowser.ts`](../ui/views/sorting/pageBrowser.ts),
+[`views/sorting/pageDrop.ts`](../ui/views/sorting/pageDrop.ts),
+[`views/sorting.ts`](../ui/views/sorting.ts),
+[`views/classTodo.ts`](../ui/views/classTodo.ts),
+[`views/documents/`](../ui/views/documents/) (anteprima, CSV, schede),
+[`views/settings/`](../ui/views/settings/) (anno, documento, giornata,
 liste, posta, programma, sezioni).
 
 ## 3. Comandi dell'interfaccia
 
-`COMANDI_UI` in [`ui/pannello/commands.ts`](../ui/pannello/commands.ts): letterali più
+`COMANDI_UI` in [`ui/commands.ts`](../ui/commands.ts): letterali più
 varianti generate con `.map()`.
 
 ```ts
@@ -148,7 +148,7 @@ interface ComandoUI {
 
 - I comandi `dalMenu` li esegue il menu nativo; per `registro.oggi` e
   `registro.nuovaLezione` l'host manda un `naviga`, che `eseguiNavigazione()`
-  ([`ui/pannello/main.ts`](../ui/pannello/main.ts)) riporta allo stesso gesto. Con una
+  ([`ui/main.ts`](../ui/main.ts)) riporta allo stesso gesto. Con una
   modale aperta un `naviga` si ignora.
 - Nelle tabelle: ◐ = interruttore, ★ = primario.
 
@@ -177,7 +177,7 @@ interface ComandoUI {
 | `calendario.editor` ◐ | Modifica (`Ctrl+E`) | modo del registro: arma la griglia del calendario, rende modificabili le lezioni esistenti, mostra «Nuova lezione» e i comandi ICS |
 
 Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
-(`GRUPPI_SEZIONI` in [`ui/pannello/views/settings/sections.ts`](../ui/pannello/views/settings/sections.ts)).
+(`GRUPPI_SEZIONI` in [`ui/views/settings/sections.ts`](../ui/views/settings/sections.ts)).
 
 ### 3.2 Calendario (`dove: calendario`)
 
@@ -317,7 +317,7 @@ PDF interno, `desktop/shell/windows/reader.ts`) in `desktop/shell/main.ts`;
   `ocr.modello`, `ocr.proiettore`, `assistente.modello`, `dettatura.porta`
   (API § 7), né le chiavi di prima che le precedevano.
 - «Ripristina» è per area e tocca solo le voci degli elenchi (`daRipristinare`
-  in [`sections.ts`](../ui/pannello/views/settings/sections.ts)): mai quelle
+  in [`sections.ts`](../ui/views/settings/sections.ts)): mai quelle
   delle schede dedicate (`CHIAVI_IN_SCHEDA`) né quelle del collegamento
   (`CHIAVI_DEL_COLLEGAMENTO`).
 - Il procedimento per aggiungerne una: skill `impostazione`.
@@ -457,7 +457,7 @@ Le letture (senza azione): API § 5.
 
 In [`contract/protocol.ts`](../contract/protocol.ts); `MessaggioVersoWebview` è la loro
 unione. Stesso canale `registro:messaggio`; il pannello li distingue da `tipo`
-([`ui/pannello/bridge.ts`](../ui/pannello/bridge.ts)). In salita: `Richiesta { id, azione }`
+([`ui/bridge.ts`](../ui/bridge.ts)). In salita: `Richiesta { id, azione }`
 (in coda) e `Domanda { id, procedura, ingresso? }` (fuori coda); un solo
 contatore di `id`.
 
@@ -611,7 +611,7 @@ Formato per esteso: `templates/LEGGIMI.md`.
 
 ## 10. Moduli (form)
 
-In [`ui/pannello/forms/`](../ui/pannello/forms/). Schema: dati di partenza (entità o
+In [`ui/forms/`](../ui/forms/). Schema: dati di partenza (entità o
 `crea*`) → `apriModale({titolo, corpo, alSalva, azioniSecondarie})` → `alSalva`
 ricompone e chiama `salva(contesto, azione, messaggio, dopo?)`, che lascia il
 modulo aperto con gli errori o chiude, notifica e chiama `dopo(idCreato)`.
@@ -632,7 +632,7 @@ modulo aperto con gli errori o chiude, notifica e chiama `dopo(idCreato)`.
 | `moduloValutazione` (corregge, non crea) | `valutazione.salva`, `valutazione.elimina` |
 | `moduloImportaRegistro` | `registro.importa` |
 | `moduloColonnaCheck`, `moduloColonneCheck` | `check.colonne` |
-| `moduloCalendariIcs` (in `ui/pannello/views/settings/icsCalendar.ts`) | `calendario.*` |
+| `moduloCalendariIcs` (in `ui/views/settings/icsCalendar.ts`) | `calendario.*` |
 
 `forms/common.ts`: `salva`, `chiediEliminazione` (mostra tutto ciò che sparisce,
 da `core/dominio/deletions.ts`), `tastoElimina`, `tastoDuplica`, `campoCollegato`
@@ -721,7 +721,7 @@ parola intera nel testo normalizzato; soglie e quarantena ADR-26.
 
 | Passo | Dove | Che cosa |
 |---|---|---|
-| microfono | [`ui/pannello/assistant/voice.ts`](../ui/pannello/assistant/voice.ts) | PCM 16 kHz mono, tagliato alle pause |
+| microfono | [`ui/assistant/voice.ts`](../ui/assistant/voice.ts) | PCM 16 kHz mono, tagliato alle pause |
 | guardie | [`core/dati/dictation.ts`](../core/dati/dictation.ts) | `MOTORI = { voicebox }`; `prontezzaDettatura`: indirizzo locale, `GET /health` (3 s; un sì vale 10 s) |
 | richiesta | [`core/dati/voicebox.ts`](../core/dati/voicebox.ts) | WAV in memoria, `POST /transcribe` (`file`, `language`, `model`), 120 s |
 | risposte | | 200 testo; 202 «riprova fra poco» (voicebox scarica la taglia); 3xx rifiutato |
@@ -732,10 +732,10 @@ Niente vocabolario di scuola (voicebox non passa `initial_prompt`). ADR-35.
 
 | Tasti | Che cosa | Dichiarata in |
 |---|---|---|
-| `Ctrl+K` | ricerca / palette | `installaScorciatoie()` ([`ui/pannello/shortcuts.ts`](../ui/pannello/shortcuts.ts)); anche nei campi |
+| `Ctrl+K` | ricerca / palette | `installaScorciatoie()` ([`ui/shortcuts.ts`](../ui/shortcuts.ts)); anche nei campi |
 | `Ctrl+B` | mostra o nasconde la barra dei comandi | idem; non nei campi (grassetto) |
-| `Ctrl+1`…`Ctrl+9` | voci della barra laterale come si vedono | `ui/pannello/shortcuts.ts` |
-| `Alt+←`/`Alt+→`, tasti laterali del mouse | indietro/avanti | [`ui/pannello/history.ts`](../ui/pannello/history.ts) |
+| `Ctrl+1`…`Ctrl+9` | voci della barra laterale come si vedono | `ui/shortcuts.ts` |
+| `Alt+←`/`Alt+→`, tasti laterali del mouse | indietro/avanti | [`ui/history.ts`](../ui/history.ts) |
 | `Ctrl+Z`, `Ctrl+Y` | annulla, ripristina | `tastoDellaStoria`; nei campi di testo resta quello del testo |
 | `Ctrl+E` | Modifica del calendario | `calendario.editor` |
 | `Ctrl+O` | Apri un anno | `file.apri` (`dalMenu`) |

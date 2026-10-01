@@ -76,9 +76,9 @@ Il progetto organizza il codice su cinque strati architetturali netti
   (`desktop/apparato/`), pannelli webview e finestre (`desktop/pannelli/`),
   trasporti (`desktop/transports/`), widget di sistema (`desktop/widget/`),
   punto d'avvio (`desktop/boot.ts`).
-- **`ui/`** — l'interfaccia utente webview, senza framework: `ui/pannello/` con le
-  sue viste (`ui/pannello/views/`), i moduli form (`ui/pannello/forms/`) e i
-  componenti (`ui/pannello/components/`).
+- **`ui/`** — l'interfaccia utente webview, senza framework: `ui/` con le
+  sue viste (`ui/views/`), i moduli form (`ui/forms/`) e i
+  componenti (`ui/components/`).
 - **`cli/`** — gli strumenti a riga di comando autonomi: `cli/main.mjs` e
   `cli/uninstall.mjs`.
 
@@ -152,7 +152,7 @@ testo e non eseguono il programma. Vanno letti, non temuti.
   con un `flatMap` sulle riparazioni trovate: sono quelle vere, ma si conoscono
   solo quando il programma gira.
 - **`forms`** — `valori passato intero a un'altra funzione`. Due casi noti,
-  `ui/pannello/forms/absences.ts` e `ui/pannello/forms/classTeacher.ts`: falsi positivi verificati nel
+  `ui/forms/absences.ts` e `ui/forms/classTeacher.ts`: falsi positivi verificati nel
   giro 2, lo strumento non sa seguire `valori` passato tutto insieme.
 - **`buttons`** — `filtro o campo di vista senza al`. Un campo di ricerca che
   agisce alla digitazione, non al clic. Quattro casi noti.
@@ -237,7 +237,7 @@ Come si legge:
 - le prove che usano `importaSorgente` contano perché lo script mette
   `REGISTRO_COPERTURA=1`: il modulo va su disco con la mappa invece che in un
   `data:`. A variabile spenta `tests/helpers/sorgente.mjs` fa come sempre;
-- `ui/pannello` ha funzioni basse perché le viste si provano in
+- `ui/` ha funzioni basse perché le viste si provano in
   `tests/interfaccia/`, su Chromium, che il rapporto non vede;
 - mentre gira, `dist-tests/` ha le mappe: un `npm test` lanciato in parallelo
   passa lo stesso, ma una ricostruzione altrui a metà corsa falsa il rapporto.

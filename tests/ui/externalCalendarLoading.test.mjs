@@ -43,7 +43,7 @@ const pluginFinti = {
   setup (b) {
     b.onResolve({ filter: /\.js$/ }, (args) => {
       const da = args.importer.replaceAll('\\', '/')
-      if (!da.endsWith('ui/pannello/externalCalendar.ts') && !da.endsWith('ui/pannello/asyncResources.ts')) return undefined
+      if (!da.endsWith('ui/externalCalendar.ts') && !da.endsWith('ui/asyncResources.ts')) return undefined
       const chiave = Object.keys(FINTI).find((k) => args.path.endsWith(`/${k}`))
       return chiave ? { path: chiave, namespace: 'finto' } : undefined
     })
@@ -98,7 +98,7 @@ globalThis.finti = finti
 
 const { outputFiles } = await build({
   inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
-  entryPoints: [fileURLToPath(new URL('../../ui/pannello/externalCalendar.ts', import.meta.url))],
+  entryPoints: [fileURLToPath(new URL('../../ui/externalCalendar.ts', import.meta.url))],
   bundle: true,
   format: 'esm',
   platform: 'node',

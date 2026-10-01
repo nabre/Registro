@@ -1,5 +1,5 @@
 // Le aree e le sezioni in cui stanno le impostazioni del programma, con i loro
-// nomi: un elenco solo per il pannello (`ui/pannello/views/settings/sections.ts`,
+// nomi: un elenco solo per il pannello (`ui/views/settings/sections.ts`,
 // che ci aggiunge le sezioni dell'anno e le parole di ricerca) e per la finestra
 // nativa, che senza documento aperto è l'unica superficie e deve dire le cose
 // come le dice lui. Senza DOM.

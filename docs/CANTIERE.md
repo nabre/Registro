@@ -49,7 +49,7 @@ controlli statici; skill `verifica`). Non prima.
       sue); portabile su chiavetta FAT/exFAT o cartella di rete = cartella dati
       leggibile da altri: avviso al primo avvio.
 - [ ] Spinta a differenze al pannello: `desktop/pannelli/panel.ts` manda il
-      `Registro` intero a ogni modifica e `derivato()` (`ui/pannello/state.ts`)
+      `Registro` intero a ogni modifica e `derivato()` (`ui/state.ts`)
       memoizza per identità del registro, quindi ogni spinta azzera tutto
       (`tests/interfaccia/misure.spec.ts`: oltre 50 ms già con 40 righe).
       `core/dati/archive.ts` emette già `alleDifferenze` con le patch immer,
@@ -104,7 +104,7 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 - [ ] ICS: «Sfoglia…» per l'origine file. Chiede `calendario.modifica` con
       origine vuota che apre il dialogo: cambio di procedura (contract/,
       `resources/tools.json`).
-- [ ] `ui/pannello/components/notifications.ts` senza azioni: `undoable.ts` copia il
+- [ ] `ui/components/notifications.ts` senza azioni: `undoable.ts` copia il
       nodo. Meglio un parametro `azione` nelle notifiche.
 
 
@@ -130,7 +130,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 - [ ] Lotto 3, `contract/protocol.ts`: tipi dell'assistente e della dettatura
       in un file, messaggi verso la webview in un altro; `protocol.ts`
       riesporta (nessun importatore da toccare).
-- [ ] Lotto 4, `ui/pannello/commands.ts` (1391) e il suo catalogo in una
+- [ ] Lotto 4, `ui/commands.ts` (1391) e il suo catalogo in una
       cartella per sezioni; `commands.ts` concatena nello stesso ordine.
 - [ ] Lotto 5, coda di rigenerazione di `core/azioni/reports.ts` (379-631) in
       `reportsRefresh`; 5 importatori.
@@ -174,7 +174,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 - [ ] Cartelle tematiche: `core/dominio/` calendar/, people/, reporting/;
       `core/dati/` microsoft/, pdf/ (oltre a llm/, sotto).
 
-- [ ] `ui/pannello/state.ts` in tre: store, posto, selettori di dominio
+- [ ] `ui/state.ts` in tre: store, posto, selettori di dominio
       (~60 selettori). Mappa «da → a» prima (D5).
 - [ ] Stato fuori da `stato`: `let` di modulo in ~42 file di `ui/` (es.
       `languageModels.ts`, `assistant/chat.ts`, `help.ts`), ognuno da pulire a
@@ -184,9 +184,10 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       (`core/dominio/normalization.ts`, `titolo: testo(dati.titolo,
       Uno(lessico().corso))`): un predefinito per lingua non va nel documento.
 - [ ] Codice del renderer in un solo strato: `desktop/shell/pages/` → una
-      cartella `pages` nuova sotto `ui/` (benvenuto, avvio, lettore, impostazioni, dialogo,
-      `shared/`), accanto a `ui/pannello/`. Oggi `ui/` ha solo `pannello/` e
-      le pagine native stanno in `desktop/` pur girando nel renderer. Toccano:
+      cartella nuova sotto `ui/` (benvenuto, avvio, lettore, impostazioni, dialogo,
+      `shared/`), accanto al pannello; non `pages/`, che si confonde con
+      `ui/pages.ts`. Le pagine native stanno in `desktop/` pur girando nel
+      renderer. Toccano:
       `esbuild.mjs` (`PAGINE_NATIVE`, ingressi), `desktop/shell/windows/*`
       (percorsi HTML in `dist/`), `tools/layers.mjs` (regole `ui/**`), docs
       ARCHITETTURA §§ 2, 11. Prima mappa «da → a» in ARCHITETTURA § 11 (D5),
@@ -200,14 +201,14 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 - [ ] File oltre 1200 righe da dividere per responsabilità, con re-export
       dove molti importano: `core/dominio/normalization.ts` (impostazioni;
       consegne/check/smistamenti), `core/dominio/reportData.ts` (`datiAllievo`,
-      `datiFascicolo`), `ui/pannello/state.ts` (le selezioni),
+      `datiFascicolo`), `ui/state.ts` (le selezioni),
       `contract/protocol.ts` (assistente, dettatura, scarico),
-      `ui/pannello/commands.ts` (`COMANDI_UI` per gruppo),
+      `ui/commands.ts` (`COMANDI_UI` per gruppo),
       `desktop/transports/conduit.ts` (permessi, metodi),
       `core/dominio/reports.ts` (misure e tabelle),
       `core/dominio/projection.ts` (il calendario).
 - [ ] ~170 percorsi del vecchio assetto nei commenti (domain/, actions/,
-      src/, file di ui/ senza pannello/), che `npm run docs` non vede perché
+      src/), che `npm run docs` non vede perché
       non hanno un prefisso di oggi. I più colpiti: `contract/protocol.ts`,
       `desktop/transports/assistant.ts`, `core/dominio/models.ts`.
 - [ ] Frecce nelle griglie: `frecceNellaGriglia` (`views/check.ts`) e
@@ -226,7 +227,7 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       convalida dell'input › le risposte tornano nell'ordine dei tasti»;
       `tests/interfaccia/movimento.spec.ts:58` (scorrimento della Guida 404
       invece di 400); `electron.spec.ts` in timeout con un Regiklass aperto.
-- [ ] Le viste di `ui/pannello` si provano su Chromium (`tests/interfaccia/`), che
+- [ ] Le viste di `ui/` si provano su Chromium (`tests/interfaccia/`), che
       `npm run copertura` non vede: funzioni al 13%. Misurarle o accettarlo.
 - [ ] Mutanti sopravvissuti (misura di prima, `deletions.ts` 87%,
       `calculations.ts:330-735` 97,7%): piano eliminato senza prova che

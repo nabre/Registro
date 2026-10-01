@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const pacchetto = await build({
-  entryPoints: [fileURLToPath(new URL('../../ui/pannello/state.ts', import.meta.url))],
+  entryPoints: [fileURLToPath(new URL('../../ui/state.ts', import.meta.url))],
   bundle: true,
   write: false,
   platform: 'browser',

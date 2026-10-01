@@ -1,5 +1,5 @@
 // Le miniature del tema hanno i colori veri del tema. In fondo a
-// `ui/pannello/styles/theme.css` due blocchi `[data-tema-figura]` ridefiniscono i
+// `ui/styles/theme.css` due blocchi `[data-tema-figura]` ridefiniscono i
 // token per le miniature (una media query non si accende in un contenitore
 // solo): sono copie per valore, e qui si tengono uguali alle tavolozze.
 //
@@ -15,8 +15,8 @@ import { fileURLToPath } from 'node:url'
 const RADICE = percorso.resolve(percorso.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const leggi = (...pezzi) => readFileSync(percorso.join(RADICE, ...pezzi), 'utf8')
 
-const tema = leggi('ui', 'pannello', 'styles', 'theme.css')
-const figure = leggi('ui', 'pannello', 'styles', 'figure-choice.css')
+const tema = leggi('ui', 'styles', 'theme.css')
+const figure = leggi('ui', 'styles', 'figure-choice.css')
 
 /** I token dichiarati dentro il primo blocco che comincia con `selettore {`. */
 function blocco (testo, selettore) {

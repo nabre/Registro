@@ -3,18 +3,18 @@
  * accesso ai registri reali. Lo costruisce `node esbuild.mjs --ui` in
  * `dist-tests/ui.js`.
  */
-import '#ui/pannello/main.js'
+import '#ui/main.js'
 import {
   stato, aggiorna, ridisegna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai,
   postoCorrente,
-} from '#ui/pannello/state.js'
-import { postoDaVista } from '#ui/pannello/place.js'
-import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '#ui/pannello/pages.js'
-import { scegliCorso } from '#ui/pannello/context.js'
-import { COMANDI_UI } from '#ui/pannello/commands.js'
+} from '#ui/state.js'
+import { postoDaVista } from '#ui/place.js'
+import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '#ui/pages.js'
+import { scegliCorso } from '#ui/context.js'
+import { COMANDI_UI } from '#ui/commands.js'
 // Le miniature hanno bisogno di una tela vera: `tests/interfaccia/pageBrowser.spec.ts` le
 // chiama a mano per provare apertura e chiusura di un documento.
-import { miniatura, dimentica } from '#ui/pannello/components/thumbnails.js'
+import { miniatura, dimentica } from '#ui/components/thumbnails.js'
 // Due pezzi di dominio che le prove leggono invece di ricopiarli: le regole dei
 // nomi dei documenti e l'elenco delle tipologie delle pendenze.
 import { collocazioneDi, percorsoDi } from '#core/dominio/locations.js'

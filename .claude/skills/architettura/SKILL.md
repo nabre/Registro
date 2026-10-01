@@ -43,7 +43,7 @@ I confini tra gli strati non sono convenzioni verbali: sono verificati automatic
                                 │ (solo core/dominio/, core/i18n/, core/controlli/)
 ┌───────────────────────────────┴──────────────────────────────────┐
 │                              ui/                                 │
-│  ui/pannello/ (views/, forms/, components/, bridge.ts, dom.ts)   │
+│  ui/ (views/, forms/, components/, bridge.ts, dom.ts)   │
 │  (webview Chromium, nessun accesso a Node né Electron)           │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -97,15 +97,15 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
 - `desktop/widget/`: Componenti dell'area di notifica di Windows, tra cui l'icona nel vassoio di sistema (`desktop/widget/tray.ts`) e le notifiche toast per promemoria (`desktop/widget/reminders.ts`).
 - `desktop/boot.ts`: Modulo orchestratore che avvia i servizi, apre il documento e coordina l'inizializzazione dell'applicazione desktop.
 
-### `ui/`: Il frontend del pannello in webview (`ui/pannello/`)
+### `ui/`: Il frontend del pannello in webview (`ui/`)
 È l'interfaccia grafica utente renderizzata all'interno della webview di Chromium. È un'applicazione web autonoma priva di framework pesante:
 
 - Organizzazione interna:
-  - `ui/pannello/views/` (`views/`): le viste complete dell'applicazione (orario, appello, valutazioni, studenti, ecc.).
-  - `ui/pannello/forms/` (`forms/`): i form di inserimento e modifica dati con validazione visuale.
-  - `ui/pannello/components/` (`components/`): componenti grafici riutilizzabili (pulsanti, schede, modali, tabelle).
-  - `ui/pannello/bridge.ts` (`bridge.ts`): il ponte di comunicazione che invia le richieste IPC al main process e gestisce lo stato di ritorno.
-  - `ui/pannello/dom.ts` (`dom.ts`): motore di rendering DOM con funzione `h()` e ripristino chirurgico di cursore, fuoco e scorrimento.
+  - `ui/views/` (`views/`): le viste complete dell'applicazione (orario, appello, valutazioni, studenti, ecc.).
+  - `ui/forms/` (`forms/`): i form di inserimento e modifica dati con validazione visuale.
+  - `ui/components/` (`components/`): componenti grafici riutilizzabili (pulsanti, schede, modali, tabelle).
+  - `ui/bridge.ts` (`bridge.ts`): il ponte di comunicazione che invia le richieste IPC al main process e gestisce lo stato di ritorno.
+  - `ui/dom.ts` (`dom.ts`): motore di rendering DOM con funzione `h()` e ripristino chirurgico di cursore, fuoco e scorrimento.
   - **Dove si è (ADR-47):** un `Posto` (`place.ts`); si naviga solo con `vai(posto)`, `vaiA(pagina)` o `apriLezione(id)`, mai con `aggiorna({vista…})`. Il posto si ricorda per documento (`memory.ts`).
   - **Ogni aggiornamento resta nel suo riquadro (ADR-48).** Scrivendo una vista:
     - una lettura asincrona (anteprima, PDF, CSV, miniature, avanzamento) va in un'`isola` (`islands.ts`) e si legge con `risorse.leggi(…, { isola })`: all'arrivo si rifà solo quella;
@@ -113,7 +113,7 @@ Racchiude il processo principale (main process) Electron e le integrazioni con i
     - un contenitore che scorre porta `data-scorrimento` e, se la catena dalla radice lo permette, `data-telaio`;
     - niente `chiedi`/`invia`/`aggiorna`/`scrollIntoView` dentro `h()`: si fanno in un gesto o in un iscritto;
     - ciò che segna l'ora si muove con `alMinuto` (`clock.ts`), non ridisegnando.
-- **Isolamento stringente**: gira dentro una sandbox Chromium con CSP `default-src 'none'`. Non ha accesso a Node (`node:*`) né a moduli Electron. Non può importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`. Comunica con il sistema esclusivamente tramite messaggi IPC scambiati sul ponte `ui/pannello/bridge.ts`.
+- **Isolamento stringente**: gira dentro una sandbox Chromium con CSP `default-src 'none'`. Non ha accesso a Node (`node:*`) né a moduli Electron. Non può importare moduli da `core/dati/`, `core/azioni/` o `core/apparato/`. Comunica con il sistema esclusivamente tramite messaggi IPC scambiati sul ponte `ui/bridge.ts`.
 
 ### `cli/`: La linea di comando
 Fornisce strumenti a riga di comando per operare sul registro e compiere interventi di manutenzione:
@@ -197,7 +197,7 @@ Qual è lo scopo del codice da aggiungere?
 │   └── ➔ desktop/shell/ o desktop/widget/ o desktop/apparato/ (main process Electron)
 │
 ├── È una vista a schermo, tabella, form, pulsante o componente interattivo del pannello?
-│   └── ➔ ui/pannello/ (ui/pannello/views/, ui/pannello/forms/, ui/pannello/components/)
+│   └── ➔ ui/ (ui/views/, ui/forms/, ui/components/)
 │
 └── È un comando autonomo da terminale per manutenzione, batch o diagnostica?
     └── ➔ cli/ (script Node ESM autonomo senza import applicativi)
@@ -213,7 +213,7 @@ Qual è lo scopo del codice da aggiungere?
 | Rispondere all'azione utente che muta il registro | `core/azioni/` | Modifica dello stato del registro con salvataggio collezioni. |
 | Esporre un metodo per interrogare le assenze via API/LLM | `contract/procedure/` | Procedura contrattuale tipizzata con schema di input validato. |
 | Mostrare un dialogo nativo di conferma dell'OS | `desktop/apparato/dialogs.ts` | Integrazione con l'host di sistema e finestre native. |
-| Disegnare la griglia dell'orario settimanale | `ui/pannello/views/` | Componente grafico eseguito nel DOM della webview. |
+| Disegnare la griglia dell'orario settimanale | `ui/views/` | Componente grafico eseguito nel DOM della webview. |
 | Scrivere uno script per disinstallare o pulire dati da terminale | `cli/` | Script eseguibile senza interfaccia grafica e indipendente dalla compilazione. |
 
 ---

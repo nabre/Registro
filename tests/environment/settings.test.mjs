@@ -320,7 +320,7 @@ describe('le voci che le due superfici mostrano', () => {
   })
 
   it('partire nascosti vuole l’icona, e la dettatura vuole l’assistente', () => {
-    // Il programma lo fa già (`desktop/boot.ts`, `ui/pannello/assistant.ts`):
+    // Il programma lo fa già (`desktop/boot.ts`, `ui/assistant.ts`):
     // le due superfici devono dirlo, non mostrare accesa una voce senza effetto.
     scritte({ 'registroDocenti.vassoio.attivo': false, 'registroDocenti.avvio.soloVassoio': true })
     assert.equal(voce('registroDocenti.avvio.soloVassoio').dipendeDa, 'registroDocenti.vassoio.attivo')

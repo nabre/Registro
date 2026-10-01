@@ -9,7 +9,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
-const CARTELLA = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ui', 'pannello', 'styles')
+const CARTELLA = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ui', 'styles')
 
 /** I valori dei tipi di fabbrica, più `docenza`, che nessuna regola deve nominare. */
 const TIPI = [

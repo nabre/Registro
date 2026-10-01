@@ -13,7 +13,7 @@ function numero (valore: string): number {
   return parseFloat(valore.replace(/px$/, ''))
 }
 
-const STILI = join(RADICE, 'ui', 'pannello', 'styles')
+const STILI = join(RADICE, 'ui', 'styles')
 const DIMENSIONE = '(e) => getComputedStyle(e).fontSize'
 
 test('readability', async ({ browser }) => {

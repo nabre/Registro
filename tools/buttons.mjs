@@ -13,7 +13,7 @@ import { join } from 'node:path'
 
 import { RADICE, daRadice, fileSotto } from './common.mjs'
 
-const PANNELLO = 'ui/pannello'
+const PANNELLO = 'ui'
 
 /**
  * Le fabbriche di comandi: nome → come si chiama il loro gestore. Solo

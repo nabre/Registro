@@ -24,7 +24,7 @@ L'albero dei sorgenti riflette i cinque strati architetturali del progetto (deci
 | `contract/` | `contract/contract.ts`, `contract/schemas.ts`, `contract/core.ts`, `contract/tools.ts`, `contract/protocol.ts`, `contract/switchboard.ts`, `contract/bridge.ts`, `contract/procedure/` | Il contratto davanti al nucleo: tipi, schemi, catalogo, protocollo, centralino e procedure |
 | `core/` | `core/azioni/`, `core/dati/`, `core/dominio/` | Il nucleo applicativo: gestori delle azioni (`core/azioni/`), persistenza e archivio (`core/dati/`), regole di dominio pure (`core/dominio/`) |
 | `desktop/` | `desktop/transports/`, `desktop/pannelli/`, `desktop/apparato/`, `desktop/shell/` | L'applicazione Electron: trasporti condotto/assistente (`desktop/transports/`), gestione pannelli (`desktop/pannelli/`), apparato di sistema (`desktop/apparato/`), shell nativa (`desktop/shell/`) |
-| `ui/` | `ui/pannello/` | L'interfaccia utente webview: non conosce le procedure, invia solo `Azione` e `Domanda` |
+| `ui/` | `ui/` | L'interfaccia utente webview: non conosce le procedure, invia solo `Azione` e `Domanda` |
 | `cli/` | `cli/main.mjs` | La riga di comando autonoma: cliente esterno del condotto su named pipe, non tocca il nucleo |
 
 ## Il contratto
@@ -125,7 +125,7 @@ passa, che è il momento in cui serve di più.
 | `docs/API.md` | la tabella delle aree, la tabella dei file, gli esempi, e i pochi conti che restano scritti |
 | `docs/INDICE.md` | gli stessi conti, nella riga di API.md |
 | `docs/CATALOGO.md` | solo se la procedura è un comportamento nuovo per chi usa il registro |
-| `README.md`, `docs/GUIDA.md` | solo se cambia com'è fatto: file, dati, build, condotto. Quel che si vede lo racconta la guida in-app, `ui/pannello/views/help/` |
+| `README.md`, `docs/GUIDA.md` | solo se cambia com'è fatto: file, dati, build, condotto. Quel che si vede lo racconta la guida in-app, `ui/views/help/` |
 
 Una parte dei conti la controlla `tests/counts.test.mjs`: le procedure nel
 README, azioni, procedure, scritture e letture in INDICE, le aree e le letture
@@ -139,4 +139,4 @@ vecchio, aggiustalo mentre sei lì.
   quel file cambi. Si tocca solo per aggiungere un *comando*, non una procedura.
 - **`tests/helpers/api.ts`** si tocca solo per esportare qualcosa di nuovo verso le
   prove, non per una procedura: le prove la raggiungono con `chiama()`.
-- **`ui/pannello/`** (strato `ui/`): non conosce le procedure: manda `Azione` e `Domanda`.
+- **`ui/`** (strato `ui/`): non conosce le procedure: manda `Azione` e `Domanda`.

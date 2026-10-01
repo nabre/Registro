@@ -117,8 +117,8 @@ scorre per sezioni. Calendario e Didattica sono tutte dell'anno (campi del
 `.regi`); le chiavi del manifesto stanno in Utente › Posta e nelle cinque
 sezioni del Programma. Elenco e nomi in `core/controlli/areas.ts` e
 `areas.testi.ts`, uguali per le due superfici; le sezioni dell'anno e le parole
-di ricerca le aggiunge il pannello (`ui/pannello/views/settings/sections.ts`,
-`sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/pannello/place.ts`).
+di ricerca le aggiunge il pannello (`ui/views/settings/sections.ts`,
+`sections.testi.ts`, `SEZIONI_DELLE_AREE` in `ui/place.ts`).
 
 `DIVISIONI` dà a ogni sezione con chiavi i suoi `prefissi`; `divisioneDi`
 sceglie il prefisso **più lungo** (così `avvio.integrazioneSistema` va nelle
@@ -143,7 +143,7 @@ gli indirizzi (`area#sezione`): quelli di prima si riportano in
 
 | | Pagina del pannello | Finestra nativa |
 | --- | --- | --- |
-| Dove | `ui/pannello/views/settings*` | `desktop/shell/pages/settings/settings.ts`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
+| Dove | `ui/views/settings*` | `desktop/shell/pages/settings/settings.ts`, bundle esbuild; dogana in `desktop/shell/windows/menu.ts` |
 | Quando serve | quasi sempre | la scialuppa: nessun documento aperto, il pannello non c'è (menu Registro › «Impostazioni senza documento aperto…») |
 | Che cosa mostra | tutte e quattro le aree | Utente › Posta e Programma; Calendario e Didattica dicono che stanno nel file |
 
@@ -191,7 +191,7 @@ che si scopre di aver dimenticato la sezione.
    effetto al riavvio, `alProssimoAvvio: true` — `vassoio.attivo` lo fa.
 5. `npm test`, e il rituale della skill `verifica`.
 6. Una voce visibile vuole la sua riga nella guida
-   (`ui/pannello/views/help/settings.testi.ts`), con il percorso scritto
+   (`ui/views/help/settings.testi.ts`), con il percorso scritto
    «Impostazioni › Area › Sezione» come i titoli dei cataloghi.
 7. Nessun documento elenca le chiavi: `docs/CATALOGO.md` § 5 dice le regole,
    non l'elenco. Un elenco scritto a mano, in passato, ne aveva due che non

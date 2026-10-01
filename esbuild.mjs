@@ -197,7 +197,7 @@ export const applicazioneIn = (cartella) => [
   // Il pannello del registro.
   {
     ...comune,
-    entryPoints: ['ui/pannello/main.ts'],
+    entryPoints: ['ui/main.ts'],
     outfile: `${cartella}/panel.js`,
     format: 'iife',
     platform: 'browser',
@@ -209,7 +209,7 @@ export const applicazioneIn = (cartella) => [
   // viste del registro che modificano i dati.
   {
     ...comune,
-    entryPoints: ['ui/pannello/projection.ts'],
+    entryPoints: ['ui/projection.ts'],
     outfile: `${cartella}/projection.js`,
     format: 'iife',
     platform: 'browser',
@@ -221,7 +221,7 @@ export const applicazioneIn = (cartella) => [
   // se l'assistente è acceso e quale modello risponde.
   {
     ...comune,
-    entryPoints: ['ui/pannello/assistantWindow.ts'],
+    entryPoints: ['ui/assistantWindow.ts'],
     outfile: `${cartella}/assistant.js`,
     format: 'iife',
     platform: 'browser',
@@ -358,17 +358,17 @@ const prove = [
   provaNode('core/dati/formerName.ts', 'dist-tests/formerName.mjs'),
   // Le sezioni della pagina Impostazioni, senza DOM: un'impostazione che non
   // finisce in nessuna sezione esiste e non si vede.
-  provaNeutra('ui/pannello/views/settings/sections.ts', 'dist-tests/settingsSections.mjs'),
+  provaNeutra('ui/views/settings/sections.ts', 'dist-tests/settingsSections.mjs'),
   // Che cosa si dice all'assistente, parte per parte: decide se un nome esce
   // dal registro quando chi insegna ha detto di no.
-  provaNeutra('ui/pannello/assistant/parts.ts', 'dist-tests/contextParts.mjs'),
+  provaNeutra('ui/assistant/parts.ts', 'dist-tests/contextParts.mjs'),
   // Le carte intestate: raggruppamento per classe, selezione con Ctrl e
   // Maiuscolo, che cosa parte quando si trascina.
-  provaNeutra('ui/pannello/views/settings/letterheadCourses.ts', 'dist-tests/letterheadCourses.mjs'),
+  provaNeutra('ui/views/settings/letterheadCourses.ts', 'dist-tests/letterheadCourses.mjs'),
   // I contenuti della guida: dati e schemi SVG in testo, senza DOM.
-  provaNeutra('ui/pannello/views/help/index.ts', 'dist-tests/help.mjs'),
+  provaNeutra('ui/views/help/index.ts', 'dist-tests/help.mjs'),
   // Il parser delle risposte del modello in tabelle, elenchi e paragrafi.
-  provaNeutra('ui/pannello/assistant/format.ts', 'dist-tests/answerFormat.mjs'),
+  provaNeutra('ui/assistant/format.ts', 'dist-tests/answerFormat.mjs'),
   // Il livello LLM da solo: le chiavi di ogni uso, il controllo dell'indirizzo,
   // la prontezza. Decide dove finiscono i dati delle persone in formazione.
   provaNode('tests/helpers/llm.ts', 'dist-tests/llm.mjs', {

@@ -8,7 +8,7 @@
 @import '../shared/base.css';
 /* Le schede con la figura (il tema) usano lo stesso foglio del pannello: solo
    token e misure, che questa pagina ha da `base.css`. */
-@import '../../../../ui/pannello/styles/figure-choice.css';
+@import '../../../../ui/styles/figure-choice.css';
 /* I controlli delle voci, gli stessi del pannello (ADR-52). */
 @import '../../../../core/controlli/controls.css';
 

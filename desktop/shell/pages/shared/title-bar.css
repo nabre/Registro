@@ -1,7 +1,7 @@
 /*
  * La barra del titolo delle finestre del guscio, disegnata da `titleBar.ts`.
  *
- * Il modello è la barra del pannello (`ui/pannello/styles/title-bar.css`): stessa
+ * Il modello è la barra del pannello (`ui/styles/title-bar.css`): stessa
  * altezza, fondo, filo, logo e segno di sviluppo, perché ogni finestra del
  * registro abbia la stessa testata. Quel foglio non si importa: porta anche le
  * regole di ricerca, filetto e percorso, che qui urterebbero le classi delle

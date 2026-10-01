@@ -11,8 +11,8 @@
  * del pannello finirebbero nelle pagine native.
  */
 
-@import '../../../../ui/pannello/styles/theme.css';
-@import '../../../../ui/pannello/styles/metrics.css';
+@import '../../../../ui/styles/theme.css';
+@import '../../../../ui/styles/metrics.css';
 
 * {
   box-sizing: border-box;

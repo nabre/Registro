@@ -1,4 +1,4 @@
-// Il posto unico (`ui/pannello/place.ts`): dove si guarda è un valore solo, e
+// Il posto unico (`ui/place.ts`): dove si guarda è un valore solo, e
 // le regole che oggi stanno sparse (corso aperto, classe del fascicolo, classe
 // della pagina Classi, classe dell'allievo, riconvalida dei ricordati, contesto
 // dell'elemento) valgono qui in un posto solo, senza stato né DOM.
@@ -22,7 +22,7 @@ const {
   derivaVista,
   postoDaVecchi,
   postoDaVista,
-} = await importaSorgente('ui/pannello/place.ts')
+} = await importaSorgente('ui/place.ts')
 
 const OGGI = '2026-11-10'
 
@@ -476,7 +476,7 @@ describe('PaginaId e PAGINE', () => {
   it('ogni pagina della barra è un PaginaId, e ogni PaginaId è in PAGINE o fra le nascoste', async () => {
     const { preparaDomSintetico } = await import('../helpers/domSintetico.mjs')
     preparaDomSintetico()
-    const { PAGINE } = await importaSorgente('ui/pannello/pages.ts')
+    const { PAGINE } = await importaSorgente('ui/pages.ts')
     const dellaBarra = PAGINE.map((p) => p.id).sort()
     const tutte = Object.keys(VISTA_DELLA_PAGINA)
     assert.deepEqual(dellaBarra, tutte.filter((id) => !NASCOSTE.includes(id)).sort())

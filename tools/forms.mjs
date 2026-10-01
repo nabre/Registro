@@ -14,7 +14,7 @@ import { join } from 'node:path'
 
 import { RADICE, daRadice, fileSotto } from './common.mjs'
 
-const PANNELLO = 'ui/pannello'
+const PANNELLO = 'ui'
 
 
 /** Il testo della chiamata che comincia alla parentesi data. */

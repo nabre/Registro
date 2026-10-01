@@ -134,7 +134,7 @@ describe('lo script della finestra', () => {
   })
 
   it('ha i colori di theme.css, in tutti e due i temi', () => {
-    const tema = readFileSync(percorso.join(RADICE, 'ui', 'pannello', 'styles', 'theme.css'), 'utf8')
+    const tema = readFileSync(percorso.join(RADICE, 'ui', 'styles', 'theme.css'), 'utf8')
     const scuroDa = tema.indexOf('prefers-color-scheme: dark')
     const valore = (nome, scuro) => {
       const parte = scuro ? tema.slice(scuroDa) : tema.slice(0, scuroDa)

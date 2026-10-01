@@ -62,7 +62,7 @@ describe('il battito dell’orologio', async () => {
   const { build } = await import('esbuild')
   const { runInNewContext } = await import('node:vm')
   const { fileURLToPath } = await import('node:url')
-  const cartella = fileURLToPath(new URL('../../ui/pannello/', import.meta.url))
+  const cartella = fileURLToPath(new URL('../../ui/', import.meta.url))
   const pacchetto = await build({
     inject: [fileURLToPath(new URL('../helpers/temporal.mjs', import.meta.url))],
     stdin: {

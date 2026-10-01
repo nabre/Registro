@@ -32,7 +32,7 @@ function scatena (nodo, tipo, altro = {}) {
 }
 
 const { importaSorgente } = await import('../helpers/sorgente.mjs')
-const { pulsanteStato } = await importaSorgente('ui/pannello/views/lesson/attendance.ts')
+const { pulsanteStato } = await importaSorgente('ui/views/lesson/attendance.ts')
 
 describe('la chiusura di pulsanteStato dell’appello', () => {
   it('i clic a raffica calcolano la sequenza degli stati a partire da inVolo prima della risposta', async () => {

@@ -6,7 +6,7 @@ TypeScript; un anno scolastico è un documento solo, `2026-2027.regi` (ZIP con
 JSON e file dentro).
 
 **Come si usa non sta qui:** la guida d'uso è nell'applicazione (`F1`, o la
-pagina «Guida»), contenuto in `ui/pannello/views/help/`; `tests/ui/help.test.mjs`
+pagina «Guida»), contenuto in `ui/views/help/`; `tests/ui/help.test.mjs`
 controlla che ogni pagina abbia la sua sezione. Qui: com'è fatto, dove stanno i
 dati, come si costruisce e si rilascia, che cosa esce dal computer.
 
@@ -22,7 +22,7 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Lettura e scrittura dei file | `core/dati/` |
 | Avvio, comandi e pannelli | `desktop/boot.ts`, `desktop/pannelli/` |
 | Messaggi nella finestra del registro | `desktop/apparato/dialogs.ts`, `desktop/shell/pages/dialog/` |
-| La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/pannello/views/settings/schoolDay.ts` |
+| La giornata di scuola: UD, pause, griglia | `core/dominio/breaks.ts`, `ui/views/settings/schoolDay.ts` |
 | Documenti vecchi portati avanti | `core/dominio/upgrades.ts`, `core/dati/archive.ts` |
 | Comandi e impostazioni dichiarati | `contract/manifest.ts` |
 | Termini, articoli, accordi | `core/dominio/lexicon.ts` (ADR-01) |
@@ -32,21 +32,21 @@ dati, come si costruisce e si rilascia, che cosa esce dal computer.
 | Contratto fra host e pannello | `contract/protocol.ts` |
 | Azioni | `core/azioni/` |
 | Procedure, condotto, riga di comando | `contract/`, `cli/main.mjs` |
-| Interfaccia del pannello (senza framework, ADR-06) | `ui/pannello/` |
-| Guida d'uso | `ui/pannello/views/help.ts`, `ui/pannello/views/help/` |
+| Interfaccia del pannello (senza framework, ADR-06) | `ui/` |
+| Guida d'uso | `ui/views/help.ts`, `ui/views/help/` |
 | Mappa: geometria, geocodifica, tasselli | `core/dominio/map.ts`, `core/dati/geocoding.ts`, `desktop/shell/protocol/tiles.ts` |
-| Modelli del linguaggio | `core/dati/gguf.ts`, `core/dati/huggingFace.ts`, `core/dati/llm.ts`, `core/dati/llamaCpp.ts`, `core/dati/mtmd.ts`, `ui/pannello/views/languageModels.ts` |
-| Dettatura | `core/dati/dictation.ts`, `core/dati/voicebox.ts`, `core/dominio/loopback.ts`, `ui/pannello/assistant/voice.ts` |
+| Modelli del linguaggio | `core/dati/gguf.ts`, `core/dati/huggingFace.ts`, `core/dati/llm.ts`, `core/dati/llamaCpp.ts`, `core/dati/mtmd.ts`, `ui/views/languageModels.ts` |
+| Dettatura | `core/dati/dictation.ts`, `core/dati/voicebox.ts`, `core/dominio/loopback.ts`, `ui/assistant/voice.ts` |
 | Programma scaricato da sé (`llama-mtmd-cli`) | `core/dati/kit.ts`, `core/dati/visionKit.ts` |
 | Vassoio | `core/dominio/tray.ts`, `desktop/widget/tray.ts`, `desktop/apparato/tray.ts` |
 | Aggiornamenti | `desktop/apparato/updates.ts`, `desktop/apparato/updateInstaller.ts`, `os/windows/aggiornamento.ps1` |
 | Marchio e icone | `resources/`, `icons/`, `tools/icons.cjs` |
-| Pagine | `ui/pannello/pages.ts` |
-| Barra laterale, `Ctrl+1`…`Ctrl+9` | `ui/pannello/sidebar.ts`, `ui/pannello/shortcuts.ts` |
-| Dashboard | `ui/pannello/views/today.ts` |
-| Ricerca `Ctrl+K` | `ui/pannello/components/palette.ts`, `ui/pannello/titleBar.ts` |
-| Indietro/avanti (`Alt+←`/`Alt+→`) | `ui/pannello/history.ts` |
-| Comandi e dove compaiono | `ui/pannello/commands.ts` |
+| Pagine | `ui/pages.ts` |
+| Barra laterale, `Ctrl+1`…`Ctrl+9` | `ui/sidebar.ts`, `ui/shortcuts.ts` |
+| Dashboard | `ui/views/today.ts` |
+| Ricerca `Ctrl+K` | `ui/components/palette.ts`, `ui/titleBar.ts` |
+| Indietro/avanti (`Alt+←`/`Alt+→`) | `ui/history.ts` |
+| Comandi e dove compaiono | `ui/commands.ts` |
 
 Il dominio non conosce né Electron né il DOM: `npm test` gira senza finestre.
 Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).

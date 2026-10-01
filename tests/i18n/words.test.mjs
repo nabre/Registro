@@ -35,7 +35,7 @@ const COPIE_AMMESSE = {
  * parola che la pagina spiega, dentro la sua voce di glossario, e sta con la
  * sua spiegazione. Non è un tasto disegnato: non lo si stacca.
  */
-const TERMINE_DELLA_GUIDA = /^ui\/pannello\/views\/help\/.* › testi\.[\w.]*\.voci\.\d+\.termine$/
+const TERMINE_DELLA_GUIDA = /^ui\/views\/help\/.* › testi\.[\w.]*\.voci\.\d+\.termine$/
 
 /**
  * Gli omonimi: stesso italiano di una parola di tutti, un'altra cosa. Ognuno
@@ -43,15 +43,15 @@ const TERMINE_DELLA_GUIDA = /^ui\/pannello\/views\/help\/.* › testi\.[\w.]*\.v
  */
 const OMONIMI = {
   'desktop/shell/windows/menu.testi.ts › testi.annullaGesto': 'disfa l’ultimo gesto (Rückgängig, Undo)',
-  'ui/pannello/commands.testi.ts › testi.annulla': 'disfa l’ultimo gesto (Rückgängig, Undo)',
+  'ui/commands.testi.ts › testi.annulla': 'disfa l’ultimo gesto (Rückgängig, Undo)',
   'desktop/shell/windows/menu.testi.ts › testi.modifica': 'il menu Modifica (Édition)',
-  'ui/pannello/commands.testi.ts › testi.gruppi.modifica': 'il gruppo di comandi Modifica, come il menu (Édition)',
+  'ui/commands.testi.ts › testi.gruppi.modifica': 'il gruppo di comandi Modifica, come il menu (Édition)',
   'desktop/shell/windows/menu.testi.ts › testi.altro': 'il menu delle altre voci (Weitere, More)',
   'core/dominio/lexicon.testi.ts › lessico.tipiAttivita.altro': 'un tipo di attività: «un altro tipo» (Anderes)',
   'core/dominio/lexicon.testi.ts › lessico.tipiConsegna.altro': 'un tipo di consegna: «un altro tipo» (Anderes)',
   'core/dominio/lexicon.testi.ts › lessico.categorieDocumento.altro': 'una categoria di documento (Anderes)',
   'core/dominio/lexicon.testi.ts › lessico.ora.breve': 'l’ora di lezione, non l’ora del giorno (Std., Leçon)',
-  'ui/pannello/views/help/lesson.testi.ts › testi.piani.scritte.ora': 'l’ora di lezione, non l’ora del giorno (Stunde)',
+  'ui/views/help/lesson.testi.ts › testi.piani.scritte.ora': 'l’ora di lezione, non l’ora del giorno (Stunde)',
   'contract/procedure/aggiornamenti/aggiornamenti.testi.ts › testi.stato.presentazione.stato':
     'a che punto è l’aggiornamento (Stand)',
   'contract/procedure/ore/ore.testi.ts › testi.appello.leggi.presentazione.stato':
@@ -61,16 +61,16 @@ const OMONIMI = {
   'contract/procedure/ore/ore.testi.ts › testi.leggi.presentazione.stato':
     'lo stato dell’ora: svolta, da fare, saltata (fr «Statut»)',
   'core/dati/exports.testi.ts › testi.stato': 'lo stato dell’ora nel riassunto della lezione (fr «Statut»)',
-  'ui/pannello/forms/class.testi.ts › testi.persona.nomeAzienda': 'il nome di un’azienda, non il nome di battesimo',
-  'ui/pannello/views/student/registry.testi.ts › testi.nomeAzienda': 'il nome di un’azienda, non il nome di battesimo',
-  'ui/pannello/forms/subject.testi.ts › testi.nome': 'il nome di una materia, non il nome di battesimo',
-  'ui/pannello/views/classes.testi.ts › testi.nomeClasse': 'il nome di una classe, non il nome di battesimo',
+  'ui/forms/class.testi.ts › testi.persona.nomeAzienda': 'il nome di un’azienda, non il nome di battesimo',
+  'ui/views/student/registry.testi.ts › testi.nomeAzienda': 'il nome di un’azienda, non il nome di battesimo',
+  'ui/forms/subject.testi.ts › testi.nome': 'il nome di una materia, non il nome di battesimo',
+  'ui/views/classes.testi.ts › testi.nomeClasse': 'il nome di una classe, non il nome di battesimo',
   'contract/procedure/onedrive/onedrive.testi.ts › testi.elenco.presentazione.nome': 'il nome di un file, non il nome di battesimo',
-  'ui/pannello/forms/classTeacher.testi.ts › testi.recapito.indirizzo': 'l’indirizzo e-mail, non quello di casa',
-  'ui/pannello/views/help/behind.testi.ts › testi.salvataggio.scritte.modifica': 'una modifica, il nome (Änderung)',
-  'ui/pannello/views/help/behind.testi.ts › testi.salvataggio.scritte.copia': 'una copia, il nome (Kopie)',
-  'ui/pannello/views/help/lesson.testi.ts › testi.piani.scritte.copia': 'una copia, il nome (Kopie)',
-  'ui/pannello/views/todo.testi.ts › testi.fatto': 'un impegno sbrigato (Erledigt), non «ho finito»',
+  'ui/forms/classTeacher.testi.ts › testi.recapito.indirizzo': 'l’indirizzo e-mail, non quello di casa',
+  'ui/views/help/behind.testi.ts › testi.salvataggio.scritte.modifica': 'una modifica, il nome (Änderung)',
+  'ui/views/help/behind.testi.ts › testi.salvataggio.scritte.copia': 'una copia, il nome (Kopie)',
+  'ui/views/help/lesson.testi.ts › testi.piani.scritte.copia': 'una copia, il nome (Kopie)',
+  'ui/views/todo.testi.ts › testi.fatto': 'un impegno sbrigato (Erledigt), non «ho finito»',
 }
 
 /** Ogni foglia stringa di un valore, con il suo percorso. */

@@ -38,7 +38,7 @@ La spiegazione dei controlli e dei falsi positivi noti è in
 core/       dominio puro, dati e archivio, azioni applicative, i18n, apparato
 contract/   protocollo, manifesto, procedure API, centralino, bridge, schemi
 desktop/    guscio Electron (shell/), apparato host, pannelli webview, trasporti, widget, avvio
-ui/         interfaccia del pannello webview (ui/pannello/ con views, forms, components)
+ui/         interfaccia del pannello webview (views, forms, components)
 cli/        client a riga di comando autonomo (cli/main.mjs)
 templates/  sorgenti dei rapporti stampabili
 tools/      build, generatori e controlli statici del progetto
@@ -70,7 +70,7 @@ Apri la skill pertinente prima di intervenire:
 ## Regole non ovvie
 
 - Una funzione visibile richiede anche l'aggiornamento della guida in
-  `ui/pannello/views/help/`; `tests/ui/help.test.mjs` ne controlla la coerenza.
+  `ui/views/help/`; `tests/ui/help.test.mjs` ne controlla la coerenza.
 - Non modificare a mano `resources/tools.json`,
   `core/dati/defaultTemplates.ts`, `core/dominio/schoolCalendarTicino.ts`,
   `core/dati/recommendedModels.ts` o `tests/samples/anno_esempio.regi`:
