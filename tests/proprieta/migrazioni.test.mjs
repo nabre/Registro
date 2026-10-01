@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { VERSIONE_DATI, aggiornaFormato, normalizzaRegistro } from '../../dist-tests/domain.mjs'
+import { SCALA_PREDEFINITA, VERSIONE_DATI, aggiornaFormato, normalizzaRegistro } from '../../dist-tests/domain.mjs'
 import { campioni, fc, guastato, suDisco, verifica } from '../helpers/proprieta.mjs'
 
 const CAMPIONI = campioni()
@@ -76,6 +76,26 @@ describe('migrazioni: proprietà', () => {
       assert.equal(una.versione, VERSIONE_DATI)
       assert.deepEqual(suDisco(normalizzaRegistro(una)), una)
     }))
+  })
+
+  // Il controesempio del seme -2101211184, fissato: un oggetto al posto di un
+  // numero (`{"toString": null}` non si converte senza lanciare) torna al
+  // predefinito, e la seconda normalizzazione non cambia niente.
+  it('un numero scritto come oggetto o elenco torna al predefinito, stabile', () => {
+    const { versione, voci } = CAMPIONI.at(-1)
+    const guasti = structuredClone(voci)
+    const strani = [JSON.parse('{"toString": null}'), JSON.parse('{"valueOf": null, "toString": null}'), ['3'], [[]]]
+    const { impostazioni } = guasti.registro
+    ;[impostazioni.scala.min, impostazioni.scala.max, impostazioni.scala.passo, impostazioni.passoFineSemestre] = strani
+    const prova = guasti.valutazioni[0]
+    ;[prova.peso, prova.scala.sufficienza] = strani
+
+    const una = suDisco(normalizzaRegistro(registroDaVoci(aggiornaFormato(guasti, versione).dati)))
+    assert.deepEqual(una.impostazioni.scala, SCALA_PREDEFINITA)
+    assert.equal(una.impostazioni.passoFineSemestre, 0.5)
+    assert.equal(una.valutazioni[0].peso, 1)
+    assert.equal(una.valutazioni[0].scala.sufficienza, SCALA_PREDEFINITA.sufficienza)
+    assert.deepEqual(suDisco(normalizzaRegistro(una)), una)
   })
 
   it('un documento già corrente, o senza numero, non si porta: stessi dati, nessun passo', () => {
