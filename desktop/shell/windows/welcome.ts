@@ -33,6 +33,7 @@ import {
   togliMenu,
 } from '#desktop/apparato/theme.js'
 import { chiudiLeVieDiFuga } from '#desktop/apparato/navigation.js'
+import { escludiDaiDialoghi } from '#desktop/apparato/dialogs.js'
 import { sceltaLingua, scegliLingua } from '#desktop/apparato/language.js'
 import { mostraComunque } from '#desktop/apparato/showAnyway.js'
 import {
@@ -243,7 +244,12 @@ function finisci (scelta: Scelta | null): void {
   const aperta = viva()
   concludi = null
   finestra = null
-  aperta?.close()
+  if (aperta) {
+    // `close()` non la distrugge subito, e intanto ha ancora il fuoco: l'elenco
+    // del nuovo anno, che si apre adesso, ci si appoggerebbe e morirebbe con lei.
+    escludiDaiDialoghi(aperta)
+    aperta.close()
+  }
   risolvi?.(scelta)
 }
 

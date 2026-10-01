@@ -64,11 +64,12 @@ const it = {
       {
         termine: 'Crea un nuovo anno',
         testo:
-          'Si sceglie l’anno fra quelli del calendario ufficiale: date, vacanze e festivi ' +
-          'arrivano con lui, e restano collegati al calendario. Se ci sono altri registri, il registro chiede se portarne dentro ' +
-          'classi, corsi e impostazioni; poi apre la scheda dell’anno. Dal pannello è lo stesso ' +
-          'modulo: **Nuovo anno scolastico** nel menu **File** o con `Ctrl+K`, o sulla pagina ' +
-          'di un registro vuoto.',
+          'Dal benvenuto si sceglie l’anno in un elenco: con uno del calendario ufficiale date, ' +
+          'vacanze e festivi arrivano con lui e restano collegati al calendario; in fondo, le ' +
+          'date scritte a mano. Se ci sono altri registri, il registro chiede se portarne dentro ' +
+          'classi, corsi e impostazioni; poi apre la scheda dell’anno. Con un anno aperto le ' +
+          'stesse scelte stanno in un modulo solo, **Nuovo anno scolastico**: nel menu **File** ' +
+          'o con `Ctrl+K`, o sulla pagina di un registro vuoto.',
       },
       {
         termine: 'Classi e corsi',
@@ -951,11 +952,13 @@ export const testi = catalogo(it, {
         {
           termine: 'Ein neues Schuljahr erstellen',
           testo:
-            'Man wählt das Schuljahr aus dem offiziellen Kalender: Daten, Ferien und Feiertage ' +
-            'kommen mit und bleiben mit dem Kalender verknüpft. Gibt es schon andere Klassenbücher, fragt das Klassenbuch, ob es ' +
-            'Klassen, Kurse und Einstellungen daraus übernehmen soll; dann öffnet es die Seite ' +
-            'des Schuljahrs. Im Hauptfenster ist es dasselbe Formular: **Neues Schuljahr** im ' +
-            'Menü **Datei** oder mit `Ctrl+K`, oder auf der Seite eines leeren Klassenbuchs.',
+            'Im Willkommensfenster wählt man das Schuljahr aus einer Liste: Mit einem aus dem ' +
+            'offiziellen Kalender kommen Daten, Ferien und Feiertage mit und bleiben mit dem ' +
+            'Kalender verknüpft; ganz unten die von Hand geschriebenen Daten. Gibt es schon andere ' +
+            'Klassenbücher, fragt das Klassenbuch, ob es Klassen, Kurse und Einstellungen daraus ' +
+            'übernehmen soll; dann öffnet es die Seite des Schuljahrs. Mit einem offenen Schuljahr ' +
+            'stehen dieselben Wahlen in einem einzigen Formular, **Neues Schuljahr**: im Menü ' +
+            '**Datei** oder mit `Ctrl+K`, oder auf der Seite eines leeren Klassenbuchs.',
         },
         {
           termine: 'Klassen und Kurse',
@@ -1870,12 +1873,13 @@ export const testi = catalogo(it, {
         {
           termine: 'Créer une nouvelle année',
           testo:
-            'On choisit l’année parmi celles du calendrier officiel : dates, vacances et jours ' +
-            'fériés viennent avec, et restent liés au calendrier. S’il existe d’autres registres, le registre demande s’il ' +
-            'faut en reprendre les classes, les cours et les paramètres ; puis il ouvre la ' +
-            'fiche de l’année. Depuis la fenêtre principale, c’est le même formulaire : ' +
-            '**Nouvelle année scolaire** dans le menu **Fichier** ou avec `Ctrl+K`, ou sur la ' +
-            'page d’un registre vide.',
+            'Depuis l’accueil, on choisit l’année dans une liste : avec une année du calendrier ' +
+            'officiel, dates, vacances et jours fériés viennent avec et restent liés au ' +
+            'calendrier ; tout en bas, les dates écrites à la main. S’il existe d’autres ' +
+            'registres, le registre demande s’il faut en reprendre les classes, les cours et les ' +
+            'paramètres ; puis il ouvre la fiche de l’année. Avec une année ouverte, les mêmes ' +
+            'choix tiennent dans un seul formulaire, **Nouvelle année scolaire** : dans le menu ' +
+            '**Fichier** ou avec `Ctrl+K`, ou sur la page d’un registre vide.',
         },
         {
           termine: 'Classes et cours',
@@ -2778,11 +2782,12 @@ export const testi = catalogo(it, {
         {
           termine: 'Create a new year',
           testo:
-            'You choose the year from those in the official calendar: dates, holidays and bank ' +
-            'holidays come with it, and stay linked to the calendar. If there are other registers, the register asks whether ' +
-            'to bring in their classes, courses and settings; then it opens the year’s page. ' +
-            'From the main window it is the same form: **New school year** in the **File** menu ' +
-            'or with `Ctrl+K`, or on the page of an empty register.',
+            'From the welcome window you choose the year from a list: with one from the official ' +
+            'calendar, dates, holidays and bank holidays come with it and stay linked to the ' +
+            'calendar; at the bottom, dates typed by hand. If there are other registers, the ' +
+            'register asks whether to bring in their classes, courses and settings; then it opens ' +
+            'the year’s page. With a year open, the same choices sit in a single form, **New ' +
+            'school year**: in the **File** menu or with `Ctrl+K`, or on the page of an empty register.',
         },
         {
           termine: 'Classes and courses',

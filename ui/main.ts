@@ -50,6 +50,7 @@ import { scordaEditorDelPiano } from './views/plans.js'
 import { scordaDestinatariMandati } from './views/classTeacher.js'
 import { avviaAggiornamenti } from './views/settings/updates.js'
 import { apriInformazioniDocumento } from './forms/documentInfo.js'
+import { moduloAnno } from './forms/year.js'
 import { corsoDelContesto } from './context.js'
 import { moduloProgetto } from './forms/project.js'
 import { apriProgetto } from './views/projects.js'
@@ -164,6 +165,10 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
   // Un dialogo dal menu nativo: la pagina resta quella che si guarda.
   if (messaggio.dialogo === 'informazioniDocumento') {
     apriInformazioniDocumento()
+    return
+  }
+  if (messaggio.dialogo === 'nuovoAnno') {
+    moduloAnno()
     return
   }
   // Un indirizzo dentro le impostazioni («Account e posta…»); uno che non porta

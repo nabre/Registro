@@ -310,8 +310,10 @@ export interface MessaggioNavigazione {
   /**
    * Apre un dialogo sopra la pagina di adesso, che non cambia: `vista` allora
    * non conta. Dal menu nativo, che non sa quale pagina si stia guardando.
+   * `nuovoAnno` è il modulo «Nuovo anno scolastico» del pannello, lo stesso del
+   * menu «File»: il vassoio e il menu nativo lo aprono qui.
    */
-  dialogo?: 'informazioniDocumento'
+  dialogo?: 'informazioniDocumento' | 'nuovoAnno'
   /**
    * Con `vista: 'impostazioni'`, l'indirizzo dentro la pagina: `<area>#<voce>`
    * (`utente#account`). Stringa e non `Scheda`, che è della pagina: la convalida

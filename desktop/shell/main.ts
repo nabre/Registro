@@ -51,6 +51,7 @@ import {
   chiudiDocumentoAperto,
   chiediAnnoNuovo,
   creaPrimoAnno,
+  MODULO_NUOVO_ANNO,
   spegni,
 } from '#desktop/boot.js'
 import { PannelloProiezione } from '#desktop/pannelli/projection.js'
@@ -203,18 +204,18 @@ async function avvia (): Promise<void> {
     else if (risposta === 'benvenuto') void senzaDocumento()
   })
   registerCommand('registroDocenti.creaAnnoNuovo', () => {
-    // Senza un anno aperto il riquadro d'avvio fa da ponte fino al pannello; con
-    // un anno aperto il pannello c'è già.
-    const ponte = percorsoPacchetto() === null
-    if (ponte) {
-      annunciaAvvio(testi().creoAnnoNuovo)
-      mostraAvvio()
+    // Con un anno aperto, il modulo «Nuovo anno scolastico» del pannello.
+    if (percorsoPacchetto() !== null) {
+      apriRegistro(MODULO_NUOVO_ANNO)
+      return
     }
+    // Senza, il pannello non c'è: l'elenco nativo, e il riquadro d'avvio fa da
+    // ponte fino al pannello dell'anno nato.
+    annunciaAvvio(testi().creoAnnoNuovo)
+    mostraAvvio()
     // Il benvenuto aperto si chiude come «altrove»: la domanda ha già risposta.
     chiudiBenvenuto()
-    void creaAnnoNuovo().finally(() => {
-      if (ponte) chiudiAvvioQuandoAppare()
-    })
+    void creaAnnoNuovo().finally(() => chiudiAvvioQuandoAppare())
   })
 
   // Un anno salvato con nome ha cambiato posto: il prossimo avvio lo riapre di là.

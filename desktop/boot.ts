@@ -424,6 +424,12 @@ export async function avvia (
   })
 
   comando('registroDocenti.nuovoAnno', async () => {
+    // Con un anno aperto c'è il pannello: lo stesso modulo del suo menu «File».
+    // Senza, l'elenco nativo (vedi `creaAnnoNuovo` in `desktop/shell/main.ts`).
+    if (percorsoPacchetto()) {
+      apri(MODULO_NUOVO_ANNO)
+      return
+    }
     const scelto = await chiediAnnoNuovo()
     if (!scelto) return
     // Da `esegui` come il webview, per la convalida e i semestri dalle date
@@ -614,6 +620,9 @@ export async function avvia (
     apri()
   }
 }
+
+/** Il modulo «Nuovo anno scolastico» del pannello, sopra la pagina che si guarda. */
+export const MODULO_NUOVO_ANNO: MessaggioNavigazione = { tipo: 'naviga', vista: 'oggi', dialogo: 'nuovoAnno' }
 
 /** Le date e le chiusure di un anno che sta per nascere, e se portarci un altro registro. */
 interface AnnoDaCreare {
