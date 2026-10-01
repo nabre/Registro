@@ -31,6 +31,7 @@ import {
 import type { Allievo, Classe, Corso, Registro, Semestre } from '#core/dominio/models.js'
 import { nomiDiSerie, type DatiRapporto, type Tabella } from '#core/dominio/reports.js'
 import { testi } from './reportData.testi.js'
+import { andamentoAllievo } from './assessments.js'
 import {
   perQuando,
   vuoto,
@@ -170,6 +171,11 @@ export function datiAllievo (
   dati.valori.prove = conto ? String(conto.conteggio) : ''
   dati.valori.media = conto?.media === null || conto === null ? '' : conto.media.toFixed(2)
   dati.valori.notaSemestre = notaSua === null ? '' : formattaVoto(notaSua)
+  // I suoi voti nel tempo, di un corso solo: fra due materie la linea non
+  // direbbe niente. Con meno di due voti il modello non lo disegna.
+  if (unico && conto) {
+    dati.grafici.andamento = andamentoAllievo(registro, suoDelPeriodo, allievo.id, conto.media)
+  }
 
   dati.tabelle.medie = {
     ...colonne((c) => [c.corso, c.prove, c.media, c.notaSemestre]),

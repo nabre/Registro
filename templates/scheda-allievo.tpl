@@ -78,6 +78,13 @@ fine:
 sezione: {{frase.le-prove}}
 tabella: prove
 
+# Gli stessi voti nel tempo, alla data in cui ognuno è stato preso: si vede
+# se la persona sale o scende, e quanto sta sopra la sufficienza. Sotto le
+# prove e non al posto loro: il disegno dice la direzione, la tabella i numeri.
+# Con meno di due voti non c'è niente da unire, e la sezione sparisce.
+sezione: {{frase.andamento}}
+grafico: andamento
+
 # Le presenze dopo il profitto, con i loro conti in testa alla sezione invece
 # che sciolti in cima al foglio: quei numeri sono di questa sezione, e da soli
 # sotto l'anagrafica sembravano parte dei recapiti.

@@ -17,6 +17,11 @@ usa: apertura | titolo={{titolo}} — {{classe}}; sottotitolo={{materia}} · {{p
 sezione: {{frase.voti-e-medie}}
 tabella: voti
 
+# La media della classe prova per prova, con la barra dal voto più basso al
+# più alto: la griglia sopra dice chi, questo dice come va il corso.
+sezione: {{frase.andamento}}
+grafico: andamento
+
 # La stessa griglia, con le date al posto dei voti: quando ognuno ha fatto la
 # prova — il giorno del recupero, per chi l'ha rifatta — e quando se l'è
 # riavuta. Sono le due domande che arrivano dopo il voto, e prima stavano

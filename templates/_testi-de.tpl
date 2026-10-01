@@ -88,6 +88,7 @@ persone-in-formazione: Lernende
 documenti-raccolti: Eingesammelte Dokumente
 periodi-di-assenze: Absenzzeiträume
 distribuzione: Verteilung
+andamento: Verlauf der Noten
 i-voti: Die Noten
 da-recuperare: Nachzuholen
 per-persona: Nach Lernenden

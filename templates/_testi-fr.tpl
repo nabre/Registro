@@ -91,6 +91,7 @@ persone-in-formazione: Personnes en formation
 documenti-raccolti: Documents recueillis
 periodi-di-assenze: Périodes d'absence
 distribuzione: Répartition
+andamento: Évolution des notes
 i-voti: Les notes
 da-recuperare: À rattraper
 per-persona: Par personne en formation

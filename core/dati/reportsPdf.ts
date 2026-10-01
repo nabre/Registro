@@ -21,6 +21,8 @@ import {
   type Modello,
   type TipoBlocco,
   type Grafico,
+  type Andamento,
+  eAndamento,
   type ImmagineModello,
   type RigaFissa,
   type Stile,
@@ -515,6 +517,196 @@ function grafico (penna: Penna, dati: Grafico): void {
       x: penna.sinistra,
       y: base - penna.corpi.piccolo * 2.6,
       size: penna.corpi.piccolo,
+      font: penna.normale,
+      color: NERO,
+    })
+  }
+}
+
+/** L'altezza del campo di un andamento, fra l'asse dei voti più basso e il più alto. */
+const ALTO_ANDAMENTO = 46 * MM
+const RAGGIO_ANDAMENTO = 2.8
+
+/** Il giorno di una data ISO come numero: le distanze sull'asse sono giorni veri. */
+function giornoDi (iso: string): number {
+  const [anno, mese, giorno] = iso.slice(0, 10).split('-').map(Number)
+  return Date.UTC(anno, (mese || 1) - 1, giorno || 1) / 86_400_000
+}
+
+/** Le quote di un andamento: le usa il disegno e chi lo misura. */
+function misuraAndamento (penna: Penna, dati: Andamento): {
+  sopra: number
+  sotto: number
+  totale: number
+} {
+  const piccolo = penna.corpi.piccolo
+  // Sopra il campo il posto per il numero del punto più alto; sotto le date
+  // e la riga che dice che cosa si guarda.
+  const sopra = piccolo * 1.6
+  const sotto = piccolo * 1.6 + (dati.unita ? piccolo * 1.7 : 0)
+  return { sopra, sotto, totale: sopra + ALTO_ANDAMENTO + sotto + 6 }
+}
+
+/** Un rettangolo già occupato da una scritta: due scritte non si coprono. */
+interface Ingombro { x: number, y: number, larga: number, alta: number }
+
+function siToccano (a: Ingombro, b: Ingombro): boolean {
+  return a.x < b.x + b.larga && b.x < a.x + a.larga && a.y < b.y + b.alta && b.y < a.y + a.alta
+}
+
+/**
+ * Un andamento nel tempo: la scala dei voti in verticale con le sue righe, il
+ * tempo in orizzontale a giorni veri, i punti uniti da una linea e colorati
+ * dalla soglia, le righe della sufficienza e della media con il loro nome a
+ * destra. Ogni numero e ogni data si scrive solo dove non ne copre un altro.
+ */
+function andamento (penna: Penna, dati: Andamento): void {
+  const larghezza = larghezzaUtile(penna)
+  const piccolo = penna.corpi.piccolo
+  const { sopra, sotto, totale } = misuraAndamento(penna, dati)
+  const misura = (testo: string) => penna.normale.widthOfTextAtSize(sanifica(testo), piccolo)
+
+  spazio(penna, totale)
+  const base = penna.y + 6 + sotto
+  const cima = base + ALTO_ANDAMENTO
+
+  // A sinistra i voti dell'asse, a destra i nomi delle righe di riferimento.
+  const etichette = dati.tacche.map(formattaNumero)
+  const sinistra = penna.sinistra + Math.max(0, ...etichette.map(misura)) + 5
+  const destra = penna.sinistra + larghezza - Math.max(0, ...dati.linee.map((l) => misura(l.etichetta) + 6))
+  const campo = dati.a - dati.da
+  const altezzaDi = (valore: number) =>
+    base + (campo > 0 ? ((valore - dati.da) / campo) * ALTO_ANDAMENTO : ALTO_ANDAMENTO / 2)
+
+  // Un poco d'aria ai due lati: un punto sul bordo si confonderebbe con l'asse.
+  const aria = 10
+  const giorni = dati.punti.map((p) => giornoDi(p.data))
+  const primo = Math.min(...giorni)
+  const ultimo = Math.max(...giorni)
+  const ascissa = (giorno: number) =>
+    ultimo > primo
+      ? sinistra + aria + ((giorno - primo) / (ultimo - primo)) * (destra - sinistra - aria * 2)
+      : (sinistra + destra) / 2
+
+  // Le righe dei voti, leggere, con il voto a sinistra.
+  dati.tacche.forEach((tacca, i) => {
+    const y = altezzaDi(tacca)
+    penna.pagina.drawLine({ start: { x: sinistra, y }, end: { x: destra, y }, thickness: 0.4, color: FILO })
+    penna.pagina.drawText(sanifica(etichette[i]), {
+      x: sinistra - 4 - misura(etichette[i]),
+      y: y - piccolo * 0.35,
+      size: piccolo,
+      font: penna.normale,
+      color: NERO,
+    })
+  })
+  // L'asse del tempo, più marcato delle righe.
+  penna.pagina.drawLine({ start: { x: sinistra, y: base }, end: { x: destra, y: base }, thickness: 0.7, color: QUIETO })
+
+  // Le righe di riferimento: la soglia a tratto lungo, la media a tratto corto,
+  // distinguibili anche su una fotocopia in bianco e nero. I nomi a destra,
+  // scostati se due righe cadono vicine.
+  const posti: Ingombro[] = []
+  const occupati: number[] = []
+  for (const linea of [...dati.linee].sort((a, b) => a.valore - b.valore)) {
+    const y = altezzaDi(linea.valore)
+    penna.pagina.drawLine({
+      start: { x: sinistra, y },
+      end: { x: destra, y },
+      thickness: linea.tipo === 'soglia' ? 0.9 : 0.8,
+      color: linea.tipo === 'soglia' ? BRUTTO : NERO,
+      dashArray: linea.tipo === 'soglia' ? [5, 2.5] : [1.5, 1.8],
+    })
+    let scritta = y - piccolo * 0.35
+    for (const altra of occupati) if (scritta < altra + piccolo * 1.1) scritta = altra + piccolo * 1.1
+    occupati.push(scritta)
+    penna.pagina.drawText(sanifica(linea.etichetta), {
+      x: destra + 4,
+      y: scritta,
+      size: piccolo,
+      font: penna.normale,
+      color: NERO,
+    })
+  }
+
+  const xs = giorni.map(ascissa)
+  const ys = dati.punti.map((p) => altezzaDi(p.valore))
+
+  // Le date sotto l'asse, da sinistra: una che toccherebbe la precedente si salta.
+  let finoA = -Infinity
+  dati.punti.forEach((punto, i) => {
+    penna.pagina.drawLine({ start: { x: xs[i], y: base }, end: { x: xs[i], y: base - 2.5 }, thickness: 0.6, color: QUIETO })
+    const larga = misura(punto.giorno)
+    const x = Math.min(Math.max(xs[i] - larga / 2, sinistra), destra - larga)
+    if (x < finoA + 3) return
+    finoA = x + larga
+    penna.pagina.drawText(sanifica(punto.giorno), { x, y: base - piccolo * 1.35, size: piccolo, font: penna.normale, color: NERO })
+  })
+
+  // Le barre dal voto più basso al più alto, dietro a tutto il resto.
+  dati.punti.forEach((punto, i) => {
+    if (punto.minimo === undefined || punto.massimo === undefined) return
+    const basso = altezzaDi(punto.minimo)
+    const alto = altezzaDi(punto.massimo)
+    penna.pagina.drawLine({ start: { x: xs[i], y: basso }, end: { x: xs[i], y: alto }, thickness: 0.8, color: NEUTRO })
+    for (const y of [basso, alto]) {
+      penna.pagina.drawLine({ start: { x: xs[i] - 2.5, y }, end: { x: xs[i] + 2.5, y }, thickness: 0.8, color: NEUTRO })
+    }
+  })
+
+  // La linea che unisce i punti nell'ordine del tempo.
+  for (let i = 1; i < dati.punti.length; i += 1) {
+    penna.pagina.drawLine({
+      start: { x: xs[i - 1], y: ys[i - 1] },
+      end: { x: xs[i], y: ys[i] },
+      thickness: 1,
+      color: NERO,
+    })
+  }
+
+  // I punti, e il loro numero sopra (o sotto, se sopra è occupato).
+  dati.punti.forEach((punto, i) => {
+    const colore = dati.soglia === undefined ? NEUTRO : punto.valore >= dati.soglia ? BUONO : BRUTTO
+    penna.pagina.drawCircle({ x: xs[i], y: ys[i], size: RAGGIO_ANDAMENTO, color: colore, borderColor: NERO, borderWidth: 0.4 })
+  })
+  // Quel che un numero non deve coprire: gli altri punti e le barre, la sua
+  // compresa. Si prova sopra, sotto, a destra, a sinistra; se no si salta.
+  const ostacoli: Ingombro[] = [
+    ...xs.map((x, j) => ({ x: x - RAGGIO_ANDAMENTO, y: ys[j] - RAGGIO_ANDAMENTO, larga: RAGGIO_ANDAMENTO * 2, alta: RAGGIO_ANDAMENTO * 2 })),
+    ...dati.punti.flatMap((punto, j) =>
+      punto.minimo === undefined || punto.massimo === undefined
+        ? []
+        : [{ x: xs[j] - 2.5, y: altezzaDi(punto.minimo), larga: 5, alta: altezzaDi(punto.massimo) - altezzaDi(punto.minimo) }]),
+  ]
+  dati.punti.forEach((punto, i) => {
+    const testo = formattaNumero(punto.valore)
+    const larga = misura(testo)
+    const dentro = (x: number) => Math.min(Math.max(x, sinistra), destra - larga)
+    // Sopra e sotto si guarda anche la barra: il numero va oltre il suo capo.
+    const sopraDi = Math.max(ys[i] + RAGGIO_ANDAMENTO, punto.massimo === undefined ? -Infinity : altezzaDi(punto.massimo))
+    const sottoDi = Math.min(ys[i] - RAGGIO_ANDAMENTO, punto.minimo === undefined ? Infinity : altezzaDi(punto.minimo))
+    const prove = [
+      { x: dentro(xs[i] - larga / 2), y: sopraDi + 2 },
+      { x: dentro(xs[i] - larga / 2), y: sottoDi - 2 - piccolo * 0.75 },
+      { x: dentro(xs[i] + RAGGIO_ANDAMENTO + 3.5), y: ys[i] - piccolo * 0.35 },
+      { x: dentro(xs[i] - RAGGIO_ANDAMENTO - 3.5 - larga), y: ys[i] - piccolo * 0.35 },
+    ]
+    for (const { x, y } of prove) {
+      // Le cifre non scendono sotto la riga di base: l'ingombro è il loro.
+      const ingombro = { x: x - 1, y: y - 0.5, larga: larga + 2, alta: piccolo * 0.75 + 1 }
+      if (y > cima + sopra - piccolo || y < base + 1) continue
+      if ([...ostacoli.filter((_, j) => j !== i), ...posti].some((altro) => siToccano(ingombro, altro))) continue
+      posti.push(ingombro)
+      penna.pagina.drawText(sanifica(testo), { x, y, size: piccolo, font: penna.grassetto, color: NERO })
+      break
+    }
+  })
+
+  if (dati.unita) {
+    penna.pagina.drawText(tronca(dati.unita, penna.normale, piccolo, larghezza), {
+      x: penna.sinistra,
+      y: base - piccolo * 3,
+      size: piccolo,
       font: penna.normale,
       color: NERO,
     })
@@ -1120,7 +1312,7 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
     case 'sezione':
       return penna.corpi.sezione * 2.2 + 4
     case 'sottosezione':
-      return corpoSottosezione(penna) * 1.9
+      return corpoSottosezione(penna) * 2.6
     case 'paragrafo':
       return aCapo(blocco.valore, penna.normale, testo, larghezzaUtile(penna)).length * testo * 1.35
     case 'testo':
@@ -1140,7 +1332,8 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
     }
     case 'grafico': {
       const disegno = blocco.grafico ?? dati.grafici[blocco.valore]
-      return disegno ? misuraGrafico(penna, disegno).totale : 0
+      if (!disegno) return 0
+      return eAndamento(disegno) ? misuraAndamento(penna, disegno).totale : misuraGrafico(penna, disegno).totale
     }
     case 'avviso':
       return misuraAvviso(penna, blocco.valore).alta
@@ -1277,7 +1470,7 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
 
     case 'sottosezione':
       // Un gradino sotto la sezione: grassetto al corpo del testo, senza filo.
-      spazio(penna, corpoSottosezione(penna) * 1.9)
+      spazio(penna, corpoSottosezione(penna) * 2.6)
       scrivi(
         penna,
         tronca(blocco.valore, penna.grassetto, corpoSottosezione(penna), larghezzaUtile(penna)),
@@ -1325,7 +1518,8 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
 
     case 'grafico': {
       const disegno = blocco.grafico ?? dati.grafici[blocco.valore]
-      if (disegno) grafico(penna, disegno)
+      if (disegno && eAndamento(disegno)) andamento(penna, disegno)
+      else if (disegno) grafico(penna, disegno)
       break
     }
 

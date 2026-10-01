@@ -615,8 +615,10 @@ const it = {
         testo:
           '**Voti e medie** è la griglia, con **Media** e **Nota**. **Esecuzione e ' +
           'riconsegna** dice per ogni casella quando la prova è stata fatta e quando è tornata, ' +
-          '«12.10.2026 > 20.10.2026». Poi **I momenti**, **Recuperi** e **Prove ancora da ' +
-          'ridare**.',
+          '«12.10.2026 > 20.10.2026». Sotto la griglia l’**Andamento dei voti**: la media ' +
+          'della classe prova per prova, alla sua data, con la barra dal voto più basso al più ' +
+          'alto e le righe della sufficienza e della media del corso. Poi **I momenti**, ' +
+          '**Recuperi** e **Prove ancora da ridare**.',
       },
       {
         termine: 'La scheda di una prova',
@@ -630,8 +632,10 @@ const it = {
         termine: `La ${DOCUMENTO_SCHEDE}`,
         testo:
           'L’anagrafica, il **Profitto** con media e nota per corso, **Le prove** con peso, ' +
-          'voto, recupero e riconsegna, le **Presenze** con la griglia ora per ora, le ' +
-          '**Annotazioni** e **Com’è andata**.',
+          'voto, recupero e riconsegna, l’**Andamento dei voti** — un punto per prova alla data ' +
+          'in cui è stata fatta, il giorno del recupero per chi l’ha rifatta, verde o rosso ' +
+          'secondo la sufficienza, con la sua media —, le **Presenze** con la griglia ora per ' +
+          'ora, le **Annotazioni** e **Com’è andata**.',
       },
       {
         termine: 'Verbale e piano',
@@ -1314,8 +1318,11 @@ export const testi = catalogo(it, {
           testo:
             '**Noten und Durchschnitte** ist das Raster, mit **Durchschnitt** und **Note**. ' +
             '**Durchführung und Rückgabe** sagt für jedes Feld, wann die Prüfung geschrieben ' +
-            'wurde und wann sie zurückkam, «12.10.2026 > 20.10.2026». Dann **Die ' +
-            'Beurteilungen**, **Nachprüfungen** und **Noch zurückzugebende Prüfungen**.',
+            'wurde und wann sie zurückkam, «12.10.2026 > 20.10.2026». Unter dem Raster der ' +
+            '**Verlauf der Noten**: der Klassendurchschnitt Prüfung für Prüfung an ihrem Datum, ' +
+            'mit dem Balken von der tiefsten zur höchsten Note und den Linien für genügend und ' +
+            'für den Kursdurchschnitt. Dann **Die Beurteilungen**, **Nachprüfungen** und **Noch ' +
+            'zurückzugebende Prüfungen**.',
         },
         {
           termine: 'Das Blatt einer Prüfung',
@@ -1329,8 +1336,10 @@ export const testi = catalogo(it, {
           termine: `Das ${DE.documentoSchede}`,
           testo:
             'Die Personalien, die **Leistungen** mit Durchschnitt und Note pro Kurs, **Die ' +
-            'Prüfungen** mit Gewicht, Note, Nachprüfung und Rückgabe, die **Anwesenheit** mit dem ' +
-            'Raster Stunde für Stunde, die **Vermerke** und **Wie es lief**.',
+            'Prüfungen** mit Gewicht, Note, Nachprüfung und Rückgabe, den **Verlauf der Noten** — ' +
+            'ein Punkt pro Prüfung am Tag, an dem sie geschrieben wurde, bei einer Nachprüfung ' +
+            'an deren Tag, grün oder rot je nach genügend, mit dem eigenen Durchschnitt —, die ' +
+            '**Anwesenheit** mit dem Raster Stunde für Stunde, die **Vermerke** und **Wie es lief**.',
         },
         {
           termine: 'Protokoll und Plan',
@@ -2001,8 +2010,10 @@ export const testi = catalogo(it, {
           testo:
             '**Notes et moyennes** est la grille, avec **Moyenne** et **Note**. **Passation et ' +
             'restitution** dit pour chaque case quand l’épreuve a été faite et quand elle est ' +
-            'revenue, « 12.10.2026 > 20.10.2026 ». Puis **Les évaluations**, **Rattrapages** et ' +
-            '**Épreuves encore à rendre**.',
+            'revenue, « 12.10.2026 > 20.10.2026 ». Sous la grille, l’**Évolution des notes** : ' +
+            'la moyenne de la classe épreuve par épreuve, à sa date, avec la barre de la note la ' +
+            'plus basse à la plus haute et les lignes de la suffisance et de la moyenne du cours. ' +
+            'Puis **Les évaluations**, **Rattrapages** et **Épreuves encore à rendre**.',
         },
         {
           termine: 'La fiche d’une épreuve',
@@ -2016,8 +2027,10 @@ export const testi = catalogo(it, {
           termine: `La ${FR.documentoSchede}`,
           testo:
             'Les données personnelles, les **Résultats** avec moyenne et note par cours, **Les ' +
-            'épreuves** avec poids, note, rattrapage et restitution, les **Présences** avec la ' +
-            'grille leçon par leçon, les **Annotations** et **Comment cela s’est passé**.',
+            'épreuves** avec poids, note, rattrapage et restitution, l’**Évolution des notes** — un ' +
+            'point par épreuve à la date où elle a été faite, le jour du rattrapage pour qui l’a ' +
+            'refaite, vert ou rouge selon la suffisance, avec sa moyenne —, les **Présences** avec ' +
+            'la grille leçon par leçon, les **Annotations** et **Comment cela s’est passé**.',
         },
         {
           termine: 'Procès-verbal et plan',
@@ -2675,8 +2688,10 @@ export const testi = catalogo(it, {
           testo:
             '**Grades and averages** is the grid, with **Average** and **Grade**. **Taken and ' +
             'returned** says for each box when the test was taken and when it came back, ' +
-            '“12.10.2026 > 20.10.2026”. Then **The assessments**, **Resits** and **Tests still ' +
-            'to be handed back**.',
+            '“12.10.2026 > 20.10.2026”. Under the grid the **Grade trend**: the class average ' +
+            'test by test, at its date, with the bar from the lowest to the highest grade and ' +
+            'the lines for the pass mark and the course average. Then **The assessments**, ' +
+            '**Resits** and **Tests still to be handed back**.',
         },
         {
           termine: 'A test’s sheet',
@@ -2690,8 +2705,10 @@ export const testi = catalogo(it, {
           termine: `The ${EN.documentoSchede}`,
           testo:
             'The personal details, **Performance** with average and grade per course, **The ' +
-            'tests** with weight, grade, resit and hand-back, **Attendance** with the grid ' +
-            'lesson by lesson, the **Remarks** and **How it went**.',
+            'tests** with weight, grade, resit and hand-back, the **Grade trend** — one dot per ' +
+            'test on the day it was taken, the resit day for a resit, green or red by the pass ' +
+            'mark, with their average —, **Attendance** with the grid lesson by lesson, the ' +
+            '**Remarks** and **How it went**.',
         },
         {
           termine: 'Lesson record and plan',

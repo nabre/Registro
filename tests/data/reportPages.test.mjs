@@ -82,3 +82,31 @@ describe('il salto pagina dei rapporti', () => {
     assert.deepEqual(dove(fogli, '5.5'), [1])
   })
 })
+
+describe('l’andamento nel PDF', () => {
+  const andamento = {
+    genere: 'andamento',
+    unita: 'Un punto per prova',
+    da: 1,
+    a: 6,
+    tacche: [1, 2, 3, 4, 5, 6],
+    soglia: 4,
+    linee: [
+      { valore: 4, etichetta: 'sufficienza 4', tipo: 'soglia' },
+      { valore: 4.6, etichetta: 'media 4.6', tipo: 'media' },
+    ],
+    punti: [
+      { data: '2026-09-21', giorno: '21.09', valore: 4.5 },
+      { data: '2026-10-05', giorno: '05.10', valore: 3.5 },
+      { data: '2027-01-18', giorno: '18.01', valore: 5.75 },
+    ],
+  }
+
+  it('scrive date, voti e righe di riferimento, e non si spezza fra due pagine', async () => {
+    const fogli = await pagine('spazio: 600\ntesto: Sopra\ngrafico: andamento', { grafici: { andamento } })
+    assert.equal(fogli.length, 2)
+    for (const testo of ['21.09', '05.10', '18.01', '5.75', 'sufficienza 4', 'media 4.6', 'Un punto per prova']) {
+      assert.deepEqual(dove(fogli, testo), [1], testo)
+    }
+  })
+})

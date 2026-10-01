@@ -75,6 +75,7 @@ export function datiCorso (
   dati.tabelle.orario = dp.tabelle.orario
   dati.tabelle.sospensioni = dp.tabelle.sospensioni
   dati.tabelle.voti = dv.tabelle.voti
+  dati.grafici.andamento = dv.grafici.andamento
   dati.tabelle.diario = dd.tabelle.diario
 
   // Osservazioni di tutte le lezioni del corso per le persone in formazione
@@ -189,6 +190,11 @@ export function datiCorso (
       valori: {
         piano: nomeDelPiano(registro, piano),
         dataPiano: dateDi(ore),
+        // La riga in testa: la data davanti, se c'è; una bozza dice già
+        // «bozza» nel suo nome.
+        intestazionePiano: ore.length > 0
+          ? `${dateDi(ore)} · ${nomeDelPiano(registro, piano)}`
+          : nomeDelPiano(registro, piano),
         obiettiviPiano: piano.obiettivi.join('; '),
       },
       tabelle: {

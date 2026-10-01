@@ -50,7 +50,7 @@ export interface Blocco {
    */
   tabella?: Tabella
   elenco?: string[]
-  grafico?: Grafico
+  grafico?: Disegno
   galleria?: Galleria
 }
 
@@ -199,6 +199,41 @@ export interface Grafico {
 }
 
 /**
+ * Un andamento nel tempo: un punto per voto alla data in cui è stato dato,
+ * uniti da una linea, sopra la scala dei voti con la riga della sufficienza e
+ * quella della media. Le date sono vere: due prove a una settimana stanno
+ * vicine, due a un mese lontane. I conti li fa il dominio.
+ */
+export interface Andamento {
+  genere: 'andamento'
+  /** Che cosa dice un punto, scritto sotto il disegno. */
+  unita: string
+  /** L'asse dei voti: la scala delle impostazioni, allargata se un voto ne esce. */
+  da: number
+  a: number
+  /** I voti scritti sull'asse, con la loro riga leggera. */
+  tacche: number[]
+  /** Sotto questa un punto è rosso, da questa in su è verde. */
+  soglia?: number
+  /** Le righe orizzontali di riferimento, con il loro nome: la sufficienza, la media. */
+  linee: Array<{ valore: number, etichetta: string, tipo: 'soglia' | 'media' }>
+  /**
+   * In ordine di data (`data` ISO, `giorno` com'è scritto sotto l'asse). Con
+   * `minimo` e `massimo` il punto è una media, e la barra dice fin dove vanno
+   * i voti da cui viene.
+   */
+  punti: Array<{ data: string, giorno: string, valore: number, minimo?: number, massimo?: number }>
+}
+
+/** Quel che `grafico:` disegna: una distribuzione a punti o un andamento nel tempo. */
+export type Disegno = Grafico | Andamento
+
+/** Vero se il disegno è un andamento nel tempo. */
+export function eAndamento (disegno: Disegno): disegno is Andamento {
+  return 'genere' in disegno && disegno.genere === 'andamento'
+}
+
+/**
  * Una parete di ritratti: una casella per allievo, foto e nome sotto. La foto è
  * un percorso relativo alla cartella dell'anno; chi non ce l'ha tiene la sua
  * casella col nome.
@@ -222,7 +257,7 @@ interface VoceRipetuta {
   valori?: Record<string, string>
   elenchi?: Record<string, string[]>
   tabelle?: Record<string, Tabella>
-  grafici?: Record<string, Grafico>
+  grafici?: Record<string, Disegno>
 }
 
 /**
@@ -234,7 +269,7 @@ export interface DatiRapporto {
   valori: Record<string, string>
   elenchi: Record<string, string[]>
   tabelle: Record<string, Tabella>
-  grafici: Record<string, Grafico>
+  grafici: Record<string, Disegno>
   /** Le pareti di ritratti, per nome: `galleria: allievi` pesca da qui. */
   gallerie?: Record<string, Galleria>
   /** Le voci su cui un `ripeti:` gira, per nome. */
@@ -740,9 +775,14 @@ function risolvi (blocco: Blocco, dati: DatiRapporto): Blocco | null {
     return galleria && galleria.celle.length > 0 ? { ...blocco, galleria } : null
   }
   if (blocco.tipo === 'grafico') {
-    // Un grafico senza punti non si disegna: la prova non è ancora fatta.
+    // Un grafico senza punti non si disegna: la prova non è ancora fatta. Un
+    // andamento ne vuole due: un punto solo non va da nessuna parte.
     const grafico = dati.grafici[blocco.valore]
-    const pieno = grafico?.punti.some((punto) => punto.quanti > 0) ?? false
+    const pieno = !grafico
+      ? false
+      : eAndamento(grafico)
+        ? grafico.punti.length >= 2
+        : grafico.punti.some((punto) => punto.quanti > 0)
     return pieno && grafico ? { ...blocco, grafico } : null
   }
 

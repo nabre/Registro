@@ -178,7 +178,7 @@ data prende lo stesso spazio di quella dei nomi, e i nomi escono «Ros...».
 | `riquadro:` | le stesse coppie, ma in evidenza: etichetta piccola, valore grande, un bordo |
 | `elenco:` | i punti di un elenco, per nome (`elenco: obiettivi`) |
 | `tabella:` | una tabella, per nome (`tabella: presenze`) |
-| `grafico:` | una distribuzione a punti, per nome (`grafico: distribuzione`) |
+| `grafico:` | un disegno, per nome: la distribuzione a punti di una prova (`grafico: distribuzione`) o l'andamento dei voti nel tempo (`grafico: andamento`), con la scala dei voti in verticale, le date vere in orizzontale e le righe della sufficienza e della media |
 | `galleria:` | una parete di ritratti: foto e nome sotto (`galleria: allievi \| colonne 4 \| altezza 32`) |
 | `spazio:` | uno stacco verticale; il numero sono punti tipografici |
 | `filo:` | una riga orizzontale |

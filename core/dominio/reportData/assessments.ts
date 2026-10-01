@@ -22,9 +22,10 @@ import type {
   MomentoValutazione,
   Iso,
   Registro,
+  Scala,
   Semestre,
 } from '#core/dominio/models.js'
-import type { DatiRapporto } from '#core/dominio/reports.js'
+import type { Andamento, DatiRapporto } from '#core/dominio/reports.js'
 import { testi } from './reportData.testi.js'
 import { vuoto, colonne, comuni, periodoDi } from './common.js'
 
@@ -102,6 +103,13 @@ export function datiValutazioni (
       ]
     }),
   }
+
+  // L'andamento del corso: una prova dopo l'altra, la media della classe.
+  dati.grafici.andamento = andamentoCorso(
+    registro,
+    momenti,
+    mediaDelCorso(momenti, classe?.allievi ?? []),
+  )
 
   // La stessa griglia con le date al posto dei voti: quando ognuno ha fatto la
   // prova e quando l'ha riavuta, le due cose che si contestano. Per chi ha
@@ -332,4 +340,110 @@ export function datiMomento (registro: Registro, momento: MomentoValutazione): D
 export function resiUnoPerUno (momento: MomentoValutazione, classe: Classe | null): boolean {
   const suoi = riconsegneDegliAllievi(momento, classe)
   return suoi.length > 0 && suoi.every((riga) => riga.riconsegnataIl !== null)
+}
+
+/**
+ * L'asse dei voti di un andamento: la scala delle impostazioni, allargata se un
+ * voto ne esce (una prova con una scala sua), con un numero a ogni voto intero
+ * — al mezzo punto se la scala è corta, più radi se è lunga.
+ */
+function asseDeiVoti (scala: Scala, valori: number[]): { da: number, a: number, tacche: number[] } {
+  const da = Math.min(scala.min, ...valori)
+  const a = Math.max(scala.max, ...valori)
+  const ampiezza = a - da
+  const passo = ampiezza <= 3 ? 0.5 : ampiezza <= 12 ? 1 : Math.ceil(ampiezza / 10)
+  const tacche: number[] = []
+  // Contate in passi interi dal primo multiplo: niente 3.0000000004.
+  for (let i = Math.ceil(da / passo); i * passo <= a + 1e-9; i += 1) tacche.push(i * passo)
+  return { da, a, tacche }
+}
+
+/** La riga della sufficienza e, se c'è, quella della media. */
+function lineeDiRiferimento (scala: Scala, media: number | null): Andamento['linee'] {
+  const t = testi()
+  return [
+    { valore: scala.sufficienza, etichetta: t.lineaSufficienza(formattaVoto(scala.sufficienza)), tipo: 'soglia' },
+    ...(media === null
+      ? []
+      : [{ valore: media, etichetta: t.lineaMedia(media.toFixed(2)), tipo: 'media' as const }]),
+  ]
+}
+
+/**
+ * I voti di una persona nel tempo: un punto per prova, alla data in cui l'ha
+ * fatta — il giorno del recupero, per chi l'ha rifatta —, con la sufficienza e
+ * la sua media pesata. Un corso solo: la linea fra due materie non dice niente.
+ */
+export function andamentoAllievo (
+  registro: Registro,
+  momenti: MomentoValutazione[],
+  allievoId: string,
+  media: number | null,
+): Andamento {
+  const scala = registro.impostazioni.scala
+  const punti = momenti
+    .flatMap((momento) => {
+      const voto = momento.voti.find((v) => v.allievoId === allievoId)
+      if (!voto || voto.assente || typeof voto.valore !== 'number') return []
+      const data = rigaDelRecupero(momento, allievoId)?.previstoIl ?? momento.data
+      return [{ data, giorno: formattaData(data, 'corto'), valore: voto.valore, ordine: momento.data }]
+    })
+    .sort((a, b) => a.data.localeCompare(b.data) || a.ordine.localeCompare(b.ordine))
+    .map(({ data, giorno, valore }) => ({ data, giorno, valore }))
+  return {
+    genere: 'andamento',
+    unita: testi().unitaAndamentoAllievo,
+    ...asseDeiVoti(scala, punti.map((p) => p.valore)),
+    soglia: scala.sufficienza,
+    linee: lineeDiRiferimento(scala, media),
+    punti,
+  }
+}
+
+/**
+ * L'andamento di un corso: per ogni prova la media della classe, con la barra
+ * dal voto più basso al più alto, e la media del corso. Si vede se le prove
+ * vanno meglio o peggio, e quanto la classe è stretta o sparpagliata.
+ */
+export function andamentoCorso (
+  registro: Registro,
+  momenti: MomentoValutazione[],
+  media: number | null,
+): Andamento {
+  const scala = registro.impostazioni.scala
+  const punti = [...momenti]
+    .sort((a, b) => a.data.localeCompare(b.data))
+    .flatMap((momento) => {
+      const conti = distribuzione(momento)
+      if (conti.media === null || conti.minimo === null || conti.massimo === null) return []
+      return [{
+        data: momento.data,
+        giorno: formattaData(momento.data, 'corto'),
+        valore: conti.media,
+        minimo: conti.minimo,
+        massimo: conti.massimo,
+      }]
+    })
+  return {
+    genere: 'andamento',
+    unita: testi().unitaAndamentoCorso,
+    ...asseDeiVoti(scala, punti.flatMap((p) => [p.minimo, p.massimo])),
+    soglia: scala.sufficienza,
+    linee: lineeDiRiferimento(scala, media),
+    punti,
+  }
+}
+
+/**
+ * La media del corso: la media delle medie di chi ha almeno un voto, come la
+ * riga in fondo alla griglia. Nulla senza voti.
+ */
+export function mediaDelCorso (
+  momenti: MomentoValutazione[],
+  allievi: readonly { id: string }[],
+): number | null {
+  const medie = allievi
+    .map((a) => mediaAllievo(momenti, a.id).media)
+    .filter((m): m is number => m !== null)
+  return medie.length === 0 ? null : medie.reduce((s, m) => s + m, 0) / medie.length
 }

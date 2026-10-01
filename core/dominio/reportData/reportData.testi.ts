@@ -150,6 +150,14 @@ const it = {
   totale: 'Totale',
   prove: (n: number) => plurale(n, 'prova', 'prove'),
   nonConta: 'non conta',
+  /** Sotto l'andamento dei voti di una persona: che cosa dice un punto. */
+  unitaAndamentoAllievo:
+    'Un punto per prova, alla data in cui è stata fatta: verde sufficiente, rosso insufficiente.',
+  /** Sotto l'andamento di un corso. */
+  unitaAndamentoCorso:
+    'Un punto per prova, la media della classe; la barra va dal voto più basso al più alto.',
+  lineaSufficienza: (voto: string) => `sufficienza ${voto}`,
+  lineaMedia: (voto: string) => `media ${voto}`,
   /** Il tipo di un'annotazione che viene dalla nota di un voto. */
   provaAnnotazione: 'prova',
   /** Una casella di chi non c'era. */
@@ -345,6 +353,12 @@ export const testi = catalogo(it, {
     totale: 'Total',
     prove: (n) => plurale(n, 'Prüfung', 'Prüfungen'),
     nonConta: 'zählt nicht',
+    unitaAndamentoAllievo:
+      'Ein Punkt pro Prüfung, am Tag, an dem sie geschrieben wurde: grün genügend, rot ungenügend.',
+    unitaAndamentoCorso:
+      'Ein Punkt pro Prüfung, der Klassendurchschnitt; der Balken reicht von der tiefsten zur höchsten Note.',
+    lineaSufficienza: (voto) => `genügend ${voto}`,
+    lineaMedia: (voto) => `Durchschnitt ${voto}`,
     provaAnnotazione: 'Prüfung',
     assente: 'abw.',
     dispensato: 'disp.',
@@ -521,6 +535,12 @@ export const testi = catalogo(it, {
     totale: 'Total',
     prove: (n) => plurale(n, 'épreuve', 'épreuves'),
     nonConta: 'ne compte pas',
+    unitaAndamentoAllievo:
+      'Un point par épreuve, à la date où elle a été faite : vert suffisant, rouge insuffisant.',
+    unitaAndamentoCorso:
+      'Un point par épreuve, la moyenne de la classe ; la barre va de la note la plus basse à la plus haute.',
+    lineaSufficienza: (voto) => `suffisance ${voto}`,
+    lineaMedia: (voto) => `moyenne ${voto}`,
     provaAnnotazione: 'épreuve',
     assente: 'abs.',
     dispensato: 'disp.',
@@ -697,6 +717,12 @@ export const testi = catalogo(it, {
     totale: 'Total',
     prove: (n) => plurale(n, 'test', 'tests'),
     nonConta: 'does not count',
+    unitaAndamentoAllievo:
+      'One dot per test, on the day it was taken: green pass, red fail.',
+    unitaAndamentoCorso:
+      'One dot per test, the class average; the bar runs from the lowest to the highest grade.',
+    lineaSufficienza: (voto) => `pass mark ${voto}`,
+    lineaMedia: (voto) => `average ${voto}`,
     provaAnnotazione: 'test',
     assente: 'abs.',
     dispensato: 'exc.',

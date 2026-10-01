@@ -88,6 +88,7 @@ persone-in-formazione: Learners
 documenti-raccolti: Documents collected
 periodi-di-assenze: Absence periods
 distribuzione: Distribution
+andamento: Grade trend
 i-voti: The grades
 da-recuperare: To be resat
 per-persona: By learner

@@ -1181,3 +1181,65 @@ describe('i piani lezione nella scheda del corso', () => {
     )
   })
 })
+
+describe('l’andamento dei voti', () => {
+  /** Una prova del corso con i voti dati, uno per allievo, e i recuperi. */
+  const prova = (registro, id, data, voti, recuperi = []) => ({
+    id,
+    corsoId: 'cor-1',
+    lezioneId: null,
+    pianoId: null,
+    titolo: id,
+    tipo: 'scritto',
+    data,
+    peso: 1,
+    scala: registro.impostazioni.scala,
+    voti: Object.entries(voti).map(([allievoId, valore]) => ({ allievoId, valore, assente: valore === null })),
+    recuperi,
+    allegati: [],
+    creatoIl: `${data}T00:00:00.000Z`,
+    aggiornatoIl: `${data}T00:00:00.000Z`,
+  })
+
+  it('della persona: un punto per prova alla data in cui l’ha fatta, in ordine di tempo', () => {
+    const registro = registroCon([])
+    registro.valutazioni = [
+      prova(registro, 'tarda', '2026-11-10', { 'al-1': 5.5 }),
+      // Rifatta il 20.10: il voto è di quel giorno, non del 06.10.
+      prova(registro, 'rifatta', '2026-10-06', { 'al-1': 3.5 }, [
+        { allievoId: 'al-1', previstoIl: '2026-10-20', aggiornatoIl: 'x' },
+      ]),
+      prova(registro, 'prima', '2026-10-13', { 'al-1': 4 }),
+      prova(registro, 'assente', '2026-10-27', { 'al-1': null }),
+    ]
+    const [classe] = registro.classi
+    const { andamento } = datiAllievo(registro, classe, classe.allievi[0], null, corso(registro)).grafici
+
+    assert.equal(andamento.genere, 'andamento')
+    assert.deepEqual(andamento.punti.map((p) => [p.data, p.giorno, p.valore]), [
+      ['2026-10-13', '13.10', 4],
+      ['2026-10-20', '20.10', 3.5],
+      ['2026-11-10', '10.11', 5.5],
+    ])
+    // L'asse è la scala delle impostazioni, con la sufficienza e la media.
+    assert.deepEqual([andamento.da, andamento.a, andamento.soglia], [1, 6, 4])
+    assert.deepEqual(andamento.tacche, [1, 2, 3, 4, 5, 6])
+    assert.deepEqual(andamento.linee.map((l) => [l.tipo, l.valore]), [['soglia', 4], ['media', 4.33]])
+  })
+
+  it('del corso: la media della classe per prova, con il voto più basso e il più alto', () => {
+    const registro = registroCon([])
+    registro.valutazioni = [
+      prova(registro, 'seconda', '2026-11-03', { 'al-1': 6, 'al-2': 4 }),
+      prova(registro, 'prima', '2026-10-06', { 'al-1': 5, 'al-2': 3 }),
+      prova(registro, 'vuota', '2026-12-01', { 'al-1': null }),
+    ]
+    const { andamento } = datiValutazioni(registro, corso(registro), null).grafici
+    assert.deepEqual(
+      andamento.punti.map((p) => [p.data, p.valore, p.minimo, p.massimo]),
+      [['2026-10-06', 4, 3, 5], ['2026-11-03', 5, 4, 6]],
+    )
+    // La media del corso è quella delle medie: (5.5 + 3.5) / 2.
+    assert.equal(andamento.linee.find((l) => l.tipo === 'media').valore, 4.5)
+  })
+})

@@ -32,6 +32,9 @@ tabella: sospensioni
 sezione: {{frase.voti-e-medie}}
 tabella: voti
 
+sezione: {{frase.andamento}}
+grafico: andamento
+
 sezione: {{frase.diario-lezioni}}
 tabella: diario
 
@@ -47,7 +50,7 @@ tabella: comportamento
 sezione: {{frase.piani-lezione}}
 tabella: piani
 ripeti: piani
-sottosezione: {{dataPiano}} · {{piano}}
+sottosezione: {{intestazionePiano}}
 tabella: scaletta
 fine:
 

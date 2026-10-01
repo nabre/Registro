@@ -110,6 +110,7 @@ persone-in-formazione: Persone in formazione
 documenti-raccolti: Documenti raccolti
 periodi-di-assenze: Periodi di assenze
 distribuzione: Distribuzione
+andamento: Andamento dei voti
 i-voti: I voti
 da-recuperare: Da recuperare
 per-persona: Per persona in formazione
