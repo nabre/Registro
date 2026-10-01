@@ -563,4 +563,9 @@ spostamento e gli import che lo seguono. A lotto fatto la riga si toglie.
 Le mete non ancora esistenti restano senza backtick: `npm run docs` le
 cercherebbe.
 
-Nessun riordino aperto.
+| Da | A | Perché |
+| --- | --- | --- |
+| `core/dominio/reportData.ts` | core/dominio/reportData/ (`common`, `lesson`, `assessments`, `classes`, `student`, `course`, `index` che riesporta) | 1944 righe, sei rapporti indipendenti. |
+| `core/dominio/normalization.ts` | core/dominio/normalization/ (`readers`, `settings`, `deliveries`, `check`, `sorting`, `index`); `TIPI_RAPPORTO` in `core/dominio/models.ts` | 2135 righe; `TIPI_RAPPORTO` prima, o nasce un ciclo. |
+| `contract/protocol.ts` | contract/protocol/ (assistente e dettatura; messaggi verso la webview); `contract/protocol.ts` riesporta | Nessun importatore da toccare. |
+| `core/azioni/reports.ts` (coda di rigenerazione) | core/azioni/reportsRefresh.ts | La coda è una responsabilità a sé; 5 importatori. |
