@@ -291,7 +291,7 @@ tipi interni.
 | `registro.altrove` | `percorso` | un altro registro blocco per blocco: anno, impostazioni in breve, materie (`nuova`), classi (`esiste`), piani, calendari |
 | `programma.giornale` | `limite?`, `soloErrori?` | ultime chiamate registrate nel giornale in memoria dell'applicazione (non scrive su disco) |
 | `onedrive.elenco` | `account`, `drive?`, `cartella?` | una cartella di OneDrive: sottocartelle e `.regi` (`id`, `drive`, `percorso`), `superiore`, quanti `altri` file, `locale` |
-| `onedrive.cerca` | `account` | i `.regi` dell'account, dal più recente: sul disco se è sincronizzato qui (`locale`), altrimenti quelli che l'indice di Microsoft trova, propri e condivisi |
+| `onedrive.cerca` | `account` | i `.regi` dell'account, dal più recente: sul disco se è sincronizzato qui (`locale`), altrimenti quelli che l'indice di Microsoft trova, propri e condivisi; `troncato` e `motivo` (`troppi`/`tempo`) se si è fermata prima |
 
 - I calendari si leggono dalla copia nel documento (`calendari/<id>.ics`); la
   rete solo per un documento vecchio senza copia. Scritture:
