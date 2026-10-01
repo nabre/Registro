@@ -84,9 +84,9 @@ export const COMANDI_PIANO: readonly ComandoUI[] = [
     id: 'corso.nuovaOra',
     titolo: t.oraInQuestoCorso,
     simbolo: 'piu',
-    // Non nel registro della lezione, dove si scrive l'ora davanti: si crea dai
-    // piani, dalle valutazioni e dal calendario.
-    dove: ['piani', 'valutazioni'],
+    // Non nel registro della lezione, dove si scrive l'ora davanti, né nelle
+    // valutazioni, dove non serve: si crea dai piani e dal calendario.
+    dove: ['piani'],
     gruppo: G.ora,
     impedimento: senzaCorso,
     al: () => {
