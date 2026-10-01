@@ -127,13 +127,8 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       `models.ts` (altrimenti ciclo). Helper `testi()`/`riferimenti()` per
       `elenco(x).map(testo).filter(Boolean)` (gli id in lista oggi non si
       ripuliscono come `riferimento`).
-- [ ] Lotto 3, `contract/protocol.ts`: tipi dell'assistente e della dettatura
-      in un file, messaggi verso la webview in un altro; `protocol.ts`
-      riesporta (nessun importatore da toccare).
 - [ ] Lotto 4, `ui/commands.ts` (1391) e il suo catalogo in una
       cartella per sezioni; `commands.ts` concatena nello stesso ordine.
-- [ ] Lotto 5, coda di rigenerazione di `core/azioni/reports.ts` (379-631) in
-      `reportsRefresh`; 5 importatori.
 - [ ] Rapporti per genere in una tabella sola (modello, entità, `dati*`) letta
       da `rapporto.genera`, anteprima dei modelli, pacchetto del corso e
       prove: oggi 4 copie, una era rotta (anteprima del diario).
