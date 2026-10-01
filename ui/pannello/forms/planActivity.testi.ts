@@ -30,6 +30,7 @@ const it = {
   aiutoQualePendenza: 'Scegli la consegna da evadere in questa tappa',
   tutteLePendenze: 'Tutte le pendenze della lezione',
   check: 'Check',
+  aiutoProgetto: 'La fase di un progetto in cui cade quest’attività: la lezione entra nel progetto, e una prova di quest’attività nasce già sua.',
   dedicataACheck: 'Dedica a un check',
   aiutoCheck: 'Permette di riservare tempo per spuntare firme, compiti o materiali',
   qualeColonnaCheck: 'Colonne del check',
@@ -106,6 +107,7 @@ export const testi = catalogo(it, {
     aiutoQualePendenza: 'Wähle den in dieser Etappe zu erledigenden Auftrag',
     tutteLePendenze: 'Alle Pendenzen der Stunde',
     check: 'Check',
+    aiutoProgetto: 'Die Phase eines Projekts, in die diese Aktivität fällt: Die Stunde gehört zum Projekt, und eine Prüfung dieser Aktivität gleich auch.',
     dedicataACheck: 'Für einen Check vorsehen',
     aiutoCheck:
       'Ermöglicht Zeit für das Abhaken von Unterschriften, Aufgaben oder Material einzuplanen',
@@ -177,6 +179,7 @@ export const testi = catalogo(it, {
     aiutoQualePendenza: 'Choisis le devoir à traiter lors de cette étape',
     tutteLePendenze: 'Toutes les tâches en suspens de la leçon',
     check: 'Check',
+    aiutoProgetto: 'La phase d’un projet où tombe cette activité : la période entre dans le projet, et une épreuve de cette activité lui appartient d’emblée.',
     dedicataACheck: 'Consacrer à un check',
     aiutoCheck:
       'Permet de réserver du temps pour cocher les signatures, devoirs ou matériels',
@@ -245,6 +248,7 @@ export const testi = catalogo(it, {
     aiutoQualePendenza: 'Choose the submission to clear in this step',
     tutteLePendenze: 'All pending items of the lesson',
     check: 'Check',
+    aiutoProgetto: 'The project phase this activity belongs to: the lesson joins the project, and a test in this activity belongs to it from the start.',
     dedicataACheck: 'Dedicate to a check',
     aiutoCheck:
       'Allows scheduling time to check signatures, homework or materials',

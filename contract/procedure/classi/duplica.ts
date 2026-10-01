@@ -15,7 +15,7 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'classe.duplica',
   idempotente: false,
-  collezioni: ['classi', 'corsi', 'check'],
+  collezioni: ['classi', 'corsi', 'check', 'progetti'],
   ingresso: oggetto({
     classeId: identificatore({ aiuto: () => t().classeId }),
     annoId: identificatore({ aiuto: () => t().annoId }),

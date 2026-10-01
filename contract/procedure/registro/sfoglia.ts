@@ -4,6 +4,7 @@ import { definisci } from '../../contract.js'
 import { nullabile, oggetto, testo, vuoto } from '../../schemas.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { ESTENSIONE } from '../../../core/dati/package.js'
+import { èProvvisorio, percorsoPacchetto } from '../../../core/dati/paths.js'
 import { testi } from './registro.testi.js'
 
 const t = () => testi().sfoglia
@@ -35,6 +36,7 @@ export const procedura = definisci({
     blocchi: [{ tipo: 'valori', campi: [{ campo: 'percorso', etichetta: () => p().file }] }],
   },
   esegui: async () => {
+    const aperto = èProvvisorio() ? null : percorsoPacchetto()
     const scelti = await apparato.dialoghi.chiediFile({
       title: t().dialogo,
       openLabel: parole().scegliConferma,
@@ -42,6 +44,8 @@ export const procedura = definisci({
       canSelectFiles: true,
       canSelectFolders: false,
       filters: { Regiklass: [ESTENSIONE.slice(1)] },
+      // Dalla cartella dell'anno aperto: l'altro anno sta quasi sempre lì accanto.
+      ...(aperto ? { defaultUri: apparato.Uri.joinPath(aperto, '..') } : {}),
     })
     return { percorso: scelti?.[0]?.fsPath ?? null }
   },

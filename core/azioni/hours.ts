@@ -27,6 +27,7 @@ import {
 } from './context.js'
 import { lezioniInChiusura } from '../dominio/timetable.js'
 import { annoInUso } from '../dominio/years.js'
+import { lezioneNeiProgetti } from '../dominio/projects.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './hours.testi.js'
 import { istanteAdesso } from '../dominio/dates.js'
@@ -130,7 +131,7 @@ function conDatiDiPersone (lezione: Lezione): boolean {
 }
 
 /**
- * Vero se l'ora è citata da momenti, consegne o spunte del check di un corso
+ * Vero se l'ora è citata da momenti, consegne, spunte del check o progetti di un corso
  * diverso da `corsoId`: spostata lì, quei rimandi punterebbero a un'ora
  * d'altri. L'eliminazione li stacca fissando la data; il salvataggio rifiuta.
  */
@@ -142,7 +143,8 @@ function citataFuoriDalCorso (registro: Registro, lezioneId: string, corsoId: st
     ) ||
     registro.check.some((lista) =>
       lista.corsoId !== corsoId && lista.spunte.some((s) => s.lezioneId === lezioneId),
-    )
+    ) ||
+    lezioneNeiProgetti(registro, lezioneId, corsoId)
   )
 }
 

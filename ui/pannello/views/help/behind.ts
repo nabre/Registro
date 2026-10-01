@@ -76,8 +76,8 @@ function figuraDati (): string {
   // I nomi dei file sono quelli sul disco: non cambiano con la lingua.
   const dentro: Array<[string, string, number | null]> = [
     ['manifesto.json', s.manifesto, null],
-    ['registro.json', s.registro, 1],
-    ['classi.json  lezioni.json …', s.collezioni, null],
+    ['data/registro.json', s.registro, 1],
+    ['data/classi.json  lezioni.json …', s.collezioni, null],
     ['archivio/  esportazioni/', s.archivio, 2],
     ['.storico/', s.storico, 3],
   ]

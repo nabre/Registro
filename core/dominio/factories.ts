@@ -23,6 +23,10 @@ import {
   nuovoIdConsegna,
   nuovoIdOsservazione,
   nuovoIdPiano,
+  nuovoIdProgetto,
+  nuovoIdCompitoProgetto,
+  nuovoIdCriterioProgetto,
+  nuovoIdFaseProgetto,
   nuovoIdRicorrenza,
   nuovoIdRisorsa,
   nuovoIdComunicazione,
@@ -57,6 +61,7 @@ import type {
   Osservazione,
   PianoLezione,
   Presenza,
+  Progetto,
   Registro,
   Scala,
   Comunicazione,
@@ -74,6 +79,7 @@ import type {
   Telefono,
 } from './models.js'
 import { ALTEZZA_LOGO, VERSIONE_DATI } from './models.js'
+import { fasePredefinita, livelliPredefiniti } from './projects.js'
 
 const adesso = istanteAdesso
 
@@ -128,6 +134,7 @@ export function registroVuoto (): Registro {
     fascicoli: [],
     consegne: [],
     check: [],
+    progetti: [],
     smistamenti: [],
     coordinate: [],
     impostazioni: {
@@ -361,6 +368,64 @@ export function creaCheck (corsoId: string, colonne: readonly ColonnaCheck[] = [
   }
 }
 
+/**
+ * Un progetto nuovo di un corso: in bozza, con la scala di serie e una fase
+ * sola nella lingua di adesso, senza criteri né compiti.
+ */
+export function creaProgetto (corsoId: string, titolo = ''): Progetto {
+  return {
+    id: nuovoIdProgetto(),
+    corsoId,
+    titolo: titolo.trim(),
+    obiettivi: [],
+    stato: 'bozza',
+    fasi: [fasePredefinita()],
+    criteri: [],
+    livelli: livelliPredefiniti(),
+    compiti: [],
+    giudizi: [],
+    matrice: [],
+    risorse: [],
+    creatoIl: adesso(),
+    aggiornatoIl: adesso(),
+  }
+}
+
+/**
+ * La copia di un progetto per un altro corso (una classe duplicata): testata,
+ * fasi, criteri, livelli e compiti, con id nuovi (la copia non deve rispondere
+ * per le tappe dell'originale), senza quel che è delle persone o delle ore, e
+ * senza i file (un file condiviso se ne andrebbe con il primo dei due). Nasce
+ * in bozza.
+ */
+export function duplicaProgetto (progetto: Progetto, corsoId: string): Progetto {
+  const criteri = new Map(progetto.criteri.map((c) => [c.id, nuovoIdCriterioProgetto()]))
+  return {
+    ...structuredClone(progetto),
+    id: nuovoIdProgetto(),
+    corsoId,
+    stato: 'bozza',
+    fasi: progetto.fasi.map((f) => ({ ...f, id: nuovoIdFaseProgetto() })),
+    criteri: progetto.criteri.map((c) => ({ ...c, id: criteri.get(c.id) ?? c.id })),
+    livelli: progetto.livelli.map((l) => ({ ...l })),
+    compiti: progetto.compiti.map((c) => ({
+      id: nuovoIdCompitoProgetto(),
+      titolo: c.titolo,
+      descrizione: c.descrizione,
+      fine: c.fine,
+      fineLezioneId: null,
+      inizi: [],
+      proroghe: [],
+      fatti: [],
+    })),
+    giudizi: [],
+    matrice: [],
+    risorse: progetto.risorse.filter((r) => !r.file).map((r) => ({ ...r, id: nuovoIdRisorsa() })),
+    creatoIl: adesso(),
+    aggiornatoIl: adesso(),
+  }
+}
+
 export function creaAllievo (cognome: string, nome: string): Allievo {
   return {
     id: nuovoIdAllievo(),
@@ -489,7 +554,6 @@ export function creaPiano (corsoId: string | null = null): PianoLezione {
     prerequisiti: '',
     attivita: [],
     risorse: [],
-    note: '',
     tag: [],
     creatoIl: adesso(),
     aggiornatoIl: adesso(),

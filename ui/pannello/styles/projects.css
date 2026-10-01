@@ -1,0 +1,204 @@
+/*
+ * I progetti del corso: la pagina Progetti e la scheda Progetto dell'ora.
+ * Le griglie riusano quelle del check (compiti) e del comportamento
+ * (matrice): qui solo quel che è loro.
+ */
+
+.testata-progetto h4 { margin: var(--spazio-3) 0 var(--spazio-1); font-size: var(--corpo-vicino); }
+.testata-progetto ul { margin: 0; padding-left: var(--spazio-4); }
+
+.criteri-progetto { margin: 0; padding-left: var(--spazio-4); }
+
+/* I compiti a linguette, poi il compito aperto: dettagli in una riga, gesti di gruppo, griglia. */
+.compiti-progetto { display: flex; flex-direction: column; gap: var(--spazio-3); }
+
+/* Le linguette vanno a capo: con molti compiti la riga si alza, la pagina non si allarga. */
+.compiti-progetto__schede {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+
+.compiti-progetto__linguette {
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.linguetta-compito { max-width: 100%; }
+
+.linguetta-compito__titolo {
+  max-width: 14em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linguetta-compito__conto {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+
+.linguetta-compito__conto--finito { color: var(--positivo); }
+
+/* Qualcuno è oltre la fine: il pallino si vede anche sulle linguette spente. */
+.linguetta-compito__allarme {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--negativo);
+}
+
+.compito-progetto { display: flex; flex-direction: column; gap: var(--spazio-2); min-width: 0; }
+
+.compito-progetto__testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.compito-progetto__titolo { margin: 0; font-size: 1em; }
+
+/* La descrizione sta nella riga dei dettagli: due righe al più, intera nel titolo. */
+.compito-progetto__descrizione {
+  display: -webkit-box;
+  flex: 1 1 16em;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--testo-quieto);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.compito-progetto__gesti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-1);
+  margin: 0;
+}
+
+/* La fine di una persona con la proroga: tratteggiata, come una cosa sua. */
+.compito-progetto__fine--proroga {
+  border-style: dashed;
+  border-color: var(--attenzione);
+  color: var(--testo);
+}
+
+/* La casella della matrice: il quadretto del livello dentro, il colore lo porta lui. */
+.cella-livello {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo-quieto);
+  cursor: pointer;
+}
+
+.cella-livello:hover { border-color: var(--bordo); background: var(--sfondo-alto-2); }
+
+.cella-livello--annotata { position: relative; }
+
+.cella-livello--annotata::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--testo);
+}
+
+/* Il quadretto di un livello: numero bianco su colore, anche in legenda. */
+.livello-progetto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legenda-livelli {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2) var(--spazio-3);
+  margin: var(--spazio-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--corpo-piccolo);
+}
+
+.legenda-livelli li { display: inline-flex; align-items: center; gap: var(--spazio-1); }
+
+/* La riga del giudizio al volo: chi, che cosa, il tasto. */
+.giudizi-progetto__nuovo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+  align-items: center;
+  margin-bottom: var(--spazio-3);
+}
+
+.giudizi-progetto__testo { flex: 1; min-width: 12em; }
+
+.lezioni-progetto { margin: 0; padding: 0; list-style: none; }
+
+.lezioni-progetto__voce {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: var(--spazio-1) 0;
+  border-bottom: 1px solid var(--bordo-tenue);
+}
+
+.lezioni-progetto__voce:last-child { border-bottom: none; }
+
+.legenda-livelli__descrizione { color: var(--testo-quieto); }
+
+/* La riga di un livello: il pallino del colore, poi nome e descrizione uno sotto l'altro. */
+.livello-riga__testi {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  min-width: 0;
+}
+
+.livello-riga__descrizione { resize: vertical; min-height: 2.5em; font-size: var(--corpo-piccolo); }
+
+.livello-riga__pallino {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 2px solid var(--sfondo-scheda);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--bordo);
+  cursor: pointer;
+}
+
+.livello-riga__pallino--scelto { box-shadow: 0 0 0 2px var(--testo); }
+
+.livello-riga__tavolozza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spazio-2);
+}

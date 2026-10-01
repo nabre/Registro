@@ -326,6 +326,7 @@ type RaccoltaConId =
   | 'piani'
   | 'valutazioni'
   | 'consegne'
+  | 'progetti'
   | 'classi'
   | 'corsi'
   | 'smistamenti'

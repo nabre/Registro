@@ -6,6 +6,7 @@
 
 import { confrontaCalendario } from '../../../core/dominio/calendar.js'
 import { leggiCalendario } from '../../../core/dominio/calendarIcs.js'
+import { annoInUso } from '../../../core/dominio/years.js'
 import { testoDelCalendario } from '../../../core/dati/calendar.js'
 import { definisci, errore } from '../../contract.js'
 import {
@@ -124,7 +125,7 @@ export const procedura = definisci({
     const salvato = registro.impostazioni.calendario
     const calendario = calendarioDaLeggere(registro, ingresso.calendarioId)
 
-    const anno = registro.anni.find((a) => a.id === registro.annoCorrenteId) ?? null
+    const anno = annoInUso(registro)
     const dal = ingresso.dal ?? anno?.inizio
     const al = ingresso.al ?? anno?.fine
     if (!dal || !al) throw errore.rifiuta(c().serveAnno)

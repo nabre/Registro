@@ -29,6 +29,8 @@ type NomeModello =
   | 'foto-classe'
   | 'diario-corso'
   | 'scheda-corso'
+  | 'progetto-classe'
+  | 'progetto-allievo'
   | '_firma.html'
 
 const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
@@ -100,6 +102,14 @@ const it: { readonly modelli: Readonly<Record<NomeModello, TestoModello>> } = {
     'scheda-corso': {
       titolo: 'Scheda del corso',
       aiuto: 'Il documento unico del corso: presenze, valutazioni, diario, piani, pendenze e controlli',
+    },
+    'progetto-classe': {
+      titolo: 'Progetto della classe',
+      aiuto: 'Un progetto per esteso: lezioni, compiti persona per persona, livelli e progressione, valutazioni e giudizi',
+    },
+    'progetto-allievo': {
+      titolo: 'Progetto di una persona',
+      aiuto: 'Il percorso di una persona in un progetto: compiti, progressione per criterio, voti, giudizi e presenze',
     },
     '_firma.html': {
       titolo: 'Firma delle e-mail',
@@ -179,6 +189,14 @@ export const testi = catalogo(it, {
         titolo: 'Kursblatt',
         aiuto: 'Das einheitliche Kursdokument: Präsenzen, Beurteilungen, Tagebuch, Pläne, Pendenzen und Checkliste',
       },
+      'progetto-classe': {
+        titolo: 'Projekt der Klasse',
+        aiuto: 'Ein Projekt ausführlich: Lektionen, Aufträge pro Person, Niveaus und Verlauf, Beurteilungen und Bemerkungen',
+      },
+      'progetto-allievo': {
+        titolo: 'Projekt einer Person',
+        aiuto: 'Der Weg einer Person in einem Projekt: Aufträge, Verlauf pro Kriterium, Noten, Bemerkungen und Anwesenheit',
+      },
       '_firma.html': {
         titolo: 'E-Mail-Signatur',
         aiuto: 'Was das Klassenbuch unter jede Nachricht setzt, wenn das Dokument keine eigene hat. Es ist HTML',
@@ -255,6 +273,14 @@ export const testi = catalogo(it, {
         titolo: 'Fiche du cours',
         aiuto: 'Le document unique du cours: présences, évaluations, journal, plans, tâches et contrôles',
       },
+      'progetto-classe': {
+        titolo: 'Projet de la classe',
+        aiuto: 'Un projet en détail : leçons, tâches personne par personne, niveaux et progression, évaluations et appréciations',
+      },
+      'progetto-allievo': {
+        titolo: 'Projet d’une personne',
+        aiuto: 'Le parcours d’une personne dans un projet : tâches, progression par critère, notes, appréciations et présences',
+      },
       '_firma.html': {
         titolo: 'Signature des e-mails',
         aiuto: 'Ce que le registre ajoute au bas de chaque message qu’il envoie, si le document n’a pas la sienne. C’est du HTML',
@@ -330,6 +356,14 @@ export const testi = catalogo(it, {
       'scheda-corso': {
         titolo: 'Course sheet',
         aiuto: 'The unified course document: attendance, assessments, journal, plans, pending tasks and checks',
+      },
+      'progetto-classe': {
+        titolo: 'Class project',
+        aiuto: 'A project in full: lessons, tasks person by person, levels and progression, assessments and comments',
+      },
+      'progetto-allievo': {
+        titolo: 'Project of one learner',
+        aiuto: 'One learner’s path through a project: tasks, progression by criterion, grades, comments and attendance',
       },
       '_firma.html': {
         titolo: 'Email signature',

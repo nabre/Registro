@@ -1,7 +1,8 @@
 // Rigenera il documento campione: `npm run sample`.
 //
 // `tests/samples/anno_esempio.regi` è un anno finto (una classe, tre persone in
-// formazione, un corso, tre ore, una verifica) scritto dall'archivio vero. Si
+// formazione, un corso, tre ore, una verifica, un progetto) scritto
+// dall'archivio vero. Si
 // guarda dentro rinominandolo `.zip`, e `tests/data/sample.test.mjs` lo riapre
 // per accorgersi che il formato ha reso illeggibili i documenti già scritti.
 //
@@ -88,6 +89,61 @@ lezioni[0].stato = 'svolta'
 const valutazione = d.creaValutazione(corso.id, 'Verifica 1 — unità di misura')
 valutazione.data = '2026-09-21'
 
+// Un progetto (dal formato 4), provato fino in fondo: due fasi, criteri, un
+// compito con inizi (in un'ora e a mano), una proroga e una spunta, un
+// giudizio, la matrice in due giorni, una tappa per fase in due piani e la
+// prova.
+const [rossi, bianchi] = classe.allievi
+const progetto = d.creaProgetto(corso.id, 'Officina delle misure')
+progetto.stato = 'in-corso'
+progetto.fasi = [
+  { id: 'fsp-rilievo', titolo: 'Rilievo' },
+  { id: 'fsp-relazione', titolo: 'Relazione', descrizione: 'Si scrive e si presenta' },
+]
+progetto.obiettivi = ['Scegliere lo strumento di misura adatto']
+progetto.criteri = [
+  { id: 'crp-strumenti', titolo: 'Uso degli strumenti' },
+  { id: 'crp-precisione', titolo: 'Precisione', descrizione: 'Arrotonda come si deve' },
+]
+progetto.compiti = [{
+  id: 'cmp-rilievo',
+  titolo: 'Rilievo del pezzo',
+  fine: null,
+  fineLezioneId: lezioni[2].id,
+  inizi: [
+    { allievoId: rossi.id, data: lezioni[0].data, lezioneId: lezioni[0].id },
+    { allievoId: bianchi.id, data: '2026-09-10', lezioneId: null },
+  ],
+  proroghe: [{ allievoId: bianchi.id, fine: '2026-09-28', nota: 'Assente due settimane' }],
+  fatti: [{ allievoId: rossi.id, fattoIl: '2026-09-14T10:00:00.000Z' }],
+}]
+progetto.giudizi = [{
+  id: 'giu-avvio',
+  allievoId: null,
+  testo: 'La classe parte con entusiasmo.',
+  data: lezioni[0].data,
+  lezioneId: lezioni[0].id,
+  creatoIl: '2026-09-07T09:00:00.000Z',
+}]
+const cella = { allievoId: rossi.id, criterioId: 'crp-strumenti' }
+progetto.matrice = [
+  { ...cella, data: lezioni[0].data, lezioneId: lezioni[0].id, livello: 'parziale' },
+  { ...cella, data: '2026-09-14', lezioneId: null, livello: 'raggiunto', nota: 'Molto meglio' },
+]
+const piano = d.creaPiano(corso.id)
+const tappa = d.creaAttivita('Misure in officina', 1)
+tappa.progettoId = progetto.id
+tappa.faseProgettoId = 'fsp-rilievo'
+piano.attivita.push(tappa)
+lezioni[1].pianoId = piano.id
+const pianoRelazione = d.creaPiano(corso.id)
+const stesura = d.creaAttivita('Stesura della relazione', 1)
+stesura.progettoId = progetto.id
+stesura.faseProgettoId = 'fsp-relazione'
+pianoRelazione.attivita.push(stesura)
+lezioni[2].pianoId = pianoRelazione.id
+valutazione.progettoId = progetto.id
+
 archivio.modifica(
   (registro) => {
     registro.impostazioni = conImpostazioni(registro.impostazioni)
@@ -95,9 +151,12 @@ archivio.modifica(
     registro.classi.push(classe)
     registro.corsi.push(corso)
     registro.lezioni.push(...lezioni)
-    registro.valutazioni.push(valutazione)
+    // Nella forma che la lettura rifarebbe: riaperto, il campione non ha niente da riscrivere.
+    registro.valutazioni.push(d.normalizzaValutazione(valutazione))
+    registro.piani.push(d.normalizzaPiano(piano), d.normalizzaPiano(pianoRelazione))
+    registro.progetti.push(d.normalizzaProgetto(progetto))
   },
-  ['registro', 'classi', 'corsi', 'lezioni', 'valutazioni'],
+  ['registro', 'classi', 'corsi', 'lezioni', 'valutazioni', 'piani', 'progetti'],
 )
 await archivio.salva()
 

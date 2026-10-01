@@ -491,7 +491,9 @@ const it = {
           '**Corso**: i riquadri **Del corso** — presenze e valutazioni, in PDF e in CSV — ' +
           '**Della classe** con il fascicolo, **Prove** con una scheda per prova, **Piani ' +
           'lezione**. **Lezioni**: una riga per ora, con **Verbale** e **Piano lezione**. ' +
-          `**${Molti(PIF)}**: la **Foto della classe** e una **${DOCUMENTO_SCHEDE}** a testa.`,
+          `**${Molti(PIF)}**: la **Foto della classe** e una **${DOCUMENTO_SCHEDE}** a testa. ` +
+          'Se il corso ha dei progetti, sopra l’elenco le linguette **Corso** e una per ' +
+          'progetto, con il rapporto di ogni persona in quel progetto.',
       },
       {
         termine: 'Ogni riga dice se il foglio c’è',
@@ -1175,7 +1177,9 @@ export const testi = catalogo(it, {
             'CSV —, **Zur Klasse** mit dem Klassendossier, **Prüfungen** mit einem Blatt pro ' +
             `Prüfung, **${Molti(DE.pianoLezione)}**. **Stunden**: eine Zeile pro Stunde, mit ` +
             `**Protokoll** und **${Uno(DE.pianoLezione)}**. **${Molti(DE.pif)}**: das ` +
-            `**Klassenfoto** und ein **${DE.documentoSchede}** pro Person.`,
+            `**Klassenfoto** und ein **${DE.documentoSchede}** pro Person. Hat der Kurs ` +
+            'Projekte, stehen über der Liste die Reiter **Kurs** und einer pro Projekt, mit ' +
+            'dem Bericht jeder Person in diesem Projekt.',
         },
         {
           termine: 'Jede Zeile sagt, ob es das Blatt gibt',
@@ -1859,7 +1863,9 @@ export const testi = catalogo(it, {
             '**De la classe** avec le dossier de classe, **Épreuves** avec une fiche par ' +
             'épreuve, **Plans de leçon**. **Leçons** : une ligne par leçon, avec ' +
             `**Procès-verbal** et **Plan de leçon**. **${Molti(FR.pif)}** : les **Photos de la ` +
-            `classe** et une **${FR.documentoSchede}** chacune.`,
+            `classe** et une **${FR.documentoSchede}** chacune. Si le cours a des projets, ` +
+            'au-dessus de la liste les onglets **Cours** et un par projet, avec le rapport de ' +
+            'chaque personne dans ce projet.',
         },
         {
           termine: 'Chaque ligne dit si la feuille existe',
@@ -2528,7 +2534,9 @@ export const testi = catalogo(it, {
             '**For the class** with the class file, **Tests** with a sheet per test, **Lesson ' +
             'plans**. ' +
             '**Lessons**: one row per lesson, with **Lesson record** and **Lesson plan**. ' +
-            `**${Molti(EN.pif)}**: the **Class photos** and a **${EN.documentoSchede}** each.`,
+            `**${Molti(EN.pif)}**: the **Class photos** and a **${EN.documentoSchede}** each. ` +
+            'If the course has projects, above the list the tabs **Course** and one per ' +
+            'project, with each learner’s report in that project.',
         },
         {
           termine: 'Each row says whether the sheet exists',

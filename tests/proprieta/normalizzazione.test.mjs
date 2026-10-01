@@ -19,6 +19,7 @@ import {
   normalizzaPause,
   normalizzaPerRicerca,
   normalizzaPiano,
+  normalizzaProgetto,
   normalizzaRegistro,
   normalizzaTesto,
   normalizzaValutazione,
@@ -48,6 +49,7 @@ const PARTI = [
   ['normalizzaPiano', normalizzaPiano, ultimo.piani?.[0] ?? { id: 'p1', titolo: 'Piano' }],
   ['normalizzaConsegna', normalizzaConsegna, ultimo.consegne?.[0] ?? { id: 'k1', titolo: 'Consegna' }],
   ['normalizzaCheck', normalizzaCheck, ultimo.check?.[0] ?? { id: 'h1', corsoId: 'c1', voci: [] }],
+  ['normalizzaProgetto', normalizzaProgetto, ultimo.progetti?.[0] ?? { id: 'g1', corsoId: 'c1' }],
 ]
 
 describe('normalizzazione: non lancia mai', () => {
@@ -67,7 +69,8 @@ describe('normalizzazione: non lancia mai', () => {
 
   it('normalizzaRegistro su un oggetto con le chiavi giuste e dentro qualunque cosa', () => {
     const chiavi = ['versione', 'anni', 'annoCorrenteId', 'materie', 'classi', 'corsi', 'lezioni', 'piani',
-      'valutazioni', 'fascicoli', 'consegne', 'check', 'smistamenti', 'coordinate', 'impostazioni']
+      'valutazioni', 'fascicoli', 'consegne', 'check', 'progetti', 'smistamenti', 'coordinate',
+      'impostazioni']
     const registro = fc.record(
       Object.fromEntries(chiavi.map((chiave) => [chiave, fc.oneof(qualsiasi, fc.array(qualsiasi, { maxLength: 3 }))])),
       { requiredKeys: [] },

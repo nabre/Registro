@@ -4,6 +4,8 @@
 
 import { BrowserWindow } from 'electron'
 
+import { preferenzeComuni } from '../apparato/theme.js'
+
 let finestraSentinella: BrowserWindow | null = null
 
 /**
@@ -20,9 +22,12 @@ export function assicuraSentinella (): BrowserWindow {
     show: false,
     skipTaskbar: true,
     focusable: false,
+    // Come le altre finestre: anche una pagina vuota gira isolata e in sandbox.
     webPreferences: {
+      ...preferenzeComuni(),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
   })
   // Una pagina vuota: senza, il renderer non risponde a DevTools e

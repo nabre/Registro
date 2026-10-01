@@ -7,15 +7,6 @@ const it = {
   fileEstranei: (n: number) =>
     `Il piano nomina ${plurale(n, 'file che non è suo', 'file che non sono suoi')}: ` +
     'i file si allegano con «risorse.aggiungi», non riscrivendo il piano.',
-  giaUnPiano: 'La lezione ha già un piano: resta quello.',
-  senzaCorso: 'La lezione non è agganciata a nessun corso.',
-  origineSparita: 'Il piano da copiare non esiste più.',
-  /** `classe` è vuota quando il corso non ne ha una. */
-  copiato: (data: string, classe: string) =>
-    `Piano copiato per la lezione del ${data}${classe ? ` di ${classe}` : ''}.`,
-  creato: (data: string, classe: string) =>
-    `Piano generato per la lezione del ${data}${classe ? ` di ${classe}` : ''}: ` +
-    'obiettivi e scaletta sono da rivedere.',
   altroCorso: 'Il piano è di un altro corso: si assegna solo alle lezioni del suo corso.',
   attivitaNonTrovata: 'Attività non trovata in questo piano.',
   attivitaSparita: 'Attività non trovata in questo piano: forse è già sparita.',
@@ -34,14 +25,6 @@ export const testi = catalogo(it, {
       `Der Plan nennt ${plurale(n, 'Datei', 'Dateien')}, ` +
       `${perNumero(n, 'die nicht zu ihm gehört', 'die nicht zu ihm gehören')}: ` +
       'Dateien werden mit «risorse.aggiungi» angehängt, nicht durch Überschreiben des Plans.',
-    giaUnPiano: 'Die Stunde hat schon einen Plan: Dieser bleibt.',
-    senzaCorso: 'Die Stunde gehört zu keinem Kurs.',
-    origineSparita: 'Der zu kopierende Plan existiert nicht mehr.',
-    copiato: (data, classe) =>
-      `Plan für die Stunde vom ${data}${classe ? ` (${classe})` : ''} kopiert.`,
-    creato: (data, classe) =>
-      `Plan für die Stunde vom ${data}${classe ? ` (${classe})` : ''} generiert: ` +
-      'Ziele und Ablauf sind zu überprüfen.',
     altroCorso: 'Der Plan gehört zu einem anderen Kurs: Er wird nur Stunden seines Kurses zugewiesen.',
     attivitaNonTrovata: 'Aktivität in diesem Plan nicht gefunden.',
     attivitaSparita: 'Aktivität in diesem Plan nicht gefunden: Vielleicht ist sie schon weg.',
@@ -58,14 +41,6 @@ export const testi = catalogo(it, {
       `Le plan cite ${plurale(n, 'fichier', 'fichiers')} ` +
       `${perNumero(n, 'qui n’est pas le sien', 'qui ne sont pas les siens')} : ` +
       'les fichiers se joignent avec « risorse.aggiungi », pas en réécrivant le plan.',
-    giaUnPiano: 'La leçon a déjà un plan : c’est celui-là qui reste.',
-    senzaCorso: 'La leçon n’est rattachée à aucun cours.',
-    origineSparita: 'Le plan à copier n’existe plus.',
-    copiato: (data, classe) =>
-      `Plan copié pour la leçon du ${data}${classe ? ` de ${classe}` : ''}.`,
-    creato: (data, classe) =>
-      `Plan généré pour la leçon du ${data}${classe ? ` de ${classe}` : ''} : ` +
-      'objectifs et déroulement sont à revoir.',
     altroCorso: 'Le plan appartient à un autre cours : il ne s’attribue qu’aux leçons de son cours.',
     attivitaNonTrovata: 'Activité introuvable dans ce plan.',
     attivitaSparita: 'Activité introuvable dans ce plan : elle a peut-être déjà disparu.',
@@ -81,14 +56,6 @@ export const testi = catalogo(it, {
     fileEstranei: (n) =>
       `The plan names ${plurale(n, 'file that isn’t its own', 'files that aren’t its own')}: ` +
       'files are attached with “risorse.aggiungi”, not by rewriting the plan.',
-    giaUnPiano: 'The lesson already has a plan: that one stays.',
-    senzaCorso: 'The lesson isn’t linked to any course.',
-    origineSparita: 'The plan to copy no longer exists.',
-    copiato: (data, classe) =>
-      `Plan copied for the lesson on ${data}${classe ? ` (${classe})` : ''}.`,
-    creato: (data, classe) =>
-      `Plan generated for the lesson on ${data}${classe ? ` (${classe})` : ''}: ` +
-      'review the objectives and outline.',
     altroCorso: 'The plan belongs to another course: it can only be assigned to lessons of its course.',
     attivitaNonTrovata: 'Activity not found in this plan.',
     attivitaSparita: 'Activity not found in this plan: it may already have gone.',

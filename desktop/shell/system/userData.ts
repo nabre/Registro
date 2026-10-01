@@ -1,4 +1,4 @@
-// Porta la cartella dei dati dal nome precedente («Regiclass» o «Registro docenti») a quello
+// Porta la cartella dei dati dal nome precedente («Regiclass») a quello
 // di `userData` (Regiklass), con `traslocaDati` di `core/dati/formerName.ts`:
 //
 // - rinomina riuscita, o niente da rinominare: si va avanti sulla nuova;
@@ -13,7 +13,7 @@
 import { app } from 'electron'
 import { basename, dirname, join, resolve } from 'node:path'
 
-import { NOME_VECCHIO, traslocaDati } from '../../../core/dati/formerName.js'
+import { traslocaDati } from '../../../core/dati/formerName.js'
 
 function stessoPosto (uno: string, altro: string): boolean {
   const a = resolve(uno)
@@ -49,7 +49,7 @@ function traslocaLaCartellaDeiDati (): void {
   if (!stessoPosto(dirname(nuova), cartellaDelSistema) || basename(nuova) !== app.getName()) return
 
   // testo-fisso: nome precedente dell'applicazione da migrare
-  for (const nomeVecchio of ['Regiclass', NOME_VECCHIO]) {
+  for (const nomeVecchio of ['Regiclass']) {
     const vecchia = join(cartellaDelSistema, nomeVecchio)
     if (stessoPosto(vecchia, nuova)) continue
     const trasloco = traslocaDati(vecchia, nuova)

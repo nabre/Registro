@@ -4,21 +4,20 @@ import * as apparato from 'apparato'
 
 import { archivia, archiviaCopia, percorsoRisorsaPiano, pulisciCopiaOrfana, rinominaArchivio } from '../dati/filing.js'
 import { contenutoDi } from '../dati/store.js'
-import { formattaData, istanteAdesso } from '../dominio/dates.js'
+import { istanteAdesso } from '../dominio/dates.js'
 import { creaRisorsa, duplicaPiano } from '../dominio/factories.js'
-import { generaPianoPerLezione } from '../dominio/plans.js'
-import { classeDelCorso, corsoPerId } from '../dominio/courses.js'
+import { faseDellAttivita } from '../dominio/projects.js'
 import type { Attivita, PianoLezione, Registro, Risorsa } from '../dominio/models.js'
 import { validaRisorsa, validaPiano } from '../dominio/validation.js'
 import {
   aOraAperta,
   apriFile,
   cestina,
-  conMessaggio,
   documentoCambiato,
   fatto,
   invariato,
   rifiuta,
+  rifiutaCon,
   riponi,
   scegliUnFile,
   type Parte,
@@ -26,6 +25,7 @@ import {
 import { parole } from '../dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './plans.testi.js'
+import { testi as testiProgetti } from './projects.testi.js'
 
 /** Le estensioni che si accettano come immagine: quelle che un webview sa disegnare. */
 const ESTENSIONI_IMMAGINE = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif']
@@ -94,7 +94,25 @@ export const piani = {
     if (estranei.length > 0) {
       return rifiuta(testi().fileEstranei(estranei.length))
     }
-    const piano = { ...azione.piano, aggiornatoIl: istanteAdesso() }
+    // Una tappa lavora per un progetto del corso del piano: altrove la sua
+    // lezione non comparirebbe fra quelle del progetto. La fase è sempre una
+    // del progetto: omessa o d'altri, la prima, dove la tappa si legge già.
+    const attivita: Attivita[] = []
+    for (const tappa of azione.piano.attivita) {
+      const { faseProgettoId: _fase, ...senzaFase } = tappa
+      if (!tappa.progettoId) {
+        attivita.push(senzaFase)
+        continue
+      }
+      const progetto = contesto.registro.progetti.find((p) => p.id === tappa.progettoId)
+      if (!progetto) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
+      if (progetto.corsoId !== azione.piano.corsoId) {
+        return rifiuta(testiProgetti().progettoAltroCorso)
+      }
+      const fase = faseDellAttivita(progetto, tappa)
+      attivita.push(fase ? { ...senzaFase, faseProgettoId: fase.id } : senzaFase)
+    }
+    const piano = { ...azione.piano, attivita, aggiornatoIl: istanteAdesso() }
     // I file non più nominati (es. tappa tolta) vanno cestinati.
     const restano = new Set(fileDi(piano))
     const spariti = prima ? fileDi(prima).filter((f) => !restano.has(f)) : []
@@ -115,63 +133,6 @@ export const piani = {
   'piano.elimina': async (contesto, azione) => {
     return contesto.elimina({ genere: 'piano', id: azione.pianoId })
   },
-
-  /**
-   * Il piano di una lezione, legato al corso dell'ora: copiato da un altro, o
-   * generato con obiettivi e scaletta calibrati sulle UD dell'ora.
-   */
-  'piano.perLezione': aOraAperta(async (contesto, azione) => {
-    const lezione = contesto.registro.lezioni.find((l) => l.id === azione.lezioneId)
-    const t = testi()
-    if (!lezione) return rifiuta(comuni().nonTrovato.lezione)
-    // Ha già un piano: invariato, non rifiuto (una chiamata ritentata è andata
-    // a buon fine). Per cambiarlo c'è `piano.assegna`.
-    if (lezione.pianoId) {
-      return conMessaggio(t.giaUnPiano, 'info', { invariato: true })
-    }
-
-    const corso = corsoPerId(contesto.registro, lezione.corsoId)
-    if (!corso) return rifiuta(t.senzaCorso)
-    const classe = classeDelCorso(contesto.registro, corso)
-
-    const origine = azione.daPianoId
-      ? contesto.registro.piani.find((p) => p.id === azione.daPianoId) ?? null
-      : null
-    if (azione.daPianoId && !origine) return rifiuta(t.origineSparita)
-
-    const materia = contesto.registro.materie.find((m) => m.id === corso.materiaId)
-    const piano = origine
-      ? duplicaPiano(origine)
-      : generaPianoPerLezione(lezione, corso, {
-          materiaNome: materia?.nome ?? corso.titolo,
-          minutiUd: contesto.registro.impostazioni.minutiUd,
-        })
-    piano.corsoId = corso.id
-    // La copia ha file suoi, come in `piano.duplica`.
-    if (origine && !(await ricopiaFile(contesto, piano))) return documentoCambiato()
-
-    const scritto = contesto.modifica((r) => {
-      r.piani.push(piano)
-      const bersaglio = r.lezioni.find((l) => l.id === azione.lezioneId)
-      if (bersaglio) {
-        bersaglio.pianoId = piano.id
-        bersaglio.avanzamento = piano.attivita.map((a) => ({
-          attivitaId: a.id,
-          titolo: a.titolo,
-          stato: 'da-fare' as const,
-        }))
-        bersaglio.aggiornataIl = istanteAdesso()
-      }
-    }, ['piani', 'lezioni'])
-    if (!scritto.ok) return scritto
-
-    const giorno = formattaData(lezione.data)
-    return conMessaggio(
-      origine ? t.copiato(giorno, classe?.nome ?? '') : t.creato(giorno, classe?.nome ?? ''),
-      'info',
-      { creato: { id: piano.id } },
-    )
-  }),
 
   'piano.duplica': async (contesto, azione) => {
     const origine = contesto.registro.piani.find((p) => p.id === azione.pianoId)

@@ -58,7 +58,7 @@ const it = {
       riapri: 'Riapri',
       restaNonConta: 'resta, non conta',
       conConferma: 'con conferma',
-      nellaBarra: '«da compilare» nella barra in fondo',
+      nellaBarra: '«da chiudere» nella barra in fondo',
       verbale: 'Verbale',
       inDocumenti: 'in Documenti',
     },
@@ -203,7 +203,8 @@ const it = {
         testo:
           'Senza piano c’è **Assegna un piano**: i piani del corso, ciascuno con i minuti in più ' +
           'o in meno rispetto all’ora, e **Nuovo piano per questa lezione**. Con il piano, ' +
-          '**Cambia** e la matita **Modifica la scaletta**, che la mostra sulle UD di quest’ora.',
+          '**Cambia** e la matita **Modifica la scaletta**, che apre il piano nella sua pagina, con ' +
+          'quest’ora accanto.',
       },
       {
         termine: 'Le prove della lezione',
@@ -289,7 +290,8 @@ const it = {
           'assente, **R** in ritardo, **E** esonerato, e di nuovo **-**. Premuta a lungo, o con ' +
           'il tasto destro, apre il menu con tutti gli stati. La **R** c’è solo nella prima ' +
           'UD della lezione e nella prima dopo una pausa: lì si arriva in ritardo; il ' +
-          'pulsante di riga non la offre.',
+          'pulsante di riga non la offre. Con la tastiera le frecce passano da una casella ' +
+          'all’altra; dentro minuti e nota muovono il cursore.',
       },
       {
         termine: 'Una riga, una colonna',
@@ -554,7 +556,8 @@ const it = {
         testo:
           'Un clic gira la casella: vuota, **Molto bene**, **Da migliorare**, vuota. Le colonne ' +
           'sono gli «Aspetti osservati in classe» di **Impostazioni** › Didattica › Liste: di ' +
-          'fabbrica partecipazione, collaborazione, rispetto delle regole, impegno, autonomia.',
+          'fabbrica partecipazione, collaborazione, rispetto delle regole, impegno, autonomia. ' +
+          'Le frecce passano da una casella all’altra.',
       },
       {
         termine: 'Annotare una casella',
@@ -587,23 +590,23 @@ const it = {
     sommario:
       'Le ore del corso e le loro scalette: che cosa è preparato, e che cosa no.',
     scritte: {
+      cerca: 'cerca per data, numero, obiettivo',
+      preparate: '18 su 24 preparate',
+      conto: '18 su 24',
+      ora1: '#1 · gio 12.09',
+      stato1: 'preparata · Frazioni',
+      ora2: '#2 · gio 19.09',
+      stato2: '20 min scoperti · Misure',
+      ora3: '#3 · gio 26.09',
+      stato3: 'senza piano',
+      nonAssegnati: 'Piani non assegnati',
+      campi: 'obiettivi · prerequisiti',
       materia: 'Matematica',
-      ore: '18/24 lezioni',
-      cerca: 'cerca per data, obiettivo, tappa',
       semestre: '1° semestre',
-      preparate: '18/24 preparate',
-      lezione1: '1ª lezione',
-      data1: 'gio 12.09',
-      lezione2: '2ª lezione',
-      data2: 'gio 19.09 · 20 min scoperti',
-      lezione3: '3ª lezione',
-      senzaPiano: 'senza piano — preparala',
-      nonAssegnati: 'Non ancora assegnati (1)',
       bozza: 'bozza del 02.09',
       ripasso: 'Ripasso · 3 attività',
       titoloEditor: 'Matematica · 1ª lezione',
       diCheCosaParla: 'Di che cosa parla',
-      campi: 'obiettivi · prerequisiti · note',
       scaletta: 'Scaletta',
       gruppo1: 'Gruppo 1 · 2 UD attaccate · 08:20–09:50',
       liberi: '10 min liberi',
@@ -629,16 +632,32 @@ const it = {
     figure: [
       {
         didascalia:
-          'A sinistra le ore del corso scelto in cima, a destra il piano dell’ora scelta, ' +
-          'posato sulle sue UD. Quel che si scrive si salva da sé.',
+          'In cima il navigatore fra le ore del corso scelto; sotto, largo quanto la ' +
+          'pagina, il piano dell’ora scelta, posato sulle sue UD. Quel che si scrive si ' +
+          'salva da sé.',
         legenda: [
-          'Le ore per semestre: «preparate» sono quelle che la scaletta riempie tutta.',
-          'Un’ora che la scaletta non copre dice quanti minuti restano scoperti.',
-          'Un’ora senza piano: un clic genera obiettivi e scaletta e li apre.',
-          'Obiettivi, prerequisiti e note: quel che fa ritrovare il piano.',
+          'Le frecce passano all’ora prima e a quella dopo; da tastiera **Alt+↑** e ' +
+            '**Alt+↓**.',
+          'L’ora di adesso, con il suo stato: un clic apre l’elenco di tutte le ore.',
+          'Quante ore hanno una scaletta che le riempie tutte, e quante sono da calibrare.',
+          'Obiettivi e prerequisiti: quel che fa ritrovare il piano.',
           'Un gruppo di UD attaccate, fra un intervallo e l’altro, con i minuti liberi.',
           'Il filo sotto ogni tappa: quanto del suo gruppo occupa.',
           'L’intervallo ha la sua riga, con i minuti che dura.',
+        ],
+      },
+      {
+        didascalia:
+          'L’elenco del navigatore: tutte le ore del corso per semestre, ciascuna col suo ' +
+          'stato e l’argomento del piano, e in fondo i piani che nessuna ora usa.',
+        legenda: [
+          'La ricerca trova per data, numero, obiettivo o tappa; le frecce scorrono ' +
+            'l’elenco, **Invio** apre.',
+          'Il semestre, con quante sue ore sono preparate.',
+          'Un’ora preparata: la scaletta riempie l’ora esatta.',
+          'Un’ora da calibrare dice quanti minuti restano scoperti, o quanti sforano.',
+          'Un’ora senza piano: aperta, si crea il piano o se ne assegna uno che c’è.',
+          'Le bozze e i piani rimasti senza corso, che nessuna ora usa.',
         ],
       },
       {
@@ -656,31 +675,34 @@ const it = {
     ],
     voci: [
       {
-        termine: 'Le ore, per semestre',
+        termine: 'La pagina',
         testo:
-          'La pagina è l’elenco delle ore del corso scelto in cima, raccolte per semestre — o ' +
-          'solo quello della tendina **Periodo**. La testata dice quante ore aspettano ancora ' +
-          'una scaletta. La casella di ricerca trova per data, obiettivo o tappa.',
+          'In cima il navigatore fra le ore del corso scelto nella tendina in alto; sotto, ' +
+          'il piano dell’ora scelta, largo quanto la pagina. La testata dice quante ore ' +
+          'aspettano ancora una scaletta.',
       },
       {
         termine: 'Preparare un’ora',
         testo:
-          'Un’ora senza piano dice **senza piano — preparala**: un clic genera il piano e lo ' +
-          'apre. Il piano nasce già pieno, da rivedere: obiettivi e una scaletta di tappe ' +
-          'calibrata sui minuti dell’ora. Quando il corso non ha ancora piani lo stesso fa ' +
-          '**Genera piano**; nel registro della lezione, **Genera piano automatico**. Non c’è ' +
-          'un «nuovo piano» sciolto: un piano nasce da un’ora, qui o dal registro della ' +
-          'lezione.',
+          'Un’ora senza piano mostra **Crea il piano**, che ne fa uno vuoto sul corso ' +
+          'dell’ora, glielo assegna e lo apre, e **Assegna un piano che c’è**, che sceglie ' +
+          'fra i piani del corso o ne fa uno nuovo. Dal registro della lezione lo stesso ' +
+          'fa **Assegna un piano**. Obiettivi e scaletta li scrive chi insegna: il ' +
+          'registro non ne inventa.',
       },
       {
         termine: 'Il navigatore',
         testo:
-          'In testata, **Lezione precedente** e **Lezione successiva** (le frecce) passano da ' +
-          'un’ora all’altra del corso; a un’ora senza piano il piano si genera. «18/24 ' +
-          'preparate» conta le ore la cui scaletta riempie l’ora esatta; «Da calibrare» quelle ' +
-          'che sforano o lasciano minuti scoperti. **Prima da preparare** genera il piano della ' +
-          'prima ora che non ce l’ha; quando non ne manca nessuno dice «Tutte le lezioni hanno ' +
-          'un piano».',
+          'Le frecce ‹ › (**Lezione precedente**, **Lezione successiva**) passano da ' +
+          'un’ora all’altra del corso; fuori dai campi lo fanno anche **Alt+↑** e ' +
+          '**Alt+↓**, perché **Alt+←** e **Alt+→** restano il passo indietro e avanti fra ' +
+          'le pagine. Al centro l’ora di adesso, «#3 · gio 26.09»: un clic apre l’elenco ' +
+          'di tutte le ore, per semestre, ciascuna con il suo stato — ✓ preparata, senza ' +
+          'piano, da calibrare con i minuti scoperti o di troppo, annullata — e ' +
+          'l’argomento del piano. La casella in cima cerca per data, numero, obiettivo o ' +
+          'tappa; ↑ ↓ scorrono, **Invio** apre, **Esc** chiude. In fondo **Piani non ' +
+          'assegnati** raccoglie le bozze e i piani rimasti senza corso. Accanto, «18 su ' +
+          '24 preparate» conta le ore la cui scaletta riempie l’ora esatta.',
       },
       {
         termine: 'Come si chiama un piano',
@@ -692,19 +714,18 @@ const it = {
       {
         termine: 'Di che cosa parla',
         testo:
-          'Un piano non ha un titolo: ha **Obiettivi** (uno per riga), **Prerequisiti** e ' +
-          '**Note** per sé. Sono quel che la ricerca trova, e il primo obiettivo fa da ' +
-          'argomento nella riga piccola.',
+          'Un piano non ha un titolo: ha **Obiettivi** (uno per riga) e **Prerequisiti**. ' +
+          'Sono quel che la ricerca trova, e il primo obiettivo fa da argomento ' +
+          'nell’elenco del navigatore.',
       },
       {
         termine: 'Le tappe',
         testo:
           'Ogni tappa ha titolo, tipo e durata **in minuti**, a blocchi di 5 (almeno 5): i ' +
-          'tasti «-5 min» e «+5 min» la cambiano di un blocco. Il tipo si sceglie premendo la ' +
-          'sua pastiglia. Si riordinano trascinando la presa, o con ↑ ↓ quando la presa ha il ' +
-          'fuoco. **Aggiungi attività** ne mette una in fondo, già aperta; **Rigenera ' +
-          'scaletta** rimette la scaletta proposta, calibrata sull’ora. Nella pagina si salva ' +
-          'subito; nella finestra di modifica solo con **Salva**.',
+          'tasti «-5 min» e «+5 min» la cambiano di un blocco. Il tipo si sceglie premendo ' +
+          'la sua pastiglia. Si riordinano trascinando la presa, o con ↑ ↓ quando la presa ' +
+          'ha il fuoco. **Aggiungi attività** ne mette una in fondo, già aperta. Nella ' +
+          'pagina si salva subito; nella finestra di modifica solo con **Salva**.',
       },
       {
         termine: 'Il dettaglio di una tappa',
@@ -718,8 +739,8 @@ const it = {
         testo:
           'Con un’ora sotto, le tappe cadono nei gruppi di UD fra un intervallo e l’altro: ' +
           '«10 min liberi», «pieno», «15 min di troppo». Quel che non ci sta finisce sotto ' +
-          '**Oltre la fine della lezione**. Nell’elenco, «20 min scoperti» o «10 min oltre ' +
-          'l’ora».',
+          '**Oltre la fine della lezione**. Nell’elenco del navigatore, «20 min scoperti» ' +
+          'o «10 min oltre l’ora».',
       },
       {
         termine: 'Una tappa che è una prova',
@@ -751,9 +772,9 @@ const it = {
       {
         termine: 'Riuso',
         testo:
-          '**Duplica** fa una copia, file compresi, da adattare. In fondo all’elenco ' +
-          '«Non ancora assegnati» raccoglie le bozze, e **Senza corso** i piani rimasti orfani ' +
-          'da riagganciare.',
+          '**Duplica** fa una copia, file compresi, da adattare. In fondo all’elenco del ' +
+          'navigatore, **Piani non assegnati** raccoglie le bozze e i piani rimasti senza ' +
+          'corso, da riagganciare.',
       },
       {
         termine: 'Dove finisce',
@@ -776,6 +797,8 @@ const it = {
       'Una scaletta usata da più ore cambia in tutte: per cambiarne una sola si duplica. ' +
         'Assegnare un altro piano a un’ora ne azzera le spunte; togliere una tappa toglie la ' +
         'sua. **Elimina** butta anche i file del piano.',
+      'I piani dei documenti di prima non hanno più le **Note**: quel che c’era ' +
+        'scritto è in fondo ai **Prerequisiti**, dopo «Note:».',
     ],
   },
 } satisfies Record<string, TestiSezione>
@@ -818,7 +841,7 @@ export const testi = catalogo(it, {
         riapri: 'Wieder öffnen',
         restaNonConta: 'bleibt, zählt nicht',
         conConferma: 'mit Bestätigung',
-        nellaBarra: '«auszufüllen» in der Leiste unten',
+        nellaBarra: '«abzuschliessen» in der Leiste unten',
         verbale: 'Protokoll',
         inDocumenti: 'unter Dokumente',
       },
@@ -975,7 +998,7 @@ export const testi = catalogo(it, {
             'Ohne Plan gibt es **Plan zuweisen**: die Pläne des Kurses, jeder mit den Minuten ' +
             'mehr oder weniger im Vergleich zur Stunde, und **Neuer Plan für diese ' +
             'Stunde**. Mit Plan **Wechseln** und der Stift **Ablauf bearbeiten**, ' +
-            'der ihn auf den Lektionen dieser Stunde zeigt.',
+            'der den Plan auf seiner Seite öffnet, mit dieser Stunde daneben.',
         },
         {
           termine: 'Die Prüfungen der Stunde',
@@ -1068,7 +1091,9 @@ export const testi = catalogo(it, {
             'anwesend, **X** abwesend, **R** verspätet, **E** dispensiert, und wieder **-**. ' +
             'Lange gedrückt oder mit der rechten Maustaste öffnet es das Menü mit allen Status. ' +
             'Das **R** gibt es nur in der ersten Lektion der Stunde und in der ersten nach einer ' +
-            'Pause: Nur dort kommt man zu spät; die Zeilentaste bietet es nicht an.',
+            'Pause: Nur dort kommt man zu spät; die Zeilentaste bietet es nicht an. Mit der ' +
+            'Tastatur gehen die Pfeiltasten von Feld zu Feld; in Minuten und Notiz bewegen sie ' +
+            'den Cursor.',
         },
         {
           termine: 'Eine Zeile, eine Spalte',
@@ -1351,7 +1376,7 @@ export const testi = catalogo(it, {
             'Ein Klick dreht das Feld weiter: leer, **Sehr gut**, **Zu verbessern**, leer. Die ' +
             'Spalten sind die Liste «Beobachtete Aspekte im Unterricht» unter **Einstellungen** › ' +
             'Unterricht › Listen: ab Werk Beteiligung, Zusammenarbeit, Einhalten der Regeln, Einsatz, ' +
-            'Selbstständigkeit.',
+            'Selbstständigkeit. Die Pfeiltasten gehen von Feld zu Feld.',
         },
         {
           termine: 'Ein Feld anmerken',
@@ -1385,23 +1410,23 @@ export const testi = catalogo(it, {
       sommario:
         'Die Stunden des Kurses und ihre Abläufe: was vorbereitet ist, und was nicht.',
       scritte: {
+        cerca: 'nach Datum, Nummer, Ziel suchen',
+        preparate: '18 von 24 vorbereitet',
+        conto: '18 von 24',
+        ora1: '#1 · Do 12.09.',
+        stato1: 'vorbereitet · Brüche',
+        ora2: '#2 · Do 19.09.',
+        stato2: '20 min nicht abgedeckt · Messen',
+        ora3: '#3 · Do 26.09.',
+        stato3: 'ohne Plan',
+        nonAssegnati: 'Nicht zugewiesene Pläne',
+        campi: 'Lernziele · Voraussetzungen',
         materia: 'Mathematik',
-        ore: '18/24 Std.',
-        cerca: 'nach Datum, Ziel, Etappe suchen',
         semestre: '1. Semester',
-        preparate: '18/24 vorbereitet',
-        lezione1: '1. Stunde',
-        data1: 'Do 12.09.',
-        lezione2: '2. Stunde',
-        data2: 'Do 19.09. · 20 min offen',
-        lezione3: '3. Stunde',
-        senzaPiano: 'ohne Plan — bereite sie vor',
-        nonAssegnati: 'Noch nicht zugewiesen (1)',
         bozza: 'Entwurf vom 02.09.',
         ripasso: `${DE.tipiAttivita.ripasso} · 3 Aktivitäten`,
         titoloEditor: 'Mathematik · 1. Stunde',
         diCheCosaParla: 'Worum es geht',
-        campi: 'Lernziele · Voraussetzungen · Notizen',
         scaletta: 'Ablauf',
         gruppo1: 'Gruppe 1 · 2 Lekt. am Stück · 08:20–09:50',
         liberi: '10 min frei',
@@ -1427,16 +1452,36 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'Links die Stunden des oben gewählten Kurses, rechts der Plan der gewählten Stunde, ' +
-            'auf ihre Lektionen gelegt. Was man schreibt, speichert sich selbst.',
+            'Oben der Navigator durch die Stunden des gewählten Kurses; darunter, so breit ' +
+            'wie die Seite, der Plan der gewählten Stunde, auf ihre Lektionen gelegt. Was ' +
+            'man schreibt, speichert sich selbst.',
           legenda: [
-            'Die Stunden nach Semester: «vorbereitet» sind die, die der Ablauf ganz füllt.',
-            'Eine Stunde, die der Ablauf nicht abdeckt, sagt, wie viele Minuten offen bleiben.',
-            'Eine Stunde ohne Plan: Ein Klick generiert Lernziele und Ablauf und öffnet sie.',
-            'Lernziele, Voraussetzungen und Notizen: was den Plan wiederfinden lässt.',
-            'Eine Gruppe von Lektionen am Stück, zwischen zwei Pausen, mit den freien Minuten.',
+            'Die Pfeile wechseln zur Stunde davor und danach; mit der Tastatur **Alt+↑** und ' +
+              '**Alt+↓**.',
+            'Die aktuelle Stunde mit ihrem Status: Ein Klick öffnet die Liste aller Stunden.',
+            'Wie viele Stunden einen Ablauf haben, der sie ganz füllt, und wie viele ' +
+              'anzupassen sind.',
+            'Lernziele und Voraussetzungen: was den Plan wiederfinden lässt.',
+            'Eine Gruppe von Lektionen am Stück, zwischen zwei Pausen, mit den freien ' +
+              'Minuten.',
             'Der Faden unter jeder Etappe: wie viel ihrer Gruppe sie belegt.',
             'Die Pause hat ihre eigene Zeile, mit den Minuten, die sie dauert.',
+          ],
+        },
+        {
+          didascalia:
+            'Die Liste des Navigators: alle Stunden des Kurses nach Semester, jede mit ihrem ' +
+            'Status und dem Thema des Plans, und unten die Pläne, die keine Stunde verwendet.',
+          legenda: [
+            'Die Suche findet nach Datum, Nummer, Ziel oder Etappe; die Pfeiltasten ' +
+              'blättern, **Enter** öffnet.',
+            'Das Semester, mit der Zahl seiner vorbereiteten Stunden.',
+            'Eine vorbereitete Stunde: Der Ablauf füllt die Stunde genau.',
+            'Eine anzupassende Stunde sagt, wie viele Minuten offen bleiben oder zu viel ' +
+              'sind.',
+            'Eine Stunde ohne Plan: Geöffnet, erstellt man den Plan oder weist einen ' +
+              'bestehenden zu.',
+            'Die Entwürfe und die Pläne ohne Kurs, die keine Stunde verwendet.',
           ],
         },
         {
@@ -1456,32 +1501,35 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Die Stunden, nach Semester',
+          termine: 'Die Seite',
           testo:
-            'Die Seite ist die Liste der Stunden des oben gewählten Kurses, nach Semester ' +
-            'gesammelt — oder nur das aus der Auswahlliste **Zeitraum**. Der Kopf sagt, wie ' +
-            'viele Stunden noch auf einen Ablauf warten. Das Suchfeld findet nach Datum, Ziel ' +
-            'oder Etappe.',
+            'Oben der Navigator durch die Stunden des in der Auswahlliste oben gewählten ' +
+            'Kurses; darunter der Plan der gewählten Stunde, so breit wie die Seite. Der ' +
+            'Kopf sagt, wie viele Stunden noch auf einen Ablauf warten.',
         },
         {
           termine: 'Eine Stunde vorbereiten',
           testo:
-            'Eine Stunde ohne Plan sagt **ohne Plan — bereite sie vor**: Ein Klick generiert ' +
-            'den Plan und öffnet ihn. Der Plan entsteht schon gefüllt, zum Überprüfen: ' +
-            'Lernziele und ein Ablauf von Etappen, auf die Minuten der Stunde abgestimmt. Hat ' +
-            'der Kurs noch keine Pläne, macht **Plan generieren** dasselbe; auf der Seite der ' +
-            'Stunde **Plan automatisch erstellen**. Einen losen «neuen Plan» gibt es nicht: Ein ' +
-            'Plan entsteht aus einer Stunde, hier oder auf der Seite der Stunde.',
+            'Eine Stunde ohne Plan zeigt **Plan erstellen**, das einen leeren Plan auf dem ' +
+            'Kurs der Stunde anlegt, ihn ihr zuweist und öffnet, und **Bestehenden Plan ' +
+            'zuweisen**, das unter den Plänen des Kurses wählt oder einen neuen anlegt. Auf ' +
+            'der Seite der Stunde macht **Plan zuweisen** dasselbe. Lernziele und Ablauf ' +
+            'schreibt, wer unterrichtet: Das Klassenbuch erfindet keine.',
         },
         {
           termine: 'Der Navigator',
           testo:
-            'Im Kopf wechseln **Vorherige Stunde** und **Nächste Stunde** (die Pfeile) von ' +
-            'einer Stunde des Kurses zur anderen; eine Stunde ohne Plan bekommt ihn generiert. ' +
-            '«18/24 vorbereitet» zählt die Stunden, deren Ablauf die Stunde genau füllt; ' +
-            '«Anzupassen» die, die überziehen oder Minuten offen lassen. **Erste ' +
-            'vorzubereiten** generiert den Plan der ersten Stunde, die keinen hat; fehlt keiner ' +
-            'mehr, steht dort «Alle Stunden haben einen Plan».',
+            'Die Pfeile ‹ › (**Vorherige Stunde**, **Nächste Stunde**) wechseln von einer ' +
+            'Stunde des Kurses zur anderen; ausserhalb der Felder auch **Alt+↑** und ' +
+            '**Alt+↓**, denn **Alt+←** und **Alt+→** bleiben der Schritt zurück und vor ' +
+            'zwischen den Seiten. In der Mitte die aktuelle Stunde, «#3 · Do 26.09.»: Ein ' +
+            'Klick öffnet die Liste aller Stunden nach Semester, jede mit ihrem Status — ✓ ' +
+            'vorbereitet, ohne Plan, anzupassen mit den offenen oder überzähligen Minuten, ' +
+            'ausgefallen — und dem Thema des Plans. Das Feld oben sucht nach Datum, Nummer, ' +
+            'Ziel oder Etappe; ↑ ↓ blättern, **Enter** öffnet, **Esc** schliesst. Unten ' +
+            'sammelt **Nicht zugewiesene Pläne** die Entwürfe und die Pläne ohne Kurs. ' +
+            'Daneben zählt «18 von 24 vorbereitet» die Stunden, deren Ablauf die Stunde ' +
+            'genau füllt.',
         },
         {
           termine: 'Wie ein Plan heisst',
@@ -1494,20 +1542,19 @@ export const testi = catalogo(it, {
         {
           termine: 'Worum es geht',
           testo:
-            'Ein Plan hat keinen Titel: Er hat **Lernziele** (eines pro Zeile), ' +
-            '**Voraussetzungen** und **Notizen** für sich. Das findet die Suche, und das erste ' +
-            'Lernziel dient als Thema in der kleinen Zeile.',
+            'Ein Plan hat keinen Titel: Er hat **Lernziele** (eines pro Zeile) und ' +
+            '**Voraussetzungen**. Das findet die Suche, und das erste Lernziel dient als ' +
+            'Thema in der Liste des Navigators.',
         },
         {
           termine: 'Die Etappen',
           testo:
-            'Jede Etappe hat Titel, Art und Dauer **in Minuten**, in Blöcken von 5 (mindestens ' +
-            '5): Die Tasten «-5 Min.» und «+5 Min.» ändern sie um einen Block. Die Art wählt ' +
-            'man durch Klick auf ihr Etikett. Man ordnet sie durch Ziehen am Griff um, oder mit ' +
-            '↑ ↓, wenn der Griff den Fokus hat. **Aktivität hinzufügen** setzt eine ans Ende, ' +
-            'schon geöffnet; **Ablauf neu generieren** setzt den vorgeschlagenen Ablauf wieder ' +
-            'ein, auf die Stunde abgestimmt. Auf der Seite speichert sich das sofort, im ' +
-            'Bearbeitungsfenster erst mit **Speichern**.',
+            'Jede Etappe hat Titel, Art und Dauer **in Minuten**, in Blöcken von 5 ' +
+            '(mindestens 5): Die Tasten «-5 Min.» und «+5 Min.» ändern sie um einen Block. ' +
+            'Die Art wählt man durch Klick auf ihr Etikett. Man ordnet sie durch Ziehen am ' +
+            'Griff um, oder mit ↑ ↓, wenn der Griff den Fokus hat. **Aktivität hinzufügen** ' +
+            'setzt eine ans Ende, schon geöffnet. Auf der Seite speichert sich das sofort, ' +
+            'im Bearbeitungsfenster erst mit **Speichern**.',
         },
         {
           termine: 'Die Details einer Etappe',
@@ -1520,10 +1567,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Passt es in die Stunde?',
           testo:
-            'Mit einer Stunde darunter fallen die Etappen in die Gruppen von Lektionen zwischen ' +
-            'zwei Pausen: «10 min frei», «voll», «15 min zu viel». Was nicht hineinpasst, ' +
-            'landet unter **Über das Ende der Stunde hinaus**. In der Liste «20 min ' +
-            'nicht abgedeckt» oder «10 min über die Stunde hinaus».',
+            'Mit einer Stunde darunter fallen die Etappen in die Gruppen von Lektionen ' +
+            'zwischen zwei Pausen: «10 min frei», «voll», «15 min zu viel». Was nicht ' +
+            'hineinpasst, landet unter **Über das Ende der Stunde hinaus**. In der Liste des ' +
+            'Navigators «20 min nicht abgedeckt» oder «10 min über die Stunde hinaus».',
         },
         {
           termine: 'Eine Etappe, die eine Prüfung ist',
@@ -1558,9 +1605,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Wiederverwenden',
           testo:
-            '**Duplizieren** macht eine Kopie, samt Dateien, zum Anpassen. Unten in der Liste ' +
-            'sammelt «Noch nicht zugewiesen» die Entwürfe, und **Ohne Kurs** die verwaisten ' +
-            'Pläne, die wieder anzuhängen sind.',
+            '**Duplizieren** macht eine Kopie, samt Dateien, zum Anpassen. Unten in der ' +
+            'Liste des Navigators sammelt **Nicht zugewiesene Pläne** die Entwürfe und die ' +
+            'Pläne ohne Kurs, die wieder anzuhängen sind.',
         },
         {
           termine: 'Wo er landet',
@@ -1587,6 +1634,8 @@ export const testi = catalogo(it, {
           'ändern, dupliziert man. Einer Stunde einen anderen Plan zuzuweisen, setzt ihre ' +
           'Häkchen zurück; eine Etappe zu entfernen, entfernt ihres. **Löschen** wirft auch ' +
           'die Dateien des Plans weg.',
+        'Die Pläne von früher haben keine **Notizen** mehr: Was dort stand, steht am ' +
+          'Ende der **Voraussetzungen**, nach «Notizen:».',
       ],
     },
   },
@@ -1627,7 +1676,7 @@ export const testi = catalogo(it, {
         riapri: 'Rouvrir',
         restaNonConta: 'reste, ne compte pas',
         conConferma: 'avec confirmation',
-        nellaBarra: '« à remplir » dans la barre du bas',
+        nellaBarra: '« à clôturer » dans la barre du bas',
         verbale: 'Procès-verbal',
         inDocumenti: 'dans Documents',
       },
@@ -1778,8 +1827,8 @@ export const testi = catalogo(it, {
           testo:
             'Sans plan, il y a **Attribuer un plan** : les plans du cours, chacun avec les ' +
             'minutes en plus ou en moins par rapport à la leçon, et **Nouveau plan pour cette ' +
-            'leçon**. Avec un plan, **Changer** et le crayon **Modifier le déroulement**, qui le ' +
-            'montre sur les périodes de cette leçon.',
+            'leçon**. Avec un plan, **Changer** et le crayon **Modifier le déroulement**, qui ' +
+            'ouvre le plan sur sa page, avec cette leçon à côté.',
         },
         {
           termine: 'Les épreuves de la leçon',
@@ -1869,7 +1918,8 @@ export const testi = catalogo(it, {
             'absent, **R** en retard, **E** dispensé, et de nouveau **-**. En appui long, ou au ' +
             'clic droit, elle ouvre le menu avec tous les états. Le **R** n’existe qu’à la ' +
             'première période de la leçon et à la première après une pause : c’est là qu’on ' +
-            'arrive en retard ; le bouton de ligne ne le propose pas.',
+            'arrive en retard ; le bouton de ligne ne le propose pas. Au clavier, les flèches ' +
+            'passent d’une case à l’autre ; dans les minutes et la note, elles déplacent le curseur.',
         },
         {
           termine: 'Une ligne, une colonne',
@@ -2148,7 +2198,8 @@ export const testi = catalogo(it, {
           testo:
             'Un clic fait tourner la case : vide, **Très bien**, **À améliorer**, vide. Les ' +
             'colonnes sont les « Aspects observés en classe » de **Paramètres** › Enseignement › Listes : ' +
-            'par défaut participation, collaboration, respect des règles, effort, autonomie.',
+            'par défaut participation, collaboration, respect des règles, effort, autonomie. ' +
+            'Les flèches passent d’une case à l’autre.',
         },
         {
           termine: 'Annoter une case',
@@ -2182,23 +2233,23 @@ export const testi = catalogo(it, {
       sommario:
         'Les leçons du cours et leurs déroulements : ce qui est préparé, et ce qui ne l’est pas.',
       scritte: {
+        cerca: 'date, numéro, objectif',
+        preparate: '18 sur 24 préparées',
+        conto: '18 sur 24',
+        ora1: '#1 · jeu 12.09',
+        stato1: 'préparée · Fractions',
+        ora2: '#2 · jeu 19.09',
+        stato2: '20 min non couverts · Mesures',
+        ora3: '#3 · jeu 26.09',
+        stato3: 'sans plan',
+        nonAssegnati: 'Plans non attribués',
+        campi: 'objectifs · prérequis',
         materia: 'Mathématiques',
-        ore: '18/24 leçons',
-        cerca: 'date, objectif, étape',
         semestre: '1er semestre',
-        preparate: '18/24 préparées',
-        lezione1: '1re leçon',
-        data1: 'jeu 12.09',
-        lezione2: '2e leçon',
-        data2: 'jeu 19.09 · 20 min non couverts',
-        lezione3: '3e leçon',
-        senzaPiano: 'sans plan — prépare-la',
-        nonAssegnati: 'Pas encore attribués (1)',
         bozza: 'brouillon du 02.09',
         ripasso: `${FR.tipiAttivita.ripasso} · 3 activités`,
         titoloEditor: 'Mathématiques · 1re leçon',
         diCheCosaParla: 'De quoi il parle',
-        campi: 'objectifs · prérequis · notes',
         scaletta: 'Déroulement',
         gruppo1: 'Groupe 1 · 2 pér. d’affilée · 08:20–09:50',
         liberi: '10 min libres',
@@ -2224,18 +2275,33 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'À gauche, les leçons du cours choisi en haut ; à droite, le plan de la leçon ' +
-            'choisie, posé sur ses périodes. Ce qu’on écrit s’enregistre tout seul.',
+            'En haut, le navigateur entre les leçons du cours choisi ; dessous, sur toute la ' +
+            'largeur de la page, le plan de la leçon choisie, posé sur ses périodes. Ce ' +
+            'qu’on écrit s’enregistre tout seul.',
           legenda: [
-            'Les leçons par semestre : « préparées », ce sont celles que le déroulement remplit ' +
-              'entièrement.',
-            'Une leçon que le déroulement ne couvre pas dit combien de minutes restent à ' +
-              'couvrir.',
-            'Une leçon sans plan : un clic génère objectifs et déroulement et les ouvre.',
-            'Objectifs, prérequis et notes : ce qui permet de retrouver le plan.',
+            'Les flèches passent à la leçon d’avant et à celle d’après ; au clavier ' +
+              '**Alt+↑** et **Alt+↓**.',
+            'La leçon actuelle, avec son état : un clic ouvre la liste de toutes les leçons.',
+            'Combien de leçons ont un déroulement qui les remplit entièrement, et combien ' +
+              'sont à ajuster.',
+            'Objectifs et prérequis : ce qui permet de retrouver le plan.',
             'Un groupe de périodes d’affilée, entre deux pauses, avec les minutes libres.',
             'Le fil sous chaque étape : combien de son groupe elle occupe.',
             'La pause a sa ligne, avec les minutes qu’elle dure.',
+          ],
+        },
+        {
+          didascalia:
+            'La liste du navigateur : toutes les leçons du cours par semestre, chacune avec ' +
+            'son état et le sujet du plan, et en bas les plans qu’aucune leçon n’utilise.',
+          legenda: [
+            'La recherche trouve par date, numéro, objectif ou étape ; les flèches ' +
+              'parcourent la liste, **Entrée** ouvre.',
+            'Le semestre, avec combien de ses leçons sont préparées.',
+            'Une leçon préparée : le déroulement remplit exactement la leçon.',
+            'Une leçon à ajuster dit combien de minutes restent non couvertes, ou débordent.',
+            'Une leçon sans plan : ouverte, on crée le plan ou on en attribue un qui existe.',
+            'Les brouillons et les plans restés sans cours, qu’aucune leçon n’utilise.',
           ],
         },
         {
@@ -2253,32 +2319,34 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Les leçons, par semestre',
+          termine: 'La page',
           testo:
-            'La page est la liste des leçons du cours choisi en haut, regroupées par semestre — ' +
-            'ou seulement celui de la liste **Période**. L’en-tête dit combien de leçons ' +
-            'attendent encore un déroulement. La case de recherche trouve par date, objectif ' +
-            'ou étape.',
+            'En haut, le navigateur entre les leçons du cours choisi dans la liste en haut ; ' +
+            'dessous, le plan de la leçon choisie, sur toute la largeur de la page. ' +
+            'L’en-tête dit combien de leçons attendent encore un déroulement.',
         },
         {
           termine: 'Préparer une leçon',
           testo:
-            'Une leçon sans plan indique **sans plan — prépare-la** : un clic génère le plan et ' +
-            'l’ouvre. Le plan naît déjà rempli, à revoir : des objectifs et un déroulement ' +
-            'd’étapes calé sur les minutes de la leçon. Quand le cours n’a encore aucun plan, ' +
-            '**Générer le plan** fait de même ; depuis la leçon, **Générer le plan ' +
-            'automatiquement**. Il n’y a pas de « nouveau plan » isolé : un plan naît d’une ' +
-            'leçon, ici ou depuis la leçon elle-même.',
+            'Une leçon sans plan montre **Créer le plan**, qui en fait un vide sur le cours ' +
+            'de la leçon, le lui attribue et l’ouvre, et **Attribuer un plan existant**, qui ' +
+            'choisit parmi les plans du cours ou en fait un nouveau. Depuis la leçon, ' +
+            '**Attribuer un plan** fait de même. Objectifs et déroulement, c’est ' +
+            'l’enseignant qui les écrit : le registre n’en invente pas.',
         },
         {
           termine: 'Le navigateur',
           testo:
-            'Dans l’en-tête, **Leçon précédente** et **Leçon suivante** (les flèches) passent ' +
-            'd’une leçon du cours à l’autre ; une leçon sans plan le reçoit généré. « 18/24 ' +
-            'préparées » compte les leçons dont le déroulement remplit exactement la leçon ; « ' +
-            'À ajuster » celles qui débordent ou laissent des minutes non couvertes. **Première ' +
-            'à préparer** génère le plan de la première leçon qui n’en a pas ; quand il n’en ' +
-            'manque aucun, on lit « Toutes les leçons ont un plan ».',
+            'Les flèches ‹ › (**Leçon précédente**, **Leçon suivante**) passent d’une leçon ' +
+            'du cours à l’autre ; hors des champs, **Alt+↑** et **Alt+↓** aussi, car ' +
+            '**Alt+←** et **Alt+→** restent le pas en arrière et en avant entre les pages. ' +
+            'Au centre la leçon actuelle, « #3 · jeu 26.09 » : un clic ouvre la liste de ' +
+            'toutes les leçons, par semestre, chacune avec son état — ✓ préparée, sans plan, ' +
+            'à ajuster avec les minutes non couvertes ou en trop, annulée — et le sujet du ' +
+            'plan. La case en haut cherche par date, numéro, objectif ou étape ; ↑ ↓ ' +
+            'parcourent, **Entrée** ouvre, **Échap** ferme. En bas, **Plans non attribués** ' +
+            'rassemble les brouillons et les plans restés sans cours. À côté, « 18 sur 24 ' +
+            'préparées » compte les leçons dont le déroulement remplit exactement la leçon.',
         },
         {
           termine: 'Comment s’appelle un plan',
@@ -2291,20 +2359,19 @@ export const testi = catalogo(it, {
         {
           termine: 'De quoi il parle',
           testo:
-            'Un plan n’a pas de titre : il a des **Objectifs** (un par ligne), des ' +
-            '**Prérequis** et des **Notes** pour soi. C’est ce que trouve la recherche, et le ' +
-            'premier objectif sert de sujet dans la petite ligne.',
+            'Un plan n’a pas de titre : il a des **Objectifs** (un par ligne) et des ' +
+            '**Prérequis**. C’est ce que trouve la recherche, et le premier objectif sert de ' +
+            'sujet dans la liste du navigateur.',
         },
         {
           termine: 'Les étapes',
           testo:
-            'Chaque étape a un titre, un type et une durée **en minutes**, par blocs de 5 (au ' +
-            'moins 5) : les boutons « -5 min » et « +5 min » la changent d’un bloc. Le type se ' +
-            'choisit en appuyant sur sa pastille. On les réordonne en glissant la poignée, ou ' +
-            'avec ↑ ↓ quand la poignée a le focus. **Ajouter une activité** en met une à la ' +
-            'fin, déjà ouverte ; **Régénérer le déroulement** remet le déroulement proposé, ' +
-            'calé sur la leçon. Dans la page, cela s’enregistre aussitôt ; dans la fenêtre de ' +
-            'modification, seulement avec **Enregistrer**.',
+            'Chaque étape a un titre, un type et une durée **en minutes**, par blocs de 5 ' +
+            '(au moins 5) : les boutons « -5 min » et « +5 min » la changent d’un bloc. Le ' +
+            'type se choisit en appuyant sur sa pastille. On les réordonne en glissant la ' +
+            'poignée, ou avec ↑ ↓ quand la poignée a le focus. **Ajouter une activité** en ' +
+            'met une à la fin, déjà ouverte. Dans la page, cela s’enregistre aussitôt ; dans ' +
+            'la fenêtre de modification, seulement avec **Enregistrer**.',
         },
         {
           termine: 'Le détail d’une étape',
@@ -2319,8 +2386,8 @@ export const testi = catalogo(it, {
           testo:
             'Avec une leçon dessous, les étapes tombent dans les groupes de périodes entre ' +
             'deux pauses : « 10 min libres », « plein », « 15 min de trop ». Ce qui ne tient ' +
-            'pas finit sous **Au-delà de la fin de la leçon**. Dans la liste, « 20 min non ' +
-            'couverts » ou « 10 min au-delà de la leçon ».',
+            'pas finit sous **Au-delà de la fin de la leçon**. Dans la liste du navigateur, ' +
+            '« 20 min non couverts » ou « 10 min au-delà de la leçon ».',
         },
         {
           termine: 'Une étape qui est une épreuve',
@@ -2354,9 +2421,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Réutilisation',
           testo:
-            '**Dupliquer** fait une copie, fichiers compris, à adapter. En bas de la liste, ' +
-            '« Pas encore attribués » rassemble les brouillons, et **Sans cours** les plans ' +
-            'restés orphelins, à raccrocher.',
+            '**Dupliquer** fait une copie, fichiers compris, à adapter. En bas de la liste ' +
+            'du navigateur, **Plans non attribués** rassemble les brouillons et les plans ' +
+            'restés sans cours, à raccrocher.',
         },
         {
           termine: 'Où il aboutit',
@@ -2380,6 +2447,8 @@ export const testi = catalogo(it, {
         'Un déroulement utilisé par plusieurs leçons change dans toutes : pour n’en changer ' +
           'qu’une, on duplique. Attribuer un autre plan à une leçon remet ses coches à zéro ; ' +
           'retirer une étape retire la sienne. **Supprimer** jette aussi les fichiers du plan.',
+        'Les plans d’avant n’ont plus de **Notes** : ce qui y était écrit se trouve à la ' +
+          'fin des **Prérequis**, après « Notes : ».',
       ],
     },
   },
@@ -2420,7 +2489,7 @@ export const testi = catalogo(it, {
         riapri: 'Reopen',
         restaNonConta: 'stays, doesn’t count',
         conConferma: 'with confirmation',
-        nellaBarra: '“to fill in” in the bottom bar',
+        nellaBarra: '“to close” in the bottom bar',
         verbale: 'Lesson record',
         inDocumenti: 'in Documents',
       },
@@ -2569,8 +2638,8 @@ export const testi = catalogo(it, {
           testo:
             'Without a plan there is **Assign a plan**: the course’s plans, each with the ' +
             'minutes over or under compared with the lesson, and **New plan for this lesson**. ' +
-            'With a plan, **Change** and the pencil **Edit the outline**, which shows it on ' +
-            'this lesson’s periods.',
+            'With a plan, **Change** and the pencil **Edit the outline**, which opens ' +
+            'the plan on its page, with this lesson alongside.',
         },
         {
           termine: 'The lesson’s tests',
@@ -2658,7 +2727,8 @@ export const testi = catalogo(it, {
             'absent, **R** late, **E** excused, and back to **-**. Pressed and held, or with the ' +
             'right button, it opens the menu with every state. **R** exists only in the first ' +
             'period of the lesson and the first after a break: that is where someone arrives ' +
-            'late; the row button doesn’t offer it.',
+            'late; the row button doesn’t offer it. With the keyboard the arrows move from one ' +
+            'box to the next; inside minutes and note they move the cursor.',
         },
         {
           termine: 'A row, a column',
@@ -2925,7 +2995,8 @@ export const testi = catalogo(it, {
           testo:
             'A click turns the cell: empty, **Very good**, **Needs work**, empty. The columns ' +
             'are the “Aspects observed in class” in **Settings** › Teaching › Lists: out of the box ' +
-            'participation, collaboration, respect for the rules, effort, independence.',
+            'participation, collaboration, respect for the rules, effort, independence. The ' +
+            'arrows move from one box to the next.',
         },
         {
           termine: 'Noting a cell',
@@ -2959,23 +3030,23 @@ export const testi = catalogo(it, {
       sommario:
         'The course’s lessons and their outlines: what is prepared, and what is not.',
       scritte: {
+        cerca: 'search by date, number, objective',
+        preparate: '18 of 24 prepared',
+        conto: '18 of 24',
+        ora1: '#1 · Thu 12.09',
+        stato1: 'prepared · Fractions',
+        ora2: '#2 · Thu 19.09',
+        stato2: '20 min uncovered · Measuring',
+        ora3: '#3 · Thu 26.09',
+        stato3: 'no plan',
+        nonAssegnati: 'Unassigned plans',
+        campi: 'objectives · prerequisites',
         materia: 'Maths',
-        ore: '18/24 lessons',
-        cerca: 'search by date, objective, step',
         semestre: '1st semester',
-        preparate: '18/24 prepared',
-        lezione1: '1st lesson',
-        data1: 'Thu 12.09',
-        lezione2: '2nd lesson',
-        data2: 'Thu 19.09 · 20 min uncovered',
-        lezione3: '3rd lesson',
-        senzaPiano: 'no plan — prepare it',
-        nonAssegnati: 'Not yet assigned (1)',
         bozza: 'draft from 02.09',
         ripasso: `${EN.tipiAttivita.ripasso} · 3 activities`,
         titoloEditor: 'Maths · 1st lesson',
         diCheCosaParla: 'What it is about',
-        campi: 'objectives · prerequisites · notes',
         scaletta: 'Outline',
         gruppo1: 'Group 1 · 2 per. back to back · 08:20–09:50',
         liberi: '10 min free',
@@ -3001,17 +3072,34 @@ export const testi = catalogo(it, {
       figure: [
         {
           didascalia:
-            'On the left the lessons of the course chosen at the top, on the right the plan of ' +
-            'the chosen lesson, laid over its periods. What you write is saved by itself.',
+            'At the top the navigator through the lessons of the chosen course; below, as ' +
+            'wide as the page, the plan of the chosen lesson, laid over its periods. What ' +
+            'you write is saved by itself.',
           legenda: [
-            'The lessons by semester: “prepared” are the ones the outline fills completely.',
-            'A lesson the outline does not cover says how many minutes are left uncovered.',
-            'A lesson with no plan: a click generates objectives and outline and opens them.',
-            'Objectives, prerequisites and notes: what helps you find the plan again.',
+            'The arrows move to the lesson before and the one after; from the keyboard ' +
+              '**Alt+↑** and **Alt+↓**.',
+            'The current lesson, with its status: a click opens the list of all lessons.',
+            'How many lessons have an outline that fills them completely, and how many need ' +
+              'adjusting.',
+            'Objectives and prerequisites: what helps you find the plan again.',
             'A group of back-to-back periods, between one break and the next, with the free ' +
               'minutes.',
             'The line under each step: how much of its group it takes up.',
             'The break has its own row, with the minutes it lasts.',
+          ],
+        },
+        {
+          didascalia:
+            'The navigator’s list: all the course’s lessons by semester, each with its ' +
+            'status and the plan’s topic, and at the bottom the plans no lesson uses.',
+          legenda: [
+            'The search finds by date, number, objective or step; the arrow keys move ' +
+              'through the list, **Enter** opens.',
+            'The semester, with how many of its lessons are prepared.',
+            'A prepared lesson: the outline fills the lesson exactly.',
+            'A lesson to adjust says how many minutes are left uncovered, or run over.',
+            'A lesson with no plan: once open, you create the plan or assign an existing one.',
+            'The drafts and the plans left without a course, which no lesson uses.',
           ],
         },
         {
@@ -3029,32 +3117,34 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'The lessons, by semester',
+          termine: 'The page',
           testo:
-            'The page is the list of lessons of the course chosen at the top, grouped by ' +
-            'semester — or only the one in the **Period** drop-down. The header says how many ' +
-            'lessons are still waiting for an outline. The search box finds by date, objective ' +
-            'or step.',
+            'At the top the navigator through the lessons of the course chosen in the ' +
+            'drop-down above; below, the plan of the chosen lesson, as wide as the page. The ' +
+            'header says how many lessons are still waiting for an outline.',
         },
         {
           termine: 'Preparing a lesson',
           testo:
-            'A lesson with no plan says **no plan — prepare it**: a click generates the plan ' +
-            'and opens it. The plan starts out filled in, to review: objectives and an outline ' +
-            'of steps fitted to the lesson’s minutes. When the course has no plans yet, ' +
-            '**Generate plan** does the same; from the lesson itself, **Auto-generate plan**. ' +
-            'There is no free-standing “new plan”: a plan is born from a lesson, here or from ' +
-            'the lesson itself.',
+            'A lesson with no plan shows **Create the plan**, which makes an empty one on ' +
+            'the lesson’s course, assigns it and opens it, and **Assign an existing plan**, ' +
+            'which picks among the course’s plans or makes a new one. From the lesson ' +
+            'itself, **Assign a plan** does the same. Objectives and outline are written by ' +
+            'whoever teaches: the register does not invent any.',
         },
         {
           termine: 'The navigator',
           testo:
-            'In the header, **Previous lesson** and **Next lesson** (the arrows) move from one ' +
-            'lesson of the course to another; a lesson with no plan gets one generated. “18/24 ' +
-            'prepared” counts the lessons whose outline fills the lesson exactly; “To adjust” ' +
-            'those that run over or leave minutes uncovered. **First to prepare** generates the ' +
-            'plan of the first lesson without one; when none is missing it reads “All lessons ' +
-            'have a plan”.',
+            'The arrows ‹ › (**Previous lesson**, **Next lesson**) move from one lesson of ' +
+            'the course to another; outside the fields **Alt+↑** and **Alt+↓** do too, ' +
+            'because **Alt+←** and **Alt+→** stay the step back and forward between pages. ' +
+            'In the middle the current lesson, “#3 · Thu 26.09”: a click opens the list of ' +
+            'all lessons, by semester, each with its status — ✓ prepared, no plan, to adjust ' +
+            'with the minutes uncovered or over, cancelled — and the plan’s topic. The box ' +
+            'at the top searches by date, number, objective or step; ↑ ↓ move, **Enter** ' +
+            'opens, **Esc** closes. At the bottom **Unassigned plans** gathers the drafts ' +
+            'and the plans left without a course. Alongside, “18 of 24 prepared” counts the ' +
+            'lessons whose outline fills the lesson exactly.',
         },
         {
           termine: 'What a plan is called',
@@ -3066,19 +3156,19 @@ export const testi = catalogo(it, {
         {
           termine: 'What it is about',
           testo:
-            'A plan has no title: it has **Objectives** (one per line), **Prerequisites** and ' +
-            '**Notes** for yourself. That is what the search finds, and the first objective ' +
-            'serves as the topic in the small row.',
+            'A plan has no title: it has **Objectives** (one per line) and ' +
+            '**Prerequisites**. That is what the search finds, and the first objective ' +
+            'serves as the topic in the navigator’s list.',
         },
         {
           termine: 'The steps',
           testo:
             'Each step has a title, a type and a length **in minutes**, in blocks of 5 (at ' +
             'least 5): the “-5 min” and “+5 min” buttons change it by one block. The type is ' +
-            'chosen by pressing its badge. They are reordered by dragging the handle, or with ↑ ' +
-            '↓ when the handle has focus. **Add activity** puts one at the end, already open; ' +
-            '**Regenerate outline** puts back the suggested outline, fitted to the lesson. On ' +
-            'the page this is saved at once; in the edit window only with **Save**.',
+            'chosen by pressing its badge. They are reordered by dragging the handle, or ' +
+            'with ↑ ↓ when the handle has focus. **Add activity** puts one at the end, ' +
+            'already open. On the page this is saved at once; in the edit window only with ' +
+            '**Save**.',
         },
         {
           termine: 'A step’s details',
@@ -3092,8 +3182,8 @@ export const testi = catalogo(it, {
           testo:
             'With a lesson underneath, the steps fall into the groups of periods between one ' +
             'break and the next: “10 min free”, “full”, “15 min too many”. What does not fit ' +
-            'ends up under **Past the end of the lesson**. In the list, “20 min uncovered” or ' +
-            '“10 min over the lesson”.',
+            'ends up under **Past the end of the lesson**. In the navigator’s list, “20 min ' +
+            'uncovered” or “10 min over the lesson”.',
         },
         {
           termine: 'A step that is a test',
@@ -3125,9 +3215,9 @@ export const testi = catalogo(it, {
         {
           termine: 'Reuse',
           testo:
-            '**Duplicate** makes a copy, files included, to adapt. At the bottom of the list ' +
-            '“Not yet assigned” gathers the drafts, and **No course** the orphaned plans to ' +
-            'reattach.',
+            '**Duplicate** makes a copy, files included, to adapt. At the bottom of the ' +
+            'navigator’s list **Unassigned plans** gathers the drafts and the plans left ' +
+            'without a course, to reattach.',
         },
         {
           termine: 'Where it ends up',
@@ -3150,6 +3240,8 @@ export const testi = catalogo(it, {
         'An outline used by several lessons changes in all of them: to change just one, ' +
           'duplicate it. Assigning another plan to a lesson resets its ticks; removing a step ' +
           'removes its tick. **Delete** throws away the plan’s files too.',
+        'Plans from before no longer have **Notes**: what was written there is at the ' +
+          'end of the **Prerequisites**, after “Notes:”.',
       ],
     },
   },

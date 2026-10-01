@@ -7,11 +7,14 @@
 import * as apparato from 'apparato'
 
 import { estensioneDi, nomeSicuro } from '../dominio/text.js'
-import { ESTENSIONE, nomeDelPacchetto } from './package.js'
+import { DATI, ESTENSIONE, nomeDelPacchetto } from './package.js'
 
 export { estensioneDi, nomeSicuro }
 
-/** I nomi delle collezioni: file dentro il documento dell'anno. */
+/**
+ * I nomi dei file delle collezioni. Dentro il documento stanno sotto `DATI/`:
+ * il nome della voce lo dà `voceDi`.
+ */
 export const NOMI = {
   registro: 'registro.json',
   classi: 'classi.json',
@@ -22,6 +25,7 @@ export const NOMI = {
   fascicoli: 'fascicoli.json',
   consegne: 'consegne.json',
   check: 'check.json',
+  progetti: 'progetti.json',
   smistamenti: 'smistamenti.json',
   // File a sé: la chiave è l'indirizzo, e si riscrive solo con «Trova gli indirizzi».
   coordinate: 'coordinate.json',
@@ -29,8 +33,13 @@ export const NOMI = {
 
 export type NomeCollezione = keyof typeof NOMI
 
+/** La voce di una collezione dentro il documento dell'anno: `data/classi.json`. */
+export function voceDi (collezione: NomeCollezione): string {
+  return `${DATI}/${NOMI[collezione]}`
+}
+
 /** La sottocartella dei JSON nella disposizione su disco: la legge solo la migrazione. */
-export const DATI = 'dati'
+export const DATI_SU_DISCO = 'dati'
 
 export { ESTENSIONE, nomeDelPacchetto }
 
@@ -143,7 +152,7 @@ export function percorsoPacchettoIn (radice: apparato.Uri, cartella: string): ap
 /** La sottocartella dei JSON di un anno, nella disposizione su disco. */
 export function cartellaCollezioniIn (radice: apparato.Uri, cartella: string): apparato.Uri | null {
   const anno = cartellaAnnoIn(radice, cartella)
-  return anno ? apparato.Uri.joinPath(anno, DATI) : null
+  return anno ? apparato.Uri.joinPath(anno, DATI_SU_DISCO) : null
 }
 
 /** Il file di una collezione di un anno, nella disposizione su disco. */

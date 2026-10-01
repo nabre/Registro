@@ -13,12 +13,15 @@ const it = {
   nessunaOraTitolo:
     'Non ci sono lezioni da fare né da compilare, fra quelle che i filtri qui accanto lasciano ' +
     'vedere',
-  daCompilare: (classe: string, quando: string) =>
-    `da compilare: ${classe} · ${quando}`,
   prossima: (classe: string, quando: string, inizio: string) =>
     `prossima: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-  daCompilareTitolo: (giorno: string) =>
-    `La lezione di ${giorno} è passata e il suo registro non è a posto.\nApri il registro della lezione`,
+  daChiudere: (quante: number) => `${quante} da chiudere`,
+  daChiudereTitolo:
+    'Lezioni passate con il registro non a posto (appello, argomenti, consuntivo).\nScegli quale aprire',
+  daChiudereMenu: 'Da chiudere',
+  /** Una riga della tendina: numero dell'ora nel corso, giorno, corso. */
+  oraDaChiudere: (numero: number | null, giorno: string, corso: string) =>
+    `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
   prossimaTitolo: (giorno: string, inizio: string) =>
     `Prossima lezione: ${giorno}${inizio ? `, alle ${inizio}` : ''}.\nApri il registro della lezione`,
 
@@ -85,12 +88,14 @@ export const testi = catalogo(it, {
     nessunaOraTitolo:
       'Unter denen, die die Filter daneben zeigen, gibt es keine Stunden zu halten oder ' +
       'auszufüllen',
-    daCompilare: (classe, quando) => `auszufüllen: ${classe} · ${quando}`,
     prossima: (classe, quando, inizio) =>
       `nächste: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daCompilareTitolo: (giorno) =>
-      `Die Stunde vom ${giorno} ist vorbei und ihr Eintrag ist nicht vollständig.\n` +
-      'Öffne das Klassenbuch der Stunde',
+    daChiudere: (quante) => `${quante} abzuschliessen`,
+    daChiudereTitolo:
+      'Vergangene Stunden mit unvollständigem Eintrag (Präsenzkontrolle, Themen, Rückblick).\n' +
+      'Wähle, welche du öffnest',
+    daChiudereMenu: 'Abzuschliessen',
+    oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Nächste Stunde: ${giorno}${inizio ? `, um ${inizio}` : ''}.\n` +
       'Öffne das Klassenbuch der Stunde',
@@ -152,12 +157,14 @@ ${perche}
     nessunaOraTitolo:
       'Il n’y a pas de leçons à donner ni à remplir, parmi celles que les filtres ci-contre ' +
       'laissent voir',
-    daCompilare: (classe, quando) => `à remplir : ${classe} · ${quando}`,
     prossima: (classe, quando, inizio) =>
       `prochaine : ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daCompilareTitolo: (giorno) =>
-      `La leçon du ${giorno} est passée et son registre n’est pas en ordre.\n` +
-      'Ouvre le registre de la leçon',
+    daChiudere: (quante) => `${quante} à clôturer`,
+    daChiudereTitolo:
+      'Leçons passées dont le registre n’est pas en ordre (appel, sujets, bilan).\n' +
+      'Choisis laquelle ouvrir',
+    daChiudereMenu: 'À clôturer',
+    oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Prochaine leçon : ${giorno}${inizio ? `, à ${inizio}` : ''}.\nOuvre le registre de la leçon`,
     pendenze: (aperte) => quanti(aperte, lessico().pendenza),
@@ -216,12 +223,14 @@ Ouvre les modèles de langage`,
     nessunaOra: 'no lessons scheduled',
     nessunaOraTitolo:
       'There are no lessons to teach or to fill in, among those the filters alongside let you see',
-    daCompilare: (classe, quando) => `to fill in: ${classe} · ${quando}`,
     prossima: (classe, quando, inizio) =>
       `next: ${classe} · ${quando}${inizio ? ` ${inizio}` : ''}`,
-    daCompilareTitolo: (giorno) =>
-      `The lesson on ${giorno} is over and its register is not complete.\n` +
-      'Open the lesson’s register',
+    daChiudere: (quante) => `${quante} to close`,
+    daChiudereTitolo:
+      'Past lessons whose register is not complete (roll call, topics, review).\n' +
+      'Choose which one to open',
+    daChiudereMenu: 'To close',
+    oraDaChiudere: (numero, giorno, corso) => `${numero ? `#${numero}` : '–'} · ${giorno} · ${corso}`,
     prossimaTitolo: (giorno, inizio) =>
       `Next lesson: ${giorno}${inizio ? `, at ${inizio}` : ''}.\nOpen the lesson’s register`,
     pendenze: (aperte) => quanti(aperte, lessico().pendenza),

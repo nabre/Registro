@@ -32,12 +32,13 @@ import {
 } from '../components/base.js'
 import { icona } from '../components/icons.js'
 import { inTelaio } from '../components/table.js'
+import { dataDiLezione } from '../components/lessonDate.js'
 import { h, type Figlio } from '../dom.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
 import { pannelloRiconsegneDellOra } from './assessments/returns.js'
 import { moduloOsservazione } from '../forms.js'
-import { PORZIONI_LEZIONE } from '../tabs.js'
+import { porzioniLezione, schedaLezioneAperta } from '../tabs.js'
 import { apriLezione } from '../pages.js'
 import { azione } from '../bridge.js'
 import { consegneDellaLezione } from '../../../core/dominio/assignments.js'
@@ -56,6 +57,7 @@ import {
 import { pannelloAppello } from './lesson/attendance.js'
 import { matriceOsservata, noteDellaMatrice } from './lesson/behaviour.js'
 import { pannelloPiano } from './lesson/plan.js'
+import { schedaProgettoDellOra } from './lesson/project.js'
 import { pannelloValutazioni } from './lesson/assessments.js'
 import { testi } from './lesson.testi.js'
 
@@ -203,8 +205,7 @@ function etichettaLezione (altra: Lezione, numero: number | null): string {
   const inizio = inizioLezione(altra)
   const segno = altra.stato === 'svolta' ? '✓ ' : altra.stato === 'annullata' ? '× ' : ''
   const ordine = numero === null ? '' : `${numero}. `
-  const giorno = formattaData(altra.data, 'giorno')
-  return `${segno}${ordine}${giorno} ${formattaData(altra.data)}${inizio ? ` · ${inizio}` : ''}`
+  return `${segno}${ordine}${formattaData(altra.data, 'settimana')}${inizio ? ` · ${inizio}` : ''}`
 }
 
 /**
@@ -425,6 +426,8 @@ export function vistaLezione (): Figlio {
   const classe = classeDiLezione(lezione)
   const riepilogo = riepilogaPresenze(lezione.presenze)
   const stati = lessico().statiLezione
+  // La linguetta scelta, se quest'ora ce l'ha: Progetto c'è solo con un progetto nel piano.
+  const aperta = schedaLezioneAperta(lezione)
 
   // Catena di telaio dalla radice della vista fino alle matrici che scorrono
   // di lato (appello, comportamento): un clic ridisegna tutto, e la scatola
@@ -447,10 +450,11 @@ export function vistaLezione (): Figlio {
       compatta: true,
       // Il titolo è la classe; di che cosa parla l'ora lo dice il piano sotto.
       titolo: classe?.nome ?? t.classeEliminata,
-      sottotitolo:
-        `${formattaData(lezione.data, 'lungo')} · ` +
-        `${inizioLezione(lezione) ?? ''}–${fineLezione(lezione) ?? ''}` +
-        (lezione.aula ? t.aula(lezione.aula) : ''),
+      sottotitolo: [
+        dataDiLezione(lezione.data),
+        ` · ${inizioLezione(lezione) ?? ''}–${fineLezione(lezione) ?? ''}` +
+          (lezione.aula ? t.aula(lezione.aula) : ''),
+      ],
       // Niente pulsanti qui: i gesti sull'ora stanno nella riga delle azioni.
       contorno: h(
         'div',
@@ -481,14 +485,15 @@ export function vistaLezione (): Figlio {
     }),
     navigatoreRegistro(lezione),
     avvisoOraSvolta(lezione),
-    // Tre schede per tre momenti: amministrazione mentre la classe entra, lezione
-    // durante, annotazioni (con lo svolgimento) dopo.
+    // Quattro schede: amministrazione mentre la classe entra, lezione durante,
+    // progetto (compiti, matrice, giudizi) solo se il piano dell'ora lavora a
+    // uno, annotazioni (con lo svolgimento) dopo.
     // I nomi delle linguette vengono da `tabs.ts`, che li dà anche al percorso
     // nella barra del titolo.
-    selettore(stato.schedaLezione, [...PORZIONI_LEZIONE], (scelta: SchedaLezione) =>
+    selettore(aperta, [...porzioniLezione(lezione)], (scelta: SchedaLezione) =>
       aggiorna({ schedaLezione: scelta }),
     ),
-    stato.schedaLezione === 'amministrazione'
+    aperta === 'amministrazione'
       ? colonne('amministrazione', aOraSvolta(lezione, 'appello', pannelloAppello(lezione)), aOraSvolta(
           lezione,
           'consegne',
@@ -499,10 +504,23 @@ export function vistaLezione (): Figlio {
           pannelloRiconsegneDellOra(lezione),
         ))
       : null,
-    stato.schedaLezione === 'lezione'
+    aperta === 'lezione'
       ? colonne('lezione', aOraSvolta(lezione, 'piano', pannelloPiano(lezione)), [pannelloStrumentiLezione(lezione)])
       : null,
-    stato.schedaLezione === 'annotazioni'
+    aperta === 'progetto'
+      ? (() => {
+          const { scelta, sinistra, destra } = schedaProgettoDellOra(lezione)
+          return [
+            scelta,
+            colonne(
+              'progetto',
+              aOraSvolta(lezione, 'progetto', ...sinistra),
+              aOraSvolta(lezione, 'progetto-matrice', ...destra),
+            ),
+          ]
+        })()
+      : null,
+    aperta === 'annotazioni'
       ? colonne(
           'annotazioni',
           aOraSvolta(lezione, 'svolgimento', pannelloContenuti(lezione)),

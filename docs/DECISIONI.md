@@ -537,11 +537,11 @@ miniatura del tema, nei blocchi `[data-tema-figura]`
 **Decisione.**
 - Marchio **Regiklass**, non si traduce; nome npm `regiklass`, artefatti
   `regiklass-<versione>-installer.exe` / `-portabile.exe`.
-- `appId` `ch.nabre.regiklass`; `nsis.guid` fisso al GUID ricavato dal vecchio
-  `ch.edu.ti.cptt.registro-docenti`.
+- `appId` `ch.nabre.regiklass`; `nsis.guid` fisso, quello delle installazioni
+  già fatte (`GUID_INSTALLAZIONE` in `esbuild.mjs`).
 - Eseguibile `Regiklass.exe`: lo script d'aggiornamento installato
-  (`os/windows/aggiornamento.ps1`) riconosce ancora i nomi precedenti (`Regiclass.exe`
-  e `Registro docenti.exe`) e riapre quello nuovo nello stesso percorso.
+  (`os/windows/aggiornamento.ps1`) riconosce ancora il nome precedente (`Regiclass.exe`)
+  e riapre quello nuovo nello stesso percorso.
 - Cartella dei dati `%APPDATA%\Regiklass` (rinominata al primo avvio).
 - Estensione `.regi`.
 - Comando `regi`.
@@ -986,6 +986,56 @@ riapriva la scelta. L'inglese è già la maggioranza: meno file da spostare.
 **Vincoli.** I file nuovi nascono in inglese. Gli esistenti si rinominano a
 lotti, ognuno scritto prima in ARCHITETTURA § 11 e fatto con `git mv` in un
 commit che contiene solo il rinomino e i riferimenti che lo seguono (D5).
+
+### ADR-54 — Il progetto: collezione propria del corso
+
+**Decisione.** Collezione nuova `progetti` (`progetti.json`), un `Progetto`
+per voce, appartenente a un corso (`corsoId`, come piani e check). Contiene:
+
+- testata: titolo, descrizione, obiettivi, stato (`bozza` | `in-corso` |
+  `concluso`), risorse; **nessuna data propria**: il periodo è quello delle
+  ore con tappe del progetto (`periodoDelProgetto`);
+- `fasi` (id, titolo, descrizione), in sequenza e **sempre almeno una**: il
+  progetto nasce con «Fase 1». Ogni fase è il contenitore delle tappe dei
+  piani che la nominano; da lì si ricavano periodo, avanzamento, presenze e
+  momenti della fase (`quadroDelProgetto`);
+- `criteri` (id, titolo, descrizione) e `livelli` (scala a livelli con testo e
+  colore, predefinita a quattro: non raggiunto, parziale, raggiunto,
+  pienamente);
+- `compiti`: valgono per tutti; ognuno ha la sua fine comune (`fine` +
+  `fineLezioneId`, stessa regola delle consegne), gli `inizi` per allievo
+  (data + `lezioneId` facoltativo), le `proroghe` per allievo e i `fatti`
+  (spunta per allievo);
+- `giudizi`: note datate, su un allievo o sulla classe (`allievoId` nullo),
+  con `lezioneId` facoltativo;
+- `matrice`: celle allievo × criterio con livello (o nullo) e nota, **datate**
+  (`data` + `lezioneId`): più celle per la stessa coppia in date diverse
+  raccontano la progressione.
+
+Legami dall'esterno: `Attivita.progettoId` + `Attivita.faseProgettoId` (una
+tappa del piano lavora per un progetto, in una sua fase) e
+`MomentoValutazione.progettoId` (una valutazione promossa dal progetto). Le
+lezioni del progetto e delle fasi si ricavano dai piani: nessun elenco
+duplicato. Una tappa che non dice la fase, o ne dice una che il progetto non
+ha più, cade nella prima (`faseDellAttivita`); la lettura la riscrive così.
+
+**Perché.** Le date scritte sul progetto si scorderebbero dal calendario
+(ore spostate, annullate): ricavate dalle ore, dicono sempre il vero. Le fasi
+senza date per lo stesso motivo; stanno sulla tappa (`faseProgettoId`) e non
+come elenco nella fase, così spostare una tappa da un piano all'altro non
+lascia niente da allineare. Almeno una fase perché ogni tappa abbia dove
+stare senza che nessuno scelga. I compiti con inizio per allievo non stanno nelle consegne
+(`Consegna` ha una data sola): estenderle toccava pendenze, todo, proiezione
+e cancellazioni. Dentro il progetto il modello resta pulito e il rapporto lo
+legge da un posto solo. La matrice a livelli è distinta da quella del
+comportamento (+/−): misura un traguardo, non un atteggiamento.
+
+**Vincoli.** `VERSIONE_DATI` 3 → 4 (campo nuovo e collezione nuova). Il
+progetto non compare fra le pendenze dell'ora: si gestisce dalla scheda
+Progetto della lezione e dalla pagina Progetti del corso. Cancellare un
+progetto sgancia (`progettoId = null`, e via la fase) attività e momenti, non
+li cancella. Togliere una fase sposta le sue tappe nella fase rimasta che la
+precedeva (o nella prima) e lo dice; non si toglie l'ultima.
 
 ## Decisioni implicite
 

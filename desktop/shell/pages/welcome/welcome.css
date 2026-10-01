@@ -177,6 +177,120 @@ body {
   font-size: 0.86em;
 }
 
+.piede__destra {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+/* ---------------------------------------------------------------- la lingua
+ *
+ * Nell'angolo, accanto a «Esci»: una bandierina con la sigla, senza bordo
+ * finché non ci si passa. Il menu si apre verso l'alto, sopra l'elenco.
+ */
+
+.lingua {
+  position: relative;
+}
+
+.lingua__bottone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-color: transparent;
+  color: var(--testo-quieto);
+}
+
+.lingua__bottone:hover,
+.lingua__bottone[aria-expanded='true'] {
+  border-color: var(--bordo-tenue);
+  color: var(--testo);
+}
+
+.lingua__sigla {
+  font-size: 0.86em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* La bandiera, 3:2. Il filo intorno tiene visibile il bianco sul fondo chiaro. */
+.lingua .bandiera,
+.lingua__mosaico {
+  flex: none;
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+
+.lingua__mosaico {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--sfondo-alto);
+}
+
+.lingua__mosaico > .bandiera {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.lingua__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  z-index: var(--piano-menu);
+  min-width: 11rem;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--sfondo-rilievo);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra-2);
+}
+
+.lingua__menu[hidden] {
+  display: none;
+}
+
+.lingua__voce {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  padding: 5px 8px;
+  border-radius: var(--raggio-piccolo);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lingua__voce:hover,
+.lingua__voce:focus-visible {
+  background: var(--velo-sfiorato);
+  outline: none;
+}
+
+.lingua__voce:focus-visible {
+  box-shadow: 0 0 0 2px var(--fuoco);
+}
+
+/* La scelta di adesso: in grassetto, col segno dopo il nome. */
+.lingua__voce[aria-checked='true'] {
+  font-weight: 600;
+}
+
+.lingua__voce[aria-checked='true']::after {
+  content: '✓';
+  margin-left: auto;
+  padding-left: var(--spazio-3);
+  color: var(--accento);
+}
+
 /* ------------------------------------------------------- gli aggiornamenti
  *
  * Due posti, con le parole di `environment/updates.ts`: la pastiglia nel piede

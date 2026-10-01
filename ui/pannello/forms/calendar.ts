@@ -20,6 +20,7 @@ import { minuscolo } from '../../../core/i18n/index.js'
 import { avviso, pastiglia, pulsante, quieto, sezioneModulo } from '../components/base.js'
 import { apriModale } from '../components/modal.js'
 import { notifica } from '../components/notifications.js'
+import { dataDiLezione } from '../components/lessonDate.js'
 import { h, rimpiazza } from '../dom.js'
 import { azione, chiedi } from '../bridge.js'
 import { nomeCorso, stato } from '../state.js'
@@ -159,7 +160,7 @@ export function moduloCalendario (calendarioId?: string): void {
     return h('input', {
       type: 'checkbox',
       checked: spuntate.has(voce.id),
-      attr: { 'aria-label': `${formattaData(voce.data)} ${voce.inizio}` },
+      attr: { 'aria-label': `${formattaData(voce.data, 'settimana')} ${voce.inizio}` },
       onchange: (evento: Event) => {
         if ((evento.target as HTMLInputElement).checked) spuntate.add(voce.id)
         else spuntate.delete(voce.id)
@@ -172,7 +173,7 @@ export function moduloCalendario (calendarioId?: string): void {
       'label',
       { class: 'confronto-calendario__voce' },
       voce.esito === 'combacia' ? null : casella(voce),
-      h('span', { class: 'confronto-calendario__quando' }, `${formattaData(voce.data, 'giorno')} ${formattaData(voce.data, 'corto')}`),
+      h('span', { class: 'confronto-calendario__quando' }, dataDiLezione(voce.data)),
       h('span', { class: 'confronto-calendario__ora' }, orario(voce.fasce)),
       h('span', { class: 'confronto-calendario__corso' }, nomeCorso(voce.corsoId)),
       voce.aula ? h('span', { class: 'testo-quieto' }, voce.aula) : null,
@@ -317,7 +318,7 @@ export function moduloCalendario (calendarioId?: string): void {
           h(
             'div',
             { class: 'confronto-calendario__voce' },
-            h('span', { class: 'confronto-calendario__quando' }, `${formattaData(l.data, 'giorno')} ${formattaData(l.data, 'corto')}`),
+            h('span', { class: 'confronto-calendario__quando' }, dataDiLezione(l.data)),
             h('span', { class: 'confronto-calendario__ora' }, `${l.inizio}–${l.fine}`),
             h('span', { class: 'confronto-calendario__corso' }, nomeCorso(l.corsoId)),
             l.stato === 'svolta' ? pastiglia(svolta, 'attenzione') : null,

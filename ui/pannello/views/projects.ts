@@ -1,0 +1,600 @@
+// I progetti del corso (ADR-54): l'elenco a sinistra, il progetto aperto a
+// destra. Si sviluppano qui testata, criteri e livelli, compiti con inizio e
+// proroga per persona, la matrice a livelli giorno per giorno e i giudizi; le
+// lezioni e le valutazioni del progetto si ricavano da piani e momenti.
+
+import { confrontaLezioni, nomeCompleto } from '../../../core/dominio/calculations.js'
+import { formattaData } from '../../../core/dominio/dates.js'
+import { Molti, Uno } from '../../../core/dominio/lexicon.js'
+import { lessico } from '../../../core/dominio/lexicon.testi.js'
+import type { Iso, Lezione, MomentoValutazione, Progetto, StatoAttivita, StatoProgetto } from '../../../core/dominio/models.js'
+import {
+  avanzamentoDelProgetto,
+  lezioniDelProgetto,
+  momentiDelProgetto,
+  progettiDelCorso,
+  quadroDelProgetto,
+  type AttivitaNellOra,
+  type Periodo,
+  type QuadroDelProgetto,
+  type QuadroDellaFase,
+} from '../../../core/dominio/projects.js'
+import { parole } from '../../../core/dominio/words.testi.js'
+import {
+  barra,
+  collegamento,
+  dataInLinea,
+  pastiglia,
+  pulsante,
+  quieto,
+  scheda,
+  selettore,
+  statoVuoto,
+  tendina,
+  testataVista,
+  type TonoPastiglia,
+} from '../components/base.js'
+import { statoVuotoAnno } from '../components/filters.js'
+import { icona } from '../components/icons.js'
+import { menuSotto, type ElementoMenu } from '../components/menu.js'
+import { inTelaio } from '../components/table.js'
+import { azione } from '../bridge.js'
+import { corsoDelContesto, nomeDelCorso } from '../context.js'
+import { h, type Figlio } from '../dom.js'
+import { moduloAnno } from '../forms.js'
+import {
+  allieviDelProgetto,
+  etichettaOra,
+  etichettaOraMostrata,
+  moduloCriteri,
+  moduloFasi,
+  moduloGiudizio,
+  moduloLivelli,
+  moduloProgetto,
+  nomeStatoProgetto,
+  periodoDetto,
+} from '../forms/project.js'
+import { apriLezione } from '../pages.js'
+import {
+  annoCorrente,
+  lezioniDiCorso,
+  progettoPerId,
+  ridisegna,
+  stato,
+  vai,
+} from '../state.js'
+import { giudiziDelProgetto } from './projects/judgements.js'
+import { legendaLivelli, matriceProgetto, progressioneAllievo, type QuandoMatrice } from './projects/matrix.js'
+import { compitiDelProgetto } from './projects/tasks.js'
+import { testi } from './projects.testi.js'
+
+const TONI_STATO: Record<StatoProgetto, TonoPastiglia> = {
+  bozza: 'quiete',
+  'in-corso': 'informativo',
+  concluso: 'positivo',
+}
+
+/** La pastiglia dello stato di un progetto: la usa anche la scheda dell'ora. */
+export function pastigliaStato (progetto: Progetto): HTMLElement {
+  return pastiglia(nomeStatoProgetto(progetto.stato), TONI_STATO[progetto.stato])
+}
+
+/** Apre un progetto nella sua pagina. */
+export function apriProgetto (progettoId: string): void {
+  vai({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progettoId } })
+}
+
+/**
+ * Il progetto che la pagina ha davanti: quello scelto se è del corso, se no
+ * il primo. Esportato perché i comandi della barra agiscono su questo.
+ */
+export function progettoMostrato (): Progetto | null {
+  const corso = corsoDelContesto()
+  if (!corso) return null
+  const scelto = progettoPerId(stato.progettoId)
+  if (scelto && scelto.corsoId === corso.id) return scelto
+  return progettiDelCorso(stato.registro, corso.id)[0] ?? null
+}
+
+/** Un periodo ricavato dalle ore, in una riga. */
+function periodoScritto (periodo: Periodo): string {
+  return periodo.inizio === periodo.fine
+    ? formattaData(periodo.inizio)
+    : `${formattaData(periodo.inizio)}–${formattaData(periodo.fine)}`
+}
+
+// ------------------------------------------------------------------ l'elenco
+
+function elencoProgetti (
+  progetti: Progetto[],
+  attivo: Progetto | null,
+  corsoId: string,
+): HTMLElement {
+  const t = testi()
+  return h(
+    'aside',
+    { class: 'elenco-laterale', dataset: { telaio: 'progetti:elenco', scorrimento: `progetti:${corsoId}` } }, // testo-fisso: chiave di scorrimento
+    h(
+      'header',
+      { class: 'elenco-laterale__testata' },
+      h('h3', null, Molti(lessico().progetto)),
+      pulsante({
+        simbolo: 'piu',
+        variante: 'fantasma',
+        titolo: t.nuovo,
+        al: () => moduloProgetto({ corsoId, dopo: apriProgetto }),
+      }),
+    ),
+    progetti.length === 0
+      ? quieto(t.nessunoNelCorso)
+      : h(
+          'ul',
+          { class: 'elenco-laterale__voci' },
+          ...progetti.map((progetto) => {
+            const { attivita, quota } = avanzamentoDelProgetto(stato.registro, progetto)
+            return h(
+              'li',
+              null,
+              h(
+                'button',
+                {
+                  class: ['voce-laterale', progetto.id === attivo?.id && 'voce-laterale--attiva'],
+                  type: 'button',
+                  attr: { 'aria-current': progetto.id === attivo?.id ? 'true' : undefined },
+                  // testo-fisso: chiave di fuoco
+                  dataset: { fuoco: `progetto-${progetto.id}` },
+                  onclick: () => apriProgetto(progetto.id),
+                },
+                icona('progetto'),
+                h(
+                  'span',
+                  { class: 'voce-laterale__testo' },
+                  h('strong', null, progetto.titolo),
+                  h('small', null, `${nomeStatoProgetto(progetto.stato)} · ${periodoDetto(progetto)}`),
+                  attivita.length === 0 ? null : barra(quota, quota >= 1 ? 'positivo' : 'informativo', t.avanzamentoDi(progetto.titolo)),
+                ),
+              ),
+            )
+          }),
+        ),
+  )
+}
+
+// ------------------------------------------------------------------ le schede
+
+function schedaTestata (progetto: Progetto): HTMLElement {
+  const t = testi()
+  const collegamenti = progetto.risorse.filter((r) => r.url)
+  return scheda({
+    titolo: progetto.titolo,
+    sottotitolo: `${nomeStatoProgetto(progetto.stato)} · ${periodoDetto(progetto)}`,
+    azioni: pulsante({
+      testo: parole().modifica,
+      simbolo: 'matita',
+      variante: 'sottile',
+      al: () => moduloProgetto({ corsoId: progetto.corsoId, progetto }),
+    }),
+    contenuto: h(
+      'div',
+      { class: 'testata-progetto' },
+      progetto.descrizione ? h('p', null, progetto.descrizione) : null,
+      progetto.obiettivi.length > 0
+        ? [h('h4', null, t.obiettivi), h('ul', null, ...progetto.obiettivi.map((o) => h('li', null, o)))]
+        : null,
+      collegamenti.length > 0
+        ? [
+            h('h4', null, t.collegamenti),
+            h('ul', null, ...collegamenti.map((r) =>
+              h('li', null, h('a', { attr: { href: r.url, target: '_blank', rel: 'noopener' } }, r.titolo || r.url)))),
+          ]
+        : null,
+      !progetto.descrizione && progetto.obiettivi.length === 0 && collegamenti.length === 0
+        ? quieto(t.testataVuota)
+        : null,
+      // I PDF del progetto stanno con gli altri fogli del corso, nella pagina Documenti.
+      h(
+        'p',
+        { class: 'testo-quieto' },
+        collegamento({
+          testo: t.documentiDelProgetto,
+          al: () => { vai({ pagina: 'pagina.corso.documenti' }) },
+        }),
+      ),
+    ),
+  })
+}
+
+function schedaCriteri (progetto: Progetto): HTMLElement {
+  const t = testi()
+  return scheda({
+    titolo: t.criteriELivelli,
+    aiuto: t.criteriAiuto,
+    azioni: [
+      pulsante({
+        testo: Molti(lessico().criterioProgetto),
+        simbolo: 'presa',
+        variante: 'sottile',
+        al: () => moduloCriteri(progetto.id),
+      }),
+      pulsante({
+        testo: t.livelli,
+        simbolo: 'presa',
+        variante: 'sottile',
+        al: () => moduloLivelli(progetto.id),
+      }),
+    ],
+    contenuto: h(
+      'div',
+      { class: 'colonna' },
+      progetto.criteri.length === 0
+        ? quieto(t.nessunCriterio)
+        : h('ol', { class: 'criteri-progetto' }, ...progetto.criteri.map((c) => h('li', null, c.titolo))),
+      legendaLivelli(progetto),
+    ),
+  })
+}
+
+function schedaCompiti (progetto: Progetto): HTMLElement {
+  const t = testi()
+  return inTelaio(scheda({
+    titolo: Molti(lessico().compitoProgetto),
+    aiuto: t.compitiAiuto,
+    contenuto: compitiDelProgetto(progetto, null),
+  }), `progetto-compiti:${progetto.id}`) // testo-fisso: una chiave, non un testo
+}
+
+/** Il giorno della matrice scelto nella pagina, per progetto: un'ora o una data. */
+const giorniScelti = new Map<string, { data: Iso, lezioneId: string | null }>()
+/** La persona di cui si guarda la progressione, per progetto; vuoto è la matrice del giorno. */
+const progressioni = new Map<string, string>()
+
+/** L'ora di oggi del corso, se c'è: la matrice parte da lì. */
+function lezioneDiOggi (corsoId: string): Lezione | null {
+  return lezioniDiCorso(corsoId).find((l) => l.data === stato.adessoData) ?? null
+}
+
+function quandoDellaMatrice (progetto: Progetto): QuandoMatrice {
+  const scelto = giorniScelti.get(progetto.id)
+  const lezione = scelto?.lezioneId
+    ? stato.registro.lezioni.find((l) => l.id === scelto.lezioneId) ?? null
+    : scelto ? null : lezioneDiOggi(progetto.corsoId)
+  if (lezione && lezione.corsoId === progetto.corsoId) return { lezione }
+  return { data: scelto?.data ?? stato.adessoData }
+}
+
+function schedaMatrice (progetto: Progetto): HTMLElement {
+  const t = testi()
+  const quando = quandoDellaMatrice(progetto)
+  const allievi = allieviDelProgetto(progetto)
+  const chi = progressioni.get(progetto.id) ?? ''
+  const allievo = allievi.find((a) => a.id === chi) ?? null
+  // Le ore che si offrono: quelle del progetto, più quella scelta se non lo è.
+  const ore = lezioniDelProgetto(stato.registro, progetto).map((x) => x.lezione)
+  if ('lezione' in quando && !ore.some((l) => l.id === quando.lezione.id)) ore.push(quando.lezione)
+  ore.sort(confrontaLezioni)
+
+  const scelte = h(
+    'div',
+    { class: 'filtri' },
+    selettore(allievo ? 'progressione' : 'giorno', [
+      { valore: 'giorno', testo: t.delGiorno, simbolo: 'calendario' },
+      { valore: 'progressione', testo: t.progressione, simbolo: 'utente' },
+    ], (scelta) => {
+      if (scelta === 'giorno') progressioni.delete(progetto.id)
+      else progressioni.set(progetto.id, allievo?.id ?? allievi[0]?.id ?? '')
+      ridisegna()
+    }, t.comeGuardare),
+    allievo
+      ? tendina({
+          voci: allievi.map((a) => ({ valore: a.id, testo: nomeCompleto(a) })),
+          valore: allievo.id,
+          etichetta: Uno(lessico().pif),
+          al: (scelto) => {
+            progressioni.set(progetto.id, scelto)
+            ridisegna()
+          },
+        })
+      : [
+          dataInLinea({
+            etichetta: parole().giorno,
+            nome: 'giornoMatrice',
+            valore: 'lezione' in quando ? quando.lezione.data : quando.data,
+            al: (valore) => {
+              if (!valore) return
+              giorniScelti.set(progetto.id, { data: valore, lezioneId: null })
+              ridisegna()
+            },
+          }),
+          tendina({
+            voci: [
+              { valore: '', testo: t.nessunaOra },
+              ...ore.map((l) => ({ valore: l.id, testo: etichettaOra(l) })),
+            ],
+            valore: 'lezione' in quando ? quando.lezione.id : '',
+            etichetta: t.inUnOra,
+            al: (scelto) => {
+              const lezione = ore.find((l) => l.id === scelto)
+              giorniScelti.set(progetto.id, lezione
+                ? { data: lezione.data, lezioneId: lezione.id }
+                : { data: 'lezione' in quando ? quando.lezione.data : quando.data, lezioneId: null })
+              ridisegna()
+            },
+          }),
+        ],
+  )
+
+  // Un'ora conclusa si guarda e non si scrive: l'host rifiuterebbe.
+  const chiusa = 'lezione' in quando && quando.lezione.stato === 'svolta'
+  const matrice = allievo
+    ? progressioneAllievo(progetto, allievo)
+    : matriceProgetto(progetto, quando)
+  return inTelaio(scheda({
+    titolo: t.matrice,
+    aiuto: t.matriceAiuto,
+    contenuto: h(
+      'div',
+      { class: 'colonna', dataset: { telaio: `progetto-matrice:${progetto.id}` } }, // testo-fisso: una chiave, non un testo
+      scelte,
+      chiusa ? quieto(t.oraChiusa) : null,
+      chiusa
+        ? h('fieldset', { class: 'lezione-chiusa', attr: { disabled: true } }, matrice)
+        : matrice,
+    ),
+  }), `progetto-matrice:${progetto.id}`) // testo-fisso: una chiave, non un testo
+}
+
+function schedaGiudizi (progetto: Progetto): HTMLElement {
+  const t = testi()
+  return scheda({
+    titolo: Molti(lessico().giudizioProgetto),
+    aiuto: t.giudiziAiuto,
+    azioni: pulsante({
+      testo: parole().aggiungi,
+      simbolo: 'piu',
+      variante: 'sottile',
+      al: () => moduloGiudizio({ progetto }),
+    }),
+    contenuto: giudiziDelProgetto(progetto, null),
+  })
+}
+
+const TONI_AVANZAMENTO: Record<StatoAttivita, TonoPastiglia> = {
+  'da-fare': 'quiete',
+  svolta: 'positivo',
+  parziale: 'attenzione',
+  saltata: 'negativo',
+}
+
+/**
+ * Le fasi del progetto, una sotto l'altra: periodo, quanto se n'è fatto, le
+ * attività dei piani nelle ore (col loro stato) e le prove nate lì. Tutto si
+ * ricava dal quadro del progetto: niente si scrive qui, tranne le fasi stesse.
+ */
+function schedaFasi (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement {
+  const t = testi()
+  const lezioni = new Map(stato.registro.lezioni.map((l) => [l.id, l]))
+  const fase = (voce: QuadroDellaFase): HTMLElement => {
+    // Le attività di un'ora insieme: l'ora una volta, con le sue tappe accanto.
+    const perOra = new Map<string, AttivitaNellOra[]>()
+    for (const a of voce.attivita) perOra.set(a.lezioneId, [...(perOra.get(a.lezioneId) ?? []), a])
+    return h(
+      'section',
+      { class: 'fase-progetto' },
+      h(
+        'header',
+        { class: 'compito-progetto__testata' },
+        h('h4', { class: 'compito-progetto__titolo' }, `${voce.numero}. ${voce.fase.titolo}`),
+        h('span', { class: 'testo-quieto' }, voce.periodo ? periodoScritto(voce.periodo) : t.faseSenzaOre),
+      ),
+      voce.attivita.length > 0
+        ? barra(voce.quota, voce.quota >= 1 ? 'positivo' : 'informativo', t.avanzamentoDi(voce.fase.titolo))
+        : null,
+      voce.attivita.length === 0
+        ? quieto(t.faseVuota)
+        : h(
+            'ul',
+            { class: 'lezioni-progetto' },
+            ...[...perOra].map(([lezioneId, attivita]) => {
+              const lezione = lezioni.get(lezioneId)
+              return h(
+                'li',
+                { class: 'lezioni-progetto__voce' },
+                lezione
+                  ? collegamento({
+                      testo: etichettaOraMostrata(lezione),
+                      al: () => apriLezione(lezione.id),
+                    })
+                  : h('span', null, formattaData(attivita[0].data)),
+                ...attivita.map((a) => pastiglia(
+                  `${a.titolo || parole().senzaTitolo} · ${t.statiAttivita[a.stato]}`,
+                  TONI_AVANZAMENTO[a.stato],
+                  'piano',
+                )),
+              )
+            }),
+          ),
+      voce.momenti.length > 0
+        ? h(
+            'p',
+            { class: 'testo-quieto' },
+            icona('valutazioni', 'icona--minuta'),
+            ` ${voce.momenti.map((m) => m.titolo).join(', ')}`,
+          )
+        : null,
+    )
+  }
+  return scheda({
+    titolo: t.fasi,
+    sottotitolo: quadro.periodo
+      ? `${periodoScritto(quadro.periodo)} · ${t.svolto(Math.round(quadro.quota * 100))}`
+      : t.nessunaLezione,
+    aiuto: t.fasiAiuto,
+    azioni: pulsante({
+      testo: t.fasi,
+      simbolo: 'presa',
+      variante: 'sottile',
+      al: () => moduloFasi(progetto.id),
+    }),
+    contenuto: h('div', { class: 'compiti-progetto' }, ...quadro.fasi.map(fase)),
+  })
+}
+
+/** Le presenze di chi frequenta nelle ore del progetto: UD perse e ritardi. */
+function schedaPresenze (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement | null {
+  const t = testi()
+  if (quadro.presenze.every((r) => r.ore.length === 0)) return null
+  const nomi = new Map(allieviDelProgetto(progetto).map((a) => [a.id, nomeCompleto(a)]))
+  return scheda({
+    titolo: t.presenze,
+    aiuto: t.presenzeAiuto,
+    contenuto: h(
+      'table',
+      { class: 'tabella tabella--compatta' },
+      h(
+        'thead',
+        null,
+        h(
+          'tr',
+          null,
+          h('th', { attr: { scope: 'col' } }, Uno(lessico().pif)),
+          h('th', { attr: { scope: 'col' } }, t.udPerse),
+          h('th', { attr: { scope: 'col' } }, t.ritardi),
+        ),
+      ),
+      h(
+        'tbody',
+        null,
+        ...quadro.presenze.map((r) =>
+          h(
+            'tr',
+            null,
+            h('th', { attr: { scope: 'row' } }, nomi.get(r.allievoId) ?? '?'),
+            h('td', null, `${r.udAssenza}/${r.udTotali}`),
+            h('td', null, String(r.ritardi)),
+          )),
+      ),
+    ),
+  })
+}
+
+/** Lega un momento del corso al progetto, o lo stacca (`null`). */
+function legaMomento (momento: MomentoValutazione, progettoId: string | null): void {
+  void azione({ tipo: 'valutazione.salva', valutazione: { ...momento, progettoId } })
+}
+
+function schedaValutazioni (progetto: Progetto): HTMLElement {
+  const t = testi()
+  const momenti = momentiDelProgetto(stato.registro, progetto)
+  const liberi = stato.registro.valutazioni
+    .filter((v) => v.corsoId === progetto.corsoId && !v.progettoId)
+    .sort((a, b) => b.data.localeCompare(a.data))
+  const voci = (): ElementoMenu[] => liberi.length === 0
+    ? [{ titolo: t.nessunMomentoLibero }]
+    : liberi.map((m) => ({
+        testo: m.titolo,
+        descrizione: formattaData(m.data),
+        simbolo: 'valutazioni' as const,
+        al: () => legaMomento(m, progetto.id),
+      }))
+  return scheda({
+    titolo: t.valutazioniDelProgetto,
+    aiuto: t.valutazioniAiuto,
+    azioni: pulsante({
+      testo: t.collegaValutazione,
+      simbolo: 'collegamento',
+      variante: 'sottile',
+      al: (evento) => menuSotto(evento.currentTarget as HTMLElement, voci()),
+    }),
+    contenuto: momenti.length === 0
+      ? quieto(t.nessunaValutazione)
+      : h(
+          'ul',
+          { class: 'lezioni-progetto' },
+          ...momenti.map((m) =>
+            h(
+              'li',
+              { class: 'lezioni-progetto__voce' },
+              icona('valutazioni', 'icona--minuta'),
+              collegamento({
+                testo: m.titolo,
+                al: () => { vai({ pagina: 'pagina.corso.valutazioni', soggetto: { tipo: 'valutazione', id: m.id } }) },
+              }),
+              h('span', { class: 'testo-quieto' }, formattaData(m.data)),
+              pulsante({
+                simbolo: 'chiudi',
+                variante: 'fantasma',
+                titolo: t.staccaValutazione(m.titolo),
+                al: () => legaMomento(m, null),
+              }),
+            )),
+        ),
+  })
+}
+
+function dettaglio (progetto: Progetto): HTMLElement {
+  const quadro = quadroDelProgetto(stato.registro, progetto)
+  return h(
+    'div',
+    { class: 'colonna', dataset: { telaio: 'progetti:dettaglio' } },
+    schedaTestata(progetto),
+    schedaCriteri(progetto),
+    schedaCompiti(progetto),
+    schedaMatrice(progetto),
+    schedaGiudizi(progetto),
+    schedaFasi(progetto, quadro),
+    schedaPresenze(progetto, quadro),
+    schedaValutazioni(progetto),
+  )
+}
+
+// ------------------------------------------------------------------ la pagina
+
+export function vistaProgetti (): Figlio {
+  if (!annoCorrente()) {
+    return statoVuotoAnno({ simbolo: 'progetto', crea: () => moduloAnno() })
+  }
+  const t = testi()
+  const corso = corsoDelContesto()
+  if (!corso) {
+    return statoVuoto({
+      simbolo: 'progetto',
+      titolo: t.nessunCorso,
+      testo: t.progettiInUnCorso,
+      azione: pulsante({
+        testo: t.vaiAiCorsi,
+        variante: 'primario',
+        al: () => { vai({ pagina: 'pagina.corsi' }) },
+      }),
+    })
+  }
+  const progetti = progettiDelCorso(stato.registro, corso.id)
+  const progetto = progettoMostrato()
+  const nuovo = (): void => moduloProgetto({ corsoId: corso.id, dopo: apriProgetto })
+
+  return h(
+    'div',
+    { class: 'vista vista--progetti', dataset: { telaio: 'progetti' } },
+    testataVista({
+      titolo: Molti(lessico().progetto),
+      sottotitolo: nomeDelCorso(corso),
+      aiuto: t.aiuto,
+    }),
+    h(
+      'div',
+      { class: 'colonne colonne--elenco', dataset: { telaio: 'progetti:colonne' } },
+      elencoProgetti(progetti, progetto, corso.id),
+      progetto
+        ? dettaglio(progetto)
+        : h(
+            'div',
+            { class: 'colonna' },
+            statoVuoto({
+              simbolo: 'progetto',
+              titolo: t.nessunProgetto,
+              testo: t.nessunProgettoTesto,
+              azione: pulsante({ testo: t.nuovo, simbolo: 'piu', variante: 'primario', al: nuovo }),
+            }),
+          ),
+    ),
+  )
+}

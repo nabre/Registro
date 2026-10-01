@@ -186,6 +186,16 @@ export const CARTE = {
     genere: 'f',
     breve: 'Colonna',
   },
+  // Il progetto di un corso (ADR-54), con i suoi pezzi.
+  progetto: { singolare: 'progetto', plurale: 'progetti', genere: 'm' },
+  compitoProgetto: {
+    singolare: 'compito del progetto',
+    plurale: 'compiti del progetto',
+    genere: 'm',
+    breve: 'Compito',
+  },
+  criterioProgetto: { singolare: 'criterio', plurale: 'criteri', genere: 'm' },
+  giudizioProgetto: { singolare: 'giudizio', plurale: 'giudizi', genere: 'm' },
   documento: { singolare: 'documento', plurale: 'documenti', genere: 'm' },
   // Un calendario ICS del documento: l'orario di sede, quello dei laboratori.
   calendario: { singolare: 'calendario', plurale: 'calendari', genere: 'm' },

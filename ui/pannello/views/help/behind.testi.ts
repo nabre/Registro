@@ -73,8 +73,9 @@ const it = {
       {
         termine: 'Come si leggono',
         testo:
-          'Di solito `07.09.2026`; nei titoli per esteso, «lunedì 7 settembre 2026». La ' +
-          'settimana comincia il lunedì, e il numero accanto a ogni settimana del calendario è ' +
+          'Di solito `07.09.2026`; nei titoli per esteso, «lunedì 7 settembre 2026». Una ' +
+          'lezione si nomina con il giorno della settimana davanti, in maiuscoletto: ' +
+          '«lun 07.09.2026». La settimana comincia il lunedì, e il numero accanto a ogni settimana del calendario è ' +
           'quello ISO.',
       },
       {
@@ -131,7 +132,7 @@ const it = {
             'di oggi.',
           'In `%APPDATA%\\Regiklass` — nella versione portabile, in `Regiklass - dati` accanto ' +
             'al programma. Non viaggia con l’anno. Quella delle versioni di prima, ' +
-            '`%APPDATA%\\Registro docenti`, ci si sposta da sé al primo avvio.',
+            '`%APPDATA%\\Regiclass`, ci si sposta da sé al primo avvio.',
         ],
       },
     ],
@@ -652,7 +653,8 @@ export const testi = catalogo(it, {
         {
           termine: 'Wie sie angezeigt werden',
           testo:
-            'Meistens `07.09.2026`; in Titeln ausgeschrieben, «Montag 7 September 2026». Die ' +
+            'Meistens `07.09.2026`; in Titeln ausgeschrieben, «Montag 7 September 2026». Eine ' +
+            'Stunde trägt den Wochentag davor, in Kapitälchen: «Mon 07.09.2026». Die ' +
             'Woche beginnt am Montag, und die Zahl neben jeder Woche im Kalender ist die ' +
             'ISO-Kalenderwoche.',
         },
@@ -712,7 +714,7 @@ export const testi = catalogo(it, {
               'das ins heutige Format gebracht wurde.',
             'In `%APPDATA%\\Regiklass` — in der portablen Version in `Regiklass - dati` neben ' +
               'dem Programm. Reist nicht mit dem Schuljahr. Der Ordner früherer Versionen, ' +
-              '`%APPDATA%\\Registro docenti`, zieht beim ersten Start von selbst hierher um.',
+              '`%APPDATA%\\Regiclass`, zieht beim ersten Start von selbst hierher um.',
           ],
         },
       ],
@@ -1266,7 +1268,8 @@ export const testi = catalogo(it, {
           termine: 'Comment elles s’affichent',
           testo:
             'D’habitude `07.09.2026` ; dans les titres en toutes lettres, « lundi 7 septembre ' +
-            '2026 ». La semaine commence le lundi, et le numéro à côté de chaque semaine du ' +
+            '2026 ». Une leçon porte le jour de la semaine devant, en petites capitales : ' +
+            '« lun 07.09.2026 ». La semaine commence le lundi, et le numéro à côté de chaque semaine du ' +
             'calendrier est celui de la norme ISO.',
         },
         {
@@ -1327,7 +1330,7 @@ export const testi = catalogo(it, {
               'format d’aujourd’hui.',
             'Dans `%APPDATA%\\Regiklass` — dans la version portable, dans `Regiklass - dati` à ' +
               'côté du programme. Ne voyage pas avec l’année. Celui des versions précédentes, ' +
-              '`%APPDATA%\\Registro docenti`, s’y déplace tout seul au premier démarrage.',
+              '`%APPDATA%\\Regiclass`, s’y déplace tout seul au premier démarrage.',
           ],
         },
       ],
@@ -1871,7 +1874,8 @@ export const testi = catalogo(it, {
         {
           termine: 'How they are shown',
           testo:
-            'Usually `07.09.2026`; in headings in full, “Monday 7 September 2026”. The week ' +
+            'Usually `07.09.2026`; in headings in full, “Monday 7 September 2026”. A lesson ' +
+            'carries the day of the week in front, in small capitals: “Mon 07.09.2026”. The week ' +
             'starts on Monday, and the number next to each week in the calendar is the ISO ' +
             'week number.',
         },
@@ -1930,7 +1934,7 @@ export const testi = catalogo(it, {
               'today’s format.',
             'In `%APPDATA%\\Regiklass` — in the portable version, in `Regiklass - dati` next to ' +
               'the program. It doesn’t travel with the year. The one from earlier versions, ' +
-              '`%APPDATA%\\Registro docenti`, moves here by itself on the first start.',
+              '`%APPDATA%\\Regiclass`, moves here by itself on the first start.',
           ],
         },
       ],

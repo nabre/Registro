@@ -16,7 +16,7 @@ const PREPARA = `() => {
   const tappa = { id: 't1', titolo: 'Firme', tipo: 'spiegazione', durataUd: 1, descrizione: '',
     materiali: '', raggruppamento: 'plenaria', risorse: [], parametri: { checkColonnaId: 'c1' } }
   const piano = { id: 'piano-prova', corsoId: corso.id, obiettivi: ['Inizio'], prerequisiti: '',
-    attivita: [tappa], risorse: [], note: '', tag: [],
+    attivita: [tappa], risorse: [], tag: [],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z' }
   const check = { id: 'chk-prova', corsoId: corso.id,
     colonne: [{ id: 'c1', titolo: 'Regolamento' }, { id: 'c2', titolo: 'Quaderno' },

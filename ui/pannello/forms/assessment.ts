@@ -8,6 +8,7 @@ import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { vociConValore } from '../../../core/dominio/lists.js'
 import { MOTIVI_ORFANO, motivoOrfano } from '../../../core/dominio/orphans.js'
+import { progettiDelCorso } from '../../../core/dominio/projects.js'
 import type { MomentoValutazione } from '../../../core/dominio/models.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { campo, riga } from '../components/base.js'
@@ -51,7 +52,7 @@ function provenienza (momento: MomentoValutazione) {
   const motivo = motivoOrfano(stato.registro, momento)
   const pezzi = [
     nomeCorso(momento.corsoId),
-    lezione ? t.lezioneDel(formattaData(lezione.data)) : null,
+    lezione ? t.lezioneDel(formattaData(lezione.data, 'settimana')) : null,
     tappa ? t.tappa(tappa.titolo || parole().senzaTitolo) : null,
   ].filter(Boolean)
 
@@ -167,6 +168,20 @@ export function moduloValutazione (momento: MomentoValutazione): void {
             larghezza: 'quarto',
           }),
         ),
+        progettiDelCorso(stato.registro, momento.corsoId).length > 0 || momento.progettoId
+          ? campo({
+              nome: 'progetto',
+              etichetta: Uno(lessico().progetto),
+              tipo: 'select',
+              valore: momento.progettoId ?? '',
+              opzioni: [
+                { valore: '', testo: t.nessunProgetto },
+                ...progettiDelCorso(stato.registro, momento.corsoId)
+                  .map((p) => ({ valore: p.id, testo: p.titolo })),
+              ],
+              aiuto: t.aiutoProgetto,
+            })
+          : null,
         campo({
           nome: 'descrizione',
           etichetta: p.descrizione,
@@ -188,6 +203,10 @@ export function moduloValutazione (momento: MomentoValutazione): void {
         tipo: testo(valori.tipo) as MomentoValutazione['tipo'],
         peso: numero(valori.peso, 1),
         descrizione: testo(valori.descrizione),
+        // Il campo c'è solo se il corso ha progetti: senza, il legame resta quello che era.
+        progettoId: valori.progetto === undefined
+          ? vivo.progettoId ?? null
+          : testo(valori.progetto) || null,
         scala: {
           ...vivo.scala,
           min: numero(valori.scalaMin, vivo.scala.min),

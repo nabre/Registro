@@ -65,6 +65,10 @@ lezioni-svolte: Gehaltene Lektionen
 ud-svolte: Gehaltene Lektionen
 presenza-media: Durchschnittliche Anwesenheit
 media-di-classe: Klassenschnitt
+lezioni: Lektionen
+media-progetto: Projektdurchschnitt
+periodo: Zeitraum
+avanzamento: Fortschritt
 
 # --- I titoli delle sezioni
 
@@ -108,6 +112,22 @@ dettaglio-assenze: Absenzen und Unterschriften
 diario-lezioni: Unterrichtstagebuch
 piani-lezione: Lektionspläne
 pendenze: Pendenzen des Kurses
+criteri: Beurteilungskriterien
+scala-livelli: Niveauskala
+lezioni-del-progetto: Lektionen des Projekts
+avanzamento-attivita: Fortschritt der Aktivitäten
+fasi-del-progetto: Projektphasen
+valutazioni-della-fase: Beurteilungen der Phase
+compiti-del-progetto: Aufträge
+avanzamento-compiti: Aufträge pro Person
+livelli-raggiunti: Erreichte Niveaus
+progressione: Verlauf
+valutazioni-del-progetto: Beurteilungen des Projekts
+giudizi: Bemerkungen
+risorse: Ressourcen
+presenze-progetto: Anwesenheit in den Projektlektionen
+legenda-compiti: Jedes Feld zeigt, wann die Person den Auftrag begonnen hat, bis wann sie ihn abschliessen muss (mit Verlängerung, falls gewährt) und wie weit sie ist.
+nota-livelli: Das zuletzt vergebene Niveau pro Kriterium. Der Weg dorthin, Tag für Tag, steht in der Tabelle zum Verlauf.
 
 # --- Le frasi
 

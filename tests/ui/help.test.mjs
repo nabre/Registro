@@ -78,7 +78,7 @@ describe('la guida', () => {
     // la sezione della scheda); «guida» è questa.
     const coperte = new Set(GUIDA.map((sezione) => sezione.vista).filter(Boolean))
     for (const vista of ['oggi', 'calendario', 'todo', 'daSmistare', 'lezione', 'classi', 'persone', 'docenteClasse',
-      'corsi', 'piani', 'valutazioni', 'check', 'documenti', 'modelli', 'modelliLinguistici', 'mappa',
+      'corsi', 'piani', 'progetti', 'valutazioni', 'check', 'documenti', 'modelli', 'modelliLinguistici', 'mappa',
       'impostazioni']) {
       assert.ok(coperte.has(vista), `nessuna sezione porta alla pagina «${vista}»`)
     }

@@ -158,6 +158,27 @@ describe('calendario.confronta', () => {
     assert.deepEqual(esito.dati.senzaCorso.map((g) => g.titolo), ['Collegio docenti'])
     assert.equal(esito.dati.assenti.length, 1)
   })
+
+  it('con un anno corrente che non c’è più risponde sull’anno in uso, come le altre letture', async () => {
+    // `annoInUso` ripiega sul primo anno: senza, il periodo restava vuoto e la
+    // lettura rifiutava «serve un anno» mentre le altre rispondevano.
+    const r = archivio.registro
+    const corrente = r.annoCorrenteId
+    r.annoCorrenteId = 'ann-sparito-0000'
+    try {
+      for (const nome of ['calendario.confronta', 'calendario.eventi']) {
+        const esito = await api.chiama(archivio, nome, {})
+        assert.equal(esito.ok, true, `${nome}: ${JSON.stringify(esito).slice(0, 400)}`)
+      }
+      const riassunto = await api.chiama(archivio, 'registro.riassunto', {})
+      assert.equal(riassunto.dati.anno?.id, r.anni[0].id)
+      // Il periodo dei filtri comuni, non «da sempre a per sempre».
+      const ore = await api.chiama(archivio, 'ore.elenco', {})
+      assert.equal(ore.dati.dal, r.anni[0].inizio)
+    } finally {
+      r.annoCorrenteId = corrente
+    }
+  })
 })
 
 describe('calendario.applica', () => {

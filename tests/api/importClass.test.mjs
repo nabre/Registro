@@ -81,10 +81,10 @@ before(async () => {
 
   // Lo stesso anno, ma dichiarato scritto da un registro più recente di questo.
   copyFileSync(SCORSO, FUTURO)
-  const { Pacchetto, Uri: UriDati } = await import('../../dist-tests/data.mjs')
+  const { DATI, Pacchetto, Uri: UriDati } = await import('../../dist-tests/data.mjs')
   const futuro = await Pacchetto.apri(UriDati.file(FUTURO))
-  const testa = JSON.parse(futuro.testo('registro.json'))
-  futuro.scrivi('registro.json', JSON.stringify({ ...testa, versione: testa.versione + 1 }))
+  const testa = JSON.parse(futuro.testo(`${DATI}/registro.json`))
+  futuro.scrivi(`${DATI}/registro.json`, JSON.stringify({ ...testa, versione: testa.versione + 1 }))
   await futuro.salva()
 
   // L'anno aperto: con «matematica» già dichiarata, scritta in un altro modo.

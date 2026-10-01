@@ -8,7 +8,7 @@ import { describe, it } from 'node:test'
 import { apriInterfaccia } from '../helpers/statoInterfaccia.mjs'
 import { importaSorgente } from '../helpers/sorgente.mjs'
 
-const { registroVuoto, creaAnno, creaClasse, creaMateria, creaCorso, creaLezione } =
+const { registroVuoto, creaAnno, creaClasse, creaMateria, creaCorso, creaLezione, creaProgetto } =
   await importaSorgente('core/dominio/factories.ts')
 
 /** Un anno con due classi, un corso e un'ora ciascuna; la prima col fascicolo. */
@@ -103,6 +103,29 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     })
     assert.deepEqual(Array.from(seconda.stato.classiApertePersone), [a.id, b.id])
     assert.notEqual(b.id, a.id)
+  })
+
+  it('una nuova finestra riapre il progetto e la scheda Progetto dell’ora', () => {
+    const { apri } = ponte()
+    const registro = annoDiProva()
+    const corso = registro.corsi[1]
+    const progetto = creaProgetto(corso.id, 'Giornale')
+    registro.progetti.push(progetto)
+    const prima = apri()
+    arrivaDocumento(prima, registro, 'C:/esempio/A.regi')
+    prima.aggiorna({ schedaLezione: 'progetto' })
+    prima.vai({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progetto.id } })
+    assert.equal(prima.stato.vista, 'progetti')
+    assert.equal(prima.stato.corsoId, corso.id)
+    assert.equal(prima.stato.progettoId, progetto.id)
+
+    const seconda = apri()
+    assert.equal(seconda.stato.schedaLezione, 'progetto')
+    arrivaDocumento(seconda, registro, 'C:/esempio/A.regi')
+    assert.deepEqual(posto(seconda), {
+      pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progetto.id },
+    })
+    assert.equal(seconda.stato.progettoId, progetto.id)
   })
 
   it('un altro documento apre la sua memoria o la Dashboard, e ritornando si ritrova il posto', () => {

@@ -1,3 +1,4 @@
+import { annoInUso } from '../../../core/dominio/years.js'
 import { definisci } from '../../contract.js'
 import { nullabile, numero, oggetto, testo, vuoto } from '../../schemas.js'
 import { testi } from './registro.testi.js'
@@ -46,7 +47,7 @@ export const procedura = definisci({
   },
   esegui: (ambito) => {
     const r = ambito.contesto.registro
-    const anno = r.anni.find((a) => a.id === r.annoCorrenteId) ?? null
+    const anno = annoInUso(r)
     return {
       versione: r.versione,
       anno: anno

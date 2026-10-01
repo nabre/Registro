@@ -59,9 +59,11 @@ Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).
 <la cartella del docente>/
   2026-2027.regi                 ZIP
     manifesto.json               che cos'è, di che versione
-    registro.json                anno, semestri, pause, materie, impostazioni del documento
-    classi.json  corsi.json  lezioni.json  piani-lezione.json  valutazioni.json
-    fascicoli.json  consegne.json  check.json  smistamenti.json  coordinate.json
+    data/
+      registro.json              anno, semestri, pause, materie, impostazioni del documento
+      classi.json  corsi.json  lezioni.json  piani-lezione.json  valutazioni.json
+      fascicoli.json  consegne.json  check.json  progetti.json  smistamenti.json
+      coordinate.json
     .storico/                    copie delle collezioni
     archivio/                    quel che si carica: per materia, classe, documento
     esportazioni/                quel che si stampa: si rifà
@@ -157,6 +159,14 @@ npm run clean        # butta bundle e cache
 - `npm run dev` e `npm run start` girano insieme: `dev` costruisce in
   `dist-dev/` e parte come «Regiklass-dev», con `userData`, impostazioni e
   istanza unica sue. Lo stesso `.regi` non va aperto in tutte e due.
+- Solo in `npm run dev`: menu «Sviluppo» e Ctrl+Maiusc+F12 (da ogni finestra)
+  aprono le opzioni di sviluppo (`desktop/shell/windows/devTools.ts`, pagina
+  `desktop/shell/pages/dev/`): console per finestra e posizione, console
+  all'avvio per tipo, ricarica automatica, «Ricarica tutte le finestre»,
+  «Riavvia il main process» (esce con 75, `tools/dev.mjs` rilancia), cartelle
+  dati/documento/`errori.log`/bundle. Le scelte stanno in `sviluppo.json` nella
+  `userData` di «Regiklass-dev», non nel manifesto. Nel pacchetto niente menu,
+  scorciatoia né ascolto, e `dev.html` non si costruisce.
 - `dist/` = bundle dell'applicazione. `dist-tests/` = gli stessi sorgenti in
   ESM per Node, con `electron` sostituito da `tests/helpers/fake-electron.mjs`
   (li prepara `pretest`).

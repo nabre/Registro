@@ -1,7 +1,8 @@
 import { docenteClasse } from '../../../../core/azioni/classTeacher.js'
 import { inoltra, scrittura } from '../../../core.js'
 import { booleano, identificatore, oggetto } from '../../../schemas.js'
-import { esigiAllievo, esigiBlocco } from '../common.js'
+import { esigiPersonaDellaClasse } from '../../common/register.js'
+import { esigiBlocco } from '../common.js'
 import { testi } from '../classe.testi.js'
 
 const t = () => testi().assenze.spunta
@@ -20,7 +21,7 @@ export const procedura = scrittura({
   }),
   esegui: (ambito, ingresso) => {
     esigiBlocco(ambito, ingresso.classeId, ingresso.bloccoId)
-    esigiAllievo(ambito, ingresso.classeId, ingresso.allievoId)
+    esigiPersonaDellaClasse(ambito, ingresso.classeId, ingresso.allievoId)
     return inoltra(docenteClasse, 'assenze.spunta')(ambito, ingresso)
   },
 })

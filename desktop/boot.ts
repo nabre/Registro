@@ -197,11 +197,19 @@ export async function avvia (
 
   // Il deposito tiene le copie materializzate nella cartella dell'utente, fuori
   // da quella sincronizzata.
-  const archivio = new Archivio(contesto.globalStorageUri)
+  const archivio = new Archivio(contesto.cartellaCopieUri)
   // Gli anni nuovi nascono qui finché non li si salva con nome: vedi `paths.ts`.
   impostaCartellaProvvisori(apparato.Uri.joinPath(contesto.globalStorageUri, ANNI_NUOVI))
   // Chi archivia un documento (`filing.ts`, le azioni) scrive nel documento dell'anno.
   registraDeposito(archivio.deposito)
+  // Le copie lasciate da una sessione caduta: via, prima che si apra un anno.
+  void archivio.deposito.ripulisciRimaste()
+  // Le versioni fino alla 1.4 le tenevano in `userData`: anche quelle via.
+  if (contesto.cartellaCopieUri.fsPath !== contesto.globalStorageUri.fsPath) {
+    void apparato.file
+      .delete(apparato.Uri.joinPath(contesto.globalStorageUri, 'materializzati'), { recursive: true, useTrash: false })
+      .catch(() => undefined)
+  }
   archivioAttivo = archivio
   contesto.subscriptions.push(archivio)
   let ultimoDocumento: string | null = null

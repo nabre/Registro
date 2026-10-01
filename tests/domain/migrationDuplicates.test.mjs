@@ -50,7 +50,7 @@ describe('i corsi doppioni', () => {
       ],
       lezioni: [{ id: 'l1', corsoId: 'cor2', data: '2025-09-15', slot: [] }],
       valutazioni: [{ id: 'v1', corsoId: 'cor2', data: '2025-09-20' }],
-      piani: [{ id: 'p1', corsoId: 'cor2', note: 'x' }],
+      piani: [{ id: 'p1', corsoId: 'cor2', prerequisiti: 'x' }],
     })
     assert.equal(registro.lezioni[0].corsoId, 'cor1')
     assert.equal(registro.valutazioni[0].corsoId, 'cor1')

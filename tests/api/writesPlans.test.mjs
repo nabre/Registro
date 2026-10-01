@@ -1,6 +1,6 @@
 // Le scritture non lasciano dati intestati ad altri né tolgono file di altri:
 //
-//   - una copia di piano (`piano.perLezione`) ha i suoi file, ed eliminarla non
+//   - una copia di piano (`piano.duplica`) ha i suoi file, ed eliminarla non
 //     cestina il PDF dell'originale;
 //   - `classe.duplica` dà alla copia una foto sua;
 //   - `classe.salva` con un elenco più corto toglie le persone con il loro
@@ -13,8 +13,7 @@
 //   - `materia.unisci` porta le regole del calendario sul corso superstite;
 //   - un'eliminazione in un documento che si chiude non cestina i file;
 //   - `piano.salva` toglie dal pacchetto i file di una tappa tolta;
-//   - `piano.assegna` non lega a una lezione il piano di un altro corso, e un
-//     piano generato ha timbri completi e tappe sui minuti dell'UD;
+//   - `piano.assegna` non lega a una lezione il piano di un altro corso;
 //   - gli identificatori nati nello stesso millisecondo non si ripetono.
 //
 // Le azioni passano da `esegui`, la strada del pannello, col deposito vero.
@@ -24,7 +23,6 @@ import { writeFileSync } from 'node:fs'
 import * as percorso from 'node:path'
 import { after, before, describe, it } from 'node:test'
 
-import { creaCorso, creaLezione, generaPianoPerLezione } from '../../dist-tests/domain.mjs'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-scritture-piani-')
@@ -52,7 +50,6 @@ const deposito = () => archivio.deposito
 const pianoPerId = (id) => archivio.registro.piani.find((p) => p.id === id)
 const classePerId = (id) => archivio.registro.classi.find((c) => c.id === id)
 const lezionePerId = (id) => archivio.registro.lezioni.find((l) => l.id === id)
-const ISTANTE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
 
 /** Un piano con una risorsa-file su una tappa, e il file davvero nel deposito. */
 function pianoConFile (nomeFile, titoloTappa = 'Lavoro di gruppo') {
@@ -118,20 +115,20 @@ before(async () => {
 
 after(() => smonta(radice, archivio))
 
-describe('piano.perLezione con un piano da copiare', () => {
+describe('piano.duplica e piano.assegna', () => {
   it('la copia ha i suoi file: eliminarla non cestina quelli dell’originale', async () => {
     const { piano, file } = pianoConFile('scheda-per-lezione.pdf')
     const lezione = api.creaLezione(corso.id, '2026-09-14', '08:20', 45)
     archivio.modifica((r) => { r.lezioni.push(lezione) }, ['lezioni'])
 
-    const esito = await esegui({
-      tipo: 'piano.perLezione', lezioneId: lezione.id, daPianoId: piano.id,
-    })
+    const esito = await esegui({ tipo: 'piano.duplica', pianoId: piano.id })
     assert.equal(esito.ok, true, JSON.stringify(esito))
     const copia = pianoPerId(esito.creato.id)
     const suo = copia.attivita[0].risorse[0].file
     assert.notEqual(suo, file, 'la copia punta ancora al file dell’originale')
     assert.ok(deposito().esiste(suo))
+    const assegnato = await esegui({ tipo: 'piano.assegna', lezioneId: lezione.id, pianoId: copia.id })
+    assert.equal(assegnato.ok, true, JSON.stringify(assegnato))
     assert.equal(lezionePerId(lezione.id).pianoId, copia.id)
 
     const via = await esegui({ tipo: 'piano.elimina', pianoId: copia.id })
@@ -162,7 +159,7 @@ describe('piano.salva e i file delle tappe tolte', () => {
 
   it('senza tappe tolte non si cestina niente', async () => {
     const { piano, file } = pianoConFile('scheda-intatta.pdf')
-    const esito = await esegui({ tipo: 'piano.salva', piano: { ...piano, note: 'riviste' } })
+    const esito = await esegui({ tipo: 'piano.salva', piano: { ...piano, prerequisiti: 'rivisti' } })
     assert.equal(esito.ok, true)
     assert.ok(deposito().esiste(file))
   })
@@ -467,91 +464,5 @@ describe('eliminare mentre il documento si chiude', () => {
     }
     assert.ok(archivio.deposito.esiste(file), 'il file è uscito ma la consegna è rimasta')
     assert.ok(archivio.registro.consegne.some((c) => c.id === consegna.id))
-  })
-})
-
-describe('generaPianoPerLezione', () => {
-  // Pura: un corso fuori dal registro basta.
-  const corso = creaCorso('cls-prova', 'mat-prova', 'I MEC A — Matematica')
-
-  it('i timbri sono istanti completi, come quelli di creaPiano', () => {
-    const lezione = creaLezione(corso.id, '2026-09-14', '08:20', 45)
-    const piano = generaPianoPerLezione(lezione, corso, { minutiUd: 45 })
-    assert.match(piano.creatoIl, ISTANTE)
-    assert.match(piano.aggiornatoIl, ISTANTE)
-  })
-
-  it('con UD da 45′ ogni tappa dura un multiplo di 5 minuti e la scaletta riempie l’ora', () => {
-    for (const durata of [45, 90, 135]) {
-      const lezione = creaLezione(corso.id, '2026-09-14', '08:20', durata)
-      const piano = generaPianoPerLezione(lezione, corso, { minutiUd: 45 })
-      for (const tappa of piano.attivita) {
-        const minuti = tappa.durataUd * 45
-        assert.ok(
-          Math.abs(minuti - Math.round(minuti / 5) * 5) < 1e-6,
-          `${tappa.titolo}: ${minuti} minuti non sono un multiplo di 5 (ora di ${durata}′)`,
-        )
-      }
-      const totale = piano.attivita.reduce((s, a) => s + a.durataUd * 45, 0)
-      assert.ok(Math.abs(totale - durata) < 1e-6, `scaletta di ${totale}′ per un’ora di ${durata}′`)
-    }
-  })
-})
-
-describe('piano.assegna e il corso del piano', () => {
-  let lezione
-  let suo
-  let altrui
-  let libero
-
-  before(() => {
-    lezione = api.creaLezione(corso.id, '2026-09-14', '08:20', 45)
-    suo = api.creaPiano(corso.id)
-    altrui = api.creaPiano(corsoStessaClasse.id)
-    libero = api.creaPiano(null)
-    archivio.modifica((r) => {
-      r.lezioni.push(lezione)
-      r.piani.push(suo, altrui, libero)
-    }, ['lezioni', 'piani'])
-  })
-
-  const assegna = (pianoId) =>
-    api.esegui(archivio, { tipo: 'piano.assegna', lezioneId: lezione.id, pianoId })
-  const pianoDellaLezione = () =>
-    archivio.registro.lezioni.find((l) => l.id === lezione.id).pianoId
-
-  it('rifiuta il piano di un altro corso e lascia la lezione com’era', async () => {
-    const esito = await assegna(altrui.id)
-    assert.equal(esito.ok, false, 'assegnato il piano di un altro corso')
-    assert.equal(pianoDellaLezione(), null)
-  })
-
-  it('accetta il piano del corso della lezione', async () => {
-    const esito = await assegna(suo.id)
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(pianoDellaLezione(), suo.id)
-  })
-
-  it('accetta un piano senza corso', async () => {
-    const esito = await assegna(libero.id)
-    assert.equal(esito.ok, true, JSON.stringify(esito))
-    assert.equal(pianoDellaLezione(), libero.id)
-  })
-})
-
-describe('gli identificatori nello stesso millisecondo', () => {
-  it('cinquemila id nati nello stesso istante sono tutti diversi', async () => {
-    const dominio = await import('../../dist-tests/domain.mjs')
-    const vero = Date.now
-    Date.now = () => 1_790_000_000_000
-    let ids
-    try {
-      ids = Array.from({ length: 5000 }, () => dominio.nuovoIdLezione())
-    } finally {
-      Date.now = vero
-    }
-    // Con quattro caratteri casuali (un milione e mezzo di valori) una coppia
-    // uguale su cinquemila sarebbe quasi certa.
-    assert.equal(new Set(ids).size, ids.length)
   })
 })

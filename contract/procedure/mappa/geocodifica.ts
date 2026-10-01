@@ -1,7 +1,7 @@
 import { mappa } from '../../../core/azioni/map.js'
-import { errore } from '../../contract.js'
 import { inoltra, scrittura } from '../../core.js'
 import { booleano, elenco, identificatore, oggetto, opzionale } from '../../schemas.js'
+import { esigiClasse } from '../common/register.js'
 import { testi } from './mappa.testi.js'
 
 const t = () => testi().geocodifica
@@ -28,11 +28,8 @@ export const procedura = scrittura({
     rifaiTutto: opzionale(booleano({ aiuto: () => t().rifaiTutto })),
   }),
   esegui: (ambito, ingresso) => {
-    const r = ambito.contesto.registro
     // Solo che la classe esista: archiviata o senza indirizzi lo dice il gestore.
-    for (const id of ingresso.classeIds ?? []) {
-      if (!r.classi.some((classe) => classe.id === id)) throw errore.nonTrovato('classe')
-    }
+    for (const id of ingresso.classeIds ?? []) esigiClasse(ambito, id)
     return inoltra(mappa, 'mappa.geocodifica')(ambito, ingresso)
   },
 })

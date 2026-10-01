@@ -41,6 +41,8 @@ const TRACCIATI: Record<string, string> = {
   // porta già la pagina accanto. Tracciato di Lucide («user-x», licenza ISC).
   assenze:
     '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
+  // Tre fogli impilati: un lavoro fatto di più pezzi.
+  progetto: '<path d="m12 3 9 4.5-9 4.5-9-4.5z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/>',
   piano:
     '<path d="M9 5h10M9 12h10M9 19h10"/><path d="M4 5l1.3 1.3L7.5 4M4 12l1.3 1.3L7.5 11M4 19l1.3 1.3L7.5 18"/>',
   valutazioni:
@@ -154,9 +156,6 @@ const TRACCIATI: Record<string, string> = {
   filtro: '<path d="M4 5h16l-6.2 7.4V19l-3.6-2.2v-4.4z"/>',
   // Lo scambio: spostare tra corso e docente di classe. Tracciato di Lucide («arrow-left-right», licenza ISC).
   scambio: '<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
-  // La bacchetta magica: generazione automatica. Tracciato di Lucide («wand-2», licenza ISC).
-  bacchetta:
-    '<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4M3 8h4M19 14v4M17 16h4"/>',
   // I tre modi di rifare i PDF, dal meno al più automatico: la mano (solo a
   // richiesta), la bandiera d'arrivo (alla chiusura dell'ora), il fulmine (a
   // ogni modifica). Tracciati di Lucide («hand», «flag», «zap», licenza ISC).

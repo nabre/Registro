@@ -23,6 +23,8 @@ const it = {
   segnapostoDescrizione: 'contenuti, criteri, materiale ammesso',
   aggiornato: 'Momento aggiornato.',
   eliminato: 'Momento eliminato.',
+  nessunProgetto: 'Nessun progetto',
+  aiutoProgetto: 'Il progetto che ha promosso la prova: compare fra le valutazioni del progetto.',
 }
 
 export const testi = catalogo(it, {
@@ -49,6 +51,8 @@ export const testi = catalogo(it, {
     segnapostoDescrizione: 'Inhalte, Kriterien, erlaubte Hilfsmittel',
     aggiornato: 'Beurteilung aktualisiert.',
     eliminato: 'Beurteilung gelöscht.',
+    nessunProgetto: 'Kein Projekt',
+    aiutoProgetto: 'Das Projekt, aus dem die Prüfung stammt: Sie erscheint bei den Beurteilungen des Projekts.',
   },
   fr: {
     lezioneDel: (data) => `leçon du ${data}`,
@@ -73,6 +77,8 @@ export const testi = catalogo(it, {
     segnapostoDescrizione: 'contenus, critères, matériel autorisé',
     aggiornato: 'Évaluation mise à jour.',
     eliminato: 'Évaluation supprimée.',
+    nessunProgetto: 'Aucun projet',
+    aiutoProgetto: 'Le projet qui a motivé l’épreuve : elle apparaît parmi les évaluations du projet.',
   },
   en: {
     lezioneDel: (data) => `lesson on ${data}`,
@@ -94,5 +100,7 @@ export const testi = catalogo(it, {
     segnapostoDescrizione: 'content, criteria, materials allowed',
     aggiornato: 'Assessment updated.',
     eliminato: 'Assessment deleted.',
+    nessunProgetto: 'No project',
+    aiutoProgetto: 'The project that prompted the test: it appears among the project’s assessments.',
   },
 })

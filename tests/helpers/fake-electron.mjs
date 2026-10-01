@@ -236,6 +236,30 @@ class Contenuti extends Emettitore {
   getURL () {
     return this.indirizzo ?? ''
   }
+
+  isDestroyed () {
+    return false
+  }
+
+  /** La console: `console` è il modo con cui la si è aperta, o `null`. */
+  isDevToolsOpened () {
+    return Boolean(this.console)
+  }
+
+  openDevTools (opzioni = {}) {
+    this.console = opzioni
+    this.emetti('devtools-opened')
+  }
+
+  closeDevTools () {
+    if (!this.console) return
+    this.console = null
+    this.emetti('devtools-closed')
+  }
+
+  reloadIgnoringCache () {
+    this.emetti('did-start-loading')
+  }
 }
 
 /**

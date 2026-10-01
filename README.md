@@ -22,7 +22,6 @@ in un file per anno scolastico, accanto al resto del tuo materiale.
 [**Scarica**](https://github.com/nabre/Registro/releases/latest) ·
 [Funzioni](#che-cosa-fa) ·
 [Aggiornamenti](#aggiornamenti) ·
-[Da Registro docenti a Regiklass](#da-registro-docenti-a-regiklass) ·
 [Com'è fatto](docs/GUIDA.md) ·
 [Sviluppo](#sviluppo) ·
 [Documentazione](docs/INDICE.md) ·
@@ -77,7 +76,7 @@ situazione di famiglia. **Regiklass** tiene tutto sulla tua macchina:
 | ✂️ **Smistamento dei PDF** | Un PDF di classe arrivato dalla segreteria si divide da solo, persona per persona. Le scansioni passano dall'OCR. |
 | 🤖 **Assistente** | Risponde a domande in italiano leggendo i dati veri del registro, con un modello che scarichi o trascini nella finestra. Le domande si possono anche dire a voce, con [voicebox](https://github.com/jamiepine/voicebox) installato e aperto a parte: la voce resta sul tuo computer. |
 | 📽️ **Proiezione** | Una seconda finestra per lo schermo della classe, che segue quel che apri nel registro. |
-| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 214 procedure, con permessi separati per lettura e scrittura. |
+| ⌨️ **Riga di comando e API** | `regi` dal terminale e JSON-RPC su una pipe locale: 226 procedure, con permessi separati per lettura e scrittura. |
 | 💾 **Portabile** | Una versione che gira da chiavetta senza installazione, per le macchine su cui non si hanno i diritti di amministratore. |
 
 Come si usa ogni pagina lo dice la guida dentro il registro: **F1** da qualunque
@@ -131,21 +130,6 @@ registro lo porta al formato di oggi, e prima ne mette da parte una copia
 com'era, in `versioni-precedenti/` nella cartella che ha il nome dell'anno,
 accanto al file. Un anno scritto da una versione più recente invece non si
 apre: la finestra che lo dice propone di scaricare la versione nuova.
-
-### Da Registro docenti a Regiklass
-
-Fino alla 1.8.0 il programma si chiamava **Registro docenti**. Il nome è
-cambiato, i dati no. Aggiornando il registro installato:
-
-- **resta una sola installazione**: l'aggiornamento arriva da sé come gli
-  altri, e in «App installate» la voce è sempre una, con il nome nuovo;
-- **la cartella dei dati si sposta da sé** al primo avvio, da
-  `%APPDATA%\Registro docenti` a `%APPDATA%\Regiklass`: impostazioni, account
-  della posta e modelli scaricati vengono con lei;
-- **i documenti dell'anno hanno estensione `.regi`**;
-- **il comando dal terminale è `regi`**, al posto di `regdoc`;
-- **l'icona fissata sulla barra delle applicazioni** va tolta e fissata di
-  nuovo: Windows la lega al nome di prima.
 
 ## Sviluppo
 

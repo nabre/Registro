@@ -33,6 +33,7 @@ import {
   testo,
 } from '../../schemas.js'
 import {
+  CAMPI_CERCA,
   CAMPI_PAGINA,
   filtroTesto,
   nelPeriodo,
@@ -107,7 +108,7 @@ export const procedura = definisci({
   uscita: oggetto({
     dal: testo(),
     al: testo(),
-    cerca: testo({ aiuto: () => t().cerca }),
+    ...CAMPI_CERCA,
     // Rimandati come `cerca`: la busta dice quali caselle ha chiesto vuote.
     ha: elenco(scelta(CAMPI_ORA), { aiuto: () => t().ha }),
     senza: elenco(scelta(CAMPI_ORA), { aiuto: () => t().senza }),
@@ -159,7 +160,7 @@ export const procedura = definisci({
   esegui: (ambito, ingresso) => {
     const r = ambito.contesto.registro
     const { dal, al } = risolviPeriodo(r, ingresso)
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
     // Gli id dei piani esistenti, raccolti una volta sola.
     const piani = new Set(r.piani.map((piano) => piano.id))
 
@@ -201,6 +202,8 @@ export const procedura = definisci({
       dal,
       al,
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       ha: ingresso.ha ?? [],
       senza: ingresso.senza ?? [],
       // Tagliato, detto, e raggiungibile con la pagina.

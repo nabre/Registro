@@ -19,6 +19,7 @@ after(() => rmSync(radice, { recursive: true, force: true }))
 
 let Archivio
 let Pacchetto
+let DATI
 let Uri
 let leggiZip
 let creaAnnoCorrente
@@ -32,7 +33,7 @@ before(async () => {
     percorso.join(process.env.REGISTRO_USERDATA, 'impostazioni.json'),
     JSON.stringify({ cartellaLavoro: lavoro }),
   )
-  ;({ Archivio, Pacchetto, Uri } = await import('../../dist-tests/data.mjs'))
+  ;({ Archivio, DATI, Pacchetto, Uri } = await import('../../dist-tests/data.mjs'))
   ;({ leggiZip } = await import('../../dist-tests/zip.mjs'))
   ;({ creaAnnoCorrente, creaClasse } = await import('../../dist-tests/domain.mjs'))
   salvaVero = Pacchetto.prototype.salva
@@ -78,7 +79,7 @@ async function annoAperto () {
 
 /** I nomi delle classi scritte nel documento sul disco. */
 function classiSulDisco (file) {
-  const voce = leggiZip(readFileSync(file.fsPath)).find((v) => v.nome === 'classi.json')
+  const voce = leggiZip(readFileSync(file.fsPath)).find((v) => v.nome === `${DATI}/classi.json`)
   return voce ? JSON.parse(new TextDecoder().decode(voce.dati)).map((c) => c.nome) : []
 }
 
@@ -180,8 +181,8 @@ describe('ricaricare un anno portato avanti da un registro più recente', () => 
     // Un altro PC, aggiornato, riscrive lo stesso documento al formato suo;
     // OneDrive lo porta qui e il watcher ricarica.
     const altrove = Pacchetto.nuovo(file)
-    altrove.scrivi('registro.json', JSON.stringify({ versione: 999, anno: { id: 'x', etichetta: '2099/2100' }, materie: [] }))
-    altrove.scrivi('classi.json', JSON.stringify([{ nome: 'DI LÀ' }]))
+    altrove.scrivi(`${DATI}/registro.json`, JSON.stringify({ versione: 999, anno: { id: 'x', etichetta: '2099/2100' }, materie: [] }))
+    altrove.scrivi(`${DATI}/classi.json`, JSON.stringify([{ nome: 'DI LÀ' }]))
     await altrove.salva({ forza: true })
 
     await archivio.carica()
@@ -221,7 +222,7 @@ describe('aprire un anno che non si apre', () => {
     // Scritto da un registro più recente: si rifiuta, e l'anno di prima resta
     // aperto.
     const pacchetto = Pacchetto.nuovo(recente)
-    pacchetto.scrivi('registro.json', JSON.stringify({ versione: 999, anno: { id: 'x', etichetta: '2099/2100' }, materie: [] }))
+    pacchetto.scrivi(`${DATI}/registro.json`, JSON.stringify({ versione: 999, anno: { id: 'x', etichetta: '2099/2100' }, materie: [] }))
     await pacchetto.salva({ forza: true })
 
     await archivio.apri(recente)

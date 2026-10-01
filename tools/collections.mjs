@@ -40,6 +40,7 @@ const FILE_DI = {
   fascicoli: 'fascicoli',
   consegne: 'consegne',
   check: 'check',
+  progetti: 'progetti',
   smistamenti: 'smistamenti',
   coordinate: 'coordinate',
 }

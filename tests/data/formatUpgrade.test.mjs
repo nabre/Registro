@@ -8,6 +8,10 @@
 //   - riscritto, dichiara la versione di oggi e non ha più niente da portare;
 //   - la versione di oggi non si tocca e non dice niente.
 //
+// I campioni fino al 3 sono anche contenitori 1 (collezioni in radice):
+// portati avanti si riscrivono con le collezioni sotto `data/`
+// (`VERSIONE_PACCHETTO`). Dal 4 sono già contenitori 2.
+//
 // Alzare `VERSIONE_DATI` senza fissare il campione è rosso. Vedi la skill
 // `formato`.
 
@@ -31,7 +35,11 @@ const PRIMO_OBBLIGATORIO = 1
 let Archivio
 let Uri
 let leggiZip
+let scriviZip
 let VERSIONE_DATI
+let creaClasse
+let DATI
+let MANIFESTO
 
 before(async () => {
   mkdirSync(process.env.REGISTRO_USERDATA, { recursive: true })
@@ -41,8 +49,9 @@ before(async () => {
     JSON.stringify({ cartellaLavoro: lavoro }),
   )
   ;({ Archivio, Uri } = await import('../../dist-tests/data.mjs'))
-  ;({ leggiZip } = await import('../../dist-tests/zip.mjs'))
-  ;({ VERSIONE_DATI } = await import('../../dist-tests/domain.mjs'))
+  ;({ leggiZip, scriviZip } = await import('../../dist-tests/zip.mjs'))
+  ;({ VERSIONE_DATI, creaClasse } = await import('../../dist-tests/domain.mjs'))
+  ;({ DATI, MANIFESTO } = await import('../../dist-tests/package.mjs'))
 })
 
 after(() => smonta(radice))
@@ -71,6 +80,11 @@ function copiaDel (campione) {
   const file = percorso.join(cartella, '2026-2027.regi')
   copyFileSync(campione.file, file)
   return file
+}
+
+/** Le voci in radice del documento sul disco, oltre al manifesto: dopo la riscrittura nessuna. */
+function inRadice (voci) {
+  return [...voci.keys()].filter((nome) => !nome.includes('/') && nome !== MANIFESTO)
 }
 
 /** Apre un documento con l'archivio vero, e raccoglie quel che dice. */
@@ -130,20 +144,102 @@ describe('i documenti campione del formato', () => {
       await archivio.salva()
       await archivio.chiudi()
 
-      const voci = vociSulDisco(file)
-      assert.equal(JSON.parse(voci.get('registro.json')).versione, VERSIONE_DATI)
-      for (const collezione of ['classi.json', 'corsi.json', 'lezioni.json']) {
-        assert.ok(voci.has(collezione), `${collezione} manca dal documento riscritto`)
+      // Portato avanti, o raddrizzato dalla lettura (un campo nuovo della
+      // normalizzazione): riscritto intero, con le collezioni sotto `data/`.
+      const riscritto = !readFileSync(file).equals(originale)
+      if (campione.versione < VERSIONE_DATI) assert.ok(riscritto, 'il documento vecchio non è stato riscritto')
+      if (riscritto) {
+        const voci = vociSulDisco(file)
+        assert.equal(JSON.parse(voci.get(MANIFESTO)).versione, 2)
+        assert.deepEqual(inRadice(voci), [])
+        assert.equal(JSON.parse(voci.get(`${DATI}/registro.json`)).versione, VERSIONE_DATI)
+        for (const collezione of ['classi.json', 'corsi.json', 'lezioni.json']) {
+          assert.ok(voci.has(`${DATI}/${collezione}`), `${collezione} manca dal documento riscritto`)
+        }
       }
 
-      // Riaperto, è un documento di oggi: niente da portare, niente da dire.
+      // Riaperto, è un documento di oggi: niente da portare, niente da dire, e
+      // richiuso senza toccarlo resta identico byte per byte: leggere non scrive.
+      const scritto = readFileSync(file)
       const dopo = await apri(file)
       assert.deepEqual(dopo.avvisi, [])
       assert.deepEqual(dopo.errori, [])
       assert.equal(dopo.registro.lezioni.length, 3)
+      await dopo.archivio.salva()
       await dopo.archivio.chiudi()
+      assert.ok(readFileSync(file).equals(scritto), 'aprire e chiudere il documento di oggi l’ha riscritto')
     })
   }
+
+  it('un campione contenitore 1, aperto e modificato, si riscrive con le collezioni sotto data/', async () => {
+    // Fisso, e non quello di oggi: dalla 4 i campioni sono già contenitori 2.
+    const vecchio = campioni().find((c) => c.versione === 3)
+    assert.ok(vecchio)
+    const file = copiaDel(vecchio)
+    const prima = vociSulDisco(file)
+    assert.ok(inRadice(prima).length > 0, 'il campione non ha più le collezioni in radice')
+    const storicoDiPrima = [...prima.keys()].filter((nome) => nome.startsWith('.storico/'))
+    assert.ok(storicoDiPrima.length > 0, 'il campione ha una copia nello storico')
+
+    const { archivio, registro, errori } = await apri(file)
+    assert.deepEqual(errori, [])
+    const annoId = registro.classi[0].annoId
+    archivio.modifica((r) => {
+      r.classi.push(creaClasse(annoId, 'II MEC B'))
+    }, ['classi'])
+    await archivio.salva()
+    await archivio.chiudi()
+
+    const voci = vociSulDisco(file)
+    assert.equal(JSON.parse(voci.get(MANIFESTO)).versione, 2)
+    assert.deepEqual(inRadice(voci), [])
+    for (const nome of storicoDiPrima) {
+      assert.equal(voci.get(nome), prima.get(nome), `${nome} dello storico è cambiato`)
+    }
+    assert.ok(voci.has(`${DATI}/lezioni.json`), 'le collezioni non toccate seguono le altre')
+    assert.ok([...voci.keys()].some((nome) => /^\.storico\/classi\./.test(nome)),
+      'la copia di prima va nello storico di sempre')
+
+    const dopo = await apri(file)
+    assert.deepEqual(dopo.errori, [])
+    assert.deepEqual(dopo.registro.classi.map((c) => c.nome).sort(), ['I MEC A', 'II MEC B'])
+    assert.equal(dopo.registro.lezioni.length, 3)
+    await dopo.archivio.chiudi()
+  })
+
+  it('un contenitore 1 con i dati di oggi: copia com’era prima di riscriverlo, anche senza passi', async () => {
+    const oggi = campioni().find((c) => c.versione === VERSIONE_DATI)
+    assert.ok(oggi)
+    // Il campione di oggi rimesso come lo scriveva il contenitore 1: collezioni
+    // in radice. I registri di prima, riscritto, non lo leggerebbero più.
+    const file = copiaDel(oggi)
+    const voci = leggiZip(readFileSync(file)).map((voce) => voce.nome === MANIFESTO
+      ? { nome: MANIFESTO, dati: new TextEncoder().encode(JSON.stringify({ formato: 'registro-docenti/anno', versione: 1 })) }
+      : { nome: voce.nome.replace(`${DATI}/`, ''), dati: voce.dati })
+    writeFileSync(file, scriviZip(voci))
+    const originale = readFileSync(file)
+    assert.ok(inRadice(vociSulDisco(file)).length > 0)
+
+    const { archivio, avvisi, errori } = await apri(file)
+    assert.deepEqual(errori, [])
+    assert.deepEqual(avvisi, [])
+    const copia = percorso.join(
+      percorso.dirname(file), '2026-2027', 'versioni-precedenti', '2026-2027.contenitore-1.regi',
+    )
+    assert.ok(existsSync(copia), 'la copia com’era non c’è')
+    assert.deepEqual(readFileSync(copia), originale)
+
+    archivio.modifica((r) => {
+      r.classi.push(creaClasse(r.classi[0].annoId, 'II MEC B'))
+    }, ['classi'])
+    await archivio.salva()
+    await archivio.chiudi()
+
+    const dopo = vociSulDisco(file)
+    assert.equal(JSON.parse(dopo.get(MANIFESTO)).versione, 2)
+    assert.deepEqual(inRadice(dopo), [])
+    assert.deepEqual(readFileSync(copia), originale, 'la copia è cambiata')
+  })
 
   it('le pause e la durata dell’UD del campione di oggi arrivano intere', async () => {
     const oggi = campioni().find((c) => c.versione === VERSIONE_DATI)

@@ -1,0 +1,136 @@
+/*
+ * Le opzioni di sviluppo: sezioni una sotto l'altra, righe compatte.
+ */
+
+@import '../shared/base.css';
+
+header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+  padding: var(--spazio-4) var(--spazio-5) var(--spazio-3);
+  border-bottom: 1px solid var(--bordo);
+}
+
+header p {
+  margin: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-5);
+  padding: var(--spazio-4) var(--spazio-5) var(--spazio-6);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-2);
+}
+
+section p {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------- le righe */
+
+.righe {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--campo-sfondo);
+}
+
+.riga {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+  padding: var(--spazio-2) var(--spazio-3);
+}
+
+.riga + .riga {
+  border-top: 1px solid var(--bordo-tenue);
+}
+
+.riga__nome {
+  flex: 1;
+  min-width: 0;
+}
+
+.riga__nome > * {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.riga__sotto {
+  color: var(--testo-quieto);
+  font-size: 0.92em;
+  user-select: text;
+}
+
+.riga select {
+  width: auto;
+}
+
+.riga button {
+  min-width: 0;
+}
+
+.vuota {
+  padding: var(--spazio-3);
+  color: var(--testo-quieto);
+}
+
+/* ------------------------------------------------------------- i campi */
+
+.caselle {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--spazio-2) var(--spazio-4);
+}
+
+.casella {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-2);
+}
+
+.riga-campo {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-3);
+}
+
+.riga-campo select {
+  width: auto;
+}
+
+.pulsanti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spazio-2);
+}
+
+/* ------------------------------------------------------------- l'ambiente */
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--spazio-1) var(--spazio-4);
+  margin: 0;
+}
+
+dt {
+  font-family: var(--carattere-mono);
+  font-size: 0.86em;
+}
+
+dd {
+  margin: 0;
+  user-select: text;
+}

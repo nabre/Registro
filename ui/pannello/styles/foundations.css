@@ -350,3 +350,12 @@ body.con-modale {
   color: var(--testo-quieto);
   font-size: var(--corpo-vicino);
 }
+
+/* La data di una lezione, «gio 01.10.2026»: il giorno resta minuscolo nel
+   testo (letto, copiato, cercato) e si vede in maiuscoletto vero, un poco
+   spaziato perché le maiuscole piccole in fila si stringono. */
+.data-lezione { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.data-lezione__giorno {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+}

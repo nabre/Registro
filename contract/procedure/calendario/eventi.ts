@@ -7,6 +7,7 @@
 // che non si legge finisce in `guasti` e non ferma gli altri.
 
 import { leggiCalendario, type EventoCalendario } from '../../../core/dominio/calendarIcs.js'
+import { annoInUso } from '../../../core/dominio/years.js'
 import { testoDelCalendario } from '../../../core/dati/calendar.js'
 import { definisci, errore } from '../../contract.js'
 import {
@@ -92,7 +93,7 @@ export const procedura = definisci({
       throw errore.rifiuta(c().nessunCalendario)
     }
 
-    const anno = registro.anni.find((a) => a.id === registro.annoCorrenteId) ?? null
+    const anno = annoInUso(registro)
     const dal = ingresso.dal ?? anno?.inizio
     const al = ingresso.al ?? anno?.fine
     if (!dal || !al) throw errore.rifiuta(c().serveAnno)

@@ -200,7 +200,21 @@ export interface ContestoApplicazione {
   readonly extensionUri: Uri
   readonly extensionPath: string
   readonly globalStorageUri: Uri
+  /**
+   * Dove stanno le copie da aprire dei file dell'anno (PDF con dati di
+   * minorenni). Su Windows in `%LOCALAPPDATA%`, non nella `userData` di
+   * Roaming: nei PC di dominio con profili roaming quella si copia sul server
+   * a ogni disconnessione. Con una cartella dei dati scelta (portabile,
+   * sviluppo) resta lì, perché il portabile non lascia niente sul computer.
+   */
+  readonly cartellaCopieUri: Uri
   readonly secrets: DepositoSegreti
+}
+
+function cartellaCopie (): string {
+  const locale = process.env.LOCALAPPDATA
+  if (process.platform !== 'win32' || !locale || process.env.REGISTRO_DATI) return app.getPath('userData')
+  return percorso.join(locale, app.getName())
 }
 
 export function creaContesto (): ContestoApplicazione {
@@ -211,6 +225,7 @@ export function creaContesto (): ContestoApplicazione {
     extensionPath: base.fsPath,
     // La stessa di impostazioni e segreti.
     globalStorageUri: Uri.file(app.getPath('userData')),
+    cartellaCopieUri: Uri.file(cartellaCopie()),
     secrets: new Segreti(() => app.getPath('userData')),
   }
 }

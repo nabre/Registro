@@ -23,6 +23,9 @@ const it = {
   nomeValutazioniCsv: 'i voti per il foglio di calcolo',
   diario: 'Diario',
   nomeDiario: 'il diario cumulativo delle lezioni',
+  progetto: (titolo: string) => `Progetto: ${titolo}`,
+  nomeProgetto: (titolo: string) => `il rapporto del progetto «${titolo}»`,
+  progettoDi: (nome: string, titolo: string) => `il rapporto di ${nome} nel progetto «${titolo}»`,
 
   // Le prove e i piani
   nessunaProva: 'Nessuna prova nel periodo scelto.',
@@ -74,6 +77,10 @@ const it = {
   dettaglioDocenteClasse: 'Docente di classe',
   schedaDiPersonaCorso: (nome: string) => `la scheda del corso di ${nome}`,
   schedaDiPersonaClasse: (nome: string) => `la scheda del docente di classe per ${nome}`,
+  // Le linguette dei documenti delle persone: «Corso» e una per progetto.
+  linguetteAllievi: 'Corso o progetto',
+  progettoConto: (persone: number) =>
+    `${quanti(persone, PIF)} · un rapporto ciascuna · tutto il progetto`,
 }
 
 export const testi = catalogo(it, {
@@ -93,6 +100,9 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'die Noten für die Tabellenkalkulation',
     diario: 'Kurstagebuch',
     nomeDiario: 'das kumulative Kurstagebuch',
+    progetto: (titolo) => `Projekt: ${titolo}`,
+    nomeProgetto: (titolo) => `den Bericht zum Projekt «${titolo}»`,
+    progettoDi: (nome, titolo) => `den Bericht von ${nome} im Projekt «${titolo}»`,
 
     nessunaProva: 'Keine Prüfung im gewählten Zeitraum.',
     nessunVoto: 'keine Noten',
@@ -140,6 +150,9 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Klassenlehrperson',
     schedaDiPersonaCorso: (nome) => `das Kursblatt von ${nome}`,
     schedaDiPersonaClasse: (nome) => `das Klassenlehrperson-Blatt für ${nome}`,
+    linguetteAllievi: 'Kurs oder Projekt',
+    progettoConto: (persone) =>
+      `${persone} Lernende · ein Bericht pro Person · das ganze Projekt`,
   },
   fr: {
     delCorso: 'Du cours',
@@ -157,6 +170,9 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'les notes pour le tableur',
     diario: 'Journal',
     nomeDiario: 'le journal cumulatif des leçons',
+    progetto: (titolo) => `Projet : ${titolo}`,
+    nomeProgetto: (titolo) => `le rapport du projet « ${titolo} »`,
+    progettoDi: (nome, titolo) => `le rapport de ${nome} dans le projet « ${titolo} »`,
 
     nessunaProva: 'Aucune épreuve dans la période choisie.',
     nessunVoto: 'aucune note',
@@ -204,6 +220,10 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Maître de classe',
     schedaDiPersonaCorso: (nome) => `la fiche de cours de ${nome}`,
     schedaDiPersonaClasse: (nome) => `la fiche du maître de classe pour ${nome}`,
+    linguetteAllievi: 'Cours ou projet',
+    progettoConto: (persone) =>
+      `${plurale(persone, 'personne en formation', 'personnes en formation')} · un rapport ` +
+      'chacune · tout le projet',
   },
   en: {
     delCorso: 'For the course',
@@ -221,6 +241,9 @@ export const testi = catalogo(it, {
     nomeValutazioniCsv: 'the grades for the spreadsheet',
     diario: 'Journal',
     nomeDiario: 'the cumulative lesson journal',
+    progetto: (titolo) => `Project: ${titolo}`,
+    nomeProgetto: (titolo) => `the report of the project “${titolo}”`,
+    progettoDi: (nome, titolo) => `the report of ${nome} in the project “${titolo}”`,
 
     nessunaProva: 'No tests in the chosen period.',
     nessunVoto: 'no grades',
@@ -267,5 +290,8 @@ export const testi = catalogo(it, {
     dettaglioDocenteClasse: 'Class teacher',
     schedaDiPersonaCorso: (nome) => `the course sheet for ${nome}`,
     schedaDiPersonaClasse: (nome) => `the class teacher sheet for ${nome}`,
+    linguetteAllievi: 'Course or project',
+    progettoConto: (persone) =>
+      `${plurale(persone, 'learner', 'learners')} · one report each · the whole project`,
   },
 })

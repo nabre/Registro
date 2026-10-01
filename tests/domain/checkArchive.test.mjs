@@ -15,7 +15,7 @@ import { after, before, describe, it } from 'node:test'
 
 import { creaCheck } from '../../dist-tests/domain.mjs'
 import { Uri } from '../../dist-tests/environment.mjs'
-import { Pacchetto } from '../../dist-tests/package.mjs'
+import { DATI, Pacchetto } from '../../dist-tests/package.mjs'
 
 const radice = mkdtempSync(percorso.join(tmpdir(), 'registro-check-'))
 const lavoro = percorso.join(radice, 'lavoro')
@@ -58,7 +58,7 @@ describe('il check nel documento', () => {
     await archivio.chiudi()
     // Una lista vuota non è una migrazione: il file non va creato.
     const pacchetto = await Pacchetto.apri(Uri.file(copia))
-    assert.equal(pacchetto.testo('check.json'), null)
+    assert.equal(pacchetto.testo(`${DATI}/check.json`), null)
   })
 
   it('le spunte scritte si ritrovano riaprendo', async () => {
@@ -93,6 +93,6 @@ describe('il check nel documento', () => {
 
     // E sta nel suo file, non dentro i corsi.
     const pacchetto = await Pacchetto.apri(Uri.file(copia))
-    assert.equal(JSON.parse(pacchetto.testo('check.json'))[0].id, lista.id)
+    assert.equal(JSON.parse(pacchetto.testo(`${DATI}/check.json`))[0].id, lista.id)
   })
 })

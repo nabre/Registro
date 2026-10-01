@@ -54,9 +54,15 @@ function citatiComeStringa (): string[] {
   return [...citati].filter((percorso) => !giàVisti.has(percorso)).sort()
 }
 
-/** Le pagine native: `PAGINE_NATIVE` di `esbuild.mjs`, una cartella con lo stesso nome dei file. */
+/**
+ * Le pagine native: `PAGINE_NATIVE` e `PAGINE_DI_SVILUPPO` di `esbuild.mjs`, una
+ * cartella con lo stesso nome dei file.
+ */
 function pagineNative (): string[] {
-  const elenco = /const PAGINE_NATIVE = \[([^\]]*)\]/.exec(readFileSync('esbuild.mjs', 'utf8'))?.[1] ?? ''
+  const sorgente = readFileSync('esbuild.mjs', 'utf8')
+  const elenco = ['PAGINE_NATIVE', 'PAGINE_DI_SVILUPPO']
+    .map((nome) => new RegExp(`const ${nome} = \\[([^\\]]*)\\]`).exec(sorgente)?.[1] ?? '')
+    .join(',')
   return [...elenco.matchAll(/'([\w-]+)'/g)]
     .map(([, pagina]) => `desktop/shell/pages/${pagina}/${pagina}.ts`)
     .filter((file) => existsSync(file) && !giàVisti.has(file))

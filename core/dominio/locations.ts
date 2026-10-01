@@ -202,6 +202,8 @@ export type GenereRapporto =
   | 'diario'
   | 'corso'
   | 'supplenze'
+  | 'progetto-classe'
+  | 'progetto-allievo'
 
 /** Le parti di cui è fatto il posto di un documento: le cartelle e il nome. */
 export interface Collocazione {
@@ -297,6 +299,8 @@ export interface ContestoRapporto {
   docenteDiClasse?: boolean
   /** Il giorno che finisce nel nome dei documenti datati: di norma oggi. */
   giorno?: Iso
+  /** Il rapporto individuale di un progetto: di chi è (l'id è del progetto). */
+  allievoId?: string | null
 }
 
 /**
@@ -368,6 +372,39 @@ function collocazioneBase (
       chi: null,
       allievo: null,
       dettaglio: etichettaPeriodo(registro, corso.classeId, contesto.semestreId ?? null),
+      datato: false,
+    }
+  }
+
+  // Il progetto per titolo, come una prova: due progetti omonimi dello stesso
+  // corso prendono un numero. Quello di una persona va nella sua cartella.
+  if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
+    const progetto = registro.progetti.find((p) => p.id === id)
+    if (!progetto) return null
+    const corso = registro.corsi.find((c) => c.id === progetto.corsoId) ?? null
+    const gemelli = registro.progetti.filter(
+      (p) => p.corsoId === progetto.corsoId && p.titolo === progetto.titolo,
+    )
+    const titolo = `${progetto.titolo}${distinzione(gemelli.findIndex((p) => p.id === progetto.id))}`
+    if (genere === 'progetto-classe') {
+      return {
+        ...diUnCorso(registro, corso),
+        documento: testi().documenti.progetto,
+        chi: titolo,
+        allievo: null,
+        dettaglio: null,
+        datato: false,
+      }
+    }
+    const classe = corso ? classeDelCorsoId(registro, corso.id) : null
+    const allievo = classe?.allievi.find((a) => a.id === contesto.allievoId) ?? null
+    if (!allievo) return null
+    return {
+      ...diUnCorso(registro, corso),
+      documento: testi().documenti.progetto,
+      chi: nomeCompleto(allievo),
+      allievo: nomeCompleto(allievo),
+      dettaglio: titolo,
       datato: false,
     }
   }
@@ -534,6 +571,46 @@ export function percorsiDiUnDocumento (
 }
 
 /**
+ * I fogli dei progetti di un corso che nessun progetto di adesso scriverebbe
+ * più: un progetto rinominato ha il titolo nel nome, e il foglio col titolo di
+ * prima resterebbe accanto a quello nuovo. Fra `esistenti` (i file del
+ * documento) quelli con il nome di un foglio di progetto di quel corso, in
+ * qualunque lingua, che non sono di nessun progetto vivo.
+ */
+export function fogliDeiProgettiOrfani (
+  registro: Registro,
+  corsoId: string,
+  esistenti: readonly string[],
+): string[] {
+  // La testata del nome (anno, classe, materia) è quella di ogni foglio del
+  // corso: la si prende dalla scheda del corso, cambiando il documento.
+  const delCorso = collocazioneDi(registro, 'corso', corsoId)
+  if (!delCorso) return []
+  const vivi = new Set(registro.progetti
+    .filter((p) => p.corsoId === corsoId)
+    .flatMap((p) => (['progetto-classe', 'progetto-allievo'] as const).flatMap((genere) => [
+      ...percorsiDiUnDocumento(registro, genere, p.id),
+      ...percorsiInAltreLingue(registro, genere, p.id),
+    ])))
+  const radici = LINGUE.map((lingua) => radiceDi({
+    ...delCorso,
+    documento: testi.in(lingua).documenti.progetto,
+    chi: null,
+    allievo: null,
+    dettaglio: null,
+  }))
+  // `…/<classe>/classe/<anno_classe_materia_Progetto>`: la cartella del corso
+  // (sotto ci sono `classe/` e `allievi/<nome>/`) e l'inizio del nome.
+  const cartella = radici[0].slice(0, radici[0].lastIndexOf('/', radici[0].lastIndexOf('/') - 1) + 1)
+  const inizi = radici.map((r) => `${r.slice(r.lastIndexOf('/') + 1)}_`)
+  return esistenti.filter((percorso) => {
+    if (!percorso.startsWith(cartella) || vivi.has(percorso)) return false
+    const nome = percorso.slice(percorso.lastIndexOf('/') + 1)
+    return inizi.some((inizio) => nome.startsWith(inizio))
+  })
+}
+
+/**
  * Gli stessi fogli di `percorsiDiUnDocumento` coi nomi delle altre lingue. A
  * parte perché non si contano: probabilmente non esistono, chi cancella li
  * cerca soltanto.
@@ -602,6 +679,14 @@ function contestiPossibili (
   ) {
     const corso = registro.corsi.find((c) => c.id === id) ?? null
     return periodiDi(corso?.classeId ?? null).map((semestreId) => ({ semestreId }))
+  }
+
+  // Il foglio individuale di un progetto può essere di chiunque della classe.
+  if (genere === 'progetto-allievo') {
+    const progetto = registro.progetti.find((p) => p.id === id) ?? null
+    const classe = progetto ? classeDelCorsoId(registro, progetto.corsoId) : null
+    if (dentro.allievoId) return [{ allievoId: dentro.allievoId }]
+    return (classe?.allievi ?? []).map((a) => ({ allievoId: a.id }))
   }
 
   if (genere === 'allievo') {

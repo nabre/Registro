@@ -48,6 +48,11 @@ import {
   nuovoIdConsegna,
   nuovoIdOsservazione,
   nuovoIdPiano,
+  nuovoIdProgetto,
+  nuovoIdCriterioProgetto,
+  nuovoIdFaseProgetto,
+  nuovoIdCompitoProgetto,
+  nuovoIdGiudizioProgetto,
   nuovoIdRisorsa,
   nuovoIdAllegato,
   nuovoIdBloccoAssenze,
@@ -86,6 +91,13 @@ import type {
   Osservazione,
   PianoLezione,
   Presenza,
+  Progetto,
+  FaseProgetto,
+  CompitoProgetto,
+  CriterioProgetto,
+  GiudizioProgetto,
+  CellaProgetto,
+  LivelloProgetto,
   RecuperoProva,
   Registro,
   Scala,
@@ -133,6 +145,14 @@ import { testi } from './normalization.testi.js'
 import { ALTEZZA_LOGO, CHI_INSEGNA, VERSIONE_DATI } from './models.js'
 import { cartaVuota, completaCarte, nuovoIdCarta } from './letterhead.js'
 import { colonneRipulite } from './check.js'
+import {
+  STATI_PROGETTO,
+  cellaVuota,
+  fasePredefinita,
+  fasiDelleTappe,
+  livelliPredefiniti,
+  ripulisciMatrice,
+} from './projects.js'
 import { Migrazione } from './migration.js'
 import { urlValido } from './validation.js'
 
@@ -856,6 +876,11 @@ function normalizzaAttivita (grezzo: unknown): Attivita {
     // butta solo quel che non è un valore semplice.
     parametri: parametriPuliti(dati.parametri),
     valutazione: normalizzaValutazionePrevista(dati.valutazione) ?? undefined,
+    // Assente sulle tappe che non lavorano per un progetto: i piani restano leggeri.
+    progettoId: riferimento(dati.progettoId) ?? undefined,
+    // Senza progetto non c'è fase; che la fase sia del progetto lo guarda
+    // `fasiDelleTappe` in `normalizzaRegistro`, che vede anche i progetti.
+    faseProgettoId: riferimento(dati.progettoId) ? riferimento(dati.faseProgettoId) ?? undefined : undefined,
   }
 }
 
@@ -925,18 +950,18 @@ function valutazioneSullaScaletta (
 }
 
 /**
- * Il titolo dei piani vecchi, rimesso nelle note. I riempitivi di serie
+ * Il titolo dei piani vecchi, rimesso in cima ai prerequisiti. I riempitivi di serie
  * («Piano senza titolo») non si conservano.
  */
 // testo-fisso: i riempitivi italiani che il registro scriveva da sé, da riconoscere
 const TITOLI_VUOTI = new Set(['piano senza titolo', 'senza titolo', 'nuovo piano'])
 
-function unisciVecchioTitolo (titolo: string, note: string): string {
+function unisciVecchioTitolo (titolo: string, sotto: string): string {
   const suo = titolo.trim()
-  if (!suo || TITOLI_VUOTI.has(suo.toLowerCase())) return note
-  if (note.includes(suo)) return note
-  return note ? `${suo}
-${note}` : suo
+  if (!suo || TITOLI_VUOTI.has(suo.toLowerCase())) return sotto
+  if (sotto.includes(suo)) return sotto
+  return sotto ? `${suo}
+${sotto}` : suo
 }
 
 export function normalizzaPiano (grezzo: unknown, corsoId: string | null = null): PianoLezione {
@@ -947,15 +972,15 @@ export function normalizzaPiano (grezzo: unknown, corsoId: string | null = null)
     id: testo(dati.id) || nuovoIdPiano(),
     corsoId: suo ?? corsoId,
     obiettivi: elenco(dati.obiettivi).map((o) => testo(o)).filter(Boolean),
-    prerequisiti: testo(dati.prerequisiti),
+    // Il titolo dei piani vecchi finisce in cima ai prerequisiti; le note le
+    // ha già portate lì il passo del formato 4.
+    prerequisiti: unisciVecchioTitolo(testo(dati.titolo), testo(dati.prerequisiti)),
     // La valutazione dei piani vecchi si posa sulla tappa che la faceva.
     attivita: valutazioneSullaScaletta(
       elenco(dati.attivita).map(normalizzaAttivita),
       normalizzaValutazionePrevista(dati.valutazione),
     ),
     risorse: elenco(dati.risorse).map(normalizzaRisorsa),
-    // Il titolo dei piani vecchi finisce in cima alle note.
-    note: unisciVecchioTitolo(testo(dati.titolo), testo(dati.note)),
     tag: elenco(dati.tag).map((t) => testo(t)).filter(Boolean),
     creatoIl: testo(dati.creatoIl, ora),
     aggiornatoIl: testo(dati.aggiornatoIl, ora),
@@ -1056,6 +1081,7 @@ export function normalizzaValutazione (grezzo: unknown, corsoId = ''): MomentoVa
     lezioneId: riferimento(dati.lezioneId),
     pianoId: riferimento(dati.pianoId),
     attivitaId: riferimento(dati.attivitaId),
+    progettoId: riferimento(dati.progettoId),
     titolo: testo(dati.titolo, Uno(lessico().momento)),
     tipo: unaVoce(dati.tipo, TIPI_VALUTAZIONE, 'scritto'),
     data: unaData(dati.data, oggi()),
@@ -1444,7 +1470,7 @@ export function normalizzaRegistro (grezzo: unknown): Registro {
   // Prima del return: svuota dai fascicoli i documenti che ha convertito.
   const dallaRaccolta = documentiDiventatiConsegne(fascicoli, migrazione.corsi)
 
-  return {
+  const registro: Registro = {
     versione: VERSIONE_DATI,
     anni,
     annoCorrenteId: anni.some((a) => a.id === annoCorrenteId)
@@ -1476,11 +1502,15 @@ export function normalizzaRegistro (grezzo: unknown): Registro {
     check: unCheckPerCorso(
       elenco(dati.check).map((g) => normalizzaCheck(migrazione.conCorsoVero(g))),
     ),
+    progetti: elenco(dati.progetti).map((g) => normalizzaProgetto(migrazione.conCorsoVero(g))),
     smistamenti: elenco(dati.smistamenti).map(normalizzaSmistamento),
     coordinate: coordinateDellAnno(dati, classiGrezze),
     impostazioni: conCarteComplete(normalizzaImpostazioni(dati.impostazioni), migrazione.corsi),
   }
+  fasiDelleTappe(registro)
+  return registro
 }
+
 
 /**
  * La chiusura dell'intera consegna (forma vecchia) diventa una spunta per
@@ -1727,6 +1757,194 @@ function unCheckPerCorso (elenco: Check[]): Check[] {
     esito.push(check)
   }
   return esito
+}
+
+// ------------------------------------------------------------------ progetti
+
+/**
+ * Gli id unici: un doppione (un file copiato a mano) ne prende uno nuovo, se no
+ * le azioni per id toccherebbero sempre e solo il primo. Come per i criteri.
+ */
+function idUnici<T extends { id: string }> (voci: T[], nuovoId: () => string): T[] {
+  const visti = new Set<string>()
+  for (const voce of voci) {
+    if (visti.has(voce.id)) voce.id = nuovoId()
+    visti.add(voce.id)
+  }
+  return voci
+}
+
+/** Una voce per allievo: con due, vale la prima, come nel pannello. */
+function unaPerAllievo<T extends { allievoId: string }> (voci: T[]): T[] {
+  const visti = new Set<string>()
+  return voci.filter((voce) => {
+    if (!voce.allievoId || visti.has(voce.allievoId)) return false
+    visti.add(voce.allievoId)
+    return true
+  })
+}
+
+function normalizzaCompitoProgetto (grezzo: unknown): CompitoProgetto {
+  const dati = oggetto(grezzo)
+  return {
+    id: testo(dati.id) || nuovoIdCompitoProgetto(),
+    titolo: testo(dati.titolo).trim() || Uno(lessico().compitoProgetto),
+    descrizione: testo(dati.descrizione) || undefined,
+    fine: isoValida(dati.fine) ? dati.fine : null,
+    fineLezioneId: riferimento(dati.fineLezioneId),
+    inizi: unaPerAllievo(elenco(dati.inizi).map((voce) => {
+      const inizio = oggetto(voce)
+      return {
+        allievoId: testo(inizio.allievoId),
+        data: unaData(inizio.data, oggi()),
+        lezioneId: riferimento(inizio.lezioneId),
+      }
+    })),
+    // Una proroga senza giorno non proroga niente.
+    proroghe: unaPerAllievo(elenco(dati.proroghe).flatMap((voce) => {
+      const proroga = oggetto(voce)
+      if (!isoValida(proroga.fine)) return []
+      return [{
+        allievoId: testo(proroga.allievoId),
+        fine: proroga.fine,
+        nota: testo(proroga.nota) || undefined,
+      }]
+    })),
+    fatti: unaPerAllievo(elenco(dati.fatti).map((voce) => {
+      const fatto = oggetto(voce)
+      return {
+        allievoId: testo(fatto.allievoId),
+        fattoIl: testo(fatto.fattoIl, istanteAdesso()),
+        nota: testo(fatto.nota) || undefined,
+      }
+    })),
+  }
+}
+
+/** Un giudizio senza testo non dice niente, e se ne va. */
+function normalizzaGiudizioProgetto (grezzo: unknown): GiudizioProgetto | null {
+  const dati = oggetto(grezzo)
+  const scritto = testo(dati.testo)
+  if (!scritto.trim()) return null
+  const creatoIl = testo(dati.creatoIl, istanteAdesso())
+  return {
+    id: testo(dati.id) || nuovoIdGiudizioProgetto(),
+    allievoId: riferimento(dati.allievoId),
+    testo: scritto,
+    data: unaData(dati.data, giornoDi(creatoIl) ?? oggi()),
+    lezioneId: riferimento(dati.lezioneId),
+    creatoIl,
+  }
+}
+
+function normalizzaCellaProgetto (grezzo: unknown): CellaProgetto | null {
+  const dati = oggetto(grezzo)
+  const allievoId = testo(dati.allievoId)
+  const criterioId = testo(dati.criterioId)
+  if (!allievoId || !criterioId) return null
+  const livello = typeof dati.livello === 'string' && dati.livello ? dati.livello : null
+  return {
+    allievoId,
+    criterioId,
+    data: unaData(dati.data, oggi()),
+    lezioneId: riferimento(dati.lezioneId),
+    livello,
+    nota: testo(dati.nota) || undefined,
+  }
+}
+
+/**
+ * Il progetto dal file. Criteri, compiti e giudizi con id unico, una scala che
+ * non resta mai vuota (senza, la matrice non saprebbe che cosa scrivere), celle
+ * ripulite come dopo un salvataggio: niente celle di criteri spariti, né vuote,
+ * né due nella stessa ora (o nello stesso giorno senza ora) sulla stessa
+ * coppia. Il giorno di un'ora qui non si sa (manca il registro): due celle
+ * dello stesso giorno, una nell'ora e una no, restano, e `progetto.cella` le
+ * riscrive insieme.
+ */
+export function normalizzaProgetto (grezzo: unknown): Progetto {
+  const dati = oggetto(grezzo)
+  const ora = istanteAdesso()
+
+  const idCriteri = new Set<string>()
+  const criteri: CriterioProgetto[] = []
+  for (const voce of elenco(dati.criteri)) {
+    const criterio = oggetto(voce)
+    const titolo = testo(criterio.titolo).trim()
+    let id = testo(criterio.id)
+    if (!id && !titolo) continue
+    if (!id || idCriteri.has(id)) id = nuovoIdCriterioProgetto()
+    idCriteri.add(id)
+    criteri.push({ id, titolo, descrizione: testo(criterio.descrizione) || undefined })
+  }
+
+  const valori = new Set<string>()
+  const livelli: LivelloProgetto[] = []
+  for (const voce of elenco(dati.livelli)) {
+    const livello = oggetto(voce)
+    const valore = testo(livello.valore).trim()
+    if (!valore || valori.has(valore)) continue
+    valori.add(valore)
+    const colore = testo(livello.colore)
+    livelli.push({
+      valore,
+      testo: testo(livello.testo).trim() || valore,
+      descrizione: testo(livello.descrizione).trim() || undefined,
+      colore: coloreValido(colore) ? colore : undefined,
+    })
+  }
+
+  const caselle = new Set<string>()
+  const matrice: CellaProgetto[] = []
+  for (const cella of elenco(dati.matrice).map(normalizzaCellaProgetto)) {
+    if (!cella || cellaVuota(cella)) continue
+    const casella = `${cella.allievoId} ${cella.criterioId} ${cella.lezioneId ?? cella.data}`
+    if (caselle.has(casella)) continue
+    caselle.add(casella)
+    matrice.push(cella)
+  }
+
+  // Sempre almeno una fase: le tappe del progetto devono cadere in una.
+  const idFasi = new Set<string>()
+  const fasi: FaseProgetto[] = []
+  for (const voce of elenco(dati.fasi)) {
+    const fase = oggetto(voce)
+    let id = testo(fase.id)
+    if (!id || idFasi.has(id)) id = nuovoIdFaseProgetto()
+    idFasi.add(id)
+    fasi.push({
+      id,
+      titolo: testo(fase.titolo).trim() || fasePredefinita(fasi.length + 1).titolo,
+      descrizione: testo(fase.descrizione) || undefined,
+    })
+  }
+  if (fasi.length === 0) fasi.push(fasePredefinita())
+
+  const progetto: Progetto = {
+    id: testo(dati.id) || nuovoIdProgetto(),
+    corsoId: testo(dati.corsoId),
+    titolo: testo(dati.titolo).trim() || Uno(lessico().progetto),
+    descrizione: testo(dati.descrizione) || undefined,
+    obiettivi: elenco(dati.obiettivi).map((o) => testo(o).trim()).filter(Boolean),
+    stato: unaVoce(dati.stato, STATI_PROGETTO, 'bozza'),
+    fasi,
+    criteri,
+    livelli: livelli.length > 0 ? livelli : livelliPredefiniti(),
+    compiti: idUnici(elenco(dati.compiti).map(normalizzaCompitoProgetto), nuovoIdCompitoProgetto),
+    giudizi: idUnici(
+      elenco(dati.giudizi)
+        .map(normalizzaGiudizioProgetto)
+        .filter((g): g is GiudizioProgetto => g !== null),
+      nuovoIdGiudizioProgetto,
+    ),
+    matrice,
+    risorse: elenco(dati.risorse).map(normalizzaRisorsa),
+    note: testo(dati.note) || undefined,
+    creatoIl: testo(dati.creatoIl, ora),
+    aggiornatoIl: testo(dati.aggiornatoIl, ora),
+  }
+  ripulisciMatrice(progetto)
+  return progetto
 }
 
 // --------------------------------------------------------------- smistamenti

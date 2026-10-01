@@ -751,7 +751,8 @@ function segnoTestata (opzioni: { titolo: string, aiuto?: Figlio }): HTMLElement
  */
 export function testataVista (opzioni: {
   titolo: string
-  sottotitolo?: string
+  /** Un nodo dove serve uno stile dentro la riga: la data di una lezione. */
+  sottotitolo?: Figlio
   /** Che cosa è questa pagina, dietro la «i» accanto al titolo: vedi `scheda`. */
   aiuto?: Figlio
   azioni?: Figlio

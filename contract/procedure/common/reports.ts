@@ -9,5 +9,5 @@ import { esaustivo } from '../../schemas.js'
  */
 export const GENERI = esaustivo<GenereRapporto>()([
   'lezione', 'piano', 'valutazioni', 'presenze', 'fascicolo', 'allievo', 'momento', 'foto-classe', 'diario', 'corso',
-  'supplenze',
+  'supplenze', 'progetto-classe', 'progetto-allievo',
 ] as const)

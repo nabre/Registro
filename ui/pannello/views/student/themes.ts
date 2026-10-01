@@ -17,6 +17,7 @@ import { minuscolo } from '../../../../core/i18n/index.js'
 import { collegamento, pastiglia, scheda } from '../../components/base.js'
 import { sintesiIncassata } from '../../components/filters.js'
 import { nomeSegno, segnoFermo } from '../../components/marks.js'
+import { dataDiLezione } from '../../components/lessonDate.js'
 import { h, type Figlio } from '../../dom.js'
 import { casellaDelCheck, comeSpuntata } from '../check.js'
 import { nomeMateria, stato, vai, valutazioniDi } from '../../state.js'
@@ -147,7 +148,7 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
     return segnoFermo(cella.segno, {
       conNota: Boolean(cella.nota),
       racconto: [
-        `${formattaData(lezione.data, 'giorno')} · ${nomeAspetto(aspetto)}`,
+        `${formattaData(lezione.data, 'settimana')} · ${nomeAspetto(aspetto)}`,
         nomeSegno(cella.segno).toLowerCase(),
         cella.nota,
       ]
@@ -190,7 +191,7 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
                     { class: 'matrice__chi', attr: { scope: 'row' } },
                     // Il giorno porta all'ora.
                     collegamento({
-                      testo: formattaData(lezione.data, 'giorno'),
+                      testo: dataDiLezione(lezione.data),
                       al: () => apriLezione(lezione.id),
                     }),
                   ),
@@ -231,7 +232,7 @@ function temaOsservato (allievo: Allievo, lezioni: Lezione[]): Figlio {
                     'li',
                     { class: 'diario__voce' },
                     collegamento({
-                      testo: formattaData(lezione.data, 'giorno'),
+                      testo: dataDiLezione(lezione.data),
                       classe: 'diario__quando',
                       al: () => apriLezione(lezione.id),
                     }),
@@ -269,7 +270,7 @@ function temaOsservazioni (allievo: Allievo, lezioni: Lezione[]): Figlio {
               'li',
               { class: 'diario__voce' },
               collegamento({
-                testo: formattaData(lezione.data, 'giorno'),
+                testo: dataDiLezione(lezione.data),
                 classe: 'diario__quando',
                 al: () => apriLezione(lezione.id),
               }),

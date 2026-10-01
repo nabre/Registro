@@ -1,7 +1,7 @@
 import { valutazioni } from '../../../core/azioni/assessments.js'
-import { errore } from '../../contract.js'
 import { inoltra, scrittura } from '../../core.js'
 import { identificatore, oggetto } from '../../schemas.js'
+import { esigiLezione } from '../common/plans.js'
 import { testi } from './valutazioni.testi.js'
 
 const t = () => testi().daAttivita
@@ -21,8 +21,7 @@ export const procedura = scrittura({
   esegui: (ambito, ingresso) => {
     // La tappa la cerca il gestore, con la sua frase («Quella tappa non c'è più
     // nel piano.»).
-    const lezione = ambito.contesto.registro.lezioni.find((l) => l.id === ingresso.lezioneId)
-    if (!lezione) throw errore.nonTrovato('lezione')
+    esigiLezione(ambito, ingresso.lezioneId)
     return inoltra(valutazioni, 'valutazione.daAttivita')(ambito, ingresso)
   },
 })

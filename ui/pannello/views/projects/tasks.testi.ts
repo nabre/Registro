@@ -1,0 +1,187 @@
+// I testi di `views/projects/tasks.ts`: la griglia dei compiti di un progetto.
+
+import { catalogo } from '../../../../core/i18n/index.js'
+
+const it = {
+  stati: {
+    'non-iniziato': 'Da cominciare',
+    'in-corso': 'In corso',
+    fatto: 'Finito',
+    scaduto: 'Scaduto',
+  },
+  finePerTutti: (data: string) => `Fine per tutti: ${data}`,
+  senzaFine: 'Senza fine comune',
+  iniziaInLezione: 'Cominciato in questa lezione',
+  iniziaOggi: 'Cominciato oggi',
+  scegliGiorno: 'Scegli il giorno…',
+  togliInizio: 'Togli l’inizio',
+  cominciatoIl: (chi: string, data: string) => `${chi}: cominciato il ${data}`,
+  clicPerIniziare: (chi: string, inLezione: boolean) =>
+    `${chi}: non ancora cominciato. Clic: ${inLezione ? 'comincia in questa lezione' : 'comincia oggi'}`,
+  prorogaFino: (data: string) => `Proroga fino al ${data}`,
+  fineComune: 'Vale la fine per tutti',
+  clicPerProroga: 'Clic: proroga',
+  fattoIl: (chi: string, data: string) => `${chi}: finito il ${data}`,
+  daFare: (chi: string) => `${chi}: non ancora finito`,
+  fattoDi: (chi: string) => `Finito: ${chi}`,
+  scegli: (chi: string) => `Scegli ${chi}`,
+  scegliTutti: 'Scegli tutti',
+  nonFrequentaPiu: 'non frequenta più',
+  inizio: 'Inizio',
+  fine: 'Fine',
+  iniziaSceltiInLezione: (n: number) => n === 0
+    ? 'Cominciano in questa lezione'
+    : `${n} cominciano in questa lezione`,
+  iniziaSceltiOggi: (n: number) => n === 0 ? 'Cominciano oggi' : `${n} cominciano oggi`,
+  iniziaATutti: (n: number) => n === 0 ? 'Hanno cominciato tutti' : `Comincia chi manca (${n})`,
+  iniziaATuttiAiuto: 'Solo chi non ha ancora cominciato: gli altri tengono il loro giorno.',
+  fattoATutti: 'Finito per tutti',
+  togliSpunte: 'Togli tutte le spunte',
+  togliereSpunte: 'Togliere tutte le spunte?',
+  togliereSpunteTesto: (n: number) => n === 1
+    ? 'Se ne va la spunta di una persona, con la sua nota.'
+    : `Se ne vanno le spunte di ${n} persone, anche di chi non frequenta più, con le loro note.`,
+  classeVuota: 'La classe del corso è vuota.',
+  nessunCompito: 'Nessun compito: aggiungine uno con «Nuovo compito».',
+  nuovoCompito: 'Nuovo compito',
+  contoFatti: (fatti: number, tutti: number) => `${fatti} su ${tutti} hanno finito`,
+  scadutoPer: (n: number) => n === 1 ? 'scaduto per una persona' : `scaduto per ${n} persone`,
+}
+
+export const testi = catalogo(it, {
+  de: {
+    stati: {
+      'non-iniziato': 'Noch nicht begonnen',
+      'in-corso': 'In Arbeit',
+      fatto: 'Fertig',
+      scaduto: 'Überfällig',
+    },
+    finePerTutti: (data) => `Ende für alle: ${data}`,
+    senzaFine: 'Ohne gemeinsames Ende',
+    iniziaInLezione: 'In dieser Stunde begonnen',
+    iniziaOggi: 'Heute begonnen',
+    scegliGiorno: 'Tag wählen…',
+    togliInizio: 'Beginn entfernen',
+    cominciatoIl: (chi, data) => `${chi}: begonnen am ${data}`,
+    clicPerIniziare: (chi, inLezione) =>
+      `${chi}: noch nicht begonnen. Klick: ${inLezione ? 'beginnt in dieser Stunde' : 'beginnt heute'}`,
+    prorogaFino: (data) => `Verlängert bis am ${data}`,
+    fineComune: 'Es gilt das Ende für alle',
+    clicPerProroga: 'Klick: Verlängerung',
+    fattoIl: (chi, data) => `${chi}: fertig am ${data}`,
+    daFare: (chi) => `${chi}: noch nicht fertig`,
+    fattoDi: (chi) => `Fertig: ${chi}`,
+    scegli: (chi) => `${chi} auswählen`,
+    scegliTutti: 'Alle auswählen',
+    nonFrequentaPiu: 'nicht mehr in der Klasse',
+    inizio: 'Beginn',
+    fine: 'Ende',
+    iniziaSceltiInLezione: (n) => n === 0
+      ? 'Beginnen in dieser Stunde'
+      : `${n} beginnen in dieser Stunde`,
+    iniziaSceltiOggi: (n) => n === 0 ? 'Beginnen heute' : `${n} beginnen heute`,
+    iniziaATutti: (n) => n === 0 ? 'Alle haben begonnen' : `Wer fehlt, beginnt (${n})`,
+    iniziaATuttiAiuto: 'Nur wer noch nicht begonnen hat: Die anderen behalten ihren Tag.',
+    fattoATutti: 'Fertig für alle',
+    togliSpunte: 'Alle Häkchen entfernen',
+    togliereSpunte: 'Alle Häkchen entfernen?',
+    togliereSpunteTesto: (n) => n === 1
+      ? 'Das Häkchen einer Person geht verloren, samt Notiz.'
+      : `Die Häkchen von ${n} Personen gehen verloren, auch von Ausgetretenen, samt Notizen.`,
+    classeVuota: 'Die Klasse des Kurses ist leer.',
+    nessunCompito: 'Keine Aufgabe: Füge eine mit «Neue Aufgabe» hinzu.',
+    nuovoCompito: 'Neue Aufgabe',
+    contoFatti: (fatti, tutti) => `${fatti} von ${tutti} fertig`,
+    scadutoPer: (n) => n === 1 ? 'für eine Person überfällig' : `für ${n} Personen überfällig`,
+  },
+  fr: {
+    stati: {
+      'non-iniziato': 'À commencer',
+      'in-corso': 'En cours',
+      fatto: 'Fini',
+      scaduto: 'Échu',
+    },
+    finePerTutti: (data) => `Fin pour tous : ${data}`,
+    senzaFine: 'Sans fin commune',
+    iniziaInLezione: 'Commencé dans cette période',
+    iniziaOggi: 'Commencé aujourd’hui',
+    scegliGiorno: 'Choisir le jour…',
+    togliInizio: 'Retirer le début',
+    cominciatoIl: (chi, data) => `${chi} : commencé le ${data}`,
+    clicPerIniziare: (chi, inLezione) =>
+      `${chi} : pas encore commencé. Clic : ${inLezione ? 'commence dans cette période' : 'commence aujourd’hui'}`,
+    prorogaFino: (data) => `Prolongé jusqu’au ${data}`,
+    fineComune: 'La fin pour tous fait foi',
+    clicPerProroga: 'Clic : prolongation',
+    fattoIl: (chi, data) => `${chi} : fini le ${data}`,
+    daFare: (chi) => `${chi} : pas encore fini`,
+    fattoDi: (chi) => `Fini : ${chi}`,
+    scegli: (chi) => `Choisir ${chi}`,
+    scegliTutti: 'Choisir tout le monde',
+    nonFrequentaPiu: 'ne fréquente plus',
+    inizio: 'Début',
+    fine: 'Fin',
+    iniziaSceltiInLezione: (n) => n === 0
+      ? 'Commencent dans cette période'
+      : `${n} commencent dans cette période`,
+    iniziaSceltiOggi: (n) => n === 0 ? 'Commencent aujourd’hui' : `${n} commencent aujourd’hui`,
+    iniziaATutti: (n) => n === 0 ? 'Tout le monde a commencé' : `Ceux qui manquent commencent (${n})`,
+    iniziaATuttiAiuto: 'Seulement ceux qui n’ont pas commencé : les autres gardent leur jour.',
+    fattoATutti: 'Fini pour tous',
+    togliSpunte: 'Retirer toutes les coches',
+    togliereSpunte: 'Retirer toutes les coches ?',
+    togliereSpunteTesto: (n) => n === 1
+      ? 'La coche d’une personne part, avec sa note.'
+      : `Les coches de ${n} personnes partent, même de celles qui ne fréquentent plus, avec leurs notes.`,
+    classeVuota: 'La classe du cours est vide.',
+    nessunCompito: 'Aucune tâche : ajoutes-en une avec « Nouvelle tâche ».',
+    nuovoCompito: 'Nouvelle tâche',
+    contoFatti: (fatti, tutti) => `${fatti} sur ${tutti} ont fini`,
+    scadutoPer: (n) => n === 1 ? 'échue pour une personne' : `échue pour ${n} personnes`,
+  },
+  en: {
+    stati: {
+      'non-iniziato': 'Not started',
+      'in-corso': 'In progress',
+      fatto: 'Finished',
+      scaduto: 'Overdue',
+    },
+    finePerTutti: (data) => `End for everyone: ${data}`,
+    senzaFine: 'No common end',
+    iniziaInLezione: 'Started in this lesson',
+    iniziaOggi: 'Started today',
+    scegliGiorno: 'Choose the day…',
+    togliInizio: 'Remove the start',
+    cominciatoIl: (chi, data) => `${chi}: started on ${data}`,
+    clicPerIniziare: (chi, inLezione) =>
+      `${chi}: not started yet. Click: ${inLezione ? 'starts in this lesson' : 'starts today'}`,
+    prorogaFino: (data) => `Extended until ${data}`,
+    fineComune: 'The end for everyone applies',
+    clicPerProroga: 'Click: extension',
+    fattoIl: (chi, data) => `${chi}: finished on ${data}`,
+    daFare: (chi) => `${chi}: not finished yet`,
+    fattoDi: (chi) => `Finished: ${chi}`,
+    scegli: (chi) => `Select ${chi}`,
+    scegliTutti: 'Select everyone',
+    nonFrequentaPiu: 'no longer attends',
+    inizio: 'Start',
+    fine: 'End',
+    iniziaSceltiInLezione: (n) => n === 0
+      ? 'Start in this lesson'
+      : `${n} start in this lesson`,
+    iniziaSceltiOggi: (n) => n === 0 ? 'Start today' : `${n} start today`,
+    iniziaATutti: (n) => n === 0 ? 'Everyone has started' : `Start the rest (${n})`,
+    iniziaATuttiAiuto: 'Only those who have not started: the others keep their day.',
+    fattoATutti: 'Finished for everyone',
+    togliSpunte: 'Remove all ticks',
+    togliereSpunte: 'Remove all ticks?',
+    togliereSpunteTesto: (n) => n === 1
+      ? 'One person’s tick goes, with its note.'
+      : `The ticks of ${n} people go, including those who no longer attend, with their notes.`,
+    classeVuota: 'The course’s class is empty.',
+    nessunCompito: 'No tasks: add one with “New task”.',
+    nuovoCompito: 'New task',
+    contoFatti: (fatti, tutti) => `${fatti} of ${tutti} finished`,
+    scadutoPer: (n) => n === 1 ? 'overdue for one person' : `overdue for ${n} people`,
+  },
+})

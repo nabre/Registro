@@ -30,10 +30,12 @@ import { parole } from '../../../core/dominio/words.testi.js'
 import { collegamento, pulsante, scheda, statoVuoto, testataVista } from '../components/base.js'
 import { statoVuotoAnno } from '../components/filters.js'
 import { icona } from '../components/icons.js'
+import { frecceNellaGriglia } from '../components/gridArrows.js'
+import { statoInVolo } from '../components/inFlight.js'
 import { menuContestuale, menuSotto, type ElementoMenu } from '../components/menu.js'
 import { conferma } from '../components/modal.js'
 import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from '../context.js'
-import { gestisci, h, type Figlio } from '../dom.js'
+import { h, type Figlio } from '../dom.js'
 import { avvisoSpunteCheCadono, colonneAttuali, spunteCheCadonoOra } from '../forms/check.js'
 import { moduloAnno, moduloColonnaCheck, moduloDataCheck } from '../forms.js'
 import { azione } from '../bridge.js'
@@ -86,17 +88,9 @@ const chiaveCasella = (corsoId: string, allievoId: string, colonnaId: string): s
 /**
  * Le caselle mandate all'host e non ancora tornate: vero se spuntate, falso se
  * tolte. Il secondo clic parte da quel che ha mandato il primo, non dal disegno
- * (come `pulsanteStato` in `lesson.ts`). Fuori dalla casella perché un
- * ridisegno fra i due clic la ricrea.
+ * (come `pulsanteStato` in `lesson/attendance.ts`).
  */
-const inVolo = new Map<string, boolean>()
-
-/**
- * Il numero dell'ultimo clic partito per ogni casella: il ritorno di un clic
- * toglie la voce da `inVolo` solo se è l'ultimo (confrontare il valore non
- * basta con spunta-togli-spunta).
- */
-const numeroDelClic = new Map<string, number>()
+const inVolo = statoInVolo<boolean>()
 
 async function spunta (
   corsoId: string,
@@ -105,27 +99,16 @@ async function spunta (
   fatta: boolean,
   quando: Quando | null,
 ): Promise<boolean> {
-  const chiave = chiaveCasella(corsoId, allievoId, colonnaId)
-  const mio = (numeroDelClic.get(chiave) ?? 0) + 1
-  numeroDelClic.set(chiave, mio)
-  inVolo.set(chiave, fatta)
-  try {
-    const risposta = await azione({
+  const risposta = await inVolo.manda(chiaveCasella(corsoId, allievoId, colonnaId), fatta, () =>
+    azione({
       tipo: 'check.spunta',
       corsoId,
       allievoId,
       colonnaId,
       fatta,
       ...(fatta && quando ? quando : {}),
-    })
-    return risposta.ok
-  } finally {
-    // Solo se nel frattempo non è partito un clic dopo.
-    if (numeroDelClic.get(chiave) === mio) {
-      inVolo.delete(chiave)
-      numeroDelClic.delete(chiave)
-    }
-  }
+    }))
+  return risposta.ok
 }
 
 async function assegnaAllaLezione (
@@ -378,7 +361,7 @@ function casellaCheck (casella: Casella): HTMLElement {
         // Quel che è partito e non è tornato conta come già fatto: il secondo clic
         // toglie invece di rispuntare.
         const chiave = chiaveCasella(corsoId, allievo.id, colonna.id)
-        const partita = inVolo.get(chiave)
+        const partita = inVolo.da(chiave, undefined)
         const dataOra = partita === undefined ? (fatta ? data : null) : partita ? contesto : null
         const esito = gestoDelClic(dataOra, contesto)
         // Spuntata un altro giorno: il clic non la cambia, ma apre il menu, così
@@ -519,33 +502,8 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
     ],
     righe: righe.map(riga),
   })
-  gestisci(griglia, 'keydown', frecceNellaGriglia)
+  frecceNellaGriglia(griglia, '.casella-check')
   return griglia
-}
-
-/**
- * Le frecce spostano il fuoco fra le caselle, come in una griglia; Tab resta
- * com'è. Legge la tabella al momento del tasto: sul telaio resta l'ascoltatore
- * del primo disegno.
- */
-function frecceNellaGriglia (evento: KeyboardEvent): void {
-  const passi: Record<string, [number, number]> = {
-    ArrowUp: [-1, 0],
-    ArrowDown: [1, 0],
-    ArrowLeft: [0, -1],
-    ArrowRight: [0, 1],
-  }
-  const passo = passi[evento.key]
-  if (!passo || evento.altKey || evento.ctrlKey || evento.metaKey) return
-  const cella = (evento.target as HTMLElement).closest('td')
-  const riga = cella?.parentElement
-  const corpo = riga?.parentElement
-  if (!cella || !(riga instanceof HTMLTableRowElement) || !corpo) return
-  const righe = Array.from(corpo.children) as HTMLTableRowElement[]
-  const dopo = righe[righe.indexOf(riga) + passo[0]]?.cells[cella.cellIndex + passo[1]]
-  const casella = dopo?.querySelector<HTMLButtonElement>('.casella-check')
-  evento.preventDefault()
-  casella?.focus()
 }
 
 // ------------------------------------------------------------------ nell'ora

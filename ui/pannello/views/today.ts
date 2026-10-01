@@ -163,7 +163,7 @@ function tessere (oreOggi: readonly OraDiOggi[]): HTMLElement {
       etichetta: t.daCompilare,
       nota:
         buchi.length > 0
-          ? t.laPiuVecchia(formattaData(buchi[0].data, 'giorno'))
+          ? t.laPiuVecchia(formattaData(buchi[0].data, 'settimana'))
           : t.inPari,
       pagina: 'pagina.corso.registro',
       // La stessa ora del comando «Ora da compilare»: la più vecchia senza registro,

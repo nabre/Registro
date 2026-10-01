@@ -10,7 +10,6 @@ import { catalogo } from '../../../core/i18n/index.js'
 
 const it = {
   comune: {
-    rimedioLezione: 'Le ore a calendario le elenca «ore.elenco», per corso o per periodo.',
     udInesistente: (quante: number) =>
       `Quell’unità didattica non esiste in questa ora: ce ne sono ${quante}, contate da zero.`,
     nonInClasse: 'Quella persona non è in questa classe.',
@@ -85,7 +84,6 @@ const it = {
     leOre: 'le ore',
     /** Dove cerca `cerca`: «Pezzi di argomento, corso o aula». */
     dove: 'argomento, corso o aula',
-    cerca: 'Il filtro di testo applicato. Vuoto quando non se n’è chiesto',
     ha: 'I campi che si sono chiesti pieni',
     senza: 'I campi che si sono chiesti vuoti',
     numero: 'La quantesima del corso: le annullate non contano',
@@ -201,8 +199,6 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     comune: {
-      rimedioLezione:
-        'Die Stunden im Kalender listet «ore.elenco» auf, nach Kurs oder Zeitraum.',
       udInesistente: (quante) =>
         `Diese Lektion gibt es in dieser Stunde nicht: Es sind ${quante}, ` +
         'von null an gezählt.',
@@ -282,7 +278,6 @@ export const testi = catalogo(it, {
       stato: 'Nur die Stunden mit diesem Status',
       leOre: 'die Stunden',
       dove: 'Thema, Kurs oder Zimmer',
-      cerca: 'Der angewendete Textfilter. Leer, wenn keiner verlangt wurde',
       ha: 'Die Felder, die ausgefüllt verlangt wurden',
       senza: 'Die Felder, die leer verlangt wurden',
       numero: 'Die wievielte Stunde des Kurses: Ausgefallene zählen nicht',
@@ -407,9 +402,6 @@ export const testi = catalogo(it, {
   },
   fr: {
     comune: {
-      rimedioLezione:
-        'Les leçons du calendrier sont listées par « ore.elenco », par cours ou par ' +
-        'intervalle de dates.',
       udInesistente: (quante) =>
         `Cette période n’existe pas dans cette leçon : il y en a ${quante}, ` +
         'comptées à partir de zéro.',
@@ -489,7 +481,6 @@ export const testi = catalogo(it, {
       stato: 'Seulement les leçons dans ce statut',
       leOre: 'les leçons',
       dove: 'sujet, cours ou salle',
-      cerca: 'Le filtre de texte appliqué. Vide quand on n’en a pas demandé',
       ha: 'Les champs demandés remplis',
       senza: 'Les champs demandés vides',
       numero: 'Son rang dans le cours : les leçons annulées ne comptent pas',
@@ -608,8 +599,6 @@ export const testi = catalogo(it, {
   },
   en: {
     comune: {
-      rimedioLezione:
-        'Lessons on the calendar are listed by “ore.elenco”, by course or by date range.',
       udInesistente: (quante) =>
         `That period does not exist in this lesson: there are ${quante}, ` +
         'counted from zero.',
@@ -683,7 +672,6 @@ export const testi = catalogo(it, {
       stato: 'Only the lessons with this status',
       leOre: 'the lessons',
       dove: 'topic, course or room',
-      cerca: 'The text filter applied. Empty when none was asked for',
       ha: 'The fields asked to be filled',
       senza: 'The fields asked to be empty',
       numero: 'Its number within the course: cancelled ones do not count',

@@ -66,6 +66,7 @@ const CONTESTO_VUOTO = {
   pianoId: null,
   valutazioneId: null,
   allievoId: null,
+  progettoId: null,
 }
 
 function voce (n) {
@@ -119,6 +120,7 @@ describe('la memoria del pannello', () => {
       pianoId: 'piano-1',
       valutazioneId: null,
       allievoId: 'allievo-1',
+      progettoId: null,
     })
     assert.equal(stella.giorno, '2026-10-02')
     assert.equal(stella.semestreId, 'semestre-1')
@@ -187,6 +189,17 @@ describe('la memoria del pannello', () => {
     assert.ok(!('classiApertePersone' in stella))
     assert.ok(!('documentiScelti' in stella))
     assert.ok(!('semestreId' in stella))
+  })
+
+  it('il compito aperto per progetto: coppie di id buone, le ultime se troppe', () => {
+    const grezze = JSON.parse('{"prg-1":"cmp-1","__proto__":"x","prg-2":3,"":"cmp","prg-3":"cmp-3"}')
+    const stella = leggiMemoria({ ...VECCHIO, compitiScelti: grezze }).documenti['*']
+    assert.deepEqual({ ...stella.compitiScelti }, { 'prg-1': 'cmp-1', 'prg-3': 'cmp-3' })
+    assert.ok(!('compitiScelti' in leggiMemoria({ ...VECCHIO, compitiScelti: ['cmp-1'] }).documenti['*']))
+    const molte = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`prg-${i}`, `cmp-${i}`]))
+    const tenute = Object.keys(leggiMemoria({ ...VECCHIO, compitiScelti: molte }).documenti['*'].compitiScelti)
+    assert.equal(tenute.length, 100)
+    assert.equal(tenute.at(-1), 'prg-149')
   })
 
   it('JSON rotto e forme strane danno una memoria vuota', () => {

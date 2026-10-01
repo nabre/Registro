@@ -15,7 +15,6 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 
 import { cartellaBundle, dentro, icona, radiceApp } from './context.js'
 import { postoDi, ricordaPosto } from './placement.js'
-import { apriConsole } from './dev.js'
 import { EventEmitter, type Event } from '../../core/apparato/events.js'
 import { coloreSfondo, cornicePropria, preferenzeConPonte, ricordaFascia, togliMenu } from './theme.js'
 import { chiudiLeVieDiFuga } from './navigation.js'
@@ -321,8 +320,7 @@ export function createWebviewPanel (
   // La proiezione va a schermo intero solo col suo comando, che sa il monitor.
   ricordaPosto(tipo, finestra, { schermoIntero: !tipo.endsWith('proiezione') })
   finestra.once('ready-to-show', () => finestra.show())
-  // Solo in sviluppo: vedi `dev.ts`.
-  apriConsole(finestra)
+  // La console, in sviluppo, la apre `avviaConsoleAllAvvio` di `dev.ts`.
 
   return new FinestraPannello(
     id,
@@ -338,6 +336,11 @@ export function createWebviewPanel (
  */
 export function eUnPannello (idContenuti: number): boolean {
   return tipiFinestre.has(idContenuti)
+}
+
+/** Il tipo con cui è nato un pannello (`registroDocenti.pannello`…), o `undefined`. */
+export function tipoDelPannello (idContenuti: number): string | undefined {
+  return tipiFinestre.get(idContenuti)
 }
 
 /** L'HTML che il protocollo serve su `registro://pagina/<id>`. */

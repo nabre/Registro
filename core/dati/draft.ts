@@ -68,6 +68,7 @@ const COLLEZIONE_DI: Record<keyof Registro, NomeCollezione> = {
   fascicoli: 'fascicoli',
   consegne: 'consegne',
   check: 'check',
+  progetti: 'progetti',
   smistamenti: 'smistamenti',
   coordinate: 'coordinate',
 }

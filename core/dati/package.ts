@@ -1,5 +1,5 @@
 // Il documento del registro: un anno in un file `.regi` (ZIP) con manifesto,
-// collezioni JSON, `.storico/`, `archivio/` ed `esportazioni/`. Sta in memoria
+// collezioni JSON in `data/`, `.storico/`, `archivio/` ed `esportazioni/`. Sta in memoria
 // e si salva accodando (voci nuove, indice, coda: si scrive quanto la modifica)
 // o rifacendolo (documento nuovo o troppo spazio morto: temporaneo e rinomina);
 // in entrambi i casi un salvataggio interrotto lascia l'ultimo documento buono.
@@ -38,6 +38,12 @@ export const MANIFESTO = 'manifesto.json'
 export const STORICO = '.storico'
 
 /**
+ * La cartella delle collezioni JSON, dentro il pacchetto (dal contenitore 2).
+ * Il nome di una voce lo compone `voceDi` in `paths.ts`.
+ */
+export const DATI = 'data'
+
+/**
  * Il marchio del manifesto che distingue i nostri ZIP. Non segue il nome del
  * programma: cambiarlo renderebbe irriconoscibili i documenti già scritti.
  */
@@ -46,8 +52,12 @@ export const FORMATO = 'registro-docenti/anno'
 /**
  * La versione del contenitore (disposizione delle voci), non dei dati: quella
  * dentro i JSON è `VERSIONE_DATI`.
+ *
+ * 1 → 2: le collezioni JSON passano dalla radice a `DATI/`, così la radice
+ * tiene solo il manifesto e le cartelle. Un documento 1 si apre con le voci
+ * spostate in memoria (`spostaInDati`) e alla prima scrittura si rifà intero.
  */
-const VERSIONE_PACCHETTO = 1
+export const VERSIONE_PACCHETTO = 2
 
 /** Sotto questo spreco non si compatta: su un documento piccolo si perderebbe l'accodare. */
 const SPRECO_MINIMO = 256 * 1024
@@ -149,6 +159,18 @@ export class Pacchetto {
   /** Livello di compressione: `CORRENTE` o `DEFINITIVO` (vedi `zip.ts`). */
   private livello = CORRENTE
 
+  /**
+   * Il file sul disco ha ancora la disposizione di un contenitore vecchio: il
+   * prossimo salvataggio lo rifà intero invece di accodare.
+   */
+  private daRifare = false
+
+  /**
+   * La versione del contenitore com'era sul disco: 1 senza manifesto, quella di
+   * oggi per un documento nuovo. Chi apre ne fa una copia se è più vecchia.
+   */
+  private contenitore = VERSIONE_PACCHETTO
+
   private constructor (file: apparato.Uri, manifesto: Manifesto) {
     this.file = file
     this.manifesto = manifesto
@@ -167,6 +189,11 @@ export class Pacchetto {
   /** Vero se in memoria c'è qualcosa che sul disco non c'è ancora. */
   get sporco (): boolean {
     return this.modificato
+  }
+
+  /** La versione del contenitore letta dal disco (vedi `VERSIONE_PACCHETTO`). */
+  get contenitoreLetto (): number {
+    return this.contenitore
   }
 
   /** Vero se questo pacchetto tiene la propria serratura. */
@@ -243,9 +270,39 @@ export class Pacchetto {
     }
 
     pacchetto.voci.delete(MANIFESTO)
-    // Appena letto è identico al disco: niente da scrivere.
+    // Senza manifesto vale come contenitore 1: i nostri l'hanno sempre scritto.
+    pacchetto.contenitore = dichiarato?.versione ?? 1
+    if (pacchetto.contenitore < 2) pacchetto.spostaInDati()
+    // Appena letto è identico al disco: niente da scrivere. Anche se spostato in
+    // memoria: aprire non riscrive, ci pensa la prima modifica.
     pacchetto.modificato = false
     return pacchetto
+  }
+
+  /**
+   * Contenitore 1: le collezioni stavano in radice. Si spostano sotto `DATI/`
+   * senza aprirle (anche una voce rovinata), e il prossimo salvataggio rifà il
+   * file intero: accodando, le voci vecchie resterebbero come spazio morto.
+   */
+  private spostaInDati (): void {
+    const marca = new Date().toISOString().replace(/[:.]/g, '-')
+    for (const [nome, voce] of [...this.voci]) {
+      if (nome.includes('/') || !nome.endsWith('.json') || nome === MANIFESTO) continue
+      // Un documento fatto a mano con tutte e due: vale quella al posto giusto, e
+      // quella in radice si mette da parte come le voci illeggibili, non si butta.
+      const nuovo = this.voci.has(`${DATI}/${nome}`)
+        ? `${DATI}/${nome.replace(/\.json$/, `.rotto-${marca}.json`)}`
+        : `${DATI}/${nome}`
+      this.voci.set(nuovo, {
+        bytes: voce.bytes,
+        testo: voce.testo,
+        pronta: voce.pronta ? { ...voce.pronta, nome: nuovo } : null,
+        apri: voce.apri,
+        collocata: null,
+      })
+      this.voci.delete(nome)
+    }
+    this.daRifare = true
   }
 
   private leggiManifesto (): Manifesto | null {
@@ -419,7 +476,9 @@ export class Pacchetto {
   conserva (nome: string, quante: number, opzioni?: { aGradini?: boolean }): void {
     const attuale = this.voci.get(nome)
     if (attuale === undefined) return
-    const radice = nome.replace(/\.json$/, '')
+    // Lo storico tiene il solo nome del file (`classi.<marca>.json`): così le
+    // copie fatte quando le collezioni stavano in radice restano nella stessa fila.
+    const radice = (nome.split('/').pop() ?? nome).replace(/\.json$/, '')
     const marca = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')
     const copia = `${STORICO}/${radice}.${marca}.json`
 
@@ -505,9 +564,13 @@ export class Pacchetto {
         this.dimensione > 0 &&
         this.fine !== null &&
         !opzioni?.compatta &&
+        !this.daRifare &&
         !this.conviene(blocchi) &&
         (await this.accoda(blocchi, this.fine))
-      if (!accodato) await this.rifai(blocchi)
+      if (!accodato) {
+        await this.rifai(blocchi)
+        this.daRifare = false
+      }
     } catch (errore) {
       // Il documento resta da salvare, o la modifica andrebbe persa.
       this.modificato = true

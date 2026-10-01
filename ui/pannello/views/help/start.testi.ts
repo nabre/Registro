@@ -57,7 +57,9 @@ const it = {
           'Senza un anno aperto il registro mostra una finestra sola: **Apri un anno…** per un ' +
           '`.regi` che c’è già, **Crea un nuovo anno…** per cominciare. Sotto, i recenti: ' +
           'la stella tiene un anno fra i preferiti, la croce lo toglie dall’elenco senza ' +
-          'toccare il file. In fondo, accanto alla versione, a che punto sono gli aggiornamenti.',
+          'toccare il file. In fondo, accanto alla versione, a che punto sono gli aggiornamenti; ' +
+          'nell’angolo, accanto a **Esci**, la bandierina della lingua: apre le lingue, ognuna ' +
+          'scritta nella sua, e la finestra riparte in quella scelta.',
       },
       {
         termine: 'Crea un nuovo anno',
@@ -600,11 +602,12 @@ const it = {
     ],
     voci: [
       {
-        termine: 'La lezione da compilare',
+        termine: 'La prossima lezione e quelle da chiudere',
         testo:
-          'In fondo a sinistra, con il triangolo giallo: «da compilare: classe · giorno». ' +
-          'Senza buchi dice «prossima: classe · giorno ora». Un clic apre quella lezione, e ' +
-          'il suggerimento ne dice la data per esteso.',
+          'In fondo a sinistra, sempre: «prossima: classe · giorno ora», la lezione che viene ' +
+          'secondo l’orario; un clic la apre. Accanto, con il triangolo giallo, «3 da chiudere»: ' +
+          'le lezioni passate con il registro non a posto. Il clic apre la tendina con numero ' +
+          'della lezione, data e corso; scegliendone una la si apre.',
       },
       {
         termine: PENDENZE,
@@ -938,7 +941,9 @@ export const testi = catalogo(it, {
             'öffnen…** für eine `.regi`-Datei, die es schon gibt, **Neues Schuljahr ' +
             'anlegen…** für den Anfang. Darunter die zuletzt geöffneten: Der Stern macht ein ' +
             'Schuljahr zum Favoriten, das Kreuz nimmt es aus der Liste, ohne die Datei ' +
-            'anzurühren. Ganz unten, neben der Version, der Stand der Aktualisierungen.',
+            'anzurühren. Ganz unten, neben der Version, der Stand der Aktualisierungen; in der ' +
+            'Ecke, neben **Beenden**, das Fähnchen der Sprache: Es öffnet die Sprachen, jede in ' +
+            'ihrer eigenen geschrieben, und das Fenster erscheint neu in der gewählten.',
         },
         {
           termine: 'Ein neues Schuljahr erstellen',
@@ -1507,11 +1512,12 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'Die auszufüllende Stunde',
+          termine: 'Die nächste Stunde und die abzuschliessenden',
           testo:
-            'Unten links, mit dem gelben Dreieck: «auszufüllen: Klasse · Tag». Ohne Lücken ' +
-            'steht da «nächste: Klasse · Tag Zeit». Ein Klick öffnet diese Stunde, ' +
-            'und der Hinweis nennt das Datum ausgeschrieben.',
+            'Unten links, immer: «nächste: Klasse · Tag Zeit», die Stunde, die laut Stundenplan ' +
+            'kommt; ein Klick öffnet sie. Daneben, mit dem gelben Dreieck, «3 abzuschliessen»: ' +
+            'vergangene Stunden mit unvollständigem Eintrag. Der Klick öffnet die Liste mit ' +
+            'Nummer der Stunde, Datum und Kurs; eine Wahl öffnet sie.',
         },
         {
           termine: Molti(DE.pendenza),
@@ -1851,7 +1857,9 @@ export const testi = catalogo(it, {
             'pour un `.regi` qui existe déjà, **Créer une nouvelle année…** pour commencer. ' +
             'En dessous, les récents : l’étoile met une année dans les favoris, la croix la ' +
             'retire de la liste sans toucher au fichier. Tout en bas, à côté de la version, ' +
-            'l’état des mises à jour.',
+            'l’état des mises à jour ; dans le coin, à côté de **Quitter**, le petit drapeau de ' +
+            'la langue : il ouvre les langues, chacune écrite dans la sienne, et la fenêtre ' +
+            'revient dans celle choisie.',
         },
         {
           termine: 'Créer une nouvelle année',
@@ -2412,11 +2420,12 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'La leçon à remplir',
+          termine: 'La prochaine leçon et celles à clôturer',
           testo:
-            'En bas à gauche, avec le triangle jaune : « à remplir : classe · jour ». Sans ' +
-            'trous, elle dit « prochaine : classe · jour heure ». Un clic ouvre cette leçon, ' +
-            'et l’info-bulle en donne la date en toutes lettres.',
+            'En bas à gauche, toujours : « prochaine : classe · jour heure », la leçon qui vient ' +
+            'selon l’horaire ; un clic l’ouvre. À côté, avec le triangle jaune, « 3 à clôturer » : ' +
+            'les leçons passées dont le registre n’est pas en ordre. Le clic ouvre la liste avec ' +
+            'numéro de la leçon, date et cours ; en choisir une l’ouvre.',
         },
         {
           termine: Molti(FR.pendenza),
@@ -2753,7 +2762,9 @@ export const testi = catalogo(it, {
             '`.regi` that already exists, **Create a new year…** to begin. Below, the ' +
             'recent ones: the star keeps a year among the favourites, the cross removes it from ' +
             'the list without touching the file. At the bottom, next to the version, how the ' +
-            'updates are getting on.',
+            'updates are getting on; in the corner, next to **Quit**, the little language flag: ' +
+            'it opens the languages, each written in its own, and the window comes back in the ' +
+            'one you pick.',
         },
         {
           termine: 'Create a new year',
@@ -3297,11 +3308,12 @@ export const testi = catalogo(it, {
       ],
       voci: [
         {
-          termine: 'The lesson to fill in',
+          termine: 'The next lesson and those to close',
           testo:
-            'At the bottom left, with the yellow triangle: “to fill in: class · day”. With no ' +
-            'gaps it says “next: class · day time”. A click opens that lesson, and the tooltip ' +
-            'gives its full date.',
+            'At the bottom left, always: “next: class · day time”, the lesson that comes next ' +
+            'by the timetable; a click opens it. Beside it, with the yellow triangle, “3 to ' +
+            'close”: past lessons whose register is not complete. The click opens the list with ' +
+            'lesson number, date and course; choosing one opens it.',
         },
         {
           termine: Molti(EN.pendenza),

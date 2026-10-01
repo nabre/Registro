@@ -378,8 +378,13 @@ export function importaRegistro (
       const corsoId = piano.corsoId ? daCorso[piano.corsoId] : undefined
       if (!corsoId) continue
       // Un piano non nomina le sue ore (sono le ore a nominarlo): la copia non
-      // porta lezioni né avanzamento.
-      piani.push({ ...duplicaPiano(piano), corsoId })
+      // porta lezioni né avanzamento. Né progetti, che non si importano.
+      const copia = duplicaPiano(piano)
+      for (const attivita of copia.attivita) {
+        delete attivita.progettoId
+        delete attivita.faseProgettoId
+      }
+      piani.push({ ...copia, corsoId })
     }
   }
 

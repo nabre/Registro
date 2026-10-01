@@ -97,6 +97,8 @@ import { apriLezione } from './pages.js'
 // Il piano su cui lavorare lo sa la pagina: `stato.pianoId` è nullo finché non
 // se ne sceglie uno, ma un piano a schermo c'è lo stesso.
 import { pianoMostrato, primaOraDelPiano, scordaEditorDelPiano } from './views/plans.js'
+import { apriProgetto, progettoMostrato } from './views/projects.js'
+import { moduloCompito, moduloCriteri, moduloFasi, moduloLivelli, moduloProgetto } from './forms/project.js'
 // L'editor del calendario scrive a tasti fermi: vedi `eseguiComando`.
 import { esci as esciDallEditor, scriviInAttesa, spostamentoInAttesa } from './views/calendar/editor.js'
 
@@ -954,6 +956,103 @@ export const COMANDI_UI: readonly ComandoUI[] = [
     al: () => {
       const corso = corsoDelContesto()
       if (corso) moduloColonneCheck(corso.id)
+    },
+  },
+  // ------------------------------------------------------------- Progetti
+  //
+  // Lavorano sul progetto che la pagina mostra: lo scelto, o il primo dell'elenco.
+  {
+    id: 'progetto.nuovo',
+    titolo: t.nuovoProgetto,
+    simbolo: 'piu',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    aiuto: t.nuovoProgettoAiuto,
+    primario: true,
+    impedimento: senzaCorso,
+    al: () => {
+      const corso = corsoDelContesto()
+      if (corso) moduloProgetto({ corsoId: corso.id, dopo: apriProgetto })
+    },
+  },
+  {
+    id: 'progetto.modifica',
+    titolo: P.modifica,
+    simbolo: 'matita',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    aiuto: t.progettoModificaAiuto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: () => {
+      const progetto = progettoMostrato()
+      if (progetto) moduloProgetto({ corsoId: progetto.corsoId, progetto })
+    },
+  },
+  {
+    id: 'progetto.nuovoCompito',
+    titolo: t.nuovoCompito,
+    simbolo: 'piu',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    aiuto: t.nuovoCompitoAiuto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: () => {
+      const progetto = progettoMostrato()
+      if (progetto) moduloCompito({ progetto })
+    },
+  },
+  {
+    id: 'progetto.fasi',
+    titolo: t.fasiProgetto,
+    simbolo: 'progetto',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    aiuto: t.fasiProgettoAiuto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: () => {
+      const progetto = progettoMostrato()
+      if (progetto) moduloFasi(progetto.id)
+    },
+  },
+  {
+    id: 'progetto.criteri',
+    titolo: t.criteriProgetto,
+    simbolo: 'presa',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: () => {
+      const progetto = progettoMostrato()
+      if (progetto) moduloCriteri(progetto.id)
+    },
+  },
+  {
+    id: 'progetto.livelli',
+    titolo: t.livelliProgetto,
+    simbolo: 'presa',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: () => {
+      const progetto = progettoMostrato()
+      if (progetto) moduloLivelli(progetto.id)
+    },
+  },
+  {
+    id: 'progetto.elimina',
+    titolo: P.elimina,
+    simbolo: 'cestino',
+    dove: ['progetti'],
+    gruppo: G.progetto,
+    aiuto: t.eliminaProgettoAiuto,
+    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    al: async () => {
+      const progetto = progettoMostrato()
+      if (!progetto) return
+      if (!(await chiediEliminazione({ genere: 'progetto', id: progetto.id }))) return
+      const risposta = await azione({ tipo: 'progetto.elimina', progettoId: progetto.id })
+      if (!risposta.ok) return
+      vai({ pagina: 'pagina.corso.progetti' }, { contesto: { progettoId: null } })
     },
   },
   // Verbale ed esportazioni del corso stanno nella pagina Documenti.

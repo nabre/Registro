@@ -15,12 +15,11 @@ import process from 'node:process'
 export const NOME_APPLICAZIONE = 'Regiklass'
 
 /**
- * I nomi precedenti della cartella dei dati (`NOME_VECCHIO` in
- * `core/dati/formerName.ts` e «Regiclass»): finché il registro non riesce a rinominarla,
+ * Il nome precedente della cartella dei dati («Regiclass», vedi
+ * `core/dati/formerName.ts`): finché il registro non riesce a rinominarla,
  * lavora lì.
  */
-const NOMI_PRECEDENTI = ['Regiclass', 'Registro docenti']
-export const NOME_PRECEDENTE = NOMI_PRECEDENTI[0]
+export const NOME_PRECEDENTE = 'Regiclass'
 
 /** La cartella del sistema che contiene quelle dei dati, secondo le regole di Electron. */
 function cartellaDelSistema () {
@@ -33,10 +32,6 @@ function cartellaDelSistema () {
 
 /** La cartella dei dati col nome precedente: la toglie anche la disinstallazione. */
 export function cartellaUtentePrecedente () {
-  for (const nome of NOMI_PRECEDENTI) {
-    const prec = join(cartellaDelSistema(), nome)
-    if (existsSync(prec)) return prec
-  }
   return join(cartellaDelSistema(), NOME_PRECEDENTE)
 }
 
@@ -47,9 +42,6 @@ export function cartellaUtentePrecedente () {
 export function cartellaUtente () {
   const nuova = join(cartellaDelSistema(), NOME_APPLICAZIONE)
   if (existsSync(nuova)) return nuova
-  for (const nome of NOMI_PRECEDENTI) {
-    const prec = join(cartellaDelSistema(), nome)
-    if (existsSync(prec)) return prec
-  }
-  return nuova
+  const prec = cartellaUtentePrecedente()
+  return existsSync(prec) ? prec : nuova
 }

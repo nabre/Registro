@@ -13,7 +13,12 @@ const t = () => testi().genera
  * giusto (otto generi, otto raccolte), con il codice `non-trovato` invece del
  * rifiuto del gestore.
  */
-function esigiSoggetto (ambito: Ambito, genere: GenereRapporto, id: string): void {
+function esigiSoggetto (
+  ambito: Ambito,
+  genere: GenereRapporto,
+  id: string,
+  allievoId: string | null,
+): void {
   const r = ambito.contesto.registro
   const c = (esiste: boolean, cosa: NomeTermine) => {
     if (!esiste) throw errore.nonTrovato(cosa)
@@ -42,6 +47,16 @@ function esigiSoggetto (ambito: Ambito, genere: GenereRapporto, id: string): voi
       )
     case 'allievo':
       return c(r.classi.some((classe) => classe.allievi.some((a) => a.id === id)), 'pif')
+    case 'progetto-classe':
+      return c(r.progetti.some((p) => p.id === id), 'progetto')
+    case 'progetto-allievo': {
+      // Il progetto, e una persona della sua classe: il foglio è di lei.
+      const progetto = r.progetti.find((p) => p.id === id)
+      c(Boolean(progetto), 'progetto')
+      const corso = r.corsi.find((k) => k.id === progetto?.corsoId)
+      const classe = r.classi.find((k) => k.id === corso?.classeId)
+      return c(Boolean(allievoId && classe?.allievi.some((a) => a.id === allievoId)), 'pif')
+    }
   }
 }
 
@@ -65,9 +80,12 @@ export const procedura = scrittura({
     docenteDiClasse: opzionale(booleano({
       aiuto: () => t().docenteDiClasse,
     })),
+    allievoId: opzionale(nullabile(identificatore({
+      aiuto: () => t().allievoId,
+    }))),
   }),
   esegui: (ambito, ingresso) => {
-    esigiSoggetto(ambito, ingresso.genere, ingresso.id)
+    esigiSoggetto(ambito, ingresso.genere, ingresso.id, ingresso.allievoId ?? null)
     return inoltra(rapporti, 'rapporto.genera')(ambito, ingresso)
   },
 })

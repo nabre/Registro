@@ -20,6 +20,7 @@ import type {
   MomentoValutazione,
   PauseGiornata,
   PianoLezione,
+  Progetto,
   Scala,
   BloccoAssenze,
   Comunicazione,
@@ -450,6 +451,37 @@ export function validaBloccoAssenze (
   }
   if (!blocco.oggetto?.trim()) errori.push(t.emailSenzaOggetto)
   if (!blocco.corpo?.trim()) errori.push(t.emailVuota)
+  return esito(errori)
+}
+
+/**
+ * La testata di un progetto: titolo, corso, criteri con un titolo, e una scala
+ * con valori unici (sono quel che le celle salvano). Date proprie non ne ha:
+ * le danno le ore con le sue fasi.
+ */
+export function validaProgetto (progetto: Partial<Progetto>): Esito {
+  const t = testi()
+  const errori: string[] = []
+  if (!progetto.titolo?.trim()) errori.push(t.progettoSenzaTitolo)
+  if (!progetto.corsoId) errori.push(t.progettoSenzaCorso)
+  if ((progetto.criteri ?? []).some((c) => !c.titolo?.trim())) errori.push(t.criterioSenzaTitolo)
+  // Fasi omesse: restano quelle di prima. Date, mai vuote.
+  if (progetto.fasi !== undefined) {
+    if (progetto.fasi.length === 0) errori.push(t.fasiVuote)
+    if (progetto.fasi.some((f) => !f.titolo?.trim())) errori.push(t.faseSenzaTitolo)
+  }
+  if (progetto.livelli !== undefined) {
+    if (progetto.livelli.length === 0) errori.push(t.livelliVuoti)
+    const visti = new Set<string>()
+    for (const livello of progetto.livelli) {
+      if (!livello.valore?.trim() || !livello.testo?.trim()) {
+        errori.push(t.livelloSenzaValore)
+        continue
+      }
+      if (visti.has(livello.valore)) errori.push(t.livelliDoppi(livello.valore))
+      visti.add(livello.valore)
+    }
+  }
   return esito(errori)
 }
 

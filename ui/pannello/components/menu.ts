@@ -11,6 +11,8 @@ interface VoceMenu {
   testo: string
   descrizione?: string
   simbolo?: NomeIcona
+  /** Il colore dell'icona, `#rrggbb`: quello del corso, della classe, della materia. */
+  colore?: string
   /**
    * Che cosa fa la voce premuta. Può tornare una promessa, e il tipo lo dice:
    * nessuno la aspetta (il menu si chiude subito), quindi chi la scrive gestisce
@@ -51,6 +53,9 @@ interface VoceMenu {
 /** Il titolo di un gruppo di voci: non si preme, dice di che cosa parlano. */
 interface TitoloMenu {
   titolo: string
+  /** Un'icona davanti al titoletto, nel suo colore: la materia, la classe. */
+  simbolo?: NomeIcona
+  colore?: string
 }
 
 /** Una riga di menu, il titolo di un gruppo, o la linea che separa due gruppi. */
@@ -352,7 +357,15 @@ function riempi (
     }
 
     if (èTitolo(elemento)) {
-      menu.appendChild(h('div', { class: 'menu__titolo' }, elemento.titolo))
+      menu.appendChild(h(
+        'div',
+        {
+          class: ['menu__titolo', elemento.colore && 'menu__titolo--colorato'],
+          style: elemento.colore ? { '--colore-icona': elemento.colore } : {},
+        },
+        elemento.simbolo ? icona(elemento.simbolo, 'icona--minuta') : null,
+        elemento.titolo,
+      ))
       continue
     }
 
@@ -366,7 +379,9 @@ function riempi (
             elemento.accesa && 'menu__voce--accesa',
             elemento.rientro && 'menu__voce--rientrata',
             elemento.smorzato && 'menu__voce--smorzata',
+            elemento.colore && 'menu__voce--colorata',
           ],
+          style: elemento.colore ? { '--colore-icona': elemento.colore } : {},
           type: 'button',
           dataset: { voce: elemento.chiave },
           disabled: Boolean(elemento.disabilitato),

@@ -1,7 +1,7 @@
 import { rapporti } from '../../../core/azioni/reports.js'
-import { errore } from '../../contract.js'
 import { inoltra, scrittura } from '../../core.js'
 import { identificatore, nullabile, oggetto } from '../../schemas.js'
+import { esigiCorso } from '../common/register.js'
 import { testi } from './rapporti.testi.js'
 
 const t = () => testi().completo
@@ -19,12 +19,7 @@ export const procedura = scrittura({
     semestreId: nullabile(identificatore({ aiuto: () => t().semestreId })),
   }),
   esegui: (ambito, ingresso) => {
-    if (
-      ingresso.corsoId !== null &&
-      !ambito.contesto.registro.corsi.some((c) => c.id === ingresso.corsoId)
-    ) {
-      throw errore.nonTrovato('corso')
-    }
+    if (ingresso.corsoId !== null) esigiCorso(ambito, ingresso.corsoId)
     return inoltra(rapporti, 'rapporto.completo')(ambito, ingresso)
   },
 })

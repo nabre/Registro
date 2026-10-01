@@ -33,6 +33,7 @@ import {
   creaCheck,
   creaCorso,
   duplicaClasse,
+  duplicaProgetto,
 } from '../dominio/factories.js'
 import { corsoDi, corsoPerId, titoloCorso } from '../dominio/courses.js'
 import { nuovoIdColonnaCheck, nuovoIdCorso } from '../dominio/identifiers.js'
@@ -369,6 +370,11 @@ export const registro = {
           lista.corsoId = dove
         }
       }
+      // I progetti, come le consegne: più d'uno per corso, si spostano e basta.
+      for (const progetto of r.progetti) {
+        const dove = superstiti.get(progetto.corsoId)
+        if (dove) progetto.corsoId = dove
+      }
       // Le regole del calendario che nominavano il doppione.
       for (const regola of r.impostazioni.calendario?.regole ?? []) {
         const dove = regola.corsoId ? superstiti.get(regola.corsoId) : undefined
@@ -383,7 +389,7 @@ export const registro = {
         const classe = r.classi.find((c) => c.id === corso.classeId) ?? null
         corso.titolo = titoloCorso(classe, a)
       }
-    }, ['registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check'])
+    }, ['registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'progetti'])
   },
 
   'corso.crea': (contesto, azione) => {
@@ -648,11 +654,17 @@ export const registro = {
       const colonne = lista.colonne.map((c) => ({ ...c, id: nuovoIdColonnaCheck() }))
       return [creaCheck(corsi[i].id, colonne)]
     })
+    // E i progetti, senza quel che è delle persone o delle ore: nella copia non ci sono.
+    const progetti = originali.flatMap((vecchio, i) =>
+      contesto.registro.progetti
+        .filter((p) => p.corsoId === vecchio.id)
+        .map((p) => duplicaProgetto(p, corsi[i].id)))
     const scritto = contesto.modifica((r) => {
       r.classi.push(copia)
       r.corsi.push(...corsi)
       r.check.push(...liste)
-    }, ['classi', 'corsi', 'check'])
+      r.progetti.push(...progetti)
+    }, ['classi', 'corsi', 'check', 'progetti'])
     if (!scritto.ok) return scritto
     return { ok: true, creato: { id: copia.id } }
   },

@@ -34,6 +34,7 @@ import {
   ultimoDelMese,
   giornoDi,
 } from '../../dist-tests/domain.mjs'
+import { importaSorgente } from '../helpers/sorgente.mjs'
 
 describe('validazione delle date', () => {
   it('accetta solo giorni che esistono davvero', () => {
@@ -306,5 +307,41 @@ describe('il giorno di un istante', () => {
     assert.equal(giornoDi('2026-03-15'), '2026-03-15')
     assert.equal(giornoDi('2026-03-15 e poi'), '2026-03-15', 'un resto che non è un’ora non la sposta')
     assert.equal(giornoDi('2026-02-30T10:00:00Z'), null)
+  })
+})
+
+describe('il giorno della settimana nell’etichetta di una lezione', () => {
+  // La lingua vive nello stato del bundle: dominio e i18n si compilano insieme
+  // perché `impostaLingua` cambi quella che `formattaData` legge.
+  const datario = importaSorgente([
+    "export { formattaData, giornoTreLettere } from './core/dominio/dates.ts'",
+    "export { impostaLingua } from './core/i18n/state.ts'",
+  ].join('\n'))
+
+  const ATTESI = {
+    it: ['mer', 'MER 30.09.2026', 'dom'],
+    de: ['Mit', 'MIT 30.09.2026', 'Son'],
+    fr: ['mer', 'MER 30.09.2026', 'dim'],
+    en: ['Wed', 'WED 30.09.2026', 'Sun'],
+  }
+
+  for (const [lingua, [tre, etichetta, domenica]] of Object.entries(ATTESI)) {
+    it(`in ${lingua}: tre lettere, e in maiuscole dove non c’è stile`, async () => {
+      const { formattaData, giornoTreLettere, impostaLingua } = await datario
+      impostaLingua(lingua)
+      try {
+        assert.equal(giornoTreLettere('2026-09-30'), tre)
+        assert.equal(giornoTreLettere('2026-10-04'), domenica)
+        assert.equal(formattaData('2026-09-30', 'settimana'), etichetta)
+      } finally {
+        impostaLingua('it')
+      }
+    })
+  }
+
+  it('una data che non c’è non inventa un giorno', async () => {
+    const { formattaData, giornoTreLettere } = await datario
+    assert.equal(giornoTreLettere('2026-02-30'), '')
+    assert.equal(formattaData('2026-02-30', 'settimana'), '—')
   })
 })

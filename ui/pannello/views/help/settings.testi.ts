@@ -251,7 +251,10 @@ const it = {
           'in un registro che parla una lingua che non si legge. Cambiandola, le finestre del registro si ' +
           'ricaricano e ripartono nella lingua nuova. Quel che è già scritto nel documento — ' +
           'nomi, note, titoli delle lezioni — resta com’è: non si traduce. La stessa ' +
-          'scelta c’è nella finestra **Impostazioni senza documento aperto…**.',
+          'scelta c’è nella finestra **Impostazioni senza documento aperto…**, nella bandierina ' +
+          'in un angolo del benvenuto e, su Windows, all’inizio dell’installazione: una lingua ' +
+          'presa lì, se non è quella di Windows, il registro la ritrova al primo avvio. Una ' +
+          'scelta già fatta l’installazione non la tocca, e gli aggiornamenti non chiedono niente.',
       },
       {
         termine: 'Il tema',
@@ -1222,7 +1225,11 @@ export const testi = catalogo(it, {
             'findet, dessen Sprache man nicht liest. Wechselt man sie, laden die Fenster des Klassenbuchs neu und ' +
             'erscheinen in der neuen Sprache. Was schon im Dokument steht — Namen, Notizen, ' +
             'Titel der Stunden — bleibt, wie es ist: Es wird nicht übersetzt. Dieselbe ' +
-            'Auswahl gibt es im Fenster **Einstellungen ohne offenes Dokument…**.',
+            'Auswahl gibt es im Fenster **Einstellungen ohne offenes Dokument…**, im Fähnchen ' +
+            'in einer Ecke des Willkommensbildschirms und unter Windows am Anfang der ' +
+            'Installation: Eine dort gewählte Sprache, die nicht die von Windows ist, findet das ' +
+            'Klassenbuch beim ersten Start wieder. Eine schon getroffene Wahl rührt die ' +
+            'Installation nicht an, und Aktualisierungen fragen nichts.',
         },
         {
           termine: 'Das Design',
@@ -2249,7 +2256,10 @@ export const testi = catalogo(it, {
             'fenêtres du registre se rechargent et repartent dans la nouvelle langue. Ce qui est ' +
             'déjà écrit dans le document — noms, notes, titres des leçons — reste tel quel : il ' +
             'ne se traduit pas. Le même choix existe dans la fenêtre **Paramètres sans ' +
-            'document ouvert…**.',
+            'document ouvert…**, dans le petit drapeau d’un coin de l’écran d’accueil et, sous ' +
+            'Windows, au début de l’installation : une langue prise là, si ce n’est pas celle de ' +
+            'Windows, le registre la retrouve au premier démarrage. Un choix déjà fait, ' +
+            'l’installation n’y touche pas, et les mises à jour ne demandent rien.',
         },
         {
           termine: 'Le thème',
@@ -3267,7 +3277,11 @@ export const testi = catalogo(it, {
             'can find it even in a register speaking a language you cannot read. When you change it, the ' +
             'register’s windows reload and come back in the new language. What is already ' +
             'written in the document — names, notes, lesson titles — stays as it is: it is not ' +
-            'translated. The same choice is in the **Settings without an open document…** window.',
+            'translated. The same choice is in the **Settings without an open document…** window, ' +
+            'in the little flag in a corner of the welcome screen and, on Windows, at the start of ' +
+            'the installation: a language picked there, if it is not the Windows one, the register ' +
+            'finds again at first start. A choice already made is left alone by the installation, ' +
+            'and updates ask nothing.',
         },
         {
           termine: 'The theme',

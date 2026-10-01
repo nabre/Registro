@@ -1,4 +1,5 @@
 import { inizioLezione, lezioneFinita } from '../../core/dominio/calculations.js'
+import { raggruppamentoDeiCorsi, type RaggruppamentoCorsi } from '../../core/dominio/courses.js'
 import type { Corso } from '../../core/dominio/models.js'
 import { confrontaNomi } from '../../core/dominio/text.js'
 import { interruttoreAssistente } from './assistant.js'
@@ -49,6 +50,9 @@ import {
   classiDiCuiSonoDocente,
   corsiDellAnnoAperto,
   corsiNelSemestre,
+  classePerId,
+  coloreDiCorso,
+  materiaPerId,
   nomeClasse,
   nomeMateria,
   stato,
@@ -471,6 +475,12 @@ interface VoceScelta {
   valore: string;
   testo: string;
   gruppo?: string;
+  /** Icona e colore del titoletto del gruppo (la materia, la classe). */
+  gruppoSimbolo?: NomeIcona;
+  gruppoColore?: string;
+  /** Icona e colore della voce (il corso). */
+  simbolo?: NomeIcona;
+  colore?: string;
   /** Il nome sul pulsante quando la voce è scelta: fuori dal menu il titoletto non c'è più. */
   intero?: string;
 }
@@ -496,7 +506,13 @@ function scelta (opzioni: {
     const elementi: ElementoMenu[] = []
     let gruppo: string | undefined
     for (const voce of opzioni.voci) {
-      if (voce.gruppo !== undefined && voce.gruppo !== gruppo) elementi.push({ titolo: voce.gruppo })
+      if (voce.gruppo !== undefined && voce.gruppo !== gruppo) {
+        elementi.push({
+          titolo: voce.gruppo,
+          ...(voce.gruppoSimbolo ? { simbolo: voce.gruppoSimbolo } : {}),
+          ...(voce.gruppoColore ? { colore: voce.gruppoColore } : {}),
+        })
+      }
       gruppo = voce.gruppo
       elementi.push({
         testo: voce.testo,
@@ -505,6 +521,8 @@ function scelta (opzioni: {
         // testo-fisso: chiave della riga, non si legge
         chiave: voce.valore || 'tutti',
         rientro: voce.gruppo !== undefined,
+        ...(voce.simbolo ? { simbolo: voce.simbolo } : {}),
+        ...(voce.colore ? { colore: voce.colore } : {}),
         al: () => opzioni.al(voce.valore),
       })
     }
@@ -559,21 +577,42 @@ function sceltaCorso (): Figlio {
     titolo: t.corsoTitolo,
     valore: corrente?.id ?? '',
     al: scegliCorso,
-    // Per classe, la materia sotto: come nella barra laterale.
-    voci: corsi
-      .map((corso) => ({ corso, nome: nomeDelCorso(corso) }))
-      .sort((a, b) => confrontaNomi(a.nome, b.nome))
-      .map(({ corso, nome }) => voceDiCorso(corso, nome)),
+    // Per materia o per classe, chi fa meno gruppi: come nella barra laterale.
+    voci: vociDeiCorsi(corsi),
   })
 }
 
-/** Un corso fra le voci: la materia sotto il titoletto della sua classe; scelto, classe e materia. */
-function voceDiCorso (corso: Corso, nome: string): VoceScelta {
+/** Le voci dei corsi, raggruppate come dice `raggruppamentoDeiCorsi`, in ordine di gruppo e di nome. */
+function vociDeiCorsi (corsi: readonly Corso[]): VoceScelta[] {
+  const per = raggruppamentoDeiCorsi(corsi)
+  return corsi
+    .map((corso) => voceDiCorso(corso, nomeDelCorso(corso), per))
+    .sort((a, b) => confrontaNomi(a.gruppo ?? '', b.gruppo ?? '') || confrontaNomi(a.testo, b.testo))
+}
+
+/**
+ * Un corso fra le voci: sotto il titoletto della materia la classe, o sotto
+ * quello della classe la materia; scelto, il nome intero.
+ */
+function voceDiCorso (corso: Corso, nome: string, per: RaggruppamentoCorsi): VoceScelta {
   const materia = nomeMateria(corso.materiaId)
   const classe = nomeClasse(corso.classeId)
-  return materia && classe
-    ? { valore: corso.id, testo: materia, gruppo: classe, intero: nome }
-    : { valore: corso.id, testo: nome }
+  if (!materia || !classe) return { valore: corso.id, testo: nome }
+  // Il titoletto nel colore della materia o della classe; la voce in quello del corso.
+  const colore = coloreDiCorso(corso)
+  const coloreMateria = materiaPerId(corso.materiaId)?.colore
+  const coloreClasse = classePerId(corso.classeId)?.colore
+  return per === 'materia'
+    ? {
+        valore: corso.id, testo: classe, gruppo: materia, intero: nome,
+        gruppoSimbolo: 'libro', ...(coloreMateria ? { gruppoColore: coloreMateria } : {}),
+        simbolo: 'classi', colore,
+      }
+    : {
+        valore: corso.id, testo: materia, gruppo: classe, intero: nome,
+        gruppoSimbolo: 'classi', ...(coloreClasse ? { gruppoColore: coloreClasse } : {}),
+        simbolo: 'libro', colore,
+      }
 }
 
 /**
@@ -643,10 +682,7 @@ function filtriAgenda (): Figlio[] {
       al: (valore) => aggiorna({ filtroCorsoAgendaId: valore || null }),
       voci: [
         { valore: '', testo: t.tuttiICorsi },
-        ...corsi
-          .map((corso) => ({ corso, nome: nomeDelCorso(corso) }))
-          .sort((a, b) => confrontaNomi(a.nome, b.nome))
-          .map(({ corso, nome }) => voceDiCorso(corso, nome)),
+        ...vociDeiCorsi(corsi),
       ],
     }),
   ]

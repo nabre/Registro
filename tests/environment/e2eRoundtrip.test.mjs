@@ -27,6 +27,7 @@ before(async () => {
       "export { Archivio } from './core/dati/archive.ts'",
       "export { Uri } from './core/apparato/uri.ts'",
       "export { leggiZip } from './core/dati/zip.ts'",
+      "export { DATI } from './core/dati/package.ts'",
       "export { finestreCostruite, ipcMain } from './tests/helpers/fake-electron.mjs'",
     ].join('\n'),
     { nodeLlama: 'tests/helpers/fake-node-llama.mjs' },
@@ -35,7 +36,7 @@ before(async () => {
 
 describe('ciclo end-to-end pagina -> preload -> main -> disco', () => {
   it('un’azione inviata dal webview attraversa IPC, modifica l’archivio e si riflette sul file .regi su disco', async () => {
-    const { Archivio, PannelloRegistro, Uri, leggiZip, finestreCostruite, ipcMain } = m
+    const { Archivio, DATI, PannelloRegistro, Uri, leggiZip, finestreCostruite, ipcMain } = m
 
     // 1. Predisponiamo una copia di lavoro del documento .regi campione
     const fileCampione = percorso.resolve('tests/samples/anno_esempio.regi')
@@ -102,8 +103,8 @@ describe('ciclo end-to-end pagina -> preload -> main -> disco', () => {
       // 8. Verifichiamo direttamente sul disco leggendo il file .regi grezzo (ZIP decompresso)
       const zipBytes = readFileSync(fileDestinazione)
       const voci = leggiZip(zipBytes)
-      const voceRegistro = voci.find((v) => v.nome === 'registro.json')
-      assert.ok(voceRegistro, 'registro.json deve essere presente fisicamente nell’archivio .regi')
+      const voceRegistro = voci.find((v) => v.nome === `${DATI}/registro.json`)
+      assert.ok(voceRegistro, 'data/registro.json deve essere presente fisicamente nell’archivio .regi')
 
       const jsonRegistro = JSON.parse(voceRegistro.dati.toString('utf8'))
       const materiaPersistita = jsonRegistro.materie?.find((materia) => materia.id === 'mat-e2e-roundtrip')

@@ -35,7 +35,7 @@ import {
   avviatoDalSistema,
   osservaAvvioConWindows,
 } from '../apparato/systemStartup.js'
-import { avviaRicaricamento } from '../apparato/dev.js'
+import { avviaRicaricamento, codiceDUscita } from '../apparato/dev.js'
 import { applicaTema, osservaTema } from '../apparato/theme.js'
 import { applicaLingua, osservaLingua, rispondiLingua } from '../apparato/language.js'
 import { Uri } from '../../core/apparato/uri.js'
@@ -59,12 +59,12 @@ import { chiudiBenvenuto, mettiDavantiBenvenuto, mostraBenvenuto } from './windo
 import { chiudiLettori, mostraDocumento } from './windows/reader.js'
 import { annunciaAvvio, chiudiAvvio, chiudiAvvioQuandoAppare, mostraAvvio } from './windows/splash.js'
 import { installaMenu, nienteMenuPredefinito, ridisegnaMenu } from './windows/menu.js'
+import { installaSviluppo } from './windows/devTools.js'
 import { disinstalla } from './system/uninstall.js'
 import { allaRichiestaDelBenvenuto, quandoNonRestanoFinestre } from './lifecycle.js'
 import { assicuraSentinella, chiudiSentinella, èSentinella, finestreUtenti } from './sentinel.js'
 import { registraFileDelProgramma } from './system/fileAssociation.js'
 import { registraComandoRiga } from './system/commandLine.js'
-import { ripulisciIdentitaVecchia } from './system/formerIdentity.js'
 import { regolaPermessi } from './protocol/permissions.js'
 import { privilegiaSchema, registraProtocollo } from './protocol/fileProtocol.js'
 import { parole } from '../../core/dominio/words.testi.js'
@@ -157,6 +157,10 @@ async function avvia (): Promise<void> {
   // Prima della prima finestra, sentinella compresa.
   nienteMenuPredefinito()
 
+  // Solo con `npm run dev`: scorciatoia delle opzioni di sviluppo e console
+  // all'avvio, prima della prima finestra perché le prenda tutte.
+  smaltibiliGuscio.push(installaSviluppo({ dopoRicarica: () => PannelloProiezione.ricalcola() }))
+
   // Finestra sentinella per intercettare query-session-end anche a solo vassoio.
   assicuraSentinella()
 
@@ -172,12 +176,8 @@ async function avvia (): Promise<void> {
   applicaLingua()
 
   registraFileDelProgramma()
-  // Dopo la pulizia del nome precedente, che riscrive anch'essa il PATH e toglie
-  // la voce d'avvio automatico con l'identità vecchia.
-  void ripulisciIdentitaVecchia().then(() => {
-    registraComandoRiga()
-    applicaAvvioConWindows()
-  })
+  registraComandoRiga()
+  applicaAvvioConWindows()
   registraProtocollo()
 
   // Prima di ogni finestra: senza, Electron concede ogni permesso (vedi `permissions.ts`).
@@ -649,13 +649,19 @@ async function entroIlTetto (promessa: Promise<unknown>, ms: number): Promise<bo
   }
 }
 
-/** Il dialogo di apertura, filtrato sui documenti del registro. */
+/**
+ * Il dialogo di apertura, filtrato sui documenti del registro. Parte dalla
+ * cartella dell'anno aperto (o dell'ultimo): gli anni di una scuola stanno
+ * di solito insieme, e Documenti è quasi sempre il posto sbagliato.
+ */
 async function scegliDocumento (): Promise<Uri | null> {
+  const aperto = percorsoPacchetto()
+  const vicino = (aperto && !èProvvisorio(aperto) ? aperto : null) ?? documentoRicordato()
   const esito = await dialog.showOpenDialog({
     title: testi().apriUnAnno,
     buttonLabel: parole().apri,
     properties: ['openFile'],
-    defaultPath: app.getPath('documents'),
+    defaultPath: vicino ? percorso.dirname(vicino.fsPath) : app.getPath('documents'),
     filters: [
       // testo-fisso: il marchio non si traduce
       { name: 'Regiklass', extensions: [ESTENSIONE.slice(1)] },
@@ -756,7 +762,8 @@ app.on('before-quit', (evento) => {
       }
       clearTimeout(tetto)
     })
-    .finally(() => app.exit(0))
+    // `codiceDUscita` dice a `tools/dev.mjs` se rilanciare (opzioni di sviluppo); altrimenti 0.
+    .finally(() => app.exit(codiceDUscita()))
 })
 
 /**

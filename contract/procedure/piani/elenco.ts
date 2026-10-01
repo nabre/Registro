@@ -9,7 +9,7 @@ import {
 } from '../../../core/dominio/courses.js'
 import { definisci } from '../../contract.js'
 import { elenco, identificatore, nullabile, numero, oggetto, opzionale, testo } from '../../schemas.js'
-import { CAMPI_PAGINA, filtroTesto, pagina, ricerca, taglia } from '../common/filters.js'
+import { CAMPI_CERCA, CAMPI_PAGINA, filtroTesto, pagina, ricerca, taglia } from '../common/filters.js'
 import { esigiClasse, esigiCorso } from '../common/register.js'
 import { corto } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
@@ -37,7 +37,7 @@ export const procedura = definisci({
   }),
   uscita: oggetto({
     corsoId: nullabile(testo({ aiuto: () => t().corsoChiesto })),
-    cerca: testo({ aiuto: () => t().cerca }),
+    ...CAMPI_CERCA,
     ...CAMPI_PAGINA,
     piani: elenco(oggetto({
       id: testo({ aiuto: () => t().id }),
@@ -76,7 +76,7 @@ export const procedura = definisci({
     const r = ambito.contesto.registro
     const corso = ingresso.corsoId ? esigiCorso(ambito, ingresso.corsoId) : null
     if (ingresso.classeId) esigiClasse(ambito, ingresso.classeId)
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
 
     const corsi = (ingresso.classeId ? corsiDellaClasse(r, ingresso.classeId) : r.corsi)
       .filter((c) => !corso || c.id === corso.id)
@@ -88,7 +88,7 @@ export const procedura = definisci({
       .filter(({ piano }) =>
         corrisponde([
           nomeDelPiano(r, piano),
-          piano.note ?? '',
+          piano.prerequisiti ?? '',
           ...piano.tag,
           ...piano.obiettivi,
           ...piano.attivita.map((tappa) => tappa.titolo),
@@ -100,6 +100,8 @@ export const procedura = definisci({
     return {
       corsoId: corso?.id ?? null,
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       quante,
       da,
       troncato,

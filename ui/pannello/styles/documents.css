@@ -37,6 +37,32 @@
 }
 
 /*
+ * Le linguette dei documenti delle persone: «Corso» e una per progetto. I
+ * titoli dei progetti possono essere tanti e lunghi: vanno a capo invece di
+ * allargare la barra; un titolo troppo lungo si tronca, ma si legge intero
+ * ai lettori di schermo.
+ */
+.documenti__linguette {
+  margin-bottom: var(--spazio-2);
+}
+
+.documenti__linguette .selettore {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.documenti__linguette .selettore__voce {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.documenti__linguette .selettore__voce > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
  * L'elenco degli allievi ha la sua scheda e usa la larghezza: due colonne di
  * nomi su finestra larga, una quando non ci stanno.
  */

@@ -67,7 +67,7 @@ export function risolviPeriodo (
 ): { dal: string, al: string } {
   const anno = classe
     ? annoDellaClasse(registro, classe)
-    : registro.anni.find((a) => a.id === registro.annoCorrenteId) ?? null
+    : annoInUso(registro)
   const estremi = estremiAnno(anno)
   return {
     dal: chiesto.dal ?? estremi?.inizio ?? '0000-01-01',

@@ -28,6 +28,7 @@ const it = {
   nomePiano: (nome: string) => `il piano di ${nome}`,
   nomeMomento: (titolo: string) => `il momento «${titolo}»`,
   nomeConsegna: (testo: string) => `la consegna «${testo}»`,
+  nomeProgetto: (titolo: string) => `il progetto «${titolo}»`,
   spuntareConsegna:
     'Spuntarla per tutti la toglie dalle cose da fare e conserva quel che è stato raccolto.',
 
@@ -38,6 +39,8 @@ const it = {
   recuperi: (n: number) => plurale(n, 'recupero', 'recuperi'),
   osservazioni: (n: number) => plurale(n, 'osservazione', 'osservazioni'),
   spunteDelCheck: (n: number) => plurale(n, 'spunta del check', 'spunte del check'),
+  vociDiProgetto: (n: number) =>
+    plurale(n, 'voce nei progetti (inizio, spunta, giudizio, livello)', 'voci nei progetti (inizi, spunte, giudizi, livelli)'),
   caselle: (n: number) => plurale(n, 'casella del comportamento', 'caselle del comportamento'),
   documentiRaccolti: (n: number) => plurale(n, 'documento raccolto', 'documenti raccolti'),
   consegneSoloSue: (n: number) =>
@@ -59,6 +62,10 @@ const it = {
   check: (n: number, spunte: number) =>
     plurale(n, CARTE.check.singolare, CARTE.check.plurale) +
     (spunte > 0 ? `, con ${plurale(spunte, 'spunta', 'spunte')}` : ''),
+  progetti: (n: number) => plurale(n, CARTE.progetto.singolare, CARTE.progetto.plurale) +
+    ', con compiti, giudizi e matrice',
+  fileDelProgetto: (n: number) =>
+    plurale(n, 'file allegato al progetto', 'file allegati al progetto'),
   fascicoloDocumenti: (n: number) => plurale(n, 'documento', 'documenti'),
   fascicoloComunicazioni: (n: number) => plurale(n, 'comunicazione', 'comunicazioni'),
   fascicoloAssenze: (periodi: number, fogli: number) =>
@@ -80,6 +87,14 @@ const it = {
     `${plurale(n, 'piano lezione resta', 'piani lezione restano')}, senza corso`,
   consegneConData: (n: number) =>
     `${plurale(n, 'consegna resta', 'consegne restano')}, con la data al posto della lezione`,
+  tappeSenzaProgetto: (n: number) =>
+    `${plurale(n, 'tappa dei piani resta', 'tappe dei piani restano')}, senza progetto`,
+  momentiSenzaProgetto: (n: number) =>
+    `${plurale(n, 'momento di valutazione resta', 'momenti di valutazione restano')}, ` +
+    'senza progetto',
+  progettiConData: (n: number) =>
+    `${plurale(n, 'voce dei progetti resta', 'voci dei progetti restano')}, ` +
+    'con la data al posto della lezione',
   momentiSenzaLezione: (n: number) =>
     `${plurale(n, 'momento di valutazione resta', 'momenti di valutazione restano')}, ` +
     'senza la lezione a cui era legato',
@@ -114,6 +129,7 @@ export const testi = catalogo(it, {
     nomePiano: (nome) => `Unterrichtsplan ${nome}`,
     nomeMomento: (titolo) => `Leistungsbeurteilung «${titolo}»`,
     nomeConsegna: (testo) => `Auftrag «${testo}»`,
+    nomeProgetto: (titolo) => `Projekt «${titolo}»`,
     spuntareConsegna:
       'Für alle abhaken nimmt ihn aus den offenen Aufgaben ' +
       'und bewahrt auf, was eingesammelt wurde.',
@@ -125,6 +141,8 @@ export const testi = catalogo(it, {
     recuperi: (n) => plurale(n, 'Nachprüfung', 'Nachprüfungen'),
     osservazioni: (n) => plurale(n, 'Beobachtung', 'Beobachtungen'),
     spunteDelCheck: (n) => plurale(n, 'Check-Häkchen', 'Check-Häkchen'),
+    vociDiProgetto: (n) =>
+      plurale(n, 'Eintrag in Projekten (Beginn, Häkchen, Einschätzung, Stufe)', 'Einträge in Projekten (Beginn, Häkchen, Einschätzungen, Stufen)'),
     caselle: (n) => plurale(n, 'Feld der Verhaltensübersicht', 'Felder der Verhaltensübersicht'),
     documentiRaccolti: (n) => plurale(n, 'eingesammeltes Dokument', 'eingesammelte Dokumente'),
     consegneSoloSue: (n) =>
@@ -148,6 +166,8 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'Check', 'Checks') +
       (spunte > 0 ? `, mit ${plurale(spunte, 'Häkchen', 'Häkchen')}` : ''),
+    progetti: (n) => plurale(n, 'Projekt', 'Projekte') + ', mit Aufgaben, Einschätzungen und Matrix',
+    fileDelProgetto: (n) => plurale(n, 'Datei des Projekts', 'Dateien des Projekts'),
     fascicoloDocumenti: (n) => plurale(n, 'Dokument', 'Dokumente'),
     fascicoloComunicazioni: (n) => plurale(n, 'Mitteilung', 'Mitteilungen'),
     fascicoloAssenze: (periodi, fogli) =>
@@ -169,6 +189,13 @@ export const testi = catalogo(it, {
       `${plurale(n, 'Unterrichtsplan bleibt', 'Unterrichtspläne bleiben')}, ohne Kurs`,
     consegneConData: (n) =>
       `${plurale(n, 'Auftrag bleibt', 'Aufträge bleiben')}, ` +
+      'mit dem Datum statt der Stunde',
+    tappeSenzaProgetto: (n) =>
+      `${plurale(n, 'Etappe der Pläne bleibt', 'Etappen der Pläne bleiben')}, ohne Projekt`,
+    momentiSenzaProgetto: (n) =>
+      `${plurale(n, 'Leistungsbeurteilung bleibt', 'Leistungsbeurteilungen bleiben')}, ohne Projekt`,
+    progettiConData: (n) =>
+      `${plurale(n, 'Projekteintrag bleibt', 'Projekteinträge bleiben')}, ` +
       'mit dem Datum statt der Stunde',
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'Leistungsbeurteilung bleibt', 'Leistungsbeurteilungen bleiben')}, ` +
@@ -198,6 +225,7 @@ export const testi = catalogo(it, {
     nomePiano: (nome) => `le plan de leçon ${nome}`,
     nomeMomento: (titolo) => `l’évaluation « ${titolo} »`,
     nomeConsegna: (testo) => `le devoir « ${testo} »`,
+    nomeProgetto: (titolo) => `le projet « ${titolo} »`,
     spuntareConsegna:
       'Le cocher pour tout le monde le retire des choses à faire ' +
       'et conserve ce qui a été recueilli.',
@@ -208,6 +236,8 @@ export const testi = catalogo(it, {
     recuperi: (n) => plurale(n, 'rattrapage', 'rattrapages'),
     osservazioni: (n) => plurale(n, 'observation', 'observations'),
     spunteDelCheck: (n) => plurale(n, 'coche du check', 'coches du check'),
+    vociDiProgetto: (n) =>
+      plurale(n, 'entrée dans les projets (début, coche, appréciation, niveau)', 'entrées dans les projets (débuts, coches, appréciations, niveaux)'),
     caselle: (n) => plurale(n, 'case du comportement', 'cases du comportement'),
     documentiRaccolti: (n) => plurale(n, 'document recueilli', 'documents recueillis'),
     consegneSoloSue: (n) =>
@@ -233,6 +263,8 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'check', 'checks') +
       (spunte > 0 ? `, avec ${plurale(spunte, 'coche', 'coches')}` : ''),
+    progetti: (n) => plurale(n, 'projet', 'projets') + ', avec tâches, appréciations et grille',
+    fileDelProgetto: (n) => plurale(n, 'fichier joint au projet', 'fichiers joints au projet'),
     fascicoloDocumenti: (n) => plurale(n, 'document', 'documents'),
     fascicoloComunicazioni: (n) => plurale(n, 'communication', 'communications'),
     fascicoloAssenze: (periodi, fogli) =>
@@ -254,6 +286,13 @@ export const testi = catalogo(it, {
       `${plurale(n, 'plan de leçon reste', 'plans de leçon restent')}, sans cours`,
     consegneConData: (n) =>
       `${plurale(n, 'devoir reste', 'devoirs restent')}, avec la date à la place de la leçon`,
+    tappeSenzaProgetto: (n) =>
+      `${plurale(n, 'étape des plans reste', 'étapes des plans restent')}, sans projet`,
+    momentiSenzaProgetto: (n) =>
+      `${plurale(n, 'évaluation reste', 'évaluations restent')}, sans projet`,
+    progettiConData: (n) =>
+      `${plurale(n, 'entrée des projets reste', 'entrées des projets restent')}, ` +
+      'avec la date à la place de la leçon',
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'évaluation reste', 'évaluations restent')}, ` +
       'sans la leçon à laquelle elle était liée',
@@ -281,6 +320,7 @@ export const testi = catalogo(it, {
     nomePiano: (nome) => `the lesson plan ${nome}`,
     nomeMomento: (titolo) => `the assessment “${titolo}”`,
     nomeConsegna: (testo) => `the assignment “${testo}”`,
+    nomeProgetto: (titolo) => `the project “${titolo}”`,
     spuntareConsegna:
       'Ticking it off for everyone takes it off the to-do list and keeps what has been collected.',
 
@@ -290,6 +330,8 @@ export const testi = catalogo(it, {
     recuperi: (n) => plurale(n, 'resit', 'resits'),
     osservazioni: (n) => plurale(n, 'observation', 'observations'),
     spunteDelCheck: (n) => plurale(n, 'check tick', 'check ticks'),
+    vociDiProgetto: (n) =>
+      plurale(n, 'project entry (start, tick, comment, level)', 'project entries (starts, ticks, comments, levels)'),
     caselle: (n) => plurale(n, 'behaviour grid cell', 'behaviour grid cells'),
     documentiRaccolti: (n) => plurale(n, 'collected document', 'collected documents'),
     consegneSoloSue: (n) =>
@@ -312,6 +354,8 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'check', 'checks') +
       (spunte > 0 ? `, with ${plurale(spunte, 'tick', 'ticks')}` : ''),
+    progetti: (n) => plurale(n, 'project', 'projects') + ', with tasks, comments and grid',
+    fileDelProgetto: (n) => plurale(n, 'file attached to the project', 'files attached to the project'),
     fascicoloDocumenti: (n) => plurale(n, 'document', 'documents'),
     fascicoloComunicazioni: (n) => plurale(n, 'message', 'messages'),
     fascicoloAssenze: (periodi, fogli) =>
@@ -332,6 +376,12 @@ export const testi = catalogo(it, {
       `${plurale(n, 'lesson plan stays', 'lesson plans stay')}, with no course`,
     consegneConData: (n) =>
       `${plurale(n, 'assignment stays', 'assignments stay')}, with the date instead of the lesson`,
+    tappeSenzaProgetto: (n) =>
+      `${plurale(n, 'plan step stays', 'plan steps stay')}, with no project`,
+    momentiSenzaProgetto: (n) =>
+      `${plurale(n, 'assessment stays', 'assessments stay')}, with no project`,
+    progettiConData: (n) =>
+      `${plurale(n, 'project entry stays', 'project entries stay')}, with the date instead of the lesson`,
     momentiSenzaLezione: (n) =>
       `${plurale(n, 'assessment stays', 'assessments stay')}, without the lesson it was linked to`,
     lezioniSenzaScaletta: (n) =>

@@ -182,6 +182,21 @@ describe('il deposito', () => {
     assert.equal(d.leggi('archivio/foglio.pdf').length, 64)
   })
 
+  it('all’avvio butta le copie lasciate da una sessione caduta', async () => {
+    const { deposito: d, pacchetto } = await deposito()
+    d.scrivi('archivio/foglio.pdf', finoPdf(64))
+    const dove = await d.materializza('archivio/foglio.pdf')
+
+    // Un deposito nuovo sulla stessa cartella: il processo di prima è morto
+    // senza smontare.
+    const dopo = new Deposito(() => pacchetto, Uri.file(percorso.join(cartella, `copie-${contatore}`)))
+    await dopo.ripulisciRimaste()
+    assert.equal(existsSync(dove.fsPath), false, 'la copia rimasta doveva sparire')
+    // E una copia chiesta dopo si rifà.
+    const rifatta = await dopo.materializza('archivio/foglio.pdf')
+    assert.equal(readFileSync(rifatta.fsPath).length, 64)
+  })
+
   it('archiviaCopia rifiuta con un messaggio localizzato senza esporre il percorso di sistema e pulisciCopiaOrfana pulisce i file orfani', async () => {
     const { deposito: d } = await deposito()
     const { archiviaCopia, pulisciCopiaOrfana, registraDeposito } = await import('../../dist-tests/data.mjs')

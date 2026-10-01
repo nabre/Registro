@@ -15,7 +15,7 @@ import { app } from 'electron'
 import { accessSync, constants, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { CARTELLA_PORTABILE_VECCHIA, traslocaDati } from '../../../core/dati/formerName.js'
+import { traslocaDati } from '../../../core/dati/formerName.js'
 
 /** Il nome della cartella dei dati, accanto all'eseguibile portabile. */
 // testo-fisso: nome di una cartella su disco, che deve restare quello in ogni lingua
@@ -30,7 +30,7 @@ const CARTELLA_DATI = 'Regiklass - dati'
 function cartellaDati (cartellaEseguibile: string): string {
   const nuova = join(cartellaEseguibile, CARTELLA_DATI)
   // testo-fisso: cartella del portabile col nome precedente da migrare
-  for (const nomeVecchio of ['Regiclass - dati', CARTELLA_PORTABILE_VECCHIA]) {
+  for (const nomeVecchio of ['Regiclass - dati']) {
     const vecchia = join(cartellaEseguibile, nomeVecchio)
     const trasloco = traslocaDati(vecchia, nuova)
     if (trasloco.esito === 'fallita') {

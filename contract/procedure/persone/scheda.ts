@@ -21,7 +21,7 @@ import {
 import { scriviIndirizzo } from '../../../core/dominio/addresses.js'
 import { matriceCorso } from '../../../core/dominio/courseMatrix.js'
 import { udPrevisteDaOrario } from '../../../core/dominio/timetable.js'
-import { definisci, errore } from '../../contract.js'
+import { definisci } from '../../contract.js'
 import { booleano, elenco, identificatore, nullabile, numero, oggetto, testo } from '../../schemas.js'
 import {
   nellaZona,
@@ -32,7 +32,7 @@ import {
   SCHEDA_PERIODO,
   zona,
 } from '../common/filters.js'
-import { testi as testiComuni } from '../common/common.testi.js'
+import { esigiPersona } from '../common/register.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi as t } from './scheda.testi.js'
 
@@ -157,12 +157,7 @@ export const procedura = definisci({
   },
   esegui: (ambito, ingresso) => {
     const r = ambito.contesto.registro
-    const classe = r.classi.find((c) => c.allievi.some((a) => a.id === ingresso.allievoId))
-    const allievo = classe?.allievi.find((a) => a.id === ingresso.allievoId)
-    if (!classe || !allievo) {
-      // Il rimedio nella busta: senza, un modello prova altri id inventati.
-      throw errore.nonTrovato('pif', testiComuni().rimedioPersona)
-    }
+    const { classe, allievo } = esigiPersona(ambito, ingresso.allievoId)
 
     const anno = annoDellaClasse(r, classe)
     // Il periodo della classe di questa persona, non dell'anno in uso: con più

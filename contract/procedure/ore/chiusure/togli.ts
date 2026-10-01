@@ -15,7 +15,7 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'lezione.togliNelleChiusure',
   idempotente: true,
-  collezioni: ['lezioni', 'valutazioni', 'consegne', 'check'],
+  collezioni: ['lezioni', 'valutazioni', 'consegne', 'check', 'progetti'],
   ingresso: oggetto({
     dal: iso({ aiuto: () => t().dal }),
     al: iso({ aiuto: () => t().al }),

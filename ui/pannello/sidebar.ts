@@ -5,10 +5,15 @@ import { icona } from './components/icons.js'
 import { alternaMenuSotto, type ElementoMenu } from './components/menu.js'
 import { classeDelFascicolo, corsoDelContesto, scegliClasseDelFascicolo, scegliCorso } from './context.js'
 import { gruppiDiPagine, vaiA, type GruppoDiPagine, type Pagina } from './pages.js'
+import { raggruppamentoDeiCorsi } from '../../core/dominio/courses.js'
+import { confrontaNomi } from '../../core/dominio/text.js'
 import {
   aggiorna,
+  classePerId,
   classiDiCuiSonoDocente,
+  coloreDiCorso,
   corsiDellAnnoAperto,
+  materiaPerId,
   nomeClasse,
   nomeMateria,
   ridisegna,
@@ -110,20 +115,30 @@ function entraNelGruppo (
 }
 
 /**
- * I corsi dell'anno per il menu del titolo: un titoletto per classe, le
- * materie sotto. Da una pagina del Registro `scegliCorso` la sposta sul corso;
+ * I corsi dell'anno per il menu del titolo: un titoletto per materia e le
+ * classi sotto, o per classe e le materie sotto (`raggruppamentoDeiCorsi`). Da una pagina del Registro `scegliCorso` la sposta sul corso;
  * da fuori si apre la prima pagina del Registro sul corso scelto (restando
  * dov'è, una pagina di classe tornerebbe alle Classi).
  */
 function vociDeiCorsi (gruppo: GruppoDiPagine): ElementoMenu[] {
   const attuale = corsoDelContesto()?.id
-  const perClasse = new Map<string, ElementoMenu[]>()
-  for (const corso of corsiDellAnnoAperto()) {
+  const corsi = corsiDellAnnoAperto()
+  const per = raggruppamentoDeiCorsi(corsi)
+  const gruppi = new Map<string, ElementoMenu[]>()
+  // Il colore del titoletto: della materia o della classe, quel che il titoletto nomina.
+  const coloriDeiGruppi = new Map<string, string | undefined>()
+  for (const corso of corsi) {
+    const materia = nomeMateria(corso.materiaId)
     const classe = nomeClasse(corso.classeId)
-    const voci = perClasse.get(classe) ?? []
+    const titoletto = per === 'materia' ? materia || classe : classe
+    coloriDeiGruppi.set(titoletto, per === 'materia'
+      ? materiaPerId(corso.materiaId)?.colore
+      : classePerId(corso.classeId)?.colore)
+    const voci = gruppi.get(titoletto) ?? []
     voci.push({
-      testo: nomeMateria(corso.materiaId) || corso.titolo,
-      simbolo: 'libro',
+      testo: (per === 'materia' ? classe : materia) || corso.titolo,
+      simbolo: per === 'materia' ? 'classi' : 'libro',
+      colore: coloreDiCorso(corso),
       accesa: corso.id === attuale,
       al: () => {
         if (gruppo.attivo) {
@@ -134,9 +149,22 @@ function vociDeiCorsi (gruppo: GruppoDiPagine): ElementoMenu[] {
           { corsoId: corso.id, filtroClasseId: corso.classeId, classeId: corso.classeId })
       },
     })
-    perClasse.set(classe, voci)
+    gruppi.set(titoletto, voci)
   }
-  return [...perClasse].flatMap(([classe, voci]) => [{ titolo: classe }, ...voci])
+  return [...gruppi]
+    .sort(([a], [b]) => confrontaNomi(a, b))
+    .flatMap(([titoletto, voci]) => [
+      {
+        titolo: titoletto,
+        simbolo: per === 'materia' ? 'libro' as const : 'classi' as const,
+        ...(coloriDeiGruppi.get(titoletto) ? { colore: coloriDeiGruppi.get(titoletto) } : {}),
+      },
+      ...voci.sort((a, b) => confrontaNomi(testoDi(a), testoDi(b))),
+    ])
+}
+
+function testoDi (elemento: ElementoMenu): string {
+  return typeof elemento === 'object' && 'testo' in elemento ? elemento.testo : ''
 }
 
 /** Chiude il cassetto stretto senza cambiare la scelta della sidebar desktop. */

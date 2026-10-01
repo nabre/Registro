@@ -22,6 +22,8 @@ const DISCRIMINANTI_CANALE = [
   'benvenuto',
   'impostazioni',
   'avvio',
+  // Le opzioni di sviluppo: il main process ascolta solo con `npm run dev`.
+  'sviluppo',
 ] as const
 
 /** Verifica se un messaggio è un oggetto non nullo avente una proprietà tra quelle in `DISCRIMINANTI_CANALE`. */

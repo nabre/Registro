@@ -79,6 +79,44 @@ describe('percorrere i passi', () => {
   })
 })
 
+describe('il passo 4: le note dei piani nei prerequisiti', () => {
+  // Solo il passo vero, da un documento del formato 3: gli altri non toccano i piani.
+  const porta = (piani) => aggiornaFormato({ registro: {}, piani }, 3).dati.piani
+
+  it('accoda le note ai prerequisiti, dopo una riga vuota e con l’etichetta', () => {
+    const [piano] = porta([{ id: 'p1', prerequisiti: 'Le frazioni', note: 'Portare la calcolatrice' }])
+    assert.deepEqual(piano, { id: 'p1', prerequisiti: 'Le frazioni\n\nNote: Portare la calcolatrice' })
+  })
+
+  it('senza prerequisiti, le note li fanno da sole', () => {
+    const [piano] = porta([{ id: 'p1', note: '  Fogli quadrettati\ne righello  ' }])
+    assert.deepEqual(piano, { id: 'p1', prerequisiti: 'Note: Fogli quadrettati\ne righello' })
+  })
+
+  it('note vuote o assenti: i prerequisiti restano com’erano, e la chiave se ne va', () => {
+    const piani = porta([
+      { id: 'p1', prerequisiti: 'Le frazioni', note: '' },
+      { id: 'p2', prerequisiti: 'Le frazioni', note: '   ' },
+      { id: 'p3', prerequisiti: 'Le frazioni' },
+    ])
+    assert.deepEqual(piani, [
+      { id: 'p1', prerequisiti: 'Le frazioni' },
+      { id: 'p2', prerequisiti: 'Le frazioni' },
+      { id: 'p3', prerequisiti: 'Le frazioni' },
+    ])
+  })
+
+  it('un documento senza piani, o con voci strane, passa senza danno', () => {
+    assert.equal(aggiornaFormato({ registro: {} }, 3).dati.piani, undefined)
+    assert.deepEqual(porta([null, 'x']), [null, 'x'])
+  })
+
+  it('un documento già del formato 4 non ripassa da qui', () => {
+    const letti = { registro: {}, piani: [{ id: 'p1', note: 'resta' }] }
+    assert.equal(aggiornaFormato(letti, 4).dati.piani[0].note, 'resta')
+  })
+})
+
 describe('un anno da un registro più recente', () => {
   it('la frase che lo rifiuta si riconosce da chi la mostra', () => {
     for (const cosa of ['dati', 'formato']) {

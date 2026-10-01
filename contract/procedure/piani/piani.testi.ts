@@ -18,7 +18,6 @@ const it = {
     tag: 'Solo i piani con questa etichetta. Esatta, non a pezzi',
     dove: 'nome, obiettivo, tappa o etichetta',
     corsoChiesto: 'Il corso chiesto, o nullo se erano tutti',
-    cerca: 'Il filtro di testo applicato. Vuoto quando non se n’è chiesto',
     id: 'Da passare a «piani.leggi» per avere le tappe',
     corsoDelPiano: 'Di quale corso è: serve quando si chiedono tutti',
     nome: 'Come si chiama nell’elenco: «3ª lezione», «bozza del 12.09»',
@@ -45,7 +44,6 @@ const it = {
     materiali: 'Che cosa serve in aula per quella tappa',
     valutata: 'Se da quella tappa esce una prova',
     genere: 'Che cos’è: un file, un collegamento, un’immagine',
-    rimedio: 'I piani di un corso li elenca «piani.elenco».',
     presentazione: {
       titolo: 'Il piano lezione',
       piano: 'Piano',
@@ -59,13 +57,6 @@ const it = {
       materiali: 'Materiali',
       prova: 'Prova',
     },
-  },
-  perLezione: {
-    titolo:
-      'Apre il piano di un’ora: generato con obiettivi e scaletta sulle sue UD, o copiato ' +
-      'da uno che c’è',
-    daPianoId:
-      'Il piano da ricopiare. Senza, o nullo, ne nasce uno con obiettivi e scaletta da rivedere',
   },
   salva: {
     titolo: 'Scrive un piano per intero: lo crea se non c’era, lo riscrive se c’era',
@@ -89,7 +80,6 @@ export const testi = catalogo(it, {
       tag: 'Nur die Pläne mit diesem Schlagwort. Exakt, nicht in Teilen',
       dove: 'Name, Lernziel, Etappe oder Schlagwort',
       corsoChiesto: 'Der verlangte Kurs, oder null, wenn es alle waren',
-      cerca: 'Der angewendete Textfilter. Leer, wenn keiner verlangt wurde',
       id: 'An «piani.leggi» zu übergeben, um die Etappen zu erhalten',
       corsoDelPiano: 'Zu welchem Kurs er gehört: nützlich, wenn alle verlangt werden',
       nome: 'Wie er in der Liste heisst: «3ª lezione», «bozza del 12.09»',
@@ -118,7 +108,6 @@ export const testi = catalogo(it, {
       materiali: 'Was im Schulzimmer für diese Etappe gebraucht wird',
       valutata: 'Ob aus dieser Etappe eine Prüfung hervorgeht',
       genere: 'Was es ist: eine Datei, ein Link, ein Bild',
-      rimedio: 'Die Pläne eines Kurses listet «piani.elenco» auf.',
       presentazione: {
         titolo: 'Der Unterrichtsplan',
         piano: 'Plan',
@@ -132,14 +121,6 @@ export const testi = catalogo(it, {
         materiali: 'Material',
         prova: 'Prüfung',
       },
-    },
-    perLezione: {
-      titolo:
-        'Öffnet den Plan einer Stunde: generiert mit Lernzielen und Ablauf nach ihren ' +
-        'Lektionen oder kopiert von einem bestehenden',
-      daPianoId:
-        'Der zu kopierende Plan. Ohne ihn, oder mit null, entsteht einer mit Lernzielen und ' +
-        'Ablauf zum Überprüfen',
     },
     salva: {
       titolo:
@@ -163,7 +144,6 @@ export const testi = catalogo(it, {
       tag: 'Seulement les plans avec cette étiquette. Exacte, pas par fragments',
       dove: 'nom, objectif, étape ou étiquette',
       corsoChiesto: 'Le cours demandé, ou null si c’étaient tous',
-      cerca: 'Le filtre de texte appliqué. Vide quand il n’y en a pas eu',
       id: 'À passer à « piani.leggi » pour obtenir les étapes',
       corsoDelPiano: 'À quel cours il appartient : utile quand on les demande tous',
       nome: 'Son nom dans la liste : « 3ª lezione », « bozza del 12.09 »',
@@ -190,7 +170,6 @@ export const testi = catalogo(it, {
       materiali: 'Ce qu’il faut en classe pour cette étape',
       valutata: 'Si cette étape donne lieu à une épreuve',
       genere: 'Ce que c’est : un fichier, un lien, une image',
-      rimedio: 'Les plans d’un cours sont listés par « piani.elenco ».',
       presentazione: {
         titolo: 'Le plan de leçon',
         piano: 'Plan',
@@ -204,14 +183,6 @@ export const testi = catalogo(it, {
         materiali: 'Matériel',
         prova: 'Épreuve',
       },
-    },
-    perLezione: {
-      titolo:
-        'Ouvre le plan d’une leçon : généré avec objectifs et déroulement selon ses périodes, ' +
-        'ou copié d’un plan existant',
-      daPianoId:
-        'Le plan à recopier. Sans, ou avec null, il en naît un avec objectifs et déroulement ' +
-        'à revoir',
     },
     salva: {
       titolo:
@@ -234,7 +205,6 @@ export const testi = catalogo(it, {
       tag: 'Only the plans with this tag. Exact, not in pieces',
       dove: 'name, objective, step or tag',
       corsoChiesto: 'The course asked for, or null if they were all',
-      cerca: 'The text filter applied. Empty when none was asked for',
       id: 'To pass to “piani.leggi” to get the steps',
       corsoDelPiano: 'Which course it belongs to: useful when asking for all of them',
       nome: 'What it is called in the list: “3ª lezione”, “bozza del 12.09”',
@@ -261,7 +231,6 @@ export const testi = catalogo(it, {
       materiali: 'What is needed in the classroom for that step',
       valutata: 'Whether that step leads to a test',
       genere: 'What it is: a file, a link, an image',
-      rimedio: 'The plans of a course are listed by “piani.elenco”.',
       presentazione: {
         titolo: 'The lesson plan',
         piano: 'Plan',
@@ -275,14 +244,6 @@ export const testi = catalogo(it, {
         materiali: 'Materials',
         prova: 'Test',
       },
-    },
-    perLezione: {
-      titolo:
-        'Opens the plan of a lesson: generated with objectives and an outline fitted to its ' +
-        'periods, or copied from an existing one',
-      daPianoId:
-        'The plan to copy. Without it, or with null, a new one is created with objectives and ' +
-        'an outline to review',
     },
     salva: {
       titolo: 'Writes a whole plan: creates it if it was not there, rewrites it if it was',

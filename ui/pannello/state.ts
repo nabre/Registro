@@ -64,7 +64,7 @@ import {
   raggruppaOre,
   type FaseOra,
 } from '../../core/dominio/dashboard.js'
-import { confrontaLezioni } from '../../core/dominio/calculations.js'
+import { confrontaLezioni, momentoLezione } from '../../core/dominio/calculations.js'
 import { todoDelCorso, todoDelDocenteDiClasse } from '../../core/dominio/todo.js'
 import { annoInUso } from '../../core/dominio/years.js'
 import {
@@ -369,12 +369,25 @@ interface StatoUI {
    */
   classiApertePersone: string[];
   /**
+   * Il compito aperto a linguette in ciascun progetto (id del progetto → id
+   * del compito): lo stesso nella pagina Progetti e nella scheda dell'ora.
+   */
+  compitiScelti: Record<string, string>;
+  /**
+   * La linguetta aperta fra i documenti delle persone in formazione, per corso
+   * (id del corso → `'corso'` o id del progetto): la pagina Documenti torna su
+   * «Corso» se il progetto non c'è più.
+   */
+  linguetteDocumenti: Record<string, string>;
+  /**
    * Il corso su cui sono puntate le pagine di corso (registro, piani,
    * valutazioni, documenti): uno solo, condiviso fra le pagine.
    */
   corsoId: string | null;
   pianoId: string | null;
   valutazioneId: string | null;
+  /** Il progetto aperto nella pagina Progetti. */
+  progettoId: string | null;
   /** Filtro per classe delle pagine di corso: piani, valutazioni, registro. */
   filtroClasseId: string | null;
   /**
@@ -424,6 +437,7 @@ const CONTESTO_VUOTO: Contesto = {
   pianoId: null,
   valutazioneId: null,
   allievoId: null,
+  progettoId: null,
 }
 
 /**
@@ -509,6 +523,8 @@ export const stato: StatoUI = {
   adessoOra: adesso(),
   ...contestoIniziale,
   classiApertePersone: primaVoce?.classiApertePersone ?? [],
+  compitiScelti: primaVoce?.compitiScelti ?? {},
+  linguetteDocumenti: primaVoce?.linguetteDocumenti ?? {},
   classeMappaId: primaVoce?.classeMappaId ?? null,
   filtroCorsoAgendaId: primaVoce?.filtroCorsoAgendaId ?? null,
   // Assente = mai scelto: vale «anno intero» finché, arrivato il registro,
@@ -585,6 +601,8 @@ function voceDiAdesso (): VoceDocumento {
     bloccoAssenzeId: stato.bloccoAssenzeId,
     schedaTodo: stato.schedaTodo,
     classiApertePersone: stato.classiApertePersone,
+    compitiScelti: stato.compitiScelti,
+    linguetteDocumenti: stato.linguetteDocumenti,
     ricerca: stato.ricerca,
   }
   // Un semestre mai scelto non si scrive: riaprendo va ancora allineato a oggi.
@@ -658,6 +676,8 @@ function caricaVoce (voce: VoceDocumento | null): void {
     bloccoAssenzeId: voce?.bloccoAssenzeId ?? null,
     schedaTodo: voce?.schedaTodo ?? 'tutte',
     classiApertePersone: voce?.classiApertePersone ?? [],
+    compitiScelti: voce?.compitiScelti ?? {},
+    linguetteDocumenti: voce?.linguetteDocumenti ?? {},
     ricerca: voce?.ricerca ?? '',
   } satisfies Partial<StatoUI>)
   semestreDaAllineare = voce?.semestreId === undefined
@@ -1001,6 +1021,10 @@ export function pianoPerId (id: string | null) {
   return id ? (stato.registro.piani.find((p) => p.id === id) ?? null) : null
 }
 
+export function progettoPerId (id: string | null) {
+  return id ? (stato.registro.progetti.find((p) => p.id === id) ?? null) : null
+}
+
 export function valutazionePerId (id: string | null) {
   return id
     ? (stato.registro.valutazioni.find((v) => v.id === id) ?? null)
@@ -1181,7 +1205,7 @@ export function nomeDiLezione (lezione: Lezione): string {
   const numero = numeroDellaLezione(stato.registro, lezione)
   return numero
     ? testiCalcoli().ennesimaLezione(numero)
-    : formattaData(lezione.data, 'giorno')
+    : formattaData(lezione.data, 'settimana')
 }
 
 /**
@@ -1556,6 +1580,42 @@ export function oraDaFare (): ReturnType<typeof oraDaCompilare> {
 }
 
 /**
+ * La prossima ora secondo l'orologio, che sia in regola o no: quella in corso,
+ * o la prima che deve ancora cominciare. Sulle stesse ore della barra
+ * (agenda e periodo scelto); i buchi del passato li conta `oreDaChiudereBarra`.
+ */
+export function prossimaOra (): Lezione | null {
+  return derivato(
+    'prossimaOra',
+    [stato.filtroCorsoAgendaId, stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    () =>
+      [...nelSemestreScelto(lezioniInAgenda())]
+        .sort(confrontaLezioni)
+        .find((l) => l.stato !== 'annullata' && momentoLezione(l, stato.adessoData, stato.adessoOra) !== 'passata') ??
+      null,
+  )
+}
+
+/**
+ * Le ore passate con il registro non a posto, dalla più vecchia: la stessa
+ * regola della Dashboard (`raggruppaOre`), sulle ore della barra.
+ */
+export function oreDaChiudereBarra (): Lezione[] {
+  return derivato(
+    'oreDaChiudereBarra',
+    [stato.filtroCorsoAgendaId, stato.semestreId, stato.adessoData, stato.adessoOra].join('|'),
+    () =>
+      [...raggruppaOre(
+        stato.registro,
+        nelSemestreScelto(lezioniInAgenda()),
+        stato.adessoData,
+        stato.adessoOra,
+        indiceDiagnosi(stato.registro),
+      ).daChiudere].sort(confrontaLezioni),
+  )
+}
+
+/**
  * Le ore di oggi con la loro fase, per la Dashboard: sulle ore dell'agenda
  * come il calendario, annullate comprese (spente). La fase si calcola qui, in
  * memoria, e l'ora di adesso è nella chiave.
@@ -1648,7 +1708,7 @@ const NIENTE: Conto = { aperti: 0, urgenti: 0 }
  */
 export function pendenzeDellaBarra (): Conto {
   // 1. Vista legata a un corso
-  const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'documenti']
+  const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'progetti', 'documenti']
   const eCorso =
     visteCorso.includes(stato.vista) ||
     (stato.vista === 'check' && stato.ambitoCheck === 'corso')

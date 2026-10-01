@@ -4,6 +4,7 @@
 import { nomePiano } from './calculations.js'
 import type { Registro, Corso } from './models.js'
 import { CHI_INSEGNA } from './models.js'
+import { allieviNominati, rimandiA, rimandiAlleLezioni } from './projects.js'
 import { testi } from './integrity.testi.js'
 
 // ------------------------------------------------------------------ integrità
@@ -232,6 +233,61 @@ export function riferimentiRotti (registro: Registro): string[] {
     ).size
     if (estranei > 0) {
       problemi.push(t.spunteEstranee(corso.titolo, estranei, classe.nome))
+    }
+  }
+
+  // I progetti come il check: del corso, con le ore che citano e le persone
+  // della classe. Le celle di un criterio tolto non si cercano: le toglie già
+  // la lettura del file (`normalizzaProgetto`), e ogni salvataggio.
+  const progetti = new Map(registro.progetti.map((p) => [p.id, p]))
+  for (const progetto of registro.progetti) {
+    const corso = corsi.get(progetto.corsoId)
+    if (!corso) {
+      problemi.push(t.progettoSenzaCorso(progetto.titolo))
+      continue
+    }
+    const appese = rimandiA(progetto, new Set(
+      rimandiAlleLezioni(progetto).filter((id) => !lezioni.has(id)),
+    ))
+    if (appese > 0) problemi.push(t.progettoLezioniSparite(progetto.titolo, appese))
+    const classe = classi.get(corso.classeId)
+    if (!classe) continue
+    const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
+    const estranei = [...allieviNominati(progetto)].filter((id) => !iscritti.has(id)).length
+    if (estranei > 0) problemi.push(t.progettoEstranei(progetto.titolo, estranei, classe.nome))
+  }
+  // Tappe e momenti che citano un progetto sparito o di un altro corso.
+  for (const piano of registro.piani) {
+    const rotte = piano.attivita.filter((a) => {
+      if (!a.progettoId) return false
+      const progetto = progetti.get(a.progettoId)
+      return !progetto || (piano.corsoId !== null && progetto.corsoId !== piano.corsoId)
+    }).length
+    if (rotte > 0) {
+      const nome = nomePiano(piano, {
+        corso: corsi.get(piano.corsoId ?? '')?.titolo ?? null,
+        lezioni: registro.lezioni,
+      })
+      problemi.push(t.tappeProgettoRotto(nome, rotte))
+    }
+    // Una tappa senza la sua fase cade nella prima: si legge, ma non è quel che è scritto.
+    const senzaFase = piano.attivita.filter((a) => {
+      const progetto = a.progettoId ? progetti.get(a.progettoId) : undefined
+      return progetto !== undefined && !progetto.fasi.some((f) => f.id === a.faseProgettoId)
+    }).length
+    if (senzaFase > 0) {
+      const nome = nomePiano(piano, {
+        corso: corsi.get(piano.corsoId ?? '')?.titolo ?? null,
+        lezioni: registro.lezioni,
+      })
+      problemi.push(t.tappeFaseSparita(nome, senzaFase))
+    }
+  }
+  for (const momento of registro.valutazioni) {
+    if (!momento.progettoId) continue
+    const progetto = progetti.get(momento.progettoId)
+    if (!progetto || progetto.corsoId !== momento.corsoId) {
+      problemi.push(t.momentoProgettoRotto(momento.titolo))
     }
   }
 

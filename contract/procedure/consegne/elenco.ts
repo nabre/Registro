@@ -70,7 +70,7 @@ export const procedura = definisci({
   }),
   uscita: oggetto({
     giorno: testo({ aiuto: () => t().giornoUscita }),
-    cerca: CAMPI_CERCA.cerca,
+    ...CAMPI_CERCA,
     // Le soglie tornano come applicate: la busta dice se il resto è stato tagliato.
     arretrateDaAlmeno: nullabile(numero({ aiuto: () => t().arretrateDaAlmenoUscita })),
     scadeEntro: nullabile(numero({ aiuto: () => t().scadeEntroUscita })),
@@ -129,7 +129,7 @@ export const procedura = definisci({
     const corsi = corsiDellAnno(r, r.annoCorrenteId)
     const ammessi = new Map(corsi.map((corso) => [corso.id, corso]))
 
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
 
     const scelte = r.consegne
       .filter((consegna) => ammessi.has(consegna.corsoId))
@@ -200,6 +200,8 @@ export const procedura = definisci({
     return {
       giorno,
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       arretrateDaAlmeno: ingresso.arretrateDaAlmeno ?? null,
       scadeEntro: ingresso.scadeEntro ?? null,
       quante,

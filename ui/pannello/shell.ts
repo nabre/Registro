@@ -32,6 +32,7 @@ import { vistaImpostazioni } from './views/settings.js'
 import { vistaLezione } from './views/lesson.js'
 import { vistaMappa } from './views/map.js'
 import { vistaPiani } from './views/plans.js'
+import { vistaProgetti } from './views/projects.js'
 import { vistaValutazioni } from './views/assessments.js'
 import { vistaCheck } from './views/check.js'
 
@@ -61,6 +62,8 @@ function vistaCorrente (): Figlio {
       return vistaDocenteClasse()
     case 'piani':
       return vistaPiani()
+    case 'progetti':
+      return vistaProgetti()
     case 'valutazioni':
       return vistaValutazioni()
     case 'check':
@@ -180,6 +183,7 @@ export function mostraFiloDiLavoro (acceso: boolean): void {
 const SOGGETTO_DA_DENTRO: ReadonlySet<PaginaId> = new Set<PaginaId>([
   'pagina.corsi',
   'pagina.corso.piani',
+  'pagina.corso.progetti',
   'pagina.corso.valutazioni',
   'pagina.corso.check',
   'pagina.classi',

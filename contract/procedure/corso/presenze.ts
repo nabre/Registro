@@ -2,7 +2,6 @@ import { allieviAttivi, ordinaAllievi } from '../../../core/dominio/calculations
 import {
   annoDellaClasse,
   classeDelCorsoId,
-  corsoPerId,
   materiaDelCorso,
   registroDelCorso,
 } from '../../../core/dominio/courses.js'
@@ -19,6 +18,7 @@ import {
   periodoScelto,
   SCHEDA_PERIODO,
 } from '../common/filters.js'
+import { esigiCorso } from '../common/register.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './corso.testi.js'
 
@@ -178,8 +178,7 @@ export const procedura = definisci({
   },
   esegui: (ambito, ingresso) => {
     const r = ambito.contesto.registro
-    const corso = corsoPerId(r, ingresso.corsoId)
-    if (!corso) throw errore.nonTrovato('corso')
+    const corso = esigiCorso(ambito, ingresso.corsoId)
     const classe = classeDelCorsoId(r, corso.id)
     if (!classe) throw errore.rifiuta(t().senzaClasse)
     const anno = annoDellaClasse(r, classe)

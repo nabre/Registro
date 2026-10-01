@@ -12,8 +12,8 @@
 //
 // Ctrl+S non consegnava il campo in cui si stava scrivendo: i campi salvano su
 // `change`, cioè uscendo, e `stato.salva` partiva senza quel testo dicendo
-// «Tutto salvato.». Prima della correzione nessun `piano.salva` con la nota
-// precedeva lo `stato.salva`.
+// «Tutto salvato.». Prima della correzione nessun `piano.salva` con i
+// prerequisiti precedeva lo `stato.salva`.
 //
 // Cambiando documento, la mira dello schermo per la classe partiva a ogni passo
 // dell'arrivo dei dati: la prima portava il registro nuovo con il corso e l'ora
@@ -32,7 +32,7 @@ const PREPARA = `() => {
   const tappa = (id, titolo) => ({ id, titolo, tipo: 'spiegazione', durataUd: 1, descrizione: '',
     materiali: '', raggruppamento: 'plenaria', risorse: [] })
   const piano = { id: 'piano-prova', corsoId: corso.id, obiettivi: ['Le frazioni'], prerequisiti: '',
-    attivita: [tappa('t1', 'Apertura'), tappa('t2', 'Esercizi')], risorse: [], note: '', tag: [],
+    attivita: [tappa('t1', 'Apertura'), tappa('t2', 'Esercizi')], risorse: [], tag: [],
     creatoIl: '2026-09-01T08:00:00.000Z', aggiornatoIl: '2026-09-01T08:00:00.000Z' }
   const lezioni = r.lezioni.map((l) => l.corsoId === corso.id ? { ...l, pianoId: piano.id } : l)
   prova.vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: piano.id } },
@@ -72,22 +72,22 @@ test('modifiche vecchie', async ({ browser }) => {
 
   // E quel che salva adesso parte dalla scaletta nuova, con la tappa di
   // altrove dentro.
-  const note = page.locator('.piano-editor textarea[name="note"]')
+  const prerequisiti = page.locator('.piano-editor textarea[name="prerequisiti"]')
   await valuta(page, 'richieste.length = 0')
-  await note.fill('portare i fogli quadrettati')
-  await valutaSu(note, '(el) => el.blur()')
+  await prerequisiti.fill('portare i fogli quadrettati')
+  await valutaSu(prerequisiti, '(el) => el.blur()')
   const salvato = await valuta<{ attivita: { id: string }[] } | null>(
     page,
     "richieste.filter(m=>m.azione?.tipo==='piano.salva').map(m=>m.azione.piano).at(-1) ?? null",
   )
-  expect(salvato, 'uscire dalla nota non ha salvato il piano').toBeTruthy()
+  expect(salvato, 'uscire dai prerequisiti non ha salvato il piano').toBeTruthy()
   expect(salvato?.attivita.map((a) => a.id), 'il salvataggio ha riportato indietro la scaletta')
     .toEqual(['t1', 't2', 't3'])
 
-  // Ctrl+S con il cursore ancora nella nota: prima parte il campo, poi il
+  // Ctrl+S con il cursore ancora nei prerequisiti: prima parte il campo, poi il
   // salvataggio del registro.
   await valuta(page, 'richieste.length = 0')
-  await note.focus()
+  await prerequisiti.focus()
   await page.keyboard.type(' e il righello')
   await page.keyboard.press('Control+s')
   const tipi = await valuta<(string | null)[]>(page, 'richieste.map(m=>m.azione?.tipo ?? null)')
@@ -95,14 +95,14 @@ test('modifiche vecchie', async ({ browser }) => {
   const prima = tipi.slice(0, tipi.indexOf('stato.salva'))
   expect(prima, `Ctrl+S è partito senza consegnare il campo: ${JSON.stringify(tipi)}`)
     .toContain('piano.salva')
-  const nota = await valuta<string>(
+  const scritti = await valuta<string>(
     page,
-    "richieste.filter(m=>m.azione?.tipo==='piano.salva').at(-1).azione.piano.note",
+    "richieste.filter(m=>m.azione?.tipo==='piano.salva').at(-1).azione.piano.prerequisiti",
   )
-  expect(nota, 'nota consegnata storta').toBe('portare i fogli quadrettati e il righello')
+  expect(scritti, 'prerequisiti consegnati storti').toBe('portare i fogli quadrettati e il righello')
   // E il cursore è ancora lì: si continua a scrivere.
   expect(await valuta(page, "document.activeElement?.getAttribute('name')"), 'Ctrl+S ha tolto il fuoco')
-    .toBe('note')
+    .toBe('prerequisiti')
 
   // Cambio di documento: la prima mira dopo porta solo id di B.
   const ARRIVA = `([percorso, registro]) => window.dispatchEvent(new MessageEvent('message', { data: {

@@ -39,9 +39,18 @@ SetFont "Segoe UI" 9
 
 ; ------------------------------------------------------------ le parole
 ;
-; Quattro lingue (`installerLanguages` in `electron-builder.json`): quella di
-; Windows se è fra queste, altrimenti l'italiano, il primo caricato. Una
-; `LangString` per lingua (1040 it, 1031 de, 1036 fr, 1033 en), letta con `$(nome)`.
+; Quattro lingue (`installerLanguages` in `electron-builder.json`), scelte nel
+; selettore che apre la procedura: propone quella di Windows se è fra queste,
+; altrimenti l'italiano, il primo caricato. Muta (gli aggiornamenti) il
+; selettore non compare. Una `LangString` per lingua (1040 it, 1031 de, 1036 fr,
+; 1033 en), letta con `$(nome)`.
+
+; Il selettore viene prima di ogni lingua: il titolo è il marchio e la domanda
+; è detta in tutte e quattro. Tutte le lingue anche se il code page di Windows
+; non è il loro: altrimenti su un Windows giapponese l'elenco resterebbe vuoto.
+!define MUI_LANGDLL_WINDOWTITLE "Regiklass"
+!define MUI_LANGDLL_INFO "Lingua · Sprache · Langue · Language"
+!define MUI_LANGDLL_ALLLANGUAGES
 ;
 ; L'ultimo paragrafo del benvenuto dice che cosa il registro cambia nel sistema
 ; (PATH per `regi`, apertura dei `.regi`, controllo degli aggiornamenti): lo
@@ -161,6 +170,63 @@ LangString registroAssociazioneTipo 1033 "Regiklass school year"
       WriteRegStr HKLM "Software\Classes\Regiklass" "" "$(registroAssociazioneTipo)"
     ${else}
       WriteRegStr HKCU "Software\Classes\Regiklass" "" "$(registroAssociazioneTipo)"
+    ${endIf}
+    !insertmacro registroLinguaAlRegistro
+  !macroend
+
+  ; ------------------------------------------- la lingua, dalla procedura al registro
+  ;
+  ; Chi ha scelto nel selettore una lingua diversa da quella di Windows la
+  ; ritrova nel registro al primo avvio: la si scrive in `impostazioni.json`
+  ; come `registroDocenti.aspetto.lingua` (`desktop/apparato/language.ts`).
+  ; Lasciata quella proposta, il registro resta su «sistema» e segue Windows.
+  ;
+  ; Mai sopra una scelta già fatta: solo se il file delle impostazioni non c'è
+  ; ancora, e se non c'è la cartella col nome di prima, che il registro
+  ; trasloca all'avvio solo quando la nuova manca (`system/userData.ts`). Mai
+  ; negli aggiornamenti, muti: lì `$LANGUAGE` non è una scelta.
+
+  Var registroLinguaDiWindows
+
+  ; `$LANGUAGE` prima del selettore è quella che NSIS ha ricavato da Windows.
+  !macro preInit
+    StrCpy $registroLinguaDiWindows $LANGUAGE
+  !macroend
+
+  !macro registroLinguaAlRegistro
+    ${ifNot} ${Silent}
+    ${andIfNot} ${isUpdated}
+    ${andIf} $LANGUAGE != $registroLinguaDiWindows
+      Push $0
+      Push $1
+      StrCpy $0 ""
+      ${if} $LANGUAGE == 1040
+        StrCpy $0 "it"
+      ${elseIf} $LANGUAGE == 1031
+        StrCpy $0 "de"
+      ${elseIf} $LANGUAGE == 1036
+        StrCpy $0 "fr"
+      ${elseIf} $LANGUAGE == 1033
+        StrCpy $0 "en"
+      ${endIf}
+      ; I dati sono dell'utente anche con un'installazione per tutti, come in `uninstall.nsh`.
+      SetShellVarContext current
+      ${if} $0 != ""
+      ${andIfNot} ${FileExists} "$APPDATA\${PRODUCT_NAME}\impostazioni.json"
+      ${andIfNot} ${FileExists} "$APPDATA\Regiclass\*.*"
+        CreateDirectory "$APPDATA\${PRODUCT_NAME}"
+        ClearErrors
+        FileOpen $1 "$APPDATA\${PRODUCT_NAME}\impostazioni.json" w
+        ${ifNot} ${Errors}
+          FileWrite $1 '{$\r$\n  "registroDocenti.aspetto.lingua": "$0"$\r$\n}$\r$\n'
+          FileClose $1
+        ${endIf}
+      ${endIf}
+      ${if} $installMode == "all"
+        SetShellVarContext all
+      ${endIf}
+      Pop $1
+      Pop $0
     ${endIf}
   !macroend
 !endif

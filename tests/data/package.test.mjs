@@ -13,6 +13,7 @@ import { after, describe, it } from 'node:test'
 
 import { Uri } from '../../dist-tests/environment.mjs'
 import {
+  DATI,
   ESTENSIONE,
   MANIFESTO,
   Pacchetto,
@@ -26,6 +27,35 @@ import { readFileSync } from 'node:fs'
 /** Una cartella tutta per questa prova, buttata alla fine. */
 const cartella = mkdtempSync(percorso.join(tmpdir(), 'registro-pacchetto-'))
 after(() => rmSync(cartella, { recursive: true, force: true }))
+
+/** Byte che non si comprimono, sempre gli stessi: un PDF o una foto. */
+function casuali (quanti) {
+  const byte = new Uint8Array(quanti)
+  let stato = 0x9e3779b9
+  for (let i = 0; i < quanti; i += 1) {
+    stato ^= stato << 13
+    stato ^= stato >>> 17
+    stato ^= stato << 5
+    byte[i] = stato & 0xff
+  }
+  return byte
+}
+
+/** La firma della testa locale di una voce ZIP. */
+const TESTA_LOCALE = Buffer.from([0x50, 0x4b, 0x03, 0x04])
+
+/**
+ * I nomi di tutte le teste locali nel file, anche di quelle che l'indice non
+ * nomina più: lo spazio morto lasciato accodando.
+ */
+function nomiNeiByte (byte) {
+  const nomi = []
+  for (let i = byte.indexOf(TESTA_LOCALE); i >= 0; i = byte.indexOf(TESTA_LOCALE, i + 4)) {
+    const lungo = byte.readUInt16LE(i + 26)
+    nomi.push(byte.subarray(i + 30, i + 30 + lungo).toString('utf8'))
+  }
+  return nomi.sort()
+}
 
 let contatore = 0
 /** Un documento mai usato, così ogni prova parte da un file suo. */
@@ -99,7 +129,7 @@ describe('il documento dell’anno', () => {
     assert.ok(manifesto, 'il manifesto deve stare dentro l’archivio')
     const letto = JSON.parse(new TextDecoder().decode(manifesto.dati))
     assert.equal(letto.formato, 'registro-docenti/anno')
-    assert.equal(letto.versione, 1)
+    assert.equal(letto.versione, 2)
     // Il manifesto non è fra le voci: è la carta d'identità dell'archivio.
     assert.deepEqual(pacchetto.nomi(), ['classi.json'])
   })
@@ -159,6 +189,149 @@ describe('il documento dell’anno', () => {
     writeFileSync(file.fsPath, scriviZip(voci))
 
     await assert.rejects(() => Pacchetto.apri(file), /versione più recente/)
+  })
+
+  it('un contenitore 1, con le collezioni in radice, si apre con le collezioni sotto data/', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    const testo = (t) => new TextEncoder().encode(t)
+    writeFileSync(file.fsPath, scriviZip([
+      { nome: MANIFESTO, dati: testo(JSON.stringify({ formato: 'registro-docenti/anno', versione: 1 })) },
+      { nome: 'registro.json', dati: testo('{"versione":3}') },
+      { nome: 'classi.json', dati: testo('[{"nome":"I MEC A"}]') },
+      { nome: 'classi.rotto-2026-01-01.json', dati: testo('[{') },
+      { nome: `${STORICO}/classi.2026-01-01-08-00.json`, dati: testo('[]') },
+      { nome: 'archivio/note.json', dati: testo('{}') },
+      // Grosso e incomprimibile: la modifica sotto è poca cosa, e accodare
+      // converrebbe. Solo il contenitore vecchio impone di rifare.
+      { nome: 'archivio/x.pdf', dati: casuali(400 * 1024) },
+    ]))
+    const originale = readFileSync(file.fsPath)
+
+    const pacchetto = await Pacchetto.apri(file)
+    assert.equal(pacchetto.contenitoreLetto, 1)
+    assert.deepEqual(pacchetto.nomi(), [
+      `${STORICO}/classi.2026-01-01-08-00.json`,
+      'archivio/note.json',
+      'archivio/x.pdf',
+      `${DATI}/classi.json`,
+      `${DATI}/classi.rotto-2026-01-01.json`,
+      `${DATI}/registro.json`,
+    ])
+    assert.equal(pacchetto.testo(`${DATI}/classi.json`), '[{"nome":"I MEC A"}]')
+    // Aprire non scrive: il documento si rifà alla prima modifica.
+    assert.equal(pacchetto.sporco, false)
+    assert.equal(await pacchetto.salva(), false)
+    assert.deepEqual(readFileSync(file.fsPath), originale)
+
+    // La copia di prima va nello storico di sempre, accanto a quelle vecchie.
+    pacchetto.conserva(`${DATI}/classi.json`, 10)
+    pacchetto.scrivi(`${DATI}/classi.json`, '[]')
+    assert.equal(pacchetto.copieDi('classi').length, 2)
+    await pacchetto.salva()
+
+    // Riscritto intero: nessuna voce in radice oltre al manifesto, e nessuno
+    // spazio morto lasciato dalle voci di prima.
+    const byte = readFileSync(file.fsPath)
+    const voci = leggiZip(byte)
+    assert.deepEqual(voci.filter((v) => !v.nome.includes('/')).map((v) => v.nome), [MANIFESTO])
+    assert.equal(pacchetto.sprecato, 0)
+    // Nemmeno fra i byte morti: accodando, le voci in radice resterebbero lì.
+    assert.deepEqual(nomiNeiByte(byte).filter((nome) => !nome.includes('/')), [MANIFESTO])
+    assert.ok(byte.length < originale.length + 4096, `${byte.length} contro ${originale.length}`)
+    const manifesto = voci.find((v) => v.nome === MANIFESTO)
+    assert.equal(JSON.parse(new TextDecoder().decode(manifesto.dati)).versione, 2)
+
+    const riaperto = await Pacchetto.apri(file)
+    assert.equal(riaperto.testo(`${DATI}/classi.json`), '[]')
+    assert.equal(riaperto.testo(`${DATI}/registro.json`), '{"versione":3}')
+    assert.equal(riaperto.testo('archivio/note.json'), '{}')
+  })
+
+  it('senza manifesto vale come contenitore 1: le collezioni vanno sotto data/', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    writeFileSync(file.fsPath, scriviZip([
+      { nome: 'classi.json', dati: new TextEncoder().encode('[1]') },
+    ]))
+
+    const pacchetto = await Pacchetto.apri(file)
+    assert.equal(pacchetto.contenitoreLetto, 1)
+    assert.deepEqual(pacchetto.nomi(), [`${DATI}/classi.json`])
+    assert.equal(pacchetto.testo(`${DATI}/classi.json`), '[1]')
+  })
+
+  it('un manifesto illeggibile vale come assente: le collezioni si leggono lo stesso, sotto data/', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    const testo = (t) => new TextEncoder().encode(t)
+    writeFileSync(file.fsPath, scriviZip([
+      { nome: MANIFESTO, dati: testo('{"formato": rotto') },
+      { nome: 'classi.json', dati: testo('[1]') },
+    ]))
+
+    const pacchetto = await Pacchetto.apri(file)
+    assert.equal(pacchetto.contenitoreLetto, 1)
+    assert.deepEqual(pacchetto.nomi(), [`${DATI}/classi.json`])
+    assert.equal(pacchetto.testo(`${DATI}/classi.json`), '[1]')
+  })
+
+  it('una voce sia in radice sia in data/: vale quella in data/, l’altra si mette da parte', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    const testo = (t) => new TextEncoder().encode(t)
+    writeFileSync(file.fsPath, scriviZip([
+      { nome: MANIFESTO, dati: testo(JSON.stringify({ formato: 'registro-docenti/anno', versione: 1 })) },
+      { nome: 'classi.json', dati: testo('["radice"]') },
+      { nome: `${DATI}/classi.json`, dati: testo('["data"]') },
+    ]))
+
+    const pacchetto = await Pacchetto.apri(file)
+    assert.equal(pacchetto.testo(`${DATI}/classi.json`), '["data"]')
+    const messe = pacchetto.nomi().filter((nome) => nome.startsWith(`${DATI}/classi.rotto-`))
+    assert.equal(messe.length, 1, pacchetto.nomi().join(', '))
+    assert.match(messe[0], /\.json$/)
+    assert.equal(pacchetto.testo(messe[0]), '["radice"]')
+    assert.deepEqual(pacchetto.nomi().filter((nome) => !nome.includes('/')), [])
+  })
+
+  it('una voce rovinata di un contenitore 1 si sposta sotto data/ senza aprirla', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    const testo = (t) => new TextEncoder().encode(t)
+    const byte = scriviZip([
+      { nome: MANIFESTO, dati: testo(JSON.stringify({ formato: 'registro-docenti/anno', versione: 1 })) },
+      { nome: 'classi.json', dati: testo('[{"nome":"I MEC A"}]') },
+      { nome: 'registro.json', dati: testo('{"versione":3}') },
+    ])
+    // Il CRC di `classi.json` nell'indice, guasto come da un settore rovinato.
+    const dove = byte.lastIndexOf(Buffer.from('classi.json')) - 46
+    assert.equal(byte.readUInt32LE(dove), 0x02014b50)
+    byte.writeUInt32LE((byte.readUInt32LE(dove + 16) ^ 0xffffffff) >>> 0, dove + 16)
+    writeFileSync(file.fsPath, byte)
+
+    const pacchetto = await Pacchetto.apri(file)
+    assert.deepEqual(pacchetto.nomi(), [`${DATI}/classi.json`, `${DATI}/registro.json`])
+    assert.throws(() => pacchetto.testo(`${DATI}/classi.json`), /controllo non torna/)
+
+    // Riscritto intero, il blocco resta com'era: rotto, ma non perso.
+    pacchetto.scrivi(`${DATI}/registro.json`, '{"versione":4}')
+    await pacchetto.salva()
+    const riaperto = await Pacchetto.apri(file)
+    assert.equal(riaperto.contenitoreLetto, 2)
+    assert.throws(() => riaperto.testo(`${DATI}/classi.json`), /controllo non torna/)
+  })
+
+  it('un contenitore 2 non sposta niente: quel che sta in radice resta lì', async () => {
+    const file = documento()
+    const primo = await Pacchetto.apri(file)
+    primo.scrivi(`${DATI}/classi.json`, '[1]')
+    primo.scrivi('altro.json', '[2]')
+    await primo.salva()
+
+    const secondo = await Pacchetto.apri(file)
+    assert.deepEqual(secondo.nomi(), ['altro.json', `${DATI}/classi.json`])
+    assert.equal(secondo.testo(`${DATI}/classi.json`), '[1]')
   })
 
   it('riconosce i propri file dal nome', () => {

@@ -13,6 +13,9 @@ import {
   creaLezione,
   creaRicorrenza,
   datiAllievo,
+  creaConsegna,
+  datiCorso,
+  datiFascicolo,
   datiFotoClasse,
   datiLezione,
   datiMomento,
@@ -531,6 +534,15 @@ describe('i recuperi sul foglio che si consegna', () => {
       ['Rossi Anna'],
     )
   })
+
+  it('la scheda del corso non mette fra le pendenze un recupero dispensato', () => {
+    // Stessa regola del todo e del foglio dei voti: dispensato vuol dire chiuso.
+    const pendenzeDi = (registro) => datiCorso(registro, corso(registro), null)
+      .tabelle.pendenze.righe.filter((r) => r[2] === 'Bianchi Luca')
+
+    assert.equal(pendenzeDi(conRecupero({ previstoIl: '2026-10-20', aggiornatoIl: 'x' })).length, 1)
+    assert.equal(pendenzeDi(conRecupero({ dispensato: true, aggiornatoIl: 'x' })).length, 0)
+  })
 })
 
 describe('la matrice di esecuzione e riconsegna', () => {
@@ -1026,5 +1038,118 @@ describe('la scheda delle supplenze', () => {
 
     assert.equal(registro.lezioni[0].supplenza, true)
     assert.equal('supplenza' in registro.lezioni[1], false)
+  })
+})
+
+describe('le consegne e il check sui fogli stampati', () => {
+  // Legate a un'ora, data e scadenza seguono l'ora: il campo salvato resta
+  // `null` (o il giorno di prima) e il foglio non lo deve leggere.
+
+  /** Due ore, e una consegna data nella prima per la seconda. */
+  function conConsegna (extra = {}) {
+    const prima = ora('2026-10-06', [])
+    const seconda = ora('2026-10-13', [])
+    const registro = registroCon([prima, seconda])
+    registro.consegne = [{
+      ...creaConsegna('cor-1', 'Esercizi 4–7', prima.data, prima.id),
+      scadenzaLezioneId: seconda.id,
+      scadenza: null,
+      ...extra,
+    }]
+    return registro
+  }
+
+  const pendenzeCorso = (registro) => datiCorso(registro, corso(registro), null)
+    .tabelle.pendenze.righe.filter((r) => r[1] === 'Esercizi 4–7')
+  const pendenzeFascicolo = (registro) => datiFascicolo(registro, registro.classi[0])
+    .tabelle.pendenze.righe.filter((r) => r[1] === 'Esercizi 4–7')
+
+  it('il «per quando» legato a un’ora è il giorno di quell’ora, in ogni foglio', () => {
+    const registro = conConsegna()
+    const lezione = registro.lezioni[0]
+
+    assert.equal(datiLezione(registro, lezione, registro.consegne).tabelle.consegne.righe[0][3], '13.10.2026')
+    assert.equal(pendenzeCorso(registro)[0][3], '13.10.2026')
+    assert.equal(pendenzeFascicolo(registro)[0][3], '13.10.2026')
+    const [classe] = registro.classi
+    const scheda = datiAllievo(registro, classe, classe.allievi[0], null, corso(registro))
+    // La scheda di un corso solo non ha la colonna del corso.
+    assert.equal(scheda.tabelle.consegne.righe[0][2], '13.10.2026')
+  })
+
+  it('una consegna di un’ora spostata non resta nel diario del giorno vecchio', () => {
+    // Il giorno salvato è quello di prima dello spostamento; l'ora dice il vero.
+    const vecchia = ora('2026-09-29', [])
+    const registro = conConsegna({ data: '2026-09-29' })
+    registro.lezioni.unshift(vecchia)
+
+    const diario = datiCorso(registro, corso(registro), null).tabelle.diario.righe
+    assert.deepEqual(diario.map((r) => r[5]), ['', 'Esercizi 4–7', 'Esercizi 4–7'])
+  })
+
+  it('la supplenza tiene il «per quando» anche se scade in un’ora non sua', () => {
+    const registro = conConsegna()
+    registro.lezioni[0].supplenza = true
+    const righe = datiSupplenze(registro, corso(registro), null)
+      .tabelle.pendenze.righe.filter((r) => r[1] === 'Esercizi 4–7')
+    assert.equal(righe[0][3], '13.10.2026')
+  })
+
+  it('i conti guardano chi frequenta, non le spunte di estranei né i ritirati', () => {
+    const registro = conConsegna({ fatte: [{ chi: 'al-2', fattaIl: '2026-10-07T08:00:00.000Z' }] })
+    registro.classi[0].allievi[1].attivo = false
+
+    assert.equal(pendenzeCorso(registro)[0][4], '0/1')
+    assert.equal(pendenzeFascicolo(registro)[0][4], '0/1')
+
+    // Fatta da chi frequenta: non è più una pendenza.
+    registro.consegne[0].fatte.push({ chi: 'al-1', fattaIl: '2026-10-07T08:00:00.000Z' })
+    assert.equal(pendenzeCorso(registro).length, 0)
+    assert.equal(pendenzeFascicolo(registro).length, 0)
+  })
+
+  it('a chi va: i nomi scelti, il docente, o tutta la classe; la stessa parola nei due fogli', () => {
+    const scelti = conConsegna({ a: 'allievi', allieviIds: ['al-2'] })
+    assert.equal(pendenzeCorso(scelti)[0][2], 'Bianchi Luca')
+    assert.equal(pendenzeFascicolo(scelti)[0][2], 'Bianchi Luca')
+    assert.equal(pendenzeCorso(scelti)[0][4], '0/1')
+
+    const docente = conConsegna({ a: 'docente' })
+    assert.equal(pendenzeCorso(docente)[0][2], 'docente')
+    assert.equal(pendenzeFascicolo(docente)[0][4], '0/1')
+
+    const classe = conConsegna()
+    assert.equal(pendenzeCorso(classe)[0][2], 'tutta la classe')
+    assert.equal(pendenzeFascicolo(classe)[0][2], 'tutta la classe')
+  })
+
+  it('una richiesta di documento compare una volta sola fra le pendenze del fascicolo', () => {
+    const registro = conConsegna({ documento: 'modulo' })
+    const dati = datiFascicolo(registro, registro.classi[0])
+
+    assert.equal(pendenzeFascicolo(registro).length, 1)
+    assert.deepEqual(dati.tabelle.richiesteDocumenti.righe[0].slice(2, 4), ['13.10.2026', '0/2'])
+  })
+
+  it('la spunta del check data in un’ora spostata porta il giorno dell’ora', () => {
+    const registro = conConsegna()
+    const seconda = registro.lezioni[1]
+    registro.check = [{
+      id: 'chk-1',
+      corsoId: 'cor-1',
+      colonne: [{ id: 'col-1', titolo: 'Firma' }],
+      // Salvata il primo del mese, poi l'ora si è spostata al 13.
+      spunte: [{ allievoId: 'al-1', colonnaId: 'col-1', lezioneId: seconda.id, data: '2026-10-01', fattaIl: '2026-10-01T08:00:00.000Z' }],
+      creatoIl: '2026-10-01T08:00:00.000Z',
+      aggiornatoIl: '2026-10-01T08:00:00.000Z',
+    }]
+
+    const voti = datiValutazioni(registro, corso(registro), null).tabelle.check.righe
+    assert.equal(voti.find((r) => r[0] === 'Rossi Anna')[1], '✓ 13.10.2026')
+    const fascicolo = datiFascicolo(registro, registro.classi[0]).tabelle.check.righe
+    assert.equal(fascicolo.find((r) => r[2] === 'Rossi Anna')[3], '13.10.2026')
+    const [classe] = registro.classi
+    const scheda = datiAllievo(registro, classe, classe.allievi[0], null, corso(registro))
+    assert.equal(scheda.tabelle.check.righe[0][1], '13.10.2026')
   })
 })

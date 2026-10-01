@@ -197,7 +197,7 @@ primo; un oggetto li raccoglie tutti.
 
 ## 5. Le procedure di oggi
 
-**Quarantuno letture, e per il resto scritture.** Le scritture prendono in
+**Quarantadue letture, e per il resto scritture.** Le scritture prendono in
 carico tutte le azioni del protocollo. Il conto lo stampa `npm run procedures`;
 `tests/api/coverage.test.mjs` confronta l'unione `Azione` con le procedure.
 
@@ -210,7 +210,7 @@ contract/procedure/
 ├── common/              quel che più aree si dividono
 │   ├── filters.ts       filtri delle letture: periodo, ricerca, pagina, zona, soglie
 │   ├── plans.ts         esigiPiano, esigiLezione
-│   ├── register.ts      esigiAnno, esigiMateria, esigiCorso, esigiPersona, esigiClasse
+│   ├── register.ts      esigiAnno, esigiMateria, esigiCorso, esigiPersona, esigiPersonaDellaClasse, esigiClasse
 │   ├── reports.ts       i generi di rapporto
 │   ├── rollCall.ts      STATI_APPELLO
 │   └── views.ts         le viste di `vista.apri`
@@ -228,7 +228,7 @@ contract/procedure/
   file nel suo indice, ogni cartella fino a `contract/registry.ts`, nessuna azione
   inesistente, `resources/tools.json` aggiornato.
 
-### Le quarantuno aree
+### Le quarantadue aree
 
 L'area è il primo segmento del nome.
 
@@ -237,6 +237,7 @@ L'area è il primo segmento del nome.
 | `smistamento` | scansioni in quarantena: caricarle, dividerle, attribuirle, leggerle, confermarle |
 | `consegne` | richieste di consegna, spunte, file raccolti, firme di ritiro |
 | `check` | lista di controllo di un corso: colonne, spunte, chi manca |
+| `progetti` | progetti di un corso (ADR-54): testata, compiti con inizio, proroga e spunta per persona, giudizi, matrice a livelli |
 | `ore` | l'ora di lezione: appello, comportamento, stato, testi, osservazioni |
 | `classe` | docente di classe: recapiti, comunicazioni, periodi di assenza e fogli |
 | `valutazioni` | momenti, voti, riconsegne, recuperi, allegati |
@@ -261,7 +262,7 @@ L'area è il primo segmento del nome.
 
 L'elenco per nome: `regi elenco`; in JSON con gli ingressi: `regi catalogo`.
 
-### Le quarantuno letture
+### Le quarantadue letture
 
 Tre regole per tutte (ADR-29): nessuna scrittura né effetto collaterale; il
 conto già fatto dal dominio, mai dati grezzi; forma piatta dichiarata, non i
@@ -283,6 +284,7 @@ tipi interni.
 | `llm.catalogo` | `cerca?` | modelli consigliati e depositi trovati su Hugging Face |
 | `llm.file` | `deposito`, `taglio` | i `.gguf` del deposito, quale conviene, il proiettore; sito muto = elenco vuoto con `motivo` |
 | `check.leggi` | `corsoId` | colonne con `fatte`/`totale` e chi manca; per persona, giorno e ora di ogni spunta |
+| `progetti.leggi` | `corsoId?`, `progettoId?`, `oggi?` | per progetto: testata, criteri e livelli, lezioni (dai piani) e momenti che ci lavorano, compiti col punto di ogni persona (`non-iniziato`, `in-corso`, `fatto`, `scaduto`) e la sua fine, giudizi, celle della matrice col giorno della loro ora |
 | `calendario.confronta` | `calendarioId?`, `regole?`, `dal?`, `al?` | `voci` (`combacia`, `allineare`, `annullare`, `nuova`, con fasce e differenze), `senzaCorso`, `assenti` (solo segnalate) |
 | `calendario.eventi` | `calendarioId?`, `dal?`, `al?` | `eventi` dei calendari del documento (ricorrenze aperte, ora locale), `scartati`, `copre` |
 | `aggiornamenti.stato` | — | versione in uso, `fase` (`fermo`, `controllo`, `aggiornato`, `disponibile`, `scarico`, `pronto`, `errore`), versione trovata e note, byte scesi, `supportato` e `motivo` |
@@ -375,7 +377,7 @@ riscrive.
 | --- | --- | --- | --- |
 | periodo | `dal?`, `al?` | `dal`, `al` sempre pieni | `ore.elenco`, `valutazioni.elenco`, `persone.argomenti` |
 | periodi | `dal?`, `al?`, `semestreId?` | `dal`, `al`, `periodi`, e le cifre per semestre in ogni riga | `persone.assenze`, `persone.medie`, `corso.presenze`, `persone.scheda` |
-| ricerca | `cerca?` | `cerca` applicato davvero; `cercaIgnorato` in `persone.assenze` e `persone.medie` | le letture che elencano, meno `persone.cerca` (ha la sua) |
+| ricerca | `cerca?` | `cerca` applicato davvero; `cercaIgnorato` vero se il testo non aveva niente su cui filtrare | le letture che elencano, meno `persone.cerca` (ha la sua) e `llm.catalogo` (cerca fuori) |
 | pagina | `da?`, `quanti?` | `quante`, `da`, `ancora`, `troncato` | le letture che elencano, meno `classi.elenco` e `corsi.elenco`, più `persone.cerca` |
 | presenza di un valore | `ha?`, `senza?` (nomi di campo) | — | «chi non ha l'e-mail», «ore senza argomento» |
 | zona | `comune?`, `cap?` | — | «chi abita a Lugano», «chi sta nel 69…» |

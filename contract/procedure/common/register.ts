@@ -60,6 +60,22 @@ export function esigiPersona (
 }
 
 /**
+ * La classe c'è e quella persona è dentro: i fogli e la foto di uno non vanno
+ * nella riga di un altro. Due «non trovato» distinti, classe sparita o
+ * identificativo sbagliato, ciascuno col suo rimedio.
+ */
+export function esigiPersonaDellaClasse (
+  ambito: Ambito,
+  classeId: string,
+  allievoId: string,
+): { classe: Classe, allievo: Allievo } {
+  const classe = esigiClasse(ambito, classeId)
+  const allievo = classe.allievi.find((a) => a.id === allievoId)
+  if (!allievo) throw errore.nonTrovato('pif', testi().rimedioPersona)
+  return { classe, allievo }
+}
+
+/**
  * La classe, o il motivo per cui non c'è: senza, un `classeId` inventato
  * passerebbe e tornerebbe «fatto». `suggerimento` come in `esigiCorso`.
  */

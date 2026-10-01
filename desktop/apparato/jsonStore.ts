@@ -4,7 +4,7 @@
 // illeggibile (EBUSY, EACCES…) → predefiniti ma non si scrive, e si riprova dopo.
 // Scrittura atomica: file temporaneo, poi `rename`.
 
-import { closeSync, fsyncSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { closeSync, fsyncSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 
 /** Come è andata la lettura: il caso serve a decidere se si può scrivere. */
 type EsitoLettura =
@@ -64,12 +64,23 @@ export function scriviJson (percorso: string, valore: unknown): void {
   // `fsync` prima della rinomina: altrimenti un'interruzione può lasciare un file vuoto.
   const file = openSync(temporaneo, 'w')
   try {
-    writeFileSync(file, `${JSON.stringify(valore, null, 2)}\n`, 'utf8')
-    fsyncSync(file)
-  } finally {
-    closeSync(file)
+    try {
+      writeFileSync(file, `${JSON.stringify(valore, null, 2)}\n`, 'utf8')
+      fsyncSync(file)
+    } finally {
+      closeSync(file)
+    }
+    rinominaConPazienzaSync(temporaneo, percorso)
+  } catch (errore) {
+    // Il temporaneo di una scrittura fallita non serve a nessuno: resterebbe
+    // accanto al file vero a ogni tentativo, e OneDrive lo sincronizzerebbe.
+    try {
+      rmSync(temporaneo, { force: true })
+    } catch {
+      // Bloccato anche lui: conta l'errore della scrittura, non questo.
+    }
+    throw errore
   }
-  rinominaConPazienzaSync(temporaneo, percorso)
 }
 
 /** Mette da parte un file non JSON come `.rotto`; se non riesce, pazienza. */

@@ -10,6 +10,7 @@ import { coloreValido } from './lists.js'
 import { confrontaNomi } from './text.js'
 import { Uno } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
+import { lezioneNeiProgetti } from './projects.js'
 import type {
   AnnoScolastico,
   Classe,
@@ -129,6 +130,23 @@ export function corsiDellAnno (registro: Registro, annoId: string | null): Corso
 }
 
 /** I corsi che usano una materia: serve prima di cancellarla o di fonderla. */
+/** Per che cosa si raggruppano i corsi in un elenco: il titoletto, l'altro nome sotto. */
+export type RaggruppamentoCorsi = 'materia' | 'classe'
+
+/**
+ * Materia → classe o classe → materia: vince la chiave che fa meno gruppi,
+ * così l'elenco ha meno titoletti e più voci sotto ciascuno (tre materie in
+ * sei classi si leggono meglio per materia). A pari gruppi, per materia: chi
+ * insegna pensa prima a che cosa insegna.
+ */
+export function raggruppamentoDeiCorsi (
+  corsi: readonly Pick<Corso, 'classeId' | 'materiaId'>[],
+): RaggruppamentoCorsi {
+  const materie = new Set(corsi.map((c) => c.materiaId)).size
+  const classi = new Set(corsi.map((c) => c.classeId)).size
+  return materie <= classi ? 'materia' : 'classe'
+}
+
 export function corsiDellaMateria (registro: Registro, materiaId: string): Corso[] {
   return registro.corsi.filter((c) => c.materiaId === materiaId)
 }
@@ -157,7 +175,8 @@ export function lezioneCompilata (registro: Registro, lezione: Lezione): boolean
     lezione.avanzamento.some((a) => a.stato !== 'da-fare' || Boolean(a.nota?.trim())) ||
     registro.valutazioni.some((v) => v.lezioneId === id) ||
     registro.consegne.some((c) => c.dataLezioneId === id) ||
-    registro.check.some((lista) => lista.spunte.some((s) => s.lezioneId === id))
+    registro.check.some((lista) => lista.spunte.some((s) => s.lezioneId === id)) ||
+    lezioneNeiProgetti(registro, id)
   )
 }
 

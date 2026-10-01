@@ -11,7 +11,7 @@ export const procedura = scrittura({
   idempotente: true,
   collezioni: [
     'classi', 'fascicoli', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check',
-    'smistamenti',
+    'progetti', 'smistamenti',
   ],
   ingresso: oggetto({ classeId: identificatore() }),
   esegui: (ambito, ingresso) => {

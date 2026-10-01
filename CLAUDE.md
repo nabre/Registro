@@ -19,7 +19,7 @@ nomi dei file sono in inglese (ADR-53).
 | Comando | Scopo |
 | --- | --- |
 | `npm ci` | Installa esattamente le dipendenze del lockfile; richiede Node.js 24. |
-| `npm run dev` | Avvia Electron («Regiklass-dev», bundle in `dist-dev/`) con build in ascolto e ricarica; convive con `npm run start`. |
+| `npm run dev` | Avvia Electron («Regiklass-dev», bundle in `dist-dev/`) con build in ascolto e ricarica; Ctrl+Shift+F12 apre le opzioni di sviluppo; convive con `npm run start`. |
 | `npm run build` | Compila una volta in `dist/`. |
 | `npm run typecheck` | Controlla i tipi del TypeScript e, via JSDoc, di `cli/` e `tools/`. |
 | `npm run lint` | Esegue ESLint; i warning `max-len` non sono errori. |

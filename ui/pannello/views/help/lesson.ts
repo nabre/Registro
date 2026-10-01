@@ -311,7 +311,7 @@ const SCHEDA_ANNOTAZIONI = disegno(
   bollino(630, 170, 4),
 )
 
-/** Una tappa della scaletta nell'editor del piano, con il suo filo del tempo. */
+/** Una tappa della scaletta nell'editor del piano, largo quanto la pagina, con il suo filo del tempo. */
 function tappa (
   y: number,
   numero: number,
@@ -322,73 +322,92 @@ function tappa (
   quota: number,
 ): string {
   return disegno(
-    riquadro(244, y, 374, 26, { raggio: 4 }),
-    testo(254, y + 17, String(numero), { corpo: 'piccolo', tono: 'quieto' }),
-    testo(270, y + 17, titolo, { corpo: 'piccolo', forte: true }),
-    pastiglia(440, y + 4, tipo, tono),
+    riquadro(22, y, 596, 26, { raggio: 4 }),
+    testo(32, y + 17, String(numero), { corpo: 'piccolo', tono: 'quieto' }),
+    testo(48, y + 17, titolo, { corpo: 'piccolo', forte: true }),
+    pastiglia(380, y + 4, tipo, tono),
     testo(608, y + 17, minuti, { corpo: 'piccolo', ancora: 'fine' }),
-    riquadro(246, y + 22, 370 * quota, 3, { tono: 'accento', raggio: 1 }),
+    riquadro(24, y + 22, 592 * quota, 3, { tono: 'accento', raggio: 1 }),
   )
 }
 
-/** La pagina Piani lezione: l'elenco delle ore a sinistra, l'editor a destra. */
+/** Una freccia del navigatore dei piani: un tasto quadrato. */
+function frecciaNavigatore (x: number, verso: 'sinistra' | 'destra'): string {
+  return disegno(
+    riquadro(x, 17, 26, 24, { tono: 'quieto', raggio: 4 }),
+    simbolo(verso, x + 5, 21, 16),
+  )
+}
+
+/** La pagina Piani lezione: il navigatore in cima, l'editor largo quanto la pagina. */
 const PAGINA_PIANI = disegno(
-  riquadro(10, 10, 210, 280),
-  testo(22, 30, T.piani.scritte.materia, { forte: true }),
-  testo(208, 30, T.piani.scritte.ore, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
-  riquadro(22, 40, 186, 20, { tono: 'quieto', raggio: 4 }),
-  testo(30, 54, T.piani.scritte.cerca, { corpo: 'piccolo', tono: 'quieto' }),
-  testo(22, 80, T.piani.scritte.semestre, { corpo: 'piccolo', forte: true }),
-  testo(208, 80, T.piani.scritte.preparate, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
-  riquadro(22, 88, 186, 34, {
-    tono: 'accento',
-    etichetta: T.piani.scritte.lezione1,
-    sotto: T.piani.scritte.data1,
-    aSinistra: true,
-  }),
-  riquadro(22, 126, 186, 34, {
-    etichetta: T.piani.scritte.lezione2,
-    sotto: T.piani.scritte.data2,
-    aSinistra: true,
-  }),
-  riquadro(22, 164, 186, 34, {
-    etichetta: T.piani.scritte.lezione3,
-    sotto: T.piani.scritte.senzaPiano,
-    tratteggio: true,
-  }),
-  testo(22, 218, T.piani.scritte.nonAssegnati, { corpo: 'piccolo', tono: 'quieto' }),
-  riquadro(22, 226, 186, 34, {
-    etichetta: T.piani.scritte.bozza,
-    sotto: T.piani.scritte.ripasso,
-    aSinistra: true,
-  }),
-  riquadro(232, 10, 398, 280),
-  testo(244, 30, T.piani.scritte.titoloEditor, { forte: true }),
-  riquadro(244, 40, 374, 36, {
+  testo(22, 34, T.piani.scritte.materia, { forte: true }),
+  riquadro(150, 12, 300, 34, { raggio: 8 }),
+  frecciaNavigatore(155, 'sinistra'),
+  simbolo('spunta', 196, 21, 16, 'positivo'),
+  testo(300, 34, T.piani.scritte.ora1, { forte: true, ancora: 'centro' }),
+  simbolo('giu', 392, 22, 14, 'quieto'),
+  frecciaNavigatore(419, 'destra'),
+  testo(618, 34, T.piani.scritte.preparate, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
+  riquadro(10, 56, 620, 278),
+  testo(22, 78, T.piani.scritte.titoloEditor, { forte: true }),
+  riquadro(22, 88, 596, 36, {
     tono: 'quieto',
     etichetta: T.piani.scritte.diCheCosaParla,
     sotto: T.piani.scritte.campi,
   }),
-  testo(244, 94, T.piani.scritte.scaletta, { corpo: 'piccolo', forte: true }),
-  riquadro(244, 100, 374, 20, { tono: 'quieto', raggio: 4 }),
-  testo(252, 114, T.piani.scritte.gruppo1, { corpo: 'piccolo' }),
-  pastiglia(520, 101, T.piani.scritte.liberi, 'quieto'),
-  tappa(124, 1, T.piani.scritte.correzione, T.piani.scritte.esercizio, 'quieto', '20 min', 0.22),
-  tappa(154, 2, T.piani.scritte.frazioni, T.piani.scritte.spiegazione, 'quieto', '40 min', 0.44),
-  tappa(184, 3, T.piani.scritte.coppie, T.piani.scritte.esercizio, 'quieto', '20 min', 0.22),
-  simbolo('pausa', 250, 212, 14, 'quieto'),
-  testo(270, 223, T.piani.scritte.intervallo, { corpo: 'piccolo', tono: 'quieto' }),
-  riquadro(244, 230, 374, 20, { tono: 'quieto', raggio: 4 }),
-  testo(252, 244, T.piani.scritte.gruppo2, { corpo: 'piccolo' }),
-  pastiglia(560, 231, T.piani.scritte.pieno, 'positivo'),
-  tappa(254, 4, T.piani.scritte.verificaBreve, T.piani.scritte.verifica, 'attenzione', '45 min', 1),
-  bollino(220, 10, 1),
-  bollino(208, 143, 2),
-  bollino(208, 181, 3),
-  bollino(618, 40, 4),
-  bollino(236, 110, 5),
-  bollino(236, 146, 6),
-  bollino(236, 219, 7),
+  testo(22, 144, T.piani.scritte.scaletta, { corpo: 'piccolo', forte: true }),
+  riquadro(22, 150, 596, 20, { tono: 'quieto', raggio: 4 }),
+  testo(30, 164, T.piani.scritte.gruppo1, { corpo: 'piccolo' }),
+  pastiglia(520, 151, T.piani.scritte.liberi, 'quieto'),
+  tappa(174, 1, T.piani.scritte.correzione, T.piani.scritte.esercizio, 'quieto', '20 min', 0.22),
+  tappa(204, 2, T.piani.scritte.frazioni, T.piani.scritte.spiegazione, 'quieto', '40 min', 0.44),
+  tappa(234, 3, T.piani.scritte.coppie, T.piani.scritte.esercizio, 'quieto', '20 min', 0.22),
+  simbolo('pausa', 28, 262, 14, 'quieto'),
+  testo(48, 273, T.piani.scritte.intervallo, { corpo: 'piccolo', tono: 'quieto' }),
+  riquadro(22, 280, 596, 20, { tono: 'quieto', raggio: 4 }),
+  testo(30, 294, T.piani.scritte.gruppo2, { corpo: 'piccolo' }),
+  pastiglia(560, 281, T.piani.scritte.pieno, 'positivo'),
+  tappa(304, 4, T.piani.scritte.verificaBreve, T.piani.scritte.verifica, 'attenzione', '45 min', 1),
+  bollino(150, 12, 1),
+  bollino(300, 12, 2),
+  bollino(536, 18, 3),
+  bollino(618, 88, 4),
+  bollino(14, 160, 5),
+  bollino(14, 222, 6),
+  bollino(14, 268, 7),
+)
+
+/** L'elenco del navigatore: tutte le ore per semestre, con il loro stato, e i piani senza ora. */
+const ELENCO_ORE = disegno(
+  riquadro(170, 6, 300, 30, { raggio: 8 }),
+  testo(320, 26, T.piani.scritte.ora3, { forte: true, ancora: 'centro' }),
+  simbolo('giu', 446, 14, 14, 'quieto'),
+  riquadro(150, 44, 340, 208, { raggio: 8 }),
+  riquadro(160, 52, 320, 22, { tono: 'quieto', raggio: 4 }),
+  simbolo('lente', 166, 56, 14, 'quieto'),
+  testo(186, 67, T.piani.scritte.cerca, { corpo: 'piccolo', tono: 'quieto' }),
+  testo(162, 92, T.piani.scritte.semestre, { corpo: 'piccolo', forte: true }),
+  testo(478, 92, T.piani.scritte.conto, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
+  simbolo('spunta', 164, 104, 14, 'positivo'),
+  testo(186, 112, T.piani.scritte.ora1, { corpo: 'piccolo', forte: true }),
+  testo(186, 124, T.piani.scritte.stato1, { corpo: 'piccolo', tono: 'quieto' }),
+  simbolo('avviso', 164, 136, 14, 'attenzione'),
+  testo(186, 144, T.piani.scritte.ora2, { corpo: 'piccolo', forte: true }),
+  testo(186, 156, T.piani.scritte.stato2, { corpo: 'piccolo', tono: 'quieto' }),
+  riquadro(158, 162, 324, 30, { tono: 'accento', raggio: 4 }),
+  testo(186, 176, T.piani.scritte.ora3, { corpo: 'piccolo', forte: true }),
+  testo(186, 188, T.piani.scritte.stato3, { corpo: 'piccolo', tono: 'quieto' }),
+  testo(162, 212, T.piani.scritte.nonAssegnati, { corpo: 'piccolo', forte: true }),
+  simbolo('piano', 164, 218, 14, 'quieto'),
+  testo(186, 228, T.piani.scritte.bozza, { corpo: 'piccolo', forte: true }),
+  testo(186, 240, T.piani.scritte.ripasso, { corpo: 'piccolo', tono: 'quieto' }),
+  bollino(490, 63, 1),
+  bollino(490, 88, 2),
+  bollino(490, 116, 3),
+  bollino(490, 148, 4),
+  bollino(490, 177, 5),
+  bollino(490, 222, 6),
 )
 
 /** Dal piano ai voti: come una scaletta arriva in aula. */
@@ -483,10 +502,11 @@ export const SEZIONI_LEZIONE: SezioneGuida[] = [
     simbolo: 'piano',
     vista: 'piani',
     figure: [
-      { vista: '0 0 640 300', disegno: PAGINA_PIANI },
+      { vista: '0 0 640 340', disegno: PAGINA_PIANI },
+      { vista: '0 0 640 260', disegno: ELENCO_ORE },
       { vista: '0 0 640 165', disegno: PIANO_IN_AULA },
     ],
-    note: ['meccanismo', 'attenzione'],
+    note: ['meccanismo', 'attenzione', 'attenzione'],
     vedi: ['lezione', 'valutazioni', 'corsi', 'calendario'],
   }, T.piani),
 ]

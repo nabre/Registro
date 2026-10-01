@@ -56,6 +56,8 @@ describe('il catalogo dei modelli', () => {
       'momento',
       'piano',
       'presenze',
+      'progetto-allievo',
+      'progetto-classe',
       'valutazioni',
     ])
   })

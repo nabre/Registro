@@ -6,6 +6,8 @@ import { catalogo } from '../i18n/index.js'
 
 const it = {
   giorniBrevi: ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'],
+  /** Tre lettere in ogni lingua, per l'etichetta di una lezione: «GIO 01.10.2026». */
+  giorniTreLettere: ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'],
   giorniLunghi: ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato', 'domenica'],
   mesi: [
     'gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
@@ -27,6 +29,7 @@ const it = {
 export const testi = catalogo(it, {
   de: {
     giorniBrevi: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+    giorniTreLettere: ['Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam', 'Son'],
     giorniLunghi: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
     mesi: [
       'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -41,6 +44,7 @@ export const testi = catalogo(it, {
   },
   fr: {
     giorniBrevi: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'],
+    giorniTreLettere: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'],
     giorniLunghi: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
     mesi: [
       'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
@@ -55,6 +59,7 @@ export const testi = catalogo(it, {
   },
   en: {
     giorniBrevi: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    giorniTreLettere: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     giorniLunghi: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     mesi: [
       'January', 'February', 'March', 'April', 'May', 'June',

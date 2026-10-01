@@ -90,7 +90,7 @@ export const procedura = definisci({
     dal: testo(),
     al: testo(),
     presenza: scelta(FILTRI, { aiuto: () => testi().presenzaUscita }),
-    cerca: CAMPI_CERCA.cerca,
+    ...CAMPI_CERCA,
     ...CAMPI_PAGINA,
     // I tre conti stanno sul periodo intero, non sulla pagina.
     orePerse: numero({ intero: true, aiuto: () => testi().orePerse }),
@@ -158,7 +158,7 @@ export const procedura = definisci({
 
     const { dal, al } = risolviPeriodo(r, ingresso)
     const quali = QUALI[ingresso.presenza ?? 'perse']
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
 
     const corsi = corsiDellaClasse(r, classe.id)
       .filter((corso) => !ingresso.corsoId || corso.id === ingresso.corsoId)
@@ -200,6 +200,8 @@ export const procedura = definisci({
       al,
       presenza: ingresso.presenza ?? 'perse',
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       quante,
       da,
       troncato,

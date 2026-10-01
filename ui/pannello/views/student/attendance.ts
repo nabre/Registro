@@ -53,6 +53,7 @@ import {
   tonoPresenza,
 } from '../../components/base.js'
 import { sintesiIncassata } from '../../components/filters.js'
+import { dataDiLezione } from '../../components/lessonDate.js'
 import { h, type Figlio } from '../../dom.js'
 import {
   annoCorrente,
@@ -231,7 +232,7 @@ function righePresenze (allievo: Allievo, corsi: Corso[], lezioni: Lezione[]): R
 /** Quel che la casella dice a voce, per chi ci passa sopra o la legge con lo schermo. */
 function raccontoCasella (casella: CasellaPresenza): string {
   return [
-    formattaData(casella.lezione.data, 'giorno'),
+    formattaData(casella.lezione.data, 'settimana'),
     `${casella.inizio}–${casella.fine}`,
     casella.materia,
     nomePresenza(casella.stato),
@@ -473,7 +474,7 @@ function elencoGiornate (voci: GiornataStorta[]): Figlio {
         'li',
         { class: 'diario__voce' },
         collegamento({
-          testo: formattaData(lezione.data, 'giorno'),
+          testo: dataDiLezione(lezione.data),
           classe: 'diario__quando',
           al: () => apriLezione(lezione.id),
         }),

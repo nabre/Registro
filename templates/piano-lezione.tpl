@@ -18,6 +18,3 @@ tabella: scaletta
 
 sezione: {{frase.materiali}}
 tabella: materiali
-
-sezione: {{frase.note}}
-paragrafo: {{note}}

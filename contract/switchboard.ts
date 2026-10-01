@@ -20,6 +20,7 @@ import { microsoft } from '../core/azioni/microsoft.js'
 import { modelli } from '../core/azioni/templates.js'
 import { ore } from '../core/azioni/hours.js'
 import { piani } from '../core/azioni/plans.js'
+import { progetti } from '../core/azioni/projects.js'
 import { proiezione } from '../core/azioni/projection.js'
 import { primaDiScrivere, rapporti, rigeneraDopoScrittura } from '../core/azioni/reports.js'
 import { registro } from '../core/azioni/register.js'
@@ -41,6 +42,7 @@ const GESTORI: Mappa = {
   ...valutazioni,
   ...consegne,
   ...check,
+  ...progetti,
   ...docenteClasse,
   ...smistamento,
   ...rapporti,

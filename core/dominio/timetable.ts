@@ -15,6 +15,7 @@ import {
 } from './dates.js'
 import { fineNellaGiornata, lezioneNellaGiornata, oraFuoriDallePause } from './breaks.js'
 import { creaLezione } from './factories.js'
+import { lezioneNeiProgetti } from './projects.js'
 import type {
   AnnoScolastico,
   Corso,
@@ -54,7 +55,8 @@ function lezioneIntatta (registro: Registro, lezione: Lezione): boolean {
   const legataA = (c: { dataLezioneId?: string | null, scadenzaLezioneId?: string | null }) =>
     c.dataLezioneId === id || c.scadenzaLezioneId === id
   if (registro.consegne.some(legataA)) return false
-  return !registro.check.some((c) => c.spunte.some((s) => s.lezioneId === id))
+  if (registro.check.some((c) => c.spunte.some((s) => s.lezioneId === id))) return false
+  return !lezioneNeiProgetti(registro, id)
 }
 
 /**

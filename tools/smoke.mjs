@@ -44,7 +44,7 @@ function cartelleVere () {
     : process.platform === 'darwin'
       ? join(homedir(), 'Library', 'Application Support')
       : process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config')
-  return [NOME_APPLICAZIONE, 'Regiclass', 'Registro docenti'].map((nome) => join(sistema, nome))
+  return [NOME_APPLICAZIONE, 'Regiclass'].map((nome) => join(sistema, nome))
 }
 
 /** Nome, dimensione e data di ogni file sotto `cartella`: basta a vedere una scrittura. */

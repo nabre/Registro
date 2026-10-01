@@ -26,7 +26,7 @@ import { Molti, Uno, corto } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { titoloComando } from '../../../contract/manifest.js'
-import { formattaData, formattaDurata, udDaMinuti } from '../../../core/dominio/dates.js'
+import { formattaDurata, udDaMinuti } from '../../../core/dominio/dates.js'
 import { confrontaNomi, percento } from '../../../core/dominio/text.js'
 import type { Classe, Corso, Materia } from '../../../core/dominio/models.js'
 import { azione } from '../bridge.js'
@@ -45,6 +45,7 @@ import {
 } from '../components/base.js'
 import { eseguiOAvvisa, sintesiIncassata, statoVuotoAnno } from '../components/filters.js'
 import { corsoDelContesto } from '../context.js'
+import { dataDiLezione } from '../components/lessonDate.js'
 import { h, type Figlio } from '../dom.js'
 import { inTelaio, tabella } from '../components/table.js'
 import { cellaNome } from '../components/avatar.js'
@@ -268,7 +269,7 @@ function schedaCorso (corso: Corso, dati: DatiCorso): HTMLElement {
             { class: 'testo-quieto' },
             t.prossimaOra,
             collegamento({
-              testo: formattaData(dati.prossima.data),
+              testo: dataDiLezione(dati.prossima.data),
               al: () => { if (dati.prossima) apriLezione(dati.prossima.id) },
             }),
           )

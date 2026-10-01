@@ -80,6 +80,10 @@ function registro () {
     valutazioni: [
       { id: 'val-a', corsoId: 'cor-a', lezioneId: null, pianoId: null, titolo: 'Prova', tipo: 'scritto', data: '2027-03-02' },
     ],
+    progetti: [
+      { id: 'prg-a', corsoId: 'cor-a', titolo: 'Giornale', obiettivi: [], stato: 'in-corso', criteri: [], livelli: [], compiti: [], giudizi: [], matrice: [], risorse: [], creatoIl: ist, aggiornatoIl: ist },
+      { id: 'prg-v', corsoId: 'cor-v', titolo: 'Vecchio', obiettivi: [], stato: 'concluso', criteri: [], livelli: [], compiti: [], giudizi: [], matrice: [], risorse: [], creatoIl: ist, aggiornatoIl: ist },
+    ],
     fascicoli: [],
     consegne: [],
     check: [],
@@ -91,7 +95,7 @@ function registro () {
 /** Il contesto di partenza: niente scelto. */
 const NIENTE = Object.freeze({
   corsoId: null, classeId: null, filtroClasseId: null, lezioneId: null,
-  pianoId: null, valutazioneId: null, allievoId: null,
+  pianoId: null, valutazioneId: null, allievoId: null, progettoId: null,
 })
 
 /** Ogni vista del protocollo, con l'elemento che le si può chiedere di aprire. */
@@ -107,6 +111,7 @@ const TABELLA = [
   ['docenteClasse', 'cls-a', { pagina: 'pagina.classe.pendenze', soggetto: { tipo: 'classe', id: 'cls-a' } }],
   ['corsi', 'cor-a', { pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['piani', 'pia-a', { pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: 'pia-a' } }],
+  ['progetti', 'prg-a', { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } }],
   ['valutazioni', 'val-a', { pagina: 'pagina.corso.valutazioni', soggetto: { tipo: 'valutazione', id: 'val-a' } }],
   ['check', 'cor-a', { pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['documenti', undefined, { pagina: 'pagina.corso.documenti' }],
@@ -313,6 +318,21 @@ describe('completa: i ripieghi', () => {
     assert.deepEqual(esito.posto, { pagina: 'pagina.corso.piani', soggetto: { tipo: 'corso', id: 'cor-b' } })
     assert.equal(esito.contesto.pianoId, null)
     assert.equal(esito.ripiegato, true)
+  })
+
+  it('progetto: porta il suo corso; sparito o di un altro anno, la stessa pagina sul corso del contesto', () => {
+    const r = registro()
+    const aperto = completa(postoDaVista('progetti', 'prg-a'), { ...NIENTE, corsoId: 'cor-b' }, r, OGGI)
+    assert.deepEqual(aperto.posto, { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } })
+    assert.equal(aperto.contesto.corsoId, 'cor-a')
+    assert.equal(aperto.contesto.progettoId, 'prg-a')
+    for (const id of ['prg-x', 'prg-v']) {
+      const esito = completa(postoDaVista('progetti', id), { ...NIENTE, corsoId: 'cor-b', progettoId: id }, r, OGGI)
+      assert.deepEqual(esito.posto, { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'corso', id: 'cor-b' } }, id)
+      assert.equal(esito.ripiegato, true)
+    }
+    // Il ricordato che il documento non ha più si scorda.
+    assert.equal(completa({ pagina: 'pagina.oggi' }, { ...NIENTE, progettoId: 'prg-x' }, r, OGGI).contesto.progettoId, null)
   })
 
   it('valutazione sparita: la stessa pagina sul corso del contesto', () => {

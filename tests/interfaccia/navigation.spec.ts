@@ -36,7 +36,7 @@ test('navigation', async ({ browser }) => {
     .toEqual(['pagina.oggi', 'pagina.calendario', 'pagina.pendenze', 'pagina.daSmistare'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='registro').map(p=>p.id)"))
     .toEqual(['pagina.corso.registro', 'pagina.corso.valutazioni', 'pagina.corso.check',
-      'pagina.corso.piani', 'pagina.corso.documenti'])
+      'pagina.corso.piani', 'pagina.corso.progetti', 'pagina.corso.documenti'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='anno').map(p=>p.id)"))
     .toEqual(['pagina.classi', 'pagina.persone', 'pagina.mappa', 'pagina.corsi'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='sistema').map(p=>p.id)"))

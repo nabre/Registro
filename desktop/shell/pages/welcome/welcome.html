@@ -72,7 +72,16 @@
     <span class="pastiglia" id="aggiornamento-stato" hidden></span>
     <button type="button" class="minuto" id="aggiornamento-gesto" hidden></button>
   </div>
-  <button type="button" id="esci" data-testo="esci"></button>
+  <div class="piede__destra">
+    <!-- La lingua, nell'angolo: la bandiera di quella di adesso apre il menu
+         delle altre, ognuna col suo nome. Le voci le scrive `welcome.ts`. -->
+    <div class="lingua">
+      <button type="button" class="minuto lingua__bottone" id="lingua-bottone"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="lingua-menu"></button>
+      <ul class="lingua__menu" id="lingua-menu" role="menu" data-testo-aria-label="lingua" hidden></ul>
+    </div>
+    <button type="button" id="esci" data-testo="esci"></button>
+  </div>
 </footer>
 </main>
 

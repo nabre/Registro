@@ -222,6 +222,16 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('pagina.corso.piani'),
   },
   {
+    id: 'pagina.corso.progetti',
+    titolo: t.progetti,
+    simbolo: 'progetto',
+    gruppo: 'registro',
+    aiuto: t.progettiAiuto,
+    impedimento: senzaCorso,
+    attiva: qui('pagina.corso.progetti'),
+    apri: () => vaiAlCorso('pagina.corso.progetti'),
+  },
+  {
     id: 'pagina.corso.documenti',
     titolo: t.documenti,
     simbolo: 'documento',

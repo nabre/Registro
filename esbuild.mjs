@@ -4,7 +4,7 @@
 //   panel.js, projection.js, assistant.js  il registro, lo schermo per la
 //                                      classe, l'assistente staccato
 //   dialog, settings, welcome,         le pagine native (.html/.css/.js)
-//   splash, reader
+//   splash, reader                     (e `dev`, le opzioni di sviluppo, solo in `dist-dev/`)
 //   pdf.worker.mjs                     il worker di pdfjs
 //
 // Il modulo `apparato` è `desktop/apparato/platform.ts`, risolto da un alias: il
@@ -18,7 +18,6 @@
 //
 // Il modo sviluppo, in ascolto, sta in `tools/dev.mjs` e importa `applicazioneIn`.
 
-import { createHash } from 'node:crypto'
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -29,8 +28,8 @@ import * as esbuild from 'esbuild'
  * `desktop/apparato/notifications.ts` e `cli/uninstall.mjs`: diverso,
  * l'icona appuntata non riapre il registro e le notifiche si sdoppiano.
  *
- * `nsis.guid` deve restare l'UUID v5 di `IDENTITA_VECCHIA`
- * (`src/data/formerName.ts`), o l'aggiornamento si installa accanto invece di sostituire.
+ * `nsis.guid` deve restare `GUID_INSTALLAZIONE`, o l'aggiornamento si installa
+ * accanto invece di sostituire.
  *
  * `electron-builder.json` ha solo commenti di riga: toglierli basta per
  * `JSON.parse`. Niente `$` nell'espressione: con CRLF `.` non attraversa il `\r`.
@@ -56,31 +55,19 @@ function verificaIdentita () {
     }
   }
 
-  const vecchia = /^export const IDENTITA_VECCHIA = '([^']+)'/m
-    .exec(readFileSync('core/dati/formerName.ts', 'utf8'))?.[1]
-  if (!vecchia) throw new Error('core/dati/formerName.ts: non si trova più la costante IDENTITA_VECCHIA')
-  const atteso = uuidDiElectronBuilder(vecchia)
-  if (nsis?.guid !== atteso) {
+  if (nsis?.guid !== GUID_INSTALLAZIONE) {
     throw new Error(
-      `nsis.guid in electron-builder.json è '${nsis?.guid}', e deve restare '${atteso}': ` +
-      `il GUID dell'installazione di prima, ricavato da '${vecchia}'`,
+      `nsis.guid in electron-builder.json è '${nsis?.guid}', e deve restare ` +
+      `'${GUID_INSTALLAZIONE}': è quello delle installazioni già sui computer`,
     )
   }
 }
 
 /**
- * L'UUID v5 che electron-builder ricava dall'`appId` senza `nsis.guid`: SHA-1
- * dei sedici byte dello spazio dei nomi (i byte, non il testo) e del nome
- * (`NsisTarget.js` di `app-builder-lib`, `uuid.js` di `builder-util-runtime`).
+ * Il GUID con cui Windows riconosce l'installazione. Fisso da sempre: un altro
+ * farebbe installare l'aggiornamento accanto invece che al posto del vecchio.
  */
-function uuidDiElectronBuilder (nome) {
-  const spazio = Buffer.from('50e065bc313411e69bab38c9862bdaf3', 'hex')
-  const impronta = createHash('sha1').update(spazio).update(nome, 'ascii').digest()
-  impronta[6] = (impronta[6] & 0x0f) | 0x50
-  impronta[8] = (impronta[8] & 0x3f) | 0x80
-  const esa = impronta.subarray(0, 16).toString('hex')
-  return [esa.slice(0, 8), esa.slice(8, 12), esa.slice(12, 16), esa.slice(16, 20), esa.slice(20)].join('-')
-}
+const GUID_INSTALLAZIONE = 'd199f7cf-2ae9-5477-aea0-9860e9f60bca'
 
 /**
  * I quattordici caratteri standard del PDF, copiati accanto ai bundle: pdfjs li
@@ -131,10 +118,23 @@ const urlDelModulo = {
 /** Le pagine native: una cartella ciascuna in `desktop/shell/pages/`, con lo stesso nome dei file. */
 const PAGINE_NATIVE = ['dialog', 'settings', 'welcome', 'splash', 'reader']
 
-/** `{ dialog: 'desktop/shell/pages/dialog/dialog.ts', … }`: le chiavi sono i nomi in `dist/`. */
-function filePagine (estensione) {
+/**
+ * Le pagine che esistono solo con `npm run dev` (`tools/dev.mjs`, in
+ * `dist-dev/`): le opzioni di sviluppo. Nel pacchetto non si costruiscono.
+ */
+const PAGINE_DI_SVILUPPO = ['dev']
+
+/**
+ * `{ dialog: 'desktop/shell/pages/dialog/dialog.ts', … }`: le chiavi sono i nomi
+ * in `dist/`. In `dist-dev/` anche quelle di sviluppo.
+ *
+ * @param {string} estensione
+ * @param {string} cartella
+ */
+function filePagine (estensione, cartella) {
+  const pagine = cartella === 'dist-dev' ? [...PAGINE_NATIVE, ...PAGINE_DI_SVILUPPO] : PAGINE_NATIVE
   return Object.fromEntries(
-    PAGINE_NATIVE.map((pagina) => [pagina, `desktop/shell/pages/${pagina}/${pagina}.${estensione}`]),
+    pagine.map((pagina) => [pagina, `desktop/shell/pages/${pagina}/${pagina}.${estensione}`]),
   )
 }
 
@@ -179,14 +179,14 @@ export const applicazioneIn = (cartella) => [
   // la CSP può dire `script-src registro:` e basta.
   {
     ...comune,
-    entryPoints: filePagine('html'),
+    entryPoints: filePagine('html', cartella),
     outdir: cartella,
     loader: { '.html': 'copy' },
     ricarica: 'aggiorna',
   },
   {
     ...comune,
-    entryPoints: filePagine('ts'),
+    entryPoints: filePagine('ts', cartella),
     outdir: cartella,
     format: 'iife',
     platform: 'browser',
@@ -353,7 +353,7 @@ const prove = [
     external: ['node-llama-cpp'],
     alias: CON_FINTO_E_APPARATO,
   }),
-  // Il trasloco del nome: cartella dei dati da «Registro docenti» a
+  // Il trasloco del nome: cartella dei dati da «Regiclass» a
   // «Regiklass» e percorsi scritti dentro. Solo `node:`.
   provaNode('core/dati/formerName.ts', 'dist-tests/formerName.mjs'),
   // Le sezioni della pagina Impostazioni, senza DOM: un'impostazione che non

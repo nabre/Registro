@@ -108,7 +108,7 @@ test('movimento', async ({ browser }) => {
       const r = prova.stato.registro
       const corso = r.corsi[0]
       const piano = (id) => ({ id, corsoId: corso.id, obiettivi: [id], prerequisiti: '', attivita: [],
-        risorse: [], note: '', tag: [], creatoIl: '2026-09-01T08:00:00.000Z',
+        risorse: [], tag: [], creatoIl: '2026-09-01T08:00:00.000Z',
         aggiornatoIl: '2026-09-01T08:00:00.000Z' })
       prova.aggiorna({ registro: { ...r, piani: [piano('piano-p'), piano('piano-q')] } })
     }`)

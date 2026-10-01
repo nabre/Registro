@@ -34,6 +34,7 @@ import {
   testo,
 } from '../../schemas.js'
 import {
+  CAMPI_CERCA,
   CAMPI_PAGINA,
   CAMPI_RIGA_PERSONA,
   classiGuardate,
@@ -116,7 +117,7 @@ export const procedura = definisci({
     genere: testo({ aiuto: () => t().genereRisposto }),
     comune: testo({ aiuto: () => t().comune }),
     cap: testo({ aiuto: () => t().cap }),
-    cerca: testo({ aiuto: () => t().cerca }),
+    ...CAMPI_CERCA,
     entroKm: nullabile(numero({
       aiuto: () => t().raggio,
     })),
@@ -284,7 +285,7 @@ export const procedura = definisci({
       }
     }
 
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
     const trovate = righe
       .filter((riga) => nellaZona(riga, ingresso))
       .filter((riga) => corrisponde(
@@ -322,6 +323,8 @@ export const procedura = definisci({
       comune: ingresso.comune ?? '',
       cap: ingresso.cap ?? '',
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       entroKm: ingresso.entroKm ?? null,
       // `scriviCoordinate`, come sulla scheda: un punto scritto in due modi
       // sembrerebbe due punti.

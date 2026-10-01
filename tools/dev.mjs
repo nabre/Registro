@@ -3,7 +3,9 @@
 //   1. esbuild in ascolto su tutti i bundle;
 //   2. Electron avviato, e riavviato quando cambiano main process o preload;
 //   3. le pagine che si ricaricano da sole quando cambiano viste, CSS o pagine
-//      native (lo fa `desktop/apparato/dev.ts`, che raggiunge le finestre).
+//      native (lo fa `desktop/apparato/dev.ts`, che raggiunge le finestre);
+//   4. Electron rilanciato anche quando esce con `CODICE_RIAVVIO`, chiesto
+//      dalle opzioni di sviluppo (menu «Sviluppo», Ctrl+Maiusc+F12).
 //
 // Una ricarica lascia in piedi archivio, comandi e iscrizioni; un riavvio
 // riporta il registro all'apertura. Che cosa fa scattare cosa lo dice
@@ -47,6 +49,13 @@ function scriviPacchetto () {
 `)
 }
 
+/**
+ * Il codice d'uscita con cui l'applicazione chiede di essere rilanciata («Riavvia
+ * il main process» nelle opzioni di sviluppo): `CODICE_RIAVVIO` di
+ * `desktop/apparato/dev.ts`.
+ */
+const CODICE_RIAVVIO = 75
+
 /** Quanto si aspetta, dall'ultimo bundle finito, prima di riavviare. */
 const CALMA = 150
 
@@ -80,6 +89,11 @@ function avviaElectron () {
   processo.on('exit', (codice) => {
     processo = null
     if (uscitaVoluta) return
+    if (codice === CODICE_RIAVVIO) {
+      dice('riavvio chiesto dall’applicazione')
+      avviaElectron()
+      return
+    }
     // Chiusa dall'utente: si esce anche di qui.
     dice(`Electron è uscito (${codice ?? 0}). Chiudo anche l'ascolto.`)
     void chiudi(codice ?? 0)

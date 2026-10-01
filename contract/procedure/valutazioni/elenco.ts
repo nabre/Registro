@@ -5,7 +5,7 @@
 import {
   classeDelCorsoId, corsiDellaClasse, materiaDelCorso,
 } from '../../../core/dominio/courses.js'
-import { definisci, errore } from '../../contract.js'
+import { definisci } from '../../contract.js'
 import { corsoPerId } from '../../../core/dominio/courses.js'
 import type { MomentoValutazione, Voto } from '../../../core/dominio/models.js'
 import {
@@ -20,6 +20,7 @@ import {
   testo,
 } from '../../schemas.js'
 import {
+  CAMPI_CERCA,
   CAMPI_PAGINA,
   filtroTesto,
   nelPeriodo,
@@ -31,7 +32,7 @@ import {
   risolviPeriodo,
   taglia,
 } from '../common/filters.js'
-import { esigiClasse } from '../common/register.js'
+import { esigiClasse, esigiCorso } from '../common/register.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './valutazioni.testi.js'
 
@@ -97,7 +98,7 @@ export const procedura = definisci({
     corso: testo({ aiuto: () => t().corso }),
     dal: testo(),
     al: testo(),
-    cerca: testo({ aiuto: () => t().cerca }),
+    ...CAMPI_CERCA,
     // Rimandati come `cerca`: la busta dice su quali prove ha contato.
     ha: elenco(scelta(CAMPI_PROVA), { aiuto: () => t().ha }),
     senza: elenco(scelta(CAMPI_PROVA), { aiuto: () => t().senza }),
@@ -150,8 +151,7 @@ export const procedura = definisci({
   esegui: (ambito, ingresso) => {
     const r = ambito.contesto.registro
     // Un id di corso sbagliato deve dire «non c'è», non dare un elenco vuoto.
-    const corso = ingresso.corsoId ? corsoPerId(r, ingresso.corsoId) ?? null : null
-    if (ingresso.corsoId && !corso) throw errore.nonTrovato('corso')
+    const corso = ingresso.corsoId ? esigiCorso(ambito, ingresso.corsoId) : null
     const classe = corso ? classeDelCorsoId(r, corso.id) : null
     if (ingresso.classeId) esigiClasse(ambito, ingresso.classeId)
 
@@ -159,7 +159,7 @@ export const procedura = definisci({
     // dell'anno di quella classe, o gli estremi dell'anno.
     const { dal, al } = risolviPeriodo(r, ingresso, classe)
 
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
     // I corsi di cui si parla (quello chiesto, quelli della classe chiesta, o
     // tutti) come insieme: corso e classe si compongono, e danno «niente» solo se
     // il corso non è di quella classe.
@@ -190,6 +190,8 @@ export const procedura = definisci({
       dal,
       al,
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       ha: ingresso.ha ?? [],
       senza: ingresso.senza ?? [],
       quante,

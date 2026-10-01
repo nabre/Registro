@@ -95,7 +95,13 @@ function giorno (iso: string): Temporal.PlainDate | null {
 // Giorni e mesi sono funzioni e non costanti: si leggono nella lingua attuale
 // (`dates.testi.ts`), non in quella dell'avvio.
 
-/** I giorni in tre lettere, da lunedì: «lun», «Mo», «Mon». */
+/** Il giorno della settimana in tre lettere, minuscole: il maiuscoletto lo fa chi lo mostra. */
+export function giornoTreLettere (iso: Iso): string {
+  const g = giorno(iso)
+  return g ? testi().giorniTreLettere[g.dayOfWeek - 1] : ''
+}
+
+/** I giorni brevi, da lunedì: «lun», «Mo», «Mon». */
 export function giorniBrevi (): readonly string[] {
   return testi().giorniBrevi
 }
@@ -360,11 +366,16 @@ export function minutiInUd (minuti: number, minutiUd: number): number {
  */
 export function formattaData (
   iso: Iso,
-  stile: 'breve' | 'lungo' | 'giorno' | 'corto' = 'breve',
+  stile: 'breve' | 'lungo' | 'giorno' | 'corto' | 'settimana' = 'breve',
 ): string {
   const g = giorno(iso)
   if (!g) return '—'
   const { day, month, year, dayOfWeek } = g
+  // L'etichetta di una lezione dove non c'è stile (testo di un menu, un
+  // suggerimento): il giorno in maiuscole, «GIO 01.10.2026».
+  if (stile === 'settimana') {
+    return `${testi().giorniTreLettere[dayOfWeek - 1].toUpperCase()} ${due(day)}.${due(month)}.${year}`
+  }
   if (stile === 'lungo') {
     return testi().dataLunga(giorniLunghi()[dayOfWeek - 1], day, mesi()[month - 1], year)
   }

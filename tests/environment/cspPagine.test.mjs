@@ -92,9 +92,11 @@ describe('la CSP delle pagine native', () => {
         .map((nome) => percorso.join(PAGINE_NATIVE, voce.name, nome)),
     )
 
-  it('ci sono le cinque pagine del guscio', () => {
+  // `dev.html` (le opzioni di sviluppo) si costruisce solo in `dist-dev/`, ma
+  // la sua CSP è chiusa come le altre.
+  it('ci sono le cinque pagine del guscio, più quella di sviluppo', () => {
     assert.deepEqual(pagine.map((file) => percorso.basename(file)).sort(), [
-      'dialog.html', 'reader.html', 'settings.html', 'splash.html', 'welcome.html',
+      'dev.html', 'dialog.html', 'reader.html', 'settings.html', 'splash.html', 'welcome.html',
     ])
   })
 

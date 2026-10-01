@@ -50,7 +50,8 @@ export function campioni () {
     .map((trovato) => {
       const voci = {}
       for (const voce of leggiZip(readFileSync(percorso.join(CAMPIONI, trovato[0])))) {
-        const collezione = /^([^/]+)\.json$/.exec(voce.nome)?.[1]
+        // In radice fino al formato 3, sotto `data/` dal 4.
+        const collezione = /^(?:data\/)?([^/]+)\.json$/.exec(voce.nome)?.[1]
         if (collezione && collezione !== 'manifesto') voci[collezione] = JSON.parse(new TextDecoder().decode(voce.dati))
       }
       return { versione: Number(trovato[1]), voci }

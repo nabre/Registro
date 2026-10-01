@@ -10,7 +10,6 @@ import {
 import { attivitaValutata } from '../../../core/dominio/activities.js'
 import { formattaData, formattaDurata, formattaUd } from '../../../core/dominio/dates.js'
 import { creaPiano } from '../../../core/dominio/factories.js'
-import { generaAttivitaStandard, generaObiettiviStandard } from '../../../core/dominio/plans.js'
 import type {
   Attivita,
   Lezione,
@@ -67,7 +66,6 @@ function scegliPiano (pianoId: string | null): void {
 }
 import { Uno } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
 import { titoloComando } from '../../../contract/manifest.js'
 
 import { testi } from './plan.testi.js'
@@ -168,30 +166,11 @@ export function editorPiano (opzioni: {
   // Il piano nasce sul corso indicato, o su quello della classe filtrata se è
   // uno solo; resta cambiabile.
   const corsiDelFiltro = stato.filtroClasseId ? corsiDi(stato.filtroClasseId) : []
-  const iniziale =
+  const base: PianoLezione =
     piano ??
     creaPiano(
       opzioni.corsoDaProporre ?? (corsiDelFiltro.length === 1 ? corsiDelFiltro[0].id : null),
     )
-
-  const minutiUd = stato.registro.impostazioni.minutiUd
-  const udDellOra = (): number => (lezione ? Math.max(1, contaUd(lezione, minutiUd)) : 1)
-  // Un piano vuoto parte da obiettivi e scaletta proposti, scritti su una copia:
-  // il piano di `stato.registro` resta com'è finché non si salva, e «Annulla»
-  // non lascia niente.
-  const autoGenerato = iniziale.attivita.length === 0 && iniziale.obiettivi.length === 0
-  const base: PianoLezione = autoGenerato
-    ? {
-        ...iniziale,
-        obiettivi: generaObiettiviStandard(),
-        attivita: generaAttivitaStandard(
-          udDellOra(),
-          '',
-          classeDelCorsoId(iniziale.corsoId)?.docenteDiClasse ?? false,
-          minutiUd,
-        ),
-      }
-    : iniziale
 
   // La tendina del corso resta dove c'è un corso da scegliere.
   const corsoFermo = Boolean(opzioni.corsoDettato && base.corsoId)
@@ -216,7 +195,6 @@ export function editorPiano (opzioni: {
       .map((o) => o.trim())
       .filter(Boolean),
     prerequisiti: testo(valori.prerequisiti),
-    note: testo(valori.note),
     tag: valori.tag !== undefined
       ? String(valori.tag)
           .split(',')
@@ -329,7 +307,7 @@ export function editorPiano (opzioni: {
         )
       : null,
     // Nessun titolo: il nome si compone dal corso. Tre sezioni, nell'ordine in cui
-    // si prepara: di che cosa parla l'ora (obiettivi, etichette, note: quel che la
+    // si prepara: di che cosa parla l'ora (obiettivi e prerequisiti: quel che la
     // rende ritrovabile), come la si spende, che cosa serve.
     sezioneModulo(
       t.diCheCosaParla,
@@ -362,39 +340,11 @@ export function editorPiano (opzioni: {
           larghezza: 'meta',
         }),
       ),
-      riga(
-        campo({
-          nome: 'note',
-          etichetta: parole().note,
-          tipo: 'textarea',
-          righe: 2,
-          valore: base.note ?? '',
-          aiuto: t.aiutoNote,
-        }),
-      ),
     ),
     // La spiegazione dietro la «i»; che allegare salva il piano resta in vista.
     sezioneModulo(
       { testo: Uno(L.scaletta), aiuto: t.aiutoScaletta },
-      h(
-        'div',
-        { class: 'riga-azioni-scaletta' },
-        h('p', { class: 'testo-quieto' }, t.allegareSalva),
-        pulsante({
-          testo: t.rigeneraAttivita,
-          variante: 'sottile',
-          simbolo: 'bacchetta',
-          al: () => {
-            const scelto = modulo?.querySelector<HTMLSelectElement>('[name="corsoId"]')?.value
-            const corsoIdScelto = scelto || base.corsoId
-            const isDoc = classeDelCorsoId(corsoIdScelto)?.docenteDiClasse ?? false
-            attivita = generaAttivitaStandard(udDellOra(), '', isDoc, minutiUd)
-            disegnaAttivita()
-            // Nella modale salva il suo pulsante: «Annulla» deve poter rinunciare.
-            opzioni.allaModifica?.()
-          },
-        }),
-      ),
+      h('p', { class: 'testo-quieto' }, t.allegareSalva),
       zonaAttivita,
     ),
     // Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura).
@@ -406,14 +356,6 @@ export function editorPiano (opzioni: {
 
   modulo = corpoModulo
   disegnaRisorsePiano()
-
-  // Nella pagina, che salva campo per campo, la proposta si scrive subito (dopo
-  // che chi ha aperto l'editor lo tiene in mano); nella modale la salva solo il
-  // pulsante, così «Annulla» non lascia un piano orfano.
-  if (autoGenerato && opzioni.allaModifica) {
-    const allaModifica = opzioni.allaModifica
-    setTimeout(() => allaModifica(), 0)
-  }
 
   // Ogni `change` dei campi è una modifica confermata; gli `input` no, per non
   // salvare a ogni lettera. Le tappe hanno il loro `allaModifica`.

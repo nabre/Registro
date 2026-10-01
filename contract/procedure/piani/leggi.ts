@@ -3,11 +3,11 @@
 
 import { nomeTipoAttivita } from '../../../core/dominio/activities.js'
 import { lezioneDelPianoNelRegistro, nomeDelPiano } from '../../../core/dominio/courses.js'
-import { definisci, errore } from '../../contract.js'
+import { definisci } from '../../contract.js'
 import { booleano, elenco, identificatore, numero, oggetto, testo } from '../../schemas.js'
+import { esigiPiano } from '../common/plans.js'
 import { corto } from '../../../core/dominio/lexicon.js'
 import { lessico } from '../../../core/dominio/lexicon.testi.js'
-import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './piani.testi.js'
 
 const t = () => testi().leggi
@@ -27,7 +27,6 @@ export const procedura = definisci({
     assegnatoA: testo({ aiuto: () => t().assegnatoA }),
     obiettivi: elenco(testo()),
     prerequisiti: testo(),
-    note: testo(),
     tag: elenco(testo()),
     ud: numero({ aiuto: () => t().ud }),
     tappe: elenco(oggetto({
@@ -53,7 +52,6 @@ export const procedura = definisci({
           { campo: 'assegnatoA', etichetta: () => p().assegnatoA },
           { campo: 'ud', etichetta: () => p().durata, formato: 'numero' },
           { campo: 'prerequisiti', etichetta: () => p().prerequisiti },
-          { campo: 'note', etichetta: () => parole().note },
         ],
       },
       { tipo: 'elenco', da: 'obiettivi', titolo: () => p().obiettivi },
@@ -73,13 +71,7 @@ export const procedura = definisci({
   },
   esegui: (ambito, ingresso) => {
     const r = ambito.contesto.registro
-    const piano = r.piani.find((p) => p.id === ingresso.pianoId)
-    if (!piano) {
-      throw errore.nonTrovato(
-        'pianoLezione',
-        t().rimedio,
-      )
-    }
+    const piano = esigiPiano(ambito, ingresso.pianoId)
 
     return {
       id: piano.id,
@@ -88,7 +80,6 @@ export const procedura = definisci({
       assegnatoA: lezioneDelPianoNelRegistro(r, piano),
       obiettivi: [...piano.obiettivi],
       prerequisiti: piano.prerequisiti ?? '',
-      note: piano.note ?? '',
       tag: [...piano.tag],
       ud: piano.attivita.reduce((totale, tappa) => totale + tappa.durataUd, 0),
       tappe: piano.attivita.map((tappa) => ({

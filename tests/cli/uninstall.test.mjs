@@ -93,7 +93,7 @@ describe('uninstall.mjs --tieni', { concurrency: true }, () => {
 
   it('toglie anche la cartella col nome precedente, se non è stata rinominata', async () => {
     const { casa, dati } = cartellaUsata()
-    const precedente = percorso.join(casa, 'Registro docenti')
+    const precedente = percorso.join(casa, 'Regiclass')
     mkdirSync(percorso.join(precedente, 'modelli-linguistici'), { recursive: true })
     writeFileSync(percorso.join(precedente, 'impostazioni.json'), '{}')
     await disinstalla(casa, dati, '--tieni', 'modelli')
@@ -109,5 +109,14 @@ describe('uninstall.mjs --tieni', { concurrency: true }, () => {
     writeFileSync(percorso.join(updaterCache, 'pending-update.exe'), '')
     await disinstalla(casa, dati)
     assert.equal(existsSync(updaterCache), false)
+  })
+
+  it('toglie le copie da aprire dei file dell’anno in LOCALAPPDATA', async () => {
+    const { casa, dati } = cartellaUsata()
+    const copie = percorso.join(casa, 'localappdata', 'Regiklass', 'materializzati', 'anno')
+    mkdirSync(copie, { recursive: true })
+    writeFileSync(percorso.join(copie, 'verifica.pdf'), '%PDF')
+    await disinstalla(casa, dati)
+    assert.equal(existsSync(percorso.join(casa, 'localappdata', 'Regiklass')), false)
   })
 })

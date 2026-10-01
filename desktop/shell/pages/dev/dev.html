@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!--
+  Le opzioni di sviluppo, solo con `npm run dev`: `esbuild.mjs` costruisce
+  questa pagina soltanto in `dist-dev/`. Tutto quel che mostra arriva dal main
+  process (`desktop/shell/windows/devTools.ts`) e lo disegna `dev.ts`.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src registro:; script-src registro:; img-src registro: data:;">
+<title>Regiklass</title> <!-- testo-fisso: il marchio non si traduce -->
+<link rel="stylesheet" href="registro://app/dist/dev.css">
+</head>
+<body>
+<header>
+  <h1 data-testo="titolo"></h1>
+  <p class="quieto" data-testo="sottotitolo"></p>
+</header>
+<main>
+  <p id="rifiuto" class="guasto" role="alert" hidden></p>
+
+  <section>
+    <h2 data-testo="finestreAperte"></h2>
+    <ul id="finestre" class="righe"></ul>
+  </section>
+
+  <section>
+    <h2 data-testo="allAvvio"></h2>
+    <p class="quieto" data-testo="allAvvioSpiega"></p>
+    <div id="all-avvio" class="caselle"></div>
+    <label class="riga-campo">
+      <span data-testo="posizionePredefinita"></span>
+      <select id="posizione"></select>
+    </label>
+  </section>
+
+  <section>
+    <h2 data-testo="ricaricaERiavvio"></h2>
+    <label class="casella">
+      <input id="ricarica-automatica" type="checkbox">
+      <span data-testo="ricaricaAutomatica"></span>
+    </label>
+    <div class="pulsanti">
+      <button id="ricarica-tutte" type="button" data-testo="ricaricaTutte"></button>
+      <button id="riavvia" type="button" data-testo="riavvia"></button>
+    </div>
+    <p class="quieto" data-testo="riavviaSpiega"></p>
+  </section>
+
+  <section>
+    <h2 data-testo="cartelle"></h2>
+    <ul id="collegamenti" class="righe"></ul>
+  </section>
+
+  <section>
+    <h2 data-testo="ambiente"></h2>
+    <dl id="ambiente"></dl>
+  </section>
+</main>
+<script src="registro://app/dist/dev.js"></script>
+</body>
+</html>

@@ -28,6 +28,7 @@ import type {
   Osservazione,
   SegnoOsservato,
   PianoLezione,
+  Progetto,
   Recapito,
   Registro,
   Ricorrenza,
@@ -60,6 +61,37 @@ interface ClasseDaImportare {
   classeId: string
   anagrafica: boolean
   corsi: boolean
+}
+
+/**
+ * Un compito del progetto come lo manda chi lo scrive: senza inizi, proroghe e
+ * spunte, che hanno le loro azioni. Senza `id` è un compito nuovo.
+ */
+interface CompitoDaSalvare {
+  id?: string
+  titolo: string
+  descrizione?: string
+  fine: Iso | null
+  /**
+   * La lezione del corso entro cui finisce: la fine ne segue il giorno. Omessa,
+   * resta quella di prima se `fine` è ancora il suo giorno.
+   */
+  fineLezioneId?: string | null
+}
+
+/**
+ * Il progetto come lo manda chi salva la testata: le fasi si possono omettere
+ * (restano quelle di prima, o una di serie se è nuovo); date, sono tutte.
+ */
+export type ProgettoDaSalvare = Omit<Progetto, 'fasi'> & { fasi?: Progetto['fasi'] }
+
+/** Un giudizio del progetto: senza `id` è nuovo; con `lezioneId` la data è quella dell'ora. */
+interface GiudizioDaSalvare {
+  id?: string
+  allievoId: string | null
+  testo: string
+  data?: Iso | null
+  lezioneId?: string | null
 }
 
 export type Azione =
@@ -152,7 +184,6 @@ export type Azione =
     allinea: AllineamentoDaCalendario[]
     annulla: string[]
   }
-  | { tipo: 'piano.perLezione'; lezioneId: string; daPianoId?: string | null }
   | { tipo: 'classe.salva'; classe: Classe }
   | {
     tipo: 'classe.modifica'
@@ -384,6 +415,74 @@ export type Azione =
     colonnaId: string
     lezioneId: string
   }
+  // ---------------------------------------------------------------- progetti
+  /**
+   * La testata del progetto: titolo, descrizione, obiettivi, fasi, stato,
+   * criteri, livelli, risorse, note. Di un progetto che c'è già, compiti,
+   * giudizi e matrice restano quelli del registro (hanno le loro azioni). Un
+   * criterio o una fase senza id con il titolo di uno che c'è ne riprende
+   * l'id. Le fasi sono tutte e in ordine, mai nessuna (rifiuto); omesse
+   * restano quelle di prima. Le tappe dei piani di una fase tolta passano
+   * alla fase rimasta che la precedeva, o alla prima, e lo si dice. Celle che
+   * cadrebbero (criterio tolto, livello tolto o rinominato) fanno rifiutare,
+   * salvo `scartaCelle`. Un id che non c'è lo crea.
+   */
+  | { tipo: 'progetto.salva'; progetto: ProgettoDaSalvare; scartaCelle?: boolean }
+  /** Toglie il progetto; tappe dei piani e momenti restano, sganciati. */
+  | { tipo: 'progetto.elimina'; progettoId: string }
+  | { tipo: 'progetto.compito.salva'; progettoId: string; compito: CompitoDaSalvare }
+  | { tipo: 'progetto.compito.elimina'; progettoId: string; compitoId: string }
+  /**
+   * Chi comincia il compito, e quando: in un'ora (la data la segue) o in un
+   * giorno; con l'uno o l'altro chi l'aveva già cominciato lo sposta lì.
+   * Senza, oggi, e solo per chi non aveva cominciato.
+   */
+  | {
+    tipo: 'progetto.compito.inizia'
+    progettoId: string
+    compitoId: string
+    allieviIds: string[]
+    data?: Iso | null
+    lezioneId?: string | null
+  }
+  | { tipo: 'progetto.compito.togliInizio'; progettoId: string; compitoId: string; allieviIds: string[] }
+  /** Una fine sua per un allievo; `fine: null` la toglie e torna quella comune. */
+  | {
+    tipo: 'progetto.compito.proroga'
+    progettoId: string
+    compitoId: string
+    allievoId: string
+    fine: Iso | null
+    nota?: string
+  }
+  /** La spunta di un allievo; rispuntare non cambia il quando, ma la nota sì. */
+  | {
+    tipo: 'progetto.compito.fatto'
+    progettoId: string
+    compitoId: string
+    allievoId: string
+    fatto: boolean
+    nota?: string
+  }
+  /** Spunta il compito a chi frequenta; `fatto: false` toglie tutte le spunte, ritirati compresi. */
+  | { tipo: 'progetto.compito.fattoTutti'; progettoId: string; compitoId: string; fatto: boolean }
+  | { tipo: 'progetto.giudizio.salva'; progettoId: string; giudizio: GiudizioDaSalvare }
+  | { tipo: 'progetto.giudizio.elimina'; progettoId: string; giudizioId: string }
+  /**
+   * Una cella della matrice: allievo × criterio in un giorno (quello dell'ora,
+   * se data in un'ora; se no `data` o oggi). Un altro giorno è un'altra cella:
+   * così si vede la progressione. Livello nullo e nota vuota la tolgono.
+   */
+  | {
+    tipo: 'progetto.cella'
+    progettoId: string
+    allievoId: string
+    criterioId: string
+    data?: Iso | null
+    lezioneId?: string | null
+    livello: string | null
+    nota?: string
+  }
   // ------------------------------------------------------------- smistamento
   /**
    * PDF di classe scelti dal disco da dividere; i byte entrano nel documento
@@ -595,11 +694,16 @@ export type Azione =
         | 'diario'
         | 'corso'
         | 'supplenze'
+        | 'progetto-classe'
+        | 'progetto-allievo'
     /**
      * L'id di quel che si stampa: lezione, piano, corso (valutazioni, presenze, diario, corso, supplenze),
-     * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova).
+     * classe (fascicolo, ritratti), allievo (scheda), momento (scheda della prova),
+     * progetto (tutti e due i rapporti del progetto).
      */
     id: string
+    /** Solo per il rapporto individuale del progetto: di chi è. */
+    allievoId?: string | null
     /**
      * Solo per la scheda dell'allievo: il corso di cui parla, perché una media fra
      * due materie non ha senso. Vuoto se la scheda è per il docente di classe.
@@ -1529,6 +1633,7 @@ export type Vista =
   | 'docenteClasse'
   | 'corsi'
   | 'piani'
+  | 'progetti'
   | 'valutazioni'
   | 'check'
   | 'documenti'

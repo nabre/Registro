@@ -37,6 +37,8 @@ export interface Riferimenti {
   pianoId?: string | null
   classeId?: string | null
   allievoId?: string | null
+  /** Un progetto: i suoi fogli stanno con quelli del suo corso. */
+  progettoId?: string | null
   /**
    * Il giorno, quando lo si sa già senza cercarlo: quello di prima per una
    * voce spostata o tolta, che nel registro di adesso non c'è più.
@@ -69,6 +71,10 @@ export function corsiDaRifare (registro: Registro, riferimenti: Riferimenti): st
   if (riferimenti.pianoId) {
     const piano = registro.piani.find((p) => p.id === riferimenti.pianoId)
     return unico(piano?.corsoId)
+  }
+  if (riferimenti.progettoId) {
+    const progetto = registro.progetti.find((p) => p.id === riferimenti.progettoId)
+    return unico(progetto?.corsoId)
   }
 
   const classeId =
@@ -173,6 +179,7 @@ export function riferimentiCambiati (prima: Registro, dopo: Registro): Riferimen
   conCorso(prima.valutazioni, dopo.valutazioni, (v) => ({ valutazioneId: v.id }))
   conCorso(prima.piani, dopo.piani, (p) => ({ pianoId: p.id }))
   conCorso(prima.consegne, dopo.consegne, (c) => ({ corsoId: c.corsoId }))
+  conCorso(prima.progetti, dopo.progetti, (p) => ({ corsoId: p.corsoId }))
 
   return [...trovati.values()]
 }
@@ -200,6 +207,7 @@ function postiDi (registro: Registro): Map<string, Posto> {
   for (const v of registro.valutazioni) posti.set(`valutazioni:${v.id}`, { corsoId: v.corsoId, giorno: v.data }) // testo-fisso: chiave interna
   for (const p of registro.piani) posti.set(`piani:${p.id}`, { corsoId: p.corsoId, giorno: null }) // testo-fisso: chiave interna
   for (const c of registro.consegne ?? []) posti.set(`consegne:${c.id}`, { corsoId: c.corsoId, giorno: c.data }) // testo-fisso: chiave interna
+  for (const p of registro.progetti ?? []) posti.set(`progetti:${p.id}`, { corsoId: p.corsoId, giorno: null }) // testo-fisso: chiave interna
   return posti
 }
 

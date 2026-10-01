@@ -13,7 +13,10 @@ export const procedura = scrittura({
   idempotente: true,
   // Tutte le raccolte che `domain/repairs.ts` sa correggere: quali tocca davvero
   // dipende dalle correzioni trovate.
-  collezioni: ['registro', 'classi', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check'],
+  collezioni: [
+    'registro', 'classi', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check',
+    'progetti',
+  ],
   ingresso: vuoto(),
   esegui: inoltra(sistema, 'manutenzione.ripara'),
 })

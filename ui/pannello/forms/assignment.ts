@@ -376,7 +376,7 @@ export function moduloConsegna (opzioni: OpzioniModuloConsegna = {}): void {
                   ? prossime.map((l) => ({
                       valore: l.id,
                       testo:
-                        `${formattaData(l.data, 'giorno')} · ${formattaData(l.data)}` +
+                        formattaData(l.data, 'settimana') +
                         (l.corsoId === corsoId
                           ? ''
                           : ` · ${materiaDelCorsoId(l.corsoId)?.nome ?? t.altraMateria}`),

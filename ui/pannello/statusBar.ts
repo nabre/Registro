@@ -6,9 +6,10 @@
 // voce che non ha niente da dire non compare: una barra sempre uguale smette
 // di essere letta.
 
+import { numeroDellaLezione } from '../../core/dominio/courses.js'
 import { formattaData } from '../../core/dominio/dates.js'
 import { icona, type NomeIcona } from './components/icons.js'
-import { tendinaAperta } from './components/menu.js'
+import { alternaMenuSotto, tendinaAperta } from './components/menu.js'
 import { controllaDallaBarra, statoDegliAggiornamenti } from './views/settings/updates.js'
 import { h, type Figlio } from './dom.js'
 import { FUOCO_ANNO, menuDeiRegistri } from './commandBar.js'
@@ -17,8 +18,10 @@ import { apriLezione } from './pages.js'
 import {
   annoCorrente,
   nomeClasseDiLezione,
-  oraDaFare,
+  nomeCorso,
+  oreDaChiudereBarra,
   pendenzeDellaBarra,
+  prossimaOra,
   stato,
   vai,
 } from './state.js'
@@ -76,43 +79,67 @@ function voce (v: Voce): HTMLElement {
 /** «oggi», o il giorno scritto: quel che si direbbe a voce. */
 function quando (data: string): string {
   if (data === stato.adessoData) return testi().oggi
-  return formattaData(data, 'giorno')
+  return formattaData(data, 'settimana')
 }
 
-function vociDelRegistro (): Figlio[] {
-  // Sulle ore in agenda e nel periodo scelto: il conto è `oraDaFare`, lo stesso
-  // del comando «Ora da compilare».
-  const trovata = oraDaFare()
-  const t = testi()
+/** Il nome di fuoco della tendina delle ore da chiudere: vedi `tendinaAperta`. */
+const FUOCO_DA_CHIUDERE = 'stato-da-chiudere'
 
-  if (!trovata) {
-    return [
-      voce({
-        simbolo: 'lezione',
-        testo: t.nessunaOra,
-        titolo: t.nessunaOraTitolo,
-        tono: 'quiete',
-      }),
-    ]
+/**
+ * Due voci, perché sono due domande: «che cosa viene adesso» (la prossima ora
+ * secondo l'orologio, sempre) e «che cosa ho lasciato indietro» (le ore passate
+ * da chiudere, con la tendina per andarci). Prima stavano in una voce sola, e
+ * un buco di settimana scorsa nascondeva l'ora di fra dieci minuti.
+ */
+function vociDelRegistro (): Figlio[] {
+  const t = testi()
+  const voci: Figlio[] = []
+
+  const lezione = prossimaOra()
+  if (lezione) {
+    const inizio = lezione.slot[0]?.inizio ?? ''
+    voci.push(voce({
+      simbolo: 'lezione',
+      testo: t.prossima(nomeClasseDiLezione(lezione), quando(lezione.data), inizio),
+      titolo: t.prossimaTitolo(formattaData(lezione.data, 'lungo'), inizio),
+      tono: 'quiete',
+      al: () => apriLezione(lezione.id),
+    }))
+  } else {
+    voci.push(voce({
+      simbolo: 'lezione',
+      testo: t.nessunaOra,
+      titolo: t.nessunaOraTitolo,
+      tono: 'quiete',
+    }))
   }
 
-  const { lezione, manca } = trovata
-  const classe = nomeClasseDiLezione(lezione)
-  const inizio = lezione.slot[0]?.inizio ?? ''
+  const daChiudere = oreDaChiudereBarra()
+  if (daChiudere.length > 0) {
+    voci.push(voce({
+      simbolo: 'avviso',
+      testo: t.daChiudere(daChiudere.length),
+      titolo: t.daChiudereTitolo,
+      tono: 'attenzione',
+      fuoco: FUOCO_DA_CHIUDERE,
+      al: (evento) => {
+        alternaMenuSotto(evento.currentTarget as HTMLElement, [
+          { titolo: t.daChiudereMenu },
+          ...daChiudere.map((ora) => {
+            const numero = numeroDellaLezione(stato.registro, ora)
+            return {
+              testo: t.oraDaChiudere(numero, formattaData(ora.data, 'settimana'), nomeCorso(ora.corsoId)),
+              simbolo: 'avviso' as const,
+              chiave: ora.id,
+              al: () => apriLezione(ora.id),
+            }
+          }),
+        ])
+      },
+    }))
+  }
 
-  return [
-    voce({
-      simbolo: manca ? 'avviso' : 'lezione',
-      testo: manca
-        ? t.daCompilare(classe, quando(lezione.data))
-        : t.prossima(classe, quando(lezione.data), inizio),
-      titolo: manca
-        ? t.daCompilareTitolo(formattaData(lezione.data, 'lungo'))
-        : t.prossimaTitolo(formattaData(lezione.data, 'lungo'), inizio),
-      tono: manca ? 'attenzione' : 'quiete',
-      al: () => apriLezione(lezione.id),
-    }),
-  ]
+  return voci
 }
 
 // ------------------------------------------------------------- quel che resta

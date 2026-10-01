@@ -348,6 +348,7 @@ function visibili (): ElencoVisibile | null {
     // Le pagine puntate su una classe: l'elenco davanti è quello delle persone.
     case 'lezione':
     case 'valutazioni':
+    case 'progetti':
     case 'check':
     case 'docenteClasse':
     case 'allievo': {

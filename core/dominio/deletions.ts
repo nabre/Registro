@@ -23,7 +23,8 @@ import {
   type ContestoRapporto,
   type GenereRapporto,
 } from './locations.js'
-import type { Collezione, Consegna, Registro } from './models.js'
+import type { Collezione, Consegna, Progetto, Registro } from './models.js'
+import { allieviNominati, rimandiA, staccaDalleLezioni, togliAllievo } from './projects.js'
 import { testi } from './deletions.testi.js'
 
 export type Bersaglio =
@@ -36,6 +37,7 @@ export type Bersaglio =
   | { genere: 'piano'; id: string }
   | { genere: 'valutazione'; id: string }
   | { genere: 'consegna'; id: string }
+  | { genere: 'progetto'; id: string }
 
 /**
  * I file su disco che seguono l'eliminazione. Il dominio non tocca il disco —
@@ -86,6 +88,20 @@ function fileDellaConsegna (consegna: Consegna): string[] {
   if (consegna.fileTutti) file.push(consegna.fileTutti)
   if (consegna.fileFirme) file.push(consegna.fileFirme)
   return file
+}
+
+/** I file delle risorse di un progetto: se ne vanno con lui. */
+function fileDelProgetto (progetto: Progetto): string[] {
+  return progetto.risorse.map((r) => r.file).filter((f): f is string => Boolean(f))
+}
+
+/** Quante voci di un progetto parlano di un allievo. */
+function vociDellAllievo (progetto: Progetto, allievoId: string): number {
+  const suo = (voce: { allievoId: string | null }) => voce.allievoId === allievoId
+  return progetto.compiti.reduce(
+    (somma, c) => somma + [...c.inizi, ...c.proroghe, ...c.fatti].filter(suo).length,
+    0,
+  ) + progetto.giudizi.filter(suo).length + progetto.matrice.filter(suo).length
 }
 
 /** Se qualche comunicazione allega una di queste consegne. */
@@ -153,6 +169,13 @@ function chiusura (registro: Registro, bersaglio: Bersaglio) {
     if (corsi.has(lista.corsoId)) check.add(lista.id)
   }
 
+  // I progetti sono del corso come il check.
+  const progetti = new Set<string>()
+  if (bersaglio.genere === 'progetto') progetti.add(bersaglio.id)
+  for (const progetto of registro.progetti) {
+    if (corsi.has(progetto.corsoId)) progetti.add(progetto.id)
+  }
+
   // Gli smistamenti aspettano una consegna o una classe: senza, aspetterebbero
   // per sempre.
   const smistamenti = new Set<string>()
@@ -164,7 +187,7 @@ function chiusura (registro: Registro, bersaglio: Bersaglio) {
     }
   }
 
-  return { classi, corsi, materie, lezioni, valutazioni, consegne, check, smistamenti }
+  return { classi, corsi, materie, lezioni, valutazioni, consegne, check, progetti, smistamenti }
 }
 
 /**
@@ -338,6 +361,12 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
       invece = t.spuntareConsegna
       break
     }
+    case 'progetto': {
+      const progetto = registro.progetti.find((p) => p.id === bersaglio.id)
+      if (!progetto) return null
+      nome = t.nomeProgetto(progetto.titolo)
+      break
+    }
   }
 
   // ------------------------------------------------- l'allievo, un caso a sé
@@ -380,6 +409,13 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
       0,
     )
     if (spunteSue > 0) perdite.push(t.spunteDelCheck(spunteSue))
+
+    // E quel che i progetti dicono di lui: inizi, proroghe, spunte, giudizi, celle.
+    const vociProgetti = registro.progetti.reduce(
+      (somma, p) => somma + vociDellAllievo(p, bersaglio.id),
+      0,
+    )
+    if (vociProgetti > 0) perdite.push(t.vociDiProgetto(vociProgetti))
 
     const caselle = lezioniDellaClasse.reduce(
       (somma, l) => somma + (l.matrice ?? []).filter((c) => c.allievoId === bersaglio.id).length,
@@ -484,11 +520,17 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     if (sueConsegne > 0 || documentiSuoi > 0 || soloSue.size > 0) collezioni.add('consegne')
     if (smistamentiSuoi.size > 0 || smistamentiToccati) collezioni.add('smistamenti')
     if (spunteSue > 0) collezioni.add('check')
+    if (vociProgetti > 0) collezioni.add('progetti')
     if (suoi > 0) collezioni.add('fascicoli')
     if (allegateAComunicazioni(registro, soloSue)) collezioni.add('fascicoli')
 
-    // Le sue schede già stampate, in tutte le materie e tutti i periodi.
+    // Le sue schede già stampate, in tutte le materie e tutti i periodi, e i
+    // suoi fogli dei progetti della classe.
     aggiungiGenerati(registro, file, 'allievo', bersaglio.id)
+    const corsiSuoi = new Set(corsiDellaClasse(registro, bersaglio.classeId).map((c) => c.id))
+    for (const progetto of registro.progetti.filter((p) => corsiSuoi.has(p.corsoId))) {
+      aggiungiGenerati(registro, file, 'progetto-allievo', progetto.id, { allievoId: bersaglio.id })
+    }
 
     return {
       nome,
@@ -553,6 +595,9 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
             lista.spunte = lista.spunte.filter((s) => s.allievoId !== bersaglio.id)
           }
         }
+        for (const progetto of r.progetti) {
+          if (allieviNominati(progetto).has(bersaglio.id)) togliAllievo(progetto, bersaglio.id)
+        }
         const fascicoloVivo = fascicoloDellaClasse(r, bersaglio.classeId)
         if (fascicoloVivo) {
           for (const documento of fascicoloVivo.documenti) {
@@ -568,7 +613,7 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
   }
 
   // ------------------------------------------------------------- la catena
-  const { classi, corsi, lezioni, valutazioni, consegne, check, smistamenti } = insieme
+  const { classi, corsi, lezioni, valutazioni, consegne, check, progetti, smistamenti } = insieme
 
   if (bersaglio.genere === 'anno' && classi.size > 0) {
     const allievi = contaAllievi(registro, classi)
@@ -638,6 +683,48 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
   if (spunteStaccate > 0) {
     staccati.push(t.spunteConData(spunteStaccate))
     collezioni.add('check')
+  }
+
+  // I progetti del corso se ne vanno con lui, con i file delle loro risorse.
+  if (progetti.size > 0) {
+    collezioni.add('progetti')
+    let suoi = 0
+    for (const progetto of registro.progetti) {
+      if (!progetti.has(progetto.id)) continue
+      const fileSuoi = fileDelProgetto(progetto)
+      suoi += fileSuoi.length
+      file.documenti.push(...fileSuoi)
+    }
+    if (bersaglio.genere !== 'progetto') perdite.push(t.progetti(progetti.size))
+    else if (suoi > 0) perdite.push(t.fileDelProgetto(suoi))
+  }
+
+  // Tappe e momenti che lavoravano per un progetto che se ne va restano,
+  // sganciati. I momenti che se ne vanno comunque non si contano.
+  const tappeSganciate = registro.piani.reduce(
+    (somma, p) =>
+      somma + p.attivita.filter((a) => a.progettoId && progetti.has(a.progettoId)).length,
+    0,
+  )
+  if (tappeSganciate > 0) {
+    staccati.push(t.tappeSenzaProgetto(tappeSganciate))
+    collezioni.add('piani')
+  }
+  const momentiSganciati = registro.valutazioni.filter((v) =>
+    v.progettoId && progetti.has(v.progettoId) && !valutazioni.has(v.id)).length
+  if (momentiSganciati > 0) {
+    staccati.push(t.momentiSenzaProgetto(momentiSganciati))
+    collezioni.add('valutazioni')
+  }
+
+  // Le voci dei progetti date in un'ora che se ne va restano, col giorno
+  // dell'ora, come le spunte del check.
+  const vociStaccate = registro.progetti
+    .filter((p) => !progetti.has(p.id))
+    .reduce((somma, p) => somma + rimandiA(p, lezioni), 0)
+  if (vociStaccate > 0) {
+    staccati.push(t.progettiConData(vociStaccate))
+    collezioni.add('progetti')
   }
 
   // I PDF in quarantena di quelle consegne o classi vanno nel cestino con la
@@ -764,6 +851,11 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     }
   }
   if (bersaglio.genere === 'piano') aggiungiGenerati(registro, file, 'piano', bersaglio.id)
+  // I due fogli di ogni progetto che se ne va: della classe e di ognuno.
+  for (const progettoId of progetti) {
+    aggiungiGenerati(registro, file, 'progetto-classe', progettoId)
+    aggiungiGenerati(registro, file, 'progetto-allievo', progettoId)
+  }
 
   // Si dice: si rifanno con un pulsante, ma chi li aveva consegnati deve saperlo.
   const fogli = file.stampati.length
@@ -843,6 +935,10 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
             consegna.scadenzaLezioneId = null
           }
         }
+        // E per le voci dei progetti che restano.
+        for (const progetto of r.progetti) {
+          if (!progetti.has(progetto.id)) staccaDalleLezioni(r, progetto, lezioni)
+        }
         // Lo stesso per le spunte del check.
         for (const lista of r.check) {
           for (const spunta of lista.spunte) {
@@ -863,6 +959,22 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
         staccaDalleComunicazioni(r, consegne)
       }
       if (check.size > 0) r.check = r.check.filter((c) => !check.has(c.id))
+      if (progetti.size > 0) {
+        r.progetti = r.progetti.filter((p) => !progetti.has(p.id))
+        // Le tappe e i momenti restano, senza il rimando: `delete` sulle tappe
+        // perché lì il campo vive solo quando c'è.
+        for (const piano of r.piani) {
+          for (const attivita of piano.attivita) {
+            if (attivita.progettoId && progetti.has(attivita.progettoId)) {
+              delete attivita.progettoId
+              delete attivita.faseProgettoId
+            }
+          }
+        }
+        for (const momento of r.valutazioni) {
+          if (momento.progettoId && progetti.has(momento.progettoId)) momento.progettoId = null
+        }
+      }
       if (smistamenti.size > 0) r.smistamenti = r.smistamenti.filter((s) => !smistamenti.has(s.id))
     },
   }

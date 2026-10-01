@@ -17,7 +17,7 @@ export const procedura = scrittura({
   idempotente: false,
   collezioni: [
     'registro', 'classi', 'corsi', 'lezioni', 'piani', 'valutazioni',
-    'fascicoli', 'consegne', 'check', 'smistamenti', 'coordinate',
+    'fascicoli', 'consegne', 'check', 'progetti', 'smistamenti', 'coordinate',
   ],
   ingresso: vuoto(),
   esegui: inoltra(storia, 'storia.ripristina'),

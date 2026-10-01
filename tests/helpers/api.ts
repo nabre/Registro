@@ -89,6 +89,7 @@ export {
   creaLezione,
   creaMateria,
   creaPiano,
+  creaProgetto,
   creaRecapito,
   creaRisorsa,
   creaSlot,

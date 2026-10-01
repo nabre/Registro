@@ -476,6 +476,34 @@ describe('corso.presenze e i suoi tre denominatori', () => {
   })
 })
 
+describe('un id che non c’è dice dove prenderne uno buono', () => {
+  // Il rimedio è la seconda frase del «non trovato»: senza, un modello riprova
+  // con altri id inventati. Le guardie di `common/` lo mettono da sé.
+  const SPARITO = 'xxx-sparito-0001'
+  const casi = () => [
+    ['corso.presenze', { corsoId: SPARITO }, /corsi\.elenco/],
+    ['valutazioni.elenco', { corsoId: SPARITO }, /corsi\.elenco/],
+    ['rapporti.completo', { corsoId: SPARITO, semestreId: null }, /corsi\.elenco/],
+    ['piani.leggi', { pianoId: SPARITO }, /piani\.elenco/],
+    ['piani.assegna', { lezioneId: SPARITO, pianoId: null }, /ore\.elenco/],
+    ['valutazioni.daAttivita', { lezioneId: SPARITO, attivitaId: SPARITO }, /ore\.elenco/],
+    ['mappa.geocodifica', { classeIds: [SPARITO] }, /classi\.elenco/],
+    ['persone.scheda', { allievoId: SPARITO }, /persone\.cerca/],
+    ['persone.foto.togli', { classeId: classe.id, allievoId: SPARITO }, /persone\.cerca/],
+  ]
+
+  it('ogni guardia porta il suo rimedio, e non scrive niente', async () => {
+    for (const [nome, ingresso, rimedio] of casi()) {
+      const prima = archivio.revisione
+      const esito = await api.chiama(archivio, nome, ingresso)
+      assert.equal(esito.ok, false, nome)
+      assert.equal(esito.codice, 'non-trovato', `${nome}: ${JSON.stringify(esito)}`)
+      assert.match(esito.messaggi.join(' '), rimedio, `${nome} senza rimedio`)
+      assert.equal(archivio.revisione, prima, nome)
+    }
+  })
+})
+
 describe('le letture del registro', () => {
   it('registro.riassunto conta quel che c’è dentro davvero', async () => {
     const { dati } = await api.chiama(archivio, 'registro.riassunto', {})

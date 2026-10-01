@@ -5,14 +5,20 @@
 import { NOMI_GENERE } from '../../core/dominio/map.js'
 import type { NomeIcona } from './components/icons.js'
 import { AREE } from './views/settings/sections.js'
+import type { Lezione, Progetto } from '../../core/dominio/models.js'
 import {
   classeDellAllievo,
+  lezionePerId,
+  pianoPerId,
+  progettoPerId,
   stato,
   type ModoCalendario,
   type SchedaDocumenti,
   type SchedaLezione,
   type SchedaPersona,
 } from './state.js'
+import { Uno } from '../../core/dominio/lexicon.js'
+import { lessico } from '../../core/dominio/lexicon.testi.js'
 import { parole } from '../../core/dominio/words.testi.js'
 import { testi } from './tabs.testi.js'
 
@@ -20,16 +26,49 @@ import { testi } from './tabs.testi.js'
 // lingua prima di caricare il resto e si ricarica quando cambia (`core/i18n/page.ts`).
 const t = testi()
 
-/** Le tre linguette del registro dell'ora. */
-export const PORZIONI_LEZIONE: ReadonlyArray<{
+/** Le quattro linguette del registro dell'ora; quali valgono per un'ora lo dice `porzioniLezione`. */
+const PORZIONI_LEZIONE: ReadonlyArray<{
   valore: SchedaLezione
   testo: string
   simbolo: NomeIcona
 }> = [
   { valore: 'amministrazione', testo: t.amministrazione, simbolo: 'todo' },
   { valore: 'lezione', testo: t.lezione, simbolo: 'piano' },
+  { valore: 'progetto', testo: Uno(lessico().progetto), simbolo: 'progetto' },
   { valore: 'annotazioni', testo: t.annotazioni, simbolo: 'matita' },
 ]
+
+/**
+ * I progetti su cui lavora l'ora: quelli del corso che le attività del suo
+ * piano nominano, nell'ordine delle attività. Senza, la linguetta Progetto non
+ * c'è: un progetto solo «in corso» non basta a farla comparire.
+ */
+export function progettiDellOra (lezione: Lezione): Progetto[] {
+  const progetti: Progetto[] = []
+  for (const attivita of pianoPerId(lezione.pianoId)?.attivita ?? []) {
+    const progetto = progettoPerId(attivita.progettoId ?? null)
+    if (progetto && progetto.corsoId === lezione.corsoId && !progetti.includes(progetto))
+      progetti.push(progetto)
+  }
+  return progetti
+}
+
+/** Le linguette che valgono per quest'ora: Progetto solo se il piano ne nomina uno. */
+export function porzioniLezione (lezione: Lezione | null) {
+  return lezione && progettiDellOra(lezione).length > 0
+    ? PORZIONI_LEZIONE
+    : PORZIONI_LEZIONE.filter((p) => p.valore !== 'progetto')
+}
+
+/**
+ * La linguetta aperta davvero: quella scelta, se l'ora ce l'ha; altrimenti la
+ * prima. La scelta resta: l'ora dopo, con un progetto, si riapre su Progetto.
+ */
+export function schedaLezioneAperta (lezione: Lezione | null): SchedaLezione {
+  const porzioni = porzioniLezione(lezione)
+  const scelta = porzioni.find((p) => p.valore === stato.schedaLezione)
+  return (scelta ?? porzioni[0]).valore
+}
 
 /** Le tre linguette della scheda di una persona; i nomi vengono dal lessico dove c'è. */
 const PORZIONI_PERSONA: ReadonlyArray<{
@@ -154,7 +193,7 @@ export function porzioniDellaVista (): Porzione[] {
 
   switch (stato.vista) {
     case 'lezione':
-      return dette(PORZIONI_LEZIONE)
+      return dette(porzioniLezione(lezionePerId(stato.lezioneId)))
     case 'allievo':
     case 'persone': {
       const classe = classeDellAllievo(stato.allievoId, stato.classeId)
@@ -181,7 +220,8 @@ export function porzioniDellaVista (): Porzione[] {
 export function porzioneAttiva (): Porzione | null {
   switch (stato.vista) {
     case 'lezione': {
-      const linguetta = PORZIONI_LEZIONE.find((p) => p.valore === stato.schedaLezione)
+      const aperta = schedaLezioneAperta(lezionePerId(stato.lezioneId))
+      const linguetta = PORZIONI_LEZIONE.find((p) => p.valore === aperta)
       return linguetta ? { testo: linguetta.testo, simbolo: linguetta.simbolo } : null
     }
     // La scheda della sola persona e l'elenco con la scheda accanto: stessa linguetta.

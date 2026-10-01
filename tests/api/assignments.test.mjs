@@ -135,6 +135,22 @@ describe('consegna.salva e il cambio di classe', () => {
     assert.equal(consegnaViva(consegna.id).corsoId, corso.id, 'resta dov’era')
   })
 
+  it('una consegna rimasta senza corso si riaggancia, anche con le spunte', async () => {
+    // Come le ore e le prove: di un corso sparito non si sa la classe, e
+    // rifiutare lascerebbe la consegna orfana per sempre.
+    const sparito = api.creaCorso(classe.id, corso.materiaId, 'Corso tolto')
+    const consegna = { ...api.creaConsegna(sparito.id, 'Orfana', '2026-10-01') }
+    consegna.fatte = [{ chi: rossi.id, fattaIl: '2026-10-02T08:00:00.000Z' }]
+    archivio.modifica((r) => { r.consegne.push(consegna) }, ['consegne'])
+
+    const esito = await esegui({
+      tipo: 'consegna.salva', consegna: { ...consegnaViva(consegna.id), corsoId: corso.id },
+    })
+
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.equal(consegnaViva(consegna.id).corsoId, corso.id)
+  })
+
   it('senza spunte né documenti il cambio di classe passa', async () => {
     const consegna = nuovaConsegna('Gita')
     const esito = await esegui({

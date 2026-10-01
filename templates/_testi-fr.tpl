@@ -68,6 +68,10 @@ lezioni-svolte: Leçons données
 ud-svolte: Périodes données
 presenza-media: Présence moyenne
 media-di-classe: Moyenne de classe
+lezioni: Leçons
+media-progetto: Moyenne du projet
+periodo: Période
+avanzamento: Avancement
 
 # --- I titoli delle sezioni
 
@@ -111,6 +115,22 @@ dettaglio-assenze: Détail des absences et signatures
 diario-lezioni: Journal des leçons
 piani-lezione: Plans de leçon
 pendenze: En suspens du cours
+criteri: Critères d'évaluation
+scala-livelli: Échelle des niveaux
+lezioni-del-progetto: Leçons du projet
+avanzamento-attivita: Avancement des activités
+fasi-del-progetto: Phases du projet
+valutazioni-della-fase: Évaluations de la phase
+compiti-del-progetto: Tâches
+avanzamento-compiti: Tâches personne par personne
+livelli-raggiunti: Niveaux atteints
+progressione: Progression
+valutazioni-del-progetto: Évaluations du projet
+giudizi: Appréciations
+risorse: Ressources
+presenze-progetto: Présences aux leçons du projet
+legenda-compiti: Chaque case indique quand la personne a commencé la tâche, jusqu'à quand elle doit la terminer (avec la prolongation, si elle en a eu une) et où elle en est.
+nota-livelli: Le dernier niveau attribué pour chaque critère. Le parcours pour y arriver, jour après jour, figure dans le tableau de la progression.
 
 # --- Le frasi
 

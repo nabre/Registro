@@ -1,7 +1,7 @@
 import { registro } from '../../../../core/azioni/register.js'
 import { inoltra, scrittura } from '../../../core.js'
 import { identificatore, oggetto, opzionale, testo } from '../../../schemas.js'
-import { esigiPersona } from '../common.js'
+import { esigiPersonaDellaClasse } from '../../common/register.js'
 import { testi } from '../persone.testi.js'
 
 /**
@@ -20,7 +20,7 @@ export const procedura = scrittura({
     file: opzionale(testo({ aiuto: () => testi().foto.imposta.file })),
   }),
   esegui: (ambito, ingresso) => {
-    esigiPersona(ambito, ingresso.classeId, ingresso.allievoId)
+    esigiPersonaDellaClasse(ambito, ingresso.classeId, ingresso.allievoId)
     return inoltra(registro, 'allievo.foto.imposta')(ambito, ingresso)
   },
 })

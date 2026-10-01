@@ -40,6 +40,8 @@ import { celleDiAllievo, nomeSegnoScritto } from './observations.js'
 import { testoDiVoce, vociDiLista } from './lists.js'
 import { recuperiDelMomento, rigaDelRecupero } from './retakes.js'
 import { riconsegneDegliAllievi } from './returns.js'
+import { avanzamentoConsegna, dataConsegna, scadenzaConsegna } from './assignments.js'
+import { dataSpunta } from './check.js'
 import {
   durataMinuti,
   etichettaSemestre,
@@ -72,6 +74,23 @@ import { cartaDeiCorsi } from './letterhead.js'
 import { parole } from './words.testi.js'
 import { testi } from './reportData.testi.js'
 
+/**
+ * A chi va una consegna, con le stesse parole in ogni foglio: il docente, le
+ * persone scelte per nome, o tutta la classe.
+ */
+function aChiConsegna (consegna: Consegna, nomi: ReadonlyMap<string, string>): string {
+  const t = testi()
+  if (consegna.a === 'docente') return t.docente
+  if (consegna.a === 'allievi') return consegna.allieviIds.map((id) => nomi.get(id) ?? id).join(', ')
+  return t.tuttaLaClasse
+}
+
+/** Il «per quando» di una consegna: il giorno dell'ora a cui è legata, o la data scritta. */
+function perQuando (registro: Registro, consegna: Consegna): string {
+  const scadenza = scadenzaConsegna(registro, consegna)
+  return scadenza ? formattaData(scadenza) : ''
+}
+
 /** Un rapporto vuoto su cui i costruttori scrivono. */
 function vuoto (): DatiRapporto {
   return { valori: {}, elenchi: {}, tabelle: {}, grafici: {} }
@@ -92,7 +111,7 @@ type Colonne = ReturnType<typeof nomiDiColonna>
  * dall'italiano) i nomi di serie con cui i modelli scelgono le colonne (vedi
  * `Tabella.chiavi`). La scelta si chiama due volte, una per lingua.
  */
-function colonne (scegli: (c: Colonne) => string[]): Pick<Tabella, 'intestazione' | 'chiavi'> {
+export function colonne (scegli: (c: Colonne) => string[]): Pick<Tabella, 'intestazione' | 'chiavi'> {
   const intestazione = scegli(nomiDiColonna(lingua()))
   const chiavi = scegli(nomiDiColonna(LINGUA_PREDEFINITA))
   return chiavi.every((nome, i) => nome === intestazione[i])
@@ -148,7 +167,7 @@ export const CHIAVE_CARTA = 'cartaIntestata'
  * (`legenda-presenze`). `{{legendaPresenze}}` è composta qui per i modelli che
  * non usano `_testi.tpl`.
  */
-function legenda (dati: DatiRapporto): void {
+export function legenda (dati: DatiRapporto): void {
   const vive = SIGLE_PRESENZA.filter((v) => v.valore !== 'non-impostato')
   for (const voce of vive) {
     const nome = voce.valore.replace(/-(.)/g, (_, c: string) => c.toUpperCase())
@@ -273,12 +292,8 @@ export function datiLezione (
     righe: consegne.map((consegna) => [
       t.tipoConsegna(consegna.tipo),
       consegna.testo,
-      consegna.a === 'docente'
-        ? t.docente
-        : consegna.a === 'allievi'
-          ? consegna.allieviIds.map((id) => nomi.get(id) ?? id).join(', ')
-          : t.tuttaLaClasse,
-      consegna.scadenza ? formattaData(consegna.scadenza) : '',
+      aChiConsegna(consegna, nomi),
+      perQuando(registro, consegna),
     ]),
   }
 
@@ -366,7 +381,6 @@ export function datiPiano (registro: Registro, piano: PianoLezione): DatiRapport
       ),
     ),
     prerequisiti: piano.prerequisiti ?? '',
-    note: piano.note ?? '',
     etichette: piano.tag.join(', '),
   }
 
@@ -586,7 +600,9 @@ export function datiValutazioni (
           const spunta = checkCorso.spunte.find(
             (s) => s.allievoId === allievo.id && s.colonnaId === col.id,
           )
-          return spunta ? (spunta.data ? `✓ ${formattaData(spunta.data)}` : '✓') : ''
+          if (!spunta) return ''
+          const giorno = dataSpunta(registro, spunta)
+          return giorno ? `✓ ${formattaData(giorno)}` : '✓'
         }),
       ]),
     }
@@ -978,13 +994,13 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
     ...colonne((c) => [c.documento, c.categoria, c.scadenza, c.consegnati, c.firme]),
     pesi: [5, 3, 2, 2, 2],
     righe: richieste.map((r) => {
-      const dest = r.a === 'classe' ? classe.allievi : classe.allievi.filter((a) => r.allieviIds.includes(a.id))
-      const consegnati = `${r.fatte.length}/${dest.length}`
+      const { fatte, destinatari } = avanzamentoConsegna(r, classe)
+      const consegnati = `${fatte}/${destinatari.length}`
       const firme = r.firmeRichieste ? (r.fileFirme ? '✓' : '—') : '—'
       return [
         r.testo,
         r.documento ? t.categoria(r.documento) : '',
-        r.scadenza ? formattaData(r.scadenza) : '',
+        perQuando(registro, r),
         consegnati,
         firme,
       ]
@@ -1031,16 +1047,18 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
   const righePendenze: string[][] = []
 
   // Documenti da raccogliere non ancora completati o con firme mancanti
+  // Le persone si contano come nel todo: chi frequenta, fra quelli a cui tocca.
+  const nomiClasse = new Map(classe.allievi.map((a) => [a.id, nomeCompleto(a)]))
   for (const r of richieste) {
-    const dest = r.a === 'classe' ? classe.allievi : classe.allievi.filter((a) => r.allieviIds.includes(a.id))
-    const chiusi = r.fatte.length >= dest.length && (!r.firmeRichieste || r.fileFirme)
+    const { fatte, destinatari, completa } = avanzamentoConsegna(r, classe)
+    const chiusi = completa && (!r.firmeRichieste || r.fileFirme)
     if (!chiusi) {
       righePendenze.push([
         t.pendenzeTipo.documento,
         r.testo,
-        t.laClasse,
-        r.scadenza ? formattaData(r.scadenza) : '',
-        `${r.fatte.length}/${dest.length}`,
+        aChiConsegna(r, nomiClasse),
+        perQuando(registro, r),
+        `${fatte}/${destinatari.length}`,
       ])
     }
   }
@@ -1079,18 +1097,19 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
 
   // Consegne aperte delle materie della classe
   const corsiClasse = corsiDellaClasse(registro, classe.id)
+  // Le richieste di documenti sono già sopra, ognuna una riga sola.
   const consegneClasse = (registro.consegne ?? []).filter((c) =>
-    corsiClasse.some((co) => co.id === c.corsoId),
+    !c.documento && corsiClasse.some((co) => co.id === c.corsoId),
   )
   for (const c of consegneClasse) {
-    const tot = c.a === 'classe' ? classe.allievi.length : (c.a === 'docente' ? 1 : c.allieviIds.length)
-    if (c.fatte.length < tot) {
+    const { fatte, destinatari, completa } = avanzamentoConsegna(c, classe)
+    if (!completa) {
       righePendenze.push([
         t.pendenzeTipo.consegna,
         c.testo,
-        c.a === 'docente' ? t.docente : t.laClasse,
-        c.scadenza ? formattaData(c.scadenza) : '',
-        `${c.fatte.length}/${tot}`,
+        aChiConsegna(c, nomiClasse),
+        perQuando(registro, c),
+        `${fatte}/${destinatari.length}`,
       ])
     }
   }
@@ -1109,11 +1128,12 @@ export function datiFascicolo (registro: Registro, classe: Classe): DatiRapporto
     for (const col of chk.colonne) {
       for (const allievo of classe.allievi) {
         const spunta = chk.spunte.find((s) => s.allievoId === allievo.id && s.colonnaId === col.id)
+        const giorno = spunta ? dataSpunta(registro, spunta) : ''
         righeCheck.push([
           c.titolo,
           col.titolo,
           nomeCompleto(allievo),
-          spunta?.data ? formattaData(spunta.data) : '',
+          giorno ? formattaData(giorno) : '',
           spunta ? '✓' : '—',
         ])
       }
@@ -1420,7 +1440,7 @@ export function datiAllievo (
             (c.a === 'classe' || (c.a === 'allievi' && c.allieviIds.includes(allievo.id))) &&
             (c.dataLezioneId === lezione.id ||
               c.scadenzaLezioneId === lezione.id ||
-              c.data === lezione.data),
+              dataConsegna(registro, c) === lezione.data),
         )
         .map((c) => c.testo)
         .join('; ')
@@ -1503,7 +1523,7 @@ export function datiAllievo (
       righeCheck.push([
         c.titolo,
         col.titolo,
-        spunta ? formattaData(spunta.data) : '—',
+        spunta ? formattaData(dataSpunta(registro, spunta)) : '—',
         spunta ? '✓' : '—',
       ])
     }
@@ -1533,7 +1553,7 @@ export function datiAllievo (
         corsoTitolo,
         t.tipoConsegna(consegna.tipo),
         consegna.testo,
-        consegna.scadenza ? formattaData(consegna.scadenza) : '',
+        perQuando(registro, consegna),
         stato,
       ]
     }),
@@ -1670,7 +1690,7 @@ export function datiDiario (
             c.corsoId === corso.id &&
             (c.dataLezioneId === lezione.id ||
               c.scadenzaLezioneId === lezione.id ||
-              c.data === lezione.data),
+              dataConsegna(registro, c) === lezione.data),
         )
         .map((c) => c.testo)
         .join('; ')
@@ -1851,7 +1871,10 @@ export function datiCorso (
   const righePendenze: string[][] = []
 
   const recuperi = momenti.flatMap((m) => recuperiDelMomento(registro, m, classe, oggi()))
-  const aperti = recuperi.filter((r) => r.stato !== 'fatto' || !r.riconsegnataIl)
+  // Come nel todo: aperto finché non è dispensato, o fatto e ridato.
+  const aperti = recuperi.filter(
+    (r) => r.stato !== 'dispensato' && !(r.stato === 'fatto' && r.riconsegnataIl),
+  )
   for (const r of aperti) {
     righePendenze.push([
       t.pendenzeTipo.recupero,
@@ -1874,15 +1897,17 @@ export function datiCorso (
   }
 
   const consegneCorso = (registro.consegne ?? []).filter((c) => c.corsoId === corso.id)
+  const nomiCorso = new Map((classe?.allievi ?? []).map((a) => [a.id, nomeCompleto(a)]))
   for (const c of consegneCorso) {
-    const tot = c.a === 'classe' ? (classe?.allievi.length ?? 0) : (c.a === 'docente' ? 1 : c.allieviIds.length)
-    if (c.fatte.length < tot) {
+    // Come nel todo: chi frequenta, fra quelli a cui tocca.
+    const { fatte, destinatari, completa } = avanzamentoConsegna(c, classe)
+    if (!completa) {
       righePendenze.push([
         t.pendenzeTipo.consegna,
         c.testo,
-        c.a === 'docente' ? t.docente : t.tuttaLaClasse,
-        c.scadenza ? formattaData(c.scadenza) : '',
-        `${c.fatte.length}/${tot}`,
+        aChiConsegna(c, nomiCorso),
+        perQuando(registro, c),
+        `${fatte}/${destinatari.length}`,
       ])
     }
   }
@@ -1925,12 +1950,20 @@ export function datiSupplenze (
     valutazioni: registro.valutazioni.filter(
       (v) => !delCorso(v.corsoId) || (v.lezioneId !== null && sue.has(v.lezioneId)),
     ),
-    consegne: (registro.consegne ?? []).filter(
-      (c) =>
-        !delCorso(c.corsoId) ||
-        (c.dataLezioneId !== null && sue.has(c.dataLezioneId)) ||
-        (c.scadenzaLezioneId !== null && sue.has(c.scadenzaLezioneId)),
-    ),
+    // I giorni si leggono sul registro intero: legata a un'ora non di
+    // supplenza, nel registro ristretto la consegna perderebbe il «per quando».
+    consegne: (registro.consegne ?? [])
+      .filter(
+        (c) =>
+          !delCorso(c.corsoId) ||
+          (c.dataLezioneId !== null && sue.has(c.dataLezioneId)) ||
+          (c.scadenzaLezioneId !== null && sue.has(c.scadenzaLezioneId)),
+      )
+      .map((c) => ({
+        ...c,
+        data: dataConsegna(registro, c),
+        scadenza: scadenzaConsegna(registro, c),
+      })),
     // Un piano del corso resta solo se una supplenza l'ha usato.
     piani: registro.piani.filter(
       (p) =>

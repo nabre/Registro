@@ -217,3 +217,18 @@ describe('la vita della finestra', () => {
     assert.ok(preferenze.preload.endsWith(percorso.join('dist', 'preload.cjs')))
   })
 })
+
+describe('la sentinella nascosta', () => {
+  it('gira in sandbox come ogni altra finestra, con le preferenze comuni', async () => {
+    // Una pagina vuota, ma pur sempre un renderer: senza `sandbox` era l'unica
+    // finestra dell'applicazione fuori dalla gabbia di Chromium.
+    const { assicuraSentinella } = await importaSorgente('desktop/shell/sentinel.ts')
+    const sentinella = assicuraSentinella()
+    const preferenze = sentinella.opzioni.webPreferences
+    assert.equal(preferenze.sandbox, true)
+    assert.equal(preferenze.nodeIntegration, false)
+    assert.equal(preferenze.contextIsolation, true)
+    assert.equal(typeof preferenze.defaultFontSize, 'number', 'mancano le preferenze comuni')
+    assert.equal(sentinella.opzioni.show, false)
+  })
+})

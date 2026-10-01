@@ -363,6 +363,7 @@
                   "docenteClasse",
                   "corsi",
                   "piani",
+                  "progetti",
                   "valutazioni",
                   "check",
                   "documenti",
@@ -2642,7 +2643,8 @@
       "collezioni": [
         "classi",
         "corsi",
-        "check"
+        "check",
+        "progetti"
       ],
       "riga": "regi chiama classi.duplica --classeId <testo> --annoId <testo> --nome <testo>",
       "parametri": {
@@ -2770,6 +2772,7 @@
         "valutazioni",
         "consegne",
         "check",
+        "progetti",
         "smistamenti"
       ],
       "riga": "regi chiama classi.elimina --classeId <testo>",
@@ -3692,6 +3695,7 @@
         "valutazioni",
         "consegne",
         "check",
+        "progetti",
         "smistamenti",
         "fascicoli"
       ],
@@ -5039,7 +5043,8 @@
         "piani",
         "valutazioni",
         "consegne",
-        "check"
+        "check",
+        "progetti"
       ],
       "riga": "regi chiama manutenzione.ripara",
       "parametri": {
@@ -5374,7 +5379,8 @@
         "piani",
         "valutazioni",
         "consegne",
-        "check"
+        "check",
+        "progetti"
       ],
       "riga": "regi chiama materie.unisci --daId <testo> --aId <testo>",
       "parametri": {
@@ -6110,7 +6116,8 @@
         "lezioni",
         "valutazioni",
         "consegne",
-        "check"
+        "check",
+        "progetti"
       ],
       "riga": "regi chiama ore.chiusure.togli --dal <testo> --al <testo>",
       "parametri": {
@@ -6494,7 +6501,8 @@
         "lezioni",
         "valutazioni",
         "consegne",
-        "check"
+        "check",
+        "progetti"
       ],
       "riga": "regi chiama ore.elimina --lezioneId <testo>",
       "parametri": {
@@ -7534,6 +7542,7 @@
         "valutazioni",
         "consegne",
         "check",
+        "progetti",
         "fascicoli",
         "smistamenti"
       ],
@@ -8294,10 +8303,6 @@
               {
                 "campo": "prerequisiti",
                 "etichetta": "Prerequisiti"
-              },
-              {
-                "campo": "note",
-                "etichetta": "Note"
               }
             ]
           },
@@ -8336,42 +8341,6 @@
             ]
           }
         ]
-      }
-    },
-    {
-      "nome": "piani.perLezione",
-      "funzione": "piani_perLezione",
-      "genere": "scrittura",
-      "titolo": "Apre il piano di un’ora: generato con obiettivi e scaletta sulle sue UD, o copiato da uno che c’è",
-      "idempotente": true,
-      "collezioni": [
-        "piani",
-        "lezioni"
-      ],
-      "riga": "regi chiama piani.perLezione --lezioneId <testo>",
-      "parametri": {
-        "type": "object",
-        "properties": {
-          "lezioneId": {
-            "type": "string",
-            "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "daPianoId": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Il piano da ricopiare. Senza, o nullo, ne nasce uno con obiettivi e scaletta da rivedere",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "lezioneId"
-        ],
-        "additionalProperties": true
       }
     },
     {
@@ -8460,6 +8429,680 @@
         "type": "object",
         "properties": {},
         "required": [],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.cella",
+      "funzione": "progetti_cella",
+      "genere": "scrittura",
+      "titolo": "Scrive una cella della matrice del progetto: il livello di una persona su un criterio, in un giorno",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.cella --progettoId <testo> --allievoId <testo> --criterioId <testo> --livello <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "allievoId": {
+            "type": "string",
+            "description": "Chi: una persona della classe del corso del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "criterioId": {
+            "type": "string",
+            "description": "Il criterio del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "data": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Il giorno, se non è dentro un’ora. Senza, oggi",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "examples": [
+              "2026-09-21"
+            ]
+          },
+          "lezioneId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "L’ora del corso: la data sarà la sua, e la seguirà",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "livello": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Il valore di un livello della scala del progetto, o null per lasciare solo la nota",
+            "maxLength": 64
+          },
+          "nota": {
+            "type": "string",
+            "description": "Una nota sulla cella. Senza, resta quella che c’è; livello null e nota vuota tolgono la cella",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "progettoId",
+          "allievoId",
+          "criterioId",
+          "livello"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.elimina",
+      "funzione": "progetti_compito_elimina",
+      "genere": "scrittura",
+      "titolo": "Toglie un compito dal progetto, con inizi, proroghe e spunte",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.elimina --progettoId <testo> --compitoId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.fatto",
+      "funzione": "progetti_compito_fatto",
+      "genere": "scrittura",
+      "titolo": "Spunta il compito fatto da una persona, o toglie la spunta",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.fatto --progettoId <testo> --compitoId <testo> --allievoId <testo> --fatto <booleano>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "allievoId": {
+            "type": "string",
+            "description": "Chi: una persona della classe del corso del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "fatto": {
+            "type": "boolean",
+            "description": "true spunta, false toglie la spunta"
+          },
+          "nota": {
+            "type": "string",
+            "description": "Una nota sulla spunta",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId",
+          "allievoId",
+          "fatto"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.fattoTutti",
+      "funzione": "progetti_compito_fattoTutti",
+      "genere": "scrittura",
+      "titolo": "Spunta il compito a tutti quelli che frequentano, o toglie tutte le spunte",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.fattoTutti --progettoId <testo> --compitoId <testo> --fatto <booleano>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "fatto": {
+            "type": "boolean",
+            "description": "true spunta chi frequenta e non l’aveva; false toglie tutte le spunte, anche di chi s’è ritirato, con le loro note"
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId",
+          "fatto"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.inizia",
+      "funzione": "progetti_compito_inizia",
+      "genere": "scrittura",
+      "titolo": "Segna quando delle persone hanno cominciato un compito. Con data o ora lo sposta anche a chi l’aveva; senza, oggi e solo a chi non aveva cominciato",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.inizia --progettoId <testo> --compitoId <testo> --allieviIds <elenco>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "allieviIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "description": "Chi comincia: persone della classe del corso"
+          },
+          "data": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Il giorno, se non è dentro un’ora. Senza, oggi",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "examples": [
+              "2026-09-21"
+            ]
+          },
+          "lezioneId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "L’ora del corso: la data sarà la sua, e la seguirà",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId",
+          "allieviIds"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.proroga",
+      "funzione": "progetti_compito_proroga",
+      "genere": "scrittura",
+      "titolo": "Dà a una persona una fine sua per il compito, o la toglie",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.proroga --progettoId <testo> --compitoId <testo> --allievoId <testo> --fine <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "allievoId": {
+            "type": "string",
+            "description": "Chi: una persona della classe del corso del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "fine": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Il giorno nuovo, o null per tornare alla fine comune",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "examples": [
+              "2026-09-21"
+            ]
+          },
+          "nota": {
+            "type": "string",
+            "description": "Perché",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId",
+          "allievoId",
+          "fine"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.salva",
+      "funzione": "progetti_compito_salva",
+      "genere": "scrittura",
+      "titolo": "Crea un compito del progetto o ne cambia titolo, descrizione e fine comune",
+      "idempotente": false,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.salva --progettoId <testo> --compito <oggetto>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compito": {
+            "type": "object",
+            "description": "Il compito: inizi, proroghe e spunte restano quelli del registro",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "L’id del compito da cambiare; senza, è un compito nuovo",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "titolo": {
+                "type": "string",
+                "description": "Che cosa si fa",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "descrizione": {
+                "type": "string",
+                "description": "Come, con che cosa",
+                "maxLength": 4000
+              },
+              "fine": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "La fine comune, o null se non ce n’è una",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "examples": [
+                  "2026-09-21"
+                ]
+              },
+              "fineLezioneId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’ora del corso entro cui finisce, anche conclusa: la fine ne segue il giorno. Omessa, resta quella di prima se la fine è ancora il suo giorno; null la stacca",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "titolo",
+              "fine"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "progettoId",
+          "compito"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.compito.togliInizio",
+      "funzione": "progetti_compito_togliInizio",
+      "genere": "scrittura",
+      "titolo": "Toglie l’inizio di un compito a delle persone",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.compito.togliInizio --progettoId <testo> --compitoId <testo> --allieviIds <elenco>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "compitoId": {
+            "type": "string",
+            "description": "Il compito del progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "allieviIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "description": "A chi toglierlo"
+          }
+        },
+        "required": [
+          "progettoId",
+          "compitoId",
+          "allieviIds"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.elimina",
+      "funzione": "progetti_elimina",
+      "genere": "scrittura",
+      "titolo": "Toglie un progetto con compiti, giudizi e matrice; tappe dei piani e valutazioni restano, senza progetto",
+      "idempotente": true,
+      "collezioni": [
+        "progetti",
+        "piani",
+        "valutazioni"
+      ],
+      "riga": "regi chiama progetti.elimina --progettoId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.giudizio.elimina",
+      "funzione": "progetti_giudizio_elimina",
+      "genere": "scrittura",
+      "titolo": "Toglie un giudizio dal progetto",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.giudizio.elimina --progettoId <testo> --giudizioId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "giudizioId": {
+            "type": "string",
+            "description": "Il giudizio",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId",
+          "giudizioId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.giudizio.salva",
+      "funzione": "progetti_giudizio_salva",
+      "genere": "scrittura",
+      "titolo": "Scrive un giudizio datato sul progetto, su una persona o sulla classe",
+      "idempotente": false,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.giudizio.salva --progettoId <testo> --giudizio <oggetto>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "giudizio": {
+            "type": "object",
+            "description": "Il giudizio. In un’ora conclusa non si scrive, non si cambia e non si toglie",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "L’id del giudizio da cambiare; senza, è nuovo",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "allievoId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Su chi, o null per la classe",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "testo": {
+                "type": "string",
+                "description": "Che cosa si nota",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "data": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Il giorno, se non è dentro un’ora. Senza, oggi",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "examples": [
+                  "2026-09-21"
+                ]
+              },
+              "lezioneId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "L’ora del corso: la data sarà la sua, e la seguirà",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "allievoId",
+              "testo"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "progettoId",
+          "giudizio"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.leggi",
+      "funzione": "progetti_leggi",
+      "genere": "lettura",
+      "titolo": "I progetti dei corsi: criteri e livelli, lezioni e prove che ci lavorano, compiti con chi li ha cominciati e finiti, giudizi e matrice",
+      "idempotente": true,
+      "offribile": true,
+      "riga": "regi chiama progetti.leggi",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "corsoId": {
+            "type": "string",
+            "description": "Solo i progetti di questo corso",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "progettoId": {
+            "type": "string",
+            "description": "Solo questo progetto",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "oggi": {
+            "type": "string",
+            "description": "Il giorno a cui si guarda il punto dei compiti. Senza, oggi",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "examples": [
+              "2026-09-21"
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": true
+      },
+      "presentazione": {
+        "titolo": "I progetti",
+        "blocchi": [
+          {
+            "tipo": "tabella",
+            "da": "progetti",
+            "colonne": [
+              {
+                "campo": "titolo",
+                "testo": "Progetto"
+              },
+              {
+                "campo": "corso",
+                "testo": "Corso"
+              },
+              {
+                "campo": "stato",
+                "testo": "Stato"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "nome": "progetti.salva",
+      "funzione": "progetti_salva",
+      "genere": "scrittura",
+      "titolo": "Crea un progetto o ne cambia la testata: titolo, obiettivi, fasi, stato, criteri, livelli, risorse e note",
+      "idempotente": true,
+      "collezioni": [
+        "progetti",
+        "piani"
+      ],
+      "riga": "regi chiama progetti.salva --progetto <oggetto>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progetto": {
+            "type": "object",
+            "description": "Il progetto intero; un id che non c’è lo crea. Compiti, giudizi e matrice di un progetto che c’è già restano quelli del registro. Un criterio o una fase senza id con il titolo di uno che c’è ne tiene l’id. Le fasi, in ordine, sono almeno una; omesse restano quelle di prima. Le tappe dei piani di una fase tolta passano alla fase rimasta che la precedeva, o alla prima",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true
+          },
+          "scartaCelle": {
+            "type": "boolean",
+            "description": "true per salvare anche se un criterio tolto o un livello tolto o rinominato farebbe cadere celle della matrice; senza, il salvataggio si rifiuta e dice quante e perché"
+          }
+        },
+        "required": [
+          "progetto"
+        ],
         "additionalProperties": true
       }
     },
@@ -8877,13 +9520,15 @@
               "foto-classe",
               "diario",
               "corso",
-              "supplenze"
+              "supplenze",
+              "progetto-classe",
+              "progetto-allievo"
             ],
             "description": "Quale foglio"
           },
           "id": {
             "type": "string",
-            "description": "Di che cosa: la lezione, il piano, il corso, la classe, la persona",
+            "description": "Di che cosa: la lezione, il piano, il corso, la classe, la persona, il progetto",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8908,6 +9553,15 @@
           "docenteDiClasse": {
             "type": "boolean",
             "description": "Se vero genera la scheda del docente di classe"
+          },
+          "allievoId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Solo per il rapporto individuale del progetto: la persona",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
@@ -10416,6 +11070,7 @@
         "fascicoli",
         "consegne",
         "check",
+        "progetti",
         "smistamenti",
         "coordinate"
       ],
@@ -10443,6 +11098,7 @@
         "fascicoli",
         "consegne",
         "check",
+        "progetti",
         "smistamenti",
         "coordinate"
       ],
@@ -11244,6 +11900,7 @@
               "docenteClasse",
               "corsi",
               "piani",
+              "progetti",
               "valutazioni",
               "check",
               "documenti",

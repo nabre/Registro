@@ -32,11 +32,3 @@ export function esigiBlocco (ambito: Ambito, classeId: string, bloccoId: string)
   if (!dove) throw errore.nonTrovato('periodo')
   return dove
 }
-
-/** Quella persona è in quella classe: i fogli di uno non vanno nella riga di un altro. */
-export function esigiAllievo (ambito: Ambito, classeId: string, allievoId: string): void {
-  const classe = esigiClasse(ambito, classeId)
-  if (!classe.allievi.some((a) => a.id === allievoId)) {
-    throw errore.nonTrovato('pif')
-  }
-}

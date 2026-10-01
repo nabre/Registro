@@ -10,6 +10,13 @@ import { titoloCorso } from './courses.js'
 import type { Classe, Collezione, Materia, Registro } from './models.js'
 import { etichettaInContraddizione, etichettaProposta } from './phones.js'
 import { confrontaNomi } from './text.js'
+import {
+  allieviNominati,
+  rimandiAlleLezioni,
+  staccaDalleLezioni,
+  togliAllievo,
+  fasiDelleTappe,
+} from './projects.js'
 import { testi } from './repairs.testi.js'
 
 interface Riparazione {
@@ -262,6 +269,109 @@ export function riparazioni (registro: Registro): Riparazione[] {
             lista.spunte = lista.spunte.filter((s) => iscritti.has(s.allievoId))
           }
         }
+      },
+    })
+  }
+
+  // ------------------------------------------------- progetti senza corso
+  // Come il check: senza corso un progetto non ha una pagina che lo mostri. Se
+  // ne va come con l'eliminazione del corso; tappe e momenti restano sganciati.
+  const progettiOrfani = registro.progetti.filter((p) => !corsi.has(p.corsoId))
+  if (progettiOrfani.length > 0) {
+    const ids = new Set(progettiOrfani.map((p) => p.id))
+    esito.push({
+      descrizione: t.progettiOrfani(progettiOrfani.length),
+      collezioni: ['progetti'],
+      applica: (r) => {
+        const vivi = new Set(r.corsi.map((c) => c.id))
+        r.progetti = r.progetti.filter((p) => !ids.has(p.id) || vivi.has(p.corsoId))
+      },
+    })
+  }
+
+  // ------------------------------------------------- voci dei progetti da ripulire
+  // Ore sparite (la voce tiene la sua data) e persone non iscritte: quel che
+  // nessuna griglia del progetto può mostrare. Le celle di un criterio tolto
+  // non arrivano fin qui: le toglie già la lettura del file.
+  const daRipulire = registro.progetti.filter((progetto) => {
+    if (!corsi.has(progetto.corsoId)) return false
+    const appese = rimandiAlleLezioni(progetto).some((id) => !lezioni.has(id))
+    const iscritti = iscrittiDelCorso(registro, progetto.corsoId)
+    const estranei = iscritti !== null &&
+      [...allieviNominati(progetto)].some((id) => !iscritti.has(id))
+    return appese || estranei
+  })
+  if (daRipulire.length > 0) {
+    const ids = new Set(daRipulire.map((p) => p.id))
+    esito.push({
+      descrizione: t.progettiDaRipulire(daRipulire.length),
+      collezioni: ['progetti'],
+      applica: (r) => {
+        const vive = new Set(r.lezioni.map((l) => l.id))
+        for (const progetto of r.progetti) {
+          if (!ids.has(progetto.id)) continue
+          const sparite = new Set(rimandiAlleLezioni(progetto).filter((id) => !vive.has(id)))
+          if (sparite.size > 0) staccaDalleLezioni(r, progetto, sparite)
+          const iscritti = iscrittiDelCorso(r, progetto.corsoId)
+          if (iscritti) {
+            for (const id of allieviNominati(progetto)) {
+              if (!iscritti.has(id)) togliAllievo(progetto, id)
+            }
+          }
+        }
+      },
+    })
+  }
+
+  // ------------------------------------------------- rimandi ai progetti
+  // Una tappa o un momento che cita un progetto sparito o di un altro corso
+  // perde il rimando; il resto non si tocca.
+  const progettoBuono = (r: Registro, progettoId: string, corsoId: string | null): boolean => {
+    const progetto = r.progetti.find((p) => p.id === progettoId)
+    return progetto !== undefined && (corsoId === null || progetto.corsoId === corsoId)
+  }
+  const tappeRotte = registro.piani.reduce((somma, piano) => somma + piano.attivita.filter(
+    (a) => a.progettoId && !progettoBuono(registro, a.progettoId, piano.corsoId)).length, 0)
+  const momentiSganciati = registro.valutazioni.filter(
+    (v) => v.progettoId && !progettoBuono(registro, v.progettoId, v.corsoId)).length
+  if (tappeRotte + momentiSganciati > 0) {
+    esito.push({
+      descrizione: t.rimandiAiProgetti(tappeRotte + momentiSganciati),
+      collezioni: [
+        ...(tappeRotte > 0 ? ['piani' as const] : []),
+        ...(momentiSganciati > 0 ? ['valutazioni' as const] : []),
+      ],
+      applica: (r) => {
+        for (const piano of r.piani) {
+          for (const attivita of piano.attivita) {
+            if (attivita.progettoId && !progettoBuono(r, attivita.progettoId, piano.corsoId)) {
+              delete attivita.progettoId
+              delete attivita.faseProgettoId
+            }
+          }
+        }
+        for (const momento of r.valutazioni) {
+          if (momento.progettoId && !progettoBuono(r, momento.progettoId, momento.corsoId)) {
+            momento.progettoId = null
+          }
+        }
+      },
+    })
+  }
+
+  // ------------------------------------------------- fasi delle tappe
+  // Una tappa che cita una fase che il progetto non ha più passa alla prima,
+  // quella in cui la si legge già; il progetto resta il suo.
+  const tappeSenzaFase = fasiDelleTappe(structuredClone({
+    piani: registro.piani,
+    progetti: registro.progetti,
+  }))
+  if (tappeSenzaFase > 0) {
+    esito.push({
+      descrizione: t.fasiDelleTappe(tappeSenzaFase),
+      collezioni: ['piani'],
+      applica: (r) => {
+        fasiDelleTappe(r)
       },
     })
   }

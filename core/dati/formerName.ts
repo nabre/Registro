@@ -1,4 +1,4 @@
-// Il nome precedente del programma: «Registro docenti».
+// Il nome precedente del programma: «Regiclass».
 //
 // La cartella dei dati si rinomina (mai copiarla: contiene gigabyte di modelli)
 // e i percorsi nei suoi file passano al nome nuovo.
@@ -8,21 +8,6 @@
 
 import { existsSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-
-/** Il nome precedente della cartella dei dati. */
-// testo-fisso: il nome di una cartella sul disco, lo stesso in ogni lingua
-export const NOME_VECCHIO = 'Registro docenti'
-
-/** Il nome precedente della cartella dei dati del portabile, accanto all'eseguibile. */
-// testo-fisso: il nome di una cartella sul disco, lo stesso in ogni lingua
-export const CARTELLA_PORTABILE_VECCHIA = 'Registro docenti - dati'
-
-/**
- * L'`appId` precedente: nome di voci nel registro di Windows, e origine del
- * GUID dell'installazione che `electron-builder.json` tiene fisso.
- * `verificaIdentita()` in `esbuild.mjs` lo legge da questa riga.
- */
-export const IDENTITA_VECCHIA = 'ch.edu.ti.cptt.registro-docenti'
 
 /** I file dei dati che contengono percorsi. */
 const FILE_CON_PERCORSI = ['impostazioni.json', 'documenti.json']
@@ -79,7 +64,7 @@ function comeLiConfronta (testo: string): string {
 
 /**
  * `valore` con il prefisso `vecchia` sostituito da `nuova`, o `null`. Il
- * prefisso deve finire a un separatore (`…\Registro docenti2` non conta), e
+ * prefisso deve finire a un separatore (`…\Regiclass2` non conta), e
  * vale anche scritto con le barre dritte.
  */
 function sostituisciPrefisso (valore: string, vecchia: string, nuova: string): string | null {

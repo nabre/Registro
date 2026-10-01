@@ -38,12 +38,30 @@ const GENERE_DEL_RAPPORTO = {
   'foto-classe': 'foto-classe',
   'diario-corso': 'diario',
   'scheda-corso': 'corso',
+  'progetto-classe': 'progetto-classe',
+  'progetto-allievo': 'progetto-allievo',
 }
 
-/** Che cosa ogni modello riceve. */
+/**
+ * Che cosa ogni modello riceve. Dentro un `ripeti:` i nomi si scrivono come
+ * fuori: quelli delle voci di un gruppo valgono come se fossero del rapporto.
+ */
 function datiPerModello (registro) {
   return Object.fromEntries(Object.entries(GENERE_DEL_RAPPORTO)
-    .map(([nome, genere]) => [nome, datiDelGenere(registro, genere)]))
+    .map(([nome, genere]) => [nome, conIGruppi(datiDelGenere(registro, genere))]))
+}
+
+/** I dati con accanto i nomi delle voci dei gruppi (la prima voce che li ha). */
+function conIGruppi (dati) {
+  const voci = Object.values(dati.gruppi ?? {}).flat()
+  const unisci = (di) => Object.assign({}, ...voci.map((v) => v[di] ?? {}), dati[di])
+  return {
+    ...dati,
+    valori: unisci('valori'),
+    elenchi: unisci('elenchi'),
+    tabelle: unisci('tabelle'),
+    grafici: unisci('grafici'),
+  }
 }
 
 /**

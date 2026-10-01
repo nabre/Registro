@@ -29,6 +29,17 @@ controlli statici; skill `verifica`). Non prima.
 
 ## 2. Lavoro aperto
 
+### Progetti (ADR-54)
+
+- [ ] Pagina Progetti, colonna destra a linguette («Fasi», «Matrice»,
+      «Giudizi · Valutazioni · Presenze»; testata, criteri e compiti sempre in
+      vista) e fasi ripiegabili: proposta, da decidere con l'utente.
+- [ ] Il comando «Nuovo compito» della barra (`ui/pannello/commands.ts`) crea
+      il compito ma non apre la sua linguetta: passare da `nuovoCompito()` di
+      `views/projects/tasks.ts`.
+- [ ] Documenti › «Del corso»: le righe «Progetto: …» a linguette come gli
+      Allievi (`linguetteDocumenti[corso.id]` condivisa), se l'utente lo vuole.
+
 ### Archivio e sincronizzazione
 
 - [ ] Due PC sullo stesso `.regi`: con il file cambiato fuori, `salva` fa
@@ -37,10 +48,41 @@ controlli statici; skill `verifica`). Non prima.
       non toccate. Proposta: riaprire dal disco e riapplicare solo le
       collezioni pendenti; conflitto sulla stessa collezione → copia accanto e
       avviso. Decisione strutturale (ADR-19): da scrivere in DECISIONI prima.
+      Analisi del 2026-10-01: nessuna libreria (SQLite, CRDT, Dexie) lo
+      risolve senza rompere ADR-17; la fusione per collezione sì, con le voci
+      `data/<collezione>` già separate e le patch che dicono che cosa è stato
+      toccato. Prove per proprietà: due scrittori interlacciati non perdono
+      mai una collezione senza conflitto.
+- [ ] Copie materializzate (`core/dati/store.ts`, PDF con dati di minorenni):
+      ora in `%LOCALAPPDATA%\Regiklass` (`cartellaCopieUri`) e ripulite
+      all'avvio. Resta: guida, sezione «Dati sensibili sul computer» (chi vede le copie, quando
+      spariscono, cancellazione non sicura senza BitLocker, Acrobat tiene le
+      sue); portabile su chiavetta FAT/exFAT o cartella di rete = cartella dati
+      leggibile da altri: avviso al primo avvio.
+- [ ] Spinta a differenze al pannello: `desktop/pannelli/panel.ts` manda il
+      `Registro` intero a ogni modifica e `derivato()` (`ui/pannello/state.ts`)
+      memoizza per identità del registro, quindi ogni spinta azzera tutto
+      (`tests/interfaccia/misure.spec.ts`: oltre 50 ms già con 40 righe).
+      `core/dati/archive.ts` emette già `alleDifferenze` con le patch immer,
+      ma nessuno lo ascolta. Messaggio `differenze` `{revisione, collezioni,
+      patch}` nel protocollo, `applyPatches` nel pannello, `derivato()` per
+      collezione, revisione fuori sequenza → stato intero; interruttore per
+      tornare indietro. `misure.spec.ts` deve scendere, `staleEdits` e
+      `morfosi` restare verdi.
 
 
 ### Rilascio e aggiornamenti
 
+- [ ] Lingua nell'installatore NSIS (`os/windows/installer.nsh`,
+      `displayLanguageSelector`) provata solo con estratto `makensis`. Da
+      provare con installatore vero: selettore visibile, primo avvio nella
+      lingua scelta, aggiornamento muto senza dialogo, installazione «per
+      tutti» con altro account amministratore (file nel suo `%APPDATA%`).
+      Selettore a bandierine del benvenuto non visto a schermo: `npm run dev`.
+      Da decidere dopo la prova: disinstallatore nella lingua di Windows, non
+      in quella scelta (`MUI_LANGDLL_REGISTRY_*` + `MUI_UNGETLANGUAGE` in
+      `customUnInit`, ma allora serve `MUI_LANGDLL_ALWAYSSHOW`); con «per
+      tutti» il rilancio elevato rifà `.onInit` e ripropone il selettore.
 - [ ] Aggiornamento su macOS e Linux mai provato dal vero: primo rilascio con
       lavoro `mac` (arm64 + `macos-15-intel`, `latest-mac.yml` fuso con `yq`)
       da guardare in Actions; poi a mano, da una versione alla successiva,
@@ -70,6 +112,97 @@ Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). P
 
 
 ### Riordino
+
+- [ ] Alias degli import, PRIMA dei lotti sotto (rende economici gli
+      spostamenti): campo `"imports"` di `package.json` (`#core/*`,
+      `#contract/*`, `#desktop/*`, `#ui/*`), standard Node, capito da tsc
+      (`Node16`) ed esbuild senza configurazione doppia. Oggi ~2400 import
+      relativi profondi (963 `../../../`, 430 `../../../../`). Prima una prova:
+      `.js`→`.ts` dietro `#` in tsc ed esbuild, `tools/layers.mjs`, `census`,
+      `collections`, knip, ESLint; `cli/` resta fuori (D10). Poi ADR, codemod
+      in un commit solo ad albero fermo; `apparato` può passare a `#apparato`.
+
+Giro di esplorazione del 2026-10-01 (5 dimensioni, sola lettura). I bug veri
+trovati sono stati corretti subito; qui restano i lotti a comportamento
+invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
+
+- [ ] Lotto 1, `core/dominio/reportData.ts` (1944) in una cartella
+      `reportData/`: `common` (aiuti 76-175, `nomeAspetto`, soglia), `lesson`
+      (lezione, piano, diario), `assessments` (valutazioni, momento), `classes`
+      (presenze, foto, fascicolo), `student` (allievo), `course` (corso,
+      supplenze). Grafo aciclico; 3 importatori più il barile. Insieme: helper
+      comuni per righe ripetute (pendenze, check, comportamento, scaletta,
+      cella recupero, media e nota, comunicazioni, `dataDiIstante`).
+- [ ] Lotto 2, `core/dominio/normalization.ts` (2135) in una cartella:
+      `readers`, `settings` (1102-1343), `deliveries` (consegne + migrazione
+      compiti/documenti), `check`, `sorting`. `TIPI_RAPPORTO` prima in
+      `models.ts` (altrimenti ciclo). Helper `testi()`/`riferimenti()` per
+      `elenco(x).map(testo).filter(Boolean)` (gli id in lista oggi non si
+      ripuliscono come `riferimento`).
+- [ ] Lotto 3, `contract/protocol.ts`: tipi dell'assistente e della dettatura
+      in un file, messaggi verso la webview in un altro; `protocol.ts`
+      riesporta (nessun importatore da toccare).
+- [ ] Lotto 4, `ui/pannello/commands.ts` (1391) e il suo catalogo in una
+      cartella per sezioni; `commands.ts` concatena nello stesso ordine.
+- [ ] Lotto 5, coda di rigenerazione di `core/azioni/reports.ts` (379-631) in
+      `reportsRefresh`; 5 importatori.
+- [ ] Rapporti per genere in una tabella sola (modello, entità, `dati*`) letta
+      da `rapporto.genera`, anteprima dei modelli, pacchetto del corso e
+      prove: oggi 4 copie, una era rotta (anteprima del diario).
+- [ ] Regole di integrità scritte una volta con due usi (diagnosi e
+      riparazione): `integrity.ts` segnala consegne e spunte di un'ora
+      d'altro corso, `repairs.ts` non le ripara.
+- [ ] «Chi cita questa lezione» riscritto 5 volte (`courses.ts`
+      `lezioneCompilata`, `timetable.ts`, `azioni/hours.ts`, `deletions.ts`,
+      riparazioni): una `citazioniDellaLezione` con filtri; dire se la scadenza
+      conta (oggi `lezioneCompilata` no, le altre sì).
+- [ ] «Voto scritto» in due varianti (`valore !== null || assente` contro
+      `valore !== null`): il cestino e `eliminaOrfane` contano diverso.
+- [ ] 7 copie di «file da `azione.file`» in `core/azioni/` con estensione non
+      in minuscolo e ripieghi diversi: `fileDaPercorso` in `context.ts`.
+- [ ] `suVoce` riscritto a mano nelle consegne e in `classTeacher.ts`.
+- [ ] Guardie ancora senza rimedio: `contract/procedure/check/common.ts`
+      `esigiLezioneDelCorso` (e `esigiAllievoDelCorso`), `classe/common.ts`
+      `esigiBlocco`, `esigiComunicazione`.
+- [ ] Rifiuti «non trovato» con e senza codice (~63 contro ~31): uniformare
+      cambia l'uscita della CLI, decidere prima (D2).
+- [ ] Pannello: componente `casellaSpunta` (check, consegne, docente di
+      classe) e `grigliaDiClasse` (check, matrice, appello) con CSS comune
+      (`.check__telaio` = `.matrice__telaio` = `.appello__telaio`); colori
+      positivi già divergenti.
+- [ ] `forms/plan.ts` `moduloPiano`: il primo argomento `piano` e il ramo
+      «modifica» non li raggiunge più nessuno (con `scegliPiano`, il
+      re-export in `forms.ts`); `pastigliaSpunta` ha `dopo` mai passato.
+- [ ] «Segna/togli tutti» di una consegna per tre strade: nella modale «togli
+      tutti» non chiede conferma e ignora i fogli raccolti (D2: decidere).
+- [ ] Finestre native: stessa ricetta in 5 posti (`menu.ts`, `welcome.ts`,
+      `reader.ts`, `dialogs.ts`, `windows.ts`) → fabbrica unica.
+- [ ] Monte ore del corso fra due date: `corso/presenze.ts`,
+      `persone/scheda.ts`, `persone/assenze.ts` lo rifanno accanto a
+      `matriceDelCorsoNelPeriodo`.
+- [ ] Prove: attesa a condizione copiata in 8 file con tempi diversi
+      (`helpers/attese.mjs`); contatore di parentesi in 5 strumenti/prove che
+      non salta stringhe (usare l'AST come `i18n.mjs`).
+- [ ] Cartelle tematiche: `core/dominio/` calendar/, people/, reporting/;
+      `core/dati/` microsoft/, pdf/ (oltre a llm/, sotto).
+
+- [ ] `ui/pannello/state.ts` in tre: store, posto, selettori di dominio
+      (~60 selettori). Mappa «da → a» prima (D5).
+- [ ] Stato fuori da `stato`: `let` di modulo in ~42 file di `ui/` (es.
+      `languageModels.ts`, `assistant/chat.ts`, `help.ts`), ognuno da pulire a
+      mano al cambio di documento (`main.ts`: `scordaEditorDelPiano`…).
+      Censirli con `census` o una regola ESLint.
+- [ ] La normalizzazione scrive testi nella lingua di chi apre
+      (`core/dominio/normalization.ts`, `titolo: testo(dati.titolo,
+      Uno(lessico().corso))`): un predefinito per lingua non va nel documento.
+- [ ] Codice del renderer in un solo strato: `desktop/shell/pages/` → una
+      cartella `pages` nuova sotto `ui/` (benvenuto, avvio, lettore, impostazioni, dialogo,
+      `shared/`), accanto a `ui/pannello/`. Oggi `ui/` ha solo `pannello/` e
+      le pagine native stanno in `desktop/` pur girando nel renderer. Toccano:
+      `esbuild.mjs` (`PAGINE_NATIVE`, ingressi), `desktop/shell/windows/*`
+      (percorsi HTML in `dist/`), `tools/layers.mjs` (regole `ui/**`), docs
+      ARCHITETTURA §§ 2, 11. Prima mappa «da → a» in ARCHITETTURA § 11 (D5),
+      poi `git mv` in commit a sé; `npm run layers` deve restare verde.
 
 - [ ] `core/dati/` per temi: il gruppo dei modelli (`gguf`, `ggufName`,
       `huggingFace`, `kit`, `llamaCpp`, `llm`, `recommendedModels`, `mtmd`,

@@ -13,9 +13,9 @@ import { nomeSicuro } from '../dominio/text.js'
 import { normalizzaRegistro } from '../dominio/normalization.js'
 import type { Archivio } from './archive.js'
 import { type Deposito, deposito } from './store.js'
-import { Pacchetto, STORICO } from './package.js'
+import { DATI, Pacchetto, STORICO } from './package.js'
 import {
-  DATI,
+  DATI_SU_DISCO,
   cartellaAnno,
   NOMI,
   type NomeCollezione,
@@ -166,7 +166,7 @@ async function dividiCartelle (
     if (!verso) continue
     // `.storico` sono le copie dei JSON: seguono i JSON, dentro `dati/`.
     const a = nome === '.storico'
-      ? apparato.Uri.joinPath(verso, DATI, nome)
+      ? apparato.Uri.joinPath(verso, DATI_SU_DISCO, nome)
       : apparato.Uri.joinPath(verso, nome)
     await sposta(da, a)
     await togliSeVuota(da, TRASLOCO)
@@ -291,14 +291,15 @@ export async function impacchettaAnni (radice: apparato.Uri): Promise<string[]> 
     let qualcosa = false
     for (const [nome, tipo] of await vociDi(dati)) {
       if (tipo === apparato.GenereFile.Directory) continue
-      // Solo i JSON: niente `.tmp` di salvataggi interrotti o copie `.rotto-…`.
+      // Solo i JSON: niente `.tmp` di salvataggi interrotti. Le copie `.rotto-…`
+      // entrano: sono l'unica traccia di quel che non si era saputo leggere.
       if (!nome.endsWith('.json') || nome.endsWith('.tmp')) continue
       const testo = await leggiTesto(apparato.Uri.joinPath(dati, nome))
       if (testo === null) {
         mancati += 1
         continue
       }
-      pacchetto.scrivi(nome, testo)
+      pacchetto.scrivi(`${DATI}/${nome}`, testo)
       qualcosa = true
     }
     // Anche lo storico entra nel documento. Illeggibile conta come mancato:

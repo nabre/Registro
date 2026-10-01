@@ -10,7 +10,10 @@ const it = {
   passi: {
     2: 'data di iscrizione per ciascun allievo',
     3: 'distinzione tra pendenze di corso e di docente di classe; dati anagrafici strutturati del docente; l’anno ricorda se segue il calendario scolastico ufficiale; una lezione può essere segnata come supplenza',
+    4: 'i progetti dei corsi, con compiti, giudizi e una matrice a livelli; le fasi dei piani e le valutazioni possono appartenere a un progetto; le note dei piani lezione passano in fondo ai prerequisiti',
   } as Record<number, string>,
+  /** Le note di un piano, accodate ai prerequisiti con la loro etichetta davanti. */
+  noteNeiPrerequisiti: (note: string) => `Note: ${note}`,
   /** Il passaggio fra due versioni, con i cambiamenti in ordine. */
   racconto: (da: number, a: number, cambi: readonly string[]) =>
     `dal formato ${da} al ${a}: ${cambi.join('; ')}`,
@@ -29,7 +32,9 @@ export const testi = catalogo(it, {
     passi: {
       2: 'Einschreibe-Datum für jede lernende Person',
       3: 'Unterscheidung zwischen Pendenzen für Kurse und Klassenlehrpersonen; strukturierte Personalien der Lehrperson; das Schuljahr merkt sich, ob es dem offiziellen Schulkalender folgt; eine Lektion kann als Stellvertretung markiert werden',
+      4: 'Projekte der Kurse, mit Aufgaben, Einschätzungen und einer Matrix mit Stufen; Etappen der Unterrichtspläne und Leistungsbeurteilungen können zu einem Projekt gehören; die Notizen der Unterrichtspläne wandern ans Ende der Voraussetzungen',
     },
+    noteNeiPrerequisiti: (note) => `Notizen: ${note}`,
     racconto: (da, a, cambi) => `vom Format ${da} zu ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'Format', dati: 'Daten' },
     scrittoDaRecente: (file, cosa, delFile, quiFinoA) =>
@@ -43,7 +48,9 @@ export const testi = catalogo(it, {
     passi: {
       2: 'date d’inscription pour chaque élève',
       3: 'distinction entre tâches en suspens de cours et de maître de classe ; données d’état civil structurées de l’enseignant ; l’année retient si elle suit le calendrier scolaire officiel ; une leçon peut être marquée comme remplacement',
+      4: 'les projets des cours, avec tâches, appréciations et une grille à niveaux ; les étapes des plans et les évaluations peuvent appartenir à un projet ; les notes des plans de leçon passent à la fin des prérequis',
     },
+    noteNeiPrerequisiti: (note) => `Notes : ${note}`,
     racconto: (da, a, cambi) => `du format ${da} au ${a} : ${cambi.join(' ; ')}`,
     cosa: { formato: 'format', dati: 'données' },
     scrittoDaRecente: (file, cosa, delFile, quiFinoA) =>
@@ -57,7 +64,9 @@ export const testi = catalogo(it, {
     passi: {
       2: 'enrollment date for each student',
       3: 'distinction between course and class teacher pending tasks; structured personal details of the teacher; the school year remembers whether it follows the official school calendar; a lesson can be marked as a substitution',
+      4: 'course projects, with tasks, comments and a grid of levels; lesson plan steps and assessments can belong to a project; lesson plan notes move to the end of the prerequisites',
     },
+    noteNeiPrerequisiti: (note) => `Notes: ${note}`,
     racconto: (da, a, cambi) => `from format ${da} to ${a}: ${cambi.join('; ')}`,
     cosa: { formato: 'format', dati: 'data' },
     scrittoDaRecente: (file, cosa, delFile, quiFinoA) =>

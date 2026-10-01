@@ -12,7 +12,7 @@ export const procedura = scrittura({
   idempotente: true,
   // Valutazioni, consegne e spunte del check restano senza rimando, e i loro file
   // vanno riscritti.
-  collezioni: ['lezioni', 'valutazioni', 'consegne', 'check'],
+  collezioni: ['lezioni', 'valutazioni', 'consegne', 'check', 'progetti'],
   ingresso: oggetto({ lezioneId: identificatore() }),
   esegui: (ambito, ingresso) => {
     // «non-trovato» e non il rifiuto del gestore: è il codice su cui chi chiama

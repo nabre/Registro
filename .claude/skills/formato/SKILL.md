@@ -119,7 +119,8 @@ sui dischi di chi insegna. Quando si chiede una release nuova, prima di alzare
   passi: **scrivile per chi insegna**, non per chi programma.
 - La copia sta nella cartella gemella, `‹nome›/versioni-precedenti/‹nome›.formato-N.regi`:
   si riapre con il registro di allora. Non si rifà se c'è già — la prima è
-  quella com'era davvero.
+  quella com'era davvero. Se cambia solo il contenitore (`VERSIONE_PACCHETTO`)
+  la copia si chiama `‹nome›.contenitore-N.regi`.
 - Se la copia non si riesce a fare, il documento **non** si riscrive
   all'apertura: resta al suo formato finché qualcuno non lo modifica, e si
   dice anche questo.

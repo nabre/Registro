@@ -32,6 +32,7 @@ import { COMANDI, titoloImpostazioni, type Comando, type IdComando } from '../..
 import { alCambioLingua } from '../../../core/i18n/index.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi, type GruppoDelMenu } from './menu.testi.js'
+import { menuSviluppo } from './devTools.js'
 
 // ------------------------------------------------------------------- il menu
 
@@ -248,6 +249,9 @@ export function modelloDelMenu (azioni: Azioni): MenuItemConstructorOptions[] {
   // «Altro», «Modifica» e «Visualizza» sempre in coda, indipendenti dai nomi dei gruppi.
   if (orfani.length > 0) modello.push({ label: t.altro, submenu: orfani })
   modello.push(menuModifica(), menuVisualizza())
+  // Solo con `npm run dev` (`devTools.ts`); nel pacchetto non c'è.
+  const sviluppo = menuSviluppo()
+  if (sviluppo) modello.push(sviluppo)
 
   return modello
 }

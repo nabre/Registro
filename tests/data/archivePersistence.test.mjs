@@ -23,6 +23,7 @@ after(() => smonta(radice))
 
 let Archivio
 let Pacchetto
+let DATI
 let Uri
 let impacchettaAnni
 let migraAnni
@@ -37,7 +38,7 @@ before(async () => {
     percorso.join(process.env.REGISTRO_USERDATA, 'impostazioni.json'),
     JSON.stringify({ cartellaLavoro: lavoro }),
   )
-  ;({ Archivio, Pacchetto, Uri, impacchettaAnni, migraAnni } = await import('../../dist-tests/data.mjs'))
+  ;({ Archivio, DATI, Pacchetto, Uri, impacchettaAnni, migraAnni } = await import('../../dist-tests/data.mjs'))
   ;({ leggiZip } = await import('../../dist-tests/zip.mjs'))
   ;({ creaAnnoCorrente, creaClasse } = await import('../../dist-tests/domain.mjs'))
 })
@@ -227,10 +228,10 @@ describe('i reperti medi dello stesso giro', () => {
     const file = documento()
     const pacchetto = Pacchetto.nuovo(file)
     pacchetto.scrivi(
-      'registro.json',
+      `${DATI}/registro.json`,
       JSON.stringify({ versione, anno: { id: 'a9', etichetta: '2029/2030', inizio: '2029-09-01', fine: '2030-06-30' } }),
     )
-    for (const [nome, testo] of Object.entries(voci)) pacchetto.scrivi(nome, testo)
+    for (const [nome, testo] of Object.entries(voci)) pacchetto.scrivi(`${DATI}/${nome}`, testo)
     await pacchetto.salva()
     return file
   }
@@ -255,7 +256,7 @@ describe('i reperti medi dello stesso giro', () => {
     // Si guasta il CRC di `classi.json` nell'indice, come un settore rovinato o
     // una sincronizzazione a metà.
     const byte = readFileSync(file.fsPath)
-    const nome = Buffer.from('classi.json')
+    const nome = Buffer.from(`${DATI}/classi.json`)
     const dove = byte.lastIndexOf(nome) - 46
     assert.equal(byte.readUInt32LE(dove), 0x02014b50)
     byte.writeUInt32LE(byte.readUInt32LE(dove + 16) ^ 0xffffffff, dove + 16)
@@ -279,16 +280,59 @@ describe('i reperti medi dello stesso giro', () => {
 
     // Il blocco rotto è ancora nel documento, sotto un altro nome e com'era.
     const riaperto = await Pacchetto.apri(file)
-    const rotte = riaperto.nomi().filter((n) => n.startsWith('classi.rotto-'))
+    const rotte = riaperto.nomi().filter((n) => n.startsWith(`${DATI}/classi.rotto-`))
     assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
     assert.throws(() => riaperto.testo(rotte[0]), /controllo non torna/)
-    assert.match(riaperto.testo('classi.json'), /II B/)
+    assert.match(riaperto.testo(`${DATI}/classi.json`), /II B/)
+  })
+
+  it('una collezione rovinata di un contenitore 1 passa sotto data/ e alla modifica si mette da parte lì', async () => {
+    const file = documento()
+    const { scriviZip } = await import('../../dist-tests/zip.mjs')
+    const testo = (t) => new TextEncoder().encode(t)
+    const byte = scriviZip([
+      { nome: 'manifesto.json', dati: testo(JSON.stringify({ formato: 'registro-docenti/anno', versione: 1 })) },
+      {
+        nome: 'registro.json',
+        dati: testo(JSON.stringify({
+          versione: 1,
+          anno: { id: 'a9', etichetta: '2029/2030', inizio: '2029-09-01', fine: '2030-06-30' },
+        })),
+      },
+      { nome: 'classi.json', dati: testo('[{"id":"c1","annoId":"a9","nome":"I A"}]') },
+    ])
+    const dove = byte.lastIndexOf(Buffer.from('classi.json')) - 46
+    assert.equal(byte.readUInt32LE(dove), 0x02014b50)
+    byte.writeUInt32LE((byte.readUInt32LE(dove + 16) ^ 0xffffffff) >>> 0, dove + 16)
+    writeFileSync(file.fsPath, byte)
+
+    const archivio = new Archivio()
+    const errori = []
+    archivio.allErrore((messaggio) => errori.push(messaggio))
+    await archivio.apri(file)
+    assert.equal(archivio.registro.anni.length, 1)
+    assert.deepEqual(archivio.registro.classi, [])
+    assert.ok(errori.length > 0)
+
+    archivio.modifica((registro) => {
+      registro.classi.push(creaClasse('a9', 'II B'))
+    }, ['classi'])
+    await archivio.salva()
+    await archivio.chiudi()
+    archivio.dispose()
+
+    const riaperto = await Pacchetto.apri(file)
+    assert.deepEqual(riaperto.nomi().filter((n) => !n.includes('/')), [])
+    const rotte = riaperto.nomi().filter((n) => n.startsWith(`${DATI}/classi.rotto-`))
+    assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
+    assert.throws(() => riaperto.testo(rotte[0]), /controllo non torna/)
+    assert.match(riaperto.testo(`${DATI}/classi.json`), /II B/)
   })
 
   it('registro.json con il blocco rovinato entra in illeggibili e alla modifica si mette da parte', async () => {
     const file = await annoScritto({ 'classi.json': '[{"id":"c1","annoId":"a9","nome":"I A"}]' })
     const byte = readFileSync(file.fsPath)
-    const nome = Buffer.from('registro.json')
+    const nome = Buffer.from(`${DATI}/registro.json`)
     const dove = byte.lastIndexOf(nome) - 46
     assert.equal(byte.readUInt32LE(dove), 0x02014b50)
     byte.writeUInt32LE(byte.readUInt32LE(dove + 16) ^ 0xffffffff, dove + 16)
@@ -308,7 +352,7 @@ describe('i reperti medi dello stesso giro', () => {
     archivio.dispose()
 
     const riaperto = await Pacchetto.apri(file)
-    const rotte = riaperto.nomi().filter((n) => n.startsWith('registro.rotto-'))
+    const rotte = riaperto.nomi().filter((n) => n.startsWith(`${DATI}/registro.rotto-`))
     assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
   })
 

@@ -68,7 +68,7 @@ export function menuLezione (evento: MouseEvent, lezione: Lezione): void {
     : []
 
   menuContestuale(evento, [
-    { titolo: `${nomeClasseDiLezione(lezione)} · ${formattaData(lezione.data, 'giorno')}${orario}` },
+    { titolo: `${nomeClasseDiLezione(lezione)} · ${formattaData(lezione.data, 'settimana')}${orario}` },
     {
       testo: t.apriLezione,
       simbolo: 'destra',
@@ -153,28 +153,28 @@ function vocePerSupplenza (lezione: Lezione): ElementoMenu {
 }
 
 /**
- * Il piano dell'ora, sempre: si apre quello che ha, e se non ne ha uno lo si
- * genera e assegna prima (`piano.perLezione`). Assegnarne un altro si fa
- * dalla lezione.
+ * Il piano dell'ora, sempre: si apre nella pagina dei piani, con l'ora
+ * accanto. Senza piano la pagina dice come crearne uno o assegnarne uno che
+ * c'è già.
  */
 function vociPiano (lezione: Lezione): ElementoMenu[] {
   const t = testi()
-  const apri = (id: string) => {
-    vai({ pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id } })
-  }
   return [
     'separatore',
     {
       testo: t.apriPiano,
       simbolo: 'piano',
-      al: async () => {
+      al: () => {
         const piano = pianoPerId(lezione.pianoId)
-        if (piano) {
-          apri(piano.id)
-          return
-        }
-        const risposta = await azione({ tipo: 'piano.perLezione', lezioneId: lezione.id })
-        if (risposta.ok && risposta.creato) apri(risposta.creato.id)
+        vai(
+          piano
+            ? { pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: piano.id } }
+            : { pagina: 'pagina.corso.piani', soggetto: { tipo: 'corso', id: lezione.corsoId } },
+          {
+            contesto: { lezioneId: lezione.id, pianoId: piano?.id ?? null },
+            elementoChiesto: Boolean(piano),
+          },
+        )
       },
     },
   ]

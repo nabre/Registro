@@ -79,6 +79,24 @@ function tastoDelCammino (evento: KeyboardEvent): boolean {
 }
 
 /**
+ * Alt+↑ e Alt+↓: il passo indietro e avanti della pagina, dove c'è (il
+ * navigatore dei piani). Il pulsante lo dichiara con `data-tasto-alt`, e il
+ * tasto lo preme: spento, non fa niente. Fuori dai campi, come il cammino.
+ */
+function tastoDelPasso (evento: KeyboardEvent): boolean {
+  if (!evento.altKey || evento.ctrlKey || evento.metaKey || evento.shiftKey) return false
+  if (evento.key !== 'ArrowUp' && evento.key !== 'ArrowDown') return false
+  if (coperta() || dentroUnCampo(evento.target)) return false
+  const tasto = document.querySelector<HTMLButtonElement>(
+    `.contenuto [data-tasto-alt="${evento.key}"]`, // testo-fisso: selettore CSS
+  )
+  if (!tasto) return false
+  evento.preventDefault()
+  if (!tasto.disabled) tasto.click()
+  return true
+}
+
+/**
  * Ctrl+1…9: le prime nove voci della barra laterale, come le numera
  * `suggerimentoDi` in `sidebar.ts`. Si legge il tasto fisico (`code`), perché
  * sulla tastiera francese la fila dei numeri scrive altro; senza Alt, perché
@@ -106,7 +124,7 @@ export function installaScorciatoie (opzioni: {
   palette: () => void
 }): void {
   document.addEventListener('keydown', (evento: KeyboardEvent) => {
-    if (tastoDelCammino(evento)) return
+    if (tastoDelCammino(evento) || tastoDelPasso(evento)) return
     if (!evento.ctrlKey && !evento.metaKey) return
     if (document.querySelector('.modale')) return
 

@@ -36,6 +36,7 @@ import {
   tendina,
 } from '../components/base.js'
 import { menuSotto } from '../components/menu.js'
+import { sceltaDetta, sceltaProgettoFase, type ProgettoEFase } from '../components/projectPhasePicker.js'
 import { icona } from '../components/icons.js'
 import { legaAlSegno, suggerimento } from '../components/hint.js'
 import { h, rimpiazza,
@@ -48,6 +49,7 @@ import { lessico } from '../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../core/dominio/words.testi.js'
 import { testi } from './planActivity.testi.js'
 import { bloccoRisorse } from './resources.js'
+import { aggiungiFase, moduloProgetto } from './project.js'
 import {
   numero,
   presaDiRiga,
@@ -538,6 +540,54 @@ function campiCheck (
   ]
 }
 
+/**
+ * Il progetto del corso, e la sua fase, per cui lavora questa tappa: le lezioni
+ * del progetto si ricavano da qui, e una prova della tappa nasce già sua. Un
+ * controllo solo, che dice la scelta e apre l'elenco dei progetti con le fasi.
+ */
+function campiProgetto (
+  voce: Attivita,
+  corsoId: string | null,
+  alCambio: () => void,
+): Figlio[] {
+  const t = testi()
+  const scegli = (scelta: ProgettoEFase): void => {
+    if (scelta.progettoId) {
+      voce.progettoId = scelta.progettoId
+      voce.faseProgettoId = scelta.faseProgettoId
+    } else {
+      delete voce.progettoId
+      delete voce.faseProgettoId
+    }
+    alCambio()
+  }
+  return [
+    campoTappa(
+      Uno(lessico().progetto),
+      sceltaProgettoFase({
+        corsoId,
+        valore: {
+          progettoId: voce.progettoId ?? null,
+          faseProgettoId: voce.faseProgettoId ?? null,
+        },
+        al: scegli,
+        nuovaFase: (progetto) => {
+          void aggiungiFase(progetto).then((faseId) => {
+            if (faseId) scegli({ progettoId: progetto.id, faseProgettoId: faseId })
+          })
+        },
+        nuovoProgetto: corsoId
+          ? () => moduloProgetto({
+              corsoId,
+              dopo: (progettoId) => scegli({ progettoId, faseProgettoId: null }),
+            })
+          : undefined,
+      }),
+      t.aiutoProgetto,
+    ),
+  ]
+}
+
 /** Una colonna del check da spuntare nel dettaglio della tappa. */
 function casellaColonna (
   titolo: string,
@@ -690,6 +740,11 @@ export function editorAttivita (
           ),
         )
       }
+      const progettoDetto = sceltaDetta({
+        progettoId: voce.progettoId ?? null,
+        faseProgettoId: voce.faseProgettoId ?? null,
+      })
+      if (progettoDetto) pezzi.push(pastiglia(progettoDetto, 'informativo', 'progetto'))
       const colonneCheck = colonneCheckDi(voce)
       if (colonneCheck.length > 0) {
         const check = idCorso ? checkDelCorso(stato.registro, idCorso) : null
@@ -958,6 +1013,14 @@ export function editorAttivita (
                   allaModifica(attivita)
                 }),
                 voce.parametri?.checkColonnaId ? 'gruppo-tappa--check' : undefined,
+              ),
+              gruppoTappa(
+                Uno(lessico().progetto),
+                campiProgetto(voce, idCorso, () => {
+                  disegna()
+                  allaModifica(attivita)
+                }),
+                voce.progettoId ? 'gruppo-tappa--progetto' : undefined,
               ),
               // Il materiale della tappa sta con la tappa, non in un elenco del piano.
               gestore

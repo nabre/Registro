@@ -146,6 +146,7 @@ interface FetteAnno {
   fascicoli: Registro['fascicoli']
   consegne: Registro['consegne']
   check: Registro['check']
+  progetti: Registro['progetti']
   smistamenti: Registro['smistamenti']
   coordinate: Registro['coordinate']
 }
@@ -231,6 +232,7 @@ export function fetteDellAnno (registro: Registro, annoId: string, ripiego: bool
     consegne,
     // Il check è del corso come le consegne: va dove va il suo corso.
     check: delCorso(registro.check),
+    progetti: delCorso(registro.progetti),
     fascicoli: tieni(
       registro.fascicoli,
       (f) => idClassi.has(f.classeId),

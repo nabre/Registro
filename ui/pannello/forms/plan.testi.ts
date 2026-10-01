@@ -37,10 +37,8 @@ const it = {
   aiutoObiettivi: 'Uno per riga.',
   prerequisiti: 'Prerequisiti',
   aiutoPrerequisiti: 'Che cosa devono già sapere per starci dietro.',
-  aiutoNote: 'Per me: com’è andata l’altra volta, che cosa cambiare.',
   aiutoScaletta:
     'Ogni tappa porta con sé il suo materiale e dice se è una valutazione.',
-  rigeneraAttivita: 'Rigenera scaletta',
   allegareSalva:
     'Allegare un file salva subito il piano: il file dev’essere di qualcuno.',
   risorseDelPiano: 'Risorse del piano',
@@ -116,10 +114,8 @@ export const testi = catalogo(it, {
     aiutoObiettivi: 'Eines pro Zeile.',
     prerequisiti: 'Voraussetzungen',
     aiutoPrerequisiti: 'Was sie schon wissen müssen, um mitzukommen.',
-    aiutoNote: 'Für mich: wie es letztes Mal lief, was ich ändern will.',
     aiutoScaletta:
       'Jede Etappe bringt ihr Material mit und sagt, ob sie eine Beurteilung ist.',
-    rigeneraAttivita: 'Ablauf neu generieren',
     allegareSalva:
       'Eine Datei anzuhängen speichert den Plan sofort: Die Datei muss zu etwas gehören.',
     risorseDelPiano: 'Ressourcen des Plans',
@@ -191,11 +187,8 @@ export const testi = catalogo(it, {
     aiutoObiettivi: 'Un par ligne.',
     prerequisiti: 'Prérequis',
     aiutoPrerequisiti: 'Ce qu’ils doivent déjà savoir pour suivre.',
-    aiutoNote:
-      'Pour moi : comment ça s’est passé la dernière fois, ce qu’il faut changer.',
     aiutoScaletta:
       'Chaque étape emporte son matériel et indique si c’est une évaluation.',
-    rigeneraAttivita: 'Régénérer le déroulement',
     allegareSalva:
       'Joindre un fichier enregistre aussitôt le plan : le fichier doit appartenir à ' +
       'quelque chose.',
@@ -263,10 +256,8 @@ export const testi = catalogo(it, {
     aiutoObiettivi: 'One per line.',
     prerequisiti: 'Prerequisites',
     aiutoPrerequisiti: 'What they need to know already to keep up.',
-    aiutoNote: 'For me: how it went last time, what to change.',
     aiutoScaletta:
       'Each step carries its own materials and says whether it’s an assessment.',
-    rigeneraAttivita: 'Regenerate outline',
     allegareSalva:
       'Attaching a file saves the plan straight away: the file has to belong somewhere.',
     risorseDelPiano: 'Plan resources',

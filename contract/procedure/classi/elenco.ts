@@ -28,7 +28,7 @@ export const procedura = definisci({
   uscita: oggetto({
     annoId: nullabile(identificatore({ aiuto: () => t().annoIdUscita })),
     anno: testo({ aiuto: () => t().anno }),
-    cerca: CAMPI_CERCA.cerca,
+    ...CAMPI_CERCA,
     // Come in `persone.cerca`: quante sono state escluse, perché un elenco vuoto
     // non sembri un anno senza classi.
     escluse: nullabile(numero({
@@ -79,12 +79,14 @@ export const procedura = definisci({
 
     const dellAnno = r.classi.filter((classe) => (!annoId || classe.annoId === annoId))
 
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
 
     return {
       annoId: anno?.id ?? null,
       anno: anno?.etichetta ?? '',
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       escluse: ingresso.archiviate === true
         ? null
         : dellAnno.filter((classe) => classe.archiviata).length || null,

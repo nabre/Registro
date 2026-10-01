@@ -4,7 +4,9 @@
 import { allieviAttivi, nomeCompleto, ordinaAllievi } from '../../../../core/dominio/calculations.js'
 import { testoDiVoce, vociDiLista } from '../../../../core/dominio/lists.js'
 import type { Allievo, Classe, Lezione, SegnoOsservato, VoceLista } from '../../../../core/dominio/models.js'
+import { frecceNellaGriglia } from '../../components/gridArrows.js'
 import { icona } from '../../components/icons.js'
+import { statoInVolo } from '../../components/inFlight.js'
 import { menuContestuale } from '../../components/menu.js'
 import { SEGNI, nomeSegno, segnoFermo } from '../../components/marks.js'
 import { h, type Figlio } from '../../dom.js'
@@ -21,6 +23,13 @@ import { testi } from './behaviour.testi.js'
  * appartiene, così non ricompare in un'altra lezione.
  */
 let daAnnotare: { lezioneId: string, chiave: string } | null = null
+
+/**
+ * Il segno che ogni casella ha mandato e non ha ancora visto tornare: come
+ * nell'appello (`attendance.ts`), un secondo clic rapido ripartirebbe dal segno
+ * del ridisegno e manderebbe lo stesso. `null` è la casella svuotata.
+ */
+const inVolo = statoInVolo<SegnoOsservato | null>()
 
 function chiaveCella (allievoId: string, aspetto: string): string {
   return `${allievoId}|${aspetto}`
@@ -62,18 +71,10 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
       da === null ? 'positivo' : da === 'positivo' ? 'negativo' : null
     const prossimo = prossimoSegno(segno)
 
-    /**
-     * Il segno che la casella ha mandato e non ha ancora visto tornare: come
-     * nell'appello (`attendance.ts`), un secondo clic rapido ripartirebbe dal
-     * segno del ridisegno e manderebbe lo stesso. Respinto, si torna al ridisegno.
-     * La scatola distingue «niente in volo» dalla casella svuotata (`null`).
-     */
-    let inVolo: { segno: SegnoOsservato | null } | null = null
+    const volo = `${lezione.id}|${chiaveCella(allievo.id, aspetto.valore)}`
     const manda = (scelto: SegnoOsservato | null): void => {
-      inVolo = { segno: scelto }
-      void scriviCella(lezione, allievo.id, aspetto.valore, { segno: scelto }).then((esito) => {
-        if (!esito.ok) inVolo = null
-      })
+      void inVolo.manda(volo, scelto, () =>
+        scriviCella(lezione, allievo.id, aspetto.valore, { segno: scelto }))
     }
 
     const bottone = h(
@@ -98,7 +99,7 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
             .join('\n'),
           'aria-label': `${chi}: ${nomeSegno(segno)}`,
         },
-        onclick: () => manda(prossimoSegno(inVolo ? inVolo.segno : segno)),
+        onclick: () => manda(prossimoSegno(inVolo.da(volo, segno))),
         oncontextmenu: (evento: MouseEvent) =>
           menuContestuale(
             evento,
@@ -140,7 +141,7 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
     return bottone
   }
 
-  return tabella({
+  const griglia = tabella({
     classi: { telaio: 'matrice__telaio', tabella: 'matrice' },
     // Un segno messo non riporta la matrice a sinistra (catena in `lesson.ts`).
     telaio: 'matrice',
@@ -162,6 +163,8 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Figl
       ),
     ),
   })
+  frecceNellaGriglia(griglia, '.cella-segno')
+  return griglia
 }
 
 /**

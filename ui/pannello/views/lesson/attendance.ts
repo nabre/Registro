@@ -19,6 +19,8 @@ import { minuscolo } from '../../../../core/i18n/index.js'
 import type { Allievo, Lezione, Presenza, StatoPresenza } from '../../../../core/dominio/models.js'
 import { pulsante, scheda, statoVuoto } from '../../components/base.js'
 import { eseguiOAvvisa } from '../../components/filters.js'
+import { frecceNellaGriglia } from '../../components/gridArrows.js'
+import { statoInVolo } from '../../components/inFlight.js'
 import { menuContestuale } from '../../components/menu.js'
 import { conferma } from '../../components/modal.js'
 import { h } from '../../dom.js'
@@ -88,34 +90,35 @@ function menuStati (
 }
 
 /**
- * Esportata per le prove di regressione: verifica che la chiusura del DOM
- * tenga traccia dello stato in volo nei clic a raffica.
+ * Lo stato che ogni casella ha mandato e non ha ancora visto tornare. `stato`
+ * resta quello del ridisegno finché l'host non rispinge il registro, e un
+ * secondo clic rapido ricalcolerebbe lo stesso stato del primo: si riparte da
+ * quel che si è mandato. Vale anche per le caselle di riga e di colonna.
+ */
+const inVolo = statoInVolo<StatoPresenza>()
+
+/**
+ * Esportata per le prove di regressione: i clic a raffica partono dallo stato
+ * in volo, non dal disegno.
  */
 export function pulsanteStato (opzioni: {
   stato: StatoPresenza | null
   titolo: string
   fuoco: string
+  /** Il nome della casella fra due ridisegni, per lo stato in volo; di norma `fuoco`. */
+  chiave?: string
   classe?: string
   /** Falso dove non si può arrivare in ritardo: il giro e il menu saltano «R». */
   conRitardo?: boolean
   al: (prossimo: StatoPresenza) => Promise<Risposta>
 }): HTMLElement {
   const { stato, titolo, fuoco, classe, conRitardo = true, al } = opzioni
+  const chiave = opzioni.chiave ?? fuoco
 
-  /**
-   * Lo stato che questa casella ha mandato e non ha ancora visto tornare.
-   * `stato` resta quello del ridisegno finché l'host non rispinge il registro,
-   * e un secondo clic rapido ricalcolerebbe lo stesso stato del primo: si
-   * riparte da quel che si è mandato. Se la scrittura è respinta si torna al
-   * ridisegno. Vale anche per la casella di colonna.
-   */
-  let inVolo: StatoPresenza | null = null
-
+  /** Lo stato da cui parte un gesto: quello in volo, o il disegnato. */
+  const attuale = (): StatoPresenza | null => inVolo.da(chiave, stato)
   const manda = (prossimo: StatoPresenza): void => {
-    inVolo = prossimo
-    void al(prossimo).then((esito) => {
-      if (!esito.ok) inVolo = null
-    })
+    void inVolo.manda(chiave, prossimo, () => al(prossimo))
   }
 
   // Pressione lunga e clic partono dallo stesso tocco: se il tempo arriva in
@@ -164,7 +167,7 @@ export function pulsanteStato (opzioni: {
           clicSpeso = false
           return
         }
-        manda(prossimoStato(inVolo ?? stato ?? 'non-impostato', conRitardo))
+        manda(prossimoStato(attuale() ?? 'non-impostato', conRitardo))
       },
       onpointerdown: (evento: PointerEvent) => {
         clicSpeso = false
@@ -176,7 +179,7 @@ export function pulsanteStato (opzioni: {
           attesa = null
           clicSpeso = true
           ;(premuto ?? bottone).classList.remove('stato-presenza--premuto')
-          menuStati(evento, inVolo ?? stato, conRitardo, manda)
+          menuStati(evento, attuale(), conRitardo, manda)
         }, PRESSIONE_LUNGA)
       },
       onpointerup: fermaAttesa,
@@ -186,7 +189,7 @@ export function pulsanteStato (opzioni: {
       oncontextmenu: (evento: MouseEvent) => {
         fermaAttesa()
         clicSpeso = true
-        menuStati(evento, inVolo ?? stato, conRitardo, manda)
+        menuStati(evento, attuale(), conRitardo, manda)
       },
     },
     stato ? SIGLE.get(stato) ?? '?' : '·',
@@ -246,6 +249,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
           titolo: t.tuttaLOra(nomeCompleto(allievo)),
           // testo-fisso: chiave di fuoco
           fuoco: `riga-${allievo.id}`,
+          chiave: `${lezione.id}|riga-${allievo.id}`,
           classe: 'stato-presenza--riga',
           // Una riga copre tutta l'ora: il ritardo va solo sulla sua UD.
           conRitardo: ud.every(ammetteRitardo),
@@ -263,6 +267,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
             titolo: t.cella(nomeCompleto(allievo), unita.indice + 1, unita.inizio, unita.fine),
             // testo-fisso: chiave di fuoco
             fuoco: `ud-${allievo.id}-${unita.indice}`,
+            chiave: `${lezione.id}|ud-${allievo.id}-${unita.indice}`,
             conRitardo: ammetteRitardo(unita),
             al: (stato) =>
               azione({
@@ -368,7 +373,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
               al: () => { vai({ pagina: 'pagina.classi', soggetto: { tipo: 'classe', id: classe.id } }) },
             }),
           })
-        : tabella({
+        : conLeFrecce(tabella({
             classi: { telaio: 'appello__telaio', tabella: 'appello' },
             // Stesso nodo fra due clic, se la catena regge; se no almeno lo
             // scorrimento si rimette: a ogni presenza segnata non si torna a sinistra.
@@ -396,6 +401,7 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
                     titolo: t.colonna(unita.indice + 1, unita.inizio, unita.fine),
                     // testo-fisso: chiave di fuoco
                     fuoco: `colonna-${unita.indice}`,
+                    chiave: `${lezione.id}|colonna-${unita.indice}`,
                     classe: 'stato-presenza--colonna',
                     conRitardo: ammetteRitardo(unita),
                     al: (stato) =>
@@ -412,8 +418,17 @@ export function pannelloAppello (lezione: Lezione): HTMLElement {
               h('th', { class: 'appello__nota', attr: { scope: 'col' } }, t.nota),
             ],
             righe: allievi.map(rigaAllievo),
-          }),
+          })),
   }), 'appello')
+}
+
+/**
+ * Le frecce fra le caselle dell'appello, pulsante di riga compreso; nei minuti
+ * e nella nota restano del campo.
+ */
+function conLeFrecce (griglia: HTMLElement): HTMLElement {
+  frecceNellaGriglia(griglia, '.stato-presenza')
+  return griglia
 }
 
 /**

@@ -49,6 +49,7 @@ import { procedureAggiornamenti } from './procedure/aggiornamenti/index.js'
 import { procedureCheck } from './procedure/check/index.js'
 import { procedureMicrosoft } from './procedure/microsoft/index.js'
 import { procedureOnedrive } from './procedure/onedrive/index.js'
+import { procedureProgetti } from './procedure/progetti/index.js'
 import { procedureStoria } from './procedure/storia/index.js'
 
 export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
@@ -82,6 +83,7 @@ export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
   ...procedurePersone,
   ...procedurePiani,
   ...procedurePosta,
+  ...procedureProgetti,
   ...procedureProgramma,
   ...procedureProiezione,
   ...procedureRapporti,

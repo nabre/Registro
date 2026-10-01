@@ -4,7 +4,9 @@
 // parte, si dimentica.
 //
 // In fondo gli aggiornamenti, inoltrati da `environment/updates.ts`: senza anno
-// aperto è l'unica finestra che li mostra.
+// aperto è l'unica finestra che li mostra. Accanto la lingua, che al primo
+// avvio va scelta prima di leggere il resto: la scrive `apparato/language.ts`,
+// e al cambio la finestra si ricarica da sé.
 //
 // Il dialogo dei file lo fornisce `main.ts` (`Azioni`): qui si apre la
 // finestra, si ascolta il canale e si torna una scelta.
@@ -31,6 +33,7 @@ import {
   togliMenu,
 } from '../../apparato/theme.js'
 import { chiudiLeVieDiFuga } from '../../apparato/navigation.js'
+import { sceltaLingua, scegliLingua } from '../../apparato/language.js'
 import { mostraComunque } from '../../apparato/showAnyway.js'
 import {
   alCambioAggiornamenti,
@@ -58,6 +61,8 @@ export type RichiestaBenvenuto =
   | { benvenuto: 'aggiornamento', gesto: GestoAggiornamenti }
   /** La ✕ del filetto: quella notizia non si ripete fino alla prossima. */
   | { benvenuto: 'nascondiNotizia', notizia: string }
+  /** Una scelta di `registroDocenti.aspetto.lingua`, una lingua o `sistema`. */
+  | { benvenuto: 'lingua', scelta: string }
 
 type GestoAggiornamenti = NonNullable<RaccontoAggiornamenti['gesto']>['tipo']
 
@@ -145,6 +150,11 @@ function annunciaAggiornamenti (aperta: BrowserWindow): void {
   })
 }
 
+/** La scelta della lingua scritta adesso: la lingua risolta la pagina la sa già. */
+function annunciaLingua (aperta: BrowserWindow): void {
+  aperta.webContents.send(CANALE, { benvenuto: 'lingua', scelta: sceltaLingua() })
+}
+
 /**
  * Un gesto sugli aggiornamenti, con le stesse funzioni del pannello: un gesto
  * fuori fase non fa niente.
@@ -215,6 +225,14 @@ async function rispondi (
 
     case 'nascondiNotizia':
       nascondiNotizia(richiesta.notizia)
+      break
+
+    case 'lingua':
+      // Se la lingua cambia, `osservaLingua` ricarica la finestra e la scelta si
+      // riannuncia a pagina pronta; se resta quella (`sistema` che dà la stessa),
+      // la pagina va aggiornata qui.
+      await scegliLingua(richiesta.scelta)
+      if (!aperta.isDestroyed()) annunciaLingua(aperta)
       break
   }
 }
@@ -294,6 +312,7 @@ export function mostraBenvenuto (azioni: Azioni): Promise<Scelta | null> {
     if (nata.isDestroyed()) return
     annunciaElenco(nata)
     annunciaAggiornamenti(nata)
+    annunciaLingua(nata)
     // Si ricontrolla subito sul disco, senza aspettare il giro periodico: se
     // cambia, `alCambioDocumenti` lo rimanda.
     void verificaDocumenti()

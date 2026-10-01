@@ -144,21 +144,21 @@
   },
 
   "nsis": {
-    // GUID fisso: lo stesso dell'installazione precedente, così l'aggiornamento
-    // la sostituisce invece di installarsi accanto. È l'UUID v5 che
-    // electron-builder ricaverebbe da `ch.edu.ti.cptt.registro-docenti`; lo
-    // controlla `verificaIdentita()` in `esbuild.mjs`.
+    // GUID fisso: lo stesso delle installazioni già fatte, così l'aggiornamento
+    // le sostituisce invece di installarsi accanto. Lo controlla
+    // `verificaIdentita()` in `esbuild.mjs`.
     "guid": "d199f7cf-2ae9-5477-aea0-9860e9f60bca",
     // Non a un clic: chi installa vede dove mette le cose. Gli aggiornamenti li
     // conduce `os/windows/aggiornamento.ps1`, con l'installatore muto.
     "oneClick": false,
     "allowToChangeInstallationDirectory": true,
-    // Le quattro lingue del registro: quella di Windows se è fra queste (anche
-    // svizzera), altrimenti l'italiano. Le parole stanno in
-    // `os/windows/installer.nsh`. Niente selettore: risponde già Windows.
+    // Le quattro lingue del registro. Il selettore apre la procedura proponendo
+    // quella di Windows se è fra queste (anche svizzera), altrimenti
+    // l'italiano; muta (gli aggiornamenti) non chiede niente. Le parole e il
+    // passaggio della scelta al registro stanno in `os/windows/installer.nsh`.
     "installerLanguages": ["it_IT", "de_DE", "fr_FR", "en_US"],
     "multiLanguageInstaller": true,
-    "displayLanguageSelector": false,
+    "displayLanguageSelector": true,
     "language": "1040",
     // Le immagini della procedura le prende electron-builder da `icons/`
     // (`tools/icons.cjs`).

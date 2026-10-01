@@ -38,6 +38,9 @@ let primaOra
 let piano
 let momento
 let consegna
+/** Il progetto del corso con l'orario, con un compito e una cella. */
+let progetto
+let compitoId
 let secondaOra
 let oraSenzaOrario
 let altraOraSenzaOrario
@@ -99,7 +102,7 @@ async function grafoFinto (indirizzo, opzioni) {
 }
 
 /**
- * Le quarantuno letture con un ingresso buono per ciascuna: un elenco solo,
+ * Le quarantadue letture con un ingresso buono per ciascuna: un elenco solo,
  * perché «risponde» e «non tocca niente» girino sulle stesse.
  */
 function leTutte () {
@@ -144,6 +147,8 @@ function leTutte () {
     ['aggiornamenti.stato', {}],
     // Anche su un corso senza lista: risponde vuota, non «non trovata».
     ['check.leggi', { corsoId: conOrario.id }],
+    // Il giorno si passa: senza, il punto dei compiti guarderebbe l'orologio.
+    ['progetti.leggi', { corsoId: conOrario.id, oggi: DAL }],
     // Un altro documento, letto e non aperto: non muove la revisione di questo.
     ['classi.altrove', { percorso: ANNO_SCORSO }],
     // Lo stesso documento, blocco per blocco per l'import intero.
@@ -198,7 +203,7 @@ before(async () => {
   const {
     Archivio, Uri,
     creaAllievo, creaAnno, creaClasse, creaConsegna, creaCorso, creaLezione, creaMateria,
-    creaPiano, creaValutazione,
+    creaPiano, creaProgetto, creaValutazione,
   } = api
 
   // L'anno scorso, scritto e lasciato, con una classe: per `classi.altrove`.
@@ -277,6 +282,27 @@ before(async () => {
     lezioneId: altraOraSenzaOrario.id, allievoId: rossi.id, stato: 'presente',
   })
 
+  // Un progetto con un compito cominciato da tutti e finito da una, e una cella
+  // della matrice: prima del piano, la cui tappa lavora per lui.
+  progetto = creaProgetto(conOrario.id, 'Il giornalino delle frazioni')
+  progetto.criteri = [{ id: 'crp-prova-0001', titolo: 'Chiarezza' }]
+  assert.equal((await api.chiama(archivio, 'progetti.salva', { progetto })).ok, true)
+  const compito = await api.chiama(archivio, 'progetti.compito.salva', {
+    progettoId: progetto.id,
+    compito: { titolo: 'Bozza dell’articolo', fine: '2026-09-29' },
+  })
+  compitoId = compito.dati.creato.id
+  await api.chiama(archivio, 'progetti.compito.inizia', {
+    progettoId: progetto.id, compitoId, allieviIds: [rossi.id, bianchi.id], lezioneId: primaOra.id,
+  })
+  await api.chiama(archivio, 'progetti.compito.fatto', {
+    progettoId: progetto.id, compitoId, allievoId: rossi.id, fatto: true,
+  })
+  await api.chiama(archivio, 'progetti.cella', {
+    progettoId: progetto.id, allievoId: bianchi.id, criterioId: 'crp-prova-0001',
+    lezioneId: primaOra.id, livello: 'raggiunto',
+  })
+
   // Un piano, una prova e una pendenza, passando dalle procedure di scrittura:
   // si legge quel che il registro scriverebbe davvero.
   piano = creaPiano(conOrario.id)
@@ -289,6 +315,7 @@ before(async () => {
     descrizione: '',
     materiali: 'fotocopie',
     risorse: [],
+    progettoId: progetto.id,
   }]
   await api.chiama(archivio, 'piani.salva', { piano })
 
@@ -324,7 +351,7 @@ after(() => {
 })
 
 describe('l’elenco delle letture', () => {
-  it('sono quarantuno, e la tabella di questo file è esattamente quella', () => {
+  it('sono quarantadue, e la tabella di questo file è esattamente quella', () => {
     // La tabella copre tutte le letture dichiarate: una lettura dimenticata qui
     // sfuggirebbe alle due prove che seguono.
     const dichiarate = api.procedure()
@@ -333,11 +360,11 @@ describe('l’elenco delle letture', () => {
       .sort()
     const provate = leTutte().map(([nome]) => nome).sort()
     assert.deepEqual(provate, dichiarate)
-    assert.equal(dichiarate.length, 41, `letture dichiarate: ${dichiarate.length}`)
+    assert.equal(dichiarate.length, 42, `letture dichiarate: ${dichiarate.length}`)
   })
 })
 
-describe('le quarantuno letture rispondono, e nella forma che dichiarano', () => {
+describe('le quarantadue letture rispondono, e nella forma che dichiarano', () => {
   it('registro.riassunto conta l’anno, le classi, i corsi e le ore', async () => {
     const esito = await api.chiama(archivio, 'registro.riassunto', {})
     assert.equal(esito.ok, true, JSON.stringify(esito))
@@ -711,10 +738,21 @@ describe('le quarantuno letture rispondono, e nella forma che dichiarano', () =>
     assert.equal(esito.ok, true, JSON.stringify(esito).slice(0, 300))
     assert.match(esito.dati.pdf, /^JVBERi/)
   })
+
+  it('modelli.prova compone l’anteprima di ogni rapporto del catalogo', async () => {
+    // Ogni foglio si guarda sui dati veri del documento: un genere nuovo senza
+    // dati di prova non avrebbe anteprima (i rami stanno in `datiDiProva`).
+    const { CATALOGO_MODELLI } = await import('../../dist-tests/domain.mjs')
+    for (const voce of CATALOGO_MODELLI.filter((v) => v.ruolo === 'rapporto')) {
+      const esito = await api.chiama(archivio, 'modelli.prova', { nome: voce.nome })
+      assert.equal(esito.ok, true, `${voce.nome}: ${JSON.stringify(esito).slice(0, 300)}`)
+      assert.match(esito.dati.pdf, /^JVBERi/)
+    }
+  })
 })
 
 describe('nessuna lettura tocca il registro', () => {
-  it('tutte e quarantuno lasciano «archivio.revisione» dov’era', async () => {
+  it('tutte e quarantadue lasciano «archivio.revisione» dov’era', async () => {
     // Una per una, col nome: la prima cosa che si vuole sapere è quale ha scritto.
     const mosse = []
     for (const [nome, ingresso] of leTutte()) {
@@ -728,7 +766,7 @@ describe('nessuna lettura tocca il registro', () => {
     assert.deepEqual(mosse, [], `letture che hanno scritto:\n${mosse.join('\n')}`)
   })
 
-  it('nessuna delle quarantuno letture crea o modifica file sul disco', async () => {
+  it('nessuna delle quarantadue letture crea o modifica file sul disco', async () => {
     const scansionaDisco = (dir) => {
       const risultati = []
       for (const entry of readdirSync(dir, { withFileTypes: true, recursive: true })) {
@@ -767,6 +805,7 @@ describe('nessuna lettura tocca il registro', () => {
       ['calendario.confronta', { calendarioId: 'ics-inesistente-0000' }],
       ['calendario.eventi', { calendarioId: 'ics-inesistente-0000' }],
       ['check.leggi', { corsoId: 'cor-sparito-0001' }],
+      ['progetti.leggi', { progettoId: 'prg-sparito-0001' }],
     ]
     for (const [nome, ingresso] of storti) {
       const prima = archivio.revisione
@@ -1034,6 +1073,26 @@ describe('i filtri che le letture si dividono', () => {
     assert.equal(esito.dati.troncato, false)
     // Una pagina vuota dice lo stesso quante ce n'erano.
     assert.ok(esito.dati.quante > 0)
+  })
+
+  it('ogni lettura con «cerca» dice se il filtro è servito: «@» non filtra niente', async () => {
+    // «@» si normalizza a zero pezzi e fa passare tutte le righe: senza
+    // `cercaIgnorato` la busta sembrerebbe filtrata. `persone.cerca` ha la sua
+    // regola, e `llm.catalogo` cerca su Hugging Face, non fra le righe.
+    const altre = ['persone.cerca', 'llm.catalogo']
+    const conCerca = leTutte().filter(([nome]) => {
+      const p = api.procedura(nome)
+      return !altre.includes(nome) && p.ingresso?.forma?.campi?.cerca && p.uscita?.forma?.campi?.cerca
+    })
+    assert.ok(conCerca.length >= 10, `troppo poche letture con «cerca»: ${conCerca.length}`)
+    for (const [nome, ingresso] of conCerca) {
+      assert.ok(api.procedura(nome).uscita.forma.campi.cercaIgnorato, `${nome} non dichiara «cercaIgnorato»`)
+      const ignorato = await api.chiama(archivio, nome, { ...ingresso, cerca: '@' })
+      assert.equal(ignorato.ok, true, `${nome}: ${JSON.stringify(ignorato)}`)
+      assert.equal(ignorato.dati.cercaIgnorato, true, nome)
+      const vero = await api.chiama(archivio, nome, { ...ingresso, cerca: 'zzz' })
+      assert.equal(vero.dati.cercaIgnorato, false, nome)
+    }
   })
 
   it('la pagina ha un tetto: una busta non diventa un file', async () => {
@@ -1400,6 +1459,36 @@ describe('ore.prossima', () => {
     const esito = await chiedi({ corsoId: 'cor-inventato' })
     assert.equal(esito.ok, false)
     assert.equal(esito.codice, 'non-trovato')
+  })
+})
+
+describe('progetti.leggi', () => {
+  it('dice il punto di ognuno, nel giorno chiesto, e la matrice col giorno della sua ora', async () => {
+    const leggi = async (oggi) => {
+      const esito = await api.chiama(archivio, 'progetti.leggi', { progettoId: progetto.id, oggi })
+      assert.equal(esito.ok, true, JSON.stringify(esito))
+      return esito.dati.progetti[0]
+    }
+    const letto = await leggi('2026-09-15')
+    assert.equal(letto.titolo, 'Il giornalino delle frazioni')
+    assert.equal(letto.livelli.length, 4)
+    const [compito] = letto.compiti
+    const punto = Object.fromEntries(compito.allievi.map((a) => [a.allievoId, a.stato]))
+    assert.deepEqual(punto, { [rossi.id]: 'fatto', [bianchi.id]: 'in-corso' })
+    assert.equal(compito.allievi.find((a) => a.allievoId === bianchi.id).inizio, primaOra.data)
+    assert.equal(compito.fatti, 1)
+    assert.deepEqual(
+      letto.matrice.map((c) => [c.allievoId, c.criterioId, c.data, c.livello]),
+      [[bianchi.id, 'crp-prova-0001', primaOra.data, 'raggiunto']],
+    )
+    // Passata la fine, chi non ha finito è in ritardo.
+    const dopo = await leggi('2026-10-01')
+    assert.equal(dopo.compiti[0].allievi.find((a) => a.allievoId === bianchi.id).stato, 'scaduto')
+  })
+
+  it('filtra per corso: un altro corso non ne ha', async () => {
+    const esito = await api.chiama(archivio, 'progetti.leggi', { corsoId: senzaOrario.id })
+    assert.deepEqual(esito.dati.progetti, [])
   })
 })
 

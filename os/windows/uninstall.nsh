@@ -104,7 +104,7 @@
       SetShellVarContext current
       RMDir /r "$APPDATA\${PRODUCT_NAME}"
       ; Anche la cartella col nome precedente, se non è ancora stata spostata.
-      RMDir /r "$APPDATA\Registro docenti"
+      RMDir /r "$APPDATA\Regiclass"
       ${if} $installMode == "all"
         SetShellVarContext all
       ${endIf}

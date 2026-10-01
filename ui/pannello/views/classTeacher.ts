@@ -209,7 +209,14 @@ function cellaDocumento (consegna: Consegna, allievo: Allievo, giornoDiOggi: Iso
             : 'cella-documento--atteso',
       ],
       type: 'button',
-      attr: { title: titoloGesto, 'aria-haspopup': 'menu' },
+      attr: {
+        title: titoloGesto,
+        'aria-label': consegno
+          ? t.consegnatoAQuale(consegna.testo, nomeCompleto(allievo))
+          : t.portatoDaQuale(consegna.testo, nomeCompleto(allievo)),
+        'aria-pressed': String(fatto),
+        'aria-haspopup': 'menu',
+      },
       onclick: (evento: MouseEvent) => {
         if (alClic === null) return
         cambia(evento.currentTarget as HTMLButtonElement, alClic === 'spunta')

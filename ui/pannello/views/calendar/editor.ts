@@ -246,7 +246,7 @@ async function creaQui (
   const dal = inizioLezione(lezione) ?? oraDaMinuti(da)
   const orario = `${dal}–${fineLezione(lezione) ?? oraDaMinuti(da + minuti)}`
   notifica(
-    testi().creata(nomeClasseDiLezione(lezione), formattaData(data, 'giorno'), orario, sopra),
+    testi().creata(nomeClasseDiLezione(lezione), formattaData(data, 'settimana'), orario, sopra),
     sopra ? 'avviso' : 'successo',
   )
   rimettiFuoco(risposta.creato?.id ?? lezione.id)

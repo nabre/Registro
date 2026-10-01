@@ -24,6 +24,7 @@ const dati = percorso.join(lavoro, 'registro')
 let Archivio
 let Uri
 let leggiZip
+let DATI
 let creaAnnoCorrente
 let creaClasse
 
@@ -44,7 +45,7 @@ before(async () => {
   )
 
   // Dal bundle dello strato dati: serve anche `Uri`.
-  ;({ Archivio, Uri } = await import('../../dist-tests/data.mjs'))
+  ;({ Archivio, DATI, Uri } = await import('../../dist-tests/data.mjs'))
   ;({ leggiZip } = await import('../../dist-tests/zip.mjs'))
   ;({ creaAnnoCorrente, creaClasse } = await import('../../dist-tests/domain.mjs'))
 })
@@ -78,8 +79,8 @@ describe('l’archivio su un anno vero', () => {
 
     const voci = dentroIlDocumento(cartella).map((v) => v.nome)
     assert.ok(voci.includes('manifesto.json'), `manifesto assente: ${voci.join(', ')}`)
-    assert.ok(voci.includes('registro.json'), `intestazione assente: ${voci.join(', ')}`)
-    assert.ok(voci.includes('classi.json'), `classi assenti: ${voci.join(', ')}`)
+    assert.ok(voci.includes(`${DATI}/registro.json`), `intestazione assente: ${voci.join(', ')}`)
+    assert.ok(voci.includes(`${DATI}/classi.json`), `classi assenti: ${voci.join(', ')}`)
 
     await archivio.chiudi()
     archivio.dispose()

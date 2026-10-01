@@ -19,7 +19,10 @@ const { radice, lavoro, dati } = cartelleDiProva('registro-invio-consegne-')
 const POSTA_FINTA = `
 export async function puoSpedire () { return true }
 export async function confermaInvio () { return true }
-export function nomeBozza () { return 'bozza' }
+export function nomeBozza (_classe, _chi, _argomento, periodo) {
+  globalThis.__invioConsegne?.periodi?.push(periodo)
+  return 'bozza'
+}
 export async function bozzeDiGruppo (messaggi, _classe, dopoOgni) {
   const invio = globalThis.__invioConsegne
   for (let indice = 0; indice < messaggi.length; indice++) {
@@ -27,7 +30,7 @@ export async function bozzeDiGruppo (messaggi, _classe, dopoOgni) {
     dopoOgni?.(indice, true)
     if (indice === 0) invio.dopoIlPrimo()
   }
-  return { ok: true, spediti: true, dove: 'il server della posta', falliti: [] }
+  return { ok: true, spediti: true, dove: 'il server della posta', falliti: [], parziali: [] }
 }
 `
 
@@ -143,3 +146,63 @@ describe('consegna.distribuisci con l’invio diretto', () => {
     assert.equal(viva.fatte[0].modo, 'email')
   })
 })
+
+describe('consegna.distribuisci e il nome delle bozze', () => {
+  it('con la scadenza legata a un’ora, il nome porta il giorno di quell’ora', async () => {
+    const { creaLezione, periodoNelNome } = moduli
+    const corsoId = consegna.corsoId
+    const lezione = creaLezione(corsoId, '2026-10-20', '08:00', 90)
+    const legata = {
+      ...creaConsegna(corsoId, 'Convocazione'),
+      scadenzaLezioneId: lezione.id,
+      scadenza: null,
+    }
+    archivio.modifica((r) => {
+      r.lezioni.push(lezione)
+      r.consegne.push(legata)
+    }, ['lezioni', 'consegne'])
+    globalThis.__invioConsegne = { partiti: 0, periodi: [], dopoIlPrimo: () => {} }
+
+    const esito = await moduli.consegne['consegna.distribuisci'](
+      moduli.contestoDi(archivio),
+      { tipo: 'consegna.distribuisci', consegnaId: legata.id },
+    )
+
+    assert.equal(esito.ok, true, JSON.stringify(esito))
+    assert.deepEqual(
+      [...new Set(globalThis.__invioConsegne.periodi)],
+      [periodoNelNome('2026-10-20')],
+      'il giorno dell’ora, non oggi',
+    )
+  })
+})
+
+describe('consegna.documento.togli e la consegna sparita intanto', () => {
+  it('se la consegna se ne va mentre il file va nel cestino, non è un «fatto»', async () => {
+    const effimera = creaConsegna(consegna.corsoId, 'Circolare')
+    archivio.modifica((r) => { r.consegne.push(effimera) }, ['consegne'])
+
+    // Il gestore si ferma su `cestina`: intanto la consegna sparisce.
+    const inCorso = moduli.consegne['consegna.documento.togli'](
+      moduli.contestoDi(archivio),
+      { tipo: 'consegna.documento.togli', consegnaId: effimera.id },
+    )
+    archivio.modifica((r) => {
+      r.consegne = r.consegne.filter((c) => c.id !== effimera.id)
+    }, ['consegne'])
+    const esito = await inCorso
+
+    assert.equal(esito.ok, false, JSON.stringify(esito))
+  })
+})
+
+/** Una richiesta da distribuire a tutti, come quella del giro sopra. */
+function creaConsegna (corsoId, testo) {
+  return {
+    ...moduli.creaConsegna(corsoId, testo, '2026-10-01'),
+    documento: 'modulo',
+    verso: 'consegno',
+    fileTutti: 'archivio/pagella.pdf',
+    nomeTutti: 'pagella.pdf',
+  }
+}

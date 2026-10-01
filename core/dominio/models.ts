@@ -631,6 +631,19 @@ export interface Attivita {
    * dentro la lezione in cui la prova si fa.
    */
   valutazione?: ValutazionePrevista | null
+  /**
+   * Il progetto per cui lavora questa tappa della scaletta. Da qui si ricavano
+   * le lezioni del progetto: nessun elenco doppio da tenere allineato.
+   * Assente o nullo: la tappa non è di nessun progetto.
+   */
+  progettoId?: string | null
+  /**
+   * La fase del progetto (`FaseProgetto.id`) in cui cade la tappa: è la tappa
+   * a dirlo, come per `progettoId`, così la fase non tiene un elenco suo da
+   * allineare ai piani. Senza progetto non c'è; con un progetto e una fase che
+   * lui non ha, vale la sua prima (la normalizzazione la riscrive).
+   */
+  faseProgettoId?: string | null
 }
 
 /**
@@ -649,7 +662,6 @@ export interface PianoLezione {
   attivita: Attivita[]
   /** Le risorse del piano nel suo insieme; quelle di una singola tappa stanno nell'attività. */
   risorse: Risorsa[]
-  note?: string
   tag: string[]
   creatoIl: Istante
   aggiornatoIl: Istante
@@ -766,6 +778,8 @@ export interface MomentoValutazione {
    * si distinguerebbero.
    */
   attivitaId?: string | null
+  /** Il progetto che ha promosso la prova, se ce n'è uno: dello stesso corso. */
+  progettoId?: string | null
   titolo: string
   tipo: TipoValutazione
   data: Iso
@@ -967,6 +981,147 @@ export interface Check {
   corsoId: string
   colonne: ColonnaCheck[]
   spunte: SpuntaCheck[]
+  creatoIl: Istante
+  aggiornatoIl: Istante
+}
+
+// ---------------------------------------------------------------- progetti
+
+/** A che punto è un progetto: si prepara, si lavora, è chiuso. */
+export type StatoProgetto = 'bozza' | 'in-corso' | 'concluso'
+
+/** Un criterio di valutazione del progetto: una riga della matrice a livelli. */
+export interface CriterioProgetto {
+  id: string
+  titolo: string
+  descrizione?: string
+}
+
+/**
+ * Un gradino della scala del progetto. `valore` è quel che si salva nelle
+ * celle: rinominare il testo non stacca i giudizi già dati.
+ */
+export interface LivelloProgetto {
+  valore: string
+  testo: string
+  /**
+   * Che cosa vuol dire raggiungerlo («sa giustificare ogni scelta del
+   * rilievo»): è quel che rende la scala leggibile a chi riceve il rapporto.
+   */
+  descrizione?: string
+  /** `#rrggbb`; assente, il colore di serie della posizione. */
+  colore?: string
+}
+
+/**
+ * Quando un allievo ha cominciato un compito. In un'ora tiene il rimando alla
+ * lezione e ne segue la data; `data` resta come riserva se la lezione sparisce.
+ */
+interface InizioCompito {
+  allievoId: string
+  data: Iso
+  lezioneId: string | null
+}
+
+/** Più tempo per un allievo: la sua fine al posto di quella comune. */
+interface ProrogaCompito {
+  allievoId: string
+  fine: Iso
+  nota?: string
+}
+
+/** Il compito finito da un allievo: la spunta è individuale, come nelle consegne. */
+interface FattoCompito {
+  allievoId: string
+  fattoIl: Istante
+  nota?: string
+}
+
+/**
+ * Un compito del progetto: vale per tutti, con una fine comune (una lezione
+ * del corso o una data, come le consegne), ma ognuno lo comincia quando tocca
+ * a lui e può avere una proroga.
+ */
+export interface CompitoProgetto {
+  id: string
+  titolo: string
+  descrizione?: string
+  /** La fine comune; se `fineLezioneId` è dato vale il giorno di quella lezione. */
+  fine: Iso | null
+  fineLezioneId: string | null
+  /** Uno per allievo. */
+  inizi: InizioCompito[]
+  /** Uno per allievo. */
+  proroghe: ProrogaCompito[]
+  /** Uno per allievo. */
+  fatti: FattoCompito[]
+}
+
+/** Una nota datata del docente sul progetto: su un allievo, o sulla classe (`allievoId` nullo). */
+export interface GiudizioProgetto {
+  id: string
+  allievoId: string | null
+  testo: string
+  data: Iso
+  lezioneId: string | null
+  creatoIl: Istante
+}
+
+/**
+ * Una casella della matrice a livelli: allievo × criterio, in un giorno. Più
+ * celle della stessa coppia in giorni diversi raccontano la progressione. La
+ * data segue la lezione, se c'è; le celle senza livello né nota non si salvano.
+ */
+export interface CellaProgetto {
+  allievoId: string
+  criterioId: string
+  data: Iso
+  lezioneId: string | null
+  /** Il `valore` di un livello del progetto, o nullo (solo la nota). */
+  livello: string | null
+  nota?: string
+}
+
+/**
+ * Una fase del progetto: il contenitore delle tappe dei piani che la nominano
+ * (`Attivita.faseProgettoId`). Niente date né elenco di tappe: il periodo e
+ * il lavoro della fase si ricavano dalle ore i cui piani hanno tappe sue
+ * (`periodoDellaFase`, `lezioniDellaFase`), come per il progetto intero.
+ */
+export interface FaseProgetto {
+  id: string
+  titolo: string
+  descrizione?: string
+}
+
+/**
+ * Un progetto di un corso: un contenitore che raccoglie, di traverso, tappe di
+ * più piani lezione, divise in fasi, con obiettivi, criteri e livelli, compiti
+ * con inizio per allievo, giudizi e una matrice datata. Le lezioni del
+ * progetto non si elencano qui: sono quelle il cui piano ha tappe con questo
+ * `progettoId`, e da loro viene anche il periodo (`periodoDelProgetto`):
+ * niente date proprie, che si scorderebbero dal calendario.
+ */
+export interface Progetto {
+  id: string
+  corsoId: string
+  titolo: string
+  descrizione?: string
+  obiettivi: string[]
+  stato: StatoProgetto
+  /**
+   * Le fasi, nell'ordine in cui si susseguono; sempre almeno una, perché ogni
+   * tappa del progetto deve cadere in una fase: un progetto non diviso ha la
+   * sua sola fase di serie, e le tappe ci stanno senza che nessuno scelga.
+   */
+  fasi: FaseProgetto[]
+  criteri: CriterioProgetto[]
+  livelli: LivelloProgetto[]
+  compiti: CompitoProgetto[]
+  giudizi: GiudizioProgetto[]
+  matrice: CellaProgetto[]
+  risorse: Risorsa[]
+  note?: string
   creatoIl: Istante
   aggiornatoIl: Istante
 }
@@ -1344,6 +1499,8 @@ export interface Registro {
   consegne: Consegna[]
   /** Le liste di controllo, una per corso. */
   check: Check[]
+  /** I progetti dei corsi (ADR-54). */
+  progetti: Progetto[]
   smistamenti: Smistamento[]
   /** Gli indirizzi collocati, uno per indirizzo e non uno per persona. */
   coordinate: Coordinata[]
@@ -1362,8 +1519,11 @@ export interface Registro {
  * Fra due release i passi non pubblicati si compattano in uno solo: conta
  * soltanto il numero che una release ha già scritto su disco. Vedi la skill
  * `formato`.
+ *
+ * 3 → 4: i progetti dei corsi (`progetti.json`) e il `progettoId` su tappe
+ * dei piani e momenti di valutazione.
  */
-export const VERSIONE_DATI = 3
+export const VERSIONE_DATI = 4
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha
@@ -1379,5 +1539,6 @@ export type Collezione =
   | 'fascicoli'
   | 'consegne'
   | 'check'
+  | 'progetti'
   | 'smistamenti'
   | 'coordinate'

@@ -34,6 +34,18 @@ const it = {
   spunteEstranee: (n: number) =>
     `Toglie ${plurale(n, 'spunta', 'spunte')} del check di persone che non ` +
     'sono più iscritte alla classe del corso: nessuna griglia le può mostrare.',
+  progettiOrfani: (n: number) =>
+    `Toglie ${plurale(n, 'progetto', 'progetti')} di un corso che non esiste più; ` +
+    'tappe dei piani e valutazioni collegate restano, senza progetto.',
+  progettiDaRipulire: (n: number) =>
+    `Ripulisce ${plurale(n, 'progetto', 'progetti')}: le voci di ore sparite tengono la loro ` +
+    'data, quelle di persone non iscritte e le celle di criteri tolti se ne vanno.',
+  rimandiAiProgetti: (n: number) =>
+    `Stacca ${plurale(n, 'tappa o valutazione', 'tappe o valutazioni')} dal progetto che ` +
+    'citano, sparito o di un altro corso.',
+  fasiDelleTappe: (n: number) =>
+    `Porta ${plurale(n, 'tappa', 'tappe')} nella prima fase del suo progetto: la fase ` +
+    'citata non c’è più.',
   titoliVecchi: (n: number) =>
     'Rimette nell\'ordine di adesso — classe, poi materia — il titolo di ' +
     `${plurale(n, 'corso', 'corsi')}. I titoli scritti a mano ` +
@@ -72,6 +84,19 @@ export const testi = catalogo(it, {
     spunteEstranee: (n) =>
       `Entfernt ${plurale(n, 'Check-Häkchen', 'Check-Häkchen')} von Personen, die nicht mehr ` +
       'in der Klasse des Kurses eingeschrieben sind: Kein Raster kann sie anzeigen.',
+    progettiOrfani: (n) =>
+      `Entfernt ${plurale(n, 'Projekt', 'Projekte')} eines Kurses, den es nicht mehr gibt; ` +
+      'verknüpfte Etappen und Leistungsbeurteilungen bleiben, ohne Projekt.',
+    progettiDaRipulire: (n) =>
+      `Bereinigt ${plurale(n, 'Projekt', 'Projekte')}: Einträge gelöschter Stunden behalten ` +
+      'ihr Datum, solche von nicht eingeschriebenen Personen und Zellen entfernter Kriterien ' +
+      'werden entfernt.',
+    rimandiAiProgetti: (n) =>
+      `Löst ${plurale(n, 'Etappe oder Beurteilung', 'Etappen oder Beurteilungen')} vom Projekt, ` +
+      'das gelöscht ist oder zu einem anderen Kurs gehört.',
+    fasiDelleTappe: (n) =>
+      `Verschiebt ${plurale(n, 'Etappe', 'Etappen')} in die erste Phase ihres Projekts: ` +
+      'die genannte Phase gibt es nicht mehr.',
     titoliVecchi: (n) =>
       `Bringt den Titel von ${plurale(n, 'Kurs', 'Kursen')} in die heutige Reihenfolge — ` +
       'Klasse, dann Fach. Von Hand geschriebene Titel bleiben, wie sie sind.',
@@ -106,6 +131,18 @@ export const testi = catalogo(it, {
     spunteEstranee: (n) =>
       `Supprime ${plurale(n, 'coche', 'coches')} du check de personnes qui ne sont plus ` +
       'inscrites dans la classe du cours : aucune grille ne peut les afficher.',
+    progettiOrfani: (n) =>
+      `Supprime ${plurale(n, 'projet', 'projets')} d’un cours qui n’existe plus ; ` +
+      'les étapes et évaluations liées restent, sans projet.',
+    progettiDaRipulire: (n) =>
+      `Nettoie ${plurale(n, 'projet', 'projets')} : les entrées de leçons disparues gardent ` +
+      'leur date, celles de personnes non inscrites et les cases de critères retirés partent.',
+    rimandiAiProgetti: (n) =>
+      `Détache ${plurale(n, 'étape ou évaluation', 'étapes ou évaluations')} du projet ` +
+      'qu’elles citent, disparu ou d’un autre cours.',
+    fasiDelleTappe: (n) =>
+      `Place ${plurale(n, 'étape', 'étapes')} dans la première phase de son projet : ` +
+      'la phase citée n’existe plus.',
     titoliVecchi: (n) =>
       'Remet dans l’ordre actuel — classe, puis branche — le titre de ' +
       `${plurale(n, 'cours', 'cours')}. Les titres écrits à la main ` +
@@ -140,6 +177,18 @@ export const testi = catalogo(it, {
     spunteEstranee: (n) =>
       `Removes ${plurale(n, 'check tick', 'check ticks')} for people no longer enrolled in ` +
       'the course’s class: no grid can show them.',
+    progettiOrfani: (n) =>
+      `Removes ${plurale(n, 'project', 'projects')} belonging to a course that no longer ` +
+      'exists; linked plan steps and assessments stay, with no project.',
+    progettiDaRipulire: (n) =>
+      `Tidies ${plurale(n, 'project', 'projects')}: entries of deleted lessons keep their ` +
+      'date, those of people not enrolled and cells of removed criteria go.',
+    rimandiAiProgetti: (n) =>
+      `Unlinks ${plurale(n, 'step or assessment', 'steps or assessments')} from the project ` +
+      'they cite, which is gone or belongs to another course.',
+    fasiDelleTappe: (n) =>
+      `Moves ${plurale(n, 'step', 'steps')} into the first phase of its project: ` +
+      'the phase it cites is gone.',
     titoliVecchi: (n) =>
       `Puts the title of ${plurale(n, 'course', 'courses')} back into today’s order — ` +
       'class, then subject. Titles typed by hand stay as they are.',

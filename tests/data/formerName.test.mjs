@@ -23,7 +23,7 @@ function sistema () {
   const cartella = percorso.join(radice, `sistema-${++giro}`)
   mkdirSync(cartella, { recursive: true })
   return {
-    vecchia: percorso.join(cartella, 'Registro docenti'),
+    vecchia: percorso.join(cartella, 'Regiclass'),
     nuova: percorso.join(cartella, 'Regiklass'),
   }
 }

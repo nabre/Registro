@@ -312,43 +312,118 @@
 
 .dettagli-classe__spunta > span { color: var(--testo); font-size: inherit; }
 
-/* ------------------------------------------------------------------ navigatore piani e lezioni */
+/* ------------------------------------------------------------------ navigatore dei piani */
 
-.riga-azioni-scaletta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spazio-2);
-  margin-bottom: var(--spazio-2);
-}
-
+/* L'unica strada fra le ore del corso nella pagina dei piani: frecce ai lati,
+   l'ora di adesso al centro, che apre l'elenco di tutte. */
 .navigatore-piani {
   display: flex;
   align-items: center;
-  gap: var(--spazio-2);
+  gap: var(--spazio-3);
   flex-wrap: wrap;
 }
 
 .navigatore-piani__passo {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--spazio-1);
+  padding: 3px;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
   background: var(--sfondo-scheda, var(--sfondo));
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio);
-  padding: 2px var(--spazio-1);
 }
 
-.navigatore-piani__lezione-corrente {
+/* Le frecce si vedono e si prendono: quadrate, alte quanto l'ora di adesso. */
+.navigatore-piani__freccia {
+  min-width: 2.25rem;
+  justify-content: center;
+}
+
+.navigatore-piani__ora {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spazio-2);
+  min-width: 14rem;
+  padding: var(--spazio-1) var(--spazio-3);
+  border: none;
+  border-radius: var(--raggio);
+  background: transparent;
+  color: var(--testo);
+  font: inherit;
   font-weight: 600;
-  font-size: 0.9em;
-  padding: 0 var(--spazio-2);
+  cursor: pointer;
+}
+
+.navigatore-piani__ora:hover,
+.navigatore-piani__ora[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--accento) 14%, transparent);
+}
+
+.navigatore-piani__ora:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
+}
+
+/* La data prende il posto che avanza: la freccia della tendina resta a destra. */
+.navigatore-piani__data { flex: 1; text-align: center; white-space: nowrap; }
+
+.navigatore-piani__ora--preparata .navigatore-piani__segno { color: var(--positivo); }
+.navigatore-piani__ora--da-calibrare .navigatore-piani__segno { color: var(--attenzione); }
+.navigatore-piani__ora--annullata .navigatore-piani__data { text-decoration: line-through; color: var(--testo-quieto); }
+
+/* Quante sono pronte: un dato di contorno, non un richiamo. */
+.navigatore-piani__sintesi {
+  color: var(--testo-quieto);
+  font-size: var(--corpo-piccolo);
   white-space: nowrap;
 }
 
-.navigatore-piani__sintesi {
-  display: flex;
-  align-items: center;
-  gap: var(--spazio-2);
+/* L'elenco di tutte le ore, sotto l'ora di adesso. */
+/* Scorre l'elenco, non la scatola: la ricerca resta in cima. */
+.menu.navigatore-ore {
+  width: min(30rem, calc(100vw - 16px));
+  max-height: min(70vh, calc(100vh - 16px));
+  overflow: hidden;
 }
+
+.navigatore-ore__cerca { flex-shrink: 0; margin-bottom: var(--spazio-1); }
+
+.navigatore-ore__elenco {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+/* Il semestre resta in vista mentre si scorre, con quante ore ha pronte. */
+.navigatore-ore__gruppo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+  background: var(--sfondo-scheda);
+}
+
+.navigatore-ore__conto { text-transform: none; letter-spacing: 0; }
+
+/* I piani rimasti senza corso: non dovrebbero esistere, e il gruppo lo dice. */
+.navigatore-ore__gruppo--avviso { color: var(--attenzione); }
+
+/* La riga accesa da tastiera si tinge come quella sfiorata. Col nome del
+   contenitore davanti: `.menu__voce` (in `menu.css`) la rifarebbe trasparente. */
+.navigatore-ore .navigatore-ore__voce--attiva {
+  background: color-mix(in srgb, var(--accento) 22%, transparent);
+}
+
+/* Il segno dice lo stato anche sull'ora di adesso, che `.menu__voce--accesa` tingerebbe d'accento. */
+.navigatore-ore .navigatore-ore__voce--preparata .navigatore-ore__segno { color: var(--positivo); }
+.navigatore-ore .navigatore-ore__voce--da-calibrare .navigatore-ore__segno { color: var(--attenzione); }
+.navigatore-ore .navigatore-ore__voce--piano .navigatore-ore__segno { color: var(--testo-quieto); }
+.navigatore-ore__voce--annullata { color: var(--testo-quieto); }
+.navigatore-ore__voce--annullata .menu__testo { text-decoration: line-through; }
 

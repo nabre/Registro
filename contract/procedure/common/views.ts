@@ -20,6 +20,7 @@ export const VISTE = esaustivo<Vista>()([
   'docenteClasse',
   'corsi',
   'piani',
+  'progetti',
   'valutazioni',
   'check',
   'documenti',

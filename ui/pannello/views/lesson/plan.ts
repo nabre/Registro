@@ -22,23 +22,22 @@ import type { Attivita, ColonnaCheck, Lezione, Risorsa, StatoAttivita } from '..
 import {
   barra,
   collegamento,
-  conAttesa,
   pastiglia,
   pulsante,
   scheda,
   statoVuoto,
 } from '../../components/base.js'
-import { notifica } from '../../components/notifications.js'
 import { icona } from '../../components/icons.js'
 import { h, type Figlio } from '../../dom.js'
-import { moduloPiano, moduloAssegnaPiano } from '../../forms.js'
+import { moduloAssegnaPiano } from '../../forms.js'
 import { azione } from '../../bridge.js'
-import { aggiorna, classeDelCorsoId, pianoPerId, stato, uriDato } from '../../state.js'
+import { aggiorna, classeDelCorsoId, pianoPerId, stato, uriDato, vai } from '../../state.js'
 import { moduloSpunta } from '../assignments.js'
 import { pulsanteValutazione } from './assessments.js'
 import { Molti, Uno, quanti } from '../../../../core/dominio/lexicon.js'
 import { lessico } from '../../../../core/dominio/lexicon.testi.js'
 import { parole } from '../../../../core/dominio/words.testi.js'
+import { apriProgettoDellOra } from './project.js'
 import { testi } from './plan.testi.js'
 
 /** Gli stati di una tappa, con il segno del pulsante; il nome sta nel catalogo. */
@@ -171,6 +170,20 @@ function pulsanteCheck (lezione: Lezione, attivita: Attivita): Figlio {
   })
 }
 
+/** Il progetto per cui lavora la tappa: porta alla scheda Progetto dell'ora, su di lui. */
+function pulsanteProgetto (lezione: Lezione, attivita: Attivita): Figlio {
+  if (!attivita.progettoId) return null
+  const progetto = stato.registro.progetti.find((p) => p.id === attivita.progettoId)
+  if (!progetto) return null
+  return pulsante({
+    testo: progetto.titolo,
+    simbolo: 'progetto',
+    variante: 'sottile',
+    titolo: testi().apriProgetto(progetto.titolo),
+    al: () => apriProgettoDellOra(lezione, progetto.id),
+  })
+}
+
 export function pannelloPiano (lezione: Lezione): HTMLElement {
   const piano = pianoPerId(lezione.pianoId)
   const t = testi()
@@ -183,28 +196,12 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
         simbolo: 'piano',
         titolo: t.nessunPiano,
         testo: t.nessunPianoTesto,
-        azione: [
-          pulsante({
-            testo: t.generaPiano,
-            variante: 'primario',
-            simbolo: 'bacchetta',
-            al: (evento) => {
-              const tasto = evento.currentTarget as HTMLButtonElement
-              void conAttesa(
-                tasto,
-                azione({ tipo: 'piano.perLezione', lezioneId: lezione.id }).then((risposta) => {
-                  if (risposta.ok) notifica(t.generatoEAssegnato, 'successo')
-                }),
-              )
-            },
-          }),
-          pulsante({
-            testo: t.assegna,
-            variante: 'sottile',
-            simbolo: 'piano',
-            al: () => moduloAssegnaPiano(lezione),
-          }),
-        ],
+        azione: pulsante({
+          testo: t.assegna,
+          variante: 'primario',
+          simbolo: 'piano',
+          al: () => moduloAssegnaPiano(lezione),
+        }),
       }),
     })
   }
@@ -232,9 +229,15 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
       pulsante({
         simbolo: 'matita',
         variante: 'fantasma',
-        // Si modifica di qui, con le UD di quest'ora sotto gli occhi.
+        // Si modifica nella pagina del piano, con quest'ora accanto: lì c'è
+        // tutto l'editor, e una modale ne ripeteva solo una parte.
         titolo: t.modificaScaletta,
-        al: () => moduloPiano(piano, undefined, undefined, lezione),
+        al: () => {
+          vai(
+            { pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: piano.id } },
+            { contesto: { lezioneId: lezione.id } },
+          )
+        },
       }),
     ],
     contenuto: h(
@@ -347,13 +350,14 @@ export function pannelloPiano (lezione: Lezione): HTMLElement {
                 { class: 'scaletta__orario' },
                 dove?.oraInizio ? `${dove.oraInizio}–${dove.oraFine ?? '…'}` : '—',
               ),
-              // Strumenti collegati: prova, pendenze, check.
+              // Strumenti collegati: prova, pendenze, check, progetto.
               h(
                 'span',
                 { class: 'scaletta__prova' },
                 attivitaValutata(attivita) ? pulsanteValutazione(lezione, attivita) : null,
                 attivitaConPendenza(attivita) ? pulsantePendenza(lezione, attivita) : null,
                 pulsanteCheck(lezione, attivita),
+                pulsanteProgetto(lezione, attivita),
               ),
               h(
                 'span',

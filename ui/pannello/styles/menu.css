@@ -88,6 +88,19 @@
   color: var(--accento);
 }
 
+/* Titoletti e voci con il colore di quel che nominano (materia, classe, corso):
+   l'icona prende il colore, il testo resta leggibile. */
+.menu__titolo--colorato {
+  display: flex;
+  align-items: center;
+  gap: var(--spazio-1);
+}
+
+.menu__titolo--colorato .icona,
+.menu__voce--colorata .icona {
+  color: var(--colore-icona);
+}
+
 .menu__voce kbd {
   font-size: 0.8em;
   color: var(--testo-quieto);

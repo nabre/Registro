@@ -75,15 +75,9 @@
 }
 .voce-laterale__testo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/*
- * Quando la scaletta non torna con l'ora, il numero si colora: è lavoro
- * rimasto da fare, da vedere senza leggere tutte le righe. Ambra per tempo
- * d'aula non pensato, rosso per materiale pensato che in aula non ci sta.
- */
-.voce-laterale__scarto { font-weight: 600; }
-
-/* Il corso che tiene le sue ore: l'elenco dei piani è una gerarchia, e senza
-   intestazione i corsi si confonderebbero. Resta in vista mentre si scorre. */
+/* Il gruppo che tiene le sue voci (la classe delle sue persone): l'elenco è una
+   gerarchia, e senza intestazione i gruppi si confonderebbero. Resta in vista
+   mentre si scorre. */
 .elenco-laterale__gruppo {
   position: sticky;
   top: 0;
@@ -102,28 +96,6 @@
 }
 
 .elenco-laterale__gruppo:first-child { margin-top: 0; }
-
-/* I piani rimasti senza corso: non dovrebbero esistere, e il gruppo lo dice. */
-.elenco-laterale__gruppo--avviso {
-  justify-content: flex-start;
-  color: var(--attenzione);
-  border-bottom-color: var(--attenzione);
-}
-
-.elenco-laterale__sottogruppo {
-  padding: var(--spazio-1) var(--spazio-2);
-  color: var(--testo-quieto);
-  font-size: var(--corpo-minore);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* L'ora che aspetta ancora una scaletta: un invito a prepararla, non una voce spenta. */
-.voce-laterale--vuota { color: var(--testo-quieto); }
-.voce-laterale--vuota:hover { color: var(--testo); }
-.voce-laterale--vuota strong { font-weight: 500; }
-
-.voce-laterale__segno { flex: none; opacity: 0.7; }
 
 /* I momenti rimasti senza la tappa che li ha fatti nascere: in un avviso in
    cima alla vista, perché vanno sistemati. */

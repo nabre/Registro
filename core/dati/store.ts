@@ -265,6 +265,16 @@ export class Deposito {
     return prossima
   }
 
+  /**
+   * All'avvio, prima di aprire un anno: le copie di una sessione finita male
+   * (crash, PC spento di colpo) sono PDF con dati di minorenni lasciati sul
+   * disco fino alla prossima chiusura. In fila, così nessuna copia nuova nasce
+   * mentre si butta la cartella.
+   */
+  ripulisciRimaste (): Promise<void> {
+    return this.inFila(() => this.smonta())
+  }
+
   /** Butta via le copie chiudendo un anno; un fallimento non si segnala. */
   async smonta (): Promise<void> {
     this.copie.clear()

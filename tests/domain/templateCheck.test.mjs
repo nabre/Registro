@@ -175,14 +175,17 @@ describe('i modelli di serie passano il controllo', () => {
     it(`«${nome}» non ha niente che il registro salterebbe`, () => {
       const genere = genereDiProva(nome)
       const dati = genere ? datiDelGenere(registro, genere) : null
+      // Dentro un `ripeti:` valgono anche i nomi delle voci del gruppo.
+      const voci = Object.values(dati?.gruppi ?? {}).flat()
+      const nomi = (di) => [...Object.keys(dati?.[di] ?? {}), ...voci.flatMap((v) => Object.keys(v[di] ?? {}))]
       const problemi = verificaModello(sorgente, {
         modelli: nomiModelli,
         // Il documento di prova non ha logo: i modelli di serie passano lo stesso.
         immagini: [],
-        valori: Object.keys(dati?.valori ?? {}),
-        elenchi: Object.keys(dati?.elenchi ?? {}),
-        tabelle: Object.keys(dati?.tabelle ?? {}),
-        grafici: Object.keys(dati?.grafici ?? {}),
+        valori: nomi('valori'),
+        elenchi: nomi('elenchi'),
+        tabelle: nomi('tabelle'),
+        grafici: nomi('grafici'),
         gallerie: Object.keys(dati?.gallerie ?? {}),
         gruppi: Object.keys(dati?.gruppi ?? {}),
         blocchi: Object.keys(pezzi),

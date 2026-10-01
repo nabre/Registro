@@ -2,7 +2,7 @@
 // Toglie quel che il registro ha lasciato per l'utente che lo lancia: dati,
 // temporanei, comando `regi` e voce nel PATH, associazione `.regi` (su Linux
 // anche icona e voce dell'AppImage), avvio
-// automatico, anche col nome precedente (`regdoc`). I documenti
+// automatico, anche col nome precedente. I documenti
 // del docente restano.
 //
 // Lo chiamano il disinstallatore di Windows (`os/windows/uninstall.nsh`, con
@@ -31,8 +31,8 @@ import { cartellaUtente, cartellaUtentePrecedente, NOME_APPLICAZIONE, NOME_PRECE
 /** L'`appId` di `electron-builder.json`: su macOS dà il nome a qualche file. */
 const IDENTITA = 'ch.nabre.regiklass'
 
-/** L'identità precedente (`IDENTITA_VECCHIA` in `core/dati/formerName.ts`). */
-const IDENTITA_PRECEDENTE = 'ch.edu.ti.cptt.registro-docenti'
+/** L'identità precedente, di «Regiclass». */
+const IDENTITA_PRECEDENTE = 'ch.nabre.regiclass'
 
 /**
  * I prefissi delle cartelle temporanee: `data/mtmd.ts`, la voce (vedi
@@ -47,11 +47,10 @@ const TEMPORANEI = ['registro-pagina-', 'registro-voce-', 'registro-aggiornament
 const BLOCCHI = [
   ['# >>> Regiklass: regi >>>', '# <<< Regiklass: regi <<<'],
   ['# >>> Regiclass: regi >>>', '# <<< Regiclass: regi <<<'],
-  ['# >>> Registro docenti: regdoc >>>', '# <<< Registro docenti: regdoc <<<'],
 ]
 
 /** I ponti del comando, con la riga che li riconosce come nostri e non di un omonimo. */
-const PONTI = ['regi', 'regdoc'].map((nome) => ({ nome, firma: `REGISTRO_COMANDO=${nome}` }))
+const PONTI = ['regi'].map((nome) => ({ nome, firma: `REGISTRO_COMANDO=${nome}` }))
 
 /**
  * Le parti della cartella dei dati che si possono tenere; il resto (cache,
@@ -189,12 +188,12 @@ function togliComandoDaUnix () {
 /** Quel che macOS tiene fuori da `Application Support`, a nome del programma. */
 function togliDaMacOS () {
   const libreria = join(homedir(), 'Library')
-  for (const identita of [IDENTITA, 'ch.nabre.regiclass', IDENTITA_PRECEDENTE]) {
+  for (const identita of [IDENTITA, IDENTITA_PRECEDENTE]) {
     togli(join(libreria, 'Preferences', `${identita}.plist`))
     togli(join(libreria, 'Saved Application State', `${identita}.savedState`))
     togli(join(libreria, 'Caches', identita))
   }
-  for (const nome of [NOME_APPLICAZIONE, 'Regiclass', NOME_PRECEDENTE]) {
+  for (const nome of [NOME_APPLICAZIONE, NOME_PRECEDENTE]) {
     togli(join(libreria, 'Caches', nome))
     togli(join(libreria, 'Logs', nome))
   }
@@ -253,7 +252,7 @@ if ($ambiente -and $bin.Count -gt 0) {
 }
 
 # Classe ed estensione di adesso, e classe col nome precedente.
-foreach ($coppia in @(@('Regiklass', '.regi'), @('Regiclass', '.regi'), @('Registro docenti', $null))) {
+foreach ($coppia in @(@('Regiklass', '.regi'), @('Regiclass', '.regi'))) {
   $classe = $coppia[0]
   $chiaveEstensione = if ($coppia[1]) { 'Software\Classes\' + $coppia[1] } else { $null }
   $nostra = $false
@@ -370,14 +369,14 @@ async function disinstalla () {
   if (process.platform === 'linux') {
     togliAssociazioneDaLinux()
     togli(join(homedir(), '.cache', NOME_APPLICAZIONE))
-    togli(join(homedir(), '.cache', 'Regiclass'))
     togli(join(homedir(), '.cache', NOME_PRECEDENTE))
   }
   const locale = process.env.LOCALAPPDATA ?? (process.platform === 'win32' ? join(homedir(), 'AppData', 'Local') : null)
   if (locale) {
     togli(join(locale, 'regiklass-updater'))
+    // Le copie da aprire dei file dell'anno (`cartellaCopieUri` dell'apparato).
+    togli(join(locale, NOME_APPLICAZIONE))
     togli(join(locale, 'regiclass-updater'))
-    togli(join(locale, 'registro-docenti-updater'))
   }
 
   togliTemporanei()

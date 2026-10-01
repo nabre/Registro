@@ -9,7 +9,7 @@ import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from './context.js
 import { nomeDelGruppo, nomeDelPosto, paginaAttiva } from './pages.js'
 import { porzioneAttiva } from './tabs.js'
 import { h, type Figlio } from './dom.js'
-import { lezionePerId, nomeDiPiano, pianoPerId, stato } from './state.js'
+import { lezionePerId, nomeDiPiano, pianoPerId, progettoPerId, stato } from './state.js'
 import { testi } from './breadcrumb.testi.js'
 
 /** Che cosa dice un passo del percorso: serve a disegnarlo e a spiegarlo. */
@@ -83,7 +83,7 @@ function elementoAperto (): Passo | null {
       const lezione = lezionePerId(stato.lezioneId)
       if (!lezione) return null
       const inizio = lezione.slot[0]?.inizio
-      return passo(`${formattaData(lezione.data, 'giorno')}${inizio ? ` ${inizio}` : ''}`)
+      return passo(`${formattaData(lezione.data, 'settimana')}${inizio ? ` ${inizio}` : ''}`)
     }
     case 'calendario':
       return passo(formattaData(stato.data, 'giorno'))
@@ -97,6 +97,8 @@ function elementoAperto (): Passo | null {
       const piano = pianoPerId(stato.pianoId)
       return passo(piano ? nomeDiPiano(piano) : null)
     }
+    case 'progetti':
+      return passo(progettoPerId(stato.progettoId)?.titolo)
     case 'valutazioni': {
       const momento = stato.registro.valutazioni.find((v) => v.id === stato.valutazioneId)
       return passo(momento?.titolo)

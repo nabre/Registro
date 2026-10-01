@@ -147,7 +147,7 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     assert.ok(ritorno > dove && ritorno < nucleo, 'la guardia non esce prima di eseguire')
   })
 
-  it('la condizione letta dal sorgente rifiuta tutte e 173 le scritture', () => {
+  it('la condizione letta dal sorgente rifiuta tutte e 184 le scritture', () => {
     // Operatore e valore del confronto si tirano fuori dal sorgente e si applicano
     // all'elenco vero: un `=== 'scrittura'` lascerebbe passare un genere nuovo.
     const corpo = corpoDi(PANNELLO, 'private async rispondiDomanda')
@@ -160,11 +160,11 @@ describe('rispondiDomanda, letto dal sorgente', () => {
     const letture = tutte.filter((p) => p.genere === 'lettura')
 
     // Le letture del nucleo, contate: cambiare il numero è una scelta da fare qui.
-    assert.equal(letture.length, 41, `letture: ${letture.length}`)
+    assert.equal(letture.length, 42, `letture: ${letture.length}`)
     // Le scritture, contate. Comprendono gesti che non scrivono l'archivio (zoom,
     // dialoghi, aggiornamenti): il genere dice chi può chiamarli da fuori, non se
     // l'archivio cambia.
-    assert.equal(scritture.length, 173, `scritture: ${scritture.length}`)
+    assert.equal(scritture.length, 184, `scritture: ${scritture.length}`)
 
     const passate = scritture.filter((p) => !rifiuterebbe(p)).map((p) => p.nome)
     assert.deepEqual(passate, [], `scritture che una domanda farebbe passare:\n${passate.join('\n')}`)

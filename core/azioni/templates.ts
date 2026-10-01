@@ -11,14 +11,18 @@ import { classeDelCorsoId, corsiDellaClasse } from '../dominio/courses.js'
 import {
   datiAllievo,
   datiCorso,
+  datiDiario,
   datiFascicolo,
   datiFotoClasse,
   datiLezione,
   datiMomento,
   datiPiano,
   datiPresenze,
+  datiSupplenze,
   datiValutazioni,
 } from '../dominio/reportData.js'
+import { datiProgetto, datiProgettoAllievo } from '../dominio/projectReport.js'
+import { allieviNominati } from '../dominio/projects.js'
 import type { Registro } from '../dominio/models.js'
 import { NOME_LOGO, type DatiRapporto } from '../dominio/reports.js'
 import { normalizzaIntestazione } from '../dominio/normalization.js'
@@ -128,6 +132,36 @@ function datiDiProva (
     return { dati: datiCorso(registro, corso, null), di: corso.titolo }
   }
 
+  if (genere === 'diario') {
+    if (!corso) return null
+    return { dati: datiDiario(registro, corso, null), di: corso.titolo }
+  }
+
+  if (genere === 'supplenze') {
+    if (!corso) return null
+    return { dati: datiSupplenze(registro, corso, null), di: corso.titolo }
+  }
+
+  // Il primo progetto; per il foglio individuale la prima persona che il
+  // progetto nomina, che ha qualcosa da mostrare, se no la prima attiva.
+  if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
+    const progetto = registro.progetti[0] ?? null
+    if (!progetto) return null
+    if (genere === 'progetto-classe') {
+      return { dati: datiProgetto(registro, progetto), di: progetto.titolo }
+    }
+    const suaClasse = classeDelCorsoId(registro, progetto.corsoId)
+    const nominati = allieviNominati(progetto)
+    const allievo = suaClasse?.allievi.find((a) => nominati.has(a.id))
+      ?? suaClasse?.allievi.find((a) => a.attivo)
+      ?? null
+    if (!allievo) return null
+    return {
+      dati: datiProgettoAllievo(registro, progetto, allievo),
+      di: `${progetto.titolo} · ${nomeCompleto(allievo)}`,
+    }
+  }
+
   if (genere === 'valutazioni' || genere === 'presenze') {
     if (!corso) return null
     // L'anno intero: il foglio più pieno.
@@ -180,12 +214,17 @@ function nomiDelModello (
   const inLingua = linguaDelModello(nome) ?? undefined
   const parole = paroleDeiModelli(inLingua)
   const pezzi = blocchi()
+  // Dentro un `ripeti:` i nomi si scrivono come fuori: valgono anche quelli
+  // delle voci del gruppo.
+  const voci = Object.values(dati?.gruppi ?? {}).flat()
+  const nomi = (di: 'valori' | 'elenchi' | 'tabelle' | 'grafici'): string[] =>
+    [...new Set([...Object.keys(dati?.[di] ?? {}), ...voci.flatMap((v) => Object.keys(v[di] ?? {}))])].sort()
 
   return {
-    valori: Object.keys(dati?.valori ?? {}).sort(),
-    elenchi: Object.keys(dati?.elenchi ?? {}).sort(),
-    tabelle: Object.keys(dati?.tabelle ?? {}).sort(),
-    grafici: Object.keys(dati?.grafici ?? {}).sort(),
+    valori: nomi('valori'),
+    elenchi: nomi('elenchi'),
+    tabelle: nomi('tabelle'),
+    grafici: nomi('grafici'),
     gallerie: Object.keys(dati?.gallerie ?? {}).sort(),
     gruppi: Object.keys(dati?.gruppi ?? {}).sort(),
     blocchi: Object.keys(pezzi).sort(),

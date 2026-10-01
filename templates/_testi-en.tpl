@@ -65,6 +65,10 @@ lezioni-svolte: Lessons held
 ud-svolte: Periods completed
 presenza-media: Average attendance
 media-di-classe: Class average
+lezioni: Lessons
+media-progetto: Project average
+periodo: Period
+avanzamento: Progress
 
 # --- I titoli delle sezioni
 
@@ -108,6 +112,22 @@ dettaglio-assenze: Absences and signatures detail
 diario-lezioni: Lesson journal
 piani-lezione: Lesson plans
 pendenze: Course pending tasks
+criteri: Assessment criteria
+scala-livelli: Level scale
+lezioni-del-progetto: Project lessons
+avanzamento-attivita: Activity progress
+fasi-del-progetto: Project phases
+valutazioni-della-fase: Phase assessments
+compiti-del-progetto: Tasks
+avanzamento-compiti: Tasks person by person
+livelli-raggiunti: Levels reached
+progressione: Progression
+valutazioni-del-progetto: Project assessments
+giudizi: Comments
+risorse: Resources
+presenze-progetto: Attendance in the project lessons
+legenda-compiti: Each cell shows when the person started the task, by when it must be finished (with the extension, if granted) and how far along it is.
+nota-livelli: The latest level given for each criterion. The path to it, day by day, is in the progression table.
 
 # --- Le frasi
 

@@ -22,12 +22,14 @@ import {
   documentoCambiato,
   fatto,
   rifiuta,
+  rifiutaCon,
   riponi,
   scegliUnFile,
   type Parte,
 } from './context.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './assessments.testi.js'
+import { testi as testiProgetti } from './projects.testi.js'
 import { istanteAdesso } from '../dominio/dates.js'
 
 /**
@@ -73,6 +75,11 @@ export const valutazioni = {
     momento.lezioneId = lezione.id
     momento.pianoId = piano.id
     momento.attivitaId = attivita.id
+    // La prova di una tappa di progetto è del progetto, se è ancora del corso.
+    const progetto = attivita.progettoId
+      ? contesto.registro.progetti.find((p) => p.id === attivita.progettoId)
+      : undefined
+    if (progetto?.corsoId === lezione.corsoId) momento.progettoId = progetto.id
     if (prevista) {
       momento.tipo = prevista.tipo
       momento.peso = prevista.peso
@@ -115,6 +122,11 @@ export const valutazioni = {
     }
     if (piano && lezione?.pianoId && piano.id !== lezione.pianoId) {
       return rifiuta(testi().pianoDiversoDaLezione)
+    }
+    if (chiesto.progettoId) {
+      const progetto = registro.progetti.find((p) => p.id === chiesto.progettoId)
+      if (!progetto) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
+      if (progetto.corsoId !== chiesto.corsoId) return rifiuta(testiProgetti().progettoAltroCorso)
     }
     const vivo = registro.valutazioni.find((v) => v.id === chiesto.id)
     if (vivo) {

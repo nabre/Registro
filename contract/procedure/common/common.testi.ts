@@ -12,6 +12,8 @@ const it = {
     'Le persone si cercano per nome con «persone.cerca», o si elencano per classe con ' +
     '«classe.persone»: l’id da passare qui viene da lì.',
   rimedioClassi: 'Le classi dell’anno le elenca «classi.elenco».',
+  rimedioLezione: 'Le ore a calendario le elenca «ore.elenco», per corso o per periodo.',
+  rimedioPiani: 'I piani di un corso li elenca «piani.elenco».',
   corsoDiAltraClasse: (corso: string, sua: string, chiesta: string) =>
     `Il corso «${corso}» è della classe «${sua}», non della classe «${chiesta}».`,
   classeOCorso:
@@ -69,6 +71,8 @@ export const testi = catalogo(it, {
       'Personen sucht man mit «persone.cerca» nach Namen, oder man listet sie mit ' +
       '«classe.persone» nach Klasse auf: Die ID, die hier übergeben wird, kommt von dort.',
     rimedioClassi: 'Die Klassen des Jahres listet «classi.elenco» auf.',
+    rimedioLezione: 'Die Stunden im Kalender listet «ore.elenco» auf, nach Kurs oder Zeitraum.',
+    rimedioPiani: 'Die Pläne eines Kurses listet «piani.elenco» auf.',
     corsoDiAltraClasse: (corso, sua, chiesta) =>
       `Der Kurs «${corso}» gehört zur Klasse «${sua}», nicht zur Klasse «${chiesta}».`,
     classeOCorso:
@@ -122,6 +126,10 @@ export const testi = catalogo(it, {
       'Les personnes se cherchent par nom avec « persone.cerca », ou se listent par classe avec ' +
       '« classe.persone » : l’id à passer ici vient de là.',
     rimedioClassi: 'Les classes de l’année, « classi.elenco » les liste.',
+    rimedioLezione:
+      'Les leçons du calendrier sont listées par « ore.elenco », par cours ou par ' +
+      'intervalle de dates.',
+    rimedioPiani: 'Les plans d’un cours sont listés par « piani.elenco ».',
     corsoDiAltraClasse: (corso, sua, chiesta) =>
       `Le cours « ${corso} » appartient à la classe « ${sua} », pas à la classe « ${chiesta} ».`,
     classeOCorso:
@@ -177,6 +185,8 @@ export const testi = catalogo(it, {
       'People are searched by name with “persone.cerca”, or listed by class with ' +
       '“classe.persone”: the id to pass here comes from there.',
     rimedioClassi: '“classi.elenco” lists the classes of the year.',
+    rimedioLezione: 'Lessons on the calendar are listed by “ore.elenco”, by course or by date range.',
+    rimedioPiani: 'The plans of a course are listed by “piani.elenco”.',
     corsoDiAltraClasse: (corso, sua, chiesta) =>
       `The course “${corso}” belongs to the class “${sua}”, not to the class “${chiesta}”.`,
     classeOCorso:

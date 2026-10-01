@@ -19,6 +19,7 @@ after(() => rmSync(radice, { recursive: true, force: true }))
 let impacchettaAnni
 let leggiZip
 let Uri
+let DATI
 /** La radice su cui gira il trasloco: la cartella in cui stanno gli anni. */
 let radiceDati
 
@@ -32,7 +33,7 @@ before(async () => {
 
   ;({ impacchettaAnni } = await import('../../dist-tests/years.mjs'))
   ;({ leggiZip } = await import('../../dist-tests/zip.mjs'))
-  ;({ Uri } = await import('../../dist-tests/data.mjs'))
+  ;({ DATI, Uri } = await import('../../dist-tests/data.mjs'))
   radiceDati = Uri.file(dati)
 })
 
@@ -63,8 +64,8 @@ describe('dalle cartelle ai documenti', () => {
     assert.deepEqual(await impacchettaAnni(radiceDati), ['2026-2027'])
 
     const voci = vociDelDocumento('2026-2027')
-    assert.ok(voci.includes('registro.json'), voci.join(', '))
-    assert.ok(voci.includes('classi.json'), voci.join(', '))
+    assert.ok(voci.includes(`${DATI}/registro.json`), voci.join(', '))
+    assert.ok(voci.includes(`${DATI}/classi.json`), voci.join(', '))
     assert.ok(voci.includes('.storico/classi.2026-09-01-08-00.json'), voci.join(', '))
     assert.equal(existsSync(vecchia), false, 'la cartella «dati» di prima deve sparire')
     // La cartella dell'anno resta: dentro ci sono allegati ed esportazioni.
@@ -92,11 +93,11 @@ describe('dalle cartelle ai documenti', () => {
     assert.deepEqual(await impacchettaAnni(radiceDati), ['2027-2028'])
 
     const voci = vociDelDocumento('2027-2028')
-    assert.equal(voci.includes('classi.json.tmp'), false, voci.join(', '))
+    assert.equal(voci.includes(`${DATI}/classi.json.tmp`), false, voci.join(', '))
     assert.equal(voci.includes('appunti.txt'), false, voci.join(', '))
     // La copia di un file rotto entra: è l'unica copia di quel che non si era
     // saputo leggere.
-    assert.ok(voci.includes('classi.rotto-2027-01-01.json'), voci.join(', '))
+    assert.ok(voci.includes(`${DATI}/classi.rotto-2027-01-01.json`), voci.join(', '))
   })
 
   it('non tocca una cartella che non è un anno', async () => {

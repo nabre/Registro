@@ -31,7 +31,7 @@ const FABBRICHE = {
 
 /** Vero per i comandi che vivono dentro un modulo, dove `al` non serve. */
 function dentroUnModulo (percorso) {
-  return percorso.includes('/moduli/')
+  return percorso.includes('/forms/')
 }
 
 /**

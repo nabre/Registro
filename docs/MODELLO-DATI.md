@@ -97,6 +97,7 @@ erDiagram
     CORSO ||--o{ PIANOLEZIONE : "corsoId (null = bozza)"
     CORSO ||--o{ CONSEGNA : "corsoId"
     CORSO ||--o| CHECK : "corsoId (0..1)"
+    CORSO ||--o{ PROGETTO : "corsoId"
 
     LEZIONE ||--|{ SLOT : "annida"
     LEZIONE ||--o{ PRESENZA : "annida"
@@ -111,6 +112,9 @@ erDiagram
     ATTIVITA ||--o| VALUTAZIONEPREVISTA : "annida"
 
     AVANZAMENTOATTIVITA }o--o| ATTIVITA : "attivitaId"
+    ATTIVITA }o--o| PROGETTO : "progettoId"
+    ATTIVITA }o--o| FASEPROGETTO : "faseProgettoId"
+    PROGETTO ||--|{ FASEPROGETTO : "annida (almeno una)"
     PRESENZA }o--|| ALLIEVO : "allievoId"
     OSSERVAZIONE }o--o| ALLIEVO : "allievoId (null = classe)"
     CELLAOSSERVATA }o--|| ALLIEVO : "allievoId"
@@ -124,6 +128,7 @@ erDiagram
     MOMENTOVALUTAZIONE }o--o| LEZIONE : "lezioneId"
     MOMENTOVALUTAZIONE }o--o| PIANOLEZIONE : "pianoId"
     MOMENTOVALUTAZIONE }o--o| ATTIVITA : "attivitaId"
+    MOMENTOVALUTAZIONE }o--o| PROGETTO : "progettoId"
 
     MOMENTOVALUTAZIONE ||--|| SCALA : "copia congelata"
     MOMENTOVALUTAZIONE ||--o{ VOTO : "annida (1 per allievo)"
@@ -137,7 +142,7 @@ erDiagram
     VALUTAZIONEPREVISTA ||--o| MOMENTOVALUTAZIONE : "il modello da cui nasce"
 ```
 
-### 2.4 Documenti — fascicolo, assenze, consegne, check, smistamento
+### 2.4 Documenti — fascicolo, assenze, consegne, check, progetti, smistamento
 
 ```mermaid
 erDiagram
@@ -168,6 +173,18 @@ erDiagram
     SPUNTACHECK }o--|| ALLIEVO : "allievoId"
     SPUNTACHECK }o--o| LEZIONE : "lezioneId"
 
+    PROGETTO ||--o{ CRITERIOPROGETTO : "annida"
+    PROGETTO ||--|{ LIVELLOPROGETTO : "annida (scala)"
+    PROGETTO ||--o{ COMPITOPROGETTO : "annida"
+    PROGETTO ||--o{ GIUDIZIOPROGETTO : "annida"
+    PROGETTO ||--o{ CELLAPROGETTO : "annida (matrice)"
+    PROGETTO ||--o{ RISORSA : "annida"
+    COMPITOPROGETTO }o--o| LEZIONE : "fineLezioneId"
+    CELLAPROGETTO }o--|| CRITERIOPROGETTO : "criterioId"
+    CELLAPROGETTO }o--|| ALLIEVO : "allievoId"
+    CELLAPROGETTO }o--o| LEZIONE : "lezioneId"
+    GIUDIZIOPROGETTO }o--o| ALLIEVO : "allievoId (null = classe)"
+
     REGISTRO ||--o{ SMISTAMENTO : "smistamenti"
     SMISTAMENTO }o--o| CONSEGNA : "consegnaId"
     SMISTAMENTO }o--o| CLASSE : "classeId"
@@ -179,7 +196,7 @@ erDiagram
 ```
 
 Il **perno è il `Corso`**: `Lezione`, `MomentoValutazione`, `PianoLezione`,
-`Consegna` e `Check` si agganciano a `corsoId`; classe e materia si risalgono
+`Consegna`, `Check` e `Progetto` si agganciano a `corsoId`; classe e materia si risalgono
 (`core/dominio/courses.ts`). L'anno lo porta la classe.
 
 ## 3. Catalogo delle entità
@@ -198,7 +215,7 @@ La radice: lo stato di un anno, più le intestazioni di tutti gli anni.
 | `anni` | `AnnoScolastico[]` | intestazioni, in ordine di inizio |
 | `annoCorrenteId` | `string \| null` | l'anno caricato |
 | `materie`, `impostazioni` | | dell'anno in uso |
-| `classi`, `corsi`, `lezioni`, `piani`, `valutazioni`, `fascicoli`, `consegne`, `check`, `smistamenti`, `coordinate` | array | le collezioni (§ 8.1) |
+| `classi`, `corsi`, `lezioni`, `piani`, `valutazioni`, `fascicoli`, `consegne`, `check`, `progetti`, `smistamenti`, `coordinate` | array | le collezioni (§ 8.1) |
 
 - `annoCorrenteId` punta a un anno di `anni`, o è `null` (altrimenti
   `anni[0]?.id ?? null`).
@@ -522,7 +539,7 @@ Le celle senza segno né nota non si salvano. La lettura
 | `id` | `string` | |
 | `corsoId` | `string \| null` | `null` = bozza senza casa |
 | `obiettivi`, `tag` | `string[]` | voci vuote scartate |
-| `prerequisiti?`, `note?` | `string` | `note` assorbe il vecchio `titolo` |
+| `prerequisiti?` | `string` | assorbe il vecchio `titolo` (in cima) e, dal formato 4, le vecchie `note` (in fondo, dopo «Note:») |
 | `attivita` | `Attivita[]` | la scaletta |
 | `risorse` | `Risorsa[]` | del piano intero |
 | `creatoIl`, `aggiornatoIl` | `Istante` | |
@@ -549,6 +566,8 @@ Una tappa della scaletta.
 | `risorse` | `Risorsa[]` | |
 | `parametri?` | `Record<string, string \| number \| boolean>` | chiavi per tipo in [`activities.ts`](../core/dominio/activities.ts); le chiavi ignote restano |
 | `valutazione?` | `ValutazionePrevista \| null` | la tappa è la prova (ADR-10) |
+| `progettoId?` | `string \| null` | il progetto per cui lavora (ADR-54), dello stesso corso; assente = nessuno |
+| `faseProgettoId?` | `string \| null` | la fase del progetto in cui cade; solo con `progettoId`; assente o d'altri = la prima (`faseDellAttivita`), e la lettura la riscrive (`fasiDelleTappe`) |
 
 I piani vecchi in `durataMin` si leggono a 45 minuti per UD
 (`UD_DEI_PIANI_IN_MINUTI`), senza arrotondare.
@@ -580,6 +599,7 @@ Una risorsa senza url né file la segnala `riferimentiRotti`.
 | `lezioneId` | `string \| null` | lezione dello stesso corso |
 | `pianoId` | `string \| null` | |
 | `attivitaId?` | `string \| null` | la tappa che l'ha prodotto |
+| `progettoId?` | `string \| null` | il progetto che l'ha promossa, dello stesso corso; `valutazione.daAttivita` copia quello della tappa |
 | `titolo` | `string` | |
 | `tipo` | `TipoValutazione` | |
 | `data` | `Iso` | dentro un semestre |
@@ -720,6 +740,90 @@ La lista di controllo di un corso, collezione `check` (ADR-33).
 | `fattaIl` | `Istante` | per ordinare |
 
 `dataSpunta` legge il giorno dalla lezione finché c'è.
+
+### 3.37 quinquies `Progetto`
+
+Il progetto di un corso, collezione `progetti` (ADR-54). Più d'uno per corso.
+
+| campo | tipo | nota |
+|---|---|---|
+| `id` | `string` | prefisso `prg` |
+| `corsoId` | `string` | non cambia dopo la nascita |
+| `titolo` | `string` | |
+| `descrizione?`, `note?` | `string` | |
+| `obiettivi` | `string[]` | |
+| `stato` | `StatoProgetto` | |
+| `fasi` | `FaseProgetto[]` | in sequenza; mai vuota (nasce con «Fase 1») |
+| `criteri` | `CriterioProgetto[]` | `id` (prefisso `crp`), `titolo`, `descrizione?` |
+| `livelli` | `LivelloProgetto[]` | `valore` (quel che le celle salvano), `testo`, `colore?`; mai vuota |
+| `compiti` | `CompitoProgetto[]` | |
+| `giudizi` | `GiudizioProgetto[]` | |
+| `matrice` | `CellaProgetto[]` | |
+| `risorse` | `Risorsa[]` | |
+| `creatoIl`, `aggiornatoIl` | `Istante` | |
+
+- Le lezioni del progetto non si elencano: sono quelle il cui piano ha tappe
+  con il suo `progettoId` (`lezioniDelProgetto`). Niente date proprie: il
+  periodo è quello della prima e dell'ultima ora non annullata
+  (`periodoDelProgetto`).
+- Le fasi raccolgono le tappe che le nominano (`Attivita.faseProgettoId`):
+  `lezioniDellaFase`, `periodoDellaFase`, e `avanzamentoDelProgetto` /
+  `presenzeNelProgetto` con `{ faseId }`. `quadroDelProgetto` dà tutto insieme:
+  per fase periodo, tappe nelle ore con lo stato, quota e momenti; per
+  l'intero periodo, quota, presenze di chi frequenta e momenti.
+- Una fase tolta da `progetto.salva` porta le sue tappe nella fase rimasta che
+  la precedeva, o nella prima.
+- La scala di serie (`livelliPredefiniti`): `non-raggiunto`, `parziale`,
+  `raggiunto`, `pienamente`, con i testi nella lingua di quando nasce.
+- Un criterio tolto si porta via le sue celle; un livello tolto lascia la cella
+  con la sola nota, o la toglie (`ripulisciMatrice`).
+- Logica in [`projects.ts`](../core/dominio/projects.ts). Norm.:
+  `validaProgetto`, `normalizzaProgetto` (esportata); `creaProgetto`,
+  `duplicaProgetto`.
+
+#### `FaseProgetto`
+
+| campo | tipo | nota |
+|---|---|---|
+| `id` | `string` | prefisso `fsp`; unico nel progetto |
+| `titolo` | `string` | vuoto alla lettura → «Fase N» nella lingua di allora |
+| `descrizione?` | `string` | |
+
+Nessuna data e nessun elenco di tappe: sono le tappe a nominare la fase.
+
+### 3.37 sexies `CompitoProgetto`
+
+| campo | tipo | nota |
+|---|---|---|
+| `id` | `string` | prefisso `cmp` |
+| `titolo`, `descrizione?` | `string` | |
+| `fine` | `Iso \| null` | la fine comune |
+| `fineLezioneId` | `string \| null` | se c'è, la fine segue il giorno della lezione (come le consegne) |
+| `inizi` | `InizioCompito[]` | uno per allievo: `allievoId`, `data`, `lezioneId` |
+| `proroghe` | `ProrogaCompito[]` | uno per allievo: `allievoId`, `fine`, `nota?` |
+| `fatti` | `FattoCompito[]` | uno per allievo: `allievoId`, `fattoIl`, `nota?` |
+
+`InizioCompito`, `ProrogaCompito` e `FattoCompito` non sono esportati (§ 10.1).
+Il punto di un allievo (`statoCompitoPerAllievo`): fatto, poi scaduto (fine
+effettiva = proroga ?? fine comune), poi in corso o non iniziato.
+
+### 3.37 septies `GiudizioProgetto`
+
+`id` (prefisso `giu`), `allievoId: string | null` (null = la classe), `testo`
+(vuoto → scartato), `data`, `lezioneId: string | null`, `creatoIl`.
+
+### 3.37 octies `CellaProgetto`
+
+| campo | tipo | nota |
+|---|---|---|
+| `allievoId`, `criterioId` | `string` | |
+| `data` | `Iso` | il giorno; con `lezioneId` vale quello della lezione |
+| `lezioneId` | `string \| null` | |
+| `livello` | `string \| null` | il `valore` di un livello del progetto |
+| `nota?` | `string` | |
+
+Chiave: allievo, criterio, giorno. Più giorni della stessa coppia raccontano la
+progressione (`progressione`). Senza livello né nota la cella non si salva.
 
 ### 3.38 `Smistamento`
 
@@ -898,6 +1002,7 @@ Union di stringhe; `unaVoce(valore, ammesse, predefinito)` non lancia mai.
 | `StatoLezione` | `pianificata`, `svolta`, `annullata` | `pianificata` |
 | `StatoAttivita` | `da-fare`, `svolta`, `parziale`, `saltata` | `da-fare` |
 | `StatoComunicazione` | `bozza`, `inviata`, `errore` | `bozza` |
+| `StatoProgetto` | `bozza`, `in-corso`, `concluso` | `bozza` |
 | `TipoAttivita` | `docenza-di-classe`, `introduzione`, `spiegazione`, `esercizio`, `laboratorio`, `discussione`, `verifica`, `gruppo`, `ripasso`, `compito`, `altro` | `spiegazione` |
 | `Raggruppamento` | `plenaria`, `individuale`, `coppie`, `gruppi` | `plenaria` |
 | `TipoValutazione` | `scritto`, `orale`, `pratico`, `progetto`, `compito`, `osservazione` | `scritto` |
@@ -916,7 +1021,7 @@ Union di stringhe; `unaVoce(valore, ammesse, predefinito)` non lancia mai.
 | `MotivoQuarantena` | `a-mano`, `senza-nome`, `senza-testo`, `ambiguo`, `gia-consegnato`, `fuori-elenco`, `senza-consegna`, `da-confermare` | `senza-nome` |
 | `LetteraSettimana` | `A`, `B` | la voce si butta |
 | `QuandoRifarePdf` | `mai`, `chiusura`, `sempre` | `sempre` |
-| `Collezione` | le undici di § 8.1 | — (dichiarazione, non dato) |
+| `Collezione` | le dodici di § 8.1 | — (dichiarazione, non dato) |
 | `GenereRapporto` (`core/dominio/locations.ts`) | `lezione`, `piano`, `valutazioni`, `presenze`, `fascicolo`, `allievo`, `momento`, `foto-classe` | — |
 
 I valori degli enum sono dati su disco: non si traducono (il lessico li traduce
@@ -1082,28 +1187,30 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 `FileDaTogliere`: `documenti` (portati da persone, persi per sempre),
 `stampati` (rigenerabili), `risorse`/`allegati` (cartelle vecchie).
 
-### 7.3 La cascata per i nove bersagli
+### 7.3 La cascata per i dieci bersagli
 
-`Bersaglio` è una union di nove varianti.
+`Bersaglio` è una union di dieci varianti.
 
 | Bersaglio | Si cancella | Si scollega / sopravvive | Alternativa |
 |---|---|---|---|
 | `anno` | la cartella intera, con classi, corsi, lezioni, valutazioni, consegne, check, smistamenti, fascicoli | `annoCorrenteId` al primo rimasto; piani con `corsoId = null`. Se non è l'anno aperto non se ne contano i contenuti | cestino di sistema |
 | `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti | unirla a un'altra |
 | `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti | archiviarla |
-| `corso` | corso, lezioni, valutazioni, consegne, check, smistamenti, PDF | i piani (`corsoId = null`) | — |
-| `allievo` (classeId, id) | presenze, osservazioni, celle, voti, recuperi, righe d'assenza, documenti e file delle spunte, spunte del check, schede stampate | allegati e documenti del fascicolo → `allievoId = null` (file restano); consegne restano senza il suo nome | togliere «Frequenta» (`attivo = false`) |
-| `lezione` | sé stessa, appello, osservazioni, verbale | consegne e spunte: data **copiata prima** di azzerare il rimando; momenti → `lezioneId = null` | — |
+| `corso` | corso, lezioni, valutazioni, consegne, check, progetti, smistamenti, PDF | i piani (`corsoId = null`, tappe senza progetto) | — |
+| `allievo` (classeId, id) | presenze, osservazioni, celle, voti, recuperi, righe d'assenza, documenti e file delle spunte, spunte del check, voci dei progetti, schede stampate | allegati e documenti del fascicolo → `allievoId = null` (file restano); consegne restano senza il suo nome | togliere «Frequenta» (`attivo = false`) |
+| `lezione` | sé stessa, appello, osservazioni, verbale | consegne, spunte e voci dei progetti: data **copiata prima** di azzerare il rimando; momenti → `lezioneId = null` | — |
 | `piano` | il piano, i file delle sue risorse (per percorso, non per cartella), il PDF | lezioni → `pianoId = null` e `avanzamento = []`; momenti → `pianoId = null` | — |
 | `valutazione` | sé stessa, voti, recuperi, allegati, PDF | — | — |
 | `consegna` | sé stessa, i documenti raccolti (`documenti`, file delle spunte, `fileTutti`, `fileFirme`), gli smistamenti agganciati | lezione e corso restano | spuntarla per tutti |
+| `progetto` | sé stesso, compiti, giudizi, matrice, i file delle sue risorse | tappe dei piani (`progettoId` tolto) e momenti (`progettoId = null`) | — |
 
 ## 8. Persistenza
 
-### 8.1 Le undici collezioni
+### 8.1 Le dodici collezioni
 
 `Collezione` in `models.ts`; nome → file in `NOMI` di
-[`core/dati/paths.ts`](../core/dati/paths.ts).
+[`core/dati/paths.ts`](../core/dati/paths.ts). Nel documento ogni file sta
+sotto `data/` (`voceDi`, § 8.3).
 
 | Collezione | File | Contenuto |
 |---|---|---|
@@ -1116,6 +1223,7 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | `fascicoli` | `fascicoli.json` | `Fascicolo[]` |
 | `consegne` | `consegne.json` | `Consegna[]` |
 | `check` | `check.json` | `Check[]`; assente → `[]` |
+| `progetti` | `progetti.json` | `Progetto[]`; assente → `[]` |
 | `smistamenti` | `smistamenti.json` | `Smistamento[]` |
 | `coordinate` | `coordinate.json` | `Coordinata[]`; si riscrive solo con «Trova gli indirizzi» |
 
@@ -1131,7 +1239,7 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 3`
+### 8.2 `VERSIONE_DATI = 4`
 
 La versione dello schema JSON (`registro.json.versione`).
 
@@ -1141,7 +1249,12 @@ del formato: v2 (release 1.0.0) per `allievo.iscrittoIl`; v3 (release 1.1.0) per
 `consegna.docenteDiClasse`, i dati strutturati del docente
 (`docenteAppellativo`, `docenteNome`, `docenteCognome`),
 `anno.calendarioUfficiale` e `lezione.supplenza`, senza `porta`: assente vuol
-dire anno scritto a mano e lezione non di supplenza.
+dire anno scritto a mano e lezione non di supplenza; v4 per la collezione
+`progetti` (con le sue `fasi`) e `progettoId` / `faseProgettoId` su `Attivita`
+e `progettoId` su `MomentoValutazione` (ADR-54): un documento vecchio non ha
+progetti, e tappe e momenti non ne citano. Nello stesso passo il piano perde
+`note`: il `porta` le accoda a `prerequisiti`, dopo una riga vuota e con
+l'etichetta «Note:» nella lingua del registro.
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento
@@ -1163,17 +1276,29 @@ dire anno scritto a mano e lezione non di supplenza.
   `coordinate`; `allievo.telefono`/`telefonoDatore` → `telefoni`;
   `lezione.titolo` → `argomenti`; `lezione.compiti` → `Consegna`;
   `consegna.chiusa` → spunte; `momento.riconsegnataIl` → `Voto.riconsegnataIl`;
-  `voto.recupero` → `recuperi`; `piano.titolo` → `note`; `piano.valutazione` →
+  `voto.recupero` → `recuperi`; `piano.titolo` → `prerequisiti`; `piano.valutazione` →
   tappa `verifica`; `fascicolo.documenti` → `Consegna`; `attivita.durataMin` →
   `durataUd`; `presenza.stato` → `stati`; testi di serie della lettera assenze.
 
-### 8.3 `VERSIONE_PACCHETTO = 1`
+### 8.3 `VERSIONE_PACCHETTO = 2`
 
 Il contenitore ZIP, in [`core/dati/package.ts`](../core/dati/package.ts),
 indipendente da `VERSIONE_DATI`. `ESTENSIONE = '.regi'`,
 `FORMATO = 'registro-docenti/anno'` (non segue il marchio, ADR-40),
-`MANIFESTO = 'manifesto.json'`. Un pacchetto più recente si rifiuta; dati più
-vecchi si portano avanti.
+`MANIFESTO = 'manifesto.json'` in radice, le collezioni in `DATI = 'data'`.
+Un pacchetto più recente si rifiuta; dati più vecchi si portano avanti.
+
+- **1 → 2**: le collezioni JSON passano dalla radice a `data/`. Un documento 1
+  (o senza manifesto) si apre con le voci JSON della radice spostate in memoria,
+  senza aprirle (`spostaInDati`); aprire non scrive, e il primo salvataggio
+  rifà il file intero, senza doppioni in radice. `.storico/` non cambia: le
+  copie tengono il solo nome del file (`classi.<istante>.json`), e quelle di
+  prima restano nella stessa fila. I campioni di `tests/samples/formato/` fino a
+  `v3.regi` sono contenitori 1: la prova della retrocompatibilità. Prima della
+  riscrittura in contenitore 2 si mette da parte la copia com'era, anche se i
+  dati sono già al formato di oggi: `‹nome›.contenitore-1.regi` in
+  `versioni-precedenti/` (`Pacchetto.contenitoreLetto`), perché un registro
+  1.4 non apre più il file riscritto.
 
 ### 8.4 `senzaVuoti` (`persistence.ts`)
 
@@ -1247,11 +1372,12 @@ interface Termine {
 | `ModoConsegna` | `Consegna.modoConsegna`, `SpuntaConsegna.modo` |
 | `DestinatarioConsegna` | `Consegna.a` |
 | `DocumentoAllievo` | `Consegna.documenti` |
+| `InizioCompito`, `ProrogaCompito`, `FattoCompito` | `CompitoProgetto.inizi`, `.proroghe`, `.fatti` |
 
 Normalizzatori esportati da `normalization.ts`: `normalizzaRegistro`,
 `normalizzaPiano`, `normalizzaValutazione`, `normalizzaImpostazioni`,
 `normalizzaPause`, `normalizzaIntestazione`, `normalizzaCalendario`,
-`normalizzaConsegna`, `normalizzaCheck`. Gli altri si raggiungono da
+`normalizzaConsegna`, `normalizzaCheck`, `normalizzaProgetto`. Gli altri si raggiungono da
 `normalizzaRegistro`.
 
 ### 10.2 `null`, vuoto e stringa vuota

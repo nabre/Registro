@@ -41,6 +41,7 @@ export type PaginaId =
   | 'pagina.corso.valutazioni'
   | 'pagina.corso.check'
   | 'pagina.corso.piani'
+  | 'pagina.corso.progetti'
   | 'pagina.corso.documenti'
   | 'pagina.classe.check'
   | 'pagina.classe.documenti'
@@ -54,7 +55,7 @@ export type PaginaId =
 /** Le destinazioni senza voce nella barra: ci si arriva da un elemento. */
 export const NASCOSTE: readonly PaginaId[] = ['pagina.allievo', 'pagina.classe.pendenze']
 
-export type TipoSoggetto = 'corso' | 'classe' | 'lezione' | 'allievo' | 'piano' | 'valutazione'
+export type TipoSoggetto = 'corso' | 'classe' | 'lezione' | 'allievo' | 'piano' | 'valutazione' | 'progetto'
 
 /** Di che cosa è la pagina: un elemento del registro, per tipo e id. */
 interface Soggetto {
@@ -161,11 +162,13 @@ export interface Contesto {
   pianoId: string | null;
   valutazioneId: string | null;
   allievoId: string | null;
+  progettoId: string | null;
 }
 
 /** I campi del contesto, per chi li copia uno per uno (la memoria, lo stato). */
 export const CAMPI_CONTESTO = [
   'corsoId', 'classeId', 'filtroClasseId', 'lezioneId', 'pianoId', 'valutazioneId', 'allievoId',
+  'progettoId',
 ] as const satisfies readonly (keyof Contesto)[]
 
 /**
@@ -208,6 +211,7 @@ interface CampiVecchi {
   pianoId?: unknown;
   valutazioneId?: unknown;
   allievoId?: unknown;
+  progettoId?: unknown;
 }
 
 // ------------------------------------------------------------------ tabella
@@ -226,6 +230,7 @@ export const VISTA_DELLA_PAGINA: Readonly<Record<PaginaId, Vista>> = {
   'pagina.corso.valutazioni': 'valutazioni',
   'pagina.corso.check': 'check',
   'pagina.corso.piani': 'piani',
+  'pagina.corso.progetti': 'progetti',
   'pagina.corso.documenti': 'documenti',
   'pagina.classe.check': 'check',
   'pagina.classe.documenti': 'docenteClasse',
@@ -259,6 +264,7 @@ const SOGGETTI: Readonly<Record<PaginaId, readonly TipoSoggetto[]>> = {
   'pagina.corso.valutazioni': ['valutazione', 'corso'],
   'pagina.corso.check': ['corso'],
   'pagina.corso.piani': ['piano', 'corso'],
+  'pagina.corso.progetti': ['progetto', 'corso'],
   'pagina.corso.documenti': ['corso'],
   'pagina.classe.check': ['classe'],
   'pagina.classe.documenti': ['classe'],
@@ -330,6 +336,7 @@ export function postoDaVista (vista: Vista, elementoId?: string, registro?: Regi
     case 'docenteClasse': return con('pagina.classe.pendenze', 'classe')
     case 'corsi': return con('pagina.corsi', 'corso')
     case 'piani': return con('pagina.corso.piani', 'piano')
+    case 'progetti': return con('pagina.corso.progetti', 'progetto')
     case 'valutazioni': return con('pagina.corso.valutazioni', 'valutazione')
     case 'check': return eClasse ? con('pagina.classe.check', 'classe') : con('pagina.corso.check', 'corso')
     case 'documenti': return { pagina: 'pagina.corso.documenti' }
@@ -410,6 +417,7 @@ export function postoDaVecchi (vecchi: CampiVecchi): Posto {
     allievo: id(vecchi.allievoId),
     piano: id(vecchi.pianoId),
     valutazione: id(vecchi.valutazioneId),
+    progetto: id(vecchi.progettoId),
   }
   // Nell'agenda e nelle pendenze l'id ricordato non era il soggetto della
   // pagina: la lezione del calendario era quella del Registro, e le pendenze
@@ -592,6 +600,7 @@ export function completa (
   c.lezioneId = esiste(r.lezioni, c.lezioneId)
   c.pianoId = esiste(r.piani, c.pianoId)
   c.valutazioneId = esiste(r.valutazioni, c.valutazioneId)
+  c.progettoId = esiste(r.progetti, c.progettoId)
   c.allievoId = c.allievoId && r.classi.some((k) => k.allievi.some((a) => a.id === c.allievoId))
     ? c.allievoId
     : null
@@ -701,6 +710,19 @@ export function completa (
         if (soggetto.tipo === 'piano' && c.pianoId === soggetto.id) c.pianoId = null
         if (soggetto.tipo === 'valutazione' && c.valutazioneId === soggetto.id) c.valutazioneId = null
         // La stessa pagina, sul corso di lavoro.
+        ripiega({ pagina, soggetto: { tipo: 'corso', id: c.corsoId ?? '' } })
+        break
+      }
+      case 'progetto': {
+        // Un progetto è sempre di un corso, e quel corso dev'essere dell'anno.
+        const progetto = r.progetti.find((p) => p.id === soggetto?.id)
+        const corso = progetto ? leggi.corso(progetto.corsoId) : null
+        if (progetto && corso) {
+          alCorso(corso)
+          c.progettoId = progetto.id
+          break
+        }
+        if (c.progettoId === soggetto.id) c.progettoId = null
         ripiega({ pagina, soggetto: { tipo: 'corso', id: c.corsoId ?? '' } })
         break
       }

@@ -54,7 +54,35 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return testi().passi[3]
     },
   },
+  // I progetti dei corsi (ADR-54): una collezione nuova, vuota nei documenti
+  // vecchi, e `progettoId` su tappe e momenti, assente vuol dire nessuno. E il
+  // piano perde le note: quel che c'era scritto si accoda ai prerequisiti, con
+  // l'etichetta davanti, per non perderlo.
+  {
+    a: 4,
+    get cambia () {
+      return testi().passi[4]
+    },
+    porta: (dati) => {
+      if (!Array.isArray(dati.piani)) return dati
+      return { ...dati, piani: dati.piani.map(noteNeiPrerequisiti) }
+    },
+  },
 ]
+
+/**
+ * Le note di un piano accodate ai prerequisiti, dopo una riga vuota. Un piano
+ * senza note resta com'è, salvo la chiave vuota che se ne va.
+ */
+function noteNeiPrerequisiti (piano: unknown): unknown {
+  if (!piano || typeof piano !== 'object' || Array.isArray(piano)) return piano
+  const { note, ...resto } = piano as Record<string, unknown>
+  const scritte = typeof note === 'string' ? note.trim() : ''
+  if (!scritte) return 'note' in piano ? resto : piano
+  const prima = typeof resto.prerequisiti === 'string' ? resto.prerequisiti.trimEnd() : ''
+  const accodate = testi().noteNeiPrerequisiti(scritte)
+  return { ...resto, prerequisiti: prima ? `${prima}\n\n${accodate}` : accodate }
+}
 
 /** Com'è andata la lettura di un documento: da che versione, a quale, con quali passi. */
 export interface FormatoAggiornato {

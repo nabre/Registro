@@ -15,6 +15,7 @@ import {
   lezioneDelPianoNelRegistro,
   siglaMateria,
   coloreDelCorso,
+  raggruppamentoDeiCorsi,
 } from '../../dist-tests/domain.mjs'
 import { ore, scuolaMinima } from '../helpers/register.mjs'
 
@@ -195,5 +196,21 @@ describe('coloreDelCorso', () => {
   it('un colore scritto male non conta', () => {
     assert.equal(coloreDelCorso({ colore: 'rosso' }, { colore: '#ff0000' }, { colore: 'blu' }), '#ff0000')
     assert.equal(coloreDelCorso({}, null, null), '#888888')
+  })
+})
+
+describe('come si raggruppano i corsi nei selettori', () => {
+  const corso = (classeId, materiaId) => ({ classeId, materiaId })
+
+  it('vince la chiave che fa meno gruppi', () => {
+    // Una materia in tre classi: un titoletto solo, per materia.
+    assert.equal(raggruppamentoDeiCorsi([corso('c1', 'mat'), corso('c2', 'mat'), corso('c3', 'mat')]), 'materia')
+    // Una classe con tre materie: per classe.
+    assert.equal(raggruppamentoDeiCorsi([corso('c1', 'mat'), corso('c1', 'ita'), corso('c1', 'sto')]), 'classe')
+  })
+
+  it('a pari gruppi vince la materia', () => {
+    assert.equal(raggruppamentoDeiCorsi([corso('c1', 'mat'), corso('c2', 'ita')]), 'materia')
+    assert.equal(raggruppamentoDeiCorsi([]), 'materia')
   })
 })

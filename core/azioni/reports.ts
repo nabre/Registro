@@ -6,7 +6,9 @@ import * as apparato from 'apparato'
 
 import { scriviGenerato } from '../dati/exports.js'
 import {
+  ESPORTAZIONI,
   collocazioneDi,
+  fogliDeiProgettiOrfani,
   percorsoDi,
   precedentiDi,
   type Collocazione,
@@ -33,6 +35,8 @@ import {
   datiValutazioni,
   datiDiario,
 } from '../dominio/reportData.js'
+import { datiProgetto, datiProgettoAllievo } from '../dominio/projectReport.js'
+import { allieviNominati, progettiDelCorso } from '../dominio/projects.js'
 import {
   classeDelCorsoId,
   corsiDellaClasse,
@@ -53,7 +57,7 @@ import {
   type Riferimenti,
 } from '../dominio/automation.js'
 import type { Azione } from '../../contract/protocol.js'
-import { conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
+import { cestina, conMessaggio, motivoSicuro, rifiuta, rifiutaCon, type Parte } from './context.js'
 import { testi } from './reports.testi.js'
 
 /** Che cosa serve per scrivere il file: il modello, i dati e dove va a finire. */
@@ -209,6 +213,7 @@ function documentiDelCorso (
         dati: datiAllievo(registro, classe, allievo, semestre, corso),
       }),
     ),
+    ...fogliDeiProgetti(registro, corso),
     // Una scheda per prova, con la sua distribuzione.
     ...registro.valutazioni
       .filter((momento) => momento.corsoId === corso.id && nelSemestre(semestre, momento.data))
@@ -219,6 +224,44 @@ function documentiDelCorso (
         }),
       ),
   ].filter((preparato): preparato is Preparato => preparato !== null)
+}
+
+/**
+ * I fogli dei progetti del corso: quello della classe e uno per persona (chi
+ * frequenta, e chi il progetto nomina ancora). Non hanno periodo: ogni giro li
+ * riscrive allo stesso posto.
+ */
+function fogliDeiProgetti (registro: Registro, corso: Corso): Array<Preparato | null> {
+  const classe = classeDelCorsoId(registro, corso.id)
+  return progettiDelCorso(registro, corso.id).flatMap((progetto) => {
+    const nominati = allieviNominati(progetto)
+    const persone = ordinaAllievi((classe?.allievi ?? []).filter((a) => a.attivo || nominati.has(a.id)))
+    return [
+      conPosto(registro, 'progetto-classe', progetto.id, {}, {
+        modello: 'progetto-classe',
+        dati: datiProgetto(registro, progetto),
+      }),
+      ...persone.map((allievo) =>
+        conPosto(registro, 'progetto-allievo', progetto.id, { allievoId: allievo.id }, {
+          modello: 'progetto-allievo',
+          dati: datiProgettoAllievo(registro, progetto, allievo),
+        }),
+      ),
+    ]
+  })
+}
+
+/**
+ * Toglie i fogli dei progetti che nessun progetto scriverebbe più (rinominato:
+ * il titolo è nel nome), così il foglio nuovo non ne ha uno vecchio accanto.
+ */
+async function togliProgettiOrfani (registro: Registro, corsiIds: Iterable<string>): Promise<void> {
+  const dove = deposito()
+  if (!dove) return
+  const esistenti = dove.elenca(`${ESPORTAZIONI}/`)
+  for (const corsoId of new Set(corsiIds)) {
+    for (const percorso of fogliDeiProgettiOrfani(registro, corsoId, esistenti)) await cestina(percorso)
+  }
 }
 
 /**
@@ -369,10 +412,12 @@ async function rapportiDiChiusura (
     ),
   })
 
-  return scriviTutti([
+  const esito = await scriviTutti([
     ...(verbale ? [verbale] : []),
     ...documentiDelCorso(registro, corso, semestre),
   ], ancora, registro.impostazioni.intestazione)
+  if (!esito.interrotto) await togliProgettiOrfani(registro, [corso.id])
+  return esito
 }
 
 /** La fila delle scritture di rapporti: una alla volta, mai due sullo stesso PDF. */
@@ -539,6 +584,7 @@ function programmaRigenerazione (
         )
         // Fermato dal cambio di documento: in silenzio.
         if (esito.interrotto) return
+        await togliProgettiOrfani(ora, daFare.map(({ corsoId }) => corsoId))
         if (esito.errori.length > 0) {
           void apparato.dialoghi.avvisa(testi().nonRifatti(esito.errori.length, esito.errori[0]))
         }
@@ -567,12 +613,13 @@ function riferimentiDi (azione: Azione | Record<string, unknown>): Riferimenti {
       : null
   }
   return {
-    corsoId: id('corsoId') ?? dentro('corso') ?? dentro('consegna', 'corsoId'),
+    corsoId: id('corsoId') ?? dentro('corso') ?? dentro('consegna', 'corsoId') ?? dentro('progetto', 'corsoId'),
     lezioneId: id('lezioneId') ?? dentro('lezione'),
     valutazioneId: id('valutazioneId') ?? dentro('valutazione'),
     pianoId: id('pianoId') ?? dentro('piano'),
     classeId: id('classeId') ?? dentro('classe'),
     allievoId: id('allievoId'),
+    progettoId: id('progettoId') ?? dentro('progetto'),
   }
 }
 
@@ -642,6 +689,7 @@ export const rapporti = {
       corsoId: azione.corsoId ?? null,
       semestreId: azione.semestreId ?? null,
       docenteDiClasse: azione.docenteDiClasse ?? false,
+      allievoId: azione.allievoId ?? null,
     })
     let pezzi: Omit<Preparato, 'dove'> | null = null
 
@@ -714,6 +762,23 @@ export const rapporti = {
       pezzi = { modello: 'foto-classe', dati: datiFotoClasse(registro, classe) }
     }
 
+    // Il progetto, di tutta la classe o di una persona: l'id è del progetto.
+    if (azione.genere === 'progetto-classe' || azione.genere === 'progetto-allievo') {
+      const progetto = registro.progetti.find((p) => p.id === azione.id)
+      if (!progetto) return rifiuta(t.progettoNonTrovato)
+      if (azione.genere === 'progetto-classe') {
+        pezzi = { modello: 'progetto-classe', dati: datiProgetto(registro, progetto) }
+      } else {
+        const classe = classeDelCorsoId(registro, progetto.corsoId)
+        const allievo = classe?.allievi.find((a) => a.id === azione.allievoId) ?? null
+        if (!allievo) return rifiuta(t.pifNonTrovato)
+        pezzi = {
+          modello: 'progetto-allievo',
+          dati: datiProgettoAllievo(registro, progetto, allievo),
+        }
+      }
+    }
+
     if (azione.genere === 'allievo') {
       const classe = registro.classi.find((c) => c.allievi.some((a) => a.id === azione.id)) ?? null
       const allievo = classe?.allievi.find((a) => a.id === azione.id) ?? null
@@ -736,6 +801,11 @@ export const rapporti = {
     const esito = await scriviRapporto({ ...pezzi, dove }, ancora, intestazione)
     if ('errore' in esito && esito.interrotto) return rifiutaCon('conflitto', esito.errore)
     if ('errore' in esito) return rifiuta(esito.errore)
+
+    if (azione.genere === 'progetto-classe' || azione.genere === 'progetto-allievo') {
+      const progetto = registro.progetti.find((p) => p.id === azione.id)
+      if (progetto) await togliProgettiOrfani(registro, [progetto.corsoId])
+    }
 
     return conMessaggio(t.scritto(esito.relativo), 'info', {
       documento: esito.relativo,
@@ -777,6 +847,7 @@ export const rapporti = {
 
     const intestazione = registro.impostazioni.intestazione
     const esito = await scriviTutti([...unaVolta.values()], ancora, intestazione)
+    if (!esito.interrotto) await togliProgettiOrfani(registro, scelti.map((c) => c.id))
     // Fermato a metà: si dice quanti fogli erano usciti.
     if (esito.interrotto) {
       return rifiutaCon(

@@ -6,7 +6,7 @@
 export { Archivio } from '../../core/dati/archive.js'
 export { impacchettaAnni, inglobaCartelle, migraAnni } from '../../core/dati/years.js'
 export { deposito, percorsoVero, registraDeposito } from '../../core/dati/store.js'
-export { Pacchetto } from '../../core/dati/package.js'
+export { DATI, Pacchetto } from '../../core/dati/package.js'
 export { archivia, archiviaCopia, archiviPresenti, migraArchivio, pulisciCopiaOrfana, riscrivi } from '../../core/dati/filing.js'
 // I fascicoli composti: si creano e si buttano passando dal deposito.
 // Lo smistamento: un PDF si posa nel deposito e la sua riga nell'archivio. Il

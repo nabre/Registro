@@ -2,7 +2,7 @@
 // `interfaccia/<pannello>.json` dentro `userData`.
 
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it } from 'node:test'
@@ -36,6 +36,32 @@ describe('lo stato dell’interfaccia su disco', () => {
       assert.equal(stato(radice, 'registro', 'leggi').vista, 'calendario')
       writeFileSync(join(radice, 'interfaccia/registro.json'), '{rotto')
       assert.equal(stato(radice, 'registro', 'leggi'), null)
+    } finally {
+      rmSync(radice, { recursive: true, force: true })
+    }
+  })
+
+  it('una scrittura che non riesce non lascia un temporaneo accanto al file', () => {
+    // Al posto del file c'è una cartella: la rinomina fallisce (su Windows dopo
+    // i tentativi per i file occupati). Il `.tmp` resterebbe in `userData`, e
+    // OneDrive lo sincronizzerebbe a ogni tentativo.
+    const radice = mkdtempSync(join(tmpdir(), 'registro-interfaccia-'))
+    try {
+      mkdirSync(join(radice, 'interfaccia', 'registro.json'), { recursive: true })
+      assert.equal(stato(radice, 'registro', 'scrivi', { vista: 'calendario' }), null)
+      assert.deepEqual(readdirSync(join(radice, 'interfaccia')), ['registro.json'])
+    } finally {
+      rmSync(radice, { recursive: true, force: true })
+    }
+  })
+
+  it('scrive come gli altri JSON di userData', () => {
+    // Passa da `jsonStore.ts` (fsync, rinomina paziente): stesso formato del deposito.
+    const radice = mkdtempSync(join(tmpdir(), 'registro-interfaccia-'))
+    try {
+      assert.equal(stato(radice, 'registro', 'scrivi', { vista: 'calendario' }), true)
+      const scritto = readFileSync(join(radice, 'interfaccia/registro.json'), 'utf8')
+      assert.equal(scritto, `${JSON.stringify({ vista: 'calendario' }, null, 2)}\n`)
     } finally {
       rmSync(radice, { recursive: true, force: true })
     }

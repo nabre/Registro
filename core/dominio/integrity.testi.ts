@@ -61,6 +61,21 @@ const it = {
   spunteAltroCorso: (corso: string, n: number) =>
     `Il check di «${corso}»: ${plurale(n, 'spunta cita', 'spunte citano')} ` +
     'una lezione di un altro corso.',
+  progettoSenzaCorso: (titolo: string) =>
+    `Il progetto «${titolo}» non appartiene più a nessun corso.`,
+  progettoLezioniSparite: (titolo: string, n: number) =>
+    `Il progetto «${titolo}»: ${plurale(n, 'voce cita', 'voci citano')} ` +
+    'una lezione che non esiste più.',
+  progettoEstranei: (titolo: string, n: number, classe: string) =>
+    `Il progetto «${titolo}» cita ${quanti(n, PIF)} non iscritte a ${classe}.`,
+  tappeProgettoRotto: (piano: string, n: number) =>
+    `Il piano «${piano}»: ${plurale(n, 'tappa cita', 'tappe citano')} ` +
+    'un progetto sparito o di un altro corso.',
+  tappeFaseSparita: (piano: string, n: number) =>
+    `Il piano «${piano}»: ${plurale(n, 'tappa cita', 'tappe citano')} ` +
+    'una fase che il suo progetto non ha più.',
+  momentoProgettoRotto: (titolo: string) =>
+    `Valutazione «${titolo}»: il progetto collegato non esiste più o è di un altro corso.`,
   spunteEstranee: (corso: string, n: number, classe: string) =>
     `Il check di «${corso}» ha spunte di ${quanti(n, PIF)} non iscritte a ${classe}.`,
 }
@@ -135,6 +150,22 @@ export const testi = catalogo(it, {
     spunteAltroCorso: (corso, n) =>
       `Der Check von «${corso}»: ${plurale(n, 'Häkchen verweist', 'Häkchen verweisen')} ` +
       'auf eine Stunde eines anderen Kurses.',
+    progettoSenzaCorso: (titolo) => `Das Projekt «${titolo}» gehört zu keinem Kurs mehr.`,
+    progettoLezioniSparite: (titolo, n) =>
+      `Das Projekt «${titolo}»: ${plurale(n, 'Eintrag verweist', 'Einträge verweisen')} ` +
+      'auf eine Stunde, die es nicht mehr gibt.',
+    progettoEstranei: (titolo, n, classe) =>
+      `Das Projekt «${titolo}» nennt ${plurale(n, 'Lernende', 'Lernende')}, ` +
+      `die nicht in ${classe} eingeschrieben sind.`,
+    tappeProgettoRotto: (piano, n) =>
+      `Der Unterrichtsplan «${piano}»: ${plurale(n, 'Etappe verweist', 'Etappen verweisen')} ` +
+      'auf ein gelöschtes Projekt oder auf eines eines anderen Kurses.',
+    tappeFaseSparita: (piano, n) =>
+      `Der Unterrichtsplan «${piano}»: ${plurale(n, 'Etappe verweist', 'Etappen verweisen')} ` +
+      'auf eine Phase, die ihr Projekt nicht mehr hat.',
+    momentoProgettoRotto: (titolo) =>
+      `Leistungsbeurteilung «${titolo}»: Das verknüpfte Projekt gibt es nicht mehr ` +
+      'oder es gehört zu einem anderen Kurs.',
     spunteEstranee: (corso, n, classe) =>
       `Der Check von «${corso}» hat Häkchen von ${plurale(n, 'Lernenden', 'Lernenden')}, ` +
       `die nicht in ${classe} eingeschrieben sind.`,
@@ -197,6 +228,20 @@ export const testi = catalogo(it, {
     spunteAltroCorso: (corso, n) =>
       `Le check de « ${corso} » : ${plurale(n, 'coche renvoie', 'coches renvoient')} ` +
       'à une leçon d’un autre cours.',
+    progettoSenzaCorso: (titolo) => `Le projet « ${titolo} » n’appartient plus à aucun cours.`,
+    progettoLezioniSparite: (titolo, n) =>
+      `Le projet « ${titolo} » : ${plurale(n, 'entrée renvoie', 'entrées renvoient')} ` +
+      'à une leçon qui n’existe plus.',
+    progettoEstranei: (titolo, n, classe) =>
+      `Le projet « ${titolo} » cite ${nonInscrites(n)} en ${classe}.`,
+    tappeProgettoRotto: (piano, n) =>
+      `Le plan « ${piano} » : ${plurale(n, 'étape renvoie', 'étapes renvoient')} ` +
+      'à un projet disparu ou d’un autre cours.',
+    tappeFaseSparita: (piano, n) =>
+      `Le plan « ${piano} » : ${plurale(n, 'étape renvoie', 'étapes renvoient')} ` +
+      'à une phase que son projet n’a plus.',
+    momentoProgettoRotto: (titolo) =>
+      `Évaluation « ${titolo} » : le projet lié n’existe plus ou appartient à un autre cours.`,
     spunteEstranee: (corso, n, classe) =>
       `Le check de « ${corso} » a des coches de ` +
       `${nonInscrites(n)} ` +
@@ -260,6 +305,20 @@ export const testi = catalogo(it, {
     spunteAltroCorso: (corso, n) =>
       `The check for “${corso}”: ${plurale(n, 'tick refers', 'ticks refer')} ` +
       'to a lesson of another course.',
+    progettoSenzaCorso: (titolo) => `The project “${titolo}” no longer belongs to any course.`,
+    progettoLezioniSparite: (titolo, n) =>
+      `The project “${titolo}”: ${plurale(n, 'entry refers', 'entries refer')} ` +
+      'to a lesson that no longer exists.',
+    progettoEstranei: (titolo, n, classe) =>
+      `The project “${titolo}” names ${plurale(n, 'learner', 'learners')} not enrolled in ${classe}.`,
+    tappeProgettoRotto: (piano, n) =>
+      `The lesson plan “${piano}”: ${plurale(n, 'step refers', 'steps refer')} ` +
+      'to a project that is gone or belongs to another course.',
+    tappeFaseSparita: (piano, n) =>
+      `The lesson plan “${piano}”: ${plurale(n, 'step refers', 'steps refer')} ` +
+      'to a phase its project no longer has.',
+    momentoProgettoRotto: (titolo) =>
+      `Assessment “${titolo}”: the linked project no longer exists or belongs to another course.`,
     spunteEstranee: (corso, n, classe) =>
       `The check for “${corso}” has ticks from ${plurale(n, 'learner', 'learners')} ` +
       `not enrolled in ${classe}.`,

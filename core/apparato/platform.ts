@@ -144,6 +144,8 @@ export interface ContestoApplicazione {
   readonly extensionUri: Uri
   readonly extensionPath: string
   readonly globalStorageUri: Uri
+  /** Le copie da aprire dei file dell'anno: fuori dal profilo che viaggia (vedi l'apparato). */
+  readonly cartellaCopieUri: Uri
   readonly secrets: DepositoSegreti
 }
 

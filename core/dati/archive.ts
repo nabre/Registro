@@ -1,12 +1,12 @@
 // L'unico punto in cui il registro tocca il disco. Tiene in memoria lo stato
 // dell'anno aperto (un documento `.regi`, vedi `package.ts`) e lo salva poco dopo
-// ogni modifica, con una copia di prima in `.storico/`. Letture e scritture
-// passano da una coda sola, così una ricarica del watcher non butta via una
-// modifica in attesa.
+// ogni modifica, con una copia di prima in `.storico/`. Le collezioni sono voci
+// sotto `data/` (`voceDi`). Letture e scritture passano da una coda sola, così
+// una ricarica del watcher non butta via una modifica in attesa.
 
 import * as apparato from 'apparato'
 
-import { annoAllineato } from '../dominio/years.js'
+import { annoAllineato, annoInUso } from '../dominio/years.js'
 import { registroVuoto } from '../dominio/factories.js'
 import { ESPORTAZIONI } from '../dominio/locations.js'
 import type { AnnoScolastico, Impostazioni, Materia, Registro } from '../dominio/models.js'
@@ -38,6 +38,7 @@ import {
   ErrorePacchetto,
   ESTENSIONE,
   Pacchetto,
+  VERSIONE_PACCHETTO,
   nomeDelPacchetto,
   type Serratura,
 } from './package.js'
@@ -48,6 +49,7 @@ import {
   impostaDocumento,
   nomeDocumento,
   percorsoPacchetto,
+  voceDi,
 } from './paths.js'
 
 /** Quanto si aspetta dall'ultima modifica prima di scrivere: il salvataggio costa poco. */
@@ -239,7 +241,7 @@ export class Archivio implements apparato.Smaltitore {
 
   /** L'anno in uso, o null se non ce n'è ancora nessuno. */
   get annoCorrente (): AnnoScolastico | null {
-    return this.stato.anni.find((a) => a.id === this.stato.annoCorrenteId) ?? null
+    return annoInUso(this.stato)
   }
 
   /** Il nome dell'anno in uso, che è quello del suo documento: '2026-2027'. */
@@ -344,7 +346,7 @@ export class Archivio implements apparato.Smaltitore {
   /** L'intestazione grezza dell'anno aperto; `testaDa` la mette in riga dopo i passi del formato. */
   private leggiIntestazione (aperto: Pacchetto | null): Record<string, unknown> | null {
     if (!aperto) return null
-    return this.leggiVoce(aperto, NOMI.registro, `${aperto.nome}${ESTENSIONE}`)
+    return this.leggiVoce(aperto, voceDi('registro'), `${aperto.nome}${ESTENSIONE}`)
   }
 
   /**
@@ -368,9 +370,15 @@ export class Archivio implements apparato.Smaltitore {
     }
     // Formato vecchio: la copia com'è, prima che ci si scriva sopra. Qui, perché
     // più sotto non si aspetta più niente (`tieniSe`).
+    // Anche un contenitore vecchio: riscritto, i registri di prima non lo leggono più.
     const versioneLetta = nuovo ? versioneDati(nuovo) : null
-    const copia = file && versioneLetta !== null && versioneLetta < VERSIONE_DATI
-      ? await this.copiaPrimaDelFormato(file, versioneLetta)
+    const formatoVecchio = versioneLetta !== null && versioneLetta < VERSIONE_DATI
+    const contenitoreLetto = nuovo?.contenitoreLetto ?? VERSIONE_PACCHETTO
+    const contenitoreVecchio = contenitoreLetto < VERSIONE_PACCHETTO
+    // testo-fisso: un pezzo del nome del file della copia, uguale in ogni lingua
+    const comeEra = formatoVecchio ? `formato-${versioneLetta}` : `contenitore-${contenitoreLetto}`
+    const copia = file && (formatoVecchio || contenitoreVecchio)
+      ? await this.copiaPrimaDelFormato(file, comeEra)
       : null
     if (nuovo && vecchio && !stesso) {
       // Durante la domanda sulla serratura si è potuto scrivere sul vecchio:
@@ -422,7 +430,7 @@ export class Archivio implements apparato.Smaltitore {
     // migrazione (es. dei corsi) cambierebbero a ogni caricamento.
     // Se il formato vecchio chiedeva una copia e questa non è riuscita, non si
     // accoda niente: il documento non va toccato senza copia di sicurezza.
-    const puòSalvare = formato.passi.length === 0 || copia !== null
+    const puòSalvare = (formato.passi.length === 0 && !contenitoreVecchio) || copia !== null
     const migrate = puòSalvare ? this.collezioniMigrate(grezzo) : []
     if (migrate.length > 0) {
       for (const collezione of migrate) this.scritturePendenti.add(collezione)
@@ -459,16 +467,17 @@ export class Archivio implements apparato.Smaltitore {
   }
 
   /**
-   * Copia il documento com'è su disco in `VERSIONI_PRECEDENTI`, col formato nel
-   * nome. Se c'è già non si rifà: la prima è quella intatta. Null se non riesce.
+   * Copia il documento com'è su disco in `VERSIONI_PRECEDENTI`, col formato
+   * (`formato-3`, o `contenitore-1` se cambia solo quello) nel nome. Se c'è già
+   * non si rifà: la prima è quella intatta. Null se non riesce.
    */
   private async copiaPrimaDelFormato (
     file: apparato.Uri,
-    versione: number,
+    formato: string,
   ): Promise<apparato.Uri | null> {
     const nome = nomeDelPacchetto(file)
     const cartella = apparato.Uri.joinPath(file, '..', nome, VERSIONI_PRECEDENTI)
-    const copia = apparato.Uri.joinPath(cartella, `${nome}.formato-${versione}${ESTENSIONE}`)
+    const copia = apparato.Uri.joinPath(cartella, `${nome}.${formato}${ESTENSIONE}`)
     try {
       if (await esisteFile(copia)) return copia
       await apparato.file.createDirectory(cartella)
@@ -494,7 +503,9 @@ export class Archivio implements apparato.Smaltitore {
       if (letto === null || letto === undefined) {
         return this.contenutoNonVuoto(collezione)
       }
-      return JSON.stringify(letto) !== JSON.stringify(this.contenutoDi(collezione))
+      // Nella forma del documento: la normalizzazione rimette i vuoti che il
+      // testo toglie, e confrontati crudi farebbero riscrivere a ogni apertura.
+      return testoCollezione(letto) !== testoCollezione(this.contenutoDi(collezione))
     })
   }
 
@@ -515,20 +526,20 @@ export class Archivio implements apparato.Smaltitore {
       // Anche l'apertura nel `try`: un blocco col CRC sbagliato vale come JSON rotto.
       const testo = pacchetto.testo(nome)?.trim()
       if (!testo) {
-        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        if (nome === voceDi('registro')) this.illeggibili.delete('registro')
         return null
       }
       // `unknown` e non `any`: obbliga a controllare prima di usare.
       const letto: unknown = JSON.parse(testo)
       if (letto && typeof letto === 'object' && !Array.isArray(letto)) {
-        if (nome === NOMI.registro) this.illeggibili.delete('registro')
+        if (nome === voceDi('registro')) this.illeggibili.delete('registro')
         return letto as Record<string, unknown>
       }
-      if (nome === NOMI.registro) this.illeggibili.add('registro')
+      if (nome === voceDi('registro')) this.illeggibili.add('registro')
       this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, testi().nonOggetto))
       return null
     } catch (errore) {
-      if (nome === NOMI.registro) this.illeggibili.add('registro')
+      if (nome === voceDi('registro')) this.illeggibili.add('registro')
       this.emettitoreErrori.fire(testi().voceNonJson(nome, dove, motivoDi(errore)))
       return null
     }
@@ -541,7 +552,7 @@ export class Archivio implements apparato.Smaltitore {
   private leggiCollezione (nome: NomeCollezione): unknown {
     try {
       // Anche l'apertura nel `try`: un blocco rovinato vale come JSON rotto.
-      const testo = this.pacchetto?.testo(NOMI[nome])?.trim()
+      const testo = this.pacchetto?.testo(voceDi(nome))?.trim()
       if (!testo) return null
       // `unknown` e non `any`: obbliga a controllare prima di usare.
       const letto: unknown = JSON.parse(testo)
@@ -645,7 +656,7 @@ export class Archivio implements apparato.Smaltitore {
     }
     const grezzo = {} as FilePersistito
     for (const collezione of COLLEZIONI) {
-      grezzo[collezione] = jsonDi(pacchetto, NOMI[collezione])
+      grezzo[collezione] = jsonDi(pacchetto, voceDi(collezione))
     }
     // Gli stessi passi dell'apertura, solo in memoria.
     const aggiornati = aggiornaFormato(grezzo, versione).dati as FilePersistito
@@ -834,7 +845,7 @@ export class Archivio implements apparato.Smaltitore {
       const nuovo = Pacchetto.nuovo(file)
       const { cartella: _cartella, ...senzaCartella } = testa.anno
       nuovo.scrivi(
-        NOMI.registro,
+        voceDi('registro'),
         `${JSON.stringify(
           {
             versione: VERSIONE_DATI,
@@ -1175,6 +1186,8 @@ export class Archivio implements apparato.Smaltitore {
         return this.stato.consegne
       case 'check':
         return this.stato.check
+      case 'progetti':
+        return this.stato.progetti
       case 'smistamenti':
         return this.stato.smistamenti
       case 'coordinate':
@@ -1189,7 +1202,7 @@ export class Archivio implements apparato.Smaltitore {
   private aggiornaVoce (collezione: NomeCollezione, contenuto: unknown): void {
     const pacchetto = this.pacchetto
     if (!pacchetto) return
-    const nome = NOMI[collezione]
+    const nome = voceDi(collezione)
     const testo = testoCollezione(contenuto)
     if (this.ultimiTesti.get(collezione) === testo) return
 
@@ -1207,7 +1220,7 @@ export class Archivio implements apparato.Smaltitore {
   private mettiDaParte (collezione: NomeCollezione): void {
     const pacchetto = this.pacchetto
     if (!pacchetto) return
-    const nome = NOMI[collezione]
+    const nome = voceDi(collezione)
     this.illeggibili.delete(collezione)
     const marca = new Date().toISOString().replace(/[:.]/g, '-')
     const altrove = nome.replace(/\.json$/, `.rotto-${marca}.json`)
@@ -1379,6 +1392,7 @@ function registroDa (testa: TestaAnno | null, grezzo: FilePersistito): Registro 
     fascicoli: grezzo.fascicoli ?? [],
     consegne: grezzo.consegne ?? [],
     check: grezzo.check ?? [],
+    progetti: grezzo.progetti ?? [],
     smistamenti: grezzo.smistamenti ?? [],
     coordinate: grezzo.coordinate ?? [],
   })
@@ -1415,7 +1429,7 @@ function motivoDi (errore: unknown): string {
 /** La versione dei dati dichiarata nell'intestazione, o null (l'errore di lettura lo dà `leggiVoce`). */
 function versioneDati (pacchetto: Pacchetto): number | null {
   try {
-    const testo = pacchetto.testo(NOMI.registro)
+    const testo = pacchetto.testo(voceDi('registro'))
     if (!testo) return null
     const letto: unknown = JSON.parse(testo)
     const versione = (letto as { versione?: unknown } | null)?.versione

@@ -117,7 +117,7 @@ export async function posa (
   )
   if (!risposta.ok) return
   const t = testi()
-  const quando = t.quando(formattaData(data, 'giorno'), inizio)
+  const quando = t.quando(formattaData(data, 'settimana'), inizio)
   if (scontri.length > 0) {
     const sopra = t.sopra(scontri.map((l) => nomeClasseDiLezione(l)).join(', '))
     notifica(t.posata(copia, quando, sopra), 'avviso')

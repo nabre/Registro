@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
 import { Uri } from '../../dist-tests/environment.mjs'
-import { FORMATO, MANIFESTO, Pacchetto, STORICO } from '../../dist-tests/package.mjs'
+import { DATI, FORMATO, MANIFESTO, Pacchetto, STORICO } from '../../dist-tests/package.mjs'
 import { leggiZip } from '../../dist-tests/zip.mjs'
 
 const CAMPIONE = percorso.join(
@@ -36,7 +36,7 @@ describe('il documento campione', () => {
   it('contiene le collezioni con dentro quel che ci si è messo', async () => {
     const pacchetto = await Pacchetto.apri(Uri.file(CAMPIONE))
 
-    const classi = JSON.parse(pacchetto.testo('classi.json'))
+    const classi = JSON.parse(pacchetto.testo(`${DATI}/classi.json`))
     assert.equal(classi.length, 1)
     assert.equal(classi[0].nome, 'I MEC A')
     assert.deepEqual(
@@ -44,14 +44,14 @@ describe('il documento campione', () => {
       ['Rossi', 'Bianchi', 'Verdi'],
     )
 
-    const lezioni = JSON.parse(pacchetto.testo('lezioni.json'))
+    const lezioni = JSON.parse(pacchetto.testo(`${DATI}/lezioni.json`))
     assert.equal(lezioni.length, 3)
     assert.equal(lezioni[0].data, '2026-09-07')
     assert.equal(lezioni[0].argomenti, 'Unità di misura e conversioni')
     // Gli accenti passano interi: nomi e contenuti sono in UTF-8 dichiarato.
     assert.match(lezioni[0].consuntivo, /esercizi 1–8/)
 
-    const registro = JSON.parse(pacchetto.testo('registro.json'))
+    const registro = JSON.parse(pacchetto.testo(`${DATI}/registro.json`))
     assert.equal(registro.anno.inizio, '2026-09-01')
     assert.deepEqual(registro.materie.map((m) => m.nome), ['Calcolo professionale'])
   })
@@ -75,7 +75,7 @@ describe('il documento campione', () => {
     assert.ok(manifesto, `manifesto assente: ${voci.map((v) => v.nome).join(', ')}`)
     const letto = JSON.parse(new TextDecoder().decode(manifesto.dati))
     assert.equal(letto.formato, FORMATO)
-    assert.equal(letto.versione, 1)
+    assert.equal(letto.versione, 2)
   })
 
   it('resta uno ZIP che aprirebbe chiunque', () => {
@@ -85,8 +85,10 @@ describe('il documento campione', () => {
     const nomi = voci.map((v) => v.nome)
 
     for (const atteso of ['registro.json', 'classi.json', 'corsi.json', 'lezioni.json']) {
-      assert.ok(nomi.includes(atteso), `manca ${atteso}: ${nomi.join(', ')}`)
+      assert.ok(nomi.includes(`${DATI}/${atteso}`), `manca ${atteso}: ${nomi.join(', ')}`)
     }
+    // In radice, oltre al manifesto, solo cartelle.
+    assert.deepEqual(nomi.filter((nome) => !nome.includes('/')), [MANIFESTO])
     // E ogni voce è JSON leggibile: il contenuto non è nostro soltanto di nome.
     for (const voce of voci) {
       assert.doesNotThrow(

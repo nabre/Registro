@@ -11,7 +11,7 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'materia.unisci',
   idempotente: true,
-  collezioni: ['registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check'],
+  collezioni: ['registro', 'corsi', 'lezioni', 'piani', 'valutazioni', 'consegne', 'check', 'progetti'],
   ingresso: oggetto({
     daId: identificatore({ aiuto: () => t().daId }),
     aId: identificatore({ aiuto: () => t().aId }),

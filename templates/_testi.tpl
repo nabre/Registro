@@ -87,6 +87,10 @@ lezioni-svolte: Lezioni svolte
 ud-svolte: UD svolte
 presenza-media: Presenza media
 media-di-classe: Media di classe
+lezioni: Lezioni
+media-progetto: Media del progetto
+periodo: Periodo
+avanzamento: Avanzamento
 
 # --- I titoli delle sezioni
 
@@ -130,6 +134,22 @@ dettaglio-assenze: Dettaglio assenze e firme
 diario-lezioni: Diario delle lezioni
 piani-lezione: Piani di lezione
 pendenze: Pendenze del corso
+criteri: Criteri di valutazione
+scala-livelli: Scala dei livelli
+lezioni-del-progetto: Lezioni del progetto
+avanzamento-attivita: Avanzamento delle attività
+fasi-del-progetto: Fasi del progetto
+valutazioni-della-fase: Valutazioni della fase
+compiti-del-progetto: Compiti
+avanzamento-compiti: Compiti persona per persona
+livelli-raggiunti: Livelli raggiunti
+progressione: Progressione
+valutazioni-del-progetto: Valutazioni del progetto
+giudizi: Giudizi
+risorse: Risorse
+presenze-progetto: Presenze nelle lezioni del progetto
+legenda-compiti: Ogni casella dice quando la persona ha cominciato il compito, entro quando deve finirlo (con la proroga, se l'ha avuta) e a che punto è.
+nota-livelli: L'ultimo livello dato per ogni criterio. Il percorso per arrivarci, giorno per giorno, è nella tabella della progressione.
 
 # --- Le frasi
 

@@ -14,7 +14,7 @@ Gli eseguibili per Windows si scaricano solo dalle
 [release](https://github.com/nabre/Registro/releases) di questo repository.
 Quando la firma del codice sarà attiva (vedi il README, § «Code signing
 policy»), porteranno la firma di **SignPath Foundation**: un eseguibile che si
-presenta come Regiklass — o, fino alla 1.8.0, come Registro docenti — con una
+presenta come Regiklass con una
 firma diversa non viene da qui, e va segnalato come sotto.
 
 ## Come segnalare
@@ -28,7 +28,7 @@ Indica:
 - che cosa permette di fare la vulnerabilità e a chi;
 - i passi per riprodurla, senza dati reali.
 
-Riceverai una prima risposta entro una settimana. La correzione esce in una
+Riceverai una prima risposta non appena possibile. La correzione esce in una
 release, e la segnalazione diventa pubblica solo dopo.
 
 ## Che cosa interessa

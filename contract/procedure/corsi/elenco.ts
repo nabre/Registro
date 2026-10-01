@@ -25,7 +25,7 @@ export const procedura = definisci({
     // `dal` e `al` in `corso.presenze`).
     annoId: nullabile(identificatore({ aiuto: () => t().annoIdUscita })),
     anno: testo({ aiuto: () => t().anno }),
-    cerca: CAMPI_CERCA.cerca,
+    ...CAMPI_CERCA,
     corsi: elenco(oggetto({
       id: testo(),
       titolo: testo(),
@@ -63,12 +63,14 @@ export const procedura = definisci({
     if (ingresso.annoId) esigiAnno(ambito, ingresso.annoId)
     const annoId = ingresso.annoId ?? r.annoCorrenteId
     const anno = r.anni.find((a) => a.id === annoId) ?? null
-    const { corrisponde } = filtroTesto(ingresso.cerca)
+    const { corrisponde, ignorato: cercaIgnorato } = filtroTesto(ingresso.cerca)
 
     return {
       annoId: anno?.id ?? null,
       anno: anno?.etichetta ?? '',
       cerca: ingresso.cerca ?? '',
+
+      cercaIgnorato,
       corsi: corsiDellAnno(r, annoId)
         .filter((corso) => !ingresso.classeId || corso.classeId === ingresso.classeId)
         .filter((corso) => !ingresso.materiaId || corso.materiaId === ingresso.materiaId)

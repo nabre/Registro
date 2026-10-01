@@ -29,12 +29,13 @@ const TIPI_SOGGETTO: readonly TipoSoggetto[] = [
   'allievo',
   'piano',
   'valutazione',
+  'progetto',
 ]
 
 // Gli elenchi chiusi delle preferenze di forma stanno qui e `state.ts` li
 // importa: la lettura li convalida, lo stato ne ricava i tipi. Un valore che
 // non c'è più si scarta e `state.ts` rimette il predefinito.
-export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'annotazioni'] as const
+export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'progetto', 'annotazioni'] as const
 export const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as const
 export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni', 'docente'] as const
 export const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const
@@ -78,6 +79,10 @@ interface PreferenzeDocumento {
   bloccoAssenzeId: string | null
   schedaTodo: string
   classiApertePersone: string[]
+  /** Il compito aperto a linguette, per progetto: id del progetto → id del compito. */
+  compitiScelti: Record<string, string>
+  /** La linguetta aperta fra i documenti delle persone, per corso: `'corso'` o id del progetto. */
+  linguetteDocumenti: Record<string, string>
   ricerca: string
 }
 
@@ -121,6 +126,8 @@ export const MASSIMO_DOCUMENTI = 20
 export const LIMITE_CARATTERI = 256000
 
 const MASSIMO_CLASSI_APERTE = 100
+const MASSIMO_COMPITI_SCELTI = 100
+const MASSIMO_LINGUETTE_DOCUMENTI = 100
 const MASSIMO_ID = 200
 const MASSIMO_RICERCA = 200
 const MASSIMO_CONTESTO_ASSISTENTE = 2000
@@ -174,6 +181,19 @@ function copiaDefiniti<T extends object> (destinazione: T, campi: Partial<T>): T
   for (const [nome, valore] of Object.entries(campi))
     if (valore !== undefined) (destinazione as Record<string, unknown>)[nome] = valore
   return destinazione
+}
+
+/** Le coppie id → id buone, al più `massimo`: le ultime, che sono le più recenti. */
+function coppie (valore: unknown, massimo: number): Record<string, string> | undefined {
+  const grezze = oggetto(valore)
+  if (!grezze) return undefined
+  const buone: Record<string, string> = {}
+  for (const [chiave, voce] of Object.entries(grezze).slice(-massimo)) {
+    const scelto = id(voce)
+    // `__proto__` da `JSON.parse` è una chiave vera: assegnata, cambierebbe il prototipo.
+    if (id(chiave) && chiave !== '__proto__' && scelto) buone[chiave] = scelto
+  }
+  return buone
 }
 
 function booleano (valore: unknown): boolean | undefined {
@@ -285,6 +305,8 @@ function preferenzeDa (
         ? grezzo.schedaTodo
         : undefined,
     classiApertePersone: elenco(grezzo.classiApertePersone, MASSIMO_CLASSI_APERTE, MASSIMO_ID),
+    compitiScelti: coppie(grezzo.compitiScelti, MASSIMO_COMPITI_SCELTI),
+    linguetteDocumenti: coppie(grezzo.linguetteDocumenti, MASSIMO_LINGUETTE_DOCUMENTI),
     ricerca: typeof ricerca === 'string' ? ricerca.slice(0, MASSIMO_RICERCA) : undefined,
   })
   // Assente e `null` dicono cose diverse: si copia solo una scelta vera.

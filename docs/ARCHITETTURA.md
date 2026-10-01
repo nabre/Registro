@@ -138,7 +138,11 @@ flowchart TB
 - Lingue (ADR-38): una per processo (`core/i18n/state.ts`); il main la sceglie
   in `desktop/apparato/language.ts`, le pagine la leggono da `registro:lingua` in
   `core/i18n/page.ts`; al cambio menu e icona si ridisegnano e le finestre si
-  ricaricano.
+  ricaricano. Si sceglie nelle impostazioni, nel benvenuto (`sceltaLingua` /
+  `scegliLingua`, stessa dogana) e, su Windows, nel selettore dell'installatore:
+  `os/windows/installer.nsh` scrive `impostazioni.json` solo al primo
+  impianto e se la lingua scelta non è quella di Windows. macOS e Linux non
+  hanno un installatore con scelta: basta il benvenuto, come nel portabile.
 
 ## 4. Vista dei componenti — C4 livello 3
 
@@ -430,9 +434,11 @@ sequenceDiagram
 Formato e collezioni: [MODELLO-DATI](MODELLO-DATI.md) § 8. Qui il meccanismo.
 
 - **ZIP scritto in casa** su `node:zlib` ([core/dati/zip.ts](../core/dati/zip.ts)),
-  niente ZIP64 (≈ 4 GB, 65 535 voci). Manifesto con
-  `formato: 'registro-docenti/anno'` e `VERSIONE_PACCHETTO = 1`; un contenitore
-  più recente si rifiuta.
+  niente ZIP64 (≈ 4 GB, 65 535 voci). In radice il manifesto, con
+  `formato: 'registro-docenti/anno'` e `VERSIONE_PACCHETTO = 2`, e le cartelle;
+  le collezioni sotto `data/` (`voceDi` in [core/dati/paths.ts](../core/dati/paths.ts)).
+  Un contenitore più recente si rifiuta; uno più vecchio si porta avanti
+  (MODELLO-DATI § 8.3).
 - **Due radici** nel documento: `archivio/` (unica copia) ed `esportazioni/`
   (rifacibile, escludibile dalla sincronizzazione) —
   [locations.ts](../core/dominio/locations.ts), ADR-16.
@@ -454,12 +460,12 @@ Formato e collezioni: [MODELLO-DATI](MODELLO-DATI.md) § 8. Qui il meccanismo.
   se il file non c'è o è cambiato altrove, lo spazio morto supera 256 KB e un terzo del file, o accodare costa più di
   metà documento. Non ogni salvataggio passa da temporaneo e rinomina.
 - **Storico**: prima di riscrivere, `Pacchetto.conserva(nome, COPIE_STORICO,
-  { aGradini: true })` copia la voce in `.storico/<radice>.<istante>.json` dentro
-  lo ZIP, riusando il blocco compresso. Potatura (`daTenere`): le ultime 10, una
+  { aGradini: true })` copia la voce in `.storico/<file>.<istante>.json` dentro
+  lo ZIP (`<file>` senza `data/`), riusando il blocco compresso. Potatura (`daTenere`): le ultime 10, una
   al giorno per 30 giorni, poi una a settimana, al più 60.
 - **JSON illeggibile**: mai sovrascritto in silenzio; resta in
   `Archivio.illeggibili` e alla prima modifica esplicita diventa
-  `<nome>.rotto-<istante>.json`.
+  `data/<nome>.rotto-<istante>.json`.
 - **Serratura**: `.{nome}.serratura` = `{macchina, utente, processo, aperto}`,
   da `Pacchetto.prendi()`/`lascia()`. Se l'anno è aperto altrove, un dialogo:
   «chi salva per ultimo copre il lavoro dell'altro».

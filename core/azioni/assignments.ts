@@ -21,10 +21,11 @@ import {
   daConsegnareA,
   destinatariConsegna,
   documentoPer,
+  scadenzaConsegna,
   siConsegna,
   testoConsegna,
 } from '../dominio/assignments.js'
-import { classeDelCorsoId, classeDellaConsegna } from '../dominio/courses.js'
+import { classeDellaConsegna, corsoPerId } from '../dominio/courses.js'
 import { oggi, periodoNelNome, istanteAdesso } from '../dominio/dates.js'
 import { corpoConsegna } from '../dominio/factories.js'
 import { validaConsegna } from '../dominio/validation.js'
@@ -143,10 +144,13 @@ export const consegne = {
     const nuova = !prima
     // Spunte, documenti e firme sono di persone di quella classe: in un'altra
     // sarebbero di estranei. Senza, il cambio di classe è solo un indirizzo.
+    // Un corso di partenza sparito non conta, come per le ore e le prove: la
+    // consegna rimasta orfana si deve poter riagganciare.
+    const da = prima ? corsoPerId(contesto.registro, prima.corsoId)?.classeId ?? null : null
     if (
       prima &&
-      classeDelCorsoId(contesto.registro, prima.corsoId)?.id !==
-        classeDelCorsoId(contesto.registro, azione.consegna.corsoId)?.id &&
+      da !== null &&
+      da !== (corsoPerId(contesto.registro, azione.consegna.corsoId)?.classeId ?? null) &&
       (prima.fatte.length > 0 || (prima.documenti ?? []).length > 0 || prima.fileFirme)
     ) {
       return rifiuta(testi().altraClasse)
@@ -406,7 +410,8 @@ export const consegne = {
     const allievoId = azione.allievoId
     return contesto.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === consegna.id)
-      if (!bersaglio) return
+      // Sparita mentre il file andava nel cestino: non è un «fatto».
+      if (!bersaglio) return false
       if (allievoId) {
         bersaglio.documenti = (bersaglio.documenti ?? []).filter(
           (d) => d.allievoId !== allievoId,
@@ -418,7 +423,9 @@ export const consegne = {
         bersaglio.nomeTutti = undefined
       }
       bersaglio.aggiornataIl = istanteAdesso()
-    }, allievoId ? collezioniDocumento(contesto.registro, consegna.id, allievoId) : ['consegne'])
+    },
+    allievoId ? collezioniDocumento(contesto.registro, consegna.id, allievoId) : ['consegne'],
+    comuni().nonTrovato.consegna)
   },
 
   /** Consegnato a mano, in aula: resta solo la spunta. */
@@ -440,7 +447,7 @@ export const consegne = {
 
     return contesto.modifica((r) => {
       const bersaglio = r.consegne.find((c) => c.id === consegna.id)
-      if (!bersaglio) return
+      if (!bersaglio) return false
       bersaglio.fatte = bersaglio.fatte.filter((f) => f.chi !== azione.allievoId)
       if (azione.fatta) {
         bersaglio.fatte.push({
@@ -452,7 +459,7 @@ export const consegne = {
         })
       }
       bersaglio.aggiornataIl = ora
-    }, ['consegne'])
+    }, ['consegne'], comuni().nonTrovato.consegna)
   },
 
   /**
@@ -539,7 +546,7 @@ export const consegne = {
           classe.nome,
           nomeCompleto(allievo),
           consegna.testo,
-          periodoNelNome(consegna.scadenza || oggi()),
+          periodoNelNome(scadenzaConsegna(contesto.registro, consegna) || oggi()),
         ),
       })
       // Niente si segna adesso: una bozza non è una consegna.
