@@ -225,6 +225,46 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
 - [ ] In locale gira Node 26.7, il progetto e la CI chiedono Node 24: `npm ci`
       e le prove vanno ripetute con la versione giusta.
 
+### Audit del 2026-10-02
+
+Cinque aree in sola lettura (report: artefatto «Audit tecnico Regiklass»).
+Verificati a mano i primi otto.
+
+- [ ] Aggiornamenti Windows senza verifica dell'editore: `publisherName` in
+      `electron-builder.json` con SignPath, `Get-AuthenticodeSignature` in
+      `aggiornamento.ps1`; fino ad allora dirlo in SECURITY.md.
+- [ ] `core/dati/opening.ts`: lista bianca delle estensioni apribili al posto
+      di `ESEGUIBILI` (mancano `chm`, `ws`, `jnlp`, `mht`…); `Zone.Identifier`
+      sulle copie materializzate.
+- [ ] `ui/styles/hour-register.css:1070`: `--testo-su-primario` non esiste →
+      `--su-tinta`. Prova che cerchi `var(--…)` senza definizione.
+- [ ] `ui/dom.ts:76`: `h()` scarta `aria-*` a `false` (consegne, piano,
+      persone): stato spento non annunciato.
+- [ ] `desktop/apparato/settings.ts` `leggi`: lettura senza `valoreConMotivo`;
+      un `null` a mano fa cadere l'assistente.
+- [ ] `desktop/pannelli/panel.ts:505`: tutto il registro a ogni gesto;
+      `alleDifferenze` (archive.ts:206) non lo usa nessuno. Misurare prima.
+- [ ] `core/dati/store.ts` `materializza`: decomprime prima del CRC; leggere
+      dopo il confronto, dentro la fila. `voce.bytes` mai liberati.
+- [ ] `contract/switchboard.ts` `azioneValida`: `Object.hasOwn`.
+- [ ] Performance: agenda annuale senza `content-visibility`/virtualizzazione;
+      `core/dati/kit.ts:279` estrazione sincrona; soglia di `rifai`
+      (`package.ts`) che conta gli allegati.
+- [ ] Accessibilità: fuoco perso nell'appello (Invio/Esc, `attendance.ts`);
+      apice 15 px (< 24); titolo-selettore con controlli dentro `h2` e
+      `change` sulle frecce; linguette strumenti senza `aria-pressed`;
+      dialogo nativo senza `listbox`/`combobox`/`role=alert`; axe non apre
+      modali né finestre native.
+- [ ] CSS: codice morto (`barra-stato__filtro/__tendina`, `documenti__cella…`,
+      `scelta-giorni`, `barra-comandi__pagina`, `elenco-materie`); bianco fisso
+      su `.livello-progetto`; freccia dei `select` duplicata con colori a
+      mano.
+- [ ] Minori: fuses `onlyLoadAppFromAsar`/`grantFileProtocolExtraPrivileges`;
+      `REGISTRO_SVILUPPO` nel pacchetto; `shell.openPath` senza guardia
+      (`commands.ts:71`, `dialogs.ts:454`); `switch-exhaustiveness-check`;
+      `calendar.ts:311` `fasce[0]`; storia di `conversation.ts:200` non
+      convalidata.
+
 ### Modelli e assistente
 
 - [ ] Le scansioni senza programma esterno, il giorno in cui `node-llama-cpp`
