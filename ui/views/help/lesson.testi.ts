@@ -235,6 +235,17 @@ const it = {
           'nella pagina **Documenti**, scheda Docente: la scheda del corso con quelle sole. Il suo ' +
           'PDF si rifà da sé con gli altri documenti del corso, anche quando si cambia una supplenza.',
       },
+      {
+        termine: 'Quando manco io',
+        testo:
+          'Il contrario della supplenza: un collega tiene le tue ore. Dal tasto destro su un’ora del ' +
+          'calendario, o dal pulsante in alto nella pagina della lezione, **Prepara la supplenza**: ' +
+          'si sceglie a chi mandarla — chi ti sostituisce, con nome ed e-mail, o il segretariato — ' +
+          'e quali ore del giorno lasciare. Accanto al documento `.regi` nasce uno zip con l’elenco ' +
+          'degli allievi con le foto, il piano dettagliato di ogni ora in PDF, i file delle sue ' +
+          'risorse e un **Leggimi** da cui partire. Con un indirizzo parte anche la mail con lo zip ' +
+          'allegato: spedita, se la casella è collegata, o aperta nel programma di posta.',
+      },
     ],
     note: [
       'Concludere una lezione rifà il verbale di quella lezione e i PDF del corso — presenze, voti, ' +
@@ -1031,6 +1042,18 @@ export const testi = catalogo(it, {
             'Stunden, wenn **Abgeschlossen**, landen auf der Seite **Dokumente**, Reiter Lehrperson: ' +
             'das Kursblatt nur mit diesen. Sein PDF wird mit den anderen Dokumenten des Kurses von ' +
             'selbst neu erstellt, auch wenn man eine Stellvertretung ändert.',
+        },
+        {
+          termine: 'Wenn ich fehle',
+          testo:
+            'Das Gegenteil der Stellvertretung: Jemand übernimmt deine Lektionen. Mit Rechtsklick auf ' +
+            'eine Lektion im Kalender oder mit der Schaltfläche oben auf der Lektionsseite ' +
+            '**Stellvertretung vorbereiten**: Man wählt, an wen es geht — die vertretende Person mit ' +
+            'Name und E-Mail oder das Sekretariat — und welche Lektionen des Tages. Neben dem ' +
+            'Dokument `.regi` entsteht ein ZIP mit der Liste der Schülerinnen und Schüler samt Fotos, ' +
+            'dem ausführlichen Plan jeder Lektion als PDF, den Dateien ihrer Materialien und einem ' +
+            '**Lies mich** zum Anfangen. Mit einer Adresse geht auch die E-Mail mit dem ZIP im Anhang ' +
+            'hinaus: gesendet, wenn das Postfach verbunden ist, sonst im Mailprogramm geöffnet.',
         },
       ],
       note: [
@@ -1862,6 +1885,17 @@ export const testi = catalogo(it, {
             'la fiche du cours avec elles seules. Son PDF se refait tout seul avec les autres ' +
             'documents du cours, même quand on modifie un remplacement.',
         },
+        {
+          termine: 'Quand je suis absent',
+          testo:
+            'Le contraire du remplacement : un collègue donne tes heures. Par clic droit sur une heure ' +
+            'du calendrier, ou par le bouton en haut de la page de la leçon, **Préparer la ' +
+            'suppléance** : on choisit à qui l’envoyer — qui te remplace, avec nom et e-mail, ou le ' +
+            'secrétariat — et quelles heures du jour laisser. À côté du document `.regi` naît un zip ' +
+            'avec la liste des élèves et leurs photos, le plan détaillé de chaque heure en PDF, les ' +
+            'fichiers de ses ressources et un **Lisez-moi** pour commencer. Avec une adresse, l’e-mail ' +
+            'avec le zip joint part aussi : envoyé si la boîte est connectée, sinon ouvert dans la messagerie.',
+        },
       ],
       note: [
         'Terminer une leçon refait le procès-verbal de cette leçon et les PDF du cours — ' +
@@ -2671,6 +2705,17 @@ export const testi = catalogo(it, {
             'the calendar and tick **Substitution**. Lessons marked this way, once **Completed**, end ' +
             'up on the **Documents** page, Teacher tab: the course sheet with those alone. Its PDF ' +
             'is remade on its own with the other course documents, also when a substitution changes.',
+        },
+        {
+          termine: 'When I’m away',
+          testo:
+            'The opposite of a substitution: a colleague teaches your lessons. Right-click a lesson in ' +
+            'the calendar, or use the button at the top of the lesson page, **Prepare cover**: choose ' +
+            'who it goes to — the cover teacher, with name and email, or the school office — and which ' +
+            'lessons of the day to hand over. Next to the `.regi` document a zip is made with the ' +
+            'student list and photos, the detailed plan of each lesson as a PDF, its resource files ' +
+            'and a **Read me** to start from. With an address, the email with the zip attached goes ' +
+            'out too: sent if the mailbox is connected, otherwise opened in the mail program.',
         },
       ],
       note: [

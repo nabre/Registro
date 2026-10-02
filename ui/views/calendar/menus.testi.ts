@@ -32,6 +32,8 @@ const it = {
   // La supplenza
   supplenza: 'Supplenza',
   segnataSupplenza: 'Lezione segnata come supplenza.',
+  preparaSupplenza: 'Prepara la supplenza',
+  annullataSenzaSupplenza: 'Un’ora annullata non la tiene nessuno.',
   nonPiuSupplenza: 'La lezione non è più una supplenza.',
 
   // L'orario, in modifica
@@ -83,6 +85,8 @@ export const testi = catalogo(it, {
     apriPiano: 'Unterrichtsplan öffnen',
     supplenza: 'Stellvertretung',
     segnataSupplenza: 'Stunde als Stellvertretung markiert.',
+    preparaSupplenza: 'Stellvertretung vorbereiten',
+    annullataSenzaSupplenza: 'Eine abgesagte Lektion hält niemand.',
     nonPiuSupplenza: 'Die Stunde ist keine Stellvertretung mehr.',
 
     nonSiIcs:
@@ -130,6 +134,8 @@ export const testi = catalogo(it, {
     apriPiano: 'Ouvrir le plan de la leçon',
     supplenza: 'Remplacement',
     segnataSupplenza: 'Leçon marquée comme remplacement.',
+    preparaSupplenza: 'Préparer la suppléance',
+    annullataSenzaSupplenza: 'Une heure annulée, personne ne la donne.',
     nonPiuSupplenza: 'La leçon n’est plus un remplacement.',
 
     nonSiIcs:
@@ -175,6 +181,8 @@ export const testi = catalogo(it, {
     apriPiano: 'Open the lesson plan',
     supplenza: 'Substitution',
     segnataSupplenza: 'Lesson marked as a substitution.',
+    preparaSupplenza: 'Prepare cover',
+    annullataSenzaSupplenza: 'Nobody teaches a cancelled lesson.',
     nonPiuSupplenza: 'The lesson is no longer a substitution.',
 
     nonSiIcs:

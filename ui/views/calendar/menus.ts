@@ -9,7 +9,7 @@ import { formattaData, oraDaMinuti, sommaGiorni } from '#core/dominio/dates.js'
 import type { Iso, Lezione } from '#core/dominio/models.js'
 import type { NomeIcona } from '#ui/components/icons.js'
 import { ancorataAIcs } from '#ui/externalCalendar.js'
-import { moduloLezione, sincronizzaDaIcs } from '#ui/forms.js'
+import { moduloLezione, moduloSupplenza, sincronizzaDaIcs } from '#ui/forms.js'
 import { conferma } from '#ui/components/modal.js'
 import { menuContestuale, type ElementoMenu } from '#ui/components/menu.js'
 import { notifica } from '#ui/components/notifications.js'
@@ -79,6 +79,7 @@ export function menuLezione (evento: MouseEvent, lezione: Lezione): void {
     'separatore',
     ...vociStato(lezione),
     vocePerSupplenza(lezione),
+    vocePerAssenza(lezione),
     ...vociPiano(lezione),
     ...(inModificaOra ? vociOrario(lezione, ancorata) : []),
   ])
@@ -149,6 +150,20 @@ function vocePerSupplenza (lezione: Lezione): ElementoMenu {
       if (!risposta.ok) return
       notifica(nuova.supplenza ? t.segnataSupplenza : t.nonPiuSupplenza, 'successo')
     },
+  }
+}
+
+/**
+ * Il contrario della supplenza: manco io, e chi tiene l'ora riceve allievi,
+ * piano e risorse in uno zip. Un'ora annullata non la tiene nessuno.
+ */
+function vocePerAssenza (lezione: Lezione): ElementoMenu {
+  const t = testi()
+  return {
+    testo: `${t.preparaSupplenza}…`,
+    simbolo: 'esporta',
+    ...(lezione.stato === 'annullata' ? { disabilitato: true, titolo: t.annullataSenzaSupplenza } : {}),
+    al: () => moduloSupplenza(lezione),
   }
 }
 

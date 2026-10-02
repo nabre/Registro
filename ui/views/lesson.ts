@@ -31,7 +31,7 @@ import { h, type Figlio } from '#ui/dom.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
 import { pannelloRiconsegneDellOra } from './assessments/returns.js'
-import { moduloOsservazione } from '#ui/forms.js'
+import { moduloOsservazione, moduloSupplenza } from '#ui/forms.js'
 import { porzioniLezione, schedaLezioneAperta } from '#ui/tabs.js'
 import { apriLezione } from '#ui/pages.js'
 import { azione } from '#ui/bridge.js'
@@ -274,6 +274,15 @@ function testataLezione (lezione: Lezione): HTMLElement {
         (lezione.aula ? t.aula(lezione.aula) : ''),
     ),
     h('span', { class: 'testata__spazio' }),
+    // Se manco io: il pacchetto per chi tiene l'ora (e le altre del giorno).
+    lezione.stato === 'annullata'
+      ? null
+      : pulsante({
+          simbolo: 'esporta',
+          variante: 'fantasma',
+          titolo: t.preparaSupplenza,
+          al: () => moduloSupplenza(lezione),
+        }),
     h(
       'span',
       { class: 'navigatore-registro__conta' },

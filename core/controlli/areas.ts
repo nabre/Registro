@@ -40,7 +40,7 @@ export interface Divisione {
 export const DIVISIONI: readonly Divisione[] = [
   // Posta di classe e contatti con una persona sola stanno insieme, divisi dai
   // titoli di gruppo.
-  { id: 'posta', area: 'utente', prefissi: ['registroDocenti.posta', 'registroDocenti.recapiti'] },
+  { id: 'posta', area: 'utente', prefissi: ['registroDocenti.posta', 'registroDocenti.recapiti', 'registroDocenti.supplenza'] },
   // È anche la rete: una chiave di un gruppo non previsto finisce qui e si può
   // regolare subito.
   { id: 'aspetto', area: 'programma', prefissi: ['registroDocenti.aspetto'], raccoglie: true },

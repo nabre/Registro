@@ -11133,6 +11133,52 @@
       }
     },
     {
+      "nome": "supplenza.prepara",
+      "funzione": "supplenza_prepara",
+      "genere": "scrittura",
+      "titolo": "Prepara la supplenza: uno zip accanto al documento con allievi e foto, piano e risorse delle ore scelte, e se c’è un indirizzo la mail che lo porta",
+      "idempotente": false,
+      "riga": "regi chiama supplenza.prepara --lezioniIds <elenco>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "lezioniIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Identificatore di una voce del registro: si copia da un elenco, non si inventa",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "minItems": 1,
+            "description": "Le ore in cui manco, una o più; quelle annullate restano fuori"
+          },
+          "supplente": {
+            "type": "string",
+            "description": "Il nome di chi tiene le ore, se lo si sa",
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "description": "A chi va la mail con lo zip: chi sostituisce o il segretariato. Assente: solo lo zip",
+            "maxLength": 320
+          },
+          "segretariato": {
+            "type": "boolean",
+            "description": "Vero se l’indirizzo è del segretariato, che girerà il pacchetto"
+          },
+          "conferma": {
+            "type": "boolean",
+            "description": "Con l’invio diretto, spedisce senza chiedere conferma"
+          }
+        },
+        "required": [
+          "lezioniIds"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
       "nome": "valutazioni.allegato.aggiungi",
       "funzione": "valutazioni_allegato_aggiungi",
       "genere": "scrittura",
