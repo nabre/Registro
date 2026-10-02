@@ -73,9 +73,11 @@ export function h<K extends keyof HTMLElementTagNameMap> (
       }
     } else if (chiave === 'attr') {
       for (const [nome, dato] of Object.entries(valore as Record<string, unknown>)) {
-        if (dato !== null && dato !== undefined && dato !== false) {
-          elemento.setAttribute(nome, String(dato))
-        }
+        if (dato === null || dato === undefined) continue
+        // Un `aria-*` a `false` dice lo stato (non premuto, chiuso): si scrive.
+        // Gli altri attributi a `false` restano assenti.
+        if (dato === false && !nome.startsWith('aria-')) continue
+        elemento.setAttribute(nome, String(dato))
       }
     } else if (chiave.startsWith('on') && typeof valore === 'function') {
       gestisci(elemento, chiave.slice(2).toLowerCase(), valore as (evento: Event) => void)

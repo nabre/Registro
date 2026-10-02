@@ -64,7 +64,8 @@ const GESTORI: Mappa = {
 
 /** Vero se `tipo` ha un gestore: un webview con un altro protocollo riceve un rifiuto leggibile. */
 export function azioneValida (tipo: string): tipo is Azione['tipo'] {
-  return tipo in GESTORI
+  // Proprie, non ereditate: `constructor` o `toString` non sono azioni.
+  return Object.hasOwn(GESTORI, tipo)
 }
 
 /** Le azioni che passano da una procedura, e quindi da `chiama()`. */

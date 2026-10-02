@@ -172,6 +172,17 @@ describe('la guardia del modello', () => {
       assert.notEqual(collegamento(uso).modelloChiesto, '')
     }
   })
+
+  it('un valore del tipo sbagliato, scritto a mano, si legge come il predefinito', () => {
+    // Prima un `null` arrivava a `.trim()` e l'assistente cadeva; `"false"`
+    // come testo si leggeva acceso.
+    scritte({
+      'registroDocenti.assistente.modello': null,
+      'registroDocenti.assistente.attivo': 'false',
+    })
+    assert.equal(collegamento('assistente').modello, '')
+    assert.equal(collegamento('assistente').attivo, false)
+  })
 })
 
 describe('che cosa entra fra i modelli', () => {

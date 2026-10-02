@@ -233,15 +233,8 @@ Verificati a mano i primi otto.
 - [ ] `core/dati/opening.ts`: lista bianca delle estensioni apribili al posto
       di `ESEGUIBILI` (mancano `chm`, `ws`, `jnlp`, `mht`…); `Zone.Identifier`
       sulle copie materializzate.
-- [ ] `ui/styles/hour-register.css:1070`: `--testo-su-primario` non esiste →
-      `--su-tinta`. Prova che cerchi `var(--…)` senza definizione.
-- [ ] `ui/dom.ts:76`: `h()` scarta `aria-*` a `false` (consegne, piano,
-      persone): stato spento non annunciato.
-- [ ] `desktop/apparato/settings.ts` `leggi`: lettura senza `valoreConMotivo`;
-      un `null` a mano fa cadere l'assistente.
 - [ ] `core/dati/store.ts` `materializza`: decomprime prima del CRC; leggere
       dopo il confronto, dentro la fila. `voce.bytes` mai liberati.
-- [ ] `contract/switchboard.ts` `azioneValida`: `Object.hasOwn`.
 - [ ] Performance: agenda annuale senza `content-visibility`/virtualizzazione;
       `core/dati/kit.ts:279` estrazione sincrona; soglia di `rifai`
       (`package.ts`) che conta gli allegati.

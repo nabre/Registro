@@ -1067,7 +1067,7 @@ select.navigatore-registro__lezione:focus-visible {
 .selettore-durata__chip--attivo {
   border-color: var(--primario);
   background: var(--primario);
-  color: var(--testo-su-primario);
+  color: var(--su-tinta);
   font-weight: 600;
 }
 

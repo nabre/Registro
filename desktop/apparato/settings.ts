@@ -204,6 +204,12 @@ export function getConfiguration (sezione?: string): Configurazione {
     // Un interruttore a cui manca quel che `richiede` si legge spento, qui per
     // tutti i lettori.
     if (dato === true && requisitoMancante(nome, grezzo) !== null) return false as T
+    // Il file si può scrivere a mano: un valore del tipo sbagliato (un `null`
+    // dove si aspetta un testo, `"false"` per un interruttore) si legge come il
+    // predefinito invece di arrivare storto ai lettori. Solo il tipo: un valore
+    // di forma storta resta leggibile, per dire *che cosa* non va.
+    const voce = VOCI_IMPOSTAZIONI[nome]
+    if (voce && !delTipo(voce, dato)) return (predefinito(nome) as T | undefined) ?? ripiego
     return dato as T
   }
 
@@ -392,6 +398,20 @@ export function numeroStorto (
  * Perché un percorso non va, o `null`. Il vuoto passa («ci pensa il registro»);
  * un relativo no, perché dipenderebbe da dove il registro è stato lanciato.
  */
+/** Vero se il valore è del tipo che la voce dichiara. */
+function delTipo (voce: VoceImpostazione, valore: unknown): boolean {
+  switch (voce.tipo) {
+    case 'boolean':
+      return typeof valore === 'boolean'
+    case 'number':
+      return typeof valore === 'number' && Number.isFinite(valore)
+    case 'string':
+      return typeof valore === 'string'
+    default:
+      return true
+  }
+}
+
 function percorsoStorto (voce: VoceImpostazione, valore: string): string | null {
   if (valore === '') return null
   const t = testi()
