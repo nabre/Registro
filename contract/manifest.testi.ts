@@ -188,6 +188,11 @@ const it: TestiManifesto = {
         'diverso vuol dire scrivere da un’altra casella. Non riuscendo ad aprirlo il registro ' +
         'ripiega sul predefinito e lo dice.',
     },
+    'registroDocenti.supplenza.segretariato': {
+      etichetta: 'Indirizzo del segretariato',
+      descrizione:
+        'L’indirizzo a cui va il pacchetto della supplenza quando non si sa ancora chi la farà: lo zip con allievi, piano e risorse parte da qui, già pronto nel modulo «Prepara la supplenza». Vuoto: lo si scrive ogni volta.',
+    },
     'registroDocenti.modelli.cartella': {
       etichetta: 'Cartella dei modelli',
       descrizione:
@@ -488,6 +493,11 @@ export const testi = catalogo(it, {
           '«Outlook» dient, wenn Outlook vorhanden, aber ein anderes Programm Standard ist: aus einem ' +
           'anderen Programm schreiben heisst, aus einem anderen Postfach schreiben. Lässt es sich ' +
           'nicht öffnen, weicht das Klassenbuch auf den Standard aus und sagt es.',
+      },
+      'registroDocenti.supplenza.segretariato': {
+        etichetta: 'Adresse des Sekretariats',
+        descrizione:
+          'Die Adresse, an die das Stellvertretungspaket geht, wenn man noch nicht weiss, wer vertritt: Das ZIP mit Schülerinnen und Schülern, Plan und Materialien geht dorthin, schon im Formular «Stellvertretung vorbereiten» eingetragen. Leer: Man schreibt sie jedes Mal.',
       },
       'registroDocenti.modelli.cartella': {
         etichetta: 'Modellordner',
@@ -790,6 +800,11 @@ export const testi = catalogo(it, {
           'défaut : écrire depuis un autre programme, c’est écrire depuis une autre boîte. S’il ne ' +
           'parvient pas à l’ouvrir, le registre se rabat sur celui par défaut et le dit.',
       },
+      'registroDocenti.supplenza.segretariato': {
+        etichetta: 'Adresse du secrétariat',
+        descrizione:
+          'L’adresse à laquelle part le dossier de suppléance quand on ne sait pas encore qui remplacera : le zip avec élèves, plan et ressources part là, déjà rempli dans le formulaire « Préparer la suppléance ». Vide : on l’écrit chaque fois.',
+      },
       'registroDocenti.modelli.cartella': {
         etichetta: 'Dossier des modèles',
         descrizione:
@@ -1088,6 +1103,11 @@ export const testi = catalogo(it, {
           'for when Outlook is there but another program is the default: writing from a different ' +
           'program means writing from a different mailbox. If it cannot open it, the register falls ' +
           'back to the default and says so.',
+      },
+      'registroDocenti.supplenza.segretariato': {
+        etichetta: 'Office address',
+        descrizione:
+          'The address the cover package goes to when you don’t know yet who will cover: the zip with students, plan and resources goes there, already filled in the “Prepare cover” form. Empty: you type it each time.',
       },
       'registroDocenti.modelli.cartella': {
         etichetta: 'Models folder',

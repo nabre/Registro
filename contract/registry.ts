@@ -51,6 +51,7 @@ import { procedureMicrosoft } from './procedure/microsoft/index.js'
 import { procedureOnedrive } from './procedure/onedrive/index.js'
 import { procedureProgetti } from './procedure/progetti/index.js'
 import { procedureStoria } from './procedure/storia/index.js'
+import { procedureSupplenza } from './procedure/supplenza/index.js'
 
 export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
   ...procedureAggiornamenti,
@@ -93,6 +94,7 @@ export const TUTTE: ReadonlyArray<ProceduraQualunque> = [
   ...procedureSmistamento,
   ...procedureStato,
   ...procedureStoria,
+  ...procedureSupplenza,
   ...procedureValutazioni,
   ...procedureVista,
 ]

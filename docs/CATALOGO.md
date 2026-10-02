@@ -403,6 +403,7 @@ lo tiene `tests/api/coverage.test.mjs`.
 | [`documents.ts`](../core/azioni/documents.ts) | `stato.salva`, `documento.apri`, `documento.chiudi`, `documento.preferito`, `documento.dimentica` |
 | [`exports.ts`](../core/azioni/exports.ts) | `esportazione.apri`, `.mostra`, `.elimina` → `esportazioni.*` |
 | [`reports.ts`](../core/azioni/reports.ts) | `rapporto.genera`, `rapporto.completo` → `rapporti.*` |
+| [`substitute.ts`](../core/azioni/substitute.ts) | `supplenza.prepara` |
 | [`llm.ts`](../core/azioni/llm.ts) | `llm.scarica`, `llm.annulla`, `llm.importa`, `llm.elimina`, `llm.scegli` |
 | [`updates.ts`](../core/azioni/updates.ts) | `aggiornamenti.controlla`, `aggiornamenti.scarica`, `aggiornamenti.installa` |
 | [`templates.ts`](../core/azioni/templates.ts) | `intestazione.logo`, `intestazione.togliLogo` |
@@ -663,6 +664,7 @@ aggiornano solo i nodi che cambiano, per non perdere il fuoco.
 | PDF di prova | lettura `modelli.prova` | in memoria |
 | CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF, stesso nome ([`core/dati/exports.ts`](../core/dati/exports.ts)) |
 | Markdown | `esporta.lezione` | accanto al verbale |
+| ZIP (allievi con foto, piani, risorse, `Leggimi.txt`) | `supplenza.prepara`, anche con la mail che lo porta | accanto al `.regi`, fuori dal documento |
 | `.eml` | invii con invio diretto spento o fallito | `bozze/` |
 
 ### 11.2 Posta

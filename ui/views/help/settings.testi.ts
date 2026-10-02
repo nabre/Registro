@@ -289,7 +289,8 @@ const it = {
           'dall’anagrafica», che cosa succede premendo un numero o un indirizzo. ' +
           '**Chiamate**: il programma di Windows (`tel:`), Teams, Skype o nessuno. **Mail**: il ' +
           'programma predefinito, Outlook, Outlook sul web o nessuno. «Nessuno» lascia il ' +
-          'recapito solo da leggere e copiare.',
+          'recapito solo da leggere e copiare. Nel gruppo «Supplenze», l’**Indirizzo del ' +
+          'segretariato**: lo propone il modulo **Prepara la supplenza** scegliendo «Al segretariato».',
       },
       {
         termine: 'Aggiornamenti',
@@ -1268,7 +1269,9 @@ export const testi = catalogo(it, {
             '«Anrufe und Mails aus den Personalien», was ein Klick auf eine Nummer oder ' +
             'eine Adresse auslöst. **Anrufe**: das Windows-Programm (`tel:`), Teams, Skype oder ' +
             'keines. **E-Mail**: das Standardprogramm, Outlook, Outlook im Web oder keines. ' +
-            '«Keines» lässt die Kontaktadresse nur zum Lesen und Kopieren.',
+            '«Keines» lässt die Kontaktadresse nur zum Lesen und Kopieren. In der Gruppe ' +
+            '«Stellvertretungen» die **Adresse des Sekretariats**: Das Formular **Stellvertretung ' +
+            'vorbereiten** schlägt sie vor, wenn man «An das Sekretariat» wählt.',
         },
         {
           termine: 'Aktualisierungen',
@@ -2299,7 +2302,8 @@ export const testi = catalogo(it, {
             'on clique sur un numéro ou une adresse. **Appels** : le programme de Windows ' +
             '(`tel:`), Teams, Skype ou aucun. **E-mail** : le programme par défaut, Outlook, ' +
             'Outlook sur le web ou aucun. « Aucun » laisse l’adresse de contact seulement à lire et à ' +
-            'copier.',
+            'copier. Dans le groupe « Suppléances », l’**Adresse du secrétariat** : le formulaire ' +
+            '**Préparer la suppléance** la propose quand on choisit « Au secrétariat ».',
         },
         {
           termine: 'Mises à jour',
@@ -3320,7 +3324,8 @@ export const testi = catalogo(it, {
             'emails from the personal details” group, what happens when you click a number or an ' +
             'address. **Calls**: the Windows program (`tel:`), Teams, Skype or none. ' +
             '**Email**: the default program, Outlook, Outlook on the web or none. “None” leaves ' +
-            'the contact address only to be read and copied.',
+            'the contact address only to be read and copied. In the “Cover” group, the **Office ' +
+            'address**: the **Prepare cover** form suggests it when you choose “The school office”.',
         },
         {
           termine: 'Updates',

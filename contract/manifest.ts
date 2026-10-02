@@ -308,6 +308,12 @@ const DICHIARAZIONI = {
     scelte: ['sistema', 'outlook', 'outlookWeb', 'nessuno'],
     controllo: 'segmenti',
   },
+  // Fuori da `registroDocenti.posta`: «Azzera la posta» non lo deve portare via.
+  'registroDocenti.supplenza.segretariato': {
+    tipo: 'string',
+    predefinito: '',
+    formato: 'email',
+  },
 
   // ---------------------------------------------------------- i modelli locali
   'registroDocenti.modelli.cartella': {

@@ -796,6 +796,20 @@ export type Azione =
   /** Le presenze di un corso in CSV (di un corso: sommare materie diverse non ha senso). */
   | { tipo: 'esporta.presenze'; corsoId: string; semestreId: string | null }
   | { tipo: 'esporta.lezione'; lezioneId: string }
+  /**
+   * Il pacchetto per chi tiene le mie ore mentre manco: uno zip accanto al
+   * documento con gli allievi e le foto, il piano e le risorse di ogni ora. Con
+   * un indirizzo parte anche la mail che lo porta (spedita, o bozza `.eml`);
+   * `segretariato` dice che va a chi la girerà.
+   */
+  | {
+    tipo: 'supplenza.prepara'
+    lezioniIds: string[]
+    supplente?: string
+    email?: string
+    segretariato?: boolean
+    conferma?: boolean
+  }
   /** Applica tutte le correzioni che il registro sa fare da solo. */
   | { tipo: 'manutenzione.ripara' }
   | { tipo: 'sistema.apriCartella' }

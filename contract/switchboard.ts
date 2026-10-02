@@ -27,6 +27,7 @@ import { primaDiScrivere, rigeneraDopoScrittura } from '#core/azioni/reportsRefr
 import { registro } from '#core/azioni/register.js'
 import { sistema } from '#core/azioni/system.js'
 import { smistamento } from '#core/azioni/sorting.js'
+import { supplenza } from '#core/azioni/substitute.js'
 import { storia } from '#core/azioni/history.js'
 import { valutazioni } from '#core/azioni/assessments.js'
 import { vista } from '#core/azioni/view.js'
@@ -51,6 +52,7 @@ const GESTORI: Mappa = {
   ...microsoft,
   ...documenti,
   ...esportazioni,
+  ...supplenza,
   ...mappa,
   ...modelli,
   ...llm,

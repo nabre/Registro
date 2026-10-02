@@ -10,7 +10,7 @@ import { deflateRaw, deflateRawSync, inflateRawSync } from 'node:zlib'
 import { testi } from './zip.testi.js'
 
 /** Una voce dell'archivio: il nome com'è dentro lo ZIP, e il suo contenuto. */
-interface VoceZip {
+export interface VoceZip {
   /** Il percorso dentro l'archivio, sempre con `/`: `.storico/classi.2026-09-01.json`. */
   nome: string
   dati: Uint8Array

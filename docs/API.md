@@ -228,7 +228,7 @@ contract/procedure/
   file nel suo indice, ogni cartella fino a `contract/registry.ts`, nessuna azione
   inesistente, `resources/tools.json` aggiornato.
 
-### Le quarantadue aree
+### Le quarantatré aree
 
 L'area è il primo segmento del nome.
 
@@ -249,6 +249,7 @@ L'area è il primo segmento del nome.
 | `calendario` | calendari ICS: gestirli, leggerli, confrontarli, applicare la revisione (crea, allinea, annulla, non cancella) |
 | `stato` · `documento` · `documenti` | stato del registro, documenti d'anno |
 | `rapporti` · `esportazioni` · `esporta` | i fogli che escono |
+| `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta |
 | `proiezione` | la finestra davanti alla classe |
 | `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
