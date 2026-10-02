@@ -470,6 +470,12 @@ export function validaProgetto (progetto: Partial<Progetto>): Esito {
     if (progetto.fasi.length === 0) errori.push(t.fasiVuote)
     if (progetto.fasi.some((f) => !f.titolo?.trim())) errori.push(t.faseSenzaTitolo)
   }
+  for (const attivita of progetto.attivita ?? []) {
+    if (!attivita.titolo?.trim()) errori.push(t.attivitaSenzaTitolo)
+    if (!(attivita.durataUd > 0) || !Number.isFinite(attivita.durataUd)) {
+      errori.push(t.durataAttivita(attivita.titolo))
+    }
+  }
   if (progetto.livelli !== undefined) {
     if (progetto.livelli.length === 0) errori.push(t.livelliVuoti)
     const visti = new Set<string>()

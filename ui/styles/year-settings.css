@@ -24,6 +24,3 @@
 
 /* «Rendi predefinita» sta dove la prima carta ha la sua pastiglia. */
 .carta-intestata__rendi { flex: none; }
-
-/* «Annulla» nella notifica, prima della crocetta. */
-.notifica__annulla { flex: none; }

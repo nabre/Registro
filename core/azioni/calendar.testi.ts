@@ -8,6 +8,7 @@ const it = {
   nonCePiu: 'Quel calendario non c’è più nel documento.',
   nonSiLegge: 'Il calendario non si legge.',
   titoloDialogo: 'Un calendario con cui confrontare le lezioni',
+  titoloNuovaOrigine: (nome: string) => `Il nuovo file di «${nome}»`,
   filtroIcs: 'Calendario ICS',
   filtroTutti: 'Tutti i file',
   origineNonValida: 'Serve un indirizzo https:// o webcal://, o il percorso di un file .ics.',
@@ -41,6 +42,7 @@ export const testi = catalogo(it, {
     nonCePiu: 'Dieser Kalender ist nicht mehr im Dokument.',
     nonSiLegge: 'Der Kalender lässt sich nicht lesen.',
     titoloDialogo: 'Ein Kalender, mit dem die Stunden verglichen werden',
+    titoloNuovaOrigine: (nome) => `Die neue Datei für «${nome}»`,
     filtroIcs: 'ICS-Kalender',
     filtroTutti: 'Alle Dateien',
     origineNonValida:
@@ -76,6 +78,7 @@ export const testi = catalogo(it, {
     nonCePiu: 'Ce calendrier n’est plus dans le document.',
     nonSiLegge: 'Le calendrier ne peut pas être lu.',
     titoloDialogo: 'Un calendrier avec lequel comparer les leçons',
+    titoloNuovaOrigine: (nome) => `Le nouveau fichier de « ${nome} »`,
     filtroIcs: 'Calendrier ICS',
     filtroTutti: 'Tous les fichiers',
     origineNonValida:
@@ -109,6 +112,7 @@ export const testi = catalogo(it, {
     nonCePiu: 'That calendar is no longer in the document.',
     nonSiLegge: 'The calendar can’t be read.',
     titoloDialogo: 'A calendar to compare the lessons with',
+    titoloNuovaOrigine: (nome) => `The new file for “${nome}”`,
     filtroIcs: 'ICS calendar',
     filtroTutti: 'All files',
     origineNonValida: 'An https:// or webcal:// address, or the path of an .ics file, is needed.',

@@ -10,7 +10,8 @@ const t = () => testi().modifica
  * Rinomina un calendario o gli cambia l'origine.
  *
  * Un'origine nuova si legge subito, e solo se si legge prende il posto della
- * vecchia con la sua copia. Idempotente: gli stessi valori due volte non
+ * vecchia con la sua copia; vuota, il file si sceglie nel dialogo dell'host, e
+ * chiuderlo non cambia niente. Idempotente: gli stessi valori due volte non
  * cambiano niente la seconda.
  */
 export const procedura = scrittura({

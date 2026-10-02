@@ -367,6 +367,7 @@
                   "valutazioni",
                   "check",
                   "documenti",
+                  "overview",
                   "modelli",
                   "modelliLinguistici",
                   "mappa",
@@ -1486,7 +1487,7 @@
           },
           "origine": {
             "type": "string",
-            "description": "Un indirizzo o un percorso nuovo: si scarica subito. Se manca, resta quella"
+            "description": "Un indirizzo o un percorso nuovo: si scarica subito. Vuota apre il dialogo per sceglierlo dal disco; se manca, resta quella"
           }
         },
         "required": [
@@ -8356,7 +8357,8 @@
       "titolo": "Scrive un piano per intero: lo crea se non c’era, lo riscrive se c’era",
       "idempotente": true,
       "collezioni": [
-        "piani"
+        "piani",
+        "progetti"
       ],
       "riga": "regi chiama piani.salva --piano <oggetto>",
       "parametri": {
@@ -8379,6 +8381,20 @@
         "required": [
           "piano"
         ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "posta.azzera",
+      "funzione": "posta_azzera",
+      "genere": "scrittura",
+      "titolo": "Scollega la casella e ne dimentica indirizzi, tenant e impostazioni: si ricollega da capo",
+      "idempotente": true,
+      "riga": "regi chiama posta.azzera",
+      "parametri": {
+        "type": "object",
+        "properties": {},
+        "required": [],
         "additionalProperties": true
       }
     },
@@ -11910,6 +11926,7 @@
               "valutazioni",
               "check",
               "documenti",
+              "overview",
               "modelli",
               "modelliLinguistici",
               "mappa",

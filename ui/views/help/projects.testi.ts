@@ -24,7 +24,10 @@ const it: { progetti: TestiSezione } = {
       {
         termine: 'Le fasi',
         testo:
-          'Un progetto si divide in fasi; ce n’è sempre almeno una. **Fasi** le aggiunge, le ' +
+          'Un progetto si divide in fasi; ce n’è sempre almeno una, con titolo e descrizione. ' +
+          '**Modifica scaletta** prepara le attività didattiche della fase e le loro durate ' +
+          'indicative. Nel piano, **Importa dal progetto** le distribuisce in una o più lezioni; ' +
+          'il contenuto resta sincronizzato nei due sensi e la durata rimane locale. **Fasi** le aggiunge, le ' +
           'rinomina, le mette in fila e le toglie: le attività di una fase tolta passano a ' +
           'quella prima. Ogni fase si apre e si chiude con un clic sul titolo: chiusa mostra numero, ' +
           'titolo, periodo e quanto se n’è fatto; aperta anche le attività dei piani nelle loro ' +
@@ -144,7 +147,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Die Phasen',
           testo:
-            'Ein Projekt teilt sich in Phasen; es gibt immer mindestens eine. **Phasen** fügt sie ' +
+            'Ein Projekt teilt sich in Phasen mit Titel und Beschreibung; es gibt immer mindestens eine. ' +
+            'Mit **Ablauf bearbeiten** bereitest du die Aktivitäten und Richtzeiten vor. Im Plan ' +
+            'importierst du sie aus dem Projekt in eine oder mehrere Stunden. Der Inhalt wird in ' +
+            'beide Richtungen synchronisiert, die Dauer bleibt lokal. **Phasen** fügt sie ' +
             'hinzu, benennt sie um, ordnet und entfernt sie: Die Aktivitäten einer entfernten ' +
             'Phase gehen zur vorherigen. Jede Phase öffnet und schliesst sich mit einem Klick auf ' +
             'den Titel: geschlossen zeigt sie Nummer, Titel, Zeitraum und Fortschritt; offen auch ' +
@@ -264,7 +270,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Les phases',
           testo:
-            'Un projet se divise en phases ; il y en a toujours au moins une. **Phases** les ' +
+            'Un projet se divise en phases avec titre et description ; il y en a toujours au moins une. ' +
+            '**Modifier le déroulement** prépare les activités et leurs durées indicatives. ' +
+            'Importe-les du projet dans le plan pour les répartir entre plusieurs leçons. ' +
+            'Le contenu est synchronisé dans les deux sens ; la durée reste locale. **Phases** les ' +
             'ajoute, les renomme, les ordonne et les retire : les activités d’une phase retirée ' +
             'passent à la précédente. Chaque phase s’ouvre et se ferme d’un clic sur son titre : ' +
             'fermée, elle montre numéro, titre, période et avancement ; ouverte, aussi les ' +
@@ -385,7 +394,10 @@ export const testi = catalogo(it, {
         {
           termine: 'Phases',
           testo:
-            'A project is divided into phases; there is always at least one. **Phases** adds, ' +
+            'A project is divided into phases with a title and description; there is always at least one. ' +
+            '**Edit outline** prepares activities and indicative durations. Import them from the ' +
+            'project into a plan to spread them across lessons. Content synchronises in both ' +
+            'directions while durations stay local. **Phases** adds, ' +
             'renames, orders and removes them: the activities of a removed phase move to the ' +
             'previous one. Each phase opens and closes with a click on its title: closed it shows ' +
             'number, title, period and progress; open, also the plan activities in their lessons, ' +

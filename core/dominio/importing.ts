@@ -383,6 +383,7 @@ export function importaRegistro (
       for (const attivita of copia.attivita) {
         delete attivita.progettoId
         delete attivita.faseProgettoId
+        delete attivita.attivitaProgettoId
       }
       piani.push({ ...copia, corsoId })
     }

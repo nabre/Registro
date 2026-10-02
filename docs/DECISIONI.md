@@ -1097,7 +1097,29 @@ Scelte che il codice applica senza un ADR; il perché è ricostruito.
    IPC; le procedure RPC corrispondenti (`corso.presenze`, `registro.integrita`)
    restano il punto d'accesso strutturato per client esterni, CLI e assistente.
 
+### Estensione di ADR-54: scaletta del progetto e piani collegati (2026-10-02)
+
+Il progetto può preparare attività ordinate per fase, con durata indicativa.
+Ogni attività del piano che le importa mantiene un identificatore proprio e
+una durata locale; il contenuto didattico si sincronizza in entrambe le
+direzioni al salvataggio, in una modifica atomica di progetti e piani.
+I materiali allegati restano delle singole istanze: collegamenti e file non
+cambiano proprietario durante la sincronizzazione. La scaletta condivisa
+comprende titolo, tipo, descrizione, materiali, raggruppamento, parametri e
+valutazione prevista. L'avanzamento resta nella lezione.
+
+Una fase può occupare più lezioni: si importano attività intere, in ordine,
+proponendo quelle che entrano nel tempo residuo e mostrando le altre ancora
+da programmare. La durata indicativa non forza il tempo locale. Togliere una
+voce dalla scaletta del progetto scollega le istanze, conservandone contenuto
+e durata. Le date del progetto continuano a derivare dalle lezioni effettive;
+la nuova scaletta non è un secondo calendario.
+
+La panoramica offre uno schema compatto con zoom e collegamenti visibili:
+la selezione di un nodo mette in evidenza le sue relazioni.
+
 ## Vincoli intoccabili
+
 
 Quelli che non stanno già in un ADR, più i più gravi, in una riga:
 

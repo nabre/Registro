@@ -4,6 +4,7 @@ import { giornoDi, isoValida, istanteAdesso, oggi } from '#core/dominio/dates.js
 import { coloreValido } from '#core/dominio/lists.js'
 import {
   nuovoIdProgetto,
+  nuovoIdAttivita,
   nuovoIdCriterioProgetto,
   nuovoIdFaseProgetto,
   nuovoIdCompitoProgetto,
@@ -11,6 +12,7 @@ import {
 } from '#core/dominio/identifiers.js'
 import type {
   Progetto,
+  AttivitaProgetto,
   FaseProgetto,
   CompitoProgetto,
   CriterioProgetto,
@@ -35,6 +37,7 @@ import {
   elenco,
   oggetto,
   normalizzaRisorsa,
+  normalizzaAttivita,
 } from './readers.js'
 
 
@@ -197,6 +200,18 @@ export function normalizzaProgetto (grezzo: unknown): Progetto {
   }
   if (fasi.length === 0) fasi.push(fasePredefinita())
 
+  const attivita: AttivitaProgetto[] = elenco(dati.attivita).map((grezza) => {
+    const voce = oggetto(grezza)
+    const {
+      risorse: _risorse, progettoId: _progetto, faseProgettoId: _fase,
+      attivitaProgettoId: _origine, ...contenuto
+    } = normalizzaAttivita(voce)
+    return {
+      ...contenuto,
+      faseId: fasi.find((f) => f.id === riferimento(voce.faseId))?.id ?? fasi[0].id,
+    }
+  })
+
   const progetto: Progetto = {
     id: testo(dati.id) || nuovoIdProgetto(),
     corsoId: testo(dati.corsoId),
@@ -205,6 +220,7 @@ export function normalizzaProgetto (grezzo: unknown): Progetto {
     obiettivi: elenco(dati.obiettivi).map((o) => testo(o).trim()).filter(Boolean),
     stato: unaVoce(dati.stato, STATI_PROGETTO, 'bozza'),
     fasi,
+    attivita: idUnici(attivita, nuovoIdAttivita),
     criteri,
     livelli: livelli.length > 0 ? livelli : livelliPredefiniti(),
     compiti: idUnici(elenco(dati.compiti).map(normalizzaCompitoProgetto), nuovoIdCompitoProgetto),

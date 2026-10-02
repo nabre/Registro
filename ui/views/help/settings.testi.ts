@@ -744,7 +744,8 @@ const it = {
         testo:
           'In Utente › **Account**, sotto **Posta**. **Scollega** toglie dal portachiavi il ' +
           'gettone di Microsoft, e si torna ai file `.eml`. **Azzera**, dopo una conferma, ' +
-          'toglie anche casella, mittente e invio diretto: si rifà il collegamento da capo. Il ' +
+          'toglie anche casella, mittente, invio diretto e gli indirizzi detti da Microsoft: si ' +
+          'rifà il collegamento da capo. Il ' +
           'permesso dato al programma si revoca dal proprio profilo Microsoft.',
       },
     ],
@@ -1758,8 +1759,9 @@ export const testi = catalogo(it, {
           testo:
             'Unter Benutzer › **Konten**, bei **E-Mail**. **Trennen** entfernt das ' +
             'Microsoft-Token aus dem Schlüsselbund, und es gibt wieder `.eml`-Dateien. ' +
-            '**Zurücksetzen** entfernt nach einer Bestätigung auch Postfach, Absender und ' +
-            'Direktversand: Die Verbindung wird von vorn eingerichtet. Die dem Programm ' +
+            '**Zurücksetzen** entfernt nach einer Bestätigung auch Postfach, Absender, ' +
+            'Direktversand und die von Microsoft genannten Adressen: Die Verbindung wird von ' +
+            'vorn eingerichtet. Die dem Programm ' +
             'erteilte Berechtigung widerruft man im eigenen Microsoft-Profil.',
         },
       ],
@@ -2786,8 +2788,9 @@ export const testi = catalogo(it, {
           testo:
             'Dans Utilisateur › **Comptes**, sous **Messagerie**. **Déconnecter** retire du ' +
             'trousseau le jeton de Microsoft, et on revient aux fichiers `.eml`. ' +
-            '**Réinitialiser**, après une confirmation, retire aussi la boîte, l’expéditeur et ' +
-            'l’envoi direct : la connexion se refait depuis le début. L’autorisation donnée au ' +
+            '**Réinitialiser**, après une confirmation, retire aussi la boîte, l’expéditeur, ' +
+            'l’envoi direct et les adresses indiquées par Microsoft : la connexion se refait ' +
+            'depuis le début. L’autorisation donnée au ' +
             'programme se révoque depuis son propre profil Microsoft.',
         },
       ],
@@ -3786,8 +3789,9 @@ export const testi = catalogo(it, {
           testo:
             'In User › **Accounts**, under **Mail**. **Disconnect** removes the Microsoft token ' +
             'from the keychain, and you are back to `.eml` files. **Reset**, after a ' +
-            'confirmation, also removes the mailbox, the sender and direct sending: the ' +
-            'connection is set up from scratch. The permission given to the program is revoked ' +
+            'confirmation, also removes the mailbox, the sender, direct sending and the ' +
+            'addresses Microsoft reported: the connection is set up from scratch. The ' +
+            'permission given to the program is revoked ' +
             'from your own Microsoft profile.',
         },
       ],

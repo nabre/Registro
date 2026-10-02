@@ -87,24 +87,6 @@ controlli statici; skill `verifica`). Non prima.
       `$TMPDIR/registro-aggiornamento-*/diario.txt`.
 
 
-### Impostazioni
-
-Riordino di [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) fatto (fasi 0–6). Pendenze:
-
-- [ ] Condotto: `schemaDiUnaScritturaConcessa` e il ramo «scrittura senza
-      lettura» di `desktop/transports/conduit.ts` ora solo dallo scavalco
-      `permessi` delle prove: togliere o tenere, dopo una prova.
-- [ ] Rimando nel posto con `#voce`: ogni rimando fa una voce di storia a sé.
-- [ ] Azione vera `posta.azzera`: oggi «Azzera» in Utente › Account compone
-      `posta.scollega` + `programma.azzera` e lascia la cache indirizzi/tenant di
-      `azzeraOauth`.
-- [ ] ICS: «Sfoglia…» per l'origine file. Chiede `calendario.modifica` con
-      origine vuota che apre il dialogo: cambio di procedura (contract/,
-      `resources/tools.json`).
-- [ ] `ui/components/notifications.ts` senza azioni: `undoable.ts` copia il
-      nodo. Meglio un parametro `azione` nelle notifiche.
-
-
 ### Riordino
 
 Giro di esplorazione del 2026-10-01 (5 dimensioni, sola lettura). I bug veri

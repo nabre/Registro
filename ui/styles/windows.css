@@ -155,6 +155,7 @@
 .notifica--errore .icona { color: var(--negativo); }
 .notifica__testo { flex: 1; }
 .notifica__volte { font-variant-numeric: tabular-nums; opacity: .75; }
+.notifica__azione { flex: none; }
 
 /* Riempimento di 4px intorno all'icona da 16: bersaglio da 24, il minimo di WCAG 2.5.8. */
 .notifica__chiudi {

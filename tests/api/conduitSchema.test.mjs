@@ -1,12 +1,8 @@
 // Il condotto:
 //
-//   1. con «scrittura sì, lettura no» `$schema` risponde per le scritture (la
-//      riga di comando lo chiede prima di ogni `chiama`). Le impostazioni non
-//      lo concedono più (`registroDocenti.api.accesso`): lo scavalco
-//      `permessi` di `avviaCondotto` tiene provato il cancello;
-//   2. la coda piena risponde con l'`id` della richiesta;
-//   3. lo stesso per il tetto dei 16 MiB accodati;
-//   4. un codice d'errore ignoto al contratto esce comunque con un `code`.
+//   1. la coda piena risponde con l'`id` della richiesta;
+//   2. lo stesso per il tetto dei 16 MiB accodati;
+//   3. un codice d'errore ignoto al contratto esce comunque con un `code`.
 
 import assert from 'node:assert/strict'
 import { after, before, describe, it } from 'node:test'
@@ -71,7 +67,7 @@ before(async () => {
 
   condotto = await avviaCondotto(archivio, {
     cartellaUtente: process.env.REGISTRO_USERDATA,
-    permessi: { lettura: false, scrittura: true },
+    permessi: { lettura: true, scrittura: true },
   })
   indirizzo = indirizzoCondotto()
 })
@@ -144,32 +140,6 @@ async function apri () {
 }
 
 const riga = (id, method, params) => `${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`
-
-describe('«$schema» con la sola scrittura', () => {
-  it('lo schema di una scrittura si concede', async () => {
-    const busta = await chiedi('$schema', { procedura: 'prova.erma' })
-    assert.ok(busta.result, JSON.stringify(busta))
-    assert.equal(busta.result.nome, 'prova.erma')
-    assert.ok(busta.result.ingresso, 'lo schema d’ingresso è quel che serve a comporre la chiamata')
-  })
-
-  it('lo schema di una lettura resta dietro la lettura', async () => {
-    const busta = await chiedi('$schema', { procedura: 'corsi.elenco' })
-    assert.equal(busta.error?.data?.codice, 'non-permesso', JSON.stringify(busta))
-  })
-
-  it('un nome sconosciuto non si distingue da una lettura negata', async () => {
-    const busta = await chiedi('$schema', { procedura: 'prova.onEsiste' })
-    assert.equal(busta.error?.data?.codice, 'non-permesso', JSON.stringify(busta))
-  })
-
-  it('«$elenco» e «$attrezzi» restano dietro la lettura', async () => {
-    for (const metodo of ['$elenco', '$attrezzi']) {
-      const busta = await chiedi(metodo, {})
-      assert.equal(busta.error?.data?.codice, 'non-permesso', `«${metodo}» non deve passare`)
-    }
-  })
-})
 
 describe('il codice che il contratto non conosce', () => {
   it('esce comunque con un «code» numerico', async () => {

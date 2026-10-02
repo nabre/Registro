@@ -7,6 +7,8 @@ import { contenutoDi } from '#core/dati/store.js'
 import { istanteAdesso } from '#core/dominio/dates.js'
 import { creaRisorsa, duplicaPiano } from '#core/dominio/factories.js'
 import { faseDellAttivita } from '#core/dominio/projects.js'
+import { contenutoAttivita, stessoContenutoAttivita, sincronizzaPianiDelProgetto } from '#core/dominio/projectPlanning.js'
+import { nuovoIdAttivita } from '#core/dominio/identifiers.js'
 import type { Attivita, PianoLezione, Registro, Risorsa } from '#core/dominio/models.js'
 import { validaRisorsa, validaPiano } from '#core/dominio/validation.js'
 import {
@@ -98,19 +100,54 @@ export const piani = {
     // lezione non comparirebbe fra quelle del progetto. La fase è sempre una
     // del progetto: omessa o d'altri, la prima, dove la tappa si legge già.
     const attivita: Attivita[] = []
+    const progetti = structuredClone(contesto.registro.progetti)
+    const cambiati = new Set<string>()
     for (const tappa of azione.piano.attivita) {
-      const { faseProgettoId: _fase, ...senzaFase } = tappa
+      const { faseProgettoId: _fase, attivitaProgettoId: _origine, ...senzaFase } = tappa
       if (!tappa.progettoId) {
         attivita.push(senzaFase)
         continue
       }
-      const progetto = contesto.registro.progetti.find((p) => p.id === tappa.progettoId)
+      const progetto = progetti.find((p) => p.id === tappa.progettoId)
       if (!progetto) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
       if (progetto.corsoId !== azione.piano.corsoId) {
         return rifiuta(testiProgetti().progettoAltroCorso)
       }
       const fase = faseDellAttivita(progetto, tappa)
-      attivita.push(fase ? { ...senzaFase, faseProgettoId: fase.id } : senzaFase)
+      if (!fase) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
+      const vecchia = prima?.attivita.find((a) => a.id === tappa.id)
+      // L'editor può rimandare la bozza antecedente alla promozione: il
+      // collegamento già scritto si conserva, senza creare un'altra origine.
+      const conservaOrigine = tappa.attivitaProgettoId === undefined &&
+        vecchia?.progettoId === progetto.id
+      const origineId = conservaOrigine
+        ? vecchia.attivitaProgettoId : tappa.attivitaProgettoId
+      if (origineId === null) {
+        attivita.push({ ...senzaFase, faseProgettoId: fase.id, attivitaProgettoId: null })
+        continue
+      }
+      progetto.attivita ??= []
+      let origine = origineId
+        ? progetto.attivita.find((a) => a.id === origineId) : undefined
+      if (origineId && !origine) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
+      if (!origine) {
+        origine = {
+          ...structuredClone(contenutoAttivita(tappa)), id: nuovoIdAttivita(),
+          durataUd: tappa.durataUd, faseId: fase.id,
+        }
+        progetto.attivita.push(origine)
+        cambiati.add(progetto.id)
+      } else {
+        // Un'importazione nuova legge la preparazione; solo una modifica di
+        // un'istanza già collegata può riscriverla nell'altro verso.
+        if (vecchia?.attivitaProgettoId === origine.id && vecchia.progettoId === progetto.id &&
+          (!stessoContenutoAttivita(vecchia, tappa) || vecchia.faseProgettoId !== fase.id)) {
+          Object.assign(origine, structuredClone(contenutoAttivita(tappa)), { faseId: fase.id })
+          cambiati.add(progetto.id)
+        }
+      }
+      attivita.push({ ...senzaFase, ...structuredClone(contenutoAttivita(origine)),
+        faseProgettoId: origine.faseId, attivitaProgettoId: origine.id })
     }
     const piano = { ...azione.piano, attivita, aggiornatoIl: istanteAdesso() }
     // I file non più nominati (es. tappa tolta) vanno cestinati.
@@ -118,7 +155,13 @@ export const piani = {
     const spariti = prima ? fileDi(prima).filter((f) => !restano.has(f)) : []
     const scritto = contesto.modifica((r) => {
       riponi(r.piani, piano)
-    }, ['piani'])
+      for (const progetto of progetti) {
+        if (!cambiati.has(progetto.id)) continue
+        progetto.aggiornatoIl = istanteAdesso()
+        riponi(r.progetti, progetto)
+        sincronizzaPianiDelProgetto(r.piani, progetto)
+      }
+    }, cambiati.size > 0 ? ['piani', 'progetti'] : ['piani'])
     // A scrittura riuscita, e solo i file che nessun altro piano cita (un
     // duplicato può ancora condividerli).
     if (scritto.ok && spariti.length > 0) {

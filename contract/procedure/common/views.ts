@@ -24,6 +24,7 @@ export const VISTE = esaustivo<Vista>()([
   'valutazioni',
   'check',
   'documenti',
+  'overview',
   'modelli',
   'modelliLinguistici',
   'mappa',

@@ -34,8 +34,11 @@ import { vistaPiani } from './views/plans.js'
 import { vistaProgetti } from './views/projects.js'
 import { vistaValutazioni } from './views/assessments.js'
 import { vistaCheck } from './views/check.js'
+import { vistaOverview } from './views/overview.js'
+import { scordaCollegamentiOverview } from './views/overviewLinks.js'
 
 function vistaCorrente (): Figlio {
+  if (stato.vista !== 'overview') scordaCollegamentiOverview()
   switch (stato.vista) {
     case 'oggi':
       return vistaOggi()
@@ -63,6 +66,8 @@ function vistaCorrente (): Figlio {
       return vistaPiani()
     case 'progetti':
       return vistaProgetti()
+    case 'overview':
+      return vistaOverview()
     case 'valutazioni':
       return vistaValutazioni()
     case 'check':
@@ -181,6 +186,7 @@ export function mostraFiloDiLavoro (acceso: boolean): void {
  */
 const SOGGETTO_DA_DENTRO: ReadonlySet<PaginaId> = new Set<PaginaId>([
   'pagina.corsi',
+  'pagina.corso.overview',
   'pagina.corso.piani',
   'pagina.corso.progetti',
   'pagina.corso.valutazioni',

@@ -36,6 +36,7 @@ const it = {
   cambiaOrigineAiuto:
     'Il nuovo si scarica subito, e prende il posto del vecchio solo se si legge.',
   restaQuello: 'Il calendario resta quello di prima.',
+  sfogliaAiuto: 'Sceglie un altro file .ics dal disco: prende il posto del vecchio se si legge',
   aggiungiCalendario: 'Aggiungi un calendario',
   nonAggiunto: 'Calendario non aggiunto.',
   aggiungiAiuto: 'Scarica il calendario e ne tiene una copia nel documento',
@@ -138,6 +139,9 @@ export const testi = catalogo(it, {
     cambiaOrigineAiuto:
       'Die neue wird sofort heruntergeladen und ersetzt die alte nur, wenn sie sich lesen lässt.',
     restaQuello: 'Der Kalender bleibt der bisherige.',
+    sfogliaAiuto:
+      'Wählt eine andere .ics-Datei von der Festplatte: Sie ersetzt die alte, wenn sie sich ' +
+      'lesen lässt',
     aggiungiCalendario: 'Kalender hinzufügen',
     nonAggiunto: 'Kalender nicht hinzugefügt.',
     aggiungiAiuto: 'Lädt den Kalender herunter und behält eine Kopie im Dokument',
@@ -240,6 +244,8 @@ export const testi = catalogo(it, {
     cambiaOrigineAiuto:
       'La nouvelle se télécharge tout de suite, et ne remplace l’ancienne que si elle se lit.',
     restaQuello: 'Le calendrier reste celui d’avant.',
+    sfogliaAiuto:
+      'Choisit un autre fichier .ics sur le disque : il remplace l’ancien s’il se lit',
     aggiungiCalendario: 'Ajouter un calendrier',
     nonAggiunto: 'Calendrier non ajouté.',
     aggiungiAiuto: 'Télécharge le calendrier et en garde une copie dans le document',
@@ -341,6 +347,8 @@ export const testi = catalogo(it, {
     cambiaOrigineAiuto:
       'The new one is downloaded straight away, and replaces the old one only if it can be read.',
     restaQuello: 'The calendar stays as it was.',
+    sfogliaAiuto:
+      'Chooses another .ics file from disk: it replaces the old one if it can be read',
     aggiungiCalendario: 'Add a calendar',
     nonAggiunto: 'Calendar not added.',
     aggiungiAiuto: 'Downloads the calendar and keeps a copy in the document',

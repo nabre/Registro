@@ -273,3 +273,40 @@ describe('che cosa esce da un archivio', () => {
     assert.equal(existsSync(fuori), false)
   })
 })
+
+describe('lo scarico condiviso del corredo', () => {
+  it('racconta anche a chi è arrivato secondo', async () => {
+    const dati = Buffer.alloc(2048, 0x41)
+    const server = createServer((_richiesta, risposta) => {
+      risposta.writeHead(200, { 'content-length': String(dati.length) })
+      risposta.end(dati)
+    })
+    await new Promise((pronto) => server.listen(0, '127.0.0.1', pronto))
+    const pacco = {
+      che: 'modello',
+      titolo: 'il modello finto',
+      uri: `http://127.0.0.1:${server.address().port}/pacco.bin`,
+      archivio: 'pacco.bin',
+      byte: dati.length,
+      impronta: createHash('sha256').update(dati).digest('hex'),
+      arrivo: 'pacco.bin',
+    }
+    const dove = cartellaNuova()
+
+    const primo = []
+    const secondo = []
+    try {
+      await Promise.all([
+        scarica(dove, [pacco], (avanzamento) => primo.push(avanzamento)),
+        scarica(dove, [pacco], (avanzamento) => secondo.push(avanzamento)),
+      ])
+    } finally {
+      server.close()
+    }
+
+    assert.equal(primo.some((a) => a.finito), true)
+    // La seconda pagina riceve il «finito».
+    assert.equal(secondo.some((a) => a.finito), true)
+  })
+})
+

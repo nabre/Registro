@@ -97,7 +97,9 @@ const it = {
     titolo: 'Rinomina un calendario ICS del documento, o ne cambia l’indirizzo o il file',
     calendarioId: 'Il calendario da cambiare',
     nome: 'Il nome nuovo. Se manca, resta quello',
-    origine: 'Un indirizzo o un percorso nuovo: si scarica subito. Se manca, resta quella',
+    origine:
+      'Un indirizzo o un percorso nuovo: si scarica subito. Vuota apre il dialogo per ' +
+      'sceglierlo dal disco; se manca, resta quella',
   },
   togli: {
     titolo: 'Toglie un calendario ICS dal documento, con la sua copia',
@@ -213,8 +215,8 @@ export const testi = catalogo(it, {
       calendarioId: 'Der Kalender, der geändert wird',
       nome: 'Der neue Name. Fehlt er, bleibt der bisherige',
       origine:
-        'Eine neue Adresse oder ein neuer Pfad: wird sofort heruntergeladen. Fehlt sie, bleibt ' +
-        'die bisherige',
+        'Eine neue Adresse oder ein neuer Pfad: wird sofort heruntergeladen. Leer öffnet den ' +
+        'Dialog, um die Datei auf dem Datenträger auszuwählen; fehlt sie, bleibt die bisherige',
     },
     togli: {
       titolo: 'Entfernt einen ICS-Kalender samt seiner Kopie aus dem Dokument',
@@ -322,8 +324,8 @@ export const testi = catalogo(it, {
       calendarioId: 'Le calendrier à modifier',
       nome: 'Le nouveau nom. S’il manque, il reste le même',
       origine:
-        'Une nouvelle adresse ou un nouveau chemin : téléchargé tout de suite. S’il manque, ' +
-        'il reste le même',
+        'Une nouvelle adresse ou un nouveau chemin : téléchargé tout de suite. Vide, ouvre la ' +
+        'boîte de dialogue pour le choisir sur le disque ; s’il manque, il reste le même',
     },
     togli: {
       titolo: 'Retire un calendrier ICS du document, avec sa copie',
@@ -424,7 +426,9 @@ export const testi = catalogo(it, {
       titolo: 'Renames an ICS calendar of the document, or changes its address or file',
       calendarioId: 'The calendar to change',
       nome: 'The new name. If missing, it stays the same',
-      origine: 'A new address or path: downloaded straight away. If missing, it stays the same',
+      origine:
+        'A new address or path: downloaded straight away. Empty opens the dialog to choose ' +
+        'it from the disk; if missing, it stays the same',
     },
     togli: {
       titolo: 'Removes an ICS calendar from the document, with its copy',

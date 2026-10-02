@@ -48,19 +48,26 @@ function motivoDi (guasto: unknown): string {
   return guasto instanceof Error ? guasto.message : testi().nonSiLegge
 }
 
+/** Un file .ics scelto con il dialogo dell'host, o `null` se si chiude senza scegliere. */
+async function fileDalDialogo (titolo: string, tasto: string): Promise<string | null> {
+  const t = testi()
+  const scelto = await scegliUnFile({
+    titolo,
+    tasto,
+    filtri: { [t.filtroIcs]: ['ics', 'ical', 'ifb'], [t.filtroTutti]: ['*'] },
+  })
+  return scelto?.uri.fsPath ?? null
+}
+
 export const calendario = {
   'calendario.aggiungi': async (contesto, azione) => {
     const t = testi()
     let origine = azione.origine.trim()
     // Senza origine: «Aggiungi un file…», il dialogo lo apre l'host.
     if (!origine) {
-      const scelto = await scegliUnFile({
-        titolo: t.titoloDialogo,
-        tasto: parole().aggiungi,
-        filtri: { [t.filtroIcs]: ['ics', 'ical', 'ifb'], [t.filtroTutti]: ['*'] },
-      })
+      const scelto = await fileDalDialogo(t.titoloDialogo, parole().aggiungi)
       if (!scelto) return fatto
-      origine = scelto.uri.fsPath
+      origine = scelto
     }
     const pulita = origineAccettabile(origine)
     if (!pulita) return rifiuta(t.origineNonValida)
@@ -154,10 +161,18 @@ export const calendario = {
     const nome = azione.nome?.trim()
     if (azione.nome !== undefined && !nome) return rifiuta(t.senzaNome)
 
+    let chiesta = azione.origine
+    // Origine vuota: «Sfoglia…», il dialogo lo apre l'host; chiuso, non cambia niente.
+    if (chiesta !== undefined && !chiesta.trim()) {
+      const file = await fileDalDialogo(t.titoloNuovaOrigine(scelto.nome), parole().scegliConferma)
+      if (!file) return fatto
+      chiesta = file
+    }
+
     let origine: string | undefined
     let copiatoIl: string | undefined
-    if (azione.origine !== undefined && azione.origine.trim() !== scelto.origine) {
-      origine = origineAccettabile(azione.origine) ?? undefined
+    if (chiesta !== undefined && chiesta.trim() !== scelto.origine) {
+      origine = origineAccettabile(chiesta) ?? undefined
       if (!origine) return rifiuta(t.origineNonValida)
       // Prima la copia, poi il cambio: se la nuova origine non si legge, il
       // calendario resta quello di prima, con la sua copia.

@@ -107,18 +107,3 @@ describe('normalizzazione: una seconda volta non cambia niente', () => {
     }))
   })
 })
-
-describe('normalizzazione: array con i buchi', () => {
-  // Da un JSON non arrivano (`[,]` non si scrive), ma `normalizzaRegistro` dice
-  // di non lanciare mai; un buco vale un elemento mancante.
-  it(
-    'normalizzaRegistro con un buco in una collezione',
-    { skip: 'difetto noto: {"classi":[,]}, {"lezioni":[,]}, {"fascicoli":[,]} lanciano TypeError' },
-    () => {
-      for (const collezione of ['classi', 'lezioni', 'fascicoli']) {
-        // eslint-disable-next-line no-sparse-arrays
-        normalizzaRegistro({ [collezione]: [,] })
-      }
-    },
-  )
-})

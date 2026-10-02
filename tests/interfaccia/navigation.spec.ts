@@ -30,20 +30,22 @@ test('navigation', async ({ browser }) => {
   await expect(laterale.locator('.sidebar__pagina'))
     .toHaveCount(await valuta<number>(page, 'prova.PAGINE.length'))
   await expect(laterale.locator('[aria-current="page"]')).toHaveCount(1)
-  // Cinque gruppi, ognuno una domanda sola: la giornata, il corso, la classe,
+  // I gruppi distinguono giornata, registro, progettazione, classe,
   // l'anagrafe dell'anno, il programma.
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='agenda').map(p=>p.id)"))
     .toEqual(['pagina.oggi', 'pagina.calendario', 'pagina.pendenze', 'pagina.daSmistare'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='registro').map(p=>p.id)"))
     .toEqual(['pagina.corso.registro', 'pagina.corso.valutazioni', 'pagina.corso.check',
-      'pagina.corso.piani', 'pagina.corso.progetti', 'pagina.corso.documenti'])
+      'pagina.corso.documenti'])
+  expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='progettazione').map(p=>p.id)"))
+    .toEqual(['pagina.corso.overview', 'pagina.corso.piani', 'pagina.corso.progetti'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='anno').map(p=>p.id)"))
     .toEqual(['pagina.classi', 'pagina.persone', 'pagina.mappa', 'pagina.corsi'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='sistema').map(p=>p.id)"))
     .toEqual(['pagina.impostazioni', 'pagina.guida'])
   const gruppi = await valuta<string[]>(page, 'prova.gruppiDiPagine().map(g=>g.gruppo)')
   expect(gruppi.filter((g) => g !== 'classe'), JSON.stringify(gruppi))
-    .toEqual(['agenda', 'registro', 'anno', 'sistema'])
+    .toEqual(['agenda', 'registro', 'progettazione', 'anno', 'sistema'])
   // L'interruttore sta nell'intestazione della navigazione, e l'intestazione
   // resta ferma in cima mentre le pagine scorrono.
   await expect(laterale.locator('.sidebar__marchio [data-fuoco="apri-navigazione"]'))

@@ -6,7 +6,13 @@ import * as apparato from 'apparato'
 import { collocazioneDi, percorsoDi } from '#core/dominio/locations.js'
 import { csvPresenze, csvValutazioni, scriviGenerato, testoLezione } from '#core/dati/exports.js'
 import { percorsoPacchetto } from '#core/dati/paths.js'
-import { collegaAccount, inviaProva, provaCollegamento, scollegaAccount } from '#core/dati/mail.js'
+import {
+  azzeraPosta,
+  collegaAccount,
+  inviaProva,
+  provaCollegamento,
+  scollegaAccount,
+} from '#core/dati/mail.js'
 import { firmaPosta } from '#core/dati/templates.js'
 import { classeDelCorsoId, classeDellaLezione } from '#core/dominio/courses.js'
 import { matriceDelCorsoNelPeriodo } from '#core/dominio/courseMatrix.js'
@@ -406,6 +412,12 @@ export const sistema = {
 
   'posta.scollega': async (_contesto, _azione) => {
     const stato = await scollegaAccount()
+    return conMessaggio(stato.testo, stato.livello)
+  },
+
+  /** Scollega e dimentica: gettone, indirizzi, tenant e impostazioni della casella. */
+  'posta.azzera': async (_contesto, _azione) => {
+    const stato = await azzeraPosta()
     return conMessaggio(stato.testo, stato.livello)
   },
 

@@ -4,6 +4,10 @@
 import { catalogo } from '#core/i18n/index.js'
 
 const it = {
+  azzera: {
+    titolo:
+      'Scollega la casella e ne dimentica indirizzi, tenant e impostazioni: si ricollega da capo',
+  },
   collega: {
     titolo: 'Collega la casella: accesso dal browser, prova, e si salva solo se il server accetta',
   },
@@ -20,6 +24,11 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
+    azzera: {
+      titolo:
+        'Trennt das Postfach und vergisst seine Adressen, Tenants und Einstellungen: ' +
+        'Es wird von vorn verbunden',
+    },
     collega: {
       titolo:
         'Verbindet das Postfach: Anmeldung im Browser, Test, und gespeichert wird nur, ' +
@@ -37,6 +46,11 @@ export const testi = catalogo(it, {
     },
   },
   fr: {
+    azzera: {
+      titolo:
+        'Déconnecte la boîte aux lettres et oublie ses adresses, tenants et paramètres : ' +
+        'on la reconnecte depuis le début',
+    },
     collega: {
       titolo:
         'Connecte la boîte aux lettres : connexion dans le navigateur, test, et on n’enregistre ' +
@@ -54,6 +68,11 @@ export const testi = catalogo(it, {
     },
   },
   en: {
+    azzera: {
+      titolo:
+        'Disconnects the mailbox and forgets its addresses, tenants and settings: it is ' +
+        'connected again from scratch',
+    },
     collega: {
       titolo:
         'Connects the mailbox: sign-in in the browser, a test, and it is saved only if the ' +

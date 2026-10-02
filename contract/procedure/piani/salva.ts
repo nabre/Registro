@@ -14,7 +14,7 @@ export const procedura = scrittura({
   titolo: () => t().titolo,
   azione: 'piano.salva',
   idempotente: true,
-  collezioni: ['piani'],
+  collezioni: ['piani', 'progetti'],
   ingresso: oggetto({
     // Con `validaPiano`, che sa che una tappa dura un numero di quarti di UD.
     piano: entita<PianoLezione>({

@@ -39,7 +39,7 @@ const t = testi()
  *   `anno`     — chi c'è e com'è fatto l'anno: classi, persone, mappa, corsi.
  *   `sistema`  — il programma: impostazioni e guida.
  */
-type GruppoPagina = 'agenda' | 'registro' | 'classe' | 'anno' | 'sistema'
+type GruppoPagina = 'agenda' | 'registro' | 'progettazione' | 'classe' | 'anno' | 'sistema'
 
 export interface Pagina {
   /** Un nome stabile: lo cerca la palette, lo invoca chi va per nome, lo ricorda la memoria. */
@@ -212,10 +212,32 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('pagina.corso.check'),
   },
   {
+    id: 'pagina.corso.documenti',
+    titolo: t.documenti,
+    simbolo: 'documento',
+    gruppo: 'registro',
+    aiuto: t.documentiAiuto,
+    impedimento: senzaCorso,
+    attiva: qui('pagina.corso.documenti'),
+    apri: () => vaiAlCorso('pagina.corso.documenti'),
+  },
+
+  // La progettazione: panoramica, piani di lezione e progetti del corso.
+  {
+    id: 'pagina.corso.overview',
+    titolo: t.overview,
+    simbolo: 'dashboard',
+    gruppo: 'progettazione',
+    aiuto: t.overviewAiuto,
+    impedimento: senzaCorso,
+    attiva: qui('pagina.corso.overview'),
+    apri: () => vaiAlCorso('pagina.corso.overview'),
+  },
+  {
     id: 'pagina.corso.piani',
     titolo: t.piani,
     simbolo: 'piano',
-    gruppo: 'registro',
+    gruppo: 'progettazione',
     aiuto: t.pianiAiuto,
     impedimento: senzaCorso,
     attiva: qui('pagina.corso.piani'),
@@ -225,21 +247,11 @@ export const PAGINE: readonly Pagina[] = [
     id: 'pagina.corso.progetti',
     titolo: t.progetti,
     simbolo: 'progetto',
-    gruppo: 'registro',
+    gruppo: 'progettazione',
     aiuto: t.progettiAiuto,
     impedimento: senzaCorso,
     attiva: qui('pagina.corso.progetti'),
     apri: () => vaiAlCorso('pagina.corso.progetti'),
-  },
-  {
-    id: 'pagina.corso.documenti',
-    titolo: t.documenti,
-    simbolo: 'documento',
-    gruppo: 'registro',
-    aiuto: t.documentiAiuto,
-    impedimento: senzaCorso,
-    attiva: qui('pagina.corso.documenti'),
-    apri: () => vaiAlCorso('pagina.corso.documenti'),
   },
 
   // Il docente di classe: le schede del fascicolo di classe.
@@ -314,11 +326,12 @@ function righeDelGruppo (gruppo: GruppoPagina): string[] {
     const classe = classeDelFascicolo()
     return classe ? [t.gruppi.classe, nomeClasse(classe.id)] : [titoloDelGruppo(gruppo)]
   }
-  const corso = gruppo === 'registro' ? corsoDelContesto() : null
+  const corso = gruppo === 'registro' || gruppo === 'progettazione' ? corsoDelContesto() : null
   const materia = corso ? nomeMateria(corso.materiaId) : ''
   if (!corso || !materia) return [titoloDelGruppo(gruppo)]
   const classe = nomeClasse(corso.classeId)
-  return classe ? [t.registroDi(classe), materia] : [titoloDelGruppo(gruppo)]
+  const prefisso = gruppo === 'registro' ? t.registroDi(classe) : t.progettazioneDi(classe)
+  return classe ? [prefisso, materia] : [titoloDelGruppo(gruppo)]
 }
 
 /**
@@ -330,6 +343,10 @@ function titoloDelGruppo (gruppo: GruppoPagina): string {
     case 'registro': {
       const corso = corsoDelContesto()
       return corso ? t.registroDi(nomeDelCorso(corso)) : t.gruppi.registro
+    }
+    case 'progettazione': {
+      const corso = corsoDelContesto()
+      return corso ? t.progettazioneDi(nomeDelCorso(corso)) : t.gruppi.progettazione
     }
     case 'classe': {
       const classe = classeDelFascicolo()
@@ -352,6 +369,8 @@ function simboloDelGruppo (gruppo: GruppoPagina): NomeIcona {
       return 'calendario'
     case 'registro':
       return 'lezione'
+    case 'progettazione':
+      return 'progetto'
     case 'classe':
       return 'classi'
     case 'anno':
@@ -365,6 +384,7 @@ function simboloDelGruppo (gruppo: GruppoPagina): NomeIcona {
 const ORDINE: readonly GruppoPagina[] = [
   'agenda',
   'registro',
+  'progettazione',
   'classe',
   'anno',
   'sistema',

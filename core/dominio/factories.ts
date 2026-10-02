@@ -380,6 +380,7 @@ export function creaProgetto (corsoId: string, titolo = ''): Progetto {
     obiettivi: [],
     stato: 'bozza',
     fasi: [fasePredefinita()],
+    attivita: [],
     criteri: [],
     livelli: livelliPredefiniti(),
     compiti: [],
@@ -399,13 +400,19 @@ export function creaProgetto (corsoId: string, titolo = ''): Progetto {
  * in bozza.
  */
 export function duplicaProgetto (progetto: Progetto, corsoId: string): Progetto {
+  const fasi = new Map(progetto.fasi.map((f) => [f.id, nuovoIdFaseProgetto()]))
   const criteri = new Map(progetto.criteri.map((c) => [c.id, nuovoIdCriterioProgetto()]))
   return {
     ...structuredClone(progetto),
     id: nuovoIdProgetto(),
     corsoId,
     stato: 'bozza',
-    fasi: progetto.fasi.map((f) => ({ ...f, id: nuovoIdFaseProgetto() })),
+    fasi: progetto.fasi.map((f) => ({ ...f, id: fasi.get(f.id) ?? f.id })),
+    attivita: (progetto.attivita ?? []).map((a) => ({
+      ...structuredClone(a),
+      id: nuovoIdAttivita(),
+      faseId: fasi.get(a.faseId) ?? fasi.values().next().value ?? a.faseId,
+    })),
     criteri: progetto.criteri.map((c) => ({ ...c, id: criteri.get(c.id) ?? c.id })),
     livelli: progetto.livelli.map((l) => ({ ...l })),
     compiti: progetto.compiti.map((c) => ({

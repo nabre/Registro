@@ -206,22 +206,38 @@ function rigaCalendario (calendario: SorgenteCalendario): HTMLElement {
         t.cambiaOrigine,
         suggerimento(t.cambiaOrigineAiuto, { etichetta: t.cambiaOrigine }),
       ),
-      campo({
-        // testo-fisso: nomi dei campi e chiavi di fuoco, non si leggono
-        nome: `calendario-origine-${calendario.id}`,
-        valore: calendario.origine,
-        segnaposto: ESEMPIO_ORIGINE,
-        // testo-fisso: nomi dei campi e chiavi di fuoco, non si leggono
-        fuoco: `ics-origine-${calendario.id}`,
-        al: (valore) => {
-          const origine = valore.trim()
-          if (!origine || origine === calendario.origine) return
-          void gesto(
-            { tipo: 'calendario.modifica', calendarioId: calendario.id, origine },
+      h(
+        'div',
+        { class: 'ics-sorgente' },
+        campo({
+          // testo-fisso: nomi dei campi e chiavi di fuoco, non si leggono
+          nome: `calendario-origine-${calendario.id}`,
+          valore: calendario.origine,
+          segnaposto: ESEMPIO_ORIGINE,
+          classe: 'ics-sorgente__campo',
+          // testo-fisso: nomi dei campi e chiavi di fuoco, non si leggono
+          fuoco: `ics-origine-${calendario.id}`,
+          al: (valore) => {
+            const origine = valore.trim()
+            if (!origine || origine === calendario.origine) return
+            void gesto(
+              { tipo: 'calendario.modifica', calendarioId: calendario.id, origine },
+              t.restaQuello,
+            )
+          },
+        }),
+        // Origine vuota: il dialogo per il file lo apre l'host.
+        pulsante({
+          testo: parole().sfoglia,
+          simbolo: 'cartella',
+          variante: 'sottile',
+          titolo: t.sfogliaAiuto,
+          al: () => void gesto(
+            { tipo: 'calendario.modifica', calendarioId: calendario.id, origine: '' },
             t.restaQuello,
-          )
-        },
-      }),
+          ),
+        }),
+      ),
     ),
   )
 }

@@ -77,6 +77,7 @@ import { leggiStatoPersistito, scriviStatoPersistito } from './bridge.js'
 import { battiMinuto } from './clock.js'
 import {
   CAMPI_CONTESTO,
+  areaDellaScheda,
   areaDellaSezione,
   chiaveDelPosto,
   completa,
@@ -905,6 +906,16 @@ function stessoContesto (a: Contesto, b: Contesto): boolean {
 }
 
 /**
+ * Un'altra voce nella stessa area delle impostazioni: si scorre la stessa
+ * pagina, come dall'indice, e la fila di Alt+← non cresce.
+ */
+function stessaAreaImpostazioni (a: Posto, b: Posto): boolean {
+  return a.pagina === 'pagina.impostazioni' && b.pagina === 'pagina.impostazioni' &&
+    a.scheda !== undefined && b.scheda !== undefined &&
+    areaDellaScheda(a.scheda) === areaDellaScheda(b.scheda)
+}
+
+/**
  * Va in un posto: lo rende vero sul registro (`completa`: il soggetto che
  * manca dal contesto, quello sparito col suo ripiego), porta contesto,
  * giorno e semestre del soggetto, scrive i campi di prima che le viste
@@ -944,6 +955,8 @@ export function vai (chiesto: Posto, opzioni: OpzioniVai = {}): Completato {
     pref.filtroCorsoAgendaId = null
   }
   const giornoLasciato = stato.data
+  const storia = opzioni.storia ??
+    (stessaAreaImpostazioni(fatto.posto, stato.posto) ? 'sostituisci' : 'aggiungi')
   applica({
     ...pref,
     ...altro,
@@ -954,7 +967,7 @@ export function vai (chiesto: Posto, opzioni: OpzioniVai = {}): Completato {
     ...fatto.contesto,
     ...fatto.derivati,
   })
-  segnalaPosto(fatto, opzioni.storia ?? 'aggiungi', giornoLasciato)
+  segnalaPosto(fatto, storia, giornoLasciato)
   return fatto
 }
 

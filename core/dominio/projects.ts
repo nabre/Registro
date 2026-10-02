@@ -87,10 +87,22 @@ export function fasiDelleTappe (registro: Pick<Registro, 'piani' | 'progetti'>):
           delete attivita.faseProgettoId
           cambiate++
         }
+        if (attivita.attivitaProgettoId !== undefined) {
+          delete attivita.attivitaProgettoId
+          cambiate++
+        }
         continue
       }
       const progetto = progetti.get(attivita.progettoId)
-      const fase = progetto ? faseDellAttivita(progetto, attivita) : null
+      const origine = progetto?.corsoId === piano.corsoId
+        ? progetto.attivita?.find((a) => a.id === attivita.attivitaProgettoId) : undefined
+      if (attivita.attivitaProgettoId && !origine) {
+        attivita.attivitaProgettoId = null
+        cambiate++
+      }
+      const fase = progetto ? (
+        progetto.fasi.find((f) => f.id === origine?.faseId) ?? faseDellAttivita(progetto, attivita)
+      ) : null
       if (fase && fase.id !== attivita.faseProgettoId) {
         attivita.faseProgettoId = fase.id
         cambiate++

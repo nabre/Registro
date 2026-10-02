@@ -1,7 +1,8 @@
 // Indietro e avanti fra le pagine del registro, come in un browser: Alt+← / Alt+→
 // e i tasti laterali del mouse (`shortcuts.ts`) percorrono la fila dei posti.
 // La fila la riempie `vai` (`seguiPosti`): ogni strada che cambia posto passa
-// di lì.
+// di lì. Dentro un'area delle impostazioni un rimando a un'altra voce prende il
+// posto di quella di adesso.
 
 import { ricordaScorrimenti } from './dom.js'
 import { chiaveDelPosto, completa, type Completato, type Posto } from './place.js'

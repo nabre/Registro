@@ -1,8 +1,7 @@
 // La riga di comando:
 //
-//   1. con «scrittura sì, lettura no» le scritture si raggiungono (`chiama`
-//      chiede `$schema` prima di tutto); una lettura si rifiuta senza mandare
-//      a `regi elenco`, che vuole la lettura;
+//   1. una scrittura si raggiunge (`chiama` chiede `$schema` prima di tutto),
+//      con i `--campo` convertiti;
 //   2. un campo di testo senza valore è un errore d'uso, non la parola «vero»;
 //   3. `--json` e `--campo` sullo stesso campo: vince `--json`, e lo si dice.
 
@@ -34,7 +33,7 @@ after(async () => {
 
 const lancia = lanciatore(radice)
 
-describe('con la sola scrittura', () => {
+describe('una scrittura dal condotto', () => {
   before(async () => {
     mkdirSync(cartellaUtente, { recursive: true })
     mkdirSync(dati, { recursive: true })
@@ -70,8 +69,10 @@ describe('con la sola scrittura', () => {
         return { revisione: ambito.contesto.archivio.revisione }
       },
     }))
-    // «Solo scrittura» non si sceglie più nelle impostazioni: lo scavalco delle prove.
-    condotto = await avviaCondotto(archivio, { cartellaUtente, permessi: { lettura: false, scrittura: true } })
+    condotto = await avviaCondotto(archivio, {
+      cartellaUtente,
+      permessi: { lettura: true, scrittura: true },
+    })
   })
 
   const suCondotto = () => ({ REGISTRO_CONDOTTO: api.indirizzoCondotto() })
@@ -82,19 +83,6 @@ describe('con la sola scrittura', () => {
     assert.equal(codice, 0, errore)
     assert.equal(typeof JSON.parse(uscita).revisione, 'number')
     assert.equal(archivio.registro.impostazioni.durataPausaPredefinita, 17)
-  })
-
-  it('una lettura si rifiuta, e non si manda a «regi elenco»', async () => {
-    const { codice, errore } = await lancia(['chiama', 'corsi.elenco'], suCondotto())
-    assert.notEqual(codice, 0)
-    assert.match(errore, /lettura/)
-    assert.doesNotMatch(errore, /regi elenco/)
-  })
-
-  it('lo stesso per «regi schema» di una lettura', async () => {
-    const { codice, errore } = await lancia(['schema', 'corsi.elenco'], suCondotto())
-    assert.notEqual(codice, 0)
-    assert.doesNotMatch(errore, /regi elenco/)
   })
 })
 

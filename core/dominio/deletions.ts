@@ -968,6 +968,7 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
             if (attivita.progettoId && progetti.has(attivita.progettoId)) {
               delete attivita.progettoId
               delete attivita.faseProgettoId
+              delete attivita.attivitaProgettoId
             }
           }
         }

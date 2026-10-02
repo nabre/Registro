@@ -38,6 +38,7 @@ export type PaginaId =
   | 'pagina.mappa'
   | 'pagina.corsi'
   | 'pagina.corso.registro'
+  | 'pagina.corso.overview'
   | 'pagina.corso.valutazioni'
   | 'pagina.corso.check'
   | 'pagina.corso.piani'
@@ -227,6 +228,7 @@ export const VISTA_DELLA_PAGINA: Readonly<Record<PaginaId, Vista>> = {
   'pagina.mappa': 'mappa',
   'pagina.corsi': 'corsi',
   'pagina.corso.registro': 'lezione',
+  'pagina.corso.overview': 'overview',
   'pagina.corso.valutazioni': 'valutazioni',
   'pagina.corso.check': 'check',
   'pagina.corso.piani': 'piani',
@@ -261,6 +263,7 @@ const SOGGETTI: Readonly<Record<PaginaId, readonly TipoSoggetto[]>> = {
   'pagina.mappa': [],
   'pagina.corsi': ['corso'],
   'pagina.corso.registro': ['lezione', 'corso'],
+  'pagina.corso.overview': ['corso'],
   'pagina.corso.valutazioni': ['valutazione', 'corso'],
   'pagina.corso.check': ['corso'],
   'pagina.corso.piani': ['piano', 'corso'],
@@ -340,6 +343,7 @@ export function postoDaVista (vista: Vista, elementoId?: string, registro?: Regi
     case 'valutazioni': return con('pagina.corso.valutazioni', 'valutazione')
     case 'check': return eClasse ? con('pagina.classe.check', 'classe') : con('pagina.corso.check', 'corso')
     case 'documenti': return { pagina: 'pagina.corso.documenti' }
+    case 'overview': return con('pagina.corso.overview', 'corso')
     case 'mappa': return { pagina: 'pagina.mappa' }
     case 'guida': return { pagina: 'pagina.guida' }
     case 'impostazioni': return { pagina: 'pagina.impostazioni' }

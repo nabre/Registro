@@ -396,22 +396,6 @@ function permessoMancantePerMetodo (
 }
 
 /**
- * Se è `$schema` di una procedura di scrittura, chiesto da chi può scrivere
- * (il perché sta al cancello in `eseguiMetodo`). Nomi non stringa o sconosciuti
- * non passano.
- */
-function schemaDiUnaScritturaConcessa (
-  metodo: string,
-  params: unknown,
-  concessi: Permessi,
-): boolean {
-  if (metodo !== '$schema' || !concessi.scrittura) return false
-  const chiesta = (params as { procedura?: unknown } | null | undefined)?.procedura
-  if (typeof chiesta !== 'string') return false
-  return procedura(chiesta)?.genere === 'scrittura'
-}
-
-/**
  * Il rifiuto per mancanza di permesso, con una frase sola: chi la legge cerca
  * nelle impostazioni la parola che ci trova.
  */
@@ -592,14 +576,9 @@ async function eseguiMetodo (
   }
 
   // Raccontare il registro è leggerlo: elenco, schemi e catalogo chiedono la
-  // lettura, anche a chi ha la sola scrittura.
-  //
-  // Eccezione: `$schema` di una procedura di scrittura a chi può scrivere. È la
-  // forma di una chiamata già permessa, e la riga di comando lo chiede prima di
-  // ogni `chiama` per convertire i `--campo`. Nomi sconosciuti e letture restano
-  // dietro al cancello.
+  // lettura. Chi scrive ce l'ha sempre (`registroDocenti.api.accesso`).
   if (metodo === '$elenco' || metodo === '$schema' || metodo === '$attrezzi' || metodo === '$guarda') {
-    if (!concessi.lettura && !schemaDiUnaScritturaConcessa(metodo, params, concessi)) {
+    if (!concessi.lettura) {
       throw senzaPermesso(
         'lettura',
         testi().raccontareELeggere(metodo),

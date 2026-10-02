@@ -792,7 +792,7 @@ export function normalizzaRisorsa (grezzo: unknown): Risorsa {
  */
 const UD_DEI_PIANI_IN_MINUTI = 45
 
-function normalizzaAttivita (grezzo: unknown): Attivita {
+export function normalizzaAttivita (grezzo: unknown): Attivita {
   const dati = oggetto(grezzo)
   return {
     id: testo(dati.id) || nuovoIdAttivita(),
@@ -824,6 +824,10 @@ function normalizzaAttivita (grezzo: unknown): Attivita {
     // Senza progetto non c'è fase; che la fase sia del progetto lo guarda
     // `fasiDelleTappe` in `normalizzaRegistro`, che vede anche i progetti.
     faseProgettoId: riferimento(dati.progettoId) ? riferimento(dati.faseProgettoId) ?? undefined : undefined,
+    attivitaProgettoId: riferimento(dati.progettoId)
+      ? dati.attivitaProgettoId === null ? null
+        : riferimento(dati.attivitaProgettoId) ?? undefined
+      : undefined,
   }
 }
 

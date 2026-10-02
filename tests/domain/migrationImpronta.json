@@ -1,5 +1,5 @@
 {
-  "versione": 5,
+  "versione": 6,
   "campi": [
     "anni",
     "anni[].calendarioUfficiale",
@@ -303,6 +303,7 @@
     "piani",
     "piani[].aggiornatoIl",
     "piani[].attivita",
+    "piani[].attivita[].attivitaProgettoId",
     "piani[].attivita[].descrizione",
     "piani[].attivita[].durataUd",
     "piani[].attivita[].faseProgettoId",
@@ -343,6 +344,7 @@
     "piani[].tag",
     "progetti",
     "progetti[].aggiornatoIl",
+    "progetti[].attivita",
     "progetti[].compiti",
     "progetti[].compiti[].descrizione",
     "progetti[].compiti[].fatti",

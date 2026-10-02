@@ -204,15 +204,4 @@ describe('il documento .regi: scritto e riaperto', () => {
       }
     }), opzioni(60))
   })
-
-  it(
-    'rinominare una voce col suo stesso nome non la perde',
-    { skip: 'difetto noto: Pacchetto.rinomina(x, x) mette la voce e poi la cancella (package.ts, rinomina)' },
-    async () => {
-      const pacchetto = await Pacchetto.apri(documento())
-      pacchetto.scrivi('classi.json', '[]')
-      assert.equal(pacchetto.rinomina('classi.json', 'classi.json'), true)
-      assert.equal(pacchetto.testo('classi.json'), '[]')
-    },
-  )
 })

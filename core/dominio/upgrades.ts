@@ -81,6 +81,12 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return { ...dati, lezioni: dati.lezioni.map(ritardiPerUd) }
     },
   },
+  {
+    a: 6,
+    get cambia () {
+      return testi().passi[6]
+    },
+  },
 ]
 
 /** Un oggetto letto dal disco, o nullo se non lo è. */

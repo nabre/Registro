@@ -511,7 +511,7 @@ uguali.
 | `$accedi` | `{ prova }` del condotto; `params`: `sfida` (32–128 cifre esadecimali, nuova) e `prova` del cliente (64) | nessuno: è il primo metodo, e l'unico prima di presentarsi |
 | `$versione` | `{ api, applicazione, documento, permessi }` (il nome dell'anno, mai il percorso) | nessuno, dopo `$accedi` |
 | `$elenco` | per procedura: nome, versione, genere, titolo, idempotenza, azione, collezioni | lettura |
-| `$schema` | lo stesso, più i JSON Schema di ingresso e uscita | lettura; per una scrittura basta la scrittura |
+| `$schema` | lo stesso, più i JSON Schema di ingresso e uscita | lettura |
 | `$attrezzi` | il catalogo del modello e come è collegato l'assistente (`regi catalogo`); `params.comando?` ≤ 64 caratteri `[A-Za-z0-9._-]` | lettura |
 
 Ogni altro `method` è una procedura, `params` il suo ingresso (un oggetto; i
@@ -572,6 +572,7 @@ scritture**: ogni altra scrittura rinuncia dopo 30 s con `non-disponibile`.
 | `persone.foto.imposta` | la foto | passare `file` |
 | `intestazione.logo` | il logo (PNG o JPEG) | passare `file` |
 | `calendario.aggiungi` con `origine` vuota | il `.ics` | passare `origine` |
+| `calendario.modifica` con `origine` vuota | il `.ics` nuovo | passare `origine` |
 | `registro.sfoglia` | un altro `.regi` (lettura: non tiene la fila) | `registro.altrove` e `registro.importa` con il percorso |
 | `programma.sfoglia` | cartella o file di un'impostazione | `programma.salva` con il percorso, dove permesso |
 | `posta.collega` | indirizzo, nome d'accesso, modo di entrare | — |

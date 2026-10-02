@@ -1,0 +1,142 @@
+/* Foglio di stile per la Panoramica della progettazione (Overview) */
+
+.panoramica__schema {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 220px 280px 200px;
+  align-items: start;
+  gap: 48px;
+  isolation: isolate;
+}
+
+.panoramica__schema > section { position: relative; }
+.panoramica__schema > section > h3 {
+  position: relative;
+  z-index: 2;
+  width: fit-content;
+  padding-right: 8px;
+  background: var(--sfondo);
+}
+
+.panoramica__schema h3 { margin: 0 0 8px; font-size: 13px; color: var(--testo-quieto); }
+.panoramica__schema h4 { margin: 0; }
+.panoramica__schema p { margin: 4px 0; overflow-wrap: anywhere; }
+
+.panoramica__collegamenti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.panoramica__filo {
+  fill: none;
+  stroke: var(--bordo-forte);
+  stroke-width: 1.8;
+  opacity: 0.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.panoramica__filo--progetto { stroke: var(--accento); }
+.panoramica__filo--file { stroke: var(--informativo); }
+.panoramica__filo--valutazione { stroke: var(--attenzione); }
+.panoramica__filo--check { stroke: var(--positivo); }
+.panoramica__filo--acceso { stroke-width: 3; opacity: 1; }
+.panoramica__schema--selezione .panoramica__filo:not(.panoramica__filo--acceso) { opacity: 0.12; }
+
+.panoramica__colonne { display: flex; flex-direction: column; gap: 16px; }
+
+.panoramica__colonna {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio-grande);
+  background: var(--sfondo-alto);
+  padding: 8px;
+  font-size: 12px;
+}
+
+.panoramica__colonna > header { border-bottom: 1px solid var(--bordo); margin-bottom: 8px; }
+.panoramica__colonna > header p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.panoramica__tappa {
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid var(--bordo-tenue);
+  border-radius: var(--raggio);
+  background: var(--sfondo-scheda);
+}
+
+.panoramica__porte {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.panoramica__porta {
+  text-align: left;
+  padding: 3px 5px;
+  border-left: 3px solid var(--tinta-nodo, var(--bordo-forte));
+  background: var(--sfondo-alto-2);
+  border-radius: var(--raggio-piccolo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  min-width: 0;
+}
+
+.panoramica__griglia {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.panoramica__progetto, .panoramica__risorsa {
+  position: relative;
+  z-index: 2;
+  padding: 8px;
+  border: 1px solid var(--bordo);
+  border-top: 3px solid var(--tinta-nodo, var(--bordo-forte));
+  border-radius: var(--raggio);
+  background: var(--sfondo-scheda);
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.panoramica__risorsa small { display: block; color: var(--testo-quieto); margin-bottom: 4px; }
+.panoramica__materiale { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.panoramica__materiale .icona { width: 16px; height: 16px; flex-shrink: 0; }
+.panoramica__legenda { display: flex; flex-wrap: wrap; gap: 16px; margin: 0; }
+.panoramica__legenda span { border-left: 3px solid var(--tinta-nodo); padding-left: 6px; }
+.panoramica__nodo--progetto { --tinta-nodo: var(--accento); }
+.panoramica__nodo--file { --tinta-nodo: var(--informativo); }
+.panoramica__nodo--valutazione { --tinta-nodo: var(--attenzione); }
+.panoramica__nodo--check { --tinta-nodo: var(--positivo); }
+.panoramica__nodo--pendenza { --tinta-nodo: var(--testo-quieto); }
+.panoramica__zoom { display: flex; align-items: center; gap: 8px; }
+.panoramica__zoom input { width: 110px; accent-color: var(--accento); }
+.panoramica__zoom-valore { min-width: 3ch; font-variant-numeric: tabular-nums; }
+.panoramica__fase-progetto { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--bordo-tenue); }
+.panoramica__fase-progetto p { color: var(--testo-quieto); font-size: 11px; }
+.panoramica__fase-progetto ul { margin: 4px 0 0; padding-left: 14px; }
+
+.panoramica {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100%;
+  padding-bottom: 24px;
+}
+
+.panoramica__tavolo {
+  overflow-x: auto;
+  padding-bottom: 16px;
+}

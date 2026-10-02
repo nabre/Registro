@@ -651,7 +651,14 @@ export interface Attivita {
    * lui non ha, vale la sua prima (la normalizzazione la riscrive).
    */
   faseProgettoId?: string | null
+  /** Contenuto condiviso con l’attività del progetto; la durata resta del piano. */
+  attivitaProgettoId?: string | null
 }
+
+/** Il lavoro previsto nel progetto, senza file o collegamenti propri del piano. */
+export type AttivitaProgetto = Omit<
+  Attivita, 'risorse' | 'progettoId' | 'faseProgettoId' | 'attivitaProgettoId'
+> & { faseId: string }
 
 /**
  * La scaletta di una lezione, di un corso. Si riusa duplicandola su un altro
@@ -1122,6 +1129,8 @@ export interface Progetto {
    * sua sola fase di serie, e le tappe ci stanno senza che nessuno scelga.
    */
   fasi: FaseProgetto[]
+  /** Scaletta indicativa: le istanze nei piani condividono il contenuto, non la durata. */
+  attivita?: AttivitaProgetto[]
   criteri: CriterioProgetto[]
   livelli: LivelloProgetto[]
   compiti: CompitoProgetto[]
@@ -1532,8 +1541,10 @@ export interface Registro {
  *
  * 4 → 5: i minuti di ritardo passano da uno per allievo e ora (`minuti`) a
  * uno per UD (`ritardi`), perché in un'ora i ritardi possono essere più d'uno.
+ * 5 → 6: la scaletta dei progetti e il collegamento alle attività dei piani;
+ * il contenuto si condivide, mentre le durate dei piani restano locali.
  */
-export const VERSIONE_DATI = 5
+export const VERSIONE_DATI = 6
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

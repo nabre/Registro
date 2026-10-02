@@ -21,13 +21,6 @@ import { stato } from '#ui/state.js'
 import { testi as testiPosta } from './mail.testi.js'
 import { testi } from './microsoft.testi.js'
 
-/** Le chiavi che la casella si porta dietro: «Azzera» le ritira insieme al gettone. */
-const CHIAVI_DELLA_CASELLA = [
-  'registroDocenti.posta.utente',
-  'registroDocenti.posta.mittente',
-  'registroDocenti.posta.invioDiretto',
-]
-
 /** Scrive sotto le azioni com'è andata e lo lascia lì, da rileggere mentre si corregge. */
 function mostraEsito (dove: HTMLElement, detto: Messaggio | undefined): void {
   dove.replaceChildren(
@@ -77,9 +70,10 @@ function gestoPosta (
 }
 
 /**
- * «Azzera»: toglie il gettone e, con lui, la casella scritta, il mittente e
- * l'invio diretto. Con conferma, perché il collegamento va rifatto da capo;
- * l'autorizzazione nel profilo Microsoft si revoca di là.
+ * «Azzera»: toglie il gettone e, con lui, la casella scritta, il mittente,
+ * l'invio diretto e gli indirizzi e i tenant ricordati. Con conferma, perché il
+ * collegamento va rifatto da capo; l'autorizzazione nel profilo Microsoft si
+ * revoca di là.
  */
 async function azzeraPosta (): Promise<void> {
   const t = testi()
@@ -90,9 +84,8 @@ async function azzeraPosta (): Promise<void> {
     pericolo: true,
   })
   if (!sicuro) return
-  await azione({ tipo: 'posta.scollega' })
-  for (const chiave of CHIAVI_DELLA_CASELLA) await azione({ tipo: 'programma.azzera', chiave })
-  notifica(t.postaAzzerata, 'info')
+  const risposta = await azione({ tipo: 'posta.azzera' })
+  if (risposta.ok) notifica(t.postaAzzerata, 'info')
 }
 
 /** Una capacità di un account: il nome, com'è, e i gesti che le si addicono. */

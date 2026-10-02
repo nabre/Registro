@@ -99,7 +99,9 @@ function corsoScelto (): Corso | null {
  * scrivendo; altrimenti il piano è cambiato altrove e l'editor si rifà, perché
  * `componi()` rimanderebbe la scaletta vecchia.
  */
-let inLavorazione: { pianoId: string, corpo: HTMLElement, noti: Set<string> } | null = null
+let inLavorazione: {
+  pianoId: string, lezioneId: string | null, corpo: HTMLElement, noti: Set<string>
+} | null = null
 
 /**
  * Quanti editor si sono costruiti: nella chiave del nodo tenuto, perché un
@@ -139,8 +141,8 @@ export function scordaEditorDelPiano (): void {
  * notifica rossa: un piano a metà è normale); restano scritti sopra i campi
  * finché valgono, e quel che l'host rifiuta resta nei campi.
  */
-function editorDelPiano (piano: PianoLezione): HTMLElement {
-  if (inLavorazione?.pianoId === piano.id) {
+function editorDelPiano (piano: PianoLezione, lezione: Lezione | null): HTMLElement {
+  if (inLavorazione?.pianoId === piano.id && inLavorazione.lezioneId === (lezione?.id ?? null)) {
     const { corpo } = inLavorazione
     if (corpo.contains(document.activeElement) || inLavorazione.noti.has(impronta(piano))) {
       // Già nella pagina: il disegno nuovo ne porta solo il segnaposto e
@@ -179,6 +181,7 @@ function editorDelPiano (piano: PianoLezione): HTMLElement {
 
   const editor = editorPiano({
     piano,
+    lezione,
     // Il corso lo dice la tendina in cima: qui è solo da leggere.
     corsoDettato: true,
     allaModifica: () => {
@@ -193,7 +196,9 @@ function editorDelPiano (piano: PianoLezione): HTMLElement {
     zonaErrori,
     editor.corpo,
   )
-  inLavorazione = { pianoId: piano.id, corpo, noti: new Set([impronta(piano)]) }
+  inLavorazione = {
+    pianoId: piano.id, lezioneId: lezione?.id ?? null, corpo, noti: new Set([impronta(piano)]),
+  }
   return corpo
 }
 
@@ -449,8 +454,7 @@ function pannelloPendenzeECheckPiano (piano: PianoLezione, lezione: Lezione | nu
 }
 
 /** La colonna del piano aperto: l'editor e gli strumenti collegati. */
-function dettaglioPiano (piano: PianoLezione): HTMLElement {
-  const lezione = primaOraDelPiano(piano)
+function dettaglioPiano (piano: PianoLezione, lezione: Lezione | null): HTMLElement {
   const titolo = lezione
     ? `${nomeDiLezione(lezione)} · ${formattaData(lezione.data, 'lungo')}`
     : nomeDiPiano(piano)
@@ -462,7 +466,7 @@ function dettaglioPiano (piano: PianoLezione): HTMLElement {
       titolo,
       sottotitolo: testi().siSalva,
       // Niente pulsanti: duplicare, eliminare e andare al registro sono comandi della pagina.
-      contenuto: editorDelPiano(piano),
+      contenuto: editorDelPiano(piano, lezione),
     }),
     pannelloPendenzeECheckPiano(piano, lezione),
     collegamentiDelPiano(piano),
@@ -562,7 +566,7 @@ export function vistaPiani (): Figlio {
         : null,
     }),
     piano
-      ? dettaglioPiano(piano)
+      ? dettaglioPiano(piano, lezioneAttiva)
       : h(
           'div',
           { class: 'colonna' },

@@ -458,7 +458,8 @@ const it = {
         testo:
           'Il nome si cambia nel suo campo. Della provenienza si vede solo il sito, mai il link ' +
           'intero, che spesso porta una chiave personale: si corregge in «Cambia indirizzo o ' +
-          'file», e il nuovo sostituisce il vecchio solo se si legge. Il cestino toglie il ' +
+          'file», scrivendolo o con **Sfoglia…** per un `.ics` dal disco, e il nuovo ' +
+          'sostituisce il vecchio solo se si legge. Il cestino toglie il ' +
           'calendario e la sua copia; **Rimuovi tutto**, in testa alla scheda, toglie calendari, ' +
           'copie e regole. Le lezioni già scritte restano sempre.',
       },
@@ -1338,7 +1339,8 @@ export const testi = catalogo(it, {
           testo:
             'Den Namen ändert man in seinem Feld. Von der Herkunft sieht man nur die Website, ' +
             'nie den ganzen Link, der oft einen persönlichen Schlüssel enthält: Man korrigiert ' +
-            'ihn unter «Adresse oder Datei ändern», und die neue ersetzt die alte nur, wenn sie ' +
+            'ihn unter «Adresse oder Datei ändern», von Hand oder mit **Durchsuchen…** für eine ' +
+            '`.ics`-Datei von der Festplatte, und die neue ersetzt die alte nur, wenn sie ' +
             'sich lesen lässt. Der Papierkorb entfernt den Kalender und seine Kopie; **Alles ' +
             'entfernen**, oben im Bereich, entfernt Kalender, Kopien und Regeln. Die schon ' +
             'geschriebenen Stunden bleiben immer.',
@@ -2220,8 +2222,9 @@ export const testi = catalogo(it, {
           testo:
             'Le nom se change dans son champ. De la provenance, on ne voit que le site, jamais ' +
             'le lien entier, qui porte souvent une clé personnelle : on le corrige dans ' +
-            '« Changer d’adresse ou de fichier », et le nouveau ne remplace l’ancien que s’il se ' +
-            'lit. La corbeille retire le calendrier et sa copie ; **Tout supprimer**, en tête de ' +
+            '« Changer d’adresse ou de fichier », à la main ou avec **Parcourir…** pour un ' +
+            '`.ics` du disque, et le nouveau ne remplace l’ancien que s’il se lit. La ' +
+            'corbeille retire le calendrier et sa copie ; **Tout supprimer**, en tête de ' +
             'la section, retire calendriers, copies et règles. Les leçons déjà écrites restent ' +
             'toujours.',
         },
@@ -3087,7 +3090,8 @@ export const testi = catalogo(it, {
           testo:
             'The name is changed in its field. Of the source you only see the site, never the ' +
             'full link, which often carries a personal key: it is corrected in “Change address ' +
-            'or file”, and the new one replaces the old only if it can be read. The bin removes ' +
+            'or file”, by typing it or with **Browse…** for an `.ics` from disk, and the new one ' +
+            'replaces the old only if it can be read. The bin removes ' +
             'the calendar and its copy; **Remove everything**, at the top of the section, ' +
             'removes calendars, copies and rules. Lessons already written always stay.',
         },

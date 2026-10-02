@@ -14,6 +14,7 @@ import { istanteAdesso, oggi } from '#core/dominio/dates.js'
 import { nuovoIdCompitoProgetto, nuovoIdGiudizioProgetto } from '#core/dominio/identifiers.js'
 import type { Allievo, FaseProgetto, Iso, Lezione, Progetto, Registro } from '#core/dominio/models.js'
 import { normalizzaProgetto } from '#core/dominio/normalization/index.js'
+import { sincronizzaPianiDelProgetto } from '#core/dominio/projectPlanning.js'
 import {
   cellaVuota,
   celleDi,
@@ -122,7 +123,9 @@ function conIdDi<T extends { id: string, titolo: string }> (
  * se ce n'è una, se no nella prima. È il ripiego più vicino a quel che diceva
  * la tappa (il lavoro di prima, non quello che verrà).
  */
-function destinoDelleFasi (prima: readonly FaseProgetto[], dopo: readonly FaseProgetto[]): Map<string, string> {
+function destinoDelleFasi (
+  prima: readonly FaseProgetto[], dopo: readonly FaseProgetto[],
+): Map<string, string> {
   const restano = new Set(dopo.map((f) => f.id))
   const destino = new Map<string, string>()
   let precedente: string | null = null
@@ -204,10 +207,17 @@ export const progetti = {
 
     // Fasi omesse (un chiamante che non le conosce): restano quelle di prima.
     const fasiChieste = azione.progetto.fasi ?? prima?.fasi
+    const fasiConId = fasiChieste && prima ? conIdDi(fasiChieste, prima.fasi) : fasiChieste
+    const fasiDestinazione = prima && fasiConId?.length
+      ? destinoDelleFasi(prima.fasi, fasiConId) : new Map<string, string>()
     const letto = normalizzaProgetto({
       ...azione.progetto,
-      fasi: fasiChieste && prima ? conIdDi(fasiChieste, prima.fasi) : fasiChieste,
-      criteri: prima ? conIdDi(azione.progetto.criteri ?? [], prima.criteri) : azione.progetto.criteri ?? [],
+      fasi: fasiConId,
+      attivita: (azione.progetto.attivita ?? prima?.attivita ?? []).map((a) => ({
+        ...a, faseId: fasiDestinazione.get(a.faseId) ?? a.faseId,
+      })),
+      criteri: prima
+        ? conIdDi(azione.progetto.criteri ?? [], prima.criteri) : azione.progetto.criteri ?? [],
     })
     // Un criterio tolto o un livello che non c'è più si portano via le celle:
     // non in silenzio. Si dice quante e perché; `scartaCelle` lo conferma.
@@ -228,12 +238,17 @@ export const progetti = {
     // Le tappe di una fase tolta non restano senza fase: passano a un'altra
     // del progetto, e lo si dice (non si rifiuta: nessun dato va perso).
     const destino = prima ? destinoDelleFasi(prima.fasi, progetto.fasi) : new Map<string, string>()
+    for (const attivita of progetto.attivita ?? []) {
+      attivita.faseId = destino.get(attivita.faseId) ?? attivita.faseId
+    }
+    const pianiSincronizzati = structuredClone(registro.piani)
+    const contenutiCambiati = sincronizzaPianiDelProgetto(pianiSincronizzati, progetto)
     const tappeDaSpostare = registro.piani.reduce((n, piano) => n + piano.attivita.filter((a) =>
       a.progettoId === progetto.id && destino.has(a.faseProgettoId ?? '')).length, 0)
     const restano = new Set(fileDi(progetto))
     const spariti = prima ? fileDi(prima).filter((f) => !restano.has(f)) : []
-    // I piani si riscrivono solo se una tappa cambia davvero fase.
-    const scritto = tappeDaSpostare > 0
+    // I piani si riscrivono soltanto quando cambiano contenuto o collegamenti.
+    const scritto = tappeDaSpostare > 0 || contenutiCambiati
       ? contesto.modifica((r) => {
           riponi(r.progetti, progetto)
           for (const piano of r.piani) {
@@ -242,6 +257,7 @@ export const progetti = {
               if (nuova) attivita.faseProgettoId = nuova
             }
           }
+          sincronizzaPianiDelProgetto(r.piani, progetto)
         }, ['progetti', 'piani'])
       : contesto.modifica((r) => {
           riponi(r.progetti, progetto)

@@ -113,6 +113,30 @@ describe('i calendari del documento', () => {
     assert.equal(sbagliata.ok, false)
     assert.deepEqual(primo(), prima)
   })
+
+  it('un’origine vuota apre il dialogo: chiuso non cambia niente, il file scelto prende il posto', async () => {
+    const id = primo().id
+    const prima = { ...primo() }
+    const chiuso = await api.chiama(archivio, 'calendario.modifica', { calendarioId: id, origine: '' })
+    assert.equal(chiuso.ok, true, JSON.stringify(chiuso).slice(0, 400))
+    assert.deepEqual(primo(), prima)
+
+    const scelto = percorso.join(radice, 'orario-nuovo.ics')
+    writeFileSync(scelto, readFileSync(file))
+    globalThis.__bancoElectron.rispostaAlleAperture = { canceled: false, filePaths: [scelto] }
+    try {
+      const esito = await api.chiama(archivio, 'calendario.modifica', { calendarioId: id, origine: '' })
+      assert.equal(esito.ok, true, JSON.stringify(esito).slice(0, 400))
+    } finally {
+      globalThis.__bancoElectron.rispostaAlleAperture = { canceled: true, filePaths: [] }
+    }
+    assert.equal(primo().origine, scelto)
+    assert.equal(primo().nome, prima.nome)
+
+    // Si torna al file di prima: le prove che seguono lo leggono.
+    const indietro = await api.chiama(archivio, 'calendario.modifica', { calendarioId: id, origine: file })
+    assert.equal(indietro.ok, true)
+  })
 })
 
 describe('calendario.confronta', () => {

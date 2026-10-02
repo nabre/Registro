@@ -568,6 +568,7 @@ Una tappa della scaletta.
 | `valutazione?` | `ValutazionePrevista \| null` | la tappa è la prova (ADR-10) |
 | `progettoId?` | `string \| null` | il progetto per cui lavora (ADR-54), dello stesso corso; assente = nessuno |
 | `faseProgettoId?` | `string \| null` | la fase del progetto in cui cade; solo con `progettoId`; assente o d'altri = la prima (`faseDellAttivita`), e la lettura la riscrive (`fasiDelleTappe`) |
+| `attivitaProgettoId?` | `string \| null` | attività del progetto da cui viene il contenuto condiviso; durata e risorse locali |
 
 I piani vecchi in `durataMin` si leggono a 45 minuti per UD
 (`UD_DEI_PIANI_IN_MINUTI`), senza arrotondare.
@@ -754,6 +755,7 @@ Il progetto di un corso, collezione `progetti` (ADR-54). Più d'uno per corso.
 | `obiettivi` | `string[]` | |
 | `stato` | `StatoProgetto` | |
 | `fasi` | `FaseProgetto[]` | in sequenza; mai vuota (nasce con «Fase 1») |
+| `attivita?` | `AttivitaProgetto[]` | scaletta indicativa; letta come `[]` quando assente |
 | `criteri` | `CriterioProgetto[]` | `id` (prefisso `crp`), `titolo`, `descrizione?` |
 | `livelli` | `LivelloProgetto[]` | `valore` (quel che le celle salvano), `testo`, `colore?`; mai vuota |
 | `compiti` | `CompitoProgetto[]` | |
@@ -780,6 +782,15 @@ Il progetto di un corso, collezione `progetti` (ADR-54). Più d'uno per corso.
 - Logica in [`projects.ts`](../core/dominio/projects.ts). Norm.:
   `validaProgetto`, `normalizzaProgetto` (esportata); `creaProgetto`,
   `duplicaProgetto`.
+
+Le attività previste (`AttivitaProgetto`) hanno i campi didattici di `Attivita`
+e `faseId`, senza risorse né riferimenti a progetti. La durata è indicativa.
+Le istanze nei piani nominano l’origine con `attivitaProgettoId`: condividono
+titolo, tipo, descrizione, materiali, raggruppamento, parametri e valutazione
+prevista in entrambe le direzioni. Durata, risorse e identificatore dell’istanza
+restano locali; un’origine eliminata lascia il contenuto e stacca il legame
+con `attivitaProgettoId = null`, per distinguerlo da una tappa ancora da
+collegare. Senza progetto il riferimento è assente.
 
 #### `FaseProgetto`
 
@@ -1239,7 +1250,7 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 5`
+### 8.2 `VERSIONE_DATI = 6`
 
 La versione dello schema JSON (`registro.json.versione`).
 
@@ -1258,6 +1269,8 @@ l'etichetta «Note:» nella lingua del registro. v5 porta i minuti di ritardo
 da uno per presenza (`minuti`) a uno per UD (`Presenza.ritardi`), perché in
 un'ora si può arrivare tardi più volte: il `porta` mette il numero vecchio
 sulla prima UD in ritardo, e lo lascia cadere dove non c'era ritardo.
+v6 aggiunge `Progetto.attivita` e `Attivita.attivitaProgettoId`: nessun `porta`,
+la scaletta precedente è vuota e le attività già assegnate restano autonome.
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento

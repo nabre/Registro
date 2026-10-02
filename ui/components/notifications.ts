@@ -22,6 +22,19 @@ const SIMBOLI = {
   errore: 'avviso',
 } as const
 
+/** Un gesto accanto al testo, prima della crocetta: lo si fa e la notifica se ne va. */
+interface AzioneNotifica {
+  testo: string
+  aiuto?: string
+  al: () => unknown
+}
+
+interface OpzioniNotifica {
+  azione?: AzioneNotifica
+  /** Quanto resta, al posto di quel che vuole il livello; 0 = finché la si scaccia. */
+  durata?: number
+}
+
 let contenitore: HTMLElement | null = null
 
 /**
@@ -44,7 +57,11 @@ function pila (): HTMLElement {
   return contenitore
 }
 
-export function notifica (testo: string, livello: LivelloNotifica = 'info'): void {
+export function notifica (
+  testo: string,
+  livello: LivelloNotifica = 'info',
+  opzioni: OpzioniNotifica = {},
+): void {
   const gia = livello === 'errore' ? erroriInVista.get(testo) : undefined
   if (gia) {
     gia.volte += 1
@@ -80,12 +97,34 @@ export function notifica (testo: string, livello: LivelloNotifica = 'info'): voi
     ),
   )
 
+  let via = false
   const congeda = () => {
+    if (via) return
+    via = true
     if (erroriInVista.get(testo)?.voce === voce) erroriInVista.delete(testo)
     voce.classList.add('notifica--in-uscita')
     setTimeout(() => voce.remove(), 180)
   }
-  voce.querySelector('.notifica__chiudi')?.addEventListener('click', congeda)
+  const chiudi = voce.querySelector('.notifica__chiudi')
+  chiudi?.addEventListener('click', congeda)
+
+  const { azione } = opzioni
+  if (azione) {
+    const bottone = h(
+      'button',
+      {
+        class: ['pulsante', 'pulsante--sottile', 'notifica__azione'],
+        type: 'button',
+        attr: azione.aiuto ? { title: azione.aiuto } : {},
+      },
+      azione.testo,
+    )
+    bottone.addEventListener('click', () => {
+      congeda()
+      void azione.al()
+    })
+    chiudi?.before(bottone)
+  }
 
   pila().appendChild(voce)
   if (livello === 'errore') {
@@ -95,6 +134,6 @@ export function notifica (testo: string, livello: LivelloNotifica = 'info'): voi
       vecchio.congeda()
     }
   }
-  const durata = DURATE[livello]
+  const durata = opzioni.durata ?? DURATE[livello]
   if (durata > 0) setTimeout(congeda, durata)
 }

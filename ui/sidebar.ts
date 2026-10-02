@@ -3,7 +3,9 @@ import { assistenteAperto } from './assistant.js'
 import { h, type Figlio } from './dom.js'
 import { icona } from './components/icons.js'
 import { alternaMenuSotto, type ElementoMenu } from './components/menu.js'
-import { classeDelFascicolo, corsoDelContesto, scegliClasseDelFascicolo, scegliCorso } from './context.js'
+import {
+  classeDelFascicolo, corsoDelContesto, nomeDelCorso, scegliClasseDelFascicolo, scegliCorso,
+} from './context.js'
 import { gruppiDiPagine, vaiA, type GruppoDiPagine, type Pagina } from './pages.js'
 import { raggruppamentoDeiCorsi } from '#core/dominio/courses.js'
 import { confrontaNomi } from '#core/dominio/text.js'
@@ -237,38 +239,47 @@ export function sidebar (): HTMLElement {
   h('nav', { class: 'sidebar__pagine', attr: { 'aria-label': t.principale } },
     // La classe del gruppo manda «sistema» (Impostazioni, Guida) in fondo alla
     // colonna (`sidebar.css`).
-    ...gruppiDiPagine().map((gruppo) => h('section', { class: ['sidebar__gruppo', `sidebar__gruppo--${gruppo.gruppo}`] },
+    ...gruppiDiPagine().map((gruppo) => [
+      gruppo.gruppo === 'registro' ? h('div', { class: 'sidebar__corso' },
+        titoloCheSceglie(
+          [corsoDelContesto() ? nomeDelCorso(corsoDelContesto()!) : t.cambiaCorso],
+          t.cambiaCorso, 'sidebar-corso',
+          () => vociDeiCorsi({ ...gruppo,
+            attivo: gruppiDiPagine().some((g) =>
+              (g.gruppo === 'registro' || g.gruppo === 'progettazione') && g.attivo),
+          }),
+        )) : null,
+      h('section', { class: ['sidebar__gruppo', `sidebar__gruppo--${gruppo.gruppo}`] },
       // Il titolo lungo («Registro — DIC4a», a capo «Matematica») dice di quale
       // corso sono le pagine; una riga che non ci sta si accorcia, intera nel suggerimento.
-      h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } },
-        gruppo.gruppo === 'registro' && corsiDellAnnoAperto().length > 1
-          // testo-fisso: chiave di fuoco
-          ? titoloCheSceglie(gruppo.righe, testi().cambiaCorso, 'sidebar-corso', () => vociDeiCorsi(gruppo))
-          : gruppo.gruppo === 'classe' && classiDiCuiSonoDocente().length > 1
+        h('h2', { class: 'sidebar__titolo', attr: { title: gruppo.titolo } },
+          gruppo.gruppo === 'registro' || gruppo.gruppo === 'progettazione'
+            ? h('span', { class: 'sidebar__titolo-riga' }, gruppo.nome)
+            : gruppo.gruppo === 'classe' && classiDiCuiSonoDocente().length > 1
             // testo-fisso: chiave di fuoco
-            ? titoloCheSceglie(gruppo.righe, testi().cambiaClasse, 'sidebar-classe', () => vociDelleClassi(gruppo))
-            : gruppo.righe.map((riga) => h('span', { class: 'sidebar__titolo-riga' }, riga))),
-      ...gruppo.pagine.map((pagina) => {
-        const conto = pagina.conto?.() ?? 0
-        return h('button', {
-          type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
-          attr: {
-            'aria-label': pagina.titolo,
-            'aria-current': pagina.attiva() ? 'page' : null,
-            'aria-disabled': String(Boolean(pagina.impedimento?.())),
-            title: suggerimentoDi(pagina),
-          },
-          onclick: () => {
-            vaiA(pagina)
-            if (!pagina.impedimento?.()) chiudiSidebarMobile()
-          },
+              ? titoloCheSceglie(gruppo.righe, testi().cambiaClasse, 'sidebar-classe', () => vociDelleClassi(gruppo))
+              : gruppo.righe.map((riga) => h('span', { class: 'sidebar__titolo-riga' }, riga))),
+        ...gruppo.pagine.map((pagina) => {
+          const conto = pagina.conto?.() ?? 0
+          return h('button', {
+            type: 'button', class: 'sidebar__pagina', dataset: { fuoco: pagina.id },
+            attr: {
+              'aria-label': pagina.titolo,
+              'aria-current': pagina.attiva() ? 'page' : null,
+              'aria-disabled': String(Boolean(pagina.impedimento?.())),
+              title: suggerimentoDi(pagina),
+            },
+            onclick: () => {
+              vaiA(pagina)
+              if (!pagina.impedimento?.()) chiudiSidebarMobile()
+            },
           // Il conto in coda, solo se maggiore di zero.
-        }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
-        conto > 0
-          ? h('span', { class: 'sidebar__conto' }, String(conto))
-          : null)
-      }),
-    )),
+          }, icona(pagina.simbolo, 'icona--minuta'), h('span', null, pagina.titolo),
+          conto > 0
+            ? h('span', { class: 'sidebar__conto' }, String(conto))
+            : null)
+        }),
+      )]),
   ),
   )
 }

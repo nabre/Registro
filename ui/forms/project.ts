@@ -479,6 +479,14 @@ export function moduloFasi (progettoId: string): void {
         segnaposto: t.segnapostoFase(indice + 1),
         al: (valore) => { fase.titolo = valore },
       }),
+      h('textarea', {
+        class: 'campo__controllo colonne-check__titolo',
+        value: fase.descrizione ?? '',
+        attr: { rows: 2, 'aria-label': parole().descrizione },
+        oninput: (evento: Event) => {
+          fase.descrizione = (evento.target as HTMLTextAreaElement).value
+        },
+      }),
     ],
     titoloTogli: (fase) => t.togli(fase.titolo || '…'),
     vuoto: t.serveUnaFase,
@@ -512,7 +520,11 @@ export function moduloFasi (progettoId: string): void {
       ),
     alSalva: async (_valori, contesto) => {
       const scritte = fasi
-        .map((f, i) => ({ ...f, titolo: f.titolo.trim() || t.segnapostoFase(i + 1) }))
+        .map((f, i) => ({
+          ...f,
+          titolo: f.titolo.trim() || t.segnapostoFase(i + 1),
+          descrizione: f.descrizione?.trim() || undefined,
+        }))
       if (scritte.length === 0) {
         contesto.mostraErrori([t.serveUnaFase])
         return

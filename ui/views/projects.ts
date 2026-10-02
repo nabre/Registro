@@ -4,8 +4,8 @@
 // per giorno e gli esiti (giudizi, valutazioni, presenze). Le lezioni e le
 // valutazioni del progetto si ricavano da piani e momenti.
 
-import { confrontaLezioni, nomeCompleto } from '#core/dominio/calculations.js'
-import { formattaData } from '#core/dominio/dates.js'
+import { confrontaLezioni, minutiDiAttivita, nomeCompleto } from '#core/dominio/calculations.js'
+import { formattaData, formattaDurata } from '#core/dominio/dates.js'
 import { Molti, Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { Iso, Lezione, MomentoValutazione, Progetto, StatoAttivita, StatoProgetto } from '#core/dominio/models.js'
@@ -56,6 +56,8 @@ import {
   periodoDetto,
 } from '#ui/forms/project.js'
 import { apriLezione } from '#ui/pages.js'
+import { moduloScalettaProgetto } from '#ui/forms/projectPlan.js'
+import { testi as testiScaletta } from '#ui/forms/projectPlan.testi.js'
 import {
   aggiorna,
   annoCorrente,
@@ -400,6 +402,8 @@ function schedaFasi (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement
   const t = testi()
   const lezioni = new Map(stato.registro.lezioni.map((l) => [l.id, l]))
   const fase = (voce: QuadroDellaFase): HTMLElement => {
+    const ts = testiScaletta()
+    const canoniche = (progetto.attivita ?? []).filter((a) => a.faseId === voce.fase.id)
     const aperta = faseAperta(progetto, voce)
     // testo-fisso: id del DOM, non si legge
     const idCorpo = `fase-corpo-${progetto.id}-${voce.fase.id}`
@@ -458,6 +462,33 @@ function schedaFasi (progetto: Progetto, quadro: QuadroDelProgetto): HTMLElement
         ? h(
             'div',
             { class: 'fase-progetto__corpo', id: idCorpo },
+            voce.fase.descrizione ? h('p', { class: 'testo-quieto' }, voce.fase.descrizione) : null,
+            pulsante({
+              testo: ts.modificaScaletta,
+              simbolo: 'piano',
+              variante: 'sottile',
+              al: () => moduloScalettaProgetto(progetto.id, voce.fase.id),
+            }),
+            canoniche.length > 0 ? h('ol', { class: 'lezioni-progetto' }, ...canoniche.map((a) => {
+              const pianificata = stato.registro.piani.some((p) =>
+                p.attivita.some((tappa) =>
+                  tappa.progettoId === progetto.id && tappa.attivitaProgettoId === a.id,
+                ),
+              )
+              return h('li', {
+                class: 'lezioni-progetto__voce', dataset: { attivitaProgettoId: a.id },
+              },
+              h('span', null, a.titolo || parole().senzaTitolo),
+              pastiglia(
+                formattaDurata(minutiDiAttivita(a.durataUd, stato.registro.impostazioni.minutiUd)),
+                'quiete',
+              ),
+              pastiglia(
+                pianificata ? ts.pianificata : ts.daPianificare,
+                pianificata ? 'informativo' : 'quiete',
+              ),
+              )
+            })) : null,
             corpo,
             voce.momenti.length > 0
               ? h(

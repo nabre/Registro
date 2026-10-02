@@ -48,6 +48,7 @@ import { lessico } from '#core/dominio/lexicon.testi.js'
 
 import { parole } from '#core/dominio/words.testi.js'
 import { testi } from './planActivity.testi.js'
+import { testi as testiProgetto } from './projectPlan.testi.js'
 import { bloccoRisorse } from './resources.js'
 import { aggiungiFase, moduloProgetto } from './project.js'
 import {
@@ -552,12 +553,14 @@ function campiProgetto (
 ): Figlio[] {
   const t = testi()
   const scegli = (scelta: ProgettoEFase): void => {
+    if (voce.progettoId !== scelta.progettoId) delete voce.attivitaProgettoId
     if (scelta.progettoId) {
       voce.progettoId = scelta.progettoId
       voce.faseProgettoId = scelta.faseProgettoId
     } else {
       delete voce.progettoId
       delete voce.faseProgettoId
+      delete voce.attivitaProgettoId
     }
     alCambio()
   }
@@ -585,6 +588,9 @@ function campiProgetto (
       }),
       t.aiutoProgetto,
     ),
+    voce.progettoId && voce.attivitaProgettoId !== null
+      ? h('p', { class: 'testo-quieto' }, testiProgetto().sincronizzata)
+      : null,
   ]
 }
 
@@ -642,6 +648,7 @@ export function editorAttivita (
    */
   docenteDiClasse: () => boolean = () => false,
   corsoId?: string | null,
+  opzioni: { nascondiProgetto?: boolean } = {},
 ): HTMLElement {
   const idCorso = corsoId ?? lezione?.corsoId ?? null
   let attivita = iniziali.map((a) => ({ ...a }))
@@ -1014,7 +1021,7 @@ export function editorAttivita (
                 }),
                 voce.parametri?.checkColonnaId ? 'gruppo-tappa--check' : undefined,
               ),
-              gruppoTappa(
+              opzioni.nascondiProgetto ? null : gruppoTappa(
                 Uno(lessico().progetto),
                 campiProgetto(voce, idCorso, () => {
                   disegna()

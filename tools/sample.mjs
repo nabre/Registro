@@ -142,6 +142,10 @@ const piano = d.creaPiano(corso.id)
 const tappa = d.creaAttivita('Misure in officina', 1)
 tappa.progettoId = progetto.id
 tappa.faseProgettoId = 'fsp-rilievo'
+tappa.attivitaProgettoId = 'att-rilievo'
+const { risorse: _risorse, progettoId: _progetto, faseProgettoId: _fase,
+  attivitaProgettoId: _origine, ...contenuto } = tappa
+progetto.attivita = [{ ...contenuto, id: 'att-rilievo', faseId: 'fsp-rilievo', durataUd: 1.5 }]
 piano.attivita.push(tappa)
 lezioni[1].pianoId = piano.id
 const pianoRelazione = d.creaPiano(corso.id)

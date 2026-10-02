@@ -10,6 +10,9 @@ import {
 import { attivitaValutata } from '#core/dominio/activities.js'
 import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
 import { creaPiano } from '#core/dominio/factories.js'
+import { importaAttivitaDelProgetto, propostaImportazione } from '#core/dominio/projectPlanning.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
+import { parole } from '#core/dominio/words.testi.js'
 import type {
   Attivita,
   Lezione,
@@ -78,6 +81,7 @@ import {
 } from './common.js'
 import { campoCorso } from './course.js'
 import { editorAttivita, voceFerma, type GestoreRisorse } from './planActivity.js'
+import { testi as testiProgetto } from './projectPlan.testi.js'
 
 /**
  * Gli stati particolari di un piano, detti aprendo la modifica: il corso, le
@@ -269,6 +273,9 @@ export function editorPiano (opzioni: {
 
   const zonaAttivita = h('div')
   const disegnaAttivita = (): void => {
+    // Il primo rinfrescatore appartiene al piano; gli altri all'editor che
+    // viene sostituito. Tenerli rimetterebbe la scaletta precedente all'import.
+    rinfrescatori.splice(1)
     rimpiazza(
       zonaAttivita,
       editorAttivita(
@@ -288,6 +295,144 @@ export function editorPiano (opzioni: {
     )
   }
   disegnaAttivita()
+
+  const importaDalProgetto = (): void => {
+    const tp = testiProgetto()
+    const piano = componiPiano(valoriModulo(corpoModulo))
+    const progetti = piano.corsoId ? progettiDelCorso(stato.registro, piano.corsoId) : []
+    let progettoId = progetti[0]?.id ?? ''
+    let faseId = progetti[0]?.fasi[0]?.id ?? ''
+    let selezionate = new Set<string>()
+    const zona = h('div')
+    const progetto = () => stato.registro.progetti.find((p) => p.id === progettoId)
+    const proposta = (ids: string[]) => {
+      const scelto = progetto()
+      return scelto
+        ? propostaImportazione(stato.registro, piano, scelto, faseId, ids, lezione)
+        : null
+    }
+    const candidatiDellaFase = () =>
+      proposta((progetto()?.attivita ?? []).map((a) => a.id))?.candidati ?? []
+    const giaPianificate = (): Set<string> => new Set(stato.registro.piani
+      .flatMap((p) => p.attivita)
+      .filter((a) => a.progettoId === progettoId && a.attivitaProgettoId)
+      .map((a) => a.attivitaProgettoId as string))
+    const preseleziona = (): void => {
+      const pianificate = giaPianificate()
+      const candidati = candidatiDellaFase().filter((a) => !pianificate.has(a.id))
+      const iniziale = proposta(candidati.map((a) => a.id))
+      selezionate = new Set(iniziale?.importabili.map((a) => a.id) ?? [])
+    }
+    const disegna = (): void => {
+      const scelto = progetto()
+      const attuale = proposta([...selezionate])
+      const candidati = candidatiDellaFase()
+      const pianificate = giaPianificate()
+      const totale = candidati.filter((a) => selezionate.has(a.id))
+        .reduce((s, a) => s + a.durataUd, 0)
+      const minuti = (ud: number) =>
+        formattaDurata(minutiDiAttivita(ud, stato.registro.impostazioni.minutiUd))
+      const restanti = candidati.filter((a) =>
+        !pianificate.has(a.id) && !attuale?.importabili.some((i) => i.id === a.id),
+      ).length
+      const unita = lezione ? contaUd(lezione, stato.registro.impostazioni.minutiUd) : 0
+      const perUd = lezione && unita > 0
+        ? minutiEffettivi(lezione) / unita
+        : stato.registro.impostazioni.minutiUd
+      rimpiazza(zona,
+        campo({
+          nome: 'progettoImportazione', etichetta: Uno(lessico().progetto), tipo: 'select',
+          valore: progettoId,
+          opzioni: [
+            { valore: '', testo: tp.scegliProgetto },
+            ...progetti.map((p) => ({ valore: p.id, testo: p.titolo })),
+          ],
+          al: (valore) => {
+            progettoId = valore
+            faseId = progetto()?.fasi[0]?.id ?? ''
+            preseleziona()
+            disegna()
+          },
+        }),
+        scelto ? campo({
+          nome: 'faseImportazione', etichetta: tp.fase, tipo: 'select',
+          valore: faseId,
+          opzioni: scelto.fasi.map((f) => ({ valore: f.id, testo: f.titolo })),
+          al: (valore) => {
+            faseId = valore
+            preseleziona()
+            disegna()
+          },
+        }) : null,
+        h('p', { class: 'testo-quieto' }, tp.ordine),
+        candidati.length === 0 ? quieto(tp.nessuna) : h('div', { class: 'colonne-check' },
+          ...candidati.map((a) => h('label', { class: 'campo-tappa campo-tappa--sino' },
+            h('input', {
+              type: 'checkbox', checked: selezionate.has(a.id),
+              dataset: { attivitaProgettoId: a.id },
+              onchange: (evento: Event) => {
+                if ((evento.target as HTMLInputElement).checked) selezionate.add(a.id)
+                else selezionate.delete(a.id)
+                disegna()
+              },
+            }),
+            h('span', null, `${a.titolo || parole().senzaTitolo} · ${minuti(a.durataUd)}`),
+            pianificate.has(a.id) ? pastiglia(
+              [tp.pianificata, ...stato.registro.lezioni.filter((l) => {
+                const p = stato.registro.piani.find((p) => p.id === l.pianoId)
+                return p?.attivita.some((tappa) =>
+                  tappa.progettoId === progettoId && tappa.attivitaProgettoId === a.id,
+                )
+              }).map((l) => formattaData(l.data))].join(' · '),
+              'informativo',
+            ) : null,
+          )),
+        ),
+        attuale ? h('p', { class: 'testo-quieto', dataset: { importazioneRiepilogo: 'true' } },
+          attuale.disponibiliUd === null
+            ? tp.senzaOra(minuti(totale))
+            : tp.selezione(
+                minuti(totale), formattaDurata(minutiDiAttivita(attuale.disponibiliUd, perUd)),
+              ),
+        ) : null,
+        attuale && attuale.importabili.length < selezionate.size ? avviso(tp.oltre, 'attenzione') : null,
+        attuale && restanti > 0
+          ? h('p', { class: 'testo-quieto' }, tp.residuo(restanti))
+          : null,
+      )
+    }
+    preseleziona()
+    disegna()
+    apriModale({
+      titolo: tp.importa,
+      larghezza: 'media',
+      corpo: () => zona,
+      testoSalva: tp.importaSelezionate,
+      alSalva: (_valori, contesto) => {
+        const scelto = progetto()
+        if (!scelto || selezionate.size === 0) {
+          contesto.mostraErrori([tp.seleziona])
+          return
+        }
+        // La proposta è ricalcolata sul registro vivo; nessuna scrittura fino
+        // alla conferma della bozza, come per le attività aggiunte a mano.
+        const vivo = componiPiano(valoriModulo(corpoModulo))
+        const daImportare = propostaImportazione(
+          stato.registro, vivo, scelto, faseId, [...selezionate], lezione,
+        )
+        if (daImportare.importabili.length < selezionate.size) {
+          contesto.mostraErrori([tp.oltre])
+          return
+        }
+        attivita = importaAttivitaDelProgetto(
+          stato.registro, vivo, scelto, faseId, [...selezionate], lezione,
+        ).attivita
+        disegnaAttivita()
+        contesto.chiudi()
+        opzioni.allaModifica?.()
+      },
+    })
+  }
 
   const particolari = modifica ? statiDelPiano(base) : []
 
@@ -345,6 +490,7 @@ export function editorPiano (opzioni: {
     sezioneModulo(
       { testo: Uno(L.scaletta), aiuto: t.aiutoScaletta },
       h('p', { class: 'testo-quieto' }, t.allegareSalva),
+      pulsante({ testo: testiProgetto().importa, simbolo: 'progetto', variante: 'sottile', al: importaDalProgetto }),
       zonaAttivita,
     ),
     // Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura).

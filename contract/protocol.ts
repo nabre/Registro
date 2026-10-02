@@ -204,7 +204,10 @@ export type Azione =
    * non si leggono tengono la copia di prima. Lo fa anche l'avvio.
    */
   | { tipo: 'calendario.aggiornaTutti' }
-  /** Rinomina un calendario o ne cambia l'origine; un'origine illeggibile non cambia niente. */
+  /**
+   * Rinomina un calendario o ne cambia l'origine; un'origine illeggibile non
+   * cambia niente, vuota apre il dialogo.
+   */
   | { tipo: 'calendario.modifica'; calendarioId: string; nome?: string; origine?: string }
   /** Toglie un calendario dal documento, con la sua copia. Le regole restano. */
   | { tipo: 'calendario.togli'; calendarioId: string }
@@ -838,6 +841,12 @@ export type Azione =
   /** Toglie dal portachiavi le credenziali della casella: si torna alle bozze. */
   | { tipo: 'posta.scollega' }
   /**
+   * Azzera la posta per intero: il gettone come `posta.scollega`, e in più gli
+   * indirizzi letti da Microsoft, i tenant ricordati e le impostazioni
+   * `registroDocenti.posta.*`. Si ricollega da capo.
+   */
+  | { tipo: 'posta.azzera' }
+  /**
    * Collega un account Microsoft per leggere il suo OneDrive: l'indirizzo (dato,
    * o chiesto dall'host con la casella della posta già scritta) e l'accesso dal
    * browser. Il gettone resta nel portachiavi dell'host, mai nel webview.
@@ -1050,6 +1059,7 @@ export type Vista =
   | 'valutazioni'
   | 'check'
   | 'documenti'
+  | 'overview'
   | 'modelli'
   | 'modelliLinguistici'
   | 'mappa'

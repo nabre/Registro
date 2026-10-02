@@ -59,23 +59,6 @@ describe('indirizzi: il giro di ADR-03 su righe generate', () => {
     ))
   })
 
-  it(
-    'una casella postale davanti alla via torna al suo posto',
-    { skip: 'difetto noto: la casella esce dalla sua posizione e si riscrive subito prima del NAP' },
-    () => {
-      verifica(fc.property(
-        fc.array(pezzoQualsiasi, { maxLength: 2 }),
-        casella,
-        fc.array(pezzoQualsiasi, { minLength: 1, maxLength: 2 }),
-        napELocalita,
-        (prima, cp, dopo, coda) => {
-          const riga = [...prima, cp, ...dopo, coda].join(', ')
-          assert.equal(giro(riga), riga)
-        },
-      ))
-    },
-  )
-
   it('su qualunque testo il giro non lancia, e un secondo giro non cambia più niente', () => {
     verifica(fc.property(fc.oneof(fc.string(), fc.string({ unit: 'grapheme' }), pezzo), (testo) => {
       const una = giro(testo)

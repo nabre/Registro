@@ -115,6 +115,7 @@ const TABELLA = [
   ['valutazioni', 'val-a', { pagina: 'pagina.corso.valutazioni', soggetto: { tipo: 'valutazione', id: 'val-a' } }],
   ['check', 'cor-a', { pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['documenti', undefined, { pagina: 'pagina.corso.documenti' }],
+  ['overview', 'cor-a', { pagina: 'pagina.corso.overview', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['mappa', undefined, { pagina: 'pagina.mappa' }],
   ['guida', undefined, { pagina: 'pagina.guida' }],
   ['impostazioni', undefined, { pagina: 'pagina.impostazioni' }],
