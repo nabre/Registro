@@ -603,7 +603,13 @@ di stato. Ogni colonna ha il suo contenitore di scorrimento con una chiave
 1. **Stato intero al pannello:** il pannello riceve tutto il `Registro` a ogni
    modifica (`flushStato`). Un docente, pochi megabyte: sottoscrizioni per
    entità porterebbero riconciliazione e viste disallineate senza guadagno
-   visibile.
+   visibile. Poi a differenze: il registro intero arriva all'apertura e
+   quando la pagina perde il filo, in mezzo le patch delle scritture
+   (`MessaggioDifferenze`), con la revisione che dice da dove partono. Non sono
+   sottoscrizioni: la pagina tiene sempre tutto il registro, e ogni spinta
+   ridisegna come prima; cambia che le collezioni non toccate restano gli
+   stessi oggetti, e i conti di `derivato()` fatti su di loro valgono ancora.
+   `REGISTRO_STATO_INTERO=1` torna al registro intero a ogni spinta.
 2. **Un'azione, un'unità atomica:** niente transazioni che abbracciano più
    procedure; annullare e giornale restano per azione.
 3. **JSON Schema (draft 2020-12) per ingresso e uscita di ogni procedura, non
@@ -1061,9 +1067,9 @@ l'applicazione e per le prove, cosa che `"imports"` non sa fare.
 
 Scelte che il codice applica senza un ADR; il perché è ricostruito.
 
-1. **Un aggregato unico, stato spinto intero.** `Archivio`
+1. **Un aggregato unico, stato spinto a differenze.** `Archivio`
    (`core/dati/archive.ts`) tiene il `Registro` in memoria e lo modifica su una
-   bozza (ADR-50), applicata in posto; il pannello riceve lo stato intero e ridisegna (ADR-06, con il
+   bozza (ADR-50), applicata in posto; il pannello riceve le patch (lo stato intero all'apertura, ADR-43) e ridisegna (ADR-06, con il
    telaio stabile e le isole di ADR-48). Un solo
    scrittore: più utenti vorrebbero ripensarlo da capo.
 2. **Risposta prima del disco.** La scrittura è ritardata di 350 ms

@@ -199,9 +199,11 @@ export class Archivio implements apparato.Smaltitore {
 
   private readonly emettitoreDifferenze = new apparato.EventEmitter<Differenze>()
   /**
-   * Scatta con `alCambiamento` quando lo cambiano `modifica`, annulla o
-   * ripristina: quali collezioni, e le patch se ci sono. Oggi non lo ascolta
-   * nessun trasporto; è il gancio per mandare al pannello solo le differenze.
+   * Scatta subito dopo `alCambiamento` quando lo cambiano `modifica`, annulla o
+   * ripristina, una volta per revisione: quali collezioni, e le patch se ci
+   * sono. Il pannello ci manda alla pagina solo le differenze
+   * (`desktop/pannelli/panel.ts`); un `alCambiamento` senza di lui è un
+   * registro riletto, che va mandato intero.
    */
   readonly alleDifferenze = this.emettitoreDifferenze.event
 

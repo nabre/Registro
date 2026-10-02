@@ -466,7 +466,8 @@ contatore di `id`.
 |---|---|---|---|
 | `Risposta` | `'risposta'` | `desktop/pannelli/panel.ts` | dopo ogni `Richiesta`, **dopo** l'eventuale `MessaggioStato` |
 | `Riscontro` | `'riscontro'` | `rispondiDomanda()` | dopo ogni `Domanda` (API § 6) |
-| `MessaggioStato` | `'stato'` | `desktop/pannelli/panel.ts` | dopo ogni azione che cambia qualcosa, cambi esterni al file, cambi di impostazioni o di documenti recenti |
+| `MessaggioStato` | `'stato'` | `desktop/pannelli/panel.ts` | il registro intero: alla nascita del pannello, a pagina ricaricata (`stato.leggi`), quando la pagina lo chiede (`ChiestaStatoIntero`, `'stato.intero'`), dopo un registro riletto (documento aperto, file cambiato fuori), con `REGISTRO_STATO_INTERO=1` |
+| `MessaggioDifferenze` | `'differenze'` | `desktop/pannelli/panel.ts` | ogni altra spinta: dopo ogni azione che cambia qualcosa, annulla e ripristina, cambi di impostazioni o di documenti recenti |
 | `MessaggioNavigazione` | `'naviga'` | `apriRegistro()` (menu, vassoio, promemoria) | per aprire il pannello su un posto; in attesa finché il pannello non manda `stato.leggi` |
 | `MessaggioNotifica` | `'notifica'` | `PannelloRegistro.avvisa()` | errori non legati a una richiesta |
 | `MessaggioLavoro` | `'lavoro'` | lo smistatore ([`core/dati/sorter.ts`](../core/dati/sorter.ts)) | a ogni pagina letta dall'OCR |
@@ -478,12 +479,18 @@ contatore di `id`.
 - **`Risposta`**: `id`, `ok`, `errori?`, `codice?`, `creato?: { id }` (l'entità
   nata), `documento?` (percorso scritto da `rapporto.genera`), `messaggio?`
   (`{ livello, testo }`). Nessun timeout lato pannello.
-- **`MessaggioStato`**: `registro` (intero, nessun push differenziale),
-  `programma: VoceProgramma[]`, `avvisi`, `radiceDati`, `radiceApp`,
+- **`MessaggioStato`**: `registro` (intero) e la sua `revisione`, più il
+  contorno che viaggia a ogni spinta: `programma: VoceProgramma[]`,
+  `avvisi`, `radiceDati`, `radiceApp`,
   `ocrAttivo`, `posta` (`exchange`, `server`, `invioDiretto`, `mittente`,
   `accesso`), `documenti` (`corrente`, `elenco` con `preferito`, `mancante`),
   `esportati` e `archiviati` (`{ percorso, misura, revisione }`),
   `storia` (i due conti di annulla/ripristina).
+- **`MessaggioDifferenze`**: lo stesso contorno, e al posto del registro le
+  patch di immer (`patch`, `collezioni`) che lo portano dalla revisione `da`
+  a `revisione`; vuote se è cambiato solo il contorno. La pagina le applica
+  (`ui/statePatches.ts`) solo se ha la revisione `da`: altrimenti le scarta e
+  manda `{ tipo: 'stato.intero' }`, e la spinta dopo è un `MessaggioStato`.
 - **`MessaggioNavigazione`**: `vista`, `elementoId?` (il contesto si risale da
   sé), `data?`, `nuovo?` (apre il modulo di creazione; mai dall'assistente),
   `importa?`, `dialogo?` (apre un dialogo sopra la pagina di adesso, `vista`

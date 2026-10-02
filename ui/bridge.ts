@@ -6,6 +6,7 @@ import { notifica } from './components/notifications.js'
 import { testi } from './bridge.testi.js'
 import type {
   Azione,
+  ChiestaStatoIntero,
   Conversazione,
   Dettatura,
   GiroAssistente,
@@ -488,6 +489,15 @@ type BustaAssistente =
  * `MessaggioStatoAssistente`.
  */
 export function manda (busta: BustaAssistente): void {
+  api.postMessage(busta)
+}
+
+/**
+ * Chiede che la prossima spinta porti il registro intero: quello della pagina
+ * non torna con le differenze arrivate (`statePatches.ts`).
+ */
+export function chiediStatoIntero (): void {
+  const busta: ChiestaStatoIntero = { tipo: 'stato.intero' }
   api.postMessage(busta)
 }
 

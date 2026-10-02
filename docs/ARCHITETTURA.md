@@ -354,7 +354,7 @@ sequenceDiagram
   AR->>AR: programmaSalvataggio, 350 ms, tetto 2000 ms
   API->>API: convalida dell'uscita, giornale, rigenerazione PDF se la revisione è cambiata
   API-->>AZ: Risultato → EsitoAzione
-  PA->>PR: MessaggioStato con il Registro intero, prima della risposta
+  PA->>PR: MessaggioDifferenze con le patch della scrittura, prima della risposta
   PA->>PR: Risposta ok, stesso id
   PR->>PO: la Promise si risolve, lo stato è già arrivato
   Note over AR,PK: la richiesta è finita; il disco viene dopo
@@ -516,8 +516,8 @@ aprono per percorso (ADR-22).
   (API § 10); il pannello in più accoda le sue richieste
   (`coda = coda.then(…)`), per l'ordine delle spinte di stato. Un errore non
   blocca le successive.
-- **La risposta arriva prima del disco**: memoria → `MessaggioStato` →
-  `Risposta` → dopo 350 ms–2 s lo ZIP. Lo spegnimento attende l'ultimo
+- **La risposta arriva prima del disco**: memoria → `MessaggioDifferenze`
+  (o `MessaggioStato`) → `Risposta` → dopo 350 ms–2 s lo ZIP. Lo spegnimento attende l'ultimo
   salvataggio (`spegni()` → `archivio.chiudi()`); un'interruzione di corrente
   no.
 - **Più collezioni non sono una transazione**: `scriviPendenti()` le scrive una

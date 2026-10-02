@@ -27,11 +27,13 @@ import { rispondiConversazione } from './conversation.js'
 import { rispondiDettatura } from './transcription.js'
 import { allaProiezione, PannelloProiezione, statoProiezione } from './projection.js'
 import type {
+  ChiestaStatoIntero,
   Conversazione,
   Dettatura,
   Domanda,
   MessaggioNavigazione,
   MessaggioVersoWebview,
+  PatchRegistro,
   Richiesta,
   SeguiConversazione,
   VoceProgramma,
@@ -96,6 +98,15 @@ const ACCESSI_DAL_BROWSER: ReadonlySet<string> = new Set<Richiesta['azione']['ti
   'posta.collega',
 ])
 
+/**
+ * L'interruttore per tornare indietro: con `REGISTRO_STATO_INTERO=1` ogni
+ * spinta porta il registro intero, come prima delle differenze. Letto a ogni
+ * spinta, così una prova lo accende e lo spegne senza rifare il pannello.
+ */
+function spintaADifferenze (): boolean {
+  return process.env.REGISTRO_STATO_INTERO !== '1'
+}
+
 /** Oltre questa lunghezza un valore non è un bersaglio ma un testo: non si fonde. */
 const VALORE_MASSIMO = 200
 
@@ -148,6 +159,34 @@ export class PannelloRegistro {
   private coda: Promise<void> = Promise.resolve()
   /** Una spinta dello stato è già in coda: non se ne accoda una seconda. */
   private spintaInSospeso = false
+  /**
+   * La revisione del registro che la pagina ha, o `null` se non ne ha uno:
+   * le differenze valgono solo a partire da lì.
+   */
+  private revisioneDellaPagina: number | null = null
+  /**
+   * La prossima spinta porta il registro intero: alla nascita del pannello, a
+   * pagina ricaricata (`stato.leggi`), quando la pagina lo chiede.
+   */
+  private serveIntero = true
+  /**
+   * Le patch arrivate dopo l'ultima spinta, in ordine, con la revisione da cui
+   * partono e quella a cui portano. Copiate subito: i loro valori sono oggetti
+   * dello stato vivo, che la scrittura dopo cambia in posto (`applicaInPosto`).
+   */
+  private differenze: {
+    collezioni: Set<string>
+    patch: PatchRegistro[]
+    da: number
+    a: number
+  } | null = null
+  /**
+   * Quanti cambiamenti e quante differenze dall'ultima spinta. Ogni scrittura e
+   * ogni annulla danno l'uno e l'altro; un cambiamento senza differenze è un
+   * registro riletto (documento aperto, file cambiato fuori), e va spinto intero.
+   */
+  private cambiamenti = 0
+  private conDifferenze = 0
 
   private constructor (
     private readonly pannello: apparato.WebviewPanel,
@@ -159,7 +198,26 @@ export class PannelloRegistro {
     this.smaltibili.push(
       this.pannello.webview.onDidReceiveMessage((messaggio) => this.gestisci(messaggio)),
       // Anche le modifiche arrivate da fuori (un file cambiato a mano).
-      this.archivio.alCambiamento(() => this.spingiStato()),
+      this.archivio.alCambiamento(() => {
+        this.cambiamenti += 1
+        this.spingiStato()
+      }),
+      // Scatta subito dopo `alCambiamento`, per le scritture e gli annulla.
+      this.archivio.alleDifferenze((differenze) => {
+        this.conDifferenze += 1
+        // Con l'interruttore la spinta è intera: niente da copiare.
+        if (!spintaADifferenze()) return
+        const patch = structuredClone(differenze.patch) as PatchRegistro[]
+        const a = this.archivio.revisione
+        if (this.differenze) {
+          this.differenze.patch.push(...patch)
+          for (const collezione of differenze.collezioni) this.differenze.collezioni.add(collezione)
+          this.differenze.a = a
+        } else {
+          // Ogni scrittura alza la revisione di uno, prima di dirlo.
+          this.differenze = { collezioni: new Set(differenze.collezioni), patch, da: a - 1, a }
+        }
+      }),
       // La storia cambia anche senza dati nuovi, e i pulsanti ↶ ↷ devono saperlo.
       this.archivio.alCambioStoria(() => this.spingiStato()),
       alCambioDocumenti(() => this.spingiStato()),
@@ -299,8 +357,17 @@ export class PannelloRegistro {
       Partial<Domanda> &
       Partial<Conversazione> &
       Partial<Dettatura> &
-      Partial<SeguiConversazione>
-    if (!busta || typeof busta.id !== 'number') return
+      Partial<SeguiConversazione> &
+      Partial<ChiestaStatoIntero>
+    if (!busta) return
+
+    // La pagina ha perso il filo delle differenze: la prossima spinta è intera.
+    if (busta.tipo === 'stato.intero') {
+      this.serveIntero = true
+      this.spingiStato()
+      return
+    }
+    if (typeof busta.id !== 'number') return
 
     // Il riquadro riprende il giro che la finestra staccata aspettava (`conversation.ts`).
     if (typeof busta.segui === 'number') {
@@ -347,6 +414,8 @@ export class PannelloRegistro {
     // del pannello (pagina ricaricata), e ogni volta si riconsegna tutto.
     if (richiesta.azione.tipo === 'stato.leggi') {
       this.pronto = true
+      // Una pagina ricaricata non ha più il registro di prima.
+      this.serveIntero = true
       // Stato subito, senza aspettare la coda: la spinta della scrittura in
       // corso arriva dopo ed è la più nuova.
       this.spingiStato()
@@ -502,9 +571,7 @@ export class PannelloRegistro {
     const corrente = percorsoPacchetto()?.fsPath ?? null
     // Titolo della finestra, per la barra delle applicazioni e Alt+Tab.
     this.pannello.title = titoloFinestra(corrente)
-    this.invia({
-      tipo: 'stato',
-      registro: this.archivio.registro,
+    const contorno = {
       storia: this.archivio.contiStoria,
       documenti: { corrente, provvisorio: èProvvisorio(), elenco: documentiNoti(corrente) },
       esportati: esportazioniPresenti(),
@@ -524,7 +591,35 @@ export class PannelloRegistro {
         indirizzi: [...indirizziPosta()],
       },
       microsoft: { account: accountMicrosoft() },
-    })
+    }
+    const revisione = this.archivio.revisione
+    const da = this.revisioneDellaPagina
+    const differenze = this.differenze
+    const passi = this.conDifferenze
+    const riletto = this.cambiamenti !== passi
+    this.differenze = null
+    this.cambiamenti = 0
+    this.conDifferenze = 0
+    this.revisioneDellaPagina = revisione
+    // Le differenze bastano se partono dal registro che la pagina ha e arrivano
+    // a quello di adesso; senza, il registro dev'essere lo stesso di allora.
+    const bastano = spintaADifferenze() && !this.serveIntero && !riletto && da !== null &&
+      (differenze
+        ? differenze.da === da && differenze.a === revisione && revisione - da === passi
+        : da === revisione)
+    this.serveIntero = false
+    if (bastano) {
+      this.invia({
+        tipo: 'differenze',
+        da,
+        revisione,
+        collezioni: differenze ? [...differenze.collezioni] : [],
+        patch: differenze?.patch ?? [],
+        ...contorno,
+      })
+      return
+    }
+    this.invia({ tipo: 'stato', registro: this.archivio.registro, revisione, ...contorno })
   }
 
   private invia (messaggio: MessaggioVersoWebview): void {

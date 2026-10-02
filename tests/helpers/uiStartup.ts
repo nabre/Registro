@@ -3,10 +3,12 @@
  * accesso ai registri reali. Lo costruisce `node esbuild.mjs --ui` in
  * `dist-tests/ui.js`.
  */
-import '#ui/main.js'
+import { Immer, enablePatches } from 'immer'
+
+import { seguito } from '#ui/main.js'
 import {
   stato, aggiorna, ridisegna, lezioniInAgenda, MISURE_SFOGLIO, riconvalidaRicordati, vai,
-  postoCorrente,
+  postoCorrente, ritrovaDocumento,
 } from '#ui/state.js'
 import { postoDaVista } from '#ui/place.js'
 import { PAGINE, apriLezione, gruppiDiPagine, vaiA } from '#ui/pages.js'
@@ -76,9 +78,56 @@ function conQuaranta (): { r: Registro, classe: Classe, corsoId: string } {
   return { r, classe, corsoId }
 }
 
+enablePatches()
+const immer = new Immer({ autoFreeze: false })
+
+/** La revisione dei dati grandi, come la conterebbe l'archivio dell'host. */
+let revisione = 0
+
 function carica (r: Registro, altro: Parameters<typeof aggiorna>[0] = {}): void {
   aggiorna({ registro: r, ...altro })
+  // Da qui i ritorni arrivano a differenze, come dall'host dopo il primo stato.
+  revisione += 1
+  seguito.intero(stato.registro, revisione)
   vai({ pagina: 'pagina.oggi' })
+}
+
+/**
+ * Il ritorno dall'host di una scrittura fatta da `ricetta`, per la strada vera
+ * (`message`, in modo sincrono): le patch (`differenze`), o con
+ * `prova.statoIntero` il registro intero, copiato come lo copierebbe il
+ * passaggio fra processi.
+ */
+function ritorna (ricetta: (r: Registro) => void): void {
+  const [nuovo, patch] = immer.produceWithPatches(stato.registro, ricetta)
+  const contorno = {
+    storia: stato.storia,
+    documenti: stato.documenti,
+    esportati: stato.esportati,
+    archiviati: stato.archiviati,
+    avvisi: stato.avvisi,
+    radiceDati: stato.radiceDati,
+    radiceApp: stato.radiceApp,
+    ocrAttivo: stato.ocrAttivo,
+    programma: stato.programma,
+    posta: stato.posta,
+    microsoft: stato.microsoft,
+  }
+  const da = revisione
+  revisione += 1
+  const { prova } = window as unknown as { prova: { statoIntero?: boolean } }
+  const intero = prova.statoIntero === true
+  const data = intero
+    ? { tipo: 'stato', registro: structuredClone(nuovo), revisione, ...contorno }
+    : {
+        tipo: 'differenze',
+        da,
+        revisione,
+        collezioni: [...new Set(patch.map((una) => String(una.path[0])))],
+        patch: structuredClone(patch),
+        ...contorno,
+      }
+  window.dispatchEvent(new MessageEvent('message', { data }))
 }
 
 const datiGrandi = {
@@ -164,36 +213,34 @@ const datiGrandi = {
   },
   /** Il ritorno dall'host con un voto cambiato, in una prova che c'è anche nella griglia corta. */
   votoCambiato (): void {
-    const r = stato.registro
-    const valutazioni = r.valutazioni.map((v, j) => j !== 5 ? v : {
-      ...v,
-      voti: v.voti.map((x, i) => i !== 20 ? x : { ...x, valore: x.valore === 5 ? 4 : 5 }),
+    ritorna((r) => {
+      const voto = r.valutazioni[5].voti[20]
+      voto.valore = voto.valore === 5 ? 4 : 5
     })
-    aggiorna({ registro: { ...r, valutazioni } })
   },
   /** Il ritorno dall'host con una spunta cambiata nella sesta richiesta. */
   spuntaCambiata (): void {
-    const r = stato.registro
-    const consegne = r.consegne.map((c) => c.id !== 'cons-5' ? c : {
-      ...c,
-      fatte: c.fatte.some((f) => f.chi === 'al-0')
+    ritorna((r) => {
+      const c = r.consegne.find((una) => una.id === 'cons-5')
+      if (!c) return
+      c.fatte = c.fatte.some((f) => f.chi === 'al-0')
         ? c.fatte.filter((f) => f.chi !== 'al-0')
-        : [...c.fatte, { chi: 'al-0', fattaIl: ISTANTE }],
+        : [...c.fatte, { chi: 'al-0', fattaIl: ISTANTE }]
     })
-    aggiorna({ registro: { ...r, consegne } })
   },
   /** Il ritorno dall'host con un nome cambiato nella prima classe aggiunta. */
   nomeCambiato (): void {
-    const r = stato.registro
-    const classi = r.classi.map((c) => c.id !== 'cl-0' ? c : {
-      ...c,
-      allievi: c.allievi.map((a, i) => i !== 5 ? a : { ...a, nome: a.nome === 'Bis' ? 'Nome0' : 'Bis' }),
+    ritorna((r) => {
+      const a = r.classi.find((c) => c.id === 'cl-0')?.allievi[5]
+      if (a) a.nome = a.nome === 'Bis' ? 'Nome0' : 'Bis'
     })
-    aggiorna({ registro: { ...r, classi } })
   },
 }
 
 const registro = annoDiProva()
+// Il documento di partenza (nessuno) è già ritrovato, come dopo il primo stato
+// dell'host: un ritorno dei dati grandi (`ritorna`) è lo stesso documento.
+ritrovaDocumento()
 Object.assign(window, {
   prova: {
     stato, aggiorna, ridisegna, vai, postoCorrente, postoDaVista, apriLezione, annoDiProva,

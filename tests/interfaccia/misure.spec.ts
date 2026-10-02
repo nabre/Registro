@@ -5,7 +5,8 @@
 // `tests/helpers/uiStartup.ts`): voti di quaranta persone su duecento prove,
 // un archivio di cinquemila fogli, mille persone nell'elenco. Per ciascuna il
 // primo disegno (si arriva sulla pagina) e un ridisegno (il registro torna
-// dall'host con un dato cambiato).
+// dall'host con un dato cambiato, per la strada dei messaggi: a differenze, o
+// intero con `REGISTRO_STATO_INTERO=1`, l'interruttore di `panel.ts`).
 //
 // Lenta vuol dire oltre 200 ms il primo disegno o 50 ms un ridisegno, il
 // limite di un compito lungo per Chromium. Le tre tabelle lo erano, di secondi
@@ -117,6 +118,9 @@ interface Caso {
 async function confronta (browser: Browser, nome: string, lunga: Caso, corta: Caso): Promise<void> {
   const pl = await pannello(browser)
   const pc = await pannello(browser)
+  if (process.env.REGISTRO_STATO_INTERO === '1') {
+    for (const p of [pl, pc]) await valuta(p.page, '() => { prova.statoIntero = true }')
+  }
   await valuta(pl.page, lunga.dati)
   await valuta(pc.page, corta.dati)
   const primo = await aTurno(pl.page, pc.page, "() => prova.vai({ pagina: 'pagina.oggi' })",

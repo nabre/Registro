@@ -22,13 +22,15 @@ import {
 import { guscio, mostraFiloDiLavoro } from './shell.js'
 import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
-import { ascolta, invia, iscrivitiAttesa } from './bridge.js'
+import { ascolta, chiediStatoIntero, invia, iscrivitiAttesa } from './bridge.js'
 import { oggi } from '#core/dominio/dates.js'
 import type {
+  MessaggioDifferenze,
   MessaggioNavigazione,
   MessaggioStato,
   MessaggioVersoWebview,
 } from '#contract/protocol.js'
+import { SeguitoDelRegistro } from './statePatches.js'
 import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
 import {
@@ -233,13 +235,26 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
 }
 
 /**
+ * Il registro della pagina, intero o a differenze, e la sua revisione.
+ * Esportato per il banco delle prove (`tests/helpers/uiStartup.ts`), che mette
+ * i dati senza passare dall'host e poi li fa tornare a differenze.
+ */
+export const seguito = new SeguitoDelRegistro(chiediStatoIntero)
+
+/**
  * I dati dell'host: il solo punto da cui entrano. Tutto in un blocco, così
  * ascoltatori (la mira dello schermo, il contesto dell'assistente), memoria e
  * storia sentono solo la fine: i dati, il documento con il suo posto, il
  * semestre, il posto riconfermato. Un passo a metà manderebbe all'host gli id
- * dell'anno di prima.
+ * dell'anno di prima. Con le differenze il registro è quello di prima con le
+ * patch; se non si applicano il messaggio si lascia andare tutto, e lo stato
+ * intero chiesto al suo posto porta anche il resto.
  */
-function ricevoStato (messaggio: MessaggioStato): void {
+function ricevoStato (messaggio: MessaggioStato | MessaggioDifferenze): void {
+  const registro = messaggio.tipo === 'stato'
+    ? seguito.intero(messaggio.registro, messaggio.revisione)
+    : seguito.differenze(stato.registro, messaggio)
+  if (!registro) return
   inBlocco(() => {
     // Cambiare documento non ricarica la pagina: modali aperte, editor del piano
     // e destinatari tenuti da parte appartengono all'anno di prima, e salvati
@@ -252,7 +267,7 @@ function ricevoStato (messaggio: MessaggioStato): void {
       scordaDestinatariMandati()
     }
     aggiorna({
-      registro: messaggio.registro,
+      registro,
       avvisi: messaggio.avvisi,
       radiceDati: messaggio.radiceDati,
       // Serve a `impostaCaratteri` per i caratteri delle miniature dei PDF.
@@ -338,6 +353,7 @@ iscrivitiAttesa(mostraFiloDiLavoro)
 ascolta((messaggio) => {
   switch (messaggio.tipo) {
     case 'stato':
+    case 'differenze':
       ricevoStato(messaggio)
       break
 

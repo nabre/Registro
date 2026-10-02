@@ -185,9 +185,59 @@ export interface VoceProgramma {
   delCollegamento: boolean
 }
 
-export interface MessaggioStato {
+/**
+ * Lo stato che l'host spinge: il registro intero (`MessaggioStato`) o solo le
+ * sue differenze (`MessaggioDifferenze`), e intorno quel che il pannello non
+ * legge da sé, che viaggia sempre intero perché è piccolo.
+ */
+export interface MessaggioStato extends ContornoDelloStato {
   tipo: 'stato'
   registro: Registro
+  /**
+   * La revisione dell'archivio di questo registro: le differenze che seguono
+   * partono da qui (`MessaggioDifferenze.da`).
+   */
+  revisione: number
+}
+
+/**
+ * Una patch di immer sul registro, scritta qui per non portare immer nel
+ * contratto: `path` parte da una chiave del `Registro` (`['lezioni', 3, 'stato']`).
+ */
+export interface PatchRegistro {
+  op: 'replace' | 'remove' | 'add'
+  path: Array<string | number>
+  value?: unknown
+}
+
+/**
+ * Lo stato con solo quel che è cambiato nel registro dalla spinta di prima:
+ * le patch delle scritture e degli annulla, in ordine. Valgono solo sul
+ * registro della revisione `da`; una pagina che ne ha un'altra le scarta e
+ * chiede lo stato intero (`ChiestaStatoIntero`). Senza patch il registro è
+ * quello di prima, e cambia solo il contorno (storia, documenti, impostazioni).
+ */
+export interface MessaggioDifferenze extends ContornoDelloStato {
+  tipo: 'differenze'
+  /** La revisione su cui le patch si applicano: quella che la pagina deve avere. */
+  da: number
+  /** La revisione dopo le patch. */
+  revisione: number
+  /** Le collezioni che le patch toccano, come su disco. */
+  collezioni: string[]
+  patch: PatchRegistro[]
+}
+
+/**
+ * Dalla pagina all'host: il registro che ha non torna con le differenze
+ * arrivate (revisione fuori sequenza, patch che non si applica), e la
+ * prossima spinta lo porti intero.
+ */
+export interface ChiestaStatoIntero {
+  tipo: 'stato.intero'
+}
+
+interface ContornoDelloStato {
   /**
    * Le impostazioni del programma, che il webview non legge da sé: arrivano con
    * lo stato, rifatto quando cambiano.
@@ -366,6 +416,7 @@ export interface MessaggioStatoProiezione {
 
 export type MessaggioVersoWebview =
   | MessaggioStato
+  | MessaggioDifferenze
   | MessaggioNavigazione
   | MessaggioNotifica
   | MessaggioLavoro

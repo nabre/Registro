@@ -40,9 +40,9 @@ const immer = new Immer({ autoFreeze: false, useStrictIteration: false })
 export type { Patch }
 
 /**
- * Le differenze di una scrittura, per chi un domani vorrà mandare al pannello
- * solo quelle. Le patch parlano dello stato vivo: si leggono subito, non si
- * tengono né si cambiano.
+ * Le differenze di una scrittura, che il pannello manda alla pagina al posto
+ * del registro intero. Le patch parlano dello stato vivo: si leggono subito
+ * (o si copiano), non si tengono né si cambiano.
  */
 export interface Differenze {
   collezioni: NomeCollezione[]

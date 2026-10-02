@@ -78,15 +78,18 @@ export type {
   VoceContesto,
 } from './protocol/assistant.js'
 export type {
+  ChiestaStatoIntero,
   DocumentoRecente,
   FaseAggiornamenti,
   MessaggioAggiornamenti,
+  MessaggioDifferenze,
   MessaggioNavigazione,
   MessaggioProiezione,
   MessaggioScarico,
   MessaggioStato,
   MessaggioStatoProiezione,
   MessaggioVersoWebview,
+  PatchRegistro,
   RaccontoAggiornamenti,
   StatoAggiornamenti,
   VoceProgramma,

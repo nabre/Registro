@@ -968,22 +968,86 @@ export function annoCorrente () {
 }
 
 /**
- * Conti fatti una volta per registro. `stato.registro` non si modifica mai sul
- * posto (ogni spinta dell'host ne porta uno nuovo), quindi fa da chiave; il
+ * Conti fatti una volta per stato delle collezioni che leggono. `stato.registro`
+ * non si modifica mai sul posto: ogni spinta dell'host ne porta uno nuovo, che
+ * con le differenze (`statePatches.ts`) tiene le stesse collezioni non toccate.
+ * Un conto ricorda allora quali chiavi del registro ha letto e com'erano, e
+ * vale finché sono le stesse: un voto cambiato non rifà le classi visibili. Il
  * resto da cui il conto dipende (giorno, filtri) sta in `chiave`. Il risultato
  * è condiviso: si legge, non si modifica.
  */
-const memorie = new WeakMap<Registro, Map<string, unknown>>()
+interface ContoRicordato {
+  valore: unknown
+  /** Le chiavi del registro lette dal conto, con quel che valevano. */
+  letture: Map<keyof Registro, unknown>
+}
+
+const memorie = new Map<string, ContoRicordato>()
+/** Oltre, le memorie si buttano: le chiavi con giorni e id non tornano tutte. */
+const MEMORIE_MASSIME = 2000
+
+/** Le letture dei conti in corso, dal più esterno: un conto dentro un altro le dà anche a lui. */
+const lettureInCorso: Array<Map<keyof Registro, unknown>> = []
+
+/** Il registro vero, mentre `stato.registro` è la sua spia. */
+let registroSpiato: Registro | null = null
+
+const spie = new WeakMap<Registro, Registro>()
+
+/** Il registro visto attraverso una spia che segna le chiavi lette dai conti in corso. */
+function spiaDi (registro: Registro): Registro {
+  let spia = spie.get(registro)
+  if (!spia) {
+    spia = new Proxy(registro, {
+      get (bersaglio, chiave, ricevente) {
+        const valore: unknown = Reflect.get(bersaglio, chiave, ricevente)
+        if (typeof chiave === 'string') {
+          for (const letture of lettureInCorso) letture.set(chiave as keyof Registro, valore)
+        }
+        return valore
+      },
+    })
+    spie.set(registro, spia)
+  }
+  return spia
+}
+
+function ancoraBuona (memoria: ContoRicordato, registro: Registro): boolean {
+  for (const [chiave, valore] of memoria.letture) {
+    if (!Object.is(registro[chiave], valore)) return false
+  }
+  return true
+}
 
 function derivato<T> (nome: string, chiave: string, calcola: () => T): T {
-  let memoria = memorie.get(stato.registro)
-  if (!memoria) {
-    memoria = new Map()
-    memorie.set(stato.registro, memoria)
-  }
+  const registro = registroSpiato ?? stato.registro
   const voce = `${nome}|${chiave}`
-  if (!memoria.has(voce)) memoria.set(voce, calcola())
-  return memoria.get(voce) as T
+  let memoria = memorie.get(voce)
+  if (!memoria || !ancoraBuona(memoria, registro)) {
+    const letture = new Map<keyof Registro, unknown>()
+    lettureInCorso.push(letture)
+    const esterno = registroSpiato === null
+    if (esterno) {
+      registroSpiato = registro
+      stato.registro = spiaDi(registro)
+    }
+    try {
+      memoria = { valore: calcola(), letture }
+    } finally {
+      lettureInCorso.pop()
+      if (esterno) {
+        stato.registro = registro
+        registroSpiato = null
+      }
+    }
+    if (memorie.size >= MEMORIE_MASSIME) memorie.clear()
+    memorie.set(voce, memoria)
+  }
+  // Chi chiede dentro un altro conto dipende anche da quel che questo ha letto.
+  for (const letture of lettureInCorso) {
+    for (const [chiaveLetta, valore] of memoria.letture) letture.set(chiaveLetta, valore)
+  }
+  return memoria.valore as T
 }
 
 /** Le classi dell'anno in corso, archiviate escluse, in ordine di nome. */
