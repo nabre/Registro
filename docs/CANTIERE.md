@@ -48,16 +48,10 @@ controlli statici; skill `verifica`). Non prima.
       spariscono, cancellazione non sicura senza BitLocker, Acrobat tiene le
       sue); portabile su chiavetta FAT/exFAT o cartella di rete = cartella dati
       leggibile da altri: avviso al primo avvio.
-- [ ] Spinta a differenze al pannello: `desktop/pannelli/panel.ts` manda il
-      `Registro` intero a ogni modifica e `derivato()` (`ui/state.ts`)
-      memoizza per identità del registro, quindi ogni spinta azzera tutto
-      (`tests/interfaccia/misure.spec.ts`: oltre 50 ms già con 40 righe).
-      `core/dati/archive.ts` emette già `alleDifferenze` con le patch immer,
-      ma nessuno lo ascolta. Messaggio `differenze` `{revisione, collezioni,
-      patch}` nel protocollo, `applyPatches` nel pannello, `derivato()` per
-      collezione, revisione fuori sequenza → stato intero; interruttore per
-      tornare indietro. `misure.spec.ts` deve scendere, `staleEdits` e
-      `morfosi` restare verdi.
+- [ ] Dopo la spinta a differenze (`ui/statePatches.ts`) il costo resta il
+      ridisegno della pagina intera (ADR-06): `misure.spec.ts` voti 52–56 ms,
+      di cui ~44 già senza dati nuovi. Per scendere: isole o ridisegni
+      parziali. Differenze scartate → stato intero un giro dopo la risposta.
 - [ ] Indice del 1/10 che non tornava: corretti il temporaneo comune di
       `rifai` (ora per processo), il controllo prima di accodare (indice
       intero, non 22 byte) e la serratura (non si copre quella viva di un
@@ -325,9 +319,6 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       con l'azione nelle notifiche (§ Impostazioni).
 - [ ] Il filo d'attesa resta acceso per tutta l'attesa del browser (fino a
       5 min): sembra un blocco. Toglierlo dal conto è scelta di comportamento.
-- [ ] A ogni scrittura il pannello riceve il registro intero e ridisegna
-      (`desktop/pannelli/panel.ts`): profilare su un registro grande prima di
-      passare alle differenze.
 
 ### Da provare a mano
 
