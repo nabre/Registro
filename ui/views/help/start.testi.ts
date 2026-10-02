@@ -234,7 +234,7 @@ const it = {
       check: 'Check',
       pianiLezione: 'Piani lezione',
       documenti: 'Documenti',
-      gruppoAnno: 'L’anno',
+      gruppoAnno: 'Anno scolastico',
       classi: 'Classi',
       corso: 'Corso',
       tuttiICorsi: 'Tutti i corsi ▾',
@@ -289,7 +289,7 @@ const it = {
           `**Docente di classe**: ${PENDENZE} della classe, Archivio documentale, Assenze, ` +
           'Messaggistica — solo se una classe ha la spunta «Sono docente di classe», e il ' +
           'titolo porta la classe. ' +
-          `**L’anno**: Classi, ${Molti(PIF)}, Mappa, Corsi. ` +
+          `**Anno scolastico**: Classi, ${Molti(PIF)}, Mappa, Corsi, Progetti. ` +
           '**Il programma**, staccato in fondo alla colonna: Impostazioni, Guida. La pagina ' +
           'aperta è la voce accesa. L’intestazione dei fogli e i modelli linguistici stanno ' +
           'dentro le Impostazioni.',
@@ -1190,7 +1190,8 @@ export const testi = catalogo(it, {
             `**${Uno(DE.docenteClasse)}**: ${Molti(DE.pendenza)} der Klasse, Dokumentenarchiv, ` +
             'Absenzen, Mitteilungen — nur wenn eine Klasse das Häkchen «Ich bin ' +
             'Klassenlehrperson» hat, und der Titel nennt die Klasse. ' +
-            `**Schuljahr**: Klassen, ${Molti(DE.pif)}, Karte, Kurse. **Programm**, abgesetzt ` +
+            `**Schuljahr**: Klassen, ${Molti(DE.pif)}, Karte, Kurse, Projekte. ` +
+            '**Programm**, abgesetzt ' +
             'ganz unten in der Spalte: Einstellungen, Hilfe. Die offene Seite ist der ' +
             'hervorgehobene Eintrag. Der Briefkopf und die Sprachmodelle liegen in den ' +
             'Einstellungen.',
@@ -2049,7 +2050,7 @@ export const testi = catalogo(it, {
         check: 'Check',
         pianiLezione: 'Plans de leçon',
         documenti: 'Documents',
-        gruppoAnno: 'L’année',
+        gruppoAnno: 'Année scolaire',
         classi: 'Classes',
         corso: 'Cours',
         tuttiICorsi: 'Tous les cours ▾',
@@ -2107,7 +2108,7 @@ export const testi = catalogo(it, {
             `**${Uno(FR.docenteClasse)}** : ${Molti(FR.pendenza)} de la classe, ` +
             'Archive des documents, Absences, Messagerie — seulement si une classe a la case « Je suis maître de ' +
             'classe », et le titre porte la classe. ' +
-            `**L’année** : Classes, ${Molti(FR.pif)}, Carte, Cours. ` +
+            `**Année scolaire** : Classes, ${Molti(FR.pif)}, Carte, Cours, Projets. ` +
             '**Le programme**, détaché tout en bas de la colonne : Paramètres, Aide. La page ' +
             'ouverte est l’entrée mise en évidence. L’en-tête des feuilles et les modèles de ' +
             'langage se trouvent dans les Paramètres.',
@@ -2952,7 +2953,7 @@ export const testi = catalogo(it, {
         check: 'Check',
         pianiLezione: 'Lesson plans',
         documenti: 'Documents',
-        gruppoAnno: 'The year',
+        gruppoAnno: 'School year',
         classi: 'Classes',
         corso: 'Course',
         tuttiICorsi: 'All courses ▾',
@@ -3008,7 +3009,8 @@ export const testi = catalogo(it, {
             `**${Uno(EN.docenteClasse)}**: ${Molti(EN.pendenza)} for the class, Document ` +
             'archive, Absences, Messages — only if a class has the “I’m the class teacher” ' +
             'tick, and the title carries the class. ' +
-            `**The year**: Classes, ${Molti(EN.pif)}, Map, Courses. **The program**, set apart ` +
+            `**School year**: Classes, ${Molti(EN.pif)}, Map, Courses, Projects. ` +
+            '**The program**, set apart ' +
             'at the bottom of the column: Settings, Help. The open page is the highlighted ' +
             'item. The letterhead and the language models are inside the Settings.',
         },

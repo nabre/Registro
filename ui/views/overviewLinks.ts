@@ -1,7 +1,6 @@
 // Le linee seguono i riquadri reali: traduzioni e ridimensionamenti cambiano le misure.
 let osservatore: ResizeObserver | null = null
 let fotogramma = 0
-let ridisegna: (() => void) | null = null
 let scordaScorrimento: (() => void) | null = null
 
 export function scordaCollegamentiOverview (): void {
@@ -10,7 +9,6 @@ export function scordaCollegamentiOverview (): void {
   scordaScorrimento?.()
   scordaScorrimento = null
   cancelAnimationFrame(fotogramma)
-  ridisegna = null
 }
 
 export interface CollegamentoOverview {
@@ -19,49 +17,64 @@ export interface CollegamentoOverview {
   tipo: string
 }
 
-export function impostaScalaOverview (scala: number): void {
-  const telaio = document.querySelector<HTMLElement>('[data-schema-progettazione]')
-  if (!telaio) return
-  telaio.style.zoom = String(scala)
-  const valore = document.querySelector('.panoramica__zoom-valore')
-  if (valore) valore.textContent = `${Math.round(scala * 100)}%`
-  const controllo = document.querySelector<HTMLInputElement>('.panoramica__zoom input')
-  if (controllo) controllo.value = String(Math.round(scala * 100))
-  ridisegna?.()
-}
-
-export function posaCollegamentiOverview (
-  collegamenti: CollegamentoOverview[], adatta = false,
-): void {
+export function posaCollegamentiOverview (collegamenti: CollegamentoOverview[]): void {
   scordaCollegamentiOverview()
   fotogramma = requestAnimationFrame(() => {
     // Idiomorph può aver mantenuto il telaio precedente: si cerca quello montato.
     const telaio = document.querySelector<HTMLElement>('[data-schema-progettazione]')
     const svg = telaio?.querySelector('svg')
     if (!telaio || !svg) return
-    if (adatta) {
-      telaio.style.zoom = '1'
-      const spazio = telaio.closest<HTMLElement>('.panoramica__tavolo')!
-      const altezza = Math.max(200, window.innerHeight - spazio.getBoundingClientRect().top - 48)
-      impostaScalaOverview(Math.max(0.15,
-        Math.min(1, spazio.clientWidth / telaio.offsetWidth, altezza / telaio.offsetHeight)))
-    }
+    telaio.style.zoom = '1'
     const disegna = (): void => {
       const origine = telaio.getBoundingClientRect()
       const scala = origine.width / telaio.offsetWidth
+      const nodi = new Map([...telaio.querySelectorAll<HTMLElement>('[data-nodo]')]
+        .map((nodo) => [nodo.dataset.nodo, nodo]))
       const risorse = telaio.querySelector<HTMLElement>('.panoramica__risorse')
       if (risorse) {
         const contenuto = telaio.closest<HTMLElement>('.contenuto')
         const limite = contenuto?.getBoundingClientRect().top ?? 0
-        // La colonna segue la lettura, ma si ferma alla fine dello schema.
-        const spostamento = Math.max(0, Math.min(
-          (limite + 12 - origine.top) / scala - risorse.offsetTop,
-          telaio.offsetHeight - risorse.offsetTop - risorse.offsetHeight - 16))
-        // testo-fisso: trasformazione CSS della colonna
-        risorse.style.transform = `translateY(${spostamento}px)`
+        risorse.style.transform = ''
+        const ultimaRelazione = (id: string, visitati = new Set<string>()): number => {
+          if (visitati.has(id)) return 0
+          visitati.add(id)
+          return Math.max(0, ...collegamenti.filter((c) => c.a === id).map((c) => {
+            const sorgente = nodi.get(c.da)
+            if (!sorgente) return 0
+            if (sorgente.closest('.panoramica__risorse')) {
+              return ultimaRelazione(c.da, new Set(visitati))
+            }
+            return (sorgente.getBoundingClientRect().bottom - origine.top) / scala
+          }))
+        }
+        const schede = [...risorse.querySelectorAll<HTMLElement>('.panoramica__risorsa')]
+          .map((nodo) => ({ nodo, fine: ultimaRelazione(nodo.dataset.nodo!) }))
+          .sort((a, b) => a.fine - b.fine)
+        const griglia = risorse.querySelector('.panoramica__griglia')!
+        if (schede.some((s, i) => griglia.children[i] !== s.nodo)) {
+          griglia.append(...schede.map((s) => s.nodo))
+        }
+        const posizioni = schede.map(({ nodo, fine }) => {
+          nodo.style.transform = ''
+          const rettangolo = nodo.getBoundingClientRect()
+          const inizio = (rettangolo.top - origine.top) / scala
+          const altezza = rettangolo.height / scala
+          return { nodo, inizio, altezza, fine: Math.max(inizio, fine - altezza) }
+        })
+        // Le risorse con la stessa ultima relazione restano separate.
+        for (let i = posizioni.length - 2; i >= 0; i--) {
+          posizioni[i].fine = Math.max(posizioni[i].inizio,
+            Math.min(posizioni[i].fine, posizioni[i + 1].fine - posizioni[i].altezza - 16))
+        }
+        let precedente = 0
+        for (const p of posizioni) {
+          const posizione = Math.min(p.fine,
+            Math.max(p.inizio, (limite + 12 - origine.top) / scala, precedente))
+          // testo-fisso: trasformazione CSS del riquadro
+          p.nodo.style.transform = `translateY(${posizione - p.inizio}px)`
+          precedente = posizione + p.altezza + 16
+        }
       }
-      const nodi = new Map([...telaio.querySelectorAll<HTMLElement>('[data-nodo]')]
-        .map((nodo) => [nodo.dataset.nodo, nodo]))
       svg.setAttribute('width', String(telaio.scrollWidth))
       svg.setAttribute('height', String(telaio.scrollHeight))
       svg.replaceChildren()
@@ -89,7 +102,6 @@ export function posaCollegamentiOverview (
         svg.append(linea)
       }
     }
-    ridisegna = disegna
     disegna()
     const aggiorna = (): void => {
       cancelAnimationFrame(fotogramma)

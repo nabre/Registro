@@ -222,7 +222,7 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('pagina.corso.documenti'),
   },
 
-  // La progettazione: panoramica, piani di lezione e progetti del corso.
+  // La progettazione: panoramica e piani di lezione del corso.
   {
     id: 'pagina.corso.overview',
     titolo: t.overview,
@@ -247,7 +247,7 @@ export const PAGINE: readonly Pagina[] = [
     id: 'pagina.corso.progetti',
     titolo: t.progetti,
     simbolo: 'progetto',
-    gruppo: 'progettazione',
+    gruppo: 'anno',
     aiuto: t.progettiAiuto,
     impedimento: senzaCorso,
     attiva: qui('pagina.corso.progetti'),

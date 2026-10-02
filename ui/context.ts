@@ -29,6 +29,7 @@ const VISTE_DEL_CORSO: readonly Vista[] = [
   'lezione',
   'valutazioni',
   'piani',
+  'overview',
   'progetti',
   'documenti',
 ]

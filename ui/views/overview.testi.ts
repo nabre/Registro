@@ -18,8 +18,6 @@ const it = {
   pendenza: 'Pendenza',
   check: 'Check',
   valutazione: 'Valutazione',
-  zoom: 'Zoom dello schema',
-  adatta: 'Adatta alla finestra',
 }
 
 export const testi = catalogo(it, {
@@ -33,7 +31,6 @@ export const testi = catalogo(it, {
     scegli: 'Wähle einen Kurs, um die Planung zu sehen', prevista: 'Geplante Beurteilung',
     progetto: 'Projekt', file: 'Dateien und Links', pendenza: 'Pendenz',
     check: 'Check', valutazione: 'Beurteilung',
-    zoom: 'Zoom des Schemas', adatta: 'An Fenster anpassen',
   },
   fr: {
     titolo: 'Vue d’ensemble',
@@ -45,7 +42,6 @@ export const testi = catalogo(it, {
     scegli: 'Choisis un cours pour voir la planification', prevista: 'Évaluation prévue',
     progetto: 'Projet', file: 'Fichiers et liens', pendenza: 'Tâche en suspens',
     check: 'Check', valutazione: 'Évaluation',
-    zoom: 'Zoom du schéma', adatta: 'Adapter à la fenêtre',
   },
   en: {
     titolo: 'Overview',
@@ -57,6 +53,5 @@ export const testi = catalogo(it, {
     scegli: 'Choose a course to see its planning', prevista: 'Planned assessment',
     progetto: 'Project', file: 'Files and links', pendenza: 'Pending item',
     check: 'Check', valutazione: 'Assessment',
-    zoom: 'Diagram zoom', adatta: 'Fit to window',
   },
 })

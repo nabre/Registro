@@ -8,7 +8,7 @@ import type {
 import { parole } from '#core/dominio/words.testi.js'
 import { azione } from '#ui/bridge.js'
 import { apriMomento } from '#ui/calendarNavigation.js'
-import { collegamento, pulsante, quieto, statoVuoto, testataVista } from '#ui/components/base.js'
+import { collegamento, quieto, statoVuoto, testataVista } from '#ui/components/base.js'
 import { icona } from '#ui/components/icons.js'
 import { corsoDelContesto, nomeDelCorso } from '#ui/context.js'
 import { h, type Figlio } from '#ui/dom.js'
@@ -16,7 +16,7 @@ import { moduloConsegna } from '#ui/forms.js'
 import { nomeDiPiano, stato, vai } from '#ui/state.js'
 import { testi } from './overview.testi.js'
 import {
-  impostaScalaOverview, posaCollegamentiOverview, scordaCollegamentiOverview,
+  posaCollegamentiOverview, scordaCollegamentiOverview,
   type CollegamentoOverview,
 } from './overviewLinks.js'
 
@@ -200,17 +200,9 @@ export function vistaOverview (): Figlio {
   svg.setAttribute('class', 'panoramica__collegamenti')
   svg.setAttribute('aria-hidden', 'true')
   schema.prepend(svg)
-  const zoom = h('input', { type: 'range', min: 15, max: 150, value: 100,
-    attr: { 'aria-label': t.zoom },
-    oninput: (e: Event) => impostaScalaOverview(Number((e.target as HTMLInputElement).value) / 100),
-  })
-  const percentuale = h('output', { class: 'panoramica__zoom-valore' }, '100%')
-  posaCollegamentiOverview(legami, true)
+  posaCollegamentiOverview(legami)
   return h('div', { class: 'panoramica' }, testataVista({ titolo: t.titolo,
     sottotitolo: nomeDelCorso(corso), aiuto: t.aiuto,
-    azioni: h('div', { class: 'panoramica__zoom' }, zoom, percentuale,
-      pulsante({ testo: t.adatta, variante: 'sottile', al: () =>
-        posaCollegamentiOverview(legami, true) })),
   }),
   h('p', { class: 'panoramica__legenda' },
     ...(['progetto', 'file', 'pendenza', 'check', 'valutazione'] as const).map((tipo) =>

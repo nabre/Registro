@@ -240,13 +240,13 @@ export function sidebar (): HTMLElement {
     // La classe del gruppo manda «sistema» (Impostazioni, Guida) in fondo alla
     // colonna (`sidebar.css`).
     ...gruppiDiPagine().map((gruppo) => [
-      gruppo.gruppo === 'registro' ? h('div', { class: 'sidebar__corso' },
+      gruppo.gruppo === 'registro' ? h('div', { class: ['sidebar__titolo', 'sidebar__corso'] },
         titoloCheSceglie(
           [corsoDelContesto() ? nomeDelCorso(corsoDelContesto()!) : t.cambiaCorso],
           t.cambiaCorso, 'sidebar-corso',
           () => vociDeiCorsi({ ...gruppo,
             attivo: gruppiDiPagine().some((g) =>
-              (g.gruppo === 'registro' || g.gruppo === 'progettazione') && g.attivo),
+              g.pagine.some((p) => p.id.startsWith('pagina.corso.') && p.attiva())),
           }),
         )) : null,
       h('section', { class: ['sidebar__gruppo', `sidebar__gruppo--${gruppo.gruppo}`] },

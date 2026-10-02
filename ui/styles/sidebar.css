@@ -59,6 +59,7 @@
   margin: 0 10px 2px; font-size: .76em; font-weight: 600; color: var(--testo-quieto);
 }
 .sidebar__titolo-riga { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar__corso { padding: 0; }
 /* Il titolo del Registro è anche la scelta del corso: sembra un titolo, e al
    passaggio si vede che si preme. */
 .sidebar__titolo-scelta {
@@ -179,7 +180,6 @@
 .sidebar--compatta .sidebar__marchio { justify-content: center; margin: 0 -6px 4px; padding: 14px 0 12px; }
 .sidebar--compatta .sidebar__marchio > .sidebar__logo,
 .sidebar--compatta .sidebar__marchio > div,
-.sidebar__corso { padding: 8px 10px; font-weight: 600; }
 .sidebar--compatta .sidebar__corso,
 .sidebar--compatta .sidebar__titolo,
 .sidebar--compatta .sidebar__pagina > span { display: none; }

@@ -121,9 +121,6 @@
 .panoramica__nodo--valutazione { --tinta-nodo: var(--attenzione); }
 .panoramica__nodo--check { --tinta-nodo: var(--positivo); }
 .panoramica__nodo--pendenza { --tinta-nodo: var(--testo-quieto); }
-.panoramica__zoom { display: flex; align-items: center; gap: 8px; }
-.panoramica__zoom input { width: 110px; accent-color: var(--accento); }
-.panoramica__zoom-valore { min-width: 3ch; font-variant-numeric: tabular-nums; }
 .panoramica__fase-progetto { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--bordo-tenue); }
 .panoramica__fase-progetto p { color: var(--testo-quieto); font-size: 11px; }
 .panoramica__fase-progetto ul { margin: 4px 0 0; padding-left: 14px; }
