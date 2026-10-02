@@ -259,6 +259,7 @@ class Contenuti extends Emettitore {
 
   reloadIgnoringCache () {
     this.emetti('did-start-loading')
+    this.emetti('did-start-navigation', { isMainFrame: true, isSameDocument: false })
   }
 }
 
@@ -353,6 +354,7 @@ export class BrowserWindow extends Emettitore {
   loadURL (indirizzo) {
     this.caricati.push(indirizzo)
     this.webContents.emetti('did-start-loading')
+    this.webContents.emetti('did-start-navigation', { isMainFrame: true, isSameDocument: false, url: indirizzo })
     return Promise.resolve()
   }
 

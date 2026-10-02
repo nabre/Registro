@@ -133,6 +133,22 @@ describe('i messaggi', () => {
     ])
   })
 
+  it('un iframe che carica non ferma la consegna', async () => {
+    const { pannello, finestra } = apriPannello()
+    pannello.webview.html = '<html lang="it"></html>'
+    finestra.finisciCaricamento()
+
+    // Il PDF nella cornice dell'archivio: Electron dice `did-start-loading`
+    // anche per lui, ma `did-finish-load` arriva solo per la pagina.
+    finestra.webContents.emetti('did-start-loading')
+    finestra.webContents.emetti('did-start-navigation', { isMainFrame: false, isSameDocument: false })
+    await pannello.webview.postMessage({ tipo: 'risposta', id: 9 })
+
+    assert.deepEqual(finestra.webContents.inviati, [
+      { canale: 'registro:messaggio', messaggio: { tipo: 'risposta', id: 9 } },
+    ])
+  })
+
   it('consegna a chi ha chiesto, e non all’altra finestra', () => {
     const primo = apriPannello()
     const secondo = apriPannello()

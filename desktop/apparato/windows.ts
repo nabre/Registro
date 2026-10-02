@@ -103,9 +103,12 @@ class VistaWeb implements Webview {
     this.onDidReceiveMessage = this.#emettitore.event
 
     // Come VS Code, si conservano i messaggi mandati prima del caricamento:
-    // `panels/projection.ts` spinge il primo contenuto nel costruttore.
-    finestra.webContents.on('did-start-loading', () => {
-      this.#caricata = false
+    // `panels/projection.ts` spinge il primo contenuto nel costruttore. Solo la
+    // pagina vera: `did-start-loading` parte anche per un iframe (il PDF nella
+    // cornice), e `did-finish-load` che lo riaprirebbe vale solo per la pagina,
+    // quindi ogni messaggio dopo, risposte comprese, restava fra gli arretrati.
+    finestra.webContents.on('did-start-navigation', (dettagli) => {
+      if (dettagli.isMainFrame && !dettagli.isSameDocument) this.#caricata = false
     })
     finestra.webContents.on('did-finish-load', () => {
       this.#caricata = true
