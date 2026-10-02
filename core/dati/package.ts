@@ -3,7 +3,8 @@
 // e si salva accodando (voci nuove, indice, coda: si scrive quanto la modifica)
 // o rifacendolo (documento nuovo o troppo spazio morto: temporaneo e rinomina);
 // in entrambi i casi un salvataggio interrotto lascia l'ultimo documento buono.
-// La serratura `.<nome>.regi.serratura` accanto avvisa chi lo apre altrove, non blocca.
+// La serratura `.<nome>.regi.serratura` accanto avvisa chi lo apre altrove, non blocca:
+// sta accanto al documento, quindi vale per ogni programma che lo apre.
 
 import * as apparato from 'apparato'
 
@@ -140,8 +141,10 @@ export class Pacchetto {
   /** Quanto del file non è più nominato da nessuno: cresce a ogni accodata. */
   private morto = 0
   /**
-   * La coda dello ZIP come l'abbiamo lasciata: prima di accodare dice se il file
-   * sul disco è ancora quello, perché accodare riusa i vecchi offset.
+   * Indice e coda dello ZIP come li abbiamo lasciati: prima di accodare dicono
+   * se il file sul disco è ancora quello, perché accodare riusa i vecchi offset.
+   * L'indice intero e non i soli 22 byte della coda: due archivi con le stesse
+   * misure hanno la stessa coda, non lo stesso indice (offset e CRC di ogni voce).
    */
   private fine: Uint8Array | null = null
   /** La serratura è nostra: alla chiusura si toglie. Falso se si è aperto in lettura. */
@@ -250,7 +253,7 @@ export class Pacchetto {
     }
     pacchetto.dimensione = aperto.dimensione
     pacchetto.morto = spazioMorto(aperto.voci, aperto.dimensione)
-    pacchetto.fine = ultimiByte(contenuto)
+    pacchetto.fine = ultimiByte(contenuto, aperto.inizioIndice)
 
     const dichiarato = pacchetto.leggiManifesto()
     if (dichiarato) pacchetto.manifesto = dichiarato
@@ -637,28 +640,41 @@ export class Pacchetto {
     })
     this.morto += this.dimensione - restano.reduce((t, v) => t + ingombro(v), 0)
     this.dimensione = da + corpiNuovi.length + coda.length
-    this.fine = ultimiByte(coda)
+    this.fine = ultimiByte(coda, 0)
     return true
   }
 
-  /** La via completa: si riscrive tutto, e lo spazio morto sparisce. */
+  /**
+   * La via completa: si riscrive tutto, e lo spazio morto sparisce. Il
+   * temporaneo è di questo salvataggio solo: con un nome comune, due programmi
+   * che rifanno insieme lo stesso documento (installato e `npm run dev`) si
+   * troncano e riscrivono a vicenda, e chi rinomina pubblica un file mescolato
+   * che misura e finisce come il suo: le accodate dopo nominano corpi altrui.
+   */
   private async rifai (blocchi: Array<{ voce: Voce | null, pronta: VocePronta }>): Promise<void> {
     const pronte = blocchi.map(({ pronta }) => pronta)
     const archivio = assembla(pronte)
-    const temporaneo = this.file.with({ path: `${this.file.path}.tmp` })
-    // `fsync` prima della rinomina: senza, un blackout può lasciare la rinomina
-    // fatta e i dati no.
-    await apparato.file.writeFile(temporaneo, archivio, { sincronizza: true })
-    await apparato.file.rename(temporaneo, this.file, { overwrite: true })
+    temporanei += 1
+    const temporaneo = this.file.with({ path: `${this.file.path}.${processo()}-${temporanei}.tmp` })
+    try {
+      // `fsync` prima della rinomina: senza, un blackout può lasciare la rinomina
+      // fatta e i dati no.
+      await apparato.file.writeFile(temporaneo, archivio, { sincronizza: true })
+      await apparato.file.rename(temporaneo, this.file, { overwrite: true })
+    } catch (errore) {
+      // Col nome proprio nessuno lo riscriverebbe più: non lo si lascia accanto.
+      await apparato.file.delete(temporaneo, { useTrash: false }).catch(() => undefined)
+      throw errore
+    }
 
     // Le voci sono rimesse in fila dall'inizio: collocazioni tutte nuove.
-    const { collocate } = corpi(pronte, 0)
+    const { blocco, collocate } = corpi(pronte, 0)
     blocchi.forEach(({ voce }, indice) => {
       if (voce) voce.collocata = collocate[indice]
     })
     this.dimensione = archivio.length
     this.morto = 0
-    this.fine = ultimiByte(archivio)
+    this.fine = ultimiByte(archivio, blocco.length)
   }
 
   // ------------------------------------------------------------ serratura
@@ -691,16 +707,23 @@ export class Pacchetto {
   /**
    * Prende la serratura; se non si scrive si va avanti lo stesso. `giàPresa`
    * serve alla ricarica: riscriverla lascerebbe un attimo l'anno libero.
+   * Chi apre «lo stesso» un anno tenuto da un altro programma vivo di questa
+   * macchina non ne copre la serratura: chiudendo prima dell'altro la
+   * cancellerebbe, e il prossimo ad aprire non saprebbe più niente. Quella di
+   * un'altra macchina si copre: non si sa se è viva, e una rimasta da un
+   * computer spento avviserebbe per sempre.
    */
   async prendi (opzioni?: { giàPresa?: boolean }): Promise<void> {
     if (opzioni?.giàPresa) {
       this.serrato = true
       return
     }
+    const presente = await Pacchetto.chiLoTiene(this.file)
+    if (presente && questaMacchina(presente) && presente.processo !== processo()) return
     const serratura: Serratura = {
       macchina: nomeMacchina(),
       utente: nomeUtente(),
-      processo: typeof process !== 'undefined' ? process.pid : 0,
+      processo: processo(),
       aperto: new Date().toISOString(),
     }
     try {
@@ -714,26 +737,49 @@ export class Pacchetto {
     }
   }
 
-  /** Restituisce la serratura, se era nostra. Si chiama chiudendo il documento. */
+  /**
+   * Restituisce la serratura, se è ancora nostra: chiudendo il documento. Una
+   * scritta dopo da altri (un'altra macchina, via OneDrive) resta, è la loro.
+   */
   async lascia (): Promise<void> {
     if (!this.serrato) return
     this.serrato = false
     try {
+      const testo = decodifica.decode(await apparato.file.readFile(fileSerratura(this.file)))
+      const letta = JSON.parse(testo) as Partial<Serratura>
+      const nostra = letta?.macchina === nomeMacchina() &&
+        letta.utente === nomeUtente() &&
+        letta.processo === processo()
+      if (!nostra) return
       await apparato.file.delete(fileSerratura(this.file), { useTrash: false })
     } catch {
-      // Rimasta: è di questa macchina, e `chiLoTiene` la ignora.
+      // Sparita o illeggibile; se è rimasta la nostra, a processo chiuso `chiLoTiene` la ignora.
     }
   }
 }
 
 const VUOTO = new Uint8Array(0)
 
-/** Quanti byte della fine del file si ricordano: la coda di uno ZIP senza commento. */
-const MISURA_FINE = 22
+/**
+ * Quanti byte della fine del file si ricordano al più: l'indice di migliaia di
+ * voci ci sta. Oltre (corpi a metà dopo l'indice) basta la parte finale.
+ */
+const MISURA_FINE = 1024 * 1024
 
-/** Gli ultimi byte di un contenuto, copiati: il contenuto può essere un buffer grande. */
-function ultimiByte (contenuto: Uint8Array): Uint8Array {
-  return contenuto.slice(Math.max(0, contenuto.length - MISURA_FINE))
+/**
+ * I byte di un contenuto da `inizioIndice` alla fine, copiati: il contenuto
+ * può essere un buffer grande.
+ */
+function ultimiByte (contenuto: Uint8Array, inizioIndice: number): Uint8Array {
+  return contenuto.slice(Math.max(0, inizioIndice, contenuto.length - MISURA_FINE))
+}
+
+/** I temporanei di `rifai` aperti da questo processo: il numero li tiene distinti. */
+let temporanei = 0
+
+/** Il processo che scrive: nella serratura e nel nome dei temporanei. */
+function processo (): number {
+  return typeof process !== 'undefined' ? process.pid : 0
 }
 
 /** Tutti i giorni che si guardano uno per uno; oltre, uno per settimana. */

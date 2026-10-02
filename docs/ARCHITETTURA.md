@@ -454,9 +454,11 @@ Formato e collezioni: [MODELLO-DATI](MODELLO-DATI.md) § 8. Qui il meccanismo.
 - **Accodamento** (`accoda`, il caso normale): comprime le voci cambiate, le
   scrive in coda con `apparato.accodaSe`, poi con un **secondo** `fsync`
   riscrive indice e coda ZIP; finché la coda nuova non è intera vale la
-  vecchia. Misura e coda del file si controllano nello stesso handle delle
+  vecchia. Misura, indice e coda del file si controllano nello stesso handle delle
   scritture: se un altro processo (es. `npm run dev` accanto a `start`) ha rifatto
-  il file, non si accoda. **Riscrittura** (`rifai`, temporaneo + rinomina) solo
+  il file, non si accoda. **Riscrittura** (`rifai`, temporaneo + rinomina; il
+  temporaneo ha nome proprio per processo e salvataggio, o due rifacimenti
+  insieme si mescolano) solo
   se il file non c'è o è cambiato altrove, lo spazio morto supera 256 KB e un terzo del file, o accodare costa più di
   metà documento. Non ogni salvataggio passa da temporaneo e rinomina.
 - **Storico**: prima di riscrivere, `Pacchetto.conserva(nome, COPIE_STORICO,
@@ -468,7 +470,10 @@ Formato e collezioni: [MODELLO-DATI](MODELLO-DATI.md) § 8. Qui il meccanismo.
   `data/<nome>.rotto-<istante>.json`.
 - **Serratura**: `.{nome}.serratura` = `{macchina, utente, processo, aperto}`,
   da `Pacchetto.prendi()`/`lascia()`. Se l'anno è aperto altrove, un dialogo:
-  «chi salva per ultimo copre il lavoro dell'altro».
+  «chi salva per ultimo copre il lavoro dell'altro». Sta accanto al documento,
+  quindi vale fra programmi diversi (installato e `npm run dev`); chi apre lo
+  stesso non copre quella viva di un altro processo della macchina, e `lascia()`
+  toglie solo la propria.
 - **Migrazioni**: `VERSIONE_DATI` (schema, ADR-37: passi, copia, riscrittura,
   avviso) e `VERSIONE_PACCHETTO` (contenitore) sono indipendenti. Sotto,
   `normalizzaRegistro()` gira a ogni caricamento, non lancia mai, e
