@@ -356,7 +356,14 @@ describe('i reperti medi dello stesso giro', () => {
     assert.equal(rotte.length, 1, riaperto.nomi().join(', '))
   })
 
-  it('lo storico a gradini tiene le ultime dieci, una per giorno del mese e una per settimana oltre', async () => {
+  it('lo storico a gradini tiene le ultime dieci, una per giorno del mese e una per settimana oltre', async (t) => {
+    // A mezzogiorno UTC: dopo mezzanotte le copie «di venti minuti fa» cadono
+    // nel giorno prima, e il gradino di ieri tiene giustamente una di loro.
+    const oggi = new Date()
+    t.mock.timers.enable({
+      apis: ['Date'],
+      now: Date.UTC(oggi.getUTCFullYear(), oggi.getUTCMonth(), oggi.getUTCDate(), 12),
+    })
     const pacchetto = Pacchetto.nuovo(documento())
     const marca = (quando) => new Date(quando).toISOString().slice(0, 16).replace(/[:T]/g, '-')
     const adesso = Date.now()

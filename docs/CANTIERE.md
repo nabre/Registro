@@ -58,15 +58,18 @@ controlli statici; skill `verifica`). Non prima.
       collezione, revisione fuori sequenza → stato intero; interruttore per
       tornare indietro. `misure.spec.ts` deve scendere, `staleEdits` e
       `morfosi` restare verdi.
-- [ ] Indice accodato che non corrisponde ai byte: 1/10, `.regi` su OneDrive,
-      Regiklass installato aperto dal giorno prima e `npm run dev` aperto alle
-      16:37:32, nello stesso istante della copia di conflitto
-      `-NABRELAPTOP-7`. Le code scritte dopo puntano a un layout compattato
-      (offset da 0) mentre i corpi stanno altrove: `apriZip` → «non si trova
-      dove l'indice dice». Corpi tutti integri (CRC), file rifatto
-      cercandoli per nome+CRC. Capire chi accoda su un file cambiato sotto
-      i piedi (file cambiato fuori → rileggere prima di `daAccodare`) e
-      perché la serratura non ha fermato il secondo programma.
+- [ ] Indice del 1/10 che non tornava: corretti il temporaneo comune di
+      `rifai` (ora per processo), il controllo prima di accodare (indice
+      intero, non 22 byte) e la serratura (non si copre quella viva di un
+      altro processo, si toglie solo la propria), con prove in
+      `tests/data/twoPrograms.test.mjs`. La sequenza resta probabile. Resta:
+      nessuna esclusione fra processi fra controllo e scrittura in
+      `accodaSe`; `core/dati/years.ts` `scriviJsonUri` usa ancora un `.tmp`
+      comune (la prova `yearsMigration` ne fissa il nome); un dev aperto «lo
+      stesso» non tiene la serratura; `.pid-n.tmp` orfani se un processo
+      cade. ADR-19 dice che `chiLoTiene` ignora la serratura della stessa
+      macchina, il codice solo se il processo è morto: allineare il testo
+      con la regola nuova.
 
 
 ### Rilascio e aggiornamenti
