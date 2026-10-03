@@ -2,6 +2,7 @@ import { attivitaConPendenza, colonneCheckDi } from '#core/dominio/activities.js
 import { confrontaLezioni } from '#core/dominio/calculations.js'
 import { checkDelCorso } from '#core/dominio/check.js'
 import { formattaData } from '#core/dominio/dates.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
 import type {
   Attivita, Lezione, MomentoValutazione, PianoLezione, Risorsa,
 } from '#core/dominio/models.js'
@@ -14,6 +15,7 @@ import { corsoDelContesto, nomeDelCorso } from '#ui/context.js'
 import { h, type Figlio } from '#ui/dom.js'
 import { moduloConsegna } from '#ui/forms.js'
 import { nomeDiPiano, stato, vai } from '#ui/state.js'
+import { apriIntegrazione } from './projects/links.js'
 import { testi } from './overview.testi.js'
 import {
   posaCollegamentiOverview, scordaCollegamentiOverview,
@@ -32,7 +34,7 @@ export function vistaOverview (): Figlio {
   const lezioni = r.lezioni.filter((l) => l.corsoId === corso.id).sort(confrontaLezioni)
   const assegnati = new Set(lezioni.map((l) => l.pianoId))
   const piani = r.piani.filter((p) => p.corsoId === corso.id && !assegnati.has(p.id))
-  const progetti = r.progetti.filter((p) => p.corsoId === corso.id)
+  const progetti = progettiDelCorso(r, corso.id)
   const check = checkDelCorso(r, corso.id)
   const nodi = new Map<string, HTMLElement>()
   const legami: CollegamentoOverview[] = []
@@ -104,8 +106,7 @@ export function vistaOverview (): Figlio {
         tipo: 'progetto' })
       porte.push(collegamento({ testo: `${progetto.titolo}${fase ? ` · ${fase.titolo}` : ''}`,
         classe: 'panoramica__porta panoramica__nodo--progetto',
-        al: () => { vai({ pagina: 'pagina.corso.progetti',
-          soggetto: { tipo: 'progetto', id: progetto.id } }) } }))
+        al: () => apriIntegrazione(progetto.id, corso!.id) }))
     }
     const consegnaId = attivitaConPendenza(a)
     const consegna = r.consegne.find((c) => c.id === consegnaId && c.corsoId === corso!.id)
@@ -173,8 +174,7 @@ export function vistaOverview (): Figlio {
       class: 'panoramica__progetto panoramica__nodo--progetto',
       // testo-fisso: identificatore del nodo
       dataset: { nodo: `progetto:${p.id}` },
-    }, h('h4', null, collegamento({ testo: p.titolo, al: () => { vai({ pagina: 'pagina.corso.progetti',
-      soggetto: { tipo: 'progetto', id: p.id } }) } })),
+    }, h('h4', null, collegamento({ testo: p.titolo, al: () => apriIntegrazione(p.id, corso.id) })),
     ...p.risorse.map((voce) => h('div', { class: 'panoramica__materiale' },
       icona('documento'), risorsa(voce))),
     ...p.fasi.map((fase) => h('section', {

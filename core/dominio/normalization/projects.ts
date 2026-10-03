@@ -1,4 +1,5 @@
-// I progetti dal file: criteri, livelli, fasi, compiti, giudizi e matrice.
+// I progetti dal file: criteri, livelli, fasi, scaletta e, per ogni corso in
+// cui sono integrati, stato, compiti, giudizi e matrice.
 
 import { giornoDi, isoValida, istanteAdesso, oggi } from '#core/dominio/dates.js'
 import { coloreValido } from '#core/dominio/lists.js'
@@ -14,6 +15,7 @@ import type {
   Progetto,
   AttivitaProgetto,
   FaseProgetto,
+  IntegrazioneProgetto,
   CompitoProgetto,
   CriterioProgetto,
   GiudizioProgetto,
@@ -134,11 +136,43 @@ function normalizzaCellaProgetto (grezzo: unknown): CellaProgetto | null {
 }
 
 /**
- * Il progetto dal file. Criteri, compiti e giudizi con id unico, una scala che
- * non resta mai vuota (senza, la matrice non saprebbe che cosa scrivere), celle
- * ripulite come dopo un salvataggio: niente celle di criteri spariti, né vuote,
- * né due nella stessa ora (o nello stesso giorno senza ora) sulla stessa
- * coppia. Il giorno di un'ora qui non si sa (manca il registro): due celle
+ * L'integrazione in un corso dal file; senza corso non c'è classe di cui
+ * parlare, e se ne va. Compiti e giudizi con id unico, celle ripulite: niente
+ * vuote, né due nella stessa ora (o nello stesso giorno senza ora) sulla
+ * stessa coppia.
+ */
+function normalizzaIntegrazione (grezzo: unknown): IntegrazioneProgetto | null {
+  const dati = oggetto(grezzo)
+  const corsoId = testo(dati.corsoId)
+  if (!corsoId) return null
+  const caselle = new Set<string>()
+  const matrice: CellaProgetto[] = []
+  for (const cella of elenco(dati.matrice).map(normalizzaCellaProgetto)) {
+    if (!cella || cellaVuota(cella)) continue
+    const casella = `${cella.allievoId} ${cella.criterioId} ${cella.lezioneId ?? cella.data}`
+    if (caselle.has(casella)) continue
+    caselle.add(casella)
+    matrice.push(cella)
+  }
+  return {
+    corsoId,
+    stato: unaVoce(dati.stato, STATI_PROGETTO, 'bozza'),
+    compiti: idUnici(elenco(dati.compiti).map(normalizzaCompitoProgetto), nuovoIdCompitoProgetto),
+    giudizi: idUnici(
+      elenco(dati.giudizi)
+        .map(normalizzaGiudizioProgetto)
+        .filter((g): g is GiudizioProgetto => g !== null),
+      nuovoIdGiudizioProgetto,
+    ),
+    matrice,
+  }
+}
+
+/**
+ * Il progetto dal file. Criteri con id unico, una scala che non resta mai
+ * vuota (senza, la matrice non saprebbe che cosa scrivere), un'integrazione
+ * per corso, celle ripulite come dopo un salvataggio: niente celle di criteri
+ * spariti. Il giorno di un'ora qui non si sa (manca il registro): due celle
  * dello stesso giorno, una nell'ora e una no, restano, e `progetto.cella` le
  * riscrive insieme.
  */
@@ -174,16 +208,6 @@ export function normalizzaProgetto (grezzo: unknown): Progetto {
     })
   }
 
-  const caselle = new Set<string>()
-  const matrice: CellaProgetto[] = []
-  for (const cella of elenco(dati.matrice).map(normalizzaCellaProgetto)) {
-    if (!cella || cellaVuota(cella)) continue
-    const casella = `${cella.allievoId} ${cella.criterioId} ${cella.lezioneId ?? cella.data}`
-    if (caselle.has(casella)) continue
-    caselle.add(casella)
-    matrice.push(cella)
-  }
-
   // Sempre almeno una fase: le tappe del progetto devono cadere in una.
   const idFasi = new Set<string>()
   const fasi: FaseProgetto[] = []
@@ -212,25 +236,26 @@ export function normalizzaProgetto (grezzo: unknown): Progetto {
     }
   })
 
+  // Un'integrazione per corso: con due, vale la prima, come per le voci per allievo.
+  const corsi = new Set<string>()
+  const integrazioni: IntegrazioneProgetto[] = []
+  for (const voce of elenco(dati.integrazioni)) {
+    const integrazione = normalizzaIntegrazione(voce)
+    if (!integrazione || corsi.has(integrazione.corsoId)) continue
+    corsi.add(integrazione.corsoId)
+    integrazioni.push(integrazione)
+  }
+
   const progetto: Progetto = {
     id: testo(dati.id) || nuovoIdProgetto(),
-    corsoId: testo(dati.corsoId),
     titolo: testo(dati.titolo).trim() || Uno(lessico().progetto),
     descrizione: testo(dati.descrizione) || undefined,
     obiettivi: elenco(dati.obiettivi).map((o) => testo(o).trim()).filter(Boolean),
-    stato: unaVoce(dati.stato, STATI_PROGETTO, 'bozza'),
     fasi,
     attivita: idUnici(attivita, nuovoIdAttivita),
     criteri,
     livelli: livelli.length > 0 ? livelli : livelliPredefiniti(),
-    compiti: idUnici(elenco(dati.compiti).map(normalizzaCompitoProgetto), nuovoIdCompitoProgetto),
-    giudizi: idUnici(
-      elenco(dati.giudizi)
-        .map(normalizzaGiudizioProgetto)
-        .filter((g): g is GiudizioProgetto => g !== null),
-      nuovoIdGiudizioProgetto,
-    ),
-    matrice,
+    integrazioni,
     risorse: elenco(dati.risorse).map(normalizzaRisorsa),
     note: testo(dati.note) || undefined,
     creatoIl: testo(dati.creatoIl, ora),

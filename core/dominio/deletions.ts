@@ -23,7 +23,7 @@ import {
   type ContestoRapporto,
   type GenereRapporto,
 } from './locations.js'
-import type { Collezione, Consegna, Progetto, Registro } from './models.js'
+import type { Collezione, Consegna, IntegrazioneProgetto, Progetto, Registro } from './models.js'
 import { allieviNominati, rimandiA, staccaDalleLezioni, togliAllievo } from './projects.js'
 import { testi } from './deletions.testi.js'
 
@@ -95,13 +95,14 @@ function fileDelProgetto (progetto: Progetto): string[] {
   return progetto.risorse.map((r) => r.file).filter((f): f is string => Boolean(f))
 }
 
-/** Quante voci di un progetto parlano di un allievo. */
+/** Quante voci di un progetto, in tutti i corsi, parlano di un allievo. */
 function vociDellAllievo (progetto: Progetto, allievoId: string): number {
   const suo = (voce: { allievoId: string | null }) => voce.allievoId === allievoId
-  return progetto.compiti.reduce(
+  const nell = (integrazione: IntegrazioneProgetto) => integrazione.compiti.reduce(
     (somma, c) => somma + [...c.inizi, ...c.proroghe, ...c.fatti].filter(suo).length,
     0,
-  ) + progetto.giudizi.filter(suo).length + progetto.matrice.filter(suo).length
+  ) + integrazione.giudizi.filter(suo).length + integrazione.matrice.filter(suo).length
+  return progetto.integrazioni.reduce((somma, i) => somma + nell(i), 0)
 }
 
 /** Se qualche comunicazione allega una di queste consegne. */
@@ -169,12 +170,14 @@ function chiusura (registro: Registro, bersaglio: Bersaglio) {
     if (corsi.has(lista.corsoId)) check.add(lista.id)
   }
 
-  // I progetti sono del corso come il check.
+  // I progetti sono dell'anno: un corso porta via solo le sue integrazioni.
   const progetti = new Set<string>()
   if (bersaglio.genere === 'progetto') progetti.add(bersaglio.id)
-  for (const progetto of registro.progetti) {
-    if (corsi.has(progetto.corsoId)) progetti.add(progetto.id)
-  }
+  const integrazioni = registro.progetti
+    .filter((p) => !progetti.has(p.id))
+    .flatMap((p) => p.integrazioni
+      .filter((i) => corsi.has(i.corsoId))
+      .map((i) => ({ progettoId: p.id, corsoId: i.corsoId })))
 
   // Gli smistamenti aspettano una consegna o una classe: senza, aspetterebbero
   // per sempre.
@@ -187,7 +190,18 @@ function chiusura (registro: Registro, bersaglio: Bersaglio) {
     }
   }
 
-  return { classi, corsi, materie, lezioni, valutazioni, consegne, check, progetti, smistamenti }
+  return {
+    classi,
+    corsi,
+    materie,
+    lezioni,
+    valutazioni,
+    consegne,
+    check,
+    progetti,
+    integrazioni,
+    smistamenti,
+  }
 }
 
 /**
@@ -528,8 +542,13 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     // suoi fogli dei progetti della classe.
     aggiungiGenerati(registro, file, 'allievo', bersaglio.id)
     const corsiSuoi = new Set(corsiDellaClasse(registro, bersaglio.classeId).map((c) => c.id))
-    for (const progetto of registro.progetti.filter((p) => corsiSuoi.has(p.corsoId))) {
-      aggiungiGenerati(registro, file, 'progetto-allievo', progetto.id, { allievoId: bersaglio.id })
+    for (const progetto of registro.progetti) {
+      for (const integrazione of progetto.integrazioni.filter((i) => corsiSuoi.has(i.corsoId))) {
+        aggiungiGenerati(registro, file, 'progetto-allievo', progetto.id, {
+          corsoId: integrazione.corsoId,
+          allievoId: bersaglio.id,
+        })
+      }
     }
 
     return {
@@ -595,8 +614,8 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
             lista.spunte = lista.spunte.filter((s) => s.allievoId !== bersaglio.id)
           }
         }
-        for (const progetto of r.progetti) {
-          if (allieviNominati(progetto).has(bersaglio.id)) togliAllievo(progetto, bersaglio.id)
+        for (const integrazione of r.progetti.flatMap((p) => p.integrazioni)) {
+          if (allieviNominati(integrazione).has(bersaglio.id)) togliAllievo(integrazione, bersaglio.id)
         }
         const fascicoloVivo = fascicoloDellaClasse(r, bersaglio.classeId)
         if (fascicoloVivo) {
@@ -613,7 +632,17 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
   }
 
   // ------------------------------------------------------------- la catena
-  const { classi, corsi, lezioni, valutazioni, consegne, check, progetti, smistamenti } = insieme
+  const {
+    classi,
+    corsi,
+    lezioni,
+    valutazioni,
+    consegne,
+    check,
+    progetti,
+    integrazioni,
+    smistamenti,
+  } = insieme
 
   if (bersaglio.genere === 'anno' && classi.size > 0) {
     const allievi = contaAllievi(registro, classi)
@@ -685,7 +714,7 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     collezioni.add('check')
   }
 
-  // I progetti del corso se ne vanno con lui, con i file delle loro risorse.
+  // Il progetto se ne va con i file delle sue risorse.
   if (progetti.size > 0) {
     collezioni.add('progetti')
     let suoi = 0
@@ -695,8 +724,13 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
       suoi += fileSuoi.length
       file.documenti.push(...fileSuoi)
     }
-    if (bersaglio.genere !== 'progetto') perdite.push(t.progetti(progetti.size))
-    else if (suoi > 0) perdite.push(t.fileDelProgetto(suoi))
+    if (suoi > 0) perdite.push(t.fileDelProgetto(suoi))
+  }
+  // Le integrazioni dei corsi che se ne vanno, con il lavoro con la classe; il
+  // progetto resta.
+  if (integrazioni.length > 0) {
+    collezioni.add('progetti')
+    perdite.push(t.integrazioni(integrazioni.length))
   }
 
   // Tappe e momenti che lavoravano per un progetto che se ne va restano,
@@ -719,9 +753,12 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
 
   // Le voci dei progetti date in un'ora che se ne va restano, col giorno
   // dell'ora, come le spunte del check.
+  // Le integrazioni che se ne vanno sono già perdite.
   const vociStaccate = registro.progetti
     .filter((p) => !progetti.has(p.id))
-    .reduce((somma, p) => somma + rimandiA(p, lezioni), 0)
+    .reduce((somma, p) => somma + rimandiA({
+      integrazioni: p.integrazioni.filter((i) => !corsi.has(i.corsoId)),
+    }, lezioni), 0)
   if (vociStaccate > 0) {
     staccati.push(t.progettiConData(vociStaccate))
     collezioni.add('progetti')
@@ -851,10 +888,15 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
     }
   }
   if (bersaglio.genere === 'piano') aggiungiGenerati(registro, file, 'piano', bersaglio.id)
-  // I due fogli di ogni progetto che se ne va: della classe e di ognuno.
+  // I due fogli di ogni progetto che se ne va, in ogni corso: della classe e
+  // di ognuno. E quelli delle integrazioni che se ne vanno.
   for (const progettoId of progetti) {
     aggiungiGenerati(registro, file, 'progetto-classe', progettoId)
     aggiungiGenerati(registro, file, 'progetto-allievo', progettoId)
+  }
+  for (const { progettoId, corsoId } of integrazioni) {
+    aggiungiGenerati(registro, file, 'progetto-classe', progettoId, { corsoId })
+    aggiungiGenerati(registro, file, 'progetto-allievo', progettoId, { corsoId })
   }
 
   // Si dice: si rifanno con un pulsante, ma chi li aveva consegnati deve saperlo.
@@ -915,6 +957,11 @@ export function eliminazione (registro: Registro, bersaglio: Bersaglio): Elimina
         // I piani restano, senza corso, in fondo all'elenco.
         for (const piano of r.piani) {
           if (piano.corsoId && corsi.has(piano.corsoId)) piano.corsoId = null
+        }
+        // Le integrazioni nei corsi che se ne vanno; il progetto resta.
+        for (const progetto of r.progetti) {
+          if (!progetto.integrazioni.some((i) => corsi.has(i.corsoId))) continue
+          progetto.integrazioni = progetto.integrazioni.filter((i) => !corsi.has(i.corsoId))
         }
       }
       if (lezioni.size > 0) {

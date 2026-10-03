@@ -792,7 +792,7 @@ export interface MomentoValutazione {
    * si distinguerebbero.
    */
   attivitaId?: string | null
-  /** Il progetto che ha promosso la prova, se ce n'è uno: dello stesso corso. */
+  /** Il progetto che ha promosso la prova, se ce n'è uno: integrato nello stesso corso. */
   progettoId?: string | null
   titolo: string
   tipo: TipoValutazione
@@ -1109,20 +1109,32 @@ export interface FaseProgetto {
 }
 
 /**
- * Un progetto di un corso: un contenitore che raccoglie, di traverso, tappe di
- * più piani lezione, divise in fasi, con obiettivi, criteri e livelli, compiti
- * con inizio per allievo, giudizi e una matrice datata. Le lezioni del
- * progetto non si elencano qui: sono quelle il cui piano ha tappe con questo
- * `progettoId`, e da loro viene anche il periodo (`periodoDelProgetto`):
- * niente date proprie, che si scorderebbero dal calendario.
+ * Il lavoro di un progetto con la classe di un corso: a che punto è, i compiti
+ * con inizio per allievo, i giudizi e la matrice datata. Uno per corso; i
+ * criteri e i livelli che la matrice nomina sono del progetto.
+ */
+export interface IntegrazioneProgetto {
+  corsoId: string
+  stato: StatoProgetto
+  compiti: CompitoProgetto[]
+  giudizi: GiudizioProgetto[]
+  matrice: CellaProgetto[]
+}
+
+/**
+ * Un progetto dell'anno, di nessun corso: una risorsa che raccoglie, di
+ * traverso, tappe di più piani lezione, divise in fasi, con obiettivi, criteri
+ * e livelli. Si integra in un corso (`integrazioni`), e lì ha compiti,
+ * giudizi e matrice. Le lezioni del progetto non si elencano qui: sono quelle
+ * il cui piano ha tappe con questo `progettoId`, e da loro viene anche il
+ * periodo (`periodoDelProgetto`): niente date proprie, che si scorderebbero
+ * dal calendario.
  */
 export interface Progetto {
   id: string
-  corsoId: string
   titolo: string
   descrizione?: string
   obiettivi: string[]
-  stato: StatoProgetto
   /**
    * Le fasi, nell'ordine in cui si susseguono; sempre almeno una, perché ogni
    * tappa del progetto deve cadere in una fase: un progetto non diviso ha la
@@ -1133,14 +1145,20 @@ export interface Progetto {
   attivita?: AttivitaProgetto[]
   criteri: CriterioProgetto[]
   livelli: LivelloProgetto[]
-  compiti: CompitoProgetto[]
-  giudizi: GiudizioProgetto[]
-  matrice: CellaProgetto[]
+  /** Una per corso, al più. */
+  integrazioni: IntegrazioneProgetto[]
   risorse: Risorsa[]
   note?: string
   creatoIl: Istante
   aggiornatoIl: Istante
 }
+
+/**
+ * Il progetto visto da un corso: la testata del progetto con i campi della sua
+ * integrazione. Non si salva: lo compone `nelCorso`, e gli elenchi sono quelli
+ * dell'integrazione.
+ */
+export type ProgettoNelCorso = Omit<Progetto, 'integrazioni'> & IntegrazioneProgetto
 
 // ------------------------------------------------------------- smistamento
 
@@ -1543,8 +1561,10 @@ export interface Registro {
  * uno per UD (`ritardi`), perché in un'ora i ritardi possono essere più d'uno.
  * 5 → 6: la scaletta dei progetti e il collegamento alle attività dei piani;
  * il contenuto si condivide, mentre le durate dei piani restano locali.
+ * 6 → 7: il progetto non è più di un corso; stato, compiti, giudizi e matrice
+ * passano alla sua integrazione nel corso (`Progetto.integrazioni`).
  */
-export const VERSIONE_DATI = 6
+export const VERSIONE_DATI = 7
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

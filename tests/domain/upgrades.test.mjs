@@ -154,6 +154,42 @@ describe('il passo 5: i minuti di ritardo per UD', () => {
   })
 })
 
+describe('il passo 7: il progetto si integra nel corso', () => {
+  // Solo il passo vero, da un documento del formato 6.
+  const porta = (progetti) => aggiornaFormato({ registro: {}, progetti }, 6).dati.progetti
+
+  it('corso, stato, compiti, giudizi e matrice passano nella prima integrazione', () => {
+    const compiti = [{ id: 'cmp-1', titolo: 'Rilievo' }]
+    const giudizi = [{ id: 'gdz-1', testo: 'Bene' }]
+    const matrice = [{ allievoId: 'al-1', criterioId: 'crp-1', data: '2026-10-06', livello: 'raggiunto' }]
+    const [progetto] = porta([{
+      id: 'prg-1', corsoId: 'cor-1', titolo: 'Officina', stato: 'in-corso', criteri: [], compiti, giudizi, matrice,
+    }])
+    assert.deepEqual(progetto, {
+      id: 'prg-1',
+      titolo: 'Officina',
+      criteri: [],
+      integrazioni: [{ corsoId: 'cor-1', stato: 'in-corso', compiti, giudizi, matrice }],
+    })
+  })
+
+  it('senza corso il lavoro con la classe non ha di chi parlare: resta la testata', () => {
+    const [progetto] = porta([{ id: 'prg-1', corsoId: '', titolo: 'X', stato: 'bozza', compiti: [{ id: 'c' }] }])
+    assert.deepEqual(progetto, { id: 'prg-1', titolo: 'X', integrazioni: [] })
+  })
+
+  it('un documento senza progetti, o con voci strane, passa senza danno', () => {
+    assert.equal(aggiornaFormato({ registro: {} }, 6).dati.progetti, undefined)
+    assert.deepEqual(porta([null, 7]), [null, 7])
+  })
+
+  it('un documento già del formato 7 non ripassa da qui', () => {
+    const integrazioni = [{ corsoId: 'cor-1', stato: 'bozza', compiti: [], giudizi: [], matrice: [] }]
+    const letti = { registro: {}, progetti: [{ id: 'prg-1', integrazioni }] }
+    assert.deepEqual(aggiornaFormato(letti, 7).dati.progetti, [{ id: 'prg-1', integrazioni }])
+  })
+})
+
 describe('un anno da un registro più recente', () => {
   it('la frase che lo rifiuta si riconosce da chi la mostra', () => {
     for (const cosa of ['dati', 'formato']) {

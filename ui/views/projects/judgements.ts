@@ -4,7 +4,7 @@
 
 import { nomeCompleto } from '#core/dominio/calculations.js'
 import { formattaData } from '#core/dominio/dates.js'
-import type { GiudizioProgetto, Lezione, Progetto } from '#core/dominio/models.js'
+import type { GiudizioProgetto, Lezione, ProgettoNelCorso } from '#core/dominio/models.js'
 import { giornoDellaVoce } from '#core/dominio/projects.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { pulsante, quieto, tendina } from '#ui/components/base.js'
@@ -17,7 +17,7 @@ import { testi } from './judgements.testi.js'
 /** Per chi si scrive il prossimo giudizio, per progetto: resta fra un ridisegno e l'altro. */
 const destinatari = new Map<string, string>()
 
-export function giudiziDelProgetto (progetto: Progetto, lezione: Lezione | null): HTMLElement {
+export function giudiziDelProgetto (progetto: ProgettoNelCorso, lezione: Lezione | null): HTMLElement {
   const t = testi()
   const allievi = allieviDelProgetto(progetto)
   const nomi = new Map(allievi.map((a) => [a.id, nomeCompleto(a)]))
@@ -43,6 +43,7 @@ export function giudiziDelProgetto (progetto: Progetto, lezione: Lezione | null)
     const risposta = await azione({
       tipo: 'progetto.giudizio.salva',
       progettoId: progetto.id,
+      corsoId: progetto.corsoId,
       giudizio: {
         allievoId: destinatari.get(progetto.id) || null,
         testo: scritto,

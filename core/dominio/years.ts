@@ -232,7 +232,14 @@ export function fetteDellAnno (registro: Registro, annoId: string, ripiego: bool
     consegne,
     // Il check è del corso come le consegne: va dove va il suo corso.
     check: delCorso(registro.check),
-    progetti: delCorso(registro.progetti),
+    // Il progetto va nell'anno dei corsi in cui è integrato, con le sole
+    // integrazioni di quell'anno; senza corsi noti, fra gli sciolti.
+    progetti: registro.progetti.flatMap((p) => {
+      const sciolta = (i: { corsoId: string }) => !tuttiICorsi.has(i.corsoId)
+      const sue = p.integrazioni.filter((i) => idCorsi.has(i.corsoId) || (ripiego && sciolta(i)))
+      const qui = sue.some((i) => idCorsi.has(i.corsoId)) || (ripiego && p.integrazioni.every(sciolta))
+      return qui ? [{ ...p, integrazioni: sue }] : []
+    }),
     fascicoli: tieni(
       registro.fascicoli,
       (f) => idClassi.has(f.classeId),

@@ -8,16 +8,20 @@
 import type { ProceduraQualunque } from '#contract/contract.js'
 import { procedura as cella } from './cella.js'
 import { procedura as elimina } from './elimina.js'
+import { procedura as integra } from './integra.js'
 import { procedura as leggi } from './leggi.js'
 import { procedura as salva } from './salva.js'
 import { procedureProgettiCompito } from './compito/index.js'
 import { procedureProgettiGiudizio } from './giudizio/index.js'
+import { procedureProgettiIntegrazione } from './integrazione/index.js'
 
 export const procedureProgetti: ProceduraQualunque[] = [
   ...procedureProgettiCompito,
   ...procedureProgettiGiudizio,
+  ...procedureProgettiIntegrazione,
   cella,
   elimina,
+  integra,
   leggi,
   salva,
 ]

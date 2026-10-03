@@ -3,7 +3,7 @@
 
 import type { Registro } from '#core/dominio/models.js'
 import { VERSIONE_DATI } from '#core/dominio/models.js'
-import { fasiDelleTappe } from '#core/dominio/projects.js'
+import { fasiDelleTappe, integrazioniDeiPiani } from '#core/dominio/projects.js'
 import { Migrazione } from '#core/dominio/migration.js'
 import {
   testo,
@@ -185,11 +185,15 @@ export function normalizzaRegistro (grezzo: unknown): Registro {
     check: unCheckPerCorso(
       elenco(dati.check).map((g) => normalizzaCheck(migrazione.conCorsoVero(g))),
     ),
-    progetti: elenco(dati.progetti).map((g) => normalizzaProgetto(migrazione.conCorsoVero(g))),
+    progetti: elenco(dati.progetti).map((g) => {
+      const dato = oggetto(g)
+      return normalizzaProgetto({ ...dato, integrazioni: elenco(dato.integrazioni).map((i) => migrazione.conCorsoVero(i)) })
+    }),
     smistamenti: elenco(dati.smistamenti).map(normalizzaSmistamento),
     coordinate: coordinateDellAnno(dati, classiGrezze),
     impostazioni: conCarteComplete(normalizzaImpostazioni(dati.impostazioni), migrazione.corsi),
   }
+  integrazioniDeiPiani(registro)
   fasiDelleTappe(registro)
   return registro
 }

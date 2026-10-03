@@ -7,7 +7,7 @@
 
 import { nomeCompleto } from '#core/dominio/calculations.js'
 import { formattaData } from '#core/dominio/dates.js'
-import type { Allievo, CompitoProgetto, Iso, Lezione, Progetto } from '#core/dominio/models.js'
+import type { Allievo, CompitoProgetto, Iso, Lezione, ProgettoNelCorso } from '#core/dominio/models.js'
 import {
   fineDelCompito,
   fineEffettiva,
@@ -66,12 +66,13 @@ const inVolo = statoInVolo<boolean>()
 
 function spuntaFatto (
   progettoId: string,
+  corsoId: string,
   compitoId: string,
   allievoId: string,
   fatto: boolean,
 ): Promise<Risposta> {
   return inVolo.manda(`${progettoId}|${compitoId}|${allievoId}`, fatto, () =>
-    azione({ tipo: 'progetto.compito.fatto', progettoId, compitoId, allievoId, fatto }))
+    azione({ tipo: 'progetto.compito.fatto', progettoId, corsoId, compitoId, allievoId, fatto }))
 }
 
 /**
@@ -80,7 +81,7 @@ function spuntaFatto (
  * per chi non aveva cominciato. Con `spostaAOggi` la pagina sposta anche loro.
  */
 function inizia (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   compito: CompitoProgetto,
   allieviIds: string[],
   lezione: Lezione | null,
@@ -90,6 +91,7 @@ function inizia (
   return azione({
     tipo: 'progetto.compito.inizia',
     progettoId: progetto.id,
+    corsoId: progetto.corsoId,
     compitoId: compito.id,
     allieviIds,
     ...(lezione ? { lezioneId: lezione.id } : spostaAOggi ? { data: stato.adessoData } : {}),
@@ -105,7 +107,7 @@ function fineDetta (compito: CompitoProgetto): string {
 
 /** Il menu sulla casella dell'inizio di una persona. */
 function vociInizio (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   compito: CompitoProgetto,
   allievo: Allievo,
   lezione: Lezione | null,
@@ -131,7 +133,7 @@ function vociInizio (
   voci.push({
     testo: t.scegliGiorno,
     simbolo: 'calendario',
-    al: () => moduloInizio({ progettoId: progetto.id, compito, allievi: [allievo], data }),
+    al: () => moduloInizio({ progettoId: progetto.id, corsoId: progetto.corsoId, compito, allievi: [allievo], data }),
   })
   if (inizio) {
     voci.push('separatore', {
@@ -142,6 +144,7 @@ function vociInizio (
         void azione({
           tipo: 'progetto.compito.togliInizio',
           progettoId: progetto.id,
+          corsoId: progetto.corsoId,
           compitoId: compito.id,
           allieviIds: [allievo.id],
         })
@@ -164,7 +167,7 @@ function apriMenu (evento: MouseEvent, voci: ElementoMenu[]): void {
 
 /** Una riga della griglia: scelta, nome, inizio, fine, stato, fatto. */
 function rigaAllievo (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   compito: CompitoProgetto,
   allievo: Allievo,
   lezione: Lezione | null,
@@ -225,6 +228,7 @@ function rigaAllievo (
       },
       onclick: () => moduloProroga({
         progettoId: progetto.id,
+        corsoId: progetto.corsoId,
         compito,
         allievo,
         fineComune: fineDelCompito(stato.registro, compito),
@@ -246,7 +250,7 @@ function rigaAllievo (
         'aria-label': t.fattoDi(chi),
       },
       onclick: () => {
-        void spuntaFatto(progetto.id, compito.id, allievo.id, !inVolo.da(volo, Boolean(fatto)))
+        void spuntaFatto(progetto.id, progetto.corsoId, compito.id, allievo.id, !inVolo.da(volo, Boolean(fatto)))
       },
     },
     fatto ? icona('spunta') : null,
@@ -284,7 +288,7 @@ function rigaAllievo (
 
 /** Un compito aperto: la riga dei dettagli, i gesti di gruppo e la griglia. */
 function bloccoCompito (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   compito: CompitoProgetto,
   lezione: Lezione | null,
 ): HTMLElement {
@@ -350,7 +354,13 @@ function bloccoCompito (
       variante: 'sottile',
       disabilitato: fatti === attivi.length,
       al: () => {
-        void azione({ tipo: 'progetto.compito.fattoTutti', progettoId: progetto.id, compitoId: compito.id, fatto: true })
+        void azione({
+          tipo: 'progetto.compito.fattoTutti',
+          progettoId: progetto.id,
+          corsoId: progetto.corsoId,
+          compitoId: compito.id,
+          fatto: true,
+        })
       },
     }),
     pulsante({
@@ -366,7 +376,13 @@ function bloccoCompito (
           pericolo: true,
         })
         if (!sicuro) return
-        void azione({ tipo: 'progetto.compito.fattoTutti', progettoId: progetto.id, compitoId: compito.id, fatto: false })
+        void azione({
+          tipo: 'progetto.compito.fattoTutti',
+          progettoId: progetto.id,
+          corsoId: progetto.corsoId,
+          compitoId: compito.id,
+          fatto: false,
+        })
       },
     }),
   ]
@@ -402,7 +418,7 @@ function bloccoCompito (
 // testo-fisso: prefisso di id del DOM, non si legge
 const idLinguetta = (compito: CompitoProgetto): string => `compito-linguetta-${compito.id}`
 // testo-fisso: prefisso di id del DOM, non si legge
-const idPannello = (progetto: Progetto): string => `compiti-pannello-${progetto.id}`
+const idPannello = (progetto: ProgettoNelCorso): string => `compiti-pannello-${progetto.id}`
 
 /**
  * Chi ha chiesto un compito nuovo da questo progetto, con i compiti che
@@ -411,7 +427,7 @@ const idPannello = (progetto: Progetto): string => `compiti-pannello-${progetto.
 const nuoviAttesi = new Map<string, Set<string>>()
 
 /** Il compito aperto: quello scelto, se c'è ancora; altrimenti il primo. */
-function compitoAperto (progetto: Progetto): CompitoProgetto | null {
+function compitoAperto (progetto: ProgettoNelCorso): CompitoProgetto | null {
   const attesi = nuoviAttesi.get(progetto.id)
   const nuovo = attesi ? progetto.compiti.find((c) => !attesi.has(c.id)) : undefined
   if (nuovo) {
@@ -436,14 +452,14 @@ function conScelta (progettoId: string, compitoId: string): Record<string, strin
  * Il modulo di un compito nuovo; salvato, la sua linguetta si apre. Lo usa
  * anche il comando della barra.
  */
-export function nuovoCompito (progetto: Progetto): void {
+export function nuovoCompito (progetto: ProgettoNelCorso): void {
   nuoviAttesi.set(progetto.id, new Set(progetto.compiti.map((c) => c.id)))
   moduloCompito({ progetto })
 }
 
 /** Quanti hanno finito e quanti sono oltre la fine, fra chi frequenta. */
 function contoDelCompito (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   compito: CompitoProgetto,
   giorno: Iso,
 ): { fatti: number, tutti: number, scaduti: number } {
@@ -461,7 +477,7 @@ function contoDelCompito (
  * pallino se qualcuno è oltre la fine, e il «+» per uno nuovo. Si comportano
  * come il `selettore`: le frecce, Inizio e Fine scelgono e il fuoco segue.
  */
-function linguette (progetto: Progetto, aperto: CompitoProgetto, giorno: Iso): HTMLElement {
+function linguette (progetto: ProgettoNelCorso, aperto: CompitoProgetto, giorno: Iso): HTMLElement {
   const t = testi()
   const compiti = progetto.compiti
   const scegli = (compito: CompitoProgetto): void => {
@@ -543,7 +559,7 @@ function linguette (progetto: Progetto, aperto: CompitoProgetto, giorno: Iso): H
  * I compiti del progetto a linguette, con la griglia di quello aperto. Dentro
  * un'ora l'inizio si lega all'ora e lo stato si legge nel suo giorno.
  */
-export function compitiDelProgetto (progetto: Progetto, lezione: Lezione | null): HTMLElement {
+export function compitiDelProgetto (progetto: ProgettoNelCorso, lezione: Lezione | null): HTMLElement {
   const t = testi()
   const aperto = compitoAperto(progetto)
   return h(

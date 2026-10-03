@@ -9,7 +9,7 @@ import { classeDelFascicolo, corsoDelContesto, nomeDelCorso } from './context.js
 import { nomeDelGruppo, nomeDelPosto, paginaAttiva } from './pages.js'
 import { porzioneAttiva } from './tabs.js'
 import { h, type Figlio } from './dom.js'
-import { lezionePerId, nomeDiPiano, pianoPerId, progettoPerId, stato } from './state.js'
+import { lezionePerId, nomeDiPiano, pianoPerId, progettoNelCorso, progettoPerId, stato } from './state.js'
 import { testi } from './breadcrumb.testi.js'
 
 /** Che cosa dice un passo del percorso: serve a disegnarlo e a spiegarlo. */
@@ -98,7 +98,10 @@ function elementoAperto (): Passo | null {
       return passo(piano ? nomeDiPiano(piano) : null)
     }
     case 'progetti':
-      return passo(progettoPerId(stato.progettoId)?.titolo)
+      // Nell'integrazione, il progetto solo se è integrato nel corso di lavoro.
+      return passo(stato.posto.pagina === 'pagina.corso.integrazione'
+        ? progettoNelCorso(stato.progettoId, corsoDelContesto()?.id)?.titolo
+        : progettoPerId(stato.progettoId)?.titolo)
     case 'valutazioni': {
       const momento = stato.registro.valutazioni.find((v) => v.id === stato.valutazioneId)
       return passo(momento?.titolo)

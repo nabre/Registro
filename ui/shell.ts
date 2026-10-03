@@ -32,6 +32,7 @@ import { vistaLezione } from './views/lesson.js'
 import { vistaMappa } from './views/map.js'
 import { vistaPiani } from './views/plans.js'
 import { vistaProgetti } from './views/projects.js'
+import { vistaIntegrazioneProgetti } from './views/projectIntegration.js'
 import { vistaValutazioni } from './views/assessments.js'
 import { vistaCheck } from './views/check.js'
 import { vistaOverview } from './views/overview.js'
@@ -65,7 +66,8 @@ function vistaCorrente (): Figlio {
     case 'piani':
       return vistaPiani()
     case 'progetti':
-      return vistaProgetti()
+      // Una vista, due pagine: la biblioteca dell'anno e l'integrazione nel corso.
+      return stato.posto.pagina === 'pagina.corso.integrazione' ? vistaIntegrazioneProgetti() : vistaProgetti()
     case 'overview':
       return vistaOverview()
     case 'valutazioni':
@@ -188,7 +190,8 @@ const SOGGETTO_DA_DENTRO: ReadonlySet<PaginaId> = new Set<PaginaId>([
   'pagina.corsi',
   'pagina.corso.overview',
   'pagina.corso.piani',
-  'pagina.corso.progetti',
+  'pagina.progetti',
+  'pagina.corso.integrazione',
   'pagina.corso.valutazioni',
   'pagina.corso.check',
   'pagina.classi',

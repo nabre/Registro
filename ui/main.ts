@@ -53,9 +53,8 @@ import { scordaDestinatariMandati } from './views/classTeacher.js'
 import { avviaAggiornamenti } from './views/settings/updates.js'
 import { apriInformazioniDocumento } from './forms/documentInfo.js'
 import { moduloAnno } from './forms/year.js'
-import { corsoDelContesto } from './context.js'
 import { moduloProgetto } from './forms/project.js'
-import { apriProgetto } from './views/projects.js'
+import { apriProgetto } from './views/projects/links.js'
 import {
   moduloClasse,
   moduloCorso,
@@ -220,10 +219,8 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione): void {
 
   if (messaggio.vista === 'classi') moduloClasse()
   if (messaggio.vista === 'corsi') moduloCorso()
-  if (messaggio.vista === 'progetti') {
-    const corso = corsoDelContesto()
-    if (corso) moduloProgetto({ corsoId: corso.id, dopo: apriProgetto })
-  }
+  // Il progetto nasce nella biblioteca dell'anno, di nessun corso.
+  if (messaggio.vista === 'progetti') moduloProgetto({ dopo: apriProgetto })
   // Un piano nasce da un'ora: da qui non saprebbe di quale.
   if (messaggio.vista === 'piani') {
     notifica(testi().pianoDallOra, 'info')

@@ -1118,6 +1118,33 @@ la nuova scaletta non è un secondo calendario.
 La panoramica offre uno schema compatto con zoom e collegamenti visibili:
 la selezione di un nodo mette in evidenza le sue relazioni.
 
+### Estensione di ADR-54: progetto di biblioteca e integrazione nel corso (2026-10-03)
+
+**Decisione.** Il progetto non appartiene più a un corso: è una risorsa
+dell'anno (testata, obiettivi, fasi, scaletta, criteri, livelli, risorse)
+che si integra nei piani lezione. Quel che riguarda una classe sta in
+`Progetto.integrazioni`, una voce per corso: `corsoId`, `stato`, `compiti`,
+`giudizi`, `matrice`. La pagina Progetti è la biblioteca, senza corso; la
+pagina «Integrazione progetti» della progettazione mostra, per il corso,
+i progetti integrati, i piani che ne portano le tappe e il lavoro con la
+classe (compiti, matrice, giudizi, esiti).
+
+Le letture del dominio lavorano su `ProgettoNelCorso` (`nelCorso`): il
+progetto con i campi della sua integrazione, come il `Progetto` di prima.
+Un piano di un corso che lega una tappa a un progetto lo integra in quel
+corso (lo fa la normalizzazione, se manca). Togliere un'integrazione
+sgancia le tappe dei piani di quel corso e i momenti, come cancellare il
+progetto; cancellare un corso toglie le sue integrazioni, non il progetto.
+
+**Perché.** Lo stesso progetto si propone a più classi: con il corso dentro
+si duplicava, e le correzioni alla scaletta non arrivavano alle copie. I
+dati per allievo restano per corso, perché la classe è quella del corso.
+
+**Vincoli.** `VERSIONE_DATI` 6 → 7: il passo sposta `corsoId`, `stato`,
+`compiti`, `giudizi` e `matrice` di ogni progetto nella sua prima
+integrazione. Criteri e livelli sono del progetto: la matrice di ogni corso
+li nomina, e un criterio tolto porta via le celle di tutti i corsi.
+
 ## Vincoli intoccabili
 
 

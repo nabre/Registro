@@ -10,6 +10,7 @@ const it = {
   nuovaFaseIn: (titolo: string) => `Nuova fase in «${titolo}»`,
   nuovoProgetto: 'Nuovo progetto…',
   niente: 'Niente corrisponde.',
+  nonNelCorso: 'non ancora nel corso',
 }
 
 export const testi = catalogo(it, {
@@ -21,6 +22,7 @@ export const testi = catalogo(it, {
     nuovaFaseIn: (titolo) => `Neue Phase in «${titolo}»`,
     nuovoProgetto: 'Neues Projekt…',
     niente: 'Nichts passt.',
+    nonNelCorso: 'noch nicht im Kurs',
   },
   fr: {
     nessunProgetto: 'Aucun projet',
@@ -30,6 +32,7 @@ export const testi = catalogo(it, {
     nuovaFaseIn: (titolo) => `Nouvelle phase dans « ${titolo} »`,
     nuovoProgetto: 'Nouveau projet…',
     niente: 'Rien ne correspond.',
+    nonNelCorso: 'pas encore dans le cours',
   },
   en: {
     nessunProgetto: 'No project',
@@ -39,5 +42,6 @@ export const testi = catalogo(it, {
     nuovaFaseIn: (titolo) => `New phase in “${titolo}”`,
     nuovoProgetto: 'New project…',
     niente: 'Nothing matches.',
+    nonNelCorso: 'not in the course yet',
   },
 })

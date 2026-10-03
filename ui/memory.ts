@@ -13,6 +13,7 @@ import type { Iso } from '#core/dominio/models.js'
 import {
   CAMPI_CONTESTO,
   areaDellaSezione,
+  paginaDiAdesso,
   paginaValida,
   schedaValida,
   sezioneDiPrima,
@@ -295,8 +296,9 @@ function contestoDa (grezzo: Record<string, unknown> | null): Contesto {
  */
 function postoDa (grezzo: unknown): Posto | null {
   const posto = oggetto(grezzo)
-  if (!posto || !paginaValida(posto.pagina)) return null
-  const letto: Posto = { pagina: posto.pagina }
+  const pagina = paginaDiAdesso(posto?.pagina)
+  if (!posto || !paginaValida(pagina)) return null
+  const letto: Posto = { pagina }
   const soggetto = oggetto(posto.soggetto)
   const tipo = ammesso(TIPI_SOGGETTO, soggetto?.tipo)
   const idSoggetto = id(soggetto?.id)

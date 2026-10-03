@@ -4,7 +4,7 @@
 // all'ora), a destra la matrice di quest'ora e i giudizi rapidi. Le scritture
 // di un'ora conclusa le ferma `lesson.ts` (`aOraSvolta`).
 
-import type { Lezione, Progetto } from '#core/dominio/models.js'
+import type { Lezione, ProgettoNelCorso } from '#core/dominio/models.js'
 import { Molti, Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { faseDellAttivita } from '#core/dominio/projects.js'
@@ -14,7 +14,7 @@ import { type Figlio } from '#ui/dom.js'
 import { moduloGiudizio } from '#ui/forms/project.js'
 import { aggiorna, pianoPerId, ridisegna, vai } from '#ui/state.js'
 import { progettiDellOra } from '#ui/tabs.js'
-import { apriProgetto, pastigliaStato } from '#ui/views/projects.js'
+import { apriIntegrazione, pastigliaStato } from '#ui/views/projects/links.js'
 import { giudiziDelProgetto } from '#ui/views/projects/judgements.js'
 import { matriceProgetto } from '#ui/views/projects/matrix.js'
 import { compitiDelProgetto } from '#ui/views/projects/tasks.js'
@@ -30,7 +30,7 @@ export function apriProgettoDellOra (lezione: Lezione, progettoId: string): void
 }
 
 /** Le fasi del progetto in cui cadono le attività del piano di quest'ora. */
-function fasiDellOra (lezione: Lezione, progetto: Progetto): string {
+function fasiDellOra (lezione: Lezione, progetto: ProgettoNelCorso): string {
   const nomi = new Set<string>()
   for (const attivita of pianoPerId(lezione.pianoId)?.attivita ?? []) {
     const fase = faseDellAttivita(progetto, attivita)
@@ -60,7 +60,7 @@ export function schedaProgettoDellOra (
           testo: Molti(lessico().progetto),
           simbolo: 'progetto',
           variante: 'sottile',
-          al: () => { vai({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'corso', id: lezione.corsoId } }) },
+          al: () => { vai({ pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'corso', id: lezione.corsoId } }) },
         }),
       })],
       destra: [],
@@ -95,7 +95,7 @@ export function schedaProgettoDellOra (
         azioni: pastigliaStato(progetto),
         contenuto: [
           compitiDelProgetto(progetto, lezione),
-          collegamento({ testo: t.apriPagina, al: () => apriProgetto(progetto.id) }),
+          collegamento({ testo: t.apriPagina, al: () => apriIntegrazione(progetto.id, progetto.corsoId) }),
         ],
       }), `ora-progetto:${progetto.id}`), // testo-fisso: una chiave, non un testo
     ],

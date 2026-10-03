@@ -5,8 +5,8 @@ const PREPARA = `() => {
   const r = prova.stato.registro
   const corso = r.corsi[0]
   const ist = '2026-09-01T08:00:00.000Z'
-  const progetto = { id: 'progetto-scaletta', corsoId: corso.id, titolo: 'Ricerca condivisa',
-    obiettivi: [], stato: 'bozza', fasi: [
+  const progetto = { id: 'progetto-scaletta', titolo: 'Ricerca condivisa',
+    obiettivi: [], fasi: [
       { id: 'fase-a', titolo: 'Preparazione', descrizione: 'Raccogliere le idee' },
       { id: 'fase-b', titolo: 'Presentazione', descrizione: 'Condividere i risultati' }],
     attivita: [
@@ -14,7 +14,8 @@ const PREPARA = `() => {
       { id: 'ricerca', faseId: 'fase-a', titolo: 'Ricerca autonoma', tipo: 'spiegazione', durataUd: 0.5 },
       { id: 'laboratorio', faseId: 'fase-a', titolo: 'Laboratorio lungo', tipo: 'spiegazione', durataUd: 2 },
       { id: 'presentazione', faseId: 'fase-b', titolo: 'Presentare', tipo: 'spiegazione', durataUd: 0.5 }],
-    criteri: [], livelli: [], compiti: [], giudizi: [], matrice: [], risorse: [],
+    criteri: [], livelli: [], risorse: [],
+    integrazioni: [{ corsoId: corso.id, stato: 'bozza', compiti: [], giudizi: [], matrice: [] }],
     creatoIl: ist, aggiornatoIl: ist }
   const piano = { id: 'piano-scaletta', corsoId: corso.id, obiettivi: [], prerequisiti: '',
     attivita: [], risorse: [], tag: [], creatoIl: ist, aggiornatoIl: ist }
@@ -78,11 +79,11 @@ test('importazione di una parte della fase e durata locale', async ({ browser })
 test('scaletta nella fase e descrizione conservano le altre fasi', async ({ browser }) => {
   const { page, errori } = await pannello(browser)
   await valuta(page, PREPARA)
-  await valuta(page, `() => prova.vai({ pagina: 'pagina.corso.progetti',
+  // Nella biblioteca le fasi stanno aperte, con la loro scaletta.
+  await valuta(page, `() => prova.vai({ pagina: 'pagina.progetti',
     soggetto: { tipo: 'progetto', id: 'progetto-scaletta' } })`)
   await valuta(page, FOTOGRAMMA)
   const fase = page.locator('.fase-progetto').first()
-  await fase.locator('.fase-progetto__interruttore').click()
   await expect(fase).toContainText('Raccogliere le idee')
   await expect(fase.locator('[data-attivita-progetto-id]')).toHaveCount(3)
   await fase.getByRole('button', { name: 'Modifica scaletta' }).click()

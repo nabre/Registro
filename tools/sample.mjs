@@ -97,13 +97,15 @@ lezioni[0].presenze = [
 const valutazione = d.creaValutazione(corso.id, 'Verifica 1 — unità di misura')
 valutazione.data = '2026-09-21'
 
-// Un progetto (dal formato 4), provato fino in fondo: due fasi, criteri, un
-// compito con inizi (in un'ora e a mano), una proroga e una spunta, un
-// giudizio, la matrice in due giorni, una tappa per fase in due piani e la
-// prova.
+// Un progetto (dal formato 4), provato fino in fondo: due fasi, criteri e,
+// nell'integrazione nel corso (dal formato 7), un compito con inizi (in
+// un'ora e a mano), una proroga e una spunta, un giudizio, la matrice in due
+// giorni; una tappa per fase in due piani e la prova. E un progetto di
+// biblioteca, in nessun corso.
 const [rossi, bianchi] = classe.allievi
 const progetto = d.creaProgetto(corso.id, 'Officina delle misure')
-progetto.stato = 'in-corso'
+const [integrazione] = progetto.integrazioni
+integrazione.stato = 'in-corso'
 progetto.fasi = [
   { id: 'fsp-rilievo', titolo: 'Rilievo' },
   { id: 'fsp-relazione', titolo: 'Relazione', descrizione: 'Si scrive e si presenta' },
@@ -113,7 +115,7 @@ progetto.criteri = [
   { id: 'crp-strumenti', titolo: 'Uso degli strumenti' },
   { id: 'crp-precisione', titolo: 'Precisione', descrizione: 'Arrotonda come si deve' },
 ]
-progetto.compiti = [{
+integrazione.compiti = [{
   id: 'cmp-rilievo',
   titolo: 'Rilievo del pezzo',
   fine: null,
@@ -125,7 +127,7 @@ progetto.compiti = [{
   proroghe: [{ allievoId: bianchi.id, fine: '2026-09-28', nota: 'Assente due settimane' }],
   fatti: [{ allievoId: rossi.id, fattoIl: '2026-09-14T10:00:00.000Z' }],
 }]
-progetto.giudizi = [{
+integrazione.giudizi = [{
   id: 'giu-avvio',
   allievoId: null,
   testo: 'La classe parte con entusiasmo.',
@@ -134,7 +136,7 @@ progetto.giudizi = [{
   creatoIl: '2026-09-07T09:00:00.000Z',
 }]
 const cella = { allievoId: rossi.id, criterioId: 'crp-strumenti' }
-progetto.matrice = [
+integrazione.matrice = [
   { ...cella, data: lezioni[0].data, lezioneId: lezioni[0].id, livello: 'parziale' },
   { ...cella, data: '2026-09-14', lezioneId: null, livello: 'raggiunto', nota: 'Molto meglio' },
 ]
@@ -155,6 +157,8 @@ stesura.faseProgettoId = 'fsp-relazione'
 pianoRelazione.attivita.push(stesura)
 lezioni[2].pianoId = pianoRelazione.id
 valutazione.progettoId = progetto.id
+const biblioteca = d.creaProgetto(null, 'Leggere un disegno tecnico')
+biblioteca.obiettivi = ['Riconoscere viste e quote']
 
 archivio.modifica(
   (registro) => {
@@ -167,6 +171,7 @@ archivio.modifica(
     registro.valutazioni.push(d.normalizzaValutazione(valutazione))
     registro.piani.push(d.normalizzaPiano(piano), d.normalizzaPiano(pianoRelazione))
     registro.progetti.push(d.normalizzaProgetto(progetto))
+    registro.progetti.push(d.normalizzaProgetto(biblioteca))
   },
   ['registro', 'classi', 'corsi', 'lezioni', 'valutazioni', 'piani', 'progetti'],
 )

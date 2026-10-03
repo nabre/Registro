@@ -87,6 +87,18 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return testi().passi[6]
     },
   },
+  // Il progetto diventa una risorsa dell'anno (estensione di ADR-54): il corso
+  // e il lavoro con la sua classe passano nella sua prima integrazione.
+  {
+    a: 7,
+    get cambia () {
+      return testi().passi[7]
+    },
+    porta: (dati) => {
+      if (!Array.isArray(dati.progetti)) return dati
+      return { ...dati, progetti: dati.progetti.map(integrazioneDalCorso) }
+    },
+  },
 ]
 
 /** Un oggetto letto dal disco, o nullo se non lo è. */
@@ -94,6 +106,23 @@ function voce (valore: unknown): Record<string, unknown> | null {
   return valore && typeof valore === 'object' && !Array.isArray(valore)
     ? valore as Record<string, unknown>
     : null
+}
+
+/**
+ * Un progetto con `corsoId`, `stato`, `compiti`, `giudizi` e `matrice` portati
+ * nella sua integrazione nel corso. Senza corso non c'è classe: il lavoro con
+ * gli allievi non avrebbe di chi parlare, e se ne va con le chiavi.
+ */
+function integrazioneDalCorso (progetto: unknown): unknown {
+  const dati = voce(progetto)
+  if (!dati) return progetto
+  const { corsoId, stato, compiti, giudizi, matrice, ...resto } = dati
+  const integrazioni: unknown[] = Array.isArray(resto.integrazioni) ? resto.integrazioni : []
+  if (typeof corsoId !== 'string' || !corsoId) return { ...resto, integrazioni }
+  return {
+    ...resto,
+    integrazioni: [{ corsoId, stato, compiti, giudizi, matrice }, ...integrazioni],
+  }
 }
 
 /** Una lezione con i `minuti` di ogni presenza portati sulla sua prima UD in ritardo. */

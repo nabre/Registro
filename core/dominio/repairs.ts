@@ -12,6 +12,7 @@ import { etichettaInContraddizione, etichettaProposta } from './phones.js'
 import { confrontaNomi } from './text.js'
 import {
   allieviNominati,
+  integrazioneDi,
   rimandiAlleLezioni,
   staccaDalleLezioni,
   togliAllievo,
@@ -273,32 +274,37 @@ export function riparazioni (registro: Registro): Riparazione[] {
     })
   }
 
-  // ------------------------------------------------- progetti senza corso
-  // Come il check: senza corso un progetto non ha una pagina che lo mostri. Se
-  // ne va come con l'eliminazione del corso; tappe e momenti restano sganciati.
-  const progettiOrfani = registro.progetti.filter((p) => !corsi.has(p.corsoId))
-  if (progettiOrfani.length > 0) {
-    const ids = new Set(progettiOrfani.map((p) => p.id))
+  // ------------------------------------------------- integrazioni senza corso
+  // Come il check: senza corso un'integrazione non ha una classe di cui
+  // parlare. Se ne va come con l'eliminazione del corso; il progetto resta.
+  const orfane = registro.progetti.reduce(
+    (somma, p) => somma + p.integrazioni.filter((i) => !corsi.has(i.corsoId)).length, 0)
+  if (orfane > 0) {
     esito.push({
-      descrizione: t.progettiOrfani(progettiOrfani.length),
+      descrizione: t.integrazioniOrfane(orfane),
       collezioni: ['progetti'],
       applica: (r) => {
         const vivi = new Set(r.corsi.map((c) => c.id))
-        r.progetti = r.progetti.filter((p) => !ids.has(p.id) || vivi.has(p.corsoId))
+        for (const progetto of r.progetti) {
+          if (progetto.integrazioni.every((i) => vivi.has(i.corsoId))) continue
+          progetto.integrazioni = progetto.integrazioni.filter((i) => vivi.has(i.corsoId))
+        }
       },
     })
   }
 
   // ------------------------------------------------- voci dei progetti da ripulire
-  // Ore sparite (la voce tiene la sua data) e persone non iscritte: quel che
-  // nessuna griglia del progetto può mostrare. Le celle di un criterio tolto
-  // non arrivano fin qui: le toglie già la lettura del file.
+  // Ore sparite (la voce tiene la sua data) e persone non iscritte al corso
+  // dell'integrazione: quel che nessuna griglia del progetto può mostrare. Le
+  // celle di un criterio tolto non arrivano fin qui: le toglie già la lettura
+  // del file.
   const daRipulire = registro.progetti.filter((progetto) => {
-    if (!corsi.has(progetto.corsoId)) return false
     const appese = rimandiAlleLezioni(progetto).some((id) => !lezioni.has(id))
-    const iscritti = iscrittiDelCorso(registro, progetto.corsoId)
-    const estranei = iscritti !== null &&
-      [...allieviNominati(progetto)].some((id) => !iscritti.has(id))
+    const estranei = progetto.integrazioni.some((integrazione) => {
+      if (!corsi.has(integrazione.corsoId)) return false
+      const iscritti = iscrittiDelCorso(registro, integrazione.corsoId)
+      return iscritti !== null && [...allieviNominati(integrazione)].some((id) => !iscritti.has(id))
+    })
     return appese || estranei
   })
   if (daRipulire.length > 0) {
@@ -312,10 +318,11 @@ export function riparazioni (registro: Registro): Riparazione[] {
           if (!ids.has(progetto.id)) continue
           const sparite = new Set(rimandiAlleLezioni(progetto).filter((id) => !vive.has(id)))
           if (sparite.size > 0) staccaDalleLezioni(r, progetto, sparite)
-          const iscritti = iscrittiDelCorso(r, progetto.corsoId)
-          if (iscritti) {
-            for (const id of allieviNominati(progetto)) {
-              if (!iscritti.has(id)) togliAllievo(progetto, id)
+          for (const integrazione of progetto.integrazioni) {
+            const iscritti = iscrittiDelCorso(r, integrazione.corsoId)
+            if (!iscritti) continue
+            for (const id of allieviNominati(integrazione)) {
+              if (!iscritti.has(id)) togliAllievo(integrazione, id)
             }
           }
         }
@@ -324,14 +331,16 @@ export function riparazioni (registro: Registro): Riparazione[] {
   }
 
   // ------------------------------------------------- rimandi ai progetti
-  // Una tappa o un momento che cita un progetto sparito o di un altro corso
-  // perde il rimando; il resto non si tocca.
+  // Una tappa che cita un progetto sparito, o un momento che cita un progetto
+  // sparito o non integrato nel suo corso, perde il rimando; il resto non si
+  // tocca. Una tappa di un piano del corso integra il progetto lì
+  // (`integrazioniDeiPiani`, alla lettura del file): basta che il progetto ci sia.
   const progettoBuono = (r: Registro, progettoId: string, corsoId: string | null): boolean => {
     const progetto = r.progetti.find((p) => p.id === progettoId)
-    return progetto !== undefined && (corsoId === null || progetto.corsoId === corsoId)
+    return progetto !== undefined && (corsoId === null || integrazioneDi(progetto, corsoId) !== null)
   }
   const tappeRotte = registro.piani.reduce((somma, piano) => somma + piano.attivita.filter(
-    (a) => a.progettoId && !progettoBuono(registro, a.progettoId, piano.corsoId)).length, 0)
+    (a) => a.progettoId && !progettoBuono(registro, a.progettoId, null)).length, 0)
   const momentiSganciati = registro.valutazioni.filter(
     (v) => v.progettoId && !progettoBuono(registro, v.progettoId, v.corsoId)).length
   if (tappeRotte + momentiSganciati > 0) {
@@ -344,7 +353,7 @@ export function riparazioni (registro: Registro): Riparazione[] {
       applica: (r) => {
         for (const piano of r.piani) {
           for (const attivita of piano.attivita) {
-            if (attivita.progettoId && !progettoBuono(r, attivita.progettoId, piano.corsoId)) {
+            if (attivita.progettoId && !progettoBuono(r, attivita.progettoId, null)) {
               delete attivita.progettoId
               delete attivita.faseProgettoId
             }

@@ -4,7 +4,7 @@
 import { nomePiano } from './calculations.js'
 import type { Registro, Corso } from './models.js'
 import { CHI_INSEGNA } from './models.js'
-import { allieviNominati, rimandiA, rimandiAlleLezioni } from './projects.js'
+import { allieviNominati, integrazioneDi, rimandiA, rimandiAlleLezioni } from './projects.js'
 import { testi } from './integrity.testi.js'
 
 // ------------------------------------------------------------------ integrità
@@ -236,33 +236,34 @@ export function riferimentiRotti (registro: Registro): string[] {
     }
   }
 
-  // I progetti come il check: del corso, con le ore che citano e le persone
-  // della classe. Le celle di un criterio tolto non si cercano: le toglie già
-  // la lettura del file (`normalizzaProgetto`), e ogni salvataggio.
+  // I progetti: le ore che citano, e per ogni integrazione un corso che c'è e
+  // le persone della sua classe. Le celle di un criterio tolto non si
+  // cercano: le toglie già la lettura del file (`normalizzaProgetto`), e ogni
+  // salvataggio.
   const progetti = new Map(registro.progetti.map((p) => [p.id, p]))
   for (const progetto of registro.progetti) {
-    const corso = corsi.get(progetto.corsoId)
-    if (!corso) {
-      problemi.push(t.progettoSenzaCorso(progetto.titolo))
-      continue
-    }
     const appese = rimandiA(progetto, new Set(
       rimandiAlleLezioni(progetto).filter((id) => !lezioni.has(id)),
     ))
     if (appese > 0) problemi.push(t.progettoLezioniSparite(progetto.titolo, appese))
-    const classe = classi.get(corso.classeId)
-    if (!classe) continue
-    const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
-    const estranei = [...allieviNominati(progetto)].filter((id) => !iscritti.has(id)).length
-    if (estranei > 0) problemi.push(t.progettoEstranei(progetto.titolo, estranei, classe.nome))
+    for (const integrazione of progetto.integrazioni) {
+      const corso = corsi.get(integrazione.corsoId)
+      if (!corso) {
+        problemi.push(t.integrazioneSenzaCorso(progetto.titolo))
+        continue
+      }
+      const classe = classi.get(corso.classeId)
+      if (!classe) continue
+      const iscritti = iscrittiDellaClasse.get(classe.id) ?? new Set<string>()
+      const estranei = [...allieviNominati(integrazione)].filter((id) => !iscritti.has(id)).length
+      if (estranei > 0) problemi.push(t.progettoEstranei(progetto.titolo, estranei, classe.nome))
+    }
   }
-  // Tappe e momenti che citano un progetto sparito o di un altro corso.
+  // Tappe che citano un progetto sparito, momenti uno non integrato nel loro corso.
   for (const piano of registro.piani) {
-    const rotte = piano.attivita.filter((a) => {
-      if (!a.progettoId) return false
-      const progetto = progetti.get(a.progettoId)
-      return !progetto || (piano.corsoId !== null && progetto.corsoId !== piano.corsoId)
-    }).length
+    // L'integrazione nel corso del piano la rimette la lettura del file
+    // (`integrazioniDeiPiani`): conta solo che il progetto ci sia.
+    const rotte = piano.attivita.filter((a) => a.progettoId && !progetti.has(a.progettoId)).length
     if (rotte > 0) {
       const nome = nomePiano(piano, {
         corso: corsi.get(piano.corsoId ?? '')?.titolo ?? null,
@@ -286,7 +287,7 @@ export function riferimentiRotti (registro: Registro): string[] {
   for (const momento of registro.valutazioni) {
     if (!momento.progettoId) continue
     const progetto = progetti.get(momento.progettoId)
-    if (!progetto || progetto.corsoId !== momento.corsoId) {
+    if (!progetto || !integrazioneDi(progetto, momento.corsoId)) {
       problemi.push(t.momentoProgettoRotto(momento.titolo))
     }
   }

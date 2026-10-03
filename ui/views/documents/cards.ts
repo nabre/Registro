@@ -7,7 +7,7 @@ import { allieviAttivi, nomeCompleto, ordinaAllievi } from '#core/dominio/calcul
 import { classeDelCorsoId, registroDelCorso } from '#core/dominio/courses.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { progettiDelCorso } from '#core/dominio/projects.js'
-import type { Allievo, Classe, Corso, Progetto } from '#core/dominio/models.js'
+import type { Allievo, Classe, Corso, ProgettoNelCorso } from '#core/dominio/models.js'
 import { pulsante, quieto, selettore } from '#ui/components/base.js'
 import { h, type Figlio } from '#ui/dom.js'
 import {
@@ -83,12 +83,12 @@ function fogliDelCorso (corso: Corso): HTMLElement {
  * alla scheda delle persone, che li elenca: qui non sono righe, così il conto
  * in testa e le frecce dell'anteprima restano su quel che si vede.
  */
-function fogliDelProgetto (corso: Corso, progetto: Progetto): Figlio[] {
+function fogliDelProgetto (corso: Corso, progetto: ProgettoNelCorso): Figlio[] {
   const t = testi()
   const classe = classeDelCorsoId(stato.registro, corso.id)
   const allievi = classe ? allieviAttivi(classe) : []
   const pronti = allievi
-    .filter((a) => foglio('progetto-allievo', progetto.id, { allievoId: a.id }).trovato)
+    .filter((a) => foglio('progetto-allievo', progetto.id, { corsoId: corso.id, allievoId: a.id }).trovato)
     .length
   return [
     h(
@@ -96,9 +96,9 @@ function fogliDelProgetto (corso: Corso, progetto: Progetto): Figlio[] {
       { class: 'documenti__elenco documenti__elenco--corto', attr: { 'data-scorrimento': `documenti-del-corso-${corso.id}-${progetto.id}` } },
       rigaFoglio({
         etichetta: nome(t.rapportoDiClasse),
-        foglio: foglio('progetto-classe', progetto.id),
+        foglio: foglio('progetto-classe', progetto.id, { corsoId: corso.id }),
         nome: t.nomeProgetto(progetto.titolo),
-        rifai: { tipo: 'rapporto.genera', genere: 'progetto-classe', id: progetto.id },
+        rifai: { tipo: 'rapporto.genera', genere: 'progetto-classe', id: progetto.id, corsoId: corso.id },
       }),
     ),
     allievi.length === 0
@@ -187,13 +187,13 @@ export function dellaClasse (corso: Corso): Figlio {
  * fra quelli delle persone: quella ricordata, se il suo progetto c'è ancora;
  * altrimenti «Corso».
  */
-function linguettaAperta (corso: Corso, progetti: readonly Progetto[]): string {
+function linguettaAperta (corso: Corso, progetti: readonly ProgettoNelCorso[]): string {
   const ricordata = stato.linguetteDocumenti[corso.id]
   return ricordata && progetti.some((p) => p.id === ricordata) ? ricordata : 'corso'
 }
 
 /** «Corso» e una linguetta per progetto; senza progetti niente. */
-function linguette (corso: Corso, progetti: readonly Progetto[], aperta: string): Figlio {
+function linguette (corso: Corso, progetti: readonly ProgettoNelCorso[], aperta: string): Figlio {
   if (progetti.length === 0) return null
   const t = testi()
   return h(
@@ -300,15 +300,17 @@ function righeCorsoAllievo (corso: Corso, classe: Classe | null, allievo: Alliev
  * Il rapporto di una persona in un progetto. Il nome basta: il progetto lo
  * dice la linguetta, e il rapporto vale per tutto il progetto, senza periodo.
  */
-function rigaProgettoAllievo (progetto: Progetto, allievo: Allievo): HTMLElement {
+function rigaProgettoAllievo (progetto: ProgettoNelCorso, allievo: Allievo): HTMLElement {
   return rigaFoglio({
     etichetta: nome(nomeCompleto(allievo)),
-    foglio: foglio('progetto-allievo', progetto.id, { allievoId: allievo.id }),
+    // Il foglio è del lavoro con la classe del corso: lo stesso progetto ne ha uno per corso.
+    foglio: foglio('progetto-allievo', progetto.id, { corsoId: progetto.corsoId, allievoId: allievo.id }),
     nome: testi().progettoDi(nomeCompleto(allievo), progetto.titolo),
     rifai: {
       tipo: 'rapporto.genera',
       genere: 'progetto-allievo',
       id: progetto.id,
+      corsoId: progetto.corsoId,
       allievoId: allievo.id,
     },
   })

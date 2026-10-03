@@ -4,6 +4,7 @@ import { errore, type Ambito, type NomeTermine } from '#contract/contract.js'
 import { inoltra, scrittura } from '#contract/core.js'
 import { booleano, identificatore, nullabile, oggetto, opzionale, scelta } from '#contract/schemas.js'
 import { GENERI } from '#contract/procedure/common/reports.js'
+import { esigiIntegrazione, esigiProgetto } from '#contract/procedure/progetti/common.js'
 import { testi } from './rapporti.testi.js'
 
 const t = () => testi().genera
@@ -18,6 +19,7 @@ function esigiSoggetto (
   genere: GenereRapporto,
   id: string,
   allievoId: string | null,
+  corsoId: string | null,
 ): void {
   const r = ambito.contesto.registro
   const c = (esiste: boolean, cosa: NomeTermine) => {
@@ -48,12 +50,14 @@ function esigiSoggetto (
     case 'allievo':
       return c(r.classi.some((classe) => classe.allievi.some((a) => a.id === id)), 'pif')
     case 'progetto-classe':
-      return c(r.progetti.some((p) => p.id === id), 'progetto')
     case 'progetto-allievo': {
-      // Il progetto, e una persona della sua classe: il foglio è di lei.
-      const progetto = r.progetti.find((p) => p.id === id)
-      c(Boolean(progetto), 'progetto')
-      const corso = r.corsi.find((k) => k.id === progetto?.corsoId)
+      // Il progetto visto da un corso: il foglio è del lavoro con quella classe.
+      esigiProgetto(ambito, id)
+      if (!corsoId) throw errore.rifiuta(t().progettoSenzaCorso)
+      const vista = esigiIntegrazione(ambito, { progettoId: id, corsoId })
+      if (genere === 'progetto-classe') return
+      // E una persona della classe del corso: il foglio è di lei.
+      const corso = r.corsi.find((k) => k.id === vista.corsoId)
       const classe = r.classi.find((k) => k.id === corso?.classeId)
       return c(Boolean(allievoId && classe?.allievi.some((a) => a.id === allievoId)), 'pif')
     }
@@ -85,7 +89,7 @@ export const procedura = scrittura({
     }))),
   }),
   esegui: (ambito, ingresso) => {
-    esigiSoggetto(ambito, ingresso.genere, ingresso.id, ingresso.allievoId ?? null)
+    esigiSoggetto(ambito, ingresso.genere, ingresso.id, ingresso.allievoId ?? null, ingresso.corsoId ?? null)
     return inoltra(rapporti, 'rapporto.genera')(ambito, ingresso)
   },
 })

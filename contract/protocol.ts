@@ -29,6 +29,7 @@ import type {
   SegnoOsservato,
   PianoLezione,
   Progetto,
+  StatoProgetto,
   Recapito,
   Ricorrenza,
   Risorsa,
@@ -122,7 +123,7 @@ interface CompitoDaSalvare {
  * Il progetto come lo manda chi salva la testata: le fasi si possono omettere
  * (restano quelle di prima, o una di serie se è nuovo); date, sono tutte.
  */
-export type ProgettoDaSalvare = Omit<Progetto, 'fasi'> & { fasi?: Progetto['fasi'] }
+export type ProgettoDaSalvare = Omit<Progetto, 'fasi' | 'integrazioni'> & { fasi?: Progetto['fasi'] }
 
 /** Un giudizio del progetto: senza `id` è nuovo; con `lezioneId` la data è quella dell'ora. */
 interface GiudizioDaSalvare {
@@ -469,9 +470,9 @@ export type Azione =
   }
   // ---------------------------------------------------------------- progetti
   /**
-   * La testata del progetto: titolo, descrizione, obiettivi, fasi, stato,
-   * criteri, livelli, risorse, note. Di un progetto che c'è già, compiti,
-   * giudizi e matrice restano quelli del registro (hanno le loro azioni). Un
+   * La testata del progetto: titolo, descrizione, obiettivi, fasi, scaletta,
+   * criteri, livelli, risorse, note. Le integrazioni nei corsi restano quelle
+   * del registro (hanno le loro azioni). Un
    * criterio o una fase senza id con il titolo di uno che c'è ne riprende
    * l'id. Le fasi sono tutte e in ordine, mai nessuna (rifiuto); omesse
    * restano quelle di prima. Le tappe dei piani di una fase tolta passano
@@ -482,8 +483,17 @@ export type Azione =
   | { tipo: 'progetto.salva'; progetto: ProgettoDaSalvare; scartaCelle?: boolean }
   /** Toglie il progetto; tappe dei piani e momenti restano, sganciati. */
   | { tipo: 'progetto.elimina'; progettoId: string }
-  | { tipo: 'progetto.compito.salva'; progettoId: string; compito: CompitoDaSalvare }
-  | { tipo: 'progetto.compito.elimina'; progettoId: string; compitoId: string }
+  /** Integra il progetto in un corso, in bozza; se c'è già non cambia niente. */
+  | { tipo: 'progetto.integra'; progettoId: string; corsoId: string }
+  /** A che punto è il progetto con la classe del corso. */
+  | { tipo: 'progetto.integrazione.stato'; progettoId: string; corsoId: string; stato: StatoProgetto }
+  /**
+   * Toglie il progetto dal corso: compiti, giudizi e matrice di quella classe
+   * se ne vanno; tappe dei piani del corso e momenti restano, sganciati.
+   */
+  | { tipo: 'progetto.integrazione.togli'; progettoId: string; corsoId: string }
+  | { tipo: 'progetto.compito.salva'; progettoId: string; corsoId: string; compito: CompitoDaSalvare }
+  | { tipo: 'progetto.compito.elimina'; progettoId: string; corsoId: string; compitoId: string }
   /**
    * Chi comincia il compito, e quando: in un'ora (la data la segue) o in un
    * giorno; con l'uno o l'altro chi l'aveva già cominciato lo sposta lì.
@@ -492,16 +502,24 @@ export type Azione =
   | {
     tipo: 'progetto.compito.inizia'
     progettoId: string
+    corsoId: string
     compitoId: string
     allieviIds: string[]
     data?: Iso | null
     lezioneId?: string | null
   }
-  | { tipo: 'progetto.compito.togliInizio'; progettoId: string; compitoId: string; allieviIds: string[] }
+  | {
+    tipo: 'progetto.compito.togliInizio'
+    progettoId: string
+    corsoId: string
+    compitoId: string
+    allieviIds: string[]
+  }
   /** Una fine sua per un allievo; `fine: null` la toglie e torna quella comune. */
   | {
     tipo: 'progetto.compito.proroga'
     progettoId: string
+    corsoId: string
     compitoId: string
     allievoId: string
     fine: Iso | null
@@ -511,15 +529,16 @@ export type Azione =
   | {
     tipo: 'progetto.compito.fatto'
     progettoId: string
+    corsoId: string
     compitoId: string
     allievoId: string
     fatto: boolean
     nota?: string
   }
   /** Spunta il compito a chi frequenta; `fatto: false` toglie tutte le spunte, ritirati compresi. */
-  | { tipo: 'progetto.compito.fattoTutti'; progettoId: string; compitoId: string; fatto: boolean }
-  | { tipo: 'progetto.giudizio.salva'; progettoId: string; giudizio: GiudizioDaSalvare }
-  | { tipo: 'progetto.giudizio.elimina'; progettoId: string; giudizioId: string }
+  | { tipo: 'progetto.compito.fattoTutti'; progettoId: string; corsoId: string; compitoId: string; fatto: boolean }
+  | { tipo: 'progetto.giudizio.salva'; progettoId: string; corsoId: string; giudizio: GiudizioDaSalvare }
+  | { tipo: 'progetto.giudizio.elimina'; progettoId: string; corsoId: string; giudizioId: string }
   /**
    * Una cella della matrice: allievo × criterio in un giorno (quello dell'ora,
    * se data in un'ora; se no `data` o oggi). Un altro giorno è un'altra cella:
@@ -528,6 +547,7 @@ export type Azione =
   | {
     tipo: 'progetto.cella'
     progettoId: string
+    corsoId: string
     allievoId: string
     criterioId: string
     data?: Iso | null
@@ -757,8 +777,9 @@ export type Azione =
     /** Solo per il rapporto individuale del progetto: di chi è. */
     allievoId?: string | null
     /**
-     * Solo per la scheda dell'allievo: il corso di cui parla, perché una media fra
-     * due materie non ha senso. Vuoto se la scheda è per il docente di classe.
+     * Per la scheda dell'allievo: il corso di cui parla, perché una media fra
+     * due materie non ha senso; vuoto se la scheda è per il docente di classe.
+     * Per i due rapporti del progetto, obbligatorio: il corso in cui è integrato.
      */
     corsoId?: string | null
     /** Solo per valutazioni e scheda dell'allievo: il periodo da guardare. */

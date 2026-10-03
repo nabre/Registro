@@ -287,19 +287,20 @@ before(async () => {
   progetto = creaProgetto(conOrario.id, 'Il giornalino delle frazioni')
   progetto.criteri = [{ id: 'crp-prova-0001', titolo: 'Chiarezza' }]
   assert.equal((await api.chiama(archivio, 'progetti.salva', { progetto })).ok, true)
+  assert.equal((await api.chiama(archivio, 'progetti.integra', { progettoId: progetto.id, corsoId: conOrario.id })).ok, true)
   const compito = await api.chiama(archivio, 'progetti.compito.salva', {
-    progettoId: progetto.id,
+    progettoId: progetto.id, corsoId: conOrario.id,
     compito: { titolo: 'Bozza dell’articolo', fine: '2026-09-29' },
   })
   compitoId = compito.dati.creato.id
   await api.chiama(archivio, 'progetti.compito.inizia', {
-    progettoId: progetto.id, compitoId, allieviIds: [rossi.id, bianchi.id], lezioneId: primaOra.id,
+    progettoId: progetto.id, corsoId: conOrario.id, compitoId, allieviIds: [rossi.id, bianchi.id], lezioneId: primaOra.id,
   })
   await api.chiama(archivio, 'progetti.compito.fatto', {
-    progettoId: progetto.id, compitoId, allievoId: rossi.id, fatto: true,
+    progettoId: progetto.id, corsoId: conOrario.id, compitoId, allievoId: rossi.id, fatto: true,
   })
   await api.chiama(archivio, 'progetti.cella', {
-    progettoId: progetto.id, allievoId: bianchi.id, criterioId: 'crp-prova-0001',
+    progettoId: progetto.id, corsoId: conOrario.id, allievoId: bianchi.id, criterioId: 'crp-prova-0001',
     lezioneId: primaOra.id, livello: 'raggiunto',
   })
 
@@ -1465,7 +1466,7 @@ describe('ore.prossima', () => {
 describe('progetti.leggi', () => {
   it('dice il punto di ognuno, nel giorno chiesto, e la matrice col giorno della sua ora', async () => {
     const leggi = async (oggi) => {
-      const esito = await api.chiama(archivio, 'progetti.leggi', { progettoId: progetto.id, oggi })
+      const esito = await api.chiama(archivio, 'progetti.leggi', { progettoId: progetto.id, corsoId: conOrario.id, oggi })
       assert.equal(esito.ok, true, JSON.stringify(esito))
       return esito.dati.progetti[0]
     }
@@ -1486,9 +1487,13 @@ describe('progetti.leggi', () => {
     assert.equal(dopo.compiti[0].allievi.find((a) => a.allievoId === bianchi.id).stato, 'scaduto')
   })
 
-  it('filtra per corso: un altro corso non ne ha', async () => {
+  it('filtra per corso: un corso in cui non è integrato non ne ha; senza corso, la testata coi corsi', async () => {
     const esito = await api.chiama(archivio, 'progetti.leggi', { corsoId: senzaOrario.id })
     assert.deepEqual(esito.dati.progetti, [])
+    const anno = await api.chiama(archivio, 'progetti.leggi', { progettoId: progetto.id })
+    const [testata] = anno.dati.progetti
+    assert.deepEqual(testata.integrazioni.map((i) => i.corsoId), [conOrario.id])
+    assert.equal(testata.compiti, undefined)
   })
 })
 

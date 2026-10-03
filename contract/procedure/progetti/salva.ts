@@ -5,10 +5,22 @@ import type { ProgettoDaSalvare } from '#contract/protocol.js'
 import { validaProgetto } from '#core/dominio/validation.js'
 import { inoltra, scrittura } from '#contract/core.js'
 import { booleano, entita, oggetto, opzionale } from '#contract/schemas.js'
-import { esigiCorso } from '#contract/procedure/common/register.js'
 import { testi } from './progetti.testi.js'
 
 const t = () => testi().salva
+
+/**
+ * La testata e nient'altro. Un chiamante scritto per il progetto di un corso
+ * manda ancora corso, stato e lavoro con la classe: sono dell'integrazione, e
+ * hanno le loro procedure; lasciati passare finirebbero nella testata.
+ */
+function soloTestata (progetto: ProgettoDaSalvare): ProgettoDaSalvare {
+  const {
+    corsoId: _corso, stato: _stato, compiti: _compiti, giudizi: _giudizi, matrice: _matrice,
+    integrazioni: _integrazioni, ...testata
+  } = progetto as ProgettoDaSalvare & Record<string, unknown>
+  return testata
+}
 
 export const procedura = scrittura({
   nome: 'progetti.salva',
@@ -27,9 +39,7 @@ export const procedura = scrittura({
     }),
     scartaCelle: opzionale(booleano({ aiuto: () => t().scartaCelle })),
   }),
-  // Un id che non c'è vuol dire «crealo»: si guarda solo il corso.
-  esegui: (ambito, ingresso) => {
-    esigiCorso(ambito, ingresso.progetto.corsoId)
-    return inoltra(progetti, 'progetto.salva')(ambito, ingresso)
-  },
+  // Un id che non c'è vuol dire «crealo»: il progetto è dell'anno, nessun corso da guardare.
+  esegui: (ambito, ingresso) =>
+    inoltra(progetti, 'progetto.salva')(ambito, { ...ingresso, progetto: soloTestata(ingresso.progetto) }),
 })

@@ -14,6 +14,7 @@ export const procedura = scrittura({
   collezioni: ['progetti'],
   ingresso: oggetto({
     progettoId: identificatore({ aiuto: () => c().progettoId }),
+    corsoId: identificatore({ aiuto: () => testi().comune.corsoId }),
     compitoId: identificatore({ aiuto: () => c().compitoId }),
   }),
   esegui: (ambito, ingresso) => {

@@ -5,12 +5,12 @@
 import { NOMI_GENERE } from '#core/dominio/map.js'
 import type { NomeIcona } from './components/icons.js'
 import { AREE } from './views/settings/sections.js'
-import type { Lezione, Progetto } from '#core/dominio/models.js'
+import type { Lezione, ProgettoNelCorso } from '#core/dominio/models.js'
 import {
   classeDellAllievo,
   lezionePerId,
   pianoPerId,
-  progettoPerId,
+  progettoNelCorso,
   stato,
   type ModoCalendario,
   type SchedaDocumenti,
@@ -39,16 +39,16 @@ const PORZIONI_LEZIONE: ReadonlyArray<{
 ]
 
 /**
- * I progetti su cui lavora l'ora: quelli del corso che le attività del suo
- * piano nominano, nell'ordine delle attività. Senza, la linguetta Progetto non
- * c'è: un progetto solo «in corso» non basta a farla comparire.
+ * I progetti su cui lavora l'ora, visti dal suo corso: quelli integrati lì che
+ * le attività del suo piano nominano, nell'ordine delle attività. Senza, la
+ * linguetta Progetto non c'è: un progetto solo «in corso» non basta a farla
+ * comparire.
  */
-export function progettiDellOra (lezione: Lezione): Progetto[] {
-  const progetti: Progetto[] = []
+export function progettiDellOra (lezione: Lezione): ProgettoNelCorso[] {
+  const progetti: ProgettoNelCorso[] = []
   for (const attivita of pianoPerId(lezione.pianoId)?.attivita ?? []) {
-    const progetto = progettoPerId(attivita.progettoId ?? null)
-    if (progetto && progetto.corsoId === lezione.corsoId && !progetti.includes(progetto))
-      progetti.push(progetto)
+    const progetto = progettoNelCorso(attivita.progettoId ?? null, lezione.corsoId)
+    if (progetto && !progetti.some((p) => p.id === progetto.id)) progetti.push(progetto)
   }
   return progetti
 }

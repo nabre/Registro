@@ -22,7 +22,9 @@ import {
 import type {
   AnnoScolastico,
   Attivita,
+  CellaProgetto,
   Classe,
+  IntegrazioneProgetto,
   PianoLezione,
   Registro,
   Risorsa,
@@ -33,7 +35,7 @@ import {
   creaCheck,
   creaCorso,
   duplicaClasse,
-  duplicaProgetto,
+  duplicaIntegrazione,
 } from '#core/dominio/factories.js'
 import { corsoDi, corsoPerId, titoloCorso } from '#core/dominio/courses.js'
 import { nuovoIdColonnaCheck, nuovoIdCorso } from '#core/dominio/identifiers.js'
@@ -44,6 +46,7 @@ import {
   leggiElencoAllievi,
 } from '#core/dominio/importing.js'
 import { confrontaNomi, normalizzaTesto } from '#core/dominio/text.js'
+import { integrazioneDi } from '#core/dominio/projects.js'
 import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '#core/dominio/normalization/index.js'
 import { validaAnno, validaCorso, validaMateria, validaClasse } from '#core/dominio/validation.js'
 import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '#core/dati/filing.js'
@@ -370,10 +373,20 @@ export const registro = {
           lista.corsoId = dove
         }
       }
-      // I progetti, come le consegne: più d'uno per corso, si spostano e basta.
+      // Le integrazioni dei progetti seguono il corso; se il progetto è già
+      // integrato nel superstite (una per corso), le due si fondono.
       for (const progetto of r.progetti) {
-        const dove = superstiti.get(progetto.corsoId)
-        if (dove) progetto.corsoId = dove
+        for (const integrazione of [...progetto.integrazioni]) {
+          const dove = superstiti.get(integrazione.corsoId)
+          if (!dove) continue
+          const gia = integrazioneDi(progetto, dove)
+          if (gia) {
+            fondiIntegrazione(gia, integrazione)
+            progetto.integrazioni = progetto.integrazioni.filter((i) => i !== integrazione)
+          } else {
+            integrazione.corsoId = dove
+          }
+        }
       }
       // Le regole del calendario che nominavano il doppione.
       for (const regola of r.impostazioni.calendario?.regole ?? []) {
@@ -654,16 +667,22 @@ export const registro = {
       const colonne = lista.colonne.map((c) => ({ ...c, id: nuovoIdColonnaCheck() }))
       return [creaCheck(corsi[i].id, colonne)]
     })
-    // E i progetti, senza quel che è delle persone o delle ore: nella copia non ci sono.
-    const progetti = originali.flatMap((vecchio, i) =>
-      contesto.registro.progetti
-        .filter((p) => p.corsoId === vecchio.id)
-        .map((p) => duplicaProgetto(p, corsi[i].id)))
+    // E le integrazioni dei progetti, senza quel che è delle persone o delle
+    // ore: nella copia non ci sono. Il progetto resta uno, integrato anche lì.
+    const integrazioni = originali.flatMap((vecchio, i) =>
+      contesto.registro.progetti.flatMap((p) => {
+        const sua = integrazioneDi(p, vecchio.id)
+        return sua ? [{ progettoId: p.id, integrazione: duplicaIntegrazione(sua, corsi[i].id) }] : []
+      }))
     const scritto = contesto.modifica((r) => {
       r.classi.push(copia)
       r.corsi.push(...corsi)
       r.check.push(...liste)
-      r.progetti.push(...progetti)
+      for (const progetto of r.progetti) {
+        for (const nuova of integrazioni) {
+          if (nuova.progettoId === progetto.id) progetto.integrazioni.push(nuova.integrazione)
+        }
+      }
     }, ['classi', 'corsi', 'check', 'progetti'])
     if (!scritto.ok) return scritto
     return { ok: true, creato: { id: copia.id } }
@@ -819,3 +838,16 @@ export const registro = {
     })
   },
 } satisfies Parte
+
+/**
+ * Fonde nell'integrazione superstite quella di un corso doppione: compiti e
+ * giudizi si sommano (gli id sono unici nell'anno); delle celle sulla stessa
+ * casella vale quella del superstite, come per le spunte del check.
+ */
+function fondiIntegrazione (superstite: IntegrazioneProgetto, doppione: IntegrazioneProgetto): void {
+  superstite.compiti.push(...doppione.compiti)
+  superstite.giudizi.push(...doppione.giudizi)
+  const casella = (c: CellaProgetto) => `${c.allievoId} ${c.criterioId} ${c.lezioneId ?? c.data}`
+  const prese = new Set(superstite.matrice.map(casella))
+  superstite.matrice.push(...doppione.matrice.filter((c) => !prese.has(casella(c))))
+}

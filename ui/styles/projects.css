@@ -100,6 +100,18 @@
 
 .fase-progetto__corpo { display: flex; flex-direction: column; gap: var(--spazio-2); }
 
+/* Nella biblioteca la fase non si ripiega: il titolo porta accanto il gesto della scaletta. */
+.fase-progetto__titolo:has(> .pulsante) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spazio-2);
+}
+
+/* I gesti di una fase nell'integrazione: programmarla in un piano, cambiarne la scaletta. */
+.fase-progetto__azioni { display: flex; flex-wrap: wrap; gap: var(--spazio-2); }
+
 .compito-progetto { display: flex; flex-direction: column; gap: var(--spazio-2); min-width: 0; }
 
 .compito-progetto__testata {

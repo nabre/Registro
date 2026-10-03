@@ -36,7 +36,7 @@ describe('importazione della scaletta del progetto', () => {
     assert.equal(seguito.attivita[0].titolo, 'Controllare')
   })
 
-  it('non salta un’attività lunga e non importa una selezione vuota o un altro corso', () => {
+  it('non salta un’attività lunga e non importa una selezione vuota; un altro corso sì', () => {
     const { progetto, piano, registro } = dati()
     progetto.attivita[0].durataUd = 3
     const lezione = creaLezione('corso', '2026-10-06', '08:00', 45)
@@ -46,7 +46,9 @@ describe('importazione della scaletta del progetto', () => {
     assert.equal(proposta.importabili.length, 0)
     const vuoto = pianificazione.importaAttivitaDelProgetto(registro, piano, progetto, null, [])
     assert.equal(vuoto.attivita.length, 0)
-    assert.equal(pianificazione.importaAttivitaDelProgetto(registro, creaPiano('altro'), progetto, null, ids).attivita.length, 0)
+    // Il progetto è dell'anno: il piano di un corso dove non è integrato ne
+    // prende le tappe, e chi scrive lo integra (`piano.salva`).
+    assert.equal(pianificazione.importaAttivitaDelProgetto(registro, creaPiano('altro'), progetto, null, ids).attivita.length, 3)
   })
 
   it('conserva i minuti indicativi quando le UD effettive della lezione sono più brevi', () => {

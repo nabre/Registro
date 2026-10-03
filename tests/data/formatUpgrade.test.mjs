@@ -252,6 +252,22 @@ describe('i documenti campione del formato', () => {
     await archivio.chiudi()
   })
 
+  it('il progetto di un campione d’un corso arriva integrato in quel corso, col suo lavoro', async () => {
+    // Dal formato 4 il campione ha un progetto; dal 7 sta nella sua integrazione.
+    for (const campione of campioni().filter((c) => c.versione >= 4)) {
+      const { archivio, registro } = await apri(copiaDel(campione))
+      const progetto = registro.progetti.find((p) => p.titolo === 'Officina delle misure')
+      assert.ok(progetto, `v${campione.versione}: il progetto non c’è`)
+      assert.equal(progetto.corsoId, undefined)
+      assert.deepEqual(progetto.integrazioni.map((i) => [i.corsoId, i.stato]), [[registro.corsi[0].id, 'in-corso']])
+      const [integrazione] = progetto.integrazioni
+      assert.equal(integrazione.compiti.length, 1, `v${campione.versione}`)
+      assert.equal(integrazione.giudizi.length, 1, `v${campione.versione}`)
+      assert.equal(integrazione.matrice.length, 2, `v${campione.versione}`)
+      await archivio.chiudi()
+    }
+  })
+
   it('se la copia di sicurezza fallisce, il documento vecchio non viene toccato', async () => {
     const vecchio = campioni().find((c) => c.versione < VERSIONE_DATI)
     if (!vecchio) return

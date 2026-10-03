@@ -12,6 +12,7 @@ import type {
   Iso,
   Lezione,
   Progetto,
+  ProgettoNelCorso,
 } from '#core/dominio/models.js'
 import { celleDi, giornoDellaVoce, progressione } from '#core/dominio/projects.js'
 import { minuscolo } from '#core/i18n/index.js'
@@ -41,7 +42,7 @@ function giornoDi (quando: QuandoMatrice): Iso {
  * c'è; dalla pagina quella senza ora. Altrimenti la prima del giorno.
  */
 function cellaDelGiorno (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievoId: string,
   criterioId: string,
   quando: QuandoMatrice,
@@ -64,7 +65,7 @@ function doveScrivere (
 }
 
 function scrivi (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievoId: string,
   criterioId: string,
   dove: { lezioneId: string } | { data: Iso },
@@ -74,6 +75,7 @@ function scrivi (
   return azione({
     tipo: 'progetto.cella',
     progettoId: progetto.id,
+    corsoId: progetto.corsoId,
     allievoId,
     criterioId,
     ...dove,
@@ -83,7 +85,7 @@ function scrivi (
 }
 
 /** Il quadretto colorato di un livello, col suo numero dal basso. */
-function segnoLivello (progetto: Progetto, livello: string | null): Figlio {
+function segnoLivello (progetto: Pick<Progetto, 'livelli'>, livello: string | null): Figlio {
   if (livello === null) return null
   const indice = progetto.livelli.findIndex((l) => l.valore === livello)
   return h(
@@ -98,18 +100,18 @@ function segnoLivello (progetto: Progetto, livello: string | null): Figlio {
 }
 
 /** Il testo di un livello, o la parola che dice che non ce n'è. */
-function testoLivello (progetto: Progetto, livello: string | null): string {
+function testoLivello (progetto: Pick<Progetto, 'livelli'>, livello: string | null): string {
   if (livello === null) return testi().senzaLivello
   return progetto.livelli.find((l) => l.valore === livello)?.testo ?? livello
 }
 
 /** Che cosa vuol dire un livello, se chi l'ha scritto l'ha detto. */
-function descrizioneLivello (progetto: Progetto, livello: string | null): string | undefined {
+function descrizioneLivello (progetto: Pick<Progetto, 'livelli'>, livello: string | null): string | undefined {
   return progetto.livelli.find((l) => l.valore === livello)?.descrizione || undefined
 }
 
 function casella (
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievo: Allievo,
   criterio: CriterioProgetto,
   quando: QuandoMatrice,
@@ -197,7 +199,7 @@ function casella (
 }
 
 /** La legenda: ogni livello col suo colore e il suo numero. */
-export function legendaLivelli (progetto: Progetto): HTMLElement {
+export function legendaLivelli (progetto: Pick<Progetto, 'livelli'>): HTMLElement {
   return h(
     'ul',
     { class: 'legenda-livelli' },
@@ -216,7 +218,7 @@ export function legendaLivelli (progetto: Progetto): HTMLElement {
  * La matrice del giorno: le caselle di quel giorno (o di quell'ora), una per
  * persona e criterio. Le note stanno sotto, una riga per casella annotata.
  */
-export function matriceProgetto (progetto: Progetto, quando: QuandoMatrice): Figlio {
+export function matriceProgetto (progetto: ProgettoNelCorso, quando: QuandoMatrice): Figlio {
   const t = testi()
   const allievi = allieviDelProgetto(progetto)
   if (progetto.criteri.length === 0) return quieto(t.nessunCriterio)
@@ -277,7 +279,7 @@ export function matriceProgetto (progetto: Progetto, quando: QuandoMatrice): Fig
  * La progressione di una persona: per ogni criterio i livelli dati, giorno
  * dopo giorno. Le colonne sono i giorni in cui c'è almeno una casella.
  */
-export function progressioneAllievo (progetto: Progetto, allievo: Allievo): Figlio {
+export function progressioneAllievo (progetto: ProgettoNelCorso, allievo: Allievo): Figlio {
   const t = testi()
   const righe = progressione(stato.registro, progetto, allievo.id)
   const date = righe.flatMap((r) => r.celle.map((c) => giornoDellaVoce(stato.registro, c)))

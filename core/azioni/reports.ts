@@ -36,7 +36,7 @@ import {
   datiDiario,
 } from '#core/dominio/reportData/index.js'
 import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
-import { allieviNominati, progettiDelCorso } from '#core/dominio/projects.js'
+import { allieviNominati, progettiDelCorso, progettoNelCorsoPerId } from '#core/dominio/projects.js'
 import {
   classeDelCorsoId,
   corsiDellaClasse,
@@ -230,12 +230,12 @@ function fogliDeiProgetti (registro: Registro, corso: Corso): Array<Preparato | 
     const nominati = allieviNominati(progetto)
     const persone = ordinaAllievi((classe?.allievi ?? []).filter((a) => a.attivo || nominati.has(a.id)))
     return [
-      conPosto(registro, 'progetto-classe', progetto.id, {}, {
+      conPosto(registro, 'progetto-classe', progetto.id, { corsoId: corso.id }, {
         modello: 'progetto-classe',
         dati: datiProgetto(registro, progetto),
       }),
       ...persone.map((allievo) =>
-        conPosto(registro, 'progetto-allievo', progetto.id, { allievoId: allievo.id }, {
+        conPosto(registro, 'progetto-allievo', progetto.id, { corsoId: corso.id, allievoId: allievo.id }, {
           modello: 'progetto-allievo',
           dati: datiProgettoAllievo(registro, progetto, allievo),
         }),
@@ -245,8 +245,9 @@ function fogliDeiProgetti (registro: Registro, corso: Corso): Array<Preparato | 
 }
 
 /**
- * Toglie i fogli dei progetti che nessun progetto scriverebbe più (rinominato:
- * il titolo è nel nome), così il foglio nuovo non ne ha uno vecchio accanto.
+ * Toglie i fogli dei progetti di quei corsi che nessun progetto scriverebbe
+ * più (rinominato: il titolo è nel nome; o non più integrato lì), così il
+ * foglio nuovo non ne ha uno vecchio accanto.
  */
 export async function togliProgettiOrfani (registro: Registro, corsiIds: Iterable<string>): Promise<void> {
   const dove = deposito()
@@ -479,9 +480,10 @@ export const rapporti = {
       pezzi = { modello: 'foto-classe', dati: datiFotoClasse(registro, classe) }
     }
 
-    // Il progetto, di tutta la classe o di una persona: l'id è del progetto.
+    // Il progetto nel corso, di tutta la classe o di una persona: l'id è del
+    // progetto, `corsoId` il corso in cui è integrato.
     if (azione.genere === 'progetto-classe' || azione.genere === 'progetto-allievo') {
-      const progetto = registro.progetti.find((p) => p.id === azione.id)
+      const progetto = progettoNelCorsoPerId(registro, azione.id, azione.corsoId)
       if (!progetto) return rifiuta(t.progettoNonTrovato)
       if (azione.genere === 'progetto-classe') {
         pezzi = { modello: 'progetto-classe', dati: datiProgetto(registro, progetto) }
@@ -523,8 +525,7 @@ export const rapporti = {
     if ('errore' in esito) return rifiuta(esito.errore)
 
     if (azione.genere === 'progetto-classe' || azione.genere === 'progetto-allievo') {
-      const progetto = registro.progetti.find((p) => p.id === azione.id)
-      if (progetto) await togliProgettiOrfani(registro, [progetto.corsoId])
+      if (azione.corsoId) await togliProgettiOrfani(registro, [azione.corsoId])
     }
 
     return conMessaggio(t.scritto(esito.relativo), 'info', {

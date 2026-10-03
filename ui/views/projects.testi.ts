@@ -1,4 +1,5 @@
-// I testi di `views/projects.ts`: la pagina Progetti del corso.
+// I testi di `views/projects.ts`, la pagina Progetti (la biblioteca dell'anno),
+// e quelli delle parti del progetto che `views/projectIntegration.ts` condivide.
 
 import { catalogo } from '#core/i18n/index.js'
 
@@ -55,13 +56,34 @@ const it = {
   nessunaValutazione: 'Nessuna valutazione collegata.',
   staccaValutazione: (titolo: string) => `Stacca «${titolo}» dal progetto`,
   nessunCorso: 'Nessun corso',
-  progettiInUnCorso: 'I progetti stanno in un corso: creane uno nella pagina Corsi.',
+  progettiInUnCorso: 'Per integrare i progetti serve un corso: creane uno nella pagina Corsi.',
   vaiAiCorsi: 'Vai ai corsi',
   aiuto:
-    'Un progetto raccoglie compiti con inizio per persona, criteri a livelli, giudizi e ' +
-    'le lezioni in cui ci si lavora.',
+    'Un progetto è una risorsa dell’anno: obiettivi, fasi con le loro attività, criteri e ' +
+    'strumenti da integrare nei piani lezione dei corsi.',
   nessunProgetto: 'Nessun progetto',
-  nessunProgettoTesto: 'Crea il primo progetto del corso: titolo, obiettivi, compiti e criteri.',
+  nessunProgettoTesto:
+    'Crea il primo progetto: obiettivi, fasi con le attività, criteri e risorse. Poi lo integri nei corsi.',
+  biblioteca: 'Biblioteca dell’anno',
+  nessunoNellAnno: 'Nessun progetto nell’anno, per ora.',
+  inCorsi: (n: number) => n === 0 ? 'in nessun corso' : n === 1 ? 'in un corso' : `in ${n} corsi`,
+  fasiEAttivita: (fasi: number, attivita: number) =>
+    `${fasi === 1 ? 'una fase' : `${fasi} fasi`} · ` +
+    `${attivita === 0 ? 'nessuna attività' : attivita === 1 ? 'un’attività' : `${attivita} attività`}`,
+  risorse: 'Risorse e strumenti',
+  scaletta: 'Fasi e attività',
+  scalettaAiuto:
+    'Le attività di ogni fase sono la scaletta indicativa: si importano nei piani lezione dei ' +
+    'corsi, e il contenuto resta allineato nelle due direzioni.',
+  faseSenzaAttivita: 'Nessuna attività in questa fase.',
+  integratoIn: 'Integrato in',
+  integratoInAiuto:
+    'I corsi in cui il progetto lavora con la classe: lì si organizzano tappe nei piani, ' +
+    'compiti, matrice e giudizi.',
+  nessunaIntegrazione: 'Non è ancora integrato in nessun corso.',
+  integraInCorso: 'Integra in un corso…',
+  giaInTutti: 'È già in tutti i corsi dell’anno',
+  apriIntegrazione: (corso: string) => `Apri l’integrazione in ${corso}`,
 }
 
 export const testi = catalogo(it, {
@@ -119,13 +141,34 @@ export const testi = catalogo(it, {
     nessunaValutazione: 'Keine Beurteilung verbunden.',
     staccaValutazione: (titolo) => `«${titolo}» vom Projekt lösen`,
     nessunCorso: 'Kein Kurs',
-    progettiInUnCorso: 'Projekte gehören zu einem Kurs: Erstelle einen auf der Seite Kurse.',
+    progettiInUnCorso: 'Um Projekte einzubinden, braucht es einen Kurs: Erstelle einen auf der Seite Kurse.',
     vaiAiCorsi: 'Zu den Kursen',
     aiuto:
-      'Ein Projekt sammelt Aufgaben mit Beginn pro Person, Kriterien mit Stufen, ' +
-      'Einschätzungen und die Stunden, in denen daran gearbeitet wird.',
+      'Ein Projekt ist eine Ressource des Jahres: Ziele, Phasen mit ihren Aktivitäten, ' +
+      'Kriterien und Hilfsmittel, die man in die Stundenpläne der Kurse einbindet.',
     nessunProgetto: 'Kein Projekt',
-    nessunProgettoTesto: 'Erstelle das erste Projekt des Kurses: Titel, Ziele, Aufgaben und Kriterien.',
+    nessunProgettoTesto:
+      'Erstelle das erste Projekt: Ziele, Phasen mit Aktivitäten, Kriterien und Ressourcen. Danach bindest du es in Kurse ein.',
+    biblioteca: 'Bibliothek des Jahres',
+    nessunoNellAnno: 'Noch kein Projekt in diesem Jahr.',
+    inCorsi: (n) => n === 0 ? 'in keinem Kurs' : n === 1 ? 'in einem Kurs' : `in ${n} Kursen`,
+    fasiEAttivita: (fasi, attivita) =>
+      `${fasi === 1 ? 'eine Phase' : `${fasi} Phasen`} · ` +
+      `${attivita === 0 ? 'keine Aktivität' : attivita === 1 ? 'eine Aktivität' : `${attivita} Aktivitäten`}`,
+    risorse: 'Ressourcen und Hilfsmittel',
+    scaletta: 'Phasen und Aktivitäten',
+    scalettaAiuto:
+      'Die Aktivitäten jeder Phase sind der Richtablauf: Man übernimmt sie in die Stundenpläne ' +
+      'der Kurse, und der Inhalt bleibt in beide Richtungen abgeglichen.',
+    faseSenzaAttivita: 'Keine Aktivität in dieser Phase.',
+    integratoIn: 'Eingebunden in',
+    integratoInAiuto:
+      'Die Kurse, in denen das Projekt mit der Klasse arbeitet: Dort ordnet man Schritte in ' +
+      'den Plänen, Aufgaben, Raster und Einschätzungen.',
+    nessunaIntegrazione: 'Noch in keinen Kurs eingebunden.',
+    integraInCorso: 'In einen Kurs einbinden…',
+    giaInTutti: 'Schon in allen Kursen des Jahres',
+    apriIntegrazione: (corso) => `Einbindung in ${corso} öffnen`,
   },
   fr: {
     nuovo: 'Nouveau projet',
@@ -181,13 +224,34 @@ export const testi = catalogo(it, {
     nessunaValutazione: 'Aucune évaluation reliée.',
     staccaValutazione: (titolo) => `Détacher « ${titolo} » du projet`,
     nessunCorso: 'Aucun cours',
-    progettiInUnCorso: 'Les projets sont dans un cours : crée-en un dans la page Cours.',
+    progettiInUnCorso: 'Pour intégrer les projets, il faut un cours : crée-en un dans la page Cours.',
     vaiAiCorsi: 'Aller aux cours',
     aiuto:
-      'Un projet réunit des tâches avec un début par personne, des critères à niveaux, ' +
-      'des appréciations et les périodes où l’on y travaille.',
+      'Un projet est une ressource de l’année : objectifs, phases avec leurs activités, ' +
+      'critères et outils à intégrer aux plans de leçon des cours.',
     nessunProgetto: 'Aucun projet',
-    nessunProgettoTesto: 'Crée le premier projet du cours : titre, objectifs, tâches et critères.',
+    nessunProgettoTesto:
+      'Crée le premier projet : objectifs, phases avec activités, critères et ressources. Ensuite, intègre-le aux cours.',
+    biblioteca: 'Bibliothèque de l’année',
+    nessunoNellAnno: 'Aucun projet dans l’année, pour l’instant.',
+    inCorsi: (n) => n === 0 ? 'dans aucun cours' : n === 1 ? 'dans un cours' : `dans ${n} cours`,
+    fasiEAttivita: (fasi, attivita) =>
+      `${fasi === 1 ? 'une phase' : `${fasi} phases`} · ` +
+      `${attivita === 0 ? 'aucune activité' : attivita === 1 ? 'une activité' : `${attivita} activités`}`,
+    risorse: 'Ressources et outils',
+    scaletta: 'Phases et activités',
+    scalettaAiuto:
+      'Les activités de chaque phase forment le déroulé indicatif : on les importe dans les plans ' +
+      'de leçon des cours, et le contenu reste aligné dans les deux sens.',
+    faseSenzaAttivita: 'Aucune activité dans cette phase.',
+    integratoIn: 'Intégré dans',
+    integratoInAiuto:
+      'Les cours où le projet travaille avec la classe : on y organise les étapes des plans, ' +
+      'les tâches, la grille et les appréciations.',
+    nessunaIntegrazione: 'Pas encore intégré dans un cours.',
+    integraInCorso: 'Intégrer dans un cours…',
+    giaInTutti: 'Déjà dans tous les cours de l’année',
+    apriIntegrazione: (corso) => `Ouvrir l’intégration dans ${corso}`,
   },
   en: {
     nuovo: 'New project',
@@ -242,12 +306,33 @@ export const testi = catalogo(it, {
     nessunaValutazione: 'No assessment linked.',
     staccaValutazione: (titolo) => `Unlink “${titolo}” from the project`,
     nessunCorso: 'No course',
-    progettiInUnCorso: 'Projects belong to a course: create one on the Courses page.',
+    progettiInUnCorso: 'Integrating projects needs a course: create one on the Courses page.',
     vaiAiCorsi: 'Go to courses',
     aiuto:
-      'A project gathers tasks with a start per learner, criteria with levels, comments ' +
-      'and the lessons in which it is worked on.',
+      'A project is a resource of the year: objectives, phases with their activities, ' +
+      'criteria and tools to build into the courses’ lesson plans.',
     nessunProgetto: 'No project',
-    nessunProgettoTesto: 'Create the course’s first project: title, objectives, tasks and criteria.',
+    nessunProgettoTesto:
+      'Create the first project: objectives, phases with activities, criteria and resources. Then build it into courses.',
+    biblioteca: 'Library of the year',
+    nessunoNellAnno: 'No projects in the year yet.',
+    inCorsi: (n) => n === 0 ? 'in no course' : n === 1 ? 'in one course' : `in ${n} courses`,
+    fasiEAttivita: (fasi, attivita) =>
+      `${fasi === 1 ? 'one phase' : `${fasi} phases`} · ` +
+      `${attivita === 0 ? 'no activities' : attivita === 1 ? 'one activity' : `${attivita} activities`}`,
+    risorse: 'Resources and tools',
+    scaletta: 'Phases and activities',
+    scalettaAiuto:
+      'The activities of each phase are the indicative outline: you import them into the courses’ ' +
+      'lesson plans, and the content stays aligned both ways.',
+    faseSenzaAttivita: 'No activities in this phase.',
+    integratoIn: 'Integrated in',
+    integratoInAiuto:
+      'The courses where the project works with the class: there you organise plan steps, ' +
+      'tasks, grid and comments.',
+    nessunaIntegrazione: 'Not integrated in any course yet.',
+    integraInCorso: 'Integrate in a course…',
+    giaInTutti: 'Already in every course of the year',
+    apriIntegrazione: (corso) => `Open the integration in ${corso}`,
   },
 })

@@ -62,8 +62,9 @@ const it = {
   check: (n: number, spunte: number) =>
     plurale(n, CARTE.check.singolare, CARTE.check.plurale) +
     (spunte > 0 ? `, con ${plurale(spunte, 'spunta', 'spunte')}` : ''),
-  progetti: (n: number) => plurale(n, CARTE.progetto.singolare, CARTE.progetto.plurale) +
-    ', con compiti, giudizi e matrice',
+  integrazioni: (n: number) =>
+    plurale(n, 'integrazione di un progetto', 'integrazioni di progetti') +
+    ', con compiti, giudizi e matrice (i progetti restano)',
   fileDelProgetto: (n: number) =>
     plurale(n, 'file allegato al progetto', 'file allegati al progetto'),
   fascicoloDocumenti: (n: number) => plurale(n, 'documento', 'documenti'),
@@ -166,7 +167,9 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'Check', 'Checks') +
       (spunte > 0 ? `, mit ${plurale(spunte, 'Häkchen', 'Häkchen')}` : ''),
-    progetti: (n) => plurale(n, 'Projekt', 'Projekte') + ', mit Aufgaben, Einschätzungen und Matrix',
+    integrazioni: (n) =>
+      plurale(n, 'Einbindung eines Projekts', 'Einbindungen von Projekten') +
+      ', mit Aufgaben, Einschätzungen und Matrix (die Projekte bleiben)',
     fileDelProgetto: (n) => plurale(n, 'Datei des Projekts', 'Dateien des Projekts'),
     fascicoloDocumenti: (n) => plurale(n, 'Dokument', 'Dokumente'),
     fascicoloComunicazioni: (n) => plurale(n, 'Mitteilung', 'Mitteilungen'),
@@ -263,7 +266,9 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'check', 'checks') +
       (spunte > 0 ? `, avec ${plurale(spunte, 'coche', 'coches')}` : ''),
-    progetti: (n) => plurale(n, 'projet', 'projets') + ', avec tâches, appréciations et grille',
+    integrazioni: (n) =>
+      plurale(n, 'intégration d’un projet', 'intégrations de projets') +
+      ', avec tâches, appréciations et grille (les projets restent)',
     fileDelProgetto: (n) => plurale(n, 'fichier joint au projet', 'fichiers joints au projet'),
     fascicoloDocumenti: (n) => plurale(n, 'document', 'documents'),
     fascicoloComunicazioni: (n) => plurale(n, 'communication', 'communications'),
@@ -354,7 +359,9 @@ export const testi = catalogo(it, {
     check: (n, spunte) =>
       plurale(n, 'check', 'checks') +
       (spunte > 0 ? `, with ${plurale(spunte, 'tick', 'ticks')}` : ''),
-    progetti: (n) => plurale(n, 'project', 'projects') + ', with tasks, comments and grid',
+    integrazioni: (n) =>
+      plurale(n, 'project integration', 'project integrations') +
+      ', with tasks, comments and grid (the projects stay)',
     fileDelProgetto: (n) => plurale(n, 'file attached to the project', 'files attached to the project'),
     fascicoloDocumenti: (n) => plurale(n, 'document', 'documents'),
     fascicoloComunicazioni: (n) => plurale(n, 'message', 'messages'),

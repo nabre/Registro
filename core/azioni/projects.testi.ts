@@ -1,4 +1,5 @@
-// I testi di `projects.ts`: i rifiuti delle azioni sul progetto.
+// I testi di `projects.ts`: i rifiuti e gli avvisi delle azioni sul progetto e
+// sulle sue integrazioni nei corsi.
 
 import { catalogo } from '#core/i18n/index.js'
 
@@ -8,7 +9,11 @@ const it = {
   criterioSparito: 'Quel criterio non c’è più nel progetto.',
   livelloSconosciuto: (livello: string) => `La scala del progetto non ha il livello «${livello}».`,
   lezioneDiAltroCorso: 'Quella lezione è di un altro corso: il progetto ne seguirebbe la data.',
-  altroCorso: 'Un progetto non cambia corso: le sue voci sono delle persone di quella classe.',
+  nonIntegrato: 'Quel progetto non è integrato in questo corso: integralo prima dalla pagina Integrazione progetti.',
+  tolto: (tappe: number) =>
+    tappe === 0
+      ? 'Progetto tolto dal corso.'
+      : `Progetto tolto dal corso: ${tappe === 1 ? '1 tappa dei piani resta' : `${tappe} tappe dei piani restano`} senza progetto.`,
   fileEstranei: (n: number) =>
     n === 1
       ? 'Un file indicato nelle risorse non è del progetto: i file si aggiungono dalla pagina del progetto.'
@@ -16,7 +21,7 @@ const it = {
   compitoSenzaTitolo: 'Il compito deve avere un titolo.',
   giudizioVuoto: 'Il giudizio deve dire qualcosa.',
   nessunoDaIniziare: 'Nessuna persona indicata.',
-  progettoAltroCorso: 'Quel progetto è di un altro corso.',
+  progettoAltroCorso: 'Quel progetto non è integrato in questo corso.',
   celleCadrebbero: (n: number, criteri: readonly string[], livelli: readonly string[]) => {
     const dove = [
       criteri.length > 0 ? `criteri tolti: ${criteri.join(', ')}` : '',
@@ -41,8 +46,12 @@ export const testi = catalogo(it, {
     livelloSconosciuto: (livello) => `Die Skala des Projekts hat keine Stufe «${livello}».`,
     lezioneDiAltroCorso:
       'Diese Stunde gehört zu einem anderen Kurs: Das Projekt würde ihrem Datum folgen.',
-    altroCorso:
-      'Ein Projekt wechselt den Kurs nicht: Seine Einträge gehören den Personen dieser Klasse.',
+    nonIntegrato:
+      'Dieses Projekt ist in diesem Kurs nicht eingebunden: Binde es zuerst auf der Seite Projekte einbinden ein.',
+    tolto: (tappe) =>
+      tappe === 0
+        ? 'Projekt aus dem Kurs entfernt.'
+        : `Projekt aus dem Kurs entfernt: ${tappe === 1 ? '1 Etappe der Pläne bleibt' : `${tappe} Etappen der Pläne bleiben`} ohne Projekt.`,
     fileEstranei: (n) =>
       n === 1
         ? 'Eine Datei in den Ressourcen gehört nicht zum Projekt: Dateien fügst du auf der Projektseite hinzu.'
@@ -50,7 +59,7 @@ export const testi = catalogo(it, {
     compitoSenzaTitolo: 'Die Aufgabe braucht einen Titel.',
     giudizioVuoto: 'Die Einschätzung muss etwas sagen.',
     nessunoDaIniziare: 'Keine Person angegeben.',
-    progettoAltroCorso: 'Dieses Projekt gehört zu einem anderen Kurs.',
+    progettoAltroCorso: 'Dieses Projekt ist in diesem Kurs nicht eingebunden.',
     celleCadrebbero: (n, criteri, livelli) => {
       const wo = [
         criteri.length > 0 ? `entfernte Kriterien: ${criteri.join(', ')}` : '',
@@ -73,8 +82,12 @@ export const testi = catalogo(it, {
     livelloSconosciuto: (livello) => `L’échelle du projet n’a pas le niveau « ${livello} ».`,
     lezioneDiAltroCorso:
       'Cette leçon appartient à un autre cours : le projet en suivrait la date.',
-    altroCorso:
-      'Un projet ne change pas de cours : ses entrées sont celles des personnes de cette classe.',
+    nonIntegrato:
+      'Ce projet n’est pas intégré dans ce cours : intègre-le d’abord depuis la page Intégration des projets.',
+    tolto: (tappe) =>
+      tappe === 0
+        ? 'Projet retiré du cours.'
+        : `Projet retiré du cours : ${tappe === 1 ? '1 étape des plans reste' : `${tappe} étapes des plans restent`} sans projet.`,
     fileEstranei: (n) =>
       n === 1
         ? 'Un fichier indiqué dans les ressources n’est pas du projet : les fichiers s’ajoutent depuis la page du projet.'
@@ -82,7 +95,7 @@ export const testi = catalogo(it, {
     compitoSenzaTitolo: 'La tâche doit avoir un titre.',
     giudizioVuoto: 'L’appréciation doit dire quelque chose.',
     nessunoDaIniziare: 'Aucune personne indiquée.',
-    progettoAltroCorso: 'Ce projet appartient à un autre cours.',
+    progettoAltroCorso: 'Ce projet n’est pas intégré dans ce cours.',
     celleCadrebbero: (n, criteri, livelli) => {
       const ou = [
         criteri.length > 0 ? `critères retirés : ${criteri.join(', ')}` : '',
@@ -106,8 +119,12 @@ export const testi = catalogo(it, {
     livelloSconosciuto: (livello) => `The project’s scale has no level “${livello}”.`,
     lezioneDiAltroCorso:
       'That lesson belongs to another course: the project would follow its date.',
-    altroCorso:
-      'A project doesn’t change course: its entries belong to the people of that class.',
+    nonIntegrato:
+      'That project isn’t integrated in this course: integrate it first from the Project integration page.',
+    tolto: (tappe) =>
+      tappe === 0
+        ? 'Project removed from the course.'
+        : `Project removed from the course: ${tappe === 1 ? '1 plan step is' : `${tappe} plan steps are`} left without a project.`,
     fileEstranei: (n) =>
       n === 1
         ? 'A file listed in the resources isn’t the project’s: files are added from the project page.'
@@ -115,7 +132,7 @@ export const testi = catalogo(it, {
     compitoSenzaTitolo: 'The task must have a title.',
     giudizioVuoto: 'The comment must say something.',
     nessunoDaIniziare: 'No one specified.',
-    progettoAltroCorso: 'That project belongs to another course.',
+    progettoAltroCorso: 'That project isn’t integrated in this course.',
     celleCadrebbero: (n, criteri, livelli) => {
       const where = [
         criteri.length > 0 ? `removed criteria: ${criteri.join(', ')}` : '',

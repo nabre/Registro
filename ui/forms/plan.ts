@@ -11,7 +11,6 @@ import { attivitaValutata } from '#core/dominio/activities.js'
 import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js'
 import { creaPiano } from '#core/dominio/factories.js'
 import { importaAttivitaDelProgetto, propostaImportazione } from '#core/dominio/projectPlanning.js'
-import { progettiDelCorso } from '#core/dominio/projects.js'
 import { parole } from '#core/dominio/words.testi.js'
 import type {
   Attivita,
@@ -42,6 +41,7 @@ import {
   nomeDiPiano,
   pianiPerCorso,
   postoCorrente,
+  progettiPerIlCorso,
   stato,
   vai,
 } from '#ui/state.js'
@@ -136,6 +136,8 @@ interface EditorPiano {
   componi: () => PianoLezione
   /** Quello da cui è partito: l'id e tutto ciò che i campi non toccano. */
   base: PianoLezione
+  /** Apre l'importazione dalla scaletta di un progetto, su quella fase. */
+  importa: (progettoId?: string, faseId?: string) => void
 }
 
 /**
@@ -296,12 +298,15 @@ export function editorPiano (opzioni: {
   }
   disegnaAttivita()
 
-  const importaDalProgetto = (): void => {
+  // Tutti i progetti dell'anno, quelli già integrati nel corso prima: importare
+  // da uno degli altri lo integra nel corso del piano (lo fa l'host).
+  const importaDalProgetto = (progettoChiesto?: string, faseChiesta?: string): void => {
     const tp = testiProgetto()
     const piano = componiPiano(valoriModulo(corpoModulo))
-    const progetti = piano.corsoId ? progettiDelCorso(stato.registro, piano.corsoId) : []
-    let progettoId = progetti[0]?.id ?? ''
-    let faseId = progetti[0]?.fasi[0]?.id ?? ''
+    const progetti = progettiPerIlCorso(piano.corsoId)
+    const primo = progetti.find((p) => p.id === progettoChiesto) ?? progetti[0]
+    let progettoId = primo?.id ?? ''
+    let faseId = primo?.fasi.find((f) => f.id === faseChiesta)?.id ?? primo?.fasi[0]?.id ?? ''
     let selezionate = new Set<string>()
     const zona = h('div')
     const progetto = () => stato.registro.progetti.find((p) => p.id === progettoId)
@@ -490,7 +495,7 @@ export function editorPiano (opzioni: {
     sezioneModulo(
       { testo: Uno(L.scaletta), aiuto: t.aiutoScaletta },
       h('p', { class: 'testo-quieto' }, t.allegareSalva),
-      pulsante({ testo: testiProgetto().importa, simbolo: 'progetto', variante: 'sottile', al: importaDalProgetto }),
+      pulsante({ testo: testiProgetto().importa, simbolo: 'progetto', variante: 'sottile', al: () => importaDalProgetto() }),
       zonaAttivita,
     ),
     // Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura).
@@ -513,6 +518,7 @@ export function editorPiano (opzioni: {
     corpo: corpoModulo,
     componi: () => componiPiano(valoriModulo(corpoModulo)),
     base,
+    importa: importaDalProgetto,
   }
 }
 
@@ -527,6 +533,11 @@ export function moduloPiano (
   corsoDaProporre?: string | null,
   /** L'ora per cui lo si prepara: la scaletta si posa sulle sue UD. */
   lezione?: Lezione | null,
+  /**
+   * Il progetto (e la fase) da cui importare appena aperto: lo chiede la
+   * pagina Integrazione progetti, che programma la scaletta nei piani.
+   */
+  importa?: { progettoId: string, faseId?: string },
 ): void {
   const t = testi()
   const modifica = Boolean(piano)
@@ -571,6 +582,8 @@ export function moduloPiano (
           ]
         : null,
   })
+  // Dopo la finestra del piano, sopra di lei: l'importazione è una finestra figlia.
+  if (importa) editor.importa(importa.progettoId, importa.faseId)
 }
 
 

@@ -37,7 +37,7 @@ export interface Riferimenti {
   pianoId?: string | null
   classeId?: string | null
   allievoId?: string | null
-  /** Un progetto: i suoi fogli stanno con quelli del suo corso. */
+  /** Un progetto: i suoi fogli stanno con quelli dei corsi in cui è integrato. */
   progettoId?: string | null
   /**
    * Il giorno, quando lo si sa già senza cercarlo: quello di prima per una
@@ -74,7 +74,7 @@ export function corsiDaRifare (registro: Registro, riferimenti: Riferimenti): st
   }
   if (riferimenti.progettoId) {
     const progetto = registro.progetti.find((p) => p.id === riferimenti.progettoId)
-    return unico(progetto?.corsoId)
+    return [...new Set((progetto?.integrazioni ?? []).map((i) => i.corsoId))]
   }
 
   const classeId =
@@ -179,7 +179,13 @@ export function riferimentiCambiati (prima: Registro, dopo: Registro): Riferimen
   conCorso(prima.valutazioni, dopo.valutazioni, (v) => ({ valutazioneId: v.id }))
   conCorso(prima.piani, dopo.piani, (p) => ({ pianoId: p.id }))
   conCorso(prima.consegne, dopo.consegne, (c) => ({ corsoId: c.corsoId }))
-  conCorso(prima.progetti, dopo.progetti, (p) => ({ corsoId: p.corsoId }))
+  // Un progetto sta nei fogli di ogni corso in cui è integrato, prima e dopo:
+  // la testata cambiata tocca tutti, un'integrazione tolta il suo corso.
+  for (const { vecchia, nuova } of vociCambiate(prima.progetti, dopo.progetti)) {
+    for (const integrazione of [...(vecchia?.integrazioni ?? []), ...(nuova?.integrazioni ?? [])]) {
+      aggiungi({ corsoId: integrazione.corsoId })
+    }
+  }
 
   return [...trovati.values()]
 }
@@ -207,7 +213,10 @@ function postiDi (registro: Registro): Map<string, Posto> {
   for (const v of registro.valutazioni) posti.set(`valutazioni:${v.id}`, { corsoId: v.corsoId, giorno: v.data }) // testo-fisso: chiave interna
   for (const p of registro.piani) posti.set(`piani:${p.id}`, { corsoId: p.corsoId, giorno: null }) // testo-fisso: chiave interna
   for (const c of registro.consegne ?? []) posti.set(`consegne:${c.id}`, { corsoId: c.corsoId, giorno: c.data }) // testo-fisso: chiave interna
-  for (const p of registro.progetti ?? []) posti.set(`progetti:${p.id}`, { corsoId: p.corsoId, giorno: null }) // testo-fisso: chiave interna
+  // Un progetto, una voce per corso in cui è integrato.
+  for (const p of registro.progetti ?? []) {
+    for (const i of p.integrazioni) posti.set(`progetti:${p.id}:${i.corsoId}`, { corsoId: i.corsoId, giorno: null }) // testo-fisso: chiave interna
+  }
   return posti
 }
 

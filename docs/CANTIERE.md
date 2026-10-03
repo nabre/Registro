@@ -203,6 +203,12 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       senza appello nei dati di prova). Rimisurare con `npm run mutanti`.
 - [ ] In locale gira Node 26.7, il progetto e la CI chiedono Node 24: `npm ci`
       e le prove vanno ripetute con la versione giusta.
+- [ ] `tests/interfaccia/navigation.spec.ts:155` rosso dopo PR #10
+      (supplenza): un pulsante in più nella testata della vista lezione
+      (`ui/views/lesson.ts`). Spostarlo fra i comandi o adeguare la prova.
+- [ ] Progetti integrati nei corsi: manca la prova API di `materia.unisci`
+      (due integrazioni che si fondono) e `classe.duplica` (integrazione nuova
+      sullo stesso progetto).
 
 ### Audit del 2026-10-02
 
@@ -297,6 +303,13 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### Da provare a mano
 
+- [ ] Progetti (biblioteca, `pagina.progetti`) e Integrazione progetti
+      (`pagina.corso.integrazione`): integrare dal menu e dalla biblioteca,
+      stato nel corso, «Togli dal corso» con la conferma, «Programma in un
+      piano…» dalla scaletta, compiti/matrice/esiti per corso; un documento
+      v6 si apre con i progetti integrati nel loro corso. Facoltativo: vista
+      propria `integrazioneProgetti` nel contratto (oggi condivide `progetti`
+      con `ambitoProgetti`).
 - [ ] Con un anno aperto, «Crea un nuovo anno…» (benvenuto o vassoio) apre
       il modulo «Nuovo anno scolastico» del pannello: il ramo
       `dialogo: 'nuovoAnno'` di `ui/main.ts` non ha una prova automatica.

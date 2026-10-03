@@ -175,9 +175,11 @@ erDiagram
 
     PROGETTO ||--o{ CRITERIOPROGETTO : "annida"
     PROGETTO ||--|{ LIVELLOPROGETTO : "annida (scala)"
-    PROGETTO ||--o{ COMPITOPROGETTO : "annida"
-    PROGETTO ||--o{ GIUDIZIOPROGETTO : "annida"
-    PROGETTO ||--o{ CELLAPROGETTO : "annida (matrice)"
+    PROGETTO ||--o{ INTEGRAZIONEPROGETTO : "annida (una per corso)"
+    INTEGRAZIONEPROGETTO }o--|| CORSO : "corsoId"
+    INTEGRAZIONEPROGETTO ||--o{ COMPITOPROGETTO : "annida"
+    INTEGRAZIONEPROGETTO ||--o{ GIUDIZIOPROGETTO : "annida"
+    INTEGRAZIONEPROGETTO ||--o{ CELLAPROGETTO : "annida (matrice)"
     PROGETTO ||--o{ RISORSA : "annida"
     COMPITOPROGETTO }o--o| LEZIONE : "fineLezioneId"
     CELLAPROGETTO }o--|| CRITERIOPROGETTO : "criterioId"
@@ -196,7 +198,8 @@ erDiagram
 ```
 
 Il **perno è il `Corso`**: `Lezione`, `MomentoValutazione`, `PianoLezione`,
-`Consegna`, `Check` e `Progetto` si agganciano a `corsoId`; classe e materia si risalgono
+`Consegna`, `Check` e le integrazioni dei progetti si agganciano a `corsoId`
+(il `Progetto` è dell'anno, di nessun corso); classe e materia si risalgono
 (`core/dominio/courses.ts`). L'anno lo porta la classe.
 
 ## 3. Catalogo delle entità
@@ -566,7 +569,7 @@ Una tappa della scaletta.
 | `risorse` | `Risorsa[]` | |
 | `parametri?` | `Record<string, string \| number \| boolean>` | chiavi per tipo in [`activities.ts`](../core/dominio/activities.ts); le chiavi ignote restano |
 | `valutazione?` | `ValutazionePrevista \| null` | la tappa è la prova (ADR-10) |
-| `progettoId?` | `string \| null` | il progetto per cui lavora (ADR-54), dello stesso corso; assente = nessuno |
+| `progettoId?` | `string \| null` | il progetto per cui lavora (ADR-54); un piano con corso integra il progetto lì (`integrazioniDeiPiani`); assente = nessuno |
 | `faseProgettoId?` | `string \| null` | la fase del progetto in cui cade; solo con `progettoId`; assente o d'altri = la prima (`faseDellAttivita`), e la lettura la riscrive (`fasiDelleTappe`) |
 | `attivitaProgettoId?` | `string \| null` | attività del progetto da cui viene il contenuto condiviso; durata e risorse locali |
 
@@ -600,7 +603,7 @@ Una risorsa senza url né file la segnala `riferimentiRotti`.
 | `lezioneId` | `string \| null` | lezione dello stesso corso |
 | `pianoId` | `string \| null` | |
 | `attivitaId?` | `string \| null` | la tappa che l'ha prodotto |
-| `progettoId?` | `string \| null` | il progetto che l'ha promossa, dello stesso corso; `valutazione.daAttivita` copia quello della tappa |
+| `progettoId?` | `string \| null` | il progetto che l'ha promossa, integrato nello stesso corso; `valutazione.daAttivita` copia quello della tappa |
 | `titolo` | `string` | |
 | `tipo` | `TipoValutazione` | |
 | `data` | `Iso` | dentro un semestre |
@@ -744,25 +747,42 @@ La lista di controllo di un corso, collezione `check` (ADR-33).
 
 ### 3.37 quinquies `Progetto`
 
-Il progetto di un corso, collezione `progetti` (ADR-54). Più d'uno per corso.
+Il progetto dell'anno, di nessun corso, collezione `progetti` (ADR-54 e la sua
+estensione del 2026-10-03): una risorsa che si integra nei corsi.
 
 | campo | tipo | nota |
 |---|---|---|
 | `id` | `string` | prefisso `prg` |
-| `corsoId` | `string` | non cambia dopo la nascita |
 | `titolo` | `string` | |
 | `descrizione?`, `note?` | `string` | |
 | `obiettivi` | `string[]` | |
-| `stato` | `StatoProgetto` | |
 | `fasi` | `FaseProgetto[]` | in sequenza; mai vuota (nasce con «Fase 1») |
 | `attivita?` | `AttivitaProgetto[]` | scaletta indicativa; letta come `[]` quando assente |
 | `criteri` | `CriterioProgetto[]` | `id` (prefisso `crp`), `titolo`, `descrizione?` |
 | `livelli` | `LivelloProgetto[]` | `valore` (quel che le celle salvano), `testo`, `colore?`; mai vuota |
+| `integrazioni` | `IntegrazioneProgetto[]` | una per corso al più; vuoto = in biblioteca |
+| `risorse` | `Risorsa[]` | |
+| `creatoIl`, `aggiornatoIl` | `Istante` | |
+
+#### `IntegrazioneProgetto`
+
+Il lavoro del progetto con la classe di un corso. Criteri e livelli che la
+matrice nomina sono del progetto.
+
+| campo | tipo | nota |
+|---|---|---|
+| `corsoId` | `string` | senza, alla lettura l'integrazione se ne va; due per lo stesso corso: vale la prima |
+| `stato` | `StatoProgetto` | |
 | `compiti` | `CompitoProgetto[]` | |
 | `giudizi` | `GiudizioProgetto[]` | |
 | `matrice` | `CellaProgetto[]` | |
-| `risorse` | `Risorsa[]` | |
-| `creatoIl`, `aggiornatoIl` | `Istante` | |
+
+- Le letture per corso lavorano su `ProgettoNelCorso` (`nelCorso`), mai
+  salvato: la testata del progetto con i campi dell'integrazione; gli elenchi
+  sono quelli veri. Fogli stampati per (progetto, corso): `collocazioneDi` con
+  `contesto.corsoId`.
+- Un piano di un corso che lega una tappa a un progetto lo integra lì: la
+  lettura aggiunge l'integrazione che manca, in bozza (`integrazioniDeiPiani`).
 
 - Le lezioni del progetto non si elencano: sono quelle il cui piano ha tappe
   con il suo `progettoId` (`lezioniDelProgetto`). Niente date proprie: il
@@ -777,11 +797,11 @@ Il progetto di un corso, collezione `progetti` (ADR-54). Più d'uno per corso.
   la precedeva, o nella prima.
 - La scala di serie (`livelliPredefiniti`): `non-raggiunto`, `parziale`,
   `raggiunto`, `pienamente`, con i testi nella lingua di quando nasce.
-- Un criterio tolto si porta via le sue celle; un livello tolto lascia la cella
-  con la sola nota, o la toglie (`ripulisciMatrice`).
+- Un criterio tolto si porta via le sue celle in tutti i corsi; un livello
+  tolto lascia la cella con la sola nota, o la toglie (`ripulisciMatrice`).
 - Logica in [`projects.ts`](../core/dominio/projects.ts). Norm.:
-  `validaProgetto`, `normalizzaProgetto` (esportata); `creaProgetto`,
-  `duplicaProgetto`.
+  `validaProgetto`, `normalizzaProgetto` (esportata); `creaProgetto` (con un
+  corso nasce integrato lì), `duplicaIntegrazione` (classe duplicata).
 
 Le attività previste (`AttivitaProgetto`) hanno i campi didattici di `Attivita`
 e `faseId`, senza risorse né riferimenti a progetti. La durata è indicativa.
@@ -1207,13 +1227,13 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | `anno` | la cartella intera, con classi, corsi, lezioni, valutazioni, consegne, check, smistamenti, fascicoli | `annoCorrenteId` al primo rimasto; piani con `corsoId = null`. Se non è l'anno aperto non se ne contano i contenuti | cestino di sistema |
 | `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti | unirla a un'altra |
 | `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti | archiviarla |
-| `corso` | corso, lezioni, valutazioni, consegne, check, progetti, smistamenti, PDF | i piani (`corsoId = null`, tappe senza progetto) | — |
+| `corso` | corso, lezioni, valutazioni, consegne, check, integrazioni dei progetti in quel corso (e i loro fogli), smistamenti, PDF | i piani (`corsoId = null`, le tappe tengono il progetto); i progetti | — |
 | `allievo` (classeId, id) | presenze, osservazioni, celle, voti, recuperi, righe d'assenza, documenti e file delle spunte, spunte del check, voci dei progetti, schede stampate | allegati e documenti del fascicolo → `allievoId = null` (file restano); consegne restano senza il suo nome | togliere «Frequenta» (`attivo = false`) |
 | `lezione` | sé stessa, appello, osservazioni, verbale | consegne, spunte e voci dei progetti: data **copiata prima** di azzerare il rimando; momenti → `lezioneId = null` | — |
 | `piano` | il piano, i file delle sue risorse (per percorso, non per cartella), il PDF | lezioni → `pianoId = null` e `avanzamento = []`; momenti → `pianoId = null` | — |
 | `valutazione` | sé stessa, voti, recuperi, allegati, PDF | — | — |
 | `consegna` | sé stessa, i documenti raccolti (`documenti`, file delle spunte, `fileTutti`, `fileFirme`), gli smistamenti agganciati | lezione e corso restano | spuntarla per tutti |
-| `progetto` | sé stesso, compiti, giudizi, matrice, i file delle sue risorse | tappe dei piani (`progettoId` tolto) e momenti (`progettoId = null`) | — |
+| `progetto` | sé stesso, le integrazioni in ogni corso, i file delle sue risorse, i fogli | tappe dei piani (`progettoId` tolto) e momenti (`progettoId = null`) | — |
 
 ## 8. Persistenza
 
@@ -1250,7 +1270,7 @@ quel che cambia. L'annulla tiene le patch inverse
 ([history.ts](../core/dati/history.ts)). Il contenitore (manifesto, `.storico/`,
 `archivio/`, `esportazioni/`, `quarantena/`): ARCHITETTURA § 7.
 
-### 8.2 `VERSIONE_DATI = 6`
+### 8.2 `VERSIONE_DATI = 7`
 
 La versione dello schema JSON (`registro.json.versione`).
 
@@ -1271,6 +1291,10 @@ un'ora si può arrivare tardi più volte: il `porta` mette il numero vecchio
 sulla prima UD in ritardo, e lo lascia cadere dove non c'era ritardo.
 v6 aggiunge `Progetto.attivita` e `Attivita.attivitaProgettoId`: nessun `porta`,
 la scaletta precedente è vuota e le attività già assegnate restano autonome.
+v7 toglie il progetto dal corso: il `porta` sposta `corsoId`, `stato`,
+`compiti`, `giudizi` e `matrice` di ogni progetto nella sua prima
+integrazione (`Progetto.integrazioni`); un progetto senza corso resta con la
+sola testata.
 
 - **Ogni campo nuovo su disco alza `VERSIONE_DATI`**: un registro più vecchio
   scarterebbe il campo e la sua prima scrittura lo cancellerebbe; un documento

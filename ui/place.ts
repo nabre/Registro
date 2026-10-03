@@ -37,12 +37,13 @@ export type PaginaId =
   | 'pagina.persone'
   | 'pagina.mappa'
   | 'pagina.corsi'
+  | 'pagina.progetti'
   | 'pagina.corso.registro'
   | 'pagina.corso.overview'
   | 'pagina.corso.valutazioni'
   | 'pagina.corso.check'
   | 'pagina.corso.piani'
-  | 'pagina.corso.progetti'
+  | 'pagina.corso.integrazione'
   | 'pagina.corso.documenti'
   | 'pagina.classe.check'
   | 'pagina.classe.documenti'
@@ -52,6 +53,22 @@ export type PaginaId =
   | 'pagina.guida'
   | 'pagina.allievo'
   | 'pagina.classe.pendenze'
+
+/**
+ * Gli id di prima e la pagina che li sostituisce: li ricordano la memoria e la
+ * storia di una versione precedente. I progetti erano una pagina di corso;
+ * adesso la pagina Progetti è la biblioteca dell'anno.
+ */
+const PAGINE_DI_PRIMA: Readonly<Record<string, PaginaId>> = {
+  'pagina.corso.progetti': 'pagina.progetti',
+}
+
+/** La pagina di adesso per un id ricordato: quello di prima tradotto, gli altri come sono. */
+export function paginaDiAdesso (pagina: unknown): unknown {
+  return typeof pagina === 'string' && Object.hasOwn(PAGINE_DI_PRIMA, pagina)
+    ? PAGINE_DI_PRIMA[pagina]
+    : pagina
+}
 
 /** Le destinazioni senza voce nella barra: ci si arriva da un elemento. */
 export const NASCOSTE: readonly PaginaId[] = ['pagina.allievo', 'pagina.classe.pendenze']
@@ -187,6 +204,8 @@ interface PreferenzeDoc {
 interface CampiVista {
   vista: Vista;
   ambitoCheck?: 'corso' | 'classe';
+  /** Dei progetti: la biblioteca dell'anno o l'integrazione nel corso. */
+  ambitoProgetti?: 'anno' | 'corso';
   schedaDocente?: 'todo' | 'documenti' | 'assenze' | 'messaggistica';
   areaImpostazioni?: AreaImpostazioni;
 }
@@ -199,6 +218,7 @@ interface CampiVecchi {
   vista?: unknown;
   paginaId?: unknown;
   ambitoCheck?: unknown;
+  ambitoProgetti?: unknown;
   schedaDocente?: unknown;
   /** Quello di oggi: l'area delle impostazioni. */
   areaImpostazioni?: unknown;
@@ -227,12 +247,15 @@ export const VISTA_DELLA_PAGINA: Readonly<Record<PaginaId, Vista>> = {
   'pagina.persone': 'persone',
   'pagina.mappa': 'mappa',
   'pagina.corsi': 'corsi',
+  // Due pagine, una vista: la biblioteca dei progetti e la loro integrazione
+  // nel corso. Chi apre la vista per nome (`postoDaVista`) arriva alla biblioteca.
+  'pagina.progetti': 'progetti',
   'pagina.corso.registro': 'lezione',
   'pagina.corso.overview': 'overview',
   'pagina.corso.valutazioni': 'valutazioni',
   'pagina.corso.check': 'check',
   'pagina.corso.piani': 'piani',
-  'pagina.corso.progetti': 'progetti',
+  'pagina.corso.integrazione': 'progetti',
   'pagina.corso.documenti': 'documenti',
   'pagina.classe.check': 'check',
   'pagina.classe.documenti': 'docenteClasse',
@@ -262,12 +285,13 @@ const SOGGETTI: Readonly<Record<PaginaId, readonly TipoSoggetto[]>> = {
   'pagina.persone': [],
   'pagina.mappa': [],
   'pagina.corsi': ['corso'],
+  'pagina.progetti': ['progetto'],
   'pagina.corso.registro': ['lezione', 'corso'],
   'pagina.corso.overview': ['corso'],
   'pagina.corso.valutazioni': ['valutazione', 'corso'],
   'pagina.corso.check': ['corso'],
   'pagina.corso.piani': ['piano', 'corso'],
-  'pagina.corso.progetti': ['progetto', 'corso'],
+  'pagina.corso.integrazione': ['progetto', 'corso'],
   'pagina.corso.documenti': ['corso'],
   'pagina.classe.check': ['classe'],
   'pagina.classe.documenti': ['classe'],
@@ -339,7 +363,7 @@ export function postoDaVista (vista: Vista, elementoId?: string, registro?: Regi
     case 'docenteClasse': return con('pagina.classe.pendenze', 'classe')
     case 'corsi': return con('pagina.corsi', 'corso')
     case 'piani': return con('pagina.corso.piani', 'piano')
-    case 'progetti': return con('pagina.corso.progetti', 'progetto')
+    case 'progetti': return con('pagina.progetti', 'progetto')
     case 'valutazioni': return con('pagina.corso.valutazioni', 'valutazione')
     case 'check': return eClasse ? con('pagina.classe.check', 'classe') : con('pagina.corso.check', 'corso')
     case 'documenti': return { pagina: 'pagina.corso.documenti' }
@@ -362,6 +386,9 @@ export function derivaVista (posto: Posto): CampiVista {
   const campi: CampiVista = { vista }
   if (vista === 'check') {
     campi.ambitoCheck = posto.pagina === 'pagina.classe.check' ? 'classe' : 'corso'
+  }
+  if (vista === 'progetti') {
+    campi.ambitoProgetti = posto.pagina === 'pagina.corso.integrazione' ? 'corso' : 'anno'
   }
   if (vista === 'docenteClasse') {
     const voce = Object.entries(PAGINA_DELLA_SCHEDA_DOCENTE)
@@ -402,6 +429,9 @@ export function postoDaVecchi (vecchi: CampiVecchi): Posto {
   let pagina: PaginaId
   if (vista === 'check') {
     pagina = vecchi.ambitoCheck === 'classe' ? 'pagina.classe.check' : 'pagina.corso.check'
+  } else if (vista === 'progetti') {
+    // Prima dell'integrazione la pagina era una sola, quella che oggi è la biblioteca.
+    pagina = vecchi.ambitoProgetti === 'corso' ? 'pagina.corso.integrazione' : 'pagina.progetti'
   } else if (vista === 'docenteClasse') {
     const scheda = vecchi.schedaDocente
     pagina = typeof scheda === 'string' && Object.hasOwn(PAGINA_DELLA_SCHEDA_DOCENTE, scheda)
@@ -635,8 +665,9 @@ export function completa (
   /** Senza corsi le pagine di corso non hanno niente: l'elenco dei corsi, o la Dashboard senza anno. */
   const senzaCorso = (): Posto => ({ pagina: anno ? 'pagina.corsi' : 'pagina.oggi' })
 
-  let pagina: PaginaId = paginaValida(chiesto.pagina) ? chiesto.pagina : 'pagina.oggi'
-  let ripiegato = pagina !== chiesto.pagina
+  const chiesta = paginaDiAdesso(chiesto.pagina)
+  let pagina: PaginaId = paginaValida(chiesta) ? chiesta : 'pagina.oggi'
+  let ripiegato = pagina !== chiesta
   // Un soggetto di un tipo che la pagina non mostra non è un ripiego: si lascia.
   let soggetto = chiesto.soggetto && SOGGETTI[pagina].includes(chiesto.soggetto.tipo)
     ? chiesto.soggetto
@@ -718,16 +749,23 @@ export function completa (
         break
       }
       case 'progetto': {
-        // Un progetto è sempre di un corso, e quel corso dev'essere dell'anno.
+        // Il progetto è dell'anno: la biblioteca lo apre e basta. L'integrazione
+        // lo apre in un corso dell'anno in cui è integrato, quello di lavoro se
+        // lo è lì; se non lo è da nessuna parte, resta il corso di lavoro.
         const progetto = r.progetti.find((p) => p.id === soggetto?.id)
-        const corso = progetto ? leggi.corso(progetto.corsoId) : null
-        if (progetto && corso) {
-          alCorso(corso)
-          c.progettoId = progetto.id
+        if (!progetto) {
+          if (c.progettoId === soggetto.id) c.progettoId = null
+          ripiega(diCorso(pagina) ? { pagina, soggetto: { tipo: 'corso', id: c.corsoId ?? '' } } : { pagina })
           break
         }
-        if (c.progettoId === soggetto.id) c.progettoId = null
-        ripiega({ pagina, soggetto: { tipo: 'corso', id: c.corsoId ?? '' } })
+        c.progettoId = progetto.id
+        if (!diCorso(pagina)) break
+        const integrati = progetto.integrazioni.map((i) => i.corsoId)
+        const corso = integrati.includes(c.corsoId ?? '')
+          ? leggi.corso(c.corsoId)
+          : integrati.map((id) => leggi.corso(id)).find((k) => k !== null) ?? null
+        if (corso) alCorso(corso)
+        else ripiega({ pagina, soggetto: { tipo: 'corso', id: c.corsoId ?? '' } })
         break
       }
       case 'allievo': {

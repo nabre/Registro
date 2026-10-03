@@ -114,7 +114,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     const prima = apri()
     arrivaDocumento(prima, registro, 'C:/esempio/A.regi')
     prima.aggiorna({ schedaLezione: 'progetto' })
-    prima.vai({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progetto.id } })
+    prima.vai({ pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'progetto', id: progetto.id } })
     assert.equal(prima.stato.vista, 'progetti')
     assert.equal(prima.stato.corsoId, corso.id)
     assert.equal(prima.stato.progettoId, progetto.id)
@@ -123,7 +123,7 @@ describe('lo stato dell’interfaccia nel ponte', () => {
     assert.equal(seconda.stato.schedaLezione, 'progetto')
     arrivaDocumento(seconda, registro, 'C:/esempio/A.regi')
     assert.deepEqual(posto(seconda), {
-      pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progetto.id },
+      pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'progetto', id: progetto.id },
     })
     assert.equal(seconda.stato.progettoId, progetto.id)
   })

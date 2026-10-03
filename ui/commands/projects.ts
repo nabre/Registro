@@ -1,4 +1,5 @@
-// I comandi dei progetti.
+// I comandi dei progetti: nella pagina Progetti (la biblioteca dell'anno) e
+// nella pagina Integrazione progetti del corso, che condividono la vista.
 
 import { parole } from '#core/dominio/words.testi.js'
 import type { ComandoUI } from '#ui/commands.js'
@@ -6,8 +7,10 @@ import { testi as testiComuni } from '#ui/commands.testi.js'
 import { chiediEliminazione } from '#ui/forms.js'
 import { azione } from '#ui/bridge.js'
 import { corsoDelContesto, senzaCorso } from '#ui/context.js'
-import { vai } from '#ui/state.js'
-import { apriProgetto, progettoMostrato } from '#ui/views/projects.js'
+import { stato, vai } from '#ui/state.js'
+import { progettoMostrato } from '#ui/views/projects.js'
+import { progettoIntegratoMostrato } from '#ui/views/projectIntegration.js'
+import { apriIntegrazione, apriProgetto } from '#ui/views/projects/links.js'
 import { nuovoCompito } from '#ui/views/projects/tasks.js'
 import { moduloCriteri, moduloFasi, moduloLivelli, moduloProgetto } from '#ui/forms/project.js'
 import { testi } from './projects.testi.js'
@@ -16,6 +19,11 @@ import { testi } from './projects.testi.js'
 const t = testi()
 const G = testiComuni().gruppi
 const P = parole()
+
+/** Se si è nella biblioteca: i comandi della testata vivono lì. */
+const nellaBiblioteca = (): boolean => stato.posto.pagina === 'pagina.progetti'
+/** Se si è nell'integrazione del corso: i comandi del lavoro con la classe vivono lì. */
+const nellIntegrazione = (): boolean => stato.posto.pagina === 'pagina.corso.integrazione'
 
 export const COMANDI_PROGETTO: readonly ComandoUI[] = [
   // ------------------------------------------------------------- Progetti
@@ -27,12 +35,14 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     simbolo: 'piu',
     dove: ['progetti'],
     gruppo: G.progetto,
-    aiuto: t.nuovoProgettoAiuto,
-    primario: true,
-    impedimento: senzaCorso,
+    aiuto: () => (nellIntegrazione() ? t.nuovoNelCorsoAiuto : t.nuovoProgettoAiuto),
+    primario: nellaBiblioteca,
+    // Nella biblioteca nasce di nessun corso; nell'integrazione si integra subito nel corso.
+    impedimento: () => (nellIntegrazione() ? senzaCorso() : null),
     al: () => {
-      const corso = corsoDelContesto()
-      if (corso) moduloProgetto({ corsoId: corso.id, dopo: apriProgetto })
+      const corso = nellIntegrazione() ? corsoDelContesto() : null
+      if (corso) moduloProgetto({ corsoId: corso.id, dopo: (id) => apriIntegrazione(id, corso.id) })
+      else moduloProgetto({ dopo: apriProgetto })
     },
   },
   {
@@ -42,10 +52,11 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: t.progettoModificaAiuto,
+    soloSe: nellaBiblioteca,
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
       const progetto = progettoMostrato()
-      if (progetto) moduloProgetto({ corsoId: progetto.corsoId, progetto })
+      if (progetto) moduloProgetto({ progetto })
     },
   },
   {
@@ -55,9 +66,11 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: t.nuovoCompitoAiuto,
-    impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
+    primario: true,
+    soloSe: nellIntegrazione,
+    impedimento: () => (progettoIntegratoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
-      const progetto = progettoMostrato()
+      const progetto = progettoIntegratoMostrato()
       if (progetto) nuovoCompito(progetto)
     },
   },
@@ -68,6 +81,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: t.fasiProgettoAiuto,
+    soloSe: nellaBiblioteca,
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
       const progetto = progettoMostrato()
@@ -80,6 +94,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     simbolo: 'presa',
     dove: ['progetti'],
     gruppo: G.progetto,
+    soloSe: nellaBiblioteca,
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
       const progetto = progettoMostrato()
@@ -92,6 +107,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     simbolo: 'presa',
     dove: ['progetti'],
     gruppo: G.progetto,
+    soloSe: nellaBiblioteca,
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: () => {
       const progetto = progettoMostrato()
@@ -105,6 +121,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
     dove: ['progetti'],
     gruppo: G.progetto,
     aiuto: t.eliminaProgettoAiuto,
+    soloSe: nellaBiblioteca,
     impedimento: () => (progettoMostrato() ? null : t.nessunProgettoAperto),
     al: async () => {
       const progetto = progettoMostrato()
@@ -112,7 +129,7 @@ export const COMANDI_PROGETTO: readonly ComandoUI[] = [
       if (!(await chiediEliminazione({ genere: 'progetto', id: progetto.id }))) return
       const risposta = await azione({ tipo: 'progetto.elimina', progettoId: progetto.id })
       if (!risposta.ok) return
-      vai({ pagina: 'pagina.corso.progetti' }, { contesto: { progettoId: null } })
+      vai({ pagina: 'pagina.progetti' }, { contesto: { progettoId: null } })
     },
   },
   // Verbale ed esportazioni del corso stanno nella pagina Documenti.

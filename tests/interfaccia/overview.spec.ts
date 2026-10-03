@@ -14,9 +14,9 @@ const PREPARA = `() => {
   const piano = { id: 'p1', corsoId: corso.id, obiettivi: ['Obiettivo'],
     attivita: [tappa], risorse: [risorsa], tag: [],
     creatoIl: '2026-09-01T08:00:00Z', aggiornatoIl: '2026-09-01T08:00:00Z' }
-  const progetto = { id: 'pr1', corsoId: corso.id, titolo: 'Ponte', stato: 'bozza',
+  const progetto = { id: 'pr1', titolo: 'Ponte',
     obiettivi: [], fasi: [{ id: 'f1', titolo: 'Preparazione' }], criteri: [], livelli: [],
-    compiti: [], giudizi: [], matrice: [],
+    integrazioni: [{ corsoId: corso.id, stato: 'bozza', compiti: [], giudizi: [], matrice: [] }],
     risorse: [{ ...risorsa, id: 'link1', tipo: 'collegamento', titolo: 'Materiale del progetto',
       file: undefined, url: 'https://example.com/materiale' }],
     creatoIl: piano.creatoIl, aggiornatoIl: piano.aggiornatoIl }
@@ -33,7 +33,8 @@ const PREPARA = `() => {
       lezioni: [{ ...ora, id: 'l1', pianoId: 'p1' },
         { ...ora, id: 'l2', data: '2026-10-03', pianoId: 'p1' }],
       piani: [piano, { ...piano, id: 'p2', attivita: [], risorse: [] }],
-      progetti: [progetto, { ...progetto, id: 'estraneo', corsoId: 'altro', titolo: 'Altro corso' }],
+      progetti: [progetto, { ...progetto, id: 'estraneo', titolo: 'Altro corso',
+        integrazioni: [{ corsoId: 'altro', stato: 'bozza', compiti: [], giudizi: [], matrice: [] }] }],
       valutazioni: [momento], consegne: [consegna],
       check: [{ id: 'ch1', corsoId: corso.id, colonne: [
         { id: 'c1', titolo: 'Quaderno' }, { id: 'c2', titolo: 'Libretto' }], spunte: [],
@@ -104,7 +105,9 @@ test('un solo selettore del corso per registro e progettazione', async ({ browse
   await expect(page.getByRole('slider', { name: 'Zoom dello schema' })).toHaveCount(0)
   await expect(page.locator('[data-fuoco="barra-comandi-corso"]')).toHaveCount(1)
   await expect(page.locator('.sidebar__gruppo--anno')).toContainText('Anno scolastico')
-  await expect(page.locator('.sidebar__gruppo--anno [data-fuoco="pagina.corso.progetti"]'))
+  await expect(page.locator('.sidebar__gruppo--anno [data-fuoco="pagina.progetti"]'))
+    .toHaveCount(1)
+  await expect(page.locator('.sidebar__gruppo--progettazione [data-fuoco="pagina.corso.integrazione"]'))
     .toHaveCount(1)
   await expect(page.locator('.sidebar__gruppo--registro .sidebar__titolo-scelta')).toHaveCount(0)
   await expect(page.locator('.sidebar__gruppo--progettazione .sidebar__titolo-scelta')).toHaveCount(0)

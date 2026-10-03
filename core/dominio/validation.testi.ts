@@ -132,7 +132,6 @@ const it = {
 
   // Le consegne
   progettoSenzaTitolo: 'Il progetto deve avere un titolo.',
-  progettoSenzaCorso: 'Il progetto dev’essere di un corso.',
   criterioSenzaTitolo: 'Ogni criterio deve avere un titolo.',
   fasiVuote: 'Il progetto deve avere almeno una fase: le sue tappe devono cadere in una.',
   faseSenzaTitolo: 'Ogni fase deve avere un titolo.',
@@ -241,7 +240,6 @@ export const testi = catalogo(it, {
     emailVuota: 'Die E-Mail ist leer.',
 
     progettoSenzaTitolo: 'Das Projekt braucht einen Titel.',
-    progettoSenzaCorso: 'Das Projekt muss zu einem Kurs gehören.',
     criterioSenzaTitolo: 'Jedes Kriterium braucht einen Titel.',
     fasiVuote: 'Das Projekt braucht mindestens eine Phase: Seine Etappen müssen in einer liegen.',
     faseSenzaTitolo: 'Jede Phase braucht einen Titel.',
@@ -352,7 +350,6 @@ export const testi = catalogo(it, {
     emailVuota: 'L’e-mail est vide.',
 
     progettoSenzaTitolo: 'Le projet doit avoir un titre.',
-    progettoSenzaCorso: 'Le projet doit appartenir à un cours.',
     criterioSenzaTitolo: 'Chaque critère doit avoir un titre.',
     fasiVuote: 'Le projet doit avoir au moins une phase : ses étapes doivent tomber dans l’une d’elles.',
     faseSenzaTitolo: 'Chaque phase doit avoir un titre.',
@@ -459,7 +456,6 @@ export const testi = catalogo(it, {
     emailVuota: 'The email is empty.',
 
     progettoSenzaTitolo: 'The project must have a title.',
-    progettoSenzaCorso: 'The project must belong to a course.',
     criterioSenzaTitolo: 'Every criterion must have a title.',
     fasiVuote: 'The project must have at least one phase: its steps must fall into one.',
     faseSenzaTitolo: 'Every phase must have a title.',

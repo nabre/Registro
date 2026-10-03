@@ -8,21 +8,30 @@ const it = {
   comune: {
     progettoId: 'Il progetto: i progetti li elenca «progetti.leggi»',
     compitoId: 'Il compito del progetto',
-    allievoId: 'Chi: una persona della classe del corso del progetto',
+    corsoId: 'Il corso in cui il progetto è integrato: la classe è la sua',
+    allievoId: 'Chi: una persona della classe del corso',
     rimedioProgetti: 'I progetti dell’anno li elenca «progetti.leggi».',
-    rimedioCompiti: 'I compiti di un progetto li elenca «progetti.leggi».',
+    rimedioCompiti: 'I compiti di un progetto in un corso li elenca «progetti.leggi» con il corso.',
+    nonIntegrato:
+      'Il progetto non è integrato in questo corso: lo si integra con «progetti.integra»; ' +
+      '«progetti.leggi» dice in quali corsi lo è.',
     lezioneId: 'L’ora del corso: la data sarà la sua, e la seguirà',
     data: 'Il giorno, se non è dentro un’ora. Senza, oggi',
   },
   leggi: {
     titolo:
-      'I progetti dei corsi: criteri e livelli, lezioni e prove che ci lavorano, compiti con ' +
-      'chi li ha cominciati e finiti, giudizi e matrice',
-    corsoId: 'Solo i progetti di questo corso',
+      'I progetti dell’anno, con i corsi in cui sono integrati. Con un corso, il lavoro con ' +
+      'quella classe: lezioni e prove che ci lavorano, compiti con chi li ha cominciati e ' +
+      'finiti, giudizi e matrice',
+    corsoId:
+      'Solo i progetti integrati in questo corso, visti da lì: periodo, tappe, compiti, ' +
+      'giudizi, matrice. Senza, la testata e i corsi',
     progettoId: 'Solo questo progetto',
     oggi: 'Il giorno a cui si guarda il punto dei compiti. Senza, oggi',
     corso: 'La classe e la materia',
-    stato: 'bozza, in-corso o concluso',
+    corsi: 'I corsi in cui il progetto è integrato, per nome',
+    integrazioni: 'I corsi in cui il progetto è integrato, ognuno con il suo stato',
+    stato: 'A che punto è con la classe del corso: bozza, in-corso o concluso',
     lezioni: 'Le ore il cui piano ha tappe del progetto, in ordine, con i titoli delle tappe',
     momenti: 'Le valutazioni promosse dal progetto',
     compiti: 'I compiti, con il punto di ognuno',
@@ -48,16 +57,16 @@ const it = {
     presentazione: {
       titolo: 'I progetti',
       progetto: 'Progetto',
-      corso: 'Corso',
+      corsi: 'Corsi',
     },
   },
   salva: {
     titolo:
-      'Crea un progetto o ne cambia la testata: titolo, obiettivi, fasi, stato, criteri, ' +
-      'livelli, risorse e note',
+      'Crea un progetto dell’anno o ne cambia la testata: titolo, obiettivi, fasi, scaletta, ' +
+      'criteri, livelli, risorse e note',
     progetto:
-      'Il progetto intero; un id che non c’è lo crea. Compiti, giudizi e matrice di un ' +
-      'progetto che c’è già restano quelli del registro. Un criterio o una fase senza id con ' +
+      'Il progetto intero, di nessun corso; un id che non c’è lo crea. Le integrazioni nei ' +
+      'corsi (stato, compiti, giudizi, matrice) restano quelle del registro. Un criterio o una fase senza id con ' +
       'il titolo di uno che c’è ne tiene l’id. Le fasi, in ordine, sono almeno una; omesse ' +
       'restano quelle di prima. Le tappe dei piani di una fase tolta passano alla fase ' +
       'rimasta che la precedeva, o alla prima',
@@ -67,8 +76,24 @@ const it = {
   },
   elimina: {
     titolo:
-      'Toglie un progetto con compiti, giudizi e matrice; tappe dei piani e valutazioni ' +
-      'restano, senza progetto',
+      'Toglie un progetto da tutti i corsi, con compiti, giudizi e matrice; tappe dei piani ' +
+      'e valutazioni restano, senza progetto',
+  },
+  integra: {
+    titolo:
+      'Integra un progetto in un corso, in bozza: lì avrà compiti, giudizi e matrice. Se lo ' +
+      'è già non cambia niente',
+  },
+  integrazione: {
+    stato: {
+      titolo: 'Dice a che punto è il progetto con la classe di un corso',
+      stato: 'bozza, in-corso o concluso',
+    },
+    togli: {
+      titolo:
+        'Toglie il progetto da un corso: compiti, giudizi e matrice di quella classe se ne ' +
+        'vanno; il progetto resta, e tappe dei piani del corso e valutazioni restano, sganciate',
+    },
   },
   cella: {
     titolo:
@@ -138,21 +163,30 @@ export const testi = catalogo(it, {
     comune: {
       progettoId: 'Das Projekt: Die Projekte listet «progetti.leggi» auf',
       compitoId: 'Die Aufgabe des Projekts',
-      allievoId: 'Wer: eine Person aus der Klasse des Projektkurses',
+      corsoId: 'Der Kurs, in den das Projekt eingebunden ist: Die Klasse ist seine',
+      allievoId: 'Wer: eine Person aus der Klasse des Kurses',
       rimedioProgetti: 'Die Projekte des Schuljahrs listet «progetti.leggi» auf.',
-      rimedioCompiti: 'Die Aufgaben eines Projekts listet «progetti.leggi» auf.',
+      rimedioCompiti: 'Die Aufgaben eines Projekts in einem Kurs listet «progetti.leggi» mit dem Kurs auf.',
+      nonIntegrato:
+        'Das Projekt ist nicht in diesen Kurs eingebunden: Man bindet es mit «progetti.integra» ' +
+        'ein; «progetti.leggi» sagt, in welchen Kursen es ist.',
       lezioneId: 'Die Stunde des Kurses: Das Datum ist ihres und folgt ihr',
       data: 'Der Tag, wenn es nicht in einer Stunde ist. Ohne: heute',
     },
     leggi: {
       titolo:
-        'Die Projekte der Kurse: Kriterien und Stufen, Stunden und Prüfungen dazu, Aufgaben ' +
-        'mit wer sie begonnen und erledigt hat, Einschätzungen und Matrix',
-      corsoId: 'Nur die Projekte dieses Kurses',
+        'Die Projekte des Schuljahrs, mit den Kursen, in die sie eingebunden sind. Mit einem ' +
+        'Kurs die Arbeit mit dieser Klasse: Stunden und Prüfungen dazu, Aufgaben mit wer sie ' +
+        'begonnen und erledigt hat, Einschätzungen und Matrix',
+      corsoId:
+        'Nur die in diesen Kurs eingebundenen Projekte, von dort aus gesehen: Zeitraum, ' +
+        'Etappen, Aufgaben, Einschätzungen, Matrix. Ohne: Kopf und Kurse',
       progettoId: 'Nur dieses Projekt',
       oggi: 'Der Tag, an dem der Stand der Aufgaben gemessen wird. Ohne: heute',
       corso: 'Klasse und Fach',
-      stato: 'bozza, in-corso oder concluso',
+      corsi: 'Die Kurse, in die das Projekt eingebunden ist, mit Namen',
+      integrazioni: 'Die Kurse, in die das Projekt eingebunden ist, jeder mit seinem Stand',
+      stato: 'Wie weit es mit der Klasse des Kurses ist: bozza, in-corso oder concluso',
       lezioni: 'Die Stunden, deren Plan Etappen des Projekts hat, in Reihenfolge, mit den Titeln der Etappen',
       momenti: 'Die Leistungsbeurteilungen des Projekts',
       compiti: 'Die Aufgaben, mit dem Stand jeder Person',
@@ -180,16 +214,16 @@ export const testi = catalogo(it, {
       presentazione: {
         titolo: 'Die Projekte',
         progetto: 'Projekt',
-        corso: 'Kurs',
+        corsi: 'Kurse',
       },
     },
     salva: {
       titolo:
-        'Erstellt ein Projekt oder ändert seinen Kopf: Titel, Ziele, Phasen, Stand, Kriterien, ' +
-        'Stufen, Ressourcen und Notizen',
+        'Erstellt ein Projekt des Schuljahrs oder ändert seinen Kopf: Titel, Ziele, Phasen, ' +
+        'Ablauf, Kriterien, Stufen, Ressourcen und Notizen',
       progetto:
-        'Das ganze Projekt; eine unbekannte ID erstellt es. Aufgaben, Einschätzungen und ' +
-        'Matrix eines bestehenden Projekts bleiben die des Klassenbuchs. Ein Kriterium oder ' +
+        'Das ganze Projekt, ohne Kurs; eine unbekannte ID erstellt es. Die Einbindungen in ' +
+        'Kurse (Stand, Aufgaben, Einschätzungen, Matrix) bleiben die des Klassenbuchs. Ein Kriterium oder ' +
         'eine Phase ohne ID mit dem Titel eines bestehenden behält dessen ID. Die Phasen, in ' +
         'Reihenfolge, sind mindestens eine; weggelassen bleiben die bisherigen. Die Etappen der ' +
         'Pläne in einer entfernten Phase kommen in die verbliebene Phase davor oder in die erste',
@@ -199,8 +233,25 @@ export const testi = catalogo(it, {
     },
     elimina: {
       titolo:
-        'Entfernt ein Projekt mit Aufgaben, Einschätzungen und Matrix; Etappen und ' +
-        'Leistungsbeurteilungen bleiben, ohne Projekt',
+        'Entfernt ein Projekt aus allen Kursen, mit Aufgaben, Einschätzungen und Matrix; ' +
+        'Etappen und Leistungsbeurteilungen bleiben, ohne Projekt',
+    },
+    integra: {
+      titolo:
+        'Bindet ein Projekt in einen Kurs ein, als Entwurf: Dort hat es Aufgaben, ' +
+        'Einschätzungen und Matrix. Ist es schon eingebunden, ändert sich nichts',
+    },
+    integrazione: {
+      stato: {
+        titolo: 'Sagt, wie weit das Projekt mit der Klasse eines Kurses ist',
+        stato: 'bozza, in-corso oder concluso',
+      },
+      togli: {
+        titolo:
+          'Nimmt das Projekt aus einem Kurs: Aufgaben, Einschätzungen und Matrix dieser Klasse ' +
+          'gehen; das Projekt bleibt, Etappen der Pläne des Kurses und Leistungsbeurteilungen ' +
+          'bleiben, gelöst',
+      },
     },
     cella: {
       titolo:
@@ -270,21 +321,30 @@ export const testi = catalogo(it, {
     comune: {
       progettoId: 'Le projet : les projets sont listés par « progetti.leggi »',
       compitoId: 'La tâche du projet',
-      allievoId: 'Qui : une personne de la classe du cours du projet',
+      corsoId: 'Le cours dans lequel le projet est intégré : la classe est la sienne',
+      allievoId: 'Qui : une personne de la classe du cours',
       rimedioProgetti: 'Les projets de l’année sont listés par « progetti.leggi ».',
-      rimedioCompiti: 'Les tâches d’un projet sont listées par « progetti.leggi ».',
+      rimedioCompiti: 'Les tâches d’un projet dans un cours sont listées par « progetti.leggi » avec le cours.',
+      nonIntegrato:
+        'Le projet n’est pas intégré dans ce cours : on l’intègre avec « progetti.integra » ; ' +
+        '« progetti.leggi » dit dans quels cours il l’est.',
       lezioneId: 'La leçon du cours : la date sera la sienne, et la suivra',
       data: 'Le jour, si ce n’est pas dans une leçon. Sans : aujourd’hui',
     },
     leggi: {
       titolo:
-        'Les projets des cours : critères et niveaux, leçons et épreuves qui y travaillent, ' +
-        'tâches avec qui les a commencées et finies, appréciations et grille',
-      corsoId: 'Seulement les projets de ce cours',
+        'Les projets de l’année, avec les cours où ils sont intégrés. Avec un cours, le travail ' +
+        'avec cette classe : leçons et épreuves qui y travaillent, tâches avec qui les a ' +
+        'commencées et finies, appréciations et grille',
+      corsoId:
+        'Seulement les projets intégrés dans ce cours, vus de là : période, étapes, tâches, ' +
+        'appréciations, grille. Sans : l’en-tête et les cours',
       progettoId: 'Seulement ce projet',
       oggi: 'Le jour auquel on regarde où en sont les tâches. Sans : aujourd’hui',
       corso: 'La classe et la branche',
-      stato: 'bozza, in-corso ou concluso',
+      corsi: 'Les cours où le projet est intégré, par nom',
+      integrazioni: 'Les cours où le projet est intégré, chacun avec son état',
+      stato: 'Où en est le projet avec la classe du cours : bozza, in-corso ou concluso',
       lezioni: 'Les leçons dont le plan a des étapes du projet, dans l’ordre, avec les titres des étapes',
       momenti: 'Les évaluations du projet',
       compiti: 'Les tâches, avec où en est chacun',
@@ -312,16 +372,16 @@ export const testi = catalogo(it, {
       presentazione: {
         titolo: 'Les projets',
         progetto: 'Projet',
-        corso: 'Cours',
+        corsi: 'Cours',
       },
     },
     salva: {
       titolo:
-        'Crée un projet ou en change l’en-tête : titre, objectifs, phases, état, critères, ' +
-        'niveaux, ressources et notes',
+        'Crée un projet de l’année ou en change l’en-tête : titre, objectifs, phases, ' +
+        'déroulement, critères, niveaux, ressources et notes',
       progetto:
-        'Le projet entier ; un id inconnu le crée. Les tâches, appréciations et la grille ' +
-        'd’un projet existant restent celles du registre. Un critère ou une phase sans id ' +
+        'Le projet entier, d’aucun cours ; un id inconnu le crée. Les intégrations dans les ' +
+        'cours (état, tâches, appréciations, grille) restent celles du registre. Un critère ou une phase sans id ' +
         'portant le titre d’un existant en garde l’id. Les phases, dans l’ordre, sont au moins ' +
         'une ; omises, celles d’avant restent. Les étapes des plans d’une phase retirée passent ' +
         'à la phase restante qui la précédait, ou à la première',
@@ -331,8 +391,25 @@ export const testi = catalogo(it, {
     },
     elimina: {
       titolo:
-        'Supprime un projet avec tâches, appréciations et grille ; les étapes des plans et ' +
-        'les évaluations restent, sans projet',
+        'Supprime un projet de tous les cours, avec tâches, appréciations et grille ; les ' +
+        'étapes des plans et les évaluations restent, sans projet',
+    },
+    integra: {
+      titolo:
+        'Intègre un projet dans un cours, en brouillon : il y aura tâches, appréciations et ' +
+        'grille. S’il l’est déjà, rien ne change',
+    },
+    integrazione: {
+      stato: {
+        titolo: 'Dit où en est le projet avec la classe d’un cours',
+        stato: 'bozza, in-corso ou concluso',
+      },
+      togli: {
+        titolo:
+          'Retire le projet d’un cours : tâches, appréciations et grille de cette classe ' +
+          's’en vont ; le projet reste, et les étapes des plans du cours et les évaluations ' +
+          'restent, détachées',
+      },
     },
     cella: {
       titolo:
@@ -401,21 +478,30 @@ export const testi = catalogo(it, {
     comune: {
       progettoId: 'The project: “progetti.leggi” lists the projects',
       compitoId: 'The project task',
-      allievoId: 'Who: a person in the class of the project’s course',
+      corsoId: 'The course the project is integrated into: the class is its class',
+      allievoId: 'Who: a person in the course’s class',
       rimedioProgetti: '“progetti.leggi” lists the year’s projects.',
-      rimedioCompiti: '“progetti.leggi” lists a project’s tasks.',
+      rimedioCompiti: '“progetti.leggi” with the course lists a project’s tasks in that course.',
+      nonIntegrato:
+        'The project isn’t integrated into this course: “progetti.integra” integrates it; ' +
+        '“progetti.leggi” says which courses it is in.',
       lezioneId: 'The course lesson: the date will be its date, and will follow it',
       data: 'The day, if it isn’t in a lesson. Without it, today',
     },
     leggi: {
       titolo:
-        'The course projects: criteria and levels, the lessons and tests that work on them, ' +
-        'tasks with who started and finished them, comments and grid',
-      corsoId: 'Only this course’s projects',
+        'The year’s projects, with the courses they are integrated into. With a course, the ' +
+        'work with that class: the lessons and tests that work on them, tasks with who started ' +
+        'and finished them, comments and grid',
+      corsoId:
+        'Only the projects integrated into this course, seen from there: period, steps, tasks, ' +
+        'comments, grid. Without it, the header and the courses',
       progettoId: 'Only this project',
       oggi: 'The day on which task progress is judged. Without it, today',
       corso: 'The class and the subject',
-      stato: 'bozza, in-corso or concluso',
+      corsi: 'The courses the project is integrated into, by name',
+      integrazioni: 'The courses the project is integrated into, each with its status',
+      stato: 'Where it stands with the course’s class: bozza, in-corso or concluso',
       lezioni: 'The lessons whose plan has project steps, in order, with the step titles',
       momenti: 'The assessments the project set up',
       compiti: 'The tasks, with where each person stands',
@@ -441,16 +527,16 @@ export const testi = catalogo(it, {
       presentazione: {
         titolo: 'The projects',
         progetto: 'Project',
-        corso: 'Course',
+        corsi: 'Courses',
       },
     },
     salva: {
       titolo:
-        'Creates a project or changes its header: title, aims, phases, status, criteria, ' +
-        'levels, resources and notes',
+        'Creates a project of the year or changes its header: title, aims, phases, outline, ' +
+        'criteria, levels, resources and notes',
       progetto:
-        'The whole project; an unknown id creates it. An existing project keeps the tasks, ' +
-        'comments and grid in the register. A criterion or phase without id titled like an ' +
+        'The whole project, of no course; an unknown id creates it. Its integrations into ' +
+        'courses (status, tasks, comments, grid) stay as in the register. A criterion or phase without id titled like an ' +
         'existing one keeps its id. There is at least one phase, in order; left out, the ' +
         'previous ones stay. Plan steps in a removed phase move to the remaining phase before ' +
         'it, or to the first',
@@ -460,8 +546,24 @@ export const testi = catalogo(it, {
     },
     elimina: {
       titolo:
-        'Removes a project with tasks, comments and grid; plan steps and assessments stay, ' +
-        'with no project',
+        'Removes a project from every course, with tasks, comments and grid; plan steps and ' +
+        'assessments stay, with no project',
+    },
+    integra: {
+      titolo:
+        'Integrates a project into a course, as a draft: there it will have tasks, comments ' +
+        'and grid. If it already is, nothing changes',
+    },
+    integrazione: {
+      stato: {
+        titolo: 'Says where the project stands with a course’s class',
+        stato: 'bozza, in-corso or concluso',
+      },
+      togli: {
+        titolo:
+          'Removes the project from a course: that class’s tasks, comments and grid go; the ' +
+          'project stays, and the course’s plan steps and assessments stay, detached',
+      },
     },
     cella: {
       titolo:

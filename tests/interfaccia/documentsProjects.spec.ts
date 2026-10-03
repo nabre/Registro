@@ -23,11 +23,12 @@ const PREPARA = `() => {
   const classe = r.classi.find((c) => c.id === corso.classeId)
   const attivi = classe.allievi.filter((a) => a.attivo)
   const ist = '2026-09-01T08:00:00.000Z'
-  const progetto = (id, titolo) => ({ id, corsoId: corso.id, titolo, obiettivi: [], stato: 'in-corso',
-    fasi: [{ id: 'f1', titolo: 'Fase' }], criteri: [], livelli: [], compiti: [], giudizi: [],
-    matrice: [], risorse: [], creatoIl: ist, aggiornatoIl: ist })
+  const progetto = (id, titolo) => ({ id, titolo, obiettivi: [],
+    fasi: [{ id: 'f1', titolo: 'Fase' }], criteri: [], livelli: [],
+    integrazioni: [{ corsoId: corso.id, stato: 'in-corso', compiti: [], giudizi: [], matrice: [] }],
+    risorse: [], creatoIl: ist, aggiornatoIl: ist })
   const registro = { ...r, progetti: [progetto('prg-a', 'Giornale di classe'), progetto('prg-b', 'Orto')] }
-  const dove = prova.collocazioneDi(registro, 'progetto-allievo', 'prg-a', { allievoId: attivi[0].id })
+  const dove = prova.collocazioneDi(registro, 'progetto-allievo', 'prg-a', { corsoId: corso.id, allievoId: attivi[0].id })
   const percorso = prova.percorsoDi(dove, 'pdf')
   prova.vai({ pagina: 'pagina.corso.documenti', soggetto: { tipo: 'corso', id: corso.id } }, {
     contesto: { filtroClasseId: corso.classeId },

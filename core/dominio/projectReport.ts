@@ -26,7 +26,7 @@ import type {
   Iso,
   Lezione,
   MomentoValutazione,
-  Progetto,
+  ProgettoNelCorso,
   Registro,
   TipoOsservazione,
 } from './models.js'
@@ -76,7 +76,7 @@ function inParole (periodo: Periodo | null): string {
 /** Testata, classe, materia e progetto: quel che i due fogli dicono in cima. */
 function testata (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   quadro: QuadroDelProgetto,
   titolo: string,
 ): Record<string, string> {
@@ -97,12 +97,12 @@ function testata (
 }
 
 /** La scala dal basso, ogni livello con la sua descrizione se ce l'ha. */
-function legendaDeiLivelli (progetto: Progetto): string[] {
+function legendaDeiLivelli (progetto: ProgettoNelCorso): string[] {
   return progetto.livelli.map((l) => (l.descrizione?.trim() ? `${l.testo} — ${l.descrizione.trim()}` : l.testo))
 }
 
 /** Come si legge il livello di una cella: il testo della scala, o «nota» se ha solo quella. */
-function livelloDi (progetto: Progetto, cella: CellaProgetto): string {
+function livelloDi (progetto: ProgettoNelCorso, cella: CellaProgetto): string {
   if (cella.livello === null) return testi().soloNota
   return progetto.livelli.find((l) => l.valore === cella.livello)?.testo ?? cella.livello
 }
@@ -128,7 +128,7 @@ function durataDi (registro: Registro, attivita: Attivita[]): string {
  * Le persone del rapporto di classe: le attive, e chi non lo è più ma il
  * progetto nomina ancora (un ritirato a metà ha i suoi livelli).
  */
-function allieviDelProgetto (registro: Registro, progetto: Progetto): Allievo[] {
+function allieviDelProgetto (registro: Registro, progetto: ProgettoNelCorso): Allievo[] {
   const classe = classeDelCorsoId(registro, progetto.corsoId)
   if (!classe) return []
   const nominati = allieviNominati(progetto)
@@ -194,7 +194,7 @@ function contiPresenze (p: PresenzeNelProgetto | undefined): string[] {
  */
 export function datiProgetto (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   giorno: Iso = oggi(),
 ): DatiRapporto {
   const t = testi()
@@ -411,7 +411,7 @@ export function datiProgetto (
  */
 export function datiProgettoAllievo (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievo: Allievo,
   giorno: Iso = oggi(),
 ): DatiRapporto {

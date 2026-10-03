@@ -6,7 +6,7 @@ import { archivia, archiviaCopia, percorsoRisorsaPiano, pulisciCopiaOrfana, rino
 import { contenutoDi } from '#core/dati/store.js'
 import { istanteAdesso } from '#core/dominio/dates.js'
 import { creaRisorsa, duplicaPiano } from '#core/dominio/factories.js'
-import { faseDellAttivita } from '#core/dominio/projects.js'
+import { faseDellAttivita, integrazioneDi, integrazioneVuota } from '#core/dominio/projects.js'
 import { contenutoAttivita, stessoContenutoAttivita, sincronizzaPianiDelProgetto } from '#core/dominio/projectPlanning.js'
 import { nuovoIdAttivita } from '#core/dominio/identifiers.js'
 import type { Attivita, PianoLezione, Registro, Risorsa } from '#core/dominio/models.js'
@@ -27,7 +27,6 @@ import {
 import { parole } from '#core/dominio/words.testi.js'
 import { testi as comuni } from './context.testi.js'
 import { testi } from './plans.testi.js'
-import { testi as testiProgetti } from './projects.testi.js'
 
 /** Le estensioni che si accettano come immagine: quelle che un webview sa disegnare. */
 const ESTENSIONI_IMMAGINE = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif']
@@ -96,9 +95,11 @@ export const piani = {
     if (estranei.length > 0) {
       return rifiuta(testi().fileEstranei(estranei.length))
     }
-    // Una tappa lavora per un progetto del corso del piano: altrove la sua
-    // lezione non comparirebbe fra quelle del progetto. La fase è sempre una
-    // del progetto: omessa o d'altri, la prima, dove la tappa si legge già.
+    // Una tappa lavora per un progetto dell'anno; se il piano ha un corso in
+    // cui il progetto non è integrato, lo si integra nella stessa scrittura,
+    // se no la sua lezione non comparirebbe fra quelle del progetto. La fase è
+    // sempre una del progetto: omessa o d'altri, la prima, dove la tappa si
+    // legge già.
     const attivita: Attivita[] = []
     const progetti = structuredClone(contesto.registro.progetti)
     const cambiati = new Set<string>()
@@ -110,8 +111,9 @@ export const piani = {
       }
       const progetto = progetti.find((p) => p.id === tappa.progettoId)
       if (!progetto) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
-      if (progetto.corsoId !== azione.piano.corsoId) {
-        return rifiuta(testiProgetti().progettoAltroCorso)
+      if (azione.piano.corsoId && !integrazioneDi(progetto, azione.piano.corsoId)) {
+        progetto.integrazioni.push(integrazioneVuota(azione.piano.corsoId))
+        cambiati.add(progetto.id)
       }
       const fase = faseDellAttivita(progetto, tappa)
       if (!fase) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)

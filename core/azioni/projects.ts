@@ -1,4 +1,5 @@
-// Il progetto di un corso (ADR-54): testata, compiti con inizio per allievo,
+// Il progetto (ADR-54 e la sua estensione del 2026-10-03): la testata, che è
+// dell'anno, e le integrazioni nei corsi, con compiti a inizio per allievo,
 // giudizi e matrice a livelli. Le regole e le letture stanno in
 // `core/dominio/projects.ts`; qui si trova, si controlla e si scrive. Un gesto
 // che non cambia niente si prova su una copia e torna `invariato`, perché
@@ -12,13 +13,25 @@
 import { allieviAttivi } from '#core/dominio/calculations.js'
 import { istanteAdesso, oggi } from '#core/dominio/dates.js'
 import { nuovoIdCompitoProgetto, nuovoIdGiudizioProgetto } from '#core/dominio/identifiers.js'
-import type { Allievo, FaseProgetto, Iso, Lezione, Progetto, Registro } from '#core/dominio/models.js'
+import type {
+  Allievo,
+  FaseProgetto,
+  Iso,
+  Lezione,
+  Progetto,
+  ProgettoNelCorso,
+  Registro,
+} from '#core/dominio/models.js'
 import { normalizzaProgetto } from '#core/dominio/normalization/index.js'
 import { sincronizzaPianiDelProgetto } from '#core/dominio/projectPlanning.js'
 import {
   cellaVuota,
   celleDi,
+  integrazioneDi,
+  integrazioneVuota,
+  nelCorso,
   progettoPerId,
+  riportaNellIntegrazione,
   ripulisciMatrice,
 } from '#core/dominio/projects.js'
 import { normalizzaTesto } from '#core/dominio/text.js'
@@ -35,34 +48,41 @@ import {
   type Parte,
 } from './context.js'
 import { testi as comuni } from './context.testi.js'
+import { togliProgettiOrfani } from './reports.js'
 import { testi } from './projects.testi.js'
 
 /** Il pezzo del contesto che serve per scrivere. */
 type Scrittura = Pick<Parameters<NonNullable<Parte['progetto.cella']>>[0], 'modifica'>
 
-/** Un progetto trovato, o il rifiuto da tornare. */
-type Trovato = { progetto: Progetto } | { errore: EsitoAzione }
+/** Un progetto trovato nel corso, o il rifiuto da tornare. */
+type Trovato = { progetto: ProgettoNelCorso } | { errore: EsitoAzione }
 
-function progettoDa (registro: Registro, progettoId: string): Trovato {
+/** Il progetto visto dal corso: deve esserci, ed essere integrato lì. */
+function progettoDa (registro: Registro, progettoId: string, corsoId: string): Trovato {
   const progetto = progettoPerId(registro, progettoId)
   if (!progetto) return { errore: rifiutaCon('non-trovato', comuni().vociSparite.progetti) }
-  return { progetto }
+  const vista = nelCorso(progetto, corsoId)
+  if (!vista) return { errore: rifiutaCon('non-trovato', testi().nonIntegrato) }
+  return { progetto: vista }
 }
 
 /**
- * Scrive l'operazione sul progetto vivo, se cambia qualcosa, con il timbro di
- * aggiornamento; altrimenti `invariato`. Provata prima su una copia.
+ * Scrive l'operazione sull'integrazione viva, se cambia qualcosa, con il
+ * timbro di aggiornamento del progetto; altrimenti `invariato`. Provata prima
+ * su una copia.
  */
 function scriviSulProgetto (
   contesto: Scrittura,
-  progetto: Progetto,
-  op: (progetto: Progetto) => boolean,
+  progetto: ProgettoNelCorso,
+  op: (progetto: ProgettoNelCorso) => boolean,
 ): EsitoAzione {
   if (!op(structuredClone(progetto))) return invariato
   return contesto.modifica((r) => {
     const vivo = r.progetti.find((p) => p.id === progetto.id)
-    if (!vivo) return false
-    op(vivo)
+    const vista = vivo ? nelCorso(vivo, progetto.corsoId) : null
+    if (!vivo || !vista) return false
+    op(vista)
+    riportaNellIntegrazione(vivo, vista)
     vivo.aggiornatoIl = istanteAdesso()
   }, ['progetti'], comuni().vociSparite.progetti)
 }
@@ -73,10 +93,10 @@ function allieviDelCorso (registro: Registro, corsoId: string): Allievo[] {
   return registro.classi.find((c) => c.id === corso?.classeId)?.allievi ?? []
 }
 
-/** La lezione nominata, purché del corso del progetto; `null` se non se ne nomina una. */
+/** La lezione nominata, purché del corso dell'integrazione; `null` se non se ne nomina una. */
 function lezioneDelProgetto (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   lezioneId: string | null | undefined,
 ): { lezione: Lezione | null } | { errore: EsitoAzione } {
   if (!lezioneId) return { lezione: null }
@@ -137,8 +157,9 @@ function destinoDelleFasi (
 }
 
 /**
- * Le celle che il salvataggio farebbe cadere o lascerebbe senza livello, con
- * i titoli dei criteri e i testi dei livelli di prima che ne sono la causa.
+ * Le celle che il salvataggio farebbe cadere o lascerebbe senza livello, in
+ * tutti i corsi, con i titoli dei criteri e i testi dei livelli di prima che
+ * ne sono la causa.
  */
 function celleCheCadono (
   prima: Progetto,
@@ -149,7 +170,7 @@ function celleCheCadono (
   const criteriVia = new Set<string>()
   const livelliVia = new Set<string>()
   let n = 0
-  for (const cella of prima.matrice) {
+  for (const cella of prima.integrazioni.flatMap((i) => i.matrice)) {
     if (!criteri.has(cella.criterioId)) {
       criteriVia.add(cella.criterioId)
       n++
@@ -194,11 +215,7 @@ export const progetti = {
     const esito = validaProgetto(azione.progetto)
     if (!esito.valido) return { ok: false, errori: esito.errori }
     const registro = contesto.registro
-    if (!registro.corsi.some((c) => c.id === azione.progetto.corsoId)) {
-      return rifiutaCon('non-trovato', comuni().nonTrovato.corso)
-    }
     const prima = progettoPerId(registro, azione.progetto.id)
-    if (prima && prima.corsoId !== azione.progetto.corsoId) return rifiuta(testi().altroCorso)
     // Come per i piani: un file non già citato potrebbe essere d'altri, e poi
     // verrebbe cestinato. Si rifiuta, non si azzera in silenzio.
     const citati = new Set(prima ? fileDi(prima) : [])
@@ -227,10 +244,8 @@ export const progetti = {
     }
     const progetto: Progetto = {
       ...letto,
-      // Quel che ha le sue azioni resta com'è nel registro.
-      compiti: prima ? structuredClone(prima.compiti) : [],
-      giudizi: prima ? structuredClone(prima.giudizi) : [],
-      matrice: prima ? structuredClone(prima.matrice) : [],
+      // Le integrazioni hanno le loro azioni: restano come sono nel registro.
+      integrazioni: prima ? structuredClone(prima.integrazioni) : [],
       creatoIl: prima?.creatoIl ?? letto.creatoIl,
       aggiornatoIl: istanteAdesso(),
     }
@@ -275,6 +290,69 @@ export const progetti = {
   'progetto.elimina': async (contesto, azione) =>
     contesto.elimina({ genere: 'progetto', id: azione.progettoId }),
 
+  'progetto.integra': (contesto, azione) => {
+    const registro = contesto.registro
+    const progetto = progettoPerId(registro, azione.progettoId)
+    if (!progetto) return rifiutaCon('non-trovato', comuni().vociSparite.progetti)
+    if (!registro.corsi.some((c) => c.id === azione.corsoId)) {
+      return rifiutaCon('non-trovato', comuni().nonTrovato.corso)
+    }
+    if (integrazioneDi(progetto, azione.corsoId)) return invariato
+    return contesto.modifica((r) => {
+      const vivo = r.progetti.find((p) => p.id === azione.progettoId)
+      if (!vivo) return false
+      if (!integrazioneDi(vivo, azione.corsoId)) vivo.integrazioni.push(integrazioneVuota(azione.corsoId))
+      vivo.aggiornatoIl = istanteAdesso()
+    }, ['progetti'], comuni().vociSparite.progetti)
+  },
+
+  'progetto.integrazione.stato': (contesto, azione) => {
+    const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
+    if ('errore' in trovato) return trovato.errore
+    return scriviSulProgetto(contesto, trovato.progetto, (p) => {
+      if (p.stato === azione.stato) return false
+      p.stato = azione.stato
+      return true
+    })
+  },
+
+  /**
+   * Toglie il progetto dal corso con il lavoro fatto con quella classe. Le
+   * tappe dei piani del corso e i momenti che lavoravano per lui restano,
+   * sganciati, come quando si cancella il progetto; i suoi fogli di quel
+   * corso vanno nel cestino.
+   */
+  'progetto.integrazione.togli': async (contesto, azione) => {
+    const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
+    if ('errore' in trovato) return trovato.errore
+    const suaTappa = (corsoId: string | null, a: { progettoId?: string | null }) =>
+      corsoId === azione.corsoId && a.progettoId === azione.progettoId
+    const tappe = contesto.registro.piani.reduce((n, piano) =>
+      n + piano.attivita.filter((a) => suaTappa(piano.corsoId, a)).length, 0)
+    const scritto = contesto.modifica((r) => {
+      const vivo = r.progetti.find((p) => p.id === azione.progettoId)
+      if (!vivo) return false
+      vivo.integrazioni = vivo.integrazioni.filter((i) => i.corsoId !== azione.corsoId)
+      vivo.aggiornatoIl = istanteAdesso()
+      for (const piano of r.piani) {
+        for (const attivita of piano.attivita) {
+          if (!suaTappa(piano.corsoId, attivita)) continue
+          delete attivita.progettoId
+          delete attivita.faseProgettoId
+          delete attivita.attivitaProgettoId
+        }
+      }
+      for (const momento of r.valutazioni) {
+        if (momento.corsoId === azione.corsoId && momento.progettoId === azione.progettoId) {
+          momento.progettoId = null
+        }
+      }
+    }, ['progetti', 'piani', 'valutazioni'], comuni().vociSparite.progetti)
+    if (!scritto.ok) return scritto
+    await togliProgettiOrfani(contesto.registro, [azione.corsoId])
+    return conMessaggio(testi().tolto(tappe))
+  },
+
   /**
    * Titolo, descrizione e fine comune; inizi, proroghe e spunte restano. Un
    * `fineLezioneId` omesso tiene l'ora della fine, se la fine data è ancora il
@@ -283,7 +361,7 @@ export const progetti = {
    */
   'progetto.compito.salva': (contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     const chiesto = azione.compito
@@ -317,7 +395,7 @@ export const progetti = {
   },
 
   'progetto.compito.elimina': (contesto, azione) => {
-    const trovato = progettoDa(contesto.registro, azione.progettoId)
+    const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     if (!trovato.progetto.compiti.some((c) => c.id === azione.compitoId)) {
       return rifiutaCon('non-trovato', testi().compitoSparito)
@@ -335,7 +413,7 @@ export const progetti = {
    */
   'progetto.compito.inizia': aOraAperta((contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     if (!progetto.compiti.some((c) => c.id === azione.compitoId)) {
@@ -365,7 +443,7 @@ export const progetti = {
   }),
 
   'progetto.compito.togliInizio': (contesto, azione) => {
-    const trovato = progettoDa(contesto.registro, azione.progettoId)
+    const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const compito = trovato.progetto.compiti.find((c) => c.id === azione.compitoId)
     if (!compito) return rifiutaCon('non-trovato', testi().compitoSparito)
@@ -382,7 +460,7 @@ export const progetti = {
 
   'progetto.compito.proroga': (contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     if (!progetto.compiti.some((c) => c.id === azione.compitoId)) {
@@ -410,7 +488,7 @@ export const progetti = {
 
   'progetto.compito.fatto': (contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     if (!progetto.compiti.some((c) => c.id === azione.compitoId)) {
@@ -450,7 +528,7 @@ export const progetti = {
    */
   'progetto.compito.fattoTutti': (contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     if (!progetto.compiti.some((c) => c.id === azione.compitoId)) {
@@ -477,7 +555,7 @@ export const progetti = {
 
   'progetto.giudizio.salva': (contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     const chiesto = azione.giudizio
@@ -518,7 +596,7 @@ export const progetti = {
   },
 
   'progetto.giudizio.elimina': (contesto, azione) => {
-    const trovato = progettoDa(contesto.registro, azione.progettoId)
+    const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const giudizio = trovato.progetto.giudizi.find((g) => g.id === azione.giudizioId)
     if (!giudizio) return rifiutaCon('non-trovato', testi().giudizioSparito)
@@ -536,7 +614,7 @@ export const progetti = {
    */
   'progetto.cella': aOraAperta((contesto, azione) => {
     const registro = contesto.registro
-    const trovato = progettoDa(registro, azione.progettoId)
+    const trovato = progettoDa(registro, azione.progettoId, azione.corsoId)
     if ('errore' in trovato) return trovato.errore
     const { progetto } = trovato
     if (!progetto.criteri.some((c) => c.id === azione.criterioId)) {

@@ -237,7 +237,7 @@ L'area è il primo segmento del nome.
 | `smistamento` | scansioni in quarantena: caricarle, dividerle, attribuirle, leggerle, confermarle |
 | `consegne` | richieste di consegna, spunte, file raccolti, firme di ritiro |
 | `check` | lista di controllo di un corso: colonne, spunte, chi manca |
-| `progetti` | progetti di un corso (ADR-54): testata, compiti con inizio, proroga e spunta per persona, giudizi, matrice a livelli |
+| `progetti` | progetti dell'anno (ADR-54) e la loro integrazione nei corsi: testata; per corso stato, compiti con inizio, proroga e spunta per persona, giudizi, matrice a livelli |
 | `ore` | l'ora di lezione: appello, comportamento, stato, testi, osservazioni |
 | `classe` | docente di classe: recapiti, comunicazioni, periodi di assenza e fogli |
 | `valutazioni` | momenti, voti, riconsegne, recuperi, allegati |
@@ -285,7 +285,7 @@ tipi interni.
 | `llm.catalogo` | `cerca?` | modelli consigliati e depositi trovati su Hugging Face |
 | `llm.file` | `deposito`, `taglio` | i `.gguf` del deposito, quale conviene, il proiettore; sito muto = elenco vuoto con `motivo` |
 | `check.leggi` | `corsoId` | colonne con `fatte`/`totale` e chi manca; per persona, giorno e ora di ogni spunta |
-| `progetti.leggi` | `corsoId?`, `progettoId?`, `oggi?` | per progetto: testata, criteri e livelli, lezioni (dai piani) e momenti che ci lavorano, compiti col punto di ogni persona (`non-iniziato`, `in-corso`, `fatto`, `scaduto`) e la sua fine, giudizi, celle della matrice col giorno della loro ora |
+| `progetti.leggi` | `corsoId?`, `progettoId?`, `oggi?` | per progetto: testata, criteri e livelli, corsi in cui è integrato con lo stato; con `corsoId` solo gli integrati lì, visti da lì: periodo, fasi con tappe e quota, presenze, lezioni (dai piani) e momenti che ci lavorano, compiti col punto di ogni persona (`non-iniziato`, `in-corso`, `fatto`, `scaduto`) e la sua fine, giudizi, celle della matrice col giorno della loro ora |
 | `calendario.confronta` | `calendarioId?`, `regole?`, `dal?`, `al?` | `voci` (`combacia`, `allineare`, `annullare`, `nuova`, con fasce e differenze), `senzaCorso`, `assenti` (solo segnalate) |
 | `calendario.eventi` | `calendarioId?`, `dal?`, `al?` | `eventi` dei calendari del documento (ricorrenze aperte, ora locale), `scartati`, `copre` |
 | `aggiornamenti.stato` | — | versione in uso, `fase` (`fermo`, `controllo`, `aggiornato`, `disponibile`, `scarico`, `pronto`, `errore`), versione trovata e note, byte scesi, `supportato` e `motivo` |

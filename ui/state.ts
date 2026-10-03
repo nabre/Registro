@@ -19,6 +19,7 @@ import type {
   Ora,
   MomentoValutazione,
   PianoLezione,
+  Progetto,
   Registro,
   Semestre,
 } from '#core/dominio/models.js'
@@ -67,6 +68,7 @@ import {
 import { confrontaLezioni, momentoLezione } from '#core/dominio/calculations.js'
 import { todoDelCorso, todoDelDocenteDiClasse } from '#core/dominio/todo.js'
 import { annoInUso } from '#core/dominio/years.js'
+import { nelCorso, progettiDelCorso, progettiPerTitolo } from '#core/dominio/projects.js'
 import {
   PROIEZIONE_PREDEFINITA,
   type ImpostazioniProiezione,
@@ -293,6 +295,8 @@ interface StatoUI {
   schedaDocente: SchedaDocente;
   /** Se il check aperto appartiene al corso o alla classe del docente di classe. */
   ambitoCheck: AmbitoCheck;
+  /** Se i progetti aperti sono la biblioteca dell'anno o la loro integrazione nel corso. */
+  ambitoProgetti: 'anno' | 'corso';
   /** Quale scheda della pagina Documenti si sta guardando. */
   schedaDocumenti: SchedaDocumenti;
   /** L'area delle impostazioni aperta: la dice il posto. */
@@ -512,6 +516,7 @@ export const stato: StatoUI = {
   schedaTodo: primaVoce?.schedaTodo ?? 'tutte',
   schedaDocente: derivatiIniziali.schedaDocente ?? 'todo',
   ambitoCheck: derivatiIniziali.ambitoCheck ?? 'corso',
+  ambitoProgetti: derivatiIniziali.ambitoProgetti ?? 'anno',
   schedaDocumenti: globali.schedaDocumenti ?? 'corso',
   areaImpostazioni: derivatiIniziali.areaImpostazioni ??
     areaDellaSezione(globali.sezioneImpostazioni ?? 'anno') ?? 'calendario',
@@ -840,6 +845,7 @@ type CampoDelPosto =
   | 'contesto'
   | 'vista'
   | 'ambitoCheck'
+  | 'ambitoProgetti'
   | 'schedaDocente'
   | 'areaImpostazioni'
   | typeof CAMPI_CONTESTO[number]
@@ -1112,6 +1118,24 @@ export function pianoPerId (id: string | null) {
 
 export function progettoPerId (id: string | null) {
   return id ? (stato.registro.progetti.find((p) => p.id === id) ?? null) : null
+}
+
+/** Il progetto con quell'id visto dal corso, se è integrato lì. */
+export function progettoNelCorso (id: string | null, corsoId: string | null | undefined) {
+  const progetto = progettoPerId(id)
+  return progetto ? nelCorso(progetto, corsoId) : null
+}
+
+/**
+ * I progetti dell'anno da scegliere in un corso: prima quelli già integrati
+ * lì, nel loro ordine, poi gli altri per titolo. Legare una tappa di un piano
+ * a uno degli altri lo integra nel corso (lo fa l'host).
+ */
+export function progettiPerIlCorso (corsoId: string | null | undefined): Progetto[] {
+  const integrati = corsoId ? progettiDelCorso(stato.registro, corsoId).map((p) => p.id) : []
+  const perId = new Map(stato.registro.progetti.map((p) => [p.id, p]))
+  const primi = integrati.map((id) => perId.get(id)).filter((p): p is Progetto => p !== undefined)
+  return [...primi, ...progettiPerTitolo(stato.registro).filter((p) => !integrati.includes(p.id))]
 }
 
 export function valutazionePerId (id: string | null) {
@@ -1797,9 +1821,11 @@ const NIENTE: Conto = { aperti: 0, urgenti: 0 }
  */
 export function pendenzeDellaBarra (): Conto {
   // 1. Vista legata a un corso
-  const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'progetti', 'documenti']
+  // La pagina Progetti è la biblioteca dell'anno; l'integrazione è del corso.
+  const visteCorso: readonly Vista[] = ['lezione', 'valutazioni', 'piani', 'documenti']
   const eCorso =
     visteCorso.includes(stato.vista) ||
+    stato.posto.pagina === 'pagina.corso.integrazione' ||
     (stato.vista === 'check' && stato.ambitoCheck === 'corso')
   if (eCorso) {
     const corso = corsoAperto()

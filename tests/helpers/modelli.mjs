@@ -23,6 +23,7 @@ import {
   datiDiario,
   datiProgetto,
   datiProgettoAllievo,
+  nelCorso,
   normalizzaRegistro,
 } from '../../dist-tests/domain.mjs'
 
@@ -70,35 +71,38 @@ export function registroCompleto () {
   valutazione.voti = [{ allievoId: 'al-1', valore: 5, assente: false, nota: '' }]
   valutazione.progettoId = 'prg-1'
 
-  // Un progetto con un po' di tutto: un compito cominciato nell'ora e a mano,
-  // una proroga, una spunta, un giudizio, la matrice in due giorni.
+  // Un progetto con un po' di tutto, integrato nel corso: un compito
+  // cominciato nell'ora e a mano, una proroga, una spunta, un giudizio, la
+  // matrice in due giorni.
   const progetto = {
     id: 'prg-1',
-    corsoId: 'cor-1',
     titolo: 'Il bilancio di classe',
     obiettivi: ['Leggere un bilancio'],
-    stato: 'in-corso',
     criteri: [{ id: 'crp-1', titolo: 'Precisione' }, { id: 'crp-2', titolo: 'Presentazione' }],
-    compiti: [{
-      id: 'cmp-1',
-      titolo: 'Raccolta delle fatture',
-      fine: '2026-10-30',
-      fineLezioneId: null,
-      inizi: [
-        { allievoId: 'al-1', data: '2026-10-06', lezioneId: 'lez-1' },
-        { allievoId: 'al-2', data: '2026-10-08', lezioneId: null },
+    integrazioni: [{
+      corsoId: 'cor-1',
+      stato: 'in-corso',
+      compiti: [{
+        id: 'cmp-1',
+        titolo: 'Raccolta delle fatture',
+        fine: '2026-10-30',
+        fineLezioneId: null,
+        inizi: [
+          { allievoId: 'al-1', data: '2026-10-06', lezioneId: 'lez-1' },
+          { allievoId: 'al-2', data: '2026-10-08', lezioneId: null },
+        ],
+        proroghe: [{ allievoId: 'al-2', fine: '2026-11-06' }],
+        fatti: [{ allievoId: 'al-1', fattoIl: '2026-10-20T10:00:00.000Z' }],
+      }],
+      giudizi: [{
+        id: 'giu-1', allievoId: null, testo: 'Buon avvio', data: '2026-10-06', lezioneId: 'lez-1',
+        creatoIl: '2026-10-06T09:00:00.000Z',
+      }],
+      matrice: [
+        { allievoId: 'al-1', criterioId: 'crp-1', data: '2026-10-06', lezioneId: 'lez-1', livello: 'parziale' },
+        { allievoId: 'al-1', criterioId: 'crp-1', data: '2026-10-20', lezioneId: null, livello: 'raggiunto' },
       ],
-      proroghe: [{ allievoId: 'al-2', fine: '2026-11-06' }],
-      fatti: [{ allievoId: 'al-1', fattoIl: '2026-10-20T10:00:00.000Z' }],
     }],
-    giudizi: [{
-      id: 'giu-1', allievoId: null, testo: 'Buon avvio', data: '2026-10-06', lezioneId: 'lez-1',
-      creatoIl: '2026-10-06T09:00:00.000Z',
-    }],
-    matrice: [
-      { allievoId: 'al-1', criterioId: 'crp-1', data: '2026-10-06', lezioneId: 'lez-1', livello: 'parziale' },
-      { allievoId: 'al-1', criterioId: 'crp-1', data: '2026-10-20', lezioneId: null, livello: 'raggiunto' },
-    ],
     creatoIl: '2026-09-01T08:00:00.000Z',
     aggiornatoIl: '2026-09-01T08:00:00.000Z',
   }
@@ -184,9 +188,9 @@ export function datiDelGenere (registro, genere) {
     case 'corso':
       return datiCorso(registro, corso, semestre)
     case 'progetto-classe':
-      return datiProgetto(registro, registro.progetti[0], '2026-10-25')
+      return datiProgetto(registro, nelCorso(registro.progetti[0], corso.id), '2026-10-25')
     case 'progetto-allievo':
-      return datiProgettoAllievo(registro, registro.progetti[0], classe.allievi[0], '2026-10-25')
+      return datiProgettoAllievo(registro, nelCorso(registro.progetti[0], corso.id), classe.allievi[0], '2026-10-25')
     default:
       return datiAllievo(registro, classe, classe.allievi[0], semestre, corso)
   }

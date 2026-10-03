@@ -3,7 +3,7 @@ import { describe, it } from 'node:test'
 import {
   creaAttivita,
   duplicaPiano,
-  duplicaProgetto,
+  duplicaIntegrazione,
   eliminazione,
   normalizzaProgetto,
   normalizzaRegistro,
@@ -14,7 +14,7 @@ import { registroCompleto } from '../helpers/modelli.mjs'
 function conScaletta () {
   const registro = registroCompleto()
   const progetto = registro.progetti[0]
-  const piano = registro.piani.find((p) => p.corsoId === progetto.corsoId)
+  const piano = registro.piani.find((p) => p.corsoId === progetto.integrazioni[0].corsoId)
   assert.ok(piano)
   const { risorse: _risorse, ...contenuto } = creaAttivita('Rilievo', 1.5)
   progetto.attivita = [{ ...contenuto, faseId: progetto.fasi[0].id }]
@@ -90,14 +90,15 @@ describe('formato della progettazione condivisa', () => {
     }
   })
 
-  it('duplicare il progetto ricrea le identità senza condividere oggetti', () => {
+  it('duplicare l’integrazione ricrea i compiti senza persone né ore, in bozza', () => {
     const { progetto } = conScaletta()
-    progetto.attivita[0].parametri = { gruppi: 2 }
-    const copia = duplicaProgetto(progetto, 'cor-altro')
-    assert.notEqual(copia.attivita[0].id, progetto.attivita[0].id)
-    assert.equal(copia.attivita[0].faseId, copia.fasi[0].id)
-    copia.attivita[0].parametri.gruppi = 4
-    assert.equal(progetto.attivita[0].parametri.gruppi, 2)
+    const [integrazione] = progetto.integrazioni
+    const copia = duplicaIntegrazione(integrazione, 'cor-altro')
+    assert.equal(copia.corsoId, 'cor-altro')
+    assert.equal(copia.stato, 'bozza')
+    assert.notEqual(copia.compiti[0].id, integrazione.compiti[0].id)
+    assert.equal(copia.compiti[0].titolo, integrazione.compiti[0].titolo)
+    assert.deepEqual([copia.compiti[0].inizi, copia.compiti[0].fatti, copia.giudizi, copia.matrice], [[], [], [], []])
   })
 
   it('duplicare il piano nello stesso corso mantiene il contenuto condiviso', () => {

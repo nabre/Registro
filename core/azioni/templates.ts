@@ -22,7 +22,7 @@ import {
   datiValutazioni,
 } from '#core/dominio/reportData/index.js'
 import { datiProgetto, datiProgettoAllievo } from '#core/dominio/projectReport.js'
-import { allieviNominati } from '#core/dominio/projects.js'
+import { allieviNominati, nelCorso } from '#core/dominio/projects.js'
 import type { Registro } from '#core/dominio/models.js'
 import { NOME_LOGO, type DatiRapporto } from '#core/dominio/reports.js'
 import { normalizzaIntestazione } from '#core/dominio/normalization/index.js'
@@ -142,10 +142,12 @@ function datiDiProva (
     return { dati: datiSupplenze(registro, corso, null), di: corso.titolo }
   }
 
-  // Il primo progetto; per il foglio individuale la prima persona che il
-  // progetto nomina, che ha qualcosa da mostrare, se no la prima attiva.
+  // Il primo progetto integrato in un corso, visto da lì; per il foglio
+  // individuale la prima persona che il progetto nomina, che ha qualcosa da
+  // mostrare, se no la prima attiva.
   if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
-    const progetto = registro.progetti[0] ?? null
+    const primo = registro.progetti.find((p) => p.integrazioni.length > 0)
+    const progetto = primo ? nelCorso(primo, primo.integrazioni[0].corsoId) : null
     if (!progetto) return null
     if (genere === 'progetto-classe') {
       return { dati: datiProgetto(registro, progetto), di: progetto.titolo }

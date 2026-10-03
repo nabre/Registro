@@ -1,6 +1,7 @@
 // La scelta di progetto e fase per un'attività del piano: un pulsante a forma
 // di pastiglia che dice la scelta di adesso («Nessun progetto», o «Giornale ›
-// Fase 2»), e al clic un elenco dei progetti del corso con le loro fasi. Un
+// Fase 2»), e al clic un elenco dei progetti dell'anno con le loro fasi:
+// prima quelli integrati nel corso, poi gli altri, che la tappa integrerà. Un
 // progetto con una fase sola si sceglie direttamente. Con più di sei voci
 // compare la ricerca; frecce, Invio ed Esc come in ogni elenco. Vive fuori dal
 // ridisegno, come i menu: nasce al clic e se ne va al primo gesto fuori.
@@ -11,13 +12,13 @@ import { lessico } from '#core/dominio/lexicon.testi.js'
 import type { FaseProgetto, Progetto } from '#core/dominio/models.js'
 import {
   faseDellAttivita,
+  nelCorso,
   periodoDellaFase,
-  progettiDelCorso,
   type Periodo,
 } from '#core/dominio/projects.js'
 import { minuscolo } from '#core/i18n/index.js'
 import { h, rifocalizza } from '#ui/dom.js'
-import { stato } from '#ui/state.js'
+import { progettiPerIlCorso, stato } from '#ui/state.js'
 import { dentroIBordi } from './hint.js'
 import { icona } from './icons.js'
 import { testi } from './projectPhasePicker.testi.js'
@@ -55,17 +56,18 @@ export function sceltaDetta (valore: ProgettoEFase): string | null {
   return progetto.fasi.length > 1 && fase ? `${progetto.titolo} › ${fase.titolo}` : progetto.titolo
 }
 
-/** Per ogni fase: quante attività dei piani ci cadono, e il periodo delle loro ore. */
+/** Per ogni fase: quante attività dei piani del corso ci cadono, e il periodo delle loro ore. */
 interface ContoDellaFase {
   attivita: number
   periodo: Periodo | null
 }
 
-function contiDelleFasi (progetto: Progetto): Map<string, ContoDellaFase> {
-  const tappe = stato.registro.piani.flatMap((p) => p.attivita)
+function contiDelleFasi (progetto: Progetto, corsoId: string | null): Map<string, ContoDellaFase> {
+  const tappe = stato.registro.piani.filter((p) => p.corsoId === corsoId).flatMap((p) => p.attivita)
+  const visto = nelCorso(progetto, corsoId)
   return new Map(progetto.fasi.map((fase) => [fase.id, {
     attivita: tappe.filter((a) => faseDellAttivita(progetto, a)?.id === fase.id).length,
-    periodo: periodoDellaFase(stato.registro, progetto, fase.id),
+    periodo: visto ? periodoDellaFase(stato.registro, visto, fase.id) : null,
   }]))
 }
 
@@ -77,7 +79,7 @@ type Riga =
 
 function righe (opzioni: OpzioniScelta): Riga[] {
   const t = testi()
-  const progetti = opzioni.corsoId ? progettiDelCorso(stato.registro, opzioni.corsoId) : []
+  const progetti = progettiPerIlCorso(opzioni.corsoId)
   const elenco: Riga[] = [{
     tipo: 'scelta',
     testo: t.nessunProgetto,
@@ -96,20 +98,22 @@ function righe (opzioni: OpzioniScelta): Riga[] {
     return [quando, t.attivita(conto.attivita)].filter(Boolean).join(' · ')
   }
   for (const progetto of progetti) {
-    const conti = contiDelleFasi(progetto)
+    const conti = contiDelleFasi(progetto, opzioni.corsoId)
+    // Quelli non ancora integrati lo dicono: sceglierli li porta nel corso.
+    const fuori = opzioni.corsoId !== null && !nelCorso(progetto, opzioni.corsoId)
     if (progetto.fasi.length <= 1) {
       const fase = progetto.fasi[0] ?? null
       elenco.push({
         tipo: 'scelta',
         testo: progetto.titolo,
-        descrizione: descrizione(fase ? conti.get(fase.id) : undefined),
+        descrizione: fuori ? t.nonNelCorso : descrizione(fase ? conti.get(fase.id) : undefined),
         valore: { progettoId: progetto.id, faseProgettoId: fase?.id ?? null },
         rientro: false,
         cerca: minuscolo(progetto.titolo),
       })
       continue
     }
-    elenco.push({ tipo: 'gruppo', testo: progetto.titolo })
+    elenco.push({ tipo: 'gruppo', testo: fuori ? `${progetto.titolo} · ${t.nonNelCorso}` : progetto.titolo })
     for (const fase of progetto.fasi) {
       elenco.push({
         tipo: 'scelta',

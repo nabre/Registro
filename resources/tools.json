@@ -8463,7 +8463,7 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.cella --progettoId <testo> --allievoId <testo> --criterioId <testo> --livello <testo>",
+      "riga": "regi chiama progetti.cella --progettoId <testo> --corsoId <testo> --allievoId <testo> --criterioId <testo> --livello <testo>",
       "parametri": {
         "type": "object",
         "properties": {
@@ -8473,9 +8473,15 @@
             "minLength": 1,
             "maxLength": 64
           },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
+            "minLength": 1,
+            "maxLength": 64
+          },
           "allievoId": {
             "type": "string",
-            "description": "Chi: una persona della classe del corso del progetto",
+            "description": "Chi: una persona della classe del corso",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8521,6 +8527,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "allievoId",
           "criterioId",
           "livello"
@@ -8537,13 +8544,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.elimina --progettoId <testo> --compitoId <testo>",
+      "riga": "regi chiama progetti.compito.elimina --progettoId <testo> --corsoId <testo> --compitoId <testo>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8556,6 +8569,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId"
         ],
         "additionalProperties": true
@@ -8570,13 +8584,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.fatto --progettoId <testo> --compitoId <testo> --allievoId <testo> --fatto <booleano>",
+      "riga": "regi chiama progetti.compito.fatto --progettoId <testo> --corsoId <testo> --compitoId <testo> --allievoId <testo> --fatto <booleano>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8588,7 +8608,7 @@
           },
           "allievoId": {
             "type": "string",
-            "description": "Chi: una persona della classe del corso del progetto",
+            "description": "Chi: una persona della classe del corso",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8604,6 +8624,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId",
           "allievoId",
           "fatto"
@@ -8620,13 +8641,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.fattoTutti --progettoId <testo> --compitoId <testo> --fatto <booleano>",
+      "riga": "regi chiama progetti.compito.fattoTutti --progettoId <testo> --corsoId <testo> --compitoId <testo> --fatto <booleano>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8643,6 +8670,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId",
           "fatto"
         ],
@@ -8658,13 +8686,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.inizia --progettoId <testo> --compitoId <testo> --allieviIds <elenco>",
+      "riga": "regi chiama progetti.compito.inizia --progettoId <testo> --corsoId <testo> --compitoId <testo> --allieviIds <elenco>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8708,6 +8742,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId",
           "allieviIds"
         ],
@@ -8723,13 +8758,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.proroga --progettoId <testo> --compitoId <testo> --allievoId <testo> --fine <testo>",
+      "riga": "regi chiama progetti.compito.proroga --progettoId <testo> --corsoId <testo> --compitoId <testo> --allievoId <testo> --fine <testo>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8741,7 +8782,7 @@
           },
           "allievoId": {
             "type": "string",
-            "description": "Chi: una persona della classe del corso del progetto",
+            "description": "Chi: una persona della classe del corso",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8764,6 +8805,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId",
           "allievoId",
           "fine"
@@ -8780,13 +8822,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.salva --progettoId <testo> --compito <oggetto>",
+      "riga": "regi chiama progetti.compito.salva --progettoId <testo> --corsoId <testo> --compito <oggetto>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8841,6 +8889,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compito"
         ],
         "additionalProperties": true
@@ -8855,13 +8904,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.compito.togliInizio --progettoId <testo> --compitoId <testo> --allieviIds <elenco>",
+      "riga": "regi chiama progetti.compito.togliInizio --progettoId <testo> --corsoId <testo> --compitoId <testo> --allieviIds <elenco>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8885,6 +8940,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "compitoId",
           "allieviIds"
         ],
@@ -8895,7 +8951,7 @@
       "nome": "progetti.elimina",
       "funzione": "progetti_elimina",
       "genere": "scrittura",
-      "titolo": "Toglie un progetto con compiti, giudizi e matrice; tappe dei piani e valutazioni restano, senza progetto",
+      "titolo": "Toglie un progetto da tutti i corsi, con compiti, giudizi e matrice; tappe dei piani e valutazioni restano, senza progetto",
       "idempotente": true,
       "collezioni": [
         "progetti",
@@ -8928,13 +8984,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.giudizio.elimina --progettoId <testo> --giudizioId <testo>",
+      "riga": "regi chiama progetti.giudizio.elimina --progettoId <testo> --corsoId <testo> --giudizioId <testo>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -8947,6 +9009,7 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "giudizioId"
         ],
         "additionalProperties": true
@@ -8961,13 +9024,19 @@
       "collezioni": [
         "progetti"
       ],
-      "riga": "regi chiama progetti.giudizio.salva --progettoId <testo> --giudizio <oggetto>",
+      "riga": "regi chiama progetti.giudizio.salva --progettoId <testo> --corsoId <testo> --giudizio <oggetto>",
       "parametri": {
         "type": "object",
         "properties": {
           "progettoId": {
             "type": "string",
             "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
             "minLength": 1,
             "maxLength": 64
           },
@@ -9026,7 +9095,119 @@
         },
         "required": [
           "progettoId",
+          "corsoId",
           "giudizio"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.integra",
+      "funzione": "progetti_integra",
+      "genere": "scrittura",
+      "titolo": "Integra un progetto in un corso, in bozza: lì avrà compiti, giudizi e matrice. Se lo è già non cambia niente",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.integra --progettoId <testo> --corsoId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId",
+          "corsoId"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.integrazione.stato",
+      "funzione": "progetti_integrazione_stato",
+      "genere": "scrittura",
+      "titolo": "Dice a che punto è il progetto con la classe di un corso",
+      "idempotente": true,
+      "collezioni": [
+        "progetti"
+      ],
+      "riga": "regi chiama progetti.integrazione.stato --progettoId <testo> --corsoId <testo> --stato <scelta>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "stato": {
+            "type": "string",
+            "enum": [
+              "bozza",
+              "in-corso",
+              "concluso"
+            ],
+            "description": "bozza, in-corso o concluso"
+          }
+        },
+        "required": [
+          "progettoId",
+          "corsoId",
+          "stato"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "nome": "progetti.integrazione.togli",
+      "funzione": "progetti_integrazione_togli",
+      "genere": "scrittura",
+      "titolo": "Toglie il progetto da un corso: compiti, giudizi e matrice di quella classe se ne vanno; il progetto resta, e tappe dei piani del corso e valutazioni restano, sganciate",
+      "idempotente": true,
+      "collezioni": [
+        "progetti",
+        "piani",
+        "valutazioni"
+      ],
+      "riga": "regi chiama progetti.integrazione.togli --progettoId <testo> --corsoId <testo>",
+      "parametri": {
+        "type": "object",
+        "properties": {
+          "progettoId": {
+            "type": "string",
+            "description": "Il progetto: i progetti li elenca «progetti.leggi»",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "corsoId": {
+            "type": "string",
+            "description": "Il corso in cui il progetto è integrato: la classe è la sua",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "progettoId",
+          "corsoId"
         ],
         "additionalProperties": true
       }
@@ -9035,7 +9216,7 @@
       "nome": "progetti.leggi",
       "funzione": "progetti_leggi",
       "genere": "lettura",
-      "titolo": "I progetti dei corsi: criteri e livelli, lezioni e prove che ci lavorano, compiti con chi li ha cominciati e finiti, giudizi e matrice",
+      "titolo": "I progetti dell’anno, con i corsi in cui sono integrati. Con un corso, il lavoro con quella classe: lezioni e prove che ci lavorano, compiti con chi li ha cominciati e finiti, giudizi e matrice",
       "idempotente": true,
       "offribile": true,
       "riga": "regi chiama progetti.leggi",
@@ -9044,7 +9225,7 @@
         "properties": {
           "corsoId": {
             "type": "string",
-            "description": "Solo i progetti di questo corso",
+            "description": "Solo i progetti integrati in questo corso, visti da lì: periodo, tappe, compiti, giudizi, matrice. Senza, la testata e i corsi",
             "minLength": 1,
             "maxLength": 64
           },
@@ -9078,8 +9259,8 @@
                 "testo": "Progetto"
               },
               {
-                "campo": "corso",
-                "testo": "Corso"
+                "campo": "corsi",
+                "testo": "Corsi"
               },
               {
                 "campo": "stato",
@@ -9094,7 +9275,7 @@
       "nome": "progetti.salva",
       "funzione": "progetti_salva",
       "genere": "scrittura",
-      "titolo": "Crea un progetto o ne cambia la testata: titolo, obiettivi, fasi, stato, criteri, livelli, risorse e note",
+      "titolo": "Crea un progetto dell’anno o ne cambia la testata: titolo, obiettivi, fasi, scaletta, criteri, livelli, risorse e note",
       "idempotente": true,
       "collezioni": [
         "progetti",
@@ -9106,7 +9287,7 @@
         "properties": {
           "progetto": {
             "type": "object",
-            "description": "Il progetto intero; un id che non c’è lo crea. Compiti, giudizi e matrice di un progetto che c’è già restano quelli del registro. Un criterio o una fase senza id con il titolo di uno che c’è ne tiene l’id. Le fasi, in ordine, sono almeno una; omesse restano quelle di prima. Le tappe dei piani di una fase tolta passano alla fase rimasta che la precedeva, o alla prima",
+            "description": "Il progetto intero, di nessun corso; un id che non c’è lo crea. Le integrazioni nei corsi (stato, compiti, giudizi, matrice) restano quelle del registro. Un criterio o una fase senza id con il titolo di uno che c’è ne tiene l’id. Le fasi, in ordine, sono almeno una; omesse restano quelle di prima. Le tappe dei piani di una fase tolta passano alla fase rimasta che la precedeva, o alla prima",
             "properties": {
               "id": {
                 "type": "string"
@@ -9559,7 +9740,7 @@
               "string",
               "null"
             ],
-            "description": "Solo per la scheda della persona: di quale corso parla",
+            "description": "Per la scheda della persona e per i fogli del progetto: di quale corso parla",
             "minLength": 1,
             "maxLength": 64
           },

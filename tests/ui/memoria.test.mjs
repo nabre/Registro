@@ -239,6 +239,23 @@ describe('la memoria del pannello', () => {
     assert.equal(leggiMemoria(JSON.stringify(VECCHIO)).globali.modoCalendario, 'mese')
   })
 
+  it('il posto ricordato con l’id di prima dei progetti riapre la biblioteca', () => {
+    const memoria = leggiMemoria({
+      v: 2,
+      globali: {},
+      documenti: {
+        'c:/a.regi': {
+          usato: quando(1),
+          posto: { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-1' } },
+          contesto: CONTESTO_VUOTO,
+        },
+      },
+    })
+    assert.deepEqual({ ...memoria.documenti['c:/a.regi'].posto }, {
+      pagina: 'pagina.progetti', soggetto: { tipo: 'progetto', id: 'prg-1' },
+    })
+  })
+
   it('la forma nuova torna uguale dopo serializza e leggi', () => {
     let memoria = leggiMemoria(VECCHIO)
     memoria = conVoce(memoria, 'c:/a.regi', voce(1), new Date(quando(5)))

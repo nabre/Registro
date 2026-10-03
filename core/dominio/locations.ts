@@ -20,6 +20,7 @@ import { DOCUMENTO_SCHEDE_PRIMA } from './lexicon.js'
 import { lessico } from './lexicon.testi.js'
 import { testi } from './locations.testi.js'
 import type { Corso, Iso, PianoLezione, Registro } from './models.js'
+import { integrazioneDi } from './projects.js'
 import { nomeSicuro } from './text.js'
 
 /**
@@ -340,7 +341,10 @@ export interface ContestoRapporto {
   docenteDiClasse?: boolean
   /** Il giorno che finisce nel nome dei documenti datati: di norma oggi. */
   giorno?: Iso
-  /** Il rapporto individuale di un progetto: di chi è (l'id è del progetto). */
+  /**
+   * Il rapporto individuale di un progetto: di chi è (l'id è del progetto, il
+   * corso è quello di `corsoId`, in cui il progetto è integrato).
+   */
   allievoId?: string | null
 }
 
@@ -417,14 +421,16 @@ function collocazioneBase (
     }
   }
 
-  // Il progetto per titolo, come una prova: due progetti omonimi dello stesso
-  // corso prendono un numero. Quello di una persona va nella sua cartella.
+  // Il progetto nel corso di `contesto.corsoId`, per titolo, come una prova:
+  // due progetti omonimi integrati nello stesso corso prendono un numero.
+  // Quello di una persona va nella sua cartella.
   if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
+    const corsoId = contesto.corsoId ?? null
     const progetto = registro.progetti.find((p) => p.id === id)
-    if (!progetto) return null
-    const corso = registro.corsi.find((c) => c.id === progetto.corsoId) ?? null
+    if (!progetto || !integrazioneDi(progetto, corsoId)) return null
+    const corso = registro.corsi.find((c) => c.id === corsoId) ?? null
     const gemelli = registro.progetti.filter(
-      (p) => p.corsoId === progetto.corsoId && p.titolo === progetto.titolo,
+      (p) => integrazioneDi(p, corsoId) && p.titolo === progetto.titolo,
     )
     const titolo = `${progetto.titolo}${distinzione(gemelli.findIndex((p) => p.id === progetto.id))}`
     if (genere === 'progetto-classe') {
@@ -628,10 +634,10 @@ export function fogliDeiProgettiOrfani (
   const delCorso = collocazioneDi(registro, 'corso', corsoId)
   if (!delCorso) return []
   const vivi = new Set(registro.progetti
-    .filter((p) => p.corsoId === corsoId)
+    .filter((p) => integrazioneDi(p, corsoId))
     .flatMap((p) => (['progetto-classe', 'progetto-allievo'] as const).flatMap((genere) => [
-      ...percorsiDiUnDocumento(registro, genere, p.id),
-      ...percorsiInAltreLingue(registro, genere, p.id),
+      ...percorsiDiUnDocumento(registro, genere, p.id, { corsoId }),
+      ...percorsiInAltreLingue(registro, genere, p.id, { corsoId }),
     ])))
   const radici = LINGUE.map((lingua) => radiceDi({
     ...delCorso,
@@ -722,12 +728,19 @@ function contestiPossibili (
     return periodiDi(corso?.classeId ?? null).map((semestreId) => ({ semestreId }))
   }
 
-  // Il foglio individuale di un progetto può essere di chiunque della classe.
-  if (genere === 'progetto-allievo') {
+  // I fogli di un progetto stanno in ogni corso in cui è integrato, o solo in
+  // quello indicato; quello individuale può essere di chiunque della classe.
+  if (genere === 'progetto-classe' || genere === 'progetto-allievo') {
     const progetto = registro.progetti.find((p) => p.id === id) ?? null
-    const classe = progetto ? classeDelCorsoId(registro, progetto.corsoId) : null
-    if (dentro.allievoId) return [{ allievoId: dentro.allievoId }]
-    return (classe?.allievi ?? []).map((a) => ({ allievoId: a.id }))
+    const corsi = dentro.corsoId
+      ? [dentro.corsoId]
+      : (progetto?.integrazioni ?? []).map((i) => i.corsoId)
+    if (genere === 'progetto-classe') return corsi.map((corsoId) => ({ corsoId }))
+    return corsi.flatMap((corsoId) => {
+      if (dentro.allievoId) return [{ corsoId, allievoId: dentro.allievoId }]
+      const classe = classeDelCorsoId(registro, corsoId)
+      return (classe?.allievi ?? []).map((a) => ({ corsoId, allievoId: a.id }))
+    })
   }
 
   if (genere === 'allievo') {

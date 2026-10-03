@@ -1,6 +1,8 @@
-// Il progetto di un corso (ADR-54): le letture che servono alla pagina, alla
-// scheda della lezione e ai rapporti, e le regole che tengono pulita la
-// matrice. Puro: niente disco, niente orologio se non come predefinito.
+// Il progetto (ADR-54 e la sua estensione del 2026-10-03): una risorsa
+// dell'anno che si integra nei corsi. Le letture che servono alle pagine, alla
+// scheda della lezione e ai rapporti lavorano sul progetto visto da un corso
+// (`nelCorso`); le regole tengono pulite le matrici. Puro: niente disco,
+// niente orologio se non come predefinito.
 
 import {
   allieviAttivi,
@@ -19,11 +21,13 @@ import type {
   CompitoProgetto,
   CriterioProgetto,
   FaseProgetto,
+  IntegrazioneProgetto,
   Iso,
   Lezione,
   LivelloProgetto,
   MomentoValutazione,
   Progetto,
+  ProgettoNelCorso,
   Registro,
   StatoAttivita,
   StatoPresenza,
@@ -64,7 +68,7 @@ export function fasePredefinita (numero = 1): FaseProgetto {
  * lavora per questo progetto.
  */
 export function faseDellAttivita (
-  progetto: Progetto,
+  progetto: Pick<Progetto, 'id' | 'fasi'>,
   attivita: Pick<Attivita, 'progettoId' | 'faseProgettoId'>,
 ): FaseProgetto | null {
   if (attivita.progettoId !== progetto.id) return null
@@ -94,8 +98,7 @@ export function fasiDelleTappe (registro: Pick<Registro, 'piani' | 'progetti'>):
         continue
       }
       const progetto = progetti.get(attivita.progettoId)
-      const origine = progetto?.corsoId === piano.corsoId
-        ? progetto.attivita?.find((a) => a.id === attivita.attivitaProgettoId) : undefined
+      const origine = progetto?.attivita?.find((a) => a.id === attivita.attivitaProgettoId)
       if (attivita.attivitaProgettoId && !origine) {
         attivita.attivitaProgettoId = null
         cambiate++
@@ -112,18 +115,94 @@ export function fasiDelleTappe (registro: Pick<Registro, 'piani' | 'progetti'>):
   return cambiate
 }
 
+/**
+ * Un piano di un corso che lega una tappa a un progetto lo integra in quel
+ * corso: l'integrazione che manca nasce in bozza. Torna quante ne ha aggiunte.
+ */
+export function integrazioniDeiPiani (registro: Pick<Registro, 'piani' | 'progetti'>): number {
+  const progetti = new Map(registro.progetti.map((p) => [p.id, p]))
+  let aggiunte = 0
+  for (const piano of registro.piani) {
+    if (!piano.corsoId) continue
+    for (const attivita of piano.attivita) {
+      const progetto = attivita.progettoId ? progetti.get(attivita.progettoId) : undefined
+      if (!progetto || integrazioneDi(progetto, piano.corsoId)) continue
+      progetto.integrazioni.push(integrazioneVuota(piano.corsoId))
+      aggiunte++
+    }
+  }
+  return aggiunte
+}
+
+/** Un'integrazione appena nata: in bozza, senza lavoro con la classe. */
+export function integrazioneVuota (corsoId: string): IntegrazioneProgetto {
+  return { corsoId, stato: 'bozza', compiti: [], giudizi: [], matrice: [] }
+}
+
 /** Il progetto con quell'id, se c'è. */
 export function progettoPerId (registro: Registro, id: string): Progetto | null {
   return registro.progetti.find((p) => p.id === id) ?? null
 }
 
+/** L'integrazione del progetto in quel corso, se c'è. */
+export function integrazioneDi (
+  progetto: Pick<Progetto, 'integrazioni'>,
+  corsoId: string | null | undefined,
+): IntegrazioneProgetto | null {
+  if (!corsoId) return null
+  return progetto.integrazioni.find((i) => i.corsoId === corsoId) ?? null
+}
+
 /**
- * I progetti di un corso, per inizio (quelli senza lezioni ancora in fondo),
- * poi per titolo.
+ * Il progetto visto da un corso in cui è integrato: la testata del progetto e
+ * i campi dell'integrazione. Gli elenchi sono quelli veri, non copie: chi li
+ * cambia sul posto cambia l'integrazione; chi li sostituisce li rimette con
+ * `riportaNellIntegrazione`. Null se il progetto non è integrato lì.
  */
-export function progettiDelCorso (registro: Registro, corsoId: string): Progetto[] {
+export function nelCorso (
+  progetto: Progetto,
+  corsoId: string | null | undefined,
+): ProgettoNelCorso | null {
+  const integrazione = integrazioneDi(progetto, corsoId)
+  if (!integrazione) return null
+  const { integrazioni: _tutte, ...testata } = progetto
+  return { ...testata, ...integrazione }
+}
+
+/** Rimette nell'integrazione quel che una vista ha sostituito invece di cambiare sul posto. */
+export function riportaNellIntegrazione (progetto: Progetto, vista: ProgettoNelCorso): void {
+  const integrazione = integrazioneDi(progetto, vista.corsoId)
+  if (!integrazione) return
+  integrazione.stato = vista.stato
+  integrazione.compiti = vista.compiti
+  integrazione.giudizi = vista.giudizi
+  integrazione.matrice = vista.matrice
+}
+
+/** Il progetto con quell'id visto dal corso, se c'è ed è integrato lì. */
+export function progettoNelCorsoPerId (
+  registro: Registro,
+  progettoId: string,
+  corsoId: string | null | undefined,
+): ProgettoNelCorso | null {
+  const progetto = progettoPerId(registro, progettoId)
+  return progetto ? nelCorso(progetto, corsoId) : null
+}
+
+/** I progetti dell'anno, per titolo. */
+export function progettiPerTitolo (registro: Pick<Registro, 'progetti'>): Progetto[] {
+  return [...registro.progetti].sort((a, b) => confrontaNomi(a.titolo, b.titolo))
+}
+
+/**
+ * I progetti integrati in un corso, visti da lì, per inizio (quelli senza
+ * lezioni ancora in fondo), poi per titolo.
+ */
+export function progettiDelCorso (registro: Registro, corsoId: string): ProgettoNelCorso[] {
   const inizi = new Map<string, string>()
-  const suoi = registro.progetti.filter((p) => p.corsoId === corsoId)
+  const suoi = registro.progetti
+    .map((p) => nelCorso(p, corsoId))
+    .filter((p): p is ProgettoNelCorso => p !== null)
   for (const p of suoi) inizi.set(p.id, periodoDelProgetto(registro, p)?.inizio ?? '￿')
   return suoi.sort((a, b) =>
     (inizi.get(a.id) ?? '').localeCompare(inizi.get(b.id) ?? '') || confrontaNomi(a.titolo, b.titolo))
@@ -136,7 +215,7 @@ export function progettiDelCorso (registro: Registro, corsoId: string): Progetto
  */
 export function periodoDelProgetto (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
 ): Periodo | null {
   return periodoDi(lezioniDelProgetto(registro, progetto))
 }
@@ -144,7 +223,7 @@ export function periodoDelProgetto (
 /** Da quando a quando va una fase: come per il progetto, sulle ore con tappe sue. */
 export function periodoDellaFase (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   faseId: string,
 ): Periodo | null {
   return periodoDi(lezioniDellaFase(registro, progetto, faseId))
@@ -188,7 +267,7 @@ export interface LezioneDelProgetto {
  * Le lezioni del progetto, in ordine: quelle del corso il cui piano ha almeno
  * una tappa con questo `progettoId`. Si ricavano dai piani, non si elencano.
  */
-export function lezioniDelProgetto (registro: Registro, progetto: Progetto): LezioneDelProgetto[] {
+export function lezioniDelProgetto (registro: Registro, progetto: ProgettoNelCorso): LezioneDelProgetto[] {
   const tappe = new Map<string, Attivita[]>()
   for (const piano of registro.piani) {
     const sue = piano.attivita.filter((a) => a.progettoId === progetto.id)
@@ -206,7 +285,7 @@ export function lezioniDelProgetto (registro: Registro, progetto: Progetto): Lez
  */
 export function lezioniDellaFase (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   faseId: string,
 ): LezioneDelProgetto[] {
   return lezioniDelProgetto(registro, progetto)
@@ -225,7 +304,7 @@ interface PerFase {
 
 function lezioniScelte (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   opzioni: PerFase,
 ): LezioneDelProgetto[] {
   return opzioni.faseId === undefined
@@ -263,7 +342,7 @@ function quotaDi (attivita: readonly AttivitaNellOra[]): number {
  */
 export function avanzamentoDelProgetto (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   opzioni: PerFase = {},
 ): { attivita: AttivitaNellOra[], quota: number } {
   const voci: AttivitaNellOra[] = []
@@ -303,7 +382,7 @@ export interface PresenzeNelProgetto {
  */
 export function presenzeNelProgetto (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allieviIds: readonly string[],
   opzioni: PerFase = {},
 ): PresenzeNelProgetto[] {
@@ -354,7 +433,7 @@ export interface QuadroDelProgetto {
  * momenti; per l'intero periodo, quota, presenze di chi frequenta e momenti.
  * Una lettura sola, perché pagina, procedura e rapporti dicano lo stesso.
  */
-export function quadroDelProgetto (registro: Registro, progetto: Progetto): QuadroDelProgetto {
+export function quadroDelProgetto (registro: Registro, progetto: ProgettoNelCorso): QuadroDelProgetto {
   const tutto = avanzamentoDelProgetto(registro, progetto)
   const momenti = momentiDelProgetto(registro, progetto)
   const corso = registro.corsi.find((c) => c.id === progetto.corsoId)
@@ -383,10 +462,13 @@ export function quadroDelProgetto (registro: Registro, progetto: Progetto): Quad
   }
 }
 
-/** I momenti di valutazione promossi dal progetto, per data. */
-export function momentiDelProgetto (registro: Registro, progetto: Progetto): MomentoValutazione[] {
+/** I momenti di valutazione promossi dal progetto nel corso, per data. */
+export function momentiDelProgetto (
+  registro: Registro,
+  progetto: Pick<ProgettoNelCorso, 'id' | 'corsoId'>,
+): MomentoValutazione[] {
   return registro.valutazioni
-    .filter((v) => v.progettoId === progetto.id)
+    .filter((v) => v.progettoId === progetto.id && v.corsoId === progetto.corsoId)
     .sort((a, b) => a.data.localeCompare(b.data))
 }
 
@@ -443,7 +525,7 @@ interface ProgressioneCriterio {
  */
 export function progressione (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievoId: string,
 ): ProgressioneCriterio[] {
   return progetto.criteri.map((criterio) => ({
@@ -461,7 +543,7 @@ export function progressione (
  */
 export function celleDi (
   registro: Registro,
-  progetto: Progetto,
+  progetto: ProgettoNelCorso,
   allievoId: string,
   criterioId: string,
   giorno: Iso,
@@ -479,30 +561,38 @@ export function cellaVuota (cella: Pick<CellaProgetto, 'livello' | 'nota'>): boo
 }
 
 /**
- * Tiene la matrice coerente con criteri e scala: via le celle di un criterio
- * tolto, un livello che la scala non ha più diventa nullo, e la cella rimasta
- * vuota se ne va. Torna vero se ha cambiato qualcosa.
+ * Tiene le matrici di ogni corso coerenti con criteri e scala del progetto:
+ * via le celle di un criterio tolto, un livello che la scala non ha più
+ * diventa nullo, e la cella rimasta vuota se ne va. Torna vero se ha cambiato
+ * qualcosa.
  */
-export function ripulisciMatrice (progetto: Progetto): boolean {
+export function ripulisciMatrice (
+  progetto: Pick<Progetto, 'criteri' | 'livelli' | 'integrazioni'>,
+): boolean {
   const criteri = new Set(progetto.criteri.map((c) => c.id))
   const livelli = new Set(progetto.livelli.map((l) => l.valore))
   let cambiato = false
-  for (const cella of progetto.matrice) {
-    if (cella.livello !== null && !livelli.has(cella.livello)) {
-      cella.livello = null
+  for (const integrazione of progetto.integrazioni) {
+    for (const cella of integrazione.matrice) {
+      if (cella.livello !== null && !livelli.has(cella.livello)) {
+        cella.livello = null
+        cambiato = true
+      }
+    }
+    const restano = integrazione.matrice.filter((c) => criteri.has(c.criterioId) && !cellaVuota(c))
+    if (restano.length !== integrazione.matrice.length) {
+      integrazione.matrice = restano
       cambiato = true
     }
-  }
-  const restano = progetto.matrice.filter((c) => criteri.has(c.criterioId) && !cellaVuota(c))
-  if (restano.length !== progetto.matrice.length) {
-    progetto.matrice = restano
-    cambiato = true
   }
   return cambiato
 }
 
-/** Gli allievi che il progetto nomina: inizi, proroghe, spunte, giudizi, celle. */
-export function allieviNominati (progetto: Progetto): Set<string> {
+/** Il lavoro con una classe: quel che parla di allievi e di ore. */
+type LavoroConLaClasse = Pick<IntegrazioneProgetto, 'compiti' | 'giudizi' | 'matrice'>
+
+/** Gli allievi che un'integrazione nomina: inizi, proroghe, spunte, giudizi, celle. */
+export function allieviNominati (progetto: LavoroConLaClasse): Set<string> {
   const ids = new Set<string>()
   for (const compito of progetto.compiti) {
     for (const voce of [...compito.inizi, ...compito.proroghe, ...compito.fatti]) {
@@ -514,8 +604,8 @@ export function allieviNominati (progetto: Progetto): Set<string> {
   return ids
 }
 
-/** Toglie dal progetto tutto quel che parla di un allievo. Vero se ha tolto qualcosa. */
-export function togliAllievo (progetto: Progetto, allievoId: string): boolean {
+/** Toglie dall'integrazione tutto quel che parla di un allievo. Vero se ha tolto qualcosa. */
+export function togliAllievo (progetto: LavoroConLaClasse, allievoId: string): boolean {
   if (!allieviNominati(progetto).has(allievoId)) return false
   const suo = (voce: { allievoId: string | null }) => voce.allievoId === allievoId
   for (const compito of progetto.compiti) {
@@ -528,8 +618,12 @@ export function togliAllievo (progetto: Progetto, allievoId: string): boolean {
   return true
 }
 
-/** Le voci del progetto che stanno in un'ora: inizi, fini dei compiti, giudizi, celle. */
-export function rimandiAlleLezioni (progetto: Progetto): string[] {
+/** Le voci del progetto che stanno in un'ora, in tutti i corsi: inizi, fini dei compiti, giudizi, celle. */
+export function rimandiAlleLezioni (progetto: Pick<Progetto, 'integrazioni'>): string[] {
+  return progetto.integrazioni.flatMap(rimandiDellIntegrazione)
+}
+
+function rimandiDellIntegrazione (progetto: LavoroConLaClasse): string[] {
   return [
     ...progetto.compiti.flatMap((c) => [c.fineLezioneId, ...c.inizi.map((i) => i.lezioneId)]),
     ...progetto.giudizi.map((g) => g.lezioneId),
@@ -538,21 +632,24 @@ export function rimandiAlleLezioni (progetto: Progetto): string[] {
 }
 
 /**
- * Vero se un progetto cita quell'ora. Con `fuoriDalCorso` contano solo i
- * progetti di un altro corso: spostata lì, l'ora sarebbe d'altri.
+ * Vero se un progetto cita quell'ora. Con `fuoriDalCorso` contano solo le
+ * integrazioni in un altro corso: spostata lì, l'ora sarebbe d'altri.
  */
 export function lezioneNeiProgetti (
   registro: Registro,
   lezioneId: string,
   fuoriDalCorso?: string,
 ): boolean {
-  return registro.progetti.some((p) =>
-    (fuoriDalCorso === undefined || p.corsoId !== fuoriDalCorso) &&
-    rimandiAlleLezioni(p).includes(lezioneId))
+  return registro.progetti.some((p) => p.integrazioni.some((i) =>
+    (fuoriDalCorso === undefined || i.corsoId !== fuoriDalCorso) &&
+    rimandiDellIntegrazione(i).includes(lezioneId)))
 }
 
-/** Quante voci di un progetto citano una delle ore date. */
-export function rimandiA (progetto: Progetto, lezioni: ReadonlySet<string>): number {
+/** Quante voci di un progetto, in tutti i corsi, citano una delle ore date. */
+export function rimandiA (
+  progetto: Pick<Progetto, 'integrazioni'>,
+  lezioni: ReadonlySet<string>,
+): number {
   return rimandiAlleLezioni(progetto).filter((id) => lezioni.has(id)).length
 }
 
@@ -562,19 +659,21 @@ export function rimandiA (progetto: Progetto, lezioni: ReadonlySet<string>): num
  */
 export function staccaDalleLezioni (
   registro: Registro,
-  progetto: Progetto,
+  progetto: Pick<Progetto, 'integrazioni'>,
   lezioni: ReadonlySet<string>,
 ): void {
   const giorno = (id: string) => registro.lezioni.find((l) => l.id === id)?.data
-  for (const compito of progetto.compiti) {
-    if (compito.fineLezioneId && lezioni.has(compito.fineLezioneId)) {
-      compito.fine = giorno(compito.fineLezioneId) ?? compito.fine
-      compito.fineLezioneId = null
+  for (const integrazione of progetto.integrazioni) {
+    for (const compito of integrazione.compiti) {
+      if (compito.fineLezioneId && lezioni.has(compito.fineLezioneId)) {
+        compito.fine = giorno(compito.fineLezioneId) ?? compito.fine
+        compito.fineLezioneId = null
+      }
+      for (const inizio of compito.inizi) stacca(inizio)
     }
-    for (const inizio of compito.inizi) stacca(inizio)
+    for (const giudizio of integrazione.giudizi) stacca(giudizio)
+    for (const cella of integrazione.matrice) stacca(cella)
   }
-  for (const giudizio of progetto.giudizi) stacca(giudizio)
-  for (const cella of progetto.matrice) stacca(cella)
 
   function stacca (voce: { data: Iso, lezioneId: string | null }): void {
     if (!voce.lezioneId || !lezioni.has(voce.lezioneId)) return

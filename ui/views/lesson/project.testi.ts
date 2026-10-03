@@ -10,7 +10,7 @@ const it = {
   compitiAiuto:
     'Clic sull’inizio: la persona comincia in quest’ora. Clic sulla fine: proroga. ' +
     'L’ultima colonna spunta il compito finito.',
-  apriPagina: 'Apri nella pagina Progetti',
+  apriPagina: 'Apri in Integrazione progetti',
   matriceDellOra: 'Matrice di quest’ora',
   matriceAiuto:
     'Le caselle date qui sono di quest’ora: un’altra lezione ne avrà di sue, e la ' +
@@ -26,7 +26,7 @@ export const testi = catalogo(it, {
     compitiAiuto:
       'Klick auf den Beginn: Die Person beginnt in dieser Stunde. Klick auf das Ende: ' +
       'Verlängerung. Die letzte Spalte hakt die erledigte Aufgabe ab.',
-    apriPagina: 'Auf der Seite Projekte öffnen',
+    apriPagina: 'In «Projekte einbinden» öffnen',
     matriceDellOra: 'Raster dieser Stunde',
     matriceAiuto:
       'Die hier vergebenen Felder gehören zu dieser Stunde: Eine andere Stunde hat ihre ' +
@@ -40,7 +40,7 @@ export const testi = catalogo(it, {
     compitiAiuto:
       'Clic sur le début : la personne commence dans cette période. Clic sur la fin : ' +
       'prolongation. La dernière colonne coche la tâche finie.',
-    apriPagina: 'Ouvrir dans la page Projets',
+    apriPagina: 'Ouvrir dans « Intégration des projets »',
     matriceDellOra: 'Grille de cette période',
     matriceAiuto:
       'Les cases données ici sont de cette période : une autre période aura les siennes, ' +
@@ -54,7 +54,7 @@ export const testi = catalogo(it, {
     compitiAiuto:
       'Click the start: the learner starts in this lesson. Click the end: extension. ' +
       'The last column ticks the finished task.',
-    apriPagina: 'Open on the Projects page',
+    apriPagina: 'Open in Project integration',
     matriceDellOra: 'Grid of this lesson',
     matriceAiuto:
       'The cells given here belong to this lesson: another lesson will have its own, and ' +

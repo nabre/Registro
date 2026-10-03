@@ -222,7 +222,7 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('pagina.corso.documenti'),
   },
 
-  // La progettazione: panoramica e piani di lezione del corso.
+  // La progettazione: panoramica, piani di lezione e integrazione dei progetti nel corso.
   {
     id: 'pagina.corso.overview',
     titolo: t.overview,
@@ -244,14 +244,26 @@ export const PAGINE: readonly Pagina[] = [
     apri: () => vaiAlCorso('pagina.corso.piani'),
   },
   {
-    id: 'pagina.corso.progetti',
+    // Accanto ai piani: i progetti della biblioteca messi al lavoro nel corso.
+    id: 'pagina.corso.integrazione',
+    titolo: t.integrazione,
+    simbolo: 'progetto',
+    gruppo: 'progettazione',
+    aiuto: t.integrazioneAiuto,
+    impedimento: senzaCorso,
+    attiva: qui('pagina.corso.integrazione'),
+    apri: () => vaiAlCorso('pagina.corso.integrazione'),
+  },
+  {
+    // Con l'anno: la biblioteca dei progetti, di nessun corso. Si integrano
+    // nei corsi dalla progettazione.
+    id: 'pagina.progetti',
     titolo: t.progetti,
     simbolo: 'progetto',
     gruppo: 'anno',
     aiuto: t.progettiAiuto,
-    impedimento: senzaCorso,
-    attiva: qui('pagina.corso.progetti'),
-    apri: () => vaiAlCorso('pagina.corso.progetti'),
+    attiva: qui('pagina.progetti'),
+    apri: () => { vai({ pagina: 'pagina.progetti' }) },
   },
 
   // Il docente di classe: le schede del fascicolo di classe.

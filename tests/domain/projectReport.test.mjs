@@ -13,6 +13,7 @@ import {
   eliminazione,
   fogliDeiProgettiOrfani,
   improntaDi,
+  nelCorso,
   percorsiDiUnDocumento,
   riferimentiSpostati,
 } from '../../dist-tests/domain.mjs'
@@ -26,9 +27,10 @@ function righe (tabella) {
   return tabella.righe.map((riga) => Object.fromEntries(tabella.intestazione.map((c, i) => [c, riga[i]])))
 }
 
+/** Il registro, il progetto visto dal suo corso (gli elenchi sono quelli veri) e due persone. */
 function preparato () {
   const registro = registroCompleto()
-  const progetto = registro.progetti[0]
+  const progetto = nelCorso(registro.progetti[0], 'cor-1')
   const [rossi, bianchi] = registro.classi[0].allievi
   return { registro, progetto, rossi, bianchi }
 }
@@ -193,12 +195,26 @@ describe('i fogli del progetto fra i documenti', () => {
     const [prima] = percorsiDiUnDocumento(registro, 'progetto-classe', progetto.id)
     const [suoDiPrima] = percorsiDiUnDocumento(registro, 'progetto-allievo', progetto.id, { allievoId: 'al-1' })
     const altroCorso = prima.replace('Il bilancio di classe', 'Altro')
-    progetto.titolo = 'Il bilancio rifatto'
+    registro.progetti[0].titolo = 'Il bilancio rifatto'
     const [adesso] = percorsiDiUnDocumento(registro, 'progetto-classe', progetto.id)
     assert.notEqual(prima, adesso)
     const orfani = fogliDeiProgettiOrfani(registro, 'cor-1', [prima, suoDiPrima, adesso, altroCorso, 'esportazioni/x.pdf'])
     // «Altro» non è di nessun progetto di adesso: è orfano anche lui.
     assert.deepEqual(orfani.sort(), [altroCorso, prima, suoDiPrima].sort())
+  })
+
+  it('tolta l’integrazione, i fogli del progetto in quel corso sono orfani', () => {
+    const { registro, progetto } = preparato()
+    const fogli = [
+      ...percorsiDiUnDocumento(registro, 'progetto-classe', progetto.id),
+      ...percorsiDiUnDocumento(registro, 'progetto-allievo', progetto.id),
+    ]
+    assert.equal(fogli.length, 3)
+    assert.deepEqual(fogliDeiProgettiOrfani(registro, 'cor-1', fogli), [])
+    registro.progetti[0].integrazioni = []
+    assert.deepEqual(fogliDeiProgettiOrfani(registro, 'cor-1', fogli).sort(), [...fogli].sort())
+    // Senza integrazione il progetto non ha posto nel corso: nessun foglio.
+    assert.deepEqual(percorsiDiUnDocumento(registro, 'progetto-classe', progetto.id), [])
   })
 
   it('una scrittura sul progetto rifà i fogli del suo corso, e così toglierlo', () => {
@@ -216,5 +232,17 @@ describe('i fogli del progetto fra i documenti', () => {
     const persone = percorsiDiUnDocumento(registro, 'progetto-allievo', progetto.id)
     assert.equal(persone.length, 2, 'uno per persona della classe')
     for (const percorso of [...classe, ...persone]) assert.ok(via.file.stampati.includes(percorso), percorso)
+  })
+
+  it('eliminare il corso si porta via i fogli del progetto lì, non il progetto', () => {
+    const { registro, progetto } = preparato()
+    const fogli = [
+      ...percorsiDiUnDocumento(registro, 'progetto-classe', progetto.id, { corsoId: 'cor-1' }),
+      ...percorsiDiUnDocumento(registro, 'progetto-allievo', progetto.id, { corsoId: 'cor-1' }),
+    ]
+    const via = eliminazione(registro, { genere: 'corso', id: 'cor-1' })
+    for (const percorso of fogli) assert.ok(via.file.stampati.includes(percorso), percorso)
+    via.applica(registro)
+    assert.deepEqual(registro.progetti.map((p) => [p.id, p.integrazioni.length]), [['prg-1', 0]])
   })
 })

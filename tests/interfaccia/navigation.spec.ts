@@ -38,9 +38,9 @@ test('navigation', async ({ browser }) => {
     .toEqual(['pagina.corso.registro', 'pagina.corso.valutazioni', 'pagina.corso.check',
       'pagina.corso.documenti'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='progettazione').map(p=>p.id)"))
-    .toEqual(['pagina.corso.overview', 'pagina.corso.piani', 'pagina.corso.progetti'])
+    .toEqual(['pagina.corso.overview', 'pagina.corso.piani', 'pagina.corso.integrazione'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='anno').map(p=>p.id)"))
-    .toEqual(['pagina.classi', 'pagina.persone', 'pagina.mappa', 'pagina.corsi'])
+    .toEqual(['pagina.classi', 'pagina.persone', 'pagina.mappa', 'pagina.corsi', 'pagina.progetti'])
   expect(await valuta(page, "prova.PAGINE.filter(p=>p.gruppo==='sistema').map(p=>p.id)"))
     .toEqual(['pagina.impostazioni', 'pagina.guida'])
   const gruppi = await valuta<string[]>(page, 'prova.gruppiDiPagine().map(g=>g.gruppo)')

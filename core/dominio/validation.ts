@@ -455,7 +455,7 @@ export function validaBloccoAssenze (
 }
 
 /**
- * La testata di un progetto: titolo, corso, criteri con un titolo, e una scala
+ * La testata di un progetto: titolo, criteri con un titolo, e una scala
  * con valori unici (sono quel che le celle salvano). Date proprie non ne ha:
  * le danno le ore con le sue fasi.
  */
@@ -463,7 +463,6 @@ export function validaProgetto (progetto: Partial<Progetto>): Esito {
   const t = testi()
   const errori: string[] = []
   if (!progetto.titolo?.trim()) errori.push(t.progettoSenzaTitolo)
-  if (!progetto.corsoId) errori.push(t.progettoSenzaCorso)
   if ((progetto.criteri ?? []).some((c) => !c.titolo?.trim())) errori.push(t.criterioSenzaTitolo)
   // Fasi omesse: restano quelle di prima. Date, mai vuote.
   if (progetto.fasi !== undefined) {

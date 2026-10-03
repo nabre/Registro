@@ -542,7 +542,7 @@ function campiCheck (
 }
 
 /**
- * Il progetto del corso, e la sua fase, per cui lavora questa tappa: le lezioni
+ * Il progetto dell'anno, e la sua fase, per cui lavora questa tappa: le lezioni
  * del progetto si ricavano da qui, e una prova della tappa nasce già sua. Un
  * controllo solo, che dice la scelta e apre l'elenco dei progetti con le fasi.
  */
@@ -579,12 +579,11 @@ function campiProgetto (
             if (faseId) scegli({ progettoId: progetto.id, faseProgettoId: faseId })
           })
         },
-        nuovoProgetto: corsoId
-          ? () => moduloProgetto({
-              corsoId,
-              dopo: (progettoId) => scegli({ progettoId, faseProgettoId: null }),
-            })
-          : undefined,
+        // Il progetto nasce nella biblioteca dell'anno; salvando il piano, la
+        // tappa legata lo integra nel corso (lo fa l'host).
+        nuovoProgetto: () => moduloProgetto({
+          dopo: (progettoId) => scegli({ progettoId, faseProgettoId: null }),
+        }),
       }),
       t.aiutoProgetto,
     ),

@@ -1,19 +1,26 @@
-// I progetti del corso, provati su Chromium: la pagina, la scheda dell'ora e la
-// scelta di progetto e fase nell'attività del piano (ADR-54).
+// I progetti, provati su Chromium: la biblioteca dell'anno (pagina Progetti),
+// l'integrazione nel corso (pagina Integrazione progetti), la scheda dell'ora
+// e la scelta di progetto e fase nell'attività del piano (ADR-54 e la sua
+// estensione del 2026-10-03).
 //
 // Il ponte di prova risponde «fatto» a ogni azione e non riscrive il registro:
 // qui si guarda che cosa parte a ogni gesto.
 //
-// - nella pagina: testata, criteri e compiti in vista, sotto le linguette
-//   Fasi, Matrice ed Esiti, ricordate per progetto; le fasi si aprono e si
-//   chiudono, di serie è aperta quella di oggi;
-// - i compiti stanno a linguette, la scelta si ricorda per
-//   progetto e le frecce la cambiano; il clic sull'inizio comincia oggi (senza data, solo per chi
-//   non aveva cominciato), il clic sulla casella della matrice sale al primo
-//   livello, i criteri si aggiungono tenendo l'id, e togliere un criterio con
-//   delle caselle chiede prima e conferma con `scartaCelle`; compito e
-//   progetto nuovi partono dalle loro finestre, e il compito nuovo del comando
-//   della barra apre la sua linguetta quando l'host lo rimanda;
+// - la barra: Integrazione progetti sta nella progettazione, Progetti con
+//   l'anno, e ci si arriva da lì;
+// - nell'integrazione: testata con lo stato nel corso, compiti in vista, sotto
+//   le linguette Fasi nei piani, Matrice ed Esiti, ricordate per progetto; le
+//   fasi si aprono e si chiudono, di serie è aperta quella di oggi, e dicono
+//   dove sta ogni attività della scaletta; i compiti stanno a linguette, il
+//   clic sull'inizio comincia oggi (senza data, solo per chi non aveva
+//   cominciato), il clic sulla casella della matrice sale al primo livello,
+//   sempre col corso; lo stato si cambia, e togliere dal corso chiede prima;
+//   il compito nuovo del comando della barra apre la sua linguetta quando
+//   l'host lo rimanda;
+// - nella biblioteca: niente corso; scaletta, criteri (aggiunti tenendo l'id;
+//   togliere un criterio con delle caselle chiede prima e conferma con
+//   `scartaCelle`), livelli, «Integrato in» col rimando e l'integrazione in un
+//   altro corso; il progetto nuovo nasce senza corso;
 // - nell'ora: la scheda Progetto lega inizio e casella alla lezione, e un'ora
 //   conclusa spegne i controlli; la scheda c'è solo se il piano dell'ora nomina
 //   un progetto, e con due progetti ha una linguetta per progetto;
@@ -26,55 +33,68 @@ import { FOTOGRAMMA, OGGI, ULTIMA, attendi, attendiRisposte, pannello, valuta } 
 
 type Azione = Record<string, unknown>
 
-// Un progetto del primo corso: due fasi, un criterio con una casella già data,
-// due compiti (il secondo già scaduto); un piano con un'attività del progetto, su un'ora di oggi.
+// Un progetto integrato nel primo corso: due fasi, la prima con un'attività
+// di scaletta già in un piano, un criterio con una casella già data, due
+// compiti (il secondo già scaduto); un piano con un'attività del progetto, su
+// un'ora di oggi.
 const PREPARA = `(oggi) => {
   const r = prova.stato.registro
   const corso = r.corsi[0]
   const classe = r.classi.find((c) => c.id === corso.classeId)
   const allievo = classe.allievi.find((a) => a.attivo)
   const ist = '2026-09-01T08:00:00.000Z'
-  const progetto = { id: 'prg-prova', corsoId: corso.id, titolo: 'Giornale di classe',
-    obiettivi: ['Scrivere un articolo'], stato: 'in-corso',
+  const progetto = { id: 'prg-prova', titolo: 'Giornale di classe',
+    obiettivi: ['Scrivere un articolo'],
     fasi: [{ id: 'f1', titolo: 'Preparazione' }, { id: 'f2', titolo: 'Ricerca' }],
+    attivita: [
+      { id: 'sc1', faseId: 'f1', titolo: 'Intervista', tipo: 'spiegazione', durataUd: 1 },
+      { id: 'sc2', faseId: 'f1', titolo: 'Titoli', tipo: 'spiegazione', durataUd: 1 }],
     criteri: [{ id: 'cr1', titolo: 'Contenuto' }],
     livelli: [{ valore: 'basso', testo: 'Basso', colore: '#ef4444' },
       { valore: 'alto', testo: 'Alto', colore: '#10b981' }],
-    compiti: [{ id: 'cmp1', titolo: 'Scaletta', fine: null, fineLezioneId: null,
-      inizi: [], proroghe: [], fatti: [] },
-      { id: 'cmp2', titolo: 'Intervista', fine: '2026-01-15', fineLezioneId: null,
-        inizi: [], proroghe: [], fatti: [] }],
-    giudizi: [],
-    matrice: [{ allievoId: allievo.id, criterioId: 'cr1', data: '2026-09-10', lezioneId: null, livello: 'alto' }],
+    integrazioni: [{ corsoId: corso.id, stato: 'in-corso',
+      compiti: [{ id: 'cmp1', titolo: 'Scaletta', fine: null, fineLezioneId: null,
+        inizi: [], proroghe: [], fatti: [] },
+        { id: 'cmp2', titolo: 'Intervista', fine: '2026-01-15', fineLezioneId: null,
+          inizi: [], proroghe: [], fatti: [] }],
+      giudizi: [],
+      matrice: [{ allievoId: allievo.id, criterioId: 'cr1', data: '2026-09-10', lezioneId: null, livello: 'alto' }] }],
     risorse: [], creatoIl: ist, aggiornatoIl: ist }
   const tappa = { id: 't1', titolo: 'Intervista', tipo: 'spiegazione', durataUd: 1, descrizione: '',
-    materiali: '', raggruppamento: 'plenaria', risorse: [], progettoId: progetto.id, faseProgettoId: 'f1' }
+    materiali: '', raggruppamento: 'plenaria', risorse: [], progettoId: progetto.id, faseProgettoId: 'f1',
+    attivitaProgettoId: 'sc1' }
   const altra = { id: 't2', titolo: 'Lettura', tipo: 'spiegazione', durataUd: 1, descrizione: '',
     materiali: '', raggruppamento: 'plenaria', risorse: [] }
   const piano = { id: 'piano-prg', corsoId: corso.id, obiettivi: [], prerequisiti: '',
     attivita: [tappa, altra], risorse: [], tag: [], creatoIl: ist, aggiornatoIl: ist }
   const base = r.lezioni.find((l) => l.corsoId === corso.id)
   const lezione = { ...base, id: 'lez-prg', data: oggi, stato: 'pianificata', pianoId: piano.id }
-  prova.vai({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: progetto.id } }, {
+  prova.vai({ pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'progetto', id: progetto.id } }, {
     altro: { registro: { ...r, progetti: [progetto], piani: [piano], lezioni: [...r.lezioni, lezione] } },
   })
-  return allievo.id
+  return { allievo: allievo.id, corso: corso.id }
 }`
 
 test('progetti', async ({ browser }) => {
   const { page, errori } = await pannello(browser)
   const oggi = await valuta<string>(page, OGGI)
-  const allievo = await valuta<string>(page, PREPARA, oggi)
+  const { allievo, corso } = await valuta<{ allievo: string, corso: string }>(page, PREPARA, oggi)
   await valuta(page, FOTOGRAMMA)
 
-  // La pagina: il progetto nell'elenco, le fasi, i compiti a linguette con la
-  // griglia del solo compito aperto, una riga per persona.
-  const vista = page.locator('.vista--progetti')
+  // La barra: l'integrazione nella progettazione, la biblioteca con l'anno.
+  await expect(page.locator('.sidebar__gruppo--progettazione [data-fuoco="pagina.corso.integrazione"]'))
+    .toHaveAttribute('aria-current', 'page')
+  await expect(page.locator('.sidebar__gruppo--anno [data-fuoco="pagina.progetti"]')).toHaveCount(1)
+
+  // L'integrazione: il progetto nell'elenco, le fasi nei piani, i compiti a
+  // linguette con la griglia del solo compito aperto, una riga per persona.
+  const vista = page.locator('.vista--integrazione')
+  await expect(vista.locator('.testata')).toContainText('Integrazione progetti')
   await expect(vista.locator('.elenco-laterale')).toContainText('Giornale di classe')
-  // Sotto le schede in vista, le linguette del progetto: si parte dalle fasi.
+  // Sotto le schede in vista, le linguette del progetto: si parte dalle fasi nei piani.
   const parti = vista.getByRole('tablist', { name: 'Parti del progetto' })
   await expect(parti.getByRole('tab')).toHaveCount(3)
-  await expect(parti.getByRole('tab', { name: 'Fasi' })).toHaveAttribute('aria-selected', 'true')
+  await expect(parti.getByRole('tab', { name: 'Fasi nei piani' })).toHaveAttribute('aria-selected', 'true')
   await expect(vista.locator('.fase-progetto')).toHaveCount(2)
   // Le fasi ripiegate: aperta quella di oggi, con le sue attività; l'altra dice solo testata.
   const fase1 = vista.locator('[data-fuoco="fase:prg-prova:f1"]')
@@ -83,6 +103,10 @@ test('progetti', async ({ browser }) => {
   await expect(fase2).toHaveAttribute('aria-expanded', 'false')
   await expect(vista.locator('.fase-progetto__corpo')).toHaveCount(1)
   await expect(vista.locator('.fase-progetto__corpo')).toContainText('Intervista')
+  // La scaletta: l'attività già nel piano di oggi lo dice, l'altra resta da pianificare.
+  await expect(vista.locator('[data-attivita-progetto-id="sc1"]')).toContainText('Pianificata')
+  await expect(vista.locator('[data-attivita-progetto-id="sc2"]')).toContainText('Da pianificare')
+  await expect(vista.getByRole('button', { name: 'Programma in un piano…' })).toHaveCount(1)
   await fase2.click()
   await expect(fase2).toHaveAttribute('aria-expanded', 'true')
   await expect(fase1).toHaveAttribute('aria-expanded', 'true')
@@ -100,8 +124,8 @@ test('progetti', async ({ browser }) => {
   await expect(vista.getByRole('tabpanel').filter({ hasText: 'Valutazioni del progetto' })).toHaveCount(1)
   await page.keyboard.press('ArrowLeft')
   await expect(parti.getByRole('tab', { name: 'Matrice' })).toHaveAttribute('aria-selected', 'true')
-  // Testata, criteri e compiti restano dove sono qualunque sia la linguetta.
-  await expect(vista.getByRole('button', { name: 'Criteri', exact: true })).toHaveCount(1)
+  // Criteri e livelli si scrivono nella biblioteca: qui non ci sono.
+  await expect(vista.getByRole('button', { name: 'Criteri', exact: true })).toHaveCount(0)
   const linguette = vista.getByRole('tablist', { name: 'Compiti' })
   await expect(linguette.getByRole('tab')).toHaveCount(2)
   await expect(linguette.getByRole('tab', { name: /Scaletta/ })).toHaveAttribute('aria-selected', 'true')
@@ -121,16 +145,16 @@ test('progetti', async ({ browser }) => {
   await expect(linguette.getByRole('tab', { name: /Scaletta/ })).toHaveAttribute('aria-selected', 'true')
   await expect(linguette.getByRole('tab', { name: /Scaletta/ })).toBeFocused()
   expect(await valuta(page, 'richieste.filter((m) => m.azione).length')).toBe(0)
-  const inizio = page.locator(`.vista--progetti [data-fuoco="inizio-cmp1-${allievo}"]`)
+  const inizio = vista.locator(`[data-fuoco="inizio-cmp1-${allievo}"]`)
   await expect(inizio).toHaveCount(1)
 
-  // L'inizio dalla pagina: oggi, senza data, solo per lui.
+  // L'inizio dalla pagina: oggi, senza data, solo per lui, nel corso.
   await valuta(page, 'richieste.length = 0')
   await inizio.click()
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.compito.inizia')")
   const iniziato = await valuta<Azione>(page, ULTIMA, 'progetto.compito.inizia')
   expect(iniziato).toEqual({
-    tipo: 'progetto.compito.inizia', progettoId: 'prg-prova', compitoId: 'cmp1', allieviIds: [allievo],
+    tipo: 'progetto.compito.inizia', progettoId: 'prg-prova', corsoId: corso, compitoId: 'cmp1', allieviIds: [allievo],
   })
   await attendiRisposte(page)
 
@@ -141,12 +165,59 @@ test('progetti', async ({ browser }) => {
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.cella')")
   const cella = await valuta<Azione>(page, ULTIMA, 'progetto.cella')
   expect(cella.livello === 'basso' && cella.criterioId === 'cr1' && cella.allievoId === allievo &&
-    cella.lezioneId === 'lez-prg', JSON.stringify(cella)).toBeTruthy()
+    cella.lezioneId === 'lez-prg' && cella.corsoId === corso, JSON.stringify(cella)).toBeTruthy()
   await attendiRisposte(page)
 
-  // Un criterio nuovo: quello che c'era tiene il suo id.
-  await vista.getByRole('button', { name: 'Criteri', exact: true }).click()
+  // Lo stato nel corso: un'azione dell'integrazione.
+  await valuta(page, 'richieste.length = 0')
+  await vista.getByRole('radiogroup', { name: 'Stato nel corso' }).getByRole('radio', { name: 'Concluso' }).click()
+  await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.integrazione.stato')")
+  expect(await valuta<Azione>(page, ULTIMA, 'progetto.integrazione.stato')).toEqual({
+    tipo: 'progetto.integrazione.stato', progettoId: 'prg-prova', corsoId: corso, stato: 'concluso',
+  })
+  await attendiRisposte(page)
+
+  // Un compito nuovo, dal comando della barra.
+  await page.locator('[data-fuoco="comando-progetto.nuovoCompito"]').click()
   let finestra = page.locator('form.modale')
+  await finestra.locator('input[name="titolo"]').fill('Prima stesura')
+  await valuta(page, 'richieste.length = 0')
+  await finestra.getByRole('button', { name: 'Salva', exact: true }).click()
+  await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.compito.salva')")
+  const compito = await valuta<{ corsoId: string, compito: { titolo: string, id?: string } }>(
+    page, ULTIMA, 'progetto.compito.salva')
+  expect(compito.compito.titolo).toBe('Prima stesura')
+  expect(compito.compito.id).toBeUndefined()
+  expect(compito.corsoId).toBe(corso)
+  await expect(finestra).toHaveCount(0)
+  // L'host lo rimanda: la sua linguetta si apre.
+  await valuta(page, `() => {
+    const r = prova.stato.registro
+    const nuovo = { id: 'cmp3', titolo: 'Prima stesura', fine: null, fineLezioneId: null,
+      inizi: [], proroghe: [], fatti: [] }
+    prova.aggiorna({ registro: { ...r, progetti: r.progetti.map((p) => p.id !== 'prg-prova' ? p : {
+      ...p, integrazioni: p.integrazioni.map((i) => ({ ...i, compiti: [...i.compiti, nuovo] })) }) } })
+  }`)
+  await valuta(page, FOTOGRAMMA)
+  await expect(linguette.getByRole('tab', { name: /Prima stesura/ })).toHaveAttribute('aria-selected', 'true')
+  expect(await valuta(page, "prova.stato.compitiScelti['prg-prova']")).toBe('cmp3')
+  await attendiRisposte(page)
+
+  // La biblioteca, dalla testata: niente corso, scaletta, criteri e «Integrato in».
+  await vista.getByRole('button', { name: 'Apri nella pagina Progetti' }).click()
+  await valuta(page, FOTOGRAMMA)
+  expect(await valuta(page, 'prova.stato.posto.pagina')).toBe('pagina.progetti')
+  const biblioteca = page.locator('.vista--progetti:not(.vista--integrazione)')
+  await expect(biblioteca.locator('.testata')).toContainText('Biblioteca dell’anno')
+  await expect(biblioteca.getByRole('tablist', { name: 'Compiti' })).toHaveCount(0)
+  await expect(biblioteca.locator('[data-attivita-progetto-id]')).toHaveCount(2)
+  const integrato = biblioteca.locator(`.integrazioni-progetto [data-corso-id="${corso}"]`)
+  await expect(integrato).toHaveCount(1)
+  await expect(integrato).toContainText('In corso')
+
+  // Un criterio nuovo: quello che c'era tiene il suo id.
+  await biblioteca.getByRole('button', { name: 'Criteri', exact: true }).click()
+  finestra = page.locator('form.modale')
   await expect(finestra).toHaveCount(1)
   await finestra.getByRole('button', { name: 'Aggiungi un criterio' }).click()
   await finestra.locator('.colonne-check__riga input').nth(1).fill('Forma')
@@ -154,15 +225,17 @@ test('progetti', async ({ browser }) => {
   await finestra.getByRole('button', { name: 'Salva', exact: true }).click()
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.salva')")
   type Criterio = { id: string, titolo: string }
-  type Salvato = { progetto: { criteri: Criterio[] }, scartaCelle?: boolean }
+  type Salvato = { progetto: { criteri: Criterio[], integrazioni?: unknown }, scartaCelle?: boolean }
   let salvato = await valuta<Salvato>(page, ULTIMA, 'progetto.salva')
   expect(salvato.progetto.criteri.map((c) => c.titolo)).toEqual(['Contenuto', 'Forma'])
   expect(salvato.progetto.criteri[0].id).toBe('cr1')
   expect(salvato.scartaCelle).toBeUndefined()
+  // La testata non porta le integrazioni: hanno azioni loro.
+  expect(salvato.progetto.integrazioni).toBeUndefined()
   await expect(finestra).toHaveCount(0)
 
-  // Togliere il criterio che ha una casella: prima la domanda, poi `scartaCelle`.
-  await vista.getByRole('button', { name: 'Criteri', exact: true }).click()
+  // Togliere il criterio che ha una casella in un corso: prima la domanda, poi `scartaCelle`.
+  await biblioteca.getByRole('button', { name: 'Criteri', exact: true }).click()
   finestra = page.locator('form.modale')
   await finestra.locator('.colonne-check__riga').first().getByRole('button').last().click()
   await valuta(page, 'richieste.length = 0')
@@ -175,7 +248,7 @@ test('progetti', async ({ browser }) => {
   await attendiRisposte(page)
 
   // I livelli: nome e descrizione in vista, il colore da un pallino con la sua tavolozza.
-  await vista.getByRole('button', { name: 'Livelli', exact: true }).click()
+  await biblioteca.getByRole('button', { name: 'Livelli', exact: true }).click()
   finestra = page.locator('form.modale')
   await expect(finestra.locator('.livello-riga__descrizione')).toHaveCount(2)
   await finestra.locator('.livello-riga__descrizione').first().fill('Manca il necessario')
@@ -191,43 +264,53 @@ test('progetti', async ({ browser }) => {
   })
   await attendiRisposte(page)
 
-  // Dopo tanti ridisegni la linguetta scelta è ancora la matrice.
-  await expect(parti.getByRole('tab', { name: 'Matrice' })).toHaveAttribute('aria-selected', 'true')
-
-  // Un compito nuovo, dal comando della barra.
-  await page.locator('[data-fuoco="comando-progetto.nuovoCompito"]').click()
-  finestra = page.locator('form.modale')
-  await finestra.locator('input[name="titolo"]').fill('Prima stesura')
+  // Integrare in un altro corso dell'anno: l'azione col corso scelto.
   await valuta(page, 'richieste.length = 0')
-  await finestra.getByRole('button', { name: 'Salva', exact: true }).click()
-  await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.compito.salva')")
-  const compito = await valuta<{ compito: { titolo: string, id?: string } }>(page, ULTIMA, 'progetto.compito.salva')
-  expect(compito.compito.titolo).toBe('Prima stesura')
-  expect(compito.compito.id).toBeUndefined()
-  await expect(finestra).toHaveCount(0)
-  // L'host lo rimanda: la sua linguetta si apre.
-  await valuta(page, `() => {
-    const r = prova.stato.registro
-    const nuovo = { id: 'cmp3', titolo: 'Prima stesura', fine: null, fineLezioneId: null,
-      inizi: [], proroghe: [], fatti: [] }
-    prova.aggiorna({ registro: { ...r, progetti: r.progetti.map((p) =>
-      p.id === 'prg-prova' ? { ...p, compiti: [...p.compiti, nuovo] } : p) } })
-  }`)
-  await valuta(page, FOTOGRAMMA)
-  await expect(linguette.getByRole('tab', { name: /Prima stesura/ })).toHaveAttribute('aria-selected', 'true')
-  expect(await valuta(page, "prova.stato.compitiScelti['prg-prova']")).toBe('cmp3')
+  await biblioteca.getByRole('button', { name: 'Integra in un corso…' }).click()
+  await page.getByRole('menuitem').first().click()
+  await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.integra')")
+  const integra = await valuta<Azione>(page, ULTIMA, 'progetto.integra')
+  expect(integra.progettoId).toBe('prg-prova')
+  expect(integra.corsoId).not.toBe(corso)
   await attendiRisposte(page)
 
-  // Un progetto nuovo, dall'elenco.
-  await vista.locator('.elenco-laterale').getByRole('button', { name: 'Nuovo progetto' }).click()
+  // Un progetto nuovo, dall'elenco della biblioteca: di nessun corso, niente integrazione.
+  await valuta(page, '() => prova.vai({ pagina: \'pagina.progetti\' })')
+  await valuta(page, FOTOGRAMMA)
+  await biblioteca.locator('.elenco-laterale').getByRole('button', { name: 'Nuovo progetto' }).click()
   finestra = page.locator('form.modale')
+  await expect(finestra.locator('[name="stato"]')).toHaveCount(0)
   await finestra.locator('input[name="titolo"]').fill('Orto')
   await valuta(page, 'richieste.length = 0')
   await finestra.getByRole('button', { name: 'Salva', exact: true }).click()
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.salva')")
-  const nuovo = await valuta<{ progetto: { titolo: string, corsoId: string } }>(page, ULTIMA, 'progetto.salva')
+  const nuovo = await valuta<{ progetto: Record<string, unknown> }>(page, ULTIMA, 'progetto.salva')
   expect(nuovo.progetto.titolo).toBe('Orto')
-  expect(nuovo.progetto.corsoId).toBe(await valuta(page, 'prova.stato.registro.corsi[0].id'))
+  expect(nuovo.progetto.corsoId).toBeUndefined()
+  await attendiRisposte(page)
+  expect(await valuta(page, "richieste.some(m=>m.azione?.tipo==='progetto.integra')")).toBe(false)
+
+  // Dalla biblioteca all'integrazione nel corso, col rimando di «Integrato in»:
+  // dopo tanti ridisegni la linguetta scelta è ancora la matrice.
+  await valuta(page, '() => prova.vai({ pagina: \'pagina.progetti\', soggetto: { tipo: \'progetto\', id: \'prg-prova\' } })')
+  await valuta(page, FOTOGRAMMA)
+  await integrato.getByRole('button').first().click()
+  await valuta(page, FOTOGRAMMA)
+  expect(await valuta(page, 'prova.stato.posto.pagina')).toBe('pagina.corso.integrazione')
+  expect(await valuta(page, 'prova.stato.corsoId')).toBe(corso)
+  await expect(parti.getByRole('tab', { name: 'Matrice' })).toHaveAttribute('aria-selected', 'true')
+
+  // Togliere dal corso: la domanda dice che cosa se ne va, poi l'azione.
+  await valuta(page, 'richieste.length = 0')
+  await vista.locator('.scheda').first().getByRole('button', { name: 'Togli dal corso' }).click()
+  const domanda = page.getByRole('dialog')
+  await expect(domanda).toContainText('3 compiti')
+  await expect(domanda).toContainText('resta nella biblioteca')
+  await domanda.getByRole('button', { name: 'Togli dal corso' }).click()
+  await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.integrazione.togli')")
+  expect(await valuta<Azione>(page, ULTIMA, 'progetto.integrazione.togli')).toEqual({
+    tipo: 'progetto.integrazione.togli', progettoId: 'prg-prova', corsoId: corso,
+  })
   await attendiRisposte(page)
 
   // Nell'ora: la scheda Progetto lega l'inizio e la casella alla lezione.
@@ -246,6 +329,7 @@ test('progetti', async ({ browser }) => {
   await attendi(page, "richieste.some(m=>m.azione?.tipo==='progetto.compito.inizia')")
   const nellOra = await valuta<Azione>(page, ULTIMA, 'progetto.compito.inizia')
   expect(nellOra.lezioneId, JSON.stringify(nellOra)).toBe('lez-prg')
+  expect(nellOra.corsoId, JSON.stringify(nellOra)).toBe(corso)
   await attendiRisposte(page)
   await valuta(page, 'richieste.length = 0')
   await ora.locator(`[data-fuoco="livello-${allievo}-cr1"]`).click()
@@ -293,7 +377,8 @@ test('progetti', async ({ browser }) => {
     const primo = r.progetti[0]
     const ist = '2026-09-01T08:00:00.000Z'
     const secondo = { ...primo, id: 'prg-due', titolo: 'Orto', fasi: [{ id: 'g1', titolo: 'Semina' }],
-      compiti: [], giudizi: [], matrice: [], creatoIl: ist, aggiornatoIl: ist }
+      attivita: [], integrazioni: primo.integrazioni.map((i) => ({ ...i, compiti: [], giudizi: [], matrice: [] })),
+      creatoIl: ist, aggiornatoIl: ist }
     const tappa = { id: 't3', titolo: 'Vasi', tipo: 'spiegazione', durataUd: 1, descrizione: '',
       materiali: '', raggruppamento: 'plenaria', risorse: [], progettoId: 'prg-due', faseProgettoId: 'g1' }
     prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: 'lez-prg' } }, {
@@ -328,5 +413,23 @@ test('progetti', async ({ browser }) => {
   await expect(schede.getByRole('radio', { name: 'Amministrazione' })).toHaveAttribute('aria-checked', 'true')
   expect(await valuta(page, 'prova.stato.schedaLezione')).toBe('progetto')
 
+  expect(errori, `errori JS: ${errori.join('\n')}`).toEqual([])
+})
+
+test('la barra porta all’integrazione del corso e alla biblioteca', async ({ browser }) => {
+  const { page, errori } = await pannello(browser)
+  const laterale = page.locator('#navigazione-laterale')
+  await laterale.locator('[data-fuoco="pagina.corso.integrazione"]').click()
+  await valuta(page, FOTOGRAMMA)
+  expect(await valuta(page, 'prova.stato.posto.pagina')).toBe('pagina.corso.integrazione')
+  await expect(page.locator('.vista--integrazione')).toHaveCount(1)
+  // Senza progetti integrati: l'invito a integrarne uno dalla biblioteca.
+  await expect(page.locator('.vista--integrazione').getByRole('button', { name: 'Integra un progetto…' }).first())
+    .toBeVisible()
+  await laterale.locator('[data-fuoco="pagina.progetti"]').click()
+  await valuta(page, FOTOGRAMMA)
+  expect(await valuta(page, 'prova.stato.posto.pagina')).toBe('pagina.progetti')
+  await expect(page.locator('.vista--integrazione')).toHaveCount(0)
+  await expect(page.locator('.vista--progetti')).toHaveCount(1)
   expect(errori, `errori JS: ${errori.join('\n')}`).toEqual([])
 })

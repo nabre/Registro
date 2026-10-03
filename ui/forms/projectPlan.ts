@@ -4,9 +4,10 @@ import type { Attivita, AttivitaProgetto } from '#core/dominio/models.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { apriModale } from '#ui/components/modal.js'
 import { h } from '#ui/dom.js'
-import { classeDelCorsoId, progettoPerId } from '#ui/state.js'
+import { progettoPerId } from '#ui/state.js'
 import { baseViva, salva } from './common.js'
 import { editorAttivita } from './planActivity.js'
+import { testataDi } from './project.js'
 import { testi } from './projectPlan.testi.js'
 
 export function moduloScalettaProgetto (progettoId: string, faseId: string): void {
@@ -34,8 +35,9 @@ export function moduloScalettaProgetto (progettoId: string, faseId: string): voi
         (nuove) => { attivita = nuove },
         null,
         undefined,
-        () => classeDelCorsoId(iniziale.corsoId)?.docenteDiClasse ?? false,
-        iniziale.corsoId,
+        // La scaletta è del progetto, di nessun corso: niente check di classe.
+        () => false,
+        null,
         { nascondiProgetto: true },
       ),
     ),
@@ -57,7 +59,7 @@ export function moduloScalettaProgetto (progettoId: string, faseId: string): voi
       await salva(contesto, {
         tipo: 'progetto.salva',
         progetto: {
-          ...vivo,
+          ...testataDi(vivo),
           attivita: [...(vivo.attivita ?? []).filter((a) => a.faseId !== faseId), ...scritte],
         },
       }, t.salvata)

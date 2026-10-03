@@ -20,6 +20,7 @@ const {
   chiaveDelPosto,
   completa,
   derivaVista,
+  paginaDiAdesso,
   postoDaVecchi,
   postoDaVista,
 } = await importaSorgente('ui/place.ts')
@@ -81,8 +82,8 @@ function registro () {
       { id: 'val-a', corsoId: 'cor-a', lezioneId: null, pianoId: null, titolo: 'Prova', tipo: 'scritto', data: '2027-03-02' },
     ],
     progetti: [
-      { id: 'prg-a', corsoId: 'cor-a', titolo: 'Giornale', obiettivi: [], stato: 'in-corso', criteri: [], livelli: [], compiti: [], giudizi: [], matrice: [], risorse: [], creatoIl: ist, aggiornatoIl: ist },
-      { id: 'prg-v', corsoId: 'cor-v', titolo: 'Vecchio', obiettivi: [], stato: 'concluso', criteri: [], livelli: [], compiti: [], giudizi: [], matrice: [], risorse: [], creatoIl: ist, aggiornatoIl: ist },
+      { id: 'prg-a', titolo: 'Giornale', obiettivi: [], fasi: [], criteri: [], livelli: [], integrazioni: [{ corsoId: 'cor-a', stato: 'in-corso', compiti: [], giudizi: [], matrice: [] }], risorse: [], creatoIl: ist, aggiornatoIl: ist },
+      { id: 'prg-v', titolo: 'Vecchio', obiettivi: [], fasi: [], criteri: [], livelli: [], integrazioni: [{ corsoId: 'cor-v', stato: 'concluso', compiti: [], giudizi: [], matrice: [] }], risorse: [], creatoIl: ist, aggiornatoIl: ist },
     ],
     fascicoli: [],
     consegne: [],
@@ -111,7 +112,7 @@ const TABELLA = [
   ['docenteClasse', 'cls-a', { pagina: 'pagina.classe.pendenze', soggetto: { tipo: 'classe', id: 'cls-a' } }],
   ['corsi', 'cor-a', { pagina: 'pagina.corsi', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['piani', 'pia-a', { pagina: 'pagina.corso.piani', soggetto: { tipo: 'piano', id: 'pia-a' } }],
-  ['progetti', 'prg-a', { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } }],
+  ['progetti', 'prg-a', { pagina: 'pagina.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } }],
   ['valutazioni', 'val-a', { pagina: 'pagina.corso.valutazioni', soggetto: { tipo: 'valutazione', id: 'val-a' } }],
   ['check', 'cor-a', { pagina: 'pagina.corso.check', soggetto: { tipo: 'corso', id: 'cor-a' } }],
   ['documenti', undefined, { pagina: 'pagina.corso.documenti' }],
@@ -321,17 +322,43 @@ describe('completa: i ripieghi', () => {
     assert.equal(esito.ripiegato, true)
   })
 
-  it('progetto: porta il suo corso; sparito o di un altro anno, la stessa pagina sul corso del contesto', () => {
+  it('progetto: la biblioteca lo apre e basta; sparito, la biblioteca senza soggetto', () => {
     const r = registro()
     const aperto = completa(postoDaVista('progetti', 'prg-a'), { ...NIENTE, corsoId: 'cor-b' }, r, OGGI)
-    assert.deepEqual(aperto.posto, { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } })
+    assert.deepEqual(aperto.posto, { pagina: 'pagina.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } })
+    assert.equal(aperto.contesto.corsoId, 'cor-b')
+    assert.equal(aperto.contesto.progettoId, 'prg-a')
+    assert.equal(aperto.ripiegato, false)
+    const sparito = completa(postoDaVista('progetti', 'prg-x'), { ...NIENTE, corsoId: 'cor-b', progettoId: 'prg-x' }, r, OGGI)
+    assert.deepEqual(sparito.posto, { pagina: 'pagina.progetti' })
+    assert.equal(sparito.contesto.progettoId, null)
+    assert.equal(sparito.ripiegato, true)
+  })
+
+  it('progetto nell’integrazione: porta un corso dell’anno in cui è integrato; se no il corso del contesto', () => {
+    const r = registro()
+    const integrazione = (id) => ({ pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'progetto', id } })
+    const aperto = completa(integrazione('prg-a'), { ...NIENTE, corsoId: 'cor-b' }, r, OGGI)
+    assert.deepEqual(aperto.posto, integrazione('prg-a'))
     assert.equal(aperto.contesto.corsoId, 'cor-a')
     assert.equal(aperto.contesto.progettoId, 'prg-a')
     for (const id of ['prg-x', 'prg-v']) {
-      const esito = completa(postoDaVista('progetti', id), { ...NIENTE, corsoId: 'cor-b', progettoId: id }, r, OGGI)
-      assert.deepEqual(esito.posto, { pagina: 'pagina.corso.progetti', soggetto: { tipo: 'corso', id: 'cor-b' } }, id)
+      const esito = completa(integrazione(id), { ...NIENTE, corsoId: 'cor-b', progettoId: id }, r, OGGI)
+      assert.deepEqual(esito.posto, { pagina: 'pagina.corso.integrazione', soggetto: { tipo: 'corso', id: 'cor-b' } }, id)
       assert.equal(esito.ripiegato, true)
     }
+  })
+
+  it('l’id di prima dei progetti, ricordato o chiesto, apre la biblioteca', () => {
+    const r = registro()
+    const esito = completa({ pagina: 'pagina.corso.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } }, NIENTE, r, OGGI)
+    assert.deepEqual(esito.posto, { pagina: 'pagina.progetti', soggetto: { tipo: 'progetto', id: 'prg-a' } })
+    assert.equal(paginaDiAdesso('pagina.corso.progetti'), 'pagina.progetti')
+    assert.equal(paginaDiAdesso('pagina.corso.piani'), 'pagina.corso.piani')
+  })
+
+  it('il ricordato che il documento non ha più si scorda', () => {
+    const r = registro()
     // Il ricordato che il documento non ha più si scorda.
     assert.equal(completa({ pagina: 'pagina.oggi' }, { ...NIENTE, progettoId: 'prg-x' }, r, OGGI).contesto.progettoId, null)
   })

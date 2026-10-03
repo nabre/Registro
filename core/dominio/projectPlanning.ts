@@ -60,9 +60,9 @@ export function propostaImportazione (
   const tempo = tempoLocale(registro, lezione)
   const presenti = new Set(piano.attivita.filter((a) => a.progettoId === progetto.id)
     .map((a) => a.attivitaProgettoId))
-  const altroCorso = piano.corsoId !== progetto.corsoId ||
-    (lezione && lezione.corsoId !== progetto.corsoId)
-  const candidati = altroCorso ? [] : (progetto.attivita ?? []).filter((a) =>
+  // Il progetto è dell'anno: un piano di qualunque corso ne prende le tappe, e
+  // chi scrive lo integra nel corso del piano.
+  const candidati = (progetto.attivita ?? []).filter((a) =>
     (!faseId || a.faseId === faseId) && ids.includes(a.id) && !presenti.has(a.id))
   const disponibiliUd = tempo.capacita === null ? null
     : Math.max(0, tempo.capacita - piano.attivita.reduce((somma, a) => somma + a.durataUd, 0))

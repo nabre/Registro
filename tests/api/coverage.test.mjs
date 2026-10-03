@@ -72,7 +72,7 @@ const AZIONI = varianti()
 describe('la copertura del protocollo', () => {
   it('trova tutte le azioni dichiarate, e sono quelle che ci si aspetta', () => {
     // Se questo numero cambia è cambiato il protocollo: va bene, ma va visto.
-    assert.equal(AZIONI.size, 186, `azioni trovate: ${AZIONI.size}`)
+    assert.equal(AZIONI.size, 189, `azioni trovate: ${AZIONI.size}`)
   })
 
   it('ogni azione del protocollo ha una procedura che la prende in carico', () => {

@@ -1,7 +1,7 @@
 import { progetti } from '#core/azioni/projects.js'
 import { inoltra, scrittura } from '#contract/core.js'
 import { identificatore, iso, nullabile, oggetto, opzionale, testo } from '#contract/schemas.js'
-import { esigiProgetto } from '#contract/procedure/progetti/common.js'
+import { esigiIntegrazione } from '#contract/procedure/progetti/common.js'
 import { testi } from '#contract/procedure/progetti/progetti.testi.js'
 
 const t = () => testi().compito.salva
@@ -15,6 +15,7 @@ export const procedura = scrittura({
   collezioni: ['progetti'],
   ingresso: oggetto({
     progettoId: identificatore({ aiuto: () => testi().comune.progettoId }),
+    corsoId: identificatore({ aiuto: () => testi().comune.corsoId }),
     compito: oggetto({
       id: opzionale(identificatore({ aiuto: () => t().id })),
       titolo: testo({ minimo: 1, massimo: 200, aiuto: () => t().titoloCompito }),
@@ -24,7 +25,7 @@ export const procedura = scrittura({
     }, { aiuto: () => t().compito }),
   }),
   esegui: (ambito, ingresso) => {
-    esigiProgetto(ambito, ingresso.progettoId)
+    esigiIntegrazione(ambito, ingresso)
     return inoltra(progetti, 'progetto.compito.salva')(ambito, ingresso)
   },
 })

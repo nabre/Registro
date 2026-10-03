@@ -20,13 +20,15 @@ import type {
   Lezione,
   LivelloProgetto,
   Progetto,
+  ProgettoNelCorso,
   Risorsa,
   StatoProgetto,
 } from '#core/dominio/models.js'
-import { allieviNominati, periodoDelProgetto, STATI_PROGETTO } from '#core/dominio/projects.js'
+import { allieviNominati, periodoDelProgetto } from '#core/dominio/projects.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { campo, pulsante, quieto, riga } from '#ui/components/base.js'
 import { apriModale, conferma, type ContestoModale } from '#ui/components/modal.js'
+import type { ProgettoDaSalvare } from '#contract/protocol.js'
 import { azione } from '#ui/bridge.js'
 import { dataDiLezione } from '#ui/components/lessonDate.js'
 import { h, rimpiazza, type Figlio } from '#ui/dom.js'
@@ -55,7 +57,7 @@ export function nomeStatoProgetto (scelto: StatoProgetto): string {
  * Le persone del progetto, nell'ordine dell'elenco: chi frequenta la classe del
  * corso, più chi non la frequenta più ma ha ancora qualcosa nel progetto.
  */
-export function allieviDelProgetto (progetto: Progetto): Allievo[] {
+export function allieviDelProgetto (progetto: ProgettoNelCorso): Allievo[] {
   const classe = classePerId(corsoPerId(progetto.corsoId)?.classeId ?? null)
   if (!classe) return []
   const nominati = allieviNominati(progetto)
@@ -69,7 +71,7 @@ export function allieviDelProgetto (progetto: Progetto): Allievo[] {
  * Il periodo del progetto in una riga: dalla prima all'ultima lezione con una
  * fase del progetto. Senza lezioni, l'invito ad abbinarne.
  */
-export function periodoDetto (progetto: Progetto): string {
+export function periodoDetto (progetto: ProgettoNelCorso): string {
   const t = testi()
   const periodo = periodoDelProgetto(stato.registro, progetto)
   if (!periodo) return t.nessunaLezioneAncora
@@ -79,7 +81,7 @@ export function periodoDetto (progetto: Progetto): string {
 }
 
 /** Chi frequenta la classe del corso, nell'ordine dell'elenco. */
-export function attiviDelProgetto (progetto: Progetto): Allievo[] {
+export function attiviDelProgetto (progetto: Pick<ProgettoNelCorso, 'corsoId'>): Allievo[] {
   const classe = classePerId(corsoPerId(progetto.corsoId)?.classeId ?? null)
   return classe ? ordinaAllievi(allieviAttivi(classe)) : []
 }
@@ -103,15 +105,15 @@ export function etichettaOraMostrata (lezione: Lezione): Figlio {
 const COLORI_LIVELLO = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#eab308', '#06b6d4', '#64748b']
 
 /** Il colore di un livello: il suo, o quello di serie della sua posizione. */
-export function coloreLivello (progetto: Progetto, valore: string): string {
+export function coloreLivello (progetto: Pick<Progetto, 'livelli'>, valore: string): string {
   const indice = progetto.livelli.findIndex((l) => l.valore === valore)
   const diSerie = COLORI_LIVELLO[Math.max(0, indice) % COLORI_LIVELLO.length]
   return progetto.livelli[indice]?.colore ?? diSerie
 }
 
 /**
- * Quante caselle della matrice se ne andrebbero salvando questi criteri e
- * livelli: con la stessa regola con cui l'host poi le toglie.
+ * Quante caselle delle matrici, di tutti i corsi, se ne andrebbero salvando
+ * questi criteri e livelli: con la stessa regola con cui l'host poi le toglie.
  */
 function celleCheCadono (
   prima: Progetto,
@@ -119,9 +121,18 @@ function celleCheCadono (
 ): number {
   const criteri = new Set(dopo.criteri.map((c) => c.id).filter(Boolean))
   const livelli = new Set(dopo.livelli.map((l) => l.valore))
-  return prima.matrice.filter((cella) =>
+  return prima.integrazioni.flatMap((i) => i.matrice).filter((cella) =>
     !criteri.has(cella.criterioId) || (cella.livello !== null && !livelli.has(cella.livello)),
   ).length
+}
+
+/**
+ * La testata da mandare con `progetto.salva`: le integrazioni hanno azioni
+ * loro, e l'host le tiene com'erano.
+ */
+export function testataDi (progetto: Progetto): ProgettoDaSalvare {
+  const { integrazioni: _integrazioni, ...testata } = progetto
+  return testata
 }
 
 /**
@@ -148,7 +159,7 @@ async function salvaTestata (
   }
   await salva(
     contesto,
-    { tipo: 'progetto.salva', progetto, ...(cadono > 0 ? { scartaCelle: true } : {}) },
+    { tipo: 'progetto.salva', progetto: testataDi(progetto), ...(cadono > 0 ? { scartaCelle: true } : {}) },
     messaggio,
     dopo,
   )
@@ -157,11 +168,13 @@ async function salvaTestata (
 // ------------------------------------------------------------------ testata
 
 /**
- * Il progetto nuovo, o la testata di uno che c'è: titolo, stato, date,
- * descrizione, obiettivi (uno per riga) e i collegamenti.
+ * Il progetto nuovo, o la testata di uno che c'è: titolo, descrizione,
+ * obiettivi (uno per riga) e i collegamenti. Il progetto è dell'anno; con un
+ * corso, quello nuovo vi si integra subito dopo (lo chiede la pagina
+ * Integrazione progetti). Lo stato è dell'integrazione, non si scrive qui.
  */
 export function moduloProgetto (opzioni: {
-  corsoId: string
+  corsoId?: string | null
   progetto?: Progetto
   dopo?: (progettoId: string) => void
 }): void {
@@ -219,26 +232,15 @@ export function moduloProgetto (opzioni: {
       h(
         'div',
         { class: 'modulo' },
-        riga(
-          campo({
-            nome: 'titolo',
-            etichetta: p.titolo,
-            valore: progetto?.titolo ?? '',
-            segnaposto: t.segnapostoTitolo,
-            richiesto: true,
-            larghezza: 'meta',
-          }),
-          campo({
-            nome: 'stato',
-            etichetta: p.stato,
-            tipo: 'select',
-            valore: progetto?.stato ?? 'bozza',
-            opzioni: STATI_PROGETTO.map((s) => ({ valore: s, testo: nomeStatoProgetto(s) })),
-            larghezza: 'meta',
-          }),
-        ),
-        // Il periodo non si scrive: lo dicono le lezioni con fasi del progetto.
-        h('p', { class: 'testo-quieto' }, progetto ? periodoDetto(progetto) : t.periodoDaFasi),
+        campo({
+          nome: 'titolo',
+          etichetta: p.titolo,
+          valore: progetto?.titolo ?? '',
+          segnaposto: t.segnapostoTitolo,
+          richiesto: true,
+        }),
+        // Il periodo non si scrive: in ogni corso lo dicono le lezioni con tappe del progetto.
+        h('p', { class: 'testo-quieto' }, t.periodoDaFasi),
         campo({
           nome: 'descrizione',
           etichetta: p.descrizione,
@@ -280,7 +282,7 @@ export function moduloProgetto (opzioni: {
       const base = baseViva(
         contesto,
         Boolean(progetto),
-        creaProgetto(corsoId, titolo),
+        creaProgetto(null, titolo),
         progetto ? progettoPerId(progetto.id) : null,
       )
       if (!base) return
@@ -288,7 +290,6 @@ export function moduloProgetto (opzioni: {
       const scritto: Progetto = {
         ...base,
         titolo,
-        stato: testo(valori.stato) as StatoProgetto,
         descrizione: testo(valori.descrizione) || undefined,
         obiettivi: testo(valori.obiettivi).split('\n').map((r) => r.trim()).filter(Boolean),
         risorse: [
@@ -303,7 +304,16 @@ export function moduloProgetto (opzioni: {
         contesto,
         scritto,
         progetto ? t.salvato : t.creato(titolo),
-        (creato) => dopo?.(creato ?? scritto.id),
+        (creato) => {
+          const id = creato ?? scritto.id
+          if (progetto || !corsoId) {
+            dopo?.(id)
+            return
+          }
+          void azione({ tipo: 'progetto.integra', progettoId: id, corsoId }).then((risposta) => {
+            if (risposta.ok) dopo?.(id)
+          })
+        },
       )
     },
     azioniSecondarie: progetto
@@ -456,7 +466,7 @@ export async function aggiungiFase (progetto: Progetto): Promise<string | null> 
     id: nuovoIdFaseProgetto(),
     titolo: testi().segnapostoFase(vivo.fasi.length + 1),
   }
-  const risposta = await azione({ tipo: 'progetto.salva', progetto: { ...vivo, fasi: [...vivo.fasi, fase] } })
+  const risposta = await azione({ tipo: 'progetto.salva', progetto: { ...testataDi(vivo), fasi: [...vivo.fasi, fase] } })
   return risposta.ok ? fase.id : null
 }
 
@@ -670,7 +680,7 @@ export function moduloLivelli (progettoId: string): void {
  * Un compito nuovo o uno che c'è: titolo, descrizione e la fine comune, in
  * una lezione del corso (la fine ne segue il giorno) o in una data.
  */
-export function moduloCompito (opzioni: { progetto: Progetto, compito?: CompitoProgetto }): void {
+export function moduloCompito (opzioni: { progetto: ProgettoNelCorso, compito?: CompitoProgetto }): void {
   const { progetto, compito } = opzioni
   const t = testi()
   const p = parole()
@@ -733,6 +743,7 @@ export function moduloCompito (opzioni: { progetto: Progetto, compito?: CompitoP
         {
           tipo: 'progetto.compito.salva',
           progettoId: progetto.id,
+          corsoId: progetto.corsoId,
           compito: {
             ...(compito ? { id: compito.id } : {}),
             titolo,
@@ -752,7 +763,12 @@ export function moduloCompito (opzioni: { progetto: Progetto, compito?: CompitoP
               titolo: t.eliminareCompito(compito.titolo),
               testo: t.eliminareCompitoTesto,
             },
-            azione: { tipo: 'progetto.compito.elimina', progettoId: progetto.id, compitoId: compito.id },
+            azione: {
+              tipo: 'progetto.compito.elimina',
+              progettoId: progetto.id,
+              corsoId: progetto.corsoId,
+              compitoId: compito.id,
+            },
             fatto: t.compitoEliminato,
           })
       : undefined,
@@ -762,12 +778,13 @@ export function moduloCompito (opzioni: { progetto: Progetto, compito?: CompitoP
 /** Più tempo per un allievo: una fine sua, con una nota; si toglie e torna quella comune. */
 export function moduloProroga (opzioni: {
   progettoId: string
+  corsoId: string
   compito: CompitoProgetto
   allievo: Allievo
   /** La fine comune, da proporre quando la proroga non c'è ancora. */
   fineComune: Iso | null
 }): void {
-  const { progettoId, compito, allievo, fineComune } = opzioni
+  const { progettoId, corsoId, compito, allievo, fineComune } = opzioni
   const t = testi()
   const proroga = compito.proroghe.find((x) => x.allievoId === allievo.id)
   apriModale({
@@ -803,6 +820,7 @@ export function moduloProroga (opzioni: {
         {
           tipo: 'progetto.compito.proroga',
           progettoId,
+          corsoId,
           compitoId: compito.id,
           allievoId: allievo.id,
           fine,
@@ -822,6 +840,7 @@ export function moduloProroga (opzioni: {
               {
                 tipo: 'progetto.compito.proroga',
                 progettoId,
+                corsoId,
                 compitoId: compito.id,
                 allievoId: allievo.id,
                 fine: null,
@@ -836,11 +855,12 @@ export function moduloProroga (opzioni: {
 /** Il giorno in cui uno o più allievi hanno cominciato un compito, scelto a mano. */
 export function moduloInizio (opzioni: {
   progettoId: string
+  corsoId: string
   compito: CompitoProgetto
   allievi: Allievo[]
   data: Iso | null
 }): void {
-  const { progettoId, compito, allievi, data } = opzioni
+  const { progettoId, corsoId, compito, allievi, data } = opzioni
   const t = testi()
   apriModale({
     titolo: t.inizioDelCompito,
@@ -869,6 +889,7 @@ export function moduloInizio (opzioni: {
         {
           tipo: 'progetto.compito.inizia',
           progettoId,
+          corsoId,
           compitoId: compito.id,
           allieviIds: allievi.map((a) => a.id),
           data: scelta,
@@ -886,7 +907,7 @@ export function moduloInizio (opzioni: {
  * (`lezioneId`) il giorno è quello dell'ora.
  */
 export function moduloGiudizio (opzioni: {
-  progetto: Progetto
+  progetto: ProgettoNelCorso
   giudizio?: GiudizioProgetto
   allievoId?: string | null
   lezione?: Lezione | null
@@ -948,6 +969,7 @@ export function moduloGiudizio (opzioni: {
         {
           tipo: 'progetto.giudizio.salva',
           progettoId: progetto.id,
+          corsoId: progetto.corsoId,
           giudizio: {
             ...(giudizio ? { id: giudizio.id } : {}),
             allievoId: testo(valori.chi) || null,
@@ -965,7 +987,12 @@ export function moduloGiudizio (opzioni: {
           tastoElimina({
             contesto,
             chiedi: { titolo: t.eliminareGiudizio, testo: giudizio.testo },
-            azione: { tipo: 'progetto.giudizio.elimina', progettoId: progetto.id, giudizioId: giudizio.id },
+            azione: {
+              tipo: 'progetto.giudizio.elimina',
+              progettoId: progetto.id,
+              corsoId: progetto.corsoId,
+              giudizioId: giudizio.id,
+            },
             fatto: t.giudizioEliminato,
           })
       : undefined,
@@ -974,7 +1001,7 @@ export function moduloGiudizio (opzioni: {
 
 /** Una casella della matrice per intero: il livello e una nota, in quel giorno. */
 export function moduloCella (opzioni: {
-  progetto: Progetto
+  progetto: ProgettoNelCorso
   allievo: Allievo
   criterio: CriterioProgetto
   livello: string | null
@@ -1017,6 +1044,7 @@ export function moduloCella (opzioni: {
         {
           tipo: 'progetto.cella',
           progettoId: progetto.id,
+          corsoId: progetto.corsoId,
           allievoId: allievo.id,
           criterioId: criterio.id,
           ...quando,

@@ -8,8 +8,8 @@ import { Uno } from '#core/dominio/lexicon.js'
 import { lessico } from '#core/dominio/lexicon.testi.js'
 import { vociConValore } from '#core/dominio/lists.js'
 import { MOTIVI_ORFANO, motivoOrfano } from '#core/dominio/orphans.js'
-import { progettiDelCorso } from '#core/dominio/projects.js'
 import type { MomentoValutazione } from '#core/dominio/models.js'
+import { progettiDelCorso } from '#core/dominio/projects.js'
 import { parole } from '#core/dominio/words.testi.js'
 import { campo, riga } from '#ui/components/base.js'
 import { suggerimento } from '#ui/components/hint.js'
@@ -168,6 +168,7 @@ export function moduloValutazione (momento: MomentoValutazione): void {
             larghezza: 'quarto',
           }),
         ),
+        // Solo i progetti integrati nel corso: la prova è lavoro con la sua classe.
         progettiDelCorso(stato.registro, momento.corsoId).length > 0 || momento.progettoId
           ? campo({
               nome: 'progetto',
@@ -203,7 +204,7 @@ export function moduloValutazione (momento: MomentoValutazione): void {
         tipo: testo(valori.tipo) as MomentoValutazione['tipo'],
         peso: numero(valori.peso, 1),
         descrizione: testo(valori.descrizione),
-        // Il campo c'è solo se il corso ha progetti: senza, il legame resta quello che era.
+        // Il campo c'è solo se l'anno ha progetti: senza, il legame resta quello che era.
         progettoId: valori.progetto === undefined
           ? vivo.progettoId ?? null
           : testo(valori.progetto) || null,
