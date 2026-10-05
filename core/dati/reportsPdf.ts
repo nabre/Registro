@@ -22,7 +22,9 @@ import {
   type TipoBlocco,
   type Grafico,
   type Andamento,
+  type Barre,
   eAndamento,
+  eBarre,
   type ImmagineModello,
   type RigaFissa,
   type Stile,
@@ -713,6 +715,163 @@ function andamento (penna: Penna, dati: Andamento): void {
   }
 }
 
+/** Il fondo di una barra sotto la soglia: chiaro, con il bordo, per staccarla dalla piena. */
+const CHIARO = rgb(0.86, 0.87, 0.89)
+
+/** Le quote delle barre: le usa il disegno e chi lo misura. */
+function misuraBarre (penna: Penna, dati: Barre): {
+  testa: number
+  riga: number
+  piede: number
+  totale: number
+} {
+  const piccolo = penna.corpi.piccolo
+  // In testa il nome della soglia e, sotto, i numeri della scala.
+  const testa = piccolo * 1.5 + (dati.soglia ? piccolo * 1.5 : 0)
+  const riga = penna.corpi.testo * 1.6
+  const piede = dati.unita ? piccolo * 2 : 0
+  return { testa, riga, piede, totale: testa + dati.barre.length * riga + piede + 6 }
+}
+
+/**
+ * Barre orizzontali, una per riga: il nome a sinistra, la barra su una scala
+ * comune, la cifra subito dopo, la soglia a tratto lungo. Chi è oltre ha la
+ * barra piena e la cifra in grassetto; chi è sotto la barra chiara col bordo.
+ * Più lunghe di una pagina continuano di là, con la scala ripetuta in testa.
+ */
+function barre (penna: Penna, dati: Barre): void {
+  const larghezza = larghezzaUtile(penna)
+  const piccolo = penna.corpi.piccolo
+  const testo = penna.corpi.testo
+  const { testa, riga, piede } = misuraBarre(penna, dati)
+
+  const nomi = Math.min(
+    Math.max(
+      0,
+      ...dati.barre.map((b) => penna.normale.widthOfTextAtSize(sanifica(b.etichetta), testo)),
+    ) + 8,
+    larghezza * 0.3,
+  )
+  const sinistra = penna.sinistra + nomi
+  // A destra il posto per la cifra della barra più lunga.
+  const cifre = Math.max(
+    0,
+    ...dati.barre.map((b) => penna.grassetto.widthOfTextAtSize(sanifica(b.testo), piccolo)),
+  )
+  const destra = penna.sinistra + larghezza - cifre - 6
+  const ascissa = (valore: number) =>
+    sinistra + (dati.a > 0 ? (Math.min(valore, dati.a) / dati.a) * (destra - sinistra) : 0)
+  const soglia = dati.soglia
+
+  // La testa: il nome della soglia sopra la sua riga, e i numeri della scala.
+  const scriviTesta = () => {
+    spazio(penna, testa)
+    const fondo = penna.y
+    for (const tacca of dati.tacche) {
+      const etichetta = sanifica(`${formattaNumero(tacca)}%`)
+      const quanto = penna.normale.widthOfTextAtSize(etichetta, piccolo)
+      penna.pagina.drawText(etichetta, {
+        x: Math.min(Math.max(ascissa(tacca) - quanto / 2, sinistra), destra - quanto),
+        y: fondo + piccolo * 0.4,
+        size: piccolo,
+        font: penna.normale,
+        color: NERO,
+      })
+    }
+    if (soglia) {
+      const etichetta = sanifica(soglia.etichetta)
+      const quanto = penna.grassetto.widthOfTextAtSize(etichetta, piccolo)
+      penna.pagina.drawText(etichetta, {
+        x: Math.min(
+          Math.max(ascissa(soglia.valore) - quanto / 2, sinistra),
+          penna.sinistra + larghezza - quanto,
+        ),
+        y: fondo + piccolo * 1.9,
+        size: piccolo,
+        font: penna.grassetto,
+        color: NERO,
+      })
+    }
+  }
+
+  // Se il tutto ci sta in una pagina l'ha già deciso chi impagina, con `misuraBarre`.
+  scriviTesta()
+
+  const alta = riga * 0.55
+  for (const barra of dati.barre) {
+    if (penna.y - riga < penna.basso) {
+      nuovaPagina(penna)
+      scriviTesta()
+    }
+    spazio(penna, riga)
+    const sotto = penna.y
+    const mezzo = sotto + riga / 2
+
+    penna.pagina.drawText(tronca(barra.etichetta, penna.normale, testo, nomi - 8), {
+      x: penna.sinistra,
+      y: mezzo - testo * 0.35,
+      size: testo,
+      font: penna.normale,
+      color: NERO,
+    })
+    // Le righe della scala, leggere, dietro alla barra.
+    for (const tacca of dati.tacche) {
+      const x = ascissa(tacca)
+      penna.pagina.drawLine({
+        start: { x, y: sotto },
+        end: { x, y: sotto + riga },
+        thickness: 0.4,
+        color: FILO,
+      })
+    }
+    let fine = sinistra
+    if (barra.valore !== null) {
+      fine = ascissa(barra.valore)
+      if (fine > sinistra) {
+        penna.pagina.drawRectangle({
+          x: sinistra,
+          y: mezzo - alta / 2,
+          width: fine - sinistra,
+          height: alta,
+          color: barra.oltre ? BRUTTO : CHIARO,
+          borderColor: barra.oltre ? BRUTTO : NEUTRO,
+          borderWidth: 0.5,
+        })
+      }
+    }
+    penna.pagina.drawText(sanifica(barra.testo), {
+      x: fine + 3,
+      y: mezzo - piccolo * 0.35,
+      size: piccolo,
+      font: barra.oltre ? penna.grassetto : penna.normale,
+      color: NERO,
+    })
+    // La soglia sopra le barre: un tratto per riga, così segue i salti pagina.
+    if (soglia) {
+      const x = ascissa(soglia.valore)
+      penna.pagina.drawLine({
+        start: { x, y: sotto },
+        end: { x, y: sotto + riga },
+        thickness: 0.9,
+        color: NERO,
+        dashArray: [3, 2],
+      })
+    }
+  }
+
+  if (dati.unita) {
+    spazio(penna, piede)
+    penna.pagina.drawText(tronca(dati.unita, penna.normale, piccolo, larghezza), {
+      x: penna.sinistra,
+      y: penna.y + piccolo * 0.3,
+      size: piccolo,
+      font: penna.normale,
+      color: NERO,
+    })
+  }
+  spazio(penna, 6)
+}
+
 /** Un numero come si scrive su un asse: senza zeri inutili in coda. */
 function formattaNumero (valore: number): string {
   return String(Math.round(valore * 100) / 100)
@@ -1333,7 +1492,10 @@ function altezzaBlocco (penna: Penna, blocco: Blocco, dati: DatiRapporto): numbe
     case 'grafico': {
       const disegno = blocco.grafico ?? dati.grafici[blocco.valore]
       if (!disegno) return 0
-      return eAndamento(disegno) ? misuraAndamento(penna, disegno).totale : misuraGrafico(penna, disegno).totale
+      if (eAndamento(disegno)) return misuraAndamento(penna, disegno).totale
+      return eBarre(disegno)
+        ? misuraBarre(penna, disegno).totale
+        : misuraGrafico(penna, disegno).totale
     }
     case 'avviso':
       return misuraAvviso(penna, blocco.valore).alta
@@ -1519,6 +1681,7 @@ function disegna (penna: Penna, blocco: Blocco, dati: DatiRapporto): void {
     case 'grafico': {
       const disegno = blocco.grafico ?? dati.grafici[blocco.valore]
       if (disegno && eAndamento(disegno)) andamento(penna, disegno)
+      else if (disegno && eBarre(disegno)) barre(penna, disegno)
       else if (disegno) grafico(penna, disegno)
       break
     }

@@ -96,6 +96,7 @@ i-voti: Les notes
 da-recuperare: À rattraper
 per-persona: Par personne en formation
 da-seguire: À suivre
+assenza-per-persona: Absence par personne
 profitto: Résultats
 le-prove: Les épreuves
 griglia-presenze: Grille des présences en détail

@@ -115,6 +115,7 @@ i-voti: I voti
 da-recuperare: Da recuperare
 per-persona: Per persona in formazione
 da-seguire: Da seguire
+assenza-per-persona: Assenza per persona
 profitto: Profitto
 le-prove: Le prove
 griglia-presenze: Dettaglio griglia delle presenze

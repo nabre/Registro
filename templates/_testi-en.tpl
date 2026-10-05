@@ -93,6 +93,7 @@ i-voti: The grades
 da-recuperare: To be resat
 per-persona: By learner
 da-seguire: To follow up
+assenza-per-persona: Absence by person
 profitto: Performance
 le-prove: The tests
 griglia-presenze: Attendance grid in detail

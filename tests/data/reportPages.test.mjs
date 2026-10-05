@@ -110,3 +110,35 @@ describe('l’andamento nel PDF', () => {
     }
   })
 })
+
+describe('le barre nel PDF', () => {
+  /** `quante` persone, una barra a testa; la terza oltre la soglia. */
+  const assenze = (quante) => ({
+    genere: 'barre',
+    unita: 'Una barra per persona',
+    a: 40,
+    tacche: [0, 10, 20, 30, 40],
+    soglia: { valore: 20, etichetta: 'soglia 20%' },
+    barre: Array.from({ length: quante }, (_, i) => ({
+      etichetta: `Persona ${i + 1}`,
+      valore: i === 2 ? 35 : 5,
+      testo: i === 2 ? '35%' : '5%',
+      oltre: i === 2,
+    })),
+  })
+
+  it('scrive nomi, cifre e soglia, e se ci sta non si spezza fra due pagine', async () => {
+    const fogli = await pagine('spazio: 690\ntesto: Sopra\ngrafico: assenze', { grafici: { assenze: assenze(4) } })
+    assert.equal(fogli.length, 2)
+    for (const testo of ['Persona 1', 'Persona 4', '35%', 'soglia 20%', '40%', 'Una barra per persona']) {
+      assert.deepEqual(dove(fogli, testo), [1], testo)
+    }
+  })
+
+  it('più lunghe di una pagina continuano di là, con la scala ripetuta', async () => {
+    const fogli = await pagine('grafico: assenze', { grafici: { assenze: assenze(80) } })
+    assert.ok(fogli.length >= 2)
+    assert.deepEqual(dove(fogli, 'soglia 20%'), fogli.map((_, i) => i))
+    assert.deepEqual(dove(fogli, 'Persona 80'), [fogli.length - 1])
+  })
+})

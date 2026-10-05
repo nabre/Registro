@@ -225,12 +225,39 @@ export interface Andamento {
   punti: Array<{ data: string, giorno: string, valore: number, minimo?: number, massimo?: number }>
 }
 
-/** Quel che `grafico:` disegna: una distribuzione a punti o un andamento nel tempo. */
-export type Disegno = Grafico | Andamento
+/**
+ * Barre orizzontali, una per persona: la quota di assenza di ciascuno sulla
+ * stessa scala, con la riga della soglia. Chi è oltre ha la barra piena e la
+ * cifra in grassetto: si distingue anche su una fotocopia in bianco e nero.
+ */
+export interface Barre {
+  genere: 'barre'
+  /** Che cosa dice una barra, scritto sotto il disegno. */
+  unita: string
+  /** Il fondo scala, in percento: la barra più lunga o la soglia, con un margine. */
+  a: number
+  /** I valori scritti sopra le barre, con la loro riga leggera. */
+  tacche: number[]
+  /** La riga verticale della soglia, in percento, con il suo nome; assente se spenta. */
+  soglia?: { valore: number, etichetta: string }
+  /**
+   * Una riga per persona, nell'ordine dell'elenco. `valore` in percento, nullo
+   * senza ore previste: la riga resta con il nome e la cifra, senza barra.
+   */
+  barre: Array<{ etichetta: string, valore: number | null, testo: string, oltre: boolean }>
+}
+
+/** Quel che `grafico:` disegna: una distribuzione a punti, un andamento nel tempo, delle barre. */
+export type Disegno = Grafico | Andamento | Barre
 
 /** Vero se il disegno è un andamento nel tempo. */
 export function eAndamento (disegno: Disegno): disegno is Andamento {
   return 'genere' in disegno && disegno.genere === 'andamento'
+}
+
+/** Vero se il disegno sono barre orizzontali. */
+export function eBarre (disegno: Disegno): disegno is Barre {
+  return 'genere' in disegno && disegno.genere === 'barre'
 }
 
 /**
@@ -782,7 +809,9 @@ function risolvi (blocco: Blocco, dati: DatiRapporto): Blocco | null {
       ? false
       : eAndamento(grafico)
         ? grafico.punti.length >= 2
-        : grafico.punti.some((punto) => punto.quanti > 0)
+        : eBarre(grafico)
+          ? grafico.barre.length > 0
+          : grafico.punti.some((punto) => punto.quanti > 0)
     return pieno && grafico ? { ...blocco, grafico } : null
   }
 

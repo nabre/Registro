@@ -875,6 +875,18 @@ describe('l’assenza oltre la soglia', () => {
     assert.equal(dati.elenchi.oltreSoglia.length, 1)
     assert.match(dati.elenchi.oltreSoglia[0], /^Bianchi Luca — assenza del 50%/)
     assert.equal(dati.valori.sogliaAssenza, '20')
+
+    // Le barre: una a testa con la stessa cifra, la soglia, e il fondo scala
+    // dalla barra più lunga (50% con un poco d'aria), non sempre 100%.
+    const { assenze } = dati.grafici
+    assert.equal(assenze.genere, 'barre')
+    assert.deepEqual(
+      assenze.barre.map((b) => [b.etichetta, b.valore, b.testo, b.oltre]).sort(),
+      [['Bianchi Luca', 50, '50%', true], ['Rossi Anna', 0, '0%', false]],
+    )
+    assert.deepEqual(assenze.soglia, { valore: 20, etichetta: 'soglia 20%' })
+    assert.equal(assenze.a, 60)
+    assert.deepEqual(assenze.tacche, [0, 20, 40, 60])
   })
 
   it('e sulla scheda del singolo, con una frase da mettere in evidenza', () => {
@@ -916,6 +928,9 @@ describe('l’assenza oltre la soglia', () => {
     const dati = datiPresenze(registro, corso(registro), primoSemestre(registro))
 
     assert.deepEqual(dati.elenchi.oltreSoglia, [])
+    // Le barre restano, senza la riga e senza nessuno in evidenza.
+    assert.equal(dati.grafici.assenze.soglia, undefined)
+    assert.ok(dati.grafici.assenze.barre.every((b) => !b.oltre))
   })
 })
 
