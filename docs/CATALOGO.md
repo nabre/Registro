@@ -591,7 +591,7 @@ CORS solo verso `registro://`; streaming con `net.fetch`.
 
 ## 9. Rapporti e modelli di stampa
 
-### 9.1 Gli 8 `GenereRapporto`
+### 9.1 I 13 `GenereRapporto`
 
 In [`core/dominio/locations.ts`](../core/dominio/locations.ts); dati da
 [`core/dominio/reportData/`](../core/dominio/reportData/index.ts), PDF da
@@ -612,6 +612,11 @@ nome = <anno>_<classe>_<ambito>_<documento>[_<chi>][_<dettaglio>].<est>    (AAMM
 | `fascicolo` | `docente-di-classe/<classe>/classe/` | Fascicolo, giorno di stampa (datato) | PDF |
 | `foto-classe` | `classe/` | Foto della classe, giorno di stampa (datato) | PDF |
 | `allievo` | `allievi/<Cognome Nome>/` | Scheda PiF, persona e periodo | PDF |
+| `diario` | `classe/` | Diario, semestre o «anno intero» | PDF |
+| `corso` | `classe/` | Corso (scheda del corso), semestre o «anno intero» | PDF |
+| `supplenze` | `classe/` | Supplenze, semestre o «anno intero» (modello `scheda-corso`) | PDF |
+| `progetto-classe` | `classe/` | Progetto, titolo (`(n)` fra omonimi nel corso) | PDF |
+| `progetto-allievo` | `allievi/<Cognome Nome>/` | Progetto, persona e titolo | PDF |
 
 - I due datati fanno una copia al giorno e sono esclusi da
   `percorsiDiUnDocumento`.
@@ -631,7 +636,7 @@ logo è `logo.png` riservato, `NOME_LOGO`).
 | `_stile` | comune | formato, margini, corpi |
 | `_testi`, `_testi-de`, `_testi-fr`, `_testi-en` | comune | parole e nomi delle colonne per lingua |
 | `_blocchi` | comune | pezzi richiamati con `usa:` |
-| `verbale-lezione`, `piano-lezione`, `valutazioni-classe`, `presenze-classe`, `scheda-allievo`, `momento-valutazione`, `fascicolo-classe`, `foto-classe` | rapporto | uno per `GenereRapporto` |
+| `verbale-lezione`, `piano-lezione`, `valutazioni-classe`, `presenze-classe`, `scheda-allievo`, `momento-valutazione`, `fascicolo-classe`, `foto-classe`, `diario-corso`, `scheda-corso`, `progetto-classe`, `progetto-allievo` | rapporto | uno per `GenereRapporto`; `supplenze` usa `scheda-corso` |
 | `_firma.html` | posta | la firma delle e-mail (HTML) |
 
 ### 9.3 Il motore di template

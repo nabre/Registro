@@ -15,7 +15,6 @@ import { minuscolo } from '#core/i18n/index.js'
 import { formattaData } from '#core/dominio/dates.js'
 import { numeriDelleLezioni } from '#core/dominio/courses.js'
 import type { Lezione, Osservazione } from '#core/dominio/models.js'
-import { classi } from '#ui/classNames.js'
 import {
   Avviso,
   Campo,
@@ -28,6 +27,7 @@ import {
   Tendina,
   type TonoPastiglia,
 } from '#ui/components/base.js'
+import { classi } from '#ui/classNames.js'
 import { DataDiLezione } from '#ui/components/lessonDate.js'
 import { pannelloConsegne } from './assignments.js'
 import { pannelloCheckDellOra } from './check.js'
@@ -36,8 +36,6 @@ import { moduloOsservazione } from '#ui/forms.js'
 import { porzioniLezione, schedaLezioneAperta } from '#ui/tabs.js'
 import { apriLezione } from '#ui/pages.js'
 import { azione } from '#ui/bridge.js'
-import { consegneDellaLezione } from '#core/dominio/assignments.js'
-import { checkDelCorso } from '#core/dominio/check.js'
 import {
   aggiorna,
   classeDiLezione,
@@ -47,7 +45,6 @@ import {
   stato,
   vai,
   type SchedaLezione,
-  type SchedaStrumentiLezione,
 } from '#ui/state.js'
 import { telaioVista } from '#ui/viewFrame.js'
 import { pannelloAppello } from './lesson/attendance.js'
@@ -313,86 +310,6 @@ function avvisoOraSvolta (lezione: Lezione): ReactNode {
   )
 }
 
-// ------------------------------------------------------------------ strumenti della lezione
-
-/**
- * Il pannello destro della scheda lezione: permette di passare con immediatezza
- * fra valutazioni (voti e prove), pendenze (consegne dell'ora) e check dell'ora.
- */
-function pannelloStrumentiLezione (lezione: Lezione): ReactElement {
-  const t = testi()
-  const strumenti = stato.schedaStrumentiLezione ?? 'valutazioni'
-
-  // Quanti elementi per ciascuno strumento
-  const momenti = stato.registro.valutazioni.filter((v) => v.lezioneId === lezione.id)
-  const classe = classeDiLezione(lezione)
-  const consegne = consegneDellaLezione(stato.registro, lezione, classe)
-  const quanteConsegne =
-    consegne.arretrate.length +
-    consegne.scadono.length +
-    consegne.date.length +
-    consegne.aperte.length
-  const check = checkDelCorso(stato.registro, lezione.corsoId)
-  const quanteCheck = check?.colonne.length ?? 0
-
-  const opzioniStrumenti: Array<{
-    id: SchedaStrumentiLezione
-    etichetta: string
-    conto?: number
-  }> = [
-    {
-      id: 'valutazioni',
-      etichetta: t.schedaValutazioni,
-      conto: momenti.length > 0 ? momenti.length : undefined,
-    },
-    {
-      id: 'pendenze',
-      etichetta: Molti(lessico().pendenza),
-      conto: quanteConsegne > 0 ? quanteConsegne : undefined,
-    },
-    {
-      id: 'check',
-      etichetta: t.schedaCheck,
-      conto: quanteCheck > 0 ? quanteCheck : undefined,
-    },
-  ]
-
-  const pannelloCorrente =
-    strumenti === 'pendenze'
-      ? pannelloConsegne(lezione)
-      : strumenti === 'check'
-        ? (pannelloCheckDellOra(lezione) ?? <div />)
-        : pannelloValutazioni(lezione)
-
-  return (
-    // testo-fisso: una chiave, non un testo
-    <div className="strumenti-lezione" data-telaio={`strumenti:${strumenti}`}>
-      <div className="selettore-strumenti">
-        {opzioniStrumenti.map((opz) => (
-          <button
-            key={opz.id}
-            className={classi(
-              'selettore-strumenti__voce',
-              strumenti === opz.id && 'selettore-strumenti__voce--attiva',
-            )}
-            type="button"
-            // La voce scelta si sente, non solo si vede: la classe attiva è solo colore.
-            aria-pressed={strumenti === opz.id}
-            onClick={() => aggiorna({ schedaStrumentiLezione: opz.id })}
-          >
-            {opz.etichetta}
-            {opz.conto !== undefined
-              ? <Pastiglia testo={String(opz.conto)} tono={strumenti === opz.id ? 'informativo' : 'quiete'} />
-              : null}
-          </button>
-        ))}
-      </div>
-      {/* Le linguette restano vive: si guarda anche un'ora chiusa. */}
-      {aOraSvolta(lezione, 'strumenti', pannelloCorrente)}
-    </div>
-  )
-}
-
 // ------------------------------------------------------------------ vista
 
 /**
@@ -403,10 +320,21 @@ function pannelloStrumentiLezione (lezione: Lezione): ReactElement {
 function colonne (porzione: SchedaLezione, sinistra: ReactNode, destra: ReactNode): ReactElement {
   return (
     // testo-fisso: una chiave, non un testo
-    <div className="colonne colonne--lezione" data-telaio={`lezione:${porzione}`}>
+    <div className={classi('colonne', 'colonne--lezione', `colonne--${porzione}`)} data-telaio={`lezione:${porzione}`}>
       <div className="colonna" data-telaio="sinistra">{sinistra}</div>
       <div className="colonna" data-telaio="destra">{destra}</div>
     </div>
+  )
+}
+
+/**
+ * Una scheda a tutta larghezza: la scaletta ha colonne di durata e di orario,
+ * le valutazioni le loro tabelle, e accanto non c'è niente da tenere.
+ */
+function intera (porzione: SchedaLezione, figli: ReactNode): ReactElement {
+  return (
+    // testo-fisso: una chiave, non un testo
+    <div className="colonna" data-telaio={`lezione:${porzione}`}>{figli}</div>
   )
 }
 
@@ -465,10 +393,13 @@ function VistaLezione (): ReactElement {
     <div className="vista vista--lezione" data-telaio={telaioVista()}>
       {testataLezione(lezione)}
       {avvisoOraSvolta(lezione)}
-      {/* Quattro schede: amministrazione mentre la classe entra, lezione durante,
-          progetto (compiti, matrice, giudizi) solo se il piano dell'ora lavora a
-          uno, annotazioni (con lo svolgimento) dopo. I nomi delle linguette
-          vengono da `tabs.ts`, che li dà anche al percorso nella barra del titolo. */}
+      {/* Le schede nell'ordine dell'ora: Inizio ora mentre la classe entra
+          (appello, pendenze, check, prove da ridare); durante, Piano lezione
+          (la scaletta), Valutazioni e Progetto (compiti, matrice, giudizi, solo
+          se il piano dell'ora lavora a uno); Fine ora (svolgimento,
+          osservazioni) dopo. Ogni cosa sta in una scheda sola. I nomi delle
+          linguette vengono da `tabs.ts`, che li dà anche al percorso nella
+          barra del titolo. */}
       <Selettore
         valore={aperta}
         voci={[...porzioniLezione(lezione)]}
@@ -492,7 +423,10 @@ function VistaLezione (): ReactElement {
           )
         : null}
       {aperta === 'lezione'
-        ? colonne('lezione', aOraSvolta(lezione, 'piano', pannelloPiano(lezione)), pannelloStrumentiLezione(lezione))
+        ? intera('lezione', aOraSvolta(lezione, 'piano', pannelloPiano(lezione)))
+        : null}
+      {aperta === 'valutazioni'
+        ? intera('valutazioni', aOraSvolta(lezione, 'valutazioni', pannelloValutazioni(lezione)))
         : null}
       {aperta === 'progetto' ? porzioneProgetto(lezione) : null}
       {aperta === 'annotazioni'

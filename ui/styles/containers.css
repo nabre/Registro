@@ -43,23 +43,6 @@
   padding: var(--dentro-scheda);
 }
 
-/*
- * Una scheda senza riquadro: titolo e contenuto stanno sulla pagina, come il
- * piano dell'ora, che dentro ha già i riquadri delle sue tappe.
- */
-.scheda--nuda {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  overflow: visible;
-}
-
-.scheda--nuda > .scheda__testata,
-.scheda--nuda > .scheda__corpo {
-  padding-inline: 0;
-}
-
 /* Con la testata sopra il corpo le si accosta; senza, tiene i suoi venti pixel anche in alto. */
 .scheda__testata + .scheda__corpo {
   padding-top: var(--spazio-2);

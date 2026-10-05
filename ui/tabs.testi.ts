@@ -7,10 +7,10 @@ import { LEZIONE, Molti, PERSONE, PIF, SCUOLA, Uno } from '#core/dominio/lexicon
 import { lessico } from '#core/dominio/lexicon.testi.js'
 
 const it = {
-  // Le linguette del registro dell'ora.
-  amministrazione: 'Amministrazione',
-  lezione: 'Lezione',
-  annotazioni: 'Annotazioni',
+  // Le linguette del registro dell'ora, una per momento.
+  inizioOra: 'Inizio ora',
+  valutazioni: 'Valutazioni',
+  fineOra: 'Fine ora',
 
   // Le linguette della scheda di una persona.
   anagrafica: 'Anagrafica',
@@ -51,9 +51,9 @@ const it = {
 
 export const testi = catalogo(it, {
   de: {
-    amministrazione: 'Verwaltung',
-    lezione: 'Unterricht',
-    annotazioni: 'Notizen',
+    inizioOra: 'Stundenbeginn',
+    valutazioni: 'Beurteilungen',
+    fineOra: 'Stundenende',
     anagrafica: 'Personalien',
     docenteClasse: Uno(lessico.in('de').docenteClasse),
     materie: Molti(lessico.in('de').materia),
@@ -82,9 +82,9 @@ export const testi = catalogo(it, {
     mie: 'Meine',
   },
   fr: {
-    amministrazione: 'Administration',
-    lezione: 'Leçon',
-    annotazioni: 'Annotations',
+    inizioOra: 'Début de leçon',
+    valutazioni: 'Évaluations',
+    fineOra: 'Fin de leçon',
     anagrafica: 'Données personnelles',
     docenteClasse: Uno(lessico.in('fr').docenteClasse),
     materie: Molti(lessico.in('fr').materia),
@@ -115,9 +115,9 @@ export const testi = catalogo(it, {
     mie: 'Les miennes',
   },
   en: {
-    amministrazione: 'Admin',
-    lezione: 'Lesson',
-    annotazioni: 'Notes',
+    inizioOra: 'Lesson start',
+    valutazioni: 'Assessments',
+    fineOra: 'Lesson end',
     anagrafica: 'Personal details',
     docenteClasse: Uno(lessico.in('en').docenteClasse),
     materie: Molti(lessico.in('en').materia),

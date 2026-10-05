@@ -1,8 +1,8 @@
 // Il check: la lista di controllo di un corso, allievo per allievo.
 // Le colonne le decide chi insegna; ogni spunta porta il quando (l'ora aperta,
 // oggi dalla pagina, o un giorno scelto col tasto destro). La griglia la
-// disegnano questa pagina, la scheda del corso e la scheda Amministrazione
-// dell'ora, e sta solo qui; anche la casella singola (`casellaDelCheck`) per la
+// disegnano questa pagina, la scheda del corso e la scheda Inizio ora
+// della lezione, e sta solo qui; anche la casella singola (`casellaDelCheck`) per la
 // scheda della persona.
 
 import type { ReactElement } from 'react'
@@ -509,7 +509,7 @@ export function grigliaCheck (corso: Corso, check: Check, lezione: Lezione | nul
 // ------------------------------------------------------------------ nell'ora
 
 /**
- * Il check dentro l'ora, nella scheda Amministrazione: un clic spunta in
+ * Il check dentro l'ora, nella scheda Inizio ora: un clic spunta in
  * quest'ora. Senza colonne resta solo una riga che dice dove prepararle.
  */
 export function pannelloCheckDellOra (lezione: Lezione): ReactElement | null {

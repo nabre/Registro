@@ -154,9 +154,12 @@ export function matriceOsservata (lezione: Lezione, classe: Classe | null): Reac
       <table className="matrice" aria-label={t.aspetti}>
         <thead>
           <tr>
-            <th scope="col" />
+            <th className="matrice__aspetto matrice__angolo" scope="col" />
             {aspetti.map((aspetto) => (
-              <th key={aspetto.valore} className="matrice__aspetto" scope="col">{aspetto.testo}</th>
+              // Il nome ruotato si può troncare: il `title` lo dice intero.
+              <th key={aspetto.valore} className="matrice__aspetto" scope="col" title={aspetto.testo}>
+                <span className="matrice__aspetto-testo">{aspetto.testo}</span>
+              </th>
             ))}
           </tr>
         </thead>

@@ -29,14 +29,20 @@ const it = {
 
   // L'editor.
   diCheCosaParla: 'Di che cosa parla',
-  aiutoCorsoDettato:
-    'Lo dice la lezione scelta qui accanto. Per usare il piano altrove lo si duplica.',
   aiutoCorso:
     'Il piano è di questo corso. Per usarlo altrove lo si duplica e lo si adatta.',
   obiettivi: 'Obiettivi',
   aiutoObiettivi: 'Uno per riga.',
   prerequisiti: 'Prerequisiti',
   aiutoPrerequisiti: 'Che cosa devono già sapere per starci dietro.',
+  etichette: 'Etichette',
+  aiutoEtichette:
+    'Parole che fanno ritrovare il piano: la ricerca del navigatore le legge, e il rapporto ' +
+    'della lezione le stampa. Invio o la virgola ne aggiungono una, Backspace a campo vuoto ' +
+    'toglie l’ultima.',
+  segnapostoEtichette: 'frazioni, laboratorio…',
+  altraEtichetta: 'un’altra…',
+  togliEtichetta: (etichetta: string) => `Togli l’etichetta «${etichetta}»`,
   aiutoScaletta:
     'Ogni tappa porta con sé il suo materiale e dice se è una valutazione.',
   allegareSalva:
@@ -104,9 +110,6 @@ export const testi = catalogo(it, {
     nonSalvato: 'Der Plan konnte nicht gespeichert werden.',
 
     diCheCosaParla: 'Worum es geht',
-    aiutoCorsoDettato:
-      'Das ergibt sich aus der Stunde, die daneben gewählt ist. Um den Plan anderswo zu ' +
-      'verwenden, duplizierst du ihn.',
     aiutoCorso:
       'Der Plan gehört zu diesem Kurs. Um ihn anderswo zu verwenden, duplizierst du ihn und ' +
       'passt ihn an.',
@@ -114,6 +117,14 @@ export const testi = catalogo(it, {
     aiutoObiettivi: 'Eines pro Zeile.',
     prerequisiti: 'Voraussetzungen',
     aiutoPrerequisiti: 'Was sie schon wissen müssen, um mitzukommen.',
+    etichette: 'Schlagwörter',
+    aiutoEtichette:
+      'Wörter, über die man den Plan wiederfindet: Die Suche im Navigator liest sie, und der ' +
+      'Bericht der Stunde druckt sie. Enter oder ein Komma fügt eines hinzu, die Rücktaste im ' +
+      'leeren Feld entfernt das letzte.',
+    segnapostoEtichette: 'Brüche, Labor…',
+    altraEtichetta: 'noch eines…',
+    togliEtichetta: (etichetta) => `Schlagwort «${etichetta}» entfernen`,
     aiutoScaletta:
       'Jede Etappe bringt ihr Material mit und sagt, ob sie eine Beurteilung ist.',
     allegareSalva:
@@ -178,15 +189,20 @@ export const testi = catalogo(it, {
     nonSalvato: 'Le plan n’a pas pu être enregistré.',
 
     diCheCosaParla: 'De quoi il s’agit',
-    aiutoCorsoDettato:
-      'C’est la leçon choisie juste à côté qui le dit. Pour utiliser le plan ailleurs, ' +
-      'on le duplique.',
     aiutoCorso:
       'Le plan appartient à ce cours. Pour l’utiliser ailleurs, on le duplique et on l’adapte.',
     obiettivi: 'Objectifs',
     aiutoObiettivi: 'Un par ligne.',
     prerequisiti: 'Prérequis',
     aiutoPrerequisiti: 'Ce qu’ils doivent déjà savoir pour suivre.',
+    etichette: 'Mots-clés',
+    aiutoEtichette:
+      'Des mots pour retrouver le plan : la recherche du navigateur les lit, et le rapport ' +
+      'de la leçon les imprime. Entrée ou une virgule en ajoute un, Retour arrière dans le ' +
+      'champ vide retire le dernier.',
+    segnapostoEtichette: 'fractions, atelier…',
+    altraEtichetta: 'un autre…',
+    togliEtichetta: (etichetta) => `Retirer le mot-clé « ${etichetta} »`,
     aiutoScaletta:
       'Chaque étape emporte son matériel et indique si c’est une évaluation.',
     allegareSalva:
@@ -248,14 +264,20 @@ export const testi = catalogo(it, {
     nonSalvato: 'The plan couldn’t be saved.',
 
     diCheCosaParla: 'What it’s about',
-    aiutoCorsoDettato:
-      'It comes from the lesson chosen alongside. To use the plan elsewhere, duplicate it.',
     aiutoCorso:
       'The plan belongs to this course. To use it elsewhere, duplicate it and adapt it.',
     obiettivi: 'Objectives',
     aiutoObiettivi: 'One per line.',
     prerequisiti: 'Prerequisites',
     aiutoPrerequisiti: 'What they need to know already to keep up.',
+    etichette: 'Tags',
+    aiutoEtichette:
+      'Words that help you find the plan again: the navigator’s search reads them, and the ' +
+      'lesson report prints them. Enter or a comma adds one, Backspace in the empty field ' +
+      'removes the last one.',
+    segnapostoEtichette: 'fractions, lab…',
+    altraEtichetta: 'another…',
+    togliEtichetta: (etichetta) => `Remove the tag “${etichetta}”`,
     aiutoScaletta:
       'Each step carries its own materials and says whether it’s an assessment.',
     allegareSalva:

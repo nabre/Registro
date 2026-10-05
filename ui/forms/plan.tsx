@@ -5,11 +5,15 @@
 import {
   Fragment,
   useEffect,
+  useId,
   useLayoutEffect,
   useReducer,
   useRef,
   useState,
+  type FormEvent,
+  type KeyboardEvent,
   type ReactElement,
+  type ReactNode,
 } from 'react'
 
 import {
@@ -22,6 +26,7 @@ import { formattaData, formattaDurata, formattaUd } from '#core/dominio/dates.js
 import { creaPiano } from '#core/dominio/factories.js'
 import { importaAttivitaDelProgetto, propostaImportazione } from '#core/dominio/projectPlanning.js'
 import { parole } from '#core/dominio/words.testi.js'
+import { minuscolo } from '#core/i18n/index.js'
 import type {
   Attivita,
   Lezione,
@@ -39,17 +44,17 @@ import {
   Pulsante,
   Quieto,
   Riga,
-  SezioneModulo,
   StatoVuoto,
   valoriModulo,
 } from '#ui/components/base.js'
+import { Suggerimento, useIdSuggerimento } from '#ui/components/hint.js'
+import { Icona } from '#ui/components/icons.js'
 import { apriModale, type ContestoModale } from '#ui/components/modal.js'
 import { notifica } from '#ui/components/notifications.js'
 import { azione, invia } from '#ui/bridge.js'
 import {
   classeDelCorsoId,
   corsiDi,
-  nomeCorso,
   nomeDiPiano,
   pianiPerCorso,
   postoCorrente,
@@ -70,7 +75,7 @@ import {
   testo,
 } from './common.js'
 import { campoCorso } from './course.js'
-import { editorAttivita, voceFerma, type GestoreRisorse } from './planActivity.js'
+import { editorAttivita, type GestoreRisorse } from './planActivity.js'
 import { testi as testiProgetto } from './projectPlan.testi.js'
 
 /**
@@ -166,9 +171,9 @@ interface OpzioniEditorPiano {
   allaModifica?: () => void
   /**
    * Il corso lo detta la selezione di fuori (l'ora scelta nella pagina dei
-   * piani), quindi resta una riga e non una tendina che sposterebbe il piano per
-   * sbaglio. Senza corso (eliminato), la tendina resta: è l'unico posto per
-   * riagganciarlo.
+   * piani), che lo mostra già: l'editor non lo ripete, e nessuna tendina
+   * sposta il piano per sbaglio. Senza corso (eliminato), la tendina resta: è
+   * l'unico posto per riagganciarlo.
    */
   corsoDettato?: boolean
 }
@@ -236,6 +241,8 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
   // file): si rileggono dal registro, se no si cancellerebbe l'allegato appena messo.
   const risorse = useRef<Risorsa[]>(base.risorse)
   const [risorsePiano, impostaRisorsePiano] = useState<Risorsa[]>(base.risorse)
+  // Le etichette non sono un campo con `name`: le tiene il loro campo a pastiglie.
+  const etichette = useRef<string[]>(base.tag ?? [])
   // Quel che c'è da sapere prima di toccare, detto all'apertura.
   const [particolari] = useState(() => (opzioni.piano ? statiDelPiano(base) : []))
   const ultima = useRef(opzioni.allaModifica)
@@ -251,7 +258,7 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
       .map((o) => o.trim())
       .filter(Boolean),
     prerequisiti: testo(valori.prerequisiti),
-    tag: base.tag ?? [],
+    tag: etichette.current,
     risorse: risorse.current,
     attivita: attivita.current ?? [],
   })
@@ -361,22 +368,35 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
   useEffect(() => {
     const nodo = corpo.current
     if (!nodo || !salvaDaSe) return
-    const alCambio = () => ultima.current?.()
+    const alCambio = (evento: Event) => {
+      // Il testo di un'etichetta non ancora fatta non è una modifica: la
+      // pastiglia, quando nasce, salva da sé.
+      if ((evento.target as HTMLElement).closest('.campo-etichette')) return
+      ultima.current?.()
+    }
     nodo.addEventListener('change', alCambio)
     return () => nodo.removeEventListener('change', alCambio)
   }, [salvaDaSe])
 
   // Il campo del corso è di una parte che ha la sua vita: si disegna una volta.
+  // Dettato da fuori, lo mostra già chi contiene l'editor.
   const [campoDelCorso] = useState(() => (corsoFermo
-    ? voceFerma(Uno(L.corso), nomeCorso(base.corsoId), t.aiutoCorsoDettato)
+    ? null
     : campoCorso({
         valore: base.corsoId ?? '',
         richiesto: true,
         aiuto: t.aiutoCorso,
       })))
 
+  // Le etichette già date agli altri piani, da riprendere uguali: «frazioni» e
+  // «Frazioni» dividerebbero la ricerca in due.
+  const giaUsate = [...new Set(stato.registro.piani
+    .filter((p) => p.id !== base.id)
+    .flatMap((p) => p.tag ?? []))]
+    .sort((a, b) => a.localeCompare(b))
+
   return (
-    <div ref={corpo} className="modulo">
+    <div ref={corpo} className="modulo piano-editor__corpo">
       {/* Quel che c'è da sapere prima di toccare: corso mancante, ore che usano la
           scaletta, spunte e voti già usciti. */}
       {particolari.length > 0
@@ -389,10 +409,10 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
           )
         : null}
       {/* Nessun titolo: il nome si compone dal corso. Tre sezioni, nell'ordine in cui
-          si prepara: di che cosa parla l'ora (obiettivi e prerequisiti: quel che la
-          rende ritrovabile), come la si spende, che cosa serve. */}
-      <SezioneModulo titolo={t.diCheCosaParla}>
-        <Riga>{campoDelCorso}</Riga>
+          si prepara: di che cosa parla l'ora (obiettivi, prerequisiti, etichette:
+          quel che la rende ritrovabile), come la si spende, che cosa serve. */}
+      <SezionePiano titolo={t.diCheCosaParla}>
+        {campoDelCorso ? <Riga>{campoDelCorso}</Riga> : null}
         <Riga>
           <Campo
             nome="obiettivi"
@@ -413,16 +433,28 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
             larghezza="meta"
           />
         </Riga>
-      </SezioneModulo>
-      {/* La spiegazione dietro la «i»; che allegare salva il piano resta in vista. */}
-      <SezioneModulo titolo={{ testo: Uno(L.scaletta), aiuto: t.aiutoScaletta }}>
-        <p className="testo-quieto">{t.allegareSalva}</p>
-        <Pulsante
-          testo={testiProgetto().importa}
-          simbolo="progetto"
-          variante="sottile"
-          al={() => importaDalProgetto()}
+        <CampoEtichette
+          iniziali={base.tag ?? []}
+          suggerite={giaUsate}
+          alCambio={(nuove) => {
+            etichette.current = nuove
+            allaModifica()
+          }}
         />
+      </SezionePiano>
+      {/* Importare riscrive la scaletta: il comando sta nella sua testata, non fra le tappe. */}
+      <SezionePiano
+        titolo={Uno(L.scaletta)}
+        aiuto={t.aiutoScaletta}
+        azioni={(
+          <Pulsante
+            testo={testiProgetto().importa}
+            simbolo="progetto"
+            variante="fantasma"
+            al={() => importaDalProgetto()}
+          />
+        )}
+      >
         <div>
           {/* Un'importazione rifà da capo l'editor della scaletta, con le tappe nuove. */}
           <Fragment key={edizione}>
@@ -442,19 +474,193 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
             )}
           </Fragment>
         </div>
-      </SezioneModulo>
+      </SezionePiano>
       {/* Il materiale di tutta l'ora, non di una tappa (la dispensa, il video d'apertura). */}
-      <SezioneModulo titolo={{ testo: t.risorseDelPiano, aiuto: t.aiutoRisorse }}>
-        <div>
-          <BloccoRisorse
-            pianoId={base.id}
-            attivitaId={null}
-            risorse={risorsePiano}
-            prima={gestoreRisorse.prima}
-            dopo={gestoreRisorse.rinfrescaTutto}
-          />
-        </div>
-      </SezioneModulo>
+      <SezionePiano titolo={t.risorseDelPiano} aiuto={t.aiutoRisorse} classe="piano-risorse">
+        <BloccoRisorse
+          pianoId={base.id}
+          attivitaId={null}
+          risorse={risorsePiano}
+          prima={gestoreRisorse.prima}
+          dopo={gestoreRisorse.rinfrescaTutto}
+        />
+        {/* Solo nella finestra, dove si salva col pulsante: allegare salva prima, e
+            chi poi annulla deve saperlo. Nella pagina tutto si salva da sé. */}
+        {salvaDaSe ? null : <p className="testo-quieto piano-risorse__nota">{t.allegareSalva}</p>}
+      </SezionePiano>
+    </div>
+  )
+}
+
+/**
+ * Una sezione dell'editor: il titolo la nomina per chi la raggiunge coi punti
+ * di riferimento, e a destra può tenere i comandi che valgono per tutta lei.
+ */
+function SezionePiano ({ titolo, aiuto, azioni, classe, children }: {
+  titolo: string
+  aiuto?: string
+  azioni?: ReactNode
+  classe?: string
+  children?: ReactNode
+}): ReactElement {
+  const id = useId()
+  return (
+    <section className={classi('modulo__sezione', 'piano-sezione', classe)} aria-labelledby={id}>
+      <header className="piano-sezione__testata">
+        <h4 className="modulo__titolo-sezione" id={id}>
+          {titolo}
+          {aiuto ? <Suggerimento testo={aiuto} etichetta={titolo} /> : null}
+        </h4>
+        {azioni ? <div className="piano-sezione__azioni">{azioni}</div> : null}
+      </header>
+      {children}
+    </section>
+  )
+}
+
+/** Toglie gli spazi in più: « frazioni  equivalenti » è «frazioni equivalenti». */
+function rifila (testo: string): string {
+  return testo.trim().replace(/\s+/g, ' ')
+}
+
+/**
+ * Le etichette del piano come pastiglie: Invio o la virgola ne fanno una, la ×
+ * o Backspace a campo vuoto la tolgono. Ritrovano il piano nel navigatore e
+ * finiscono nel rapporto della lezione. Due uguali a meno delle maiuscole sono
+ * una sola.
+ */
+function CampoEtichette ({ iniziali, suggerite, alCambio }: {
+  iniziali: string[]
+  suggerite: string[]
+  alCambio: (etichette: string[]) => void
+}): ReactElement {
+  const t = testi()
+  const [etichette, impostaEtichette] = useState(iniziali)
+  // Due gesti nello stesso giro (Invio e poi l'uscita dal campo) leggono la
+  // lista dell'ultimo, non quella del disegno.
+  const ultime = useRef(iniziali)
+  const campo = useRef<HTMLInputElement | null>(null)
+  const idCampo = useId()
+  const idElenco = useId()
+  const idSpiegazione = useIdSuggerimento()
+
+  const cambia = (nuove: string[]): void => {
+    ultime.current = nuove
+    impostaEtichette(nuove)
+    alCambio(nuove)
+  }
+
+  /** Aggiunge quel che c'è scritto, anche più etichette separate da virgole. */
+  const aggiungi = (scritto: string): void => {
+    const nuove = [...ultime.current]
+    for (const pezzo of scritto.split(',')) {
+      const pulito = rifila(pezzo)
+      if (pulito && !nuove.some((e) => minuscolo(e) === minuscolo(pulito))) nuove.push(pulito)
+    }
+    if (nuove.length !== ultime.current.length) cambia(nuove)
+  }
+
+  const togli = (etichetta: string): void => {
+    cambia(ultime.current.filter((e) => e !== etichetta))
+    campo.current?.focus()
+  }
+
+  /** Fa pastiglia di quel che c'è nel campo e lo svuota. */
+  const conferma = (): void => {
+    const nodo = campo.current
+    if (!nodo || !nodo.value.trim()) return
+    aggiungi(nodo.value)
+    nodo.value = ''
+  }
+
+  const alTasto = (evento: KeyboardEvent<HTMLInputElement>): void => {
+    const nodo = evento.currentTarget
+    if (evento.key === ',' || (evento.key === 'Enter' && nodo.value.trim())) {
+      // Invio con del testo fa la pastiglia, e non arriva alla modale che salverebbe.
+      evento.preventDefault()
+      evento.stopPropagation()
+      conferma()
+    } else if (evento.key === 'Backspace' && nodo.value === '' && ultime.current.length > 0) {
+      evento.preventDefault()
+      cambia(ultime.current.slice(0, -1))
+    }
+  }
+
+  // Una voce scelta dall'elenco dei suggerimenti, o un incollato con le virgole,
+  // diventa subito pastiglia: non ci sarà un Invio.
+  const alTesto = (evento: FormEvent<HTMLInputElement>): void => {
+    const nativo = evento.nativeEvent
+    const nodo = evento.currentTarget
+    if (!(nativo instanceof InputEvent) || nativo.inputType === 'insertReplacementText') {
+      conferma()
+    } else if (nodo.value.includes(',')) {
+      const ultimaVirgola = nodo.value.lastIndexOf(',')
+      aggiungi(nodo.value.slice(0, ultimaVirgola))
+      nodo.value = nodo.value.slice(ultimaVirgola + 1).trimStart()
+    }
+  }
+
+  const proposte = suggerite.filter((s) => !etichette.some((e) => minuscolo(e) === minuscolo(s)))
+
+  return (
+    <div className="campo campo--piena campo-etichette">
+      <label className="campo__etichetta" htmlFor={idCampo}>
+        {t.etichette}
+        <Suggerimento testo={t.aiutoEtichette} etichetta={t.etichette} id={idSpiegazione} />
+      </label>
+      {/* Un clic nel riquadro, fra una pastiglia e l'altra, porta al campo. */}
+      <div
+        className="campo-etichette__riquadro"
+        onPointerDown={(evento) => {
+          if (evento.target === evento.currentTarget) {
+            evento.preventDefault()
+            campo.current?.focus()
+          }
+        }}
+      >
+        {etichette.length > 0
+          ? (
+              <ul className="campo-etichette__elenco" aria-label={t.etichette}>
+                {etichette.map((e) => (
+                  <li key={e} className="campo-etichette__voce">
+                    <span>{e}</span>
+                    <button
+                      type="button"
+                      className="campo-etichette__togli"
+                      aria-label={t.togliEtichetta(e)}
+                      title={t.togliEtichetta(e)}
+                      onClick={() => togli(e)}
+                    >
+                      <Icona nome="chiudi" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )
+          : null}
+        <input
+          ref={campo}
+          id={idCampo}
+          className="campo-etichette__campo"
+          type="text"
+          list={proposte.length > 0 ? idElenco : undefined}
+          placeholder={etichette.length === 0 ? t.segnapostoEtichette : t.altraEtichetta}
+          autoComplete="off"
+          aria-label={t.etichette}
+          aria-describedby={idSpiegazione}
+          data-fuoco="piano-etichette"
+          onKeyDown={alTasto}
+          onInput={alTesto}
+          onBlur={conferma}
+        />
+      </div>
+      {proposte.length > 0
+        ? (
+            <datalist id={idElenco}>
+              {proposte.map((s) => <option key={s} value={s} />)}
+            </datalist>
+          )
+        : null}
     </div>
   )
 }

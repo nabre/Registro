@@ -3,6 +3,7 @@
 // vista che le disegna e il percorso che le dice.
 
 import { NOMI_GENERE } from '#core/dominio/map.js'
+import { recuperiDellaLezione } from '#core/dominio/retakes.js'
 import type { NomeIcona } from './components/icons.js'
 import { AREE } from './views/settings/sections.js'
 import type { Lezione, ProgettoNelCorso } from '#core/dominio/models.js'
@@ -26,16 +27,25 @@ import { testi } from './tabs.testi.js'
 // lingua prima di caricare il resto e si ricarica quando cambia (`core/i18n/page.ts`).
 const t = testi()
 
-/** Le quattro linguette del registro dell'ora; quali valgono per un'ora lo dice `porzioniLezione`. */
+/**
+ * Le linguette del registro dell'ora, nell'ordine dei momenti: Inizio ora, il
+ * durante (Piano lezione, Valutazioni, Progetto), Fine ora. Quali valgono per
+ * un'ora lo dice `porzioniLezione`. I valori di prima (amministrazione,
+ * lezione, annotazioni) restano perché la memoria del pannello li ricorda
+ * (`SCHEDE_LEZIONE` di `memory.ts`): sono cambiati solo nomi e segni.
+ * Valutazioni sta accanto al piano perché le prove nascono dalle sue tappe;
+ * Progetto, che c'è solo a volte, chiude il durante senza spostare le altre.
+ */
 const PORZIONI_LEZIONE: ReadonlyArray<{
   valore: SchedaLezione
   testo: string
   simbolo: NomeIcona
 }> = [
-  { valore: 'amministrazione', testo: t.amministrazione, simbolo: 'todo' },
-  { valore: 'lezione', testo: t.lezione, simbolo: 'piano' },
+  { valore: 'amministrazione', testo: t.inizioOra, simbolo: 'todo' },
+  { valore: 'lezione', testo: Uno(lessico().pianoLezione), simbolo: 'piano' },
+  { valore: 'valutazioni', testo: t.valutazioni, simbolo: 'valutazioni' },
   { valore: 'progetto', testo: Uno(lessico().progetto), simbolo: 'progetto' },
-  { valore: 'annotazioni', testo: t.annotazioni, simbolo: 'matita' },
+  { valore: 'annotazioni', testo: t.fineOra, simbolo: 'bandiera' },
 ]
 
 /**
@@ -53,11 +63,27 @@ export function progettiDellOra (lezione: Lezione): ProgettoNelCorso[] {
   return progetti
 }
 
-/** Le linguette che valgono per quest'ora: Progetto solo se il piano ne nomina uno. */
+/**
+ * Se l'ora ha qualcosa da valutare: un momento nato qui, un recupero fissato
+ * per oggi, o una tappa del piano che sarà una prova. L'ultima basta perché la
+ * linguetta dica dove la prova nascerà, prima che la si crei dalla scaletta.
+ */
+function valutazioniDellOra (lezione: Lezione): boolean {
+  return stato.registro.valutazioni.some((v) => v.lezioneId === lezione.id) ||
+    (pianoPerId(lezione.pianoId)?.attivita ?? []).some((a) => a.valutazione) ||
+    recuperiDellaLezione(stato.registro, lezione).length > 0
+}
+
+/**
+ * Le linguette che valgono per quest'ora: senza contenuto non ci sono.
+ * Valutazioni solo se c'è qualcosa da valutare, Progetto solo se il piano ne
+ * nomina uno.
+ */
 export function porzioniLezione (lezione: Lezione | null) {
-  return lezione && progettiDellOra(lezione).length > 0
-    ? PORZIONI_LEZIONE
-    : PORZIONI_LEZIONE.filter((p) => p.valore !== 'progetto')
+  const conValutazioni = lezione !== null && valutazioniDellOra(lezione)
+  const conProgetto = lezione !== null && progettiDellOra(lezione).length > 0
+  return PORZIONI_LEZIONE.filter((p) =>
+    (p.valore !== 'valutazioni' || conValutazioni) && (p.valore !== 'progetto' || conProgetto))
 }
 
 /**

@@ -358,15 +358,6 @@ select.campo__controllo--selezione:disabled {
   font-size: var(--corpo-piccolo);
 }
 
-/* Il valore di una voce in sola lettura: all'altezza dei controlli accanto, ma
-   senza cornice, perché non è un campo. */
-.campo__dettato {
-  display: flex;
-  align-items: center;
-  min-height: var(--bersaglio-compatto);
-  color: var(--testo);
-}
-
 .campo--interruttore {
   flex-direction: row;
   align-items: center;

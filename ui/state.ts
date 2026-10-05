@@ -146,13 +146,12 @@ interface StatoLavoro {
 }
 
 /**
- * Le tre schede di una lezione: amministrazione (mentre la classe entra),
- * lezione (durante e dopo), annotazioni.
+ * Le schede di una lezione, per momento dell'ora: amministrazione (Inizio
+ * ora), lezione (Piano lezione), valutazioni, progetto, annotazioni (Fine
+ * ora). I valori restano
+ * quelli di prima perché la memoria li ricorda; i nomi li dà `tabs.ts`.
  */
 export type SchedaLezione = (typeof SCHEDE_LEZIONE)[number]
-
-/** I tre strumenti della lezione: valutazioni, pendenze, check. */
-export type SchedaStrumentiLezione = 'valutazioni' | 'pendenze' | 'check'
 
 /**
  * Le tre schede della scheda di una persona in formazione: anagrafica (chi è,
@@ -286,8 +285,6 @@ interface StatoUI {
   schedaComandi: 'pagina' | 'schermo';
   /** Quale scheda della lezione si sta guardando. */
   schedaLezione: SchedaLezione;
-  /** Quale strumento della lezione si sta guardando nel pannello destro (valutazioni, pendenze, check). */
-  schedaStrumentiLezione: SchedaStrumentiLezione;
   schedaPersona: SchedaPersona;
   /** Quale scheda delle pendenze si sta guardando ('tutte' o id corso/classe). */
   schedaTodo: string;
@@ -511,7 +508,6 @@ export const stato: StatoUI = {
   azioniNascoste: globali.azioniNascoste ?? false,
   schedaComandi: 'pagina',
   schedaLezione: globali.schedaLezione ?? 'amministrazione',
-  schedaStrumentiLezione: 'valutazioni',
   schedaPersona: globali.schedaPersona ?? 'anagrafica',
   schedaTodo: primaVoce?.schedaTodo ?? 'tutte',
   schedaDocente: derivatiIniziali.schedaDocente ?? 'todo',

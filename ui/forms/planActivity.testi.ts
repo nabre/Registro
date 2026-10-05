@@ -55,6 +55,12 @@ const it = {
   chiudiDettaglio: 'Chiudi il dettaglio',
   dettaglioTappa: 'Dettaglio della tappa',
   togliAttivita: 'Togli l’attività',
+  sforaDi: (minuti: number) => `Finisce ${minuti} min dopo la fine della lezione`,
+  sforoBreve: (minuti: number) => `+${minuti}′`,
+  quotaDelGruppo: (minuti: number, capienza: number, percento: number) =>
+    `Prende ${minuti} dei ${capienza} min del suo gruppo di UD (${percento} %)`,
+  quotaDellaScaletta: (minuti: number, totale: number, percento: number) =>
+    `Prende ${minuti} dei ${totale} min della scaletta (${percento} %)`,
 
   // Le intestazioni delle colonne.
   minuti: 'Minuti',
@@ -132,6 +138,12 @@ export const testi = catalogo(it, {
     chiudiDettaglio: 'Details schliessen',
     dettaglioTappa: 'Details der Etappe',
     togliAttivita: 'Aktivität entfernen',
+    sforaDi: (minuti) => `Endet ${minuti} Min. nach dem Ende der Stunde`,
+    sforoBreve: (minuti) => `+${minuti}′`,
+    quotaDelGruppo: (minuti, capienza, percento) =>
+      `Belegt ${minuti} von ${capienza} Min. ihrer Lektionengruppe (${percento} %)`,
+    quotaDellaScaletta: (minuti, totale, percento) =>
+      `Belegt ${minuti} von ${totale} Min. des Ablaufs (${percento} %)`,
 
     minuti: 'Minuten',
     quando: 'Wann',
@@ -204,6 +216,12 @@ export const testi = catalogo(it, {
     chiudiDettaglio: 'Fermer le détail',
     dettaglioTappa: 'Détail de l’étape',
     togliAttivita: 'Retirer l’activité',
+    sforaDi: (minuti) => `Finit ${minuti} min après la fin de la leçon`,
+    sforoBreve: (minuti) => `+${minuti}′`,
+    quotaDelGruppo: (minuti, capienza, percento) =>
+      `Occupe ${minuti} des ${capienza} min de son groupe de périodes (${percento} %)`,
+    quotaDellaScaletta: (minuti, totale, percento) =>
+      `Occupe ${minuti} des ${totale} min du déroulement (${percento} %)`,
 
     minuti: 'Minutes',
     quando: 'Quand',
@@ -273,6 +291,12 @@ export const testi = catalogo(it, {
     chiudiDettaglio: 'Close the details',
     dettaglioTappa: 'Step details',
     togliAttivita: 'Remove the activity',
+    sforaDi: (minuti) => `Ends ${minuti} min after the end of the lesson`,
+    sforoBreve: (minuti) => `+${minuti}′`,
+    quotaDelGruppo: (minuti, capienza, percento) =>
+      `Takes ${minuti} of the ${capienza} min of its period group (${percento}%)`,
+    quotaDellaScaletta: (minuti, totale, percento) =>
+      `Takes ${minuti} of the ${totale} min of the outline (${percento}%)`,
 
     minuti: 'Minutes',
     quando: 'When',

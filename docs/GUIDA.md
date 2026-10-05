@@ -77,8 +77,10 @@ Le tabelle complete stanno negli altri documenti: [INDICE](INDICE.md).
 
 - Dentro il documento stanno anche PDF, foto e loghi. Un file che deve esistere
   sul disco (lettore di sistema, pdfjs) si **materializza** in
-  `userData/materializzati/`, cache cancellata alla chiusura
-  (`core/dati/store.ts`).
+  `materializzati/` della cartella delle copie (`cartellaCopieUri`: su Windows
+  `%LOCALAPPDATA%\Regiklass`, fuori dal profilo che si sincronizza; altrove
+  `userData`), cache cancellata alla chiusura del documento e, se una
+  sessione è caduta, all'avvio (`core/dati/store.ts`).
 - Fuori restano solo `bozze/` (porta verso il programma di posta) e
   `versioni-precedenti/` (deve aprirla anche il registro di prima).
 - Le cartelle della disposizione vecchia accanto al documento (`archivio/`,
@@ -103,7 +105,7 @@ l'installato, `Regiklass - dati` accanto all'eseguibile per il portabile
 | `finestre.json` | posto e misura delle finestre, riletti solo se cadono in uno schermo attaccato |
 | `segreti.json` | accesso alla posta, cifrato con `safeStorage`; senza portachiavi non si scrive |
 | `interfaccia/` | stato del pannello che non è una preferenza |
-| `materializzati/` | cache dei file del documento aperti da fuori |
+| `materializzati/` | cache dei file del documento aperti da fuori (su Windows in `%LOCALAPPDATA%\Regiklass`) |
 | `tasselli/` | cache della mappa |
 | `anni-nuovi/` | anni non ancora salvati con nome |
 | cartella dei modelli | `.gguf` e programma delle scansioni |

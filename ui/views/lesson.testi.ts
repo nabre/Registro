@@ -41,8 +41,6 @@ const it = {
   riapri: 'Riapri',
   riapriTitolo: 'Rimette la lezione a «Modificabile», per correggerne il contenuto',
   aula: (aula: string) => ` · aula ${aula}`,
-  schedaValutazioni: 'Valutazioni',
-  schedaCheck: 'Check',
 }
 
 export const testi = catalogo(it, {
@@ -80,8 +78,6 @@ export const testi = catalogo(it, {
     riapri: 'Wieder öffnen',
     riapriTitolo: 'Setzt die Stunde wieder auf «Bearbeitbar», um ihren Inhalt zu korrigieren',
     aula: (aula) => ` · Zimmer ${aula}`,
-    schedaValutazioni: 'Beurteilungen',
-    schedaCheck: 'Check',
   },
   fr: {
     osservazioniAiuto:
@@ -117,8 +113,6 @@ export const testi = catalogo(it, {
     riapri: 'Rouvrir',
     riapriTitolo: 'Remet la leçon à « Modifiable », pour en corriger le contenu',
     aula: (aula) => ` · salle ${aula}`,
-    schedaValutazioni: 'Évaluations',
-    schedaCheck: 'Check',
   },
   en: {
     osservazioniAiuto:
@@ -153,7 +147,5 @@ export const testi = catalogo(it, {
     riapri: 'Reopen',
     riapriTitolo: 'Sets the lesson back to “Editable”, to correct its content',
     aula: (aula) => ` · room ${aula}`,
-    schedaValutazioni: 'Assessments',
-    schedaCheck: 'Check',
   },
 })

@@ -577,24 +577,28 @@ function PannelloAppello ({ lezione }: { lezione: Lezione }): ReactElement {
                           className={classi('appello__cella', unita.dopoUnaPausa && 'appello__cella--stacco')}
                           scope="col"
                         >
-                          <span className="appello__ud">{`${corto(L.unitaDidattica)} ${unita.indice + 1}`}</span>
-                          <span className="appello__ora">{unita.inizio}</span>
-                          <PulsanteStato
-                            stato={statoUniforme(colonna)}
-                            titolo={t.colonna(unita.indice + 1, unita.inizio, unita.fine)}
-                            // testo-fisso: chiave di fuoco
-                            fuoco={`colonna-${unita.indice}`}
-                            chiave={`${lezione.id}|colonna-${unita.indice}`}
-                            classe="stato-presenza--colonna"
-                            conRitardo={ammetteRitardo(unita)}
-                            al={(stato) =>
-                              azione({
-                                tipo: 'presenze.colonna',
-                                lezioneId: lezione.id,
-                                ud: unita.indice,
-                                stato,
-                              })}
-                          />
+                          {/* La stessa casella del corpo: testata e caselle restano in colonna
+                              anche dove c'è il posto per l'apice. */}
+                          <span className={classi('appello__casella', ammetteRitardo(unita) && 'appello__casella--ritardo')}>
+                            <span className="appello__ud">{`${corto(L.unitaDidattica)} ${unita.indice + 1}`}</span>
+                            <span className="appello__ora">{unita.inizio}</span>
+                            <PulsanteStato
+                              stato={statoUniforme(colonna)}
+                              titolo={t.colonna(unita.indice + 1, unita.inizio, unita.fine)}
+                              // testo-fisso: chiave di fuoco
+                              fuoco={`colonna-${unita.indice}`}
+                              chiave={`${lezione.id}|colonna-${unita.indice}`}
+                              classe="stato-presenza--colonna"
+                              conRitardo={ammetteRitardo(unita)}
+                              al={(stato) =>
+                                azione({
+                                  tipo: 'presenze.colonna',
+                                  lezioneId: lezione.id,
+                                  ud: unita.indice,
+                                  stato,
+                                })}
+                            />
+                          </span>
                         </th>
                       )
                     })}

@@ -19,7 +19,7 @@ const it = {
   niente:
     'In questa lezione non si è valutato niente. Un momento nasce dalla tappa del ' +
     'piano che dichiara di essere una prova: lo si crea dal suo pulsante, ' +
-    'qui sopra nella scaletta.',
+    'nella scaletta della scheda Piano lezione.',
 }
 
 export const testi = catalogo(it, {
@@ -42,7 +42,7 @@ export const testi = catalogo(it, {
     niente:
       'In dieser Stunde wurde nichts beurteilt. Eine Leistungsbeurteilung entsteht aus der ' +
       'Etappe des Plans, die sich als Prüfung ausweist: Man erstellt sie mit ihrem Knopf, ' +
-      'weiter oben im Ablauf.',
+      'im Ablauf des Reiters Unterrichtsplan.',
   },
   fr: {
     creaProva: 'Créer l’épreuve',
@@ -59,7 +59,7 @@ export const testi = catalogo(it, {
       `Une note s’écrit dans la case ; « ${sigla} » marque qui était absent, comme dans l’appel.`,
     niente:
       'Rien n’a été évalué dans cette leçon. Une évaluation naît de l’étape du plan qui se ' +
-      'déclare comme épreuve : on la crée depuis son bouton, plus haut dans le déroulement.',
+      'déclare comme épreuve : on la crée depuis son bouton, dans le déroulement de l’onglet Plan de leçon.',
   },
   en: {
     creaProva: 'Create the test',
@@ -75,6 +75,6 @@ export const testi = catalogo(it, {
       `Type a grade in the box; “${sigla}” marks who was absent, as in attendance.`,
     niente:
       'Nothing was assessed in this lesson. An assessment comes from the plan step that says ' +
-      'it’s a test: you create it from its button, above in the outline.',
+      'it’s a test: you create it from its button, in the outline of the Lesson plan tab.',
   },
 })

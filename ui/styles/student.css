@@ -570,10 +570,3 @@ button.matrice-presenze__segno:hover { outline: 2px solid var(--bordo); outline-
   letter-spacing: 0.04em;
   color: var(--testo-quieto);
 }
-
-/* Nella scaletta l'elenco si stringe: le risorse sono una postilla dell'attività. */
-.risorse--compatte { margin-top: var(--spazio-2); gap: var(--spazio-1); }
-.risorse--compatte .risorsa { padding: var(--spazio-1) var(--spazio-2); }
-.risorse--compatte .risorsa__miniatura { width: 40px; height: 30px; }
-.risorse--compatte .risorse__azioni { opacity: 0.55; }
-.scaletta__voce:hover .risorse--compatte .risorse__azioni { opacity: 1; }
