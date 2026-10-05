@@ -177,7 +177,11 @@
   background: var(--testo);
 }
 
-/* Il quadretto di un livello: numero bianco su colore, anche in legenda. */
+/*
+ * Il quadretto di un livello: numero su colore pieno, anche in legenda. Il
+ * numero prende `--su-tinta` come le altre tinte piene: bianco nel chiaro,
+ * quasi nero nello scuro, dove i colori di serie (tono 500) reggono meglio.
+ */
 .livello-progetto {
   display: inline-flex;
   align-items: center;
@@ -186,7 +190,7 @@
   height: 18px;
   padding: 0 4px;
   border-radius: 4px;
-  color: #fff;
+  color: var(--su-tinta);
   font-size: 0.8em;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

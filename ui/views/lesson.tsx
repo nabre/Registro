@@ -376,6 +376,8 @@ function pannelloStrumentiLezione (lezione: Lezione): ReactElement {
               strumenti === opz.id && 'selettore-strumenti__voce--attiva',
             )}
             type="button"
+            // La voce scelta si sente, non solo si vede: la classe attiva è solo colore.
+            aria-pressed={strumenti === opz.id}
             onClick={() => aggiorna({ schedaStrumentiLezione: opz.id })}
           >
             {opz.etichetta}

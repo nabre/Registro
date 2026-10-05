@@ -225,12 +225,23 @@ async function scriviRiga (
  * fuoco. Uscendone si richiude se `chiudi` lo dice: la tabella resta stretta
  * finché non c'è niente da scrivere. Aperto o chiuso è dello stato del
  * componente, come prima era del nodo.
+ *
+ * Chiuso con Invio o Esc, il fuoco torna sul pulsante che prende il posto del
+ * campo: altrimenti il campo sparisce col fuoco dentro e la tastiera riparte
+ * dal fondo della pagina.
  */
 function useApribile (chiudi: (campo: HTMLInputElement) => boolean) {
   const [aperto, impostaAperto] = useState(false)
   const campo = useRef<HTMLInputElement | null>(null)
+  const pulsante = useRef<HTMLButtonElement | null>(null)
   const daSelezionare = useRef(false)
+  const daRifocalizzare = useRef(false)
   useEffect(() => {
+    if (!aperto && daRifocalizzare.current) {
+      daRifocalizzare.current = false
+      pulsante.current?.focus()
+      return
+    }
     if (!aperto || !daSelezionare.current || !campo.current) return
     daSelezionare.current = false
     campo.current.focus()
@@ -240,6 +251,7 @@ function useApribile (chiudi: (campo: HTMLInputElement) => boolean) {
   return {
     aperto,
     campo,
+    pulsante,
     apri: () => {
       daSelezionare.current = true
       impostaAperto(true)
@@ -250,8 +262,22 @@ function useApribile (chiudi: (campo: HTMLInputElement) => boolean) {
         if (chiudi(evento.currentTarget)) impostaAperto(false)
       },
       onKeyDown: (evento: EventoTastiera<HTMLInputElement>) => {
-        if (evento.key === 'Enter') evento.currentTarget.blur()
-        if (evento.key === 'Escape') impostaAperto(false)
+        const el = evento.currentTarget
+        if (evento.key === 'Enter') {
+          // L'uscita manda il `change`; se il campo resta aperto (una nota
+          // scritta) il fuoco ci torna subito, già salvato. Senza
+          // `preventDefault` il tasto arriverebbe al pulsante appena preso il
+          // fuoco e riaprirebbe il campo.
+          evento.preventDefault()
+          const resta = !chiudi(el)
+          daRifocalizzare.current = !resta
+          el.blur()
+          if (resta) el.focus()
+        }
+        if (evento.key === 'Escape') {
+          daRifocalizzare.current = true
+          impostaAperto(false)
+        }
       },
     },
   }
@@ -268,7 +294,7 @@ function ApiceMinuti ({ minuti, titolo, fuoco, al }: {
   fuoco: string
   al: (minuti: number) => void
 }): ReactElement {
-  const { aperto, campo, apri, gesti } = useApribile(() => true)
+  const { aperto, campo, pulsante, apri, gesti } = useApribile(() => true)
   if (aperto) {
     return (
       <Input
@@ -292,6 +318,7 @@ function ApiceMinuti ({ minuti, titolo, fuoco, al }: {
   }
   return (
     <button
+      ref={pulsante}
       className={classi('appello__apice', minuti > 0 && 'appello__apice--detto')}
       type="button"
       data-fuoco={fuoco}
@@ -316,7 +343,8 @@ function CampoNota ({ nota, titolo, segnaposto, fuoco, al }: {
   fuoco: string
   al: (nota: string) => void
 }): ReactElement {
-  const { aperto, campo, apri, richiudi, gesti } = useApribile((aperta) => !aperta.value.trim())
+  const { aperto, campo, pulsante, apri, richiudi, gesti } =
+    useApribile((aperta) => !aperta.value.trim())
   // Aperta e lasciata con un testo resta aperta; se poi la nota si svuota da
   // fuori (annulla, un'altra lezione nella stessa riga) torna «+», salvo che
   // la si stia scrivendo.
@@ -343,6 +371,7 @@ function CampoNota ({ nota, titolo, segnaposto, fuoco, al }: {
   }
   return (
     <button
+      ref={pulsante}
       className="appello__aggiungi-nota"
       type="button"
       data-fuoco={fuoco}
@@ -421,7 +450,7 @@ function PannelloAppello ({ lezione }: { lezione: Lezione }): ReactElement {
             key={unita.indice}
             className={classi('appello__cella', unita.dopoUnaPausa && 'appello__cella--stacco')}
           >
-            <span className="appello__casella">
+            <span className={classi('appello__casella', ammetteRitardo(unita) && 'appello__casella--ritardo')}>
               <PulsanteStato
                 stato={stati[unita.indice]}
                 titolo={t.cella(nome, unita.indice + 1, unita.inizio, unita.fine)}

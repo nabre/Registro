@@ -251,12 +251,7 @@ function CorpoPiano ({ opzioni, base, maniglia }: {
       .map((o) => o.trim())
       .filter(Boolean),
     prerequisiti: testo(valori.prerequisiti),
-    tag: valori.tag !== undefined
-      ? String(valori.tag)
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : (base.tag ?? []),
+    tag: base.tag ?? [],
     risorse: risorse.current,
     attivita: attivita.current ?? [],
   })
