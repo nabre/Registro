@@ -410,8 +410,46 @@ test('progetti', async ({ browser }) => {
   const schede = ora.getByRole('radiogroup', { name: 'Scheda' })
   await expect(schede.getByRole('radio')).toHaveCount(3)
   await expect(schede.getByRole('radio', { name: 'Progetto' })).toHaveCount(0)
-  await expect(schede.getByRole('radio', { name: 'Amministrazione' })).toHaveAttribute('aria-checked', 'true')
+  await expect(schede.getByRole('radio', { name: 'Inizio ora' })).toHaveAttribute('aria-checked', 'true')
   expect(await valuta(page, 'prova.stato.schedaLezione')).toBe('progetto')
+
+  expect(errori, `errori JS: ${errori.join('\n')}`).toEqual([])
+})
+
+// Come Progetto, la linguetta Valutazioni c'è solo con qualcosa dentro: un
+// momento dell'ora o una tappa del piano che sarà una prova.
+test('la linguetta Valutazioni dell’ora solo con qualcosa da valutare', async ({ browser }) => {
+  const { page, errori } = await pannello(browser)
+  const apri = (conProva: boolean) => valuta(page, `() => {
+    const r = prova.stato.registro
+    const corso = r.corsi[0]
+    const base = r.lezioni.find((l) => l.corsoId === corso.id)
+    const t = '2026-09-01T08:00:00.000Z'
+    const tappa = { id: 'tv', titolo: 'Verifica', tipo: 'verifica', durataUd: 1, risorse: [],
+      valutazione: ${conProva} ? { titolo: 'Verifica', tipo: 'scritto', peso: 1 } : null }
+    const piano = { id: 'piano-val', corsoId: corso.id, obiettivi: [], prerequisiti: '',
+      attivita: [tappa], risorse: [], tag: [], creatoIl: t, aggiornatoIl: t }
+    const lezione = { ...base, id: 'lez-val', data: '2027-05-20', stato: 'pianificata', pianoId: 'piano-val' }
+    prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id: 'lez-val' } }, {
+      altro: { schedaLezione: 'valutazioni', registro: { ...r,
+        valutazioni: r.valutazioni.filter((v) => v.lezioneId !== 'lez-val'),
+        lezioni: [...r.lezioni.filter((l) => l.id !== 'lez-val'), lezione],
+        piani: [...r.piani.filter((p) => p.id !== 'piano-val'), piano] } },
+    })
+  }`)
+  const schede = page.getByRole('radiogroup', { name: 'Scheda' })
+
+  // Senza prove nel piano né momenti: niente linguetta, e la scelta ricordata ripiega sulla prima.
+  await apri(false)
+  await valuta(page, FOTOGRAMMA)
+  await expect(schede.getByRole('radio', { name: 'Valutazioni' })).toHaveCount(0)
+  await expect(schede.getByRole('radio', { name: 'Inizio ora' })).toHaveAttribute('aria-checked', 'true')
+
+  // Una tappa che sarà una prova: la linguetta c'è, a tutta larghezza.
+  await apri(true)
+  await valuta(page, FOTOGRAMMA)
+  await expect(schede.getByRole('radio', { name: 'Valutazioni' })).toHaveAttribute('aria-checked', 'true')
+  await expect(page.locator('[data-telaio="lezione:valutazioni"] [data-telaio="valutazioni-ora"]')).toHaveCount(1)
 
   expect(errori, `errori JS: ${errori.join('\n')}`).toEqual([])
 })

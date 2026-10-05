@@ -231,11 +231,17 @@
  * Le persone in riga, gli aspetti in colonna, un quadretto per incrocio.
  * Scorre di lato come l'appello (gli aspetti si aggiungono da Impostazioni) e
  * il nome resta fermo.
+ *
+ * Il telaio scorre di lato dentro la scheda. `contain` toglie la tabella dal
+ * calcolo della larghezza di chi la contiene: senza, la colonna della pagina si
+ * allargherebbe sulla matrice e le ultime caselle finirebbero tagliate fuori
+ * dalla scheda invece di scorrere.
  */
-.matrice__telaio { overflow-x: auto; }
+.matrice__telaio { overflow-x: auto; contain: inline-size; }
 
 .matrice {
-  width: 100%;
+  /* Larga quanto le sue colonne, come il check: stirata, il nome finirebbe lontano dalle caselle. */
+  width: max-content;
   border-collapse: collapse;
   font-size: 0.92em;
 }
@@ -247,33 +253,56 @@
   text-align: center;
 }
 
-/* I nomi delle colonne: piccoli e quieti, si leggono all'inizio. Restano in cima se la scheda scorre. */
+/*
+ * I nomi delle colonne si leggono dal basso in alto: le colonne restano strette
+ * e tutte uguali, quanto la casella, e il nome dell'aspetto si legge intero
+ * invece di andare a capo in tre righe. Uno lunghissimo si tronca; il `title`
+ * lo dice intero.
+ */
 .matrice__aspetto {
   position: sticky;
   top: 0;
   z-index: var(--piano-incollato);
-  max-width: 6.5rem;
+  width: 2.25rem;
+  min-width: 2.25rem;
+  vertical-align: bottom;
   padding-bottom: var(--spazio-1);
   background: var(--sfondo-alto);
-  font-size: 0.78em;
+  font-size: 0.8em;
   font-weight: 600;
   line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   color: var(--testo-quieto);
 }
 
-/* Il nome non scorre con le colonne. */
-.matrice__chi {
+.matrice__aspetto-testo {
+  display: inline-block;
+  max-height: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/*
+ * Il nome non scorre con le colonne, ed è largo quanto il più lungo. Il doppio
+ * nome pesa quanto `.matrice th`, che lo centrerebbe.
+ */
+.matrice .matrice__chi {
   position: sticky;
   left: 0;
   z-index: var(--piano-incollato-2);
-  min-width: 9rem;
   padding-right: var(--spazio-2);
   background: var(--sfondo-alto);
   font-weight: 500;
   text-align: left;
   white-space: nowrap;
+}
+
+/* L'angolo sopra i nomi resta fermo con loro, o le testate ci scorrerebbero sotto. */
+.matrice .matrice__angolo {
+  left: 0;
+  z-index: var(--piano-incollato-2);
 }
 
 /*
@@ -396,9 +425,21 @@
 .blocco-testo { margin-top: var(--spazio-3); }
 .blocco-testo p { margin: 0; white-space: pre-wrap; }
 
-/* La scaletta letta è la tabella dell'editor senza campi: numero, attività,
-   tipo, durata, e in aula anche orario, prova e stato. Le colonne stanno
-   sull'elenco e le righe le ereditano, così l'intestazione non si scosta. */
+/*
+ * La scaletta dell'ora: le tappe del piano con l'orario vero, i collegamenti e
+ * lo stato. Ogni pezzo della riga ha la sua area, così una tappa senza
+ * collegamenti non sposta lo stato. La riga si ricompone sulla larghezza della
+ * scaletta e non su quella della finestra: in aula sta in mezza pagina, nella
+ * finestra stretta in tutta. Stretta è un elenco di riquadri; larga, una
+ * tabella con i nomi delle colonne sopra.
+ */
+.scaletta-ora {
+  container: scaletta-ora / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spazio-1);
+}
+
 .scaletta {
   list-style: none;
   margin: 0;
@@ -406,46 +447,43 @@
   display: flex;
   flex-direction: column;
   gap: var(--spazio-1);
-  counter-reset: passo;
-  --griglia-scaletta: 22px minmax(8rem, 1fr) 8rem 5rem 7rem;
 }
 
-/* In aula due colonne in più: l'orologio e le spunte di che cosa si è fatto. */
-.scaletta--aula {
-  --griglia-scaletta: 22px minmax(8rem, 1fr) 8rem 5rem 7rem 6.5rem 5.5rem;
-}
-
+/*
+ * Il caso di tutti i giorni, mezza pagina: titolo e stato in cima, sotto tipo,
+ * durata e orario, poi i collegamenti e il resto. Niente spazio fra le righe
+ * della griglia ma un margine sui pezzi: una riga vuota (niente collegamenti)
+ * non lascia un buco.
+ */
 .scaletta__voce {
   display: grid;
-  grid-template-columns: var(--griglia-scaletta);
+  grid-template-columns: 22px auto auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "numero titolo titolo titolo stati"
+    "numero tipo   durata orario orario"
+    "numero prova  prova  prova  prova"
+    "numero estesa estesa estesa estesa";
   align-items: center;
   column-gap: var(--spazio-2);
-  row-gap: var(--spazio-1);
   padding: var(--spazio-2);
   border: 1px solid var(--bordo-tenue);
   border-radius: var(--raggio);
   background: var(--sfondo);
 }
 
-/* I nomi delle colonne non sono una riga di dati: niente cornice. */
-.scaletta__voce--intestazione {
-  padding: 0 var(--spazio-2);
-  border: 0;
-  background: none;
-  font-size: 0.76em;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--testo-quieto);
-}
+/* I nomi delle colonne servono solo quando le colonne ci sono. */
+.scaletta__voce--intestazione { display: none; }
 
 .scaletta__voce--svolta { border-left: 3px solid var(--positivo); }
 .scaletta__voce--parziale { border-left: 3px solid var(--attenzione); }
 .scaletta__voce--saltata { border-left: 3px solid var(--negativo); opacity: 0.6; }
 
 .scaletta__numero {
+  grid-area: numero;
+  align-self: start;
   width: 20px;
   height: 20px;
-  flex: none;
+  margin-top: 2px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -455,38 +493,86 @@
 }
 
 .scaletta__titolo {
+  grid-area: titolo;
   display: flex;
   align-items: center;
   gap: var(--spazio-1);
   flex-wrap: wrap;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-.scaletta__tipo { min-width: 0; }
+.scaletta__tipo { grid-area: tipo; min-width: 0; }
+.scaletta__durata { grid-area: durata; font-variant-numeric: tabular-nums; color: var(--testo-quieto); font-size: 0.9em; white-space: nowrap; }
+.scaletta__orario { grid-area: orario; }
+
 .scaletta__prova {
+  grid-area: prova;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--spazio-1);
   flex-wrap: wrap;
 }
-.scaletta__durata { font-variant-numeric: tabular-nums; color: var(--testo-quieto); font-size: 0.9em; }
+
+.scaletta__stati { grid-area: stati; justify-self: end; display: inline-flex; gap: 2px; }
+
+.scaletta__tipo,
+.scaletta__durata,
+.scaletta__orario,
+.scaletta__prova,
+.scaletta__estesa { margin-top: var(--spazio-1); }
 
 /* Quel che in una colonna non ci sta scende sotto, allineato al titolo. */
-.scaletta__estesa {
-  grid-column: 2 / -1;
-  min-width: 0;
+.scaletta__estesa { grid-area: estesa; min-width: 0; }
+
+.scaletta__descrizione { margin: 0; color: var(--testo-quieto); font-size: 0.92em; }
+
+/* Larga: una tabella, con le colonne fisse perché ogni riga è una griglia sua e i nomi sopra devono cadere in colonna. */
+@container scaletta-ora (min-width: 46rem) {
+  .scaletta__voce {
+    grid-template-columns: 22px minmax(8rem, 1fr) 8rem 4.5rem 7.5rem 7rem 6.5rem;
+    grid-template-areas:
+      "numero titolo tipo durata orario prova stati"
+      "numero estesa estesa estesa estesa estesa estesa";
+  }
+
+  .scaletta__tipo,
+  .scaletta__durata,
+  .scaletta__orario,
+  .scaletta__prova { margin-top: 0; }
+
+  .scaletta__stati { justify-self: start; }
+
+  .scaletta__voce--intestazione {
+    display: grid;
+    padding-block: 0;
+    /* Il bordo resta, trasparente: i nomi cadono sopra le colonne delle righe. */
+    border-color: transparent;
+    background: none;
+    font-size: 0.76em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--testo-quieto);
+  }
+
+  .scaletta__voce--intestazione .scaletta__numero { margin: 0; background: none; }
+  .scaletta__voce--intestazione > * { margin-top: 0; font-size: inherit; }
 }
 
-.scaletta__descrizione { margin: var(--spazio-1) 0 0; color: var(--testo-quieto); font-size: 0.92em; }
-.scaletta__stati { display: inline-flex; gap: 2px; }
+/* Strettissima: lo stato scende sotto l'orario, il titolo prende tutta la riga. */
+@container scaletta-ora (max-width: 22rem) {
+  .scaletta__voce {
+    grid-template-columns: 22px auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "numero titolo titolo titolo"
+      "numero tipo   durata orario"
+      "numero stati  stati  stati"
+      "numero prova  prova  prova"
+      "numero estesa estesa estesa";
+  }
 
-/* Pannello stretto: un elenco invece di una tabella schiacciata. */
-@media (max-width: 47.5em) {
-  .scaletta__voce { grid-template-columns: 22px minmax(0, 1fr); }
-  .scaletta__voce--intestazione { display: none; }
-  .scaletta__numero { grid-row: 1 / -1; }
-  .scaletta__voce > * { grid-column: 2; }
+  .scaletta__stati { justify-self: start; margin-top: var(--spazio-1); }
 }
 
 /* L'intervallo nella scaletta dell'ora, fra la tappa prima e quella dopo: è lì che la classe esce. */
@@ -499,14 +585,6 @@
   border-bottom: 1px dashed var(--bordo-tenue);
   font-size: 0.85em;
   color: var(--testo-quieto);
-}
-
-/* Quando cade la tappa, pause comprese. */
-.scaletta__orario {
-  font-size: 0.85em;
-  color: var(--testo-quieto);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .stato-attivita {
@@ -698,43 +776,15 @@
   min-width: 0;
 }
 
-/* Il selettore degli strumenti nella colonna destra della lezione */
-.selettore-strumenti {
-  display: flex;
-  gap: var(--spazio-1);
-  margin-bottom: var(--spazio-2);
-  padding: 2px;
-  background: var(--sfondo-alto);
-  border: 1px solid var(--bordo-tenue);
-  border-radius: var(--raggio);
-}
+/*
+ * Inizio ora: l'appello, con le sue colonne di UD e le note, ha bisogno di più
+ * posto delle pendenze accanto. Sotto la stessa soglia di `.colonne--lezione`
+ * (`containers.css`) torna una colonna sola.
+ */
+.colonne--amministrazione { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
 
-.selettore-strumenti__voce {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spazio-1);
-  min-height: var(--bersaglio-compatto);
-  padding: 4px 10px;
-  border: none;
-  border-radius: calc(var(--raggio) - 2px);
-  background: transparent;
-  color: var(--testo-quieto);
-  font: inherit;
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: background-color var(--durata-svelta) var(--curva),
-              color var(--durata-svelta) var(--curva);
-}
-
-.selettore-strumenti__voce:hover {
-  color: var(--testo);
-}
-
-.selettore-strumenti__voce--attiva {
-  background: var(--sfondo-rilievo);
-  color: var(--testo);
-  font-weight: 500;
-  box-shadow: var(--ombra-scheda), 0 0 0 1px var(--bordo-tenue);
+@media (max-width: 68.75em) {
+  .colonne--amministrazione { grid-template-columns: minmax(0, 1fr); }
 }
 
 .riquadro-collegamenti {
@@ -937,8 +987,11 @@ select.navigatore-registro__lezione:focus-visible {
   color: var(--testo-quieto);
 }
 
-/* L'orario vero dell'attività, accanto alla durata scritta. */
-.attivita-riga__orario {
+/*
+ * L'orario vero di una tappa, accanto alla durata scritta: nell'editor del
+ * piano e nella scaletta dell'ora (`OrarioTappa` in `forms/planActivity.tsx`).
+ */
+.orario-tappa {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -949,14 +1002,14 @@ select.navigatore-registro__lezione:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
-.attivita-riga__ore { white-space: nowrap; }
+.orario-tappa__ore { white-space: nowrap; }
 
 /* Oltre la fine dell'ora l'orologio continua, in rosso: quanto si sfora si legge, non si indovina dai puntini. */
-.attivita-riga__orario--sfora { color: var(--negativo); }
-.attivita-riga__sforo { font-weight: 600; white-space: nowrap; }
+.orario-tappa--sfora { color: var(--negativo); }
+.orario-tappa__sforo { font-weight: 600; white-space: nowrap; }
 
 /* La frase intera dello sforo, per chi legge lo schermo: a vista bastano il rosso e il «+». */
-.attivita-riga__per-lettori {
+.orario-tappa__per-lettori {
   position: absolute;
   width: 1px;
   height: 1px;

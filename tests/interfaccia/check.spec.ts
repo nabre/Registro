@@ -265,7 +265,7 @@ test('check', async ({ browser }) => {
     await expect(page.locator(`[data-fuoco="comando-${id}"]`)).toHaveCount(1)
   }
 
-  // Dentro un'ora: la stessa griglia nella scheda Amministrazione, e il clic
+  // Dentro un'ora: la stessa griglia nella scheda Inizio ora, e il clic
   // spunta in quell'ora.
   await valuta(page,
     "id => prova.vai({ pagina: 'pagina.corso.registro', soggetto: { tipo: 'lezione', id } }," +

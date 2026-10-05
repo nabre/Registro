@@ -99,8 +99,8 @@ const it = {
         testo:
           'Un clic su una lezione del calendario — con **Modifica** spenta —, o sull’ora ' +
           'proposta in fondo a sinistra, apre ' +
-          'la pagina **Lezione**: **Amministrazione** per appello e consegne, **Lezione** per ' +
-          'scaletta e valutazioni, **Annotazioni** per argomenti e osservazioni.',
+          'la pagina **Lezione**: **Inizio ora** per appello e consegne, **Piano lezione** per la ' +
+          'scaletta, **Valutazioni** per le prove, **Fine ora** per argomenti e osservazioni.',
       },
       {
         termine: 'Concludi la lezione',
@@ -844,7 +844,7 @@ const it = {
         termine: 'Nelle linguette',
         tasti: '← / →',
         testo:
-          'Nella lezione — **Amministrazione**, **Lezione**, **Annotazioni** — nella mappa e ' +
+          'Nella lezione — da **Inizio ora** a **Fine ora** — nella mappa e ' +
           'nella scheda di una persona le frecce girano fra le linguette.',
       },
       {
@@ -989,8 +989,8 @@ export const testi = catalogo(it, {
           testo:
             'Ein Klick auf eine Stunde im Kalender — mit ausgeschaltetem ' +
             '**Bearbeiten** — oder auf die vorgeschlagene Stunde unten links öffnet die Seite ' +
-            '**Stunde**: **Verwaltung** für Präsenzkontrolle und Aufträge, ' +
-            '**Unterricht** für Ablauf und Beurteilungen, **Notizen** für Themen und ' +
+            '**Stunde**: **Stundenbeginn** für Präsenzkontrolle und Aufträge, ' +
+            '**Unterrichtsplan** für den Ablauf, **Beurteilungen** für die Prüfungen, **Stundenende** für Themen und ' +
             'Beobachtungen.',
         },
         {
@@ -1766,7 +1766,7 @@ export const testi = catalogo(it, {
           termine: 'In Reitern',
           tasti: '← / →',
           testo:
-            'In der Stunde — **Verwaltung**, **Unterricht**, **Notizen** —, in der ' +
+            'In der Stunde — von **Stundenbeginn** bis **Stundenende** —, in der ' +
             'Karte und im Personenblatt wechseln die Pfeile zwischen den Reitern.',
         },
         {
@@ -1911,9 +1911,9 @@ export const testi = catalogo(it, {
           termine: 'Ouvrir la leçon',
           testo:
             'Un clic sur une leçon du calendrier — avec **Modifier** désactivé —, ou sur la ' +
-            'leçon proposée en bas à gauche, ouvre la page **Leçon** : **Administration** pour ' +
-            'l’appel et les devoirs, **Leçon** pour le déroulement et les évaluations, ' +
-            '**Annotations** pour les sujets et les observations.',
+            'leçon proposée en bas à gauche, ouvre la page **Leçon** : **Début de leçon** pour ' +
+            'l’appel et les devoirs, **Plan de leçon** pour le déroulement, **Évaluations** pour les épreuves, ' +
+            '**Fin de leçon** pour les sujets et les observations.',
         },
         {
           termine: 'Terminer la leçon',
@@ -2677,7 +2677,7 @@ export const testi = catalogo(it, {
           termine: 'Dans les onglets',
           tasti: '← / →',
           testo:
-            'Dans la leçon — **Administration**, **Leçon**, **Annotations** —, dans la carte ' +
+            'Dans la leçon — de **Début de leçon** à **Fin de leçon** —, dans la carte ' +
             'et dans la fiche d’une personne, les flèches passent d’un onglet à l’autre.',
         },
         {
@@ -2817,8 +2817,8 @@ export const testi = catalogo(it, {
           termine: 'Open the lesson',
           testo:
             'A click on a lesson in the calendar — with **Edit** off —, or on the lesson ' +
-            'suggested at the bottom left, opens the **Lesson** page: **Admin** for ' +
-            'attendance and assignments, **Lesson** for the outline and assessments, **Notes** ' +
+            'suggested at the bottom left, opens the **Lesson** page: **Lesson start** for ' +
+            'attendance and assignments, **Lesson plan** for the outline, **Assessments** for the tests, **Lesson end** ' +
             'for topics and observations.',
         },
         {
@@ -3564,7 +3564,7 @@ export const testi = catalogo(it, {
           termine: 'In tabs',
           tasti: '← / →',
           testo:
-            'In the lesson — **Admin**, **Lesson**, **Notes** — in the map and in a person’s ' +
+            'In the lesson — from **Lesson start** to **Lesson end** — in the map and in a person’s ' +
             'record the arrows move between the tabs.',
         },
         {

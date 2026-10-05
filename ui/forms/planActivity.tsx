@@ -64,6 +64,50 @@ import {
 } from './common.js'
 
 /**
+ * Quando cade una tappa sull'ora vera, intervalli compresi. Oltre la fine
+ * dell'ora non ci sono più UD né pause: l'orologio va avanti dalla fine della
+ * lezione, e quanto si sfora si dice in rosso invece dei puntini. L'editor e la
+ * scaletta dell'ora lo dicono allo stesso modo, per questo sta qui una volta.
+ */
+export function OrarioTappa ({ sulleUd, indice, classe }: {
+  sulleUd: ReturnType<typeof scalettaSulleUd>
+  indice: number
+  classe?: string
+}): ReactElement {
+  const t = testi()
+  const suo = sulleUd.posti[indice] ?? null
+  const fineLezione = sulleUd.blocchi.at(-1)?.fine ?? null
+  const sforo = suo ? suo.a - sulleUd.minutiLezione : 0
+  const oraInizio = suo?.oraInizio ??
+    (suo && fineLezione ? sommaMinuti(fineLezione, suo.da - sulleUd.minutiLezione) : null)
+  const oraFine = suo?.oraFine ??
+    (sforo > 0 && fineLezione ? sommaMinuti(fineLezione, sforo) : null)
+
+  return (
+    <span
+      className={classi('orario-tappa', classe, sforo > 0 && 'orario-tappa--sfora')}
+      title={sforo > 0 ? `${t.quandoCade} · ${t.sforaDi(sforo)}` : t.quandoCade}
+    >
+      {oraInizio && oraFine
+        ? <span className="orario-tappa__ore">{`${oraInizio}–${oraFine}`}</span>
+        : '—'}
+      {sforo > 0
+        ? (
+            <span className="orario-tappa__sforo">
+              {/* Il segno solo sulla tappa che comincia dentro e sfora: quelle
+                  tutte fuori stanno già sotto «Oltre la fine». */}
+              {suo?.ud !== null
+                ? <span aria-hidden="true">{t.sforoBreve(sforo)}</span>
+                : null}
+              <span className="orario-tappa__per-lettori">{t.sforaDi(sforo)}</span>
+            </span>
+          )
+        : null}
+    </span>
+  )
+}
+
+/**
  * Il legame fra un controllo e la «i» accanto alla sua etichetta: la
  * spiegazione nascosta lo descrive (`aria-describedby`) e il nome gli torna
  * con `aria-label`, perché il pulsante dentro la `<label>` farebbe «Peso
@@ -890,14 +934,6 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
       ? t.quotaDelGruppo(minuti, riferimento, percento)
       : t.quotaDellaScaletta(minuti, riferimento, percento)
 
-    // Oltre la fine dell'ora non ci sono più UD né pause: l'orologio va avanti
-    // dalla fine della lezione, e quanto si sfora si dice invece dei puntini.
-    const fineLezione = sulleUd?.blocchi.at(-1)?.fine ?? null
-    const sforo = sulleUd && suo ? suo.a - sulleUd.minutiLezione : 0
-    const oraInizio = suo?.oraInizio ??
-      (suo && fineLezione ? sommaMinuti(fineLezione, suo.da - (sulleUd?.minutiLezione ?? 0)) : null)
-    const oraFine = suo?.oraFine ??
-      (sforo > 0 && fineLezione ? sommaMinuti(fineLezione, sforo) : null)
     const dettagliId = `dettagli-tappa-${voce.id}` // testo-fisso: id del dettaglio
 
     // Il tipo è una pastiglia con la sua tinta, che premuta apre l'elenco: lascia
@@ -1007,30 +1043,7 @@ function EditorAttivita (opzioni: OpzioniEditorAttivita): ReactElement {
           <span className="attivita-riga__unita">{t.min}</span>
         </div>
         {/* L'ora dell'orologio, intervalli compresi; la colonna c'è solo con un'ora sotto. */}
-        {sulleUd
-          ? (
-              <span
-                className={classi('attivita-riga__orario', sforo > 0 && 'attivita-riga__orario--sfora')}
-                title={sforo > 0 ? `${t.quandoCade} · ${t.sforaDi(sforo)}` : t.quandoCade}
-              >
-                {oraInizio && oraFine
-                  ? <span className="attivita-riga__ore">{`${oraInizio}–${oraFine}`}</span>
-                  : '—'}
-                {sforo > 0
-                  ? (
-                      <span className="attivita-riga__sforo">
-                        {/* Il segno solo sulla tappa che comincia dentro e sfora: quelle
-                            tutte fuori stanno già sotto «Oltre la fine». */}
-                        {suo?.ud !== null
-                          ? <span aria-hidden="true">{t.sforoBreve(sforo)}</span>
-                          : null}
-                        <span className="attivita-riga__per-lettori">{t.sforaDi(sforo)}</span>
-                      </span>
-                    )
-                  : null}
-              </span>
-            )
-          : null}
+        {sulleUd ? <OrarioTappa sulleUd={sulleUd} indice={indice} classe="attivita-riga__orario" /> : null}
         <div className="attivita-riga__azioni">
           <Pulsante
             simbolo={aperta ? 'su' : 'giu'}

@@ -74,10 +74,11 @@ const PAGINA_LEZIONE = disegno(
   testo(592, 77, T.lezione.scritte.posizione, { corpo: 'piccolo', tono: 'quieto', ancora: 'fine' }),
   testo(142, 106, 'I MEC A', { corpo: 'piccolo', forte: true }),
   testo(190, 106, T.lezione.scritte.testata, { corpo: 'piccolo', tono: 'quieto' }),
-  // Le tre schede.
-  riquadro(142, 126, 120, 20, { tono: 'accento', etichetta: T.lezione.scritte.amministrazione }),
-  riquadro(266, 126, 80, 20, { etichetta: T.lezione.scritte.schedaLezione }),
-  riquadro(350, 126, 100, 20, { etichetta: T.lezione.scritte.annotazioni }),
+  // Le schede, nell'ordine dell'ora; Progetto non c'è, come in un'ora senza progetto.
+  riquadro(142, 126, 108, 20, { tono: 'accento', etichetta: T.lezione.scritte.amministrazione }),
+  riquadro(254, 126, 108, 20, { etichetta: T.lezione.scritte.schedaLezione }),
+  riquadro(366, 126, 108, 20, { etichetta: T.lezione.scritte.valutazioni }),
+  riquadro(478, 126, 108, 20, { etichetta: T.lezione.scritte.annotazioni }),
   // Le due colonne della scheda scelta: l'appello; pendenze, check e prove.
   riquadro(142, 154, 236, 70, { tono: 'neutro' }),
   testo(152, 170, T.lezione.scritte.appello, { forte: true }),

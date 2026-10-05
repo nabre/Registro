@@ -32,6 +32,7 @@ import {
 } from '#ui/components/base.js'
 import { Icona } from '#ui/components/icons.js'
 import { moduloAssegnaPiano } from '#ui/forms.js'
+import { OrarioTappa } from '#ui/forms/planActivity.js'
 import { azione } from '#ui/bridge.js'
 import { aggiorna, classeDelCorsoId, pianoPerId, stato, uriDato, vai } from '#ui/state.js'
 import { moduloSpunta } from '#ui/views/assignments.js'
@@ -108,7 +109,7 @@ function pulsantePendenza (lezione: Lezione, attivita: Attivita): ReactNode {
         simbolo="allegato"
         variante="sottile"
         titolo={t.pendenze}
-        al={() => aggiorna({ schedaStrumentiLezione: 'pendenze' })}
+        al={() => aggiorna({ schedaLezione: 'amministrazione' })}
       />
     )
   }
@@ -128,7 +129,7 @@ function pulsantePendenza (lezione: Lezione, attivita: Attivita): ReactNode {
       titolo={t.apriPendenza(consegna.testo)}
       al={() => {
         moduloSpunta(consegna.id, { lezione })
-        aggiorna({ schedaStrumentiLezione: 'pendenze' })
+        aggiorna({ schedaLezione: 'amministrazione' })
       }}
     />
   )
@@ -153,7 +154,7 @@ function pulsanteCheck (lezione: Lezione, attivita: Attivita): ReactNode {
         simbolo="check"
         variante="sottile"
         titolo={t.check}
-        al={() => aggiorna({ schedaStrumentiLezione: 'check' })}
+        al={() => aggiorna({ schedaLezione: 'amministrazione' })}
       />
     )
   }
@@ -177,7 +178,7 @@ function pulsanteCheck (lezione: Lezione, attivita: Attivita): ReactNode {
       variante={completato ? 'fantasma' : 'sottile'}
       titolo={t.apriCheck(colonne.map((c) => c.titolo).join(', '))}
       al={() => {
-        aggiorna({ schedaStrumentiLezione: 'check' })
+        aggiorna({ schedaLezione: 'amministrazione' })
       }}
     />
   )
@@ -199,17 +200,22 @@ function pulsanteProgetto (lezione: Lezione, attivita: Attivita): ReactNode {
   )
 }
 
-/** Una tappa della scaletta: titolo, tipo, durata, orario vero, collegamenti e stato. */
+/**
+ * Una tappa della scaletta: titolo, tipo, durata, orario vero, collegamenti e
+ * stato. Ogni pezzo ha la sua area nella griglia, così una colonna vuota (una
+ * tappa senza collegamenti) non sposta le altre.
+ */
 function vocePiano (
   lezione: Lezione,
   pianoId: string,
   attivita: Attivita,
   indice: number,
   corrente: StatoAttivita,
-  orario: ReturnType<typeof scalettaSulleUd>['posti'][number] | undefined,
-  minutiPerUd: number,
+  posata: ReturnType<typeof scalettaSulleUd>,
 ): ReactElement {
   const t = testi()
+  const orario = posata.posti[indice]
+  const titolo = attivita.titolo || parole().senzaTitolo
   const parametri = riassuntoParametri(attivita, stato.registro.impostazioni)
   const pendenza = attivitaConPendenza(attivita)
   const colonne = colonneDelCheck(lezione, attivita)
@@ -217,35 +223,44 @@ function vocePiano (
     ? stato.registro.consegne.find((x) => x.id === pendenza)
     : undefined
 
+  // Strumenti collegati: prova, pendenze, check, progetto.
+  const valutazione = attivitaValutata(attivita) ? pulsanteValutazione(lezione, attivita) : null
+  const conPendenza = pendenza ? pulsantePendenza(lezione, attivita) : null
+  const conCheck = pulsanteCheck(lezione, attivita)
+  const conProgetto = pulsanteProgetto(lezione, attivita)
+
   return (
     <li className={classi('scaletta__voce', `scaletta__voce--${corrente}`)}>
-      <span className="scaletta__numero">{String(indice + 1)}</span>
+      {/* Il numero lo dice già l'elenco a chi legge lo schermo. */}
+      <span className="scaletta__numero" aria-hidden="true">{String(indice + 1)}</span>
       <div className="scaletta__titolo">
-        <strong>{attivita.titolo || parole().senzaTitolo}</strong>
+        <strong>{titolo}</strong>
         {orario?.oltreLaPausa ? <Pastiglia testo={t.aCavallo} tono="attenzione" /> : null}
       </div>
       <span className="scaletta__tipo">
         <Pastiglia testo={nomeTipoAttivita(attivita.tipo, stato.registro.impostazioni)} tono="quiete" />
       </span>
-      <span className="scaletta__durata">{formattaDurata(minutiAttivita(attivita, minutiPerUd))}</span>
-      {/* Quando cade davvero, pause comprese. */}
-      <span className="scaletta__orario">
-        {orario?.oraInizio ? `${orario.oraInizio}–${orario.oraFine ?? '…'}` : '—'}
-      </span>
-      {/* Strumenti collegati: prova, pendenze, check, progetto. */}
-      <span className="scaletta__prova">
-        {attivitaValutata(attivita) ? pulsanteValutazione(lezione, attivita) : null}
-        {pendenza ? pulsantePendenza(lezione, attivita) : null}
-        {pulsanteCheck(lezione, attivita)}
-        {pulsanteProgetto(lezione, attivita)}
-      </span>
-      <span className="scaletta__stati">
+      <span className="scaletta__durata">{formattaDurata(minutiAttivita(attivita, posata.minutiPerUd))}</span>
+      {/* Quando cade davvero, pause comprese; oltre la fine dell'ora come nell'editor del piano. */}
+      <OrarioTappa sulleUd={posata} indice={indice} classe="scaletta__orario" />
+      {valutazione || conPendenza || conCheck || conProgetto
+        ? (
+            <span className="scaletta__prova">
+              {valutazione}
+              {conPendenza}
+              {conCheck}
+              {conProgetto}
+            </span>
+          )
+        : null}
+      <div className="scaletta__stati" role="group" aria-label={t.avanzamentoDi(titolo)}>
         {STATI_ATTIVITA.map((voce) => (
           <button
             key={voce.valore}
             className={classi('stato-attivita', corrente === voce.valore && 'stato-attivita--attivo')}
             type="button"
             title={t.stati[voce.valore]}
+            aria-label={t.stati[voce.valore]}
             aria-pressed={corrente === voce.valore}
             onClick={() =>
               void azione({
@@ -258,7 +273,7 @@ function vocePiano (
             {voce.sigla}
           </button>
         ))}
-      </span>
+      </div>
       {/* Descrizione e parametri scendono sotto, allineati al titolo. */}
       {attivita.descrizione || parametri || attivita.risorse.length > 0 || pendenza ||
         colonneCheckDi(attivita).length > 0
@@ -335,8 +350,6 @@ export function pannelloPiano (lezione: Lezione): ReactElement {
   return (
     <Scheda
       titolo={Uno(L.pianoLezione)}
-      // Senza riquadro: il piano sta sulla pagina, le sue tappe sono i riquadri.
-      classe="scheda--nuda"
       // Il sottotitolo dice quanto pesa la scaletta, non il nome del piano.
       sottotitolo={`${quanti(piano.attivita.length, L.attivita)} · ${durata}`}
       azioni={(
@@ -395,42 +408,46 @@ export function pannelloPiano (lezione: Lezione): ReactElement {
               </div>
             )
           : null}
-        <ol className="scaletta scaletta--aula">
-          {/* I nomi delle colonne della scaletta. */}
-          <li className="scaletta__voce scaletta__voce--intestazione">
+        {/* La griglia delle righe si ricompone sullo spazio della scaletta, non
+            della finestra: la colonna della lezione è mezza pagina. */}
+        <div className="scaletta-ora">
+          {/* I nomi delle colonne sono per l'occhio: ogni riga si legge da sé. */}
+          <div className="scaletta__voce scaletta__voce--intestazione" aria-hidden="true">
             {/* testo-fisso: il segno del numero d'ordine */}
-            <span>#</span>
-            <span>{Uno(L.attivita)}</span>
-            <span>{parole().tipo}</span>
-            <span>{t.durata}</span>
-            <span>{t.quando}</span>
-            <span>{t.collegamenti}</span>
-            <span>{parole().stato}</span>
-          </li>
-          {piano.attivita.map((attivita, indice) => {
-            const corrente = perAttivita.get(attivita.id)?.stato ?? 'da-fare'
-            const dove = posata.posti[indice]
-            const apre = bloccoDi(dove?.ud)
-            const chiudeLaPrima = indice > 0 ? bloccoDi(posata.posti[indice - 1]?.udFine) : null
-            const stacco =
-              apre !== null && chiudeLaPrima !== null && apre !== chiudeLaPrima
-                ? posata.blocchi[apre]
-                : null
-            return (
-              <Fragment key={attivita.id}>
-                {stacco
-                  ? (
-                      <li className="scaletta__pausa">
-                        <Icona nome="pausa" classe="icona--minuta" />
-                        <span>{t.intervallo(stacco.pausaPrima)}</span>
-                      </li>
-                    )
-                  : null}
-                {vocePiano(lezione, piano.id, attivita, indice, corrente, dove, posata.minutiPerUd)}
-              </Fragment>
-            )
-          })}
-        </ol>
+            <span className="scaletta__numero">#</span>
+            <span className="scaletta__titolo">{Uno(L.attivita)}</span>
+            <span className="scaletta__tipo">{parole().tipo}</span>
+            <span className="scaletta__durata">{t.durata}</span>
+            <span className="scaletta__orario">{t.quando}</span>
+            <span className="scaletta__prova">{t.collegamenti}</span>
+            <span className="scaletta__stati">{parole().stato}</span>
+          </div>
+          <ol className="scaletta scaletta--aula" aria-label={Uno(L.pianoLezione)}>
+            {piano.attivita.map((attivita, indice) => {
+              const corrente = perAttivita.get(attivita.id)?.stato ?? 'da-fare'
+              const dove = posata.posti[indice]
+              const apre = bloccoDi(dove?.ud)
+              const chiudeLaPrima = indice > 0 ? bloccoDi(posata.posti[indice - 1]?.udFine) : null
+              const stacco =
+                apre !== null && chiudeLaPrima !== null && apre !== chiudeLaPrima
+                  ? posata.blocchi[apre]
+                  : null
+              return (
+                <Fragment key={attivita.id}>
+                  {stacco
+                    ? (
+                        <li className="scaletta__pausa">
+                          <Icona nome="pausa" classe="icona--minuta" />
+                          <span>{t.intervallo(stacco.pausaPrima)}</span>
+                        </li>
+                      )
+                    : null}
+                  {vocePiano(lezione, piano.id, attivita, indice, corrente, posata)}
+                </Fragment>
+              )
+            })}
+          </ol>
+        </div>
       </div>
     </Scheda>
   )

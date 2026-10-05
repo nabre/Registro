@@ -36,7 +36,7 @@ const TIPI_SOGGETTO: readonly TipoSoggetto[] = [
 // Gli elenchi chiusi delle preferenze di forma stanno qui e `state.ts` li
 // importa: la lettura li convalida, lo stato ne ricava i tipi. Un valore che
 // non c'è più si scarta e `state.ts` rimette il predefinito.
-export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'progetto', 'annotazioni'] as const
+export const SCHEDE_LEZIONE = ['amministrazione', 'lezione', 'valutazioni', 'progetto', 'annotazioni'] as const
 export const SCHEDE_PERSONA = ['anagrafica', 'docenteClasse', 'materie'] as const
 export const SCHEDE_DOCUMENTI = ['corso', 'classe', 'allievi', 'lezioni', 'docente'] as const
 export const SCHEDE_MAPPA = ['tutti', 'lavoro', 'domicilio'] as const

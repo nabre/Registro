@@ -36,6 +36,8 @@ const it = {
   apriProgetto: (titolo: string) => `Progetto «${titolo}»: apri la scheda Progetto`,
   intervallo: (minuti: number) => `Intervallo · ${minuti} min`,
   aCavallo: 'a cavallo dell’intervallo',
+  /** Il nome del gruppo dei pulsanti di stato di una tappa. */
+  avanzamentoDi: (titolo: string) => `Avanzamento di «${titolo}»`,
 }
 
 export const testi = catalogo(it, {
@@ -70,6 +72,7 @@ export const testi = catalogo(it, {
     apriProgetto: (titolo) => `Projekt «${titolo}»: Registerkarte Projekt öffnen`,
     intervallo: (minuti) => `Pause · ${minuti} Min.`,
     aCavallo: 'über die Pause hinweg',
+    avanzamentoDi: (titolo) => `Fortschritt von «${titolo}»`,
   },
   fr: {
     stati: {
@@ -101,6 +104,7 @@ export const testi = catalogo(it, {
     apriProgetto: (titolo) => `Projet « ${titolo} » : ouvrir l’onglet Projet`,
     intervallo: (minuti) => `Pause · ${minuti} min`,
     aCavallo: 'à cheval sur la pause',
+    avanzamentoDi: (titolo) => `Avancement de « ${titolo} »`,
   },
   en: {
     stati: {
@@ -131,5 +135,6 @@ export const testi = catalogo(it, {
     apriProgetto: (titolo) => `Project “${titolo}”: open the Project tab`,
     intervallo: (minuti) => `Break · ${minuti} min`,
     aCavallo: 'across the break',
+    avanzamentoDi: (titolo) => `Progress of “${titolo}”`,
   },
 })
