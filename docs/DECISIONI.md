@@ -240,7 +240,7 @@ Una chiave scritta da un gesto (`CHIAVI_DEL_COLLEGAMENTO`: casella e mittente,
 da «Collega la casella») si mostra in sola lettura e non si ritira, in tutte e
 due le superfici. Una dipendenza che il programma rispetta si dichiara
 (`dipendeDa`), perché le superfici non mostrino accesa una voce senza effetto.
-Il come: skill `impostazione`; il riordino: [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md).
+Il come, e il sistema delle pagine: skill `impostazione`.
 
 **Dove.** `contract/manifest.ts`, `desktop/apparato/settings.ts`.
 
@@ -522,7 +522,7 @@ omonimi da dichiarare). Il come: skill `testi`.
   due le tavolozze), `--raggio-scheda`; raggi 12/8/6. Colori di base invariati
   (ricopiati in `desktop/apparato/theme.ts` e nell'installatore). Carattere di
   sistema.
-- Componenti: titolo di pagina (`testataVista`), tessere KPI, tabelle con
+- Componenti: titolo di pagina (`<TestataVista>`), tessere KPI, tabelle con
   intestazione tenue, avatar (`ui/components/avatar.tsx`), stati vuoti,
   segmenti a pillola.
 - Navigazione: **Dashboard** (vista `oggi`, solo collegamenti, ADR-07), barra
@@ -859,8 +859,8 @@ Come sono entrate:
   Entrata dove `tests/interfaccia/misure.spec.ts` misurava secondi: colonne dei
   voti e dell'archivio (da 20), elenco delle persone (da 60). Si finestrano solo
   le colonne: le righe le limita la classe. Solo l'elemento col fuoco porta
-  `data-chiave`, perché spostare un `th` con `moveBefore` fa cadere Chromium
-  153. La correzione dello scorrimento della libreria è spenta.
+  `data-chiave`: è quello che il fuoco ritrova dopo un ridisegno. La correzione
+  dello scorrimento della libreria è spenta.
 
 **Perché.** «Niente librerie nuove» proteggeva da riscritture e da dipendenze opache,
 ma lasciava da mantenere in casa quel che altri mantengono meglio (schemi, confronto
@@ -1069,7 +1069,7 @@ pila sola. Menu, palette e notifiche si aprono con una chiamata e hanno anche
 loro una radice propria. I campi tengono la regola di prima: il valore dello stato entra
 solo quando cambia e il campo non ha il fuoco, e `onCambio` è il `change` del
 browser (`ui/fields.tsx`). Avvio e lettore PDF restano senza React. Come si
-scrive: skill `react`; i cambi di comportamento ancora da confermare: [PIANO-REACT](PIANO-REACT.md).
+scrive: skill `react`; i cambi di comportamento ancora da confermare: CANTIERE, «Da provare a mano».
 
 **Perché.** Il motore in casa (`h()`, telaio, isole, `data-tieni`, idiomorph,
 gestori per delega) rifaceva a mano quel che la riconciliazione fa da sé, e
@@ -1123,6 +1123,27 @@ Scelte che il codice applica senza un ADR; il perché è ricostruito.
    preserva la reattività immediata dell'interfaccia senza flicker o latenze
    IPC; le procedure RPC corrispondenti (`corso.presenze`, `registro.integrita`)
    restano il punto d'accesso strutturato per client esterni, CLI e assistente.
+
+### ADR-57 — Resta Electron e TypeScript: nessuna riscrittura in Python
+
+**Decisione.** Il registro resta Electron e TypeScript. Non si riscrive in
+Python, né tutto (Qt) né come backend sotto l'interfaccia di oggi
+(pywebview). Python va bene solo per strumenti di sviluppo isolati, come
+`tools/calendario/estrai_calendario_ticino.py`.
+
+**Perché.** Valutazione del 2026-10-01 (~325 mila righe, ~3 200 prove): Python
+non porta niente che manchi, perché modelli, OCR, PDF, posta e OneDrive sono
+già locali e funzionano. Lo scenario minimo serio costava 20–40 persona-mesi
+per tornare dove si è, e si perdevano i cataloghi tipizzati (ADR-38), il
+lessico, il contratto con il condotto, gli strati verificati, immer per la
+storia (ADR-50) e la distribuzione già provata (ADR-40). L'analisi intera, con
+i quattro scenari e il piano a fasi, sta nella storia di git: la
+«Valutazione Python» di `docs/`, fino al commit che l'ha tolta.
+
+**Quando si riapre.** Electron bloccato a scuola o firma non più ottenibile;
+una funzione che esiste solo in Python (allora come servizio esterno, non
+riscrittura); più utenti o un server; chi mantiene il progetto sa Python e non
+TypeScript. Se il problema è la memoria di Chromium, si guarda prima Tauri.
 
 ### Estensione di ADR-54: scaletta del progetto e piani collegati (2026-10-02)
 

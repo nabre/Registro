@@ -1,7 +1,7 @@
 // Il dialogo «Informazioni documento»: quale file è aperto, dove sta, che cosa
 // contiene e se i riferimenti tornano. Le azioni di file (aprire, un anno nuovo,
 // OneDrive) stanno nel menu «File» e in Ctrl+K, non qui né nelle impostazioni
-// (`docs/PIANO-IMPOSTAZIONI.md` § 3.1); qui restano i gesti su questo file.
+// (skill `impostazione`, § «Il sistema delle pagine»); qui restano i gesti su questo file.
 
 import { useLayoutEffect, useReducer, type ReactElement } from 'react'
 

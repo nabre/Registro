@@ -6,7 +6,7 @@ description: Come si scrive un pezzo d'interfaccia di Regiklass in React (ADR-56
 # Interfaccia in React
 
 Il perché: ADR-56 in `docs/DECISIONI.md`; i cambi di comportamento della
-conversione ancora da confermare: `docs/PIANO-REACT.md`; la conversione stessa
+conversione ancora da confermare: `docs/CANTIERE.md`, «Da provare a mano»; la conversione stessa
 sta nella storia di git. Qui: come si scrive.
 
 ## Come gira

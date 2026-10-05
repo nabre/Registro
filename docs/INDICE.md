@@ -13,9 +13,6 @@ guida d'uso è nell'applicazione (`F1`, o la pagina «Guida»), in
 | [API.md](API.md) | il contratto: le 231 procedure, il canale delle domande, il condotto, la riga di comando, l'assistente | si scrive una procedura o uno script, si tocca l'assistente |
 | [DECISIONI.md](DECISIONI.md) | perché è così, e che cosa non si può rompere | si sta per cambiare qualcosa di strutturale |
 | [CANTIERE.md](CANTIERE.md) | il lavoro aperto, per area | si riprende in mano il lavoro |
-| [PIANO-IMPOSTAZIONI.md](PIANO-IMPOSTAZIONI.md) | il riordino delle pagine Impostazioni, fatto: il sistema in vigore (aree, sezioni, regola del tipo di input) e gli inventari di partenza | si mette mano alle pagine Impostazioni |
-| [VALUTAZIONE-PYTHON.md](VALUTAZIONE-PYTHON.md) | se convenga riscrivere il registro in Python: scenari, sforzo, rischi, raccomandazione | si ripropone un cambio di linguaggio o di guscio |
-| [PIANO-REACT.md](PIANO-REACT.md) | la conversione a React, fatta: i tre cambi di comportamento ancora da confermare (le regole stanno nella skill `react`) | si decide su quei tre cambi |
 
 ## Da dove cominciare
 

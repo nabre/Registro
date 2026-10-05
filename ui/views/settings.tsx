@@ -86,7 +86,7 @@ function vociDi (id: SezioneImpostazioni): ReactNode {
 /**
  * Che cosa disegna ciascuna sezione, blocco per blocco, sempre nello stesso
  * ordine: prima lo stato e i gesti, poi le scelte, e in fondo le avanzate,
- * chiuse (`docs/PIANO-IMPOSTAZIONI.md` § 3.1).
+ * chiuse (skill `impostazione`, § «Il sistema delle pagine»).
  */
 const BLOCCHI: Readonly<Record<SezioneImpostazioni, readonly Blocco[]>> = {
   // «Questo file» è il dialogo «Informazioni documento», aprire e creare un

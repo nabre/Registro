@@ -1,7 +1,7 @@
 // Il controllo di un'impostazione del programma, disegnato una volta sola per
 // il pannello e per la finestra nativa (ADR-52), in React (ADR-56). Dalla
 // `VoceProgramma` sceglie il disegno con la regola del tipo di input (§ 3.5 di
-// `docs/PIANO-IMPOSTAZIONI.md`): figura, segmentato, tendina, interruttore,
+// `.claude/skills/impostazione/SKILL.md` § «Il sistema delle pagine»): figura, segmentato, tendina, interruttore,
 // numero con unità, cursore, percorso, testo.
 //
 // Non sa di ponti né di messaggi: il valore esce da `quandoCambia`, e ogni
