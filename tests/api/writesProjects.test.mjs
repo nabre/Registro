@@ -516,7 +516,9 @@ describe('progetti: l’integrazione nei corsi', () => {
     momento.progettoId = progetto.id
     await riuscita('valutazioni.salva', { valutazione: momento })
 
-    await riuscita('progetti.integrazione.togli', { progettoId: progetto.id, corsoId: corso.id })
+    const tolto = await riuscita('progetti.integrazione.togli', { progettoId: progetto.id, corsoId: corso.id })
+    // Quel che se ne va non se ne va in silenzio: il compito e la cella.
+    assert.match(tolto.dati.messaggio?.testo ?? '', /1 tappa dei piani resta senza progetto\. Con il corso se ne sono andati: 1 compito, 1 cella della matrice\./)
     const vivo = progettoPerId(progetto.id)
     assert.ok(vivo, 'il progetto se n’è andato')
     assert.equal(nelCorso(progetto.id), undefined)

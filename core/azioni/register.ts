@@ -672,7 +672,7 @@ export const registro = {
     const integrazioni = originali.flatMap((vecchio, i) =>
       contesto.registro.progetti.flatMap((p) => {
         const sua = integrazioneDi(p, vecchio.id)
-        return sua ? [{ progettoId: p.id, integrazione: duplicaIntegrazione(sua, corsi[i].id) }] : []
+        return sua ? [{ progettoId: p.id, integrazione: duplicaIntegrazione(sua, corsi[i].id, contesto.registro) }] : []
       }))
     const scritto = contesto.modifica((r) => {
       r.classi.push(copia)

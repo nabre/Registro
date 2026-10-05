@@ -320,7 +320,8 @@ export const progetti = {
    * Toglie il progetto dal corso con il lavoro fatto con quella classe. Le
    * tappe dei piani del corso e i momenti che lavoravano per lui restano,
    * sganciati, come quando si cancella il progetto; i suoi fogli di quel
-   * corso vanno nel cestino.
+   * corso vanno nel cestino. Compiti, giudizi e celle se ne vanno: lo si
+   * dice con i conti, come la domanda di un'eliminazione.
    */
   'progetto.integrazione.togli': async (contesto, azione) => {
     const trovato = progettoDa(contesto.registro, azione.progettoId, azione.corsoId)
@@ -329,6 +330,7 @@ export const progetti = {
       corsoId === azione.corsoId && a.progettoId === azione.progettoId
     const tappe = contesto.registro.piani.reduce((n, piano) =>
       n + piano.attivita.filter((a) => suaTappa(piano.corsoId, a)).length, 0)
+    const { compiti, giudizi, matrice } = trovato.progetto
     const scritto = contesto.modifica((r) => {
       const vivo = r.progetti.find((p) => p.id === azione.progettoId)
       if (!vivo) return false
@@ -350,7 +352,10 @@ export const progetti = {
     }, ['progetti', 'piani', 'valutazioni'], comuni().vociSparite.progetti)
     if (!scritto.ok) return scritto
     await togliProgettiOrfani(contesto.registro, [azione.corsoId])
-    return conMessaggio(testi().tolto(tappe))
+    const t = testi()
+    return conMessaggio([
+      t.tolto(tappe), t.persi(compiti.length, giudizi.length, matrice.length),
+    ].filter(Boolean).join(' '))
   },
 
   /**

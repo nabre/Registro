@@ -120,10 +120,14 @@ export const piani = {
       const vecchia = prima?.attivita.find((a) => a.id === tappa.id)
       // L'editor può rimandare la bozza antecedente alla promozione: il
       // collegamento già scritto si conserva, senza creare un'altra origine.
+      // Una tappa già del progetto e senza collegamento (scritta prima della
+      // scaletta, v6) resta autonoma: promuoverla a ogni salvataggio
+      // metterebbe nella scaletta una copia per ogni piano che la porta. Si
+      // promuovono solo le tappe che il progetto riceve adesso.
       const conservaOrigine = tappa.attivitaProgettoId === undefined &&
         vecchia?.progettoId === progetto.id
       const origineId = conservaOrigine
-        ? vecchia.attivitaProgettoId : tappa.attivitaProgettoId
+        ? vecchia.attivitaProgettoId ?? null : tappa.attivitaProgettoId
       if (origineId === null) {
         attivita.push({ ...senzaFase, faseProgettoId: fase.id, attivitaProgettoId: null })
         continue
@@ -205,11 +209,28 @@ export const piani = {
     }
     // Lo stesso piano di prima non è un cambio: l'avanzamento resta.
     if (lezione && (lezione.pianoId ?? null) === azione.pianoId) return invariato
-    return contesto.suVoce('lezioni', azione.lezioneId, (lezione) => {
+    // Come in `piano.salva`: un progetto delle tappe non integrato nel corso
+    // dell'ora vi si integra nella stessa scrittura, se no l'ora non
+    // comparirebbe fra le sue. Serve a un piano rimasto senza corso (il suo se
+    // n'è andato), che si aggancia a un'ora qualunque.
+    const corsoId = lezione?.corsoId
+    const daIntegrare = new Set(corsoId && piano
+      ? piano.attivita.flatMap((a) => {
+          const progetto = a.progettoId
+            ? contesto.registro.progetti.find((p) => p.id === a.progettoId) : undefined
+          return progetto && !integrazioneDi(progetto, corsoId) ? [progetto.id] : []
+        })
+      : [])
+    return contesto.suVoce('lezioni', azione.lezioneId, (lezione, r) => {
       lezione.pianoId = azione.pianoId
       // Cambiare piano azzera l'avanzamento, riferito alle attività del vecchio.
       lezione.avanzamento = []
-    })
+      for (const progetto of r.progetti) {
+        if (!daIntegrare.has(progetto.id) || integrazioneDi(progetto, lezione.corsoId)) continue
+        progetto.integrazioni.push(integrazioneVuota(lezione.corsoId))
+        progetto.aggiornatoIl = istanteAdesso()
+      }
+    }, daIntegrare.size > 0 ? ['progetti'] : [])
   }),
 
   /**

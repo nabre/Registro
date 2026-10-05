@@ -39,16 +39,25 @@ export function classiDellaSupplenza (registro: Registro, lezioni: readonly Lezi
 }
 
 /**
- * Il nome dello zip, accanto al documento: il giorno, o il primo e l'ultimo.
- * In ISO, così nella cartella le supplenze si ordinano da sé; la stessa
- * giornata rifatta sostituisce lo zip di prima.
+ * Il nome dello zip, accanto al documento: il giorno, o il primo e l'ultimo, e
+ * dall'inizio della prima ora alla fine dell'ultima (senza orario, le classi).
+ * In ISO, così nella cartella le supplenze si ordinano da sé. La stessa
+ * supplenza rifatta sostituisce lo zip di prima; due supplenze dello stesso
+ * giorno (il mattino a uno, il pomeriggio a un altro) no.
  */
-export function nomeDelloZip (lezioni: readonly Lezione[]): string {
+export function nomeDelloZip (registro: Registro, lezioni: readonly Lezione[]): string {
   const t = testi()
-  const primo = lezioni[0]?.data ?? ''
-  const ultimo = lezioni[lezioni.length - 1]?.data ?? primo
+  const prima = lezioni[0]
+  const ultima = lezioni[lezioni.length - 1]
+  const primo = prima?.data ?? ''
+  const ultimo = ultima?.data ?? primo
   const quando = primo === ultimo ? primo : `${primo} – ${ultimo}`
-  return `${nomeSicuro(`${t.supplenza} ${quando}`)}.zip`
+  const inizio = prima ? inizioLezione(prima) : null
+  const fine = ultima ? fineLezione(ultima) : null
+  const ore = inizio && fine
+    ? `${inizio}–${fine}`.replaceAll(':', '.')
+    : classiDellaSupplenza(registro, lezioni).map((c) => c.nome).join(' ')
+  return `${nomeSicuro([t.supplenza, quando, ore].filter(Boolean).join(' '))}.zip`
 }
 
 /** L'ora come la si legge: «08:15–09:00», o niente se non ha orario. */
@@ -59,11 +68,25 @@ function orario (lezione: Lezione): string {
 }
 
 /** La cartella di un'ora dentro lo zip: «2026-10-05 08.15 3A Matematica». */
-export function cartellaDellOra (registro: Registro, lezione: Lezione): string {
+function cartellaDellOra (registro: Registro, lezione: Lezione): string {
   const ora = (inizioLezione(lezione) ?? '').replace(':', '.')
   const classe = classeDellaLezione(registro, lezione)?.nome ?? ''
   const materia = materiaDellaLezione(registro, lezione)?.nome ?? ''
   return nomeSicuro([lezione.data, ora, classe, materia].filter(Boolean).join(' '))
+}
+
+/**
+ * Le cartelle delle ore, per id: due ore senza orario della stessa classe e
+ * materia nello stesso giorno avrebbero la stessa, e il piano della seconda
+ * coprirebbe quello della prima. La seconda prende «(2)».
+ */
+export function cartelleDelleOre (
+  registro: Registro,
+  lezioni: readonly Lezione[],
+): Map<string, string> {
+  const presi = new Set<string>()
+  return new Map(lezioni.map((lezione) =>
+    [lezione.id, nomeLibero(cartellaDellOra(registro, lezione), presi, false)]))
 }
 
 /** Il foglio con le foto di una classe, alla radice dello zip. */
@@ -108,9 +131,12 @@ function nomeDellaRisorsa (risorsa: Risorsa): string {
   return nomeSicuro(risorsa.nome?.trim() || nomeDelFile(risorsa.file ?? '') || risorsa.titolo)
 }
 
-/** `nome`, o `nome (2)` se è già preso: senza distinguere maiuscole, come Windows. */
-function nomeLibero (nome: string, presi: Set<string>): string {
-  const punto = nome.lastIndexOf('.')
+/**
+ * `nome`, o `nome (2)` se è già preso: senza distinguere maiuscole, come
+ * Windows. Una cartella non ha estensione: il punto di «08.15» resta nel nome.
+ */
+function nomeLibero (nome: string, presi: Set<string>, conEstensione = true): string {
+  const punto = conEstensione ? nome.lastIndexOf('.') : -1
   const base = punto > 0 ? nome.slice(0, punto) : nome
   const estensione = punto > 0 ? nome.slice(punto) : ''
   let scelto = nome
@@ -141,6 +167,7 @@ function rigaRisorsa (
 function raccontoDellOra (
   registro: Registro,
   lezione: Lezione,
+  cartella: string,
   assenti: ReadonlySet<string>,
 ): string[] {
   const t = testi()
@@ -148,7 +175,6 @@ function raccontoDellOra (
   const classe = classeDellaLezione(registro, lezione)
   const materia = materiaDellaLezione(registro, lezione)
   const piano = registro.piani.find((p) => p.id === lezione.pianoId) ?? null
-  const cartella = cartellaDellOra(registro, lezione)
   const risorse = risorseDellOra(piano)
   const righe: string[] = []
 
@@ -217,7 +243,10 @@ export function leggimi (
   const chi = destinatario.supplente.trim()
   if (chi) righe.push(t.per(chi), '')
   righe.push(t.introduzione(lezioni.length), '')
-  for (const lezione of lezioni) righe.push(...raccontoDellOra(registro, lezione, assenti))
+  const cartelle = cartelleDelleOre(registro, lezioni)
+  for (const lezione of lezioni) {
+    righe.push(...raccontoDellOra(registro, lezione, cartelle.get(lezione.id) ?? '', assenti))
+  }
   return righe.join('\r\n')
 }
 

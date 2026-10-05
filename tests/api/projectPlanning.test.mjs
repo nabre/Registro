@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { after, before, it } from 'node:test'
 import { archivioDiProva, cartelleDiProva, smonta } from '../helpers/archivio.mjs'
+import { lezioniDelProgetto, nelCorso } from '../../dist-tests/domain.mjs'
 
 const { radice, lavoro, dati } = cartelleDiProva('registro-api-pianificazione-')
 let api
@@ -110,4 +111,51 @@ it('togliere una fase rimappa la scaletta e le istanze nella fase precedente', a
   await salva('progetti.salva', { progetto: aggiornato })
   assert.equal(archivio.registro.progetti.find((p) => p.id === progetto.id).attivita[0].faseId, 'fase-seconda')
   assert.equal(archivio.registro.piani.find((p) => p.id === piano.id).attivita[0].faseProgettoId, 'fase-seconda')
+})
+
+it('una tappa già del progetto, scritta prima della scaletta, resta autonoma a ogni salvataggio', async () => {
+  const progetto = api.creaProgetto(corso.id, 'Interviste')
+  await salva('progetti.salva', { progetto })
+  // Com'è su disco un piano di prima della v6: progetto e fase, nessuna origine.
+  const vecchi = [api.creaPiano(corso.id), api.creaPiano(corso.id), api.creaPiano(corso.id)]
+  for (const piano of vecchi) {
+    piano.attivita = [{ ...api.creaAttivita('Intervista', 1), progettoId: progetto.id,
+      faseProgettoId: progetto.fasi[0].id }]
+  }
+  archivio.modifica((r) => { r.piani.push(...structuredClone(vecchi)) }, ['piani'])
+  for (const piano of vecchi) await salva('piani.salva', { piano })
+  await salva('piani.salva', { piano: vecchi[0] })
+  const scaletta = archivio.registro.progetti.find((p) => p.id === progetto.id).attivita
+  assert.deepEqual(scaletta, [], 'nessuna «Intervista» nasce nella scaletta')
+  for (const piano of vecchi) {
+    const [tappa] = archivio.registro.piani.find((p) => p.id === piano.id).attivita
+    assert.deepEqual([tappa.progettoId, tappa.attivitaProgettoId], [progetto.id, null])
+  }
+  // Una tappa nuova dello stesso piano sì: è il progetto che la riceve adesso.
+  const conNuova = structuredClone(archivio.registro.piani.find((p) => p.id === vecchi[0].id))
+  conNuova.attivita.push({ ...api.creaAttivita('Sintesi', 1), progettoId: progetto.id })
+  await salva('piani.salva', { piano: conNuova })
+  assert.deepEqual(
+    archivio.registro.progetti.find((p) => p.id === progetto.id).attivita.map((a) => a.titolo),
+    ['Sintesi'],
+  )
+})
+
+it('un piano senza corso assegnato a un’ora integra il progetto delle tappe nel corso dell’ora', async () => {
+  const progetto = api.creaProgetto(null, 'Senza corso')
+  await salva('progetti.salva', { progetto })
+  // Com'è un piano il cui corso se n'è andato: senza corso, le tappe col progetto.
+  const piano = api.creaPiano(null)
+  piano.attivita = [{ ...api.creaAttivita('Raccogliere', 1), progettoId: progetto.id,
+    faseProgettoId: progetto.fasi[0].id, attivitaProgettoId: null }]
+  archivio.modifica((r) => { r.piani.push(piano) }, ['piani'])
+  const integrazioni = () =>
+    archivio.registro.progetti.find((p) => p.id === progetto.id).integrazioni.map((i) => i.corsoId)
+  assert.deepEqual(integrazioni(), [])
+  const ora = api.creaLezione(corso.id, '2026-10-05', '08:00', 45)
+  archivio.modifica((r) => { r.lezioni.push(ora) }, ['lezioni'])
+  await salva('piani.assegna', { lezioneId: ora.id, pianoId: piano.id })
+  assert.deepEqual(integrazioni(), [corso.id])
+  const vista = nelCorso(archivio.registro.progetti.find((p) => p.id === progetto.id), corso.id)
+  assert.deepEqual(lezioniDelProgetto(archivio.registro, vista).map((l) => l.lezione.id), [ora.id])
 })

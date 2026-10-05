@@ -78,7 +78,7 @@ import type {
   Telefono,
 } from './models.js'
 import { ALTEZZA_LOGO, VERSIONE_DATI } from './models.js'
-import { fasePredefinita, integrazioneVuota, livelliPredefiniti } from './projects.js'
+import { fasePredefinita, fineDelCompito, integrazioneVuota, livelliPredefiniti } from './projects.js'
 
 const adesso = istanteAdesso
 
@@ -390,11 +390,14 @@ export function creaProgetto (corsoId: string | null = null, titolo = ''): Proge
 /**
  * L'integrazione di un progetto per un altro corso (una classe duplicata): i
  * compiti con id nuovi, senza quel che è delle persone o delle ore. Nasce in
- * bozza.
+ * bozza. La fine si stacca dall'ora, che è dell'altro corso: resta il giorno
+ * che quell'ora dice adesso (con `registro`), non la data scritta quando la si
+ * è scelta, che l'ora spostata ha lasciato indietro.
  */
 export function duplicaIntegrazione (
   integrazione: IntegrazioneProgetto,
   corsoId: string,
+  registro?: Registro,
 ): IntegrazioneProgetto {
   return {
     corsoId,
@@ -403,7 +406,7 @@ export function duplicaIntegrazione (
       id: nuovoIdCompitoProgetto(),
       titolo: c.titolo,
       descrizione: c.descrizione,
-      fine: c.fine,
+      fine: registro ? fineDelCompito(registro, c) : c.fine,
       fineLezioneId: null,
       inizi: [],
       proroghe: [],

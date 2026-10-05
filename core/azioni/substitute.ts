@@ -17,7 +17,7 @@ import type { DatiRapporto } from '#core/dominio/reports.js'
 import type { Intestazione } from '#core/dominio/models.js'
 import { oggi, periodoNelNome } from '#core/dominio/dates.js'
 import {
-  cartellaDellOra,
+  cartelleDelleOre,
   classiDellaSupplenza,
   leggimi,
   lezioniDellaSupplenza,
@@ -71,6 +71,7 @@ export const supplenza = {
     // I file spariti, per id: il foglio da leggere non li deve promettere.
     const assenti = new Map<string, string>()
 
+    const cartelle = cartelleDelleOre(registro, lezioni)
     try {
       for (const classe of classiDellaSupplenza(registro, lezioni)) {
         voci.push({
@@ -82,7 +83,7 @@ export const supplenza = {
       for (const lezione of lezioni) {
         const piano = registro.piani.find((p) => p.id === lezione.pianoId) ?? null
         if (!piano) continue
-        const cartellaOra = cartellaDellOra(registro, lezione)
+        const cartellaOra = cartelle.get(lezione.id) ?? ''
         voci.push({
           nome: `${cartellaOra}/${nomeFoglioPiano()}`,
           dati: await pdfDi('piano-lezione', datiPiano(registro, piano), intestazione),
@@ -112,7 +113,7 @@ export const supplenza = {
     // Comporre i PDF è l'attesa lunga: nel frattempo può essersi aperto un altro anno.
     if (!contesto.ancoraQui()) return documentoCambiato()
 
-    const nome = nomeDelloZip(lezioni)
+    const nome = nomeDelloZip(registro, lezioni)
     const file = apparato.Uri.joinPath(cartella, nome)
     const zip = scriviZip(voci)
     try {
