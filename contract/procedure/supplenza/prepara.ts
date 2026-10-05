@@ -10,7 +10,8 @@ export const procedura = scrittura({
   azione: 'supplenza.prepara',
   /**
    * Con un indirizzo manda una mail: ritentare la manda due volte. Lo zip
-   * accanto al documento si riscrive uguale; il registro resta identico.
+   * accanto al documento si riscrive uguale (e partita la mail si toglie);
+   * il registro resta identico.
    */
   idempotente: false,
   collezioni: [],

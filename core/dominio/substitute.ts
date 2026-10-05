@@ -7,7 +7,9 @@ import { confrontaLezioni, fineLezione, inizioLezione } from './calculations.js'
 import { classeDellaLezione, materiaDellaLezione } from './courses.js'
 import { formattaData, formattaUd } from './dates.js'
 import type { Attivita, Classe, Lezione, PianoLezione, Registro, Risorsa } from './models.js'
+import { datiFotoClasse } from './reportData/index.js'
 import { testi as paroleDeiRapporti } from './reportData/reportData.testi.js'
+import type { DatiRapporto } from './reports.js'
 import { nomeDelFile, nomeSicuro } from './text.js'
 import { parole } from './words.testi.js'
 import { testi } from './substitute.testi.js'
@@ -43,7 +45,8 @@ export function classiDellaSupplenza (registro: Registro, lezioni: readonly Lezi
  * dall'inizio della prima ora alla fine dell'ultima (senza orario, le classi).
  * In ISO, così nella cartella le supplenze si ordinano da sé. La stessa
  * supplenza rifatta sostituisce lo zip di prima; due supplenze dello stesso
- * giorno (il mattino a uno, il pomeriggio a un altro) no.
+ * giorno (il mattino a uno, il pomeriggio a un altro) no. Senza orario le
+ * classi non bastano a separarle: la seconda ora del giorno dà «(2)».
  */
 export function nomeDelloZip (registro: Registro, lezioni: readonly Lezione[]): string {
   const t = testi()
@@ -54,10 +57,35 @@ export function nomeDelloZip (registro: Registro, lezioni: readonly Lezione[]): 
   const quando = primo === ultimo ? primo : `${primo} – ${ultimo}`
   const inizio = prima ? inizioLezione(prima) : null
   const fine = ultima ? fineLezione(ultima) : null
+  const classi = classiDellaSupplenza(registro, lezioni)
   const ore = inizio && fine
     ? `${inizio}–${fine}`.replaceAll(':', '.')
-    : classiDellaSupplenza(registro, lezioni).map((c) => c.nome).join(' ')
+    : classi.map((c) => c.nome).join(' ') +
+      (prima ? distinzione(posizioneNelGiorno(registro, prima, classi)) : '')
   return `${nomeSicuro([t.supplenza, quando, ore].filter(Boolean).join(' '))}.zip`
+}
+
+/**
+ * Dove sta la prima ora fra quelle del suo giorno per le stesse classi: lo
+ * stesso numero per la stessa supplenza rifatta, un altro per quella che
+ * comincia a un'altra ora. Le ore annullate non contano.
+ */
+function posizioneNelGiorno (
+  registro: Registro,
+  prima: Lezione,
+  classi: readonly Classe[],
+): number {
+  const ids = new Set(classi.map((c) => c.id))
+  return registro.lezioni
+    .filter((l) => l.data === prima.data && l.stato !== 'annullata' &&
+      ids.has(classeDellaLezione(registro, l)?.id ?? ''))
+    .sort(confrontaLezioni)
+    .findIndex((l) => l.id === prima.id)
+}
+
+/** Il numero che separa due nomi uguali, come `distinzione()` dei luoghi: ` (2)`; il primo niente. */
+function distinzione (indice: number): string {
+  return indice > 0 ? ` (${indice + 1})` : ''
 }
 
 /** L'ora come la si legge: «08:15–09:00», o niente se non ha orario. */
@@ -92,6 +120,19 @@ export function cartelleDelleOre (
 /** Il foglio con le foto di una classe, alla radice dello zip. */
 export function nomeFoglioAllievi (classe: Classe): string {
   return `${nomeSicuro(testi().allieviDi(classe.nome))}.pdf`
+}
+
+/**
+ * Il foglio delle foto per chi sostituisce: la parete della classe con il solo
+ * nome sotto la foto. L'azienda di tirocinio serve al docente di classe, non a
+ * chi entra in aula per un'ora: è un dato personale in più che uscirebbe.
+ */
+export function datiFotoSupplenza (registro: Registro, classe: Classe): DatiRapporto {
+  const dati = datiFotoClasse(registro, classe)
+  for (const galleria of Object.values(dati.gallerie ?? {})) {
+    galleria.celle = galleria.celle.map((cella) => ({ ...cella, sotto: '' }))
+  }
+  return dati
 }
 
 /** Il piano in PDF dentro la cartella dell'ora. */
