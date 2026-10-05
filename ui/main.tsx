@@ -26,9 +26,17 @@ import {
 import { Guscio, mostraFiloDiLavoro } from './shell.js'
 import { testi } from './main.testi.js'
 import { vedutaCambiata } from './viewpoint.js'
-import { annunciaPagina, ascolta, chiediStatoIntero, invia, iscrivitiAttesa } from './bridge.js'
+import {
+  annunciaCondivisi,
+  annunciaPagina,
+  ascolta,
+  chiediStatoIntero,
+  invia,
+  iscrivitiAttesa,
+} from './bridge.js'
 import { oggi } from '#core/dominio/dates.js'
 import type {
+  ContestoCondiviso,
   MessaggioDifferenze,
   MessaggioNavigazione,
   MessaggioStato,
@@ -40,7 +48,13 @@ import { isolaPresente, ridisegnaIsola } from './islands.js'
 import { chiaveDelPosto, postoDaVista, schedaValida } from './place.js'
 import { contestoDa, postoDa } from './memory.js'
 import { nomeDelPosto } from './pages.js'
-import { ricevoFinestre } from './windows.js'
+import {
+  condivisiDaDire,
+  prendiCondivisi,
+  ricevoFinestre,
+  scordaCondivisi,
+} from './windows.js'
+import { allineaCondivisi, condivisiDiAdesso } from './context.js'
 import {
   aggiorna,
   allineaSemestre,
@@ -186,6 +200,19 @@ function disegna (): void {
 
 /** La navigazione arrivata prima dei dati: si esegue appena arrivano. */
 let navigazioneInAttesa: MessaggioNavigazione | MessaggioVai | null = null
+/** Corso, classe e periodo delle altre finestre arrivati prima dei dati, uniti. */
+let condivisiInAttesa: ContestoCondiviso | null = null
+
+/**
+ * Si allinea a corso, classe e periodo scelti in un'altra finestra, senza ridirli
+ * all'host: è lui che li ha mandati, e alle altre li ha già girati.
+ */
+function allineaAlleAltre (condiviso: ContestoCondiviso): void {
+  inBlocco(() => {
+    allineaCondivisi(condiviso)
+    prendiCondivisi(condivisiDiAdesso())
+  })
+}
 
 /**
  * Una finestra nuova va dove guardava quella da cui nasce, con gli stessi id
@@ -214,7 +241,12 @@ function eseguiNavigazione (messaggio: MessaggioNavigazione | MessaggioVai): voi
     return
   }
   if (messaggio.tipo === 'vai') {
-    vaiDove(messaggio)
+    // La nascita di una figlia: il posto di chi l'ha aperta, con i suoi id.
+    // Non si ridicono: corso, classe e periodo di tutte li manda subito l'host.
+    inBlocco(() => {
+      vaiDove(messaggio)
+      prendiCondivisi(condivisiDiAdesso())
+    })
     return
   }
 
@@ -341,17 +373,29 @@ function ricevoStato (messaggio: MessaggioStato | MessaggioDifferenze): void {
     })
     // Il documento nuovo riapre dove lo si era lasciato (o sulla Dashboard), e
     // la fila di Alt+← riparte: i posti di prima sono di un altro anno.
-    if (ritrovaDocumento() === 'nuovo') azzeraStoria()
+    const documentoNuovo = ritrovaDocumento() === 'nuovo'
+    if (documentoNuovo) azzeraStoria()
     // I semestri arrivano con i dati: solo adesso si sa in quale cade oggi.
     allineaSemestre()
     // Poi il posto sui dati nuovi (`completa`), e le scelte che non ci sono più.
     riconvalidaRicordati()
+    // Corso, classe e periodo spostati dai dati (un corso eliminato) non si dicono: ogni
+    // finestra li sposta da sé. Un documento nuovo invece riparte da capo, e la
+    // principale dice i suoi (`condivisiDaDire`).
+    if (documentoNuovo) scordaCondivisi()
+    else prendiCondivisi(condivisiDiAdesso())
     // Poi la navigazione chiesta a pannello chiuso: il semestre di una prova di
     // novembre vince su quello di oggi.
     if (navigazioneInAttesa) {
       const chiesta = navigazioneInAttesa
       navigazioneInAttesa = null
       eseguiNavigazione(chiesta)
+    }
+    // Infine corso, classe e periodo delle altre finestre: valgono su quelli ricordati.
+    if (condivisiInAttesa) {
+      const arrivati = condivisiInAttesa
+      condivisiInAttesa = null
+      allineaAlleAltre(arrivati)
     }
   })
 }
@@ -446,6 +490,15 @@ ascolta((messaggio) => {
       break
     }
 
+    // Corso, classe e periodo scelti in un'altra finestra del registro.
+    case 'condiviso':
+      if (!stato.caricato) {
+        condivisiInAttesa = { ...condivisiInAttesa, ...messaggio.condiviso }
+        break
+      }
+      allineaAlleAltre(messaggio.condiviso)
+      break
+
     // Le finestre del registro aperte: l'etichetta nella barra del titolo.
     case 'finestre':
       if (ricevoFinestre(messaggio)) ridisegna()
@@ -500,6 +553,16 @@ iscriviti(() => {
   if (chiave === ultimaPagina) return
   ultimaPagina = chiave
   annunciaPagina({ tipo: 'finestra.pagina', titolo, posto: stato.posto, contesto: stato.contesto })
+})
+
+/**
+ * Corso, classe del docente di classe e periodo sono gli stessi in tutte le finestre:
+ * quando chi guarda li cambia qui, lo si dice all'host, che lo gira alle altre.
+ */
+iscriviti(() => {
+  if (!stato.caricato) return
+  const cambio = condivisiDaDire(condivisiDiAdesso())
+  if (cambio) annunciaCondivisi({ tipo: 'finestra.condiviso', condiviso: cambio })
 })
 
 // I tasti della finestra: le scorciatoie dei comandi, Ctrl+B per le azioni

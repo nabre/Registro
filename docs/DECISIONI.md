@@ -1204,6 +1204,14 @@ dell'host, che spinge le differenze a tutte; le scritture di tutte passano da
 **una coda sola**, in ordine, e `attendiScritture` le aspetta tutte. Annulla e
 ripristina sono globali. Mira dello schermo per la classe e contesto
 dell'assistente seguono l'ultima finestra del registro che ha preso il fuoco.
+Corso di lavoro, classe del docente di classe e periodo sono invece uno per
+tutte: la pagina dice all'host il cambio fatto da chi la guarda
+(`finestra.condiviso`), l'host lo tiene e lo gira alle altre (`condiviso`),
+mai a chi l'ha mandato; chi si allinea non lo ridice. Alla partenza parla solo
+la principale, una figlia nuova o ricaricata riceve quel che l'host sa. Le
+pagine del corso e del docente di classe seguono come dalla loro tendina (il
+Registro va all'ora di riferimento del corso nuovo); le altre (una persona, il
+calendario su un'ora, una classe per nome) restano e tengono gli id per dopo.
 Le figlie dipendono dalla principale solo logicamente: si chiudono con lei, col
 documento e all'uscita. La disposizione (quali figlie, per documento) sta in
 `userData/disposizione.json` (`desktop/apparato/layout.ts`), il posto per tipo
@@ -1212,9 +1220,11 @@ mano ne esce, le altre tornano riaprendo il documento
 (`registroDocenti.finestre.riapri`).
 
 **Perché.** Su due schermi si lavora su due parti dell'anno insieme (l'appello
-e il calendario, le valutazioni di due corsi). Due copie dello stato che
-scrivono ognuna per sé si contraddirebbero: lo stato resta uno, e moltiplicare
-le pagine costa una pagina in più di memoria, non un secondo archivio.
+e il calendario, il registro e la pianificazione dello stesso corso). Due copie
+dello stato che scrivono ognuna per sé si contraddirebbero: lo stato resta uno,
+e moltiplicare le pagine costa una pagina in più di memoria, non un secondo
+archivio. Corso, classe e periodo diversi fra due finestre confondevano: si
+cambiava corso in una e l'altra restava sull'altro, senza dirlo.
 
 **Vincoli.** Niente `parent` nativo fra le `BrowserWindow`: su Windows terrebbe
 la figlia sempre sopra la principale. Una figlia non sovrascrive le preferenze
@@ -1224,7 +1234,7 @@ fuoco non riceve il valore spinto da un'altra finestra (ADR-56). Le azioni
 
 **Dove.** `desktop/pannelli/panel.ts`, `desktop/apparato/layout.ts`,
 `desktop/apparato/panelTypes.ts`, `desktop/apparato/windows.ts`, `ui/windows.ts`,
-`ui/windowButton.tsx`, `ui/titleBar.tsx`.
+`ui/windowButton.tsx`, `ui/titleBar.tsx`, `ui/context.ts` (`allineaCondivisi`).
 
 ## Vincoli intoccabili
 

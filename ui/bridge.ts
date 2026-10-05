@@ -6,6 +6,7 @@ import { notifica } from './components/notifications.js'
 import { testi } from './bridge.testi.js'
 import type {
   Azione,
+  CambioCondiviso,
   ChiestaStatoIntero,
   PaginaDellaFinestra,
   Conversazione,
@@ -507,6 +508,11 @@ export function chiediStatoIntero (): void {
  * finestre, e il posto da cui nasce una figlia aperta dal menu nativo.
  */
 export function annunciaPagina (busta: PaginaDellaFinestra): void {
+  api.postMessage(busta)
+}
+
+/** Dice all'host che chi guarda questa finestra ha cambiato corso o classe. */
+export function annunciaCondivisi (busta: CambioCondiviso): void {
   api.postMessage(busta)
 }
 

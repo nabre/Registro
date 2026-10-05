@@ -3,6 +3,7 @@
 // principale, quel che vi si scrive arriva alla principale (la coda e i dati
 // sono uno solo), Ctrl+Z dalla principale lo annulla, chiudendo la principale
 // le figlie se ne vanno, e riaprendo il registro tornano sulla loro pagina.
+// Corso, classe del docente di classe e periodo sono gli stessi in tutte.
 //
 // Come `electron.spec.ts`: vuole `dist/` costruita e un display, e lavora in
 // una cartella provvisoria che fa da `userData`.
@@ -275,6 +276,92 @@ test('le figlie tornano col documento, sulla loro pagina; chiuse a mano no', asy
     await finestra(app, 1)
     await app.evaluate(() => new Promise((risolvi) => setTimeout(risolvi, 1500)))
     expect([...(await finestreDelRegistro(app)).keys()]).toEqual([1])
+  } finally {
+    await spegni(app)
+    smonta(banco)
+  }
+})
+
+/** Manda un'azione all'host dalla pagina, come fa `invia`, con un numero che la pagina non usa. */
+async function azione (pagina: Page, id: number, azioneDaFare: Record<string, unknown>): Promise<void> {
+  await pagina.evaluate(({ id, azioneDaFare }) => {
+    const api = (window as unknown as { acquireVsCodeApi: () => { postMessage: (m: unknown) => void } })
+      .acquireVsCodeApi()
+    api.postMessage({ id, azione: azioneDaFare })
+  }, { id, azioneDaFare })
+}
+
+/** La tendina della barra dei comandi con quel nome (`corso`, `classe`, `periodo`). */
+function tendina (pagina: Page, nome: string) {
+  return pagina.locator(`[data-fuoco="barra-comandi-${nome}"]`)
+}
+
+/** Sceglie una voce da una tendina della barra dei comandi. */
+async function scegli (pagina: Page, nome: string, voce: string): Promise<void> {
+  await tendina(pagina, nome).click()
+  await pagina.getByRole('menuitem', { name: voce, exact: true }).click()
+}
+
+test('corso, classe del docente di classe e periodo sono gli stessi in tutte le finestre', async () => {
+  expect(existsSync(PRINCIPALE), `manca ${PRINCIPALE}: costruisci con npm run build`).toBe(true)
+  test.setTimeout(240_000)
+  const banco = preparaBanco()
+  const app = await accendi(banco)
+  const errori: string[] = []
+  try {
+    const principale = await finestra(app, 1)
+    principale.on('pageerror', (e) => errori.push(String(e)))
+    // Il campione ha una classe e un corso: la classe diventa del docente di
+    // classe, e la sua copia porta un secondo corso e una seconda classe.
+    await azione(principale, 900_001, { tipo: 'classe.modifica', classeId: 'cls-mus50qhg-ex6637jz', docenteDiClasse: true })
+    await azione(principale, 900_002, {
+      tipo: 'classe.duplica', classeId: 'cls-mus50qhg-ex6637jz', annoId: 'ann-mus50qgt-a091dxvf', nome: 'I MEC B',
+    })
+    await principale.evaluate((ora) => {
+      window.postMessage({ tipo: 'naviga', vista: 'lezione', elementoId: ora }, '*')
+    }, ORA)
+    await expect(casella(principale, 'Bianchi Luca')).toHaveText('-')
+
+    await principale.getByRole('button', { name: 'Nuova finestra' }).click()
+    const figlia = await finestra(app, 2)
+    figlia.on('pageerror', (e) => errori.push(String(e)))
+    await expect(casella(figlia, 'Bianchi Luca')).toHaveText('-')
+    const corsoDiPrima = await tendina(principale, 'corso').getAttribute('data-valore')
+    await expect(tendina(figlia, 'corso')).toHaveAttribute('data-valore', corsoDiPrima ?? '')
+
+    // Il corso cambiato nella principale: la figlia, che guardava un'ora del
+    // corso di prima, passa al corso nuovo come dalla sua tendina (il corso
+    // copiato non ha ore, quindi i suoi piani).
+    await scegli(principale, 'corso', 'I MEC B')
+    await expect(tendina(principale, 'corso')).not.toHaveAttribute('data-valore', corsoDiPrima ?? '')
+    const corsoNuovo = await tendina(principale, 'corso').getAttribute('data-valore')
+    await expect(tendina(figlia, 'corso')).toHaveAttribute('data-valore', corsoNuovo ?? '')
+    await expect(casella(figlia, 'Bianchi Luca')).toHaveCount(0)
+
+    // Il periodo, dalla figlia alla principale: anche l'anno intero è una scelta.
+    const periodoDiPrima = await tendina(figlia, 'periodo').getAttribute('data-valore')
+    expect(periodoDiPrima).not.toBe('')
+    await scegli(figlia, 'periodo', 'Anno intero')
+    await expect(tendina(figlia, 'periodo')).toHaveAttribute('data-valore', '')
+    await expect(tendina(principale, 'periodo')).toHaveAttribute('data-valore', '')
+
+    // La classe del docente di classe, cambiata nella figlia: la principale si allinea.
+    for (const pagina of [principale, figlia]) {
+      await pagina.evaluate(() => { window.postMessage({ tipo: 'naviga', vista: 'docenteClasse' }, '*') })
+      await expect(tendina(pagina, 'classe')).toHaveCount(1)
+    }
+    const classeDiPrima = await tendina(figlia, 'classe').getAttribute('data-valore')
+    await expect(tendina(principale, 'classe')).toHaveAttribute('data-valore', classeDiPrima ?? '')
+    await scegli(figlia, 'classe', classeDiPrima === 'cls-mus50qhg-ex6637jz' ? 'I MEC B' : 'I MEC A')
+    await expect(tendina(figlia, 'classe')).not.toHaveAttribute('data-valore', classeDiPrima ?? '')
+    const classeNuova = await tendina(figlia, 'classe').getAttribute('data-valore')
+    await expect(tendina(principale, 'classe')).toHaveAttribute('data-valore', classeNuova ?? '')
+
+    // Niente rimbalzi: dopo un attimo le due sono ancora lì.
+    await principale.waitForTimeout(1000)
+    await expect(tendina(figlia, 'classe')).toHaveAttribute('data-valore', classeNuova ?? '')
+    await expect(tendina(principale, 'classe')).toHaveAttribute('data-valore', classeNuova ?? '')
+    expect(errori).toEqual([])
   } finally {
     await spegni(app)
     smonta(banco)

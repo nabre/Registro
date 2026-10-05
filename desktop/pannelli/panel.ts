@@ -30,7 +30,9 @@ import { rispondiConversazione } from './conversation.js'
 import { rispondiDettatura } from './transcription.js'
 import { allaProiezione, PannelloProiezione, statoProiezione } from './projection.js'
 import type {
+  CambioCondiviso,
   ChiestaStatoIntero,
+  ContestoCondiviso,
   Conversazione,
   Dettatura,
   Domanda,
@@ -213,6 +215,12 @@ export class PannelloRegistro {
   private static readonly cambioFinestre = new apparato.EventEmitter<void>()
   /** Testi delle finestre di errore di sistema ancora aperte (vedi `avvisa`). */
   private static readonly finestreDiErrore = new Set<string>()
+  /**
+   * Corso, classe del docente di classe e periodo, uguali in tutte le finestre: l'ultimo
+   * cambio detto da una pagina. Vuoto finché la principale non dice i suoi, così
+   * riaprendo il documento vincono i suoi e non quelli ricordati da una figlia.
+   */
+  private static condiviso: ContestoCondiviso = {}
 
   private readonly smaltibili: apparato.Smaltitore[] = []
   /** Navigazione chiesta prima che il webview fosse pronto ad ascoltare. */
@@ -493,6 +501,8 @@ export class PannelloRegistro {
    */
   static cambioDiDocumento (): void {
     PannelloRegistro.chiudiFiglie()
+    // Gli id dell'anno di prima: li ridice la principale, a dati nuovi arrivati.
+    PannelloRegistro.condiviso = {}
     // Quelle del documento nuovo, come le si era lasciate.
     PannelloRegistro.riapriFiglie()
   }
@@ -628,7 +638,8 @@ export class PannelloRegistro {
       Partial<SeguiConversazione> &
       Partial<Omit<ChiestaStatoIntero, 'tipo'>> &
       Partial<Omit<PaginaDellaFinestra, 'tipo'>> &
-      { tipo?: ChiestaStatoIntero['tipo'] | PaginaDellaFinestra['tipo'] }
+      Partial<Omit<CambioCondiviso, 'tipo'>> &
+      { tipo?: ChiestaStatoIntero['tipo'] | PaginaDellaFinestra['tipo'] | CambioCondiviso['tipo'] }
     if (!busta) return
 
     // La pagina ha perso il filo delle differenze: la prossima spinta è intera.
@@ -641,6 +652,11 @@ export class PannelloRegistro {
     // il posto da cui nasce una figlia aperta dal menu nativo.
     if (busta.tipo === 'finestra.pagina') {
       this.ricordaPagina(busta as PaginaDellaFinestra)
+      return
+    }
+    // Chi guarda ha cambiato corso, classe o periodo: le altre finestre si allineano.
+    if (busta.tipo === 'finestra.condiviso') {
+      this.condividi(busta.condiviso)
       return
     }
     if (typeof busta.id !== 'number') return
@@ -700,10 +716,21 @@ export class PannelloRegistro {
       this.invia(statoProiezione())
       this.invia(statoAssistente())
       this.annunciaFinestre()
+      // Una figlia appena nata, o una pagina ricaricata, prende corso, classe e
+      // periodo delle altre. Dopo la navigazione: la figlia nasce sul posto di
+      // chi l'ha aperta, ma un'ora porterebbe il suo semestre, e vince il periodo di tutte.
+      const condiviso = Object.keys(PannelloRegistro.condiviso).length > 0
+        ? { tipo: 'condiviso' as const, condiviso: PannelloRegistro.condiviso }
+        : null
       if (this.navigazioneInAttesa) {
         const inAttesa = this.navigazioneInAttesa
         this.navigazioneInAttesa = null
-        setTimeout(() => this.invia(inAttesa), 0)
+        setTimeout(() => {
+          this.invia(inAttesa)
+          if (condiviso) this.invia(condiviso)
+        }, 0)
+      } else if (condiviso) {
+        this.invia(condiviso)
       }
     }
 
@@ -928,6 +955,23 @@ export class PannelloRegistro {
     })
   }
 
+  /**
+   * Un cambio di corso, classe o periodo detto da questa finestra: l'host lo tiene e
+   * lo spinge alle altre, mai a lei. Dei campi arrivati restano gli id; quelli
+   * che l'host sa già non ripartono, così un allineamento non fa giri.
+   */
+  private condividi (cambio: unknown): void {
+    if (!cambio || typeof cambio !== 'object') return
+    const nuovo = cambiCondivisi(PannelloRegistro.condiviso, cambio as Record<string, unknown>)
+    if (!nuovo) return
+    PannelloRegistro.condiviso = { ...PannelloRegistro.condiviso, ...nuovo }
+    for (const finestra of PannelloRegistro.istanze.values()) {
+      // Una pagina non ancora in piedi li riceve tutti con `stato.leggi`.
+      if (finestra === this || finestra.smaltito || !finestra.pronto) continue
+      finestra.invia({ tipo: 'condiviso', condiviso: nuovo })
+    }
+  }
+
   /** Quel che la pagina dice di sé a ogni cambio di posto. */
   private ricordaPagina (pagina: PaginaDellaFinestra): void {
     if (typeof pagina.titolo !== 'string' || !pagina.posto || typeof pagina.posto.pagina !== 'string') return
@@ -952,6 +996,7 @@ export class PannelloRegistro {
       PannelloAssistente.chiudi()
       PannelloProiezione.chiudi()
       PannelloRegistro.numeroColFuoco = NUMERO_PRINCIPALE
+      PannelloRegistro.condiviso = {}
     } else {
       // Chiusa a mano, non torna riaprendo il documento.
       if (!this.inCascata) PannelloRegistro.ricordaDisposizione()
@@ -962,6 +1007,25 @@ export class PannelloRegistro {
     }
     PannelloRegistro.finestreCambiate()
   }
+}
+
+/**
+ * I campi di un cambio condiviso che l'host non ha già: solo i campi noti, solo
+ * id (per il periodo anche `null`, l'anno intero). `null` se non cambia niente.
+ */
+function cambiCondivisi (
+  noto: ContestoCondiviso,
+  cambio: Record<string, unknown>,
+): ContestoCondiviso | null {
+  const nuovo: ContestoCondiviso = {}
+  for (const campo of ['corsoId', 'classeId'] as const) {
+    const valore = cambio[campo]
+    if (typeof valore === 'string' && valore !== '' && valore !== noto[campo]) nuovo[campo] = valore
+  }
+  const semestre = cambio.semestreId
+  const semestreBuono = semestre === null || (typeof semestre === 'string' && semestre !== '')
+  if (semestreBuono && (!('semestreId' in noto) || semestre !== noto.semestreId)) nuovo.semestreId = semestre
+  return Object.keys(nuovo).length > 0 ? nuovo : null
 }
 
 /** Gli interruttori che accendono un modello locale, e per quale uso. */

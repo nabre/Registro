@@ -3,8 +3,11 @@
 // `commands.ts` (che cosa si può fare) senza legarsi l'uno all'altro.
 
 import type { Classe, Corso, Lezione } from '#core/dominio/models.js'
-import type { Posto } from './place.js'
+import type { ContestoCondiviso } from '#contract/protocol.js'
+import type { Contesto, Posto } from './place.js'
+import type { Condivisi } from './windows.js'
 import {
+  aggiorna,
   annoCorrente,
   classePerId,
   classiDellAnno,
@@ -103,6 +106,71 @@ export function scegliCorso (id: string): void {
   }
   vai(posto, {
     contesto: { corsoId: corso.id, filtroClasseId: corso.classeId, classeId: corso.classeId },
+  })
+}
+
+/** Il corso di lavoro, la classe del docente di classe e il periodo, che tutte le finestre hanno uguali. */
+export function condivisiDiAdesso (): Condivisi {
+  const classe = classePerId(stato.contesto.classeId)
+  return {
+    corsoId: stato.contesto.corsoId,
+    // Solo una classe del fascicolo: l'allievo di un'altra classe sposta la
+    // classe di questa finestra, ma non il fascicolo delle altre.
+    classeId: classe?.docenteDiClasse ? classe.id : null,
+    semestreId: stato.semestreId,
+  }
+}
+
+/**
+ * Prende corso, classe e periodo scelti in un'altra finestra, come se li si
+ * scegliesse qui dalle tendine. Il periodo va insieme al posto, perché l'ora
+ * di riferimento di un corso è quella del suo periodo. Le pagine del corso
+ * vanno sul corso nuovo (il Registro sulla sua ora di riferimento, come fa
+ * `scegliCorso`), quelle del docente di classe sulla classe nuova
+ * (`scegliClasseDelFascicolo`). Le altre restano
+ * dove sono e li tengono per dopo: una persona, il calendario su un'ora o una
+ * classe per nome non si spostano per un gesto fatto altrove. Il posto prende
+ * il posto di quello di adesso nella fila di Alt+←: tornare indietro qui
+ * riporterebbe il corso di prima in tutte.
+ */
+export function allineaCondivisi (condiviso: ContestoCondiviso): void {
+  const corso = condiviso.corsoId && condiviso.corsoId !== stato.contesto.corsoId
+    ? corsoPerId(condiviso.corsoId)
+    : null
+  const scelta = condiviso.classeId && condiviso.classeId !== stato.contesto.classeId
+    ? classePerId(condiviso.classeId)
+    : null
+  const classe = scelta?.docenteDiClasse ? scelta : null
+  const semestreId = condiviso.semestreId
+  // Un semestre che quest'anno non ha non si prende (`allineaSemestre`).
+  const periodo = semestreId !== undefined && semestreId !== stato.semestreId &&
+    (semestreId === null || annoCorrente()?.semestri.some((s) => s.id === semestreId) === true)
+  if (!corso && !classe) {
+    // Il periodo da solo: come la sua tendina, la pagina resta dov'è.
+    if (periodo) aggiorna({ semestreId: semestreId ?? null })
+    return
+  }
+  const { pagina } = stato.posto
+  let posto: Posto = stato.posto
+  const contesto: Partial<Contesto> = {}
+  if (corso) {
+    contesto.corsoId = corso.id
+    contesto.filtroClasseId = corso.classeId
+    if (pagina.startsWith('pagina.corso.') || pagina === 'pagina.corsi') {
+      posto = { pagina, soggetto: { tipo: 'corso', id: corso.id } }
+    }
+  }
+  if (classe) {
+    contesto.classeId = classe.id
+    if (pagina.startsWith('pagina.classe.')) {
+      posto = { pagina, soggetto: { tipo: 'classe', id: classe.id } }
+      contesto.filtroClasseId = classe.id
+    }
+  }
+  vai(posto, {
+    contesto,
+    storia: 'sostituisci',
+    ...(periodo ? { preferenze: { semestreId: semestreId ?? null } } : {}),
   })
 }
 

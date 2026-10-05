@@ -1,7 +1,8 @@
 // Più finestre del registro su un archivio solo (`desktop/pannelli/panel.ts`):
 // le scritture di tutte passano da una coda sola, nell'ordine in cui arrivano,
 // e `attendiScritture` le aspetta tutte; lo schermo per la classe segue la
-// finestra col fuoco, non l'ultima che ha parlato.
+// finestra col fuoco, non l'ultima che ha parlato; corso, classe e periodo scelti in una
+// vanno alle altre, mai indietro a chi li ha scelti.
 
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
@@ -136,6 +137,54 @@ describe('lo schermo per la classe segue la finestra col fuoco', () => {
       })
     } finally {
       m.registraProiettore(null)
+    }
+  })
+})
+
+describe('corso, classe e periodo condivisi', () => {
+  it('l’host li gira alle altre finestre, non a chi li manda, e una nuova li riceve tutti', async () => {
+    const { Archivio, PannelloRegistro, Uri } = m
+    const archivio = new Archivio(Uri.file(percorso.join(radice, 'utente-condivisi')))
+    await archivio.apri(null)
+    const contesto = { extensionUri: Uri.file(radice), subscriptions: [] }
+    const [principale, figlia, terza] = [pannelloFinto(), pannelloFinto(), pannelloFinto()]
+    new PannelloRegistro(principale.pannello, contesto, archivio, 1)
+    new PannelloRegistro(figlia.pannello, contesto, archivio, 2)
+    /** I condivisi arrivati a una finestra, in ordine. */
+    const arrivati = (finto) => finto.mandati.filter((x) => x.tipo === 'condiviso').map((x) => x.condiviso)
+    try {
+      // Pagine in piedi: solo a quelle l'host spinge subito.
+      principale.scrivi({ id: 1, azione: { tipo: 'stato.leggi' } })
+      figlia.scrivi({ id: 1, azione: { tipo: 'stato.leggi' } })
+      await PannelloRegistro.attendiScritture()
+      assert.deepEqual(arrivati(figlia), [], 'finché nessuno ha detto niente, niente da girare')
+
+      principale.scrivi({ tipo: 'finestra.condiviso', condiviso: { corsoId: 'c1', classeId: 'k1', semestreId: 's1' } })
+      assert.deepEqual(arrivati(figlia), [{ corsoId: 'c1', classeId: 'k1', semestreId: 's1' }])
+      assert.deepEqual(arrivati(principale), [], 'non torna a chi l’ha mandato')
+
+      // La figlia ridice quel che l'host sa già: niente rimbalzo.
+      figlia.scrivi({ tipo: 'finestra.condiviso', condiviso: { corsoId: 'c1' } })
+      assert.deepEqual(arrivati(principale), [])
+
+      // Cambia la classe nella figlia: alla principale va solo la classe;
+      // quel che non è un id si lascia.
+      figlia.scrivi({ tipo: 'finestra.condiviso', condiviso: { classeId: 'k2', corsoId: null, altro: 'x' } })
+      assert.deepEqual(arrivati(principale), [{ classeId: 'k2' }])
+      assert.deepEqual(arrivati(figlia), [{ corsoId: 'c1', classeId: 'k1', semestreId: 's1' }])
+
+      // L'anno intero è un periodo scelto: si gira anche lui.
+      figlia.scrivi({ tipo: 'finestra.condiviso', condiviso: { semestreId: null } })
+      assert.deepEqual(arrivati(principale), [{ classeId: 'k2' }, { semestreId: null }])
+
+      // Una finestra nuova parte da tutto quel che l'host sa.
+      new PannelloRegistro(terza.pannello, contesto, archivio, 3)
+      terza.scrivi({ id: 1, azione: { tipo: 'stato.leggi' } })
+      await PannelloRegistro.attendiScritture()
+      assert.deepEqual(arrivati(terza), [{ corsoId: 'c1', classeId: 'k2', semestreId: null }])
+    } finally {
+      principale.chiudi()
+      archivio.dispose()
     }
   })
 })

@@ -335,7 +335,9 @@ const it = {
         testo:
           'Ogni finestra ha la sua pagina e il suo **Indietro**; i dati sono gli stessi. Quel che si ' +
           'scrive in una compare subito nelle altre, e `Ctrl+Z` annulla l’ultimo gesto da qualunque ' +
-          'finestra lo si prema. Un campo in cui si sta scrivendo non viene coperto da un’altra finestra.',
+          'finestra lo si prema. Un campo in cui si sta scrivendo non viene coperto da un’altra finestra. ' +
+          'Il **Corso**, la classe del **Docente di classe** e il **Periodo** sono gli stessi in tutte: ' +
+          'cambiati in una, le altre li seguono.',
       },
       {
         termine: 'Riconoscerle',
@@ -828,7 +830,9 @@ export const testi = catalogo(it, {
             'Jedes Fenster hat seine Seite und sein **Zurück**; die Daten sind dieselben. Was du ' +
             'in einem schreibst, erscheint sofort in den anderen, und `Ctrl+Z` macht den letzten ' +
             'Schritt rückgängig, egal in welchem Fenster. Ein Feld, in dem du schreibst, wird von ' +
-            'einem anderen Fenster nicht überschrieben.',
+            'einem anderen Fenster nicht überschrieben. Der **Kurs**, die Klasse der ' +
+            '**Klassenlehrperson** und der **Zeitraum** sind in allen gleich: Änderst du sie in ' +
+            'einem, folgen die anderen.',
         },
         {
           termine: 'Sie erkennen',
@@ -1319,7 +1323,8 @@ export const testi = catalogo(it, {
             'Chaque fenêtre a sa page et son **Retour** ; les données sont les mêmes. Ce que tu ' +
             'écris dans l’une apparaît aussitôt dans les autres, et `Ctrl+Z` annule le dernier ' +
             'geste depuis n’importe quelle fenêtre. Un champ en cours de saisie n’est pas ' +
-            'écrasé par une autre fenêtre.',
+            'écrasé par une autre fenêtre. Le **Cours**, la classe du **Maître de classe** et la ' +
+            '**Période** sont les mêmes partout : changés dans l’une, les autres suivent.',
         },
         {
           termine: 'Les reconnaître',
@@ -1801,7 +1806,8 @@ export const testi = catalogo(it, {
             'Each window has its own page and its own **Back**; the data are the same. What you ' +
             'write in one shows up at once in the others, and `Ctrl+Z` undoes the last step from ' +
             'whichever window you press it in. A field you are typing in is not overwritten by ' +
-            'another window.',
+            'another window. The **Course**, the **Class teacher**’s class and the **Period** are ' +
+            'the same in all of them: change them in one and the others follow.',
         },
         {
           termine: 'Telling them apart',

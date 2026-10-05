@@ -80,11 +80,14 @@ export type {
   VoceContesto,
 } from './protocol/assistant.js'
 export type {
+  CambioCondiviso,
   ChiestaStatoIntero,
+  ContestoCondiviso,
   ContestoDellaFinestra,
   DocumentoRecente,
   FaseAggiornamenti,
   MessaggioAggiornamenti,
+  MessaggioCondiviso,
   MessaggioDifferenze,
   MessaggioFinestre,
   MessaggioNavigazione,

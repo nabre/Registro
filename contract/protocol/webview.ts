@@ -435,6 +435,39 @@ export interface PaginaDellaFinestra {
   contesto: ContestoDellaFinestra
 }
 
+/**
+ * Il corso di lavoro, la classe del docente di classe e il periodo: gli stessi
+ * in tutte le finestre del registro. Solo i campi che cambiano; per corso e
+ * classe solo id, perché «niente scelto» non si condivide. È stato della
+ * pagina, non del documento: non si scrive.
+ */
+export interface ContestoCondiviso {
+  corsoId?: string
+  classeId?: string
+  /** Il semestre dei conti; `null` è l'anno intero, una scelta come un'altra. */
+  semestreId?: string | null
+}
+
+/**
+ * Dalla pagina all'host: chi la guarda ha cambiato corso o classe. Non lo manda
+ * una pagina che si sta solo allineando a un'altra (`MessaggioCondiviso`), così
+ * il cambio non rimbalza.
+ */
+export interface CambioCondiviso {
+  tipo: 'finestra.condiviso'
+  condiviso: ContestoCondiviso
+}
+
+/**
+ * Dall'host alle altre finestre del registro, non a quella che ha cambiato: il
+ * corso o la classe scelti altrove. A una pagina appena in piedi, tutto quello
+ * che l'host sa.
+ */
+export interface MessaggioCondiviso {
+  tipo: 'condiviso'
+  condiviso: ContestoCondiviso
+}
+
 interface MessaggioNotifica {
   tipo: 'notifica'
   livello: 'info' | 'avviso' | 'errore'
@@ -483,6 +516,7 @@ export type MessaggioVersoWebview =
   | MessaggioNavigazione
   | MessaggioVai
   | MessaggioFinestre
+  | MessaggioCondiviso
   | MessaggioNotifica
   | MessaggioLavoro
   | MessaggioProiezione

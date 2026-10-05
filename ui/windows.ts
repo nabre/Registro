@@ -3,10 +3,12 @@
 // titolo. Le finestre le apre e le chiude l'host (`desktop/pannelli/panel.ts`),
 // che a ogni cambio spinge l'elenco (`MessaggioFinestre`); il numero di questa
 // la pagina lo sa già prima di disegnare, da `data-finestra` sull'`<html>`.
+// Corso, classe del docente di classe e periodo sono gli stessi in tutte: la
+// pagina dice all'host quando chi la guarda li cambia, e l'host li gira alle altre.
 //
 // Il DOM si tocca solo dentro le funzioni: le prove importano il modulo in Node.
 
-import type { MessaggioFinestre } from '#contract/protocol.js'
+import type { ContestoCondiviso, MessaggioFinestre } from '#contract/protocol.js'
 import { testi } from './windows.testi.js'
 
 /** La principale è la 1; le figlie da 2. */
@@ -72,4 +74,58 @@ export function etichettaDellaFinestra (
   const t = testi()
   if (numero !== PRINCIPALE) return t.figlia(numero, pagina)
   return aperte.length > 1 ? t.principale(aperte.length) : null
+}
+
+// ------------------------------------------- corso, classe e periodo condivisi
+
+/**
+ * Corso di lavoro, classe del docente di classe e periodo come li ha questa
+ * finestra. Per corso e classe `null` è «niente scelto», per il periodo l'anno intero.
+ */
+export interface Condivisi {
+  corsoId: string | null
+  classeId: string | null
+  semestreId: string | null
+}
+
+/**
+ * Gli ultimi corso, classe e periodo che questa finestra ha in comune con le altre:
+ * detti all'host o presi da lui. `null` a pagina appena caricata o a
+ * documento cambiato, finché non se ne sa nessuno.
+ */
+let noti: Condivisi | null = null
+
+/**
+ * Che cosa dire all'host dei condivisi di adesso, o `null` se niente: i campi
+ * cambiati da chi guarda questa finestra. Alla partenza parla solo la
+ * principale (riaprendo il documento valgono i suoi, non quelli ricordati da
+ * una figlia). Corso o classe a «niente scelto» non si dicono, perché
+ * svuoterebbero le altre; l'anno intero sì, è un periodo scelto.
+ */
+export function condivisiDaDire (adesso: Condivisi): ContestoCondiviso | null {
+  const prima = noti
+  noti = adesso
+  const cambio: ContestoCondiviso = {}
+  const daDire = (campo: keyof Condivisi) => prima === null ? !èFiglia() : adesso[campo] !== prima[campo]
+  for (const campo of ['corsoId', 'classeId'] as const) {
+    const valore = adesso[campo]
+    if (valore !== null && daDire(campo)) cambio[campo] = valore
+  }
+  if (daDire('semestreId')) cambio.semestreId = adesso.semestreId
+  return Object.keys(cambio).length > 0 ? cambio : null
+}
+
+/**
+ * Prende i condivisi di adesso senza dirli: dopo un allineamento chiesto
+ * dall'host, o dopo che i dati nuovi hanno spostato qualcosa da sé. Una
+ * pagina che non arriva dove le altre (una persona tiene la sua classe) resta
+ * dov'è senza tirare le altre con sé.
+ */
+export function prendiCondivisi (adesso: Condivisi): void {
+  noti = adesso
+}
+
+/** Si riparte da capo: pagina nuova o altro documento. */
+export function scordaCondivisi (): void {
+  noti = null
 }
