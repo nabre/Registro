@@ -20,6 +20,7 @@ import {
   creaOsservazione,
   creaAttivita,
   creaPiano,
+  creaProgetto,
   creaRisorsa,
   creaValutazione,
   eliminazione,
@@ -1298,5 +1299,40 @@ describe('eliminazioni: il secondo di due, e chi non c’è', () => {
     togli(registro, { genere: 'anno', id: anno2.id })
     assert.deepEqual(registro.anni.map((a) => a.id), [anno.id])
     assert.equal(registro.annoCorrenteId, anno.id, 'l’anno aperto resta aperto')
+  })
+})
+
+describe('eliminazioni: i progetti rimasti senza corsi', () => {
+  /** Un progetto per caso: integrato nel primo corso, in tutti e due, in biblioteca. */
+  function conProgetti () {
+    const pieno = registroPieno()
+    const { registro, prima, seconda } = pieno
+    const solo = creaProgetto(prima.corso.id, 'Solo nel primo')
+    const tutti = creaProgetto(prima.corso.id, 'In tutti e due')
+    tutti.integrazioni.push(creaProgetto(seconda.corso.id).integrazioni[0])
+    const biblioteca = creaProgetto(null, 'Già in biblioteca')
+    registro.progetti.push(solo, tutti, biblioteca)
+    return { ...pieno, solo, tutti, biblioteca }
+  }
+
+  it('l’anno dice che i suoi progetti restano nella biblioteca', () => {
+    const { registro, anno } = conProgetti()
+    const esito = togli(registro, { genere: 'anno', id: anno.id })
+    assert.ok(esito.staccati.includes('2 progetti restano nella biblioteca, senza corsi'), esito.staccati.join(' | '))
+    // Restano tutti e tre, con il loro contenuto: la biblioteca li tiene.
+    assert.deepEqual(registro.progetti.map((p) => p.integrazioni.length), [0, 0, 0])
+  })
+
+  it('il corso lo dice solo per chi non era integrato altrove', () => {
+    const { registro, prima, tutti } = conProgetti()
+    const esito = togli(registro, { genere: 'corso', id: prima.corso.id })
+    assert.ok(esito.staccati.includes('1 progetto resta nella biblioteca, senza corsi'), esito.staccati.join(' | '))
+    assert.equal(tutti.integrazioni.length, 1)
+  })
+
+  it('il progetto tolto non resta da nessuna parte', () => {
+    const { registro, solo } = conProgetti()
+    const esito = eliminazione(registro, { genere: 'progetto', id: solo.id })
+    assert.ok(!esito.staccati.some((s) => s.includes('biblioteca')))
   })
 })

@@ -22,9 +22,7 @@ import {
 import type {
   AnnoScolastico,
   Attivita,
-  CellaProgetto,
   Classe,
-  IntegrazioneProgetto,
   PianoLezione,
   Registro,
   Risorsa,
@@ -47,7 +45,7 @@ import {
 } from '#core/dominio/importing.js'
 import { confrontaNomi, normalizzaTesto } from '#core/dominio/text.js'
 import { integrazioneDi } from '#core/dominio/projects.js'
-import { conCarteComplete, fondiCheck, normalizzaImpostazioni } from '#core/dominio/normalization/index.js'
+import { conCarteComplete, fondiCheck, fondiIntegrazione, normalizzaImpostazioni } from '#core/dominio/normalization/index.js'
 import { validaAnno, validaCorso, validaMateria, validaClasse } from '#core/dominio/validation.js'
 import { archivia, archiviaCopia, percorsoFoto, percorsoRisorsaPiano, pulisciCopiaOrfana } from '#core/dati/filing.js'
 import { percorsoCopiaCalendario, scriviCopia } from '#core/dati/calendar.js'
@@ -381,7 +379,7 @@ export const registro = {
           if (!dove) continue
           const gia = integrazioneDi(progetto, dove)
           if (gia) {
-            fondiIntegrazione(gia, integrazione)
+            fondiIntegrazione(gia, integrazione, r.lezioni)
             progetto.integrazioni = progetto.integrazioni.filter((i) => i !== integrazione)
           } else {
             integrazione.corsoId = dove
@@ -838,16 +836,3 @@ export const registro = {
     })
   },
 } satisfies Parte
-
-/**
- * Fonde nell'integrazione superstite quella di un corso doppione: compiti e
- * giudizi si sommano (gli id sono unici nell'anno); delle celle sulla stessa
- * casella vale quella del superstite, come per le spunte del check.
- */
-function fondiIntegrazione (superstite: IntegrazioneProgetto, doppione: IntegrazioneProgetto): void {
-  superstite.compiti.push(...doppione.compiti)
-  superstite.giudizi.push(...doppione.giudizi)
-  const casella = (c: CellaProgetto) => `${c.allievoId} ${c.criterioId} ${c.lezioneId ?? c.data}`
-  const prese = new Set(superstite.matrice.map(casella))
-  superstite.matrice.push(...doppione.matrice.filter((c) => !prese.has(casella(c))))
-}
