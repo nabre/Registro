@@ -87,7 +87,7 @@ ogni pagina sta in `VISTA_DELLA_PAGINA` ([`ui/place.ts`](../ui/place.ts)).
 | `progettazione` | Progettazione — *corso* | Panoramica, Piani lezione, Integrazione progetti |
 | `classe` | Docente di classe — *classe* | Check della classe e le tre schede del fascicolo |
 | `anno` | Anno scolastico | Classi, Persone, Mappa, Corsi, Progetti |
-| `sistema` | Il programma | Impostazioni, Guida (anche nel menu «File», `GRUPPO_DEL_MENU` in [`ui/commandBar.tsx`](../ui/commandBar.tsx)) |
+| `sistema` | Il programma | Impostazioni, Guida (non nel menu «File»: la barra laterale è sempre in vista) |
 
 Ordine: `ORDINE`. L'interruttore della barra laterale sta nella sua
 intestazione ([`ui/sidebar.tsx`](../ui/sidebar.tsx)).
@@ -98,7 +98,7 @@ intestazione ([`ui/sidebar.tsx`](../ui/sidebar.tsx)).
 |---|---|---|
 | `oggi` | [`views/today.tsx`](../ui/views/today.tsx) | tessere (lezioni del giorno, da compilare, pendenze, da smistare), lezioni, prossime valutazioni, compleanni; nessun comando |
 | `calendario` | [`views/calendar.tsx`](../ui/views/calendar.tsx), [`calendar/`](../ui/views/calendar/) | 4 modi (`MODI_CALENDARIO`): settimana, mese, anno, agenda; editor in `views/calendar/editor.tsx` |
-| `todo` | [`views/todo.tsx`](../ui/views/todo.tsx) | delega a `classTodo.tsx` |
+| `todo` | [`views/todo.tsx`](../ui/views/todo.tsx) | schede «corsi» (`corso:<id>`) e, da docente di classe, «classi» (`classe:<id>`); famiglie e riassunti da `classTodo.tsx` |
 | `daSmistare` | [`views/sorting/toSort.tsx`](../ui/views/sorting/toSort.tsx) | — |
 | `lezione` | [`views/lesson.tsx`](../ui/views/lesson.tsx), [`lesson/`](../ui/views/lesson/) | amministrazione (appello, consegne, check, riconsegne), lezione (piano, voti, recuperi, progetto), annotazioni |
 | `classi` | [`views/classes.tsx`](../ui/views/classes.tsx) | elenco + anagrafica |
@@ -191,8 +191,8 @@ interface ComandoUI {
 | `proiezione.schermo` ★◐ | Proietta / Spegni lo schermo | `proiezione.apri` / `proiezione.chiudi` |
 | `calendario.editor` ◐ | Modifica (`Ctrl+E`) | modo del registro: arma la griglia del calendario, rende modificabili le lezioni esistenti, mostra «Nuova lezione» e i comandi ICS |
 
-Impostazioni: nessun comando; gruppi e sezioni stanno nella fascia in cima
-(`GRUPPI_SEZIONI` in [`ui/views/settings/sections.ts`](../ui/views/settings/sections.ts)).
+Impostazioni: nessun comando; le quattro aree stanno nella testata, le sezioni
+nell'indice a sinistra (`AREE`, `SEZIONI` in [`ui/views/settings/sections.ts`](../ui/views/settings/sections.ts)).
 
 ### 3.2 Calendario (`dove: calendario`)
 
@@ -446,7 +446,8 @@ lo tiene `tests/api/coverage.test.mjs`.
 
 Helper comuni in [`core/azioni/context.ts`](../core/azioni/context.ts):
 `fatto`, `invariato`, `rifiuta`, `conMessaggio`, `riponi` (upsert per id),
-`apriFile`, `cestina`, `scegliFile`, `lanciaComando`, `vietaSeInChiusura`.
+`apriFile`, `cestina`, `scegliFile`, `lanciaComando`; `Archivio.vietaSeInChiusura`
+in [`core/dati/archive.ts`](../core/dati/archive.ts).
 
 Comportamenti da sapere:
 
@@ -454,10 +455,8 @@ Comportamenti da sapere:
   `valutazione.daAttivita`, `orario.genera` (quel che c'è non si tocca),
   `calendario.applica` (tutto o niente; non cancella mai lezioni).
 - **Aprono un dialogo** (e da uno script aspettano una persona): API § 7.
-- **Scrivono con `archivio.modifica` diretto**, fuori da `contesto.modifica`:
-  `materia.salva`, `comunicazione.invia`, `comunicazione.spunta`,
-  `assenze.invia`, `assenze.spunta` e alcune di `sorting.ts`,
-  `assignments.ts`, `assessments.ts`.
+- **Scrive con `archivio.modifica` diretto**, fuori da `contesto.modifica`, solo
+  `chiudiSeFinito` di `sorting.ts` (lo smistamento finito, non annullabile).
 - **File prima del registro**: le rimozioni cestinano il file e poi tolgono la
   riga; le aggiunte copiano il file e poi scrivono.
 - `lezione.stato` a `svolta` inizializza l'appello vuoto e rifà subito i
@@ -668,7 +667,7 @@ modulo aperto con gli errori o chiude, notifica e chiama `dopo(idCreato)`.
 | `moduloMateria`, `moduloUnisciMaterie` | `materia.salva`, `materia.elimina`, `materia.unisci` |
 | `editorPiano`, `moduloPiano`, `moduloAssegnaPiano` | `piano.salva`, `piano.duplica`, `piano.elimina`, `piano.assegna` |
 | `moduloRecupero` | `recupero.imposta` |
-| `bloccoRisorse`, `moduloCollegamento`, `moduloRisorsa` | `risorsa.*` |
+| `BloccoRisorse`, `moduloCollegamento`, `moduloRisorsa` | `risorsa.*` |
 | `moduloValutazione` (corregge, non crea) | `valutazione.salva`, `valutazione.elimina` |
 | `moduloImportaRegistro` | `registro.importa` |
 | `moduloColonnaCheck`, `moduloColonneCheck`, `moduloDataCheck` | `check.colonne`, `check.data` |
@@ -699,7 +698,7 @@ sezioni dei moduli e modali.
 | PDF di prova | lettura `modelli.prova` | in memoria |
 | CSV | `esporta.valutazioni`, `esporta.presenze` | accanto al PDF, stesso nome ([`core/dati/exports.ts`](../core/dati/exports.ts)) |
 | Markdown | `esporta.lezione` | accanto al verbale |
-| ZIP (allievi con foto, piani, risorse, `Leggimi.txt`) | `supplenza.prepara`, anche con la mail che lo porta | accanto al `.regi`, fuori dal documento |
+| ZIP (allievi con foto, piani, risorse, `Leggimi.txt`) | `supplenza.prepara`, anche con la mail che lo porta | accanto al `.regi`, fuori dal documento; cancellato, senza cestino, quando la mail parte (resta senza indirizzo, con l'invio rifiutato o fallito, con la bozza aperta e non spedita); due supplenze dello stesso giorno con nome uguale si separano con « (2)» |
 | `.eml` | invii con invio diretto spento o fallito | `bozze/` |
 
 ### 11.2 Posta

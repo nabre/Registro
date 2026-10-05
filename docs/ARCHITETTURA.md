@@ -228,8 +228,9 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   oggetto `satisfies Parte`, e un'azione senza gestore non compila. `Contesto`
   ([context.ts](../core/azioni/context.ts)) è la porta verso lo stato:
   `modifica(op, collezioni)`, `suVoce` (timbra `aggiornatoIl`), `nelFascicolo`,
-  `elimina`. Oggi `op` cambia lo stato vivo dopo `ricordaPrima`; `Archivio.modifica`
-  invece passa `op` su una bozza immer e ricava le collezioni dalle patch (ADR-50).
+  `elimina`. `op` lavora sulla bozza immer di `Archivio.modificaSe`: le
+  collezioni toccate si ricavano dalle patch e si confrontano con quelle
+  dichiarate (ADR-50).
 - **`contract/`** — il contratto davanti ai gestori: protocollo, schemi e procedure
   (ADR-27–29, [API](API.md)).
 - **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
@@ -240,7 +241,8 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   di stato, con fuoco, cursore e scorrimenti ripristinati per chiave
   (`data-fuoco`, `data-scorrimento`, [focus.ts](../ui/focus.ts)); modali,
   menu, palette e notifiche in radici loro, fuori dal ciclo. `stato.registro` è
-  sola lettura: ogni scrittura è un'`Azione`, il registro nuovo torna intero.
+  sola lettura: ogni scrittura è un'`Azione`, e il registro nuovo arriva a
+  differenze ([statePatches.ts](../ui/statePatches.ts), ADR-43).
   Dove si guarda è un `Posto` e ci si sposta con `vai` (ADR-47); il posto si
   ricorda per documento (`memory.ts`). Ogni aggiornamento resta nel suo
   riquadro (ADR-48): i nodi `data-telaio` restano fra due disegni, le letture

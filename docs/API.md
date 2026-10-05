@@ -249,7 +249,7 @@ L'area è il primo segmento del nome.
 | `calendario` | calendari ICS: gestirli, leggerli, confrontarli, applicare la revisione (crea, allinea, annulla, non cancella) |
 | `stato` · `documento` · `documenti` | stato del registro, documenti d'anno |
 | `rapporti` · `esportazioni` · `esporta` | i fogli che escono |
-| `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta |
+| `supplenza` | quando manco io: lo zip per chi tiene le mie ore, accanto al documento, e la mail che lo porta (spedita la mail, lo zip si cancella) |
 | `proiezione` | la finestra davanti alla classe |
 | `finestra` · `vista` | zoom, schermo intero, e `vista.apri` (l'unica scrittura dell'assistente, § 9) |
 | `posta` · `mappa` | quel che parla con altre macchine |
@@ -339,6 +339,9 @@ che li prendano.
 | `ore.elenco` | `corsoId?`, `classeId?`, `materiaId?`, `stato?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | ore nel periodo: giorno, orario, corso, quantesima, stato, UD, argomenti, appello fatto |
 | `ore.prossima` | `corsoId?`, `classeId?`, `da?`, `dalleOre?`, `quante?` | la prossima lezione (o quella in corso). Unica lettura che guarda l'orologio: rimanda il momento usato. `aCalendario` distingue «finite» da «calendario vuoto». Conto da `prossimaLezione()` |
 | `ore.leggi` | `lezioneId` | argomenti, materiali, consuntivo, piano, annotazioni con il nome |
+| `ore.cruscotto` | `oggi?`, `ora?` | l'ora su cui andare adesso: prima la più vecchia con un buco, poi la prossima; corso, classe, materia, giorno, orario, aula e `motivoMancanza`. Conto da `oraDaCompilare()` |
+| `classe.pendenze` | `classeId`, `oggi?` | pendenze aperte e urgenti della classe, in tutto e per famiglia (`FAMIGLIE_TODO`). Conto da `todoDellaClasse()` |
+| `smistamento.daFare` | `classeId?` | le scansioni in quarantena: file, classe, consegna, pagine rimaste da attribuire, arrivo, errore; totali di file e pagine |
 | `valutazioni.elenco` | `corsoId?`, `classeId?`, `dal?`, `al?`, `cerca?`, `da?`, `quanti?` | momenti: titolo, genere, peso, voti messi, media, riconsegne, recuperi |
 | `valutazioni.voti` | `valutazioneId` | una riga per persona della classe: voto, assenza, sufficienza, riconsegna, recupero |
 | `valutazioni.orfane` | `corsoId?`, `classeId?` | i momenti di valutazione sganciati da ogni tappa del piano, con il motivo e il numero dei voti |

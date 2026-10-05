@@ -176,16 +176,9 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       (`views/assessments/grades.tsx`, con finestra virtuale).
 - [ ] Tasti del gruppo radio ripetuti: `dove()` in
       `core/controlli/control.tsx`, `views/settings.tsx`, `components/base.tsx`.
-- [ ] `tools/mail-probe.ps1` porta di serie un indirizzo personale e un id di
-      tenant reale: parametri senza valori di serie?
 
 ### Prove
 
-- [ ] `tests/proprieta/storia.test.mjs` «annullare un gesto rimette lo stato
-      di prima…» cade di rado: `PROPRIETA_SEME=153678895
-      PROPRIETA_ESECUZIONI=4000` lo riproduce (anche prima dei lotti). Dopo
-      annulla/ripristina manca un allievo dal nome vuoto aggiunto dopo
-      `rinomina` a `" "` e `filtraClassi`. Capire se è la storia o la prova.
 - [ ] Instabili sotto carico (da sole passano): `tests/api/importClass.test.mjs:230`
       «il documento d'origine resta com'era» (un `.tmp` atteso manca); «la
       convalida dell'input › le risposte tornano nell'ordine dei tasti»;
@@ -204,9 +197,6 @@ invariato, in ordine. Ogni lotto: mappa in ARCHITETTURA § 11, poi un commit.
       («Ctrl+D non copia un’ora ancorata», «Canc due volte»), cadono anche sul
       codice di prima della conversione a React: la prima non ancora l'ora
       all'ICS, la seconda non risponde alla conferma dell'eliminazione.
-- [ ] Progetti integrati nei corsi: manca la prova API di `materia.unisci`
-      (due integrazioni che si fondono) e `classe.duplica` (integrazione nuova
-      sullo stesso progetto).
 
 ### Audit del 2026-10-02
 
@@ -216,26 +206,25 @@ Verificati a mano i primi otto.
 - [ ] Aggiornamenti Windows senza verifica dell'editore: `publisherName` in
       `electron-builder.json` con SignPath, `Get-AuthenticodeSignature` in
       `aggiornamento.ps1`; fino ad allora dirlo in SECURITY.md.
-- [ ] `core/dati/opening.ts`: lista bianca delle estensioni apribili al posto
-      di `ESEGUIBILI` (mancano `chm`, `ws`, `jnlp`, `mht`…); `Zone.Identifier`
-      sulle copie materializzate.
-- [ ] `core/dati/store.ts` `materializza`: decomprime prima del CRC; leggere
-      dopo il confronto, dentro la fila. `voce.bytes` mai liberati.
+- [ ] Apertura: `desktop/shell/windows/devTools.ts:241-251` apre ancora con
+      `shell.openPath` senza `apriSeApribile`; su macOS nessun attributo di
+      quarantena sui file fuori lista (`segnaComeVenutoDaFuori` solo win32).
+- [ ] `core/dati/store.ts`: `voce.bytes` mai liberati. La cache sta in
+      `Voce.bytes` (`package.ts`) e nella chiusura `aperto` (`zip.ts`):
+      proposta `Pacchetto.alleggerisci(nome)` che rimette `apri` sulle voci
+      intatte già collocate.
 - [ ] Performance: agenda annuale senza `content-visibility`/virtualizzazione;
       `core/dati/kit.ts:279` estrazione sincrona; soglia di `rifai`
       (`package.ts`) che conta gli allegati.
-- [ ] Accessibilità: fuoco perso nell'appello (Invio/Esc, `lesson/attendance.tsx`);
-      apice 15 px (< 24); titolo-selettore con controlli dentro `h2` e
-      `change` sulle frecce; linguette strumenti senza `aria-pressed`;
-      dialogo nativo senza `listbox`/`combobox`/`role=alert`; axe non apre
-      modali né finestre native.
-- [ ] CSS: codice morto (`barra-stato__filtro/__tendina`, `documenti__cella…`,
-      `scelta-giorni`, `barra-comandi__pagina`, `elenco-materie`); bianco fisso
-      su `.livello-progetto`; freccia dei `select` duplicata con colori a
-      mano.
+- [ ] Accessibilità: titolo-selettore con controlli dentro `h2` e
+      `change` sulle frecce; dialogo nativo senza `listbox`/`combobox`/`role=alert`;
+      axe non apre modali né finestre native; casella dell'appello alta
+      22 px (< 24).
+- [ ] CSS: la freccia dei `select` con colori a mano resta in
+      `desktop/shell/pages/shared/base.css` (righe 87 e 96); il pannello usa ora
+      gradienti su `--testo-quieto` (`ui/styles/controls.css`).
 - [ ] Minori: fuses `onlyLoadAppFromAsar`/`grantFileProtocolExtraPrivileges`;
-      `REGISTRO_SVILUPPO` nel pacchetto; `shell.openPath` senza guardia
-      (`desktop/apparato/commands.ts:73`, `dialogs.ts`); `switch-exhaustiveness-check`;
+      `REGISTRO_SVILUPPO` nel pacchetto; `switch-exhaustiveness-check`;
       `core/dominio/calendar.ts:273` `fasce[0]`; storia di `conversation.ts:200` non
       convalidata.
 
@@ -250,28 +239,15 @@ alti e i medi sono corretti; qui restano le scelte e i bassi.
 - [ ] `progetti.salva` con `corsoId` (chiamante di prima di v7): il campo
       cade in silenzio e il progetto nasce non integrato. Integrare o
       avvisare.
-- [ ] Eliminando un anno, i progetti integrati solo nei suoi corsi restano
-      con zero integrazioni (`core/dominio/deletions.ts`): toglierli o
-      dirlo fra gli staccati.
-- [ ] Normalizzazione: `conCorsoVero` (`normalization/register.ts`,
-      `projects.ts`) con due integrazioni dello stesso progetto sullo stesso
-      corso superstite tiene la prima e perde compiti, giudizi e celle
-      dell'altra; fondere come `fondiIntegrazione`.
-- [ ] Supplenza: lo zip con foto e nomi resta in `cartellaDocumento()`
-      (spesso OneDrive) dopo l'invio; il foglio delle foto mette
-      `allievo.azienda` sotto ogni foto, dato in più per un supplente. Due
-      supplenze lo stesso giorno senza orario e per le stesse classi hanno
-      ancora lo stesso nome.
+- [ ] Supplenza: lo zip con foto e nomi ora sparisce dopo l'invio, ma resta
+      in `cartellaDocumento()` (spesso OneDrive) con la bozza aperta e non
+      spedita: decidere. Due supplenze con la stessa prima ora ({L1} e
+      {L1,L2}) hanno ancora lo stesso nome. `distinzione()` ricopiata in
+      `core/dominio/substitute.ts` da `locations.ts`: esportarla una volta.
 - [ ] Allievi omonimi nella stessa classe hanno la stessa collocazione
       (`core/dominio/locations.ts`, cartella e scheda): la seconda copre la
       prima. `distinzione()` come per prove e progetti, ma cambia i percorsi
       dei documenti già scritti: serve un passo che sposti.
-- [ ] Eventi ICS con lo stesso UID alla stessa ora danno la stessa `key`
-      React (`views/calendar/week.tsx`, `month.tsx`, `agenda.tsx`):
-      deduplicare in `core/dominio/calendarIcs.ts`.
-- [ ] ESLint senza `react/jsx-key`: oggi nessuna chiave manca (scansione
-      AST), ma niente lo impedisce. `eslint-plugin-react` (ADR-50) o regola
-      locale.
 - [ ] Minori React: `views/classTeacher.tsx` ridisegna due volte allo
       scorrimento (`useFinestra` più `virtuale`); classi del bersaglio di
       trascinamento messe con `classList` su nodi di React
@@ -310,10 +286,12 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
 
 ### PDF e documenti
 
-- [ ] Visualizzazioni proposte e non fatte: barre della % di assenza per
-      persona con la soglia; presenze per mese; andamento dei segni +/−;
+- [ ] Visualizzazioni proposte e non fatte: presenze per mese; andamento dei segni +/−;
       avanzamento del check per colonna; livelli dei progetti nel tempo;
       andamento con più corsi (una linea per corso).
+- [ ] Barre dell'assenza per persona (`grafico: assenze`, presenze-classe e
+      scheda-corso): oltre soglia pieno rosso e cifra in grassetto. Guardare
+      a vista e in B/N se serve un retino al posto di pieno/chiaro.
 - [ ] Scheda del corso: il quadro per persona conta i ritardi (matrice), non
       i minuti per UD; i segni escono «+1 / -1» col trattino ASCII. Le date
       dei piani contano anche le ore pianificate. Scritte delle colonne
@@ -344,9 +322,11 @@ Lo stato persistito resta `svolta`/`pianificata`: a schermo «Conclusa» e
       quel che Chromium headless non vede bene: trascinare e allungare un'ora
       nel calendario, trascinare pagine in Da smistare e sui fogli dell'archivio,
       la firma (`contenteditable`), le mappe, le miniature dei PDF, la dettatura.
-      Confermare o rimettere tre cambi di comportamento (PIANO-REACT § 11):
-      spunte del calendario ufficiale che restano, conto dei giorni delle pause
-      sulle date nuove, notifiche un fotogramma dopo.
+      Confermare o rimettere tre cambi di comportamento della conversione:
+      nel calendario ufficiale di un anno le spunte restano fra due disegni
+      (prima tornavano tutte accese); nell'editor delle pause il conto dei
+      giorni segue subito le date nuove; le notifiche compaiono un
+      fotogramma dopo.
 
 - [ ] Progetti (biblioteca, `pagina.progetti`) e Integrazione progetti
       (`pagina.corso.integrazione`): integrare dal menu e dalla biblioteca,

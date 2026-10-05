@@ -53,8 +53,8 @@ una non si fa, per quanto sia grande.
   `grep -rnE "\.(skip|only|todo)\(|\{ ?(skip|only|todo):" tests` non trova
   niente di nuovo.
 - **Nessuna dipendenza nuova senza il permesso esplicito del docente in
-  chat.** fast-check è quella prevista; StrykerJS solo se si fa il controllo
-  mirato. Chiedile per nome, versione e licenza prima di `npm i -D`. Nessuna dipendenza di produzione.
+  chat.** fast-check e StrykerJS ci sono già, fra le dipendenze di sviluppo.
+  Un'altra si chiede per nome, versione e licenza prima di `npm i -D`. Nessuna dipendenza di produzione.
 - **Un tipo di intervento per commit.** «Prove API generate dal manifesto» è un
   commit; «snapshot dei rapporti» è un altro. Mai mescolati con cambiamenti al
   codice di produzione o spostamenti di cartelle (D5).
@@ -169,18 +169,23 @@ Riporta la copertura di partenza per file sorgente: sarà il pavimento.
 Mai su tutta la suite, mai in CI, mai come misura di routine.
 
 **Perché così stretto.** Stryker non ha un runner per `node:test`: usa il
-*command runner*, che per ogni mutante ricostruisce `dist-tests/` con esbuild
-e rilancia tutte le prove del comando, senza sapere quali coprono la riga
-mutata. Su un file solo e con le sole prove del suo livello si parla di
-minuti; su `core/dominio/` intero di ore.
+*command runner*, che per ogni mutante rilancia tutte le prove del comando,
+senza sapere quali coprono la riga mutata (`dist-tests/` si costruisce una
+volta, e il mutante acceso lo sceglie l'ambiente). Su un file solo e con le
+sole prove del suo livello si parla di minuti; su `core/dominio/` intero di ore.
 
-**Come.** La configurazione sta in `stryker.config.json` alla radice (vedi il
-prompt di configurazione in fondo). Per ogni controllo:
+**Come.** La configurazione sta in `stryker.config.json` alla radice; il file
+e le prove li passa `tools/mutants.mjs`:
 
-1. `mutate` punta a **un** file sorgente.
-2. Il comando lancia solo le prove che riguardano quel file (di solito
-   `tests/domain/<nome>.test.mjs` e poche altre), dopo `node esbuild.mjs
-   --test`.
+```bash
+npm run mutanti -- --file core/dominio/calculations.ts   --prove "tests/domain/calculations.test.mjs tests/domain/lateness.test.mjs"
+```
+
+Per ogni controllo:
+
+1. `--file` punta a **un** file sorgente.
+2. `--prove` elenca solo le prove che riguardano quel file (di solito
+   `tests/domain/<nome>.test.mjs` e poche altre).
 3. Si esegue **prima** dell'intervento: il punteggio è il pavimento. Si
    annotano i mutanti sopravvissuti (sono buchi già presenti, non colpa tua)
    e, per ogni prova candidata alla rimozione, se è l'unica a uccidere qualche
@@ -400,60 +405,8 @@ Da incollare all'agente per cominciare un giro:
 > ridurre la suite di prove di Regiklass a parità di garanzie, secondo la skill
 > `prove`. In questo giro fai **solo** il tempo zero, il primo tempo
 > (inventario) e il secondo tempo (misura della ridondanza): nessuna modifica
-> ai file di `tests/`, nessuna dipendenza installata. Se per misurare servono
-> fast-check, chiedimelo indicando versione e licenza. Stryker non si usa in
+> ai file di `tests/`, nessuna dipendenza installata. Stryker non si usa in
 > questo giro. Consegna
 > `tmp/prove-partenza.md`, `tmp/prove-inventario.md` e una proposta ordinata
 > di interventi per tecnica, con i numeri attesi e le prove protette
 > coinvolte. Aspetta il mio via prima di applicare qualunque cosa.
-
-## Prompt di configurazione di StrykerJS
-
-Da incollare all'agente solo quando serve il primo controllo mirato:
-
-> Leggi `CLAUDE.md` e le skill `prove` (sezione «Controllo mirato con
-> StrykerJS») e `verifica`. Obiettivo: preparare StrykerJS per controlli
-> mirati su un file sorgente alla volta, senza cambiare codice di produzione
-> né prove.
->
-> 1. Verifica che l'albero sia verde (skill `verifica`). Se non lo è, fermati.
-> 2. Chiedimi il permesso di installare `@stryker-mutator/core` come
->    dipendenza di sviluppo, indicando versione e licenza (Apache-2.0).
->    Nessun altro pacchetto Stryker: per `node:test` non esiste un runner
->    dedicato, si usa il *command runner* incluso.
-> 3. Crea `stryker.config.json` alla radice con: `testRunner: "command"`;
->    `coverageAnalysis: "off"`; `reporters: ["clear-text", "html", "json"]`;
->    `htmlReporter` e `jsonReporter` che scrivono sotto `reports/mutation/`;
->    `tempDirName: ".stryker-tmp"`; `concurrency` pari a metà dei core
->    disponibili; `timeoutMS` e `timeoutFactor` adatti a una ricostruzione con
->    esbuild per mutante; nessun `mutate` fisso, perché il file da mutare si
->    passa ogni volta da riga di comando.
-> 4. Il comando del runner deve funzionare **dentro la cartella temporanea di
->    Stryker**: ricostruire `dist-tests/` da lì (`node esbuild.mjs --test`) e
->    poi lanciare `node --test` sui soli file di prova passati. Verifica che
->    esbuild e le prove non leggano percorsi assoluti della copia originale
->    (alias `apparato`, `tests/helpers/`, `tests/samples/`): se lo fanno,
->    riferisci invece di aggirarlo.
-> 5. Aggiungi uno script in `tools/` (per esempio `tools/mutants.mjs`) e la
->    voce `"mutanti"` in `package.json`, così che si lanci con
->    `npm run mutanti -- --file core/dominio/calculations.ts --prove
->    "tests/domain/calculations.test.mjs tests/domain/lateness.test.mjs"`. Lo
->    script passa a Stryker `--mutate` e il comando con le prove indicate,
->    rifiuta di partire senza `--file` o con più di un file, e stampa alla
->    fine punteggio, mutanti sopravvissuti e percorso del rapporto HTML.
-> 6. Aggiungi a `.gitignore` `.stryker-tmp/` e `reports/mutation/`. Aggiungi a
->    `eslint.config.mjs` gli ignorati corrispondenti se servono.
-> 7. Non aggiungere lo script a `npm run ci` né ai workflow di GitHub.
-> 8. Prova la configurazione su un file piccolo e ben provato di
->    `core/dominio/` scelto da te: annota durata, numero di mutanti,
->    punteggio. Poi ripeti su `core/dominio/calculations.ts` con le sue prove
->    e stima la durata; se supera i trenta minuti fermati e proponi come
->    restringere (sottoinsieme di funzioni con `mutate` a intervallo di righe,
->    `mutator.excludedMutations`, meno prove).
-> 9. Aggiorna `docs/GUIDA.md` con una riga sul comando e rilancia
->    `npm run docs` perché la citazione dello script risulti valida.
-> 10. Consegna: i file creati o cambiati, i numeri delle due prove del punto
->     8, eventuali problemi dei percorsi nella cartella temporanea, e l'esito
->     di `npm run ci -- --solo verifica`. Un commit solo, che non contiene
->     altro.
-

@@ -776,7 +776,7 @@ matrice nomina sono del progetto.
 
 | campo | tipo | nota |
 |---|---|---|
-| `corsoId` | `string` | senza, alla lettura l'integrazione se ne va; due per lo stesso corso: vale la prima |
+| `corsoId` | `string` | senza, alla lettura l'integrazione se ne va; due per lo stesso corso: vale la prima, salvo quando la migrazione ha fuso due corsi (`conCorsoVero`): allora si fondono (`fondiIntegrazione`) |
 | `stato` | `StatoProgetto` | |
 | `compiti` | `CompitoProgetto[]` | |
 | `giudizi` | `GiudizioProgetto[]` | |
@@ -1230,9 +1230,9 @@ anno → classi → corsi → lezioni / valutazioni → consegne / check → smi
 | Bersaglio | Si cancella | Si scollega / sopravvive | Alternativa |
 |---|---|---|---|
 | `anno` | la cartella intera, con classi, corsi, lezioni, valutazioni, consegne, check, smistamenti, fascicoli | `annoCorrenteId` al primo rimasto; piani con `corsoId = null`. Se non è l'anno aperto non se ne contano i contenuti | cestino di sistema |
-| `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti | unirla a un'altra |
-| `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti | archiviarla |
-| `corso` | corso, lezioni, valutazioni, consegne, check, integrazioni dei progetti in quel corso (e i loro fogli), smistamenti, PDF | i piani (`corsoId = null`, le tappe tengono il progetto); i progetti | — |
+| `materia` | la materia e i suoi corsi, in cascata | piani dei corsi caduti; i progetti integrati solo in quei corsi restano nella biblioteca, senza corsi | unirla a un'altra |
+| `classe` | classe, allievi, corsi in cascata, fascicolo, schede stampate | piani dei corsi caduti; i progetti integrati solo in quei corsi restano nella biblioteca, senza corsi | archiviarla |
+| `corso` | corso, lezioni, valutazioni, consegne, check, integrazioni dei progetti in quel corso (e i loro fogli), smistamenti, PDF | i piani (`corsoId = null`, le tappe tengono il progetto); i progetti (integrati solo lì: nella biblioteca, senza corsi) | — |
 | `allievo` (classeId, id) | presenze, osservazioni, celle, voti, recuperi, righe d'assenza, documenti e file delle spunte, spunte del check, voci dei progetti, schede stampate | allegati e documenti del fascicolo → `allievoId = null` (file restano); consegne restano senza il suo nome | togliere «Frequenta» (`attivo = false`) |
 | `lezione` | sé stessa, appello, osservazioni, verbale | consegne, spunte e voci dei progetti: data **copiata prima** di azzerare il rimando; momenti → `lezioneId = null` | — |
 | `piano` | il piano, i file delle sue risorse (per percorso, non per cartella), il PDF | lezioni → `pianoId = null` e `avanzamento = []`; momenti → `pianoId = null` | — |
