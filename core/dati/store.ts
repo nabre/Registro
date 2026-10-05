@@ -182,19 +182,20 @@ export class Deposito {
     if (!this.esiste(dentro)) return null
 
     return this.inFila(async () => {
-      // Letto in fila, come il CRC: letto prima, un file riscritto (e salvato)
-      // durante l'attesa darebbe byte vecchi segnati con l'impronta nuova.
-      const contenuto = this.leggi(dentro)
-      if (contenuto === null) return null
       const destinazione = this.percorsoCopia(dentro)
       await this.leggiCopie()
-      // Il CRC viene dall'indice dello ZIP: ricalcolarlo costa ~2 ms/MB a ogni
-      // richiesta, tutte in fila. Si calcola solo per le voci scritte in questa
-      // sessione, che nell'indice non l'hanno ancora.
-      const impronta = this.documento()?.crcDi(dentro) ?? crc32(contenuto)
-      if (this.copie.get(dentro) === impronta && (await esisteFile(destinazione))) {
+      // Prima il confronto, poi i byte: una copia già aggiornata non fa
+      // decomprimere niente. Tutto in fila, e impronta e byte presi insieme,
+      // senza attese in mezzo: un file riscritto (e salvato) durante un'attesa
+      // darebbe byte vecchi segnati con l'impronta nuova.
+      const nota = this.copie.get(dentro)
+      const aggiornata = nota !== undefined && nota === this.impronta(dentro)
+      if (aggiornata && (await esisteFile(destinazione))) {
         return destinazione
       }
+      const contenuto = this.leggi(dentro)
+      if (contenuto === null) return null
+      const impronta = this.impronta(dentro, contenuto)
 
       try {
         await apparato.file.writeFile(destinazione, contenuto)
@@ -205,10 +206,22 @@ export class Deposito {
         if (altrove === null) throw errore
         return altrove
       }
-      this.copie.set(dentro, impronta)
+      if (impronta !== null) this.copie.set(dentro, impronta)
       await this.scriviCopie()
       return destinazione
     })
+  }
+
+  /**
+   * Il CRC di un file: dall'indice dello ZIP, perché ricalcolarlo costa ~2 ms/MB
+   * a ogni richiesta, tutte in fila. Si calcola solo per le voci scritte in
+   * questa sessione, che nell'indice non l'hanno ancora e sono già aperte.
+   */
+  private impronta (dentro: string, contenuto?: Uint8Array): number | null {
+    const dalIndice = this.documento()?.crcDi(dentro) ?? null
+    if (dalIndice !== null) return dalIndice
+    const byte = contenuto ?? this.leggi(dentro)
+    return byte === null ? null : crc32(byte)
   }
 
   /**

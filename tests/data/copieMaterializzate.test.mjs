@@ -82,4 +82,23 @@ describe('le copie materializzate', () => {
     const ancora = await d.materializza('esportazioni/Valutazioni.pdf')
     assert.equal(readFileSync(ancora.fsPath).length, 1024)
   })
+
+  it('una copia già aggiornata non si decomprime di nuovo', async () => {
+    const { pacchetto } = await deposito()
+    pacchetto.deposita('esportazioni/Note.pdf', finoPdf(2048))
+    await pacchetto.salva()
+    // Riaperto dal disco: la voce ha il CRC nell'indice e non è ancora aperta.
+    const riaperto = await Pacchetto.apri(pacchetto.file)
+    const copie = Uri.file(percorso.join(cartella, `copie-riaperto-${contatore}`))
+    const d = new Deposito(() => riaperto, copie)
+    const prima = await d.materializza('esportazioni/Note.pdf')
+    assert.equal(readFileSync(prima.fsPath).length, 2048)
+
+    let letture = 0
+    const originale = riaperto.bytes.bind(riaperto)
+    riaperto.bytes = (nome) => { letture += 1; return originale(nome) }
+    const dopo = await d.materializza('esportazioni/Note.pdf')
+    assert.equal(dopo.fsPath, prima.fsPath)
+    assert.equal(letture, 0, 'decompressa prima di guardare il CRC')
+  })
 })

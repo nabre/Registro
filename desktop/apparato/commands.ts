@@ -5,6 +5,7 @@
 import { BrowserWindow, clipboard, screen, shell } from 'electron'
 
 import { limita } from '#core/dominio/calculations.js'
+import { èApribile, segnaComeVenutoDaFuori } from '#core/dati/opening.js'
 import { Smaltitore } from '#core/apparato/events.js'
 import { Uri } from '#core/apparato/uri.js'
 
@@ -19,6 +20,20 @@ export function registerCommand (nome: string, cosa: Comando): Smaltitore {
     // dei dati) non deve sparire alla chiusura del primo.
     if (registrati.get(nome) === cosa) registrati.delete(nome)
   })
+}
+
+/**
+ * Apre un file col programma del sistema, con la guardia di `apriConIlSistema`:
+ * quel che non è in lista bianca non si lancia, si segna e si mostra nella
+ * cartella. Anche qui, perché a questa porta arrivano gli stessi file.
+ */
+export async function apriSeApribile (percorso: string): Promise<void> {
+  if (èApribile(percorso)) {
+    await shell.openPath(percorso)
+    return
+  }
+  await segnaComeVenutoDaFuori(percorso)
+  shell.showItemInFolder(percorso)
 }
 
 /** Il primo argomento come `Uri`, che è la forma in cui il registro li passa tutti. */
@@ -70,7 +85,7 @@ const dellApparato: Record<string, (...argomenti: unknown[]) => unknown> = {
 
   'apparato.apri' (dove) {
     const uri = comeUri(dove)
-    if (uri) void shell.openPath(uri.fsPath)
+    return uri ? apriSeApribile(uri.fsPath) : undefined
   },
 
   /**

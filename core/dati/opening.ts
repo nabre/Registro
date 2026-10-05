@@ -6,6 +6,7 @@
 // `openExternal` resta per gli URL veri.
 
 import { execFile } from 'node:child_process'
+import { stat, writeFile } from 'node:fs/promises'
 
 import * as apparato from 'apparato'
 
@@ -22,37 +23,65 @@ function comandoDiApertura (percorso: string): [string, string[]] {
   return process.platform === 'darwin' ? ['open', [percorso]] : ['xdg-open', [percorso]]
 }
 
-// Estensioni che il sistema non «apre» ma esegue. I file arrivano dentro il
-// documento, che può venire da altri (una cartella condivisa, una mail), e la
-// copia materializzata la scrive il programma: niente Mark-of-the-Web, quindi
-// nessun avviso di SmartScreen fra il clic e l'esecuzione.
-const ESEGUIBILI = new Set([
-  'exe', 'com', 'scr', 'pif', 'cpl', 'msi', 'msp', 'msix', 'appx', 'appxbundle',
-  'bat', 'cmd', 'ps1', 'psm1', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'hta',
-  'lnk', 'url', 'website', 'scf', 'inf', 'reg', 'msc', 'jar', 'dll', 'sys',
-  'application', 'appref-ms', 'gadget', 'settingcontent-ms', 'library-ms',
-  'searchconnector-ms', 'diagcab', 'xll', 'iso', 'img', 'vhd', 'vhdx',
-  'app', 'command', 'tool', 'pkg', 'dmg', 'terminal', 'workflow',
-  'sh', 'desktop', 'appimage', 'run', 'bin',
+// Le estensioni che si aprono col programma del sistema: documenti, non
+// programmi. I file arrivano dentro il documento, che può venire da altri (una
+// cartella condivisa, una mail), e la copia materializzata la scrive il
+// programma: senza Mark-of-the-Web nessun avviso di SmartScreen fra il clic e
+// l'esecuzione. Una lista bianca perché una nera resta sempre indietro (`chm`,
+// `ws`, `jnlp`, `mht`…). Fuori, di proposito: i formati Office con le macro
+// (`docm`, `xlsm`…), `html`/`svg` (script nel navigatore), `zip` (Esplora
+// risorse lo apre come cartella, e i file dentro si lanciano da lì).
+const APRIBILI = new Set([
+  'pdf',
+  'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tif', 'tiff', 'heic', 'heif',
+  'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pps', 'ppsx', 'rtf',
+  'odt', 'ods', 'odp', 'odg',
+  'txt', 'csv', 'tsv', 'md',
+  // Le bozze di posta (`mail.ts`).
+  'eml',
+  'mp3', 'm4a', 'wav', 'ogg', 'oga', 'opus', 'flac', 'aac', 'wma',
+  'mp4', 'm4v', 'mov', 'webm', 'mkv', 'avi', 'wmv', 'mpg', 'mpeg',
 ])
 
 /**
  * Vero se il nome, come lo leggerebbe Windows (punti e spazi in coda tolti),
- * finisce con un'estensione che si esegue.
+ * finisce con un'estensione della lista bianca.
  */
-export function èEseguibile (percorso: string): boolean {
+export function èApribile (percorso: string): boolean {
   const nome = percorso.split(/[\\/]/).pop()?.replace(/[. ]+$/, '') ?? ''
   const punto = nome.lastIndexOf('.')
-  return punto >= 0 && ESEGUIBILI.has(nome.slice(punto + 1).toLowerCase())
+  return punto >= 0 && APRIBILI.has(nome.slice(punto + 1).toLowerCase())
+}
+
+/**
+ * Segna un file come venuto da Internet (Mark-of-the-Web, zona 3): un doppio
+ * clic dalla cartella passa da SmartScreen, e Office lo apre protetto. Solo per
+ * i file che non si aprono: su un documento della lista bianca la Visualizzazione
+ * protetta fermerebbe a ogni apertura anche i file di chi insegna. Solo Windows
+ * e solo NTFS: altrove (FAT, exFAT, una chiavetta) non riesce e si tace.
+ */
+export async function segnaComeVenutoDaFuori (percorso: string): Promise<void> {
+  if (process.platform !== 'win32') return
+  try {
+    // Il flusso su un file che non c'è creerebbe il file, vuoto.
+    if (!(await stat(percorso)).isFile()) return
+    await writeFile(`${percorso}:Zone.Identifier`, '[ZoneTransfer]\r\nZoneId=3\r\n')
+  } catch {
+    // Volume senza flussi alternativi, o file occupato: resta senza segno.
+  }
 }
 
 /**
  * Apre un file con il programma del sistema; se non riesce lo mostra nella sua
- * cartella. Torna falso se non è riuscita nessuna delle due. Un eseguibile non
- * si lancia: si mostra soltanto, e l'eventuale doppio clic resta di chi guarda.
+ * cartella. Torna falso se non è riuscita nessuna delle due. Quel che non è in
+ * lista bianca non si lancia: si segna e si mostra soltanto, e l'eventuale
+ * doppio clic resta di chi guarda.
  */
 export async function apriConIlSistema (file: apparato.Uri): Promise<boolean> {
-  if (èEseguibile(file.fsPath)) return mostraNellaCartella(file)
+  if (!èApribile(file.fsPath)) {
+    await segnaComeVenutoDaFuori(file.fsPath)
+    return mostraNellaCartella(file)
+  }
   const [comando, argomenti] = comandoDiApertura(file.fsPath)
   const aperto = await new Promise<boolean>((risolvi) => {
     try {
