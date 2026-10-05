@@ -141,14 +141,19 @@ function corpoDa (testo, apertura) {
   return { corpo: testo.slice(apertura), fine: testo.length }
 }
 
-/** L'elenco fra parentesi quadre che segue il corpo, se c'è. */
+/**
+ * L'elenco fra parentesi quadre che segue il corpo, se c'è. Un ternario fra
+ * due elenchi (`cambiati.size > 0 ? ['piani', 'progetti'] : ['piani']`) vale
+ * l'unione: un ramo dichiara quel che l'altro non tocca.
+ */
 function dichiarate (testo, da) {
   const coda = testo.slice(da, da + 400)
+  const nomi = (dentro) => [...dentro.matchAll(/'([^']+)'/g)].map((t) => t[1])
+  const scelta = coda.match(/^\s*,\s*[^,[\]()]+\?\s*\[([^\]]*)\]\s*:\s*\[([^\]]*)\]/)
+  if (scelta) return new Set([...nomi(scelta[1]), ...nomi(scelta[2])])
   const elenco = coda.match(/^\s*,\s*\[([^\]]*)\]/)
   if (!elenco) return coda.trimStart().startsWith(')') ? 'tutte' : null
-  return new Set(
-    [...elenco[1].matchAll(/'([^']+)'/g)].map((t) => t[1]),
-  )
+  return new Set(nomi(elenco[1]))
 }
 
 const rilievi = []

@@ -257,7 +257,9 @@ function VistaTodo (): ReactElement {
   }
 
   const classiAnno = classiDellAnno()
-  const corsi = corsiDellAnnoAperto()
+  // Le classi archiviate restano fuori, come dal docente di classe: i loro corsi
+  // non hanno più niente da fare, e le pendenze rimaste gonfierebbero i conti.
+  const corsi = corsiDellAnnoAperto().filter((corso) => !classePerId(corso.classeId)?.archiviata)
   const classiDocente = classiDiCuiSonoDocente()
 
   if (corsi.length === 0 && classiAnno.length === 0) {

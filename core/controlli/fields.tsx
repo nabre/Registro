@@ -76,6 +76,17 @@ function useValoreVivo (
 
 const scriviValore = (nodo: { value: string }, valore: string) => { nodo.value = valore }
 
+/**
+ * Il valore con cui il campo nasce, fermo per tutta la sua vita: un
+ * `defaultValue` che cambia React lo riscrive nel nodo, anche col fuoco in un
+ * campo mai toccato. Dopo il montaggio il valore entra solo da `useValoreVivo`.
+ */
+function useValoreIniziale (valore: Valore): string {
+  const iniziale = useRef<string | null>(null)
+  iniziale.current ??= valore === null || valore === undefined ? '' : String(valore)
+  return iniziale.current
+}
+
 type AttributiInput = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'checked' | 'defaultChecked' | 'onChange'>
 
 /**
@@ -92,14 +103,15 @@ export function Input ({ valore, spuntato, onCambio, ref, ...resto }: AttributiI
   const unito = useCallback((nodo: HTMLInputElement | null) => unisci(campo, ref)(nodo), [ref])
   useCambioNativo(campo, onCambio)
   const casella = resto.type === 'checkbox' || resto.type === 'radio'
+  const iniziale = useValoreIniziale(casella ? (spuntato ? '1' : '') : valore)
   useValoreVivo(
     campo,
     casella ? (spuntato ? '1' : '') : valore,
     casella ? (nodo, v) => { (nodo as HTMLInputElement).checked = v === '1' } : scriviValore,
   )
   return casella
-    ? <input ref={unito} defaultChecked={Boolean(spuntato)} {...resto} />
-    : <input ref={unito} defaultValue={valore === null || valore === undefined ? '' : String(valore)} {...resto} />
+    ? <input ref={unito} defaultChecked={iniziale === '1'} {...resto} />
+    : <input ref={unito} defaultValue={iniziale} {...resto} />
 }
 
 type AttributiSelect = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'defaultValue' | 'onChange'>

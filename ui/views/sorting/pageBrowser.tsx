@@ -441,11 +441,12 @@ function riquadroPagina (
   const { archiviata, lettura } = quel
   const presa = contesto.scelte.includes(pagina)
   const smistamentoId = smistamento.id
-  // La chiave tiene il riquadro fra un disegno e l'altro: la scelta e la lettura
-  // cambiano solo classi e attributi. Archiviata o no sono due riquadri diversi,
-  // perché l'archiviata non ha i gestori del gesto.
+  // La chiave tiene il riquadro fra un disegno e l'altro: la scelta, la lettura e
+  // l'archiviazione cambiano solo classi, attributi e gestori. Con «mostra
+  // archiviate» acceso, una chiave che cambiasse archiviando rifarebbe il
+  // riquadro, e la miniatura lampeggerebbe ricaricandosi.
   // testo-fisso: la chiave del riquadro e del telaio
-  const chiave = `pagina:${pagina}${archiviata ? ':archiviata' : ''}`
+  const chiave = `pagina:${pagina}`
 
   const alTrascinare = (evento: EventoTrascina<HTMLLIElement>) => {
     // Trascinare una pagina fuori dalla scelta porta solo quella, come in ogni elenco.
@@ -488,7 +489,9 @@ function riquadroPagina (
         ? undefined
         : (evento: EventoMouse<HTMLLIElement>) => alClic(smistamento, pagina, evento, contesto.archiviate)}
       onDragStart={archiviata ? undefined : alTrascinare}
-      onDragEnd={archiviata ? undefined : () => document.body.classList.remove(CORPO_IN_VOLO)}
+      // Sempre, anche da archiviata: la pagina portata può archiviarsi mentre vola,
+      // e il corpo resterebbe segnato in volo.
+      onDragEnd={() => document.body.classList.remove(CORPO_IN_VOLO)}
     >
       <Miniatura
         indirizzo={contesto.indirizzo}

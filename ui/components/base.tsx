@@ -78,27 +78,38 @@ export function conAttesa<T> (bottone: HTMLButtonElement, lavoro: Promise<T>): P
  * L'attesa di un pulsante: spento subito perché il secondo clic non parta, la
  * rotella solo dopo `RITARDO_ROTELLA`. Se il pulsante sparisce nel frattempo
  * non si tocca più niente.
+ *
+ * `disabled` arriva col disegno dopo, in un microtask: due clic nello stesso
+ * giro lo troverebbero ancora acceso. `inVolo` lo dice subito, al gestore.
  */
-function useAttesa (): { occupato: boolean, rotella: boolean, aspetta: (lavoro: Promise<unknown>) => void } {
+function useAttesa (): {
+  occupato: boolean
+  rotella: boolean
+  inVolo: { readonly current: boolean }
+  aspetta: (lavoro: Promise<unknown>) => void
+} {
   const [occupato, impostaOccupato] = useState(false)
   const [rotella, impostaRotella] = useState(false)
+  const inVolo = useRef(false)
   const vivo = useRef(true)
   useEffect(() => {
     vivo.current = true
     return () => { vivo.current = false }
   }, [])
   const aspetta = (lavoro: Promise<unknown>) => {
+    inVolo.current = true
     impostaOccupato(true)
     const tempo = setTimeout(() => { if (vivo.current) impostaRotella(true) }, RITARDO_ROTELLA)
     const libera = () => {
       clearTimeout(tempo)
+      inVolo.current = false
       if (!vivo.current) return
       impostaOccupato(false)
       impostaRotella(false)
     }
     lavoro.then(libera, libera)
   }
-  return { occupato, rotella, aspetta }
+  return { occupato, rotella, inVolo, aspetta }
 }
 
 type AttributiPulsante = Omit<ButtonHTMLAttributes<HTMLButtonElement>,
@@ -131,7 +142,7 @@ export function Pulsante (opzioni: OpzioniPulsante): ReactElement {
     testo, simbolo, variante = 'normale', al, titolo, disabilitato, tipo = 'button', classe,
     premuto, fuoco, children, ...resto
   } = opzioni
-  const { occupato, rotella, aspetta } = useAttesa()
+  const { occupato, rotella, inVolo, aspetta } = useAttesa()
   // Un titolo vuoto darebbe `title=""` e `aria-label=""`: un pulsante senza nome
   // per il lettore di schermo.
   const nome = titolo || testo || undefined
@@ -151,6 +162,7 @@ export function Pulsante (opzioni: OpzioniPulsante): ReactElement {
       data-fuoco={fuoco}
       onClick={al
         ? (evento) => {
+            if (inVolo.current) return
             const esito = al(evento)
             if (esito instanceof Promise) aspetta(esito)
           }
@@ -174,7 +186,7 @@ export function Collegamento ({ testo, al, titolo, classe, fuoco }: {
   classe?: string
   fuoco?: string
 }): ReactElement {
-  const { occupato, rotella, aspetta } = useAttesa()
+  const { occupato, rotella, inVolo, aspetta } = useAttesa()
   return (
     <button
       className={classi('collegamento', classe, rotella && 'in-corso')}
@@ -184,6 +196,7 @@ export function Collegamento ({ testo, al, titolo, classe, fuoco }: {
       aria-busy={rotella ? true : undefined}
       data-fuoco={fuoco}
       onClick={(evento) => {
+        if (inVolo.current) return
         const esito = al(evento)
         if (esito instanceof Promise) aspetta(esito)
       }}
@@ -351,7 +364,11 @@ export function ControlloData (opzioni: OpzioniCampo): ReactElement {
   const iniziale = String(opzioni.valore ?? '')
   const visibile = useRef<HTMLInputElement | null>(null)
   const nascosto = useRef<HTMLInputElement | null>(null)
-  const attesaPasso = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** La data spostata da tastiera e non ancora detta: parte al respiro, uscendo o smontando. */
+  const passoInSospeso = useRef<{
+    tempo: ReturnType<typeof setTimeout>
+    parti: (evento?: Event) => void
+  } | null>(null)
   const [errata, impostaErrata] = useState(false)
 
   // Il valore nascosto segue lo stato come quello visibile (`Input`): solo quando
@@ -385,8 +402,19 @@ export function ControlloData (opzioni: OpzioniCampo): ReactElement {
     return dataDaTesto(scritto, nascosto.current?.value || undefined)
   }
 
+  const partiPasso = (evento?: Event) => {
+    const passo = passoInSospeso.current
+    if (!passo) return
+    clearTimeout(passo.tempo)
+    passoInSospeso.current = null
+    passo.parti(evento)
+  }
+
+  // Smontato entro il respiro (una modale chiusa, una riga che sparisce), la data
+  // mostrata parte lo stesso: scartarla perderebbe un gesto che si è visto riuscire.
+  // Dopo il giro, perché `al` ridisegna e qui React sta ancora smontando.
   useEffect(() => () => {
-    if (attesaPasso.current) clearTimeout(attesaPasso.current)
+    if (passoInSospeso.current) queueMicrotask(() => partiPasso())
   }, [])
 
   // Il valore del campo nascosto entra una volta, al montaggio (vedi sotto).
@@ -438,21 +466,19 @@ export function ControlloData (opzioni: OpzioniCampo): ReactElement {
           const base = letta() || nascosto.current?.value
           if (!base) return
           evento.preventDefault()
-          mostra(spostaData(base, passo[0], passo[1]))
-          if (attesaPasso.current) clearTimeout(attesaPasso.current)
+          const nuova = spostaData(base, passo[0], passo[1])
+          mostra(nuova)
+          if (passoInSospeso.current) clearTimeout(passoInSospeso.current.tempo)
           const nativo = evento.nativeEvent
-          attesaPasso.current = setTimeout(() => {
-            attesaPasso.current = null
-            opzioni.al?.(nascosto.current?.value ?? '', nativo)
-          }, RESPIRO_PASSO)
+          const al = opzioni.al
+          passoInSospeso.current = {
+            tempo: setTimeout(() => partiPasso(), RESPIRO_PASSO),
+            // Smontato, il campo nascosto non c'è più: vale la data mostrata.
+            parti: (uscita) => al?.(nascosto.current?.value ?? nuova, uscita ?? nativo),
+          }
         }}
         // Uscendo dal campo non si aspetta: la data parte prima che il fuoco se ne vada.
-        onBlur={(evento) => {
-          if (!attesaPasso.current) return
-          clearTimeout(attesaPasso.current)
-          attesaPasso.current = null
-          opzioni.al?.(nascosto.current?.value ?? '', evento.nativeEvent)
-        }}
+        onBlur={(evento) => partiPasso(evento.nativeEvent)}
       />
       {/* Senza `defaultValue`: React lo riscrive a ogni disegno, e in un campo
           nascosto `defaultValue` è il valore, quindi una data scritta da fuori

@@ -201,7 +201,12 @@ function rigaVoce (
         data-fuoco={`lista-${chiave}-${voce.valore}`}
         aria-label={t.comeSiLegge}
         onCambio={(evento) => {
-          const testo = (evento.target as HTMLInputElement).value.trim()
+          const vivo = evento.target as HTMLInputElement
+          const testo = vivo.value.trim()
+          // Svuotato, si legge come il valore. Se il valore è anche il testo di
+          // adesso lo stato non cambia, e il campo resterebbe vuoto: lo si
+          // rimette qui.
+          if (!testo) vivo.value = voce.valore
           void cambia((v) => ({ ...v, testo: testo || v.valore }))
         }}
       />
@@ -270,12 +275,15 @@ function AggiuntaVoce ({ chiave, colori }: { chiave: ChiaveLista, colori: boolea
     let valore = base
     let contatore = 2
     while (usati.has(valore)) valore = `${base}-${contatore++}`
-    const scelto = colore.current
+    const scelto = colore.current?.value
     vivo.value = ''
+    // Il colore riparte dal grigio per la voce dopo: il valore dello stato è
+    // sempre quello, e da sé il campo non tornerebbe.
+    if (colore.current) colore.current.value = COLORE_DI_RIPIEGO
     impostaAnteprima('')
     return salvaLista(chiave, [
       ...voci,
-      { valore, testo, ...(scelto ? { colore: scelto.value } : {}) },
+      { valore, testo, ...(scelto ? { colore: scelto } : {}) },
     ])
   }
 

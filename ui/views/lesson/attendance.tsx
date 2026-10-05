@@ -3,6 +3,7 @@
 // menu che li nomina tutti a pressione lunga.
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -235,6 +236,7 @@ function useApribile (chiudi: (campo: HTMLInputElement) => boolean) {
     campo.current.focus()
     campo.current.select()
   }, [aperto])
+  const richiudi = useCallback(() => impostaAperto(false), [])
   return {
     aperto,
     campo,
@@ -242,6 +244,7 @@ function useApribile (chiudi: (campo: HTMLInputElement) => boolean) {
       daSelezionare.current = true
       impostaAperto(true)
     },
+    richiudi,
     gesti: {
       onBlur: (evento: EventoFuoco<HTMLInputElement>) => {
         if (chiudi(evento.currentTarget)) impostaAperto(false)
@@ -313,7 +316,13 @@ function CampoNota ({ nota, titolo, segnaposto, fuoco, al }: {
   fuoco: string
   al: (nota: string) => void
 }): ReactElement {
-  const { aperto, campo, apri, gesti } = useApribile((aperta) => !aperta.value.trim())
+  const { aperto, campo, apri, richiudi, gesti } = useApribile((aperta) => !aperta.value.trim())
+  // Aperta e lasciata con un testo resta aperta; se poi la nota si svuota da
+  // fuori (annulla, un'altra lezione nella stessa riga) torna «+», salvo che
+  // la si stia scrivendo.
+  useEffect(() => {
+    if (!nota && campo.current !== document.activeElement) richiudi()
+  }, [nota, campo, richiudi])
   if (nota || aperto) {
     return (
       <Input

@@ -212,7 +212,7 @@ function muoviFraAree (evento: KeyboardEvent<HTMLButtonElement>): void {
  */
 function apriArea (area: AreaImpostazioni): void {
   const svuota = cercato !== ''
-  cercato = ''
+  svuotaFiltro()
   vai({ pagina: 'pagina.impostazioni', scheda: area })
   // Sull'area già aperta `vai` non ridisegna: il filtro va svuotato a vista, la
   // casella compresa, che sta fuori dall'isola.
@@ -266,6 +266,20 @@ function schedaArea (area: (typeof AREE)[number], attiva: boolean): ReactElement
 let cercato = ''
 
 /**
+ * Quante volte il filtro è stato svuotato da un gesto altrove. La casella non
+ * si ridisegna mentre si scrive (si rifà solo l'isola), quindi non ha mai visto
+ * il testo battuto: il valore '' le sembrerebbe quello di sempre e il testo
+ * resterebbe. Con questo nella chiave rinasce vuota.
+ */
+let svuotature = 0
+
+function svuotaFiltro (): void {
+  if (cercato === '') return
+  cercato = ''
+  svuotature += 1
+}
+
+/**
  * Quel che sta sotto la testata: a ogni lettera del filtro si rifà lui solo
  * (ADR-48), la casella resta dov'è col suo cursore e le aree non cambiano.
  */
@@ -276,6 +290,7 @@ function campoCerca (): ReactElement {
   return (
     <div className="opzioni__cerca">
       <Input
+        key={svuotature}
         className="campo__controllo"
         type="search"
         valore={cercato}
@@ -389,7 +404,7 @@ function segna (id: string): void {
 
 /** Porta a un'impostazione trovata: svuota il filtro e arriva sulla voce. */
 export function vaiAllImpostazione (scheda: SchedaPosto): void {
-  cercato = ''
+  svuotaFiltro()
   // Anche sullo stesso posto si arriva di nuovo: la voce si riaccende.
   arrivato = null
   vai({ pagina: 'pagina.impostazioni', scheda })
@@ -500,7 +515,7 @@ function corpo (): ReactElement {
 
 function VistaImpostazioni (): ReactElement {
   // Arrivando su un posto nuovo il filtro si svuota: la voce chiesta deve vedersi.
-  if (chiaveDelPosto(stato.posto) !== arrivato) cercato = ''
+  if (chiaveDelPosto(stato.posto) !== arrivato) svuotaFiltro()
 
   // Gli effetti dopo ogni disegno, mai dal disegno. Il fotogramma dopo quello
   // del disegno: misure e ancore sono quelle nuove.

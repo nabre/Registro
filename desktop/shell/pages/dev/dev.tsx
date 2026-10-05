@@ -133,6 +133,13 @@ function RigaCollegamento ({ cosa, etichetta, percorso, sotto }: {
 /** Lo stato ricevuto per ultimo, e il rifiuto da dire, se c'è. */
 let stato: StatoSviluppo | null = null
 let rifiuto: string | null = null
+/**
+ * Quante volte il main process ha rifiutato un salvataggio. Rifiutato, lo
+ * stato torna uguale a prima, e i campi (che portano dentro solo un valore che
+ * cambia) terrebbero la spunta data: con questo nella chiave si rifanno da
+ * quel che è salvato davvero.
+ */
+let rifiuti = 0
 
 function Sviluppo (): ReactElement {
   const t = testi()
@@ -163,7 +170,7 @@ function Sviluppo (): ReactElement {
             {stato
               ? (Object.keys(stato.impostazioni.allAvvio) as TipoFinestra[]).map((tipo) => (
                   <Casella
-                    key={tipo}
+                    key={`${tipo}:${rifiuti}`}
                     spuntata={stato?.impostazioni.allAvvio[tipo] ?? false}
                     testo={nomeDelTipo(tipo)}
                     al={(valore) => chiedi({ sviluppo: 'allAvvio', tipo, valore })}
@@ -174,6 +181,7 @@ function Sviluppo (): ReactElement {
           <label className="riga-campo">
             <span>{t.posizionePredefinita}</span>
             <Select
+              key={rifiuti}
               valore={stato?.impostazioni.posizione ?? ''}
               onCambio={(evento) => chiedi({
                 sviluppo: 'posizione',
@@ -188,6 +196,7 @@ function Sviluppo (): ReactElement {
         <section>
           <h2>{t.ricaricaERiavvio}</h2>
           <Casella
+            key={rifiuti}
             spuntata={stato?.impostazioni.ricaricaAutomatica ?? false}
             testo={t.ricaricaAutomatica}
             al={(valore) => chiedi({ sviluppo: 'ricaricaAutomatica', valore })}
@@ -252,6 +261,7 @@ let mostrata = false
 ascolta((messaggio) => {
   if (messaggio.sviluppo === 'rifiuto') {
     rifiuto = typeof messaggio.motivo === 'string' ? messaggio.motivo : ''
+    rifiuti += 1
     disegna()
     return
   }

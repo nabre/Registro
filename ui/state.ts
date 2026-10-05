@@ -198,7 +198,7 @@ interface StatoUI {
   /**
    * Se il riquadro dell'assistente è aperto. Si ricorda, come la sidebar, per
    * ritrovarlo dopo una ricostruzione della pagina; la conversazione invece no
-   * (vedi `ui/assistant.ts`).
+   * (vedi `ui/assistant.tsx`).
    */
   assistenteAperto: boolean;
   /**
@@ -1535,7 +1535,7 @@ export function avviaOrologio (): () => void {
     // Si riprova al battito dopo: non si ridisegna sotto le dita di chi scrive.
     if (scrivendoInUnCampo()) return
     // Né durante il tiro o lo stiro di un'ora: il ridisegno perde la cattura del
-    // puntatore. Le classi sono quelle che `calendar/editor.ts` mette durante il gesto.
+    // puntatore. Le classi sono quelle che `calendar/editor.tsx` mette durante il gesto.
     if (document.querySelector('.settimana__bozza, .blocco--in-stiro')) return
     aggiorna({ adessoData: data, adessoOra: ora })
   }
@@ -1789,7 +1789,8 @@ function contoDellaClasse (classe: Classe): Conto {
 function pendenzeDellAnno (): { corsi: Map<string, Conto>; classi: Map<string, Conto> } {
   return derivato('pendenzeDellAnno', stato.adessoData, () => {
     const corsi = new Map<string, Conto>()
-    for (const corso of corsiDellAnnoAperto()) {
+    // Come la vista Pendenze: le classi archiviate non contano.
+    for (const corso of corsiDellAnnoAperto().filter((c) => !classePerId(c.classeId)?.archiviata)) {
       corsi.set(corso.id, contoDelCorso(corso))
     }
     const classi = new Map<string, Conto>()

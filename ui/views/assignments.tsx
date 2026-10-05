@@ -96,6 +96,9 @@ function PastigliaSpunta ({ consegna, chi, perEsteso = false }: {
   const [occupato, impostaOccupato] = useState(false)
   const [rotella, impostaRotella] = useState(false)
   const vivo = useRef(true)
+  // Lo stato spegne il pulsante solo al disegno dopo: due clic nello stesso
+  // giro partirebbero entrambi (due scelte di file). La guardia è sincrona.
+  const inCorso = useRef(false)
   useEffect(() => {
     vivo.current = true
     return () => { vivo.current = false }
@@ -109,10 +112,13 @@ function PastigliaSpunta ({ consegna, chi, perEsteso = false }: {
   // file: una spunta senza documento contraddirebbe la matrice del docente di classe.
   const conDocumento = raccoglieDocumento(consegna)
   const cambia = (fai: boolean): void => {
+    if (inCorso.current) return
+    inCorso.current = true
     impostaOccupato(true)
     const tempo = setTimeout(() => { if (vivo.current) impostaRotella(true) }, RITARDO_ROTELLA)
     const libera = () => {
       clearTimeout(tempo)
+      inCorso.current = false
       if (!vivo.current) return
       impostaOccupato(false)
       impostaRotella(false)

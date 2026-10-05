@@ -522,19 +522,19 @@ async function spegniCorso (corso: Corso): Promise<void> {
 
 /**
  * Scrive una materia modificata nella riga. Passa da `validaMateria` come il
- * modulo: un nome vuoto o già usato non si scrive e il campo torna com'era.
+ * modulo: un nome vuoto o già usato non si scrive e il campo torna a `com'era`.
  * Anche la materia nuova della riga in fondo nasce così.
  */
-async function scriviMateria (materia: Materia, campo?: HTMLInputElement): Promise<boolean> {
+async function scriviMateria (materia: Materia, campo?: HTMLInputElement, comEra = ''): Promise<boolean> {
   const pulita: Materia = { ...materia, nome: materia.nome.trim(), sigla: materia.sigla?.trim() ?? '' }
   const esito = validaMateria(pulita, stato.registro.materie)
   if (!esito.valido) {
     notifica(esito.errori.join(' '), 'avviso')
-    if (campo) campo.value = campo.defaultValue
+    if (campo) campo.value = comEra
     return false
   }
   const risposta = await azione({ tipo: 'materia.salva', materia: pulita })
-  if (!risposta.ok && campo) campo.value = campo.defaultValue
+  if (!risposta.ok && campo) campo.value = comEra
   return risposta.ok
 }
 
@@ -549,12 +549,23 @@ async function eliminaMateria (materia: Materia): Promise<void> {
 
 type CampoMateria = 'nome' | 'sigla' | 'colore'
 
+/**
+ * Quel che un campo della materia mostra. È anche dove tornano Escape e il
+ * rifiuto: il valore salvato, non quello con cui il campo è nato (`defaultValue`),
+ * che dopo un primo cambio salvato è vecchio.
+ */
+function valoreDelCampo (materia: Materia, campo: CampoMateria): string {
+  if (campo === 'colore') return materia.colore || '#7a7a7a'
+  if (campo === 'sigla') return materia.sigla ?? ''
+  return materia.nome
+}
+
 /** Invio conferma il campo, Escape lo riporta com'era: tutti e due lo lasciano. */
-function tastoCampo (evento: EventoTastiera<HTMLInputElement>): void {
+function tastoCampo (evento: EventoTastiera<HTMLInputElement>, comEra: () => string): void {
   const bersaglio = evento.currentTarget
   if (evento.key === 'Enter') bersaglio.blur()
   if (evento.key === 'Escape') {
-    bersaglio.value = bersaglio.defaultValue
+    bersaglio.value = comEra()
     bersaglio.blur()
   }
 }
@@ -575,19 +586,23 @@ function campiMateria (
       const bersaglio = evento.target as HTMLInputElement
       cambia(campo, bersaglio.value, bersaglio)
     },
-    onKeyDown: tastoCampo,
+    // Si rilegge al tasto: la materia del disegno può essere più vecchia.
+    onKeyDown: (evento: EventoTastiera<HTMLInputElement>) => tastoCampo(evento, () => {
+      const viva = materiaPerId(materia.id) ?? materia
+      return valoreDelCampo(viva, campo)
+    }),
   })
   return (
     <>
       <Input
         {...comune('colore')}
-        valore={materia.colore || '#7a7a7a'}
+        valore={valoreDelCampo(materia, 'colore')}
         aria-label={parole().colore}
         title={t.coloreMateria}
       />
       <Input
         {...comune('sigla')}
-        valore={materia.sigla ?? ''}
+        valore={valoreDelCampo(materia, 'sigla')}
         aria-label={t.sigla}
         // Vuota, vale quella ricavata dal nome, mostrata in trasparenza.
         placeholder={siglaMateria(materia) || t.siglaEsempio}
@@ -596,7 +611,7 @@ function campiMateria (
       />
       <Input
         {...comune('nome')}
-        valore={materia.nome}
+        valore={valoreDelCampo(materia, 'nome')}
         aria-label={t.nomeMateria}
         placeholder={t.nomeMateria}
       />
@@ -636,7 +651,7 @@ function testaMateria (materia: Materia, quante: number): ReactElement {
           // arrivata una più fresca, che la fotografia sovrascriverebbe.
           const viva = materiaPerId(materia.id)
           if (!viva) return
-          void scriviMateria({ ...viva, [campo]: valore }, input)
+          void scriviMateria({ ...viva, [campo]: valore }, input, valoreDelCampo(viva, campo))
         })}
         <Pulsante
           simbolo="cestino"
@@ -664,7 +679,7 @@ function rigaNuovaMateria (colonne: number, quante: number): ReactElement {
             // Nasce col nome: colore e sigla scritti prima lo aspettano.
             if (campo !== 'nome') return
             if (!valore.trim()) return
-            void scriviMateria(bozza, input)
+            void scriviMateria(bozza, input, '')
           })}
         </span>
       </th>

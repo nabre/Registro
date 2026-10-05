@@ -17,7 +17,7 @@ import type {
   IdVisto,
   RisultatoAssistente,
 } from '#contract/protocol.js'
-import { Fragment, useLayoutEffect, useRef, type ReactElement, type ReactNode } from 'react'
+import { Fragment, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { classi } from '#ui/classNames.js'
 import { Pulsante, StatoVuoto } from '#ui/components/base.js'
@@ -519,12 +519,24 @@ function bolla (turno: Turno, ultimo: boolean, chiave: number): ReactElement {
   )
 }
 
+/** La casella della domanda nel documento: quella del disegno, o chi l'ha sostituita. */
+function casellaViva (nodo: HTMLTextAreaElement | null): HTMLTextAreaElement | null {
+  return nodo?.isConnected
+    ? nodo
+    : document.querySelector<HTMLTextAreaElement>('[data-fuoco="assistente-domanda"]')
+}
+
 /**
  * Il campo della domanda. Non passa da `Campo`, fatto per i moduli: qui il
  * campo è la pagina. Invio manda, Maiusc+Invio va a capo.
  */
 function Scrittoio ({ ambiente }: { ambiente: Ambiente }): ReactElement {
   const casella = useRef<HTMLTextAreaElement | null>(null)
+  /** La bozza che la casella mostra già: battuta lì, o scritta da qui. */
+  const scritta = useRef(bozza)
+  // Il valore con cui la casella nasce, fermo: un `defaultValue` che cambia React
+  // lo riscrive, e in una casella mai toccata entrerebbe sotto il cursore.
+  const [iniziale] = useState(bozza)
 
   // Non `TextArea`: la bozza cambia anche senza passare dal valore dello stato
   // (si batte, si manda e torna vuota), e `TextArea` riscrive solo quando il
@@ -532,7 +544,21 @@ function Scrittoio ({ ambiente }: { ambiente: Ambiente }): ReactElement {
   // non ci si sta scrivendo dentro.
   useLayoutEffect(() => {
     const campo = casella.current
-    if (!campo || campo === document.activeElement || campo.value === bozza) return
+    if (!campo) return
+    if (bozza !== scritta.current) {
+      // La bozza cambiata da qui (dettatura, domanda mandata, conversazione
+      // arrivata) entra anche col fuoco: è proprio lì che la dettatura lo mette.
+      // Dopo il giro, perché il fotografo rimette nella casella quel che c'era
+      // scritto prima del disegno.
+      scritta.current = bozza
+      const nuova = bozza
+      queueMicrotask(() => {
+        const viva = casellaViva(casella.current)
+        if (viva && bozza === nuova && viva.value !== nuova) viva.value = nuova
+      })
+      return
+    }
+    if (campo === document.activeElement || campo.value === bozza) return
     campo.value = bozza
   })
 
@@ -542,9 +568,7 @@ function Scrittoio ({ ambiente }: { ambiente: Ambiente }): ReactElement {
     if (!fuocoAllaCasella) return
     fuocoAllaCasella = false
     queueMicrotask(() => {
-      const viva = casella.current?.isConnected
-        ? casella.current
-        : document.querySelector<HTMLTextAreaElement>('[data-fuoco="assistente-domanda"]')
+      const viva = casellaViva(casella.current)
       viva?.focus()
       viva?.setSelectionRange(viva.value.length, viva.value.length)
     })
@@ -568,11 +592,12 @@ function Scrittoio ({ ambiente }: { ambiente: Ambiente }): ReactElement {
         // dov'era quando l'ospite ridisegna.
         data-fuoco="assistente-domanda"
         disabled={inCorso}
-        defaultValue={bozza}
+        defaultValue={iniziale}
         onInput={(evento) => {
           // Nessun ridisegno a ogni tasto: la bozza si tiene qui e torna nel campo al
           // giro dopo.
           bozza = evento.currentTarget.value
+          scritta.current = bozza
         }}
         onKeyDown={(evento) => {
           // Esc a microfono aperto: si smette senza scrivere niente (premuto per
@@ -587,6 +612,7 @@ function Scrittoio ({ ambiente }: { ambiente: Ambiente }): ReactElement {
           if (evento.key !== 'Enter' || evento.shiftKey) return
           evento.preventDefault()
           bozza = evento.currentTarget.value
+          scritta.current = bozza
           manda(ambiente)
         }}
       />

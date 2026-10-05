@@ -46,7 +46,7 @@ function calendarioOra (): CalendarioEsterno {
 /**
  * Scrive le regole nel documento, o toglie il calendario se non resta niente.
  * I calendari passano come sono (li gestiscono le loro azioni). Non usa
- * `salvaImpostazioni` di `document.ts`, che fonde e quindi non toglie mai un
+ * `salvaImpostazioni` di `document.tsx`, che fonde e quindi non toglie mai un
  * campo: qui il campo si manda intero, o non si manda.
  */
 async function scrivi (calendario: CalendarioEsterno, detto?: string): Promise<boolean> {
@@ -245,13 +245,17 @@ function rigaCalendario (calendario: SorgenteCalendario): ReactElement {
 /** La riga per aggiungere un calendario: un indirizzo, o un file dal disco. */
 function rigaNuovoCalendario (): ReactElement {
   const t = testi()
-  const aggiungi = (testo: string): void => {
-    void gesto({ tipo: 'calendario.aggiungi', origine: testo.trim() }, t.nonAggiunto)
+  // Aggiunto, il campo si svuota: non è controllato e il disegno non lo rifà,
+  // e un secondo «Aggiungi» riaggiungerebbe lo stesso indirizzo. Rifiutato,
+  // il testo resta da correggere.
+  const aggiungi = async (campo: HTMLInputElement | null): Promise<void> => {
+    const ok = await gesto({ tipo: 'calendario.aggiungi', origine: campo?.value.trim() ?? '' }, t.nonAggiunto)
+    if (ok && campo) campo.value = ''
   }
   return (
     <div
       className="ics-sorgente ics-sorgente--nuova"
-      onKeyDown={conInvio((evento) => aggiungi((evento.target as HTMLInputElement).value))}
+      onKeyDown={conInvio((evento) => void aggiungi(evento.target as HTMLInputElement))}
     >
       <Campo
         nome="calendario-nuovo"
@@ -268,8 +272,7 @@ function rigaNuovoCalendario (): ReactElement {
           titolo={t.aggiungiAiuto}
           // Il valore vive nel campo, non controllato: lo si legge dalla riga.
           al={(evento) => aggiungi(
-            evento.currentTarget.closest('.ics-sorgente--nuova')
-              ?.querySelector('input')?.value ?? '',
+            evento.currentTarget.closest('.ics-sorgente--nuova')?.querySelector('input') ?? null,
           )}
         />
         <Pulsante
@@ -277,7 +280,7 @@ function rigaNuovoCalendario (): ReactElement {
           simbolo="cartella"
           variante="sottile"
           titolo={t.unFileAiuto}
-          al={() => aggiungi('')}
+          al={() => aggiungi(null)}
         />
       </div>
     </div>
@@ -434,9 +437,10 @@ function RigaNuova (): ReactElement {
     : undefined
 
   // I valori vivono nei campi, non controllati: si leggono dalla riga.
-  const aggiungi = (evento: SyntheticEvent<HTMLElement>): void => {
+  const aggiungi = async (evento: SyntheticEvent<HTMLElement>): Promise<void> => {
     const riga = evento.currentTarget.closest('.ics-regola--nuova')
-    const scritto = (riga?.querySelector('input')?.value ?? '').trim()
+    const campo = riga?.querySelector('input')
+    const scritto = (campo?.value ?? '').trim()
     const corsoId = riga?.querySelector('select')?.value ?? NON_LEZIONE
     const rifiuto = testoRifiutato(scritto)
     if (rifiuto) {
@@ -449,7 +453,7 @@ function RigaNuova (): ReactElement {
       return
     }
     const calendario = calendarioOra()
-    void scrivi({
+    const scritta = await scrivi({
       ...calendario,
       regole: [
         ...calendario.regole,
@@ -460,12 +464,17 @@ function RigaNuova (): ReactElement {
         },
       ],
     })
+    // Salvata, la riga torna vuota col suo conto: il campo non è controllato.
+    if (scritta && campo) {
+      campo.value = ''
+      impostaScritto('')
+    }
   }
 
   return (
     <div
       className="ics-regola ics-regola--nuova"
-      onKeyDown={conInvio(aggiungi)}
+      onKeyDown={conInvio((evento) => void aggiungi(evento))}
       onInput={(evento) => {
         const testo = testoScritto(evento, 'regola-nuova-testo')
         if (testo !== null) impostaScritto(testo)
