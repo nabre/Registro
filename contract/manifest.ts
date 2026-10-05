@@ -278,6 +278,20 @@ const DICHIARAZIONI = {
     tipo: 'boolean',
     predefinito: false,
   },
+  // Le finestre in più del registro (`desktop/pannelli/panel.ts`): riaprirle
+  // con il documento, e quante al più. Il tetto alto della dogana è quello di
+  // `MASSIMO_FIGLIE` in `desktop/apparato/layout.ts`.
+  'registroDocenti.finestre.riapri': {
+    tipo: 'boolean',
+    predefinito: true,
+  },
+  'registroDocenti.finestre.massimo': {
+    tipo: 'number',
+    predefinito: 4,
+    minimo: 1,
+    massimo: 6,
+    controllo: 'cursore',
+  },
 
   // --------------------------------------------------------------- la posta
   'registroDocenti.posta.mittente': {

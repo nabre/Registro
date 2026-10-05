@@ -48,6 +48,12 @@ import type {
 import type { Registro } from '#core/dominio/models.js'
 import { alCambioLingua, lingua } from '#core/i18n/index.js'
 import { NUMERO_PRINCIPALE, tipoDelRegistro } from '#desktop/apparato/panelTypes.js'
+import {
+  MASSIMO_FIGLIE,
+  chiaveDellaDisposizione,
+  figlieRicordate,
+  ricordaFiglie,
+} from '#desktop/apparato/layout.js'
 import { paginaHtml, radiceRisorse, radiciDellaPagina } from './page.js'
 import { testi } from './panels.testi.js'
 
@@ -141,8 +147,16 @@ const DEL_FUOCO: ReadonlySet<string> = new Set<Richiesta['azione']['tipo']>([
   'assistente.contesto',
 ])
 
-/** Quante figlie al più, finché l'impostazione `finestre.massimo` non c'è. */
-const MASSIMO_FIGLIE = 4
+/** Quante figlie al più: l'impostazione, dentro il tetto della disposizione. */
+function massimoFiglie (): number {
+  const scelto = apparato.impostazioni.leggi('registroDocenti.finestre').get<number>('massimo', 4)
+  return Math.min(Math.max(Math.round(Number(scelto) || 4), 1), MASSIMO_FIGLIE)
+}
+
+/** La chiave della disposizione per il documento aperto; `null` per un anno provvisorio. */
+function chiaveDiAdesso (): string | null {
+  return chiaveDellaDisposizione(percorsoPacchetto()?.fsPath ?? null, èProvvisorio())
+}
 
 /**
  * La coda delle scritture, una per tutte le finestre: due gesti da due finestre
@@ -206,6 +220,11 @@ export class PannelloRegistro {
   private pronto = false
   /** Già smaltito: la cascata lo fa prima che la finestra se ne vada davvero. */
   private smaltito = false
+  /**
+   * Se ne va con la principale o col documento: la disposizione la ricorda
+   * ancora, per riaprirla. Una figlia chiusa a mano invece ne esce.
+   */
+  private inCascata = false
   /** La pagina che la finestra mostra, come la dice lei (`finestra.pagina`). */
   private pagina: PaginaDellaFinestra | null = null
   /** Le ultime mira e contesto mandati, da eseguire quando la finestra prende il fuoco. */
@@ -350,7 +369,33 @@ export class PannelloRegistro {
 
     const nata = PannelloRegistro.nasce(NUMERO_PRINCIPALE, contesto, archivio)
     if (navigazione) nata.naviga(navigazione)
+    PannelloRegistro.riapriFiglie()
     return nata
+  }
+
+  /**
+   * Riapre le figlie che il documento aperto aveva l'ultima volta, se
+   * l'impostazione lo vuole: ognuna col suo numero, quindi col suo posto sullo
+   * schermo e la sua pagina (la memoria della figlia, per documento).
+   */
+  private static riapriFiglie (): void {
+    const ambiente = PannelloRegistro.ambiente
+    if (!ambiente || !PannelloRegistro.aperto) return
+    const riapri = apparato.impostazioni.leggi('registroDocenti.finestre').get<boolean>('riapri', true)
+    if (riapri === false) return
+    for (const numero of figlieRicordate(chiaveDiAdesso()).slice(0, massimoFiglie())) {
+      if (!PannelloRegistro.istanze.has(numero)) {
+        PannelloRegistro.nasce(numero, ambiente.contesto, ambiente.archivio)
+      }
+    }
+  }
+
+  /** Le figlie aperte adesso, da ricordare per il documento. */
+  private static ricordaDisposizione (): void {
+    const figlie = [...PannelloRegistro.istanze.values()]
+      .filter((finestra) => finestra.numero !== NUMERO_PRINCIPALE && !finestra.inCascata)
+      .map((finestra) => finestra.numero)
+    ricordaFiglie(chiaveDiAdesso(), figlie)
   }
 
   /** Una finestra del registro nuova, col suo tipo: posto e memoria sono per tipo. */
@@ -387,7 +432,8 @@ export class PannelloRegistro {
     const ambiente = PannelloRegistro.ambiente
     if (!ambiente || !PannelloRegistro.aperto || !percorsoPacchetto()) return testi().senzaDocumento
     const figlie = PannelloRegistro.istanze.size - 1
-    if (figlie >= MASSIMO_FIGLIE) return testi().troppeFinestre(MASSIMO_FIGLIE)
+    const massimo = massimoFiglie()
+    if (figlie >= massimo) return testi().troppeFinestre(massimo)
     // Il numero più basso libero: chiusa la 2, la prossima torna a essere la 2.
     let numero = NUMERO_PRINCIPALE + 1
     while (PannelloRegistro.istanze.has(numero)) numero += 1
@@ -397,6 +443,7 @@ export class PannelloRegistro {
       : da ? { posto: da.posto, contesto: da.contesto } : null
     const figlia = PannelloRegistro.nasce(numero, ambiente.contesto, ambiente.archivio)
     if (dove) figlia.naviga({ tipo: 'vai', ...dove })
+    PannelloRegistro.ricordaDisposizione()
     return null
   }
 
@@ -431,7 +478,10 @@ export class PannelloRegistro {
     return PannelloRegistro.istanze.has(NUMERO_PRINCIPALE)
   }
 
-  /** Chiude il registro: prima le figlie, poi la principale. */
+  /**
+   * Chiude il registro: prima le figlie, poi la principale. La disposizione
+   * resta quella di prima: riaprendo il documento le figlie tornano.
+   */
   static chiudi (): void {
     PannelloRegistro.chiudiFiglie()
     PannelloRegistro.istanze.get(NUMERO_PRINCIPALE)?.pannello.dispose()
@@ -443,6 +493,8 @@ export class PannelloRegistro {
    */
   static cambioDiDocumento (): void {
     PannelloRegistro.chiudiFiglie()
+    // Quelle del documento nuovo, come le si era lasciate.
+    PannelloRegistro.riapriFiglie()
   }
 
   /**
@@ -453,6 +505,7 @@ export class PannelloRegistro {
   private static chiudiFiglie (): void {
     for (const finestra of [...PannelloRegistro.istanze.values()]) {
       if (finestra.numero === NUMERO_PRINCIPALE) continue
+      finestra.inCascata = true
       finestra.smaltisci()
       finestra.pannello.dispose()
     }
@@ -899,9 +952,13 @@ export class PannelloRegistro {
       PannelloAssistente.chiudi()
       PannelloProiezione.chiudi()
       PannelloRegistro.numeroColFuoco = NUMERO_PRINCIPALE
-    } else if (PannelloRegistro.numeroColFuoco === this.numero) {
-      PannelloRegistro.numeroColFuoco = NUMERO_PRINCIPALE
-      PannelloRegistro.istanze.get(NUMERO_PRINCIPALE)?.riprendi()
+    } else {
+      // Chiusa a mano, non torna riaprendo il documento.
+      if (!this.inCascata) PannelloRegistro.ricordaDisposizione()
+      if (PannelloRegistro.numeroColFuoco === this.numero) {
+        PannelloRegistro.numeroColFuoco = NUMERO_PRINCIPALE
+        PannelloRegistro.istanze.get(NUMERO_PRINCIPALE)?.riprendi()
+      }
     }
     PannelloRegistro.finestreCambiate()
   }

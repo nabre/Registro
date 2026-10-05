@@ -132,6 +132,18 @@ const it: TestiManifesto = {
         'di quell’ora. Non arriva mentre si sta già guardando il registro, e non arriva due volte ' +
         'per la stessa ora. «Nessun avviso» la spegne.',
     },
+    'registroDocenti.finestre.riapri': {
+      etichetta: 'Riapri le finestre in più',
+      descrizione:
+        'Riaprendo un anno tornano le finestre in più che erano aperte su di lui, ognuna sulla ' +
+        'sua pagina e al suo posto sullo schermo.',
+    },
+    'registroDocenti.finestre.massimo': {
+      etichetta: 'Finestre in più, al massimo',
+      descrizione:
+        'Quante finestre si possono aprire oltre alla principale. Ognuna è una pagina intera del ' +
+        'registro e occupa memoria.',
+    },
     'registroDocenti.proiezione.schermoIntero': {
       etichetta: 'Proiezione a schermo intero',
       descrizione:
@@ -438,6 +450,18 @@ export const testi = catalogo(it, {
           'das Klassenbuch schon ansieht, und nicht zweimal für dieselbe Stunde. «Kein Hinweis» ' +
           'schaltet sie aus.',
       },
+      'registroDocenti.finestre.riapri': {
+        etichetta: 'Weitere Fenster wieder öffnen',
+        descrizione:
+          'Öffnest du ein Schuljahr wieder, kommen die weiteren Fenster zurück, die darauf offen ' +
+          'waren, jedes auf seiner Seite und an seinem Platz auf dem Bildschirm.',
+      },
+      'registroDocenti.finestre.massimo': {
+        etichetta: 'Weitere Fenster, höchstens',
+        descrizione:
+          'Wie viele Fenster sich neben dem Hauptfenster öffnen lassen. Jedes ist eine ganze ' +
+          'Seite des Klassenbuchs und braucht Speicher.',
+      },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Projektion im Vollbild',
         descrizione:
@@ -743,6 +767,18 @@ export const testi = catalogo(it, {
           'la classe et ce qui reste ouvert pour ce cours. Un clic sur la notification ouvre le ' +
           'registre à cette leçon. Elle n’arrive pas pendant qu’on regarde déjà le registre, ni ' +
           'deux fois pour la même leçon. « Aucun rappel » la désactive.',
+      },
+      'registroDocenti.finestre.riapri': {
+        etichetta: 'Rouvrir les fenêtres supplémentaires',
+        descrizione:
+          'En rouvrant une année, les fenêtres supplémentaires qui y étaient ouvertes reviennent, ' +
+          'chacune sur sa page et à sa place à l’écran.',
+      },
+      'registroDocenti.finestre.massimo': {
+        etichetta: 'Fenêtres supplémentaires, au plus',
+        descrizione:
+          'Combien de fenêtres on peut ouvrir en plus de la principale. Chacune est une page ' +
+          'entière du registre et occupe de la mémoire.',
       },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Projection en plein écran',
@@ -1053,6 +1089,18 @@ export const testi = catalogo(it, {
           'what is still open for that course. Clicking the notification opens the register at ' +
           'that lesson. It does not arrive while you are already looking at the register, and never ' +
           'twice for the same lesson. “No reminder” turns it off.',
+      },
+      'registroDocenti.finestre.riapri': {
+        etichetta: 'Reopen the extra windows',
+        descrizione:
+          'Reopening a year brings back the extra windows that were open on it, each on its page ' +
+          'and in its place on the screen.',
+      },
+      'registroDocenti.finestre.massimo': {
+        etichetta: 'Extra windows, at most',
+        descrizione:
+          'How many windows can be opened besides the main one. Each is a whole page of the ' +
+          'register and takes memory.',
       },
       'registroDocenti.proiezione.schermoIntero': {
         etichetta: 'Full-screen projection',

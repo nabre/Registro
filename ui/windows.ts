@@ -19,7 +19,8 @@ let elenco: Elenco = []
 
 /** Il numero di questa finestra, scritto dall'host nella pagina. */
 export function numeroDellaFinestra (): number {
-  const scritto = Number(typeof document === 'undefined' ? NaN : document.documentElement.dataset.finestra)
+  // Le prove senza DOM, o con un documento finto, non hanno `documentElement`.
+  const scritto = Number(globalThis.document?.documentElement?.dataset?.finestra)
   return Number.isInteger(scritto) && scritto > PRINCIPALE ? scritto : PRINCIPALE
 }
 

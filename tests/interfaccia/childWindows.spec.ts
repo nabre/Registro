@@ -119,6 +119,13 @@ async function finestra (app: ElectronApplication, numero: number): Promise<Page
   return pagina
 }
 
+/** Preme una voce del menu nativo, come farebbe il suo acceleratore. */
+async function voceDelMenu (app: ElectronApplication, id: string): Promise<void> {
+  await app.evaluate(({ Menu }, voce) => {
+    Menu.getApplicationMenu()?.getMenuItemById(voce)?.click()
+  }, id)
+}
+
 /** I titoli delle finestre native, per vedere chi c'è. */
 async function titoli (app: ElectronApplication): Promise<string[]> {
   return app.evaluate(({ BrowserWindow }) =>
@@ -231,6 +238,43 @@ test('una figlia lavora sui dati della principale, e si chiude con lei', async (
       timeout: 20_000,
     }).toBe(0)
     expect(errori).toEqual([])
+  } finally {
+    await spegni(app)
+    smonta(banco)
+  }
+})
+
+test('le figlie tornano col documento, sulla loro pagina; chiuse a mano no', async () => {
+  expect(existsSync(PRINCIPALE), `manca ${PRINCIPALE}: costruisci con npm run build`).toBe(true)
+  test.setTimeout(240_000)
+  const banco = preparaBanco()
+  let app = await accendi(banco)
+  try {
+    await finestra(app, 1)
+    // Ctrl+Maiusc+N dal menu nativo, poi la figlia va sul calendario.
+    await voceDelMenu(app, 'registroDocenti.nuovaFinestra')
+    const figlia = await finestra(app, 2)
+    await figlia.evaluate(() => {
+      window.postMessage({ tipo: 'naviga', vista: 'calendario' }, '*')
+    })
+    await expect.poll(() => titoli(app)).toContain('Calendario · anno_esempio — Regiklass [2]')
+
+    // Si esce col programma: la disposizione resta, e al riavvio la figlia torna.
+    await spegni(app)
+    app = await accendi(banco)
+    await finestra(app, 1)
+    const tornata = await finestra(app, 2)
+    await expect(tornata.locator('.barra-titolo__finestra')).toHaveText('Finestra 2 · Calendario')
+    await expect.poll(() => titoli(app)).toContain('Calendario · anno_esempio — Regiklass [2]')
+
+    // Chiusa a mano esce dalla disposizione: al riavvio c'è solo la principale.
+    await chiudiDalTitolo(app, '[2]')
+    await expect.poll(async () => (await finestreDelRegistro(app)).size).toBe(1)
+    await spegni(app)
+    app = await accendi(banco)
+    await finestra(app, 1)
+    await app.evaluate(() => new Promise((risolvi) => setTimeout(risolvi, 1500)))
+    expect([...(await finestreDelRegistro(app)).keys()]).toEqual([1])
   } finally {
     await spegni(app)
     smonta(banco)
