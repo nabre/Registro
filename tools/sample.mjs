@@ -98,7 +98,7 @@ const valutazione = d.creaValutazione(corso.id, 'Verifica 1 — unità di misura
 valutazione.data = '2026-09-21'
 
 // Un progetto (dal formato 4), provato fino in fondo: due fasi, criteri e,
-// nell'integrazione nel corso (dal formato 7), un compito con inizi (in
+// nell'integrazione nel corso (dal formato 6), un compito con inizi (in
 // un'ora e a mano), una proroga e una spunta, un giudizio, la matrice in due
 // giorni; una tappa per fase in due piani e la prova. E un progetto di
 // biblioteca, in nessun corso.

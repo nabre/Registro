@@ -1559,12 +1559,12 @@ export interface Registro {
  *
  * 4 → 5: i minuti di ritardo passano da uno per allievo e ora (`minuti`) a
  * uno per UD (`ritardi`), perché in un'ora i ritardi possono essere più d'uno.
- * 5 → 6: la scaletta dei progetti e il collegamento alle attività dei piani;
- * il contenuto si condivide, mentre le durate dei piani restano locali.
- * 6 → 7: il progetto non è più di un corso; stato, compiti, giudizi e matrice
- * passano alla sua integrazione nel corso (`Progetto.integrazioni`).
+ * 5 → 6: la scaletta dei progetti e il collegamento alle attività dei piani
+ * (il contenuto si condivide, le durate dei piani restano locali); il progetto
+ * non è più di un corso, e stato, compiti, giudizi e matrice passano alla sua
+ * integrazione nel corso (`Progetto.integrazioni`).
  */
-export const VERSIONE_DATI = 7
+export const VERSIONE_DATI = 6
 
 /**
  * Le collezioni del registro, una per file. Chi modifica dichiara quali ha

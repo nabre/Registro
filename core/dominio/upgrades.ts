@@ -81,18 +81,14 @@ export const PASSI_DEL_FORMATO: readonly PassoDelFormato[] = [
       return { ...dati, lezioni: dati.lezioni.map(ritardiPerUd) }
     },
   },
+  // La scaletta dei progetti (campi nuovi con il loro predefinito), e il
+  // progetto che diventa una risorsa dell'anno (estensione di ADR-54): il corso
+  // e il lavoro con la sua classe passano nella sua prima integrazione. Due
+  // passi fusi in uno prima della 1.7.0: il 7 non è mai stato su un disco vero.
   {
     a: 6,
     get cambia () {
       return testi().passi[6]
-    },
-  },
-  // Il progetto diventa una risorsa dell'anno (estensione di ADR-54): il corso
-  // e il lavoro con la sua classe passano nella sua prima integrazione.
-  {
-    a: 7,
-    get cambia () {
-      return testi().passi[7]
     },
     porta: (dati) => {
       if (!Array.isArray(dati.progetti)) return dati
