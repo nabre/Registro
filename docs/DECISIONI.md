@@ -1193,6 +1193,39 @@ dati per allievo restano per corso, perché la classe è quella del corso.
 integrazione. Criteri e livelli sono del progetto: la matrice di ogni corso
 li nomina, e un criterio tolto porta via le celle di tutti i corsi.
 
+### ADR-58 — Più finestre del registro: istanze del pannello, una coda, nessun `parent`
+
+**Decisione.** Il pannello del registro può stare in più finestre: la
+principale e fino a sei figlie (`registroDocenti.finestre.massimo`, quattro di
+serie), stesso bundle `panel`, ognuna un `PannelloRegistro` con il suo posto,
+la sua storia di navigazione e la sua memoria (tipo `registroDocenti.pannello.<n>`,
+`desktop/apparato/panelTypes.ts`). I dati sono uno solo, dell'archivio
+dell'host, che spinge le differenze a tutte; le scritture di tutte passano da
+**una coda sola**, in ordine, e `attendiScritture` le aspetta tutte. Annulla e
+ripristina sono globali. Mira dello schermo per la classe e contesto
+dell'assistente seguono l'ultima finestra del registro che ha preso il fuoco.
+Le figlie dipendono dalla principale solo logicamente: si chiudono con lei, col
+documento e all'uscita. La disposizione (quali figlie, per documento) sta in
+`userData/disposizione.json` (`desktop/apparato/layout.ts`), il posto per tipo
+in `finestre.json`, la pagina nella memoria della figlia; una figlia chiusa a
+mano ne esce, le altre tornano riaprendo il documento
+(`registroDocenti.finestre.riapri`).
+
+**Perché.** Su due schermi si lavora su due parti dell'anno insieme (l'appello
+e il calendario, le valutazioni di due corsi). Due copie dello stato che
+scrivono ognuna per sé si contraddirebbero: lo stato resta uno, e moltiplicare
+le pagine costa una pagina in più di memoria, non un secondo archivio.
+
+**Vincoli.** Niente `parent` nativo fra le `BrowserWindow`: su Windows terrebbe
+la figlia sempre sopra la principale. Una figlia non sovrascrive le preferenze
+di forma della principale: le legge, e scrive solo nel suo file. Un campo con il
+fuoco non riceve il valore spinto da un'altra finestra (ADR-56). Le azioni
+`finestra.*` non scrivono il documento e non sono dell'assistente.
+
+**Dove.** `desktop/pannelli/panel.ts`, `desktop/apparato/layout.ts`,
+`desktop/apparato/panelTypes.ts`, `desktop/apparato/windows.ts`, `ui/windows.ts`,
+`ui/windowButton.tsx`, `ui/titleBar.tsx`.
+
 ## Vincoli intoccabili
 
 

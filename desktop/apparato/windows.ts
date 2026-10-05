@@ -305,7 +305,7 @@ function altreDelRegistro (tranne: BrowserWindow): BrowserWindow[] {
  * staccato) scende di uno scalino, finché trova un punto libero dentro lo
  * schermo che la ospita.
  */
-export function scostaDalleAltre (finestra: BrowserWindow): void {
+function scostaDalleAltre (finestra: BrowserWindow): void {
   if (finestra.isDestroyed() || finestra.isMaximized() || finestra.isFullScreen()) return
   const altre = altreDelRegistro(finestra).map((altra) => altra.getBounds())
   const posto = finestra.getBounds()

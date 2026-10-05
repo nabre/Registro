@@ -115,7 +115,7 @@ flowchart TB
 
 | Finestra | Nasce in | preload | sandbox | Perché è a sé |
 |---|---|---|---|---|
-| Pannello | [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | sì | false | è l'applicazione |
+| Pannello | [desktop/pannelli/panel.ts](../desktop/pannelli/panel.ts) | sì | false | è l'applicazione; più istanze, la principale e le figlie (ADR-58) |
 | Proiezione | [desktop/pannelli/projection.ts](../desktop/pannelli/projection.ts) | sì | false | bundle separato, riceve solo i blocchi accesi |
 | Assistente | [desktop/pannelli/assistant.ts](../desktop/pannelli/assistant.ts) | sì | false | non riceve il `Registro` (API § 9) |
 | Benvenuto | [desktop/shell/windows/welcome.ts](../desktop/shell/windows/welcome.ts) | sì | false | elenco degli anni noti |
@@ -233,7 +233,8 @@ non importa niente da fuori di sé tranne `core/i18n/`.
   dichiarate (ADR-50).
 - **`contract/`** — il contratto davanti ai gestori: protocollo, schemi e procedure
   (ADR-27–29, [API](API.md)).
-- **`desktop/pannelli/`** — `panel.ts` accoda le richieste, `page.ts` compone l'HTML
+- **`desktop/pannelli/`** — `panel.ts` accoda le richieste di tutte le finestre del
+  registro in una coda sola (ADR-58), `page.ts` compone l'HTML
   con la CSP, `projection.ts` spinge solo i blocchi accesi, `assistant.ts` e
   `conversation.ts` servono l'assistente.
 - **`ui/`** — il pannello, in React (ADR-56): una radice in

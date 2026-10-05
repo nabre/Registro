@@ -17,7 +17,7 @@ export function tipoDelRegistro (numero: number): string {
 }
 
 /** Il numero della finestra del registro di quel tipo, o `null` se non è del registro. */
-export function numeroDelRegistro (tipo: string): number | null {
+function numeroDelRegistro (tipo: string): number | null {
   if (tipo === TIPO_REGISTRO) return NUMERO_PRINCIPALE
   const figlia = FIGLIA.exec(tipo)
   return figlia ? Number(figlia[1]) : null
